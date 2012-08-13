@@ -1,0 +1,331 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#ifndef CFTTABLE_H
+#define CFTTABLE_H 1
+
+#include <string>
+#include <algorithm>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <pthread.h>
+#include <inttypes.h>
+
+#ifdef __cplusplus
+}
+#endif
+
+#include "../ciosrv.h"
+#include "../cerror.h"
+#include "../cvastring.h"
+//#include "../cfwdelem.h"
+#include "../thread_helper.h"
+
+
+#include "cofpacket.h"
+#include "cftentry.h"
+
+#if 0
+#include "../protocols/fdataframe.h"
+#endif
+
+/* forward declaration */
+class cfwdelem;
+
+/* error classes */
+class eFlowTableInval : public cerror {}; // invalid flow-mod entry received
+class eFlowTableNoMatch : public cerror {}; // no matching entry found
+class eFlowTableEntryOverlaps : public cerror {}; // entry overlaps with existing entry in flow-table
+class eFlowTableClassificationFailed : public cerror {}; // invalid packet frame for classification
+
+
+
+
+/**
+ *
+ *
+ *
+ */
+class cfttable :
+	public ciosrv
+{
+public: // data structures
+
+		static uint64_t all_matches;
+		static uint32_t all_instructions;
+		static uint32_t all_actions;
+
+	std::set<cftentry*> flow_table; // flow_table: set of cftentries
+
+	cfwdelem *fwdelem; /**< pointer to cfwdelem creating cftentry instances */
+
+	uint8_t table_id; 			// OF1.1 table identifier
+	std::string table_name; 	// OF1.1 table name
+	uint64_t match; 			// OF1.2 available matching fields
+	uint64_t wildcards; 		// OF1.2 wildcards
+	uint32_t write_actions; 	// OF1.1 supported actions for instruction WRITE_ACTIONS
+	uint32_t apply_actions; 	// OF1.1 supported actions for instruction APPLY_ACTIONS
+	uint64_t write_setfields; 	// OF1.2 supported SET_FIELD actions for instruction WRITE_ACTIONS
+	uint64_t apply_setfields; 	// OF1.2 supported SET_FIELD actions for instruction APPLY_ACTIONS
+	uint64_t metadata_match;	// OF1.2 Bits of metadata table can match.
+	uint64_t metadata_write;	// OF1.2 Bits of metadata table can write.
+	uint32_t instructions; 		// OF1.1 supported instructions
+	uint32_t config; 		// flow-table configuration (OF1.1 OFPTC_* flags)
+	uint32_t max_entries;	// max number of flow-table entries
+	uint32_t active_count;  // current number of flow-table entries (received from physical data path, flow_table.sie() otherwise!)
+	uint64_t lookup_count; 	// number of lookups in this table
+	uint64_t matched_count; // number of table hits
+
+	pthread_rwlock_t ft_rwlock; // rwlock for this flowtable
+
+public:
+	/** constructor
+	 *
+	 */
+	cfttable(
+			cfwdelem *fwdelem = (cfwdelem*)0,
+			uint8_t table_id = 0,
+			uint32_t max_entries = 1024,
+			uint64_t match = cfttable::all_matches,
+			uint64_t wildcards = cfttable::all_matches,
+			uint32_t write_actions = cfttable::all_actions,
+			uint32_t apply_actions = cfttable::all_actions,
+			uint64_t write_setfields = cfttable::all_matches,
+			uint64_t apply_setfields = cfttable::all_matches,
+			uint64_t metadata_match = 0,
+			uint64_t metadata_write = 0,
+			uint32_t instructions = cfttable::all_instructions,
+			uint32_t config = OFPTC_TABLE_MISS_CONTROLLER);
+
+	/** destructor
+	 *
+	 */
+	virtual
+	~cfttable();
+
+	/**
+	 * remove all cftentries from this flow-table
+	 */
+	void
+	reset();
+
+	/** return info string for this object
+	 */
+	const char*
+	c_str();
+
+
+	/** returns true for table policy OFPTC_TABLE_MISS_CONTROLLER
+	 *
+	 */
+	bool
+	policy_table_miss_controller();
+
+
+	/** returns true for table policy OFPTC_TABLE_MISS_CONTINUE
+	 *
+	 */
+	bool
+	policy_table_miss_continue();
+
+
+	/** returns true for table policy OFPTC_TABLE_MISS_DROP
+	 *
+	 */
+	bool
+	policy_table_miss_drop();
+
+
+	/** return table statistics
+	 */
+	struct ofp_table_stats*
+	get_table_stats(
+			struct ofp_table_stats* table_stats,
+			size_t table_stats_len) throw (eFlowTableInval);
+
+	/** set table statistics gathered from physical data path
+	 */
+	void
+	set_table_stats(
+			struct ofp_table_stats* table_stats,
+			size_t table_stats_len) throw (eFlowTableInval);
+
+	/** OFPST_FLOW_STATS
+	 *
+	 */
+	void
+	get_flow_stats(
+			cmemory& body,
+			uint32_t out_port,
+			uint32_t out_group,
+			uint64_t cookie,
+			uint64_t cookie_mask,
+			cofmatch const& match);
+
+
+	/** OFPST_AGGREGATE_STATS
+	 *
+	 */
+	void
+	get_aggregate_flow_stats(
+			uint64_t& packet_count,
+			uint64_t& byte_count,
+			uint64_t& flow_count,
+			uint32_t out_port,
+			uint32_t out_group,
+			uint64_t cookie,
+			uint64_t cookie_mask,
+			cofmatch const& match);
+
+
+	/** find all cftentries from this flowtable that match pack
+	 */
+	std::set<cftentry*>
+	find_best_matches(
+			cpacket* pack);
+
+	/**
+	 * add, update, remove flow table entry based on flow_mod
+	 */
+	cftentry*
+	update_ft_entry(
+			cftentry_owner *owner,
+			cofpacket *pack);
+
+	/**
+	 * find all cftentries that match a given struct ofp_match
+	 * @return std::set<cftentry*>
+	 */
+	std::set<cftentry*>
+	find_ft_entries(cofmatch const& match);
+
+
+	/**
+	 *
+	 */
+	void
+	set_config(
+			uint32_t config);
+
+
+protected:
+
+	//
+	// specific management methods, adding, deleting,
+	// modifying flow table entries
+	//
+
+	/**
+	 * add an existing flow table entry
+	 * @return int result code of operation
+	 */
+	cftentry*
+	add_ft_entry(
+			cftentry_owner *owner,
+			cofpacket *pack) throw(eFlowTableEntryOverlaps);
+
+	/**
+	 * modify an existing flow table entry
+	 * @return int result code of operation
+	 */
+	cftentry*
+	modify_ft_entry(
+			cftentry_owner *owner,
+			cofpacket *pack,
+			bool strict = false);
+
+	/**
+	 * remove an existing flow table entry
+	 * @return int result code of operation
+	 */
+	void
+	rem_ft_entry(
+			cftentry_owner *owner,
+			cofpacket *pack,
+			bool strict = false);
+
+
+#if 0
+	/**
+	 * find a cftentry based on a struct ofp_match
+	 * @return cftentry pointer to matching cftentry
+	 */
+	cftentry*
+	find_ft_entry(ofp_match *match) throw();
+#endif
+
+
+	/**
+	 *
+	 */
+	void
+	update_group_ref_counts(
+			cftentry *fte,
+			bool inc = true);
+
+
+private: // data structures
+
+	std::string info; 			// info string
+};
+
+
+
+/**
+ *
+ *
+ *
+ *
+ */
+class cftsearch :
+	public csyslog
+{
+
+public: // data structures
+
+	std::set<cftentry*> matching_entries;
+
+public: // methods
+
+	/** constructor
+	 *
+	 */
+	cftsearch(
+			cpacket* pack);
+
+	/** destructor
+	 *
+	 */
+	virtual
+	~cftsearch();
+
+
+	/** call-operator
+	 */
+	void operator() (
+			cftentry* ftentry);
+
+
+	/** dump classification
+	 */
+	const char*
+	c_str();
+
+
+private: // data structures
+
+	cpacket* pack;
+
+	uint32_t __exact_hits;
+	uint32_t __wildcard_hits;
+	uint32_t __max_hits;
+	uint32_t __priority;
+
+	std::string info;
+};
+
+#endif

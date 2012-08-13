@@ -1,0 +1,178 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#ifndef CGTTABLE_H
+#define CGTTABLE_H 1
+
+#include <map>
+#include <string>
+
+#include "../ciosrv.h"
+#include "../cerror.h"
+#if 0
+#include "../cfwdelem.h"
+#include "fdataframe.h"
+#endif
+#include "cgtentry.h"
+#include "cofctrl.h"
+#include "cofpacket.h"
+#include "cftentry.h"
+
+/* forward declaration */
+class cfwdelem;
+class cofctrl;
+class cgtentry;
+class cgtentry_owner;
+
+/* error classes */
+class eGroupTableBase : public cerror {};
+class eGroupTableInval : public eGroupTableBase {}; // invalid flow-mod entry received
+class eGroupTableExists : public eGroupTableBase {};
+class eGroupTableNoMatch : public eGroupTableBase {}; // no matching entry found
+class eGroupTableEntryOverlaps : public eGroupTableBase {}; // entry overlaps with existing entry in flow-table
+class eGroupTableClassificationFailed : public eGroupTableBase {}; // invalid packet frame for classification
+class eGroupTableNotFound : public eGroupTableBase {}; // element not found
+
+
+class cgttable : public ciosrv {
+public:
+
+	/** constructor
+	 */
+	cgttable(cfwdelem *_fwdelem = NULL);
+
+	/** destructor
+	 */
+	virtual
+	~cgttable();
+
+	/** copy constructor
+	 */
+	cgttable(const cgttable &gt)
+	{
+		*this = gt;
+	};
+
+	/** reset group table, i.e. clear all group entries
+	 */
+	void
+	reset()
+	{
+		std::map<uint32_t, cgtentry*>::iterator it;
+		for (it = grp_table.begin(); it != grp_table.end(); ++it)
+		{
+			delete (it->second);
+		}
+		grp_table.clear();
+	};
+
+	/** assignment operator
+	 */
+	cgttable&
+	operator= (const cgttable& gt)
+	{
+		if (this == &gt)
+			return *this;
+
+		ciosrv::operator =(gt);
+
+		lookup_count = gt.lookup_count;
+		matched_count = gt.matched_count;
+
+		std::map<uint32_t, cgtentry*>::const_iterator it;
+		for (it = gt.grp_table.begin(); it != gt.grp_table.end(); ++it)
+		{
+			grp_table[it->first] = new cgtentry(*((*it).second));
+		}
+
+		return *this;
+	};
+
+	/** return group entry for group_id
+	 * cgrptable grp_table;
+	 * try {
+	 *  ...
+	 * 	grp_table[1234]->...
+	 * 	...
+	 * } catch (eGroupTableNotFound& e) { ... }
+	 */
+	cgtentry*
+	operator[] (const uint32_t& grp_id) throw(eGroupTableNotFound)
+	{
+		if (grp_table.find(grp_id) != grp_table.end())
+		{
+			return grp_table[grp_id];
+		}
+		throw eGroupTableNotFound();
+	};
+
+	/** common entry method for add/update/delete a cgtentry
+	 */
+	cgtentry*
+	update_gt_entry(
+			cgtentry_owner *owner,
+			struct ofp_group_mod *grp_mod);
+
+	/** add a cgtentry
+	 */
+	cgtentry*
+	add_gt_entry(
+			cgtentry_owner *owner,
+			struct ofp_group_mod *grp_mod) throw (eGroupTableExists, eGroupEntryInval, eActionBadOutPort);
+
+	/** update a cgtentry
+	 */
+	cgtentry*
+	modify_gt_entry(
+			cgtentry_owner *owner,
+			struct ofp_group_mod *grp_mod);
+
+	/** delete a cgtentry
+	 */
+	cgtentry*
+	rem_gt_entry(
+			cgtentry_owner *owner,
+			struct ofp_group_mod *grp_mod) throw (eGroupTableNotFound);
+
+
+	/** get group stats for all group_ids
+	 *
+	 */
+	void
+	get_group_stats(
+			cmemory& body);
+
+
+	/** get group desc stats for all group_ids
+	 *
+	 */
+	void
+	get_group_desc_stats(
+			cmemory& body);
+
+
+	/** get group features stats for all group_ids
+	 *
+	 */
+	void
+	get_group_features_stats(
+			cmemory& body);
+
+
+
+
+public: // data structures
+
+	// parent cfwdelem instance
+	cfwdelem *fwdelem;
+	// flow_table: set of cftentries
+	std::map<uint32_t, cgtentry*> grp_table;
+
+	// lookup counter
+	uint64_t lookup_count;
+	// matched counter
+	uint64_t matched_count;
+};
+
+#endif
