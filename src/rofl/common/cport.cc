@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "common/cport.h"
+#include "cport.h"
 
 /* static */std::set<cport::cport_owner*> cport::cport_owner::cport_owner_list;
 /* static */ std::set<cport*> cport::cport_list;
