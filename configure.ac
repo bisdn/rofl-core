@@ -25,8 +25,8 @@ if test "$enable_debug" = "yes"; then
 	AC_DEFINE(DEBUG)
 	AC_MSG_RESULT(yes)
 else
-	CXXFLAGS="-O3 -fomit-frame-pointer"
-	CFLAGS="-O3 --compiler-options -fno-strict-aliasing --compiler-options -fno-inline --compiler-bindir=/usr/bin/g++-4.3"
+	CXXFLAGS="-O3" #-fomit-frame-pointer"
+	CFLAGS="-O3" #--compiler-options -fno-strict-aliasing --compiler-options -fno-inline" 
 	AC_MSG_RESULT(no)
 fi
 
@@ -47,11 +47,12 @@ else
 fi
 
 #Check libs used
-#AC_CHECK_LIB(pthread, pthread_create)
-#AC_CHECK_LIB(rt, shm_open)
-#AC_CHECK_LIB(cli, ???)
+AC_CHECK_LIB(pthread, pthread_kill,,AC_MSG_ERROR([pthread library not found])) 
+AC_CHECK_LIB(rt,clock_gettime,,[AC_MSG_ERROR([rt library not found])]) 
+AC_CHECK_LIB(cli,cli_telnet_protocol,,[AC_MSG_ERROR([cli library not found])]) 
 
 # AC_CONFIG_HEADERS([include/config.h])
+
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
