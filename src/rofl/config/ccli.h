@@ -17,8 +17,8 @@
 #include <libcli.h>
 #include <stdint.h>
 
-#include "../platform/unix/csyslog.h"
-#include "../common/csocket.h"
+#include "rofl/platform/unix/csyslog.h"
+#include "rofl/common/csocket.h"
 
 #include "cconfigfwdelem.h"
 #include "cconfigport.h"

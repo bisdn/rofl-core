@@ -10,9 +10,9 @@
 #include "openflow/cofrpc.h"
 //#include "cterminus.h"
 
-#include "../config/cconfig.h"
+#include "rofl/config/cconfig.h"
 
-#include "../platform/unix/csyslog.h"
+#include "rofl/platform/unix/csyslog.h"
 //#include "datapath/cdatapath.h"
 
 #endif

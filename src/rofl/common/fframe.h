@@ -20,7 +20,7 @@ extern "C" {
 #include "cerror.h"
 #include "cmemory.h"
 #include "cvastring.h"
-#include "../platform/unix/csyslog.h"
+#include "rofl/platform/unix/csyslog.h"
 
 class eFrameBase : public cerror {}; // error base class fframe
 class eFrameNoPayload : public eFrameBase {}; // no payload in frame

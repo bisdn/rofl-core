@@ -9,9 +9,9 @@
 #include <string>
 #include <algorithm>
 
-#include "../../common/csocket.h"
-#include "../../common/caddress.h"
-#include "../../common/cpacket.h"
+#include "rofl/common/csocket.h"
+#include "rofl/common/caddress.h"
+#include "rofl/common/cpacket.h"
 #include "clinuxport.h"
 
 class cunixport_search;

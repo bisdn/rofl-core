@@ -38,7 +38,7 @@ extern "C" {
 #include "cvastring.h"
 #include "cerror.h"
 #include "cmemory.h"
-#include "../platform/unix/csyslog.h"
+#include "rofl/platform/unix/csyslog.h"
 
 
 /* error classes */

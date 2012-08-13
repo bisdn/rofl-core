@@ -34,7 +34,7 @@ extern "C" {
 }
 #endif
 
-#include "../platform/unix/crandom.h"
+#include "rofl/platform/unix/crandom.h"
 
 
 #define SIOCBASE 0x01
@@ -133,7 +133,7 @@ public: // data structures
 
 	// values for struct ofp_phy_port
 	std::string devname;    // port name
-	std::string devtype; 	// port type ("phy", "bcm", "vport", ...)
+	std::string devtype; 	// port type ("phy", "bcm", "vport", rofl.)
 
 	uint32_t port_no;       // port number
 
@@ -318,7 +318,7 @@ protected: // data structures
 	std::bitset<32> pflags; // port flags
 
 	cmacaddr hwaddr;
-	uint32_t config;      // OFPPC... (port config)
+	uint32_t config;      // OFPPCrofl. (port config)
 	uint32_t state;
 	uint32_t curr;
 	uint32_t advertised;

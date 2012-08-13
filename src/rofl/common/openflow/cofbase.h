@@ -26,8 +26,8 @@ extern "C" {
 #endif
 
 #include "../cerror.h"
-#include "../../platform/unix/crandom.h"
-#include "../../platform/unix/csyslog.h"
+#include "rofl/platform/unix/crandom.h"
+#include "rofl/platform/unix/csyslog.h"
 
 #include "cofpacket.h"
 

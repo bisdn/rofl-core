@@ -42,7 +42,7 @@ extern "C" {
 #include "thread_helper.h"
 
 /* Platform dependant */
-#include "../platform/unix/csyslog.h"
+#include "rofl/platform/unix/csyslog.h"
 
 /* Openflow stuff */
 #include "openflow/cofmatch.h"

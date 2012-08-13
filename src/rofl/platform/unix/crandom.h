@@ -21,8 +21,8 @@ extern "C" {
 }
 #endif
 
-#include "../../common/cerror.h"
-#include "../../common/cmemory.h"
+#include "rofl/common/cerror.h"
+#include "rofl/common/cmemory.h"
 
 class eRandomBase : public eMemBase {}; // error base class crandom
 class eRandomOpenFailed : public eRandomBase {}; // open system-call failed

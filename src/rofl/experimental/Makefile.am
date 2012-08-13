@@ -2,5 +2,7 @@ MAINTAINERCLEANFILES = Makefile.in
 
 noinst_LTLIBRARIES = libexperimental.la
 
-libexperimental_la_SOURCES = cgraph.cc cgraph.h cofipv4port.cc cofipv4port.h crib.cc crib.h
+library_includedir=$(includedir)/rofl/experimental
+library_include_HEADERS= cgraph.h  cofipv4port.h  crib.h
 
+libexperimental_la_SOURCES = cgraph.cc cgraph.h cofipv4port.cc cofipv4port.h crib.cc crib.h

@@ -9,7 +9,7 @@
  *      Author: tobi
  */
 
-#include "config/ccli.h"
+#include "ccli.h"
 
 enum mode_config {
 	MODE_CONFIG_INTERFACE = (MODE_CONFIG + 1),

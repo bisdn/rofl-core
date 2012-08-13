@@ -19,10 +19,10 @@ extern "C" {
 }
 #endif
 
-#include "../common/cvastring.h"
-#include "../common/cerror.h"
-#include "../common/cmemory.h"
-#include "../common/ciosrv.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/common/cerror.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/ciosrv.h"
 
 class eGraphBase : public cerror {};
 class eGraphOutOfRange : public eGraphBase {};

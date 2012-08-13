@@ -13,19 +13,19 @@ extern "C" {
 
 #include <arpa/inet.h>
 #include <endian.h>
-#include "../common/openflow/openflow_rofl.h"
+#include "rofl/common/openflow/openflow_rofl.h"
 
 #ifndef be32toh
-#include "../common/endian_conversion.h"
+#include "rofl/common/endian_conversion.h"
 #endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#include "../platform/unix/csyslog.h"
-#include "../common/caddress.h"
-#include "../common/cvastring.h"
+#include "rofl/platform/unix/csyslog.h"
+#include "rofl/common/caddress.h"
+#include "rofl/common/cvastring.h"
 
 
 

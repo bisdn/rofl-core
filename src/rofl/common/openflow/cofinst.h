@@ -27,7 +27,7 @@ extern "C" {
 #include "../cvastring.h"
 #include "../thread_helper.h"
 
-#include "../../platform/unix/csyslog.h"
+#include "rofl/platform/unix/csyslog.h"
 
 #include "cofaclist.h"
 

@@ -13,7 +13,7 @@
 #define CCONFIGFWDELEM_H_
 
 #include <string>
-#include "../common/cfwdelem.h"
+#include "rofl/common/cfwdelem.h"
 
 class cconfigfwdelem {
 public:

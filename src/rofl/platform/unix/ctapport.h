@@ -21,9 +21,9 @@ extern "C" {
 #include <algorithm>
 #include <string>
 
-#include "../../common/cpacket.h"
-#include "../../common/cerror.h"
-#include "../../common/csocket.h"
+#include "rofl/common/cpacket.h"
+#include "rofl/common/cerror.h"
+#include "rofl/common/csocket.h"
 
 #include "clinuxport.h"
 

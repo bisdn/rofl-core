@@ -6,6 +6,7 @@
 #define CRIB_H 1
 
 #include <string>
+#include <algorithm>
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,9 +17,12 @@ extern "C" {
 #endif
 
 
-#include "../common/cerror.h"
-#include "../common/ciosrv.h"
-#include "../experimental/cgraph.h"
+#include "rofl/common/cerror.h"
+#include "rofl/common/ciosrv.h"
+#include "rofl/experimental/cgraph.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/platform/unix/crandom.h"
+
 
 
 class eSpfBase : public eGraphBase {};

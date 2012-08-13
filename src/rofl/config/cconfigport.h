@@ -15,9 +15,9 @@
 #include <string>
 #include <stdint.h>
 
-#include "../common/cport.h"
-#include "../common/cfwdelem.h"
-#include "../platform/unix/csyslog.h"
+#include "rofl/common/cport.h"
+#include "rofl/common/cfwdelem.h"
+#include "rofl/platform/unix/csyslog.h"
 
 class cconfigport : public csyslog
 {

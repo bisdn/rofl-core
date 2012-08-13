@@ -36,7 +36,7 @@ extern "C" {
 #include "protocols/fetherframe.h"
 #include "protocols/fvlanframe.h"
 
-#include "../platform/unix/csyslog.h"
+#include "rofl/platform/unix/csyslog.h"
 
 
 class cfwdentry; // forward declaration

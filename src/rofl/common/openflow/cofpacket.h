@@ -27,7 +27,7 @@ extern "C" {
 #include "../cerror.h"
 #include "../cvastring.h"
 #include "../fframe.h"
-#include "../../platform/unix/csyslog.h"
+#include "rofl/platform/unix/csyslog.h"
 
 #include "openflow12.h"
 #include "cofmatch.h"

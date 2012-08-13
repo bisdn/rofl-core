@@ -20,7 +20,7 @@
 #include "../cmemory.h"
 #include "../cerror.h"
 #include "../cvastring.h"
-#include "../../platform/unix/csyslog.h"
+#include "rofl/platform/unix/csyslog.h"
 
 #include "coxmatch.h"
 

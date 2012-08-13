@@ -36,8 +36,8 @@ extern "C" {
 #include "cfibentry.h"
 #include "croflexp.h"
 
-//#include "../experimental/crib.h"
-#include "../platform/unix/crandom.h"
+//#include "rofl/experimental/crib.h"
+#include "rofl/platform/unix/crandom.h"
 
 #include "openflow/cofpacket.h"
 #include "openflow/cofport.h"

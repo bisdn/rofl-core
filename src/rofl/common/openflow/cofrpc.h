@@ -34,7 +34,7 @@ extern "C" {
 #include "cofbase.h"
 #include "cofpacket.h"
 
-#include "../../platform/unix/crandom.h"
+#include "rofl/platform/unix/crandom.h"
 
 /* error classes */
 

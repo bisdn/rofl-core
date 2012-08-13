@@ -27,9 +27,9 @@ extern "C" {
 }
 #endif
 
-#include "../../common/cvastring.h"
-#include "../../common/ciosrv.h"
-#include "../../common/cerror.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/common/ciosrv.h"
+#include "rofl/common/cerror.h"
 #include "clinuxport.h"
 
 #ifndef HARDWARE

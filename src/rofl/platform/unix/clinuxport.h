@@ -23,7 +23,7 @@ extern "C" {
 }
 #endif
 
-#include "../../common/cport.h"
+#include "rofl/common/cport.h"
 
 class clinuxport: public cport {
 public:

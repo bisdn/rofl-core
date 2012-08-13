@@ -9,10 +9,10 @@
 #include <string>
 #include <algorithm>
 
-#include "../../common/csocket.h"
-#include "../../common/caddress.h"
-#include "../../common/protocols/fetherframe.h"
-#include "../../common/thread_helper.h"
+#include "rofl/common/csocket.h"
+#include "rofl/common/caddress.h"
+#include "rofl/common/protocols/fetherframe.h"
+#include "rofl/common/thread_helper.h"
 
 #include "clinuxport.h"
 

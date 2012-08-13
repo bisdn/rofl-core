@@ -37,8 +37,8 @@ extern "C" {
 #include "cvastring.h"
 #include "thread_helper.h"
 
-#include "../platform/unix/csyslog.h"
-#include "../platform/unix/cpipe.h"
+#include "rofl/platform/unix/csyslog.h"
+#include "rofl/platform/unix/cpipe.h"
 
 /** class defining ioctl commands exchanged between ciosrv entities
  *

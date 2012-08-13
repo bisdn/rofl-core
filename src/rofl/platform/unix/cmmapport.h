@@ -33,11 +33,11 @@ extern "C" {
 #include <string>
 #include <algorithm>
 
-#include "../../common/cpacket.h"
-#include "../../common/thread_helper.h"
-#include "../../common/caddress.h"
-#include "../../common/cerror.h"
-#include "../../common/csocket.h" // for csocket error types
+#include "rofl/common/cpacket.h"
+#include "rofl/common/thread_helper.h"
+#include "rofl/common/caddress.h"
+#include "rofl/common/cerror.h"
+#include "rofl/common/csocket.h" // for csocket error types
 #include "clinuxport.h"
 
 #ifndef HARDWARE

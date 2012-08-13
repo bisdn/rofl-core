@@ -24,7 +24,7 @@ extern "C" {
 
 #include "cerror.h"
 
-#include "../platform/unix/csyslog.h"
+#include "rofl/platform/unix/csyslog.h"
 
 class eLockBase : public cerror {};
 class eLockInval : public eLockBase {};

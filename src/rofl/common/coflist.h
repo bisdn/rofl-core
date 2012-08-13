@@ -12,7 +12,7 @@
 #include "cvastring.h"
 #include "cerror.h"
 
-#include "../platform/unix/csyslog.h"
+#include "rofl/platform/unix/csyslog.h"
 
 
 class eOFlistBase : public cerror {}; // base error class cofinlist

@@ -18,7 +18,7 @@ extern "C" {
 }
 #endif
 
-#include "../../common/cerror.h"
+#include "rofl/common/cerror.h"
 #include "csyslog.h"
 
 class ePipeBase : public cerror {};

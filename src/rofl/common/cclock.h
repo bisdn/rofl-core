@@ -27,7 +27,7 @@ extern "C" {
 
 #include "cclock.h"
 #include "cvastring.h"
-#include "../platform/unix/csyslog.h"
+#include "rofl/platform/unix/csyslog.h"
 
 
 class cclock :
