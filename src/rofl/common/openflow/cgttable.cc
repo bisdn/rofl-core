@@ -25,6 +25,56 @@ cgttable::~cgttable()
 }
 
 
+cgttable::cgttable(const cgttable &gt)
+{
+	*this = gt;
+}
+
+
+void
+cgttable::reset()
+{
+	std::map<uint32_t, cgtentry*>::iterator it;
+	for (it = grp_table.begin(); it != grp_table.end(); ++it)
+	{
+		delete (it->second);
+	}
+	grp_table.clear();
+}
+
+
+cgttable&
+cgttable::operator= (const cgttable& gt)
+{
+	if (this == &gt)
+		return *this;
+
+	ciosrv::operator =(gt);
+
+	lookup_count = gt.lookup_count;
+	matched_count = gt.matched_count;
+
+	std::map<uint32_t, cgtentry*>::const_iterator it;
+	for (it = gt.grp_table.begin(); it != gt.grp_table.end(); ++it)
+	{
+		grp_table[it->first] = new cgtentry(*((*it).second));
+	}
+
+	return *this;
+}
+
+
+cgtentry*
+cgttable::operator[] (const uint32_t& grp_id) throw(eGroupTableNotFound)
+{
+	if (grp_table.find(grp_id) != grp_table.end())
+	{
+		return grp_table[grp_id];
+	}
+	throw eGroupTableNotFound();
+}
+
+
 cgtentry*
 cgttable::update_gt_entry(
 		cgtentry_owner *owner,
@@ -54,7 +104,10 @@ cgttable::update_gt_entry(
 cgtentry*
 cgttable::add_gt_entry(
 		cgtentry_owner* owner,
-		struct ofp_group_mod *grp_mod) throw (eGroupTableExists, eGroupEntryInval, eActionBadOutPort)
+		struct ofp_group_mod *grp_mod) throw (eGroupTableExists,
+												eGroupEntryInval,
+												eActionBadOutPort,
+												eGroupTableLoopDetected)
 {
 	WRITELOG(CGTTABLE, WARN, "cgttable(%p)::add_gt_entry() "
 			"", this);
@@ -73,6 +126,10 @@ cgttable::add_gt_entry(
 
 	grp_table[be32toh(grp_mod->group_id)] = new cgtentry(owner, this, grp_mod);
 
+	WRITELOG(CGTTABLE, DBG, "cgttable(%p)::add_gt_entry() gte:%s", this, grp_table[be32toh(grp_mod->group_id)]->c_str());
+
+	loop_check(grp_table[be32toh(grp_mod->group_id)], be32toh(grp_mod->group_id));
+
 	WRITELOG(CGTTABLE, WARN, "cgttable(%p)::add_gt_entry() "
 			"group:%s", this, grp_table[be32toh(grp_mod->group_id)]->c_str());
 
@@ -83,11 +140,11 @@ cgttable::add_gt_entry(
 cgtentry*
 cgttable::modify_gt_entry(
 		cgtentry_owner *owner,
-		struct ofp_group_mod *grp_mod)
+		struct ofp_group_mod *grp_mod) throw (eGroupTableModNonExisting, eGroupTableLoopDetected)
 {
 	if (grp_table.find(be32toh(grp_mod->group_id)) == grp_table.end())
 	{
-		return add_gt_entry(owner, grp_mod);
+		throw eGroupTableModNonExisting();
 	}
 
 	cgtentry *gte = grp_table[be32toh(grp_mod->group_id)];
@@ -103,6 +160,10 @@ cgttable::modify_gt_entry(
 	grp_table[be32toh(grp_mod->group_id)]->packet_count = packet_count;
 	grp_table[be32toh(grp_mod->group_id)]->byte_count	= byte_count;
 	grp_table[be32toh(grp_mod->group_id)]->ref_count	= ref_count;
+
+	WRITELOG(CGTTABLE, DBG, "cgttable(%p)::modify_gt_entry() gte:%s", this, grp_table[be32toh(grp_mod->group_id)]->c_str());
+
+	loop_check(grp_table[be32toh(grp_mod->group_id)], be32toh(grp_mod->group_id));
 
 	return grp_table[be32toh(grp_mod->group_id)];
 }
@@ -196,3 +257,48 @@ cgttable::get_group_features_stats(
 
 	body += fstats;
 }
+
+
+void
+cgttable::loop_check(
+		cgtentry *gte, uint32_t loop_group_id) throw (eGroupTableLoopDetected)
+{
+	if ((cgtentry*)0 == gte)
+	{
+		return;
+	}
+
+	WRITELOG(CGTTABLE, DBG, "cgttable(%p)::loop_check() "
+			"loop_group_id:%d gte:%s",
+			this, loop_group_id, gte->c_str());
+
+	for (cofbclist::iterator
+			it = gte->buckets.begin(); it != gte->buckets.end(); ++it)
+	{
+		cofbucket& bucket = (*it);
+
+		for (cofaclist::iterator
+				at = bucket.actions.begin(); at != bucket.actions.end(); ++at)
+		{
+			cofaction& action = (*at);
+
+			if (OFPAT_GROUP != action.get_type())
+			{
+				continue;
+			}
+
+			uint32_t group_id = be32toh(action.oac_group->group_id);
+
+			if (group_id == loop_group_id)
+			{
+				throw eGroupTableLoopDetected();
+			}
+			else
+			{
+				loop_check(grp_table[group_id], loop_group_id);
+			}
+		}
+	}
+}
+
+

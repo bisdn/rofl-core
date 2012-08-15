@@ -120,10 +120,9 @@ cpacket::operator=(const cpacket &p)
 	clear();
 
 	for (std::deque<cmemory*>::const_iterator
-				it = piobuf.begin(); it != piobuf.end(); ++it)
+				it = p.piobuf.begin(); it != p.piobuf.end(); ++it)
 	{
-		// TODO: ...
-		throw eNotImplemented();
+		piobuf.push_back(new cmemory(*(*it)));
 	}
 
 	packet_receive_time = p.packet_receive_time;

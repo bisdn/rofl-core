@@ -42,6 +42,8 @@ throw (eBucketBadLen, eActionBadOutPort)
 {
 	reset(); // clears elems
 
+	WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() bclen:%d", this, bclen);
+
 	// sanity check: bclen must be of size at least of ofp_bucket
 	if (bclen < (int)sizeof(struct ofp_bucket))
 		return elems;
@@ -54,6 +56,10 @@ throw (eBucketBadLen, eActionBadOutPort)
 	{
 		if (be16toh(bchdr->len) < sizeof(struct ofp_bucket))
 			throw eBucketBadLen();
+
+		cofbucket bucket(bchdr, be16toh(bchdr->len));
+
+		WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() new bucket[1]: %s", this, bucket.c_str());
 
 		next() = cofbucket(bchdr, be16toh(bchdr->len) );
 

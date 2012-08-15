@@ -54,19 +54,19 @@ public: // static methods
 public: // data structures
 
 	union { // for OpenFlow 1.1
-		struct ofp_action_header* oacu_header;
-		struct ofp_action_output* oacu_output;
-		struct ofp_action_vendor_header* oacu_vendor;
+		struct ofp_action_header				*oacu_header;
+		struct ofp_action_output				*oacu_output;
+		struct ofp_action_vendor_header			*oacu_vendor;
 
-		struct ofp_action_mpls_ttl *oacu_mpls_ttl;
-		struct ofp_action_push *oacu_push;
-		struct ofp_action_pop_mpls *oacu_pop_mpls;
-		struct ofp_action_group *oacu_group;
-		struct ofp_action_nw_ttl *oacu_nw_ttl;
-		struct ofp_action_experimenter_header *oacu_experimenter_header;
-		struct ofp_action_set_queue *oacu_set_queue;
-		struct ofp_action_pop_pppoe *oacu_pop_pppoe;
-		struct ofp_action_set_field *oacu_set_field;
+		struct ofp_action_mpls_ttl				*oacu_mpls_ttl;
+		struct ofp_action_push 					*oacu_push;
+		struct ofp_action_pop_mpls 				*oacu_pop_mpls;
+		struct ofp_action_group 				*oacu_group;
+		struct ofp_action_nw_ttl 				*oacu_nw_ttl;
+		struct ofp_action_experimenter_header 	*oacu_experimenter_header;
+		struct ofp_action_set_queue 			*oacu_set_queue;
+		struct ofp_action_pop_pppoe 			*oacu_pop_pppoe;
+		struct ofp_action_set_field 			*oacu_set_field;
 	} oac_oacu;
 
 #define oac_header oac_oacu.oacu_header			// action: plain header
