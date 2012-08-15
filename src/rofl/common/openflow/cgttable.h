@@ -116,7 +116,8 @@ public:
 	cgtentry*
 	modify_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod) throw (eGroupTableModNonExisting,
+			struct ofp_group_mod *grp_mod) throw (eGroupEntryInval,
+													eGroupTableModNonExisting,
 													eGroupTableLoopDetected);
 
 
@@ -125,7 +126,8 @@ public:
 	cgtentry*
 	rem_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod) throw (eGroupTableNotFound);
+			struct ofp_group_mod *grp_mod) throw (eGroupEntryInval,
+													eGroupTableNotFound);
 
 
 	/** get group stats for all group_ids
