@@ -52,7 +52,7 @@ AC_CHECK_LIB(rt,clock_gettime,,[AC_MSG_ERROR([rt library not found])])
 AC_CHECK_LIB(cli,cli_telnet_protocol,,[AC_MSG_ERROR([cli library not found])]) 
 
 #CHECK for doxygen
-AC_CHECK_PROGS([DOXYGEN], [doxygen])
+AC_CHECK_PROGS([DOXYGEN], [doxygen],)
 if test -z "$DOXYGEN";
    then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
 fi
@@ -69,5 +69,9 @@ AC_CONFIG_FILES([
 	src/rofl/common/Makefile
 	src/rofl/Makefile
 	src/rofl/config/Makefile
+	
+	test/Makefile
+	test/unit/Makefile
+	test/unit/test1/Makefile
 	])
 AC_OUTPUT
