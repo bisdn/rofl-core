@@ -288,3 +288,4 @@ cofinst::find_action(enum ofp_action_type type)
 }
 
 
+template class coflist<cofinst>;

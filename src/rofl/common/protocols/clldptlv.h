@@ -8,6 +8,7 @@
 #include "../cmemory.h"
 #include "../cerror.h"
 #include "../cvastring.h"
+#include "../coflist.h"
 
 #ifdef __cplusplus
 extern "C" {

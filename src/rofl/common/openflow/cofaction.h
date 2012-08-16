@@ -25,7 +25,7 @@ extern "C" {
 #include "../cmemory.h"
 #include "../cmacaddr.h"
 #include "../cvastring.h"
-#include "../cerror.h"
+#include "../coflist.h"
 
 #include "rofl/platform/unix/csyslog.h"
 

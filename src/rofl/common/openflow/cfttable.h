@@ -22,7 +22,7 @@ extern "C" {
 #include "../ciosrv.h"
 #include "../cerror.h"
 #include "../cvastring.h"
-//#include "../cfwdelem.h"
+#include "../cfwdelem.h"
 #include "../thread_helper.h"
 
 

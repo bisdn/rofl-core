@@ -10,12 +10,9 @@
 
 #include "../ciosrv.h"
 #include "../cerror.h"
-#if 0
-#include "../cfwdelem.h"
-#include "fdataframe.h"
-#endif
+//#include "../cfwdelem.h" 
+
 #include "cgtentry.h"
-#include "cofctrl.h"
 #include "cofpacket.h"
 #include "cftentry.h"
 
@@ -24,6 +21,7 @@ class cfwdelem;
 class cofctrl;
 class cgtentry;
 class cgtentry_owner;
+class eGroupEntryInval;
 
 /* error classes */
 class eGroupTableBase : public cerror {};
@@ -36,13 +34,15 @@ class eGroupTableNotFound : public eGroupTableBase {}; // element not found
 class eGroupTableLoopDetected : public eGroupTableBase {}; // loop found in group table
 class eGroupTableModNonExisting : public eGroupTableBase {}; // enttry for modification not found
 
+// This include must be here due to some exception definitions needed by cgtentry #FIXME: define in another file
+#include "cgtentry.h"
 
 class cgttable :
 	public ciosrv
 {
 public: // data structures
 
-	cfwdelem 							*fwdelem;		// parent cfwdelem instance
+	//cfwdelem 							*fwdelem;		// parent cfwdelem instance
 	std::map<uint32_t, cgtentry*> 		grp_table;		// flow_table: set of cftentries
 	uint64_t 							lookup_count;	// lookup counter
 	uint64_t 							matched_count;	// matched counter
@@ -51,8 +51,9 @@ public:
 
 	/** constructor
 	 */
-	cgttable(
-			cfwdelem *_fwdelem = (cfwdelem*)0);
+//	cgttable(
+//			cfwdelem *_fwdelem = (cfwdelem*)0);
+	cgttable();
 
 
 	/** destructor

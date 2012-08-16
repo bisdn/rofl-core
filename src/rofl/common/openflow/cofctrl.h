@@ -19,7 +19,7 @@ extern "C" {
 #include "../cerror.h"
 #include "../ciosrv.h"
 #include "../cmemory.h"
-//#include "../cfwdelem.h"
+#include "../cfwdelem.h"
 #include "../thread_helper.h"
 #include "../cvastring.h"
 

@@ -4,18 +4,6 @@
 
 #include "coflist.h"
 
-
-/*FIXME: this should NOT be here, avoiding circular dependency */
-#include "openflow/cofinst.h"
-#include "openflow/cofaction.h"
-#include "openflow/cofbucket.h"
-#include "openflow/cofport.h"
-#include "openflow/coxmatch.h"
-
-#include "protocols/cpppoetlv.h"
-#include "protocols/clldptlv.h"
-
-
 template <class T>
 coflist<T>::coflist()
 {
@@ -173,6 +161,16 @@ coflist<T>::empty() const
 }
 
 
+//GCC seems not to detect and instantiatie #FIXME:?
+
+#include "openflow/cofinst.h"
+#include "openflow/cofaction.h"
+#include "openflow/cofbucket.h"
+#include "openflow/cofport.h"
+#include "openflow/coxmatch.h"
+#include "protocols/cpppoetlv.h"
+#include "protocols/clldptlv.h"
+
 #if 1 
 template class coflist<cofinst>;
 template class coflist<cofaction>;
@@ -184,3 +182,4 @@ template class coflist<coflist<int> >;
 template class coflist<coxmatch>;
 template class coflist<clldptlv>;
 #endif
+

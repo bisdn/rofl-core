@@ -226,7 +226,3 @@ clldplist::test()
 	fprintf(stderr, "l2: %s\n", l2.c_str());
 }
 
-
-
-
-

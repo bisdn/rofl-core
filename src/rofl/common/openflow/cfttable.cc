@@ -4,7 +4,6 @@
 
 
 #include "cfttable.h"
-#include "../cfwdelem.h" //FIXME: this should NOT be here
 
 uint64_t cfttable::all_matches =
 		((uint64_t)1 << OFPXMT_OFB_IN_PORT 	) |

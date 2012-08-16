@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "cgttable.h"
-#include "../cfwdelem.h" //FIXME: this should NOT be here
 
-cgttable::cgttable(cfwdelem *_fwdelem) :
-	fwdelem(_fwdelem),
+cgttable::cgttable() :
 	lookup_count(0),
 	matched_count(0)
 {

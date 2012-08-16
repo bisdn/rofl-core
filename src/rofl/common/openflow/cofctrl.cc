@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "cofctrl.h"
-#include "../cfwdelem.h" //FIXME: this should NOT be here
 
 cofctrl::cofctrl(cfwdelem* fwdelem, cofbase *ctrl, std::map<cofbase*, cofctrl*> *ofctrl_list) :
 		fwdelem(fwdelem),

@@ -26,10 +26,11 @@ extern "C" {
 #include "../cerror.h"
 #include "../cvastring.h"
 #include "../thread_helper.h"
+#include "cofaclist.h"
 
 #include "rofl/platform/unix/csyslog.h"
 
-#include "cofaclist.h"
+#include "cofaction.h"
 
 /* error classes */
 class eInstructionBase : public cerror {}; // error base class for class cofinstruction

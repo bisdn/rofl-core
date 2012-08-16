@@ -50,7 +50,7 @@ cfwdelem::cfwdelem(
 	n_buffers(n_buffers),
 	n_tables(n_tables),
 	capabilities(OFPC_FLOW_STATS | OFPC_TABLE_STATS | OFPC_PORT_STATS /* | OFPC_STP */ | OFPC_QUEUE_STATS | OFPC_ARP_MATCH_IP),
-	group_table(this)
+	group_table()
 {
 	cvastring vas;
 	s_dpid.assign(vas("dpid[%016llx]", dpid));

@@ -51,7 +51,11 @@ AC_CHECK_LIB(pthread, pthread_kill,,AC_MSG_ERROR([pthread library not found]))
 AC_CHECK_LIB(rt,clock_gettime,,[AC_MSG_ERROR([rt library not found])]) 
 AC_CHECK_LIB(cli,cli_telnet_protocol,,[AC_MSG_ERROR([cli library not found])]) 
 
-# AC_CONFIG_HEADERS([include/config.h])
+#CHECK for doxygen
+AC_CHECK_PROGS([DOXYGEN], [doxygen])
+if test -z "$DOXYGEN";
+   then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
+fi
 
 AC_CONFIG_FILES([
 	Makefile
