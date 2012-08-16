@@ -3,7 +3,7 @@
 
 int main(int args, char** argv){
 	
-	cfwdelem a;
-
+	//cfwdelem a;
+	printf("Test 2");
 	return EXIT_SUCCESS;
 }

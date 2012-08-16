@@ -3,6 +3,8 @@ depcomp install-sh ltmain.sh Makefile.in missing
 
 SUBDIRS = src test
 
+export LIBROFL=$(top_builddir)/../../../src/rofl/librofl.la
+
 #doc: 
 #	$(shell echo "doxy")
 
