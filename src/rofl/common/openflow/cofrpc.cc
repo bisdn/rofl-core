@@ -6,7 +6,6 @@
 
 /* static */int cofrpc::rpc_echo_interval = DEFAULT_RPC_ECHO_INTERVAL;
 
-
 cofrpc::cofrpc(int rpc_endpnt, cofbase *entity) :
 		rpc_endpnt(rpc_endpnt),
 		entity(entity),
@@ -14,6 +13,7 @@ cofrpc::cofrpc(int rpc_endpnt, cofbase *entity) :
 		reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 		reconnect_counter(0)
 {
+
 	pthread_mutex_init(&fe_queue_mutex, NULL);
 	flags.set(COFRPC_FLAG_SERVER_SOCKET);
 	init_state(STATE_RPC_DISCONNECTED);
@@ -155,7 +155,7 @@ cofrpc::fe_down_hello_message(
 		return;
 	}
 
-	uint32_t cookie;
+	uint32_t cookie = 0;
 
 	if (pack->body.memlen() >= sizeof(uint32_t))
 	{
@@ -195,7 +195,7 @@ cofrpc::fe_up_hello_message(
 		return;
 	}
 
-	uint32_t cookie;
+	uint32_t cookie = 0;
 
 	if (pack->body.memlen() >= sizeof(uint32_t))
 	{
