@@ -58,6 +58,7 @@ if test -z "$DOXYGEN";
 fi
 
 AC_CONFIG_FILES([
+
 	Makefile
 	src/Makefile
 	src/rofl/platform/Makefile
@@ -69,9 +70,11 @@ AC_CONFIG_FILES([
 	src/rofl/common/Makefile
 	src/rofl/Makefile
 	src/rofl/config/Makefile
-	
+
 	test/Makefile
 	test/unit/Makefile
 	test/unit/test1/Makefile
+
+	doc/Makefile
 	])
 AC_OUTPUT
