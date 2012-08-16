@@ -776,7 +776,7 @@ cfwdelem::recv_hello_message()
 			pack = fe_down_queue[OFPT_HELLO].front();
 			fe_down_queue[OFPT_HELLO].pop_front();
 
-			uint32_t cookie;
+			uint32_t cookie = 0;
 
 			if (pack->body.memlen() >= sizeof(uint32_t))
 			{
@@ -807,7 +807,7 @@ cfwdelem::recv_hello_message()
 			pack = fe_up_queue[OFPT_HELLO].front();
 			fe_up_queue[OFPT_HELLO].pop_front();
 
-			uint32_t cookie;
+			uint32_t cookie = 0;
 
 			if (pack->body.memlen() >= sizeof(uint32_t))
 			{
