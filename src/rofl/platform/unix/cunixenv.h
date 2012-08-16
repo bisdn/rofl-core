@@ -34,6 +34,8 @@ public:
 	static int n_blocks; 		// #blocks for cmmapport instances (default: 8)
 	static int frame_size; 	// frame size for cmmapport in bytes (default: 2048)
 	static int n_fwdengines;	// #fwdengines
+	static std::string controller_ip;	// ip address of the controller
+	static u_int16_t controller_port;	// port number of the controller
 	static std::string config_filename;
 
 public:

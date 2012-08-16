@@ -13,6 +13,8 @@ extern char* optarg;
 /*static*/int cunixenv::n_blocks = 1;
 /*static*/int cunixenv::frame_size = 2048;
 /*static*/int cunixenv::n_fwdengines = 1;
+/*static*/std::string cunixenv::controller_ip("127.0.0.1");
+/*static*/u_int16_t cunixenv::controller_port = 6633;
 /*static*/std::string cunixenv::config_filename("./default-cli.cfg");
 
 void
@@ -26,6 +28,9 @@ cunixenv::usage(
 	fprintf(stderr, "[--framesize|-r] <int:bytes>\n");
 	fprintf(stderr, "[--buffers|-b] <int:#buffers>\n");
 	fprintf(stderr, "[--fwdengines|-f] <int:#fwdengines>\n");
+	fprintf(stderr, "[--configfile|-c] <string:filename>\n");
+	fprintf(stderr, "[--ctl_ip_addr|-i] <ip:127.0.0.1>\n");
+	fprintf(stderr, "[--ctl_port|-p] <int:#portnum>\n");
 	exit(0);
 }
 
@@ -48,6 +53,8 @@ cunixenv::parse_args(
 			{ "framesize", 1, 0, 'r' },
 			{ "fwdengines", 1, 0, 'f' },
 			{ "configfile", 1, 0, 'c' },
+			{ "ctl_ip_addr", 1, 0, 'i' },
+			{ "ctl_port", 1, 0, 'p' },
 			{ NULL, 0, 0, 0 }
 	};
 
@@ -98,6 +105,14 @@ cunixenv::parse_args(
 
 		case 'c':
 			config_filename = std::string(optarg);
+			break;
+
+		case 'i':
+			controller_ip = std::string(optarg);
+			break;
+
+		case 'p':
+			controller_port = atoi(optarg);
 			break;
 		}
 	}
