@@ -321,12 +321,16 @@ public: // constructor + destructor
 	 *
 	 */
 	virtual void
-	port_attach(std::string devname,
-			uint32_t port_no,
-			unsigned int grpidx = 0,
-			int n_blocks = 1,
-			int block_size = 96 * 4096, // 4k page size
-			int frame_size = 2048) throw (cerror) = 0;
+	port_attach(
+			std::string devname,
+			uint32_t port_no) {};
+
+	/**
+	 *
+	 */
+	virtual void
+	port_detach(
+			uint32_t port_no) {};
 
 protected:
 

@@ -52,12 +52,14 @@ cconfigport::attach_port_to_dp(const std::string& port_name,
 			"port_name = %s, dpname = %s, port_number = %d",
 			port_name.c_str(), dpname.c_str(), port_number);
 
+#if 0
 	cport *port = NULL;
 	try {
 		port = cport::find(port_name);
 	} catch (ePortNotFound &e) {
 		return false;
 	}
+#endif
 
 	cfwdelem *fwdelem = NULL;
 	try {
@@ -66,12 +68,7 @@ cconfigport::attach_port_to_dp(const std::string& port_name,
 		return false;
 	}
 
-	fwdelem->port_attach(port_name,
-			port_number,
-			0, /*portgrp index*/
-			cunixenv::n_blocks,
-			cunixenv::block_size,
-			cunixenv::frame_size);
+	fwdelem->port_attach(port_name, port_number);
 
 	return true;
 }

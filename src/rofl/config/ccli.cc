@@ -140,9 +140,40 @@ cmd_config_openflow_configure_attach_port(struct cli_def *cli, UNUSED(const char
     	return CLI_OK;
     }
 
-    // todo check if there is more than one parameter?
-    std::string portname(argv[0]);
 
+	// todo check if there is more than one parameter?
+	std::string portname(argv[0]);
+
+	uint32_t of_port_no = 0; /* invalid port number */
+
+	/* check if second parameter (port_number) is set */
+	if (2 == argc) {
+		errno = 0;
+		unsigned long int tmp = strtoul(argv[1], NULL, 10);
+
+		switch (errno) {
+			case EINVAL:
+			case ERANGE:
+				break;
+			default:
+				of_port_no = tmp;
+				break;
+		}
+	}
+
+	std::string dpname(&cli->modestring[strlen("(config-of-")]);
+	dpname.erase(dpname.size()-1, 1); // remove ')'
+
+	if (cconfigport::getInstance().attach_port_to_dp(portname, dpname, of_port_no)) {
+		cli_print(cli, "attach port %s", argv[0]);
+	} else {
+		cli_print(cli, "attach port %s to dp %s failed (already attached?)", argv[0], dpname.c_str());
+	}
+
+
+	return CLI_OK;
+
+#if 0
     if (cconfigport::getInstance().is_port(portname)) {
 
     	std::string dpname(&cli->modestring[strlen("(config-of-")]);
@@ -181,6 +212,7 @@ cmd_config_openflow_configure_attach_port(struct cli_def *cli, UNUSED(const char
     }
 
     return CLI_OK;
+#endif
 }
 
 static int
