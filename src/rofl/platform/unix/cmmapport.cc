@@ -125,7 +125,7 @@ cpktline2::cpktline2(
 {
 	WRITELOG(CPORT, DBG, "cpktline(%p)::cpktline() %s\n",
 			this, (ring_type == PACKET_TX_RING) ? "TX-RING" : "RX-RING");
-	initialize();
+	// initialize();
 }
 
 

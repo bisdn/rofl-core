@@ -10,6 +10,7 @@
  */
 
 #include "cconfigport.h"
+#include "rofl/platform/unix/cunixenv.h"
 
 /*static */cconfigport&
 cconfigport::getInstance()
@@ -65,29 +66,12 @@ cconfigport::attach_port_to_dp(const std::string& port_name,
 		return false;
 	}
 
-	cport::cport_owner *owner = dynamic_cast<cport::cport_owner*>(fwdelem);
-
-	if (NULL != owner) {
-		try {
-			uint32_t pn = port_number;
-			if (0 == port_number) {
-				/* autogen a port_number and set it */
-				pn = cport::find_free_port_no(&cport::cport_list);
-			}
-
-			/* set port_number and attach port */
-			if (pn == port->set_port_no(pn)) {
-				port->attach(owner);
-			} else {
-				return false;
-			}
-
-		} catch (ePortIsAttached &e) {
-			return false;
-		}
-	} else {
-		return false;
-	}
+	fwdelem->port_attach(port_name,
+			port_number,
+			0, /*portgrp index*/
+			cunixenv::n_blocks,
+			cunixenv::block_size,
+			cunixenv::frame_size);
 
 	return true;
 }

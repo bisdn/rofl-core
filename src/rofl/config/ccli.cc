@@ -128,7 +128,7 @@ static int
 cmd_config_openflow_configure_attach_port(struct cli_def *cli, UNUSED(const char *command), char *argv[], int argc)
 {
     if (argc < 1) {
-        cli_print(cli, "usage: attach_port <portname> [port_number]");
+        cli_print(cli, "usage: attach_port <portname> <port_number>");
         return CLI_OK;
     }
 
@@ -148,7 +148,7 @@ cmd_config_openflow_configure_attach_port(struct cli_def *cli, UNUSED(const char
     	std::string dpname(&cli->modestring[strlen("(config-of-")]);
     	dpname.erase(dpname.size()-1, 1); // remove ')'
 
-    	uint32_t of_port_no = 0; /* default port number */
+    	uint32_t of_port_no = 0; /* invalid port number */
 
     	/* check if second parameter (port_number) is set */
     	if (2 == argc) {
@@ -163,6 +163,12 @@ cmd_config_openflow_configure_attach_port(struct cli_def *cli, UNUSED(const char
 					of_port_no = tmp;
 					break;
 			}
+    	}
+
+    	// check port_number
+    	if (0 == of_port_no) {
+    		cli_print(cli, "port number has to be greater than 0", argv[0]);
+    		return CLI_OK;
     	}
 
     	if (cconfigport::getInstance().attach_port_to_dp(portname, dpname, of_port_no)) {
