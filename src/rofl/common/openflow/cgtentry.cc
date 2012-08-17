@@ -3,11 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "cgtentry.h"
-#include "cgttable.h" //FIXME: This should NOT be here
+//#include "cgttable.h" //FIXME: This should NOT be here
 
 cgtentry::cgtentry(cgtentry_owner *owner) :
 	owner(owner),
 	grp_table(NULL),
+	group_id(0),
+	group_type(0),
 	ref_count(0),
 	packet_count(0),
 	byte_count(0)

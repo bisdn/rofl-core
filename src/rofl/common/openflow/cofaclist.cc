@@ -61,6 +61,8 @@ throw (eActionBadLen, eActionBadOutPort)
 {
 	reset(); // clears elems
 
+	WRITELOG(COFACTION, DBG, "cofaclist(%p)::unpack() aclen:%d", this, aclen);
+
 	// sanity check: aclen must be of size at least of ofp_action_header
 	if (aclen < (int)sizeof(struct ofp_action_header))
 		return elems;

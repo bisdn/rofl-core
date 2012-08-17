@@ -23,8 +23,6 @@ extern "C" {
 #include "rofl/platform/unix/csyslog.h"
 
 #include "cerror.h"
-#include "cvastring.h"
-#include "cmempool.h"
 
 
 /* error classes */

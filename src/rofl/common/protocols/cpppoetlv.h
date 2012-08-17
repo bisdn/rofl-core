@@ -23,6 +23,8 @@ extern "C" {
 }
 #endif
 
+#include "../coflist.h"
+
 class ePPPoEbase : public cerror {};
 class ePPPoEInval : public ePPPoEbase {};
 class ePPPoENotFound : public ePPPoEbase {};

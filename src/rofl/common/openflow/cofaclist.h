@@ -9,9 +9,9 @@
 #include <algorithm>
 
 #include "../cerror.h"
-#include "../coflist.h"
 #include "../cvastring.h"
 
+#include "../coflist.h"
 #include "cofaction.h"
 
 class eAcListBase : public cerror {}; // base error class for cofaclist

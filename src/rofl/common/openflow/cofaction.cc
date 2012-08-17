@@ -560,3 +560,4 @@ cofaction::get_oxm() throw (eActionInvalType)
 	return oxm;
 }
 
+template class coflist<cofaction>;

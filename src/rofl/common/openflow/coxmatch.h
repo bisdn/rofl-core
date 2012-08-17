@@ -32,6 +32,7 @@ extern "C" {
 #include "../cmemory.h"
 #include "../cmacaddr.h"
 #include "../caddress.h"
+#include "../coflist.h"
 
 /* error classes */
 class eOxmBase : public cerror {}; // error base class for class cofinstruction

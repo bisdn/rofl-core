@@ -487,3 +487,4 @@ cofport::get_port_stats(
 	body += pstats;
 }
 
+template class coflist<cofport>;

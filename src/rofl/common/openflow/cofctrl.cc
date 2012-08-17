@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "cofctrl.h"
-#include "../cfwdelem.h" //FIXME: this should NOT be here
 
 cofctrl::cofctrl(cfwdelem* fwdelem, cofbase *ctrl, std::map<cofbase*, cofctrl*> *ofctrl_list) :
 		fwdelem(fwdelem),
@@ -203,10 +202,23 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 		fwdelem->send_error_message(this, OFPET_BAD_ACTION, OFPBAC_BAD_OUT_PORT,
 				pack->soframe(), pack->framelen());
 
+	} catch (eGroupTableLoopDetected& e) {
+
+		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
+				"group entry produces loop, dropping", this);
+
+		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_LOOP,
+				pack->soframe(), pack->framelen());
+
+	} catch (eGroupTableModNonExisting& e) {
+
+		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
+				"group entry for modification not found, dropping", this);
+
+		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
+				pack->soframe(), pack->framelen());
+
 	}
-
-
-
 }
 
 

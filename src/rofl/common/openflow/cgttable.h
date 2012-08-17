@@ -10,12 +10,9 @@
 
 #include "../ciosrv.h"
 #include "../cerror.h"
-#if 0
-#include "../cfwdelem.h"
-#include "fdataframe.h"
-#endif
+//#include "../cfwdelem.h" 
+
 #include "cgtentry.h"
-#include "cofctrl.h"
 #include "cofpacket.h"
 #include "cftentry.h"
 
@@ -24,6 +21,7 @@ class cfwdelem;
 class cofctrl;
 class cgtentry;
 class cgtentry_owner;
+class eGroupEntryInval;
 
 /* error classes */
 class eGroupTableBase : public cerror {};
@@ -33,61 +31,54 @@ class eGroupTableNoMatch : public eGroupTableBase {}; // no matching entry found
 class eGroupTableEntryOverlaps : public eGroupTableBase {}; // entry overlaps with existing entry in flow-table
 class eGroupTableClassificationFailed : public eGroupTableBase {}; // invalid packet frame for classification
 class eGroupTableNotFound : public eGroupTableBase {}; // element not found
+class eGroupTableLoopDetected : public eGroupTableBase {}; // loop found in group table
+class eGroupTableModNonExisting : public eGroupTableBase {}; // enttry for modification not found
 
+// This include must be here due to some exception definitions needed by cgtentry #FIXME: define in another file
+#include "cgtentry.h"
 
-class cgttable : public ciosrv {
+class cgttable :
+	public ciosrv
+{
+public: // data structures
+
+	//cfwdelem 							*fwdelem;		// parent cfwdelem instance
+	std::map<uint32_t, cgtentry*> 		grp_table;		// flow_table: set of cftentries
+	uint64_t 							lookup_count;	// lookup counter
+	uint64_t 							matched_count;	// matched counter
+
 public:
 
 	/** constructor
 	 */
-	cgttable(cfwdelem *_fwdelem = NULL);
+//	cgttable(
+//			cfwdelem *_fwdelem = (cfwdelem*)0);
+	cgttable();
+
 
 	/** destructor
 	 */
 	virtual
 	~cgttable();
 
+
 	/** copy constructor
 	 */
-	cgttable(const cgttable &gt)
-	{
-		*this = gt;
-	};
+	cgttable(
+			const cgttable& gt);
+
 
 	/** reset group table, i.e. clear all group entries
 	 */
 	void
-	reset()
-	{
-		std::map<uint32_t, cgtentry*>::iterator it;
-		for (it = grp_table.begin(); it != grp_table.end(); ++it)
-		{
-			delete (it->second);
-		}
-		grp_table.clear();
-	};
+	reset();
+
 
 	/** assignment operator
 	 */
 	cgttable&
-	operator= (const cgttable& gt)
-	{
-		if (this == &gt)
-			return *this;
+	operator= (const cgttable& gt);
 
-		ciosrv::operator =(gt);
-
-		lookup_count = gt.lookup_count;
-		matched_count = gt.matched_count;
-
-		std::map<uint32_t, cgtentry*>::const_iterator it;
-		for (it = gt.grp_table.begin(); it != gt.grp_table.end(); ++it)
-		{
-			grp_table[it->first] = new cgtentry(*((*it).second));
-		}
-
-		return *this;
-	};
 
 	/** return group entry for group_id
 	 * cgrptable grp_table;
@@ -98,14 +89,9 @@ public:
 	 * } catch (eGroupTableNotFound& e) { ... }
 	 */
 	cgtentry*
-	operator[] (const uint32_t& grp_id) throw(eGroupTableNotFound)
-	{
-		if (grp_table.find(grp_id) != grp_table.end())
-		{
-			return grp_table[grp_id];
-		}
-		throw eGroupTableNotFound();
-	};
+	operator[] (
+			const uint32_t& grp_id) throw(eGroupTableNotFound);
+
 
 	/** common entry method for add/update/delete a cgtentry
 	 */
@@ -114,26 +100,35 @@ public:
 			cgtentry_owner *owner,
 			struct ofp_group_mod *grp_mod);
 
+
 	/** add a cgtentry
 	 */
 	cgtentry*
 	add_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod) throw (eGroupTableExists, eGroupEntryInval, eActionBadOutPort);
+			struct ofp_group_mod *grp_mod) throw (eGroupTableExists,
+													eGroupEntryInval,
+													eActionBadOutPort,
+													eGroupTableLoopDetected);
+
 
 	/** update a cgtentry
 	 */
 	cgtentry*
 	modify_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod);
+			struct ofp_group_mod *grp_mod) throw (eGroupEntryInval,
+													eGroupTableModNonExisting,
+													eGroupTableLoopDetected);
+
 
 	/** delete a cgtentry
 	 */
 	cgtentry*
 	rem_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod) throw (eGroupTableNotFound);
+			struct ofp_group_mod *grp_mod) throw (eGroupEntryInval,
+													eGroupTableNotFound);
 
 
 	/** get group stats for all group_ids
@@ -162,17 +157,16 @@ public:
 
 
 
-public: // data structures
+private:
 
-	// parent cfwdelem instance
-	cfwdelem *fwdelem;
-	// flow_table: set of cftentries
-	std::map<uint32_t, cgtentry*> grp_table;
+	/**
+	 *
+	 */
+	void
+	loop_check(
+			cgtentry *gte,
+			uint32_t loop_group_id) throw (eGroupTableLoopDetected);
 
-	// lookup counter
-	uint64_t lookup_count;
-	// matched counter
-	uint64_t matched_count;
 };
 
 #endif

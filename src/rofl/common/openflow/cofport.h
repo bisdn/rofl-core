@@ -28,6 +28,7 @@ extern "C" {
 #include "../cmemory.h"
 #include "../cerror.h"
 #include "../cmacaddr.h"
+#include "../coflist.h"
 #include "rofl/platform/unix/csyslog.h"
 
 

@@ -317,6 +317,21 @@ public: // constructor + destructor
 		throw eNotImplemented();
 	};
 
+	/**
+	 *
+	 */
+	virtual void
+	port_attach(
+			std::string devname,
+			uint32_t port_no) {};
+
+	/**
+	 *
+	 */
+	virtual void
+	port_detach(
+			uint32_t port_no) {};
+
 protected:
 
 	/*

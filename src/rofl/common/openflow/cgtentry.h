@@ -26,7 +26,6 @@ extern "C" {
 
 #include "cofbclist.h"
 #include "cofbucket.h"
-//#include "cgttable.h"
 
 
 // forward declarations
@@ -40,6 +39,8 @@ class eGroupEntryBase : public cerror {};
 class eGroupEntryInval : public eGroupEntryBase {};
 class eGroupEntryBadType : public eGroupEntryBase {};
 
+//This include must go here due to some Exceptions defined within cgttable.h FIXME: define in another file?
+#include "cgttable.h"
 
 class cgtentry : public ciosrv {
 public:

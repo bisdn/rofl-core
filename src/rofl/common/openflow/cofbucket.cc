@@ -107,7 +107,7 @@ throw (eBucketBadLen, eActionBadOutPort)
 
 	size_t aclen = bclen - sizeof(struct ofp_bucket);
 
-	if (aclen > sizeof(struct ofp_action_header))
+	if (aclen >= sizeof(struct ofp_action_header))
 	{
 		actions.unpack(bucket->actions, aclen);
 	}
@@ -143,4 +143,5 @@ cofbucket::get_bucket_stats(
 	body += bstats;
 }
 
+template class coflist<cofbucket>;
 
