@@ -26,7 +26,8 @@ if test "$enable_debug" = "yes"; then
 	AC_MSG_RESULT(yes)
 else
 	CXXFLAGS="-O3" #-fomit-frame-pointer"
-	CFLAGS="-O3" #--compiler-options -fno-strict-aliasing --compiler-options -fno-inline" 
+	CFLAGS="-O3" #--compiler-options -fno-strict-aliasing --compiler-options -fno-inline"
+	AC_DEFINE(NDEBUG) 
 	AC_MSG_RESULT(no)
 fi
 
