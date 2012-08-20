@@ -366,7 +366,7 @@ cofpacket::is_valid_error_msg()
 		return false;
 	}
 
-	switch (ofh_error_msg->type) {
+	switch (be16toh(ofh_error_msg->type)) {
 	case OFPET_HELLO_FAILED:
 		// access via emhdr->data
 		break;
