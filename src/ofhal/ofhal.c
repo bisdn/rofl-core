@@ -45,15 +45,14 @@ ofhcl_open(
 	 */
 
 
-	handle = ofhal_handle_find(dpid);
 
-	if ((struct ofhal_handle_t*)0 == handle)
+	if ((struct ofhal_handle_t*)0 == (handle = ofhal_handle_find(dpid)))
 	{
 		handle = ofhal_handle_create(dpid);
 	}
 
 
-	if ((struct ofhcl_ops*)0 == handle->hclops)
+	if ((struct ofhcl_ops*)0 != handle->hclops)
 	{
 		/* handle is already allocated */
 		return 0;
@@ -513,19 +512,19 @@ ofhal_msg_create()
 		return 0;
 	}
 
-	msg->iov.iov_base = 0;
-	msg->iov.iov_len = 0;
-	msg->next = 0;
-	msg->prev = 0;
-	msg->ofh_header = 0;
-	msg->head_actions = 0;
-	msg->tail_actions = 0;
-	msg->head_buckets = 0;
-	msg->tail_buckets = 0;
-	msg->head_insts = 0;
-	msg->tail_insts = 0;
-	msg->head_oxms = 0;
-	msg->tail_oxms = 0;
+	msg->iov.iov_base 	= 0;
+	msg->iov.iov_len 	= 0;
+	msg->next 			= 0;
+	msg->prev 			= 0;
+	msg->ofp_hdr 		= 0;
+	msg->head_actions 	= 0;
+	msg->tail_actions 	= 0;
+	msg->head_buckets 	= 0;
+	msg->tail_buckets 	= 0;
+	msg->head_insts 	= 0;
+	msg->tail_insts 	= 0;
+	msg->head_oxms 		= 0;
+	msg->tail_oxms 		= 0;
 
 	return msg;
 }
@@ -790,141 +789,139 @@ ofhal_handle_msgs(
 		/* TODO: parse and call appropriate function from target fops */
 		ofhal_parse_msg(msg);
 
-		pthread_mutex_lock(&(handle->mutex));
 
-		switch (msg->ofh_header->type) {
+		switch (msg->ofp_hdr->type) {
 		/*
 		 * HCL -> HAL
 		 */
 #if 0
-		case OFPT_EXPERIMENTER:
+		case OFHAL_OFPT_EXPERIMENTER:
 			if (handle->halops && handle->halops->expr_req)
 			{
-				handle->halops->expr_req(msg);
+				handle->halops->expr_req(handle->dpid, msg);
 			}
 			break;
 #endif
-		case OFPT_FEATURES_REQUEST:
+		case OFHAL_OFPT_FEATURES_REQUEST:
 			if (handle->halops && handle->halops->feature_req)
 			{
-				handle->halops->feature_req(msg);
+				handle->halops->feature_req(handle->dpid, msg);
 			}
 			break;
-		case OFPT_GET_CONFIG_REQUEST:
+		case OFHAL_OFPT_GET_CONFIG_REQUEST:
 			if (handle->halops && handle->halops->get_config_req)
 			{
-				handle->halops->get_config_req(msg);
+				handle->halops->get_config_req(handle->dpid, msg);
 			}
 			break;
-		case OFPT_STATS_REQUEST:
+		case OFHAL_OFPT_STATS_REQUEST:
 			if (handle->halops && handle->halops->state_req)
 			{
-				handle->halops->state_req(msg);
+				handle->halops->state_req(handle->dpid, msg);
 			}
 			break;
-		case OFPT_QUEUE_GET_CONFIG_REQUEST:
+		case OFHAL_OFPT_QUEUE_GET_CONFIG_REQUEST:
 			if (handle->halops && handle->halops->queue_conf_req)
 			{
-				handle->halops->queue_conf_req(msg);
+				handle->halops->queue_conf_req(handle->dpid, msg);
 			}
 			break;
-		case OFPT_BARRIER_REQUEST:
+		case OFHAL_OFPT_BARRIER_REQUEST:
 			if (handle->halops && handle->halops->barrier_req)
 			{
-				handle->halops->barrier_req(msg);
+				handle->halops->barrier_req(handle->dpid, msg);
 			}
 			break;
-		case OFPT_FLOW_MOD:
+		case OFHAL_OFPT_FLOW_MOD:
 			if (handle->halops && handle->halops->flow_mod)
 			{
-				handle->halops->flow_mod(msg);
+				handle->halops->flow_mod(handle->dpid, msg);
 			}
 			break;
-		case OFPT_GROUP_MOD:
+		case OFHAL_OFPT_GROUP_MOD:
 			if (handle->halops && handle->halops->group_mod)
 			{
-				handle->halops->group_mod(msg);
+				handle->halops->group_mod(handle->dpid, msg);
 			}
 			break;
-		case OFPT_PORT_MOD:
+		case OFHAL_OFPT_PORT_MOD:
 			if (handle->halops && handle->halops->port_mod)
 			{
-				handle->halops->port_mod(msg);
+				handle->halops->port_mod(handle->dpid, msg);
 			}
 			break;
-		case OFPT_TABLE_MOD:
+		case OFHAL_OFPT_TABLE_MOD:
 			if (handle->halops && handle->halops->table_mod)
 			{
-				handle->halops->table_mod(msg);
+				handle->halops->table_mod(handle->dpid, msg);
 			}
 			break;
-		case OFPT_PACKET_OUT:
+		case OFHAL_OFPT_PACKET_OUT:
 			if (handle->halops && handle->halops->packet_out)
 			{
-				handle->halops->packet_out(msg);
+				handle->halops->packet_out(handle->dpid, msg);
 			}
 			break;
 
 			/*
 			 * HAL -> HCL
 			 */
-		case OFPT_ERROR:
+		case OFHAL_OFPT_ERROR:
 			if (handle->hclops && handle->hclops->error)
 			{
-				handle->hclops->error(msg);
+				handle->hclops->error(handle->dpid, msg);
 			}
 			break;
-		case OFPT_PACKET_IN:
+		case OFHAL_OFPT_PACKET_IN:
 			if (handle->hclops && handle->hclops->packet_in)
 			{
-				handle->hclops->packet_in(msg);
+				handle->hclops->packet_in(handle->dpid, msg);
 			}
 			break;
-		case OFPT_FLOW_REMOVED:
+		case OFHAL_OFPT_FLOW_REMOVED:
 			if (handle->hclops && handle->hclops->flow_rmvd)
 			{
-				handle->hclops->flow_rmvd(msg);
+				handle->hclops->flow_rmvd(handle->dpid, msg);
 			}
 			break;
-		case OFPT_PORT_STATUS:
+		case OFHAL_OFPT_PORT_STATUS:
 			if (handle->hclops && handle->hclops->port_status)
 			{
-				handle->hclops->port_status(msg);
+				handle->hclops->port_status(handle->dpid, msg);
 			}
 			break;
-		case OFPT_FEATURES_REPLY:
+		case OFHAL_OFPT_FEATURES_REPLY:
 			if (handle->hclops && handle->hclops->feature_rep)
 			{
-				handle->hclops->feature_rep(msg);
+				handle->hclops->feature_rep(handle->dpid, msg);
 			}
 			break;
-		case OFPT_GET_CONFIG_REPLY:
+		case OFHAL_OFPT_GET_CONFIG_REPLY:
 			if (handle->hclops && handle->hclops->get_config_rep)
 			{
-				handle->hclops->get_config_rep(msg);
+				handle->hclops->get_config_rep(handle->dpid, msg);
 			}
 			break;
-		case OFPT_STATS_REPLY:
+		case OFHAL_OFPT_STATS_REPLY:
 			if (handle->hclops && handle->hclops->state_rep)
 			{
-				handle->hclops->state_rep(msg);
+				handle->hclops->state_rep(handle->dpid, msg);
 			}
 			break;
-		case OFPT_QUEUE_GET_CONFIG_REPLY:
+		case OFHAL_OFPT_QUEUE_GET_CONFIG_REPLY:
 			if (handle->hclops && handle->hclops->queue_conf_rep)
 			{
-				handle->hclops->queue_conf_rep(msg);
+				handle->hclops->queue_conf_rep(handle->dpid, msg);
 			}
 			break;
-		case OFPT_BARRIER_REPLY:
+		case OFHAL_OFPT_BARRIER_REPLY:
 			if (handle->hclops && handle->hclops->barrier_rep)
 			{
-				handle->hclops->barrier_rep(msg);
+				handle->hclops->barrier_rep(handle->dpid, msg);
 			}
 			break;
 		}
 
-		pthread_mutex_unlock(&(handle->mutex));
 
 		msg = msg->next;
 	}

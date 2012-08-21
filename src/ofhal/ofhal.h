@@ -39,37 +39,44 @@ enum ofhal_result_t {
 #define OFHAL_IDX_NONE	0xffffffff
 
 
+/* OpenFlow message types
+ *
+ * We redefine these numbers and the succeeding headers here in order to avoid
+ * including the OpenFlow protocol specification itself via openflow.h.
+ * However, we have to adjust this enumeration based on new message types
+ * probably defined in upcoming OpenFlow versions.
+ */
 enum ofhal_ofp_types {
-    OFPT_ERROR 						= 1,	/* Symmetric message */
-    OFPT_EXPERIMENTER				= 4,    /* Symmetric message */
+    OFHAL_OFPT_ERROR 						= 1,	/* Symmetric message */
+    OFHAL_OFPT_EXPERIMENTER					= 4,    /* Symmetric message */
 
-    OFPT_FEATURES_REQUEST			= 5,    /* Controller/switch message */
-    OFPT_FEATURES_REPLY				= 6,    /* Controller/switch message */
-    OFPT_GET_CONFIG_REQUEST			= 7,    /* Controller/switch message */
-    OFPT_GET_CONFIG_REPLY			= 8,    /* Controller/switch message */
-    OFPT_SET_CONFIG					= 9,    /* Controller/switch message */
+    OFHAL_OFPT_FEATURES_REQUEST				= 5,    /* Controller/switch message */
+    OFHAL_OFPT_FEATURES_REPLY				= 6,    /* Controller/switch message */
+    OFHAL_OFPT_GET_CONFIG_REQUEST			= 7,    /* Controller/switch message */
+    OFHAL_OFPT_GET_CONFIG_REPLY				= 8,    /* Controller/switch message */
+    OFHAL_OFPT_SET_CONFIG					= 9,    /* Controller/switch message */
 
-    OFPT_PACKET_IN					= 10,   /* Async message */
-    OFPT_FLOW_REMOVED				= 11,   /* Async message */
-    OFPT_PORT_STATUS				= 12,   /* Async message */
+    OFHAL_OFPT_PACKET_IN					= 10,   /* Async message */
+    OFHAL_OFPT_FLOW_REMOVED					= 11,   /* Async message */
+    OFHAL_OFPT_PORT_STATUS					= 12,   /* Async message */
 
-    OFPT_PACKET_OUT					= 13,   /* Controller/switch message */
-    OFPT_FLOW_MOD					= 14,   /* Controller/switch message */
-    OFPT_GROUP_MOD					= 15,   /* Controller/switch message */
-    OFPT_PORT_MOD					= 16,   /* Controller/switch message */
-    OFPT_TABLE_MOD					= 17,   /* Controller/switch message */
+    OFHAL_OFPT_PACKET_OUT					= 13,   /* Controller/switch message */
+    OFHAL_OFPT_FLOW_MOD						= 14,   /* Controller/switch message */
+    OFHAL_OFPT_GROUP_MOD					= 15,   /* Controller/switch message */
+    OFHAL_OFPT_PORT_MOD						= 16,   /* Controller/switch message */
+    OFHAL_OFPT_TABLE_MOD					= 17,   /* Controller/switch message */
 
-    OFPT_STATS_REQUEST				= 18,   /* Controller/switch message */
-    OFPT_STATS_REPLY				= 19,   /* Controller/switch message */
+    OFHAL_OFPT_STATS_REQUEST				= 18,   /* Controller/switch message */
+    OFHAL_OFPT_STATS_REPLY					= 19,   /* Controller/switch message */
 
-    OFPT_BARRIER_REQUEST			= 20,   /* Controller/switch message */
-    OFPT_BARRIER_REPLY				= 21,   /* Controller/switch message */
+    OFHAL_OFPT_BARRIER_REQUEST				= 20,   /* Controller/switch message */
+    OFHAL_OFPT_BARRIER_REPLY				= 21,   /* Controller/switch message */
 
-    OFPT_QUEUE_GET_CONFIG_REQUEST	= 22,  /* Controller/switch message */
-    OFPT_QUEUE_GET_CONFIG_REPLY		= 23,  /* Controller/switch message */
+    OFHAL_OFPT_QUEUE_GET_CONFIG_REQUEST		= 22,  /* Controller/switch message */
+    OFHAL_OFPT_QUEUE_GET_CONFIG_REPLY		= 23,  /* Controller/switch message */
 
-    OFPT_ROLE_REQUEST    			= 24, /* Controller/switch message */
-    OFPT_ROLE_REPLY					= 25, /* Controller/switch message */
+    OFHAL_OFPT_ROLE_REQUEST    				= 24, /* Controller/switch message */
+    OFHAL_OFPT_ROLE_REPLY					= 25, /* Controller/switch message */
 };
 
 /*
@@ -197,7 +204,7 @@ struct ofhal_msg_t {
 	struct iovec 					 iov;	/* iovec pointing to message buffer
 							 	 	 	 	 * including OF header (and thus version
 							 	 	 	 	 */
-	struct ofhal_ofp_header 		*ofh_header;
+	struct ofhal_ofp_header 		*ofp_hdr;
 
 	/* head of list of instructions
 	 * set to 0 when no instructions are present */
@@ -226,23 +233,29 @@ struct ofhal_msg_t {
  */
 struct ofhal_ops {
 	/*
+	 * management events
+	 */
+	int (*hcl_open)			(uint64_t dpid);	/* indicates that a common entity has connected to the library */
+	int (*hcl_close)		(uint64_t dpid);	/* indicates that a common entity has disconnected from the library */
+
+	/*
 	 * unidirectional commands
 	 */
-	int (*packet_out)		(struct ofhal_msg_t *msg);
-	int (*flow_mod) 		(struct ofhal_msg_t *msg);
-	int (*group_mod) 		(struct ofhal_msg_t *msg);
-	int (*port_mod) 		(struct ofhal_msg_t *msg);
-	int (*table_mod)		(struct ofhal_msg_t *msg);
+	int (*packet_out)		(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*flow_mod) 		(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*group_mod) 		(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*port_mod) 		(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*table_mod)		(uint64_t dpid, struct ofhal_msg_t *msg);
 
 	/*
 	 * bidirectional requests
 	 */
-	int (*feature_req)		(struct ofhal_msg_t *msg);
-	int (*get_config_req)	(struct ofhal_msg_t *msg);
-	int (*state_req)		(struct ofhal_msg_t *msg);
-	int (*queue_conf_req) 	(struct ofhal_msg_t *msg);
-	int (*barrier_req) 		(struct ofhal_msg_t *msg);
-	int (*expr_req)			(struct ofhal_msg_t *msg);
+	int (*feature_req)		(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*get_config_req)	(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*state_req)		(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*queue_conf_req) 	(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*barrier_req) 		(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*expr_req)			(uint64_t dpid, struct ofhal_msg_t *msg);
 };
 
 
@@ -251,22 +264,28 @@ struct ofhal_ops {
  */
 struct ofhcl_ops {
 	/*
+	 * management events
+	 */
+	int (*hal_open)			(uint64_t dpid);	/* indicates that a hardware driver has connected to the library */
+	int (*hal_close)		(uint64_t dpid);	/* indicates that a hardware driver has disconnected from the library */
+
+	/*
 	 * asynchronous messages
 	 */
-	int (*packet_in)		(struct ofhal_msg_t *msg);
-	int (*flow_rmvd)		(struct ofhal_msg_t *msg);
-	int (*port_status)		(struct ofhal_msg_t *msg);
-	int (*error)			(struct ofhal_msg_t *msg);
+	int (*packet_in)		(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*flow_rmvd)		(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*port_status)		(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*error)			(uint64_t dpid, struct ofhal_msg_t *msg);
 
 	/*
 	 * bidirectional requests
 	 */
-	int (*feature_rep)		(struct ofhal_msg_t *msg);
-	int (*get_config_rep)	(struct ofhal_msg_t *msg);
-	int (*state_rep)		(struct ofhal_msg_t *msg);
-	int (*queue_conf_rep)	(struct ofhal_msg_t *msg);
-	int (*barrier_rep)		(struct ofhal_msg_t *msg);
-	int (*expr_rep)			(struct ofhal_msg_t *msg);
+	int (*feature_rep)		(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*get_config_rep)	(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*state_rep)		(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*queue_conf_rep)	(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*barrier_rep)		(uint64_t dpid, struct ofhal_msg_t *msg);
+	int (*expr_rep)			(uint64_t dpid, struct ofhal_msg_t *msg);
 };
 
 
