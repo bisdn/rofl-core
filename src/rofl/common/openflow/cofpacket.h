@@ -238,10 +238,7 @@ public:
 	virtual void
 	unpack(
 			uint8_t *buf,
-			size_t buflen)
-	{
-		throw eNotImplemented();
-	};
+			size_t buflen);
 
 
 	/** check for completeness of packet

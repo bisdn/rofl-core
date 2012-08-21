@@ -108,6 +108,12 @@ cofpacket::pack(uint8_t *buf, size_t buflen) throw (eOFpacketInval)
 }
 
 
+void
+cofpacket::unpack(uint8_t *buf, size_t buflen)
+{
+	memarea.assign(buf, buflen);
+}
+
 
 bool
 cofpacket::complete() throw (eOFpacketInval)
