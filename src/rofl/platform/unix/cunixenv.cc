@@ -62,7 +62,7 @@ cunixenv::parse_args(
 	};
 
 	while (true) {
-		c = getopt_long(argc, argv, "Dhd:b:s:k:r:f:c:a:", long_options, &option_index);
+		c = getopt_long(argc, argv, "Dhd:b:s:k:r:f:c:i:p:a:", long_options, &option_index);
 		if (c == -1)
 			break;
 
