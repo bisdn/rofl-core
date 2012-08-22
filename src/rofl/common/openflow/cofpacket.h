@@ -176,7 +176,7 @@ public:
 	 *
 	 */
 	cofpacket(
-			size_t size = 128,
+			size_t size = sizeof(struct ofp_header),
 			size_t used = 0);
 
 
