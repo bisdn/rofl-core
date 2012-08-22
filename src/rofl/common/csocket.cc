@@ -161,8 +161,12 @@ csocket::cpopen(
 		throw eSocketError();
 
 	if ((type == SOCK_STREAM) && (protocol == IPPROTO_TCP)) {
-		// set TCP_NODELAY option on TCP sockets
+		// set SO_REUSEADDR option on TCP sockets
 		int optval = 1;
+		if ((rc = setsockopt(sd, IPPROTO_TCP, SO_REUSEADDR, (int*)&optval, sizeof(optval))) < 0)
+			throw eSocketError();
+		// set TCP_NODELAY option on TCP sockets
+		optval = 1;
 		if ((rc = setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (int*)&optval, sizeof(optval))) < 0)
 			throw eSocketError();
 		// set SO_RCVLOWAT
