@@ -1075,9 +1075,9 @@ cfwdelem::fe_up_get_config_reply(
 		check_up_packet(pack, OFPT_GET_CONFIG_REPLY, entity);
 
 		ta_validate(be32toh(pack->ofh_header->xid), OFPT_GET_CONFIG_REQUEST);
-		cofdpath *sw = ofswitch_find(entity);
-		sw->get_config_reply_rcvd(pack);
-		handle_get_config_reply(sw, pack);
+
+		ofswitch_find(entity)->get_config_reply_rcvd(pack);
+
 
 	} catch (eOFbaseInval& e) {
 		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_get_config_reply() malformed packet received", this);

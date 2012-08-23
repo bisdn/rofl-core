@@ -26,7 +26,8 @@ if test "$enable_debug" = "yes"; then
 	AC_MSG_RESULT(yes)
 else
 	CXXFLAGS="-O3" #-fomit-frame-pointer"
-	CFLAGS="-O3" #--compiler-options -fno-strict-aliasing --compiler-options -fno-inline" 
+	CFLAGS="-O3" #--compiler-options -fno-strict-aliasing --compiler-options -fno-inline"
+	AC_DEFINE(NDEBUG) 
 	AC_MSG_RESULT(no)
 fi
 
@@ -70,6 +71,7 @@ AC_CONFIG_FILES([
 	src/rofl/common/Makefile
 	src/rofl/Makefile
 	src/rofl/config/Makefile
+	src/ofhal/Makefile
 
 	test/Makefile
 	test/unit/Makefile

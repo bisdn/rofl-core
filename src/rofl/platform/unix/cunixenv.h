@@ -37,6 +37,7 @@ public:
 	static std::string controller_ip;	// ip address of the controller
 	static u_int16_t controller_port;	// port number of the controller
 	static std::string config_filename;
+	static int enable_hal;		// enable the Hardware Abstraction Layer
 
 public:
 

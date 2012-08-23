@@ -63,6 +63,8 @@ cofdpath::~cofdpath()
 
 	fwdelem->handle_dpath_close(this);
 
+	fwdelem->send_down_hello_message(this, true);
+
 	//lldp_terminate();
 
 	ofswitch_list->erase(entity);
@@ -228,6 +230,8 @@ cofdpath::get_config_reply_rcvd(
 	cancel_timer(COFDPATH_TIMER_GET_CONFIG_REPLY);
 
 	config_save(pack); // save struct ofp_switch_config
+
+	fwdelem->handle_get_config_reply(this, pack);
 
 	if (cur_state() == DP_STATE_INIT)
 	{
