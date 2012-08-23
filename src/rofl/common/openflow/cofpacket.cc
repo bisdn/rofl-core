@@ -108,6 +108,12 @@ cofpacket::pack(uint8_t *buf, size_t buflen) throw (eOFpacketInval)
 }
 
 
+void
+cofpacket::unpack(uint8_t *buf, size_t buflen)
+{
+	memarea.assign(buf, buflen);
+}
+
 
 bool
 cofpacket::complete() throw (eOFpacketInval)
@@ -350,7 +356,7 @@ cofpacket::is_valid_experimenter_message()
 	if (stored < be16toh(ofh_experimenter->header.length))
 		return false;
 	body.assign(soframe() + sizeof(struct ofp_experimenter_header),
-			framelen() - sizeof(struct ofp_experimenter_header));
+			stored - sizeof(struct ofp_experimenter_header));
 	return true;
 }
 
@@ -366,7 +372,7 @@ cofpacket::is_valid_error_msg()
 		return false;
 	}
 
-	switch (ofh_error_msg->type) {
+	switch (be16toh(ofh_error_msg->type)) {
 	case OFPET_HELLO_FAILED:
 		// access via emhdr->data
 		break;
@@ -391,7 +397,7 @@ cofpacket::is_valid_error_msg()
 		return true;
 	}
 	body.assign(ofh_error_msg->data,
-			framelen() - sizeof(struct ofp_error_msg));
+			stored - sizeof(struct ofp_error_msg));
 	return true;
 }
 
@@ -401,11 +407,20 @@ cofpacket::is_valid_switch_features()
 	ofh_switch_features = (struct ofp_switch_features*)soframe();
 	if (stored < sizeof(struct ofp_switch_features))
 		return false;
-	body.assign((uint8_t*)ofh_switch_features->ports,
-			framelen() - sizeof(struct ofp_switch_features));
-	switch_features_num_ports = 
-				(framelen() - sizeof(struct ofp_switch_features)) 	
-										/ sizeof(struct ofp_port);
+
+	size_t ports_len = stored - sizeof(struct ofp_switch_features);
+
+	if (ports_len > 0)
+	{
+		body.assign((uint8_t*)ofh_switch_features->ports, ports_len);
+		switch_features_num_ports = (ports_len) / sizeof(struct ofp_port);
+	}
+	else
+	{
+		body.clear();
+		switch_features_num_ports = 0;
+	}
+
 	return true;
 }
 
@@ -543,9 +558,8 @@ cofpacket::is_valid_flow_mod()
 		/*
 		 * match.length() returns length of struct ofp_match including padding
 		 */
-		if ((OFP_FLOW_MOD_STATIC_HDR_LEN + match.length()) > framelen())
+		if ((OFP_FLOW_MOD_STATIC_HDR_LEN + match.length()) > stored)
 		{
-			fprintf(stderr, "1.3 ");
 			return false;
 		}
 
@@ -592,6 +606,7 @@ cofpacket::is_valid_group_mod()
 	} catch (eActionBadOutPort& e) {
 		return true; // FIXME: dont ask
 	}
+	return false; // just to make eclipse happy ...
 }
 
 
@@ -621,8 +636,10 @@ cofpacket::is_valid_stats_request()
 	ofh_stats_request = (struct ofp_stats_request*)soframe();
 	if (stored < sizeof(struct ofp_stats_request))
 		return false;
-	body.assign((uint8_t*)ofh_stats_request->body,
-			framelen() - sizeof(struct ofp_stats_request));
+
+	size_t body_len = stored - sizeof(struct ofp_stats_request);
+
+	body.assign((uint8_t*)ofh_stats_request->body, body_len);
 
 	ofb_stats_request = (uint8_t*)body.somem();
 
@@ -630,8 +647,8 @@ cofpacket::is_valid_stats_request()
 	case OFPST_FLOW:
 		{
 			match.reset();
-			size_t bodylen = stored - OFP_FLOW_STATS_REQUEST_STATIC_HDR_LEN;
-			match.unpack(&(ofb_flow_stats_request->match), bodylen);
+			size_t match_len = stored - OFP_FLOW_STATS_REQUEST_STATIC_HDR_LEN;
+			match.unpack(&(ofb_flow_stats_request->match), match_len);
 		}
 		break;
 	}
@@ -648,7 +665,7 @@ cofpacket::is_valid_stats_reply()
 		return false;
 
 	body.assign((uint8_t*)ofh_stats_reply->body,
-			framelen() - sizeof(struct ofp_stats_reply));
+			stored - sizeof(struct ofp_stats_reply));
 
 	ofb_stats_request = (uint8_t*)body.somem();
 
@@ -672,7 +689,7 @@ cofpacket::is_valid_queue_get_config_reply()
 	if (stored < sizeof(struct ofp_queue_get_config_reply))
 		return false;
 	body.assign((uint8_t*)ofh_queue_get_config_reply->queues,
-			framelen() - sizeof(struct ofp_queue_get_config_reply));
+			stored - sizeof(struct ofp_queue_get_config_reply));
 	return true;
 }
 

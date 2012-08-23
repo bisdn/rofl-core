@@ -1,4 +1,4 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = rofl
+SUBDIRS = rofl ofhal
 

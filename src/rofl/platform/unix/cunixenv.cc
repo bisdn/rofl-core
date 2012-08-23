@@ -16,6 +16,7 @@ extern char* optarg;
 /*static*/std::string cunixenv::controller_ip("127.0.0.1");
 /*static*/u_int16_t cunixenv::controller_port = 6633;
 /*static*/std::string cunixenv::config_filename("./default-cli.cfg");
+/*static*/int cunixenv::enable_hal = 0;
 
 void
 cunixenv::usage(
@@ -31,6 +32,7 @@ cunixenv::usage(
 	fprintf(stderr, "[--configfile|-c] <string:filename>\n");
 	fprintf(stderr, "[--ctl_ip_addr|-i] <ip:127.0.0.1>\n");
 	fprintf(stderr, "[--ctl_port|-p] <int:#portnum>\n");
+	fprintf(stderr, "[--hal|-a] <int: default(0) HAL(1)>\n");
 	exit(0);
 }
 
@@ -55,11 +57,12 @@ cunixenv::parse_args(
 			{ "configfile", 1, 0, 'c' },
 			{ "ctl_ip_addr", 1, 0, 'i' },
 			{ "ctl_port", 1, 0, 'p' },
+			{ "hal", 1, 0, 'a' },
 			{ NULL, 0, 0, 0 }
 	};
 
 	while (true) {
-		c = getopt_long(argc, argv, "Dhd:b:s:k:r:f:c:", long_options, &option_index);
+		c = getopt_long(argc, argv, "Dhd:b:s:k:r:f:c:i:p:a:", long_options, &option_index);
 		if (c == -1)
 			break;
 
@@ -113,6 +116,10 @@ cunixenv::parse_args(
 
 		case 'p':
 			controller_port = atoi(optarg);
+			break;
+
+		case 'a':
+			enable_hal = atoi(optarg);
 			break;
 		}
 	}

@@ -176,7 +176,7 @@ public:
 	 *
 	 */
 	cofpacket(
-			size_t size = 128,
+			size_t size = sizeof(struct ofp_header),
 			size_t used = 0);
 
 
@@ -238,10 +238,7 @@ public:
 	virtual void
 	unpack(
 			uint8_t *buf,
-			size_t buflen)
-	{
-		throw eNotImplemented();
-	};
+			size_t buflen);
 
 
 	/** check for completeness of packet
