@@ -914,18 +914,22 @@ cofpacket::test()
 	uint32_t curr_speed	= 0xaabbcc07;
 	uint32_t max_speed 	= 0xaabbcc08;
 
-	features_reply.ports.next() = cofport(
-									port_no,
-									hwaddr,
-									devname,
-									config,
-									state,
-									curr,
-									advertised,
-									supported,
-									peer,
-									curr_speed,
-									max_speed);
+	cofport ofport;
+
+	ofport.port_no 		= port_no;
+	ofport.hwaddr 		= hwaddr;
+	ofport.name 		= devname;
+	ofport.config 		= config;
+	ofport.state 		= state;
+	ofport.curr 		= curr;
+	ofport.advertised 	= advertised;
+	ofport.supported 	= supported;
+	ofport.peer 		= peer;
+	ofport.curr_speed 	= curr_speed;
+	ofport.max_speed 	= max_speed;
+
+	features_reply.ports.next() = ofport;
+
 	packed.clear();
 	packed.resize(features_reply.length());
 	features_reply.pack(packed.somem(), packed.memlen());

@@ -505,26 +505,6 @@ cofdpath::port_status_rcvd(cofpacket *pack)
 		{
 			cofport *lport = new cofport(&ports, &(pack->ofh_port_status->desc));
 
-#if 0
-			cofport *eport = new cofport( // emulated port
-					&(fwdelem->phy_ports), // list of cofports in fwdelem
-					cofport::ports_get_free_port_no(&(fwdelem->phy_ports)), // port_no
-					lport->hwaddr, // mac address
-					lport->name.c_str(), lport->name.length(),
-					lport->config,
-					lport->state,
-					lport->curr,
-					lport->advertised,
-					lport->supported,
-					lport->peer,
-					lport->curr_speed,
-					lport->max_speed,
-					this, // this port is mapped to this datapath
-					lport->port_no); // and maps to dpid:port_no
-
-			WRITELOG(COFDPATH, DBG, "cofdpath(%p)::port_status_rcvd() creating new port: %s", this, eport);
-#endif
-
 			// let derived class handle PORT-STATUS message
 			fwdelem->handle_port_status(this, pack, lport);
 		}
@@ -543,7 +523,9 @@ cofdpath::port_status_rcvd(cofpacket *pack)
 	case OFPPR_MODIFY:
 		if (ports.find(be32toh(pack->ofh_port_status->desc.port_no)) != ports.end())
 		{
-			ports[be32toh(pack->ofh_port_status->desc.port_no)]->update(&(pack->ofh_port_status->desc));
+			ports[be32toh(pack->ofh_port_status->desc.port_no)]->unpack(
+																&(pack->ofh_port_status->desc),
+																sizeof(struct ofp_port));
 
 			// let derived class handle PORT-STATUS message
 			fwdelem->handle_port_status(this, pack, ports[be32toh(pack->ofh_port_status->desc.port_no)]);
@@ -669,7 +651,7 @@ cofdpath::find_cofport(
 
 	std::map<uint32_t, cofport*>::iterator it;
 	if ((it = find_if(ports.begin(), ports.end(),
-			cofport::cofport_find_by_port_name(port_name))) == ports.end())
+			cofport_find_by_port_name(port_name))) == ports.end())
 	{
 		throw eOFdpathNotFound();
 	}

@@ -26,19 +26,10 @@ cofport::ports_parse(
 		if (portslen < (int)sizeof(struct ofp_port))
 			throw eOFportMalformed();
 
-		new cofport(
-			&__ports,
-			be32toh(phdr->port_no),
-			cmacaddr(phdr->hw_addr, OFP_ETH_ALEN),
-			std::string(phdr->name, OFP_MAX_PORT_NAME_LEN),
-			be32toh(phdr->config),
-			be32toh(phdr->state),
-			be32toh(phdr->curr),
-			be32toh(phdr->advertised),
-			be32toh(phdr->supported),
-			be32toh(phdr->peer),
-			be32toh(phdr->curr_speed),
-			be32toh(phdr->max_speed));
+
+		cofport *ofport = new cofport(&__ports);
+
+		ofport->unpack(phdr, sizeof(struct ofp_port));
 
 		portslen -= sizeof(struct ofp_port);
 		phdr = (struct ofp_port*)(((uint8_t*)phdr) + sizeof(struct ofp_port));
@@ -67,12 +58,12 @@ cofport::ports_get_free_port_no(
 
 cofport::cofport(
 	std::map<uint32_t, cofport*> *port_list,
-	struct ofp_port *port) :
-	handler(NULL),
+	struct ofp_port *port,
+	size_t port_len) :
 	port_list(port_list)
 {
 	reset_stats();
-	update(port);
+	unpack(port, port_len);
 
 	(*port_list)[port_no] = this;
 }
@@ -81,7 +72,6 @@ cofport::cofport(
 cofport::cofport(
 		struct ofp_port* port,
 		size_t portlen) :
-		handler(NULL),
 		port_list(NULL)
 {
 	reset_stats();
@@ -89,75 +79,13 @@ cofport::cofport(
 }
 
 
-cofport::cofport(
-	uint32_t port_no,
-	cmacaddr const& __hwaddr,
-	std::string const& __devname,
-	uint32_t __config,
-	uint32_t __state,
-	uint32_t __curr,
-	uint32_t __advertised,
-	uint32_t __supported,
-	uint32_t __peer,
-	uint32_t __curr_speed,
-	uint32_t __max_speed) :
-	handler(NULL),
-	port_list(NULL),
-	port_no(port_no),
-	hwaddr(__hwaddr),
-	name(__devname),
-	config(__config),
-	state(__state),
-	curr(__curr),
-	advertised(__advertised),
-	supported(__supported),
-	peer(__peer),
-	curr_speed(__curr_speed),
-	max_speed(__max_speed)
-{
-	reset_stats();
-	WRITELOG(CPORT, DBG, "cofport(%p)::cofport() -constructor-", this);
-}
-
-
-
-cofport::cofport(
-	std::map<uint32_t, cofport*> *port_list,
-	uint32_t port_no,
-	cmacaddr const& __hwaddr,
-	std::string const& __devname,
-	uint32_t config,
-	uint32_t state,
-	uint32_t curr,
-	uint32_t advertised,
-	uint32_t supported,
-	uint32_t peer,
-	uint32_t curr_speed,
-	uint32_t max_speed) :
-	handler(NULL),
-	port_list(port_list),
-	port_no(port_no),
-	hwaddr(__hwaddr),
-	name(__devname),
-	config(config),
-	state(state),
-	curr(curr),
-	advertised(advertised),
-	supported(supported),
-	peer(peer),
-	curr_speed(curr_speed),
-	max_speed(max_speed)
-{
-	reset_stats();
-	(*port_list)[port_no] = this;
-
-	WRITELOG(CPORT, DBG, "cofport(%p)::cofport() -constructor-", this);
-}
-
 
 cofport::~cofport()
 {
-	WRITELOG(CPORT, DBG, "cofport(%p)::~cofport() -destructor-", this);
+	if (0 != port_list)
+	{
+		port_list->erase(port_no);
+	}
 }
 
 
@@ -176,7 +104,6 @@ cofport::operator= (cofport const& port)
 
 	reset_stats();
 
-	handler			= NULL;
 	port_list 		= NULL;
 	port_no 		= port.port_no;
 	hwaddr 			= port.hwaddr;
@@ -258,51 +185,6 @@ cofport::recv_port_mod(
 			name.c_str(), port_no, this->config, this->advertised);
 }
 
-
-void 
-cofport::update(
-	uint32_t port_no,
-	cmacaddr const& hwaddr,
-	const char *name, size_t namelen,
-	uint32_t config,
-	uint32_t state,
-	uint32_t curr,
-	uint32_t advertised,
-	uint32_t supported,
-	uint32_t peer,
-	uint32_t curr_speed,
-	uint32_t max_speed)
-{
-	this->port_no = port_no;
-	this->hwaddr = hwaddr;
-	this->name.assign(name, namelen);
-	this->config = config;
-	this->state = state;
-	this->curr = curr;
-	this->advertised = advertised;
-	this->supported = supported;
-	this->peer = peer;
-	this->curr_speed = curr_speed;
-	this->max_speed = max_speed;
-}
-
-
-void
-cofport::update(
-	struct ofp_port *port)
-{
-	this->port_no = be32toh(port->port_no);
-	this->hwaddr = cmacaddr(port->hw_addr, OFP_ETH_ALEN);
-	this->name.assign(port->name, OFP_MAX_PORT_NAME_LEN);
-	this->config = be32toh(port->config);		
-	this->state = be32toh(port->state);
-	this->curr = be32toh(port->curr);
-	this->advertised = be32toh(port->advertised);
-	this->supported = be32toh(port->supported);
-	this->peer = be32toh(port->peer);
-	this->curr_speed = be32toh(port->curr_speed);
-	this->max_speed = be32toh(port->max_speed);
-}
 
 
 size_t
@@ -404,6 +286,52 @@ throw (eOFportInval)
 
 
 
+
+
+void
+cofport::reset_stats()
+{
+	rx_packets 		= 0;
+	tx_packets 		= 0;
+	rx_bytes 		= 0;
+	tx_bytes 		= 0;
+	rx_dropped 		= 0;
+	tx_dropped 		= 0;
+	rx_errors 		= 0;
+	tx_errors 		= 0;
+	rx_frame_err 	= 0;
+	rx_over_err 	= 0;
+	rx_crc_err 		= 0;
+	collisions 		= 0;
+}
+
+
+void
+cofport::get_port_stats(
+		cmemory& body)
+{
+	cmemory pstats(sizeof(struct ofp_port_stats));
+	struct ofp_port_stats* stats = (struct ofp_port_stats*)pstats.somem();
+
+	stats->port_no					= htobe32(port_no);
+	stats->rx_packets				= htobe32(rx_packets);
+	stats->tx_packets				= htobe32(tx_packets);
+	stats->rx_bytes					= htobe32(rx_bytes);
+	stats->tx_bytes					= htobe32(tx_bytes);
+	stats->rx_dropped				= htobe32(rx_dropped);
+	stats->tx_dropped				= htobe32(tx_dropped);
+	stats->rx_errors				= htobe32(rx_errors);
+	stats->tx_errors				= htobe32(tx_errors);
+	stats->rx_frame_err				= htobe32(rx_frame_err);
+	stats->rx_over_err				= htobe32(rx_over_err);
+	stats->rx_crc_err				= htobe32(rx_crc_err);
+	stats->collisions				= htobe32(collisions);
+
+	body += pstats;
+}
+
+
+
 /*static*/
 void
 cofport::test()
@@ -432,59 +360,6 @@ cofport::test()
 	fprintf(stderr, "p1.unpacked => %s\n", p2.c_str());
 }
 
-
-void
-cofport::reset_stats()
-{
-	rx_packets = 0;
-	tx_packets = 0;
-	rx_bytes = 0;
-	tx_bytes = 0;
-	rx_dropped = 0;
-	tx_dropped = 0;
-	rx_errors = 0;
-	tx_errors = 0;
-	rx_frame_err = 0;
-	rx_over_err = 0;
-	rx_crc_err = 0;
-	collisions = 0;
-}
-
-
-chandler&
-cofport::get_adapter()
-throw (eOFportNotFound)
-{
-	if (NULL == handler)
-	{
-		throw eOFportNotFound();
-	}
-	return (*handler);
-}
-
-
-void
-cofport::get_port_stats(
-		cmemory& body)
-{
-	cmemory pstats(sizeof(struct ofp_port_stats));
-	struct ofp_port_stats* stats = (struct ofp_port_stats*)pstats.somem();
-
-	stats->port_no					= htobe32(port_no);
-	stats->rx_packets				= htobe32(rx_packets);
-	stats->tx_packets				= htobe32(tx_packets);
-	stats->rx_bytes					= htobe32(rx_bytes);
-	stats->tx_bytes					= htobe32(tx_bytes);
-	stats->rx_dropped				= htobe32(rx_dropped);
-	stats->tx_dropped				= htobe32(tx_dropped);
-	stats->rx_errors				= htobe32(rx_errors);
-	stats->tx_errors				= htobe32(tx_errors);
-	stats->rx_frame_err				= htobe32(rx_frame_err);
-	stats->rx_over_err				= htobe32(rx_over_err);
-	stats->rx_crc_err				= htobe32(rx_crc_err);
-	stats->collisions				= htobe32(collisions);
-
-	body += pstats;
-}
-
 template class coflist<cofport>;
+
+
