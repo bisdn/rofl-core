@@ -169,7 +169,7 @@ cfwdelem::c_str()
 
 	// cofport instances
 	info.append(vas("\nlist of registered cofport instances: =>"));
-	std::map<uint32_t, cofport*>::iterator it;
+	std::map<uint32_t, cphyport*>::iterator it;
 	for (it = phy_ports.begin(); it != phy_ports.end(); ++it)
 	{
 		info.append(vas("\n  %s", it->second->c_str()));
@@ -280,6 +280,31 @@ void
 cfwdelem::dpt_connect(caddress const& ra)
 {
 	rpc[RPC_DPT]->cconnect(ra);
+}
+
+
+void
+cfwdelem::port_attach(
+		std::string devname,
+		uint32_t port_no)
+{
+	if (phy_ports.find(port_no) == phy_ports.end())
+	{
+		new cphyport(&phy_ports, port_no);
+
+		send_port_status_message(OFPPR_ADD, phy_ports[port_no]);
+	}
+}
+
+
+void
+cfwdelem::port_detach(
+		uint32_t port_no)
+{
+	if (phy_ports.find(port_no) != phy_ports.end())
+	{
+		delete phy_ports[port_no];
+	}
 }
 
 
@@ -940,7 +965,7 @@ cfwdelem::send_features_reply(cofctrl *ofctrl, uint32_t xid)
 													n_tables,
 													capabilities);
 
-	for (std::map<uint32_t, cofport*>::iterator
+	for (std::map<uint32_t, cphyport*>::iterator
 			it = phy_ports.begin(); it != phy_ports.end(); ++it)
 	{
 		reply->ports.next() = *(it->second);
@@ -1316,7 +1341,7 @@ cfwdelem::handle_port_stats_request(
 	try {
 		if (OFPP_ANY == port_no)
 		{
-			for (std::map<uint32_t, cofport*>::iterator
+			for (std::map<uint32_t, cphyport*>::iterator
 					it = phy_ports.begin(); it != phy_ports.end(); ++it)
 			{
 				cofport *port = it->second;

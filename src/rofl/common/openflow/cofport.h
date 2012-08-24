@@ -15,6 +15,7 @@ extern "C" {
 #include "openflow12.h"
 #include <string.h>
 #include <endian.h>
+#include <inttypes.h>
 
 #ifndef htobe16
 #include "../endian_conversion.h"
@@ -117,40 +118,6 @@ public:
 			size_t portlen = 0);
 
 
-#if 0
-	/** constructor
-	 */
-	cofport(
-			std::map<uint32_t, cofport*> *port_list,
-			uint32_t port_no = 0,
-			cmacaddr const& hwaddr = cmacaddr("00:00:00:00:00:00"),
-			std::string const& devname = std::string(""),
-			uint32_t config = 0,
-			uint32_t state = 0,
-			uint32_t curr = 0,
-			uint32_t advertised = 0,
-			uint32_t supported = 0,
-			uint32_t peer = 0,
-			uint32_t curr_speed = 0,
-			uint32_t max_speed = 0);
-
-
-	/** constructor
-	 */
-	cofport(
-			uint32_t port_no = 0,
-			cmacaddr const& hwaddr = cmacaddr("00:00:00:00:00:00"),
-			std::string const& devname = std::string(""),
-			uint32_t config = 0,
-			uint32_t state = 0,
-			uint32_t curr = 0,
-			uint32_t advertised = 0,
-			uint32_t supported = 0,
-			uint32_t peer = 0,
-			uint32_t curr_speed = 0,
-			uint32_t max_speed = 0);
-#endif
-
 
 	/** destructor
 	 */
@@ -180,34 +147,6 @@ public:
 			uint32_t mask,
 			uint32_t advertise);
 
-
-#if 0
-	/** update port parameters
-	 *
-	 */
-	void
-	update(
-			uint32_t port_no,
-			cmacaddr const& hwaddr,
-			const char *name, size_t namelen,
-			uint32_t config,
-			uint32_t state,
-			uint32_t curr,
-			uint32_t advertised,
-			uint32_t supported,
-			uint32_t peer,
-			uint32_t curr_speed,
-			uint32_t max_speed);
-
-
-	/** update port parameters
-	 *
-	 */
-	void
-	update(
-			struct ofp_port *port,
-			size_t port_len);
-#endif
 
 
 	/**
