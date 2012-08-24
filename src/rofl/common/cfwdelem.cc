@@ -89,6 +89,13 @@ cfwdelem::~cfwdelem()
 	WRITELOG(CFWD, DBG, "destroy cfwdelem(%p)::cfwdelem() dpid:%llu", this, dpid);
 
 
+	// remove all physical ports
+	while (not phy_ports.empty())
+	{
+		delete (phy_ports.begin()->second);
+	}
+
+
 	// detach from higher layer entities
 	while (not ofctrl_list.empty())
 	{
@@ -139,11 +146,6 @@ cfwdelem::~cfwdelem()
 	}
 	flow_tables.clear();
 
-	// remove all physical ports
-	while (not phy_ports.empty())
-	{
-		delete (phy_ports.begin()->second);
-	}
 
 	// remove rpc TCP endpoints
 	delete rpc[RPC_CTL];

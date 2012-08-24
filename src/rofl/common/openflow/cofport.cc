@@ -72,7 +72,7 @@ cofport::cofport(
 cofport::cofport(
 		struct ofp_port* port,
 		size_t portlen) :
-		port_list(NULL)
+		port_list(0)
 {
 	reset_stats();
 	unpack(port, portlen);
@@ -104,7 +104,7 @@ cofport::operator= (cofport const& port)
 
 	reset_stats();
 
-	port_list 		= NULL;
+	port_list 		= 0;
 	port_no 		= port.port_no;
 	hwaddr 			= port.hwaddr;
 	name 			= port.name;
