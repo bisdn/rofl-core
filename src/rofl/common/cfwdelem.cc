@@ -139,6 +139,12 @@ cfwdelem::~cfwdelem()
 	}
 	flow_tables.clear();
 
+	// remove all physical ports
+	while (not phy_ports.empty())
+	{
+		delete (phy_ports.begin()->second);
+	}
+
 	// remove rpc TCP endpoints
 	delete rpc[RPC_CTL];
 	delete rpc[RPC_DPT];
@@ -303,6 +309,8 @@ cfwdelem::port_detach(
 {
 	if (phy_ports.find(port_no) != phy_ports.end())
 	{
+		send_port_status_message(OFPPR_DELETE, phy_ports[port_no]);
+
 		delete phy_ports[port_no];
 	}
 }
