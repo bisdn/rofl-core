@@ -63,17 +63,14 @@ cofdpath::~cofdpath()
 
 	fwdelem->handle_dpath_close(this);
 
-	fwdelem->send_down_hello_message(this, true);
-
 	//lldp_terminate();
 
 	ofswitch_list->erase(entity);
 
 	// remove all cofport instances
-	std::map<uint32_t, cofport*>::iterator it;
-	for (it = ports.begin(); it != ports.end(); ++it)
+	while (not ports.empty())
 	{
-		delete it->second;
+		delete (ports.begin()->second);
 	}
 }
 
