@@ -194,13 +194,6 @@ cofport::length()
 }
 
 
-struct ofp_port*
-cofport::copy(
-	struct ofp_port* port)
-{
-	return pack(port, sizeof(struct ofp_port));
-}
-
 
 const char*
 cofport::c_str()

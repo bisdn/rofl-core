@@ -166,11 +166,6 @@ public:
 			struct ofp_port *port,
 			size_t portlen) throw (eOFportInval);
 
-
-	/** copy internal state to struct ofp_phy_port
-	 */
-	struct ofp_port* copy(
-			struct ofp_port* port);
 	
 
 	/** dump internals

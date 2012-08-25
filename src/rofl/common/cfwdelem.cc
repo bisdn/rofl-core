@@ -3118,7 +3118,7 @@ cfwdelem::send_port_status_message(
 {
 	WRITELOG(CFWD, DBG, "cfwdelem::send_port_status_message() %s", port->c_str());
 	struct ofp_port phy_port;
-	send_port_status_message(reason, port->copy(&phy_port));
+	send_port_status_message(reason, port->unpack(&phy_port, sizeof(phy_port)));
 }
 
 
