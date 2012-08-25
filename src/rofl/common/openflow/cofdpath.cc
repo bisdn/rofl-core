@@ -7,51 +7,34 @@
 cofdpath::cofdpath(
 		cfwdelem *fwdelem,
 		cofbase *entity,
-		std::map<cofbase*, cofdpath*>* ofswitch_list,
-		uint64_t dpid,
-		uint32_t n_buffers,
-		uint8_t n_tables,
-		uint32_t capabilities,
-		uint32_t actions,
-		struct ofp_port *__ports, int num_ports) :
+		std::map<cofbase*, cofdpath*>* ofswitch_list) :
 	fwdelem(fwdelem),
 	entity(entity),
 	ofswitch_list(ofswitch_list),
-	dpid(dpid),
-	dpmac(OFP_ETH_ALEN),
-	n_buffers(n_buffers),
-	n_tables(n_tables),
-	capabilities(capabilities),
-	actions(actions),
+	dpid(0),
+	dpmac(cmacaddr("00:00:00:00:00:00")),
+	n_buffers(0),
+	n_tables(0),
+	capabilities(0),
 	flags(0),
-	miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
+	miss_send_len(0),
 	features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 	get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 	stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
 	get_fsp_reply_timeout(DEFAULT_DP_GET_FSP_REPLY_TIMEOUT),
 	barrier_reply_timeout(DEFAULT_DB_BARRIER_REPLY_TIMEOUT)
 {
-	if ((struct ofp_port*)0 != __ports)
-	{
-		for (int i = 0; i < num_ports; i++)
-		{
-			new cofport(&ports, &__ports[i]);
-		}
-	}
+	WRITELOG(COFDPATH, DBG, "cofdpath(%p)::cofdpath() "
+			"dpid:%"UINT64DBGFMT" child:%p",
+			this, dpid, entity);
+
+	(*ofswitch_list)[entity] = this;
 
 	// set initial state
 	init_state(DP_STATE_INIT);
 
 	// trigger sending of FEATURES request
 	register_timer(COFDPATH_TIMER_FEATURES_REQUEST, 1);
-
-	(*ofswitch_list)[entity] = this;
-
-	//lldp_init();
-
-	WRITELOG(COFDPATH, DBG, "cofdpath(%p)::cofdpath() "
-			"dpid:%"UINT64DBGFMT" child:%p",
-			this, dpid, entity);
 }
 
 
@@ -63,15 +46,13 @@ cofdpath::~cofdpath()
 
 	fwdelem->handle_dpath_close(this);
 
-	//lldp_terminate();
-
-	ofswitch_list->erase(entity);
-
 	// remove all cofport instances
 	while (not ports.empty())
 	{
 		delete (ports.begin()->second);
 	}
+
+	ofswitch_list->erase(entity);
 }
 
 
@@ -178,15 +159,41 @@ cofdpath::features_reply_rcvd(
 				this, dpid);
 
 
-		features_save(pack); // save struct ofp_switch_features
+
+
+		dpid = be64toh(pack->ofh_switch_features->datapath_id);
+		n_buffers = be32toh(pack->ofh_switch_features->n_buffers);
+		n_tables = pack->ofh_switch_features->n_tables;
+		capabilities = be32toh(pack->ofh_switch_features->capabilities);
+
+		int portslen = be16toh(pack->ofh_switch_features->header.length) -
+												sizeof(struct ofp_switch_features);
+
+		WRITELOG(COFDPATH, DBG, "cofdpath(%p)::features_save() %s", this, this->c_str());
+
+		ports = cofport::ports_parse(pack->ofh_switch_features->ports, portslen);
+
+
+		// dpid as std::string
+		cvastring vas;
+		s_dpid = std::string(vas("0x%llx", dpid));
+
+		// lower 48bits from dpid as datapath mac address
+		dpmac[0] = (dpid & 0x0000ff0000000000ULL) >> 40;
+		dpmac[1] = (dpid & 0x000000ff00000000ULL) >> 32;
+		dpmac[2] = (dpid & 0x00000000ff000000ULL) >> 24;
+		dpmac[3] = (dpid & 0x0000000000ff0000ULL) >> 16;
+		dpmac[4] = (dpid & 0x000000000000ff00ULL) >>  8;
+		dpmac[5] = (dpid & 0x00000000000000ffULL) >>  0;
+		dpmac[0] &= 0xfc;
+
+
 
 
 		if (DP_STATE_INIT == cur_state())
 		{
 			// next step: send GET-CONFIG request to datapath
 			register_timer(COFDPATH_TIMER_GET_CONFIG_REQUEST, 0);
-
-			//lldp_init();
 		}
 
 
@@ -226,7 +233,8 @@ cofdpath::get_config_reply_rcvd(
 {
 	cancel_timer(COFDPATH_TIMER_GET_CONFIG_REPLY);
 
-	config_save(pack); // save struct ofp_switch_config
+	flags = be16toh(pack->ofh_switch_config->flags);
+	miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
 
 	fwdelem->handle_get_config_reply(this, pack);
 
@@ -318,28 +326,6 @@ cofdpath::handle_stats_reply_timeout()
 
 
 void
-cofdpath::get_fsp_request_sent()
-{
-	// do nothing for now
-}
-
-
-void
-cofdpath::get_fsp_reply_rcvd(
-		cofpacket *pack)
-{
-	// do nothing for now
-}
-
-
-void
-cofdpath::handle_get_fsp_reply_timeout()
-{
-	fwdelem->handle_get_fsp_reply_timeout(this);
-}
-
-
-void
 cofdpath::barrier_request_sent()
 {
 	register_timer(COFDPATH_TIMER_BARRIER_REPLY, barrier_reply_timeout);
@@ -347,9 +333,11 @@ cofdpath::barrier_request_sent()
 
 
 void
-cofdpath::barrier_reply_rcvd()
+cofdpath::barrier_reply_rcvd(cofpacket *pack)
 {
 	cancel_timer(COFDPATH_TIMER_BARRIER_REPLY);
+
+	fwdelem->handle_barrier_reply(this, pack);
 }
 
 
@@ -396,7 +384,7 @@ cofdpath::flow_mod_sent(
 
 
 void
-cofdpath::flow_removed_rcvd(
+cofdpath::flow_rmvd_rcvd(
 		cofpacket *pack)
 {
 	try {
@@ -450,10 +438,23 @@ cofdpath::group_mod_reset()
 void
 cofdpath::table_mod_sent(cofpacket *pack)
 {
-
-
+	// TODO: adjust local flowtable
 }
 
+
+void
+cofdpath::port_mod_sent(cofpacket *pack)
+{
+	if (ports.find(be32toh(pack->ofh_port_mod->port_no)) == ports.end())
+	{
+		return;
+	}
+
+	ports[be32toh(pack->ofh_port_mod->port_no)]->recv_port_mod(
+										be32toh(pack->ofh_port_mod->config),
+										be32toh(pack->ofh_port_mod->mask),
+										be32toh(pack->ofh_port_mod->advertise));
+}
 
 void
 cofdpath::packet_in_rcvd(cofpacket *pack)
@@ -630,14 +631,6 @@ cofdpath::find_cofport(
 		throw eOFdpathNotFound();
 	}
 	return ports[port_no];
-
-#if 0
-	for (it = ports.begin(); it != ports.end(); ++it) {
-		if ((*it)->port_no == port_no)
-			return (*it);
-	}
-	throw eOFdpathNotFound();
-#endif
 }
 
 
@@ -645,7 +638,6 @@ cofport*
 cofdpath::find_cofport(
 	std::string port_name) throw (eOFdpathNotFound)
 {
-
 	std::map<uint32_t, cofport*>::iterator it;
 	if ((it = find_if(ports.begin(), ports.end(),
 			cofport_find_by_port_name(port_name))) == ports.end())
@@ -653,68 +645,7 @@ cofdpath::find_cofport(
 		throw eOFdpathNotFound();
 	}
 	return it->second;
-
-#if 0
-	std::set<cofport*>::iterator it;
-	for (it = ports.begin(); it != ports.end(); ++it) {
-		std::string itport_name((*it)->name);
-		if (itport_name == port_name)
-			return (*it);
-	}
-	throw eOFdpathNotFound();
-#endif
 }
 
-
-void
-cofdpath::features_save(
-	cofpacket* pack)
-{
-
-	dpid = be64toh(pack->ofh_switch_features->datapath_id);
-	n_buffers = be32toh(pack->ofh_switch_features->n_buffers);
-	n_tables = pack->ofh_switch_features->n_tables;
-	capabilities = be32toh(pack->ofh_switch_features->capabilities);
-
-	int portslen = be16toh(pack->ofh_switch_features->header.length) -
-											sizeof(struct ofp_switch_features);
-
-	WRITELOG(COFDPATH, DBG, "cofdpath(%p)::features_save() %s", this, this->c_str());
-
-	ports = cofport::ports_parse(pack->ofh_switch_features->ports, portslen);
-
-#ifndef NDEBUG
-	std::map<uint32_t, cofport*>::iterator it;
-	for (it = ports.begin(); it != ports.end(); ++it)
-	{
-		WRITELOG(COFDPATH, DBG, "cofdpath(%p)::features_save() XXX => %s", this, it->second->c_str());
-	}
-#endif
-
-	// dpid as std::string
-	cvastring vas;
-	s_dpid = std::string(vas("0x%llx", dpid));
-
-	// lower 48bits from dpid as datapath mac address
-	dpmac[0] = (dpid & 0x0000ff0000000000ULL) >> 40;
-	dpmac[1] = (dpid & 0x000000ff00000000ULL) >> 32;
-	dpmac[2] = (dpid & 0x00000000ff000000ULL) >> 24;
-	dpmac[3] = (dpid & 0x0000000000ff0000ULL) >> 16;
-	dpmac[4] = (dpid & 0x000000000000ff00ULL) >>  8;
-	dpmac[5] = (dpid & 0x00000000000000ffULL) >>  0;
-	dpmac[0] &= 0xfc;
-
-	WRITELOG(COFDPATH, DBG, "cofdpath(%p)::features_save() dpid=%llu s_dpid=%s dl_dpid=%s",
-			this, dpid, s_dpid.c_str(), dpmac.c_str());
-}
-
-
-void
-cofdpath::config_save(
-	cofpacket* pack)
-{
-	flags = be16toh(pack->ofh_switch_config->flags);
-	miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
-}
 
 

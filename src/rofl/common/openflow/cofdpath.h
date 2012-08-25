@@ -53,6 +53,18 @@ class eOFdpathNotFound : public eOFswitchBase {}; // element not found
 
 
 
+/** A class for controlling a single attached data path element in class cfwdelem.
+ *
+ * This class stores state for an attached data path element
+ * including its ports (@see cofport). It is tightly bound to
+ * class cfwdelem (@see cfwdelem). Created upon reception of an
+ * OpenFlow HELLO message from the data path element, cofdpath
+ * acquires all state by sending FEATURES-request, GET-CONFIG-request,
+ * and TABLE-STATS-request. It also provides a number of convenience
+ * methods for controlling the datapath, e.g. clearing all flowtable
+ * or grouptable entries.
+ *
+ */
 class cofdpath :
 	public cftentry_owner,
 	public cgtentry_owner,
@@ -91,10 +103,6 @@ class cofdpath :
 
 public: // data structures
 
-
-		cfwdelem 						*fwdelem;		// layer-(n) entity
-		cofbase 						*entity;		// layer-(n-1) entity
-		std::map<cofbase*, cofdpath*> 	*ofswitch_list; // cofswitch map this
 														// instance belongs to
 														// (hosted by parent cfwdelem instance)
 		uint64_t 						dpid;			// datapath id
@@ -103,11 +111,11 @@ public: // data structures
 		uint32_t 						n_buffers; 		// number of buffer lines
 		uint8_t 						n_tables;		// number of tables
 		uint32_t 						capabilities;	// capabilities flags
-		uint32_t 						actions;		// supported actions
+
 		std::map<uint32_t, cofport*> 	ports;			// list of ports
 		uint16_t 						flags;			// 'fragmentation' flags
 		uint16_t 						miss_send_len; 	// length of bytes sent to controller
-		std::string 					info;			// info string
+
 		std::map<uint8_t, cfttable*> 	flow_tables;	// flow_table of this switch instance
 		cgttable 						grp_table;		// group_table of this switch instance
 		cfwdtable 						fwdtable; 		// forwarding table for attached MAC
@@ -115,116 +123,386 @@ public: // data structures
 		cfsptable 						fsptable;		// flowspace registration table
 
 
-		int 							features_reply_timeout;
-		int 							get_config_reply_timeout;
-		int 							stats_reply_timeout;
-		int 							get_fsp_reply_timeout;
-		int 							barrier_reply_timeout;
 
+		friend class cfwdelem;
 
+private:
 
+		cfwdelem 						*fwdelem;		// layer-(n) entity
+		cofbase 						*entity;		// layer-(n-1) entity
+		std::map<cofbase*, cofdpath*> 	*ofswitch_list; // cofswitch map this
+
+		std::string 	info;							// info string
+
+		int 			features_reply_timeout;
+		int 			get_config_reply_timeout;
+		int 			stats_reply_timeout;
+		int 			get_fsp_reply_timeout;
+		int 			barrier_reply_timeout;
 
 public:
 
-	/** constructor
+	/**
+	 * @name	cofdpath
+	 * @brief 	constructor of class cofdpath
+	 *
+	 * Initializes a new instance of class cofdpath for a new
+	 * attaching data path element. Starts handshake with datapath
+	 * element in order to acquire all of its state. Adds this to
+	 * map of cofdpath instances (dpath_list).
+	 *
+	 * @param[in] fwdelem	The cfwdelem object storing this cofdpath
+	 * @param[in] entity The cofbase object representing the datapath element (@see cofrpc or @see cfwdelem)
+	 * @param[in] dpath_list pointer to map that contains all cofdpath instances for fwdelem
 	 */
 	cofdpath(
 		cfwdelem *fwdelem,
 		cofbase *entity,
-		std::map<cofbase*, cofdpath*>* dpath_list,
-		uint64_t dpid = 0,
-		uint32_t n_buffers = 0,
-		uint8_t n_tables = 0,
-		uint32_t capabilities = 0,
-		uint32_t actions = 0,
-		struct ofp_port *ports = NULL, int num_ports = 0);
+		std::map<cofbase*, cofdpath*>* dpath_list);
 
 
-	/** destructor
+	/**
+	 * @name	~cofdpath
+	 * @brief	destructor of class cofdpath
+	 *
+	 * Informs fwdelem by calling (@see handle_dpath_close).
+	 * Deletes all cofport instances (@see ports).
+	 * Removes this pointer from fwdelem->ofdpath_list.
 	 */
 	virtual
 	~cofdpath();
 
 
-	/** find cofport from this->port_list
+	/**
+	 * @name	find_cofport
+	 * @brief 	Find a cofport instance by port number
+	 *
+	 * Returns pointer to a cofport instance based on port number or
+	 * throws an exception, if port was not found.
+	 *
+	 * @return cofport Pointer to cofport instance containing all state of sought port.
+	 *
+	 * @throws eOFdpathNotFound port could not be found
 	 */
 	cofport*
 	find_cofport(
 			uint32_t port_no) throw (eOFdpathNotFound);
 
 
-	/** find cofport from this->port_list
+	/**
+	 * @name	find_cofport
+	 * @brief 	Find a cofport instance by port name
+	 *
+	 * Returns pointer to a cofport instance based on port name or
+	 * throws an exception, if port was not found.
+	 *
+	 * @return cofport Pointer to cofport instance containing all state of sought port.
+	 *
+	 * @throws eOFdpathNotFound port could not be found
 	 */
 	cofport*
 	find_cofport(
 			std::string port_name) throw (eOFdpathNotFound);
 
 
-	/** handle FEATURES request/reply
+	/**
+	 * @name	fsp_open
+	 * @brief 	Registers a flowspace at the attached datapath element.
+	 *
+	 * This method registers a flowspace on the attached datapath element.
+	 * Calling this method multiple times results in several flowspace
+	 * registrations.
+	 *
+	 * @param[in] ofmatch The flowspace definition to be registered.
+	 */
+	void
+	fsp_open(
+			cofmatch const& ofmatch);
+
+
+	/**
+	 * @name	fsp_close
+	 * @brief 	Registers a flowspace at the attached datapath element.
+	 *
+	 * This method deregisters a flowspace on the attached datapath element.
+	 * The default argument is an empty (= all wildcard ofmatch) and removes
+	 * all active flowspace registrations from the datapath element.
+	 *
+	 * @param[in] ofmatch The flowspace definition to be deregistered.
+	 */
+	void
+	fsp_close(
+			cofmatch const& ofmatch = cofmatch());
+
+
+
+	/**
+	 * @name	flow_mod_reset
+	 * @brief	Removes all flowtable entries from the attached datapath element.
+	 *
+	 * Sends a FlowMod-Delete message to the attached datapath element for removing
+	 * all flowtable entries.
+	 */
+	void
+	flow_mod_reset();
+
+
+	/**
+	 * @name	group_mod_reset
+	 * @brief	Removes all grouptable entries from the attached datapath element.
+	 *
+	 * Sends a GroupMod-Delete message to the attached datapath element for removing
+	 * all grouptable entries.
+	 */
+	void
+	group_mod_reset();
+
+
+
+	/*
+	 * overloaded from cftentry_owner
+	 */
+
+
+	/**
+	 * @name	ftentry_timeout
+	 * @brief	Called when a flowtable entry stored in (@see flow_tables) expires.
+	 *
+	 * Called by an expired cftentry instance. Default behaviour is to ignore
+	 * this event.
+	 *
+	 * @param[in] entry cftentry instance expired.
+	 * @param[in] timeout value for expired timer in seconds.
+	 */
+	virtual void
+    ftentry_timeout(
+    		cftentry *entry,
+    		uint16_t timeout);
+
+
+	/*
+	 *  overloaded from cgtentry_owner
+	 */
+
+	/**
+	 * @name	gtentry_timeout
+	 * @brief	Called when a grouptable entry stored in (@see group_tables) expires.
+	 *
+	 * Called by an expired gftentry instance. Default behaviour is to ignore
+	 * this event. Note: There are no timeput values for group entries in OF
+	 * yet.
+	 *
+	 * @param[in] entry cgtentry instance expired.
+	 * @param[in] timeout value for expired timer in seconds.
+	 */
+	virtual void
+    gtentry_timeout(
+    		cgtentry *entry,
+    		uint16_t timeout);
+
+
+	/*
+	 * overloaded from ciosrv
+	 */
+
+	/**
+	 * @name 	handle_timeout
+	 * @brief	handler for timeout events
+	 *
+	 * This virtual method is overloaded from (@see ciosrv) and
+	 * is called upon expiration of a timer.
+	 *
+	 * @param[in] opaque The integer value specifying the type of the expired timer.
+	 */
+	void
+	handle_timeout(
+		int opaque);
+
+
+
+	/**
+	 * @name	c_str
+	 * @brief	Returns a C-string with a description of this cofdpath instance.
+	 *
+	 * @return const char Pointer to constant C-string (derived from cofdpath::info).
+	 */
+	const char*
+	c_str();
+
+
+
+
+
+
+
+
+protected:
+
+
+	/**
+	 * @name	features_request_sent
+	 * @brief	Called by cfwdelem when a FEATURES-request was sent.
+	 *
+	 * Starts an internal timer for the expected FEATURES-reply.
 	 */
 	void
 	features_request_sent();
+
+
+	/**
+	 * @name	features_reply_rcvd
+	 * @brief	Called by cfwdekem when a FEATURES-reply was received.
+	 *
+	 * Cancels the internal timer waiting for FEATURES-reply.
+	 * Stores parameters received in internal variables including ports.
+	 * Starts timer for sending a GET-CONFIG-request.
+	 *
+	 * @param[in] pack The OpenFlow message received.
+	 */
 	void
 	features_reply_rcvd(
 			cofpacket *pack);
 
 
-	/** handle GET-CONFIG request/reply
+	/**
+	 * @name	get_config_request_sent
+	 * @brief	Called by cfwdelem when a GET-CONFIG-request was sent.
+	 *
+	 * Starts an internal timer for the expected GET-CONFIG-reply.
 	 */
 	void
 	get_config_request_sent();
+
+
+	/**
+	 * @name	get_config_reply_rcvd
+	 * @brief	Called by cfwdekem when a GET-CONFIG-reply was received.
+	 *
+	 * Cancels the internal timer waiting for GET-CONFIG-reply.
+	 * Stores parameters received in internal variables.
+	 * Starts timer for sending a TABLE-STATS-request.
+	 *
+	 * @param[in] pack The OpenFlow message received.
+	 */
 	void
 	get_config_reply_rcvd(
 			cofpacket *pack);
 
 
-	/** handle STATS request/reply
+	/**
+	 * @name	stats_request_sent
+	 * @brief	Called by cfwdelem when a STATS-request was sent.
+	 *
+	 * Starts an internal timer for the expected STATS-reply.
 	 */
 	void
 	stats_request_sent();
+
+
+	/**
+	 * @name	stats_reply_rcvd
+	 * @brief	Called by cfwdekem when a STATS-reply was received.
+	 *
+	 * Cancels the internal timer waiting for STATS-reply.
+	 * Stores parameters received in internal variables.
+	 * Calls method fwdelem->handle_dpath_open().
+	 *
+	 * @param[in] pack The OpenFlow message received.
+	 */
 	void
 	stats_reply_rcvd(
 			cofpacket *pack);
 
 
-	/** handle GET-FSP request/reply
-	 */
-	void
-	get_fsp_request_sent();
-	void
-	get_fsp_reply_rcvd(
-			cofpacket *pack);
 
-
-	/** update internal status for a barrier request
+	/**
+	 * @name	barrier_request_sent
+	 * @brief	Called by cfwdelem when a BARRIER-request was sent.
+	 *
+	 * Starts an internal timer for the expected BARRIER-reply.
 	 */
 	void
 	barrier_request_sent();
+
+
+	/**
+	 * @name	barrier_reply_rcvd
+	 * @brief	Called by cfwdekem when a BARRIER-reply was received.
+	 *
+	 * Cancels the internal timer waiting for STATS-reply.
+	 * Calls method fwdelem->handle_barrier_reply().
+	 *
+	 * @param[in] pack The OpenFlow message received.
+	 */
 	void
-	barrier_reply_rcvd();
+	barrier_reply_rcvd(
+			cofpacket *pack);
 
 
-	/** handle FLOW-MOD/FLOW-REMOVED message
+	/**
+	 * @name	flow_mod_sent
+	 * @brief	Called by cfwdelem when a FLOW-MOD-message was sent.
+	 *
+	 * Applies FlowMod message to local flowtables.
+	 *
+	 * @param[in] pack The OpenFlow message sent.
+	 *
+	 * @throws eOFdpathNotFound Thrown when the table-id specified in pack cannot be found.
 	 */
 	void
 	flow_mod_sent(
 			cofpacket *pack) throw (eOFdpathNotFound);
+
+
+	/**
+	 * @name	flow_rmvd_rcvd
+	 * @brief	Called by cfwdelem when a FLOW-MOD-message was sent.
+	 *
+	 * Applies FlowRmvd message to local flowtables.
+	 *
+	 * @param[in] pack The OpenFlow message received.
+	 */
 	void
-	flow_removed_rcvd(
+	flow_rmvd_rcvd(
 			cofpacket *pack);
 
 
-	/** handle GROUP-MOD message
+	/**
+	 * @name	group_mod_sent
+	 * @brief	Called by cfwdelem when a GROUP-MOD-message was sent.
+	 *
+	 * Applies GroupMod message to local grouptables.
+	 *
+	 * @param[in] pack The OpenFlow message sent.
 	 */
 	void
 	group_mod_sent(
 			cofpacket *pack);
 
 
-	/** handle TABLE-MOD message
+	/**
+	 * @name	table_mod_sent
+	 * @brief	Called by cfwdelem when a TABLE-MOD-message was sent.
+	 *
+	 * Applies TableMod message to local flowtables.
+	 *
+	 * @param[in] pack The OpenFlow message sent.
 	 */
 	void
 	table_mod_sent(
+			cofpacket *pack);
+
+
+	/**
+	 * @name	port_mod_sent
+	 * @brief	Called by cfwdelem when a PORT-MOD-message was sent.
+	 *
+	 * Applies PortMod message to local cofport instance.
+	 *
+	 * @param[in] pack The OpenFlow message sent.
+	 */
+	void
+	port_mod_sent(
 			cofpacket *pack);
 
 
@@ -256,85 +534,9 @@ public:
 			cofpacket *pack);
 
 
-	/** open flowspace
-	 */
-	void
-	fsp_open(
-			cofmatch const& ofmatch);
 
 
-	/** close flowspace
-	 */
-	void
-	fsp_close(
-			cofmatch const& ofmatch);
-
-
-	/** return info string
-	 */
-	const char*
-	c_str();
-
-
-	/** remove all FlowMods from datapath
-	 */
-	void
-	flow_mod_reset();
-
-
-	/** remove all GroupMods from datapath
-	 */
-	void
-	group_mod_reset();
-
-
-public: // overloaded from cftentry_owner
-
-
-	/** notification for ftentry hard timeout
-	 */
-	virtual void
-    ftentry_timeout(
-    		cftentry *entry,
-    		uint16_t timeout);
-
-
-public: // overloaded from cftentry_owner
-
-
-	/** notification for ftentry hard timeout
-	 */
-	virtual void
-    gtentry_timeout(
-    		cgtentry *entry,
-    		uint16_t timeout);
-
-
-public: // overloaded from ciosrv
-
-	/** handle timeout
-	 */
-	void
-	handle_timeout(
-		int opaque);
-
-
-
-
-protected:
-
-	/** save datapath features from OFPT_FEATURES_REPLY
-	 */
-	void
-	features_save(
-		cofpacket *pack);
-
-
-	/** save datapath configuration from OFPT_GET_CONFIG_REPLY
-	 */
-	void
-	config_save(
-		cofpacket *pack);
+private:
 
 
 	/** handle FEATURES reply timeout

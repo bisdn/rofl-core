@@ -2090,8 +2090,9 @@ cfwdelem::fe_down_barrier_request(
 void
 cfwdelem::recv_barrier_request()
 {
-	WRITELOG(CFWD, DBG, "cfwdelem::send_barrier_reply() "
-			"fe_down_queue[OFPT_BARRIER_REQUEST].size()=%d", fe_down_queue[OFPT_BARRIER_REQUEST].size());
+	WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_barrier_request() "
+			"fe_down_queue[OFPT_BARRIER_REQUEST].size()=%d",
+			dpname.c_str(), fe_down_queue[OFPT_BARRIER_REQUEST].size());
 
 	if (fe_down_queue[OFPT_BARRIER_REQUEST].empty())
 		return;
@@ -2140,9 +2141,7 @@ cfwdelem::fe_up_barrier_reply(
 		pack->entity = entity;
 		ta_validate(be32toh(pack->ofh_header->xid), OFPT_BARRIER_REQUEST);
 
-		cofdpath *sw = ofswitch_find(pack->entity);
-		sw->barrier_reply_rcvd();
-		handle_barrier_reply(sw, pack);
+		ofswitch_find(pack->entity)->barrier_reply_rcvd(pack);
 
 	} catch (eOFbaseInval& e) {
 		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_barrier_reply() malformed packet received", this);
@@ -2811,6 +2810,7 @@ cfwdelem::send_port_mod_message(
 	// straight call to layer-(n-1) entity's fe_down_flow_mod() method
 	sw->entity->fe_down_port_mod(this, pack);
 
+	sw->port_mod_sent(pack);
 }
 
 
@@ -3084,7 +3084,7 @@ cfwdelem::recv_flow_removed()
 		fe_up_queue[OFPT_FLOW_REMOVED].pop_front();
 
 		cofdpath *sw = ofswitch_find(pack->entity);
-		sw->flow_removed_rcvd(pack);
+		sw->flow_rmvd_rcvd(pack);
 		handle_flow_removed(sw, pack);
 
 	} catch (eOFbaseNotAttached& e) {
