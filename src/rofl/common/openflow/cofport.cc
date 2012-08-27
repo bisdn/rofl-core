@@ -63,7 +63,10 @@ cofport::cofport(
 	port_list(port_list)
 {
 	reset_stats();
-	unpack(port, port_len);
+	if ((0 != port) && (port_len >= sizeof(struct ofp_port)))
+	{
+		unpack(port, port_len);
+	}
 
 	(*port_list)[port_no] = this;
 }
@@ -71,11 +74,14 @@ cofport::cofport(
 
 cofport::cofport(
 		struct ofp_port* port,
-		size_t portlen) :
+		size_t port_len) :
 		port_list(0)
 {
 	reset_stats();
-	unpack(port, portlen);
+	if ((0 != port) && (port_len >= sizeof(struct ofp_port)))
+	{
+		unpack(port, port_len);
+	}
 }
 
 
