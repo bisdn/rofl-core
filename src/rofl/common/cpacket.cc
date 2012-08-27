@@ -218,10 +218,14 @@ cpacket::pack(
 {
 	uint8_t *ptr = dest;
 
+	fprintf(stderr, "cpacket::pack() len: %lu piovec.size(): %lu\n", len, piovec.size());
+
 	for (std::list<fframe*>::iterator
 			it = piovec.begin(); it != piovec.end(); ++it)
 	{
 		fframe *frame = (*it);
+
+		fprintf(stderr, "cpacket::pack() len: %lu frame: %s\n", len, frame->c_str());
 
 		if (len >= frame->framelen())
 		{
@@ -1499,6 +1503,8 @@ cpacket::classify(uint32_t in_port /* host byte order */)
 	fframe *pred = (fframe*)0;
 	uint16_t dl_type = 0;
 
+	fprintf(stderr, "cpacket::classify()\n");
+
 	/*
 	 * initial assumption: we have a single cmemory instance stored in piobuf
 	 * that contains the entire frame
@@ -1582,7 +1588,8 @@ cpacket::classify(uint32_t in_port /* host byte order */)
 
 			fvlanframe *vlan = new fvlanframe(
 										p_ptr,
-										sizeof(struct fvlanframe::vlan_hdr_t),
+										//sizeof(struct fvlanframe::vlan_hdr_t),
+										p_len,
 										total_len,
 										pred);
 
@@ -1638,7 +1645,8 @@ cpacket::classify(uint32_t in_port /* host byte order */)
 
 			fmplsframe *mpls = new fmplsframe(
 										p_ptr,
-										sizeof(struct fmplsframe::mpls_hdr_t),
+										//sizeof(struct fmplsframe::mpls_hdr_t),
+										p_len,
 										total_len,
 										pred);
 
