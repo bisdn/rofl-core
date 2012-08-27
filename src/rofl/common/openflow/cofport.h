@@ -254,6 +254,23 @@ public:
 };
 
 
+
+class cofport_find_by_maddr {
+	cmacaddr maddr;
+public:
+	cofport_find_by_maddr(cmacaddr const& maddr) :
+		maddr(maddr) {};
+	bool operator() (cofport *ofport) {
+		cmacaddr hwaddr(ofport->hwaddr);
+		return (maddr == hwaddr);
+	};
+	bool operator() (std::pair<uint32_t, cofport*> const& p) {
+		cmacaddr hwaddr(p.second->hwaddr);
+		return (maddr == hwaddr);
+	};
+};
+
+
 class cofport_find_port_no {
 public:
 	cofport_find_port_no(uint32_t port_no) :

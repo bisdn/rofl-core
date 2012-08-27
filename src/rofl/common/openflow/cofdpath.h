@@ -206,6 +206,22 @@ public:
 
 
 	/**
+	 * @name	find_cofport
+	 * @brief 	Find a cofport instance by port name
+	 *
+	 * Returns pointer to a cofport instance based on port name or
+	 * throws an exception, if port was not found.
+	 *
+	 * @return cofport Pointer to cofport instance containing all state of sought port.
+	 *
+	 * @throws eOFdpathNotFound port could not be found
+	 */
+	cofport*
+	find_cofport(
+			cmacaddr const& maddr) throw (eOFdpathNotFound);
+
+
+	/**
 	 * @name	fsp_open
 	 * @brief 	Registers a flowspace at the attached datapath element.
 	 *

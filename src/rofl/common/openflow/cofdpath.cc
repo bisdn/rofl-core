@@ -661,4 +661,16 @@ cofdpath::find_cofport(
 }
 
 
+cofport*
+cofdpath::find_cofport(
+	cmacaddr const& maddr) throw (eOFdpathNotFound)
+{
+	std::map<uint32_t, cofport*>::iterator it;
+	if ((it = find_if(ports.begin(), ports.end(),
+			cofport_find_by_maddr(maddr))) == ports.end())
+	{
+		throw eOFdpathNotFound();
+	}
+	return it->second;
+}
 
