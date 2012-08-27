@@ -1115,6 +1115,7 @@ cpacket::push_mpls(uint16_t ethertype)
 		uint32_t outer_label = 0;
 		uint8_t  outer_ttl = 0;
 		uint8_t  outer_tc  = 0;
+		bool outer_bos = true;
 
 		// get default values for push actions (OF 1.1 spec section 4.9.1)
 		if (not anchors[MPLS_FRAME].empty())
@@ -1122,12 +1123,14 @@ cpacket::push_mpls(uint16_t ethertype)
 			outer_label = mpls().get_mpls_label();
 			outer_ttl 	= mpls().get_mpls_ttl();
 			outer_tc	= mpls().get_mpls_tc();
+			outer_bos	= true;
 		}
 		else
 		{
 			outer_label = 0;
 			outer_ttl	= 0;
 			outer_tc	= 0;
+			outer_bos	= false;
 		}
 
 
@@ -1160,6 +1163,7 @@ cpacket::push_mpls(uint16_t ethertype)
 		n_mpls->set_mpls_label(outer_label);
 		n_mpls->set_mpls_ttl(outer_ttl);
 		n_mpls->set_mpls_tc(outer_tc);
+		n_mpls->set_mpls_bos(outer_bos);
 
 		// mpls after vlan or ether
 		if (not anchors[VLAN_FRAME].empty())
