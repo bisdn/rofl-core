@@ -21,6 +21,7 @@ extern "C" {
 #endif
 
 #include "rofl/platform/unix/csyslog.h"
+#include "cvastring.h"
 
 #include "cerror.h"
 
