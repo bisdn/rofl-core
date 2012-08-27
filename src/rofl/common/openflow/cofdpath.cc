@@ -550,6 +550,19 @@ cofdpath::fsp_close(cofmatch const& ofmatch)
 
 
 void
+cofdpath::handle_get_fsp_reply_timeout()
+{
+	WRITELOG(COFDPATH, DBG, "cofdpath(%p)::handle_get_fsp_reply_timeout() "
+			"dpid:%"UINT64DBGFMT" ",
+			this, dpid);
+
+	fwdelem->handle_get_fsp_reply_timeout(this);
+
+	delete this;
+}
+
+
+void
 cofdpath::experimenter_message_rcvd(cofpacket *pack)
 {
 	switch (be32toh(pack->ofh_experimenter->experimenter)) {
