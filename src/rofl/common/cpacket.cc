@@ -1123,14 +1123,14 @@ cpacket::push_mpls(uint16_t ethertype)
 			outer_label = mpls().get_mpls_label();
 			outer_ttl 	= mpls().get_mpls_ttl();
 			outer_tc	= mpls().get_mpls_tc();
-			outer_bos	= true;
+			outer_bos	= false;
 		}
 		else
 		{
 			outer_label = 0;
 			outer_ttl	= 0;
 			outer_tc	= 0;
-			outer_bos	= false;
+			outer_bos	= true;
 		}
 
 
