@@ -348,11 +348,11 @@ cmemory::find_first_of(
 const char*
 cmemory::c_str()
 {
-#ifdef NDEBUG
-	cvastring vas;
-	info.assign(vas("cmemory(%p) len[%d]", this, (int)memlen()));
-	return info.c_str();
-#endif
+//#ifdef NDEBUG
+	std::stringstream sstr;
+	sstr << "cmemory(" << (std::hex) << this << (std::dec) << ") len[" << memlen() << "]";
+	return sstr.str().c_str();
+//#endif
 
 	info.clear();
 	char _info[256];

@@ -7,6 +7,7 @@
 
 #include <set>
 #include <string>
+#include <sstream>
 
 #ifdef __cplusplus
 extern "C" {
