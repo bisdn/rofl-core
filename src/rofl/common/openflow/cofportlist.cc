@@ -7,13 +7,13 @@
 
 cofportlist::cofportlist()
 {
-	WRITELOG(COFINST, DBG, "cofportlist(%p)::cofportlist()", this);
+	WRITELOG(COFINST, ROFL_DBG, "cofportlist(%p)::cofportlist()", this);
 }
 
 
 cofportlist::~cofportlist()
 {
-	WRITELOG(COFINST, DBG, "cofportlist(%p)::~cofportlist()", this);
+	WRITELOG(COFINST, ROFL_DBG, "cofportlist(%p)::~cofportlist()", this);
 }
 
 
@@ -110,7 +110,7 @@ throw (ePortListNotFound)
 
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
-		WRITELOG(COFINST, DBG, "cofportlist(%p)::find_port() %d => %s", this, elems.size(), (*it).c_str());
+		WRITELOG(COFINST, ROFL_DBG, "cofportlist(%p)::find_port() %d => %s", this, elems.size(), (*it).c_str());
 	}
 
 	if ((it = find_if(elems.begin(), elems.end(),

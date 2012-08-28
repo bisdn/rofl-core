@@ -36,11 +36,11 @@ throw (ePPPoEBadLen)
 
 	while (tlvlen > 0)
 	{
-		WRITELOG(CPPPOETLV, DBG, "cpppoelist(%p)::unpack() tlvhdr:%p tlvlen:%d", this, tlvhdr, tlvlen);
+		WRITELOG(CPPPOETLV, ROFL_DBG, "cpppoelist(%p)::unpack() tlvhdr:%p tlvlen:%d", this, tlvhdr, tlvlen);
 
 		if (tlvlen < (int)sizeof(struct cpppoetlv::pppoe_tag_hdr_t))
 		{
-			WRITELOG(CPPPOETLV, DBG, "cpppoelist(%p)::unpack() [1]", this);
+			WRITELOG(CPPPOETLV, ROFL_DBG, "cpppoelist(%p)::unpack() [1]", this);
 			throw ePPPoEBadLen();
 		}
 
@@ -48,11 +48,11 @@ throw (ePPPoEBadLen)
 
 		//fprintf(stderr, "cpppoelist(%p)::unpack() tlvlen=%u len=%d\n", this, tlvlen, len);
 
-		WRITELOG(CPPPOETLV, DBG, "cpppoelist(%p)::unpack() tlvhdr:%p tlvlen:%d len:%d", this, tlvhdr, tlvlen, len);
+		WRITELOG(CPPPOETLV, ROFL_DBG, "cpppoelist(%p)::unpack() tlvhdr:%p tlvlen:%d len:%d", this, tlvhdr, tlvlen, len);
 
 		if (0 == len)
 		{
-			WRITELOG(CPPPOETLV, DBG, "cpppoelist(%p)::unpack() [2]", this);
+			WRITELOG(CPPPOETLV, ROFL_DBG, "cpppoelist(%p)::unpack() [2]", this);
 			throw ePPPoEBadLen();
 		}
 

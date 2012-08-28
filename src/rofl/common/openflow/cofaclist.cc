@@ -61,7 +61,7 @@ throw (eActionBadLen, eActionBadOutPort)
 {
 	reset(); // clears elems
 
-	WRITELOG(COFACTION, DBG, "cofaclist(%p)::unpack() aclen:%d", this, aclen);
+	WRITELOG(COFACTION, ROFL_DBG, "cofaclist(%p)::unpack() aclen:%d", this, aclen);
 
 	// sanity check: aclen must be of size at least of ofp_action_header
 	if (aclen < (int)sizeof(struct ofp_action_header))
@@ -75,7 +75,7 @@ throw (eActionBadLen, eActionBadOutPort)
 
 		next() = cofaction(achdr, be16toh(achdr->len) );
 
-		WRITELOG(COFACTION, DBG, "cofaclist(%p)::unpack() new action: %s", this, back().c_str());
+		WRITELOG(COFACTION, ROFL_DBG, "cofaclist(%p)::unpack() new action: %s", this, back().c_str());
 
 		aclen -= be16toh(achdr->len);
 		achdr = (struct ofp_action_header*)(((uint8_t*)achdr) + be16toh(achdr->len));
@@ -135,7 +135,7 @@ cofaclist::actions_count_output()
 {
 	int output_cnt = count_if(elems.begin(), elems.end(), cofaction_find_type(OFPAT_OUTPUT));
 
-	WRITELOG(COFINST, DBG, "cofinst::actions_count_output(): %d", (output_cnt));
+	WRITELOG(COFINST, ROFL_DBG, "cofinst::actions_count_output(): %d", (output_cnt));
 
 	return (output_cnt);
 }

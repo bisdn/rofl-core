@@ -115,7 +115,7 @@ cfsptable::find_matching_entries(
 
 		if ((__exact_hits < exact_hits) || (__misses > 0))
 		{
-			WRITELOG(CNAMESPACE, DBG, "cfsptable(%p)::find_matching_entries() ignoring flowspace", this);
+			WRITELOG(CNAMESPACE, ROFL_DBG, "cfsptable(%p)::find_matching_entries() ignoring flowspace", this);
 			continue;
 		}
 		else if (__exact_hits > exact_hits)
@@ -124,7 +124,7 @@ cfsptable::find_matching_entries(
 			nse_list.insert(*it);
 			exact_hits = __exact_hits;
 			wildcard_hits = __wildcard_hits;
-			WRITELOG(CNAMESPACE, DBG, "cfsptable(%p)::find_matching_entries() new best match: %s", this, (*it)->ofmatch.c_str());
+			WRITELOG(CNAMESPACE, ROFL_DBG, "cfsptable(%p)::find_matching_entries() new best match: %s", this, (*it)->ofmatch.c_str());
 		}
 		else if (__exact_hits == exact_hits)
 		{
@@ -138,12 +138,12 @@ cfsptable::find_matching_entries(
 				nse_list.insert(*it);
 
 				wildcard_hits = __wildcard_hits;
-				WRITELOG(CNAMESPACE, DBG, "cfsptable(%p)::find_matching_entries() new best match: %s", this, (*it)->ofmatch.c_str());
+				WRITELOG(CNAMESPACE, ROFL_DBG, "cfsptable(%p)::find_matching_entries() new best match: %s", this, (*it)->ofmatch.c_str());
 			}
 			else if (__wildcard_hits == wildcard_hits)
 			{
 				nse_list.insert(*it);
-				WRITELOG(CNAMESPACE, DBG, "cfsptable(%p)::find_matching_entries() same best match", this);
+				WRITELOG(CNAMESPACE, ROFL_DBG, "cfsptable(%p)::find_matching_entries() same best match", this);
 			}
 		}
 	}
@@ -195,7 +195,7 @@ cfsptable::flow_mod_allowed(
 
 #ifndef NDEBUG
 	cofmatch match(m);
-	WRITELOG(CNAMESPACE, DBG, "cfsptable(%p)::flow_mod_allowed() nse_list.size()=%d %p => %s <= %s",
+	WRITELOG(CNAMESPACE, ROFL_DBG, "cfsptable(%p)::flow_mod_allowed() nse_list.size()=%d %p => %s <= %s",
 			this, fspsearch.fsp_list.size(), fspowner, (*fspsearch.fsp_list.begin())->c_str(), match.c_str());
 #endif
 }

@@ -24,7 +24,7 @@ cmemory::cmemory(size_t len) :
 		mallocate(len);
 
 #if 0
-	WRITELOG(CMEMORY, DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
+	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
 			this, somem(), memlen());
 #endif
 }
@@ -48,7 +48,7 @@ cmemory::cmemory(uint8_t *data, size_t datalen) :
 	}
 
 #if 0
-	WRITELOG(CMEMORY, DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
+	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
 				this, somem(), memlen());
 #endif
 }
@@ -57,7 +57,7 @@ cmemory::cmemory(uint8_t *data, size_t datalen) :
 cmemory::~cmemory()
 {
 #if 0
-	WRITELOG(CMEMORY, DBG, "cmemory(%p)::~cmemory() somem()=%p memlen()=%d",
+	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::~cmemory() somem()=%p memlen()=%d",
 				this, somem(), memlen());
 #endif
 	lock();

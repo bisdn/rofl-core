@@ -128,21 +128,21 @@ fpppoeframe::validate() throw (eFrameInvalidSyntax)
 
 	if (!complete())
 	{
-		WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
+		WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::validate(): "
 							"invalid PPPoE frame rcvd: incomplete => %s", this, c_str());
 		throw eFrameInvalidSyntax();
 	}
 
 	if (PPPOE_TYPE != get_pppoe_type())
 	{
-		WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
+		WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::validate(): "
 							"invalid PPPoE frame rcvd: type => %s", this, c_str());
 		throw eFrameInvalidSyntax();
 	}
 
 	if (PPPOE_VERSION != get_pppoe_vers())
 	{
-		WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
+		WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::validate(): "
 							"invalid PPPoE frame rcvd: version => %s", this, c_str());
 		throw eFrameInvalidSyntax();
 	}
@@ -178,7 +178,7 @@ fpppoeframe::validate_pppoe_session() throw (eFrameInvalidSyntax)
 {
 	if (0x0000 != get_pppoe_code()) // code field must not be 0
 	{
-		WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::is_valid_pppoe_session(): "
+		WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::is_valid_pppoe_session(): "
 						"invalid PPPoE code %d", this, get_pppoe_type());
 		throw ePPPoEFrameInvalidSyntax();
 	}
@@ -207,7 +207,7 @@ fpppoeframe::validate_pppoe_session() throw (eFrameInvalidSyntax)
 		}
 #endif
 
-		WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::is_valid_pppoe_session(): "
+		WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::is_valid_pppoe_session(): "
 				"PPPoE length field larger than PPP payload (%d > %d)", this, pppdatalen, res_len);
 		pppdata = NULL;
 		pppdatalen = 0;
@@ -266,7 +266,7 @@ fpppoeframe::set_pppoe_sessid(uint16_t sessid)
 void
 fpppoeframe::pppoe_calc_length()
 {
-	WRITELOG(CPACKET, DBG, "fpppoeframe(%p)::pppoe_calc_length() setting to length %d",
+	WRITELOG(CPACKET, ROFL_DBG, "fpppoeframe(%p)::pppoe_calc_length() setting to length %d",
 			this, payloadlen());
 	pppoe_hdr->length = htobe16(payloadlen());
 }
@@ -392,12 +392,12 @@ fpppoeframe::parse_pppoe_tags() throw (eFrameInvalidSyntax)
 
 	while (res_len > 0)
 	{
-		WRITELOG(CPACKET, DBG, "fpppoeframe(%p)::parse_pppoe_tags() tag=%p tag->type=%d tag->length=%d res_len=%d",
+		WRITELOG(CPACKET, ROFL_DBG, "fpppoeframe(%p)::parse_pppoe_tags() tag=%p tag->type=%d tag->length=%d res_len=%d",
 				this, tag, be16toh(tag->type), be16toh(tag->length), res_len);
 
 		if (res_len < sizeof(struct pppoe_tag_hdr_t))
 		{
-			WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): "
+			WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::parse_pppoe_tags(): "
 							"remaining length insufficient for tag (%d > %d)",
 							this, res_len, sizeof(struct pppoe_tag_hdr_t));
 			return; // throw exception instead?
@@ -406,7 +406,7 @@ fpppoeframe::parse_pppoe_tags() throw (eFrameInvalidSyntax)
 		size_t tag_len = be16toh(tag->length); // excludes the pppoe tag header fields type and value!
 		if ((sizeof(struct pppoe_tag_hdr_t) +  tag_len) > res_len)
 		{
-			WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): "
+			WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::parse_pppoe_tags(): "
 							"invalid tag length field (%d > %d)",
 							this, (sizeof(struct pppoe_tag_hdr_t) + tag_len), res_len);
 			return; // throw exception instead?
@@ -416,7 +416,7 @@ fpppoeframe::parse_pppoe_tags() throw (eFrameInvalidSyntax)
 		case PPPOE_TAG_END_OF_LIST:
 			if (be16toh(tag->length) != 0x0000)
 			{
-				WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -End-of-List- with "
+				WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -End-of-List- with "
 						"invalid length field (%d)", this, be16toh(tag->length));
 				throw eFrameInvalidSyntax();
 			}
@@ -424,7 +424,7 @@ fpppoeframe::parse_pppoe_tags() throw (eFrameInvalidSyntax)
 		case PPPOE_TAG_SERVICE_NAME:
 			if (be16toh(tag->length) == 0)
 			{
-				WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -Service-Name- with "
+				WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -Service-Name- with "
 						"invalid length field (%d)", this, be16toh(tag->length));
 				throw eFrameInvalidSyntax();
 			}
@@ -432,7 +432,7 @@ fpppoeframe::parse_pppoe_tags() throw (eFrameInvalidSyntax)
 		case PPPOE_TAG_AC_NAME:
 			if (be16toh(tag->length) == 0)
 			{
-				WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -AC-Name- with "
+				WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -AC-Name- with "
 						"invalid length field (%d)", this, be16toh(tag->length));
 				throw eFrameInvalidSyntax();
 			}
@@ -440,7 +440,7 @@ fpppoeframe::parse_pppoe_tags() throw (eFrameInvalidSyntax)
 		case PPPOE_TAG_HOST_UNIQ:
 			if (be16toh(tag->length) == 0)
 			{
-				WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -Host-Uniq- with "
+				WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -Host-Uniq- with "
 						"invalid length field (%d)", this, be16toh(tag->length));
 				throw eFrameInvalidSyntax();
 			}
@@ -448,7 +448,7 @@ fpppoeframe::parse_pppoe_tags() throw (eFrameInvalidSyntax)
 		case PPPOE_TAG_AC_COOKIE:
 			if (be16toh(tag->length) == 0)
 			{
-				WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -AC-Cookie- with "
+				WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -AC-Cookie- with "
 						"invalid length field (%d)", this, be16toh(tag->length));
 				throw eFrameInvalidSyntax();
 			}
@@ -456,7 +456,7 @@ fpppoeframe::parse_pppoe_tags() throw (eFrameInvalidSyntax)
 		case PPPOE_TAG_VENDOR_SPECIFIC:
 			if (be16toh(tag->length) < 4)
 			{
-				WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -Vendor-Specific- with "
+				WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -Vendor-Specific- with "
 						"invalid length field (%d)", this, be16toh(tag->length));
 				throw eFrameInvalidSyntax();
 			}
@@ -474,7 +474,7 @@ fpppoeframe::parse_pppoe_tags() throw (eFrameInvalidSyntax)
 			// nothing to do, may be zero or not
 			break;
 		default:
-			WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): "
+			WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::parse_pppoe_tags(): "
 										"unknown tag type (%d)", this, be16toh(tag->type));
 			break;
 		}

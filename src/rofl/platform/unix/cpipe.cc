@@ -45,7 +45,7 @@ void
 cpipe::writemsg(unsigned char msg)
 {
 	int rc = write(pipefd[1], &msg, sizeof(msg));
-	WRITELOG(CPIPE, DBG, "cpipe(%p)::writemsg() thread:0x%lx rc:%d",
+	WRITELOG(CPIPE, ROFL_DBG, "cpipe(%p)::writemsg() thread:0x%lx rc:%d",
 			this, pthread_self(), rc);
 	if (rc == 0)
 	{
@@ -67,7 +67,7 @@ cpipe::recvmsg()
 	int rc;
 	if ((rc = read(pipefd[0], &msg, sizeof(msg))) < 0)
 	{
-		WRITELOG(CPIPE, DBG, "cpipe(%p)::recvmsg() rc:%d errno:%d %s",
+		WRITELOG(CPIPE, ROFL_DBG, "cpipe(%p)::recvmsg() rc:%d errno:%d %s",
 				this, rc, errno, strerror(errno));
 
 		switch (errno) {
@@ -77,12 +77,12 @@ cpipe::recvmsg()
 			fprintf(stderr, "cpipe(%p)::recvmsg() error occured tid: 0x%lx rc: %d errno:%d %s\n",
 								this, pthread_self(), rc, errno, strerror(errno));
 						break;
-			WRITELOG(CPIPE, DBG, "cpipe::recvmsg() error occured tid: 0x%lx rc: %d errno:%d %s",
+			WRITELOG(CPIPE, ROFL_DBG, "cpipe::recvmsg() error occured tid: 0x%lx rc: %d errno:%d %s",
 					pthread_self(), rc, errno, strerror(errno));
 			break;
 		}
 	}
-	WRITELOG(CPIPE, DBG, "cpipe(%p)::recvmsg() thread:0x%lx rc:%d",
+	WRITELOG(CPIPE, ROFL_DBG, "cpipe(%p)::recvmsg() thread:0x%lx rc:%d",
 			this, pthread_self(), rc);
 	return msg;
 #if 0
@@ -90,7 +90,7 @@ cpipe::recvmsg()
 	while (true)
 	{
 		int rc = read(pipefd[0], &msg, sizeof(msg));
-		WRITELOG(CPIPE, DBG, "cpipe::recvmsg() tid: 0x%lx rc: %d",
+		WRITELOG(CPIPE, ROFL_DBG, "cpipe::recvmsg() tid: 0x%lx rc: %d",
 				pthread_self(), rc);
 		if (rc == 0)
 		{
@@ -101,11 +101,11 @@ cpipe::recvmsg()
 		{
 			switch (errno) {
 			case EWOULDBLOCK:
-				WRITELOG(CPIPE, DBG, "cpipe::recvmsg() EAGAIN tid: 0x%lx rc: %d errno:%d %s",
+				WRITELOG(CPIPE, ROFL_DBG, "cpipe::recvmsg() EAGAIN tid: 0x%lx rc: %d errno:%d %s",
 						pthread_self(), rc, errno, strerror(errno));
 				return msg;
 			default:
-				WRITELOG(CPIPE, DBG, "cpipe::recvmsg() ??? tid: 0x%lx rc: %d errno:%d %s",
+				WRITELOG(CPIPE, ROFL_DBG, "cpipe::recvmsg() ??? tid: 0x%lx rc: %d errno:%d %s",
 						pthread_self(), rc, errno, strerror(errno));
 				return msg;
 			}

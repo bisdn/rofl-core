@@ -133,9 +133,9 @@ cgtentry::get_group_desc_stats(
 
 	buckets.pack(group_desc_stats->buckets, buckets.length());
 
-	WRITELOG(CGTENTRY, DBG, "cgtentry(%p)::get_group_desc_stats() %s", this, c_str());
+	WRITELOG(CGTENTRY, ROFL_DBG, "cgtentry(%p)::get_group_desc_stats() %s", this, c_str());
 
-	WRITELOG(CGTENTRY, DBG, "cgtentry(%p)::get_group_desc_stats() body:%s", this, gstats.c_str());
+	WRITELOG(CGTENTRY, ROFL_DBG, "cgtentry(%p)::get_group_desc_stats() body:%s", this, gstats.c_str());
 
 	body += gstats;
 }

@@ -17,7 +17,7 @@ cofctrl::cofctrl(cfwdelem* fwdelem, cofbase *ctrl, std::map<cofbase*, cofctrl*> 
 {
 	(*ofctrl_list)[ctrl] = this;
         flow_table = new cfttable(0);
-	WRITELOG(CFWD, DBG, "cofctrl(%p)::cofctrl()", this);
+	WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::cofctrl()", this);
 
 	fwdelem->handle_ctrl_open(this);
 }
@@ -25,7 +25,7 @@ cofctrl::cofctrl(cfwdelem* fwdelem, cofbase *ctrl, std::map<cofbase*, cofctrl*> 
 
 cofctrl::~cofctrl()
 {
-	WRITELOG(CFWD, DBG, "cofctrl(%p)::~cofctrl()", this);
+	WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::~cofctrl()", this);
 
 	fwdelem->handle_ctrl_close(this);
 
@@ -63,7 +63,7 @@ cofctrl::packet_out_rcvd(cofpacket *pack)
 void
 cofctrl::flow_mod_rcvd(cofpacket *pack)
 {
-	WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_flow_mod() pack: %s", this, pack->c_str());
+	WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_flow_mod() pack: %s", this, pack->c_str());
 
 	try {
 		if (OFPCR_ROLE_SLAVE == role)
@@ -91,7 +91,7 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 				if ((fte = it->second->update_ft_entry(fwdelem, pack)) != NULL)
 				{
 					fte->ofctrl = this; // store controlling entity for this cftentry
-					WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_flow_mod() table_id %d new %s",
+					WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_flow_mod() table_id %d new %s",
 							this, pack->ofh_flow_mod->table_id, fte->c_str());
 				}
 			}
@@ -111,12 +111,12 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 							update_ft_entry(fwdelem, pack)) != NULL)
 			{
 				fte->ofctrl = this; // store controlling entity for this cftentry
-				WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_flow_mod() table_id %d new %s",
+				WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_flow_mod() table_id %d new %s",
 						this, pack->ofh_flow_mod->table_id, fte->c_str());
 			}
 
 			try {
-				WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_flow_mod() new fte created: %s", this, fte->c_str());
+				WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_flow_mod() new fte created: %s", this, fte->c_str());
 
 				cofinst& inst = fte->instructions.find_inst(OFPIT_GOTO_TABLE);
 
@@ -164,7 +164,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 
 	} catch (eGroupTableExists& e) {
 
-		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry already exists, dropping", this);
 
 		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_GROUP_EXISTS,
@@ -172,7 +172,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 
 	} catch (eGroupTableNotFound& e) {
 
-		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry not found", this);
 
 		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
@@ -180,7 +180,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 
 	} catch (eGroupEntryInval& e) {
 
-		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry is invalid", this);
 
 		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_INVALID_GROUP,
@@ -188,7 +188,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 
 	} catch (eGroupEntryBadType& e) {
 
-		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry with bad type", this);
 
 		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_BAD_TYPE,
@@ -196,7 +196,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 
 	} catch (eActionBadOutPort& e) {
 
-		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry with action with bad type", this);
 
 		fwdelem->send_error_message(this, OFPET_BAD_ACTION, OFPBAC_BAD_OUT_PORT,
@@ -204,7 +204,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 
 	} catch (eGroupTableLoopDetected& e) {
 
-		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry produces loop, dropping", this);
 
 		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_LOOP,
@@ -212,7 +212,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 
 	} catch (eGroupTableModNonExisting& e) {
 
-		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry for modification not found, dropping", this);
 
 		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
@@ -421,16 +421,16 @@ cofctrl::handle_fsp_open_request(
 
 		cofmatch match(rofl->match, matchlen);
 
-		WRITELOG(COFCTRL, DBG, "cofctrl(%p)::handle_fsp_open_request() %s", this, match.c_str());
+		WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::handle_fsp_open_request() %s", this, match.c_str());
 
-		WRITELOG(COFCTRL, DBG, "cofctrl(%p)::handle_fsp_open_request() -VVVVVVVVV- %s", this, c_str());
+		WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::handle_fsp_open_request() -VVVVVVVVV- %s", this, c_str());
 
 		fwdelem->fsptable.insert_fsp_entry(this, match);
 
 		fwdelem->send_experimenter_ext_rofl_nsp_open_reply(pack, this,
 					OFPRET_NSP_RESULT_OK, match);
 
-		WRITELOG(COFCTRL, DBG, "cofctrl(%p)::handle_fsp_open_request() -ACCEPTED- %s\n%s", this, c_str(), fwdelem->fsptable.c_str());
+		WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::handle_fsp_open_request() -ACCEPTED- %s\n%s", this, c_str(), fwdelem->fsptable.c_str());
 
 	} catch (eFspEntryOverlap& e) {
 
@@ -438,7 +438,7 @@ cofctrl::handle_fsp_open_request(
 		fwdelem->send_experimenter_ext_rofl_nsp_open_reply(pack, this,
 							OFPRET_NSP_RESULT_OVERLAP, pack->match);
 
-		WRITELOG(COFCTRL, DBG, "cofctrl(%p)::handle_fsp_open_request() -REJECTED- %s", this, c_str());
+		WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::handle_fsp_open_request() -REJECTED- %s", this, c_str());
 
 	}
 
@@ -459,7 +459,7 @@ cofctrl::handle_fsp_close_request(
 {
 //	bool found = false;
 
-	WRITELOG(COFCTRL, DBG, "cofctrl(%p)::handle_fsp_close_request() %s", this, pack->match.c_str());
+	WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::handle_fsp_close_request() %s", this, pack->match.c_str());
 
 #if 1
 	cofmatch match;
@@ -502,7 +502,7 @@ cofctrl::handle_fsp_close_request(
 	}
 #endif
 
-	WRITELOG(COFCTRL, DBG, "cofctrl(%p)::handle_fsp_close_request() %s", this, c_str());
+	WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::handle_fsp_close_request() %s", this, c_str());
 }
 
 

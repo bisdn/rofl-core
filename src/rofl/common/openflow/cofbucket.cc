@@ -15,7 +15,7 @@ cofbucket::cofbucket(
 	watch_port(watch_port),
 	watch_group(watch_group)
 {
-	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::cofbucket()", this);
+	WRITELOG(COFBUCKET, ROFL_DBG, "cofbucket(%p)::cofbucket()", this);
 }
 
 
@@ -28,14 +28,14 @@ cofbucket::cofbucket(
 	watch_port(0),
 	watch_group(0)
 {
-	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::cofbucket()", this);
+	WRITELOG(COFBUCKET, ROFL_DBG, "cofbucket(%p)::cofbucket()", this);
 	unpack(bucket, bclen);
 }
 
 
 cofbucket::~cofbucket()
 {
-	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::~cofbucket()", this);
+	WRITELOG(COFBUCKET, ROFL_DBG, "cofbucket(%p)::~cofbucket()", this);
 }
 
 
@@ -77,7 +77,7 @@ throw (eBucketBadLen)
 	if (bclen < __bclen)
 		throw eBucketBadLen();
 
-	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::pack() %s", this, c_str());
+	WRITELOG(COFBUCKET, ROFL_DBG, "cofbucket(%p)::pack() %s", this, c_str());
 
 	bucket->len = htobe16(__bclen);
 	bucket->weight = htobe16(weight);

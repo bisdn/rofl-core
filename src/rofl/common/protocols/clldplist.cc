@@ -34,11 +34,11 @@ throw (eLLDPBadLen)
 
 	while (tlvlen > 0)
 	{
-		WRITELOG(CLLDPTLV, DBG, "clldplist(%p)::unpack() tlvhdr:%p tlvlen:%d", this, tlvhdr, tlvlen);
+		WRITELOG(CLLDPTLV, ROFL_DBG, "clldplist(%p)::unpack() tlvhdr:%p tlvlen:%d", this, tlvhdr, tlvlen);
 
 		if (tlvlen < (int)sizeof(uint16_t))
 		{
-			WRITELOG(CLLDPTLV, DBG, "clldplist(%p)::unpack() [1]", this);
+			WRITELOG(CLLDPTLV, ROFL_DBG, "clldplist(%p)::unpack() [1]", this);
 			throw eLLDPBadLen();
 		}
 
@@ -46,11 +46,11 @@ throw (eLLDPBadLen)
 
 		//fprintf(stderr, "clldplist(%p)::unpack() tlvlen=%u len=%d\n", this, tlvlen, len);
 
-		WRITELOG(CLLDPTLV, DBG, "clldplist(%p)::unpack() tlvhdr:%p tlvlen:%d len:%d", this, tlvhdr, tlvlen, len);
+		WRITELOG(CLLDPTLV, ROFL_DBG, "clldplist(%p)::unpack() tlvhdr:%p tlvlen:%d len:%d", this, tlvhdr, tlvlen, len);
 
 		if (0 == len)
 		{
-			WRITELOG(CLLDPTLV, DBG, "clldplist(%p)::unpack() [2]", this);
+			WRITELOG(CLLDPTLV, ROFL_DBG, "clldplist(%p)::unpack() [2]", this);
 			throw eLLDPBadLen();
 		}
 

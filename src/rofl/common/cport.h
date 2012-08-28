@@ -420,7 +420,7 @@ public:
 				std::set<cport_owner*>::iterator it;
 				for (it = cport_owner_list.begin(); it != cport_owner_list.end(); ++it)
 				{
-					WRITELOG(CFWD, DBG, "cport_owner::exists(%p) (*it): %p", owner, (*it));
+					WRITELOG(CFWD, ROFL_DBG, "cport_owner::exists(%p) (*it): %p", owner, (*it));
 				}
 #endif
 				throw ePortNotFound();
