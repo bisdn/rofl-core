@@ -154,24 +154,26 @@ cofdpath::features_reply_rcvd(
 
 		} catch (eOFbaseNotAttached& e) {}
 
+
+
+		dpid 			= be64toh(pack->ofh_switch_features->datapath_id);
+		n_buffers 		= be32toh(pack->ofh_switch_features->n_buffers);
+		n_tables 		= pack->ofh_switch_features->n_tables;
+		capabilities 	= be32toh(pack->ofh_switch_features->capabilities);
+
+		int portslen = be16toh(pack->ofh_switch_features->header.length) -
+												sizeof(struct ofp_switch_features);
+
+
 		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::features_reply_rcvd() "
 				"dpid:%"UINT64DBGFMT" ",
 				this, dpid);
 
 
 
-
-		dpid = be64toh(pack->ofh_switch_features->datapath_id);
-		n_buffers = be32toh(pack->ofh_switch_features->n_buffers);
-		n_tables = pack->ofh_switch_features->n_tables;
-		capabilities = be32toh(pack->ofh_switch_features->capabilities);
-
-		int portslen = be16toh(pack->ofh_switch_features->header.length) -
-												sizeof(struct ofp_switch_features);
-
-		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::features_save() %s", this, this->c_str());
-
 		ports = cofport::ports_parse(pack->ofh_switch_features->ports, portslen);
+
+		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::features_reply_rcvd() %s", this, this->c_str());
 
 
 		// dpid as std::string
@@ -501,7 +503,7 @@ cofdpath::port_status_rcvd(cofpacket *pack)
 	case OFPPR_ADD:
 		if (ports.find(be32toh(pack->ofh_port_status->desc.port_no)) == ports.end())
 		{
-			cofport *lport = new cofport(&ports, &(pack->ofh_port_status->desc));
+			cofport *lport = new cofport(&ports, &(pack->ofh_port_status->desc), sizeof(struct ofp_port));
 
 			// let derived class handle PORT-STATUS message
 			fwdelem->handle_port_status(this, pack, lport);
@@ -621,7 +623,8 @@ const char*
 cofdpath::c_str()
 {
 	cvastring vas;
-	info.assign(vas("cofdpath(%p) dpid:0x%llx =>", this, dpid));
+	info.assign(vas("cofdpath(%p) dpid:0x%llx buffers: %d tables: %d capabilities: 0x%x =>",
+			this, dpid, n_buffers, n_tables, capabilities));
 
 	std::map<uint32_t, cofport*>::iterator it;
 	for (it = ports.begin(); it != ports.end(); ++it)

@@ -4,7 +4,9 @@
 
 #include "cofport.h"
 
-/* static */ std::map<uint32_t, cofport*>
+
+/* static */
+std::map<uint32_t, cofport*>
 cofport::ports_parse(
 	struct ofp_port *ports, // ptr to array of ofp_phy_ports
 	int portslen) // number of bytes in array
@@ -13,26 +15,32 @@ cofport::ports_parse(
 	std::map<uint32_t, cofport*> __ports;
 
 	if (portslen == 0)
+	{
 		return __ports;
+	}
 
 	// sanity check: portslen must be of size at least of ofp_phy_port
 	if (portslen < (int)sizeof(struct ofp_port))
+	{
 		throw eOFportMalformed();
+	}
 
 	// first struct ofp_phy_port
 	struct ofp_port *phdr = ports;
 
-	while (portslen > 0) {
+	while (portslen > 0)
+	{
 		if (portslen < (int)sizeof(struct ofp_port))
+		{
 			throw eOFportMalformed();
+		}
 
+		cofport *ofport = new cofport(phdr, sizeof(struct ofp_port));
 
-		cofport *ofport = new cofport(&__ports);
+		__ports[ofport->port_no] = ofport;
 
-		ofport->unpack(phdr, sizeof(struct ofp_port));
-
+		phdr++;
 		portslen -= sizeof(struct ofp_port);
-		phdr = (struct ofp_port*)(((uint8_t*)phdr) + sizeof(struct ofp_port));
 	}
 	return __ports;
 }
@@ -60,7 +68,18 @@ cofport::cofport(
 	std::map<uint32_t, cofport*> *port_list,
 	struct ofp_port *port,
 	size_t port_len) :
-	port_list(port_list)
+			port_no(0),
+			hwaddr(cmacaddr("00:00:00:00:00:00")),
+			name(std::string("")),
+			config(0),
+			state(0),
+			curr(0),
+			advertised(0),
+			supported(0),
+			peer(0),
+			curr_speed(0),
+			max_speed(0),
+			port_list(port_list)
 {
 	reset_stats();
 	if ((0 != port) && (port_len >= sizeof(struct ofp_port)))
@@ -75,7 +94,18 @@ cofport::cofport(
 cofport::cofport(
 		struct ofp_port* port,
 		size_t port_len) :
-		port_list(0)
+			port_no(0),
+			hwaddr(cmacaddr("00:00:00:00:00:00")),
+			name(std::string("")),
+			config(0),
+			state(0),
+			curr(0),
+			advertised(0),
+			supported(0),
+			peer(0),
+			curr_speed(0),
+			max_speed(0),
+			port_list(0)
 {
 	reset_stats();
 	if ((0 != port) && (port_len >= sizeof(struct ofp_port)))
@@ -83,7 +113,6 @@ cofport::cofport(
 		unpack(port, port_len);
 	}
 }
-
 
 
 cofport::~cofport()

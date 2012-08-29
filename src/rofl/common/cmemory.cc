@@ -350,7 +350,7 @@ cmemory::c_str()
 {
 #ifdef NDEBUG
 	std::stringstream sstr;
-	sstr << "cmemory(" << (std::hex) << this << (std::dec) << ") len[" << memlen() << "]";
+	sstr << "cmemory(" << (std::hex) << this << (std::dec) << ") len[" << (int)memlen() << "]";
 	return sstr.str().c_str();
 
 #else

@@ -138,6 +138,37 @@ public:
 			cofport const& port);
 
 
+
+	/**
+	 *
+	 */
+	void
+	link_state_phy_down()
+	{
+		state |= OFPPS_LINK_DOWN;
+	};
+
+
+	/**
+	 *
+	 */
+	void
+	link_state_phy_up()
+	{
+		state &= ~OFPPS_LINK_DOWN;
+	};
+
+
+	/**
+	 *
+	 */
+	bool
+	link_state_phy_is_up()
+	{
+		return (0 == (state & OFPPS_LINK_DOWN));
+	};
+
+
 	/**
 	 *
 	 */
