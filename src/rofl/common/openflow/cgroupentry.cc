@@ -119,7 +119,7 @@ cgroupentry::pack()
 
 	size_t bclen = buckets.length(); // length required for packing buckets in binary array of "struct ofp_bucket"
 
-	WRITELOG(UNKNOWN, DBG, "cgroupentry(%p)::pack() [0] bclen[%d] group_mod_area: %s",
+	WRITELOG(UNKNOWN, ROFL_DBG, "cgroupentry(%p)::pack() [0] bclen[%d] group_mod_area: %s",
 			this, bclen, group_mod_area.c_str());
 
 	if ((sizeof(struct ofp_group_mod) + bclen) > group_mod_area.memlen()) // not enough space? => resize memory area for group_mod
@@ -128,16 +128,16 @@ cgroupentry::pack()
 		group_mod = (struct ofp_group_mod*)group_mod_area.somem();
 	}
 
-	WRITELOG(UNKNOWN, DBG, "cgroupentry(%p)::pack() [1] bclen[%d] group_mod_area: %s",
+	WRITELOG(UNKNOWN, ROFL_DBG, "cgroupentry(%p)::pack() [1] bclen[%d] group_mod_area: %s",
 				this, bclen, group_mod_area.c_str());
 
-	//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [1] flow_mod_area: %s", this, flow_mod_area.c_str());
+	//WRITELOG(UNKNOWN, ROFL_DBG, "cflowentry(%p)::pack() [1] flow_mod_area: %s", this, flow_mod_area.c_str());
 
 	buckets.pack(group_mod->buckets, bclen); // pack our bucket list into the memory area group_mod->buckets
 
-	//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [2] flow_mod_area: %s", this, flow_mod_area.c_str());
+	//WRITELOG(UNKNOWN, ROFL_DBG, "cflowentry(%p)::pack() [2] flow_mod_area: %s", this, flow_mod_area.c_str());
 
-	WRITELOG(UNKNOWN, DBG, "cgroupentry(%p)::pack() [2] bclen[%d] group_mod_area: %s",
+	WRITELOG(UNKNOWN, ROFL_DBG, "cgroupentry(%p)::pack() [2] bclen[%d] group_mod_area: %s",
 				this, bclen, group_mod_area.c_str());
 
 	return (sizeof(struct ofp_group_mod) + bclen); // return size of struct ofp_group_mod including appended buckets

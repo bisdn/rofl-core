@@ -15,6 +15,7 @@ extern "C" {
 #include "openflow12.h"
 #include <string.h>
 #include <endian.h>
+#include <inttypes.h>
 
 #ifndef htobe16
 #include "../endian_conversion.h"
@@ -40,7 +41,6 @@ extern "C" {
 
 // forward declarations
 class cofdpath;
-class chandler;
 
 /* error classes */
 class eOFportBase : public cerror {};
@@ -53,17 +53,14 @@ class eOFportMalformed : public eOFportBase {}; // malformed array of structs of
 class cofport :
 	public csyslog
 {
-public: // data structures
-
-	chandler 							*handler; 		// cadaptor instance who created this
-														// cofport (NULL, if no cadaptor is assigned)
-	std::map<uint32_t, cofport*> 		*port_list; 	// port_list this port belongs to
-	std::string 						info; 			// info string
+/*
+ *  data structures
+ */
+public:
 
 	/*
 	 * parameters from struct ofp_port
 	 */
-
 	uint32_t 							port_no;
 	cmacaddr 							hwaddr;
 	std::string 						name;
@@ -92,55 +89,34 @@ public: // data structures
 	uint64_t 							rx_crc_err;
 	uint64_t 							collisions;
 
+private:
+
+	std::map<uint32_t, cofport*> 		*port_list; 	// port_list this port belongs to
+	std::string 						info; 			// info string
 
 
+
+/*
+ * methods
+ */
 public:
 
 	/** constructor
+	 *
 	 */
 	cofport(
 			std::map<uint32_t, cofport*> *port_list,
-			struct ofp_port *port);
+			struct ofp_port *port = (struct ofp_port*)0,
+			size_t port_len = 0);
 
 
 	/** constructor
+	 *
 	 */
 	cofport(
-			struct ofp_port *port,
-			size_t portlen);
+			struct ofp_port *port = (struct ofp_port*)0,
+			size_t portlen = 0);
 
-
-	/** constructor
-	 */
-	cofport(
-			std::map<uint32_t, cofport*> *port_list,
-			uint32_t port_no = 0,
-			cmacaddr const& hwaddr = cmacaddr("00:00:00:00:00:00"),
-			std::string const& devname = std::string(""),
-			uint32_t config = 0,
-			uint32_t state = 0,
-			uint32_t curr = 0,
-			uint32_t advertised = 0,
-			uint32_t supported = 0,
-			uint32_t peer = 0,
-			uint32_t curr_speed = 0,
-			uint32_t max_speed = 0);
-
-
-	/** constructor
-	 */
-	cofport(
-			uint32_t port_no = 0,
-			cmacaddr const& hwaddr = cmacaddr("00:00:00:00:00:00"),
-			std::string const& devname = std::string(""),
-			uint32_t config = 0,
-			uint32_t state = 0,
-			uint32_t curr = 0,
-			uint32_t advertised = 0,
-			uint32_t supported = 0,
-			uint32_t peer = 0,
-			uint32_t curr_speed = 0,
-			uint32_t max_speed = 0);
 
 
 	/** destructor
@@ -162,6 +138,37 @@ public:
 			cofport const& port);
 
 
+
+	/**
+	 *
+	 */
+	void
+	link_state_phy_down()
+	{
+		state |= OFPPS_LINK_DOWN;
+	};
+
+
+	/**
+	 *
+	 */
+	void
+	link_state_phy_up()
+	{
+		state &= ~OFPPS_LINK_DOWN;
+	};
+
+
+	/**
+	 *
+	 */
+	bool
+	link_state_phy_is_up()
+	{
+		return (0 == (state & OFPPS_LINK_DOWN));
+	};
+
+
 	/**
 	 *
 	 */
@@ -171,28 +178,6 @@ public:
 			uint32_t mask,
 			uint32_t advertise);
 
-
-	/** update port parameters
-	 */
-	void
-	update(
-			uint32_t port_no,
-			cmacaddr const& hwaddr,
-			const char *name, size_t namelen,
-			uint32_t config,
-			uint32_t state,
-			uint32_t curr,
-			uint32_t advertised,
-			uint32_t supported,
-			uint32_t peer,
-			uint32_t curr_speed,
-			uint32_t max_speed);
-
-
-	/** update port parameters
-	 */
-	void update(
-			struct ofp_port *port);
 
 
 	/**
@@ -212,11 +197,6 @@ public:
 			struct ofp_port *port,
 			size_t portlen) throw (eOFportInval);
 
-
-	/** copy internal state to struct ofp_phy_port
-	 */
-	struct ofp_port* copy(
-			struct ofp_port* port);
 	
 
 	/** dump internals
@@ -237,13 +217,6 @@ public:
 	 */
 	void
 	reset_stats();
-
-
-	/** return adaptor or throw exception if none is assigned to this cofport
-	 *
-	 */
-	chandler&
-	get_adapter() throw (eOFportNotFound);
 
 
 	/**
@@ -279,34 +252,52 @@ public: // static
 		std::map<uint32_t, cofport*> *port_list) throw (eOFportNotFound);
 
 
-public: // auxiliary classes
+};
 
-	class cofport_find_by_port_no {
-		uint32_t port_no;
-	public:
-		cofport_find_by_port_no(uint32_t _port_no) :
-			port_no(_port_no) {};
-		bool operator() (cofport *ofport) {
-			return (ofport->port_no == port_no);
-		};
-		bool operator() (std::pair<uint32_t, cofport*> const& p) {
-			return (p.second->port_no == port_no);
-		};
+
+class cofport_find_by_port_no {
+	uint32_t port_no;
+public:
+	cofport_find_by_port_no(uint32_t _port_no) :
+		port_no(_port_no) {};
+	bool operator() (cofport *ofport) {
+		return (ofport->port_no == port_no);
 	};
+	bool operator() (std::pair<uint32_t, cofport*> const& p) {
+		return (p.second->port_no == port_no);
+	};
+};
 
-	class cofport_find_by_port_name {
-		std::string port_name;
-	public:
-		cofport_find_by_port_name(std::string _port_name) :
-			port_name(_port_name) {};
-		bool operator() (cofport *ofport) {
-			std::string name(ofport->name);
-			return (name == port_name);
-		};
-		bool operator() (std::pair<uint32_t, cofport*> const& p) {
-			std::string name(p.second->name);
-			return (name == port_name);
-		};
+
+class cofport_find_by_port_name {
+	std::string port_name;
+public:
+	cofport_find_by_port_name(std::string _port_name) :
+		port_name(_port_name) {};
+	bool operator() (cofport *ofport) {
+		std::string name(ofport->name);
+		return (name == port_name);
+	};
+	bool operator() (std::pair<uint32_t, cofport*> const& p) {
+		std::string name(p.second->name);
+		return (name == port_name);
+	};
+};
+
+
+
+class cofport_find_by_maddr {
+	cmacaddr maddr;
+public:
+	cofport_find_by_maddr(cmacaddr const& maddr) :
+		maddr(maddr) {};
+	bool operator() (cofport *ofport) {
+		cmacaddr hwaddr(ofport->hwaddr);
+		return (maddr == hwaddr);
+	};
+	bool operator() (std::pair<uint32_t, cofport*> const& p) {
+		cmacaddr hwaddr(p.second->hwaddr);
+		return (maddr == hwaddr);
 	};
 };
 

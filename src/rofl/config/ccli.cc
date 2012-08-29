@@ -329,7 +329,7 @@ ccli::ccli(u_int16_t port) :
 	cli_register_command(cli, NULL, "exit", cmd_config_subcmd_exit, PRIVILEGE_PRIVILEGED, MODE_CONFIG_OPENFLOW_CONFIGURE, "Exit from OpenFlow configuration");
 
 
-	WRITELOG(CLI, DBG, "ccli::ccli(%p) created", this);
+	WRITELOG(CLI, ROFL_DBG, "ccli::ccli(%p) created", this);
 }
 
 
@@ -343,12 +343,12 @@ ccli::handle_accepted(int x, caddress &ra)
 {
 	if(this->cli_fd != -1) {
 		close(x);
-		WRITELOG(CLI, DBG, "ccli(%p)::handle_accepted() closing %d (already connected)", this, x);
+		WRITELOG(CLI, ROFL_DBG, "ccli(%p)::handle_accepted() closing %d (already connected)", this, x);
 		return;
 	}
 	this->cli_fd = x;
 
-	WRITELOG(CLI, DBG, "pre ccli(%p)::handle_accepted() accept %d", this, x);
+	WRITELOG(CLI, ROFL_DBG, "pre ccli(%p)::handle_accepted() accept %d", this, x);
 
 	pthread_t thread;
 	int rc = pthread_create(&thread, NULL, ccli::run_terminal, this);
@@ -373,15 +373,16 @@ ccli::handle_accepted(int x, caddress &ra)
 }
 
 void
-ccli::read_config_file(const std::string& filename)
+ccli::read_config_file(const std::string& filename) throw (eCliConfigFileNotFound)
 {
-	WRITELOG(CLI, INFO, "open config file %s", filename.c_str());
+	WRITELOG(CLI, ROFL_INFO, "open config file %s", filename.c_str());
 	FILE *fh = fopen(filename.c_str(), "r");
 	if (NULL != fh) {
 		cli_file(this->cli, fh, PRIVILEGE_UNPRIVILEGED, MODE_EXEC);
 		fclose(fh);
 	} else {
 		WRITELOG(CLI, ERROR, "config file not found %s", filename.c_str());
+		throw eCliConfigFileNotFound();
 	}
 }
 

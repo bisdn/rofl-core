@@ -19,6 +19,7 @@
 
 #include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/csocket.h"
+#include "rofl/common/cerror.h"
 
 #include "cconfigfwdelem.h"
 #include "cconfigport.h"
@@ -28,6 +29,10 @@
 #else
 # define UNUSED(d) d
 #endif
+
+
+class eCliBase 						: public cerror {};
+class eCliConfigFileNotFound 		: public eCliBase {};
 
 
 
@@ -44,7 +49,7 @@ public:
 	handle_accepted(int newsd, caddress &ra);
 
 	void
-	read_config_file(const std::string &filename);
+	read_config_file(const std::string &filename) throw (eCliConfigFileNotFound);
 
 	/**
 	 * Read data from socket.
@@ -56,7 +61,7 @@ public:
 	 */
 	virtual void
 	handle_read(int fd) {
-		WRITELOG(CLI, DBG, "ccli(%p)::handle_read()", this);
+		WRITELOG(CLI, ROFL_DBG, "ccli(%p)::handle_read()", this);
 	}
 
 private:

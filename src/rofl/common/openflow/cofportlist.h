@@ -11,7 +11,6 @@
 #include "../cerror.h"
 #include "../coflist.h"
 
-#include "cofaction.h"
 #include "cofport.h"
 
 class ePortListBase : public cerror {}; // base error class cofinlist
@@ -21,7 +20,9 @@ class ePortListOutOfRange : public ePortListBase {}; // out of range
 
 
 
-class cofportlist : public coflist<cofport> {
+class cofportlist :
+	public coflist<cofport>
+{
 public: // static methods
 
 	/**
@@ -30,14 +31,17 @@ public: // static methods
 
 public: // methods
 
+
 	/** constructor
 	 */
 	cofportlist();
+
 
 	/** destructor
 	 */
 	virtual
 	~cofportlist();
+
 
 	/**
 	 */
@@ -45,6 +49,7 @@ public: // methods
 	{
 		*this = portlist;
 	};
+
 
 	/**
 	 */
@@ -56,6 +61,7 @@ public: // methods
 		return *this;
 	};
 
+
 	/** stores cofinst instances in this->invec from a packed array struct ofp_instruction (e.g. in struct ofp_flow_mod)
 	 */
 	std::vector<cofport>&			// returns reference to this->invec
@@ -63,6 +69,7 @@ public: // methods
 		struct ofp_port *ports, // parses memory area buckets and creates cofinst instance in this->invec
 		size_t portlen)					// length of memory area to be parsed
 	throw (ePortListInval);
+
 
 	/** builds an array of struct ofp_instruction from this->invec
 	 */
@@ -72,23 +79,27 @@ public: // methods
 		size_t portlen) 					// length of memory area
 	throw (ePortListInval);
 
+
 	/** returns required length for array of struct ofp_instruction
 	 * for all instructions defined in this->invec
 	 */
 	size_t
 	length();
 
+
 	/** dump info string
 	 */
 	const char*
 	c_str();
 
-	/** find a specific instruction
+
+	/** find a specific ofport
 	 */
 	cofport&
 	find_port(
 			uint32_t port_no)
 	throw (ePortListNotFound);
+
 
 private:
 

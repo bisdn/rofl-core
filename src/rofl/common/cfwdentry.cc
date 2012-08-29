@@ -22,14 +22,14 @@ cfwdentry::cfwdentry(
 
 	register_timer(TIMER_CFWDENTRY_EXPIRED, fwdentry_timeout);
 
-	WRITELOG(FTE, DBG, "cfwdentry(%p)::cfwdentry() constructor %s", this, c_str());
+	WRITELOG(FTE, ROFL_DBG, "cfwdentry(%p)::cfwdentry() constructor %s", this, c_str());
 }
 
 
 cfwdentry::~cfwdentry()
 {
 	fwdtable->erase(this);
-	WRITELOG(FTE, DBG, "cfwdentry(%p)::~cfwdentry() destructor %s", this, c_str());
+	WRITELOG(FTE, ROFL_DBG, "cfwdentry(%p)::~cfwdentry() destructor %s", this, c_str());
 }
 
 
@@ -38,7 +38,7 @@ cfwdentry::handle_timeout(int opaque)
 {
 	switch (opaque) {
 	case TIMER_CFWDENTRY_EXPIRED:
-		WRITELOG(FTE, DBG,
+		WRITELOG(FTE, ROFL_DBG,
 				"cfwdentry(%p)::handle_timeout() fwdentry expired %s", this, c_str());
 		delete this;
 		return;
@@ -53,7 +53,7 @@ cfwdentry::refresh_entry(uint64_t dpid, uint32_t port_no)
 	this->dpid = dpid;
 	this->port_no = port_no;
 	reset_timer(TIMER_CFWDENTRY_EXPIRED, fwdentry_timeout);
-	WRITELOG(FTE, DBG,
+	WRITELOG(FTE, ROFL_DBG,
 		"cfwdentry(%p)::refresh_entry() %s", this, c_str());
 }
 

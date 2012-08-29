@@ -18,14 +18,14 @@ coxmlist::coxmlist() :
 	oxmvec((coxmatch**)area.somem())
 {
 	clear();
-	//WRITELOG(COXMLIST, DBG, "coxmlist(%p)::coxmlist()", this);
+	//WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::coxmlist()", this);
 }
 
 
 coxmlist::~coxmlist()
 {
 	clear();
-	//WRITELOG(COXMLIST, DBG, "coxmlist(%p)::~coxmlist()", this);
+	//WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::~coxmlist()", this);
 }
 
 
@@ -251,7 +251,7 @@ coxmlist::oxm_find(
 	for (coxmlist::iterator
 			it = elems.begin(); it != elems.end(); ++it)
 	{
-		WRITELOG(COXMLIST, DBG, "coxmlist(%p)::oxm_find() %d => %s",
+		WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::oxm_find() %d => %s",
 				this, elems.size(), (*it).c_str());
 	}
 #endif
@@ -260,13 +260,13 @@ coxmlist::oxm_find(
 
 	if (not exists(oxm_class, oxm_field))
 	{
-		WRITELOG(COXMLIST, DBG, "coxmlist(%p)::oxm_find() class:0x%x field:%d not found",
+		WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::oxm_find() class:0x%x field:%d not found",
 						this, oxm_class, oxm_field);
 
 		throw eOxmListNotFound();
 	}
 
-	WRITELOG(COXMLIST, DBG, "coxmlist(%p)::oxm_find() class:0x%x field:%d found => %s",
+	WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::oxm_find() class:0x%x field:%d found => %s",
 					this, oxm_class, oxm_field, (*this)[oxm_field].c_str());
 
 	return (*this)[oxm_field];
@@ -281,14 +281,14 @@ coxmlist::oxm_copy(
 {
 	if (not exists(oxm_class, oxm_field))
 	{
-		WRITELOG(COXMLIST, DBG, "coxmlist(%p)::oxm_copy() class:0x%x field:%d not found",
+		WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::oxm_copy() class:0x%x field:%d not found",
 						this, oxm_class, oxm_field);
 
 		throw eOxmListNotFound();
 	}
 
 	coxmatch oxm((*this)[oxm_field]);
-	WRITELOG(COXMLIST, DBG, "coxmlist(%p)::oxm_copy() class:0x%x field:%d found => %s",
+	WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::oxm_copy() class:0x%x field:%d found => %s",
 					this, oxm_class, oxm_field, oxm.c_str());
 
 	return oxm;
@@ -356,12 +356,12 @@ coxmlist::overlap(
 	 */
 
 	coxmlist debug(oxmlist);
-	WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() COMPARING [%s]\nus:%s vs.\nthem:%s",
+	WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() COMPARING [%s]\nus:%s vs.\nthem:%s",
 			this, (strict) ? "strict" : "non-strict", c_str(), debug.c_str());
 
 	if (strict)
 	{
-		WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() EEEEEEEEEEEEEEEEEEEEEEE [strict]", this);
+		WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() EEEEEEEEEEEEEEEEEEEEEEE [strict]", this);
 
 		if (size() != oxmlist.size()) // same # of elements?
 		{
@@ -370,21 +370,21 @@ coxmlist::overlap(
 
 		for (unsigned int i = 0; i < OFPXMT_OFB_MAX; ++i)
 		{
-			WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() us.oxmvec[%d]:%p "
+			WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() us.oxmvec[%d]:%p "
 					"them.oxmvec[%d]:%p", this, i, oxmvec[i], i, oxmlist.oxmvec[i]);
 			if (((coxmatch*)0 == oxmvec[i]) && ((coxmatch*)0 == oxmlist.oxmvec[i]))
 			{
-				WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() i:%d both 0", this, i);
+				WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() i:%d both 0", this, i);
 				continue;
 			}
 			else if ((coxmatch*)0 == oxmvec[i])
 			{
-				WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() i:%d us 0", this, i);
+				WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() i:%d us 0", this, i);
 				return false;
 			}
 			else if ((coxmatch*)0 == oxmlist.oxmvec[i])
 			{
-				WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() i:%d them 0", this, i);
+				WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() i:%d them 0", this, i);
 				return false;
 			}
 
@@ -395,12 +395,12 @@ coxmlist::overlap(
 
 			if (not (m1 == m2))
 			{
-				WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() m1 != m2", this);
+				WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() m1 != m2", this);
 				return false;
 			}
 			else
 			{
-				WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() m1 == m2", this);
+				WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() m1 == m2", this);
 			}
 		}
 
@@ -408,7 +408,7 @@ coxmlist::overlap(
 	}
 	else /* non-strict */
 	{
-		WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() EEEEEEEEEEEEEEEEEEEEEEE [non-strict]", this);
+		WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() EEEEEEEEEEEEEEEEEEEEEEE [non-strict]", this);
 
 		for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
 		{
@@ -428,17 +428,17 @@ coxmlist::overlap(
 
 			if (not (m1 == m2))
 			{
-				WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() m1 != m2", this);
+				WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() m1 != m2", this);
 				return false;
 			}
 			else
 			{
-				WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() m1 == m2", this);
+				WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() m1 == m2", this);
 			}
 		}
 	}
 
-	WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() MATCHING!", this);
+	WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() MATCHING!", this);
 
 	return true;
 }
@@ -451,7 +451,7 @@ coxmlist::calc_hits(
 		uint16_t& wildcard_hits,
 		uint16_t& missed)
 {
-	WRITELOG(COXMLIST, DBG, "coxmlist(%p)::calc_hits()", this);
+	WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::calc_hits()", this);
 
 	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
 	{
@@ -471,12 +471,12 @@ coxmlist::calc_hits(
 
 		if (not (m1 == m2))
 		{
-			WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() m1 != m2", this);
+			WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() m1 != m2", this);
 			missed++; return;
 		}
 		else
 		{
-			WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() m1 == m2", this);
+			WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() m1 == m2", this);
 			exact_hits++;
 		}
 	}

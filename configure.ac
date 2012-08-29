@@ -77,7 +77,6 @@ AC_CONFIG_FILES([
 	src/rofl/common/Makefile
 	src/rofl/Makefile
 	src/rofl/config/Makefile
-	src/ofhal/Makefile
 
 	test/Makefile
 	test/unit/Makefile

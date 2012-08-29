@@ -35,6 +35,7 @@ extern "C" {
 #include "cvastring.h"
 #include "cfibentry.h"
 #include "croflexp.h"
+#include "cphyport.h"
 
 //#include "rofl/experimental/crib.h"
 #include "rofl/platform/unix/crandom.h"
@@ -56,6 +57,7 @@ extern "C" {
 #include "openflow/cflowentry.h"
 #include "openflow/cgroupentry.h"
 #include "openflow/extensions/cfsptable.h"
+
 
 
 /* error classes */
@@ -129,7 +131,7 @@ protected: // data structures
 	uint32_t 						n_buffers; 		// number of buffer entries for queuing packets
 	uint8_t  						n_tables; 		// number of tables
 	uint32_t 						capabilities; 	// capabilities
-	std::map<uint32_t, cofport*> 	phy_ports; 		// ports that we present to the higher layer
+	std::map<uint32_t, cphyport*> 	phy_ports; 		// ports that we present to the higher layer
 	std::map<uint8_t, cfttable*> 	flow_tables; 	// OF1.1 forwarding tables for this emulated switch instance (layer-(n), not layer-(n-1)!)
 	cgttable 						group_table; 	// OF1.1 group table
 	cfsptable 						fsptable; 		// namespace table
@@ -302,20 +304,23 @@ public: // constructor + destructor
 		throw eNotImplemented();
 	};
 
+
 	/** Establish OF TCP connection to datapath entity
 	 *
 	 */
 	void
 	dpt_connect(caddress const& ra);
 
+
 	/** Close OF TCP connection to datapath entity
 	 *
 	 */
 	void
-	cpt_disconnect()
+	dpt_disconnect()
 	{
 		throw eNotImplemented();
 	};
+
 
 	/**
 	 *
@@ -323,14 +328,15 @@ public: // constructor + destructor
 	virtual void
 	port_attach(
 			std::string devname,
-			uint32_t port_no) {};
+			uint32_t port_no);
 
 	/**
 	 *
 	 */
 	virtual void
 	port_detach(
-			uint32_t port_no) {};
+			uint32_t port_no);
+
 
 protected:
 

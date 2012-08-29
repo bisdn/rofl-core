@@ -118,7 +118,7 @@ cofpacket::unpack(uint8_t *buf, size_t buflen)
 bool
 cofpacket::complete() throw (eOFpacketInval)
 {
-	WRITELOG(COFPACKET, DBG, "cofpacket::complete() framelen()=%d",
+	WRITELOG(COFPACKET, ROFL_DBG, "cofpacket::complete() framelen()=%d",
 			 framelen());
 
 	if (stored < sizeof(struct ofp_header))
@@ -126,7 +126,7 @@ cofpacket::complete() throw (eOFpacketInval)
 		return false;
 	}
 
-	WRITELOG(COFPACKET, DBG, "cofpacket::complete() framelen()=%d hdr->length=%d",
+	WRITELOG(COFPACKET, ROFL_DBG, "cofpacket::complete() framelen()=%d hdr->length=%d",
 			 framelen(), be16toh(ofh_header->length));
 
 	// critical error, we read behind the real packet, need split of packet, this should never happen, though
@@ -160,7 +160,7 @@ cofpacket::need_bytes()
 	// if we haven't read at least one ofp_header, fill the header
 	if (stored < sizeof(struct ofp_header))
 	{
-		WRITELOG(COFPACKET, DBG, "cofpacket::need_bytes() framelen()[%d] less than sizeof(struct ofp_header)[%d]",
+		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket::need_bytes() framelen()[%d] less than sizeof(struct ofp_header)[%d]",
 				 framelen(), sizeof(struct ofp_header));
 
 		if (memarea.memlen() < sizeof(struct ofp_header))
@@ -177,16 +177,16 @@ cofpacket::need_bytes()
 
 	if (packlen > memarea.memlen())
 	{
-		WRITELOG(COFPACKET, DBG, "cofpacket(%p)::need_bytes() need resizing, packlen[%d] memlen()[%d] [1] pack: %s",
+		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::need_bytes() need resizing, packlen[%d] memlen()[%d] [1] pack: %s",
 				this, packlen, memarea.memlen(), memarea.c_str());
 
 		resize(packlen);
 
-		WRITELOG(COFPACKET, DBG, "cofpacket(%p)::need_bytes() need resizing, packlen[%d] memlen()[%d] [2] pack: %s",
+		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::need_bytes() need resizing, packlen[%d] memlen()[%d] [2] pack: %s",
 							this, packlen, memarea.memlen(), memarea.c_str());
 	}
 
-	WRITELOG(COFPACKET, DBG, "cofpacket::need_bytes() framelen()[%d] hdr->length[%d] need [%d] more bytes",
+	WRITELOG(COFPACKET, ROFL_DBG, "cofpacket::need_bytes() framelen()[%d] hdr->length[%d] need [%d] more bytes",
 			 framelen(), packlen, packlen - stored);
 
 	return (packlen - stored);
@@ -282,7 +282,7 @@ cofpacket::is_valid()
 	default:
 		return false;
 	}
-	//WRITELOG(CPACKET, DBG, "cOFpacket is valid");
+	//WRITELOG(CPACKET, ROFL_DBG, "cOFpacket is valid");
 	return true;
 }
 
@@ -367,7 +367,7 @@ cofpacket::is_valid_error_msg()
 	ofh_error_msg = (struct ofp_error_msg*)soframe();
 	if (stored < sizeof(struct ofp_error_msg))
 	{
-		WRITELOG(COFPACKET, DBG, "cofpacket(%p)::is_valid_error_msg() "
+		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::is_valid_error_msg() "
 				"frame is too short: %d", this, framelen());
 		return false;
 	}
@@ -392,7 +392,7 @@ cofpacket::is_valid_error_msg()
 		// access via emhdr->data
 		break;
 	default:
-		WRITELOG(COFPACKET, DBG, "cofpacket(%p)::is_valid_error_msg() "
+		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::is_valid_error_msg() "
 				"unknown error msg type: %d", this, be16toh(ofh_error_msg->type));
 		return true;
 	}
@@ -551,7 +551,7 @@ cofpacket::is_valid_flow_mod()
 
 		match.unpack(&(ofh_flow_mod->match), be16toh(ofh_flow_mod->match.length));
 
-		WRITELOG(COFPACKET, DBG, "cofpacket(%p)::is_valid_flow_mod() "
+		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::is_valid_flow_mod() "
 				"match: %s", this, match.c_str());
 
 		// check size of received flow-mod message
@@ -914,18 +914,22 @@ cofpacket::test()
 	uint32_t curr_speed	= 0xaabbcc07;
 	uint32_t max_speed 	= 0xaabbcc08;
 
-	features_reply.ports.next() = cofport(
-									port_no,
-									hwaddr,
-									devname,
-									config,
-									state,
-									curr,
-									advertised,
-									supported,
-									peer,
-									curr_speed,
-									max_speed);
+	cofport ofport;
+
+	ofport.port_no 		= port_no;
+	ofport.hwaddr 		= hwaddr;
+	ofport.name 		= devname;
+	ofport.config 		= config;
+	ofport.state 		= state;
+	ofport.curr 		= curr;
+	ofport.advertised 	= advertised;
+	ofport.supported 	= supported;
+	ofport.peer 		= peer;
+	ofport.curr_speed 	= curr_speed;
+	ofport.max_speed 	= max_speed;
+
+	features_reply.ports.next() = ofport;
+
 	packed.clear();
 	packed.resize(features_reply.length());
 	features_reply.pack(packed.somem(), packed.memlen());

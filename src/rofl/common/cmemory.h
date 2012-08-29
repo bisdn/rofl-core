@@ -7,6 +7,7 @@
 
 #include <set>
 #include <string>
+#include <sstream>
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,6 +22,7 @@ extern "C" {
 #endif
 
 #include "rofl/platform/unix/csyslog.h"
+#include "cvastring.h"
 
 #include "cerror.h"
 
