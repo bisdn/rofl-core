@@ -78,7 +78,7 @@ void
 csyslog::writelog(DebugClass debugClass, DebugLevel level, const char *fmt, ...)
 {
 #ifdef NDEBUG
-	if (level >= DBG)
+	if (level >= ROFL_DBG)
 		return;
 #endif
 

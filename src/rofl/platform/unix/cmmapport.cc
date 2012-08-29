@@ -123,7 +123,7 @@ cpktline2::cpktline2(
 		ring(NULL),
 		rpos(0)
 {
-	WRITELOG(CPORT, DBG, "cpktline(%p)::cpktline() %s\n",
+	WRITELOG(CPORT, ROFL_DBG, "cpktline(%p)::cpktline() %s\n",
 			this, (ring_type == PACKET_TX_RING) ? "TX-RING" : "RX-RING");
 	// initialize();
 }
@@ -131,7 +131,7 @@ cpktline2::cpktline2(
 
 cpktline2::~cpktline2()
 {
-	WRITELOG(CPORT, DBG, "cpktline(%p)::~cpktline() %s\n",
+	WRITELOG(CPORT, ROFL_DBG, "cpktline(%p)::~cpktline() %s\n",
 			this, (ring_type == PACKET_TX_RING) ? "TX-RING" : "RX-RING");
 	if (-1 != sd)
 	{
@@ -228,7 +228,7 @@ cpktline2::initialize() throw (eMMapFailed)
 
 	//fprintf(stdout, "frame_nr:%d\n", req.tp_frame_nr);
 
-	WRITELOG(CPORT, DBG, "cpktline(%p)::initialize() block-size:%u block-nr:%u frame-size:%u frame-nr:%u",
+	WRITELOG(CPORT, ROFL_DBG, "cpktline(%p)::initialize() block-size:%u block-nr:%u frame-size:%u frame-nr:%u",
 			this,
 			req.tp_block_size,
 			req.tp_block_nr,
@@ -239,7 +239,7 @@ cpktline2::initialize() throw (eMMapFailed)
 	if ((rc = setsockopt(sd, SOL_PACKET, ring_type,
 			(void *) &req, sizeof(req))) < 0)
 	{
-		WRITELOG(CPORT, DBG, "cpktline(%p)::initialize() setsockopt() sys-call failed "
+		WRITELOG(CPORT, ROFL_DBG, "cpktline(%p)::initialize() setsockopt() sys-call failed "
 				"rc: %d errno: %d (%s)\n", this, rc, errno, strerror(errno));
 		throw eMMapPortSocketFailed();
 	}
@@ -252,7 +252,7 @@ cpktline2::initialize() throw (eMMapFailed)
 			PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED,
 			/*file descriptor*/sd, /*offset*/0)) == MAP_FAILED)
 	{
-		WRITELOG(CPORT, DBG, "cpktline(%p)::initialize() mmap() sys-call failed "
+		WRITELOG(CPORT, ROFL_DBG, "cpktline(%p)::initialize() mmap() sys-call failed "
 				"rc: %d errno: %d (%s)\n", this, rc, errno, strerror(errno));
 		throw eMMapPortSocketFailed();
 	}
@@ -265,9 +265,9 @@ cpktline2::initialize() throw (eMMapFailed)
 	{
 		ring[i].iov_base = (void*)((uint8_t*)map + i * req.tp_frame_size);
 		ring[i].iov_len  = req.tp_frame_size;
-		WRITELOG(CPORT, DBG, "cpktline(%p)::initialize() ring[%d].iov_base: %p   ",
+		WRITELOG(CPORT, ROFL_DBG, "cpktline(%p)::initialize() ring[%d].iov_base: %p   ",
 				this, i, ring[i].iov_base);
-		WRITELOG(CPORT, DBG, "cpktline(%p)::initialize() ring[%d].iov_len:  %lu",
+		WRITELOG(CPORT, ROFL_DBG, "cpktline(%p)::initialize() ring[%d].iov_len:  %lu",
 				this, i, ring[i].iov_len);
 	}
 }
@@ -285,14 +285,14 @@ cmmapport::cmmapport(
 	tx_pkts(0),
 	rx_pkts(0)
 {
-	WRITELOG(CPORT, WARN, "cmmapport(%s)::cmmapport()", devname.c_str());
+	WRITELOG(CPORT, ROFL_WARN, "cmmapport(%s)::cmmapport()", devname.c_str());
 	laddr = get_hw_addr();
 }
 
 
 cmmapport::~cmmapport()
 {
-	WRITELOG(CPORT, WARN, "cmmapport(%s)::~cmmapport()", devname.c_str());
+	WRITELOG(CPORT, ROFL_WARN, "cmmapport(%s)::~cmmapport()", devname.c_str());
 }
 
 void
@@ -316,7 +316,7 @@ cmmapport::detach() throw (ePortNotAttached)
 void
 cmmapport::handle_event(cevent const& ev)
 {
-	WRITELOG(CPORT, DBG, "cmmapport(%s:%p)::handle_event() event:%s",
+	WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s:%p)::handle_event() event:%s",
 			devname.c_str(), this, cevent(ev).c_str());
 	switch (ev.cmd) {
 	default:
@@ -347,7 +347,7 @@ cmmapport::handle_revent(
 		return;
 	}
 
-	WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_revent() total #slots:%d",
+	WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s)::handle_revent() total #slots:%d",
 			devname.c_str(), rxline.req.tp_frame_nr);
 
 #if 0
@@ -447,7 +447,7 @@ cmmapport::handle_revent(
 		case TP_STATUS_KERNEL: // slot is empty, ignore
 			// do nothing
 
-			WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_revent() no frame in slot i:%d", devname.c_str(), i);
+			WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s)::handle_revent() no frame in slot i:%d", devname.c_str(), i);
 
 			continue;
 
@@ -460,14 +460,14 @@ cmmapport::handle_revent(
 
 			if (ether.get_dl_src() == laddr)
 			{
-				WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_revent() self-originating "
+				WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s)::handle_revent() self-originating "
 						"frame rcvd in slot i:%d, ignoring", devname.c_str(), i);
 
 				continue; // ignore self-originating frames
 			}
 			if (PACKET_OUTGOING == sll->sll_pkttype)
 			{
-				WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_revent() outgoing "
+				WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s)::handle_revent() outgoing "
 						"frame rcvd in slot i:%d, ignoring", devname.c_str(), i);
 
 				continue; // ignore outgoing frames
@@ -478,7 +478,7 @@ cmmapport::handle_revent(
 			cpacket* pack = new cpacket(((uint8_t*)rxline.ring[i].iov_base + hdr->tp_mac), hdr->tp_len, port_no);
 			//pack->stored_bytes(hdr->tp_len);
 
-			WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_revent() frame rcvd in slot i:%d", devname.c_str(), i);
+			WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s)::handle_revent() frame rcvd in slot i:%d", devname.c_str(), i);
 
 			rx_pkts++; // this is not the counter used by cport !!!
 			port_owner()->store(this, pack);
@@ -506,7 +506,7 @@ cmmapport::handle_revent(
 void
 cmmapport::handle_out_queue()
 {
-	WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_out_queue() #slots:%d pout_queue.size():%d",
+	WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s)::handle_out_queue() #slots:%d pout_queue.size():%d",
 			devname.c_str(), txline.req.tp_frame_nr, pout_queue.size());
 
 	//fprintf(stdout, "(%s) pout_queue.size(): +[%ld]\n", devname.c_str(), pout_queue.size());
@@ -527,7 +527,7 @@ cmmapport::handle_out_queue()
 		}
 	}
 
-	WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_out_queue() "
+	WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s)::handle_out_queue() "
 			"pout_queue.size():%d tx_queue.size():%d",
 			devname.c_str(), pout_queue.size(), tx_queue.size());
 
@@ -560,7 +560,7 @@ cmmapport::handle_out_queue()
 		{
 			////fprintf(stdout, "txline.rpos:%d hdr->tp_status:%lu\n", txline.rpos, hdr->tp_status);
 
-			WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_out_queue() "
+			WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s)::handle_out_queue() "
 					"slot i:%d is available",
 					devname.c_str(),
 					i);
@@ -580,7 +580,7 @@ cmmapport::handle_out_queue()
 
 #if 0
 			} catch (eLockWouldBlock& e) {
-				WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_out_queue() lock failed, "
+				WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s)::handle_out_queue() lock failed, "
 						"moving on to transmission", devname.c_str());
 				throw eDebug();
 				goto txmit;
@@ -589,7 +589,7 @@ cmmapport::handle_out_queue()
 
 			if (0 != pack)
 			{
-				WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_out_queue() "
+				WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s)::handle_out_queue() "
 						"storing pack:%p in slot i:%d", devname.c_str(), pack, i);
 
 				//fprintf(stdout, "cmmapport(%s)::handle_out_queue() "
@@ -633,7 +633,7 @@ cmmapport::handle_out_queue()
 			}
 			else
 			{
-				WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_out_queue() "
+				WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s)::handle_out_queue() "
 						"no frame available for transmission", devname.c_str());
 
 				goto txmit;
@@ -647,7 +647,7 @@ cmmapport::handle_out_queue()
 		}
 		else
 		{
-			WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_out_queue() "
+			WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s)::handle_out_queue() "
 					"slot i:%d is not available",
 					devname.c_str(),
 					i);
@@ -677,7 +677,7 @@ txmit:
 	Lock lock(&queuelock, true /*blocking*/);
 	if (not tx_queue.empty() or not pout_queue.empty())
 	{
-		WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_out_queue() "
+		WRITELOG(CPORT, ROFL_DBG, "cmmapport(%s)::handle_out_queue() "
 				"RESCHEDULING pout_queue.size():%d tx_queue.size():%d",
 				devname.c_str(), pout_queue.size(), tx_queue.size());
 

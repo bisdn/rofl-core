@@ -48,7 +48,7 @@ bool
 cconfigport::attach_port_to_dp(const std::string& port_name,
 		const std::string& dpname, const uint32_t port_number)
 {
-	WRITELOG(CCONFIG, DBG, "cconfigport::attach_port_to_dp(): "
+	WRITELOG(CCONFIG, ROFL_DBG, "cconfigport::attach_port_to_dp(): "
 			"port_name = %s, dpname = %s, port_number = %d",
 			port_name.c_str(), dpname.c_str(), port_number);
 

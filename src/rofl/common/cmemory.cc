@@ -24,7 +24,7 @@ cmemory::cmemory(size_t len) :
 		mallocate(len);
 
 #if 0
-	WRITELOG(CMEMORY, DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
+	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
 			this, somem(), memlen());
 #endif
 }
@@ -48,7 +48,7 @@ cmemory::cmemory(uint8_t *data, size_t datalen) :
 	}
 
 #if 0
-	WRITELOG(CMEMORY, DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
+	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
 				this, somem(), memlen());
 #endif
 }
@@ -57,7 +57,7 @@ cmemory::cmemory(uint8_t *data, size_t datalen) :
 cmemory::~cmemory()
 {
 #if 0
-	WRITELOG(CMEMORY, DBG, "cmemory(%p)::~cmemory() somem()=%p memlen()=%d",
+	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::~cmemory() somem()=%p memlen()=%d",
 				this, somem(), memlen());
 #endif
 	lock();
@@ -349,10 +349,11 @@ const char*
 cmemory::c_str()
 {
 #ifdef NDEBUG
-	cvastring vas;
-	info.assign(vas("cmemory(%p) len[%d]", this, (int)memlen()));
-	return info.c_str();
-#endif
+	std::stringstream sstr;
+	sstr << "cmemory(" << (std::hex) << this << (std::dec) << ") len[" << (int)memlen() << "]";
+	return sstr.str().c_str();
+
+#else
 
 	info.clear();
 	char _info[256];
@@ -372,6 +373,7 @@ cmemory::c_str()
 	}
 	info.append("]");
 	return info.c_str();
+#endif
 }
 
 

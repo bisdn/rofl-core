@@ -7,7 +7,7 @@
 cofmatch::cofmatch(
 		uint16_t type)
 {
-	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [1]", this);
+	//WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::cofmatch() [1]", this);
 
 	bzero(&match, sizeof(match));
 
@@ -22,14 +22,14 @@ cofmatch::cofmatch(
 cofmatch::cofmatch(
 	struct ofp_match *__match, size_t __matchlen)
 {
-	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [2]", this);
+	//WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::cofmatch() [2]", this);
 
 	validate();
 }
 
 cofmatch::~cofmatch()
 {
-	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::~cofmatch()", this);
+	//WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::~cofmatch()", this);
 }
 
 
@@ -40,9 +40,9 @@ cofmatch::operator= (const cofmatch& m)
 		return *this;
 
 #if 0
-	WRITELOG(COFMATCH, DBG, "cofmatch(%p)::operator=() m:%p", this, &m);
+	WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::operator=() m:%p", this, &m);
 
-	WRITELOG(COFMATCH, DBG, "cofmatch(%p)::operator=() [1] *this: %s", this, this->c_str());
+	WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::operator=() [1] *this: %s", this, this->c_str());
 #endif
 
 	match.type 		= m.match.type;
@@ -50,7 +50,7 @@ cofmatch::operator= (const cofmatch& m)
 	oxmlist			= m.oxmlist;
 
 #if 0
-	WRITELOG(COFMATCH, DBG, "cofmatch(%p)::operator=() [2] *this: %s", this, this->c_str());
+	WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::operator=() [2] *this: %s", this, this->c_str());
 #endif
 
 	validate();
@@ -62,7 +62,7 @@ cofmatch::operator= (const cofmatch& m)
 void
 cofmatch::reset()
 {
-	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::reset()", this);
+	//WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::reset()", this);
 
 	oxmlist.clear();
 	match.length = htobe16(length());

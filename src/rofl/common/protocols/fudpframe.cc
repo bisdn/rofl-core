@@ -159,7 +159,7 @@ fudpframe::udp_calc_checksum(
 	caddress src(ip_src);
 	caddress dst(ip_dst);
 
-	WRITELOG(CPACKET, DBG, "udp(%p)::udp_calc_checksum() =>\n"
+	WRITELOG(CPACKET, ROFL_DBG, "udp(%p)::udp_calc_checksum() =>\n"
 			"\tip-src      : %s\n"
 			"\tip-dst      : %s\n"
 			"\tip-proto    : %d\n"

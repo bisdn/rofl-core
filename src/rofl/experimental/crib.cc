@@ -72,7 +72,7 @@ crib::next_hop(
 		uint64_t end) throw (eSpfUnReachable)
 {
 	try {
-		WRITELOG(CRIB, DBG, "crib(%p)::next_hop() from:%llx to:%llx", this, start, end);
+		WRITELOG(CRIB, ROFL_DBG, "crib(%p)::next_hop() from:%llx to:%llx", this, start, end);
 		return rtable.edge(start, end);
 
 		//return vertex_unmap(rtable.link(vertex_exists(start), vertex_exists(end)));
@@ -139,10 +139,10 @@ crib::dijkstra()
 		}
 
 #if 0
-		WRITELOG(CROUTE, DBG, "crib(%p)::dijkstra() =>\n", this);
-		WRITELOG(CROUTE, DBG, "graph => %s\n", graph.c_str());
-		WRITELOG(CROUTE, DBG, "distances => %s\n", distances.c_str());
-		WRITELOG(CROUTE, DBG, "predecessors => %s\n", predecessors.c_str());
+		WRITELOG(CROUTE, ROFL_DBG, "crib(%p)::dijkstra() =>\n", this);
+		WRITELOG(CROUTE, ROFL_DBG, "graph => %s\n", graph.c_str());
+		WRITELOG(CROUTE, ROFL_DBG, "distances => %s\n", distances.c_str());
+		WRITELOG(CROUTE, ROFL_DBG, "predecessors => %s\n", predecessors.c_str());
 #endif
 
 #if 0

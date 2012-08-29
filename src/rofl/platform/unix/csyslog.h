@@ -62,14 +62,22 @@ public:
 
 	/* these are actually the same levels as used by syslog */
 	enum DebugLevel {
-		EMERGENCY	=	0,	/* system is unusable */
-		ALERT		=	1,	/* action must be taken immediately */
-		CRITICAL	=	2,	/* critical conditions */
-		ERROR		=	3,	/* error conditions */
-		WARN		=	4,	/* warning conditions */
-		NOTICE		=	5,	/* normal but significant condition */
-		INFO		=	6,	/* informational */
-		DBG			=	7	/* debug-level messages */
+		EMERGENCY		=	0,	/* system is unusable */
+		ALERT			=	1,	/* action must be taken immediately */
+		CRITICAL		=	2,	/* critical conditions */
+		ERROR			=	3,	/* error conditions */
+		WARN			=	4,	/* warning conditions */
+		NOTICE			=	5,	/* normal but significant condition */
+		INFO			=	6,	/* informational */
+		DBG				=	7,	/* debug-level messages */
+		ROFL_EMERGENCY	=	40,	/* system is unusable */
+		ROFL_ALERT		=	41,	/* action must be taken immediately */
+		ROFL_CRITICAL	=	42,	/* critical conditions */
+		ROFL_ERROR		=	43,	/* error conditions */
+		ROFL_WARN		=	44,	/* warning conditions */
+		ROFL_NOTICE		=	45,	/* normal but significant condition */
+		ROFL_INFO		=	46,	/* informational */
+		ROFL_DBG		=	47	/* debug-level messages */
 	};
 
 	/* all debug classes */

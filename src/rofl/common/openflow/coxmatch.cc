@@ -17,7 +17,7 @@ coxmatch::coxmatch(size_t size) :
 	cmemory(size),
 	oxm_len(size)
 {
-	//WRITELOG(COXMATCH, DBG, "coxmatch(%p)::coxmatch()", this);
+	//WRITELOG(COXMATCH, ROFL_DBG, "coxmatch(%p)::coxmatch()", this);
 	pthread_rwlock_init(&oxmlock, NULL);
 	oxm_header = (struct ofp_oxm_hdr*)somem();
 }
@@ -29,7 +29,7 @@ coxmatch::coxmatch(
 		cmemory((uint8_t*)hdr, oxm_len),
 		oxm_len(oxm_len)
 {
-	//WRITELOG(COXMATCH, DBG, "coxmatch(%p)::coxmatch()", this);
+	//WRITELOG(COXMATCH, ROFL_DBG, "coxmatch(%p)::coxmatch()", this);
 	pthread_rwlock_init(&oxmlock, NULL);
 	oxm_header = (struct ofp_oxm_hdr*)somem();
 }
@@ -44,7 +44,7 @@ coxmatch::coxmatch(
 	{
 		throw eOxmInval();
 	}
-	//WRITELOG(COXMATCH, DBG, "coxmatch(%p)::coxmatch()", this);
+	//WRITELOG(COXMATCH, ROFL_DBG, "coxmatch(%p)::coxmatch()", this);
 	pthread_rwlock_init(&oxmlock, NULL);
 	struct ofp_oxm_hdr *oxm_hdr = (struct ofp_oxm_hdr*)ach->field;
 	size_t oxm_len = achlen - sizeof(uint32_t);
@@ -77,7 +77,7 @@ coxmatch::coxmatch(
 coxmatch::coxmatch(
 		const coxmatch& oxm)
 {
-	//WRITELOG(COXMATCH, DBG, "coxmatch(%p)::coxmatch()", this);
+	//WRITELOG(COXMATCH, ROFL_DBG, "coxmatch(%p)::coxmatch()", this);
 	pthread_rwlock_init(&oxmlock, NULL);
 	*this = oxm;
 }
@@ -85,7 +85,7 @@ coxmatch::coxmatch(
 
 coxmatch::~coxmatch()
 {
-	//WRITELOG(COXMATCH, DBG, "coxmatch(%p)::~coxmatch()", this);
+	//WRITELOG(COXMATCH, ROFL_DBG, "coxmatch(%p)::~coxmatch()", this);
 	pthread_rwlock_destroy(&oxmlock);
 }
 
@@ -102,7 +102,7 @@ coxmatch::operator= (
 	oxm_header = (struct ofp_oxm_hdr*)somem();
 
 #if 0
-	WRITELOG(COXMATCH, DBG, "coxmatch(%p)::operator=() oxm_mem:%s oxm_len:%d",
+	WRITELOG(COXMATCH, ROFL_DBG, "coxmatch(%p)::operator=() oxm_mem:%s oxm_len:%d",
 			this, match.c_str(), oxm_len);
 #endif
 
@@ -173,7 +173,7 @@ coxmatch::unpack(
 	oxm_header = (struct ofp_oxm_hdr*)somem();
 
 #if 0
-	WRITELOG(COXMATCH, DBG, "coxmatch(%p)::unpack() oxm_header:%p oxm:%s",
+	WRITELOG(COXMATCH, ROFL_DBG, "coxmatch(%p)::unpack() oxm_header:%p oxm:%s",
 			this, oxm_header, match.c_str());
 #endif
 }

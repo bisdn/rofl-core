@@ -10,7 +10,7 @@ cofinst::cofinst(
 	size_t size) :
 		instruction(size)
 {
-	WRITELOG(COFINST, DBG, "cofinst(%p)::cofinst() [1]", this);
+	WRITELOG(COFINST, ROFL_DBG, "cofinst(%p)::cofinst() [1]", this);
 	oin_header = (struct ofp_instruction*)instruction.somem();
 	pthread_mutex_init(&inmutex, NULL);
 	//cofinst_set.insert(this);
@@ -22,7 +22,7 @@ cofinst::cofinst(
 	size_t inlen) :
 		instruction(inlen)
 {
-	WRITELOG(COFINST, DBG, "cofinst(%p)::cofinst() [2]", this);
+	WRITELOG(COFINST, ROFL_DBG, "cofinst(%p)::cofinst() [2]", this);
 	pthread_mutex_init(&inmutex, NULL);
 	unpack(inhdr, inlen);
 	//cofinst_set.insert(this);
@@ -39,7 +39,7 @@ cofinst::cofinst(cofinst const& inst)
 cofinst::~cofinst()
 {
 	//cofinst_set.erase(this);
-	WRITELOG(COFINST, DBG, "cofinst(%p)::~cofinst()", this);
+	WRITELOG(COFINST, ROFL_DBG, "cofinst(%p)::~cofinst()", this);
 	pthread_mutex_destroy(&inmutex);
 }
 
@@ -50,7 +50,7 @@ cofinst::operator= (const cofinst& inst)
 	if (this == &inst)
 		return *this;
 
-	WRITELOG(COFINST, DBG, "cofinst(%p)::operator=() inst: %p", this, &inst);
+	WRITELOG(COFINST, ROFL_DBG, "cofinst(%p)::operator=() inst: %p", this, &inst);
 
 	this->actions = inst.actions;
 	this->instruction = inst.instruction;
@@ -144,7 +144,7 @@ throw (eInstructionBadLen, eInstructionBadExperimenter)
 	memcpy(instruction.somem(), (uint8_t*)inhdr, inlen);
 	oin_header = (struct ofp_instruction*)instruction.somem();
 
-	WRITELOG(COFINST, DBG, "cofinst(%p)::unpack() oin_header: %p instruction: %s",
+	WRITELOG(COFINST, ROFL_DBG, "cofinst(%p)::unpack() oin_header: %p instruction: %s",
 			this, oin_header, instruction.c_str());
 
 	switch (be16toh(oin_header->type)) {
@@ -156,7 +156,7 @@ throw (eInstructionBadLen, eInstructionBadExperimenter)
 
 		size_t aclen = inlen - sizeof(struct ofp_instruction);
 
-		WRITELOG(COFINST, DBG, "cofinst(%p)::unpack() oin_header: %p instruction: %s aclen: %d/%d",
+		WRITELOG(COFINST, ROFL_DBG, "cofinst(%p)::unpack() oin_header: %p instruction: %s aclen: %d/%d",
 				this, oin_header, instruction.c_str(), aclen, sizeof(struct ofp_action_header));
 
 		if (aclen >= sizeof(struct ofp_action_header))
@@ -182,11 +182,11 @@ throw (eInstructionBadLen, eInstructionBadExperimenter)
 		}
 		break;
 	default:
-		WRITELOG(COFINST, DBG, "cofinst(%p)::__parse_inst() unknown instruction type %d", this, be16toh(oin_header->type));
+		WRITELOG(COFINST, ROFL_DBG, "cofinst(%p)::__parse_inst() unknown instruction type %d", this, be16toh(oin_header->type));
 		throw eInstructionInvalType();
 	}
 
-	WRITELOG(COFINST, DBG, "cofinst(%p)::unpack() actions: %s",
+	WRITELOG(COFINST, ROFL_DBG, "cofinst(%p)::unpack() actions: %s",
 			this, oin_header, actions.c_str());
 }
 
@@ -220,7 +220,7 @@ cofinst::length() throw (eInstructionInvalType)
 		return sizeof(struct ofp_instruction_experimenter);
 		break;
 	default:
-		WRITELOG(COFACTION, DBG, "cofinst(%p)::instlen() unknown instruction type %d", this, be16toh(oin_header->type));
+		WRITELOG(COFACTION, ROFL_DBG, "cofinst(%p)::instlen() unknown instruction type %d", this, be16toh(oin_header->type));
 		throw eInstructionInvalType();
 	}
 }
