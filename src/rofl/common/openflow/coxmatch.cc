@@ -184,8 +184,8 @@ coxmatch::c_str()
 {
 	cvastring vas(320);
 
-	info.assign(vas("coxmatch(%p): oxm_header: class:0x%x field:0x%x (%s) hasmask:%d length:%d OXM-TLV-len:%d oxm:%s",
-			this,
+	//info.assign(vas("coxmatch(%p): oxm_header: class:0x%x field:0x%x (%s) hasmask:%d length:%d OXM-TLV-len:%d oxm:%s",
+	info.assign(vas("OXM-TLV (0x%x:0x%x) [%s] hm:%d len:%d len:%d oxm:%s",
 			get_oxm_class(),
 			get_oxm_field(),
 			type2desc(get_oxm_class(), get_oxm_field()),

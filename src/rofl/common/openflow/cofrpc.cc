@@ -432,14 +432,9 @@ cofrpc::handle_read(int fd)
 			pcppack = new cofpacket();
 		}
 
-		while (true) {
-
-#if 0
+		while (true)
+		{
 			// SSL support: client or server side, done in derived class
-			decrypt_ssl(fd);
-
-			rc = read_ssl(pcppack->memptr(), pcppack->need_bytes());
-#endif
 
 			// TODO: this will be replaced with SSL socket later
 			rc = read(fd, (void*) pcppack->memptr(), pcppack->need_bytes());
@@ -452,8 +447,9 @@ cofrpc::handle_read(int fd)
 							fd, hdr->type, rc, pcppack->c_str());
 #endif
 
-			// error occured (or non-blocking)
-			if (rc < 0) {
+
+			if (rc < 0) // error occured (or non-blocking)
+			{
 				switch(errno) {
 					case EAGAIN:
 						// more bytes are needed, store pcppack in fragment pointer
@@ -484,7 +480,7 @@ cofrpc::handle_read(int fd)
 
 				return;
 			}
-			else // rc > 0, // check for completeness of packet
+			else // rc > 0, // some bytes were received, check for completeness of packet
 			{
 				pcppack->stored_bytes(rc);
 

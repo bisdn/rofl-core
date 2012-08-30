@@ -118,16 +118,14 @@ cofpacket::unpack(uint8_t *buf, size_t buflen)
 bool
 cofpacket::complete() throw (eOFpacketInval)
 {
-	WRITELOG(COFPACKET, ROFL_DBG, "cofpacket::complete() framelen()=%d",
-			 framelen());
-
 	if (stored < sizeof(struct ofp_header))
 	{
 		return false;
 	}
 
-	WRITELOG(COFPACKET, ROFL_DBG, "cofpacket::complete() framelen()=%d hdr->length=%d",
-			 framelen(), be16toh(ofh_header->length));
+	WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::complete() "
+			"bytes read => stored:%d, indicated length in OFheader:%d",
+			this, stored, be16toh(ofh_header->length));
 
 	// critical error, we read behind the real packet, need split of packet, this should never happen, though
 	if (stored > be16toh(ofh_header->length))
@@ -160,8 +158,9 @@ cofpacket::need_bytes()
 	// if we haven't read at least one ofp_header, fill the header
 	if (stored < sizeof(struct ofp_header))
 	{
-		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket::need_bytes() framelen()[%d] less than sizeof(struct ofp_header)[%d]",
-				 framelen(), sizeof(struct ofp_header));
+		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::need_bytes() "
+				"bytes => stored:%d is less than sizeof(struct ofp_header):%d, need at least %d more bytes",
+				 this, stored, sizeof(struct ofp_header), sizeof(struct ofp_header) - stored);
 
 		if (memarea.memlen() < sizeof(struct ofp_header))
 		{
@@ -171,23 +170,23 @@ cofpacket::need_bytes()
 		return(sizeof(struct ofp_header) - stored);
 	}
 
-	// get residual packet bytes
 
-	size_t packlen = be16toh(((struct ofp_header*)soframe())->length);
+	/*
+	 *  get residual packet bytes
+	 */
+
+	ofh_header = (struct ofp_header*)(soframe());
+
+	size_t packlen = be16toh(ofh_header->length);
 
 	if (packlen > memarea.memlen())
 	{
-		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::need_bytes() need resizing, packlen[%d] memlen()[%d] [1] pack: %s",
-				this, packlen, memarea.memlen(), memarea.c_str());
-
 		resize(packlen);
-
-		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::need_bytes() need resizing, packlen[%d] memlen()[%d] [2] pack: %s",
-							this, packlen, memarea.memlen(), memarea.c_str());
 	}
 
-	WRITELOG(COFPACKET, ROFL_DBG, "cofpacket::need_bytes() framelen()[%d] hdr->length[%d] need [%d] more bytes",
-			 framelen(), packlen, packlen - stored);
+	WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::need_bytes() "
+			"bytes => stored:%d OFlength:%d, need %d more bytes",
+			 this, stored, packlen, packlen - stored);
 
 	return (packlen - stored);
 }

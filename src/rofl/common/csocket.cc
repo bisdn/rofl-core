@@ -68,6 +68,7 @@ csocket::handle_revent(int fd)
 		// handle socket when in normal (=non-listening) state
 	} else {
 
+		WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::handle_revent()", this);
 		// call method in derived class
 		handle_read(fd);
 	}
@@ -78,42 +79,66 @@ csocket::handle_revent(int fd)
 void
 csocket::handle_wevent(int fd)
 {
-	WRITELOG(CSOCKET, ROFL_DBG, "csocket::handle_wevent()");
-	if (sockflags[CONNECT_PENDING]) {
+	WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::handle_wevent()", this);
+
+	if (sockflags[CONNECT_PENDING])
+	{
 		int rc;
 		int optval = 0;
 		int optlen = sizeof(optval);
 		if ((rc = getsockopt(sd, SOL_SOCKET, SO_ERROR,
 							 (void*)&optval, (socklen_t*)&optlen)) < 0)
 			throw eSocketError();
+
 		switch (optval) {
 		case 0:
 		//case EISCONN:
-			WRITELOG(CSOCKET, ROFL_DBG, "pending 0");
-			sockflags[CONNECT_PENDING] = false;
-			register_filedesc_w(sd);
+			{
+				WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::handle_wevent() "
+						"connection established to %s",
+						this, raddr.addr_c_str());
 
-			register_filedesc_r(sd);
+				sockflags[CONNECT_PENDING] = false;
+				register_filedesc_w(sd);
 
-			sockflags[CONNECTED] = true;
-			handle_connected();
+				register_filedesc_r(sd);
+
+				sockflags[CONNECTED] = true;
+				handle_connected();
+			}
 			break;
 		case EINPROGRESS:
-			WRITELOG(CSOCKET, ROFL_DBG, "pending inprogress");
+			{
+				WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::handle_wevent() "
+						"connection establishment to %s is in progress",
+						this, raddr.addr_c_str());
+
+				// do nothing
+			}
 			break;
 		case ECONNREFUSED:
-			WRITELOG(CSOCKET, ROFL_DBG, "pending conn refused");
-			// remove this object, connection was refused
-			//erase(); // do not do this here, maybe the socket wants to survive
-			cclose();
-			handle_conn_refused();
+			{
+				WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::handle_wevent() "
+						"connection to %s failed",
+						this, raddr.addr_c_str());
+
+				cclose();
+				handle_conn_refused();
+			}
 			break;
 		default:
-			WRITELOG(CSOCKET, ROFL_DBG, "pending default");
-			throw eSocketError();
+			{
+				WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::handle_wevent() "
+						"connection establishment to %s => an error occured, errno: %d",
+						this, raddr.addr_c_str(), optval);
+
+				throw eSocketError();
+			}
 		}
-	} else {
-		WRITELOG(CSOCKET, ROFL_DBG, "call dequeue_packet");
+
+	}
+	else
+	{
 		dequeue_packet();
 	}
 }
@@ -122,7 +147,7 @@ csocket::handle_wevent(int fd)
 void
 csocket::handle_xevent(int fd)
 {
-	WRITELOG(CSOCKET, ROFL_DBG, "csocket::handle_xevent()");
+	WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::handle_xevent()", this);
 }
 
 
@@ -372,20 +397,14 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 			this, pout_squeue.size());
 
 	while (not pout_squeue.empty())
-	//if (not pout_squeue.empty())
 	{
-		WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::dequeue_packet() pout_squeue.size()=%d",
-				this, pout_squeue.size());
-
 		cmemory *pack = pout_squeue.front();
 
-		WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::dequeue_packet() pack: %s",
-				this, pack->c_str());
-
-		if ((rc = send(sd, pack->somem(), pack->memlen(), MSG_NOSIGNAL)) < 0) {
-
-			WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::dequeue_packet() errno=%d (%s) pack: %s",
-									this, errno, strerror(errno), pack->c_str());
+		if ((rc = send(sd, pack->somem(), pack->memlen(), MSG_NOSIGNAL)) < 0)
+		{
+			WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::dequeue_packet() "
+					"errno=%d (%s) pack: %s",
+					this, errno, strerror(errno), pack->c_str());
 
 			switch (errno) {
 			case EAGAIN:
@@ -395,11 +414,13 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 				handle_closed(sd);
 				return;
 			case EMSGSIZE:
-				WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::dequeue_packet() dropping packet, errno=%d (%s) pack: %s",
-										this, errno, strerror(errno), pack->c_str());
+				WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::dequeue_packet() "
+						"dropping packet, errno=%d (%s) pack: %s",
+						this, errno, strerror(errno), pack->c_str());
 				break;
 			default:
-				WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::dequeue_packet() errno=%d (%s) pack: %s",
+				WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::dequeue_packet() "
+						"errno=%d (%s) pack: %s",
 						this, errno, strerror(errno), pack->c_str());
 				throw eSocketSendFailed();
 			}
@@ -408,13 +429,18 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 		{
 			throw eSocketShortSend();
 		}
-		WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::dequeue_packet() wrote %d bytes to socket %d", this, rc, sd);
+
+		WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::dequeue_packet() "
+				"wrote %d bytes to socket %d", this, rc, sd);
+
 		pout_squeue.pop_front();
+
 		delete pack;
 	}
 
 	if (pout_squeue.empty())
+	{
 		deregister_filedesc_w(sd);
-
+	}
 }
 
