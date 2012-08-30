@@ -218,15 +218,6 @@ coxmlist::c_str()
 		info.append(vas("\n  [%d] %s ", oxmvec[i]->get_oxm_field(), oxmvec[i]->c_str()));
 	}
 
-	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
-	{
-		if ((coxmatch*)0 == oxmvec[i])
-		{
-			continue;
-		}
-		info.append(vas("\n  [%lu]:%p %s", i, oxmvec[i], oxmvec[i]->c_str()));
-	}
-
 	return info.c_str();
 }
 

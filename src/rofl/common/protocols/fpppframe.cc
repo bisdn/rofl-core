@@ -549,7 +549,9 @@ fpppframe::validate_ipcp() throw (ePPPFrameInvalidSyntax)
 	WRITELOG(FPPPFRAME, ROFL_DBG, "fpppframe(%p):validate_ipcp() %s", this, c_str());
 
 	if (framelen() < (sizeof(struct ppp_hdr_t) + sizeof(struct ppp_lcp_hdr_t)))
+	{
 		throw ePPPFrameInvalidSyntax();
+	}
 
 	ppp_ipcp_hdr = (struct ppp_lcp_hdr_t*)ppp_hdr->data;
 
@@ -560,7 +562,9 @@ fpppframe::validate_ipcp() throw (ePPPFrameInvalidSyntax)
 			sizeof(struct ppp_hdr_t));
 
 	if (framelen() < (be16toh(ppp_ipcp_hdr->length) + sizeof(struct ppp_hdr_t)))
+	{
 		throw ePPPFrameInvalidSyntax();
+	}
 
 
 
@@ -573,12 +577,15 @@ fpppframe::validate_ipcp() throw (ePPPFrameInvalidSyntax)
 	case PPP_IPCP_OPT_PRIM_MBNS:
 	case PPP_IPCP_OPT_SEC_DNS:
 	case PPP_IPCP_OPT_SEC_MBNS:
-		parse_ipcp_options();
+		{
+			parse_ipcp_options();
+		}
 		break;
 	default:
 		break;
 	}
 }
+
 
 void
 fpppframe::parse_ipcp_options() throw (ePPPFrameInvalidSyntax)
@@ -646,6 +653,7 @@ fpppframe::lcp_option_find(
 	return it->second;
 }
 
+
 struct fpppframe::ppp_lcp_opt_hdr_t*
 fpppframe::ipcp_option_find(
 		enum ppp_ipcp_option_t type) throw (ePPPFrameOptionNotFound)
@@ -655,6 +663,7 @@ fpppframe::ipcp_option_find(
 		throw ePPPFrameOptionNotFound();
 	return it->second;
 }
+
 
 const char*
 fpppframe::c_str()

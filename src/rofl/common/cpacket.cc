@@ -344,7 +344,7 @@ cpacket::c_str()
 
 	info.assign(vas("cpacket(%p) \n", this));
 
-	info.append(vas("  %s", oxmlist.c_str()));
+	info.append(vas("  %s\n", oxmlist.c_str()));
 
 	for(unsigned int i = 0; i < anchors[ETHER_FRAME].size(); ++i)
 	{
