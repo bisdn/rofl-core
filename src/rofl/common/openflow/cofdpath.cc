@@ -41,8 +41,8 @@ cofdpath::cofdpath(
 cofdpath::~cofdpath()
 {
 	WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::~cofdpath() "
-			"dpid:%"UINT64DBGFMT" child:%p",
-			this, dpid, entity);
+			"dpid:%"UINT64DBGFMT" child:%p\n %s",
+			this, dpid, entity, this->c_str());
 
 	fwdelem->handle_dpath_close(this);
 
@@ -171,7 +171,7 @@ cofdpath::features_reply_rcvd(
 
 
 
-		ports = cofport::ports_parse(pack->ofh_switch_features->ports, portslen);
+		cofport::ports_parse(ports, pack->ofh_switch_features->ports, portslen);
 
 		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::features_reply_rcvd() %s", this, this->c_str());
 

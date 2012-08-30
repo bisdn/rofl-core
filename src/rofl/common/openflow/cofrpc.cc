@@ -13,7 +13,6 @@ cofrpc::cofrpc(int rpc_endpnt, cofbase *entity) :
 		reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 		reconnect_counter(0)
 {
-
 	pthread_mutex_init(&fe_queue_mutex, NULL);
 	flags.set(COFRPC_FLAG_SERVER_SOCKET);
 	init_state(STATE_RPC_DISCONNECTED);
@@ -177,8 +176,15 @@ cofrpc::fe_down_hello_message(
 		break;
 
 	case FE_HELLO_ACTIVE:
-	default:
+		{
+			// do nothing
+		}
+		break;
 
+	default:
+		{
+
+		}
 		break;
 	}
 }
@@ -217,8 +223,15 @@ cofrpc::fe_up_hello_message(
 		break;
 
 	case FE_HELLO_ACTIVE:
-	default:
+		{
+			// do nothing
+		}
+		break;
 
+	default:
+		{
+
+		}
 		break;
 	}
 }
@@ -319,12 +332,15 @@ void cofrpc::handle_closed(int sd)
 	}
 
 	switch (rpc_endpnt) {
-
 	case OF_RPC_TCP_NORTH_ENDPNT:
-		send_up_hello_message(entity, true);
+		{
+			send_up_hello_message(entity, true);
+		}
 		break;
 	case OF_RPC_TCP_SOUTH_ENDPNT:
-		send_down_hello_message(entity, true);
+		{
+			send_down_hello_message(entity, true);
+		}
 		break;
 	}
 
@@ -410,11 +426,21 @@ void
 cofrpc::handle_accepted(int newsd, caddress &ra)
 {
 	if (!entity)
+	{
 		close(newsd);
+	}
 	else
+	{
 		// create new cofrpc instance for accepted TCP connection
-		new cofrpc(rpc_endpnt, entity, newsd, ra, domain, type, protocol,
-				false /* passive socket */);
+		new cofrpc(rpc_endpnt,
+						entity,
+						newsd,
+						ra,
+						domain,
+						type,
+						protocol,
+						false /* passive socket */);
+	}
 }
 
 
@@ -426,11 +452,16 @@ cofrpc::handle_read(int fd)
 	cofpacket *pcppack = NULL;
 	try {
 
-		if (fragment) {
+		if (fragment)
+		{
 			pcppack = fragment;
-		} else {
+		}
+		else
+		{
 			pcppack = new cofpacket();
 		}
+
+
 
 		while (true)
 		{
@@ -451,28 +482,38 @@ cofrpc::handle_read(int fd)
 			if (rc < 0) // error occured (or non-blocking)
 			{
 				switch(errno) {
-					case EAGAIN:
+				case EAGAIN:
+					{
 						// more bytes are needed, store pcppack in fragment pointer
 						fragment = pcppack;
-						return;
-					case ECONNRESET:
-						// close socket?
-						return;
-					case ECONNREFUSED:
-						try_to_connect();
-						return;
-					default:
-						WRITELOG(COFRPC, ROFL_WARN, "cofrpc(%p)::handle_revent() closing (1) %d:%s", this, errno, strerror(errno));
-						cclose();
+					}
+					return;
+				case ECONNREFUSED:
+					{
+						try_to_connect(); // reconnect
+					}
+					return;
+				case ECONNRESET:
+				default:
+					{
+						WRITELOG(COFRPC, ROFL_WARN, "cofrpc(%p)::handle_revent() "
+								"an error occured, closing => errno: %d (%s)",
+								this, errno, strerror(errno));
+
+						//cclose();
+
 						handle_closed(sd);
-						return;
+					}
+					return;
 				}
 			}
 			else if (rc == 0) // socket was closed
 			{
 				//rfds.erase(fd);
 
-				WRITELOG(COFRPC, ROFL_WARN, "cofrpc::handle_revent() closing (2) rc=%d", rc);
+				WRITELOG(COFRPC, ROFL_WARN, "cofrpc(%p)::handle_revent() "
+						"peer closed connection, closing local endpoint => rc: %d",
+						this, rc);
 
 				deregister_filedesc_r(fd);
 
@@ -502,30 +543,38 @@ cofrpc::handle_read(int fd)
 		}
 
 	} catch (eRpcNotConnected& e) {
+
 		WRITELOG(COFRPC, ROFL_WARN, "cofrpc(%p)::handle_read() received packet in non-connected state: %s", this, pcppack->c_str());
+
 		if (pcppack)
 		{
 			delete pcppack; pcppack = NULL;
 		}
 
 	} catch (cerror &e) {
+
 		WRITELOG(COFRPC, ROFL_WARN, "cofprc(%p)::handle_read() generic error %s", this, pcppack->c_str());
-		fprintf(stderr, "cofprc(%p)::handle_read() generic error %s", this, pcppack->c_str());
+
 		if (pcppack)
 		{
 			delete pcppack; pcppack = NULL;
 		}
 
-		cclose();
+		//cclose();
+
 		handle_closed(sd);
+
 		throw;
 	}
 
 }
 
+
 /** handle incoming packets from TCP socket
  */
-void cofrpc::handle_tcp(cofpacket *pack) {
+void cofrpc::handle_tcp(
+		cofpacket *pack)
+{
 	WRITELOG(COFRPC, ROFL_DBG, "cofrpc::handle_tcp(%p) %s", pack, pack->c_str());
 
 	try {

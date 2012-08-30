@@ -239,10 +239,11 @@ public: // static
 
 	/** parse array of struct ofp_phy_ports
 	 */
-	static std::map<uint32_t, cofport*>
+	static void
 	ports_parse(
-		struct ofp_port *ports,
-		int portslen) throw (eOFportMalformed);
+			std::map<uint32_t, cofport*>& portsmap,
+			struct ofp_port *ports,
+			int portslen) throw (eOFportMalformed);
 
 
 	/** get a free port-no for a specific cofport list

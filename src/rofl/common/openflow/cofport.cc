@@ -6,17 +6,19 @@
 
 
 /* static */
-std::map<uint32_t, cofport*>
+void
 cofport::ports_parse(
-	struct ofp_port *ports, // ptr to array of ofp_phy_ports
-	int portslen) // number of bytes in array
+		std::map<uint32_t, cofport*>& portsmap,
+		struct ofp_port *ports, // ptr to array of ofp_phy_ports
+		int portslen) // number of bytes in array
 	throw (eOFportMalformed)
 {
-	std::map<uint32_t, cofport*> __ports;
+	//std::map<uint32_t, cofport*> __ports;
 
 	if (portslen == 0)
 	{
-		return __ports;
+		//return __ports;
+		return;
 	}
 
 	// sanity check: portslen must be of size at least of ofp_phy_port
@@ -35,14 +37,15 @@ cofport::ports_parse(
 			throw eOFportMalformed();
 		}
 
-		cofport *ofport = new cofport(phdr, sizeof(struct ofp_port));
+		cofport *ofport = new cofport(&portsmap, phdr, sizeof(struct ofp_port));
 
-		__ports[ofport->port_no] = ofport;
+		//__ports[ofport->port_no] = ofport;
+		portsmap[ofport->port_no] = ofport;
 
 		phdr++;
 		portslen -= sizeof(struct ofp_port);
 	}
-	return __ports;
+	//return __ports;
 }
 
 
@@ -88,6 +91,8 @@ cofport::cofport(
 	}
 
 	(*port_list)[port_no] = this;
+
+	WRITELOG(CPORT, DBG, "cofport(%p)::cofport() port_list:%p %s", this, port_list, c_str());
 }
 
 
@@ -112,11 +117,16 @@ cofport::cofport(
 	{
 		unpack(port, port_len);
 	}
+	WRITELOG(CPORT, DBG, "cofport(%p)::cofport() port_list:%p %s", this, port_list, c_str());
 }
 
 
 cofport::~cofport()
 {
+	WRITELOG(CPORT, DBG, "cofport(%p)::~cofport() %s", this, c_str());
+
+	WRITELOG(CPORT, DBG, "cofport(%p)::~cofport() port_list:%p ", this, port_list);
+
 	if (0 != port_list)
 	{
 		port_list->erase(port_no);
@@ -138,6 +148,8 @@ cofport::operator= (cofport const& port)
 		return *this;
 
 	reset_stats();
+
+	WRITELOG(CPORT, DBG, "cofport(%p)::operator=() from port:%p", this, &port);
 
 	port_list 		= 0;
 	port_no 		= port.port_no;
@@ -268,6 +280,7 @@ throw (eOFportInval)
 	port->port_no 		= htobe32(port_no);
 
 	memcpy(port->hw_addr, hwaddr.somem(), OFP_ETH_ALEN);
+	memset(port->name, 0, OFP_MAX_PORT_NAME_LEN);
 	size_t namelen = name.length() > (OFP_MAX_PORT_NAME_LEN - 1) ?
 			OFP_MAX_PORT_NAME_LEN - 1 : name.length();
 	memcpy(port->name, name.c_str(), namelen);

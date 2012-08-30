@@ -278,16 +278,44 @@ cfwdelem::get_succ_fttable(uint8_t tableid) throw (eFwdElemNotFound)
 
 
 void
-cfwdelem::ctl_connect(caddress const& ra)
+cfwdelem::rpc_connect_to_ctl(
+		caddress const& ra)
 {
 	rpc[RPC_CTL]->cconnect(ra);
 }
 
 
 void
-cfwdelem::dpt_connect(caddress const& ra)
+cfwdelem::rpc_disconnect_from_ctl(
+		cofctrl *ctrl)
+{
+	if (0 == ctrl)
+	{
+		return;
+	}
+
+	throw eNotImplemented();
+}
+
+
+void
+cfwdelem::rpc_connect_to_dpath(
+		caddress const& ra)
 {
 	rpc[RPC_DPT]->cconnect(ra);
+}
+
+
+void
+cfwdelem::rpc_disconnect_from_dpath(
+		cofdpath *dpath)
+{
+	if (0 == dpath)
+	{
+		return;
+	}
+
+	throw eNotImplemented();
 }
 
 

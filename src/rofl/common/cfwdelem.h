@@ -284,42 +284,43 @@ public: // constructor + destructor
 		return dpname;
 	}
 
+
 	/** reset all flow and group tables
 	 */
 	void
 	tables_reset();
 
+
 	/** Establish OF TCP connection to control entity
 	 *
 	 */
 	void
-	ctl_connect(caddress const& ra);
+	rpc_connect_to_ctl(
+			caddress const& ra);
+
 
 	/** Close OF TCP connection to control entity
 	 *
 	 */
 	void
-	ctl_disconnect()
-	{
-		throw eNotImplemented();
-	};
+	rpc_disconnect_from_ctl(
+			cofctrl *ctrl);
 
 
 	/** Establish OF TCP connection to datapath entity
 	 *
 	 */
 	void
-	dpt_connect(caddress const& ra);
+	rpc_connect_to_dpath(
+			caddress const& ra);
 
 
 	/** Close OF TCP connection to datapath entity
 	 *
 	 */
 	void
-	dpt_disconnect()
-	{
-		throw eNotImplemented();
-	};
+	rpc_disconnect_from_dpath(
+			cofdpath *dpath);
 
 
 	/**
