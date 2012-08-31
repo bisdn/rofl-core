@@ -451,6 +451,11 @@ ctlbase::send_packet_out_message(
 		cofaclist const& aclist,
 		cpacket *pack) throw (eCtlBaseInval)
 {
+	if (0 == dpath)
+	{
+		return;
+	}
+
 	/*
 	 * iterate over all actions in aclist and call adapt methods
 	 */
@@ -507,6 +512,11 @@ ctlbase::send_packet_out(
 				cofaclist& actions,
 				cpacket *pack)
 {
+	if (0 == dpath)
+	{
+		return;
+	}
+
 	cmemory mem(pack->length());
 
 	pack->pack(mem.somem(), mem.memlen());
@@ -537,6 +547,30 @@ ctlbase::send_packet_out(
  */
 void
 ctlbase::send_flow_mod_message(
+			cflowentry& flowentry)
+{
+	send_flow_mod_message(
+			flowentry.match,
+			flowentry.get_cookie(),
+			flowentry.get_cookie_mask(),
+			flowentry.get_table_id(),
+			flowentry.get_command(),
+			flowentry.get_idle_timeout(),
+			flowentry.get_hard_timeout(),
+			flowentry.get_priority(),
+			flowentry.get_buffer_id(),
+			flowentry.get_out_port(),
+			flowentry.get_out_group(),
+			flowentry.get_flags(),
+			flowentry.instructions);
+}
+
+
+/*
+ * received from derived transport controller
+ */
+void
+ctlbase::send_flow_mod_message(
 		cofmatch& ofmatch,
 		uint64_t cookie,
 		uint64_t cookie_mask,
@@ -552,6 +586,10 @@ ctlbase::send_flow_mod_message(
 		cofinlist const& inlist)
 {
 	try {
+		if (0 == dpath)
+		{
+			return;
+		}
 
 		/*
 		 * adjust match on incoming port only
@@ -599,6 +637,8 @@ ctlbase::send_flow_mod_message(
 			insts.next() = inst;
 		}
 
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_flow_mod_message() %s",
+					   dpname.c_str(), insts.c_str());
 
 
 		cfwdelem::send_flow_mod_message(
@@ -637,18 +677,149 @@ ctlbase::send_flow_mod_message(
 
 
 
+void
+ctlbase::send_stats_request(
+		uint16_t type,
+		uint16_t flags,
+		uint8_t *body,
+		size_t bodylen)
+
+{
+	if (0 == dpath)
+	{
+		return;
+	}
+
+	switch (type) {
+	case OFPST_DESC:
+	case OFPST_TABLE:
+	case OFPST_GROUP:
+	case OFPST_GROUP_DESC:
+	case OFPST_GROUP_FEATURES:
+	case OFPST_EXPERIMENTER:
+		{
+			cfwdelem::send_stats_request(dpath, type, flags, body, bodylen);
+		}
+		break;
+	case OFPST_FLOW:
+		{
+			throw eNotImplemented();
+		}
+		break;
+	case OFPST_AGGREGATE:
+		{
+			throw eNotImplemented();
+		}
+		break;
+	case OFPST_PORT:
+		{
+			throw eNotImplemented();
+		}
+		break;
+	case OFPST_QUEUE:
+		{
+			throw eNotImplemented();
+		}
+		break;
+	default:
+		{
+
+		}
+		break;
+	}
+}
 
 
+void
+ctlbase::send_group_mod_message(
+			cgroupentry& groupentry)
+{
+	if (0 == dpath)
+	{
+		return;
+	}
+
+	cofbclist buckets; // new list of adapted buckets
+
+	for (cofbclist::const_iterator
+			it = groupentry.buckets.begin(); it != groupentry.buckets.end(); ++it)
+	{
+		cofbucket bucket = (*it);
+
+		/*
+		 * iterate over all buckets and call filter_action_list
+		 */
+		for (std::set<cadapt*>::iterator
+				it = adapters.begin(); it != adapters.end(); ++it)
+		{
+			cadapt* adapt = (*it);
+
+			adapt->filter_action_list(bucket.actions);
+		}
+
+		buckets.next() = bucket;
+	}
+
+	groupentry.buckets = buckets; // store new list of adapted buckets in groupentry
+
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::send_group_mod_message() %s",
+				   dpname.c_str(), groupentry.c_str());
+
+	cfwdelem::send_group_mod_message(
+								dpath,
+								groupentry);
+}
 
 
+void
+ctlbase::send_table_mod_message(
+		uint8_t table_id,
+		uint32_t config)
+{
+	if (0 == dpath)
+	{
+		return;
+	}
+
+	cfwdelem::send_table_mod_message(
+								dpath,
+								table_id,
+								config);
+}
 
 
+void
+ctlbase::send_port_mod_message(
+		uint32_t port_no,
+		cmacaddr const& hwaddr,
+		uint32_t config,
+		uint32_t mask,
+		uint32_t advertise) throw (eCtlBaseNotFound)
+{
+	if (0 == dpath)
+	{
+		return;
+	}
 
+	if (n_ports.find(port_no) == n_ports.end())
+	{
+		throw eCtlBaseNotFound();
+	}
 
+	n_ports[port_no]->handle_port_mod(
+							port_no,
+							config,
+							mask,
+							advertise);
 
-
-
-
+	/*
+	 * TODO: thinking :) =>
+	 * What is happening, if the transport controller tears down
+	 * a port? This may affect adapted ports only or also physical ports
+	 * from layer (n-1). When is this happening? Who is sending the
+	 * Port-Mod message to the layer (n-1) datapath?
+	 */
+}
 
 
 
@@ -668,184 +839,4 @@ ctlbase::find_adaptor_by_portno(
 	return n_ports[portno];
 }
 
-
-
-#if 0
-
-uint64_t
-ctlbase::filter_instructions(
-		cofinlist &old_insts,
-		cofinlist &new_insts,
-		cofmatch &match)
-{
-	uint64_t dpid = 0;
-
-	cofinlist::iterator it;
-	for (it = old_insts.begin(); it != old_insts.end(); ++it)
-	{
-		cofinst& inst = (*it);
-
-		new_insts.next() = inst;
-
-		switch (be16toh(inst.oin_header->type)) {
-		case OFPIT_APPLY_ACTIONS:
-		case OFPIT_WRITE_ACTIONS:
-			{
-				cpacket ignore((size_t)0); // no data packet within FlowMods
-				cofaclist actions;
-
-				// if in-port is wildcard, we have to create individual FlowMods for each in_port
-				uint32_t in_port = match.get_in_port();
-				if ((0 == in_port) || (OFPP_CONTROLLER == in_port))
-				{
-					throw eNotImplemented(); // TODO: we have to create individual Flow-Mods in this situation
-				}
-				else
-				{
-					dpid = filter_actions(inst.actions, actions, match);
-				}
-				new_insts.back().actions = actions;
-			}
-			break;
-		}
-	}
-
-	return dpid;
-}
-
-
-uint64_t
-ctlbase::filter_buckets(
-		cofbclist &old_buckets,
-		cofbclist &new_buckets)
-{
-	uint64_t dpid = 0;
-
-	cofbclist::iterator it;
-	for (it = old_buckets.begin(); it != old_buckets.end(); ++it)
-	{
-		cofbucket& bucket = (*it);
-
-		cofbucket new_bucket(bucket);
-
-		cofmatch ignore;
-		dpid = filter_actions(bucket.actions, new_bucket.actions, ignore);
-
-		new_buckets.next() = new_bucket;
-	}
-
-	return dpid;
-}
-
-
-uint64_t
-ctlbase::filter_actions(
-		cofaclist &old_actions,
-		cofaclist &new_actions,
-		cofmatch &match,
-		cpacket *pack) throw (eCtlBaseInval, eNotImplemented)
-{
-	uint64_t dpid = 0;
-
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::filter_actions()\n"
-					"old-match: %s\nold-actions: %s",
-					dpname.c_str(),
-					match.c_str(),
-					old_actions.c_str());
-
-	if ((0 != match.get_in_port()) && (OFPP_CONTROLLER != match.get_in_port()))
-	{
-		if (n_ports.find(match.get_in_port()) == n_ports.end())
-		{
-				WRITELOG(CFWD, DBG, "ctlbase(%s)::filter_actions() "
-								"portno:0x%x not found, ignoring command",
-								dpname.c_str(), match.get_in_port());
-
-				throw eCtlBaseInval();
-		}
-
-		cadapt *adaptor = dynamic_cast<cadapt*>( n_ports[match.get_in_port()] );
-		if (0 == adaptor)
-		{
-				WRITELOG(CFWD, DBG, "ctlbase(%s)::filter_actions() "
-								"oops, internal error: non ctlmod instance in phy_ports, ignoring PACKET-OUT/FLOW-MOD",
-								dpname.c_str());
-
-				throw eCtlBaseInval();
-		}
-
-		dpid = adaptor->filter_inport_match(
-				this,
-				match.get_in_port(),
-				match,
-				new_actions,
-				pack); // returns immediately with updated actions and frame
-	}
-
-
-	// search all ActionOutput instances
-	cofaclist::iterator it;
-	for (it = old_actions.begin(); it != old_actions.end(); ++it)
-	{
-	   cofaction& action = (*it);
-	   switch (action.get_type()) {
-
-	   // adapt ActionOutput actions
-	   case OFPAT_OUTPUT:
-		   {
-			   uint32_t portno = be32toh(action.oac_output->port);
-			   if (n_ports.find(portno) == n_ports.end())
-			   {
-					   WRITELOG(CFWD, DBG, "ctlbase(%s)::filter_actions() "
-									   "portno:%d not found, ignoring PACKET-OUT",
-									   dpname.c_str(), portno);
-
-					   throw eCtlBaseInval();
-			   }
-
-			   cadapt *adaptor = dynamic_cast<cadapt*>( n_ports[portno] );
-			   if (0 == adaptor)
-			   {
-					   WRITELOG(CFWD, DBG, "ctlbase(%s)::filter_actions() "
-									   "oops, internal error: non ctlmod instance in phy_ports, ignoring PACKET-OUT",
-									   dpname.c_str());
-
-					   throw eCtlBaseInval();
-			   }
-
-			  uint64_t tmp_dpid = adaptor->filter_outport_actions(
-					   this,
-					   portno,
-					   new_actions,
-					   pack); // returns immediately with updated actions and frame
-
-			  if (0 == dpid)
-			  {
-				  dpid = tmp_dpid;
-			  }
-			  else if (dpid != tmp_dpid)
-			  {
-				  throw eCtlBaseInval();
-			  }
-		   }
-		   break;
-
-	   // copy all remaining actions directly into new actions list
-	   default:
-		  {
-			  new_actions.next() = action; // copy non ActionOutput/ActionGroup action unaltered to new actions list
-		  }
-		  break;
-	   }
-   }
-
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::filter_actions()\n"
-					"new-match: %s\nnew-actions: %s",
-					dpname.c_str(),
-					match.c_str(),
-					new_actions.c_str());
-
-	return dpid;
-}
-#endif
 

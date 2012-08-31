@@ -272,7 +272,7 @@ protected:
 	 * @param acvec Vector of cofaction instances
 	 */
 #if 0
-	void
+	virtual void
 	send_group_mod_message(
 		cofdpath *sw,
 		uint16_t command,
@@ -283,7 +283,6 @@ protected:
 
 	virtual void
 	send_group_mod_message(
-			cofdpath *sw,
 			cgroupentry& groupentry);
 
 	// TABLE-MOD message
@@ -299,7 +298,6 @@ protected:
 	 */
 	virtual void
 	send_table_mod_message(
-		cofdpath *sw,
 		uint8_t table_id,
 		uint32_t config);
 
@@ -321,21 +319,11 @@ protected:
 	 */
 	virtual void
 	send_port_mod_message(
-		cofdpath *sw,
 		uint32_t port_no,
 		cmacaddr const& hwaddr,
 		uint32_t config,
 		uint32_t mask,
-		uint32_t advertise);
-
-
-
-	/** get free port number (with respect to this->phy_ports)
-	 *
-	 */
-	virtual uint32_t
-	phy_port_get_free_portno()
-	throw (eFwdElemNotFound);
+		uint32_t advertise) throw (eCtlBaseNotFound);
 
 
 
