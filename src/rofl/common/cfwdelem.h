@@ -1216,14 +1216,14 @@ public:
 	/** Send a OF HELLO.message to data path.
 	 *
 	 */
-	void
+	virtual void
 	send_down_hello_message(
 			cofdpath *ofswitch, bool bye = false);
 
 	/** Send a OF HELLO.message to controller.
 	 *
 	 */
-	void
+	virtual void
 	send_up_hello_message(
 			cofctrl *ofctrl, bool bye = false);
 
@@ -1234,14 +1234,14 @@ public:
 	 *
 	 * @param sw cofswitch instance representing the data path to be addressed
 	 */
-	void
+	virtual void
 	send_features_request(
 		cofdpath *sw);
 
 	/** Send OF FEATURES.reply to controlling entity.
 	 *
 	 */
-	void
+	virtual void
 	send_features_reply(
 			cofctrl *ofctrl,
 			uint32_t xid);
@@ -1253,14 +1253,14 @@ public:
 	 *
 	 * @param sw cofswitch instance representing the data path to be addressed
 	 */
-	void
+	virtual void
 	send_get_config_request(
 		cofdpath *sw);
 
 	/** Send OF GET-CONFIG.reply to controlling entity.
 	 *
 	 */
-	void
+	virtual void
 	send_get_config_reply();
 
 	// STATS request/reply
@@ -1274,7 +1274,7 @@ public:
 	 * @param body Body of a STATS request
 	 * @param bodylen length of STATS request body
 	 */
-	void
+	virtual void
 	send_stats_request(
 		cofdpath *sw,
 		uint16_t type,
@@ -1300,7 +1300,7 @@ public:
 	 * @param bodylen length of STATS reply body
 	 * @param more flag if multiple STATS replies will be sent
 	 */
-	void
+	virtual void
 	send_stats_reply(
 		cofctrl *ofctrl,
 		uint32_t xid,
@@ -1321,7 +1321,7 @@ public:
 	 * @param data optional packet data to be sent out
 	 * @param datalen
 	 */
-	void
+	virtual void
 	send_packet_out_message(
 		cofdpath *sw,
 		uint32_t buffer_id,
@@ -1343,7 +1343,7 @@ public:
 	 * @param data Ethernet frame
 	 * @param datalen Ethernet frame length
 	 */
-	void
+	virtual void
 	send_packet_in_message(
 		uint32_t buffer_id,
 		uint16_t total_len,
@@ -1360,14 +1360,14 @@ public:
 	 *
 	 * @param sw cofswitch instance representing the data path to be addressed
 	 */
-	void
+	virtual void
 	send_barrier_request(
 		cofdpath *sw);
 
 	/** Send OF BARRIER.reply to controlling entity.
 	 *
 	 */
-	void
+	virtual void
 	send_barrier_reply(
 			cofctrl *ofctrl,
 			uint32_t xid);
@@ -1382,7 +1382,7 @@ public:
 	 * @param data failed request
 	 * @param datalen length of failed request
 	 */
-	void
+	virtual void
 	send_error_message(
 		cofctrl *ofctrl,
 		uint16_t type,
@@ -1409,14 +1409,14 @@ public:
 	 * @param flags One of OFPFF_*
 	 * @param acvec Vector of cofaction instances
 	 */
-	void
+	virtual void
 	send_flow_mod_message(
 		cofdpath *sw,
 		cofmatch& ofmatch,
 		uint64_t cookie,
 		uint64_t cookie_mask,
 		uint8_t table_id,
-		uint16_t command,
+		uint8_t command,
 		uint16_t idle_timeout,
 		uint16_t hard_timeout,
 		uint16_t priority,
@@ -1426,7 +1426,7 @@ public:
 		uint16_t flags,
 		cofinlist& inlist);
 
-	void
+	virtual void
 	send_flow_mod_message(
 			cofdpath *sw,
 			cflowentry& flowentry);
@@ -1460,7 +1460,7 @@ public:
 		std::vector<cofbucket*>& buckets);
 #endif
 
-	void
+	virtual void
 	send_group_mod_message(
 			cofdpath *sw,
 			cgroupentry& groupentry);
@@ -1476,7 +1476,7 @@ public:
 	 * @param table_id the table id according to OF1.1
 	 * @param config table configuration, see openflow.h for OFPTC_TABLE_*
 	 */
-	void
+	virtual void
 	send_table_mod_message(
 		cofdpath *sw,
 		uint8_t table_id,
@@ -1498,7 +1498,7 @@ public:
 	 * @param mask Bitmap of OFPPC_* flags to be changed
 	 * @param advertise Bitmap of "ofp_port_features"s. Zero all bits to prevent any action taking place.
 	 */
-	void
+	virtual void
 	send_port_mod_message(
 		cofdpath *sw,
 		uint32_t port_no,
@@ -1524,7 +1524,7 @@ public:
 	 * @param packet_count number of packets handled by this flow mod
 	 * @param byte_count number of bytes handled by this flow mod
 	 */
-	void
+	virtual void
 	send_flow_removed_message(
 		cofctrl *ofctrl,
 		cofmatch& ofmatch,
@@ -1547,7 +1547,7 @@ public:
 	 * @param reason One of OFPPR_*
 	 * @param port cofport instance that changed its status
 	 */
-	void
+	virtual void
 	send_port_status_message(
 		uint8_t reason,
 		cofport *port);
@@ -1557,7 +1557,7 @@ public:
 	 * @param reason One of OFPPR_*
 	 * @param phy_port phy_port structure containing the ports current status
 	 */
-	void
+	virtual void
 	send_port_status_message(
 		uint8_t reason,
 		struct ofp_port *phy_port);
@@ -1571,7 +1571,7 @@ public:
 	 * @param flags OFPC_* flags
 	 * @param miss_send_len Max bytes of new flow that datapath should send to the controller
 	 */
-	void
+	virtual void
 	send_set_config_message(
 		cofdpath *sw,
 		uint16_t flags,
@@ -1585,7 +1585,7 @@ public:
 	 * @param sw cofswitch instance representing the data path to be addressed
 	 * @param port Port to be queried. Should refer to a valid physical port (i.e. < OFPP_MAX)
 	 */
-	void
+	virtual void
 	send_queue_get_config_request(
 		cofdpath *sw,
 		uint32_t port);
@@ -1593,13 +1593,13 @@ public:
 	/** Send OF QUEUE-GET-CONFIG.reply to controlling entity.
 	 *
 	 */
-	void
+	virtual void
 	send_queue_get_config_reply();
 
 	/** Send OF experimenter message to data path
 	 *
 	 */
-	void
+	virtual void
 	send_experimenter_message(
 			cofdpath *sw,
 			uint32_t experimenter_id,
@@ -1610,7 +1610,7 @@ public:
 	/** Send OF experimenter message to controller
 	 *
 	 */
-	void
+	virtual void
 	send_experimenter_message(
 			cofctrl *ctrl,
 			uint32_t experimenter_id,
@@ -1621,14 +1621,14 @@ public:
 	/** Send OF VENDOR EXT ROFL NSP-FSP-GET.request to data path
 	 *
 	 */
-	void
+	virtual void
 	send_experimenter_ext_rofl_nsp_get_fsp_request(
 			cofdpath *sw);
 
 	/** Send OF VENDOR EXT ROFL NSP-FSP-GET.reply to controller
 	 *
 	 */
-	void
+	virtual void
 	send_experimenter_ext_rofl_nsp_get_fsp_reply(
 			cofpacket *request,
 			cofctrl *ofctrl,
@@ -1639,7 +1639,7 @@ public:
 	 * @param sw cofswitch instance for data path
 	 * @param ofmatch cofmatch instance depicting the namespace to be allocated
 	 */
-	void
+	virtual void
 	send_experimenter_ext_rofl_nsp_open_request(
 			cofdpath *sw,
 			cofmatch const& ofmatch);
@@ -1650,7 +1650,7 @@ public:
 	 * @param result one of OFPRET_NSP_RESULT_* in host byte order
 	 * @param ofmatch cofmatch instance depicting the namespace to be allocated
 	 */
-	void
+	virtual void
 	send_experimenter_ext_rofl_nsp_open_reply(
 			cofpacket *request,
 			cofctrl *ofctrl,
@@ -1662,7 +1662,7 @@ public:
 	 * @param sw cofswitch instance for data path
 	 * @param ofmatch cofmatch instance depicting the namespace to be allocated
 	 */
-	void
+	virtual void
 	send_experimenter_ext_rofl_nsp_close_request(
 			cofdpath *sw,
 			cofmatch const& ofmatch);
@@ -1673,7 +1673,7 @@ public:
 	 * @param result one of OFPRET_NSP_RESULT_* in host byte order
 	 * @param ofmatch cofmatch instance depicting the namespace to be allocated
 	 */
-	void
+	virtual void
 	send_experimenter_ext_rofl_nsp_close_reply(
 			cofpacket *request,
 			cofctrl *ofctrl,
@@ -1687,7 +1687,7 @@ public:
 	 *
 	 * @param sw cofswitch instance representing the data path to be addressed
 	 */
-	void
+	virtual void
 	send_role_request(
 		cofdpath *sw,
 		uint32_t role,
@@ -1696,7 +1696,7 @@ public:
 	/** Send OF ROLE.reply to controlling entity.
 	 *
 	 */
-	void
+	virtual void
 	send_role_reply(
 			cofctrl *ofctrl,
 			uint32_t xid,

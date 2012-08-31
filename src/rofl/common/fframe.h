@@ -164,7 +164,7 @@ public: // methods
 	 *
 	 */
 	bool
-	empty() { return (0 == datalen); };
+	empty() const { return (0 == datalen); };
 
 private: // data structures
 

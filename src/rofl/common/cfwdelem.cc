@@ -2434,7 +2434,7 @@ cfwdelem::send_flow_mod_message(
 	uint64_t cookie,
 	uint64_t cookie_mask,
 	uint8_t table_id,
-	uint16_t command,
+	uint8_t command,
 	uint16_t idle_timeout,
 	uint16_t hard_timeout,
 	uint16_t priority,

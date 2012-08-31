@@ -139,6 +139,15 @@ public: // methods
 		throw (eInstructionBadLen, eInstructionBadExperimenter);
 
 
+	/**
+	 *
+	 */
+	uint16_t
+	get_type()
+	{
+		return be16toh(oin_header->type);
+	};
+
 
 protected: // data structures
 

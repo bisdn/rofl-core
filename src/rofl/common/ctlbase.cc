@@ -5,13 +5,16 @@
 #include "ctlbase.h"
 
 ctlbase::ctlbase(
+		uint64_t lldpid,
 		std::string dpname,
 		uint64_t dpid,
 		uint8_t n_tables,
 		uint32_t n_buffers,
 		caddress const& rpc_ctl_addr,
 		caddress const& rpc_dpt_addr) :
-	cfwdelem(dpname, dpid, n_tables, n_buffers, rpc_ctl_addr, rpc_dpt_addr)
+	cfwdelem(dpname, dpid, n_tables, n_buffers, rpc_ctl_addr, rpc_dpt_addr),
+	lldpid(lldpid),
+	dpath(0)
 {
 
 }
@@ -41,7 +44,7 @@ ctlbase::c_str()
 	info.assign(vas("\nctlbase(%s): =>", dpname.c_str()));
 
 #if 0
-	std::set<cadapter*>::iterator it;
+	std::set<cadapt*>::iterator it;
 	info.append(vas("\nlist of registered cctlmod instances: =>"));
 	for (it = adapters.begin(); it != adapters.end(); ++it)
 	{
@@ -55,118 +58,85 @@ ctlbase::c_str()
 }
 
 
-uint32_t
-ctlbase::n_port_get_free_portno()
-throw (eFwdElemNotFound)
+void
+ctlbase::handle_dpath_open(
+		cofdpath *dpath)
 {
-	uint32_t portno = 1;
-	while (n_ports.find(portno) != n_ports.end())
+	if ((0 == dpath) || (dpath->dpid != lldpid))
 	{
-		portno++;
-		if (portno == std::numeric_limits<uint32_t>::max())
-		{
-			throw eFwdElemNotFound();
-		}
+		return;
 	}
-	return portno;
-}
 
+	this->dpath = dpath;
 
-void
-ctlbase::up_port_attach(
-		uint32_t portno,
-		cadapter *adaptor,
-		cofport *ofport) throw (eCtlBaseExists)
-{
-	WRITELOG(CFWD, DBG, "ctlbase(%p)::up_port_attach() %s", this, c_str());
-
-	n_ports[portno] = adaptor;
-
-	send_port_status_message(OFPPR_ADD, ofport);
-}
-
-
-void
-ctlbase::up_port_detach(
-		uint32_t portno,
-		cadapter *adapter,
-		cofport *ofport) throw (eCtlBaseNotFound)
-{
-	WRITELOG(CFWD, DBG, "ctlbase(%p)::up_port_detach() %s", this, c_str());
-
-	n_ports.erase(portno);
-
-	send_port_status_message(OFPPR_DELETE, ofport);
-}
-
-
-void
-ctlbase::up_port_modify(
-			uint32_t portno,
-			cadapter *adapter,
-			cofport *ofport) throw (eCtlBaseNotFound)
-{
-	WRITELOG(CFWD, DBG, "ctlbase(%p)::up_port_modify() %s", this, c_str());
-
-	if (n_ports.find(portno) == n_ports.end())
+	/*
+	 * inform adapters about existence of our layer (n-1) datapath
+	 */
+	for (std::set<cadapt*>::iterator
+			it = adapters.begin(); it != adapters.end(); ++it)
 	{
-		up_port_attach(portno, adapter, ofport);
-	}
-	else
-	{
-		send_port_status_message(OFPPR_MODIFY, ofport);
+		(*it)->handle_dpath_open(dpath);
 	}
 }
 
 
 void
-ctlbase::up_packet_in(
-		cadapter *ctlmod,
-		uint32_t buffer_id,
-		uint16_t total_len,
-		uint8_t table_id,
-		uint8_t reason,
-		cofmatch& match,
-		fframe& frame)
+ctlbase::handle_dpath_close(
+		cofdpath *dpath)
 {
-	send_packet_in_message(
-			buffer_id,
-			total_len,
-			table_id,
-			reason,
-			match,
-			(uint8_t*)frame.soframe(), frame.framelen());
-}
-
-
-void
-ctlbase::up_experimenter_message(
-		cadapter *ctlmod,
-		uint32_t experimenter_id,
-		uint32_t exp_type,
-		uint8_t *body,
-		size_t bodylen)
-{
-	std::map<cofbase*, cofctrl*>::iterator it;
-	for (it = ofctrl_list.begin(); it != ofctrl_list.end(); ++it)
+	if ((0 == dpath) || (dpath->dpid != lldpid))
 	{
-		send_experimenter_message(it->second, experimenter_id, exp_type, body, bodylen);
+		return;
 	}
+
+	/*
+	 * inform adapters about detachment of our layer (n-1) datapath
+	 */
+	for (std::set<cadapt*>::iterator
+			it = adapters.begin(); it != adapters.end(); ++it)
+	{
+		(*it)->handle_dpath_close(dpath);
+	}
+
+	this->dpath = (cofdpath*)0;
 }
 
 
 void
-ctlbase::down_fsp_open(
-		cadapter *ctlmod,
-		cofdpath *dpath,
-		const cofmatch & m)
+ctlbase::handle_stats_reply(
+		cofdpath *sw,
+		cofpacket *pack)
 {
+
+}
+
+
+void
+ctlbase::handle_error(
+		cofdpath *sw,
+		cofpacket *pack)
+{
+
+}
+
+
+
+void
+ctlbase::flowspace_open(
+		cadapt *adapt,
+		cofmatch const& m) throw (eCtlBaseNotConnected)
+{
+	if (0 == dpath)
+	{
+		throw eCtlBaseNotConnected();
+	}
+
 	try {
-		dpath->fsptable.insert_fsp_entry(ctlmod, m, false /*non-strict*/);
+		dpath->fsptable.insert_fsp_entry(adapt, m, false /*non-strict*/);
 
 		cofmatch match(m);
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::down_fsp_open() rcvd cofmatch from cctlmod(%p):\n%s",
-				dpname.c_str(), ctlmod, match.c_str());
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::flowspace_open() rcvd cofmatch from adapter: %s:\n%s",
+				dpname.c_str(), adapt->c_str(), match.c_str());
 
 		dpath->fsp_open(m);
 
@@ -177,18 +147,17 @@ ctlbase::down_fsp_open(
 
 
 void
-ctlbase::down_fsp_close(
-		cadapter *ctlmod,
-		cofdpath *dpath,
+ctlbase::flowspace_close(
+		cadapt *adapt,
 		const cofmatch & m)
 {
 	try {
 
-		dpath->fsptable.delete_fsp_entry(ctlmod, m, false /*non-strict*/);
+		dpath->fsptable.delete_fsp_entry(adapt, m, false /*non-strict*/);
 
 		cofmatch match(m);
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::down_fsp_close() rcvd cofmatch from cctlmod(%p):\n%s",
-				dpname.c_str(), ctlmod, match.c_str());
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::down_fsp_close() rcvd cofmatch from adapter: %s:\n%s",
+				dpname.c_str(), adapt->c_str(), match.c_str());
 
 		dpath->fsp_close(m);
 
@@ -198,127 +167,41 @@ ctlbase::down_fsp_close(
 }
 
 
-void
-ctlbase::down_fsp_close(
-		cadapter *ctlmod,
-		cofdpath *dpath)
+
+
+
+
+uint32_t
+ctlbase::get_free_portno()
+throw (eAdaptNotFound)
 {
-	try {
-
-		dpath->fsptable.delete_fsp_entries(ctlmod);
-
-	} catch (eOFbaseNotAttached& e) {
-
+	uint32_t portno = 1;
+	while (n_ports.find(portno) != n_ports.end())
+	{
+		portno++;
+		if (portno == std::numeric_limits<uint32_t>::max())
+		{
+			throw eAdaptNotFound();
+		}
 	}
+	return portno;
 }
 
 
 
-void
-ctlbase::handle_packet_out(
-		cofctrl *ofctrl,
-		cofpacket *pack)
-{
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_out() "
-						  "pack: %s\n"
-						  "buffer-id: 0x%x in_port: 0x%x\nold-actions =>\n%s",
-						  dpname.c_str(),
-						  pack->c_str(),
-						  be32toh(pack->ofh_packet_out->buffer_id),
-						  be32toh(pack->ofh_packet_out->in_port),
-						  pack->actions.c_str());
-    try {
-    	if (not pack->has_data())
-    	{
-    		cofaclist new_actions;
-    		cofmatch ignore(pack->match); // not used, except inport
-
-    		uint64_t dpid = filter_actions(pack->actions, new_actions, ignore);
-
-    		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_out() "
-    							  "buffer-id: 0x%x in_port: 0x%x\nnew-actions =>\n%s",
-    							  dpname.c_str(),
-    							  be32toh(pack->ofh_packet_out->buffer_id),
-    							  be32toh(pack->ofh_packet_out->in_port),
-    							  new_actions.c_str());
-
-    		send_packet_out_message(
-    				  &dpath_find(dpid),
-    				  be32toh(pack->ofh_packet_out->buffer_id),
-    				  be32toh(pack->ofh_packet_out->in_port),
-    				  new_actions);
-    	}
-    	else
-    	{
-			cpacket adapted_pack(pack->get_data(), pack->get_datalen(), false);
-			cofaclist new_actions; // new empty action list created and adapted from pack->actions
-			cofmatch ignore(pack->match);
-
-			uint64_t dpid = filter_actions(
-					pack->actions,
-					new_actions,
-					ignore,
-					&adapted_pack);
-
-			WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_out() "
-								  "buffer-id: 0x%x dpid:0x%x in_port: 0x%x\nnew-actions: %s\nfframe =>\n%s",
-								  dpname.c_str(),
-								  be32toh(pack->ofh_packet_out->buffer_id),
-								  dpid,
-								  be32toh(pack->ofh_packet_out->in_port),
-								  new_actions.c_str(),
-								  adapted_pack.c_str());
-
-			cmemory mem(adapted_pack.length());
-
-			adapted_pack.pack(mem.somem(), mem.memlen());
-
-			// send to layer (N-1)
-			send_packet_out_message(
-					  &dpath_find(dpid),
-					  be32toh(pack->ofh_packet_out->buffer_id),
-					  be32toh(pack->ofh_packet_out->in_port),
-					  new_actions,
-					  (uint8_t*)mem.somem(), mem.memlen());
-    	}
-
-	} catch (eCtlBaseInval& e) {
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_out() "
-					   "outgoing port not found, ignoring PACKET-OUT",
-					   dpname.c_str());
-
-		send_error_message(ofctrl,
-			OFPET_BAD_ACTION, OFPBAC_BAD_ARGUMENT,
-			(uint8_t*)pack->soframe(), pack->framelen());
-
-	} catch (eOFbaseNotAttached& e) {
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_out() "
-					   "datapath element with dpid:%lu for PACKET-OUT not found",
-					   dpname.c_str(),
-					   dpid);
-
-		send_error_message(ofctrl,
-			OFPET_BAD_ACTION, OFPBAC_BAD_ARGUMENT,
-			(uint8_t*)pack->soframe(), pack->framelen());
-
-	} catch (eNotImplemented& e) {
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_out() "
-					   "internal error occured: multiple dpids issue",
-					   dpname.c_str());
-
-		send_error_message(ofctrl,
-			OFPET_BAD_ACTION, OFPBAC_BAD_ARGUMENT,
-			(uint8_t*)pack->soframe(), pack->framelen());
-
-	}
-
-	delete pack;
-}
 
 
+
+
+/*
+ * PACKET-IN
+ */
+
+
+
+/*
+ * received by layer (n-1) datapath, sending to adapters for doing the adaptation
+ */
 void
 ctlbase::handle_packet_in(
 		cofdpath *sw,
@@ -326,6 +209,14 @@ ctlbase::handle_packet_in(
 {
 	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() pack:%s",
 			dpname.c_str(), pack->c_str());
+
+	if (sw != dpath)
+	{
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() rcvd packet from non-registered dpath",
+				dpname.c_str());
+
+		delete pack; return;
+	}
 
 	try {
 		std::set<cfspentry*> fsp_list =
@@ -339,10 +230,10 @@ ctlbase::handle_packet_in(
 			throw eCtlBaseInval();
 		}
 
-		cfspentry& fspentry = *(*(fsp_list.begin()));
+		cfspentry* fspentry = (*(fsp_list.begin()));
 
-		cadapter *ctlmod = dynamic_cast<cadapter*>( fspentry.fspowner );
-		if (NULL == ctlmod)
+		cadapt *adapt = dynamic_cast<cadapt*>( fspentry->fspowner );
+		if (0 == adapt)
 		{
 			throw eInternalError();
 		}
@@ -355,10 +246,10 @@ ctlbase::handle_packet_in(
 
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
 				"flowspace subscription for packet found, data: %s\nctlmod: %s",
-				dpname.c_str(), tmppack.c_str(), ctlmod->c_str());
+				dpname.c_str(), tmppack.c_str(), adapt->c_str());
 #endif
 
-		ctlmod->ofp_packet_in(this, sw, pack);
+		adapt->handle_packet_in(pack);
 
 
 
@@ -401,71 +292,46 @@ ctlbase::handle_packet_in(
 }
 
 
-
-
+/*
+ * received from adapter, sending to derived transport controller
+ */
 void
-ctlbase::handle_dpath_open(
-		cofdpath *sw)
+ctlbase::send_packet_in(
+		cadapt *adapt,
+		uint32_t buffer_id,
+		uint16_t total_len,
+		uint8_t table_id,
+		uint8_t reason,
+		cofmatch& match,
+		fframe& frame)
 {
-
-#if 0
-	cofmatch match; // all wildcard
-	sw->fsp_open(match);
-#endif
-
-	// notify all ctlmodules about connecting data path
-	std::set<cadapter*>::iterator it;
-	for (it = adapters.begin(); it != adapters.end(); ++it)
-	{
-		cadapter& ctlmod = (*(*it));
-		ctlmod.dpath_open(this, sw);
-	}
-
-	// TODO: RETHINK: make multiple datapath elements visible in layer (N+1)
+	handle_packet_in(
+			buffer_id,
+			total_len,
+			table_id,
+			reason,
+			match,
+			frame); // let derived transport controller handle incoming packet
 }
 
 
-void
-ctlbase::handle_dpath_close(cofdpath *sw)
-{
-	// notify all ctlmodules about leaving data path
-	std::set<cadapter*>::iterator it;
-	for (it = adapters.begin(); it != adapters.end(); ++it)
-	{
-		cadapter& ctlmod = (*(*it));
-		ctlmod.dpath_close(this, sw);
-	}
-
-	// TODO: RETHINK: make multiple datapath elements visible in layer (N+1)
-}
 
 
-void
-ctlbase::handle_ctrl_open(cofctrl *ctrl)
-{
-	// notify all ctlmodules about new controller
-	std::set<cadapter*>::iterator it;
-	for (it = adapters.begin(); it != adapters.end(); ++it)
-	{
-		cadapter& ctlmod = (*(*it));
-		ctlmod.ctrl_open(this, ctrl);
-	}
-}
 
 
-void
-ctlbase::handle_ctrl_close(cofctrl *ctrl)
-{
-	// notify all ctlmodules about leaving controller
-	std::set<cadapter*>::iterator it;
-	for (it = adapters.begin(); it != adapters.end(); ++it)
-	{
-		cadapter& ctlmod = (*(*it));
-		ctlmod.ctrl_close(this, ctrl);
-	}
-}
 
 
+
+
+
+
+/*
+ * PORT-STATUS
+ */
+
+/*
+ * received by layer (n-1) datapath, sending to adapters for handling changes in port status
+ */
 void
 ctlbase::handle_port_status(
 		cofdpath *sw,
@@ -474,233 +340,323 @@ ctlbase::handle_port_status(
 {
 	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() %s", s_dpid.c_str(), cfwdelem::c_str());
 
-	std::set<cadapter*>::iterator it;
+	if (sw != dpath)
+	{
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() rcvd packet from non-registered dpath",
+				dpname.c_str());
+
+		delete pack; return;
+	}
+
+	std::set<cadapt*>::iterator it;
 	for (it = adapters.begin(); it != adapters.end(); ++it)
 	{
-		(*it)->ofp_port_status(this, sw,
-				pack->ofh_port_status->reason, port); // notify all cctlmods about new available port
+		(*it)->handle_port_status(
+						pack->ofh_port_status->reason,
+						port);
 	}
 
 	delete pack;
 }
 
 
+/*
+ * received from adapter, sending to derived transport controller
+ */
 void
-ctlbase::handle_flow_removed(
-		cofdpath *sw,
-		cofpacket *pack)
+ctlbase::send_port_status(
+				cadapt *adapt,
+				uint8_t reason,
+				cofport *ofport)
 {
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_flow_removed() %s", s_dpid.c_str(), cfwdelem::c_str());
-
-	std::set<cadapter*>::iterator it;
-	for (it = adapters.begin(); it != adapters.end(); ++it)
+	if ((0 == adapt) || (0 == ofport))
 	{
-		(*it)->ofp_flow_rmvd(this, sw, pack); // notify all cctlmods about new available port
+		return;
 	}
 
-	delete pack;
+	if (n_ports.find(ofport->port_no) == n_ports.end())
+	{
+		return;
+	}
+
+	if (n_ports[ofport->port_no] != adapt)
+	{
+		return;
+	}
+
+	WRITELOG(CFWD, DBG, "ctlbase(%p)::send_port_status() %s", this, c_str());
+
+	switch (reason) {
+	case OFPPR_ADD:
+		{
+			/* sanity check: the port_no must not be in use currently */
+			if (n_ports.find(ofport->port_no) != n_ports.end())
+			{
+				throw eCtlBaseExists();
+			}
+
+			n_ports[ofport->port_no] = adapt;
+		}
+		break;
+	case OFPPR_DELETE:
+		{
+			/* sanity check: the port_no must exist */
+			if (n_ports.find(ofport->port_no) == n_ports.end())
+			{
+				return;
+			}
+			n_ports.erase(ofport->port_no);
+		}
+		break;
+	case OFPPR_MODIFY:
+		{
+			/* sanity check: the port_no must exist */
+			if (n_ports.find(ofport->port_no) == n_ports.end())
+			{
+				throw eCtlBaseNotFound();
+			}
+		}
+		break;
+	default:
+
+		break;
+	}
+
+	handle_port_status(reason, ofport); // call method from derived transport controller
 }
 
 
+
+
+
+
+
+
+
+
+
+/*
+ * PACKET-OUT
+ */
+
+
+/*
+ * received from derived transport controller
+ * replacing cfwdelem's version of send_packet_out_message()
+ */
 void
-ctlbase::handle_experimenter_message(
-		cofctrl *ofctrl,
-		cofpacket *pack)
+ctlbase::send_packet_out_message(
+		uint32_t buffer_id,
+		uint32_t in_port,
+		cofaclist const& aclist,
+		cpacket *pack) throw (eCtlBaseInval)
 {
-	std::map<uint32_t, cadapter*>::iterator it;
-	for (it = n_ports.begin(); it != n_ports.end(); ++it)
+	/*
+	 * iterate over all actions in aclist and call adapt methods
+	 */
+	cofaclist actions; // list of adapted actions
+
+	for (cofaclist::const_iterator
+			it = aclist.begin(); it != aclist.end(); ++it)
 	{
-		cadapter& adapter = *(it->second);
-		adapter.ofp_down_experimenter(this, ofctrl, pack);
+		cofaction action(*it);
+
+		switch (action.get_type()) {
+		case OFPAT_OUTPUT:
+			{
+				uint32_t out_port = be32toh(action.oac_output->port);
+
+				if (n_ports.find(out_port) == n_ports.end())
+				{
+					throw eCtlBaseInval(); // outgoing port is invalid
+				}
+
+				n_ports[out_port]->filter_action_list(actions);
+
+			}
+			break;
+		default:
+			{
+				actions.next() = action; // push other actions directly on the list of adapted actions
+			}
+			break;
+		}
 	}
+
+	cmemory mem(pack->length());
+
+	pack->pack(mem.somem(), mem.memlen());
+
+	cfwdelem::send_packet_out_message(
+						dpath,
+						buffer_id,
+						in_port,
+						actions,
+						mem.somem(), mem.memlen());
 }
 
 
+/*
+ * received from adapter
+ */
 void
-ctlbase::handle_experimenter_message(
-		cofdpath *sw,
-		cofpacket *pack)
+ctlbase::send_packet_out(
+				cadapt *adapt,
+				uint32_t buffer_id,
+				uint32_t in_port,
+				cofaclist& actions,
+				cpacket *pack)
 {
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_experimenter_message() pack: %s",
-			dpname.c_str(),
-			pack->c_str());
+	cmemory mem(pack->length());
 
-	std::set<cadapter*>::iterator it;
-	for (it = adapters.begin(); it != adapters.end(); ++it)
-	{
-		cadapter& adapter = *(*it);
-		adapter.ofp_up_experimenter(this, sw, pack);
-	}
+	pack->pack(mem.somem(), mem.memlen());
+
+	cfwdelem::send_packet_out_message(
+						dpath,
+						buffer_id,
+						in_port,
+						actions,
+						mem.somem(), mem.memlen());
 }
 
 
-void
-ctlbase::handle_flow_mod(
-		cofctrl *ofctrl,
-		cofpacket *pack,
-		cftentry *fte)
-{
-	uint64_t dpid = 0;
 
+
+
+
+
+
+
+/*
+ * FLOW-MOD
+ */
+
+
+/*
+ * received from derived transport controller
+ */
+void
+ctlbase::send_flow_mod_message(
+		cofmatch& ofmatch,
+		uint64_t cookie,
+		uint64_t cookie_mask,
+		uint8_t table_id,
+		uint8_t command,
+		uint16_t idle_timeout,
+		uint16_t hard_timeout,
+		uint16_t priority,
+		uint32_t buffer_id,
+		uint32_t out_port,
+		uint32_t out_group,
+		uint16_t flags,
+		cofinlist const& inlist)
+{
 	try {
 
+		/*
+		 * adjust match on incoming port only
+		 */
+		cofmatch match(ofmatch); // new matches
+
+		uint32_t in_port = match.get_in_port();
+
+		if ((OFPP_CONTROLLER != in_port) && (n_ports.find(in_port) == n_ports.end()))
+		{
+			throw eCtlBaseInval();
+		}
+
+		n_ports[in_port]->filter_match(match);
+
+
+
+
+
+		/*
+		 * iterate over all instructions and find affected adapters by their port-no
+		 */
 		cofinlist insts; // new instructions
 
-		cofmatch match(pack->match); // new match structure
+		for (cofinlist::const_iterator
+				it = inlist.begin(); it != inlist.end(); ++it)
+		{
+			cofinst inst(*it);
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_flow_mod()\n"
-				"old_match: %s\n"
-				"new_match: %s", dpname.c_str(), pack->match.c_str(), match.c_str());
+			switch (inst.get_type()) {
+			case OFPIT_APPLY_ACTIONS:
+			case OFPIT_WRITE_ACTIONS:
+				{
+					for (std::set<cadapt*>::iterator
+							it = adapters.begin(); it != adapters.end(); ++it)
+					{
+						cadapt* adapt = (*it);
+
+						adapt->filter_action_list(inst.actions);
+					}
+				}
+				break;
+			}
+
+			insts.next() = inst;
+		}
 
 
-		/* currently, we are unable to handle out-ports on various
-		 * datapath elements. All out-ports of a FLOW-MOD must be
-		 * bound to physical ports of a single datapath element.
-		 * The return value dpid specifies this datapath element.
-		 * Throws exception eNotImplemented otherwise.
-		 */
-		dpid = filter_instructions(pack->instructions, insts, match);
+
+		cfwdelem::send_flow_mod_message(
+							dpath,
+							match,
+							cookie,
+							cookie_mask,
+							table_id,
+							command,
+							idle_timeout,
+							hard_timeout,
+							priority,
+							buffer_id,
+							out_port,
+							out_group,
+							flags,
+							insts);
+
+
+	} catch (eOFmatchNotFound& e) {
 
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_flow_mod() "
-					"\nUUU\n\nnew_match: %s\n\nbuffer-id: 0x%x\nnew instructions list =>\n%s",
-					dpname.c_str(), match.c_str(), be32toh(pack->ofh_flow_mod->buffer_id), insts.c_str());
-
-
-		/* Ah!!!
-		 * Hier ist die Stelle, bei der Ethernet virtual paths Tunnel zwischen
-		 * zwei data path elements geschaltet werden muessen. Naemlich immer dann,
-		 * wenn ein packet-out sich auf eine buffer-id bezieht, deren Speicherplatz
-		 * auf einem anderen data path liegt als der ActionOutput port!
-		 */
-
-		send_flow_mod_message(
-				&dpath_find(dpid),
-				match,
-				be64toh(pack->ofh_flow_mod->cookie),
-				be64toh(pack->ofh_flow_mod->cookie_mask),
-					    pack->ofh_flow_mod->table_id,
-				be16toh(pack->ofh_flow_mod->command),
-				be16toh(pack->ofh_flow_mod->idle_timeout),
-				be16toh(pack->ofh_flow_mod->hard_timeout),
-				be16toh(pack->ofh_flow_mod->priority),
-				be32toh(pack->ofh_flow_mod->buffer_id),
-				be32toh(pack->ofh_flow_mod->out_port),
-				be32toh(pack->ofh_flow_mod->out_group),
-				be16toh(pack->ofh_flow_mod->flags),
-				insts);
-
-	} catch (eCtlBaseInval& e) {
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_flow_mod() "
-					   "outgoing port not found, ignoring FLOW-MOD",
+					   "no in_port found in Flow-Mod message, ignoring",
 					   dpname.c_str());
 
-		send_error_message(ofctrl,
-			OFPET_BAD_ACTION, OFPBAC_BAD_ARGUMENT,
-			(uint8_t*)pack->soframe(), pack->framelen());
-
-	} catch (eNotImplemented &e) {
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_flow_mod() "
-					   "internal error occured: multiple dpids issue",
-					   dpname.c_str());
-
-		send_error_message(ofctrl,
-			OFPET_BAD_ACTION, OFPBAC_BAD_ARGUMENT,
-			(uint8_t*)pack->soframe(), pack->framelen());
-
-	} catch (eOFbaseNotAttached& e) {
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_flow_mod() "
-					   "datapath element with dpid:%lu for FLOW-MOD not found",
-					   dpname.c_str(), dpid);
-
-		send_error_message(ofctrl,
-			OFPET_BAD_ACTION, OFPBAC_BAD_ARGUMENT,
-			(uint8_t*)pack->soframe(), pack->framelen());
+		throw eCtlBaseInval();
 
 	}
-
-	delete pack;
-}
-
-
-void
-ctlbase::handle_group_mod(
-		cofctrl *ofctrl,
-		cofpacket *pack,
-		cgtentry *gte)
-{
-	uint64_t dpid = 0;
-
-	try {
-		cgroupentry ge;
-		ge.set_command(be16toh(pack->ofh_group_mod->command));
-		ge.set_group_id(be32toh(pack->ofh_group_mod->group_id));
-		ge.set_type(pack->ofh_group_mod->type);
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_group_mod()", dpname.c_str());
-
-		dpid = filter_buckets(pack->buckets, ge.buckets);
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_group_mod() "
-				"old-buckets: %s\n"
-				"new-buckets: %s\n",
-				dpname.c_str(),
-				pack->buckets.c_str(),
-				ge.buckets.c_str());
-
-		send_group_mod_message(
-				&dpath_find(dpid),
-				ge);
-
-	} catch (eCtlBaseInval& e) {
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_group_mod() "
-					   "outgoing port not found, ignoring GROUP-MOD",
-					   dpname.c_str());
-
-		send_error_message(ofctrl,
-			OFPET_BAD_ACTION, OFPBAC_BAD_ARGUMENT,
-			(uint8_t*)pack->soframe(), pack->framelen());
-
-	} catch (eNotImplemented &e) {
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_group_mod() "
-					   "internal error occured: multiple dpids issue",
-					   dpname.c_str());
-
-		send_error_message(ofctrl,
-			OFPET_FLOW_MOD_FAILED, OFPFMFC_UNKNOWN,
-			(uint8_t*)pack->soframe(), pack->framelen());
-
-	} catch (eOFbaseNotAttached& e) {
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_group_mod() "
-					   "datapath element with dpid:%lu for GROUP-MOD not found",
-					   dpname.c_str(), dpid);
-
-		send_error_message(ofctrl,
-			OFPET_FLOW_MOD_FAILED, OFPFMFC_UNKNOWN,
-			(uint8_t*)pack->soframe(), pack->framelen());
-
-	}
-
-	delete pack;
-}
-
-
-void
-ctlbase::handle_table_mod(
-		cofctrl *ofctrl,
-		cofpacket *pack)
-{
-	throw eNotImplemented();
 }
 
 
 
-cadapter*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cadapt*
 ctlbase::find_adaptor_by_portno(
 		uint32_t portno) throw (eCtlBaseNotFound)
 {
@@ -712,6 +668,9 @@ ctlbase::find_adaptor_by_portno(
 	return n_ports[portno];
 }
 
+
+
+#if 0
 
 uint64_t
 ctlbase::filter_instructions(
@@ -805,7 +764,7 @@ ctlbase::filter_actions(
 				throw eCtlBaseInval();
 		}
 
-		cadapter *adaptor = dynamic_cast<cadapter*>( n_ports[match.get_in_port()] );
+		cadapt *adaptor = dynamic_cast<cadapt*>( n_ports[match.get_in_port()] );
 		if (0 == adaptor)
 		{
 				WRITELOG(CFWD, DBG, "ctlbase(%s)::filter_actions() "
@@ -844,7 +803,7 @@ ctlbase::filter_actions(
 					   throw eCtlBaseInval();
 			   }
 
-			   cadapter *adaptor = dynamic_cast<cadapter*>( n_ports[portno] );
+			   cadapt *adaptor = dynamic_cast<cadapt*>( n_ports[portno] );
 			   if (0 == adaptor)
 			   {
 					   WRITELOG(CFWD, DBG, "ctlbase(%s)::filter_actions() "
@@ -888,5 +847,5 @@ ctlbase::filter_actions(
 
 	return dpid;
 }
-
+#endif
 
