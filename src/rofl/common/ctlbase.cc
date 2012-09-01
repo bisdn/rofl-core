@@ -476,7 +476,33 @@ ctlbase::send_packet_out_message(
 					throw eCtlBaseInval(); // outgoing port is invalid
 				}
 
-				n_ports[out_port]->filter_action_list(actions);
+				cofaclist add_this = n_ports[out_port]->filter_action(action);
+
+				// copy all adapted actions to the actions list
+				for (cofaclist::const_iterator
+						it = add_this.begin(); it != add_this.end(); ++it)
+				{
+					actions.next() = (*it);
+				}
+
+
+
+				if (0 != pack)
+				{
+					n_ports[out_port]->filter_packet(pack);
+				}
+
+				/*
+				 * TROET! fundamental problem arises here!
+				 * if we have multiple ActionOutput definitions in a PACKET-OUT,
+				 * adjusting the packet cannot work, think of two ActionOutputs
+				 * bound to pppoe => this cannot work!
+				 */
+
+				/*
+				 * suppress PACKET-OUT messages with multiple ActionOutputs???
+				 */
+
 
 			}
 			break;
@@ -623,13 +649,45 @@ ctlbase::send_flow_mod_message(
 			case OFPIT_APPLY_ACTIONS:
 			case OFPIT_WRITE_ACTIONS:
 				{
-					for (std::set<cadapt*>::iterator
-							it = adapters.begin(); it != adapters.end(); ++it)
-					{
-						cadapt* adapt = (*it);
+					/*
+					 * iterate over all actions in aclist and call adapt methods
+					 */
+					cofaclist actions; // list of adapted actions
 
-						adapt->filter_action_list(inst.actions);
+					for (cofaclist::const_iterator
+							it = inst.actions.begin(); it != inst.actions.end(); ++it)
+					{
+						cofaction action(*it);
+
+						switch (action.get_type()) {
+						case OFPAT_OUTPUT:
+							{
+								uint32_t out_port = be32toh(action.oac_output->port);
+
+								if (n_ports.find(out_port) == n_ports.end())
+								{
+									throw eCtlBaseInval(); // outgoing port is invalid
+								}
+
+								cofaclist add_this = n_ports[out_port]->filter_action(action);
+
+								// copy all adapted actions to the actions list
+								for (cofaclist::const_iterator
+										it = add_this.begin(); it != add_this.end(); ++it)
+								{
+									actions.next() = (*it);
+								}
+							}
+							break;
+						default:
+							{
+								actions.next() = action; // push other actions directly on the list of adapted actions
+							}
+							break;
+						}
 					}
+
+					inst.actions = actions;
 				}
 				break;
 			}
@@ -747,15 +805,44 @@ ctlbase::send_group_mod_message(
 		cofbucket bucket = (*it);
 
 		/*
-		 * iterate over all buckets and call filter_action_list
+		 * iterate over all actions in aclist and call adapt methods
 		 */
-		for (std::set<cadapt*>::iterator
-				it = adapters.begin(); it != adapters.end(); ++it)
-		{
-			cadapt* adapt = (*it);
+		cofaclist actions; // list of adapted actions
 
-			adapt->filter_action_list(bucket.actions);
+		for (cofaclist::const_iterator
+				it = bucket.actions.begin(); it != bucket.actions.end(); ++it)
+		{
+			cofaction action(*it);
+
+			switch (action.get_type()) {
+			case OFPAT_OUTPUT:
+				{
+					uint32_t out_port = be32toh(action.oac_output->port);
+
+					if (n_ports.find(out_port) == n_ports.end())
+					{
+						throw eCtlBaseInval(); // outgoing port is invalid
+					}
+
+					cofaclist add_this = n_ports[out_port]->filter_action(action);
+
+					// copy all adapted actions to the actions list
+					for (cofaclist::const_iterator
+							it = add_this.begin(); it != add_this.end(); ++it)
+					{
+						actions.next() = (*it);
+					}
+				}
+				break;
+			default:
+				{
+					actions.next() = action; // push other actions directly on the list of adapted actions
+				}
+				break;
+			}
 		}
+
+		bucket.actions = actions;
 
 		buckets.next() = bucket;
 	}
