@@ -32,23 +32,19 @@ class ctlbase :
  */
 protected:
 
+		uint64_t							 lldpid;		// layer (n-1) dpid in use (used in constructor)
+		cofdpath							*dpath;			// layer (n-1) datapath in use (once it has connected)
+		std::map<uint32_t, cadapt*> 		 n_ports; 		// map of portno's => cadapt mappings
+
+private:
+
 		/*
 		 * there is only one layer (n-1) datapath for a transport controller (always)
 		 * A transport controller can only use local interfaces (=ports).
 		 * A remote port can not be used directly.
 		 */
 
-		uint64_t							 lldpid;		// layer (n-1) dpid in use (used in constructor)
-		cofdpath							*dpath;			// layer (n-1) datapath in use (once it has connected)
-		std::map<uint32_t, cadapt*> 		 n_ports; 		// map of portno's => cadapt mappings
-
-
-
-
-private:
-
-		std::string 						info;
-
+		std::string 						 info;
 
 
 /*
@@ -117,6 +113,7 @@ protected:
 	 */
 	virtual void
 	handle_port_status(
+			cadapt* adapt,
 			uint8_t reason,
 			cofport *ofport) = 0;
 
@@ -137,12 +134,13 @@ protected:
 	 */
 	virtual void
 	handle_packet_in(
-				uint32_t buffer_id,
-				uint16_t total_len,
-				uint8_t table_id,
-				uint8_t reason,
-				cofmatch const& match,
-				fframe const& frame) = 0;
+			cadapt *adapt,
+			uint32_t buffer_id,
+			uint16_t total_len,
+			uint8_t table_id,
+			uint8_t reason,
+			cofmatch& match,
+			cpacket& pack) = 0;
 
 
 
@@ -482,7 +480,7 @@ public: // methods offered to cadapt instances by cadapt_owner
 			uint8_t table_id,
 			uint8_t reason,
 			cofmatch& match,
-			fframe& frame);
+			cpacket& pack);
 
 
 
@@ -501,7 +499,7 @@ public: // methods offered to cadapt instances by cadapt_owner
 			uint32_t buffer_id,
 			uint32_t in_port,
 			cofaclist& aclist,
-			cpacket *pack = 0);
+			cpacket& pack);
 
 
 };

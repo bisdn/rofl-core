@@ -69,12 +69,18 @@ ctlbase::handle_dpath_open(
 
 	this->dpath = dpath;
 
+	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_open() "
+			"dpid: %llu adapters: %d", dpname.c_str(), dpath->dpid, adapters.size());
+
 	/*
 	 * inform adapters about existence of our layer (n-1) datapath
 	 */
 	for (std::set<cadapt*>::iterator
 			it = adapters.begin(); it != adapters.end(); ++it)
 	{
+		WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_open() "
+				"adapter: %s", dpname.c_str(), (*it)->c_str());
+
 		(*it)->handle_dpath_open(dpath);
 	}
 }
@@ -88,6 +94,9 @@ ctlbase::handle_dpath_close(
 	{
 		return;
 	}
+
+	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_close() "
+			"dpid: %llu", dpname.c_str(), dpath->dpid);
 
 	/*
 	 * inform adapters about detachment of our layer (n-1) datapath
@@ -132,15 +141,21 @@ ctlbase::flowspace_open(
 	}
 
 	try {
+		cofmatch match(m);
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::flowspace_open() rcvd cofmatch [1] from adapter: %s:\n%s",
+				dpname.c_str(), adapt->c_str(), match.c_str());
+
+
 		dpath->fsptable.insert_fsp_entry(adapt, m, false /*non-strict*/);
 
-		cofmatch match(m);
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::flowspace_open() rcvd cofmatch from adapter: %s:\n%s",
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::flowspace_open() rcvd cofmatch [2] from adapter: %s:\n%s",
 				dpname.c_str(), adapt->c_str(), match.c_str());
 
 		dpath->fsp_open(m);
 
 	} catch (eOFbaseNotAttached& e) {
+
+	} catch (eFspEntryOverlap& e) {
 
 	}
 }
@@ -162,6 +177,8 @@ ctlbase::flowspace_close(
 		dpath->fsp_close(m);
 
 	} catch (eOFbaseNotAttached& e) {
+
+	} catch (eFspEntryNotFound& e) {
 
 	}
 }
@@ -207,8 +224,12 @@ ctlbase::handle_packet_in(
 		cofdpath *sw,
 		cofpacket *pack)
 {
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() pack:%s",
+	WRITELOG(CFWD, DBG, "\n\n\n\nUUU\n\nctlbase(%s)::handle_packet_in() pack:%s",
 			dpname.c_str(), pack->c_str());
+
+	WRITELOG(CFWD, DBG, "\n\n\n\nVVV\n\nctlbase(%s)::handle_packet_in() fsptable:%s",
+			dpname.c_str(), sw->fsptable.c_str());
+
 
 	if (sw != dpath)
 	{
@@ -303,15 +324,19 @@ ctlbase::send_packet_in(
 		uint8_t table_id,
 		uint8_t reason,
 		cofmatch& match,
-		fframe& frame)
+		cpacket& pack)
 {
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_in() "
+			"match: %s\npack:%s", dpname.c_str(), match.c_str(), pack.c_str());
+
 	handle_packet_in(
+			adapt,
 			buffer_id,
 			total_len,
 			table_id,
 			reason,
 			match,
-			frame); // let derived transport controller handle incoming packet
+			pack); // let derived transport controller handle incoming packet
 }
 
 
@@ -338,7 +363,7 @@ ctlbase::handle_port_status(
 		cofpacket *pack,
 		cofport *port)
 {
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() %s", s_dpid.c_str(), cfwdelem::c_str());
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() %s", dpname.c_str(), port->c_str());
 
 	if (sw != dpath)
 	{
@@ -347,6 +372,9 @@ ctlbase::handle_port_status(
 
 		delete pack; return;
 	}
+
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() "
+			"%s", dpname.c_str(), port->c_str());
 
 	std::set<cadapt*>::iterator it;
 	for (it = adapters.begin(); it != adapters.end(); ++it)
@@ -374,16 +402,6 @@ ctlbase::send_port_status(
 		return;
 	}
 
-	if (n_ports.find(ofport->port_no) == n_ports.end())
-	{
-		return;
-	}
-
-	if (n_ports[ofport->port_no] != adapt)
-	{
-		return;
-	}
-
 	WRITELOG(CFWD, DBG, "ctlbase(%p)::send_port_status() %s", this, c_str());
 
 	switch (reason) {
@@ -405,6 +423,12 @@ ctlbase::send_port_status(
 			{
 				return;
 			}
+
+			if (n_ports[ofport->port_no] != adapt)
+			{
+				return;
+			}
+
 			n_ports.erase(ofport->port_no);
 		}
 		break;
@@ -422,7 +446,7 @@ ctlbase::send_port_status(
 		break;
 	}
 
-	handle_port_status(reason, ofport); // call method from derived transport controller
+	handle_port_status(adapt, reason, ofport); // call method from derived transport controller
 }
 
 
@@ -514,16 +538,27 @@ ctlbase::send_packet_out_message(
 		}
 	}
 
-	cmemory mem(pack->length());
+	if (0 == pack)
+	{
+		cfwdelem::send_packet_out_message(
+							dpath,
+							buffer_id,
+							in_port,
+							actions);
+	}
+	else
+	{
+		cmemory mem(pack->length());
 
-	pack->pack(mem.somem(), mem.memlen());
+		pack->pack(mem.somem(), mem.memlen());
 
-	cfwdelem::send_packet_out_message(
-						dpath,
-						buffer_id,
-						in_port,
-						actions,
-						mem.somem(), mem.memlen());
+		cfwdelem::send_packet_out_message(
+							dpath,
+							buffer_id,
+							in_port,
+							actions,
+							mem.somem(), mem.memlen());
+	}
 }
 
 
@@ -536,16 +571,16 @@ ctlbase::send_packet_out(
 				uint32_t buffer_id,
 				uint32_t in_port,
 				cofaclist& actions,
-				cpacket *pack)
+				cpacket& pack)
 {
 	if (0 == dpath)
 	{
 		return;
 	}
 
-	cmemory mem(pack->length());
+	cmemory mem(pack.length());
 
-	pack->pack(mem.somem(), mem.memlen());
+	pack.pack(mem.somem(), mem.memlen());
 
 	cfwdelem::send_packet_out_message(
 						dpath,

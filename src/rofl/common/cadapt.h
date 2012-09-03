@@ -273,7 +273,7 @@ public: // methods offered to cadapt instances by cadapt_owner
 				uint8_t table_id,
 				uint8_t reason,
 				cofmatch& match,
-				fframe& frame) = 0;
+				cpacket& pack) = 0;
 
 
 
@@ -292,7 +292,7 @@ public: // methods offered to cadapt instances by cadapt_owner
 				uint32_t buffer_id,
 				uint32_t in_port,
 				cofaclist& aclist,
-				cpacket *pack = 0) = 0;
+				cpacket& pack) = 0;
 };
 
 #endif /* CADAPT_H_ */
