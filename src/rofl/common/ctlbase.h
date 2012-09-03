@@ -35,6 +35,7 @@ protected:
 		uint64_t							 lldpid;		// layer (n-1) dpid in use (used in constructor)
 		cofdpath							*dpath;			// layer (n-1) datapath in use (once it has connected)
 		std::map<uint32_t, cadapt*> 		 n_ports; 		// map of portno's => cadapt mappings
+		std::map<uint32_t, cofport*>		 adports;		// adapted ports as registered by the cadapters
 
 private:
 

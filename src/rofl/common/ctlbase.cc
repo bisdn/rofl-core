@@ -414,6 +414,7 @@ ctlbase::send_port_status(
 			}
 
 			n_ports[ofport->port_no] = adapt;
+			adports[ofport->port_no] = ofport;
 		}
 		break;
 	case OFPPR_DELETE:
@@ -430,6 +431,7 @@ ctlbase::send_port_status(
 			}
 
 			n_ports.erase(ofport->port_no);
+			adports.erase(ofport->port_no);
 		}
 		break;
 	case OFPPR_MODIFY:
