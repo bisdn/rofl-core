@@ -25,7 +25,6 @@ extern "C" {
 }
 #endif
 
-#include "cclock.h"
 #include "cvastring.h"
 #include "rofl/platform/unix/csyslog.h"
 

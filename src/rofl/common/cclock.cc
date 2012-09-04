@@ -11,6 +11,9 @@
 
 #include "cclock.h"
 
+#define CC_CLOCK_ONE_SECOND_S 1
+#define CC_CLOCK_ONE_SECOND_NS 1000000000
+
 cclock::cclock(
 		time_t delta_sec,
 		time_t delta_nsec)
@@ -55,10 +58,10 @@ cclock::operator+ (cclock const& cc)
 	clock.ts.tv_sec		= ts.tv_sec  + cc.ts.tv_sec;
 	clock.ts.tv_nsec 	= ts.tv_nsec + cc.ts.tv_nsec;
 
-	if (clock.ts.tv_nsec > 1e9)
+	if (clock.ts.tv_nsec > CC_CLOCK_ONE_SECOND_NS)
 	{
-		clock.ts.tv_sec += 1;
-		clock.ts.tv_nsec -= 1e9;
+		clock.ts.tv_sec +=  CC_CLOCK_ONE_SECOND_S;
+		clock.ts.tv_nsec -=  CC_CLOCK_ONE_SECOND_NS;
 	}
 
 	return clock;
@@ -72,8 +75,8 @@ cclock::operator- (cclock const& cc)
 
 	if (cc.ts.tv_nsec > ts.tv_nsec)
 	{
-		clock.ts.tv_nsec 	= ts.tv_nsec - cc.ts.tv_nsec + 1e9;
-		clock.ts.tv_sec		= ts.tv_sec  - cc.ts.tv_sec  - 1;
+		clock.ts.tv_nsec 	= ts.tv_nsec - cc.ts.tv_nsec + CC_CLOCK_ONE_SECOND_NS;
+		clock.ts.tv_sec		= ts.tv_sec  - cc.ts.tv_sec  -  CC_CLOCK_ONE_SECOND_S;
 	}
 	else
 	{
@@ -91,10 +94,10 @@ cclock::operator+= (cclock const& cc)
 	ts.tv_sec	+= cc.ts.tv_sec;
 	ts.tv_nsec 	+= cc.ts.tv_nsec;
 
-	if (ts.tv_nsec > 1e9)
+	if (ts.tv_nsec >  CC_CLOCK_ONE_SECOND_NS)
 	{
-		ts.tv_sec += 1;
-		ts.tv_nsec -= 1e9;
+		ts.tv_sec += CC_CLOCK_ONE_SECOND_S;
+		ts.tv_nsec -= CC_CLOCK_ONE_SECOND_NS;
 	}
 
 	return *this;
@@ -106,8 +109,8 @@ cclock::operator-= (cclock const& cc)
 {
 	if (cc.ts.tv_nsec > ts.tv_nsec)
 	{
-		ts.tv_nsec 	= ts.tv_nsec - cc.ts.tv_nsec + 1e9;
-		ts.tv_sec	= ts.tv_sec  - cc.ts.tv_sec  - 1;
+		ts.tv_nsec 	= ts.tv_nsec - cc.ts.tv_nsec + CC_CLOCK_ONE_SECOND_NS;
+		ts.tv_sec	= ts.tv_sec  - cc.ts.tv_sec  - CC_CLOCK_ONE_SECOND_S;
 	}
 	else
 	{

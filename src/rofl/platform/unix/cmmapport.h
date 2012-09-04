@@ -5,6 +5,8 @@
 #ifndef CMMAPPORT_H
 #define CMMAPPORT_H 1
 
+#ifndef HARDWARE
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,7 +42,6 @@ extern "C" {
 #include "rofl/common/csocket.h" // for csocket error types
 #include "clinuxport.h"
 
-#ifndef HARDWARE
 class cmapport_helper : csyslog {
 public:
 	static cmapport_helper &
