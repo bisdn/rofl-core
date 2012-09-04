@@ -386,7 +386,8 @@ coxmlist::overlap(
 
 			if (not (m1 == m2))
 			{
-				WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() m1 != m2", this);
+				WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() "
+						"m1 != m2 => m1: %s m2: %s", this, m1.c_str(), m2.c_str());
 				return false;
 			}
 			else
@@ -419,7 +420,8 @@ coxmlist::overlap(
 
 			if (not (m1 == m2))
 			{
-				WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() m1 != m2", this);
+				WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() "
+							"m1 != m2 => m1: %s m2: %s", this, m1.c_str(), m2.c_str());
 				return false;
 			}
 			else
@@ -462,7 +464,8 @@ coxmlist::calc_hits(
 
 		if (not (m1 == m2))
 		{
-			WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::overlap() m1 != m2", this);
+			WRITELOG(COXMLIST, ROFL_DBG, "coxmlist(%p)::calc_hits() "
+						"m1 != m2 => m1: %s m2: %s", this, m1.c_str(), m2.c_str());
 			missed++; return;
 		}
 		else
