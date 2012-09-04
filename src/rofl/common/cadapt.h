@@ -182,6 +182,15 @@ public:
 	virtual void
 	filter_packet(
 			cpacket *pack) {};
+
+
+	/**
+	 *
+	 */
+	virtual cofport*
+	find_port(
+			uint32_t port_no)
+					throw (eAdaptNotFound) { throw eAdaptNotFound(); };
 };
 
 
