@@ -215,7 +215,7 @@ coxmlist::c_str()
 		{
 			continue;
 		}
-		info.append(vas("\n  [%d] %s ", oxmvec[i]->get_oxm_field(), oxmvec[i]->c_str()));
+		info.append(vas("\n  [%02d] %s ", oxmvec[i]->get_oxm_field(), oxmvec[i]->c_str()));
 	}
 
 	return info.c_str();

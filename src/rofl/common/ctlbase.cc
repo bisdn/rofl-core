@@ -487,6 +487,10 @@ ctlbase::send_packet_out_message(
 	 */
 	cofaclist actions; // list of adapted actions
 
+	cofaclist accopy(aclist);
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
+			"\nactions [original] => %s", dpname.c_str(), accopy.c_str());
+
 	for (cofaclist::const_iterator
 			it = aclist.begin(); it != aclist.end(); ++it)
 	{
@@ -510,6 +514,9 @@ ctlbase::send_packet_out_message(
 				{
 					actions.next() = (*it);
 				}
+
+				WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
+						"\nactions [add_this] => %s", dpname.c_str(), add_this.c_str());
 
 
 
@@ -539,6 +546,16 @@ ctlbase::send_packet_out_message(
 			break;
 		}
 	}
+
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
+			"\nactions [adapted] => %s", dpname.c_str(), actions.c_str());
+
+	if (0 != pack)
+	{
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
+				"\npack [adapted] => %s", dpname.c_str(), pack->c_str());
+	}
+
 
 	if (0 == pack)
 	{
@@ -669,6 +686,11 @@ ctlbase::send_flow_mod_message(
 		n_ports[in_port]->filter_match(match);
 
 
+		cofinlist instructions(inlist);
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_flow_mod_message()\n"
+				"match [original] => %s\n"
+				"instructions [original] => %s",
+				dpname.c_str(), match.c_str(), instructions.c_str());
 
 
 
@@ -732,8 +754,12 @@ ctlbase::send_flow_mod_message(
 			insts.next() = inst;
 		}
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_flow_mod_message() %s",
-					   dpname.c_str(), insts.c_str());
+
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_flow_mod_message()\n"
+				"match [adapted] => %s\n"
+				"instructions [adapted] => %s\n",
+				dpname.c_str(), match.c_str(), insts.c_str());
+
 
 
 		cfwdelem::send_flow_mod_message(
