@@ -506,7 +506,7 @@ ctlbase::send_packet_out_message(
 					throw eCtlBaseInval(); // outgoing port is invalid
 				}
 
-				cofaclist add_this = n_ports[out_port]->filter_action(action);
+				cofaclist add_this = n_ports[out_port]->filter_action(out_port, action);
 
 				// copy all adapted actions to the actions list
 				for (cofaclist::const_iterator
@@ -522,7 +522,7 @@ ctlbase::send_packet_out_message(
 
 				if (0 != pack)
 				{
-					n_ports[out_port]->filter_packet(pack);
+					n_ports[out_port]->filter_packet(out_port, pack);
 				}
 
 				/*
@@ -683,7 +683,7 @@ ctlbase::send_flow_mod_message(
 			throw eCtlBaseInval();
 		}
 
-		n_ports[in_port]->filter_match(match);
+		cofaclist match_add_this = n_ports[in_port]->filter_match(in_port, match);
 
 
 		cofinlist instructions(inlist);
@@ -711,7 +711,8 @@ ctlbase::send_flow_mod_message(
 					/*
 					 * iterate over all actions in aclist and call adapt methods
 					 */
-					cofaclist actions; // list of adapted actions
+					cofaclist actions(match_add_this); // list of adapted actions
+
 
 					for (cofaclist::const_iterator
 							it = inst.actions.begin(); it != inst.actions.end(); ++it)
@@ -728,7 +729,7 @@ ctlbase::send_flow_mod_message(
 									throw eCtlBaseInval(); // outgoing port is invalid
 								}
 
-								cofaclist add_this = n_ports[out_port]->filter_action(action);
+								cofaclist add_this = n_ports[out_port]->filter_action(out_port, action);
 
 								// copy all adapted actions to the actions list
 								for (cofaclist::const_iterator
@@ -887,7 +888,7 @@ ctlbase::send_group_mod_message(
 						throw eCtlBaseInval(); // outgoing port is invalid
 					}
 
-					cofaclist add_this = n_ports[out_port]->filter_action(action);
+					cofaclist add_this = n_ports[out_port]->filter_action(out_port, action);
 
 					// copy all adapted actions to the actions list
 					for (cofaclist::const_iterator

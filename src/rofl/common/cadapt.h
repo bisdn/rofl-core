@@ -163,9 +163,11 @@ public:
 	/**
 	 *
 	 */
-	virtual void
+	virtual cofaclist
 	filter_match(
-			cofmatch& match) {};
+			uint32_t port_no,
+			cofmatch& match) throw (eAdaptNotFound)
+	{ cofaclist actions; return actions; };
 
 
 	/**
@@ -173,7 +175,9 @@ public:
 	 */
 	virtual cofaclist
 	filter_action(
-			cofaction& action) { cofaclist actions; return actions; };
+			uint32_t port_no,
+			cofaction& action) throw (eAdaptNotFound)
+	{ cofaclist actions; return actions; };
 
 
 	/**
@@ -181,7 +185,9 @@ public:
 	 */
 	virtual void
 	filter_packet(
-			cpacket *pack) {};
+			uint32_t port_no,
+			cpacket *pack) throw (eAdaptNotFound)
+	{};
 
 
 	/**
@@ -190,7 +196,8 @@ public:
 	virtual cofport*
 	find_port(
 			uint32_t port_no)
-					throw (eAdaptNotFound) { throw eAdaptNotFound(); };
+					throw (eAdaptNotFound)
+	{ throw eAdaptNotFound(); };
 };
 
 
