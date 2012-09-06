@@ -234,7 +234,7 @@ cofinst::c_str()
 {
 	Lock lock(&inmutex);
 
-	cvastring vas(1024);
+	cvastring vas(4096);
 
 	switch (be16toh(oin_header->type)) {
 	case OFPIT_APPLY_ACTIONS:

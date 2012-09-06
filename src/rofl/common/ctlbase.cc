@@ -683,14 +683,20 @@ ctlbase::send_flow_mod_message(
 			throw eCtlBaseInval();
 		}
 
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_flow_mod_message() =>\n"
+				"  match [original] => %s\n",
+				dpname.c_str(), match.c_str());
+
+
 		cofaclist match_add_this = n_ports[in_port]->filter_match(in_port, match);
 
 
 		cofinlist instructions(inlist);
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_flow_mod_message()\n"
-				"match [original] => %s\n"
-				"instructions [original] => %s",
-				dpname.c_str(), match.c_str(), instructions.c_str());
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_flow_mod_message() =>\n"
+				"  match [adapted by in-port] => %s\n"
+				"  actions [in-port: to be added] => %s\n"
+				"  instructions [original] => %s",
+				dpname.c_str(), match.c_str(), match_add_this.c_str(), instructions.c_str());
 
 
 
@@ -756,10 +762,9 @@ ctlbase::send_flow_mod_message(
 		}
 
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_flow_mod_message()\n"
-				"match [adapted] => %s\n"
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_flow_mod_message() =>\n"
 				"instructions [adapted] => %s\n",
-				dpname.c_str(), match.c_str(), insts.c_str());
+				dpname.c_str(), insts.c_str());
 
 
 

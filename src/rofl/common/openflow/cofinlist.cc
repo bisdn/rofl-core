@@ -88,7 +88,7 @@ cofinlist::length()
 const char*
 cofinlist::c_str()
 {
-	cvastring vas(1024);
+	cvastring vas(4096);
 	info.assign(vas("cofinlist(%p) %d instruction(s): ", this, elems.size()));
 	cofinlist::iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
