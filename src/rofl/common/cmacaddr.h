@@ -102,7 +102,7 @@ public:
 	 *
 	 */
 	const char*
-	c_str();
+	c_str() const;
 
 private:
 

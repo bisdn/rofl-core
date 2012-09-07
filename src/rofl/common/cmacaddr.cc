@@ -7,7 +7,15 @@
 cmacaddr::cmacaddr() :
 	cmemory(OFP_ETH_ALEN)
 {
+	cvastring vas(32);
 
+	info.assign(vas("%02x:%02x:%02x:%02x:%02x:%02x",
+			(*this)[0],
+			(*this)[1],
+			(*this)[2],
+			(*this)[3],
+			(*this)[4],
+			(*this)[5]));
 }
 
 
@@ -17,6 +25,16 @@ cmacaddr::cmacaddr(cmemory const& mem) :
 	size_t len = mem.memlen() < OFP_ETH_ALEN? mem.memlen() : OFP_ETH_ALEN;
 
 	memcpy(somem(), mem.somem(), len);
+
+	cvastring vas(32);
+
+	info.assign(vas("%02x:%02x:%02x:%02x:%02x:%02x",
+			(*this)[0],
+			(*this)[1],
+			(*this)[2],
+			(*this)[3],
+			(*this)[4],
+			(*this)[5]));
 }
 
 
@@ -26,6 +44,16 @@ cmacaddr::cmacaddr(uint8_t *data, size_t datalen) :
 	size_t len = (datalen < OFP_ETH_ALEN) ? datalen : OFP_ETH_ALEN;
 
 	memcpy(somem(), data, len);
+
+	cvastring vas(32);
+
+	info.assign(vas("%02x:%02x:%02x:%02x:%02x:%02x",
+			(*this)[0],
+			(*this)[1],
+			(*this)[2],
+			(*this)[3],
+			(*this)[4],
+			(*this)[5]));
 }
 
 
@@ -42,6 +70,16 @@ cmacaddr::cmacaddr(const std::string& s_addr) :
 			(int*)&((*this)[3]),
 			(int*)&((*this)[4]),
 			(int*)&((*this)[5]));
+
+	cvastring vas(32);
+
+	info.assign(vas("%02x:%02x:%02x:%02x:%02x:%02x",
+			(*this)[0],
+			(*this)[1],
+			(*this)[2],
+			(*this)[3],
+			(*this)[4],
+			(*this)[5]));
 }
 
 
@@ -65,6 +103,16 @@ cmacaddr::cmacaddr(const char* s_addr) :
 	{
 		(*this)[i] = vec[i];
 	}
+
+	cvastring vas(32);
+
+	info.assign(vas("%02x:%02x:%02x:%02x:%02x:%02x",
+			(*this)[0],
+			(*this)[1],
+			(*this)[2],
+			(*this)[3],
+			(*this)[4],
+			(*this)[5]));
 }
 
 
@@ -75,6 +123,16 @@ cmacaddr::operator= (cmacaddr const& ma)
 		return *this;
 
 	cmemory::operator= (ma);
+
+	cvastring vas(32);
+
+	info.assign(vas("%02x:%02x:%02x:%02x:%02x:%02x",
+			(*this)[0],
+			(*this)[1],
+			(*this)[2],
+			(*this)[3],
+			(*this)[4],
+			(*this)[5]));
 
 	return *this;
 }
@@ -139,18 +197,8 @@ cmacaddr::is_null() const
 
 
 const char*
-cmacaddr::c_str()
+cmacaddr::c_str() const
 {
-	cvastring vas(32);
-
-	info.assign(vas("%02x:%02x:%02x:%02x:%02x:%02x",
-			(*this)[0],
-			(*this)[1],
-			(*this)[2],
-			(*this)[3],
-			(*this)[4],
-			(*this)[5]));
-
 	return info.c_str();
 }
 
