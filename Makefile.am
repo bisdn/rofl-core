@@ -1,5 +1,13 @@
-MAINTAINERCLEANFILES = aclocal.m4 config.guess config.sub configure \
-depcomp install-sh ltmain.sh Makefile.in missing ar-lib
+MAINTAINERCLEANFILES = $(top_srcdir)/aclocal.m4 \
+	$(top_srcdir)/ar-lib \
+	$(top_srcdir)/config.guess \
+	$(top_srcdir)/config.sub \
+	$(top_srcdir)/configure \
+	$(top_srcdir)/depcomp \
+	$(top_srcdir)/install-sh \
+	$(top_srcdir)/ltmain.sh \
+	$(top_srcdir)/Makefile.in \
+	$(top_srcdir)/missing 
 
 SUBDIRS = src test 
 
@@ -10,4 +18,4 @@ install-exec-hook:
 uninstall-hook:
 
 maintainer-clean-local:
-	rm -rf m4
+	rm -rf $(top_srcdir)/m4
