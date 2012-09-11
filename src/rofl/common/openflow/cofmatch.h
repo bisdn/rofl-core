@@ -261,6 +261,55 @@ public:
 			uint16_t dl_type);
 
 
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_ip_proto();
+
+
+	/**
+	 *
+	 */
+	void
+	set_ip_proto(
+			uint8_t proto);
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_udp_src()
+			throw (eOFmatchNotFound);
+
+
+
+	/**
+	 *
+	 */
+	void
+	set_udp_src(
+			uint16_t src_port);
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_udp_dst()
+			throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_udp_dst(
+			uint16_t dst_port);
+
+
 #ifndef NDEBUG
 	/**
 	 *

@@ -317,6 +317,67 @@ cofmatch::set_eth_type(
 }
 
 
+uint8_t
+cofmatch::get_ip_proto()
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_PROTO))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist[OFPXMT_OFB_IP_PROTO].uint8();
+}
+
+
+void
+cofmatch::set_ip_proto(
+		uint8_t proto)
+{
+	oxmlist[OFPXMT_OFB_IP_PROTO] = coxmatch_ofb_ip_proto(proto);
+}
+
+
+uint16_t
+cofmatch::get_udp_src() throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_UDP_SRC))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist[OFPXMT_OFB_UDP_SRC].uint16();
+}
+
+
+void
+cofmatch::set_udp_src(
+		uint16_t src_port)
+{
+	oxmlist[OFPXMT_OFB_UDP_SRC] = coxmatch_ofb_udp_src(src_port);
+}
+
+
+uint16_t
+cofmatch::get_udp_dst() throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_UDP_DST))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist[OFPXMT_OFB_UDP_DST].uint16();
+}
+
+
+void
+cofmatch::set_udp_dst(
+		uint16_t dst_port)
+{
+	oxmlist[OFPXMT_OFB_UDP_DST] = coxmatch_ofb_udp_dst(dst_port);
+}
+
+
+
 #ifndef NDEBUG
 void
 cofmatch::test()
