@@ -6,36 +6,6 @@
 
 extern char* optarg;
 
-#if 0
-/*static*/int cunixenv::debug = csyslog::EMERGENCY;
-/*static*/int cunixenv::n_buffers = 262144;
-/*static*/int cunixenv::block_size = 64;
-/*static*/int cunixenv::n_blocks = 1;
-/*static*/int cunixenv::frame_size = 2048;
-/*static*/int cunixenv::n_fwdengines = 1;
-/*static*/std::string cunixenv::controller_ip("127.0.0.1");
-/*static*/u_int16_t cunixenv::controller_port = 6633;
-/*static*/std::string cunixenv::config_filename("./default-cli.cfg");
-/*static*/std::string cunixenv::hw_driver = "x86";
-
-/* Default options*/
-static struct option long_options[] = {
-			{ "daemonize", 0, 0, 'D' },
-			{ "help", 0, 0, 'h' },
-			{ "debug", 1, 0, 'd' },
-			{ "configfile", 1, 0, 'c' },
-		      /*{ "buffers", 1, 0, 'b' },
-			{ "blocksize", 1, 0, 's' },
-			{ "blocks", 1, 0, 'k' },
-			{ "framesize", 1, 0, 'r' },
-			{ "fwdengines", 1, 0, 'f' },
-			{ "ctl_ip_addr", 1, 0, 'i' },
-			{ "ctl_port", 1, 0, 'p' },
-			{ "hw_driver", 1, 0, 'H' },*/
-			{ NULL, 0, 0, 0 }
-};
-#endif
-
 /* Carg stuff */
 carg::carg(bool optional, 
 		int value_type,
@@ -92,20 +62,7 @@ void
 cunixenv::usage(
 		char *argv0)
 {
-	#if 0
-	fprintf(stderr, "usage: %s [--daemonize] [--help]\n", argv0);
-	fprintf(stderr, "[--debug|-d] <int:debuglevel>\n");
-	fprintf(stderr, "[--blocksize|-s] <int:#pagenumbers>\n");
-	fprintf(stderr, "[--blocks|-k] <int>\n");
-	fprintf(stderr, "[--framesize|-r] <int:bytes>\n");
-	fprintf(stderr, "[--buffers|-b] <int:#buffers>\n");
-	fprintf(stderr, "[--fwdengines|-f] <int:#fwdengines>\n");
-	fprintf(stderr, "[--configfile|-c] <string:filename>\n");
-	fprintf(stderr, "[--ctl_ip_addr|-i] <ip:127.0.0.1>\n");
-	fprintf(stderr, "[--ctl_port|-p] <int:#portnum>\n");
-	fprintf(stderr, "[--hw_driver|-H] <string: {x86,bcm,octeon5650} default(x86) >\n");
-	exit(0);
-	#endif
+
 	using namespace std;
 	cerr << "usage: " << std::string(argv0)<<" {parameters}"<<endl; 
 	
@@ -189,75 +146,6 @@ cunixenv::parse_args(
 	//free calloc
 	free(long_options);	
 	parsed = true;
-#if 0
-	int c;
-	int option_index;
-
-	
-
-	while (true) {
-		c = getopt_long(argc, argv, "Dhd:b:s:k:r:f:c:i:p:H:", long_options, &option_index);
-		if (c == -1)
-			break;
-
-		switch (c) {
-		case 0:
-			std::cerr << "option " << long_options[option_index].name;
-			if (optarg)
-				std::cerr << " with optarg " << optarg;
-			std::cerr << std::endl;
-			break;
-
-		case 'D':
-			detach();
-			break;
-
-		case 'h':
-			usage(argv[0]);
-			break;
-
-		case 'd':
-			debug = atoi(optarg);
-			break;
-
-		case 'b':
-			n_buffers = atoi(optarg);
-			break;
-
-		case 's':
-			block_size = atoi(optarg);
-			break;
-
-		case 'k':
-			n_blocks = atoi(optarg);
-			break;
-
-		case 'r':
-			frame_size = atoi(optarg);
-			break;
-
-		case 'f':
-			n_fwdengines = atoi(optarg);
-			break;
-
-		case 'c':
-			config_filename = std::string(optarg);
-			break;
-
-		case 'i':
-			controller_ip = std::string(optarg);
-			break;
-
-		case 'p':
-			controller_port = atoi(optarg);
-			break;
-
-		case 'H':
-			hw_driver = std::string(optarg);
-			break;
-		}
-	}
-#endif
 }
 
 void cunixenv::add_argument(carg arg){
