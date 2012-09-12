@@ -97,17 +97,19 @@ public: // flowspace related methods
 		/**
 		 */
 		virtual void
-		flowspace_open(
+		owner_flowspace_open(
 				cadapt *adapt,
-				cofmatch const& m = cofmatch() /* all wildcard */) = 0;
+				cofmatch& match)
+		{};
 
 
 		/**
 		 */
 		virtual void
-		flowspace_close(
+		owner_flowspace_close(
 				cadapt *adapt,
-				cofmatch const& m = cofmatch() /* all wildcard */) = 0;
+				cofmatch& match)
+		{};
 
 
 
@@ -304,6 +306,16 @@ public:
 	/**
 	 *
 	 */
+	virtual void
+	filter_flowspace(
+			uint32_t port_no,
+			cofmatch& flowspace) throw (eAdaptNotFound)
+	{};
+
+
+	/**
+	 *
+	 */
 	virtual cofport*
 	find_port(
 			uint32_t port_no)
@@ -352,7 +364,6 @@ public:
 		throw (eAdaptNotFound);
 
 
-
 public: // flowspace related methods
 
 
@@ -360,18 +371,20 @@ public: // flowspace related methods
 	 */
 	virtual void
 	flowspace_open(
-			cadapt *adapt,
-			cofmatch const& m = cofmatch() /* all wildcard */);
+			cofmatch& match)
+	{
+		base->owner_flowspace_open(this, match);
+	};
 
 
 	/**
 	 */
 	virtual void
 	flowspace_close(
-			cadapt *adapt,
-			cofmatch const& m = cofmatch() /* all wildcard */);
-
-
+			cofmatch& match)
+	{
+		base->owner_flowspace_close(this, match);
+	};
 
 
 public: // methods offered to cadapt instances by cadapt_owner

@@ -143,7 +143,7 @@ ctlbase::handle_error(
 void
 ctlbase::flowspace_open(
 		cadapt *adapt,
-		cofmatch const& m) throw (eCtlBaseNotConnected)
+		cofmatch& match) throw (eCtlBaseNotConnected)
 {
 	if (0 == dpath)
 	{
@@ -151,17 +151,16 @@ ctlbase::flowspace_open(
 	}
 
 	try {
-		cofmatch match(m);
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::flowspace_open() rcvd cofmatch [1] from adapter: %s:\n%s",
 				dpname.c_str(), adapt->c_str(), match.c_str());
 
 
-		dpath->fsptable.insert_fsp_entry(adapt, m, false /*non-strict*/);
+		dpath->fsptable.insert_fsp_entry(adapt, match, false /*non-strict*/);
 
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::flowspace_open() rcvd cofmatch [2] from adapter: %s:\n%s",
 				dpname.c_str(), adapt->c_str(), match.c_str());
 
-		dpath->fsp_open(m);
+		dpath->fsp_open(match);
 
 	} catch (eOFbaseNotAttached& e) {
 
@@ -174,17 +173,16 @@ ctlbase::flowspace_open(
 void
 ctlbase::flowspace_close(
 		cadapt *adapt,
-		const cofmatch & m)
+		cofmatch& match)
 {
 	try {
 
-		dpath->fsptable.delete_fsp_entry(adapt, m, false /*non-strict*/);
+		dpath->fsptable.delete_fsp_entry(adapt, match, false /*non-strict*/);
 
-		cofmatch match(m);
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::down_fsp_close() rcvd cofmatch from adapter: %s:\n%s",
 				dpname.c_str(), adapt->c_str(), match.c_str());
 
-		dpath->fsp_close(m);
+		dpath->fsp_close(match);
 
 	} catch (eOFbaseNotAttached& e) {
 

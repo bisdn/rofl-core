@@ -463,7 +463,7 @@ public: // flowspace related methods
 	virtual void
 	flowspace_open(
 			cadapt *adapt,
-			cofmatch const& m = cofmatch() /* all wildcard */) throw (eCtlBaseNotConnected);
+			cofmatch& match) throw (eCtlBaseNotConnected);
 
 
 	/**
@@ -471,7 +471,7 @@ public: // flowspace related methods
 	virtual void
 	flowspace_close(
 			cadapt *adapt,
-			cofmatch const& m = cofmatch() /* all wildcard */);
+			cofmatch& match);
 
 
 

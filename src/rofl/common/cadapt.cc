@@ -124,23 +124,6 @@ cadapt::get_free_portno()
 }
 
 
-void
-cadapt::flowspace_open(
-			cadapt *adapt,
-			cofmatch const& match)
-{
-	base->flowspace_open(this, match);
-}
-
-
-void
-cadapt::flowspace_close(
-			cadapt *adapt,
-			cofmatch const& match)
-{
-	base->flowspace_close(this, match);
-}
-
 
 void
 cadapt::send_packet_out(
