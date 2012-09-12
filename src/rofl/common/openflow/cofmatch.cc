@@ -317,6 +317,48 @@ cofmatch::set_eth_type(
 }
 
 
+uint32_t
+cofmatch::get_mpls_label()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_LABEL))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist[OFPXMT_OFB_MPLS_LABEL].uint32();
+}
+
+
+void
+cofmatch::set_mpls_label(
+		uint32_t label)
+{
+	oxmlist[OFPXMT_OFB_MPLS_LABEL] = coxmatch_ofb_mpls_label(label);
+}
+
+
+uint8_t
+cofmatch::get_mpls_tc()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_TC))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist[OFPXMT_OFB_MPLS_TC].uint8();
+}
+
+
+void
+cofmatch::set_mpls_tc(
+		uint8_t tc)
+{
+	oxmlist[OFPXMT_OFB_MPLS_TC] = coxmatch_ofb_mpls_tc(tc);
+}
+
+
 uint8_t
 cofmatch::get_ip_proto()
 {

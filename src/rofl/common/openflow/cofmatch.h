@@ -261,6 +261,39 @@ public:
 			uint16_t dl_type);
 
 
+	/**
+	 *
+	 */
+	uint32_t
+	get_mpls_label()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_mpls_label(
+			uint32_t label);
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_mpls_tc()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_mpls_tc(
+			uint8_t tc);
+
+
+
 
 	/**
 	 *
