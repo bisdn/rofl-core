@@ -37,6 +37,9 @@ protected:
 		std::map<uint32_t, cadapt*> 		 n_ports; 		// map of portno's => cadapt mappings
 		std::map<uint32_t, cofport*>		 adports;		// adapted ports as registered by the cadapters
 
+		std::set<cadapt*> 		 			 adstack;		// set of all adapters registered with cadapt_owner
+
+
 private:
 
 		/*
@@ -64,6 +67,7 @@ public:
 			uint32_t n_buffers = DEFAULT_FE_BUFFER_SIZE,
 			caddress const& rpc_ctl_addr = caddress(AF_INET, "0.0.0.0", 6643),
 			caddress const& rpc_dpt_addr = caddress(AF_INET, "0.0.0.0", 6633));
+
 
 	/**
 	 *
@@ -425,6 +429,22 @@ public:
 	/*
 	 *  methods implemented as defined by cadapt_owner interface
 	 */
+
+
+	/**
+	 *
+	 */
+	virtual void
+	adapter_open(
+			cadapt* adapt);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	adapter_close(
+			cadapt* adapt);
 
 
 	/**

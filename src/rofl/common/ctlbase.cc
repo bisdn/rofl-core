@@ -28,6 +28,12 @@ ctlbase::~ctlbase()
 		cofmatch match; // all wildcard
 		it->second->fsp_close(match);
 	}
+
+	while (not adstack.empty())
+	{
+		cadapt* adapt = (*adstack.begin());
+		delete adapt;
+	}
 }
 
 
@@ -41,7 +47,7 @@ ctlbase::c_str()
 #if 0
 	std::set<cadapt*>::iterator it;
 	info.append(vas("\nlist of registered cctlmod instances: =>"));
-	for (it = adapters.begin(); it != adapters.end(); ++it)
+	for (it = stack.begin(); it != stack.end(); ++it)
 	{
 		//info.append(vas("\n  %s", (*it)->c_str()));
 	}
@@ -69,28 +75,18 @@ ctlbase::handle_dpath_open(
 	this->dpath = dpath;
 
 	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_open() "
-			"dpid: %llu adapters: %d", dpname.c_str(), dpath->dpid, adapters.size());
+			"dpid: %llu adapters: %d", dpname.c_str(), dpath->dpid, adstack.size());
 
 	/*
 	 * inform adapters about existence of our layer (n-1) datapath
 	 */
-	for (std::vector<std::list<cadapt*> >::iterator
-			it = adapters.begin(); it != adapters.end(); ++it)
+	for (std::set<cadapt*>::iterator
+			it = adstack.begin(); it != adstack.end(); ++it)
 	{
-		cadapt* adapt = (*it).front();
-
-		WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_open() "
-				"adapter: %s", dpname.c_str(), adapt->c_str());
-
-		/* register all transport endpoints from dpath with our
-		 * lowest adapters
-		 */
 		for (std::map<uint32_t, cofport*>::iterator
-				it = dpath->ports.begin(); it != dpath->ports.end(); ++it)
+				jt = dpath->ports.begin(); jt != dpath->ports.end(); ++jt)
 		{
-			cofport* ofport = it->second;
-
-			adapt->handle_port_status(OFPPR_ADD, ofport);
+			(*it)->handle_port_status(OFPPR_ADD, jt->second);
 		}
 	}
 }
@@ -111,20 +107,13 @@ ctlbase::handle_dpath_close(
 	/*
 	 * inform adapters about detachment of our layer (n-1) datapath
 	 */
-	for (std::vector<std::list<cadapt*> >::iterator
-			it = adapters.begin(); it != adapters.end(); ++it)
+	for (std::set<cadapt*>::iterator
+			it = adstack.begin(); it != adstack.end(); ++it)
 	{
-		cadapt* adapt = (*it).front();
-
-		/* deregister all transport endpoints from dpath with our
-		 * lowest adapters
-		 */
 		for (std::map<uint32_t, cofport*>::iterator
-				it = dpath->ports.begin(); it != dpath->ports.end(); ++it)
+				jt = dpath->ports.begin(); jt != dpath->ports.end(); ++jt)
 		{
-			cofport* ofport = it->second;
-
-			adapt->handle_port_status(OFPPR_DELETE, ofport);
+			(*it)->handle_port_status(OFPPR_DELETE, jt->second);
 		}
 	}
 
@@ -206,6 +195,21 @@ ctlbase::flowspace_close(
 
 
 
+void
+ctlbase::adapter_open(
+		cadapt* adapt)
+{
+	adstack.insert(adapt);
+}
+
+
+
+void
+ctlbase::adapter_close(
+		cadapt* adapt)
+{
+	adstack.erase(adapt);
+}
 
 
 
@@ -397,12 +401,10 @@ ctlbase::handle_port_status(
 	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() "
 			"%s", dpname.c_str(), port->c_str());
 
-	for (std::vector<std::list<cadapt*> >::iterator
-			it = adapters.begin(); it != adapters.end(); ++it)
+	for (std::set<cadapt*>::iterator
+			it = adstack.begin(); it != adstack.end(); ++it)
 	{
-		cadapt* adapt = (*it).front();
-
-		adapt->handle_port_status(
+		(*it)->handle_port_status(
 						pack->ofh_port_status->reason,
 						port);
 	}
