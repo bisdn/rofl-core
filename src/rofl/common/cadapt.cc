@@ -8,40 +8,31 @@
 #include <rofl/common/cadapt.h>
 
 
-cadapt*
-cadapt_new(
-		cadapt_owner *base,
-		std::string const& name	)
-{
-	/*
-	 * create a method named "name"_new which will be loaded by ctlbase
-	 * that is capable of creating new objects of type cadapt
-	 */
-	if (name == std::string("cadapt"))
-	{
-		return new cadapt(base);
-	}
-
-	return 0;
-}
 
 
 cadapt::cadapt(
-		cadapt_owner *base) throw (eAdaptInval) :
-	base(base)
+		cadapt_owner *base,
+		unsigned int index) throw (eAdaptInval) :
+	base(base),
+	index(index)
 {
 	if (0 == base)
 	{
 		throw eAdaptInval();
 	}
 
-	base->adapters.insert(this);
+	if (index >= base->adapters.size())
+	{
+		throw eAdaptInval();
+	}
+
+	base->adapters[index].push_back(this);
 }
 
 
 cadapt::~cadapt()
 {
-	base->adapters.erase(this);
+	base->adapters[index].remove(this);
 }
 
 

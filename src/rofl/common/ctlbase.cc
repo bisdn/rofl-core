@@ -22,11 +22,6 @@ ctlbase::ctlbase(
 
 ctlbase::~ctlbase()
 {
-	while (not adapters.empty())
-	{
-		delete (*(adapters.begin()));
-	}
-
 	std::map<cofbase*, cofdpath*>::iterator it;
 	for (it = ofdpath_list.begin(); it != ofdpath_list.end(); ++it)
 	{
@@ -67,6 +62,10 @@ ctlbase::handle_dpath_open(
 		return;
 	}
 
+	/* TODO: We still lack the ability to control an entire OpenFlow
+	 * domain, i.e. we can only use a single data path for now.
+	 * This is going to change.
+	 */
 	this->dpath = dpath;
 
 	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_open() "
@@ -75,13 +74,24 @@ ctlbase::handle_dpath_open(
 	/*
 	 * inform adapters about existence of our layer (n-1) datapath
 	 */
-	for (std::set<cadapt*>::iterator
+	for (std::vector<std::list<cadapt*> >::iterator
 			it = adapters.begin(); it != adapters.end(); ++it)
 	{
-		WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_open() "
-				"adapter: %s", dpname.c_str(), (*it)->c_str());
+		cadapt* adapt = (*it).front();
 
-		(*it)->handle_dpath_open(dpath);
+		WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_open() "
+				"adapter: %s", dpname.c_str(), adapt->c_str());
+
+		/* register all transport endpoints from dpath with our
+		 * lowest adapters
+		 */
+		for (std::map<uint32_t, cofport*>::iterator
+				it = dpath->ports.begin(); it != dpath->ports.end(); ++it)
+		{
+			cofport* ofport = it->second;
+
+			adapt->handle_port_status(OFPPR_ADD, ofport);
+		}
 	}
 }
 
@@ -101,10 +111,21 @@ ctlbase::handle_dpath_close(
 	/*
 	 * inform adapters about detachment of our layer (n-1) datapath
 	 */
-	for (std::set<cadapt*>::iterator
+	for (std::vector<std::list<cadapt*> >::iterator
 			it = adapters.begin(); it != adapters.end(); ++it)
 	{
-		(*it)->handle_dpath_close(dpath);
+		cadapt* adapt = (*it).front();
+
+		/* deregister all transport endpoints from dpath with our
+		 * lowest adapters
+		 */
+		for (std::map<uint32_t, cofport*>::iterator
+				it = dpath->ports.begin(); it != dpath->ports.end(); ++it)
+		{
+			cofport* ofport = it->second;
+
+			adapt->handle_port_status(OFPPR_DELETE, ofport);
+		}
 	}
 
 	this->dpath = (cofdpath*)0;
@@ -376,10 +397,12 @@ ctlbase::handle_port_status(
 	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() "
 			"%s", dpname.c_str(), port->c_str());
 
-	std::set<cadapt*>::iterator it;
-	for (it = adapters.begin(); it != adapters.end(); ++it)
+	for (std::vector<std::list<cadapt*> >::iterator
+			it = adapters.begin(); it != adapters.end(); ++it)
 	{
-		(*it)->handle_port_status(
+		cadapt* adapt = (*it).front();
+
+		adapt->handle_port_status(
 						pack->ofh_port_status->reason,
 						port);
 	}

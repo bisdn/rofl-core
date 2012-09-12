@@ -8,6 +8,7 @@
 #ifndef CADAPT_H
 #define CADAPT_H 1
 
+#include <list>
 #include <string>
 
 #include <rofl/common/cerror.h>
@@ -28,15 +29,6 @@ class cadapt_owner;
 class eAdaptBase 				: public cerror {};
 class eAdaptInval 				: public eAdaptBase {};
 class eAdaptNotFound			: public eAdaptBase {};
-
-
-/** C-function for instantiating new instances of class derived from cadapt
- *
- */
-cadapt*
-cadapt_new(
-		cadapt_owner *base,
-		std::string const& name);
 
 
 
@@ -60,6 +52,7 @@ protected:
 
 private:
 
+		size_t				 index;		// index for base->vector
 		std::string 		 info;		// info string
 
 
@@ -72,7 +65,8 @@ public:
 	/**
 	 */
 	cadapt(
-			cadapt_owner *base) throw (eAdaptInval);
+			cadapt_owner *base,
+			unsigned int index = 0) throw (eAdaptInval);
 
 
 	/**
@@ -98,7 +92,7 @@ public:
 public: // lightweight OpenFlow interface for access by cadapt_owner
 
 
-
+#if 0
 	/**
 	 */
 	virtual void
@@ -111,7 +105,7 @@ public: // lightweight OpenFlow interface for access by cadapt_owner
 	virtual void
 	handle_dpath_close(
 			cofdpath *sw) {};
-
+#endif
 
 
 	/*
@@ -209,7 +203,7 @@ class cadapt_owner
  */
 protected:
 
-		std::set<cadapt*> 			adapters;		// set of all adapters registered with cadapt_owner
+		std::vector<std::list<cadapt*> > 		adapters;		// set of all adapters registered with cadapt_owner
 
 
 /*
@@ -221,14 +215,27 @@ public:
 		/**
 		 *
 		 */
-		cadapt_owner() {};
+		cadapt_owner(size_t n = 16) :
+		adapters(n) {};
 
 
 		/**
 		 *
 		 */
 		virtual
-		~cadapt_owner() {};
+		~cadapt_owner()
+		{
+			for (std::vector<std::list<cadapt*> >::iterator
+					it = adapters.begin(); it != adapters.end(); ++it)
+			{
+				std::list<cadapt*>& adapts = (*it);
+
+				while (not adapts.empty())
+				{
+					delete adapts.front();
+				}
+			}
+		};
 
 
 public: // auxiliary methods
