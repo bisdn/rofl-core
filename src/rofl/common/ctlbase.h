@@ -25,7 +25,7 @@ class eCtlBaseNotConnected 		: public eCtlBase {};
 
 class ctlbase :
 	public cfwdelem,
-	public cadapt_owner
+	public cadapt
 {
 /*
  * data structures
@@ -37,7 +37,16 @@ protected:
 		std::map<uint32_t, cadapt*> 		 n_ports; 		// map of portno's => cadapt mappings
 		std::map<uint32_t, cofport*>		 adports;		// adapted ports as registered by the cadapters
 
-		std::set<cadapt*> 		 			 adstack;		// set of all adapters registered with cadapt_owner
+		class adstack {
+		public:
+			cadapt_dpt						*head;
+			cadapt_ctl						*tail;
+
+			adstack(cadapt_dpt *dpt = 0, cadapt_ctl *ctl = 0) :
+				head(dpt), tail(ctl) {};
+		};
+
+		std::map<unsigned int, adstack> 	 adstacks;		// map of all adapters registered with this ctlbase
 
 
 private:
@@ -91,6 +100,25 @@ public:
 		throw (eCtlBaseNotFound);
 
 
+public: // bind a stack of adapters
+
+
+	/**
+	 *
+	 */
+	void
+	stack_open(
+			unsigned int stack_index,
+			cadapt_ctl *ctl,
+			cadapt_dpt *dpt) throw (eCtlBaseInval);
+
+
+	/**
+	 *
+	 */
+	void
+	stack_close(
+			unsigned int stack_index) throw (eCtlBaseInval);
 
 
 protected:
@@ -423,105 +451,167 @@ protected:
 
 
 
+
+
+
+
+	/***********************************************
+	 *
+	 * methods to implement for cadapt_ctl interface
+	 *
+	 *
+	 */
+
 public:
 
 
-	/*
-	 *  methods implemented as defined by cadapt_owner interface
-	 */
+		/**
+		 *
+		 */
+		virtual uint32_t
+		ctl_get_free_portno(
+				cadapt_dpt *dpt)
+			throw (eAdaptNotFound);
 
 
-	/**
+
+		/**
+		 */
+		virtual void
+		ctl_handle_error(
+				cadapt_dpt *dpt,
+				uint16_t type,
+				uint16_t code,
+				uint8_t *data = 0,
+				size_t datalen = 0);
+
+
+		/**
+		 *
+		 */
+		virtual void
+		ctl_handle_port_status(
+				cadapt_dpt *dpt,
+				uint8_t reason,
+				cofport *ofport);
+
+
+
+		/**
+		 *
+		 */
+		virtual void
+		ctl_handle_packet_in(
+				cadapt_dpt *dpt,
+				uint32_t buffer_id,
+				uint16_t total_len,
+				uint8_t table_id,
+				uint8_t reason,
+				cofmatch& match,
+				cpacket& pack) = 0;
+
+
+
+
+
+
+
+
+	/*****************************************************************
+	 *
+	 * methods to implement for cadapt_dpt interface
 	 *
 	 */
-	virtual void
-	adapter_open(
-			cadapt* adapt);
+
+public:
 
 
-	/**
-	 *
-	 */
-	virtual void
-	adapter_close(
-			cadapt* adapt);
+		/**
+		 */
+		virtual void
+		dpt_handle_packet_out(
+				cadapt_ctl *ctl,
+				uint32_t buffer_id,
+				uint32_t in_port,
+				cofaclist& actions,
+				cpacket& pack);
 
 
-	/**
-	 *
-	 */
-	virtual uint32_t
-	get_free_portno()
-		throw (eAdaptNotFound);
+		/**
+		 *
+		 */
+		virtual void
+		dpt_handle_flow_mod(
+				cadapt_ctl *ctl,
+				cflowentry& fe);
 
 
-public: // flowspace related methods
+		/**
+		 *
+		 */
+		virtual void
+		dpt_handle_port_mod(
+				cadapt_ctl *ctl,
+				uint32_t port_no,
+				uint32_t config,
+				uint32_t mask,
+				uint32_t advertise);
 
 
-	/**
-	 */
-	virtual void
-	flowspace_open(
-			cadapt *adapt,
-			cofmatch& match) throw (eCtlBaseNotConnected);
+		/**
+		 */
+		virtual void
+		dpt_flowspace_open(
+				cadapt_ctl* ctl,
+				cofmatch& match) throw (eAdaptNotConnected);
 
 
-	/**
-	 */
-	virtual void
-	flowspace_close(
-			cadapt *adapt,
-			cofmatch& match);
+		/**
+		 */
+		virtual void
+		dpt_flowspace_close(
+				cadapt_ctl* ctl,
+				cofmatch& match) throw (eAdaptNotConnected);
 
 
-
-public: // methods offered to cadapt instances by cadapt_owner
-
-	/*
-	 * upwards methods
-	 */
-
-	/**
-	 */
-	virtual void
-	send_port_status(
-			cadapt *adapt,
-			uint8_t reason,
-			cofport *ofport);
+		/**
+		 *
+		 */
+		virtual cofaclist
+		dpt_filter_match(
+				cadapt_ctl *ctl,
+				uint32_t port_no,
+				cofmatch& match) throw (eAdaptNotFound);
 
 
-
-	/**
-	 */
-	virtual void
-	send_packet_in(
-			cadapt *adapt,
-			uint32_t buffer_id,
-			uint16_t total_len,
-			uint8_t table_id,
-			uint8_t reason,
-			cofmatch& match,
-			cpacket& pack);
+		/**
+		 *
+		 */
+		virtual cofaclist
+		dpt_filter_action(
+				cadapt_ctl *ctl,
+				uint32_t port_no,
+				cofaction& action) throw (eAdaptNotFound);
 
 
+		/**
+		 *
+		 */
+		virtual void
+		dpt_filter_packet(
+				cadapt_ctl *ctl,
+				uint32_t port_no,
+				cpacket *pack) throw (eAdaptNotFound);
 
 
-public: // methods offered to cadapt instances by cadapt_owner
-
-	/*
-	 * downwards methods
-	 */
-
-	/**
-	 */
-	virtual void
-	send_packet_out(
-			cadapt *adapt,
-			uint32_t buffer_id,
-			uint32_t in_port,
-			cofaclist& aclist,
-			cpacket& pack);
-
+		/**
+		 *
+		 */
+		virtual cofport*
+		dpt_find_port(
+				cadapt_ctl *ctl,
+				uint32_t port_no)
+						throw (eAdaptNotFound);
 
 };
 

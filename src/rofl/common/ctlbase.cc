@@ -29,11 +29,7 @@ ctlbase::~ctlbase()
 		it->second->fsp_close(match);
 	}
 
-	while (not adstack.empty())
-	{
-		cadapt* adapt = (*adstack.begin());
-		delete adapt;
-	}
+	adstacks.clear();
 }
 
 
@@ -60,6 +56,53 @@ ctlbase::c_str()
 
 
 void
+ctlbase::stack_open(
+		unsigned int stack_index,
+		cadapt_ctl *ctl,
+		cadapt_dpt *dpt) throw (eCtlBaseInval)
+{
+	if ((0 == ctl) || (0 == dpt))
+	{
+		throw eCtlBaseInval();
+	}
+	if (adstacks.find(stack_index) != adstacks.end())
+	{
+		throw eCtlBaseInval();
+	}
+	adstacks[stack_index] = adstack(dpt, ctl);
+}
+
+
+void
+ctlbase::stack_close(
+		unsigned int stack_index) throw (eCtlBaseInval)
+{
+	if (adstacks.find(stack_index) == adstacks.end())
+	{
+		return;
+	}
+	adstacks.erase(stack_index);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/***********************************************************
+ *
+ * overloaded handler methods from cfwdelem
+ *
+ */
+
+void
 ctlbase::handle_dpath_open(
 		cofdpath *dpath)
 {
@@ -75,18 +118,20 @@ ctlbase::handle_dpath_open(
 	this->dpath = dpath;
 
 	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_open() "
-			"dpid: %llu adapters: %d", dpname.c_str(), dpath->dpid, adstack.size());
+			"dpid: %llu adapters: %d", dpname.c_str(), dpath->dpid, adstacks.size());
 
 	/*
 	 * inform adapters about existence of our layer (n-1) datapath
 	 */
-	for (std::set<cadapt*>::iterator
-			it = adstack.begin(); it != adstack.end(); ++it)
+	for (std::map<unsigned int, adstack>::iterator
+			it = adstacks.begin(); it != adstacks.end(); ++it)
 	{
+		adstack& stack = it->second;
+
 		for (std::map<uint32_t, cofport*>::iterator
 				jt = dpath->ports.begin(); jt != dpath->ports.end(); ++jt)
 		{
-			(*it)->handle_port_status(OFPPR_ADD, jt->second);
+			stack.tail->ctl_handle_port_status(this, OFPPR_ADD, jt->second);
 		}
 	}
 }
@@ -107,13 +152,15 @@ ctlbase::handle_dpath_close(
 	/*
 	 * inform adapters about detachment of our layer (n-1) datapath
 	 */
-	for (std::set<cadapt*>::iterator
-			it = adstack.begin(); it != adstack.end(); ++it)
+	for (std::map<unsigned int, adstack>::iterator
+			it = adstacks.begin(); it != adstacks.end(); ++it)
 	{
+		adstack& stack = it->second;
+
 		for (std::map<uint32_t, cofport*>::iterator
 				jt = dpath->ports.begin(); jt != dpath->ports.end(); ++jt)
 		{
-			(*it)->handle_port_status(OFPPR_DELETE, jt->second);
+			stack.tail->ctl_handle_port_status(this, OFPPR_DELETE, jt->second);
 		}
 	}
 
@@ -121,6 +168,9 @@ ctlbase::handle_dpath_close(
 }
 
 
+/*
+ * STATS-reply
+ */
 void
 ctlbase::handle_stats_reply(
 		cofdpath *sw,
@@ -130,6 +180,9 @@ ctlbase::handle_stats_reply(
 }
 
 
+/*
+ * ERROR
+ */
 void
 ctlbase::handle_error(
 		cofdpath *sw,
@@ -139,107 +192,9 @@ ctlbase::handle_error(
 }
 
 
-
-void
-ctlbase::flowspace_open(
-		cadapt *adapt,
-		cofmatch& match) throw (eCtlBaseNotConnected)
-{
-	if (0 == dpath)
-	{
-		throw eCtlBaseNotConnected();
-	}
-
-	try {
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::flowspace_open() rcvd cofmatch [1] from adapter: %s:\n%s",
-				dpname.c_str(), adapt->c_str(), match.c_str());
-
-
-		dpath->fsptable.insert_fsp_entry(adapt, match, false /*non-strict*/);
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::flowspace_open() rcvd cofmatch [2] from adapter: %s:\n%s",
-				dpname.c_str(), adapt->c_str(), match.c_str());
-
-		dpath->fsp_open(match);
-
-	} catch (eOFbaseNotAttached& e) {
-
-	} catch (eFspEntryOverlap& e) {
-
-	}
-}
-
-
-void
-ctlbase::flowspace_close(
-		cadapt *adapt,
-		cofmatch& match)
-{
-	try {
-
-		dpath->fsptable.delete_fsp_entry(adapt, match, false /*non-strict*/);
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::down_fsp_close() rcvd cofmatch from adapter: %s:\n%s",
-				dpname.c_str(), adapt->c_str(), match.c_str());
-
-		dpath->fsp_close(match);
-
-	} catch (eOFbaseNotAttached& e) {
-
-	} catch (eFspEntryNotFound& e) {
-
-	}
-}
-
-
-
-void
-ctlbase::adapter_open(
-		cadapt* adapt)
-{
-	adstack.insert(adapt);
-}
-
-
-
-void
-ctlbase::adapter_close(
-		cadapt* adapt)
-{
-	adstack.erase(adapt);
-}
-
-
-
-uint32_t
-ctlbase::get_free_portno()
-throw (eAdaptNotFound)
-{
-	uint32_t portno = 1;
-	while (n_ports.find(portno) != n_ports.end())
-	{
-		portno++;
-		if (portno == std::numeric_limits<uint32_t>::max())
-		{
-			throw eAdaptNotFound();
-		}
-	}
-	return portno;
-}
-
-
-
-
-
-
-
 /*
  * PACKET-IN
- */
-
-
-
-/*
+ *
  * received by layer (n-1) datapath, sending to adapters for doing the adaptation
  */
 void
@@ -263,12 +218,21 @@ ctlbase::handle_packet_in(
 	}
 
 	try {
+		// extract the payload as a new data packet
+		cpacket n_pack(
+					pack->get_data(),
+					pack->get_datalen(),
+					pack->match.get_in_port(), true /* = do classify */);
+
+
+		// find all adapters whose flowspace registrations match the packet
 		std::set<cfspentry*> fsp_list =
 				sw->fsptable.find_matching_entries(
 						pack->match.get_in_port(),
 						be16toh(pack->ofh_packet_in->total_len),
 						(uint8_t*)pack->get_data(), pack->get_datalen());
 
+		// more than one subscription matches? should not happen here => error
 		if (fsp_list.size() > 1)
 		{
 			throw eCtlBaseInval();
@@ -282,19 +246,20 @@ ctlbase::handle_packet_in(
 			throw eInternalError();
 		}
 
-#if 1
-		cpacket tmppack(
-					pack->get_data(),
-					pack->get_datalen(),
-					pack->match.get_in_port(), false /* = do not classify */);
 
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
 				"flowspace subscription for packet found, data: %s\nctlmod: %s",
-				dpname.c_str(), tmppack.c_str(), adapt->c_str());
-#endif
+				dpname.c_str(), n_pack.c_str(), adapt->c_str());
 
-		adapt->handle_packet_in(pack);
 
+		adapt->ctl_handle_packet_in(
+				this,
+				be32toh(pack->ofh_packet_in->buffer_id),
+				be16toh(pack->ofh_packet_in->total_len),
+				pack->ofh_packet_in->table_id,
+				pack->ofh_packet_in->reason,
+				pack->match,
+				n_pack);
 
 
 	} catch (eFspNoMatch& e) {
@@ -307,69 +272,34 @@ ctlbase::handle_packet_in(
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
 				"no flowspace subscription for packet found, data: %s",
 				dpname.c_str(), tmppack.c_str());
-		delete pack;
 
 	} catch (eCtlBaseInval& e) {
+
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
 				"too many subscriptions found for packet, unspecified behaviour, pack: %s",
 				dpname.c_str(), pack->c_str());
-		delete pack;
 
 	} catch (eInternalError& e) {
+
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
 				"internal error, found fspentry owner which is not of type cctlmod. WTF???, pack: %s",
 				dpname.c_str(), pack->c_str());
-		delete pack;
 
 	} catch (eFrameInvalidSyntax& e) {
+
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
 				"frame with invalid syntax received, dropping. pack: %s",
 				dpname.c_str(), pack->c_str());
-		delete pack;
 
 	} catch (eOFpacketNoData& e) {
+
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
 				"PACKET-IN without attached payload, dropping. pack: %s",
 				dpname.c_str(), pack->c_str());
-				delete pack;
 	}
+
+	delete pack;
 }
-
-
-/*
- * received from adapter, sending to derived transport controller
- */
-void
-ctlbase::send_packet_in(
-		cadapt *adapt,
-		uint32_t buffer_id,
-		uint16_t total_len,
-		uint8_t table_id,
-		uint8_t reason,
-		cofmatch& match,
-		cpacket& pack)
-{
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_in() "
-			"match: %s\npack:%s", dpname.c_str(), match.c_str(), pack.c_str());
-
-	handle_packet_in(
-			adapt,
-			buffer_id,
-			total_len,
-			table_id,
-			reason,
-			match,
-			pack); // let derived transport controller handle incoming packet
-}
-
-
-
-
-
-
-
-
-
 
 
 
@@ -399,27 +329,74 @@ ctlbase::handle_port_status(
 	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() "
 			"%s", dpname.c_str(), port->c_str());
 
-	for (std::set<cadapt*>::iterator
-			it = adstack.begin(); it != adstack.end(); ++it)
+	for (std::map<unsigned int, adstack>::iterator
+			it = adstacks.begin(); it != adstacks.end(); ++it)
 	{
-		(*it)->handle_port_status(
-						pack->ofh_port_status->reason,
-						port);
+		adstack& stack = it->second;
+
+		stack.tail->ctl_handle_port_status(
+				this,
+				pack->ofh_port_status->reason,
+				port);
 	}
 
 	delete pack;
 }
 
 
-/*
- * received from adapter, sending to derived transport controller
+
+
+
+
+
+
+
+/**********************************************************
+ *
+ * cadapt_ctl
+ *
  */
-void
-ctlbase::send_port_status(
-				cadapt *adapt,
-				uint8_t reason,
-				cofport *ofport)
+
+
+
+uint32_t
+ctlbase::ctl_get_free_portno(
+		cadapt_dpt *dpt)
+			throw (eAdaptNotFound)
 {
+	uint32_t portno = 1;
+	while (n_ports.find(portno) != n_ports.end())
+	{
+		portno++;
+		if (portno == std::numeric_limits<uint32_t>::max())
+		{
+			throw eAdaptNotFound();
+		}
+	}
+	return portno;
+}
+
+
+void
+ctlbase::ctl_handle_error(
+		cadapt_dpt *dpt,
+		uint16_t type,
+		uint16_t code,
+		uint8_t *data,
+		size_t datalen)
+{
+	// TODO: inform derived transport controller class
+}
+
+
+void
+ctlbase::ctl_handle_port_status(
+		cadapt_dpt *dpt,
+		uint8_t reason,
+		cofport *ofport)
+{
+	cadapt* adapt = dynamic_cast<cadapt*>( dpt );
+
 	if ((0 == adapt) || (0 == ofport))
 	{
 		return;
@@ -476,144 +453,58 @@ ctlbase::send_port_status(
 
 
 
-
-
-
-
-
-
-
-
-/*
- * PACKET-OUT
- */
-
-
-/*
- * received from derived transport controller
- * replacing cfwdelem's version of send_packet_out_message()
- */
 void
-ctlbase::send_packet_out_message(
+ctlbase::ctl_handle_packet_in(
+		cadapt_dpt *dpt,
 		uint32_t buffer_id,
-		uint32_t in_port,
-		cofaclist const& aclist,
-		cpacket *pack) throw (eCtlBaseInval)
+		uint16_t total_len,
+		uint8_t table_id,
+		uint8_t reason,
+		cofmatch& match,
+		cpacket& pack)
 {
-	if (0 == dpath)
+	cadapt* adapt = dynamic_cast<cadapt*>( dpt );
+
+	if (0 == adapt)
 	{
 		return;
 	}
 
-	/*
-	 * iterate over all actions in aclist and call adapt methods
-	 */
-	cofaclist actions; // list of adapted actions
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_in() "
+			"match: %s\npack:%s", dpname.c_str(), match.c_str(), pack.c_str());
 
-	cofaclist accopy(aclist);
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
-			"\nactions [original] => %s", dpname.c_str(), accopy.c_str());
-
-	for (cofaclist::const_iterator
-			it = aclist.begin(); it != aclist.end(); ++it)
-	{
-		cofaction action(*it);
-
-		switch (action.get_type()) {
-		case OFPAT_OUTPUT:
-			{
-				uint32_t out_port = be32toh(action.oac_output->port);
-
-				if (n_ports.find(out_port) == n_ports.end())
-				{
-					throw eCtlBaseInval(); // outgoing port is invalid
-				}
-
-				cofaclist add_this = n_ports[out_port]->filter_action(out_port, action);
-
-				// copy all adapted actions to the actions list
-				for (cofaclist::const_iterator
-						it = add_this.begin(); it != add_this.end(); ++it)
-				{
-					actions.next() = (*it);
-				}
-
-				WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
-						"\nactions [add_this] => %s", dpname.c_str(), add_this.c_str());
-
-
-
-				if (0 != pack)
-				{
-					n_ports[out_port]->filter_packet(out_port, pack);
-				}
-
-				/*
-				 * TROET! fundamental problem arises here!
-				 * if we have multiple ActionOutput definitions in a PACKET-OUT,
-				 * adjusting the packet cannot work, think of two ActionOutputs
-				 * bound to pppoe => this cannot work!
-				 */
-
-				/*
-				 * suppress PACKET-OUT messages with multiple ActionOutputs???
-				 */
-
-
-			}
-			break;
-		default:
-			{
-				actions.next() = action; // push other actions directly on the list of adapted actions
-			}
-			break;
-		}
-	}
-
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
-			"\nactions [adapted] => %s", dpname.c_str(), actions.c_str());
-
-	if (0 != pack)
-	{
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
-				"\npack [adapted] => %s", dpname.c_str(), pack->c_str());
-	}
-
-
-	if (0 == pack)
-	{
-		cfwdelem::send_packet_out_message(
-							dpath,
-							buffer_id,
-							in_port,
-							actions);
-	}
-	else
-	{
-		cmemory mem(pack->length());
-
-		pack->pack(mem.somem(), mem.memlen());
-
-		cfwdelem::send_packet_out_message(
-							dpath,
-							buffer_id,
-							in_port,
-							actions,
-							mem.somem(), mem.memlen());
-	}
+	handle_packet_in(
+			adapt,
+			buffer_id,
+			total_len,
+			table_id,
+			reason,
+			match,
+			pack); // let derived transport controller handle incoming packet
 }
 
 
+
+
+
+
+/**********************************************************
+ *
+ * cadapt_dpt
+ *
+ */
+
+
 /*
- * received from adapter
+ * cadapt_dpt
  */
 void
-ctlbase::send_packet_out(
-				cadapt *adapt,
-				uint32_t buffer_id,
-				uint32_t in_port,
-				cofaclist& actions,
-				cpacket& pack)
+ctlbase::dpt_handle_packet_out(
+		cadapt_ctl *ctl,
+		uint32_t buffer_id,
+		uint32_t in_port,
+		cofaclist& actions,
+		cpacket& pack)
 {
 	if (0 == dpath)
 	{
@@ -622,7 +513,7 @@ ctlbase::send_packet_out(
 
 	cmemory mem(pack.length());
 
-	pack.pack(mem.somem(), mem.memlen());
+	pack.pack(mem.somem(), mem.memlen()); // TODO: can we get rid of this additional copying ... ?
 
 	cfwdelem::send_packet_out_message(
 						dpath,
@@ -633,11 +524,169 @@ ctlbase::send_packet_out(
 }
 
 
+/*
+ * cadapt_dpt
+ */
+void
+ctlbase::dpt_handle_flow_mod(
+		cadapt_ctl *ctl,
+		cflowentry& fe)
+{
+	if (0 == dpath)
+	{
+		return;
+	}
+
+	cfwdelem::send_flow_mod_message(dpath, fe);
+}
+
+
+
+/*
+ * cadapt_dpt
+ */
+void
+ctlbase::dpt_handle_port_mod(
+		cadapt_ctl *ctl,
+		uint32_t port_no,
+		uint32_t config,
+		uint32_t mask,
+		uint32_t advertise)
+{
+	// ignore this command
+}
+
+
+
+/*
+ * cadapt_dpt
+ */
+void
+ctlbase::dpt_flowspace_open(
+		cadapt_ctl* ctl,
+		cofmatch& match) throw (eAdaptNotConnected)
+{
+	if (0 == dpath)
+	{
+		throw eAdaptNotConnected();
+	}
+
+	try {
+		cadapt *adapt = dynamic_cast<cadapt*>( ctl );
+
+		if (0 == adapt)
+		{
+			return;
+		}
+
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::flowspace_open() rcvd cofmatch [1] from adapter: %s:\n%s",
+				dpname.c_str(), adapt->c_str(), match.c_str());
+
+		dpath->fsptable.insert_fsp_entry(adapt, match, false /*non-strict*/);
+
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::flowspace_open() rcvd cofmatch [2] from adapter: %s:\n%s",
+				dpname.c_str(), adapt->c_str(), match.c_str());
+
+		dpath->fsp_open(match);
+
+	} catch (eOFbaseNotAttached& e) {
+
+	} catch (eFspEntryOverlap& e) {
+
+	}
+}
+
+
+
+
+/*
+ * cadapt_dpt
+ */
+void
+ctlbase::dpt_flowspace_close(
+		cadapt_ctl* ctl,
+		cofmatch& match) throw (eAdaptNotConnected)
+{
+	try {
+		cadapt *adapt = dynamic_cast<cadapt*>( ctl );
+
+		if (0 == adapt)
+		{
+			return;
+		}
+
+		dpath->fsptable.delete_fsp_entry(adapt, match, false /*non-strict*/);
+
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::down_fsp_close() rcvd cofmatch from adapter: %s:\n%s",
+				dpname.c_str(), adapt->c_str(), match.c_str());
+
+		dpath->fsp_close(match);
+
+	} catch (eOFbaseNotAttached& e) {
+
+	} catch (eFspEntryNotFound& e) {
+
+	}
+}
+
+
+cofaclist
+ctlbase::dpt_filter_match(
+		cadapt_ctl* ctl,
+		uint32_t port_no,
+		cofmatch& match) throw (eAdaptNotFound)
+{
+	cofaclist actions;
+	return actions;
+}
+
+
+cofaclist
+ctlbase::dpt_filter_action(
+		cadapt_ctl* ctl,
+		uint32_t port_no,
+		cofaction& action) throw (eAdaptNotFound)
+{
+	cofaclist actions;
+	return actions;
+}
+
+
+void
+ctlbase::dpt_filter_packet(
+		cadapt_ctl* ctl,
+		uint32_t port_no,
+		cpacket *pack) throw (eAdaptNotFound)
+{
+	// do nothing
+}
+
+
+cofport*
+ctlbase::dpt_find_port(
+		cadapt_ctl* ctl,
+		uint32_t port_no)
+						throw (eAdaptNotFound)
+{
+	return (cofport*)0;
+}
 
 
 
 
 
+
+
+
+
+
+
+
+/***************************************************************
+ *
+ * methods overloaded from cfwdelem for use by derived transport controller
+ *
+ */
 
 
 /*
@@ -711,7 +760,7 @@ ctlbase::send_flow_mod_message(
 				dpname.c_str(), match.c_str());
 
 
-		cofaclist match_add_this = n_ports[in_port]->filter_match(in_port, match);
+		cofaclist match_add_this = n_ports[in_port]->dpt_filter_match(this, in_port, match);
 
 
 		cofinlist instructions(inlist);
@@ -758,7 +807,7 @@ ctlbase::send_flow_mod_message(
 									throw eCtlBaseInval(); // outgoing port is invalid
 								}
 
-								cofaclist add_this = n_ports[out_port]->filter_action(out_port, action);
+								cofaclist add_this = n_ports[out_port]->dpt_filter_action(this, out_port, action);
 
 								// copy all adapted actions to the actions list
 								for (cofaclist::const_iterator
@@ -819,6 +868,129 @@ ctlbase::send_flow_mod_message(
 	}
 }
 
+
+
+
+
+
+/*
+ * PACKET-OUT
+ */
+
+
+/*
+ * received from derived transport controller
+ * replacing cfwdelem's version of send_packet_out_message()
+ */
+void
+ctlbase::send_packet_out_message(
+		uint32_t buffer_id,
+		uint32_t in_port,
+		cofaclist const& aclist,
+		cpacket *pack) throw (eCtlBaseInval)
+{
+	if (0 == dpath)
+	{
+		return;
+	}
+
+	/*
+	 * iterate over all actions in aclist and call adapt methods
+	 */
+	cofaclist actions; // list of adapted actions
+
+	cofaclist accopy(aclist);
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
+			"\nactions [original] => %s", dpname.c_str(), accopy.c_str());
+
+	for (cofaclist::const_iterator
+			it = aclist.begin(); it != aclist.end(); ++it)
+	{
+		cofaction action(*it);
+
+		switch (action.get_type()) {
+		case OFPAT_OUTPUT:
+			{
+				uint32_t out_port = be32toh(action.oac_output->port);
+
+				if (n_ports.find(out_port) == n_ports.end())
+				{
+					throw eCtlBaseInval(); // outgoing port is invalid
+				}
+
+				cofaclist add_this = n_ports[out_port]->dpt_filter_action(this, out_port, action);
+
+				// copy all adapted actions to the actions list
+				for (cofaclist::const_iterator
+						it = add_this.begin(); it != add_this.end(); ++it)
+				{
+					actions.next() = (*it);
+				}
+
+				WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
+						"\nactions [add_this] => %s", dpname.c_str(), add_this.c_str());
+
+
+
+				if (0 != pack)
+				{
+					n_ports[out_port]->dpt_filter_packet(this, out_port, pack);
+				}
+
+				/*
+				 * TROET! fundamental problem arises here!
+				 * if we have multiple ActionOutput definitions in a PACKET-OUT,
+				 * adjusting the packet cannot work, think of two ActionOutputs
+				 * bound to pppoe => this cannot work!
+				 */
+
+				/*
+				 * suppress PACKET-OUT messages with multiple ActionOutputs???
+				 */
+
+
+			}
+			break;
+		default:
+			{
+				actions.next() = action; // push other actions directly on the list of adapted actions
+			}
+			break;
+		}
+	}
+
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
+			"\nactions [adapted] => %s", dpname.c_str(), actions.c_str());
+
+	if (0 != pack)
+	{
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
+				"\npack [adapted] => %s", dpname.c_str(), pack->c_str());
+	}
+
+
+	if (0 == pack)
+	{
+		cfwdelem::send_packet_out_message(
+							dpath,
+							buffer_id,
+							in_port,
+							actions);
+	}
+	else
+	{
+		cmemory mem(pack->length());
+
+		pack->pack(mem.somem(), mem.memlen());
+
+		cfwdelem::send_packet_out_message(
+							dpath,
+							buffer_id,
+							in_port,
+							actions,
+							mem.somem(), mem.memlen());
+	}
+}
 
 
 
@@ -916,7 +1088,7 @@ ctlbase::send_group_mod_message(
 						throw eCtlBaseInval(); // outgoing port is invalid
 					}
 
-					cofaclist add_this = n_ports[out_port]->filter_action(out_port, action);
+					cofaclist add_this = n_ports[out_port]->dpt_filter_action(this, out_port, action);
 
 					// copy all adapted actions to the actions list
 					for (cofaclist::const_iterator
@@ -985,11 +1157,12 @@ ctlbase::send_port_mod_message(
 		throw eCtlBaseNotFound();
 	}
 
-	n_ports[port_no]->handle_port_mod(
-							port_no,
-							config,
-							mask,
-							advertise);
+	n_ports[port_no]->dpt_handle_port_mod(
+			this,
+			port_no,
+			config,
+			mask,
+			advertise);
 
 	/*
 	 * TODO: thinking :) =>
