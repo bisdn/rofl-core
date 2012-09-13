@@ -34,7 +34,7 @@ extern "C" {
 #define REQUIRED_ARGUMENT required_argument
 #define OPTIONAL_ARGUMENT optional_argument
 
-class carg
+class coption
 {
 
 public:
@@ -51,9 +51,9 @@ public:
 
 
 	/* Constructor */
-	carg(void){};
+	coption(void){};
 
-	carg(bool optional, 
+	coption(bool optional, 
 		int value_type, 
 		char shortcut, 
 		std::string full_name, 
@@ -87,7 +87,7 @@ private:
 	 std::string hw_driver;		//HAL driver 
 */
 	bool parsed;
-	std::vector<carg> arguments;
+	std::vector<coption> arguments;
 
 	/**
 	 * Usage method
@@ -105,12 +105,12 @@ public:
 	/*
 	* Constructor 
 	*/
-	cunixenv(std::vector<carg>* args=NULL);
+	cunixenv(std::vector<coption>* args=NULL);
 
 	/*
 	* Add argument to current list of arguments to parse 
 	*/
-	void add_argument(carg arg);
+	void add_option(coption arg);
 	
 	/**
 	 * Parse arguments using getopt
