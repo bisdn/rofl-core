@@ -64,6 +64,11 @@ public:
 		WRITELOG(CLI, ROFL_DBG, "ccli(%p)::handle_read()", this);
 	}
 
+	struct cli_def *
+	get_cli() {
+		return this->cli;
+	}
+
 private:
 
 	static void *
