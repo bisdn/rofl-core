@@ -6,6 +6,7 @@
 #define CTLBASE_H 1
 
 #include <string>
+#include <list>
 
 #include <rofl/common/cfwdelem.h>
 #include <rofl/common/openflow/cflowentry.h>
@@ -104,20 +105,28 @@ public: // bind a stack of adapters
 
 
 	/**
-	 *
+	 * load a single adapter as stack
 	 */
 	void
-	stack_open(
+	stack_load(
 			unsigned int stack_index,
-			cadapt_ctl *ctl,
-			cadapt_dpt *dpt) throw (eCtlBaseInval);
+			cadapt *adapt) throw (eCtlBaseInval);
+
+
+	/**
+	 * stack.front() contains head, stack.back() contains tail
+	 */
+	void
+	stack_load(
+			unsigned int stack_index,
+			std::list<cadapt*>& stack) throw (eCtlBaseInval);
 
 
 	/**
 	 *
 	 */
 	void
-	stack_close(
+	stack_unload(
 			unsigned int stack_index) throw (eCtlBaseInval);
 
 
@@ -508,7 +517,27 @@ public:
 				uint8_t table_id,
 				uint8_t reason,
 				cofmatch& match,
-				cpacket& pack) = 0;
+				cpacket& pack);
+
+
+protected:
+
+
+		/**
+		 * called once a dpt has bound to this ctl
+		 */
+		virtual void
+		bound(
+				cadapt_dpt *dpt);
+
+
+		/**
+		 * called once a dpt has unbound from this ctl
+		 */
+		virtual void
+		unbound(
+				cadapt_dpt *dpt);
+
 
 
 
@@ -613,9 +642,26 @@ public:
 				uint32_t port_no)
 						throw (eAdaptNotFound);
 
+protected:
+
+
+		/**
+		 * called once a ctl has bound to this dpt
+		 */
+		virtual void
+		bound(
+				cadapt_ctl *ctl);
+
+
+
+		/**
+		 * called once a ctl has unbound from this dpt
+		 */
+		virtual void
+		unbound(
+				cadapt_ctl *ctl);
+
 };
-
-
 
 
 #endif

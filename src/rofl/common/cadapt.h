@@ -144,6 +144,26 @@ public: // methods offered to cadapt instances by cadapt_owner
 				uint8_t reason,
 				cofmatch& match,
 				cpacket& pack) = 0;
+
+
+protected:
+
+
+		/**
+		 * called once a dpt has bound to this ctl
+		 */
+		virtual void
+		bound(
+				cadapt_dpt *dpt) = 0;
+
+
+		/**
+		 * called once a dpt has unbound from this ctl
+		 */
+		virtual void
+		unbound(
+				cadapt_dpt *dpt) = 0;
+
 };
 
 
@@ -297,6 +317,25 @@ public:
 				uint32_t port_no)
 						throw (eAdaptNotFound) = 0;
 
+
+protected:
+
+
+		/**
+		 * called once a ctl has bound to this dpt
+		 */
+		virtual void
+		bound(
+				cadapt_ctl *ctl) = 0;
+
+
+
+		/**
+		 * called once a ctl has unbound from this dpt
+		 */
+		virtual void
+		unbound(
+				cadapt_ctl *ctl) = 0;
 };
 
 

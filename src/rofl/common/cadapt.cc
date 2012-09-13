@@ -19,6 +19,7 @@ cadapt_ctl::bind(
 
 	this->dpt = dpt;
 	dpt->bind(this);
+	bound(dpt);
 };
 
 
@@ -30,6 +31,7 @@ cadapt_ctl::unbind(
 	{
 		return;
 	}
+	unbound(dpt);
 	dpt->unbind(this);
 	this->dpt = 0;
 }
@@ -46,6 +48,7 @@ cadapt_dpt::bind(
 
 	this->ctl = ctl;
 	ctl->bind(this);
+	bound(ctl);
 }
 
 
@@ -57,6 +60,7 @@ cadapt_dpt::unbind(
 	{
 		return;
 	}
+	unbound(ctl);
 	ctl->unbind(this);
 	this->ctl = 0;
 }

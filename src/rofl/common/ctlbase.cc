@@ -55,32 +55,89 @@ ctlbase::c_str()
 }
 
 
+
 void
-ctlbase::stack_open(
+ctlbase::stack_load(
 		unsigned int stack_index,
-		cadapt_ctl *ctl,
-		cadapt_dpt *dpt) throw (eCtlBaseInval)
+		cadapt *adapt) throw (eCtlBaseInval)
 {
-	if ((0 == ctl) || (0 == dpt))
+	if (0 == adapt)
 	{
 		throw eCtlBaseInval();
 	}
+
+	std::list<cadapt*> stack;
+
+	stack.push_back(adapt);
+
+	stack_load(stack_index, stack);
+}
+
+
+
+void
+ctlbase::stack_load(
+		unsigned int stack_index,
+		std::list<cadapt*>& stack) throw (eCtlBaseInval)
+{
+	if (stack.empty())
+	{
+		throw eCtlBaseInval();
+	}
+
 	if (adstacks.find(stack_index) != adstacks.end())
 	{
 		throw eCtlBaseInval();
 	}
-	adstacks[stack_index] = adstack(dpt, ctl);
+
+	adstacks[stack_index] = adstack(stack.front() /*head*/, stack.back() /*tail*/);
+
+	dynamic_cast<cadapt_dpt*>(stack.front())->bind(this);
+	dynamic_cast<cadapt_ctl*>(stack.back ())->bind(this);
+
+	// make sure, that all adapters are linked to each other within stack
+	for (std::list<cadapt*>::iterator
+			it = stack.begin(); it != stack.end(); ++it)
+	{
+		cadapt_ctl* ctl = dynamic_cast<cadapt_ctl*>( *it );
+
+		if (0 == ctl)
+		{
+			continue;
+		}
+
+		std::list<cadapt*>::iterator next = it;
+		std::advance(next, 1);
+
+		if (next == stack.end())
+		{
+			break;
+		}
+
+		cadapt_dpt* dpt = dynamic_cast<cadapt_dpt*>( *next );
+
+		if (0 == dpt)
+		{
+			continue;
+		}
+
+		ctl->bind(dpt);
+	}
 }
 
 
 void
-ctlbase::stack_close(
+ctlbase::stack_unload(
 		unsigned int stack_index) throw (eCtlBaseInval)
 {
 	if (adstacks.find(stack_index) == adstacks.end())
 	{
 		return;
 	}
+
+	adstacks[stack_index].head->unbind(this);
+	adstacks[stack_index].tail->unbind(this);
+
 	adstacks.erase(stack_index);
 }
 
@@ -484,6 +541,26 @@ ctlbase::ctl_handle_packet_in(
 }
 
 
+void
+ctlbase::bound(
+		cadapt_dpt *dpt)
+{
+
+}
+
+
+
+void
+ctlbase::unbound(
+		cadapt_dpt *dpt)
+{
+
+}
+
+
+
+
+
 
 
 
@@ -670,6 +747,24 @@ ctlbase::dpt_find_port(
 {
 	return (cofport*)0;
 }
+
+
+void
+ctlbase::bound(
+		cadapt_ctl *ctl)
+{
+
+}
+
+
+
+void
+ctlbase::unbound(
+		cadapt_ctl *ctl)
+{
+
+}
+
 
 
 
