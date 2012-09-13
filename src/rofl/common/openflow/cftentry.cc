@@ -10,6 +10,7 @@ cftentry::cftentry(
 		cofctrl *ofctrl) :
 	fwdelem(fwdelem),
 	ofctrl(ofctrl),
+	uid(0),
 	flags(0),
 	removal_reason(OFPRR_DELETE),
 	rx_packets(0),
@@ -35,6 +36,7 @@ cftentry::cftentry(
 		cofctrl *ofctrl) :
 	fwdelem(fwdelem),
 	ofctrl(ofctrl),
+	uid(0),
 	flags(0),
 	instructions(pack->instructions),
 	removal_reason(OFPRR_DELETE),

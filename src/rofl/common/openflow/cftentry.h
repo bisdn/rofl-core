@@ -240,6 +240,11 @@ public: // overloaded from hw_fte_cb
 
 	// cofctrl that generated this instance
 	cofctrl *ofctrl;
+	
+	//Unique id of the flowspace (usually used for transactions)
+	uint64_t uid;
+
+
 
 	// flags for this cpkbuff instance
 	std::bitset<32> flags;
