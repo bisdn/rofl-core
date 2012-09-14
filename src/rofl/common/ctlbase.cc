@@ -90,10 +90,10 @@ ctlbase::stack_load(
 		throw eCtlBaseInval();
 	}
 
-	adstacks[stack_index] = adstack(stack.front() /*head*/, stack.back() /*tail*/);
+	adstacks[stack_index] = stack;
 
-	dynamic_cast<cadapt_dpt*>(stack.front())->bind(this);
-	dynamic_cast<cadapt_ctl*>(stack.back ())->bind(this);
+	dynamic_cast<cadapt_dpt*>(adstacks[stack_index].front())->bind(this);
+	dynamic_cast<cadapt_ctl*>(adstacks[stack_index].back ())->bind(this);
 
 	// make sure, that all adapters are linked to each other within stack
 	for (std::list<cadapt*>::iterator
@@ -135,8 +135,8 @@ ctlbase::stack_unload(
 		return;
 	}
 
-	adstacks[stack_index].head->unbind(this);
-	adstacks[stack_index].tail->unbind(this);
+	dynamic_cast<cadapt_dpt*>(adstacks[stack_index].front())->unbind(this);
+	dynamic_cast<cadapt_ctl*>(adstacks[stack_index].back ())->unbind(this);
 
 	adstacks.erase(stack_index);
 }
@@ -180,15 +180,15 @@ ctlbase::handle_dpath_open(
 	/*
 	 * inform adapters about existence of our layer (n-1) datapath
 	 */
-	for (std::map<unsigned int, adstack>::iterator
+	for (std::map<unsigned int, std::list<cadapt*> >::iterator
 			it = adstacks.begin(); it != adstacks.end(); ++it)
 	{
-		adstack& stack = it->second;
+		std::list<cadapt*>& stack = it->second;
 
 		for (std::map<uint32_t, cofport*>::iterator
 				jt = dpath->ports.begin(); jt != dpath->ports.end(); ++jt)
 		{
-			stack.tail->ctl_handle_port_status(this, OFPPR_ADD, jt->second);
+			stack.back()->ctl_handle_port_status(this, OFPPR_ADD, jt->second);
 		}
 	}
 }
@@ -209,15 +209,15 @@ ctlbase::handle_dpath_close(
 	/*
 	 * inform adapters about detachment of our layer (n-1) datapath
 	 */
-	for (std::map<unsigned int, adstack>::iterator
+	for (std::map<unsigned int, std::list<cadapt*> >::iterator
 			it = adstacks.begin(); it != adstacks.end(); ++it)
 	{
-		adstack& stack = it->second;
+		std::list<cadapt*>& stack = it->second;
 
 		for (std::map<uint32_t, cofport*>::iterator
 				jt = dpath->ports.begin(); jt != dpath->ports.end(); ++jt)
 		{
-			stack.tail->ctl_handle_port_status(this, OFPPR_DELETE, jt->second);
+			stack.back()->ctl_handle_port_status(this, OFPPR_DELETE, jt->second);
 		}
 	}
 
@@ -386,12 +386,12 @@ ctlbase::handle_port_status(
 	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() "
 			"%s", dpname.c_str(), port->c_str());
 
-	for (std::map<unsigned int, adstack>::iterator
+	for (std::map<unsigned int, std::list<cadapt*> >::iterator
 			it = adstacks.begin(); it != adstacks.end(); ++it)
 	{
-		adstack& stack = it->second;
+		std::list<cadapt*>& stack = it->second;
 
-		stack.tail->ctl_handle_port_status(
+		stack.back()->ctl_handle_port_status(
 				this,
 				pack->ofh_port_status->reason,
 				port);
@@ -998,6 +998,11 @@ ctlbase::send_packet_out_message(
 	WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
 			"\nactions [original] => %s", dpname.c_str(), accopy.c_str());
 
+
+
+
+
+
 	for (cofaclist::const_iterator
 			it = aclist.begin(); it != aclist.end(); ++it)
 	{
@@ -1013,6 +1018,7 @@ ctlbase::send_packet_out_message(
 					throw eCtlBaseInval(); // outgoing port is invalid
 				}
 
+				// call the stack and filter all actions
 				cofaclist add_this = n_ports[out_port]->dpt_filter_action(this, out_port, action);
 
 				// copy all adapted actions to the actions list
@@ -1029,6 +1035,7 @@ ctlbase::send_packet_out_message(
 
 				if (0 != pack)
 				{
+					// call the stack and filter the cpacket
 					n_ports[out_port]->dpt_filter_packet(this, out_port, *pack);
 				}
 
@@ -1086,6 +1093,9 @@ ctlbase::send_packet_out_message(
 							mem.somem(), mem.memlen());
 	}
 }
+
+
+
 
 
 

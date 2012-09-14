@@ -98,6 +98,14 @@ public: // methods
 	int
 	actions_count_output();
 
+
+	/** returns a list of port_no values for each ActionOutput instances
+	 *
+	 */
+	std::list<uint32_t>
+	actions_output_ports();
+
+
 	/** dump info string
 	 */
 	const char*

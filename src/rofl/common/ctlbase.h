@@ -38,6 +38,7 @@ protected:
 		std::map<uint32_t, cadapt*> 		 n_ports; 		// map of portno's => cadapt mappings
 		std::map<uint32_t, cofport*>		 adports;		// adapted ports as registered by the cadapters
 
+#if 0
 		class adstack {
 		public:
 			cadapt_dpt						*head;
@@ -46,8 +47,9 @@ protected:
 			adstack(cadapt_dpt *dpt = 0, cadapt_ctl *ctl = 0) :
 				head(dpt), tail(ctl) {};
 		};
+#endif
 
-		std::map<unsigned int, adstack> 	 adstacks;		// map of all adapters registered with this ctlbase
+		std::map<unsigned int, std::list<cadapt*> > 	 adstacks;		// map of all adapters registered with this ctlbase
 
 
 private:
@@ -661,6 +663,41 @@ protected:
 		unbound(
 				cadapt_ctl *ctl);
 
+
+
+
+
+
+
+private:
+
+
+		/**
+		 *
+		 */
+		class adstack_find_by_head {
+			cadapt *head;
+		public:
+			adstack_find_by_head(cadapt* head) :
+				head(head) {};
+			bool operator() (std::list<cadapt*> const& stack) {
+				return (stack.front() == head);
+			};
+		};
+
+
+		/**
+		 *
+		 */
+		class adstack_find_by_tail {
+			cadapt *tail;
+		public:
+			adstack_find_by_tail(cadapt* tail) :
+				tail(tail) {};
+			bool operator() (std::list<cadapt*> const& stack) {
+				return (stack.back() == tail);
+			};
+		};
 };
 
 

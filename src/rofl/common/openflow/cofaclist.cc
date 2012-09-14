@@ -141,6 +141,24 @@ cofaclist::actions_count_output()
 }
 
 
+std::list<uint32_t>
+cofaclist::actions_output_ports()
+{
+	std::list<uint32_t> outports;
+
+	for (cofaclist::iterator
+			it = elems.begin(); it != elems.end(); ++it)
+	{
+		if ((*it).get_type() != OFPAT_OUTPUT)
+		{
+			continue;
+		}
+		outports.push_back(be32toh((*it).oac_output->port));
+	}
+	return outports;
+}
+
+
 const char*
 cofaclist::c_str()
 {
