@@ -430,6 +430,10 @@ ctlbase::ctl_get_free_portno(
 			throw eAdaptNotFound();
 		}
 	}
+
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_get_free_portno() "
+			"assigning port-no: %d", dpname.c_str(), portno);
+
 	return portno;
 }
 
@@ -459,7 +463,9 @@ ctlbase::ctl_handle_port_status(
 		return;
 	}
 
-	WRITELOG(CFWD, DBG, "ctlbase(%p)::send_port_status() %s", this, c_str());
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_port_status() "
+			"reason: %d port: %s\n"
+			"ctlbase: %s", dpname.c_str(), reason, ofport->c_str(), this->c_str());
 
 	switch (reason) {
 	case OFPPR_ADD:

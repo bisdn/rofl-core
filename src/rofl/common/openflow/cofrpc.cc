@@ -553,7 +553,9 @@ cofrpc::handle_read(int fd)
 
 	} catch (cerror &e) {
 
-		WRITELOG(COFRPC, ROFL_WARN, "cofprc(%p)::handle_read() generic error %s", this, pcppack->c_str());
+		WRITELOG(COFRPC, ROFL_WARN, "cofprc(%p)::handle_read() "
+				"errno: %d (%s) "
+				"generic error %s", this, errno, strerror(errno), pcppack->c_str());
 
 		if (pcppack)
 		{
