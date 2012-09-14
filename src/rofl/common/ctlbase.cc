@@ -733,7 +733,7 @@ void
 ctlbase::dpt_filter_packet(
 		cadapt_ctl* ctl,
 		uint32_t port_no,
-		cpacket *pack) throw (eAdaptNotFound)
+		cpacket& pack) throw (eAdaptNotFound)
 {
 	// do nothing
 }
@@ -1029,7 +1029,7 @@ ctlbase::send_packet_out_message(
 
 				if (0 != pack)
 				{
-					n_ports[out_port]->dpt_filter_packet(this, out_port, pack);
+					n_ports[out_port]->dpt_filter_packet(this, out_port, *pack);
 				}
 
 				/*

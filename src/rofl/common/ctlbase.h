@@ -630,7 +630,7 @@ public:
 		dpt_filter_packet(
 				cadapt_ctl *ctl,
 				uint32_t port_no,
-				cpacket *pack) throw (eAdaptNotFound);
+				cpacket& pack) throw (eAdaptNotFound);
 
 
 		/**
