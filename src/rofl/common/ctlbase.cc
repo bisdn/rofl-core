@@ -731,6 +731,18 @@ ctlbase::dpt_filter_action(
 		cofaction& action) throw (eAdaptNotFound)
 {
 	cofaclist actions;
+
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::dpt_filter_action() "
+			"action: %s", dpname.c_str(), action.c_str());
+
+	switch (action.get_type()) {
+	case OFPAT_OUTPUT:
+		{
+			actions.next() = cofaction_output(port_no);
+		}
+		break;
+	}
+
 	return actions;
 }
 
