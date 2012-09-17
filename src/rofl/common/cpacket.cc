@@ -1685,7 +1685,7 @@ cpacket::classify(uint32_t in_port /* host byte order */)
 
 		fpppoeframe *pppoe = new fpppoeframe(
 								p_ptr,
-								p_len, // end of parding: length is entire remaining packet (think of PPPoE tags!)
+								p_len, // end of parsing: length is entire remaining packet (think of PPPoE tags!)
 								total_len,
 								pred);
 
@@ -1754,14 +1754,15 @@ cpacket::classify(uint32_t in_port /* host byte order */)
 
 			WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() ppp:%s", this, ppp->c_str());
 
-			anchors[PPP_FRAME].push_back(ppp);
-			piovec.push_back(ppp);
 
 			oxmlist[OFPXMT_OFB_PPP_PROT] = coxmatch_ofb_ppp_prot(ppp->get_ppp_prot());
 
 			// IPv4 within PPP
 			if (ppp->get_ppp_prot() == fpppframe::PPP_PROT_IPV4)
 			{
+				anchors[PPP_FRAME].push_back(ppp);
+				piovec.push_back(ppp);
+
 				total_len -= sizeof(uint16_t); // PPP-PROT IPv4 is 2 bytes long
 
 				p_ptr +=  sizeof(uint16_t);
@@ -1792,6 +1793,17 @@ cpacket::classify(uint32_t in_port /* host byte order */)
 			}
 			else
 			{
+				delete ppp;
+
+				ppp = new fpppframe(
+										p_ptr,
+										p_len,
+										total_len,
+										pred);
+
+				anchors[PPP_FRAME].push_back(ppp);
+				piovec.push_back(ppp);
+
 				p_ptr +=  sizeof(uint16_t);
 				p_len -=  sizeof(uint16_t);
 
