@@ -317,6 +317,53 @@ cofmatch::set_eth_type(
 }
 
 
+
+uint16_t
+cofmatch::get_vlan_vid()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist[OFPXMT_OFB_VLAN_VID].uint16();
+}
+
+
+
+void
+cofmatch::set_vlan_vid(
+		uint16_t vid)
+{
+	oxmlist[OFPXMT_OFB_VLAN_VID] = coxmatch_ofb_vlan_vid(vid);
+}
+
+
+
+uint8_t
+cofmatch::get_vlan_pcp()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist[OFPXMT_OFB_VLAN_PCP].uint8();
+}
+
+
+
+void
+cofmatch::set_vlan_pcp(
+		uint8_t pcp)
+{
+	oxmlist[OFPXMT_OFB_VLAN_PCP] = coxmatch_ofb_vlan_pcp(pcp);
+}
+
+
+
 uint32_t
 cofmatch::get_mpls_label()
 	throw (eOFmatchNotFound)

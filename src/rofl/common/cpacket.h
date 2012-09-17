@@ -174,6 +174,7 @@ private: // static
 
 
 protected: // data structures
+public: // data structures
 
 
 	std::deque<cmemory*>				piobuf;		// packet fragments

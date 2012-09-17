@@ -264,6 +264,38 @@ public:
 	/**
 	 *
 	 */
+	uint16_t
+	get_vlan_vid()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_vlan_vid(
+			uint16_t vid);
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_vlan_pcp()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_vlan_pcp(
+			uint8_t pcp);
+
+
+	/**
+	 *
+	 */
 	uint32_t
 	get_mpls_label()
 		throw (eOFmatchNotFound);
