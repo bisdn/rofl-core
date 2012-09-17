@@ -1075,6 +1075,39 @@ public:
 		oxm_uint32t->dword = htobe32(spa);
 		oxm_uint32t->mask = htobe32(mask);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_arp_spa(
+			caddress const& spa) throw (eOxmInval) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint32_t))
+	{
+		if (spa.saddr->sa_family != AF_INET)
+		{
+			throw eOxmInval();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_ARP_SPA);
+		set_oxm_length(sizeof(uint32_t));
+		oxm_uint32t->dword = spa.s4addr->sin_addr.s_addr;
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_arp_spa(
+			caddress const& spa,
+			caddress const& mask) throw (eOxmInval) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint32_t))
+	{
+		if ((spa.saddr->sa_family != AF_INET) || (mask.saddr->sa_family != AF_INET))
+		{
+			throw eOxmInval();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_ARP_SPA);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * sizeof(uint32_t));
+		oxm_uint32t->dword = spa.s4addr->sin_addr.s_addr;
+		oxm_uint32t->mask  = mask.s4addr->sin_addr.s_addr;
+	};
 	/** destructor
 	 */
 	virtual
@@ -1114,6 +1147,39 @@ public:
 		set_oxm_length(2 * sizeof(uint32_t));
 		oxm_uint32t->dword = htobe32(tpa);
 		oxm_uint32t->mask = htobe32(mask);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_arp_tpa(
+			caddress const& tpa) throw (eOxmInval) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint32_t))
+	{
+		if (tpa.saddr->sa_family != AF_INET)
+		{
+			throw eOxmInval();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_ARP_TPA);
+		set_oxm_length(sizeof(uint32_t));
+		oxm_uint32t->dword = tpa.s4addr->sin_addr.s_addr;
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_arp_tpa(
+			caddress const& tpa,
+			caddress const& mask) throw (eOxmInval) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint32_t))
+	{
+		if ((tpa.saddr->sa_family != AF_INET) || (mask.saddr->sa_family != AF_INET))
+		{
+			throw eOxmInval();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_ARP_TPA);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * sizeof(uint32_t));
+		oxm_uint32t->dword = tpa.s4addr->sin_addr.s_addr;
+		oxm_uint32t->mask  = mask.s4addr->sin_addr.s_addr;
 	};
 	/** destructor
 	 */

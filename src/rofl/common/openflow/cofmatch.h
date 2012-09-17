@@ -294,12 +294,78 @@ public:
 
 
 
+	/**
+	 *
+	 */
+	caddress
+	get_ipv4_src()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ipv4_src(
+			caddress const& src);
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_ipv4_dst()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ipv4_dst(
+			caddress const& dst);
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_arpv4_spa()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_arpv4_spa(
+			caddress const& spa);
+
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_arpv4_tpa()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_arpv4_tpa(
+			caddress const& tpa);
+
+
 
 	/**
 	 *
 	 */
 	uint8_t
-	get_ip_proto();
+	get_ip_proto()
+		throw (eOFmatchNotFound);
 
 
 	/**
@@ -315,7 +381,7 @@ public:
 	 */
 	uint16_t
 	get_udp_src()
-			throw (eOFmatchNotFound);
+		throw (eOFmatchNotFound);
 
 
 
@@ -332,7 +398,7 @@ public:
 	 */
 	uint16_t
 	get_udp_dst()
-			throw (eOFmatchNotFound);
+		throw (eOFmatchNotFound);
 
 
 	/**
