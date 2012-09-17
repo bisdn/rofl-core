@@ -4,75 +4,75 @@
 
 #include "cpacket.h"
 
+
+
 cpacket::cpacket(
 			size_t size) :
-		packet_receive_time(time(NULL)),
-		out_port(0)
+			mem(size),
+			packet_receive_time(time(NULL)),
+			out_port(0)
 {
 	init();
-	piobuf.push_back(new cmemory(size));
-	classify(OFPP_CONTROLLER);
+	match.set_in_port(OFPP_CONTROLLER);
+	match.set_in_phy_port(OFPP_CONTROLLER);
 }
+
 
 
 cpacket::cpacket(
 		cmemory *mem,
 		uint32_t in_port,
 		bool do_classify) :
-		plength(0),
-		packet_receive_time(time(NULL)),
-		in_port(in_port),
-		out_port(0)
+			mem(*mem),
+			packet_receive_time(time(NULL)),
+			in_port(in_port),
+			out_port(0)
 {
 	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::cpacket()", this);
-	init();
-	if (0 != mem)
-	{
-		piobuf.push_back(mem);
-		plength += mem->memlen();
-	}
+
+	pthread_rwlock_init(&ac_rwlock, NULL);
+
 	if (do_classify)
 	{
 		classify(in_port);
 	}
-	else
-	{
-		piovec.push_back(new fframe(mem->somem(), mem->memlen()));
-	}
 }
+
+
 
 cpacket::cpacket(
 		uint8_t *buf,
 		size_t buflen,
 		uint32_t in_port,
 		bool do_classify) :
-		plength(buflen),
-		packet_receive_time(time(NULL)),
-		in_port(in_port),
-		out_port(0)
+			mem(buf, buflen),
+			plength(buflen),
+			packet_receive_time(time(NULL)),
+			in_port(in_port),
+			out_port(0)
 {
 	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::cpacket()", this);
-	init();
-	cmemory *mem = new cmemory(buf, buflen);
-	piobuf.push_back(mem);
+
+	pthread_rwlock_init(&ac_rwlock, NULL);
+
 	if (do_classify)
 	{
 		classify(in_port);
 	}
-	else
-	{
-		piovec.push_back(new fframe(mem->somem(), mem->memlen()));
-	}
 }
+
 
 
 cpacket::cpacket(const cpacket& pack)
 {
 	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::cpacket()", this);
-	init();
+
+	pthread_rwlock_init(&ac_rwlock, NULL);
+
 	*this = pack;
 	classify(in_port);
 }
+
 
 
 cpacket::~cpacket()
@@ -84,31 +84,13 @@ cpacket::~cpacket()
 }
 
 
-void
-cpacket::init()
-{
-	pthread_rwlock_init(&ac_rwlock, NULL);
-
-	for (unsigned int i = 0; i < MAX_FRAME; i++)
-	{
-		anchors.push_back(std::deque<fframe*>());
-	}
-}
-
 
 void
 cpacket::clear()
 {
 	cleanup(); // clean up anchors and piovec
-
-	for (std::deque<cmemory*>::iterator
-				it = piobuf.begin(); it != piobuf.end(); ++it)
-	{
-		delete (*it);
-	}
-
-	plength = 0;
 }
+
 
 
 cpacket&
@@ -1494,10 +1476,10 @@ cpacket::set_ppp_prot(uint16_t prot)
 void
 cpacket::classify(uint32_t in_port /* host byte order */)
 {
-	uint8_t* p_ptr = (uint8_t*)0;
-	size_t p_len = 0;
-	fframe *pred = (fframe*)0;
-	uint16_t dl_type = 0;
+	uint8_t 	*p_ptr 		= (uint8_t*)mem.somem();
+	size_t 		 p_len 		= mem.memlen();
+	fframe 		*pred 		= (fframe*)0;
+	uint16_t 	 dl_type 	= 0;
 
 	/*
 	 * initial assumption: we have a single cmemory instance stored in piobuf
@@ -1507,6 +1489,404 @@ cpacket::classify(uint32_t in_port /* host byte order */)
 	 * buffer.
 	 * It must not be called later. Therefore, classify() is declared as private method.
 	 */
+
+}
+
+
+
+void
+cpacket::frame_append(
+		fframe *frame)
+{
+
+	if ((0 == head) && (0 == tail))
+	{
+		head = tail = frame;
+		frame->next = 0;
+		frame->prev = 0;
+	}
+	else if ((head != 0) && (tail != 0))
+	{
+		tail->next = frame;
+		frame->prev = tail;
+		tail = frame;
+	}
+	else
+	{
+		// internal list management invalid
+		throw eInternalError();
+	}
+
+}
+
+
+
+void
+cpacket::parse_ether(
+		uint8_t *data,
+		size_t datalen)
+{
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
+
+	if (p_len < sizeof(struct fetherframe::eth_hdr_t))
+	{
+		return;
+	}
+
+	fetherframe *ether = new fetherframe(p_ptr, sizeof(struct fetherframe::eth_hdr_t));
+
+	match.set_eth_dst(ether->get_dl_dst());
+	match.set_eth_src(ether->get_dl_src());
+	match.set_eth_type(ether->get_dl_type());
+
+	frame_append(ether);
+
+	p_ptr += sizeof(struct fetherframe::eth_hdr_t);
+	p_len -= sizeof(struct fetherframe::eth_hdr_t);
+
+
+	switch (ether->get_dl_type()) {
+	case fvlanframe::VLAN_ETHER:
+		{
+			parse_vlan(p_ptr, p_len);
+		}
+		break;
+	case fmplsframe::MPLS_ETHER:
+	case fmplsframe::MPLS_ETHER_UPSTREAM:
+		{
+			parse_mpls(p_ptr, p_len);
+		}
+		break;
+	case fpppoeframe::PPPOE_ETHER_DISCOVERY:
+	case fpppoeframe::PPPOE_ETHER_SESSION:
+		{
+			parse_pppoe(p_ptr, p_len);
+		}
+		break;
+	case farpv4frame::ARPV4_ETHER:
+		{
+			parse_arpv4(p_ptr, p_len);
+		}
+		break;
+	case fipv4frame::IPV4_ETHER:
+		{
+			parse_ipv4(p_ptr, p_len);
+		}
+		break;
+	default:
+		{
+			if (p_len > 0)
+			{
+				fframe *payload = new fframe(p_ptr, p_len);
+
+				frame_append(payload);
+			}
+		}
+		break;
+	}
+}
+
+
+
+void
+cpacket::parse_vlan(
+		uint8_t *data,
+		size_t datalen)
+{
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
+
+	if (p_len < sizeof(struct fvlanframe::vlan_hdr_t))
+	{
+		return;
+	}
+
+	fvlanframe *vlan = new fvlanframe(p_ptr, sizeof(struct fvlanframe::vlan_hdr_t));
+
+	if (not flags.test(FLAG_VLAN_PRESENT))
+	{
+		match.set_vlan_vid(vlan->get_dl_vlan_id());
+		match.set_vlan_pcp(vlan->get_dl_vlan_pcp());
+
+		flags.set(FLAG_VLAN_PRESENT);
+	}
+
+	// set ethernet type based on innermost vlan tag
+	match.set_eth_type(vlan->get_dl_type());
+
+	frame_append(vlan);
+
+	p_ptr += sizeof(struct fvlanframe::vlan_hdr_t);
+	p_len -= sizeof(struct fvlanframe::vlan_hdr_t);
+
+
+	switch (vlan->get_dl_type()) {
+	case fvlanframe::VLAN_ETHER:
+		{
+			parse_vlan(p_ptr, p_len);
+		}
+		break;
+	case fmplsframe::MPLS_ETHER:
+	case fmplsframe::MPLS_ETHER_UPSTREAM:
+		{
+			parse_mpls(p_ptr, p_len);
+		}
+		break;
+	case fpppoeframe::PPPOE_ETHER_DISCOVERY:
+	case fpppoeframe::PPPOE_ETHER_SESSION:
+		{
+			parse_pppoe(p_ptr, p_len);
+		}
+		break;
+	case farpv4frame::ARPV4_ETHER:
+		{
+			parse_arpv4(p_ptr, p_len);
+		}
+		break;
+	case fipv4frame::IPV4_ETHER:
+		{
+			parse_ipv4(p_ptr, p_len);
+		}
+		break;
+	default:
+		{
+			if (p_len > 0)
+			{
+				fframe *payload = new fframe(p_ptr, p_len);
+
+				frame_append(payload);
+			}
+		}
+		break;
+	}
+}
+
+
+
+
+void
+cpacket::parse_mpls(
+		uint8_t *data,
+		size_t datalen)
+{
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
+
+	if (p_len < sizeof(struct fmplsframe::mpls_hdr_t))
+	{
+		return;
+	}
+
+	fmplsframe *mpls = new fmplsframe(p_ptr, sizeof(struct fmplsframe::mpls_hdr_t));
+
+	if (not flags.test(FLAG_MPLS_PRESENT))
+	{
+		match.set_mpls_label(mpls->get_mpls_label());
+		match.set_mpls_tc(mpls->get_mpls_tc());
+
+		flags.set(FLAG_MPLS_PRESENT);
+	}
+
+	frame_append(mpls);
+
+	p_ptr += sizeof(struct fmplsframe::mpls_hdr_t);
+	p_len -= sizeof(struct fmplsframe::mpls_hdr_t);
+
+
+	if (not mpls->get_mpls_bos())
+	{
+		parse_mpls(p_ptr, p_len);
+	}
+	else
+	{
+		if (p_len > 0)
+		{
+			fframe *payload = new fframe(p_ptr, p_len);
+
+			frame_append(payload);
+		}
+	}
+}
+
+
+
+void
+cpacket::parse_pppoe(
+		uint8_t *data,
+		size_t datalen)
+{
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
+
+	if (p_len < sizeof(struct fpppoeframe::pppoe_hdr_t))
+	{
+		return;
+	}
+
+	fpppoeframe *pppoe = new fpppoeframe(p_ptr, sizeof(struct fpppoeframe::pppoe_hdr_t));
+
+	match.set_pppoe_code(pppoe->get_pppoe_code());
+	match.set_pppoe_sessid(pppoe->get_pppoe_sessid());
+
+	frame_append(pppoe);
+
+
+
+
+
+	switch (match.get_eth_type()) {
+	case fpppoeframe::PPPOE_ETHER_DISCOVERY:
+		{
+			p_len -= sizeof(struct fpppoeframe::pppoe_hdr_t);
+
+			uint16_t pppoe_len = pppoe->get_hdr_length() > p_len ? p_len : pppoe->get_hdr_length();
+
+			/*
+			 * parse any pppoe service tags
+			 */
+			pppoe->unpack(
+					p_ptr,
+					sizeof(struct fpppoeframe::pppoe_hdr_t) + pppoe_len);
+
+
+			/*
+			 * any remaining bytes after the pppoe tags => padding?
+			 */
+			if (p_len > pppoe->tags.length())
+			{
+				fframe *payload = new fframe(p_ptr, p_len - pppoe->tags.length());
+
+				frame_append(payload);
+			}
+		}
+		break;
+	case fpppoeframe::PPPOE_ETHER_SESSION:
+		{
+			p_ptr += sizeof(struct fpppoeframe::pppoe_hdr_t);
+			p_len -= sizeof(struct fpppoeframe::pppoe_hdr_t);
+
+			parse_ppp(p_ptr, p_len);
+		}
+		break;
+	default:
+		{
+			throw eInternalError();
+		}
+		break;
+	}
+
+
+}
+
+
+
+void
+cpacket::parse_ppp(
+		uint8_t *data,
+		size_t datalen)
+{
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
+
+	if (p_len < sizeof(struct fpppframe::ppp_hdr_t))
+	{
+		return;
+	}
+
+	fpppframe *ppp = new fpppframe(p_ptr, sizeof(struct fpppframe::ppp_hdr_t));
+
+	match.set_ppp_prot(ppp->get_ppp_prot());
+
+	frame_append(ppp);
+
+
+
+
+	switch (match.get_ppp_prot()) {
+	case fpppframe::PPP_PROT_IPV4:
+		{
+			p_ptr += sizeof(struct fpppframe::ppp_hdr_t);
+			p_len -= sizeof(struct fpppframe::ppp_hdr_t);
+
+			parse_ipv4(p_ptr, p_len);
+		}
+		break;
+	default:
+		{
+			ppp->unpack(p_ptr, p_len);
+		}
+		break;
+	}
+}
+
+
+
+void
+cpacket::parse_arpv4(
+		uint8_t *data,
+		size_t datalen)
+{
+
+
+}
+
+
+
+void
+cpacket::parse_ipv4(
+		uint8_t *data,
+		size_t datalen)
+{
+
+
+}
+
+
+
+void
+cpacket::parse_icmpv4(
+		uint8_t *data,
+		size_t datalen)
+{
+
+
+}
+
+
+
+void
+cpacket::parse_udp(
+		uint8_t *data,
+		size_t datalen)
+{
+
+
+}
+
+
+
+void
+cpacket::parse_tcp(
+		uint8_t *data,
+		size_t datalen)
+{
+
+
+}
+
+
+
+void
+cpacket::parse_sctp(
+		uint8_t *data,
+		size_t datalen)
+{
+
+
+}
+
+
 
 	WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() in_port:%d", this, in_port);
 

@@ -77,30 +77,14 @@ class fetherframe;
 
 
 
-class ePacket : public cerror {}; // base error class for cpacket
-class ePacketInval : public ePacket {}; // invalid
-class ePacketOutOfMem : public ePacket {}; // out of memory
-class ePacketNotFound : public ePacket {}; // value not found
-class ePacketOutOfRange : public ePacket {}; // index out of range for operator[]
-class ePacketTypeError : public ePacket {}; // specified frame type not found in packet
+class ePacket 				: public cerror {}; // base error class for cpacket
+class ePacketInval 			: public ePacket {}; // invalid
+class ePacketOutOfMem 		: public ePacket {}; // out of memory
+class ePacketNotFound 		: public ePacket {}; // value not found
+class ePacketOutOfRange 	: public ePacket {}; // index out of range for operator[]
+class ePacketTypeError 		: public ePacket {}; // specified frame type not found in packet
 
-#if 0
-class ciovec
-{
-public:
-	uint16_t 		type;
-	struct 	iovec 	iov;
-public:
-	ciovec(uint16_t type = 0,
-			uint8_t *iov_base = 0,
-			size_t iov_len = 0) :
-				type(type)
-	{
-		iov.iov_base 	= iov_base;
-		iov.iov_len 	= iov_len;
-	};
-};
-#endif
+
 
 
 /**
@@ -117,88 +101,29 @@ private: // static
 #define CPACKET_DEFAULT_SIZE 1526
 
 
-#if 0
-		/* OpenFlow's 1.1 pseudo header (network byte order) */
-		class cofpseudohdr
-		{
-		public:
-			uint32_t fields; // bit flags of header fields available in packet
-			uint32_t in_port;
-			cmacaddr dl_dst;
-			cmacaddr dl_src;
-			uint16_t dl_type;
-			uint16_t dl_vlan_id;
-			uint8_t  dl_vlan_pcp;
-			uint32_t mpls_label;
-			uint8_t  mpls_tc;
-			uint8_t  nw_tos;
-			uint16_t nw_proto;
-			uint32_t nw_src;
-			uint32_t nw_dst;
-			uint16_t tp_src;
-			uint16_t tp_dst;
-			uint64_t metadata;
-			uint8_t  pppoe_type;
-			uint8_t  pppoe_code;
-			uint16_t pppoe_sessid;
-			uint16_t ppp_prot;
-		private:
-			std::string info;
-		public:
-			/**
-			 */
-			cofpseudohdr();
-			/**
-			 */
-			void
-			reset();
-			/**
-			 */
-			const char*
-			c_str();
-		};
-
-		enum of_hdr_field_t {
-			_PCPFC_IN_PORT 		= (1 << 0),
-			_PCPFC_METADATA		= (1 << 1),
-			_PCPFC_ETHER	 	= (1 << 2),
-			_PCPFC_VLAN			= (1 << 3),
-			_PCPFC_MPLS			= (1 << 4),
-			_PCPFC_NW	 		= (1 << 5),
-			_PCPFC_NW_TOS 		= (1 << 6),
-			_PCPFC_TP	 		= (1 << 7), // UDP src, TCP src, SCTP src, ICMP type
-			_PCPFC_PPPOE		= (1 << 8),
-			_PCPFC_PPP     		= (1 << 9),
-		};
-#endif
-
-
-protected: // data structures
 public: // data structures
 
 
-	std::deque<cmemory*>				piobuf;		// packet fragments
-	std::list<fframe*>					piovec;		// sequence of fragments
-	size_t								plength;	// total length of packet
-	std::deque< std::deque<fframe*> > 	anchors; 	// anchor points
-#if 0
-	cofpseudohdr 						pkthdr;		// OpenFlow pseudo header for packet classification
-#endif
+		fframe							*head;		// head of all frames
+		fframe							*tail;		// tail of all frames
 
-	enum cpacket_frametype_t {
-		ETHER_FRAME = 0,
-		VLAN_FRAME,
-		MPLS_FRAME,
-		PPPOE_FRAME,
-		PPP_FRAME,
-		IPV4_FRAME,
-		ICMPV4_FRAME,
-		ARPV4_FRAME,
-		UDP_FRAME,
-		TCP_FRAME,
-		SCTP_FRAME,
-		MAX_FRAME,
-	};
+		cmemory 						 mem;		// packet data
+		cofmatch						 match;		// packet header fields stored in ofmatch
+
+		enum cpacket_frametype_t {
+			ETHER_FRAME = 0,
+			VLAN_FRAME,
+			MPLS_FRAME,
+			PPPOE_FRAME,
+			PPP_FRAME,
+			IPV4_FRAME,
+			ICMPV4_FRAME,
+			ARPV4_FRAME,
+			UDP_FRAME,
+			TCP_FRAME,
+			SCTP_FRAME,
+			MAX_FRAME,
+		};
 
 private: // data structures
 
@@ -214,6 +139,8 @@ private: // data structures
 		FLAG_UDP_CHECKSUM   	= 4,
 		FLAG_TCP_CHECKSUM   	= 5,
 		FLAG_NO_PACKET_IN		= 6,
+		FLAG_VLAN_PRESENT		= 7,
+		FLAG_MPLS_PRESENT		= 8,
 	};
 
 
@@ -222,7 +149,7 @@ public: // data structures
 	time_t 		packet_receive_time;	// time this packet was received
 	uint32_t 	in_port;				// incoming port
 	uint32_t	out_port;				// outgoing port when stored within cpktqueue, 0 otherwise
-	coxmlist	oxmlist;				// packet header fields stored in oxmlist
+
 
 #if 1
 	cclock time_cport_recv;
@@ -403,11 +330,6 @@ private:
 	c_str();
 #endif
 
-	/**
-	 *
-	 */
-	void
-	init();
 
 	/**
 	 *
@@ -819,7 +741,120 @@ public: // action related methods
 private: // methods
 
 
+	/**
+	 *
+	 */
+	void
+	frame_append(
+			fframe *frame);
+
+
+
+
+	/**
+	 *
+	 */
+	void
+	parse_ether(
+			uint8_t *data,
+			size_t datalen);
+
+
+
+	/**
+	 *
+	 */
+	void
+	parse_vlan(
+			uint8_t *data,
+			size_t datalen);
+
+
+
+	/**
+	 *
+	 */
+	void
+	parse_mpls(
+			uint8_t *data,
+			size_t datalen);
+
+
+	/**
+	 *
+	 */
+	void
+	parse_pppoe(
+			uint8_t *data,
+			size_t datalen);
+
+
+	/**
+	 *
+	 */
+	void
+	parse_ppp(
+			uint8_t *data,
+			size_t datalen);
+
+
+	/**
+	 *
+	 */
+	void
+	parse_arpv4(
+			uint8_t *data,
+			size_t datalen);
+
+
+	/**
+	 *
+	 */
+	void
+	parse_ipv4(
+			uint8_t *data,
+			size_t datalen);
+
+
+	/**
+	 *
+	 */
+	void
+	parse_icmpv4(
+			uint8_t *data,
+			size_t datalen);
+
+
+	/**
+	 *
+	 */
+	void
+	parse_udp(
+			uint8_t *data,
+			size_t datalen);
+
+
+	/**
+	 *
+	 */
+	void
+	parse_tcp(
+			uint8_t *data,
+			size_t datalen);
+
+
+	/**
+	 *
+	 */
+	void
+	parse_sctp(
+			uint8_t *data,
+			size_t datalen);
+
+
+
 public: // static methods
+
 
 	/**
 	 *

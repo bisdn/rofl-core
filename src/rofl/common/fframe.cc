@@ -7,9 +7,9 @@
 fframe::fframe(
 		uint8_t *_data,
 		size_t _datalen,
-		uint16_t __total_len,
-		fframe *__predecessor) :
-		predecessor(__predecessor),
+		uint16_t __total_len) :
+		next(0),
+		prev(0),
 		mem(0),
 		data(_data),
 		datalen(_datalen),
@@ -21,7 +21,8 @@ fframe::fframe(
 
 fframe::fframe(
 		size_t len) :
-		predecessor(NULL),
+		next(0),
+		prev(0),
 		mem(len),
 		data(mem.somem()),
 		datalen(mem.memlen()),
@@ -33,7 +34,15 @@ fframe::fframe(
 
 fframe::~fframe()
 {
+	if (next)
+	{
+		next->prev = prev;
+	}
 
+	if (prev)
+	{
+		prev->next = next;
+	}
 }
 
 

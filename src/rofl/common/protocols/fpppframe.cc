@@ -66,6 +66,18 @@ fpppframe::~fpppframe()
 }
 
 
+void
+fpppframe::unpack(uint8_t *frame, size_t framelen) throw (ePPPInval)
+{
+	reset(frame, framelen, framelen);
+
+	if (!complete())
+		throw ePPPInval();
+
+	validate();
+}
+
+
 bool
 fpppframe::complete()
 {

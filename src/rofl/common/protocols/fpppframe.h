@@ -27,6 +27,8 @@ extern "C" {
 #include "../fframe.h"
 #include "../cvastring.h"
 
+class ePPPBase : public eFrameBase {};
+class ePPPInval : public ePPPBase {};
 class ePPPFrameHdlcDecodeFailed : public eFrameBase {}; // HDLC decoding failed
 class ePPPFrameOptionNotFound : public eFrameBase {}; // PPP option not found
 class ePPPFrameInvalidSyntax : public eFrameBase {}; // PPP frame with invalid syntax
@@ -221,6 +223,16 @@ public:
 
 
 public: // overloaded from fframe
+
+
+	/**
+	 *
+	 */
+	void
+	unpack(
+			uint8_t *frame,
+			size_t framelen) throw (ePPPInval);
+
 
 	/** returns boolean value indicating completeness of the packet
 	 */

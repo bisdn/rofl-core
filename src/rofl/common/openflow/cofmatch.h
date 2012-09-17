@@ -325,6 +325,53 @@ public:
 			uint8_t tc);
 
 
+	/**
+	 *
+	 */
+	uint8_t
+	get_pppoe_code()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_pppoe_code(
+			uint8_t code);
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_pppoe_sessid()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_pppoe_sessid(
+			uint16_t sid);
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_ppp_prot()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ppp_prot(
+			uint16_t prot);
+
 
 	/**
 	 *

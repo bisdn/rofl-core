@@ -34,16 +34,42 @@ class eFrameInval : public eFrameBase {}; // invalid parameter
  * parsing functionality for specific packet formats, e.g. OpenFlow,
  * Ethernet, VLAN, IPv4, etc.
  */
-class fframe : public csyslog {
-public: // static
+class fframe :
+	public csyslog
+{
+/*
+ * data structure
+ */
+private:
 
-public: // data structures
+		enum fframe_flag_t {
+			FFRAME_FLAG_MEM = (1 << 0), 		// fframe is self-containing memory area for frame
+		};
+
+		cmemory 				 mem; 			// frame container, if none was specified in constructor => this is used for creating new frames from scratch
+		uint8_t 				*data; 			// data area
+		size_t 					 datalen; 		// data area length
+		uint16_t 				 total_len; 	// real length of packet
+		std::string 			 info; 			// info string
+		std::bitset<32> 		 flags;
+
+
+public:
 
 #define DEFAULT_FFRAME_SIZE 128
 
-	fframe *predecessor;
 
-public: // methods
+		fframe 					*next;			// next fframe in a list or 0
+		fframe					*prev;			// previous fframe in a list or 0
+
+
+
+
+
+/*
+ * methods
+ */
+public:
 
 	/** constructor for parsing existing frames
 	 *
@@ -51,8 +77,7 @@ public: // methods
 	fframe(
 			uint8_t* _data = NULL,
 			size_t _datalen = 0,
-			uint16_t total_len = 0,
-			fframe* predecessor = NULL);
+			uint16_t total_len = 0);
 
 	/** constructor for creating new frames
 	 *
@@ -118,23 +143,36 @@ public: // methods
 	payload_insert(
 			uint8_t *data, size_t datalen) throw (eFrameOutOfRange) {};
 
+
 	/** get payload
 	 *
 	 */
 	virtual uint8_t*
-	payload() throw (eFrameNoPayload) { throw eFrameNoPayload(); };
+	payload() const throw (eFrameNoPayload)
+	{
+		return soframe();
+	};
+
 
 	/** get payload length
 	 *
 	 */
 	virtual size_t
-	payloadlen() throw (eFrameNoPayload) { throw eFrameNoPayload(); };
+	payloadlen() const throw (eFrameNoPayload)
+	{
+		return framelen();
+	};
+
 
 	/** get total payload length
 	 *
 	 */
 	virtual uint16_t
-	totalpayloadlen() throw (eFrameNoPayload) { throw eFrameNoPayload(); };
+	totalpayloadlen() const throw (eFrameNoPayload)
+	{
+		return total_len;
+	};
+
 
 	/** dump info
 	 *
@@ -142,43 +180,47 @@ public: // methods
 	virtual const char*
 	c_str();
 
+
 	/** get start of data area
 	 *
 	 */
 	virtual uint8_t*
-	soframe() { return data; };
+	soframe() const
+	{
+		return data;
+	};
+
 
 	/** get length of data area
 	 *
 	 */
 	virtual size_t
-	framelen() { return datalen; };
+	framelen() const
+	{
+		return datalen;
+	};
+
 
 	/**
 	 *
 	 */
 	virtual uint16_t
-	totallen() { return total_len; };
+	totallen() const
+	{
+		return total_len;
+	};
+
 
 	/** return bool whether frame is empty or not
 	 *
 	 */
 	bool
-	empty() const { return (0 == datalen); };
-
-private: // data structures
-
-	enum fframe_flag_t {
-		FFRAME_FLAG_MEM = (1 << 0), // fframe is self-containing memory area for frame
+	empty() const
+	{
+		return (0 == datalen);
 	};
-
-	cmemory mem; // frame container, if none was specified in constructor => this is used for creating new frames from scratch
-	uint8_t *data; // data area
-	size_t datalen; // data area length
-	uint16_t total_len; // real length of packet
-	std::string info; // info string
-	std::bitset<32> flags;
-
 };
+
+
 
 #endif
