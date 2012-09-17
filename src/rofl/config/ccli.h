@@ -69,12 +69,13 @@ public:
 		return this->cli;
 	}
 
-private:
+protected:
+ 	struct cli_def *cli;
 
+private:
 	static void *
 	run_terminal(void*);
 
- 	struct cli_def *cli;
  	int cli_fd;
 
 	// bound interface
