@@ -21,9 +21,6 @@
 #include "rofl/common/csocket.h"
 #include "rofl/common/cerror.h"
 
-#include "cconfigfwdelem.h"
-#include "cconfigport.h"
-
 #ifdef __GNUC__
 # define UNUSED(d) d __attribute__ ((unused))
 #else
