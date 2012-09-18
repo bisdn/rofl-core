@@ -41,23 +41,52 @@ class cmemory :
 {
 public: // static stuff
 
+
 	static std::set<cmemory*> cmemory_list;
 	static pthread_mutex_t memlock;
 	static int memlockcnt;
 
+
+
+public: // data structures
+
+
+	std::pair<uint8_t*, size_t> data;		//< memory area including head- and tail-space
+	std::pair<uint8_t*, size_t> area;		//< public memory area allocated
+
+
+private:
+
+
+
+
+#define CMEMORY_DEFAULT_SIZE 			1024
+#define CMEMORY_DEFAULT_HEAD_SPACE		64
+#define CMEMORY_DEFAULT_TAIL_SPACE		0
+
+
 public: // public methods
 
-#define CMEMORY_DEFAULT_SIZE 1024
+
 
 	/** constructor
 	 *
 	 */
-	cmemory(size_t len = CMEMORY_DEFAULT_SIZE);
+	cmemory(
+			size_t len = CMEMORY_DEFAULT_SIZE,
+			size_t hspace = CMEMORY_DEFAULT_HEAD_SPACE,
+			size_t tspace = CMEMORY_DEFAULT_TAIL_SPACE);
+
 
 	/** constructor
 	 *
 	 */
-	cmemory(uint8_t *data, size_t datalen);
+	cmemory(
+			uint8_t *data,
+			size_t datalen,
+			size_t hspace = CMEMORY_DEFAULT_HEAD_SPACE,
+			size_t tspace = CMEMORY_DEFAULT_TAIL_SPACE);
+
 
 	/** destructor
 	 *
@@ -131,13 +160,34 @@ public: // public methods
 	 */
 	uint8_t* resize(size_t len) throw (eMemAllocFailed);
 
+
+
+	/**
+	 *
+	 */
+	uint8_t*
+	insert(
+			uint8_t *ptr,
+			size_t len) throw (eMemInval);
+
+
 	/** insert at offset len bytes
 	 *
 	 */
 	uint8_t*
 	insert(
 			unsigned int offset,
-			size_t len);
+			size_t len) throw (eMemInval);
+
+
+	/** remove at offset len bytes
+	 *
+	 */
+	void
+	remove(
+			uint8_t *ptr,
+			size_t len) throw (eMemInval);
+
 
 	/** remove at offset len bytes
 	 *
@@ -145,7 +195,12 @@ public: // public methods
 	void
 	remove(
 			unsigned int offset,
-			size_t len);
+			size_t len) throw (eMemInval);
+
+
+
+
+
 
 	/** find first occurence of byte "value" starting at offset "start"
 	 * returns position relative to start of memory area
@@ -166,40 +221,25 @@ public: // public methods
 	 */
 	const char* c_str();
 
-public: // data structures
-
-	//< memory area allocated
-	std::pair<uint8_t*, size_t> area;
 
 private: // methods
+
 
 	/** allocate memory
 	 *
 	 */
-	void mallocate(size_t len) throw (eMemAllocFailed);
+	void
+	mallocate(
+			size_t len,
+			size_t hspace = 0,
+			size_t tspace = 0) throw (eMemAllocFailed);
+
 
 	/** free memory
 	 *
 	 */
 	void mfree();
 
-	/**
-	 *
-	 */
-	void
-	lock()
-	{
-		pthread_mutex_lock(&cmemory::memlock);
-	};
-
-	/**
-	 *
-	 */
-	void
-	unlock()
-	{
-		pthread_mutex_unlock(&cmemory::memlock);
-	};
 
 private: // dats structures
 

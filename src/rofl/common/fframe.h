@@ -49,7 +49,7 @@ private:
 		cmemory 				 mem; 			// frame container, if none was specified in constructor => this is used for creating new frames from scratch
 		uint8_t 				*data; 			// data area
 		size_t 					 datalen; 		// data area length
-		uint16_t 				 total_len; 	// real length of packet
+//		uint16_t 				 total_len; 	// real length of packet
 		std::string 			 info; 			// info string
 		std::bitset<32> 		 flags;
 
@@ -76,8 +76,8 @@ public:
 	 */
 	fframe(
 			uint8_t* _data = NULL,
-			size_t _datalen = 0,
-			uint16_t total_len = 0);
+			size_t _datalen = 0);
+	//		uint16_t total_len = 0);
 
 	/** constructor for creating new frames
 	 *
@@ -95,7 +95,7 @@ public:
 	 *
 	 */
 	virtual void
-	reset(uint8_t *_data, size_t _datalen, uint16_t _total_len);
+	reset(uint8_t *_data, size_t _datalen); //, uint16_t _total_len);
 
 	/** copy constructor
 	 *
@@ -163,7 +163,7 @@ public:
 		return framelen();
 	};
 
-
+#if 0
 	/** get total payload length
 	 *
 	 */
@@ -172,6 +172,7 @@ public:
 	{
 		return total_len;
 	};
+#endif
 
 
 	/** dump info
@@ -201,6 +202,7 @@ public:
 	};
 
 
+#if 0
 	/**
 	 *
 	 */
@@ -209,6 +211,7 @@ public:
 	{
 		return total_len;
 	};
+#endif
 
 
 	/** return bool whether frame is empty or not

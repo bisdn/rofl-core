@@ -46,7 +46,6 @@ extern "C" {
 
 /* Openflow stuff */
 #include "openflow/cofmatch.h"
-#include "openflow/coxmlist.h"
 #include "openflow/cofaction.h"
 
 /* Protocol stuff */
@@ -95,79 +94,73 @@ class ePacketTypeError 		: public ePacket {}; // specified frame type not found 
 class cpacket :
 	public csyslog
 {
-private: // static
+/*
+ * data structures
+ */
+private:
 
-//#define CPACKET_DEFAULT_SIZE 1518
-#define CPACKET_DEFAULT_SIZE 1526
+
+		std::bitset<32> 				flags;			// flags (e.g. for checksum calculations, NO_PACKET_IN, etc.)
+		std::string 					info;			// info string
+		pthread_rwlock_t 				ac_rwlock;		// rwlock for anchors
+
+		enum cpacket_flag_t {
+			FLAG_PPPOE_LENGTH   		= 1,
+			FLAG_IPV4_CHECKSUM  		= 2,
+			FLAG_ICMPV4_CHECKSUM  		= 3,
+			FLAG_UDP_CHECKSUM   		= 4,
+			FLAG_TCP_CHECKSUM   		= 5,
+			FLAG_NO_PACKET_IN			= 6,
+			FLAG_VLAN_PRESENT			= 7,
+			FLAG_MPLS_PRESENT			= 8,
+		};
 
 
-public: // data structures
-
+#define CPACKET_DEFAULT_SIZE 			 1526
+#define CPACKET_HEAD_ROOM				 64			// head room for push operations
+#define CPACKET_TAIL_ROOM				 64			// tail room for appending data
 
 		fframe							*head;		// head of all frames
 		fframe							*tail;		// tail of all frames
 
 		cmemory 						 mem;		// packet data
+
+
+public:
+
+
 		cofmatch						 match;		// packet header fields stored in ofmatch
 
-		enum cpacket_frametype_t {
-			ETHER_FRAME = 0,
-			VLAN_FRAME,
-			MPLS_FRAME,
-			PPPOE_FRAME,
-			PPP_FRAME,
-			IPV4_FRAME,
-			ICMPV4_FRAME,
-			ARPV4_FRAME,
-			UDP_FRAME,
-			TCP_FRAME,
-			SCTP_FRAME,
-			MAX_FRAME,
-		};
-
-private: // data structures
-
-
-	std::bitset<32> 		flags;			// flags (e.g. for checksum calculations, NO_PACKET_IN, etc.)
-	std::string 			info;			// info string
-	pthread_rwlock_t 		ac_rwlock;		// rwlock for anchors
-
-	enum cpacket_flag_t {
-		FLAG_PPPOE_LENGTH   	= 1,
-		FLAG_IPV4_CHECKSUM  	= 2,
-		FLAG_ICMPV4_CHECKSUM  	= 3,
-		FLAG_UDP_CHECKSUM   	= 4,
-		FLAG_TCP_CHECKSUM   	= 5,
-		FLAG_NO_PACKET_IN		= 6,
-		FLAG_VLAN_PRESENT		= 7,
-		FLAG_MPLS_PRESENT		= 8,
-	};
-
-
-public: // data structures
-
-	time_t 		packet_receive_time;	// time this packet was received
-	uint32_t 	in_port;				// incoming port
-	uint32_t	out_port;				// outgoing port when stored within cpktqueue, 0 otherwise
+		time_t 				packet_receive_time;	// time this packet was received
+		uint32_t 			in_port;				// incoming port
+		uint32_t			out_port;				// outgoing port when stored within cpktqueue, 0 otherwise
 
 
 #if 1
-	cclock time_cport_recv;
-	cclock time_cdpath_in;
-	cclock time_cfwdengine_in;
-	cclock time_cfwdengine_out;
-	cclock time_cdpath_out;
-	cclock time_cport_enqueue;
-	cclock time_cport_send;
+		cclock 							time_cport_recv;
+		cclock 							time_cdpath_in;
+		cclock 							time_cfwdengine_in;
+		cclock 							time_cfwdengine_out;
+		cclock 							time_cdpath_out;
+		cclock 							time_cport_enqueue;
+		cclock 							time_cport_send;
 #endif
 
+
+
+
+/*
+ * methods
+ */
 public: // methods
+
 
 	/** constructor for creating new empty packets
 	 *
 	 */
 	cpacket(
 			size_t size = CPACKET_DEFAULT_SIZE);
+
 
 	/** constructor for storing a memory area specified by (buf, buflen)
 	 *  in a cpacket
@@ -176,6 +169,7 @@ public: // methods
 			uint8_t *buf, size_t buflen,
 			uint32_t in_port = 0 /*invalid port in OF*/,
 			bool do_classify = true);
+
 
 	/** constructor for storing a memory area stored in cmemory mem
 	 *  in a cpacket, mem must not be freed after creating the cpacket instance
@@ -227,14 +221,24 @@ public: // methods
 	/**
 	 *
 	 */
-	void
-	clear();
+	uint8_t*
+	soframe();
+
+
+	/**
+	 *
+	 */
+	size_t
+	framelen();
+
+
 
 	/** copies all piobufs into a newly created cmemory instance
 	 *
 	 */
-	cmemory*
+	cmemory
 	to_mem();
+
 
 	/** copies all piobufs into memory specified by (dest, len)
 	 *
@@ -243,6 +247,7 @@ public: // methods
 	pack(
 			uint8_t *dest,
 			size_t len) throw (ePacketInval);
+
 
 	/**  copies buffer specified by (src, len) into single piobuf
 	 *
@@ -259,14 +264,15 @@ public: // methods
 	 */
 	void
 	unpack(
-			uint32_t in_port,
-			cmemory *mem);
+			uint32_t in_port);
+
 
 	/** returns total length of all piobufs
 	 *
 	 */
 	size_t
 	length();
+
 
 	/** insert space with length 'len' at offset
 	 *
@@ -276,10 +282,11 @@ public: // methods
 			size_t offset,
 			size_t len) throw (ePacketOutOfRange);
 
+
 	/** remove 'len' bytes at offset
 	 *
 	 */
-	uint8_t*
+	void
 	remove(
 			size_t offset,
 			size_t len) throw (ePacketOutOfRange);
@@ -304,6 +311,7 @@ public: // methods
 		return os;
 	};
 
+
 	/** calculate hit-rate for cofmatch
 	 */
 	void calc_hits(
@@ -312,13 +320,14 @@ public: // methods
 			uint16_t& wildcard_hits,
 			uint16_t& missed);
 
+
 	/** parse and classify data frame
-	 * fills in pseudo header structure
 	 *
 	 */
 	void
 	classify(
 			uint32_t in_port /* host byte order */);
+
 
 private:
 
@@ -335,90 +344,100 @@ private:
 	 *
 	 */
 	void
-	cleanup();
+	reset();
+
 
 public:
+
+
+	/**
+	 *
+	 */
+	fframe*
+	frame(
+			int i = 0) throw (ePacketNotFound);
+
 
 	/** return pointer to this->ether frame
 	 * keep in mind: valid only while this instance is alive!
 	 *
 	 */
-	fetherframe&
+	fetherframe*
 	ether(
-			int i = 0) throw (ePacketTypeError);
+			int i = 0) throw (ePacketNotFound);
 
 	/** return pointer to outer vlan tag
 	 *
 	 */
-	fvlanframe&
+	fvlanframe*
 	vlan(
-			int i = 0) throw (ePacketTypeError);
+			int i = 0) throw (ePacketNotFound);
 
 
 	/** return pointer to this->ether frame
 	 * keep in mind: valid only while this instance is alive!
 	 *
 	 */
-	fpppoeframe&
+	fpppoeframe*
 	pppoe(
-			int i = 0) throw (ePacketTypeError);
+			int i = 0) throw (ePacketNotFound);
 
 	/** return pointer to this->ether frame
 	 * keep in mind: valid only while this instance is alive!
 	 *
 	 */
-	fpppframe&
+	fpppframe*
 	ppp(
-			int i = 0) throw (ePacketTypeError);
+			int i = 0) throw (ePacketNotFound);
 
 
 	/** return pointer to this->ether frame
 	 * keep in mind: valid only while this instance is alive!
 	 *
 	 */
-	fmplsframe&
+	fmplsframe*
 	mpls(
-			int i = 0) throw (ePacketTypeError);
+			int i = 0) throw (ePacketNotFound);
 
 	/** return pointer to this->arpv4 frame
 	 * keep in mind: valid only while this instance is alive!
 	 *
 	 */
-	farpv4frame&
+	farpv4frame*
 	arpv4(
-			int i = 0) throw (ePacketTypeError);
+			int i = 0) throw (ePacketNotFound);
 
 	/** return pointer to this->ipv4 frame
 	 * keep in mind: valid only while this instance is alive!
 	 *
 	 */
-	fipv4frame&
+	fipv4frame*
 	ipv4(
-			int i = 0) throw (ePacketTypeError);
+			int i = 0) throw (ePacketNotFound);
 
 	/** return pointer to this->icmpv4 frame
 	 * keep in mind: valid only while this instance is alive!
 	 *
 	 */
-	ficmpv4frame&
+	ficmpv4frame*
 	icmpv4(
-			int i = 0) throw (ePacketTypeError);
+			int i = 0) throw (ePacketNotFound);
 
 	/** return pointer to this->udp frame
 	 * keep in mind: valid only while this instance is alive!
 	 *
 	 */
-	fudpframe&
+	fudpframe*
 	udp(
-			int i = 0) throw (ePacketTypeError);
+			int i = 0) throw (ePacketNotFound);
 
 	/** return pointer to this->tcp frame
 	 * keep in mind: valid only while this instance is alive!
 	 *
 	 */
-	ftcpframe&
+	ftcpframe*
 	tcp(
-			int i = 0) throw (ePacketTypeError);
+			int i = 0) throw (ePacketNotFound);
 
 	// TODO: SCTP
 
@@ -440,71 +459,6 @@ public:
 			coxmatch const& oxm);
 
 
-	/** set dl_src
-	 */
-	void
-	dl_set_dl_src(
-			uint8_t *data,
-			size_t datalen);
-
-
-	/** set dl_src
-	 */
-	void
-	dl_set_dl_dst(
-			uint8_t *data,
-			size_t datalen);
-
-
-	/** set VLAN vid
-	 */
-	void
-	vlan_set_vid(
-			uint16_t vid);
-
-
-	/** set VLAN pcp
-	 */
-	void
-	vlan_set_pcp(
-			uint8_t pcp);
-
-	/** set network source address
-	 */
-	void
-	nw_set_nw_src(
-			uint32_t nw_src);
-
-	/** set network source address
-	 */
-	void
-	nw_set_nw_dst(
-			uint32_t nw_dst);
-
-	/** set network tos
-	 */
-	void
-	nw_set_nw_dscp(
-			uint8_t nw_dscp);
-
-	/** set network tos
-	 */
-	void
-	nw_set_nw_ecn(
-			uint8_t nw_ecn);
-
-	/** set transport protocol src port
-	 */
-	void
-	tp_set_tp_src(
-			uint16_t port);
-
-	/** set transport protocol src port
-	 */
-	void
-	tp_set_tp_dst(
-			uint16_t port);
-
 	/** copy ttl out
 	 */
 	void
@@ -515,17 +469,6 @@ public:
 	void
 	copy_ttl_in();
 
-	/** set mpls label
-	 */
-	void
-	set_mpls_label(
-			uint32_t mpls_label);
-
-	/** set mpls tc
-	 */
-	void
-	set_mpls_tc(
-			uint8_t mpls_tc);
 
 	/** set mpls ttl
 	 */
@@ -585,23 +528,6 @@ public:
 	pop_pppoe(
 			uint16_t ethertype);
 
-	/** set pppoe type
-	 */
-	void
-	set_pppoe_type(
-			uint8_t type);
-
-	/** set pppoe code
-	 */
-	void
-	set_pppoe_code(
-			uint8_t code);
-
-	/** set pppoe sessid
-	 */
-	void
-	set_pppoe_sessid(
-			uint16_t sessid);
 
 	/** push ppp
 	 */
@@ -613,12 +539,6 @@ public:
 	 */
 	void
 	pop_ppp();
-
-	/** set pppoe code
-	 */
-	void
-	set_ppp_prot(
-			uint16_t prot);
 
 
 public: // action related methods
@@ -748,6 +668,23 @@ private: // methods
 	frame_append(
 			fframe *frame);
 
+
+
+	/**
+	 *
+	 */
+	void
+	frame_push(
+			fframe *frame);
+
+
+
+	/**
+	 *
+	 */
+	void
+	frame_pop(
+			fframe *frame);
 
 
 

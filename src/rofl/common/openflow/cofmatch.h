@@ -163,6 +163,15 @@ public:
 	 *
 	 */
 	void
+	remove(
+			uint16_t oxm_class,
+			uint8_t oxm_field);
+
+
+	/**
+	 *
+	 */
+	void
 	set_type(uint16_t type);
 
 
@@ -408,8 +417,8 @@ public:
 	/**
 	 *
 	 */
-	caddress
-	get_arpv4_spa()
+	uint16_t
+	get_arp_opcode()
 		throw (eOFmatchNotFound);
 
 
@@ -417,7 +426,55 @@ public:
 	 *
 	 */
 	void
-	set_arpv4_spa(
+	set_arp_opcode(
+			uint16_t opcode);
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_arp_sha()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_arp_sha(
+			cmacaddr const& sha);
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_arp_tha()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_arp_tha(
+			cmacaddr const& tha);
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_arp_spa()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_arp_spa(
 			caddress const& spa);
 
 
@@ -426,7 +483,7 @@ public:
 	 *
 	 */
 	caddress
-	get_arpv4_tpa()
+	get_arp_tpa()
 		throw (eOFmatchNotFound);
 
 
@@ -434,7 +491,7 @@ public:
 	 *
 	 */
 	void
-	set_arpv4_tpa(
+	set_arp_tpa(
 			caddress const& tpa);
 
 
@@ -453,6 +510,74 @@ public:
 	void
 	set_ip_proto(
 			uint8_t proto);
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_ip_dscp()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ip_dscp(
+			uint8_t dscp);
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_ip_ecn()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ip_ecn(
+			uint8_t ecn);
+
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_icmpv4_type()
+		throw (eOFmatchNotFound);
+
+
+
+	/**
+	 *
+	 */
+	void
+	set_icmpv4_type(
+			uint16_t type);
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_icmpv4_code()
+		throw (eOFmatchNotFound);
+
+
+
+	/**
+	 *
+	 */
+	void
+	set_icmpv4_code(
+			uint16_t code);
+
 
 
 	/**
@@ -486,6 +611,41 @@ public:
 	void
 	set_udp_dst(
 			uint16_t dst_port);
+
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_tcp_src()
+		throw (eOFmatchNotFound);
+
+
+
+	/**
+	 *
+	 */
+	void
+	set_tcp_src(
+			uint16_t src_port);
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_tcp_dst()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_tcp_dst(
+			uint16_t dst_port);
+
 
 
 #ifndef NDEBUG

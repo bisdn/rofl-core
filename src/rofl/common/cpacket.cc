@@ -8,11 +8,14 @@
 
 cpacket::cpacket(
 			size_t size) :
-			mem(size),
+			head(0),
+			tail(0),
+			mem(size, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
 			packet_receive_time(time(NULL)),
 			out_port(0)
 {
-	init();
+	pthread_rwlock_init(&ac_rwlock, NULL);
+
 	match.set_in_port(OFPP_CONTROLLER);
 	match.set_in_phy_port(OFPP_CONTROLLER);
 }
@@ -23,7 +26,7 @@ cpacket::cpacket(
 		cmemory *mem,
 		uint32_t in_port,
 		bool do_classify) :
-			mem(*mem),
+			mem(mem->somem(), mem->memlen(), CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
 			packet_receive_time(time(NULL)),
 			in_port(in_port),
 			out_port(0)
@@ -31,6 +34,9 @@ cpacket::cpacket(
 	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::cpacket()", this);
 
 	pthread_rwlock_init(&ac_rwlock, NULL);
+
+	match.set_in_port(OFPP_CONTROLLER);
+	match.set_in_phy_port(OFPP_CONTROLLER);
 
 	if (do_classify)
 	{
@@ -45,8 +51,7 @@ cpacket::cpacket(
 		size_t buflen,
 		uint32_t in_port,
 		bool do_classify) :
-			mem(buf, buflen),
-			plength(buflen),
+			mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
 			packet_receive_time(time(NULL)),
 			in_port(in_port),
 			out_port(0)
@@ -85,12 +90,17 @@ cpacket::~cpacket()
 
 
 
-void
-cpacket::clear()
-{
-	cleanup(); // clean up anchors and piovec
-}
 
+void
+cpacket::reset()
+{
+	match.reset();
+
+	while (head != 0)
+	{
+		frame_pop(head);
+	}
+}
 
 
 cpacket&
@@ -99,26 +109,11 @@ cpacket::operator=(const cpacket &p)
 	if (this == &p)
 		return *this;
 
-	clear();
+	reset();
 
-	for (std::deque<cmemory*>::const_iterator
-				it = p.piobuf.begin(); it != p.piobuf.end(); ++it)
-	{
-		piobuf.push_back(new cmemory(*(*it)));
-	}
+	throw eNotImplemented();
 
 	packet_receive_time = p.packet_receive_time;
-
-#if 0
-	for (std::list<ciovec*>::const_iterator
-			it = p.piovec.begin(); it != p.piovec.end(); ++it)
-	{
-		// TODO: ...
-		throw eNotImplemented();
-	}
-#endif
-
-	plength = p.plength;
 
 	return *this;
 }
@@ -127,28 +122,7 @@ cpacket::operator=(const cpacket &p)
 uint8_t&
 cpacket::operator[] (size_t index) throw (ePacketOutOfRange)
 {
-	if (index >= plength)
-	{
-		throw ePacketOutOfRange();
-	}
-
-	size_t i = 0;
-	uint8_t* j = 0;
-
-	for (std::list<fframe*>::iterator
-			it = piovec.begin(); it != piovec.end(); ++it)
-	{
-		fframe *frame = (*it);
-
-		if ((i + frame->framelen()) < index)
-		{
-			i += frame->framelen();
-			continue;
-		}
-
-		j = ((uint8_t*)frame->framelen() + (index - i));
-	}
-	return *j;
+	return mem[index];
 }
 
 
@@ -166,31 +140,13 @@ cpacket::get_flag_no_packet_in()
 }
 
 
-cmemory*
+
+cmemory
 cpacket::to_mem()
 {
-	size_t p_len = 0;
-
-	for (std::list<fframe*>::iterator
-			it = piovec.begin(); it != piovec.end(); ++it)
-	{
-		p_len += (*it)->framelen();
-	}
-
-	cmemory *mem = new cmemory(p_len);
-
-	p_len = 0;
-
-	for (std::list<fframe*>::iterator
-			it = piovec.begin(); it != piovec.end(); ++it)
-	{
-		fframe& frame = *(*it);
-		memcpy(mem->somem() + p_len, frame.soframe(), frame.framelen());
-		p_len += frame.framelen();
-	}
-
 	return mem;
 }
+
 
 
 void
@@ -198,26 +154,10 @@ cpacket::pack(
 		uint8_t *dest,
 		size_t len) throw (ePacketInval)
 {
-	uint8_t *ptr = dest;
-
-	for (std::list<fframe*>::iterator
-			it = piovec.begin(); it != piovec.end(); ++it)
-	{
-		fframe *frame = (*it);
-
-		if (len >= frame->framelen())
-		{
-			memcpy(ptr, frame->soframe(), frame->framelen());
-			len -= frame->framelen();
-			ptr += frame->framelen();
-		}
-		else
-		{
-			memcpy(ptr, frame->soframe(), len);
-			break;
-		}
-	}
+	size_t p_len = (len > mem.memlen()) ? mem.memlen() : len;
+	memcpy(dest, mem.somem(), p_len);
 }
+
 
 
 void
@@ -226,32 +166,27 @@ cpacket::unpack(
 		uint8_t *src,
 		size_t len)
 {
-	cmemory *mem = new cmemory(src, len);
-	unpack(in_port, mem);
+	mem.assign(src, len);
+	unpack(in_port);
 }
 
 
 
 void
 cpacket::unpack(
-		uint32_t in_port,
-		cmemory *mem)
+		uint32_t in_port)
 {
-	clear();
-
-	this->in_port = in_port;
-	piobuf.push_back(mem);
-	plength += mem->memlen();
-
 	classify(in_port);
 }
+
 
 
 size_t
 cpacket::length()
 {
-	return plength;
+	return mem.memlen();
 }
+
 
 
 uint8_t*
@@ -259,62 +194,17 @@ cpacket::insert(
 		size_t offset,
 		size_t len) throw (ePacketOutOfRange)
 {
-	cmemory *mem = new cmemory(len);
-	piobuf.push_back(mem);
-	plength += mem->memlen();
-	std::vector<fframe*> n_iov;
-	n_iov.push_back(new fframe(mem->somem(), mem->memlen()));
-
-	unsigned int i = 0;
-
-	for (std::list<fframe*>::iterator
-			it = piovec.begin(); it != piovec.end(); ++it)
-	{
-		fframe *frame = (*it);
-
-		if ((i + frame->framelen()) > offset)
-		{
-			std::list<fframe*>::iterator jt = it;
-			std::advance(jt, 1);
-
-			n_iov.push_back(new fframe(
-					(uint8_t*)frame->soframe() 	+ (offset - i),
-							  frame->framelen() - (offset - i)));
-
-			piovec.insert(jt, n_iov.begin(), n_iov.end());
-
-			throw eNotImplemented();
-#if 0
-			frame->reset() -= (offset - i);
-#endif
-
-			return mem->somem();
-		}
-		else if ((i + frame->framelen()) == offset)
-		{
-			std::list<fframe*>::iterator jt = it;
-			std::advance(jt, 1);
-
-			piovec.insert(jt, n_iov[0]);
-
-			return mem->somem();
-		}
-
-		i += frame->framelen();
-	}
-
-	return mem->somem();
+	return mem.insert(offset, len);
 }
 
 
-uint8_t*
+
+void
 cpacket::remove(
 		size_t offset,
 		size_t len) throw (ePacketOutOfRange)
 {
-	throw eNotImplemented();
-
-	return 0;
+	mem.remove(offset, len);
 }
 
 
@@ -326,63 +216,16 @@ cpacket::c_str()
 
 	info.assign(vas("cpacket(%p) \n", this));
 
-	info.append(vas("  %s\n", oxmlist.c_str()));
+	info.append(vas("  %s\n", match.c_str()));
 
-	for(unsigned int i = 0; i < anchors[ETHER_FRAME].size(); ++i)
+	for (fframe* curr = head; curr != 0; curr = curr->next)
 	{
-		info.append(vas("  ether[%d]:%s\n", i, ether(i).c_str()));
-	}
-	for(unsigned int i = 0; i < anchors[VLAN_FRAME].size(); ++i)
-	{
-		info.append(vas("   vlan[%d]:%s\n", i, vlan(i).c_str()));
-	}
-	for(unsigned int i = 0; i < anchors[MPLS_FRAME].size(); ++i)
-	{
-		info.append(vas("   mpls[%d]:%s\n", i, mpls(i).c_str()));
-	}
-	for(unsigned int i = 0; i < anchors[PPPOE_FRAME].size(); ++i)
-	{
-		info.append(vas("  pppoe[%d]:%s\n", i, pppoe(i).c_str()));
-	}
-	for(unsigned int i = 0; i < anchors[PPP_FRAME].size(); ++i)
-	{
-		info.append(vas("    ppp[%d]:%s\n", i, ppp(i).c_str()));
-	}
-	for(unsigned int i = 0; i < anchors[IPV4_FRAME].size(); ++i)
-	{
-		info.append(vas("   ipv4[%d]:%s\n", i, ipv4(i).c_str()));
-	}
-	for(unsigned int i = 0; i < anchors[ICMPV4_FRAME].size(); ++i)
-	{
-		info.append(vas(" icmpv4[%d]:%s\n", i, icmpv4(i).c_str()));
-	}
-	for(unsigned int i = 0; i < anchors[ARPV4_FRAME].size(); ++i)
-	{
-		info.append(vas("  arpv4[%d]:%s\n", i, arpv4(i).c_str()));
-	}
-	for(unsigned int i = 0; i < anchors[UDP_FRAME].size(); ++i)
-	{
-		info.append(vas("    udp[%d]:%s\n", i, udp(i).c_str()));
-	}
-	for(unsigned int i = 0; i < anchors[TCP_FRAME].size(); ++i)
-	{
-		info.append(vas("    tcp[%d]:%s\n", i, tcp(i).c_str()));
-	}
-
-	for(std::list<fframe*>::iterator
-			it = piovec.begin(); it != piovec.end(); ++it)
-	{
-		info.append(vas("  fframe:%s\n", (*it)->fframe::c_str()));
-	}
-
-	for(std::deque<cmemory*>::iterator
-			it = piobuf.begin(); it != piobuf.end(); ++it)
-	{
-		info.append(vas(" cmemory:%s\n", (*it)->c_str()));
+		info.append(vas("  %s", curr->c_str()));
 	}
 
 	return info.c_str();
 }
+
 
 
 void
@@ -403,104 +246,667 @@ cpacket::test()
 
 
 
-fetherframe&
-cpacket::ether(int i) throw (ePacketTypeError)
+fframe*
+cpacket::frame(
+		int i = 0) throw (ePacketNotFound)
 {
-	i = (i >= 0) ? i : anchors[ETHER_FRAME].size() + i;
-	if ((i < 0) || (i >= (int)anchors[ETHER_FRAME].size()))
-		throw ePacketTypeError();
-	return *(dynamic_cast<fetherframe*>(anchors[ETHER_FRAME][i]));
+	if ((0 == head) || (0 == tail))
+	{
+		return (fframe*)0;
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *curr = head;
+
+		for (int j = 0; j < (i + 1); j++)
+		{
+			if (j == i)
+			{
+				return curr;
+			}
+
+			if (0 == curr->next)
+			{
+				throw ePacketNotFound();
+			}
+			else
+			{
+				curr = curr->next;
+			}
+		}
+	}
+	else
+	{
+		fframe *curr = tail;
+
+		for (int j = 1; j < (abs(i) + 1); j++)
+		{
+			if (j == abs(i))
+			{
+				return curr;
+			}
+
+			if (0 == curr->prev)
+			{
+				throw ePacketNotFound();
+			}
+			else
+			{
+				curr = curr->prev;
+			}
+		}
+	}
+	return (fframe*)0;
 }
 
 
-fvlanframe&
-cpacket::vlan(int i) throw (ePacketTypeError)
+
+fetherframe*
+cpacket::ether(int i) throw (ePacketNotFound)
 {
-	i = (i >= 0) ? i : anchors[VLAN_FRAME].size() + i;
-	if ((i < 0) || (i >= (int)anchors[VLAN_FRAME].size()))
-		throw ePacketTypeError();
-	return *(dynamic_cast<fvlanframe*>(anchors[VLAN_FRAME][i]));
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<fetherframe*>( frame ))
+			{
+				return (dynamic_cast<fetherframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<fetherframe*>( frame ))
+			{
+				return (dynamic_cast<fetherframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
 }
 
 
-fpppoeframe&
-cpacket::pppoe(int i) throw (ePacketTypeError)
+fvlanframe*
+cpacket::vlan(int i) throw (ePacketNotFound)
 {
-	i = (i >= 0) ? i : anchors[PPPOE_FRAME].size() + i;
-	if ((i < 0) || (i >= (int)anchors[PPPOE_FRAME].size()))
-		throw ePacketTypeError();
-	return *(dynamic_cast<fpppoeframe*>(anchors[PPPOE_FRAME][i]));
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<fvlanframe*>( frame ))
+			{
+				return (dynamic_cast<fvlanframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<fvlanframe*>( frame ))
+			{
+				return (dynamic_cast<fvlanframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
 }
 
 
-fpppframe&
-cpacket::ppp(int i) throw (ePacketTypeError)
+
+fpppoeframe*
+cpacket::pppoe(int i) throw (ePacketNotFound)
 {
-	i = (i >= 0) ? i : anchors[PPP_FRAME].size() + i;
-	if ((i < 0) || (i >= (int)anchors[PPP_FRAME].size()))
-		throw ePacketTypeError();
-	return *(dynamic_cast<fpppframe*>(anchors[PPP_FRAME][i]));
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<fpppoeframe*>( frame ))
+			{
+				return (dynamic_cast<fpppoeframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<fpppoeframe*>( frame ))
+			{
+				return (dynamic_cast<fpppoeframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
 }
 
 
-fmplsframe&
-cpacket::mpls(int i) throw (ePacketTypeError)
+
+fpppframe*
+cpacket::ppp(int i) throw (ePacketNotFound)
 {
-	i = (i >= 0) ? i : anchors[MPLS_FRAME].size() + i;
-	if ((i < 0) || (i >= (int)anchors[MPLS_FRAME].size()))
-		throw ePacketTypeError();
-	return *(dynamic_cast<fmplsframe*>(anchors[MPLS_FRAME][i]));
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<fpppframe*>( frame ))
+			{
+				return (dynamic_cast<fpppframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<fpppframe*>( frame ))
+			{
+				return (dynamic_cast<fpppframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
 }
 
 
-farpv4frame&
-cpacket::arpv4(int i) throw (ePacketTypeError)
+
+fmplsframe*
+cpacket::mpls(int i) throw (ePacketNotFound)
 {
-	i = (i >= 0) ? i : anchors[ARPV4_FRAME].size() + i;
-	if ((i < 0) || (i >= (int)anchors[ARPV4_FRAME].size()))
-		throw ePacketTypeError();
-	return *(dynamic_cast<farpv4frame*>(anchors[ARPV4_FRAME][i]));
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<fmplsframe*>( frame ))
+			{
+				return (dynamic_cast<fmplsframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<fmplsframe*>( frame ))
+			{
+				return (dynamic_cast<fmplsframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
 }
 
 
-fipv4frame&
-cpacket::ipv4(int i) throw (ePacketTypeError)
+
+farpv4frame*
+cpacket::arpv4(int i) throw (ePacketNotFound)
 {
-	i = (i >= 0) ? i : anchors[IPV4_FRAME].size() + i;
-	if ((i < 0) || (i >= (int)anchors[IPV4_FRAME].size()))
-		throw ePacketTypeError();
-	return *(dynamic_cast<fipv4frame*>(anchors[IPV4_FRAME][i]));
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<farpv4frame*>( frame ))
+			{
+				return (dynamic_cast<farpv4frame*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<farpv4frame*>( frame ))
+			{
+				return (dynamic_cast<farpv4frame*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
 }
 
 
-ficmpv4frame&
-cpacket::icmpv4(int i) throw (ePacketTypeError)
+fipv4frame*
+cpacket::ipv4(int i) throw (ePacketNotFound)
 {
-	i = (i >= 0) ? i : anchors[ICMPV4_FRAME].size() + i;
-	if ((i < 0) || (i >= (int)anchors[ICMPV4_FRAME].size()))
-		throw ePacketTypeError();
-	return *(dynamic_cast<ficmpv4frame*>(anchors[ICMPV4_FRAME][i]));
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<fipv4frame*>( frame ))
+			{
+				return (dynamic_cast<fipv4frame*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<fipv4frame*>( frame ))
+			{
+				return (dynamic_cast<fipv4frame*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
 }
 
 
-fudpframe&
-cpacket::udp(int i) throw (ePacketTypeError)
+
+ficmpv4frame*
+cpacket::icmpv4(int i) throw (ePacketNotFound)
 {
-	i = (i >= 0) ? i : anchors[UDP_FRAME].size() + i;
-	if ((i < 0) || (i >= (int)anchors[UDP_FRAME].size()))
-		throw ePacketTypeError();
-	return *(dynamic_cast<fudpframe*>(anchors[UDP_FRAME][i]));
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<ficmpv4frame*>( frame ))
+			{
+				return (dynamic_cast<ficmpv4frame*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<ficmpv4frame*>( frame ))
+			{
+				return (dynamic_cast<ficmpv4frame*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
 }
 
 
-ftcpframe&
-cpacket::tcp(int i) throw (ePacketTypeError)
+fudpframe*
+cpacket::udp(int i) throw (ePacketNotFound)
 {
-	i = (i >= 0) ? i : anchors[TCP_FRAME].size() + i;
-	if ((i < 0) || (i >= (int)anchors[TCP_FRAME].size()))
-		throw ePacketTypeError();
-	return *(dynamic_cast<ftcpframe*>(anchors[TCP_FRAME][i]));
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<fudpframe*>( frame ))
+			{
+				return (dynamic_cast<fudpframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<fudpframe*>( frame ))
+			{
+				return (dynamic_cast<fudpframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
 }
+
+
+ftcpframe*
+cpacket::tcp(int i) throw (ePacketNotFound)
+{
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<ftcpframe*>( frame ))
+			{
+				return (dynamic_cast<ftcpframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<ftcpframe*>( frame ))
+			{
+				return (dynamic_cast<ftcpframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
+}
+
 
 
 void
@@ -511,136 +917,135 @@ cpacket::set_field(coxmatch const& oxm)
 	{
 		switch (oxm.get_oxm_field()) {
 		case OFPXMT_OFB_ETH_DST:
-			if (not anchors[ETHER_FRAME].empty())
 			{
 				cmacaddr maddr(oxm.oxm_uint48t->value, OFP_ETH_ALEN);
-				ether().set_dl_dst(maddr);
-				oxmlist[OFPXMT_OFB_ETH_DST] = coxmatch_ofb_eth_dst(maddr);
+				ether()->set_dl_dst(maddr);
+				match.set_eth_dst(maddr);
 			}
 			break;
 		case OFPXMT_OFB_ETH_SRC:
-			if (not anchors[ETHER_FRAME].empty())
 			{
 				cmacaddr maddr(oxm.oxm_uint48t->value, OFP_ETH_ALEN);
-				ether().set_dl_src(maddr);
-				oxmlist[OFPXMT_OFB_ETH_SRC] = coxmatch_ofb_eth_src(maddr);
+				ether()->set_dl_src(maddr);
+				match.set_eth_src(maddr);
 			}
 			break;
 		case OFPXMT_OFB_ETH_TYPE:
-			if (not anchors[ETHER_FRAME].empty())
 			{
-				ether().set_dl_type(oxm.uint16());
-				oxmlist[OFPXMT_OFB_ETH_TYPE] = oxm;
+				uint16_t eth_type = oxm.uint16();
+				ether()->set_dl_type(eth_type);
+				match.set_eth_type(eth_type);
 			}
 			break;
 		case OFPXMT_OFB_VLAN_VID:
-			if (not anchors[VLAN_FRAME].empty())
 			{
-				vlan().set_dl_vlan_id(oxm.uint16());
-				oxmlist[OFPXMT_OFB_VLAN_VID] = oxm;
+				uint16_t vid = oxm.uint16();
+				vlan()->set_dl_vlan_id(vid);
+				match.set_vlan_vid(vid);
 			}
 			break;
 		case OFPXMT_OFB_VLAN_PCP:
-			if (not anchors[VLAN_FRAME].empty())
 			{
-				vlan().set_dl_vlan_pcp(oxm.uint8());
-				oxmlist[OFPXMT_OFB_VLAN_PCP] = oxm;
+				uint8_t pcp = oxm.uint8();
+				vlan()->set_dl_vlan_pcp(pcp);
+				match.set_vlan_pcp(pcp);
 			}
 			break;
 		case OFPXMT_OFB_IP_DSCP:
-			if (not anchors[IPV4_FRAME].empty())
 			{
-				ipv4().set_ipv4_dscp(oxm.uint8());
-				ipv4().ipv4_calc_checksum();
-				oxmlist[OFPXMT_OFB_IP_DSCP] = oxm;
+				uint8_t dscp = oxm.uint8();
+				ipv4()->set_ipv4_dscp(dscp);
+				ipv4()->ipv4_calc_checksum();
+				match.set_ip_dscp(dscp);
 			}
 			break;
 		case OFPXMT_OFB_IP_ECN:
-			if (not anchors[IPV4_FRAME].empty())
 			{
-				ipv4().set_ipv4_ecn(oxm.uint8());
-				ipv4().ipv4_calc_checksum();
-				oxmlist[OFPXMT_OFB_IP_ECN] = oxm;
+				uint8_t ecn = oxm.uint8();
+				ipv4()->set_ipv4_ecn(ecn);
+				ipv4()->ipv4_calc_checksum();
+				match.set_ip_ecn(ecn);
 			}
 			break;
 		case OFPXMT_OFB_IP_PROTO:
-			if (not anchors[IPV4_FRAME].empty())
 			{
-				ipv4().set_ipv4_proto(oxm.uint8());
-				ipv4().ipv4_calc_checksum();
-				oxmlist[OFPXMT_OFB_IP_PROTO] = oxm;
+				uint8_t proto = oxm.uint8();
+				ipv4()->set_ipv4_proto(proto);
+				ipv4()->ipv4_calc_checksum();
+				match.set_ip_proto(proto);
 			}
 			break;
 		case OFPXMT_OFB_IPV4_SRC:
-			if (not anchors[IPV4_FRAME].empty())
 			{
-				ipv4().set_ipv4_src(oxm.uint32());
-				ipv4().ipv4_calc_checksum();
-				oxmlist[OFPXMT_OFB_IPV4_SRC] = oxm;
+				caddress src(AF_INET, "0.0.0.0");
+				src.s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
+				ipv4()->set_ipv4_src(src);
+				ipv4()->ipv4_calc_checksum();
+				match.set_ipv4_src(src);
 			}
 			break;
 		case OFPXMT_OFB_IPV4_DST:
-			if (not anchors[IPV4_FRAME].empty())
 			{
-				ipv4().set_ipv4_dst(oxm.uint32());
-				ipv4().ipv4_calc_checksum();
-				oxmlist[OFPXMT_OFB_IPV4_DST] = oxm;
+				caddress dst(AF_INET, "0.0.0.0");
+				dst.s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
+				ipv4()->set_ipv4_dst(dst);
+				ipv4()->ipv4_calc_checksum();
+				match.set_ipv4_dst(dst);
 			}
 			break;
 		case OFPXMT_OFB_TCP_SRC:
-			if (not anchors[TCP_FRAME].empty())
 			{
-				tcp().set_sport(oxm.uint16());
-				tcp().tcp_calc_checksum(
-						ipv4(-1).get_ipv4_src(),
-						ipv4(-1).get_ipv4_dst(),
-						ipv4(-1).get_ipv4_proto(),
-						tcp().framelen());
-				ipv4().ipv4_calc_checksum();
-				oxmlist[OFPXMT_OFB_TCP_SRC] = oxm;
+				uint16_t port = oxm.uint16();
+				tcp()->set_sport(port);
+				match.set_tcp_src(port);
+				tcp()->tcp_calc_checksum(
+						ipv4(-1)->get_ipv4_src(),
+						ipv4(-1)->get_ipv4_dst(),
+						ipv4(-1)->get_ipv4_proto(),
+						tcp()->framelen());
+				ipv4()->ipv4_calc_checksum();
 			}
 			break;
 		case OFPXMT_OFB_TCP_DST:
-			if (not anchors[TCP_FRAME].empty())
 			{
-				tcp().set_dport(oxm.uint16());
-				tcp().tcp_calc_checksum(
-						ipv4(-1).get_ipv4_src(),
-						ipv4(-1).get_ipv4_dst(),
-						ipv4(-1).get_ipv4_proto(),
-						tcp().framelen());
-				ipv4().ipv4_calc_checksum();
-				oxmlist[OFPXMT_OFB_TCP_DST] = oxm;
+				uint16_t port = oxm.uint16();
+				tcp()->set_dport(port);
+				match.set_tcp_dst(port);
+				tcp()->tcp_calc_checksum(
+						ipv4(-1)->get_ipv4_src(),
+						ipv4(-1)->get_ipv4_dst(),
+						ipv4(-1)->get_ipv4_proto(),
+						tcp()->framelen());
+				ipv4()->ipv4_calc_checksum();
 			}
 			break;
 		case OFPXMT_OFB_UDP_SRC:
-			if (not anchors[UDP_FRAME].empty())
 			{
-				udp().set_sport(oxm.uint16());
-				udp().udp_calc_checksum(
-						ipv4(-1).get_ipv4_src(),
-						ipv4(-1).get_ipv4_dst(),
-						ipv4(-1).get_ipv4_proto(),
-						udp().framelen());
-				ipv4().ipv4_calc_checksum();
-				oxmlist[OFPXMT_OFB_UDP_SRC] = oxm;
+				uint16_t port = oxm.uint16();
+				udp()->set_sport(port);
+				match.set_udp_src(port);
+				udp()->udp_calc_checksum(
+						ipv4(-1)->get_ipv4_src(),
+						ipv4(-1)->get_ipv4_dst(),
+						ipv4(-1)->get_ipv4_proto(),
+						udp()->framelen());
+				ipv4()->ipv4_calc_checksum();
 			}
 			break;
 		case OFPXMT_OFB_UDP_DST:
-			if (not anchors[UDP_FRAME].empty())
 			{
-				udp().set_dport(oxm.uint16());
-				udp().udp_calc_checksum(
-						ipv4(-1).get_ipv4_src(),
-						ipv4(-1).get_ipv4_dst(),
-						ipv4(-1).get_ipv4_proto(),
-						udp().framelen());
-				ipv4().ipv4_calc_checksum();
-				oxmlist[OFPXMT_OFB_UDP_DST] = oxm;
+				uint16_t port = oxm.uint16();
+				udp()->set_dport(port);
+				match.set_udp_dst(port);
+				udp()->udp_calc_checksum(
+						ipv4(-1)->get_ipv4_src(),
+						ipv4(-1)->get_ipv4_dst(),
+						ipv4(-1)->get_ipv4_proto(),
+						udp()->framelen());
+				ipv4()->ipv4_calc_checksum();
 			}
 			break;
 		case OFPXMT_OFB_SCTP_SRC:
-			if (not anchors[SCTP_FRAME].empty())
 			{
 #if 0
 				sctp().set_sport(oxm.uint16());
@@ -650,12 +1055,11 @@ cpacket::set_field(coxmatch const& oxm)
 						ipv4(-1).get_ipv4_proto(),
 						sctp().framelen());
 #endif
-				ipv4().ipv4_calc_checksum();
+				ipv4()->ipv4_calc_checksum();
 				oxmlist[OFPXMT_OFB_SCTP_SRC] = oxm;
 			}
 			break;
 		case OFPXMT_OFB_SCTP_DST:
-			if (not anchors[SCTP_FRAME].empty())
 			{
 #if 0
 				sctp().set_dport(oxm.uint16());
@@ -665,33 +1069,65 @@ cpacket::set_field(coxmatch const& oxm)
 						ipv4(-1).get_ipv4_proto(),
 						sctp().framelen());
 #endif
-				ipv4().ipv4_calc_checksum();
+				ipv4()->ipv4_calc_checksum();
 				oxmlist[OFPXMT_OFB_SCTP_DST] = oxm;
 			}
 			break;
 		case OFPXMT_OFB_ICMPV4_TYPE:
-			if (not anchors[ICMPV4_FRAME].empty())
 			{
-				icmpv4().set_icmp_type(oxm.uint8());
-				icmpv4().icmpv4_calc_checksum();
-				ipv4().ipv4_calc_checksum();
-				oxmlist[OFPXMT_OFB_ICMPV4_TYPE] = oxm;
+				uint16_t type = oxm.uint16();
+				icmpv4()->set_icmp_type(type);
+				icmpv4()->icmpv4_calc_checksum();
+				ipv4()->ipv4_calc_checksum();
+				match.set_icmpv4_type(type);
 			}
 			break;
 		case OFPXMT_OFB_ICMPV4_CODE:
-			if (not anchors[ICMPV4_FRAME].empty())
 			{
-				icmpv4().set_icmp_code(oxm.uint8());
-				icmpv4().icmpv4_calc_checksum();
-				ipv4().ipv4_calc_checksum();
-				oxmlist[OFPXMT_OFB_ICMPV4_CODE] = oxm;
+				uint16_t code = oxm.uint16();
+				icmpv4()->set_icmp_code(code);
+				icmpv4()->icmpv4_calc_checksum();
+				ipv4()->ipv4_calc_checksum();
+				match.set_icmpv4_code(code);
 			}
 			break;
 		case OFPXMT_OFB_ARP_OP:
+			{
+				uint16_t opcode = oxm.uint16();
+				arpv4()->set_opcode(opcode);
+				match.set_arp_opcode(opcode);
+			}
+			break;
 		case OFPXMT_OFB_ARP_SPA:
+			{
+				caddress spa(AF_INET, "0.0.0.0");
+				spa.s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
+				arpv4()->set_nw_src(spa);
+				match.set_arp_spa(spa);
+			}
+			break;
 		case OFPXMT_OFB_ARP_TPA:
+			{
+				caddress tpa(AF_INET, "0.0.0.0");
+				tpa.s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
+				arpv4()->set_nw_dst(tpa);
+				match.set_arp_tpa(tpa);
+			}
+			break;
 		case OFPXMT_OFB_ARP_SHA:
+			{
+				cmacaddr sha(oxm.oxm_uint48t->value, OFP_ETH_ALEN);
+				arpv4()->set_dl_src(sha);
+				match.set_arp_sha(sha);
+			}
+			break;
 		case OFPXMT_OFB_ARP_THA:
+			{
+				cmacaddr tha(oxm.oxm_uint48t->value, OFP_ETH_ALEN);
+				arpv4()->set_dl_dst(tha);
+				match.set_arp_tha(tha);
+			}
+			break;
 		case OFPXMT_OFB_IPV6_SRC:
 		case OFPXMT_OFB_IPV6_DST:
 		case OFPXMT_OFB_IPV6_FLABEL:
@@ -705,52 +1141,56 @@ cpacket::set_field(coxmatch const& oxm)
 					this, oxm.get_oxm_class(), oxm.get_oxm_field());
 			break;
 		case OFPXMT_OFB_MPLS_LABEL:
-			if (not anchors[MPLS_FRAME].empty())
 			{
-				mpls().set_mpls_label(oxm.uint32());
-				oxmlist[OFPXMT_OFB_MPLS_LABEL] = oxm;
+				uint32_t label = oxm.uint32();
+				mpls()->set_mpls_label(label);
+				match.set_mpls_label(label);
 			}
 			break;
 		case OFPXMT_OFB_MPLS_TC:
-			if (not anchors[MPLS_FRAME].empty())
 			{
-				mpls().set_mpls_tc(oxm.uint8());
-				oxmlist[OFPXMT_OFB_MPLS_TC] = oxm;
+				uint8_t tc = oxm.uint8();
+				mpls()->set_mpls_tc(tc);
+				match.set_mpls_tc(tc);
 			}
 			break;
-		/* PPP/PPPoE related extensions */
+		/*
+		 * PPP/PPPoE related extensions
+		 */
 		case OFPXMT_OFB_PPPOE_CODE:
-			if (not anchors[PPPOE_FRAME].empty())
 			{
-				pppoe().set_pppoe_code(oxm.uint8());
-				oxmlist[OFPXMT_OFB_PPPOE_CODE] = oxm;
+				uint8_t code = oxm.uint8();
+				pppoe()->set_pppoe_code(code);
+				match.set_pppoe_code(code);
 			}
 			break;
 		case OFPXMT_OFB_PPPOE_TYPE:
-			if (not anchors[PPPOE_FRAME].empty())
 			{
-				pppoe().set_pppoe_type(oxm.uint8());
-				oxmlist[OFPXMT_OFB_PPPOE_TYPE] = oxm;
+				uint8_t type = oxm.uint8();
+				pppoe()->set_pppoe_type(type);
+				oxmlist[OFPXMT_OFB_PPPOE_TYPE] = coxmatch_ofb_pppoe_type(type);
 			}
 			break;
 		case OFPXMT_OFB_PPPOE_SID:
-			if (not anchors[PPPOE_FRAME].empty())
 			{
-				pppoe().set_pppoe_sessid(oxm.uint16());
-				oxmlist[OFPXMT_OFB_PPPOE_SID] = oxm;
+				uint16_t sid = oxm.uint16();
+				pppoe()->set_pppoe_sessid(sid);
+				match.set_pppoe_sessid(sid);
 			}
 			break;
 		case OFPXMT_OFB_PPP_PROT:
-			if (not anchors[PPP_FRAME].empty())
 			{
-				ppp().set_ppp_prot(oxm.uint16());
-				oxmlist[OFPXMT_OFB_PPP_PROT] = oxm;
+				uint16_t prot = oxm.uint16();
+				ppp()->set_ppp_prot(prot);
+				match.set_ppp_prot(prot);
 			}
 			break;
 		default:
-			WRITELOG(CPACKET, ROFL_WARN, "cpacket(%p)::set_field() "
-					"don't know how to handle class:0x%x field:%d, ignoring",
-					this, oxm.get_oxm_class(), oxm.get_oxm_field());
+			{
+				WRITELOG(CPACKET, ROFL_WARN, "cpacket(%p)::set_field() "
+						"don't know how to handle class:0x%x field:%d, ignoring",
+						this, oxm.get_oxm_class(), oxm.get_oxm_field());
+			}
 			break;
 		}
 		break;
@@ -763,183 +1203,6 @@ cpacket::set_field(coxmatch const& oxm)
 	}
 }
 
-
-void
-cpacket::dl_set_dl_src(uint8_t *dl_addr, size_t dl_addrlen)
-{
-	if (dl_addrlen != OFP_ETH_ALEN)
-	{
-		return;
-	}
-	if (anchors[ETHER_FRAME].empty())
-	{
-		return;
-	}
-
-	memcpy(ether().eth_hdr->dl_src, dl_addr, dl_addrlen);
-}
-
-
-void
-cpacket::dl_set_dl_dst(uint8_t *dl_addr, size_t dl_addrlen)
-{
-	if (dl_addrlen != OFP_ETH_ALEN)
-	{
-		return;
-	}
-	if (anchors[ETHER_FRAME].empty())
-	{
-		return;
-	}
-
-	memcpy(ether().eth_hdr->dl_dst, dl_addr, dl_addrlen);
-}
-
-
-void
-cpacket::vlan_set_vid(uint16_t vid /* host byte order */)
-{
-	// no VLAN header present? => ignore command!
-	if (anchors[VLAN_FRAME].empty())
-	{
-		return;
-	}
-
-	vlan().set_dl_vlan_id(vid);
-}
-
-
-void
-cpacket::vlan_set_pcp(uint8_t pcp)
-{
-	// no VLAN header present? => ignore command!
-	if (anchors[VLAN_FRAME].empty())
-	{
-		return;
-	}
-
-	vlan().set_dl_vlan_pcp(pcp);
-}
-
-
-void
-cpacket::nw_set_nw_src(uint32_t nw_src)
-{
-	if (not anchors[IPV4_FRAME].empty())
-	{
-		ipv4().set_ipv4_src(nw_src);
-		ipv4().ipv4_calc_checksum();
-	}
-	else if (not anchors[ARPV4_FRAME].empty())
-	{
-		arpv4().set_nw_src(nw_src);
-	}
-}
-
-
-void
-cpacket::nw_set_nw_dst(uint32_t nw_dst)
-{
-	if (not anchors[IPV4_FRAME].empty())
-	{
-		ipv4().set_ipv4_dst(nw_dst);
-		ipv4().ipv4_calc_checksum();
-	}
-	else if (not anchors[ARPV4_FRAME].empty())
-	{
-		arpv4().set_nw_dst(nw_dst);
-	}
-}
-
-
-void
-cpacket::nw_set_nw_dscp(uint8_t dscp)
-{
-	if (anchors[IPV4_FRAME].empty())
-	{
-		return;
-	}
-
-	ipv4().set_ipv4_dscp(dscp);
-	ipv4().ipv4_calc_checksum();
-}
-
-
-void
-cpacket::nw_set_nw_ecn(uint8_t ecn)
-{
-	if (not anchors[IPV4_FRAME].empty())
-	{
-		return;
-	}
-
-	ipv4().set_ipv4_ecn(ecn);
-	ipv4().ipv4_calc_checksum();
-}
-
-
-void
-cpacket::tp_set_tp_src(uint16_t port)
-{
-	if (not anchors[UDP_FRAME].empty())
-	{
-		udp().set_sport(port);
-		udp().udp_calc_checksum(
-				ipv4().get_ipv4_src(),
-				ipv4().get_ipv4_dst(),
-				ipv4().get_ipv4_proto(),
-				ipv4().payloadlen());
-		ipv4().ipv4_calc_checksum();
-	}
-	if (not anchors[TCP_FRAME].empty())
-	{
-		tcp().set_sport(port);
-		tcp().tcp_calc_checksum(
-				ipv4().get_ipv4_src(),
-				ipv4().get_ipv4_dst(),
-				ipv4().get_ipv4_proto(),
-				ipv4().payloadlen());
-		ipv4().ipv4_calc_checksum();
-	}
-	if (not anchors[ICMPV4_FRAME].empty())
-	{
-		icmpv4().set_icmp_type(port & 0xff);
-		icmpv4().icmpv4_calc_checksum();
-		ipv4().ipv4_calc_checksum();
-	}
-}
-
-
-void
-cpacket::tp_set_tp_dst(uint16_t port)
-{
-	if (not anchors[UDP_FRAME].empty())
-	{
-		udp().set_dport(port);
-		udp().udp_calc_checksum(
-				ipv4().get_ipv4_src(),
-				ipv4().get_ipv4_dst(),
-				ipv4().get_ipv4_proto(),
-				ipv4().payloadlen());
-		ipv4().ipv4_calc_checksum();
-	}
-	if (not anchors[TCP_FRAME].empty())
-	{
-		tcp().set_dport(port);
-		tcp().tcp_calc_checksum(
-				ipv4().get_ipv4_src(),
-				ipv4().get_ipv4_dst(),
-				ipv4().get_ipv4_proto(),
-				ipv4().payloadlen());
-		ipv4().ipv4_calc_checksum();
-	}
-	if (not anchors[ICMPV4_FRAME].empty())
-	{
-		icmpv4().set_icmp_code(port & 0xff);
-		icmpv4().icmpv4_calc_checksum();
-		ipv4().ipv4_calc_checksum();
-	}
-}
 
 
 void
@@ -956,52 +1219,40 @@ cpacket::copy_ttl_in()
 }
 
 
-void
-cpacket::set_mpls_label(uint32_t mpls_label)
-{
-	if (anchors[MPLS_FRAME].empty())
-	{
-		return;
-	}
-
-	mpls().set_mpls_label(mpls_label); // mpls_label in host-byte-order
-}
-
-
-void
-cpacket::set_mpls_tc(uint8_t mpls_tc)
-{
-	if (anchors[MPLS_FRAME].empty())
-	{
-		return;
-	}
-
-	mpls().set_mpls_tc(mpls_tc);
-}
-
 
 void
 cpacket::set_mpls_ttl(uint8_t mpls_ttl)
 {
-	if (anchors[MPLS_FRAME].empty())
-	{
-		return;
-	}
-
-	mpls().set_mpls_ttl(mpls_ttl);
+	mpls()->set_mpls_ttl(mpls_ttl);
 }
+
 
 
 void
 cpacket::dec_mpls_ttl()
 {
-	if (anchors[MPLS_FRAME].empty())
-	{
-		return;
-	}
-
-	mpls().dec_mpls_ttl();
+	mpls()->dec_mpls_ttl();
 }
+
+
+
+
+void
+cpacket::set_nw_ttl(uint8_t nw_ttl)
+{
+	ipv4()->set_ipv4_ttl(nw_ttl);
+	ipv4()->ipv4_calc_checksum();
+}
+
+
+
+void
+cpacket::dec_nw_ttl()
+{
+	ipv4()->dec_ipv4_ttl();
+	ipv4()->ipv4_calc_checksum();
+}
+
 
 
 void
@@ -1011,302 +1262,197 @@ cpacket::push_vlan(uint16_t ethertype)
 		uint16_t outer_vid = 0;
 		uint8_t  outer_pcp = 0;
 
-		// get default values for push actions (OF 1.1 spec section 4.9.1)
-		if (not anchors[VLAN_FRAME].empty())
-		{
-			outer_vid = vlan().get_dl_vlan_id();
-			outer_pcp = vlan().get_dl_vlan_pcp();
-		}
-		else
-		{
+		try {
+			// get default values for push actions (OF 1.1 spec section 4.9.1)
+			outer_vid = vlan()->get_dl_vlan_id();
+			outer_pcp = vlan()->get_dl_vlan_pcp();
+
+		} catch (ePacketNotFound& e) {
+
 			outer_vid = 0;
 			outer_pcp = 0;
 		}
 
+		uint8_t *ptr = mem.insert(sizeof(struct fetherframe::eth_hdr_t),
+									sizeof(struct fvlanframe::vlan_hdr_t));
 
-		// insert space for a new vlan tag
-		cmemory *vlan_tag = new cmemory(sizeof(struct fvlanframe::vlan_hdr_t));
+		fvlanframe *vlan = new fvlanframe(ptr, sizeof(struct fvlanframe::vlan_hdr_t));
 
-		piobuf.push_back(vlan_tag);
+		frame_push(vlan);
 
-		fvlanframe *n_vlan = new fvlanframe(
-									vlan_tag->somem(),
-									vlan_tag->memlen(),
-									vlan_tag->memlen());
+		vlan->set_dl_type(ether()->get_dl_type());
+		vlan->set_dl_vlan_id(outer_vid);
+		vlan->set_dl_vlan_pcp(outer_pcp);
 
-		anchors[VLAN_FRAME].push_front(n_vlan);
+		ether(-1)->set_dl_type(ethertype);
 
-		/* add to piovec vlan is outer most tag immediately after ether(0) == piovec.begin() */
-		std::list<fframe*>::iterator it = find_if(piovec.begin(), piovec.end(),
-				std::bind2nd(std::equal_to<fframe*>(), &ether(0)));
-		piovec.insert(++it, n_vlan);
+		match.set_eth_type(ethertype);
+		match.set_vlan_vid(outer_vid);
+		match.set_vlan_pcp(outer_pcp);
 
-		n_vlan->set_dl_type(ether().get_dl_type());
-		n_vlan->set_dl_vlan_id(outer_vid);
-		n_vlan->set_dl_vlan_pcp(outer_pcp);
-
-		ether(-1).set_dl_type(ethertype);
-
-		oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE, ethertype);
-		oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID, outer_vid);
-
-		plength += sizeof(struct fvlanframe::vlan_hdr_t);
-
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_vlan() pack: %s",
-							this,
-							c_str());
-
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_vlan() "
+				"mem: %s", this, mem.c_str());
 
 	} catch (eMemAllocFailed& e) {
-		// TODO: log error
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_vlan() "
+				"memory allocation failed", this);
 	}
 }
+
 
 
 void
 cpacket::pop_vlan()
 {
-	if (anchors[VLAN_FRAME].empty())
-	{
-		return;
+	try {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_vlan() ", this);
+
+		fvlanframe *vlan = vlan();
+
+		ether()->set_dl_type(vlan->get_dl_type());
+
+		mem.remove(vlan->soframe(), vlan->framelen());
+
+		frame_pop(vlan);
+
+		delete vlan;
+
+		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID);
+		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP);
+		match.set_eth_type(ether()->get_dl_type());
+
+	} catch (ePacketNotFound& e) {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_vlan() "
+				"no vlan tag found, mem: %s", this, mem.c_str());
 	}
-
-	ether(-1).set_dl_type(vlan(0).get_dl_type());
-
-	piovec.remove(anchors[VLAN_FRAME].front());
-
-	delete anchors[VLAN_FRAME].front();
-
-	anchors[VLAN_FRAME].pop_front();
-
-	oxmlist.erase(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID);
-	oxmlist.erase(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP);
-	oxmlist.oxm_replace_or_insert(
-					OFPXMC_OPENFLOW_BASIC,
-					OFPXMT_OFB_ETH_TYPE,
-					ether(-1).get_dl_type());
-
-	plength -= sizeof(struct fvlanframe::vlan_hdr_t);
 }
+
 
 
 void
 cpacket::push_mpls(uint16_t ethertype)
 {
 	try {
-		uint32_t outer_label = 0;
-		uint8_t  outer_ttl = 0;
-		uint8_t  outer_tc  = 0;
-		bool outer_bos = true;
+		uint32_t	outer_label 	= 0;
+		uint8_t  	outer_ttl 		= 0;
+		uint8_t  	outer_tc  		= 0;
+		bool 		outer_bos 		= true;
 
-		// get default values for push actions (OF 1.1 spec section 4.9.1)
-		if (not anchors[MPLS_FRAME].empty())
-		{
-			outer_label = mpls().get_mpls_label();
-			outer_ttl 	= mpls().get_mpls_ttl();
-			outer_tc	= mpls().get_mpls_tc();
-			outer_bos	= false;
-		}
-		else
-		{
-			outer_label = 0;
-			outer_ttl	= 0;
-			outer_tc	= 0;
-			outer_bos	= true;
-		}
+		try {
+			// get default values for push actions (OF 1.1 spec section 4.9.1)
+			outer_label = mpls()->get_mpls_label();
+			outer_ttl	= mpls()->get_mpls_ttl();
+			outer_tc	= mpls()->get_mpls_tc();
+			outer_bos	= mpls()->get_mpls_bos();
 
+		} catch (ePacketNotFound& e) {
 
-		// insert space for a new mpls tag
-		cmemory *mpls_tag = new cmemory(sizeof(struct fmplsframe::mpls_hdr_t));
+			outer_label		= 0;
+			outer_ttl		= 0;
+			outer_tc		= 0;
+			outer_bos		= true;
 
-		piobuf.push_back(mpls_tag);
-
-		fmplsframe *n_mpls = new fmplsframe(
-									mpls_tag->somem(),
-									mpls_tag->memlen(),
-									mpls_tag->memlen());
-
-		anchors[MPLS_FRAME].push_front(n_mpls); // outermost tag
-
-		/* add to piovec: n_mpls  is outer most tag immediately after last vlan or directly after ether */
-		std::list<fframe*>::iterator it = piovec.end();
-		if (not anchors[VLAN_FRAME].empty())
-		{
-			it = find_if(piovec.begin(), piovec.end(),
-				std::bind2nd(std::equal_to<fframe*>(), &vlan(-1)));
-		}
-		else
-		{
-			it = find_if(piovec.begin(), piovec.end(),
-				std::bind2nd(std::equal_to<fframe*>(), &ether(-1)));
-		}
-		piovec.insert(++it, n_mpls);
-
-		n_mpls->set_mpls_label(outer_label);
-		n_mpls->set_mpls_ttl(outer_ttl);
-		n_mpls->set_mpls_tc(outer_tc);
-		n_mpls->set_mpls_bos(outer_bos);
-
-		// mpls after vlan or ether
-		if (not anchors[VLAN_FRAME].empty())
-		{
-			vlan(-1).set_dl_type(ethertype);
-		}
-		else
-		{
-			ether(-1).set_dl_type(ethertype);
+			// TODO: get TTL from IP header, if no MPLS tag already exists
 		}
 
-		oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE, ethertype);
-		oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_LABEL, outer_label);
-		oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_TC, outer_tc);
+		// immediately behind ethernet header
+		uint8_t *ptr = mem.insert(sizeof(struct fetherframe::eth_hdr_t),
+									sizeof(struct fmplsframe::mpls_hdr_t));
 
-		plength += sizeof(struct fmplsframe::mpls_hdr_t);
+		fmplsframe *mpls = new fmplsframe(ptr, sizeof(struct fmplsframe::mpls_hdr_t));
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_mpls() pack: %s",
-							this,
-							c_str());
+		frame_push(mpls);
+
+		mpls->set_mpls_label(outer_label);
+		mpls->set_mpls_tc(outer_tc);
+		mpls->set_mpls_ttl(outer_ttl);
+		mpls->set_mpls_bos(outer_bos);
+
+		ether()->set_dl_type(ethertype);
+
+		match.set_eth_type(ethertype);
+		match.set_mpls_label(outer_label);
+		match.set_mpls_tc(outer_tc);
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_mpls() "
+				"mem: %s", this, mem.c_str());
 
 
 	} catch (eMemAllocFailed& e) {
-		// TODO: log error
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_mpls() "
+				"memory allocation failed", this);
 	}
 }
+
 
 
 void
 cpacket::pop_mpls(uint16_t ethertype)
 {
-	if (anchors[MPLS_FRAME].empty())
-	{
-		return;
+	try {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_mpls() ", this);
+
+		fvlanframe *mpls = mpls();
+
+		ether()->set_dl_type(ethertype);
+
+		mem.remove(mpls->soframe(), mpls->framelen());
+
+		frame_pop(mpls);
+
+		delete mpls;
+
+		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_LABEL);
+		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_TC);
+		match.set_eth_type(ether()->get_dl_type());
+
+	} catch (ePacketNotFound& e) {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_mpls() "
+				"no mpls tag found, mem: %s", this, mem.c_str());
 	}
-
-	piovec.remove(anchors[MPLS_FRAME].front());
-
-	delete anchors[MPLS_FRAME].front();
-
-	anchors[MPLS_FRAME].pop_front();
-
-	// mpls after vlan or ether
-	if (not anchors[VLAN_FRAME].empty())
-	{
-		vlan(-1).set_dl_type(ethertype);
-	}
-	else
-	{
-		ether(-1).set_dl_type(ethertype);
-	}
-
-	oxmlist.erase(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_LABEL);
-	oxmlist.erase(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_TC);
-	oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE, ethertype);
-
-	plength -= sizeof(struct fmplsframe::mpls_hdr_t);
 }
 
-
-void
-cpacket::set_nw_ttl(uint8_t nw_ttl)
-{
-	if (anchors[IPV4_FRAME].empty())
-	{
-		return;
-	}
-
-	ipv4().set_ipv4_ttl(nw_ttl);
-	ipv4().ipv4_calc_checksum();
-}
-
-
-void
-cpacket::dec_nw_ttl()
-{
-	if (anchors[IPV4_FRAME].empty())
-	{
-		return;
-	}
-
-	ipv4().dec_ipv4_ttl();
-	ipv4().ipv4_calc_checksum();
-}
 
 
 void
 cpacket::push_pppoe(uint16_t ethertype)
 {
-	if (not anchors[PPPOE_FRAME].empty())
-	{
-		return;
+	try {
+		uint8_t code = 0;
+		uint16_t sid = 0;
+
+		uint8_t *ptr = mem.insert(sizeof(struct fetherframe::eth_hdr_t),
+									sizeof(struct fpppoeframe::pppoe_hdr_t));
+
+		fpppoeframe *pppoe = new fpppoeframe(ptr, sizeof(struct fpppoeframe::pppoe_hdr_t));
+
+		frame_push(pppoe);
+
+		pppoe->set_pppoe_vers(fpppoeframe::PPPOE_VERSION);
+		pppoe->set_pppoe_type(fpppoeframe::PPPOE_TYPE);
+		pppoe->set_pppoe_code(code);
+		pppoe->set_pppoe_sessid(sid);
+
+		ether()->set_dl_type(ethertype);
+
+		match.set_eth_type(ethertype);
+		match.set_pppoe_code(code);
+		match.set_pppoe_sessid(sid);
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_pppoe() "
+				"mem: %s", this, mem.c_str());
+
+	} catch (eMemAllocFailed& e) {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_pppoe() "
+				"memory allocation failed", this);
 	}
-
-	// insert space for a new pppoe tag
-	cmemory *pppoe_tag = new cmemory(sizeof(struct fpppoeframe::pppoe_hdr_t));
-
-	piobuf.push_back(pppoe_tag);
-
-	fpppoeframe *n_pppoe = new fpppoeframe(
-								pppoe_tag->somem(),
-								pppoe_tag->memlen(),
-								pppoe_tag->memlen());
-
-	anchors[PPPOE_FRAME].push_front(n_pppoe); // outermost tag (well, for pppoe there is only a single one anyway)
-
-	/* add to piovec: n_pppoe  is single tag immediately after last vlan or directly after ether */
-	std::list<fframe*>::iterator it = piovec.end();
-	if (not anchors[VLAN_FRAME].empty())
-	{
-		it = find_if(piovec.begin(), piovec.end(),
-			std::bind2nd(std::equal_to<fframe*>(), &vlan(-1))); // get last vlan tag
-	}
-	else
-	{
-		it = find_if(piovec.begin(), piovec.end(),
-			std::bind2nd(std::equal_to<fframe*>(), &ether(0))); // get first ether tag
-	}
-	piovec.insert(++it, n_pppoe);
-
-
-	n_pppoe->set_pppoe_vers(fpppoeframe::PPPOE_VERSION);
-	n_pppoe->set_pppoe_type(fpppoeframe::PPPOE_TYPE);
-	n_pppoe->set_pppoe_code(0);
-	n_pppoe->set_pppoe_sessid(0);
-
-	// pppoe after vlan or ether (TODO: think about pppoe within mpls?)
-	if (not anchors[VLAN_FRAME].empty())
-	{
-		vlan(-1).set_dl_type(ethertype);
-	}
-	else
-	{
-		ether(-1).set_dl_type(ethertype);
-	}
-
-	// set PPPoE header length field (costly operation :( )
-	std::list<fframe*>::iterator start = find_if(piovec.begin(), piovec.end(),
-			std::bind2nd(std::equal_to<fframe*>(), n_pppoe));
-	uint16_t p_len = 0;
-	for (std::list<fframe*>::iterator
-			it = ++start; it != piovec.end(); ++it)
-	{
-		p_len += (*it)->framelen();
-	}
-
-	n_pppoe->set_hdr_length(p_len);
-
-	oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE, ethertype);
-#if 0
-	// we do this in the appropriate set methods
-	oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_CODE, (uint8_t)0);
-	oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_TYPE, (uint8_t)fpppoeframe::PPPOE_TYPE);
-	oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_SID, (uint16_t)0);
-#endif
-
-	plength += sizeof(struct fpppoeframe::pppoe_hdr_t);
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_pppoe() pack: %s",
-						this,
-						c_str());
 }
 
 
@@ -1314,74 +1460,29 @@ cpacket::push_pppoe(uint16_t ethertype)
 void
 cpacket::pop_pppoe(uint16_t ethertype)
 {
-	if (anchors[PPPOE_FRAME].empty())
-	{
-		return;
+	try {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_pppoe() ", this);
+
+		fpppoeframe *pppoe = pppoe();
+
+		ether()->set_dl_type(ethertype);
+
+		mem.remove(pppoe->soframe(), pppoe->framelen());
+
+		frame_pop(pppoe);
+
+		delete pppoe;
+
+		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_CODE);
+		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_SID);
+		match.set_eth_type(ether()->get_dl_type());
+
+	} catch (ePacketNotFound& e) {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_pppoe() "
+				"no pppoe tag found, mem: %s", this, mem.c_str());
 	}
-
-	piovec.remove(anchors[PPPOE_FRAME].front());
-
-	delete anchors[PPPOE_FRAME].front();
-
-	anchors[PPPOE_FRAME].pop_front();
-
-	// mpls after vlan or ether
-	if (not anchors[VLAN_FRAME].empty())
-	{
-		vlan(-1).set_dl_type(ethertype);
-	}
-	else
-	{
-		ether(-1).set_dl_type(ethertype);
-	}
-
-	oxmlist.erase(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_CODE);
-	oxmlist.erase(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_TYPE);
-	oxmlist.erase(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_SID);
-
-	plength -= sizeof(struct fpppoeframe::pppoe_hdr_t);
-}
-
-
-void
-cpacket::set_pppoe_type(uint8_t type)
-{
-	if (anchors[PPPOE_FRAME].empty())
-	{
-		return;
-	}
-
-	pppoe().set_pppoe_type(type);
-
-	oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_TYPE, (uint8_t)fpppoeframe::PPPOE_TYPE);
-}
-
-
-void
-cpacket::set_pppoe_code(uint8_t code)
-{
-	if (anchors[PPPOE_FRAME].empty())
-	{
-		return;
-	}
-
-	pppoe().set_pppoe_code(code);
-
-	oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_CODE, (uint8_t)0);
-}
-
-
-void
-cpacket::set_pppoe_sessid(uint16_t sessid)
-{
-	if (anchors[PPPOE_FRAME].empty())
-	{
-		return;
-	}
-
-	pppoe().set_pppoe_sessid(sessid);
-
-	oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_SID, (uint16_t)0);
 }
 
 
@@ -1389,88 +1490,54 @@ cpacket::set_pppoe_sessid(uint16_t sessid)
 void
 cpacket::push_ppp(uint16_t code)
 {
-	if (not anchors[PPP_FRAME].empty())
-	{
-		return;
+	try {
+		uint8_t *ptr = mem.insert(sizeof(struct fetherframe::eth_hdr_t),
+									sizeof(struct fpppframe::ppp_hdr_t));
+
+		fpppframe *ppp = new fpppframe(ptr, sizeof(struct fpppframe::ppp_hdr_t));
+
+		frame_push(ppp);
+
+		ppp->set_ppp_prot(code);
+
+		match.set_ppp_prot(code);
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_ppp() "
+				"mem: %s", this, mem.c_str());
+
+	} catch (eMemAllocFailed& e) {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_ppp() "
+				"memory allocation failed", this);
 	}
-
-	// insert space for a new ppp tag
-	cmemory *ppp_tag = new cmemory(sizeof(struct fpppframe::ppp_hdr_t));
-
-	piobuf.push_back(ppp_tag);
-
-	fpppframe *n_ppp = new fpppframe(
-								ppp_tag->somem(),
-								ppp_tag->memlen(),
-								ppp_tag->memlen());
-
-	anchors[PPP_FRAME].push_front(n_ppp); // outermost tag (well, for ppp there is only a single one anyway)
-
-	/* add to piovec: n_ppp is single tag immediately after pppoe tag */
-	std::list<fframe*>::iterator it = piovec.end();
-	it = find_if(piovec.begin(), piovec.end(),
-			std::bind2nd(std::equal_to<fframe*>(), &pppoe(0))); // get last vlan tag
-	piovec.insert(++it, n_ppp);
-
-	ppp(0).set_ppp_prot(code);
-
-	{
-		// reset PPPoE header length field (costly operation :( )
-		std::list<fframe*>::iterator start = find_if(piovec.begin(), piovec.end(),
-				std::bind2nd(std::equal_to<fframe*>(), n_ppp));
-		uint16_t p_len = 0;
-		for (std::list<fframe*>::iterator
-				it = start; it != piovec.end(); ++it)
-		{
-			p_len += (*it)->framelen();
-		}
-
-		pppoe(0).set_hdr_length(p_len);
-	}
-
-	oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPP_PROT, code);
-
-	plength += sizeof(struct fpppframe::ppp_hdr_t);
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_ppp() pack: %s",
-						this,
-						c_str());
 }
+
 
 
 void
 cpacket::pop_ppp()
 {
-	if (anchors[PPP_FRAME].empty())
-	{
-		return;
+	try {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_ppp() ", this);
+
+		fpppframe *ppp = ppp();
+
+		mem.remove(ppp->soframe(), ppp->framelen());
+
+		frame_pop(ppp);
+
+		delete ppp;
+
+		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPP_PROT);
+
+	} catch (ePacketNotFound& e) {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_ppp() "
+				"no ppp tag found, mem: %s", this, mem.c_str());
 	}
-
-	piovec.remove(anchors[PPP_FRAME].front());
-
-	delete anchors[PPP_FRAME].front();
-
-	anchors[PPP_FRAME].pop_front();
-
-	oxmlist.erase(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPP_PROT);
-
-	plength -= sizeof(struct fpppframe::ppp_hdr_t);
 }
 
-
-
-void
-cpacket::set_ppp_prot(uint16_t prot)
-{
-	if (anchors[PPP_FRAME].empty())
-	{
-		return;
-	}
-
-	ppp().set_ppp_prot(prot);
-
-	oxmlist.oxm_replace_or_insert(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPP_PROT, prot);
-}
 
 
 void
@@ -1478,18 +1545,12 @@ cpacket::classify(uint32_t in_port /* host byte order */)
 {
 	uint8_t 	*p_ptr 		= (uint8_t*)mem.somem();
 	size_t 		 p_len 		= mem.memlen();
-	fframe 		*pred 		= (fframe*)0;
-	uint16_t 	 dl_type 	= 0;
 
-	/*
-	 * initial assumption: we have a single cmemory instance stored in piobuf
-	 * that contains the entire frame
-	 * this frame may be fragmented later (due to push and pop operations)
-	 * It is safe to run method classify() with a single consecutive cmemory
-	 * buffer.
-	 * It must not be called later. Therefore, classify() is declared as private method.
-	 */
+	reset();
 
+	match.set_in_port(in_port);
+
+	parse_ether(p_ptr, p_len);
 }
 
 
@@ -1517,6 +1578,64 @@ cpacket::frame_append(
 		throw eInternalError();
 	}
 
+}
+
+
+void
+cpacket::frame_push(
+		fframe *frame)
+{
+	if ((0 == head) || (0 == tail))
+	{
+		head = tail = frame;
+	}
+	else if ((0 != head) && (0 != tail))
+	{
+		frame->next 	= head->next;
+		head->next 		= frame;
+		frame->prev 	= head;
+
+		if (0 != frame->next)
+		{
+			frame->next->prev = frame;
+		}
+		else
+		{
+			tail = frame;
+		}
+	}
+	else
+	{
+		throw eInternalError();
+	}
+}
+
+
+
+void
+cpacket::frame_pop(
+		fframe *frame)
+{
+	if (0 != frame->next)
+	{
+		frame->next->prev = frame->prev;
+	}
+	else
+	{
+		tail = frame->prev;
+	}
+
+	if (0 != frame->prev)
+	{
+		frame->prev->next = frame->next;
+	}
+	else
+	{
+		head = frame->next;
+	}
+
+	frame->next = (fframe*)0;
+	frame->prev = (fframe*)0;
 }
 
 
@@ -1827,8 +1946,33 @@ cpacket::parse_arpv4(
 		uint8_t *data,
 		size_t datalen)
 {
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
 
+	if (p_len < sizeof(struct farpv4frame::arpv4_hdr_t))
+	{
+		return;
+	}
 
+	farpv4frame *arp = new farpv4frame(p_ptr, sizeof(struct farpv4frame::arpv4_hdr_t));
+
+	match.set_arp_opcode(arp->get_opcode());
+	match.set_arp_spa(arp->get_nw_src());
+	match.set_arp_tpa(arp->get_nw_dst());
+	match.set_arp_sha(arp->get_dl_src());
+	match.set_arp_tha(arp->get_dl_dst());
+
+	frame_append(arp);
+
+	p_ptr += sizeof(struct farpv4frame::arpv4_hdr_t);
+	p_len -= sizeof(struct farpv4frame::arpv4_hdr_t);
+
+	if (p_len > 0)
+	{
+		fframe *payload = new fframe(p_ptr, p_len);
+
+		frame_append(payload);
+	}
 }
 
 
@@ -1838,8 +1982,74 @@ cpacket::parse_ipv4(
 		uint8_t *data,
 		size_t datalen)
 {
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
+
+	if (p_len < sizeof(struct fipv4frame::ipv4_hdr_t))
+	{
+		return;
+	}
+
+	fipv4frame *ip = new fipv4frame(p_ptr, sizeof(struct fipv4frame::ipv4_hdr_t));
+
+	match.set_ip_proto(ip->get_ipv4_proto());
+	match.set_ipv4_dst(ip->get_ipv4_dst());
+	match.set_ipv4_src(ip->get_ipv4_src());
+	match.set_ip_dscp(ip->get_ipv4_dscp());
+	match.set_ip_ecn(ip->get_ipv4_ecn());
 
 
+	frame_append(ip);
+
+	p_ptr += sizeof(struct fipv4frame::ipv4_hdr_t);
+	p_len -= sizeof(struct fipv4frame::ipv4_hdr_t);
+
+	if (ip->has_MF_bit_set())
+	{
+		WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::parse_ipv4() "
+				"IPv4 fragment found", this);
+
+		return;
+	}
+
+	// FIXME: IP header with options
+
+
+
+	switch (match.get_ip_proto()) {
+	case ficmpv4frame::ICMPV4_IP_PROTO:
+		{
+			parse_ipv4(p_ptr, p_len);
+		}
+		break;
+	case fudpframe::UDP_IP_PROTO:
+		{
+			parse_udp(p_ptr, p_len);
+		}
+		break;
+	case ftcpframe::TCP_IP_PROTO:
+		{
+			parse_tcp(p_ptr, p_len);
+		}
+		break;
+#if 0
+	case fsctpframe::SCTP_IP_PROTO:
+		{
+			parse_sctp(p_ptr, p_len);
+		}
+		break;
+#endif
+	default:
+		{
+			if (p_len > 0)
+			{
+				fframe *payload = new fframe(p_ptr, p_len);
+
+				frame_append(payload);
+			}
+		}
+		break;
+	}
 }
 
 
@@ -1849,8 +2059,31 @@ cpacket::parse_icmpv4(
 		uint8_t *data,
 		size_t datalen)
 {
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
+
+	if (p_len < sizeof(struct ficmpv4frame::icmpv4_hdr_t))
+	{
+		return;
+	}
+
+	ficmpv4frame *icmp = new ficmpv4frame(p_ptr, sizeof(struct ficmpv4frame::icmpv4_hdr_t));
+
+	match.set_icmpv4_type(icmp->get_icmp_type());
+	match.set_icmpv4_code(icmp->get_icmp_code());
+
+	frame_append(icmp);
+
+	p_ptr += sizeof(struct ficmpv4frame::icmpv4_hdr_t);
+	p_len -= sizeof(struct ficmpv4frame::icmpv4_hdr_t);
 
 
+	if (p_len > 0)
+	{
+		fframe *payload = new fframe(p_ptr, p_len);
+
+		frame_append(payload);
+	}
 }
 
 
@@ -1860,8 +2093,31 @@ cpacket::parse_udp(
 		uint8_t *data,
 		size_t datalen)
 {
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
+
+	if (p_len < sizeof(struct fudpframe::udp_hdr_t))
+	{
+		return;
+	}
+
+	fudpframe *udp = new fudpframe(p_ptr, sizeof(struct fudpframe::udp_hdr_t));
+
+	match.set_udp_dst(udp->get_dport());
+	match.set_udp_src(udp->get_sport());
+
+	frame_append(udp);
+
+	p_ptr += sizeof(struct fudpframe::udp_hdr_t);
+	p_len -= sizeof(struct fudpframe::udp_hdr_t);
 
 
+	if (p_len > 0)
+	{
+		fframe *payload = new fframe(p_ptr, p_len);
+
+		frame_append(payload);
+	}
 }
 
 
@@ -1871,7 +2127,31 @@ cpacket::parse_tcp(
 		uint8_t *data,
 		size_t datalen)
 {
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
 
+	if (p_len < sizeof(struct ftcpframe::tcp_hdr_t))
+	{
+		return;
+	}
+
+	ftcpframe *tcp = new ftcpframe(p_ptr, sizeof(struct ftcpframe::tcp_hdr_t));
+
+	match.set_tcp_dst(tcp->get_dport());
+	match.set_tcp_src(tcp->get_sport());
+
+	frame_append(tcp);
+
+	p_ptr += sizeof(struct ftcpframe::tcp_hdr_t);
+	p_len -= sizeof(struct ftcpframe::tcp_hdr_t);
+
+
+	if (p_len > 0)
+	{
+		fframe *payload = new fframe(p_ptr, p_len);
+
+		frame_append(payload);
+	}
 
 }
 
@@ -1888,9 +2168,338 @@ cpacket::parse_sctp(
 
 
 
+
+
+
+void
+cpacket::calc_checksums()
+{
+	RwLock lock(&ac_rwlock, RwLock::RWLOCK_READ);
+
+	if (flags.test(FLAG_TCP_CHECKSUM))
+	{
+		tcp()->tcp_calc_checksum(
+			ipv4()->get_ipv4_src(),
+			ipv4()->get_ipv4_dst(),
+			ipv4()->get_ipv4_proto(),
+			ipv4()->payloadlen());
+	}
+
+	if (flags.test(FLAG_UDP_CHECKSUM))
+	{
+		udp()->udp_calc_checksum(
+			ipv4()->get_ipv4_src(),
+			ipv4()->get_ipv4_dst(),
+			ipv4()->get_ipv4_proto(),
+			ipv4()->payloadlen());
+	}
+
+	if (flags.test(FLAG_IPV4_CHECKSUM))
+	{
+		ipv4()->ipv4_calc_checksum();
+	}
+
+	if (flags.test(FLAG_ICMPV4_CHECKSUM))
+	{
+		icmpv4()->icmpv4_calc_checksum();
+	}
+
+	if (flags.test(FLAG_PPPOE_LENGTH))
+	{
+		pppoe()->pppoe_calc_length();
+	}
+}
+
+
+
+void
+cpacket::calc_hits(
+		cofmatch& ofmatch,
+		uint16_t& exact_hits,
+		uint16_t& wildcard_hits,
+		uint16_t& missed)
+{
+	match.oxmlist.calc_hits(ofmatch.oxmlist, exact_hits, wildcard_hits, missed);
+}
+
+
+
+
+
+/*
+ * action related methods
+ */
+
+
+void
+cpacket::handle_action(
+		cofaction& action)
+{
+	switch (action.get_type()) {
+	// processing actions on cpkbuf instance
+	case OFPAT_SET_FIELD:
+		action_set_field(action);
+		break;
+	case OFPAT_COPY_TTL_OUT:
+		action_copy_ttl_out(action);
+		break;
+	case OFPAT_COPY_TTL_IN:
+		action_copy_ttl_in(action);
+		break;
+	case OFPAT_SET_MPLS_TTL:
+		action_set_mpls_ttl(action);
+		break;
+	case OFPAT_DEC_MPLS_TTL:
+		action_dec_mpls_ttl(action);
+		break;
+	case OFPAT_PUSH_VLAN:
+		action_push_vlan(action);
+		break;
+	case OFPAT_POP_VLAN:
+		action_pop_vlan(action);
+		break;
+	case OFPAT_PUSH_MPLS:
+		action_push_mpls(action);
+		break;
+	case OFPAT_POP_MPLS:
+		action_pop_mpls(action);
+		break;
+	case OFPAT_SET_NW_TTL:
+		action_set_nw_ttl(action);
+		break;
+	case OFPAT_DEC_NW_TTL:
+		action_dec_nw_ttl(action);
+		break;
+	case OFPAT_PUSH_PPPOE:
+		action_push_pppoe(action);
+		break;
+	case OFPAT_POP_PPPOE:
+		action_pop_pppoe(action);
+		break;
+	case OFPAT_PUSH_PPP:
+		action_push_ppp(action);
+		break;
+	case OFPAT_POP_PPP:
+		action_pop_ppp(action);
+		break;
+	default:
+		WRITELOG(CPACKET, ERROR, "cpacket(%p)::handle_action() unknown action type %d",
+				this, action.get_type());
+		break;
+	}
+}
+
+
+void
+cpacket::action_set_field(
+		cofaction& action)
+{
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_field() [1] pack: %s",
+				this,
+				c_str());
+
+	set_field(action.get_oxm());
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_field() [2] pack: %s",
+				this,
+				c_str());
+}
+
+
+void
+cpacket::action_copy_ttl_out(
+		cofaction& action)
+{
+	copy_ttl_out();
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_copy_ttl_out() ", this);
+}
+
+
+void
+cpacket::action_copy_ttl_in(
+		cofaction& action)
+{
+	copy_ttl_in();
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_copy_ttl_in() ", this);
+}
+
+
+void
+cpacket::action_set_mpls_ttl(
+		cofaction& action)
+{
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_mpls_ttl() "
+			"set to mpls ttl [%d] [1] pack: %s", this, action.oac_mpls_ttl->mpls_ttl, c_str());
+
+	set_mpls_ttl(action.oac_mpls_ttl->mpls_ttl);
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_mpls_ttl() "
+			"set to mpls ttl [%d] [2] pack: %s", this, action.oac_mpls_ttl->mpls_ttl, c_str());
+}
+
+
+void
+cpacket::action_dec_mpls_ttl(
+		cofaction& action)
+{
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_dec_mpls_ttl() [1] pack: %s",
+				this, c_str());
+
+	dec_mpls_ttl();
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_dec_mpls_ttl() [2] pack: %s",
+				this, c_str());
+}
+
+
+void
+cpacket::action_push_vlan(
+		cofaction& action)
+{
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_vlan() "
+				 "set to vlan [%d] [1] pack: %s", this, be16toh(action.oac_push->ethertype), c_str());
+
+	push_vlan(be16toh(action.oac_push->ethertype));
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_vlan() "
+			 	 "set to vlan [%d] [2] pack: %s", this, be16toh(action.oac_push->ethertype), c_str());
+}
+
+
+void
+cpacket::action_pop_vlan(
+		cofaction& action)
+{
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_vlan() [1] pack: %s", this, c_str());
+
+	pop_vlan();
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_vlan() [2] pack: %s", this, c_str());
+}
+
+
+void
+cpacket::action_push_mpls(
+		cofaction& action)
+{
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_mpls() "
+			"set to mpls [%d] [1] pack: %s", this, be16toh(action.oac_push->ethertype), c_str());
+
+	push_mpls(be16toh(action.oac_push->ethertype));
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_mpls() "
+			"set to mpls [%d] [2] pack: %s", this, be16toh(action.oac_push->ethertype), c_str());
+}
+
+
+void
+cpacket::action_pop_mpls(
+		cofaction& action)
+{
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_mpls() [1] pack: %s", this, c_str());
+
+	pop_mpls(be16toh(action.oac_pop_mpls->ethertype));
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_mpls() [2] pack: %s", this, c_str());
+}
+
+
+void
+cpacket::action_set_nw_ttl(
+		cofaction& action)
+{
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_nw_ttl() [1] "
+				 "set nw-ttl [%d] pack: %s", this, action.oac_nw_ttl->nw_ttl, c_str());
+
+	set_nw_ttl(action.oac_nw_ttl->nw_ttl);
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_nw_ttl() [2] "
+			 	 "set tnw-ttl [%d] pack: %s", this, action.oac_nw_ttl->nw_ttl, c_str());
+}
+
+
+void
+cpacket::action_dec_nw_ttl(
+		cofaction& action)
+{
+	dec_nw_ttl();
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_dec_nw_ttl() ", this);
+}
+
+
+void
+cpacket::action_push_pppoe(
+		cofaction& action)
+{
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_pppoe() "
+			"ethertype [0x%x] [1] pack: %s",
+			this, be16toh(action.oac_push_pppoe->ethertype), c_str());
+
+	push_pppoe(be16toh(action.oac_push_pppoe->ethertype));
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_pppoe() "
+			"ethertype [0x%x] [2] pack: %s",
+			this, be16toh(action.oac_push_pppoe->ethertype), c_str());
+}
+
+
+void
+cpacket::action_pop_pppoe(
+		cofaction& action)
+{
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_pppoe() "
+			"ethertype [%d] [1] pack: %s",
+			this, be16toh(action.oac_pop_pppoe->ethertype), c_str());
+
+	pop_pppoe(be16toh(action.oac_pop_pppoe->ethertype));
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_pppoe() "
+			"ethertype [%d] [2] pack: %s",
+			this, be16toh(action.oac_pop_pppoe->ethertype), c_str());
+}
+
+
+void
+cpacket::action_push_ppp(
+		cofaction& action)
+{
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_ppp() "
+			"set to ppp [1] pack: %s", this, c_str());
+
+	uint16_t code = 0;
+
+	push_ppp(code);
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_ppp() "
+			"set to ppp [2] pack: %s", this, c_str());
+}
+
+
+void
+cpacket::action_pop_ppp(
+		cofaction& action)
+{
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_ppp() "
+			"[1] pack: %s", this, c_str());
+
+	pop_ppp();
+
+	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_ppp() "
+			"[2] pack: %s", this, c_str());
+}
+
+
+
+
+
+
+#if 0
 	WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() in_port:%d", this, in_port);
 
-	cleanup();
+	reset();
 
 	if (piobuf.empty())
 	{
@@ -2378,525 +2987,4 @@ cpacket::parse_sctp(
 		break;
 	} // end ethernet types
 }
-
-
-void
-cpacket::cleanup()
-{
-	for (unsigned int i = 0; i < anchors.size(); ++i)
-	{
-		anchors[i].clear();
-#if 0
-		for (std::deque<fframe*>::iterator
-				it = anchors[i].begin(); it != anchors[i].end(); ++it)
-		{
-			delete (*it);
-		}
-		anchors[i].clear();
 #endif
-	}
-
-	for (std::list<fframe*>::iterator
-			it = piovec.begin(); it != piovec.end(); ++it)
-	{
-		delete (*it);
-	}
-	piovec.clear();
-}
-
-
-void
-cpacket::calc_checksums()
-{
-	RwLock lock(&ac_rwlock, RwLock::RWLOCK_READ);
-
-	if (flags.test(FLAG_TCP_CHECKSUM))
-	{
-		if ((not anchors[IPV4_FRAME].empty()) and
-			(not anchors[TCP_FRAME].empty()))
-		{
-			tcp().tcp_calc_checksum(
-				ipv4().get_ipv4_src(),
-				ipv4().get_ipv4_dst(),
-				ipv4().get_ipv4_proto(),
-				ipv4().payloadlen());
-		}
-	}
-
-	if (flags.test(FLAG_UDP_CHECKSUM))
-	{
-		if ((not anchors[IPV4_FRAME].empty()) and
-			(not anchors[UDP_FRAME].empty()))
-		{
-			udp().udp_calc_checksum(
-				ipv4().get_ipv4_src(),
-				ipv4().get_ipv4_dst(),
-				ipv4().get_ipv4_proto(),
-				ipv4().payloadlen());
-		}
-	}
-
-	if (flags.test(FLAG_IPV4_CHECKSUM))
-	{
-		if (not anchors[IPV4_FRAME].empty())
-		{
-			ipv4().ipv4_calc_checksum();
-		}
-	}
-
-	if (flags.test(FLAG_ICMPV4_CHECKSUM))
-	{
-		if (not anchors[ICMPV4_FRAME].empty())
-		{
-			icmpv4().icmpv4_calc_checksum();
-		}
-	}
-
-	if (flags.test(FLAG_PPPOE_LENGTH))
-	{
-		if (not anchors[PPPOE_FRAME].empty())
-		{
-			pppoe().pppoe_calc_length();
-		}
-	}
-
-}
-
-
-void
-cpacket::calc_hits(
-		cofmatch& ofmatch,
-		uint16_t& exact_hits,
-		uint16_t& wildcard_hits,
-		uint16_t& missed)
-{
-	oxmlist.calc_hits(ofmatch.oxmlist, exact_hits, wildcard_hits, missed);
-}
-
-
-
-
-
-#if 0
-cpacket::cofpseudohdr::cofpseudohdr()
-{
-	reset();
-}
-
-
-void
-cpacket::cofpseudohdr::reset()
-{
-	fields 			= 0;
-	in_port 		= 0;
-	dl_dst 			= cmacaddr("00:00:00:00:00:00");
-	dl_src 			= cmacaddr("00:00:00:00:00:00");
-	dl_type			= 0;
-	dl_vlan_id		= 0;
-	dl_vlan_pcp		= 0;
-	mpls_label		= 0;
-	mpls_tc			= 0;
-	nw_tos			= 0;
-	nw_proto		= 0;
-	nw_src			= 0;
-	nw_dst			= 0;
-	tp_src			= 0;
-	tp_dst			= 0;
-	metadata		= 0;
-	pppoe_type		= 0;
-	pppoe_code		= 0;
-	pppoe_sessid	= 0;
-	ppp_prot		= 0;
-}
-
-
-const char*
-cpacket::cofpseudohdr::c_str()
-{
-	cvastring vas(2048);
-
-	info.clear();
-
-	info.append(vas(
-			 "classifier(%p) "
-			 "\tclassifier.inport : port=0x%x \n"
-			 "\tether          : src=%02x:%02x:%02x:%02x:%02x:%02x => dst=%02x:%02x:%02x:%02x:%02x:%02x type=0x%04x \n",
-			 this,
-			 in_port,
-			 dl_src[0],
-			 dl_src[1],
-			 dl_src[2],
-			 dl_src[3],
-			 dl_src[4],
-			 dl_src[5],
-			 dl_dst[0],
-			 dl_dst[1],
-			 dl_dst[2],
-			 dl_dst[3],
-			 dl_dst[4],
-			 dl_dst[5],
-			 dl_type));
-
-	// VLAN
-	{
-		info.append(vas(
-			 "\tvlan           : vid=0x%x(%d) pcp=%d \n",
-			 dl_vlan_id,
-			 dl_vlan_id,
-			 dl_vlan_pcp));
-	}
-
-	// MPLS
-	{
-		info.append(vas(
-			 "\tmpls           : label=0x%x tc=%d \n",
-			 mpls_label,
-			 mpls_tc));
-	}
-
-	// PPPoE
-	{
-		info.append(vas(
-			"\tpppoe          : type=%d code=0x%x sessid=0x%x \n",
-			pppoe_type,
-			pppoe_code,
-			pppoe_sessid));
-	}
-
-	// PPP
-	{
-		info.append(vas(
-			"\tppp            : prot=0x%04x \n",
-			ppp_prot));
-	}
-
-	// ARPv4
-	{
-		info.append(vas(
-			"\tarpv4          : opcode=%d %d.%d.%d.%d => %d.%d.%d.%d \n",
-			nw_proto,
-			((nw_src & 0xff000000) >> 24),
-			((nw_src & 0x00ff0000) >> 16),
-			((nw_src & 0x0000ff00) >>  8),
-			((nw_src & 0x000000ff) >>  0),
-			((nw_dst & 0xff000000) >> 24),
-			((nw_dst & 0x00ff0000) >> 16),
-			((nw_dst & 0x0000ff00) >>  8),
-			((nw_dst & 0x000000ff) >>  0)));
-	}
-
-	// IPv4
-	{
-		info.append(vas(
-			"\tipv4           : tos=%d proto=%d %d.%d.%d.%d => %d.%d.%d.%d \n",
-			(nw_tos & 0xfc),
-			nw_proto,
-			((nw_src & 0xff000000) >> 24),
-			((nw_src & 0x00ff0000) >> 16),
-			((nw_src & 0x0000ff00) >>  8),
-			((nw_src & 0x000000ff) >>  0),
-			((nw_dst & 0xff000000) >> 24),
-			((nw_dst & 0x00ff0000) >> 16),
-			((nw_dst & 0x0000ff00) >>  8),
-			((nw_dst & 0x000000ff) >>  0)));
-	}
-
-	// ICMPv4
-	{
-		info.append(vas(
-			"\ticmpv4         : type=%d code=%d \n",
-			tp_src,
-			tp_dst));
-	}
-
-	// UDP
-	{
-		info.append(vas(
-			"\tudp            : sport=0x%x(%d) dport=0x%x(%d) \n",
-			tp_src,
-			tp_src,
-			tp_dst,
-			tp_dst));
-	}
-
-	// TCP
-	{
-		info.append(vas(
-			"\ttcp            : sport=0x%x(%d) dport=0x%x(%d) \n",
-			tp_src,
-			tp_src,
-			tp_dst,
-			tp_dst));
-	}
-
-	return info.c_str();
-}
-#endif
-
-
-
-
-/*
- * action related methods
- */
-
-
-void
-cpacket::handle_action(
-		cofaction& action)
-{
-	switch (action.get_type()) {
-	// processing actions on cpkbuf instance
-	case OFPAT_SET_FIELD:
-		action_set_field(action);
-		break;
-	case OFPAT_COPY_TTL_OUT:
-		action_copy_ttl_out(action);
-		break;
-	case OFPAT_COPY_TTL_IN:
-		action_copy_ttl_in(action);
-		break;
-	case OFPAT_SET_MPLS_TTL:
-		action_set_mpls_ttl(action);
-		break;
-	case OFPAT_DEC_MPLS_TTL:
-		action_dec_mpls_ttl(action);
-		break;
-	case OFPAT_PUSH_VLAN:
-		action_push_vlan(action);
-		break;
-	case OFPAT_POP_VLAN:
-		action_pop_vlan(action);
-		break;
-	case OFPAT_PUSH_MPLS:
-		action_push_mpls(action);
-		break;
-	case OFPAT_POP_MPLS:
-		action_pop_mpls(action);
-		break;
-	case OFPAT_SET_NW_TTL:
-		action_set_nw_ttl(action);
-		break;
-	case OFPAT_DEC_NW_TTL:
-		action_dec_nw_ttl(action);
-		break;
-	case OFPAT_PUSH_PPPOE:
-		action_push_pppoe(action);
-		break;
-	case OFPAT_POP_PPPOE:
-		action_pop_pppoe(action);
-		break;
-	case OFPAT_PUSH_PPP:
-		action_push_ppp(action);
-		break;
-	case OFPAT_POP_PPP:
-		action_pop_ppp(action);
-		break;
-	default:
-		WRITELOG(CPACKET, ERROR, "cpacket(%p)::handle_action() unknown action type %d",
-				this, action.get_type());
-		break;
-	}
-}
-
-
-void
-cpacket::action_set_field(
-		cofaction& action)
-{
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_field() [1] pack: %s",
-				this,
-				c_str());
-
-	set_field(action.get_oxm());
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_field() [2] pack: %s",
-				this,
-				c_str());
-}
-
-
-void
-cpacket::action_copy_ttl_out(
-		cofaction& action)
-{
-	copy_ttl_out();
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_copy_ttl_out() ", this);
-}
-
-
-void
-cpacket::action_copy_ttl_in(
-		cofaction& action)
-{
-	copy_ttl_in();
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_copy_ttl_in() ", this);
-}
-
-
-void
-cpacket::action_set_mpls_ttl(
-		cofaction& action)
-{
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_mpls_ttl() "
-			"set to mpls ttl [%d] [1] pack: %s", this, action.oac_mpls_ttl->mpls_ttl, c_str());
-
-	set_mpls_ttl(action.oac_mpls_ttl->mpls_ttl);
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_mpls_ttl() "
-			"set to mpls ttl [%d] [2] pack: %s", this, action.oac_mpls_ttl->mpls_ttl, c_str());
-}
-
-
-void
-cpacket::action_dec_mpls_ttl(
-		cofaction& action)
-{
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_dec_mpls_ttl() [1] pack: %s",
-				this, c_str());
-
-	dec_mpls_ttl();
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_dec_mpls_ttl() [2] pack: %s",
-				this, c_str());
-}
-
-
-void
-cpacket::action_push_vlan(
-		cofaction& action)
-{
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_vlan() "
-				 "set to vlan [%d] [1] pack: %s", this, be16toh(action.oac_push->ethertype), c_str());
-
-	push_vlan(be16toh(action.oac_push->ethertype));
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_vlan() "
-			 	 "set to vlan [%d] [2] pack: %s", this, be16toh(action.oac_push->ethertype), c_str());
-}
-
-
-void
-cpacket::action_pop_vlan(
-		cofaction& action)
-{
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_vlan() [1] pack: %s", this, c_str());
-
-	pop_vlan();
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_vlan() [2] pack: %s", this, c_str());
-}
-
-
-void
-cpacket::action_push_mpls(
-		cofaction& action)
-{
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_mpls() "
-			"set to mpls [%d] [1] pack: %s", this, be16toh(action.oac_push->ethertype), c_str());
-
-	push_mpls(be16toh(action.oac_push->ethertype));
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_mpls() "
-			"set to mpls [%d] [2] pack: %s", this, be16toh(action.oac_push->ethertype), c_str());
-}
-
-
-void
-cpacket::action_pop_mpls(
-		cofaction& action)
-{
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_mpls() [1] pack: %s", this, c_str());
-
-	pop_mpls(be16toh(action.oac_pop_mpls->ethertype));
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_mpls() [2] pack: %s", this, c_str());
-}
-
-
-void
-cpacket::action_set_nw_ttl(
-		cofaction& action)
-{
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_nw_ttl() [1] "
-				 "set nw-ttl [%d] pack: %s", this, action.oac_nw_ttl->nw_ttl, c_str());
-
-	set_nw_ttl(action.oac_nw_ttl->nw_ttl);
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_nw_ttl() [2] "
-			 	 "set tnw-ttl [%d] pack: %s", this, action.oac_nw_ttl->nw_ttl, c_str());
-}
-
-
-void
-cpacket::action_dec_nw_ttl(
-		cofaction& action)
-{
-	dec_nw_ttl();
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_dec_nw_ttl() ", this);
-}
-
-
-void
-cpacket::action_push_pppoe(
-		cofaction& action)
-{
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_pppoe() "
-			"ethertype [0x%x] [1] pack: %s",
-			this, be16toh(action.oac_push_pppoe->ethertype), c_str());
-
-	push_pppoe(be16toh(action.oac_push_pppoe->ethertype));
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_pppoe() "
-			"ethertype [0x%x] [2] pack: %s",
-			this, be16toh(action.oac_push_pppoe->ethertype), c_str());
-}
-
-
-void
-cpacket::action_pop_pppoe(
-		cofaction& action)
-{
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_pppoe() "
-			"ethertype [%d] [1] pack: %s",
-			this, be16toh(action.oac_pop_pppoe->ethertype), c_str());
-
-	pop_pppoe(be16toh(action.oac_pop_pppoe->ethertype));
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_pppoe() "
-			"ethertype [%d] [2] pack: %s",
-			this, be16toh(action.oac_pop_pppoe->ethertype), c_str());
-}
-
-
-void
-cpacket::action_push_ppp(
-		cofaction& action)
-{
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_ppp() "
-			"set to ppp [1] pack: %s", this, c_str());
-
-	uint16_t code = 0;
-
-	push_ppp(code);
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_ppp() "
-			"set to ppp [2] pack: %s", this, c_str());
-}
-
-
-void
-cpacket::action_pop_ppp(
-		cofaction& action)
-{
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_ppp() "
-			"[1] pack: %s", this, c_str());
-
-	pop_ppp();
-
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_ppp() "
-			"[2] pack: %s", this, c_str());
-}

@@ -6,14 +6,14 @@
 
 fframe::fframe(
 		uint8_t *_data,
-		size_t _datalen,
-		uint16_t __total_len) :
+		size_t _datalen) :
+//		uint16_t __total_len) :
 		next(0),
 		prev(0),
 		mem(0),
 		data(_data),
-		datalen(_datalen),
-		total_len(__total_len)
+		datalen(_datalen)//,
+//		total_len(__total_len)
 {
 	flags.reset(FFRAME_FLAG_MEM);
 }
@@ -25,8 +25,8 @@ fframe::fframe(
 		prev(0),
 		mem(len),
 		data(mem.somem()),
-		datalen(mem.memlen()),
-		total_len(mem.memlen())
+		datalen(mem.memlen())
+//		total_len(mem.memlen())
 {
 	flags.set(FFRAME_FLAG_MEM);
 }
@@ -47,7 +47,7 @@ fframe::~fframe()
 
 
 void
-fframe::reset(uint8_t *_data, size_t _datalen, uint16_t _total_len)
+fframe::reset(uint8_t *_data, size_t _datalen) //, uint16_t _total_len)
 {
 	if (flags.test(FFRAME_FLAG_MEM))
 	{
@@ -59,7 +59,7 @@ fframe::reset(uint8_t *_data, size_t _datalen, uint16_t _total_len)
 
 		data = mem.somem();
 		datalen = mem.memlen();
-		total_len = mem.memlen();
+//		total_len = mem.memlen();
 	}
 	else
 	{
@@ -67,7 +67,7 @@ fframe::reset(uint8_t *_data, size_t _datalen, uint16_t _total_len)
 
 		data = _data;
 		datalen = _datalen;
-		total_len = _total_len;
+//		total_len = _total_len;
 	}
 	//WRITELOG(FFRAME, ROFL_DBG, "fframe(%p)::reset() data:%p datalen:%d", this, data, datalen);
 }
@@ -99,7 +99,7 @@ fframe::operator= (const fframe& frame)
 	// reset() can handle both situations as long as flags is correctly set
 
 	// copy frame.mem to this->mem and adjust pointers
-	this->reset(frame.data, frame.datalen, frame.total_len);
+	this->reset(frame.data, frame.datalen); //, frame.total_len);
 
 	return *this;
 }

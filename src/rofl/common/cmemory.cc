@@ -9,7 +9,13 @@
 /*static*/pthread_mutex_t cmemory::memlock;
 /*static*/int cmemory::memlockcnt = 0;
 
-cmemory::cmemory(size_t len) :
+
+
+cmemory::cmemory(
+		size_t len,
+		size_t hspace,
+		size_t tspace) :
+		data(std::make_pair<uint8_t*, size_t>(NULL,0)),
 		area(std::make_pair<uint8_t*, size_t>(NULL,0)),
 		occupied(0)
 {
@@ -21,7 +27,9 @@ cmemory::cmemory(size_t len) :
 
 
 	if (len > 0)
-		mallocate(len);
+	{
+		mallocate(len, hspace, tspace);
+	}
 
 #if 0
 	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
@@ -30,7 +38,13 @@ cmemory::cmemory(size_t len) :
 }
 
 
-cmemory::cmemory(uint8_t *data, size_t datalen) :
+
+cmemory::cmemory(
+		uint8_t *data,
+		size_t datalen,
+		size_t hspace,
+		size_t tspace) :
+		data(std::make_pair<uint8_t*, size_t>(NULL,0)),
 		area(std::make_pair<uint8_t*, size_t>(NULL,0)),
 		occupied(0)
 {
@@ -43,7 +57,7 @@ cmemory::cmemory(uint8_t *data, size_t datalen) :
 
 	if (datalen > 0)
 	{
-		mallocate(datalen);
+		mallocate(datalen, hspace, tspace);
 		memcpy(somem(), data, datalen);
 	}
 
@@ -54,29 +68,22 @@ cmemory::cmemory(uint8_t *data, size_t datalen) :
 }
 
 
+
 cmemory::~cmemory()
 {
 #if 0
 	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::~cmemory() somem()=%p memlen()=%d",
 				this, somem(), memlen());
 #endif
-	lock();
-//	cmemory::cmemory_list.erase(this);
-	unlock();
 
-	if (area.first)
-		mfree();
-
-	--cmemory::memlockcnt;
-	if (0 == cmemory::memlockcnt)
-	{
-		pthread_mutex_destroy(&cmemory::memlock);
-	}
+	mfree();
 }
 
 
+
 cmemory&
-cmemory::operator= (cmemory const& m)
+cmemory::operator= (
+		cmemory const& m)
 {
 	if (this == &m)
 		return *this;
@@ -87,11 +94,13 @@ cmemory::operator= (cmemory const& m)
 }
 
 
+
 uint8_t*
 cmemory::somem() const
 {
 	return area.first;
 }
+
 
 
 size_t
@@ -101,13 +110,18 @@ cmemory::memlen() const
 }
 
 
+
 uint8_t&
-cmemory::operator[] (size_t index) const
+cmemory::operator[] (
+		size_t index) const
 {
 	if (index >= area.second)
+	{
 		throw eMemOutOfRange();
+	}
 	return *(somem() + index);
 }
+
 
 
 bool
@@ -138,6 +152,7 @@ cmemory::operator< (const cmemory& m) const
 }
 
 
+
 cmemory
 cmemory::operator& (const cmemory& m) const throw (eMemInval)
 {
@@ -157,6 +172,7 @@ cmemory::operator& (const cmemory& m) const throw (eMemInval)
 }
 
 
+
 cmemory&
 cmemory::operator+= (cmemory const& m)
 {
@@ -170,6 +186,7 @@ cmemory::operator+= (cmemory const& m)
 }
 
 
+
 bool
 cmemory::operator== (cmemory const& m) const
 {
@@ -179,6 +196,7 @@ cmemory::operator== (cmemory const& m) const
 	}
 	return false;
 }
+
 
 
 bool
@@ -192,6 +210,7 @@ cmemory::operator!= (cmemory& m) const
 }
 
 
+
 void
 cmemory::assign(
 		uint8_t *buf,
@@ -203,123 +222,160 @@ cmemory::assign(
 }
 
 
+
 uint8_t*
 cmemory::resize(size_t len) throw (eMemAllocFailed)
 {
 	if (0 == len)
 	{
-
 		mfree();
-
 	}
 	else
 	{
+		size_t offset = area.first - data.first;
 
+		data.second = len + CMEMORY_DEFAULT_TAIL_SPACE;
+
+		if ((data.first = (uint8_t*)realloc(data.first, data.second)) == NULL)
+		{
+			throw eMemAllocFailed();
+		}
+
+		area.first = data.first + offset;
 		area.second = len;
-#ifdef MEMPOOL
-		if ((area.first = (uint8_t*)cmempool::srealloc(area.first, area.second)) == NULL)
-		{
-			throw eMemAllocFailed();
-		}
-#else
-		if ((area.first = (uint8_t*)realloc(area.first, area.second)) == NULL)
-		{
-			throw eMemAllocFailed();
-		}
-#endif
-
 	}
 	return area.first;
 }
 
 
+
 void
 cmemory::clear()
 {
-	if (!area.first || !area.second)
+	if (!data.first || !data.second)
+	{
 		return;
+	}
 
-	bzero(area.first, area.second);
+	memset(data.first, 0, data.second);
 }
+
 
 
 void
-cmemory::mallocate(size_t len) throw (eMemAllocFailed)
+cmemory::mallocate(
+		size_t len,
+		size_t hspace,
+		size_t tspace)
+		throw (eMemAllocFailed)
 {
-	if (area.first)
+	if (data.first)
 	{
 		mfree();
 	}
-	area.second = len;
+	data.second = hspace + len + tspace;
 
-#ifdef MEMPOOL
-	if ((area.first = (uint8_t*)cmempool::salloc(area.second)) == 0)
+
+	if ((data.first = (uint8_t*)calloc(1, data.second)) == 0)
 	{
 		throw eMemAllocFailed();
 	}
-#else
-	if ((area.first = (uint8_t*)calloc(1, area.second)) == 0)
-	{
-		throw eMemAllocFailed();
-	}
-#endif
+
+	area.first = data.first + hspace;
+	area.second = area.second - (hspace + tspace);
 }
+
 
 
 void
 cmemory::mfree()
 {
-	if (area.first)
+	if (data.first)
 	{
-		bzero(area.first, area.second);
-		// for debugging, if something still refers to this already free'd memory, a crash is more likely
-#ifdef MEMPOOL
-		cmempool::sfree(area.first);
-#else
-		free(area.first);
-#endif
+		memset(data.first, 0, data.second);
+		free(data.first);
 	}
+	data = std::make_pair<uint8_t*, size_t>(NULL, 0);
 	area = std::make_pair<uint8_t*, size_t>(NULL, 0);
 }
+
+
+
+uint8_t*
+cmemory::insert(
+		uint8_t *ptr,
+		size_t len) throw (eMemInval)
+{
+	if (not ((ptr >= area.first) && (ptr < (area.first + area.second))))
+	{
+		throw eMemInval();
+	}
+
+	return insert(ptr - area.first, len);
+}
+
 
 
 uint8_t*
 cmemory::insert(
 		unsigned int offset,
-		size_t len)
+		size_t len) throw (eMemInval)
 {
-	std::pair<uint8_t*, size_t> tmparea;
+	size_t hspace = area.first - data.first;
+	size_t tspace = data.second - (hspace + area.second);
 
-	tmparea.second = area.second + len;
-
-#ifdef MEMPOOL
-	if ((tmparea.first = (uint8_t*)cmempool::salloc(tmparea.second)) == 0)
+	if (offset < (area.second / 2))
 	{
-		throw eMemAllocFailed();
+		if (len > hspace)
+		{
+			resize(data.second + len);
+		}
+
+		memmove(area.first, area.first - len, (offset + len));
+		area.first 	-= len;
+		area.second += len;
 	}
-#else
-	if ((tmparea.first = (uint8_t*)calloc(1, tmparea.second)) == 0)
+	else
 	{
-		throw eMemAllocFailed();
+		if (len > tspace)
+		{
+			resize(data.second + len);
+		}
+
+		memmove(area.first + offset, area.first + offset + len,
+												area.second - offset);
+		area.second += len;
 	}
-#endif
 
-	memcpy(tmparea.first, area.first, offset);
-	bzero (tmparea.first + offset, len);
-	memcpy(tmparea.first + offset + len, area.first + offset, area.second - offset);
-
-	mfree();
-
-	area = tmparea;
-
-	return (tmparea.first + offset);
+	return (somem() + offset);
 }
+
+
+
+void
+cmemory::remove(
+		uint8_t *ptr,
+		size_t len) throw (eMemInval)
+{
+	if (not ((ptr >= area.first) && (ptr < (area.first + area.second))))
+	{
+		throw eMemInval();
+	}
+
+	if (not (((ptr + len) >= area.first) && ((ptr + len) < (area.first + area.second))))
+	{
+		throw eMemInval();
+	}
+
+	remove(ptr - area.first, len);
+}
+
 
 
 void
 cmemory::remove(
 		unsigned int offset,
-		size_t len)
+		size_t len) throw (eMemInval)
 {
 	len = ((offset + len) > area.second) ? area.second - offset : len;
 
