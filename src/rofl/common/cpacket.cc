@@ -129,6 +129,7 @@ cpacket::operator[] (size_t index) throw (ePacketOutOfRange)
 }
 
 
+
 void
 cpacket::set_flag_no_packet_in()
 {
@@ -136,10 +137,27 @@ cpacket::set_flag_no_packet_in()
 }
 
 
+
 bool
 cpacket::get_flag_no_packet_in()
 {
 	return flags.test(FLAG_NO_PACKET_IN);
+}
+
+
+
+uint8_t*
+cpacket::soframe()
+{
+	return mem.somem();
+}
+
+
+
+size_t
+cpacket::framelen()
+{
+	return mem.memlen();
 }
 
 
