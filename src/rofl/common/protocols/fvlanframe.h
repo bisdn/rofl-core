@@ -44,7 +44,9 @@ public: // static
 	// VLAN header
 	struct vlan_hdr_t {
 		// tag control identifier (TCI)
-		uint16_t hdr;			// vid + cfi + pcp
+		uint8_t byte0;
+		uint8_t byte1;
+		//uint16_t hdr;			// vid + cfi + pcp
 		uint16_t dl_type;  		// ethernet type
 	} __attribute__((packed));
 

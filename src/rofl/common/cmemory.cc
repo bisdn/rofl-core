@@ -184,9 +184,25 @@ cmemory::operator+= (cmemory const& m)
 
 	resize(old_len + m.memlen());
 
+	insert(old_len, m.memlen());
+
 	memcpy(somem() + old_len, m.somem(), m.memlen());
 
+	//memcpy(somem() + old_len, m.somem(), m.memlen());
+
 	return *this;
+}
+
+
+
+cmemory
+cmemory::operator+ (cmemory const& m)
+{
+	cmemory tmp(*this);
+
+	tmp += m;
+
+	return tmp;
 }
 
 

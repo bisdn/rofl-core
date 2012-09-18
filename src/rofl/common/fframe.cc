@@ -121,7 +121,8 @@ fframe::c_str()
 
 	char _info[512];
 	bzero(_info, sizeof(_info));
-	snprintf(_info, sizeof(_info)-1, "[fframe(%p) data:%p datalen:%d [", this, data, (int)datalen);
+	snprintf(_info, sizeof(_info)-1, "[fframe(%p) next:%p prev:%p data:%p datalen:%d [",
+			this, next, prev, data, (int)datalen);
 	info.assign(_info);
 	for (int i = 0; i < (int)datalen; ++i)
 	{

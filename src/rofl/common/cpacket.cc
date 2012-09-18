@@ -26,6 +26,8 @@ cpacket::cpacket(
 		cmemory *mem,
 		uint32_t in_port,
 		bool do_classify) :
+			head(0),
+			tail(0),
 			mem(mem->somem(), mem->memlen(), CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
 			packet_receive_time(time(NULL)),
 			in_port(in_port),
@@ -51,6 +53,8 @@ cpacket::cpacket(
 		size_t buflen,
 		uint32_t in_port,
 		bool do_classify) :
+			head(0),
+			tail(0),
 			mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
 			packet_receive_time(time(NULL)),
 			in_port(in_port),
@@ -71,7 +75,9 @@ cpacket::cpacket(
 
 
 
-cpacket::cpacket(const cpacket& pack)
+cpacket::cpacket(const cpacket& pack) :
+			head(0),
+			tail(0)
 {
 	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::cpacket()", this);
 
@@ -240,12 +246,14 @@ cpacket::c_str()
 
 	info.assign(vas("cpacket(%p) \n", this));
 
-	info.append(vas("  %s\n", match.c_str()));
+	info.append(vas("  match: %s\n", match.c_str()));
 
 	for (fframe* curr = head; curr != 0; curr = curr->next)
 	{
-		info.append(vas("  %s", curr->c_str()));
+		info.append(vas("  %s\n", curr->c_str()));
 	}
+
+	info.append(vas("  mem: %s\n", mem.c_str()));
 
 	return info.c_str();
 }
@@ -1578,6 +1586,9 @@ cpacket::classify(uint32_t in_port /* host byte order */)
 	uint8_t 	*p_ptr 		= (uint8_t*)mem.somem();
 	size_t 		 p_len 		= mem.memlen();
 
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::classify() "
+			"mem: %s", mem.c_str());
+
 	reset();
 
 	match.set_in_port(in_port);
@@ -1687,6 +1698,9 @@ cpacket::parse_ether(
 
 	fetherframe *ether = new fetherframe(p_ptr, sizeof(struct fetherframe::eth_hdr_t));
 
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_ether() "
+			"ether: %s", ether->c_str());
+
 	match.set_eth_dst(ether->get_dl_dst());
 	match.set_eth_src(ether->get_dl_src());
 	match.set_eth_type(ether->get_dl_type());
@@ -1699,6 +1713,7 @@ cpacket::parse_ether(
 
 	switch (ether->get_dl_type()) {
 	case fvlanframe::VLAN_ETHER:
+	case fvlanframe::QINQ_ETHER:
 		{
 			parse_vlan(p_ptr, p_len);
 		}
@@ -1774,6 +1789,7 @@ cpacket::parse_vlan(
 
 	switch (vlan->get_dl_type()) {
 	case fvlanframe::VLAN_ETHER:
+	case fvlanframe::QINQ_ETHER:
 		{
 			parse_vlan(p_ptr, p_len);
 		}

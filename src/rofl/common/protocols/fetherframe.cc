@@ -201,7 +201,7 @@ fetherframe::c_str()
 	cvastring vas;
 
 	info.assign(vas("[fetherframe(%p) dst:%02x:%02x:%02x:%02x:%02x:%02x "
-			"src:%02x:%02x:%02x:%02x:%02x:%02x type:0x%04x ]",
+			"src:%02x:%02x:%02x:%02x:%02x:%02x type:0x%04x %s]",
 			this,
 			eth_hdr->dl_dst[0],
 			eth_hdr->dl_dst[1],
@@ -215,7 +215,8 @@ fetherframe::c_str()
 			eth_hdr->dl_src[3],
 			eth_hdr->dl_src[4],
 			eth_hdr->dl_src[5],
-			be16toh(eth_hdr->dl_type) ));
+			be16toh(eth_hdr->dl_type),
+			fframe::c_str()));
 
 	return info.c_str();
 }

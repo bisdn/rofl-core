@@ -149,6 +149,13 @@ public: // public methods
 	 */
 	cmemory& operator+= (cmemory const& m);
 
+
+	/** operator +
+	 *
+	 */
+	cmemory operator+ (cmemory const& m);
+
+
 	/** assign
 	 *
 	 */
