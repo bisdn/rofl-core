@@ -1,5 +1,5 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = test1 cmemory
+SUBDIRS = test1 cmemory cpacket
 
 
