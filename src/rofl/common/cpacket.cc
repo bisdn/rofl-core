@@ -103,13 +103,27 @@ cpacket::~cpacket()
 void
 cpacket::reset()
 {
+	flags.reset(FLAG_VLAN_PRESENT);
+	flags.reset(FLAG_MPLS_PRESENT);
+
 	match.reset();
 
 	while (head != 0)
 	{
-		frame_pop(head);
+		fframe *curr = head;
+
+		head = curr->next;
+
+		curr->next = 0;
+		curr->prev = 0;
+
+		delete curr;
 	}
+
+	head = 0;
+	tail = 0;
 }
+
 
 
 cpacket&
@@ -247,6 +261,8 @@ cpacket::c_str()
 	info.assign(vas("cpacket(%p) \n", this));
 
 	info.append(vas("  match: %s\n", match.c_str()));
+
+	info.append(vas("  head: %p  tail: %p\n", head, tail));
 
 	for (fframe* curr = head; curr != 0; curr = curr->next)
 	{
@@ -1353,14 +1369,22 @@ cpacket::pop_vlan()
 
 		delete p_vlan;
 
+		classify(match.get_in_port());
+
+#if 0
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID);
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP);
 		match.set_eth_type(ether()->get_dl_type());
+#endif
 
 	} catch (ePacketNotFound& e) {
 
 		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_vlan() "
 				"no vlan tag found, mem: %s", this, mem.c_str());
+	} catch (ePacketInval& e) {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_vlan() "
+				"vlan tag is not outer tag, ignoring pop command, mem: %s", this, mem.c_str());
 	}
 }
 
@@ -1433,6 +1457,12 @@ cpacket::pop_mpls(uint16_t ethertype)
 
 		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_mpls() ", this);
 
+		if (0 == dynamic_cast<fmplsframe*>( frame(1) ))
+		{
+			fprintf(stderr, "\n\nTTTT\n\n");
+			return;
+		}
+
 		fmplsframe *p_mpls = mpls();
 
 		ether()->set_dl_type(ethertype);
@@ -1443,14 +1473,22 @@ cpacket::pop_mpls(uint16_t ethertype)
 
 		delete p_mpls;
 
+		classify(match.get_in_port());
+
+#if 0
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_LABEL);
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_TC);
 		match.set_eth_type(ether()->get_dl_type());
+#endif
 
 	} catch (ePacketNotFound& e) {
 
 		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_mpls() "
 				"no mpls tag found, mem: %s", this, mem.c_str());
+	} catch (ePacketInval& e) {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_mpls() "
+				"mpls tag is not outer tag, ignoring pop command, mem: %s", this, mem.c_str());
 	}
 }
 
@@ -1512,14 +1550,22 @@ cpacket::pop_pppoe(uint16_t ethertype)
 
 		delete p_pppoe;
 
+		classify(match.get_in_port());
+
+#if 0
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_CODE);
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_SID);
 		match.set_eth_type(ether()->get_dl_type());
+#endif
 
 	} catch (ePacketNotFound& e) {
 
 		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_pppoe() "
 				"no pppoe tag found, mem: %s", this, mem.c_str());
+	} catch (ePacketInval& e) {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_mpls() "
+				"pppoe tag is not outer tag, ignoring pop command, mem: %s", this, mem.c_str());
 	}
 }
 
@@ -1569,12 +1615,20 @@ cpacket::pop_ppp()
 
 		delete p_ppp;
 
+		classify(match.get_in_port());
+
+#if 0
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPP_PROT);
+#endif
 
 	} catch (ePacketNotFound& e) {
 
 		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_ppp() "
 				"no ppp tag found, mem: %s", this, mem.c_str());
+	} catch (ePacketInval& e) {
+
+		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_mpls() "
+				"ppp tag is not outer tag, ignoring pop command, mem: %s", this, mem.c_str());
 	}
 }
 
@@ -1658,7 +1712,20 @@ cpacket::frame_push(
 void
 cpacket::frame_pop(
 		fframe *frame)
+				throw (ePacketInval)
 {
+	// check whether this is the second fframe (first after ether)
+	// if not refuse dropping
+
+	fprintf(stderr, "cpacket(%p)::frame_pop() "
+			"frame: %p %s\n", this, frame, frame->c_str());
+
+	if ((0 == head) || (head->next != frame))
+	{
+		throw ePacketInval();
+	}
+
+
 	if (0 != frame->next)
 	{
 		frame->next->prev = frame->prev;

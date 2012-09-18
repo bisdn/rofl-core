@@ -684,7 +684,8 @@ private: // methods
 	 */
 	void
 	frame_pop(
-			fframe *frame);
+			fframe *frame)
+					throw (ePacketInval);
 
 
 
