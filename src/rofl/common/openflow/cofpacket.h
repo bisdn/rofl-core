@@ -27,6 +27,7 @@ extern "C" {
 #include "../cerror.h"
 #include "../cvastring.h"
 #include "../fframe.h"
+#include "../cpacket.h"
 #include "rofl/platform/unix/csyslog.h"
 
 #include "openflow12.h"
@@ -94,6 +95,7 @@ public: // data structures
 	cofbclist 		buckets;			// list of buckets
 	cofportlist		ports;				// list of ports (for Features-Reply messages)
 	cmemory			body;				// body of OF packet, e.g. data, experimental body, stats body, etc.
+	cpacket			packet;				// valid for Packet-In and Packet-Out, empty otherwise
 
 	int switch_features_num_ports; 		// valid only, if type == FEATURES-REPLY
 
@@ -1101,7 +1103,8 @@ public:
 			cofpacket(	OFP_PACKET_IN_STATIC_HDR_LEN,
 						OFP_PACKET_IN_STATIC_HDR_LEN)
 		{
-			cofpacket::body.assign(data, datalen);
+			//cofpacket::body.assign(data, datalen);
+			cofpacket::packet.pack(data, datalen);
 
 			ofh_header->version 	= OFP_VERSION;
 			ofh_header->length		= htobe16(OFP_PACKET_IN_STATIC_HDR_LEN + 2 + body.memlen());
@@ -1144,7 +1147,10 @@ public:
 			match.pack((struct ofp_match*)
 					(buf + OFP_PACKET_IN_STATIC_HDR_LEN), match.length());
 
+#if 0
 			memcpy(buf + OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, body.somem(), body.memlen());
+#endif
+			memcpy(buf + OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
 
 			/*
 			 * Please note: +2 magic => provides proper alignment of IPv4 addresses in pin_data as defined by OF spec
@@ -1175,7 +1181,8 @@ public:
 			cofpacket(	sizeof(struct ofp_packet_out) + datalen,
 						sizeof(struct ofp_packet_out) + datalen)
 		{
-			cofpacket::body.assign(data, datalen);
+			//cofpacket::body.assign(data, datalen);
+			cofpacket::packet.pack(data, datalen);
 
 			ofh_header->version 	= OFP_VERSION;
 			ofh_header->length		= htobe16(sizeof(struct ofp_packet_out) + datalen);
@@ -1217,7 +1224,11 @@ public:
 
 			actions.pack((struct ofp_action_header*)(buf + sizeof(struct ofp_packet_out)), actions.length());
 
+#if 0
 			memcpy(buf + sizeof(struct ofp_packet_out) + actions.length(), body.somem(), body.memlen());
+#endif
+
+			memcpy(buf + sizeof(struct ofp_packet_out) + actions.length(), packet.soframe(), packet.framelen());
 		};
 };
 

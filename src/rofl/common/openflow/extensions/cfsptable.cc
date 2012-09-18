@@ -102,7 +102,7 @@ cfsptable::find_matching_entries(
 	cpacket pack(data, datalen, in_port);
 
 	WRITELOG(CNAMESPACE, ROFL_DBG, "cfsptable(%p)::find_matching_entries() \n"
-			"  oxmlist: %s\n  pack: %s", this, pack.oxmlist.c_str(), pack.c_str());
+			"  pack: %s", this, pack.c_str());
 
 	uint16_t exact_hits = 0;
 	uint16_t wildcard_hits = 0;

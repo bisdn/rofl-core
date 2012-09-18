@@ -4,25 +4,26 @@
 
 #include "farpv4frame.h"
 
+
 farpv4frame::farpv4frame(
-		uint8_t* _data,
-		size_t _datalen,
-		uint16_t _total_len,
-		fframe* _predecessor) :
-		fframe(_data, _datalen, _total_len, _predecessor),
-		arp_hdr(NULL)
+		uint8_t* data,
+		size_t datalen) :
+		fframe(data, datalen),
+		arp_hdr(0)
 {
 	initialize();
 }
+
 
 
 farpv4frame::farpv4frame(
 		size_t len) :
 		fframe(len),
-		arp_hdr(NULL)
+		arp_hdr(0)
 {
 	initialize();
 }
+
 
 
 farpv4frame::~farpv4frame()
@@ -31,11 +32,13 @@ farpv4frame::~farpv4frame()
 }
 
 
+
 void
 farpv4frame::initialize()
 {
 	arp_hdr = (struct arpv4_hdr_t*)soframe();
 }
+
 
 
 bool
@@ -50,6 +53,7 @@ farpv4frame::complete()
 }
 
 
+
 size_t
 farpv4frame::need_bytes()
 {
@@ -61,7 +65,6 @@ farpv4frame::need_bytes()
 
 	return 0; // just to make gcc happy
 }
-
 
 
 

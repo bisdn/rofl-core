@@ -5,15 +5,14 @@
 #include "fmplsframe.h"
 
 fmplsframe::fmplsframe(
-		uint8_t *_data,
-		size_t _datalen,
-		uint16_t _totallen,
-		fframe *_predecessor) :
-	fframe(_data, _datalen, _totallen, _predecessor),
-	mpls_hdr(NULL)
+		uint8_t *data,
+		size_t datalen) :
+	fframe(data, datalen),
+	mpls_hdr(0)
 {
 	initialize();
 }
+
 
 
 fmplsframe::~fmplsframe()
@@ -22,11 +21,13 @@ fmplsframe::~fmplsframe()
 }
 
 
+
 void
 fmplsframe::initialize()
 {
 	mpls_hdr = (struct mpls_hdr_t*)soframe();
 }
+
 
 
 bool

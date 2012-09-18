@@ -67,7 +67,7 @@ cethport::handle_read(int fd)
 		{
 			cpacket *pack = new cpacket(mem, port_no); // calls classify() internally
 
-			if (pack->ether().get_dl_src() == get_hw_addr())
+			if (pack->ether()->get_dl_src() == get_hw_addr())
 			{
 #if 0
 				fprintf(stderr, "cethport: rcvd packet from ourselves, stop here %s => %s <= %s\n",

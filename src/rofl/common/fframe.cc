@@ -4,29 +4,28 @@
 
 #include "fframe.h"
 
+
 fframe::fframe(
 		uint8_t *_data,
 		size_t _datalen) :
-//		uint16_t __total_len) :
-		next(0),
-		prev(0),
 		mem(0),
 		data(_data),
-		datalen(_datalen)//,
-//		total_len(__total_len)
+		datalen(_datalen),
+		next(0),
+		prev(0)
 {
 	flags.reset(FFRAME_FLAG_MEM);
 }
 
 
+
 fframe::fframe(
 		size_t len) :
-		next(0),
-		prev(0),
 		mem(len),
 		data(mem.somem()),
-		datalen(mem.memlen())
-//		total_len(mem.memlen())
+		datalen(mem.memlen()),
+		next(0),
+		prev(0)
 {
 	flags.set(FFRAME_FLAG_MEM);
 }

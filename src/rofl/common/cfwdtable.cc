@@ -31,23 +31,22 @@ cfwdtable::~cfwdtable()
  */
 void
 cfwdtable::mac_learning(
-		fetherframe& ether,
+		cpacket& pack,
 		uint64_t dpid,
 		uint32_t port_no) // ingress port
 {
 	uint16_t vid = 0xffff;
-	cmacaddr dl_src = ether.get_dl_src();
+	cmacaddr dl_src = pack.ether()->get_dl_src();
 
 	// multicast address as source??? => ignore
 	if (dl_src.is_multicast())
 		return;
 
 	// get vlan tag control information (TCI)
-	if ((fvlanframe::VLAN_ETHER == be16toh(ether.eth_hdr->dl_type)) ||
-			(fvlanframe::QINQ_ETHER == be16toh(ether.eth_hdr->dl_type)))
+	if ((fvlanframe::VLAN_ETHER == pack.ether()->get_dl_type()) ||
+			(fvlanframe::QINQ_ETHER == pack.ether()->get_dl_type()))
 	{
-		fvlanframe vlan(ether.payload(), ether.payloadlen(), ether.payloadlen());
-		vid = vlan.get_dl_vlan_id();
+		vid = pack.vlan()->get_dl_vlan_id();
 	}
 
 
@@ -84,23 +83,22 @@ cfwdtable::mac_learning(
 
 bool
 cfwdtable::mac_is_known(
-		fetherframe& ether)
+		cpacket& pack)
 {
 	//struct eth_hdr_t *eth_hdr = (struct eth_hdr_t*)data;
 	uint16_t vid = 0xffff;
 
 	// multicast destinations are "NotFound"
-	if (ether.get_dl_dst().is_multicast())
+	if (pack.ether()->get_dl_dst().is_multicast())
 	{
 		return false;
 	}
 
 	// get vlan tag control information (TCI)
-	if ((fvlanframe::VLAN_ETHER == ether.get_dl_type()) ||
-			(fvlanframe::QINQ_ETHER == ether.get_dl_type()))
+	if ((fvlanframe::VLAN_ETHER == pack.ether()->get_dl_type()) ||
+			(fvlanframe::QINQ_ETHER == pack.ether()->get_dl_type()))
 	{
-		fvlanframe vlan(ether.payload(), ether.payloadlen(), ether.payloadlen());
-		vid = vlan.get_dl_vlan_id();
+		vid = pack.vlan()->get_dl_vlan_id();
 	}
 
 	// check for existing vlan identifier
@@ -112,7 +110,7 @@ cfwdtable::mac_is_known(
 	// check for existing entry
 	std::set<cfwdentry*>::iterator it;
 	if ((it = find_if(fwdtable[vid].begin(), fwdtable[vid].end(),
-						cfwdentry::cfwdentry_search(ether.get_dl_dst(), vid))) == fwdtable[vid].end())
+						cfwdentry::cfwdentry_search(pack.ether()->get_dl_dst(), vid))) == fwdtable[vid].end())
 	{
 		return false;
 	}
@@ -123,30 +121,29 @@ cfwdtable::mac_is_known(
 
 uint32_t
 cfwdtable::mac_next_hop(
-		fetherframe& ether)
+		cpacket& pack)
 throw(eFwdTableNotFound)
 {
 	//struct eth_hdr_t *eth_hdr = (struct eth_hdr_t*)data;
 	uint16_t vid = 0xffff;
 
 	// broadcast address is OFPP_FLOOD
-	if (ether.get_dl_dst().is_broadcast())
+	if (pack.ether()->get_dl_dst().is_broadcast())
 	{
 		return OFPP_FLOOD;
 	}
 
 	// multicast destinations are "NotFound"
-	if (ether.get_dl_dst().is_multicast())
+	if (pack.ether()->get_dl_dst().is_multicast())
 	{
 		throw eFwdTableNotFound();
 	}
 
 	// get vlan tag control information (TCI)
-	if ((fvlanframe::VLAN_ETHER == be16toh(ether.eth_hdr->dl_type)) ||
-			(fvlanframe::QINQ_ETHER == be16toh(ether.eth_hdr->dl_type)))
+	if ((fvlanframe::VLAN_ETHER == pack.ether()->get_dl_type()) ||
+			(fvlanframe::QINQ_ETHER == pack.ether()->get_dl_type()))
 	{
-		fvlanframe vlan(ether.payload(), ether.payloadlen(), ether.payloadlen());
-		vid = vlan.get_dl_vlan_id();
+		vid = pack.vlan()->get_dl_vlan_id();
 	}
 
 	// check for existing vlan identifier
@@ -158,7 +155,7 @@ throw(eFwdTableNotFound)
 	// check for existing entry
 	std::set<cfwdentry*>::iterator it;
 	if ((it = find_if(fwdtable[vid].begin(), fwdtable[vid].end(),
-						cfwdentry::cfwdentry_search(ether.get_dl_dst(), vid))) == fwdtable[vid].end())
+						cfwdentry::cfwdentry_search(pack.ether()->get_dl_dst(), vid))) == fwdtable[vid].end())
 	{
 		throw eFwdTableNotFound();
 	}
@@ -169,30 +166,29 @@ throw(eFwdTableNotFound)
 
 uint32_t
 cfwdtable::next_hop_port_no(
-		fetherframe& ether)
+		cpacket& pack)
 throw (eFwdTableNotFound)
 {
 	//struct eth_hdr_t *eth_hdr = (struct eth_hdr_t*)data;
 	uint16_t vid = 0xffff;
 
 	// broadcast address is OFPP_FLOOD
-	if (ether.get_dl_dst().is_broadcast())
+	if (pack.ether()->get_dl_dst().is_broadcast())
 	{
 		return OFPP_FLOOD;
 	}
 
 	// multicast destinations are "NotFound"
-	if (ether.get_dl_dst().is_multicast())
+	if (pack.ether()->get_dl_dst().is_multicast())
 	{
 		throw eFwdTableNotFound();
 	}
 
 	// get vlan tag control information (TCI)
-	if ((fvlanframe::VLAN_ETHER == be16toh(ether.eth_hdr->dl_type)) ||
-			(fvlanframe::QINQ_ETHER == be16toh(ether.eth_hdr->dl_type)))
+	if ((fvlanframe::VLAN_ETHER == pack.ether()->get_dl_type()) ||
+			(fvlanframe::QINQ_ETHER == pack.ether()->get_dl_type()))
 	{
-		fvlanframe vlan(ether.payload(), ether.payloadlen(), ether.payloadlen());
-		vid = vlan.get_dl_vlan_id();
+		vid = pack.vlan()->get_dl_vlan_id();
 	}
 
 	// check for existing vlan identifier
@@ -204,7 +200,7 @@ throw (eFwdTableNotFound)
 	// check for existing entry
 	std::set<cfwdentry*>::iterator it;
 	if ((it = find_if(fwdtable[vid].begin(), fwdtable[vid].end(),
-						cfwdentry::cfwdentry_search(ether.get_dl_dst(), vid))) == fwdtable[vid].end())
+						cfwdentry::cfwdentry_search(pack.ether()->get_dl_dst(), vid))) == fwdtable[vid].end())
 	{
 		throw eFwdTableNotFound();
 	}
@@ -215,24 +211,23 @@ throw (eFwdTableNotFound)
 
 uint64_t
 cfwdtable::next_hop_dpid(
-		fetherframe& ether)
+		cpacket& pack)
 throw (eFwdTableNotFound)
 {
 	//struct eth_hdr_t *eth_hdr = (struct eth_hdr_t*)data;
 	uint16_t vid = 0xffff;
 
 	// multicast destinations are "NotFound"
-	if (ether.get_dl_dst().is_multicast())
+	if (pack.ether()->get_dl_dst().is_multicast())
 	{
 		throw eFwdTableNotFound();
 	}
 
 	// get vlan tag control information (TCI)
-	if ((fvlanframe::VLAN_ETHER == be16toh(ether.eth_hdr->dl_type)) ||
-			(fvlanframe::QINQ_ETHER == be16toh(ether.eth_hdr->dl_type)))
+	if ((fvlanframe::VLAN_ETHER == pack.ether()->get_dl_type()) ||
+			(fvlanframe::QINQ_ETHER == pack.ether()->get_dl_type()))
 	{
-		fvlanframe vlan(ether.payload(), ether.payloadlen(), ether.payloadlen());
-		vid = vlan.get_dl_vlan_id();
+		vid = pack.vlan()->get_dl_vlan_id();
 	}
 
 	// check for existing vlan identifier
@@ -244,7 +239,7 @@ throw (eFwdTableNotFound)
 	// check for existing entry
 	std::set<cfwdentry*>::iterator it;
 	if ((it = find_if(fwdtable[vid].begin(), fwdtable[vid].end(),
-						cfwdentry::cfwdentry_search(ether.get_dl_dst(), vid))) == fwdtable[vid].end())
+						cfwdentry::cfwdentry_search(pack.ether()->get_dl_dst(), vid))) == fwdtable[vid].end())
 	{
 		throw eFwdTableNotFound();
 	}

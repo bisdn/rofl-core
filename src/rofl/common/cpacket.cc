@@ -60,6 +60,9 @@ cpacket::cpacket(
 
 	pthread_rwlock_init(&ac_rwlock, NULL);
 
+	match.set_in_port(OFPP_CONTROLLER);
+	match.set_in_phy_port(OFPP_CONTROLLER);
+
 	if (do_classify)
 	{
 		classify(in_port);
@@ -83,7 +86,7 @@ cpacket::cpacket(const cpacket& pack)
 cpacket::~cpacket()
 {
 	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::~cpacket()", this);
-	clear(); // removes all cmemory and ciovec instances from heap
+	reset(); // removes all cmemory and ciovec instances from heap
 
 	pthread_rwlock_destroy(&ac_rwlock);
 }
@@ -248,7 +251,7 @@ cpacket::test()
 
 fframe*
 cpacket::frame(
-		int i = 0) throw (ePacketNotFound)
+		int i) throw (ePacketNotFound)
 {
 	if ((0 == head) || (0 == tail))
 	{
@@ -1056,7 +1059,7 @@ cpacket::set_field(coxmatch const& oxm)
 						sctp().framelen());
 #endif
 				ipv4()->ipv4_calc_checksum();
-				oxmlist[OFPXMT_OFB_SCTP_SRC] = oxm;
+				match.oxmlist[OFPXMT_OFB_SCTP_SRC] = oxm;
 			}
 			break;
 		case OFPXMT_OFB_SCTP_DST:
@@ -1070,7 +1073,7 @@ cpacket::set_field(coxmatch const& oxm)
 						sctp().framelen());
 #endif
 				ipv4()->ipv4_calc_checksum();
-				oxmlist[OFPXMT_OFB_SCTP_DST] = oxm;
+				match.oxmlist[OFPXMT_OFB_SCTP_DST] = oxm;
 			}
 			break;
 		case OFPXMT_OFB_ICMPV4_TYPE:
@@ -1168,7 +1171,7 @@ cpacket::set_field(coxmatch const& oxm)
 			{
 				uint8_t type = oxm.uint8();
 				pppoe()->set_pppoe_type(type);
-				oxmlist[OFPXMT_OFB_PPPOE_TYPE] = coxmatch_ofb_pppoe_type(type);
+				match.oxmlist[OFPXMT_OFB_PPPOE_TYPE] = coxmatch_ofb_pppoe_type(type);
 			}
 			break;
 		case OFPXMT_OFB_PPPOE_SID:
@@ -1280,6 +1283,8 @@ cpacket::push_vlan(uint16_t ethertype)
 
 		frame_push(vlan);
 
+		ether()->reset(mem.somem(), mem.memlen());
+
 		vlan->set_dl_type(ether()->get_dl_type());
 		vlan->set_dl_vlan_id(outer_vid);
 		vlan->set_dl_vlan_pcp(outer_pcp);
@@ -1309,15 +1314,15 @@ cpacket::pop_vlan()
 
 		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_vlan() ", this);
 
-		fvlanframe *vlan = vlan();
+		fvlanframe *p_vlan = vlan();
 
-		ether()->set_dl_type(vlan->get_dl_type());
+		ether()->set_dl_type(p_vlan->get_dl_type());
 
-		mem.remove(vlan->soframe(), vlan->framelen());
+		mem.remove(p_vlan->soframe(), p_vlan->framelen());
 
-		frame_pop(vlan);
+		frame_pop(p_vlan);
 
-		delete vlan;
+		delete p_vlan;
 
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID);
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP);
@@ -1366,6 +1371,8 @@ cpacket::push_mpls(uint16_t ethertype)
 
 		frame_push(mpls);
 
+		ether()->reset(mem.somem(), mem.memlen());
+
 		mpls->set_mpls_label(outer_label);
 		mpls->set_mpls_tc(outer_tc);
 		mpls->set_mpls_ttl(outer_ttl);
@@ -1397,15 +1404,15 @@ cpacket::pop_mpls(uint16_t ethertype)
 
 		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_mpls() ", this);
 
-		fvlanframe *mpls = mpls();
+		fmplsframe *p_mpls = mpls();
 
 		ether()->set_dl_type(ethertype);
 
-		mem.remove(mpls->soframe(), mpls->framelen());
+		mem.remove(p_mpls->soframe(), p_mpls->framelen());
 
-		frame_pop(mpls);
+		frame_pop(p_mpls);
 
-		delete mpls;
+		delete p_mpls;
 
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_LABEL);
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_TC);
@@ -1433,6 +1440,8 @@ cpacket::push_pppoe(uint16_t ethertype)
 		fpppoeframe *pppoe = new fpppoeframe(ptr, sizeof(struct fpppoeframe::pppoe_hdr_t));
 
 		frame_push(pppoe);
+
+		ether()->reset(mem.somem(), mem.memlen());
 
 		pppoe->set_pppoe_vers(fpppoeframe::PPPOE_VERSION);
 		pppoe->set_pppoe_type(fpppoeframe::PPPOE_TYPE);
@@ -1464,15 +1473,15 @@ cpacket::pop_pppoe(uint16_t ethertype)
 
 		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_pppoe() ", this);
 
-		fpppoeframe *pppoe = pppoe();
+		fpppoeframe *p_pppoe = pppoe();
 
 		ether()->set_dl_type(ethertype);
 
-		mem.remove(pppoe->soframe(), pppoe->framelen());
+		mem.remove(p_pppoe->soframe(), p_pppoe->framelen());
 
-		frame_pop(pppoe);
+		frame_pop(p_pppoe);
 
-		delete pppoe;
+		delete p_pppoe;
 
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_CODE);
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_SID);
@@ -1498,6 +1507,8 @@ cpacket::push_ppp(uint16_t code)
 
 		frame_push(ppp);
 
+		ether()->reset(mem.somem(), mem.memlen());
+
 		ppp->set_ppp_prot(code);
 
 		match.set_ppp_prot(code);
@@ -1521,13 +1532,13 @@ cpacket::pop_ppp()
 
 		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_ppp() ", this);
 
-		fpppframe *ppp = ppp();
+		fpppframe *p_ppp = ppp();
 
-		mem.remove(ppp->soframe(), ppp->framelen());
+		mem.remove(p_ppp->soframe(), p_ppp->framelen());
 
-		frame_pop(ppp);
+		frame_pop(p_ppp);
 
-		delete ppp;
+		delete p_ppp;
 
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPP_PROT);
 

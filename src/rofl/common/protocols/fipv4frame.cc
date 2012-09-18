@@ -4,24 +4,25 @@
 
 #include "fipv4frame.h"
 
+
 fipv4frame::fipv4frame(
-		uint8_t* _data,
-		size_t _datalen,
-		uint16_t _total_len,
-		fframe* _predecessor) :
-		fframe(_data, _datalen, _total_len, _predecessor),
-		ipv4_hdr(NULL),
-		ipv4data(NULL),
+		uint8_t* data,
+		size_t datalen) :
+		fframe(data, datalen),
+		ipv4_hdr(0),
+		ipv4data(0),
 		ipv4datalen(0)
 {
 	initialize();
 }
 
 
+
 fipv4frame::~fipv4frame()
 {
 
 }
+
 
 
 void
@@ -56,18 +57,10 @@ fipv4frame::initialize()
 bool
 fipv4frame::complete()
 {
-	struct ipv4_hdr_t *ipv4 = (struct ipv4_hdr_t*)soframe();
-
 	if (framelen() < sizeof(struct ipv4_hdr_t))
 		return false;
 
 	if (framelen() < (get_ipv4_ihl() * sizeof(uint32_t)))
-		return false;
-
-	// please note: we may receive only the first 64/128/... bytes from a packet with OF
-	// framelen() may not indicate the real length of the packet buffered. header length fields and rcvd length may differ
-
-	if (totallen() < be16toh(ipv4->length))
 		return false;
 
 	return true;
@@ -125,23 +118,6 @@ fipv4frame::payloadlen() throw (eFrameNoPayload)
 	return ipv4datalen;
 }
 
-
-uint16_t
-fipv4frame::totalpayloadlen() throw (eFrameNoPayload)
-{
-	uint16_t minhdrlen = sizeof(struct fipv4frame::ipv4_hdr_t);
-
-	if (get_ipv4_ihl() > 5)
-	{
-		minhdrlen = get_ipv4_ihl() * sizeof(uint32_t);
-	}
-
-	if (totallen() < minhdrlen)
-	{
-		throw eFrameNoPayload();
-	}
-	return (totallen() - minhdrlen);
-}
 
 
 void

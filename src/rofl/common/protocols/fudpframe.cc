@@ -5,23 +5,23 @@
 #include "fudpframe.h"
 
 fudpframe::fudpframe(
-		uint8_t* _data,
-		size_t _datalen,
-		uint16_t _totallen,
-		fframe* _predecessor) :
-		fframe(_data, _datalen, _totallen, _predecessor),
-		udp_hdr(NULL),
-		data(NULL),
+		uint8_t* data,
+		size_t datalen) :
+		fframe(data, datalen),
+		udp_hdr(0),
+		data(0),
 		datalen(0)
 {
 	initialize();
 }
 
 
+
 fudpframe::~fudpframe()
 {
 
 }
+
 
 
 void
@@ -106,15 +106,7 @@ fudpframe::payloadlen() throw (eFrameNoPayload)
 }
 
 
-uint16_t
-fudpframe::totalpayloadlen() throw (eFrameNoPayload)
-{
-	if (totallen() < sizeof(struct fudpframe::udp_hdr_t))
-	{
-		throw eFrameNoPayload();
-	}
-	return (totallen() - sizeof(struct fudpframe::udp_hdr_t));
-}
+
 
 
 void

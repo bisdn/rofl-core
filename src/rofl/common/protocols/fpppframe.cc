@@ -48,16 +48,15 @@
 
 fpppframe::fpppframe(
 		uint8_t *data,
-		size_t datalen,
-		uint16_t _totallen,
-		fframe *predecessor) :
-		fframe(data, datalen, _totallen, predecessor),
-		ppp_hdr(NULL),
-		ppp_lcp_hdr(NULL),
-		ppp_ipcp_hdr(NULL)
+		size_t datalen) :
+		fframe(data, datalen),
+		ppp_hdr(0),
+		ppp_lcp_hdr(0),
+		ppp_ipcp_hdr(0)
 {
 	initialize();
 }
+
 
 
 fpppframe::~fpppframe()
@@ -66,10 +65,11 @@ fpppframe::~fpppframe()
 }
 
 
+
 void
 fpppframe::unpack(uint8_t *frame, size_t framelen) throw (ePPPInval)
 {
-	reset(frame, framelen, framelen);
+	reset(frame, framelen);
 
 	if (!complete())
 		throw ePPPInval();
@@ -232,7 +232,7 @@ fpppframe::hdlc_decode(
 		// remove flag sequences, if still present
 		if (decoded[0] == HDLC_FRAME_DELIMITER)
 		{
-			decoded.remove(0, 1);
+			decoded.remove((unsigned int)0, 1);
 		}
 
 		if (decoded[decoded.memlen()-1] == HDLC_FRAME_DELIMITER)
@@ -272,13 +272,13 @@ fpppframe::hdlc_decode(
 		// remove HDLC-DST-ALL (0xff), if still present
 		if (decoded[0] == HDLC_DST_ALL)
 		{
-			decoded.remove(0, 1);
+			decoded.remove((unsigned int)0, 1);
 		}
 
 		// remove HDLC-DST-ALL (0x03), if still present
 		if (decoded[0] == HDLC_PPP_CONTROL)
 		{
-			decoded.remove(0, 1);
+			decoded.remove((unsigned int)0, 1);
 		}
 
 		//*dynamic_cast<cpacket*>( this ) = decoded;

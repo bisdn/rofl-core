@@ -116,20 +116,21 @@ public: // static
 
 public: // methods
 
+
 	/** constructor
 	 *
 	 */
 	fipv4frame(
 			uint8_t* data,
-			size_t datalen,
-			uint16_t total_len,
-			fframe* predecessor = NULL);
+			size_t datalen);
+
 
 	/** destructor
 	 *
 	 */
 	virtual
 	~fipv4frame();
+
 
 #if 0
 	/** insert new pppoe tag
@@ -194,11 +195,6 @@ public: // overloaded from fframe
 	virtual size_t
 	payloadlen() throw (eFrameNoPayload);
 
-	/** get total payload length
-	 *
-	 */
-	virtual uint16_t
-	totalpayloadlen() throw (eFrameNoPayload);
 
 	/** dump info
 	 *

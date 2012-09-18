@@ -6,16 +6,15 @@
 
 ficmpv4frame::ficmpv4frame(
 		uint8_t* _data,
-		size_t _datalen,
-		uint16_t _total_len,
-		fframe *_predecessor) :
-		fframe(_data, _datalen, _total_len, _predecessor),
-		icmp_hdr(NULL),
-		data(NULL),
+		size_t _datalen) :
+		fframe(data, datalen),
+		icmp_hdr(0),
+		data(0),
 		datalen(0)
 {
 	initialize();
 }
+
 
 
 ficmpv4frame::ficmpv4frame(
@@ -26,10 +25,12 @@ ficmpv4frame::ficmpv4frame(
 }
 
 
+
 ficmpv4frame::~ficmpv4frame()
 {
 
 }
+
 
 
 void

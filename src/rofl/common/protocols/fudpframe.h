@@ -51,20 +51,21 @@ public:
 
 public:
 
+
 	/** constructors
 	 *
 	 */
 	fudpframe(
 			uint8_t *data,
-			size_t datalen,
-			uint16_t totallen,
-			fframe *predecessor = NULL);
+			size_t datalen);
+
 
 	/** destructors
 	 *
 	 */
 	virtual
 	~fudpframe();
+
 
 	/** calculate UDP header checksum
 	 *
@@ -120,17 +121,13 @@ public: // overloaded from fframe
 	virtual size_t
 	payloadlen() throw (eFrameNoPayload);
 
-	/** get total payload length
-	 *
-	 */
-	virtual uint16_t
-	totalpayloadlen() throw (eFrameNoPayload);
 
 	/** dump info
 	 *
 	 */
 	virtual const char*
 	c_str();
+
 
 public:
 

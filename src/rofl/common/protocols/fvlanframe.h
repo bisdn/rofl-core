@@ -68,9 +68,8 @@ public: // methods
 	 */
 	fvlanframe(
 			uint8_t* data,
-			size_t datalen,
-			uint16_t totallen,
-			fframe* predecessor = NULL);
+			size_t datalen);
+
 
 	/** destructor
 	 *

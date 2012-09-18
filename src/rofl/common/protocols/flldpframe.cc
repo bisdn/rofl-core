@@ -4,25 +4,27 @@
 
 #include "flldpframe.h"
 
+
 flldpframe::flldpframe(
-		uint8_t *_data,
-		size_t _datalen,
-		uint16_t _totallen) :
-	fframe(_data, _datalen, _totallen),
-	lldp_hdr(NULL)
+		uint8_t *data,
+		size_t datalen) :
+	fframe(data, datalen),
+	lldp_hdr(0)
 {
 	initialize();
 	validate();
 }
 
 
+
 flldpframe::flldpframe(
 		size_t len) :
 		fframe(len),
-		lldp_hdr(NULL)
+		lldp_hdr(0)
 {
 	initialize();
 }
+
 
 
 flldpframe::~flldpframe()

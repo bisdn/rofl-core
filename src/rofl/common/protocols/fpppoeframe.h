@@ -107,14 +107,14 @@ public: // static
 
 public: // methods
 
+
 	/** constructor for parsing received pppoe frame
 	 *
 	 */
 	fpppoeframe(
 			uint8_t* data,
-			size_t datalen,
-			uint16_t totallen,
-			fframe* predecessor = NULL);
+			size_t datalen);
+
 
 	/** constructor for creating new pppoe frame
 	 *
@@ -122,11 +122,13 @@ public: // methods
 	fpppoeframe(
 			size_t len = DEFAULT_PPPOE_FRAME_SIZE);
 
+
 	/** destructor
 	 *
 	 */
 	virtual
 	~fpppoeframe();
+
 
 #if 0
 	/** copy existing pppoe tag into packet

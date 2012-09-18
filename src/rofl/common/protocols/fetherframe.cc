@@ -4,25 +4,26 @@
 
 #include "fetherframe.h"
 
+
 fetherframe::fetherframe(
-		uint8_t *_data,
-		size_t _datalen,
-		uint16_t _total_len,
-		fframe *__predecessor) :
-	fframe(_data, _datalen, _total_len, __predecessor),
-	eth_hdr(NULL)
+		uint8_t *data,
+		size_t datalen) :
+	fframe(data, datalen),
+	eth_hdr(0)
 {
 	initialize();
 }
+
 
 
 fetherframe::fetherframe(
 		size_t len) :
 		fframe(len),
-		eth_hdr(NULL)
+		eth_hdr(0)
 {
 	initialize();
 }
+
 
 
 fetherframe::~fetherframe()
@@ -31,11 +32,13 @@ fetherframe::~fetherframe()
 }
 
 
+
 void
 fetherframe::initialize()
 {
 	eth_hdr = (struct eth_hdr_t*)soframe();
 }
+
 
 
 bool
@@ -48,6 +51,7 @@ fetherframe::complete()
 
 	return true;
 }
+
 
 
 size_t
@@ -100,16 +104,6 @@ fetherframe::payloadlen() throw (eFrameNoPayload)
 	return (framelen() - sizeof(struct eth_hdr_t));
 }
 
-
-uint16_t
-fetherframe::totalpayloadlen() throw (eFrameNoPayload)
-{
-	if (totallen() < sizeof(struct fetherframe::eth_hdr_t))
-	{
-		throw eFrameNoPayload();
-	}
-	return (totallen() - sizeof(struct fetherframe::eth_hdr_t));
-}
 
 
 void

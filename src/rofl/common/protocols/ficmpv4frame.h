@@ -64,14 +64,14 @@ public:
 
 public:
 
+
 	/** constructor
 	 *
 	 */
 	ficmpv4frame(
 			uint8_t *data,
-			size_t datalen,
-			uint16_t total_len,
-			fframe *predecessor = NULL);
+			size_t datalen);
+
 
 	/** constructor for creating new icmpv4 frame
 	 *
@@ -79,17 +79,20 @@ public:
 	ficmpv4frame(
 			size_t len = DEFAULT_ICMPV4_FRAME_SIZE);
 
+
 	/** destructor
 	 *
 	 */
 	virtual
 	~ficmpv4frame();
 
+
 	/** calculate TCP header checksum
 	 *
 	 */
 	void
 	icmpv4_calc_checksum();
+
 
 public: // overloaded from fframe
 

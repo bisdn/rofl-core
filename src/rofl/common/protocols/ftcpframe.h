@@ -79,20 +79,22 @@ public:
 	};
 
 public:
+
+
 	/** constructor
 	 *
 	 */
 	ftcpframe(
 			uint8_t *_data,
-			size_t _datalen,
-			uint16_t _totallen,
-			fframe *_predecessor = NULL);
+			size_t _datalen);
+
 
 	/** destructor
 	 *
 	 */
 	virtual
 	~ftcpframe();
+
 
 	/** calculate TCP header checksum
 	 *

@@ -47,14 +47,14 @@ public: // static
 
 public: // methods
 
+
 	/** constructor
 	 *
 	 */
 	fetherframe(
 			uint8_t* data,
-			size_t datalen,
-			uint16_t total_len,
-			fframe *predecessor = NULL);
+			size_t datalen);
+
 
 	/** constructor
 	 *
@@ -62,11 +62,13 @@ public: // methods
 	fetherframe(
 			size_t len = DEFAULT_ETHER_FRAME_SIZE);
 
+
 	/** destructor
 	 *
 	 */
 	virtual
 	~fetherframe();
+
 
 	/** set dl src
 	 *
@@ -128,6 +130,7 @@ public: // overloaded from fframe
 	virtual void
 	initialize();
 
+
 	/** insert payload
 	 *
 	 */
@@ -135,11 +138,13 @@ public: // overloaded from fframe
 	payload_insert(
 			uint8_t *data, size_t datalen) throw (eFrameOutOfRange);
 
+
 	/** get payload
 	 *
 	 */
 	virtual uint8_t*
 	payload() throw (eFrameNoPayload);
+
 
 	/** get payload length
 	 *
@@ -147,11 +152,6 @@ public: // overloaded from fframe
 	virtual size_t
 	payloadlen() throw (eFrameNoPayload);
 
-	/** get total payload length
-	 *
-	 */
-	virtual uint16_t
-	totalpayloadlen() throw (eFrameNoPayload);
 
 	/** dump info
 	 *

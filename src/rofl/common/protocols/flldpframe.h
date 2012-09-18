@@ -54,13 +54,14 @@ public: // static
 
 public: // methods
 
+
 	/** constructor
 	 *
 	 */
 	flldpframe(
 			uint8_t* data,
-			size_t datalen,
-			uint16_t totallen);
+			size_t datalen);
+
 
 	/** constructor
 	 *
@@ -68,11 +69,13 @@ public: // methods
 	flldpframe(
 			size_t len = DEFAULT_LLDP_FRAME_SIZE);
 
+
 	/** destructor
 	 *
 	 */
 	virtual
 	~flldpframe();
+
 
 public: // overloaded from fframe
 

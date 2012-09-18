@@ -4,14 +4,13 @@
 
 #include "fpppoeframe.h"
 
+
 fpppoeframe::fpppoeframe(
-		uint8_t* _data,
-		size_t _datalen,
-		uint16_t _totallen,
-		fframe* _predecessor) :
-		fframe(_data, _datalen, _totallen, _predecessor),
-		pppoe_hdr(NULL),
-		pppdata(NULL),
+		uint8_t* data,
+		size_t datalen) :
+		fframe(data, datalen),
+		pppoe_hdr(0),
+		pppdata(0),
 		pppdatalen(0)
 {
 	initialize();
@@ -21,14 +20,15 @@ fpppoeframe::fpppoeframe(
 fpppoeframe::fpppoeframe(
 		size_t len) :
 		fframe(len),
-		pppoe_hdr(NULL),
-		pppdata(NULL),
+		pppoe_hdr(0),
+		pppdata(0),
 		pppdatalen(0)
 {
 	initialize();
 	set_pppoe_vers(PPPOE_VERSION);
 	set_pppoe_type(PPPOE_TYPE);
 }
+
 
 
 fpppoeframe::~fpppoeframe()
@@ -59,15 +59,6 @@ fpppoeframe::complete()
 
 	if (framelen() < sizeof(struct pppoe_hdr_t))
 		return false;
-
-	try {
-		if (totalpayloadlen() < get_hdr_length()) // pppoe header length includes header and payload
-			return false;
-	} catch (eFrameNoPayload& e) {}
-#if 0
-	if (framelen() < get_hdr_length()) // pppoe header length includes header and payload
-		return false;
-#endif
 
 	return true;
 }
@@ -368,7 +359,7 @@ fpppoeframe::pack(uint8_t *frame, size_t framelen) throw (ePPPoEInval)
 void
 fpppoeframe::unpack(uint8_t *frame, size_t framelen) throw (ePPPoEInval)
 {
-	reset(frame, framelen, framelen);
+	reset(frame, framelen);
 
 	if (!complete())
 		throw ePPPoEInval();

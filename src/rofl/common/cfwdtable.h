@@ -50,48 +50,58 @@ class cfwdtable : public csyslog {
 	std::string info;
 
 public:
+
+
 	/** constructor
 	 */
 	cfwdtable();
+
 
 	/** destructor
 	 */
 	virtual
 	~cfwdtable();
 
+
 	/** STP learning
 	 */
 	void
 	mac_learning(
-			fetherframe & ether,
+			cpacket &pack,
 			uint64_t dpid,
 			uint32_t port_no);
+
 
 	/**
 	 *
 	 */
 	bool
 	mac_is_known(
-			fetherframe& ether);
+			cpacket& pack);
+
 
 	/** STP return next hop
 	 * for vlan id and hwaddr
 	 */
 	uint32_t
 	mac_next_hop(
-			fetherframe& ether) throw(eFwdTableNotFound);
+			cpacket& pack) throw(eFwdTableNotFound);
+
 
 	/**
 	 *
 	 */
 	uint32_t
-	next_hop_port_no(fetherframe& ether) throw (eFwdTableNotFound);
+	next_hop_port_no(
+			cpacket& pack) throw (eFwdTableNotFound);
+
 
 	/**
 	 *
 	 */
 	uint64_t
-	next_hop_dpid(fetherframe& ether) throw (eFwdTableNotFound);
+	next_hop_dpid(
+			cpacket& pack) throw (eFwdTableNotFound);
 
 
 	/** dump info

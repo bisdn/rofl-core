@@ -62,20 +62,22 @@ public: // static
 #define DEFAULT_ARPV4_FRAME_SIZE sizeof(struct arpv4_hdr_t)
 
 public:
+
+
 	/** constructor
 	 *
 	 */
 	farpv4frame(
 			uint8_t *_data,
-			size_t _datalen,
-			uint16_t _total_len,
-			fframe *_predecessor = NULL);
+			size_t _datalen);
+
 
 	/** constructor for creating new frames
 	 *
 	 */
 	farpv4frame(
 			size_t len = DEFAULT_ARPV4_FRAME_SIZE);
+
 
 	/** destructor
 	 *

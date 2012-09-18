@@ -461,33 +461,36 @@ cofdpath::port_mod_sent(cofpacket *pack)
 void
 cofdpath::packet_in_rcvd(cofpacket *pack)
 {
-	WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() %s", dpid, pack->c_str());
+	try {
+		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() %s", dpid, pack->c_str());
 
-	// update forwarding table
-	uint32_t in_port = pack->match.get_in_port();
+		// update forwarding table
+		uint32_t in_port = pack->match.get_in_port();
 
-	fetherframe ether(pack->get_data(), pack->get_datalen(),
-			be16toh(pack->ofh_packet_in->total_len));
+		// datalen must be at least one Ethernet header in size
+		if (pack->get_datalen() >= (2 * OFP_ETH_ALEN + sizeof(uint16_t)))
+		{
 
-	// datalen must be at least one Ethernet header in size
-	if (pack->get_datalen() >= (2 * OFP_ETH_ALEN + sizeof(uint16_t)))
-	{
+			// update local forwarding table
+			fwdtable.mac_learning(pack->packet, dpid, in_port);
 
-		// update local forwarding table
-		fwdtable.mac_learning(ether, dpid, in_port);
-
-		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() local fwdtable: %s",
-				dpid, fwdtable.c_str());
+			WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() local fwdtable: %s",
+					dpid, fwdtable.c_str());
 
 #if 0
 		fwdelem->fwdtable.mac_learning(ether, dpid, in_port);
 #endif
 
-		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() global fwdtable: %s",
-				dpid, fwdelem->fwdtable.c_str());
+			WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() global fwdtable: %s",
+					dpid, fwdelem->fwdtable.c_str());
 
-		// let derived class handle PACKET-IN event
-		fwdelem->handle_packet_in(this, pack);
+			// let derived class handle PACKET-IN event
+			fwdelem->handle_packet_in(this, pack);
+		}
+	} catch (eOFmatchNotFound& e) {
+
+		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() "
+				"no in-port specified in Packet-In message", dpid);
 	}
 }
 

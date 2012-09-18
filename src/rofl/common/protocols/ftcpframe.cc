@@ -6,23 +6,23 @@
 
 
 ftcpframe::ftcpframe(
-		uint8_t* _data,
-		size_t _datalen,
-		uint16_t _totallen,
-		fframe* _predecessor) :
-		fframe(_data, _datalen, _totallen, _predecessor),
-		tcp_hdr(NULL),
-		data(NULL),
+		uint8_t* data,
+		size_t datalen) :
+		fframe(data, datalen),
+		tcp_hdr(0),
+		data(0),
 		datalen(0)
 {
 	initialize();
 }
 
 
+
 ftcpframe::~ftcpframe()
 {
 
 }
+
 
 
 void

@@ -4,22 +4,23 @@
 
 #include "fvlanframe.h"
 
+
 fvlanframe::fvlanframe(
-		uint8_t *_data,
-		size_t _datalen,
-		uint16_t _totallen,
-		fframe *__predecessor) :
-	fframe(_data, _datalen, _totallen, __predecessor),
-	vlan_hdr(NULL)
+		uint8_t *data,
+		size_t datalen) :
+	fframe(data, datalen),
+	vlan_hdr(0)
 {
 	initialize();
 }
+
 
 
 fvlanframe::~fvlanframe()
 {
 	// do _NOT_ delete or deallocate (data,datalen) here!
 }
+
 
 
 void

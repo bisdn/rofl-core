@@ -162,20 +162,21 @@ public: // static
 
 public: // methods
 
+
 	/** constructor
 	 *
 	 */
 	fpppframe(
 			uint8_t *data,
-			size_t datalen,
-			uint16_t totallen,
-			fframe *predecessor = NULL);
+			size_t datalen);
+
 
 	/** destructor
 	 *
 	 */
 	virtual
 	~fpppframe();
+
 
 	/** asynchronous HDLC decode
 	 *
@@ -184,6 +185,7 @@ public: // methods
 	hdlc_decode(
 			cmemory& decoded,
 			uint32_t accm_recv) throw (ePPPFrameHdlcDecodeFailed);
+
 
 	/** asynchronous HDLC encode
 	 *

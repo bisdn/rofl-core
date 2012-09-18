@@ -54,6 +54,7 @@ cofpacket::operator=(const cofpacket &p)
 	buckets 		= p.buckets;
 	instructions 	= p.instructions;
 	body			= p.body;
+	packet			= p.packet;
 
 	ofh_header = (struct ofp_header*)soframe();
 
@@ -465,7 +466,17 @@ cofpacket::is_valid_packet_in()
 	 */
 	uint16_t offset = OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2;
 
-	body.assign((uint8_t*)(soframe() + offset), stored - (offset)); // +2: magic :)
+	//body.assign((uint8_t*)(soframe() + offset), stored - (offset)); // +2: magic :)
+
+	uint32_t in_port = 0;
+
+	try {
+		in_port = match.get_in_port();
+	} catch (eOFmatchNotFound& e) {
+		in_port = 0;
+	}
+
+	packet.unpack(in_port, (uint8_t*)(soframe() + offset), stored - (offset)); // +2: magic :)
 
 	return true; // packet is valid
 }
@@ -477,7 +488,17 @@ cofpacket::is_valid_packet_out()
 	if (stored < sizeof(struct ofp_packet_out))
 		return false;
 
+#if 0
 	body.assign(((uint8_t*)ofh_packet_out) +
+					sizeof(struct ofp_packet_out) +
+						be16toh(ofh_packet_out->actions_len),
+						be16toh(ofh_packet_out->header.length) -
+											sizeof(struct ofp_packet_out) -
+												be16toh(ofh_packet_out->actions_len));
+#endif
+
+	packet.unpack(OFPP_CONTROLLER,
+				((uint8_t*)ofh_packet_out) +
 					sizeof(struct ofp_packet_out) +
 						be16toh(ofh_packet_out->actions_len),
 						be16toh(ofh_packet_out->header.length) -
