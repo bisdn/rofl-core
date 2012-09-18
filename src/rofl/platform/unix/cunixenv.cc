@@ -37,6 +37,13 @@ std::string coption::parse_argument(char* optarg){
 	return this->current_value;	
 }
 
+cunixenv&
+cunixenv::getInstance()
+{
+	static cunixenv instance;
+	return instance;
+}
+
 /*
 *
 * cunixenv
@@ -44,17 +51,13 @@ std::string coption::parse_argument(char* optarg){
 */
 
 /* Constructor */ 
-cunixenv::cunixenv(std::vector<coption>* args){
-	
-	if(args)
-		arguments = *args;
-	else{
-		/*Push default arguments */
-		arguments.push_back(coption(true,REQUIRED_ARGUMENT,'d',"debug","debug level",std::string(""+(int)csyslog::EMERGENCY)));
-		arguments.push_back(coption(true,NO_ARGUMENT,'h',"help","Help message",""));
-		arguments.push_back(coption(false,REQUIRED_ARGUMENT,'c',"config-file","Config file","./default-cli.cfg"));
-		arguments.push_back(coption(true, NO_ARGUMENT,'D',"daemonize","Daemonize process",""));
-	}
+cunixenv::cunixenv()
+{
+	/*Push default arguments */
+	arguments.push_back(coption(true,REQUIRED_ARGUMENT,'d',"debug","debug level",std::string(""+(int)csyslog::EMERGENCY)));
+	arguments.push_back(coption(true,NO_ARGUMENT,'h',"help","Help message",""));
+	arguments.push_back(coption(false,REQUIRED_ARGUMENT,'c',"config-file","Config file","./default-cli.cfg"));
+	arguments.push_back(coption(true, NO_ARGUMENT,'D',"daemonize","Daemonize process",""));
 	parsed = false;
 }
 
@@ -69,7 +72,7 @@ cunixenv::usage(
 	string mandatory = "";
 	string optional = "";
 
-	for(std::vector<coption>::iterator it = this->arguments.begin(); it != this->arguments.end(); it++){
+	for(std::vector<coption>::iterator it = this->arguments.begin(); it != this->arguments.end(); ++it){
 		string tmp(""); 
 		if(it->optional)
 			tmp+="[";
@@ -109,7 +112,7 @@ cunixenv::parse_args(
 	struct option* long_options = (struct option*)calloc(1,sizeof(struct option)*(this->arguments.size()+1));
 
 	//Construct getopts stuff
-	for(std::vector<coption>::iterator it = this->arguments.begin(); it != this->arguments.end(); it++){
+	for(std::vector<coption>::iterator it = this->arguments.begin(); it != this->arguments.end(); ++it){
 		format += it->shortcut;
 		if(it->value_type == REQUIRED_ARGUMENT)
 			format+=":"; 
@@ -131,7 +134,7 @@ cunixenv::parse_args(
 		if (c == -1)
 			break;
 		//TODO: might be better to have a map	
-		for(std::vector<coption>::iterator it = this->arguments.begin(); it != this->arguments.end(); it++){
+		for(std::vector<coption>::iterator it = this->arguments.begin(); it != this->arguments.end(); ++it){
 			if(it->shortcut == c){
 				it->parse_argument(optarg);
 				if(c == 'h')
@@ -148,15 +151,15 @@ cunixenv::parse_args(
 	parsed = true;
 }
 
-void cunixenv::add_option(coption arg){
+void cunixenv::add_option(const coption &arg){
 	arguments.push_back(arg);	
 }
 
-std::string cunixenv::get_arg(std::string name){
+std::string cunixenv::get_arg(const std::string &name){
 	if(!parsed)
 		throw std::runtime_error("Args not yet parsed. use parse_args()");
 	std::vector<coption>::iterator it;
-	for(it = this->arguments.begin(); it != this->arguments.end(); it++){
+	for(it = this->arguments.begin(); it != this->arguments.end(); ++it){
 		if(it->full_name == name)
 			return it->current_value;
 	}
@@ -169,7 +172,7 @@ std::string cunixenv::get_arg(char shortcut){
 		throw std::runtime_error("Args not yet parsed. use parse_args()");
 	
 	std::vector<coption>::iterator it;
-	for(it = this->arguments.begin(); it != this->arguments.end(); it++){
+	for(it = this->arguments.begin(); it != this->arguments.end(); ++it){
 		if(it->shortcut == shortcut)
 			return it->current_value;
 	}
@@ -216,3 +219,6 @@ cunixenv::detach()
 	}
 }
 
+cunixenv::~cunixenv() {
+	// everything destroyed anyway...
+}
