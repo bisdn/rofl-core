@@ -98,6 +98,7 @@ AC_CONFIG_FILES([
 	test/Makefile
 	test/unit/Makefile
 	test/unit/test1/Makefile
+	test/unit/cmemory/Makefile
 
 	doc/Makefile
 	])

@@ -149,20 +149,20 @@ public:
 
 public:
 
+
 	/**
 	 * checks for overlaps in this and the other entry
 	 */
 	bool overlaps(cofmatch& match, bool strict = false);
 
-	/**
-	 * called, when this flow entry is selected for forwarding
-	 */
-	void used(fetherframe ether);
 
 	/**
 	 * called, when this flow entry is selected for forwarding
 	 */
-	void used(uint8_t *data, size_t datalen);
+	void used(
+			cpacket& pack);
+
+
 
 	//
 	// methods called from class cpcp_dpath

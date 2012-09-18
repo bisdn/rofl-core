@@ -17,6 +17,8 @@ cmemory::cmemory(
 		size_t tspace) :
 		data(std::make_pair<uint8_t*, size_t>(NULL,0)),
 		area(std::make_pair<uint8_t*, size_t>(NULL,0)),
+		hspace(hspace),
+		tspace(tspace),
 		occupied(0)
 {
 	if (0 == cmemory::memlockcnt)
@@ -46,6 +48,8 @@ cmemory::cmemory(
 		size_t tspace) :
 		data(std::make_pair<uint8_t*, size_t>(NULL,0)),
 		area(std::make_pair<uint8_t*, size_t>(NULL,0)),
+		hspace(hspace),
+		tspace(tspace),
 		occupied(0)
 {
 	if (0 == cmemory::memlockcnt)
@@ -224,25 +228,51 @@ cmemory::assign(
 
 
 uint8_t*
-cmemory::resize(size_t len) throw (eMemAllocFailed)
+cmemory::resize(
+		size_t len) throw (eMemAllocFailed)
 {
 	if (0 == len)
 	{
 		mfree();
 	}
+	else if (len <= area.second)
+	{
+		return area.first;
+	}
 	else
 	{
-		size_t offset = area.first - data.first;
 
-		data.second = len + CMEMORY_DEFAULT_TAIL_SPACE;
+		//fprintf(stderr, "U[1] %s\n", c_str());
+		uint8_t* p_ptr 	= (uint8_t*)0;
+		size_t p_len 	= hspace + len + tspace;
 
-		if ((data.first = (uint8_t*)realloc(data.first, data.second)) == NULL)
+		size_t offset 	= hspace + len - area.second;
+#if 0
+		fprintf(stderr, "len: %lu area.second: %lu hspace: %lu tspace: %lu offset: %lu p_len: %lu\n",
+				len, area.second, hspace, tspace, offset, p_len);
+#endif
+
+		if ((p_ptr = (uint8_t*)calloc(1, p_len)) == 0)
 		{
 			throw eMemAllocFailed();
 		}
 
-		area.first = data.first + offset;
-		area.second = len;
+		memset(p_ptr, 0x00, p_len);
+
+		// copy public area
+		memcpy(p_ptr + offset, area.first, area.second);
+
+		// free old memory
+		free(data.first);
+
+		// adjust data
+		data.first 	= p_ptr;
+		data.second = p_len;
+
+		// adjust area
+		area.first	= data.first + offset;
+		// do not change area.second here
+		//fprintf(stderr, "U[2] %s\n", c_str());
 	}
 	return area.first;
 }
@@ -282,7 +312,7 @@ cmemory::mallocate(
 	}
 
 	area.first = data.first + hspace;
-	area.second = area.second - (hspace + tspace);
+	area.second = data.second - (hspace + tspace);
 }
 
 
@@ -321,31 +351,25 @@ cmemory::insert(
 		unsigned int offset,
 		size_t len) throw (eMemInval)
 {
-	size_t hspace = area.first - data.first;
-	size_t tspace = data.second - (hspace + area.second);
-
-	if (offset < (area.second / 2))
+	if ((area.first - data.first) < len)
 	{
-		if (len > hspace)
-		{
-			resize(data.second + len);
-		}
-
-		memmove(area.first, area.first - len, (offset + len));
-		area.first 	-= len;
-		area.second += len;
+		//fprintf(stderr, "S[1] %s\n", c_str());
+		resize(area.second + len);
+		//fprintf(stderr, "S[2] %s\n", c_str());
 	}
-	else
-	{
-		if (len > tspace)
-		{
-			resize(data.second + len);
-		}
 
-		memmove(area.first + offset, area.first + offset + len,
-												area.second - offset);
-		area.second += len;
-	}
+	//fprintf(stderr, "S[3] %s\n", c_str());
+	memmove(area.first - len, area.first, offset);
+	//fprintf(stderr, "S[4] %s\n", c_str());
+	memset(area.first + offset - len, 0x00, len);
+	//fprintf(stderr, "S[5] %s\n", c_str());
+
+	//fprintf(stderr, "S[6] data[%p:%lu] area[%p:%lu]\n", data.first, data.second, area.first, area.second);
+
+	area.first 	-= len;
+	area.second += len;
+
+	//fprintf(stderr, "S[7] data[%p:%lu] area[%p:%lu]\n", data.first, data.second, area.first, area.second);
 
 	return (somem() + offset);
 }
@@ -379,9 +403,15 @@ cmemory::remove(
 {
 	len = ((offset + len) > area.second) ? area.second - offset : len;
 
-	memmove(area.first + offset, area.first + offset + len, area.second - (offset + len));
-	bzero (area.first + area.second - len, 0);
+	memmove(area.first + len, area.first, offset);
+	memset(area.first, 0x00, len);
+
+	area.first += len;
 	area.second -= len;
+
+	//memmove(area.first + offset, area.first + offset + len, area.second - (offset + len));
+	//bzero (area.first + area.second - len, 0);
+	//area.second -= len;
 }
 
 
@@ -414,13 +444,17 @@ cmemory::c_str()
 	info.clear();
 	char _info[256];
 	bzero(_info, sizeof(_info));
-	snprintf(_info, sizeof(_info)-1, "cmemory(%p) somem()[%p] len[%d] data[", this, somem(), (int)memlen());
+	snprintf(_info, sizeof(_info)-1, "cmemory(%p) somem()[%p] len[%d] data[%p:%lu] area[%p:%lu] data[",
+			this, somem(), (int)memlen(), data.first, data.second, area.first, area.second);
+
 	info.assign(_info);
-	for (int i = 0; i < (int)memlen(); ++i)
+	//for (int i = 0; i < (int)memlen(); ++i)
+	for (int i = 0; i < (int)area.second; ++i)
 	{
 		char t[8];
 		memset(t, 0, sizeof(t));
-		snprintf(t, sizeof(t)-1, "%02x ", ((*this)[i]));
+		//snprintf(t, sizeof(t)-1, "%02x ", ((*this)[i]));
+		snprintf(t, sizeof(t)-1, "%02x ", (area.first[i]));
 		info.append(t);
 		if ((i > 32) && (0 == (i % 32)))
 		{

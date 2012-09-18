@@ -107,16 +107,19 @@ cpacket::reset()
 
 
 cpacket&
-cpacket::operator=(const cpacket &p)
+cpacket::operator=(
+		cpacket const& p)
 {
 	if (this == &p)
 		return *this;
 
 	reset();
 
-	throw eNotImplemented();
-
+	match				= p.match;
+	mem					= p.mem;
 	packet_receive_time = p.packet_receive_time;
+
+	classify(match.get_in_port());
 
 	return *this;
 }

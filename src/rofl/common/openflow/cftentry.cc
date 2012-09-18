@@ -356,18 +356,12 @@ cftentry::overlaps(
 }
 
 
-void
-cftentry::used(fetherframe ether)
-{
-	used((unsigned char*)ether.soframe(), ether.framelen());
-}
-
 
 void
-cftentry::used(uint8_t *data, size_t datalen)
+cftentry::used(cpacket& pack)
 {
 	rx_packets++;
-	rx_bytes += datalen;
+	rx_bytes += pack.framelen();
 
 	// set idle timeout only, when flow_mod->idle_timeout < flow_mod->hard_timeout
 	if ((be16toh(this->flow_mod->idle_timeout) < be16toh(this->flow_mod->hard_timeout)) &&
@@ -378,6 +372,7 @@ cftentry::used(uint8_t *data, size_t datalen)
 					   be16toh(flow_mod->idle_timeout));
 	}
 }
+
 
 
 void

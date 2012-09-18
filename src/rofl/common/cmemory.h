@@ -58,10 +58,12 @@ public: // data structures
 private:
 
 
+	size_t						hspace;
+	size_t						tspace;
 
 
 #define CMEMORY_DEFAULT_SIZE 			1024
-#define CMEMORY_DEFAULT_HEAD_SPACE		64
+#define CMEMORY_DEFAULT_HEAD_SPACE		16
 #define CMEMORY_DEFAULT_TAIL_SPACE		0
 
 
@@ -155,10 +157,13 @@ public: // public methods
 			uint8_t *buf,
 			size_t buflen);
 
+
 	/** resize
 	 *
 	 */
-	uint8_t* resize(size_t len) throw (eMemAllocFailed);
+	uint8_t*
+	resize(
+			size_t len) throw (eMemAllocFailed);
 
 
 

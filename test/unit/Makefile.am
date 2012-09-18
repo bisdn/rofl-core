@@ -1,5 +1,5 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = test1 
+SUBDIRS = test1 cmemory
 
 
