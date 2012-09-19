@@ -96,18 +96,21 @@ public: // public methods
 	virtual
 	~cmemory();
 
+
 	/** copy constructor
 	 *
 	 */
-	cmemory(cmemory const& m)
-	{
-		*this = m;
-	}
+	cmemory(
+			cmemory const& m);
+
 
 	/** assignment operator
 	 *
 	 */
-	cmemory& operator= (cmemory const& m);
+	cmemory&
+	operator= (
+			cmemory const& m);
+
 
 	/** start of mem area
 	 *

@@ -73,6 +73,18 @@ cmemory::cmemory(
 
 
 
+cmemory::cmemory(cmemory const& m) :
+		data(std::make_pair<uint8_t*, size_t>(NULL,0)),
+		area(std::make_pair<uint8_t*, size_t>(NULL,0)),
+		hspace(0),
+		tspace(0),
+		occupied(0)
+{
+	*this = m;
+}
+
+
+
 cmemory::~cmemory()
 {
 #if 0
@@ -91,9 +103,18 @@ cmemory::operator= (
 {
 	if (this == &m)
 		return *this;
-	this->resize(m.memlen());
-	clear();
+
+	//fprintf(stderr, "\n\nXXX[1] => m.memlen(): %lu\n\n\n", m.memlen());
+
+	hspace = m.hspace;
+	tspace = m.tspace;
+
+	mallocate(m.memlen(), hspace, tspace);
+
 	memcpy(this->somem(), m.somem(), m.memlen());
+
+	//fprintf(stderr, "\n\nXXX[2] => m.memlen(): %lu\n\n\n", m.memlen());
+
 	return *this;
 }
 
@@ -270,6 +291,7 @@ cmemory::resize(
 
 		if ((p_ptr = (uint8_t*)calloc(1, p_len)) == 0)
 		{
+			//fprintf(stderr, "UUU p_len: %lu\n", p_len);
 			throw eMemAllocFailed();
 		}
 
@@ -279,7 +301,11 @@ cmemory::resize(
 		memcpy(p_ptr + offset, area.first, area.second);
 
 		// free old memory
-		free(data.first);
+		if (0 != data.first)
+		{
+			//fprintf(stderr, "VVV p_len: %lu\n", p_len);
+			free(data.first);
+		}
 
 		// adjust data
 		data.first 	= p_ptr;
@@ -324,6 +350,7 @@ cmemory::mallocate(
 
 	if ((data.first = (uint8_t*)calloc(1, data.second)) == 0)
 	{
+		//fprintf(stderr, "RRR[1] data.second: %lu\n", data.second);
 		throw eMemAllocFailed();
 	}
 
