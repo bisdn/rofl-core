@@ -12,7 +12,7 @@
 void check_parser();
 void check_push_pop_vlan();
 void check_push_pop_mpls();
-//void check_push_pop_pppoe();
+void check_push_pop_pppoe_and_ppp();
 
 cmemory create_ether_header(
 		cmacaddr const& dst,
@@ -29,6 +29,14 @@ cmemory create_mpls_tag(
 		uint8_t tc,
 		uint8_t ttl,
 		bool bos);
+
+cmemory create_pppoe_tag(
+		uint8_t code,
+		uint16_t sid,
+		uint16_t len);
+
+cmemory create_ppp_tag(
+		uint16_t prot);
 
 cmemory create_ipv4_header(
 		uint8_t tos,
@@ -54,6 +62,7 @@ main(int args, char** argv)
 	//check_parser();
 	check_push_pop_vlan();
 	check_push_pop_mpls();
+	check_push_pop_pppoe_and_ppp();
 
 	return EXIT_SUCCESS;
 }
@@ -119,6 +128,36 @@ create_mpls_tag(
 }
 
 
+cmemory create_pppoe_tag(
+		uint8_t code,
+		uint16_t sid,
+		uint16_t len)
+{
+	cmemory pppoe(6);
+
+	pppoe[0] = (1 << 4) + (1 << 0);
+	pppoe[1] = code;
+	pppoe[2] = (sid & 0xff00) >> 8;
+	pppoe[3] = (sid & 0x00ff) >> 0;
+	pppoe[4] = (len & 0xff00) >> 8;
+	pppoe[5] = (len & 0x00ff) >> 0;
+
+	return pppoe;
+}
+
+
+cmemory create_ppp_tag(
+		uint16_t prot)
+{
+	cmemory ppp(2);
+
+	ppp[0] = (prot & 0xff00) >> 8;
+	ppp[1] = (prot & 0x00ff) >> 0;
+
+	return ppp;
+}
+
+
 cmemory
 create_ipv4_header(
 		uint8_t tos,
@@ -145,11 +184,6 @@ create_ipv4_header(
 	ipv4[11] = 0xfa; // header checksum
 	memcpy(&ipv4[12], &(src.s4addr->sin_addr.s_addr), sizeof(uint32_t));
 	memcpy(&ipv4[16], &(dst.s4addr->sin_addr.s_addr), sizeof(uint32_t));
-
-
-	printf("%s\n", ipv4.c_str());
-
-	//exit(EXIT_SUCCESS);
 
 	return ipv4;
 }
@@ -268,8 +302,6 @@ check_push_pop_vlan()
 		a1.push_vlan(0x8100);
 		a1.set_field(coxmatch_ofb_vlan_vid(0xeee));
 		a1.set_field(coxmatch_ofb_vlan_pcp(0xbb));
-
-		printf("\n\n\na1: %s\n\n\n\n", a1.c_str());
 
 		a1.push_vlan(0x88a8);
 		a1.set_field(coxmatch_ofb_vlan_vid(0xfff));
@@ -439,6 +471,87 @@ check_push_pop_mpls()
 		else
 		{
 			printf("success.\n");
+		}
+	}
+}
+
+
+
+
+
+void
+check_push_pop_pppoe_and_ppp()
+{
+	cmemory pack(0);
+
+	pack += create_ether_header(
+			cmacaddr("00:11:11:11:11:11"),
+			cmacaddr("00:22:22:22:22:22"),
+			0x0800 /*IPv4*/);
+	pack += create_ipv4_header(0x00, 38, 0x4444, 0x10, 0x00, caddress(AF_INET, "10.1.1.1"), caddress(AF_INET, "10.2.2.2"));
+	pack += create_payload(18, 0x80);
+
+
+
+
+	/*
+	 * sub-test-1 => push vlan and set fields, pop vlan again
+	 */
+	{
+		cmemory result1(0);
+
+		result1 += create_ether_header(
+				cmacaddr("00:11:11:11:11:11"),
+				cmacaddr("00:22:22:22:22:22"),
+				0x8864 /*PPPoE*/);
+		result1 += create_pppoe_tag(/*code=*/0x00, /*sid=*/0xfeed, /*len=*/40);
+		result1 += create_ppp_tag(0x0021 /*IPv4*/);
+		result1 += create_ipv4_header(0x00, 38, 0x4444, 0x10, 0x00, caddress(AF_INET, "10.1.1.1"), caddress(AF_INET, "10.2.2.2"));
+		result1 += create_payload(18, 0x80);
+
+
+
+
+		cpacket a1(pack.somem(), pack.memlen(), /*in_port=*/3, true);
+
+
+
+		printf("push pppoe and ppp tags => code: 0x00, type: 0x01, sid: 0xfeed, ppp-prot: 0x0021 ...");
+		a1.push_ppp(0x0021);
+
+		a1.push_pppoe(0x8864);
+		a1.set_field(coxmatch_ofb_pppoe_code(0x00));
+		a1.set_field(coxmatch_ofb_pppoe_type(0x01));
+		a1.set_field(coxmatch_ofb_pppoe_sid(0xfeed));
+
+		if (a1.to_mem() != result1)
+		{
+			printf(" failed =>\nexpected: %s\nreceived: %s", result1.c_str(), a1.c_str());
+
+			exit(EXIT_FAILURE);
+		}
+		else
+		{
+			printf(" success.\n");
+		}
+
+		printf("pop pppoe and ppp tags ...");
+		/*
+		 * Please note: pop_pppoe() removes both a pppoe and an existing ppp header !!!
+		 */
+		a1.pop_pppoe(0x0800);
+
+
+
+		if (a1.to_mem() != pack)
+		{
+			printf(" failed =>\nexpected: %s\nreceived: %s", pack.c_str(), a1.c_str());
+
+			exit(EXIT_FAILURE);
+		}
+		else
+		{
+			printf(" success.\n");
 		}
 	}
 }

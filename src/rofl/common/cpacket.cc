@@ -1311,8 +1311,6 @@ cpacket::push_vlan(uint16_t ethertype)
 		uint8_t  outer_pcp = 0;
 		uint16_t vlan_eth_type = ether()->get_dl_type();
 
-		fprintf(stderr, "A[0] ether(): %s\n", ether()->c_str());
-
 
 		try {
 			// get default values for push actions (OF 1.1 spec section 4.9.1)
@@ -1326,7 +1324,6 @@ cpacket::push_vlan(uint16_t ethertype)
 		}
 
 
-		fprintf(stderr, "A[1] vlan_eth_type: 0x%x\n", vlan_eth_type);
 
 
 		ether()->set_dl_type(ethertype);
@@ -1343,7 +1340,7 @@ cpacket::push_vlan(uint16_t ethertype)
 		frame_push(vlan);
 
 		ether()->reset(mem.somem(), mem.memlen());
-		fprintf(stderr, "A[2] ether(): %s\n", ether()->c_str());
+
 		//classify(match.get_in_port());
 
 #if 1
@@ -1513,6 +1510,9 @@ cpacket::push_pppoe(uint16_t ethertype)
 	try {
 		uint8_t code = 0;
 		uint16_t sid = 0;
+		uint16_t len = mem.memlen() - sizeof(struct fetherframe::eth_hdr_t);
+
+		ether()->set_dl_type(ethertype);
 
 		uint8_t *ptr = mem.insert(sizeof(struct fetherframe::eth_hdr_t),
 									sizeof(struct fpppoeframe::pppoe_hdr_t));
@@ -1527,8 +1527,7 @@ cpacket::push_pppoe(uint16_t ethertype)
 		pppoe->set_pppoe_type(fpppoeframe::PPPOE_TYPE);
 		pppoe->set_pppoe_code(code);
 		pppoe->set_pppoe_sessid(sid);
-
-		ether()->set_dl_type(ethertype);
+		pppoe->set_hdr_length(len);
 
 		match.set_eth_type(ethertype);
 		match.set_pppoe_code(code);
@@ -1552,6 +1551,12 @@ cpacket::pop_pppoe(uint16_t ethertype)
 	try {
 
 		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_pppoe() ", this);
+
+		try {
+			ppp(); // throws exception when there is no ppp frame (e.g. for pppoe discovery frames)
+
+			pop_ppp();
+		} catch (ePacketNotFound& e) {}
 
 		fpppoeframe *p_pppoe = pppoe();
 
@@ -1730,14 +1735,15 @@ cpacket::frame_pop(
 	// check whether this is the second fframe (first after ether)
 	// if not refuse dropping
 
-	fprintf(stderr, "cpacket(%p)::frame_pop() "
-			"frame: %p %s\n", this, frame, frame->c_str());
+	//fprintf(stderr, "cpacket(%p)::frame_pop() "
+	//		"frame: %p %s\n", this, frame, frame->c_str());
 
+#if 0
 	if ((0 == head) || (head->next != frame))
 	{
 		throw ePacketInval();
 	}
-
+#endif
 
 	if (0 != frame->next)
 	{
