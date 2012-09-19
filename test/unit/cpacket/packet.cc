@@ -207,15 +207,14 @@ create_payload(size_t size, uint8_t value)
 void
 check_push_pop_vlan()
 {
-	cmemory pack(0);
+	cmemory start(0);
 
-	pack += create_ether_header(
+	start += create_ether_header(
 			cmacaddr("00:11:11:11:11:11"),
 			cmacaddr("00:22:22:22:22:22"),
 			0x0800 /*IPv4*/);
-	pack += create_ipv4_header(0x00, 38, 0x4444, 0x10, 0x00, caddress(AF_INET, "10.1.1.1"), caddress(AF_INET, "10.2.2.2"));
-	pack += create_payload(18, 0x80);
-
+	start += create_ipv4_header(0x00, 38, 0x4444, 0x10, 0x00, caddress(AF_INET, "10.1.1.1"), caddress(AF_INET, "10.2.2.2"));
+	start += create_payload(18, 0x80);
 
 
 
@@ -234,18 +233,16 @@ check_push_pop_vlan()
 		result1 += create_payload(18, 0x80);
 
 
-
-
-		cpacket a1(pack.somem(), pack.memlen(), /*in_port=*/3, true);
+		cpacket a1(start.somem(), start.memlen());
 
 
 
-		printf("push vlan => 0x8100, 0xfff, 0xaa ...");
+		printf("push vlan tag => 0x8100, 0xfff, 0xaa ...");
 		a1.push_vlan(0x8100);
 		a1.set_field(coxmatch_ofb_vlan_vid(0xfff));
 		a1.set_field(coxmatch_ofb_vlan_pcp(0xaa));
 
-		if (a1.to_mem() != result1)
+		if (a1 != result1)
 		{
 			printf("push_vlan failed =>\nexpected: %s\nreceived: %s", result1.c_str(), a1.c_str());
 
@@ -256,12 +253,12 @@ check_push_pop_vlan()
 			printf("success.\n");
 		}
 
-		printf("pop vlan...");
+		printf("pop vlan tag ...");
 		a1.pop_vlan();
 
-		if (a1.to_mem() != pack)
+		if (a1 != start)
 		{
-			printf("push_vlan failed =>\nexpected: %s\nreceived: %s", pack.c_str(), a1.c_str());
+			printf(" failed =>\nexpected: %s\nreceived: %s", start.c_str(), a1.c_str());
 
 			exit(EXIT_FAILURE);
 		}
@@ -293,7 +290,7 @@ check_push_pop_vlan()
 
 
 
-		cpacket a1(pack.somem(), pack.memlen(), /*in_port=*/3, true);
+		cpacket a1(start.somem(), start.memlen(), /*in_port=*/3, true);
 
 
 
@@ -307,7 +304,7 @@ check_push_pop_vlan()
 		a1.set_field(coxmatch_ofb_vlan_vid(0xfff));
 		a1.set_field(coxmatch_ofb_vlan_pcp(0xaa));
 
-		if (a1.to_mem() != result1)
+		if (not (a1 == result1))
 		{
 			printf("failed =>\nexpected: %s\nreceived: %s", result1.c_str(), a1.c_str());
 
@@ -322,9 +319,9 @@ check_push_pop_vlan()
 		a1.pop_vlan();
 		a1.pop_vlan();
 
-		if (a1.to_mem() != pack)
+		if (not (a1 == start))
 		{
-			printf("failed =>\nexpected: %s\nreceived: %s", pack.c_str(), a1.c_str());
+			printf("failed =>\nexpected: %s\nreceived: %s", start.c_str(), a1.c_str());
 
 			exit(EXIT_FAILURE);
 		}
@@ -379,7 +376,7 @@ check_push_pop_mpls()
 		a1.set_field(coxmatch_ofb_mpls_tc(0x7));
 		a1.set_mpls_ttl(0x20);
 
-		if (a1.to_mem() != result1)
+		if (a1 != result1)
 		{
 			printf("push_mpls failed =>\nexpected: %s\nreceived: %s", result1.c_str(), a1.c_str());
 
@@ -396,7 +393,7 @@ check_push_pop_mpls()
 		printf("pop mpls tag ...");
 		a1.pop_mpls(0x0800);
 
-		if (a1.to_mem() != pack)
+		if (a1 != pack)
 		{
 			printf("push_mpls failed =>\nexpected: %s\nreceived: %s", pack.c_str(), a1.c_str());
 
@@ -447,7 +444,7 @@ check_push_pop_mpls()
 		a1.set_mpls_ttl(0x20);
 
 
-		if (a1.to_mem() != result1)
+		if (a1 != result1)
 		{
 			printf("push_vlan failed =>\nexpected: %s\nreceived: %s", result1.c_str(), a1.c_str());
 
@@ -462,7 +459,7 @@ check_push_pop_mpls()
 		a1.pop_mpls(0x8848);
 		a1.pop_mpls(0x0800);
 
-		if (a1.to_mem() != pack)
+		if (a1 != pack)
 		{
 			printf("push_mplsn failed =>\nexpected: %s\nreceived: %s", pack.c_str(), a1.c_str());
 
@@ -524,7 +521,7 @@ check_push_pop_pppoe_and_ppp()
 		a1.set_field(coxmatch_ofb_pppoe_type(0x01));
 		a1.set_field(coxmatch_ofb_pppoe_sid(0xfeed));
 
-		if (a1.to_mem() != result1)
+		if (a1 != result1)
 		{
 			printf(" failed =>\nexpected: %s\nreceived: %s", result1.c_str(), a1.c_str());
 
@@ -543,7 +540,7 @@ check_push_pop_pppoe_and_ppp()
 
 
 
-		if (a1.to_mem() != pack)
+		if (a1 != pack)
 		{
 			printf(" failed =>\nexpected: %s\nreceived: %s", pack.c_str(), a1.c_str());
 

@@ -117,13 +117,17 @@ private:
 
 
 #define CPACKET_DEFAULT_SIZE 			 1526
-#define CPACKET_HEAD_ROOM				 64			// head room for push operations
-#define CPACKET_TAIL_ROOM				 64			// tail room for appending data
+#define CPACKET_DEFAULT_HSPACE			 64			// head room for push operations
+
 
 		fframe							*head;		// head of all frames
 		fframe							*tail;		// tail of all frames
 
-		cmemory 						 mem;		// packet data
+		size_t							 hspace;	// head space size: this is used as extra space for pushing tags
+		cmemory 						 mem;		// packet data + head space
+		std::pair<uint8_t*, size_t>		 data;		// the packet data: defines iov of packet data within cmemory mem
+													// we have also some additional headspace
+
 
 
 public:
@@ -179,22 +183,29 @@ public: // methods
 			uint32_t in_port = 0 /*invalid port in OF*/,
 			bool do_classify = true);
 
+
 	/** copy constructor
 	 *
 	 */
 	cpacket(
-			const cpacket& pack);
+			cpacket const& pack);
+
 
 	/** destructor
 	 */
 	virtual
 	~cpacket();
 
+
+public:
+
+
 	/** assignment operator
 	 */
 	cpacket&
 	operator=(
-			const cpacket &p);
+			cpacket const& p);
+
 
 	/** return reference to byte at index
 	 *
@@ -202,6 +213,38 @@ public: // methods
 	uint8_t&
 	operator[] (
 			size_t index) throw (ePacketOutOfRange);
+
+
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			cpacket const& p);
+
+
+	/**
+	 *
+	 */
+	bool
+	operator== (
+			cmemory const& m);
+
+
+	/**
+	 *
+	 */
+	bool
+	operator!= (
+			cpacket const& p);
+
+
+	/**
+	 *
+	 */
+	bool
+	operator!= (
+			cmemory const& m);
 
 
 	/**
@@ -222,22 +265,15 @@ public: // methods
 	 *
 	 */
 	uint8_t*
-	soframe();
+	soframe() const;
 
 
 	/**
 	 *
 	 */
 	size_t
-	framelen();
+	framelen() const;
 
-
-
-	/** copies all piobufs into a newly created cmemory instance
-	 *
-	 */
-	cmemory
-	to_mem();
 
 
 	/** copies all piobufs into memory specified by (dest, len)
@@ -278,8 +314,7 @@ public: // methods
 	 *
 	 */
 	uint8_t*
-	insert(
-			size_t offset,
+	tag_insert(
 			size_t len) throw (ePacketOutOfRange);
 
 
@@ -287,9 +322,8 @@ public: // methods
 	 *
 	 */
 	void
-	remove(
-			size_t offset,
-			size_t len) throw (ePacketOutOfRange);
+	tag_remove(
+			fframe *frame) throw (ePacketOutOfRange);
 
 
 	/** dump packet
@@ -659,6 +693,14 @@ public: // action related methods
 
 
 private: // methods
+
+
+	/**
+	 *
+	 */
+	void
+	mem_resize(
+			size_t size);
 
 
 	/**

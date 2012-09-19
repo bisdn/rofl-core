@@ -23,17 +23,37 @@ extern "C" {
 #endif
 
 // base class for entire error class hierarchy
-class cerror {
+class cerror
+{
 public:
-	cerror(std::string desc = std::string("")) :
-		desc(desc) {};
-	std::string desc;
+
+
+	int 				n_errno;
+	std::string 		desc;
+
+
+public:
+	cerror() :
+		n_errno(0)
+	{
+		n_errno = errno;
+		desc = std::string(strerror(errno));
+	};
+	cerror(std::string const& desc) :
+		n_errno(0),
+		desc(desc)
+	{};
+	friend std::ostream& operator<< (std::ostream& os, cerror& e)
+	{
+		os << "exception errno:" << e.n_errno << " (" << strerror(e.n_errno) << ")";
+		return os;
+	};
 };
 
-class eOutOFMemory : public cerror {}; //< out of mem error
-class eNotImplemented : public cerror {}; //< oops, fix me exception :D
-class eInternalError : public cerror {}; //< some internal error occured
-class eDebug : public cerror {};
+class eOutOFMemory 			: public cerror {}; //< out of mem error
+class eNotImplemented 		: public cerror {}; //< oops, fix me exception :D
+class eInternalError 		: public cerror {}; //< some internal error occured
+class eDebug 				: public cerror {};
 
 #endif
 

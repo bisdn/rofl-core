@@ -8,6 +8,8 @@
 
 void check_index_operator();
 void check_insert();
+void check_add_operator();
+
 
 
 int
@@ -16,9 +18,11 @@ main(int args, char** argv)
 	check_index_operator();
 	check_insert();
 	//check_remove();
+	check_add_operator();
 
 	return EXIT_SUCCESS;
 }
+
 
 
 void
@@ -59,13 +63,14 @@ check_index_operator()
 }
 
 
+
 void
 check_insert()
 {
 
 	size_t size = 16;
 
-	cmemory a1(size + 4, 0, 0);
+	cmemory a1(size + 4);
 
 	printf("cmemory::insert() check\n");
 
@@ -87,7 +92,7 @@ check_insert()
 	 * check insert() method
 	 */
 	uint8_t *ptr;
-	cmemory a2(size, 0, 0);
+	cmemory a2(size);
 	memset(a2.somem(), 0x55, a2.memlen());
 	printf("start\n");
 	printf("%s\n", a2.c_str());
@@ -134,8 +139,48 @@ check_insert()
 	{
 		printf("cmemory::insert() success\n");
 	}
-
 }
 
+
+
+void
+check_add_operator()
+{
+	uint8_t result1[8];
+	for (int i = 0; i < 4; i++)
+	{
+		result1[i] = 0x44;
+	}
+	for (int i = 4; i < 8; i++)
+	{
+		result1[i] = 0x66;
+	}
+
+
+	cmemory mem1(4);
+	for (unsigned int i = 0; i < mem1.memlen(); ++i)
+	{
+		mem1[i] = 0x44;
+	}
+
+	cmemory mem2(4);
+	for (unsigned int i = 0; i < mem2.memlen(); ++i)
+	{
+		mem2[i] = 0x66;
+	}
+
+	printf("test: cmemory::operator+=() ... ");
+	mem1 += mem2;
+
+	if (memcmp(result1, mem1.somem(), mem1.memlen()))
+	{
+		printf(" failed. %s\n", mem1.c_str());
+		exit(EXIT_FAILURE);
+	}
+	else
+	{
+		printf(" success.\n");
+	}
+}
 
 

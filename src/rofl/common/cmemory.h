@@ -28,46 +28,55 @@ extern "C" {
 
 
 /* error classes */
-class eMemBase : public cerror {};
-class eMemAllocFailed : public eMemBase {};
-class eMemOutOfRange : public eMemBase {};
-class eMemNotFound : public eMemBase {};
-class eMemInval : public eMemBase {};
+class eMemBase 				: public cerror {};
+class eMemAllocFailed 		: public eMemBase {};
+class eMemOutOfRange 		: public eMemBase {};
+class eMemNotFound 			: public eMemBase {};
+class eMemInval 			: public eMemBase {};
 
 
 
 class cmemory :
 	public csyslog
 {
-public: // static stuff
+/*
+ * static things
+ */
+public:
 
 
-	static std::set<cmemory*> cmemory_list;
-	static pthread_mutex_t memlock;
-	static int memlockcnt;
+	static std::set<cmemory*> 		cmemory_list;
+	static pthread_mutex_t 			memlock;
+	static int 					memlockcnt;
 
 
 
-public: // data structures
+/*
+ * data structures
+ */
+public:
 
 
-	std::pair<uint8_t*, size_t> data;		//< memory area including head- and tail-space
-	std::pair<uint8_t*, size_t> area;		//< public memory area allocated
+	std::pair<uint8_t*, size_t> 	data;		//< memory area including head- and tail-space
 
 
 private:
 
 
-	size_t						hspace;
-	size_t						tspace;
+
+	std::string 					info; 		//< info string
+	size_t 							occupied; 	//< amount of bytes used in memory area
 
 
 #define CMEMORY_DEFAULT_SIZE 			1024
-#define CMEMORY_DEFAULT_HEAD_SPACE		16
-#define CMEMORY_DEFAULT_TAIL_SPACE		0
 
 
-public: // public methods
+
+
+/*
+ * methods
+ */
+public:
 
 
 
@@ -75,9 +84,7 @@ public: // public methods
 	 *
 	 */
 	cmemory(
-			size_t len = CMEMORY_DEFAULT_SIZE,
-			size_t hspace = CMEMORY_DEFAULT_HEAD_SPACE,
-			size_t tspace = CMEMORY_DEFAULT_TAIL_SPACE);
+			size_t len = CMEMORY_DEFAULT_SIZE);
 
 
 	/** constructor
@@ -85,9 +92,14 @@ public: // public methods
 	 */
 	cmemory(
 			uint8_t *data,
-			size_t datalen,
-			size_t hspace = CMEMORY_DEFAULT_HEAD_SPACE,
-			size_t tspace = CMEMORY_DEFAULT_TAIL_SPACE);
+			size_t datalen);
+
+
+	/** copy constructor
+	 *
+	 */
+	cmemory(
+			cmemory const& m);
 
 
 	/** destructor
@@ -97,11 +109,9 @@ public: // public methods
 	~cmemory();
 
 
-	/** copy constructor
-	 *
-	 */
-	cmemory(
-			cmemory const& m);
+
+public:
+
 
 
 	/** assignment operator
@@ -112,51 +122,75 @@ public: // public methods
 			cmemory const& m);
 
 
-	/** start of mem area
-	 *
-	 */
-	uint8_t* somem() const;
-
-	/** length of mem area
-	 *
-	 */
-	size_t memlen() const;
-
 	/** operator[]
 	 *
 	 */
-	uint8_t& operator[] (size_t index) const;
+	uint8_t&
+	operator[] (size_t index) const;
+
 
 	/** operator==
 	 *
 	 */
-	bool operator== (cmemory const& m) const;
+	bool
+	operator== (cmemory const& m) const;
+
 
 	/** operator!=
 	 *
 	 */
-	bool operator!= (cmemory& m) const;
+	bool
+	operator!= (
+			cmemory const& m) const;
+
 
 	/** operator<
 	 *
 	 */
-	bool operator< (const cmemory& m) const;
+	bool
+	operator< (
+			cmemory const& m) const;
+
 
 	/** operator&
 	 *
 	 */
-	cmemory operator& (const cmemory& m) const throw (eMemInval);
+	cmemory
+	operator& (
+			cmemory const& m) const throw (eMemInval);
+
 
 	/** operator +=
 	 *
 	 */
-	cmemory& operator+= (cmemory const& m);
+	cmemory&
+	operator+= (
+			cmemory const& m);
 
 
 	/** operator +
 	 *
 	 */
-	cmemory operator+ (cmemory const& m);
+	cmemory
+	operator+ (
+			cmemory const& m);
+
+public:
+
+
+	/** start of mem area
+	 *
+	 */
+	uint8_t*
+	somem() const;
+
+
+	/** length of mem area
+	 *
+	 */
+	size_t
+	memlen() const;
+
 
 
 	/** assign
@@ -177,6 +211,7 @@ public: // public methods
 
 
 
+#if 1
 	/**
 	 *
 	 */
@@ -193,6 +228,7 @@ public: // public methods
 	insert(
 			unsigned int offset,
 			size_t len) throw (eMemInval);
+#endif
 
 
 	/** remove at offset len bytes
@@ -215,8 +251,6 @@ public: // public methods
 
 
 
-
-
 	/** find first occurence of byte "value" starting at offset "start"
 	 * returns position relative to start of memory area
 	 */
@@ -225,16 +259,22 @@ public: // public methods
 			uint8_t value,
 			unsigned int start) throw (eMemNotFound);
 
+
 	/** sets memory area to 0
 	 *
 	 */
 	void
 	clear();
 
+
 	/** dump memory content
 	 *
 	 */
-	const char* c_str();
+	const char*
+	c_str();
+
+
+
 
 
 private: // methods
@@ -245,9 +285,7 @@ private: // methods
 	 */
 	void
 	mallocate(
-			size_t len,
-			size_t hspace = 0,
-			size_t tspace = 0) throw (eMemAllocFailed);
+			size_t len) throw (eMemAllocFailed);
 
 
 	/** free memory
@@ -256,12 +294,6 @@ private: // methods
 	void mfree();
 
 
-private: // dats structures
-
-	//< info string
-	std::string info;
-	//< amount of bytes used in memory area
-	size_t occupied;
 };
 
 #endif

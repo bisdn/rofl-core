@@ -10,8 +10,11 @@ cpacket::cpacket(
 			size_t size) :
 			head(0),
 			tail(0),
-			mem(size, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
+			hspace(CPACKET_DEFAULT_HSPACE),
+			mem(size + hspace),
+			data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, size)),
 			packet_receive_time(time(NULL)),
+			in_port(0),
 			out_port(0)
 {
 	pthread_rwlock_init(&ac_rwlock, NULL);
@@ -28,12 +31,16 @@ cpacket::cpacket(
 		bool do_classify) :
 			head(0),
 			tail(0),
-			mem(mem->somem(), mem->memlen(), CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
+			hspace(CPACKET_DEFAULT_HSPACE),
+			mem(mem->memlen() + hspace),
+			data(std::pair<uint8_t*, size_t>(this->mem.somem() + hspace, mem->memlen())),
 			packet_receive_time(time(NULL)),
 			in_port(in_port),
 			out_port(0)
 {
 	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::cpacket()", this);
+
+	memcpy(soframe(), mem->somem(), mem->memlen());
 
 	pthread_rwlock_init(&ac_rwlock, NULL);
 
@@ -55,7 +62,10 @@ cpacket::cpacket(
 		bool do_classify) :
 			head(0),
 			tail(0),
-			mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
+			hspace(CPACKET_DEFAULT_HSPACE),
+			mem(buflen + hspace),
+			//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
+			data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, buflen)),
 			packet_receive_time(time(NULL)),
 			in_port(in_port),
 			out_port(0)
@@ -63,6 +73,10 @@ cpacket::cpacket(
 	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::cpacket()", this);
 
 	pthread_rwlock_init(&ac_rwlock, NULL);
+
+	memcpy(soframe(), buf, buflen);
+
+
 
 	match.set_in_port(OFPP_CONTROLLER);
 	match.set_in_phy_port(OFPP_CONTROLLER);
@@ -75,16 +89,23 @@ cpacket::cpacket(
 
 
 
-cpacket::cpacket(const cpacket& pack) :
-			head(0),
-			tail(0)
+cpacket::cpacket(
+		cpacket const& pack) :
+		head(0),
+		tail(0),
+		hspace(CPACKET_DEFAULT_HSPACE),
+		mem(pack.framelen() + hspace),
+		//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
+		data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, pack.framelen())),
+		packet_receive_time(time(NULL)),
+		in_port(in_port),
+		out_port(0)
 {
 	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::cpacket()", this);
 
 	pthread_rwlock_init(&ac_rwlock, NULL);
 
 	*this = pack;
-	classify(in_port);
 }
 
 
@@ -126,6 +147,17 @@ cpacket::reset()
 
 
 
+void
+cpacket::mem_resize(
+		size_t size)
+{
+	mem.resize(size + hspace);
+	data.first 	= mem.somem() + hspace;
+	data.second = size;
+}
+
+
+
 cpacket&
 cpacket::operator=(
 		cpacket const& p)
@@ -136,7 +168,9 @@ cpacket::operator=(
 	reset();
 
 	match				= p.match;
-	mem					= p.mem;
+
+	mem_resize(p.framelen());
+	memcpy(soframe(), p.soframe(), p.framelen());
 	packet_receive_time = p.packet_receive_time;
 
 	classify(match.get_in_port());
@@ -149,6 +183,51 @@ uint8_t&
 cpacket::operator[] (size_t index) throw (ePacketOutOfRange)
 {
 	return mem[index];
+}
+
+
+
+bool
+cpacket::operator== (
+		cpacket const& p)
+{
+	if (data.second == p.data.second)
+	{
+
+		return (!memcmp(data.first, p.data.first, data.second));
+	}
+	return false;
+}
+
+
+
+bool
+cpacket::operator== (
+		cmemory const& m)
+{
+	if (data.second == m.memlen())
+	{
+		return (!memcmp(data.first, m.somem(), data.second));
+	}
+	return false;
+}
+
+
+
+bool
+cpacket::operator!= (
+		cpacket const& p)
+{
+	return not operator== (p);
+}
+
+
+
+bool
+cpacket::operator!= (
+		cmemory const& m)
+{
+	return not operator== (m);
 }
 
 
@@ -170,25 +249,17 @@ cpacket::get_flag_no_packet_in()
 
 
 uint8_t*
-cpacket::soframe()
+cpacket::soframe() const
 {
-	return mem.somem();
+	return data.first;
 }
 
 
 
 size_t
-cpacket::framelen()
+cpacket::framelen() const
 {
-	return mem.memlen();
-}
-
-
-
-cmemory
-cpacket::to_mem()
-{
-	return mem;
+	return data.second;
 }
 
 
@@ -234,21 +305,39 @@ cpacket::length()
 
 
 uint8_t*
-cpacket::insert(
-		size_t offset,
+cpacket::tag_insert(
 		size_t len) throw (ePacketOutOfRange)
 {
-	return mem.insert(offset, len);
+	size_t space = soframe() - mem.somem(); // remaining head space
+
+	if (len > space)
+	{
+		throw ePacketOutOfRange();
+	}
+
+	memmove(soframe() - len, soframe(), sizeof(struct fetherframe::eth_hdr_t));
+	memset(soframe() + sizeof(struct fetherframe::eth_hdr_t) - len, 0x00, len);
+
+	data.first 	-= len;
+	data.second += len;
+
+	ether()->reset(data.first, sizeof(struct fetherframe::eth_hdr_t));
+
+	return (soframe() + sizeof(struct fetherframe::eth_hdr_t));
 }
 
 
 
 void
-cpacket::remove(
-		size_t offset,
-		size_t len) throw (ePacketOutOfRange)
+cpacket::tag_remove(
+		fframe *frame) throw (ePacketOutOfRange)
 {
-	mem.remove(offset, len);
+	memmove(soframe() + frame->framelen(), soframe(), sizeof(struct fetherframe::eth_hdr_t));
+
+	data.first 	+= frame->framelen();
+	data.second -= frame->framelen();
+
+	ether()->reset(data.first, sizeof(struct fetherframe::eth_hdr_t));
 }
 
 
@@ -269,6 +358,8 @@ cpacket::c_str()
 		info.append(vas("  %s\n", curr->c_str()));
 	}
 
+	info.append(vas("  soframe(): %p framelen(): %lu\n", soframe(), framelen()));
+
 	info.append(vas("  mem: %s\n", mem.c_str()));
 
 	return info.c_str();
@@ -287,7 +378,7 @@ cpacket::test()
 	cpacket a(m);
 
 
-	uint8_t *ptr = a.insert(sizeof(struct fetherframe::eth_hdr_t),
+	uint8_t *ptr = a.tag_insert(sizeof(struct fetherframe::eth_hdr_t),
 			sizeof(struct fvlanframe::vlan_hdr_t));
 #endif
 }
@@ -1323,25 +1414,17 @@ cpacket::push_vlan(uint16_t ethertype)
 			outer_pcp = 0;
 		}
 
-
-
-
 		ether()->set_dl_type(ethertype);
 
-		uint8_t *ptr = mem.insert(sizeof(struct fetherframe::eth_hdr_t),
+		fvlanframe *vlan = new fvlanframe(
+									tag_insert(sizeof(struct fvlanframe::vlan_hdr_t)),
 									sizeof(struct fvlanframe::vlan_hdr_t));
-
-		fvlanframe *vlan = new fvlanframe(ptr, sizeof(struct fvlanframe::vlan_hdr_t));
 
 		vlan->set_dl_type(vlan_eth_type);
 		vlan->set_dl_vlan_id(outer_vid);
 		vlan->set_dl_vlan_pcp(outer_pcp);
 
 		frame_push(vlan);
-
-		ether()->reset(mem.somem(), mem.memlen());
-
-		//classify(match.get_in_port());
 
 #if 1
 		match.set_eth_type(ethertype);
@@ -1372,15 +1455,15 @@ cpacket::pop_vlan()
 
 		ether()->set_dl_type(p_vlan->get_dl_type());
 
-		mem.remove(p_vlan->soframe(), p_vlan->framelen());
+		tag_remove(p_vlan);
 
 		frame_pop(p_vlan);
 
 		delete p_vlan;
 
-		classify(match.get_in_port());
+		//classify(match.get_in_port());
 
-#if 0
+#if 1
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID);
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP);
 		match.set_eth_type(ether()->get_dl_type());
@@ -1427,21 +1510,16 @@ cpacket::push_mpls(uint16_t ethertype)
 
 		ether()->set_dl_type(ethertype);
 
-		// immediately behind ethernet header
-		uint8_t *ptr = mem.insert(sizeof(struct fetherframe::eth_hdr_t),
+		fmplsframe *mpls = new fmplsframe(
+									tag_insert(sizeof(struct fmplsframe::mpls_hdr_t)),
 									sizeof(struct fmplsframe::mpls_hdr_t));
 
-		fmplsframe *mpls = new fmplsframe(ptr, sizeof(struct fmplsframe::mpls_hdr_t));
-
 		frame_push(mpls);
-
-		ether()->reset(mem.somem(), mem.memlen());
 
 		mpls->set_mpls_label(outer_label);
 		mpls->set_mpls_tc(outer_tc);
 		mpls->set_mpls_ttl(outer_ttl);
 		mpls->set_mpls_bos(outer_bos);
-
 
 		match.set_eth_type(ethertype);
 		match.set_mpls_label(outer_label);
@@ -1477,15 +1555,15 @@ cpacket::pop_mpls(uint16_t ethertype)
 
 		ether()->set_dl_type(ethertype);
 
-		mem.remove(p_mpls->soframe(), p_mpls->framelen());
+		tag_remove(p_mpls);
 
 		frame_pop(p_mpls);
 
 		delete p_mpls;
 
-		classify(match.get_in_port());
+		//classify(match.get_in_port());
 
-#if 0
+#if 1
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_LABEL);
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_TC);
 		match.set_eth_type(ether()->get_dl_type());
@@ -1510,18 +1588,15 @@ cpacket::push_pppoe(uint16_t ethertype)
 	try {
 		uint8_t code = 0;
 		uint16_t sid = 0;
-		uint16_t len = mem.memlen() - sizeof(struct fetherframe::eth_hdr_t);
+		uint16_t len = data.second - sizeof(struct fetherframe::eth_hdr_t);
 
 		ether()->set_dl_type(ethertype);
 
-		uint8_t *ptr = mem.insert(sizeof(struct fetherframe::eth_hdr_t),
-									sizeof(struct fpppoeframe::pppoe_hdr_t));
-
-		fpppoeframe *pppoe = new fpppoeframe(ptr, sizeof(struct fpppoeframe::pppoe_hdr_t));
+		fpppoeframe *pppoe = new fpppoeframe(
+									tag_insert(sizeof(struct fpppoeframe::pppoe_hdr_t)),
+										sizeof(struct fpppoeframe::pppoe_hdr_t));
 
 		frame_push(pppoe);
-
-		ether()->reset(mem.somem(), mem.memlen());
 
 		pppoe->set_pppoe_vers(fpppoeframe::PPPOE_VERSION);
 		pppoe->set_pppoe_type(fpppoeframe::PPPOE_TYPE);
@@ -1562,15 +1637,15 @@ cpacket::pop_pppoe(uint16_t ethertype)
 
 		ether()->set_dl_type(ethertype);
 
-		mem.remove(p_pppoe->soframe(), p_pppoe->framelen());
+		tag_remove(p_pppoe);
 
 		frame_pop(p_pppoe);
 
 		delete p_pppoe;
 
-		classify(match.get_in_port());
+		//classify(match.get_in_port());
 
-#if 0
+#if 1
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_CODE);
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_SID);
 		match.set_eth_type(ether()->get_dl_type());
@@ -1593,14 +1668,11 @@ void
 cpacket::push_ppp(uint16_t code)
 {
 	try {
-		uint8_t *ptr = mem.insert(sizeof(struct fetherframe::eth_hdr_t),
-									sizeof(struct fpppframe::ppp_hdr_t));
-
-		fpppframe *ppp = new fpppframe(ptr, sizeof(struct fpppframe::ppp_hdr_t));
+		fpppframe *ppp = new fpppframe(
+									tag_insert(sizeof(struct fpppframe::ppp_hdr_t)),
+										sizeof(struct fpppframe::ppp_hdr_t));
 
 		frame_push(ppp);
-
-		ether()->reset(mem.somem(), mem.memlen());
 
 		ppp->set_ppp_prot(code);
 
@@ -1627,15 +1699,15 @@ cpacket::pop_ppp()
 
 		fpppframe *p_ppp = ppp();
 
-		mem.remove(p_ppp->soframe(), p_ppp->framelen());
+		tag_remove(p_ppp);
 
 		frame_pop(p_ppp);
 
 		delete p_ppp;
 
-		classify(match.get_in_port());
+		//classify(match.get_in_port());
 
-#if 0
+#if 1
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPP_PROT);
 #endif
 
@@ -1655,9 +1727,6 @@ cpacket::pop_ppp()
 void
 cpacket::classify(uint32_t in_port /* host byte order */)
 {
-	uint8_t 	*p_ptr 		= (uint8_t*)mem.somem();
-	size_t 		 p_len 		= mem.memlen();
-
 	WRITELOG(CPACKET, DBG, "cpacket(%p)::classify() "
 			"mem: %s", mem.c_str());
 
@@ -1665,7 +1734,7 @@ cpacket::classify(uint32_t in_port /* host byte order */)
 
 	match.set_in_port(in_port);
 
-	parse_ether(p_ptr, p_len);
+	parse_ether(data.first, data.second);
 }
 
 
