@@ -32,6 +32,14 @@ fetherframe::~fetherframe()
 }
 
 
+void
+fetherframe::reset(
+		uint8_t *data, size_t datalen)
+{
+	fframe::reset(data, datalen);
+	initialize();
+}
+
 
 void
 fetherframe::initialize()

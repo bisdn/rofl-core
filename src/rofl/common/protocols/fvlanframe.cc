@@ -22,6 +22,14 @@ fvlanframe::~fvlanframe()
 }
 
 
+void
+fvlanframe::reset(
+		uint8_t *data, size_t datalen)
+{
+	fframe::reset(data, datalen);
+	initialize();
+}
+
 
 void
 fvlanframe::initialize()
@@ -112,8 +120,7 @@ fvlanframe::set_dl_vlan_id(uint16_t vid)
 #endif
 
 	vlan_hdr->byte1 = vid & 0x00ff;
-	vlan_hdr->byte0 &= 0xf0;
-	vlan_hdr->byte0 |= ((vid & 0x0f00) >> 8);
+	vlan_hdr->byte0 = (vlan_hdr->byte0 & 0xf0) + ((vid & 0x0f00) >> 8);
 }
 
 
@@ -137,8 +144,7 @@ fvlanframe::set_dl_vlan_pcp(uint8_t pcp)
 	vlan_hdr->hdr = htobe16(v);
 #endif
 
-	vlan_hdr->byte0 &= 0x1f;
-	vlan_hdr->byte0  = (pcp & 0x07) << 5;
+	vlan_hdr->byte0 = ((pcp & 0x07) << 5) + (vlan_hdr->byte0 & 0x0f);
 }
 
 

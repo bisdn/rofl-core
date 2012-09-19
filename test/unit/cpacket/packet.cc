@@ -11,7 +11,7 @@
 
 void check_parser();
 void check_push_pop_vlan();
-//void check_push_pop_mpls();
+void check_push_pop_mpls();
 //void check_push_pop_pppoe();
 
 cmemory create_ether_header(
@@ -53,6 +53,7 @@ main(int args, char** argv)
 {
 	//check_parser();
 	check_push_pop_vlan();
+	check_push_pop_mpls();
 
 	return EXIT_SUCCESS;
 }
@@ -185,18 +186,16 @@ check_push_pop_vlan()
 
 
 	/*
-	 * sub-test-1 => push vlan and set fields
+	 * sub-test-1 => push vlan and set fields, pop vlan again
 	 */
 	{
-		printf("cpacket::classify() test packet: %s\n", pack.c_str());
-
 		cmemory result1(0);
 
 		result1 += create_ether_header(
 				cmacaddr("00:11:11:11:11:11"),
 				cmacaddr("00:22:22:22:22:22"),
-				0x0800 /*IPv4*/);
-		result1 += create_vlan_tag(0xfff, 0x0, 0x8100);
+				0x8100 /*IEEE802.1ad*/);
+		result1 += create_vlan_tag(0xfff, 0xaa, 0x0800);
 		result1 += create_ipv4_header(0x00, 38, 0x4444, 0x10, 0x00, caddress(AF_INET, "10.1.1.1"), caddress(AF_INET, "10.2.2.2"));
 		result1 += create_payload(18, 0x80);
 
@@ -205,15 +204,12 @@ check_push_pop_vlan()
 
 		cpacket a1(pack.somem(), pack.memlen(), /*in_port=*/3, true);
 
-		printf("cpacket: %s\n", a1.c_str());
 
 
-
-		printf("push vlan => 0x8100, 0xfff, 0x00\n");
+		printf("push vlan => 0x8100, 0xfff, 0xaa ...");
 		a1.push_vlan(0x8100);
 		a1.set_field(coxmatch_ofb_vlan_vid(0xfff));
-		a1.set_field(coxmatch_ofb_vlan_pcp(0x00));
-		printf("a1: %s\n", a1.c_str());
+		a1.set_field(coxmatch_ofb_vlan_pcp(0xaa));
 
 		if (a1.to_mem() != result1)
 		{
@@ -221,25 +217,230 @@ check_push_pop_vlan()
 
 			exit(EXIT_FAILURE);
 		}
+		else
+		{
+			printf("success.\n");
+		}
+
+		printf("pop vlan...");
+		a1.pop_vlan();
+
+		if (a1.to_mem() != pack)
+		{
+			printf("push_vlan failed =>\nexpected: %s\nreceived: %s", pack.c_str(), a1.c_str());
+
+			exit(EXIT_FAILURE);
+		}
+		else
+		{
+			printf("success.\n");
+		}
 	}
 
 
 
 
 
-	return;
-
-
-#if 0
-	if (a1 != a2)
+	/*
+	 * sub-test-2 => push two vlans and set fields, pop two vlans again
+	 */
 	{
-		exit(EXIT_FAILURE);
+		cmemory result1(0);
+
+		result1 += create_ether_header(
+				cmacaddr("00:11:11:11:11:11"),
+				cmacaddr("00:22:22:22:22:22"),
+				0x88a8 /*IEEE802.1ad Q-in-Q*/);
+		result1 += create_vlan_tag(0xfff, 0xaa, 0x8100);
+		result1 += create_vlan_tag(0xeee, 0xbb, 0x0800);
+		result1 += create_ipv4_header(0x00, 38, 0x4444, 0x10, 0x00, caddress(AF_INET, "10.1.1.1"), caddress(AF_INET, "10.2.2.2"));
+		result1 += create_payload(18, 0x80);
+
+
+
+
+		cpacket a1(pack.somem(), pack.memlen(), /*in_port=*/3, true);
+
+
+
+		printf("push vlans for Q-in-Q test => (0x88a8, 0xfff, 0xaa) / (0x8100, 0xeee, 0xbb) ...");
+
+		a1.push_vlan(0x8100);
+		a1.set_field(coxmatch_ofb_vlan_vid(0xeee));
+		a1.set_field(coxmatch_ofb_vlan_pcp(0xbb));
+
+		printf("\n\n\na1: %s\n\n\n\n", a1.c_str());
+
+		a1.push_vlan(0x88a8);
+		a1.set_field(coxmatch_ofb_vlan_vid(0xfff));
+		a1.set_field(coxmatch_ofb_vlan_pcp(0xaa));
+
+		if (a1.to_mem() != result1)
+		{
+			printf("failed =>\nexpected: %s\nreceived: %s", result1.c_str(), a1.c_str());
+
+			exit(EXIT_FAILURE);
+		}
+		else
+		{
+			printf("success.\n");
+		}
+
+		printf("pop vlans for Q-in-Q test ...");
+		a1.pop_vlan();
+		a1.pop_vlan();
+
+		if (a1.to_mem() != pack)
+		{
+			printf("failed =>\nexpected: %s\nreceived: %s", pack.c_str(), a1.c_str());
+
+			exit(EXIT_FAILURE);
+		}
+		else
+		{
+			printf("success.\n");
+		}
 	}
-	else
+}
+
+
+
+void
+check_push_pop_mpls()
+{
+	cmemory pack(0);
+
+	pack += create_ether_header(
+			cmacaddr("00:11:11:11:11:11"),
+			cmacaddr("00:22:22:22:22:22"),
+			0x0800 /*IPv4*/);
+	pack += create_ipv4_header(0x00, 38, 0x4444, 0x10, 0x00, caddress(AF_INET, "10.1.1.1"), caddress(AF_INET, "10.2.2.2"));
+	pack += create_payload(18, 0x80);
+
+
+
+
+	/*
+	 * sub-test-1 => push mpls tag and set fields, pop mpls tag again
+	 */
 	{
-		printf("cmemory::operator[] () success\n");
+		cmemory result1(0);
+
+		result1 += create_ether_header(
+				cmacaddr("00:11:11:11:11:11"),
+				cmacaddr("00:22:22:22:22:22"),
+				0x8848 /*MPLS*/);
+		result1 += create_mpls_tag(0x55555, 0x7, 0x20, true /*bos*/);
+		result1 += create_ipv4_header(0x00, 38, 0x4444, 0x10, 0x00, caddress(AF_INET, "10.1.1.1"), caddress(AF_INET, "10.2.2.2"));
+		result1 += create_payload(18, 0x80);
+
+
+
+
+		cpacket a1(pack.somem(), pack.memlen(), /*in_port=*/3, true);
+
+
+
+		printf("push mpls tag => label: 0x55555, tc: 0x7, ttl: 0x20, bos: 1 ...");
+		a1.push_mpls(0x8848);
+		a1.set_field(coxmatch_ofb_mpls_label(0x55555));
+		a1.set_field(coxmatch_ofb_mpls_tc(0x7));
+		a1.set_mpls_ttl(0x20);
+
+		if (a1.to_mem() != result1)
+		{
+			printf("push_mpls failed =>\nexpected: %s\nreceived: %s", result1.c_str(), a1.c_str());
+
+			exit(EXIT_FAILURE);
+		}
+		else
+		{
+			printf("success.\n");
+		}
+
+
+
+
+		printf("pop mpls tag ...");
+		a1.pop_mpls(0x0800);
+
+		if (a1.to_mem() != pack)
+		{
+			printf("push_mpls failed =>\nexpected: %s\nreceived: %s", pack.c_str(), a1.c_str());
+
+			exit(EXIT_FAILURE);
+		}
+		else
+		{
+			printf("success.\n");
+		}
 	}
-#endif
+
+
+
+
+
+	/*
+	 * sub-test-2 => push two mpls tags and set fields, pop two mpls tags again
+	 */
+	{
+		cmemory result1(0);
+
+		result1 += create_ether_header(
+				cmacaddr("00:11:11:11:11:11"),
+				cmacaddr("00:22:22:22:22:22"),
+				0x8848 /*MPLS*/);
+		result1 += create_mpls_tag(0x55555, 0x7, 0x20, false /*bos*/); // outer tag
+		result1 += create_mpls_tag(0x77777, 0x3, 0x10, true /*bos*/); // inner tag
+		result1 += create_ipv4_header(0x00, 38, 0x4444, 0x10, 0x00, caddress(AF_INET, "10.1.1.1"), caddress(AF_INET, "10.2.2.2"));
+		result1 += create_payload(18, 0x80);
+
+
+
+
+		cpacket a1(pack.somem(), pack.memlen(), /*in_port=*/3, true);
+
+
+
+		printf("push mpls tags for label stack test => (0x55555, 0x7, 0x20) / (0x77777, 0x3, 0x10) ...");
+
+		a1.push_mpls(0x8848);
+		a1.set_field(coxmatch_ofb_mpls_label(0x77777));
+		a1.set_field(coxmatch_ofb_mpls_tc(0x3));
+		a1.set_mpls_ttl(0x10);
+
+		a1.push_mpls(0x8848);
+		a1.set_field(coxmatch_ofb_mpls_label(0x55555));
+		a1.set_field(coxmatch_ofb_mpls_tc(0x7));
+		a1.set_mpls_ttl(0x20);
+
+
+		if (a1.to_mem() != result1)
+		{
+			printf("push_vlan failed =>\nexpected: %s\nreceived: %s", result1.c_str(), a1.c_str());
+
+			exit(EXIT_FAILURE);
+		}
+		else
+		{
+			printf("success.\n");
+		}
+
+		printf("pop mpls tags for label stack test ...");
+		a1.pop_mpls(0x8848);
+		a1.pop_mpls(0x0800);
+
+		if (a1.to_mem() != pack)
+		{
+			printf("push_mplsn failed =>\nexpected: %s\nreceived: %s", pack.c_str(), a1.c_str());
+
+			exit(EXIT_FAILURE);
+		}
+		else
+		{
+			printf("success.\n");
+		}
+	}
 }
 
 

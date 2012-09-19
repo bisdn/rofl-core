@@ -23,6 +23,16 @@ fmplsframe::~fmplsframe()
 
 
 void
+fmplsframe::reset(
+		uint8_t *data, size_t datalen)
+{
+	fframe::reset(data, datalen);
+	initialize();
+}
+
+
+
+void
 fmplsframe::initialize()
 {
 	mpls_hdr = (struct mpls_hdr_t*)soframe();

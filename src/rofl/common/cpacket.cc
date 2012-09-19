@@ -1309,6 +1309,10 @@ cpacket::push_vlan(uint16_t ethertype)
 	try {
 		uint16_t outer_vid = 0;
 		uint8_t  outer_pcp = 0;
+		uint16_t vlan_eth_type = ether()->get_dl_type();
+
+		fprintf(stderr, "A[0] ether(): %s\n", ether()->c_str());
+
 
 		try {
 			// get default values for push actions (OF 1.1 spec section 4.9.1)
@@ -1321,24 +1325,32 @@ cpacket::push_vlan(uint16_t ethertype)
 			outer_pcp = 0;
 		}
 
+
+		fprintf(stderr, "A[1] vlan_eth_type: 0x%x\n", vlan_eth_type);
+
+
+		ether()->set_dl_type(ethertype);
+
 		uint8_t *ptr = mem.insert(sizeof(struct fetherframe::eth_hdr_t),
 									sizeof(struct fvlanframe::vlan_hdr_t));
 
 		fvlanframe *vlan = new fvlanframe(ptr, sizeof(struct fvlanframe::vlan_hdr_t));
 
-		frame_push(vlan);
-
-		ether()->reset(mem.somem(), mem.memlen());
-
-		vlan->set_dl_type(ether()->get_dl_type());
+		vlan->set_dl_type(vlan_eth_type);
 		vlan->set_dl_vlan_id(outer_vid);
 		vlan->set_dl_vlan_pcp(outer_pcp);
 
-		ether(-1)->set_dl_type(ethertype);
+		frame_push(vlan);
 
+		ether()->reset(mem.somem(), mem.memlen());
+		fprintf(stderr, "A[2] ether(): %s\n", ether()->c_str());
+		//classify(match.get_in_port());
+
+#if 1
 		match.set_eth_type(ethertype);
 		match.set_vlan_vid(outer_vid);
 		match.set_vlan_pcp(outer_pcp);
+#endif
 
 		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_vlan() "
 				"mem: %s", this, mem.c_str());
@@ -1404,7 +1416,7 @@ cpacket::push_mpls(uint16_t ethertype)
 			outer_label = mpls()->get_mpls_label();
 			outer_ttl	= mpls()->get_mpls_ttl();
 			outer_tc	= mpls()->get_mpls_tc();
-			outer_bos	= mpls()->get_mpls_bos();
+			outer_bos	= false;
 
 		} catch (ePacketNotFound& e) {
 
@@ -1415,6 +1427,8 @@ cpacket::push_mpls(uint16_t ethertype)
 
 			// TODO: get TTL from IP header, if no MPLS tag already exists
 		}
+
+		ether()->set_dl_type(ethertype);
 
 		// immediately behind ethernet header
 		uint8_t *ptr = mem.insert(sizeof(struct fetherframe::eth_hdr_t),
@@ -1431,7 +1445,6 @@ cpacket::push_mpls(uint16_t ethertype)
 		mpls->set_mpls_ttl(outer_ttl);
 		mpls->set_mpls_bos(outer_bos);
 
-		ether()->set_dl_type(ethertype);
 
 		match.set_eth_type(ethertype);
 		match.set_mpls_label(outer_label);

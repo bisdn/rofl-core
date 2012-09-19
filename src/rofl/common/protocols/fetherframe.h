@@ -70,6 +70,14 @@ public: // methods
 	~fetherframe();
 
 
+	/** reset this frame to a new buffer pointing to at (data, datalen)
+	 *
+	 */
+	virtual void
+	reset(
+			uint8_t *data, size_t datalen);
+
+
 	/** set dl src
 	 *
 	 */
