@@ -39,9 +39,10 @@ class croflexp
 protected:
 
 		cmemory mem;
-		cofmatch match;
 
 public:
+
+		cofmatch match;
 
 		enum ofp_rofl_ext_version {
 			OFP_ROFL_EXT_VERSION1	= 1,
@@ -195,6 +196,7 @@ public:
 					croflexp(sizeof(struct ofp_rofl_ext_flowspace) + m.length())
 		{
 			match = m;
+
 			rext_fsp->header.version 	= OFP_ROFL_EXT_VERSION1;
 			rext_fsp->header.type 		= OFPRET_FLOWSPACE;
 			rext_fsp->header.length 	= htobe16(length());
@@ -222,8 +224,9 @@ public:
 				throw eRoflExpInval();
 			}
 
+
 			memcpy(body, (uint8_t*)rext_fsp, sizeof(struct ofp_rofl_ext_flowspace));
-			match.pack((struct ofp_match*)body + sizeof(struct ofp_rofl_ext_flowspace),
+			match.pack((struct ofp_match*)(body + sizeof(struct ofp_rofl_ext_flowspace)),
 					bodylen - sizeof(struct ofp_rofl_ext_flowspace));
 		};
 		/**
