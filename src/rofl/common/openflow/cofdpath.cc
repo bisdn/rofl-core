@@ -541,16 +541,48 @@ cofdpath::port_status_rcvd(cofpacket *pack)
 void
 cofdpath::fsp_open(cofmatch const& ofmatch)
 {
+	cofmatch m(ofmatch);
+	croflexp_flowspace rexp(croflexp::OFPRET_FSP_ADD, m);
+
+	cmemory packed(rexp.length());
+
+	rexp.pack(packed.somem(), packed.memlen());
+
+	fwdelem->send_experimenter_message(
+			this,
+			OFPEXPID_ROFL,
+			croflexp::OFPRET_FLOWSPACE,
+			packed.somem(),
+			packed.memlen());
+
+#if 0
 	// future work: store ofmatch in std::set<cofmatch*> ???
 	fwdelem->send_experimenter_ext_rofl_nsp_open_request(this, ofmatch);
+#endif
 }
 
 
 void
 cofdpath::fsp_close(cofmatch const& ofmatch)
 {
+	cofmatch m(ofmatch);
+	croflexp_flowspace rexp(croflexp::OFPRET_FSP_DELETE, m);
+
+	cmemory packed(rexp.length());
+
+	rexp.pack(packed.somem(), packed.memlen());
+
+	fwdelem->send_experimenter_message(
+			this,
+			OFPEXPID_ROFL,
+			croflexp::OFPRET_FLOWSPACE,
+			packed.somem(),
+			packed.memlen());
+
+#if 0
 	// future work: remove ofmatch from std::set<cofmatch*> ???
 	fwdelem->send_experimenter_ext_rofl_nsp_close_request(this, ofmatch);
+#endif
 }
 
 

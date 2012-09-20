@@ -31,6 +31,8 @@ extern "C" {
 class eRoflExpBase 		: public cerror {};
 class eRoflExpInval 	: public eRoflExpBase {};
 
+#define OFPEXPID_ROFL		0x55b12399
+
 class croflexp
 {
 /*
@@ -59,13 +61,7 @@ public:
 			OFPRET_FLOWSPACE 	= 2,
 		};
 
-#if 0
-		enum croflexp_ipv4_port_flags_t {
-			ROFL_IFF_UP 			= (1 << 0),
-			ROFL_IFF_BROADCAST 		= (1 << 1),
-			ROFL_IFF_POINTOPOINT 	= (1 << 4),
-		};
-#endif
+
 
 		struct ofp_rofl_ext_flowspace {
 			struct ofp_rofl_ext_header		header;

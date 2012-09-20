@@ -651,12 +651,14 @@ ctlbase::dpt_flowspace_open(
 			return;
 		}
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::flowspace_open() rcvd cofmatch [1] from adapter: %s:\n%s",
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::dpt_flowspace_open() "
+				"rcvd cofmatch [1] from adapter: %s:\n%s",
 				dpname.c_str(), adapt->c_str(), match.c_str());
 
 		dpath->fsptable.insert_fsp_entry(adapt, match, false /*non-strict*/);
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::flowspace_open() rcvd cofmatch [2] from adapter: %s:\n%s",
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::dpt_flowspace_open() "
+				"rcvd cofmatch [2] from adapter: %s:\n%s",
 				dpname.c_str(), adapt->c_str(), match.c_str());
 
 		dpath->fsp_open(match);
@@ -689,7 +691,8 @@ ctlbase::dpt_flowspace_close(
 
 		dpath->fsptable.delete_fsp_entry(adapt, match, false /*non-strict*/);
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::down_fsp_close() rcvd cofmatch from adapter: %s:\n%s",
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::dpt_flowspace_close() "
+				"rcvd cofmatch from adapter: %s:\n%s",
 				dpname.c_str(), adapt->c_str(), match.c_str());
 
 		dpath->fsp_close(match);

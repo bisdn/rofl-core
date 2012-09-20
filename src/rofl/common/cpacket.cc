@@ -289,11 +289,12 @@ cpacket::unpack(
 		uint8_t *src,
 		size_t len)
 {
-	if (len < framelen())
+	if (len > framelen())
 	{
 		mem_resize(len);
 	}
-	memcpy(data.first, src, len);
+	fprintf(stderr, "\nXXX: data.second: %lu len: %lu\n\n", data.second, len);
+	memcpy(soframe(), src, len);
 	unpack(in_port);
 }
 
@@ -1740,7 +1741,7 @@ void
 cpacket::classify(uint32_t in_port /* host byte order */)
 {
 	WRITELOG(CPACKET, DBG, "cpacket(%p)::classify() "
-			"mem: %s", mem.c_str());
+			"mem: %s", this, mem.c_str());
 
 	reset();
 

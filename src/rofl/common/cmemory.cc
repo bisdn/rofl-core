@@ -91,7 +91,7 @@ cmemory::~cmemory()
 		pthread_mutex_destroy(&cmemory::memlock);
 	}
 
-#if 1
+#if 0
 	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::~cmemory() somem()=%p memlen()=%d",
 				this, somem(), memlen());
 #endif

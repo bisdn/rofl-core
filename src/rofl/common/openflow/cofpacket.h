@@ -1107,7 +1107,7 @@ public:
 			cofpacket::packet.unpack(OFPP_CONTROLLER, data, datalen);
 
 			ofh_header->version 	= OFP_VERSION;
-			ofh_header->length		= htobe16(OFP_PACKET_IN_STATIC_HDR_LEN + 2 + body.memlen());
+			ofh_header->length		= htobe16(OFP_PACKET_IN_STATIC_HDR_LEN + 2 + packet.framelen());
 			ofh_header->type 		= OFPT_PACKET_IN;
 			ofh_header->xid			= htobe32(xid);
 

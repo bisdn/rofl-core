@@ -349,6 +349,72 @@ void
 cofctrl::experimenter_message_rcvd(cofpacket *pack)
 {
 	switch (be32toh(pack->ofh_experimenter->experimenter)) {
+	case OFPEXPID_ROFL:
+	{
+		switch (be32toh(pack->ofh_experimenter->exp_type)) {
+		case croflexp::OFPRET_FLOWSPACE:
+		{
+			croflexp rexp(pack->body.somem(), pack->body.memlen());
+
+			switch (rexp.rext_fsp->command) {
+			case croflexp::OFPRET_FSP_ADD:
+			{
+				try {
+
+					WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::experimenter_message_rcvd() "
+							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => pending for %s",
+							this, rexp.match.c_str());
+
+					fwdelem->fsptable.insert_fsp_entry(this, rexp.match);
+
+					WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::experimenter_message_rcvd() "
+							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => -ADDED- %s\n%s",
+							this, c_str(), fwdelem->fsptable.c_str());
+
+				} catch (eFspEntryOverlap& e) {
+
+					WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::experimenter_message_rcvd() "
+							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => -REJECTED- (overlap)",
+							this);
+
+				}
+
+				break;
+			}
+			case croflexp::OFPRET_FSP_DELETE:
+			{
+				try {
+
+					WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::experimenter_message_rcvd() "
+							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => pending for %s",
+							this, rexp.match.c_str());
+
+					fwdelem->fsptable.delete_fsp_entry(this, rexp.match, true /*strict*/);
+
+					WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::experimenter_message_rcvd() "
+							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => -DELETED- %s\n%s",
+							this, c_str(), fwdelem->fsptable.c_str());
+
+				} catch (eFspEntryNotFound& e) {
+
+					WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::experimenter_message_rcvd() "
+							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => -NOT-FOUND-",
+							this);
+
+				}
+
+				break;
+			}
+			}
+
+			break;
+		}
+
+		delete pack;
+		}
+		break;
+	}
+
 	case VENDOR_EXT_ROFL:
 	{
 		switch (be32toh(pack->ofh_experimenter->exp_type)) {

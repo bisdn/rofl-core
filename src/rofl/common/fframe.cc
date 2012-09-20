@@ -126,7 +126,7 @@ fframe::c_str()
 	info.assign(_info);
 	for (int i = 0; i < (int)datalen; ++i)
 	{
-		char t[8];
+		char t[32];
 		memset(t, 0, sizeof(t));
 		snprintf(t, sizeof(t)-1, "%02x ", data[i]);
 		info.append(t);
