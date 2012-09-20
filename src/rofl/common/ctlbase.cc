@@ -275,19 +275,13 @@ ctlbase::handle_packet_in(
 	}
 
 	try {
-		// extract the payload as a new data packet
-		cpacket n_pack(
-					pack->get_data(),
-					pack->get_datalen(),
-					pack->match.get_in_port(), true /* = do classify */);
-
 
 		// find all adapters whose flowspace registrations match the packet
 		std::set<cfspentry*> fsp_list =
 				sw->fsptable.find_matching_entries(
 						pack->match.get_in_port(),
 						be16toh(pack->ofh_packet_in->total_len),
-						(uint8_t*)pack->get_data(), pack->get_datalen());
+						(uint8_t*)pack->packet.soframe(), pack->packet.framelen());
 
 		// more than one subscription matches? should not happen here => error
 		if (fsp_list.size() > 1)
@@ -306,7 +300,7 @@ ctlbase::handle_packet_in(
 
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
 				"flowspace subscription for packet found, data: %s\nctlmod: %s",
-				dpname.c_str(), n_pack.c_str(), adapt->c_str());
+				dpname.c_str(), pack->packet.c_str(), adapt->c_str());
 
 
 		adapt->ctl_handle_packet_in(
@@ -316,19 +310,14 @@ ctlbase::handle_packet_in(
 				pack->ofh_packet_in->table_id,
 				pack->ofh_packet_in->reason,
 				pack->match,
-				n_pack);
+				pack->packet);
 
 
 	} catch (eFspNoMatch& e) {
 
-		cpacket tmppack(
-					pack->get_data(),
-					pack->get_datalen(),
-					pack->match.get_in_port());
-
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
 				"no flowspace subscription for packet found, data: %s",
-				dpname.c_str(), tmppack.c_str());
+				dpname.c_str(), pack->packet.c_str());
 
 	} catch (eCtlBaseInval& e) {
 

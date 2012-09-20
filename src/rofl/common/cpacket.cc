@@ -264,6 +264,14 @@ cpacket::framelen() const
 
 
 
+bool
+cpacket::empty() const
+{
+	return (0 == framelen());
+}
+
+
+
 void
 cpacket::pack(
 		uint8_t *dest,

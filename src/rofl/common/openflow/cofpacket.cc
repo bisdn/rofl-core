@@ -19,6 +19,7 @@ cofpacket::cofpacket(size_t size, size_t used) :
 	stored(used),
 	memarea(size),
 	body(0),
+	packet((size_t)0),
 	switch_features_num_ports(0)
 {
 	ofh_header = (struct ofp_header*)soframe();
@@ -33,7 +34,9 @@ cofpacket::~cofpacket()
 }
 
 
-cofpacket::cofpacket(cofpacket const& p)
+cofpacket::cofpacket(cofpacket const& p) :
+		body(0),
+		packet((size_t)0)
 {
 	*this = p;
 	cofpacket::cofpacket_list.insert(this);

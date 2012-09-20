@@ -276,6 +276,14 @@ public:
 
 
 
+	/**
+	 *
+	 */
+	bool
+	empty() const;
+
+
+
 	/** copies all piobufs into memory specified by (dest, len)
 	 *
 	 */
