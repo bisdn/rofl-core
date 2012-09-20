@@ -269,8 +269,8 @@ cpacket::pack(
 		uint8_t *dest,
 		size_t len) throw (ePacketInval)
 {
-	size_t p_len = (len > mem.memlen()) ? mem.memlen() : len;
-	memcpy(dest, mem.somem(), p_len);
+	size_t p_len = (len > framelen()) ? framelen() : len;
+	memcpy(dest, soframe(), p_len);
 }
 
 
@@ -281,7 +281,11 @@ cpacket::unpack(
 		uint8_t *src,
 		size_t len)
 {
-	mem.assign(src, len);
+	if (len < framelen())
+	{
+		mem_resize(len);
+	}
+	memcpy(data.first, src, len);
 	unpack(in_port);
 }
 
@@ -299,7 +303,7 @@ cpacket::unpack(
 size_t
 cpacket::length()
 {
-	return mem.memlen();
+	return framelen();
 }
 
 

@@ -28,7 +28,7 @@ cmemory::cmemory(
 		mallocate(len);
 	}
 
-#if 1
+#if 0
 	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
 			this, somem(), memlen());
 #endif
@@ -55,7 +55,7 @@ cmemory::cmemory(
 		memcpy(somem(), data, datalen);
 	}
 
-#if 1
+#if 0
 	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
 				this, somem(), memlen());
 #endif
@@ -75,7 +75,7 @@ cmemory::cmemory(cmemory const& m) :
 
 	*this = m;
 
-#if 1
+#if 0
 	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
 				this, somem(), memlen());
 #endif
@@ -465,17 +465,19 @@ cmemory::c_str()
 
 	info.clear();
 	char _info[256];
+
 	bzero(_info, sizeof(_info));
+
 	snprintf(_info, sizeof(_info)-1, "cmemory(%p) somem()[%p] len[%d] data.first: %p data.second: %lu  data\n%p : ",
 			this, somem(), (int)memlen(), data.first, data.second, data.first);
 
 	info.assign(_info);
-	//for (int i = 0; i < (int)memlen(); ++i)
+
 	for (int i = 0; i < (int)data.second; ++i)
 	{
 		char t[8];
 		memset(t, 0, sizeof(t));
-		//snprintf(t, sizeof(t)-1, "%02x ", ((*this)[i]));
+
 		snprintf(t, sizeof(t)-1, "%02x ", (data.first[i]));
 		info.append(t);
 		if ((0 == ((i+1) % 16)))

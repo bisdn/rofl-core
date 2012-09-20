@@ -1104,7 +1104,7 @@ public:
 						OFP_PACKET_IN_STATIC_HDR_LEN)
 		{
 			//cofpacket::body.assign(data, datalen);
-			cofpacket::packet.pack(data, datalen);
+			cofpacket::packet.unpack(OFPP_CONTROLLER, data, datalen);
 
 			ofh_header->version 	= OFP_VERSION;
 			ofh_header->length		= htobe16(OFP_PACKET_IN_STATIC_HDR_LEN + 2 + body.memlen());
@@ -1127,7 +1127,7 @@ public:
 		virtual size_t
 		length()
 		{
-			return (OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + body.memlen());
+			return (OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());
 		};
 		/**
 		 *
@@ -1182,7 +1182,7 @@ public:
 						sizeof(struct ofp_packet_out) + datalen)
 		{
 			//cofpacket::body.assign(data, datalen);
-			cofpacket::packet.pack(data, datalen);
+			cofpacket::packet.unpack(in_port, data, datalen);
 
 			ofh_header->version 	= OFP_VERSION;
 			ofh_header->length		= htobe16(sizeof(struct ofp_packet_out) + datalen);
@@ -1204,7 +1204,7 @@ public:
 		virtual size_t
 		length()
 		{
-			return (sizeof(struct ofp_packet_out) + actions.length() + body.memlen());
+			return (sizeof(struct ofp_packet_out) + actions.length() + packet.framelen());
 		};
 		/**
 		 *

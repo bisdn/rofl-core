@@ -468,7 +468,7 @@ cofdpath::packet_in_rcvd(cofpacket *pack)
 		uint32_t in_port = pack->match.get_in_port();
 
 		// datalen must be at least one Ethernet header in size
-		if (pack->get_datalen() >= (2 * OFP_ETH_ALEN + sizeof(uint16_t)))
+		if (pack->packet.length() >= (2 * OFP_ETH_ALEN + sizeof(uint16_t)))
 		{
 
 			// update local forwarding table
