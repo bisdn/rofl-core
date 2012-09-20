@@ -137,54 +137,6 @@ public: // methods
 
 protected: // methods
 
-	/** handle nsp get fsp request
-	 */
-	void
-	handle_fsp_get_fsp_request(
-			cofpacket *pack);
-
-	/** handle nsp get fsp reply
-	 */
-	void
-	handle_fsp_get_fsp_reply(
-			cofpacket *pack);
-
-	/** handle nsp open request
-	 */
-	void
-	handle_fsp_open_request(
-			cofpacket *pack);
-
-	/** handle nsp open reply
-	 */
-	void
-	handle_fsp_open_reply(
-			cofpacket *pack);
-
-	/** handle nsp close request
-	 */
-	void
-	handle_fsp_close_request(
-			cofpacket *pack);
-
-	/** handle nsp close reply
-	 */
-	void
-	handle_fsp_close_reply(
-			cofpacket *pack);
-
-	/** handle nsp ioctl request
-	 */
-	void
-	handle_fsp_ioctl_request(
-			cofpacket *pack);
-
-	/** handle nsp ioctl reply
-	 */
-	void
-	handle_fsp_ioctl_reply(
-			cofpacket *pack);
-
 
 
 };

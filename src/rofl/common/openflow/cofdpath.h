@@ -81,8 +81,6 @@ class cofdpath :
 			COFDPATH_TIMER_GET_CONFIG_REPLY 	= ((COFDPATH_TIMER_BASE) << 16 | (0x04 << 8)),
 			COFDPATH_TIMER_STATS_REQUEST 		= ((COFDPATH_TIMER_BASE) << 16 | (0x05 << 8)),
 			COFDPATH_TIMER_STATS_REPLY 			= ((COFDPATH_TIMER_BASE) << 16 | (0x06 << 8)),
-			COFDPATH_TIMER_GET_FSP_REQUEST		= ((COFDPATH_TIMER_BASE) << 16 | (0x07 << 8)),
-			COFDPATH_TIMER_GET_FSP_REPLY	    = ((COFDPATH_TIMER_BASE) << 16 | (0x08 << 8)),
 			COFDPATH_TIMER_BARRIER_REQUEST 		= ((COFDPATH_TIMER_BASE) << 16 | (0x09 << 8)),
 			COFDPATH_TIMER_BARRIER_REPLY 		= ((COFDPATH_TIMER_BASE) << 16 | (0x0a << 8)),
 			COFDPATH_TIMER_LLDP_SEND_DISC 		= ((COFDPATH_TIMER_BASE) << 16 | (0x0b << 8)),
@@ -97,7 +95,6 @@ class cofdpath :
 #define DEFAULT_DP_FEATURES_REPLY_TIMEOUT 		10
 #define DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT 	10
 #define DEFAULT_DP_STATS_REPLY_TIMEOUT 			10
-#define DEFAULT_DP_GET_FSP_REPLY_TIMEOUT 		10
 #define DEFAULT_DB_BARRIER_REPLY_TIMEOUT 		10
 
 
@@ -137,7 +134,6 @@ private:
 		int 			features_reply_timeout;
 		int 			get_config_reply_timeout;
 		int 			stats_reply_timeout;
-		int 			get_fsp_reply_timeout;
 		int 			barrier_reply_timeout;
 
 public:
@@ -571,12 +567,6 @@ private:
 	 */
 	void
 	handle_stats_reply_timeout();
-
-
-	/** handle GET-FSP reply timeout
-	 */
-	void
-	handle_get_fsp_reply_timeout();
 
 
 	/** handle BARRIER reply timeout

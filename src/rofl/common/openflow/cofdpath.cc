@@ -21,7 +21,6 @@ cofdpath::cofdpath(
 	features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 	get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 	stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
-	get_fsp_reply_timeout(DEFAULT_DP_GET_FSP_REPLY_TIMEOUT),
 	barrier_reply_timeout(DEFAULT_DB_BARRIER_REPLY_TIMEOUT)
 {
 	WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::cofdpath() "
@@ -92,17 +91,6 @@ cofdpath::handle_timeout(int opaque)
 	case COFDPATH_TIMER_STATS_REPLY:
 		{
 			handle_stats_reply_timeout();
-		}
-		break;
-	case COFDPATH_TIMER_GET_FSP_REQUEST:
-		{
-			WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p): sending -GET-FSP-REQUEST-", this);
-			fwdelem->send_experimenter_ext_rofl_nsp_get_fsp_request(this);
-		}
-		break;
-	case COFDPATH_TIMER_GET_FSP_REPLY:
-		{
-			handle_get_fsp_reply_timeout();
 		}
 		break;
 	case COFDPATH_TIMER_BARRIER_REQUEST:
@@ -555,10 +543,6 @@ cofdpath::fsp_open(cofmatch const& ofmatch)
 			packed.somem(),
 			packed.memlen());
 
-#if 0
-	// future work: store ofmatch in std::set<cofmatch*> ???
-	fwdelem->send_experimenter_ext_rofl_nsp_open_request(this, ofmatch);
-#endif
 }
 
 
@@ -579,49 +563,16 @@ cofdpath::fsp_close(cofmatch const& ofmatch)
 			packed.somem(),
 			packed.memlen());
 
-#if 0
-	// future work: remove ofmatch from std::set<cofmatch*> ???
-	fwdelem->send_experimenter_ext_rofl_nsp_close_request(this, ofmatch);
-#endif
 }
 
-
-void
-cofdpath::handle_get_fsp_reply_timeout()
-{
-	WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::handle_get_fsp_reply_timeout() "
-			"dpid:%"UINT64DBGFMT" ",
-			this, dpid);
-
-	fwdelem->handle_get_fsp_reply_timeout(this);
-
-	delete this;
-}
 
 
 void
 cofdpath::experimenter_message_rcvd(cofpacket *pack)
 {
 	switch (be32toh(pack->ofh_experimenter->experimenter)) {
-	case VENDOR_EXT_ROFL:
-	{
-		switch (be32toh(pack->ofh_experimenter->exp_type)) {
-		case OFPRET_PORT_EXTD_CONFIG_REQUEST:
-		case OFPRET_PORT_EXTD_CONFIG_REPLY:
-		case OFPRET_NSP_OPEN_REQUEST:
-		case OFPRET_NSP_OPEN_REPLY:
-		case OFPRET_NSP_CLOSE_REQUEST:
-		case OFPRET_NSP_CLOSE_REPLY:
-		case OFPRET_NSP_IOCTL_REQUEST:
-		case OFPRET_NSP_IOCTL_REPLY:
-		default:
-			break;
-		}
-
-		// maybe we will do something here in the future
-
+	default:
 		break;
-	}
 	}
 
 	// for now: send vendor extensions directly to class derived from cfwdelem

@@ -1618,67 +1618,6 @@ public:
 			uint8_t *body = NULL,
 			size_t bodylen = 0);
 
-	/** Send OF VENDOR EXT ROFL NSP-FSP-GET.request to data path
-	 *
-	 */
-	virtual void
-	send_experimenter_ext_rofl_nsp_get_fsp_request(
-			cofdpath *sw);
-
-	/** Send OF VENDOR EXT ROFL NSP-FSP-GET.reply to controller
-	 *
-	 */
-	virtual void
-	send_experimenter_ext_rofl_nsp_get_fsp_reply(
-			cofpacket *request,
-			cofctrl *ofctrl,
-			std::set<cofmatch*>& match_list);
-
-	/** Send OF VENDOR EXT ROFL NSP-OPEN.request to data path.
-	 *
-	 * @param sw cofswitch instance for data path
-	 * @param ofmatch cofmatch instance depicting the namespace to be allocated
-	 */
-	virtual void
-	send_experimenter_ext_rofl_nsp_open_request(
-			cofdpath *sw,
-			cofmatch const& ofmatch);
-
-	/** Send OF VENDOR EXT ROFL NSP-OPEN.reply to data path.
-	 *
-	 * @param sw cofswitch instance for data path
-	 * @param result one of OFPRET_NSP_RESULT_* in host byte order
-	 * @param ofmatch cofmatch instance depicting the namespace to be allocated
-	 */
-	virtual void
-	send_experimenter_ext_rofl_nsp_open_reply(
-			cofpacket *request,
-			cofctrl *ofctrl,
-			uint32_t result,
-			cofmatch const& ofmatch);
-
-	/** Send OF VENDOR EXT ROFL NSP-CLOSE.request to data path.
-	 *
-	 * @param sw cofswitch instance for data path
-	 * @param ofmatch cofmatch instance depicting the namespace to be allocated
-	 */
-	virtual void
-	send_experimenter_ext_rofl_nsp_close_request(
-			cofdpath *sw,
-			cofmatch const& ofmatch);
-
-	/** Send OF VENDOR EXT ROFL NSP-CLOSE.reply to data path.
-	 *
-	 * @param sw cofswitch instance for data path
-	 * @param result one of OFPRET_NSP_RESULT_* in host byte order
-	 * @param ofmatch cofmatch instance depicting the namespace to be allocated
-	 */
-	virtual void
-	send_experimenter_ext_rofl_nsp_close_reply(
-			cofpacket *request,
-			cofctrl *ofctrl,
-			uint32_t result,
-			cofmatch const& ofmatch);
 
 	// ROLE request/reply
 	//
