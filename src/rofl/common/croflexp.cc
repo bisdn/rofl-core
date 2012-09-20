@@ -4,10 +4,27 @@
 
 #include "croflexp.h"
 
-croflexp::croflexp() :
-	cmemory(ROFL_EXP_MAX_SIZE)
+
+
+croflexp::croflexp(
+		uint8_t *buf,
+		size_t buflen) :
+		mem(buf, buflen)
 {
-	rext_body = (uint8_t*)somem();
+	rext_header = (struct ofp_rofl_ext_header*)mem.somem();
+
+	unpack(buf, buflen);
+
+	validate();
+}
+
+
+
+croflexp::croflexp(
+		size_t size) :
+		mem(size)
+{
+	rext_header = (struct ofp_rofl_ext_header*)mem.somem();
 }
 
 
@@ -22,7 +39,7 @@ croflexp::c_str()
 {
 	cvastring vas;
 
-	info.assign(vas("croflexp(%p) %s", this, cmemory::c_str()));
+	info.assign(vas("croflexp(%p) %s", this, mem.c_str()));
 
 	return info.c_str();
 }
@@ -31,35 +48,85 @@ croflexp::c_str()
 void
 croflexp::pack(uint8_t *__body, size_t __bodylen) throw (eRoflExpInval)
 {
-	size_t len = size();
+	size_t len = mem.memlen();
 
 	if (__bodylen < len)
 	{
 		throw eRoflExpInval();
 	}
 
-	memcpy(__body, somem(), memlen());
+	memcpy(__body, mem.somem(), mem.memlen());
 }
 
 
 void
 croflexp::unpack(uint8_t *__body, size_t __bodylen)
 {
-	resize(__bodylen);
+	mem.resize(__bodylen);
 
-	rext_body = (uint8_t*)somem();
+	mem.assign(__body, __bodylen);
 
-	memcpy(somem(), __body, __bodylen);
+	rext_header = (struct ofp_rofl_ext_header*)mem.somem();
 }
 
 
 size_t
-croflexp::size()
+croflexp::length()
 {
-	return memlen();
+	return mem.memlen();
 }
 
 
+void
+croflexp::validate()
+		throw (eRoflExpInval)
+{
+	if (mem.memlen() < sizeof(struct ofp_rofl_ext_header))
+	{
+		throw eRoflExpInval();
+	}
 
+	switch (rext_header->type) {
+	case OFPRET_FLOWSPACE:
+		{
+			validate_flowspace();
+		}
+		break;
+	default:
+		{
+			throw eRoflExpInval();
+		}
+		break;
+	}
+
+
+}
+
+
+void
+croflexp::validate_flowspace()
+		throw (eRoflExpInval)
+{
+	if (mem.memlen() < sizeof(struct ofp_rofl_ext_flowspace))
+	{
+		throw eRoflExpInval();
+	}
+
+	switch (rext_fsp->command) {
+	case OFPRET_FSP_ADD:
+	case OFPRET_FSP_DELETE:
+		{
+			match.reset();
+
+			match.unpack(rext_fsp->match, mem.memlen() - sizeof(struct ofp_rofl_ext_flowspace));
+		}
+		break;
+	default:
+		{
+			throw eRoflExpInval();
+		}
+		break;
+	}
+}
 
 
