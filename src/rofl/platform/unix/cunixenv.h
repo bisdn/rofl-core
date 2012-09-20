@@ -51,7 +51,7 @@ public:
 
 
 	/* Constructor */
-	coption(void){};
+	//coption(void){};
 
 	coption(bool optional, 
 		int value_type, 
@@ -73,21 +73,33 @@ public:
 */
 class cunixenv
 {
+public:
+
+	static cunixenv&
+	getInstance();
+
+	/*
+	* Add argument to current list of arguments to parse 
+	*/
+	void add_option(const coption &arg);
+	
+	/**
+	 * Parse arguments using getopt
+	 */
+	void parse_args(int argc, char** argv);
+
+	/*
+	 * Get value methods
+	 */
+	std::string get_arg(const std::string &name);
+
+	std::string get_arg(const char shortcut);
+
 private:
-/*
-	 int debug;			// verbosity
-	 int n_buffers;			// #buffers for cfwdelem
-	 int block_size; 		// block size in units of getpagesize() for cmmapport (default: 8)
-	 int n_blocks; 			// #blocks for cmmapport instances (default: 8)
-	 int frame_size; 		// frame size for cmmapport in bytes (default: 2048)
-	 int n_fwdengines;		// #fwdengines
-	 std::string controller_ip;	// ip address of the controller
-	 u_int16_t controller_port;	// port number of the controller
-	 std::string config_filename;
-	 std::string hw_driver;		//HAL driver 
-*/
-	bool parsed;
+
 	std::vector<coption> arguments;
+
+	bool parsed;
 
 	/**
 	 * Usage method
@@ -99,31 +111,15 @@ private:
 	 */
 	void detach(void);
 
-
-public:
-
-	/*
-	* Constructor 
-	*/
-	cunixenv(std::vector<coption>* args=NULL);
-
-	/*
-	* Add argument to current list of arguments to parse 
-	*/
-	void add_option(coption arg);
+	/**
+	 * Constructor
+	 */
+	cunixenv();
 	
 	/**
-	 * Parse arguments using getopt
+	 * Destructor
 	 */
-	void parse_args(int argc, char** argv);
-
-	/*
-	 * Get value methods
-	 */
-	std::string get_arg(std::string name);	
-
-	std::string get_arg(char shortcut);	
-	
+	~cunixenv();
 };
 
 #endif
