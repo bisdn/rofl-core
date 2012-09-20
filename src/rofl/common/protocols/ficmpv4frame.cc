@@ -5,8 +5,8 @@
 #include "ficmpv4frame.h"
 
 ficmpv4frame::ficmpv4frame(
-		uint8_t* _data,
-		size_t _datalen) :
+		uint8_t* data,
+		size_t datalen) :
 		fframe(data, datalen),
 		icmp_hdr(0),
 		data(0),

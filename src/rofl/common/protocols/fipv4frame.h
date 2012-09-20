@@ -44,6 +44,10 @@ public: // static
 		IPV4_ETHER = 0x0800,
 	};
 
+	enum ipv4_ip_proto_t {
+		IPV4_IP_PROTO = 4,
+	};
+
 	// IPv4 header
 	struct ipv4_hdr_t {
 		uint8_t ihlvers;        // IP header length in 32bit words,

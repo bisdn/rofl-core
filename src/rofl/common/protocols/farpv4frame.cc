@@ -269,8 +269,12 @@ farpv4frame::c_str()
 {
 	cvastring vas;
 
-	info.assign(vas("[farpv4frame(%p) %s]",
+	info.assign(vas("[farpv4frame(%p) dl_dst:%s dl_src:%s ip_dst:%s ip_src:%s %s]",
 			this,
+			get_dl_dst().c_str(),
+			get_dl_src().c_str(),
+			get_nw_dst().addr_c_str(),
+			get_nw_src().addr_c_str(),
 			fframe::c_str() ));
 
 	return info.c_str();

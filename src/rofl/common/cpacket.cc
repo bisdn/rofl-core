@@ -293,7 +293,6 @@ cpacket::unpack(
 	{
 		mem_resize(len);
 	}
-	fprintf(stderr, "\nXXX: data.second: %lu len: %lu\n\n", data.second, len);
 	memcpy(soframe(), src, len);
 	unpack(in_port);
 }
@@ -2233,9 +2232,14 @@ cpacket::parse_ipv4(
 
 
 	switch (match.get_ip_proto()) {
-	case ficmpv4frame::ICMPV4_IP_PROTO:
+	case fipv4frame::IPV4_IP_PROTO:
 		{
 			parse_ipv4(p_ptr, p_len);
+		}
+		break;
+	case ficmpv4frame::ICMPV4_IP_PROTO:
+		{
+			parse_icmpv4(p_ptr, p_len);
 		}
 		break;
 	case fudpframe::UDP_IP_PROTO:
