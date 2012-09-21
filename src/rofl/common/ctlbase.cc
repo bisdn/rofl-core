@@ -524,7 +524,7 @@ ctlbase::ctl_handle_packet_in(
 		return;
 	}
 
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_in() "
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_packet_in() "
 			"match: %s\npack:%s", dpname.c_str(), match.c_str(), pack.c_str());
 
 	handle_packet_in(
@@ -966,7 +966,7 @@ ctlbase::send_flow_mod_message(
 
 	} catch (eOFmatchNotFound& e) {
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_flow_mod() "
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_flow_mod_message() "
 					   "no in_port found in Flow-Mod message, ignoring",
 					   dpname.c_str());
 

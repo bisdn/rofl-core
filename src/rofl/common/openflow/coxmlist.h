@@ -43,6 +43,11 @@ private: // data structures
 		std::string 				info;
 		//std::vector<coxmatch*> 	oxmvec;
 		cmemory 					area;
+
+
+public:
+
+
 		coxmatch** 					oxmvec;
 
 public: // methods

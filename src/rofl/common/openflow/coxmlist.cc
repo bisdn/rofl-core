@@ -440,7 +440,7 @@ coxmlist::overlap(
 
 void
 coxmlist::calc_hits(
-		coxmlist& oxmlist,
+		coxmlist& other,
 		uint16_t& exact_hits,
 		uint16_t& wildcard_hits,
 		uint16_t& missed)
@@ -449,12 +449,12 @@ coxmlist::calc_hits(
 
 	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
 	{
-		if ((coxmatch*)0 == oxmlist.oxmvec[i])
+		if ((coxmatch*)0 == other.oxmvec[i])
 		{
 			wildcard_hits++; continue; // wildcard match
 		}
 
-		coxmatch& m2 = *(oxmlist.oxmvec[i]);
+		coxmatch& m2 = *(other.oxmvec[i]);
 
 		if ((coxmatch*)0 == oxmvec[m2.get_oxm_field()])
 		{

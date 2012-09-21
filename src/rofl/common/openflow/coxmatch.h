@@ -57,6 +57,11 @@ public: // static stuff, enums, constants
 			char desc[64];
 		} oxm_typedesc_t;
 
+		typedef struct {
+			uint16_t oxm_class;
+			char desc[64];
+		} oxm_classdesc_t;
+
 #define COXMATCH_DEFAULT_LEN		64
 
 public: // data structures
@@ -290,6 +295,15 @@ public: // methods
 
 
 private: // methods
+
+
+	/**
+	 *
+	 */
+	const char*
+	class2desc(
+			uint16_t oxm_class);
+
 
 	/**
 	 *

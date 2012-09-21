@@ -1646,6 +1646,7 @@ cpacket::push_pppoe(uint16_t ethertype)
 		pppoe->set_hdr_length(len);
 
 		match.set_eth_type(ethertype);
+		match.set_pppoe_type(fpppoeframe::PPPOE_TYPE);
 		match.set_pppoe_code(code);
 		match.set_pppoe_sessid(sid);
 
@@ -1687,6 +1688,7 @@ cpacket::pop_pppoe(uint16_t ethertype)
 		//classify(match.get_in_port());
 
 #if 1
+		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_TYPE);
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_CODE);
 		match.remove(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_SID);
 		match.set_eth_type(ether()->get_dl_type());
@@ -1768,9 +1770,6 @@ cpacket::pop_ppp()
 void
 cpacket::classify(uint32_t in_port /* host byte order */)
 {
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::classify() "
-			"mem: %s", this, mem.c_str());
-
 	reset();
 
 	match.set_in_port(in_port);
@@ -2090,6 +2089,7 @@ cpacket::parse_pppoe(
 	fpppoeframe *pppoe = new fpppoeframe(p_ptr, sizeof(struct fpppoeframe::pppoe_hdr_t));
 
 	match.set_pppoe_code(pppoe->get_pppoe_code());
+	match.set_pppoe_type(pppoe->get_pppoe_type());
 	match.set_pppoe_sessid(pppoe->get_pppoe_sessid());
 
 	frame_append(pppoe);

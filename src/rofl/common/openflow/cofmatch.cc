@@ -71,6 +71,72 @@ cofmatch::reset()
 
 
 
+bool
+cofmatch::is_matching(
+		cofmatch& other,
+		uint16_t& exact_matches,
+		uint16_t& wildcard_matches,
+		uint16_t& missed)
+{
+	WRITELOG(COXMLIST, ROFL_DBG, "cofmatch(%p)::is_matching()", this);
+
+	exact_matches = 0;
+	wildcard_matches = 0;
+	missed = 0;
+
+	coxmatch** left = this->oxmlist.oxmvec;
+	coxmatch** right = other.oxmlist.oxmvec;
+
+	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
+	{
+		if ((coxmatch*)0 == left[i])
+		{
+			// left side is null => wildcard match
+			wildcard_matches++;
+
+			WRITELOG(COXMLIST, ROFL_DBG, "cofmatch(%p)::is_matching() "
+					"wildcard match => left is 0", this);
+
+		}
+		else if (((coxmatch*)0 != left[i]) && ((coxmatch*)0 == right[i]))
+		{
+			// left side is non-null, but right side is null => miss
+			missed++;
+
+			WRITELOG(COXMLIST, ROFL_DBG, "cofmatch(%p)::is_matching() "
+					"miss => left is %s != right is 0", this,
+					this->oxmlist[i].c_str());
+
+			return false;
+		}
+		else if (this->oxmlist[i] != other.oxmlist[i])
+		{
+			// left and right side are non-null and do not match => miss
+
+			WRITELOG(COXMLIST, ROFL_DBG, "cofmatch(%p)::is_matching() "
+					"miss => %s != %s", this,
+					this->oxmlist[i].c_str(), other.oxmlist[i].c_str());
+
+			missed++;
+
+			return false;
+		}
+		else
+		{
+			// left and right side are non-null and match => exact match
+			exact_matches++;
+
+			WRITELOG(COXMLIST, ROFL_DBG, "cofmatch(%p)::is_matching() "
+					"exact match => %s == %s", this,
+					this->oxmlist[i].c_str(), other.oxmlist[i].c_str());
+		}
+	}
+	return true;
+}
+
+
+
+
 void
 cofmatch::remove(
 		uint16_t oxm_class,
@@ -415,6 +481,30 @@ cofmatch::set_mpls_tc(
 {
 	oxmlist[OFPXMT_OFB_MPLS_TC] = coxmatch_ofb_mpls_tc(tc);
 }
+
+
+
+uint8_t
+cofmatch::get_pppoe_type()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_TYPE))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist[OFPXMT_OFB_PPPOE_TYPE].uint8();
+}
+
+
+
+void
+cofmatch::set_pppoe_type(
+		uint8_t type)
+{
+	oxmlist[OFPXMT_OFB_PPPOE_TYPE] = coxmatch_ofb_pppoe_type(type);
+}
+
 
 
 uint8_t

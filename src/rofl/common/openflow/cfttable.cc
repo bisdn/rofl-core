@@ -863,7 +863,9 @@ cftsearch::operator() (
 	uint16_t wildcard_hits = 0;
 	uint16_t missed = 0;
 
-	pack->calc_hits(fte->ofmatch, exact_hits, wildcard_hits, missed);
+	//pack->calc_hits(fte->ofmatch, exact_hits, wildcard_hits, missed);
+	fte->ofmatch.is_matching(pack->match, exact_hits, wildcard_hits, missed);
+
 
 	// get sum of exact hits and wildcard hits
 	uint16_t hits = exact_hits + wildcard_hits;

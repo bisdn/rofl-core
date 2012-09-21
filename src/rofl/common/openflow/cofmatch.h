@@ -159,6 +159,19 @@ public:
 	reset();
 
 
+
+	/**
+	 *
+	 */
+	bool
+	is_matching(
+			cofmatch& other,
+			uint16_t& exact_hits,
+			uint16_t& wildcard_hits,
+			uint16_t& missed);
+
+
+
 	/**
 	 *
 	 */
@@ -332,6 +345,22 @@ public:
 	void
 	set_mpls_tc(
 			uint8_t tc);
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_pppoe_type()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_pppoe_type(
+			uint8_t type);
 
 
 	/**
