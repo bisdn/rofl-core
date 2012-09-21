@@ -12,7 +12,7 @@
 #include <list>
 #include <set>
 #include <algorithm>
-
+#include <typeinfo>
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,6 +26,7 @@ extern "C" {
 #include <pthread.h>
 #include <sys/uio.h>
 #include <assert.h>
+
 
 #include "openflow/openflow12.h"
 #ifdef __cplusplus
@@ -163,7 +164,9 @@ public: // methods
 	 *
 	 */
 	cpacket(
-			size_t size = CPACKET_DEFAULT_SIZE);
+			size_t size = CPACKET_DEFAULT_SIZE,
+			uint32_t in_port = 0,
+			bool do_classify = true);
 
 
 	/** constructor for storing a memory area specified by (buf, buflen)
@@ -482,6 +485,16 @@ public:
 			int i = 0) throw (ePacketNotFound);
 
 	// TODO: SCTP
+
+
+	/** return pointer to a payload frame
+	 * keep in mind: valid only while this instance is alive!
+	 *
+	 */
+	fframe*
+	payload(
+			int i = 0) throw (ePacketNotFound);
+
 
 
 	/** recalculates checksums

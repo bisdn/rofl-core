@@ -71,6 +71,8 @@ fpppframe::unpack(uint8_t *frame, size_t framelen) throw (ePPPInval)
 {
 	reset(frame, framelen);
 
+	initialize();
+
 	if (!complete())
 		throw ePPPInval();
 
@@ -96,7 +98,7 @@ fpppframe::complete()
 			return false;
 		}
 		if (framelen() < (sizeof(struct ppp_hdr_t) +
-								sizeof(struct ppp_lcp_hdr_t) +
+								//sizeof(struct ppp_lcp_hdr_t) +
 								be16toh(ppp_lcp_hdr->length)))
 		{
 			return false;
@@ -134,7 +136,7 @@ fpppframe::need_bytes()
 					sizeof(struct ppp_lcp_hdr_t)) - framelen());
 		}
 		if (framelen() < (sizeof(struct ppp_hdr_t) +
-								sizeof(struct ppp_lcp_hdr_t) +
+								//sizeof(struct ppp_lcp_hdr_t) +
 								be16toh(ppp_lcp_hdr->length)))
 		{
 			return ((sizeof(struct ppp_hdr_t) +

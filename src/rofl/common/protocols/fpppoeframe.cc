@@ -113,7 +113,7 @@ fpppoeframe::payloadlen() throw (eFrameNoPayload)
 
 
 void
-fpppoeframe::validate() throw (eFrameInvalidSyntax)
+fpppoeframe::validate() throw (ePPPoEFrameInvalLength, ePPPoEFrameInvalType, ePPPoEFrameInvalVersion)
 {
 	initialize();
 
@@ -121,21 +121,21 @@ fpppoeframe::validate() throw (eFrameInvalidSyntax)
 	{
 		WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::validate(): "
 							"invalid PPPoE frame rcvd: incomplete => %s", this, c_str());
-		throw eFrameInvalidSyntax();
+		throw ePPPoEFrameInvalLength();
 	}
 
 	if (PPPOE_TYPE != get_pppoe_type())
 	{
 		WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::validate(): "
 							"invalid PPPoE frame rcvd: type => %s", this, c_str());
-		throw eFrameInvalidSyntax();
+		throw ePPPoEFrameInvalType();
 	}
 
 	if (PPPOE_VERSION != get_pppoe_vers())
 	{
 		WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::validate(): "
 							"invalid PPPoE frame rcvd: version => %s", this, c_str());
-		throw eFrameInvalidSyntax();
+		throw ePPPoEFrameInvalVersion();
 	}
 
 	switch (pppoe_hdr->code) {
@@ -165,13 +165,13 @@ fpppoeframe::validate() throw (eFrameInvalidSyntax)
 
 
 void
-fpppoeframe::validate_pppoe_session() throw (eFrameInvalidSyntax)
+fpppoeframe::validate_pppoe_session() throw (ePPPoEFrameInvalCode)
 {
 	if (0x0000 != get_pppoe_code()) // code field must not be 0
 	{
 		WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::is_valid_pppoe_session(): "
 						"invalid PPPoE code %d", this, get_pppoe_type());
-		throw ePPPoEFrameInvalidSyntax();
+		throw ePPPoEFrameInvalCode();
 	}
 
 	size_t res_len = framelen() - sizeof(struct pppoe_hdr_t); // effective PPPoE payload length
@@ -491,10 +491,10 @@ fpppoeframe::validate_pppoe_discovery_padi() throw (eFrameInvalidSyntax)
 		//fprintf(stderr, "YYY => pppoe: %s\n", c_str());
 
 		if (PPPOE_CODE_PADI != get_pppoe_code())
-			throw eFrameInvalidSyntax();
+			throw ePPPoEPadiInvalCode();
 
 		if (0x0000 != get_pppoe_sessid()) // session id must be 0x0000
-			throw eFrameInvalidSyntax();
+			throw ePPPoEPadiInvalSid();
 
 		tags.unpack(pppoe_hdr->data, get_hdr_length());
 
@@ -504,8 +504,8 @@ fpppoeframe::validate_pppoe_discovery_padi() throw (eFrameInvalidSyntax)
 
 
 	} catch (ePPPoElistNotFound& e) {
-		throw eFrameInvalidSyntax();
 
+		throw ePPPoEPadiNoSvcTag();
 	}
 #if 0
 	std::map<enum pppoe_tag_t, struct pppoe_tag_hdr_t*>::iterator it;
@@ -562,18 +562,18 @@ fpppoeframe::validate_pppoe_discovery_padr() throw (eFrameInvalidSyntax)
 	try {
 
 		if (PPPOE_CODE_PADR != get_pppoe_code())
-			throw eFrameInvalidSyntax();
+			throw ePPPoEPadrInvalCode();
 
 		if (0x0000 != get_pppoe_sessid())
-			throw eFrameInvalidSyntax();
+			throw ePPPoEPadrInvalSid();
 
 		tags.unpack(pppoe_hdr->data, get_hdr_length());
 
 		tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME);
 
 	} catch (ePPPoElistNotFound& e) {
-		throw eFrameInvalidSyntax();
 
+		throw ePPPoEPadrNoSvcTag();
 	}
 
 #if 0

@@ -29,10 +29,19 @@ extern "C" {
 
 
 // error classes
-class ePPPoEFrameBase : public eFrameBase {}; // base error class for cpppoepacket
-class ePPPoEFrameTagNotFound : public ePPPoEFrameBase {}; // pppoe tag not found
-class ePPPoEFrameInvalidSyntax : public ePPPoEFrameBase {}; // frame has invalid syntax
-
+class ePPPoEFrameBase 			: public eFrameBase {}; 			// base error class for cpppoepacket
+class ePPPoEFrameTagNotFound 	: public ePPPoEFrameBase {}; 		// pppoe tag not found
+class ePPPoEFrameInvalidSyntax 	: public ePPPoEFrameBase {}; 		// frame has invalid syntax
+class ePPPoEFrameInvalLength	: public eFrameInvalidSyntax {};	// length is invalid for PPPoE frame
+class ePPPoEFrameInvalVersion	: public eFrameInvalidSyntax {};	// invalid PPPoE version
+class ePPPoEFrameInvalType		: public eFrameInvalidSyntax {};	// invalid PPPoE type
+class ePPPoEFrameInvalCode		: public eFrameInvalidSyntax {};	// invalid PPPoE code
+class ePPPoEPadiInvalCode		: public eFrameInvalidSyntax {};	// invalid code in PADI
+class ePPPoEPadiInvalSid		: public eFrameInvalidSyntax {};	// invalid sid in PADI
+class ePPPoEPadiNoSvcTag		: public eFrameInvalidSyntax {};	// no svcname tag in PADI
+class ePPPoEPadrInvalCode		: public eFrameInvalidSyntax {};	// invalid code in PADR
+class ePPPoEPadrInvalSid		: public eFrameInvalidSyntax {};	// invalid sid in PADR
+class ePPPoEPadrNoSvcTag		: public eFrameInvalidSyntax {};	// no svcname tag in PADR
 
 class cpacket;
 
@@ -190,7 +199,7 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual void
-	validate() throw (eFrameInvalidSyntax);
+	validate() throw (ePPPoEFrameInvalLength, ePPPoEFrameInvalType, ePPPoEFrameInvalVersion);
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *
@@ -307,7 +316,7 @@ private: // methods
 	 *
 	 */
 	void
-	validate_pppoe_session() throw (eFrameInvalidSyntax);
+	validate_pppoe_session() throw (ePPPoEFrameInvalCode);
 
 	/** validate PPPoE discovery packet
 	 *

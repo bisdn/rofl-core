@@ -7,7 +7,9 @@
 
 
 cpacket::cpacket(
-			size_t size) :
+			size_t size,
+			uint32_t in_port,
+			bool do_classify) :
 			head(0),
 			tail(0),
 			hspace(CPACKET_DEFAULT_HSPACE),
@@ -19,8 +21,13 @@ cpacket::cpacket(
 {
 	pthread_rwlock_init(&ac_rwlock, NULL);
 
-	match.set_in_port(OFPP_CONTROLLER);
-	match.set_in_phy_port(OFPP_CONTROLLER);
+	match.set_in_port(in_port);
+	match.set_in_phy_port(in_port);
+
+	if (do_classify)
+	{
+		classify(in_port);
+	}
 }
 
 
@@ -1053,6 +1060,28 @@ cpacket::tcp(int i) throw (ePacketNotFound)
 				}
 			}
 		}
+	}
+
+	throw ePacketNotFound();
+}
+
+
+
+fframe*
+cpacket::payload(int i) throw (ePacketNotFound)
+{
+	/*
+	 * only the tail element can be a payload
+	 * a payload is always of type fframe, not a derived class
+	 */
+	if (0 == tail)
+	{
+		throw ePacketNotFound();
+	}
+
+	if (typeid(*tail) == typeid(fframe))
+	{
+		return tail;
 	}
 
 	throw ePacketNotFound();

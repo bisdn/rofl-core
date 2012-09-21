@@ -337,6 +337,8 @@ ctlbase::handle_packet_in(
 				"frame with invalid syntax received, dropping. pack: %s",
 				dpname.c_str(), pack->c_str());
 
+		throw;
+
 	} catch (eOFpacketNoData& e) {
 
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
