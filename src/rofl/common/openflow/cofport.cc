@@ -228,7 +228,7 @@ cofport::recv_port_mod(
 		this->advertised = advertise;
 	}
 
-	WRITELOG(CPORT, ROFL_DBG, "cofport(%s:%d)::recv_port_mod() config:0x%x advertise:0x%x",
+	WRITELOG(CPORT, DBG, "cofport(%s:%d)::recv_port_mod() config:0x%x advertise:0x%x",
 			name.c_str(), port_no, this->config, this->advertised);
 }
 

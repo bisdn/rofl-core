@@ -6,7 +6,7 @@
 
 cfwdtable::cfwdtable()
 {
-	WRITELOG(FWDTABLE, ROFL_DBG, "cfwdtable::cfwdtable() ");
+	WRITELOG(FWDTABLE, DBG, "cfwdtable::cfwdtable() ");
 }
 
 
@@ -22,7 +22,7 @@ cfwdtable::~cfwdtable()
 		}
 	}
 	fwdtable.clear();
-	WRITELOG(FWDTABLE, ROFL_DBG, "cfwdtable::~cfwdtable() ");
+	WRITELOG(FWDTABLE, DBG, "cfwdtable::~cfwdtable() ");
 }
 
 
@@ -69,7 +69,7 @@ cfwdtable::mac_learning(
 				port_no,
 				vid);
 
-		WRITELOG(UNKNOWN, ROFL_DBG, "cfwdtable(%p)::mac_learning() "
+		WRITELOG(UNKNOWN, DBG, "cfwdtable(%p)::mac_learning() "
 						"new cfwdentry: %s", this, fwdentry->c_str());
 #endif
 	}

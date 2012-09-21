@@ -61,7 +61,7 @@ cfwdelem::cfwdelem(
 		flow_tables[i] = new cfttable(this, i);
 	}
 
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::cfwdelem() dpid:%llu dpname=%s", this, dpid, dpname.c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::cfwdelem() dpid:%llu dpname=%s", this, dpid, dpname.c_str());
 	std::set<cfwdelem*>::iterator it;
 
 	for (it = fwdelems.begin(); it != fwdelems.end(); ++it)
@@ -88,7 +88,7 @@ cfwdelem::cfwdelem(
 cfwdelem::~cfwdelem()
 {
 	cfwdelem::fwdelems.erase(this);
-	WRITELOG(CFWD, ROFL_DBG, "destroy cfwdelem(%p)::cfwdelem() dpid:%llu", this, dpid);
+	WRITELOG(CFWD, DBG, "destroy cfwdelem(%p)::cfwdelem() dpid:%llu", this, dpid);
 
 
 	// remove all physical ports
@@ -237,12 +237,12 @@ cfwdelem::nsp_enable(bool enable)
 	if (enable)
 	{
 		fe_flags.set(NSP_ENABLED);
-		WRITELOG(CFWD, ROFL_INFO, "cfwdelem(%p)::nsp_enable() enabling -NAMESPACE- support", this);
+		WRITELOG(CFWD, INFO, "cfwdelem(%p)::nsp_enable() enabling -NAMESPACE- support", this);
 	}
 	else
 	{
 		fe_flags.reset(NSP_ENABLED);
-		WRITELOG(CFWD, ROFL_INFO, "cfwdelem(%p)::nsp_enable() disabling -NAMESPACE- support", this);
+		WRITELOG(CFWD, INFO, "cfwdelem(%p)::nsp_enable() disabling -NAMESPACE- support", this);
 	}
 }
 
@@ -361,7 +361,7 @@ cfwdelem::dpath_attach(cofbase* dp)
 
 	} catch (eOFbaseNotAttached& e) {
 		sw = new cofdpath(this, dp, &ofdpath_list);
-		WRITELOG(CFWD, ROFL_INFO, "cfwdelem(%p)::dpath_attach() cofbase: %p cofswitch: %s", this, dp, sw->c_str());
+		WRITELOG(CFWD, INFO, "cfwdelem(%p)::dpath_attach() cofbase: %p cofswitch: %s", this, dp, sw->c_str());
 	}
 
 	send_down_hello_message(sw);
@@ -382,7 +382,7 @@ cfwdelem::dpath_detach(cofbase* dp)
 
 		handle_dpath_close(sw);
 
-		WRITELOG(CFWD, ROFL_INFO, "cfwdelem(%p)::dpath_detach() cofbase: %p cofswitch: %s", this, dp, sw->c_str());
+		WRITELOG(CFWD, INFO, "cfwdelem(%p)::dpath_detach() cofbase: %p cofswitch: %s", this, dp, sw->c_str());
 
 		delete sw;
 
@@ -409,7 +409,7 @@ cfwdelem::ctrl_attach(cofbase* dp) throw (eFwdElemFspSupportDisabled)
 	if (ofctrl_list.find(dp) == ofctrl_list.end())
 	{
 		ofctrl = new cofctrl(this, dp, &ofctrl_list);
-		WRITELOG(CFWD, ROFL_INFO, "cfwdelem(%p)::ctrl_attach() cofbase: %p cofctrl: %s",
+		WRITELOG(CFWD, INFO, "cfwdelem(%p)::ctrl_attach() cofbase: %p cofctrl: %s",
 				this, dp, ofctrl->c_str());
 	}
 
@@ -425,7 +425,7 @@ cfwdelem::ctrl_detach(cofbase* dp)
 	std::map<cofbase*, cofctrl*>::iterator it;
 	if ((it = ofctrl_list.find(dp)) != ofctrl_list.end())
 	{
-		WRITELOG(CFWD, ROFL_INFO, "cfwdelem(%p)::ctrl_detach() cofbase: %p cofctrl: %s",
+		WRITELOG(CFWD, INFO, "cfwdelem(%p)::ctrl_detach() cofbase: %p cofctrl: %s",
 				this, dp, it->second->c_str());
 
 		// sends a HELLO with BYE flag to controller and deletes our ofctrl instance
@@ -443,104 +443,104 @@ cfwdelem::handle_timeout(int opaque)
 	try {
 		switch (opaque) {
 		case TIMER_FE_HANDLE_HELLO:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 								"TIMER_FE_HANDLE_HELLO (%d) expired", this,  TIMER_FE_HANDLE_HELLO);
 			recv_hello_message();
 			break;
 		case TIMER_FE_HANDLE_FEATURES_REQUEST:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_FEATURES_REQUEST (%d) expired", this,  TIMER_FE_HANDLE_FEATURES_REQUEST);
 			recv_features_request();
 			break;
 		case TIMER_FE_SEND_GET_CONFIG_REPLY:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_SEND_GET_CONFIG_REPLY (%d) expired", this,  TIMER_FE_SEND_GET_CONFIG_REPLY);
 			send_get_config_reply();
 			break;
 		case TIMER_FE_HANDLE_STATS_REQUEST:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_STATS_REQUEST (%d) expired", this,  TIMER_FE_HANDLE_STATS_REQUEST);
 			recv_stats_request();
 			break;
 		case TIMER_FE_HANDLE_PACKET_OUT:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_PACKET_OUT (%d) expired", this,  TIMER_FE_HANDLE_PACKET_OUT);
 			recv_packet_out();
 			break;
 		case TIMER_FE_HANDLE_PACKET_IN:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_PACKET_IN (%d) expired", this,  TIMER_FE_HANDLE_PACKET_IN);
 			recv_packet_in();
 			break;
 		case TIMER_FE_HANDLE_ERROR:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_ERROR (%d) expired", this,  TIMER_FE_HANDLE_ERROR);
 			recv_error();
 			break;
 		case TIMER_FE_HANDLE_FLOW_MOD:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_FLOW_MOD (%d) expired", this,  TIMER_FE_HANDLE_FLOW_MOD);
 			recv_flow_mod();
 			break;
 		case TIMER_FE_HANDLE_GROUP_MOD:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_GROUP_MOD (%d) expired", this,  TIMER_FE_HANDLE_GROUP_MOD);
 			recv_group_mod();
 			break;
 		case TIMER_FE_HANDLE_TABLE_MOD:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_TABLE_MOD (%d) expired", this,  TIMER_FE_HANDLE_TABLE_MOD);
 			recv_table_mod();
 			break;
 		case TIMER_FE_HANDLE_PORT_MOD:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_PORT_MOD (%d) expired", this,  TIMER_FE_HANDLE_PORT_MOD);
 			recv_port_mod();
 			break;
 		case TIMER_FE_HANDLE_FLOW_REMOVED:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_FLOW_REMOVED (%d) expired", this,  TIMER_FE_HANDLE_FLOW_REMOVED);
 			recv_flow_removed();
 			break;
 		case TIMER_FE_HANDLE_SET_CONFIG:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_SET_CONFIG (%d) expired", this,  TIMER_FE_HANDLE_SET_CONFIG);
 			recv_set_config();
 			break;
 		case TIMER_FE_HANDLE_EXPERIMENTER:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_VENDOR (%d) expired", this,  TIMER_FE_HANDLE_EXPERIMENTER);
 			recv_experimenter_message();
 			break;
 		case TIMER_FE_SEND_QUEUE_GET_CONFIG_REPLY:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_SEND_QUEUE_GET_CONFIG_REPLY (%d) expired", this,  TIMER_FE_SEND_QUEUE_GET_CONFIG_REPLY);
 			send_queue_get_config_reply();
 			break;
 		case TIMER_FE_HANDLE_BARRIER_REQUEST:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_BARRIER_REQUEST (%d) expired", this,  TIMER_FE_HANDLE_BARRIER_REQUEST);
 			recv_barrier_request();
 			break;
 		case TIMER_FE_HANDLE_PORT_STATUS:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_PORT_STATUS (%d) expired", this,  TIMER_FE_HANDLE_PORT_STATUS);
 			recv_port_status();
 			break;
 		case TIMER_FE_HANDLE_ROLE_REQUEST:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_ROLE_REQUEST (%d) expired", this,  TIMER_FE_HANDLE_ROLE_REQUEST);
 			recv_role_request();
 			break;
 		case TIMER_FE_HANDLE_ROLE_REPLY:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_ROLE_REPLY (%d) expired", this,  TIMER_FE_HANDLE_ROLE_REPLY);
 			recv_role_reply();
 			break;
 		case TIMER_FE_DUMP_OFPACKETS:
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"cofpacket statistics => %s", this, cofpacket::packet_info());
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_timeout() "
 					"cpacket statistics => %s", this, cpacket::cpacket_info());
 #if 0
 			fprintf(stdout, "cfwdelem(%p)::handle_timeout() "
@@ -551,7 +551,7 @@ cfwdelem::handle_timeout(int opaque)
 			register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
 			break;
 		default:
-			//WRITELOG(CFWD, ROFL_DBG, "cfwdelem::handle_timeout() "
+			//WRITELOG(CFWD, DBG, "cfwdelem::handle_timeout() "
 			//		"received unknown timer event %d", opaque);
 			break;
 		}
@@ -559,7 +559,7 @@ cfwdelem::handle_timeout(int opaque)
 
 
 	} catch (eOFbaseNoCtrl& e) {
-		WRITELOG(CFWD, ROFL_DBG, "controlling entity lost");
+		WRITELOG(CFWD, DBG, "controlling entity lost");
 		// handle NoCtrl condition: simply do nothing for now,
 		// TODO: reconnect to new controlling entity
 
@@ -778,7 +778,7 @@ cfwdelem::gtentry_timeout(
  void
 cfwdelem::fibentry_timeout(cfibentry *fibentry)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fibentry_timeout() %s",
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::fibentry_timeout() %s",
 			this, fibentry->c_str());
 
 #if 0
@@ -786,7 +786,7 @@ cfwdelem::fibentry_timeout(cfibentry *fibentry)
 
 	rib.dijkstra();
 
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fibentry_timeout() crib: \n%s",
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::fibentry_timeout() crib: \n%s",
 			this, rib.c_str());
 #endif
 }
@@ -800,7 +800,7 @@ void
 cfwdelem::send_up_hello_message(
 	cofctrl *ofctrl, bool bye)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_up_hello_message()", this);
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_up_hello_message()", this);
 
 	uint32_t hello = (bye) ? htobe32(FE_HELLO_BYE) : htobe32(FE_HELLO_ACTIVE);
 
@@ -808,7 +808,7 @@ cfwdelem::send_up_hello_message(
 										ta_new_async_xid(),
 										(uint8_t*)&hello, sizeof(hello));
 
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_up_hello_message() new %s", this,
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_up_hello_message() new %s", this,
 			pack->c_str());
 
 	ofctrl_find(ofctrl)->ctrl->fe_up_hello_message(this, pack);
@@ -819,7 +819,7 @@ void
 cfwdelem::send_down_hello_message(
 	cofdpath *ofdpath, bool bye)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_down_hello_message()", this);
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_down_hello_message()", this);
 
 	uint32_t hello = (bye) ? htobe32(FE_HELLO_BYE) : htobe32(FE_HELLO_ACTIVE);
 
@@ -827,7 +827,7 @@ cfwdelem::send_down_hello_message(
 										ta_new_async_xid(),
 										(uint8_t*)&hello, sizeof(hello));
 
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_down_hello_message() new %s", this,
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_down_hello_message() new %s", this,
 			pack->c_str());
 
 	ofdpath->entity->fe_down_hello_message(this, pack);
@@ -839,7 +839,7 @@ cfwdelem::fe_down_hello_message(
 		cofbase *entity,
 		cofpacket *pack)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_hello_message() HELLO received: %s", this, pack->c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_hello_message() HELLO received: %s", this, pack->c_str());
 
 	try {
 		check_down_packet(pack, OFPT_HELLO, entity);
@@ -848,7 +848,7 @@ cfwdelem::fe_down_hello_message(
 		register_timer(TIMER_FE_HANDLE_HELLO, 0);
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_hello_message() packet from non-controlling entity dropped", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_hello_message() packet from non-controlling entity dropped", this);
 
 		////entity->ctrl_detach(this);
 
@@ -856,11 +856,11 @@ cfwdelem::fe_down_hello_message(
 
 	} catch (eOFbaseInval& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_hello_message() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_hello_message() malformed packet received", this);
 		delete pack;
 	} catch (eFwdElemFspSupportDisabled& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "\n\ncfwdelem(%p)::fe_down_hello_message() "
+		WRITELOG(CFWD, DBG, "\n\ncfwdelem(%p)::fe_down_hello_message() "
 				"flowspace support for multiple controllers DISABLED!!!\n\n", this);
 				delete pack;
 	}
@@ -872,7 +872,7 @@ cfwdelem::fe_up_hello_message(
 		cofbase *entity,
 		cofpacket *pack)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_hello_message() HELLO received: %s", this, pack->c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_hello_message() HELLO received: %s", this, pack->c_str());
 
 	try {
 		check_up_packet(pack, OFPT_HELLO, entity);
@@ -881,14 +881,14 @@ cfwdelem::fe_up_hello_message(
 		register_timer(TIMER_FE_HANDLE_HELLO, 0);
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_hello_message() packet from non-controlling entity dropped", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_hello_message() packet from non-controlling entity dropped", this);
 
 		////entity->dpath_detach(this);
 
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_hello_message() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_hello_message() malformed packet received", this);
 		delete pack;
 	}
 }
@@ -913,7 +913,7 @@ cfwdelem::recv_hello_message()
 				cookie = be32toh(cookie);
 			}
 
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::recv_hello_message() down pack:%s cookie:%s",
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::recv_hello_message() down pack:%s cookie:%s",
 					this, pack->c_str(), cookie == FE_HELLO_ACTIVE ? "FE_HELLO_ACTIVE" : "FE_HELLO_BYE");
 
 			switch (cookie) {
@@ -946,7 +946,7 @@ cfwdelem::recv_hello_message()
 				cookie = be32toh(cookie);
 			}
 
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::recv_hello_message() up pack:%s cookie:%s",
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::recv_hello_message() up pack:%s cookie:%s",
 					this, pack->c_str(), cookie == FE_HELLO_ACTIVE ? "FE_HELLO_ACTIVE" : "FE_HELLO_BYE");
 
 			switch (cookie) {
@@ -1000,7 +1000,7 @@ cfwdelem::fe_down_features_request(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_features_request() FEATURES-REQUEST received: %s", this, pack->c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_features_request() FEATURES-REQUEST received: %s", this, pack->c_str());
 
 	try {
 		check_down_packet(pack, OFPT_FEATURES_REQUEST, entity);
@@ -1009,14 +1009,14 @@ cfwdelem::fe_down_features_request(
 		register_timer(TIMER_FE_HANDLE_FEATURES_REQUEST, 0);
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_features_request() packet from non-controlling entity dropped", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_features_request() packet from non-controlling entity dropped", this);
 
 		////entity->dpath_detach(this);
 
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_features_request() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_features_request() malformed packet received", this);
 		delete pack;
 	}
 }
@@ -1053,7 +1053,7 @@ cfwdelem::recv_features_request()
 void
 cfwdelem::handle_features_request(cofctrl *ofctrl, cofpacket *request)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::handle_features_request()", dpname.c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%s)::handle_features_request()", dpname.c_str());
 
 	send_features_reply(ofctrl, request->get_xid());
 
@@ -1064,7 +1064,7 @@ cfwdelem::handle_features_request(cofctrl *ofctrl, cofpacket *request)
 void
 cfwdelem::send_features_reply(cofctrl *ofctrl, uint32_t xid)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::send_features_reply()", dpname.c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%s)::send_features_reply()", dpname.c_str());
 
 	cofpacket_features_reply *reply = new cofpacket_features_reply(
 													xid,
@@ -1077,7 +1077,7 @@ cfwdelem::send_features_reply(cofctrl *ofctrl, uint32_t xid)
 			it = phy_ports.begin(); it != phy_ports.end(); ++it)
 	{
 		reply->ports.next() = *(it->second);
-		WRITELOG(CFWD, ROFL_DBG, "==> %s", it->second->c_str());
+		WRITELOG(CFWD, DBG, "==> %s", it->second->c_str());
 	}
 
 	reply->pack(); // adjust fields, e.g. length in ofp_header
@@ -1091,7 +1091,7 @@ cfwdelem::fe_up_features_reply(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_features_reply() FEATURES-REPLY received: %s", this, pack->c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_features_reply() FEATURES-REPLY received: %s", this, pack->c_str());
 
 	try {
 		//CHECK_PACKET(pack, OFPT_FEATURES_REPLY);
@@ -1105,17 +1105,17 @@ cfwdelem::fe_up_features_reply(
 		handle_features_reply(sw, pack);
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_features_reply() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_features_reply() malformed packet received", this);
 
 		delete pack;
 
 	} catch (eOFbaseXidInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_features_reply() invalid session exchange xid "
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_features_reply() invalid session exchange xid "
 					"(%u) received", this, be32toh(pack->ofh_header->xid));
 		delete pack;
 
 	} catch (eOFbaseNotAttached &e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_features_reply() packet received from non-attached entity", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_features_reply() packet received from non-attached entity", this);
 
 		delete pack;
 	}
@@ -1147,7 +1147,7 @@ cfwdelem::fe_down_get_config_request(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		check_down_packet(pack, OFPT_GET_CONFIG_REQUEST, entity);
@@ -1156,14 +1156,14 @@ cfwdelem::fe_down_get_config_request(
 		register_timer(TIMER_FE_SEND_GET_CONFIG_REPLY, 0);
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_get_config_request() packet from non-controlling entity dropped", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_get_config_request() packet from non-controlling entity dropped", this);
 
 		////entity->dpath_detach(this);
 
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_get_config_request() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_get_config_request() malformed packet received", this);
 		delete pack;
 	}
 }
@@ -1172,7 +1172,7 @@ cfwdelem::fe_down_get_config_request(
 void
 cfwdelem::send_get_config_reply()
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem::send_get_config_reply()");
+	WRITELOG(CFWD, DBG, "cfwdelem::send_get_config_reply()");
 
 	if (fe_down_queue[OFPT_GET_CONFIG_REQUEST].empty())
 		return;
@@ -1199,10 +1199,10 @@ cfwdelem::fe_up_get_config_reply(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 
-	WRITELOG(CFWD, ROFL_DBG, "GET-CONFIG-REPLY received: %s", pack->c_str());
+	WRITELOG(CFWD, DBG, "GET-CONFIG-REPLY received: %s", pack->c_str());
 
 	try {
 		//CHECK_PACKET(pack, OFPT_GET_CONFIG_REPLY);
@@ -1214,17 +1214,17 @@ cfwdelem::fe_up_get_config_reply(
 
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_get_config_reply() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_get_config_reply() malformed packet received", this);
 
 		delete pack;
 
 	} catch (eOFbaseXidInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_get_config_reply() invalid session exchange xid "
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_get_config_reply() invalid session exchange xid "
 					"(%u) received", this, be32toh(pack->ofh_header->xid));
 		delete pack;
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_get_config_reply() packet received from non-attached entity", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_get_config_reply() packet received from non-attached entity", this);
 
 		delete pack;
 	}
@@ -1269,10 +1269,10 @@ cfwdelem::fe_down_stats_request(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 #ifndef NDEBUG
-	// WRITELOG(CFWD, ROFL_DBG, "dpid:%u STATS-REQUEST received: %s", dpid, pack->c_str());
+	// WRITELOG(CFWD, DBG, "dpid:%u STATS-REQUEST received: %s", dpid, pack->c_str());
 #endif
 	try {
 		check_down_packet(pack, OFPT_STATS_REQUEST, entity);
@@ -1281,14 +1281,14 @@ cfwdelem::fe_down_stats_request(
 		register_timer(TIMER_FE_HANDLE_STATS_REQUEST, 0);
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_stats_request() packet from non-controlling entity dropped", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_stats_request() packet from non-controlling entity dropped", this);
 
 		////entity->dpath_detach(this);
 
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_stats_request() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_stats_request() malformed packet received", this);
 		delete pack;
 	}
 }
@@ -1297,7 +1297,7 @@ cfwdelem::fe_down_stats_request(
 void
 cfwdelem::recv_stats_request()
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem::recv_stats_request()");
+	WRITELOG(CFWD, DBG, "cfwdelem::recv_stats_request()");
 
 	if (fe_down_queue[OFPT_STATS_REQUEST].empty())
 		return;
@@ -1357,7 +1357,7 @@ cfwdelem::recv_stats_request()
 		}
 		break;
 	default:
-		WRITELOG(CFWD, ROFL_DBG, "unknown stats request type (%d)",
+		WRITELOG(CFWD, DBG, "unknown stats request type (%d)",
 			be16toh(request->ofh_stats_request->type));
 
 		handle_stats_request(ofctrl_find(request->entity), request);
@@ -1429,7 +1429,7 @@ cfwdelem::handle_table_stats_request(
 		table_stats++; // jump to start of array + 1
 	}
 
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_stats_table_request() table_stats[%p] body: %s",
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_stats_table_request() table_stats[%p] body: %s",
 			this, table_stats, body.c_str());
 
 	send_stats_reply(
@@ -1621,7 +1621,7 @@ cfwdelem::handle_aggregate_stats_request(
 		aggr_stats_reply.byte_count 	= htobe64(byte_count);
 		aggr_stats_reply.flow_count		= htobe32(flow_count);
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::handle_aggregate_stats_request() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::handle_aggregate_stats_request() "
 				"packet_count:%llu byte_count:%llu flow_count:%llu",
 				dpname.c_str(), packet_count, byte_count, flow_count);
 
@@ -1783,10 +1783,10 @@ cfwdelem::fe_up_stats_reply(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 #ifndef NDEBUG
-	WRITELOG(CFWD, ROFL_DBG, "STATS-REPLY received: %s", pack->c_str());
+	WRITELOG(CFWD, DBG, "STATS-REPLY received: %s", pack->c_str());
 #endif
 	try {
 		//CHECK_PACKET(pack, OFPT_STATS_REPLY);
@@ -1800,17 +1800,17 @@ cfwdelem::fe_up_stats_reply(
 		handle_stats_reply(sw, pack);
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_stats_reply() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_stats_reply() malformed packet received", this);
 
 		delete pack;
 
 	} catch (eOFbaseXidInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_stats_reply() invalid session exchange xid "
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_stats_reply() invalid session exchange xid "
 					"(0x%x) received", this, be32toh(pack->ofh_header->xid));
 		delete pack;
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_stats_reply() packet received from non-attached entity", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_stats_reply() packet received from non-attached entity", this);
 
 		delete pack;
 	}
@@ -1849,7 +1849,7 @@ cfwdelem::send_set_config_message(
 		ofswitch_find(sw)->entity->fe_down_set_config_request(this, pack);
 
 	} catch (eOFbaseIsBusy& e) {
-		WRITELOG(CFWD, ROFL_DBG, "datapath entity (%llu) busy", sw->dpid);
+		WRITELOG(CFWD, DBG, "datapath entity (%llu) busy", sw->dpid);
 		delete pack;
 		throw;
 	}
@@ -1861,7 +1861,7 @@ cfwdelem::fe_down_set_config_request(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		check_down_packet(pack, OFPT_SET_CONFIG, entity);
@@ -1870,14 +1870,14 @@ cfwdelem::fe_down_set_config_request(
 		register_timer(TIMER_FE_HANDLE_SET_CONFIG, 0);
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_set_config_request() packet from non-controlling entity dropped", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_set_config_request() packet from non-controlling entity dropped", this);
 
 		//entity->dpath_detach(this);
 
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_set_config_request() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_set_config_request() malformed packet received", this);
 		delete pack;
 	}
 }
@@ -1950,7 +1950,7 @@ cfwdelem::fe_down_packet_out(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::fe_down_packet_out() PACKET-OUT received: %s", s_dpid.c_str(), pack->c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%s)::fe_down_packet_out() PACKET-OUT received: %s", s_dpid.c_str(), pack->c_str());
 
 	try {
 		check_down_packet(pack, OFPT_PACKET_OUT, entity);
@@ -1959,16 +1959,16 @@ cfwdelem::fe_down_packet_out(
 		register_timer(TIMER_FE_HANDLE_PACKET_OUT, 0);
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_packet_out() packet from non-controlling entity dropped", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_packet_out() packet from non-controlling entity dropped", this);
 		//entity->dpath_detach(this);
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_packet_out() malformed packet received");
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_packet_out() malformed packet received");
 		delete pack;
 
 	} catch (eActionBadLen& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_packet_out() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_packet_out() "
 				 "bad action len", this);
 		send_error_message(ofctrl_find(entity), OFPET_BAD_ACTION, OFPBAC_BAD_LEN,
 				(uint8_t*)pack->soframe(), pack->framelen());
@@ -1993,7 +1993,7 @@ cfwdelem::recv_packet_out()
 		ofctrl_find(pack->entity)->packet_out_rcvd(pack);
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_packet_out() exception on handle_packet_out() caught", dpname.c_str());
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_packet_out() exception on handle_packet_out() caught", dpname.c_str());
 		delete pack;
 	}
 
@@ -2023,7 +2023,7 @@ cfwdelem::send_packet_in_message(
 {
 	try {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_packet_in_message() "
 				"ofctrl_list.size()=%d", this, ofctrl_list.size());
 
 		cpacket n_pack(data, datalen, match.get_in_port());
@@ -2038,7 +2038,7 @@ cfwdelem::send_packet_in_message(
 						total_len,
 						n_pack);
 
-				WRITELOG(CFWD, ROFL_WARN, "cfwdelem(%p) nse_list.size()=%d", this, nse_list.size());
+				WRITELOG(CFWD, WARN, "cfwdelem(%p) nse_list.size()=%d", this, nse_list.size());
 
 				if (nse_list.empty())
 				{
@@ -2051,7 +2051,7 @@ cfwdelem::send_packet_in_message(
 					cofctrl *ofctrl = dynamic_cast<cofctrl*>( (*nse_list.begin())->fspowner );
 					if (OFPCR_ROLE_SLAVE == ofctrl->role)
 					{
-						WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+						WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_packet_in_message() "
 								"ofctrl:%p is SLAVE, ignoring", this, ofctrl);
 						continue;
 					}
@@ -2070,7 +2070,7 @@ cfwdelem::send_packet_in_message(
 
 					pack->pack();
 
-					WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+					WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_packet_in_message() "
 									"sending PACKET-IN for buffer_id:0x%x to controller %s, pack: %s",
 									this, buffer_id, ofctrl->c_str(), pack->c_str());
 
@@ -2080,7 +2080,7 @@ cfwdelem::send_packet_in_message(
 
 			} catch (eFspNoMatch& e) {
 				cpacket pack(data, datalen);
-				WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() no ctrl found for packet: %s", this, pack.c_str());
+				WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_packet_in_message() no ctrl found for packet: %s", this, pack.c_str());
 				throw eFwdElemNoCtrl();
 			}
 
@@ -2099,7 +2099,7 @@ cfwdelem::send_packet_in_message(
 
 
 
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_packet_in_message() "
 							"sending PACKET-IN for buffer_id:0x%x to controller %s",
 							this, buffer_id, ofctrl_find(ofctrl)->c_str());
 
@@ -2116,7 +2116,7 @@ cfwdelem::send_packet_in_message(
 
 			pack->pack();
 
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_packet_in_message() "
 							"sending PACKET-IN for buffer_id:0x%x pack: %s",
 							this, buffer_id, pack->c_str());
 
@@ -2141,7 +2141,7 @@ cfwdelem::send_packet_in_message(
 	uint8_t* data,
 	size_t datalen) throw(eFwdElemNoCtrl)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() ofctrl_list.size()=%d", this, ofctrl_list.size());
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_packet_in_message() ofctrl_list.size()=%d", this, ofctrl_list.size());
 
 	try {
 
@@ -2152,7 +2152,7 @@ cfwdelem::send_packet_in_message(
 
 			if (OFPCR_ROLE_SLAVE == ofctrl->role)
 			{
-				WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() ofctrl:%p is SLAVE", this, ofctrl);
+				WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_packet_in_message() ofctrl:%p is SLAVE", this, ofctrl);
 				continue;
 			}
 
@@ -2173,7 +2173,7 @@ cfwdelem::send_packet_in_message(
 
 			if (nse_list.size() > 1)
 			{
-				WRITELOG(CFWD, ROFL_WARN, "cfwdelem(%p) nse_list.size()=%d", this, nse_list.size());
+				WRITELOG(CFWD, WARN, "cfwdelem(%p) nse_list.size()=%d", this, nse_list.size());
 			}
 
 			if (nse_list.empty())
@@ -2198,7 +2198,7 @@ cfwdelem::send_packet_in_message(
 		}
 #endif
 
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_packet_in_message() "
 							"sending PACKET-IN for buffer_id:0x%x to controller %s",
 							this, buffer_id, ofctrl->c_str());
 
@@ -2215,7 +2215,7 @@ cfwdelem::send_packet_in_message(
 
 			pack->pack();
 
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_packet_in_message() "
 							"sending PACKET-IN for buffer_id:0x%x pack: %s",
 							this, buffer_id, pack->c_str());
 
@@ -2226,7 +2226,7 @@ cfwdelem::send_packet_in_message(
 
 	} catch (eFspNoMatch& e) {
 		cpacket pack(data, datalen);
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() no ctrl found for packet: %s", this, pack.c_str());
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_packet_in_message() no ctrl found for packet: %s", this, pack.c_str());
 		throw eFwdElemNoCtrl();
 	}
 }
@@ -2239,7 +2239,7 @@ cfwdelem::fe_up_packet_in(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::fe_up_packet_in() PACKET-IN received: %s", dpname.c_str(), pack->c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%s)::fe_up_packet_in() PACKET-IN received: %s", dpname.c_str(), pack->c_str());
 
 	try {
 		check_up_packet(pack, OFPT_PACKET_IN, entity);
@@ -2249,10 +2249,10 @@ cfwdelem::fe_up_packet_in(
 		register_timer(TIMER_FE_HANDLE_PACKET_IN, 0);
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_packet_in() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_packet_in() malformed packet received", this);
 		delete pack;
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_packet_in() PACKET-IN from non registered entity %s", this, pack->c_str());
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_packet_in() PACKET-IN from non registered entity %s", this, pack->c_str());
 		delete pack;
 	}
 }
@@ -2274,7 +2274,7 @@ cfwdelem::recv_packet_in()
 		ofswitch_find(pack->entity)->packet_in_rcvd(pack);
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "packet received from non-attached entity");
+		WRITELOG(CFWD, DBG, "packet received from non-attached entity");
 
 		delete pack;
 
@@ -2317,7 +2317,7 @@ cfwdelem::fe_down_barrier_request(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		check_down_packet(pack, OFPT_BARRIER_REQUEST, entity);
@@ -2327,12 +2327,12 @@ cfwdelem::fe_down_barrier_request(
 
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_barrier_request() packet from non-controlling entity dropped", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_barrier_request() packet from non-controlling entity dropped", this);
 		//entity->dpath_detach(this);
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_barrier_request() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_barrier_request() malformed packet received", this);
 		delete pack;
 	}
 }
@@ -2341,7 +2341,7 @@ cfwdelem::fe_down_barrier_request(
 void
 cfwdelem::recv_barrier_request()
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_barrier_request() "
+	WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_barrier_request() "
 			"fe_down_queue[OFPT_BARRIER_REQUEST].size()=%d",
 			dpname.c_str(), fe_down_queue[OFPT_BARRIER_REQUEST].size());
 
@@ -2368,7 +2368,7 @@ cfwdelem::send_barrier_reply(
 		cofctrl* ofctrl,
 		uint32_t xid)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem::send_barrier_reply() "
+	WRITELOG(CFWD, DBG, "cfwdelem::send_barrier_reply() "
 			"fe_down_queue[OFPT_BARRIER_REQUEST].size()=%d", fe_down_queue[OFPT_BARRIER_REQUEST].size());
 
 	cofpacket_barrier_reply *pack = new cofpacket_barrier_reply(xid);
@@ -2383,7 +2383,7 @@ cfwdelem::fe_up_barrier_reply(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::fe_up_barrier_reply() ", dpname.c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%s)::fe_up_barrier_reply() ", dpname.c_str());
 
 	try {
 		//CHECK_PACKET(pack, OFPT_BARRIER_REPLY);
@@ -2395,17 +2395,17 @@ cfwdelem::fe_up_barrier_reply(
 		ofswitch_find(pack->entity)->barrier_reply_rcvd(pack);
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_barrier_reply() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_barrier_reply() malformed packet received", this);
 
 		delete pack;
 
 	} catch (eOFbaseXidInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_barrier_reply() invalid session exchange xid "
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_barrier_reply() invalid session exchange xid "
 					"(%u) received", this, be32toh(pack->ofh_header->xid));
 		delete pack;
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_barrier_reply() packet received from non-attached entity", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_barrier_reply() packet received from non-attached entity", this);
 
 		delete pack;
 	}
@@ -2422,7 +2422,7 @@ cfwdelem::send_role_request(
 	uint32_t role,
 	uint64_t generation_id)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_role_request()", this);
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_role_request()", this);
 
 	cofpacket_role_request *pack = new cofpacket_role_request(
 										ta_add_request(OFPT_ROLE_REQUEST),
@@ -2438,7 +2438,7 @@ cfwdelem::fe_down_role_request(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		check_down_packet(pack, OFPT_ROLE_REQUEST, entity);
@@ -2447,12 +2447,12 @@ cfwdelem::fe_down_role_request(
 		register_timer(TIMER_FE_HANDLE_ROLE_REQUEST, 0);
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_role_request() packet from non-controlling entity dropped", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_role_request() packet from non-controlling entity dropped", this);
 		//entity->dpath_detach(this);
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_role_request() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_role_request() malformed packet received", this);
 		delete pack;
 	}
 }
@@ -2490,7 +2490,7 @@ cfwdelem::send_role_reply(
 		uint32_t role,
 		uint64_t generation_id)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_role_reply()", this);
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_role_reply()", this);
 
 	cofpacket_role_reply *pack = new cofpacket_role_reply(
 										xid,
@@ -2507,7 +2507,7 @@ cfwdelem::fe_up_role_reply(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		check_up_packet(pack, OFPT_ROLE_REPLY, entity);
@@ -2517,17 +2517,17 @@ cfwdelem::fe_up_role_reply(
 		register_timer(TIMER_FE_HANDLE_ROLE_REPLY, 0);
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_barrier_reply() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_barrier_reply() malformed packet received", this);
 
 		delete pack;
 
 	} catch (eOFbaseXidInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_barrier_reply() invalid session exchange xid "
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_barrier_reply() invalid session exchange xid "
 					"(%u) received", this, be32toh(pack->ofh_header->xid));
 		delete pack;
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_barrier_reply() packet received from non-attached entity", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_barrier_reply() packet received from non-attached entity", this);
 
 		delete pack;
 	}
@@ -2573,7 +2573,7 @@ cfwdelem::send_error_message(
 	uint8_t* data,
 	size_t datalen)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem::send_error_message()");
+	WRITELOG(CFWD, DBG, "cfwdelem::send_error_message()");
 
 	std::map<cofbase*, cofctrl*>::iterator it;
 	for (it = ofctrl_list.begin(); it != ofctrl_list.end(); ++it)
@@ -2592,7 +2592,7 @@ cfwdelem::fe_up_error(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		//CHECK_PACKET(pack, OFPT_ERROR);
@@ -2603,10 +2603,10 @@ cfwdelem::fe_up_error(
 		register_timer(TIMER_FE_HANDLE_ERROR, 0);
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_error() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_error() malformed packet received", this);
 		delete pack;
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_error() packet received from non-attached entity", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_error() packet received from non-attached entity", this);
 		delete pack;
 	}
 }
@@ -2627,7 +2627,7 @@ cfwdelem::recv_error()
 		handle_error(ofswitch_find(pack->entity), pack);
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "packet received from non-attached entity");
+		WRITELOG(CFWD, DBG, "packet received from non-attached entity");
 
 		delete pack;
 
@@ -2686,7 +2686,7 @@ cfwdelem::send_flow_mod_message(
 
 	flow_mod->pack();
 
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_flow_mod_message() pack: %s", this, flow_mod->c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_flow_mod_message() pack: %s", this, flow_mod->c_str());
 
 	// straight call to layer-(n-1) entity's fe_down_flow_mod() method
 	ofswitch_find(sw)->entity->fe_down_flow_mod(this, flow_mod);
@@ -2721,7 +2721,7 @@ cfwdelem::send_flow_mod_message(
 
 	flow_mod->pack();
 
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_flow_mod_message() pack: %s",
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_flow_mod_message() pack: %s",
 			this, flow_mod->c_str());
 
 	// straight call to layer-(n-1) entity's fe_down_flow_mod() method
@@ -2738,7 +2738,7 @@ cfwdelem::fe_down_flow_mod(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		check_down_packet(pack, OFPT_FLOW_MOD, entity);
@@ -2747,20 +2747,20 @@ cfwdelem::fe_down_flow_mod(
 		register_timer(TIMER_FE_HANDLE_FLOW_MOD, 0);
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "packet from non-controlling entity dropped");
+		WRITELOG(CFWD, DBG, "packet from non-controlling entity dropped");
 		//entity->dpath_detach(this);
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_flow_mod() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_flow_mod() malformed packet received", this);
 		delete pack;
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_flow_mod() flow-mod from non-attached entity received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_flow_mod() flow-mod from non-attached entity received", this);
 		delete pack;
 
 	} catch (eActionBadLen& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_flow_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_flow_mod() "
 				 "bad action len", this);
 		send_error_message(ofctrl_find(entity), OFPET_BAD_ACTION, OFPBAC_BAD_LEN,
 				(uint8_t*)pack->soframe(), pack->framelen());
@@ -2788,7 +2788,7 @@ cfwdelem::recv_flow_mod()
 
 	} catch (eActionBadLen& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_flow_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_flow_mod() "
 				"invalid flow-mod packet received: action with bad length", dpname.c_str());
 
 		send_error_message(
@@ -2801,7 +2801,7 @@ cfwdelem::recv_flow_mod()
 
 	} catch (eFlowTableEntryOverlaps& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_flow_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_flow_mod() "
 				"flow-entry error: entry overlaps", dpname.c_str());
 
 		send_error_message(
@@ -2814,7 +2814,7 @@ cfwdelem::recv_flow_mod()
 
 	} catch (eFspNotAllowed& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_flow_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_flow_mod() "
 				"-FLOW-MOD- blocked due to mismatch in nsp "
 				"registration", dpname.c_str());
 
@@ -2828,7 +2828,7 @@ cfwdelem::recv_flow_mod()
 
 	} catch (eFwdElemTableNotFound& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_flow_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_flow_mod() "
 				"invalid flow-table %d specified",
 				dpname.c_str(), pack->ofh_flow_mod->table_id);
 
@@ -2842,7 +2842,7 @@ cfwdelem::recv_flow_mod()
 
 	} catch (eInstructionInvalType& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_flow_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_flow_mod() "
 				"unknown instruction found", dpname.c_str());
 
 		send_error_message(
@@ -2855,7 +2855,7 @@ cfwdelem::recv_flow_mod()
 
 	} catch (eFwdElemGotoTableNotFound& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_flow_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_flow_mod() "
 				"GOTO-TABLE instruction with invalid table-id", dpname.c_str());
 
 		send_error_message(
@@ -2868,7 +2868,7 @@ cfwdelem::recv_flow_mod()
 
 	} catch (eInstructionBadExperimenter& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_flow_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_flow_mod() "
 				"unknown OFPIT_EXPERIMENTER extension received", dpname.c_str());
 
 		send_error_message(
@@ -2881,7 +2881,7 @@ cfwdelem::recv_flow_mod()
 
 	} catch (eOFmatchInvalBadValue& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_flow_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_flow_mod() "
 				"bad value in match structure", dpname.c_str());
 
 		send_error_message(
@@ -2894,14 +2894,14 @@ cfwdelem::recv_flow_mod()
 
 	} catch (eOFbaseNotAttached& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_flow_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_flow_mod() "
 				"eOFbaseNotAttached thrown", dpname.c_str());
 
 		delete pack;
 
 	} catch (cerror &e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_flow_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_flow_mod() "
 				"default catch for cerror exception", dpname.c_str());
 
 		send_error_message(
@@ -2945,7 +2945,7 @@ cfwdelem::send_group_mod_message(
 
 	pack->pack();
 
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_group_mod_message() %s", this, pack->c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_group_mod_message() %s", this, pack->c_str());
 
 	// straight call to layer-(n-1) entity's fe_down_flow_mod() method
 	ofswitch_find(sw)->entity->fe_down_group_mod(this, pack);
@@ -2960,7 +2960,7 @@ cfwdelem::fe_down_group_mod(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		check_down_packet(pack, OFPT_GROUP_MOD, entity);
@@ -2969,20 +2969,20 @@ cfwdelem::fe_down_group_mod(
 		register_timer(TIMER_FE_HANDLE_GROUP_MOD, 0);
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "packet from non-controlling entity dropped");
+		WRITELOG(CFWD, DBG, "packet from non-controlling entity dropped");
 		//entity->dpath_detach(this);
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_flow_mod() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_flow_mod() malformed packet received", this);
 		delete pack;
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_flow_mod() flow-mod from non-attached entity received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_flow_mod() flow-mod from non-attached entity received", this);
 		delete pack;
 
 	} catch (eActionBadLen& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_flow_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_flow_mod() "
 				 "bad action len", this);
 		send_error_message(ofctrl_find(entity), OFPET_BAD_ACTION, OFPBAC_BAD_LEN,
 				(uint8_t*)pack->soframe(), pack->framelen());
@@ -3009,7 +3009,7 @@ cfwdelem::recv_group_mod()
 
 	} catch (eActionBadLen& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_group_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_group_mod() "
 				"invalid group-mod packet received: action with "
 				"bad length", dpname.c_str());
 
@@ -3070,7 +3070,7 @@ cfwdelem::fe_down_port_mod(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "cfwdelem(%s)::fe_down_port_mod()", dpname.c_str());
+	WRITELOG(UNKNOWN, DBG, "cfwdelem(%s)::fe_down_port_mod()", dpname.c_str());
 
 	try {
 		check_down_packet(pack, OFPT_PORT_MOD, entity);
@@ -3079,12 +3079,12 @@ cfwdelem::fe_down_port_mod(
 		register_timer(TIMER_FE_HANDLE_PORT_MOD, 0);
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_port_mod() packet from non-controlling entity dropped", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_port_mod() packet from non-controlling entity dropped", this);
 		//entity->dpath_detach(this);
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_port_mod() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_port_mod() malformed packet received", this);
 		delete pack;
 	}
 }
@@ -3146,7 +3146,7 @@ cfwdelem::send_table_mod_message(
 										table_id,
 										config);
 
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_table_mod_message() %s", this, pack->c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_table_mod_message() %s", this, pack->c_str());
 
 	// straight call to layer-(n-1) entity's fe_down_table_mod() method
 	ofswitch_find(sw)->entity->fe_down_table_mod(this, pack);
@@ -3161,7 +3161,7 @@ cfwdelem::fe_down_table_mod(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		check_down_packet(pack, OFPT_TABLE_MOD, entity);
@@ -3170,16 +3170,16 @@ cfwdelem::fe_down_table_mod(
 		register_timer(TIMER_FE_HANDLE_TABLE_MOD, 0);
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_table_mod() packet from non-controlling entity dropped", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_table_mod() packet from non-controlling entity dropped", this);
 		//entity->dpath_detach(this);
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_table_mod() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_table_mod() malformed packet received", this);
 		delete pack;
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_table_mod() flow-mod from non-attached entity received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_table_mod() flow-mod from non-attached entity received", this);
 		delete pack;
 
 	}
@@ -3204,7 +3204,7 @@ cfwdelem::recv_table_mod()
 
 	} catch (eFlowTableInval& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_table_mod() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_table_mod() "
 				"invalid table-mod packet received", dpname.c_str());
 
 		send_error_message(
@@ -3251,7 +3251,7 @@ cfwdelem::send_flow_removed_message(
 	uint64_t byte_count)
 {
 	try {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_flow_removed_message()", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_flow_removed_message()", this);
 
 		//ofctrl_exists(ofctrl);
 
@@ -3262,7 +3262,7 @@ cfwdelem::send_flow_removed_message(
 
 			if (OFPCR_ROLE_SLAVE == ofctrl->role)
 			{
-				WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_flow_removed_message() ofctrl:%p is SLAVE", this, ofctrl);
+				WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_flow_removed_message() ofctrl:%p is SLAVE", this, ofctrl);
 				continue;
 			}
 
@@ -3284,14 +3284,14 @@ cfwdelem::send_flow_removed_message(
 
 			pack->pack();
 
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_flow_removed_message() to controller %s", this, ofctrl->c_str());
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_flow_removed_message() to controller %s", this, ofctrl->c_str());
 
 			// straight call to layer-(n+1) entity's fe_up_packet_in() method
 			ofctrl_find(ofctrl)->ctrl->fe_up_flow_removed(this, pack);
 		}
 
 	} catch (eFwdElemNotFound& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_flow_removed_message() cofctrl instance not found", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_flow_removed_message() cofctrl instance not found", this);
 	}
 
 }
@@ -3302,7 +3302,7 @@ cfwdelem::fe_up_flow_removed(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		//CHECK_PACKET(pack, OFPT_FLOW_REMOVED);
@@ -3313,10 +3313,10 @@ cfwdelem::fe_up_flow_removed(
 		register_timer(TIMER_FE_HANDLE_FLOW_REMOVED, 0);
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_flow_removed() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_flow_removed() malformed packet received", this);
 		delete pack;
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_flow_removed() packet received from non-attached entity", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_flow_removed() packet received from non-attached entity", this);
 		delete pack;
 	}
 }
@@ -3339,7 +3339,7 @@ cfwdelem::recv_flow_removed()
 		handle_flow_removed(sw, pack);
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "packet received from non-attached entity");
+		WRITELOG(CFWD, DBG, "packet received from non-attached entity");
 
 		delete pack;
 
@@ -3367,7 +3367,7 @@ cfwdelem::send_port_status_message(
 	uint8_t reason,
 	cofport *port)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem::send_port_status_message() %s", port->c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem::send_port_status_message() %s", port->c_str());
 	struct ofp_port phy_port;
 	send_port_status_message(reason, port->pack(&phy_port, sizeof(phy_port)));
 }
@@ -3378,14 +3378,14 @@ cfwdelem::send_port_status_message(
 	uint8_t reason,
 	struct ofp_port *phy_port)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::send_port_status_message()", get_s_dpid());
+	WRITELOG(CFWD, DBG, "cfwdelem(%s)::send_port_status_message()", get_s_dpid());
 	//if (!ctrl)
 	//	throw eFwdElemNoCtrl();
 
 	std::map<cofbase*, cofctrl*>::iterator it;
 	for (it = ofctrl_list.begin(); it != ofctrl_list.end(); ++it)
 	{
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_port_status_message() to ctrl %s", this, it->second->c_str());
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::send_port_status_message() to ctrl %s", this, it->second->c_str());
 
 		cofpacket_port_status *pack = new cofpacket_port_status(
 												ta_new_async_xid(),
@@ -3405,7 +3405,7 @@ cfwdelem::fe_up_port_status(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::fe_up_port_status() pack(%p): %s", get_s_dpid(), pack, pack->c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%s)::fe_up_port_status() pack(%p): %s", get_s_dpid(), pack, pack->c_str());
 
 	try {
 		//CHECK_PACKET(pack, OFPT_PORT_STATUS);
@@ -3416,10 +3416,10 @@ cfwdelem::fe_up_port_status(
 		register_timer(TIMER_FE_HANDLE_PORT_STATUS, 0);
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_port_status() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_port_status() malformed packet received", this);
 		delete pack;
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_port_status() packet received from non-attached entity", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_port_status() packet received from non-attached entity", this);
 		delete pack;
 	}
 }
@@ -3441,12 +3441,12 @@ cfwdelem::recv_port_status()
 		sw->port_status_rcvd(pack);
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_port_status() packet received from non-attached entity", get_s_dpid());
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_port_status() packet received from non-attached entity", get_s_dpid());
 
 		delete pack;
 
 	} catch (...) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::recv_port_status() GENERIC ERROR", get_s_dpid());
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_port_status() GENERIC ERROR", get_s_dpid());
 
 		delete pack;
 
@@ -3485,7 +3485,7 @@ cfwdelem::fe_down_queue_get_config_request(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		check_down_packet(pack, OFPT_QUEUE_GET_CONFIG_REQUEST, entity);
@@ -3494,12 +3494,12 @@ cfwdelem::fe_down_queue_get_config_request(
 		register_timer(TIMER_FE_SEND_QUEUE_GET_CONFIG_REPLY, 0);
 
 	} catch (eFwdElemNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_queue_get_config_request() packet from non-controlling entity dropped", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_queue_get_config_request() packet from non-controlling entity dropped", this);
 		//entity->dpath_detach(this);
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_queue_get_config_request() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_queue_get_config_request() malformed packet received", this);
 		delete pack;
 	}
 }
@@ -3508,7 +3508,7 @@ cfwdelem::fe_down_queue_get_config_request(
 void
 cfwdelem::send_queue_get_config_reply()
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem::send_queue_get_config_reply()");
+	WRITELOG(CFWD, DBG, "cfwdelem::send_queue_get_config_reply()");
 
 	if (fe_down_queue[OFPT_QUEUE_GET_CONFIG_REQUEST].empty())
 		return;
@@ -3539,7 +3539,7 @@ cfwdelem::fe_up_queue_get_config_reply(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		//CHECK_PACKET(pack, OFPT_QUEUE_GET_CONFIG_REPLY);
@@ -3550,16 +3550,16 @@ cfwdelem::fe_up_queue_get_config_reply(
 		handle_queue_get_config_reply(ofswitch_find(pack->entity), pack);
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_queue_get_config_reply() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_queue_get_config_reply() malformed packet received", this);
 		delete pack;
 
 	} catch (eOFbaseXidInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_queue_get_config_reply() invalid session exchange xid "
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_queue_get_config_reply() invalid session exchange xid "
 					"(%u) received", this, be32toh(pack->ofh_header->xid));
 		delete pack;
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_queue_get_config_reply() packet received from non-attached entity", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_queue_get_config_reply() packet received from non-attached entity", this);
 		delete pack;
 	}
 }
@@ -3574,7 +3574,7 @@ cfwdelem::fe_down_experimenter_message(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		check_down_packet(pack, OFPT_EXPERIMENTER, entity);
@@ -3583,12 +3583,12 @@ cfwdelem::fe_down_experimenter_message(
 		register_timer(TIMER_FE_HANDLE_EXPERIMENTER, 0);
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_vendor_message() packet from non-controlling entity dropped", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_vendor_message() packet from non-controlling entity dropped", this);
 		//entity->dpath_detach(this);
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_vendor_message() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_down_vendor_message() malformed packet received", this);
 		delete pack;
 	}
 }
@@ -3599,7 +3599,7 @@ cfwdelem::fe_up_experimenter_message(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "%s()", __FUNCTION__);
+	WRITELOG(UNKNOWN, DBG, "%s()", __FUNCTION__);
 
 	try {
 		check_up_packet(pack, OFPT_EXPERIMENTER, entity);
@@ -3609,10 +3609,10 @@ cfwdelem::fe_up_experimenter_message(
 		register_timer(TIMER_FE_HANDLE_EXPERIMENTER, 0);
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_experimenter_message() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_experimenter_message() malformed packet received", this);
 		delete pack;
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_up_experimenter_message() packet received from non-attached entity", this);
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::fe_up_experimenter_message() packet received from non-attached entity", this);
 		delete pack;
 	}
 }
@@ -3670,7 +3670,7 @@ cfwdelem::send_experimenter_message(
 
 	pack->pack();
 
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::send_experimenter_message() -down- %s", get_s_dpid(), pack->c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%s)::send_experimenter_message() -down- %s", get_s_dpid(), pack->c_str());
 
 	if (NULL == sw) // send to all attached data path entities
 	{
@@ -3707,7 +3707,7 @@ cfwdelem::send_experimenter_message(
 
 	pack->pack();
 
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::send_experimenter_message() -up- %s", get_s_dpid(), pack->c_str());
+	WRITELOG(CFWD, DBG, "cfwdelem(%s)::send_experimenter_message() -up- %s", get_s_dpid(), pack->c_str());
 
 	if (NULL == ctrl) // send to all attached controller entities
 	{

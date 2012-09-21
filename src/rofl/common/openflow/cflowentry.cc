@@ -9,7 +9,7 @@ cflowentry::cflowentry(uint16_t __type) throw (eFlowEntryOutOfMem) :
 		flow_mod(NULL),
 		flow_mod_area(sizeof(struct ofp_flow_mod) + 128/*space for instructions*/)
 {
-	WRITELOG(CFTTABLE, ROFL_DBG, "cflowentry(%p)::cflowentry()", this);
+	WRITELOG(CFTTABLE, DBG, "cflowentry(%p)::cflowentry()", this);
 
 	flow_mod = (struct ofp_flow_mod*)flow_mod_area.somem();
 
@@ -27,13 +27,13 @@ cflowentry::cflowentry(uint16_t __type) throw (eFlowEntryOutOfMem) :
 
 cflowentry::~cflowentry()
 {
-	WRITELOG(CFTTABLE, ROFL_DBG, "cflowentry(%p)::~cflowentry()", this);
+	WRITELOG(CFTTABLE, DBG, "cflowentry(%p)::~cflowentry()", this);
 }
 
 
 cflowentry::cflowentry(cflowentry const& fe)
 {
-	WRITELOG(CFTTABLE, ROFL_DBG, "cflowentry(%p)::cflowentry()", this);
+	WRITELOG(CFTTABLE, DBG, "cflowentry(%p)::cflowentry()", this);
 	*this = fe;
 }
 
@@ -57,7 +57,7 @@ cflowentry::operator= (const cflowentry& fe)
 void
 cflowentry::reset()
 {
-	WRITELOG(UNKNOWN, ROFL_DBG, "cflowentry(%p)::reset()", this);
+	WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::reset()", this);
 
 	match.reset();
 
@@ -396,41 +396,41 @@ cflowentry::pack()
 
 	size_t packlen = fm_len + ofmatch_len + instslen;
 
-	WRITELOG(UNKNOWN, ROFL_DBG, "cflowentry(%p)::pack() [-] instslen:%d matchlen:%d fmgenlen:%d packlen:%d",
+	WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [-] instslen:%d matchlen:%d fmgenlen:%d packlen:%d",
 			this,
 			instslen,
 			ofmatch_len,
 			fm_len,
 			packlen);
 
-	//WRITELOG(UNKNOWN, ROFL_DBG, "cflowentry(%p)::pack() instructions length: %d *this: %s", this, instslen, c_str());
+	//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() instructions length: %d *this: %s", this, instslen, c_str());
 
-	//WRITELOG(UNKNOWN, ROFL_DBG, "cflowentry(%p)::pack() [0] flow_mod_area: %s", this, flow_mod_area.c_str());
+	//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [0] flow_mod_area: %s", this, flow_mod_area.c_str());
 
 
 	if (packlen > flow_mod_area.memlen()) // not enough space, resize memory area for flow_mod
 	{
-		WRITELOG(UNKNOWN, ROFL_DBG, "cflowentry(%p)::pack() resizing flow_mod_area: from %d to %d",
+		WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() resizing flow_mod_area: from %d to %d",
 				this, flow_mod_area.memlen(), packlen);
 		flow_mod_area.resize(packlen);
 	}
 
 	flow_mod = (struct ofp_flow_mod*)flow_mod_area.somem();
 
-	//WRITELOG(UNKNOWN, ROFL_DBG, "cflowentry(%p)::pack() [1] flow_mod_area: %s", this, flow_mod_area.c_str());
+	//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [1] flow_mod_area: %s", this, flow_mod_area.c_str());
 
 
-	WRITELOG(UNKNOWN, ROFL_DBG, "cflowentry(%p)::pack() [1] flow_mod_area: %s", this, flow_mod_area.c_str());
+	WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [1] flow_mod_area: %s", this, flow_mod_area.c_str());
 
 	struct ofp_match* m = (struct ofp_match*)(flow_mod_area.somem() + fm_len);
 	match.pack(m, ofmatch_len);
 
-	WRITELOG(UNKNOWN, ROFL_DBG, "cflowentry(%p)::pack() [2] flow_mod_area: %s", this, flow_mod_area.c_str());
+	WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [2] flow_mod_area: %s", this, flow_mod_area.c_str());
 
 	struct ofp_instruction *insts = (struct ofp_instruction*)(flow_mod_area.somem() + fm_len + ofmatch_len);
 	instructions.pack(insts, instslen);
 
-	WRITELOG(UNKNOWN, ROFL_DBG, "cflowentry(%p)::pack() [3] flow_mod_area: %s", this, flow_mod_area.c_str());
+	WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [3] flow_mod_area: %s", this, flow_mod_area.c_str());
 
 	return packlen;
 }

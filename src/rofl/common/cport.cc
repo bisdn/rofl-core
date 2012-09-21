@@ -38,12 +38,12 @@ cport::cport(
 {
 	pthread_mutex_init(&queuelock, NULL);
 	cport::cport_list.insert(this);
-	WRITELOG(CPORT, ROFL_DBG, "cport(%p)::cport() %s", this, c_str());
+	WRITELOG(CPORT, DBG, "cport(%p)::cport() %s", this, c_str());
 }
 
 cport::~cport()
 {
-	WRITELOG(CPORT, ROFL_DBG, "cport(%p)::~cport() %s", this, c_str());
+	WRITELOG(CPORT, DBG, "cport(%p)::~cport() %s", this, c_str());
 
 	cport::cport_list.erase(this);
 
@@ -162,7 +162,7 @@ cport::attach(cport_owner *__owner) throw (ePortIsAttached)
 
 	powner->port_attach(this); // insert this cport into cport_owner portlist
 
-	WRITELOG(CPORT, ROFL_DBG, "cport(%p)::attach() owner: %p", this, powner);
+	WRITELOG(CPORT, DBG, "cport(%p)::attach() owner: %p", this, powner);
 
 	try {
 		cport_owner::exists(powner)->port_attach(this);
@@ -178,7 +178,7 @@ cport::detach() throw (ePortNotAttached)
 		throw ePortNotAttached();
 	}
 
-	WRITELOG(CPORT, ROFL_DBG, "cport(%p)::detach() owner: %p", this, powner);
+	WRITELOG(CPORT, DBG, "cport(%p)::detach() owner: %p", this, powner);
 
 	try {
 		cport_owner::exists(powner)->port_detach(this);
@@ -196,7 +196,7 @@ cport::attached(cport_owner *owner)
 void
 cport::detached(cport_owner *owner)
 {
-	WRITELOG(CPORT, ROFL_DBG, "cport::detached(): cport: %p owner: %p", this, owner);
+	WRITELOG(CPORT, DBG, "cport::detached(): cport: %p owner: %p", this, owner);
 	powner = NULL;
 }
 
@@ -205,7 +205,7 @@ void
 cport::enqueue(cpacket* pack)
 {
 
-	WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::enqueue(): port=%u, pack=%p",
+	WRITELOG(CPORT, DBG, "cport(%s:%p)::enqueue(): port=%u, pack=%p",
 			devname.c_str(), this, port_no, pack);
 
 	//fprintf(stdout, "cport ENQUEUE pack:%p\n", pack);
@@ -215,7 +215,7 @@ cport::enqueue(cpacket* pack)
 		pout_queue.push_back(pack);
 		pack->time_cport_enqueue.now();
 
-		WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::enqueue() ENQUEUE pout_queue.size():%d",
+		WRITELOG(CPORT, DBG, "cport(%s:%p)::enqueue() ENQUEUE pout_queue.size():%d",
 						devname.c_str(), this, pout_queue.size());
 
 		// update port statistics
@@ -236,7 +236,7 @@ cport::enqueue(cpacket* pack)
 				s_events.append(vas("%s ", (*it)->c_str()));
 			}
 
-			WRITELOG(CIOSRV, ROFL_DBG, "cport(%s:%p)::enqueue() ENQUEUE-ACTUAL-EVENT-LIST: %s",
+			WRITELOG(CIOSRV, DBG, "cport(%s:%p)::enqueue() ENQUEUE-ACTUAL-EVENT-LIST: %s",
 					devname.c_str(), this, s_events.c_str());
 		}
 #endif
@@ -245,7 +245,7 @@ cport::enqueue(cpacket* pack)
 		//if (pflags.test(CPORT_FLAG_POUT_QUEUE) && (pout_queue.size() > 1))
 		if (pflags.test(CPORT_FLAG_POUT_QUEUE))
 		{
-			WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::enqueue() ENQUEUE-FLAG-IS-SET",
+			WRITELOG(CPORT, DBG, "cport(%s:%p)::enqueue() ENQUEUE-FLAG-IS-SET",
 					devname.c_str(), this);
 			return; // event/timer POUT_QUEUE was already set
 		}
@@ -256,14 +256,14 @@ cport::enqueue(cpacket* pack)
 
 	if (tid == pthread_self())
 	{
-		WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::enqueue() ENQUEUE-FLAG-IS-NOT-SET waking up cport via timer",
+		WRITELOG(CPORT, DBG, "cport(%s:%p)::enqueue() ENQUEUE-FLAG-IS-NOT-SET waking up cport via timer",
 						devname.c_str(), this);
 
 		reset_timer(CPORT_TIMER_POUT_QUEUE, 0);
 	}
 	else
 	{
-		WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::enqueue() ENQUEUE-FLAG-IS-NOT-SET waking up cport via event",
+		WRITELOG(CPORT, DBG, "cport(%s:%p)::enqueue() ENQUEUE-FLAG-IS-NOT-SET waking up cport via event",
 						devname.c_str(), this);
 
 		notify(cevent(CPORT_EVENT_OUT_QUEUE));
@@ -274,17 +274,17 @@ cport::enqueue(cpacket* pack)
 void
 cport::handle_timeout(int opaque)
 {
-	WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::handle_timeout()",
+	WRITELOG(CPORT, DBG, "cport(%s:%p)::handle_timeout()",
 			devname.c_str(), this);
-	WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::handle_timeout()",
+	WRITELOG(CPORT, DBG, "cport(%s:%p)::handle_timeout()",
 			devname.c_str(), this);
 
-	WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::handle_timeout() timer expired: 0x%x",
+	WRITELOG(CPORT, DBG, "cport(%s:%p)::handle_timeout() timer expired: 0x%x",
 			devname.c_str(), this, opaque);
 
-	WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::handle_timeout()",
+	WRITELOG(CPORT, DBG, "cport(%s:%p)::handle_timeout()",
 			devname.c_str(), this);
-	WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::handle_timeout()",
+	WRITELOG(CPORT, DBG, "cport(%s:%p)::handle_timeout()",
 			devname.c_str(), this);
 
 	switch (opaque) {
@@ -293,7 +293,7 @@ cport::handle_timeout(int opaque)
 		{
 			Lock lock(&queuelock);
 			pflags.reset(CPORT_FLAG_POUT_QUEUE);
-			WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::handle_timeout() ENQUEUE-RESET-FLAG",
+			WRITELOG(CPORT, DBG, "cport(%s:%p)::handle_timeout() ENQUEUE-RESET-FLAG",
 							devname.c_str(), this);
 		}
 		//fprintf(stdout, "[7b] \n");
@@ -308,17 +308,17 @@ cport::handle_timeout(int opaque)
 void
 cport::handle_event(cevent const& ev)
 {
-	WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::handle_event()",
+	WRITELOG(CPORT, DBG, "cport(%s:%p)::handle_event()",
 			devname.c_str(), this);
-	WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::handle_event()",
+	WRITELOG(CPORT, DBG, "cport(%s:%p)::handle_event()",
 			devname.c_str(), this);
 
-	WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::handle_event() rcvd event: %s",
+	WRITELOG(CPORT, DBG, "cport(%s:%p)::handle_event() rcvd event: %s",
 			devname.c_str(), this, cevent(ev).c_str());
 
-	WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::handle_event()",
+	WRITELOG(CPORT, DBG, "cport(%s:%p)::handle_event()",
 			devname.c_str(), this);
-	WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::handle_event()",
+	WRITELOG(CPORT, DBG, "cport(%s:%p)::handle_event()",
 			devname.c_str(), this);
 
 	switch (ev.cmd) {
@@ -327,7 +327,7 @@ cport::handle_event(cevent const& ev)
 		{
 			Lock lock(&queuelock);
 			pflags.reset(CPORT_FLAG_POUT_QUEUE);
-			WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::handle_event() ENQUEUE-RESET-FLAG",
+			WRITELOG(CPORT, DBG, "cport(%s:%p)::handle_event() ENQUEUE-RESET-FLAG",
 							devname.c_str(), this);
 		}
 		//fprintf(stdout, "[8b] \n");
@@ -369,7 +369,7 @@ cport::get_port_no()
 const uint32_t
 cport::set_port_no(const uint32_t port_no)
 {
-	WRITELOG(CPORT, ROFL_DBG, "cport(%s:%p)::set_port_no(port_no=%d): this->port_no=%u",
+	WRITELOG(CPORT, DBG, "cport(%s:%p)::set_port_no(port_no=%d): this->port_no=%u",
 			devname.c_str(), this, port_no, this->port_no);
 	// check if port_no is already set:
 	if (this->port_no) {
@@ -389,13 +389,13 @@ cport::set_config(
 	{
 		if (config & OFPPC_PORT_DOWN)
 		{
-			WRITELOG(CPORT, ROFL_DBG, "cport(%s:%d)::set_config()   set -PORT-DOWN-",
+			WRITELOG(CPORT, DBG, "cport(%s:%d)::set_config()   set -PORT-DOWN-",
 						devname.c_str(), port_no);
 			this->config |= OFPPC_PORT_DOWN;
 		}
 		else
 		{
-			WRITELOG(CPORT, ROFL_DBG, "cport(%s:%d)::set_config() reset -PORT-DOWN-",
+			WRITELOG(CPORT, DBG, "cport(%s:%d)::set_config() reset -PORT-DOWN-",
 						devname.c_str(), port_no);
 			this->config &= ~OFPPC_PORT_DOWN;
 		}
@@ -405,13 +405,13 @@ cport::set_config(
 	{
 		if (config & OFPPC_NO_RECV)
 		{
-			WRITELOG(CPORT, ROFL_DBG, "cport(%s:%d)::set_config()   set -NO-RECV-",
+			WRITELOG(CPORT, DBG, "cport(%s:%d)::set_config()   set -NO-RECV-",
 									devname.c_str(), port_no);
 			this->config |= OFPPC_NO_RECV;
 		}
 		else
 		{
-			WRITELOG(CPORT, ROFL_DBG, "cport(%s:%d)::set_config() reset -NO-RECV-",
+			WRITELOG(CPORT, DBG, "cport(%s:%d)::set_config() reset -NO-RECV-",
 									devname.c_str(), port_no);
 			this->config &= ~OFPPC_NO_RECV;
 		}
@@ -421,13 +421,13 @@ cport::set_config(
 	{
 		if (config & OFPPC_NO_FWD)
 		{
-			WRITELOG(CPORT, ROFL_DBG, "cport(%s:%d)::set_config()   set -NO-FWD-",
+			WRITELOG(CPORT, DBG, "cport(%s:%d)::set_config()   set -NO-FWD-",
 									devname.c_str(), port_no);
 			this->config |= OFPPC_NO_FWD;
 		}
 		else
 		{
-			WRITELOG(CPORT, ROFL_DBG, "cport(%s:%d)::set_config() reset -NO-FWD-",
+			WRITELOG(CPORT, DBG, "cport(%s:%d)::set_config() reset -NO-FWD-",
 									devname.c_str(), port_no);
 			this->config &= ~OFPPC_NO_FWD;
 		}
@@ -437,13 +437,13 @@ cport::set_config(
 	{
 		if (config & OFPPC_NO_PACKET_IN)
 		{
-			WRITELOG(CPORT, ROFL_DBG, "cport(%s:%d)::set_config()   set -NO-PACKET-IN-",
+			WRITELOG(CPORT, DBG, "cport(%s:%d)::set_config()   set -NO-PACKET-IN-",
 									devname.c_str(), port_no);
 			this->config |= OFPPC_NO_PACKET_IN;
 		}
 		else
 		{
-			WRITELOG(CPORT, ROFL_DBG, "cport(%s:%d)::set_config() reset -NO-PACKET-IN-",
+			WRITELOG(CPORT, DBG, "cport(%s:%d)::set_config() reset -NO-PACKET-IN-",
 									devname.c_str(), port_no);
 			this->config &= ~OFPPC_NO_PACKET_IN;
 		}
@@ -454,7 +454,7 @@ cport::set_config(
 	 */
 	if (0 != advertise)
 	{
-		WRITELOG(CPORT, ROFL_DBG, "cport(%s:%d)::set_config() advertise:0x%x",
+		WRITELOG(CPORT, DBG, "cport(%s:%d)::set_config() advertise:0x%x",
 								devname.c_str(), port_no, advertise);
 		this->advertised = advertise;
 	}
@@ -496,7 +496,7 @@ cport::get_peer()
 
 cport::cport_owner::cport_owner()
 {
-	WRITELOG(CPORT, ROFL_DBG, "cport::cport_owner(%p)::cport_owner() -constructor-", this);
+	WRITELOG(CPORT, DBG, "cport::cport_owner(%p)::cport_owner() -constructor-", this);
 	cport_owner::cport_owner_list.insert(this);
 }
 
@@ -504,7 +504,7 @@ cport::cport_owner::cport_owner()
 cport::cport_owner::~cport_owner()
 {
 	cport_owner::cport_owner_list.erase(this);
-	WRITELOG(CPORT, ROFL_DBG, "cport::cport_owner(%p)::~cport_owner() -destructor-", this);
+	WRITELOG(CPORT, DBG, "cport::cport_owner(%p)::~cport_owner() -destructor-", this);
 
 	for (std::map<cport*, std::deque<cpacket*> >::iterator
 			it = pin_queue.begin(); it != pin_queue.end(); ++it)
@@ -543,7 +543,7 @@ cport::cport_owner::port_attach(cport *port)
 	{
 		port_list.insert(port);
 		//fprintf(stdout, "cport(%s)::port_attach()",	port->devname.c_str());
-		WRITELOG(CPORT, ROFL_DBG, "cport(%s)::port_attach()",
+		WRITELOG(CPORT, DBG, "cport(%s)::port_attach()",
 				port->devname.c_str());
 		port->attached(this);
 

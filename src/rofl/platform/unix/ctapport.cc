@@ -10,7 +10,7 @@ ctapport::ctapport(std::string devname, int port_no, cmacaddr const& maddr) :
 	clinuxport(devname, std::string("phy"), port_no),
 	fd(-1)
 {
-	WRITELOG(CPORT, ROFL_DBG, "ctapport(%p)::ctapport dev(%s)", this, devname.c_str());
+	WRITELOG(CPORT, DBG, "ctapport(%p)::ctapport dev(%s)", this, devname.c_str());
 	tap_open(devname);
 	ctapport_list.insert(this);
 
@@ -21,7 +21,7 @@ ctapport::ctapport(std::string devname, int port_no, cmacaddr const& maddr) :
 			set_hw_addr(maddr);
 			enable_interface();
 		} catch (ePortSetHwAddrFailed& e) {
-			WRITELOG(CPORT, ROFL_WARN, "port (%s): "
+			WRITELOG(CPORT, WARN, "port (%s): "
 					"setting MAC address failed",
 					devname.c_str());
 		}
@@ -30,13 +30,13 @@ ctapport::ctapport(std::string devname, int port_no, cmacaddr const& maddr) :
 	get_port_no();
 	get_config();
 	get_hw_addr();
-	WRITELOG(CPORT, ROFL_DBG, c_str());
+	WRITELOG(CPORT, DBG, c_str());
 }
 
 
 ctapport::~ctapport()
 {
-	WRITELOG(CPORT, ROFL_DBG, "ctapport(%p)::~ctapport dev(%s)", this, devname.c_str());
+	WRITELOG(CPORT, DBG, "ctapport(%p)::~ctapport dev(%s)", this, devname.c_str());
 	ctapport_list.erase(this);
 	tap_close();
 }
@@ -45,7 +45,7 @@ ctapport::~ctapport()
 void
 ctapport::handle_revent(int fd)
 {
-	WRITELOG(CPORT, ROFL_DBG, "ctapport(%p)::handle_revent()", this);
+	WRITELOG(CPORT, DBG, "ctapport(%p)::handle_revent()", this);
 	class cpacket * pack = new cpacket();
 
 	try {
@@ -69,7 +69,7 @@ ctapport::handle_revent(int fd)
 		else
 		{
 
-			WRITELOG(CPORT, ROFL_DBG, "ctapport(%p)::handle_revent() %s", this, pack->c_str());
+			WRITELOG(CPORT, DBG, "ctapport(%p)::handle_revent() %s", this, pack->c_str());
 
 			port_owner()->store(this, new cpacket(mem, port_no));
 			port_owner()->enqueue(this);
@@ -101,10 +101,10 @@ ctapport::handle_wevent(int fd)
 
 		class cpacket * pack = pout_queue.front();
 
-		WRITELOG(CPORT, ROFL_DBG, "ctapport(%p)::handle_wevent() pout_queue.size()=%d", this, (int)pout_queue.size());
-		WRITELOG(CPORT, ROFL_DBG, "ctapport(%p)::handle_wevent() pout_queue.size()=%d %s", this, (int)pout_queue.size(), pack->c_str());
+		WRITELOG(CPORT, DBG, "ctapport(%p)::handle_wevent() pout_queue.size()=%d", this, (int)pout_queue.size());
+		WRITELOG(CPORT, DBG, "ctapport(%p)::handle_wevent() pout_queue.size()=%d %s", this, (int)pout_queue.size(), pack->c_str());
 
-		WRITELOG(CPORT, ROFL_DBG, "ctapport(%p)::handle_wevent() "
+		WRITELOG(CPORT, DBG, "ctapport(%p)::handle_wevent() "
 				 "pack[%p]:%s",
 				 this, pack, pack->c_str());
 
@@ -125,7 +125,7 @@ ctapport::handle_wevent(int fd)
 					throw eTapPortWriteFailed();
 				}
 			}
-			WRITELOG(CPORT, ROFL_DBG, "ctapport(%p)::handle_wevent() wrote %d bytes to socket %d", this, rc, fd);
+			WRITELOG(CPORT, DBG, "ctapport(%p)::handle_wevent() wrote %d bytes to socket %d", this, rc, fd);
 		}
 
 		delete pack;

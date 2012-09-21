@@ -6,13 +6,13 @@
 
 cofinlist::cofinlist()
 {
-	WRITELOG(COFINST, ROFL_DBG, "cofinlist(%p)::cofinlist()", this);
+	WRITELOG(COFINST, DBG, "cofinlist(%p)::cofinlist()", this);
 }
 
 
 cofinlist::~cofinlist()
 {
-	WRITELOG(COFINST, ROFL_DBG, "cofinlist(%p)::~cofinlist()", this);
+	WRITELOG(COFINST, DBG, "cofinlist(%p)::~cofinlist()", this);
 }
 
 
@@ -108,7 +108,7 @@ throw (eInListNotFound)
 	cofinlist::iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
-		WRITELOG(COFINST, ROFL_DBG, "cofinlist(%p)::find_inst() %d => %s",
+		WRITELOG(COFINST, DBG, "cofinlist(%p)::find_inst() %d => %s",
 				this, elems.size(), (*it).c_str());
 	}
 

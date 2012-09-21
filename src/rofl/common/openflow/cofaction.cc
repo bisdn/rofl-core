@@ -11,7 +11,7 @@ cofaction::cofaction(
 	size_t datalen) :
 	action(datalen)
 {
-	WRITELOG(COFACTION, ROFL_DBG, "cofaction(%p)::cofaction()", this);
+	WRITELOG(COFACTION, DBG, "cofaction(%p)::cofaction()", this);
 	oac_header = (struct ofp_action_header*)action.somem();
 }
 
@@ -21,7 +21,7 @@ cofaction::cofaction(
 	size_t aclen) throw (eActionBadLen, eActionBadOutPort) :
 	action(aclen)
 {
-	WRITELOG(COFACTION, ROFL_DBG, "cofaction(%p)::cofaction()", this);
+	WRITELOG(COFACTION, DBG, "cofaction(%p)::cofaction()", this);
 	oac_header = (struct ofp_action_header*)action.somem();
 
 	if (be16toh(oac_header->len) > aclen)
@@ -37,7 +37,7 @@ cofaction::cofaction(
 
 cofaction::~cofaction()
 {
-	WRITELOG(COFACTION, ROFL_DBG, "cofaction(%p)::~cofaction()", this);
+	WRITELOG(COFACTION, DBG, "cofaction(%p)::~cofaction()", this);
 }
 
 
@@ -91,7 +91,7 @@ throw (eActionBadLen, eActionBadOutPort)
 
 	memcpy((uint8_t*)oac_header, (uint8_t*)achdr, aclen);
 
-	WRITELOG(COFACTION, ROFL_DBG, "cofaction(%p)::unpack() oac_header: %p action: %s",
+	WRITELOG(COFACTION, DBG, "cofaction(%p)::unpack() oac_header: %p action: %s",
 			this, oac_header, action.c_str());
 
 	if (be16toh(oac_header->len) < sizeof(struct ofp_action_header))
@@ -240,7 +240,7 @@ throw (eActionBadLen, eActionBadOutPort)
 		}
 		break;
 	default:
-		WRITELOG(COFACTION, ROFL_DBG, "cofaction(%p)::__parse_action() invalid action type %d => %s", this, be16toh(oac_header->type), action.c_str());
+		WRITELOG(COFACTION, DBG, "cofaction(%p)::__parse_action() invalid action type %d => %s", this, be16toh(oac_header->type), action.c_str());
 		throw eActionInvalType();
 		break;
 	}
@@ -317,7 +317,7 @@ cofaction::length()
 		return action.memlen();
 
 	default:
-		WRITELOG(COFACTION, ROFL_DBG, "cofaction(%p)::actionlen() unknown action type %d => action: %s", this, be16toh(oac_header->type), action.c_str());
+		WRITELOG(COFACTION, DBG, "cofaction(%p)::actionlen() unknown action type %d => action: %s", this, be16toh(oac_header->type), action.c_str());
 		throw eActionInvalType();
 	}
 }

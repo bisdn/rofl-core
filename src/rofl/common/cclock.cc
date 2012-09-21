@@ -208,7 +208,7 @@ cclock::current_time()
 
 	if ((rc = clock_gettime(CLOCK_REALTIME, &ts)) < 0)
 	{
-		WRITELOG(CCLOCK, ROFL_DBG, "cclock(%p) failed to read time: errno:%d (%s)",
+		WRITELOG(CCLOCK, DBG, "cclock(%p) failed to read time: errno:%d (%s)",
 				this, errno, strerror(errno));
 	}
 }

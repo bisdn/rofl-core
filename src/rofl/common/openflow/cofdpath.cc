@@ -23,7 +23,7 @@ cofdpath::cofdpath(
 	stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
 	barrier_reply_timeout(DEFAULT_DB_BARRIER_REPLY_TIMEOUT)
 {
-	WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::cofdpath() "
+	WRITELOG(COFDPATH, DBG, "cofdpath(%p)::cofdpath() "
 			"dpid:%"UINT64DBGFMT" child:%p",
 			this, dpid, entity);
 
@@ -39,7 +39,7 @@ cofdpath::cofdpath(
 
 cofdpath::~cofdpath()
 {
-	WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::~cofdpath() "
+	WRITELOG(COFDPATH, DBG, "cofdpath(%p)::~cofdpath() "
 			"dpid:%"UINT64DBGFMT" child:%p\n %s",
 			this, dpid, entity, this->c_str());
 
@@ -71,7 +71,7 @@ cofdpath::handle_timeout(int opaque)
 	switch (opaque) {
 	case COFDPATH_TIMER_FEATURES_REQUEST:
 		{
-			WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p): sending -FEATURES-REQUEST-", this);
+			WRITELOG(COFDPATH, DBG, "cofdpath(%p): sending -FEATURES-REQUEST-", this);
 			fwdelem->send_features_request(this);
 		}
 		break;
@@ -82,7 +82,7 @@ cofdpath::handle_timeout(int opaque)
 		break;
 	case COFDPATH_TIMER_GET_CONFIG_REQUEST:
 		{
-			WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p): sending -GET-CONFIG-REQUEST-", this);
+			WRITELOG(COFDPATH, DBG, "cofdpath(%p): sending -GET-CONFIG-REQUEST-", this);
 			fwdelem->send_get_config_request(this);
 		}
 		break;
@@ -93,7 +93,7 @@ cofdpath::handle_timeout(int opaque)
 		break;
 	case COFDPATH_TIMER_STATS_REQUEST:
 		{
-			WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p): sending -STATS-REQUEST-", this);
+			WRITELOG(COFDPATH, DBG, "cofdpath(%p): sending -STATS-REQUEST-", this);
 			fwdelem->send_stats_request(this, OFPST_TABLE, 0);
 		}
 		break;
@@ -104,7 +104,7 @@ cofdpath::handle_timeout(int opaque)
 		break;
 	case COFDPATH_TIMER_BARRIER_REQUEST:
 		{
-			WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p): sending -BARRIER-REQUEST-", this);
+			WRITELOG(COFDPATH, DBG, "cofdpath(%p): sending -BARRIER-REQUEST-", this);
 			fwdelem->send_barrier_request(this);
 		}
 		break;
@@ -114,7 +114,7 @@ cofdpath::handle_timeout(int opaque)
 		}
 		break;
 	default:
-		WRITELOG(COFDPATH, ROFL_DBG, "unknown timer event %d", opaque);
+		WRITELOG(COFDPATH, DBG, "unknown timer event %d", opaque);
 		ciosrv::handle_timeout(opaque);
 		break;
 	}
@@ -162,7 +162,7 @@ cofdpath::features_reply_rcvd(
 												sizeof(struct ofp_switch_features);
 
 
-		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::features_reply_rcvd() "
+		WRITELOG(COFDPATH, DBG, "cofdpath(%p)::features_reply_rcvd() "
 				"dpid:%"UINT64DBGFMT" ",
 				this, dpid);
 
@@ -170,7 +170,7 @@ cofdpath::features_reply_rcvd(
 
 		cofport::ports_parse(ports, pack->ofh_switch_features->ports, portslen);
 
-		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::features_reply_rcvd() %s", this, this->c_str());
+		WRITELOG(COFDPATH, DBG, "cofdpath(%p)::features_reply_rcvd() %s", this, this->c_str());
 
 
 		// dpid as std::string
@@ -198,7 +198,7 @@ cofdpath::features_reply_rcvd(
 
 	} catch (eOFportMalformed& e) {
 
-		WRITELOG(COFDPATH, ROFL_DBG, "exception: malformed FEATURES reply received");
+		WRITELOG(COFDPATH, DBG, "exception: malformed FEATURES reply received");
 
 		fwdelem->send_down_hello_message(this, true /*bye*/);
 
@@ -211,7 +211,7 @@ cofdpath::features_reply_rcvd(
 void
 cofdpath::handle_features_reply_timeout()
 {
-	WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::handle_features_reply_timeout() ", this);
+	WRITELOG(COFDPATH, DBG, "cofdpath(%p)::handle_features_reply_timeout() ", this);
 
 	fwdelem->handle_features_reply_timeout(this);
 
@@ -248,7 +248,7 @@ cofdpath::get_config_reply_rcvd(
 void
 cofdpath::handle_get_config_reply_timeout()
 {
-	WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::handle_get_config_reply_timeout() "
+	WRITELOG(COFDPATH, DBG, "cofdpath(%p)::handle_get_config_reply_timeout() "
 			"dpid:%"UINT64DBGFMT" ",
 			this, dpid);
 
@@ -328,7 +328,7 @@ cofdpath::stats_reply_rcvd(
 void
 cofdpath::handle_stats_reply_timeout()
 {
-	WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::handle_stats_reply_timeout() "
+	WRITELOG(COFDPATH, DBG, "cofdpath(%p)::handle_stats_reply_timeout() "
 			"dpid:%"UINT64DBGFMT" ",
 			this, dpid);
 
@@ -418,7 +418,7 @@ cofdpath::flow_mod_sent(
 		cofpacket *pack) throw (eOFdpathNotFound)
 {
 	try {
-		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::flow_mod_sent() table_id: %d", this, pack->ofh_flow_mod->table_id);
+		WRITELOG(COFDPATH, DBG, "cofdpath(%p)::flow_mod_sent() table_id: %d", this, pack->ofh_flow_mod->table_id);
 
 		if (0xff == pack->ofh_flow_mod->table_id)
 		{
@@ -438,12 +438,12 @@ cofdpath::flow_mod_sent(
 			// check for existence of flow_table with id pack->ofh_flow_mod->table_id first?
 			flow_tables[pack->ofh_flow_mod->table_id]->update_ft_entry(this, pack);
 
-			WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::flow_mod_sent() table-id:%d flow-table: %s",
+			WRITELOG(COFDPATH, DBG, "cofdpath(%p)::flow_mod_sent() table-id:%d flow-table: %s",
 					this, pack->ofh_flow_mod->table_id, flow_tables[pack->ofh_flow_mod->table_id]->c_str());
 		}
 
 	} catch (cerror& e) {
-		WRITELOG(CFTTABLE, ROFL_DBG, "unable to add ftentry to local flow_table instance");
+		WRITELOG(CFTTABLE, DBG, "unable to add ftentry to local flow_table instance");
 	}
 }
 
@@ -457,7 +457,7 @@ cofdpath::flow_rmvd_rcvd(
 		flow_tables[pack->ofh_flow_mod->table_id]->update_ft_entry(this, pack);
 
 	} catch (cerror& e) {
-		WRITELOG(CFTTABLE, ROFL_DBG, "unable to remove ftentry from local flow_table instance");
+		WRITELOG(CFTTABLE, DBG, "unable to remove ftentry from local flow_table instance");
 
 	}
 }
@@ -483,7 +483,7 @@ cofdpath::group_mod_sent(
 		grp_table.update_gt_entry(this, pack->ofh_group_mod);
 
 	} catch (cerror& e) {
-		WRITELOG(CFTTABLE, ROFL_DBG, "unable to handle gtentry within local grp_table instance");
+		WRITELOG(CFTTABLE, DBG, "unable to handle gtentry within local grp_table instance");
 
 	}
 }
@@ -525,7 +525,7 @@ void
 cofdpath::packet_in_rcvd(cofpacket *pack)
 {
 	try {
-		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() %s", dpid, pack->c_str());
+		WRITELOG(COFDPATH, DBG, "cofdpath(0x%llx)::packet_in_rcvd() %s", dpid, pack->c_str());
 
 		// update forwarding table
 		uint32_t in_port = pack->match.get_in_port();
@@ -537,14 +537,14 @@ cofdpath::packet_in_rcvd(cofpacket *pack)
 			// update local forwarding table
 			fwdtable.mac_learning(pack->packet, dpid, in_port);
 
-			WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() local fwdtable: %s",
+			WRITELOG(COFDPATH, DBG, "cofdpath(0x%llx)::packet_in_rcvd() local fwdtable: %s",
 					dpid, fwdtable.c_str());
 
 #if 0
 		fwdelem->fwdtable.mac_learning(ether, dpid, in_port);
 #endif
 
-			WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() global fwdtable: %s",
+			WRITELOG(COFDPATH, DBG, "cofdpath(0x%llx)::packet_in_rcvd() global fwdtable: %s",
 					dpid, fwdelem->fwdtable.c_str());
 
 			// let derived class handle PACKET-IN event
@@ -552,7 +552,7 @@ cofdpath::packet_in_rcvd(cofpacket *pack)
 		}
 	} catch (eOFmatchNotFound& e) {
 
-		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() "
+		WRITELOG(COFDPATH, DBG, "cofdpath(0x%llx)::packet_in_rcvd() "
 				"no in-port specified in Packet-In message", dpid);
 	}
 }
@@ -561,7 +561,7 @@ cofdpath::packet_in_rcvd(cofpacket *pack)
 void
 cofdpath::port_status_rcvd(cofpacket *pack)
 {
-	WRITELOG(COFDPATH, ROFL_DBG, "cfwdelem(%s)::cofdpath(0x%016llx)::port_status_rcvd() %s",
+	WRITELOG(COFDPATH, DBG, "cfwdelem(%s)::cofdpath(0x%016llx)::port_status_rcvd() %s",
 			fwdelem->get_s_dpid(), dpid, pack->c_str());
 
 	std::map<uint32_t, cofport*>::iterator it;

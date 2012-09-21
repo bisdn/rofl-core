@@ -7,7 +7,7 @@
 cofmatch::cofmatch(
 		uint16_t type)
 {
-	//WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::cofmatch() [1]", this);
+	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [1]", this);
 
 	bzero(&match, sizeof(match));
 
@@ -22,14 +22,14 @@ cofmatch::cofmatch(
 cofmatch::cofmatch(
 	struct ofp_match *__match, size_t __matchlen)
 {
-	//WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::cofmatch() [2]", this);
+	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [2]", this);
 
 	validate();
 }
 
 cofmatch::~cofmatch()
 {
-	//WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::~cofmatch()", this);
+	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::~cofmatch()", this);
 }
 
 
@@ -40,9 +40,9 @@ cofmatch::operator= (const cofmatch& m)
 		return *this;
 
 #if 0
-	WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::operator=() m:%p", this, &m);
+	WRITELOG(COFMATCH, DBG, "cofmatch(%p)::operator=() m:%p", this, &m);
 
-	WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::operator=() [1] *this: %s", this, this->c_str());
+	WRITELOG(COFMATCH, DBG, "cofmatch(%p)::operator=() [1] *this: %s", this, this->c_str());
 #endif
 
 	match.type 		= m.match.type;
@@ -50,7 +50,7 @@ cofmatch::operator= (const cofmatch& m)
 	oxmlist			= m.oxmlist;
 
 #if 0
-	WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::operator=() [2] *this: %s", this, this->c_str());
+	WRITELOG(COFMATCH, DBG, "cofmatch(%p)::operator=() [2] *this: %s", this, this->c_str());
 #endif
 
 	validate();
@@ -62,7 +62,7 @@ cofmatch::operator= (const cofmatch& m)
 void
 cofmatch::reset()
 {
-	//WRITELOG(COFMATCH, ROFL_DBG, "cofmatch(%p)::reset()", this);
+	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::reset()", this);
 
 	oxmlist.clear();
 	match.length = htobe16(length());
@@ -78,7 +78,7 @@ cofmatch::is_matching(
 		uint16_t& wildcard_matches,
 		uint16_t& missed)
 {
-	WRITELOG(COXMLIST, ROFL_DBG, "cofmatch(%p)::is_matching()", this);
+	WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_matching()", this);
 
 	exact_matches = 0;
 	wildcard_matches = 0;
@@ -94,7 +94,7 @@ cofmatch::is_matching(
 			// left side is null => wildcard match
 			wildcard_matches++;
 #if 0
-			WRITELOG(COXMLIST, ROFL_DBG, "cofmatch(%p)::is_matching() "
+			WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_matching() "
 					"wildcard match => left is 0", this);
 #endif
 
@@ -104,7 +104,7 @@ cofmatch::is_matching(
 			// left side is non-null, but right side is null => miss
 			missed++;
 
-			WRITELOG(COXMLIST, ROFL_DBG, "cofmatch(%p)::is_matching() "
+			WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_matching() "
 					"miss => left is %s != right is 0", this,
 					this->oxmlist[i].c_str());
 
@@ -114,7 +114,7 @@ cofmatch::is_matching(
 		{
 			// left and right side are non-null and do not match => miss
 
-			WRITELOG(COXMLIST, ROFL_DBG, "cofmatch(%p)::is_matching() "
+			WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_matching() "
 					"miss => %s != %s", this,
 					this->oxmlist[i].c_str(), other.oxmlist[i].c_str());
 
@@ -127,7 +127,7 @@ cofmatch::is_matching(
 			// left and right side are non-null and match => exact match
 			exact_matches++;
 
-			WRITELOG(COXMLIST, ROFL_DBG, "cofmatch(%p)::is_matching() "
+			WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_matching() "
 					"exact match => %s == %s", this,
 					this->oxmlist[i].c_str(), other.oxmlist[i].c_str());
 		}

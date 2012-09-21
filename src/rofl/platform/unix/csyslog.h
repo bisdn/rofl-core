@@ -10,6 +10,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <stdexcept>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,7 +55,6 @@ class csyslog {
 
 public:
 
-
 	enum DebugType {
 		LOGTYPE_FILE 	= 	0, /* log to file */
 		LOGTYPE_STDERR	= 	1, /* log to stderr */
@@ -62,101 +63,90 @@ public:
 
 	/* these are actually the same levels as used by syslog */
 	enum DebugLevel {
-		EMERGENCY		=	0,	/* system is unusable */
-		ALERT			=	1,	/* action must be taken immediately */
-		CRITICAL		=	2,	/* critical conditions */
-		ERROR			=	3,	/* error conditions */
-		WARN			=	4,	/* warning conditions */
-		NOTICE			=	5,	/* normal but significant condition */
-		INFO			=	6,	/* informational */
-		DBG				=	7,	/* debug-level messages */
-		ROFL_EMERGENCY	=	40,	/* system is unusable */
-		ROFL_ALERT		=	41,	/* action must be taken immediately */
-		ROFL_CRITICAL	=	42,	/* critical conditions */
-		ROFL_ERROR		=	43,	/* error conditions */
-		ROFL_WARN		=	44,	/* warning conditions */
-		ROFL_NOTICE		=	45,	/* normal but significant condition */
-		ROFL_INFO		=	46,	/* informational */
-		ROFL_DBG		=	47	/* debug-level messages */
+		UNDEF_DEBUG_LEVEL = -1,		  /* Undefined debug level */
+		EMERGENCY = 0	, /* = 0 system is unusable */
+		ALERT			, /* = 1 action must be taken immediately */
+		CRITICAL		, /* = 2 critical conditions */
+		ERROR			, /* = 3 error conditions */
+		WARN			, /* = 4 warning conditions */
+		NOTICE			, /* = 5 normal but significant condition */
+		INFO			, /* = 6 informational */
+		DBG				, /* = 7 debug-level messages */
+		MAX_DEBUG_LEVEL /* DO NOT USE */
+		/* do not put anything beyond MAX_DEBUG_LEVEL! */
 	};
 
 	/* all debug classes */
 	enum DebugClass {
 		/* currently not in use */
-		//#define CSYSLOG_PKB         3      // dump pkb related details
-		//#define CSYSLOG_CFWDENTRY	5		// dump cfwdentry details
-		//#define CSYSLOG_NETIO		30		// network IO (sockets, ...)
-		UNKNOWN = 0,		/* currently */
-		CSOCKET = 1,			/* dump socket details */
-		CIOSRV = 2,				/* dump io service details */
-		CPORT = 3,				/* dump port activities */
-		CPORT_CONFIG = 4,		/* dump port configuration activities */
-		COFDPATH = 5,			/* dump all cofswitch internals */
-		CPCP = 6,				/* dump PCP operations */
-		CPACKET = 7,			/* dump all packets */
-		COFPACKET = 8,			/* dump PCP packet contents */
-		FTE = 9,				/* dump FTE operations */
-		CFWD = 10,				/* dump forwarding details */
-		FWDTABLE = 11,			/* dump cfwdtable details */
-		CFTTABLE = 12,			/* dump all cfttable internals */
-		TERMINUS = 13,			/* dump all terminus internals */
-		COFRPC = 14,			/* dump all cofrpc internals */
-		CDATAPATH = 15,			/* datapath emulator */
-		LLDP = 16,				/* LLDP */
-		COFACTION = 17,			/* dump cofaction details */
-		XID = 18,				/* OpenFlow transactions (session xids) */
-		CLI = 19,				/* dump CLI details */
-		CTEST = 20,				/* dump test details */
-		HARDWARE_GENERAL = 21,	/* hardware specific logging */
-		HARDWARE_PORT = 22,		/* hardware-port specific logging */
-		COFCTRL = 23,			/* dump all cofctrl internals */
-		CNAMESPACE = 24,		/* dump namespace table internals */
-		CMEMORY = 25,			/* dump cmemory internals */
-		CFRAME = 26,			/* dump frame internals */
-		COFINST = 27,			/* dump cofinst internals */
-		CGTTABLE = 28, 			/* dump cgttable internals */
-		CUNITTEST = 29,			/* dump cunittest internals */
-		CPKBUF = 30,			/* dump cofpkbuf internals */
-		CRIB = 31,				/* dump croute internals */
-		CFIBENTRY = 32,			/* dump cfibentry internals */
-		CLLDPTLV = 33,			/* dump clldptlv internals */
-		COFMATCH = 34,			/* dump cofmatch internals */
-		CPPPOETLV = 35,			/* dump cpppoetlv internals */
-		FFRAME = 36,			/* dump fframe internals */
-		CFTSEARCH = 37, 		/* dump cftsearch internals */
-		FPPPFRAME = 38,			/* dump fpppframe internals */
-		CETHCTL = 39,			/* dump cethctl internals */
-		CIPCTL = 40, 			/* dump cipctl internals */
-		CPIPE = 41, 			/* dump cpipe internals */
-		CFWDENGINE = 42,		/* dump cfwdengine internals */
-		CPKBSTORE = 43, 		/* dump cpkbstore internals */
-		CPKBQUEUE = 44,			/* dump cpkbqueue internals */
-		CCTLMOD = 45,			/* dump cctlmod internals */
-		CTHREAD  = 46,			/* dump thread internals */
-		CMEMPOOL = 47,			/* dump memory pool internals */
-		CCLOCK = 48,			/* dump clock internals */
-		COXMLIST = 49,			/* dump coxmlist internals */
-		COXMATCH = 50,			/* dump coxmatch internals */
-		CCONFIG = 51,			/* dump configuration internals */
-		CPPP = 52,				/* dump cppp internals */
-		COFBUCKET = 53,			/* dump cofbucket internals */
-		CGTENTRY = 54,			/* dump cgtentry internals */
-		MAX_DEBUG_CLASSES		/* not for debugging use! */
+		UNDEF_DEBUG_CLASS = -1, /* Undefined debug class */
+		UNKNOWN = 0,		/* 0 currently */
+		CSOCKET,			/* 1 dump socket details */
+		CIOSRV,				/* 2 dump io service details */
+		CPORT,				/* 3 dump port activities */
+		CPORT_CONFIG,		/* 4 dump port configuration activities */
+		COFDPATH,			/* 5 dump all cofswitch internals */
+		CPCP,				/* 6 dump PCP operations */
+		CPACKET,			/* 7 dump all packets */
+		COFPACKET,			/* 8 dump PCP packet contents */
+		FTE,				/* 9 dump FTE operations */
+		CFWD,				/* 10 dump forwarding details */
+		FWDTABLE,			/* 11 dump cfwdtable details */
+		CFTTABLE,			/* 12 dump all cfttable internals */
+		TERMINUS,			/* 13 dump all terminus internals */
+		COFRPC,				/* 14 dump all cofrpc internals */
+		CDATAPATH,			/* 15 datapath emulator */
+		LLDP,				/* 16 LLDP */
+		COFACTION,			/* 17 dump cofaction details */
+		XID,				/* 18 OpenFlow transactions (session xids) */
+		CLI,				/* 19 dump CLI details */
+		CTEST,				/* 20 dump test details */
+		HARDWARE_GENERAL,	/* 21 hardware specific logging */
+		HARDWARE_PORT,		/* 22 hardware-port specific logging */
+		COFCTRL,			/* 23 dump all cofctrl internals */
+		CNAMESPACE,			/* 24 dump namespace table internals */
+		CMEMORY,			/* 25 dump cmemory internals */
+		CFRAME,				/* 26 dump frame internals */
+		COFINST,			/* 27 dump cofinst internals */
+		CGTTABLE,			/* 28 dump cgttable internals */
+		CUNITTEST,			/* 29 dump cunittest internals */
+		CPKBUF,				/* 30 dump cofpkbuf internals */
+		CRIB,				/* 31 dump croute internals */
+		CFIBENTRY,			/* 32 dump cfibentry internals */
+		CLLDPTLV,			/* 33 dump clldptlv internals */
+		COFMATCH,			/* 34 dump cofmatch internals */
+		CPPPOETLV,			/* 35 dump cpppoetlv internals */
+		FFRAME,				/* 36 dump fframe internals */
+		CFTSEARCH,			/* 37 dump cftsearch internals */
+		FPPPFRAME,			/* 38 dump fpppframe internals */
+		CETHCTL,			/* 39 dump cethctl internals */
+		CIPCTL,				/* 40 dump cipctl internals */
+		CPIPE,				/* 41 dump cpipe internals */
+		CFWDENGINE,			/* 42 dump cfwdengine internals */
+		CPKBSTORE,			/* 43 dump cpkbstore internals */
+		CPKBQUEUE,			/* 44 dump cpkbqueue internals */
+		CCTLMOD,			/* 45 dump cctlmod internals */
+		CTHREAD ,			/* 46 dump thread internals */
+		CMEMPOOL,			/* 47 dump memory pool internals */
+		CCLOCK,				/* 48 dump clock internals */
+		COXMLIST,			/* 49 dump coxmlist internals */
+		COXMATCH,			/* 50 dump coxmatch internals */
+		CCONFIG,			/* 51 dump configuration internals */
+		CPPP,				/* 52 dump cppp internals */
+		COFBUCKET,			/* 53 dump cofbucket internals */
+		CGTENTRY,			/* 54 dump cgtentry internals */
+		MAX_DEBUG_CLASSES	/* not for debugging use! */
 		/* do not put anything beyond MAX_DEBUG_CLASSES! */
 	};
-
 
 	static time_t start_time;
 	static int logtype;
 	static int option;     			// syslog option (default: LOG_CONS)
 	static int facility;     		// syslog facility (default: LOG_USER)
 	static std::string ident;   	// syslog ident
-	//static int debugClasses[];
-	static std::vector<int> debugClasses;
+	static std::vector<csyslog::DebugLevel> debugClasses;
 	static std::string filename; 	//< filename for logtype LOGTYPE_FILE
 	static FILE* filestream; 		//< file descriptor for logtype FILE
-
-
 
 public:     // static methods
 
@@ -164,8 +154,8 @@ public:     // static methods
 	 */
 	static void
 	initlog(
-			int logtype = LOGTYPE_SYSLOG,
-			int verbosity = 0,
+			enum DebugType logtype = LOGTYPE_SYSLOG,
+			enum DebugLevel = EMERGENCY,
 			std::string logfilename = std::string(LOGFILE_DEFAULT),
 			const char *ident = "rofl",
 			int facility = LOG_USER,
@@ -186,10 +176,58 @@ public:     // static methods
 	static void
 	flushlog();
 
+	static void
+	set_debug_level(const char * const class_name, const char * const level_name);
+
+	static void
+	set_debug_level(const std::string &class_name, const std::string &level_name);
+
+	static void
+	set_all_debug_levels(const char * const level_name);
+
+	static void
+	set_all_debug_levels(const std::string &level_name);
+
+	static void
+	set_all_debug_levels(const csyslog::DebugLevel level);
+
 	/** return file descriptor
 	 */
 	static int
 	getfd();
+
+	static const std::vector<std::string>&
+	get_level_names() {
+		return level_names;
+	}
+
+	static const std::vector<std::string>&
+	get_class_names() {
+		return class_names;
+	}
+
+	static const DebugLevel
+	debug_level_pton(const std::string &name);
+
+	static const DebugClass
+	debug_class_pton(const std::string &name);
+
+	static const std::string&
+	debug_level_ntop(DebugLevel l) throw (std::out_of_range);
+
+	static const std::string&
+	debug_class_ntop(DebugClass c) throw (std::out_of_range);
+
+private:
+
+	static void
+	init_level_names();
+
+	static void
+	init_class_names();
+
+	static std::vector<std::string> level_names;
+	static std::vector<std::string> class_names;
 };
 
 #endif

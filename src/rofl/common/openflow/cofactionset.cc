@@ -63,7 +63,7 @@ cofactionset::get_action_index(uint16_t action_type)
 void
 cofactionset::actionset_clear(cofinst& inst)
 {
-	WRITELOG(COFACTION, ROFL_DBG, "cofactionset(%p)::actionset_clear()", this);
+	WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_clear()", this);
 	acset.clear();
 
 	cofaclist::iterator at;
@@ -96,14 +96,14 @@ cofactionset::actionset_clear()
 void
 cofactionset::actionset_write_actions(cofinst& inst)
 {
-	WRITELOG(COFACTION, ROFL_DBG, "cofactionset(%p)::actionset_write_actions() inst->actions.elems.size()=%u", this, inst.actions.size());
+	WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_write_actions() inst->actions.elems.size()=%u", this, inst.actions.size());
 
 	cofaclist::iterator at;
 	for (at = inst.actions.begin(); at != inst.actions.end(); ++at)
 	{
 		cofaction& action = (*at);
 
-		WRITELOG(COFACTION, ROFL_DBG, "write action %u at position %u",
+		WRITELOG(COFACTION, DBG, "write action %u at position %u",
 				be16toh(action.oac_header->type),
 				cofactionset::action_indices[be16toh(action.oac_header->type)]);
 

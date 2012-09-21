@@ -110,7 +110,7 @@ cfttable::cfttable(
 			lookup_count(0),
 			matched_count(0)
 {
-	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::cfttable() constructor: %s", this, c_str());
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::cfttable() constructor: %s", this, c_str());
 
 	pthread_rwlock_init(&ft_rwlock, NULL);
 
@@ -121,7 +121,7 @@ cfttable::cfttable(
 
 cfttable::~cfttable()
 {
-	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::~cfttable() destructor: %s", this, c_str());
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::~cfttable() destructor: %s", this, c_str());
 
 	{
 		RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
@@ -139,12 +139,12 @@ cfttable::~cfttable()
 void
 cfttable::reset()
 {
-	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::reset() ", this);
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::reset() ", this);
 
 	RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
 	while (not flow_table.empty())
 	{
-		WRITELOG(CFTTABLE, ROFL_DBG, "cfttable::reset() removing %s", (*flow_table.begin())->c_str());
+		WRITELOG(CFTTABLE, DBG, "cfttable::reset() removing %s", (*flow_table.begin())->c_str());
 		delete *(flow_table.begin());
 	}
 }
@@ -339,7 +339,7 @@ cfttable::find_best_matches(
 
 	try {
 
-		WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::find_best_matches() #flow_table.entries=%d "
+		WRITELOG(CFTTABLE, DBG, "cfttable(%p)::find_best_matches() #flow_table.entries=%d "
 								 "dataframe: %s", this, flow_table.size(), pack->c_str());
 
 		// calculates the qualifier for ethernet packet pointed to by iovec = {data, datalen}
@@ -352,7 +352,7 @@ cfttable::find_best_matches(
 			ftsearch = for_each(flow_table.begin(), flow_table.end(), ftsearch);
 		}
 
-		WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::find_best_matches() %s", this, ftsearch.c_str());
+		WRITELOG(CFTTABLE, DBG, "cfttable(%p)::find_best_matches() %s", this, ftsearch.c_str());
 
 		lookup_count++;
 
@@ -368,7 +368,7 @@ cfttable::find_best_matches(
 		return ftsearch.matching_entries;
 
 	} catch (eFlowTableClassificationFailed& e) {
-		WRITELOG(CFTTABLE, ROFL_WARN, "unable to classify packet");
+		WRITELOG(CFTTABLE, WARN, "unable to classify packet");
 	}
 
 	std::set<cftentry*> empty;
@@ -387,7 +387,7 @@ cfttable::update_ft_entry(
 	}
 	pack->is_valid();
 
-	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::update_ft_entry()", this);
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_ft_entry()", this);
 
 	switch (pack->ofh_flow_mod->command) {
 	case OFPFC_ADD:
@@ -406,7 +406,7 @@ cfttable::update_ft_entry(
 		rem_ft_entry(owner, pack, true /* strict */); break;
 
 	default:
-		WRITELOG(CFTTABLE, ROFL_WARN, "unknown flow mod command [%d] received",
+		WRITELOG(CFTTABLE, WARN, "unknown flow mod command [%d] received",
 				 pack->ofh_flow_mod->command); break;
 	}
 	return NULL;
@@ -422,7 +422,7 @@ cfttable::add_ft_entry(
 		cftentry_owner *owner,
 		cofpacket *pack) throw(eFlowTableEntryOverlaps)
 {
-	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::add_ft_entry()", this);
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry()", this);
 	//dump_ftentries();
 
 	RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
@@ -434,13 +434,13 @@ cfttable::add_ft_entry(
 		// check for OFPFF_CHECK_OVERLAP
 		if (be16toh(pack->ofh_flow_mod->flags) & OFPFF_CHECK_OVERLAP)
 		{
-			WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::add_ft_entry() "
+			WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() "
 					"checking for overlapping entries", this);
 
 			if (find_if(flow_table.begin(), flow_table.end(),
 					cftentry::ftentry_find_overlap(pack->match, false /* not strict */)) != flow_table.end())
 			{
-				WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::add_ft_entry() "
+				WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() "
 						"ftentry overlaps, sending error message back", this);
 
 				// throw exception, calling instance has to send error message to controller
@@ -453,7 +453,7 @@ cfttable::add_ft_entry(
 		while ((it = find_if(it, flow_table.end(),
 					cftentry::ftentry_find_overlap(pack->match, true /* strict */))) != flow_table.end())
 		{
-			WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::add_ft_entry() deleting duplicate %p", this, (*it));
+			WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() deleting duplicate %p", this, (*it));
 			deletion_list.push_back(*it);
 			++it;
 		}
@@ -462,7 +462,7 @@ cfttable::add_ft_entry(
 
 	class cftentry * fte = NULL;
 
-	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::add_ft_entry() [1]\n %s", this, c_str());
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [1]\n %s", this, c_str());
 
 	// inserts automatically to this->flow_table
 	if (fwdelem)
@@ -486,13 +486,13 @@ cfttable::add_ft_entry(
 	}
 
 
-	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::add_ft_entry() [2]\n %s", this, c_str());
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [2]\n %s", this, c_str());
 
 	deletion_list.remove_if( deleteAll );
 
-	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::add_ft_entry() [3]\n %s", this, c_str());
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [3]\n %s", this, c_str());
 
-	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::add_ft_entry() [4]\n  %s", this, fte->c_str());
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [4]\n  %s", this, fte->c_str());
 
 	return fte;
 }
@@ -504,7 +504,7 @@ cfttable::modify_ft_entry(
 		cofpacket *pack,
 		bool strict /* = false (default) */)
 {
-	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::modify_ft_entry()", this);
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::modify_ft_entry()", this);
 	//dump_ftentries();
 
 	RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
@@ -543,7 +543,7 @@ cfttable::modify_ft_entry(
 		return add_ft_entry(owner, pack);
 	}
 
-	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable::modify_ft_entry()\n %s", fte->c_str());
+	WRITELOG(CFTTABLE, DBG, "cfttable::modify_ft_entry()\n %s", fte->c_str());
 
 	//dump_ftentries();
 
@@ -557,7 +557,7 @@ cfttable::rem_ft_entry(
 		cofpacket* pack,
 		bool strict /* = false (default) */)
 {
-	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::rem_ft_entry() pack->match: %s", this, pack->match.c_str());
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::rem_ft_entry() pack->match: %s", this, pack->match.c_str());
 	//dump_ftentries();
 
 	RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
@@ -571,7 +571,7 @@ cfttable::rem_ft_entry(
 		// (*it) points now to a cftentry instance whose flow_mod matches
 		// the one received in FlowMod(DELETE_...)
 
-		WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::rem_ft_entry() "
+		WRITELOG(CFTTABLE, DBG, "cfttable(%p)::rem_ft_entry() "
 				"matching entry, checking out_port and out_group: %s",
 				this, (*it)->c_str());
 
@@ -676,7 +676,7 @@ cfttable::rem_ft_entry(
 
 delete_entry:
 
-		WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::rem_ft_entry() REMOVE %s", this, (*it)->c_str());
+		WRITELOG(CFTTABLE, DBG, "cfttable(%p)::rem_ft_entry() REMOVE %s", this, (*it)->c_str());
 
 		update_group_ref_counts((*it), false /* decrement reference count */);
 
@@ -692,7 +692,7 @@ delete_entry:
 		begin = flow_table.begin();
 	}
 
-	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::rem_ft_entry() cfttable.size():%d", this, flow_table.size());
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::rem_ft_entry() cfttable.size():%d", this, flow_table.size());
 
 	//dump_ftentries();
 }
@@ -779,7 +779,7 @@ cfttable::update_group_ref_counts(
 					fwdelem->group_table[group_id]->ref_count--;
 				}
 
-				WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::update_group_ref_cnts() %s",
+				WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_group_ref_cnts() %s",
 						this, fwdelem->group_table[group_id]->c_str());
 
 			} catch (eGroupTableNotFound& e) { }
@@ -815,7 +815,7 @@ cfttable::update_group_ref_counts(
 					fwdelem->group_table[group_id]->ref_count--;
 				}
 
-				WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::update_group_ref_cnts() %s",
+				WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_group_ref_cnts() %s",
 						this, fwdelem->group_table[group_id]->c_str());
 
 			} catch (eGroupTableNotFound& e) { }
@@ -844,13 +844,13 @@ cftsearch::cftsearch(
 	__max_hits(0),
 	__priority(0)
 {
-	WRITELOG(CFTTABLE, ROFL_DBG, "cftsearch(%p)::cftsearch()", this);
+	WRITELOG(CFTTABLE, DBG, "cftsearch(%p)::cftsearch()", this);
 }
 
 
 cftsearch::~cftsearch()
 {
-	WRITELOG(CFTTABLE, ROFL_DBG, "cftsearch(%p)::~cftsearch()", this);
+	WRITELOG(CFTTABLE, DBG, "cftsearch(%p)::~cftsearch()", this);
 }
 
 
@@ -883,7 +883,7 @@ cftsearch::operator() (
 {
 	if (fte->flags.test(cftentry::CFTENTRY_FLAG_DELETE_THIS))
 	{
-		WRITELOG(CFTSEARCH, ROFL_DBG, "cftsearch(%p)::operator() cftentry scheduled "
+		WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() cftentry scheduled "
 				"for removal, ignoring => cftentry:% p", this, fte);
 		return;
 	}
@@ -904,7 +904,7 @@ cftsearch::operator() (
 	if ((hits == 0) || (missed > 0))
 		return;
 
-	WRITELOG(CFTSEARCH, ROFL_DBG, "cftsearch(%p)::operator() results for cftentry:%p => "
+	WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() results for cftentry:%p => "
 			"hits => max:%d exact:%d wildcard:%d missed:%d priority:%d",
 			this,
 			fte,
@@ -918,7 +918,7 @@ cftsearch::operator() (
 	if ((hits > __max_hits) ||
 		((hits == __max_hits) && (exact_hits > __exact_hits))) // new best hit
 	{
-		WRITELOG(CFTSEARCH, ROFL_DBG, "cftsearch(%p)::operator() new best hit cftentry:%p", this, fte);
+		WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() new best hit cftentry:%p", this, fte);
 
 		matching_entries.clear();		// remove all old entries from pkb->matches
 		matching_entries.insert(fte);	// add fte as only entry to pkb->matches
@@ -939,15 +939,15 @@ cftsearch::operator() (
 
 			__priority = be16toh(fte->flow_mod->priority);
 
-			WRITELOG(CFTSEARCH, ROFL_DBG, "cftsearch(%p)::operator() new best hit with higher priority => cftentry:%p", this, fte);
+			WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() new best hit with higher priority => cftentry:%p", this, fte);
 		}
 		else if (be16toh(fte->flow_mod->priority) == __priority)   // same match and priority
 		{
-			WRITELOG(CFTSEARCH, ROFL_DBG, "cftsearch(%p)::operator() identical hit with same hits and priority => cftentry:%p", this, fte);
+			WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() identical hit with same hits and priority => cftentry:%p", this, fte);
 		}
 		else   // lower priority, do nothing
 		{
-			WRITELOG(CFTSEARCH, ROFL_DBG, "cftsearch(%p)::operator() ignoring entry with lower priority => cftentry:%p", this, fte);
+			WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() ignoring entry with lower priority => cftentry:%p", this, fte);
 
 			return;
 		}
@@ -957,13 +957,13 @@ cftsearch::operator() (
 			matching_entries.insert(fte); 		// add additional entry to pkb->matches
 
 		} catch (eFteUnAvail& e) {
-			WRITELOG(CFTSEARCH, ROFL_DBG, "cftsearch(%p)::operator() ignoring entry as it is unavailable => cftentry:%p", this, fte);
+			WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() ignoring entry as it is unavailable => cftentry:%p", this, fte);
 			return;
 		}
 	}
 	else // hits < __max_hits
 	{
-		WRITELOG(CFTSEARCH, ROFL_DBG, "cftsearch(%p)::operator() ignoring entry with lower score => cftentry:%p", this, fte);
+		WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() ignoring entry with lower score => cftentry:%p", this, fte);
 
 		return;
 	}

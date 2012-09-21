@@ -32,7 +32,7 @@ cmemory::cmemory(
 	}
 
 #if 0
-	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
+	WRITELOG(CMEMORY, DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
 			this, somem(), memlen());
 #endif
 }
@@ -61,7 +61,7 @@ cmemory::cmemory(
 	}
 
 #if 0
-	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
+	WRITELOG(CMEMORY, DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
 				this, somem(), memlen());
 #endif
 }
@@ -83,7 +83,7 @@ cmemory::cmemory(cmemory const& m) :
 	*this = m;
 
 #if 0
-	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
+	WRITELOG(CMEMORY, DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
 				this, somem(), memlen());
 #endif
 }
@@ -101,7 +101,7 @@ cmemory::~cmemory()
 #endif
 
 #if 0
-	WRITELOG(CMEMORY, ROFL_DBG, "cmemory(%p)::~cmemory() somem()=%p memlen()=%d",
+	WRITELOG(CMEMORY, DBG, "cmemory(%p)::~cmemory() somem()=%p memlen()=%d",
 				this, somem(), memlen());
 #endif
 

@@ -157,7 +157,7 @@ cofpacket::complete() throw (eOFpacketInval)
 		return false;
 	}
 
-	WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::complete() "
+	WRITELOG(COFPACKET, DBG, "cofpacket(%p)::complete() "
 			"bytes read => stored:%d, indicated length in OFheader:%d",
 			this, stored, be16toh(ofh_header->length));
 
@@ -192,7 +192,7 @@ cofpacket::need_bytes()
 	// if we haven't read at least one ofp_header, fill the header
 	if (stored < sizeof(struct ofp_header))
 	{
-		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::need_bytes() "
+		WRITELOG(COFPACKET, DBG, "cofpacket(%p)::need_bytes() "
 				"bytes => stored:%d is less than sizeof(struct ofp_header):%d, need at least %d more bytes",
 				 this, stored, sizeof(struct ofp_header), sizeof(struct ofp_header) - stored);
 
@@ -218,7 +218,7 @@ cofpacket::need_bytes()
 		resize(packlen);
 	}
 
-	WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::need_bytes() "
+	WRITELOG(COFPACKET, DBG, "cofpacket(%p)::need_bytes() "
 			"bytes => stored:%d OFlength:%d, need %d more bytes",
 			 this, stored, packlen, packlen - stored);
 
@@ -315,7 +315,7 @@ cofpacket::is_valid()
 	default:
 		return false;
 	}
-	//WRITELOG(CPACKET, ROFL_DBG, "cOFpacket is valid");
+	//WRITELOG(CPACKET, DBG, "cOFpacket is valid");
 	return true;
 }
 
@@ -409,7 +409,7 @@ cofpacket::is_valid_error_msg()
 	ofh_error_msg = (struct ofp_error_msg*)soframe();
 	if (stored < sizeof(struct ofp_error_msg))
 	{
-		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::is_valid_error_msg() "
+		WRITELOG(COFPACKET, DBG, "cofpacket(%p)::is_valid_error_msg() "
 				"frame is too short: %d", this, framelen());
 		return false;
 	}
@@ -434,7 +434,7 @@ cofpacket::is_valid_error_msg()
 		// access via emhdr->data
 		break;
 	default:
-		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::is_valid_error_msg() "
+		WRITELOG(COFPACKET, DBG, "cofpacket(%p)::is_valid_error_msg() "
 				"unknown error msg type: %d", this, be16toh(ofh_error_msg->type));
 		return true;
 	}
@@ -612,7 +612,7 @@ cofpacket::is_valid_flow_mod()
 
 		match.unpack(&(ofh_flow_mod->match), be16toh(ofh_flow_mod->match.length));
 
-		WRITELOG(COFPACKET, ROFL_DBG, "cofpacket(%p)::is_valid_flow_mod() "
+		WRITELOG(COFPACKET, DBG, "cofpacket(%p)::is_valid_flow_mod() "
 				"match: %s", this, match.c_str());
 
 		// check size of received flow-mod message

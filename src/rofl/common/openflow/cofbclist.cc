@@ -42,7 +42,7 @@ throw (eBucketBadLen, eActionBadOutPort)
 {
 	reset(); // clears elems
 
-	WRITELOG(COFBUCKET, ROFL_DBG, "cofbclist(%p)::unpack() bclen:%d", this, bclen);
+	WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() bclen:%d", this, bclen);
 
 	// sanity check: bclen must be of size at least of ofp_bucket
 	if (bclen < (int)sizeof(struct ofp_bucket))
@@ -59,11 +59,11 @@ throw (eBucketBadLen, eActionBadOutPort)
 
 		cofbucket bucket(bchdr, be16toh(bchdr->len));
 
-		WRITELOG(COFBUCKET, ROFL_DBG, "cofbclist(%p)::unpack() new bucket[1]: %s", this, bucket.c_str());
+		WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() new bucket[1]: %s", this, bucket.c_str());
 
 		next() = cofbucket(bchdr, be16toh(bchdr->len) );
 
-		WRITELOG(COFBUCKET, ROFL_DBG, "cofbclist(%p)::unpack() new bucket: %s", this, back().c_str());
+		WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() new bucket: %s", this, back().c_str());
 
 		bclen -= be16toh(bchdr->len);
 		bchdr = (struct ofp_bucket*)(((uint8_t*)bchdr) + be16toh(bchdr->len));
@@ -85,7 +85,7 @@ cofbclist::pack(
 
 	struct ofp_bucket *bchdr = buckets; // first bucket header
 
-	WRITELOG(COFBUCKET, ROFL_DBG, "cofbclist(%p)::pack() %s", this, c_str());
+	WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::pack() %s", this, c_str());
 
 	cofbclist::iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)

@@ -50,7 +50,7 @@ fframe::reset(uint8_t *_data, size_t _datalen) //, uint16_t _total_len)
 {
 	if (flags.test(FFRAME_FLAG_MEM))
 	{
-		//WRITELOG(FFRAME, ROFL_DBG, "fframe(%p)::reset() clone data", this);
+		//WRITELOG(FFRAME, DBG, "fframe(%p)::reset() clone data", this);
 
 		mem.resize(_datalen);
 
@@ -62,13 +62,13 @@ fframe::reset(uint8_t *_data, size_t _datalen) //, uint16_t _total_len)
 	}
 	else
 	{
-		//WRITELOG(FFRAME, ROFL_DBG, "fframe(%p)::reset() refer to external data", this);
+		//WRITELOG(FFRAME, DBG, "fframe(%p)::reset() refer to external data", this);
 
 		data = _data;
 		datalen = _datalen;
 //		total_len = _total_len;
 	}
-	//WRITELOG(FFRAME, ROFL_DBG, "fframe(%p)::reset() data:%p datalen:%d", this, data, datalen);
+	//WRITELOG(FFRAME, DBG, "fframe(%p)::reset() data:%p datalen:%d", this, data, datalen);
 }
 
 
@@ -87,7 +87,7 @@ fframe::operator= (const fframe& frame)
 	flags = frame.flags;
 
 #if 0
-	WRITELOG(FFRAME, ROFL_DBG, "fframe(%p)::operator=() to be copied: data:%p datalen:%d",
+	WRITELOG(FFRAME, DBG, "fframe(%p)::operator=() to be copied: data:%p datalen:%d",
 			this, frame.data, frame.datalen);
 #endif
 

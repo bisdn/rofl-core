@@ -303,7 +303,7 @@ template <class T, class U>
 int
 cgraph<T, U>::vertex_exists(T vtxid) throw (eGraphNotFound)
 {
-	WRITELOG(CRIB, ROFL_DBG, "crib(%p)::vertex_exists() vtxid:%llx", this, vtxid);
+	WRITELOG(CRIB, DBG, "crib(%p)::vertex_exists() vtxid:%llx", this, vtxid);
 
 	if (vertices.find(vtxid) == vertices.end())
 	{

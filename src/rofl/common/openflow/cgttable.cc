@@ -89,7 +89,7 @@ cgttable::update_gt_entry(
 		return rem_gt_entry(owner, grp_mod);
 		break;
 	default:
-		WRITELOG(CGTTABLE, ROFL_WARN, "cgttable(%p)::update_gt_entry() unknown command %d",
+		WRITELOG(CGTTABLE, WARN, "cgttable(%p)::update_gt_entry() unknown command %d",
 				this, be16toh(grp_mod->command));
 		break;
 	}
@@ -107,7 +107,7 @@ cgttable::add_gt_entry(
 												eActionBadOutPort,
 												eGroupTableLoopDetected)
 {
-	WRITELOG(CGTTABLE, ROFL_WARN, "cgttable(%p)::add_gt_entry() "
+	WRITELOG(CGTTABLE, WARN, "cgttable(%p)::add_gt_entry() "
 			"", this);
 
 
@@ -124,11 +124,11 @@ cgttable::add_gt_entry(
 
 	grp_table[be32toh(grp_mod->group_id)] = new cgtentry(owner, this, grp_mod);
 
-	WRITELOG(CGTTABLE, ROFL_DBG, "cgttable(%p)::add_gt_entry() gte:%s", this, grp_table[be32toh(grp_mod->group_id)]->c_str());
+	WRITELOG(CGTTABLE, DBG, "cgttable(%p)::add_gt_entry() gte:%s", this, grp_table[be32toh(grp_mod->group_id)]->c_str());
 
 	loop_check(grp_table[be32toh(grp_mod->group_id)], be32toh(grp_mod->group_id));
 
-	WRITELOG(CGTTABLE, ROFL_WARN, "cgttable(%p)::add_gt_entry() "
+	WRITELOG(CGTTABLE, WARN, "cgttable(%p)::add_gt_entry() "
 			"group:%s", this, grp_table[be32toh(grp_mod->group_id)]->c_str());
 
 	return grp_table[be32toh(grp_mod->group_id)];
@@ -164,7 +164,7 @@ cgttable::modify_gt_entry(
 	grp_table[be32toh(grp_mod->group_id)]->byte_count	= byte_count;
 	grp_table[be32toh(grp_mod->group_id)]->ref_count	= ref_count;
 
-	WRITELOG(CGTTABLE, ROFL_DBG, "cgttable(%p)::modify_gt_entry() gte:%s", this, grp_table[be32toh(grp_mod->group_id)]->c_str());
+	WRITELOG(CGTTABLE, DBG, "cgttable(%p)::modify_gt_entry() gte:%s", this, grp_table[be32toh(grp_mod->group_id)]->c_str());
 
 	loop_check(grp_table[be32toh(grp_mod->group_id)], be32toh(grp_mod->group_id));
 
@@ -179,7 +179,7 @@ cgttable::rem_gt_entry(
 {
 	if (OFPG_ALL == be32toh(grp_mod->group_id))
 	{
-		WRITELOG(CGTTABLE, ROFL_WARN, "cgttable(%p)::rem_gt_entry() "
+		WRITELOG(CGTTABLE, WARN, "cgttable(%p)::rem_gt_entry() "
 				"removing all groups", this);
 
 		while (not grp_table.empty())
@@ -192,7 +192,7 @@ cgttable::rem_gt_entry(
 	}
 	else
 	{
-		WRITELOG(CGTTABLE, ROFL_WARN, "cgttable(%p)::rem_gt_entry() "
+		WRITELOG(CGTTABLE, WARN, "cgttable(%p)::rem_gt_entry() "
 				"removing group-id:0x%x", this, be32toh(grp_mod->group_id));
 
 		if (OFPG_MAX < be32toh(grp_mod->group_id))
@@ -237,7 +237,7 @@ cgttable::get_group_desc_stats(
 		gte->get_group_desc_stats(body);
 	}
 
-	WRITELOG(CGTTABLE, ROFL_DBG, "cgttable(%p)::get_group_desc_stats() body:%s", this, body.c_str());
+	WRITELOG(CGTTABLE, DBG, "cgttable(%p)::get_group_desc_stats() body:%s", this, body.c_str());
 }
 
 
@@ -276,7 +276,7 @@ cgttable::loop_check(
 		return;
 	}
 
-	WRITELOG(CGTTABLE, ROFL_DBG, "cgttable(%p)::loop_check() "
+	WRITELOG(CGTTABLE, DBG, "cgttable(%p)::loop_check() "
 			"loop_group_id:%d gte:%s",
 			this, loop_group_id, gte->c_str());
 

@@ -37,7 +37,7 @@ public:
 	Lock(pthread_mutex_t *mutex, bool blocking = true) throw (eLockWouldBlock) :
 		mutex(mutex), locked(false)
 	{
-		WRITELOG(CTHREAD, ROFL_DBG, "thread %x lock mutex %p -trying-", pthread_self(), mutex);
+		WRITELOG(CTHREAD, DBG, "thread %x lock mutex %p -trying-", pthread_self(), mutex);
 		if (blocking)
 		{
 			pthread_mutex_lock(this->mutex);
@@ -56,18 +56,18 @@ public:
 			}
 		}
 		locked = true;
-		WRITELOG(CTHREAD, ROFL_DBG, "thread %x lock mutex %p -locked-", pthread_self(), mutex);
+		WRITELOG(CTHREAD, DBG, "thread %x lock mutex %p -locked-", pthread_self(), mutex);
 	}
 
 	virtual
 	~Lock()
 	{
-		WRITELOG(CTHREAD, ROFL_DBG, "thread %x unlock mutex %p -trying-", pthread_self(), mutex);
+		WRITELOG(CTHREAD, DBG, "thread %x unlock mutex %p -trying-", pthread_self(), mutex);
 		if (locked)
 		{
 			pthread_mutex_unlock(this->mutex);
 		}
-		WRITELOG(CTHREAD, ROFL_DBG, "thread %x unlock mutex %p -unlocked-", pthread_self(), mutex);
+		WRITELOG(CTHREAD, DBG, "thread %x unlock mutex %p -unlocked-", pthread_self(), mutex);
 	}
 
 private:
@@ -96,7 +96,7 @@ public:
 				bool blocking = true) throw (eLockWouldBlock, eLockInval) :
 			rwlock(rwlock), locked(false)
 		{
-			WRITELOG(CTHREAD, ROFL_DBG, "RwLock(%p) thread %x rwlock %p -trying- %s lock",
+			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x rwlock %p -trying- %s lock",
 					this, pthread_self(), rwlock, (rwtype == RWLOCK_READ) ? "READ" : "WRITE");
 			if (blocking)
 			{
@@ -138,7 +138,7 @@ public:
 				}
 			}
 			locked = true;
-			WRITELOG(CTHREAD, ROFL_DBG, "RwLock(%p) thread %x rwlock %p -locked- %s lock",
+			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x rwlock %p -locked- %s lock",
 					this, pthread_self(), rwlock, (rwtype == RWLOCK_READ) ? "READ" : "WRITE");
 		};
 
@@ -148,13 +148,13 @@ public:
 		virtual
 		~RwLock()
 		{
-			WRITELOG(CTHREAD, ROFL_DBG, "RwLock(%p) thread %x unlock rwlock %p -trying-",
+			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x unlock rwlock %p -trying-",
 					this, pthread_self(), rwlock);
 			if (locked)
 			{
 				pthread_rwlock_unlock(rwlock);
 			}
-			WRITELOG(CTHREAD, ROFL_DBG, "RwLock(%p) thread %x unlock rwlock %p -unlocked-",
+			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x unlock rwlock %p -unlocked-",
 					this, pthread_self(), rwlock);
 		}
 };

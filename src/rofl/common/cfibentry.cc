@@ -20,7 +20,7 @@ cfibentry::cfibentry(
 {
 	register_timer(TIMER_FIBENTRY_TIMEOUT, timeout);
 
-	WRITELOG(CFIBENTRY, ROFL_DBG, "cfibentry(%p)::cfibentry() %s", this, c_str());
+	WRITELOG(CFIBENTRY, DBG, "cfibentry(%p)::cfibentry() %s", this, c_str());
 
 	fib_table->insert(this);
 }
@@ -30,7 +30,7 @@ cfibentry::~cfibentry()
 {
 	fib_table->erase(this);
 
-	WRITELOG(CFIBENTRY, ROFL_DBG, "cfibentry(%p)::~cfibentry()", this);
+	WRITELOG(CFIBENTRY, DBG, "cfibentry(%p)::~cfibentry()", this);
 
 	owner->fibentry_timeout(this);
 }
@@ -41,7 +41,7 @@ cfibentry::handle_timeout(int opaque)
 {
 	switch (opaque) {
 	case TIMER_FIBENTRY_TIMEOUT:
-		WRITELOG(CFIBENTRY, ROFL_DBG, "cfibentry(%p)::~handle_timeout() -FIBENTRY-TIMEOUT-", this);
+		WRITELOG(CFIBENTRY, DBG, "cfibentry(%p)::~handle_timeout() -FIBENTRY-TIMEOUT-", this);
 		delete this;
 		return;
 	}
@@ -51,7 +51,7 @@ cfibentry::handle_timeout(int opaque)
 void
 cfibentry::refresh(uint16_t __timeout)
 {
-	WRITELOG(CFIBENTRY, ROFL_DBG, "cfibentry(%p)::refresh() %s", this, c_str());
+	WRITELOG(CFIBENTRY, DBG, "cfibentry(%p)::refresh() %s", this, c_str());
 	timeout = __timeout;
 	reset_timer(TIMER_FIBENTRY_TIMEOUT, timeout);
 }

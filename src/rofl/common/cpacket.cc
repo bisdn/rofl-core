@@ -100,7 +100,7 @@ cpacket::cpacket(
 			in_port(in_port),
 			out_port(0)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::cpacket()", this);
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::cpacket()", this);
 
 	memcpy(soframe(), mem->somem(), mem->memlen());
 
@@ -135,7 +135,7 @@ cpacket::cpacket(
 			in_port(in_port),
 			out_port(0)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::cpacket()", this);
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::cpacket()", this);
 
 	pthread_rwlock_init(&ac_rwlock, NULL);
 
@@ -169,7 +169,7 @@ cpacket::cpacket(
 		in_port(in_port),
 		out_port(0)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::cpacket()", this);
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::cpacket()", this);
 
 	pthread_rwlock_init(&ac_rwlock, NULL);
 
@@ -182,7 +182,7 @@ cpacket::cpacket(
 
 cpacket::~cpacket()
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::~cpacket()", this);
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::~cpacket()", this);
 	reset(); // removes all cmemory and ciovec instances from heap
 
 	pthread_rwlock_destroy(&ac_rwlock);
@@ -1414,7 +1414,7 @@ cpacket::set_field(coxmatch const& oxm)
 		case OFPXMT_OFB_IPV6_ND_TARGET:
 		case OFPXMT_OFB_IPV6_ND_SLL:
 		case OFPXMT_OFB_IPV6_ND_TLL:
-			WRITELOG(CPACKET, ROFL_WARN, "cpacket(%p)::set_field() "
+			WRITELOG(CPACKET, WARN, "cpacket(%p)::set_field() "
 					"NOT IMPLEMENTED! => class:0x%x field:%d, ignoring",
 					this, oxm.get_oxm_class(), oxm.get_oxm_field());
 			break;
@@ -1465,7 +1465,7 @@ cpacket::set_field(coxmatch const& oxm)
 			break;
 		default:
 			{
-				WRITELOG(CPACKET, ROFL_WARN, "cpacket(%p)::set_field() "
+				WRITELOG(CPACKET, WARN, "cpacket(%p)::set_field() "
 						"don't know how to handle class:0x%x field:%d, ignoring",
 						this, oxm.get_oxm_class(), oxm.get_oxm_field());
 			}
@@ -1474,7 +1474,7 @@ cpacket::set_field(coxmatch const& oxm)
 		break;
 	}
 	default:
-		WRITELOG(CPACKET, ROFL_WARN, "cpacket(%p)::set_field() "
+		WRITELOG(CPACKET, WARN, "cpacket(%p)::set_field() "
 				"don't know how to handle class:0x%x field:%d, ignoring",
 				this, oxm.get_oxm_class(), oxm.get_oxm_field());
 		break;
@@ -1571,12 +1571,12 @@ cpacket::push_vlan(uint16_t ethertype)
 		match.set_vlan_pcp(outer_pcp);
 #endif
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_vlan() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::push_vlan() "
 				"mem: %s", this, mem.c_str());
 
 	} catch (eMemAllocFailed& e) {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_vlan() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::push_vlan() "
 				"memory allocation failed", this);
 	}
 }
@@ -1588,7 +1588,7 @@ cpacket::pop_vlan()
 {
 	try {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_vlan() ", this);
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_vlan() ", this);
 
 		fvlanframe *p_vlan = vlan();
 
@@ -1610,11 +1610,11 @@ cpacket::pop_vlan()
 
 	} catch (ePacketNotFound& e) {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_vlan() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_vlan() "
 				"no vlan tag found, mem: %s", this, mem.c_str());
 	} catch (ePacketInval& e) {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_vlan() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_vlan() "
 				"vlan tag is not outer tag, ignoring pop command, mem: %s", this, mem.c_str());
 	}
 }
@@ -1664,13 +1664,13 @@ cpacket::push_mpls(uint16_t ethertype)
 		match.set_mpls_label(outer_label);
 		match.set_mpls_tc(outer_tc);
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_mpls() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::push_mpls() "
 				"mem: %s", this, mem.c_str());
 
 
 	} catch (eMemAllocFailed& e) {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_mpls() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::push_mpls() "
 				"memory allocation failed", this);
 	}
 }
@@ -1682,7 +1682,7 @@ cpacket::pop_mpls(uint16_t ethertype)
 {
 	try {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_mpls() ", this);
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_mpls() ", this);
 
 		if (0 == dynamic_cast<fmplsframe*>( frame(1) ))
 		{
@@ -1710,11 +1710,11 @@ cpacket::pop_mpls(uint16_t ethertype)
 
 	} catch (ePacketNotFound& e) {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_mpls() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_mpls() "
 				"no mpls tag found, mem: %s", this, mem.c_str());
 	} catch (ePacketInval& e) {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_mpls() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_mpls() "
 				"mpls tag is not outer tag, ignoring pop command, mem: %s", this, mem.c_str());
 	}
 }
@@ -1748,12 +1748,12 @@ cpacket::push_pppoe(uint16_t ethertype)
 		match.set_pppoe_code(code);
 		match.set_pppoe_sessid(sid);
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_pppoe() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::push_pppoe() "
 				"mem: %s", this, mem.c_str());
 
 	} catch (eMemAllocFailed& e) {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_pppoe() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::push_pppoe() "
 				"memory allocation failed", this);
 	}
 }
@@ -1765,7 +1765,7 @@ cpacket::pop_pppoe(uint16_t ethertype)
 {
 	try {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_pppoe() ", this);
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_pppoe() ", this);
 
 		try {
 			ppp(); // throws exception when there is no ppp frame (e.g. for pppoe discovery frames)
@@ -1794,11 +1794,11 @@ cpacket::pop_pppoe(uint16_t ethertype)
 
 	} catch (ePacketNotFound& e) {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_pppoe() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_pppoe() "
 				"no pppoe tag found, mem: %s", this, mem.c_str());
 	} catch (ePacketInval& e) {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_mpls() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_mpls() "
 				"pppoe tag is not outer tag, ignoring pop command, mem: %s", this, mem.c_str());
 	}
 }
@@ -1819,12 +1819,12 @@ cpacket::push_ppp(uint16_t code)
 
 		match.set_ppp_prot(code);
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_ppp() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::push_ppp() "
 				"mem: %s", this, mem.c_str());
 
 	} catch (eMemAllocFailed& e) {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::push_ppp() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::push_ppp() "
 				"memory allocation failed", this);
 	}
 }
@@ -1836,7 +1836,7 @@ cpacket::pop_ppp()
 {
 	try {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_ppp() ", this);
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_ppp() ", this);
 
 		fpppframe *p_ppp = ppp();
 
@@ -1854,11 +1854,11 @@ cpacket::pop_ppp()
 
 	} catch (ePacketNotFound& e) {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_ppp() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_ppp() "
 				"no ppp tag found, mem: %s", this, mem.c_str());
 	} catch (ePacketInval& e) {
 
-		WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::pop_mpls() "
+		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_mpls() "
 				"ppp tag is not outer tag, ignoring pop command, mem: %s", this, mem.c_str());
 	}
 }
@@ -2367,7 +2367,7 @@ cpacket::parse_ipv4(
 
 	if (ip->has_MF_bit_set())
 	{
-		WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::parse_ipv4() "
+		WRITELOG(CFRAME, DBG, "cpacket(%p)::parse_ipv4() "
 				"IPv4 fragment found", this);
 
 		return;
@@ -2731,13 +2731,13 @@ void
 cpacket::action_set_field(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_field() [1] pack: %s",
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_field() [1] pack: %s",
 				this,
 				c_str());
 
 	set_field(action.get_oxm());
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_field() [2] pack: %s",
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_field() [2] pack: %s",
 				this,
 				c_str());
 }
@@ -2749,7 +2749,7 @@ cpacket::action_copy_ttl_out(
 {
 	copy_ttl_out();
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_copy_ttl_out() ", this);
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_copy_ttl_out() ", this);
 }
 
 
@@ -2759,7 +2759,7 @@ cpacket::action_copy_ttl_in(
 {
 	copy_ttl_in();
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_copy_ttl_in() ", this);
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_copy_ttl_in() ", this);
 }
 
 
@@ -2767,12 +2767,12 @@ void
 cpacket::action_set_mpls_ttl(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_mpls_ttl() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_mpls_ttl() "
 			"set to mpls ttl [%d] [1] pack: %s", this, action.oac_mpls_ttl->mpls_ttl, c_str());
 
 	set_mpls_ttl(action.oac_mpls_ttl->mpls_ttl);
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_mpls_ttl() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_mpls_ttl() "
 			"set to mpls ttl [%d] [2] pack: %s", this, action.oac_mpls_ttl->mpls_ttl, c_str());
 }
 
@@ -2781,12 +2781,12 @@ void
 cpacket::action_dec_mpls_ttl(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_dec_mpls_ttl() [1] pack: %s",
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_dec_mpls_ttl() [1] pack: %s",
 				this, c_str());
 
 	dec_mpls_ttl();
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_dec_mpls_ttl() [2] pack: %s",
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_dec_mpls_ttl() [2] pack: %s",
 				this, c_str());
 }
 
@@ -2795,12 +2795,12 @@ void
 cpacket::action_push_vlan(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_vlan() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_vlan() "
 				 "set to vlan [%d] [1] pack: %s", this, be16toh(action.oac_push->ethertype), c_str());
 
 	push_vlan(be16toh(action.oac_push->ethertype));
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_vlan() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_vlan() "
 			 	 "set to vlan [%d] [2] pack: %s", this, be16toh(action.oac_push->ethertype), c_str());
 }
 
@@ -2809,11 +2809,11 @@ void
 cpacket::action_pop_vlan(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_vlan() [1] pack: %s", this, c_str());
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_vlan() [1] pack: %s", this, c_str());
 
 	pop_vlan();
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_vlan() [2] pack: %s", this, c_str());
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_vlan() [2] pack: %s", this, c_str());
 }
 
 
@@ -2821,12 +2821,12 @@ void
 cpacket::action_push_mpls(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_mpls() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_mpls() "
 			"set to mpls [%d] [1] pack: %s", this, be16toh(action.oac_push->ethertype), c_str());
 
 	push_mpls(be16toh(action.oac_push->ethertype));
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_mpls() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_mpls() "
 			"set to mpls [%d] [2] pack: %s", this, be16toh(action.oac_push->ethertype), c_str());
 }
 
@@ -2835,11 +2835,11 @@ void
 cpacket::action_pop_mpls(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_mpls() [1] pack: %s", this, c_str());
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_mpls() [1] pack: %s", this, c_str());
 
 	pop_mpls(be16toh(action.oac_pop_mpls->ethertype));
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_mpls() [2] pack: %s", this, c_str());
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_mpls() [2] pack: %s", this, c_str());
 }
 
 
@@ -2847,12 +2847,12 @@ void
 cpacket::action_set_nw_ttl(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_nw_ttl() [1] "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_nw_ttl() [1] "
 				 "set nw-ttl [%d] pack: %s", this, action.oac_nw_ttl->nw_ttl, c_str());
 
 	set_nw_ttl(action.oac_nw_ttl->nw_ttl);
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_set_nw_ttl() [2] "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_nw_ttl() [2] "
 			 	 "set tnw-ttl [%d] pack: %s", this, action.oac_nw_ttl->nw_ttl, c_str());
 }
 
@@ -2863,7 +2863,7 @@ cpacket::action_dec_nw_ttl(
 {
 	dec_nw_ttl();
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_dec_nw_ttl() ", this);
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_dec_nw_ttl() ", this);
 }
 
 
@@ -2871,13 +2871,13 @@ void
 cpacket::action_push_pppoe(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_pppoe() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_pppoe() "
 			"ethertype [0x%x] [1] pack: %s",
 			this, be16toh(action.oac_push_pppoe->ethertype), c_str());
 
 	push_pppoe(be16toh(action.oac_push_pppoe->ethertype));
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_pppoe() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_pppoe() "
 			"ethertype [0x%x] [2] pack: %s",
 			this, be16toh(action.oac_push_pppoe->ethertype), c_str());
 }
@@ -2887,13 +2887,13 @@ void
 cpacket::action_pop_pppoe(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_pppoe() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_pppoe() "
 			"ethertype [%d] [1] pack: %s",
 			this, be16toh(action.oac_pop_pppoe->ethertype), c_str());
 
 	pop_pppoe(be16toh(action.oac_pop_pppoe->ethertype));
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_pppoe() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_pppoe() "
 			"ethertype [%d] [2] pack: %s",
 			this, be16toh(action.oac_pop_pppoe->ethertype), c_str());
 }
@@ -2903,14 +2903,14 @@ void
 cpacket::action_push_ppp(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_ppp() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_ppp() "
 			"set to ppp [1] pack: %s", this, c_str());
 
 	uint16_t code = 0;
 
 	push_ppp(code);
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_push_ppp() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_ppp() "
 			"set to ppp [2] pack: %s", this, c_str());
 }
 
@@ -2919,12 +2919,12 @@ void
 cpacket::action_pop_ppp(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_ppp() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_ppp() "
 			"[1] pack: %s", this, c_str());
 
 	pop_ppp();
 
-	WRITELOG(CPACKET, ROFL_DBG, "cpacket(%p)::action_pop_ppp() "
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_ppp() "
 			"[2] pack: %s", this, c_str());
 }
 
@@ -2934,7 +2934,7 @@ cpacket::action_pop_ppp(
 
 
 #if 0
-	WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() in_port:%d", this, in_port);
+	WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() in_port:%d", this, in_port);
 
 	reset();
 
@@ -2973,7 +2973,7 @@ cpacket::action_pop_ppp(
 		anchors[ETHER_FRAME].push_back(ether);
 		piovec.push_back(ether);
 
-		WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() ether:%s", this, ether->c_str());
+		WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() ether:%s", this, ether->c_str());
 
 		// initialize header: set ethernet src, dst, type
 		oxmlist[OFPXMT_OFB_ETH_DST] 	= coxmatch_ofb_eth_dst(ether->get_dl_dst());
@@ -3013,7 +3013,7 @@ cpacket::action_pop_ppp(
 										total_len,
 										pred);
 
-			WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() vlan:%s", this, vlan->c_str());
+			WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() vlan:%s", this, vlan->c_str());
 
 			anchors[VLAN_FRAME].push_back(vlan);
 			piovec.push_back(vlan);
@@ -3070,7 +3070,7 @@ cpacket::action_pop_ppp(
 										total_len,
 										pred);
 
-			WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() mpls:%s", this, mpls->c_str());
+			WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() mpls:%s", this, mpls->c_str());
 
 			anchors[MPLS_FRAME].push_back(mpls);
 			piovec.push_back(mpls);
@@ -3115,7 +3115,7 @@ cpacket::action_pop_ppp(
 								total_len,
 								pred);
 
-		WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() pppoe:%s", this, pppoe->c_str());
+		WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() pppoe:%s", this, pppoe->c_str());
 
 		anchors[PPPOE_FRAME].push_back(pppoe);
 		piovec.push_back(pppoe);
@@ -3145,7 +3145,7 @@ cpacket::action_pop_ppp(
 									total_len,
 									pred);
 
-		WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() pppoe:%s", this, pppoe->c_str());
+		WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() pppoe:%s", this, pppoe->c_str());
 
 		anchors[PPPOE_FRAME].push_back(pppoe);
 		piovec.push_back(pppoe);
@@ -3178,7 +3178,7 @@ cpacket::action_pop_ppp(
 									total_len,
 									pred);
 
-			WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() ppp:%s", this, ppp->c_str());
+			WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() ppp:%s", this, ppp->c_str());
 
 
 			oxmlist[OFPXMT_OFB_PPP_PROT] = coxmatch_ofb_ppp_prot(ppp->get_ppp_prot());
@@ -3261,7 +3261,7 @@ cpacket::action_pop_ppp(
 									total_len,
 									pred);
 
-		WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() arpv4:%s", this, arpv4->c_str());
+		WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() arpv4:%s", this, arpv4->c_str());
 
 		anchors[ARPV4_FRAME].push_back(arpv4);
 		piovec.push_back(arpv4);
@@ -3282,7 +3282,7 @@ cpacket::action_pop_ppp(
 	 */
 	case fipv4frame::IPV4_ETHER:
 	{
-		//WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() ZZZZZZZ framelen()[%d] __ether.payloadlen()[%d] ether: %s",
+		//WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() ZZZZZZZ framelen()[%d] __ether.payloadlen()[%d] ether: %s",
 		//		this, framelen(), __ether->payloadlen(), __ether->c_str());
 
 		if (p_len < sizeof(struct fipv4frame::ipv4_hdr_t))
@@ -3296,7 +3296,7 @@ cpacket::action_pop_ppp(
 									total_len,
 									pred);
 
-		WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() ipv4:%s", this, ipv4->c_str());
+		WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() ipv4:%s", this, ipv4->c_str());
 
 		anchors[IPV4_FRAME].push_back(ipv4);
 		piovec.push_back(ipv4);
@@ -3309,7 +3309,7 @@ cpacket::action_pop_ppp(
 
 		if (ipv4->has_MF_bit_set())
 		{
-			WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() IPv4 fragment found", this);
+			WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() IPv4 fragment found", this);
 
 			return;
 		}
@@ -3343,7 +3343,7 @@ cpacket::action_pop_ppp(
 									total_len,
 									pred);
 
-			WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() udp:%s", this, udp->c_str());
+			WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() udp:%s", this, udp->c_str());
 
 			anchors[UDP_FRAME].push_back(udp);
 			piovec.push_back(udp);
@@ -3370,7 +3370,7 @@ cpacket::action_pop_ppp(
 									total_len,
 									pred);
 
-			WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() tcp:%s", this, tcp->c_str());
+			WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() tcp:%s", this, tcp->c_str());
 
 			anchors[TCP_FRAME].push_back(tcp);
 			piovec.push_back(tcp);
@@ -3397,7 +3397,7 @@ cpacket::action_pop_ppp(
 										total_len,
 										pred);
 
-			WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() icmpv4:%s", this, icmpv4->c_str());
+			WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() icmpv4:%s", this, icmpv4->c_str());
 
 			anchors[ICMPV4_FRAME].push_back(icmpv4);
 			piovec.push_back(icmpv4);
@@ -3409,7 +3409,7 @@ cpacket::action_pop_ppp(
 		}
 
 		default:
-			WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() unknown ip proto [%d]",
+			WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() unknown ip proto [%d]",
 					this, ipv4->ipv4_hdr->proto);
 			break;
 		} // end transport protocols
@@ -3418,7 +3418,7 @@ cpacket::action_pop_ppp(
 	} // end IPv4
 
 	default:
-		WRITELOG(CFRAME, ROFL_DBG, "cpacket(%p)::classify() unknown ethernet type [%d] %s",
+		WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() unknown ethernet type [%d] %s",
 				this, dl_type, this->ether().c_str());
 
 		break;

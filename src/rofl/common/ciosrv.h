@@ -51,14 +51,14 @@ public:
 	 */
 	cevent(int __cmd = -1) : cmd(__cmd), opaque((size_t)0)
 	{
-		WRITELOG(CIOSRV, ROFL_DBG, "cevent(%p)::cevent() cmd:0x%x", this, cmd);
+		WRITELOG(CIOSRV, DBG, "cevent(%p)::cevent() cmd:0x%x", this, cmd);
 	};
 	/**
 	 */
 	virtual
 	~cevent()
 	{
-		WRITELOG(CIOSRV, ROFL_DBG, "cevent(%p)::~cevent() cmd:0x%x", this, cmd);
+		WRITELOG(CIOSRV, DBG, "cevent(%p)::~cevent() cmd:0x%x", this, cmd);
 	};
 	/**
 	 */
@@ -66,7 +66,7 @@ public:
 		cmd(-1),
 		opaque((size_t)0)
 	{
-		WRITELOG(CIOSRV, ROFL_DBG, "cevent(%p)::cevent() cmd:0x%x from 0x%x", this, cmd, &ioctl);
+		WRITELOG(CIOSRV, DBG, "cevent(%p)::cevent() cmd:0x%x from 0x%x", this, cmd, &ioctl);
 		*this = ioctl;
 	};
 	/**

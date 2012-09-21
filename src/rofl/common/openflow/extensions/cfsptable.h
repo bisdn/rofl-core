@@ -113,12 +113,12 @@ public:
 #ifndef NDEBUG
 		make_info();
 #endif
-		WRITELOG(UNKNOWN, ROFL_DBG, "cfspsearch(%p)::cfspsearch %s", this, c_str());
+		WRITELOG(UNKNOWN, DBG, "cfspsearch(%p)::cfspsearch %s", this, c_str());
 	};
 
 	~cfspsearch()
 	{
-		WRITELOG(UNKNOWN, ROFL_DBG, "cfspsearch(%p)::~cfspsearch %s", this, c_str());
+		WRITELOG(UNKNOWN, DBG, "cfspsearch(%p)::~cfspsearch %s", this, c_str());
 	};
 
 	/** call-operator

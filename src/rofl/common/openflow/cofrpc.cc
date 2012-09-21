@@ -16,7 +16,7 @@ cofrpc::cofrpc(int rpc_endpnt, cofbase *entity) :
 	pthread_mutex_init(&fe_queue_mutex, NULL);
 	flags.set(COFRPC_FLAG_SERVER_SOCKET);
 	init_state(STATE_RPC_DISCONNECTED);
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc::cofrpc(%p) %s", this,
+	WRITELOG(COFRPC, DBG, "cofrpc::cofrpc(%p) %s", this,
 			(rpc_endpnt == OF_RPC_TCP_NORTH_ENDPNT) ?
 					"-north- accepts connections from datapath elements" :
 					"-south- accepts connections from controller entities");
@@ -40,7 +40,7 @@ cofrpc::cofrpc(
 		reconnect_counter(0)
 {
 	pthread_mutex_init(&fe_queue_mutex, NULL);
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc::cofrpc(%p) %s connection established to %s (sd:%d)",
+	WRITELOG(COFRPC, DBG, "cofrpc::cofrpc(%p) %s connection established to %s (sd:%d)",
 			this,
 			(rpc_endpnt == OF_RPC_TCP_NORTH_ENDPNT) ? "-north-" : "-south-",
 			ra.c_str(), sd);
@@ -57,7 +57,7 @@ cofrpc::cofrpc(
 
 cofrpc::~cofrpc()
 {
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc::~cofrpc(%p) %s", this,
+	WRITELOG(COFRPC, DBG, "cofrpc::~cofrpc(%p) %s", this,
 			(rpc_endpnt == OF_RPC_TCP_NORTH_ENDPNT) ? "north" : "south");
 
 	cclose();
@@ -86,7 +86,7 @@ cofrpc::send_up_hello_message(
 		cofbase *entity,
 		bool bye)
 {
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_up_hello_message()", this);
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::send_up_hello_message()", this);
 #if 0
 	size_t packlen = sizeof(struct ofp_header) + sizeof(uint32_t);
 
@@ -106,7 +106,7 @@ cofrpc::send_up_hello_message(
 	uint32_t *cookie = (uint32_t*)(pack->ofh_header + 1);
 	*cookie = bye ? htobe32(FE_HELLO_BYE) : htobe32(FE_HELLO_ACTIVE);
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_up_hello_message() done %s",
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::send_up_hello_message() done %s",
 			this, pack->c_str());
 
 	entity->fe_up_hello_message(this, pack);
@@ -116,7 +116,7 @@ cofrpc::send_up_hello_message(
 
 	cofpacket *pack = new cofpacket_hello(ta_new_async_xid(), (uint8_t*)&cookie, sizeof(cookie));
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_up_hello_message() done %s",
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::send_up_hello_message() done %s",
 			this, pack->c_str());
 
 	entity->fe_up_hello_message(this, pack);
@@ -128,7 +128,7 @@ cofrpc::send_down_hello_message(
 		cofbase *entity,
 		bool bye)
 {
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_down_hello_message()", this);
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::send_down_hello_message()", this);
 #if 0
 	size_t packlen = sizeof(struct ofp_header) + sizeof(uint32_t);
 
@@ -148,7 +148,7 @@ cofrpc::send_down_hello_message(
 	uint32_t *cookie = (uint32_t*)(pack->ofh_header + 1);
 	*cookie = bye ? htobe32(FE_HELLO_BYE) : htobe32(FE_HELLO_ACTIVE);
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_down_hello_message() done %s",
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::send_down_hello_message() done %s",
 			this, pack->c_str());
 
 	entity->fe_down_hello_message(this, pack);
@@ -158,7 +158,7 @@ cofrpc::send_down_hello_message(
 
 	cofpacket *pack = new cofpacket_hello(ta_new_async_xid(), (uint8_t*)&cookie, sizeof(cookie));
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_down_hello_message() done %s",
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::send_down_hello_message() done %s",
 			this, pack->c_str());
 
 	entity->fe_down_hello_message(this, pack);
@@ -184,7 +184,7 @@ cofrpc::fe_down_hello_message(
 		cookie = be32toh(cookie);
 	}
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::fe_down_hello_message() down pack:%s cookie:%s",
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::fe_down_hello_message() down pack:%s cookie:%s",
 			this, pack->c_str(), cookie == FE_HELLO_ACTIVE ? "FE_HELLO_ACTIVE" : "FE_HELLO_BYE");
 
 	switch (cookie) {
@@ -233,7 +233,7 @@ cofrpc::fe_up_hello_message(
 		cookie = be32toh(cookie);
 	}
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::fe_up_hello_message() up pack:%s cookie:%s",
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::fe_up_hello_message() up pack:%s cookie:%s",
 			this, pack->c_str(), cookie == FE_HELLO_ACTIVE ? "FE_HELLO_ACTIVE" : "FE_HELLO_BYE");
 
 	switch (cookie) {
@@ -276,7 +276,7 @@ cofrpc::clisten(caddress const& la)
 		cpopen(la, AF_INET, SOCK_STREAM, IPPROTO_TCP, 10);
 
 	} catch (eSocketError& e) {
-		WRITELOG(COFRPC, ROFL_WARN, "cofrpc(%p)::cofrpc() unable to open listening socket", this);
+		WRITELOG(COFRPC, WARN, "cofrpc(%p)::cofrpc() unable to open listening socket", this);
 		throw;
 	}
 }
@@ -291,7 +291,7 @@ cofrpc::cconnect(caddress const& ra)
 
 		raddr = ra;
 
-		WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::cconnect() (re-)connecting to %s", this,
+		WRITELOG(COFRPC, DBG, "cofrpc(%p)::cconnect() (re-)connecting to %s", this,
 				raddr.c_str());
 
 		if (flags.test(COFRPC_FLAG_SERVER_SOCKET))
@@ -314,7 +314,7 @@ cofrpc::cconnect(caddress const& ra)
 		}
 
 	} catch (eSocketBase& e) {
-		WRITELOG(COFRPC, ROFL_WARN, "unable to connect to %s "
+		WRITELOG(COFRPC, WARN, "unable to connect to %s "
 				"via socket %s", raddr.c_str());
 		throw;
 	}
@@ -328,7 +328,7 @@ cofrpc::handle_connected()
 
 	new_state(STATE_RPC_CONNECTED);
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc::handle_connected() connection established to %s (sd:%d)",
+	WRITELOG(COFRPC, DBG, "cofrpc::handle_connected() connection established to %s (sd:%d)",
 			raddr.c_str(), sd);
 
 	register_timer(TIMER_RPC_SEND_HELLO, 0); // sends HELLO to peer and starts OF negotiation
@@ -338,7 +338,7 @@ cofrpc::handle_connected()
 void
 cofrpc::handle_conn_refused()
 {
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc::handle_conn_refused() %s", raddr.c_str());
+	WRITELOG(COFRPC, DBG, "cofrpc::handle_conn_refused() %s", raddr.c_str());
 
 	try_to_connect();
 }
@@ -348,7 +348,7 @@ void cofrpc::handle_closed(int sd)
 {
 	cancel_all_timer();
 
-	WRITELOG(COFRPC, ROFL_WARN, "cofrpc::handle_closed() %s", raddr.c_str());
+	WRITELOG(COFRPC, WARN, "cofrpc::handle_closed() %s", raddr.c_str());
 
 	new_state(STATE_RPC_DISCONNECTED);
 
@@ -372,13 +372,13 @@ void cofrpc::handle_closed(int sd)
 
 	if (flags.test(COFRPC_FLAG_ACTIVE_SOCKET))
 	{
-		WRITELOG(COFRPC, ROFL_WARN, "cofrpc::handle_closed() ACTIVE socket, "
+		WRITELOG(COFRPC, WARN, "cofrpc::handle_closed() ACTIVE socket, "
 				"reconnecting to %s", raddr.c_str());
 		register_timer(TIMER_RPC_RECONNECT, 5);
 	}
 	else
 	{
-		WRITELOG(COFRPC, ROFL_WARN, "cofrpc::handle_closed() PASSIVE socket, "
+		WRITELOG(COFRPC, WARN, "cofrpc::handle_closed() PASSIVE socket, "
 				"closing to %s", raddr.c_str());
 		delete this;
 	}
@@ -401,43 +401,43 @@ cofrpc::handle_timeout(int opaque)
 {
 	switch (opaque) {
  	case TIMER_RPC_RECONNECT:
-		WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::handle_timeout() "
+		WRITELOG(COFRPC, DBG, "cofrpc(%p)::handle_timeout() "
 				"TIMER_RPC_RECONNECT (0x%x) expired", this, opaque);
 		if (flags.test(COFRPC_FLAG_WORKER_SOCKET)) {
 			cconnect(raddr);
 		}
 		break;
 	case TIMER_RPC_SEND_HELLO:
-		WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::handle_timeout() "
+		WRITELOG(COFRPC, DBG, "cofrpc(%p)::handle_timeout() "
 				"TIMER_RPC_SEND_HELLO (0x%x) expired", this, opaque);
 		send_hello_message_via_tcp();
 		break;
 	case TIMER_RPC_SEND_VIA_TCP:
-		WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::handle_timeout() "
+		WRITELOG(COFRPC, DBG, "cofrpc(%p)::handle_timeout() "
 				"TIMER_RPC_SEND_VIA_TCP (0x%x) expired", this, opaque);
 		send_message_via_tcp();
 		break;
 	case TIMER_RPC_CLOSE_CONNECTION:
-		WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::handle_timeout() "
+		WRITELOG(COFRPC, DBG, "cofrpc(%p)::handle_timeout() "
 				"TIMER_RPC_CLOSE_CONNECTION (0x%x) expired", this, opaque);
 		cclose();
 		handle_closed(sd);
 
 		break;
 	case TIMER_RPC_SEND_ECHO_REQUEST:
-		WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::handle_timeout() "
+		WRITELOG(COFRPC, DBG, "cofrpc(%p)::handle_timeout() "
 				"TIMER_RPC_SEND_ECHO_REQUEST (0x%x) expired", this, opaque);
 		send_echo_request();
 		register_timer(TIMER_RPC_SEND_ECHO_REQUEST, rpc_echo_interval);
 		break;
 	case TIMER_RPC_ECHO_REPLY_TIMEOUT:
-		WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::handle_timeout() "
+		WRITELOG(COFRPC, DBG, "cofrpc(%p)::handle_timeout() "
 				"TIMER_RPC_SEND_ECHO_REPLY_TIMEOUT (0x%x) expired", this, opaque);
 		handle_echo_reply_timeout();
 		break;
 
 	case TIMER_RPC_ESTABLISH:
-		WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::handle_timeout() "
+		WRITELOG(COFRPC, DBG, "cofrpc(%p)::handle_timeout() "
 				"TIMER_RPC_ESTABLISH (0x%x) expired", this, opaque);
 		register_filedesc_r(sd);
 		break;
@@ -501,7 +501,7 @@ cofrpc::handle_read(int fd)
 
 #ifndef NDEBUG
 			struct ofp_header *hdr = (struct ofp_header*) (pcppack->soframe());
-			WRITELOG(COFRPC, ROFL_DBG,
+			WRITELOG(COFRPC, DBG,
 					"cofrpc(%p:%s)::handle_read() sd:%d hdr->type:%d rc:%d pack: %s",
 					this, (rpc_endpnt == OF_RPC_TCP_NORTH_ENDPNT) ? "north" : "south",
 							fd, hdr->type, rc, pcppack->c_str());
@@ -525,7 +525,7 @@ cofrpc::handle_read(int fd)
 				case ECONNRESET:
 				default:
 					{
-						WRITELOG(COFRPC, ROFL_WARN, "cofrpc(%p)::handle_revent() "
+						WRITELOG(COFRPC, WARN, "cofrpc(%p)::handle_revent() "
 								"an error occured, closing => errno: %d (%s)",
 								this, errno, strerror(errno));
 
@@ -540,7 +540,7 @@ cofrpc::handle_read(int fd)
 			{
 				//rfds.erase(fd);
 
-				WRITELOG(COFRPC, ROFL_WARN, "cofrpc(%p)::handle_revent() "
+				WRITELOG(COFRPC, WARN, "cofrpc(%p)::handle_revent() "
 						"peer closed connection, closing local endpoint => rc: %d",
 						this, rc);
 
@@ -554,7 +554,7 @@ cofrpc::handle_read(int fd)
 			{
 				pcppack->stored_bytes(rc);
 
-				//WRITELOG(COFRPC, ROFL_DBG, "cofrpc::handle_revent(fd=%d) rc=%d need_bytes=%d complete=%s",
+				//WRITELOG(COFRPC, DBG, "cofrpc::handle_revent(fd=%d) rc=%d need_bytes=%d complete=%s",
 				//		 fd, rc, (int)pcppack->need_bytes(), pcppack->complete() ? "true" : "false");
 
 				// complete() parses the packet internally (otherwise we do not know
@@ -573,7 +573,7 @@ cofrpc::handle_read(int fd)
 
 	} catch (eRpcNotConnected& e) {
 
-		WRITELOG(COFRPC, ROFL_WARN, "cofrpc(%p)::handle_read() received packet in non-connected state: %s", this, pcppack->c_str());
+		WRITELOG(COFRPC, WARN, "cofrpc(%p)::handle_read() received packet in non-connected state: %s", this, pcppack->c_str());
 
 		if (pcppack)
 		{
@@ -582,7 +582,7 @@ cofrpc::handle_read(int fd)
 
 	} catch (cerror &e) {
 
-		WRITELOG(COFRPC, ROFL_WARN, "cofprc(%p)::handle_read() "
+		WRITELOG(COFRPC, WARN, "cofprc(%p)::handle_read() "
 				"errno: %d (%s) "
 				"generic error %s", this, errno, strerror(errno), pcppack->c_str());
 
@@ -606,14 +606,14 @@ cofrpc::handle_read(int fd)
 void cofrpc::handle_tcp(
 		cofpacket *pack)
 {
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc::handle_tcp(%p) %s", pack, pack->c_str());
+	WRITELOG(COFRPC, DBG, "cofrpc::handle_tcp(%p) %s", pack, pack->c_str());
 
 	try {
 
 		if ((cur_state() == STATE_RPC_DISCONNECTED) ||
 			(cur_state() == STATE_RPC_CONNECTING) ||
 			((cur_state() == STATE_RPC_CONNECTED) && (not ((pack->ofh_header->type == OFPT_HELLO) || (pack->ofh_header->type == OFPT_ERROR))))) {
-			WRITELOG(COFRPC, ROFL_DBG, "cofrpc::handle_tcp(%p) EXCEPTION! %s", pack,
+			WRITELOG(COFRPC, DBG, "cofrpc::handle_tcp(%p) EXCEPTION! %s", pack,
 					pack->c_str());
 			delete pack;
 			cclose();
@@ -628,30 +628,30 @@ void cofrpc::handle_tcp(
 		fprintf(stderr, "r:%d ", pack->ofh_header->type);
 #endif
 
-		WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p:%s): received packet "
+		WRITELOG(COFRPC, DBG, "cofrpc(%p:%s): received packet "
 				"from TCP socket", this,
 				(rpc_endpnt == OF_RPC_TCP_NORTH_ENDPNT) ? "north" : "south");
 
-//		WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%s): dpid:%lu received packet "
+//		WRITELOG(COFRPC, DBG, "cofrpc(%s): dpid:%lu received packet "
 //				"from TCP socket: %s", (rpc_endpnt == OF_RPC_NORTH_ENDPNT) ?
 //						"north" : "south", this->dpid, pack->c_str());
 
 		switch (pack->ofh_header->type) {
 		/* generic messages */
 		case OFPT_HELLO:
-			WRITELOG(COFRPC, ROFL_DBG, "OFPT_HELLO");
+			WRITELOG(COFRPC, DBG, "OFPT_HELLO");
 			handle_hello_message_via_tcp(pack);
 			return;
 		case OFPT_ECHO_REQUEST:
-			WRITELOG(COFRPC, ROFL_DBG, "OFPT_ECHO_REQUEST");
+			WRITELOG(COFRPC, DBG, "OFPT_ECHO_REQUEST");
 			send_echo_reply(pack);
 			return;
 		case OFPT_ECHO_REPLY:
-			WRITELOG(COFRPC, ROFL_DBG, "OFPT_ECHO_REPLY");
+			WRITELOG(COFRPC, DBG, "OFPT_ECHO_REPLY");
 			handle_echo_reply(pack);
 			return;
 		case OFPT_ERROR:
-			WRITELOG(COFRPC, ROFL_DBG, "OFPT_ERROR");
+			WRITELOG(COFRPC, DBG, "OFPT_ERROR");
 			if (be16toh(pack->ofh_error_msg->type) == OFPET_HELLO_FAILED) {
 				handle_error(pack);
 				return;
@@ -706,7 +706,7 @@ void cofrpc::handle_tcp(
 				break;
 				/* unknown messages */
 			default:
-				WRITELOG(COFRPC, ROFL_WARN, "packet with invalid type "
+				WRITELOG(COFRPC, WARN, "packet with invalid type "
 						"from TCP socket received (%d)",
 						pack->ofh_header->type);
 				delete pack;
@@ -755,7 +755,7 @@ void cofrpc::handle_tcp(
 				return;
 				/* unknown messages */
 			default:
-				WRITELOG(COFRPC, ROFL_WARN, "packet with invalid type "
+				WRITELOG(COFRPC, WARN, "packet with invalid type "
 						"from TCP socket received (%d)",
 						pack->ofh_header->type);
 				delete pack;
@@ -766,21 +766,21 @@ void cofrpc::handle_tcp(
 		}
 
 	} catch (eRpcPackInval& e) {
-		WRITELOG(COFRPC, ROFL_WARN, "cofrpc(%p)::handle_tcp() "
+		WRITELOG(COFRPC, WARN, "cofrpc(%p)::handle_tcp() "
 				"invalid packet received from %s",
 				this, raddr.c_str());
 
 		delete pack;
 
 	} catch (eRpcNoEntity& e) {
-		WRITELOG(COFRPC, ROFL_WARN, "packet %s received from %s, "
+		WRITELOG(COFRPC, WARN, "packet %s received from %s, "
 				"no entity", pack->c_str(), raddr.c_str());
 
 		delete pack;
 	} catch (eInstructionBase& e) {
 		WRITELOG(
 				COFRPC,
-				ROFL_WARN,
+				WARN,
 				"cofrpc(%p)::handle_tcp() invalid OF packet rcvd (eInstruction): %s",
 				this, pack->c_str());
 
@@ -797,12 +797,12 @@ cofrpc::fe_queue_message(cofpacket *pack, bool priority)
 {
 	Lock lock(&fe_queue_mutex);
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc::%s()", __FUNCTION__);
+	WRITELOG(COFRPC, DBG, "cofrpc::%s()", __FUNCTION__);
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p:%s): queueing for transport via TCP: %s",
+	WRITELOG(COFRPC, DBG, "cofrpc(%p:%s): queueing for transport via TCP: %s",
 			this, (rpc_endpnt == OF_RPC_TCP_NORTH_ENDPNT) ? "north" : "south",
 			pack->c_str());
-//	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%s): dpid:%lu queueing for transport via TCP: %s",
+//	WRITELOG(COFRPC, DBG, "cofrpc(%s): dpid:%lu queueing for transport via TCP: %s",
 //			(rpc_endpnt == OF_RPC_NORTH_ENDPNT) ? "north" : "south",
 //					this->dpid, pack->c_str());
 
@@ -822,7 +822,7 @@ cofrpc::fe_queue_message(cofpacket *pack, bool priority)
 			delete fe_queue.front();
 			fe_queue.pop_front();
 		}
-		WRITELOG(COFRPC, ROFL_WARN,
+		WRITELOG(COFRPC, WARN,
 				"cofrpc(%p)::fe_queue_message() not connected, dropping packet",
 				this);
 		return;
@@ -838,7 +838,7 @@ cofrpc::fe_queue_message(cofpacket *pack, bool priority)
 		fe_queue.push_back(pack);
 	}
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p:%s): [%d] packets enqueued for transport via TCP",
+	WRITELOG(COFRPC, DBG, "cofrpc(%p:%s): [%d] packets enqueued for transport via TCP",
 			this, (rpc_endpnt == OF_RPC_TCP_NORTH_ENDPNT) ? "north" : "south", fe_queue.size());
 
 	if (tid == pthread_self())
@@ -857,7 +857,7 @@ cofrpc::fe_queue_message(cofpacket *pack, bool priority)
 void
 cofrpc::send_message_via_tcp()
 {
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_message_via_tcp()", this);
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::send_message_via_tcp()", this);
 
 	try {
 		Lock lock(&fe_queue_mutex, false /*non-blocking*/);
@@ -878,7 +878,7 @@ cofrpc::send_message_via_tcp()
 			{
 				WRITELOG(
 						COFRPC,
-						ROFL_DBG,
+						DBG,
 						"cofrpc::send_message_via_tcp() dropping packet, not connected");
 				delete pack;
 
@@ -894,15 +894,15 @@ cofrpc::send_message_via_tcp()
 			// call pack->stored_bytes(...) with the correct ofp_header->length field
 			//pack->stored_bytes(be16toh(((struct ofp_header*)pack->soframe())->length));
 
-			WRITELOG(COFRPC, ROFL_DBG,
+			WRITELOG(COFRPC, DBG,
 					"cofrpc(%p:%s): fe_queue.size()[%d] sending packet via TCP socket (sd=%d): %s", this,
 					(rpc_endpnt == OF_RPC_TCP_NORTH_ENDPNT) ? "north" : "south", fe_queue.size(), sd,
 					pack->c_str());
-		//	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%s): dpid:%lu sending packet via TCP socket: %s",
+		//	WRITELOG(COFRPC, DBG, "cofrpc(%s): dpid:%lu sending packet via TCP socket: %s",
 		//					(rpc_endpnt == OF_RPC_NORTH_ENDPNT) ? "north" : "south",
 		//							this->dpid, pack->c_str());
 
-			WRITELOG(COFRPC, ROFL_DBG, "\n\nDDD cofpacket(%p) => pack: %s\n\n", this, pack->c_str());
+			WRITELOG(COFRPC, DBG, "\n\nDDD cofpacket(%p) => pack: %s\n\n", this, pack->c_str());
 
 			cmemory *mem = new cmemory(pack->length());
 
@@ -912,7 +912,7 @@ cofrpc::send_message_via_tcp()
 			fprintf(stderr, "s:%d ", pack->ofh_header->type);
 #endif
 
-			WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p:%s): new cmemory: %s",
+			WRITELOG(COFRPC, DBG, "cofrpc(%p:%s): new cmemory: %s",
 					this,
 					(rpc_endpnt == OF_RPC_TCP_NORTH_ENDPNT) ? "north" : "south",
 					mem->c_str());
@@ -940,12 +940,12 @@ cofrpc::send_message_via_tcp()
 void
 cofrpc::send_hello_message_via_tcp()
 {
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_hello_message_via_tcp()", this);
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::send_hello_message_via_tcp()", this);
 	size_t packlen = sizeof(struct ofp_header);
 
 	cofpacket *pack = new cofpacket(packlen, packlen);
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_hello_message_via_tcp() new %s", this,
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::send_hello_message_via_tcp() new %s", this,
 			pack->c_str());
 
 	pack->ofh_header->version = OFP_VERSION;
@@ -953,7 +953,7 @@ cofrpc::send_hello_message_via_tcp()
 	pack->ofh_header->length = htobe16(packlen);
 	pack->ofh_header->xid = htobe32(ta_new_async_xid());
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_hello_message_via_tcp() done %s", this,
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::send_hello_message_via_tcp() done %s", this,
 			pack->c_str());
 	fe_queue_message(pack);
 }
@@ -962,7 +962,7 @@ cofrpc::send_hello_message_via_tcp()
 void
 cofrpc::handle_hello_message_via_tcp(cofpacket *pack)
 {
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::handle_hello_message_via_tcp() pack:%s", this, pack->c_str());
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::handle_hello_message_via_tcp() pack:%s", this, pack->c_str());
 
 	// OpenFlow versions do not match, send error, close connection
 	if (pack->ofh_header->version != OFP_VERSION)
@@ -977,7 +977,7 @@ cofrpc::handle_hello_message_via_tcp(cofpacket *pack)
 		send_error_message(OFPET_HELLO_FAILED, OFPHFC_INCOMPATIBLE,
 				(uint8_t*) explanation, strlen(explanation));
 
-		WRITELOG(COFRPC, ROFL_WARN, "cofrpc::handle_revent() closing (2.1)");
+		WRITELOG(COFRPC, WARN, "cofrpc::handle_revent() closing (2.1)");
 		register_timer(TIMER_RPC_CLOSE_CONNECTION, 1 /* seconds */);
 
 		delete pack;
@@ -1000,7 +1000,7 @@ cofrpc::handle_hello_message_via_tcp(cofpacket *pack)
 	register_timer(TIMER_RPC_BUGGY_NOX_DELAY, 1); // postpone switching to state -ESTABLISHED- for buggy nox implementation
 #endif
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p): HELLO exchanged with peer entity, attaching ...", this);
+	WRITELOG(COFRPC, DBG, "cofrpc(%p): HELLO exchanged with peer entity, attaching ...", this);
 
 	switch (rpc_endpnt) {
 	case OF_RPC_TCP_NORTH_ENDPNT:
@@ -1059,14 +1059,14 @@ cofrpc::handle_error(cofpacket *pack)
 
 		break;
 		default:
-		WRITELOG(COFRPC, ROFL_WARN, "unknown error code (%d)",
+		WRITELOG(COFRPC, WARN, "unknown error code (%d)",
 				be16toh(pack->ofh_error_msg->code));
 		break;
 	}
 
 	delete pack;
 
-	WRITELOG(COFRPC, ROFL_WARN, "cofrpc(%p)::handle_revent() closing (2.2)", this);
+	WRITELOG(COFRPC, WARN, "cofrpc(%p)::handle_revent() closing (2.2)", this);
 	register_timer(TIMER_RPC_CLOSE_CONNECTION, 0);
 }
 
@@ -1096,7 +1096,7 @@ cofrpc::send_echo_reply(cofpacket *request)
 {
 	cofpacket_echo_reply *pack = NULL;
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_echo_reply() %s", this, request->c_str());
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::send_echo_reply() %s", this, request->c_str());
 
 	try {
 		if (be16toh(request->ofh_header->length) < sizeof(struct ofp_header))
@@ -1131,7 +1131,7 @@ cofrpc::send_echo_reply(cofpacket *request)
 void
 cofrpc::handle_echo_reply(cofpacket *pack)
 {
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::handle_echo_reply()", this);
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::handle_echo_reply()", this);
 	try {
 		if (be16toh(pack->ofh_header->length) < sizeof(struct ofp_header))
 			throw eOFbaseInval();
@@ -1141,16 +1141,16 @@ cofrpc::handle_echo_reply(cofpacket *pack)
 		cancel_timer(TIMER_RPC_ECHO_REPLY_TIMEOUT);
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(COFRPC, ROFL_WARN, "invalid echo reply");
+		WRITELOG(COFRPC, WARN, "invalid echo reply");
 
-		WRITELOG(COFRPC, ROFL_WARN, "cofrpc::handle_revent() closing (2.3)");
+		WRITELOG(COFRPC, WARN, "cofrpc::handle_revent() closing (2.3)");
 		register_timer(TIMER_RPC_CLOSE_CONNECTION, 1 /* seconds */);
 
 	} catch (eOFbaseXidInval& e) {
-		WRITELOG(COFRPC, ROFL_WARN, "invalid session exchange xid "
+		WRITELOG(COFRPC, WARN, "invalid session exchange xid "
 				"(0x%x) received", be32toh(pack->ofh_header->xid));
 
-		WRITELOG(COFRPC, ROFL_WARN, "cofrpc::handle_revent() closing (2.4)");
+		WRITELOG(COFRPC, WARN, "cofrpc::handle_revent() closing (2.4)");
 		register_timer(TIMER_RPC_CLOSE_CONNECTION, 1 /* seconds */);
 	}
 
@@ -1161,7 +1161,7 @@ cofrpc::handle_echo_reply(cofpacket *pack)
 void
 cofrpc::handle_echo_reply_timeout()
 {
-	WRITELOG(COFRPC, ROFL_WARN,
+	WRITELOG(COFRPC, WARN,
 			"cofrpc(%p)::handle_echo_reply_timeout() closing (2.5)", this);
 	register_timer(TIMER_RPC_CLOSE_CONNECTION, 0);
 }
@@ -1175,7 +1175,7 @@ cofrpc::try_to_connect(bool reset_timeout)
 		return;
 	}
 
-	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::try_to_connect() "
+	WRITELOG(COFRPC, DBG, "cofrpc(%p)::try_to_connect() "
 			"reconnect in %d seconds (reconnect_counter:%d)",
 			this, reconnect_in_seconds, reconnect_counter);
 

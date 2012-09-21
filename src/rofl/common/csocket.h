@@ -198,7 +198,7 @@ protected:
 	virtual void
 	handle_connected()
 	{
-		WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::handle_connected()", this);
+		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_connected()", this);
 	};
 
 	/**
@@ -211,7 +211,7 @@ protected:
 	virtual void
 	handle_conn_refused()
 	{
-		WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::handle_conn_refused()", this);
+		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_conn_refused()", this);
 	};
 
 	/**
@@ -226,7 +226,7 @@ protected:
 	virtual void
 	handle_accepted(int newsd, caddress &ra)
 	{
-		WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::handle_accepted()", this);
+		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_accepted()", this);
 	};
 
 	/**
@@ -239,7 +239,7 @@ protected:
 	handle_closed(int sd)
 	{
 		deregister_filedesc_r(sd);
-		WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::handle_closed()", this);
+		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_closed()", this);
 	};
 
 	/**

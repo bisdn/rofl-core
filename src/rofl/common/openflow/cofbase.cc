@@ -27,14 +27,14 @@ cofbase::cofbase() :
 	xid_start(crandom(sizeof(uint32_t)).uint32())
 
 {
-	WRITELOG(TERMINUS, ROFL_DBG, "new cofbase element");
+	WRITELOG(TERMINUS, DBG, "new cofbase element");
 	cofbase::cofbase_list.insert(this);
 }
 
 cofbase::~cofbase()
 {
 	cofbase::cofbase_list.erase(this);
-	WRITELOG(TERMINUS, ROFL_DBG, "destroy cofbase element");
+	WRITELOG(TERMINUS, DBG, "destroy cofbase element");
 
 	std::map<int, std::list<cofpacket*> >::iterator it;
 
@@ -178,12 +178,12 @@ cofbase::ta_add_request(uint8_t type)
 	//ta_pending_reqs.insert(std::make_pair<uint32_t, uint8_t>(xid, type));
 	ta_pending_reqs[xid] = type;
 
-	WRITELOG(XID, ROFL_DBG, "cofbase::ta_add_request() rand number=0x%x", xid);
+	WRITELOG(XID, DBG, "cofbase::ta_add_request() rand number=0x%x", xid);
 
 #ifndef NDEBUG
 	std::map<uint32_t, uint8_t>::iterator it;
 	for (it = ta_pending_reqs.begin(); it != ta_pending_reqs.end(); ++it) {
-		WRITELOG(XID, ROFL_DBG, "cofbase::ta_pending_request: xid=0x%x type=%d",
+		WRITELOG(XID, DBG, "cofbase::ta_pending_request: xid=0x%x type=%d",
 				 (*it).first, (*it).second);
 	}
 #endif
@@ -204,11 +204,11 @@ cofbase::ta_pending(uint32_t xid, uint8_t type)
 #ifndef NDEBUG
 	std::map<uint32_t, uint8_t>::iterator it;
 	for (it = ta_pending_reqs.begin(); it != ta_pending_reqs.end(); ++it) {
-		WRITELOG(XID, ROFL_DBG, "cofbase::ta_pending_request: xid=0x%x type=%d",
+		WRITELOG(XID, DBG, "cofbase::ta_pending_request: xid=0x%x type=%d",
 				 (*it).first, (*it).second);
 	}
 
-	WRITELOG(XID, ROFL_DBG, "%s 0x%x %d %d",
+	WRITELOG(XID, DBG, "%s 0x%x %d %d",
 			(ta_pending_reqs.find(xid) != ta_pending_reqs.end()) ? "true" : "false",
 			xid, ta_pending_reqs[xid], (int)type);
 #endif
@@ -267,7 +267,7 @@ cofbase::ta_validate(uint32_t xid, uint8_t type) throw (eOFbaseXidInval)
 {
 	// check for pending transaction of type 'type'
 	if (!ta_pending(xid, type)) {
-		WRITELOG(XID, ROFL_DBG, "no pending transaction");
+		WRITELOG(XID, DBG, "no pending transaction");
 		throw eOFbaseXidInval();
 		//return false;
 	}

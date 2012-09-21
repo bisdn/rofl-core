@@ -25,7 +25,7 @@ cftentry::cftentry(
 {
 	pthread_mutex_init(&ftmutex, NULL);
 	make_info();
-	WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::cftentry() [1] %s %s",
+	WRITELOG(FTE, DBG, "cftentry(%p)::cftentry() [1] %s %s",
 			this, c_str(), instructions.c_str());
 }
 
@@ -60,11 +60,11 @@ cftentry::cftentry(
 	memcpy(m_flowmod.somem(), (uint8_t*)pack->ofh_flow_mod, m_flowmod.memlen());
 
 #if 0
-	WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::cftentry() XXX [1]\npack->instructions: %s\nthis->inlist: %s", this, pack->instructions.c_str(), instructions.c_str());
+	WRITELOG(FTE, DBG, "cftentry(%p)::cftentry() XXX [1]\npack->instructions: %s\nthis->inlist: %s", this, pack->instructions.c_str(), instructions.c_str());
 
 	instructions = pack->instructions;
 
-	WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::cftentry() XXX [2]\npack->instructions: %s\nthis->inlist: %s", this, pack->instructions.c_str(), instructions.c_str());
+	WRITELOG(FTE, DBG, "cftentry(%p)::cftentry() XXX [2]\npack->instructions: %s\nthis->inlist: %s", this, pack->instructions.c_str(), instructions.c_str());
 #endif
 
 	__update();
@@ -90,7 +90,7 @@ cftentry::cftentry(
 	make_info(); // todo if no debugging is specified this should not be used
 #endif
 
-	WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::cftentry() [2] %s %s", this, c_str(), instructions.c_str());
+	WRITELOG(FTE, DBG, "cftentry(%p)::cftentry() [2] %s %s", this, c_str(), instructions.c_str());
 
 	if (flow_table)
 	{
@@ -101,7 +101,7 @@ cftentry::cftentry(
 
 cftentry::~cftentry()
 {
-	WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::~cftentry() %s", this, c_str());
+	WRITELOG(FTE, DBG, "cftentry(%p)::~cftentry() %s", this, c_str());
 
 	if (flow_table)
 	{
@@ -157,11 +157,11 @@ cftentry::sem_inc() throw (eFteUnAvail)
 	Lock lock(&ftmutex);
 	if (flags.test(CFTENTRY_FLAG_DELETE_THIS))
 	{
-		WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::sem_inc() scheduled for removal, thus unavailable", this);
+		WRITELOG(FTE, DBG, "cftentry(%p)::sem_inc() scheduled for removal, thus unavailable", this);
 		throw eFteUnAvail();
 	}
 	++ftsem;
-	WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::sem_inc() ftsem:%d", this, ftsem);
+	WRITELOG(FTE, DBG, "cftentry(%p)::sem_inc() ftsem:%d", this, ftsem);
 }
 
 
@@ -173,11 +173,11 @@ cftentry::sem_dec()
 		--ftsem;
 	}
 
-	WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::sem_dec() ftsem:%d", this, ftsem);
+	WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() ftsem:%d", this, ftsem);
 
 	if ((0 == ftsem) && (flags.test(CFTENTRY_FLAG_DELETE_THIS)))
 	{
-		WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::sem_dec() initiating removal", this);
+		WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() initiating removal", this);
 		notify(cevent(CFTENTRY_EVENT_DELETE_THIS));
 	}
 }
@@ -188,12 +188,12 @@ cftentry::erase()
 {
 	if (0 == ftsem)
 	{
-		WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::erase() ftsem:%d, calling destructor for this", this, ftsem);
+		WRITELOG(FTE, DBG, "cftentry(%p)::erase() ftsem:%d, calling destructor for this", this, ftsem);
 		delete this; return;
 	}
 	else
 	{
-		WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::erase() ftsem:%d, setting deletion flag", this, ftsem);
+		WRITELOG(FTE, DBG, "cftentry(%p)::erase() ftsem:%d, setting deletion flag", this, ftsem);
 		flags.set(CFTENTRY_FLAG_DELETE_THIS);
 	}
 }
@@ -262,7 +262,7 @@ cftentry::__update()
 	this->flags &= ~CPKBUFF_COPY_ON_WRITE;
 
 	#ifndef NDEBUG
-		WRITELOG(CFWD, ROFL_DBG, "cftentry(%p)::__update() cofinlist: %s", this, instructions.c_str());
+		WRITELOG(CFWD, DBG, "cftentry(%p)::__update() cofinlist: %s", this, instructions.c_str());
 	#endif
 
 	// if an instruction OFPIT_APPLY_ACTIONS exists and multiple ActionOutput instances exist,
@@ -273,7 +273,7 @@ cftentry::__update()
 	{
 		cofinst& inst = (*it);
 
-		WRITELOG(CFWD, ROFL_DBG, "cftentry(%p)::__update() inst: %s",
+		WRITELOG(CFWD, DBG, "cftentry(%p)::__update() inst: %s",
 				this, inst.c_str());
 
 		// if multiple output actions, mark packet for copy-on-write
@@ -311,9 +311,9 @@ cofinst&
 cftentry::find_inst(enum ofp_instruction_type type)
 {
 	Lock lock(&ftmutex);
-	WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::find_inst() blub:\n%s",
+	WRITELOG(FTE, DBG, "cftentry(%p)::find_inst() blub:\n%s",
 			this, instructions.find_inst(type).c_str());
-	//WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::find_inst() instructions:\n%s", this, inlist.c_str());
+	//WRITELOG(FTE, DBG, "cftentry(%p)::find_inst() instructions:\n%s", this, inlist.c_str());
 	return instructions.find_inst(type);
 }
 
@@ -335,7 +335,7 @@ cftentry::handle_timeout(int opaque)
 	/* TODO if both timouts are scheduled only one message should be send */
 	switch (opaque) {
 	case TIMER_FTE_IDLE_TIMEOUT:
-		WRITELOG(CFWD, ROFL_DBG, "FLOW-MOD expired (idle) %s", c_str());
+		WRITELOG(CFWD, DBG, "FLOW-MOD expired (idle) %s", c_str());
 		removal_reason = OFPRR_IDLE_TIMEOUT;
 		//owner->ftentry_idle_timeout(this);
 
@@ -349,7 +349,7 @@ cftentry::handle_timeout(int opaque)
 		}
 		return;
 	case TIMER_FTE_HARD_TIMEOUT:
-		WRITELOG(CFWD, ROFL_DBG, "FLOW-MOD expired (hard) %s", c_str());
+		WRITELOG(CFWD, DBG, "FLOW-MOD expired (hard) %s", c_str());
 		removal_reason = OFPRR_HARD_TIMEOUT;
 		//owner->ftentry_hard_timeout(this);
 
@@ -363,7 +363,7 @@ cftentry::handle_timeout(int opaque)
 		}
 		return;
 	default:
-		WRITELOG(FTE, ROFL_DBG, "cftentry::handle_timeout() unknown timer (%d)", opaque);
+		WRITELOG(FTE, DBG, "cftentry::handle_timeout() unknown timer (%d)", opaque);
 		break;
 	}
 }

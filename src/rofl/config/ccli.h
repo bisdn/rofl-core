@@ -58,7 +58,7 @@ public:
 	 */
 	virtual void
 	handle_read(int fd) {
-		WRITELOG(CLI, ROFL_DBG, "ccli(%p)::handle_read()", this);
+		WRITELOG(CLI, DBG, "ccli(%p)::handle_read()", this);
 	}
 
 	struct cli_def *
@@ -67,7 +67,10 @@ public:
 	}
 
 protected:
- 	struct cli_def *cli;
+	struct cli_def *cli;
+
+	struct cli_command *
+	find_command(const char * const name);
 
 private:
 	static void *
