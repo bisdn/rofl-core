@@ -481,7 +481,8 @@ public:
 		 */
 		virtual uint32_t
 		ctl_get_free_portno(
-				cadapt_dpt *dpt)
+				cadapt_dpt *dpt,
+				uint32_t proposed = 0)
 			throw (eAdaptNotFound);
 
 

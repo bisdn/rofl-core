@@ -12,6 +12,7 @@
 #include "../../cerror.h"
 #include "../../ciosrv.h"
 #include "../../cvastring.h"
+#include "../../cpacket.h"
 #include "cfspentry.h"
 
 class eFspTable : public cerror {}; 			// base class cnstable errors
@@ -73,7 +74,7 @@ public: // per instance
 	find_matching_entries(
 			uint32_t in_port,
 			uint32_t total_len,
-			uint8_t *data, size_t datalen) throw (eFspNoMatch, eFrameInvalidSyntax);
+			cpacket& pack) throw (eFspNoMatch, eFrameInvalidSyntax);
 
 	/** check whether a flow-mod is acceptable from
 	 *

@@ -94,12 +94,9 @@ std::set<cfspentry*>
 cfsptable::find_matching_entries(
 		uint32_t in_port,
 		uint32_t total_len,
-		uint8_t *data, size_t datalen) throw (eFspNoMatch, eFrameInvalidSyntax)
+		cpacket& pack) throw (eFspNoMatch, eFrameInvalidSyntax)
 {
 	std::set<cfspentry*> nse_list;
-
-	// TODO: introduce fdataframe here in order to avoid copying the packet
-	cpacket pack(data, datalen, in_port);
 
 	WRITELOG(CNAMESPACE, ROFL_DBG, "cfsptable(%p)::find_matching_entries() \n"
 			"  pack: %s", this, pack.c_str());
@@ -114,7 +111,8 @@ cfsptable::find_matching_entries(
 		uint16_t __wildcard_hits = 0;
 		uint16_t __misses = 0;
 
-		pack.calc_hits((*it)->ofmatch, __exact_hits, __wildcard_hits, __misses);
+		//pack.calc_hits((*it)->ofmatch, __exact_hits, __wildcard_hits, __misses);
+		(*it)->ofmatch.is_matching(pack.match, __exact_hits, __wildcard_hits, __misses);
 
 		if ((__exact_hits < exact_hits) || (__misses > 0))
 		{

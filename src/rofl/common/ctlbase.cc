@@ -175,7 +175,7 @@ ctlbase::handle_dpath_open(
 	this->dpath = dpath;
 
 	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_open() "
-			"dpid: %llu adapters: %d", dpname.c_str(), dpath->dpid, adstacks.size());
+			"dpid: %s adapters: %d", dpname.c_str(), dpath->c_str(), adstacks.size());
 
 	/*
 	 * inform adapters about existence of our layer (n-1) datapath
@@ -259,11 +259,9 @@ ctlbase::handle_packet_in(
 		cofdpath *sw,
 		cofpacket *pack)
 {
-	WRITELOG(CFWD, DBG, "\n\n\n\nUUU\n\nctlbase(%s)::handle_packet_in() pack:%s",
+	WRITELOG(CFWD, DBG, "\n\n\nUUU\n\n\nctlbase(%s)::handle_packet_in() pack:%s",
 			dpname.c_str(), pack->c_str());
 
-	WRITELOG(CFWD, DBG, "\n\n\n\nVVV\n\nctlbase(%s)::handle_packet_in() fsptable:%s",
-			dpname.c_str(), sw->fsptable.c_str());
 
 
 	if (sw != dpath)
@@ -281,11 +279,15 @@ ctlbase::handle_packet_in(
 				sw->fsptable.find_matching_entries(
 						pack->match.get_in_port(),
 						be16toh(pack->ofh_packet_in->total_len),
-						(uint8_t*)pack->packet.soframe(), pack->packet.framelen());
+						pack->packet);
 
 		// more than one subscription matches? should not happen here => error
 		if (fsp_list.size() > 1)
 		{
+			WRITELOG(CFWD, DBG, "\n\n\n\nVVV\n\nctlbase(%s)::handle_packet_in() "
+					"too many results from fsptable:%s",
+					dpname.c_str(), sw->fsptable.c_str());
+
 			throw eCtlBaseInval();
 		}
 
@@ -297,10 +299,13 @@ ctlbase::handle_packet_in(
 			throw eInternalError();
 		}
 
-
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
-				"flowspace subscription for packet found, data: %s\nctlmod: %s",
-				dpname.c_str(), pack->packet.c_str(), adapt->c_str());
+				"flowspace subscription for packet found => "
+				"fspentry: %s\ndata: %s\nctlmod: %s",
+				dpname.c_str(),
+				fspentry->c_str(),
+				pack->packet.c_str(),
+				adapt->c_str());
 
 
 		adapt->ctl_handle_packet_in(
@@ -409,10 +414,12 @@ ctlbase::handle_port_status(
 
 uint32_t
 ctlbase::ctl_get_free_portno(
-		cadapt_dpt *dpt)
+		cadapt_dpt *dpt,
+		uint32_t requested)
 			throw (eAdaptNotFound)
 {
-	uint32_t portno = 1;
+	uint32_t portno = (requested != 0) ? requested : 1;;
+
 	while (n_ports.find(portno) != n_ports.end())
 	{
 		portno++;
@@ -493,6 +500,7 @@ ctlbase::ctl_handle_port_status(
 			/* sanity check: the port_no must exist */
 			if (n_ports.find(ofport->port_no) == n_ports.end())
 			{
+				fprintf(stderr, "P1\n");
 				throw eCtlBaseNotFound();
 			}
 		}
@@ -909,6 +917,12 @@ ctlbase::send_flow_mod_message(
 							{
 								uint32_t out_port = be32toh(action.oac_output->port);
 
+								if (out_port > OFPP_MAX)
+								{
+									actions.next() = action;
+									continue;
+								}
+
 								if (n_ports.find(out_port) == n_ports.end())
 								{
 									throw eCtlBaseInval(); // outgoing port is invalid
@@ -1024,6 +1038,13 @@ ctlbase::send_packet_out_message(
 		case OFPAT_OUTPUT:
 			{
 				uint32_t out_port = be32toh(action.oac_output->port);
+
+				if (out_port > OFPP_MAX)
+				{
+					actions.next() = action; // e.g. OFPP_ALL, OFPP_FLOOD, etc.
+					continue;
+				}
+
 
 				if (n_ports.find(out_port) == n_ports.end())
 				{
@@ -1200,6 +1221,12 @@ ctlbase::send_group_mod_message(
 				{
 					uint32_t out_port = be32toh(action.oac_output->port);
 
+					if (out_port > OFPP_MAX)
+					{
+						actions.next() = action;
+						continue;
+					}
+
 					if (n_ports.find(out_port) == n_ports.end())
 					{
 						throw eCtlBaseInval(); // outgoing port is invalid
@@ -1271,6 +1298,7 @@ ctlbase::send_port_mod_message(
 
 	if (n_ports.find(port_no) == n_ports.end())
 	{
+		fprintf(stderr, "P2\n");
 		throw eCtlBaseNotFound();
 	}
 
@@ -1302,6 +1330,7 @@ ctlbase::find_adaptor_by_portno(
 {
 	if (n_ports.find(portno) == n_ports.end())
 	{
+		fprintf(stderr, "P3\n");
 		throw eCtlBaseNotFound();
 	}
 
