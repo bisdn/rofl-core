@@ -93,10 +93,19 @@ public: // methods
 	size_t
 	length();
 
+	/** counts number of actions of specific type in ActionList acvec of this instruction
+	 */
+	int
+	count_action_type(
+			uint16_t type);
+
+
 	/** counts number of actions output in ActionList acvec of this instruction
 	 */
 	int
-	actions_count_output();
+	count_action_output(
+			uint32_t port_no = 0) const;
+
 
 
 	/** returns a list of port_no values for each ActionOutput instances

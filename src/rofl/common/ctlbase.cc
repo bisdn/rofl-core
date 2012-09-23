@@ -1017,6 +1017,75 @@ ctlbase::send_packet_out_message(
 	}
 
 	/*
+	 * if there are specific ports > OFPP_MAX (e.g. OFPP_FLOOD, OFPP_ALL),
+	 * we are generating multiple packet-outs, each per port, as adaptation
+	 * might be different for each port.
+	 */
+	if (aclist.count_action_output(OFPP_ALL) || aclist.count_action_output(OFPP_FLOOD))
+	{
+		for (std::map<uint32_t, cadapt*>::iterator
+				it = n_ports.begin(); it != n_ports.end(); ++it)
+		{
+			if (in_port == it->first)
+			{
+				continue; // ignore in-port
+			}
+
+			cofaclist accopy;
+			WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
+					"special purpose outport found, calling for out-port: %lu",
+					dpname.c_str(), it->first);
+
+			for (cofaclist::const_iterator
+					jt = aclist.begin(); jt != aclist.end(); ++jt)
+			{
+				cofaction action(*jt);
+
+				switch (action.get_type()) {
+				case OFPAT_OUTPUT:
+					{
+						uint32_t out_port = be32toh(action.oac_output->port);
+
+						switch (out_port) {
+						case OFPP_ALL:
+						case OFPP_FLOOD:
+							{
+								accopy.next() = cofaction_output(it->first);
+							}
+							break;
+						default:
+							{
+								accopy.next() = action;
+							}
+							break;
+						}
+					}
+					break;
+				default:
+					{
+						accopy.next() = action;
+					}
+					break;
+				}
+			}
+
+			if (0 == pack)
+			{
+				send_packet_out_message(buffer_id, in_port, accopy);
+			}
+			else
+			{
+				cpacket* n_pack = new cpacket(*pack); // clone of packet
+
+				send_packet_out_message(buffer_id, in_port, accopy, n_pack);
+			}
+		}
+
+		return; // we are done
+	}
+
+
+	/*
 	 * iterate over all actions in aclist and call adapt methods
 	 */
 	cofaclist actions; // list of adapted actions

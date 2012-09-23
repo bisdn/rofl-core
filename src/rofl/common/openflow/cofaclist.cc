@@ -131,13 +131,42 @@ cofaclist::find_action(enum ofp_action_type type) throw (eAcListNotFound)
 
 
 int
-cofaclist::actions_count_output()
+cofaclist::count_action_type(
+		uint16_t type)
 {
-	int output_cnt = count_if(elems.begin(), elems.end(), cofaction_find_type(OFPAT_OUTPUT));
+	int action_cnt = count_if(elems.begin(), elems.end(), cofaction_find_type(type));
 
-	WRITELOG(COFINST, ROFL_DBG, "cofinst::actions_count_output(): %d", (output_cnt));
+	WRITELOG(COFINST, ROFL_DBG, "cofinst::actions_count_action_type(): %d", (action_cnt));
 
-	return (output_cnt);
+	return (action_cnt);
+}
+
+
+int
+cofaclist::count_action_output(
+		uint32_t port_no) const
+{
+	int action_cnt = 0;
+
+	for (cofaclist::const_iterator
+			it = elems.begin(); it != elems.end(); ++it)
+	{
+		cofaction action(*it);
+
+		if (OFPAT_OUTPUT != action.get_type())
+		{
+			continue;
+		}
+
+		uint32_t out_port = be32toh(action.oac_output->port);
+
+		if ((0 == port_no) || (out_port == port_no))
+		{
+			action_cnt++;
+		}
+	}
+
+	return action_cnt;
 }
 
 

@@ -255,7 +255,7 @@ cftentry::__update()
 				this, inst.c_str());
 
 		// if multiple output actions, mark packet for copy-on-write
-		if (inst.actions.actions_count_output() > 1)
+		if (inst.actions.count_action_type(OFPAT_OUTPUT) > 1)
 		{
 			this->flags |= CPKBUFF_COPY_ON_WRITE;
 		}
