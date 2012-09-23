@@ -109,9 +109,9 @@ csyslog::writelog(DebugClass debugClass, DebugLevel level, const char *fmt, ...)
 
 		fprintf(filestream, "\n");
 
-//#ifdef DEBUG_DEVEL
+#ifdef FLUSH_ALWAYS
 		fflush(filestream);
-//#endif
+#endif
 
 
 #if 0
