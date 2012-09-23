@@ -321,8 +321,9 @@ ctlbase::handle_packet_in(
 	} catch (eFspNoMatch& e) {
 
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
-				"no flowspace subscription for packet found, data: %s",
-				dpname.c_str(), pack->packet.c_str());
+				"no flowspace subscription for packet found =>"
+				" fsptable: %s\ndata: %s",
+				dpname.c_str(), fsptable.c_str(), pack->packet.c_str());
 
 	} catch (eCtlBaseInval& e) {
 

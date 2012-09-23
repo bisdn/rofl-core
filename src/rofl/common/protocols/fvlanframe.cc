@@ -212,11 +212,12 @@ fvlanframe::c_str()
 {
 	cvastring vas;
 
-	info.assign(vas("[fvlanframe(%p) vid:%d pcp:%d cfi:%d %s]",
+	info.assign(vas("[fvlanframe(%p) vid:%d pcp:%d cfi:%d dltype:0x%04x %s]",
 			this,
 			get_dl_vlan_id(),
 			get_dl_vlan_pcp(),
 			get_dl_vlan_cfi(),
+			get_dl_type(),
 			fframe::c_str()));
 
 	return info.c_str();
