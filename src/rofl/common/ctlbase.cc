@@ -1095,6 +1095,14 @@ ctlbase::send_packet_out_message(
 			"\nactions [original] => %s", dpname.c_str(), accopy.c_str());
 
 
+	if (0 != pack)
+	{
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() =>\n"
+				"GGG[1] %s", dpname.c_str(), pack->c_str());
+	}
+
+
+
 
 
 
@@ -1121,6 +1129,24 @@ ctlbase::send_packet_out_message(
 					throw eCtlBaseInval(); // outgoing port is invalid
 				}
 
+#if 1
+				{
+					cofmatch empty;
+
+					cofaclist add_this = n_ports[out_port]->dpt_filter_match(this, out_port, empty);
+
+					// copy all adapted actions to the actions list
+					for (cofaclist::const_iterator
+							it = add_this.begin(); it != add_this.end(); ++it)
+					{
+						actions.next() = (*it);
+					}
+
+					WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() HHH =>\n"
+							"actions [add_this_inport] => %s", dpname.c_str(), add_this.c_str());
+				}
+#endif
+
 				// call the stack and filter all actions
 				cofaclist add_this = n_ports[out_port]->dpt_filter_action(this, out_port, action);
 
@@ -1132,7 +1158,7 @@ ctlbase::send_packet_out_message(
 				}
 
 				WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
-						"\nactions [add_this] => %s", dpname.c_str(), add_this.c_str());
+						"\nactions [add_this_outport] => %s", dpname.c_str(), add_this.c_str());
 
 
 
@@ -1172,6 +1198,14 @@ ctlbase::send_packet_out_message(
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
 				"\npack [adapted] => %s", dpname.c_str(), pack->c_str());
 	}
+
+
+	if (0 != pack)
+	{
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() =>\n"
+				"GGG[2] %s", dpname.c_str(), pack->c_str());
+	}
+
 
 
 	if (0 == pack)
