@@ -390,7 +390,7 @@ cfwdelem::dpath_detach(cofbase* dp)
 
 
 void
-cfwdelem::ctrl_attach(cofbase* dp) throw (eOFbaseIsBusy)
+cfwdelem::ctrl_attach(cofbase* dp) throw (eFwdElemFspSupportDisabled)
 {
 	// sanity check: entity must exist
 	if (NULL == dp) return;
@@ -400,7 +400,7 @@ cfwdelem::ctrl_attach(cofbase* dp) throw (eOFbaseIsBusy)
 	// namespaces disabled? block attachment attempts
 	if ((not fe_flags.test(NSP_ENABLED)) && (not ofctrl_list.empty()))
 	{
-		throw eOFbaseIsBusy();
+		throw eFwdElemFspSupportDisabled();
 	}
 
 	// check for existence of control entity
@@ -795,8 +795,14 @@ cfwdelem::fe_down_hello_message(
 		delete pack;
 
 	} catch (eOFbaseInval& e) {
+
 		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fe_down_hello_message() malformed packet received", this);
 		delete pack;
+	} catch (eFwdElemFspSupportDisabled& e) {
+
+		WRITELOG(CFWD, ROFL_DBG, "\n\ncfwdelem(%p)::fe_down_hello_message() "
+				"flowspace support for multiple controllers DISABLED!!!\n\n", this);
+				delete pack;
 	}
 }
 
@@ -1931,6 +1937,121 @@ cfwdelem::send_packet_in_message(
 	uint8_t* data,
 	size_t datalen) throw(eFwdElemNoCtrl)
 {
+	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+			"ofctrl_list.size()=%d", this, ofctrl_list.size());
+
+	cpacket n_pack(data, datalen, match.get_in_port());
+
+	if (fe_flags.test(NSP_ENABLED))
+	{
+		try {
+			std::set<cfspentry*> nse_list;
+
+			nse_list = fsptable.find_matching_entries(
+					match.oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).uint32(),
+					total_len,
+					n_pack);
+
+			WRITELOG(CFWD, ROFL_WARN, "cfwdelem(%p) nse_list.size()=%d", this, nse_list.size());
+
+			if (nse_list.empty())
+			{
+				throw eFwdElemNoCtrl();
+			}
+
+
+			for (std::set<cfspentry*>::iterator
+					it = nse_list.begin(); it != nse_list.end(); ++it)
+			{
+				cofctrl *ofctrl = dynamic_cast<cofctrl*>( (*nse_list.begin())->fspowner );
+				if (OFPCR_ROLE_SLAVE == ofctrl->role)
+				{
+					WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+							"ofctrl:%p is SLAVE, ignoring", this, ofctrl);
+					continue;
+				}
+
+
+				cofpacket_packet_in *pack = new cofpacket_packet_in(
+													ta_new_async_xid(),
+													buffer_id,
+													total_len,
+													reason,
+													table_id,
+													data,
+													datalen);
+
+				pack->match = match;
+
+				pack->pack();
+
+				WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+								"sending PACKET-IN for buffer_id:0x%x to controller %s, pack: %s",
+								this, buffer_id, ofctrl->c_str(), pack->c_str());
+
+				// straight call to layer-(n+1) entity's fe_up_packet_in() method
+				ofctrl->ctrl->fe_up_packet_in(this, pack);
+			}
+
+		} catch (eFspNoMatch& e) {
+			cpacket pack(data, datalen);
+			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() no ctrl found for packet: %s", this, pack.c_str());
+			throw eFwdElemNoCtrl();
+		}
+
+
+		return;
+	}
+	else
+	{
+		if (ofctrl_list.empty())
+		{
+			throw eFwdElemNoCtrl();
+		}
+
+		cofctrl *ofctrl = (ofctrl_list.begin()->second);
+
+
+
+
+		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+						"sending PACKET-IN for buffer_id:0x%x to controller %s",
+						this, buffer_id, ofctrl->c_str());
+
+		cofpacket_packet_in *pack = new cofpacket_packet_in(
+											ta_new_async_xid(),
+											buffer_id,
+											total_len,
+											reason,
+											table_id,
+											data,
+											datalen);
+
+		pack->match = match;
+
+		pack->pack();
+
+		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+						"sending PACKET-IN for buffer_id:0x%x pack: %s",
+						this, buffer_id, pack->c_str());
+
+		// straight call to layer-(n+1) entity's fe_up_packet_in() method
+		ofctrl->ctrl->fe_up_packet_in(this, pack);
+	}
+}
+
+
+#if 0
+void
+cfwdelem::send_packet_in_message(
+	uint32_t buffer_id,
+	uint16_t total_len,
+	uint8_t reason,
+	uint8_t table_id,
+	cofmatch& match,
+	uint8_t* data,
+	size_t datalen) throw(eFwdElemNoCtrl)
+{
 	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() ofctrl_list.size()=%d", this, ofctrl_list.size());
 
 	try {
@@ -1969,7 +2090,15 @@ cfwdelem::send_packet_in_message(
 			if (nse_list.empty())
 				throw eFwdElemNoCtrl();
 
+
+			for (std::set<cfspentry*>::iterator
+					it = nse_list.begin(); it != nse_list.end(); ++it)
+			{
+				cfspentry*
+			}
 			ofctrl = dynamic_cast<cofctrl*>( (*nse_list.begin())->fspowner );
+
+			return;
 		}
 		else
 		{
@@ -2012,6 +2141,8 @@ cfwdelem::send_packet_in_message(
 		throw eFwdElemNoCtrl();
 	}
 }
+#endif
+
 
 
 void

@@ -42,6 +42,9 @@ class ePPPoEPadiNoSvcTag		: public eFrameInvalidSyntax {};	// no svcname tag in 
 class ePPPoEPadrInvalCode		: public eFrameInvalidSyntax {};	// invalid code in PADR
 class ePPPoEPadrInvalSid		: public eFrameInvalidSyntax {};	// invalid sid in PADR
 class ePPPoEPadrNoSvcTag		: public eFrameInvalidSyntax {};	// no svcname tag in PADR
+class ePPPoEPadsInvalSid		: public eFrameInvalidSyntax {};	// invalid sid in PADS
+
+
 
 class cpacket;
 
@@ -199,7 +202,7 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual void
-	validate() throw (ePPPoEFrameInvalLength, ePPPoEFrameInvalType, ePPPoEFrameInvalVersion);
+	validate() throw (ePPPoEFrameInvalLength, ePPPoEFrameInvalType, ePPPoEFrameInvalVersion, ePPPoEFrameInvalCode);
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *
@@ -328,7 +331,7 @@ private: // methods
 	void
 	validate_pppoe_discovery_padr() throw (eFrameInvalidSyntax);
 	void
-	validate_pppoe_discovery_pads() throw (eFrameInvalidSyntax);
+	validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalCode, ePPPoEPadsInvalSid);
 	void
 	validate_pppoe_discovery_padt() throw (eFrameInvalidSyntax);
 

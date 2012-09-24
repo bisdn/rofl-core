@@ -113,7 +113,10 @@ fpppoeframe::payloadlen() throw (eFrameNoPayload)
 
 
 void
-fpppoeframe::validate() throw (ePPPoEFrameInvalLength, ePPPoEFrameInvalType, ePPPoEFrameInvalVersion)
+fpppoeframe::validate() throw (ePPPoEFrameInvalLength,
+									ePPPoEFrameInvalType,
+									ePPPoEFrameInvalVersion,
+									ePPPoEFrameInvalCode)
 {
 	initialize();
 
@@ -158,7 +161,7 @@ fpppoeframe::validate() throw (ePPPoEFrameInvalLength, ePPPoEFrameInvalType, ePP
 		validate_pppoe_discovery_padt();
 		break;
 	default:
-		throw ePPPoEFrameInvalidSyntax();
+		throw ePPPoEFrameInvalCode();
 		break;
 	}
 }
@@ -585,7 +588,7 @@ fpppoeframe::validate_pppoe_discovery_padr() throw (eFrameInvalidSyntax)
 }
 
 void
-fpppoeframe::validate_pppoe_discovery_pads() throw (eFrameInvalidSyntax)
+fpppoeframe::validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalCode, ePPPoEPadsInvalSid)
 {
 #if 0
 	parse_pppoe_tags(); // fill in pppoe_tags vector
@@ -594,10 +597,9 @@ fpppoeframe::validate_pppoe_discovery_pads() throw (eFrameInvalidSyntax)
 	try {
 
 		if (PPPOE_CODE_PADS != get_pppoe_code())
-			throw eFrameInvalidSyntax();
-
-		if (0x0000 == get_pppoe_sessid())
-			throw eFrameInvalidSyntax();
+		{
+			throw ePPPoEFrameInvalCode();
+		}
 
 		tags.unpack(pppoe_hdr->data, get_hdr_length());
 

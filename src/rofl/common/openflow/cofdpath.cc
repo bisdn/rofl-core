@@ -291,9 +291,9 @@ cofdpath::stats_reply_rcvd(
 
 	if (cur_state() == DP_STATE_INIT) // enter state running during initialization
 	{
-		flow_mod_reset();
+		//flow_mod_reset();
 
-		group_mod_reset();
+		//group_mod_reset();
 
 		new_state(DP_STATE_RUNNING);
 

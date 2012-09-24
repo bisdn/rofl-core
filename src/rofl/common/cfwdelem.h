@@ -74,6 +74,7 @@ class eFwdElemExists		: public eFwdElemBase {}; // fwdelem with either this dpid
 class eFwdElemOFportNotFound : public eFwdElemBase {}; // cofport instance not found
 class eFwdElemTableNotFound : public eFwdElemBase {}; // flow-table not found (e.g. unknown table_id in flow_mod)
 class eFwdElemGotoTableNotFound : public eFwdElemBase {}; // table-id specified in OFPIT_GOTO_TABLE invalid
+class eFwdElemFspSupportDisabled : public eFwdElemBase {};
 
 
 
@@ -1899,7 +1900,7 @@ private: // methods for attaching/detaching other cofbase instances
 	/** attach controlling entity
 	 */
 	void
-	ctrl_attach(cofbase* dp) throw (eOFbaseIsBusy);
+	ctrl_attach(cofbase* dp) throw (eFwdElemFspSupportDisabled);
 
 	/** detach controlling entity
 	 */
