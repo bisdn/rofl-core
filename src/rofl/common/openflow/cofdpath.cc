@@ -43,8 +43,6 @@ cofdpath::~cofdpath()
 			"dpid:%"UINT64DBGFMT" child:%p\n %s",
 			this, dpid, entity, this->c_str());
 
-	entity = (cofbase*)0;
-
 	fwdelem->handle_dpath_close(this);
 
 	// remove all cofport instances
@@ -54,6 +52,8 @@ cofdpath::~cofdpath()
 	}
 
 	ofswitch_list->erase(entity);
+
+	entity = (cofbase*)0;
 }
 
 
@@ -488,11 +488,6 @@ cofdpath::packet_in_rcvd(cofpacket *pack)
 void
 cofdpath::port_status_rcvd(cofpacket *pack)
 {
-	if (0 == entity)
-	{
-		return;
-	}
-
 	WRITELOG(COFDPATH, ROFL_DBG, "cfwdelem(%s)::cofdpath(0x%016llx)::port_status_rcvd() %s",
 			fwdelem->get_s_dpid(), dpid, pack->c_str());
 

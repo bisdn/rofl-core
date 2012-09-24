@@ -206,6 +206,8 @@ ctlbase::handle_dpath_close(
 	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_close() "
 			"dpid: %llu", dpname.c_str(), dpath->dpid);
 
+	this->dpath = (cofdpath*)0;
+
 	/*
 	 * inform adapters about detachment of our layer (n-1) datapath
 	 */
@@ -220,8 +222,6 @@ ctlbase::handle_dpath_close(
 			stack.back()->ctl_handle_port_status(this, OFPPR_DELETE, jt->second);
 		}
 	}
-
-	this->dpath = (cofdpath*)0;
 }
 
 
@@ -353,6 +353,96 @@ ctlbase::handle_packet_in(
 	}
 
 	delete pack;
+}
+
+
+
+void
+ctlbase::fsp_open(
+		cofmatch& match)
+{
+	try {
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::fsp_open() [original] "
+				"match: %s",
+				dpname.c_str(), match.c_str());
+
+		uint32_t in_port = match.get_in_port();
+
+		// match is defined for a specific inport, filter through the adapter
+		if (n_ports.find(in_port) == n_ports.end())
+		{
+			WRITELOG(CFWD, DBG, "ctlbase(%s)::fsp_open() "
+					"match refers to in_port: 0x%x, which does not exist, ignoring",
+					dpname.c_str(), in_port);
+
+			return;
+		}
+		n_ports[in_port]->dpt_filter_match(this, in_port, match);
+
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::fsp_open() [adapted] "
+				"match: %s",
+				dpname.c_str(), match.c_str());
+
+	} catch (eOFmatchNotFound& e) {
+
+		// no in_port, do nothing with our adapters
+	}
+
+	if (0 == dpath)
+	{
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::fsp_open() "
+				"no dpt available, igoring",
+				dpname.c_str());
+
+		return;
+	}
+
+	dpath->fsp_open(match);
+}
+
+
+
+void
+ctlbase::fsp_close(
+		cofmatch& match)
+{
+	try {
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::fsp_close() [original] "
+				"match: %s",
+				dpname.c_str(), match.c_str());
+
+		uint32_t in_port = match.get_in_port();
+
+		// match is defined for a specific inport, filter through the adapter
+		if (n_ports.find(in_port) == n_ports.end())
+		{
+			WRITELOG(CFWD, DBG, "ctlbase(%s)::fsp_close() "
+					"match refers to in_port: 0x%x, which does not exist, ignoring",
+					dpname.c_str(), in_port);
+
+			return;
+		}
+		n_ports[in_port]->dpt_filter_match(this, in_port, match);
+
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::fsp_close() [adapted] "
+				"match: %s",
+				dpname.c_str(), match.c_str());
+
+	} catch (eOFmatchNotFound& e) {
+
+		// no in_port, do nothing with our adapters
+	}
+
+	if (0 == dpath)
+	{
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::fsp_close() "
+				"no dpt available, igoring",
+				dpname.c_str());
+
+		return;
+	}
+
+	dpath->fsp_close(match);
 }
 
 
@@ -501,7 +591,6 @@ ctlbase::ctl_handle_port_status(
 			/* sanity check: the port_no must exist */
 			if (n_ports.find(ofport->port_no) == n_ports.end())
 			{
-				fprintf(stderr, "P1\n");
 				throw eCtlBaseNotFound();
 			}
 		}
@@ -696,6 +785,11 @@ ctlbase::dpt_flowspace_close(
 		cadapt *adapt = dynamic_cast<cadapt*>( ctl );
 
 		if (0 == adapt)
+		{
+			return;
+		}
+
+		if (0 == dpath)
 		{
 			return;
 		}
@@ -1129,7 +1223,10 @@ ctlbase::send_packet_out_message(
 					throw eCtlBaseInval(); // outgoing port is invalid
 				}
 
-#if 1
+
+				/*
+				 * add actions for inport
+				 */
 				{
 					cofmatch empty;
 
@@ -1145,21 +1242,25 @@ ctlbase::send_packet_out_message(
 					WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() HHH =>\n"
 							"actions [add_this_inport] => %s", dpname.c_str(), add_this.c_str());
 				}
-#endif
 
-				// call the stack and filter all actions
-				cofaclist add_this = n_ports[out_port]->dpt_filter_action(this, out_port, action);
 
-				// copy all adapted actions to the actions list
-				for (cofaclist::const_iterator
-						it = add_this.begin(); it != add_this.end(); ++it)
+				/*
+				 * add actions for outport
+				 */
 				{
-					actions.next() = (*it);
+					// call the stack and filter all actions
+					cofaclist add_this = n_ports[out_port]->dpt_filter_action(this, out_port, action);
+
+					// copy all adapted actions to the actions list
+					for (cofaclist::const_iterator
+							it = add_this.begin(); it != add_this.end(); ++it)
+					{
+						actions.next() = (*it);
+					}
+
+					WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
+							"\nactions [add_this_outport] => %s", dpname.c_str(), add_this.c_str());
 				}
-
-				WRITELOG(CFWD, DBG, "ctlbase(%s)::send_packet_out_message() "
-						"\nactions [add_this_outport] => %s", dpname.c_str(), add_this.c_str());
-
 
 
 				if (0 != pack)
@@ -1402,7 +1503,6 @@ ctlbase::send_port_mod_message(
 
 	if (n_ports.find(port_no) == n_ports.end())
 	{
-		fprintf(stderr, "P2\n");
 		throw eCtlBaseNotFound();
 	}
 
@@ -1434,7 +1534,6 @@ ctlbase::find_adaptor_by_portno(
 {
 	if (n_ports.find(portno) == n_ports.end())
 	{
-		fprintf(stderr, "P3\n");
 		throw eCtlBaseNotFound();
 	}
 

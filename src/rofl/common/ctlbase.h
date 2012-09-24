@@ -187,6 +187,31 @@ protected:
 			cpacket& pack) = 0;
 
 
+	/**
+	 * @name	fsp_open
+	 * @brief	Register a flowspace
+	 *
+	 * This method registers the specified flowspace with ctlbase.
+	 *
+	 * @param match The flowspace to be registered.
+	 */
+	virtual void
+	fsp_open(
+			cofmatch& match);
+
+
+	/**
+	 * @name	fsp_close
+	 * @brief	Deregister a flowspace
+	 *
+	 * This method deregisters the specified flowspace with ctlbase.
+	 *
+	 * @param match The flowspace to be deregistered.
+	 */
+	virtual void
+	fsp_close(
+			cofmatch& match);
+
 
 
 
