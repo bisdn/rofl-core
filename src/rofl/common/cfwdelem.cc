@@ -1013,6 +1013,7 @@ cfwdelem::send_features_reply(cofctrl *ofctrl, uint32_t xid)
 			it = phy_ports.begin(); it != phy_ports.end(); ++it)
 	{
 		reply->ports.next() = *(it->second);
+		WRITELOG(CFWD, ROFL_DBG, "==> %s", it->second->c_str());
 	}
 
 	reply->pack(); // adjust fields, e.g. length in ofp_header
@@ -1958,7 +1959,6 @@ cfwdelem::send_packet_in_message(
 			{
 				throw eFwdElemNoCtrl();
 			}
-
 
 			for (std::set<cfspentry*>::iterator
 					it = nse_list.begin(); it != nse_list.end(); ++it)

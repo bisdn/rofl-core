@@ -99,7 +99,7 @@ cfsptable::find_matching_entries(
 	std::set<cfspentry*> nse_list;
 
 	WRITELOG(CNAMESPACE, ROFL_DBG, "cfsptable(%p)::find_matching_entries() \n"
-			"  pack: %s", this, pack.c_str());
+			"  pack: %s\n  fsptable: %s", this, pack.c_str(), c_str());
 
 	uint16_t exact_hits = 0;
 	uint16_t wildcard_hits = 0;
@@ -117,6 +117,7 @@ cfsptable::find_matching_entries(
 		if ((__exact_hits < exact_hits) || (__misses > 0))
 		{
 			WRITELOG(CNAMESPACE, ROFL_DBG, "cfsptable(%p)::find_matching_entries() ignoring flowspace", this);
+
 			continue;
 		}
 		else if (__exact_hits > exact_hits)
@@ -125,6 +126,7 @@ cfsptable::find_matching_entries(
 			nse_list.insert(*it);
 			exact_hits = __exact_hits;
 			wildcard_hits = __wildcard_hits;
+
 			WRITELOG(CNAMESPACE, ROFL_DBG, "cfsptable(%p)::find_matching_entries() new best match: %s", this, (*it)->ofmatch.c_str());
 		}
 		else if (__exact_hits == exact_hits)
@@ -139,6 +141,7 @@ cfsptable::find_matching_entries(
 				nse_list.insert(*it);
 
 				wildcard_hits = __wildcard_hits;
+
 				WRITELOG(CNAMESPACE, ROFL_DBG, "cfsptable(%p)::find_matching_entries() new best match: %s", this, (*it)->ofmatch.c_str());
 			}
 			else if (__wildcard_hits == wildcard_hits)
@@ -149,9 +152,19 @@ cfsptable::find_matching_entries(
 		}
 	}
 
+
 	if (nse_list.empty())
 	{
 		throw eFspNoMatch();
+	}
+
+	WRITELOG(CNAMESPACE, ROFL_DBG, "cfsptable(%p)::find_matching_entries()"
+			" fsp-entries list =>", this);
+
+	for (std::set<cfspentry*>::iterator
+			it = nse_list.begin(); it != nse_list.end(); ++it)
+	{
+		WRITELOG(CNAMESPACE, ROFL_DBG, "==> %s", (*it)->c_str());
 	}
 
 	return nse_list;

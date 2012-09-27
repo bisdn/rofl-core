@@ -310,7 +310,8 @@ throw (eOFportInval)
 
 	port_no 	= be32toh(port->port_no);
 
-	memcpy(hwaddr.somem(), port->hw_addr, OFP_ETH_ALEN);
+	hwaddr = cmacaddr(port->hw_addr, OFP_ETH_ALEN);
+	//memcpy(hwaddr.somem(), port->hw_addr, OFP_ETH_ALEN);
 	name.assign(port->name, OFP_MAX_PORT_NAME_LEN);
 
 	config 		= be32toh(port->config);

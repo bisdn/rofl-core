@@ -123,6 +123,15 @@ ctlbase::stack_load(
 
 		ctl->bind(dpt);
 	}
+
+	if (0 != dpath)
+	{
+		for (std::map<uint32_t, cofport*>::iterator
+				it = dpath->ports.begin(); it != dpath->ports.end(); ++it)
+		{
+			stack.back()->ctl_handle_port_status(this, OFPPR_ADD, it->second);
+		}
+	}
 }
 
 
@@ -174,8 +183,9 @@ ctlbase::handle_dpath_open(
 	 */
 	this->dpath = dpath;
 
-	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_open() "
-			"dpid: %s adapters: %d", dpname.c_str(), dpath->c_str(), adstacks.size());
+	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_open() => "
+			"adapters: %d #ports-on-dpt: %d\ndpath: %s ",
+			dpname.c_str(), adstacks.size(), dpath->ports.size(), dpath->c_str());
 
 	/*
 	 * inform adapters about existence of our layer (n-1) datapath
@@ -266,6 +276,9 @@ ctlbase::handle_packet_in(
 
 	if (sw != dpath)
 	{
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() rcvd packet from non-registered dpath"
+				"sw: %p dpath: %p", sw, dpath, dpname.c_str());
+
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() rcvd packet from non-registered dpath",
 				dpname.c_str());
 
@@ -464,8 +477,9 @@ ctlbase::handle_port_status(
 
 	if (sw != dpath)
 	{
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() rcvd packet from non-registered dpath",
-				dpname.c_str());
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() "
+				"rcvd packet from non-registered dpath"
+				" sw: %p dpath: %p", dpname.c_str(), sw, dpath);
 
 		delete pack; return;
 	}
