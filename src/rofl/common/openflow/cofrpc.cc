@@ -595,7 +595,9 @@ void cofrpc::handle_tcp(
 		if (not pack->is_valid())
 			throw eRpcPackInval();
 
+#ifndef NDEBUG
 		fprintf(stderr, "r:%d ", pack->ofh_header->type);
+#endif
 
 		WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p:%s): received packet "
 				"from TCP socket", this,
@@ -875,7 +877,9 @@ cofrpc::send_message_via_tcp()
 
 			pack->pack(mem->somem(), mem->memlen());
 
+#ifndef NDEBUG
 			fprintf(stderr, "s:%d ", pack->ofh_header->type);
+#endif
 
 			WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p:%s): new cmemory: %s",
 					this,
