@@ -94,12 +94,14 @@ farpv4frame::payloadlen() throw (eFrameNoPayload)
 
 
 void
-farpv4frame::validate() throw (eFrameInvalidSyntax)
+farpv4frame::validate() throw (eARPv4FrameTooShort)
 {
 	initialize();
 
 	if (framelen() < (sizeof(struct arpv4_hdr_t)))
-		throw eFrameInvalidSyntax();
+	{
+		throw eARPv4FrameTooShort();
+	}
 }
 
 

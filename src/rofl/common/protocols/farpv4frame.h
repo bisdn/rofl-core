@@ -33,6 +33,11 @@ extern "C" {
 }
 #endif
 
+
+class eARPv4FrameBase			: public eFrameInval {};
+class eARPv4FrameTooShort		: public eARPv4FrameBase {};
+
+
 class farpv4frame : public fframe {
 public: // static
 
@@ -233,7 +238,7 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual void
-	validate() throw (eFrameInvalidSyntax);
+	validate() throw (eARPv4FrameTooShort);
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *

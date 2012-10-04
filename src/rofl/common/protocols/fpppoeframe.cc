@@ -622,17 +622,23 @@ fpppoeframe::validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalCode, ePPPoE
 
 
 void
-fpppoeframe::validate_pppoe_discovery_padt() throw (eFrameInvalidSyntax)
+fpppoeframe::validate_pppoe_discovery_padt() throw (ePPPoEPadtInvalCode, ePPPoEPadtInvalSid)
 {
 #if 0
 	parse_pppoe_tags(); // fill in pppoe_tags vector
 #endif
 
 	if (get_pppoe_code() != PPPOE_CODE_PADT)
-		throw eFrameInvalidSyntax();
+	{
+		throw ePPPoEPadtInvalCode();
+	}
 
 	if (0x0000 == get_pppoe_sessid()) // session id should not be 0x0000 for a PADT (ongoing session)
-		throw eFrameInvalidSyntax();
+	{
+		// some devices set sessid to 0x0000 in PADT, although it is forbidden in RFC 2516.
+		// Be liberal what you accept ... including all crappy stuff from other people.
+		throw ePPPoEPadtInvalSid();
+	}
 }
 
 
