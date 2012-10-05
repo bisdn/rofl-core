@@ -136,7 +136,7 @@ coxmlist::unpack(
 
 	while (oxm_len > 0)
 	{
-		if ((0 == hdr->oxm_length) || (oxm_len < sizeof(struct ofp_oxm_hdr)))
+		if ((oxm_len < sizeof(struct ofp_oxm_hdr)) || (0 == hdr->oxm_length))
 		{
 			return; // not enough bytes to parse an entire ofp_oxm_hdr, possibly padding bytes found
 		}

@@ -13,8 +13,6 @@ croflexp::croflexp(
 {
 	rext_header = (struct ofp_rofl_ext_header*)mem.somem();
 
-	unpack(buf, buflen);
-
 	validate();
 }
 
@@ -118,7 +116,10 @@ croflexp::validate_flowspace()
 		{
 			match.reset();
 
-			match.unpack(rext_fsp->match, mem.memlen() - sizeof(struct ofp_rofl_ext_flowspace));
+			if (mem.memlen() > sizeof(struct ofp_rofl_ext_flowspace))
+			{
+				match.unpack(rext_fsp->match, mem.memlen() - sizeof(struct ofp_rofl_ext_flowspace));
+			}
 		}
 		break;
 	default:
