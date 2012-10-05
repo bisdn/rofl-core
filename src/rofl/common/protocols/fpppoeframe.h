@@ -203,7 +203,13 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual void
-	validate() throw (ePPPoEFrameTooShort, ePPPoEFrameInvalType, ePPPoEFrameInvalVersion, ePPPoEFrameInvalCode);
+	validate() throw (ePPPoEFrameTooShort,
+						ePPPoEFrameInvalType,
+						ePPPoEFrameInvalVersion,
+						ePPPoEFrameInvalCode,
+						ePPPoEPadsInvalSid,
+						ePPPoEPadtInvalCode,
+						ePPPoEPadtInvalSid);
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *

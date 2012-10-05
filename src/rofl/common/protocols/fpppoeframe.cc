@@ -116,7 +116,10 @@ void
 fpppoeframe::validate() throw (ePPPoEFrameTooShort,
 									ePPPoEFrameInvalType,
 									ePPPoEFrameInvalVersion,
-									ePPPoEFrameInvalCode)
+									ePPPoEFrameInvalCode,
+									ePPPoEPadsInvalSid,
+									ePPPoEPadtInvalCode,
+									ePPPoEPadtInvalSid)
 {
 	initialize();
 
@@ -637,7 +640,7 @@ fpppoeframe::validate_pppoe_discovery_padt() throw (ePPPoEPadtInvalCode, ePPPoEP
 	{
 		// some devices set sessid to 0x0000 in PADT, although it is forbidden in RFC 2516.
 		// Be liberal what you accept ... including all crappy stuff from other people.
-		throw ePPPoEPadtInvalSid();
+		//throw ePPPoEPadtInvalSid();
 	}
 }
 
