@@ -95,6 +95,8 @@ ciosrv::~ciosrv()
 
 	pthread_mutex_destroy(&timer_mutex);
 	pthread_mutex_destroy(&event_mutex);
+
+	tid = 0;
 }
 
 
@@ -1012,6 +1014,10 @@ ciosrv::child_sig_handler (int x) {
 void
 ciosrv::init()
 {
+	/*
+	 * allocate per-thread data structures
+	 */
+
 	pthread_t tid = pthread_self();
 
 	if (ciosrv::ciosrv_wakeup_rwlock.find(tid) == ciosrv::ciosrv_wakeup_rwlock.end())
@@ -1029,14 +1035,26 @@ ciosrv::init()
 }
 
 
+
+void
+ciosrv::destroy()
+{
+	pthread_t tid = pthread_self();
+
+	/*
+	 * deallocate per-thread data structures
+	 */
+
+	delete iodata[tid]; iodata.erase(tid);
+	pthread_mutex_destroy(&(ciosrv::ciosrv_list_mutex[tid]));
+	pthread_rwlock_destroy(&(ciosrv::ciosrv_wakeup_rwlock[tid]));
+}
+
+
+
 void
 ciosrv::run()
 {
-	/*
-	 * allocate per-thread data structures
-	 */
-
-	pthread_t tid = pthread_self();
 
 
 	/*
@@ -1117,14 +1135,6 @@ handle_packets:			// handle incoming events
 
 		}
 	}
-
-	/*
-	 * deallocate per-thread data structures
-	 */
-
-	delete iodata[tid]; iodata.erase(tid);
-	pthread_mutex_destroy(&(ciosrv::ciosrv_list_mutex[tid]));
-	pthread_rwlock_destroy(&(ciosrv::ciosrv_wakeup_rwlock[tid]));
 }
 
 

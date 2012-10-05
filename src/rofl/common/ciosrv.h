@@ -228,6 +228,13 @@ public: // static
 	static void init();
 
 
+	/**
+	 * Destroy static variables before running this ciosrv instance.
+	 */
+	static void destroy();
+
+
+
 public:
 
 	/**
