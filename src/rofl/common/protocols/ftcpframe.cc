@@ -110,12 +110,14 @@ ftcpframe::payloadlen() throw (eFrameNoPayload)
 
 
 void
-ftcpframe::validate() throw (eFrameInvalidSyntax)
+ftcpframe::validate() throw (eTcpFrameTooShort)
 {
 	initialize();
 
 	if (!complete())
-		throw eFrameInvalidSyntax();
+	{
+		throw eTcpFrameTooShort();
+	}
 
 	// TODO: verify checksum here?
 }

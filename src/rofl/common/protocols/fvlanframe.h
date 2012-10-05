@@ -24,7 +24,10 @@ extern "C" {
 #include "../cmacaddr.h"
 #include "../cvastring.h"
 
-class eVlanFrameInvalidSyntax : public eFrameInvalidSyntax {}; // invalid syntax
+
+class eVlanFrameBase 			: public eFrameBase {};
+class eVlanFrameInvalidSyntax 	: public eVlanFrameBase, public eFrameInvalidSyntax {}; // invalid syntax
+class eVlanFrameTooShort		: public eVlanFrameInvalidSyntax {};
 
 /** VLAN frame
  *
@@ -105,7 +108,7 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual void
-	validate() throw (eFrameInvalidSyntax);
+	validate() throw (eVlanFrameTooShort);
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *

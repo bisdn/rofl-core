@@ -1,3 +1,4 @@
+
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -25,7 +26,9 @@ extern "C" {
 #include "../cmemory.h"
 #include "../cvastring.h"
 
-class eMplsFrameInvalidSyntax : public eFrameInvalidSyntax {}; // invalid syntax
+class eMplsFrameBase 			: public eFrameBase {};
+class eMplsFrameInvalidSyntax 	: public eMplsFrameBase, public eFrameInvalidSyntax {}; // invalid syntax
+class eMplsFrameTooShort		: public eMplsFrameInvalidSyntax {};
 
 /** MPLS frame
  *
@@ -91,7 +94,7 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual void
-	validate() throw (eFrameInvalidSyntax);
+	validate() throw (eMplsFrameTooShort);
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *

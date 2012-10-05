@@ -113,7 +113,7 @@ fpppoeframe::payloadlen() throw (eFrameNoPayload)
 
 
 void
-fpppoeframe::validate() throw (ePPPoEFrameInvalLength,
+fpppoeframe::validate() throw (ePPPoEFrameTooShort,
 									ePPPoEFrameInvalType,
 									ePPPoEFrameInvalVersion,
 									ePPPoEFrameInvalCode)
@@ -124,7 +124,7 @@ fpppoeframe::validate() throw (ePPPoEFrameInvalLength,
 	{
 		WRITELOG(CPACKET, ROFL_WARN, "fpppoeframe(%p)::validate(): "
 							"invalid PPPoE frame rcvd: incomplete => %s", this, c_str());
-		throw ePPPoEFrameInvalLength();
+		throw ePPPoEFrameTooShort();
 	}
 
 	if (PPPOE_TYPE != get_pppoe_type())

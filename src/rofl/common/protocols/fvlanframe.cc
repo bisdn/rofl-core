@@ -100,12 +100,14 @@ fvlanframe::payloadlen() throw (eFrameNoPayload)
 
 
 void
-fvlanframe::validate() throw (eFrameInvalidSyntax)
+fvlanframe::validate() throw (eVlanFrameTooShort)
 {
 	initialize();
 
 	if (framelen() < (sizeof(struct vlan_hdr_t)))
-		throw eFrameInvalidSyntax();
+	{
+		throw eVlanFrameTooShort();
+	}
 
 	// TODO: check on minimum length of 64 bytes?
 }

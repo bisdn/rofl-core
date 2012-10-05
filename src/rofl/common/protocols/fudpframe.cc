@@ -110,12 +110,14 @@ fudpframe::payloadlen() throw (eFrameNoPayload)
 
 
 void
-fudpframe::validate() throw (eFrameInvalidSyntax)
+fudpframe::validate() throw (eUdpFrameTooShort)
 {
 	initialize();
 
 	if (!complete())
-		throw eFrameInvalidSyntax();
+	{
+		throw eUdpFrameTooShort();
+	}
 
 	// TODO: verify checksum here?
 }

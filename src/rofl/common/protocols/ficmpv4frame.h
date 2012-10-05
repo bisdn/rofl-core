@@ -24,6 +24,12 @@ extern "C" {
 #include "../cvastring.h"
 
 
+class eICMPv4FrameBase 				: public eFrameBase {};
+class eICMPv4FrameInvalidSyntax 	: public eICMPv4FrameBase, public eFrameInvalidSyntax {};
+class eICMPv4FrameTooShort			: public eICMPv4FrameInvalidSyntax {};
+
+
+
 class ficmpv4frame : public fframe {
 public:
 
@@ -110,7 +116,7 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual void
-	validate() throw (eFrameInvalidSyntax);
+	validate() throw (eICMPv4FrameTooShort);
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *

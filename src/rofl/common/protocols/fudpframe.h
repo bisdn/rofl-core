@@ -23,6 +23,10 @@ extern "C" {
 #include "../cvastring.h"
 
 
+class eUdpFrameBase 		: public eFrameBase {};
+class eUdpFrameTooShort		: public eUdpFrameBase, public eFrameInvalidSyntax {};
+class eUdpFrameInvalChksum	: public eUdpFrameBase {};
+
 
 class fudpframe : public fframe {
 public:
@@ -94,7 +98,7 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual void
-	validate() throw (eFrameInvalidSyntax);
+	validate() throw (eUdpFrameTooShort);
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *

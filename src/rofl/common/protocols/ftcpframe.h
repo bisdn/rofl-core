@@ -24,6 +24,11 @@ extern "C" {
 
 #include "../cvastring.h"
 
+class eTcpFrameBase 		: public eFrameBase {};
+class eTcpFrameTooShort		: public eTcpFrameBase, public eFrameInvalidSyntax {};
+class eTcpFrameInvalChksum	: public eTcpFrameBase {};
+
+
 class ftcpframe : public fframe {
 public:
 	/* TCP constants and definitions */
@@ -122,7 +127,7 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual void
-	validate() throw (eFrameInvalidSyntax);
+	validate() throw (eTcpFrameTooShort);
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *

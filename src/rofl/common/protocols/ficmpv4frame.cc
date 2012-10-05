@@ -110,12 +110,14 @@ ficmpv4frame::payloadlen() throw (eFrameNoPayload)
 
 
 void
-ficmpv4frame::validate() throw (eFrameInvalidSyntax)
+ficmpv4frame::validate() throw (eICMPv4FrameTooShort)
 {
 	initialize();
 
 	if (!complete())
-		throw eFrameInvalidSyntax();
+	{
+		throw eICMPv4FrameTooShort();
+	}
 
 	// TODO: verify checksum here?
 }

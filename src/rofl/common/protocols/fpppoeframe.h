@@ -32,7 +32,7 @@ extern "C" {
 class ePPPoEFrameBase 			: public eFrameBase {}; 			// base error class for cpppoepacket
 class ePPPoEFrameTagNotFound 	: public ePPPoEFrameBase {}; 		// pppoe tag not found
 class ePPPoEFrameInvalidSyntax 	: public ePPPoEFrameBase, public eFrameInvalidSyntax {}; 		// frame has invalid syntax
-class ePPPoEFrameInvalLength	: public ePPPoEFrameInvalidSyntax {};	// length is invalid for PPPoE frame
+class ePPPoEFrameTooShort		: public ePPPoEFrameInvalidSyntax {};	// length is invalid for PPPoE frame
 class ePPPoEFrameInvalVersion	: public ePPPoEFrameInvalidSyntax {};	// invalid PPPoE version
 class ePPPoEFrameInvalType		: public ePPPoEFrameInvalidSyntax {};	// invalid PPPoE type
 class ePPPoEFrameInvalCode		: public ePPPoEFrameInvalidSyntax {};	// invalid PPPoE code
@@ -203,7 +203,7 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual void
-	validate() throw (ePPPoEFrameInvalLength, ePPPoEFrameInvalType, ePPPoEFrameInvalVersion, ePPPoEFrameInvalCode);
+	validate() throw (ePPPoEFrameTooShort, ePPPoEFrameInvalType, ePPPoEFrameInvalVersion, ePPPoEFrameInvalCode);
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *

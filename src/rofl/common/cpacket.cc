@@ -6,6 +6,13 @@
 
 
 
+cpacket
+cpacket::pempty()
+{
+	return cpacket((size_t)0);
+}
+
+
 cpacket::cpacket(
 			size_t size,
 			uint32_t in_port,

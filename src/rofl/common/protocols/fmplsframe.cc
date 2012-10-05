@@ -102,12 +102,14 @@ fmplsframe::payloadlen() throw (eFrameNoPayload)
 
 
 void
-fmplsframe::validate() throw (eFrameInvalidSyntax)
+fmplsframe::validate() throw (eMplsFrameTooShort)
 {
 	initialize();
 
 	if (framelen() < (sizeof(struct mpls_hdr_t)))
-		throw eFrameInvalidSyntax();
+	{
+		throw eMplsFrameTooShort();
+	}
 
 	// TODO: check on minimum length of 64 bytes?
 }

@@ -157,6 +157,16 @@ public:
 /*
  * methods
  */
+public: // static methods
+
+
+	/** returns an empty packet
+	 *
+	 */
+	static cpacket
+	pempty();
+
+
 public: // methods
 
 
