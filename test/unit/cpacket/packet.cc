@@ -13,6 +13,7 @@ void check_parser();
 void check_push_pop_vlan();
 void check_push_pop_mpls();
 void check_push_pop_pppoe_and_ppp();
+void check_pbb();
 
 cmemory create_ether_header(
 		cmacaddr const& dst,
@@ -63,6 +64,7 @@ main(int args, char** argv)
 	check_push_pop_vlan();
 	check_push_pop_mpls();
 	check_push_pop_pppoe_and_ppp();
+	check_pbb();
 
 	return EXIT_SUCCESS;
 }
@@ -570,7 +572,6 @@ check_parser()
 	ptest += create_mpls_tag(0x55555, 0x03, 0x10, false);
 	ptest += create_mpls_tag(0x77777, 0x00, 0x20, true);
 	ptest += create_ipv4_header(0x00, 38, 0x4444, 0x10, 0x00, caddress(AF_INET, "10.1.1.1"), caddress(AF_INET, "10.2.2.2"));
-	ptest += create_payload(18, 0x80);
 
 
 	printf("cpacket::classify() test packet: %s\n", ptest.c_str());
@@ -604,3 +605,50 @@ check_parser()
 	}
 #endif
 }
+
+
+
+void
+check_pbb()
+{
+	try {
+		cmemory ptest(0);
+
+		ptest += create_ether_header(
+				cmacaddr("00:11:11:11:11:11"),
+				cmacaddr("00:22:22:22:22:22"),
+				0x8100);
+		ptest += create_vlan_tag(0x52, 0x0, 0x88a8 /*IEEE802.1ad Q-in-Q*/);
+		ptest += create_vlan_tag(0x07, 0x0, 0x8100);
+		ptest += create_vlan_tag(0x777, 0x0, 0x8863);
+		ptest += create_pppoe_tag(/*code=*/0x09, /*sid=*/0x0000, /*len=*/7);
+		cmemory tags = create_payload(7, 0x00);
+
+		tags[0] = 0x01; // svcname tag
+		tags[1] = 0x01; // svcname tag
+		tags[2] = 0x00; // length
+		tags[3] = 0x03; // length
+		tags[4] = 0x41; // 'A'
+		tags[5] = 0x41; // 'A'
+		tags[6] = 0x41; // 'A'
+
+		ptest += tags;
+
+
+		printf("check_pbb() test packet: %s\n", ptest.c_str());
+
+
+		cpacket a1(ptest.somem(), ptest.memlen(), /*in_port=*/3, true);
+
+		printf("a1: %s\n", a1.c_str());
+
+
+	} catch (eFrameInvalidSyntax& e) {
+
+		exit(EXIT_FAILURE);
+	} catch (ePPPoEBadLen& e) {
+
+		exit(EXIT_FAILURE);
+	}
+}
+

@@ -56,6 +56,12 @@ throw (ePPPoEBadLen)
 			throw ePPPoEBadLen();
 		}
 
+		if (tlvlen < len)
+		{
+			WRITELOG(CPPPOETLV, ROFL_DBG, "cpppoelist(%p)::unpack() [3]", this);
+			throw ePPPoEBadLen();
+		}
+
 		next() = cpppoetlv((uint8_t*)tlvhdr, len );
 
 		//fprintf(stderr, "UUU => %s\n", c_str());

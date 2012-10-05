@@ -39,6 +39,7 @@ class ePPPoEFrameInvalCode		: public ePPPoEFrameInvalidSyntax {};	// invalid PPP
 class ePPPoEPadiInvalCode		: public ePPPoEFrameInvalidSyntax {};	// invalid code in PADI
 class ePPPoEPadiInvalSid		: public ePPPoEFrameInvalidSyntax {};	// invalid sid in PADI
 class ePPPoEPadiNoSvcTag		: public ePPPoEFrameInvalidSyntax {};	// no svcname tag in PADI
+class ePPPoEPadiInvalTags		: public ePPPoEFrameInvalidSyntax {}; 	// invalid tags size
 class ePPPoEPadrInvalCode		: public ePPPoEFrameInvalidSyntax {};	// invalid code in PADR
 class ePPPoEPadrInvalSid		: public ePPPoEFrameInvalidSyntax {};	// invalid sid in PADR
 class ePPPoEPadrNoSvcTag		: public ePPPoEFrameInvalidSyntax {};	// no svcname tag in PADR

@@ -502,7 +502,12 @@ fpppoeframe::validate_pppoe_discovery_padi() throw (eFrameInvalidSyntax)
 		if (0x0000 != get_pppoe_sessid()) // session id must be 0x0000
 			throw ePPPoEPadiInvalSid();
 
-		tags.unpack(pppoe_hdr->data, get_hdr_length());
+		if (get_hdr_length() > (framelen() - sizeof(struct fpppoeframe::pppoe_hdr_t)))
+		{
+			throw ePPPoEFrameTooShort();
+		}
+
+		tags.unpack(pppoe_hdr->data, (framelen() - sizeof(struct fpppoeframe::pppoe_hdr_t)));
 
 		//fprintf(stderr, "validate_pppoe_discovery_padi() tags: %s\n", tags.c_str());
 
