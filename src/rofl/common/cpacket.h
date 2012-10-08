@@ -119,12 +119,14 @@ private:
 
 #define CPACKET_DEFAULT_SIZE 			 1526
 #define CPACKET_DEFAULT_HSPACE			 64			// head room for push operations
+#define CPACKET_DEFAULT_TSPACE			 256		// tail room for appending payload(s)
 
 
 		fframe							*head;		// head of all frames
 		fframe							*tail;		// tail of all frames
 
 		size_t							 hspace;	// head space size: this is used as extra space for pushing tags
+		size_t							 tspace;	// tail space size: this is used as extra space for appending payload(s)
 		cmemory 						 mem;		// packet data + head space
 		std::pair<uint8_t*, size_t>		 data;		// the packet data: defines iov of packet data within cmemory mem
 													// we have also some additional headspace
@@ -176,7 +178,7 @@ public: // methods
 	cpacket(
 			size_t size = CPACKET_DEFAULT_SIZE,
 			uint32_t in_port = 0,
-			bool do_classify = true);
+			bool do_classify = false);
 
 
 	/** constructor for storing a memory area specified by (buf, buflen)
@@ -258,6 +260,22 @@ public:
 	bool
 	operator!= (
 			cmemory const& m);
+
+
+	/**
+	 *
+	 */
+	cpacket&
+	operator+ (
+			fframe const& f);
+
+
+	/**
+	 *
+	 */
+	void
+	operator+= (
+			fframe const& f);
 
 
 	/**

@@ -643,10 +643,45 @@ check_pbb()
 		printf("a1: %s\n", a1.c_str());
 
 		printf("vlan(0): %s\n", a1.vlan(0)->c_str());
+		printf("vlan(-3): %s\n", a1.vlan(-3)->c_str());
 
 		printf("vlan(1): %s\n", a1.vlan(1)->c_str());
+		printf("vlan(-2): %s\n", a1.vlan(-2)->c_str());
 
 		printf("vlan(2): %s\n", a1.vlan(2)->c_str());
+		printf("vlan(-1): %s\n", a1.vlan(-1)->c_str());
+
+		cpacket a2(sizeof(struct fetherframe::eth_hdr_t), OFPP_CONTROLLER, true);
+
+		a2.ether()->set_dl_dst(cmacaddr("00:11:11:11:11:11"));
+		a2.ether()->set_dl_src(cmacaddr("00:22:22:22:22:22"));
+		a2.ether()->set_dl_type(fpppoeframe::PPPOE_ETHER_DISCOVERY);
+
+		printf("a2 [1]: %s\n", a2.c_str());
+
+		a2.push_vlan(fvlanframe::VLAN_CTAG_ETHER);
+		a2.vlan(0)->set_dl_vlan_id(0xddd);
+		a2.vlan(0)->set_dl_vlan_pcp(0x3);
+
+		printf("a2 [2]: %s\n", a2.c_str());
+
+		a2.push_vlan(fvlanframe::VLAN_STAG_ETHER);
+		a2.vlan(0)->set_dl_vlan_id(0xfff);
+		a2.vlan(0)->set_dl_vlan_pcp(0x7);
+
+		printf("a2 [3]: %s\n", a2.c_str());
+
+		fpppoeframe pppoe(sizeof(struct fpppoeframe::pppoe_hdr_t));
+
+		pppoe.set_pppoe_sessid(0xbbbb);
+		pppoe.set_pppoe_code(fpppoeframe::PPPOE_CODE_PADT);
+		pppoe.tags.next() = cpppoetlv_ac_name(std::string("acname"));
+
+		a2 += pppoe;
+
+		a2.classify(OFPP_CONTROLLER);
+
+		printf("a2 [4]: %s\n", a2.c_str());
 
 
 	} catch (eFrameInvalidSyntax& e) {

@@ -40,8 +40,9 @@ public: // static
 
 	// VLAN ethernet types
 	enum vlan_ether_t {
-		VLAN_ETHER = 0x8100,
-		QINQ_ETHER = 0x88a8,
+		VLAN_CTAG_ETHER = 0x8100,
+		VLAN_STAG_ETHER = 0x88a8,
+		VLAN_ITAG_ETHER = 0x88e7,
 	};
 
 	// VLAN header

@@ -20,7 +20,8 @@ cpacket::cpacket(
 			head(0),
 			tail(0),
 			hspace(CPACKET_DEFAULT_HSPACE),
-			mem(size + hspace),
+			tspace(CPACKET_DEFAULT_TSPACE),
+			mem(size + hspace + tspace),
 			data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, size)),
 			packet_receive_time(time(NULL)),
 			in_port(0),
@@ -46,7 +47,8 @@ cpacket::cpacket(
 			head(0),
 			tail(0),
 			hspace(CPACKET_DEFAULT_HSPACE),
-			mem(mem->memlen() + hspace),
+			tspace(0),
+			mem(mem->memlen() + hspace + tspace),
 			data(std::pair<uint8_t*, size_t>(this->mem.somem() + hspace, mem->memlen())),
 			packet_receive_time(time(NULL)),
 			in_port(in_port),
@@ -77,7 +79,8 @@ cpacket::cpacket(
 			head(0),
 			tail(0),
 			hspace(CPACKET_DEFAULT_HSPACE),
-			mem(buflen + hspace),
+			tspace(0),
+			mem(buflen + hspace + tspace),
 			//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
 			data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, buflen)),
 			packet_receive_time(time(NULL)),
@@ -165,7 +168,7 @@ void
 cpacket::mem_resize(
 		size_t size)
 {
-	mem.resize(size + hspace);
+	mem.resize(size + hspace + tspace);
 	data.first 	= mem.somem() + hspace;
 	data.second = size;
 }
@@ -242,6 +245,38 @@ cpacket::operator!= (
 		cmemory const& m)
 {
 	return not operator== (m);
+}
+
+
+
+void
+cpacket::operator+= (
+		fframe const& f)
+{
+	*this = *this + f;
+}
+
+
+
+cpacket&
+cpacket::operator+ (
+		fframe const& f)
+{
+	size_t tspace = mem.memlen() - (hspace + framelen());
+
+	size_t len = framelen();
+
+	if (f.framelen() > tspace) // requiring resize
+	{
+		mem_resize(framelen() + f.framelen());
+		// mem_resize() sets framelen() to old-framelen() + f.framelen()
+	}
+
+	memcpy(soframe() + len, f.soframe(), f.framelen());
+
+	data.second = len + f.framelen();
+
+	return *this;
 }
 
 
@@ -537,85 +572,36 @@ cpacket::vlan(int i) throw (ePacketNotFound)
 	}
 
 
-	if (i >= 0)
+	i = (i < 0) ? cnt_vlan_tags() + i : i;
+
+
+	fframe *vlan0 = head;
+
+	while (0 == dynamic_cast<fvlanframe*>( vlan0 ))
 	{
-#if 1
-		fframe *vlan0 = head;
-
-		while (0 == dynamic_cast<fvlanframe*>( vlan0 ))
+		if (0 == vlan0->next)
 		{
-			if (0 == vlan0->next)
-			{
-				throw ePacketNotFound();
-			}
-			vlan0 = vlan0->next;
+			throw ePacketNotFound();
 		}
-
-		for (int j = 0; j < i; j++)
-		{
-			if (0 == vlan0->next)
-			{
-				throw ePacketNotFound();
-			}
-
-			vlan0 = vlan0->next;
-
-			if (0 == dynamic_cast<fvlanframe*>( vlan0 ))
-			{
-				throw ePacketNotFound();
-			}
-		}
-
-		return dynamic_cast<fvlanframe*>( vlan0 );
-
-#else
-		fframe *frame = (fframe*)head;
-
-		while (true)
-		{
-			if (dynamic_cast<fvlanframe*>( frame ))
-			{
-				return (dynamic_cast<fvlanframe*>( frame ));
-			}
-			else
-			{
-				if (0 == frame->next)
-				{
-					throw ePacketNotFound();
-				}
-				else
-				{
-					frame = frame->next;
-				}
-			}
-		}
-#endif
+		vlan0 = vlan0->next;
 	}
-	else
-	{
-		fframe *frame = (fframe*)tail;
 
-		while (true)
+	for (int j = 0; j < i; j++)
+	{
+		if (0 == vlan0->next)
 		{
-			if (dynamic_cast<fvlanframe*>( frame ))
-			{
-				return (dynamic_cast<fvlanframe*>( frame ));
-			}
-			else
-			{
-				if (0 == frame->prev)
-				{
-					throw ePacketNotFound();
-				}
-				else
-				{
-					frame = frame->prev;
-				}
-			}
+			throw ePacketNotFound();
+		}
+
+		vlan0 = vlan0->next;
+
+		if (0 == dynamic_cast<fvlanframe*>( vlan0 ))
+		{
+			throw ePacketNotFound();
 		}
 	}
 
-	throw ePacketNotFound();
+	return dynamic_cast<fvlanframe*>( vlan0 );
 }
 
 
@@ -751,85 +737,36 @@ cpacket::mpls(int i) throw (ePacketNotFound)
 	}
 
 
-	if (i >= 0)
+	i = (i < 0) ? cnt_mpls_tags() + i : i;
+
+
+	fframe *mpls0 = head;
+
+	while (0 == dynamic_cast<fmplsframe*>( mpls0 ))
 	{
-#if 1
-		fframe *mpls0 = head;
-
-		while (0 == dynamic_cast<fmplsframe*>( mpls0 ))
+		if (0 == mpls0->next)
 		{
-			if (0 == mpls0->next)
-			{
-				throw ePacketNotFound();
-			}
-			mpls0 = mpls0->next;
+			throw ePacketNotFound();
 		}
-
-		for (int j = 0; j < i; j++)
-		{
-			if (0 == mpls0->next)
-			{
-				throw ePacketNotFound();
-			}
-
-			mpls0 = mpls0->next;
-
-			if (0 == dynamic_cast<fmplsframe*>( mpls0 ))
-			{
-				throw ePacketNotFound();
-			}
-		}
-
-		return dynamic_cast<fmplsframe*>( mpls0 );
-
-#else
-		fframe *frame = (fframe*)head;
-
-		while (true)
-		{
-			if (dynamic_cast<fmplsframe*>( frame ))
-			{
-				return (dynamic_cast<fmplsframe*>( frame ));
-			}
-			else
-			{
-				if (0 == frame->next)
-				{
-					throw ePacketNotFound();
-				}
-				else
-				{
-					frame = frame->next;
-				}
-			}
-		}
-#endif
+		mpls0 = mpls0->next;
 	}
-	else
-	{
-		fframe *frame = (fframe*)tail;
 
-		while (true)
+	for (int j = 0; j < i; j++)
+	{
+		if (0 == mpls0->next)
 		{
-			if (dynamic_cast<fmplsframe*>( frame ))
-			{
-				return (dynamic_cast<fmplsframe*>( frame ));
-			}
-			else
-			{
-				if (0 == frame->prev)
-				{
-					throw ePacketNotFound();
-				}
-				else
-				{
-					frame = frame->prev;
-				}
-			}
+			throw ePacketNotFound();
+		}
+
+		mpls0 = mpls0->next;
+
+		if (0 == dynamic_cast<fmplsframe*>( mpls0 ))
+		{
+			throw ePacketNotFound();
 		}
 	}
 
-	throw ePacketNotFound();
+	return dynamic_cast<fmplsframe*>( mpls0 );
 }
 
 
@@ -1976,8 +1913,9 @@ cpacket::parse_ether(
 
 
 	switch (ether->get_dl_type()) {
-	case fvlanframe::VLAN_ETHER:
-	case fvlanframe::QINQ_ETHER:
+	case fvlanframe::VLAN_CTAG_ETHER:
+	case fvlanframe::VLAN_STAG_ETHER:
+	case fvlanframe::VLAN_ITAG_ETHER:
 		{
 			parse_vlan(p_ptr, p_len);
 		}
@@ -2052,8 +1990,9 @@ cpacket::parse_vlan(
 
 
 	switch (vlan->get_dl_type()) {
-	case fvlanframe::VLAN_ETHER:
-	case fvlanframe::QINQ_ETHER:
+	case fvlanframe::VLAN_CTAG_ETHER:
+	case fvlanframe::VLAN_STAG_ETHER:
+	case fvlanframe::VLAN_ITAG_ETHER:
 		{
 			parse_vlan(p_ptr, p_len);
 		}
@@ -2938,8 +2877,8 @@ cpacket::action_pop_ppp(
 	 * vlan header(s)
 	 */
 
-	if ((fvlanframe::VLAN_ETHER == ether->get_dl_type()) ||
-		(fvlanframe::QINQ_ETHER == ether->get_dl_type()))
+	if ((fvlanframe::VLAN_CTAG_ETHER == ether->get_dl_type()) ||
+		(fvlanframe::VLAN_STAG_ETHER == ether->get_dl_type()))
 	{
 		while (true)
 		{
@@ -2976,8 +2915,8 @@ cpacket::action_pop_ppp(
 			pred = vlan;
 
 			// next header is again a vlan header?
-			if ((fvlanframe::VLAN_ETHER != vlan->get_dl_type()) &&
-				(fvlanframe::QINQ_ETHER != vlan->get_dl_type()))
+			if ((fvlanframe::VLAN_CTAG_ETHER != vlan->get_dl_type()) &&
+				(fvlanframe::VLAN_STAG_ETHER != vlan->get_dl_type()))
 			{
 				break; // no => break out of this loop
 			}
