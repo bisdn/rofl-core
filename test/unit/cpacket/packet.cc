@@ -642,6 +642,12 @@ check_pbb()
 
 		printf("a1: %s\n", a1.c_str());
 
+		printf("vlan(0): %s\n", a1.vlan(0)->c_str());
+
+		printf("vlan(1): %s\n", a1.vlan(1)->c_str());
+
+		printf("vlan(2): %s\n", a1.vlan(2)->c_str());
+
 
 	} catch (eFrameInvalidSyntax& e) {
 

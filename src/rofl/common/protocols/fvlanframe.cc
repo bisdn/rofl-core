@@ -15,6 +15,14 @@ fvlanframe::fvlanframe(
 }
 
 
+fvlanframe::fvlanframe(
+		size_t len) :
+	fframe(len),
+	vlan_hdr((struct fvlanframe::vlan_hdr_t*)soframe())
+{
+
+}
+
 
 fvlanframe::~fvlanframe()
 {

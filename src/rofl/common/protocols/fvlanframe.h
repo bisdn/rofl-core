@@ -76,6 +76,13 @@ public: // methods
 			size_t datalen);
 
 
+	/** constructor
+	 *
+	 */
+	fvlanframe(
+			size_t len = sizeof(struct fvlanframe::vlan_hdr_t));
+
+
 	/** destructor
 	 *
 	 */

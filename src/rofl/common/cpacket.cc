@@ -539,6 +539,36 @@ cpacket::vlan(int i) throw (ePacketNotFound)
 
 	if (i >= 0)
 	{
+#if 1
+		fframe *vlan0 = head;
+
+		while (0 == dynamic_cast<fvlanframe*>( vlan0 ))
+		{
+			if (0 == vlan0->next)
+			{
+				throw ePacketNotFound();
+			}
+			vlan0 = vlan0->next;
+		}
+
+		for (int j = 0; j < i; j++)
+		{
+			if (0 == vlan0->next)
+			{
+				throw ePacketNotFound();
+			}
+
+			vlan0 = vlan0->next;
+
+			if (0 == dynamic_cast<fvlanframe*>( vlan0 ))
+			{
+				throw ePacketNotFound();
+			}
+		}
+
+		return dynamic_cast<fvlanframe*>( vlan0 );
+
+#else
 		fframe *frame = (fframe*)head;
 
 		while (true)
@@ -559,6 +589,7 @@ cpacket::vlan(int i) throw (ePacketNotFound)
 				}
 			}
 		}
+#endif
 	}
 	else
 	{
@@ -722,6 +753,36 @@ cpacket::mpls(int i) throw (ePacketNotFound)
 
 	if (i >= 0)
 	{
+#if 1
+		fframe *mpls0 = head;
+
+		while (0 == dynamic_cast<fmplsframe*>( mpls0 ))
+		{
+			if (0 == mpls0->next)
+			{
+				throw ePacketNotFound();
+			}
+			mpls0 = mpls0->next;
+		}
+
+		for (int j = 0; j < i; j++)
+		{
+			if (0 == mpls0->next)
+			{
+				throw ePacketNotFound();
+			}
+
+			mpls0 = mpls0->next;
+
+			if (0 == dynamic_cast<fmplsframe*>( mpls0 ))
+			{
+				throw ePacketNotFound();
+			}
+		}
+
+		return dynamic_cast<fmplsframe*>( mpls0 );
+
+#else
 		fframe *frame = (fframe*)head;
 
 		while (true)
@@ -742,6 +803,7 @@ cpacket::mpls(int i) throw (ePacketNotFound)
 				}
 			}
 		}
+#endif
 	}
 	else
 	{
@@ -2479,6 +2541,68 @@ cpacket::calc_hits(
 }
 
 
+
+unsigned int
+cpacket::cnt_vlan_tags()
+{
+	unsigned int cnt = 0;
+
+	if ((0 == head) || (0 == tail))
+	{
+		return cnt;
+	}
+
+	fframe *frame = head;
+
+	while (0 != frame)
+	{
+		if (0 != dynamic_cast<fvlanframe*>( frame ))
+		{
+			cnt++;
+		}
+
+		if (0 == frame->next)
+		{
+			break;
+		}
+
+		frame = frame->next;
+	}
+
+	return cnt;
+}
+
+
+
+unsigned int
+cpacket::cnt_mpls_tags()
+{
+	unsigned int cnt = 0;
+
+	if ((0 == head) || (0 == tail))
+	{
+		return cnt;
+	}
+
+	fframe *frame = head;
+
+	while (0 != frame)
+	{
+		if (0 != dynamic_cast<fmplsframe*>( frame ))
+		{
+			cnt++;
+		}
+
+		if (0 == frame->next)
+		{
+			break;
+		}
+
+		frame = frame->next;
+	}
+
+	return cnt;
+}
 
 
 

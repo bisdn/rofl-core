@@ -514,6 +514,20 @@ public:
 	calc_checksums();
 
 
+	/**
+	 *
+	 */
+	unsigned int
+	cnt_vlan_tags();
+
+
+	/**
+	 *
+	 */
+	unsigned int
+	cnt_mpls_tags();
+
+
 public:
 
 
