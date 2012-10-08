@@ -103,6 +103,7 @@ private:
 
 		std::bitset<32> 				flags;			// flags (e.g. for checksum calculations, NO_PACKET_IN, etc.)
 		std::string 					info;			// info string
+		std::string						d_info;			// data info string (for use by method data_c_str()
 		pthread_rwlock_t 				ac_rwlock;		// rwlock for anchors
 
 		enum cpacket_flag_t {
@@ -418,6 +419,13 @@ private:
 	 */
 	void
 	reset();
+
+
+	/**
+	 *
+	 */
+	const char*
+	data_c_str();
 
 
 public:

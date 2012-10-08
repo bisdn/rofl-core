@@ -271,10 +271,12 @@ cpacket::operator+ (
 		mem_resize(framelen() + f.framelen());
 		// mem_resize() sets framelen() to old-framelen() + f.framelen()
 	}
+	else
+	{
+		data.second = len + f.framelen();
+	}
 
 	memcpy(soframe() + len, f.soframe(), f.framelen());
-
-	data.second = len + f.framelen();
 
 	return *this;
 }
@@ -421,9 +423,44 @@ cpacket::c_str()
 
 	info.append(vas("  soframe(): %p framelen(): %lu\n", soframe(), framelen()));
 
-	info.append(vas("  mem: %s\n", mem.c_str()));
+	info.append(data_c_str());
+
+
 
 	return info.c_str();
+}
+
+
+
+const char*
+cpacket::data_c_str()
+{
+	d_info.clear();
+
+	cvastring vas;
+
+	d_info.assign(vas("data:\n%p : ", data.first));
+
+	for (int i = 0; i < (int)data.second; ++i)
+	{
+		char t[8];
+		memset(t, 0, sizeof(t));
+
+		snprintf(t, sizeof(t)-1, "%02x ", (data.first[i]));
+		d_info.append(t);
+		if ((0 == ((i+1) % 16)))
+		{
+			char ptr[32]; memset(ptr, 0x00, sizeof(ptr));
+			snprintf(ptr, sizeof(ptr)-1, "\n%p : ", data.first + (i+1));
+			d_info.append(ptr);
+		}
+		else if ((0 == ((i+1) % 4)))
+		{
+			d_info.append("  ");
+		}
+	}
+
+	return d_info.c_str();
 }
 
 
