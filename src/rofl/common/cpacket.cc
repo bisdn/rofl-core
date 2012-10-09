@@ -1914,8 +1914,8 @@ cpacket::parse_ether(
 
 
 	switch (ether->get_dl_type()) {
-	case fvlanframe::VLAN_ETHER:
-	case fvlanframe::QINQ_ETHER:
+	case fvlanframe::VLAN_CTAG_ETHER:
+	case fvlanframe::VLAN_STAG_ETHER:
 		{
 			parse_vlan(p_ptr, p_len);
 		}
@@ -1990,8 +1990,8 @@ cpacket::parse_vlan(
 
 
 	switch (vlan->get_dl_type()) {
-	case fvlanframe::VLAN_ETHER:
-	case fvlanframe::QINQ_ETHER:
+	case fvlanframe::VLAN_CTAG_ETHER:
+	case fvlanframe::VLAN_STAG_ETHER:
 		{
 			parse_vlan(p_ptr, p_len);
 		}
@@ -2814,8 +2814,8 @@ cpacket::action_pop_ppp(
 	 * vlan header(s)
 	 */
 
-	if ((fvlanframe::VLAN_ETHER == ether->get_dl_type()) ||
-		(fvlanframe::QINQ_ETHER == ether->get_dl_type()))
+	if ((fvlanframe::VLAN_CTAG_ETHER == ether->get_dl_type()) ||
+		(fvlanframe::VLAN_STAG_ETHER == ether->get_dl_type()))
 	{
 		while (true)
 		{
@@ -2852,8 +2852,8 @@ cpacket::action_pop_ppp(
 			pred = vlan;
 
 			// next header is again a vlan header?
-			if ((fvlanframe::VLAN_ETHER != vlan->get_dl_type()) &&
-				(fvlanframe::QINQ_ETHER != vlan->get_dl_type()))
+			if ((fvlanframe::VLAN_CTAG_ETHER != vlan->get_dl_type()) &&
+				(fvlanframe::VLAN_STAG_ETHER != vlan->get_dl_type()))
 			{
 				break; // no => break out of this loop
 			}

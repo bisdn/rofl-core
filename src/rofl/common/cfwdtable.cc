@@ -43,8 +43,8 @@ cfwdtable::mac_learning(
 		return;
 
 	// get vlan tag control information (TCI)
-	if ((fvlanframe::VLAN_ETHER == pack.ether()->get_dl_type()) ||
-			(fvlanframe::QINQ_ETHER == pack.ether()->get_dl_type()))
+	if ((fvlanframe::VLAN_CTAG_ETHER == pack.ether()->get_dl_type()) ||
+			(fvlanframe::VLAN_STAG_ETHER == pack.ether()->get_dl_type()))
 	{
 		vid = pack.vlan()->get_dl_vlan_id();
 	}
@@ -95,8 +95,8 @@ cfwdtable::mac_is_known(
 	}
 
 	// get vlan tag control information (TCI)
-	if ((fvlanframe::VLAN_ETHER == pack.ether()->get_dl_type()) ||
-			(fvlanframe::QINQ_ETHER == pack.ether()->get_dl_type()))
+	if ((fvlanframe::VLAN_CTAG_ETHER == pack.ether()->get_dl_type()) ||
+			(fvlanframe::VLAN_STAG_ETHER == pack.ether()->get_dl_type()))
 	{
 		vid = pack.vlan()->get_dl_vlan_id();
 	}
@@ -140,8 +140,8 @@ throw(eFwdTableNotFound)
 	}
 
 	// get vlan tag control information (TCI)
-	if ((fvlanframe::VLAN_ETHER == pack.ether()->get_dl_type()) ||
-			(fvlanframe::QINQ_ETHER == pack.ether()->get_dl_type()))
+	if ((fvlanframe::VLAN_CTAG_ETHER == pack.ether()->get_dl_type()) ||
+			(fvlanframe::VLAN_STAG_ETHER == pack.ether()->get_dl_type()))
 	{
 		vid = pack.vlan()->get_dl_vlan_id();
 	}
@@ -185,8 +185,8 @@ throw (eFwdTableNotFound)
 	}
 
 	// get vlan tag control information (TCI)
-	if ((fvlanframe::VLAN_ETHER == pack.ether()->get_dl_type()) ||
-			(fvlanframe::QINQ_ETHER == pack.ether()->get_dl_type()))
+	if ((fvlanframe::VLAN_CTAG_ETHER == pack.ether()->get_dl_type()) ||
+			(fvlanframe::VLAN_STAG_ETHER == pack.ether()->get_dl_type()))
 	{
 		vid = pack.vlan()->get_dl_vlan_id();
 	}
@@ -224,8 +224,8 @@ throw (eFwdTableNotFound)
 	}
 
 	// get vlan tag control information (TCI)
-	if ((fvlanframe::VLAN_ETHER == pack.ether()->get_dl_type()) ||
-			(fvlanframe::QINQ_ETHER == pack.ether()->get_dl_type()))
+	if ((fvlanframe::VLAN_CTAG_ETHER == pack.ether()->get_dl_type()) ||
+			(fvlanframe::VLAN_STAG_ETHER == pack.ether()->get_dl_type()))
 	{
 		vid = pack.vlan()->get_dl_vlan_id();
 	}
