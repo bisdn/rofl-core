@@ -1512,7 +1512,7 @@ cpacket::push_vlan(uint16_t ethertype)
 		frame_push(vlan);
 
 #if 1
-		match.set_eth_type(ethertype);
+		match.set_eth_type(vlan_eth_type);
 		match.set_vlan_vid(outer_vid);
 		match.set_vlan_pcp(outer_pcp);
 #endif
