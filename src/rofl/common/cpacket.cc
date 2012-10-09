@@ -111,6 +111,7 @@ cpacket::cpacket(
 		head(0),
 		tail(0),
 		hspace(CPACKET_DEFAULT_HSPACE),
+		tspace(0),
 		mem(pack.framelen() + hspace),
 		//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
 		data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, pack.framelen())),
