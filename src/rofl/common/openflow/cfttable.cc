@@ -294,7 +294,7 @@ cfttable::c_str()
 	for (it = flow_table.begin(); it != flow_table.end(); ++it)
 	{
 		//info.append(vas("  %s\n\n", (*it)->c_str()));
-		info.append(vas("  [%d]: %p\n", i++, (*it)));
+		info.append(vas("  [%d]: %s\n", i++, (*it)->c_str()));
 	}
 	info.append("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH [E]");
 	return info.c_str();
@@ -382,6 +382,8 @@ cfttable::update_ft_entry(
 	}
 	pack->is_valid();
 
+	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::update_ft_entry()", this);
+
 	switch (pack->ofh_flow_mod->command) {
 	case OFPFC_ADD:
 		return add_ft_entry(owner, pack);
@@ -393,15 +395,14 @@ cfttable::update_ft_entry(
 		return modify_ft_entry(owner, pack, true /* strict */);
 
 	case OFPFC_DELETE:
-		rem_ft_entry(owner, pack, false /* not strict */);
-		break;
+		rem_ft_entry(owner, pack, false /* not strict */); break;
+
 	case OFPFC_DELETE_STRICT:
-		rem_ft_entry(owner, pack, true /* strict */);
-		break;
+		rem_ft_entry(owner, pack, true /* strict */); break;
+
 	default:
 		WRITELOG(CFTTABLE, ROFL_WARN, "unknown flow mod command [%d] received",
-				 pack->ofh_flow_mod->command);
-		break;
+				 pack->ofh_flow_mod->command); break;
 	}
 	return NULL;
 }
@@ -471,6 +472,13 @@ cfttable::add_ft_entry(
 
 	update_group_ref_counts(fte);
 
+	/*
+	 * inform fwdelem
+	 */
+	if (fwdelem)
+	{
+		fwdelem->flow_mod_add(this, fte);
+	}
 
 
 	WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::add_ft_entry() [2]\n %s", this, c_str());
@@ -509,6 +517,14 @@ cfttable::modify_ft_entry(
 			(*it)->update_flow_mod(pack);
 			update_group_ref_counts((*it));
 			noupdates = false;
+
+			/*
+			 * inform fwdelem
+			 */
+			if (fwdelem)
+			{
+				fwdelem->flow_mod_modify(this, (*it));
+			}
 
 			fte = (*it);
 
@@ -658,6 +674,14 @@ delete_entry:
 		WRITELOG(CFTTABLE, ROFL_DBG, "cfttable(%p)::rem_ft_entry() REMOVE %s", this, (*it)->c_str());
 
 		update_group_ref_counts((*it), false /* decrement reference count */);
+
+		/*
+		 * inform fwdelem
+		 */
+		if (fwdelem)
+		{
+			fwdelem->flow_mod_delete(this, (*it));
+		}
 
 		(*it)->erase();
 		begin = flow_table.begin();

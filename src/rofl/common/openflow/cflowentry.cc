@@ -13,12 +13,15 @@ cflowentry::cflowentry(uint16_t __type) throw (eFlowEntryOutOfMem) :
 
 	flow_mod = (struct ofp_flow_mod*)flow_mod_area.somem();
 
+	flow_mod->table_id = OFPTT_ALL;
 	flow_mod->cookie_mask = htobe64(0xffffffffffffffffULL);
 	flow_mod->buffer_id = htobe32(OFP_NO_BUFFER);	// default: buffer_id = -1
 	flow_mod->priority = htobe16(0x0800);			// default: priority = 0x0800
 	flow_mod->idle_timeout = htobe16(5);			// default: idle_timeout = 5 secs
 	flow_mod->hard_timeout = htobe16(0);			// default: hard_timeout = 0 secs (not used)
 	flow_mod->command = OFPFC_ADD;					// default: add flow-mod entry
+	flow_mod->out_port = htobe32(OFPP_ANY);
+	flow_mod->out_group = htobe32(OFPG_ANY);
 }
 
 

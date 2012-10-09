@@ -749,8 +749,44 @@ protected:
 	virtual void
 	handle_role_reply_timeout(cofdpath *sw) {};
 
+	/**
+	 * @name	flow_mod_add
+	 * @brief	called whenever a new flow mod entry is created
+	 *
+	 * This method indicates creation of a new flow-mod entry.
+	 *
+	 * @param ftable pointer to flow-table where the new flow table entry was added
+	 * @param fte pointer to new flow table entry
+	 */
+	virtual void
+	flow_mod_add(cfttable *ftable, cftentry *fte) {};
 
+	/**
+	 * @name	flow_mod_modify
+	 * @brief	called whenever an existing flow mod entry is modified
+	 *
+	 * This method indicates modification of an existing flow-mod entry.
+	 *
+	 * @param ftable pointer to flow-table where flow table entry was updated
+	 * @param fte pointer to modified flow table entry
+	 */
+	virtual void
+	flow_mod_modify(cfttable *ftable, cftentry *fte) {};
 
+	/**
+	 * @name	flow_mod_delete
+	 * @brief	called whenever an existing flow mod entry is deleted
+	 *
+	 * This method indicates removal of an existing flow-mod entry.
+	 * The fte instance referred to by its pointer will be deleted
+	 * after this method block has been left, so do not rely on fte
+	 * afterwards.
+	 *
+	 * @param ftable pointer to flow-table where flow table entry was deleted
+	 * @param fte pointer to deleted flow table entry
+	 */
+	virtual void
+	flow_mod_delete(cfttable *ftable, cftentry *fte) {};
 
 
 protected:	// overloaded from ciosrv

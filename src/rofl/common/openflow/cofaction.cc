@@ -494,12 +494,20 @@ cofaction::__make_info()
 	{
 		coxmatch oxm((struct ofp_oxm_hdr*)oac_set_field->field,
 				be16toh(oac_set_field->len) - 2 * sizeof(uint16_t));
+#if 1
+		info.assign(vas(
+				 "cofaction(%p) OFPAT_SET_FIELD length[%"SIZETDBGFMT"] [%s]",
+				 this,
+				 length(),
+				 oxm.c_str()));
+#else
 		info.assign(vas(
 				 "cofaction(%p) OFPAT_SET_FIELD length[%"SIZETDBGFMT"] [%s] body: %s",
 				 this,
 				 length(),
 				 oxm.c_str(),
 				 action.c_str()));
+#endif
 		break;
 	}
 

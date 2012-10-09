@@ -972,12 +972,15 @@ ctlbase::send_flow_mod_message(
 		 */
 		cofmatch match(ofmatch); // new matches
 
+
+#if 0
 		uint32_t in_port = match.get_in_port();
 
 		if ((OFPP_CONTROLLER != in_port) && (n_ports.find(in_port) == n_ports.end()))
 		{
 			throw eCtlBaseInval();
 		}
+#endif
 
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_flow_mod_message() =>\n"
 				"  match [original] => %s\n",
@@ -985,10 +988,15 @@ ctlbase::send_flow_mod_message(
 
 		cofaclist match_add_this;
 
-		if (n_ports.find(in_port) != n_ports.end())
-		{
-			match_add_this = n_ports[in_port]->dpt_filter_match(this, in_port, match);
-		}
+		try {
+			uint32_t in_port = match.get_in_port();
+
+			if (n_ports.find(in_port) != n_ports.end())
+			{
+				match_add_this = n_ports[in_port]->dpt_filter_match(this, in_port, match);
+			}
+
+		} catch (eOFmatchNotFound& e) {}
 
 
 		cofinlist instructions(inlist);

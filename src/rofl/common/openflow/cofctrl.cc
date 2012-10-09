@@ -63,7 +63,7 @@ cofctrl::packet_out_rcvd(cofpacket *pack)
 void
 cofctrl::flow_mod_rcvd(cofpacket *pack)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_flow_mod() pack: %s", this, pack->c_str());
+	WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() pack: %s", this, pack->c_str());
 
 	try {
 		if (OFPCR_ROLE_SLAVE == role)
@@ -77,7 +77,17 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 		// check, whether the controlling pack->entity is allowed to install this flow-mod
 		if (fwdelem->fe_flags.test(cfwdelem::NSP_ENABLED))
 		{
-			fwdelem->fsptable.flow_mod_allowed(this, pack->match);
+			switch (pack->ofh_flow_mod->command) {
+			case OFPFC_ADD:
+			case OFPFC_MODIFY:
+			case OFPFC_MODIFY_STRICT:
+				fwdelem->fsptable.flow_mod_allowed(this, pack->match);
+				break;
+				/*
+				 * this allows generic DELETE commands to be applied
+				 * FIXME: does this affect somehow entries from other controllers?
+				 */
+			}
 		}
 
 		cftentry *fte = NULL;
@@ -91,7 +101,7 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 				if ((fte = it->second->update_ft_entry(fwdelem, pack)) != NULL)
 				{
 					fte->ofctrl = this; // store controlling entity for this cftentry
-					WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_flow_mod() table_id %d new %s",
+					WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
 							this, pack->ofh_flow_mod->table_id, fte->c_str());
 				}
 			}
@@ -108,15 +118,20 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 			// do not lock here flow_table[i]
 
 			if ((fte = fwdelem->flow_tables[pack->ofh_flow_mod->table_id]->
-							update_ft_entry(fwdelem, pack)) != NULL)
+							update_ft_entry(fwdelem, pack)) == NULL)
 			{
-				fte->ofctrl = this; // store controlling entity for this cftentry
-				WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_flow_mod() table_id %d new %s",
-						this, pack->ofh_flow_mod->table_id, fte->c_str());
+				return;
 			}
 
+
+
+			fte->ofctrl = this; // store controlling entity for this cftentry
+			WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
+					this, pack->ofh_flow_mod->table_id, fte->c_str());
+
+
 			try {
-				WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_flow_mod() new fte created: %s", this, fte->c_str());
+				WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() new fte created: %s", this, fte->c_str());
 
 				cofinst& inst = fte->instructions.find_inst(OFPIT_GOTO_TABLE);
 
@@ -129,7 +144,10 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 			} catch (eInListNotFound& e) {}
 		}
 
-		fwdelem->handle_flow_mod(this, pack, fte);
+		if (0 != fte)
+		{
+			fwdelem->handle_flow_mod(this, pack, fte);
+		}
 
 	} catch (eLockWouldBlock& e) {
 

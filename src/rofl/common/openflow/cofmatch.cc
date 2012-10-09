@@ -93,9 +93,10 @@ cofmatch::is_matching(
 		{
 			// left side is null => wildcard match
 			wildcard_matches++;
-
+#if 0
 			WRITELOG(COXMLIST, ROFL_DBG, "cofmatch(%p)::is_matching() "
 					"wildcard match => left is 0", this);
+#endif
 
 		}
 		else if (((coxmatch*)0 != left[i]) && ((coxmatch*)0 == right[i]))
