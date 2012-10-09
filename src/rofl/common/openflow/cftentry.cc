@@ -15,7 +15,8 @@ cftentry::cftentry(
 	removal_reason(OFPRR_DELETE),
 	rx_packets(0),
 	rx_bytes(0),
-	out_port(0),
+	out_port(OFPP_ANY),
+	out_group(OFPG_ANY),
 	m_flowmod(sizeof(struct ofp_flow_mod) - sizeof(struct ofp_match)),
 	flow_mod((struct ofp_flow_mod*)m_flowmod.somem()),
 	owner(NULL),
@@ -43,6 +44,7 @@ cftentry::cftentry(
 	rx_packets(0),
 	rx_bytes(0),
 	out_port(pack->ofh_flow_mod->out_port),
+	out_group(pack->ofh_flow_mod->out_group),
 	ofmatch(pack->match),
 	m_flowmod(sizeof(struct ofp_flow_mod) - sizeof(struct ofp_match)),
 	flow_mod((struct ofp_flow_mod*)m_flowmod.somem()),
@@ -729,7 +731,7 @@ cftentry::make_info()
 	info.assign(vas("cftentry(%p) "
 			"priority:%d "
 			"cookie:0x%llx "
-			"idle[%d] hard[%d] outport[%d] "
+			"idle[%d] hard[%d] outport[0x%x] outgroup[0x%x] "
 			"n_packets[%llu] n_bytes[%llu]\n"
 			"ofpmatch:%s\n"
 			"instructions:%s\n",
@@ -740,6 +742,7 @@ cftentry::make_info()
 			be16toh(flow_mod->idle_timeout),
 			be16toh(flow_mod->hard_timeout),
 			out_port,
+			out_group,
 			(long long int)rx_packets,
 			(long long int)rx_bytes,
 			ofmatch.c_str(),

@@ -275,6 +275,8 @@ public: // overloaded from hw_fte_cb
 	uint64_t rx_bytes;
 	// output port for this ft-entry
 	uint32_t out_port;
+	// output group for this ft-entry
+	uint32_t out_group;
 	// cofmatch instance containing struct ofp_match for this ftentry
 	cofmatch ofmatch;
 	// memory area for storing the generic part of ofp_flow_mod

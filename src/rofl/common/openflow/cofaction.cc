@@ -344,12 +344,20 @@ cofaction::__make_info()
 	switch (be16toh(oac_header->type)) {
 	case OFPAT_OUTPUT:
 
+#if 1
+		info.assign(vas("cofaction(%p) OFPAT_OUTPUT length[%"SIZETDBGFMT"] port[0x%x] max_len[%d]",
+				 this,
+				 length(),
+				 be32toh(oac_output->port),
+				 be16toh(oac_output->max_len)));
+#else
 		info.assign(vas("cofaction(%p) OFPAT_OUTPUT length[%"SIZETDBGFMT"] port[0x%x] max_len[%d] body: %s",
 				 this,
 				 length(),
 				 be32toh(oac_output->port),
 				 be16toh(oac_output->max_len),
 				 action.c_str()));
+#endif
 		break;
 
 	case OFPAT_COPY_TTL_OUT:
