@@ -1512,7 +1512,7 @@ cpacket::push_vlan(uint16_t ethertype)
 		frame_push(vlan);
 
 #if 1
-		match.set_eth_type(vlan_eth_type);
+		//match.set_eth_type(vlan_eth_type); // do not do this here! we might be on top of a long stack of tags
 		match.set_vlan_vid(outer_vid);
 		match.set_vlan_pcp(outer_pcp);
 #endif
@@ -1937,12 +1937,12 @@ cpacket::parse_ether(
 
 	fetherframe *ether = new fetherframe(p_ptr, sizeof(struct fetherframe::eth_hdr_t));
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_ether() "
-			"ether: %s", ether->c_str());
-
 	match.set_eth_dst(ether->get_dl_dst());
 	match.set_eth_src(ether->get_dl_src());
 	match.set_eth_type(ether->get_dl_type());
+
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_ether() "
+			"ether: %s\nmatch: %s", this, ether->c_str(), match.c_str());
 
 	frame_append(ether);
 
@@ -2021,6 +2021,9 @@ cpacket::parse_vlan(
 	// set ethernet type based on innermost vlan tag
 	match.set_eth_type(vlan->get_dl_type());
 
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_vlan() "
+			"vlan: %s\nmatch: %s", this, vlan->c_str(), match.c_str());
+
 	frame_append(vlan);
 
 	p_ptr += sizeof(struct fvlanframe::vlan_hdr_t);
@@ -2096,6 +2099,9 @@ cpacket::parse_mpls(
 		flags.set(FLAG_MPLS_PRESENT);
 	}
 
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_mpls() "
+			"mpls: %s\nmatch: %s", this, mpls->c_str(), match.c_str());
+
 	frame_append(mpls);
 
 	p_ptr += sizeof(struct fmplsframe::mpls_hdr_t);
@@ -2139,6 +2145,9 @@ cpacket::parse_pppoe(
 	match.set_pppoe_sessid(pppoe->get_pppoe_sessid());
 
 	frame_append(pppoe);
+
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_pppoe() "
+			"pppoe: %s\nmatch: %s", this, pppoe->c_str(), match.c_str());
 
 
 
@@ -2209,6 +2218,8 @@ cpacket::parse_ppp(
 
 	frame_append(ppp);
 
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_ppp() "
+			"ppp: %s\nmatch: %s", this, ppp->c_str(), match.c_str());
 
 
 
@@ -2254,6 +2265,9 @@ cpacket::parse_arpv4(
 
 	frame_append(arp);
 
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_arpv4() "
+			"arp: %s\nmatch: %s", this, arp->c_str(), match.c_str());
+
 	p_ptr += sizeof(struct farpv4frame::arpv4_hdr_t);
 	p_len -= sizeof(struct farpv4frame::arpv4_hdr_t);
 
@@ -2281,6 +2295,9 @@ cpacket::parse_ipv4(
 	}
 
 	fipv4frame *ip = new fipv4frame(p_ptr, sizeof(struct fipv4frame::ipv4_hdr_t));
+
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_ipv4() "
+			"ip: %s", this, ip->c_str());
 
 	match.set_ip_proto(ip->get_ipv4_proto());
 	match.set_ipv4_dst(ip->get_ipv4_dst());
@@ -2369,6 +2386,9 @@ cpacket::parse_icmpv4(
 
 	frame_append(icmp);
 
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_icmpv4() "
+			"icmp: %s\nmatch: %s", this, icmp->c_str(), match.c_str());
+
 	p_ptr += sizeof(struct ficmpv4frame::icmpv4_hdr_t);
 	p_len -= sizeof(struct ficmpv4frame::icmpv4_hdr_t);
 
@@ -2403,6 +2423,9 @@ cpacket::parse_udp(
 
 	frame_append(udp);
 
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_udp() "
+			"udp: %s\nmatch: %s", this, udp->c_str(), match.c_str());
+
 	p_ptr += sizeof(struct fudpframe::udp_hdr_t);
 	p_len -= sizeof(struct fudpframe::udp_hdr_t);
 
@@ -2436,6 +2459,9 @@ cpacket::parse_tcp(
 	match.set_tcp_src(tcp->get_sport());
 
 	frame_append(tcp);
+
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_tcp() "
+			"tcp: %s\nmatch: %s", this, tcp->c_str(), match.c_str());
 
 	p_ptr += sizeof(struct ftcpframe::tcp_hdr_t);
 	p_len -= sizeof(struct ftcpframe::tcp_hdr_t);
