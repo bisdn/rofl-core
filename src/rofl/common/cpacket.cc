@@ -2296,9 +2296,6 @@ cpacket::parse_ipv4(
 
 	fipv4frame *ip = new fipv4frame(p_ptr, sizeof(struct fipv4frame::ipv4_hdr_t));
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_ipv4() "
-			"ip: %s", this, ip->c_str());
-
 	match.set_ip_proto(ip->get_ipv4_proto());
 	match.set_ipv4_dst(ip->get_ipv4_dst());
 	match.set_ipv4_src(ip->get_ipv4_src());
@@ -2307,6 +2304,9 @@ cpacket::parse_ipv4(
 
 
 	frame_append(ip);
+
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_ipv4() "
+			"ip: %s\nmatch: %s", this, ip->c_str(), match.c_str());
 
 	p_ptr += sizeof(struct fipv4frame::ipv4_hdr_t);
 	p_len -= sizeof(struct fipv4frame::ipv4_hdr_t);

@@ -724,7 +724,7 @@ found:
 void
 cftentry::make_info()
 {
-	cvastring vas(2048);
+	cvastring vas(4096);
 
 	info.assign(vas("cftentry(%p) "
 			"priority:%d "
