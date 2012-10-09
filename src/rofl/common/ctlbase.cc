@@ -983,8 +983,12 @@ ctlbase::send_flow_mod_message(
 				"  match [original] => %s\n",
 				dpname.c_str(), match.c_str());
 
+		cofaclist match_add_this;
 
-		cofaclist match_add_this = n_ports[in_port]->dpt_filter_match(this, in_port, match);
+		if (n_ports.find(in_port) != n_ports.end())
+		{
+			match_add_this = n_ports[in_port]->dpt_filter_match(this, in_port, match);
+		}
 
 
 		cofinlist instructions(inlist);
