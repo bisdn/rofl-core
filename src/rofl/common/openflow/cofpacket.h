@@ -144,6 +144,7 @@ public: // data structures
 #define OFP_PACKET_IN_STATIC_HDR_LEN				16
 #define OFP_FLOW_STATS_REQUEST_STATIC_HDR_LEN		(sizeof(struct ofp_stats_request) + 32)
 #define OFP_FLOW_STATS_REPLY_STATIC_BODY_LEN		48
+#define OFP_AGGR_STATS_REQUEST_STATIC_HDR_LEN		32	// without struct ofp_match
 #define OFP_GROUP_STATS_REPLY_STATIC_BODY_LEN		32
 #define OFP_GROUP_DESC_STATS_REPLY_STATIC_BODY_LEN 8
 

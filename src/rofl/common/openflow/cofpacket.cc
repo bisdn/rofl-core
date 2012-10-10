@@ -674,6 +674,13 @@ cofpacket::is_valid_stats_request()
 			match.unpack(&(ofb_flow_stats_request->match), match_len);
 		}
 		break;
+	case OFPST_AGGREGATE:
+		{
+			match.reset();
+			size_t match_len = stored - OFP_AGGR_STATS_REQUEST_STATIC_HDR_LEN;
+			match.unpack(&(ofb_aggregate_stats_request->match), match_len);
+		}
+		break;
 	}
 
 	// TODO: description fields
