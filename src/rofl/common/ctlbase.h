@@ -187,6 +187,29 @@ protected:
 			cpacket& pack) = 0;
 
 
+
+	/**
+	 * @name	handle_stats_reply
+	 * @brief 	Handle a stats-reply from one of the registered adapters.
+	 *
+	 * This method must be overwritten by the derived transport controller.
+	 * It is called by ctlbase when a stats-reply was received from one
+	 * of the registered adapters.
+	 *
+	 * @param xid transaction xid of created stats-request
+	 * @param type type of stats-reply
+	 * @param body pointer to memory area containing the body
+	 * @param bodylen length of body area
+	 */
+	virtual void
+	handle_stats_reply(
+					cadapt *adapt,
+					uint32_t xid,
+					uint16_t type,
+					uint8_t* body,
+					size_t bodylen) = 0;
+
+
 	/**
 	 * @name	fsp_open
 	 * @brief	Register a flowspace
@@ -548,6 +571,18 @@ public:
 				cpacket& pack);
 
 
+		/**
+		 *
+		 */
+		virtual void
+		ctl_handle_stats_reply(
+				cadapt_dpt *dpt,
+				uint32_t xid,
+				uint16_t type,
+				uint8_t* body,
+				size_t bodylen);
+
+
 protected:
 
 
@@ -669,6 +704,20 @@ public:
 				cadapt_ctl *ctl,
 				uint32_t port_no)
 						throw (eAdaptNotFound);
+
+
+		/**
+		 * @return xid of stats-request sent
+		 */
+		virtual uint32_t
+		dpt_handle_stats_request(
+				cadapt_ctl *ctl,
+				uint32_t port_no,
+				uint16_t type,
+				uint8_t *body,
+				size_t bodylen)
+						throw (eAdaptNotFound);
+
 
 protected:
 

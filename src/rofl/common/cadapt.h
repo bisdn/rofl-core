@@ -151,6 +151,18 @@ public: // methods offered to cadapt instances by cadapt_owner
 				cpacket& pack) = 0;
 
 
+		/**
+		 *
+		 */
+		virtual void
+		ctl_handle_stats_reply(
+				cadapt_dpt *dpt,
+				uint32_t xid,
+				uint16_t type,
+				uint8_t* body,
+				size_t bodylen) = 0;
+
+
 protected:
 
 
@@ -320,6 +332,19 @@ public:
 		dpt_find_port(
 				cadapt_ctl *ctl,
 				uint32_t port_no)
+						throw (eAdaptNotFound) = 0;
+
+
+		/**
+		 * @return xid of stats-request sent
+		 */
+		virtual uint32_t
+		dpt_handle_stats_request(
+				cadapt_ctl *ctl,
+				uint32_t port_no,
+				uint16_t type,
+				uint8_t *body,
+				size_t bodylen)
 						throw (eAdaptNotFound) = 0;
 
 

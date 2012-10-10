@@ -1311,7 +1311,7 @@ public:
 	 * @param body Body of a STATS request
 	 * @param bodylen length of STATS request body
 	 */
-	virtual void
+	virtual uint32_t
 	send_stats_request(
 		cofdpath *sw,
 		uint16_t type,

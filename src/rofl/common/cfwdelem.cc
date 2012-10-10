@@ -1172,7 +1172,7 @@ cfwdelem::fe_up_get_config_reply(
  * STATS request/reply
  */
 
-void
+uint32_t
 cfwdelem::send_stats_request(
 	cofdpath *sw,
 	uint16_t type,
@@ -1189,10 +1189,14 @@ cfwdelem::send_stats_request(
 
 	pack->pack();
 
+	uint32_t xid = be32toh(pack->ofh_header->xid);
+
 	// straight call to layer-(n-1) entity's fe_down_get_config_request() method
 	sw->entity->fe_down_stats_request(this, pack);
 
 	sw->stats_request_sent();
+
+	return xid;
 }
 
 

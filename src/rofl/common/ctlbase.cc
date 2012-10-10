@@ -650,6 +650,35 @@ ctlbase::ctl_handle_packet_in(
 }
 
 
+
+void
+ctlbase::ctl_handle_stats_reply(
+				cadapt_dpt *dpt,
+				uint32_t xid,
+				uint16_t type,
+				uint8_t* body,
+				size_t bodylen)
+{
+	cadapt* adapt = dynamic_cast<cadapt*>( dpt );
+
+	if (0 == adapt)
+	{
+		return;
+	}
+
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_stats_reply() "
+			"type: %d", dpname.c_str(), type);
+
+	handle_stats_reply(
+			adapt,
+			xid,
+			type,
+			body,
+			bodylen); // let derived transport controller handle incoming stats-reply
+}
+
+
+
 void
 ctlbase::bound(
 		cadapt_dpt *dpt)
@@ -875,6 +904,19 @@ ctlbase::dpt_find_port(
 						throw (eAdaptNotFound)
 {
 	return (cofport*)0;
+}
+
+
+uint32_t
+ctlbase::dpt_handle_stats_request(
+				cadapt_ctl *ctl,
+				uint32_t port_no,
+				uint16_t type,
+				uint8_t *body,
+				size_t bodylen)
+						throw (eAdaptNotFound)
+{
+	return cfwdelem::send_stats_request(dpath, type, 0, body, bodylen);
 }
 
 
