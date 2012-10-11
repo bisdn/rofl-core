@@ -42,7 +42,11 @@ public: // data structures
 
 public:
 
-	static cclock now();
+	/**
+	 *
+	 */
+	static cclock
+	now();
 
 	/** constructor
 	 *
@@ -69,11 +73,6 @@ public:
 	/** operator+
 	 *
 	 */
-	bool
-	operator== (cclock const& cc);
-	/** operator+
-	 *
-	 */
 	cclock
 	operator+ (cclock const& cc);
 	/** operator-
@@ -95,6 +94,10 @@ public:
 	 *
 	 */
 	bool operator< (cclock const& cc) const;
+	/** operator==
+	 *
+	 */
+	bool operator== (cclock const& cc);
 	/** operator<=
 	 *
 	 */

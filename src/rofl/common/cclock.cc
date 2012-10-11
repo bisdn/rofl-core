@@ -19,7 +19,7 @@
 cclock
 cclock::now()
 {
-	cclock clk; clk.now();
+	cclock clk; clk.current_time();
 	return clk;
 }
 
