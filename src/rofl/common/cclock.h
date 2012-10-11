@@ -90,23 +90,43 @@ public:
 	 */
 	cclock&
 	operator-= (cclock const& cc);
+
+	/** operator==
+	 *
+	 */
+	bool operator== (cclock const& cc) const;
+
+	/** operator!=
+	 *
+	 */
+	bool operator!= (cclock const& cc) const;
+
 	/** operator<
 	 *
 	 */
 	bool operator< (cclock const& cc) const;
-	/** operator==
-	 *
-	 */
-	bool operator== (cclock const& cc);
+
 	/** operator<=
 	 *
 	 */
-	bool operator<= (cclock const& cc);
+	bool operator<= (cclock const& cc) const;
+
+	/** operator>
+	 *
+	 */
+	bool operator> (cclock const& cc) const;
+
+	/** operator>=
+	 *
+	 */
+	bool operator>= (cclock const& cc) const;
+
 	/**
 	 *
 	 */
 	void
 	current_time();
+
 	/**
 	 *
 	 */

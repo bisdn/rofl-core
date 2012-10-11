@@ -134,6 +134,13 @@ cclock::operator-= (cclock const& cc)
 
 
 bool
+cclock::operator!= (cclock const& cc) const
+{
+	return not (*this == cc);
+}
+
+
+bool
 cclock::operator< (cclock const& cc) const
 {
 	if (ts.tv_sec < cc.ts.tv_sec)
@@ -162,18 +169,36 @@ cclock::operator< (cclock const& cc) const
 }
 
 
+
 bool
-cclock::operator== (cclock const& cc)
+cclock::operator<= (cclock const& cc) const
+{
+	return ((*this < cc) || (*this == cc));
+}
+
+
+bool
+cclock::operator> (cclock const& cc) const
+{
+	return not (*this <= cc);
+}
+
+
+bool
+cclock::operator>= (cclock const& cc) const
+{
+	return ((*this > cc) || (*this == cc));
+}
+
+
+
+bool
+cclock::operator== (cclock const& cc) const
 {
 	return not ((*this < cc) && (cc < *this));
 }
 
 
-bool
-cclock::operator<= (cclock const& cc)
-{
-	return ((*this < cc) || (*this == cc));
-}
 
 
 void
@@ -200,8 +225,8 @@ cclock::c_str()
 			ts.tv_sec, ts.tv_nsec,
 			now.ts.tv_sec - ts.tv_sec, now.ts.tv_nsec - ts.tv_nsec));
 #endif
-	info.assign(vas("since:%ld:%ld",
-			cclock::now().ts.tv_sec - ts.tv_sec, cclock::now().ts.tv_nsec - ts.tv_nsec));
+	info.assign(vas("timeout: [%ld:%ld]", ts.tv_sec, ts.tv_nsec));
+	//cclock::now().ts.tv_sec - ts.tv_sec, cclock::now().ts.tv_nsec - ts.tv_nsec));
 
 	return info.c_str();
 }

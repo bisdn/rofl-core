@@ -28,6 +28,55 @@ check_cclock()
 
 	printf("clk: %s\n", clk.c_str());
 
+	printf("copying clk...");
+	cclock clk1(clk);
+
+	if (clk1 != clk)
+	{
+		printf("failed.\n");
+		exit(EXIT_FAILURE);
+	}
+	else
+	{
+		printf("success.\n");
+	}
+
+	printf("testing clk add operation...");
+	cclock clk2(clk);
+
+	clk2.ts.tv_sec += 4;
+
+	printf("sleeping %d secs. ...", 2);
+	sleep(2);
+
+	if (clk2 > cclock::now())
+	{
+		printf("failed. clk2: %s  now: %s\n", clk2.c_str(), cclock::now().c_str());
+		exit(EXIT_FAILURE);
+	}
+	else
+	{
+		printf("success.\n");
+	}
+
+	printf("testing clk add operation..."); fflush(stdout);
+	printf("sleeping %d secs. ...", 6);
+	sleep(6);
+
+	printf("BLUB => clk2: %s  now: %s\n", clk2.c_str(), cclock::now().c_str());
+
+	if (clk2 > cclock::now())
+	{
+		printf("failed. clk2: %s  now: %s\n", clk2.c_str(), cclock::now().c_str());
+		exit(EXIT_FAILURE);
+	}
+	else
+	{
+		printf("success.\n");
+	}
+
+
+
 #if 0
 	if (fsp_packed != result)
 	{
