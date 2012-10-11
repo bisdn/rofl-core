@@ -246,6 +246,9 @@ ctlbase::handle_stats_reply(
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
+
+		WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_stats_reply() ", dpname.c_str());
+
 		call_adapter(dynamic_cast<cadapt*>( xidstore.xid_find(xid).owner ))->
 				ctl_handle_stats_reply(this, xid, be16toh(pack->ofh_stats_reply->type),
 								pack->body.somem(), pack->body.memlen());
@@ -1046,7 +1049,12 @@ ctlbase::dpt_handle_stats_request(
 {
 	uint32_t xid = 0;
 	try {
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::dpt_handle_stats_request()", dpname.c_str());
+
 		xid = cfwdelem::send_stats_request(dpath, type, 0, body, bodylen);
+
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::dpt_handle_stats_request() "
+				"new stats-request sent => type: 0x%x xid: 0x%x ", dpname.c_str(), type, xid);
 
 		xidstore.xid_add(ctl, xid); // remember => "ctl" triggered this transaction "xid"
 
