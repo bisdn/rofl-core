@@ -1194,7 +1194,7 @@ cfwdelem::send_stats_request(
 	// straight call to layer-(n-1) entity's fe_down_get_config_request() method
 	sw->entity->fe_down_stats_request(this, pack);
 
-	sw->stats_request_sent();
+	sw->stats_request_sent(xid);
 
 	return xid;
 }
@@ -2211,16 +2211,19 @@ cfwdelem::recv_packet_in()
  * BARRIER request/reply
  */
 
-void
+uint32_t
 cfwdelem::send_barrier_request(cofdpath *sw)
 {
 	cofpacket_barrier_request *pack = new cofpacket_barrier_request(ta_add_request(OFPT_BARRIER_REQUEST));
 
+	uint32_t xid = be32toh(pack->ofh_header->xid);
+
 	// straight call to layer-(n-1) entity's fe_down_barrier_request() method
 	sw->entity->fe_down_barrier_request(this, pack);
 
-	sw->barrier_request_sent();
+	sw->barrier_request_sent(xid);
 
+	return xid;
 }
 
 

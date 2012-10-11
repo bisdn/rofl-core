@@ -509,7 +509,7 @@ protected:
 	 * @param sw cotswitch instance from whom a GET-CONFIG.reply was expected.
 	 */
 	virtual void
-	handle_stats_reply_timeout(cofdpath *sw) {};
+	handle_stats_reply_timeout(cofdpath *sw, uint32_t xid) {};
 
 	/** Handle OF packet-out messages. To be overwritten by derived class.
 	 *
@@ -560,7 +560,7 @@ protected:
 	 * @param sw cotswitch instance from whom a BARRIER.reply was expected.
 	 */
 	virtual void
-	handle_barrier_reply_timeout(cofdpath *sw) {};
+	handle_barrier_reply_timeout(cofdpath *sw, uint32_t xid) {};
 
 	/** Handle OF error message. To be overwritten by derived class.
 	 *
@@ -1397,7 +1397,7 @@ public:
 	 *
 	 * @param sw cofswitch instance representing the data path to be addressed
 	 */
-	virtual void
+	virtual uint32_t
 	send_barrier_request(
 		cofdpath *sw);
 

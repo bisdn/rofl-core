@@ -11,14 +11,15 @@
 void
 cxidstore::xid_add(
 		cxidowner* owner,
-		uint32_t xid)
+		uint32_t xid,
+		int timeout_secs)
 	throw (eXidStoreXidBusy)
 {
 	if (transactions.find(xid) != transactions.end())
 	{
 		throw eXidStoreXidBusy();
 	}
-	transactions[xid] = cxidtrans(owner, xid);
+	transactions[xid] = cxidtrans(owner, xid, timeout_secs);
 }
 
 
@@ -47,6 +48,28 @@ cxidstore::xid_rem(
 		transactions[xid].owner->xid_removed(xid);
 		transactions.erase(xid);
 	}
+}
+
+
+
+cxidtrans&
+cxidstore::xid_find(
+		uint32_t xid)
+			throw (eXidStoreNotFound)
+{
+	if (transactions.find(xid) == transactions.end())
+	{
+		throw eXidStoreNotFound();
+	}
+	return transactions[xid];
+}
+
+
+
+bool
+cxidstore::empty() const
+{
+	return transactions.empty();
 }
 
 

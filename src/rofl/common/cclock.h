@@ -42,6 +42,8 @@ public: // data structures
 
 public:
 
+	static cclock now();
+
 	/** constructor
 	 *
 	 */
@@ -67,6 +69,11 @@ public:
 	/** operator+
 	 *
 	 */
+	bool
+	operator== (cclock const& cc);
+	/** operator+
+	 *
+	 */
 	cclock
 	operator+ (cclock const& cc);
 	/** operator-
@@ -87,12 +94,16 @@ public:
 	/** operator<
 	 *
 	 */
-	bool operator< (cclock const& cc);
+	bool operator< (cclock const& cc) const;
+	/** operator<=
+	 *
+	 */
+	bool operator<= (cclock const& cc);
 	/**
 	 *
 	 */
 	void
-	now();
+	current_time();
 	/**
 	 *
 	 */

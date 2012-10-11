@@ -235,6 +235,7 @@ ctlbase::handle_dpath_close(
 }
 
 
+
 /*
  * STATS-reply
  */
@@ -243,8 +244,23 @@ ctlbase::handle_stats_reply(
 		cofdpath *sw,
 		cofpacket *pack)
 {
+	/* we have to find the adapter that emitted the request for the
+	 * received reply. Check for
+	 *
+	 */
+	uint32_t xid = be32toh(pack->ofh_header->xid);
+	try {
+		//cxidtrans& xidt = xidstore.xid_find(xid);
 
+
+
+		xidstore.xid_rem(xid); // remove xid from store
+
+	} catch (eXidStoreNotFound& e) {
+
+	}
 }
+
 
 
 /*
@@ -916,9 +932,17 @@ ctlbase::dpt_handle_stats_request(
 				size_t bodylen)
 						throw (eAdaptNotFound)
 {
-	uint32_t xid = cfwdelem::send_stats_request(dpath, type, 0, body, bodylen);
+	uint32_t xid = 0;
+	try {
+		xid = cfwdelem::send_stats_request(dpath, type, 0, body, bodylen);
 
-	xidstore.xid_add(ctl, xid); // remember => "ctl" triggered this transaction "xid"
+		xidstore.xid_add(ctl, xid); // remember => "ctl" triggered this transaction "xid"
+
+	} catch (eXidStoreXidBusy& e) {
+
+		WRITELOG(CFWD, WARN, "ctlbase(%s)::dpt_handle_stats_request() "
+				"xid: 0x%x already stored in xidstore", dpname.c_str(), xid);
+	}
 
 	return xid;
 }

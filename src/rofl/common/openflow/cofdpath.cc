@@ -252,9 +252,21 @@ cofdpath::handle_get_config_reply_timeout()
 
 
 void
-cofdpath::stats_request_sent()
+cofdpath::stats_request_sent(
+		uint32_t xid)
 {
-	register_timer(COFDPATH_TIMER_STATS_REPLY, stats_reply_timeout);
+	try {
+		xidstore[OFPT_STATS_REQUEST].xid_add(this, xid, stats_reply_timeout);
+
+		if (not pending_timer(COFDPATH_TIMER_STATS_REPLY))
+		{
+			register_timer(COFDPATH_TIMER_STATS_REPLY, stats_reply_timeout);
+		}
+
+	} catch (eXidStoreXidBusy& e) {
+
+		// should never happen, TODO: log error
+	}
 }
 
 
@@ -263,6 +275,8 @@ cofdpath::stats_reply_rcvd(
 		cofpacket *pack)
 {
 	cancel_timer(COFDPATH_TIMER_STATS_REPLY);
+
+	xidstore[OFPT_STATS_REQUEST].xid_rem(be32toh(pack->ofh_header->xid));
 
 	// extract all ofp_table_stats structures from
 	if (OFPST_TABLE == be16toh(pack->ofh_stats_reply->type))
@@ -311,16 +325,46 @@ cofdpath::handle_stats_reply_timeout()
 			"dpid:%"UINT64DBGFMT" ",
 			this, dpid);
 
-	fwdelem->handle_stats_reply_timeout(this);
+restart:
+	for (cxidstore::iterator
+				it = xidstore[OFPT_STATS_REQUEST].begin();
+							it != xidstore[OFPT_STATS_REQUEST].end(); ++it)
+	{
+		cxidtrans& xidt = it->second;
 
-	delete this;
+		if (xidt.timeout <= cclock::now())
+		{
+			fwdelem->handle_stats_reply_timeout(this, xidt.xid);
+
+			xidstore[OFPT_STATS_REQUEST].xid_rem(xidt.xid);
+
+			goto restart;
+		}
+	}
+
+	if (not xidstore.empty())
+	{
+		reset_timer(COFDPATH_TIMER_STATS_REPLY, stats_reply_timeout);
+	}
 }
 
 
 void
-cofdpath::barrier_request_sent()
+cofdpath::barrier_request_sent(
+		uint32_t xid)
 {
-	register_timer(COFDPATH_TIMER_BARRIER_REPLY, barrier_reply_timeout);
+	try {
+		xidstore[OFPT_BARRIER_REQUEST].xid_add(this, xid, barrier_reply_timeout);
+
+		if (not pending_timer(COFDPATH_TIMER_BARRIER_REPLY))
+		{
+			register_timer(COFDPATH_TIMER_BARRIER_REPLY, barrier_reply_timeout);
+		}
+
+	} catch (eXidStoreXidBusy& e) {
+
+		// should never happen, TODO: log error
+	}
 }
 
 
@@ -329,6 +373,8 @@ cofdpath::barrier_reply_rcvd(cofpacket *pack)
 {
 	cancel_timer(COFDPATH_TIMER_BARRIER_REPLY);
 
+	xidstore[OFPT_BARRIER_REQUEST].xid_rem(be32toh(pack->ofh_header->xid));
+
 	fwdelem->handle_barrier_reply(this, pack);
 }
 
@@ -336,7 +382,27 @@ cofdpath::barrier_reply_rcvd(cofpacket *pack)
 void
 cofdpath::handle_barrier_reply_timeout()
 {
-	fwdelem->handle_barrier_reply_timeout(this);
+restart:
+	for (cxidstore::iterator
+			it = xidstore[OFPT_BARRIER_REQUEST].begin();
+						it != xidstore[OFPT_BARRIER_REQUEST].end(); ++it)
+	{
+		cxidtrans& xidt = it->second;
+
+		if (xidt.timeout <= cclock::now())
+		{
+			fwdelem->handle_barrier_reply_timeout(this, xidt.xid);
+
+			xidstore[OFPT_BARRIER_REQUEST].xid_rem(xidt.xid);
+
+			goto restart;
+		}
+	}
+
+	if (not xidstore.empty())
+	{
+		reset_timer(COFDPATH_TIMER_BARRIER_REPLY, barrier_reply_timeout);
+	}
 }
 
 

@@ -33,6 +33,8 @@ extern "C" {
 #include "../cfibentry.h"
 #include "../cfsm.h"
 #include "../protocols/fetherframe.h"
+#include "../cxidstore.h"
+
 
 #include "cfttable.h"
 #include "cgttable.h"
@@ -68,6 +70,7 @@ class eOFdpathNotFound : public eOFswitchBase {}; // element not found
 class cofdpath :
 	public cftentry_owner,
 	public cgtentry_owner,
+	public cxidowner,
 	public cfsm,
 	public ciosrv
 {
@@ -128,6 +131,7 @@ private:
 		cfwdelem 						*fwdelem;		// layer-(n) entity
 		cofbase 						*entity;		// layer-(n-1) entity
 		std::map<cofbase*, cofdpath*> 	*ofswitch_list; // cofswitch map this
+		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store
 
 		std::string 	info;							// info string
 
@@ -408,7 +412,8 @@ protected:
 	 * Starts an internal timer for the expected STATS-reply.
 	 */
 	void
-	stats_request_sent();
+	stats_request_sent(
+			uint32_t xid);
 
 
 	/**
@@ -434,7 +439,8 @@ protected:
 	 * Starts an internal timer for the expected BARRIER-reply.
 	 */
 	void
-	barrier_request_sent();
+	barrier_request_sent(
+			uint32_t xid);
 
 
 	/**

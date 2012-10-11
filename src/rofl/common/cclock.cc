@@ -14,13 +14,24 @@
 #define CC_CLOCK_ONE_SECOND_S 1
 #define CC_CLOCK_ONE_SECOND_NS 1000000000
 
+
+
+cclock
+cclock::now()
+{
+	cclock clk; clk.now();
+	return clk;
+}
+
+
+
 cclock::cclock(
 		time_t delta_sec,
 		time_t delta_nsec)
 {
 	ts.tv_sec 	= 0;
 	ts.tv_nsec 	= 0;
-	now();
+	current_time();
 	ts.tv_sec += delta_sec;
 	ts.tv_nsec += delta_nsec;
 }
@@ -123,7 +134,7 @@ cclock::operator-= (cclock const& cc)
 
 
 bool
-cclock::operator< (cclock const& cc)
+cclock::operator< (cclock const& cc) const
 {
 	if (ts.tv_sec < cc.ts.tv_sec)
 	{
@@ -151,8 +162,22 @@ cclock::operator< (cclock const& cc)
 }
 
 
+bool
+cclock::operator== (cclock const& cc)
+{
+	return not ((*this < cc) && (cc < *this));
+}
+
+
+bool
+cclock::operator<= (cclock const& cc)
+{
+	return ((*this < cc) || (*this == cc));
+}
+
+
 void
-cclock::now()
+cclock::current_time()
 {
 	int rc = 0;
 
@@ -169,8 +194,6 @@ cclock::c_str()
 {
 	cvastring vas;
 
-	cclock now;
-
 #if 0
 	info.assign(vas("cclock(%p)   creation:%ld:%ld   since:%ld:%ld",
 			this,
@@ -178,7 +201,7 @@ cclock::c_str()
 			now.ts.tv_sec - ts.tv_sec, now.ts.tv_nsec - ts.tv_nsec));
 #endif
 	info.assign(vas("since:%ld:%ld",
-			now.ts.tv_sec - ts.tv_sec, now.ts.tv_nsec - ts.tv_nsec));
+			cclock::now().ts.tv_sec - ts.tv_sec, cclock::now().ts.tv_nsec - ts.tv_nsec));
 
 	return info.c_str();
 }

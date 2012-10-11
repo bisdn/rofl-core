@@ -12,11 +12,13 @@
 
 #include <rofl/common/ciosrv.h>
 #include <rofl/common/cerror.h>
+#include <rofl/common/cclock.h>
 
 #define XIDSTORE_ALL_XIDS	0xffffffff
 
 class eXidStoreBase 			: public cerror {};
 class eXidStoreXidBusy			: public eXidStoreBase {};		// xid is already in use
+class eXidStoreNotFound			: public eXidStoreBase {};		// xid not found
 
 
 
@@ -45,13 +47,14 @@ class cxidtrans
 public:
 	cxidowner	*owner;
 	uint32_t 	 xid;
+	cclock		 timeout;
 
 /*
  * methods
  */
 public:
-	cxidtrans(cxidowner *owner = 0, uint32_t xid = 0) :
-		owner(owner), xid(xid) {};
+	cxidtrans(cxidowner *owner = 0, uint32_t xid = 0, int timeout_secs = 0) :
+		owner(owner), xid(xid), timeout(timeout_secs, 0) {};
 	cxidtrans(cxidtrans const& xidtrans) {
 		*this = xidtrans;
 	};
@@ -60,6 +63,7 @@ public:
 			return *this;
 		owner 	= xidtrans.owner;
 		xid 	= xidtrans.xid;
+		timeout	= xidtrans.timeout;
 		return *this;
 	};
 };
@@ -74,9 +78,24 @@ class cxidstore :
 /*
  * data structures
  */
-public:
+private:
 
 		std::map<uint32_t, cxidtrans> transactions;
+
+
+public:
+
+	typedef typename std::map<uint32_t, cxidtrans>::iterator iterator;
+	typedef typename std::map<uint32_t, cxidtrans>::const_iterator const_iterator;
+	iterator begin() 				{ return transactions.begin(); }
+	iterator end() 					{ return transactions.end(); }
+	const_iterator begin() const 	{ return transactions.begin(); }
+	const_iterator end() const 	{ return transactions.end(); }
+
+	typedef typename std::map<uint32_t, cxidtrans>::reverse_iterator reverse_iterator;
+	typedef typename std::map<uint32_t, cxidtrans>::const_reverse_iterator const_reverse_iterator;
+	reverse_iterator rbegin() 		{ return transactions.rbegin(); }
+	reverse_iterator rend() 		{ return transactions.rend(); }
 
 
 /*
@@ -96,7 +115,8 @@ public:
 		void
 		xid_add(
 				cxidowner *owner,
-				uint32_t xid)
+				uint32_t xid,
+				int timeout_secs = 0)
 					throw (eXidStoreXidBusy);
 
 
@@ -106,6 +126,22 @@ public:
 		void
 		xid_rem(
 				uint32_t xid = XIDSTORE_ALL_XIDS);
+
+
+		/**
+		 *
+		 */
+		cxidtrans&
+		xid_find(
+				uint32_t xid)
+					throw (eXidStoreNotFound);
+
+
+		/**
+		 *
+		 */
+		bool
+		empty() const;
 
 
 protected:
