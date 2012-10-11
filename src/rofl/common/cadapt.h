@@ -23,6 +23,7 @@
 #include <rofl/common/openflow/cflowentry.h>
 #include <rofl/common/openflow/extensions/cfspentry.h>
 #include <rofl/platform/unix/csyslog.h>
+#include <rofl/common/cxidstore.h>
 
 
 // forward declarations, see below for the definitions
@@ -45,7 +46,8 @@ class eAdaptNotConnected		: public eAdaptBase {};
  * @class	cadapt_ctl
  */
 class cadapt_ctl :
-		public cfspentry_owner
+		public cfspentry_owner,
+		public cxidowner
 {
 /*
  * data structured

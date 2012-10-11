@@ -916,7 +916,11 @@ ctlbase::dpt_handle_stats_request(
 				size_t bodylen)
 						throw (eAdaptNotFound)
 {
-	return cfwdelem::send_stats_request(dpath, type, 0, body, bodylen);
+	uint32_t xid = cfwdelem::send_stats_request(dpath, type, 0, body, bodylen);
+
+	xidstore.xid_add(ctl, xid); // remember => "ctl" triggered this transaction "xid"
+
+	return xid;
 }
 
 

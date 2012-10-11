@@ -12,6 +12,7 @@
 #include <rofl/common/openflow/cflowentry.h>
 #include <rofl/common/cvastring.h>
 #include <rofl/common/cadapt.h>
+#include <rofl/common/cxidstore.h>
 
 
 class eCtlBase 					: public eFwdElemBase {};
@@ -51,6 +52,7 @@ protected:
 
 		std::map<unsigned int, std::list<cadapt*> > 	 adstacks;		// map of all adapters registered with this ctlbase
 
+		cxidstore							xidstore;		// stored all pending OpenFlow transactions
 
 private:
 
