@@ -50,7 +50,7 @@ public:
  * methods
  */
 public:
-	cxidtrans(cxidowner *owner, uint32_t xid) :
+	cxidtrans(cxidowner *owner = 0, uint32_t xid = 0) :
 		owner(owner), xid(xid) {};
 	cxidtrans(cxidtrans const& xidtrans) {
 		*this = xidtrans;
