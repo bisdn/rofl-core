@@ -213,6 +213,50 @@ protected:
 
 
 	/**
+	 * @name	handle_stats_reply_timeout
+	 * @brief 	Handle a stats-reply-timeout from one of the registered adapters.
+	 *
+	 * This method must be overwritten by the derived transport controller.
+	 *
+	 * @param xid transaction xid of created stats-request
+	 */
+	virtual void
+	handle_stats_reply_timeout(
+					cadapt *adapt,
+					uint32_t xid) = 0;
+
+
+	/**
+	 * @name	handle_barrier_reply
+	 * @brief 	Handle a barrier-reply from one of the registered adapters.
+	 *
+	 * This method must be overwritten by the derived transport controller.
+	 * It is called by ctlbase when a barrier-reply was received from one
+	 * of the registered adapters.
+	 *
+	 * @param xid transaction xid of created barrier-request
+	 */
+	virtual void
+	handle_barrier_reply(
+					cadapt *adapt,
+					uint32_t xid) = 0;
+
+
+	/**
+	 * @name	handle_barrier_reply_timeout
+	 * @brief 	Handle a barrier-reply-timeout from one of the registered adapters.
+	 *
+	 * This method must be overwritten by the derived transport controller.
+	 *
+	 * @param xid transaction xid of created barrier-request
+	 */
+	virtual void
+	handle_barrier_reply_timeout(
+					cadapt *adapt,
+					uint32_t xid) = 0;
+
+
+	/**
 	 * @name	fsp_open
 	 * @brief	Register a flowspace
 	 *
@@ -448,6 +492,16 @@ protected:
 	handle_stats_reply(cofdpath *sw, cofpacket *pack);
 
 
+	/** Handle OF stats reply timeout. To be overwritten by derived class.
+	 *
+	 * Called upon expiration of TIMER_FE_SEND_STATS_REPLY.
+	 *
+	 * @param sw cotswitch instance from whom a GET-CONFIG.reply was expected.
+	 */
+	virtual void
+	handle_stats_reply_timeout(cofdpath *sw, uint32_t xid);
+
+
 	/** Handle OF packet-in messages. To be overwritten by derived class.
 	 *
 	 * Called upon reception of a PACKET-IN.message from a datapath entity.
@@ -458,6 +512,28 @@ protected:
 	 */
 	virtual void
 	handle_packet_in(cofdpath *sw, cofpacket *pack);
+
+
+	/** Handle OF barrier reply. To be overwritten by derived class.
+	 *
+	 * Called upon reception of a BARRIER.reply from a datapath entity.
+	 * The OF packet must be removed from heap by the overwritten method.
+	 *
+	 * @param sw cofswitch instance from whom a BARRIER.reply was received
+	 * @param pack BARRIER.reply packet received from datapath
+	 */
+	virtual void
+	handle_barrier_reply(cofdpath *sw, cofpacket *pack);
+
+
+	/** Handle OF barrier reply timeout. To be overwritten by derived class.
+	 *
+	 * Called upon expiration of TIMER_FE_SEND_BARRIER_REPLY.
+	 *
+	 * @param sw cotswitch instance from whom a BARRIER.reply was expected.
+	 */
+	virtual void
+	handle_barrier_reply_timeout(cofdpath *sw, uint32_t xid);
 
 
 	/** Handle OF error message. To be overwritten by derived class.
@@ -583,6 +659,33 @@ public:
 				uint16_t type,
 				uint8_t* body,
 				size_t bodylen);
+
+
+		/**
+		 *
+		 */
+		virtual void
+		ctl_handle_stats_reply_timeout(
+				cadapt_dpt *dpt,
+				uint32_t xid);
+
+
+		/**
+		 *
+		 */
+		virtual void
+		ctl_handle_barrier_reply(
+				cadapt_dpt *dpt,
+				uint32_t xid);
+
+
+		/**
+		 *
+		 */
+		virtual void
+		ctl_handle_barrier_reply_timeout(
+				cadapt_dpt *dpt,
+				uint32_t xid);
 
 
 protected:
@@ -721,6 +824,16 @@ public:
 						throw (eAdaptNotFound);
 
 
+		/**
+		 * @return xid of barrier-request sent
+		 */
+		virtual uint32_t
+		dpt_handle_barrier_request(
+				cadapt_ctl *ctl,
+				uint32_t port_no)
+						throw (eAdaptNotFound);
+
+
 protected:
 
 
@@ -742,8 +855,14 @@ protected:
 
 
 
+private:
 
-
+		/**
+		 *
+		 */
+		cadapt*
+		call_adapter(cadapt* adapt)
+					throw (eCtlBaseNotFound);
 
 
 private:

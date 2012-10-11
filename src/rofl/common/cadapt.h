@@ -165,6 +165,33 @@ public: // methods offered to cadapt instances by cadapt_owner
 				size_t bodylen) = 0;
 
 
+		/**
+		 *
+		 */
+		virtual void
+		ctl_handle_stats_reply_timeout(
+				cadapt_dpt *dpt,
+				uint32_t xid) = 0;
+
+
+		/**
+		 *
+		 */
+		virtual void
+		ctl_handle_barrier_reply(
+				cadapt_dpt *dpt,
+				uint32_t xid) = 0;
+
+
+		/**
+		 *
+		 */
+		virtual void
+		ctl_handle_barrier_reply_timeout(
+				cadapt_dpt *dpt,
+				uint32_t xid) = 0;
+
+
 protected:
 
 
@@ -347,6 +374,16 @@ public:
 				uint16_t type,
 				uint8_t *body,
 				size_t bodylen)
+						throw (eAdaptNotFound) = 0;
+
+
+		/**
+		 * @return xid of barrier-request sent
+		 */
+		virtual uint32_t
+		dpt_handle_barrier_request(
+				cadapt_ctl *ctl,
+				uint32_t port_no)
 						throw (eAdaptNotFound) = 0;
 
 

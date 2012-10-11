@@ -244,21 +244,70 @@ ctlbase::handle_stats_reply(
 		cofdpath *sw,
 		cofpacket *pack)
 {
-	/* we have to find the adapter that emitted the request for the
-	 * received reply. Check for
-	 *
-	 */
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
-		//cxidtrans& xidt = xidstore.xid_find(xid);
-
-
+		call_adapter(dynamic_cast<cadapt*>( xidstore.xid_find(xid).owner ))->
+				ctl_handle_stats_reply(this, xid, be16toh(pack->ofh_stats_reply->type),
+								pack->body.somem(), pack->body.memlen());
 
 		xidstore.xid_rem(xid); // remove xid from store
 
 	} catch (eXidStoreNotFound& e) {
 
+		// xid was not found in xidstore
+	} catch (eCtlBaseNotFound& e) {
+
+		// adapter was not found (deleted in the mean time??)
 	}
+}
+
+
+
+void
+ctlbase::handle_stats_reply_timeout(
+		cofdpath *sw,
+		uint32_t xid)
+{
+	// call adapter here?
+
+	xidstore.xid_rem(xid); // remove xid from store
+}
+
+
+
+void
+ctlbase::handle_barrier_reply(
+		cofdpath *sw,
+		cofpacket *pack)
+{
+	uint32_t xid = be32toh(pack->ofh_header->xid);
+	try {
+#if 0
+		call_adapter(dynamic_cast<cadapt*>( xidstore.xid_find(xid).owner ))->
+				ctl_handle_barrier_reply(this, xid);
+#endif
+
+		xidstore.xid_rem(xid); // remove xid from store
+
+	} catch (eXidStoreNotFound& e) {
+
+		// xid was not found in xidstore
+	} catch (eCtlBaseNotFound& e) {
+
+		// adapter was not found (deleted in the mean time??)
+	}
+}
+
+
+
+void
+ctlbase::handle_barrier_reply_timeout(
+		cofdpath *sw,
+		uint32_t xid)
+{
+	// call adapter here?
+
+	xidstore.xid_rem(xid); // remove xid from store
 }
 
 
@@ -696,6 +745,69 @@ ctlbase::ctl_handle_stats_reply(
 
 
 void
+ctlbase::ctl_handle_stats_reply_timeout(
+		cadapt_dpt *dpt,
+		uint32_t xid)
+{
+	cadapt* adapt = dynamic_cast<cadapt*>( dpt );
+
+	if (0 == adapt)
+	{
+		return;
+	}
+
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_stats_reply_timeout() ", dpname.c_str());
+
+	handle_stats_reply_timeout(
+			adapt,
+			xid); // let derived transport controller handle stats-reply timeout
+}
+
+
+
+void
+ctlbase::ctl_handle_barrier_reply(
+				cadapt_dpt *dpt,
+				uint32_t xid)
+{
+	cadapt* adapt = dynamic_cast<cadapt*>( dpt );
+
+	if (0 == adapt)
+	{
+		return;
+	}
+
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_barrier_reply() ", dpname.c_str());
+
+	handle_barrier_reply(
+			adapt,
+			xid); // let derived transport controller handle incoming barrier-reply
+}
+
+
+
+void
+ctlbase::ctl_handle_barrier_reply_timeout(
+				cadapt_dpt *dpt,
+				uint32_t xid)
+{
+	cadapt* adapt = dynamic_cast<cadapt*>( dpt );
+
+	if (0 == adapt)
+	{
+		return;
+	}
+
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_barrier_reply_timeout() ", dpname.c_str());
+
+	handle_barrier_reply_timeout(
+			adapt,
+			xid); // let derived transport controller handle barrier-reply timeout
+}
+
+
+
+void
 ctlbase::bound(
 		cadapt_dpt *dpt)
 {
@@ -946,6 +1058,30 @@ ctlbase::dpt_handle_stats_request(
 
 	return xid;
 }
+
+
+
+uint32_t
+ctlbase::dpt_handle_barrier_request(
+		cadapt_ctl *ctl,
+		uint32_t port_no)
+				throw (eAdaptNotFound)
+{
+	uint32_t xid = 0;
+	try {
+		xid = cfwdelem::send_barrier_request(dpath);
+
+		xidstore.xid_add(ctl, xid); // remember => "ctl" triggered this transaction "xid"
+
+	} catch (eXidStoreXidBusy& e) {
+
+		WRITELOG(CFWD, WARN, "ctlbase(%s)::dpt_handle_barrier_request() "
+				"xid: 0x%x already stored in xidstore", dpname.c_str(), xid);
+	}
+
+	return xid;
+}
+
 
 
 void
@@ -1634,6 +1770,25 @@ ctlbase::find_adaptor_by_portno(
 	}
 
 	return n_ports[portno];
+}
+
+
+
+cadapt*
+ctlbase::call_adapter(cadapt* adapt)
+			throw (eCtlBaseNotFound)
+{
+	std::map<unsigned int, std::list<cadapt*> >::iterator it;
+	for (it = adstacks.begin(); it != adstacks.end(); ++it)
+	{
+		std::list<cadapt*>& adstack = it->second;
+
+		if (adstack.back() == adapt)
+		{
+			return adapt;
+		}
+	}
+	throw eCtlBaseNotFound();
 }
 
 
