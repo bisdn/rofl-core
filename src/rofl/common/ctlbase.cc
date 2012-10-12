@@ -249,9 +249,17 @@ ctlbase::handle_stats_reply(
 
 		WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_stats_reply() ", dpname.c_str());
 
-		call_adapter(dynamic_cast<cadapt*>( xidstore.xid_find(xid).owner ))->
-				ctl_handle_stats_reply(this, xid, be16toh(pack->ofh_stats_reply->type),
-								pack->body.somem(), pack->body.memlen());
+		if (xidstore.xid_find(xid).owner == this)
+		{
+			handle_stats_reply(this, xid, be16toh(pack->ofh_stats_reply->type),
+									pack->body.somem(), pack->body.memlen());
+		}
+		else
+		{
+			call_adapter(dynamic_cast<cadapt*>( xidstore.xid_find(xid).owner ))->
+					ctl_handle_stats_reply(this, xid, be16toh(pack->ofh_stats_reply->type),
+									pack->body.somem(), pack->body.memlen());
+		}
 
 		xidstore.xid_rem(xid); // remove xid from store
 
@@ -262,6 +270,8 @@ ctlbase::handle_stats_reply(
 
 		// adapter was not found (deleted in the mean time??)
 	}
+
+	delete pack;
 }
 
 
@@ -271,7 +281,14 @@ ctlbase::handle_stats_reply_timeout(
 		cofdpath *sw,
 		uint32_t xid)
 {
-	// call adapter here?
+	if (xidstore.xid_find(xid).owner == this)
+	{
+		handle_stats_reply_timeout(this, xid);
+	}
+	else
+	{
+		// call adapter here?
+	}
 
 	xidstore.xid_rem(xid); // remove xid from store
 }
@@ -1039,6 +1056,16 @@ ctlbase::dpt_find_port(
 
 
 uint32_t
+ctlbase::dpt_get_phy_port(
+		cadapt_ctl* ctl,
+		uint32_t port_no)
+						throw (eAdaptNotFound)
+{
+	return 0;
+}
+
+
+uint32_t
 ctlbase::dpt_handle_stats_request(
 				cadapt_ctl *ctl,
 				uint32_t port_no,
@@ -1582,18 +1609,20 @@ ctlbase::send_packet_out_message(
 
 
 
-void
+uint32_t
 ctlbase::send_stats_request(
 		uint16_t type,
 		uint16_t flags,
 		uint8_t *body,
 		size_t bodylen)
-
+	throw (eCtlBaseInval)
 {
 	if (0 == dpath)
 	{
-		return;
+		return 0;
 	}
+
+	uint32_t xid = 0;
 
 	switch (type) {
 	case OFPST_DESC:
@@ -1603,7 +1632,9 @@ ctlbase::send_stats_request(
 	case OFPST_GROUP_FEATURES:
 	case OFPST_EXPERIMENTER:
 		{
-			cfwdelem::send_stats_request(dpath, type, flags, body, bodylen);
+			xid = cfwdelem::send_stats_request(dpath, type, flags, body, bodylen);
+
+			xidstore.xid_add(this, xid, 15/*seconds*/);
 		}
 		break;
 	case OFPST_FLOW:
@@ -1613,7 +1644,56 @@ ctlbase::send_stats_request(
 		break;
 	case OFPST_AGGREGATE:
 		{
-			throw eNotImplemented();
+			/*
+			 * filter match through our adapters
+			 */
+			cofstats_aggregate_request aggr(body, bodylen);
+
+			// out_port
+			uint32_t out_port = be32toh(aggr.ofs_aggr_stats_request->out_port);
+			if (OFPP_ANY != out_port)
+			{
+				if (n_ports.find(out_port) == n_ports.end())
+				{
+					throw eCtlBaseInval();
+				}
+				aggr.ofs_aggr_stats_request->out_port =
+						htobe32(n_ports[out_port]->dpt_get_phy_port(this, out_port));
+			}
+
+			// in_port
+			try {
+
+				uint32_t in_port = aggr.match.get_in_port();
+
+				if (n_ports.find(in_port) == n_ports.end())
+				{
+					throw eCtlBaseInval();
+				}
+				aggr.match.set_in_port(in_port);
+
+				dpt_filter_match(this, in_port, aggr.match); // ignore returned action list
+
+			} catch (eOFmatchNotFound& e) {}
+
+			// in_phy_port
+			try {
+
+				uint32_t in_phy_port = aggr.match.get_in_phy_port();
+
+				if (n_ports.find(in_phy_port) == n_ports.end())
+				{
+					throw eCtlBaseInval();
+				}
+				aggr.match.set_in_phy_port(in_phy_port);
+
+			} catch (eOFmatchNotFound& e) {}
+
+
+
+			xid = cfwdelem::send_stats_request(dpath, type, flags, body, bodylen);
+
+			xidstore.xid_add(this, xid, 15/*seconds*/);
 		}
 		break;
 	case OFPST_PORT:
@@ -1632,6 +1712,8 @@ ctlbase::send_stats_request(
 		}
 		break;
 	}
+
+	return xid;
 }
 
 

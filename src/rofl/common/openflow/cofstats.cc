@@ -41,3 +41,20 @@ cofstats::pack()
 }
 
 
+void
+cofstats::unpack(
+		uint8_t *buf,
+		size_t buflen) throw (eOFstatsTooShort)
+{
+	body.assign(buf, buflen);
+	ofs_body = (uint8_t*)body.somem();
+}
+
+
+const char*
+cofstats::c_str()
+{
+	info.assign("cofstats");
+	return info.c_str();
+}
+

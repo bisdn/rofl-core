@@ -8,8 +8,14 @@
 #ifndef COFSTATS_H
 #define COFSTATS_H 1
 
+#include <rofl/common/cerror.h>
 #include <rofl/common/cmemory.h>
+#include <rofl/common/cvastring.h>
 #include <rofl/common/openflow/cofmatch.h>
+
+
+class eOFstatsBase			: public cerror {};
+class eOFstatsTooShort		: public eOFstatsBase {};
 
 
 class cofstats
@@ -17,6 +23,10 @@ class cofstats
 /*
  * data structures
  */
+private:
+
+	std::string		info;
+
 protected:
 
 	cmemory			packed; // packed cofstats body
@@ -126,6 +136,21 @@ public:
 	 */
 	virtual cmemory&
 	pack();
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t *buf,
+			size_t buflen)
+				throw (eOFstatsTooShort);
+
+	/**
+	 *
+	 */
+	virtual const char*
+	c_str();
 };
 
 
@@ -195,6 +220,9 @@ public:
 class cofstats_aggregate_request :
 	public cofstats
 {
+private:
+		std::string		info;
+
 public:
 		/** constructor
 		 *
@@ -203,6 +231,11 @@ public:
 			cofstats(OFS_AGGR_STATS_STATIC_HDR_LEN)
 		{
 			ofs_aggr_stats_request = (struct ofp_aggregate_stats_request*)body.somem();
+		};
+		cofstats_aggregate_request(uint8_t* buf, size_t buflen) :
+			cofstats(OFS_AGGR_STATS_STATIC_HDR_LEN)
+		{
+			unpack(buf, buflen);
 		};
 		/** destructor
 		 *
@@ -227,6 +260,40 @@ public:
 			memcpy(packed.somem(), body.somem(), body.memlen());
 			match.pack((struct ofp_match*)(packed.somem() + body.memlen()), match.length());
 			return packed;
+		};
+		/**
+		 *
+		 */
+		virtual void
+		unpack(uint8_t *buf, size_t buflen) throw (eOFstatsTooShort)
+		{
+			if (buflen < sizeof(struct ofp_aggregate_stats_request))
+			{
+				throw eOFstatsTooShort();
+			}
+			body.assign(buf, OFS_AGGR_STATS_STATIC_HDR_LEN);
+			ofs_aggr_stats_request = (struct ofp_aggregate_stats_request*)body.somem();
+			match.reset();
+			match.unpack((struct ofp_match*)(buf + OFS_AGGR_STATS_STATIC_HDR_LEN),
+					buflen - OFS_AGGR_STATS_STATIC_HDR_LEN);
+		};
+		/**
+		 *
+		 */
+		virtual const char*
+		c_str()
+		{
+			cvastring vas(256);
+			info.assign(vas("cofstats_aggregate_request(%p) table-id: %d out_port: 0x%x out_group: 0x%x "
+					"cookie: 0x%llx cookie-mask: 0x%llx ",
+					this,
+					ofs_aggr_stats_request->table_id,
+					be32toh(ofs_aggr_stats_request->out_port),
+					be32toh(ofs_aggr_stats_request->out_group),
+					be64toh(ofs_aggr_stats_request->cookie),
+					be64toh(ofs_aggr_stats_request->cookie_mask)));
+			info.append(match.c_str());
+			return info.c_str();
 		};
 };
 

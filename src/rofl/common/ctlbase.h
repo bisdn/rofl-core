@@ -9,6 +9,7 @@
 #include <list>
 
 #include <rofl/common/cfwdelem.h>
+#include <rofl/common/openflow/cofstats.h>
 #include <rofl/common/openflow/cflowentry.h>
 #include <rofl/common/cvastring.h>
 #include <rofl/common/cadapt.h>
@@ -321,12 +322,12 @@ protected:
 	 * @param body Body of a STATS request
 	 * @param bodylen length of STATS request body
 	 */
-	virtual void
+	virtual uint32_t
 	send_stats_request(
 		uint16_t type,
 		uint16_t flags,
 		uint8_t *body = NULL,
-		size_t bodylen = 0);
+		size_t bodylen = 0) throw (eCtlBaseInval);
 
 
 	// PACKET-OUT message
@@ -460,9 +461,6 @@ protected:
 		uint32_t config,
 		uint32_t mask,
 		uint32_t advertise) throw (eCtlBaseNotFound);
-
-
-
 
 
 
@@ -806,6 +804,16 @@ public:
 		 */
 		virtual cofport*
 		dpt_find_port(
+				cadapt_ctl *ctl,
+				uint32_t port_no)
+						throw (eAdaptNotFound);
+
+
+		/**
+		 *
+		 */
+		virtual uint32_t
+		dpt_get_phy_port(
 				cadapt_ctl *ctl,
 				uint32_t port_no)
 						throw (eAdaptNotFound);

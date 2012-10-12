@@ -365,6 +365,16 @@ public:
 
 
 		/**
+		 *
+		 */
+		virtual uint32_t
+		dpt_get_phy_port(
+				cadapt_ctl *ctl,
+				uint32_t port_no)
+						throw (eAdaptNotFound) = 0;
+
+
+		/**
 		 * @return xid of stats-request sent
 		 */
 		virtual uint32_t
