@@ -257,9 +257,11 @@ cfttable::get_aggregate_flow_stats(
 						cookie_mask,
 						match);
 
+#if 0
 		fprintf(stderr, "cfttable::get_aggregate_flow_stats() "
 				"packet_count: 0x%lx byte_count: 0x%lx flow_count: 0x%lx",
 				packet_count, byte_count, flow_count);
+#endif
 	}
 }
 

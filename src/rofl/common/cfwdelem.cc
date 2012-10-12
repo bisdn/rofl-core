@@ -1524,9 +1524,11 @@ cfwdelem::handle_aggregate_stats_request(
 						be64toh(pack->ofb_flow_stats_request->cookie_mask),
 						pack->match);
 
+#if 0
 				fprintf(stderr, "cfwdelem::handle_aggregate_stats_request() "
 						"packet_count: 0x%lx byte_count: 0x%lx flow_count: 0x%lx",
 						packet_count, byte_count, flow_count);
+#endif
 			}
 		}
 		else

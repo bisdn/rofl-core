@@ -620,22 +620,26 @@ cftentry::get_aggregate_flow_stats(
 {
 	bool found = false;
 
-	fprintf(stderr, "\n\n A => out_port: 0x%x out_group: 0x%x\n", out_port, out_group);
+	//fprintf(stderr, "\n\n A => out_port: 0x%x out_group: 0x%x\n", out_port, out_group);
 
 	/*
 	 * match must overlap
 	 */
 	if (not ofmatch.overlaps(m, false /*non-strict*/))
 	{
+#if 0
 		cofmatch test(m);
 		fprintf(stderr, "\n\n X => \ntest: %s\nofmatch: %s", test.c_str(), ofmatch.c_str());
+#endif
 		return;
 	}
+#if 0
 	else
 	{
 		cofmatch test(m);
 		fprintf(stderr, "\n\n Z => \ntest: %s\nofmatch: %s", test.c_str(), ofmatch.c_str());
 	}
+#endif
 
 	/*
 	 * out_port must match, if not OFPP_ANY
@@ -703,16 +707,16 @@ cftentry::get_aggregate_flow_stats(
 		} catch (eInListNotFound& e) {}
 	}
 
-	fprintf(stderr, "\n\n[R]\n\n\n");
+	//fprintf(stderr, "\n\n[R]\n\n\n");
 
 
 	if (not ((OFPP_ANY == out_port) && (OFPG_ANY == out_group)))
 	{
-		fprintf(stderr, "\n\n[S]\n\n\n");
+		//fprintf(stderr, "\n\n[S]\n\n\n");
 
 		if (not found)
 		{
-			fprintf(stderr, "\n\n[T]\n\n\n");
+			//fprintf(stderr, "\n\n[T]\n\n\n");
 
 			return;
 		}
@@ -720,7 +724,7 @@ cftentry::get_aggregate_flow_stats(
 
 found:
 
-	fprintf(stderr, "\n\n[U]\n\n\n");
+	//fprintf(stderr, "\n\n[U]\n\n\n");
 
 	/*
 	 * cookie must match
@@ -728,12 +732,12 @@ found:
 	if ((be64toh(flow_mod->cookie) & be64toh(flow_mod->cookie_mask)) !=
 			(cookie & cookie_mask))
 	{
-		fprintf(stderr, "\n\n[V]\n\n\n");
+		//fprintf(stderr, "\n\n[V]\n\n\n");
 
 		return;
 	}
 
-	fprintf(stderr, "\n\n[W]\n\n\n");
+	//fprintf(stderr, "\n\n[W]\n\n\n");
 
 
 	/*
