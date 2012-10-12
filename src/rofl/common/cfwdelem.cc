@@ -1499,6 +1499,12 @@ cfwdelem::handle_aggregate_stats_request(
 
 	uint64_t flow_count = 0; // FIXME: flow_count should be uint32_t
 
+	cofstats_aggregate_request aggr(pack->body.somem(), pack->body.memlen());
+
+	fprintf(stderr, "cfwdelem::handle_aggregate_stats_request() "
+			"table-id: %d match: %s\n",
+			aggr.ofs_aggr_stats_request->table_id, pack->match.c_str());
+
 	try {
 
 		if (OFPTT_ALL == table_id)
@@ -1517,6 +1523,10 @@ cfwdelem::handle_aggregate_stats_request(
 						be64toh(pack->ofb_flow_stats_request->cookie),
 						be64toh(pack->ofb_flow_stats_request->cookie_mask),
 						pack->match);
+
+				fprintf(stderr, "cfwdelem::handle_aggregate_stats_request() "
+						"packet_count: 0x%lx byte_count: 0x%lx flow_count: 0x%lx",
+						packet_count, byte_count, flow_count);
 			}
 		}
 		else

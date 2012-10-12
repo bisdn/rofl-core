@@ -247,7 +247,6 @@ cfttable::get_aggregate_flow_stats(
 	for (std::set<cftentry*>::iterator
 			it = flow_table.begin(); it != flow_table.end(); ++it)
 	{
-
 		(*it)->get_aggregate_flow_stats(
 						packet_count,
 						byte_count,
@@ -257,6 +256,10 @@ cfttable::get_aggregate_flow_stats(
 						cookie,
 						cookie_mask,
 						match);
+
+		fprintf(stderr, "cfttable::get_aggregate_flow_stats() "
+				"packet_count: 0x%lx byte_count: 0x%lx flow_count: 0x%lx",
+				packet_count, byte_count, flow_count);
 	}
 }
 

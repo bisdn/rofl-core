@@ -56,6 +56,7 @@ extern "C" {
 #include "openflow/cofbase.h"
 #include "openflow/cflowentry.h"
 #include "openflow/cgroupentry.h"
+#include "openflow/cofstats.h"
 #include "openflow/extensions/cfsptable.h"
 
 
