@@ -85,15 +85,15 @@ private:
 
 public:
 
-	typedef typename std::map<uint32_t, cxidtrans>::iterator iterator;
-	typedef typename std::map<uint32_t, cxidtrans>::const_iterator const_iterator;
+	typedef std::map<uint32_t, cxidtrans>::iterator iterator;
+	typedef std::map<uint32_t, cxidtrans>::const_iterator const_iterator;
 	iterator begin() 				{ return transactions.begin(); }
 	iterator end() 					{ return transactions.end(); }
 	const_iterator begin() const 	{ return transactions.begin(); }
 	const_iterator end() const 	{ return transactions.end(); }
 
-	typedef typename std::map<uint32_t, cxidtrans>::reverse_iterator reverse_iterator;
-	typedef typename std::map<uint32_t, cxidtrans>::const_reverse_iterator const_reverse_iterator;
+	typedef std::map<uint32_t, cxidtrans>::reverse_iterator reverse_iterator;
+	typedef std::map<uint32_t, cxidtrans>::const_reverse_iterator const_reverse_iterator;
 	reverse_iterator rbegin() 		{ return transactions.rbegin(); }
 	reverse_iterator rend() 		{ return transactions.rend(); }
 
