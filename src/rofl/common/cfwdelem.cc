@@ -1501,9 +1501,11 @@ cfwdelem::handle_aggregate_stats_request(
 
 	cofstats_aggregate_request aggr(pack->body.somem(), pack->body.memlen());
 
+#if 0
 	fprintf(stderr, "cfwdelem::handle_aggregate_stats_request() "
 			"table-id: %d match: %s\n",
 			aggr.ofs_aggr_stats_request->table_id, pack->match.c_str());
+#endif
 
 	try {
 
