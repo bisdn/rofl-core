@@ -18,6 +18,7 @@ void sighandler(int sig)
 	}
 }
 
+pthread_rwlock_t ciosrv::iodata_lock;
 std::map<pthread_t, ciosrv::ciodata*> ciosrv::iodata;
 
 std::map<pthread_t, std::set<ciosrv*> > ciosrv::ciosrv_wakeup;
@@ -72,6 +73,8 @@ ciosrv::~ciosrv()
 		ciosrv_deletion_list[tid].insert(this);
 		//ciosrv_list[tid].erase(this);
 
+		RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_READ);
+
 		for (std::map<int, ciosrv*>::iterator
 				it = iodata[tid]->rfds.begin(); it != iodata[tid]->rfds.end(); ++it)
 		{
@@ -104,6 +107,8 @@ const char*
 ciosrv::c_str()
 {
 	cvastring vas(256);
+
+	RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_READ);
 
 	info.assign(vas("ciosrv(%p) rfds: ", this));
 	for (std::map<int, ciosrv*>::iterator
@@ -220,6 +225,8 @@ ciosrv::notify(cevent const& ev)
 					this, s_wakeup.c_str());
 #endif
 
+			RwLock lock2(&ciosrv::iodata_lock, RwLock::RWLOCK_READ);
+
 			if (iodata[tid]->flags.test(CIOSRV_FLAG_WAKEUP_CALLED))
 			{
 				WRITELOG(CIOSRV, ROFL_DBG, "ciosrv(%p)::notify() wakeup call is pending", this);
@@ -252,6 +259,8 @@ ciosrv::notify(cevent const& ev)
 void
 ciosrv::register_filedesc_r(int fd)
 {
+	RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_READ);
+
 	WRITELOG(CIOSRV, ROFL_DBG, "ciosrv(%p)::register_filedesc_r() fd=%d", this, fd);
 	iodata[tid]->rfds[fd] = this;
 }
@@ -259,6 +268,8 @@ ciosrv::register_filedesc_r(int fd)
 void
 ciosrv::deregister_filedesc_r(int fd)
 {
+	RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_READ);
+
 	WRITELOG(CIOSRV, ROFL_DBG, "ciosrv(%p)::deregister_filedesc_r() fd=%d", this, fd);
 	iodata[tid]->rfds.erase(fd);
 }
@@ -266,6 +277,8 @@ ciosrv::deregister_filedesc_r(int fd)
 void
 ciosrv::register_filedesc_w(int fd)
 {
+	RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_READ);
+
 	WRITELOG(CIOSRV, ROFL_DBG, "ciosrv(%p)::register_filedesc_w() fd=%d", this, fd);
 	iodata[tid]->wfds[fd] = this;
 }
@@ -273,6 +286,8 @@ ciosrv::register_filedesc_w(int fd)
 void
 ciosrv::deregister_filedesc_w(int fd)
 {
+	RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_READ);
+
 	WRITELOG(CIOSRV, ROFL_DBG, "ciosrv(%p)::deregister_filedesc_w() fd=%d", this, fd);
 	iodata[tid]->wfds.erase(fd);
 }
@@ -392,6 +407,8 @@ ciosrv::fdset(int& maxfd,
 
 	pthread_t tid = pthread_self();
 
+	RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_READ);
+
 	// wakeup pipe
 	FD_SET(iodata[tid]->pipe->pipefd[0], readfds);
 	maxfd = (iodata[tid]->pipe->pipefd[0] > maxfd) ? iodata[tid]->pipe->pipefd[0] : maxfd;
@@ -473,6 +490,8 @@ ciosrv::next_timeout(
 	pthread_t tid = pthread_self();
 
 	//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
+
+	RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_READ);
 
 	iodata[tid]->ciosrv_timeouts.clear();
 
@@ -1014,6 +1033,13 @@ ciosrv::child_sig_handler (int x) {
 void
 ciosrv::init()
 {
+	if (ciosrv::iodata.empty())
+	{
+		pthread_rwlock_init(&ciosrv::iodata_lock, 0);
+	}
+
+	RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_WRITE);
+
 	/*
 	 * allocate per-thread data structures
 	 */
@@ -1041,6 +1067,8 @@ ciosrv::destroy()
 {
 	pthread_t tid = pthread_self();
 
+	RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_WRITE);
+
 	/*
 	 * deallocate per-thread data structures
 	 */
@@ -1048,6 +1076,11 @@ ciosrv::destroy()
 	delete iodata[tid]; iodata.erase(tid);
 	pthread_mutex_destroy(&(ciosrv::ciosrv_list_mutex[tid]));
 	pthread_rwlock_destroy(&(ciosrv::ciosrv_wakeup_rwlock[tid]));
+
+	if (ciosrv::iodata.empty())
+	{
+		pthread_rwlock_destroy(&ciosrv::iodata_lock);
+	}
 }
 
 
@@ -1191,6 +1224,8 @@ ciosrv::dump_active_fdsets(
 	if (rc > 0)
 	{
 		cvastring vas;
+
+		RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_READ);
 
 		for (std::map<int, ciosrv*>::iterator
 				iit = iodata[tid]->rfds.begin(); iit != iodata[tid]->rfds.end(); ++iit)

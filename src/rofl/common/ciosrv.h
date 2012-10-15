@@ -167,6 +167,7 @@ class ciosrv : public virtual csyslog
 
 protected:
 
+	static pthread_rwlock_t iodata_lock;
 
 	static std::map<pthread_t, ciodata*> iodata; // fds and timers for thread tid
 
