@@ -280,14 +280,14 @@ caddress::addr_c_str()
 	switch (saddr->sa_family) {
 	case AF_INET:
 		inet_ntop(AF_INET, &(s4addr->sin_addr), (char*)mem.somem(), mem.memlen()-1);
-		info.assign(std::string(mem.somem(), mem.memlen()));
+		info.assign(std::string((const char*)mem.somem(), mem.memlen()));
 		break;
 	case AF_INET6:
 		inet_ntop(AF_INET, &(s6addr->sin6_addr), (char*)mem.somem(), mem.memlen()-1);
-		info.assign(std::string(mem.somem(), mem.memlen()));
+		info.assign(std::string((const char*)mem.somem(), mem.memlen()));
 		break;
 	case AF_UNIX:
-		info.assign(std::string(suaddr->sun_path)));
+		info.assign(std::string(suaddr->sun_path));
 		break;
 	case AF_PACKET:
 		info.assign(vas("[caddress(%p) AF_PACKET/TODO: implement!]", this));
