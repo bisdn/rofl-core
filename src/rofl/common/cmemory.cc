@@ -5,6 +5,7 @@
 #include "cmemory.h"
 
 
+
 /*static*/std::set<cmemory*> 	cmemory::cmemory_list;
 /*static*/pthread_mutex_t 		cmemory::memlock;
 /*static*/int 					cmemory::memlockcnt = 0;
