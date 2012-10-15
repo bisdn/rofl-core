@@ -17,7 +17,7 @@ cmemory::cmemory(
 		data(std::make_pair<uint8_t*, size_t>(NULL,0)),
 		occupied(0)
 {
-#if 1
+#if 0
 	if (0 == cmemory::memlockcnt)
 	{
 		pthread_mutex_init(&cmemory::memlock, NULL);
@@ -45,7 +45,7 @@ cmemory::cmemory(
 		data(std::make_pair<uint8_t*, size_t>(NULL,0)),
 		occupied(0)
 {
-#if 1
+#if 0
 	if (0 == cmemory::memlockcnt)
 	{
 		pthread_mutex_init(&cmemory::memlock, NULL);
@@ -72,7 +72,7 @@ cmemory::cmemory(cmemory const& m) :
 		data(std::make_pair<uint8_t*, size_t>(NULL,0)),
 		occupied(0)
 {
-#if 1
+#if 0
 	if (0 == cmemory::memlockcnt)
 	{
 		pthread_mutex_init(&cmemory::memlock, NULL);
@@ -92,7 +92,7 @@ cmemory::cmemory(cmemory const& m) :
 
 cmemory::~cmemory()
 {
-#if 1
+#if 0
 	--cmemory::memlockcnt;
 	if (0 == cmemory::memlockcnt)
 	{
