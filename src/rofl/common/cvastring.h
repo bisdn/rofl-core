@@ -33,7 +33,7 @@ public:
 	const char* operator() (const char* fmt, ...)
 	{
 		data.clear();
-#ifndef NDEBUG
+#if 1
 		char *tmp = 0;
 		if ((tmp = (char*)calloc(1, len)) == 0)
 		{
