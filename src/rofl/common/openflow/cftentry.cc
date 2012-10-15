@@ -93,7 +93,9 @@ cftentry::cftentry(
 	WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::cftentry() [2] %s %s", this, c_str(), instructions.c_str());
 
 	if (flow_table)
+	{
 		flow_table->insert(this);
+	}
 }
 
 
@@ -102,7 +104,9 @@ cftentry::~cftentry()
 	WRITELOG(FTE, ROFL_DBG, "cftentry(%p)::~cftentry() %s", this, c_str());
 
 	if (flow_table)
+	{
 		flow_table->erase(this);
+	}
 
 	try {
 		if (owner)
