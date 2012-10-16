@@ -910,6 +910,8 @@ cofrpc::send_message_via_tcp()
 
 			// call csocket send method
 			send_packet(mem);
+
+			delete pack;
 		}
 
 		if (not fe_queue.empty())
