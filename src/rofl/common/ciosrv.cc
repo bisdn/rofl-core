@@ -1164,7 +1164,11 @@ ciosrv::run()
 
 handle_packets:			// handle incoming events
 
-			ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
+			try {
+				ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
+			} catch (cerror& e) {
+				fprintf(stderr, "exception\n");
+			}
 
 		}
 	}
