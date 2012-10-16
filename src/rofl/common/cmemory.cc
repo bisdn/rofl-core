@@ -337,6 +337,8 @@ cmemory::mallocate(
 	{
 		throw eMemAllocFailed();
 	}
+
+	memset(data.first, 0, data.second);
 }
 
 
