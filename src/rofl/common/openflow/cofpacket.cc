@@ -553,7 +553,6 @@ cofpacket::is_valid_flow_mod()
 
 		if (stored < sizeof(struct ofp_flow_mod)) // includes static part of struct ofp_match (i.e. type and length)
 		{
-			fprintf(stderr, "1.1 ");
 			return false;
 		}
 
