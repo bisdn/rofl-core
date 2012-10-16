@@ -1046,6 +1046,7 @@ cofrpc::send_echo_request()
 {
 	size_t packlen = sizeof(struct ofp_header) + sizeof(time_t);
 
+#if 0
 	cofpacket *pack = new cofpacket(packlen, packlen);
 
 	pack->ofh_header->version = OFP_VERSION;
@@ -1056,6 +1057,19 @@ cofrpc::send_echo_request()
 	time_t now = time(NULL);
 	memcpy(((uint8_t*) pack->ofh_header + sizeof(struct ofp_header)),
 			(uint8_t*) &now, sizeof(now));
+
+	fe_queue_message(pack);
+
+	register_timer(TIMER_RPC_ECHO_REPLY_TIMEOUT, 15 /* seconds */);
+#endif
+
+	time_t now = time(NULL);
+
+	cofpacket_echo_request *pack =
+			new cofpacket_echo_request(
+							ta_add_request(OFPT_ECHO_REQUEST),
+							(uint8_t*)&now,
+							sizeof(now));
 
 	fe_queue_message(pack);
 
