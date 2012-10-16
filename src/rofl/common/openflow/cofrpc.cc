@@ -1044,25 +1044,6 @@ cofrpc::handle_error(cofpacket *pack)
 void
 cofrpc::send_echo_request()
 {
-#if 0
-	size_t packlen = sizeof(struct ofp_header) + sizeof(time_t);
-
-	cofpacket *pack = new cofpacket(packlen, packlen);
-
-	pack->ofh_header->version = OFP_VERSION;
-	pack->ofh_header->type = OFPT_ECHO_REQUEST;
-	pack->ofh_header->length = htobe16(packlen);
-	pack->ofh_header->xid = htobe32(ta_add_request(OFPT_ECHO_REQUEST));
-
-	time_t now = time(NULL);
-	memcpy(((uint8_t*) pack->ofh_header + sizeof(struct ofp_header)),
-			(uint8_t*) &now, sizeof(now));
-
-	fe_queue_message(pack);
-
-	register_timer(TIMER_RPC_ECHO_REPLY_TIMEOUT, 15 /* seconds */);
-#endif
-
 	time_t now = time(NULL);
 
 	cofpacket_echo_request *pack =
