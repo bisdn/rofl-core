@@ -87,6 +87,7 @@ cofrpc::send_up_hello_message(
 		bool bye)
 {
 	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_up_hello_message()", this);
+#if 0
 	size_t packlen = sizeof(struct ofp_header) + sizeof(uint32_t);
 
 	cofpacket *pack = new cofpacket(packlen, packlen);
@@ -109,6 +110,16 @@ cofrpc::send_up_hello_message(
 			this, pack->c_str());
 
 	entity->fe_up_hello_message(this, pack);
+#endif
+
+	uint32_t cookie = (bye == true) ? htobe32(FE_HELLO_BYE) : htobe32(FE_HELLO_ACTIVE);
+
+	cofpacket *pack = new cofpacket_hello(ta_new_async_xid(), (uint8_t*)&cookie, sizeof(cookie));
+
+	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_up_hello_message() done %s",
+			this, pack->c_str());
+
+	entity->fe_up_hello_message(this, pack);
 }
 
 
@@ -118,6 +129,7 @@ cofrpc::send_down_hello_message(
 		bool bye)
 {
 	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_down_hello_message()", this);
+#if 0
 	size_t packlen = sizeof(struct ofp_header) + sizeof(uint32_t);
 
 	cofpacket *pack = new cofpacket(packlen, packlen);
@@ -135,6 +147,16 @@ cofrpc::send_down_hello_message(
 	 */
 	uint32_t *cookie = (uint32_t*)(pack->ofh_header + 1);
 	*cookie = bye ? htobe32(FE_HELLO_BYE) : htobe32(FE_HELLO_ACTIVE);
+
+	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_down_hello_message() done %s",
+			this, pack->c_str());
+
+	entity->fe_down_hello_message(this, pack);
+#endif
+
+	uint32_t cookie = (bye == true) ? htobe32(FE_HELLO_BYE) : htobe32(FE_HELLO_ACTIVE);
+
+	cofpacket *pack = new cofpacket_hello(ta_new_async_xid(), (uint8_t*)&cookie, sizeof(cookie));
 
 	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_down_hello_message() done %s",
 			this, pack->c_str());

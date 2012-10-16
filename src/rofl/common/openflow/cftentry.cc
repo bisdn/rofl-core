@@ -116,10 +116,10 @@ cftentry::~cftentry()
 				owner->ftentry_timeout(this, 0);
 				break;
 			case OFPRR_HARD_TIMEOUT:
-				owner->ftentry_timeout(this, flow_mod->hard_timeout);
+				owner->ftentry_timeout(this, be16toh(flow_mod->hard_timeout));
 				break;
 			case OFPRR_IDLE_TIMEOUT:
-				owner->ftentry_timeout(this, flow_mod->idle_timeout);
+				owner->ftentry_timeout(this, be16toh(flow_mod->idle_timeout));
 				break;
 			}
 		}
