@@ -1044,9 +1044,9 @@ cofrpc::handle_error(cofpacket *pack)
 void
 cofrpc::send_echo_request()
 {
+#if 0
 	size_t packlen = sizeof(struct ofp_header) + sizeof(time_t);
 
-#if 0
 	cofpacket *pack = new cofpacket(packlen, packlen);
 
 	pack->ofh_header->version = OFP_VERSION;
