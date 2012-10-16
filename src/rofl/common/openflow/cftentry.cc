@@ -129,7 +129,21 @@ cftentry::~cftentry()
 }
 
 
-cftentry::cftentry(const cftentry& fte)
+cftentry::cftentry(const cftentry& fte) :
+			fwdelem(0),
+			ofctrl(0),
+			uid(0),
+			flags(0),
+			removal_reason(OFPRR_DELETE),
+			rx_packets(0),
+			rx_bytes(0),
+			out_port(OFPP_ANY),
+			out_group(OFPG_ANY),
+			m_flowmod(sizeof(struct ofp_flow_mod) - sizeof(struct ofp_match)),
+			flow_mod((struct ofp_flow_mod*)m_flowmod.somem()),
+			owner(NULL),
+			flow_table(NULL),
+			ftsem(0)
 {
 	*this = fte;
 }

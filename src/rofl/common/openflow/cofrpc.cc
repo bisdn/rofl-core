@@ -209,6 +209,8 @@ cofrpc::fe_down_hello_message(
 		}
 		break;
 	}
+
+	delete pack;
 }
 
 
@@ -256,6 +258,8 @@ cofrpc::fe_up_hello_message(
 		}
 		break;
 	}
+
+	delete pack;
 }
 
 
