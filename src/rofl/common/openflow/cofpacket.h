@@ -1558,7 +1558,10 @@ public:
 
 			memcpy(buf, memarea.somem(), sizeof(struct ofp_stats_reply));
 
-			memcpy(buf + sizeof(struct ofp_stats_reply), body.somem(), body.memlen());
+			if (body.memlen() > 0)
+			{
+				memcpy(buf + sizeof(struct ofp_stats_reply), body.somem(), body.memlen());
+			}
 		};
 };
 

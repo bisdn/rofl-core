@@ -400,7 +400,7 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 	{
 		cmemory *pack = pout_squeue.front();
 
-		if ((rc = send(sd, pack->somem(), pack->memlen(), MSG_NOSIGNAL)) < 0)
+		if ((rc = sendto(sd, pack->somem(), pack->memlen(), MSG_NOSIGNAL, NULL, 0)) < 0)
 		{
 			WRITELOG(CSOCKET, ROFL_DBG, "csocket(%p)::dequeue_packet() "
 					"errno=%d (%s) pack: %s",
