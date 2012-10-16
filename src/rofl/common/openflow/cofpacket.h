@@ -556,7 +556,10 @@ public:
 
 			memcpy(buf, memarea.somem(), sizeof(struct ofp_header));
 
-			memcpy(buf + sizeof(struct ofp_header), body.somem(), body.memlen());
+			if (body.memlen() > 0)
+			{
+				memcpy(buf + sizeof(struct ofp_header), body.somem(), body.memlen());
+			}
 		};
 };
 
@@ -610,7 +613,10 @@ public:
 
 			memcpy(buf, memarea.somem(), sizeof(struct ofp_header));
 
-			memcpy(buf + sizeof(struct ofp_header), body.somem(), body.memlen());
+			if (body.memlen() > 0)
+			{
+				memcpy(buf + sizeof(struct ofp_header), body.somem(), body.memlen());
+			}
 		};
 };
 
