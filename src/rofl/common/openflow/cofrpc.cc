@@ -478,6 +478,8 @@ cofrpc::handle_read(int fd)
 	cofpacket *pcppack = NULL;
 	try {
 
+		pcppack = (0 != fragment) ? fragment : new cofpacket();
+#if 0
 		if (fragment)
 		{
 			pcppack = fragment;
@@ -486,6 +488,7 @@ cofrpc::handle_read(int fd)
 		{
 			pcppack = new cofpacket();
 		}
+#endif
 
 
 

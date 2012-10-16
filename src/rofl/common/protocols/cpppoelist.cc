@@ -193,9 +193,11 @@ cpppoelist::c_str()
 
 		}
 
+#if 0
 		cmemory lmem((*it).length());
 		(*it).pack((struct cpppoetlv::pppoe_tag_hdr_t*)lmem.somem(), lmem.memlen());
 		info.append(vas(" %s", lmem.c_str()));
+#endif
 	}
 
 	return info.c_str();

@@ -468,10 +468,15 @@ const char*
 cmemory::c_str()
 {
 #ifdef NDEBUG
+
+	info.clear();
+	return info.c_str();
+
+#if 0
 	std::stringstream sstr;
 	sstr << "cmemory(" << (std::hex) << this << (std::dec) << ") len[" << (int)memlen() << "]";
 	return sstr.str().c_str();
-
+#endif
 #else
 
 	info.clear();
