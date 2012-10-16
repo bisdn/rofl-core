@@ -145,6 +145,8 @@ cftentry::cftentry(const cftentry& fte) :
 			flow_table(NULL),
 			ftsem(0)
 {
+	pthread_mutex_init(&ftmutex, NULL);
+
 	*this = fte;
 }
 
