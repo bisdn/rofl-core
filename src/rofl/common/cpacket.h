@@ -100,6 +100,26 @@ class cpacket :
  */
 private:
 
+		static std::string				s_cpacket_info;
+
+public:
+
+		static pthread_rwlock_t			cpacket_lock;
+		static std::set<cpacket*> 		cpacket_list;
+
+		static const char*
+		cpacket_info();
+
+		void
+		cpacket_list_insert();
+
+		void
+		cpacket_list_erase();
+
+
+
+private:
+
 
 		std::bitset<32> 				flags;			// flags (e.g. for checksum calculations, NO_PACKET_IN, etc.)
 		std::string 					info;			// info string

@@ -4,12 +4,56 @@
 
 #include "cpacket.h"
 
+std::string			cpacket::s_cpacket_info;
+pthread_rwlock_t 	cpacket::cpacket_lock;
+std::set<cpacket*> 	cpacket::cpacket_list;
 
 
 cpacket
 cpacket::pempty()
 {
 	return cpacket((size_t)0);
+}
+
+
+const char*
+cpacket::cpacket_info()
+{
+	RwLock lock(&cpacket::cpacket_lock, RwLock::RWLOCK_READ);
+	cvastring vas(2048);
+	s_cpacket_info.assign(vas("cpackets: #%lu ", cpacket::cpacket_list.size()));
+	for (std::set<cpacket*>::iterator
+			it = cpacket::cpacket_list.begin();
+				it != cpacket::cpacket_list.end(); ++it)
+	{
+		s_cpacket_info.append(vas("  %s", (*it)->c_str()));
+	}
+	return s_cpacket_info.c_str();
+}
+
+
+void
+cpacket::cpacket_list_insert()
+{
+	if (cpacket::cpacket_list.empty())
+	{
+		pthread_rwlock_init(&cpacket::cpacket_lock, 0);
+	}
+	RwLock(&cpacket::cpacket_lock, RwLock::RWLOCK_WRITE);
+	cpacket::cpacket_list.insert(this);
+}
+
+
+void
+cpacket::cpacket_list_erase()
+{
+	RwLock(&cpacket::cpacket_lock, RwLock::RWLOCK_WRITE);
+	cpacket::cpacket_list.erase(this);
+
+	if (cpacket::cpacket_list.empty())
+	{
+		pthread_rwlock_destroy(&cpacket::cpacket_lock);
+	}
 }
 
 
@@ -36,6 +80,8 @@ cpacket::cpacket(
 	{
 		classify(in_port);
 	}
+
+	cpacket_list_insert();
 }
 
 
@@ -67,6 +113,8 @@ cpacket::cpacket(
 	{
 		classify(in_port);
 	}
+
+	cpacket_list_insert();
 }
 
 
@@ -102,6 +150,8 @@ cpacket::cpacket(
 	{
 		classify(in_port);
 	}
+
+	cpacket_list_insert();
 }
 
 
@@ -124,6 +174,8 @@ cpacket::cpacket(
 	pthread_rwlock_init(&ac_rwlock, NULL);
 
 	*this = pack;
+
+	cpacket_list_insert();
 }
 
 
@@ -134,6 +186,8 @@ cpacket::~cpacket()
 	reset(); // removes all cmemory and ciovec instances from heap
 
 	pthread_rwlock_destroy(&ac_rwlock);
+
+	cpacket_list_erase();
 }
 
 
