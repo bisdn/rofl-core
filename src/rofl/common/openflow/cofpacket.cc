@@ -11,9 +11,36 @@
 cofpacket::packet_info()
 {
 	cvastring vas;
-	pinfo.assign(vas("cofpackets allocated: %d", cofpacket::cofpacket_list.size()));
+	pinfo.assign(vas("cofpackets allocated: %d\n", cofpacket::cofpacket_list.size()));
+
+	std::map<uint8_t, unsigned int> counter;
+	for (std::set<cofpacket*>::iterator
+			it = cofpacket::cofpacket_list.begin();
+				it != cofpacket::cofpacket_list.end(); ++it)
+	{
+		cofpacket *pack = (*it);
+		if (counter.find(pack->ofh_header->type) == counter.end())
+		{
+			counter[pack->ofh_header->type] = 1;
+		}
+		else
+		{
+			counter[pack->ofh_header->type] += 1;
+		}
+	}
+
+	for (std::map<uint8_t, unsigned int>::iterator
+			it = counter.begin(); it != counter.end(); ++it)
+	{
+		pinfo.append(vas("  %s => %lu",
+						cofpacket::type2desc((enum ofp_type)it->first),
+						it->second));
+	}
+
 	return pinfo.c_str();
 }
+
+
 
 cofpacket::cofpacket(size_t size, size_t used) :
 	stored(used),
@@ -28,10 +55,12 @@ cofpacket::cofpacket(size_t size, size_t used) :
 }
 
 
+
 cofpacket::~cofpacket()
 {
 	cofpacket::cofpacket_list.erase(this);
 }
+
 
 
 cofpacket::cofpacket(cofpacket const& p) :
@@ -41,6 +70,7 @@ cofpacket::cofpacket(cofpacket const& p) :
 	*this = p;
 	cofpacket::cofpacket_list.insert(this);
 }
+
 
 
 cofpacket&

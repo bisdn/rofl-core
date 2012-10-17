@@ -79,6 +79,8 @@ cfwdelem::cfwdelem(
 	rpc[RPC_DPT] = new cofrpc(cofrpc::OF_RPC_TCP_NORTH_ENDPNT, this);
 	rpc[RPC_DPT]->clisten(rpc_dpt_addr);
 
+	register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
+
 	cfwdelem::fwdelems.insert(this);
 }
 
@@ -534,6 +536,11 @@ cfwdelem::handle_timeout(int opaque)
 			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
 					"TIMER_FE_HANDLE_ROLE_REPLY (%d) expired", this,  TIMER_FE_HANDLE_ROLE_REPLY);
 			recv_role_reply();
+			break;
+		case TIMER_FE_DUMP_OFPACKETS:
+			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+					"cofpacket statistics => %s", this, cofpacket::packet_info());
+			register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
 			break;
 		default:
 			//WRITELOG(CFWD, ROFL_DBG, "cfwdelem::handle_timeout() "

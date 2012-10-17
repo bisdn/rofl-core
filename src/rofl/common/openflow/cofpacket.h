@@ -58,9 +58,12 @@ class eOFpacketHeaderInval : public eOFpacketBase {}; // invalid header
 class cofpacket :
 	public csyslog
 {
-private: // static
+public: // static
 
 	static std::set<cofpacket*> cofpacket_list; //< list of allocated cofpacket instances
+
+private: // static
+
 	static std::string pinfo; //< information string for cofpacket::cofpacket_list
 
 public:
@@ -447,7 +450,7 @@ private: // methods
 
 	/** return description for ofp_type
 	 */
-	const char*
+	static const char*
 	type2desc(ofp_type type);
 
 };

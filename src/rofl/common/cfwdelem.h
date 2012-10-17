@@ -175,6 +175,7 @@ protected:
 		TIMER_FE_EP_TX_QUEUE,
 		TIMER_FE_HANDLE_ROLE_REQUEST,
 		TIMER_FE_HANDLE_ROLE_REPLY,
+		TIMER_FE_DUMP_OFPACKETS,
 	};
 
 	enum fwdelem_state_t {
