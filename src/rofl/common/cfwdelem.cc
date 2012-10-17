@@ -540,6 +540,13 @@ cfwdelem::handle_timeout(int opaque)
 		case TIMER_FE_DUMP_OFPACKETS:
 			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
 					"cofpacket statistics => %s", this, cofpacket::packet_info());
+			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_timeout() "
+					"cpacket statistics => %s", this, cpacket::cpacket_info());
+			fprintf(stdout, "cfwdelem(%p)::handle_timeout() "
+					"cofpacket statistics => %s", this, cofpacket::packet_info());
+			fprintf(stdout, "cfwdelem(%p)::handle_timeout() "
+					"cpacket statistics => %s", this, cpacket::cpacket_info());
+
 			register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
 			break;
 		default:
