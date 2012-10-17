@@ -428,8 +428,9 @@ cofctrl::experimenter_message_rcvd(cofpacket *pack)
 			break;
 		}
 
-		delete pack;
 		}
+
+		delete pack;
 		break;
 	}
 
