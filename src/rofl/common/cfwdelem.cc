@@ -1001,6 +1001,8 @@ cfwdelem::handle_features_request(cofctrl *ofctrl, cofpacket *request)
 	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::handle_features_request()", dpname.c_str());
 
 	send_features_reply(ofctrl, request->get_xid());
+
+	delete request;
 }
 
 
