@@ -4,6 +4,7 @@
 
 #include "cpacket.h"
 
+bool				cpacket::cpacket_init = false;
 std::string			cpacket::s_cpacket_info;
 pthread_rwlock_t 	cpacket::cpacket_lock;
 std::set<cpacket*> 	cpacket::cpacket_list;
@@ -35,7 +36,7 @@ cpacket::cpacket_info()
 void
 cpacket::cpacket_list_insert()
 {
-	if (cpacket::cpacket_list.empty())
+	if (not cpacket::cpacket_init)
 	{
 		pthread_rwlock_init(&cpacket::cpacket_lock, 0);
 	}

@@ -100,6 +100,7 @@ class cpacket :
  */
 private:
 
+		static bool					cpacket_init;
 		static std::string				s_cpacket_info;
 
 public:
