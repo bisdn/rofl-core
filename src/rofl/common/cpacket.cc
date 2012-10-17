@@ -36,6 +36,7 @@ cpacket::cpacket_info()
 void
 cpacket::cpacket_list_insert()
 {
+	return;
 	if (not cpacket::cpacket_init)
 	{
 		pthread_rwlock_init(&cpacket::cpacket_lock, 0);
@@ -48,6 +49,7 @@ cpacket::cpacket_list_insert()
 void
 cpacket::cpacket_list_erase()
 {
+	return;
 	{
 		RwLock(&cpacket::cpacket_lock, RwLock::RWLOCK_WRITE);
 		cpacket::cpacket_list.erase(this);
