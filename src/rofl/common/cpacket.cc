@@ -47,8 +47,10 @@ cpacket::cpacket_list_insert()
 void
 cpacket::cpacket_list_erase()
 {
-	RwLock(&cpacket::cpacket_lock, RwLock::RWLOCK_WRITE);
-	cpacket::cpacket_list.erase(this);
+	{
+		RwLock(&cpacket::cpacket_lock, RwLock::RWLOCK_WRITE);
+		cpacket::cpacket_list.erase(this);
+	}
 
 	if (cpacket::cpacket_list.empty())
 	{
