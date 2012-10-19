@@ -23,6 +23,7 @@ cfsm::init_state(int state)
 int
 cfsm::new_state(int state)
 {
+	fsm_state_history.clear();
 	fsm_state_history.push_back(fsm_state);
 	fsm_state = state;
 	return fsm_state_history.back();
