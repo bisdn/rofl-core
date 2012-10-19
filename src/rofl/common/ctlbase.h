@@ -134,6 +134,15 @@ public: // bind a stack of adapters
 	stack_unload(
 			unsigned int stack_index) throw (eCtlBaseInval);
 
+	/**
+	 * get the adapter stack size
+	 * @return size
+	 */
+	size_t
+	stack_size() const {
+		return adstacks.size();
+	}
+
 
 protected:
 
