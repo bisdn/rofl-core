@@ -79,7 +79,7 @@ cfwdelem::cfwdelem(
 	rpc[RPC_DPT] = new cofrpc(cofrpc::OF_RPC_TCP_NORTH_ENDPNT, this);
 	rpc[RPC_DPT]->clisten(rpc_dpt_addr);
 
-	register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
+	//register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
 
 	cfwdelem::fwdelems.insert(this);
 }
