@@ -6,6 +6,7 @@
 #define CFSM_H 1
 
 #include <list>
+#include <string>
 
 #ifndef __cplusplus
 extern "C" {
@@ -19,7 +20,14 @@ extern "C" {
 
 /** interface for finite state machines
  */
-class cfsm {
+class cfsm
+{
+private:
+
+#define FSM_STATE_HISTORY_MAX_SIZE		16	// store at most 16 past states
+
+	std::string		info;
+
 public:
 	/** constructor
 	 */

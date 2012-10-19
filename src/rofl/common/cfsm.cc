@@ -23,7 +23,10 @@ cfsm::init_state(int state)
 int
 cfsm::new_state(int state)
 {
-	fsm_state_history.clear();
+	if (FSM_STATE_HISTORY_MAX_SIZE < fsm_state_history.size())
+	{
+		fsm_state_history.clear();
+	}
 	fsm_state_history.push_back(fsm_state);
 	fsm_state = state;
 	return fsm_state_history.back();
@@ -38,8 +41,9 @@ cfsm::cur_state()
 const char*
 cfsm::c_str()
 {
-	static char str[64];
+	char str[64];
 	bzero(str, sizeof(str));
 	snprintf(str, sizeof(str) - 1, "cfsm(state=%d)", fsm_state);
-	return str;
+	info.assign(str);
+	return info.c_str();
 }
