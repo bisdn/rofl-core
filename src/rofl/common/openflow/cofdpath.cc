@@ -45,6 +45,13 @@ cofdpath::~cofdpath()
 
 	fwdelem->handle_dpath_close(this);
 
+	for (std::map<uint8_t, cfttable*>::iterator
+			it = flow_tables.begin(); it != flow_tables.end(); ++it)
+	{
+		delete it->second;
+	}
+	flow_tables.clear();
+
 	// remove all cofport instances
 	while (not ports.empty())
 	{

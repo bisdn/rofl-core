@@ -95,6 +95,7 @@ ciosrv::~ciosrv()
 			}
 		}
 
+restart:
 		for (std::list<ciosrv*>::iterator
 				it = iodata[tid]->ciosrv_timeouts.begin();
 						it != iodata[tid]->ciosrv_timeouts.end(); ++it)
@@ -102,7 +103,7 @@ ciosrv::~ciosrv()
 			if ((*it) == this)
 			{
 				iodata[tid]->ciosrv_timeouts.erase(it);
-				break;
+				goto restart;
 			}
 		}
 	}
