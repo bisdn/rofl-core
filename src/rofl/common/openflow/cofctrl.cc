@@ -4,22 +4,20 @@
 
 #include "cofctrl.h"
 
-cofctrl::cofctrl(cfwdelem* fwdelem, cofbase *ctrl, std::map<cofbase*, cofctrl*> *ofctrl_list) :
-		fwdelem(fwdelem),
+cofctrl::cofctrl(cofbase* ofbase, cofiface *ctrl, std::map<cofiface*, cofctrl*> *ofctrl_list) :
+		ofbase(ofbase),
 		ofctrl_list(ofctrl_list),
 		ctrl(ctrl),
 		flags(0),
 		miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
-		//flow_table(0),
 		role_initialized(false),
 		role(OFPCR_ROLE_EQUAL),
 		cached_generation_id(0)
 {
 	(*ofctrl_list)[ctrl] = this;
-        flow_table = new cfttable(0);
 	WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::cofctrl()", this);
 
-	fwdelem->handle_ctrl_open(this);
+	ofbase->handle_ctrl_open(this);
 }
 
 
@@ -27,21 +25,20 @@ cofctrl::~cofctrl()
 {
 	WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::~cofctrl()", this);
 
-	fwdelem->handle_ctrl_close(this);
+	ofbase->handle_ctrl_close(this);
 
 	ofctrl_list->erase(ctrl);
 
 	//ctrl->dpath_detach(fwdelem);
 
-	fwdelem->fsptable.delete_fsp_entries(this);
-	delete flow_table;
+	ofbase->fsptable.delete_fsp_entries(this);
 }
 
 
 void
 cofctrl::features_request_rcvd(cofpacket *pack)
 {
-	fwdelem->handle_features_request(this, pack);
+	ofbase->handle_features_request(this, pack);
 }
 
 
@@ -51,12 +48,12 @@ cofctrl::packet_out_rcvd(cofpacket *pack)
 	if (OFPCR_ROLE_SLAVE == role)
 	{
 		size_t len = (pack->length() > 64) ? 64 : pack->length();
-		fwdelem->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
+		ofbase->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
 										pack->soframe(), len);
 		return;
 	}
 
-	fwdelem->handle_packet_out(this, pack);
+	ofbase->handle_packet_out(this, pack);
 }
 
 
@@ -65,23 +62,30 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 {
 	WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() pack: %s", this, pack->c_str());
 
+#if 0
+
+
+	ofbase->handle_flow_mod(pack);
+#endif
+
+#if 0
 	try {
 		if (OFPCR_ROLE_SLAVE == role)
 		{
 			size_t len = (pack->length() > 64) ? 64 : pack->length();
-			fwdelem->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
+			ofbase->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
 											pack->soframe(), len);
 			return;
 		}
 
 		// check, whether the controlling pack->entity is allowed to install this flow-mod
-		if (fwdelem->fe_flags.test(cfwdelem::NSP_ENABLED))
+		if (ofbase->fe_flags.test(cfwdelem::NSP_ENABLED))
 		{
 			switch (pack->ofh_flow_mod->command) {
 			case OFPFC_ADD:
 			case OFPFC_MODIFY:
 			case OFPFC_MODIFY_STRICT:
-				fwdelem->fsptable.flow_mod_allowed(this, pack->match);
+				ofbase->fsptable.flow_mod_allowed(this, pack->match);
 				break;
 				/*
 				 * this allows generic DELETE commands to be applied
@@ -96,7 +100,7 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 		if (OFPTT_ALL == pack->ofh_flow_mod->table_id)
 		{
 			std::map<uint8_t, cfttable*>::iterator it;
-			for (it = fwdelem->flow_tables.begin(); it != fwdelem->flow_tables.end(); ++it)
+			for (it = ofbase->flow_tables.begin(); it != ofbase->flow_tables.end(); ++it)
 			{
 				if ((fte = it->second->update_ft_entry(fwdelem, pack)) != NULL)
 				{
@@ -110,14 +114,14 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 		else
 		{
 			// check for existence of specified table
-			if (fwdelem->flow_tables.find(pack->ofh_flow_mod->table_id) == fwdelem->flow_tables.end())
+			if (ofbase->flow_tables.find(pack->ofh_flow_mod->table_id) == ofbase->flow_tables.end())
 			{
 				throw eFwdElemTableNotFound();
 			}
 
 			// do not lock here flow_table[i]
 
-			if ((fte = fwdelem->flow_tables[pack->ofh_flow_mod->table_id]->
+			if ((fte = ofbase->flow_tables[pack->ofh_flow_mod->table_id]->
 							update_ft_entry(fwdelem, pack)) == NULL)
 			{
 				return;
@@ -135,8 +139,8 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 
 				cofinst& inst = fte->instructions.find_inst(OFPIT_GOTO_TABLE);
 
-				if (fwdelem->flow_tables.find(inst.oin_goto_table->table_id)
-								== fwdelem->flow_tables.end())
+				if (ofbase->flow_tables.find(inst.oin_goto_table->table_id)
+								== ofbase->flow_tables.end())
 				{
 					throw eFwdElemGotoTableNotFound();
 				}
@@ -146,7 +150,7 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 
 		if (0 != fte)
 		{
-			fwdelem->handle_flow_mod(this, pack, fte);
+			ofbase->handle_flow_mod(this, pack, fte);
 		}
 
 	} catch (eLockWouldBlock& e) {
@@ -157,25 +161,27 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 
 		throw;
 	}
+#endif
 }
 
 
 void
 cofctrl::group_mod_rcvd(cofpacket *pack)
 {
+#if 0
 	try {
 
 		if (OFPCR_ROLE_SLAVE == role)
 		{
 			size_t len = (pack->length() > 64) ? 64 : pack->length();
-			fwdelem->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
+			ofbase->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
 											pack->soframe(), len);
 			return;
 		}
 
 
-		cgtentry *gte = fwdelem->group_table.update_gt_entry(fwdelem, pack->ofh_group_mod);
-		fwdelem->handle_group_mod(this, pack, gte);
+		cgtentry *gte = ofbase->group_table.update_gt_entry(fwdelem, pack->ofh_group_mod);
+		ofbase->handle_group_mod(this, pack, gte);
 
 
 
@@ -185,7 +191,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry already exists, dropping", this);
 
-		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_GROUP_EXISTS,
+		ofbase->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_GROUP_EXISTS,
 				pack->soframe(), pack->framelen());
 
 	} catch (eGroupTableNotFound& e) {
@@ -193,7 +199,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry not found", this);
 
-		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
+		ofbase->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
 				pack->soframe(), pack->framelen());
 
 	} catch (eGroupEntryInval& e) {
@@ -201,7 +207,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry is invalid", this);
 
-		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_INVALID_GROUP,
+		ofbase->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_INVALID_GROUP,
 				pack->soframe(), pack->framelen());
 
 	} catch (eGroupEntryBadType& e) {
@@ -209,7 +215,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry with bad type", this);
 
-		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_BAD_TYPE,
+		ofbase->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_BAD_TYPE,
 				pack->soframe(), pack->framelen());
 
 	} catch (eActionBadOutPort& e) {
@@ -217,7 +223,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry with action with bad type", this);
 
-		fwdelem->send_error_message(this, OFPET_BAD_ACTION, OFPBAC_BAD_OUT_PORT,
+		ofbase->send_error_message(this, OFPET_BAD_ACTION, OFPBAC_BAD_OUT_PORT,
 				pack->soframe(), pack->framelen());
 
 	} catch (eGroupTableLoopDetected& e) {
@@ -225,7 +231,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry produces loop, dropping", this);
 
-		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_LOOP,
+		ofbase->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_LOOP,
 				pack->soframe(), pack->framelen());
 
 	} catch (eGroupTableModNonExisting& e) {
@@ -233,10 +239,11 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry for modification not found, dropping", this);
 
-		fwdelem->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
+		ofbase->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
 				pack->soframe(), pack->framelen());
 
 	}
+#endif
 }
 
 
@@ -246,7 +253,7 @@ cofctrl::port_mod_rcvd(cofpacket *pack) throw (eOFctrlPortNotFound)
 	if (OFPCR_ROLE_SLAVE == role)
 	{
 		size_t len = (pack->length() > 64) ? 64 : pack->length();
-		fwdelem->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
+		ofbase->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
 										pack->soframe(), len);
 		return;
 	}
@@ -254,37 +261,38 @@ cofctrl::port_mod_rcvd(cofpacket *pack) throw (eOFctrlPortNotFound)
 	uint32_t port_no = be32toh(pack->ofh_port_mod->port_no);
 
 	/*
-	 * update cofport structure in fwdelem->phy_ports
+	 * update cofport structure in ofbase->phy_ports
 	 */
-	if (fwdelem->phy_ports.find(port_no) == fwdelem->phy_ports.end())
+	if (ofbase->phy_ports.find(port_no) == ofbase->phy_ports.end())
 	{
 		throw eOFctrlPortNotFound();
 	}
 
-	fwdelem->phy_ports[port_no]->recv_port_mod(
+	ofbase->phy_ports[port_no]->recv_port_mod(
 						be32toh(pack->ofh_port_mod->config),
 						be32toh(pack->ofh_port_mod->mask),
 						be32toh(pack->ofh_port_mod->advertise));
 
-	fwdelem->handle_port_mod(this, pack);
+	ofbase->handle_port_mod(this, pack);
 }
 
 
 void
 cofctrl::table_mod_rcvd(cofpacket *pack)
 {
+#if 0
 	try {
 		if (OFPCR_ROLE_SLAVE == role)
 		{
 			size_t len = (pack->length() > 64) ? 64 : pack->length();
-			fwdelem->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
+			ofbase->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
 											pack->soframe(), len);
 			return;
 		}
 
-		if (fwdelem->flow_tables.find(pack->ofh_table_mod->table_id) != fwdelem->flow_tables.end())
+		if (ofbase->flow_tables.find(pack->ofh_table_mod->table_id) != ofbase->flow_tables.end())
 		{
-			fwdelem->flow_tables[pack->ofh_table_mod->table_id]->set_config(
+			ofbase->flow_tables[pack->ofh_table_mod->table_id]->set_config(
 												be32toh(pack->ofh_table_mod->config));
 		}
 
@@ -297,8 +305,8 @@ cofctrl::table_mod_rcvd(cofpacket *pack)
 		throw;
 
 	}
-
-	fwdelem->handle_table_mod(this, pack);
+#endif
+	ofbase->handle_table_mod(this, pack);
 }
 
 
@@ -317,7 +325,7 @@ cofctrl::role_request_rcvd(cofpacket *pack)
 
 			if (dist >= (std::numeric_limits<uint64_t>::max() / 2))
 			{
-				fwdelem->send_error_message(this, OFPET_ROLE_REQUEST_FAILED, OFPRRFC_STALE);
+				ofbase->send_error_message(this, OFPET_ROLE_REQUEST_FAILED, OFPRRFC_STALE);
 				return;
 			}
 		}
@@ -334,8 +342,8 @@ cofctrl::role_request_rcvd(cofpacket *pack)
 	role = be32toh(pack->ofh_role_request->role);
 
 
-	for (std::map<cofbase*, cofctrl*>::iterator
-			it = fwdelem->ofctrl_list.begin(); it != fwdelem->ofctrl_list.end(); ++it)
+	for (std::map<cofiface*, cofctrl*>::iterator
+			it = ofbase->ofctrl_list.begin(); it != ofbase->ofctrl_list.end(); ++it)
 	{
 		cofctrl* ofctrl = it->second;
 
@@ -352,14 +360,14 @@ cofctrl::role_request_rcvd(cofpacket *pack)
 
 	//pack->ofh_role_request->generation_id;
 
-	fwdelem->handle_role_request(this, pack);
+	ofbase->handle_role_request(this, pack);
 }
 
 
 void
 cofctrl::barrier_request_rcvd(cofpacket *pack)
 {
-	fwdelem->handle_barrier_request(this, pack);
+	ofbase->handle_barrier_request(this, pack);
 }
 
 
@@ -383,11 +391,11 @@ cofctrl::experimenter_message_rcvd(cofpacket *pack)
 							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => pending for %s",
 							this, rexp.match.c_str());
 
-					fwdelem->fsptable.insert_fsp_entry(this, rexp.match);
+					ofbase->fsptable.insert_fsp_entry(this, rexp.match);
 
 					WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => -ADDED- %s\n%s",
-							this, c_str(), fwdelem->fsptable.c_str());
+							this, c_str(), ofbase->fsptable.c_str());
 
 				} catch (eFspEntryOverlap& e) {
 
@@ -407,11 +415,11 @@ cofctrl::experimenter_message_rcvd(cofpacket *pack)
 							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => pending for %s",
 							this, rexp.match.c_str());
 
-					fwdelem->fsptable.delete_fsp_entry(this, rexp.match, true /*strict*/);
+					ofbase->fsptable.delete_fsp_entry(this, rexp.match, true /*strict*/);
 
 					WRITELOG(COFCTRL, ROFL_DBG, "cofctrl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => -DELETED- %s\n%s",
-							this, c_str(), fwdelem->fsptable.c_str());
+							this, c_str(), ofbase->fsptable.c_str());
 
 				} catch (eFspEntryNotFound& e) {
 
@@ -436,7 +444,7 @@ cofctrl::experimenter_message_rcvd(cofpacket *pack)
 
 
 	default:
-		fwdelem->handle_experimenter_message(this, pack);
+		ofbase->handle_experimenter_message(this, pack);
 		break;
 	}
 }
@@ -452,7 +460,7 @@ cofctrl::c_str()
 #if 0
 	std::string t_str;
 
-	std::map<cofbase*, cofctrl*>::iterator it;
+	std::map<cofiface*, cofctrl*>::iterator it;
 	for (it = ofctrl_list->begin(); it != ofctrl_list->end(); ++it)
 	{
 		std::set<cofmatch*>::iterator nit;
@@ -476,18 +484,4 @@ cofctrl::c_str()
 
 
 
-/*
- * callbacks for receiving notifications from cftentry instances
- */
-
-
-/** called upon hard timer expiration
- */
-void
-cofctrl::ftentry_timeout(
-		cftentry *fte,
-		uint16_t timeout)
-{
-	fwdelem->ftentry_timeout(fte, timeout);
-}
 

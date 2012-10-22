@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef cofbase_H
-#define cofbase_H 1
+#ifndef COFIFACE_H
+#define COFIFACE_H 1
 
 #include <map>
 #include <set>
@@ -32,16 +32,16 @@ extern "C" {
 #include "cofpacket.h"
 
 /* error classes */
-class eOFbase				: public cerror {};   // base error class cofbase
-class eOFbaseIsBusy 		: public eOFbase {}; // this FwdElem is already controlled
-class eOFbaseNotImpl 		: public eOFbase {}; // this FwdElem's method is not implemented
-class eOFbaseNoCtrl 		: public eOFbase {}; // no controlling entity attached to this FwdElem
-class eOFbaseNotFound 		: public eOFbase {}; // internal entity not found
-class eOFbaseInval			: public eOFbase {}; // invalid parameter (e.g. invalid packet type)
-class eOFbaseNotAttached 	: public eOFbase {}; // received command from entity being not attached
-class eOFbaseNoRequest	 	: public eOFbase {}; // no request packet found for session
-class eOFbaseXidInval	 	: public eOFbase {}; // invalid xid in session exchange
-class eOFbaseExists			: public eOFbase {}; // fwdelem with either this dpid or dpname already exists
+class eOFiface				: public cerror {};   // base error class cofbase
+class eOFifaceIsBusy 		: public eOFiface {}; // this FwdElem is already controlled
+class eOFifaceNotImpl 		: public eOFiface {}; // this FwdElem's method is not implemented
+class eOFifaceNoCtrl 		: public eOFiface {}; // no controlling entity attached to this FwdElem
+class eOFifaceNotFound 		: public eOFiface {}; // internal entity not found
+class eOFifaceInval			: public eOFiface {}; // invalid parameter (e.g. invalid packet type)
+class eOFifaceNotAttached 	: public eOFiface {}; // received command from entity being not attached
+class eOFifaceNoRequest	 	: public eOFiface {}; // no request packet found for session
+class eOFifaceXidInval	 	: public eOFiface {}; // invalid xid in session exchange
+class eOFifaceExists			: public eOFiface {}; // fwdelem with either this dpid or dpname already exists
 
 
 /**
@@ -70,7 +70,7 @@ class eOFbaseExists			: public eOFbase {}; // fwdelem with either this dpid or d
  * cofport() is also used for storing details of the emulated ports presented to higher layer
  * controlling entities.
  */
-class cofbase :
+class cofiface :
 	public virtual csyslog
 {
 public:
@@ -89,13 +89,13 @@ public: // constructor + destructor
 	/** Constructor.
 	 *
 	 */
-	cofbase();
+	cofiface();
 
 	/** Destructor.
 	 *
 	 */
 	virtual
-	~cofbase();
+	~cofiface();
 
 #if 0
 public: // methods for attaching/detaching other cofbase instances
@@ -103,22 +103,22 @@ public: // methods for attaching/detaching other cofbase instances
 	/** attach data path
 	 */
 	virtual void
-	dpath_attach(cofbase* dp) = 0;
+	dpath_attach(cofiface* dp) = 0;
 
 	/** detach data path
 	 */
 	virtual void
-	dpath_detach(cofbase* dp) = 0;
+	dpath_detach(cofiface* dp) = 0;
 
 	/** attach controlling entity
 	 */
 	virtual void
-	ctrl_attach(cofbase* dp) throw (eOFbaseIsBusy) = 0;
+	ctrl_attach(cofiface* dp) throw (eOFifaceIsBusy) = 0;
 
 	/** detach controlling entity
 	 */
 	virtual void
-	ctrl_detach(cofbase* dp) = 0;
+	ctrl_detach(cofiface* dp) = 0;
 #endif
 
 public: // methods
@@ -128,16 +128,16 @@ public: // methods
 	 */
 	void
 	fe_up_command(
-			cofbase *entity,
-			cofpacket *pack) throw (eOFbaseInval);
+			cofiface *entity,
+			cofpacket *pack) throw (eOFifaceInval);
 
 	/**
 	 *
 	 */
 	void
 	fe_down_command(
-			cofbase *entity,
-			cofpacket *pack) throw (eOFbaseInval);
+			cofiface *entity,
+			cofpacket *pack) throw (eOFifaceInval);
 
 
 public:	// OpenFlow related methods for inter-cofbase instance communication
@@ -160,7 +160,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_hello_message(
-			cofbase *entity,
+			cofiface *entity,
 			cofpacket *pack) = 0;
 
 	/** Send a OF HELLO.message to data path.
@@ -168,7 +168,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_up_hello_message(
-			cofbase *entity,
+			cofiface *entity,
 			cofpacket *pack) = 0;
 
 	// FEATURES request/reply
@@ -182,7 +182,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_features_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	/** Send OF FEATURES.reply to controlling entity.
@@ -193,7 +193,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_up_features_reply(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// GET-CONFIG request/reply
@@ -207,7 +207,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_get_config_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	/** Send OF GET-CONFIG.reply to controlling entity.
@@ -218,7 +218,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_up_get_config_reply(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// STATS request/reply
@@ -232,7 +232,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_stats_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	/** Send OF STATS.reply to controlling entity.
@@ -243,7 +243,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_up_stats_reply(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// PACKET-IN message
@@ -257,7 +257,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_up_packet_in(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// PACKET-OUT message
@@ -271,7 +271,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_packet_out(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// SET-CONFIG message
@@ -285,7 +285,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_set_config_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// BARRIER request/reply
@@ -299,7 +299,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_barrier_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	/** Send OF BARRIER.reply to controlling entity.
@@ -310,7 +310,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_up_barrier_reply(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// ERROR message
@@ -324,7 +324,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_up_error(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// FLOW-MOD message
@@ -338,7 +338,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_flow_mod(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// GROUP-MOD message
@@ -352,7 +352,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_group_mod(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// TABLE-MOD message
@@ -366,7 +366,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_table_mod(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// PORT-MOD message
@@ -380,7 +380,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_port_mod(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// FLOW-REMOVED message
@@ -394,7 +394,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_up_flow_removed(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// PORT-STATUS message
@@ -408,7 +408,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_up_port_status(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// QUEUE-GET-CONFIG request/reply
@@ -422,7 +422,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_queue_get_config_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	/** Send OF QUEUE-GET-CONFIG.reply to controlling entity.
@@ -433,7 +433,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_up_queue_get_config_reply(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	/** Send a OF VENDOR.message to data path.
@@ -444,7 +444,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_experimenter_message(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	/** Send OF VENDOR.message to controlling entity.
@@ -455,7 +455,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_up_experimenter_message(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	// ROLE request/reply
@@ -469,7 +469,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_down_role_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 	/** Send OF ROLE.reply to controlling entity.
@@ -480,7 +480,7 @@ public:	// OpenFlow related methods for inter-cofbase instance communication
 	 */
 	virtual void
 	fe_up_role_reply(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack) = 0;
 
 
@@ -534,7 +534,7 @@ protected: // openflow transactions related methods and data structures
 	 * checks for existing type and associated xid
 	 * removes request from ta_pending_reqs, if found
 	 */
-	bool ta_validate(uint32_t xid, uint8_t type) throw (eOFbaseXidInval);
+	bool ta_validate(uint32_t xid, uint8_t type) throw (eOFifaceXidInval);
 
 	/** validate a cofpacket, calls ta_validate(xid, type)
 	 */

@@ -22,7 +22,7 @@ ctlbase::ctlbase(
 
 ctlbase::~ctlbase()
 {
-	std::map<cofbase*, cofdpath*>::iterator it;
+	std::map<cofiface*, cofdpath*>::iterator it;
 	for (it = ofdpath_list.begin(); it != ofdpath_list.end(); ++it)
 	{
 		cofmatch match; // all wildcard

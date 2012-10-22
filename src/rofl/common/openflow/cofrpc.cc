@@ -6,7 +6,7 @@
 
 /* static */int cofrpc::rpc_echo_interval = DEFAULT_RPC_ECHO_INTERVAL;
 
-cofrpc::cofrpc(int rpc_endpnt, cofbase *entity) :
+cofrpc::cofrpc(int rpc_endpnt, cofiface *entity) :
 		rpc_endpnt(rpc_endpnt),
 		entity(entity),
 		fragment(NULL),
@@ -25,7 +25,7 @@ cofrpc::cofrpc(int rpc_endpnt, cofbase *entity) :
 
 cofrpc::cofrpc(
 		int rpc_endpnt,
-		cofbase *entity,
+		cofiface *entity,
 		int sd,
 		caddress ra,
 		int domain,
@@ -83,7 +83,7 @@ cofrpc::~cofrpc()
 
 void
 cofrpc::send_up_hello_message(
-		cofbase *entity,
+		cofiface *entity,
 		bool bye)
 {
 	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_up_hello_message()", this);
@@ -125,7 +125,7 @@ cofrpc::send_up_hello_message(
 
 void
 cofrpc::send_down_hello_message(
-		cofbase *entity,
+		cofiface *entity,
 		bool bye)
 {
 	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::send_down_hello_message()", this);
@@ -167,7 +167,7 @@ cofrpc::send_down_hello_message(
 
 void
 cofrpc::fe_down_hello_message(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 {
 	if (OFPT_HELLO != pack->ofh_header->type)
@@ -216,7 +216,7 @@ cofrpc::fe_down_hello_message(
 
 void
 cofrpc::fe_up_hello_message(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 {
 	if (OFPT_HELLO != pack->ofh_header->type)
@@ -1098,7 +1098,7 @@ cofrpc::send_echo_reply(cofpacket *request)
 
 	try {
 		if (be16toh(request->ofh_header->length) < sizeof(struct ofp_header))
-			throw eOFbaseInval();
+			throw eOFifaceInval();
 
 		if (request->has_data())
 		{
@@ -1115,7 +1115,7 @@ cofrpc::send_echo_reply(cofpacket *request)
 
 		fe_queue_message(pack, /*priority=*/true);
 
-	} catch (eOFbaseInval& e) {
+	} catch (eOFifaceInval& e) {
 		send_error_message(OFPET_BAD_REQUEST, OFPBRC_BAD_LEN,
 				(unsigned char*) pack->soframe(), pack->framelen());
 
@@ -1132,19 +1132,19 @@ cofrpc::handle_echo_reply(cofpacket *pack)
 	WRITELOG(COFRPC, ROFL_DBG, "cofrpc(%p)::handle_echo_reply()", this);
 	try {
 		if (be16toh(pack->ofh_header->length) < sizeof(struct ofp_header))
-			throw eOFbaseInval();
+			throw eOFifaceInval();
 
 		ta_validate(be32toh(pack->ofh_header->xid), OFPT_ECHO_REQUEST);
 
 		cancel_timer(TIMER_RPC_ECHO_REPLY_TIMEOUT);
 
-	} catch (eOFbaseInval& e) {
+	} catch (eOFifaceInval& e) {
 		WRITELOG(COFRPC, ROFL_WARN, "invalid echo reply");
 
 		WRITELOG(COFRPC, ROFL_WARN, "cofrpc::handle_revent() closing (2.3)");
 		register_timer(TIMER_RPC_CLOSE_CONNECTION, 1 /* seconds */);
 
-	} catch (eOFbaseXidInval& e) {
+	} catch (eOFifaceXidInval& e) {
 		WRITELOG(COFRPC, ROFL_WARN, "invalid session exchange xid "
 				"(0x%x) received", be32toh(pack->ofh_header->xid));
 

@@ -31,7 +31,7 @@ extern "C" {
 #include "../csocket.h"
 #include "../caddress.h"
 
-#include "cofbase.h"
+#include "cofiface.h"
 #include "cofpacket.h"
 
 #include "rofl/platform/unix/crandom.h"
@@ -50,7 +50,7 @@ class eRpcNotConnected 	: public eRpcBase {}; // TCP connection not established
 
 
 class cofrpc :
-	public cofbase,
+	public cofiface,
 	public csocket,
 	public cfsm
 {
@@ -84,7 +84,7 @@ class cofrpc :
 	int rpc_endpnt;
 
 	// cfwdelem parent instance
-	cofbase *entity;
+	cofiface *entity;
 
 	#define DEFAULT_RPC_ECHO_INTERVAL 30 /* seconds */
 
@@ -104,12 +104,12 @@ public: // methods
 	/** constructor
  	 */
 	cofrpc(int rpc_endpnt = OF_RPC_TCP_NORTH_ENDPNT,
-			cofbase *entity = NULL);
+			cofiface *entity = NULL);
 
 	/** constructor
 	 */
 	cofrpc(int rpc_endpnt,
-			cofbase *entity,
+			cofiface *entity,
 			int sd,
 			caddress ra,
 			int domain,
@@ -127,22 +127,22 @@ public: // methods for attaching/detaching other cofbase instances
 	/** attach data path
 	 */
 	virtual void
-	dpath_attach(cofbase* dp) {};
+	dpath_attach(cofiface* dp) {};
 
 	/** detach data path
 	 */
 	virtual void
-	dpath_detach(cofbase* dp) {};
+	dpath_detach(cofiface* dp) {};
 
 	/** attach controlling entity
 	 */
 	virtual void
-	ctrl_attach(cofbase* dp) throw (eOFbaseIsBusy) {};
+	ctrl_attach(cofiface* dp) throw (eOFbaseIsBusy) {};
 
 	/** detach controlling entity
 	 */
 	virtual void
-	ctrl_detach(cofbase* dp) {};
+	ctrl_detach(cofiface* dp) {};
 #endif
 
 
@@ -220,7 +220,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_hello_message(
-			cofbase *entity,
+			cofiface *entity,
 			cofpacket *pack);
 
 	/** Send a OF HELLO.message to data path.
@@ -228,7 +228,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_up_hello_message(
-			cofbase *entity,
+			cofiface *entity,
 			cofpacket *pack);
 
 	// FEATURES request/reply
@@ -238,7 +238,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_features_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -248,7 +248,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_up_features_reply(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -261,7 +261,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_get_config_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -271,7 +271,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_up_get_config_reply(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -284,7 +284,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_stats_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -294,7 +294,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_up_stats_reply(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -307,7 +307,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_up_packet_in(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -320,7 +320,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_packet_out(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -333,7 +333,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_set_config_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -346,7 +346,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_barrier_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -356,7 +356,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_up_barrier_reply(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -369,7 +369,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_up_error(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -382,7 +382,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_flow_mod(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -395,7 +395,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_group_mod(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -408,7 +408,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_table_mod(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -421,7 +421,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_port_mod(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -434,7 +434,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_up_flow_removed(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -447,7 +447,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_up_port_status(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -460,7 +460,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_queue_get_config_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -470,7 +470,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_up_queue_get_config_reply(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -485,7 +485,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_experimenter_message(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -499,7 +499,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_up_experimenter_message(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -516,7 +516,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_down_role_request(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -530,7 +530,7 @@ public: // overloaded from cfwdelem
 	 */
 	virtual void
 	fe_up_role_reply(
-		cofbase *entity,
+		cofiface *entity,
 		cofpacket *pack)
 	{
 		fe_queue_message(pack);
@@ -544,14 +544,14 @@ private: // methods
 	 */
 	void
 	send_up_hello_message(
-			cofbase *entity,
+			cofiface *entity,
 			bool bye = false);
 
 	/** send hello message via C++
 	 */
 	void
 	send_down_hello_message(
-			cofbase *entity,
+			cofiface *entity,
 			bool bye = false);
 
 	/** queue message received from C++ interface to TCP tx queue

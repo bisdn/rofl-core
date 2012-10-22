@@ -19,19 +19,18 @@ extern "C" {
 #include "../cerror.h"
 #include "../ciosrv.h"
 #include "../cmemory.h"
-#include "../cfwdelem.h"
+#include "../cofbase.h"
 #include "../thread_helper.h"
 #include "../cvastring.h"
 
 #include "cofmatch.h"
-#include "cofbase.h"
-#include "cfttable.h"
+#include "cofiface.h"
 #include "cftentry.h"
 #include "extensions/cfspentry.h"
 
 
-
-class cfwdelem;
+class cofbase;
+//class cfwdelem;
 class cfttable;
 
 class eOFctrlBase : public cerror {};
@@ -49,13 +48,12 @@ class cofctrl :
 {
 public: // data structures
 
-	cfwdelem *fwdelem;							// parent cfwdelem instance
-	std::map<cofbase*, cofctrl*> *ofctrl_list;	// pointer to set storing this entity
-	cofbase *ctrl;								// pointer to controlling entity
+	cofbase *ofbase;							// parent cofbase instance
+	std::map<cofiface*, cofctrl*> *ofctrl_list;	// pointer to set storing this entity
+	cofiface *ctrl;								// pointer to controlling entity
 	uint16_t flags;								// config: flags
 	uint16_t miss_send_len;						// config: miss_send_len
 	std::set<cofmatch*> nspaces;				// list of cofmatch structures depicting controlled namespace
-	cfttable* flow_table;						// forwarding tables for this emulated switch instance (layer-(n), not layer-(n-1)!)
 	bool role_initialized;						// true, when role values have been initialized properly
 	uint16_t role;								// role of this controller instance
 	uint64_t cached_generation_id;				// generation-id used by role requests
@@ -69,9 +67,9 @@ public: // methods
 	/** constructor
 	 */
 	cofctrl(
-			cfwdelem *fwdelem,
-			cofbase* ctrl,
-			std::map<cofbase*, cofctrl*> *ofctrl_list);
+			cofbase *ofbase,
+			cofiface* ctrl,
+			std::map<cofiface*, cofctrl*> *ofctrl_list);
 
 	/** destructor
 	 */

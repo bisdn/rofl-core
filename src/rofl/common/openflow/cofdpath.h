@@ -27,7 +27,7 @@ extern "C" {
 #include "../cmemory.h"
 #include "../ciosrv.h"
 #include "../cerror.h"
-#include "../cfwdelem.h"
+#include "../cofbase.h"
 #include "../cmemory.h"
 #include "../cvastring.h"
 #include "../cfibentry.h"
@@ -36,14 +36,14 @@ extern "C" {
 #include "../cxidstore.h"
 
 
-#include "cfttable.h"
-#include "cgttable.h"
 #include "cofpacket.h"
 #include "cofport.h"
+#include "cftentry.h"
+#include "cgtentry.h"
 #include "extensions/cfsptable.h"
 
-class cfwdelem;
 class cofbase;
+class cofiface;
 class cfttable;
 
 /* error classes */
@@ -68,8 +68,6 @@ class eOFdpathNotFound : public eOFswitchBase {}; // element not found
  *
  */
 class cofdpath :
-	public cftentry_owner,
-	public cgtentry_owner,
 	public cxidowner,
 	public cfsm,
 	public ciosrv
@@ -116,21 +114,17 @@ public: // data structures
 		uint16_t 						flags;			// 'fragmentation' flags
 		uint16_t 						miss_send_len; 	// length of bytes sent to controller
 
-		std::map<uint8_t, cfttable*> 	flow_tables;	// flow_table of this switch instance
-		cgttable 						grp_table;		// group_table of this switch instance
-		cfwdtable 						fwdtable; 		// forwarding table for attached MAC
-														// addresses (Ethernet endpoints)
 		cfsptable 						fsptable;		// flowspace registration table
 
 
 
-		friend class cfwdelem;
+		friend class cofbase;
 
 private:
 
-		cfwdelem 						*fwdelem;		// layer-(n) entity
-		cofbase 						*entity;		// layer-(n-1) entity
-		std::map<cofbase*, cofdpath*> 	*ofswitch_list; // cofswitch map this
+		cofbase 						*ofbase;		// layer-(n) entity
+		cofiface 						*entity;		// layer-(n-1) entity
+		std::map<cofiface*, cofdpath*> 	*ofswitch_list; // cofswitch map this
 		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store
 
 		std::string 	info;							// info string
@@ -156,9 +150,9 @@ public:
 	 * @param[in] dpath_list pointer to map that contains all cofdpath instances for fwdelem
 	 */
 	cofdpath(
-		cfwdelem *fwdelem,
-		cofbase *entity,
-		std::map<cofbase*, cofdpath*>* dpath_list);
+		cofbase *ofbase,
+		cofiface *entity,
+		std::map<cofiface*, cofdpath*>* dpath_list);
 
 
 	/**
@@ -280,6 +274,7 @@ public:
 	 */
 
 
+#if 0
 	/**
 	 * @name	ftentry_timeout
 	 * @brief	Called when a flowtable entry stored in (@see flow_tables) expires.
@@ -300,6 +295,7 @@ public:
 	 *  overloaded from cgtentry_owner
 	 */
 
+
 	/**
 	 * @name	gtentry_timeout
 	 * @brief	Called when a grouptable entry stored in (@see group_tables) expires.
@@ -315,6 +311,7 @@ public:
     gtentry_timeout(
     		cgtentry *entry,
     		uint16_t timeout);
+#endif
 
 
 	/*

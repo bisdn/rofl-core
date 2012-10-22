@@ -38,7 +38,7 @@ extern "C" {
 #include "cofportlist.h"
 
 // forward declarations
-class cofbase;
+class cofiface;
 
 class eOFpacketBase : public cerror {};
 class eOFpacketInval : public eOFpacketBase {};
@@ -91,7 +91,7 @@ protected: // data structures
 
 public: // data structures
 
-	cofbase 		*entity; 			// source entity that emitted this packet
+	cofiface 		*entity; 			// source entity that emitted this packet
 	cofmatch 		match; 				// ofp_match structure
 	cofaclist 		actions; 			// list of actions (for Packet-Out messages)
 	cofinlist 		instructions;		// list of instructions
