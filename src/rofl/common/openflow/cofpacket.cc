@@ -330,8 +330,11 @@ cofpacket::is_valid_hello_msg()
 		return false;
 	if (stored > sizeof(struct ofp_header))
 	{
-		body.assign(soframe() + sizeof(struct ofp_header),
-				stored - sizeof(struct ofp_header));
+		if (0 == body.memlen())
+		{
+			body.assign(soframe() + sizeof(struct ofp_header),
+					stored - sizeof(struct ofp_header));
+		}
 	}
 	return true;
 }
@@ -347,8 +350,11 @@ cofpacket::is_valid_echo_request()
 		return false;
 	if (stored > sizeof(struct ofp_header))
 	{
-		body.assign(soframe() + sizeof(struct ofp_header),
-				stored - sizeof(struct ofp_header));
+		if (0 == body.memlen())
+		{
+			body.assign(soframe() + sizeof(struct ofp_header),
+					stored - sizeof(struct ofp_header));
+		}
 	}
 	return true;
 }
@@ -364,8 +370,11 @@ cofpacket::is_valid_echo_reply()
 		return false;
 	if (stored > sizeof(struct ofp_header))
 	{
-		body.assign(soframe() + sizeof(struct ofp_header),
-				stored - sizeof(struct ofp_header));
+		if (0 == body.memlen())
+		{
+			body.assign(soframe() + sizeof(struct ofp_header),
+					stored - sizeof(struct ofp_header));
+		}
 	}
 	return true;
 }
@@ -787,6 +796,11 @@ cofpacket::c_str()
 	if (0 != body.memlen())
 	{
 		info.append(vas("\ncofpacket(%p): body: %s", this, body.c_str()));
+	}
+
+	if (0 != packet.framelen())
+	{
+		info.append(vas("\ncofpacket(%p): packet: %s", this, packet.c_str()));
 	}
 
 

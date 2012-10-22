@@ -73,7 +73,18 @@ class eOFbaseExists			: public eOFbase {}; // fwdelem with either this dpid or d
 class cofbase :
 	public virtual csyslog
 {
+private:
+
+	static std::set<cofbase*>		cofbase_list;
+
 public:
+
+	/**
+	 *
+	 */
+	static cofbase*
+	cofbase_exists(cofbase* ofbase) throw (eOFbaseNotFound);
+
 
 	/*
 	 * default constants

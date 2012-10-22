@@ -6,16 +6,34 @@
 #include "cofbase.h"
 
 
+std::set<cofbase*> cofbase::cofbase_list;
+
+
+/* static */
+cofbase*
+cofbase::cofbase_exists(cofbase* ofbase) throw (eOFbaseNotFound)
+{
+	if (cofbase::cofbase_list.find(ofbase) != cofbase::cofbase_list.end())
+	{
+		return ofbase;
+	}
+	throw eOFbaseNotFound();
+}
+
+
+
 cofbase::cofbase() :
 	xid_used_max(CPCP_DEFAULT_XID_USED_MAX), // max number of lately used xids
 	xid_start(crandom(sizeof(uint32_t)).uint32())
 
 {
 	WRITELOG(TERMINUS, ROFL_DBG, "new cofbase element");
+	cofbase::cofbase_list.insert(this);
 }
 
 cofbase::~cofbase()
 {
+	cofbase::cofbase_list.erase(this);
 	WRITELOG(TERMINUS, ROFL_DBG, "destroy cofbase element");
 
 	std::map<int, std::list<cofpacket*> >::iterator it;

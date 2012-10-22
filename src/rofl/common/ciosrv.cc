@@ -94,6 +94,17 @@ ciosrv::~ciosrv()
 				it = iodata[tid]->wfds.begin();
 			}
 		}
+
+		for (std::list<ciosrv*>::iterator
+				it = iodata[tid]->ciosrv_timeouts.begin();
+						it != iodata[tid]->ciosrv_timeouts.end(); ++it)
+		{
+			if ((*it) == this)
+			{
+				iodata[tid]->ciosrv_timeouts.erase(it);
+				break;
+			}
+		}
 	}
 
 	pthread_mutex_destroy(&timer_mutex);
@@ -811,6 +822,14 @@ ciosrv::handle_timeouts()
 	for (std::list<ciosrv*>::iterator
 			it = p_timeouts.begin(); it != p_timeouts.end(); ++it)
 	{
+		if (ciosrv_deletion_list[tid].find(*it) != ciosrv_deletion_list[tid].end())
+		{
+			WRITELOG(CIOSRV, ROFL_DBG, "ciosrv::handle_timeouts(): skipping already deleted object %p "
+							"(%d deleted in this round)", *it,
+							ciosrv_deletion_list[tid].size());
+
+			continue; // do nothing for this object, as it was already deleted
+		}
 		(*it)->__handle_timeout();
 	}
 }
@@ -1167,7 +1186,8 @@ handle_packets:			// handle incoming events
 			try {
 				ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
 			} catch (cerror& e) {
-				fprintf(stderr, "exception\n");
+				//fprintf(stderr, "exception\n");
+				//throw;
 			}
 
 		}

@@ -188,8 +188,13 @@ csocket::cpopen(
 	if ((type == SOCK_STREAM) && (protocol == IPPROTO_TCP)) {
 		// set SO_REUSEADDR option on TCP sockets
 		int optval = 1;
-		if ((rc = setsockopt(sd, IPPROTO_TCP, SO_REUSEADDR, (int*)&optval, sizeof(optval))) < 0)
+		if ((rc = setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (int*)&optval, sizeof(optval))) < 0)
 			throw eSocketError();
+#if 0
+		int on = 1;
+		if ((rc = setsockopt(sd, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on))) < 0)
+			throw eSocketError();
+#endif
 		// set TCP_NODELAY option on TCP sockets
 		optval = 1;
 		if ((rc = setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (int*)&optval, sizeof(optval))) < 0)

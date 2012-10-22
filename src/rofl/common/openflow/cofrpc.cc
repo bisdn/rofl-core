@@ -902,6 +902,8 @@ cofrpc::send_message_via_tcp()
 		//					(rpc_endpnt == OF_RPC_NORTH_ENDPNT) ? "north" : "south",
 		//							this->dpid, pack->c_str());
 
+			WRITELOG(COFRPC, ROFL_DBG, "\n\nDDD cofpacket(%p) => pack: %s\n\n", this, pack->c_str());
+
 			cmemory *mem = new cmemory(pack->length());
 
 			pack->pack(mem->somem(), mem->memlen());

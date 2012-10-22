@@ -630,12 +630,42 @@ cfwdelem::ofswitch_find(cofbase *entity) throw (eOFbaseNotAttached)
 }
 
 
+cofdpath*
+cfwdelem::ofswitch_find(cofdpath *entity) throw (eOFbaseNotAttached)
+{
+	for (std::map<cofbase*, cofdpath*>::iterator
+			it = ofdpath_list.begin(); it != ofdpath_list.end(); ++it)
+	{
+		if (it->second == entity)
+		{
+			return entity;
+		}
+	}
+	throw eOFbaseNotAttached();
+}
+
+
 cofctrl*
 cfwdelem::ofctrl_find(cofbase *entity) throw (eOFbaseNotAttached)
 {
 	if (ofctrl_list.find(entity) == ofctrl_list.end())
 		throw eOFbaseNotAttached();
 	return ofctrl_list[entity];
+}
+
+
+cofctrl*
+cfwdelem::ofctrl_find(cofctrl *entity) throw (eOFbaseNotAttached)
+{
+	for (std::map<cofbase*, cofctrl*>::iterator
+			it = ofctrl_list.begin(); it != ofctrl_list.end(); ++it)
+	{
+		if (it->second == entity)
+		{
+			return entity;
+		}
+	}
+	throw eOFbaseNotAttached();
 }
 
 
@@ -662,7 +692,9 @@ cfwdelem::check_up_packet(
 		dpath_attach(ofbase);
 	}
 
-	ofpacket->entity = ofswitch_find(ofbase)->entity;
+	try {
+		ofpacket->entity = ofswitch_find(ofbase)->entity;
+	} catch (eOFbaseNotAttached& e) {}
 
 	if ((not ofpacket->is_valid()) || (ofpacket->ofh_header->type != oftype))
 	{
@@ -679,17 +711,30 @@ cfwdelem::check_down_packet(
 		cofbase *ofbase) throw (eFwdElemInval)
 {
 	try {
+		//fprintf(stderr, "BLUB[1.1]: %s\n\n", ofpacket->c_str());
+
 		ofctrl_find(ofbase);
+
+		//fprintf(stderr, "BLUB[1.2]: %s\n\n", ofpacket->c_str());
 	} catch (eOFbaseNotAttached& e) {
+		//fprintf(stderr, "BLUB[2.1]: %s\n\n", ofpacket->c_str());
 		ctrl_attach(ofbase);
+		//fprintf(stderr, "BLUB[2.2]: %s\n\n", ofpacket->c_str());
 	}
 
-	ofpacket->entity = ofctrl_find(ofbase)->ctrl;
+	try {
+		//fprintf(stderr, "BLUB[3.1]: %s\n\n", ofpacket->c_str());
+		ofpacket->entity = ofctrl_find(ofbase)->ctrl;
+		//fprintf(stderr, "BLUB[3.2]: %s\n\n", ofpacket->c_str());
+	} catch (eOFbaseNotAttached& e) {}
 
+	//fprintf(stderr, "BLUB[4.1]: %s\n\n", ofpacket->c_str());
 	if ((not ofpacket->is_valid()) || (ofpacket->ofh_header->type != oftype))
 	{
+		//fprintf(stderr, "BLUB[EXCEPTION]: %s\n", ofpacket->c_str());
 		throw eFwdElemInval();
 	}
+	//fprintf(stderr, "BLUB[4.2]: %s\n\n", ofpacket->c_str());
 }
 
 
@@ -766,7 +811,7 @@ cfwdelem::send_up_hello_message(
 	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_up_hello_message() new %s", this,
 			pack->c_str());
 
-	ofctrl->ctrl->fe_up_hello_message(this, pack);
+	ofctrl_find(ofctrl)->ctrl->fe_up_hello_message(this, pack);
 }
 
 
@@ -874,7 +919,9 @@ cfwdelem::recv_hello_message()
 			switch (cookie) {
 			case FE_HELLO_BYE:
 				// deregister controller
-				delete ofctrl_find(pack->entity);
+				try {
+					delete ofctrl_find(pack->entity);
+				} catch (eOFbaseNotAttached& e) {}
 				break;
 
 			case FE_HELLO_ACTIVE:
@@ -1035,7 +1082,7 @@ cfwdelem::send_features_reply(cofctrl *ofctrl, uint32_t xid)
 
 	reply->pack(); // adjust fields, e.g. length in ofp_header
 
-	ofctrl->ctrl->fe_up_features_reply(this, reply);
+	ofctrl_find(ofctrl)->ctrl->fe_up_features_reply(this, reply);
 }
 
 
@@ -1088,7 +1135,7 @@ cfwdelem::send_get_config_request(
 								ta_add_request(OFPT_GET_CONFIG_REQUEST));
 
 	// straight call to layer-(n-1) entity's fe_down_get_config_request() method
-	sw->entity->fe_down_get_config_request(this, pack);
+	ofswitch_find(sw)->entity->fe_down_get_config_request(this, pack);
 
 	sw->get_config_request_sent();
 
@@ -1209,7 +1256,7 @@ cfwdelem::send_stats_request(
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 
 	// straight call to layer-(n-1) entity's fe_down_get_config_request() method
-	sw->entity->fe_down_stats_request(this, pack);
+	ofswitch_find(sw)->entity->fe_down_stats_request(this, pack);
 
 	sw->stats_request_sent(xid);
 
@@ -1727,7 +1774,7 @@ cfwdelem::send_stats_reply(
 										body,
 										bodylen);
 
-	ofctrl->ctrl->fe_up_stats_reply(this, pack);
+	ofctrl_find(ofctrl)->ctrl->fe_up_stats_reply(this, pack);
 }
 
 
@@ -1799,7 +1846,7 @@ cfwdelem::send_set_config_message(
 		pack->ofh_switch_config->miss_send_len = htobe16(miss_send_len);
 
 		// straight call to layer-(n-1) entity's fe_down_set_config_request() method
-		sw->entity->fe_down_set_config_request(this, pack);
+		ofswitch_find(sw)->entity->fe_down_set_config_request(this, pack);
 
 	} catch (eOFbaseIsBusy& e) {
 		WRITELOG(CFWD, ROFL_DBG, "datapath entity (%llu) busy", sw->dpid);
@@ -1880,6 +1927,8 @@ cfwdelem::send_packet_out_message(
 	uint8_t *data,
 	size_t datalen)
 {
+
+
 	cofpacket_packet_out *pack = new cofpacket_packet_out(
 											ta_new_async_xid(),
 											buffer_id,
@@ -1889,11 +1938,10 @@ cfwdelem::send_packet_out_message(
 
 	pack->actions = aclist;
 
-	pack->pack();
+	//pack->pack();
 
 	// straight call to layer-(n-1) entity's fe_down_set_config_request() method
-	sw->entity->fe_down_packet_out(this, pack);
-
+	ofswitch_find(sw)->entity->fe_down_packet_out(this, pack);
 }
 
 
@@ -1973,105 +2021,111 @@ cfwdelem::send_packet_in_message(
 	uint8_t* data,
 	size_t datalen) throw(eFwdElemNoCtrl)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
-			"ofctrl_list.size()=%d", this, ofctrl_list.size());
+	try {
 
-	cpacket n_pack(data, datalen, match.get_in_port());
+		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+				"ofctrl_list.size()=%d", this, ofctrl_list.size());
 
-	if (fe_flags.test(NSP_ENABLED))
-	{
-		try {
-			std::set<cfspentry*> nse_list;
+		cpacket n_pack(data, datalen, match.get_in_port());
 
-			nse_list = fsptable.find_matching_entries(
-					match.oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).uint32(),
-					total_len,
-					n_pack);
+		if (fe_flags.test(NSP_ENABLED))
+		{
+			try {
+				std::set<cfspentry*> nse_list;
 
-			WRITELOG(CFWD, ROFL_WARN, "cfwdelem(%p) nse_list.size()=%d", this, nse_list.size());
+				nse_list = fsptable.find_matching_entries(
+						match.oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).uint32(),
+						total_len,
+						n_pack);
 
-			if (nse_list.empty())
+				WRITELOG(CFWD, ROFL_WARN, "cfwdelem(%p) nse_list.size()=%d", this, nse_list.size());
+
+				if (nse_list.empty())
+				{
+					throw eFwdElemNoCtrl();
+				}
+
+				for (std::set<cfspentry*>::iterator
+						it = nse_list.begin(); it != nse_list.end(); ++it)
+				{
+					cofctrl *ofctrl = dynamic_cast<cofctrl*>( (*nse_list.begin())->fspowner );
+					if (OFPCR_ROLE_SLAVE == ofctrl->role)
+					{
+						WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+								"ofctrl:%p is SLAVE, ignoring", this, ofctrl);
+						continue;
+					}
+
+
+					cofpacket_packet_in *pack = new cofpacket_packet_in(
+														ta_new_async_xid(),
+														buffer_id,
+														total_len,
+														reason,
+														table_id,
+														data,
+														datalen);
+
+					pack->match = match;
+
+					pack->pack();
+
+					WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+									"sending PACKET-IN for buffer_id:0x%x to controller %s, pack: %s",
+									this, buffer_id, ofctrl->c_str(), pack->c_str());
+
+					// straight call to layer-(n+1) entity's fe_up_packet_in() method
+					ofctrl_find(ofctrl)->ctrl->fe_up_packet_in(this, pack);
+				}
+
+			} catch (eFspNoMatch& e) {
+				cpacket pack(data, datalen);
+				WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() no ctrl found for packet: %s", this, pack.c_str());
+				throw eFwdElemNoCtrl();
+			}
+
+
+			return;
+		}
+		else
+		{
+			if (ofctrl_list.empty())
 			{
 				throw eFwdElemNoCtrl();
 			}
 
-			for (std::set<cfspentry*>::iterator
-					it = nse_list.begin(); it != nse_list.end(); ++it)
-			{
-				cofctrl *ofctrl = dynamic_cast<cofctrl*>( (*nse_list.begin())->fspowner );
-				if (OFPCR_ROLE_SLAVE == ofctrl->role)
-				{
-					WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
-							"ofctrl:%p is SLAVE, ignoring", this, ofctrl);
-					continue;
-				}
+			cofctrl *ofctrl = (ofctrl_list.begin()->second);
 
 
-				cofpacket_packet_in *pack = new cofpacket_packet_in(
-													ta_new_async_xid(),
-													buffer_id,
-													total_len,
-													reason,
-													table_id,
-													data,
-													datalen);
 
-				pack->match = match;
 
-				pack->pack();
+			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+							"sending PACKET-IN for buffer_id:0x%x to controller %s",
+							this, buffer_id, ofctrl_find(ofctrl)->c_str());
 
-				WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
-								"sending PACKET-IN for buffer_id:0x%x to controller %s, pack: %s",
-								this, buffer_id, ofctrl->c_str(), pack->c_str());
+			cofpacket_packet_in *pack = new cofpacket_packet_in(
+												ta_new_async_xid(),
+												buffer_id,
+												total_len,
+												reason,
+												table_id,
+												data,
+												datalen);
 
-				// straight call to layer-(n+1) entity's fe_up_packet_in() method
-				ofctrl->ctrl->fe_up_packet_in(this, pack);
-			}
+			pack->match = match;
 
-		} catch (eFspNoMatch& e) {
-			cpacket pack(data, datalen);
-			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() no ctrl found for packet: %s", this, pack.c_str());
-			throw eFwdElemNoCtrl();
+			pack->pack();
+
+			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
+							"sending PACKET-IN for buffer_id:0x%x pack: %s",
+							this, buffer_id, pack->c_str());
+
+			// straight call to layer-(n+1) entity's fe_up_packet_in() method
+			ofctrl_find(ofctrl)->ctrl->fe_up_packet_in(this, pack);
 		}
 
+	} catch (eOFbaseNotFound& e) {
 
-		return;
-	}
-	else
-	{
-		if (ofctrl_list.empty())
-		{
-			throw eFwdElemNoCtrl();
-		}
-
-		cofctrl *ofctrl = (ofctrl_list.begin()->second);
-
-
-
-
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
-						"sending PACKET-IN for buffer_id:0x%x to controller %s",
-						this, buffer_id, ofctrl->c_str());
-
-		cofpacket_packet_in *pack = new cofpacket_packet_in(
-											ta_new_async_xid(),
-											buffer_id,
-											total_len,
-											reason,
-											table_id,
-											data,
-											datalen);
-
-		pack->match = match;
-
-		pack->pack();
-
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_packet_in_message() "
-						"sending PACKET-IN for buffer_id:0x%x pack: %s",
-						this, buffer_id, pack->c_str());
-
-		// straight call to layer-(n+1) entity's fe_up_packet_in() method
-		ofctrl->ctrl->fe_up_packet_in(this, pack);
 	}
 }
 
@@ -2166,7 +2220,7 @@ cfwdelem::send_packet_in_message(
 							this, buffer_id, pack->c_str());
 
 			// straight call to layer-(n+1) entity's fe_up_packet_in() method
-			ofctrl->ctrl->fe_up_packet_in(this, pack);
+			ofctrl_find(ofctrl)->ctrl->fe_up_packet_in(this, pack);
 
 		}
 
@@ -2250,7 +2304,7 @@ cfwdelem::send_barrier_request(cofdpath *sw)
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 
 	// straight call to layer-(n-1) entity's fe_down_barrier_request() method
-	sw->entity->fe_down_barrier_request(this, pack);
+	ofswitch_find(sw)->entity->fe_down_barrier_request(this, pack);
 
 	sw->barrier_request_sent(xid);
 
@@ -2320,7 +2374,7 @@ cfwdelem::send_barrier_reply(
 	cofpacket_barrier_reply *pack = new cofpacket_barrier_reply(xid);
 
 	// request is deleted by derived class
-	ofctrl->ctrl->fe_up_barrier_reply(this, pack);
+	ofctrl_find(ofctrl)->ctrl->fe_up_barrier_reply(this, pack);
 }
 
 
@@ -2444,7 +2498,7 @@ cfwdelem::send_role_reply(
 										generation_id);
 
 	// request is deleted by derived class
-	ofctrl->ctrl->fe_up_role_reply(this, pack);
+	ofctrl_find(ofctrl)->ctrl->fe_up_role_reply(this, pack);
 }
 
 
@@ -2635,7 +2689,7 @@ cfwdelem::send_flow_mod_message(
 	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_flow_mod_message() pack: %s", this, flow_mod->c_str());
 
 	// straight call to layer-(n-1) entity's fe_down_flow_mod() method
-	sw->entity->fe_down_flow_mod(this, flow_mod);
+	ofswitch_find(sw)->entity->fe_down_flow_mod(this, flow_mod);
 
 	sw->flow_mod_sent(flow_mod);
 
@@ -2671,7 +2725,7 @@ cfwdelem::send_flow_mod_message(
 			this, flow_mod->c_str());
 
 	// straight call to layer-(n-1) entity's fe_down_flow_mod() method
-	sw->entity->fe_down_flow_mod(this, flow_mod);
+	ofswitch_find(sw)->entity->fe_down_flow_mod(this, flow_mod);
 
 	sw->flow_mod_sent(flow_mod);
 
@@ -2894,7 +2948,7 @@ cfwdelem::send_group_mod_message(
 	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_group_mod_message() %s", this, pack->c_str());
 
 	// straight call to layer-(n-1) entity's fe_down_flow_mod() method
-	sw->entity->fe_down_group_mod(this, pack);
+	ofswitch_find(sw)->entity->fe_down_group_mod(this, pack);
 
 	sw->group_mod_sent(pack);
 
@@ -3005,7 +3059,7 @@ cfwdelem::send_port_mod_message(
 										advertise);
 
 	// straight call to layer-(n-1) entity's fe_down_flow_mod() method
-	sw->entity->fe_down_port_mod(this, pack);
+	ofswitch_find(sw)->entity->fe_down_port_mod(this, pack);
 
 	sw->port_mod_sent(pack);
 }
@@ -3095,7 +3149,7 @@ cfwdelem::send_table_mod_message(
 	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_table_mod_message() %s", this, pack->c_str());
 
 	// straight call to layer-(n-1) entity's fe_down_table_mod() method
-	sw->entity->fe_down_table_mod(this, pack);
+	ofswitch_find(sw)->entity->fe_down_table_mod(this, pack);
 
 	sw->table_mod_sent(pack);
 
@@ -3233,7 +3287,7 @@ cfwdelem::send_flow_removed_message(
 			WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::send_flow_removed_message() to controller %s", this, ofctrl->c_str());
 
 			// straight call to layer-(n+1) entity's fe_up_packet_in() method
-			ofctrl->ctrl->fe_up_flow_removed(this, pack);
+			ofctrl_find(ofctrl)->ctrl->fe_up_flow_removed(this, pack);
 		}
 
 	} catch (eFwdElemNotFound& e) {
@@ -3421,7 +3475,7 @@ cfwdelem::send_queue_get_config_request(
 									port);
 
 	// straight call to layer-(n-1) entity's fe_down_get_config_request() method
-	sw->entity->fe_down_queue_get_config_request(this, pack);
+	ofswitch_find(sw)->entity->fe_down_queue_get_config_request(this, pack);
 
 }
 
@@ -3468,7 +3522,7 @@ cfwdelem::send_queue_get_config_reply()
 
 	cofctrl *ofctrl = ofctrl_find(request->entity);
 
-	ofctrl->ctrl->fe_up_queue_get_config_reply(this, pack);
+	ofctrl_find(ofctrl)->ctrl->fe_up_queue_get_config_reply(this, pack);
 
 	delete request;
 
@@ -3630,7 +3684,7 @@ cfwdelem::send_experimenter_message(
 	else
 	{
 		// straight call to layer-(n-1) entity's fe_down_experimenter_message() method
-		sw->entity->fe_down_experimenter_message(this, pack);
+		ofswitch_find(sw)->entity->fe_down_experimenter_message(this, pack);
 	}
 
 }

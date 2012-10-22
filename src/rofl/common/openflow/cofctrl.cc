@@ -469,7 +469,7 @@ cofctrl::c_str()
 
 	cvastring vas;
 
-	info.assign(vas("cofctrl(%p) %s", this, ctrl->c_str()));
+	info.assign(vas("cofctrl(%p) %s", this, cofbase::cofbase_exists(ctrl)->c_str()));
 
 	return info.c_str();
 }

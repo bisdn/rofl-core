@@ -1870,6 +1870,14 @@ public:
 	ofswitch_find(
 			cofbase* entity) throw (eOFbaseNotAttached);
 
+
+	/** find cofswitch instance
+	 */
+	cofdpath*
+	ofswitch_find(
+			cofdpath* dpt) throw (eOFbaseNotAttached);
+
+
 	/** find cofswitch instance
 	 */
 	void
@@ -1884,6 +1892,13 @@ public:
 	cofctrl*
 	ofctrl_find(
 			cofbase* entity) throw (eOFbaseNotAttached);
+
+	/** find cofctrl instance
+	 */
+	cofctrl*
+	ofctrl_find(
+			cofctrl* entity) throw (eOFbaseNotAttached);
+
 
 	/** find cofctrl instance
 	 */
