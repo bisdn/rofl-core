@@ -1089,6 +1089,10 @@ ctlbase::dpt_handle_stats_request(
 
 		WRITELOG(CFWD, WARN, "ctlbase(%s)::dpt_handle_stats_request() "
 				"xid: 0x%x already stored in xidstore", dpname.c_str(), xid);
+	} catch (eOFbaseNotAttached& e) {
+
+		WRITELOG(CFWD, WARN, "ctlbase(%s)::dpt_handle_stats_request() "
+				"no dpath attached", dpname.c_str());
 	}
 
 	return xid;
@@ -1112,6 +1116,11 @@ ctlbase::dpt_handle_barrier_request(
 
 		WRITELOG(CFWD, WARN, "ctlbase(%s)::dpt_handle_barrier_request() "
 				"xid: 0x%x already stored in xidstore", dpname.c_str(), xid);
+
+	} catch (eOFbaseNotAttached& e) {
+
+		WRITELOG(CFWD, WARN, "ctlbase(%s)::dpt_handle_barrier_request() "
+				"no dpath attached", dpname.c_str());
 	}
 
 	return xid;

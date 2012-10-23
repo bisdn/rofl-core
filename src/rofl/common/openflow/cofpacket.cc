@@ -51,14 +51,14 @@ cofpacket::cofpacket(size_t size, size_t used) :
 {
 	ofh_header = (struct ofp_header*)soframe();
 	ofh_header->length = stored;
-	cofpacket::cofpacket_list.insert(this);
+	//cofpacket::cofpacket_list.insert(this);
 }
 
 
 
 cofpacket::~cofpacket()
 {
-	cofpacket::cofpacket_list.erase(this);
+	//cofpacket::cofpacket_list.erase(this);
 }
 
 
@@ -68,7 +68,7 @@ cofpacket::cofpacket(cofpacket const& p) :
 		packet((size_t)0)
 {
 	*this = p;
-	cofpacket::cofpacket_list.insert(this);
+	//cofpacket::cofpacket_list.insert(this);
 }
 
 
