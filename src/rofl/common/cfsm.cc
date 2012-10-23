@@ -33,7 +33,7 @@ cfsm::new_state(int state)
 }
 
 int
-cfsm::cur_state()
+cfsm::cur_state() const
 {
 	return fsm_state;
 }

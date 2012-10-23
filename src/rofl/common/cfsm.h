@@ -38,7 +38,7 @@ public:
 
 	/** return current state
 	 */
-	int cur_state();
+	int cur_state() const;
 
 protected:
 
