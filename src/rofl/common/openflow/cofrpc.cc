@@ -273,7 +273,7 @@ cofrpc::clisten(caddress const& la)
 		flags.set(COFRPC_FLAG_SERVER_SOCKET);
 		flags.reset(COFRPC_FLAG_WORKER_SOCKET);
 
-		cpopen(la, AF_INET, SOCK_STREAM, 0, 10);
+		cpopen(la, AF_INET, SOCK_STREAM, IPPROTO_TCP, 10);
 
 	} catch (eSocketError& e) {
 		WRITELOG(COFRPC, ROFL_WARN, "cofrpc(%p)::cofrpc() unable to open listening socket", this);

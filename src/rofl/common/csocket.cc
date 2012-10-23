@@ -177,6 +177,8 @@ csocket::cpopen(
 	if ((sd = socket(domain, type, protocol)) < 0)
 		throw eSocketError();
 
+
+
 	// make socket non-blocking
 	long flags;
 	if ((flags = fcntl(sd, F_GETFL)) < 0)
@@ -185,24 +187,29 @@ csocket::cpopen(
 	if ((rc = fcntl(sd, F_SETFL, flags)) < 0)
 		throw eSocketError();
 
-	if ((type == SOCK_STREAM) && (protocol == IPPROTO_TCP)) {
-		// set SO_REUSEADDR option on TCP sockets
+
+	if ((type == SOCK_STREAM) && (protocol == IPPROTO_TCP))
+	{
 		int optval = 1;
+
+		// set SO_REUSEADDR option on TCP sockets
 		if ((rc = setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (int*)&optval, sizeof(optval))) < 0)
 			throw eSocketError();
+
 #if 0
 		int on = 1;
 		if ((rc = setsockopt(sd, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(on))) < 0)
 			throw eSocketError();
 #endif
+
 		// set TCP_NODELAY option on TCP sockets
-		optval = 1;
 		if ((rc = setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (int*)&optval, sizeof(optval))) < 0)
 			throw eSocketError();
+
 		// set SO_RCVLOWAT
-		optval = 1;
 		if ((rc = setsockopt(sd, SOL_SOCKET, SO_RCVLOWAT, (int*)&optval, sizeof(optval))) < 0)
 			throw eSocketError();
+
 		// read TCP_NODELAY option for debugging purposes
 		socklen_t optlen = sizeof(int);
 		int optvalc;
@@ -230,6 +237,7 @@ csocket::cpopen(
 			throw eSocketError();
 	}
 
+
 	// bind to local address
 	if ((rc = bind(sd, la.saddr,
 				   (socklen_t)(la.salen))) < 0)
@@ -241,6 +249,8 @@ csocket::cpopen(
 			throw eSocketBindFailed();
 		}
 	}
+
+
 
 	switch (type) {
 	case SOCK_STREAM:
@@ -300,8 +310,13 @@ csocket::caopen(
 		throw eSocketError();
 
 	if ((type == SOCK_STREAM) && (protocol == IPPROTO_TCP)) {
-		// set TCP_NODELAY option
 		int optval = 1;
+
+		// set SO_REUSEADDR option
+		if ((rc = setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval))) < 0)
+			throw eSocketError();
+
+		// set TCP_NODELAY option
 		if ((rc = setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, &optval, sizeof(optval))) < 0)
 			throw eSocketError();
 	}
