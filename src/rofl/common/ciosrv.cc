@@ -419,7 +419,7 @@ ciosrv::fdset(int& maxfd,
 
 	pthread_t tid = pthread_self();
 
-	RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_WRITE);
+	RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_READ);
 
 	// wakeup pipe
 	FD_SET(iodata[tid]->pipe->pipefd[0], readfds);
