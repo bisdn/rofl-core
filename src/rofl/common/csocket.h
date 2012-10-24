@@ -84,10 +84,10 @@ public:
 	 */
 	csocket(int sd,
 			caddress ra,
-			int domain = PF_INET,
-			int type = SOCK_STREAM,
-			int protocol = 0,
-			int backlog = 10);
+			int domain 		= PF_INET,
+			int type 		= SOCK_STREAM,
+			int protocol 	= IPPROTO_TCP,
+			int backlog 	= 10);
 	/**
 	 * Constructor for a new socket (for listening or connecting mode).
 	 * @param domain socket domain (default: PF_INET)
@@ -95,10 +95,10 @@ public:
 	 * @param protocol socket protocol (default: 0)
 	 * @param backlog listen backlog (default: 10)
 	 */
-	csocket(int domain = PF_INET,
-			int type = SOCK_STREAM,
-			int protocol = 0,
-			int backlog = 10);
+	csocket(int domain 	= PF_INET,
+			int type 		= SOCK_STREAM,
+			int protocol 	= IPPROTO_TCP,
+			int backlog 	= 10);
 	/**
 	 * Destructor.
 	 */

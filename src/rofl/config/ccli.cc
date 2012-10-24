@@ -15,7 +15,7 @@ ccli::ccli(u_int16_t port) :
 	cli_fd(-1),
 	baddr(AF_INET, "0.0.0.0", port)
 {
-	cpopen(baddr, PF_INET, SOCK_STREAM);
+	cpopen(baddr, PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	// Must be called first to setup data structures
 	cli = cli_init();

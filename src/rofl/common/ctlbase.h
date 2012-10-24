@@ -8,6 +8,8 @@
 #include <string>
 #include <list>
 
+#include <pthread.h>
+
 #include <rofl/common/cfwdelem.h>
 #include <rofl/common/openflow/cofstats.h>
 #include <rofl/common/openflow/cflowentry.h>
