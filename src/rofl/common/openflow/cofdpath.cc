@@ -5,7 +5,7 @@
 #include "cofdpath.h"
 
 cofdpath::cofdpath(
-		cfwdelem *fwdelem,
+		crofbase *fwdelem,
 		cofbase *entity,
 		std::map<cofbase*, cofdpath*>* ofswitch_list) :
 	dpid(0),
@@ -45,12 +45,14 @@ cofdpath::~cofdpath()
 
 	fwdelem->handle_dpath_close(this);
 
+#if 0
 	for (std::map<uint8_t, cfttable*>::iterator
 			it = flow_tables.begin(); it != flow_tables.end(); ++it)
 	{
 		delete it->second;
 	}
 	flow_tables.clear();
+#endif
 
 	// remove all cofport instances
 	while (not ports.empty())
@@ -285,6 +287,7 @@ cofdpath::stats_reply_rcvd(
 
 	xidstore[OFPT_STATS_REQUEST].xid_rem(be32toh(pack->ofh_header->xid));
 
+#if 0
 	// extract all ofp_table_stats structures from
 	if (OFPST_TABLE == be16toh(pack->ofh_stats_reply->type))
 	{
@@ -309,6 +312,7 @@ cofdpath::stats_reply_rcvd(
 
 		} catch (eOFpacketNoData& e) {}
 	}
+#endif
 
 	if (cur_state() == DP_STATE_INIT) // enter state running during initialization
 	{
@@ -420,6 +424,7 @@ cofdpath::flow_mod_sent(
 	try {
 		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::flow_mod_sent() table_id: %d", this, pack->ofh_flow_mod->table_id);
 
+#if 0
 		if (0xff == pack->ofh_flow_mod->table_id)
 		{
 			std::map<uint8_t, cfttable*>::iterator it;
@@ -441,6 +446,7 @@ cofdpath::flow_mod_sent(
 			WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(%p)::flow_mod_sent() table-id:%d flow-table: %s",
 					this, pack->ofh_flow_mod->table_id, flow_tables[pack->ofh_flow_mod->table_id]->c_str());
 		}
+#endif
 
 	} catch (cerror& e) {
 		WRITELOG(CFTTABLE, ROFL_DBG, "unable to add ftentry to local flow_table instance");
@@ -453,8 +459,10 @@ cofdpath::flow_rmvd_rcvd(
 		cofpacket *pack)
 {
 	try {
+#if 0
 		// check for existence of flow_table with id pack->ofh_flow_mod->table_id first?
 		flow_tables[pack->ofh_flow_mod->table_id]->update_ft_entry(this, pack);
+#endif
 
 	} catch (cerror& e) {
 		WRITELOG(CFTTABLE, ROFL_DBG, "unable to remove ftentry from local flow_table instance");
@@ -480,7 +488,9 @@ cofdpath::group_mod_sent(
 {
 	try {
 
+#if 0
 		grp_table.update_gt_entry(this, pack->ofh_group_mod);
+#endif
 
 	} catch (cerror& e) {
 		WRITELOG(CFTTABLE, ROFL_DBG, "unable to handle gtentry within local grp_table instance");
@@ -527,25 +537,29 @@ cofdpath::packet_in_rcvd(cofpacket *pack)
 	try {
 		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() %s", dpid, pack->c_str());
 
+#if 0
 		// update forwarding table
 		uint32_t in_port = pack->match.get_in_port();
+#endif
 
 		// datalen must be at least one Ethernet header in size
 		if (pack->packet.length() >= (2 * OFP_ETH_ALEN + sizeof(uint16_t)))
 		{
-
+#if 0
 			// update local forwarding table
 			fwdtable.mac_learning(pack->packet, dpid, in_port);
 
 			WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() local fwdtable: %s",
 					dpid, fwdtable.c_str());
+#endif
+
 
 #if 0
 		fwdelem->fwdtable.mac_learning(ether, dpid, in_port);
-#endif
 
-			WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() global fwdtable: %s",
-					dpid, fwdelem->fwdtable.c_str());
+		WRITELOG(COFDPATH, ROFL_DBG, "cofdpath(0x%llx)::packet_in_rcvd() global fwdtable: %s",
+				dpid, fwdelem->fwdtable.c_str());
+#endif
 
 			// let derived class handle PACKET-IN event
 			fwdelem->handle_packet_in(this, pack);
@@ -561,7 +575,7 @@ cofdpath::packet_in_rcvd(cofpacket *pack)
 void
 cofdpath::port_status_rcvd(cofpacket *pack)
 {
-	WRITELOG(COFDPATH, ROFL_DBG, "cfwdelem(%s)::cofdpath(0x%016llx)::port_status_rcvd() %s",
+	WRITELOG(COFDPATH, ROFL_DBG, "crofbase(%s)::cofdpath(0x%016llx)::port_status_rcvd() %s",
 			fwdelem->get_s_dpid(), dpid, pack->c_str());
 
 	std::map<uint32_t, cofport*>::iterator it;
@@ -660,7 +674,7 @@ cofdpath::experimenter_message_rcvd(cofpacket *pack)
 		break;
 	}
 
-	// for now: send vendor extensions directly to class derived from cfwdelem
+	// for now: send vendor extensions directly to class derived from crofbase
 	fwdelem->handle_experimenter_message(this, pack);
 }
 
@@ -671,13 +685,13 @@ cofdpath::role_reply_rcvd(cofpacket *pack)
 	fwdelem->handle_role_reply(this, pack);
 }
 
-
+#if 0
 /** notification for ftentry hard timeout
  */
 void
 cofdpath::ftentry_timeout(cftentry *entry, uint16_t timeout)
 {
-	// notify derived class from cfwdelem here?
+	// notify derived class from crofbase here?
 }
 
 
@@ -686,8 +700,9 @@ cofdpath::ftentry_timeout(cftentry *entry, uint16_t timeout)
 void
 cofdpath::gtentry_timeout(cgtentry *entry, uint16_t timeout)
 {
-	// notify derived class from cfwdelem here?
+	// notify derived class from crofbase here?
 }
+#endif
 
 
 const char*

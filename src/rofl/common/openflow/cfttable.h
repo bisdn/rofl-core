@@ -37,10 +37,10 @@ extern "C" {
 class cfwdelem;
 
 /* error classes */
-class eFlowTableInval : public cerror {}; // invalid flow-mod entry received
-class eFlowTableNoMatch : public cerror {}; // no matching entry found
-class eFlowTableEntryOverlaps : public cerror {}; // entry overlaps with existing entry in flow-table
-class eFlowTableClassificationFailed : public cerror {}; // invalid packet frame for classification
+class eFlowTableInval 					: public cerror {}; // invalid flow-mod entry received
+class eFlowTableNoMatch 				: public cerror {}; // no matching entry found
+class eFlowTableEntryOverlaps 			: public cerror {}; // entry overlaps with existing entry in flow-table
+class eFlowTableClassificationFailed 	: public cerror {}; // invalid packet frame for classification
 
 
 

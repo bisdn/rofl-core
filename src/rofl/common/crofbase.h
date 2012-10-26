@@ -5,6 +5,9 @@
  *      Author: andreas
  */
 
+#ifndef CROFBASE_H
+#define CROFBASE_H 1
+
 #include <map>
 #include <set>
 #include <list>
@@ -50,9 +53,6 @@ extern "C" {
 #include "openflow/cofaction.h"
 #include "openflow/cofaclist.h"
 #include "openflow/cofmatch.h"
-#include "openflow/cfttable.h"
-#include "openflow/cgttable.h"
-#include "openflow/cftentry.h"
 #include "openflow/cofbase.h"
 #include "openflow/cflowentry.h"
 #include "openflow/cgroupentry.h"
@@ -62,20 +62,20 @@ extern "C" {
 
 
 /* error classes */
-class eRofBaseBase					: public cerror {};   // base error class cfwdelem
-class eRofBaseIsBusy 				: public eRofBaseBase {}; // this FwdElem is already controlled
-class eRofBaseNotImpl 				: public eRofBaseBase {}; // this FwdElem's method is not implemented
-class eRofBaseNoCtrl 				: public eRofBaseBase {}; // no controlling entity attached to this FwdElem
-class eRofBaseNotFound 				: public eRofBaseBase {}; // internal entity not found
-class eRofBaseInval					: public eRofBaseBase {}; // invalid parameter (e.g. invalid packet type)
-class eRofBaseNotAttached 			: public eRofBaseBase {}; // received command from entity being not attached
-class eRofBaseNoRequest 			: public eRofBaseBase {}; // no request packet found for session
-class eRofBaseXidInval	 			: public eRofBaseBase {}; // invalid xid in session exchange
-class eRofBaseExists				: public eRofBaseBase {}; // fwdelem with either this dpid or dpname already exists
-class eRofBaseOFportNotFound 		: public eRofBaseBase {}; // cofport instance not found
-class eRofBaseTableNotFound 		: public eRofBaseBase {}; // flow-table not found (e.g. unknown table_id in flow_mod)
-class eRofBaseGotoTableNotFound 	: public eRofBaseBase {}; // table-id specified in OFPIT_GOTO_TABLE invalid
-class eRofBaseFspSupportDisabled 	: public eRofBaseBase {};
+class eRofBase						: public cerror {};   // base error class crofbase
+class eRofBaseIsBusy 				: public eRofBase {}; // this FwdElem is already controlled
+class eRofBaseNotImpl 				: public eRofBase {}; // this FwdElem's method is not implemented
+class eRofBaseNoCtrl 				: public eRofBase {}; // no controlling entity attached to this FwdElem
+class eRofBaseNotFound 				: public eRofBase {}; // internal entity not found
+class eRofBaseInval					: public eRofBase {}; // invalid parameter (e.g. invalid packet type)
+class eRofBaseNotAttached 			: public eRofBase {}; // received command from entity being not attached
+class eRofBaseNoRequest 			: public eRofBase {}; // no request packet found for session
+class eRofBaseXidInval	 			: public eRofBase {}; // invalid xid in session exchange
+class eRofBaseExists				: public eRofBase {}; // fwdelem with either this dpid or dpname already exists
+class eRofBaseOFportNotFound 		: public eRofBase {}; // cofport instance not found
+class eRofBaseTableNotFound 		: public eRofBase {}; // flow-table not found (e.g. unknown table_id in flow_mod)
+class eRofBaseGotoTableNotFound 	: public eRofBase {}; // table-id specified in OFPIT_GOTO_TABLE invalid
+class eRofBaseFspSupportDisabled 	: public eRofBase {};
 
 
 
@@ -102,23 +102,14 @@ protected: // data structures
 	uint8_t  						n_tables; 		// number of tables
 	uint32_t 						capabilities; 	// capabilities
 	std::map<uint32_t, cphyport*> 	phy_ports; 		// ports that we present to the higher layer
-#if 0
-	std::map<uint8_t, cfttable*> 	flow_tables; 	// OF1.1 forwarding tables for this emulated switch instance (layer-(n), not layer-(n-1)!)
-	cgttable 						group_table; 	// OF1.1 group table
 	cfsptable 						fsptable; 		// namespace table
-	cfwdtable 						fwdtable; 		// forwarding entries table (MAC learning)
-#endif
 
 public:
 
-#if 0
-	std::set<cfibentry*> 			fib_table;		// FIB
-#endif
 	std::string 					info;			// info string
 	std::string 					s_dpid;			// dpid as string
 
 	friend class cport;
-	friend class cfttable;
 
 
 
@@ -182,27 +173,27 @@ public:
 
 public: // static methods and data structures
 
-	static std::set<cfwdelem*> fwdelems; /**< set of all registered fwdelems */
+	static std::set<crofbase*> rofbases; /**< set of all registered fwdelems */
 
-	/** Find cfwdelem with specified dpid.
+	/** Find crofbase with specified dpid.
 	 *
-	 * A static method for finding a cfwdelem entity by its datapath ID.
+	 * A static method for finding a crofbase entity by its datapath ID.
 	 *
 	 * @param dpid datapath ID
 	 * @throw eFwdEleNotFound
 	 */
-	static cfwdelem*
-	find_by_dpid(uint64_t dpid) throw (eFwdElemNotFound);
+	static crofbase*
+	find_by_dpid(uint64_t dpid) throw (eRofBaseNotFound);
 
-	/** Find cfwdelem with specified dpname.
+	/** Find crofbase with specified dpname.
 	 *
-	 * A static method for finding a cfwdelem entity by its datapath name.
+	 * A static method for finding a crofbase entity by its datapath name.
 	 *
 	 * @param dpname datapath name, e.g. "dp0"
-	 * @throw eFwdElemNotFound
+	 * @throw eRofBaseNotFound
 	 */
-	static cfwdelem*
-	find_by_name(const std::string &dpname) throw (eFwdElemNotFound);
+	static crofbase*
+	find_by_name(const std::string &dpname) throw (eRofBaseNotFound);
 
 
 
@@ -211,13 +202,13 @@ public: // constructor + destructor
 
 	/** Constructor.
 	 *
-	 * A cfwdelem instance must have a unique dpname and dpid.
+	 * A crofbase instance must have a unique dpname and dpid.
 	 * The constructor verifies dpname's and dpid's uniqueness and throws
-	 * an exception of type eFwdElemExists if these values are already occupied.
+	 * an exception of type eRofBaseExists if these values are already occupied.
 	 *
 	 * @param dpname datapath name, default is "dp0"
 	 * @param dpid datapath ID, if no dpid is specified, a random uint64 number is generated
-	 * @throw eFwdElemExists
+	 * @throw eRofBaseExists
 	 */
 	crofbase(std::string dpname = std::string("rof0"),
 			uint64_t dpid = crandom(8).uint64(),
@@ -258,12 +249,6 @@ public: // constructor + destructor
 	{
 		return dpname;
 	}
-
-
-	/** reset all flow and group tables
-	 */
-	void
-	tables_reset();
 
 
 	/** Establish OF TCP connection to control entity
@@ -319,14 +304,14 @@ protected:
 	/*
 	 * The following methods should be overwritten by a derived class
 	 * in order to get reception notifications for the various OF
-	 * packets. While cfwdelem handles most of the lower layer details,
+	 * packets. While crofbase handles most of the lower layer details,
 	 * a derived class must provide higher layer functionality.
 	 */
 
 	/** Handle OF features request. To be overwritten by derived class.
 	 *
-	 * OF FEATURES.requests are handled by the cfwdelem base class in method
-	 * cfwdelem::send_features_reply(). However,
+	 * OF FEATURES.requests are handled by the crofbase base class in method
+	 * crofbase::send_features_reply(). However,
 	 * this method handle_features_request() may be overloaded by a derived class to get a notification
 	 * upon reception of a FEATURES.request from the controlling entity.
 	 * Default behaviour is to remove the packet from the heap.
@@ -339,8 +324,8 @@ protected:
 
 	/** Handle OF features reply. To be overwritten by derived class.
 	 *
-	 * OF FEATURES.replies are handled by the cfwdelem base class in method
-	 * cfwdelem::fe_up_features_reply(). This method handle_features_reply()
+	 * OF FEATURES.replies are handled by the crofbase base class in method
+	 * crofbase::fe_up_features_reply(). This method handle_features_reply()
 	 * may be overwritten by a derived class to get a notification upon
 	 * reception of a FEATURES.reply from a controlled datapath.
 	 * Default behaviour is to remove the packet from the heap.
@@ -367,7 +352,7 @@ protected:
 
 	/** Handle OF get-config reply. To be overwritten by derived class.
 	 *
-	 * Called from within cfwdelem::fe_up_get_config_reply().
+	 * Called from within crofbase::fe_up_get_config_reply().
 	 * The OF packet must be removed from heap by the overwritten method.
 	 *
 	 * @param sw cofswitch instance from whom the GET-CONFIG.reply was received.
@@ -555,7 +540,7 @@ protected:
 	 * @param pack FLOW-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_flow_mod(cofctrl *ofctrl, cofpacket *pack, cftentry *fte) { delete pack; };
+	handle_flow_mod(cofctrl *ofctrl, cofpacket *pack) { delete pack; };
 
 	/** Handle OF group-mod message. To be overwritten by derived class.
 	 *
@@ -565,7 +550,7 @@ protected:
 	 * @param pack GROUP-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_group_mod(cofctrl *ofctrl, cofpacket *pack, cgtentry *gte) { delete pack; };
+	handle_group_mod(cofctrl *ofctrl, cofpacket *pack) { delete pack; };
 
 	/** Handle OF table-mod message. To be overwritten by derived class.
 	 *
@@ -723,45 +708,6 @@ protected:
 	virtual void
 	handle_role_reply_timeout(cofdpath *sw) {};
 
-	/**
-	 * @name	flow_mod_add
-	 * @brief	called whenever a new flow mod entry is created
-	 *
-	 * This method indicates creation of a new flow-mod entry.
-	 *
-	 * @param ftable pointer to flow-table where the new flow table entry was added
-	 * @param fte pointer to new flow table entry
-	 */
-	virtual void
-	flow_mod_add(cfttable *ftable, cftentry *fte) {};
-
-	/**
-	 * @name	flow_mod_modify
-	 * @brief	called whenever an existing flow mod entry is modified
-	 *
-	 * This method indicates modification of an existing flow-mod entry.
-	 *
-	 * @param ftable pointer to flow-table where flow table entry was updated
-	 * @param fte pointer to modified flow table entry
-	 */
-	virtual void
-	flow_mod_modify(cfttable *ftable, cftentry *fte) {};
-
-	/**
-	 * @name	flow_mod_delete
-	 * @brief	called whenever an existing flow mod entry is deleted
-	 *
-	 * This method indicates removal of an existing flow-mod entry.
-	 * The fte instance referred to by its pointer will be deleted
-	 * after this method block has been left, so do not rely on fte
-	 * afterwards.
-	 *
-	 * @param ftable pointer to flow-table where flow table entry was deleted
-	 * @param fte pointer to deleted flow table entry
-	 */
-	virtual void
-	flow_mod_delete(cfttable *ftable, cftentry *fte) {};
-
 
 protected:	// overloaded from ciosrv
 
@@ -774,7 +720,26 @@ protected:	// overloaded from ciosrv
 		int opaque);
 
 
+public: // miscellaneous methods
 
+	/** dump info string
+	 */
+	virtual const char*
+	c_str();
+
+	/** get dpid
+	 */
+	uint64_t
+	getdpid() { return dpid; };
+
+	/** enable/disable namespace support
+	 *
+	 */
+	void
+	nsp_enable(bool enable = true);
+
+
+#if 0
 public: // specific hardware support
 
 	/** Create and return a new cftentry (flow-table entry) instance on heap.
@@ -824,45 +789,29 @@ public: // overloaded from cfibentry_owner
 	virtual void
 	fibentry_timeout(cfibentry *fibentry);
 
-public: // miscellaneous methods
-
-	/** dump info string
-	 */
-	virtual const char*
-	c_str();
-
-	/** get dpid
-	 */
-	uint64_t
-	getdpid() { return dpid; };
-
-	/** enable/disable namespace support
-	 *
-	 */
-	void
-	nsp_enable(bool enable = true);
 
 	/**
 	 *
 	 */
 	cfttable&
-	get_fttable(uint8_t tableid) throw (eFwdElemNotFound);
+	get_fttable(uint8_t tableid) throw (eRofBaseNotFound);
 
 	/**
 	 *
 	 */
 	cfttable&
-	get_succ_fttable(uint8_t tableid) throw (eFwdElemNotFound);
+	get_succ_fttable(uint8_t tableid) throw (eRofBaseNotFound);
+#endif
 
 
 
-public:	// OpenFlow related methods for inter-cfwdelem instance communication
+public:	// OpenFlow related methods for inter-crofbase instance communication
 
 	/* The following methods are used for sending/receiving OF messages
-	 * between stacked cfwdelem instances. Usually, they are not intended
+	 * between stacked crofbase instances. Usually, they are not intended
 	 * to be called from other objects. Two types exist:
-	 * - fe_up_XXX(cfwdelem *entity, cofpacket *pack)
-	 * - fw_down_XXX(cfwdelem *entity, cofpacket *pack)
+	 * - fe_up_XXX(crofbase *entity, cofpacket *pack)
+	 * - fw_down_XXX(crofbase *entity, cofpacket *pack)
 	 * Convention:
 	 * - fe_up_XXX() is called when a data path sends to a controlling entity.
 	 * - fe_down_XXX() is called when a controller sends to a data path entity.
@@ -892,9 +841,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send a OF FEATURES.request to data path.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemIsBusy
+	 * @throw eRofBaseIsBusy
 	 */
 	virtual void
 	fe_down_features_request(
@@ -903,9 +852,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send OF FEATURES.reply to controlling entity.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemNotAttached
+	 * @throw eRofBaseNotAttached
 	 */
 	virtual void
 	fe_up_features_reply(
@@ -917,9 +866,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send a OF GET-CONFIG.request to data path.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemIsBusy
+	 * @throw eRofBaseIsBusy
 	 */
 	virtual void
 	fe_down_get_config_request(
@@ -928,9 +877,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send OF GET-CONFIG.reply to controlling entity.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemNotAttached
+	 * @throw eRofBaseNotAttached
 	 */
 	virtual void
 	fe_up_get_config_reply(
@@ -942,9 +891,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send a OF STATS.request to data path.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemIsBusy
+	 * @throw eRofBaseIsBusy
 	 */
 	virtual void
 	fe_down_stats_request(
@@ -953,9 +902,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send OF STATS.reply to controlling entity.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemNotAttached
+	 * @throw eRofBaseNotAttached
 	 */
 	virtual void
 	fe_up_stats_reply(
@@ -967,9 +916,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send OF PACKET-IN.message to controlling entity.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemNotAttached
+	 * @throw eRofBaseNotAttached
 	 */
 	virtual void
 	fe_up_packet_in(
@@ -981,9 +930,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send a OF PACKET-OUT.message to data path.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemIsBusy
+	 * @throw eRofBaseIsBusy
 	 */
 	virtual void
 	fe_down_packet_out(
@@ -995,9 +944,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send a OF SET-CONFIG.request to data path.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemIsBusy
+	 * @throw eRofBaseIsBusy
 	 */
 	virtual void
 	fe_down_set_config_request(
@@ -1009,9 +958,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send a OF BARRIER.request to data path.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemIsBusy
+	 * @throw eRofBaseIsBusy
 	 */
 	virtual void
 	fe_down_barrier_request(
@@ -1020,9 +969,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send OF BARRIER.reply to controlling entity.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemNotAttached
+	 * @throw eRofBaseNotAttached
 	 */
 	virtual void
 	fe_up_barrier_reply(
@@ -1034,9 +983,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send OF ERROR.message to controlling entity.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemNotAttached
+	 * @throw eRofBaseNotAttached
 	 */
 	virtual void
 	fe_up_error(
@@ -1048,9 +997,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send a OF FLOW-MOD.message to data path.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemIsBusy
+	 * @throw eRofBaseIsBusy
 	 */
 	virtual void
 	fe_down_flow_mod(
@@ -1062,9 +1011,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send a OF GROUP-MOD.message to data path.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemIsBusy
+	 * @throw eRofBaseIsBusy
 	 */
 	virtual void
 	fe_down_group_mod(
@@ -1076,9 +1025,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send a OF TABLE-MOD.message to data path.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemIsBusy
+	 * @throw eRofBaseIsBusy
 	 */
 	virtual void
 	fe_down_table_mod(
@@ -1090,9 +1039,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send a OF PORT-MOD.message to data path.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemIsBusy
+	 * @throw eRofBaseIsBusy
 	 */
 	virtual void
 	fe_down_port_mod(
@@ -1104,9 +1053,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send OF FLOW-REMOVED.message to controlling entity.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemNotAttached
+	 * @throw eRofBaseNotAttached
 	 */
 	virtual void
 	fe_up_flow_removed(
@@ -1118,9 +1067,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send OF PORT-STATUS.message to controlling entity.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemNotAttached
+	 * @throw eRofBaseNotAttached
 	 */
 	virtual void
 	fe_up_port_status(
@@ -1132,9 +1081,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send a OF QUEUE-GET-CONFIG.request to data path.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemIsBusy
+	 * @throw eRofBaseIsBusy
 	 */
 	virtual void
 	fe_down_queue_get_config_request(
@@ -1143,9 +1092,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send OF QUEUE-GET-CONFIG.reply to controlling entity.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemNotAttached
+	 * @throw eRofBaseNotAttached
 	 */
 	virtual void
 	fe_up_queue_get_config_reply(
@@ -1154,9 +1103,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send a OF VENDOR.message to data path.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemIsBusy
+	 * @throw eRofBaseIsBusy
 	 */
 	virtual void
 	fe_down_experimenter_message(
@@ -1165,9 +1114,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send OF VENDOR.message to controlling entity.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemNotAttached
+	 * @throw eRofBaseNotAttached
 	 */
 	virtual void
 	fe_up_experimenter_message(
@@ -1180,9 +1129,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send a OF ROLE.request to data path.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemIsBusy
+	 * @throw eRofBaseIsBusy
 	 */
 	virtual void
 	fe_down_role_request(
@@ -1191,9 +1140,9 @@ public:	// OpenFlow related methods for inter-cfwdelem instance communication
 
 	/** Send OF ROLE.reply to controlling entity.
 	 *
-	 * @param entity cfwdelem instance that sent this packet
+	 * @param entity crofbase instance that sent this packet
 	 * @param pack OF packet sent
-	 * @throw eFwdElemNotAttached
+	 * @throw eRofBaseNotAttached
 	 */
 	virtual void
 	fe_up_role_reply(
@@ -1296,7 +1245,7 @@ public:
 private:
 
 	/** Helper method for handling DESCription STATS.requests.
-	 * Only used within cfwdelem internally.
+	 * Only used within crofbase internally.
 	 */
 	void
 	send_stats_reply_local();
@@ -1362,7 +1311,7 @@ public:
 		uint8_t table_id,
 		cofmatch &match,
 		uint8_t *data,
-		size_t datalen) throw(eFwdElemNoCtrl);
+		size_t datalen) throw(eRofBaseNoCtrl);
 
 	// BARRIER request/reply
 	//
@@ -1659,7 +1608,7 @@ public:
 	 */
 	virtual uint32_t
 	phy_port_get_free_portno()
-	throw (eFwdElemNotFound);
+	throw (eRofBaseNotFound);
 
 
 private: // methods
@@ -1854,7 +1803,7 @@ public:
 	 */
 	void
 	ofswitch_exists(
-			const cofdpath *ofswitch) throw (eFwdElemNotFound);
+			const cofdpath *ofswitch) throw (eRofBaseNotFound);
 
 	// COFCTRL related methods
 	//
@@ -1876,16 +1825,17 @@ public:
 	 */
 	void
 	ofctrl_exists(
-			const cofctrl *ofctrl) throw (eFwdElemNotFound);
+			const cofctrl *ofctrl) throw (eRofBaseNotFound);
 
+#if 0
 public: // FIB related methods
 
 	/**
 	 *
 	 */
 	uint32_t
-	fib_table_find(uint64_t from, uint64_t to) throw (eFwdElemNotFound);
-
+	fib_table_find(uint64_t from, uint64_t to) throw (eRofBaseNotFound);
+#endif
 
 
 
@@ -1898,7 +1848,7 @@ private: // packet check methods
 	check_up_packet(
 			cofpacket *ofpacket,
 			enum ofp_type oftype,
-			cofbase *ofbase) throw (eFwdElemInval);
+			cofbase *ofbase) throw (eRofBaseInval);
 
 	/** check "downstream" travelling packet
 	 *
@@ -1907,7 +1857,7 @@ private: // packet check methods
 	check_down_packet(
 			cofpacket *ofpacket,
 			enum ofp_type oftype,
-			cofbase *ofbase) throw (eFwdElemInval);
+			cofbase *ofbase) throw (eRofBaseInval);
 
 
 private: // methods for attaching/detaching other cofbase instances
@@ -1925,7 +1875,7 @@ private: // methods for attaching/detaching other cofbase instances
 	/** attach controlling entity
 	 */
 	void
-	ctrl_attach(cofbase* dp) throw (eFwdElemFspSupportDisabled);
+	ctrl_attach(cofbase* dp) throw (eRofBaseFspSupportDisabled);
 
 	/** detach controlling entity
 	 */
@@ -1942,35 +1892,38 @@ private: // packet queues for OpenFlow messages
 
 private: // data structures
 
-	enum cfwdelem_flag_t {
+	enum crofbase_flag_t {
 		NSP_ENABLED = 0x01,
 	};
 
 	std::bitset<32> fe_flags;
 
-	/** find cfwdelem in set cfwdelem::fwdelems by dpname (e.g. "ctl0")
+	/** find crofbase in set crofbase::fwdelems by dpname (e.g. "ctl0")
 	 *
 	 */
-	class cfwdelem_find_by_name : public std::unary_function<cfwdelem,bool> {
+	class crofbase_find_by_name : public std::unary_function<crofbase,bool> {
 		const std::string &name;
 	public:
-		cfwdelem_find_by_name(const std::string& s_name) :
+		crofbase_find_by_name(const std::string& s_name) :
 			name(s_name) {};
-		bool operator() (const cfwdelem* fe) { return (name == fe->dpname);	};
+		bool operator() (const crofbase* fe) { return (name == fe->dpname);	};
 	};
 
-	/** find cfwdelem in set cfwdelem::fwdelems by dpid
+	/** find crofbase in set crofbase::fwdelems by dpid
 	 *
 	 */
-	class cfwdelem_find_by_dpid : public std::unary_function<cfwdelem,bool> {
+	class crofbase_find_by_dpid : public std::unary_function<crofbase,bool> {
 		uint64_t dpid;
 	public:
-		cfwdelem_find_by_dpid(uint64_t n_dpid) :
+		crofbase_find_by_dpid(uint64_t n_dpid) :
 			dpid(n_dpid) {};
-		bool operator() (const cfwdelem* fe) {
+		bool operator() (const crofbase* fe) {
 			return (dpid == fe->dpid);
 		};
 	};
 };
+
+
+#endif
 
 
