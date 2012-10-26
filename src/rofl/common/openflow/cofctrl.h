@@ -19,21 +19,34 @@ extern "C" {
 #include "../cerror.h"
 #include "../ciosrv.h"
 #include "../cmemory.h"
+<<<<<<< HEAD
 #include "../crofbase.h"
+=======
+#include "../cofbase.h"
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 #include "../thread_helper.h"
 #include "../cvastring.h"
 
 #include "cofmatch.h"
+<<<<<<< HEAD
 #include "cofbase.h"
 #if 0
 #include "cfttable.h"
+=======
+#include "cofiface.h"
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 #include "cftentry.h"
 #endif
 #include "extensions/cfspentry.h"
 
 
+<<<<<<< HEAD
 
 class crofbase;
+=======
+class cofbase;
+//class cfwdelem;
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 class cfttable;
 
 class eOFctrlBase : public cerror {};
@@ -50,9 +63,15 @@ class cofctrl :
 {
 public: // data structures
 
+<<<<<<< HEAD
 	crofbase *rofbase;							// parent crofbase instance
 	std::map<cofbase*, cofctrl*> *ofctrl_list;	// pointer to set storing this entity
 	cofbase *ctrl;								// pointer to controlling entity
+=======
+	cofbase *ofbase;							// parent cofbase instance
+	std::map<cofiface*, cofctrl*> *ofctrl_list;	// pointer to set storing this entity
+	cofiface *ctrl;								// pointer to controlling entity
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 	uint16_t flags;								// config: flags
 	uint16_t miss_send_len;						// config: miss_send_len
 	std::set<cofmatch*> nspaces;				// list of cofmatch structures depicting controlled namespace
@@ -69,9 +88,15 @@ public: // methods
 	/** constructor
 	 */
 	cofctrl(
+<<<<<<< HEAD
 			crofbase *fwdelem,
 			cofbase* ctrl,
 			std::map<cofbase*, cofctrl*> *ofctrl_list);
+=======
+			cofbase *ofbase,
+			cofiface* ctrl,
+			std::map<cofiface*, cofctrl*> *ofctrl_list);
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 
 	/** destructor
 	 */

@@ -36,6 +36,7 @@ extern "C" {
 #include "cfibentry.h"
 #include "croflexp.h"
 #include "cphyport.h"
+#include "cofbase.h"
 
 //#include "rofl/experimental/crib.h"
 #include "rofl/platform/unix/crandom.h"
@@ -53,7 +54,6 @@ extern "C" {
 #include "openflow/cfttable.h"
 #include "openflow/cgttable.h"
 #include "openflow/cftentry.h"
-#include "openflow/cofbase.h"
 #include "openflow/cflowentry.h"
 #include "openflow/cgroupentry.h"
 #include "openflow/cofstats.h"
@@ -113,16 +113,26 @@ class eFwdElemFspSupportDisabled : public eFwdElemBase {};
  * controlling entities.
  */
 class cfwdelem :
-	public virtual ciosrv,
 	public cfibentry_owner,
 	public cftentry_owner,
 	public cgtentry_owner,
+<<<<<<< HEAD
 	public crofbase
 {
 private:
 
 	std::string						info;
 
+=======
+	public cofbase
+{
+private:
+
+
+	std::string						info;
+
+
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 protected: // data structures
 
 	// controlling and controlled entities
@@ -142,6 +152,7 @@ public:
 protected:
 
 	enum fwdelem_timer_t {
+<<<<<<< HEAD
 		TIMER_FE_BASE = (0x0020 << 16),
 	};
 
@@ -156,16 +167,11 @@ protected:
 	enum fwdelem_rpc_t { // for cofrpc *rpc[2]; (see below)
 		RPC_CTL = 0,
 		RPC_DPT = 1,
+=======
+		TIMER_FE_BASE = (0x002b << 16),
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 	};
 
-	/*
-	 * default constants
-	 */
-
-	enum fwdelem_const_t {
-		DEFAULT_FE_BUFFER_SIZE = 65536,
-		DEFAULT_FE_TABLES_NUM = 1,
-	};
 
 public:
 
@@ -175,6 +181,13 @@ public:
 	};
 
 
+<<<<<<< HEAD
+=======
+public: // static methods and data structures
+
+
+
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 
 public: // constructor + destructor
 
@@ -215,12 +228,25 @@ public: // constructor + destructor
 
 protected:
 
+<<<<<<< HEAD
 	/*
 	 * The following methods should be overwritten by a derived class
 	 * in order to get reception notifications for the various OF
 	 * packets. While cfwdelem handles most of the lower layer details,
 	 * a derived class must provide higher layer functionality.
 	 */
+=======
+
+
+	/** Handle OF stats request. NOT to be overwritten by derived class.
+	 *
+	 * Called upon reception of a STATS.request from the controlling entity.
+	 *
+	 * @param pack STATS.request packet received from controller.
+	 */
+	void
+	handle_stats_request(cofctrl *ofctrl, cofpacket *pack);
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 
 
 	/**
@@ -293,6 +319,7 @@ protected:
 	handle_experimenter_stats_request(cofctrl *ofctrl, cofpacket *pack);
 
 
+<<<<<<< HEAD
 	/** Handle OF stats reply. To be overwritten by derived class.
 	 *
 	 * Called upon reception of a STATS.reply from a datapath entity.
@@ -374,6 +401,81 @@ protected:
 	 */
 	virtual void
 	handle_queue_get_config_reply(cofdpath *sw, cofpacket *pack) { delete pack; };
+=======
+
+
+	/** Handle new dpath
+	 *
+	 * Called upon creation of a new cofswitch instance.
+	 *
+	 * @param sw new cofswitch instance
+	 */
+	virtual void
+	handle_dpath_open(cofdpath *sw) {};
+
+	/** Handle close event on dpath
+	 *
+	 * Called upon deletion of a cofswitch instance
+	 *
+	 * @param sw cofswitch instance to be deleted
+	 */
+	virtual void
+	handle_dpath_close(cofdpath *sw) {};
+
+	/** Handle new ctrl
+	 *
+	 * Called upon creation of a new cofctrl instance.
+	 *
+	 * @param ctrl new cofctrl instance
+	 */
+	virtual void
+	handle_ctrl_open(cofctrl *ctrl) {};
+
+	/** Handle close event on ctrl
+	 *
+	 * Called upon deletion of a cofctrl instance
+	 *
+	 * @param ctrl cofctrl instance to be deleted
+	 */
+	virtual void
+	handle_ctrl_close(cofctrl *ctrl) {};
+
+	/** Handle timeout for GET-FSP request
+	 *
+	 */
+	virtual void
+	handle_get_fsp_reply_timeout(cofdpath *sw) {};
+
+	/** Handle OF role request. To be overwritten by derived class.
+	 *
+	 * Called upon reception of a ROLE.request from the controlling entity.
+	 * The OF packet must be removed from heap by the overwritten method.
+	 *
+	 * @param pack ROLE.request packet received from controller.
+	 */
+	virtual void
+	handle_role_request(cofctrl *ofctrl, cofpacket *pack) { delete pack; };
+
+	/** Handle OF role reply. To be overwritten by derived class.
+	 *
+	 * Called upon reception of a ROLE.reply from a datapath entity.
+	 * The OF packet must be removed from heap by the overwritten method.
+	 *
+	 * @param sw cofswitch instance from whom a ROLE.reply was received
+	 * @param pack ROLE.reply packet received from datapath
+	 */
+	virtual void
+	handle_role_reply(cofdpath *sw, cofpacket *pack) { delete pack; };
+
+	/** Handle OF role reply timeout. To be overwritten by derived class.
+	 *
+	 * Called upon expiration of TIMER_FE_SEND_ROLE_REPLY.
+	 *
+	 * @param sw cotswitch instance from whom a ROLE.reply was expected.
+	 */
+	virtual void
+	handle_role_reply_timeout(cofdpath *sw) {};
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 
 	/**
 	 * @name	flow_mod_add
@@ -502,6 +604,7 @@ public: // miscellaneous methods
 
 
 
+<<<<<<< HEAD
 
 
 
@@ -512,6 +615,32 @@ public: // FIB related methods
 	 */
 	uint32_t
 	fib_table_find(uint64_t from, uint64_t to) throw (eFwdElemNotFound);
+=======
+
+
+public:
+
+	// allow class cofswitch access to these methods
+	friend class cofdpath;
+	// allow class cofctrl access to these methods
+	friend class cofctrl;
+	// allow class cadaptor access to these methods
+	friend class chandler;
+
+	friend class bcm_port;
+	// allow class cgttable access to error method
+	friend class cgttable;
+
+
+public: // FIB related methods
+
+	/**
+	 *
+	 */
+	uint32_t
+	fib_table_find(uint64_t from, uint64_t to) throw (eFwdElemNotFound);
+
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 };
 
 

@@ -14,7 +14,11 @@ cfwdelem::cfwdelem(
 		uint32_t n_buffers,
 		caddress const& rpc_ctl_addr,
 		caddress const& rpc_dpt_addr) throw (eFwdElemExists) :
+<<<<<<< HEAD
 		crofbase(dpname, dpid, n_tables, n_buffers, rpc_ctl_addr, rpc_dpt_addr)
+=======
+	group_table()
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 {
 	cvastring vas;
 
@@ -24,20 +28,34 @@ cfwdelem::cfwdelem(
 		flow_tables[i] = new cfttable(this, i);
 	}
 
+<<<<<<< HEAD
 	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::cfwdelem() "
 			"dpid:%llu dpname=%s", this, dpid, dpname.c_str());
+=======
+	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::cfwdelem() dpid:%llu dpname=%s", this, dpid, dpname.c_str());
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 }
 
 
 cfwdelem::~cfwdelem()
 {
+<<<<<<< HEAD
 	WRITELOG(CFWD, ROFL_DBG, "destroy cfwdelem(%p)::cfwdelem() ", this);
+=======
+	WRITELOG(CFWD, ROFL_DBG, "destroy cfwdelem(%p)::cfwdelem() dpid:%llu", this, dpid);
+
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 
 	while (not fib_table.empty())
 	{
 		delete *(fib_table.begin());
 	}
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 	// remove all flow-tables
 	std::map<uint8_t, cfttable*>::iterator ft;
 	for (ft = flow_tables.begin(); ft != flow_tables.end(); ++ft)
@@ -68,12 +86,22 @@ cfwdelem::c_str()
 {
 	cvastring vas(1024);
 
+<<<<<<< HEAD
 	info.assign(vas("cfwdelem(%p): =>", this));
+=======
+	info.assign(vas("cfwdelem(%p): dpname[%s] dpid[%llx] =>",
+			this, dpname.c_str(), dpid));
+
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 
 	return info.c_str();
 }
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 
 
 cfttable&
@@ -109,6 +137,7 @@ cfwdelem::get_succ_fttable(uint8_t tableid) throw (eFwdElemNotFound)
 
 
 
+<<<<<<< HEAD
 
 void
 cfwdelem::handle_timeout(int opaque)
@@ -134,6 +163,8 @@ cfwdelem::handle_timeout(int opaque)
 
 
 
+=======
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 
 
 cftentry*
@@ -202,6 +233,12 @@ cfwdelem::fibentry_timeout(cfibentry *fibentry)
 }
 
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 void
 cfwdelem::handle_desc_stats_request(
 		cofctrl *ofctrl,
@@ -258,6 +295,103 @@ cfwdelem::handle_table_stats_request(
 
 
 void
+<<<<<<< HEAD
+cfwdelem::handle_flow_stats_request(
+		cofctrl *ofctrl,
+		cofpacket *pack)
+{
+	uint8_t table_id = pack->ofb_flow_stats_request->table_id;
+=======
+cfwdelem::handle_port_stats_request(
+		cofctrl *ofctrl,
+		cofpacket *pack)
+{
+	uint32_t port_no = be32toh(pack->ofb_port_stats_request->port_no);
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
+
+	cmemory body(0);
+
+	try {
+<<<<<<< HEAD
+
+		if (OFPTT_ALL == table_id)
+		{
+			for (std::map<uint8_t, cfttable*>::iterator
+					it = flow_tables.begin(); it != flow_tables.end(); ++it)
+			{
+				cfttable* fttable = it->second;
+				fttable->get_flow_stats(
+						body,
+						be32toh(pack->ofb_flow_stats_request->out_port),
+						be32toh(pack->ofb_flow_stats_request->out_group),
+						be64toh(pack->ofb_flow_stats_request->cookie),
+						be64toh(pack->ofb_flow_stats_request->cookie_mask),
+						pack->match);
+=======
+		if (OFPP_ANY == port_no)
+		{
+			for (std::map<uint32_t, cphyport*>::iterator
+					it = phy_ports.begin(); it != phy_ports.end(); ++it)
+			{
+				cofport *port = it->second;
+				port->get_port_stats(body);
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
+			}
+		}
+		else
+		{
+<<<<<<< HEAD
+			if (flow_tables.find(table_id) == flow_tables.end())
+			{
+				throw eFwdElemTableNotFound();
+			}
+
+			flow_tables[table_id]->get_flow_stats(
+							body,
+							be32toh(pack->ofb_flow_stats_request->out_port),
+							be32toh(pack->ofb_flow_stats_request->out_group),
+							be64toh(pack->ofb_flow_stats_request->cookie),
+							be64toh(pack->ofb_flow_stats_request->cookie_mask),
+							pack->match);
+		}
+
+		send_stats_reply(
+						ofctrl,
+						pack->get_xid(),
+						OFPST_FLOW,
+						body.somem(), body.memlen());
+
+
+
+=======
+			if (phy_ports.find(port_no) == phy_ports.end())
+			{
+				throw eFwdElemOFportNotFound();
+			}
+
+			phy_ports[port_no]->get_port_stats(body);
+		}
+
+		send_stats_reply(
+					ofctrl,
+					pack->get_xid(),
+					OFPST_PORT,
+					body.somem(), body.memlen());
+
+
+
+	} catch (eFwdElemOFportNotFound& e) {
+
+		send_error_message(ofctrl, OFPET_BAD_REQUEST, OFPBRC_BAD_PORT,
+				pack->soframe(), pack->framelen());
+
+	}
+
+	delete pack;
+}
+
+
+void
 cfwdelem::handle_flow_stats_request(
 		cofctrl *ofctrl,
 		cofpacket *pack)
@@ -307,6 +441,7 @@ cfwdelem::handle_flow_stats_request(
 
 
 
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 	} catch (eFwdElemTableNotFound& e) {
 
 		send_error_message(ofctrl, OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID,
@@ -508,6 +643,24 @@ cfwdelem::handle_group_features_stats_request(
 }
 
 
+<<<<<<< HEAD
+=======
+void
+cfwdelem::handle_experimenter_stats_request(
+		cofctrl *ofctrl,
+		cofpacket *pack)
+{
+	/*
+	 * send error message back
+	 */
+	handle_stats_request(ofctrl, pack);
+}
+
+
+
+
+
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 
 
 uint32_t
@@ -523,4 +676,8 @@ cfwdelem::fib_table_find(uint64_t from, uint64_t to) throw (eFwdElemNotFound)
 }
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64
 

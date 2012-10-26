@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#include "cofbase.h"
+#include "cofiface.h"
 
 
+<<<<<<< HEAD:src/rofl/common/openflow/cofbase.cc
 std::set<cofbase*> cofbase::cofbase_list;
 
 
@@ -23,6 +24,9 @@ cofbase::cofbase_exists(cofbase* ofbase) throw (eOFbaseNotFound)
 
 
 cofbase::cofbase() :
+=======
+cofiface::cofiface() :
+>>>>>>> c9b9080ca65f54e59812bb9dcdc201c3c848fb64:src/rofl/common/openflow/cofiface.cc
 	xid_used_max(CPCP_DEFAULT_XID_USED_MAX), // max number of lately used xids
 	xid_start(crandom(sizeof(uint32_t)).uint32())
 
@@ -31,7 +35,7 @@ cofbase::cofbase() :
 	cofbase::cofbase_list.insert(this);
 }
 
-cofbase::~cofbase()
+cofiface::~cofiface()
 {
 	cofbase::cofbase_list.erase(this);
 	WRITELOG(TERMINUS, ROFL_DBG, "destroy cofbase element");
@@ -62,7 +66,7 @@ cofbase::~cofbase()
 
 
 const char*
-cofbase::c_str()
+cofiface::c_str()
 {
 	bzero(info, sizeof(info));
 
@@ -73,10 +77,10 @@ cofbase::c_str()
 
 
 void
-cofbase::fe_down_command(
-		cofbase *entity,
+cofiface::fe_down_command(
+		cofiface *entity,
 		cofpacket *pack)
-throw (eOFbaseInval)
+throw (eOFifaceInval)
 {
 	switch (pack->ofh_header->type) {
 	case OFPT_EXPERIMENTER:
@@ -116,16 +120,16 @@ throw (eOFbaseInval)
 		fe_down_queue_get_config_request(entity, pack);
 		break;
 	default:
-		throw eOFbaseInval();
+		throw eOFifaceInval();
 	}
 }
 
 
 void
-cofbase::fe_up_command(
-		cofbase *entity,
+cofiface::fe_up_command(
+		cofiface *entity,
 		cofpacket *pack)
-throw (eOFbaseInval)
+throw (eOFifaceInval)
 {
 	switch (pack->ofh_header->type) {
 	case OFPT_ERROR:
@@ -159,7 +163,7 @@ throw (eOFbaseInval)
 		fe_up_queue_get_config_reply(entity, pack);
 		break;
 	default:
-		throw eOFbaseInval();
+		throw eOFifaceInval();
 	}
 }
 
@@ -170,7 +174,7 @@ throw (eOFbaseInval)
 
 
 uint32_t
-cofbase::ta_add_request(uint8_t type)
+cofiface::ta_add_request(uint8_t type)
 {
 	uint32_t xid = ta_new_async_xid();
 
@@ -192,14 +196,14 @@ cofbase::ta_add_request(uint8_t type)
 }
 
 void
-cofbase::ta_rem_request(uint32_t xid)
+cofiface::ta_rem_request(uint32_t xid)
 {
 	ta_pending_reqs.erase(xid);
 	// this yields an exception if type wasn't stored in ta_pending_reqs
 }
 
 bool
-cofbase::ta_pending(uint32_t xid, uint8_t type)
+cofiface::ta_pending(uint32_t xid, uint8_t type)
 {
 #ifndef NDEBUG
 	std::map<uint32_t, uint8_t>::iterator it;
@@ -218,13 +222,13 @@ cofbase::ta_pending(uint32_t xid, uint8_t type)
 }
 
 bool
-cofbase::ta_active_xid(uint32_t xid)
+cofiface::ta_active_xid(uint32_t xid)
 {
 	return(ta_pending_reqs.find(xid) != ta_pending_reqs.end());
 }
 
 uint32_t
-cofbase::ta_new_async_xid()
+cofiface::ta_new_async_xid()
 {
 #if 0
 	int count = xid_used_max;
@@ -256,19 +260,19 @@ cofbase::ta_new_async_xid()
 
 
 bool
-cofbase::ta_validate(cofpacket *pack) throw ()
+cofiface::ta_validate(cofpacket *pack) throw ()
 {
 		return ta_validate(be32toh(pack->ofh_header->xid), pack->ofh_header->type);
 }
 
 
 bool
-cofbase::ta_validate(uint32_t xid, uint8_t type) throw (eOFbaseXidInval)
+cofiface::ta_validate(uint32_t xid, uint8_t type) throw (eOFifaceXidInval)
 {
 	// check for pending transaction of type 'type'
 	if (!ta_pending(xid, type)) {
 		WRITELOG(XID, ROFL_DBG, "no pending transaction");
-		throw eOFbaseXidInval();
+		throw eOFifaceXidInval();
 		//return false;
 	}
 
