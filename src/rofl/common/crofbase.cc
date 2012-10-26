@@ -1240,8 +1240,6 @@ crofbase::recv_stats_request()
 		break;
 	}
 
-	delete request;
-
 	// further stats request available? re-schedule ourselves
 	if (not fe_down_queue[OFPT_STATS_REQUEST].empty())
 	{

@@ -133,7 +133,7 @@ public: // data structures
 
 private:
 
-		crofbase 						*fwdelem;		// layer-(n) entity
+		crofbase 						*rofbase;		// layer-(n) entity
 		cofbase 						*entity;		// layer-(n-1) entity
 		std::map<cofbase*, cofdpath*> 	*ofswitch_list; // cofswitch map this
 		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store

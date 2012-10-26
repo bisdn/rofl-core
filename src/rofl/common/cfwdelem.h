@@ -107,6 +107,31 @@ class cfwdelem :
 	public cgtentry_owner,
 	public crofbase
 {
+public: // static methods and data structures
+
+	static std::set<cfwdelem*> fwdelems; /**< set of all registered fwdelems */
+
+	/** Find crofbase with specified dpid.
+	 *
+	 * A static method for finding a crofbase entity by its datapath ID.
+	 *
+	 * @param dpid datapath ID
+	 * @throw eFwdEleNotFound
+	 */
+	static cfwdelem*
+	find_by_dpid(uint64_t dpid) throw (eFwdElemNotFound);
+
+	/** Find crofbase with specified dpname.
+	 *
+	 * A static method for finding a crofbase entity by its datapath name.
+	 *
+	 * @param dpname datapath name, e.g. "dp0"
+	 * @throw eRofBaseNotFound
+	 */
+	static cfwdelem*
+	find_by_name(const std::string &dpname) throw (eFwdElemNotFound);
+
+
 private:
 
 	std::string						info;
@@ -240,6 +265,7 @@ public: // constructor + destructor
 
 
 
+
 protected:
 
 	/*
@@ -262,13 +288,6 @@ protected:
 	 */
 	virtual void
 	handle_table_stats_request(cofctrl *ofctrl, cofpacket *pack);
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_port_stats_request(cofctrl *ofctrl, cofpacket *pack);
 
 
 	/**
@@ -313,13 +332,6 @@ protected:
 	handle_group_features_stats_request(cofctrl *ofctrl, cofpacket *pack);
 
 
-	/**
-	 *
-	 */
-	virtual void
-	handle_experimenter_stats_request(cofctrl *ofctrl, cofpacket *pack);
-
-
 	/** Handle OF stats reply. To be overwritten by derived class.
 	 *
 	 * Called upon reception of a STATS.reply from a datapath entity.
@@ -329,7 +341,7 @@ protected:
 	 * @param pack STATS.reply packet received from datapath
 	 */
 	virtual void
-	handle_stats_reply(cofdpath *sw, cofpacket *pack) { delete pack; };
+	handle_stats_reply(cofdpath *sw, cofpacket *pack);
 
 	/** Handle OF stats reply timeout. To be overwritten by derived class.
 	 *
@@ -368,7 +380,7 @@ protected:
 	 * @param pack TABLE-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_table_mod(cofctrl *ofctrl, cofpacket *pack) { delete pack; };
+	handle_table_mod(cofctrl *ofctrl, cofpacket *pack);
 
 	/** Handle OF flow-removed message. To be overwritten by derived class.
 	 *
@@ -379,7 +391,7 @@ protected:
 	 * @param pack FLOW-REMOVED.message packet received from datapath
 	 */
 	virtual void
-	handle_flow_removed(cofdpath *sw, cofpacket *pack) { delete pack; };
+	handle_flow_removed(cofdpath *sw, cofpacket *pack);
 
 	/** Handle OF set-config message. To be overwritten by derived class.
 	 *
@@ -578,6 +590,33 @@ public: // FIB related methods
 	 */
 	uint32_t
 	fib_table_find(uint64_t from, uint64_t to) throw (eFwdElemNotFound);
+
+
+private: // data structures
+
+	/** find cfwdelem in set cfwdelem::fwdelems by dpname (e.g. "ctl0")
+	 *
+	 */
+	class cfwdelem_find_by_name : public std::unary_function<cfwdelem,bool> {
+		const std::string &name;
+	public:
+		cfwdelem_find_by_name(const std::string& s_name) :
+			name(s_name) {};
+		bool operator() (const cfwdelem* fe) { return (name == fe->dpname);	};
+	};
+
+	/** find cfwdelem in set cfwdelem::fwdelems by dpid
+	 *
+	 */
+	class cfwdelem_find_by_dpid : public std::unary_function<cfwdelem,bool> {
+		uint64_t dpid;
+	public:
+		cfwdelem_find_by_dpid(uint64_t n_dpid) :
+			dpid(n_dpid) {};
+		bool operator() (const cfwdelem* fe) {
+			return (dpid == fe->dpid);
+		};
+	};
 };
 
 

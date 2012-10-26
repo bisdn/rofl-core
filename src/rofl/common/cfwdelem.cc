@@ -6,6 +6,35 @@
 #include "cfwdelem.h"
 
 
+/* static */ std::set<cfwdelem*> cfwdelem::fwdelems;
+
+/* static */
+cfwdelem*
+cfwdelem::find_by_name(const std::string &dpname) throw (eFwdElemNotFound)
+{
+	std::set<cfwdelem*>::iterator it;
+	if ((it = find_if(cfwdelem::fwdelems.begin(), cfwdelem::fwdelems.end(),
+			cfwdelem::cfwdelem_find_by_name(dpname))) == cfwdelem::fwdelems.end())
+	{
+		throw eFwdElemNotFound();
+	}
+	return (*it);
+}
+
+
+/* static */
+cfwdelem*
+cfwdelem::find_by_dpid(uint64_t dpid) throw (eFwdElemNotFound)
+{
+	std::set<cfwdelem*>::iterator it;
+	if ((it = find_if(cfwdelem::fwdelems.begin(), cfwdelem::fwdelems.end(),
+			cfwdelem::cfwdelem_find_by_dpid(dpid))) == cfwdelem::fwdelems.end())
+	{
+		throw eFwdElemNotFound();
+	}
+	return (*it);
+}
+
 
 cfwdelem::cfwdelem(
 		std::string dpname,
@@ -26,11 +55,15 @@ cfwdelem::cfwdelem(
 
 	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::cfwdelem() "
 			"dpid:%llu dpname=%s", this, dpid, dpname.c_str());
+
+	cfwdelem::fwdelems.insert(this);
 }
 
 
 cfwdelem::~cfwdelem()
 {
+	cfwdelem::fwdelems.erase(this);
+
 	WRITELOG(CFWD, ROFL_DBG, "destroy cfwdelem(%p)::cfwdelem() ", this);
 
 	while (not fib_table.empty())
@@ -635,38 +668,163 @@ cfwdelem::handle_flow_mod(cofctrl *ofctrl, cofpacket *pack)
 			break;
 		}
 	}
+
+	delete pack;
 }
 
 
 
 void
-cfwdelem::handle_group_mod(cofctrl *ofctrl, cofpacket *pack)
+cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 {
-	cgtentry *gte = group_table.update_gt_entry(this, pack->ofh_group_mod);
+	try {
 
-	if (0 != gte)
-	{
-		switch (pack->ofh_group_mod->command) {
-		case OFPGC_ADD:
-			{
-				group_mod_add(pack, gte);
+		cgtentry *gte = group_table.update_gt_entry(this, pack->ofh_group_mod);
+
+		if (0 != gte)
+		{
+			switch (pack->ofh_group_mod->command) {
+			case OFPGC_ADD:
+				{
+					group_mod_add(pack, gte);
+				}
+				break;
+			case OFPGC_MODIFY:
+				{
+					group_mod_modify(pack, gte);
+				}
+				break;
+			case OFPGC_DELETE:
+				{
+					group_mod_delete(pack, gte);
+				}
+				break;
 			}
-			break;
-		case OFPGC_MODIFY:
-			{
-				group_mod_modify(pack, gte);
-			}
-			break;
-		case OFPGC_DELETE:
-			{
-				group_mod_delete(pack, gte);
-			}
-			break;
 		}
+
+	} catch (eGroupTableExists& e) {
+
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+				"group entry already exists, dropping", this);
+
+		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_GROUP_EXISTS,
+				pack->soframe(), pack->framelen());
+
+	} catch (eGroupTableNotFound& e) {
+
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+				"group entry not found", this);
+
+		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
+				pack->soframe(), pack->framelen());
+
+	} catch (eGroupEntryInval& e) {
+
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+				"group entry is invalid", this);
+
+		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_INVALID_GROUP,
+				pack->soframe(), pack->framelen());
+
+	} catch (eGroupEntryBadType& e) {
+
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+				"group entry with bad type", this);
+
+		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_BAD_TYPE,
+				pack->soframe(), pack->framelen());
+
+	} catch (eActionBadOutPort& e) {
+
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+				"group entry with action with bad type", this);
+
+		send_error_message(ctl, OFPET_BAD_ACTION, OFPBAC_BAD_OUT_PORT,
+				pack->soframe(), pack->framelen());
+
+	} catch (eGroupTableLoopDetected& e) {
+
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+				"group entry produces loop, dropping", this);
+
+		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_LOOP,
+				pack->soframe(), pack->framelen());
+
+	} catch (eGroupTableModNonExisting& e) {
+
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+				"group entry for modification not found, dropping", this);
+
+		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
+				pack->soframe(), pack->framelen());
+
 	}
+
+	delete pack;
 }
 
 
-#if 0
-#endif
+void
+cfwdelem::handle_table_mod(cofctrl *ofctrl, cofpacket *pack)
+{
+	if (flow_tables.find(pack->ofh_table_mod->table_id) != flow_tables.end())
+	{
+		flow_tables[pack->ofh_table_mod->table_id]->set_config(
+											be32toh(pack->ofh_table_mod->config));
+	}
+	delete pack;
+}
+
+
+
+void
+cfwdelem::handle_stats_reply(cofdpath *dpt, cofpacket *pack)
+{
+	// extract all ofp_table_stats structures from
+	switch (be16toh(pack->ofh_stats_reply->type)) {
+	case OFPST_TABLE:
+		{
+			try
+			{
+				int n_tables = pack->get_datalen() / sizeof(struct ofp_table_stats);
+
+				for (int i = 0; i < n_tables; ++i)
+				{
+					struct ofp_table_stats *table_stats =
+							&((struct ofp_table_stats*)pack->ofh_stats_reply->body)[i];
+
+					if (flow_tables.find(table_stats->table_id) == flow_tables.end())
+					{
+						flow_tables[table_stats->table_id] =
+										new cfttable(0, table_stats->table_id);
+					}
+
+					flow_tables[table_stats->table_id]->set_table_stats(
+										table_stats, sizeof(struct ofp_table_stats));
+				}
+
+			} catch (eOFpacketNoData& e) {}
+		}
+		break;
+	default:
+		{
+
+		}
+		break;
+	}
+
+	delete pack;
+}
+
+
+
+void
+cfwdelem::handle_flow_removed(cofdpath *sw, cofpacket *pack)
+{
+	if (flow_tables.find(pack->ofh_flow_mod->table_id) != flow_tables.end())
+	{
+		flow_tables[pack->ofh_flow_mod->table_id]->update_ft_entry(this, pack);
+	}
+	delete pack;
+}
 

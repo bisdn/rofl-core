@@ -109,76 +109,15 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 void
 cofctrl::group_mod_rcvd(cofpacket *pack)
 {
-	try {
-
-		if (OFPCR_ROLE_SLAVE == role)
-		{
-			size_t len = (pack->length() > 64) ? 64 : pack->length();
-			rofbase->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
-											pack->soframe(), len);
-			return;
-		}
-
-		rofbase->handle_group_mod(this, pack);
-
-
-	} catch (eGroupTableExists& e) {
-
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
-				"group entry already exists, dropping", this);
-
-		rofbase->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_GROUP_EXISTS,
-				pack->soframe(), pack->framelen());
-
-	} catch (eGroupTableNotFound& e) {
-
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
-				"group entry not found", this);
-
-		rofbase->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
-				pack->soframe(), pack->framelen());
-
-	} catch (eGroupEntryInval& e) {
-
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
-				"group entry is invalid", this);
-
-		rofbase->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_INVALID_GROUP,
-				pack->soframe(), pack->framelen());
-
-	} catch (eGroupEntryBadType& e) {
-
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
-				"group entry with bad type", this);
-
-		rofbase->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_BAD_TYPE,
-				pack->soframe(), pack->framelen());
-
-	} catch (eActionBadOutPort& e) {
-
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
-				"group entry with action with bad type", this);
-
-		rofbase->send_error_message(this, OFPET_BAD_ACTION, OFPBAC_BAD_OUT_PORT,
-				pack->soframe(), pack->framelen());
-
-	} catch (eGroupTableLoopDetected& e) {
-
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
-				"group entry produces loop, dropping", this);
-
-		rofbase->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_LOOP,
-				pack->soframe(), pack->framelen());
-
-	} catch (eGroupTableModNonExisting& e) {
-
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
-				"group entry for modification not found, dropping", this);
-
-		rofbase->send_error_message(this, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
-				pack->soframe(), pack->framelen());
-
+	if (OFPCR_ROLE_SLAVE == role)
+	{
+		size_t len = (pack->length() > 64) ? 64 : pack->length();
+		rofbase->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
+										pack->soframe(), len);
+		return;
 	}
+
+	rofbase->handle_group_mod(this, pack);
 }
 
 
@@ -224,14 +163,6 @@ cofctrl::table_mod_rcvd(cofpacket *pack)
 	}
 
 	rofbase->handle_table_mod(this, pack);
-
-#if 0
-	if (rofbase->flow_tables.find(pack->ofh_table_mod->table_id) != rofbase->flow_tables.end())
-	{
-		rofbase->flow_tables[pack->ofh_table_mod->table_id]->set_config(
-											be32toh(pack->ofh_table_mod->config));
-	}
-#endif
 }
 
 
@@ -408,22 +339,4 @@ cofctrl::c_str()
 }
 
 
-
-#if 0
-/*
- * callbacks for receiving notifications from cftentry instances
- */
-
-
-
-/** called upon hard timer expiration
- */
-void
-cofctrl::ftentry_timeout(
-		cftentry *fte,
-		uint16_t timeout)
-{
-	rofbase->ftentry_timeout(fte, timeout);
-}
-#endif
 
