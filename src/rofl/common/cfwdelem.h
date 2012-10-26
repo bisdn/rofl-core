@@ -67,22 +67,10 @@ extern "C" {
 
 
 /* error classes */
-class eFwdElemBase			: public cerror {};   // base error class cfwdelem
-class eFwdElemIsBusy 		: public eFwdElemBase {}; // this FwdElem is already controlled
-class eFwdElemNotImpl 		: public eFwdElemBase {}; // this FwdElem's method is not implemented
-class eFwdElemNoCtrl 		: public eFwdElemBase {}; // no controlling entity attached to this FwdElem
-class eFwdElemNotFound 		: public eFwdElemBase {}; // internal entity not found
-class eFwdElemInval			: public eFwdElemBase {}; // invalid parameter (e.g. invalid packet type)
-class eFwdElemNotAttached 	: public eFwdElemBase {}; // received command from entity being not attached
-class eFwdElemNoRequest 	: public eFwdElemBase {}; // no request packet found for session
-class eFwdElemXidInval	 	: public eFwdElemBase {}; // invalid xid in session exchange
-class eFwdElemExists		: public eFwdElemBase {}; // fwdelem with either this dpid or dpname already exists
-class eFwdElemOFportNotFound : public eFwdElemBase {}; // cofport instance not found
-class eFwdElemTableNotFound : public eFwdElemBase {}; // flow-table not found (e.g. unknown table_id in flow_mod)
-class eFwdElemGotoTableNotFound : public eFwdElemBase {}; // table-id specified in OFPIT_GOTO_TABLE invalid
-class eFwdElemFspSupportDisabled : public eFwdElemBase {};
-
-
+class eFwdElemBase					: public cerror {};   // base error class cfwdelem
+class eFwdElemNotFound 				: public eFwdElemBase {}; // internal entity not found
+class eFwdElemTableNotFound 		: public eFwdElemBase {};
+class eFwdElemGotoTableNotFound		: public eFwdElemBase {};
 
 
 
@@ -193,7 +181,7 @@ public: // constructor + destructor
 			uint8_t n_tables = DEFAULT_FE_TABLES_NUM,
 			uint32_t n_buffers = DEFAULT_FE_BUFFER_SIZE,
 			caddress const& rpc_ctl_addr = caddress(AF_INET, "0.0.0.0", 6643),
-			caddress const& rpc_dpt_addr = caddress(AF_INET, "0.0.0.0", 6633)) throw (eFwdElemExists);
+			caddress const& rpc_dpt_addr = caddress(AF_INET, "0.0.0.0", 6633));
 
 	/** Destructor.
 	 *
@@ -209,6 +197,45 @@ public: // constructor + destructor
 	 */
 	void
 	tables_reset();
+
+
+
+
+	/** Handle new dpath
+	 *
+	 * Called upon creation of a new cofswitch instance.
+	 *
+	 * @param sw new cofswitch instance
+	 */
+	virtual void
+	handle_dpath_open(cofdpath *dpt);
+
+	/** Handle close event on dpath
+	 *
+	 * Called upon deletion of a cofswitch instance
+	 *
+	 * @param sw cofswitch instance to be deleted
+	 */
+	virtual void
+	handle_dpath_close(cofdpath *dpt);
+
+	/** Handle new ctrl
+	 *
+	 * Called upon creation of a new cofctrl instance.
+	 *
+	 * @param ctrl new cofctrl instance
+	 */
+	virtual void
+	handle_ctrl_open(cofctrl *ctl);
+
+	/** Handle close event on ctrl
+	 *
+	 * Called upon deletion of a cofctrl instance
+	 *
+	 * @param ctrl cofctrl instance to be deleted
+	 */
+	virtual void
+	handle_ctrl_close(cofctrl *ctl);
 
 
 
@@ -321,7 +348,7 @@ protected:
 	 * @param pack FLOW-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_flow_mod(cofctrl *ofctrl, cofpacket *pack, cftentry *fte) { delete pack; };
+	handle_flow_mod(cofctrl *ofctrl, cofpacket *pack);
 
 	/** Handle OF group-mod message. To be overwritten by derived class.
 	 *
@@ -331,7 +358,7 @@ protected:
 	 * @param pack GROUP-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_group_mod(cofctrl *ofctrl, cofpacket *pack, cgtentry *gte) { delete pack; };
+	handle_group_mod(cofctrl *ofctrl, cofpacket *pack);
 
 	/** Handle OF table-mod message. To be overwritten by derived class.
 	 *
@@ -385,7 +412,7 @@ protected:
 	 * @param fte pointer to new flow table entry
 	 */
 	virtual void
-	flow_mod_add(cfttable *ftable, cftentry *fte) {};
+	flow_mod_add(cofpacket *pack, cfttable *ftable, cftentry *fte) {};
 
 	/**
 	 * @name	flow_mod_modify
@@ -397,7 +424,7 @@ protected:
 	 * @param fte pointer to modified flow table entry
 	 */
 	virtual void
-	flow_mod_modify(cfttable *ftable, cftentry *fte) {};
+	flow_mod_modify(cofpacket *pack, cfttable *ftable, cftentry *fte) {};
 
 	/**
 	 * @name	flow_mod_delete
@@ -412,7 +439,46 @@ protected:
 	 * @param fte pointer to deleted flow table entry
 	 */
 	virtual void
-	flow_mod_delete(cfttable *ftable, cftentry *fte) {};
+	flow_mod_delete(cofpacket *pack, cfttable *ftable, cftentry *fte) {};
+
+	/**
+	 * @name	flow_mod_add
+	 * @brief	called whenever a new flow mod entry is created
+	 *
+	 * This method indicates creation of a new flow-mod entry.
+	 *
+	 * @param ftable pointer to flow-table where the new flow table entry was added
+	 * @param fte pointer to new flow table entry
+	 */
+	virtual void
+	group_mod_add(cofpacket *pack, cgtentry *gte) {};
+
+	/**
+	 * @name	flow_mod_modify
+	 * @brief	called whenever an existing flow mod entry is modified
+	 *
+	 * This method indicates modification of an existing flow-mod entry.
+	 *
+	 * @param ftable pointer to flow-table where flow table entry was updated
+	 * @param fte pointer to modified flow table entry
+	 */
+	virtual void
+	group_mod_modify(cofpacket *pack, cgtentry *gte) {};
+
+	/**
+	 * @name	flow_mod_delete
+	 * @brief	called whenever an existing flow mod entry is deleted
+	 *
+	 * This method indicates removal of an existing flow-mod entry.
+	 * The fte instance referred to by its pointer will be deleted
+	 * after this method block has been left, so do not rely on fte
+	 * afterwards.
+	 *
+	 * @param ftable pointer to flow-table where flow table entry was deleted
+	 * @param fte pointer to deleted flow table entry
+	 */
+	virtual void
+	group_mod_delete(cofpacket *pack, cgtentry *gte) {};
 
 
 protected:	// overloaded from ciosrv

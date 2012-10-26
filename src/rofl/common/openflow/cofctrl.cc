@@ -91,66 +91,9 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 			}
 		}
 
-#if 0
-		cftentry *fte = NULL;
 
-		// table_id == 255 (all tables)
-		if (OFPTT_ALL == pack->ofh_flow_mod->table_id)
-		{
-			std::map<uint8_t, cfttable*>::iterator it;
-			for (it = rofbase->flow_tables.begin(); it != rofbase->flow_tables.end(); ++it)
-			{
-				if ((fte = it->second->update_ft_entry(rofbase, pack)) != NULL)
-				{
-					fte->ofctrl = this; // store controlling entity for this cftentry
-					WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
-							this, pack->ofh_flow_mod->table_id, fte->c_str());
-				}
-			}
-		}
-		// single table
-		else
-		{
-			// check for existence of specified table
-			if (rofbase->flow_tables.find(pack->ofh_flow_mod->table_id) == rofbase->flow_tables.end())
-			{
-				throw eFwdElemTableNotFound();
-			}
+		rofbase->handle_flow_mod(this, pack);
 
-			// do not lock here flow_table[i]
-
-			if ((fte = rofbase->flow_tables[pack->ofh_flow_mod->table_id]->
-							update_ft_entry(rofbase, pack)) == NULL)
-			{
-				return;
-			}
-
-
-
-			fte->ofctrl = this; // store controlling entity for this cftentry
-			WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
-					this, pack->ofh_flow_mod->table_id, fte->c_str());
-
-
-			try {
-				WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() new fte created: %s", this, fte->c_str());
-
-				cofinst& inst = fte->instructions.find_inst(OFPIT_GOTO_TABLE);
-
-				if (rofbase->flow_tables.find(inst.oin_goto_table->table_id)
-								== rofbase->flow_tables.end())
-				{
-					throw eFwdElemGotoTableNotFound();
-				}
-
-			} catch (eInListNotFound& e) {}
-		}
-
-		if (0 != fte)
-		{
-			rofbase->handle_flow_mod(this, pack, fte);
-		}
-#endif
 
 	} catch (eLockWouldBlock& e) {
 
@@ -176,12 +119,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 			return;
 		}
 
-#if 0
-		cgtentry *gte = rofbase->group_table.update_gt_entry(rofbase, pack->ofh_group_mod);
-#endif
 		rofbase->handle_group_mod(this, pack);
-
-
 
 
 	} catch (eGroupTableExists& e) {

@@ -13,7 +13,7 @@ cfwdelem::cfwdelem(
 		uint8_t n_tables,
 		uint32_t n_buffers,
 		caddress const& rpc_ctl_addr,
-		caddress const& rpc_dpt_addr) throw (eFwdElemExists) :
+		caddress const& rpc_dpt_addr) :
 		crofbase(dpname, dpid, n_tables, n_buffers, rpc_ctl_addr, rpc_dpt_addr)
 {
 	cvastring vas;
@@ -45,6 +45,38 @@ cfwdelem::~cfwdelem()
 		delete (*ft).second;
 	}
 	flow_tables.clear();
+}
+
+
+
+void
+cfwdelem::handle_dpath_open(cofdpath *dpt)
+{
+
+}
+
+
+
+void
+cfwdelem::handle_dpath_close(cofdpath *dpt)
+{
+
+}
+
+
+
+void
+cfwdelem::handle_ctrl_open(cofctrl *ctl)
+{
+
+}
+
+
+
+void
+cfwdelem::handle_ctrl_close(cofctrl *ctl)
+{
+
 }
 
 
@@ -116,8 +148,9 @@ cfwdelem::handle_timeout(int opaque)
 	try {
 		switch (opaque) {
 		default:
-			//WRITELOG(CFWD, ROFL_DBG, "cfwdelem::handle_timeout() "
-			//		"received unknown timer event %d", opaque);
+			{
+				crofbase::handle_timeout(opaque);
+			}
 			break;
 		}
 
@@ -523,4 +556,117 @@ cfwdelem::fib_table_find(uint64_t from, uint64_t to) throw (eFwdElemNotFound)
 }
 
 
+
+void
+cfwdelem::handle_flow_mod(cofctrl *ofctrl, cofpacket *pack)
+{
+	cftentry *fte = NULL;
+
+	// table_id == 255 (all tables)
+	if (OFPTT_ALL == pack->ofh_flow_mod->table_id)
+	{
+		std::map<uint8_t, cfttable*>::iterator it;
+		for (it = flow_tables.begin(); it != flow_tables.end(); ++it)
+		{
+			if ((fte = it->second->update_ft_entry(this, pack)) != NULL)
+			{
+				fte->ofctrl = ofctrl; // store controlling entity for this cftentry
+				WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
+						this, pack->ofh_flow_mod->table_id, fte->c_str());
+			}
+		}
+	}
+	// single table
+	else
+	{
+		// check for existence of specified table
+		if (flow_tables.find(pack->ofh_flow_mod->table_id) == flow_tables.end())
+		{
+			throw eFwdElemTableNotFound();
+		}
+
+		// do not lock here flow_table[i]
+
+		if ((fte = flow_tables[pack->ofh_flow_mod->table_id]->
+						update_ft_entry(this, pack)) == NULL)
+		{
+			return;
+		}
+
+
+
+		fte->ofctrl = ofctrl; // store controlling entity for this cftentry
+		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
+				this, pack->ofh_flow_mod->table_id, fte->c_str());
+
+
+		try {
+			WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() new fte created: %s", this, fte->c_str());
+
+			cofinst& inst = fte->instructions.find_inst(OFPIT_GOTO_TABLE);
+
+			if (flow_tables.find(inst.oin_goto_table->table_id) == flow_tables.end())
+			{
+				throw eFwdElemGotoTableNotFound();
+			}
+
+		} catch (eInListNotFound& e) {}
+	}
+
+	if (0 != fte)
+	{
+		switch (pack->ofh_group_mod->command) {
+		case OFPFC_ADD:
+			{
+				flow_mod_add(pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+			}
+			break;
+		case OFPFC_MODIFY:
+		case OFPFC_MODIFY_STRICT:
+			{
+				flow_mod_modify(pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+			}
+			break;
+		case OFPFC_DELETE:
+		case OFPFC_DELETE_STRICT:
+			{
+				flow_mod_delete(pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+			}
+			break;
+		}
+	}
+}
+
+
+
+void
+cfwdelem::handle_group_mod(cofctrl *ofctrl, cofpacket *pack)
+{
+	cgtentry *gte = group_table.update_gt_entry(this, pack->ofh_group_mod);
+
+	if (0 != gte)
+	{
+		switch (pack->ofh_group_mod->command) {
+		case OFPGC_ADD:
+			{
+				group_mod_add(pack, gte);
+			}
+			break;
+		case OFPGC_MODIFY:
+			{
+				group_mod_modify(pack, gte);
+			}
+			break;
+		case OFPGC_DELETE:
+			{
+				group_mod_delete(pack, gte);
+			}
+			break;
+		}
+	}
+}
+
+
+#if 0
+#endif
 
