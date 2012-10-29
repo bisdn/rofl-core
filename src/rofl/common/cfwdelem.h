@@ -424,7 +424,7 @@ protected:
 	 * @param fte pointer to new flow table entry
 	 */
 	virtual void
-	flow_mod_add(cofpacket *pack, cfttable *ftable, cftentry *fte) {};
+	flow_mod_add(cofctrl *ofctrl, cofpacket *pack, cfttable *ftable, cftentry *fte) {};
 
 	/**
 	 * @name	flow_mod_modify
@@ -436,7 +436,7 @@ protected:
 	 * @param fte pointer to modified flow table entry
 	 */
 	virtual void
-	flow_mod_modify(cofpacket *pack, cfttable *ftable, cftentry *fte) {};
+	flow_mod_modify(cofctrl *ofctrl, cofpacket *pack, cfttable *ftable, cftentry *fte) {};
 
 	/**
 	 * @name	flow_mod_delete
@@ -451,7 +451,7 @@ protected:
 	 * @param fte pointer to deleted flow table entry
 	 */
 	virtual void
-	flow_mod_delete(cofpacket *pack, cfttable *ftable, cftentry *fte) {};
+	flow_mod_delete(cofctrl *ofctrl, cofpacket *pack, cfttable *ftable, cftentry *fte) {};
 
 	/**
 	 * @name	flow_mod_add

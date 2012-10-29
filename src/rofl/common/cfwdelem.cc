@@ -651,25 +651,23 @@ cfwdelem::handle_flow_mod(cofctrl *ofctrl, cofpacket *pack)
 		switch (pack->ofh_group_mod->command) {
 		case OFPFC_ADD:
 			{
-				flow_mod_add(pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+				flow_mod_add(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
 			}
 			break;
 		case OFPFC_MODIFY:
 		case OFPFC_MODIFY_STRICT:
 			{
-				flow_mod_modify(pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+				flow_mod_modify(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
 			}
 			break;
 		case OFPFC_DELETE:
 		case OFPFC_DELETE_STRICT:
 			{
-				flow_mod_delete(pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+				flow_mod_delete(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
 			}
 			break;
 		}
 	}
-
-	delete pack;
 }
 
 
