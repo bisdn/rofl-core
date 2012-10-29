@@ -477,14 +477,6 @@ cfttable::add_ft_entry(
 
 	update_group_ref_counts(fte);
 
-	/*
-	 * inform fwdelem
-	 */
-	if (fwdelem)
-	{
-		fwdelem->flow_mod_add(this, fte);
-	}
-
 
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [2]\n %s", this, c_str());
 
@@ -523,13 +515,6 @@ cfttable::modify_ft_entry(
 			update_group_ref_counts((*it));
 			noupdates = false;
 
-			/*
-			 * inform fwdelem
-			 */
-			if (fwdelem)
-			{
-				fwdelem->flow_mod_modify(this, (*it));
-			}
 
 			fte = (*it);
 
@@ -680,13 +665,6 @@ delete_entry:
 
 		update_group_ref_counts((*it), false /* decrement reference count */);
 
-		/*
-		 * inform fwdelem
-		 */
-		if (fwdelem)
-		{
-			fwdelem->flow_mod_delete(this, (*it));
-		}
 
 		(*it)->erase();
 		begin = flow_table.begin();

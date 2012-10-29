@@ -27,7 +27,7 @@ extern "C" {
 #include "../cmemory.h"
 #include "../ciosrv.h"
 #include "../cerror.h"
-#include "../cfwdelem.h"
+#include "../crofbase.h"
 #include "../cmemory.h"
 #include "../cvastring.h"
 #include "../cfibentry.h"
@@ -35,31 +35,32 @@ extern "C" {
 #include "../protocols/fetherframe.h"
 #include "../cxidstore.h"
 
-
+#if 0
 #include "cfttable.h"
 #include "cgttable.h"
+#endif
 #include "cofpacket.h"
 #include "cofport.h"
 #include "extensions/cfsptable.h"
 
-class cfwdelem;
+class crofbase;
 class cofbase;
 class cfttable;
 
 /* error classes */
 class eDataPathIdInUse : public cerror {}; // datapath id already in use
-class eDataPathAlreadyAttached : public cerror {}; // cfwdelem *entity is already attached
+class eDataPathAlreadyAttached : public cerror {}; // crofbase *entity is already attached
 class eOFswitchBase : public cerror {};
 class eOFswitchInvalid : public eOFswitchBase {};
 class eOFdpathNotFound : public eOFswitchBase {}; // element not found
 
 
 
-/** A class for controlling a single attached data path element in class cfwdelem.
+/** A class for controlling a single attached data path element in class crofbase.
  *
  * This class stores state for an attached data path element
  * including its ports (@see cofport). It is tightly bound to
- * class cfwdelem (@see cfwdelem). Created upon reception of an
+ * class crofbase (@see crofbase). Created upon reception of an
  * OpenFlow HELLO message from the data path element, cofdpath
  * acquires all state by sending FEATURES-request, GET-CONFIG-request,
  * and TABLE-STATS-request. It also provides a number of convenience
@@ -68,8 +69,10 @@ class eOFdpathNotFound : public eOFswitchBase {}; // element not found
  *
  */
 class cofdpath :
+#if 0
 	public cftentry_owner,
 	public cgtentry_owner,
+#endif
 	public cxidowner,
 	public cfsm,
 	public ciosrv
@@ -104,7 +107,7 @@ class cofdpath :
 public: // data structures
 
 														// instance belongs to
-														// (hosted by parent cfwdelem instance)
+														// (hosted by parent crofbase instance)
 		uint64_t 						dpid;			// datapath id
 		std::string	 					s_dpid;			// datapath id as std::string
 		cmacaddr 						dpmac;			// datapath mac address
@@ -116,19 +119,21 @@ public: // data structures
 		uint16_t 						flags;			// 'fragmentation' flags
 		uint16_t 						miss_send_len; 	// length of bytes sent to controller
 
+#if 0
 		std::map<uint8_t, cfttable*> 	flow_tables;	// flow_table of this switch instance
 		cgttable 						grp_table;		// group_table of this switch instance
 		cfwdtable 						fwdtable; 		// forwarding table for attached MAC
 														// addresses (Ethernet endpoints)
+#endif
 		cfsptable 						fsptable;		// flowspace registration table
 
 
 
-		friend class cfwdelem;
+		friend class crofbase;
 
 private:
 
-		cfwdelem 						*fwdelem;		// layer-(n) entity
+		crofbase 						*rofbase;		// layer-(n) entity
 		cofbase 						*entity;		// layer-(n-1) entity
 		std::map<cofbase*, cofdpath*> 	*ofswitch_list; // cofswitch map this
 		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store
@@ -151,12 +156,12 @@ public:
 	 * element in order to acquire all of its state. Adds this to
 	 * map of cofdpath instances (dpath_list).
 	 *
-	 * @param[in] fwdelem	The cfwdelem object storing this cofdpath
-	 * @param[in] entity The cofbase object representing the datapath element (@see cofrpc or @see cfwdelem)
+	 * @param[in] fwdelem	The crofbase object storing this cofdpath
+	 * @param[in] entity The cofbase object representing the datapath element (@see cofrpc or @see crofbase)
 	 * @param[in] dpath_list pointer to map that contains all cofdpath instances for fwdelem
 	 */
 	cofdpath(
-		cfwdelem *fwdelem,
+		crofbase *fwdelem,
 		cofbase *entity,
 		std::map<cofbase*, cofdpath*>* dpath_list);
 
@@ -274,7 +279,7 @@ public:
 	group_mod_reset();
 
 
-
+#if 0
 	/*
 	 * overloaded from cftentry_owner
 	 */
@@ -315,6 +320,7 @@ public:
     gtentry_timeout(
     		cgtentry *entry,
     		uint16_t timeout);
+#endif
 
 
 	/*
@@ -357,7 +363,7 @@ protected:
 
 	/**
 	 * @name	features_request_sent
-	 * @brief	Called by cfwdelem when a FEATURES-request was sent.
+	 * @brief	Called by crofbase when a FEATURES-request was sent.
 	 *
 	 * Starts an internal timer for the expected FEATURES-reply.
 	 */
@@ -382,7 +388,7 @@ protected:
 
 	/**
 	 * @name	get_config_request_sent
-	 * @brief	Called by cfwdelem when a GET-CONFIG-request was sent.
+	 * @brief	Called by crofbase when a GET-CONFIG-request was sent.
 	 *
 	 * Starts an internal timer for the expected GET-CONFIG-reply.
 	 */
@@ -407,7 +413,7 @@ protected:
 
 	/**
 	 * @name	stats_request_sent
-	 * @brief	Called by cfwdelem when a STATS-request was sent.
+	 * @brief	Called by crofbase when a STATS-request was sent.
 	 *
 	 * Starts an internal timer for the expected STATS-reply.
 	 */
@@ -434,7 +440,7 @@ protected:
 
 	/**
 	 * @name	barrier_request_sent
-	 * @brief	Called by cfwdelem when a BARRIER-request was sent.
+	 * @brief	Called by crofbase when a BARRIER-request was sent.
 	 *
 	 * Starts an internal timer for the expected BARRIER-reply.
 	 */
@@ -459,7 +465,7 @@ protected:
 
 	/**
 	 * @name	flow_mod_sent
-	 * @brief	Called by cfwdelem when a FLOW-MOD-message was sent.
+	 * @brief	Called by crofbase when a FLOW-MOD-message was sent.
 	 *
 	 * Applies FlowMod message to local flowtables.
 	 *
@@ -474,7 +480,7 @@ protected:
 
 	/**
 	 * @name	flow_rmvd_rcvd
-	 * @brief	Called by cfwdelem when a FLOW-MOD-message was sent.
+	 * @brief	Called by crofbase when a FLOW-MOD-message was sent.
 	 *
 	 * Applies FlowRmvd message to local flowtables.
 	 *
@@ -487,7 +493,7 @@ protected:
 
 	/**
 	 * @name	group_mod_sent
-	 * @brief	Called by cfwdelem when a GROUP-MOD-message was sent.
+	 * @brief	Called by crofbase when a GROUP-MOD-message was sent.
 	 *
 	 * Applies GroupMod message to local grouptables.
 	 *
@@ -500,7 +506,7 @@ protected:
 
 	/**
 	 * @name	table_mod_sent
-	 * @brief	Called by cfwdelem when a TABLE-MOD-message was sent.
+	 * @brief	Called by crofbase when a TABLE-MOD-message was sent.
 	 *
 	 * Applies TableMod message to local flowtables.
 	 *
@@ -513,7 +519,7 @@ protected:
 
 	/**
 	 * @name	port_mod_sent
-	 * @brief	Called by cfwdelem when a PORT-MOD-message was sent.
+	 * @brief	Called by crofbase when a PORT-MOD-message was sent.
 	 *
 	 * Applies PortMod message to local cofport instance.
 	 *

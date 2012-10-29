@@ -270,8 +270,6 @@ ctlbase::handle_stats_reply(
 
 		// adapter was not found (deleted in the mean time??)
 	}
-
-	delete pack;
 }
 
 

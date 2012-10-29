@@ -19,19 +19,21 @@ extern "C" {
 #include "../cerror.h"
 #include "../ciosrv.h"
 #include "../cmemory.h"
-#include "../cfwdelem.h"
+#include "../crofbase.h"
 #include "../thread_helper.h"
 #include "../cvastring.h"
 
 #include "cofmatch.h"
 #include "cofbase.h"
+#if 0
 #include "cfttable.h"
 #include "cftentry.h"
+#endif
 #include "extensions/cfspentry.h"
 
 
 
-class cfwdelem;
+class crofbase;
 class cfttable;
 
 class eOFctrlBase : public cerror {};
@@ -44,18 +46,16 @@ class eOFctrlPortNotFound : public eOFctrlBase {};
 
 class cofctrl :
 	public ciosrv,
-	public cftentry_owner,
 	public cfspentry_owner
 {
 public: // data structures
 
-	cfwdelem *fwdelem;							// parent cfwdelem instance
+	crofbase *rofbase;							// parent crofbase instance
 	std::map<cofbase*, cofctrl*> *ofctrl_list;	// pointer to set storing this entity
 	cofbase *ctrl;								// pointer to controlling entity
 	uint16_t flags;								// config: flags
 	uint16_t miss_send_len;						// config: miss_send_len
 	std::set<cofmatch*> nspaces;				// list of cofmatch structures depicting controlled namespace
-	cfttable* flow_table;						// forwarding tables for this emulated switch instance (layer-(n), not layer-(n-1)!)
 	bool role_initialized;						// true, when role values have been initialized properly
 	uint16_t role;								// role of this controller instance
 	uint64_t cached_generation_id;				// generation-id used by role requests
@@ -69,7 +69,7 @@ public: // methods
 	/** constructor
 	 */
 	cofctrl(
-			cfwdelem *fwdelem,
+			crofbase *fwdelem,
 			cofbase* ctrl,
 			std::map<cofbase*, cofctrl*> *ofctrl_list);
 
@@ -87,12 +87,6 @@ public: // methods
 	 */
 	void
 	experimenter_message_rcvd(cofpacket *pack);
-
-	/** handle cftentry timeouts
-	 * overloaded from class cftentry_owner
-	 */
-	virtual void
-	ftentry_timeout(cftentry *entry, uint16_t timeout);
 
 	/** handle incoming FEATURE requests
 	 */
