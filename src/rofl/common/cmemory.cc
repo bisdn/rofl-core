@@ -484,8 +484,15 @@ cmemory::c_str()
 
 	bzero(_info, sizeof(_info));
 
-	snprintf(_info, sizeof(_info)-1, "cmemory(%p) somem()[%p] len[%d] data.first: %p data.second: %lu  data\n%p : ",
-			this, somem(), (int)memlen(), data.first, data.second, data.first);
+	snprintf(_info,
+			sizeof(_info) - 1,
+			"cmemory(%p) somem()[%p] len[%d] data.first: %p data.second: %"SIZETDBGFMT"  data\n%p : ",
+			(void*) this,
+			(void*) somem(),
+			(int) memlen(),
+			(void*) data.first,
+			data.second,
+			(void*) data.first);
 
 	info.assign(_info);
 
