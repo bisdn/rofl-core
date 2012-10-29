@@ -64,7 +64,7 @@ cfwdelem::~cfwdelem()
 {
 	cfwdelem::fwdelems.erase(this);
 
-	WRITELOG(CFWD, ROFL_DBG, "destroy cfwdelem(%p)::cfwdelem() ", this);
+	WRITELOG(CFWD, DBG, "destroy cfwdelem(%p)::cfwdelem() ", this);
 
 	while (not fib_table.empty())
 	{
@@ -189,7 +189,7 @@ cfwdelem::handle_timeout(int opaque)
 
 
 	} catch (eOFbaseNoCtrl& e) {
-		WRITELOG(CFWD, ROFL_DBG, "controlling entity lost");
+		WRITELOG(CFWD, DBG, "controlling entity lost");
 		// handle NoCtrl condition: simply do nothing for now,
 		// TODO: reconnect to new controlling entity
 
@@ -254,7 +254,7 @@ cfwdelem::gtentry_timeout(
  void
 cfwdelem::fibentry_timeout(cfibentry *fibentry)
 {
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fibentry_timeout() %s",
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::fibentry_timeout() %s",
 			this, fibentry->c_str());
 
 #if 0
@@ -262,7 +262,7 @@ cfwdelem::fibentry_timeout(cfibentry *fibentry)
 
 	rib.dijkstra();
 
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::fibentry_timeout() crib: \n%s",
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::fibentry_timeout() crib: \n%s",
 			this, rib.c_str());
 #endif
 }
@@ -310,7 +310,7 @@ cfwdelem::handle_table_stats_request(
 		table_stats++; // jump to start of array + 1
 	}
 
-	WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%p)::handle_stats_table_request() table_stats[%p] body: %s",
+	WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_stats_table_request() table_stats[%p] body: %s",
 			this, table_stats, body.c_str());
 
 	send_stats_reply(
@@ -454,7 +454,7 @@ cfwdelem::handle_aggregate_stats_request(
 		aggr_stats_reply.byte_count 	= htobe64(byte_count);
 		aggr_stats_reply.flow_count		= htobe32(flow_count);
 
-		WRITELOG(CFWD, ROFL_DBG, "cfwdelem(%s)::handle_aggregate_stats_request() "
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::handle_aggregate_stats_request() "
 				"packet_count:%llu byte_count:%llu flow_count:%llu",
 				dpname.c_str(), packet_count, byte_count, flow_count);
 
@@ -603,7 +603,7 @@ cfwdelem::handle_flow_mod(cofctrl *ofctrl, cofpacket *pack)
 			if ((fte = it->second->update_ft_entry(this, pack)) != NULL)
 			{
 				fte->ofctrl = ofctrl; // store controlling entity for this cftentry
-				WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
+				WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
 						this, pack->ofh_flow_mod->table_id, fte->c_str());
 			}
 		}
@@ -628,12 +628,12 @@ cfwdelem::handle_flow_mod(cofctrl *ofctrl, cofpacket *pack)
 
 
 		fte->ofctrl = ofctrl; // store controlling entity for this cftentry
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
+		WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
 				this, pack->ofh_flow_mod->table_id, fte->c_str());
 
 
 		try {
-			WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::flow_mod_rcvd() new fte created: %s", this, fte->c_str());
+			WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() new fte created: %s", this, fte->c_str());
 
 			cofinst& inst = fte->instructions.find_inst(OFPIT_GOTO_TABLE);
 
@@ -700,7 +700,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 
 	} catch (eGroupTableExists& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry already exists, dropping", this);
 
 		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_GROUP_EXISTS,
@@ -708,7 +708,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 
 	} catch (eGroupTableNotFound& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry not found", this);
 
 		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
@@ -716,7 +716,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 
 	} catch (eGroupEntryInval& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry is invalid", this);
 
 		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_INVALID_GROUP,
@@ -724,7 +724,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 
 	} catch (eGroupEntryBadType& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry with bad type", this);
 
 		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_BAD_TYPE,
@@ -732,7 +732,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 
 	} catch (eActionBadOutPort& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry with action with bad type", this);
 
 		send_error_message(ctl, OFPET_BAD_ACTION, OFPBAC_BAD_OUT_PORT,
@@ -740,7 +740,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 
 	} catch (eGroupTableLoopDetected& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry produces loop, dropping", this);
 
 		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_LOOP,
@@ -748,7 +748,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 
 	} catch (eGroupTableModNonExisting& e) {
 
-		WRITELOG(CFWD, ROFL_DBG, "cofctrl(%p)::handle_group_mod() "
+		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry for modification not found, dropping", this);
 
 		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
