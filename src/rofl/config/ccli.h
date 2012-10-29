@@ -37,7 +37,7 @@ class ccli : public csocket
 {
 
 public:
-	ccli(u_int16_t port = 6620);
+	ccli(caddress addr = caddress(AF_INET, "127.0.0.1", 6620));
 
 	virtual
 	~ccli();

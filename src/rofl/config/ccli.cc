@@ -166,9 +166,9 @@ cmd_show_debuglevel(struct cli_def *cli, UNUSED(const char *command), char *argv
 	return CLI_OK;
 }
 
-ccli::ccli(u_int16_t port) :
+ccli::ccli(caddress addr) :
 	cli_fd(-1),
-	baddr(AF_INET, "0.0.0.0", port)
+	baddr(addr)
 {
 	cpopen(baddr, PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
