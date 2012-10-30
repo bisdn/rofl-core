@@ -375,7 +375,7 @@ cfwdelem::handle_flow_stats_request(
 
 	} catch (eFwdElemTableNotFound& e) {
 
-		send_error_message(ofctrl, OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID,
+		send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID,
 				pack->soframe(), pack->framelen());
 
 	}
@@ -468,7 +468,7 @@ cfwdelem::handle_aggregate_stats_request(
 
 	} catch (eFwdElemTableNotFound& e) {
 
-		send_error_message(ofctrl, OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID,
+		send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_TABLE_ID,
 				pack->soframe(), pack->framelen());
 
 	}
@@ -526,7 +526,7 @@ cfwdelem::handle_group_stats_request(
 	} catch (eGroupTableNotFound& e) {
 
 		// FIXME: check for correct error type: OF1.2 spec is unprecise here
-		send_error_message(ofctrl, OFPET_BAD_REQUEST, OFPBRC_BAD_PORT,
+		send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_PORT,
 				pack->soframe(), pack->framelen());
 
 	}
@@ -703,7 +703,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry already exists, dropping", this);
 
-		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_GROUP_EXISTS,
+		send_error_message(ctl, pack->get_xid(), OFPET_GROUP_MOD_FAILED, OFPGMFC_GROUP_EXISTS,
 				pack->soframe(), pack->framelen());
 
 	} catch (eGroupTableNotFound& e) {
@@ -711,7 +711,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry not found", this);
 
-		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
+		send_error_message(ctl, pack->get_xid(), OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
 				pack->soframe(), pack->framelen());
 
 	} catch (eGroupEntryInval& e) {
@@ -719,7 +719,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry is invalid", this);
 
-		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_INVALID_GROUP,
+		send_error_message(ctl, pack->get_xid(), OFPET_GROUP_MOD_FAILED, OFPGMFC_INVALID_GROUP,
 				pack->soframe(), pack->framelen());
 
 	} catch (eGroupEntryBadType& e) {
@@ -727,7 +727,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry with bad type", this);
 
-		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_BAD_TYPE,
+		send_error_message(ctl, pack->get_xid(), OFPET_GROUP_MOD_FAILED, OFPGMFC_BAD_TYPE,
 				pack->soframe(), pack->framelen());
 
 	} catch (eActionBadOutPort& e) {
@@ -735,7 +735,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry with action with bad type", this);
 
-		send_error_message(ctl, OFPET_BAD_ACTION, OFPBAC_BAD_OUT_PORT,
+		send_error_message(ctl, pack->get_xid(), OFPET_BAD_ACTION, OFPBAC_BAD_OUT_PORT,
 				pack->soframe(), pack->framelen());
 
 	} catch (eGroupTableLoopDetected& e) {
@@ -743,7 +743,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry produces loop, dropping", this);
 
-		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_LOOP,
+		send_error_message(ctl, pack->get_xid(), OFPET_GROUP_MOD_FAILED, OFPGMFC_LOOP,
 				pack->soframe(), pack->framelen());
 
 	} catch (eGroupTableModNonExisting& e) {
@@ -751,7 +751,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry for modification not found, dropping", this);
 
-		send_error_message(ctl, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
+		send_error_message(ctl, pack->get_xid(), OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
 				pack->soframe(), pack->framelen());
 
 	}

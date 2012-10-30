@@ -88,6 +88,10 @@ protected: // data structures
 
 	// controlling and controlled entities
 	//
+#if 0
+	std::map<uint64_t, cofctrl*>	ofctl_map;		// key: ctlid (handle) value: pointer to cofctrl instance
+	std::map<uint64_t, cofdpath*>	ofdpt_map;		// key: dptid (handle) value: pointer to cofdpath instance
+#endif
 
 	std::map<cofbase*, cofctrl*> 	ofctrl_list;	// (n+1) entities controlling parts of this forwarding element's flowspace
 	std::map<cofbase*, cofdpath*> 	ofdpath_list;	// (n-1) entities controlled by this forwarding element
@@ -134,7 +138,8 @@ protected:
 		TIMER_FE_HANDLE_PORT_STATUS,
 		TIMER_FE_HANDLE_SET_CONFIG,
 		TIMER_FE_HANDLE_EXPERIMENTER,
-		TIMER_FE_SEND_QUEUE_GET_CONFIG_REPLY,
+		TIMER_FE_HANDLE_QUEUE_GET_CONFIG_REQUEST,
+		TIMER_FE_HANDLE_QUEUE_GET_CONFIG_REPLY,
 		TIMER_FE_EP_TX_QUEUE,
 		TIMER_FE_HANDLE_ROLE_REQUEST,
 		TIMER_FE_HANDLE_ROLE_REPLY,
@@ -603,6 +608,17 @@ protected:
 	 */
 	virtual void
 	handle_set_config(cofctrl *ofctrl, cofpacket *pack) { delete pack; };
+
+	/** Handle OF queue-get-config request. To be overwritten by derived class.
+ 	 *
+	 * Called upon reception of a QUEUE-GET-CONFIG.reply from a datapath entity.
+	 * The OF packet must be removed from heap by the overwritten method.
+	 *
+	 * @param sw cofswitch instance from whom a QUEUE-GET-CONFIG.reply was received
+	 * @param pack QUEUE-GET-CONFIG.reply packet received from datapath
+	 */
+	virtual void
+	handle_queue_get_config_request(cofctrl *ofctrl, cofpacket *pack) { delete pack; };
 
 	/** Handle OF queue-get-config reply. To be overwritten by derived class.
  	 *
@@ -1204,7 +1220,13 @@ public:
 	virtual void
 	send_features_reply(
 			cofctrl *ofctrl,
-			uint32_t xid);
+			uint32_t xid,
+			uint64_t dpid,
+			uint32_t n_buffers,
+			uint8_t n_tables,
+			uint32_t capabilities,
+			uint8_t *ports = (uint8_t*)0,
+			size_t portslen = 0);
 
 	// GET-CONFIG request/reply
 	//
@@ -1345,6 +1367,7 @@ public:
 	virtual void
 	send_error_message(
 		cofctrl *ofctrl,
+		uint32_t xid,
 		uint16_t type,
 		uint16_t code,
 		uint8_t* data = NULL,
@@ -1764,6 +1787,23 @@ private: // methods
 	void
 	recv_role_reply();
 
+	// QUEUE-GET-CONFIG-REQUEST message
+	//
+
+	/** receive (dequeue) queue-get-config-request messages
+	 * and call overloaded handle_queue_get_config_request() method
+	 */
+	void
+	recv_queue_get_config_request();
+
+	// QUEUE-GET-CONFIG-REPLY message
+	//
+
+	/** receive (dequeue) queue-get-config-reply messages
+	 * and call overloaded handle_queue_get_config_reply() method
+	 */
+	void
+	recv_queue_get_config_reply();
 
 
 public:

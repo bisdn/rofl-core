@@ -17,6 +17,7 @@
 #include <rofl/common/ciosrv.h>
 #include <rofl/common/cerror.h>
 #include <rofl/common/cclock.h>
+#include <rofl/common/cvalue.h>
 
 #define XIDSTORE_ALL_XIDS	0xffffffff
 
@@ -41,6 +42,8 @@ public:
 };
 
 
+class eXidTransBase				: public cerror {};
+class eXidTransNotFound			: public eXidTransBase {};
 
 
 class cxidtrans
@@ -49,9 +52,11 @@ class cxidtrans
  * data structures
  */
 public:
-	cxidowner	*owner;
-	uint32_t 	 xid;
-	cclock		 timeout;
+	cxidowner							*owner;
+	uint32_t 		 					xid;
+	cclock			 					timeout;
+
+	std::map<unsigned int, cvalue>		values;
 
 /*
  * methods
@@ -68,7 +73,24 @@ public:
 		owner 	= xidtrans.owner;
 		xid 	= xidtrans.xid;
 		timeout	= xidtrans.timeout;
+		values	= xidtrans.values;
 		return *this;
+	};
+	cvalue& set(unsigned int key) {
+		return values[key];
+	};
+	cvalue& get(unsigned int key) throw (eXidTransNotFound) {
+		if (values.find(key) == values.end())
+		{
+			throw eXidTransNotFound();
+		}
+		return values[key];
+	};
+	void erase(unsigned int key) {
+		if (values.find(key) != values.end())
+		{
+			values.erase(key);
+		}
 	};
 };
 

@@ -448,10 +448,15 @@ crofbase::handle_timeout(int opaque)
 					"TIMER_FE_HANDLE_VENDOR (%d) expired", this,  TIMER_FE_HANDLE_EXPERIMENTER);
 			recv_experimenter_message();
 			break;
-		case TIMER_FE_SEND_QUEUE_GET_CONFIG_REPLY:
+		case TIMER_FE_HANDLE_QUEUE_GET_CONFIG_REQUEST:
 			WRITELOG(CFWD, DBG, "crofbase(%p)::handle_timeout() "
-					"TIMER_FE_SEND_QUEUE_GET_CONFIG_REPLY (%d) expired", this,  TIMER_FE_SEND_QUEUE_GET_CONFIG_REPLY);
-			send_queue_get_config_reply();
+					"TIMER_FE_SEND_QUEUE_GET_CONFIG_REQUEST (%d) expired", this,  TIMER_FE_HANDLE_QUEUE_GET_CONFIG_REQUEST);
+			recv_queue_get_config_request();
+			break;
+		case TIMER_FE_HANDLE_QUEUE_GET_CONFIG_REPLY:
+			WRITELOG(CFWD, DBG, "crofbase(%p)::handle_timeout() "
+					"TIMER_FE_SEND_QUEUE_GET_CONFIG_REPLY (%d) expired", this,  TIMER_FE_HANDLE_QUEUE_GET_CONFIG_REPLY);
+			recv_queue_get_config_reply();
 			break;
 		case TIMER_FE_HANDLE_BARRIER_REQUEST:
 			WRITELOG(CFWD, DBG, "crofbase(%p)::handle_timeout() "
@@ -511,7 +516,7 @@ crofbase::handle_experimenter_message(cofctrl *ofctrl, cofpacket *pack)
 {
 	// base class does not support any vendor extensions, so: send error indication
 	size_t datalen = (pack->framelen() > 64) ? 64 : pack->framelen();
-	send_error_message(ofctrl, OFPET_BAD_REQUEST, OFPBRC_BAD_EXPERIMENTER,
+	send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_EXPERIMENTER,
 									(unsigned char*)pack->soframe(), datalen);
 
 	delete pack;
@@ -930,14 +935,43 @@ crofbase::handle_features_request(cofctrl *ofctrl, cofpacket *request)
 {
 	WRITELOG(CFWD, DBG, "crofbase(%s)::handle_features_request()", dpname.c_str());
 
-	send_features_reply(ofctrl, request->get_xid());
+
+	cmemory body(phy_ports.size() * sizeof(struct ofp_port));
+
+	struct ofp_port *port = (struct ofp_port*)body.somem();
+
+	for (std::map<uint32_t, cphyport*>::iterator
+			it = phy_ports.begin(); it != phy_ports.end(); ++it)
+	{
+		it->second->pack(port, sizeof(struct ofp_port));
+		WRITELOG(CFWD, DBG, "==> %s", it->second->c_str());
+		port++;
+	}
+
+	send_features_reply(
+			ofctrl,
+			request->get_xid(),
+			dpid,
+			n_buffers,
+			n_tables,
+			capabilities,
+			body.somem(),
+			body.memlen());
 
 	delete request;
 }
 
 
 void
-crofbase::send_features_reply(cofctrl *ofctrl, uint32_t xid)
+crofbase::send_features_reply(
+		cofctrl *ofctrl,
+		uint32_t xid,
+		uint64_t dpid,
+		uint32_t n_buffers,
+		uint8_t n_tables,
+		uint32_t capabilities,
+		uint8_t *ports,
+		size_t portslen)
 {
 	WRITELOG(CFWD, DBG, "crofbase(%s)::send_features_reply()", dpname.c_str());
 
@@ -948,14 +982,20 @@ crofbase::send_features_reply(cofctrl *ofctrl, uint32_t xid)
 													n_tables,
 													capabilities);
 
+	reply->ports.unpack((struct ofp_port*)ports, portslen);
+
+#if 0
 	for (std::map<uint32_t, cphyport*>::iterator
 			it = phy_ports.begin(); it != phy_ports.end(); ++it)
 	{
 		reply->ports.next() = *(it->second);
 		WRITELOG(CFWD, DBG, "==> %s", it->second->c_str());
 	}
+#endif
 
 	reply->pack(); // adjust fields, e.g. length in ofp_header
+
+	ofctrl->features_reply_sent(reply);
 
 	ofctrl_find(ofctrl)->ctrl->fe_up_features_reply(this, reply);
 }
@@ -1180,6 +1220,8 @@ crofbase::recv_stats_request()
 	cofpacket *request = fe_down_queue[OFPT_STATS_REQUEST].front();
 	fe_down_queue[OFPT_STATS_REQUEST].pop_front();
 
+	ofctrl_find(request->entity)->stats_request_rcvd(request);
+
 	switch (be16toh(request->ofh_stats_request->type)) {
 	case OFPST_DESC:
 		{
@@ -1254,7 +1296,7 @@ crofbase::handle_stats_request(cofctrl *ofctrl, cofpacket *pack)
 	/*
 	 * default handler for all unknown (or unimplemented :) stats requests
 	 */
-	send_error_message(ofctrl, OFPET_BAD_REQUEST, OFPBRC_BAD_STAT,
+	send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_STAT,
 					pack->soframe(), pack->framelen());
 
 	delete pack;
@@ -1318,7 +1360,7 @@ crofbase::handle_port_stats_request(
 
 	} catch (eRofBaseOFportNotFound& e) {
 
-		send_error_message(ofctrl, OFPET_BAD_REQUEST, OFPBRC_BAD_PORT,
+		send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_PORT,
 				pack->soframe(), pack->framelen());
 
 	}
@@ -1410,6 +1452,8 @@ crofbase::send_stats_reply(
 										flags,
 										body,
 										bodylen);
+
+	ofctrl_find(ofctrl)->stats_reply_sent(pack);
 
 	ofctrl_find(ofctrl)->ctrl->fe_up_stats_reply(this, pack);
 }
@@ -1607,7 +1651,7 @@ crofbase::fe_down_packet_out(
 	} catch (eActionBadLen& e) {
 		WRITELOG(CFWD, DBG, "crofbase(%p)::handle_packet_out() "
 				 "bad action len", this);
-		send_error_message(ofctrl_find(entity), OFPET_BAD_ACTION, OFPBAC_BAD_LEN,
+		send_error_message(ofctrl_find(entity), pack->get_xid(), OFPET_BAD_ACTION, OFPBAC_BAD_LEN,
 				(uint8_t*)pack->soframe(), pack->framelen());
 		delete pack;
 	}
@@ -2010,6 +2054,8 @@ crofbase::send_barrier_reply(
 
 	cofpacket_barrier_reply *pack = new cofpacket_barrier_reply(xid);
 
+	ofctrl_find(ofctrl)->barrier_reply_sent(pack);
+
 	// request is deleted by derived class
 	ofctrl_find(ofctrl)->ctrl->fe_up_barrier_reply(this, pack);
 }
@@ -2134,6 +2180,8 @@ crofbase::send_role_reply(
 										role,
 										generation_id);
 
+	ofctrl_find(ofctrl)->role_reply_sent(pack);
+
 	// request is deleted by derived class
 	ofctrl_find(ofctrl)->ctrl->fe_up_role_reply(this, pack);
 }
@@ -2154,17 +2202,17 @@ crofbase::fe_up_role_reply(
 		register_timer(TIMER_FE_HANDLE_ROLE_REPLY, 0);
 
 	} catch (eOFbaseInval& e) {
-		WRITELOG(CFWD, DBG, "crofbase(%p)::fe_up_barrier_reply() malformed packet received", this);
+		WRITELOG(CFWD, DBG, "crofbase(%p)::fe_up_role_reply() malformed packet received", this);
 
 		delete pack;
 
 	} catch (eOFbaseXidInval& e) {
-		WRITELOG(CFWD, DBG, "crofbase(%p)::fe_up_barrier_reply() invalid session exchange xid "
+		WRITELOG(CFWD, DBG, "crofbase(%p)::fe_up_role_reply() invalid session exchange xid "
 					"(%u) received", this, be32toh(pack->ofh_header->xid));
 		delete pack;
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, DBG, "crofbase(%p)::fe_up_barrier_reply() packet received from non-attached entity", this);
+		WRITELOG(CFWD, DBG, "crofbase(%p)::fe_up_role_reply() packet received from non-attached entity", this);
 
 		delete pack;
 	}
@@ -2197,6 +2245,7 @@ crofbase::recv_role_reply()
 
 
 
+
 /*
  * ERROR message
  */
@@ -2205,6 +2254,7 @@ crofbase::recv_role_reply()
 void
 crofbase::send_error_message(
 	cofctrl *ofctrl,
+	uint32_t xid,
 	uint16_t type,
 	uint16_t code,
 	uint8_t* data,
@@ -2212,15 +2262,26 @@ crofbase::send_error_message(
 {
 	WRITELOG(CFWD, DBG, "crofbase::send_error_message()");
 
-	std::map<cofbase*, cofctrl*>::iterator it;
-	for (it = ofctrl_list.begin(); it != ofctrl_list.end(); ++it)
+	xid = (xid == 0) ? ta_new_async_xid() : xid;
+
+	if (0 != ofctrl)
 	{
-		cofpacket_error *pack = new cofpacket_error(ta_new_async_xid(), type, code, data, datalen);
+		cofpacket_error *pack = new cofpacket_error(xid, type, code, data, datalen);
 
 		// straight call to layer-(n+1) entity's fe_up_packet_in() method
-		it->first->fe_up_error(this, pack);
+		ofctrl_find(ofctrl)->ctrl->fe_up_error(this, pack);
 	}
+	else
+	{
+		std::map<cofbase*, cofctrl*>::iterator it;
+		for (it = ofctrl_list.begin(); it != ofctrl_list.end(); ++it)
+		{
+			cofpacket_error *pack = new cofpacket_error(xid, type, code, data, datalen);
 
+			// straight call to layer-(n+1) entity's fe_up_packet_in() method
+			it->first->fe_up_error(this, pack);
+		}
+	}
 }
 
 
@@ -2399,7 +2460,7 @@ crofbase::fe_down_flow_mod(
 	} catch (eActionBadLen& e) {
 		WRITELOG(CFWD, DBG, "crofbase(%p)::fe_down_flow_mod() "
 				 "bad action len", this);
-		send_error_message(ofctrl_find(entity), OFPET_BAD_ACTION, OFPBAC_BAD_LEN,
+		send_error_message(ofctrl_find(entity), pack->get_xid(), OFPET_BAD_ACTION, OFPBAC_BAD_LEN,
 				(uint8_t*)pack->soframe(), pack->framelen());
 		delete pack;
 	}
@@ -2430,6 +2491,7 @@ crofbase::recv_flow_mod()
 
 		send_error_message(
 					ofctrl_find(pack->entity),
+					pack->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_BAD_LEN,
 					pack->soframe(), pack->framelen());
@@ -2444,6 +2506,7 @@ crofbase::recv_flow_mod()
 
 		send_error_message(
 				ofctrl_find(pack->entity),
+				pack->get_xid(),
 				OFPET_FLOW_MOD_FAILED,
 				OFPFMFC_OVERLAP,
 				pack->soframe(), pack->framelen());
@@ -2459,6 +2522,7 @@ crofbase::recv_flow_mod()
 
 		send_error_message(
 				ofctrl_find(pack->entity),
+				pack->get_xid(),
 				OFPET_FLOW_MOD_FAILED,
 				OFPFMFC_EPERM,
 				pack->soframe(), pack->framelen());
@@ -2473,6 +2537,7 @@ crofbase::recv_flow_mod()
 
 		send_error_message(
 				ofctrl_find(pack->entity),
+				pack->get_xid(),
 				OFPET_FLOW_MOD_FAILED,
 				OFPFMFC_BAD_TABLE_ID,
 				(uint8_t*)pack->soframe(), pack->framelen());
@@ -2486,6 +2551,7 @@ crofbase::recv_flow_mod()
 
 		send_error_message(
 				ofctrl_find(pack->entity),
+				pack->get_xid(),
 				OFPET_BAD_INSTRUCTION,
 				OFPBIC_UNKNOWN_INST,
 				(uint8_t*)pack->soframe(), pack->framelen());
@@ -2499,6 +2565,7 @@ crofbase::recv_flow_mod()
 
 		send_error_message(
 				ofctrl_find(pack->entity),
+				pack->get_xid(),
 				OFPET_BAD_INSTRUCTION,
 				OFPBIC_BAD_TABLE_ID,
 				(uint8_t*)pack->soframe(), pack->framelen());
@@ -2512,6 +2579,7 @@ crofbase::recv_flow_mod()
 
 		send_error_message(
 				ofctrl_find(pack->entity),
+				pack->get_xid(),
 				OFPET_BAD_INSTRUCTION,
 				OFPBIC_UNSUP_EXP_INST,
 				(uint8_t*)pack->soframe(), pack->framelen());
@@ -2525,6 +2593,7 @@ crofbase::recv_flow_mod()
 
 		send_error_message(
 				ofctrl_find(pack->entity),
+				pack->get_xid(),
 				OFPET_BAD_MATCH,
 				OFPBMC_BAD_VALUE,
 				(uint8_t*)pack->soframe(), pack->framelen());
@@ -2545,6 +2614,7 @@ crofbase::recv_flow_mod()
 
 		send_error_message(
 				ofctrl_find(pack->entity),
+				pack->get_xid(),
 				OFPET_FLOW_MOD_FAILED,
 				OFPFMFC_UNKNOWN,
 				(uint8_t*)pack->soframe(), pack->framelen());
@@ -2623,7 +2693,7 @@ crofbase::fe_down_group_mod(
 	} catch (eActionBadLen& e) {
 		WRITELOG(CFWD, DBG, "crofbase(%p)::fe_down_flow_mod() "
 				 "bad action len", this);
-		send_error_message(ofctrl_find(entity), OFPET_BAD_ACTION, OFPBAC_BAD_LEN,
+		send_error_message(ofctrl_find(entity), pack->get_xid(), OFPET_BAD_ACTION, OFPBAC_BAD_LEN,
 				(uint8_t*)pack->soframe(), pack->framelen());
 		delete pack;
 	}
@@ -2654,6 +2724,7 @@ crofbase::recv_group_mod()
 
 		send_error_message(
 				ofctrl_find(pack->entity),
+				pack->get_xid(),
 				OFPET_BAD_ACTION,
 				OFPBAC_BAD_LEN,
 				pack->soframe(),
@@ -2749,6 +2820,7 @@ crofbase::recv_port_mod()
 
 		send_error_message(
 				ofctrl_find(pack->entity),
+				pack->get_xid(),
 				OFPET_BAD_REQUEST,
 				OFPBRC_BAD_PORT,
 				pack->soframe(), pack->framelen());
@@ -3131,7 +3203,7 @@ crofbase::fe_down_queue_get_config_request(
 		check_down_packet(pack, OFPT_QUEUE_GET_CONFIG_REQUEST, entity);
 
 		fe_down_queue[OFPT_QUEUE_GET_CONFIG_REQUEST].push_back(pack);	// store pack for xid
-		register_timer(TIMER_FE_SEND_QUEUE_GET_CONFIG_REPLY, 0);
+		register_timer(TIMER_FE_HANDLE_QUEUE_GET_CONFIG_REPLY, 0);
 
 	} catch (eRofBaseNotAttached& e) {
 		WRITELOG(CFWD, DBG, "crofbase(%p)::fe_down_queue_get_config_request() packet from non-controlling entity dropped", this);
@@ -3143,6 +3215,37 @@ crofbase::fe_down_queue_get_config_request(
 		delete pack;
 	}
 }
+
+
+
+
+/*
+ * QUEUE-GET-CONFIG request
+ */
+void
+crofbase::recv_queue_get_config_request()
+{
+	if (fe_down_queue[OFPT_QUEUE_GET_CONFIG_REQUEST].empty())
+		return;
+
+	cofpacket *pack = NULL;
+	try {
+
+		pack = fe_down_queue[OFPT_QUEUE_GET_CONFIG_REQUEST].front();
+		fe_down_queue[OFPT_QUEUE_GET_CONFIG_REQUEST].pop_front();
+
+		ofctrl_find(pack->entity)->queue_get_config_request_rcvd(pack);
+
+	} catch (...) {
+		delete pack;
+	}
+
+	if (not fe_down_queue[OFPT_QUEUE_GET_CONFIG_REQUEST].empty())
+	{
+		register_timer(TIMER_FE_HANDLE_QUEUE_GET_CONFIG_REQUEST, 0); // reschedule ourselves
+	}
+}
+
 
 
 void
@@ -3162,13 +3265,15 @@ crofbase::send_queue_get_config_reply()
 
 	cofctrl *ofctrl = ofctrl_find(request->entity);
 
+	ofctrl_find(ofctrl)->queue_get_config_reply_sent(pack);
+
 	ofctrl_find(ofctrl)->ctrl->fe_up_queue_get_config_reply(this, pack);
 
 	delete request;
 
 	if (not fe_down_queue[OFPT_QUEUE_GET_CONFIG_REQUEST].empty())
 	{
-		register_timer(TIMER_FE_SEND_QUEUE_GET_CONFIG_REPLY, 0); // reschedule ourselves
+		register_timer(TIMER_FE_HANDLE_QUEUE_GET_CONFIG_REPLY, 0); // reschedule ourselves
 	}
 
 }
@@ -3203,6 +3308,38 @@ crofbase::fe_up_queue_get_config_reply(
 		delete pack;
 	}
 }
+
+
+
+
+/*
+ *  QUEUE-GET-CONFIG reply
+ */
+
+void
+crofbase::recv_queue_get_config_reply()
+{
+	if (fe_up_queue[OFPT_QUEUE_GET_CONFIG_REPLY].empty())
+		return;
+
+	cofpacket *pack = NULL;
+	try {
+
+		pack = fe_up_queue[OFPT_QUEUE_GET_CONFIG_REPLY].front();
+		fe_up_queue[OFPT_QUEUE_GET_CONFIG_REPLY].pop_front();
+
+		ofswitch_find(pack->entity)->role_reply_rcvd(pack);
+
+	} catch (...) {
+		delete pack;
+	}
+
+	if (not fe_up_queue[OFPT_QUEUE_GET_CONFIG_REPLY].empty())
+	{
+		register_timer(TIMER_FE_HANDLE_QUEUE_GET_CONFIG_REPLY, 0); // reschedule ourselves
+	}
+}
+
 
 
 /*

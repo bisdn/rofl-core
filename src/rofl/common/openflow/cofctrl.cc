@@ -42,8 +42,35 @@ cofctrl::~cofctrl()
 void
 cofctrl::features_request_rcvd(cofpacket *pack)
 {
+	try {
+		xidstore.xid_add(this, be32toh(pack->ofh_header->xid), 0);
+
+	} catch (eXidStoreXidBusy& e) {
+		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::features_request_rcvd() retransmission", this);
+	}
+
 	rofbase->handle_features_request(this, pack);
 }
+
+
+
+void
+cofctrl::features_reply_sent(cofpacket *pack)
+{
+	uint32_t xid = be32toh(pack->ofh_header->xid);
+	try {
+
+		xidstore.xid_find(xid);
+
+		xidstore.xid_rem(xid);
+
+	} catch (eXidStoreNotFound& e) {
+		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::features_reply_sent() "
+				"xid:0x%x not found",
+				this, xid);
+	}
+}
+
 
 
 void
@@ -51,10 +78,7 @@ cofctrl::packet_out_rcvd(cofpacket *pack)
 {
 	if (OFPCR_ROLE_SLAVE == role)
 	{
-		size_t len = (pack->length() > 64) ? 64 : pack->length();
-		rofbase->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
-										pack->soframe(), len);
-		return;
+		send_error_is_slave(pack); return;
 	}
 
 	rofbase->handle_packet_out(this, pack);
@@ -69,10 +93,7 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 	try {
 		if (OFPCR_ROLE_SLAVE == role)
 		{
-			size_t len = (pack->length() > 64) ? 64 : pack->length();
-			rofbase->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
-											pack->soframe(), len);
-			return;
+			send_error_is_slave(pack); return;
 		}
 
 		// check, whether the controlling pack->entity is allowed to install this flow-mod
@@ -111,10 +132,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 {
 	if (OFPCR_ROLE_SLAVE == role)
 	{
-		size_t len = (pack->length() > 64) ? 64 : pack->length();
-		rofbase->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
-										pack->soframe(), len);
-		return;
+		send_error_is_slave(pack); return;
 	}
 
 	rofbase->handle_group_mod(this, pack);
@@ -126,10 +144,7 @@ cofctrl::port_mod_rcvd(cofpacket *pack) throw (eOFctrlPortNotFound)
 {
 	if (OFPCR_ROLE_SLAVE == role)
 	{
-		size_t len = (pack->length() > 64) ? 64 : pack->length();
-		rofbase->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
-										pack->soframe(), len);
-		return;
+		send_error_is_slave(pack); return;
 	}
 
 	uint32_t port_no = be32toh(pack->ofh_port_mod->port_no);
@@ -156,19 +171,60 @@ cofctrl::table_mod_rcvd(cofpacket *pack)
 {
 	if (OFPCR_ROLE_SLAVE == role)
 	{
-		size_t len = (pack->length() > 64) ? 64 : pack->length();
-		rofbase->send_error_message(this, OFPET_BAD_REQUEST, OFPBRC_IS_SLAVE,
-										pack->soframe(), len);
-		return;
+		send_error_is_slave(pack); return;
 	}
 
 	rofbase->handle_table_mod(this, pack);
 }
 
 
+
+void
+cofctrl::stats_request_rcvd(cofpacket *pack)
+{
+	try {
+		xidstore.xid_add(this, be32toh(pack->ofh_header->xid));
+
+	} catch (eXidStoreXidBusy& e) {
+		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::stats_request_rcvd() retransmission xid:0x%x",
+				this, be32toh(pack->ofh_header->xid));
+	}
+
+	rofbase->handle_stats_request(this, pack);
+}
+
+
+
+void
+cofctrl::stats_reply_sent(cofpacket *pack)
+{
+	uint32_t xid = be32toh(pack->ofh_header->xid);
+	try {
+
+		xidstore.xid_find(xid);
+
+		xidstore.xid_rem(xid);
+
+	} catch (eXidStoreNotFound& e) {
+		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::stats_reply_sent() "
+				"xid:0x%x not found",
+				this, xid);
+	}
+}
+
+
+
 void
 cofctrl::role_request_rcvd(cofpacket *pack)
 {
+	try {
+		xidstore.xid_add(this, be32toh(pack->ofh_header->xid));
+
+	} catch (eXidStoreXidBusy& e) {
+		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::role_request_rcvd() retransmission xid:0x%x",
+				this, be32toh(pack->ofh_header->xid));
+	}
+
 	switch (be32toh(pack->ofh_role_request->role)) {
 	case OFPCR_ROLE_MASTER:
 	case OFPCR_ROLE_SLAVE:
@@ -181,7 +237,7 @@ cofctrl::role_request_rcvd(cofpacket *pack)
 
 			if (dist >= (std::numeric_limits<uint64_t>::max() / 2))
 			{
-				rofbase->send_error_message(this, OFPET_ROLE_REQUEST_FAILED, OFPRRFC_STALE);
+				rofbase->send_error_message(this, pack->get_xid(), OFPET_ROLE_REQUEST_FAILED, OFPRRFC_STALE);
 				return;
 			}
 		}
@@ -220,11 +276,94 @@ cofctrl::role_request_rcvd(cofpacket *pack)
 }
 
 
+
+void
+cofctrl::role_reply_sent(cofpacket *pack)
+{
+	uint32_t xid = be32toh(pack->ofh_header->xid);
+	try {
+
+		xidstore.xid_find(xid);
+
+		xidstore.xid_rem(xid);
+
+	} catch (eXidStoreNotFound& e) {
+		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::role_reply_sent() "
+				"xid:0x%x not found",
+				this, xid);
+	}
+}
+
+
+
 void
 cofctrl::barrier_request_rcvd(cofpacket *pack)
 {
+	try {
+		xidstore.xid_add(this, be32toh(pack->ofh_header->xid));
+
+	} catch (eXidStoreXidBusy& e) {
+		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::barrier_request_rcvd() retransmission xid:0x%x",
+				this, be32toh(pack->ofh_header->xid));
+	}
+
 	rofbase->handle_barrier_request(this, pack);
 }
+
+
+
+void
+cofctrl::barrier_reply_sent(cofpacket *pack)
+{
+	uint32_t xid = be32toh(pack->ofh_header->xid);
+	try {
+
+		xidstore.xid_find(xid);
+
+		xidstore.xid_rem(xid);
+
+	} catch (eXidStoreNotFound& e) {
+		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::barrier_reply_sent() "
+				"xid:0x%x not found",
+				this, xid);
+	}
+}
+
+
+
+void
+cofctrl::queue_get_config_request_rcvd(cofpacket *pack)
+{
+	try {
+		xidstore.xid_add(this, be32toh(pack->ofh_header->xid));
+
+	} catch (eXidStoreXidBusy& e) {
+		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::queue_get_config_request_rcvd() retransmission xid:0x%x",
+				this, be32toh(pack->ofh_header->xid));
+	}
+
+	rofbase->handle_queue_get_config_request(this, pack);
+}
+
+
+
+void
+cofctrl::queue_get_config_reply_sent(cofpacket *pack)
+{
+	uint32_t xid = be32toh(pack->ofh_header->xid);
+	try {
+
+		xidstore.xid_find(xid);
+
+		xidstore.xid_rem(xid);
+
+	} catch (eXidStoreNotFound& e) {
+		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::queue_get_config_reply_sent() "
+				"xid:0x%x not found",
+				this, xid);
+	}
+}
+
 
 
 void
@@ -339,4 +478,23 @@ cofctrl::c_str()
 }
 
 
+cxidtrans&
+cofctrl::transaction(uint32_t xid)
+{
+	return xidstore.xid_find(xid);
+}
+
+
+
+void
+cofctrl::send_error_is_slave(cofpacket *pack)
+{
+	size_t len = (pack->length() > 64) ? 64 : pack->length();
+	rofbase->send_error_message(this,
+			pack->get_xid(),
+			OFPET_BAD_REQUEST,
+			OFPBRC_IS_SLAVE,
+			pack->soframe(),
+			len);
+}
 

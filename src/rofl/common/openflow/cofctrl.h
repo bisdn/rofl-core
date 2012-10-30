@@ -20,6 +20,7 @@ extern "C" {
 #include "../ciosrv.h"
 #include "../cmemory.h"
 #include "../crofbase.h"
+#include "../cxidstore.h"
 #include "../thread_helper.h"
 #include "../cvastring.h"
 
@@ -46,23 +47,25 @@ class eOFctrlPortNotFound : public eOFctrlBase {};
 
 class cofctrl :
 	public ciosrv,
-	public cfspentry_owner
+	public cfspentry_owner,
+	public cxidowner
 {
 public: // data structures
 
-	crofbase *rofbase;							// parent crofbase instance
-	std::map<cofbase*, cofctrl*> *ofctrl_list;	// pointer to set storing this entity
-	cofbase *ctrl;								// pointer to controlling entity
-	uint16_t flags;								// config: flags
-	uint16_t miss_send_len;						// config: miss_send_len
-	std::set<cofmatch*> nspaces;				// list of cofmatch structures depicting controlled namespace
-	bool role_initialized;						// true, when role values have been initialized properly
-	uint16_t role;								// role of this controller instance
-	uint64_t cached_generation_id;				// generation-id used by role requests
+	crofbase 						*rofbase;				// parent crofbase instance
+	std::map<cofbase*, cofctrl*> 	*ofctrl_list;			// pointer to set storing this entity
+	cofbase 						*ctrl;					// pointer to controlling entity
+	uint16_t 						flags;					// config: flags
+	uint16_t 						miss_send_len;			// config: miss_send_len
+	std::set<cofmatch*> 			nspaces;				// list of cofmatch structures depicting controlled namespace
+	bool 							role_initialized;		// true, when role values have been initialized properly
+	uint16_t 						role;					// role of this controller instance
+	uint64_t 						cached_generation_id;	// generation-id used by role requests
 
 private: // data structures
 
-	std::string info;							// info string
+	cxidstore						xidstore;
+	std::string 					info;					// info string
 
 public: // methods
 
@@ -83,6 +86,12 @@ public: // methods
 	const char*
 	c_str();
 
+	/**
+	 *
+	 */
+	cxidtrans&
+	transaction(uint32_t xid);
+
 	/** handle incoming vendor message (ROFL extensions)
 	 */
 	void
@@ -92,6 +101,12 @@ public: // methods
 	 */
 	void
 	features_request_rcvd(cofpacket *pack);
+
+	/**
+	 *
+	 */
+	void
+	features_reply_sent(cofpacket *pack);
 
 	/** handle incoming PACKET-OUT messages
 	 */
@@ -118,20 +133,60 @@ public: // methods
 	void
 	table_mod_rcvd(cofpacket *pack);
 
+	/** STATS-REQUEST received
+	 *
+	 */
+	void
+	stats_request_rcvd(cofpacket *pack);
+
+	/**
+	 *
+	 */
+	void
+	stats_reply_sent(cofpacket *pack);
+
 	/** handle incoming ROLE-REQUEST messages
 	 */
 	void
 	role_request_rcvd(cofpacket *pack);
+
+	/**
+	 *
+	 */
+	void
+	role_reply_sent(cofpacket *pack);
 
 	/** handle incoming BARRIER request
 	 */
 	void
 	barrier_request_rcvd(cofpacket *pack);
 
+	/** BARRIER reply sent back
+	 *
+	 */
+	void
+	barrier_reply_sent(cofpacket *pack);
+
+	/**
+	 *
+	 */
+	void
+	queue_get_config_request_rcvd(cofpacket *pack);
+
+	/**
+	 *
+	 */
+	void
+	queue_get_config_reply_sent(cofpacket *pack);
 
 protected: // methods
 
 
+	/**
+	 *
+	 */
+	void
+	send_error_is_slave(cofpacket *pack);
 
 };
 
