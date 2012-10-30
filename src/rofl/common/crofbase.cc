@@ -7,62 +7,15 @@
 
 /* static */ std::set<crofbase*> crofbase::rofbases;
 
-/* static */
-crofbase*
-crofbase::find_by_name(const std::string &dpname) throw (eRofBaseNotFound)
-{
-	std::set<crofbase*>::iterator it;
-	if ((it = find_if(crofbase::rofbases.begin(), crofbase::rofbases.end(),
-			crofbase::crofbase_find_by_name(dpname))) == crofbase::rofbases.end())
-	{
-		throw eRofBaseNotFound();
-	}
-	return (*it);
-}
-
-
-/* static */
-crofbase*
-crofbase::find_by_dpid(uint64_t dpid) throw (eRofBaseNotFound)
-{
-	std::set<crofbase*>::iterator it;
-	if ((it = find_if(crofbase::rofbases.begin(), crofbase::rofbases.end(),
-			crofbase::crofbase_find_by_dpid(dpid))) == crofbase::rofbases.end())
-	{
-		throw eRofBaseNotFound();
-	}
-	return (*it);
-}
 
 
 crofbase::crofbase(
-		std::string dpname,
-		uint64_t dpid,
-		uint8_t n_tables,
-		uint32_t n_buffers,
 		caddress const& rpc_ctl_addr,
-		caddress const& rpc_dpt_addr) throw (eRofBaseExists) :
-	dpname(dpname),
-	dpid(dpid),
-	flags(0),
-	miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
-	n_buffers(n_buffers),
-	n_tables(n_tables),
-	capabilities(OFPC_FLOW_STATS | OFPC_TABLE_STATS | OFPC_PORT_STATS /* | OFPC_STP */ | OFPC_QUEUE_STATS | OFPC_ARP_MATCH_IP)
+		caddress const& rpc_dpt_addr) throw (eRofBaseExists)
 {
 	cvastring vas;
-	s_dpid.assign(vas("dpid[%016llx]", dpid));
 
-	WRITELOG(CFWD, DBG, "crofbase(%p)::crofbase() dpid:%llu dpname=%s", this, dpid, dpname.c_str());
-	std::set<crofbase*>::iterator it;
-
-	for (it = rofbases.begin(); it != rofbases.end(); ++it)
-	{
-		if (((*it)->dpid == dpid) || ((*it)->dpname == dpname))
-		{
-			throw eRofBaseExists();
-		}
-	}
+	WRITELOG(CFWD, DBG, "crofbase(%p)::crofbase()", this);
 
 	// create rpc TCP endpoints
 	rpc[RPC_CTL] = new cofrpc(cofrpc::OF_RPC_TCP_SOUTH_ENDPNT, this);
@@ -80,14 +33,7 @@ crofbase::crofbase(
 crofbase::~crofbase()
 {
 	crofbase::rofbases.erase(this);
-	WRITELOG(CFWD, DBG, "destroy crofbase(%p)::crofbase() dpid:%llu", this, dpid);
-
-
-	// remove all physical ports
-	while (not phy_ports.empty())
-	{
-		delete (phy_ports.begin()->second);
-	}
+	WRITELOG(CFWD, DBG, "crofbase(%p)::~crofbase()", this);
 
 
 	// detach from higher layer entities
@@ -141,15 +87,7 @@ crofbase::c_str()
 {
 	cvastring vas(1024);
 
-	info.assign(vas("crofbase(%p): dpname[%s] dpid[%llx] =>", this, dpname.c_str(), dpid));
-
-	// cofport instances
-	info.append(vas("\nlist of registered cofport instances: =>"));
-	std::map<uint32_t, cphyport*>::iterator it;
-	for (it = phy_ports.begin(); it != phy_ports.end(); ++it)
-	{
-		info.append(vas("\n  %s", it->second->c_str()));
-	}
+	info.assign(vas("crofbase(%p): ", this));
 
 	// cofctrl instances
 	info.append(vas("\nlist of registered cofctrl instances: =>"));
@@ -257,31 +195,6 @@ crofbase::rpc_disconnect_from_dpath(
 }
 
 
-void
-crofbase::port_attach(
-		std::string devname,
-		uint32_t port_no)
-{
-	if (phy_ports.find(port_no) == phy_ports.end())
-	{
-		new cphyport(&phy_ports, port_no);
-
-		send_port_status_message(OFPPR_ADD, phy_ports[port_no]);
-	}
-}
-
-
-void
-crofbase::port_detach(
-		uint32_t port_no)
-{
-	if (phy_ports.find(port_no) != phy_ports.end())
-	{
-		send_port_status_message(OFPPR_DELETE, phy_ports[port_no]);
-
-		delete phy_ports[port_no];
-	}
-}
 
 
 void
@@ -388,10 +301,10 @@ crofbase::handle_timeout(int opaque)
 					"TIMER_FE_HANDLE_FEATURES_REQUEST (%d) expired", this,  TIMER_FE_HANDLE_FEATURES_REQUEST);
 			recv_features_request();
 			break;
-		case TIMER_FE_SEND_GET_CONFIG_REPLY:
+		case TIMER_FE_HANDLE_GET_CONFIG_REQUEST:
 			WRITELOG(CFWD, DBG, "crofbase(%p)::handle_timeout() "
-					"TIMER_FE_SEND_GET_CONFIG_REPLY (%d) expired", this,  TIMER_FE_SEND_GET_CONFIG_REPLY);
-			send_get_config_reply();
+					"TIMER_FE_HANDLE_GET_CONFIG_REQUEST (%d) expired", this,  TIMER_FE_HANDLE_GET_CONFIG_REQUEST);
+			recv_get_config_request();
 			break;
 		case TIMER_FE_HANDLE_STATS_REQUEST:
 			WRITELOG(CFWD, DBG, "crofbase(%p)::handle_timeout() "
@@ -930,36 +843,6 @@ crofbase::recv_features_request()
 }
 
 
-void
-crofbase::handle_features_request(cofctrl *ofctrl, cofpacket *request)
-{
-	WRITELOG(CFWD, DBG, "crofbase(%s)::handle_features_request()", dpname.c_str());
-
-
-	cmemory body(phy_ports.size() * sizeof(struct ofp_port));
-
-	struct ofp_port *port = (struct ofp_port*)body.somem();
-
-	for (std::map<uint32_t, cphyport*>::iterator
-			it = phy_ports.begin(); it != phy_ports.end(); ++it)
-	{
-		it->second->pack(port, sizeof(struct ofp_port));
-		WRITELOG(CFWD, DBG, "==> %s", it->second->c_str());
-		port++;
-	}
-
-	send_features_reply(
-			ofctrl,
-			request->get_xid(),
-			dpid,
-			n_buffers,
-			n_tables,
-			capabilities,
-			body.somem(),
-			body.memlen());
-
-	delete request;
-}
 
 
 void
@@ -973,7 +856,7 @@ crofbase::send_features_reply(
 		uint8_t *ports,
 		size_t portslen)
 {
-	WRITELOG(CFWD, DBG, "crofbase(%s)::send_features_reply()", dpname.c_str());
+	WRITELOG(CFWD, DBG, "crofbase(%p)::send_features_reply()", this);
 
 	cofpacket_features_reply *reply = new cofpacket_features_reply(
 													xid,
@@ -983,15 +866,6 @@ crofbase::send_features_reply(
 													capabilities);
 
 	reply->ports.unpack((struct ofp_port*)ports, portslen);
-
-#if 0
-	for (std::map<uint32_t, cphyport*>::iterator
-			it = phy_ports.begin(); it != phy_ports.end(); ++it)
-	{
-		reply->ports.next() = *(it->second);
-		WRITELOG(CFWD, DBG, "==> %s", it->second->c_str());
-	}
-#endif
 
 	reply->pack(); // adjust fields, e.g. length in ofp_header
 
@@ -1068,7 +942,7 @@ crofbase::fe_down_get_config_request(
 		check_down_packet(pack, OFPT_GET_CONFIG_REQUEST, entity);
 
 		fe_down_queue[OFPT_GET_CONFIG_REQUEST].push_back(pack);	// store pack for xid
-		register_timer(TIMER_FE_SEND_GET_CONFIG_REPLY, 0);
+		register_timer(TIMER_FE_HANDLE_GET_CONFIG_REQUEST, 0);
 
 	} catch (eRofBaseNotAttached& e) {
 		WRITELOG(CFWD, DBG, "crofbase(%p)::fe_down_get_config_request() packet from non-controlling entity dropped", this);
@@ -1084,28 +958,46 @@ crofbase::fe_down_get_config_request(
 }
 
 
+
 void
-crofbase::send_get_config_reply()
+crofbase::recv_get_config_request()
 {
-	WRITELOG(CFWD, DBG, "crofbase::send_get_config_reply()");
+	WRITELOG(CFWD, DBG, "crofbase(%p)::recv_get_config_request()", this);
 
 	if (fe_down_queue[OFPT_GET_CONFIG_REQUEST].empty())
 		return;
 
-	cofpacket *request = fe_down_queue[OFPT_GET_CONFIG_REQUEST].front();
-	fe_down_queue[OFPT_GET_CONFIG_REQUEST].pop_front();
+	cofpacket *pack = NULL;
+	try {
 
-	cofpacket_get_config_reply *pack = new cofpacket_get_config_reply(request->get_xid(), flags, miss_send_len);
+		pack = fe_down_queue[OFPT_GET_CONFIG_REQUEST].front();
+		fe_down_queue[OFPT_GET_CONFIG_REQUEST].pop_front();
 
-	request->entity->fe_up_get_config_reply(this, pack);
+		ofctrl_find(pack->entity)->get_config_request_rcvd(pack);
 
-	delete request;
+
+
+	} catch (...) {
+
+		delete pack;
+	}
 
 	if (not fe_down_queue[OFPT_GET_CONFIG_REQUEST].empty())
 	{
-		register_timer(TIMER_FE_SEND_GET_CONFIG_REPLY, 0); // reschedule ourselves
+		register_timer(TIMER_FE_HANDLE_GET_CONFIG_REQUEST, 0); // reschedule ourselves
 	}
+}
 
+
+
+void
+crofbase::send_get_config_reply(cofctrl *ofctrl, uint32_t xid, uint16_t flags, uint16_t miss_send_len)
+{
+	WRITELOG(CFWD, DBG, "crofbase(%p)::send_get_config_reply()", this);
+
+	cofpacket_get_config_reply *pack = new cofpacket_get_config_reply(xid, flags, miss_send_len);
+
+	ofctrl->ctrl->fe_up_get_config_reply(this, pack);
 }
 
 
@@ -1326,46 +1218,7 @@ crofbase::handle_port_stats_request(
 		cofctrl *ofctrl,
 		cofpacket *pack)
 {
-	uint32_t port_no = be32toh(pack->ofb_port_stats_request->port_no);
-
-	cmemory body(0);
-
-	try {
-		if (OFPP_ANY == port_no)
-		{
-			for (std::map<uint32_t, cphyport*>::iterator
-					it = phy_ports.begin(); it != phy_ports.end(); ++it)
-			{
-				cofport *port = it->second;
-				port->get_port_stats(body);
-			}
-		}
-		else
-		{
-			if (phy_ports.find(port_no) == phy_ports.end())
-			{
-				throw eRofBaseOFportNotFound();
-			}
-
-			phy_ports[port_no]->get_port_stats(body);
-		}
-
-		send_stats_reply(
-					ofctrl,
-					pack->get_xid(),
-					OFPST_PORT,
-					body.somem(), body.memlen());
-
-
-
-	} catch (eRofBaseOFportNotFound& e) {
-
-		send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_PORT,
-				pack->soframe(), pack->framelen());
-
-	}
-
-	delete pack;
+	handle_stats_request(ofctrl, pack);
 }
 
 
@@ -1576,10 +1429,7 @@ crofbase::recv_set_config()
 		pack = fe_down_queue[OFPT_SET_CONFIG].front();
 		fe_down_queue[OFPT_SET_CONFIG].pop_front();
 
-		this->flags = be16toh(pack->ofh_switch_config->flags);
-		this->miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
-
-		handle_set_config(ofctrl_find(pack->entity), pack);
+		ofctrl_find(pack->entity)->set_config_rcvd(pack);
 
 	} catch (...) {
 		delete pack;
@@ -1631,7 +1481,7 @@ crofbase::fe_down_packet_out(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(CFWD, DBG, "crofbase(%s)::fe_down_packet_out() PACKET-OUT received: %s", s_dpid.c_str(), pack->c_str());
+	WRITELOG(CFWD, DBG, "crofbase(%p)::fe_down_packet_out() PACKET-OUT received: %s", this, pack->c_str());
 
 	try {
 		check_down_packet(pack, OFPT_PACKET_OUT, entity);
@@ -1674,7 +1524,8 @@ crofbase::recv_packet_out()
 		ofctrl_find(pack->entity)->packet_out_rcvd(pack);
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_packet_out() exception on handle_packet_out() caught", dpname.c_str());
+		WRITELOG(CFWD, DBG, "crofbase(%p)::recv_packet_out() "
+				"exception on handle_packet_out() caught", this);
 		delete pack;
 	}
 
@@ -1920,7 +1771,8 @@ crofbase::fe_up_packet_in(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(CFWD, DBG, "crofbase(%s)::fe_up_packet_in() PACKET-IN received: %s", dpname.c_str(), pack->c_str());
+	WRITELOG(CFWD, DBG, "crofbase(%p)::fe_up_packet_in() "
+			"PACKET-IN received: %s", this, pack->c_str());
 
 	try {
 		check_up_packet(pack, OFPT_PACKET_IN, entity);
@@ -2022,9 +1874,7 @@ crofbase::fe_down_barrier_request(
 void
 crofbase::recv_barrier_request()
 {
-	WRITELOG(CFWD, DBG, "crofbase(%s)::recv_barrier_request() "
-			"fe_down_queue[OFPT_BARRIER_REQUEST].size()=%d",
-			dpname.c_str(), fe_down_queue[OFPT_BARRIER_REQUEST].size());
+	WRITELOG(CFWD, DBG, "crofbase(%p)::recv_barrier_request() ", this);
 
 	if (fe_down_queue[OFPT_BARRIER_REQUEST].empty())
 		return;
@@ -2066,7 +1916,7 @@ crofbase::fe_up_barrier_reply(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(CFWD, DBG, "crofbase(%s)::fe_up_barrier_reply() ", dpname.c_str());
+	WRITELOG(CFWD, DBG, "crofbase(%p)::fe_up_barrier_reply() ", this);
 
 	try {
 		//CHECK_PACKET(pack, OFPT_BARRIER_REPLY);
@@ -2467,6 +2317,7 @@ crofbase::fe_down_flow_mod(
 }
 
 
+
 void
 crofbase::recv_flow_mod()
 {
@@ -2486,8 +2337,8 @@ crofbase::recv_flow_mod()
 
 	} catch (eActionBadLen& e) {
 
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_flow_mod() "
-				"invalid flow-mod packet received: action with bad length", dpname.c_str());
+		WRITELOG(CFWD, DBG, "crofbase(%p)::recv_flow_mod() "
+				"invalid flow-mod packet received: action with bad length", this);
 
 		send_error_message(
 					ofctrl_find(pack->entity),
@@ -2498,27 +2349,12 @@ crofbase::recv_flow_mod()
 
 		delete pack;
 
-#if 0
-	} catch (eFlowTableEntryOverlaps& e) {
-
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_flow_mod() "
-				"flow-entry error: entry overlaps", dpname.c_str());
-
-		send_error_message(
-				ofctrl_find(pack->entity),
-				pack->get_xid(),
-				OFPET_FLOW_MOD_FAILED,
-				OFPFMFC_OVERLAP,
-				pack->soframe(), pack->framelen());
-
-		delete pack;
-#endif
 
 	} catch (eFspNotAllowed& e) {
 
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_flow_mod() "
+		WRITELOG(CFWD, DBG, "crofbase(%p)::recv_flow_mod() "
 				"-FLOW-MOD- blocked due to mismatch in nsp "
-				"registration", dpname.c_str());
+				"registration", this);
 
 		send_error_message(
 				ofctrl_find(pack->entity),
@@ -2531,9 +2367,9 @@ crofbase::recv_flow_mod()
 
 	} catch (eRofBaseTableNotFound& e) {
 
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_flow_mod() "
+		WRITELOG(CFWD, DBG, "crofbase(%p)::recv_flow_mod() "
 				"invalid flow-table %d specified",
-				dpname.c_str(), pack->ofh_flow_mod->table_id);
+				this, pack->ofh_flow_mod->table_id);
 
 		send_error_message(
 				ofctrl_find(pack->entity),
@@ -2546,8 +2382,8 @@ crofbase::recv_flow_mod()
 
 	} catch (eInstructionInvalType& e) {
 
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_flow_mod() "
-				"unknown instruction found", dpname.c_str());
+		WRITELOG(CFWD, DBG, "crofbase(%p)::recv_flow_mod() "
+				"unknown instruction found", this);
 
 		send_error_message(
 				ofctrl_find(pack->entity),
@@ -2560,8 +2396,8 @@ crofbase::recv_flow_mod()
 
 	} catch (eRofBaseGotoTableNotFound& e) {
 
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_flow_mod() "
-				"GOTO-TABLE instruction with invalid table-id", dpname.c_str());
+		WRITELOG(CFWD, DBG, "crofbase(%p)::recv_flow_mod() "
+				"GOTO-TABLE instruction with invalid table-id", this);
 
 		send_error_message(
 				ofctrl_find(pack->entity),
@@ -2574,8 +2410,8 @@ crofbase::recv_flow_mod()
 
 	} catch (eInstructionBadExperimenter& e) {
 
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_flow_mod() "
-				"unknown OFPIT_EXPERIMENTER extension received", dpname.c_str());
+		WRITELOG(CFWD, DBG, "crofbase(%p)::recv_flow_mod() "
+				"unknown OFPIT_EXPERIMENTER extension received", this);
 
 		send_error_message(
 				ofctrl_find(pack->entity),
@@ -2588,8 +2424,8 @@ crofbase::recv_flow_mod()
 
 	} catch (eOFmatchInvalBadValue& e) {
 
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_flow_mod() "
-				"bad value in match structure", dpname.c_str());
+		WRITELOG(CFWD, DBG, "crofbase(%p)::recv_flow_mod() "
+				"bad value in match structure", this);
 
 		send_error_message(
 				ofctrl_find(pack->entity),
@@ -2602,15 +2438,15 @@ crofbase::recv_flow_mod()
 
 	} catch (eOFbaseNotAttached& e) {
 
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_flow_mod() "
-				"eOFbaseNotAttached thrown", dpname.c_str());
+		WRITELOG(CFWD, DBG, "crofbase(%p)::recv_flow_mod() "
+				"eOFbaseNotAttached thrown", this);
 
 		delete pack;
 
 	} catch (cerror &e) {
 
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_flow_mod() "
-				"default catch for cerror exception", dpname.c_str());
+		WRITELOG(CFWD, DBG, "crofbase(%p)::recv_flow_mod() "
+				"default catch for cerror exception", this);
 
 		send_error_message(
 				ofctrl_find(pack->entity),
@@ -2718,9 +2554,9 @@ crofbase::recv_group_mod()
 
 	} catch (eActionBadLen& e) {
 
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_group_mod() "
+		WRITELOG(CFWD, DBG, "crofbase(%p)::recv_group_mod() "
 				"invalid group-mod packet received: action with "
-				"bad length", dpname.c_str());
+				"bad length", this);
 
 		send_error_message(
 				ofctrl_find(pack->entity),
@@ -2780,7 +2616,7 @@ crofbase::fe_down_port_mod(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(UNKNOWN, DBG, "crofbase(%s)::fe_down_port_mod()", dpname.c_str());
+	WRITELOG(UNKNOWN, DBG, "crofbase(%p)::fe_down_port_mod()", this);
 
 	try {
 		check_down_packet(pack, OFPT_PORT_MOD, entity);
@@ -3090,7 +2926,7 @@ crofbase::send_port_status_message(
 	uint8_t reason,
 	struct ofp_port *phy_port)
 {
-	WRITELOG(CFWD, DBG, "crofbase(%s)::send_port_status_message()", get_s_dpid());
+	WRITELOG(CFWD, DBG, "crofbase(%p)::send_port_status_message()", this);
 	//if (!ctrl)
 	//	throw eRofBaseNoCtrl();
 
@@ -3107,7 +2943,6 @@ crofbase::send_port_status_message(
 
 		// straight call to layer-(n+1) entity's fe_up_packet_in() method
 		it->first->fe_up_port_status(this, pack);
-
 	}
 }
 
@@ -3117,7 +2952,7 @@ crofbase::fe_up_port_status(
 	cofbase *entity,
 	cofpacket *pack)
 {
-	WRITELOG(CFWD, DBG, "crofbase(%s)::fe_up_port_status() pack(%p): %s", get_s_dpid(), pack, pack->c_str());
+	WRITELOG(CFWD, DBG, "crofbase(%p)::fe_up_port_status() pack: %s", this, pack->c_str());
 
 	try {
 		//CHECK_PACKET(pack, OFPT_PORT_STATUS);
@@ -3153,12 +2988,14 @@ crofbase::recv_port_status()
 		sw->port_status_rcvd(pack);
 
 	} catch (eOFbaseNotAttached& e) {
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_port_status() packet received from non-attached entity", get_s_dpid());
+		WRITELOG(CFWD, DBG, "crofbase(%p)::recv_port_status() "
+				"packet received from non-attached entity", this);
 
 		delete pack;
 
 	} catch (...) {
-		WRITELOG(CFWD, DBG, "crofbase(%s)::recv_port_status() GENERIC ERROR", get_s_dpid());
+		WRITELOG(CFWD, DBG, "crofbase(%p)::recv_port_status() "
+				"GENERIC ERROR", this);
 
 		delete pack;
 
@@ -3447,7 +3284,7 @@ crofbase::send_experimenter_message(
 
 	pack->pack();
 
-	WRITELOG(CFWD, DBG, "crofbase(%s)::send_experimenter_message() -down- %s", get_s_dpid(), pack->c_str());
+	WRITELOG(CFWD, DBG, "crofbase(%p)::send_experimenter_message() -down- %s", this, pack->c_str());
 
 	if (NULL == sw) // send to all attached data path entities
 	{
@@ -3484,7 +3321,7 @@ crofbase::send_experimenter_message(
 
 	pack->pack();
 
-	WRITELOG(CFWD, DBG, "crofbase(%s)::send_experimenter_message() -up- %s", get_s_dpid(), pack->c_str());
+	WRITELOG(CFWD, DBG, "crofbase(%p)::send_experimenter_message() -up- %s", this, pack->c_str());
 
 	if (NULL == ctrl) // send to all attached controller entities
 	{
@@ -3506,20 +3343,5 @@ crofbase::send_experimenter_message(
 
 
 
-uint32_t
-crofbase::phy_port_get_free_portno()
-throw (eRofBaseNotFound)
-{
-	uint32_t portno = 1;
-	while (phy_ports.find(portno) != phy_ports.end())
-	{
-		portno++;
-		if (portno == std::numeric_limits<uint32_t>::max())
-		{
-			throw eRofBaseNotFound();
-		}
-	}
-	return portno;
-}
 
 

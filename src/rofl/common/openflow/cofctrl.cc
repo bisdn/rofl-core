@@ -74,6 +74,32 @@ cofctrl::features_reply_sent(cofpacket *pack)
 
 
 void
+cofctrl::get_config_request_rcvd(cofpacket *pack)
+{
+	if (OFPCR_ROLE_SLAVE == role)
+	{
+		send_error_is_slave(pack); return;
+	}
+
+	rofbase->handle_get_config_request(this, pack);
+}
+
+
+
+void
+cofctrl::set_config_rcvd(cofpacket *pack)
+{
+	if (OFPCR_ROLE_SLAVE == role)
+	{
+		send_error_is_slave(pack); return;
+	}
+
+	rofbase->handle_set_config(this, pack);
+}
+
+
+
+void
 cofctrl::packet_out_rcvd(cofpacket *pack)
 {
 	if (OFPCR_ROLE_SLAVE == role)
@@ -146,21 +172,6 @@ cofctrl::port_mod_rcvd(cofpacket *pack) throw (eOFctrlPortNotFound)
 	{
 		send_error_is_slave(pack); return;
 	}
-
-	uint32_t port_no = be32toh(pack->ofh_port_mod->port_no);
-
-	/*
-	 * update cofport structure in fwdelem->phy_ports
-	 */
-	if (rofbase->phy_ports.find(port_no) == rofbase->phy_ports.end())
-	{
-		throw eOFctrlPortNotFound();
-	}
-
-	rofbase->phy_ports[port_no]->recv_port_mod(
-						be32toh(pack->ofh_port_mod->config),
-						be32toh(pack->ofh_port_mod->mask),
-						be32toh(pack->ofh_port_mod->advertise));
 
 	rofbase->handle_port_mod(this, pack);
 }

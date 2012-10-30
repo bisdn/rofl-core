@@ -136,28 +136,6 @@ private:
 
 	std::string						info;
 
-protected: // data structures
-
-	// controlling and controlled entities
-	//
-
-	std::map<uint8_t, cfttable*> 	flow_tables; 	// OF1.1 forwarding tables for this emulated switch instance (layer-(n), not layer-(n-1)!)
-	cgttable 						group_table; 	// OF1.1 group table
-	cfwdtable 						fwdtable; 		// forwarding entries table (MAC learning)
-
-public:
-
-	std::set<cfibentry*> 			fib_table;		// FIB
-
-	friend class cfttable;
-
-
-protected:
-
-	enum fwdelem_timer_t {
-		TIMER_FE_BASE = (0x0020 << 16),
-	};
-
 	enum fwdelem_state_t {
 		CFWD_STATE_DISCONNECTED = 1,
 		CFWD_STATE_CONNECTING = 2,
@@ -166,10 +144,8 @@ protected:
 		CFWD_STATE_FAIL_STANDALONE_MODE = 5,
 	};
 
-	enum fwdelem_rpc_t { // for cofrpc *rpc[2]; (see below)
-		RPC_CTL = 0,
-		RPC_DPT = 1,
-	};
+
+public:
 
 	/*
 	 * default constants
@@ -180,12 +156,44 @@ protected:
 		DEFAULT_FE_TABLES_NUM = 1,
 	};
 
-public:
-
 	enum fwdelem_stats_t {
 		hw_byte_stats,
 		hw_packet_stats
 	};
+
+protected: // data structures
+
+	// controlling and controlled entities
+	//
+
+	std::string 					dpname;			// datapath device name
+	uint64_t 						dpid; 			// datapath ID presented to higher layer
+	uint16_t 						flags; 			// config: flags
+	uint16_t 						miss_send_len; 	// config: miss_send_len
+	uint32_t 						n_buffers; 		// number of buffer entries for queuing packets
+	uint8_t  						n_tables; 		// number of tables
+	uint32_t 						capabilities; 	// capabilities
+	std::map<uint32_t, cphyport*> 	phy_ports; 		// ports that we present to the higher layer
+
+	std::map<uint8_t, cfttable*> 	flow_tables; 	// OF1.1 forwarding tables for this emulated switch instance (layer-(n), not layer-(n-1)!)
+	cgttable 						group_table; 	// OF1.1 group table
+	cfwdtable 						fwdtable; 		// forwarding entries table (MAC learning)
+
+public:
+
+	std::set<cfibentry*> 			fib_table;		// FIB
+	std::string 					s_dpid;			// dpid as string
+
+	friend class cfttable;
+
+
+protected:
+
+	enum fwdelem_timer_t {
+		TIMER_FE_BASE = (0x0020 << 16),
+	};
+
+
 
 
 
@@ -217,12 +225,76 @@ public: // constructor + destructor
 	~cfwdelem();
 
 
+	/** returns this->dpid
+	 *
+	 */
+	uint64_t
+	get_dpid()
+	{
+		return dpid;
+	};
+
+	const char*
+	get_s_dpid()
+	{
+		return s_dpid.c_str();
+	};
+
+	/**
+	 * getter for this->dpname
+	 * @return datapath name
+	 */
+	const std::string&
+	get_dpname() const
+	{
+		return dpname;
+	}
+
+
+	/** get dpid
+	 */
+	uint64_t
+	getdpid() { return dpid; };
+
+
+	/**
+	 *
+	 */
+	virtual void
+	port_attach(
+			std::string devname,
+			uint32_t port_no);
+
+	/**
+	 *
+	 */
+	virtual void
+	port_detach(
+			uint32_t port_no);
+
 
 	/** reset all flow and group tables
 	 */
 	void
 	tables_reset();
 
+
+protected:
+
+
+	/** Handle OF features request. To be overwritten by derived class.
+	 *
+	 * OF FEATURES.requests are handled by the crofbase base class in method
+	 * crofbase::send_features_reply(). However,
+	 * this method handle_features_request() may be overloaded by a derived class to get a notification
+	 * upon reception of a FEATURES.request from the controlling entity.
+	 * Default behaviour is to remove the packet from the heap.
+	 * The OF packet must be removed from heap by the overwritten method.
+	 *
+	 * @param pack OF packet received from controlling entity.
+	 */
+	virtual void
+	handle_features_request(cofctrl *ofctrl, cofpacket *pack);
 
 
 
@@ -288,6 +360,13 @@ protected:
 	 */
 	virtual void
 	handle_table_stats_request(cofctrl *ofctrl, cofpacket *pack);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_port_stats_request(cofctrl *ofctrl, cofpacket *pack);
 
 
 	/**
@@ -382,6 +461,16 @@ protected:
 	virtual void
 	handle_table_mod(cofctrl *ofctrl, cofpacket *pack);
 
+	/** Handle OF port-mod message. To be overwritten by derived class.
+	 *
+	 * Called upon reception of a PORT-MOD.message from the controlling entity.
+	 * The OF packet must be removed from heap by the overwritten method.
+	 *
+	 * @param pack PORT-MOD.message packet received from controller.
+	 */
+	virtual void
+	handle_port_mod(cofctrl *ofctrl, cofpacket *pack);
+
 	/** Handle OF flow-removed message. To be overwritten by derived class.
 	 *
 	 * Called upon reception of a FLOW-REMOVED.message from a datapath entity.
@@ -401,7 +490,7 @@ protected:
 	 * @param pack SET-CONFIG.message packet received from controller.
 	 */
 	virtual void
-	handle_set_config(cofctrl *ofctrl, cofpacket *pack) { delete pack; };
+	handle_set_config(cofctrl *ofctrl, cofpacket *pack);
 
 	/** Handle OF queue-get-config reply. To be overwritten by derived class.
  	 *
@@ -561,11 +650,6 @@ public: // miscellaneous methods
 	virtual const char*
 	c_str();
 
-	/** get dpid
-	 */
-	uint64_t
-	getdpid() { return dpid; };
-
 	/**
 	 *
 	 */
@@ -577,6 +661,13 @@ public: // miscellaneous methods
 	 */
 	cfttable&
 	get_succ_fttable(uint8_t tableid) throw (eFwdElemNotFound);
+
+	/** get free port number (with respect to this->phy_ports)
+	 *
+	 */
+	virtual uint32_t
+	phy_port_get_free_portno()
+	throw (eFwdElemNotFound);
 
 
 

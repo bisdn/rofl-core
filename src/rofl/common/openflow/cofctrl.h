@@ -108,6 +108,18 @@ public: // methods
 	void
 	features_reply_sent(cofpacket *pack);
 
+	/**
+	 *
+	 */
+	void
+	get_config_request_rcvd(cofpacket *pack);
+
+	/**
+	 *
+	 */
+	void
+	set_config_rcvd(cofpacket *pack);
+
 	/** handle incoming PACKET-OUT messages
 	 */
 	void

@@ -84,10 +84,17 @@ class crofbase :
 	public cofbase,
 	public cfsm
 {
+private: // packet queues for OpenFlow messages
+
+	// queue for incoming packets rcvd from layer-(n+1) controlling entity
+	std::map<int, std::list<cofpacket*> > fe_down_queue;
+	// queue for incoming packets rcvd from layer-(n-1) controlled entities
+	std::map<int, std::list<cofpacket*> > fe_up_queue;
+
+	std::string 					info;			// info string
+
 protected: // data structures
 
-	// controlling and controlled entities
-	//
 #if 0
 	std::map<uint64_t, cofctrl*>	ofctl_map;		// key: ctlid (handle) value: pointer to cofctrl instance
 	std::map<uint64_t, cofdpath*>	ofdpt_map;		// key: dptid (handle) value: pointer to cofdpath instance
@@ -98,20 +105,11 @@ protected: // data structures
 
 
 	cofrpc*							rpc[2];			// rpc TCP endpoints (north and south)
-	std::string 					dpname;			// datapath device name
-	uint64_t 						dpid; 			// datapath ID presented to higher layer
-	uint16_t 						flags; 			// config: flags
-	uint16_t 						miss_send_len; 	// config: miss_send_len
-	uint32_t 						n_buffers; 		// number of buffer entries for queuing packets
-	uint8_t  						n_tables; 		// number of tables
-	uint32_t 						capabilities; 	// capabilities
-	std::map<uint32_t, cphyport*> 	phy_ports; 		// ports that we present to the higher layer
 	cfsptable 						fsptable; 		// namespace table
+
 
 public:
 
-	std::string 					info;			// info string
-	std::string 					s_dpid;			// dpid as string
 
 	friend class cport;
 
@@ -124,7 +122,7 @@ protected:
 		TIMER_FE_HANDLE_HELLO,
 		TIMER_FE_PACKET_IN,
 		TIMER_FE_HANDLE_FEATURES_REQUEST,
-		TIMER_FE_SEND_GET_CONFIG_REPLY,
+		TIMER_FE_HANDLE_GET_CONFIG_REQUEST,
 		TIMER_FE_HANDLE_STATS_REQUEST,
 		TIMER_FE_HANDLE_PACKET_OUT,
 		TIMER_FE_HANDLE_PACKET_IN,
@@ -146,40 +144,19 @@ protected:
 		TIMER_FE_DUMP_OFPACKETS,
 	};
 
-	enum fwdelem_state_t {
-		CFWD_STATE_DISCONNECTED = 1,
-		CFWD_STATE_CONNECTING = 2,
-		CFWD_STATE_CONNECTED = 3,
-		CFWD_STATE_FAIL_SECURE_MODE = 4,
-		CFWD_STATE_FAIL_STANDALONE_MODE = 5,
-	};
-
-	enum fwdelem_rpc_t { // for cofrpc *rpc[2]; (see below)
+	enum crofbase_rpc_t { // for cofrpc *rpc[2]; (see below)
 		RPC_CTL = 0,
 		RPC_DPT = 1,
 	};
 
-	/*
-	 * default constants
-	 */
 
-	enum fwdelem_const_t {
-		DEFAULT_FE_BUFFER_SIZE = 65536,
-		DEFAULT_FE_TABLES_NUM = 1,
-	};
-
-public:
-
-	enum fwdelem_stats_t {
-		hw_byte_stats,
-		hw_packet_stats
-	};
 
 
 public: // static methods and data structures
 
 	static std::set<crofbase*> rofbases; /**< set of all registered fwdelems */
 
+#if 0
 	/** Find crofbase with specified dpid.
 	 *
 	 * A static method for finding a crofbase entity by its datapath ID.
@@ -199,7 +176,7 @@ public: // static methods and data structures
 	 */
 	static crofbase*
 	find_by_name(const std::string &dpname) throw (eRofBaseNotFound);
-
+#endif
 
 
 
@@ -215,10 +192,7 @@ public: // constructor + destructor
 	 * @param dpid datapath ID, if no dpid is specified, a random uint64 number is generated
 	 * @throw eRofBaseExists
 	 */
-	crofbase(std::string dpname = std::string("rof0"),
-			uint64_t dpid = crandom(8).uint64(),
-			uint8_t n_tables = DEFAULT_FE_TABLES_NUM,
-			uint32_t n_buffers = DEFAULT_FE_BUFFER_SIZE,
+	crofbase(
 			caddress const& rpc_ctl_addr = caddress(AF_INET, "0.0.0.0", 6643),
 			caddress const& rpc_dpt_addr = caddress(AF_INET, "0.0.0.0", 6633)) throw (eRofBaseExists);
 
@@ -230,30 +204,6 @@ public: // constructor + destructor
 	virtual
 	~crofbase();
 
-	/** returns this->dpid
-	 *
-	 */
-	uint64_t
-	get_dpid()
-	{
-		return dpid;
-	};
-
-	const char*
-	get_s_dpid()
-	{
-		return s_dpid.c_str();
-	};
-
-	/**
-	 * getter for this->dpname
-	 * @return datapath name
-	 */
-	const std::string&
-	get_dpname() const
-	{
-		return dpname;
-	}
 
 
 	/** Establish OF TCP connection to control entity
@@ -288,21 +238,6 @@ public: // constructor + destructor
 			cofdpath *dpath);
 
 
-	/**
-	 *
-	 */
-	virtual void
-	port_attach(
-			std::string devname,
-			uint32_t port_no);
-
-	/**
-	 *
-	 */
-	virtual void
-	port_detach(
-			uint32_t port_no);
-
 
 protected:
 
@@ -325,7 +260,7 @@ protected:
 	 * @param pack OF packet received from controlling entity.
 	 */
 	virtual void
-	handle_features_request(cofctrl *ofctrl, cofpacket *pack);
+	handle_features_request(cofctrl *ofctrl, cofpacket *pack) { delete pack; };
 
 	/** Handle OF features reply. To be overwritten by derived class.
 	 *
@@ -354,6 +289,17 @@ protected:
 	 */
 	virtual void
 	handle_features_reply_timeout(cofdpath *sw) {};
+
+	/** Handle OF get-config request. To be overwritten by derived class.
+	 *
+	 * Called from within crofbase::fe_down_get_config_request().
+	 * The OF packet must be removed from heap by the overwritten method.
+	 *
+	 * @param ctrl cofdpath instance from whom the GET-CONFIG.request was received.
+	 * @pack OF GET-CONFIG.request packet received from controller
+	 */
+	virtual void
+	handle_get_config_request(cofctrl *ctrl, cofpacket *pack) { delete pack; };
 
 	/** Handle OF get-config reply. To be overwritten by derived class.
 	 *
@@ -743,10 +689,6 @@ public: // miscellaneous methods
 	virtual const char*
 	c_str();
 
-	/** get dpid
-	 */
-	uint64_t
-	getdpid() { return dpid; };
 
 	/** enable/disable namespace support
 	 *
@@ -755,69 +697,6 @@ public: // miscellaneous methods
 	nsp_enable(bool enable = true);
 
 
-#if 0
-public: // specific hardware support
-
-	/** Create and return a new cftentry (flow-table entry) instance on heap.
-	 * To be overwritten by derived class.
-	 *
-	 * Derived classes with specific hardware devices may require cftentry instances
-	 * with extended abilities. This method is called to create a derived instance from #
-	 * base class cftentry. The derived cftentry class should include hardware specific
-	 * adaptations.
-	 *
-	 * The default behavior returns an instance of the base class cftentry with no hardware support.
-	 *
-	 * @param *owner The owner is notified when a flow table entry expires and a notification
-	 * must be sent to a controlling entity.
-	 * @param *flow_table The flow-table instance (cfttable) that holds this cftentry instance.
-	 * The cftentry instance removes itself from cfttable once its destructor gets called.
-	 * @param *flow_mod The OF flow-mod structure to be stored in the cftentry instance.
-	 * @return A derived or the base version of cftentry.
-	 */
-	virtual
-	cftentry*
-	hw_create_cftentry(
-		cftentry_owner *owner,
-		std::set<cftentry*> *flow_table,
-		cofpacket *pack);
-
-public: // overloaded from cftentry_owner
-
-	/** called upon timer expiration
-	 */
-	virtual void
-	ftentry_timeout(
-			cftentry *fte, uint16_t timeout);
-
-public: // overloaded from cgtentry_owner
-
-	/** called upon timer expiration
-	 */
-	virtual void
-	gtentry_timeout(
-			cgtentry *gte, uint16_t timeout);
-
-public: // overloaded from cfibentry_owner
-
-	/** called upon timer expiration
-	 */
-	virtual void
-	fibentry_timeout(cfibentry *fibentry);
-
-
-	/**
-	 *
-	 */
-	cfttable&
-	get_fttable(uint8_t tableid) throw (eRofBaseNotFound);
-
-	/**
-	 *
-	 */
-	cfttable&
-	get_succ_fttable(uint8_t tableid) throw (eRofBaseNotFound);
-#endif
 
 
 
@@ -1243,7 +1122,11 @@ public:
 	 *
 	 */
 	virtual void
-	send_get_config_reply();
+	send_get_config_reply(
+			cofctrl *ofctrl,
+			uint32_t xid,
+			uint16_t flags,
+			uint16_t miss_send_len);
 
 	// STATS request/reply
 	//
@@ -1626,12 +1509,6 @@ public:
 			uint64_t generation_id);
 
 
-	/** get free port number (with respect to this->phy_ports)
-	 *
-	 */
-	virtual uint32_t
-	phy_port_get_free_portno()
-	throw (eRofBaseNotFound);
 
 
 private: // methods
@@ -1652,6 +1529,15 @@ private: // methods
 	 */
 	void
 	recv_features_request();
+
+	// GET-CONFIG request
+	//
+
+	/**
+	 *
+	 */
+	void
+	recv_get_config_request();
 
 	// STATS request
 	//
@@ -1867,15 +1753,6 @@ public:
 	ofctrl_exists(
 			const cofctrl *ofctrl) throw (eRofBaseNotFound);
 
-#if 0
-public: // FIB related methods
-
-	/**
-	 *
-	 */
-	uint32_t
-	fib_table_find(uint64_t from, uint64_t to) throw (eRofBaseNotFound);
-#endif
 
 
 
@@ -1923,12 +1800,6 @@ private: // methods for attaching/detaching other cofbase instances
 	ctrl_detach(cofbase* dp);
 
 
-private: // packet queues for OpenFlow messages
-
-	// queue for incoming packets rcvd from layer-(n+1) controlling entity
-	std::map<int, std::list<cofpacket*> > fe_down_queue;
-	// queue for incoming packets rcvd from layer-(n-1) controlled entities
-	std::map<int, std::list<cofpacket*> > fe_up_queue;
 
 private: // data structures
 
@@ -1938,6 +1809,7 @@ private: // data structures
 
 	std::bitset<32> fe_flags;
 
+#if 0
 	/** find crofbase in set crofbase::fwdelems by dpname (e.g. "ctl0")
 	 *
 	 */
@@ -1961,6 +1833,7 @@ private: // data structures
 			return (dpid == fe->dpid);
 		};
 	};
+#endif
 };
 
 

@@ -43,9 +43,14 @@ cfwdelem::cfwdelem(
 		uint32_t n_buffers,
 		caddress const& rpc_ctl_addr,
 		caddress const& rpc_dpt_addr) :
-		crofbase(dpname, dpid, n_tables, n_buffers, rpc_ctl_addr, rpc_dpt_addr)
+				crofbase(rpc_ctl_addr, rpc_dpt_addr),
+				dpname(dpname),
+				dpid(dpid),
+				n_buffers(n_buffers),
+				n_tables(n_tables)
 {
 	cvastring vas;
+	s_dpid.assign(vas("dpid[%016llx]", dpid));
 
 	// create all flow-tables ...
 	for (int i = 0; i < n_tables; ++i)
@@ -65,6 +70,12 @@ cfwdelem::~cfwdelem()
 	cfwdelem::fwdelems.erase(this);
 
 	WRITELOG(CFWD, DBG, "destroy cfwdelem(%p)::cfwdelem() ", this);
+
+	// remove all physical ports
+	while (not phy_ports.empty())
+	{
+		delete (phy_ports.begin()->second);
+	}
 
 	while (not fib_table.empty())
 	{
@@ -135,7 +146,43 @@ cfwdelem::c_str()
 
 	info.assign(vas("cfwdelem(%p): =>", this));
 
+	// cofport instances
+	info.append(vas("\nlist of registered cofport instances: =>"));
+	std::map<uint32_t, cphyport*>::iterator it;
+	for (it = phy_ports.begin(); it != phy_ports.end(); ++it)
+	{
+		info.append(vas("\n  %s", it->second->c_str()));
+	}
+
 	return info.c_str();
+}
+
+
+
+void
+cfwdelem::port_attach(
+		std::string devname,
+		uint32_t port_no)
+{
+	if (phy_ports.find(port_no) == phy_ports.end())
+	{
+		new cphyport(&phy_ports, port_no);
+
+		send_port_status_message(OFPPR_ADD, phy_ports[port_no]);
+	}
+}
+
+
+void
+cfwdelem::port_detach(
+		uint32_t port_no)
+{
+	if (phy_ports.find(port_no) != phy_ports.end())
+	{
+		send_port_status_message(OFPPR_DELETE, phy_ports[port_no]);
+
+		delete phy_ports[port_no];
+	}
 }
 
 
@@ -182,7 +229,7 @@ cfwdelem::handle_timeout(int opaque)
 		switch (opaque) {
 		default:
 			{
-				crofbase::handle_timeout(opaque);
+				cfwdelem::handle_timeout(opaque);
 			}
 			break;
 		}
@@ -268,6 +315,49 @@ cfwdelem::fibentry_timeout(cfibentry *fibentry)
 }
 
 
+
+ void
+ cfwdelem::handle_features_request(cofctrl *ofctrl, cofpacket *request)
+ {
+ 	WRITELOG(CFWD, DBG, "cfwdelem(%s)::handle_features_request()", dpname.c_str());
+
+
+ 	cmemory body(phy_ports.size() * sizeof(struct ofp_port));
+
+ 	struct ofp_port *port = (struct ofp_port*)body.somem();
+
+ 	for (std::map<uint32_t, cphyport*>::iterator
+ 			it = phy_ports.begin(); it != phy_ports.end(); ++it)
+ 	{
+ 		it->second->pack(port, sizeof(struct ofp_port));
+ 		WRITELOG(CFWD, DBG, "==> %s", it->second->c_str());
+ 		port++;
+ 	}
+
+ 	send_features_reply(
+ 			ofctrl,
+ 			request->get_xid(),
+ 			dpid,
+ 			n_buffers,
+ 			n_tables,
+ 			capabilities,
+ 			body.somem(),
+ 			body.memlen());
+
+ 	delete request;
+ }
+
+
+
+ void
+ cfwdelem::handle_set_config(cofctrl *ofctrl, cofpacket *pack)
+ {
+	flags = be16toh(pack->ofh_switch_config->flags);
+	miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
+ }
+
+
+
 void
 cfwdelem::handle_desc_stats_request(
 		cofctrl *ofctrl,
@@ -318,6 +408,54 @@ cfwdelem::handle_table_stats_request(
 			pack->get_xid(),
 			OFPST_TABLE,
 			(uint8_t*)body.somem(), body.memlen());
+
+	delete pack;
+}
+
+
+void
+cfwdelem::handle_port_stats_request(
+		cofctrl *ofctrl,
+		cofpacket *pack)
+{
+	uint32_t port_no = be32toh(pack->ofb_port_stats_request->port_no);
+
+	cmemory body(0);
+
+	try {
+		if (OFPP_ANY == port_no)
+		{
+			for (std::map<uint32_t, cphyport*>::iterator
+					it = phy_ports.begin(); it != phy_ports.end(); ++it)
+			{
+				cofport *port = it->second;
+				port->get_port_stats(body);
+			}
+		}
+		else
+		{
+			if (phy_ports.find(port_no) == phy_ports.end())
+			{
+				throw eFwdElemNotFound();
+			}
+
+			phy_ports[port_no]->get_port_stats(body);
+		}
+
+		send_stats_reply(
+					ofctrl,
+					pack->get_xid(),
+					OFPST_PORT,
+					body.somem(), body.memlen());
+
+
+
+	} catch (eFwdElemNotFound& e) {
+
+		send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_PORT,
+				pack->soframe(), pack->framelen());
+
+	}
 
 	delete pack;
 }
@@ -594,79 +732,96 @@ cfwdelem::handle_flow_mod(cofctrl *ofctrl, cofpacket *pack)
 {
 	cftentry *fte = NULL;
 
-	// table_id == 255 (all tables)
-	if (OFPTT_ALL == pack->ofh_flow_mod->table_id)
-	{
-		std::map<uint8_t, cfttable*>::iterator it;
-		for (it = flow_tables.begin(); it != flow_tables.end(); ++it)
+	try {
+		// table_id == 255 (all tables)
+		if (OFPTT_ALL == pack->ofh_flow_mod->table_id)
 		{
-			if ((fte = it->second->update_ft_entry(this, pack)) != NULL)
+			std::map<uint8_t, cfttable*>::iterator it;
+			for (it = flow_tables.begin(); it != flow_tables.end(); ++it)
 			{
-				fte->ofctrl = ofctrl; // store controlling entity for this cftentry
-				WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
-						this, pack->ofh_flow_mod->table_id, fte->c_str());
+				if ((fte = it->second->update_ft_entry(this, pack)) != NULL)
+				{
+					fte->ofctrl = ofctrl; // store controlling entity for this cftentry
+					WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
+							this, pack->ofh_flow_mod->table_id, fte->c_str());
+				}
 			}
 		}
-	}
-	// single table
-	else
-	{
-		// check for existence of specified table
-		if (flow_tables.find(pack->ofh_flow_mod->table_id) == flow_tables.end())
+		// single table
+		else
 		{
-			throw eFwdElemTableNotFound();
+			// check for existence of specified table
+			if (flow_tables.find(pack->ofh_flow_mod->table_id) == flow_tables.end())
+			{
+				throw eFwdElemTableNotFound();
+			}
+
+			// do not lock here flow_table[i]
+
+			if ((fte = flow_tables[pack->ofh_flow_mod->table_id]->
+							update_ft_entry(this, pack)) == NULL)
+			{
+				return;
+			}
+
+
+
+			fte->ofctrl = ofctrl; // store controlling entity for this cftentry
+			WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
+					this, pack->ofh_flow_mod->table_id, fte->c_str());
+
+
+			try {
+				WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() new fte created: %s", this, fte->c_str());
+
+				cofinst& inst = fte->instructions.find_inst(OFPIT_GOTO_TABLE);
+
+				if (flow_tables.find(inst.oin_goto_table->table_id) == flow_tables.end())
+				{
+					throw eFwdElemGotoTableNotFound();
+				}
+
+			} catch (eInListNotFound& e) {}
 		}
 
-		// do not lock here flow_table[i]
-
-		if ((fte = flow_tables[pack->ofh_flow_mod->table_id]->
-						update_ft_entry(this, pack)) == NULL)
+		if (0 != fte)
 		{
-			return;
+			switch (pack->ofh_group_mod->command) {
+			case OFPFC_ADD:
+				{
+					flow_mod_add(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+				}
+				break;
+			case OFPFC_MODIFY:
+			case OFPFC_MODIFY_STRICT:
+				{
+					flow_mod_modify(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+				}
+				break;
+			case OFPFC_DELETE:
+			case OFPFC_DELETE_STRICT:
+				{
+					flow_mod_delete(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+				}
+				break;
+			}
 		}
 
 
+	} catch (eFlowTableEntryOverlaps& e) {
 
-		fte->ofctrl = ofctrl; // store controlling entity for this cftentry
-		WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
-				this, pack->ofh_flow_mod->table_id, fte->c_str());
+		WRITELOG(CFWD, DBG, "cfwdelem(%s)::recv_flow_mod() "
+				"flow-entry error: entry overlaps", dpname.c_str());
 
-
-		try {
-			WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() new fte created: %s", this, fte->c_str());
-
-			cofinst& inst = fte->instructions.find_inst(OFPIT_GOTO_TABLE);
-
-			if (flow_tables.find(inst.oin_goto_table->table_id) == flow_tables.end())
-			{
-				throw eFwdElemGotoTableNotFound();
-			}
-
-		} catch (eInListNotFound& e) {}
+		send_error_message(
+				ofctrl_find(pack->entity),
+				pack->get_xid(),
+				OFPET_FLOW_MOD_FAILED,
+				OFPFMFC_OVERLAP,
+				pack->soframe(), pack->framelen());
 	}
 
-	if (0 != fte)
-	{
-		switch (pack->ofh_group_mod->command) {
-		case OFPFC_ADD:
-			{
-				flow_mod_add(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
-			}
-			break;
-		case OFPFC_MODIFY:
-		case OFPFC_MODIFY_STRICT:
-			{
-				flow_mod_modify(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
-			}
-			break;
-		case OFPFC_DELETE:
-		case OFPFC_DELETE_STRICT:
-			{
-				flow_mod_delete(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
-			}
-			break;
-		}
-	}
+	delete pack;
 }
 
 
@@ -774,6 +929,26 @@ cfwdelem::handle_table_mod(cofctrl *ofctrl, cofpacket *pack)
 
 
 void
+cfwdelem::handle_port_mod(cofctrl *ofctrl, cofpacket *pack)
+{
+	uint32_t port_no = be32toh(pack->ofh_port_mod->port_no);
+
+	if (phy_ports.find(port_no) == phy_ports.end())
+	{
+		throw eOFctrlPortNotFound();
+	}
+
+	phy_ports[port_no]->recv_port_mod(
+						be32toh(pack->ofh_port_mod->config),
+						be32toh(pack->ofh_port_mod->mask),
+						be32toh(pack->ofh_port_mod->advertise));
+
+	delete pack;
+}
+
+
+
+void
 cfwdelem::handle_stats_reply(cofdpath *dpt, cofpacket *pack)
 {
 	// extract all ofp_table_stats structures from
@@ -823,4 +998,25 @@ cfwdelem::handle_flow_removed(cofdpath *sw, cofpacket *pack)
 	}
 	delete pack;
 }
+
+
+
+
+uint32_t
+cfwdelem::phy_port_get_free_portno()
+			throw (eFwdElemNotFound)
+{
+	uint32_t portno = 1;
+	while (phy_ports.find(portno) != phy_ports.end())
+	{
+		portno++;
+		if (portno == std::numeric_limits<uint32_t>::max())
+		{
+			throw eRofBaseNotFound();
+		}
+	}
+	return portno;
+}
+
+
 
