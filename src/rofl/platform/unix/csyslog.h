@@ -135,6 +135,7 @@ public:
 		CPPP,				/* 52 dump cppp internals */
 		COFBUCKET,			/* 53 dump cofbucket internals */
 		CGTENTRY,			/* 54 dump cgtentry internals */
+		CROFBASE,			/* 55 dump crofbase internals */
 		MAX_DEBUG_CLASSES	/* not for debugging use! */
 		/* do not put anything beyond MAX_DEBUG_CLASSES! */
 	};

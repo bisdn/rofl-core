@@ -136,6 +136,8 @@ private:
 
 	std::string						info;
 
+protected: // data structures
+
 	enum fwdelem_state_t {
 		CFWD_STATE_DISCONNECTED = 1,
 		CFWD_STATE_CONNECTING = 2,
@@ -144,6 +146,21 @@ private:
 		CFWD_STATE_FAIL_STANDALONE_MODE = 5,
 	};
 
+	// controlling and controlled entities
+	//
+
+	std::string 					dpname;			// datapath device name
+	uint64_t 						dpid; 			// datapath ID presented to higher layer
+	uint32_t 						n_buffers; 		// number of buffer entries for queuing packets
+	uint8_t  						n_tables; 		// number of tables
+	uint32_t 						capabilities; 	// capabilities
+	uint16_t 						flags; 			// config: flags
+	uint16_t 						miss_send_len; 	// config: miss_send_len
+	std::map<uint32_t, cphyport*> 	phy_ports; 		// ports that we present to the higher layer
+
+	std::map<uint8_t, cfttable*> 	flow_tables; 	// OF1.1 forwarding tables for this emulated switch instance (layer-(n), not layer-(n-1)!)
+	cgttable 						group_table; 	// OF1.1 group table
+	cfwdtable 						fwdtable; 		// forwarding entries table (MAC learning)
 
 public:
 
@@ -153,6 +170,7 @@ public:
 
 	enum fwdelem_const_t {
 		DEFAULT_FE_BUFFER_SIZE = 65536,
+		DEFAULT_FE_MISS_SEND_LEN = 128,
 		DEFAULT_FE_TABLES_NUM = 1,
 	};
 
@@ -160,26 +178,6 @@ public:
 		hw_byte_stats,
 		hw_packet_stats
 	};
-
-protected: // data structures
-
-	// controlling and controlled entities
-	//
-
-	std::string 					dpname;			// datapath device name
-	uint64_t 						dpid; 			// datapath ID presented to higher layer
-	uint16_t 						flags; 			// config: flags
-	uint16_t 						miss_send_len; 	// config: miss_send_len
-	uint32_t 						n_buffers; 		// number of buffer entries for queuing packets
-	uint8_t  						n_tables; 		// number of tables
-	uint32_t 						capabilities; 	// capabilities
-	std::map<uint32_t, cphyport*> 	phy_ports; 		// ports that we present to the higher layer
-
-	std::map<uint8_t, cfttable*> 	flow_tables; 	// OF1.1 forwarding tables for this emulated switch instance (layer-(n), not layer-(n-1)!)
-	cgttable 						group_table; 	// OF1.1 group table
-	cfwdtable 						fwdtable; 		// forwarding entries table (MAC learning)
-
-public:
 
 	std::set<cfibentry*> 			fib_table;		// FIB
 	std::string 					s_dpid;			// dpid as string
@@ -296,43 +294,6 @@ protected:
 	virtual void
 	handle_features_request(cofctrl *ofctrl, cofpacket *pack);
 
-
-
-	/** Handle new dpath
-	 *
-	 * Called upon creation of a new cofswitch instance.
-	 *
-	 * @param sw new cofswitch instance
-	 */
-	virtual void
-	handle_dpath_open(cofdpath *dpt);
-
-	/** Handle close event on dpath
-	 *
-	 * Called upon deletion of a cofswitch instance
-	 *
-	 * @param sw cofswitch instance to be deleted
-	 */
-	virtual void
-	handle_dpath_close(cofdpath *dpt);
-
-	/** Handle new ctrl
-	 *
-	 * Called upon creation of a new cofctrl instance.
-	 *
-	 * @param ctrl new cofctrl instance
-	 */
-	virtual void
-	handle_ctrl_open(cofctrl *ctl);
-
-	/** Handle close event on ctrl
-	 *
-	 * Called upon deletion of a cofctrl instance
-	 *
-	 * @param ctrl cofctrl instance to be deleted
-	 */
-	virtual void
-	handle_ctrl_close(cofctrl *ctl);
 
 
 

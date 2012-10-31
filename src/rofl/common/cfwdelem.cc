@@ -8,6 +8,7 @@
 
 /* static */ std::set<cfwdelem*> cfwdelem::fwdelems;
 
+
 /* static */
 cfwdelem*
 cfwdelem::find_by_name(const std::string &dpname) throw (eFwdElemNotFound)
@@ -20,6 +21,7 @@ cfwdelem::find_by_name(const std::string &dpname) throw (eFwdElemNotFound)
 	}
 	return (*it);
 }
+
 
 
 /* static */
@@ -36,6 +38,7 @@ cfwdelem::find_by_dpid(uint64_t dpid) throw (eFwdElemNotFound)
 }
 
 
+
 cfwdelem::cfwdelem(
 		std::string dpname,
 		uint64_t dpid,
@@ -47,7 +50,11 @@ cfwdelem::cfwdelem(
 				dpname(dpname),
 				dpid(dpid),
 				n_buffers(n_buffers),
-				n_tables(n_tables)
+				n_tables(n_tables),
+				capabilities(OFPC_FLOW_STATS | OFPC_TABLE_STATS | OFPC_PORT_STATS | OFPC_GROUP_STATS),
+				// OFPC_IP_REASM, OFPC_QUEUE_STATS, OFPC_PORT_BLOCKED
+				flags(0),
+				miss_send_len(DEFAULT_FE_MISS_SEND_LEN)
 {
 	cvastring vas;
 	s_dpid.assign(vas("dpid[%016llx]", dpid));
@@ -63,6 +70,7 @@ cfwdelem::cfwdelem(
 
 	cfwdelem::fwdelems.insert(this);
 }
+
 
 
 cfwdelem::~cfwdelem()
@@ -94,38 +102,6 @@ cfwdelem::~cfwdelem()
 
 
 void
-cfwdelem::handle_dpath_open(cofdpath *dpt)
-{
-
-}
-
-
-
-void
-cfwdelem::handle_dpath_close(cofdpath *dpt)
-{
-
-}
-
-
-
-void
-cfwdelem::handle_ctrl_open(cofctrl *ctl)
-{
-
-}
-
-
-
-void
-cfwdelem::handle_ctrl_close(cofctrl *ctl)
-{
-
-}
-
-
-
-void
 cfwdelem::tables_reset()
 {
 	group_table.reset();
@@ -137,6 +113,7 @@ cfwdelem::tables_reset()
 	}
 	flow_tables.clear();
 }
+
 
 
 const char*
@@ -173,6 +150,7 @@ cfwdelem::port_attach(
 }
 
 
+
 void
 cfwdelem::port_detach(
 		uint32_t port_no)
@@ -187,7 +165,6 @@ cfwdelem::port_detach(
 
 
 
-
 cfttable&
 cfwdelem::get_fttable(uint8_t tableid) throw (eFwdElemNotFound)
 {
@@ -197,6 +174,7 @@ cfwdelem::get_fttable(uint8_t tableid) throw (eFwdElemNotFound)
 	}
 	return (*flow_tables[tableid]);
 }
+
 
 
 cfttable&
@@ -221,7 +199,6 @@ cfwdelem::get_succ_fttable(uint8_t tableid) throw (eFwdElemNotFound)
 
 
 
-
 void
 cfwdelem::handle_timeout(int opaque)
 {
@@ -229,7 +206,7 @@ cfwdelem::handle_timeout(int opaque)
 		switch (opaque) {
 		default:
 			{
-				cfwdelem::handle_timeout(opaque);
+				crofbase::handle_timeout(opaque);
 			}
 			break;
 		}
@@ -247,8 +224,6 @@ cfwdelem::handle_timeout(int opaque)
 
 
 
-
-
 cftentry*
 cfwdelem::hw_create_cftentry(
 	cftentry_owner *owner,
@@ -257,7 +232,6 @@ cfwdelem::hw_create_cftentry(
 {
 	return new cftentry(owner, flow_table, pack, this);
 }
-
 
 
 
@@ -288,6 +262,7 @@ cfwdelem::ftentry_timeout(
 }
 
 
+
 void
 cfwdelem::gtentry_timeout(
 		cgtentry *gte,
@@ -298,7 +273,8 @@ cfwdelem::gtentry_timeout(
 }
 
 
- void
+
+void
 cfwdelem::fibentry_timeout(cfibentry *fibentry)
 {
 	WRITELOG(CFWD, DBG, "cfwdelem(%p)::fibentry_timeout() %s",
@@ -316,9 +292,9 @@ cfwdelem::fibentry_timeout(cfibentry *fibentry)
 
 
 
- void
- cfwdelem::handle_features_request(cofctrl *ofctrl, cofpacket *request)
- {
+void
+cfwdelem::handle_features_request(cofctrl *ofctrl, cofpacket *request)
+{
  	WRITELOG(CFWD, DBG, "cfwdelem(%s)::handle_features_request()", dpname.c_str());
 
 
@@ -345,16 +321,16 @@ cfwdelem::fibentry_timeout(cfibentry *fibentry)
  			body.memlen());
 
  	delete request;
- }
+}
 
 
 
- void
- cfwdelem::handle_set_config(cofctrl *ofctrl, cofpacket *pack)
- {
+void
+cfwdelem::handle_set_config(cofctrl *ofctrl, cofpacket *pack)
+{
 	flags = be16toh(pack->ofh_switch_config->flags);
 	miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
- }
+}
 
 
 
@@ -379,6 +355,7 @@ cfwdelem::handle_desc_stats_request(
 
 	delete pack;
 }
+
 
 
 void
@@ -411,6 +388,7 @@ cfwdelem::handle_table_stats_request(
 
 	delete pack;
 }
+
 
 
 void
@@ -459,6 +437,7 @@ cfwdelem::handle_port_stats_request(
 
 	delete pack;
 }
+
 
 
 void
@@ -520,6 +499,7 @@ cfwdelem::handle_flow_stats_request(
 
 	delete pack;
 }
+
 
 
 void
@@ -615,6 +595,7 @@ cfwdelem::handle_aggregate_stats_request(
 }
 
 
+
 void
 cfwdelem::handle_queue_stats_request(
 		cofctrl *ofctrl,
@@ -632,6 +613,7 @@ cfwdelem::handle_queue_stats_request(
 
 	delete pack;
 }
+
 
 
 void
@@ -673,6 +655,7 @@ cfwdelem::handle_group_stats_request(
 }
 
 
+
 void
 cfwdelem::handle_group_desc_stats_request(
 		cofctrl *ofctrl,
@@ -692,6 +675,7 @@ cfwdelem::handle_group_desc_stats_request(
 }
 
 
+
 void
 cfwdelem::handle_group_features_stats_request(
 		cofctrl *ofctrl,
@@ -709,7 +693,6 @@ cfwdelem::handle_group_features_stats_request(
 
 	delete pack;
 }
-
 
 
 
