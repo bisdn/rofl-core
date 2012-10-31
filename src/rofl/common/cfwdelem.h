@@ -295,7 +295,16 @@ protected:
 	handle_features_request(cofctrl *ofctrl, cofpacket *pack);
 
 
-
+	/** Handle OF get-config request. To be overwritten by derived class.
+	 *
+	 * Called from within crofbase::fe_down_get_config_request().
+	 * The OF packet must be removed from heap by the overwritten method.
+	 *
+	 * @param ctrl cofdpath instance from whom the GET-CONFIG.request was received.
+	 * @pack OF GET-CONFIG.request packet received from controller
+	 */
+	virtual void
+	handle_get_config_request(cofctrl *ctrl, cofpacket *pack);
 
 
 

@@ -1101,6 +1101,7 @@ crofbase::fe_down_stats_request(
 }
 
 
+
 void
 crofbase::recv_stats_request()
 {
@@ -1114,74 +1115,13 @@ crofbase::recv_stats_request()
 
 	ofctrl_find(request->entity)->stats_request_rcvd(request);
 
-	switch (be16toh(request->ofh_stats_request->type)) {
-	case OFPST_DESC:
-		{
-			handle_desc_stats_request(ofctrl_find(request->entity), request);
-		}
-		break;
-	case OFPST_TABLE:
-		{
-			handle_table_stats_request(ofctrl_find(request->entity), request);
-		}
-		break;
-	case OFPST_PORT:
-		{
-			handle_port_stats_request(ofctrl_find(request->entity), request);
-		}
-		break;
-	case OFPST_FLOW:
-		{
-			handle_flow_stats_request(ofctrl_find(request->entity), request);
-		}
-		break;
-	case OFPST_AGGREGATE:
-		{
-			handle_aggregate_stats_request(ofctrl_find(request->entity), request);
-		}
-		break;
-	case OFPST_QUEUE:
-		{
-			handle_queue_stats_request(ofctrl_find(request->entity), request);
-		}
-		break;
-	case OFPST_GROUP:
-		{
-			handle_group_stats_request(ofctrl_find(request->entity), request);
-		}
-		break;
-	case OFPST_GROUP_DESC:
-		{
-			handle_group_desc_stats_request(ofctrl_find(request->entity), request);
-		}
-		break;
-	case OFPST_GROUP_FEATURES:
-		{
-			handle_group_features_stats_request(ofctrl_find(request->entity), request);
-		}
-		break;
-	case OFPST_EXPERIMENTER:
-		{
-			handle_experimenter_stats_request(ofctrl_find(request->entity), request);
-		}
-		break;
-	default:
-		{
-			WRITELOG(CROFBASE, WARN, "crofbase(%p)::recv_stats_request() "
-					"unknown stats request type (%d)",
-					this, be16toh(request->ofh_stats_request->type));
-
-			handle_stats_request(ofctrl_find(request->entity), request);
-		}
-		break;
-	}
-
 	// further stats request available? re-schedule ourselves
 	if (not fe_down_queue[OFPT_STATS_REQUEST].empty())
 	{
 		register_timer(TIMER_FE_HANDLE_STATS_REQUEST, 0);
 	}
 }
+
 
 
 void
@@ -1197,12 +1137,19 @@ crofbase::handle_stats_request(cofctrl *ofctrl, cofpacket *pack)
 }
 
 
+
 void
 crofbase::handle_desc_stats_request(
 		cofctrl *ofctrl,
 		cofpacket *pack)
 {
-	handle_stats_request(ofctrl, pack);
+	/*
+	 * default handler for all unknown (or unimplemented :) stats requests
+	 */
+	send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_STAT,
+					pack->soframe(), pack->framelen());
+
+	delete pack;
 }
 
 
@@ -1211,7 +1158,13 @@ crofbase::handle_table_stats_request(
 		cofctrl *ofctrl,
 		cofpacket *pack)
 {
-	handle_stats_request(ofctrl, pack);
+	/*
+	 * default handler for all unknown (or unimplemented :) stats requests
+	 */
+	send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_STAT,
+					pack->soframe(), pack->framelen());
+
+	delete pack;
 }
 
 
@@ -1220,7 +1173,13 @@ crofbase::handle_port_stats_request(
 		cofctrl *ofctrl,
 		cofpacket *pack)
 {
-	handle_stats_request(ofctrl, pack);
+	/*
+	 * default handler for all unknown (or unimplemented :) stats requests
+	 */
+	send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_STAT,
+					pack->soframe(), pack->framelen());
+
+	delete pack;
 }
 
 
@@ -1229,7 +1188,13 @@ crofbase::handle_flow_stats_request(
 		cofctrl *ofctrl,
 		cofpacket *pack)
 {
-	handle_stats_request(ofctrl, pack);
+	/*
+	 * default handler for all unknown (or unimplemented :) stats requests
+	 */
+	send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_STAT,
+					pack->soframe(), pack->framelen());
+
+	delete pack;
 }
 
 
@@ -1238,7 +1203,13 @@ crofbase::handle_aggregate_stats_request(
 		cofctrl *ofctrl,
 		cofpacket *pack)
 {
-	handle_stats_request(ofctrl, pack);
+	/*
+	 * default handler for all unknown (or unimplemented :) stats requests
+	 */
+	send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_STAT,
+					pack->soframe(), pack->framelen());
+
+	delete pack;
 }
 
 
@@ -1247,7 +1218,13 @@ crofbase::handle_queue_stats_request(
 		cofctrl *ofctrl,
 		cofpacket *pack)
 {
-	handle_stats_request(ofctrl, pack);
+	/*
+	 * default handler for all unknown (or unimplemented :) stats requests
+	 */
+	send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_STAT,
+					pack->soframe(), pack->framelen());
+
+	delete pack;
 }
 
 
@@ -1256,7 +1233,13 @@ crofbase::handle_group_stats_request(
 		cofctrl *ofctrl,
 		cofpacket *pack)
 {
-	handle_stats_request(ofctrl, pack);
+	/*
+	 * default handler for all unknown (or unimplemented :) stats requests
+	 */
+	send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_STAT,
+					pack->soframe(), pack->framelen());
+
+	delete pack;
 }
 
 
@@ -1265,7 +1248,13 @@ crofbase::handle_group_desc_stats_request(
 		cofctrl *ofctrl,
 		cofpacket *pack)
 {
-	handle_stats_request(ofctrl, pack);
+	/*
+	 * default handler for all unknown (or unimplemented :) stats requests
+	 */
+	send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_STAT,
+					pack->soframe(), pack->framelen());
+
+	delete pack;
 }
 
 
@@ -1274,7 +1263,13 @@ crofbase::handle_group_features_stats_request(
 		cofctrl *ofctrl,
 		cofpacket *pack)
 {
-	handle_stats_request(ofctrl, pack);
+	/*
+	 * default handler for all unknown (or unimplemented :) stats requests
+	 */
+	send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_STAT,
+					pack->soframe(), pack->framelen());
+
+	delete pack;
 }
 
 
@@ -1283,7 +1278,13 @@ crofbase::handle_experimenter_stats_request(
 		cofctrl *ofctrl,
 		cofpacket *pack)
 {
-	handle_stats_request(ofctrl, pack);
+	/*
+	 * default handler for all unknown (or unimplemented :) stats requests
+	 */
+	send_error_message(ofctrl, pack->get_xid(), OFPET_BAD_REQUEST, OFPBRC_BAD_STAT,
+					pack->soframe(), pack->framelen());
+
+	delete pack;
 }
 
 

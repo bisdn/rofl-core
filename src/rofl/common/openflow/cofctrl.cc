@@ -201,7 +201,67 @@ cofctrl::stats_request_rcvd(cofpacket *pack)
 				this, be32toh(pack->ofh_header->xid));
 	}
 
-	rofbase->handle_stats_request(this, pack);
+	switch (be16toh(pack->ofh_stats_request->type)) {
+	case OFPST_DESC:
+		{
+			rofbase->handle_desc_stats_request(this, pack);
+		}
+		break;
+	case OFPST_TABLE:
+		{
+			rofbase->handle_table_stats_request(this, pack);
+		}
+		break;
+	case OFPST_PORT:
+		{
+			rofbase->handle_port_stats_request(this, pack);
+		}
+		break;
+	case OFPST_FLOW:
+		{
+			rofbase->handle_flow_stats_request(this, pack);
+		}
+		break;
+	case OFPST_AGGREGATE:
+		{
+			rofbase->handle_aggregate_stats_request(this, pack);
+		}
+		break;
+	case OFPST_QUEUE:
+		{
+			rofbase->handle_queue_stats_request(this, pack);
+		}
+		break;
+	case OFPST_GROUP:
+		{
+			rofbase->handle_group_stats_request(this, pack);
+		}
+		break;
+	case OFPST_GROUP_DESC:
+		{
+			rofbase->handle_group_desc_stats_request(this, pack);
+		}
+		break;
+	case OFPST_GROUP_FEATURES:
+		{
+			rofbase->handle_group_features_stats_request(this, pack);
+		}
+		break;
+	case OFPST_EXPERIMENTER:
+		{
+			rofbase->handle_experimenter_stats_request(this, pack);
+		}
+		break;
+	default:
+		{
+			WRITELOG(CROFBASE, WARN, "crofbase(%p)::recv_stats_request() "
+					"unknown stats request type (%d)",
+					this, be16toh(pack->ofh_stats_request->type));
+
+			rofbase->handle_stats_request(this, pack);
+		}
+		break;
+	}
 }
 
 

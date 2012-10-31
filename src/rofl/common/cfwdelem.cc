@@ -326,10 +326,26 @@ cfwdelem::handle_features_request(cofctrl *ofctrl, cofpacket *request)
 
 
 void
+cfwdelem::handle_get_config_request(cofctrl *ctrl, cofpacket *pack)
+{
+	send_get_config_reply(
+			ctrl,
+			pack->get_xid(),
+			flags,
+			miss_send_len);
+
+	delete pack;
+}
+
+
+
+void
 cfwdelem::handle_set_config(cofctrl *ofctrl, cofpacket *pack)
 {
 	flags = be16toh(pack->ofh_switch_config->flags);
 	miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
+
+	delete pack;
 }
 
 
@@ -769,7 +785,7 @@ cfwdelem::handle_flow_mod(cofctrl *ofctrl, cofpacket *pack)
 
 		if (0 != fte)
 		{
-			switch (pack->ofh_group_mod->command) {
+			switch (pack->ofh_flow_mod->command) {
 			case OFPFC_ADD:
 				{
 					flow_mod_add(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
@@ -787,6 +803,10 @@ cfwdelem::handle_flow_mod(cofctrl *ofctrl, cofpacket *pack)
 					flow_mod_delete(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
 				}
 				break;
+			default:
+				{
+					delete pack; return;
+				}
 			}
 		}
 
@@ -803,8 +823,6 @@ cfwdelem::handle_flow_mod(cofctrl *ofctrl, cofpacket *pack)
 				OFPFMFC_OVERLAP,
 				pack->soframe(), pack->framelen());
 	}
-
-	delete pack;
 }
 
 
