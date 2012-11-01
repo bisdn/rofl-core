@@ -542,8 +542,8 @@ cofdpath::packet_in_rcvd(cofpacket *pack)
 void
 cofdpath::port_status_rcvd(cofpacket *pack)
 {
-	WRITELOG(COFDPATH, DBG, "crofbase(%s)::cofdpath(0x%016llx)::port_status_rcvd() %s",
-			rofbase->get_s_dpid(), dpid, pack->c_str());
+	WRITELOG(COFDPATH, DBG, "cofdpath(0x%016llx)::port_status_rcvd() %s",
+			dpid, pack->c_str());
 
 	std::map<uint32_t, cofport*>::iterator it;
 	switch (pack->ofh_port_status->reason) {
