@@ -22,7 +22,7 @@ ctlbase::ctlbase(
 
 ctlbase::~ctlbase()
 {
-	std::map<cofbase*, cofdpath*>::iterator it;
+	std::map<cofbase*, cofdpt*>::iterator it;
 	for (it = ofdpath_list.begin(); it != ofdpath_list.end(); ++it)
 	{
 		cofmatch match; // all wildcard
@@ -170,7 +170,7 @@ ctlbase::stack_unload(
 
 void
 ctlbase::handle_dpath_open(
-		cofdpath *dpath)
+		cofdpt *dpath)
 {
 	if ((0 == dpath) || (dpath->dpid != lldpid))
 	{
@@ -206,7 +206,7 @@ ctlbase::handle_dpath_open(
 
 void
 ctlbase::handle_dpath_close(
-		cofdpath *dpath)
+		cofdpt *dpath)
 {
 	if ((0 == dpath) || (dpath->dpid != lldpid))
 	{
@@ -216,7 +216,7 @@ ctlbase::handle_dpath_close(
 	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_close() "
 			"dpid: %llu", dpname.c_str(), dpath->dpid);
 
-	this->dpath = (cofdpath*)0;
+	this->dpath = (cofdpt*)0;
 
 	/*
 	 * inform adapters about detachment of our layer (n-1) datapath
@@ -241,7 +241,7 @@ ctlbase::handle_dpath_close(
  */
 void
 ctlbase::handle_stats_reply(
-		cofdpath *sw,
+		cofdpt *sw,
 		cofpacket *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
@@ -276,7 +276,7 @@ ctlbase::handle_stats_reply(
 
 void
 ctlbase::handle_stats_reply_timeout(
-		cofdpath *sw,
+		cofdpt *sw,
 		uint32_t xid)
 {
 	if (xidstore.xid_find(xid).owner == this)
@@ -295,7 +295,7 @@ ctlbase::handle_stats_reply_timeout(
 
 void
 ctlbase::handle_barrier_reply(
-		cofdpath *sw,
+		cofdpt *sw,
 		cofpacket *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
@@ -320,7 +320,7 @@ ctlbase::handle_barrier_reply(
 
 void
 ctlbase::handle_barrier_reply_timeout(
-		cofdpath *sw,
+		cofdpt *sw,
 		uint32_t xid)
 {
 	// call adapter here?
@@ -335,7 +335,7 @@ ctlbase::handle_barrier_reply_timeout(
  */
 void
 ctlbase::handle_error(
-		cofdpath *sw,
+		cofdpt *sw,
 		cofpacket *pack)
 {
 
@@ -349,7 +349,7 @@ ctlbase::handle_error(
  */
 void
 ctlbase::handle_packet_in(
-		cofdpath *sw,
+		cofdpt *sw,
 		cofpacket *pack)
 {
 	WRITELOG(CFWD, DBG, "\n\n\nUUU\n\n\nctlbase(%s)::handle_packet_in() pack:%s",
@@ -552,7 +552,7 @@ ctlbase::fsp_close(
  */
 void
 ctlbase::handle_port_status(
-		cofdpath *sw,
+		cofdpt *sw,
 		cofpacket *pack,
 		cofport *port)
 {

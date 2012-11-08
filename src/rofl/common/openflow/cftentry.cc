@@ -7,7 +7,7 @@
 
 cftentry::cftentry(
 		cfwdelem *fwdelem,
-		cofctrl *ofctrl) :
+		cofctl *ofctrl) :
 	fwdelem(fwdelem),
 	ofctrl(ofctrl),
 	uid(0),
@@ -34,7 +34,7 @@ cftentry::cftentry(
 		std::set<cftentry*> *flt,
 		cofpacket *pack,
 		cfwdelem *fwdelem,
-		cofctrl *ofctrl) :
+		cofctl *ofctrl) :
 	fwdelem(fwdelem),
 	ofctrl(ofctrl),
 	uid(0),

@@ -270,7 +270,7 @@ csyslog::init_class_names()
 	class_names[CIOSRV]           = std::string("ciosrv");
 	class_names[CPORT]            = std::string("cport");
 	class_names[CPORT_CONFIG]     = std::string("cport_config");
-	class_names[COFDPATH]         = std::string("cofdpath");
+	class_names[COFDPT]         = std::string("cofdpath");
 	class_names[CPCP]             = std::string("cpcp");
 	class_names[CPACKET]          = std::string("cpacket");
 	class_names[COFPACKET]        = std::string("cofpacket");
@@ -288,7 +288,7 @@ csyslog::init_class_names()
 	class_names[CTEST]            = std::string("ctest");
 	class_names[HARDWARE_GENERAL] = std::string("hardware_general");
 	class_names[HARDWARE_PORT]    = std::string("hardware_port");
-	class_names[COFCTRL]          = std::string("cofctrl");
+	class_names[COFCTL]          = std::string("cofctrl");
 	class_names[CNAMESPACE]       = std::string("cnamespace");
 	class_names[CMEMORY]          = std::string("cmemory");
 	class_names[CFRAME]           = std::string("cframe");

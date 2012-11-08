@@ -85,7 +85,7 @@ public:
 		CIOSRV,				/* 2 dump io service details */
 		CPORT,				/* 3 dump port activities */
 		CPORT_CONFIG,		/* 4 dump port configuration activities */
-		COFDPATH,			/* 5 dump all cofswitch internals */
+		COFDPT,				/* 5 dump all cofswitch internals */
 		CPCP,				/* 6 dump PCP operations */
 		CPACKET,			/* 7 dump all packets */
 		COFPACKET,			/* 8 dump PCP packet contents */
@@ -103,7 +103,7 @@ public:
 		CTEST,				/* 20 dump test details */
 		HARDWARE_GENERAL,	/* 21 hardware specific logging */
 		HARDWARE_PORT,		/* 22 hardware-port specific logging */
-		COFCTRL,			/* 23 dump all cofctrl internals */
+		COFCTL,				/* 23 dump all cofctrl internals */
 		CNAMESPACE,			/* 24 dump namespace table internals */
 		CMEMORY,			/* 25 dump cmemory internals */
 		CFRAME,				/* 26 dump frame internals */

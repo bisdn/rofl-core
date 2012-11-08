@@ -30,7 +30,7 @@ extern "C" {
 
 // forward declarations
 class cfwdelem;
-class cofctrl;
+class cofctl;
 class cgttable;
 class cgtentry_owner;
 

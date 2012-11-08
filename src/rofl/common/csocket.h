@@ -42,6 +42,19 @@ class eSocketIoctl			: public eSocketBase {}; /**< ioctl failed */
 class eSocketShortSend		: public eSocketBase {}; /**< send() 2 call returned with fewer bytes than expected */
 class eSocketReadFailed		: public eSocketBase {}; /**< read() failed or packet cannot be read completely */
 
+class csocket; // forward declaration for csocket_owner, see below
+
+class csocket_owner
+{
+public:
+	virtual ~csocket_owner() {};
+	virtual void handle_accepted(csocket *socket, int newsd, caddress const& ra) = 0;
+	virtual void handle_connected(csocket *socket, int sd) = 0;
+	virtual void handle_connect_refused(csocket *socket, int sd) = 0;
+	virtual void handle_read(csocket *socket, int sd) = 0;
+	virtual void handle_closed(csocket *socket, int sd) = 0;
+};
+
 
 /**
  * Abstract base class for socket operations.
@@ -67,13 +80,35 @@ class eSocketReadFailed		: public eSocketBase {}; /**< read() failed or packet c
  * caddress la = caddress(AF_INET, "0.0.0.0", 1111);
  * sock->popen(la); => opens a socket with default values on port 1111 in listening mode
  */
-class csocket : public virtual ciosrv {
-
+class csocket :
+	public virtual ciosrv
+{
 public: // static data structures
 
 	static std::set<csocket*> csock_list; /**< list of all csocket instances */
 
+protected:
+
+	csocket_owner			*socket_owner;		/**< owner of this csocket instance */
+	int 					sd; 				/**< the socket descriptor */
+	caddress 				laddr; 				/**< local address socket is bound to */
+	caddress 				raddr; 				/**< remote address of peer entity */
+	int 					domain; 			/**< socket domain (PF_INET, PF_UNIX, ...) */
+	int 					type; 				/**< socket type (SOCK_STREAM, SOCK_DGRAM, ...) */
+	int 					protocol; 			/**< socket protocol (TCP, UDP, SCTP, ...) */
+	int 					backlog; 			/**< backlog value for listen() system call */
+
+	enum socket_flag_t {
+		SOCKET_IS_LISTENING = 1, /**< socket is in listening state */
+		CONNECT_PENDING, /**< connect() call is pending */
+		RAW_SOCKET, /**< socket is in raw mode (link layer) */
+		CONNECTED, /**< socket is connected */
+	};
+
+	std::bitset<16> 		sockflags; /**< socket flags (see below) */
+
 public:
+
 	/**
 	 * Constructor for new sockets created by accept().
 	 * @param sd new socket descriptor
@@ -82,12 +117,15 @@ public:
 	 * @param protocol socket protocol (default: 0)
 	 * @param backlog listen backlog (default: 10)
 	 */
-	csocket(int sd,
-			caddress ra,
+	csocket(csocket_owner *owner,
+			int sd,
+			caddress const& ra,
 			int domain 		= PF_INET,
 			int type 		= SOCK_STREAM,
 			int protocol 	= IPPROTO_TCP,
 			int backlog 	= 10);
+
+
 	/**
 	 * Constructor for a new socket (for listening or connecting mode).
 	 * @param domain socket domain (default: PF_INET)
@@ -95,10 +133,13 @@ public:
 	 * @param protocol socket protocol (default: 0)
 	 * @param backlog listen backlog (default: 10)
 	 */
-	csocket(int domain 	= PF_INET,
+	csocket(csocket_owner *owner,
+			int domain 	= PF_INET,
 			int type 		= SOCK_STREAM,
 			int protocol 	= IPPROTO_TCP,
 			int backlog 	= 10);
+
+
 	/**
 	 * Destructor.
 	 */
@@ -168,21 +209,6 @@ public:
 
 protected:
 
-	int sd; /**< the socket descriptor */
-	caddress laddr; /**< local address socket is bound to */
-	caddress raddr; /**< remote address of peer entity */
-	int domain; /**< socket domain (PF_INET, PF_UNIX, ...) */
-	int type; /**< socket type (SOCK_STREAM, SOCK_DGRAM, ...) */
-	int protocol; /**< socket protocol (TCP, UDP, SCTP, ...) */
-	int backlog; /**< backlog value for listen() system call */
-	std::bitset<16> sockflags; /**< socket flags (see below) */
-
-	enum socket_flag_t {
-		SOCKET_IS_LISTENING = 1, /**< socket is in listening state */
-		CONNECT_PENDING, /**< connect() call is pending */
-		RAW_SOCKET, /**< socket is in raw mode (link layer) */
-		CONNECTED, /**< socket is connected */
-	};
 
 	//
 	// socket specific methods, must be overloaded in derived class
@@ -199,6 +225,10 @@ protected:
 	handle_connected()
 	{
 		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_connected()", this);
+		if (socket_owner)
+		{
+			socket_owner->handle_connected(this, sd);
+		}
 	};
 
 	/**
@@ -212,6 +242,10 @@ protected:
 	handle_conn_refused()
 	{
 		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_conn_refused()", this);
+		if (socket_owner)
+		{
+			socket_owner->handle_connect_refused(this, sd);
+		}
 	};
 
 	/**
@@ -224,9 +258,13 @@ protected:
 	 * @param ra reference to the peer entity's address
 	 */
 	virtual void
-	handle_accepted(int newsd, caddress &ra)
+	handle_accepted(int newsd, caddress const& ra)
 	{
 		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_accepted()", this);
+		if (socket_owner)
+		{
+			socket_owner->handle_accepted(this, newsd, ra);
+		}
 	};
 
 	/**
@@ -240,6 +278,10 @@ protected:
 	{
 		deregister_filedesc_r(sd);
 		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_closed()", this);
+		if (socket_owner)
+		{
+			socket_owner->handle_closed(this, sd);
+		}
 	};
 
 	/**
@@ -251,7 +293,14 @@ protected:
 	 * @param fd the socket descriptor
 	 */
 	virtual void
-	handle_read(int fd) = 0;
+	handle_read(int fd)
+	{
+		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_read()", this);
+		if (socket_owner)
+		{
+			socket_owner->handle_read(this, sd);
+		}
+	};
 
 	//
 	// inherited from ciosrv

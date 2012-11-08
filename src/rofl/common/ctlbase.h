@@ -38,7 +38,7 @@ class ctlbase :
 protected:
 
 		uint64_t							 lldpid;		// layer (n-1) dpid in use (used in constructor)
-		cofdpath							*dpath;			// layer (n-1) datapath in use (once it has connected)
+		cofdpt							*dpath;			// layer (n-1) datapath in use (once it has connected)
 		std::map<uint32_t, cadapt*> 		 n_ports; 		// map of portno's => cadapt mappings
 		std::map<uint32_t, cofport*>		 adports;		// adapted ports as registered by the cadapters
 
@@ -422,7 +422,7 @@ protected:
 #if 0
 	virtual void
 	send_group_mod_message(
-		cofdpath *sw,
+		cofdpt *sw,
 		uint16_t command,
 		uint8_t type,
 		uint32_t group_id,
@@ -498,7 +498,7 @@ protected:
 	 * @param pack STATS.reply packet received from datapath
 	 */
 	virtual void
-	handle_stats_reply(cofdpath *sw, cofpacket *pack);
+	handle_stats_reply(cofdpt *sw, cofpacket *pack);
 
 
 	/** Handle OF stats reply timeout. To be overwritten by derived class.
@@ -508,7 +508,7 @@ protected:
 	 * @param sw cotswitch instance from whom a GET-CONFIG.reply was expected.
 	 */
 	virtual void
-	handle_stats_reply_timeout(cofdpath *sw, uint32_t xid);
+	handle_stats_reply_timeout(cofdpt *sw, uint32_t xid);
 
 
 	/** Handle OF packet-in messages. To be overwritten by derived class.
@@ -520,7 +520,7 @@ protected:
 	 * @param pack PACKET-IN.message packet received from datapath
 	 */
 	virtual void
-	handle_packet_in(cofdpath *sw, cofpacket *pack);
+	handle_packet_in(cofdpt *sw, cofpacket *pack);
 
 
 	/** Handle OF barrier reply. To be overwritten by derived class.
@@ -532,7 +532,7 @@ protected:
 	 * @param pack BARRIER.reply packet received from datapath
 	 */
 	virtual void
-	handle_barrier_reply(cofdpath *sw, cofpacket *pack);
+	handle_barrier_reply(cofdpt *sw, cofpacket *pack);
 
 
 	/** Handle OF barrier reply timeout. To be overwritten by derived class.
@@ -542,7 +542,7 @@ protected:
 	 * @param sw cotswitch instance from whom a BARRIER.reply was expected.
 	 */
 	virtual void
-	handle_barrier_reply_timeout(cofdpath *sw, uint32_t xid);
+	handle_barrier_reply_timeout(cofdpt *sw, uint32_t xid);
 
 
 	/** Handle OF error message. To be overwritten by derived class.
@@ -554,7 +554,7 @@ protected:
 	 * @param pack ERROR.message packet received from datapath
 	 */
 	virtual void
-	handle_error(cofdpath *sw, cofpacket *pack);
+	handle_error(cofdpt *sw, cofpacket *pack);
 
 
 	/** Handle OF port-status message. To be overwritten by derived class.
@@ -566,7 +566,7 @@ protected:
 	 * @param pack PORT-STATUS.message packet received from datapath
 	 */
 	virtual void
-	handle_port_status(cofdpath *sw, cofpacket *pack, cofport *port);
+	handle_port_status(cofdpt *sw, cofpacket *pack, cofport *port);
 
 
 	/** Handle new dpath
@@ -576,7 +576,7 @@ protected:
 	 * @param sw new cofswitch instance
 	 */
 	virtual void
-	handle_dpath_open(cofdpath *sw);
+	handle_dpath_open(cofdpt *sw);
 
 
 	/** Handle close event on dpath
@@ -586,7 +586,7 @@ protected:
 	 * @param sw cofswitch instance to be deleted
 	 */
 	virtual void
-	handle_dpath_close(cofdpath *sw);
+	handle_dpath_close(cofdpt *sw);
 
 
 

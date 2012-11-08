@@ -68,7 +68,7 @@ class eOFdpathNotFound : public eOFswitchBase {}; // element not found
  * or grouptable entries.
  *
  */
-class cofdpath :
+class cofdpt :
 #if 0
 	public cftentry_owner,
 	public cgtentry_owner,
@@ -135,7 +135,7 @@ private:
 
 		crofbase 						*rofbase;		// layer-(n) entity
 		cofbase 						*entity;		// layer-(n-1) entity
-		std::map<cofbase*, cofdpath*> 	*ofswitch_list; // cofswitch map this
+		std::map<cofbase*, cofdpt*> 	*ofswitch_list; // cofswitch map this
 		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store
 
 		std::string 	info;							// info string
@@ -160,10 +160,10 @@ public:
 	 * @param[in] entity The cofbase object representing the datapath element (@see cofrpc or @see crofbase)
 	 * @param[in] dpath_list pointer to map that contains all cofdpath instances for fwdelem
 	 */
-	cofdpath(
+	cofdpt(
 		crofbase *fwdelem,
 		cofbase *entity,
-		std::map<cofbase*, cofdpath*>* dpath_list);
+		std::map<cofbase*, cofdpt*>* dpath_list);
 
 
 	/**
@@ -175,7 +175,7 @@ public:
 	 * Removes this pointer from fwdelem->ofdpath_list.
 	 */
 	virtual
-	~cofdpath();
+	~cofdpt();
 
 
 	/**

@@ -4,49 +4,503 @@
 
 #include "cofctrl.h"
 
-cofctrl::cofctrl(
-		crofbase* fwdelem,
-		cofbase *ctrl,
-		std::map<cofbase*, cofctrl*> *ofctrl_list) :
-		rofbase(fwdelem),
-		ofctrl_list(ofctrl_list),
-		ctrl(ctrl),
-		flags(0),
-		miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
-		role_initialized(false),
-		role(OFPCR_ROLE_EQUAL),
-		cached_generation_id(0)
-{
-	(*ofctrl_list)[ctrl] = this;
 
-	WRITELOG(CFWD, DBG, "cofctrl(%p)::cofctrl()", this);
+cofctl::cofctl(
+		crofbase *rofbase,
+		int newsd,
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol) :
+				socket(new csocket(this, newsd, ra, domain, type, protocol)),
+				rofbase(rofbase),
+				flags(0),
+				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
+				role_initialized(false),
+				role(OFPCR_ROLE_EQUAL),
+				cached_generation_id(0),
+				fragment(0),
+				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
+				reconnect_counter(0),
+				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL)
+{
+	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
 
 	rofbase->handle_ctrl_open(this);
 }
 
 
-cofctrl::~cofctrl()
+
+cofctl::cofctl(
+		crofbase *rofbase,
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol) :
+				socket(new csocket(this, domain, type, protocol)),
+				rofbase(rofbase),
+				flags(COFCTL_FLAG_ACTIVE_SOCKET),
+				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
+				role_initialized(false),
+				role(OFPCR_ROLE_EQUAL),
+				cached_generation_id(0),
+				fragment(0),
+				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
+				reconnect_counter(0),
+				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL)
 {
-	WRITELOG(CFWD, DBG, "cofctrl(%p)::~cofctrl()", this);
+	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP connect", this);
 
-	rofbase->handle_ctrl_close(this);
-
-	ofctrl_list->erase(ctrl);
-
-	//ctrl->dpath_detach(fwdelem);
-
-	rofbase->fsptable.delete_fsp_entries(this);
+	socket->caopen(ra, caddress(AF_INET, "0.0.0.0"), domain, type, protocol);
 }
 
 
+
+cofctl::~cofctl()
+{
+	WRITELOG(CFWD, DBG, "cofctl(%p)::~cofctl()", this);
+
+	rofbase->handle_ctrl_close(this);
+
+	rofbase->fsptable.delete_fsp_entries(this);
+
+	delete socket;
+}
+
+
+
 void
-cofctrl::features_request_rcvd(cofpacket *pack)
+cofctl::send_message(
+		cofpacket *pack)
+{
+	switch (pack->ofh_header->type) {
+	case OFPT_ERROR:
+		{
+			// ...
+		}
+		break;
+	case OFPT_EXPERIMENTER:
+		{
+			// ...
+		}
+		break;
+	case OFPT_FEATURES_REPLY:
+		{
+			features_reply_sent(pack);
+		}
+		break;
+	case OFPT_GET_CONFIG_REPLY:
+		{
+			get_config_reply_sent(pack);
+		}
+		break;
+	case OFPT_PACKET_IN:
+		{
+			// asynchronous ...
+		}
+		break;
+	case OFPT_FLOW_REMOVED:
+		{
+			// asynchronous ...
+		}
+		break;
+	case OFPT_PORT_STATUS:
+		{
+			// asynchronous ...
+		}
+		break;
+	case OFPT_STATS_REPLY:
+		{
+			stats_reply_sent(pack);
+		}
+		break;
+	case OFPT_BARRIER_REPLY:
+		{
+			barrier_reply_sent(pack);
+		}
+		break;
+	case OFPT_QUEUE_GET_CONFIG_REPLY:
+		{
+			queue_get_config_reply_sent(pack);
+		}
+		break;
+	case OFPT_ROLE_REPLY:
+		{
+			role_reply_sent(pack);
+		}
+		break;
+	default:
+		{
+			WRITELOG(COFCTL, WARN, "cofctl(%p)::send_message() "
+					"dropping invalid packet: %s", this, pack->c_str());
+			delete pack; return;
+		}
+		break;
+	}
+
+	send_message_via_socket(pack);
+}
+
+
+
+void
+cofctl::handle_timeout(
+		int opaque)
+{
+	switch (opaque) {
+	case COFCTL_TIMER_RECONNECT:
+		{
+			if (socket)
+			{
+				socket->caopen(socket->raddr, caddress(AF_INET, "0.0.0.0"), socket->domain, socket->type, socket->protocol);
+			}
+		}
+		break;
+	case COFCTL_TIMER_SEND_ECHO_REQUEST:
+		{
+			send_message(new cofpacket_echo_request(0, 0, 0));
+			register_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT, 5);
+		}
+		break;
+	case COFCTL_TIMER_ECHO_REPLY_TIMEOUT:
+		{
+			socket->cclose();
+			new_state(STATE_CTL_DISCONNECTED);
+			if (flags.test(COFCTL_FLAG_ACTIVE_SOCKET))
+			{
+				try_to_connect(true);
+			}
+			rofbase->handle_ctrl_close(this);
+		}
+		break;
+	}
+}
+
+
+
+void
+cofctl::handle_accepted(
+		csocket *socket,
+		int newsd,
+		caddress const& ra)
+{
+	// do nothing
+}
+
+
+
+void
+cofctl::handle_connected(
+		csocket *socket,
+		int sd)
+{
+	rofbase->handle_ctrl_open(this);
+}
+
+
+
+void
+cofctl::handle_connect_refused(
+		csocket *socket,
+		int sd)
+{
+	// TODO: signal event back to rofbase
+}
+
+
+
+void
+cofctl::handle_read(
+		csocket *socket,
+		int sd)
+{
+	int rc;
+
+	cofpacket *pcppack = (cofpacket*)0;
+	try {
+
+		pcppack = (0 != fragment) ? fragment : new cofpacket();
+
+		while (true)
+		{
+			// SSL support: client or server side, done in derived class
+
+			// TODO: this will be replaced with SSL socket later
+			rc = read(sd, (void*) pcppack->memptr(), pcppack->need_bytes());
+
+
+			if (rc < 0) // error occured (or non-blocking)
+			{
+				switch(errno) {
+				case EAGAIN:
+					{
+						// more bytes are needed, store pcppack in fragment pointer
+						fragment = pcppack;
+					}
+					return;
+				case ECONNREFUSED:
+					{
+						try_to_connect(); // reconnect
+					}
+					return;
+				case ECONNRESET:
+				default:
+					{
+						WRITELOG(COFCTL, WARN, "cofctl(%p)::handle_read() "
+								"an error occured, closing => errno: %d (%s)",
+								this, errno, strerror(errno));
+
+
+						handle_closed(socket, sd);
+					}
+					return;
+				}
+			}
+			else if (rc == 0) // socket was closed
+			{
+				//rfds.erase(fd);
+
+				WRITELOG(COFCTL, WARN, "cofctl(%p)::handle_read() "
+						"peer closed connection, closing local endpoint => rc: %d",
+						this, rc);
+
+				handle_closed(socket, sd);
+
+				return;
+			}
+			else // rc > 0, // some bytes were received, check for completeness of packet
+			{
+				pcppack->stored_bytes(rc);
+
+				//WRITELOG(COFRPC, DBG, "cofrpc::handle_revent(fd=%d) rc=%d need_bytes=%d complete=%s",
+				//		 fd, rc, (int)pcppack->need_bytes(), pcppack->complete() ? "true" : "false");
+
+				// complete() parses the packet internally (otherwise we do not know
+				// that the packet is complete ...)
+				if (pcppack->complete())
+				{
+					// fragment is complete, set back to NULL
+					fragment = (cofpacket*)0;
+					handle_message(pcppack);
+
+					break;
+				}
+
+			}
+		}
+
+	} catch (cerror &e) {
+
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::handle_read() "
+				"errno: %d (%s) generic error %s",
+				this, errno, strerror(errno), pcppack->c_str());
+
+		if (pcppack)
+		{
+			delete pcppack; pcppack = (cofpacket*)0;
+		}
+
+		handle_closed(socket, sd);
+
+		throw;
+	}
+
+}
+
+
+
+void
+cofctl::handle_closed(
+		csocket *socket,
+		int sd)
+{
+	if (flags.test(COFCTL_FLAG_ACTIVE_SOCKET))
+	{
+		try_to_connect();
+	}
+	else
+	{
+		// TODO: signal event back to rofbase
+	}
+}
+
+
+
+void
+cofctl::handle_message(
+		cofpacket *pack)
+{
+	if (not pack->is_valid())
+	{
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::handle_message() "
+				"dropping invalid packet: %s", this, pack->c_str());
+		delete pack; return;
+	}
+
+#if 0
+	pack->ctl = this;
+#endif
+
+	switch (pack->ofh_header->type) {
+	case OFPT_HELLO:
+		{
+			hello_rcvd(pack);
+		}
+		break;
+	case OFPT_ECHO_REQUEST:
+		{
+			echo_request_rcvd(pack);
+		}
+		break;
+	case OFPT_ECHO_REPLY:
+		{
+			echo_reply_rcvd(pack);
+		}
+		break;
+	case OFPT_EXPERIMENTER:
+		{
+			experimenter_rcvd(pack);
+		}
+		break;
+	case OFPT_FEATURES_REQUEST:
+		{
+			features_request_rcvd(pack);
+		}
+		break;
+	case OFPT_GET_CONFIG_REQUEST:
+		{
+			get_config_request_rcvd(pack);
+		}
+		break;
+	case OFPT_SET_CONFIG:
+		{
+			set_config_rcvd(pack);
+		}
+		break;
+	case OFPT_PACKET_OUT:
+		{
+			packet_out_rcvd(pack);
+		}
+		break;
+	case OFPT_FLOW_MOD:
+		{
+			flow_mod_rcvd(pack);
+		}
+		break;
+	case OFPT_GROUP_MOD:
+		{
+			group_mod_rcvd(pack);
+		}
+		break;
+	case OFPT_PORT_MOD:
+		{
+			port_mod_rcvd(pack);
+		}
+		break;
+	case OFPT_TABLE_MOD:
+		{
+			table_mod_rcvd(pack);
+		}
+		break;
+	case OFPT_STATS_REQUEST:
+		{
+			stats_request_rcvd(pack);
+		}
+		break;
+	case OFPT_BARRIER_REQUEST:
+		{
+			barrier_request_rcvd(pack);
+		}
+		break;
+	case OFPT_QUEUE_GET_CONFIG_REQUEST:
+		{
+			queue_get_config_request_rcvd(pack);
+		}
+		break;
+	case OFPT_ROLE_REQUEST:
+		{
+			role_request_rcvd(pack);
+		}
+		break;
+	default:
+		{
+			WRITELOG(COFCTL, WARN, "cofctl(%p)::handle_message() "
+					"dropping packet: %s", this, pack->c_str());
+			delete pack;
+		}
+		break;
+	}
+}
+
+
+
+void
+cofctl::hello_rcvd(cofpacket *pack)
+{
+	WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() pack: %s", this, pack->c_str());
+
+	cofpacket *reply = (cofpacket*)0;
+
+	// OpenFlow versions do not match, send error, close connection
+	if (pack->ofh_header->version != OFP_VERSION)
+	{
+		new_state(STATE_CTL_DISCONNECTED);
+
+		// invalid OFP_VERSION
+		char explanation[256];
+		bzero(explanation, sizeof(explanation));
+		snprintf(explanation, sizeof(explanation) - 1,
+				"unsupported OF version (%d), supported version is (%d)",
+				(pack->ofh_header->version), OFP_VERSION);
+
+		cofpacket_error *reply = new cofpacket_error(
+							pack->get_xid(),
+							OFPET_HELLO_FAILED,
+							OFPHFC_INCOMPATIBLE,
+							(uint8_t*) explanation, strlen(explanation));
+
+		send_message(reply);
+	}
+	else
+	{
+		new_state(STATE_CTL_ESTABLISHED);
+
+		WRITELOG(COFRPC, DBG, "cofctl(%p): HELLO exchanged with peer entity, attaching ...", this);
+
+		// start sending ECHO requests
+		register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
+	}
+
+	delete pack;
+}
+
+
+
+void
+cofctl::echo_request_rcvd(cofpacket *pack)
+{
+	send_message(new cofpacket_echo_reply(pack->get_xid(), pack->body.somem(), pack->body.memlen()));
+}
+
+
+
+void
+cofctl::echo_reply_rcvd(cofpacket *pack)
+{
+	cancel_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT);
+	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
+}
+
+
+
+void
+cofctl::features_request_rcvd(cofpacket *pack)
 {
 	try {
 		xidstore.xid_add(this, be32toh(pack->ofh_header->xid), 0);
 
 	} catch (eXidStoreXidBusy& e) {
-		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::features_request_rcvd() retransmission", this);
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::features_request_rcvd() retransmission", this);
 	}
 
 	rofbase->handle_features_request(this, pack);
@@ -55,7 +509,7 @@ cofctrl::features_request_rcvd(cofpacket *pack)
 
 
 void
-cofctrl::features_reply_sent(cofpacket *pack)
+cofctl::features_reply_sent(cofpacket *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
@@ -65,7 +519,7 @@ cofctrl::features_reply_sent(cofpacket *pack)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::features_reply_sent() "
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::features_reply_sent() "
 				"xid:0x%x not found",
 				this, xid);
 	}
@@ -74,7 +528,7 @@ cofctrl::features_reply_sent(cofpacket *pack)
 
 
 void
-cofctrl::get_config_request_rcvd(cofpacket *pack)
+cofctl::get_config_request_rcvd(cofpacket *pack)
 {
 	if (OFPCR_ROLE_SLAVE == role)
 	{
@@ -87,7 +541,26 @@ cofctrl::get_config_request_rcvd(cofpacket *pack)
 
 
 void
-cofctrl::set_config_rcvd(cofpacket *pack)
+cofctl::get_config_reply_sent(cofpacket *pack)
+{
+	uint32_t xid = be32toh(pack->ofh_header->xid);
+	try {
+
+		xidstore.xid_find(xid);
+
+		xidstore.xid_rem(xid);
+
+	} catch (eXidStoreNotFound& e) {
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::get_config_reply_sent() "
+				"xid:0x%x not found",
+				this, xid);
+	}
+}
+
+
+
+void
+cofctl::set_config_rcvd(cofpacket *pack)
 {
 	if (OFPCR_ROLE_SLAVE == role)
 	{
@@ -100,7 +573,7 @@ cofctrl::set_config_rcvd(cofpacket *pack)
 
 
 void
-cofctrl::packet_out_rcvd(cofpacket *pack)
+cofctl::packet_out_rcvd(cofpacket *pack)
 {
 	if (OFPCR_ROLE_SLAVE == role)
 	{
@@ -112,9 +585,9 @@ cofctrl::packet_out_rcvd(cofpacket *pack)
 
 
 void
-cofctrl::flow_mod_rcvd(cofpacket *pack)
+cofctl::flow_mod_rcvd(cofpacket *pack)
 {
-	WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() pack: %s", this, pack->c_str());
+	WRITELOG(CFWD, DBG, "cofctl(%p)::flow_mod_rcvd() pack: %s", this, pack->c_str());
 
 	try {
 		if (OFPCR_ROLE_SLAVE == role)
@@ -154,7 +627,7 @@ cofctrl::flow_mod_rcvd(cofpacket *pack)
 
 
 void
-cofctrl::group_mod_rcvd(cofpacket *pack)
+cofctl::group_mod_rcvd(cofpacket *pack)
 {
 	if (OFPCR_ROLE_SLAVE == role)
 	{
@@ -166,7 +639,7 @@ cofctrl::group_mod_rcvd(cofpacket *pack)
 
 
 void
-cofctrl::port_mod_rcvd(cofpacket *pack) throw (eOFctrlPortNotFound)
+cofctl::port_mod_rcvd(cofpacket *pack) throw (eOFctrlPortNotFound)
 {
 	if (OFPCR_ROLE_SLAVE == role)
 	{
@@ -178,7 +651,7 @@ cofctrl::port_mod_rcvd(cofpacket *pack) throw (eOFctrlPortNotFound)
 
 
 void
-cofctrl::table_mod_rcvd(cofpacket *pack)
+cofctl::table_mod_rcvd(cofpacket *pack)
 {
 	if (OFPCR_ROLE_SLAVE == role)
 	{
@@ -191,13 +664,13 @@ cofctrl::table_mod_rcvd(cofpacket *pack)
 
 
 void
-cofctrl::stats_request_rcvd(cofpacket *pack)
+cofctl::stats_request_rcvd(cofpacket *pack)
 {
 	try {
 		xidstore.xid_add(this, be32toh(pack->ofh_header->xid));
 
 	} catch (eXidStoreXidBusy& e) {
-		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::stats_request_rcvd() retransmission xid:0x%x",
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::stats_request_rcvd() retransmission xid:0x%x",
 				this, be32toh(pack->ofh_header->xid));
 	}
 
@@ -267,7 +740,7 @@ cofctrl::stats_request_rcvd(cofpacket *pack)
 
 
 void
-cofctrl::stats_reply_sent(cofpacket *pack)
+cofctl::stats_reply_sent(cofpacket *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
@@ -277,7 +750,7 @@ cofctrl::stats_reply_sent(cofpacket *pack)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::stats_reply_sent() "
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::stats_reply_sent() "
 				"xid:0x%x not found",
 				this, xid);
 	}
@@ -286,13 +759,13 @@ cofctrl::stats_reply_sent(cofpacket *pack)
 
 
 void
-cofctrl::role_request_rcvd(cofpacket *pack)
+cofctl::role_request_rcvd(cofpacket *pack)
 {
 	try {
 		xidstore.xid_add(this, be32toh(pack->ofh_header->xid));
 
 	} catch (eXidStoreXidBusy& e) {
-		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::role_request_rcvd() retransmission xid:0x%x",
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::role_request_rcvd() retransmission xid:0x%x",
 				this, be32toh(pack->ofh_header->xid));
 	}
 
@@ -325,10 +798,10 @@ cofctrl::role_request_rcvd(cofpacket *pack)
 	role = be32toh(pack->ofh_role_request->role);
 
 
-	for (std::map<cofbase*, cofctrl*>::iterator
+	for (std::map<cofbase*, cofctl*>::iterator
 			it = rofbase->ofctrl_list.begin(); it != rofbase->ofctrl_list.end(); ++it)
 	{
-		cofctrl* ofctrl = it->second;
+		cofctl* ofctrl = it->second;
 
 		if (ofctrl == this)
 		{
@@ -349,7 +822,7 @@ cofctrl::role_request_rcvd(cofpacket *pack)
 
 
 void
-cofctrl::role_reply_sent(cofpacket *pack)
+cofctl::role_reply_sent(cofpacket *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
@@ -359,7 +832,7 @@ cofctrl::role_reply_sent(cofpacket *pack)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::role_reply_sent() "
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::role_reply_sent() "
 				"xid:0x%x not found",
 				this, xid);
 	}
@@ -368,13 +841,13 @@ cofctrl::role_reply_sent(cofpacket *pack)
 
 
 void
-cofctrl::barrier_request_rcvd(cofpacket *pack)
+cofctl::barrier_request_rcvd(cofpacket *pack)
 {
 	try {
 		xidstore.xid_add(this, be32toh(pack->ofh_header->xid));
 
 	} catch (eXidStoreXidBusy& e) {
-		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::barrier_request_rcvd() retransmission xid:0x%x",
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::barrier_request_rcvd() retransmission xid:0x%x",
 				this, be32toh(pack->ofh_header->xid));
 	}
 
@@ -384,7 +857,7 @@ cofctrl::barrier_request_rcvd(cofpacket *pack)
 
 
 void
-cofctrl::barrier_reply_sent(cofpacket *pack)
+cofctl::barrier_reply_sent(cofpacket *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
@@ -394,7 +867,7 @@ cofctrl::barrier_reply_sent(cofpacket *pack)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::barrier_reply_sent() "
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::barrier_reply_sent() "
 				"xid:0x%x not found",
 				this, xid);
 	}
@@ -403,13 +876,13 @@ cofctrl::barrier_reply_sent(cofpacket *pack)
 
 
 void
-cofctrl::queue_get_config_request_rcvd(cofpacket *pack)
+cofctl::queue_get_config_request_rcvd(cofpacket *pack)
 {
 	try {
 		xidstore.xid_add(this, be32toh(pack->ofh_header->xid));
 
 	} catch (eXidStoreXidBusy& e) {
-		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::queue_get_config_request_rcvd() retransmission xid:0x%x",
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::queue_get_config_request_rcvd() retransmission xid:0x%x",
 				this, be32toh(pack->ofh_header->xid));
 	}
 
@@ -419,7 +892,7 @@ cofctrl::queue_get_config_request_rcvd(cofpacket *pack)
 
 
 void
-cofctrl::queue_get_config_reply_sent(cofpacket *pack)
+cofctl::queue_get_config_reply_sent(cofpacket *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
@@ -429,7 +902,7 @@ cofctrl::queue_get_config_reply_sent(cofpacket *pack)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTRL, WARN, "cofctrl(%p)::queue_get_config_reply_sent() "
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::queue_get_config_reply_sent() "
 				"xid:0x%x not found",
 				this, xid);
 	}
@@ -438,7 +911,7 @@ cofctrl::queue_get_config_reply_sent(cofpacket *pack)
 
 
 void
-cofctrl::experimenter_message_rcvd(cofpacket *pack)
+cofctl::experimenter_rcvd(cofpacket *pack)
 {
 	switch (be32toh(pack->ofh_experimenter->experimenter)) {
 	case OFPEXPID_ROFL:
@@ -453,19 +926,19 @@ cofctrl::experimenter_message_rcvd(cofpacket *pack)
 			{
 				try {
 
-					WRITELOG(COFCTRL, DBG, "cofctrl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, DBG, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => pending for %s",
 							this, rexp.match.c_str());
 
 					rofbase->fsptable.insert_fsp_entry(this, rexp.match);
 
-					WRITELOG(COFCTRL, DBG, "cofctrl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, DBG, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => -ADDED- %s\n%s",
 							this, c_str(), rofbase->fsptable.c_str());
 
 				} catch (eFspEntryOverlap& e) {
 
-					WRITELOG(COFCTRL, DBG, "cofctrl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, DBG, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => -REJECTED- (overlap)",
 							this);
 
@@ -477,19 +950,19 @@ cofctrl::experimenter_message_rcvd(cofpacket *pack)
 			{
 				try {
 
-					WRITELOG(COFCTRL, DBG, "cofctrl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, DBG, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => pending for %s",
 							this, rexp.match.c_str());
 
 					rofbase->fsptable.delete_fsp_entry(this, rexp.match, true /*strict*/);
 
-					WRITELOG(COFCTRL, DBG, "cofctrl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, DBG, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => -DELETED- %s\n%s",
 							this, c_str(), rofbase->fsptable.c_str());
 
 				} catch (eFspEntryNotFound& e) {
 
-					WRITELOG(COFCTRL, DBG, "cofctrl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, DBG, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => -NOT-FOUND-",
 							this);
 
@@ -521,12 +994,12 @@ cofctrl::experimenter_message_rcvd(cofpacket *pack)
 
 
 const char*
-cofctrl::c_str()
+cofctl::c_str()
 {
 #if 0
 	std::string t_str;
 
-	std::map<cofbase*, cofctrl*>::iterator it;
+	std::map<cofbase*, cofctl*>::iterator it;
 	for (it = ofctrl_list->begin(); it != ofctrl_list->end(); ++it)
 	{
 		std::set<cofmatch*>::iterator nit;
@@ -543,14 +1016,14 @@ cofctrl::c_str()
 
 	cvastring vas;
 
-	info.assign(vas("cofctrl(%p) %s", this, cofbase::cofbase_exists(ctrl)->c_str()));
+	info.assign(vas("cofctl(%p) ", this));
 
 	return info.c_str();
 }
 
 
 cxidtrans&
-cofctrl::transaction(uint32_t xid)
+cofctl::transaction(uint32_t xid)
 {
 	return xidstore.xid_find(xid);
 }
@@ -558,7 +1031,7 @@ cofctrl::transaction(uint32_t xid)
 
 
 void
-cofctrl::send_error_is_slave(cofpacket *pack)
+cofctl::send_error_is_slave(cofpacket *pack)
 {
 	size_t len = (pack->length() > 64) ? 64 : pack->length();
 	rofbase->send_error_message(this,
@@ -569,3 +1042,115 @@ cofctrl::send_error_is_slave(cofpacket *pack)
 			len);
 }
 
+
+
+void
+cofctl::try_to_connect(bool reset_timeout)
+{
+	if (pending_timer(TIMER_CTL_RECONNECT))
+	{
+		return;
+	}
+
+	WRITELOG(COFCTL, DBG, "cofctl(%p)::try_to_connect() "
+			"reconnect in %d seconds (reconnect_counter:%d)",
+			this, reconnect_in_seconds, reconnect_counter);
+
+	if ((reset_timeout) || (4 == reconnect_counter))
+	{
+		reconnect_in_seconds = RECONNECT_START_TIMEOUT;
+
+		reconnect_counter = 0;
+	}
+
+	if (reconnect_counter > 3)
+	{
+		reconnect_in_seconds = RECONNECT_MAX_TIMEOUT;
+	}
+
+	reset_timer(COFCTL_TIMER_RECONNECT, reconnect_in_seconds);
+
+	++reconnect_counter;
+}
+
+
+
+void
+cofctl::send_message_via_socket(
+		cofpacket *pack)
+{
+	if (0 == socket)
+	{
+		delete pack; return;
+	}
+
+	cmemory *mem = new cmemory(pack->length());
+
+	pack->pack(mem->somem(), mem->memlen());
+
+	WRITELOG(COFCTL, DBG, "cofctl(%p): new cmemory: %s",
+				this, mem->c_str());
+
+	delete pack;
+
+	socket->send_packet(mem);
+}
+
+
+
+#if 0
+switch (pack->ofh_header->type) {
+case OFPT_HELLO:
+	break;
+case OFPT_ERROR:
+	break;
+case OFPT_ECHO_REQUEST:
+	break;
+case OFPT_ECHO_REPLY:
+	break;
+case OFPT_EXPERIMENTER:
+	break;
+case OFPT_FEATURES_REQUEST:
+	break;
+case OFPT_FEATURES_REPLY:
+	break;
+case OFPT_GET_CONFIG_REQUEST:
+	break;
+case OFPT_GET_CONFIG_REPLY:
+	break;
+case OFPT_SET_CONFIG:
+	break;
+case OFPT_PACKET_IN:
+	break;
+case OFPT_FLOW_REMOVED:
+	break;
+case OFPT_PORT_STATUS:
+	break;
+case OFPT_PACKET_OUT:
+	break;
+case OFPT_FLOW_MOD:
+	break;
+case OFPT_GROUP_MOD:
+	break;
+case OFPT_PORT_MOD:
+	break;
+case OFPT_TABLE_MOD:
+	break;
+case OFPT_STATS_REQUEST:
+	break;
+case OFPT_STATS_REPLY:
+	break;
+case OFPT_BARRIER_REQUEST:
+	break;
+case OFPT_BARRIER_REPLY:
+	break;
+case OFPT_QUEUE_GET_CONFIG_REQUEST:
+	break;
+case OFPT_QUEUE_GET_CONFIG_REPLY:
+	break;
+case OFPT_ROLE_REQUEST:
+	break;
+case OFPT_ROLE_REPLY:
+	break;
+}
+#endif

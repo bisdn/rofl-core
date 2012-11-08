@@ -6,7 +6,15 @@
 
 std::set<csocket*> csocket::csock_list;
 
-csocket::csocket(int domain, int type, int protocol, int backlog) :
+
+
+csocket::csocket(
+		csocket_owner *owner,
+		int domain,
+		int type,
+		int protocol,
+		int backlog) :
+	socket_owner(owner),
 	sd(-1),
 	domain(domain),
 	type(type),
@@ -18,7 +26,17 @@ csocket::csocket(int domain, int type, int protocol, int backlog) :
 	csock_list.insert(this);
 }
 
-csocket::csocket(int sd, caddress ra, int domain, int type, int protocol, int backlog) :
+
+
+csocket::csocket(
+		csocket_owner *owner,
+		int sd,
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol,
+		int backlog) :
+	socket_owner(owner),
 	sd(sd),
 	raddr(ra),
 	domain(domain),

@@ -18,7 +18,7 @@
 
 /* forward declaration */
 class cfwdelem;
-class cofctrl;
+class cofctl;
 class cgtentry;
 class cgtentry_owner;
 class eGroupEntryInval;

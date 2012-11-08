@@ -91,7 +91,7 @@ crofbase::c_str()
 
 	// cofctrl instances
 	info.append(vas("\nlist of registered cofctrl instances: =>"));
-	std::map<cofbase*, cofctrl*>::iterator it_ctl;
+	std::map<cofbase*, cofctl*>::iterator it_ctl;
 	for (it_ctl = ofctrl_list.begin(); it_ctl != ofctrl_list.end(); ++it_ctl)
 	{
 		info.append(vas("\n  %s", it_ctl->second->c_str()));
@@ -99,7 +99,7 @@ crofbase::c_str()
 
 	// cofswitch instances
 	info.append(vas("\nlist of registered cofswitch instances: =>"));
-	std::map<cofbase*, cofdpath*>::iterator it_dp;
+	std::map<cofbase*, cofdpt*>::iterator it_dp;
 	for (it_dp = ofdpath_list.begin(); it_dp != ofdpath_list.end(); ++it_dp)
 	{
 		info.append(vas("\n  %s", it_dp->second->c_str()));
@@ -110,9 +110,9 @@ crofbase::c_str()
 
 
 void
-crofbase::ofctrl_exists(const cofctrl *ofctrl) throw (eRofBaseNotFound)
+crofbase::ofctrl_exists(const cofctl *ofctrl) throw (eRofBaseNotFound)
 {
-	std::map<cofbase*, cofctrl*>::iterator it;
+	std::map<cofbase*, cofctl*>::iterator it;
 	for (it = ofctrl_list.begin(); it != ofctrl_list.end(); ++it)
 	{
 		if (it->second == ofctrl)
@@ -123,9 +123,9 @@ crofbase::ofctrl_exists(const cofctrl *ofctrl) throw (eRofBaseNotFound)
 
 
 void
-crofbase::ofswitch_exists(const cofdpath *ofswitch) throw (eRofBaseNotFound)
+crofbase::ofswitch_exists(const cofdpt *ofswitch) throw (eRofBaseNotFound)
 {
-	std::map<cofbase*, cofdpath*>::iterator it;
+	std::map<cofbase*, cofdpt*>::iterator it;
 	for (it = ofdpath_list.begin(); it != ofdpath_list.end(); ++it)
 	{
 		if (it->second == ofswitch)
@@ -152,64 +152,250 @@ crofbase::nsp_enable(bool enable)
 
 
 
+void
+crofbase::ctl_recv_message(
+		cofctl *ctl,
+		cofpacket *pack)
+{
+	WRITELOG(CROFBASE, DBG, "crofbase(%p)::ctl_recv_message() %s", this, pack->c_str());
+
+	try {
+		check_down_packet(ctl, pack);
+
+		switch (pack->ofh_header->type) {
+		case OFPT_HELLO:
+			recv_hello_message(ctl, pack);
+			break;
+		}
+
+
+#if 0
+		fe_down_queue[pack->ofh_header->type].push_back(pack); // store pack for xid
+		switch (pack->ofh_header->type) {
+		case OFPT_HELLO:
+			register_timer(TIMER_FE_HANDLE_HELLO, 0);
+			break;
+		default:
+			{
+				delete pack;
+			}
+			break;
+		}
+#endif
+
+	} catch (eRofBaseNotAttached& e) {
+		WRITELOG(CROFBASE, DBG, "crofbase(%p)::fe_down_hello_message() packet from non-controlling entity dropped", this);
+
+		delete pack;
+
+	} catch (eOFbaseInval& e) {
+
+		WRITELOG(CROFBASE, DBG, "crofbase(%p)::fe_down_hello_message() malformed packet received", this);
+		delete pack;
+
+	} catch (eRofBaseFspSupportDisabled& e) {
+
+		WRITELOG(CROFBASE, DBG, "\n\ncrofbase(%p)::fe_down_hello_message() "
+				"flowspace support for multiple controllers DISABLED!!!\n\n", this);
+				delete pack;
+	}
+}
+
+
+
+void
+crofbase::dpt_recv_message(
+		cofdpt *dpt,
+		cofpacket *pack)
+{
+
+}
+
+
+
+void
+crofbase::handle_accepted(
+		csocket *socket,
+		int newsd,
+		caddress const& ra)
+{
+	if (rpc[RPC_CTL].find(socket) != rpc[RPC_CTL].end())
+	{
+		WRITELOG(CROFBASE, INFO, "crofbase(%p): new ctl TCP connection", this);
+		ofctl_set.insert(new cofctl(this, newsd, ra, socket->domain, socket->type, socket->protocol));
+	}
+	else if (rpc[RPC_DPT].find(socket) != rpc[RPC_DPT].end())
+	{
+		WRITELOG(CROFBASE, INFO, "crofbase(%p): new dpt TCP connection", this);
+		ofdpt_set.insert(new cofdpt(this, newsd, ra, socket->domain, socket->type, socket->protocol));
+	}
+	else
+	{
+		WRITELOG(CROFBASE, INFO, "crofbase(%p): new unknown TCP connection, closing", this);
+		close(newsd);
+	}
+}
+
+
+
+void
+crofbase::handle_connected(
+		csocket *socket,
+		int sd)
+{
+	// do nothing here, as our TCP sockets are used as listening sockets only
+}
+
+
+
+void
+crofbase::handle_connect_refused(
+		csocket *socket,
+		int sd)
+{
+	// do nothing here, as our TCP sockets are used as listening sockets only
+}
+
+
+
+void
+crofbase::handle_read(
+		csocket *socket,
+		int sd)
+{
+	// do nothing here, as our TCP sockets are used as listening sockets only
+}
+
+
+
+void
+crofbase::handle_closed(
+		csocket *socket,
+		int sd)
+{
+	if (rpc[RPC_CTL].find(socket) != rpc[RPC_CTL].end())
+	{
+		rpc[RPC_CTL].erase(socket);
+	}
+	else if (rpc[RPC_DPT].find(socket) != rpc[RPC_DPT].end())
+	{
+		rpc[RPC_DPT].erase(socket);
+	}
+	else
+	{
+		// do nothing
+	}
+}
+
+
+
+void
+crofbase::rpc_listen_for_dpts(
+		caddress const& addr,
+		int domain,
+		int type,
+		int protocol,
+		int backlog)
+{
+	csocket *socket = new csocket(this, domain, type, protocol, backlog);
+	socket->cpopen(addr, domain, type, protocol, backlog);
+	rpc[RPC_DPT].insert(socket);
+}
+
+
+
+void
+crofbase::rpc_listen_for_ctls(
+		caddress const& addr,
+		int domain,
+		int type,
+		int protocol,
+		int backlog)
+{
+	csocket *socket = new csocket(this, domain, type, protocol, backlog);
+	socket->cpopen(addr, domain, type, protocol, backlog);
+	rpc[RPC_CTL].insert(socket);
+}
+
+
 
 void
 crofbase::rpc_connect_to_ctl(
-		caddress const& ra)
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol)
 {
-	rpc[RPC_CTL]->cconnect(ra);
+	ofctl_set.insert(new cofctl(this, ra, domain, type, protocol));
 }
 
 
 void
 crofbase::rpc_disconnect_from_ctl(
-		cofctrl *ctrl)
+		cofctl *ctl)
 {
-	if (0 == ctrl)
+	if (0 == ctl)
 	{
 		return;
 	}
 
-	throw eNotImplemented();
-}
-
-
-void
-crofbase::rpc_connect_to_dpath(
-		caddress const& ra)
-{
-	rpc[RPC_DPT]->cconnect(ra);
-}
-
-
-void
-crofbase::rpc_disconnect_from_dpath(
-		cofdpath *dpath)
-{
-	if (0 == dpath)
+	if (ofctl_set.find(ctl) == ofctl_set.end())
 	{
 		return;
 	}
 
-	throw eNotImplemented();
+	delete ctl;
+
+	ofctl_set.erase(ctl);
+}
+
+
+void
+crofbase::rpc_connect_to_dpt(
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol)
+{
+	ofdpt_set.insert(new cofdpt(this, ra, domain, type, protocol));
+}
+
+
+void
+crofbase::rpc_disconnect_from_dpt(
+		cofdpt *dpt)
+{
+	if (0 == dpt)
+	{
+		return;
+	}
+
+	if (ofdpt_set.find(dpt) == ofdpt_set.end())
+	{
+		return;
+	}
+
+	delete dpt;
+
+	ofdpt_set.erase(dpt);
 }
 
 
 
-
+#if 0
 void
 crofbase::dpath_attach(cofbase* dp)
 {
 	if (NULL == dp) return;
 
-	cofdpath *sw = NULL;
+	cofdpt *sw = NULL;
 
 	try {
 
 		sw = ofswitch_find(dp);
 
 	} catch (eOFbaseNotAttached& e) {
-		sw = new cofdpath(this, dp, &ofdpath_list);
+		sw = new cofdpt(this, dp, &ofdpath_list);
 		WRITELOG(CROFBASE, INFO, "crofbase(%p)::dpath_attach() cofbase: %p cofswitch: %s", this, dp, sw->c_str());
 	}
 
@@ -222,7 +408,7 @@ crofbase::dpath_detach(cofbase* dp)
 {
 	if (NULL == dp) return;
 
-	cofdpath *sw = NULL;
+	cofdpt *sw = NULL;
 	try {
 		sw = ofswitch_find(dp);
 
@@ -246,7 +432,7 @@ crofbase::ctrl_attach(cofbase* dp) throw (eRofBaseFspSupportDisabled)
 	// sanity check: entity must exist
 	if (NULL == dp) return;
 
-	cofctrl *ofctrl = NULL;
+	cofctl *ofctrl = NULL;
 
 	// namespaces disabled? block attachment attempts
 	if ((not fe_flags.test(NSP_ENABLED)) && (not ofctrl_list.empty()))
@@ -257,7 +443,7 @@ crofbase::ctrl_attach(cofbase* dp) throw (eRofBaseFspSupportDisabled)
 	// check for existence of control entity
 	if (ofctrl_list.find(dp) == ofctrl_list.end())
 	{
-		ofctrl = new cofctrl(this, dp, &ofctrl_list);
+		ofctrl = new cofctl(this, dp, &ofctrl_list);
 		WRITELOG(CROFBASE, INFO, "crofbase(%p)::ctrl_attach() cofbase: %p cofctrl: %s",
 				this, dp, ofctrl->c_str());
 	}
@@ -271,7 +457,7 @@ crofbase::ctrl_detach(cofbase* dp)
 {
 	if (NULL == dp) return;
 
-	std::map<cofbase*, cofctrl*>::iterator it;
+	std::map<cofbase*, cofctl*>::iterator it;
 	if ((it = ofctrl_list.find(dp)) != ofctrl_list.end())
 	{
 		WRITELOG(CROFBASE, INFO, "crofbase(%p)::ctrl_detach() cofbase: %p cofctrl: %s",
@@ -283,6 +469,7 @@ crofbase::ctrl_detach(cofbase* dp)
 		delete it->second;
 	}
 }
+#endif
 
 
 
@@ -425,7 +612,7 @@ crofbase::handle_timeout(int opaque)
 
 
 void
-crofbase::handle_experimenter_message(cofctrl *ofctrl, cofpacket *pack)
+crofbase::handle_experimenter_message(cofctl *ofctrl, cofpacket *pack)
 {
 	// base class does not support any vendor extensions, so: send error indication
 	size_t datalen = (pack->framelen() > 64) ? 64 : pack->framelen();
@@ -436,10 +623,10 @@ crofbase::handle_experimenter_message(cofctrl *ofctrl, cofpacket *pack)
 }
 
 
-cofdpath&
+cofdpt&
 crofbase::dpath_find(uint64_t dpid) throw (eOFbaseNotAttached)
 {
-	std::map<cofbase*, cofdpath*>::iterator it;
+	std::map<cofbase*, cofdpt*>::iterator it;
 	for (it = ofdpath_list.begin(); it != ofdpath_list.end(); ++it)
 	{
 		if (it->second->dpid == dpid)
@@ -449,10 +636,10 @@ crofbase::dpath_find(uint64_t dpid) throw (eOFbaseNotAttached)
 }
 
 
-cofdpath&
+cofdpt&
 crofbase::dpath_find(std::string s_dpid) throw (eOFbaseNotAttached)
 {
-	std::map<cofbase*, cofdpath*>::iterator it;
+	std::map<cofbase*, cofdpt*>::iterator it;
 	for (it = ofdpath_list.begin(); it != ofdpath_list.end(); ++it)
 	{
 		if (it->second->s_dpid == s_dpid)
@@ -462,10 +649,10 @@ crofbase::dpath_find(std::string s_dpid) throw (eOFbaseNotAttached)
 }
 
 
-cofdpath&
+cofdpt&
 crofbase::dpath_find(cmacaddr dl_dpid) throw (eOFbaseNotAttached)
 {
-	std::map<cofbase*, cofdpath*>::iterator it;
+	std::map<cofbase*, cofdpt*>::iterator it;
 	for (it = ofdpath_list.begin(); it != ofdpath_list.end(); ++it)
 	{
 		if (it->second->dpmac == dl_dpid)
@@ -475,7 +662,7 @@ crofbase::dpath_find(cmacaddr dl_dpid) throw (eOFbaseNotAttached)
 }
 
 
-cofdpath*
+cofdpt*
 crofbase::ofswitch_find(cofbase *entity) throw (eOFbaseNotAttached)
 {
 	if (ofdpath_list.find(entity) == ofdpath_list.end())
@@ -484,10 +671,10 @@ crofbase::ofswitch_find(cofbase *entity) throw (eOFbaseNotAttached)
 }
 
 
-cofdpath*
-crofbase::ofswitch_find(cofdpath *entity) throw (eOFbaseNotAttached)
+cofdpt*
+crofbase::ofswitch_find(cofdpt *entity) throw (eOFbaseNotAttached)
 {
-	for (std::map<cofbase*, cofdpath*>::iterator
+	for (std::map<cofbase*, cofdpt*>::iterator
 			it = ofdpath_list.begin(); it != ofdpath_list.end(); ++it)
 	{
 		if (it->second == entity)
@@ -499,7 +686,7 @@ crofbase::ofswitch_find(cofdpath *entity) throw (eOFbaseNotAttached)
 }
 
 
-cofctrl*
+cofctl*
 crofbase::ofctrl_find(cofbase *entity) throw (eOFbaseNotAttached)
 {
 	if (ofctrl_list.find(entity) == ofctrl_list.end())
@@ -508,10 +695,10 @@ crofbase::ofctrl_find(cofbase *entity) throw (eOFbaseNotAttached)
 }
 
 
-cofctrl*
-crofbase::ofctrl_find(cofctrl *entity) throw (eOFbaseNotAttached)
+cofctl*
+crofbase::ofctrl_find(cofctl *entity) throw (eOFbaseNotAttached)
 {
-	for (std::map<cofbase*, cofctrl*>::iterator
+	for (std::map<cofbase*, cofctl*>::iterator
 			it = ofctrl_list.begin(); it != ofctrl_list.end(); ++it)
 	{
 		if (it->second == entity)
@@ -591,7 +778,7 @@ crofbase::check_down_packet(
 
 void
 crofbase::send_up_hello_message(
-	cofctrl *ofctrl, bool bye)
+	cofctl *ofctrl, bool bye)
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_up_hello_message()", this);
 
@@ -610,7 +797,7 @@ crofbase::send_up_hello_message(
 
 void
 crofbase::send_down_hello_message(
-	cofdpath *ofdpath, bool bye)
+	cofdpt *ofdpath, bool bye)
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_down_hello_message()", this);
 
@@ -688,7 +875,9 @@ crofbase::fe_up_hello_message(
 
 
 void
-crofbase::recv_hello_message()
+crofbase::recv_hello_message(
+		cofctl *ctl,
+		cofpacket *pack)
 {
 	cofpacket *pack = NULL;
 	try {
@@ -776,7 +965,7 @@ crofbase::recv_hello_message()
  */
 
 void
-crofbase::send_features_request(cofdpath *dpath)
+crofbase::send_features_request(cofdpt *dpath)
 {
 
 	cofpacket_features_request *pack = new cofpacket_features_request(ta_add_request(OFPT_FEATURES_REQUEST));
@@ -847,7 +1036,7 @@ crofbase::recv_features_request()
 
 void
 crofbase::send_features_reply(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		uint32_t xid,
 		uint64_t dpid,
 		uint32_t n_buffers,
@@ -889,7 +1078,7 @@ crofbase::fe_up_features_reply(
 		pack->entity = entity;
 		ta_validate(be32toh(pack->ofh_header->xid), OFPT_FEATURES_REQUEST);
 
-		cofdpath *sw = ofswitch_find(entity);
+		cofdpt *sw = ofswitch_find(entity);
 		sw->features_reply_rcvd(pack);
 		handle_features_reply(sw, pack);
 
@@ -918,7 +1107,7 @@ crofbase::fe_up_features_reply(
 
 void
 crofbase::send_get_config_request(
-		cofdpath *sw)
+		cofdpt *sw)
 {
 	cofpacket_get_config_request *pack = new cofpacket_get_config_request(
 								ta_add_request(OFPT_GET_CONFIG_REQUEST));
@@ -991,7 +1180,7 @@ crofbase::recv_get_config_request()
 
 
 void
-crofbase::send_get_config_reply(cofctrl *ofctrl, uint32_t xid, uint16_t flags, uint16_t miss_send_len)
+crofbase::send_get_config_reply(cofctl *ofctrl, uint32_t xid, uint16_t flags, uint16_t miss_send_len)
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_get_config_reply()", this);
 
@@ -1045,7 +1234,7 @@ crofbase::fe_up_get_config_reply(
 
 uint32_t
 crofbase::send_stats_request(
-	cofdpath *sw,
+	cofdpt *sw,
 	uint16_t type,
 	uint16_t flags,
 	uint8_t* body,
@@ -1125,7 +1314,7 @@ crofbase::recv_stats_request()
 
 
 void
-crofbase::handle_stats_request(cofctrl *ofctrl, cofpacket *pack)
+crofbase::handle_stats_request(cofctl *ofctrl, cofpacket *pack)
 {
 	/*
 	 * default handler for all unknown (or unimplemented :) stats requests
@@ -1140,7 +1329,7 @@ crofbase::handle_stats_request(cofctrl *ofctrl, cofpacket *pack)
 
 void
 crofbase::handle_desc_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	/*
@@ -1155,7 +1344,7 @@ crofbase::handle_desc_stats_request(
 
 void
 crofbase::handle_table_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	/*
@@ -1170,7 +1359,7 @@ crofbase::handle_table_stats_request(
 
 void
 crofbase::handle_port_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	/*
@@ -1185,7 +1374,7 @@ crofbase::handle_port_stats_request(
 
 void
 crofbase::handle_flow_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	/*
@@ -1200,7 +1389,7 @@ crofbase::handle_flow_stats_request(
 
 void
 crofbase::handle_aggregate_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	/*
@@ -1215,7 +1404,7 @@ crofbase::handle_aggregate_stats_request(
 
 void
 crofbase::handle_queue_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	/*
@@ -1230,7 +1419,7 @@ crofbase::handle_queue_stats_request(
 
 void
 crofbase::handle_group_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	/*
@@ -1245,7 +1434,7 @@ crofbase::handle_group_stats_request(
 
 void
 crofbase::handle_group_desc_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	/*
@@ -1260,7 +1449,7 @@ crofbase::handle_group_desc_stats_request(
 
 void
 crofbase::handle_group_features_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	/*
@@ -1275,7 +1464,7 @@ crofbase::handle_group_features_stats_request(
 
 void
 crofbase::handle_experimenter_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	/*
@@ -1290,7 +1479,7 @@ crofbase::handle_experimenter_stats_request(
 
 void
 crofbase::send_stats_reply(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		uint32_t xid, /* network byte order */
 		uint16_t stats_type, /* network byte order */
 		uint8_t *body, size_t bodylen,
@@ -1331,7 +1520,7 @@ crofbase::fe_up_stats_reply(
 
 		pack->entity = entity;
 		ta_validate(be32toh(pack->ofh_header->xid), OFPT_STATS_REQUEST);
-		cofdpath *sw = ofswitch_find(entity);
+		cofdpt *sw = ofswitch_find(entity);
 
 		sw->stats_reply_rcvd(pack);
 		handle_stats_reply(sw, pack);
@@ -1363,7 +1552,7 @@ crofbase::fe_up_stats_reply(
 
 void
 crofbase::send_set_config_message(
-	cofdpath *sw,
+	cofdpt *sw,
 	uint16_t flags,
 	uint16_t miss_send_len)
 {
@@ -1454,7 +1643,7 @@ crofbase::recv_set_config()
 
 void
 crofbase::send_packet_out_message(
-	cofdpath *sw,
+	cofdpt *sw,
 	uint32_t buffer_id,
 	uint32_t in_port,
 	cofaclist& aclist,
@@ -1583,7 +1772,7 @@ crofbase::send_packet_in_message(
 				for (std::set<cfspentry*>::iterator
 						it = nse_list.begin(); it != nse_list.end(); ++it)
 				{
-					cofctrl *ofctrl = dynamic_cast<cofctrl*>( (*nse_list.begin())->fspowner );
+					cofctl *ofctrl = dynamic_cast<cofctl*>( (*nse_list.begin())->fspowner );
 					if (OFPCR_ROLE_SLAVE == ofctrl->role)
 					{
 						WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
@@ -1629,7 +1818,7 @@ crofbase::send_packet_in_message(
 				throw eRofBaseNoCtrl();
 			}
 
-			cofctrl *ofctrl = (ofctrl_list.begin()->second);
+			cofctl *ofctrl = (ofctrl_list.begin()->second);
 
 
 
@@ -1730,7 +1919,7 @@ crofbase::recv_packet_in()
  */
 
 uint32_t
-crofbase::send_barrier_request(cofdpath *sw)
+crofbase::send_barrier_request(cofdpt *sw)
 {
 	cofpacket_barrier_request *pack = new cofpacket_barrier_request(ta_add_request(OFPT_BARRIER_REQUEST));
 
@@ -1799,7 +1988,7 @@ crofbase::recv_barrier_request()
 
 void
 crofbase::send_barrier_reply(
-		cofctrl* ofctrl,
+		cofctl* ofctrl,
 		uint32_t xid)
 {
 	WRITELOG(CROFBASE, DBG, "crofbase::send_barrier_reply() "
@@ -1855,7 +2044,7 @@ crofbase::fe_up_barrier_reply(
 
 void
 crofbase::send_role_request(
-	cofdpath *dpath,
+	cofdpt *dpath,
 	uint32_t role,
 	uint64_t generation_id)
 {
@@ -1922,7 +2111,7 @@ crofbase::recv_role_request()
 
 void
 crofbase::send_role_reply(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		uint32_t xid,
 		uint32_t role,
 		uint64_t generation_id)
@@ -2007,7 +2196,7 @@ crofbase::recv_role_reply()
 
 void
 crofbase::send_error_message(
-	cofctrl *ofctrl,
+	cofctl *ofctrl,
 	uint32_t xid,
 	uint16_t type,
 	uint16_t code,
@@ -2027,7 +2216,7 @@ crofbase::send_error_message(
 	}
 	else
 	{
-		std::map<cofbase*, cofctrl*>::iterator it;
+		std::map<cofbase*, cofctl*>::iterator it;
 		for (it = ofctrl_list.begin(); it != ofctrl_list.end(); ++it)
 		{
 			cofpacket_error *pack = new cofpacket_error(xid, type, code, data, datalen);
@@ -2104,7 +2293,7 @@ crofbase::recv_error()
 
 void
 crofbase::send_flow_mod_message(
-	cofdpath *sw,
+	cofdpt *sw,
 	cofmatch& ofmatch,
 	uint64_t cookie,
 	uint64_t cookie_mask,
@@ -2151,7 +2340,7 @@ crofbase::send_flow_mod_message(
 
 void
 crofbase::send_flow_mod_message(
-		cofdpath *sw,
+		cofdpt *sw,
 		cflowentry& fe)
 {
 	cofpacket_flow_mod *flow_mod = new cofpacket_flow_mod(
@@ -2381,7 +2570,7 @@ crofbase::recv_flow_mod()
 
 void
 crofbase::send_group_mod_message(
-		cofdpath *sw,
+		cofdpt *sw,
 		cgroupentry& ge)
 {
 	cofpacket_group_mod *pack = new cofpacket_group_mod(
@@ -2493,7 +2682,7 @@ crofbase::recv_group_mod()
 
 void
 crofbase::send_port_mod_message(
-	cofdpath *sw,
+	cofdpt *sw,
 	uint32_t port_no,
 	cmacaddr const& hwaddr,
 	uint32_t config,
@@ -2588,7 +2777,7 @@ crofbase::recv_port_mod()
 
 void
 crofbase::send_table_mod_message(
-		cofdpath *sw,
+		cofdpt *sw,
 		uint8_t table_id,
 		uint32_t config)
 {
@@ -2689,7 +2878,7 @@ crofbase::recv_table_mod()
 
 void
 crofbase::send_flow_removed_message(
-	cofctrl *ofctrl,
+	cofctl *ofctrl,
 	cofmatch& ofmatch,
 	uint64_t cookie,
 	uint16_t priority,
@@ -2707,10 +2896,10 @@ crofbase::send_flow_removed_message(
 
 		//ofctrl_exists(ofctrl);
 
-		for (std::map<cofbase*, cofctrl*>::iterator
+		for (std::map<cofbase*, cofctl*>::iterator
 				it = ofctrl_list.begin(); it != ofctrl_list.end(); ++it)
 		{
-			cofctrl *ofctrl = it->second;
+			cofctl *ofctrl = it->second;
 
 			if (OFPCR_ROLE_SLAVE == ofctrl->role)
 			{
@@ -2786,7 +2975,7 @@ crofbase::recv_flow_removed()
 		pack = fe_up_queue[OFPT_FLOW_REMOVED].front();
 		fe_up_queue[OFPT_FLOW_REMOVED].pop_front();
 
-		cofdpath *sw = ofswitch_find(pack->entity);
+		cofdpt *sw = ofswitch_find(pack->entity);
 		sw->flow_rmvd_rcvd(pack);
 		handle_flow_removed(sw, pack);
 
@@ -2834,7 +3023,7 @@ crofbase::send_port_status_message(
 	//if (!ctrl)
 	//	throw eRofBaseNoCtrl();
 
-	std::map<cofbase*, cofctrl*>::iterator it;
+	std::map<cofbase*, cofctl*>::iterator it;
 	for (it = ofctrl_list.begin(); it != ofctrl_list.end(); ++it)
 	{
 		WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_port_status_message() to ctrl %s", this, it->second->c_str());
@@ -2888,7 +3077,7 @@ crofbase::recv_port_status()
 		pack = fe_up_queue[OFPT_PORT_STATUS].front();
 		fe_up_queue[OFPT_PORT_STATUS].pop_front();
 
-		cofdpath *sw = ofswitch_find(pack->entity);
+		cofdpt *sw = ofswitch_find(pack->entity);
 		sw->port_status_rcvd(pack);
 
 	} catch (eOFbaseNotAttached& e) {
@@ -2920,7 +3109,7 @@ crofbase::recv_port_status()
 
 void
 crofbase::send_queue_get_config_request(
-	cofdpath *sw,
+	cofdpt *sw,
 	uint32_t port)
 {
 	cofpacket_queue_get_config_request *pack = new cofpacket_queue_get_config_request(
@@ -3004,7 +3193,7 @@ crofbase::send_queue_get_config_reply()
 										request->get_xid(),
 										be32toh(request->ofh_queue_get_config_request->port));
 
-	cofctrl *ofctrl = ofctrl_find(request->entity);
+	cofctl *ofctrl = ofctrl_find(request->entity);
 
 	ofctrl_find(ofctrl)->queue_get_config_reply_sent(pack);
 
@@ -3173,7 +3362,7 @@ crofbase::recv_experimenter_message()
 
 void
 crofbase::send_experimenter_message(
-		cofdpath *sw,
+		cofdpt *sw,
 		uint32_t experimenter_id,
 		uint32_t exp_type,
 		uint8_t* body,
@@ -3192,7 +3381,7 @@ crofbase::send_experimenter_message(
 
 	if (NULL == sw) // send to all attached data path entities
 	{
-		std::map<cofbase*, cofdpath*>::iterator it;
+		std::map<cofbase*, cofdpt*>::iterator it;
 		for (it = ofdpath_list.begin(); it != ofdpath_list.end(); ++it)
 		{
 			it->second->entity->fe_down_experimenter_message(this, new cofpacket(*pack));
@@ -3210,7 +3399,7 @@ crofbase::send_experimenter_message(
 
 void
 crofbase::send_experimenter_message(
-		cofctrl *ctrl,
+		cofctl *ctrl,
 		uint32_t experimenter_id,
 		uint32_t exp_type,
 		uint8_t* body,
@@ -3229,7 +3418,7 @@ crofbase::send_experimenter_message(
 
 	if (NULL == ctrl) // send to all attached controller entities
 	{
-		std::map<cofbase*, cofctrl*>::iterator it;
+		std::map<cofbase*, cofctl*>::iterator it;
 		for (it = ofctrl_list.begin(); it != ofctrl_list.end(); ++it)
 		{
 			it->second->ctrl->fe_up_experimenter_message(this, new cofpacket(*pack));

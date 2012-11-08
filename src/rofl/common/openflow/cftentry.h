@@ -43,7 +43,7 @@ extern "C" {
 #include "../protocols/fetherframe.h"
 
 class cfwdelem;
-class cofctrl;
+class cofctl;
 
 
 /** we have to notify fpc entry generating instances
@@ -89,7 +89,7 @@ public:
 	 */
 	cftentry(
 			cfwdelem *fwdelem = NULL,
-			cofctrl *ofctrl = NULL);
+			cofctl *ofctrl = NULL);
 
 	/** constructor
 	 */
@@ -98,7 +98,7 @@ public:
 		std::set<cftentry*> *flow_table,
 		cofpacket *pack,
 		cfwdelem *fwdelem = NULL,
-		cofctrl *ofctrl = NULL);
+		cofctl *ofctrl = NULL);
 
 	/** destructor
   	 */
@@ -239,7 +239,7 @@ public: // overloaded from hw_fte_cb
 	cfwdelem *fwdelem;
 
 	// cofctrl that generated this instance
-	cofctrl *ofctrl;
+	cofctl *ofctrl;
 	
 	//Unique id of the flowspace (usually used for transactions)
 	uint64_t uid;

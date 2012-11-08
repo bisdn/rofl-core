@@ -293,7 +293,7 @@ cfwdelem::fibentry_timeout(cfibentry *fibentry)
 
 
 void
-cfwdelem::handle_features_request(cofctrl *ofctrl, cofpacket *request)
+cfwdelem::handle_features_request(cofctl *ofctrl, cofpacket *request)
 {
  	WRITELOG(CFWD, DBG, "cfwdelem(%s)::handle_features_request()", dpname.c_str());
 
@@ -326,7 +326,7 @@ cfwdelem::handle_features_request(cofctrl *ofctrl, cofpacket *request)
 
 
 void
-cfwdelem::handle_get_config_request(cofctrl *ctrl, cofpacket *pack)
+cfwdelem::handle_get_config_request(cofctl *ctrl, cofpacket *pack)
 {
 	send_get_config_reply(
 			ctrl,
@@ -340,7 +340,7 @@ cfwdelem::handle_get_config_request(cofctrl *ctrl, cofpacket *pack)
 
 
 void
-cfwdelem::handle_set_config(cofctrl *ofctrl, cofpacket *pack)
+cfwdelem::handle_set_config(cofctl *ofctrl, cofpacket *pack)
 {
 	flags = be16toh(pack->ofh_switch_config->flags);
 	miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
@@ -352,7 +352,7 @@ cfwdelem::handle_set_config(cofctrl *ofctrl, cofpacket *pack)
 
 void
 cfwdelem::handle_desc_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	struct ofp_desc_stats desc_stats;
@@ -376,7 +376,7 @@ cfwdelem::handle_desc_stats_request(
 
 void
 cfwdelem::handle_table_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	cmemory body(flow_tables.size() * sizeof(struct ofp_table_stats)); // array of struct ofp_table_stats
@@ -409,7 +409,7 @@ cfwdelem::handle_table_stats_request(
 
 void
 cfwdelem::handle_port_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	uint32_t port_no = be32toh(pack->ofb_port_stats_request->port_no);
@@ -458,7 +458,7 @@ cfwdelem::handle_port_stats_request(
 
 void
 cfwdelem::handle_flow_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	uint8_t table_id = pack->ofb_flow_stats_request->table_id;
@@ -520,7 +520,7 @@ cfwdelem::handle_flow_stats_request(
 
 void
 cfwdelem::handle_aggregate_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	uint8_t table_id = pack->ofb_aggregate_stats_request->table_id;
@@ -614,7 +614,7 @@ cfwdelem::handle_aggregate_stats_request(
 
 void
 cfwdelem::handle_queue_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	/*
@@ -634,7 +634,7 @@ cfwdelem::handle_queue_stats_request(
 
 void
 cfwdelem::handle_group_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	uint32_t group_id = be32toh(pack->ofb_group_stats_request->group_id);
@@ -674,7 +674,7 @@ cfwdelem::handle_group_stats_request(
 
 void
 cfwdelem::handle_group_desc_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	cmemory body(0);
@@ -694,7 +694,7 @@ cfwdelem::handle_group_desc_stats_request(
 
 void
 cfwdelem::handle_group_features_stats_request(
-		cofctrl *ofctrl,
+		cofctl *ofctrl,
 		cofpacket *pack)
 {
 	cmemory body(0);
@@ -727,7 +727,7 @@ cfwdelem::fib_table_find(uint64_t from, uint64_t to) throw (eFwdElemNotFound)
 
 
 void
-cfwdelem::handle_flow_mod(cofctrl *ofctrl, cofpacket *pack)
+cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 {
 	cftentry *fte = NULL;
 
@@ -828,7 +828,7 @@ cfwdelem::handle_flow_mod(cofctrl *ofctrl, cofpacket *pack)
 
 
 void
-cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
+cfwdelem::handle_group_mod(cofctl *ctl, cofpacket *pack)
 {
 	try {
 		cgtentry *gte = group_table.update_gt_entry(this, pack->ofh_group_mod);
@@ -917,7 +917,7 @@ cfwdelem::handle_group_mod(cofctrl *ctl, cofpacket *pack)
 
 
 void
-cfwdelem::handle_table_mod(cofctrl *ofctrl, cofpacket *pack)
+cfwdelem::handle_table_mod(cofctl *ofctrl, cofpacket *pack)
 {
 	if (flow_tables.find(pack->ofh_table_mod->table_id) != flow_tables.end())
 	{
@@ -930,7 +930,7 @@ cfwdelem::handle_table_mod(cofctrl *ofctrl, cofpacket *pack)
 
 
 void
-cfwdelem::handle_port_mod(cofctrl *ofctrl, cofpacket *pack)
+cfwdelem::handle_port_mod(cofctl *ofctrl, cofpacket *pack)
 {
 	uint32_t port_no = be32toh(pack->ofh_port_mod->port_no);
 
@@ -950,7 +950,7 @@ cfwdelem::handle_port_mod(cofctrl *ofctrl, cofpacket *pack)
 
 
 void
-cfwdelem::handle_stats_reply(cofdpath *dpt, cofpacket *pack)
+cfwdelem::handle_stats_reply(cofdpt *dpt, cofpacket *pack)
 {
 	// extract all ofp_table_stats structures from
 	switch (be16toh(pack->ofh_stats_reply->type)) {
@@ -991,7 +991,7 @@ cfwdelem::handle_stats_reply(cofdpath *dpt, cofpacket *pack)
 
 
 void
-cfwdelem::handle_flow_removed(cofdpath *sw, cofpacket *pack)
+cfwdelem::handle_flow_removed(cofdpt *sw, cofpacket *pack)
 {
 	if (flow_tables.find(pack->ofh_flow_mod->table_id) != flow_tables.end())
 	{
