@@ -90,13 +90,6 @@ public: // static data structures
 protected:
 
 	csocket_owner			*socket_owner;		/**< owner of this csocket instance */
-	int 					sd; 				/**< the socket descriptor */
-	caddress 				laddr; 				/**< local address socket is bound to */
-	caddress 				raddr; 				/**< remote address of peer entity */
-	int 					domain; 			/**< socket domain (PF_INET, PF_UNIX, ...) */
-	int 					type; 				/**< socket type (SOCK_STREAM, SOCK_DGRAM, ...) */
-	int 					protocol; 			/**< socket protocol (TCP, UDP, SCTP, ...) */
-	int 					backlog; 			/**< backlog value for listen() system call */
 
 	enum socket_flag_t {
 		SOCKET_IS_LISTENING = 1, /**< socket is in listening state */
@@ -106,6 +99,17 @@ protected:
 	};
 
 	std::bitset<16> 		sockflags; /**< socket flags (see below) */
+
+public:
+
+	int 					sd; 				/**< the socket descriptor */
+	caddress 				laddr; 				/**< local address socket is bound to */
+	caddress 				raddr; 				/**< remote address of peer entity */
+	int 					domain; 			/**< socket domain (PF_INET, PF_UNIX, ...) */
+	int 					type; 				/**< socket type (SOCK_STREAM, SOCK_DGRAM, ...) */
+	int 					protocol; 			/**< socket protocol (TCP, UDP, SCTP, ...) */
+	int 					backlog; 			/**< backlog value for listen() system call */
+
 
 public:
 

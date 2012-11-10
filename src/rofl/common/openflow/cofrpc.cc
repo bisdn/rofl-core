@@ -7,6 +7,7 @@
 /* static */int cofrpc::rpc_echo_interval = DEFAULT_RPC_ECHO_INTERVAL;
 
 cofrpc::cofrpc(int rpc_endpnt, cofbase *entity) :
+		csocket(0),
 		rpc_endpnt(rpc_endpnt),
 		entity(entity),
 		fragment(NULL),
@@ -32,7 +33,7 @@ cofrpc::cofrpc(
 		int type,
 		int protocol,
 		bool active) :
-		csocket(sd, ra, domain, type, protocol),
+		csocket(0, sd, ra, domain, type, protocol),
 		rpc_endpnt(rpc_endpnt),
 		entity(entity),
 		fragment(NULL),

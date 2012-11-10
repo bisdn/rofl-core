@@ -12,13 +12,13 @@ cofctl::cofctl(
 		int domain,
 		int type,
 		int protocol) :
-				socket(new csocket(this, newsd, ra, domain, type, protocol)),
 				rofbase(rofbase),
 				flags(0),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
 				role_initialized(false),
 				role(OFPCR_ROLE_EQUAL),
 				cached_generation_id(0),
+				socket(new csocket(this, newsd, ra, domain, type, protocol)),
 				fragment(0),
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
@@ -37,13 +37,13 @@ cofctl::cofctl(
 		int domain,
 		int type,
 		int protocol) :
-				socket(new csocket(this, domain, type, protocol)),
 				rofbase(rofbase),
 				flags(COFCTL_FLAG_ACTIVE_SOCKET),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
 				role_initialized(false),
 				role(OFPCR_ROLE_EQUAL),
 				cached_generation_id(0),
+				socket(new csocket(this, domain, type, protocol)),
 				fragment(0),
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
@@ -439,8 +439,6 @@ cofctl::hello_rcvd(cofpacket *pack)
 {
 	WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() pack: %s", this, pack->c_str());
 
-	cofpacket *reply = (cofpacket*)0;
-
 	// OpenFlow versions do not match, send error, close connection
 	if (pack->ofh_header->version != OFP_VERSION)
 	{
@@ -797,7 +795,7 @@ cofctl::role_request_rcvd(cofpacket *pack)
 
 	role = be32toh(pack->ofh_role_request->role);
 
-
+#if 0
 	for (std::map<cofbase*, cofctl*>::iterator
 			it = rofbase->ofctrl_list.begin(); it != rofbase->ofctrl_list.end(); ++it)
 	{
@@ -813,6 +811,7 @@ cofctl::role_request_rcvd(cofpacket *pack)
 			ofctrl->role = OFPCR_ROLE_SLAVE;
 		}
 	}
+#endif
 
 	//pack->ofh_role_request->generation_id;
 
@@ -1047,7 +1046,7 @@ cofctl::send_error_is_slave(cofpacket *pack)
 void
 cofctl::try_to_connect(bool reset_timeout)
 {
-	if (pending_timer(TIMER_CTL_RECONNECT))
+	if (pending_timer(COFCTL_TIMER_RECONNECT))
 	{
 		return;
 	}

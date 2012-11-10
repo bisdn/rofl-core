@@ -36,14 +36,13 @@ extern "C" {
 #include "cfibentry.h"
 #include "croflexp.h"
 #include "cphyport.h"
+#include "crofbase.h"
 
 //#include "rofl/experimental/crib.h"
 #include "rofl/platform/unix/crandom.h"
 
 #include "openflow/cofpacket.h"
 #include "openflow/cofport.h"
-#include "openflow/cofdpath.h"
-#include "openflow/cofctrl.h"
 #include "openflow/cofrpc.h"
 #include "openflow/cofinst.h"
 #include "openflow/cofinlist.h"
