@@ -100,11 +100,6 @@ private: // data structures
 private: // packet queues for OpenFlow messages
 
 
-	// queue for incoming packets rcvd from layer-(n+1) controlling entity
-	std::map<int, std::list<cofpacket*> > fe_down_queue;
-	// queue for incoming packets rcvd from layer-(n-1) controlled entities
-	std::map<int, std::list<cofpacket*> > fe_up_queue;
-
 	std::string 				info;			// info string
 
 
@@ -275,7 +270,7 @@ protected:
 	 */
 	virtual cofctl*
 	cofctl_factory(
-			csocket_owner* owner,
+			crofbase* owner,
 			int newsd,
 			caddress const& ra,
 			int domain,
@@ -288,7 +283,7 @@ protected:
 	 */
 	virtual cofctl*
 	cofctl_factory(
-			csocket_owner* owner,
+			crofbase* owner,
 			caddress const& ra,
 			int domain,
 			int type,
@@ -300,7 +295,7 @@ protected:
 	 */
 	virtual cofdpt*
 	cofdpt_factory(
-			csocket_owner* owner,
+			crofbase* owner,
 			int newsd,
 			caddress const& ra,
 			int domain,
@@ -313,7 +308,7 @@ protected:
 	 */
 	virtual cofdpt*
 	cofdpt_factory(
-			csocket_owner* owner,
+			crofbase* owner,
 			caddress const& ra,
 			int domain,
 			int type,
@@ -782,37 +777,6 @@ public: // miscellaneous methods
 
 
 
-public:	// OpenFlow related methods for communication to/from cofctl and cofdpt instances
-
-	/* The following methods are used for sending/receiving OF messages
-	 * between stacked crofbase instances. Usually, they are not intended
-	 * to be called from other objects. Two types exist:
-	 * - fe_up_XXX(crofbase *entity, cofpacket *pack)
-	 * - fw_down_XXX(crofbase *entity, cofpacket *pack)
-	 * Convention:
-	 * - fe_up_XXX() is called when a data path sends to a controlling entity.
-	 * - fe_down_XXX() is called when a controller sends to a data path entity.
-	 */
-
-
-	/**
-	 *
-	 */
-	void
-	ctl_recv_message(
-			cofctl *ctl,
-			cofpacket *pack);
-
-
-	/**
-	 *
-	 */
-	void
-	dpt_recv_message(
-			cofdpt *dpt,
-			cofpacket *pack);
-
-
 
 
 public:
@@ -840,15 +804,17 @@ public:
 	 *
 	 */
 	virtual void
-	send_down_hello_message(
-			cofdpt *ofswitch, bool bye = false);
+	send_hello_message(
+			cofdpt *dpt,
+			uint8_t *body, size_t bodylen);
 
 	/** Send a OF HELLO.message to controller.
 	 *
 	 */
 	virtual void
-	send_up_hello_message(
-			cofctl *ofctrl, bool bye = false);
+	send_hello_message(
+			cofctl *ctl,
+			uint8_t *body, size_t bodylen);
 
 		// FEATURES request/reply
 	//
@@ -1228,7 +1194,10 @@ public:
 	 *
 	 */
 	virtual void
-	send_queue_get_config_reply();
+	send_queue_get_config_reply(
+			cofctl *ctl,
+			uint32_t xid,
+			uint32_t portno);
 
 	/** Send OF experimenter message to data path
 	 *
@@ -1525,12 +1494,6 @@ public:
 	dpath_find(
 		cmacaddr dl_dpid) throw (eOFbaseNotAttached);
 
-	/** find cofswitch instance
-	 */
-	cofdpt*
-	ofswitch_find(
-			cofbase* entity) throw (eOFbaseNotAttached);
-
 
 	/** find cofswitch instance
 	 */
@@ -1541,18 +1504,13 @@ public:
 
 	/** find cofswitch instance
 	 */
-	void
+	cofdpt*
 	ofswitch_exists(
 			const cofdpt *ofswitch) throw (eRofBaseNotFound);
 
 	// COFCTRL related methods
 	//
 
-	/** find cofctrl instance
-	 */
-	cofctl*
-	ofctrl_find(
-			cofbase* entity) throw (eOFbaseNotAttached);
 
 	/** find cofctrl instance
 	 */
@@ -1563,32 +1521,12 @@ public:
 
 	/** find cofctrl instance
 	 */
-	void
+	cofctl*
 	ofctrl_exists(
 			const cofctl *ofctrl) throw (eRofBaseNotFound);
 
 
 
-
-private: // packet check methods
-
-	/** check "upstream" travelling packet
-	 *
-	 */
-	void
-	check_up_packet(
-			cofpacket *ofpacket,
-			enum ofp_type oftype,
-			cofbase *ofbase) throw (eRofBaseInval);
-
-	/** check "downstream" travelling packet
-	 *
-	 */
-	void
-	check_down_packet(
-			cofpacket *ofpacket,
-			enum ofp_type oftype,
-			cofbase *ofbase) throw (eRofBaseInval);
 
 
 private: // methods for attaching/detaching other cofbase instances

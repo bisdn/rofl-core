@@ -620,20 +620,162 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 	} catch (eLockInval& e) {
 
 		throw;
+
+	} catch (eActionBadLen& e) {
+
+		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+				"invalid flow-mod packet received: action with bad length", this);
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_BAD_LEN,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+
+
+	} catch (eFspNotAllowed& e) {
+
+		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+				"-FLOW-MOD- blocked due to mismatch in nsp "
+				"registration", this);
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_FLOW_MOD_FAILED,
+				OFPFMFC_EPERM,
+				pack->soframe(), pack->framelen());
+
+		delete pack;
+
+	} catch (eRofBaseTableNotFound& e) {
+
+		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+				"invalid flow-table %d specified",
+				this, pack->ofh_flow_mod->table_id);
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_FLOW_MOD_FAILED,
+				OFPFMFC_BAD_TABLE_ID,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
+		delete pack;
+
+	} catch (eInstructionInvalType& e) {
+
+		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+				"unknown instruction found", this);
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_BAD_INSTRUCTION,
+				OFPBIC_UNKNOWN_INST,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
+		delete pack;
+
+	} catch (eRofBaseGotoTableNotFound& e) {
+
+		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+				"GOTO-TABLE instruction with invalid table-id", this);
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_BAD_INSTRUCTION,
+				OFPBIC_BAD_TABLE_ID,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
+		delete pack;
+
+	} catch (eInstructionBadExperimenter& e) {
+
+		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+				"unknown OFPIT_EXPERIMENTER extension received", this);
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_BAD_INSTRUCTION,
+				OFPBIC_UNSUP_EXP_INST,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
+		delete pack;
+
+	} catch (eOFmatchInvalBadValue& e) {
+
+		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+				"bad value in match structure", this);
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_BAD_MATCH,
+				OFPBMC_BAD_VALUE,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
+		delete pack;
+
+	} catch (cerror &e) {
+
+		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+				"default catch for cerror exception", this);
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_FLOW_MOD_FAILED,
+				OFPFMFC_UNKNOWN,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
+		delete pack;
+
 	}
 }
+
 
 
 void
 cofctl::group_mod_rcvd(cofpacket *pack)
 {
-	if (OFPCR_ROLE_SLAVE == role)
-	{
-		send_error_is_slave(pack); return;
-	}
+	try {
 
-	rofbase->handle_group_mod(this, pack);
+		if (OFPCR_ROLE_SLAVE == role)
+		{
+			send_error_is_slave(pack); return;
+		}
+
+		rofbase->handle_group_mod(this, pack);
+
+
+	} catch (eActionBadLen& e) {
+
+		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_group_mod() "
+				"invalid group-mod packet received: action with "
+				"bad length", this);
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_BAD_ACTION,
+				OFPBAC_BAD_LEN,
+				pack->soframe(),
+				pack->framelen());
+
+		delete pack;
+
+	} catch (...) {
+
+		delete pack;
+	}
 }
+
 
 
 void

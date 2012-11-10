@@ -96,6 +96,57 @@ cofdpt::~cofdpt()
 
 
 void
+cofdpt::handle_accepted(
+		csocket *socket,
+		int newsd,
+		caddress const& ra)
+{
+
+}
+
+
+
+void
+cofdpt::handle_connected(
+		csocket *socket,
+		int sd)
+{
+
+}
+
+
+
+void
+cofdpt::handle_connect_refused(
+		csocket *socket,
+		int sd)
+{
+
+}
+
+
+
+void
+cofdpt::handle_read(
+		csocket *socket,
+		int sd)
+{
+
+}
+
+
+
+void
+cofdpt::handle_closed(
+		csocket *socket,
+		int sd)
+{
+
+}
+
+
+
+void
 cofdpt::handle_timeout(int opaque)
 {
 	switch (opaque) {
@@ -230,7 +281,7 @@ cofdpt::features_reply_rcvd(
 
 		WRITELOG(COFDPT, DBG, "exception: malformed FEATURES reply received");
 
-		rofbase->send_down_hello_message(this, true /*bye*/);
+//		rofbase->send_down_hello_message(this, true /*bye*/);
 
 		delete this;
 

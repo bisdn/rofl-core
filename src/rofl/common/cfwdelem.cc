@@ -820,7 +820,7 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 				"flow-entry error: entry overlaps", dpname.c_str());
 
 		send_error_message(
-				ofctrl_find(pack->entity),
+				ofctrl,
 				pack->get_xid(),
 				OFPET_FLOW_MOD_FAILED,
 				OFPFMFC_OVERLAP,

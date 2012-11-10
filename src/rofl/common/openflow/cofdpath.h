@@ -169,6 +169,67 @@ public:
 	~cofdpt();
 
 
+public:
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_accepted(
+			csocket *socket,
+			int newsd,
+			caddress const& ra);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_connected(
+			csocket *socket,
+			int sd);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_connect_refused(
+			csocket *socket,
+			int sd);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_read(
+			csocket *socket,
+			int sd);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_closed(
+			csocket *socket,
+			int sd);
+
+
+public:
+
+
+	/**
+	 *
+	 */
+	void
+	send_message(
+			cofpacket *pack);
+
+
+
 	/**
 	 * @name	find_cofport
 	 * @brief 	Find a cofport instance by port number
