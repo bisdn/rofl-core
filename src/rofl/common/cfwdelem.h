@@ -72,6 +72,8 @@ class eFwdElemTableNotFound 		: public eFwdElemBase {};
 class eFwdElemGotoTableNotFound		: public eFwdElemBase {};
 
 
+class cfttable;
+
 
 /**
  * Forwarding element base class.

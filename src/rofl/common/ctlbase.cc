@@ -22,11 +22,11 @@ ctlbase::ctlbase(
 
 ctlbase::~ctlbase()
 {
-	std::map<cofbase*, cofdpt*>::iterator it;
-	for (it = ofdpath_list.begin(); it != ofdpath_list.end(); ++it)
+	std::set<cofdpt*>::iterator it;
+	for (it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
 		cofmatch match; // all wildcard
-		it->second->fsp_close(match);
+		(*it)->fsp_close(match);
 	}
 
 	adstacks.clear();

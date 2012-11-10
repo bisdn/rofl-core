@@ -46,7 +46,6 @@ cfwdelem::cfwdelem(
 		uint32_t n_buffers,
 		caddress const& rpc_ctl_addr,
 		caddress const& rpc_dpt_addr) :
-				crofbase(rpc_ctl_addr, rpc_dpt_addr),
 				dpname(dpname),
 				dpid(dpid),
 				n_buffers(n_buffers),
@@ -56,6 +55,10 @@ cfwdelem::cfwdelem(
 				flags(0),
 				miss_send_len(DEFAULT_FE_MISS_SEND_LEN)
 {
+	crofbase::rpc_listen_for_ctls(rpc_ctl_addr);
+
+	crofbase::rpc_listen_for_dpts(rpc_dpt_addr);
+
 	cvastring vas;
 	s_dpid.assign(vas("dpid[%016llx]", dpid));
 
@@ -936,7 +939,7 @@ cfwdelem::handle_port_mod(cofctl *ofctrl, cofpacket *pack)
 
 	if (phy_ports.find(port_no) == phy_ports.end())
 	{
-		throw eOFctrlPortNotFound();
+		throw eOFctlPortNotFound();
 	}
 
 	phy_ports[port_no]->recv_port_mod(

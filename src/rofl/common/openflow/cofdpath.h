@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COFDPATH_H
-#define COFDPATH_H 1
+#ifndef COFDPT_H
+#define COFDPT_H 1
 
 #include <map>
 #include <set>
@@ -43,17 +43,19 @@ extern "C" {
 #include "cofport.h"
 #include "extensions/cfsptable.h"
 
-class crofbase;
-class cofbase;
-class cfttable;
+
+
 
 /* error classes */
-class eDataPathIdInUse : public cerror {}; // datapath id already in use
-class eDataPathAlreadyAttached : public cerror {}; // crofbase *entity is already attached
-class eOFswitchBase : public cerror {};
-class eOFswitchInvalid : public eOFswitchBase {};
-class eOFdpathNotFound : public eOFswitchBase {}; // element not found
+class eOFdptBase					: public cerror {};
+class eDataPathIdInUse 				: public eOFdptBase {}; // datapath id already in use
+class eDataPathAlreadyAttached 		: public eOFdptBase {}; // crofbase *entity is already attached
+class eOFswitchBase 				: public eOFdptBase {};
+class eOFswitchInvalid 				: public eOFdptBase {};
+class eOFdpathNotFound 				: public eOFdptBase {}; // element not found
 
+
+class crofbase;
 
 
 /** A class for controlling a single attached data path element in class crofbase.
@@ -69,33 +71,30 @@ class eOFdpathNotFound : public eOFswitchBase {}; // element not found
  *
  */
 class cofdpt :
-#if 0
-	public cftentry_owner,
-	public cgtentry_owner,
-#endif
-	public cxidowner,
+	public csocket_owner,
+	public ciosrv,
 	public cfsm,
-	public ciosrv
+	public cxidowner
 {
 
-		/* cofdpath timer types */
-		enum cofdpath_timer_t {
-			COFDPATH_TIMER_BASE = 0x21,
-			COFDPATH_TIMER_FEATURES_REQUEST 	= ((COFDPATH_TIMER_BASE) << 16 | (0x01 << 8)),
-			COFDPATH_TIMER_FEATURES_REPLY 		= ((COFDPATH_TIMER_BASE) << 16 | (0x02 << 8)),
-			COFDPATH_TIMER_GET_CONFIG_REQUEST 	= ((COFDPATH_TIMER_BASE) << 16 | (0x03 << 8)),
-			COFDPATH_TIMER_GET_CONFIG_REPLY 	= ((COFDPATH_TIMER_BASE) << 16 | (0x04 << 8)),
-			COFDPATH_TIMER_STATS_REQUEST 		= ((COFDPATH_TIMER_BASE) << 16 | (0x05 << 8)),
-			COFDPATH_TIMER_STATS_REPLY 			= ((COFDPATH_TIMER_BASE) << 16 | (0x06 << 8)),
-			COFDPATH_TIMER_BARRIER_REQUEST 		= ((COFDPATH_TIMER_BASE) << 16 | (0x09 << 8)),
-			COFDPATH_TIMER_BARRIER_REPLY 		= ((COFDPATH_TIMER_BASE) << 16 | (0x0a << 8)),
-			COFDPATH_TIMER_LLDP_SEND_DISC 		= ((COFDPATH_TIMER_BASE) << 16 | (0x0b << 8)),
+		/* cofdpt timer types */
+		enum cofdpt_timer_t {
+			COFDPT_TIMER_BASE = 0xc721,
+			COFDPT_TIMER_FEATURES_REQUEST 	= ((COFDPT_TIMER_BASE) << 16 | (0x01 << 8)),
+			COFDPT_TIMER_FEATURES_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x02 << 8)),
+			COFDPT_TIMER_GET_CONFIG_REQUEST = ((COFDPT_TIMER_BASE) << 16 | (0x03 << 8)),
+			COFDPT_TIMER_GET_CONFIG_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x04 << 8)),
+			COFDPT_TIMER_STATS_REQUEST 		= ((COFDPT_TIMER_BASE) << 16 | (0x05 << 8)),
+			COFDPT_TIMER_STATS_REPLY 		= ((COFDPT_TIMER_BASE) << 16 | (0x06 << 8)),
+			COFDPT_TIMER_BARRIER_REQUEST 	= ((COFDPT_TIMER_BASE) << 16 | (0x09 << 8)),
+			COFDPT_TIMER_BARRIER_REPLY 		= ((COFDPT_TIMER_BASE) << 16 | (0x0a << 8)),
+			COFDPT_TIMER_LLDP_SEND_DISC 	= ((COFDPT_TIMER_BASE) << 16 | (0x0b << 8)),
 		};
 
-		/* cofdpath state types */
-		enum cofdpath_state_t {
-			DP_STATE_INIT 				= (1 << 0),
-			DP_STATE_RUNNING 			= (1 << 1),
+		/* cofdpt state types */
+		enum cofdpt_state_t {
+			COFDPT_STATE_INIT 				= (1 << 0),
+			COFDPT_STATE_RUNNING 			= (1 << 1),
 		};
 
 #define DEFAULT_DP_FEATURES_REPLY_TIMEOUT 		10
@@ -119,51 +118,43 @@ public: // data structures
 		uint16_t 						flags;			// 'fragmentation' flags
 		uint16_t 						miss_send_len; 	// length of bytes sent to controller
 
-#if 0
-		std::map<uint8_t, cfttable*> 	flow_tables;	// flow_table of this switch instance
-		cgttable 						grp_table;		// group_table of this switch instance
-		cfwdtable 						fwdtable; 		// forwarding table for attached MAC
-														// addresses (Ethernet endpoints)
-#endif
 		cfsptable 						fsptable;		// flowspace registration table
 
-
-
-		friend class crofbase;
 
 private:
 
 		crofbase 						*rofbase;		// layer-(n) entity
-		cofbase 						*entity;		// layer-(n-1) entity
-		std::map<cofbase*, cofdpt*> 	*ofswitch_list; // cofswitch map this
 		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store
 
-		std::string 	info;							// info string
+		std::string 					 info;			// info string
 
-		int 			features_reply_timeout;
-		int 			get_config_reply_timeout;
-		int 			stats_reply_timeout;
-		int 			barrier_reply_timeout;
+		int 							 features_reply_timeout;
+		int 							 get_config_reply_timeout;
+		int 							 stats_reply_timeout;
+		int 							 barrier_reply_timeout;
 
 public:
 
-	/**
-	 * @name	cofdpath
-	 * @brief 	constructor of class cofdpath
-	 *
-	 * Initializes a new instance of class cofdpath for a new
-	 * attaching data path element. Starts handshake with datapath
-	 * element in order to acquire all of its state. Adds this to
-	 * map of cofdpath instances (dpath_list).
-	 *
-	 * @param[in] fwdelem	The crofbase object storing this cofdpath
-	 * @param[in] entity The cofbase object representing the datapath element (@see cofrpc or @see crofbase)
-	 * @param[in] dpath_list pointer to map that contains all cofdpath instances for fwdelem
+	/** constructor (TCP accept)
 	 */
 	cofdpt(
-		crofbase *fwdelem,
-		cofbase *entity,
-		std::map<cofbase*, cofdpt*>* dpath_list);
+			crofbase *rofbase,
+			int newsd,
+			caddress const& ra,
+			int domain,
+			int type,
+			int protocol);
+
+
+	/** constructor (TCP connect)
+	 */
+	cofdpt(
+			crofbase *rofbase,
+			caddress const& ra,
+			int domain,
+			int type,
+			int protocol);
+
 
 
 	/**

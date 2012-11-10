@@ -637,7 +637,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 
 
 void
-cofctl::port_mod_rcvd(cofpacket *pack) throw (eOFctrlPortNotFound)
+cofctl::port_mod_rcvd(cofpacket *pack) throw (eOFctlPortNotFound)
 {
 	if (OFPCR_ROLE_SLAVE == role)
 	{

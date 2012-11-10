@@ -222,12 +222,12 @@ crofbase::handle_accepted(
 	if (rpc[RPC_CTL].find(socket) != rpc[RPC_CTL].end())
 	{
 		WRITELOG(CROFBASE, INFO, "crofbase(%p): new ctl TCP connection", this);
-		ofctl_set.insert(new cofctl(this, newsd, ra, socket->domain, socket->type, socket->protocol));
+		ofctl_set.insert(cofctl_factory(this, newsd, ra, socket->domain, socket->type, socket->protocol));
 	}
 	else if (rpc[RPC_DPT].find(socket) != rpc[RPC_DPT].end())
 	{
 		WRITELOG(CROFBASE, INFO, "crofbase(%p): new dpt TCP connection", this);
-		ofdpt_set.insert(new cofdpt(this, newsd, ra, socket->domain, socket->type, socket->protocol));
+		ofdpt_set.insert(cofdpt_factory(this, newsd, ra, socket->domain, socket->type, socket->protocol));
 	}
 	else
 	{
@@ -326,7 +326,7 @@ crofbase::rpc_connect_to_ctl(
 		int type,
 		int protocol)
 {
-	ofctl_set.insert(new cofctl(this, ra, domain, type, protocol));
+	ofctl_set.insert(cofctl_factory(this, ra, domain, type, protocol));
 }
 
 
@@ -357,7 +357,7 @@ crofbase::rpc_connect_to_dpt(
 		int type,
 		int protocol)
 {
-	ofdpt_set.insert(new cofdpt(this, ra, domain, type, protocol));
+	ofdpt_set.insert(cofdpt_factory(this, ra, domain, type, protocol));
 }
 
 
@@ -378,6 +378,60 @@ crofbase::rpc_disconnect_from_dpt(
 	delete dpt;
 
 	ofdpt_set.erase(dpt);
+}
+
+
+
+cofctl*
+crofbase::cofctl_factory(
+		csocket_owner* owner,
+		int newsd,
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol)
+{
+	return new cofctl(owner, newsd, ra, domain, type, protocol);
+}
+
+
+
+cofctl*
+crofbase::cofctl_factory(
+		csocket_owner* owner,
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol)
+{
+	return new cofctl(owner, ra, domain, type, protocol);
+}
+
+
+
+cofdpt*
+crofbase::cofdpt_factory(
+		csocket_owner* owner,
+		int newsd,
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol)
+{
+	return new cofdpt(owner, newsd, ra, domain, type, protocol);
+}
+
+
+
+cofdpt*
+crofbase::cofdpt_factory(
+		csocket_owner* owner,
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol)
+{
+	return new cofdpt(owner, ra, domain, type, protocol);
 }
 
 
@@ -2745,7 +2799,7 @@ crofbase::recv_port_mod()
 
 
 
-	} catch (eOFctrlPortNotFound& e) {
+	} catch (eOFctlPortNotFound& e) {
 
 		send_error_message(
 				ofctrl_find(pack->entity),

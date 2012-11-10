@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COFCTRL_H
-#define COFCTRL_H 1
+#ifndef COFCTL_H
+#define COFCTL_H 1
 
 #include <map>
 #include <string>
@@ -32,14 +32,11 @@ extern "C" {
 
 
 
+class eOFctlBase 			: public cerror {};
+class eOFctlPortNotFound 	: public eOFctlBase {};
+
+
 class crofbase;
-class cfttable;
-
-class eOFctrlBase 			: public cerror {};
-class eOFctrlPortNotFound 	: public eOFctrlBase {};
-
-
-
 
 
 
@@ -234,7 +231,7 @@ protected:
 	/** handle incoming PORT-MOD messages
 	 */
 	void
-	port_mod_rcvd(cofpacket *pack) throw (eOFctrlPortNotFound);
+	port_mod_rcvd(cofpacket *pack) throw (eOFctlPortNotFound);
 
 	/** handle incoming TABLE-MOD messages
 	 */

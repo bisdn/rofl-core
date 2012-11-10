@@ -78,6 +78,8 @@ class eRofBaseTableNotFound 		: public eRofBase {}; // flow-table not found (e.g
 class eRofBaseGotoTableNotFound 	: public eRofBase {}; // table-id specified in OFPIT_GOTO_TABLE invalid
 class eRofBaseFspSupportDisabled 	: public eRofBase {};
 
+class cofctl;
+class cofdpt;
 
 
 class crofbase :
@@ -109,7 +111,7 @@ private: // packet queues for OpenFlow messages
 protected: // data structures
 
 	std::set<cofctl*>			ofctl_set;		// set of connected controllers
-	std::set<cofdpt*>			ofdpt_set;		// set of connected datapath elements
+	std::set<cofdpt*>			ofdpt_set;		// set of connected data path elements
 
 	cfsptable 					fsptable; 		// namespace table
 
@@ -264,6 +266,58 @@ public:
 	void
 	rpc_disconnect_from_dpt(
 			cofdpt *dpath);
+
+protected:
+
+
+	/**
+	 *
+	 */
+	virtual cofctl*
+	cofctl_factory(
+			csocket_owner* owner,
+			int newsd,
+			caddress const& ra,
+			int domain,
+			int type,
+			int protocol);
+
+
+	/**
+	 *
+	 */
+	virtual cofctl*
+	cofctl_factory(
+			csocket_owner* owner,
+			caddress const& ra,
+			int domain,
+			int type,
+			int protocol);
+
+
+	/**
+	 *
+	 */
+	virtual cofdpt*
+	cofdpt_factory(
+			csocket_owner* owner,
+			int newsd,
+			caddress const& ra,
+			int domain,
+			int type,
+			int protocol);
+
+
+	/**
+	 *
+	 */
+	virtual cofdpt*
+	cofdpt_factory(
+			csocket_owner* owner,
+			caddress const& ra,
+			int domain,
+			int type,
+			int protocol);
 
 
 

@@ -5,9 +5,12 @@
 #include "cofdpath.h"
 
 cofdpt::cofdpt(
-		crofbase *fwdelem,
-		cofbase *entity,
-		std::map<cofbase*, cofdpt*>* ofswitch_list) :
+		crofbase *rofbase,
+		int newsd,
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol) :
 	dpid(0),
 	dpmac(cmacaddr("00:00:00:00:00:00")),
 	n_buffers(0),
@@ -15,33 +18,62 @@ cofdpt::cofdpt(
 	capabilities(0),
 	flags(0),
 	miss_send_len(0),
-	rofbase(fwdelem),
-	entity(entity),
-	ofswitch_list(ofswitch_list),
+	rofbase(rofbase),
 	features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 	get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 	stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
 	barrier_reply_timeout(DEFAULT_DB_BARRIER_REPLY_TIMEOUT)
 {
 	WRITELOG(COFDPT, DBG, "cofdpath(%p)::cofdpath() "
-			"dpid:%"UINT64DBGFMT" child:%p",
-			this, dpid, entity);
-
-	(*ofswitch_list)[entity] = this;
+			"dpid:%"UINT64DBGFMT" ",
+			this, dpid);
 
 	// set initial state
-	init_state(DP_STATE_INIT);
+	init_state(COFDPT_STATE_INIT);
 
 	// trigger sending of FEATURES request
-	register_timer(COFDPATH_TIMER_FEATURES_REQUEST, 1);
+	register_timer(COFDPT_TIMER_FEATURES_REQUEST, 1);
 }
+
+
+
+cofdpt::cofdpt(
+		crofbase *rofbase,
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol) :
+	dpid(0),
+	dpmac(cmacaddr("00:00:00:00:00:00")),
+	n_buffers(0),
+	n_tables(0),
+	capabilities(0),
+	flags(0),
+	miss_send_len(0),
+	rofbase(rofbase),
+	features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
+	get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
+	stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
+	barrier_reply_timeout(DEFAULT_DB_BARRIER_REPLY_TIMEOUT)
+{
+	WRITELOG(COFDPT, DBG, "cofdpath(%p)::cofdpath() "
+			"dpid:%"UINT64DBGFMT" ",
+			this, dpid);
+
+	// set initial state
+	init_state(COFDPT_STATE_INIT);
+
+	// trigger sending of FEATURES request
+	register_timer(COFDPT_TIMER_FEATURES_REQUEST, 1);
+}
+
 
 
 cofdpt::~cofdpt()
 {
 	WRITELOG(COFDPT, DBG, "cofdpath(%p)::~cofdpath() "
-			"dpid:%"UINT64DBGFMT" child:%p\n %s",
-			this, dpid, entity, this->c_str());
+			"dpid:%"UINT64DBGFMT"  %s",
+			this, dpid, this->c_str());
 
 	rofbase->handle_dpath_close(this);
 
@@ -59,10 +91,6 @@ cofdpt::~cofdpt()
 	{
 		delete (ports.begin()->second);
 	}
-
-	ofswitch_list->erase(entity);
-
-	entity = (cofbase*)0;
 }
 
 
@@ -71,46 +99,46 @@ void
 cofdpt::handle_timeout(int opaque)
 {
 	switch (opaque) {
-	case COFDPATH_TIMER_FEATURES_REQUEST:
+	case COFDPT_TIMER_FEATURES_REQUEST:
 		{
 			WRITELOG(COFDPT, DBG, "cofdpath(%p): sending -FEATURES-REQUEST-", this);
 			rofbase->send_features_request(this);
 		}
 		break;
-	case COFDPATH_TIMER_FEATURES_REPLY:
+	case COFDPT_TIMER_FEATURES_REPLY:
 		{
 			handle_features_reply_timeout();
 		}
 		break;
-	case COFDPATH_TIMER_GET_CONFIG_REQUEST:
+	case COFDPT_TIMER_GET_CONFIG_REQUEST:
 		{
 			WRITELOG(COFDPT, DBG, "cofdpath(%p): sending -GET-CONFIG-REQUEST-", this);
 			rofbase->send_get_config_request(this);
 		}
 		break;
-	case COFDPATH_TIMER_GET_CONFIG_REPLY:
+	case COFDPT_TIMER_GET_CONFIG_REPLY:
 		{
 			handle_get_config_reply_timeout();
 		}
 		break;
-	case COFDPATH_TIMER_STATS_REQUEST:
+	case COFDPT_TIMER_STATS_REQUEST:
 		{
 			WRITELOG(COFDPT, DBG, "cofdpath(%p): sending -STATS-REQUEST-", this);
 			rofbase->send_stats_request(this, OFPST_TABLE, 0);
 		}
 		break;
-	case COFDPATH_TIMER_STATS_REPLY:
+	case COFDPT_TIMER_STATS_REPLY:
 		{
 			handle_stats_reply_timeout();
 		}
 		break;
-	case COFDPATH_TIMER_BARRIER_REQUEST:
+	case COFDPT_TIMER_BARRIER_REQUEST:
 		{
 			WRITELOG(COFDPT, DBG, "cofdpath(%p): sending -BARRIER-REQUEST-", this);
 			rofbase->send_barrier_request(this);
 		}
 		break;
-	case COFDPATH_TIMER_BARRIER_REPLY:
+	case COFDPT_TIMER_BARRIER_REPLY:
 		{
 			handle_barrier_reply_timeout();
 		}
@@ -128,7 +156,7 @@ cofdpt::handle_timeout(int opaque)
 void
 cofdpt::features_request_sent()
 {
-	register_timer(COFDPATH_TIMER_FEATURES_REPLY, features_reply_timeout /* seconds */);
+	register_timer(COFDPT_TIMER_FEATURES_REPLY, features_reply_timeout /* seconds */);
 }
 
 
@@ -137,7 +165,7 @@ cofdpt::features_reply_rcvd(
 		cofpacket *pack)
 {
 	try {
-		cancel_timer(COFDPATH_TIMER_FEATURES_REPLY);
+		cancel_timer(COFDPT_TIMER_FEATURES_REPLY);
 
 		/* check for existing cofdpath controlling this associated dpid
 		 * we assume that a duplicated dpid is caused by loss of and a
@@ -191,10 +219,10 @@ cofdpt::features_reply_rcvd(
 
 
 
-		if (DP_STATE_INIT == cur_state())
+		if (COFDPT_STATE_INIT == cur_state())
 		{
 			// next step: send GET-CONFIG request to datapath
-			register_timer(COFDPATH_TIMER_GET_CONFIG_REQUEST, 0);
+			register_timer(COFDPT_TIMER_GET_CONFIG_REQUEST, 0);
 		}
 
 
@@ -224,7 +252,7 @@ cofdpt::handle_features_reply_timeout()
 void
 cofdpt::get_config_request_sent()
 {
-	register_timer(COFDPATH_TIMER_GET_CONFIG_REPLY, get_config_reply_timeout);
+	register_timer(COFDPT_TIMER_GET_CONFIG_REPLY, get_config_reply_timeout);
 }
 
 
@@ -232,17 +260,17 @@ void
 cofdpt::get_config_reply_rcvd(
 		cofpacket *pack)
 {
-	cancel_timer(COFDPATH_TIMER_GET_CONFIG_REPLY);
+	cancel_timer(COFDPT_TIMER_GET_CONFIG_REPLY);
 
 	flags = be16toh(pack->ofh_switch_config->flags);
 	miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
 
 	rofbase->handle_get_config_reply(this, pack);
 
-	if (cur_state() == DP_STATE_INIT)
+	if (cur_state() == COFDPT_STATE_INIT)
 	{
 		// send stats request during initialization
-		register_timer(COFDPATH_TIMER_STATS_REQUEST, 0);
+		register_timer(COFDPT_TIMER_STATS_REQUEST, 0);
 	}
 }
 
@@ -267,9 +295,9 @@ cofdpt::stats_request_sent(
 	try {
 		xidstore[OFPT_STATS_REQUEST].xid_add(this, xid, stats_reply_timeout);
 
-		if (not pending_timer(COFDPATH_TIMER_STATS_REPLY))
+		if (not pending_timer(COFDPT_TIMER_STATS_REPLY))
 		{
-			register_timer(COFDPATH_TIMER_STATS_REPLY, stats_reply_timeout);
+			register_timer(COFDPT_TIMER_STATS_REPLY, stats_reply_timeout);
 		}
 
 	} catch (eXidStoreXidBusy& e) {
@@ -283,20 +311,20 @@ void
 cofdpt::stats_reply_rcvd(
 		cofpacket *pack)
 {
-	cancel_timer(COFDPATH_TIMER_STATS_REPLY);
+	cancel_timer(COFDPT_TIMER_STATS_REPLY);
 
 	xidstore[OFPT_STATS_REQUEST].xid_rem(be32toh(pack->ofh_header->xid));
 
 	rofbase->handle_stats_reply(this, pack);
 
 
-	if (cur_state() == DP_STATE_INIT) // enter state running during initialization
+	if (cur_state() == COFDPT_STATE_INIT) // enter state running during initialization
 	{
 		//flow_mod_reset();
 
 		//group_mod_reset();
 
-		new_state(DP_STATE_RUNNING);
+		new_state(COFDPT_STATE_RUNNING);
 
 		//lldp_emulated_ports(); // skip this for now, we move that to a derived controller at some point in the future
 
@@ -331,7 +359,7 @@ restart:
 
 	if (not xidstore.empty())
 	{
-		reset_timer(COFDPATH_TIMER_STATS_REPLY, stats_reply_timeout);
+		reset_timer(COFDPT_TIMER_STATS_REPLY, stats_reply_timeout);
 	}
 }
 
@@ -343,9 +371,9 @@ cofdpt::barrier_request_sent(
 	try {
 		xidstore[OFPT_BARRIER_REQUEST].xid_add(this, xid, barrier_reply_timeout);
 
-		if (not pending_timer(COFDPATH_TIMER_BARRIER_REPLY))
+		if (not pending_timer(COFDPT_TIMER_BARRIER_REPLY))
 		{
-			register_timer(COFDPATH_TIMER_BARRIER_REPLY, barrier_reply_timeout);
+			register_timer(COFDPT_TIMER_BARRIER_REPLY, barrier_reply_timeout);
 		}
 
 	} catch (eXidStoreXidBusy& e) {
@@ -358,7 +386,7 @@ cofdpt::barrier_request_sent(
 void
 cofdpt::barrier_reply_rcvd(cofpacket *pack)
 {
-	cancel_timer(COFDPATH_TIMER_BARRIER_REPLY);
+	cancel_timer(COFDPT_TIMER_BARRIER_REPLY);
 
 	xidstore[OFPT_BARRIER_REQUEST].xid_rem(be32toh(pack->ofh_header->xid));
 
@@ -388,7 +416,7 @@ restart:
 
 	if (not xidstore.empty())
 	{
-		reset_timer(COFDPATH_TIMER_BARRIER_REPLY, barrier_reply_timeout);
+		reset_timer(COFDPT_TIMER_BARRIER_REPLY, barrier_reply_timeout);
 	}
 }
 
@@ -585,11 +613,6 @@ cofdpt::port_status_rcvd(cofpacket *pack)
 void
 cofdpt::fsp_open(cofmatch const& ofmatch)
 {
-	if (0 == entity)
-	{
-		return;
-	}
-
 	cofmatch m(ofmatch);
 	croflexp_flowspace rexp(croflexp::OFPRET_FSP_ADD, m);
 
@@ -610,11 +633,6 @@ cofdpt::fsp_open(cofmatch const& ofmatch)
 void
 cofdpt::fsp_close(cofmatch const& ofmatch)
 {
-	if (0 == entity)
-	{
-		return;
-	}
-
 	cofmatch m(ofmatch);
 	croflexp_flowspace rexp(croflexp::OFPRET_FSP_DELETE, m);
 
