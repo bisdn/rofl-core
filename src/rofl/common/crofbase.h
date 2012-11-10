@@ -122,28 +122,6 @@ protected:
 
 	enum fwdelem_timer_t {
 		TIMER_FE_BASE = (0x0020 << 16),
-		TIMER_FE_HANDLE_HELLO,
-		TIMER_FE_PACKET_IN,
-		TIMER_FE_HANDLE_FEATURES_REQUEST,
-		TIMER_FE_HANDLE_GET_CONFIG_REQUEST,
-		TIMER_FE_HANDLE_STATS_REQUEST,
-		TIMER_FE_HANDLE_PACKET_OUT,
-		TIMER_FE_HANDLE_PACKET_IN,
-		TIMER_FE_HANDLE_BARRIER_REQUEST,
-		TIMER_FE_HANDLE_ERROR,
-		TIMER_FE_HANDLE_FLOW_MOD,
-		TIMER_FE_HANDLE_GROUP_MOD,
-		TIMER_FE_HANDLE_TABLE_MOD,
-		TIMER_FE_HANDLE_PORT_MOD,
-		TIMER_FE_HANDLE_FLOW_REMOVED,
-		TIMER_FE_HANDLE_PORT_STATUS,
-		TIMER_FE_HANDLE_SET_CONFIG,
-		TIMER_FE_HANDLE_EXPERIMENTER,
-		TIMER_FE_HANDLE_QUEUE_GET_CONFIG_REQUEST,
-		TIMER_FE_HANDLE_QUEUE_GET_CONFIG_REPLY,
-		TIMER_FE_EP_TX_QUEUE,
-		TIMER_FE_HANDLE_ROLE_REQUEST,
-		TIMER_FE_HANDLE_ROLE_REPLY,
 		TIMER_FE_DUMP_OFPACKETS,
 	};
 
@@ -152,13 +130,13 @@ protected:
 		RPC_DPT = 1,
 	};
 
-	std::set<csocket*>				rpc[2];			// RPC endpoints: rpc[RPC_CTL] and rpc[RPC_DPT]
+	std::set<csocket*>			rpc[2];			// RPC endpoints: rpc[RPC_CTL] and rpc[RPC_DPT]
 
 
 public: // static methods and data structures
 
 
-	static std::set<crofbase*> rofbases; /**< set of all registered fwdelems */
+	static std::set<crofbase*> rofbases; 		/**< set of all registered fwdelems */
 
 
 public: // constructor + destructor

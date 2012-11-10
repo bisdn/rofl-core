@@ -18,6 +18,7 @@ cofdpt::cofdpt(
 	capabilities(0),
 	flags(0),
 	miss_send_len(0),
+	socket(new csocket(this, newsd, ra, domain, type, protocol)),
 	rofbase(rofbase),
 	features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 	get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
@@ -25,13 +26,10 @@ cofdpt::cofdpt(
 	barrier_reply_timeout(DEFAULT_DB_BARRIER_REPLY_TIMEOUT)
 {
 	WRITELOG(COFDPT, DBG, "cofdpath(%p)::cofdpath() "
-			"dpid:%"UINT64DBGFMT" ",
-			this, dpid);
+			"dpid:%"UINT64DBGFMT" ", this, dpid);
 
-	// set initial state
 	init_state(COFDPT_STATE_INIT);
 
-	// trigger sending of FEATURES request
 	register_timer(COFDPT_TIMER_FEATURES_REQUEST, 1);
 }
 
@@ -50,6 +48,7 @@ cofdpt::cofdpt(
 	capabilities(0),
 	flags(0),
 	miss_send_len(0),
+	socket(new csocket(this, domain, type, protocol)),
 	rofbase(rofbase),
 	features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 	get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
@@ -60,11 +59,9 @@ cofdpt::cofdpt(
 			"dpid:%"UINT64DBGFMT" ",
 			this, dpid);
 
-	// set initial state
 	init_state(COFDPT_STATE_INIT);
 
-	// trigger sending of FEATURES request
-	register_timer(COFDPT_TIMER_FEATURES_REQUEST, 1);
+	socket->caopen(ra, caddress(AF_INET, "0.0.0.0"), domain, type, protocol);
 }
 
 
@@ -76,15 +73,6 @@ cofdpt::~cofdpt()
 			this, dpid, this->c_str());
 
 	rofbase->handle_dpath_close(this);
-
-#if 0
-	for (std::map<uint8_t, cfttable*>::iterator
-			it = flow_tables.begin(); it != flow_tables.end(); ++it)
-	{
-		delete it->second;
-	}
-	flow_tables.clear();
-#endif
 
 	// remove all cofport instances
 	while (not ports.empty())
@@ -111,7 +99,9 @@ cofdpt::handle_connected(
 		csocket *socket,
 		int sd)
 {
+	new_state(COFDPT_STATE_DISCONNECTED);
 
+	send_features_request();
 }
 
 
@@ -121,7 +111,7 @@ cofdpt::handle_connect_refused(
 		csocket *socket,
 		int sd)
 {
-
+	new_state(COFDPT_STATE_DISCONNECTED);
 }
 
 
@@ -141,7 +131,140 @@ cofdpt::handle_closed(
 		csocket *socket,
 		int sd)
 {
+	new_state(COFDPT_STATE_DISCONNECTED);
+}
 
+
+
+void
+cofdpt::send_features_request()
+{
+	cofpacket_features_request *pack =
+			new cofpacket_features_request(
+					rofbase->ta_add_request(OFPT_FEATURES_REQUEST));
+
+	send_message(pack);
+
+	new_state(COFDPT_STATE_WAIT_FEATURES);
+}
+
+
+
+void
+cofdpt::send_get_config_request()
+{
+	cofpacket_get_config_request *pack =
+			new cofpacket_get_config_request(
+					rofbase->ta_add_request(OFPT_GET_CONFIG_REQUEST));
+
+	send_message(pack);
+
+	new_state(COFDPT_STATE_WAIT_GET_CONFIG);
+}
+
+
+
+void
+cofdpt::send_table_stats_request()
+{
+	cofpacket_stats_request *pack =
+			new cofpacket_stats_request(
+					rofbase->ta_add_request(OFPT_STATS_REQUEST),
+					OFPC_TABLE_STATS,
+					0);
+
+	send_message(pack);
+
+	new_state(COFDPT_STATE_WAIT_TABLE_STATS);
+}
+
+
+
+void
+cofdpt::send_message(
+		cofpacket *pack)
+{
+	switch (pack->ofh_header->type) {
+	case OFPT_ERROR:
+		{
+			// ...
+		}
+		break;
+	case OFPT_EXPERIMENTER:
+		{
+			// ...
+		}
+		break;
+	case OFPT_FEATURES_REQUEST:
+		{
+			features_request_sent(pack);
+		}
+		break;
+	case OFPT_GET_CONFIG_REQUEST:
+		{
+			get_config_request_sent(pack);
+		}
+		break;
+	case OFPT_SET_CONFIG:
+		{
+			// asynchronous ...
+		}
+		break;
+	case OFPT_PACKET_OUT:
+		{
+			// asynchronous ...
+		}
+		break;
+	case OFPT_FLOW_MOD:
+		{
+			// asynchronous ...
+		}
+		break;
+	case OFPT_GROUP_MOD:
+		{
+			// asynchronous ...
+		}
+		break;
+	case OFPT_PORT_MOD:
+		{
+			// asynchronous ...
+		}
+		break;
+	case OFPT_TABLE_MOD:
+		{
+			// asynchronous ...
+		}
+		break;
+	case OFPT_STATS_REQUEST:
+		{
+			stats_request_sent(pack);
+		}
+		break;
+	case OFPT_BARRIER_REQUEST:
+		{
+			barrier_request_sent(pack);
+		}
+		break;
+	case OFPT_QUEUE_GET_CONFIG_REQUEST:
+		{
+			queue_get_config_request_sent(pack);
+		}
+		break;
+	case OFPT_ROLE_REQUEST:
+		{
+			role_request_sent(pack);
+		}
+		break;
+	default:
+		{
+			WRITELOG(COFCTL, WARN, "cofdpt(%p)::send_message() "
+					"dropping invalid packet: %s", this, pack->c_str());
+			delete pack;
+		}
+		return;
+	}
+
+	send_message_via_socket(pack);
 }
 
 
@@ -204,11 +327,14 @@ cofdpt::handle_timeout(int opaque)
 }
 
 
+
 void
-cofdpt::features_request_sent()
+cofdpt::features_request_sent(
+		cofpacket *pack)
 {
 	register_timer(COFDPT_TIMER_FEATURES_REPLY, features_reply_timeout /* seconds */);
 }
+
 
 
 void
@@ -217,22 +343,6 @@ cofdpt::features_reply_rcvd(
 {
 	try {
 		cancel_timer(COFDPT_TIMER_FEATURES_REPLY);
-
-		/* check for existing cofdpath controlling this associated dpid
-		 * we assume that a duplicated dpid is caused by loss of and a
-		 * reconnected TCP connection, as we cannot determine whether a
-		 * second connection attempt is some kind of DoS attack
-		 */
-		try {
-			uint64_t dpid = be64toh(pack->ofh_switch_features->datapath_id);
-
-			cofdpt *dpath = &(rofbase->dpath_find(dpid));
-
-			delete dpath; // clean-up and calls dpath's destructor
-
-		} catch (eOFbaseNotAttached& e) {}
-
-
 
 		dpid 			= be64toh(pack->ofh_switch_features->datapath_id);
 		n_buffers 		= be32toh(pack->ofh_switch_features->n_buffers);
@@ -246,7 +356,6 @@ cofdpt::features_reply_rcvd(
 		WRITELOG(COFDPT, DBG, "cofdpath(%p)::features_reply_rcvd() "
 				"dpid:%"UINT64DBGFMT" ",
 				this, dpid);
-
 
 
 		cofport::ports_parse(ports, pack->ofh_switch_features->ports, portslen);
@@ -270,10 +379,10 @@ cofdpt::features_reply_rcvd(
 
 
 
-		if (COFDPT_STATE_INIT == cur_state())
+		if (COFDPT_STATE_WAIT_FEATURES == cur_state())
 		{
 			// next step: send GET-CONFIG request to datapath
-			register_timer(COFDPT_TIMER_GET_CONFIG_REQUEST, 0);
+			send_get_config_request();
 		}
 
 
@@ -281,10 +390,11 @@ cofdpt::features_reply_rcvd(
 
 		WRITELOG(COFDPT, DBG, "exception: malformed FEATURES reply received");
 
-//		rofbase->send_down_hello_message(this, true /*bye*/);
+		socket->cclose();
 
-		delete this;
+		new_state(COFDPT_STATE_DISCONNECTED);
 
+		rofbase->handle_dpath_close(this);
 	}
 }
 
@@ -295,13 +405,12 @@ cofdpt::handle_features_reply_timeout()
 	WRITELOG(COFDPT, DBG, "cofdpath(%p)::handle_features_reply_timeout() ", this);
 
 	rofbase->handle_features_reply_timeout(this);
-
-	delete this;
 }
 
 
 void
-cofdpt::get_config_request_sent()
+cofdpt::get_config_request_sent(
+		cofpacket *pack)
 {
 	register_timer(COFDPT_TIMER_GET_CONFIG_REPLY, get_config_reply_timeout);
 }
@@ -318,10 +427,10 @@ cofdpt::get_config_reply_rcvd(
 
 	rofbase->handle_get_config_reply(this, pack);
 
-	if (cur_state() == COFDPT_STATE_INIT)
+	if (COFDPT_STATE_WAIT_GET_CONFIG == cur_state())
 	{
 		// send stats request during initialization
-		register_timer(COFDPT_TIMER_STATS_REQUEST, 0);
+		send_table_stats_request();
 	}
 }
 
@@ -341,10 +450,10 @@ cofdpt::handle_get_config_reply_timeout()
 
 void
 cofdpt::stats_request_sent(
-		uint32_t xid)
+		cofpacket *pack)
 {
 	try {
-		xidstore[OFPT_STATS_REQUEST].xid_add(this, xid, stats_reply_timeout);
+		xidstore[OFPT_STATS_REQUEST].xid_add(this, pack->get_xid(), stats_reply_timeout);
 
 		if (not pending_timer(COFDPT_TIMER_STATS_REPLY))
 		{
@@ -369,13 +478,13 @@ cofdpt::stats_reply_rcvd(
 	rofbase->handle_stats_reply(this, pack);
 
 
-	if (cur_state() == COFDPT_STATE_INIT) // enter state running during initialization
+	if (COFDPT_STATE_WAIT_TABLE_STATS == cur_state()) // enter state running during initialization
 	{
 		//flow_mod_reset();
 
 		//group_mod_reset();
 
-		new_state(COFDPT_STATE_RUNNING);
+		new_state(COFDPT_STATE_CONNECTED);
 
 		//lldp_emulated_ports(); // skip this for now, we move that to a derived controller at some point in the future
 
@@ -417,10 +526,10 @@ restart:
 
 void
 cofdpt::barrier_request_sent(
-		uint32_t xid)
+		cofpacket *pack)
 {
 	try {
-		xidstore[OFPT_BARRIER_REQUEST].xid_add(this, xid, barrier_reply_timeout);
+		xidstore[OFPT_BARRIER_REQUEST].xid_add(this, pack->get_xid(), barrier_reply_timeout);
 
 		if (not pending_timer(COFDPT_TIMER_BARRIER_REPLY))
 		{
@@ -782,5 +891,27 @@ cofdpt::find_cofport(
 	return it->second;
 }
 
+
+
+void
+cofdpt::send_message_via_socket(
+		cofpacket *pack)
+{
+	if (0 == socket)
+	{
+		delete pack; return;
+	}
+
+	cmemory *mem = new cmemory(pack->length());
+
+	pack->pack(mem->somem(), mem->memlen());
+
+	WRITELOG(COFCTL, DBG, "cofdpt(%p): new cmemory: %s",
+				this, mem->c_str());
+
+	delete pack;
+
+	socket->send_packet(mem);
+}
 
 

@@ -34,6 +34,7 @@ extern "C" {
 #include "../cfsm.h"
 #include "../protocols/fetherframe.h"
 #include "../cxidstore.h"
+#include "../csocket.h"
 
 #if 0
 #include "cfttable.h"
@@ -76,6 +77,8 @@ class cofdpt :
 	public cfsm,
 	public cxidowner
 {
+private:
+
 
 		/* cofdpt timer types */
 		enum cofdpt_timer_t {
@@ -94,7 +97,11 @@ class cofdpt :
 		/* cofdpt state types */
 		enum cofdpt_state_t {
 			COFDPT_STATE_INIT 				= (1 << 0),
-			COFDPT_STATE_RUNNING 			= (1 << 1),
+			COFDPT_STATE_DISCONNECTED		= (1 << 1),
+			COFDPT_STATE_WAIT_FEATURES 		= (1 << 2), // waiting for FEATURE-REPLY
+			COFDPT_STATE_WAIT_GET_CONFIG	= (1 << 3), // waiting for GET-CONFIG-REPLY
+			COFDPT_STATE_WAIT_TABLE_STATS	= (1 << 4), // waiting for TABLE-STATS-REPLY
+			COFDPT_STATE_CONNECTED			= (1 << 5),
 		};
 
 #define DEFAULT_DP_FEATURES_REPLY_TIMEOUT 		10
@@ -120,6 +127,9 @@ public: // data structures
 
 		cfsptable 						fsptable;		// flowspace registration table
 
+protected:
+
+		csocket							*socket;		// TCP socket towards data path element
 
 private:
 
@@ -420,7 +430,8 @@ protected:
 	 * Starts an internal timer for the expected FEATURES-reply.
 	 */
 	void
-	features_request_sent();
+	features_request_sent(
+			cofpacket *pack);
 
 
 	/**
@@ -445,7 +456,8 @@ protected:
 	 * Starts an internal timer for the expected GET-CONFIG-reply.
 	 */
 	void
-	get_config_request_sent();
+	get_config_request_sent(
+			cofpacket *pack);
 
 
 	/**
@@ -471,7 +483,7 @@ protected:
 	 */
 	void
 	stats_request_sent(
-			uint32_t xid);
+			cofpacket *pack);
 
 
 	/**
@@ -498,7 +510,7 @@ protected:
 	 */
 	void
 	barrier_request_sent(
-			uint32_t xid);
+			cofpacket *pack);
 
 
 	/**
@@ -603,12 +615,37 @@ protected:
 			cofpacket *pack);
 
 
+
+	/**
+	 *
+	 */
+	void
+	role_request_sent(
+			cofpacket *pack);
+
+
 	/** handle ROLE-REPLY messages
+	 *
 	 */
 	void
 	role_reply_rcvd(
 			cofpacket *pack);
 
+
+	/**
+	 *
+	 */
+	void
+	queue_get_config_request_sent(
+			cofpacket *pack);
+
+
+	/**
+	 *
+	 */
+	void
+	queue_get_config_reply_rcvd(
+			cofpacket *pack);
 
 
 
@@ -638,6 +675,53 @@ private:
 	void
 	handle_barrier_reply_timeout();
 
+
+private:
+
+
+	/**
+	 *
+	 */
+	void
+	handle_message(
+			cofpacket *pack);
+
+
+	/**
+	 *
+	 */
+	void
+	try_to_connect(
+			bool reset_timeout = false);
+
+
+	/**
+	 *
+	 */
+	void
+	send_message_via_socket(
+			cofpacket *pack);
+
+
+	/**
+	 *
+	 */
+	void
+	send_features_request();
+
+
+	/**
+	 *
+	 */
+	void
+	send_get_config_request();
+
+
+	/**
+	 *
+	 */
+	void
+	send_table_stats_request();
 };
 
 #endif
