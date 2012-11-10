@@ -166,11 +166,14 @@ cmd_show_debuglevel(struct cli_def *cli, UNUSED(const char *command), char *argv
 	return CLI_OK;
 }
 
+
+
 ccli::ccli(caddress addr) :
-	cli_fd(-1),
-	baddr(addr)
+		socket(new csocket(this, PF_INET, SOCK_STREAM, IPPROTO_TCP, 10)),
+		cli_fd(-1),
+		baddr(addr)
 {
-	cpopen(baddr, PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	socket->cpopen(baddr, PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	// Must be called first to setup data structures
 	cli = cli_init();
@@ -210,10 +213,13 @@ ccli::~ccli()
 }
 
 /*virtual*/void
-ccli::handle_accepted(int x, caddress &ra)
+ccli::handle_accepted(
+		csocket *socket,
+		int x,
+		caddress const& ra)
 {
 	if(this->cli_fd != -1) {
-		close(x);
+		socket->cclose();
 		WRITELOG(CLI, DBG, "ccli(%p)::handle_accepted() closing %d (already connected)", this, x);
 		return;
 	}

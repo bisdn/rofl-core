@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "cofctrl.h"
+#include "cofctl.h"
 
 
 cofctl::cofctl(
@@ -133,9 +133,9 @@ cofctl::send_message(
 		{
 			WRITELOG(COFCTL, WARN, "cofctl(%p)::send_message() "
 					"dropping invalid packet: %s", this, pack->c_str());
-			delete pack; return;
+			delete pack;
 		}
-		break;
+		return;
 	}
 
 	send_message_via_socket(pack);
@@ -428,7 +428,7 @@ cofctl::handle_message(
 					"dropping packet: %s", this, pack->c_str());
 			delete pack;
 		}
-		break;
+		return;
 	}
 }
 

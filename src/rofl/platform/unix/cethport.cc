@@ -8,6 +8,7 @@
 /*static*/ std::set<cethport*> cethport::cethport_list;
 
 cethport::cethport(std::string devname, int port_no) :
+	csocket(0, PF_PACKET, SOCK_RAW, htons(ETH_P_ALL), 10),
 	clinuxport(devname, std::string("phy"), port_no),
 	baddr(AF_PACKET, ETH_P_ALL, devname, 0, 0, NULL, 0)
 {

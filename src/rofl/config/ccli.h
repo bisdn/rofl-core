@@ -33,17 +33,39 @@ class eCliConfigFileNotFound 		: public eCliBase {};
 
 
 
-class ccli : public csocket
+class ccli :
+	public csocket_owner,
+	public ciosrv
 {
+private:
+
+		csocket 			*socket;
 
 public:
-	ccli(caddress addr = caddress(AF_INET, "127.0.0.1", 6620));
 
-	virtual
-	~ccli();
+		/**
+		 *
+		 */
+		ccli(caddress addr = caddress(AF_INET, "127.0.0.1", 6620));
 
-	virtual void
-	handle_accepted(int newsd, caddress &ra);
+
+		/**
+		 *
+		 */
+		virtual
+		~ccli();
+
+
+		/**
+		 *
+		 */
+		virtual void
+		handle_accepted(
+				csocket *socket,
+				int newsd,
+				caddress const& ra);
+
+
 
 	void
 	read_config_file(const std::string &filename) throw (eCliConfigFileNotFound);

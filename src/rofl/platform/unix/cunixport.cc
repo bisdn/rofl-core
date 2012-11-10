@@ -7,8 +7,9 @@
 std::set<cunixport*> cunixport::cunixport_list;
 
 cunixport::cunixport(std::string devname, int port_no) :
-	clinuxport(devname, std::string("vport"), port_no),
-	baddr(AF_UNIX, devname.c_str())
+		csocket(0, PF_UNIX, SOCK_DGRAM, 0),
+		clinuxport(devname, std::string("vport"), port_no),
+		baddr(AF_UNIX, devname.c_str())
 {
 	cpopen(baddr, PF_UNIX, SOCK_DGRAM, 0);
 	cunixport::cunixport_list.insert(this);

@@ -477,13 +477,6 @@ crofbase::handle_timeout(int opaque)
 			break;
 		}
 
-
-
-	} catch (eOFbaseNoCtrl& e) {
-		WRITELOG(CROFBASE, DBG, "controlling entity lost");
-		// handle NoCtrl condition: simply do nothing for now,
-		// TODO: reconnect to new controlling entity
-
 	} catch (eIoSvcUnhandledTimer& e) {
 		// ignore
 	}
