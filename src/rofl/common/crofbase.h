@@ -46,8 +46,8 @@ extern "C" {
 
 #include "openflow/cofpacket.h"
 #include "openflow/cofport.h"
-#include "openflow/cofdpath.h"
-#include "openflow/cofctrl.h"
+#include "openflow/cofdpt.h"
+#include "openflow/cofctl.h"
 #include "openflow/cofrpc.h"
 #include "openflow/cofinst.h"
 #include "openflow/cofinlist.h"
