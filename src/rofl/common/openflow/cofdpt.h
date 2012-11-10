@@ -83,15 +83,18 @@ private:
 		/* cofdpt timer types */
 		enum cofdpt_timer_t {
 			COFDPT_TIMER_BASE = 0xc721,
-			COFDPT_TIMER_FEATURES_REQUEST 	= ((COFDPT_TIMER_BASE) << 16 | (0x01 << 8)),
-			COFDPT_TIMER_FEATURES_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x02 << 8)),
-			COFDPT_TIMER_GET_CONFIG_REQUEST = ((COFDPT_TIMER_BASE) << 16 | (0x03 << 8)),
-			COFDPT_TIMER_GET_CONFIG_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x04 << 8)),
-			COFDPT_TIMER_STATS_REQUEST 		= ((COFDPT_TIMER_BASE) << 16 | (0x05 << 8)),
-			COFDPT_TIMER_STATS_REPLY 		= ((COFDPT_TIMER_BASE) << 16 | (0x06 << 8)),
-			COFDPT_TIMER_BARRIER_REQUEST 	= ((COFDPT_TIMER_BASE) << 16 | (0x09 << 8)),
-			COFDPT_TIMER_BARRIER_REPLY 		= ((COFDPT_TIMER_BASE) << 16 | (0x0a << 8)),
-			COFDPT_TIMER_LLDP_SEND_DISC 	= ((COFDPT_TIMER_BASE) << 16 | (0x0b << 8)),
+			COFDPT_TIMER_RECONNECT			= ((COFDPT_TIMER_BASE) << 16 | (0x01 << 8)),
+			COFDPT_TIMER_FEATURES_REQUEST 	= ((COFDPT_TIMER_BASE) << 16 | (0x02 << 8)),
+			COFDPT_TIMER_FEATURES_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x03 << 8)),
+			COFDPT_TIMER_GET_CONFIG_REQUEST = ((COFDPT_TIMER_BASE) << 16 | (0x04 << 8)),
+			COFDPT_TIMER_GET_CONFIG_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x05 << 8)),
+			COFDPT_TIMER_STATS_REQUEST 		= ((COFDPT_TIMER_BASE) << 16 | (0x06 << 8)),
+			COFDPT_TIMER_STATS_REPLY 		= ((COFDPT_TIMER_BASE) << 16 | (0x07 << 8)),
+			COFDPT_TIMER_BARRIER_REQUEST 	= ((COFDPT_TIMER_BASE) << 16 | (0x08 << 8)),
+			COFDPT_TIMER_BARRIER_REPLY 		= ((COFDPT_TIMER_BASE) << 16 | (0x09 << 8)),
+			COFDPT_TIMER_LLDP_SEND_DISC 	= ((COFDPT_TIMER_BASE) << 16 | (0x0a << 8)),
+			COFDPT_TIMER_ECHO_REQUEST		= ((COFDPT_TIMER_BASE) << 16 | (0x0b << 8)),
+			COFDPT_TIMER_ECHO_REPLY			= ((COFDPT_TIMER_BASE) << 16 | (0x0c << 8)),
 		};
 
 		/* cofdpt state types */
@@ -102,6 +105,11 @@ private:
 			COFDPT_STATE_WAIT_GET_CONFIG	= (1 << 3), // waiting for GET-CONFIG-REPLY
 			COFDPT_STATE_WAIT_TABLE_STATS	= (1 << 4), // waiting for TABLE-STATS-REPLY
 			COFDPT_STATE_CONNECTED			= (1 << 5),
+		};
+
+		/* cofdpt flags */
+		enum cofdpt_flag_t {
+			COFDPT_FLAG_ACTIVE_SOCKET		= (1 << 0),
 		};
 
 #define DEFAULT_DP_FEATURES_REPLY_TIMEOUT 		10
@@ -122,7 +130,7 @@ public: // data structures
 		uint32_t 						capabilities;	// capabilities flags
 
 		std::map<uint32_t, cofport*> 	ports;			// list of ports
-		uint16_t 						flags;			// 'fragmentation' flags
+		std::bitset<32> 				flags;			// 'fragmentation' flags
 		uint16_t 						miss_send_len; 	// length of bytes sent to controller
 
 		cfsptable 						fsptable;		// flowspace registration table
@@ -137,6 +145,10 @@ private:
 		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store
 
 		std::string 					 info;			// info string
+		cofpacket						*fragment;		// fragment of OF packet rcvd on fragment during last call(s)
+		int 							 reconnect_in_seconds; 	// reconnect in x seconds
+		int 							 reconnect_counter;
+		int 							 rpc_echo_interval;		// default ECHO time interval
 
 		int 							 features_reply_timeout;
 		int 							 get_config_reply_timeout;
@@ -423,6 +435,36 @@ public:
 protected:
 
 
+protected:
+
+
+	/**
+	 *
+	 */
+	void
+	hello_rcvd(cofpacket *pack);
+
+
+	/**
+	 *
+	 */
+	void
+	echo_request_rcvd(cofpacket *pack);
+
+
+	/**
+	 *
+	 */
+	void
+	echo_reply_rcvd(cofpacket *pack);
+
+
+	/** handle incoming vendor message (ROFL extensions)
+	 */
+	void
+	experimenter_rcvd(cofpacket *pack);
+
+
 	/**
 	 * @name	features_request_sent
 	 * @brief	Called by crofbase when a FEATURES-request was sent.
@@ -608,13 +650,6 @@ protected:
 			cofpacket *pack);
 
 
-	/** handle VENDOR message
-	 */
-	void
-	experimenter_message_rcvd(
-			cofpacket *pack);
-
-
 
 	/**
 	 *
@@ -701,27 +736,6 @@ private:
 	void
 	send_message_via_socket(
 			cofpacket *pack);
-
-
-	/**
-	 *
-	 */
-	void
-	send_features_request();
-
-
-	/**
-	 *
-	 */
-	void
-	send_get_config_request();
-
-
-	/**
-	 *
-	 */
-	void
-	send_table_stats_request();
 };
 
 #endif

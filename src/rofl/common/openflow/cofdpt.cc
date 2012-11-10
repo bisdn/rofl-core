@@ -20,6 +20,10 @@ cofdpt::cofdpt(
 	miss_send_len(0),
 	socket(new csocket(this, newsd, ra, domain, type, protocol)),
 	rofbase(rofbase),
+	fragment(0),
+	reconnect_in_seconds(RECONNECT_START_TIMEOUT),
+	reconnect_counter(0),
+	rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
 	features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 	get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 	stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
@@ -28,9 +32,11 @@ cofdpt::cofdpt(
 	WRITELOG(COFDPT, DBG, "cofdpath(%p)::cofdpath() "
 			"dpid:%"UINT64DBGFMT" ", this, dpid);
 
-	init_state(COFDPT_STATE_INIT);
+	init_state(COFDPT_STATE_DISCONNECTED);
 
-	register_timer(COFDPT_TIMER_FEATURES_REQUEST, 1);
+	rofbase->send_features_request(this);
+
+	new_state(COFDPT_STATE_WAIT_FEATURES);
 }
 
 
@@ -50,6 +56,10 @@ cofdpt::cofdpt(
 	miss_send_len(0),
 	socket(new csocket(this, domain, type, protocol)),
 	rofbase(rofbase),
+	fragment(0),
+	reconnect_in_seconds(RECONNECT_START_TIMEOUT),
+	reconnect_counter(0),
+	rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
 	features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 	get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 	stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
@@ -59,7 +69,7 @@ cofdpt::cofdpt(
 			"dpid:%"UINT64DBGFMT" ",
 			this, dpid);
 
-	init_state(COFDPT_STATE_INIT);
+	init_state(COFDPT_STATE_DISCONNECTED);
 
 	socket->caopen(ra, caddress(AF_INET, "0.0.0.0"), domain, type, protocol);
 }
@@ -99,9 +109,9 @@ cofdpt::handle_connected(
 		csocket *socket,
 		int sd)
 {
-	new_state(COFDPT_STATE_DISCONNECTED);
+	rofbase->send_features_request(this);
 
-	send_features_request();
+	new_state(COFDPT_STATE_WAIT_FEATURES);
 }
 
 
@@ -121,6 +131,96 @@ cofdpt::handle_read(
 		csocket *socket,
 		int sd)
 {
+	int rc;
+
+	cofpacket *pcppack = (cofpacket*)0;
+	try {
+
+		pcppack = (0 != fragment) ? fragment : new cofpacket();
+
+		while (true)
+		{
+			// SSL support: client or server side, done in derived class
+
+			// TODO: this will be replaced with SSL socket later
+			rc = read(sd, (void*) pcppack->memptr(), pcppack->need_bytes());
+
+
+			if (rc < 0) // error occured (or non-blocking)
+			{
+				switch(errno) {
+				case EAGAIN:
+					{
+						// more bytes are needed, store pcppack in fragment pointer
+						fragment = pcppack;
+					}
+					return;
+				case ECONNREFUSED:
+					{
+						try_to_connect(); // reconnect
+					}
+					return;
+				case ECONNRESET:
+				default:
+					{
+						WRITELOG(COFDPT, WARN, "COFDPT(%p)::handle_read() "
+								"an error occured, closing => errno: %d (%s)",
+								this, errno, strerror(errno));
+
+
+						handle_closed(socket, sd);
+					}
+					return;
+				}
+			}
+			else if (rc == 0) // socket was closed
+			{
+				//rfds.erase(fd);
+
+				WRITELOG(COFDPT, WARN, "COFDPT(%p)::handle_read() "
+						"peer closed connection, closing local endpoint => rc: %d",
+						this, rc);
+
+				handle_closed(socket, sd);
+
+				return;
+			}
+			else // rc > 0, // some bytes were received, check for completeness of packet
+			{
+				pcppack->stored_bytes(rc);
+
+				//WRITELOG(COFRPC, DBG, "cofrpc::handle_revent(fd=%d) rc=%d need_bytes=%d complete=%s",
+				//		 fd, rc, (int)pcppack->need_bytes(), pcppack->complete() ? "true" : "false");
+
+				// complete() parses the packet internally (otherwise we do not know
+				// that the packet is complete ...)
+				if (pcppack->complete())
+				{
+					// fragment is complete, set back to NULL
+					fragment = (cofpacket*)0;
+					handle_message(pcppack);
+
+					break;
+				}
+
+			}
+		}
+
+	} catch (cerror &e) {
+
+		WRITELOG(COFDPT, WARN, "COFDPT(%p)::handle_read() "
+				"errno: %d (%s) generic error %s",
+				this, errno, strerror(errno), pcppack->c_str());
+
+		if (pcppack)
+		{
+			delete pcppack; pcppack = (cofpacket*)0;
+		}
+
+		handle_closed(socket, sd);
+
+		throw;
+	}
 
 }
 
@@ -131,51 +231,107 @@ cofdpt::handle_closed(
 		csocket *socket,
 		int sd)
 {
-	new_state(COFDPT_STATE_DISCONNECTED);
+	if (flags.test(COFDPT_FLAG_ACTIVE_SOCKET))
+	{
+		try_to_connect();
+	}
+	else
+	{
+		// TODO: signal event back to rofbase
+	}
 }
 
 
 
 void
-cofdpt::send_features_request()
+cofdpt::handle_message(
+		cofpacket *pack)
 {
-	cofpacket_features_request *pack =
-			new cofpacket_features_request(
-					rofbase->ta_add_request(OFPT_FEATURES_REQUEST));
+	if (not pack->is_valid())
+	{
+		WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
+				"dropping invalid packet: %s", this, pack->c_str());
+		delete pack; return;
+	}
 
-	send_message(pack);
+#if 0
+	pack->ctl = this;
+#endif
 
-	new_state(COFDPT_STATE_WAIT_FEATURES);
-}
-
-
-
-void
-cofdpt::send_get_config_request()
-{
-	cofpacket_get_config_request *pack =
-			new cofpacket_get_config_request(
-					rofbase->ta_add_request(OFPT_GET_CONFIG_REQUEST));
-
-	send_message(pack);
-
-	new_state(COFDPT_STATE_WAIT_GET_CONFIG);
-}
-
-
-
-void
-cofdpt::send_table_stats_request()
-{
-	cofpacket_stats_request *pack =
-			new cofpacket_stats_request(
-					rofbase->ta_add_request(OFPT_STATS_REQUEST),
-					OFPC_TABLE_STATS,
-					0);
-
-	send_message(pack);
-
-	new_state(COFDPT_STATE_WAIT_TABLE_STATS);
+	switch (pack->ofh_header->type) {
+	case OFPT_HELLO:
+		{
+			hello_rcvd(pack);
+		}
+		break;
+	case OFPT_ECHO_REQUEST:
+		{
+			echo_request_rcvd(pack);
+		}
+		break;
+	case OFPT_ECHO_REPLY:
+		{
+			echo_reply_rcvd(pack);
+		}
+		break;
+	case OFPT_EXPERIMENTER:
+		{
+			experimenter_rcvd(pack);
+		}
+		break;
+	case OFPT_FEATURES_REQUEST:
+		{
+			features_reply_rcvd(pack);
+		}
+		break;
+	case OFPT_GET_CONFIG_REQUEST:
+		{
+			get_config_reply_rcvd(pack);
+		}
+		break;
+	case OFPT_PACKET_IN:
+		{
+			packet_in_rcvd(pack);
+		}
+		break;
+	case OFPT_FLOW_REMOVED:
+		{
+			flow_rmvd_rcvd(pack);
+		}
+		break;
+	case OFPT_PORT_STATUS:
+		{
+			port_status_rcvd(pack);
+		}
+		break;
+	case OFPT_STATS_REPLY:
+		{
+			stats_reply_rcvd(pack);
+		}
+		break;
+	case OFPT_BARRIER_REPLY:
+		{
+			barrier_reply_rcvd(pack);
+		}
+		break;
+	case OFPT_QUEUE_GET_CONFIG_REPLY:
+		{
+			queue_get_config_reply_rcvd(pack);
+		}
+		break;
+	case OFPT_ROLE_REPLY:
+		{
+			role_reply_rcvd(pack);
+		}
+		break;
+	default:
+		{
+			WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
+					"dropping packet: %s", this, pack->c_str());
+			delete pack;
+		}
+		return;
+	}
 }
 
 
@@ -257,7 +413,7 @@ cofdpt::send_message(
 		break;
 	default:
 		{
-			WRITELOG(COFCTL, WARN, "cofdpt(%p)::send_message() "
+			WRITELOG(COFDPT, WARN, "cofdpt(%p)::send_message() "
 					"dropping invalid packet: %s", this, pack->c_str());
 			delete pack;
 		}
@@ -273,21 +429,9 @@ void
 cofdpt::handle_timeout(int opaque)
 {
 	switch (opaque) {
-	case COFDPT_TIMER_FEATURES_REQUEST:
-		{
-			WRITELOG(COFDPT, DBG, "cofdpath(%p): sending -FEATURES-REQUEST-", this);
-			rofbase->send_features_request(this);
-		}
-		break;
 	case COFDPT_TIMER_FEATURES_REPLY:
 		{
 			handle_features_reply_timeout();
-		}
-		break;
-	case COFDPT_TIMER_GET_CONFIG_REQUEST:
-		{
-			WRITELOG(COFDPT, DBG, "cofdpath(%p): sending -GET-CONFIG-REQUEST-", this);
-			rofbase->send_get_config_request(this);
 		}
 		break;
 	case COFDPT_TIMER_GET_CONFIG_REPLY:
@@ -295,21 +439,9 @@ cofdpt::handle_timeout(int opaque)
 			handle_get_config_reply_timeout();
 		}
 		break;
-	case COFDPT_TIMER_STATS_REQUEST:
-		{
-			WRITELOG(COFDPT, DBG, "cofdpath(%p): sending -STATS-REQUEST-", this);
-			rofbase->send_stats_request(this, OFPST_TABLE, 0);
-		}
-		break;
 	case COFDPT_TIMER_STATS_REPLY:
 		{
 			handle_stats_reply_timeout();
-		}
-		break;
-	case COFDPT_TIMER_BARRIER_REQUEST:
-		{
-			WRITELOG(COFDPT, DBG, "cofdpath(%p): sending -BARRIER-REQUEST-", this);
-			rofbase->send_barrier_request(this);
 		}
 		break;
 	case COFDPT_TIMER_BARRIER_REPLY:
@@ -317,14 +449,97 @@ cofdpt::handle_timeout(int opaque)
 			handle_barrier_reply_timeout();
 		}
 		break;
+	case COFDPT_TIMER_RECONNECT:
+		{
+			if (socket)
+			{
+				socket->caopen(socket->raddr, caddress(AF_INET, "0.0.0.0"), socket->domain, socket->type, socket->protocol);
+			}
+		}
+		break;
+	case COFDPT_TIMER_ECHO_REQUEST:
+		{
+			send_message(new cofpacket_echo_request(0, 0, 0));
+			register_timer(COFDPT_TIMER_ECHO_REPLY, 5);
+		}
+		break;
+	case COFDPT_TIMER_ECHO_REPLY:
+		{
+			socket->cclose();
+			new_state(COFDPT_STATE_DISCONNECTED);
+			if (flags.test(COFDPT_FLAG_ACTIVE_SOCKET))
+			{
+				try_to_connect(true);
+			}
+			rofbase->handle_dpath_close(this);
+		}
+		break;
 	default:
-		WRITELOG(COFDPT, DBG, "unknown timer event %d", opaque);
-		ciosrv::handle_timeout(opaque);
+		{
+			WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_timeout() "
+					"unknown timer event %d", this, opaque);
+		}
 		break;
 	}
-
-
 }
+
+
+
+void
+cofdpt::hello_rcvd(cofpacket *pack)
+{
+	WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() pack: %s", this, pack->c_str());
+
+	// OpenFlow versions do not match, send error, close connection
+	if (pack->ofh_header->version != OFP_VERSION)
+	{
+		new_state(COFDPT_STATE_DISCONNECTED);
+
+		// invalid OFP_VERSION
+		char explanation[256];
+		bzero(explanation, sizeof(explanation));
+		snprintf(explanation, sizeof(explanation) - 1,
+				"unsupported OF version (%d), supported version is (%d)",
+				(pack->ofh_header->version), OFP_VERSION);
+
+		cofpacket_error *reply = new cofpacket_error(
+							pack->get_xid(),
+							OFPET_HELLO_FAILED,
+							OFPHFC_INCOMPATIBLE,
+							(uint8_t*) explanation, strlen(explanation));
+
+		send_message(reply);
+	}
+	else
+	{
+		new_state(COFDPT_STATE_CONNECTED);
+
+		WRITELOG(COFRPC, DBG, "cofdpt(%p): HELLO exchanged with peer entity, attaching ...", this);
+
+		// start sending ECHO requests
+		register_timer(COFDPT_TIMER_ECHO_REPLY, rpc_echo_interval);
+	}
+
+	delete pack;
+}
+
+
+
+void
+cofdpt::echo_request_rcvd(cofpacket *pack)
+{
+	send_message(new cofpacket_echo_reply(pack->get_xid(), pack->body.somem(), pack->body.memlen()));
+}
+
+
+
+void
+cofdpt::echo_reply_rcvd(cofpacket *pack)
+{
+	cancel_timer(COFDPT_TIMER_ECHO_REPLY);
+	register_timer(COFDPT_TIMER_ECHO_REQUEST, rpc_echo_interval);
+}
+
 
 
 
@@ -382,7 +597,9 @@ cofdpt::features_reply_rcvd(
 		if (COFDPT_STATE_WAIT_FEATURES == cur_state())
 		{
 			// next step: send GET-CONFIG request to datapath
-			send_get_config_request();
+			rofbase->send_get_config_request(this);
+
+			new_state(COFDPT_STATE_WAIT_GET_CONFIG);
 		}
 
 
@@ -430,9 +647,12 @@ cofdpt::get_config_reply_rcvd(
 	if (COFDPT_STATE_WAIT_GET_CONFIG == cur_state())
 	{
 		// send stats request during initialization
-		send_table_stats_request();
+		rofbase->send_stats_request(this, OFPST_TABLE, 0);
+
+		new_state(COFDPT_STATE_WAIT_TABLE_STATS);
 	}
 }
+
 
 
 void
@@ -443,9 +663,8 @@ cofdpt::handle_get_config_reply_timeout()
 			this, dpid);
 
 	rofbase->handle_get_config_reply_timeout(this);
-
-	delete this;
 }
+
 
 
 void
@@ -467,6 +686,7 @@ cofdpt::stats_request_sent(
 }
 
 
+
 void
 cofdpt::stats_reply_rcvd(
 		cofpacket *pack)
@@ -480,17 +700,12 @@ cofdpt::stats_reply_rcvd(
 
 	if (COFDPT_STATE_WAIT_TABLE_STATS == cur_state()) // enter state running during initialization
 	{
-		//flow_mod_reset();
-
-		//group_mod_reset();
-
 		new_state(COFDPT_STATE_CONNECTED);
-
-		//lldp_emulated_ports(); // skip this for now, we move that to a derived controller at some point in the future
 
 		rofbase->handle_dpath_open(this);
 	}
 }
+
 
 
 void
@@ -524,6 +739,7 @@ restart:
 }
 
 
+
 void
 cofdpt::barrier_request_sent(
 		cofpacket *pack)
@@ -543,6 +759,7 @@ cofdpt::barrier_request_sent(
 }
 
 
+
 void
 cofdpt::barrier_reply_rcvd(cofpacket *pack)
 {
@@ -552,6 +769,7 @@ cofdpt::barrier_reply_rcvd(cofpacket *pack)
 
 	rofbase->handle_barrier_reply(this, pack);
 }
+
 
 
 void
@@ -581,6 +799,7 @@ restart:
 }
 
 
+
 void
 cofdpt::flow_mod_sent(
 		cofpacket *pack) throw (eOFdpathNotFound)
@@ -588,34 +807,12 @@ cofdpt::flow_mod_sent(
 	try {
 		WRITELOG(COFDPT, DBG, "cofdpath(%p)::flow_mod_sent() table_id: %d", this, pack->ofh_flow_mod->table_id);
 
-#if 0
-		if (0xff == pack->ofh_flow_mod->table_id)
-		{
-			std::map<uint8_t, cfttable*>::iterator it;
-			for (it = flow_tables.begin(); it != flow_tables.end(); ++it)
-			{
-				it->second->update_ft_entry(this, pack);
-			}
-		}
-		else
-		{
-			if (flow_tables.find(pack->ofh_flow_mod->table_id) == flow_tables.end())
-			{
-				throw eOFdpathNotFound();
-			}
-
-			// check for existence of flow_table with id pack->ofh_flow_mod->table_id first?
-			flow_tables[pack->ofh_flow_mod->table_id]->update_ft_entry(this, pack);
-
-			WRITELOG(COFDPT, DBG, "cofdpath(%p)::flow_mod_sent() table-id:%d flow-table: %s",
-					this, pack->ofh_flow_mod->table_id, flow_tables[pack->ofh_flow_mod->table_id]->c_str());
-		}
-#endif
 
 	} catch (cerror& e) {
 		WRITELOG(CFTTABLE, DBG, "unable to add ftentry to local flow_table instance");
 	}
 }
+
 
 
 void
@@ -624,6 +821,7 @@ cofdpt::flow_rmvd_rcvd(
 {
 	rofbase->handle_flow_removed(this, pack);
 }
+
 
 
 void
@@ -637,21 +835,14 @@ cofdpt::flow_mod_reset()
 }
 
 
+
 void
 cofdpt::group_mod_sent(
 		cofpacket *pack)
 {
-	try {
 
-#if 0
-		grp_table.update_gt_entry(this, pack->ofh_group_mod);
-#endif
-
-	} catch (cerror& e) {
-		WRITELOG(CFTTABLE, DBG, "unable to handle gtentry within local grp_table instance");
-
-	}
 }
+
 
 
 void
@@ -663,6 +854,7 @@ cofdpt::group_mod_reset()
 
 	rofbase->send_group_mod_message(this, ge); // calls this->group_mod_sent() implicitly
 }
+
 
 
 void
@@ -812,7 +1004,7 @@ cofdpt::fsp_close(cofmatch const& ofmatch)
 
 
 void
-cofdpt::experimenter_message_rcvd(cofpacket *pack)
+cofdpt::experimenter_rcvd(cofpacket *pack)
 {
 	switch (be32toh(pack->ofh_experimenter->experimenter)) {
 	default:
@@ -894,6 +1086,37 @@ cofdpt::find_cofport(
 
 
 void
+cofdpt::try_to_connect(bool reset_timeout)
+{
+	if (pending_timer(COFDPT_TIMER_RECONNECT))
+	{
+		return;
+	}
+
+	WRITELOG(COFCTL, DBG, "cofdpt(%p)::try_to_connect() "
+			"reconnect in %d seconds (reconnect_counter:%d)",
+			this, reconnect_in_seconds, reconnect_counter);
+
+	if ((reset_timeout) || (4 == reconnect_counter))
+	{
+		reconnect_in_seconds = RECONNECT_START_TIMEOUT;
+
+		reconnect_counter = 0;
+	}
+
+	if (reconnect_counter > 3)
+	{
+		reconnect_in_seconds = RECONNECT_MAX_TIMEOUT;
+	}
+
+	reset_timer(COFDPT_TIMER_RECONNECT, reconnect_in_seconds);
+
+	++reconnect_counter;
+}
+
+
+
+void
 cofdpt::send_message_via_socket(
 		cofpacket *pack)
 {
@@ -906,7 +1129,7 @@ cofdpt::send_message_via_socket(
 
 	pack->pack(mem->somem(), mem->memlen());
 
-	WRITELOG(COFCTL, DBG, "cofdpt(%p): new cmemory: %s",
+	WRITELOG(COFDPT, DBG, "cofdpt(%p): new cmemory: %s",
 				this, mem->c_str());
 
 	delete pack;
