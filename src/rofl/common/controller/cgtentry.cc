@@ -12,7 +12,8 @@ cgtentry::cgtentry(cgtentry_owner *owner) :
 	group_type(0),
 	ref_count(0),
 	packet_count(0),
-	byte_count(0)
+	byte_count(0),
+	group_mod(0)
 {
 
 }
@@ -26,7 +27,8 @@ cgtentry::cgtentry(
 		grp_table(_grp_table),
 		ref_count(0),
 		packet_count(0),
-		byte_count(0)
+		byte_count(0),
+		group_mod(0)
 {
 	this->group_id = be32toh(grp_mod->group_id);
 	this->group_type = grp_mod->type;
