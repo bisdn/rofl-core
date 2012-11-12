@@ -48,7 +48,6 @@ extern "C" {
 #include "openflow/cofport.h"
 #include "openflow/cofdpt.h"
 #include "openflow/cofctl.h"
-#include "openflow/cofrpc.h"
 #include "openflow/cofinst.h"
 #include "openflow/cofinlist.h"
 #include "openflow/cofaction.h"
@@ -1502,22 +1501,22 @@ public:
 	 */
 	cofdpt&
 	dpath_find(
-		uint64_t dpid) throw (eOFbaseNotAttached);
+		uint64_t dpid) throw (eRofBaseNotFound);
 
 	cofdpt&
 	dpath_find(
-		std::string s_dpid) throw (eOFbaseNotAttached);
+		std::string s_dpid) throw (eRofBaseNotFound);
 
 	cofdpt&
 	dpath_find(
-		cmacaddr dl_dpid) throw (eOFbaseNotAttached);
+		cmacaddr dl_dpid) throw (eRofBaseNotFound);
 
 
 	/** find cofswitch instance
 	 */
 	cofdpt*
 	ofswitch_find(
-			cofdpt* dpt) throw (eOFbaseNotAttached);
+			cofdpt* dpt) throw (eRofBaseNotFound);
 
 
 	/** find cofswitch instance
@@ -1534,7 +1533,7 @@ public:
 	 */
 	cofctl*
 	ofctrl_find(
-			cofctl* entity) throw (eOFbaseNotAttached);
+			cofctl* entity) throw (eRofBaseNotFound);
 
 
 	/** find cofctrl instance

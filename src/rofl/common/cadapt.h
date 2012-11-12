@@ -24,6 +24,7 @@
 #include <rofl/common/openflow/extensions/cfspentry.h>
 #include <rofl/platform/unix/csyslog.h>
 #include <rofl/common/cxidstore.h>
+#include <rofl/common/openflow/cofport.h>
 
 
 // forward declarations, see below for the definitions

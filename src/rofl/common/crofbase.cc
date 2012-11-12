@@ -533,7 +533,7 @@ crofbase::handle_experimenter_message(cofctl *ofctrl, cofpacket *pack)
 
 
 cofdpt&
-crofbase::dpath_find(uint64_t dpid) throw (eOFbaseNotAttached)
+crofbase::dpath_find(uint64_t dpid) throw (eRofBaseNotFound)
 {
 	for (std::set<cofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
@@ -541,12 +541,12 @@ crofbase::dpath_find(uint64_t dpid) throw (eOFbaseNotAttached)
 		if ((*it)->dpid == dpid)
 			return *(*it);
 	}
-	throw eOFbaseNotAttached();
+	throw eRofBaseNotFound();
 }
 
 
 cofdpt&
-crofbase::dpath_find(std::string s_dpid) throw (eOFbaseNotAttached)
+crofbase::dpath_find(std::string s_dpid) throw (eRofBaseNotFound)
 {
 	for (std::set<cofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
@@ -554,12 +554,12 @@ crofbase::dpath_find(std::string s_dpid) throw (eOFbaseNotAttached)
 		if ((*it)->s_dpid == s_dpid)
 			return *(*it);
 	}
-	throw eOFbaseNotAttached();
+	throw eRofBaseNotFound();
 }
 
 
 cofdpt&
-crofbase::dpath_find(cmacaddr dl_dpid) throw (eOFbaseNotAttached)
+crofbase::dpath_find(cmacaddr dl_dpid) throw (eRofBaseNotFound)
 {
 	for (std::set<cofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
@@ -567,18 +567,18 @@ crofbase::dpath_find(cmacaddr dl_dpid) throw (eOFbaseNotAttached)
 		if ((*it)->dpmac == dl_dpid)
 			return *(*it);
 	}
-	throw eOFbaseNotAttached();
+	throw eRofBaseNotFound();
 }
 
 
 
 
 cofdpt*
-crofbase::ofswitch_find(cofdpt *dpt) throw (eOFbaseNotAttached)
+crofbase::ofswitch_find(cofdpt *dpt) throw (eRofBaseNotFound)
 {
 	if (ofdpt_set.find(dpt) == ofdpt_set.end())
 	{
-		throw eOFbaseNotAttached();
+		throw eRofBaseNotFound();
 	}
 	return dpt;
 }
@@ -586,11 +586,11 @@ crofbase::ofswitch_find(cofdpt *dpt) throw (eOFbaseNotAttached)
 
 
 cofctl*
-crofbase::ofctrl_find(cofctl *ctl) throw (eOFbaseNotAttached)
+crofbase::ofctrl_find(cofctl *ctl) throw (eRofBaseNotFound)
 {
 	if (ofctl_set.find(ctl) == ofctl_set.end())
 	{
-		throw eOFbaseNotAttached();
+		throw eRofBaseNotFound();
 	}
 	return ctl;
 }
@@ -1201,7 +1201,7 @@ crofbase::send_packet_in_message(
 			ofctrl_find(ofctrl)->send_message(pack);
 		}
 
-	} catch (eOFbaseNotFound& e) {
+	} catch (eRofBaseNotFound& e) {
 
 	}
 }

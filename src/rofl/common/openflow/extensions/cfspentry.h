@@ -16,7 +16,6 @@ extern "C" {
 #endif
 
 #include "../cofmatch.h"
-#include "../cofbase.h"
 #include "../../cvastring.h"
 
 class cfspentry_owner {

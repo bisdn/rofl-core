@@ -215,11 +215,6 @@ cfwdelem::handle_timeout(int opaque)
 		}
 
 
-	} catch (eOFbaseNoCtrl& e) {
-		WRITELOG(CFWD, DBG, "controlling entity lost");
-		// handle NoCtrl condition: simply do nothing for now,
-		// TODO: reconnect to new controlling entity
-
 	} catch (eIoSvcUnhandledTimer& e) {
 		// ignore
 	}

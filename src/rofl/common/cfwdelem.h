@@ -43,7 +43,6 @@ extern "C" {
 
 #include "openflow/cofpacket.h"
 #include "openflow/cofport.h"
-#include "openflow/cofrpc.h"
 #include "openflow/cofinst.h"
 #include "openflow/cofinlist.h"
 #include "openflow/cofaction.h"
@@ -52,7 +51,6 @@ extern "C" {
 #include "openflow/cfttable.h"
 #include "openflow/cgttable.h"
 #include "openflow/cftentry.h"
-#include "openflow/cofbase.h"
 #include "openflow/cflowentry.h"
 #include "openflow/cgroupentry.h"
 #include "openflow/cofstats.h"
