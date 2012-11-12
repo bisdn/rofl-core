@@ -10,12 +10,12 @@
 
 #include <pthread.h>
 
-#include <rofl/common/cfwdelem.h>
-#include <rofl/common/openflow/cofstats.h>
-#include <rofl/common/openflow/cflowentry.h>
-#include <rofl/common/cvastring.h>
-#include <rofl/common/cadapt.h>
-#include <rofl/common/cxidstore.h>
+#include "cfwdelem.h"
+#include "../openflow/cofstats.h"
+#include "../openflow/cflowentry.h"
+#include "../cvastring.h"
+#include "cadapt.h"
+#include "../cxidstore.h"
 
 
 class eCtlBase 					: public eFwdElemBase {};
