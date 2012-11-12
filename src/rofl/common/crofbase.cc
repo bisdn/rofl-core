@@ -113,6 +113,50 @@ crofbase::nsp_enable(bool enable)
 
 
 
+void
+crofbase::handle_dpt_open(
+		cofdpt *dpt)
+{
+	handle_dpath_open(dpt);
+}
+
+
+
+void
+crofbase::handle_dpt_close(
+		cofdpt *dpt)
+{
+	handle_dpath_close(dpt);
+	if (ofdpt_set.find(dpt) == ofdpt_set.end())
+	{
+		delete dpt;
+		ofdpt_set.erase(dpt);
+	}
+}
+
+
+
+void
+crofbase::handle_ctl_open(
+		cofctl *ctl)
+{
+	handle_ctrl_open(ctl);
+}
+
+
+
+void
+crofbase::handle_ctl_close(
+		cofctl *ctl)
+{
+	handle_ctrl_close(ctl);
+	if (ofctl_set.find(ctl) == ofctl_set.end())
+	{
+		delete ctl;
+		ofctl_set.erase(ctl);
+	}
+}
+
 
 
 void
@@ -293,7 +337,11 @@ crofbase::cofctl_factory(
 		int type,
 		int protocol)
 {
-	return new cofctl(owner, newsd, ra, domain, type, protocol);
+	cofctl *ctl = new cofctl(owner, newsd, ra, domain, type, protocol);
+
+	ofctl_set.insert(ctl);
+
+	return ctl;
 }
 
 
@@ -306,7 +354,11 @@ crofbase::cofctl_factory(
 		int type,
 		int protocol)
 {
-	return new cofctl(owner, ra, domain, type, protocol);
+	cofctl *ctl = new cofctl(owner, ra, domain, type, protocol);
+
+	ofctl_set.insert(ctl);
+
+	return ctl;
 }
 
 
@@ -320,7 +372,11 @@ crofbase::cofdpt_factory(
 		int type,
 		int protocol)
 {
-	return new cofdpt(owner, newsd, ra, domain, type, protocol);
+	cofdpt *dpt = new cofdpt(owner, newsd, ra, domain, type, protocol);
+
+	ofdpt_set.insert(dpt);
+
+	return dpt;
 }
 
 
@@ -333,7 +389,11 @@ crofbase::cofdpt_factory(
 		int type,
 		int protocol)
 {
-	return new cofdpt(owner, ra, domain, type, protocol);
+	cofdpt *dpt = new cofdpt(owner, ra, domain, type, protocol);
+
+	ofdpt_set.insert(dpt);
+
+	return dpt;
 }
 
 
@@ -661,6 +721,7 @@ crofbase::send_echo_reply(
 void
 crofbase::send_features_request(cofdpt *dpt)
 {
+	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_features_request()", this);
 
 	cofpacket_features_request *pack = new cofpacket_features_request(
 							ta_add_request(OFPT_FEATURES_REQUEST));
@@ -1805,10 +1866,10 @@ crofbase::ta_validate(
 		uint8_t type) throw (eRofBaseXidInval)
 {
 	// check for pending transaction of type 'type'
-	if (!ta_pending(xid, type)) {
-		WRITELOG(XID, DBG, "no pending transaction");
-		throw eOFbaseXidInval();
-		//return false;
+	if (!ta_pending(xid, type))
+	{
+		WRITELOG(XID, DBG, "crofbase(%p)::ta_validate() no pending transaction for xid: 0x%x", this, xid);
+		throw eRofBaseXidInval();
 	}
 
 	// delete transaction

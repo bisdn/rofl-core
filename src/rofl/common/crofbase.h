@@ -1544,6 +1544,34 @@ public:
 			const cofctl *ofctrl) throw (eRofBaseNotFound);
 
 
+	/** for use by cofdpt
+	 *
+	 */
+	void
+	handle_dpt_open(cofdpt *dpt);
+
+
+	/** for use by cofdpt
+	 *
+	 */
+	void
+	handle_dpt_close(cofdpt *dpt);
+
+
+	/** for use by cofctl
+	 *
+	 */
+	void
+	handle_ctl_open(cofctl *ctl);
+
+
+	/** for use by cofctl
+	 *
+	 */
+	void
+	handle_ctl_close(cofctl *ctl);
+
+
 protected:
 
 

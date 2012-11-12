@@ -360,7 +360,7 @@ ctlbase::handle_packet_in(
 	if (sw != dpath)
 	{
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() rcvd packet from non-registered dpath"
-				"sw: %p dpath: %p", sw, dpath, dpname.c_str());
+				"sw: %p dpath: %p", dpname.c_str(), sw, dpath);
 
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() rcvd packet from non-registered dpath",
 				dpname.c_str());

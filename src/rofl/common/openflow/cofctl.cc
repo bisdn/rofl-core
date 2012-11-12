@@ -26,7 +26,7 @@ cofctl::cofctl(
 {
 	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
 
-	rofbase->handle_ctrl_open(this);
+	rofbase->handle_ctl_open(this);
 }
 
 
@@ -51,6 +51,8 @@ cofctl::cofctl(
 {
 	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP connect", this);
 
+	flags.set(COFCTL_FLAG_ACTIVE_SOCKET);
+
 	socket->caopen(ra, caddress(AF_INET, "0.0.0.0"), domain, type, protocol);
 }
 
@@ -59,8 +61,6 @@ cofctl::cofctl(
 cofctl::~cofctl()
 {
 	WRITELOG(CFWD, DBG, "cofctl(%p)::~cofctl()", this);
-
-	rofbase->handle_ctrl_close(this);
 
 	rofbase->fsptable.delete_fsp_entries(this);
 
@@ -138,6 +138,10 @@ cofctl::send_message(
 		return;
 	}
 
+#ifndef NDEBUG
+	fprintf(stderr, "s:%d ", pack->ofh_header->type);
+#endif
+
 	send_message_via_socket(pack);
 }
 
@@ -187,7 +191,7 @@ cofctl::handle_connected(
 		csocket *socket,
 		int sd)
 {
-	rofbase->handle_ctrl_open(this);
+	rofbase->handle_ctl_open(this);
 }
 
 
@@ -198,6 +202,10 @@ cofctl::handle_connect_refused(
 		int sd)
 {
 	// TODO: signal event back to rofbase
+	if (flags.test(COFCTL_FLAG_ACTIVE_SOCKET))
+	{
+		try_to_connect();
+	}
 }
 
 
@@ -307,13 +315,15 @@ cofctl::handle_closed(
 		csocket *socket,
 		int sd)
 {
+	socket->cclose();
+
 	if (flags.test(COFCTL_FLAG_ACTIVE_SOCKET))
 	{
 		try_to_connect();
 	}
 	else
 	{
-		// TODO: signal event back to rofbase
+		rofbase->handle_ctl_close(this);
 	}
 }
 
@@ -329,6 +339,10 @@ cofctl::handle_message(
 				"dropping invalid packet: %s", this, pack->c_str());
 		delete pack; return;
 	}
+
+#ifndef NDEBUG
+	fprintf(stderr, "r:%d ", pack->ofh_header->type);
+#endif
 
 #if 0
 	pack->ctl = this;
@@ -1151,7 +1165,7 @@ cofctl::handle_echo_reply_timeout()
 	{
 		try_to_connect(true);
 	}
-	rofbase->handle_ctrl_close(this);
+	rofbase->handle_ctl_close(this);
 }
 
 

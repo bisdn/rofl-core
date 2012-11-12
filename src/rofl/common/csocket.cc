@@ -51,6 +51,8 @@ csocket::csocket(
 
 	pthread_rwlock_init(&pout_squeue_lock, 0);
 
+	sockflags.set(CONNECTED);
+
 	csock_list.insert(this);
 	register_filedesc_r(sd);
 }

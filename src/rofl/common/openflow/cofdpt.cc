@@ -29,12 +29,12 @@ cofdpt::cofdpt(
 	stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
 	barrier_reply_timeout(DEFAULT_DB_BARRIER_REPLY_TIMEOUT)
 {
-	WRITELOG(COFDPT, DBG, "cofdpath(%p)::cofdpath() "
+	WRITELOG(COFDPT, DBG, "cofdpt(%p)::cofdpt() "
 			"dpid:%"UINT64DBGFMT" ", this, dpid);
 
-	init_state(COFDPT_STATE_DISCONNECTED);
+	init_state(COFDPT_STATE_WAIT_FEATURES);
 
-	rofbase->send_features_request(this);
+	register_timer(COFDPT_TIMER_FEATURES_REQUEST, 0);
 
 	new_state(COFDPT_STATE_WAIT_FEATURES);
 }
@@ -65,11 +65,13 @@ cofdpt::cofdpt(
 	stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
 	barrier_reply_timeout(DEFAULT_DB_BARRIER_REPLY_TIMEOUT)
 {
-	WRITELOG(COFDPT, DBG, "cofdpath(%p)::cofdpath() "
+	WRITELOG(COFDPT, DBG, "cofdpt(%p)::cofdpt() "
 			"dpid:%"UINT64DBGFMT" ",
 			this, dpid);
 
 	init_state(COFDPT_STATE_DISCONNECTED);
+
+	flags.set(COFDPT_FLAG_ACTIVE_SOCKET);
 
 	socket->caopen(ra, caddress(AF_INET, "0.0.0.0"), domain, type, protocol);
 }
@@ -78,11 +80,9 @@ cofdpt::cofdpt(
 
 cofdpt::~cofdpt()
 {
-	WRITELOG(COFDPT, DBG, "cofdpath(%p)::~cofdpath() "
+	WRITELOG(COFDPT, DBG, "cofdpt(%p)::~cofdpt() "
 			"dpid:%"UINT64DBGFMT"  %s",
 			this, dpid, this->c_str());
-
-	rofbase->handle_dpath_close(this);
 
 	// remove all cofport instances
 	while (not ports.empty())
@@ -122,6 +122,10 @@ cofdpt::handle_connect_refused(
 		int sd)
 {
 	new_state(COFDPT_STATE_DISCONNECTED);
+	if (flags.test(COFDPT_FLAG_ACTIVE_SOCKET))
+	{
+		try_to_connect();
+	}
 }
 
 
@@ -163,7 +167,7 @@ cofdpt::handle_read(
 				case ECONNRESET:
 				default:
 					{
-						WRITELOG(COFDPT, WARN, "COFDPT(%p)::handle_read() "
+						WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_read() "
 								"an error occured, closing => errno: %d (%s)",
 								this, errno, strerror(errno));
 
@@ -177,7 +181,7 @@ cofdpt::handle_read(
 			{
 				//rfds.erase(fd);
 
-				WRITELOG(COFDPT, WARN, "COFDPT(%p)::handle_read() "
+				WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_read() "
 						"peer closed connection, closing local endpoint => rc: %d",
 						this, rc);
 
@@ -231,13 +235,15 @@ cofdpt::handle_closed(
 		csocket *socket,
 		int sd)
 {
+	socket->cclose();
+
 	if (flags.test(COFDPT_FLAG_ACTIVE_SOCKET))
 	{
 		try_to_connect();
 	}
 	else
 	{
-		// TODO: signal event back to rofbase
+		rofbase->handle_dpt_close(this);
 	}
 }
 
@@ -247,90 +253,118 @@ void
 cofdpt::handle_message(
 		cofpacket *pack)
 {
-	if (not pack->is_valid())
-	{
-		WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
-				"dropping invalid packet: %s", this, pack->c_str());
-		delete pack; return;
-	}
-
-#if 0
-	pack->ctl = this;
-#endif
-
-	switch (pack->ofh_header->type) {
-	case OFPT_HELLO:
-		{
-			hello_rcvd(pack);
-		}
-		break;
-	case OFPT_ECHO_REQUEST:
-		{
-			echo_request_rcvd(pack);
-		}
-		break;
-	case OFPT_ECHO_REPLY:
-		{
-			echo_reply_rcvd(pack);
-		}
-		break;
-	case OFPT_EXPERIMENTER:
-		{
-			experimenter_rcvd(pack);
-		}
-		break;
-	case OFPT_FEATURES_REQUEST:
-		{
-			features_reply_rcvd(pack);
-		}
-		break;
-	case OFPT_GET_CONFIG_REQUEST:
-		{
-			get_config_reply_rcvd(pack);
-		}
-		break;
-	case OFPT_PACKET_IN:
-		{
-			packet_in_rcvd(pack);
-		}
-		break;
-	case OFPT_FLOW_REMOVED:
-		{
-			flow_rmvd_rcvd(pack);
-		}
-		break;
-	case OFPT_PORT_STATUS:
-		{
-			port_status_rcvd(pack);
-		}
-		break;
-	case OFPT_STATS_REPLY:
-		{
-			stats_reply_rcvd(pack);
-		}
-		break;
-	case OFPT_BARRIER_REPLY:
-		{
-			barrier_reply_rcvd(pack);
-		}
-		break;
-	case OFPT_QUEUE_GET_CONFIG_REPLY:
-		{
-			queue_get_config_reply_rcvd(pack);
-		}
-		break;
-	case OFPT_ROLE_REPLY:
-		{
-			role_reply_rcvd(pack);
-		}
-		break;
-	default:
+	try {
+		if (not pack->is_valid())
 		{
 			WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
-					"dropping packet: %s", this, pack->c_str());
-			delete pack;
+					"dropping invalid packet: %s", this, pack->c_str());
+			delete pack; return;
 		}
-		return;
+
+#ifndef NDEBUG
+		fprintf(stderr, "r:%d ", pack->ofh_header->type);
+#endif
+
+#if 0
+		pack->ctl = this;
+#endif
+
+		switch (pack->ofh_header->type) {
+		case OFPT_HELLO:
+			{
+				hello_rcvd(pack);
+			}
+			break;
+		case OFPT_ECHO_REQUEST:
+			{
+				echo_request_rcvd(pack);
+			}
+			break;
+		case OFPT_ECHO_REPLY:
+			{
+				rofbase->ta_validate(pack->get_xid(), OFPT_ECHO_REQUEST);
+
+				echo_reply_rcvd(pack);
+			}
+			break;
+		case OFPT_EXPERIMENTER:
+			{
+				experimenter_rcvd(pack);
+			}
+			break;
+		case OFPT_FEATURES_REPLY:
+			{
+				rofbase->ta_validate(pack->get_xid(), OFPT_FEATURES_REQUEST);
+
+				features_reply_rcvd(pack);
+			}
+			break;
+		case OFPT_GET_CONFIG_REPLY:
+			{
+				rofbase->ta_validate(pack->get_xid(), OFPT_GET_CONFIG_REQUEST);
+
+				get_config_reply_rcvd(pack);
+			}
+			break;
+		case OFPT_PACKET_IN:
+			{
+				packet_in_rcvd(pack);
+			}
+			break;
+		case OFPT_FLOW_REMOVED:
+			{
+				flow_rmvd_rcvd(pack);
+			}
+			break;
+		case OFPT_PORT_STATUS:
+			{
+				port_status_rcvd(pack);
+			}
+			break;
+		case OFPT_STATS_REPLY:
+			{
+				rofbase->ta_validate(pack->get_xid(), OFPT_STATS_REQUEST);
+
+				stats_reply_rcvd(pack);
+			}
+			break;
+		case OFPT_BARRIER_REPLY:
+			{
+				rofbase->ta_validate(pack->get_xid(), OFPT_BARRIER_REQUEST);
+
+				barrier_reply_rcvd(pack);
+			}
+			break;
+		case OFPT_QUEUE_GET_CONFIG_REPLY:
+			{
+				rofbase->ta_validate(pack->get_xid(), OFPT_QUEUE_GET_CONFIG_REQUEST);
+
+				queue_get_config_reply_rcvd(pack);
+			}
+			break;
+		case OFPT_ROLE_REPLY:
+			{
+				rofbase->ta_validate(pack->get_xid(), OFPT_ROLE_REQUEST);
+
+				role_reply_rcvd(pack);
+			}
+			break;
+		default:
+			{
+				WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
+						"dropping packet: %s", this, pack->c_str());
+				delete pack;
+			}
+			return;
+		}
+
+
+	} catch (eRofBaseXidInval& e) {
+
+		WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
+				"dropping invalid packet: %s", this, pack->c_str());
+
+		delete pack; return;
 	}
 }
 
@@ -407,6 +441,10 @@ cofdpt::send_message(
 		return;
 	}
 
+#ifndef NDEBUG
+	fprintf(stderr, "s:%d ", pack->ofh_header->type);
+#endif
+
 	send_message_via_socket(pack);
 }
 
@@ -416,6 +454,11 @@ void
 cofdpt::handle_timeout(int opaque)
 {
 	switch (opaque) {
+	case COFDPT_TIMER_FEATURES_REQUEST:
+		{
+			rofbase->send_features_request(this);
+		}
+		break;
 	case COFDPT_TIMER_FEATURES_REPLY:
 		{
 			handle_features_reply_timeout();
@@ -561,14 +604,14 @@ cofdpt::features_reply_rcvd(
 												sizeof(struct ofp_switch_features);
 
 
-		WRITELOG(COFDPT, DBG, "cofdpath(%p)::features_reply_rcvd() "
+		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() "
 				"dpid:%"UINT64DBGFMT" ",
 				this, dpid);
 
 
 		cofport::ports_parse(ports, pack->ofh_switch_features->ports, portslen);
 
-		WRITELOG(COFDPT, DBG, "cofdpath(%p)::features_reply_rcvd() %s", this, this->c_str());
+		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() %s", this, this->c_str());
 
 
 		// dpid as std::string
@@ -604,7 +647,7 @@ cofdpt::features_reply_rcvd(
 
 		new_state(COFDPT_STATE_DISCONNECTED);
 
-		rofbase->handle_dpath_close(this);
+		rofbase->handle_dpt_close(this);
 	}
 }
 
@@ -623,7 +666,7 @@ cofdpt::handle_echo_reply_timeout()
 	{
 		try_to_connect(true);
 	}
-	rofbase->handle_dpath_close(this);
+	rofbase->handle_dpt_close(this);
 }
 
 
@@ -672,7 +715,7 @@ cofdpt::get_config_reply_rcvd(
 void
 cofdpt::handle_get_config_reply_timeout()
 {
-	WRITELOG(COFDPT, DBG, "cofdpath(%p)::handle_get_config_reply_timeout() "
+	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_get_config_reply_timeout() "
 			"dpid:%"UINT64DBGFMT" ",
 			this, dpid);
 
@@ -716,7 +759,7 @@ cofdpt::stats_reply_rcvd(
 	{
 		new_state(COFDPT_STATE_CONNECTED);
 
-		rofbase->handle_dpath_open(this);
+		rofbase->handle_dpt_open(this);
 	}
 }
 
@@ -725,7 +768,7 @@ cofdpt::stats_reply_rcvd(
 void
 cofdpt::handle_stats_reply_timeout()
 {
-	WRITELOG(COFDPT, DBG, "cofdpath(%p)::handle_stats_reply_timeout() "
+	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_stats_reply_timeout() "
 			"dpid:%"UINT64DBGFMT" ",
 			this, dpid);
 
@@ -819,7 +862,7 @@ cofdpt::flow_mod_sent(
 		cofpacket *pack) throw (eOFdpathNotFound)
 {
 	try {
-		WRITELOG(COFDPT, DBG, "cofdpath(%p)::flow_mod_sent() table_id: %d", this, pack->ofh_flow_mod->table_id);
+		WRITELOG(COFDPT, DBG, "cofdpt(%p)::flow_mod_sent() table_id: %d", this, pack->ofh_flow_mod->table_id);
 
 
 	} catch (cerror& e) {
@@ -896,7 +939,7 @@ void
 cofdpt::packet_in_rcvd(cofpacket *pack)
 {
 	try {
-		WRITELOG(COFDPT, DBG, "cofdpath(0x%llx)::packet_in_rcvd() %s", dpid, pack->c_str());
+		WRITELOG(COFDPT, DBG, "cofdpt(0x%llx)::packet_in_rcvd() %s", dpid, pack->c_str());
 
 #if 0
 		// update forwarding table
@@ -910,7 +953,7 @@ cofdpt::packet_in_rcvd(cofpacket *pack)
 			// update local forwarding table
 			fwdtable.mac_learning(pack->packet, dpid, in_port);
 
-			WRITELOG(COFDPT, DBG, "cofdpath(0x%llx)::packet_in_rcvd() local fwdtable: %s",
+			WRITELOG(COFDPT, DBG, "cofdpt(0x%llx)::packet_in_rcvd() local fwdtable: %s",
 					dpid, fwdtable.c_str());
 #endif
 
@@ -918,7 +961,7 @@ cofdpt::packet_in_rcvd(cofpacket *pack)
 #if 0
 		rofbase->fwdtable.mac_learning(ether, dpid, in_port);
 
-		WRITELOG(COFDPT, DBG, "cofdpath(0x%llx)::packet_in_rcvd() global fwdtable: %s",
+		WRITELOG(COFDPT, DBG, "cofdpt(0x%llx)::packet_in_rcvd() global fwdtable: %s",
 				dpid, rofbase->fwdtable.c_str());
 #endif
 
@@ -927,7 +970,7 @@ cofdpt::packet_in_rcvd(cofpacket *pack)
 		}
 	} catch (eOFmatchNotFound& e) {
 
-		WRITELOG(COFDPT, DBG, "cofdpath(0x%llx)::packet_in_rcvd() "
+		WRITELOG(COFDPT, DBG, "cofdpt(0x%llx)::packet_in_rcvd() "
 				"no in-port specified in Packet-In message", dpid);
 	}
 }
@@ -936,7 +979,7 @@ cofdpt::packet_in_rcvd(cofpacket *pack)
 void
 cofdpt::port_status_rcvd(cofpacket *pack)
 {
-	WRITELOG(COFDPT, DBG, "cofdpath(0x%016llx)::port_status_rcvd() %s",
+	WRITELOG(COFDPT, DBG, "cofdpt(0x%016llx)::port_status_rcvd() %s",
 			dpid, pack->c_str());
 
 	std::map<uint32_t, cofport*>::iterator it;
@@ -1069,7 +1112,7 @@ const char*
 cofdpt::c_str()
 {
 	cvastring vas;
-	info.assign(vas("cofdpath(%p) dpid:0x%llx buffers: %d tables: %d capabilities: 0x%x =>",
+	info.assign(vas("cofdpt(%p) dpid:0x%llx buffers: %d tables: %d capabilities: 0x%x =>",
 			this, dpid, n_buffers, n_tables, capabilities));
 
 	std::map<uint32_t, cofport*>::iterator it;
