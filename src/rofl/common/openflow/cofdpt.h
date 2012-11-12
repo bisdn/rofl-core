@@ -449,6 +449,13 @@ protected:
 	 *
 	 */
 	void
+	echo_request_sent(cofpacket *pack);
+
+
+	/**
+	 *
+	 */
+	void
 	echo_request_rcvd(cofpacket *pack);
 
 
@@ -686,6 +693,11 @@ protected:
 
 private:
 
+
+	/** handle ECHO reply timeout
+	 */
+	void
+	handle_echo_reply_timeout();
 
 	/** handle FEATURES reply timeout
 	 */

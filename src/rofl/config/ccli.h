@@ -65,6 +65,40 @@ public:
 				int newsd,
 				caddress const& ra);
 
+		/**
+		 *
+		 */
+		virtual void
+		handle_connected(
+				csocket *socket,
+				int sd) {};
+
+
+		/**
+		 *
+		 */
+		virtual void
+		handle_connect_refused(
+				csocket *socket,
+				int sd) {};
+
+
+		/**
+		 *
+		 */
+		virtual void
+		handle_read(
+				csocket *socket,
+				int sd) {};
+
+
+		/**
+		 *
+		 */
+		virtual void
+		handle_closed(
+				csocket *socket,
+				int sd) {};
 
 
 	void

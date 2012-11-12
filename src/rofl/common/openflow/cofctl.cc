@@ -158,19 +158,12 @@ cofctl::handle_timeout(
 		break;
 	case COFCTL_TIMER_SEND_ECHO_REQUEST:
 		{
-			send_message(new cofpacket_echo_request(0, 0, 0));
-			register_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT, 5);
+			rofbase->send_echo_request(this);
 		}
 		break;
 	case COFCTL_TIMER_ECHO_REPLY_TIMEOUT:
 		{
-			socket->cclose();
-			new_state(STATE_CTL_DISCONNECTED);
-			if (flags.test(COFCTL_FLAG_ACTIVE_SOCKET))
-			{
-				try_to_connect(true);
-			}
-			rofbase->handle_ctrl_close(this);
+			handle_echo_reply_timeout();
 		}
 		break;
 	}
@@ -475,9 +468,22 @@ cofctl::hello_rcvd(cofpacket *pack)
 
 
 void
+cofctl::echo_request_sent(cofpacket *pack)
+{
+	reset_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT, 5); // TODO: multiple concurrent echo-requests?
+}
+
+
+
+void
 cofctl::echo_request_rcvd(cofpacket *pack)
 {
-	send_message(new cofpacket_echo_reply(pack->get_xid(), pack->body.somem(), pack->body.memlen()));
+	// send echo reply back including any appended data
+	rofbase->send_echo_reply(this, pack->get_xid(), pack->body.somem(), pack->body.memlen());
+
+	/* Please note: we do not call a handler for echo-requests/replies in rofbase
+	 * and take care of these liveness packets within cofctl and cofdpt
+	 */
 }
 
 
@@ -580,6 +586,7 @@ cofctl::packet_out_rcvd(cofpacket *pack)
 
 	rofbase->handle_packet_out(this, pack);
 }
+
 
 
 void
@@ -1131,6 +1138,21 @@ cofctl::experimenter_rcvd(cofpacket *pack)
 
 
 
+void
+cofctl::handle_echo_reply_timeout()
+{
+	WRITELOG(COFDPT, DBG, "cofctl(%p)::handle_echo_reply_timeout() ", this);
+
+	// TODO: repeat ECHO request multiple times (should be configurable)
+
+	socket->cclose();
+
+	if (flags.test(COFCTL_FLAG_ACTIVE_SOCKET))
+	{
+		try_to_connect(true);
+	}
+	rofbase->handle_ctrl_close(this);
+}
 
 
 

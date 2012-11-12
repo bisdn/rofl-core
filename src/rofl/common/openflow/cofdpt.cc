@@ -341,14 +341,31 @@ cofdpt::send_message(
 		cofpacket *pack)
 {
 	switch (pack->ofh_header->type) {
-	case OFPT_ERROR:
+	case OFPT_HELLO:
 		{
-			// ...
+			// do nothing here
 		}
 		break;
-	case OFPT_EXPERIMENTER:
+	case OFPT_ECHO_REQUEST:
 		{
-			// ...
+			echo_request_sent(pack);
+		}
+		break;
+	case OFPT_ECHO_REPLY:
+		{
+			// do nothing here
+		}
+		break;
+	case OFPT_ERROR:
+	case OFPT_EXPERIMENTER:
+	case OFPT_SET_CONFIG:
+	case OFPT_PACKET_OUT:
+	case OFPT_FLOW_MOD:
+	case OFPT_GROUP_MOD:
+	case OFPT_PORT_MOD:
+	case OFPT_TABLE_MOD:
+		{
+			// asynchronous messages, no transaction => do nothing here
 		}
 		break;
 	case OFPT_FEATURES_REQUEST:
@@ -359,36 +376,6 @@ cofdpt::send_message(
 	case OFPT_GET_CONFIG_REQUEST:
 		{
 			get_config_request_sent(pack);
-		}
-		break;
-	case OFPT_SET_CONFIG:
-		{
-			// asynchronous ...
-		}
-		break;
-	case OFPT_PACKET_OUT:
-		{
-			// asynchronous ...
-		}
-		break;
-	case OFPT_FLOW_MOD:
-		{
-			// asynchronous ...
-		}
-		break;
-	case OFPT_GROUP_MOD:
-		{
-			// asynchronous ...
-		}
-		break;
-	case OFPT_PORT_MOD:
-		{
-			// asynchronous ...
-		}
-		break;
-	case OFPT_TABLE_MOD:
-		{
-			// asynchronous ...
 		}
 		break;
 	case OFPT_STATS_REQUEST:
@@ -459,19 +446,12 @@ cofdpt::handle_timeout(int opaque)
 		break;
 	case COFDPT_TIMER_ECHO_REQUEST:
 		{
-			send_message(new cofpacket_echo_request(0, 0, 0));
-			register_timer(COFDPT_TIMER_ECHO_REPLY, 5);
+			rofbase->send_echo_request(this);
 		}
 		break;
 	case COFDPT_TIMER_ECHO_REPLY:
 		{
-			socket->cclose();
-			new_state(COFDPT_STATE_DISCONNECTED);
-			if (flags.test(COFDPT_FLAG_ACTIVE_SOCKET))
-			{
-				try_to_connect(true);
-			}
-			rofbase->handle_dpath_close(this);
+			handle_echo_reply_timeout();
 		}
 		break;
 	default:
@@ -526,9 +506,22 @@ cofdpt::hello_rcvd(cofpacket *pack)
 
 
 void
+cofdpt::echo_request_sent(cofpacket *pack)
+{
+	reset_timer(COFDPT_TIMER_ECHO_REPLY, 5); // TODO: multiple concurrent echo-requests?
+}
+
+
+
+void
 cofdpt::echo_request_rcvd(cofpacket *pack)
 {
-	send_message(new cofpacket_echo_reply(pack->get_xid(), pack->body.somem(), pack->body.memlen()));
+	// send echo reply back including any appended data
+	rofbase->send_echo_reply(this, pack->get_xid(), pack->body.somem(), pack->body.memlen());
+
+	/* Please note: we do not call a handler for echo-requests/replies in rofbase
+	 * and take care of these liveness packets within cofctl and cofdpt
+	 */
 }
 
 
@@ -616,13 +609,33 @@ cofdpt::features_reply_rcvd(
 }
 
 
+
+void
+cofdpt::handle_echo_reply_timeout()
+{
+	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_echo_reply_timeout() ", this);
+
+	// TODO: repeat ECHO request multiple times (should be configurable)
+
+	socket->cclose();
+	new_state(COFDPT_STATE_DISCONNECTED);
+	if (flags.test(COFDPT_FLAG_ACTIVE_SOCKET))
+	{
+		try_to_connect(true);
+	}
+	rofbase->handle_dpath_close(this);
+}
+
+
+
 void
 cofdpt::handle_features_reply_timeout()
 {
-	WRITELOG(COFDPT, DBG, "cofdpath(%p)::handle_features_reply_timeout() ", this);
+	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_features_reply_timeout() ", this);
 
 	rofbase->handle_features_reply_timeout(this);
 }
+
 
 
 void
@@ -631,6 +644,7 @@ cofdpt::get_config_request_sent(
 {
 	register_timer(COFDPT_TIMER_GET_CONFIG_REPLY, get_config_reply_timeout);
 }
+
 
 
 void
@@ -1018,9 +1032,35 @@ cofdpt::experimenter_rcvd(cofpacket *pack)
 
 
 void
+cofdpt::role_request_sent(
+		cofpacket *pack)
+{
+
+}
+
+
+
+void
 cofdpt::role_reply_rcvd(cofpacket *pack)
 {
 	rofbase->handle_role_reply(this, pack);
+}
+
+
+void
+cofdpt::queue_get_config_request_sent(
+		cofpacket *pack)
+{
+	// TODO
+}
+
+
+
+void
+cofdpt::queue_get_config_reply_rcvd(
+		cofpacket *pack)
+{
+	// TODO
 }
 
 

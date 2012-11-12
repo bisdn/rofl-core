@@ -23,6 +23,8 @@ csocket::csocket(
 {
 	WRITELOG(CSOCKET, DBG, "csocket(%p)::csocket()", this);
 
+	pthread_rwlock_init(&pout_squeue_lock, 0);
+
 	csock_list.insert(this);
 }
 
@@ -47,9 +49,13 @@ csocket::csocket(
 
 	WRITELOG(CSOCKET, DBG, "csocket(%p)::csocket()", this);
 
+	pthread_rwlock_init(&pout_squeue_lock, 0);
+
 	csock_list.insert(this);
 	register_filedesc_r(sd);
 }
+
+
 
 csocket::~csocket()
 {
@@ -57,9 +63,11 @@ csocket::~csocket()
 	WRITELOG(CSOCKET, DBG, "csocket(%p)::~csocket()", this);
 
 	cclose();
+
+	pthread_rwlock_destroy(&pout_squeue_lock);
+
 	csock_list.erase(this);
 }
-
 
 
 
@@ -167,6 +175,7 @@ csocket::handle_xevent(int fd)
 {
 	WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_xevent()", this);
 }
+
 
 
 void
@@ -375,6 +384,8 @@ csocket::caopen(
 void
 csocket::cclose()
 {
+	RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
+
 	WRITELOG(CSOCKET, DBG, "csocket(%p)::cclose()", this);
 	int rc;
 
@@ -411,6 +422,7 @@ csocket::cclose()
 }
 
 
+
 void
 csocket::send_packet(cmemory* pack)
 {
@@ -421,14 +433,19 @@ csocket::send_packet(cmemory* pack)
 		delete pack;
 		return;
 	}
+
+	RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
+
 	pout_squeue.push_back(pack);
 	register_filedesc_w(sd);
 }
 
 
+
 void
 csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 {
+	RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
 
 	int rc;
 	WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() pout_squeue.size()=%d",

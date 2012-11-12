@@ -13,6 +13,7 @@
 #include "ciosrv.h"
 #include "caddress.h"
 #include "cmemory.h"
+#include "thread_helper.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +25,7 @@ extern "C" {
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
 #include <sys/uio.h>
+#include <pthread.h>
 
 #ifdef __cplusplus
 }
@@ -83,6 +85,11 @@ public:
 class csocket :
 	public virtual ciosrv
 {
+private:
+
+		pthread_rwlock_t	pout_squeue_lock;	/**< rwlock for access to pout_squeue */
+		std::list<cmemory*> pout_squeue; 		/**< queue of outgoing packets */
+
 public: // static data structures
 
 	static std::set<csocket*> csock_list; /**< list of all csocket instances */
@@ -349,12 +356,6 @@ private:
 	 * queue pout_squeue.
 	 */
 	void dequeue_packet() throw (eSocketSendFailed, eSocketShortSend);
-
-	//
-	// data structures
-	//
-
-	std::list<cmemory*> pout_squeue; /**< queue of outgoing packets */
 };
 
 #endif

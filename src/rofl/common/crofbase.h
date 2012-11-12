@@ -54,7 +54,6 @@ extern "C" {
 #include "openflow/cofaction.h"
 #include "openflow/cofaclist.h"
 #include "openflow/cofmatch.h"
-#include "openflow/cofbase.h"
 #include "openflow/cflowentry.h"
 #include "openflow/cgroupentry.h"
 #include "openflow/cofstats.h"
@@ -78,14 +77,14 @@ class eRofBaseTableNotFound 		: public eRofBase {}; // flow-table not found (e.g
 class eRofBaseGotoTableNotFound 	: public eRofBase {}; // table-id specified in OFPIT_GOTO_TABLE invalid
 class eRofBaseFspSupportDisabled 	: public eRofBase {};
 
+
 class cofctl;
 class cofdpt;
 
 
 class crofbase :
-	public virtual ciosrv,
+	public ciosrv,
 	public csocket_owner,
-	public cofbase,
 	public cfsm
 {
 private: // data structures
@@ -794,7 +793,48 @@ public:
 			cofctl *ctl,
 			uint8_t *body, size_t bodylen);
 
-		// FEATURES request/reply
+	// ECHO request/reply
+	//
+
+	/**
+	 *
+	 */
+	virtual void
+	send_echo_request(
+			cofdpt *dpt,
+			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	send_echo_reply(
+			cofdpt *dpt,
+			uint32_t xid,
+			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	send_echo_request(
+			cofctl *ctl,
+			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	send_echo_reply(
+			cofctl *ctl,
+			uint32_t xid,
+			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
+
+
+	// FEATURES request/reply
 	//
 
 	/** Send OF FEATURES.request to data path entity.
@@ -1504,7 +1544,76 @@ public:
 			const cofctl *ofctrl) throw (eRofBaseNotFound);
 
 
+protected:
 
+
+	/** add pending request to transaction queue
+	 * - allocates new xid not in xid_used
+	 * - adds xid to xid_used
+	 * - adds pair(type, xid) to ta_pending_requests
+	 */
+	uint32_t
+	ta_add_request(
+			uint8_t type);
+
+
+	/** remove pending request from transaction queue
+	 */
+	void
+	ta_rem_request(
+			uint32_t xid);
+
+
+	/** return boolean flag for pending request of type x
+	 */
+	bool
+	ta_pending(
+			uint32_t xid,
+			uint8_t type);
+
+
+	/** return new xid for asynchronous calls
+	 * - adds xid to xid_used
+	 * - does not add xid to ta_pending_requests
+	 */
+	uint32_t
+	ta_new_async_xid();
+
+
+	/** validate incoming reply for transaction
+	 * checks for existing type and associated xid
+	 * removes request from ta_pending_reqs, if found
+	 */
+	bool
+	ta_validate(
+			uint32_t xid,
+			uint8_t type) throw (eRofBaseXidInval);
+
+
+	/** validate a cofpacket, calls ta_validate(xid, type)
+	 */
+	bool
+	ta_validate(
+			cofpacket *pack);
+
+
+	/** returns true if a xid is used by a pending
+	 * transaction
+	 */
+	bool
+	ta_active_xid(
+			uint32_t xid);
+
+
+	/*
+	 * data structures
+	 */
+
+	std::map<uint32_t, uint8_t> 			ta_pending_reqs; 	// list of pending requests
+	std::vector<uint32_t> 					xids_used;			// list of recently used xids
+	size_t 									xid_used_max; 		// reusing xids: max number of currently blocked xid entries stored
+	uint32_t 								xid_start; 			// start value xid
+#define CPCP_DEFAULT_XID_USED_MAX       16
 
 
 private: // methods for attaching/detaching other cofbase instances

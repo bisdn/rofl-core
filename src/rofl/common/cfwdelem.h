@@ -102,7 +102,6 @@ class cfttable;
  * controlling entities.
  */
 class cfwdelem :
-	public virtual ciosrv,
 	public cfibentry_owner,
 	public cftentry_owner,
 	public cgtentry_owner,

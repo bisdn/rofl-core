@@ -9,7 +9,9 @@
 
 
 
-crofbase::crofbase() throw (eRofBaseExists)
+crofbase::crofbase() throw (eRofBaseExists) :
+		xid_used_max(CPCP_DEFAULT_XID_USED_MAX),
+		xid_start(crandom(sizeof(uint32_t)).uint32())
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::crofbase()", this);
 
@@ -37,32 +39,6 @@ crofbase::~crofbase()
 	{
 		delete (*it);
 	}
-
-
-	std::map<int, std::list<cofpacket*> >::iterator it;
-
-	// remove all pending packets from all down-queues
-	for (it = fe_down_queue.begin(); it != fe_down_queue.end(); ++it)
-	{
-		std::list<cofpacket*> plist = it->second;
-		while (not plist.empty())
-		{
-			delete plist.front();
-			plist.pop_front();
-		}
-	}
-
-	// remove all pending packets from all up-queues
-	for (it = fe_up_queue.begin(); it != fe_up_queue.end(); ++it)
-	{
-		std::list<cofpacket*> plist = it->second;
-		while (not plist.empty())
-		{
-			delete plist.front();
-			plist.pop_front();
-		}
-	}
-
 }
 
 
@@ -605,6 +581,76 @@ crofbase::send_hello_message(
 	ofswitch_find(dpt)->send_message(pack);
 }
 
+
+
+
+void
+crofbase::send_echo_request(
+		cofdpt *dpt,
+		uint8_t *body, size_t bodylen)
+{
+	cofpacket_echo_request *pack =
+			new cofpacket_echo_request(
+					ta_add_request(OFPT_ECHO_REQUEST), body, bodylen);
+
+	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_request() %s",
+			this, pack->c_str());
+
+	ofswitch_find(dpt)->send_message(pack);
+}
+
+
+
+void
+crofbase::send_echo_reply(
+		cofdpt *dpt,
+		uint32_t xid,
+		uint8_t *body, size_t bodylen)
+{
+	cofpacket_echo_reply *pack =
+			new cofpacket_echo_reply(
+					xid, body, bodylen);
+
+	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_reply() %s",
+				this, pack->c_str());
+
+	ofswitch_find(dpt)->send_message(pack);
+}
+
+
+
+void
+crofbase::send_echo_request(
+		cofctl *ctl,
+		uint8_t *body, size_t bodylen)
+{
+	cofpacket_echo_request *pack =
+			new cofpacket_echo_request(
+					ta_add_request(OFPT_ECHO_REQUEST), body, bodylen);
+
+	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_request() %s",
+				this, pack->c_str());
+
+	ofctrl_find(ctl)->send_message(pack);
+}
+
+
+
+void
+crofbase::send_echo_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t *body, size_t bodylen)
+{
+	cofpacket_echo_reply *pack =
+			new cofpacket_echo_reply(
+					xid, body, bodylen);
+
+	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_reply() %s",
+				this, pack->c_str());
+
+	ofctrl_find(ctl)->send_message(pack);
+}
 
 
 
@@ -1642,6 +1688,134 @@ crofbase::send_experimenter_message(
 
 
 
+
+
+
+uint32_t
+crofbase::ta_add_request(
+		uint8_t type)
+{
+	uint32_t xid = ta_new_async_xid();
+
+	// add pair(type, xid) to transaction list
+	//ta_pending_reqs.insert(std::make_pair<uint32_t, uint8_t>(xid, type));
+	ta_pending_reqs[xid] = type;
+
+	WRITELOG(XID, DBG, "cofbase::ta_add_request() rand number=0x%x", xid);
+
+#ifndef NDEBUG
+	std::map<uint32_t, uint8_t>::iterator it;
+	for (it = ta_pending_reqs.begin(); it != ta_pending_reqs.end(); ++it) {
+		WRITELOG(XID, DBG, "cofbase::ta_pending_request: xid=0x%x type=%d",
+				 (*it).first, (*it).second);
+	}
+#endif
+
+	return xid;
+}
+
+
+
+void
+crofbase::ta_rem_request(
+		uint32_t xid)
+{
+	ta_pending_reqs.erase(xid);
+	// this yields an exception if type wasn't stored in ta_pending_reqs
+}
+
+
+
+bool
+crofbase::ta_pending(
+		uint32_t xid, uint8_t type)
+{
+#ifndef NDEBUG
+	std::map<uint32_t, uint8_t>::iterator it;
+	for (it = ta_pending_reqs.begin(); it != ta_pending_reqs.end(); ++it) {
+		WRITELOG(XID, DBG, "cofbase::ta_pending_request: xid=0x%x type=%d",
+				 (*it).first, (*it).second);
+	}
+
+	WRITELOG(XID, DBG, "%s 0x%x %d %d",
+			(ta_pending_reqs.find(xid) != ta_pending_reqs.end()) ? "true" : "false",
+			xid, ta_pending_reqs[xid], (int)type);
+#endif
+
+	return((ta_pending_reqs[xid] == type) &&
+		   (ta_pending_reqs.find(xid) != ta_pending_reqs.end()));
+}
+
+
+
+bool
+crofbase::ta_active_xid(
+		uint32_t xid)
+{
+	return(ta_pending_reqs.find(xid) != ta_pending_reqs.end());
+}
+
+
+
+uint32_t
+crofbase::ta_new_async_xid()
+{
+#if 0
+	int count = xid_used_max;
+	// if xid_used is larger than xid_used_max, remove oldest entries
+	while ((xids_used.size() > xid_used_max) && (--count)) {
+		// do not remove xids from active transactions
+		if (!ta_active_xid(xids_used.front()))
+			xids_used.pop_front();
+	}
+
+	// allocate new xid not used before
+	crandom r(sizeof(uint32_t));
+	while (find(xids_used.begin(), xids_used.end(), r.uint32()) != xids_used.end())
+		r.rand(sizeof(uint32_t));
+
+	// store new allocated xid
+	xids_used.push_back(r.uint32());
+
+	return r.uint32();
+#endif
+
+	while (ta_pending_reqs.find(xid_start) != ta_pending_reqs.end())
+	{
+		xid_start++;
+	}
+
+	return xid_start;
+}
+
+
+
+bool
+crofbase::ta_validate(
+		cofpacket *pack)
+{
+		return ta_validate(be32toh(pack->ofh_header->xid), pack->ofh_header->type);
+}
+
+
+
+bool
+crofbase::ta_validate(
+		uint32_t xid,
+		uint8_t type) throw (eRofBaseXidInval)
+{
+	// check for pending transaction of type 'type'
+	if (!ta_pending(xid, type)) {
+		WRITELOG(XID, DBG, "no pending transaction");
+		throw eOFbaseXidInval();
+		//return false;
+	}
+
+	// delete transaction
+	ta_rem_request(xid);
+
+	return true;
+}
 
 
 
