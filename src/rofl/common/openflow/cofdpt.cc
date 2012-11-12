@@ -1016,12 +1016,12 @@ cofdpt::experimenter_rcvd(cofpacket *pack)
 }
 
 
+
 void
 cofdpt::role_reply_rcvd(cofpacket *pack)
 {
 	rofbase->handle_role_reply(this, pack);
 }
-
 
 
 
