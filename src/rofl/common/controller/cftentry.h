@@ -16,7 +16,7 @@
 extern "C" {
 #endif
 
-#include "openflow12.h"
+#include "../openflow/openflow12.h"
 #include <inttypes.h>
 #include <sys/time.h>
 #include <pthread.h>
@@ -34,11 +34,11 @@ extern "C" {
 #include "../thread_helper.h"
 //#include "../cfwdelem.h"
 
-#include "cofmatch.h"
-#include "cofaction.h"
-#include "cofinlist.h"
-#include "cofpacket.h"
-#include "cofinst.h"
+#include "../openflow/cofmatch.h"
+#include "../openflow/cofaction.h"
+#include "../openflow/cofinlist.h"
+#include "../openflow/cofpacket.h"
+#include "../openflow/cofinst.h"
 
 #include "../protocols/fetherframe.h"
 

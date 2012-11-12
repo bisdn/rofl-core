@@ -34,9 +34,7 @@ extern "C" {
 
 #include "ciosrv.h"
 #include "cerror.h"
-#include "cfwdtable.h"
 #include "cvastring.h"
-#include "cfibentry.h"
 #include "croflexp.h"
 #include "cphyport.h"
 #include "csocket.h"

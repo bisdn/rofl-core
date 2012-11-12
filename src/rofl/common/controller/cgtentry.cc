@@ -21,7 +21,7 @@ cgtentry::cgtentry(cgtentry_owner *owner) :
 cgtentry::cgtentry(
 		cgtentry_owner *owner,
 		cgttable *_grp_table,
-		struct ofp_group_mod *grp_mod) throw (eGroupEntryInval, eGroupEntryBadType, eActionBadOutPort) :
+		struct ofp_group_mod *grp_mod) throw (eGteInval, eGteBadType, eActionBadOutPort) :
 		owner(owner),
 		grp_table(_grp_table),
 		ref_count(0),
@@ -45,7 +45,7 @@ cgtentry::cgtentry(
 				cofbucket& bucket = (*it);
 				if (bucket.weight != 0)
 				{
-					throw eGroupEntryInval();
+					throw eGteInval();
 				}
 			}
 		}
@@ -56,12 +56,12 @@ cgtentry::cgtentry(
 		{
 			if (buckets.size() > 1)
 			{
-				throw eGroupEntryInval();
+				throw eGteInval();
 			}
 			cofbucket& bucket = buckets.front();
 			if (bucket.weight != 0)
 			{
-				throw eGroupEntryInval();
+				throw eGteInval();
 			}
 		}
 		break;
@@ -73,13 +73,13 @@ cgtentry::cgtentry(
 				cofbucket& bucket = (*it);
 				if (bucket.weight == 0)
 				{
-					throw eGroupEntryInval();
+					throw eGteInval();
 				}
 			}
 		}
 		break;
 	default:
-		throw eGroupEntryBadType();
+		throw eGteBadType();
 	}
 }
 

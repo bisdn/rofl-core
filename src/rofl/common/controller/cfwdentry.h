@@ -15,14 +15,14 @@ extern "C" {
 #include "endian_conversion.h"
 #endif
 
-#include "openflow/openflow12.h"
+#include "../openflow/openflow12.h"
 #ifdef __cplusplus
 }
 #endif
 
-#include "ciosrv.h"
-#include "cmacaddr.h"
-#include "cvastring.h"
+#include "../ciosrv.h"
+#include "../cmacaddr.h"
+#include "../cvastring.h"
 
 //#include "openflow/cofdpath.h"
 

@@ -868,7 +868,7 @@ cfwdelem::handle_group_mod(cofctl *ctl, cofpacket *pack)
 		send_error_message(ctl, pack->get_xid(), OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP,
 				pack->soframe(), pack->framelen());
 
-	} catch (eGroupEntryInval& e) {
+	} catch (eGteInval& e) {
 
 		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry is invalid", this);
@@ -876,7 +876,7 @@ cfwdelem::handle_group_mod(cofctl *ctl, cofpacket *pack)
 		send_error_message(ctl, pack->get_xid(), OFPET_GROUP_MOD_FAILED, OFPGMFC_INVALID_GROUP,
 				pack->soframe(), pack->framelen());
 
-	} catch (eGroupEntryBadType& e) {
+	} catch (eGteBadType& e) {
 
 		WRITELOG(CFWD, DBG, "cofctrl(%p)::handle_group_mod() "
 				"group entry with bad type", this);

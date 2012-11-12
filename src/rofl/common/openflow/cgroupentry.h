@@ -14,11 +14,11 @@
 #include "../cmemory.h"
 #include "../cvastring.h"
 
-#include "cgtentry.h"
 #include "cofmatch.h"
 #include "cofbclist.h"
 #include "cofinst.h"
 
+class eGroupEntryBase : public cerror {};
 class eGroupEntryOutOfMem : public eGroupEntryBase {}; // out of memory
 
 

@@ -23,14 +23,12 @@ extern "C" {
 #endif
 
 #include "../ciosrv.h"
-#include "../cfwdtable.h"
 #include "../cmemory.h"
 #include "../ciosrv.h"
 #include "../cerror.h"
 #include "../crofbase.h"
 #include "../cmemory.h"
 #include "../cvastring.h"
-#include "../cfibentry.h"
 #include "../cfsm.h"
 #include "../protocols/fetherframe.h"
 #include "../cxidstore.h"

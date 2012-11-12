@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "openflow12.h"
+#include "../openflow/openflow12.h"
 #include <inttypes.h>
 #include <sys/time.h>
 #ifdef __cplusplus
@@ -24,8 +24,8 @@ extern "C" {
 #include "../cmemory.h"
 #include "../cvastring.h"
 
-#include "cofbclist.h"
-#include "cofbucket.h"
+#include "../openflow/cofbclist.h"
+#include "../openflow/cofbucket.h"
 
 
 // forward declarations
@@ -35,9 +35,9 @@ class cgttable;
 class cgtentry_owner;
 
 // error classes
-class eGroupEntryBase : public cerror {};
-class eGroupEntryInval : public eGroupEntryBase {};
-class eGroupEntryBadType : public eGroupEntryBase {};
+class eGteBase : public cerror {};
+class eGteInval : public eGteBase {};
+class eGteBadType : public eGteBase {};
 
 //This include must go here due to some Exceptions defined within cgttable.h FIXME: define in another file?
 #include "cgttable.h"
@@ -54,8 +54,8 @@ public:
 		cgtentry_owner *owner,
 		cgttable *grp_table,
 		struct ofp_group_mod *grp_mod)
-			throw (eGroupEntryInval,
-					eGroupEntryBadType,
+			throw (eGteInval,
+					eGteBadType,
 					eActionBadOutPort);
 
 	/** destructor

@@ -16,8 +16,8 @@ extern "C" {
 }
 #endif
 
-#include "ciosrv.h"
-#include "cvastring.h"
+#include "../ciosrv.h"
+#include "../cvastring.h"
 
 class cfibentry_owner; // forward declaration
 

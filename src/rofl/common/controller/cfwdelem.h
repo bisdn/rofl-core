@@ -15,8 +15,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "openflow/openflow12.h"
-#include "openflow/openflow_rofl.h"
+#include "../openflow/openflow12.h"
+#include "../openflow/openflow_rofl.h"
 #include <endian.h>
 #include <string.h>
 #include <time.h>
@@ -29,36 +29,33 @@ extern "C" {
 }
 #endif
 
-#include "ciosrv.h"
-#include "cerror.h"
+#include "../ciosrv.h"
+#include "../cerror.h"
 #include "cfwdtable.h"
-#include "cvastring.h"
+#include "../cvastring.h"
 #include "cfibentry.h"
-#include "croflexp.h"
-#include "cphyport.h"
-#include "crofbase.h"
+#include "../croflexp.h"
+#include "../cphyport.h"
+#include "../crofbase.h"
 
 //#include "rofl/experimental/crib.h"
 #include "rofl/platform/unix/crandom.h"
 
-#include "openflow/cofpacket.h"
-#include "openflow/cofport.h"
-#include "openflow/cofinst.h"
-#include "openflow/cofinlist.h"
-#include "openflow/cofaction.h"
-#include "openflow/cofaclist.h"
-#include "openflow/cofmatch.h"
-#include "openflow/cfttable.h"
-#include "openflow/cgttable.h"
-#include "openflow/cftentry.h"
-#include "openflow/cflowentry.h"
-#include "openflow/cgroupentry.h"
-#include "openflow/cofstats.h"
-#include "openflow/extensions/cfsptable.h"
-#include "openflow/cfttable.h"
-#include "openflow/cgttable.h"
-#include "openflow/cftentry.h"
-#include "openflow/cgtentry.h"
+#include "../openflow/cofpacket.h"
+#include "../openflow/cofport.h"
+#include "../openflow/cofinst.h"
+#include "../openflow/cofinlist.h"
+#include "../openflow/cofaction.h"
+#include "../openflow/cofaclist.h"
+#include "../openflow/cofmatch.h"
+#include "cfttable.h"
+#include "cgttable.h"
+#include "cftentry.h"
+#include "cgtentry.h"
+#include "../openflow/cflowentry.h"
+#include "../openflow/cgroupentry.h"
+#include "../openflow/cofstats.h"
+#include "../openflow/extensions/cfsptable.h"
 
 
 

@@ -15,7 +15,7 @@ extern "C" {
 
 #include <sys/types.h>
 #include <inttypes.h>
-#include "openflow/openflow12.h"
+#include "../openflow/openflow12.h"
 
 #include <endian.h>
 #ifndef htobe16
@@ -27,14 +27,14 @@ extern "C" {
 }
 #endif
 
-#include "cmacaddr.h"
-#include "cerror.h"
+#include "../cmacaddr.h"
+#include "../cerror.h"
 #include "cfwdtable.h"
 #include "cfwdentry.h"
-#include "cvastring.h"
+#include "../cvastring.h"
 
-#include "protocols/fetherframe.h"
-#include "protocols/fvlanframe.h"
+#include "../protocols/fetherframe.h"
+#include "../protocols/fvlanframe.h"
 
 #include "rofl/platform/unix/csyslog.h"
 

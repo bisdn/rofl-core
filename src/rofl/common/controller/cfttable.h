@@ -22,11 +22,11 @@ extern "C" {
 #include "../ciosrv.h"
 #include "../cerror.h"
 #include "../cvastring.h"
-#include "../cfwdelem.h"
+#include "cfwdelem.h"
 #include "../thread_helper.h"
 
 
-#include "cofpacket.h"
+#include "../openflow/cofpacket.h"
 #include "cftentry.h"
 
 #if 0

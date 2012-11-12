@@ -103,7 +103,7 @@ cgtentry*
 cgttable::add_gt_entry(
 		cgtentry_owner* owner,
 		struct ofp_group_mod *grp_mod) throw (eGroupTableExists,
-												eGroupEntryInval,
+												eGteInval,
 												eActionBadOutPort,
 												eGroupTableLoopDetected)
 {
@@ -113,7 +113,7 @@ cgttable::add_gt_entry(
 
 	if (OFPG_MAX < be32toh(grp_mod->group_id))
 	{
-		throw eGroupEntryInval();
+		throw eGteInval();
 	}
 
 	if (grp_table.find(be32toh(grp_mod->group_id)) != grp_table.end())
@@ -138,11 +138,11 @@ cgttable::add_gt_entry(
 cgtentry*
 cgttable::modify_gt_entry(
 		cgtentry_owner *owner,
-		struct ofp_group_mod *grp_mod) throw (eGroupEntryInval, eGroupTableModNonExisting, eGroupTableLoopDetected)
+		struct ofp_group_mod *grp_mod) throw (eGteInval, eGroupTableModNonExisting, eGroupTableLoopDetected)
 {
 	if (OFPG_MAX < be32toh(grp_mod->group_id))
 	{
-		throw eGroupEntryInval();
+		throw eGteInval();
 	}
 
 	if (grp_table.find(be32toh(grp_mod->group_id)) == grp_table.end())
@@ -175,7 +175,7 @@ cgttable::modify_gt_entry(
 cgtentry*
 cgttable::rem_gt_entry(
 		cgtentry_owner *owner,
-		struct ofp_group_mod *grp_mod) throw (eGroupEntryInval, eGroupTableNotFound)
+		struct ofp_group_mod *grp_mod) throw (eGteInval, eGroupTableNotFound)
 {
 	if (OFPG_ALL == be32toh(grp_mod->group_id))
 	{
@@ -197,7 +197,7 @@ cgttable::rem_gt_entry(
 
 		if (OFPG_MAX < be32toh(grp_mod->group_id))
 		{
-			throw eGroupEntryInval();
+			throw eGteInval();
 		}
 
 		if (grp_table.find(be32toh(grp_mod->group_id)) == grp_table.end())

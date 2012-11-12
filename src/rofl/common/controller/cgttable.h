@@ -13,7 +13,7 @@
 //#include "../cfwdelem.h" 
 
 #include "cgtentry.h"
-#include "cofpacket.h"
+#include "../openflow/cofpacket.h"
 #include "cftentry.h"
 
 /* forward declaration */
@@ -107,7 +107,7 @@ public:
 	add_gt_entry(
 			cgtentry_owner *owner,
 			struct ofp_group_mod *grp_mod) throw (eGroupTableExists,
-													eGroupEntryInval,
+													eGteInval,
 													eActionBadOutPort,
 													eGroupTableLoopDetected);
 
@@ -117,7 +117,7 @@ public:
 	cgtentry*
 	modify_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod) throw (eGroupEntryInval,
+			struct ofp_group_mod *grp_mod) throw (eGteInval,
 													eGroupTableModNonExisting,
 													eGroupTableLoopDetected);
 
@@ -127,7 +127,7 @@ public:
 	cgtentry*
 	rem_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod) throw (eGroupEntryInval,
+			struct ofp_group_mod *grp_mod) throw (eGteInval,
 													eGroupTableNotFound);
 
 
