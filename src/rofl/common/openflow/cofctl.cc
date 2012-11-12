@@ -26,6 +26,8 @@ cofctl::cofctl(
 {
 	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
 
+	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
+
 	rofbase->handle_ctl_open(this);
 }
 
@@ -77,6 +79,16 @@ cofctl::send_message(
 	case OFPT_ERROR:
 		{
 			// ...
+		}
+		break;
+	case OFPT_ECHO_REQUEST:
+		{
+			echo_request_sent(pack);
+		}
+		break;
+	case OFPT_ECHO_REPLY:
+		{
+			// do nothing here
 		}
 		break;
 	case OFPT_EXPERIMENTER:
@@ -192,6 +204,8 @@ cofctl::handle_connected(
 		int sd)
 {
 	rofbase->handle_ctl_open(this);
+
+	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
 }
 
 

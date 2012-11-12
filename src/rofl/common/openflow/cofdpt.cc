@@ -37,6 +37,8 @@ cofdpt::cofdpt(
 	register_timer(COFDPT_TIMER_FEATURES_REQUEST, 0);
 
 	new_state(COFDPT_STATE_WAIT_FEATURES);
+
+	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
 }
 
 
@@ -109,9 +111,11 @@ cofdpt::handle_connected(
 		csocket *socket,
 		int sd)
 {
+	new_state(COFDPT_STATE_WAIT_FEATURES);
+
 	rofbase->send_features_request(this);
 
-	new_state(COFDPT_STATE_WAIT_FEATURES);
+	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
 }
 
 
@@ -487,7 +491,7 @@ cofdpt::handle_timeout(int opaque)
 			}
 		}
 		break;
-	case COFDPT_TIMER_ECHO_REQUEST:
+	case COFDPT_TIMER_SEND_ECHO_REQUEST:
 		{
 			rofbase->send_echo_request(this);
 		}
@@ -573,7 +577,7 @@ void
 cofdpt::echo_reply_rcvd(cofpacket *pack)
 {
 	cancel_timer(COFDPT_TIMER_ECHO_REPLY);
-	register_timer(COFDPT_TIMER_ECHO_REQUEST, rpc_echo_interval);
+	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
 }
 
 

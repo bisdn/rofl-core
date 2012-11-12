@@ -95,6 +95,7 @@ private:
 			COFDPT_TIMER_LLDP_SEND_DISC 	= ((COFDPT_TIMER_BASE) << 16 | (0x0a << 8)),
 			COFDPT_TIMER_ECHO_REQUEST		= ((COFDPT_TIMER_BASE) << 16 | (0x0b << 8)),
 			COFDPT_TIMER_ECHO_REPLY			= ((COFDPT_TIMER_BASE) << 16 | (0x0c << 8)),
+			COFDPT_TIMER_SEND_ECHO_REQUEST	= ((COFDPT_TIMER_BASE) << 16 | (0x0d << 8)),
 		};
 
 		/* cofdpt state types */
