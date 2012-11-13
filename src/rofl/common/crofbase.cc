@@ -150,7 +150,7 @@ crofbase::handle_ctl_close(
 		cofctl *ctl)
 {
 	handle_ctrl_close(ctl);
-	if (ofctl_set.find(ctl) == ofctl_set.end())
+	if (ofctl_set.find(ctl) != ofctl_set.end())
 	{
 		delete ctl;
 		ofctl_set.erase(ctl);
