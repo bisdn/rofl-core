@@ -127,7 +127,7 @@ crofbase::handle_dpt_close(
 		cofdpt *dpt)
 {
 	handle_dpath_close(dpt);
-	if (ofdpt_set.find(dpt) == ofdpt_set.end())
+	if (ofdpt_set.find(dpt) != ofdpt_set.end())
 	{
 		delete dpt;
 		ofdpt_set.erase(dpt);

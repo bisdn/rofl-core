@@ -943,7 +943,7 @@ void
 cofdpt::packet_in_rcvd(cofpacket *pack)
 {
 	try {
-		WRITELOG(COFDPT, DBG, "cofdpt(0x%llx)::packet_in_rcvd() %s", dpid, pack->c_str());
+		WRITELOG(COFDPT, DBG, "cofdpt(%p)::packet_in_rcvd() %s", this, pack->c_str());
 
 #if 0
 		// update forwarding table
@@ -1000,12 +1000,14 @@ cofdpt::port_status_rcvd(cofpacket *pack)
 	case OFPPR_DELETE:
 		if (ports.find(be32toh(pack->ofh_port_status->desc.port_no)) != ports.end())
 		{
+			uint32_t port_no = be32toh(pack->ofh_port_status->desc.port_no);
 			// let derived class handle PORT-STATUS message
-			rofbase->handle_port_status(this, pack, ports[be32toh(pack->ofh_port_status->desc.port_no)]);
+			rofbase->handle_port_status(this, pack, ports[port_no]);
 
-			delete ports[be32toh(pack->ofh_port_status->desc.port_no)];
+			// do not access pack here, as it was already deleted by rofbase->handle_port_status() !!!
+			delete ports[port_no];
 
-			ports.erase(be32toh(pack->ofh_port_status->desc.port_no));
+			ports.erase(port_no);
 		}
 		break;
 	case OFPPR_MODIFY:
