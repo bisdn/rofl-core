@@ -6,6 +6,8 @@
 
 extern char* optarg;
 
+/* static */const std::string daemon_dir("/var/tmp");
+
 /* Carg stuff */
 coption::coption(bool optional, 
 		int value_type,
@@ -55,6 +57,7 @@ cunixenv::cunixenv()
 {
 	/*Push default arguments */
 	arguments.push_back(coption(true,REQUIRED_ARGUMENT,'d',"debug","debug level",std::string(""+(int)csyslog::EMERGENCY)));
+	arguments.push_back(coption(true,REQUIRED_ARGUMENT,'l',"logfile","log file",std::string(LOGFILE_DEFAULT)));
 	arguments.push_back(coption(true,NO_ARGUMENT,'h',"help","Help message",""));
 	arguments.push_back(coption(false,REQUIRED_ARGUMENT,'c',"config-file","Config file","./default-cli.cfg"));
 	arguments.push_back(coption(true, NO_ARGUMENT,'D',"daemonize","Daemonize process",""));
@@ -100,6 +103,16 @@ cunixenv::usage(
 	exit(0);
 }
 
+void
+cunixenv::update_default_option(const std::string &option_name, const std::string &value)
+{
+	for(std::vector<coption>::iterator it = this->arguments.begin(); it != this->arguments.end(); ++it) {
+		if ( 0 == (*it).full_name.compare(option_name) ) {
+			(*it).current_value = value;
+			(*it).default_value = value;
+		}
+	}
+}
 
 void
 cunixenv::parse_args(
@@ -127,6 +140,8 @@ cunixenv::parse_args(
 	
 	}
 
+	bool do_detach = false;
+
 	//fprintf(stderr,"Using the following format-> %s \n",format.c_str());	
 	while(true){
 	
@@ -140,7 +155,7 @@ cunixenv::parse_args(
 				if(c == 'h')
 					usage(argv[0]);
 				else if(c == 'D')	
-					detach();
+					do_detach = true;
 				continue;
 			}
 		}
@@ -149,6 +164,11 @@ cunixenv::parse_args(
 	//free calloc
 	free(long_options);	
 	parsed = true;
+
+	// call detach when all args parsed
+	if (do_detach) {
+		detach();
+	}
 }
 
 void cunixenv::add_option(const coption &arg){
@@ -179,6 +199,57 @@ std::string cunixenv::get_arg(char shortcut){
 	throw std::runtime_error("Unknown argument");
 }
 
+bool
+cunixenv::is_arg_set(const std::string &name)
+{
+	if(!parsed)
+		throw std::runtime_error("Args not yet parsed. use parse_args()");
+
+	for(std::vector<coption>::iterator it = this->arguments.begin(); it != this->arguments.end(); ++it){
+		if( 0 == (*it).full_name.compare(name)) {
+			return (*it).is_present();
+		}
+	}
+
+	return false;
+}
+
+void
+cunixenv::update_paths()
+{
+	char *ptr = getcwd(NULL, 0);
+	std::string wd(ptr);
+	free(ptr);
+	wd.append("/");
+
+	for(std::vector<coption>::iterator it = this->arguments.begin(); it != this->arguments.end(); ++it) {
+		switch ((*it).shortcut) {
+		case 'c':
+			// check if its already an absolute path
+			if ((*it).current_value.length() && '/' != (*it).current_value[0]) {
+				(*it).current_value.insert(0, wd);
+			}
+			break;
+		case 'l':
+			if ( 0 == (*it).current_value.compare((*it).default_value) ) {
+				// still the default dir
+				std::string tmp(daemon_dir);
+				tmp.append("/");
+				(*it).current_value.insert(0, tmp);
+			} else if ((*it).current_value.length() && '/' != (*it).current_value[0]) {
+				// not an absolute path
+				(*it).current_value.insert(0, wd);
+			} else {
+				exit(-1);
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+// todo this belongs rather to ciosrv than here. though needs refactoring
 void
 cunixenv::detach()
 {
@@ -201,18 +272,25 @@ cunixenv::detach()
 		exit(-1);
 	}
 
-
-	// redirect stdout, stderr
-	csyslog::initlog(csyslog::LOGTYPE_FILE); 	// reinitialize logging to logtype file
-
-	dup2(STDOUT_FILENO, csyslog::getfd()); // redirect stdout
-	dup2(STDERR_FILENO, csyslog::getfd()); // redirect stderr
+	update_paths();
 
 	// set file mask
 	umask(027);
 
+	// redirect stdout, stderr
+	csyslog::initlog(csyslog::LOGTYPE_FILE,
+			static_cast<csyslog::DebugLevel>(atoi(get_arg("debug").c_str())),
+			get_arg("logfile")
+			); 	// reinitialize logging to logtype file
+
+	fflush(stdout);
+	dup2(csyslog::getfd(), STDOUT_FILENO); // redirect stdout
+
+	fflush(stderr);
+	dup2(csyslog::getfd(), STDERR_FILENO); // redirect stderr
+
 	// change working directory
-	if (chdir("/var/tmp") < 0)
+	if (chdir(daemon_dir.c_str()) < 0)
 	{
 		fprintf(stderr, "chdir() sys-call failed: %d (%s)\n", errno, strerror(errno));
 		exit(-1);

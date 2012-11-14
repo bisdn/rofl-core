@@ -95,7 +95,21 @@ public:
 
 	std::string get_arg(const char shortcut);
 
+	bool
+	is_arg_set(const std::string &name);
+
+	void
+	update_default_option(const std::string &option_name, const std::string &value);
+
 private:
+
+	/**
+	 * update paths for files so they are still usable in detached mode (called from detach())
+	 */
+	void
+	update_paths();
+
+	static const std::string deamon_dir;
 
 	std::vector<coption> arguments;
 

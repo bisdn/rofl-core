@@ -70,6 +70,7 @@ csyslog::initlog(
 
 	init_level_names();
 	init_class_names();
+	puts("inited");
 }
 
 void
@@ -157,8 +158,10 @@ csyslog::flushlog()
 int
 csyslog::getfd()
 {
-	if (!filestream)
+	if (!filestream) {
+		puts("mimimi");
 		return -1;
+	}
 	return fileno(filestream);
 }
 
