@@ -60,6 +60,7 @@ public: // per instance
 			cofmatch const& m,
 			bool strict = true /*strict*/) throw (eFspEntryNotFound);
 
+
 	/** drop all namespace entries for cofctrl
 	 *
 	 */
@@ -67,11 +68,30 @@ public: // per instance
 	delete_fsp_entries(
 			cfspentry_owner* fspowner);
 
+
 	/** find matching entries
 	 * returns an ordered list of cnsentry objects, first object was best match
 	 */
 	std::set<cfspentry*>
 	find_matching_entries(
+			uint32_t in_port,
+			uint32_t total_len,
+			cpacket& pack) throw (eFspNoMatch, eFrameInvalidSyntax);
+
+
+	/** find matching entries
+	 * returns an ordered list of cnsentry objects, first object was best match
+	 */
+	std::set<cfspentry*>
+	find_matching_entries(
+			cofmatch& match) throw (eFspNoMatch, eFrameInvalidSyntax);
+
+
+	/**
+	 *
+	 */
+	cfspentry*
+	find_best_entry(
 			uint32_t in_port,
 			uint32_t total_len,
 			cpacket& pack) throw (eFspNoMatch, eFrameInvalidSyntax);

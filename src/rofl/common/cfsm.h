@@ -5,7 +5,6 @@
 #ifndef CFSM_H
 #define CFSM_H 1
 
-#include <list>
 #include <string>
 
 #ifndef __cplusplus
@@ -55,8 +54,6 @@ protected:
 	/** dump internal state
 	 */
 	const char* c_str();
-
-	std::list<int> fsm_state_history; // history of states
 
 	int fsm_state; // current state
 };

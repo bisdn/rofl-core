@@ -158,6 +158,25 @@ public: // methods offered to cadapt instances by cadapt_owner
 		 *
 		 */
 		virtual void
+		ctl_handle_flow_removed(
+				cadapt_dpt *dpt,
+				uint64_t cookie,
+				uint16_t priority,
+				uint8_t reason,
+				uint8_t table_id,
+				uint32_t duration_sec,
+				uint32_t duration_nsec,
+				uint16_t idle_timeout,
+				uint16_t hard_timeout,
+				uint64_t packet_count,
+				uint64_t byte_count,
+				cofmatch& match) = 0;
+
+
+		/**
+		 *
+		 */
+		virtual void
 		ctl_handle_stats_reply(
 				cadapt_dpt *dpt,
 				uint32_t xid,

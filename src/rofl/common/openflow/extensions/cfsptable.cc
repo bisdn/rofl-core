@@ -171,6 +171,99 @@ cfsptable::find_matching_entries(
 }
 
 
+
+
+std::set<cfspentry*>
+cfsptable::find_matching_entries(
+		cofmatch& match) throw (eFspNoMatch, eFrameInvalidSyntax)
+{
+	std::set<cfspentry*> nse_list;
+
+	WRITELOG(CNAMESPACE, DBG, "cfsptable(%p)::find_matching_entries() \n"
+			"  match: %s\n  fsptable: %s", this, match.c_str(), c_str());
+
+	uint16_t exact_hits = 0;
+	uint16_t wildcard_hits = 0;
+
+	std::set<cfspentry*>::iterator it;
+	for (it = fsp_table.begin(); it != fsp_table.end(); ++it)
+	{
+		uint16_t __exact_hits = 0;
+		uint16_t __wildcard_hits = 0;
+		uint16_t __misses = 0;
+
+		//pack.calc_hits((*it)->ofmatch, __exact_hits, __wildcard_hits, __misses);
+		(*it)->ofmatch.is_matching(match, __exact_hits, __wildcard_hits, __misses);
+
+		if ((__exact_hits < exact_hits) || (__misses > 0))
+		{
+			WRITELOG(CNAMESPACE, DBG, "cfsptable(%p)::find_matching_entries() ignoring flowspace", this);
+
+			continue;
+		}
+		else if (__exact_hits > exact_hits)
+		{
+			nse_list.clear();
+			nse_list.insert(*it);
+			exact_hits = __exact_hits;
+			wildcard_hits = __wildcard_hits;
+
+			WRITELOG(CNAMESPACE, DBG, "cfsptable(%p)::find_matching_entries() new best match: %s", this, (*it)->ofmatch.c_str());
+		}
+		else if (__exact_hits == exact_hits)
+		{
+			if (__wildcard_hits < wildcard_hits)
+			{
+				continue;
+			}
+			else if (__wildcard_hits > wildcard_hits)
+			{
+				nse_list.clear();
+				nse_list.insert(*it);
+
+				wildcard_hits = __wildcard_hits;
+
+				WRITELOG(CNAMESPACE, DBG, "cfsptable(%p)::find_matching_entries() new best match: %s", this, (*it)->ofmatch.c_str());
+			}
+			else if (__wildcard_hits == wildcard_hits)
+			{
+				nse_list.insert(*it);
+				WRITELOG(CNAMESPACE, DBG, "cfsptable(%p)::find_matching_entries() same best match", this);
+			}
+		}
+	}
+
+
+	if (nse_list.empty())
+	{
+		throw eFspNoMatch();
+	}
+
+	WRITELOG(CNAMESPACE, DBG, "cfsptable(%p)::find_matching_entries()"
+			" fsp-entries list =>", this);
+
+	for (std::set<cfspentry*>::iterator
+			it = nse_list.begin(); it != nse_list.end(); ++it)
+	{
+		WRITELOG(CNAMESPACE, DBG, "==> %s", (*it)->c_str());
+	}
+
+	return nse_list;
+}
+
+
+
+cfspentry*
+cfsptable::find_best_entry(
+		uint32_t in_port,
+		uint32_t total_len,
+		cpacket& pack) throw (eFspNoMatch, eFrameInvalidSyntax)
+{
+	return 0;
+}
+
+
+
 void
 cfsptable::flow_mod_allowed(
 		cfspentry_owner *fspowner,

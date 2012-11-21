@@ -203,6 +203,32 @@ protected:
 
 
 	/**
+	 * @name	handle_flow_rmvd
+	 * @brief 	Handle a flow-rmvd from one of the registered adapters.
+	 *
+	 * This method must be overwritten by the derived transport controller.
+	 * It is called by ctlbase when a packet-in was received from one
+	 * of the registered adapters.
+	 *
+	 */
+	virtual void
+	handle_flow_rmvd(
+			cadapt *adapt,
+			cofmatch& ofmatch,
+			uint64_t cookie,
+			uint16_t priority,
+			uint8_t reason,
+			uint8_t table_id,
+			uint32_t duration_sec,
+			uint32_t duration_nsec,
+			uint16_t idle_timeout,
+			uint16_t hard_timeout,
+			uint64_t packet_count,
+			uint64_t byte_count) = 0;
+
+
+
+	/**
 	 * @name	handle_stats_reply
 	 * @brief 	Handle a stats-reply from one of the registered adapters.
 	 *
@@ -511,6 +537,17 @@ protected:
 	handle_stats_reply_timeout(cofdpt *sw, uint32_t xid);
 
 
+	/** Handle OF packet-out messages. To be overwritten by derived class.
+	 *
+	 * Called upon reception of a PACKET-OUT.message from the controlling entity.
+	 * The OF packet must be removed from heap by the overwritten method.
+	 *
+	 * @param pack PACKET-OUT.message packet received from controller.
+	 */
+	virtual void
+	handle_packet_out(cofctl *ofctrl, cofpacket *pack);
+
+
 	/** Handle OF packet-in messages. To be overwritten by derived class.
 	 *
 	 * Called upon reception of a PACKET-IN.message from a datapath entity.
@@ -554,7 +591,18 @@ protected:
 	 * @param pack ERROR.message packet received from datapath
 	 */
 	virtual void
-	handle_error(cofdpt *sw, cofpacket *pack);
+	handle_error(cofdpt *dpt, cofpacket *pack);
+
+
+	/** Handle OF flow-mod message. To be overwritten by derived class.
+	 *
+	 * Called upon reception of a FLOW-MOD.message from the controlling entity.
+	 * The OF packet must be removed from heap by the overwritten method.
+	 *
+	 * @param pack FLOW-MOD.message packet received from controller.
+	 */
+	virtual void
+	handle_flow_mod(cofctl *ctl, cofpacket *pack);
 
 
 	/** Handle OF port-status message. To be overwritten by derived class.
@@ -566,7 +614,7 @@ protected:
 	 * @param pack PORT-STATUS.message packet received from datapath
 	 */
 	virtual void
-	handle_port_status(cofdpt *sw, cofpacket *pack, cofport *port);
+	handle_port_status(cofdpt *dpt, cofpacket *pack, cofport *port);
 
 
 	/** Handle new dpath
@@ -656,6 +704,25 @@ public:
 				uint8_t reason,
 				cofmatch& match,
 				cpacket& pack);
+
+
+		/**
+		 *
+		 */
+		virtual void
+		ctl_handle_flow_removed(
+				cadapt_dpt *dpt,
+				uint64_t cookie,
+				uint16_t priority,
+				uint8_t reason,
+				uint8_t table_id,
+				uint32_t duration_sec,
+				uint32_t duration_nsec,
+				uint16_t idle_timeout,
+				uint16_t hard_timeout,
+				uint64_t packet_count,
+				uint64_t byte_count,
+				cofmatch& match);
 
 
 		/**

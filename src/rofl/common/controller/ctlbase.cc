@@ -294,6 +294,28 @@ ctlbase::handle_stats_reply_timeout(
 
 
 void
+ctlbase::handle_packet_out(
+		cofctl *ctl,
+		cofpacket *pack)
+{
+	/*
+	 * TODO: check Packet-Out with FSP registration
+	 */
+	// ...
+
+
+	ctlbase::send_packet_out_message(
+			be32toh(pack->ofh_packet_out->buffer_id),
+			be32toh(pack->ofh_packet_out->in_port),
+			pack->actions,
+			new cpacket(pack->packet));
+
+	delete pack;
+}
+
+
+
+void
 ctlbase::handle_barrier_reply(
 		cofdpt *sw,
 		cofpacket *pack)
@@ -340,6 +362,38 @@ ctlbase::handle_error(
 {
 
 }
+
+
+
+void
+ctlbase::handle_flow_mod(
+		cofctl *ctl,
+		cofpacket *pack)
+{
+	/*
+	 * TODO: check Packet-Out with FSP registration
+	 */
+	// ...
+
+
+	ctlbase::send_flow_mod_message(
+			pack->match,
+			be64toh(pack->ofh_flow_mod->cookie),
+			be64toh(pack->ofh_flow_mod->cookie_mask),
+			pack->ofh_flow_mod->table_id,
+			pack->ofh_flow_mod->command,
+			be16toh(pack->ofh_flow_mod->idle_timeout),
+			be16toh(pack->ofh_flow_mod->hard_timeout),
+			be16toh(pack->ofh_flow_mod->priority),
+			be32toh(pack->ofh_flow_mod->buffer_id),
+			be32toh(pack->ofh_flow_mod->out_port),
+			be32toh(pack->ofh_flow_mod->out_group),
+			be16toh(pack->ofh_flow_mod->flags),
+			pack->instructions);
+
+	delete pack;
+}
+
 
 
 /*
@@ -719,17 +773,144 @@ ctlbase::ctl_handle_packet_in(
 		return;
 	}
 
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_packet_in() "
-			"match: %s\npack:%s", dpname.c_str(), match.c_str(), pack.c_str());
+	try {
 
-	handle_packet_in(
-			adapt,
-			buffer_id,
-			total_len,
-			table_id,
-			reason,
-			match,
-			pack); // let derived transport controller handle incoming packet
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_packet_in() "
+				"match: %s\npack:%s", dpname.c_str(), match.c_str(), pack.c_str());
+
+		/*
+		 * check whether the Packet-In matches any registered ctlEP (=FSP registration)
+		 */
+		std::set<cfspentry*> entries = crofbase::fsptable.find_matching_entries(match.get_in_port(), total_len, pack);
+
+		for (std::set<cfspentry*>::iterator
+				it = entries.begin(); it != entries.end(); ++it)
+		{
+			cofctl *ctl = dynamic_cast<cofctl*>( (*it) );
+			if (0 == ctl)
+			{
+				continue;
+			}
+			try {
+				WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_packet_in() "
+						"sending Packet-In to ctl: %s", dpname.c_str(), ctl->c_str());
+
+				send_packet_in_message(buffer_id, total_len, reason, table_id, match, pack.soframe(), pack.framelen());
+			} catch (eRofBaseNoCtrl& e) {}
+		}
+
+	} catch (eFspNoMatch& e) {
+
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_packet_in() "
+				"calling local forwarding engine", dpname.c_str());
+
+		// no control endpoints matched received packet, hand it over to forwarding engine
+		handle_packet_in(
+				adapt,
+				buffer_id,
+				total_len,
+				table_id,
+				reason,
+				match,
+				pack); // let derived transport controller handle incoming packet
+
+	} catch (eFrameInvalidSyntax& e) {
+
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_packet_in() "
+				"frame with invalid syntax, dropping", dpname.c_str());
+
+	}
+}
+
+
+
+void
+ctlbase::ctl_handle_flow_removed(
+		cadapt_dpt *dpt,
+		uint64_t cookie,
+		uint16_t priority,
+		uint8_t reason,
+		uint8_t table_id,
+		uint32_t duration_sec,
+		uint32_t duration_nsec,
+		uint16_t idle_timeout,
+		uint16_t hard_timeout,
+		uint64_t packet_count,
+		uint64_t byte_count,
+		cofmatch& match)
+{
+	cadapt* adapt = dynamic_cast<cadapt*>( dpt );
+
+	if (0 == adapt)
+	{
+		return;
+	}
+
+	try {
+
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_flow_removed() "
+				"match: %s", dpname.c_str(), match.c_str());
+
+		/*
+		 * check whether the Flow-Removed matches any registered ctlEP (=FSP registration)
+		 */
+		std::set<cfspentry*> entries = crofbase::fsptable.find_matching_entries(match);
+
+		for (std::set<cfspentry*>::iterator
+				it = entries.begin(); it != entries.end(); ++it)
+		{
+			cofctl *ctl = dynamic_cast<cofctl*>( (*it) );
+			if (0 == ctl)
+			{
+				continue;
+			}
+			try {
+				WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_flow_removed() "
+						"sending Flow-Removed to ctl: %s", dpname.c_str(), ctl->c_str());
+
+				send_flow_removed_message(
+						ctl,
+						match,
+						cookie,
+						priority,
+						reason,
+						table_id,
+						duration_sec,
+						duration_nsec,
+						idle_timeout,
+						hard_timeout,
+						packet_count,
+						byte_count);
+
+			} catch (eRofBaseNoCtrl& e) {}
+		}
+
+	} catch (eFspNoMatch& e) {
+
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_flow_removed() "
+				"calling local forwarding engine", dpname.c_str());
+
+		// no control endpoints matched received packet, hand it over to forwarding engine
+		handle_flow_rmvd(
+				adapt,
+				match,
+				cookie,
+				priority,
+				reason,
+				table_id,
+				duration_sec,
+				duration_nsec,
+				idle_timeout,
+				hard_timeout,
+				packet_count,
+				byte_count); // let derived transport controller handle incoming packet
+
+	} catch (eFrameInvalidSyntax& e) {
+
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_flow_removed() "
+				"frame with invalid syntax, dropping", dpname.c_str());
+
+	}
 }
 
 
