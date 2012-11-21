@@ -157,6 +157,20 @@ protected:
 	 */
 
 
+	/** Handle OF features request. To be overwritten by derived class.
+	 *
+	 * OF FEATURES.requests are handled by the crofbase base class in method
+	 * crofbase::send_features_reply(). However,
+	 * this method handle_features_request() may be overloaded by a derived class to get a notification
+	 * upon reception of a FEATURES.request from the controlling entity.
+	 * Default behaviour is to remove the packet from the heap.
+	 * The OF packet must be removed from heap by the overwritten method.
+	 *
+	 * @param pack OF packet received from controlling entity.
+	 */
+	virtual void
+	handle_features_request(cofctl *ofctrl, cofpacket *pack);
+
 
 	/**
 	 * @name	handle_port_status

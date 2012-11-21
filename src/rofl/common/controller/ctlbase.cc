@@ -170,9 +170,9 @@ ctlbase::stack_unload(
 
 void
 ctlbase::handle_dpath_open(
-		cofdpt *dpath)
+		cofdpt *dpt)
 {
-	if ((0 == dpath) || (dpath->dpid != lldpid))
+	if ((0 == dpt) || (dpt->dpid != lldpid))
 	{
 		return;
 	}
@@ -181,11 +181,11 @@ ctlbase::handle_dpath_open(
 	 * domain, i.e. we can only use a single data path for now.
 	 * This is going to change.
 	 */
-	this->dpath = dpath;
+	this->dpath = dpt;
 
 	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_open() => "
 			"adapters: %d #ports-on-dpt: %d\ndpath: %s ",
-			dpname.c_str(), adstacks.size(), dpath->ports.size(), dpath->c_str());
+			dpname.c_str(), adstacks.size(), dpt->ports.size(), dpt->c_str());
 
 	/*
 	 * inform adapters about existence of our layer (n-1) datapath
@@ -196,7 +196,7 @@ ctlbase::handle_dpath_open(
 		std::list<cadapt*>& stack = it->second;
 
 		for (std::map<uint32_t, cofport*>::iterator
-				jt = dpath->ports.begin(); jt != dpath->ports.end(); ++jt)
+				jt = dpt->ports.begin(); jt != dpt->ports.end(); ++jt)
 		{
 			stack.back()->ctl_handle_port_status(this, OFPPR_ADD, jt->second);
 		}
@@ -370,6 +370,9 @@ ctlbase::handle_flow_mod(
 		cofctl *ctl,
 		cofpacket *pack)
 {
+	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_flow_mod() "
+			"pack: %s", dpname.c_str(), pack->c_str());
+
 	/*
 	 * TODO: check Packet-Out with FSP registration
 	 */
@@ -548,6 +551,39 @@ ctlbase::fsp_open(
 	}
 
 	dpath->fsp_open(match);
+}
+
+
+
+void
+ctlbase::handle_features_request(cofctl *ofctrl, cofpacket *request)
+{
+ 	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_features_request()", dpname.c_str());
+
+
+ 	cmemory body(adports.size() * sizeof(struct ofp_port));
+
+ 	struct ofp_port *port = (struct ofp_port*)body.somem();
+
+ 	for (std::map<uint32_t, cofport*>::iterator
+ 			it = adports.begin(); it != adports.end(); ++it)
+ 	{
+ 		it->second->pack(port, sizeof(struct ofp_port));
+ 		WRITELOG(CFWD, DBG, "==> %s", it->second->c_str());
+ 		port++;
+ 	}
+
+ 	send_features_reply(
+ 			ofctrl,
+ 			request->get_xid(),
+ 			dpid,
+ 			n_buffers,
+ 			n_tables,
+ 			capabilities,
+ 			body.somem(),
+ 			body.memlen());
+
+ 	delete request;
 }
 
 
@@ -758,6 +794,10 @@ ctlbase::ctl_handle_port_status(
 	for (std::set<cofctl*>::iterator
 			it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
 	{
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_port_status() "
+				"sending to ctl: %s\n"
+				"ctlbase: %s", dpname.c_str(), (*it)->c_str());
+
 		send_port_status_message(reason, ofport);
 	}
 }
@@ -794,14 +834,14 @@ ctlbase::ctl_handle_packet_in(
 		for (std::set<cfspentry*>::iterator
 				it = entries.begin(); it != entries.end(); ++it)
 		{
-			cofctl *ctl = dynamic_cast<cofctl*>( (*it) );
+			cofctl *ctl = dynamic_cast<cofctl*>( (*it)->fspowner );
 			if (0 == ctl)
 			{
 				continue;
 			}
 			try {
 				WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_packet_in() "
-						"sending Packet-In to ctl: %s", dpname.c_str(), ctl->c_str());
+						"sending PACKET-IN to ctl: %s", dpname.c_str(), ctl->c_str());
 
 				send_packet_in_message(buffer_id, total_len, reason, table_id, match, pack.soframe(), pack.framelen());
 			} catch (eRofBaseNoCtrl& e) {}

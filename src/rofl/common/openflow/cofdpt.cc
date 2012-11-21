@@ -609,8 +609,8 @@ cofdpt::features_reply_rcvd(
 
 
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() "
-				"dpid:%"UINT64DBGFMT" ",
-				this, dpid);
+				"dpid:%"UINT64DBGFMT" pack:%s",
+				this, dpid, pack->c_str());
 
 
 		cofport::ports_parse(ports, pack->ofh_switch_features->ports, portslen);
@@ -703,6 +703,10 @@ cofdpt::get_config_reply_rcvd(
 	flags = be16toh(pack->ofh_switch_config->flags);
 	miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
 
+	WRITELOG(COFDPT, DBG, "cofdpt(%p)::get_config_reply_rcvd() "
+			"dpid:%"UINT64DBGFMT" ",
+			this, dpid);
+
 	rofbase->handle_get_config_reply(this, pack);
 
 	if (COFDPT_STATE_WAIT_GET_CONFIG == cur_state())
@@ -755,6 +759,10 @@ cofdpt::stats_reply_rcvd(
 	cancel_timer(COFDPT_TIMER_STATS_REPLY);
 
 	xidstore[OFPT_STATS_REQUEST].xid_rem(be32toh(pack->ofh_header->xid));
+
+	WRITELOG(COFDPT, DBG, "cofdpt(%p)::stats_reply_rcvd() "
+			"dpid:%"UINT64DBGFMT" ",
+			this, dpid);
 
 	rofbase->handle_stats_reply(this, pack);
 
