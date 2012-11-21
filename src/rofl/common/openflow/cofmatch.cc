@@ -581,7 +581,7 @@ cofmatch::get_ipv4_src()
 	}
 
 	caddress src(AF_INET, "0.0.0.0");
-	src.s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_SRC].uint32());
+	src.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_SRC].uint32());
 
 	return src;
 }
@@ -607,7 +607,7 @@ cofmatch::get_ipv4_dst()
 	}
 
 	caddress dst(AF_INET, "0.0.0.0");
-	dst.s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_DST].uint32());
+	dst.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_DST].uint32());
 
 	return dst;
 }
@@ -706,7 +706,7 @@ cofmatch::get_arp_spa()
 	}
 
 	caddress spa(AF_INET, "0.0.0.0");
-	spa.s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_SPA].uint32());
+	spa.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_SPA].uint32());
 
 	return spa;
 }
@@ -732,7 +732,7 @@ cofmatch::get_arp_tpa()
 	}
 
 	caddress tpa(AF_INET, "0.0.0.0");
-	tpa.s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_TPA].uint32());
+	tpa.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_TPA].uint32());
 
 	return tpa;
 }

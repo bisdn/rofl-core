@@ -210,10 +210,10 @@ fipv4frame::set_ipv4_src(uint32_t src)
 void
 fipv4frame::set_ipv4_src(const caddress & src) throw (eIPv4FrameInval)
 {
-	if (src.saddr->sa_family != AF_INET)
+	if (src.ca_saddr->sa_family != AF_INET)
 		throw eIPv4FrameInval();
 
-	ipv4_hdr->src = src.s4addr->sin_addr.s_addr;
+	ipv4_hdr->src = src.ca_s4addr->sin_addr.s_addr;
 }
 
 
@@ -238,10 +238,10 @@ fipv4frame::set_ipv4_dst(uint32_t dst)
 void
 fipv4frame::set_ipv4_dst(const caddress & dst) throw (eIPv4FrameInval)
 {
-	if (dst.saddr->sa_family != AF_INET)
+	if (dst.ca_saddr->sa_family != AF_INET)
 		throw eIPv4FrameInval();
 
-	ipv4_hdr->dst = dst.s4addr->sin_addr.s_addr;
+	ipv4_hdr->dst = dst.ca_s4addr->sin_addr.s_addr;
 }
 
 

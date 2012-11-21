@@ -1256,7 +1256,7 @@ cpacket::set_field(coxmatch const& oxm)
 		case OFPXMT_OFB_IPV4_SRC:
 			{
 				caddress src(AF_INET, "0.0.0.0");
-				src.s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
+				src.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
 				ipv4()->set_ipv4_src(src);
 				ipv4()->ipv4_calc_checksum();
 				match.set_ipv4_src(src);
@@ -1265,7 +1265,7 @@ cpacket::set_field(coxmatch const& oxm)
 		case OFPXMT_OFB_IPV4_DST:
 			{
 				caddress dst(AF_INET, "0.0.0.0");
-				dst.s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
+				dst.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
 				ipv4()->set_ipv4_dst(dst);
 				ipv4()->ipv4_calc_checksum();
 				match.set_ipv4_dst(dst);
@@ -1379,7 +1379,7 @@ cpacket::set_field(coxmatch const& oxm)
 		case OFPXMT_OFB_ARP_SPA:
 			{
 				caddress spa(AF_INET, "0.0.0.0");
-				spa.s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
+				spa.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
 				arpv4()->set_nw_src(spa);
 				match.set_arp_spa(spa);
 			}
@@ -1387,7 +1387,7 @@ cpacket::set_field(coxmatch const& oxm)
 		case OFPXMT_OFB_ARP_TPA:
 			{
 				caddress tpa(AF_INET, "0.0.0.0");
-				tpa.s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
+				tpa.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
 				arpv4()->set_nw_dst(tpa);
 				match.set_arp_tpa(tpa);
 			}
@@ -3210,8 +3210,8 @@ cpacket::action_pop_ppp(
 				anchors[IPV4_FRAME].push_back(ipv4);
 				piovec.push_back(ipv4);
 
-				oxmlist[OFPXMT_OFB_IPV4_DST] 	= coxmatch_ofb_ipv4_dst(be32toh(ipv4->get_ipv4_dst().s4addr->sin_addr.s_addr));
-				oxmlist[OFPXMT_OFB_IPV4_SRC] 	= coxmatch_ofb_ipv4_src(be32toh(ipv4->get_ipv4_src().s4addr->sin_addr.s_addr));
+				oxmlist[OFPXMT_OFB_IPV4_DST] 	= coxmatch_ofb_ipv4_dst(be32toh(ipv4->get_ipv4_dst().ca_s4addr->sin_addr.s_addr));
+				oxmlist[OFPXMT_OFB_IPV4_SRC] 	= coxmatch_ofb_ipv4_src(be32toh(ipv4->get_ipv4_src().ca_s4addr->sin_addr.s_addr));
 				oxmlist[OFPXMT_OFB_IP_PROTO] 	= coxmatch_ofb_ip_proto(ipv4->get_ipv4_proto());
 				oxmlist[OFPXMT_OFB_IP_DSCP] 	= coxmatch_ofb_ip_dscp(ipv4->get_ipv4_dscp());
 				oxmlist[OFPXMT_OFB_IP_ECN] 		= coxmatch_ofb_ip_ecn(ipv4->get_ipv4_ecn());

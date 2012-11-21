@@ -225,7 +225,7 @@ farpv4frame::set_nw_src(
 	if (not addr.is_af_inet())
 		return; // TODO: throw ...
 
-	arp_hdr->ip_src = addr.s4addr->sin_addr.s_addr;
+	arp_hdr->ip_src = addr.ca_s4addr->sin_addr.s_addr;
 }
 
 
@@ -233,7 +233,7 @@ caddress
 farpv4frame::get_nw_src()
 {
 	caddress addr(AF_INET, "0.0.0.0");
-	addr.s4addr->sin_addr.s_addr = arp_hdr->ip_src;
+	addr.ca_s4addr->sin_addr.s_addr = arp_hdr->ip_src;
 	return addr;
 }
 
@@ -253,7 +253,7 @@ farpv4frame::set_nw_dst(
 	if (not addr.is_af_inet())
 		return; // TODO: throw ...
 
-	arp_hdr->ip_dst = addr.s4addr->sin_addr.s_addr;
+	arp_hdr->ip_dst = addr.ca_s4addr->sin_addr.s_addr;
 }
 
 
@@ -261,7 +261,7 @@ caddress
 farpv4frame::get_nw_dst()
 {
 	caddress addr(AF_INET, "0.0.0.0");
-	addr.s4addr->sin_addr.s_addr = arp_hdr->ip_dst;
+	addr.ca_s4addr->sin_addr.s_addr = arp_hdr->ip_dst;
 	return addr;
 }
 

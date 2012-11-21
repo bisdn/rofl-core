@@ -9,7 +9,7 @@ caddress::caddress(size_t size) :
 	cmemory(size),
 	salen(size)
 {
-	saddr = (struct sockaddr*)somem();
+	ca_saddr = (struct sockaddr*)somem();
 }
 
 
@@ -23,7 +23,7 @@ caddress::caddress(
 		size_t halen) throw (eAddressInval) :
 	cmemory(sizeof(struct sockaddr_ll))
 {
-	saddr = (struct sockaddr*)somem();
+	ca_saddr = (struct sockaddr*)somem();
 
 	switch (af) {
 	case PF_PACKET:
@@ -46,15 +46,15 @@ caddress::caddress(
 			throw eAddressIoctlFailed();
 		close(sd);
 
-		sladdr->sll_family 		= af;
-		sladdr->sll_protocol 	= htons(protocol);
-		sladdr->sll_ifindex 	= ifr.ifr_ifindex;
-		sladdr->sll_hatype 		= hatype;
-		sladdr->sll_pkttype 	= pkttype;
-		sladdr->sll_halen 		= halen;
+		ca_sladdr->sll_family 		= af;
+		ca_sladdr->sll_protocol 	= htons(protocol);
+		ca_sladdr->sll_ifindex 	= ifr.ifr_ifindex;
+		ca_sladdr->sll_hatype 		= hatype;
+		ca_sladdr->sll_pkttype 	= pkttype;
+		ca_sladdr->sll_halen 		= halen;
 		{
 			int n = (halen < 8) ? halen : 8;
-			memcpy(&(sladdr->sll_addr[0]), addr, n);
+			memcpy(&(ca_sladdr->sll_addr[0]), addr, n);
 		}
 		salen = sizeof(struct sockaddr_ll);
 		break;
@@ -71,30 +71,30 @@ caddress::caddress(
 		u_int16_t port) throw (eAddressInval) :
 	cmemory(sizeof(struct sockaddr_un))
 {
-	saddr = (struct sockaddr*)somem();
+	ca_saddr = (struct sockaddr*)somem();
 
 	switch (af) {
 	case AF_INET:
 	{
 		pton(af, astr);
-		s4addr->sin_family 	= AF_INET;
-		s4addr->sin_port 	= htons(port);
+		ca_s4addr->sin_family 	= AF_INET;
+		ca_s4addr->sin_port 	= htons(port);
 		salen = sizeof(struct sockaddr_in);
 		break;
 	}
 	case AF_INET6:
 	{
 		pton(af, astr);
-		s6addr->sin6_family = AF_INET6;
-		s6addr->sin6_port 	= htons(port);
+		ca_s6addr->sin6_family = AF_INET6;
+		ca_s6addr->sin6_port 	= htons(port);
 		salen = sizeof(struct sockaddr_in6);
 		break;
 	}
 	case AF_UNIX:
 	{
-		suaddr->sun_family 	= AF_UNIX;
+		ca_suaddr->sun_family 	= AF_UNIX;
 		int n = (strlen(astr) < 108) ? strlen(astr) : 108;
-		strncpy(&(suaddr->sun_path[0]), astr, n);
+		strncpy(&(ca_suaddr->sun_path[0]), astr, n);
 		salen = sizeof(struct sockaddr_un);
 		break;
 	}
@@ -115,9 +115,9 @@ caddress::caddress(
 		throw eAddressInval();
 	}
 
-	saddr = (struct sockaddr*)somem();
+	ca_saddr = (struct sockaddr*)somem();
 
-	memcpy((void*)s4addr, (void*)sa, salen);
+	memcpy((void*)ca_s4addr, (void*)sa, salen);
 }
 
 
@@ -136,10 +136,10 @@ caddress::pton(int af, const char* astr)
 {
 	switch (af) {
 	case AF_INET:
-		inet_pton(af, astr, (struct in_addr*)&(s4addr->sin_addr));
+		inet_pton(af, astr, (struct in_addr*)&(ca_s4addr->sin_addr));
 		break;
 	case AF_INET6:
-		inet_pton(af, astr, (struct in6_addr*)&(s6addr->sin6_addr));
+		inet_pton(af, astr, (struct in6_addr*)&(ca_s6addr->sin6_addr));
 		break;
 	}
 }
@@ -153,7 +153,7 @@ caddress::operator=(const caddress& ca)
 
 	cmemory::operator= (ca);
 
-	saddr = (struct sockaddr*)somem();
+	ca_saddr = (struct sockaddr*)somem();
 	salen = memlen();
 
 	return *this;
@@ -179,19 +179,19 @@ caddress::operator& (caddress const& mask) const
 {
 	caddress a(*this);
 
-	if (mask.saddr->sa_family != saddr->sa_family)
+	if (mask.ca_saddr->sa_family != ca_saddr->sa_family)
 	{
 		return *this; // invalid address family! simply return *this, better throw exception?
 	}
 
-	switch (saddr->sa_family) {
+	switch (ca_saddr->sa_family) {
 	case AF_INET:
-		a.s4addr->sin_addr.s_addr &= mask.s4addr->sin_addr.s_addr;
+		a.ca_s4addr->sin_addr.s_addr &= mask.ca_s4addr->sin_addr.s_addr;
 		break;
 	case AF_INET6:
 		for (int i = 0; i < 16; i++)
 		{
-			a.s6addr->sin6_addr.s6_addr[i] &= mask.s6addr->sin6_addr.s6_addr[i];
+			a.ca_s6addr->sin6_addr.s6_addr[i] &= mask.ca_s6addr->sin6_addr.s6_addr[i];
 		}
 		break;
 	default:
@@ -205,14 +205,14 @@ caddress::operator& (caddress const& mask) const
 bool
 caddress::operator== (caddress const& ca) const
 {
-	if (ca.saddr->sa_family != saddr->sa_family)
+	if (ca.ca_saddr->sa_family != ca_saddr->sa_family)
 	{
 		return false;
 	}
 
-	switch (saddr->sa_family) {
+	switch (ca_saddr->sa_family) {
 	case AF_INET:
-		if (s4addr->sin_addr.s_addr == ca.s4addr->sin_addr.s_addr)
+		if (ca_s4addr->sin_addr.s_addr == ca.ca_s4addr->sin_addr.s_addr)
 		{
 			return true;
 		}
@@ -237,29 +237,29 @@ caddress::c_str()
 	cvastring vas;
 	cmemory mem(256);
 
-	switch (saddr->sa_family) {
+	switch (ca_saddr->sa_family) {
 	case 0:
 		info.assign(vas("[caddress(%p) EMPTY]", this));
 		break;
 	case AF_INET:
-		inet_ntop(AF_INET, &(s4addr->sin_addr), (char*)mem.somem(), mem.memlen()-1);
+		inet_ntop(AF_INET, &(ca_s4addr->sin_addr), (char*)mem.somem(), mem.memlen()-1);
 		info.assign(vas("[AF_INET/ip:%s port:%d salen:%d]",
 				mem.somem(),
-				be16toh(s4addr->sin_port),
+				be16toh(ca_s4addr->sin_port),
 				salen));
 		break;
 	case AF_INET6:
-		inet_ntop(AF_INET, &(s6addr->sin6_addr), (char*)mem.somem(), mem.memlen()-1);
+		inet_ntop(AF_INET, &(ca_s6addr->sin6_addr), (char*)mem.somem(), mem.memlen()-1);
 		info.assign(vas("[caddress(%p) AF_INET6/%s:%d/%d]",
 				this,
 				mem.somem(),
-				be16toh(s6addr->sin6_port),
+				be16toh(ca_s6addr->sin6_port),
 				salen));
 		break;
 	case AF_UNIX:
 		info.assign(vas("[caddress(%p) AF_UNIX/%s/%d]",
 				this,
-				suaddr->sun_path,
+				ca_suaddr->sun_path,
 				salen));
 		break;
 	case AF_PACKET:
@@ -277,17 +277,17 @@ caddress::addr_c_str()
 	cvastring vas;
 	cmemory mem(256);
 
-	switch (saddr->sa_family) {
+	switch (ca_saddr->sa_family) {
 	case AF_INET:
-		inet_ntop(AF_INET, &(s4addr->sin_addr), (char*)mem.somem(), mem.memlen()-1);
+		inet_ntop(AF_INET, &(ca_s4addr->sin_addr), (char*)mem.somem(), mem.memlen()-1);
 		info.assign(vas("%s", mem.somem()));
 		break;
 	case AF_INET6:
-		inet_ntop(AF_INET, &(s6addr->sin6_addr), (char*)mem.somem(), mem.memlen()-1);
+		inet_ntop(AF_INET, &(ca_s6addr->sin6_addr), (char*)mem.somem(), mem.memlen()-1);
 		info.assign(vas("%s", mem.somem()));
 		break;
 	case AF_UNIX:
-		info.assign(vas("%s", suaddr->sun_path));
+		info.assign(vas("%s", ca_suaddr->sun_path));
 		break;
 	case AF_PACKET:
 		info.assign(vas("[caddress(%p) AF_PACKET/TODO: implement!]", this));
@@ -301,28 +301,28 @@ caddress::addr_c_str()
 bool
 caddress::is_af_inet() const
 {
-	return (AF_INET == saddr->sa_family);
+	return (AF_INET == ca_saddr->sa_family);
 }
 
 
 bool
 caddress::is_af_inet6() const
 {
-	return (AF_INET6 == saddr->sa_family);
+	return (AF_INET6 == ca_saddr->sa_family);
 }
 
 
 bool
 caddress::is_af_unix() const
 {
-	return (AF_UNIX == saddr->sa_family);
+	return (AF_UNIX == ca_saddr->sa_family);
 }
 
 
 bool
 caddress::is_af_packet() const
 {
-	return (AF_PACKET == saddr->sa_family);
+	return (AF_PACKET == ca_saddr->sa_family);
 }
 
 

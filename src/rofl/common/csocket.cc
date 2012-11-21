@@ -81,7 +81,7 @@ csocket::handle_revent(int fd)
 		int new_sd;
 		caddress ra;
 
-		if ((new_sd = accept(sd, (struct sockaddr*)(ra.saddr), &(ra.salen))) < 0) {
+		if ((new_sd = accept(sd, (struct sockaddr*)(ra.ca_saddr), &(ra.salen))) < 0) {
 			switch (errno) {
 			case EAGAIN:
 				// do nothing, just wait for the next event
@@ -268,7 +268,7 @@ csocket::cpopen(
 
 
 	// bind to local address
-	if ((rc = bind(sd, la.saddr,
+	if ((rc = bind(sd, la.ca_saddr,
 				   (socklen_t)(la.salen))) < 0)
 	{
 		switch (rc) {
@@ -351,7 +351,7 @@ csocket::caopen(
 	}
 
 	// bind to local address
-	if ((rc = bind(sd, la.saddr, (socklen_t)(la.salen))) < 0) {
+	if ((rc = bind(sd, la.ca_saddr, (socklen_t)(la.salen))) < 0) {
 		switch (errno) {
 		default:
 			throw eSocketError();
@@ -359,7 +359,7 @@ csocket::caopen(
 	}
 
 	// connect to remote address
-	if ((rc = connect(sd, (const struct sockaddr*)ra.saddr, (socklen_t)ra.salen)) < 0) {
+	if ((rc = connect(sd, (const struct sockaddr*)ra.ca_saddr, (socklen_t)ra.salen)) < 0) {
 		switch (errno) {
 		case EINPROGRESS:
 			sockflags[CONNECT_PENDING] = true;
