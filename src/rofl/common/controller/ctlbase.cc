@@ -751,7 +751,15 @@ ctlbase::ctl_handle_port_status(
 		break;
 	}
 
+	// inform forwarding engine
 	handle_port_status(adapt, reason, ofport); // call method from derived transport controller
+
+	// inform all registered controllers
+	for (std::set<cofctl*>::iterator
+			it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
+	{
+		send_port_status_message(reason, ofport);
+	}
 }
 
 
