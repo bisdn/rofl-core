@@ -160,8 +160,8 @@ ftcpframe::tcp_calc_checksum(
 	struct ip_pseudo_hdr_t hdr;
 	bzero(&hdr, sizeof(hdr));
 
-	hdr.src 		= ip_src.s4addr->sin_addr.s_addr;
-	hdr.dst 		= ip_dst.s4addr->sin_addr.s_addr;
+	hdr.src 		= ip_src.ca_s4addr->sin_addr.s_addr;
+	hdr.dst 		= ip_dst.ca_s4addr->sin_addr.s_addr;
 	hdr.reserved 	= 0;
 	hdr.proto 		= ip_proto;
 	hdr.len 		= htobe16(datalen);

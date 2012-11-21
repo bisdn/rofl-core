@@ -725,14 +725,14 @@ public:
 			caddress const& src) throw (eOxmInval) :
 				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint32_t))
 	{
-		if (src.saddr->sa_family != AF_INET)
+		if (src.ca_saddr->sa_family != AF_INET)
 		{
 			throw eOxmInval();
 		}
 		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
 		set_oxm_field(OFPXMT_OFB_IPV4_SRC);
 		set_oxm_length(sizeof(uint32_t));
-		oxm_uint32t->dword = src.s4addr->sin_addr.s_addr;
+		oxm_uint32t->dword = src.ca_s4addr->sin_addr.s_addr;
 	};
 	/** constructor
 	 */
@@ -741,7 +741,7 @@ public:
 			caddress const& mask) throw (eOxmInval) :
 				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint32_t))
 	{
-		if ((src.saddr->sa_family != AF_INET) || (mask.saddr->sa_family != AF_INET))
+		if ((src.ca_saddr->sa_family != AF_INET) || (mask.ca_saddr->sa_family != AF_INET))
 		{
 			throw eOxmInval();
 		}
@@ -749,8 +749,8 @@ public:
 		set_oxm_field(OFPXMT_OFB_IPV4_SRC);
 		set_oxm_hasmask(true);
 		set_oxm_length(2 * sizeof(uint32_t));
-		oxm_uint32t->dword = src.s4addr->sin_addr.s_addr;
-		oxm_uint32t->mask  = mask.s4addr->sin_addr.s_addr;
+		oxm_uint32t->dword = src.ca_s4addr->sin_addr.s_addr;
+		oxm_uint32t->mask  = mask.ca_s4addr->sin_addr.s_addr;
 	};
 	/** destructor
 	 */
@@ -797,14 +797,14 @@ public:
 			caddress const& dst) throw (eOxmInval) :
 				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint32_t))
 	{
-		if (dst.saddr->sa_family != AF_INET)
+		if (dst.ca_saddr->sa_family != AF_INET)
 		{
 			throw eOxmInval();
 		}
 		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
 		set_oxm_field(OFPXMT_OFB_IPV4_DST);
 		set_oxm_length(sizeof(uint32_t));
-		oxm_uint32t->dword = dst.s4addr->sin_addr.s_addr;
+		oxm_uint32t->dword = dst.ca_s4addr->sin_addr.s_addr;
 	};
 	/** constructor
 	 */
@@ -813,7 +813,7 @@ public:
 			caddress const& mask) throw (eOxmInval) :
 				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint32_t))
 	{
-		if ((dst.saddr->sa_family != AF_INET) || (mask.saddr->sa_family != AF_INET))
+		if ((dst.ca_saddr->sa_family != AF_INET) || (mask.ca_saddr->sa_family != AF_INET))
 		{
 			throw eOxmInval();
 		}
@@ -821,8 +821,8 @@ public:
 		set_oxm_field(OFPXMT_OFB_IPV4_DST);
 		set_oxm_hasmask(true);
 		set_oxm_length(2 * sizeof(uint32_t));
-		oxm_uint32t->dword = dst.s4addr->sin_addr.s_addr;
-		oxm_uint32t->mask  = mask.s4addr->sin_addr.s_addr;
+		oxm_uint32t->dword = dst.ca_s4addr->sin_addr.s_addr;
+		oxm_uint32t->mask  = mask.ca_s4addr->sin_addr.s_addr;
 	};
 	/** destructor
 	 */
@@ -1095,14 +1095,14 @@ public:
 			caddress const& spa) throw (eOxmInval) :
 				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint32_t))
 	{
-		if (spa.saddr->sa_family != AF_INET)
+		if (spa.ca_saddr->sa_family != AF_INET)
 		{
 			throw eOxmInval();
 		}
 		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
 		set_oxm_field(OFPXMT_OFB_ARP_SPA);
 		set_oxm_length(sizeof(uint32_t));
-		oxm_uint32t->dword = spa.s4addr->sin_addr.s_addr;
+		oxm_uint32t->dword = spa.ca_s4addr->sin_addr.s_addr;
 	};
 	/** constructor
 	 */
@@ -1111,7 +1111,7 @@ public:
 			caddress const& mask) throw (eOxmInval) :
 				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint32_t))
 	{
-		if ((spa.saddr->sa_family != AF_INET) || (mask.saddr->sa_family != AF_INET))
+		if ((spa.ca_saddr->sa_family != AF_INET) || (mask.ca_saddr->sa_family != AF_INET))
 		{
 			throw eOxmInval();
 		}
@@ -1119,8 +1119,8 @@ public:
 		set_oxm_field(OFPXMT_OFB_ARP_SPA);
 		set_oxm_hasmask(true);
 		set_oxm_length(2 * sizeof(uint32_t));
-		oxm_uint32t->dword = spa.s4addr->sin_addr.s_addr;
-		oxm_uint32t->mask  = mask.s4addr->sin_addr.s_addr;
+		oxm_uint32t->dword = spa.ca_s4addr->sin_addr.s_addr;
+		oxm_uint32t->mask  = mask.ca_s4addr->sin_addr.s_addr;
 	};
 	/** destructor
 	 */
@@ -1168,14 +1168,14 @@ public:
 			caddress const& tpa) throw (eOxmInval) :
 				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint32_t))
 	{
-		if (tpa.saddr->sa_family != AF_INET)
+		if (tpa.ca_saddr->sa_family != AF_INET)
 		{
 			throw eOxmInval();
 		}
 		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
 		set_oxm_field(OFPXMT_OFB_ARP_TPA);
 		set_oxm_length(sizeof(uint32_t));
-		oxm_uint32t->dword = tpa.s4addr->sin_addr.s_addr;
+		oxm_uint32t->dword = tpa.ca_s4addr->sin_addr.s_addr;
 	};
 	/** constructor
 	 */
@@ -1184,7 +1184,7 @@ public:
 			caddress const& mask) throw (eOxmInval) :
 				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint32_t))
 	{
-		if ((tpa.saddr->sa_family != AF_INET) || (mask.saddr->sa_family != AF_INET))
+		if ((tpa.ca_saddr->sa_family != AF_INET) || (mask.ca_saddr->sa_family != AF_INET))
 		{
 			throw eOxmInval();
 		}
@@ -1192,8 +1192,8 @@ public:
 		set_oxm_field(OFPXMT_OFB_ARP_TPA);
 		set_oxm_hasmask(true);
 		set_oxm_length(2 * sizeof(uint32_t));
-		oxm_uint32t->dword = tpa.s4addr->sin_addr.s_addr;
-		oxm_uint32t->mask  = mask.s4addr->sin_addr.s_addr;
+		oxm_uint32t->dword = tpa.ca_s4addr->sin_addr.s_addr;
+		oxm_uint32t->mask  = mask.ca_s4addr->sin_addr.s_addr;
 	};
 	/** destructor
 	 */
@@ -1294,14 +1294,14 @@ public:
 			caddress const& addr) throw (eOxmInval) :
 				coxmatch(sizeof(struct ofp_oxm_hdr) + 16)
 	{
-		if (addr.saddr->sa_family != AF_INET6)
+		if (addr.ca_saddr->sa_family != AF_INET6)
 		{
 			throw eOxmInval();
 		}
 		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
 		set_oxm_field(OFPXMT_OFB_IPV6_SRC);
 		set_oxm_length(16);
-		memcpy(oxm_ipv6addr->addr, addr.s6addr->sin6_addr.s6_addr, 16);
+		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
 	};
 	/** constructor
 	 */
@@ -1310,7 +1310,7 @@ public:
 			caddress const& mask) throw (eOxmInval) :
 				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * 16)
 	{
-		if ((addr.saddr->sa_family != AF_INET6) || (mask.saddr->sa_family != AF_INET6))
+		if ((addr.ca_saddr->sa_family != AF_INET6) || (mask.ca_saddr->sa_family != AF_INET6))
 		{
 			throw eOxmInval();
 		}
@@ -1318,8 +1318,8 @@ public:
 		set_oxm_field(OFPXMT_OFB_IPV6_SRC);
 		set_oxm_hasmask(true);
 		set_oxm_length(2 * 16);
-		memcpy(oxm_ipv6addr->addr, addr.s6addr->sin6_addr.s6_addr, 16);
-		memcpy(oxm_ipv6addr->mask, mask.s6addr->sin6_addr.s6_addr, 16);
+		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
+		memcpy(oxm_ipv6addr->mask, mask.ca_s6addr->sin6_addr.s6_addr, 16);
 	};
 	/** destructor
 	 */
@@ -1345,7 +1345,7 @@ public:
 		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
 		set_oxm_field(OFPXMT_OFB_IPV6_DST);
 		set_oxm_length(16);
-		memcpy(oxm_ipv6addr->addr, addr.s6addr->sin6_addr.s6_addr, 16);
+		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
 	};
 	/** constructor
 	 */
@@ -1358,8 +1358,8 @@ public:
 		set_oxm_field(OFPXMT_OFB_IPV6_DST);
 		set_oxm_hasmask(true);
 		set_oxm_length(2 * 16);
-		memcpy(oxm_ipv6addr->addr, addr.s6addr->sin6_addr.s6_addr, 16);
-		memcpy(oxm_ipv6addr->mask, mask.s6addr->sin6_addr.s6_addr, 16);
+		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
+		memcpy(oxm_ipv6addr->mask, mask.ca_s6addr->sin6_addr.s6_addr, 16);
 	};
 	/** destructor
 	 */
@@ -1474,7 +1474,7 @@ public:
 		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
 		set_oxm_field(OFPXMT_OFB_IPV6_ND_TARGET);
 		set_oxm_length(16);
-		memcpy(oxm_ipv6addr->addr, addr.s6addr->sin6_addr.s6_addr, 16);
+		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
 	};
 	/** destructor
 	 */

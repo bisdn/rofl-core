@@ -265,7 +265,7 @@ coxmatch::c_str()
 			case OFPXMT_OFB_ARP_TPA:
 				{
 					caddress addr(AF_INET, "0.0.0.0");
-					addr.s4addr->sin_addr.s_addr = htobe32(uint32());
+					addr.ca_s4addr->sin_addr.s_addr = htobe32(uint32());
 
 					info.assign(vas("OXM-TLV [%s:%s] => [%s] hm:%d len:%d padded-len:%d",
 							class2desc(get_oxm_class()),

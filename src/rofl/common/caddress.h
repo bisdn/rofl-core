@@ -68,11 +68,11 @@ public:
 			struct sockaddr_ll*		addru_sladdr;
 		} addr_addru;
 
-#define saddr		addr_addru.addru_saddr		// generic sockaddr
-#define s4addr		addr_addru.addru_s4addr		// sockaddr_in
-#define s6addr		addr_addru.addru_s6addr		// sockaddr_in6
-#define suaddr		addr_addru.addru_suaddr		// sockaddr_un
-#define sladdr		addr_addru.addru_sladdr		// sockaddr_ll
+#define ca_saddr		addr_addru.addru_saddr		// generic sockaddr
+#define ca_s4addr		addr_addru.addru_s4addr		// sockaddr_in
+#define ca_s6addr		addr_addru.addru_s6addr		// sockaddr_in6
+#define ca_suaddr		addr_addru.addru_suaddr		// sockaddr_un
+#define ca_sladdr		addr_addru.addru_sladdr		// sockaddr_ll
 
 		socklen_t salen; //< maximum length of allocated memory area hosting saddr
 
@@ -225,7 +225,7 @@ public:
 	{
 		char address[256];
 		bzero(address, sizeof(address));
-		switch (ca.saddr->sa_family) {
+		switch (ca.ca_saddr->sa_family) {
 		case 0:
 			os << "caddress(EMPTY)";
 			break;
@@ -234,11 +234,11 @@ public:
 			<< ":" << ntohs(ca.s4addr->sin_port) << "/" << ca.salen << ")";
 			break;
 		case AF_INET6:
-			os << "caddress(AF_INET6/" << inet_ntop(AF_INET6, &(ca.s6addr->sin6_addr), address, 256)
-			<< ":" << ntohs(ca.s6addr->sin6_port) << "/" << ca.salen << ")";
+			os << "caddress(AF_INET6/" << inet_ntop(AF_INET6, &(ca.ca_s6addr->sin6_addr), address, 256)
+			<< ":" << ntohs(ca.ca_s6addr->sin6_port) << "/" << ca.salen << ")";
 			break;
 		case AF_UNIX:
-			os << "caddress(AF_UNIX/" << ca.suaddr->sun_path << "/" << ca.salen << ")";
+			os << "caddress(AF_UNIX/" << ca.ca_suaddr->sun_path << "/" << ca.salen << ")";
 			break;
 		case AF_PACKET:
 			os << "caddress(AF_PACKET/TODO: implement!)";
