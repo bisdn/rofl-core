@@ -30,7 +30,7 @@ cofdpt::cofdpt(
 	barrier_reply_timeout(DEFAULT_DB_BARRIER_REPLY_TIMEOUT)
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::cofdpt() "
-			"dpid:%"UINT64DBGFMT" ", this, dpid);
+			"dpid:%"PRIu64" ", this, dpid);
 
 	init_state(COFDPT_STATE_WAIT_FEATURES);
 
@@ -68,7 +68,7 @@ cofdpt::cofdpt(
 	barrier_reply_timeout(DEFAULT_DB_BARRIER_REPLY_TIMEOUT)
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::cofdpt() "
-			"dpid:%"UINT64DBGFMT" ",
+			"dpid:%"PRIu64" ",
 			this, dpid);
 
 	init_state(COFDPT_STATE_DISCONNECTED);
@@ -83,7 +83,7 @@ cofdpt::cofdpt(
 cofdpt::~cofdpt()
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::~cofdpt() "
-			"dpid:%"UINT64DBGFMT"  %s",
+			"dpid:%"PRIu64"  %s",
 			this, dpid, this->c_str());
 
 	// remove all cofport instances
@@ -609,7 +609,7 @@ cofdpt::features_reply_rcvd(
 
 
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() "
-				"dpid:%"UINT64DBGFMT" pack:%s",
+				"dpid:%"PRIu64" pack:%s",
 				this, dpid, pack->c_str());
 
 
@@ -704,7 +704,7 @@ cofdpt::get_config_reply_rcvd(
 	miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
 
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::get_config_reply_rcvd() "
-			"dpid:%"UINT64DBGFMT" ",
+			"dpid:%"PRIu64" ",
 			this, dpid);
 
 	rofbase->handle_get_config_reply(this, pack);
@@ -724,7 +724,7 @@ void
 cofdpt::handle_get_config_reply_timeout()
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_get_config_reply_timeout() "
-			"dpid:%"UINT64DBGFMT" ",
+			"dpid:%"PRIu64" ",
 			this, dpid);
 
 	rofbase->handle_get_config_reply_timeout(this);
@@ -761,7 +761,7 @@ cofdpt::stats_reply_rcvd(
 	xidstore[OFPT_STATS_REQUEST].xid_rem(be32toh(pack->ofh_header->xid));
 
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::stats_reply_rcvd() "
-			"dpid:%"UINT64DBGFMT" ",
+			"dpid:%"PRIu64" ",
 			this, dpid);
 
 	rofbase->handle_stats_reply(this, pack);
@@ -781,7 +781,7 @@ void
 cofdpt::handle_stats_reply_timeout()
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_stats_reply_timeout() "
-			"dpid:%"UINT64DBGFMT" ",
+			"dpid:%"PRIu64" ",
 			this, dpid);
 
 restart:

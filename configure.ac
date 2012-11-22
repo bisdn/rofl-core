@@ -86,7 +86,7 @@ else
 	AC_MSG_RESULT(no)
 fi
 
-
+AC_DEFINE(__STDC_FORMAT_MACROS)
 
 #Check libs used
 AC_CHECK_LIB(pthread, pthread_kill,,AC_MSG_ERROR([pthread library not found])) 

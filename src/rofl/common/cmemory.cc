@@ -486,7 +486,7 @@ cmemory::c_str()
 
 	snprintf(_info,
 			sizeof(_info) - 1,
-			"cmemory(%p) somem()[%p] len[%d] data.first: %p data.second: %"SIZETDBGFMT"  data\n%p : ",
+			"cmemory(%p) somem()[%p] len[%d] data.first: %p data.second: %zu  data\n%p : ",
 			(void*) this,
 			(void*) somem(),
 			(int) memlen(),

@@ -345,13 +345,13 @@ cofaction::__make_info()
 	case OFPAT_OUTPUT:
 
 #if 1
-		info.assign(vas("cofaction(%p) OFPAT_OUTPUT length[%"SIZETDBGFMT"] port[0x%x] max_len[%d]",
+		info.assign(vas("cofaction(%p) OFPAT_OUTPUT length[%zu] port[0x%x] max_len[%d]",
 				 this,
 				 length(),
 				 be32toh(oac_output->port),
 				 be16toh(oac_output->max_len)));
 #else
-		info.assign(vas("cofaction(%p) OFPAT_OUTPUT length[%"SIZETDBGFMT"] port[0x%x] max_len[%d] body: %s",
+		info.assign(vas("cofaction(%p) OFPAT_OUTPUT length[%zu] port[0x%x] max_len[%d] body: %s",
 				 this,
 				 length(),
 				 be32toh(oac_output->port),
@@ -363,7 +363,7 @@ cofaction::__make_info()
 	case OFPAT_COPY_TTL_OUT:
 
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_COPY_TTL_OUT length[%"SIZETDBGFMT"] ",
+				 "cofaction(%p) OFPAT_COPY_TTL_OUT length[%zu] ",
 				 this,
 				 length()));
 		break;
@@ -371,7 +371,7 @@ cofaction::__make_info()
 	case OFPAT_COPY_TTL_IN:
 
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_COPY_TTL_IN length[%"SIZETDBGFMT"] ",
+				 "cofaction(%p) OFPAT_COPY_TTL_IN length[%zu] ",
 				this,
 				length()));
 		break;
@@ -379,7 +379,7 @@ cofaction::__make_info()
 	case OFPAT_SET_MPLS_TTL:
 
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_SET_MPLS_TTL length[%"SIZETDBGFMT"] mpls_ttl[%d]",
+				 "cofaction(%p) OFPAT_SET_MPLS_TTL length[%zu] mpls_ttl[%d]",
 				 this,
 				 length(),
 				 oac_mpls_ttl->mpls_ttl));
@@ -388,14 +388,14 @@ cofaction::__make_info()
 	case OFPAT_DEC_MPLS_TTL:
 
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_DEC_MPLS_TTL length[%"SIZETDBGFMT"] ",
+				 "cofaction(%p) OFPAT_DEC_MPLS_TTL length[%zu] ",
 				 this, length()));
 		break;
 
 	case OFPAT_PUSH_VLAN:
 
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_PUSH_VLAN length[%"SIZETDBGFMT"] ethertype[0x%04x]",
+				 "cofaction(%p) OFPAT_PUSH_VLAN length[%zu] ethertype[0x%04x]",
 				 this,
 				 length(),
 				 be16toh(oac_push->ethertype)));
@@ -404,14 +404,14 @@ cofaction::__make_info()
 	case OFPAT_POP_VLAN:
 
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_POP_VLAN length[%"SIZETDBGFMT"] ",
+				 "cofaction(%p) OFPAT_POP_VLAN length[%zu] ",
 				 this, length()));
 		break;
 
 	case OFPAT_PUSH_MPLS:
 
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_PUSH_MPLS length[%"SIZETDBGFMT"] ethertype[0x%x]",
+				 "cofaction(%p) OFPAT_PUSH_MPLS length[%zu] ethertype[0x%x]",
 				 this,
 				 length(),
 				 be16toh(oac_push->ethertype)));
@@ -420,7 +420,7 @@ cofaction::__make_info()
 	case OFPAT_POP_MPLS:
 
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_POP_MPLS length[%"SIZETDBGFMT"] ethertype[0x%x]",
+				 "cofaction(%p) OFPAT_POP_MPLS length[%zu] ethertype[0x%x]",
 				 this,
 				 length(),
 				 be16toh(oac_pop_mpls->ethertype)));
@@ -429,7 +429,7 @@ cofaction::__make_info()
 	case OFPAT_SET_QUEUE:
 
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_SET_QUEUE length[%"SIZETDBGFMT"] queue_id[%d]",
+				 "cofaction(%p) OFPAT_SET_QUEUE length[%zu] queue_id[%d]",
 				 this,
 				 length(),
 				 be32toh(oac_set_queue->queue_id)));
@@ -438,7 +438,7 @@ cofaction::__make_info()
 	case OFPAT_GROUP:
 
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_GROUP length[%"SIZETDBGFMT"] group_id[%d]",
+				 "cofaction(%p) OFPAT_GROUP length[%zu] group_id[%d]",
 				 this,
 				 length(),
 				 be32toh(oac_group->group_id)));
@@ -447,7 +447,7 @@ cofaction::__make_info()
 	case OFPAT_SET_NW_TTL:
 
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_SET_NW_TTL length[%"SIZETDBGFMT"] nw_ttl[%d]",
+				 "cofaction(%p) OFPAT_SET_NW_TTL length[%zu] nw_ttl[%d]",
 				 this,
 				 length(),
 				 oac_nw_ttl->nw_ttl));
@@ -456,13 +456,13 @@ cofaction::__make_info()
 	case OFPAT_DEC_NW_TTL:
 
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_DEC_NW_TTL length[%"SIZETDBGFMT"] ",
+				 "cofaction(%p) OFPAT_DEC_NW_TTL length[%zu] ",
 				 this, length()));
 		break;
 
 	case OFPAT_EXPERIMENTER:
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_EXPERIMENTER length[%"SIZETDBGFMT"] experimenter[%d]",
+				 "cofaction(%p) OFPAT_EXPERIMENTER length[%zu] experimenter[%d]",
 				 this,
 				 length(),
 				 be32toh(oac_experimenter_header->experimenter)));
@@ -470,7 +470,7 @@ cofaction::__make_info()
 
 	case OFPAT_PUSH_PPPOE:
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_PUSH_PPPOE length[%"SIZETDBGFMT"] ethertype[0x%04x]",
+				 "cofaction(%p) OFPAT_PUSH_PPPOE length[%zu] ethertype[0x%04x]",
 				 this,
 				 length(),
 				 be16toh(oac_push_pppoe->ethertype)));
@@ -478,7 +478,7 @@ cofaction::__make_info()
 
 	case OFPAT_POP_PPPOE:
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_POP_PPPOE length[%"SIZETDBGFMT"] ethertype[0x%04x]",
+				 "cofaction(%p) OFPAT_POP_PPPOE length[%zu] ethertype[0x%04x]",
 				 this,
 				 length(),
 				 be16toh(oac_pop_pppoe->ethertype)));
@@ -486,14 +486,14 @@ cofaction::__make_info()
 
 	case OFPAT_PUSH_PPP:
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_PUSH_PPP length[%"SIZETDBGFMT"]",
+				 "cofaction(%p) OFPAT_PUSH_PPP length[%zu]",
 				 this,
 				 length()));
 		break;
 
 	case OFPAT_POP_PPP:
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_POP_PPP length[%"SIZETDBGFMT"]",
+				 "cofaction(%p) OFPAT_POP_PPP length[%zu]",
 				 this,
 				 length()));
 		break;
@@ -504,13 +504,13 @@ cofaction::__make_info()
 				be16toh(oac_set_field->len) - 2 * sizeof(uint16_t));
 #if 1
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_SET_FIELD length[%"SIZETDBGFMT"] [%s]",
+				 "cofaction(%p) OFPAT_SET_FIELD length[%zu] [%s]",
 				 this,
 				 length(),
 				 oxm.c_str()));
 #else
 		info.assign(vas(
-				 "cofaction(%p) OFPAT_SET_FIELD length[%"SIZETDBGFMT"] [%s] body: %s",
+				 "cofaction(%p) OFPAT_SET_FIELD length[%zu] [%s] body: %s",
 				 this,
 				 length(),
 				 oxm.c_str(),

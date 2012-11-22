@@ -25,16 +25,10 @@ extern "C" {
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <inttypes.h>
+
 #ifdef __cplusplus
 }
-#endif
-
-#if __WORDSIZE == 64
-#define UINT64DBGFMT "lu"
-#define SIZETDBGFMT "lu"
-#else
-#define UINT64DBGFMT "u"
-#define SIZETDBGFMT "u"
 #endif
 
 #ifndef NDEBUG
