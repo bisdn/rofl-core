@@ -778,7 +778,6 @@ ctlbase::ctl_handle_port_status(
 			/* sanity check: the port_no must exist */
 			if (n_ports.find(ofport->port_no) == n_ports.end())
 			{
-				fprintf(stderr, "4\n");
 				throw eCtlBaseNotFound();
 			}
 		}
@@ -2062,7 +2061,6 @@ ctlbase::send_port_mod_message(
 
 	if (n_ports.find(port_no) == n_ports.end())
 	{
-		fprintf(stderr, "1\n");
 		throw eCtlBaseNotFound();
 	}
 
@@ -2094,7 +2092,6 @@ ctlbase::find_adaptor_by_portno(
 {
 	if (n_ports.find(portno) == n_ports.end())
 	{
-		fprintf(stderr, "2\n");
 		throw eCtlBaseNotFound();
 	}
 
@@ -2117,7 +2114,6 @@ ctlbase::call_adapter(cadapt* adapt)
 			return adapt;
 		}
 	}
-	fprintf(stderr, "3\n");
 	throw eCtlBaseNotFound();
 }
 
