@@ -129,7 +129,8 @@ public: // data structures
 		uint32_t 						capabilities;	// capabilities flags
 
 		std::map<uint32_t, cofport*> 	ports;			// list of ports
-		std::bitset<32> 				flags;			// 'fragmentation' flags
+		std::bitset<32> 				dptflags;		// 'fragmentation' flags
+		uint16_t						flags;
 		uint16_t 						miss_send_len; 	// length of bytes sent to controller
 
 		cfsptable 						fsptable;		// flowspace registration table

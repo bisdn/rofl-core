@@ -26,7 +26,7 @@ cofctl::cofctl(
 {
 	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
 
-	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
+	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, 0);
 
 	rofbase->handle_ctl_open(this);
 }
@@ -205,7 +205,7 @@ cofctl::handle_connected(
 {
 	rofbase->handle_ctl_open(this);
 
-	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
+	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, 0);
 }
 
 
@@ -330,6 +330,9 @@ cofctl::handle_closed(
 		int sd)
 {
 	socket->cclose();
+
+	cancel_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT);
+	cancel_timer(COFCTL_TIMER_SEND_ECHO_REQUEST);
 
 	if (flags.test(COFCTL_FLAG_ACTIVE_SOCKET))
 	{

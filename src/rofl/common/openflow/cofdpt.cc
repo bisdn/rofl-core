@@ -38,7 +38,7 @@ cofdpt::cofdpt(
 
 	new_state(COFDPT_STATE_WAIT_FEATURES);
 
-	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
+	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, 0);
 }
 
 
@@ -73,7 +73,7 @@ cofdpt::cofdpt(
 
 	init_state(COFDPT_STATE_DISCONNECTED);
 
-	flags.set(COFDPT_FLAG_ACTIVE_SOCKET);
+	dptflags.set(COFDPT_FLAG_ACTIVE_SOCKET);
 
 	socket->caopen(ra, caddress(AF_INET, "0.0.0.0"), domain, type, protocol);
 }
@@ -115,7 +115,7 @@ cofdpt::handle_connected(
 
 	rofbase->send_features_request(this);
 
-	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
+	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, 0);
 }
 
 
@@ -126,7 +126,7 @@ cofdpt::handle_connect_refused(
 		int sd)
 {
 	new_state(COFDPT_STATE_DISCONNECTED);
-	if (flags.test(COFDPT_FLAG_ACTIVE_SOCKET))
+	if (dptflags.test(COFDPT_FLAG_ACTIVE_SOCKET))
 	{
 		try_to_connect();
 	}
@@ -216,7 +216,7 @@ cofdpt::handle_read(
 
 	} catch (cerror &e) {
 
-		WRITELOG(COFDPT, WARN, "COFDPT(%p)::handle_read() "
+		WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_read() "
 				"errno: %d (%s) generic error %s",
 				this, errno, strerror(errno), pcppack->c_str());
 
@@ -241,7 +241,10 @@ cofdpt::handle_closed(
 {
 	socket->cclose();
 
-	if (flags.test(COFDPT_FLAG_ACTIVE_SOCKET))
+	cancel_timer(COFDPT_TIMER_ECHO_REPLY);
+	cancel_timer(COFDPT_TIMER_SEND_ECHO_REQUEST);
+
+	if (dptflags.test(COFDPT_FLAG_ACTIVE_SOCKET))
 	{
 		try_to_connect();
 	}
@@ -666,7 +669,7 @@ cofdpt::handle_echo_reply_timeout()
 
 	socket->cclose();
 	new_state(COFDPT_STATE_DISCONNECTED);
-	if (flags.test(COFDPT_FLAG_ACTIVE_SOCKET))
+	if (dptflags.test(COFDPT_FLAG_ACTIVE_SOCKET))
 	{
 		try_to_connect(true);
 	}
