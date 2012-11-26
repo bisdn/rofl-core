@@ -12,8 +12,13 @@
 #include "clinuxport.h"
 
 
-clinuxport::clinuxport(std::string devname, std::string type, int port_no) :
-		cport(devname, type, port_no) {
+clinuxport::clinuxport(
+		cport_owner *owner,
+		std::string devname,
+		std::string devtype) :
+		cport(owner, devname, devtype),
+		ifindex(0)
+{
 
 }
 
@@ -87,7 +92,7 @@ uint32_t clinuxport::get_port_no_from_kernel() throw (ePortSocketCallFailed,
 	strncpy(ifr.ifr_name, devname.c_str(), IFNAMSIZ);
 	if ((rc = ioctl(sd, SIOCGIFINDEX, &ifr)) < 0)
 		throw ePortIoctlCallFailed();
-	port_no = ifr.ifr_ifindex;
+	ifindex = ifr.ifr_ifindex;
 	close(sd);
 	return ifr.ifr_ifindex;
 }

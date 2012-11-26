@@ -89,133 +89,65 @@ class cport; // forward declaration, see below
 /** callback abstract base class for cport
  *
  */
-class cport_owner :
-	public virtual ciosrv
+class cport_owner
 {
-private: // data structures
-
-	std::map<cport*, std::deque<cpacket*> > pin_queue; // list of incoming packets per cport
-
-	std::deque<cport*> pin_cports; // list of cports sending a notification to cport_owner
-
-	std::string info;
-
-protected: // data structures
-
-	std::set<cport*> port_list; // list of attached cports
-
-public: // static
-
-	static std::set<cport_owner*> cport_owner_list;
-
-	enum unittest_timer_t {
-		CPORT_OWNER_TIMER_BASE = (0x9b33 << 16), // base timer value
-		CPORT_OWNER_TIMER_PACKET_IN,	// packet in event on cport
-	};
-
-	enum cport_owner_flag_t {
-		CPORT_OWNER_FLAG_PIN_QUEUE = (1 << 0),
-	};
-
-	enum cport_owner_event_t {
-		CPORT_OWNER_EVENT_PIN_QUEUE = ((0x8be3 << 16) + (1 << 0)),
-	};
-
-	std::bitset<32> flags; // port owner flags
-
-
-public: // static
-
-	/**
-	 *
-	 */
-	static cport_owner*
-	exists(cport_owner *owner)
-			throw (ePortNotFound);
-
-
-	/**
-	 *
-	 */
-	const char*
-	c_str();
-
-public: // overloaded from ciosrv
-
-	/** Handle timeout events. This method is overwritten from ciosrv.
-	 *
-	 * @param opaque expired timer type
-	 */
-	virtual void
-	handle_timeout(
-			int opaque);
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_event(
-			cevent const& ev);
-
 public:
-	// constructor
-	cport_owner();
 
-	// destructor
+
+	/**
+	 *
+	 */
 	virtual
-	~cport_owner();
+	~cport_owner() {};
 
-	// port_attach
-	virtual void
-	port_attach(cport *port);
-
-	// port_detach
-	virtual void
-	port_detach(cport *port);
-
-	/** store packet in cport_owner::pin_queue
-	 * this does not inform cport_owner about new packets (see enqueue() for this)
-	 */
-	void
-	store(cport* port, cpacket* pack);
-
-	/** send notification (=enqueue) about new packets to cport_owner
-	 * this triggers consumption of pin_queue by cport_owner
-	 */
-	void
-	enqueue(cport *port);
-
-
-protected: // methods
-
-	/** handle packets received from an attached port in derived class
-	 * cpacket *pack must be deleted from heap by called method
-	 */
-	virtual void
-	handle_cport_packet_in(
-			cport* port,
-			std::deque<cpacket*>& pktlist) = 0; // pure virtual
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_port_attach(cport *port) = 0; // pure virtual
+	port_init(
+			cport *port) = 0;
+
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_port_detach(cport *port) = 0; // pure virtual
+	port_open(
+			cport *port) = 0;
 
 
-
-private: // methods
-
-	/** handle packets received from an attached cport
+	/**
+	 *
 	 */
-	void
-	__handle_cport_packet_in();
+	virtual void
+	port_close(
+			cport *port) = 0;
+
+
+	/**
+	 *
+	 */
+	virtual void
+	port_destroy(
+			cport *port) = 0;
+
+
+	/**
+	 *
+	 */
+	virtual void
+	enqueue(
+			cport *port,
+			cpacket* pack) = 0;
+
+	/**
+	 *
+	 */
+	virtual void
+	enqueue(
+			cport *port,
+			std::deque<cpacket*>& packets) = 0;
 };
 
 
@@ -231,7 +163,12 @@ private: // methods
 class cport :
 	public ciosrv
 {
-protected:
+private: // data structures
+
+	static std::set<cport*> 	cport_list; 	// static list of all basic cports
+	std::string 				info;
+
+protected: // data structures
 
 	enum cport_timer_t { // cport related timer types
 		CPORT_TIMER_BASE = (0x0032 << 16),
@@ -248,17 +185,38 @@ protected:
 		PORT_DESTROY_UPON_DETACHING = (1 << 2),
 	};
 
+#define CPORT_DEFAULT_MAX_OUT_QUEUE_SIZE	100
+	unsigned int				max_out_queue_size;
+
+	cport_owner 				*owner;			// owner of this cport (the one who gets packets from us)
+	std::deque<cpacket*>		pout_queue;
+
+public: // data structures
+
+	// values for struct ofp_phy_port
+	std::string 				devname;    // port name
+	std::string 				devtype; 	// port type ("phy", "bcm", "vport", rofl.)
+
+	// port statistics
+	uint64_t 					rx_packets;
+	uint64_t 					tx_packets;
+	uint64_t 					rx_bytes;
+	uint64_t 					tx_bytes;
+	uint64_t 					rx_dropped;
+	uint64_t 					tx_dropped;
+	uint64_t 					rx_errors;
+	uint64_t 					tx_errors;
+	uint64_t 					rx_frame_err;
+	uint64_t 					rx_over_err;
+	uint64_t 					rx_crc_err;
+	uint64_t 					collisions;
+
+
+
+
+
 public: // class wide static methods and data structures
 
-	// static list of all basic cports
-	static std::set<cport*> cport_list;
-
-	/** find free port-no
-	 *
-	 */
-	static uint32_t
-	find_free_port_no(
-			std::set<cport*> *port_list);
 
 	/**
 	 * finds cport based on devname
@@ -266,183 +224,66 @@ public: // class wide static methods and data structures
 	 */
 	static cport*
 	find(
-			const std::string& devname) throw (ePortNotFound);
+			std::string const& devname)
+		throw (ePortNotFound);
 
-	/** returns struct ofp_port for all ports in cport_list
-	 */
-	static uint8_t*
-	get_ofp_ports(
-			uint8_t *mem,
-			size_t memlen) throw (ePortOutOfMem);
 
-public: // data structures
-
-	// values for struct ofp_phy_port
-	std::string devname;    // port name
-	std::string devtype; 	// port type ("phy", "bcm", "vport", rofl.)
-
-	uint32_t port_no;       // port number
-
-	// port statistics
-	uint64_t rx_packets;
-	uint64_t tx_packets;
-	uint64_t rx_bytes;
-	uint64_t tx_bytes;
-	uint64_t rx_dropped;
-	uint64_t tx_dropped;
-	uint64_t rx_errors;
-	uint64_t tx_errors;
-	uint64_t rx_frame_err;
-	uint64_t rx_over_err;
-	uint64_t rx_crc_err;
-	uint64_t collisions;
 
 public: // per instance methods
+
 
 	/** constructor
 	 */
 	cport(
+			cport_owner *owner,
 			std::string devname,
-			std::string devtype,
-			int port_no = 0);
+			std::string devtype);
+
 
 	/** destructor
 	 */
 	virtual
 	~cport();
 
-	/** attach this port to a cport_owner
-	 */
-	virtual void
-	attach(cport_owner *owner) throw (ePortIsAttached);
-
-	/** detach this port from its owner
-	 */
-	virtual void
-	detach() throw (ePortNotAttached);
-
-	/** notification: port is now attached, called by cport_owner
-	 */
-	virtual void
-	attached(cport_owner *owner);
-
-	/** notification: port is now detached, called by cport_owner
-	 */
-	virtual void
-	detached(cport_owner *owner);
 
 public:
+
 
 	/**
 	 * enqueue an outgoing packet on this ports queue for sending it out
 	 */
 	void
 	enqueue(
-			cpacket* pack);
+			cpacket* pkt);
+
 
 	/**
-	 * handle timeout events, overwritten from class ciosrv
-	 */
-	virtual void
-	handle_timeout(
-			int opaque);
-
-	/**
-	 * handle common events, overwritten from class ciosrv
-	 */
-	virtual void
-	handle_event(cevent const& ev);
-
-	/** return struct ofp_phy_port for this cport
+	 * enqueue a list of outgoing packet on this ports queue for sending it out
 	 */
 	void
-	get_ofp_port(
-			struct ofp_port *phy_port,
-			size_t phy_port_len);
+	enqueue(
+			std::deque<cpacket*>& pktlist);
+
 
 	/** enable interface (set IFF_UP flag)
 	 */
 	virtual void
-	enable_interface() throw (ePortSocketCallFailed, ePortIoctlCallFailed) = 0;
+	enable_interface()
+		throw (ePortSocketCallFailed, ePortIoctlCallFailed) = 0;
+
 
 	/** disable interface (clear IFF_UP flag)
 	 */
 	virtual void
-	disable_interface() throw (ePortSocketCallFailed, ePortIoctlCallFailed) = 0;
+	disable_interface()
+		throw (ePortSocketCallFailed, ePortIoctlCallFailed) = 0;
 
-	/** get port number: returns uint32_t
-	 */
-	virtual uint32_t
-	get_port_no();
-
-	const uint32_t
-	set_port_no(const uint32_t port_no);
-
-	/** get hw_addr: stores mac address of port in cmacaddr
-	 *
-	 * @param ma
-	 * @return
-	 */
-	virtual cmacaddr&
-	get_hw_addr()  throw (ePortSocketCallFailed, ePortIoctlCallFailed) = 0;
-
-	/** set hw_addr
-	 */
-	virtual void
-	set_hw_addr(cmacaddr const& maddr) throw (ePortSocketCallFailed, ePortInval, ePortSetHwAddrFailed) = 0;
-
-	/** set config
-	 */
-	void
-	set_config(
-			uint32_t config,
-			uint32_t mask,
-			uint32_t advertise);
-
-	/** get config
-	 */
-	uint32_t
-	get_config();
-
-	/** get state
-	 */
-	virtual uint32_t
-	get_state() throw (ePortSocketCallFailed, ePortIoctlCallFailed) = 0;
-
-	/** get curr
-	 */
-	uint32_t
-	get_curr();
-
-	/** get advertised
-	 */
-	uint32_t
-	get_advertised();
-
-	/** get supported
-	 */
-	uint32_t
-	get_supported();
-
-	/** get peer
-	 */
-	uint32_t
-	get_peer();
-
-	/** get curr speed
-	 */
-	virtual uint32_t
-	get_curr_speed() = 0;
-
-	/** get max speed
-	 */
-	virtual uint32_t
-	get_max_speed() = 0;
 
 	/** return c_str with cport info
 	 */
 	const char*
 	c_str();
+
 
 	/** get port statistics
 	 */
@@ -451,31 +292,7 @@ public:
 			struct ofp_port_stats* port_stats,
 			size_t port_stats_len);
 
-	/**
-	 * enforce this port to (re)read its default configuration
-	 */
-	virtual void
-	init_default_configuration() {};
 
-protected: // data structures
-
-	std::deque<cpacket*> pout_queue; // list of outgoing packets
-
-	std::bitset<32> pflags; // port flags
-
-	cmacaddr hwaddr;
-	uint32_t config;      // OFPPCrofl. (port config)
-	uint32_t state;
-	uint32_t curr;
-	uint32_t advertised;
-	uint32_t supported;
-	uint32_t peer;
-	uint32_t curr_speed;
-	uint32_t max_speed;
-
-//	cport_config *port_configuration;
-
-	std::string info;
 
 protected: // methods
 
@@ -485,19 +302,6 @@ protected: // methods
 	virtual void
 	handle_out_queue() = 0;
 
-	/**
-	 */
-	cport_owner*
-	port_owner();
-
-
-protected: // data structures
-
-	pthread_mutex_t queuelock; // mutex for locking tx queue
-
-private: // data structures
-
-	cport_owner *powner;// owner of this cport (the one who gets packets from us)
 
 public: // helper classes
 
@@ -513,24 +317,8 @@ public: // helper classes
 			return (devname == port->devname);
 		}
 	};
-
-	/** helper class for finding cport in this->port_list
-	 * based on port_no of cport instance
-	 */
-	class cport_find_by_portno : public std::unary_function<cport,bool> {
-		uint32_t portno;
-	public:
-		cport_find_by_portno(uint32_t portno) :
-			portno(portno) {};
-		bool operator() (cport* port) {
-			return (portno == port->port_no);
-		};
-	};
-
-public:
-
-
-
 };
 
+
 #endif
+

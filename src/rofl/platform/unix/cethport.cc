@@ -7,9 +7,9 @@
 
 /*static*/ std::set<cethport*> cethport::cethport_list;
 
-cethport::cethport(std::string devname, int port_no) :
+cethport::cethport(cport_owner *owner, std::string devname) :
 	csocket(0, PF_PACKET, SOCK_RAW, htons(ETH_P_ALL), 10),
-	clinuxport(devname, std::string("phy"), port_no),
+	clinuxport(owner, devname, std::string("phy")),
 	baddr(AF_PACKET, ETH_P_ALL, devname, 0, 0, NULL, 0)
 {
 	WRITELOG(CPORT, DBG, "cethport::cethport dev(%s)", devname.c_str());
@@ -17,11 +17,9 @@ cethport::cethport(std::string devname, int port_no) :
 	cethport::cethport_list.insert(this);
 
 	enable_interface();
-	get_port_no();
-	get_config();
 	get_hw_addr();
 
-	WRITELOG(CPORT, DBG, "cethport::cethport dev(%s) port-no(%d)", devname.c_str(), port_no);
+	WRITELOG(CPORT, DBG, "cethport::cethport dev(%s)", devname.c_str());
 
 	WRITELOG(CPORT, DBG, cport::c_str());
 }
@@ -30,9 +28,6 @@ cethport::cethport(std::string devname, int port_no) :
 cethport::~cethport()
 {
 	WRITELOG(CPORT, DBG, "cethport::~cethport dev(%s)", devname.c_str());
-	try {
-		port_owner()->port_detach(this);
-	} catch (ePortNotFound& e) { }
 	cethport::cethport_list.erase(this);
 }
 
@@ -66,7 +61,8 @@ cethport::handle_read(int fd)
 		}
 		else
 		{
-			cpacket *pack = new cpacket(mem, port_no); // calls classify() internally
+			cpacket *pack = new cpacket(mem); // calls classify() internally
+
 
 			if (pack->ether()->get_dl_src() == get_hw_addr())
 			{
@@ -74,9 +70,9 @@ cethport::handle_read(int fd)
 				fprintf(stderr, "cethport: rcvd packet from ourselves, stop here %s => %s <= %s\n",
 						devname.c_str(), ether.get_dl_src().c_str(), ether.c_str());
 #endif
-				delete pack;
-				return;
+				delete pack; return;
 			}
+
 
 			WRITELOG(CPORT, DBG, "cethport(%p)::handle_revent() [%s] rc=%d "
 							 "pack[%p] %s",
@@ -86,8 +82,7 @@ cethport::handle_read(int fd)
 							 pack,
 							 pack->c_str());
 
-			port_owner()->store(this, pack);
-			port_owner()->enqueue(this);
+			owner->enqueue(this, pack);
 
 			//port_owner()->enqueue(port_no, pack);
 		}
@@ -112,7 +107,6 @@ cethport::handle_out_queue()
 
 	int i = 0;
 
-	Lock lock(&queuelock);
 	while (not pout_queue.empty() && (++i < OUT_QUEUE_MAX_TX_PER_ROUND)) // limit #  of packets this method
 	{							// sends per round to 128
 		cpacket *pack = pout_queue.front();
@@ -128,6 +122,8 @@ cethport::handle_out_queue()
 		csocket::send_packet(mem);
 
 		pout_queue.pop_front();
+
+		delete pack;
 	}
 }
 

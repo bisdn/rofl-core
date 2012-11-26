@@ -16,7 +16,10 @@
 
 class cunixport_search;
 
-class cunixport : public csocket, public clinuxport {
+class cunixport :
+	public csocket,
+	public clinuxport
+{
 public:
 
 	//
@@ -51,11 +54,20 @@ public:
 
 public:
 
-	// constructor
-	cunixport(std::string devname, int port_no = -1);
-	// destructor
+	/**
+	 *
+	 */
+	cunixport(
+			cport_owner *owner,
+			std::string devname);
+
+
+	/**
+	 *
+	 */
 	virtual
 	~cunixport();
+
 
 protected:
 

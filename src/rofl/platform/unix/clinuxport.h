@@ -25,19 +25,40 @@ extern "C" {
 
 #include "rofl/common/cport.h"
 
-class clinuxport: public cport {
+class clinuxport :
+	public cport
+{
 public:
-	clinuxport(std::string devname, std::string type, int port_no);
 
-	/** get curr speed
+		cmacaddr		hwaddr;
+		uint32_t		ifindex;
+		uint32_t		state;
+		uint32_t		curr_speed;
+		uint32_t		max_speed;
+
+public:
+
+	/**
+	 *
+	 */
+	clinuxport(
+			cport_owner *owner,
+			std::string devname,
+			std::string devtype);
+
+
+	/**
+	 *
 	 */
 	virtual uint32_t
 	get_curr_speed();
+
 
 	/** get max speed
 	 */
 	virtual uint32_t
 	get_max_speed();
+
 
 	/** get hw_addr: stores mac address of port in cmacaddr
 	 *

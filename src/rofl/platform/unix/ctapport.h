@@ -61,12 +61,15 @@ public: // static
 
 public:
 
+
 	/** constructor
 	 *
 	 */
-	ctapport(std::string devname,
-			int port_no = -1,
+	ctapport(
+			cport_owner *owner,
+			std::string devname,
 			cmacaddr const& ma = cmacaddr("00:00:00:00:00:00"));
+
 
 	/** destructor
 	 *

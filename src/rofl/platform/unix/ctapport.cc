@@ -6,8 +6,12 @@
 
 std::set<ctapport*> ctapport::ctapport_list;
 
-ctapport::ctapport(std::string devname, int port_no, cmacaddr const& maddr) :
-	clinuxport(devname, std::string("phy"), port_no),
+
+ctapport::ctapport(
+		cport_owner *owner,
+		std::string devname,
+		cmacaddr const& maddr) :
+	clinuxport(owner, devname, std::string("phy")),
 	fd(-1)
 {
 	WRITELOG(CPORT, DBG, "ctapport(%p)::ctapport dev(%s)", this, devname.c_str());
@@ -27,8 +31,6 @@ ctapport::ctapport(std::string devname, int port_no, cmacaddr const& maddr) :
 		}
 	}
 
-	get_port_no();
-	get_config();
 	get_hw_addr();
 	WRITELOG(CPORT, DBG, c_str());
 }
@@ -71,8 +73,7 @@ ctapport::handle_revent(int fd)
 
 			WRITELOG(CPORT, DBG, "ctapport(%p)::handle_revent() %s", this, pack->c_str());
 
-			port_owner()->store(this, new cpacket(mem, port_no));
-			port_owner()->enqueue(this);
+			owner->enqueue(this, new cpacket(mem));
 		}
 
 	} catch (eSocketReadFailed& e) {

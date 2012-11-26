@@ -6,9 +6,12 @@
 
 std::set<cunixport*> cunixport::cunixport_list;
 
-cunixport::cunixport(std::string devname, int port_no) :
+
+cunixport::cunixport(
+		cport_owner *owner,
+		std::string devname) :
 		csocket(0, PF_UNIX, SOCK_DGRAM, 0),
-		clinuxport(devname, std::string("vport"), port_no),
+		clinuxport(owner, devname, std::string("vport")),
 		baddr(AF_UNIX, devname.c_str())
 {
 	cpopen(baddr, PF_UNIX, SOCK_DGRAM, 0);
@@ -53,8 +56,7 @@ cunixport::handle_read(int fd)
 		}
 		else
 		{
-			port_owner()->store(this, new cpacket(mem, port_no));
-			port_owner()->enqueue(this);
+			owner->enqueue(this, new cpacket(mem));
 		}
 
 	} catch (eSocketReadFailed& e) {

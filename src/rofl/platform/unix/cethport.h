@@ -57,11 +57,21 @@ public:
 
 public:
 
-	// constructor
-	cethport(std::string devname, int __port_no = -1);
-	// destructor
+
+	/**
+	 *
+	 */
+	cethport(
+			cport_owner *owner,
+			std::string devname);
+
+
+	/**
+	 *
+	 */
 	virtual
 	~cethport();
+
 
 protected:
 
