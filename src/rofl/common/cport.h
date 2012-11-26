@@ -165,7 +165,6 @@ class cport :
 {
 private: // data structures
 
-	static std::set<cport*> 	cport_list; 	// static list of all basic cports
 	std::string 				info;
 
 protected: // data structures
@@ -192,6 +191,8 @@ protected: // data structures
 	std::deque<cpacket*>		pout_queue;
 
 public: // data structures
+
+	static std::set<cport*> 	cport_list; 	// static list of all basic cports
 
 	// values for struct ofp_phy_port
 	std::string 				devname;    // port name
@@ -300,7 +301,7 @@ protected: // methods
 	 * handle out queue
 	 */
 	virtual void
-	handle_out_queue() = 0;
+	handle_out_queue() {};
 
 
 public: // helper classes
