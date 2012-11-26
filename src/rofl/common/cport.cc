@@ -30,7 +30,12 @@ cport::cport(
 			collisions(0xffffffff)
 {
 	cport::cport_list.insert(this);
-	WRITELOG(CPORT, DBG, "cport(%p)::cport() %s", this, c_str());
+	WRITELOG(CPORT, DBG, "cport(%s)::cport() %s", devname.c_str(), c_str());
+
+	if (owner)
+	{
+		owner->port_init(this);
+	}
 }
 
 
@@ -97,7 +102,7 @@ cport::enqueue(
 		delete pout_queue.front(); pout_queue.pop_front();
 	}
 
-	cport::handle_out_queue(); // call derived cport class
+	handle_out_queue(); // call derived cport class
 }
 
 
@@ -126,7 +131,7 @@ cport::enqueue(
 		delete pout_queue.front(); pout_queue.pop_front();
 	}
 
-	cport::handle_out_queue();
+	handle_out_queue();
 }
 
 

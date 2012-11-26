@@ -83,6 +83,14 @@ public: // methods
 		/**
 		 *
 		 */
+		bool
+		operator< (
+				coxmlist const& oxm) const;
+
+
+		/**
+		 *
+		 */
 		void
 		clear();
 

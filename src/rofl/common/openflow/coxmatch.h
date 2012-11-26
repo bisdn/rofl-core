@@ -151,6 +151,13 @@ public: // methods
 	operator== (
 			coxmatch const& oxm);
 
+	/**
+	 *
+	 */
+	bool
+	operator< (
+			coxmatch const& oxm);
+
 
 	/** reset (=clears all actions)
 	 *

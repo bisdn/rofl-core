@@ -59,6 +59,16 @@ cofmatch::operator= (const cofmatch& m)
 }
 
 
+
+bool
+cofmatch::operator< (
+		cofmatch const& m) const
+{
+	return (oxmlist < m.oxmlist);
+}
+
+
+
 void
 cofmatch::reset()
 {

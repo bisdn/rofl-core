@@ -93,6 +93,13 @@ public: // methods
 	operator= (const cofmatch& m);
 	
 
+	/** less operator
+	 *
+	 */
+	bool
+	operator< (cofmatch const& m) const;
+
+
 	/** dump cofmatch instance
 	 */
 	const char*

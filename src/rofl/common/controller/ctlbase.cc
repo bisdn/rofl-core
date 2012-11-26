@@ -303,6 +303,9 @@ ctlbase::handle_packet_out(
 	 */
 	// ...
 
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_out() "
+			"pack: %s",
+			dpname.c_str(), pack->packet.c_str());
 
 	ctlbase::send_packet_out_message(
 			be32toh(pack->ofh_packet_out->buffer_id),

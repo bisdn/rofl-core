@@ -48,12 +48,14 @@ void
 ctapport::handle_revent(int fd)
 {
 	WRITELOG(CPORT, DBG, "ctapport(%p)::handle_revent()", this);
-	class cpacket * pack = new cpacket();
+
+	cmemory *mem = new cmemory(1526);
 
 	try {
-		cmemory *mem = new cmemory(1526);
 
 		int rc = read(fd, (void*)mem->somem(), mem->memlen());
+
+		mem->resize(rc);
 
 		// error occured (or non-blocking)
 		if (rc < 0)
@@ -70,17 +72,15 @@ ctapport::handle_revent(int fd)
 		}
 		else
 		{
-
-			WRITELOG(CPORT, DBG, "ctapport(%p)::handle_revent() %s", this, pack->c_str());
-
 			owner->enqueue(this, new cpacket(mem));
 		}
 
 	} catch (eSocketReadFailed& e) {
-		delete pack;
+		delete mem;
 
 	} catch (ePortNotFound& e) {
-		delete pack;
+		delete mem;
+
 	}
 }
 
@@ -88,6 +88,7 @@ ctapport::handle_revent(int fd)
 void
 ctapport::handle_out_queue()
 {
+	WRITELOG(CPORT, DBG, "ctapport(%s)::handle_wevent() pout_queue.size()=%d", devname.c_str(), (int)pout_queue.size());
 	cport::register_filedesc_w(fd); // register our socket for write operation
 }
 
@@ -166,6 +167,11 @@ ctapport::tap_open(std::string devname)
 	enable_interface();
 
 	register_filedesc_r(fd);
+
+	if (0 != owner)
+	{
+		owner->port_open(this);
+	}
 }
 
 
@@ -176,6 +182,11 @@ ctapport::tap_close()
 	{
 		deregister_filedesc_r(fd);
 		close(fd);
+
+		if (0 != owner)
+		{
+			owner->port_close(this);
+		}
 	}
 }
 

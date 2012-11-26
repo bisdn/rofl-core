@@ -281,7 +281,16 @@ cmemory::resize(
 	}
 	else if (len <= data.second)
 	{
-		return data.first;
+		if ((data.first = (uint8_t*)realloc(data.first, len)) == 0)
+		{
+			//fprintf(stderr, "UUU p_len: %lu\n", p_len);
+			throw eMemAllocFailed();
+		}
+
+		//memset(data.first + len, 0x00, data.second);
+
+		// adjust data
+		data.second = len;
 	}
 	else
 	{

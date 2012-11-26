@@ -118,6 +118,33 @@ coxmatch::operator== (
 }
 
 
+bool
+coxmatch::operator< (
+		coxmatch const& oxm)
+{
+	if (get_oxm_class() != oxm.get_oxm_class())
+	{
+		return (get_oxm_class() < oxm.get_oxm_class());
+	}
+	if (get_oxm_field() != oxm.get_oxm_field())
+	{
+		return (get_oxm_field() < oxm.get_oxm_field());
+	}
+	size_t len = (memlen() < oxm.memlen()) ? memlen() : oxm.memlen();
+	int rc = memcmp(somem(), oxm.somem(), len);
+
+	if (rc < 0)
+	{
+		return true;
+	}
+	else if (rc > 0)
+	{
+		return false;
+	}
+	return false;
+}
+
+
 void
 coxmatch::reset()
 {

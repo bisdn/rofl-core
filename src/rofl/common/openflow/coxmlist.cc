@@ -60,6 +60,42 @@ coxmlist::operator= (
 }
 
 
+
+bool
+coxmlist::operator< (
+		coxmlist const& oxm) const
+{
+	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
+	{
+		if ((0 == oxmvec[i]) && (0 == oxm.oxmvec[i]))
+		{
+			continue;
+		}
+		else if ((0 != oxmvec[i]) && (0 != oxm.oxmvec[i]))
+		{
+			if (*(oxmvec[i]) == *(oxm.oxmvec[i]))
+			{
+				continue;
+			}
+			else
+			{
+				return (*(oxmvec[i]) < *(oxm.oxmvec[i]));
+			}
+		}
+		else if (0 != oxmvec[i])
+		{
+			return false;
+		}
+		else if (0 != oxm.oxmvec[i])
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
 void
 coxmlist::clear()
 {

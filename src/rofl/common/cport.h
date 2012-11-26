@@ -301,7 +301,7 @@ protected: // methods
 	 * handle out queue
 	 */
 	virtual void
-	handle_out_queue() {};
+	handle_out_queue() = 0;
 
 
 public: // helper classes
