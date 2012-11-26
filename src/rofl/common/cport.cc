@@ -4,7 +4,7 @@
 
 #include "cport.h"
 
-/* static */std::set<cport::cport_owner*> cport::cport_owner::cport_owner_list;
+/* static */std::set<cport_owner*> cport_owner::cport_owner_list;
 /* static */ std::set<cport*> cport::cport_list;
 
 cport::cport(
@@ -66,7 +66,7 @@ cport::~cport()
 }
 
 
-cport::cport_owner*
+cport_owner*
 cport::port_owner()
 {
 	cport_owner::exists(powner);
@@ -494,17 +494,17 @@ cport::get_peer()
  * cport owner related methods
  */
 
-cport::cport_owner::cport_owner()
+cport_owner::cport_owner()
 {
-	WRITELOG(CPORT, DBG, "cport::cport_owner(%p)::cport_owner() -constructor-", this);
+	WRITELOG(CPORT, DBG, "cport_owner(%p)::cport_owner() -constructor-", this);
 	cport_owner::cport_owner_list.insert(this);
 }
 
 
-cport::cport_owner::~cport_owner()
+cport_owner::~cport_owner()
 {
 	cport_owner::cport_owner_list.erase(this);
-	WRITELOG(CPORT, DBG, "cport::cport_owner(%p)::~cport_owner() -destructor-", this);
+	WRITELOG(CPORT, DBG, "cport_owner(%p)::~cport_owner() -destructor-", this);
 
 	for (std::map<cport*, std::deque<cpacket*> >::iterator
 			it = pin_queue.begin(); it != pin_queue.end(); ++it)
@@ -521,7 +521,7 @@ cport::cport_owner::~cport_owner()
 
 
 const char*
-cport::cport_owner::c_str()
+cport_owner::c_str()
 {
 	cvastring vas;
 	info.assign(vas("cport_owner(%p): =>", this));
@@ -536,7 +536,7 @@ cport::cport_owner::c_str()
 
 
 void
-cport::cport_owner::port_attach(cport *port)
+cport_owner::port_attach(cport *port)
 {
 	std::set<cport*>::iterator it;
 	if ((it = port_list.find(port)) == port_list.end())
@@ -555,7 +555,7 @@ cport::cport_owner::port_attach(cport *port)
 
 
 void
-cport::cport_owner::port_detach(cport *port)
+cport_owner::port_detach(cport *port)
 {
 	port_list.erase(port);
 
@@ -570,7 +570,7 @@ cport::cport_owner::port_detach(cport *port)
 
 
 void
-cport::cport_owner::handle_timeout(
+cport_owner::handle_timeout(
 		int opaque)
 {
 	switch (opaque) {
@@ -586,7 +586,7 @@ cport::cport_owner::handle_timeout(
 
 
 void
-cport::cport_owner::handle_event(
+cport_owner::handle_event(
 		cevent const& ev)
 {
 	switch (ev.cmd) {
@@ -602,7 +602,7 @@ cport::cport_owner::handle_event(
 
 
 void
-cport::cport_owner::__handle_cport_packet_in()
+cport_owner::__handle_cport_packet_in()
 {
 	flags.reset(CPORT_OWNER_FLAG_PIN_QUEUE);
 
@@ -612,7 +612,7 @@ cport::cport_owner::__handle_cport_packet_in()
 		cport *port = (*it);
 
 
-		//fprintf(stdout, "cport::cport_owner(%p)::handle_cport_packet_in() "
+		//fprintf(stdout, "cport_owner(%p)::handle_cport_packet_in() "
 		//		"pin_queue[%s].size():%lu\n", this, port->devname.c_str(), pin_queue[port].size());
 
 		handle_cport_packet_in(port, pin_queue[port]);
@@ -624,7 +624,7 @@ cport::cport_owner::__handle_cport_packet_in()
 
 
 void
-cport::cport_owner::store(cport *port, cpacket *pack)
+cport_owner::store(cport *port, cpacket *pack)
 {
 	try {
 		//fprintf(stdout, "cport_owner ENQUEUE pack:%p\n", pack);
@@ -653,7 +653,7 @@ cport::cport_owner::store(cport *port, cpacket *pack)
 
 
 void
-cport::cport_owner::enqueue(cport *port)
+cport_owner::enqueue(cport *port)
 {
 	pin_cports.push_back(port);
 
@@ -673,3 +673,17 @@ cport::cport_owner::enqueue(cport *port)
 		notify(cevent(CPORT_OWNER_EVENT_PIN_QUEUE));
 	}
 }
+
+
+
+
+/*static*/
+cport_owner*
+exists(cport_owner *owner) throw (ePortNotFound)
+{
+	if (cport_owner::cport_owner_list.find(owner) == cport_owner::cport_owner_list.end())
+	{
+		throw ePortNotFound();
+	}
+	return owner;
+};

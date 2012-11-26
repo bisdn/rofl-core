@@ -80,6 +80,154 @@ public:
 
 
 
+
+class cport; // forward declaration, see below
+
+
+
+
+/** callback abstract base class for cport
+ *
+ */
+class cport_owner :
+	public virtual ciosrv
+{
+private: // data structures
+
+	std::map<cport*, std::deque<cpacket*> > pin_queue; // list of incoming packets per cport
+
+	std::deque<cport*> pin_cports; // list of cports sending a notification to cport_owner
+
+	std::string info;
+
+protected: // data structures
+
+	std::set<cport*> port_list; // list of attached cports
+
+public: // static
+
+	static std::set<cport_owner*> cport_owner_list;
+
+	enum unittest_timer_t {
+		CPORT_OWNER_TIMER_BASE = (0x9b33 << 16), // base timer value
+		CPORT_OWNER_TIMER_PACKET_IN,	// packet in event on cport
+	};
+
+	enum cport_owner_flag_t {
+		CPORT_OWNER_FLAG_PIN_QUEUE = (1 << 0),
+	};
+
+	enum cport_owner_event_t {
+		CPORT_OWNER_EVENT_PIN_QUEUE = ((0x8be3 << 16) + (1 << 0)),
+	};
+
+	std::bitset<32> flags; // port owner flags
+
+
+public: // static
+
+	/**
+	 *
+	 */
+	static cport_owner*
+	exists(cport_owner *owner)
+			throw (ePortNotFound);
+
+
+	/**
+	 *
+	 */
+	const char*
+	c_str();
+
+public: // overloaded from ciosrv
+
+	/** Handle timeout events. This method is overwritten from ciosrv.
+	 *
+	 * @param opaque expired timer type
+	 */
+	virtual void
+	handle_timeout(
+			int opaque);
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_event(
+			cevent const& ev);
+
+public:
+	// constructor
+	cport_owner();
+
+	// destructor
+	virtual
+	~cport_owner();
+
+	// port_attach
+	virtual void
+	port_attach(cport *port);
+
+	// port_detach
+	virtual void
+	port_detach(cport *port);
+
+	/** store packet in cport_owner::pin_queue
+	 * this does not inform cport_owner about new packets (see enqueue() for this)
+	 */
+	void
+	store(cport* port, cpacket* pack);
+
+	/** send notification (=enqueue) about new packets to cport_owner
+	 * this triggers consumption of pin_queue by cport_owner
+	 */
+	void
+	enqueue(cport *port);
+
+
+protected: // methods
+
+	/** handle packets received from an attached port in derived class
+	 * cpacket *pack must be deleted from heap by called method
+	 */
+	virtual void
+	handle_cport_packet_in(
+			cport* port,
+			std::deque<cpacket*>& pktlist) = 0; // pure virtual
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_port_attach(cport *port) = 0; // pure virtual
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_port_detach(cport *port) = 0; // pure virtual
+
+
+
+private: // methods
+
+	/** handle packets received from an attached cport
+	 */
+	void
+	__handle_cport_packet_in();
+};
+
+
+
+
+
+
+
+
+
+
+
 class cport :
 	public ciosrv
 {
@@ -101,8 +249,6 @@ protected:
 	};
 
 public: // class wide static methods and data structures
-
-	class cport_owner; // forward declaration
 
 	// static list of all basic cports
 	static std::set<cport*> cport_list;
@@ -383,148 +529,7 @@ public: // helper classes
 
 public:
 
-	/** callback abstract base class for cport
-	 *
-	 */
-	class cport_owner : public virtual ciosrv {
-		static std::set<cport_owner*> owner_list;
-	public: // static
 
-		enum unittest_timer_t {
-			CPORT_OWNER_TIMER_BASE = (0x9b33 << 16), // base timer value
-			CPORT_OWNER_TIMER_PACKET_IN,	// packet in event on cport
-		};
-
-		enum cport_owner_flag_t {
-			CPORT_OWNER_FLAG_PIN_QUEUE = (1 << 0),
-		};
-
-		enum cport_owner_event_t {
-			CPORT_OWNER_EVENT_PIN_QUEUE = ((0x8be3 << 16) + (1 << 0)),
-		};
-
-		std::bitset<32> flags; // port owner flags
-
-	protected: //static
-		static std::set<cport_owner*> cport_owner_list;
-
-	public: // static
-
-		// cport_owner exists?
-		static cport_owner*
-		exists(cport_owner *owner) throw (ePortNotFound)
-		{
-			if (cport_owner_list.find(owner) == cport_owner_list.end())
-			{
-#if 1
-				std::set<cport_owner*>::iterator it;
-				for (it = cport_owner_list.begin(); it != cport_owner_list.end(); ++it)
-				{
-					WRITELOG(CFWD, DBG, "cport_owner::exists(%p) (*it): %p", owner, (*it));
-				}
-#endif
-				throw ePortNotFound();
-			}
-			return owner;
-		};
-
-		/**
-		 *
-		 */
-		const char*
-		c_str();
-
-	public: // overloaded from ciosrv
-
-		/** Handle timeout events. This method is overwritten from ciosrv.
-		 *
-		 * @param opaque expired timer type
-		 */
-		virtual void
-		handle_timeout(
-				int opaque);
-
-		/**
-		 *
-		 */
-		virtual void
-		handle_event(
-				cevent const& ev);
-
-	public:
-		// constructor
-		cport_owner();
-
-		// destructor
-		virtual
-		~cport_owner();
-
-		// port_attach
-		virtual void
-		port_attach(cport *port);
-
-		// port_detach
-		virtual void
-		port_detach(cport *port);
-
-		/** store packet in cport_owner::pin_queue
-		 * this does not inform cport_owner about new packets (see enqueue() for this)
-		 */
-		void
-		store(cport* port, cpacket* pack);
-
-		/** send notification (=enqueue) about new packets to cport_owner
-		 * this triggers consumption of pin_queue by cport_owner
-		 */
-		void
-		enqueue(cport *port);
-
-
-	protected: // data structures
-
-		std::set<cport*> port_list; // list of attached cports
-
-	protected: // methods
-
-		/** handle packets received from an attached port in derived class
-		 * cpacket *pack must be deleted from heap by called method
-		 */
-		virtual void
-		handle_cport_packet_in(
-				cport* port,
-				std::deque<cpacket*>& pktlist) = 0; // pure virtual
-
-		/**
-		 *
-		 */
-		virtual void
-		handle_port_attach(cport *port) = 0; // pure virtual
-
-		/**
-		 *
-		 */
-		virtual void
-		handle_port_detach(cport *port) = 0; // pure virtual
-
-
-	private: // data structures
-
-		//std::map<cport*, std::list<cpacket*> > pin_queue; // list of incoming packets per cport
-		//std::list<std::pair<cport*, cpacket*> > pin_queue; // list of incoming packets per cport
-
-		std::map<cport*, std::deque<cpacket*> > pin_queue; // list of incoming packets per cport
-
-		std::deque<cport*> pin_cports; // list of cports sending a notification to cport_owner
-
-		std::string info;
-
-	private: // methods
-
-		/** handle packets received from an attached cport
-		 */
-		void
-		__handle_cport_packet_in();
-	};
 
 };
 
