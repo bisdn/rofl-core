@@ -193,6 +193,10 @@ cofctl::handle_accepted(
 		int newsd,
 		caddress const& ra)
 {
+#ifndef NDEBUG
+	caddress raddr(ra);
+	fprintf(stderr, "A:ctl[%s] ", raddr.c_str());
+#endif
 	// do nothing
 }
 
@@ -203,6 +207,9 @@ cofctl::handle_connected(
 		csocket *socket,
 		int sd)
 {
+#ifndef NDEBUG
+	fprintf(stderr, "C:ctl[%s] ", socket->raddr.c_str());
+#endif
 	rofbase->handle_ctl_open(this);
 
 	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, 0);

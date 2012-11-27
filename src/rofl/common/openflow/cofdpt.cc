@@ -101,7 +101,10 @@ cofdpt::handle_accepted(
 		int newsd,
 		caddress const& ra)
 {
-
+#ifndef NDEBUG
+	caddress raddr(ra);
+	fprintf(stderr, "A:dpt[%s] ", raddr.c_str());
+#endif
 }
 
 
@@ -111,6 +114,9 @@ cofdpt::handle_connected(
 		csocket *socket,
 		int sd)
 {
+#ifndef NDEBUG
+	fprintf(stderr, "C:dpt[%s] ", socket->raddr.c_str());
+#endif
 	new_state(COFDPT_STATE_WAIT_FEATURES);
 
 	rofbase->send_features_request(this);
