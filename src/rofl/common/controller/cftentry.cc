@@ -647,19 +647,12 @@ cftentry::get_aggregate_flow_stats(
 	 */
 	if (not ofmatch.overlaps(m, false /*non-strict*/))
 	{
-#ifndef NDEBUG
 		cofmatch test(m);
-		fprintf(stderr, "\n\n X => \ntest: %s\nofmatch: %s", test.c_str(), ofmatch.c_str());
-#endif
+		WRITELOG(CFTTABLE, DBG, "cftentry::get_aggregate_flow_stats() "
+				"MISMATCH => \ntest: %s\nofmatch: %s", test.c_str(), ofmatch.c_str());
+
 		return;
 	}
-#ifndef NDEBUG
-	else
-	{
-		cofmatch test(m);
-		fprintf(stderr, "\n\n Z => \ntest: %s\nofmatch: %s", test.c_str(), ofmatch.c_str());
-	}
-#endif
 
 	/*
 	 * out_port must match, if not OFPP_ANY
