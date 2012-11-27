@@ -167,11 +167,19 @@ crofbase::handle_accepted(
 {
 	if (rpc[RPC_CTL].find(socket) != rpc[RPC_CTL].end())
 	{
+#ifndef NDEBUG
+		caddress raddr(ra);
+		fprintf(stderr, "A:ctl[%s] ", raddr.c_str());
+#endif
 		WRITELOG(CROFBASE, INFO, "crofbase(%p): new ctl TCP connection", this);
 		ofctl_set.insert(cofctl_factory(this, newsd, ra, socket->domain, socket->type, socket->protocol));
 	}
 	else if (rpc[RPC_DPT].find(socket) != rpc[RPC_DPT].end())
 	{
+#ifndef NDEBUG
+		caddress raddr(ra);
+		fprintf(stderr, "A:dpt[%s] ", raddr.c_str());
+#endif
 		WRITELOG(CROFBASE, INFO, "crofbase(%p): new dpt TCP connection", this);
 		ofdpt_set.insert(cofdpt_factory(this, newsd, ra, socket->domain, socket->type, socket->protocol));
 	}
