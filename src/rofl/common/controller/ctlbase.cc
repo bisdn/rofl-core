@@ -801,7 +801,9 @@ ctlbase::ctl_handle_port_status(
 				"sending to ctl: %s\n"
 				"ctlbase: %s", dpname.c_str(), (*it)->c_str());
 
-		send_port_status_message(reason, ofport);
+		try {
+			send_port_status_message(reason, ofport);
+		} catch (eRofBaseNoCtrl& e) {}
 	}
 }
 
