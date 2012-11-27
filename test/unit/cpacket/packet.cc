@@ -184,8 +184,8 @@ create_ipv4_header(
 	ipv4[9] = proto;
 	ipv4[10] = 0xaf; // header checksum
 	ipv4[11] = 0xfa; // header checksum
-	memcpy(&ipv4[12], &(src.s4addr->sin_addr.s_addr), sizeof(uint32_t));
-	memcpy(&ipv4[16], &(dst.s4addr->sin_addr.s_addr), sizeof(uint32_t));
+	memcpy(&ipv4[12], &(src.ca_s4addr->sin_addr.s_addr), sizeof(uint32_t));
+	memcpy(&ipv4[16], &(dst.ca_s4addr->sin_addr.s_addr), sizeof(uint32_t));
 
 	return ipv4;
 }
