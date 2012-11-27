@@ -146,6 +146,9 @@ ctapport::tap_open(std::string devname)
 	int rc;
 
 	if ((fd = open("/dev/net/tun", O_RDWR|O_NONBLOCK)) < 0) {
+#ifndef NDEBUG
+		fprintf(stderr, "ctapport(%s)::tap_open() errno: %d(%s)\n", devname.c_str(), errno, strerror(errno));
+#endif
 		throw eTapPortOpenFailed();
 	}
 
