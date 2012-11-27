@@ -1,0 +1,14 @@
+MAINTAINERCLEANFILES = Makefile.in
+
+noinst_LTLIBRARIES = librofl_pipeline_common.la
+
+librofl_pipeline_common_ladir = $(includedir)/rofl/pipeline/common
+
+librofl_pipeline_common_la_HEADERS = \
+	datapacket.h \
+	ternary_fields.h
+
+librofl_pipeline_common_la_SOURCES = \
+	datapacket.h \
+	ternary_fields.c \
+	ternary_fields.h

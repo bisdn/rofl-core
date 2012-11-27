@@ -18,6 +18,7 @@ AC_ENABLE_STATIC
 # default flags
 CFLAGS="-Werror -Wall $CFLAGS"
 CXXFLAGS="-Werror -Wall $CXXFLAGS"
+AC_DEFINE(__STDC_FORMAT_MACROS)
 
 # Check for debug mode - MUST BE THE FIRST CHECK
 AC_MSG_CHECKING(whether to enable debug mode)
@@ -86,7 +87,87 @@ else
 	AC_MSG_RESULT(no)
 fi
 
-AC_DEFINE(__STDC_FORMAT_MACROS)
+
+
+AC_MSG_CHECKING(for pipeline support)
+PIPELINE_SUPPORT="no"
+AC_ARG_ENABLE(pipeline,
+	AS_HELP_STRING([--enable-pipeline], [Enable pipeline support [default=no]]),
+[ if test "$enableval" = "yes"; then
+    PIPELINE_SUPPORT="yes"
+    AC_DEFINE(PIPELINE_SUPPORT)
+  fi
+], [])
+AC_MSG_RESULT($PIPELINE_SUPPORT)
+AM_CONDITIONAL(PIPELINE_SUPPORT, test $PIPELINE_SUPPORT = yes)
+AM_COND_IF([PIPELINE_SUPPORT],[AC_CONFIG_FILES([
+        src/pipeline/Makefile
+        src/pipeline/common/Makefile
+        src/pipeline/platform/Makefile
+        src/pipeline/openflow/Makefile
+        src/pipeline/openflow/openflow12/Makefile
+        src/pipeline/openflow/openflow12/pipeline/Makefile
+        src/pipeline/openflow/openflow12/pipeline/matching_algorithms/Makefile
+        src/pipeline/util/Makefile])])
+
+## pipeline
+MATCHING_ALGORITHMS_DIR="src/pipeline/openflow/openflow12/pipeline/matching_algorithms"
+AC_SUBST(MATCHING_ALGORITHMS_DIR)
+MATCHING_ALGORITHMS="loop"
+MATCHING_ALGORITHM_LIBS=""
+MATCHING_ALGORITHM_LIBADD=""
+# pipeline matching algorithms
+AC_ARG_ENABLE(matching-algorithms,
+	AS_HELP_STRING([--enable-matching-algorithms="list of matching algorithms"],
+  		[Build support for the list of matching algorithms. The 
+  		default is to build the loop matching algorithm.]),
+[ case $enableval in
+  yes)
+  		# add all algorithms in $MATCHING_ALGORITHMS_DIR
+        for dir in $srcdir/$MATCHING_ALGORITHMS_DIR/*; do
+            algorithm="`basename $dir`"
+            if test -d "$dir"; then
+                MATCHING_ALGORITHMS="$MATCHING_ALGORITHMS $algorithm"
+            fi
+        done
+        ;;
+  no)
+        ;;
+  *)
+        MATCHING_ALGORITHMS="`echo $enableval| sed -e 's/,/ /g;s/  */ /g'`"
+        ;;
+  esac
+],[])
+if test -n "$MATCHING_ALGORITHMS"; then
+    # ensure that all algorithms a) exist and b) only include once.
+    MATCHING_ALGORITHMS_FULL=$MATCHING_ALGORITHMS
+    MATCHING_ALGORITHMS=
+    for algorithm in $MATCHING_ALGORITHMS_FULL; do
+        have_alg=`echo "$MATCHING_ALGORITHMS" | grep "$algorithm"`
+        if test "$have_alg" != ""; then
+            AC_MSG_NOTICE([Removing duplicate $algorithm from matching algorithms])
+        elif test -d "$srcdir/$MATCHING_ALGORITHMS_DIR/$algorithm"; then
+            MATCHING_ALGORITHMS="$MATCHING_ALGORITHMS $algorithm"
+            MATCHING_ALGORITHM_LIBADD="$MATCHING_ALGORITHM_LIBADD librofl_pipeline_openflow12_pipeline_matching_algorithms_$algorithm.la"
+        else
+            MATCHING_ALGORITHMS="$MATCHING_ALGORITHMS $algorithm"
+        	MATCHING_ALGORITHM_AS_LIBS="$MATCHING_ALGORITHM_AS_LIBS $algorithm"
+            MATCHING_ALGORITHM_LIBS="MATCHING_ALGORITHM_LIBS -lrofl_pipeline_openflow12_pipeline_matching_algorithms_$algorithm"
+        fi
+    done
+    AC_MSG_NOTICE([Matching algorithms built: $MATCHING_ALGORITHMS])
+    AC_MSG_NOTICE([Matching algorithms as libs: $MATCHING_ALGORITHM_AS_LIBS])
+fi
+
+for algorithm in $MATCHING_ALGORITHMS; do
+    HAVE_MATHING_ALGORITHM=HAVE_MA_`echo $algorithm | sed 's/\(.*\)/\U\1/'`
+    AC_DEFINE_UNQUOTED($HAVE_MATHING_ALGORITHM, 1)
+done
+
+AC_SUBST(MATCHING_ALGORITHM_LIBADD)
+AC_SUBST(MATCHING_ALGORITHM_LIBS)
+AC_SUBST(MATCHING_ALGORITHMS)
+
 
 #Check libs used
 AC_CHECK_LIB(pthread, pthread_kill,,AC_MSG_ERROR([pthread library not found])) 

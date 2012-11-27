@@ -1,4 +1,7 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = rofl
+if PIPELINE_SUPPORT
+PIPELINE_DIRS=pipeline
+endif
 
+SUBDIRS = rofl $(PIPELINE_DIRS)
