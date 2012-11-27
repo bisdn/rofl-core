@@ -1185,14 +1185,16 @@ ciosrv::run()
 
 handle_packets:			// handle incoming events
 
+#ifndef NDEBUG
+			ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
+#else
 			try {
 				ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
 			} catch (cerror& e) {
 				//fprintf(stderr, "exception\n");
-#ifndef NDEBUG
 				throw;
-#endif
 			}
+#endif
 
 		}
 	}
