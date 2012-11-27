@@ -647,13 +647,13 @@ cftentry::get_aggregate_flow_stats(
 	 */
 	if (not ofmatch.overlaps(m, false /*non-strict*/))
 	{
-#if 0
+#ifndef NDEBUG
 		cofmatch test(m);
 		fprintf(stderr, "\n\n X => \ntest: %s\nofmatch: %s", test.c_str(), ofmatch.c_str());
 #endif
 		return;
 	}
-#if 0
+#ifndef NDEBUG
 	else
 	{
 		cofmatch test(m);
