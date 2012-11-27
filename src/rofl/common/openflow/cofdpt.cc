@@ -226,8 +226,6 @@ cofdpt::handle_read(
 		}
 
 		handle_closed(socket, sd);
-
-		throw;
 	}
 
 }
