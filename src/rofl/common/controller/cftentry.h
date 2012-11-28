@@ -61,17 +61,56 @@ public:
 
 
 
-class eFteBase : public cerror {};
-class FteHwInsertFailed : public eFteBase {};
-class FteHwDestroyFailed : public eFteBase {};
-class eFteActionBadLen : public eFteBase {};
-class eFteInstNotFound : public eFteBase {};
-class eFteInvalid : public eFteBase {};
-class eFteUnAvail : public eFteBase {};
+class eFtEntryBase 				: public cerror {};
+class FteHwInsertFailed 		: public eFtEntryBase {};
+class FteHwDestroyFailed 		: public eFtEntryBase {};
+class eFteActionBadLen 			: public eFtEntryBase {};
+class eFteInstNotFound 			: public eFtEntryBase {};
+class eFteInvalid 				: public eFtEntryBase {};
+class eFteUnAvail 				: public eFtEntryBase {};
 
 
 // forward declaration
-class cftentry_owner;
+class cftentry;
+
+
+
+/** callback class for sending notifications to cftentry owning entities
+ */
+class cftentry_owner
+{
+public:
+	virtual ~cftentry_owner() {};
+	/**
+	 * @name	ftentry_delete
+	 * @brief  	notifies owner about a timeout event for this cftentry instance
+	 *
+	 * This method is called, when a timeout
+	 *
+	 */
+	virtual void
+	ftentry_delete(cftentry *entry) = 0;
+	/**
+	 * @name	ftentry_idle_timeout
+	 * @brief  	notifies owner about a timeout event for this cftentry instance
+	 *
+	 * This method is called, when a timeout
+	 *
+	 */
+	virtual void
+	ftentry_idle_timeout(cftentry *entry, uint16_t timeout) = 0;
+	/**
+	 * @name	ftentry_idle_timeout
+	 * @brief  	notifies owner about a timeout event for this cftentry instance
+	 *
+	 * This method is called, when a timeout
+	 *
+	 */
+	virtual void
+	ftentry_hard_timeout(cftentry *entry, uint16_t timeout) = 0;
+};
+
+
 
 
 
@@ -84,12 +123,57 @@ class cftentry :
 	public ciosrv,
 	public hw_fte_cb
 {
+private: // data structures
+
+		enum cftentry_event_t {
+			CFTENTRY_EVENT_DELETE_THIS = 1,
+		};
+
+		enum cftentry_timer_t {
+			TIMER_FTE_IDLE_TIMEOUT = 1,
+			TIMER_FTE_HARD_TIMEOUT = 2,
+		};
+
+		int 					ftsem; 				// semaphore counter
+		std::string 			info; 				// info string
+
+protected:
+
+		pthread_mutex_t 		ftmutex;	 		// mutex for this ftentry
+		cftentry_owner 			*owner;				// ptr to entity owning this cftentry
+		std::set<cftentry*> 	*flow_table;		// ptr to flow_table this entry belongs to
+
+public:
+
+		cofctl 					*ctl;			// cofctrl that generated this instance
+		uint64_t 				uid;				//Unique id of the flowspace (usually used for transactions)
+		std::bitset<32> 		flags;				// flags for this cpkbuff instance
+//#define CPKBUFF_COPY_ON_WRITE   0x00000001     	// copy packet before queueing on outgoing port
+
+		enum cftentry_flag_t {
+			CFTENTRY_COPY_ON_WRITE = (1 << 0),
+			CFTENTRY_FLAG_DELETE_THIS = (1 << 1),
+		};
+
+		cofinlist 				instructions;		// list of instructions
+		uint8_t 				removal_reason;		// reason for removing this flow entry
+		cclock 					flow_create_time;	// time when this flow entry was created
+		uint64_t 				rx_packets;			// number of packets handled by this ft-entry
+		uint64_t 				rx_bytes;			// number of bytes handled by this ft-entry
+		uint32_t 				out_port;			// output port for this ft-entry
+		uint32_t 				out_group;			// output group for this ft-entry
+		cofmatch 				ofmatch;			// cofmatch instance containing struct ofp_match for this ftentry
+		cmemory 				m_flowmod;			// memory area for storing the generic part of ofp_flow_mod
+		struct ofp_flow_mod 	*flow_mod;			// copy of ofp_flow_mod structure (network byte order)
+
+
+
 public:
 	/** constructor
 	 */
 	cftentry(
-			cfwdelem *fwdelem = NULL,
-			cofctl *ofctrl = NULL);
+			cftentry_owner *owner = NULL,
+			cofctl *ctl = NULL);
 
 	/** constructor
 	 */
@@ -126,6 +210,8 @@ public:
 	 */
 	cofinst&
 	find_inst(enum ofp_instruction_type type);
+
+
 
 	/** semaphore like method incrementing internal counter by one
 	 * prevents this fte to be removed or updated, while a cfwdengine accesses
@@ -235,62 +321,10 @@ public: // overloaded from hw_fte_cb
 	virtual int 
 	hw_fte_rmvd(int fte_handle, int cause = 0);
 
-	// cfwdelem that generated this instance
-	cfwdelem *fwdelem;
-
-	// cofctrl that generated this instance
-	cofctl *ofctrl;
-	
-	//Unique id of the flowspace (usually used for transactions)
-	uint64_t uid;
 
 
 
-	// flags for this cpkbuff instance
-	std::bitset<32> flags;
-#define CPKBUFF_COPY_ON_WRITE   0x00000001      // copy packet before queueing on outgoing port
-
-	enum cftentry_event_t {
-		CFTENTRY_EVENT_DELETE_THIS = 1,
-	};
-
-
-#if 0
-	// map of pointers to action structures
-	std::list<struct ofp_action_header*> actions;
-#endif
-
-
-	// list of instructions
-	cofinlist instructions;
-	
-
-	// reason for removing this flow entry
-	uint8_t removal_reason;
-	// time when this flow entry was created
-	cclock flow_create_time;
-	// number of packets handled by this ft-entry
-	uint64_t rx_packets;
-	// number of bytes handled by this ft-entry
-	uint64_t rx_bytes;
-	// output port for this ft-entry
-	uint32_t out_port;
-	// output group for this ft-entry
-	uint32_t out_group;
-	// cofmatch instance containing struct ofp_match for this ftentry
-	cofmatch ofmatch;
-	// memory area for storing the generic part of ofp_flow_mod
-	cmemory m_flowmod;
-	// copy of ofp_flow_mod structure (network byte order)
-	struct ofp_flow_mod *flow_mod;
-
-	enum cftentry_flag_t {
-		CFTENTRY_COPY_ON_WRITE = (1 << 0),
-		CFTENTRY_FLAG_DELETE_THIS = (1 << 1),
-	};
-
-
-protected: // overwritten from class cfwdelem
+protected: // overwritten from class ciosrv
 
 	/**
 	 * handle event
@@ -304,24 +338,17 @@ protected: // overwritten from class cfwdelem
 	virtual void
 	handle_timeout(int opaque);
 
-	/** timer types for cftentry
-	 *
-	 */
-	enum cftentry_timer_t {
-		TIMER_FTE_IDLE_TIMEOUT = 1,
-		TIMER_FTE_HARD_TIMEOUT = 2,
-	};
 
-
-protected:
-
-	// ptr to entity owning this cftentry
-	cftentry_owner *owner;
-
-	// ptr to flow_table this entry belongs to
-	std::set<cftentry*> *flow_table;
 
 private: // methods
+
+
+	/**
+	 *
+	 */
+	void
+	delete_me();
+
 
 	/** parse actions from ofp_flow_mod and store in instvec
 	 */
@@ -331,11 +358,6 @@ private: // methods
 	 */
 	void make_info();
 
-private: // data structures
-
-	pthread_mutex_t ftmutex; // mutex for this ftentry
-	int ftsem; // semaphore counter
-	std::string info; // info string
 
 public:
 
@@ -355,12 +377,5 @@ public:
 
 };
 
-/** callback class for sending notifications to cftentry owning entities
- */
-class cftentry_owner {
-public:
-	virtual ~cftentry_owner() {};
 
-	virtual void ftentry_timeout(cftentry *entry, uint16_t timeout) = 0;
-};
 #endif

@@ -97,6 +97,7 @@ class cfttable;
  * controlling entities.
  */
 class cfwdelem :
+	public cfttable_owner,
 	public cfibentry_owner,
 	public cftentry_owner,
 	public cgtentry_owner,

@@ -33,8 +33,6 @@ extern "C" {
 #include "../protocols/fdataframe.h"
 #endif
 
-/* forward declaration */
-class cfwdelem;
 
 /* error classes */
 class eFlowTableInval 					: public cerror {}; // invalid flow-mod entry received
@@ -44,6 +42,37 @@ class eFlowTableClassificationFailed 	: public cerror {}; // invalid packet fram
 
 
 
+class cfttable_owner {
+public:
+	virtual ~cfttable_owner() {};
+	/**
+	 *
+	 */
+	virtual void
+	inc_group_reference_count(uint32_t groupid, cftentry *fte) = 0;
+	/**
+	 *
+	 */
+	virtual void
+	dec_group_reference_count(uint32_t groupid, cftentry *fte) = 0;
+	/**
+	 *
+	 */
+	virtual void
+	cftentry_idle_timeout(cftentry *fte) = 0;
+	/**
+	 *
+	 */
+	virtual void
+	cftentry_hard_timeout(cftentry *fte) = 0;
+	/**
+	 *
+	 */
+	virtual void
+	cftentry_delete(cftentry *fte) = 0;
+};
+
+
 
 /**
  *
@@ -51,43 +80,51 @@ class eFlowTableClassificationFailed 	: public cerror {}; // invalid packet fram
  *
  */
 class cfttable :
-	public ciosrv
+	public ciosrv,
+	public cftentry_owner
 {
+private:
+
+	cfttable_owner 			*owner; 		// owning instance of this cfttable (or NULL)
+	pthread_rwlock_t 		ft_rwlock; 		// rwlock for this flowtable
+
 public: // data structures
 
-		static uint64_t all_matches;
-		static uint32_t all_instructions;
-		static uint32_t all_actions;
+	static uint64_t 		all_matches;
+	static uint32_t 		all_instructions;
+	static uint32_t 		all_actions;
 
-	std::set<cftentry*> flow_table; // flow_table: set of cftentries
+	std::set<cftentry*> 	flow_table; 	// flow_table: set of cftentries
+	std::map<time_t, std::set<cftentry*> >
+							ftetimers;		// timers for cftentries
 
-	cfwdelem *fwdelem; /**< pointer to cfwdelem creating cftentry instances */
+	uint8_t 				table_id; 		// OF1.1 table identifier
+	std::string 			table_name; 	// OF1.1 table name
 
-	uint8_t table_id; 			// OF1.1 table identifier
-	std::string table_name; 	// OF1.1 table name
-	uint64_t match; 			// OF1.2 available matching fields
-	uint64_t wildcards; 		// OF1.2 wildcards
-	uint32_t write_actions; 	// OF1.1 supported actions for instruction WRITE_ACTIONS
-	uint32_t apply_actions; 	// OF1.1 supported actions for instruction APPLY_ACTIONS
-	uint64_t write_setfields; 	// OF1.2 supported SET_FIELD actions for instruction WRITE_ACTIONS
-	uint64_t apply_setfields; 	// OF1.2 supported SET_FIELD actions for instruction APPLY_ACTIONS
-	uint64_t metadata_match;	// OF1.2 Bits of metadata table can match.
-	uint64_t metadata_write;	// OF1.2 Bits of metadata table can write.
-	uint32_t instructions; 		// OF1.1 supported instructions
-	uint32_t config; 		// flow-table configuration (OF1.1 OFPTC_* flags)
-	uint32_t max_entries;	// max number of flow-table entries
-	uint32_t active_count;  // current number of flow-table entries (received from physical data path, flow_table.sie() otherwise!)
-	uint64_t lookup_count; 	// number of lookups in this table
-	uint64_t matched_count; // number of table hits
+	uint64_t 				match; 			// OF1.2 available matching fields
+	uint64_t 				wildcards; 		// OF1.2 wildcards
+	uint32_t 				write_actions; 	// OF1.1 supported actions for instruction WRITE_ACTIONS
+	uint32_t 				apply_actions; 	// OF1.1 supported actions for instruction APPLY_ACTIONS
+	uint64_t 				write_setfields;// OF1.2 supported SET_FIELD actions for instruction WRITE_ACTIONS
+	uint64_t 				apply_setfields;// OF1.2 supported SET_FIELD actions for instruction APPLY_ACTIONS
+	uint64_t 				metadata_match;	// OF1.2 Bits of metadata table can match.
+	uint64_t 				metadata_write;	// OF1.2 Bits of metadata table can write.
+	uint32_t 				instructions; 	// OF1.1 supported instructions
+	uint32_t 				config; 		// flow-table configuration (OF1.1 OFPTC_* flags)
+	uint32_t 				max_entries;	// max number of flow-table entries
+	uint32_t 				active_count;  	// current number of flow-table entries (received from physical data path, flow_table.sie() otherwise!)
+	uint64_t 				lookup_count; 	// number of lookups in this table
+	uint64_t 				matched_count; 	// number of table hits
 
-	pthread_rwlock_t ft_rwlock; // rwlock for this flowtable
 
 public:
+
+
 	/** constructor
 	 *
 	 */
 	cfttable(
-			cfwdelem *fwdelem = (cfwdelem*)0,
+			cfttable_owner *owner = (cfttable_owner*)0,
 			uint8_t table_id = 0,
 			uint32_t max_entries = 1024,
 			uint64_t match = cfttable::all_matches,
@@ -101,22 +138,34 @@ public:
 			uint32_t instructions = cfttable::all_instructions,
 			uint32_t config = OFPTC_TABLE_MISS_CONTROLLER);
 
+
 	/** destructor
 	 *
 	 */
 	virtual
 	~cfttable();
 
+
 	/**
-	 * remove all cftentries from this flow-table
+	 * remove all cftentry instances from this flow-table
 	 */
 	void
 	reset();
+
 
 	/** return info string for this object
 	 */
 	const char*
 	c_str();
+
+
+	/**
+	 *
+	 */
+	virtual cftentry*
+	cftentry_factory(
+			std::set<cftentry*> *flow_table,
+			cofpacket *pack);
 
 
 	/** returns true for table policy OFPTC_TABLE_MISS_CONTROLLER
@@ -194,7 +243,7 @@ public:
 	cftentry*
 	update_ft_entry(
 			cftentry_owner *owner,
-			cofpacket *pack);
+			cofpacket *pack) throw (eFlowTableInval);
 
 	/**
 	 * find all cftentries that match a given struct ofp_match
@@ -210,6 +259,42 @@ public:
 	void
 	set_config(
 			uint32_t config);
+
+
+public: // overloaded from cftentry
+
+
+	/**
+	 * @name	ftentry_delete
+	 * @brief  	notifies owner about a timeout event for this cftentry instance
+	 *
+	 * This method is called, when a timeout
+	 *
+	 */
+	virtual void
+	ftentry_delete(cftentry *entry);
+
+
+	/**
+	 * @name	ftentry_idle_timeout
+	 * @brief  	notifies owner about a timeout event for this cftentry instance
+	 *
+	 * This method is called, when a timeout
+	 *
+	 */
+	virtual void
+	ftentry_idle_timeout(cftentry *entry, uint16_t timeout);
+
+
+	/**
+	 * @name	ftentry_idle_timeout
+	 * @brief  	notifies owner about a timeout event for this cftentry instance
+	 *
+	 * This method is called, when a timeout
+	 *
+	 */
+	virtual void
+	ftentry_hard_timeout(cftentry *entry, uint16_t timeout);
 
 
 protected:
@@ -272,6 +357,15 @@ private: // data structures
 
 	std::string info; 			// info string
 };
+
+
+
+
+
+
+
+
+
 
 
 

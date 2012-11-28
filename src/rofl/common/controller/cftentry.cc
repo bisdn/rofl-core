@@ -6,10 +6,10 @@
 
 
 cftentry::cftentry(
-		cfwdelem *fwdelem,
-		cofctl *ofctrl) :
-	fwdelem(fwdelem),
-	ofctrl(ofctrl),
+		cftentry_owner *owner,
+		cofctl *ctl) :
+	owner(owner),
+	ctl(ctl),
 	uid(0),
 	flags(0),
 	removal_reason(OFPRR_DELETE),
@@ -29,14 +29,16 @@ cftentry::cftentry(
 			this, c_str(), instructions.c_str());
 }
 
+
+
 cftentry::cftentry(
 		cftentry_owner *owner,
 		std::set<cftentry*> *flt,
 		cofpacket *pack,
 		cfwdelem *fwdelem,
 		cofctl *ofctrl) :
-	fwdelem(fwdelem),
-	ofctrl(ofctrl),
+	owner(owner),
+	ctl(ofctrl),
 	uid(0),
 	flags(0),
 	instructions(pack->instructions),
@@ -58,14 +60,6 @@ cftentry::cftentry(
 	// we copy the generic flow mod header only, i.e. ofp_match and all instructions are
 	// stored in this->match and this->inlist !
 	memcpy(m_flowmod.somem(), (uint8_t*)pack->ofh_flow_mod, m_flowmod.memlen());
-
-#if 0
-	WRITELOG(FTE, DBG, "cftentry(%p)::cftentry() XXX [1]\npack->instructions: %s\nthis->inlist: %s", this, pack->instructions.c_str(), instructions.c_str());
-
-	instructions = pack->instructions;
-
-	WRITELOG(FTE, DBG, "cftentry(%p)::cftentry() XXX [2]\npack->instructions: %s\nthis->inlist: %s", this, pack->instructions.c_str(), instructions.c_str());
-#endif
 
 	__update();
 
@@ -99,6 +93,7 @@ cftentry::cftentry(
 }
 
 
+
 cftentry::~cftentry()
 {
 	WRITELOG(FTE, DBG, "cftentry(%p)::~cftentry() %s", this, c_str());
@@ -108,30 +103,14 @@ cftentry::~cftentry()
 		flow_table->erase(this);
 	}
 
-	try {
-		if (owner)
-		{
-			switch (removal_reason) {
-			case OFPRR_DELETE:
-				owner->ftentry_timeout(this, 0);
-				break;
-			case OFPRR_HARD_TIMEOUT:
-				owner->ftentry_timeout(this, be16toh(flow_mod->hard_timeout));
-				break;
-			case OFPRR_IDLE_TIMEOUT:
-				owner->ftentry_timeout(this, be16toh(flow_mod->idle_timeout));
-				break;
-			}
-		}
-	} catch (cerror& e) { }
-
 	pthread_mutex_destroy(&ftmutex);
 }
 
 
-cftentry::cftentry(const cftentry& fte) :
-			fwdelem(0),
-			ofctrl(0),
+cftentry::cftentry(
+		cftentry const& fte) :
+			owner(0),
+			ctl(0),
 			uid(0),
 			flags(0),
 			removal_reason(OFPRR_DELETE),
@@ -149,6 +128,30 @@ cftentry::cftentry(const cftentry& fte) :
 
 	*this = fte;
 }
+
+
+
+void
+cftentry::delete_me()
+{
+	if (0 == owner)
+	{
+		return;
+	}
+
+	switch (removal_reason) {
+	case OFPRR_DELETE:
+		(owner) ? owner->ftentry_delete(this) : 0;
+		break;
+	case OFPRR_HARD_TIMEOUT:
+		(owner) ? owner->ftentry_hard_timeout(this, be16toh(flow_mod->hard_timeout)) : 0;
+		break;
+	case OFPRR_IDLE_TIMEOUT:
+		(owner) ? owner->ftentry_idle_timeout(this, be16toh(flow_mod->idle_timeout)) : 0;
+		break;
+	}
+}
+
 
 
 void
@@ -213,12 +216,16 @@ cftentry::operator=(const cftentry& fte)
 
 	// remove ourselves from old flow_table
 	if (flow_table)
+	{
 		flow_table->erase(this);
+	}
 
 	flow_table = fte.flow_table;
 
 	if (flow_table)
+	{
 		flow_table->insert(this);
+	}
 
 	// copy generic flow mod header, match, and instruction list
 	m_flowmod = fte.m_flowmod;
@@ -259,7 +266,7 @@ cftentry::__update()
 
 	Lock lock(&ftmutex);
 
-	this->flags &= ~CPKBUFF_COPY_ON_WRITE;
+	this->flags &= ~CFTENTRY_COPY_ON_WRITE;
 
 	#ifndef NDEBUG
 		WRITELOG(CFWD, DBG, "cftentry(%p)::__update() cofinlist: %s", this, instructions.c_str());
@@ -279,13 +286,13 @@ cftentry::__update()
 		// if multiple output actions, mark packet for copy-on-write
 		if (inst.actions.count_action_type(OFPAT_OUTPUT) > 1)
 		{
-			this->flags |= CPKBUFF_COPY_ON_WRITE;
+			this->flags |= CFTENTRY_COPY_ON_WRITE;
 		}
 		// is last action is neither OUTPUT nor ENQUEUE, mark packet for copy-on-write
 		if ((not inst.actions.empty()) &&
 				(be16toh(inst.actions.back().oac_header->type) != OFPAT_OUTPUT))
 		{
-			this->flags |= CPKBUFF_COPY_ON_WRITE;
+			this->flags |= CFTENTRY_COPY_ON_WRITE;
 		}
 
 		cofaclist::reverse_iterator cofActionIter =

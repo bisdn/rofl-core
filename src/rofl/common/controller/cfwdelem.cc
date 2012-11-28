@@ -244,7 +244,7 @@ cfwdelem::ftentry_timeout(
 		since -= fte->flow_create_time;
 
 		send_flow_removed_message(
-			fte->ofctrl,
+			fte->ctl,
 			fte->ofmatch,
 			be64toh(fte->flow_mod->cookie),
 			fte->flow_mod->priority,
@@ -738,7 +738,7 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 			{
 				if ((fte = it->second->update_ft_entry(this, pack)) != NULL)
 				{
-					fte->ofctrl = ofctrl; // store controlling entity for this cftentry
+					fte->ctl = ofctrl; // store controlling entity for this cftentry
 					WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
 							this, pack->ofh_flow_mod->table_id, fte->c_str());
 				}
@@ -763,7 +763,7 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 
 
 
-			fte->ofctrl = ofctrl; // store controlling entity for this cftentry
+			fte->ctl = ofctrl; // store controlling entity for this cftentry
 			WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
 					this, pack->ofh_flow_mod->table_id, fte->c_str());
 

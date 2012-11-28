@@ -80,7 +80,7 @@ uint32_t cfttable::all_actions =
 
 
 cfttable::cfttable(
-		cfwdelem *fwdelem,
+		cfttable_owner *owner,
 		uint8_t table_id,
 		uint32_t max_entries,
 		uint64_t match,
@@ -93,7 +93,7 @@ cfttable::cfttable(
 		uint64_t metadata_write,
 		uint32_t instructions,
 		uint32_t config) :
-			fwdelem(fwdelem),
+			owner(owner),
 			table_id(table_id),
 			match(match),
 			wildcards(wildcards),
@@ -148,6 +148,46 @@ cfttable::reset()
 		delete *(flow_table.begin());
 	}
 }
+
+
+
+cftentry*
+cfttable::cftentry_factory(
+		std::set<cftentry*> *flow_table,
+		cofpacket *pack)
+{
+	return new cftentry(this, flow_table, pack);
+}
+
+
+
+void
+cfttable::ftentry_delete(
+		cftentry *entry)
+{
+	owner->cftentry_delete(entry);
+}
+
+
+
+void
+cfttable::ftentry_idle_timeout(
+		cftentry *entry,
+		uint16_t timeout)
+{
+	owner->cftentry_idle_timeout(entry);
+}
+
+
+
+void
+cfttable::ftentry_hard_timeout(
+		cftentry *entry,
+		uint16_t timeout)
+{
+	owner->cftentry_hard_timeout(entry);
+}
+
 
 
 struct ofp_table_stats*
@@ -376,16 +416,16 @@ cfttable::find_best_matches(
 }
 
 
+
 cftentry*
 cfttable::update_ft_entry(
 		cftentry_owner *owner,
-		cofpacket *pack)
+		cofpacket *pack) throw (eFlowTableInval)
 {
-	if (OFPT_FLOW_MOD != pack->ofh_header->type)
+	if ((OFPT_FLOW_MOD != pack->ofh_header->type) || (not pack->is_valid()))
 	{
-		return NULL;
+		throw eFlowTableInval();
 	}
-	pack->is_valid();
 
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_ft_entry()", this);
 
@@ -409,12 +449,14 @@ cfttable::update_ft_entry(
 		WRITELOG(CFTTABLE, WARN, "unknown flow mod command [%d] received",
 				 pack->ofh_flow_mod->command); break;
 	}
-	return NULL;
+	return (cftentry*)0;
 }
+
 
 
 /* auxiliary function  */
 static bool deleteAll( cftentry* e ) { e->erase(); return true; }
+
 
 
 cftentry*
@@ -465,9 +507,10 @@ cfttable::add_ft_entry(
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [1]\n %s", this, c_str());
 
 	// inserts automatically to this->flow_table
-	if (fwdelem)
+	if (owner)
 	{
-		fte = fwdelem->hw_create_cftentry(owner, &flow_table, pack);
+		fte = cftentry_factory(&flow_table, pack);
+		//fte = owner->cftentry_factory(&flow_table, pack);
 	}
 	else
 	{
@@ -750,15 +793,17 @@ cfttable::update_group_ref_counts(
 				uint32_t group_id = be32toh(action.oac_group->group_id);
 				if (inc)
 				{
-					fwdelem->group_table[group_id]->ref_count++;
+					owner->inc_group_reference_count(group_id, fte);
+					//fwdelem->group_table[group_id]->ref_count++;
 				}
 				else
 				{
-					fwdelem->group_table[group_id]->ref_count--;
+					owner->dec_group_reference_count(group_id, fte);
+					//fwdelem->group_table[group_id]->ref_count--;
 				}
 
-				WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_group_ref_cnts() %s",
-						this, fwdelem->group_table[group_id]->c_str());
+				//WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_group_ref_cnts() %s",
+				//		this, fwdelem->group_table[group_id]->c_str());
 
 			} catch (eGroupTableNotFound& e) { }
 		}
@@ -786,15 +831,17 @@ cfttable::update_group_ref_counts(
 				uint32_t group_id = be32toh(action.oac_group->group_id);
 				if (inc)
 				{
-					fwdelem->group_table[group_id]->ref_count++;
+					owner->inc_group_reference_count(group_id, fte);
+					//fwdelem->group_table[group_id]->ref_count++;
 				}
 				else
 				{
-					fwdelem->group_table[group_id]->ref_count--;
+					owner->dec_group_reference_count(group_id, fte);
+					//fwdelem->group_table[group_id]->ref_count--;
 				}
 
-				WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_group_ref_cnts() %s",
-						this, fwdelem->group_table[group_id]->c_str());
+				//WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_group_ref_cnts() %s",
+				//		this, fwdelem->group_table[group_id]->c_str());
 
 			} catch (eGroupTableNotFound& e) { }
 		}
