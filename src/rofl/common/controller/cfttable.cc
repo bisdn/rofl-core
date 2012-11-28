@@ -170,6 +170,8 @@ cfttable::ftentry_idle_for_deletion(
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::ftentry_idle_for_deletion() "
 			"cftentry: %p", this, entry);
 
+	RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
+
 	/*
 	 * all references to entry are gone. It is safe to call entry's destructor now.
 	 */
