@@ -20,7 +20,8 @@ cftentry::cftentry(
 		out_group(OFPG_ANY),
 		flow_mod(0)
 {
-	pthread_mutex_init(&ftmutex, NULL);
+	pthread_rwlock_init(&usage_lock, NULL);
+	pthread_rwlock_init(&flags_lock, NULL);
 	make_info();
 	WRITELOG(FTE, DBG, "cftentry(%p)::cftentry() [1] %s %s",
 			this, c_str(), instructions.c_str());
@@ -48,7 +49,8 @@ cftentry::cftentry(
 		m_flowmod(sizeof(struct ofp_flow_mod) - sizeof(struct ofp_match)),
 		flow_mod((struct ofp_flow_mod*)m_flowmod.somem())
 {
-	pthread_mutex_init(&ftmutex, NULL);
+	pthread_rwlock_init(&usage_lock, NULL);
+	pthread_rwlock_init(&flags_lock, NULL);
 
 	// flow_mod copy remains in network byte order !!!
 	// we copy the generic flow mod header only, i.e. ofp_match and all instructions are
@@ -60,6 +62,7 @@ cftentry::cftentry(
 	 // remember, when this flow was created
 	flow_create_time.now();
 
+
 	// set hard timeout always
 	if (be16toh(this->flow_mod->hard_timeout) != OFP_FLOW_PERMANENT)
 	{
@@ -67,8 +70,7 @@ cftentry::cftentry(
 	}
 
 	// set idle timeout only, when flow_mod->idle_timeout < flow_mod->hard_timeout
-	if ((be16toh(this->flow_mod->idle_timeout) < be16toh(this->flow_mod->hard_timeout)) &&
-	    (be16toh(this->flow_mod->idle_timeout) != OFP_FLOW_PERMANENT))
+	if (be16toh(this->flow_mod->idle_timeout) != OFP_FLOW_PERMANENT)
 	{
 		register_timer(TIMER_FTE_IDLE_TIMEOUT, be16toh(this->flow_mod->idle_timeout));
 	}
@@ -102,7 +104,8 @@ cftentry::cftentry(
 				out_group(OFPG_ANY),
 				flow_mod(0)
 {
-	pthread_mutex_init(&ftmutex, NULL);
+	pthread_rwlock_init(&usage_lock, NULL);
+	pthread_rwlock_init(&flags_lock, NULL);
 
 	*this = fte;
 }
@@ -118,7 +121,8 @@ cftentry::~cftentry()
 		flow_table->erase(this);
 	}
 
-	pthread_mutex_destroy(&ftmutex);
+	pthread_rwlock_destroy(&usage_lock);
+	pthread_rwlock_destroy(&flags_lock);
 }
 
 
@@ -130,6 +134,9 @@ cftentry::handle_event(cevent const& ev)
 	switch (ev.cmd) {
 	case CFTENTRY_EVENT_IDLE_FOR_DELETION:
 	{
+		WRITELOG(CFWD, DBG, "cftentry(%p)::handle_event() "
+				"idle for deletion", this);
+
 		/*
 		 * Our usage counter has dropped to 0. Send notification to our flow_table, we
 		 * are ready for deletion.
@@ -155,7 +162,7 @@ cftentry::handle_timeout(int opaque)
 		 *  to this cftentry instance, we will notify our flow_table, or if there is no
 		 *  reference to us currently, inform our flow_table immediately.
 		 */
-		Lock lock(&ftmutex);
+		RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
 
 		flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
 
@@ -180,7 +187,7 @@ cftentry::handle_timeout(int opaque)
 		 *  to this cftentry instance, we will notify our flow_table, or if there is no
 		 *  reference to us currently, inform our flow_table immediately.
 		 */
-		Lock lock(&ftmutex);
+		RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
 
 		flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
 
@@ -207,18 +214,19 @@ cftentry::handle_timeout(int opaque)
 void
 cftentry::schedule_deletion()
 {
-	Lock lock(&ftmutex);
+	WRITELOG(CFWD, DBG, "cftentry(%p)::schedule_deletion() "
+			"usage_cnt: %d", this, usage_cnt);
 
 	/*
 	 * already scheduled for deletion?
 	 */
-	if (flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
+	RwLock flock(&flags_lock, RwLock::RWLOCK_WRITE);
+	if (not flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
 	{
-		return;
+		flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
 	}
 
-	flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
-
+	RwLock ulock(&usage_lock, RwLock::RWLOCK_READ);
 	if (0 == usage_cnt)
 	{
 		if (owner) { owner->ftentry_idle_for_deletion(this); };
@@ -230,17 +238,20 @@ cftentry::schedule_deletion()
 void
 cftentry::sem_inc() throw (eFtEntryUnAvail)
 {
-	Lock lock(&ftmutex);
 	/*
 	 * security check: if flag TIMER-EXPIRED is set, we are rejecting requests for using this cftentry instance
 	 */
+	RwLock flock(&flags_lock, RwLock::RWLOCK_READ);
 	if (flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
 	{
 		WRITELOG(FTE, DBG, "cftentry(%p)::sem_inc() scheduled for removal, thus unavailable", this);
 		throw eFtEntryUnAvail();
 	}
+
+	RwLock ulock(&usage_lock, RwLock::RWLOCK_WRITE);
 	++usage_cnt;
-	WRITELOG(FTE, DBG, "cftentry(%p)::sem_inc() ftsem:%d", this, usage_cnt);
+
+	WRITELOG(FTE, DBG, "cftentry(%p)::sem_inc() usage_cnt: %d", this, usage_cnt);
 }
 
 
@@ -248,10 +259,15 @@ cftentry::sem_inc() throw (eFtEntryUnAvail)
 void
 cftentry::sem_dec()
 {
-	Lock lock(&ftmutex);
-	--usage_cnt;
-	WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() ftsem:%d", this, usage_cnt);
+	RwLock ulock(&usage_lock, RwLock::RWLOCK_WRITE);
 
+	--usage_cnt;
+
+	usage_cnt = (usage_cnt < 0) ? 0 : usage_cnt;
+
+	WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() usage_cnt: %d", this, usage_cnt);
+
+	RwLock flock(&flags_lock, RwLock::RWLOCK_READ);
 	if ((flags.test(CFTENTRY_FLAG_TIMER_EXPIRED) && (0 == usage_cnt)))
 	{
 		WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() initiating removal", this);
@@ -324,7 +340,7 @@ cftentry::__update()
 	 * apply these normally.
 	 */
 
-	Lock lock(&ftmutex);
+	RwLock lock(&usage_lock, RwLock::RWLOCK_WRITE);
 
 	this->flags &= ~CFTENTRY_FLAG_COPY_ON_WRITE;
 
@@ -377,7 +393,7 @@ cftentry::hw_fte_rmvd(int fpc_handle, int cause)
 cofinst&
 cftentry::find_inst(enum ofp_instruction_type type)
 {
-	Lock lock(&ftmutex);
+	RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
 	WRITELOG(FTE, DBG, "cftentry(%p)::find_inst() blub:\n%s",
 			this, instructions.find_inst(type).c_str());
 	//WRITELOG(FTE, DBG, "cftentry(%p)::find_inst() instructions:\n%s", this, inlist.c_str());
@@ -402,6 +418,10 @@ cftentry::used(cpacket& pack)
 {
 	rx_packets++;
 	rx_bytes += pack.framelen();
+
+	WRITELOG(FTE, DBG, "cftentry(%p)::used() "
+			"rx_packets: %lu rx_bytes: %lu",
+			this, rx_packets, rx_bytes);
 
 	// set idle timeout only, when flow_mod->idle_timeout < flow_mod->hard_timeout
 	if ((be16toh(this->flow_mod->idle_timeout) < be16toh(this->flow_mod->hard_timeout)) &&

@@ -167,6 +167,9 @@ void
 cfttable::ftentry_idle_for_deletion(
 		cftentry *entry)
 {
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::ftentry_idle_for_deletion() "
+			"cftentry: %p", this, entry);
+
 	/*
 	 * all references to entry are gone. It is safe to call entry's destructor now.
 	 */
@@ -184,12 +187,19 @@ cfttable::ftentry_idle_timeout(
 		cftentry *entry,
 		uint16_t timeout)
 {
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::ftentry_idle_timeout() "
+				"cftentry: %p", this, entry);
+
 	/*
 	 * cftentry has been marked for deletion
 	 * We notify cfttable_owner for any further actions, but do not delete entry here,
 	 * as it still might be in use by some packet engines.
 	 */
-	owner->cftentry_idle_timeout(entry);
+	try {
+		owner->cftentry_idle_timeout(entry);
+	} catch (cerror& e) {}
+
+	entry->schedule_deletion();
 }
 
 
@@ -199,12 +209,19 @@ cfttable::ftentry_hard_timeout(
 		cftentry *entry,
 		uint16_t timeout)
 {
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::ftentry_hard_timeout() "
+				"cftentry: %p", this, entry);
+
 	/*
 	 * cftentry has been marked for deletion
 	 * We notify cfttable_owner for any further actions, but do not delete entry here,
 	 * as it still might be in use by some packet engines.
 	 */
-	owner->cftentry_hard_timeout(entry);
+	try {
+		owner->cftentry_hard_timeout(entry);
+	} catch (cerror& e) {}
+
+	entry->schedule_deletion();
 }
 
 
