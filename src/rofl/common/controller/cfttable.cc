@@ -119,6 +119,7 @@ cfttable::cfttable(
 }
 
 
+
 cfttable::~cfttable()
 {
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::~cfttable() destructor: %s", this, c_str());
@@ -134,6 +135,7 @@ cfttable::~cfttable()
 
 	pthread_rwlock_destroy(&ft_rwlock);
 }
+
 
 
 void
@@ -394,6 +396,8 @@ cfttable::find_best_matches(
 	 *          similar to what openldap with indexing provides?
 	 */
 
+	RwLock lock(&ft_rwlock, RwLock::RWLOCK_READ);
+
 	try {
 
 		WRITELOG(CFTTABLE, DBG, "cfttable(%p)::find_best_matches() #flow_table.entries=%d "
@@ -402,12 +406,8 @@ cfttable::find_best_matches(
 		// calculates the qualifier for ethernet packet pointed to by iovec = {data, datalen}
 		cftsearch ftsearch(pack);
 
-		{
-			RwLock lock(&ft_rwlock, RwLock::RWLOCK_READ);
-
-			// for_each() takes a copy, not a reference, so we have to assign its return value back to ftsearch!
-			ftsearch = for_each(flow_table.begin(), flow_table.end(), ftsearch);
-		}
+		// for_each() takes a copy, not a reference, so we have to assign its return value back to ftsearch!
+		ftsearch = for_each(flow_table.begin(), flow_table.end(), ftsearch);
 
 		WRITELOG(CFTTABLE, DBG, "cfttable(%p)::find_best_matches() %s", this, ftsearch.c_str());
 
@@ -436,7 +436,7 @@ cfttable::find_best_matches(
 
 cftentry*
 cfttable::update_ft_entry(
-		cftentry_owner *owner,
+		cfttable_owner *owner,
 		cofpacket *pack) throw (eFlowTableInval)
 {
 	if ((OFPT_FLOW_MOD != pack->ofh_header->type) || (not pack->is_valid()))
@@ -475,7 +475,7 @@ cfttable::update_ft_entry(
 
 cftentry*
 cfttable::add_ft_entry(
-		cftentry_owner *owner,
+		cfttable_owner *owner,
 		cofpacket *pack) throw(eFlowTableEntryOverlaps)
 {
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry()", this);
@@ -555,7 +555,7 @@ cfttable::add_ft_entry(
 
 cftentry*
 cfttable::modify_ft_entry(
-		cftentry_owner *owner,
+		cfttable_owner *owner,
 		cofpacket *pack,
 		bool strict /* = false (default) */)
 {
@@ -601,7 +601,7 @@ cfttable::modify_ft_entry(
 
 void
 cfttable::rem_ft_entry(
-		cftentry_owner *owner,
+		cfttable_owner *owner,
 		cofpacket* pack,
 		bool strict /* = false (default) */)
 {
@@ -798,12 +798,10 @@ cfttable::update_group_ref_counts(
 			if (inc)
 			{
 				owner->inc_group_reference_count(group_id, fte);
-				//fwdelem->group_table[group_id]->ref_count++;
 			}
 			else
 			{
 				owner->dec_group_reference_count(group_id, fte);
-				//fwdelem->group_table[group_id]->ref_count--;
 			}
 
 			//WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_group_ref_cnts() %s",
@@ -832,12 +830,10 @@ cfttable::update_group_ref_counts(
 			if (inc)
 			{
 				owner->inc_group_reference_count(group_id, fte);
-				//fwdelem->group_table[group_id]->ref_count++;
 			}
 			else
 			{
 				owner->dec_group_reference_count(group_id, fte);
-				//fwdelem->group_table[group_id]->ref_count--;
 			}
 
 			//WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_group_ref_cnts() %s",

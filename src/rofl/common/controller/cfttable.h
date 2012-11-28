@@ -90,8 +90,8 @@ private: // data structures
 		};
 
 	cfttable_owner 			*owner; 		// owning instance of this cfttable (or NULL)
-	pthread_rwlock_t 		ft_rwlock; 		// rwlock for this flowtable
 	std::string 			info; 			// info string
+	pthread_rwlock_t 		ft_rwlock; 		// rwlock for this flowtable
 
 public: // data structures
 
@@ -244,7 +244,7 @@ public:
 	 */
 	cftentry*
 	update_ft_entry(
-			cftentry_owner *owner,
+			cfttable_owner *owner,
 			cofpacket *pack) throw (eFlowTableInval);
 
 	/**
@@ -312,7 +312,7 @@ protected:
 	 */
 	cftentry*
 	add_ft_entry(
-			cftentry_owner *owner,
+			cfttable_owner *owner,
 			cofpacket *pack) throw(eFlowTableEntryOverlaps);
 
 	/**
@@ -321,7 +321,7 @@ protected:
 	 */
 	cftentry*
 	modify_ft_entry(
-			cftentry_owner *owner,
+			cfttable_owner *owner,
 			cofpacket *pack,
 			bool strict = false);
 
@@ -331,7 +331,7 @@ protected:
 	 */
 	void
 	rem_ft_entry(
-			cftentry_owner *owner,
+			cfttable_owner *owner,
 			cofpacket *pack,
 			bool strict = false);
 

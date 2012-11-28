@@ -99,7 +99,6 @@ class cfttable;
 class cfwdelem :
 	public cfttable_owner,
 	public cfibentry_owner,
-	public cftentry_owner,
 	public cgtentry_owner,
 	public crofbase
 {
@@ -557,6 +556,51 @@ protected:	// overloaded from ciosrv
 	virtual void
 	handle_timeout(
 		int opaque);
+
+
+public: // overloaded from cfttable_owner
+
+
+	/**
+	 *
+	 */
+	virtual void
+	inc_group_reference_count(
+			uint32_t groupid,
+			cftentry *fte);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	dec_group_reference_count(
+			uint32_t groupid,
+			cftentry *fte);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	cftentry_idle_timeout(
+			cftentry *fte);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	cftentry_hard_timeout(
+			cftentry *fte);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	cftentry_delete(
+			cftentry *fte);
 
 
 

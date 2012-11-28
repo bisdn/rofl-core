@@ -1019,3 +1019,86 @@ cfwdelem::phy_port_get_free_portno()
 
 
 
+void
+cfwdelem::inc_group_reference_count(
+		uint32_t groupid,
+		cftentry *fte)
+{
+	group_table[groupid]->ref_count++;
+}
+
+
+
+void
+cfwdelem::dec_group_reference_count(
+		uint32_t groupid,
+		cftentry *fte)
+{
+	group_table[groupid]->ref_count--;
+}
+
+
+
+void
+cfwdelem::cftentry_idle_timeout(
+		cftentry *fte)
+{
+	if (OFPFF_SEND_FLOW_REM & be16toh(fte->flow_mod->flags))
+	{
+		cclock since;
+		since -= fte->flow_create_time;
+
+		send_flow_removed_message(
+			fte->ctl,
+			fte->ofmatch,
+			be64toh(fte->flow_mod->cookie),
+			fte->flow_mod->priority,
+			fte->removal_reason,
+			fte->flow_mod->table_id,
+			since.ts.tv_sec,
+			since.ts.tv_nsec,
+			be16toh(fte->flow_mod->idle_timeout),
+			be16toh(fte->flow_mod->hard_timeout),
+			fte->rx_packets,
+			fte->rx_bytes);
+	}
+}
+
+
+
+
+void
+cfwdelem::cftentry_hard_timeout(
+		cftentry *fte)
+{
+	if (OFPFF_SEND_FLOW_REM & be16toh(fte->flow_mod->flags))
+	{
+		cclock since;
+		since -= fte->flow_create_time;
+
+		send_flow_removed_message(
+			fte->ctl,
+			fte->ofmatch,
+			be64toh(fte->flow_mod->cookie),
+			fte->flow_mod->priority,
+			fte->removal_reason,
+			fte->flow_mod->table_id,
+			since.ts.tv_sec,
+			since.ts.tv_nsec,
+			be16toh(fte->flow_mod->idle_timeout),
+			be16toh(fte->flow_mod->hard_timeout),
+			fte->rx_packets,
+			fte->rx_bytes);
+	}
+}
+
+
+
+void
+cfwdelem::cftentry_delete(
+		cftentry *fte)
+{
+
+}
+
+
