@@ -500,48 +500,50 @@ cfttable::add_ft_entry(
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry()", this);
 	//dump_ftentries();
 
-	RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
-
+	class cftentry * fte = NULL;
 	std::set<cftentry*>		delete_table;	// list of cftentry instances scheduled for deletion by mgmt action
 
-	if (not flow_table.empty())
 	{
-		// check for OFPFF_CHECK_OVERLAP
-		if (be16toh(pack->ofh_flow_mod->flags) & OFPFF_CHECK_OVERLAP)
-		{
-			WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() "
-					"checking for overlapping entries", this);
+		RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
 
-			if (find_if(flow_table.begin(), flow_table.end(),
-					cftentry::ftentry_find_overlap(pack->match, false /* not strict */)) != flow_table.end())
+
+		if (not flow_table.empty())
+		{
+			// check for OFPFF_CHECK_OVERLAP
+			if (be16toh(pack->ofh_flow_mod->flags) & OFPFF_CHECK_OVERLAP)
 			{
 				WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() "
-						"ftentry overlaps, sending error message back", this);
+						"checking for overlapping entries", this);
 
-				// throw exception, calling instance has to send error message to controller
-				throw eFlowTableEntryOverlaps();
+				if (find_if(flow_table.begin(), flow_table.end(),
+						cftentry::ftentry_find_overlap(pack->match, false /* not strict */)) != flow_table.end())
+				{
+					WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() "
+							"ftentry overlaps, sending error message back", this);
+
+					// throw exception, calling instance has to send error message to controller
+					throw eFlowTableEntryOverlaps();
+				}
+			}
+
+			// remove any duplicate ft-entry (equals strictly new ft-entry)
+			std::set<cftentry*>::iterator it = flow_table.begin();
+			while ((it = find_if(it, flow_table.end(),
+						cftentry::ftentry_find_overlap(pack->match, true /* strict */))) != flow_table.end())
+			{
+				WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() deleting duplicate %p", this, (*it));
+				delete_table.insert(*it);
+				++it;
 			}
 		}
+		// TODO: check for invalid ports
 
-		// remove any duplicate ft-entry (equals strictly new ft-entry)
-		std::set<cftentry*>::iterator it = flow_table.begin();
-		while ((it = find_if(it, flow_table.end(),
-					cftentry::ftentry_find_overlap(pack->match, true /* strict */))) != flow_table.end())
-		{
-			WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() deleting duplicate %p", this, (*it));
-			delete_table.insert(*it);
-			++it;
-		}
+
+		WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [1]\n %s", this, c_str());
+
+		// inserts automatically to this->flow_table
+		fte = cftentry_factory(&flow_table, pack);
 	}
-	// TODO: check for invalid ports
-
-	class cftentry * fte = NULL;
-
-	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [1]\n %s", this, c_str());
-
-	// inserts automatically to this->flow_table
-	fte = cftentry_factory(&flow_table, pack);
-
 
 
 
