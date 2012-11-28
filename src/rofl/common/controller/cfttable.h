@@ -22,7 +22,6 @@ extern "C" {
 #include "../ciosrv.h"
 #include "../cerror.h"
 #include "../cvastring.h"
-#include "cfwdelem.h"
 #include "../thread_helper.h"
 
 
@@ -83,10 +82,16 @@ class cfttable :
 	public ciosrv,
 	public cftentry_owner
 {
-private:
+private: // data structures
+
+		enum cfttable_timer_t {
+			CFTTABLE_TIMER_BASE 			= (0x551e << 16),
+			CFTTABLE_TIMER_DELETE_TABLE 	= ((CFTTABLE_TIMER_BASE) + 0x0001),
+		};
 
 	cfttable_owner 			*owner; 		// owning instance of this cfttable (or NULL)
 	pthread_rwlock_t 		ft_rwlock; 		// rwlock for this flowtable
+	std::string 			info; 			// info string
 
 public: // data structures
 
@@ -95,9 +100,6 @@ public: // data structures
 	static uint32_t 		all_actions;
 
 	std::set<cftentry*> 	flow_table; 	// flow_table: set of cftentries
-	std::map<time_t, std::set<cftentry*> >
-							ftetimers;		// timers for cftentries
-
 	uint8_t 				table_id; 		// OF1.1 table identifier
 	std::string 			table_name; 	// OF1.1 table name
 
@@ -272,7 +274,7 @@ public: // overloaded from cftentry
 	 *
 	 */
 	virtual void
-	ftentry_delete(cftentry *entry);
+	ftentry_idle_for_deletion(cftentry *entry);
 
 
 	/**
@@ -353,9 +355,6 @@ protected:
 			bool inc = true);
 
 
-private: // data structures
-
-	std::string info; 			// info string
 };
 
 

@@ -228,7 +228,7 @@ cfwdelem::hw_create_cftentry(
 	std::set<cftentry*> *flow_table,
 	cofpacket *pack)
 {
-	return new cftentry(owner, flow_table, pack, this);
+	return new cftentry(owner, flow_table, pack);
 }
 
 

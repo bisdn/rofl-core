@@ -67,7 +67,7 @@ class FteHwDestroyFailed 		: public eFtEntryBase {};
 class eFteActionBadLen 			: public eFtEntryBase {};
 class eFteInstNotFound 			: public eFtEntryBase {};
 class eFteInvalid 				: public eFtEntryBase {};
-class eFteUnAvail 				: public eFtEntryBase {};
+class eFtEntryUnAvail 			: public eFtEntryBase {};
 
 
 // forward declaration
@@ -83,13 +83,11 @@ public:
 	virtual ~cftentry_owner() {};
 	/**
 	 * @name	ftentry_delete
-	 * @brief  	notifies owner about a timeout event for this cftentry instance
-	 *
-	 * This method is called, when a timeout
+	 * @brief  	notifies owner when no consumers for this cftentry exist any more
 	 *
 	 */
 	virtual void
-	ftentry_delete(cftentry *entry) = 0;
+	ftentry_idle_for_deletion(cftentry *entry) = 0;
 	/**
 	 * @name	ftentry_idle_timeout
 	 * @brief  	notifies owner about a timeout event for this cftentry instance
@@ -126,7 +124,7 @@ class cftentry :
 private: // data structures
 
 		enum cftentry_event_t {
-			CFTENTRY_EVENT_DELETE_THIS = 1,
+			CFTENTRY_EVENT_IDLE_FOR_DELETION = 1,
 		};
 
 		enum cftentry_timer_t {
@@ -134,7 +132,7 @@ private: // data structures
 			TIMER_FTE_HARD_TIMEOUT = 2,
 		};
 
-		int 					ftsem; 				// semaphore counter
+		int 					usage_cnt;			// semaphore counter
 		std::string 			info; 				// info string
 
 protected:
@@ -145,14 +143,14 @@ protected:
 
 public:
 
-		cofctl 					*ctl;			// cofctrl that generated this instance
+		cofctl 					*ctl;				// cofctrl that generated this instance
 		uint64_t 				uid;				//Unique id of the flowspace (usually used for transactions)
 		std::bitset<32> 		flags;				// flags for this cpkbuff instance
 //#define CPKBUFF_COPY_ON_WRITE   0x00000001     	// copy packet before queueing on outgoing port
 
 		enum cftentry_flag_t {
-			CFTENTRY_COPY_ON_WRITE = (1 << 0),
-			CFTENTRY_FLAG_DELETE_THIS = (1 << 1),
+			CFTENTRY_FLAG_COPY_ON_WRITE 	= (1 << 0),
+			CFTENTRY_FLAG_TIMER_EXPIRED 	= (1 << 1),
 		};
 
 		cofinlist 				instructions;		// list of instructions
@@ -169,36 +167,55 @@ public:
 
 
 public:
+
+
 	/** constructor
+	 *
 	 */
 	cftentry(
 			cftentry_owner *owner = NULL,
 			cofctl *ctl = NULL);
 
+
 	/** constructor
+	 *
 	 */
 	cftentry(
 		cftentry_owner *owner,
 		std::set<cftentry*> *flow_table,
 		cofpacket *pack,
-		cfwdelem *fwdelem = NULL,
-		cofctl *ofctrl = NULL);
+		cofctl *ctl = NULL);
+
 
 	/** destructor
+	 *
   	 */
 	virtual
 	~cftentry();
 
+
 	/**
 	 * copy constructor
 	 */
-	cftentry(const cftentry& fte);
+	cftentry(
+			const cftentry& fte);
+
 
 	/**
 	 * assignment operator
 	 */
 	cftentry&
-	operator=(const cftentry& fte);
+	operator=(
+			const cftentry& fte);
+
+
+
+	/**
+	 *
+	 */
+	void
+	schedule_deletion();
+
 
 	/**
 	 * dump ft-entry info
@@ -206,11 +223,15 @@ public:
 	const char* c_str();
 	const char* s_str();
 
+
 	/** find a specific instruction type
 	 */
 	cofinst&
-	find_inst(enum ofp_instruction_type type);
+	find_inst(
+			enum ofp_instruction_type type);
 
+
+public: // for use by packet engines
 
 
 	/** semaphore like method incrementing internal counter by one
@@ -218,7 +239,8 @@ public:
 	 * this object
 	 */
 	void
-	sem_inc() throw (eFteUnAvail);
+	sem_inc() throw (eFtEntryUnAvail);
+
 
 	/** decrements the internal semaphore
 	 *
@@ -226,11 +248,14 @@ public:
 	void
 	sem_dec();
 
-	/** erase this element thread safe
-	 *
+
+	/**
+	 * called, when this flow entry is selected for forwarding
 	 */
 	void
-	erase();
+	used(
+			cpacket& pack);
+
 
 
 public:
@@ -241,12 +266,6 @@ public:
 	 */
 	bool overlaps(cofmatch& match, bool strict = false);
 
-
-	/**
-	 * called, when this flow entry is selected for forwarding
-	 */
-	void used(
-			cpacket& pack);
 
 
 
@@ -343,13 +362,6 @@ protected: // overwritten from class ciosrv
 private: // methods
 
 
-	/**
-	 *
-	 */
-	void
-	delete_me();
-
-
 	/** parse actions from ofp_flow_mod and store in instvec
 	 */
 	void __update();
@@ -369,7 +381,7 @@ public:
 			ofmatch(m), strict(s) { };
 		bool operator() (cftentry* fte) {
 			return (fte->ofmatch.overlaps(ofmatch, strict /* strict */) &&
-						(not fte->flags.test(CFTENTRY_EVENT_DELETE_THIS)));
+						(not fte->flags.test(CFTENTRY_EVENT_IDLE_FOR_DELETION)));
 		}
 		cofmatch ofmatch;
 		bool strict;

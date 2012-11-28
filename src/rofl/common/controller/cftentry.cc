@@ -8,20 +8,17 @@
 cftentry::cftentry(
 		cftentry_owner *owner,
 		cofctl *ctl) :
-	owner(owner),
-	ctl(ctl),
-	uid(0),
-	flags(0),
-	removal_reason(OFPRR_DELETE),
-	rx_packets(0),
-	rx_bytes(0),
-	out_port(OFPP_ANY),
-	out_group(OFPG_ANY),
-	m_flowmod(sizeof(struct ofp_flow_mod) - sizeof(struct ofp_match)),
-	flow_mod((struct ofp_flow_mod*)m_flowmod.somem()),
-	owner(NULL),
-	flow_table(NULL),
-	ftsem(0)
+		usage_cnt(0),
+		owner(owner),
+		flow_table(0),
+		ctl(ctl),
+		uid(0),
+		removal_reason(OFPRR_DELETE),
+		rx_packets(0),
+		rx_bytes(0),
+		out_port(OFPP_ANY),
+		out_group(OFPG_ANY),
+		flow_mod(0)
 {
 	pthread_mutex_init(&ftmutex, NULL);
 	make_info();
@@ -33,26 +30,23 @@ cftentry::cftentry(
 
 cftentry::cftentry(
 		cftentry_owner *owner,
-		std::set<cftentry*> *flt,
+		std::set<cftentry*> *flow_table,
 		cofpacket *pack,
-		cfwdelem *fwdelem,
-		cofctl *ofctrl) :
-	owner(owner),
-	ctl(ofctrl),
-	uid(0),
-	flags(0),
-	instructions(pack->instructions),
-	removal_reason(OFPRR_DELETE),
-	rx_packets(0),
-	rx_bytes(0),
-	out_port(pack->ofh_flow_mod->out_port),
-	out_group(pack->ofh_flow_mod->out_group),
-	ofmatch(pack->match),
-	m_flowmod(sizeof(struct ofp_flow_mod) - sizeof(struct ofp_match)),
-	flow_mod((struct ofp_flow_mod*)m_flowmod.somem()),
-	owner(owner),
-	flow_table(flt),
-	ftsem(0)
+		cofctl *ctl) :
+		usage_cnt(0),
+		owner(owner),
+		flow_table(flow_table),
+		ctl(ctl),
+		uid(0),
+		instructions(pack->instructions),
+		removal_reason(OFPRR_DELETE),
+		rx_packets(0),
+		rx_bytes(0),
+		out_port(be32toh(pack->ofh_flow_mod->out_port)),
+		out_group(be32toh(pack->ofh_flow_mod->out_group)),
+		ofmatch(pack->match),
+		m_flowmod(sizeof(struct ofp_flow_mod) - sizeof(struct ofp_match)),
+		flow_mod((struct ofp_flow_mod*)m_flowmod.somem())
 {
 	pthread_mutex_init(&ftmutex, NULL);
 
@@ -94,6 +88,27 @@ cftentry::cftentry(
 
 
 
+cftentry::cftentry(
+		cftentry const& fte) :
+				usage_cnt(0),
+				owner(owner),
+				flow_table(0),
+				ctl(ctl),
+				uid(0),
+				removal_reason(OFPRR_DELETE),
+				rx_packets(0),
+				rx_bytes(0),
+				out_port(OFPP_ANY),
+				out_group(OFPG_ANY),
+				flow_mod(0)
+{
+	pthread_mutex_init(&ftmutex, NULL);
+
+	*this = fte;
+}
+
+
+
 cftentry::~cftentry()
 {
 	WRITELOG(FTE, DBG, "cftentry(%p)::~cftentry() %s", this, c_str());
@@ -107,99 +122,144 @@ cftentry::~cftentry()
 }
 
 
-cftentry::cftentry(
-		cftentry const& fte) :
-			owner(0),
-			ctl(0),
-			uid(0),
-			flags(0),
-			removal_reason(OFPRR_DELETE),
-			rx_packets(0),
-			rx_bytes(0),
-			out_port(OFPP_ANY),
-			out_group(OFPG_ANY),
-			m_flowmod(sizeof(struct ofp_flow_mod) - sizeof(struct ofp_match)),
-			flow_mod((struct ofp_flow_mod*)m_flowmod.somem()),
-			owner(NULL),
-			flow_table(NULL),
-			ftsem(0)
-{
-	pthread_mutex_init(&ftmutex, NULL);
 
-	*this = fte;
+
+void
+cftentry::handle_event(cevent const& ev)
+{
+	switch (ev.cmd) {
+	case CFTENTRY_EVENT_IDLE_FOR_DELETION:
+	{
+		/*
+		 * Our usage counter has dropped to 0. Send notification to our flow_table, we
+		 * are ready for deletion.
+		 */
+		if (owner) { owner->ftentry_idle_for_deletion(this); };
+	}
+		return;
+	}
 }
 
 
 
 void
-cftentry::delete_me()
+cftentry::handle_timeout(int opaque)
 {
-	if (0 == owner)
+	switch (opaque) {
+	case TIMER_FTE_IDLE_TIMEOUT:
+	{
+		/*
+		 *  Mark this instance for deletion by setting the TIMER-EXPIRED flag.
+		 *  This prevents our hosting flow_table from assigning us to packet engines again.
+		 *  Once, all packet engines have concluded their work and released the reference
+		 *  to this cftentry instance, we will notify our flow_table, or if there is no
+		 *  reference to us currently, inform our flow_table immediately.
+		 */
+		Lock lock(&ftmutex);
+
+		flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
+
+		WRITELOG(CFWD, DBG, "cftentry(%p)::handle_timeout() "
+				"idle-timeout", this);
+
+		removal_reason = OFPRR_IDLE_TIMEOUT;
+
+		if (0 == usage_cnt)
+		{
+			if (owner) { owner->ftentry_idle_timeout(this, be16toh(flow_mod->idle_timeout)); };
+		}
+	}
+		return;
+
+	case TIMER_FTE_HARD_TIMEOUT:
+	{
+		/*
+		 *  Mark this instance for deletion by setting the TIMER-EXPIRED flag.
+		 *  This prevents our hosting flow_table from assigning us to packet engines again.
+		 *  Once, all packet engines have concluded their work and released the reference
+		 *  to this cftentry instance, we will notify our flow_table, or if there is no
+		 *  reference to us currently, inform our flow_table immediately.
+		 */
+		Lock lock(&ftmutex);
+
+		flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
+
+		WRITELOG(CFWD, DBG, "cftentry(%p)::handle_timeout() "
+				"hard-timeout", this);
+
+		removal_reason = OFPRR_HARD_TIMEOUT;
+
+		if (0 == usage_cnt)
+		{
+			if (owner) { owner->ftentry_hard_timeout(this, be16toh(flow_mod->hard_timeout)); };
+		}
+	}
+		return;
+
+	default:
+		WRITELOG(FTE, DBG, "cftentry(%p)::handle_timeout() unknown timer (%d)", this, opaque);
+		break;
+	}
+}
+
+
+
+void
+cftentry::schedule_deletion()
+{
+	Lock lock(&ftmutex);
+
+	/*
+	 * already scheduled for deletion?
+	 */
+	if (flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
 	{
 		return;
 	}
 
-	switch (removal_reason) {
-	case OFPRR_DELETE:
-		(owner) ? owner->ftentry_delete(this) : 0;
-		break;
-	case OFPRR_HARD_TIMEOUT:
-		(owner) ? owner->ftentry_hard_timeout(this, be16toh(flow_mod->hard_timeout)) : 0;
-		break;
-	case OFPRR_IDLE_TIMEOUT:
-		(owner) ? owner->ftentry_idle_timeout(this, be16toh(flow_mod->idle_timeout)) : 0;
-		break;
+	flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
+
+	if (0 == usage_cnt)
+	{
+		if (owner) { owner->ftentry_idle_for_deletion(this); };
 	}
 }
 
 
 
 void
-cftentry::sem_inc() throw (eFteUnAvail)
+cftentry::sem_inc() throw (eFtEntryUnAvail)
 {
 	Lock lock(&ftmutex);
-	if (flags.test(CFTENTRY_FLAG_DELETE_THIS))
+	/*
+	 * security check: if flag TIMER-EXPIRED is set, we are rejecting requests for using this cftentry instance
+	 */
+	if (flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
 	{
 		WRITELOG(FTE, DBG, "cftentry(%p)::sem_inc() scheduled for removal, thus unavailable", this);
-		throw eFteUnAvail();
+		throw eFtEntryUnAvail();
 	}
-	++ftsem;
-	WRITELOG(FTE, DBG, "cftentry(%p)::sem_inc() ftsem:%d", this, ftsem);
+	++usage_cnt;
+	WRITELOG(FTE, DBG, "cftentry(%p)::sem_inc() ftsem:%d", this, usage_cnt);
 }
+
 
 
 void
 cftentry::sem_dec()
 {
-	{
-		Lock lock(&ftmutex);
-		--ftsem;
-	}
+	Lock lock(&ftmutex);
+	--usage_cnt;
+	WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() ftsem:%d", this, usage_cnt);
 
-	WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() ftsem:%d", this, ftsem);
-
-	if ((0 == ftsem) && (flags.test(CFTENTRY_FLAG_DELETE_THIS)))
+	if ((flags.test(CFTENTRY_FLAG_TIMER_EXPIRED) && (0 == usage_cnt)))
 	{
 		WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() initiating removal", this);
-		notify(cevent(CFTENTRY_EVENT_DELETE_THIS));
+		notify(cevent(CFTENTRY_EVENT_IDLE_FOR_DELETION));
 	}
 }
 
 
-void
-cftentry::erase()
-{
-	if (0 == ftsem)
-	{
-		WRITELOG(FTE, DBG, "cftentry(%p)::erase() ftsem:%d, calling destructor for this", this, ftsem);
-		delete this; return;
-	}
-	else
-	{
-		WRITELOG(FTE, DBG, "cftentry(%p)::erase() ftsem:%d, setting deletion flag", this, ftsem);
-		flags.set(CFTENTRY_FLAG_DELETE_THIS);
-	}
-}
 
 
 cftentry &
@@ -266,7 +326,7 @@ cftentry::__update()
 
 	Lock lock(&ftmutex);
 
-	this->flags &= ~CFTENTRY_COPY_ON_WRITE;
+	this->flags &= ~CFTENTRY_FLAG_COPY_ON_WRITE;
 
 	#ifndef NDEBUG
 		WRITELOG(CFWD, DBG, "cftentry(%p)::__update() cofinlist: %s", this, instructions.c_str());
@@ -286,13 +346,13 @@ cftentry::__update()
 		// if multiple output actions, mark packet for copy-on-write
 		if (inst.actions.count_action_type(OFPAT_OUTPUT) > 1)
 		{
-			this->flags |= CFTENTRY_COPY_ON_WRITE;
+			this->flags |= CFTENTRY_FLAG_COPY_ON_WRITE;
 		}
 		// is last action is neither OUTPUT nor ENQUEUE, mark packet for copy-on-write
 		if ((not inst.actions.empty()) &&
 				(be16toh(inst.actions.back().oac_header->type) != OFPAT_OUTPUT))
 		{
-			this->flags |= CFTENTRY_COPY_ON_WRITE;
+			this->flags |= CFTENTRY_FLAG_COPY_ON_WRITE;
 		}
 
 		cofaclist::reverse_iterator cofActionIter =
@@ -325,55 +385,6 @@ cftentry::find_inst(enum ofp_instruction_type type)
 }
 
 
-void
-cftentry::handle_event(cevent const& ev)
-{
-	switch (ev.cmd) {
-	case CFTENTRY_EVENT_DELETE_THIS:
-		delete this;
-		return;
-	}
-}
-
-
-void
-cftentry::handle_timeout(int opaque)
-{
-	/* TODO if both timouts are scheduled only one message should be send */
-	switch (opaque) {
-	case TIMER_FTE_IDLE_TIMEOUT:
-		WRITELOG(CFWD, DBG, "FLOW-MOD expired (idle) %s", c_str());
-		removal_reason = OFPRR_IDLE_TIMEOUT;
-		//owner->ftentry_idle_timeout(this);
-
-		if (0 == ftsem) // if no one is using this instance, we can remove ourselves
-		{
-			delete this;
-		}
-		else
-		{
-			flags.set(CFTENTRY_FLAG_DELETE_THIS);
-		}
-		return;
-	case TIMER_FTE_HARD_TIMEOUT:
-		WRITELOG(CFWD, DBG, "FLOW-MOD expired (hard) %s", c_str());
-		removal_reason = OFPRR_HARD_TIMEOUT;
-		//owner->ftentry_hard_timeout(this);
-
-		if (0 == ftsem) // if no one is using this instance, we can remove ourselves
-		{
-			delete this;
-		}
-		else
-		{
-			flags.set(CFTENTRY_FLAG_DELETE_THIS);
-		}
-		return;
-	default:
-		WRITELOG(FTE, DBG, "cftentry::handle_timeout() unknown timer (%d)", opaque);
-		break;
-	}
-}
 
 
 bool

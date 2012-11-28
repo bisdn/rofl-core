@@ -162,10 +162,17 @@ cfttable::cftentry_factory(
 
 
 void
-cfttable::ftentry_delete(
+cfttable::ftentry_idle_for_deletion(
 		cftentry *entry)
 {
-	owner->cftentry_delete(entry);
+	/*
+	 * all references to entry are gone. It is safe to call entry's destructor now.
+	 */
+	//owner->cftentry_delete(entry); // is that necessary and useful?
+	/*
+	 * calling entry's destructor also removes it from our internal flow_table set
+	 */
+	delete entry;
 }
 
 
@@ -175,6 +182,11 @@ cfttable::ftentry_idle_timeout(
 		cftentry *entry,
 		uint16_t timeout)
 {
+	/*
+	 * cftentry has been marked for deletion
+	 * We notify cfttable_owner for any further actions, but do not delete entry here,
+	 * as it still might be in use by some packet engines.
+	 */
 	owner->cftentry_idle_timeout(entry);
 }
 
@@ -185,6 +197,11 @@ cfttable::ftentry_hard_timeout(
 		cftentry *entry,
 		uint16_t timeout)
 {
+	/*
+	 * cftentry has been marked for deletion
+	 * We notify cfttable_owner for any further actions, but do not delete entry here,
+	 * as it still might be in use by some packet engines.
+	 */
 	owner->cftentry_hard_timeout(entry);
 }
 
@@ -454,9 +471,6 @@ cfttable::update_ft_entry(
 
 
 
-/* auxiliary function  */
-static bool deleteAll( cftentry* e ) { e->erase(); return true; }
-
 
 
 cftentry*
@@ -469,7 +483,7 @@ cfttable::add_ft_entry(
 
 	RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
 
-	std::list<cftentry*> deletion_list;
+	std::set<cftentry*>		delete_table;	// list of cftentry instances scheduled for deletion by mgmt action
 
 	if (not flow_table.empty())
 	{
@@ -496,7 +510,7 @@ cfttable::add_ft_entry(
 					cftentry::ftentry_find_overlap(pack->match, true /* strict */))) != flow_table.end())
 		{
 			WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() deleting duplicate %p", this, (*it));
-			deletion_list.push_back(*it);
+			delete_table.insert(*it);
 			++it;
 		}
 	}
@@ -507,27 +521,33 @@ cfttable::add_ft_entry(
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [1]\n %s", this, c_str());
 
 	// inserts automatically to this->flow_table
-	if (owner)
+	fte = cftentry_factory(&flow_table, pack);
+
+
+
+
+	/*
+	 * we cannot simply remove a cftentry instance, as it might be in use by some packet engine.
+	 * Therefore, we mark all cftentry instances for deletion in std::set delete_table.
+	 * This will result in calls to cfttable::cftentry_idle_for_deletion() where we can
+	 * safely destroy these entries.
+	 */
+	if (not delete_table.empty())
 	{
-		fte = cftentry_factory(&flow_table, pack);
-		//fte = owner->cftentry_factory(&flow_table, pack);
+		for (std::set<cftentry*>::iterator
+				it = delete_table.begin(); it != delete_table.end(); ++it)
+		{
+			(*it)->schedule_deletion();
+		}
 	}
-	else
-	{
-		fte = new cftentry(owner, &flow_table, pack); // FIXME: URGENT!!!
-	}
+	delete_table.clear();
+
 
 
 	update_group_ref_counts(fte);
 
 
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [2]\n %s", this, c_str());
-
-	deletion_list.remove_if( deleteAll );
-
-	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [3]\n %s", this, c_str());
-
-	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [4]\n  %s", this, fte->c_str());
 
 	return fte;
 }
@@ -709,7 +729,7 @@ delete_entry:
 		update_group_ref_counts((*it), false /* decrement reference count */);
 
 
-		(*it)->erase();
+		(*it)->schedule_deletion();
 		begin = flow_table.begin();
 	}
 
@@ -728,22 +748,7 @@ cfttable::set_config(
 }
 
 
-#if 0
-cftentry*
-cfttable::find_ft_entry(ofp_match *match) throw()
-{
-	std::set<cftentry*>::iterator it = flow_table.begin();
 
-	it = flow_table.begin();
-	if ((it = find_if(it, flow_table.end(),
-				cftentry::ftentry_find_overlap(match, true /* strict */))) == flow_table.end())
-	{
-		throw eFlowTableNoMatch();
-	}
-
-	return (*it);
-}
-#endif
 
 
 std::set<cftentry*>
@@ -788,24 +793,21 @@ cfttable::update_group_ref_counts(
 				continue;
 			}
 
-			try {
 
-				uint32_t group_id = be32toh(action.oac_group->group_id);
-				if (inc)
-				{
-					owner->inc_group_reference_count(group_id, fte);
-					//fwdelem->group_table[group_id]->ref_count++;
-				}
-				else
-				{
-					owner->dec_group_reference_count(group_id, fte);
-					//fwdelem->group_table[group_id]->ref_count--;
-				}
+			uint32_t group_id = be32toh(action.oac_group->group_id);
+			if (inc)
+			{
+				owner->inc_group_reference_count(group_id, fte);
+				//fwdelem->group_table[group_id]->ref_count++;
+			}
+			else
+			{
+				owner->dec_group_reference_count(group_id, fte);
+				//fwdelem->group_table[group_id]->ref_count--;
+			}
 
-				//WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_group_ref_cnts() %s",
-				//		this, fwdelem->group_table[group_id]->c_str());
-
-			} catch (eGroupTableNotFound& e) { }
+			//WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_group_ref_cnts() %s",
+			//		this, fwdelem->group_table[group_id]->c_str());
 		}
 
 	} catch (eInListNotFound& e) { }
@@ -826,24 +828,20 @@ cfttable::update_group_ref_counts(
 				continue;
 			}
 
-			try {
+			uint32_t group_id = be32toh(action.oac_group->group_id);
+			if (inc)
+			{
+				owner->inc_group_reference_count(group_id, fte);
+				//fwdelem->group_table[group_id]->ref_count++;
+			}
+			else
+			{
+				owner->dec_group_reference_count(group_id, fte);
+				//fwdelem->group_table[group_id]->ref_count--;
+			}
 
-				uint32_t group_id = be32toh(action.oac_group->group_id);
-				if (inc)
-				{
-					owner->inc_group_reference_count(group_id, fte);
-					//fwdelem->group_table[group_id]->ref_count++;
-				}
-				else
-				{
-					owner->dec_group_reference_count(group_id, fte);
-					//fwdelem->group_table[group_id]->ref_count--;
-				}
-
-				//WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_group_ref_cnts() %s",
-				//		this, fwdelem->group_table[group_id]->c_str());
-
-			} catch (eGroupTableNotFound& e) { }
+			//WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_group_ref_cnts() %s",
+			//		this, fwdelem->group_table[group_id]->c_str());
 		}
 
 	} catch (eInListNotFound& e) { }
@@ -906,7 +904,14 @@ void
 cftsearch::operator() (
 		cftentry *fte)
 {
-	if (fte->flags.test(cftentry::CFTENTRY_FLAG_DELETE_THIS))
+	if (0 == fte)
+	{
+		WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() ignoring NULL pointer ", this);
+
+		return;
+	}
+
+	if (fte->flags.test(cftentry::CFTENTRY_FLAG_TIMER_EXPIRED))
 	{
 		WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() cftentry scheduled "
 				"for removal, ignoring => cftentry:% p", this, fte);
@@ -981,7 +986,7 @@ cftsearch::operator() (
 			fte->sem_inc();						// mark cftentry instance fte as being in use by cfwdengine
 			matching_entries.insert(fte); 		// add additional entry to pkb->matches
 
-		} catch (eFteUnAvail& e) {
+		} catch (eFtEntryUnAvail& e) {
 			WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() ignoring entry as it is unavailable => cftentry:%p", this, fte);
 			return;
 		}
