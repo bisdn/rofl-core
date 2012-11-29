@@ -121,6 +121,10 @@ class cftentry :
 	public ciosrv,
 	public hw_fte_cb
 {
+public: // static
+
+		static std::set<cftentry*>		cftentry_set;
+
 private: // data structures
 
 		enum cftentry_event_t {

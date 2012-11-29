@@ -4,6 +4,7 @@
 
 #include "cftentry.h"
 
+/*static*/std::set<cftentry*>		cftentry::cftentry_set;
 
 cftentry::cftentry(
 		cftentry_owner *owner,
@@ -20,6 +21,8 @@ cftentry::cftentry(
 		out_group(OFPG_ANY),
 		flow_mod(0)
 {
+	cftentry::cftentry_set.insert(this);
+
 	pthread_rwlock_init(&usage_lock, NULL);
 	pthread_rwlock_init(&flags_lock, NULL);
 	pthread_rwlock_init(&access_time_lock, NULL);
@@ -52,6 +55,8 @@ cftentry::cftentry(
 		m_flowmod(sizeof(struct ofp_flow_mod) - sizeof(struct ofp_match)),
 		flow_mod((struct ofp_flow_mod*)m_flowmod.somem())
 {
+	cftentry::cftentry_set.insert(this);
+
 	pthread_rwlock_init(&usage_lock, NULL);
 	pthread_rwlock_init(&flags_lock, NULL);
 	pthread_rwlock_init(&access_time_lock, NULL);
@@ -109,6 +114,8 @@ cftentry::cftentry(
 				out_group(OFPG_ANY),
 				flow_mod(0)
 {
+	cftentry::cftentry_set.insert(this);
+
 	pthread_rwlock_init(&usage_lock, NULL);
 	pthread_rwlock_init(&flags_lock, NULL);
 	pthread_rwlock_init(&access_time_lock, NULL);
@@ -120,6 +127,8 @@ cftentry::cftentry(
 
 cftentry::~cftentry()
 {
+	cftentry::cftentry_set.erase(this);
+
 	WRITELOG(FTE, DBG, "cftentry(%p)::~cftentry() %s", this, c_str());
 
 	if (flow_table)
@@ -159,6 +168,16 @@ cftentry::handle_event(cevent const& ev)
 void
 cftentry::handle_timeout(int opaque)
 {
+#if 1
+	fprintf(stderr, "cftentry(%p)::handle_timeout() set: ", this);
+	for (std::set<cftentry*>::iterator
+			it = cftentry::cftentry_set.begin(); it != cftentry::cftentry_set.end(); ++it)
+	{
+		fprintf(stderr, "%p ", (*it));
+	}
+	fprintf(stderr, "\n");
+#endif
+
 	switch (opaque) {
 	case TIMER_FTE_IDLE_TIMEOUT:
 	{
