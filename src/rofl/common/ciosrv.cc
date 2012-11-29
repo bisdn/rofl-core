@@ -1186,13 +1186,18 @@ ciosrv::run()
 handle_packets:			// handle incoming events
 
 #ifndef NDEBUG
-			ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
+			try {
+				ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
+			} catch (cerror& e) {
+				//fprintf(stderr, "exception\n");
+				//throw;
+			}
 #else
 			try {
 				ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
 			} catch (cerror& e) {
 				//fprintf(stderr, "exception\n");
-				throw;
+				//throw;
 			}
 #endif
 
