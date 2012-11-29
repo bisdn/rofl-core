@@ -22,9 +22,12 @@ cftentry::cftentry(
 {
 	pthread_rwlock_init(&usage_lock, NULL);
 	pthread_rwlock_init(&flags_lock, NULL);
+	pthread_rwlock_init(&access_time_lock, NULL);
+
 	make_info();
 	WRITELOG(FTE, DBG, "cftentry(%p)::cftentry() [1] %s %s",
 			this, c_str(), instructions.c_str());
+	last_access_time = cclock::now();
 }
 
 
@@ -51,6 +54,7 @@ cftentry::cftentry(
 {
 	pthread_rwlock_init(&usage_lock, NULL);
 	pthread_rwlock_init(&flags_lock, NULL);
+	pthread_rwlock_init(&access_time_lock, NULL);
 
 	// flow_mod copy remains in network byte order !!!
 	// we copy the generic flow mod header only, i.e. ofp_match and all instructions are
@@ -60,8 +64,8 @@ cftentry::cftentry(
 	__update();
 
 	 // remember, when this flow was created
-	flow_create_time.now();
-
+	flow_create_time = cclock::now();
+	last_access_time = cclock::now();
 
 	// set hard timeout always
 	if (be16toh(this->flow_mod->hard_timeout) != OFP_FLOW_PERMANENT)
@@ -81,6 +85,7 @@ cftentry::cftentry(
 #endif
 
 	WRITELOG(FTE, DBG, "cftentry(%p)::cftentry() [2] %s %s", this, c_str(), instructions.c_str());
+
 
 	if (flow_table)
 	{
@@ -106,6 +111,7 @@ cftentry::cftentry(
 {
 	pthread_rwlock_init(&usage_lock, NULL);
 	pthread_rwlock_init(&flags_lock, NULL);
+	pthread_rwlock_init(&access_time_lock, NULL);
 
 	*this = fte;
 }
@@ -121,6 +127,7 @@ cftentry::~cftentry()
 		flow_table->erase(this);
 	}
 
+	pthread_rwlock_destroy(&access_time_lock);
 	pthread_rwlock_destroy(&usage_lock);
 	pthread_rwlock_destroy(&flags_lock);
 }
@@ -155,6 +162,21 @@ cftentry::handle_timeout(int opaque)
 	switch (opaque) {
 	case TIMER_FTE_IDLE_TIMEOUT:
 	{
+		/*
+		 * check for last access time, if it has expired, schedule deletion,
+		 * otherwise just reset the idle timeout timer
+		 */
+		{
+			RwLock rwlock(&access_time_lock, RwLock::RWLOCK_READ);
+			if (((cclock::now().ts.tv_sec - last_access_time.ts.tv_sec)) < be16toh(flow_mod->idle_timeout))
+			{
+				time_t remaining_time = be16toh(flow_mod->idle_timeout) -
+											(cclock::now().ts.tv_sec - last_access_time.ts.tv_sec);
+				register_timer(TIMER_FTE_IDLE_TIMEOUT, remaining_time);
+				return;
+			}
+		}
+
 		/*
 		 *  Mark this instance for deletion by setting the TIMER-EXPIRED flag.
 		 *  This prevents our hosting flow_table from assigning us to packet engines again.
@@ -424,17 +446,13 @@ cftentry::used(cpacket& pack)
 	rx_bytes += pack.framelen();
 
 	WRITELOG(FTE, DBG, "cftentry(%p)::used() "
-			"rx_packets: %lu rx_bytes: %lu",
-			this, rx_packets, rx_bytes);
+			"rx_packets: %lu rx_bytes: %lu", this, rx_packets, rx_bytes);
 
-	// set idle timeout only, when flow_mod->idle_timeout < flow_mod->hard_timeout
-	if ((be16toh(this->flow_mod->idle_timeout) < be16toh(this->flow_mod->hard_timeout)) &&
-		(be16toh(this->flow_mod->idle_timeout) != OFP_FLOW_PERMANENT))
-	{
-		cancel_timer(TIMER_FTE_IDLE_TIMEOUT);
-		register_timer(TIMER_FTE_IDLE_TIMEOUT,
-					   be16toh(flow_mod->idle_timeout));
-	}
+	RwLock rwlock(&access_time_lock, RwLock::RWLOCK_WRITE);
+	last_access_time = cclock::now();
+
+	WRITELOG(FTE, DBG, "cftentry(%p)::used() "
+			"last_access_time: %s", this, last_access_time.c_str());
 }
 
 

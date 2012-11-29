@@ -157,6 +157,8 @@ public:
 		cofinlist 				instructions;		// list of instructions
 		uint8_t 				removal_reason;		// reason for removing this flow entry
 		cclock 					flow_create_time;	// time when this flow entry was created
+		pthread_rwlock_t		access_time_lock;	// lock for last_access_time
+		cclock 					last_access_time;	// last access to this cftentry
 		uint64_t 				rx_packets;			// number of packets handled by this ft-entry
 		uint64_t 				rx_bytes;			// number of bytes handled by this ft-entry
 		uint32_t 				out_port;			// output port for this ft-entry
