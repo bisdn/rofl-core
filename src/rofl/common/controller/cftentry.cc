@@ -163,21 +163,6 @@ cftentry::handle_timeout(int opaque)
 	case TIMER_FTE_IDLE_TIMEOUT:
 	{
 		/*
-		 * check for last access time, if it has expired, schedule deletion,
-		 * otherwise just reset the idle timeout timer
-		 */
-		{
-			RwLock rwlock(&access_time_lock, RwLock::RWLOCK_READ);
-			if (((cclock::now().ts.tv_sec - last_access_time.ts.tv_sec)) < be16toh(flow_mod->idle_timeout))
-			{
-				time_t remaining_time = be16toh(flow_mod->idle_timeout) -
-											(cclock::now().ts.tv_sec - last_access_time.ts.tv_sec);
-				register_timer(TIMER_FTE_IDLE_TIMEOUT, remaining_time);
-				return;
-			}
-		}
-
-		/*
 		 *  Mark this instance for deletion by setting the TIMER-EXPIRED flag.
 		 *  This prevents our hosting flow_table from assigning us to packet engines again.
 		 *  Once, all packet engines have concluded their work and released the reference
@@ -190,6 +175,21 @@ cftentry::handle_timeout(int opaque)
 		{
 			// deletion of this cftentry instance already triggered, abort notification
 			return;
+		}
+
+		/*
+		 * check for last access time, if it has expired, schedule deletion,
+		 * otherwise just reset the idle timeout timer
+		 */
+		{
+			RwLock rwlock(&access_time_lock, RwLock::RWLOCK_READ);
+			if (((cclock::now().ts.tv_sec - last_access_time.ts.tv_sec)) < be16toh(flow_mod->idle_timeout))
+			{
+				time_t remaining_time = be16toh(flow_mod->idle_timeout) -
+											(cclock::now().ts.tv_sec - last_access_time.ts.tv_sec);
+				register_timer(TIMER_FTE_IDLE_TIMEOUT, remaining_time);
+				return;
+			}
 		}
 
 		flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
