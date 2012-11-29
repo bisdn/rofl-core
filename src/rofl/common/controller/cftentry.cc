@@ -201,10 +201,13 @@ cftentry::handle_timeout(int opaque)
 
 		if (0 == usage_cnt)
 		{
+			if (pending_timer(TIMER_FTE_HARD_TIMEOUT))
+			{
+				cancel_timer(TIMER_FTE_HARD_TIMEOUT);
+			}
+
 			if (owner) { owner->ftentry_idle_timeout(this, be16toh(flow_mod->idle_timeout)); };
 		}
-
-		cancel_timer(TIMER_FTE_HARD_TIMEOUT);
 	}
 		return;
 
@@ -234,10 +237,13 @@ cftentry::handle_timeout(int opaque)
 
 		if (0 == usage_cnt)
 		{
+			if (pending_timer(TIMER_FTE_IDLE_TIMEOUT))
+			{
+				cancel_timer(TIMER_FTE_IDLE_TIMEOUT);
+			}
+
 			if (owner) { owner->ftentry_hard_timeout(this, be16toh(flow_mod->hard_timeout)); };
 		}
-
-		cancel_timer(TIMER_FTE_IDLE_TIMEOUT);
 	}
 		return;
 
