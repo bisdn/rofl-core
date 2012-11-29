@@ -878,6 +878,10 @@ ciosrv::__handle_timeout()
 		{
 			return;
 		}
+		if (ciosrv_list[tid].find(this) == ciosrv_list[tid].end())
+		{
+			return;
+		}
 		handle_timeout(*it);
 	}
 }
