@@ -968,42 +968,49 @@ cftsearch::operator() (
 	if ((hits > __max_hits) ||
 		((hits == __max_hits) && (exact_hits > __exact_hits))) // new best hit
 	{
-		WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() new best hit cftentry:%p", this, fte);
+		try {
+			fte->sem_inc();					// increment fte semaphore by one
 
-		matching_entries.clear();		// remove all old entries from pkb->matches
-		matching_entries.insert(fte);	// add fte as only entry to pkb->matches
-		fte->sem_inc();					// increment fte semaphore by one
+			WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() new best hit cftentry:%p", this, fte);
 
-		__max_hits = hits;
-		__exact_hits = exact_hits;
-		__wildcard_hits = wildcard_hits;
-		__priority = be16toh(fte->flow_mod->priority);
+			matching_entries.clear();		// remove all old entries from pkb->matches
+			matching_entries.insert(fte);	// add fte as only entry to pkb->matches
 
+			__max_hits = hits;
+			__exact_hits = exact_hits;
+			__wildcard_hits = wildcard_hits;
+			__priority = be16toh(fte->flow_mod->priority);
+
+		} catch (eFtEntryUnAvail& e) {
+			WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() ignoring entry as it is unavailable => cftentry:%p", this, fte);
+			return;
+		}
 	}
 	else if ((hits == __max_hits) && (exact_hits == __exact_hits))  // also a best hit, check priority
 	{
-		if (be16toh(fte->flow_mod->priority) > __priority)    // better priority
-		{
-			// remove all old entries from matching_entries
-			matching_entries.clear();
-
-			__priority = be16toh(fte->flow_mod->priority);
-
-			WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() new best hit with higher priority => cftentry:%p", this, fte);
-		}
-		else if (be16toh(fte->flow_mod->priority) == __priority)   // same match and priority
-		{
-			WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() identical hit with same hits and priority => cftentry:%p", this, fte);
-		}
-		else   // lower priority, do nothing
-		{
-			WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() ignoring entry with lower priority => cftentry:%p", this, fte);
-
-			return;
-		}
-
 		try {
 			fte->sem_inc();						// mark cftentry instance fte as being in use by cfwdengine
+
+			if (be16toh(fte->flow_mod->priority) > __priority)    // better priority
+			{
+				// remove all old entries from matching_entries
+				matching_entries.clear();
+
+				__priority = be16toh(fte->flow_mod->priority);
+
+				WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() new best hit with higher priority => cftentry:%p", this, fte);
+			}
+			else if (be16toh(fte->flow_mod->priority) == __priority)   // same match and priority
+			{
+				WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() identical hit with same hits and priority => cftentry:%p", this, fte);
+			}
+			else   // lower priority, do nothing
+			{
+				WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() ignoring entry with lower priority => cftentry:%p", this, fte);
+
+				return;
+			}
+
 			matching_entries.insert(fte); 		// add additional entry to pkb->matches
 
 		} catch (eFtEntryUnAvail& e) {
