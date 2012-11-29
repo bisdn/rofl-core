@@ -179,7 +179,10 @@ cfttable::ftentry_idle_for_deletion(
 	/*
 	 * calling entry's destructor also removes it from our internal flow_table set
 	 */
-	delete entry;
+	if (flow_table.find(entry) != flow_table.end())
+	{
+		delete entry;
+	}
 }
 
 
