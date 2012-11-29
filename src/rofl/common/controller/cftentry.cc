@@ -186,6 +186,12 @@ cftentry::handle_timeout(int opaque)
 		 */
 		RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
 
+		if (flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
+		{
+			// deletion of this cftentry instance already triggered, abort notification
+			return;
+		}
+
 		flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
 
 		WRITELOG(CFWD, DBG, "cftentry(%p)::handle_timeout() "
@@ -210,6 +216,12 @@ cftentry::handle_timeout(int opaque)
 		 *  reference to us currently, inform our flow_table immediately.
 		 */
 		RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
+
+		if (flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
+		{
+			// deletion of this cftentry instance already triggered, abort notification
+			return;
+		}
 
 		flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
 
