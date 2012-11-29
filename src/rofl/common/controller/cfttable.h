@@ -92,6 +92,7 @@ private: // data structures
 	cfttable_owner 			*owner; 		// owning instance of this cfttable (or NULL)
 	std::string 			info; 			// info string
 	pthread_rwlock_t 		ft_rwlock; 		// rwlock for this flowtable
+	std::set<cftentry*>		deletion_list;
 
 public: // data structures
 
@@ -297,6 +298,17 @@ public: // overloaded from cftentry
 	 */
 	virtual void
 	ftentry_hard_timeout(cftentry *entry, uint16_t timeout);
+
+
+protected: // overloaded from ciosrv
+
+
+	/**
+	 *
+	 */
+	void
+	handle_timeout(
+			int opaque);
 
 
 protected:

@@ -152,6 +152,25 @@ cfttable::reset()
 }
 
 
+void
+cfttable::handle_timeout(
+		int opaque)
+{
+	switch (opaque) {
+	case CFTTABLE_TIMER_DELETE_TABLE:
+	{
+		for (std::set<cftentry*>::iterator
+				it = deletion_list.begin(); it != deletion_list.end(); ++it)
+		{
+			delete (*it);
+		}
+		deletion_list.clear();
+	}
+		break;
+	}
+}
+
+
 
 cftentry*
 cfttable::cftentry_factory(
@@ -179,7 +198,9 @@ cfttable::ftentry_idle_for_deletion(
 	/*
 	 * calling entry's destructor also removes it from our internal flow_table set
 	 */
-	delete entry;
+	deletion_list.insert(entry);
+
+	reset_timer(CFTTABLE_TIMER_DELETE_TABLE, 0);
 }
 
 

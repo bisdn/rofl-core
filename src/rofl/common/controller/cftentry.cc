@@ -188,8 +188,7 @@ cftentry::handle_timeout(int opaque)
 		 *  to this cftentry instance, we will notify our flow_table, or if there is no
 		 *  reference to us currently, inform our flow_table immediately.
 		 */
-		RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
-
+		RwLock fllock(&flags_lock, RwLock::RWLOCK_READ);
 		if (flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
 		{
 			// deletion of this cftentry instance already triggered, abort notification
@@ -218,6 +217,7 @@ cftentry::handle_timeout(int opaque)
 
 		removal_reason = OFPRR_IDLE_TIMEOUT;
 
+		RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
 		if (0 == usage_cnt)
 		{
 			if (pending_timer(TIMER_FTE_HARD_TIMEOUT))
@@ -239,7 +239,7 @@ cftentry::handle_timeout(int opaque)
 		 *  to this cftentry instance, we will notify our flow_table, or if there is no
 		 *  reference to us currently, inform our flow_table immediately.
 		 */
-		RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
+		RwLock fllock(&flags_lock, RwLock::RWLOCK_READ);
 
 		if (flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
 		{
@@ -254,6 +254,7 @@ cftentry::handle_timeout(int opaque)
 
 		removal_reason = OFPRR_HARD_TIMEOUT;
 
+		RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
 		if (0 == usage_cnt)
 		{
 			if (pending_timer(TIMER_FTE_IDLE_TIMEOUT))
