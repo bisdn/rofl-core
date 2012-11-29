@@ -220,16 +220,20 @@ cftentry::schedule_deletion()
 	/*
 	 * already scheduled for deletion?
 	 */
-	RwLock flock(&flags_lock, RwLock::RWLOCK_WRITE);
-	if (not flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
 	{
-		flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
+		RwLock flock(&flags_lock, RwLock::RWLOCK_WRITE);
+		if (not flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
+		{
+			flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
+		}
 	}
 
-	RwLock ulock(&usage_lock, RwLock::RWLOCK_READ);
-	if (0 == usage_cnt)
 	{
-		if (owner) { owner->ftentry_idle_for_deletion(this); };
+		RwLock ulock(&usage_lock, RwLock::RWLOCK_READ);
+		if (0 == usage_cnt)
+		{
+			if (owner) { owner->ftentry_idle_for_deletion(this); };
+		}
 	}
 }
 

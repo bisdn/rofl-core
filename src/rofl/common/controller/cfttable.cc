@@ -415,7 +415,6 @@ cfttable::find_best_matches(
 	 *          similar to what openldap with indexing provides?
 	 */
 
-	RwLock lock(&ft_rwlock, RwLock::RWLOCK_READ);
 
 	try {
 
@@ -425,8 +424,12 @@ cfttable::find_best_matches(
 		// calculates the qualifier for ethernet packet pointed to by iovec = {data, datalen}
 		cftsearch ftsearch(pack);
 
-		// for_each() takes a copy, not a reference, so we have to assign its return value back to ftsearch!
-		ftsearch = for_each(flow_table.begin(), flow_table.end(), ftsearch);
+		{
+			RwLock lock(&ft_rwlock, RwLock::RWLOCK_READ);
+
+			// for_each() takes a copy, not a reference, so we have to assign its return value back to ftsearch!
+			ftsearch = for_each(flow_table.begin(), flow_table.end(), ftsearch);
+		}
 
 		WRITELOG(CFTTABLE, DBG, "cfttable(%p)::find_best_matches() %s", this, ftsearch.c_str());
 
