@@ -874,6 +874,10 @@ ciosrv::__handle_timeout()
 		WRITELOG(CIOSRV, DBG, "ciosrv(%p)::__handle_timeout() calling timer => type:0x%x",
 					this, *it);
 
+		if (ciosrv_list[tid].find(this) == ciosrv_list[tid].end())
+		{
+			return;
+		}
 		handle_timeout(*it);
 	}
 }
