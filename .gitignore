@@ -27,4 +27,6 @@ libtool
 m4
 ar-lib
 
+/build-*
+
 !.gitignore
