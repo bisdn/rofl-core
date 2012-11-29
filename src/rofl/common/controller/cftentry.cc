@@ -168,7 +168,7 @@ cftentry::handle_event(cevent const& ev)
 void
 cftentry::handle_timeout(int opaque)
 {
-#if 1
+#if 0
 	fprintf(stderr, "cftentry(%p)::handle_timeout() set: ", this);
 	for (std::set<cftentry*>::iterator
 			it = cftentry::cftentry_set.begin(); it != cftentry::cftentry_set.end(); ++it)
