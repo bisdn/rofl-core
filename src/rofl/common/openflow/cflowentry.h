@@ -75,6 +75,11 @@ public: // methods
 	 */
 	cflowentry& operator= (const cflowentry& fe);
 
+	/**
+	 *
+	 */
+	bool
+	operator< (cflowentry const& fe) const;
 
 	/** reset flowentry
 	 *
@@ -199,47 +204,47 @@ public: // getter methods for ofp_flow_mod structure
 	/**
 	 */
 	uint8_t
-	get_command();
+	get_command() const;
 	/**
 	 */
 	uint8_t
-	get_table_id();
+	get_table_id() const;
 	/**
 	 */
 	uint16_t
-	get_idle_timeout();
+	get_idle_timeout() const;
 	/**
 	 */
 	uint16_t
-	get_hard_timeout();
+	get_hard_timeout() const;
 	/**
 	 */
 	uint64_t
-	get_cookie();
+	get_cookie() const;
 	/**
 	 */
 	uint64_t
-	get_cookie_mask();
+	get_cookie_mask() const;
 	/**
 	 */
 	uint16_t
-	get_priority();
+	get_priority() const;
 	/**
 	 */
 	uint32_t
-	get_buffer_id();
+	get_buffer_id() const;
 	/**
 	 */
 	uint32_t
-	get_out_port();
+	get_out_port() const;
 	/**
 	 */
 	uint32_t
-	get_out_group();
+	get_out_group() const;
 	/**
 	 */
 	uint16_t
-	get_flags();
+	get_flags() const;
 
 
 

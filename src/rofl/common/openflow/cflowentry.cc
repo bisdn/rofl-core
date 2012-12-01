@@ -54,6 +54,42 @@ cflowentry::operator= (const cflowentry& fe)
 }
 
 
+bool
+cflowentry::operator< (cflowentry const& fe) const
+{
+	if (get_command() != fe.get_command())
+		return (get_command() < fe.get_command());
+	if (get_table_id() != fe.get_table_id())
+		return (get_table_id() < fe.get_table_id());
+	if (get_idle_timeout() != fe.get_idle_timeout())
+		return (get_idle_timeout() < fe.get_idle_timeout());
+	if (get_hard_timeout() != fe.get_hard_timeout())
+		return (get_hard_timeout() < fe.get_hard_timeout());
+	if (get_cookie() != fe.get_cookie())
+		return (get_cookie() < fe.get_cookie());
+	if (get_cookie_mask() != fe.get_cookie_mask())
+		return (get_cookie_mask() < fe.get_cookie_mask());
+	if (get_priority() != fe.get_priority())
+		return (get_priority() < fe.get_priority());
+	if (get_buffer_id() != fe.get_buffer_id())
+		return (get_buffer_id() < fe.get_buffer_id());
+	if (get_out_port() != fe.get_out_port())
+		return (get_out_port() < fe.get_out_port());
+	if (get_out_group() != fe.get_out_group())
+		return (get_out_group() < fe.get_out_group());
+	if (get_flags() != fe.get_flags())
+		return (get_flags() < fe.get_flags());
+	if ((match < fe.match) || (fe.match < match))
+		return (match < fe.match);
+	// TODO: add operator< to class cofinlist
+#if 0
+	if ((instructions < fe.instructions) || (fe.instructions < instructions))
+		return (instructions < fe.instructions);
+#endif
+	return false;
+}
+
+
 void
 cflowentry::reset()
 {
@@ -74,118 +110,6 @@ cflowentry::reset()
 }
 
 
-#if 0
-void
-cflowentry::match_set_type(const uint16_t& type)
-{
-	match.set_type(type);
-}
-
-
-void
-cflowentry::match_set_in_port(const uint16_t& in_port)
-{
-	match.set_in_port(in_port);
-}
-
-
-void
-cflowentry::match_set_dl_src(const cmemory& dl_src, const cmemory& dl_src_mask)
-{
-	match.set_dl_src(dl_src, dl_src_mask);
-}
-
-
-void
-cflowentry::match_set_dl_dst(const cmemory& dl_dst, const cmemory& dl_dst_mask)
-{
-	match.set_dl_dst(dl_dst, dl_dst_mask);
-}
-
-
-void
-cflowentry::match_set_dl_type(const uint16_t& dl_type)
-{
-	match.set_dl_type(dl_type);
-}
-
-
-void
-cflowentry::match_set_dl_vlan(const uint16_t& dl_vlan)
-{
-	match.set_dl_vlan(dl_vlan);
-}
-
-
-void
-cflowentry::match_set_dl_vlan_pcp(const uint8_t& dl_vlan_pcp)
-{
-	match.set_dl_vlan_pcp(dl_vlan_pcp);
-}
-
-
-void
-cflowentry::match_set_nw_tos(const uint8_t& nw_tos)
-{
-	match.set_nw_tos(nw_tos);
-}
-
-
-void
-cflowentry::match_set_nw_proto(const uint8_t& nw_proto)
-{
-	match.set_nw_proto(nw_proto);
-}
-
-
-void
-cflowentry::match_set_nw_src(const caddress& nw_src, uint8_t nw_mask)
-{
-	match.set_nw_src(nw_src, nw_mask);
-}
-
-
-void
-cflowentry::match_set_nw_dst(const caddress& nw_dst, uint8_t nw_mask)
-{
-	match.set_nw_dst(nw_dst, nw_mask);
-}
-
-
-void
-cflowentry::match_set_tp_src(const uint16_t& tp_src)
-{
-	match.set_tp_src(tp_src);
-}
-
-
-void
-cflowentry::match_set_tp_dst(const uint16_t& tp_dst)
-{
-	match.set_tp_dst(tp_dst);
-}
-
-
-void
-cflowentry::match_set_pppoe_code(uint8_t code)
-{
-	match.set_pppoe_code(code);
-}
-
-
-void
-cflowentry::match_set_pppoe_type(uint8_t type)
-{
-	match.set_pppoe_type(type);
-}
-
-
-void
-cflowentry::match_set_pppoe_sessid(uint16_t sessid)
-{
-	match.set_pppoe_sessid(sessid);
-}
-#endif
 
 
 const char*
@@ -309,77 +233,77 @@ cflowentry::set_flags(const uint16_t& flags)
 
 
 uint8_t
-cflowentry::get_command()
+cflowentry::get_command() const
 {
 	return flow_mod->command;
 }
 
 
 uint8_t
-cflowentry::get_table_id()
+cflowentry::get_table_id() const
 {
 	return flow_mod->table_id;
 }
 
 
 uint16_t
-cflowentry::get_idle_timeout()
+cflowentry::get_idle_timeout() const
 {
 	return be16toh(flow_mod->idle_timeout);
 }
 
 
 uint16_t
-cflowentry::get_hard_timeout()
+cflowentry::get_hard_timeout() const
 {
 	return be16toh(flow_mod->hard_timeout);
 }
 
 
 uint64_t
-cflowentry::get_cookie()
+cflowentry::get_cookie() const
 {
 	return be64toh(flow_mod->cookie);
 }
 
 
 uint64_t
-cflowentry::get_cookie_mask()
+cflowentry::get_cookie_mask() const
 {
 	return be64toh(flow_mod->cookie_mask);
 }
 
 
 uint16_t
-cflowentry::get_priority()
+cflowentry::get_priority() const
 {
 	return be16toh(flow_mod->priority);
 }
 
 
 uint32_t
-cflowentry::get_buffer_id()
+cflowentry::get_buffer_id() const
 {
 	return be32toh(flow_mod->buffer_id);
 }
 
 
 uint32_t
-cflowentry::get_out_port()
+cflowentry::get_out_port() const
 {
 	return be32toh(flow_mod->out_port);
 }
 
 
 uint32_t
-cflowentry::get_out_group()
+cflowentry::get_out_group() const
 {
 	return be32toh(flow_mod->out_group);
 }
 
 
 uint16_t
-cflowentry::get_flags()
+cflowentry::get_flags() const
 {
 	return be16toh(flow_mod->flags);
 }
