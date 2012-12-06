@@ -6,6 +6,9 @@ cat <<-EOF
  * do not edit
  */
 
+#ifndef MATCHING_ALGORITHMS_AVAILABLE_H_
+#define MATCHING_ALGORITHMS_AVAILABLE_H_
+
 enum matching_algorithm_available {
 EOF
 
@@ -25,4 +28,9 @@ for ALG in "$@"; do
 	echo "	\"$ALG\", \\"
 done
 
-echo "}"
+cat <<-EOF
+"}"
+
+#endif /* MATCHING_ALGORITHMS_AVAILABLE_H_ */
+
+EOF

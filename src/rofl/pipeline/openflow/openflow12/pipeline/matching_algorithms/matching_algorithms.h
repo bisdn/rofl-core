@@ -9,11 +9,11 @@
 #define MATCHING_ALGORITHMS_H_
 
 #include "../of12_flow_entry.h"
+#include "matching_algorithms_available.h"
 /**
  * forward declarations
  */
 struct of12_flow_table;
-enum matching_algorithm_available;
 
 enum of12_mutex_acquisition_required
 {
