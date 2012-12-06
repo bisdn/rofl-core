@@ -148,6 +148,23 @@ unsigned int physical_switch_attach_port_to_logical_switch(switch_port_t* port, 
 
 }
 
+unsigned int physical_switch_attach_port_to_logical_switch_at_port_num(switch_port_t* port, of_switch_t* sw, unsigned int port_num){
+
+	unsigned int return_val;
+
+	if( !sw || !port || port->attached_sw )
+		return EXIT_FAILURE;
+
+	//Serialize
+	platform_mutex_lock(&psw.mutex);
+
+	return_val = of_attach_port_to_switch_at_port_num(sw, port_num, port);
+
+	platform_mutex_unlock(&psw.mutex);
+	return return_val;
+}
+
+
 unsigned int physical_switch_detach_port_num_from_logical_switch(unsigned int port_num, of_switch_t* sw){
 	unsigned int return_val;
 
