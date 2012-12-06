@@ -1,8 +1,5 @@
 #include "of12_flow_table.h"
 
-//Matching algorithms
-#include "matching_algorithms/matching_algorithms_available.h"
-
 #include <stdio.h>
 
 /* 

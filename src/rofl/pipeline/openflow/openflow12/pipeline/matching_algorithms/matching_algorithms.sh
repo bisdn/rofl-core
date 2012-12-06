@@ -10,7 +10,6 @@ cat <<EOF
  */
 
 #include "matching_algorithms.h"
-#include "matching_algorithms_available.h"
 EOF
 
 # write the includes
