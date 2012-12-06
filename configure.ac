@@ -101,17 +101,17 @@ AC_ARG_ENABLE(pipeline,
 AC_MSG_RESULT($PIPELINE_SUPPORT)
 AM_CONDITIONAL(PIPELINE_SUPPORT, test $PIPELINE_SUPPORT = yes)
 AM_COND_IF([PIPELINE_SUPPORT],[AC_CONFIG_FILES([
-        src/pipeline/Makefile
-        src/pipeline/common/Makefile
-        src/pipeline/platform/Makefile
-        src/pipeline/openflow/Makefile
-        src/pipeline/openflow/openflow12/Makefile
-        src/pipeline/openflow/openflow12/pipeline/Makefile
-        src/pipeline/openflow/openflow12/pipeline/matching_algorithms/Makefile
-        src/pipeline/util/Makefile])])
+        src/rofl/pipeline/Makefile
+        src/rofl/pipeline/common/Makefile
+        src/rofl/pipeline/platform/Makefile
+        src/rofl/pipeline/openflow/Makefile
+        src/rofl/pipeline/openflow/openflow12/Makefile
+        src/rofl/pipeline/openflow/openflow12/pipeline/Makefile
+        src/rofl/pipeline/openflow/openflow12/pipeline/matching_algorithms/Makefile
+        src/rofl/pipeline/util/Makefile])])
 
 ## pipeline
-MATCHING_ALGORITHMS_DIR="src/pipeline/openflow/openflow12/pipeline/matching_algorithms"
+MATCHING_ALGORITHMS_DIR="src/rofl/pipeline/openflow/openflow12/pipeline/matching_algorithms"
 AC_SUBST(MATCHING_ALGORITHMS_DIR)
 MATCHING_ALGORITHMS="loop"
 MATCHING_ALGORITHM_LIBS=""
