@@ -383,7 +383,7 @@ cpacket::pack(
 		uint8_t *dest,
 		size_t len) throw (ePacketInval)
 {
-	size_t p_len = (len > framelen()) ? framelen() : len;
+	size_t p_len = (len < framelen()) ? len : framelen();
 	memcpy(dest, soframe(), p_len);
 }
 

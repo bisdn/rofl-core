@@ -548,7 +548,7 @@ cofaction::get_port() throw (eActionInvalType)
 
 
 uint16_t
-cofaction::get_max_len() throw (eActionInvalType)
+cofaction_output::get_max_len() const throw (eActionInvalType)
 {
 	switch (get_type()) {
 	case OFPAT_OUTPUT:

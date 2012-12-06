@@ -685,7 +685,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 
 		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
 				"-FLOW-MOD- blocked due to mismatch in nsp "
-				"registration", this);
+				"registration\n%s", this, rofbase->fsptable.c_str());
 
 		rofbase->send_error_message(
 				this,

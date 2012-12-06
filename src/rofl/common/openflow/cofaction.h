@@ -163,12 +163,6 @@ public: // methods
 	uint32_t
 	get_port() throw (eActionInvalType);
 
-	/**
-	 *
-	 */
-	uint16_t
-	get_max_len() throw (eActionInvalType);
-
 	/** return oxm for OFPAT_SET_FIELD
 	 *
 	 */
@@ -223,6 +217,12 @@ public:
 	 */
 	virtual
 	~cofaction_output() {};
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_max_len() const throw (eActionInvalType);
 };
 
 
