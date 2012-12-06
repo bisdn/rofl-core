@@ -187,6 +187,10 @@ ctlbase::handle_dpath_open(
 			"adapters: %d #ports-on-dpt: %d\ndpath: %s ",
 			dpname.c_str(), adstacks.size(), dpt->ports.size(), dpt->c_str());
 
+	uint16_t flags = 0;
+
+	send_set_config_message(dpt, flags, 1526); // FIXME: acquire MTU on link, but how with OpenFlow?
+
 	/*
 	 * inform adapters about existence of our layer (n-1) datapath
 	 */
