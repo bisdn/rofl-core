@@ -19,17 +19,17 @@ extern "C" {
 }
 #endif
 
-#include "../ciosrv.h"
-#include "../cerror.h"
-#include "../cvastring.h"
-#include "../thread_helper.h"
+#include "../common/ciosrv.h"
+#include "../common/cerror.h"
+#include "../common/cvastring.h"
+#include "../common/thread_helper.h"
 
 
-#include "../openflow/cofpacket.h"
+#include "../common/openflow/cofpacket.h"
 #include "cftentry.h"
 
 #if 0
-#include "../protocols/fdataframe.h"
+#include "../common/protocols/fdataframe.h"
 #endif
 
 

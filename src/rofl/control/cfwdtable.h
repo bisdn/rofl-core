@@ -15,11 +15,11 @@ extern "C" {
 
 #include <sys/types.h>
 #include <inttypes.h>
-#include "../openflow/openflow12.h"
+#include "../common/openflow/openflow12.h"
 
 #include <endian.h>
 #ifndef htobe16
-#include "../endian_conversion.h"
+#include "../common/endian_conversion.h"
 
 #endif
 
@@ -27,14 +27,14 @@ extern "C" {
 }
 #endif
 
-#include "../cmacaddr.h"
-#include "../cerror.h"
+#include "../common/cmacaddr.h"
+#include "../common/cerror.h"
 #include "cfwdtable.h"
 #include "cfwdentry.h"
-#include "../cvastring.h"
+#include "../common/cvastring.h"
 
-#include "../protocols/fetherframe.h"
-#include "../protocols/fvlanframe.h"
+#include "../common/protocols/fetherframe.h"
+#include "../common/protocols/fvlanframe.h"
 
 #include "rofl/platform/unix/csyslog.h"
 
