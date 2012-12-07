@@ -133,4 +133,4 @@ uint16_t platform_get_packet_ppp_proto(datapacket_t *const pkt);
 
 ROFL_PIPELINE_END_DECLS
 
-#endif PLATFORM_HOOKS
+#endif //PLATFORM_HOOKS

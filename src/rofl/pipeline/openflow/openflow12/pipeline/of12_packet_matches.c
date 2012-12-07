@@ -1,5 +1,7 @@
 #include "of12_packet_matches.h"
 
+#include "../../../platform/platform_hooks.h"
+
 /*
 * Updates/Initializes packet matches based on platform information about the pkt
 */

@@ -33,6 +33,7 @@ librofl_pipeline_platform_la_HEADERS = \
 	atomic_operations.h \
 	lock.h \
 	platform_lock.h \
+	platform_hooks.h \
 	memory.h
 
 librofl_pipeline_platform_la_SOURCES = \
@@ -41,6 +42,7 @@ librofl_pipeline_platform_la_SOURCES = \
 	atomic_operations.h \
 	lock.h \
 	platform_lock.h \
+	platform_hooks.h \
 	$(MALLOC_SOURCES)
 	
 librofl_pipeline_platform_la_LIBADD = librofl_pipeline_platform_thread.la

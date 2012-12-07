@@ -1,6 +1,7 @@
 #include "of12_action.h"
 
 #include "of12_packet_matches.h" //TODO: evaluate if this is the best approach to update of12_matches after actions
+#include "../../../platform/platform_hooks.h"
 #include "../../../platform/memory.h"
 #include <stdio.h>
 
