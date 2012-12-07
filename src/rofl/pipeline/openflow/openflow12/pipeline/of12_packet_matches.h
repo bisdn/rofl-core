@@ -71,56 +71,7 @@ void of12_init_packet_matches(datapacket_t *const pkt, of12_packet_matches_t* pk
 //Update packet matches after applying actions 
 void of12_update_packet_matches(datapacket_t *const pkt);
 
-/*
-*
-* Prototypes of the functions that platform must support and provide an implementation.
-*
-*/
 
-//Ports
-uint32_t platform_get_packet_port_in(datapacket_t *const pkt);
-uint32_t platform_get_packet_phy_port_in(datapacket_t *const pkt);	
-
-//Associated metadata TODO
-//uint64_t platform_get_packet_metadata(datapacket_t *const pkt);
-
-//802
-uint64_t platform_get_packet_eth_dst(datapacket_t *const pkt);
-uint64_t platform_get_packet_eth_src(datapacket_t *const pkt);
-uint16_t platform_get_packet_eth_type(datapacket_t *const pkt);
-
-//802.1q VLAN outermost tag
-uint16_t platform_get_packet_vlan_vid(datapacket_t *const pkt);
-uint8_t platform_get_packet_vlan_pcp(datapacket_t *const pkt);
-
-//IPv4
-uint8_t platform_get_packet_ip_proto(datapacket_t *const pkt);
-uint32_t platform_get_packet_ipv4_src(datapacket_t *const pkt);
-uint32_t platform_get_packet_ipv4_dst(datapacket_t *const pkt);
-
-//TCP
-uint16_t platform_get_packet_tcp_dst(datapacket_t *const pkt);
-uint16_t platform_get_packet_tcp_src(datapacket_t *const pkt);
-
-//UDP
-uint16_t platform_get_packet_udp_dst(datapacket_t *const pkt);
-uint16_t platform_get_packet_udp_src(datapacket_t *const pkt);
-
-//ICMPv4
-uint8_t platform_get_packet_icmpv4_type(datapacket_t *const pkt);
-uint8_t platform_get_packet_icmpv4_code(datapacket_t *const pkt);
-
-//MPLS-outermost label 
-uint32_t platform_get_packet_mpls_label(datapacket_t *const pkt);
-uint8_t platform_get_packet_mpls_tc(datapacket_t *const pkt);
-
-//PPPoE related extensions
-uint8_t platform_get_packet_pppoe_code(datapacket_t *const pkt);
-uint8_t platform_get_packet_pppoe_type(datapacket_t *const pkt);
-uint16_t platform_get_packet_pppoe_sid(datapacket_t *const pkt);
-
-//PPP related extensions
-uint16_t platform_get_packet_ppp_proto(datapacket_t *const pkt);
 
 //C++ extern C
 ROFL_PIPELINE_END_DECLS

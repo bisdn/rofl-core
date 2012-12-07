@@ -17,7 +17,7 @@ inline unsigned int of_destroy_switch(const of_switch_t* sw){
 }	
 
 //Wrapping of processing
-inline unsigned int of_process_packet_switch(const of_switch_t* sw, datapacket_t *const pkt){
+inline unsigned int of_process_packet_pipeline(const of_switch_t* sw, datapacket_t *const pkt){
 	
 	switch(sw->of_ver){
 		case OF_VERSION_12: 
