@@ -961,6 +961,52 @@ cofmatch::set_tcp_dst(
 
 
 
+uint16_t
+cofmatch::get_sctp_src()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_SCTP_SRC))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist[OFPXMT_OFB_SCTP_SRC].uint16();
+}
+
+
+
+void
+cofmatch::set_sctp_src(
+		uint16_t src_port)
+{
+	oxmlist[OFPXMT_OFB_SCTP_SRC] = coxmatch_ofb_sctp_src(src_port);
+}
+
+
+
+uint16_t
+cofmatch::get_sctp_dst()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_SCTP_DST))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist[OFPXMT_OFB_SCTP_DST].uint16();
+}
+
+
+
+void
+cofmatch::set_sctp_dst(
+		uint16_t dst_port)
+{
+	oxmlist[OFPXMT_OFB_SCTP_DST] = coxmatch_ofb_sctp_dst(dst_port);
+}
+
+
+
 #ifndef NDEBUG
 void
 cofmatch::test()

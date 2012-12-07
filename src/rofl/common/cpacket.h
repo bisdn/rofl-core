@@ -60,6 +60,7 @@ extern "C" {
 #include "protocols/farpv4frame.h"
 #include "protocols/fudpframe.h"
 #include "protocols/ftcpframe.h"
+#include "protocols/fsctpframe.h"
 #include "protocols/fetherframe.h"
 
 /* Forward declarations */
@@ -73,6 +74,7 @@ class ficmpv4frame;
 class farpv4frame;
 class fudpframe;
 class ftcpframe;
+class fsctpframe;
 class fetherframe;
 
 
@@ -136,6 +138,7 @@ private:
 			FLAG_NO_PACKET_IN			= 6,
 			FLAG_VLAN_PRESENT			= 7,
 			FLAG_MPLS_PRESENT			= 8,
+			FLAG_SCTP_CHECKSUM			= 9,
 		};
 
 
@@ -541,8 +544,13 @@ public:
 	tcp(
 			int i = 0) throw (ePacketNotFound);
 
-	// TODO: SCTP
-
+	/** return pointer to this->sctp frame
+	 * keep in mind: valid only while this instance is alive!
+	 *
+	 */
+	fsctpframe*
+	sctp(
+			int i = 0) throw (ePacketNotFound);
 
 	/** return pointer to a payload frame
 	 * keep in mind: valid only while this instance is alive!
