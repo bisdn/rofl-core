@@ -1,7 +1,6 @@
 #ifndef __CUTIL_H__
 #define __CUTIL_H__
 
-#include <stdint.h>
 #include "../util/rofl_pipeline_utils.h"
 
 /*
@@ -10,6 +9,8 @@
 
 //C++ extern C
 ROFL_PIPELINE_BEGIN_DECLS
+
+#include <stdint.h>
 
 uint16_t cutil_htobe16( uint16_t host16 );
 uint16_t cutil_be16toh( uint16_t big16 );

@@ -50,8 +50,8 @@ unsigned int of12_destroy_table(of12_flow_table_t* table){
 	
 	of12_flow_entry_t* entry;
 	
-	platform_mutex_lock(&table->mutex);
-	platform_rwlock_wrlock(&table->rwlock);
+	platform_mutex_lock(table->mutex);
+	platform_rwlock_wrlock(table->rwlock);
 	
 	entry = table->entries; 
 	while(entry){
@@ -64,8 +64,8 @@ unsigned int of12_destroy_table(of12_flow_table_t* table){
 	if(table->maf.destroy_hook)
 		table->maf.destroy_hook(table);
 
-	platform_mutex_destroy(&table->mutex);
-	platform_rwlock_destroy(&table->rwlock);
+	platform_mutex_destroy(table->mutex);
+	platform_rwlock_destroy(table->rwlock);
 	
 	//Do NOT free table, since it was allocated in a single buffer in pipeline.c	
 	return EXIT_SUCCESS;
