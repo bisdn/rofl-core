@@ -6,9 +6,9 @@ BUILT_SOURCES = platform_lock.h
 noinst_LTLIBRARIES = librofl_pipeline_platform_thread.la librofl_pipeline_platform.la
 
 # todo to configure.ac
-#if USE_MALLOC
+if POSIX_MALLOC
 MALLOC_SOURCES = posix/memory.c
-#endif
+endif
 
 # todo to configure.ac
 #if USE_PTHREAD

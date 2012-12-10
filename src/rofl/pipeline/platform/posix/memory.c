@@ -30,3 +30,4 @@ inline void* cutil_malloc_shared( size_t length ){
 inline void cutil_free_shared( void *data ){
 	free( data );
 }
+
