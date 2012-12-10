@@ -248,7 +248,7 @@ public: // methods
 	 *
 	 */
 	bool
-	get_oxm_hasmask();
+	get_oxm_hasmask() const;
 
 
 	/**
@@ -270,28 +270,56 @@ public: // methods
 	 *
 	 */
 	uint8_t
-	uint8() const throw (eOxmInval);
+	uint8_value() const throw (eOxmInval);
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	uint8_mask() const throw (eOxmInval);
 
 
 	/**
 	 *
 	 */
 	uint16_t
-	uint16() const throw (eOxmInval);
+	uint16_value() const throw (eOxmInval);
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	uint16_mask() const throw (eOxmInval);
 
 
 	/**
 	 *
 	 */
 	uint32_t
-	uint32() const throw (eOxmInval);
+	uint32_value() const throw (eOxmInval);
+
+
+	/**
+	 *
+	 */
+	uint32_t
+	uint32_mask() const throw (eOxmInval);
 
 
 	/**
 	 *
 	 */
 	uint64_t
-	uint64() const throw (eOxmInval);
+	uint64_value() const throw (eOxmInval);
+
+
+	/**
+	 *
+	 */
+	uint64_t
+	uint64_mask() const throw (eOxmInval);
 
 
 	/**

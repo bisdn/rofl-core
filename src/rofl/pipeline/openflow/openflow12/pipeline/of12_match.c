@@ -212,6 +212,26 @@ inline of12_match_t* of12_init_icmpv4_code_match(of12_match_t* prev, of12_match_
 
 
 /* Instruction groups init and destroy */
+of12_match_group_t*
+of12_new_match_group()
+{
+
+	of12_match_group_t *group = (of12_match_group_t*)cutil_malloc_shared(sizeof(of12_match_group_t));
+
+	if(0 == group)
+	{
+		return (of12_match_group_t*)0;
+	}
+
+	of12_init_match_group(group);
+
+	return group;
+}
+
+
+
+
+/* Instruction groups init and destroy */
 void of12_init_match_group(of12_match_group_t* group){
 
 	memset(group,0,sizeof(of12_match_group_t));
@@ -239,7 +259,7 @@ void of12_destroy_match_group(of12_match_group_t* group){
 
 
 
-void of12_match_group_push_match(of12_match_group_t* group, of12_match_t* match){
+void of12_match_group_push_back(of12_match_group_t* group, of12_match_t* match){
 
 	if (!group)
 		return;

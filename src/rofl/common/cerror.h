@@ -51,7 +51,10 @@ public:
 };
 
 class eOutOFMemory 			: public cerror {}; //< out of mem error
-class eNotImplemented 		: public cerror {}; //< oops, fix me exception :D
+class eNotImplemented 		: public cerror {
+public:
+	eNotImplemented(std::string desc = std::string("")) : cerror(desc) {};
+}; //< oops, fix me exception :D
 class eInternalError 		: public cerror {}; //< some internal error occured
 class eDebug 				: public cerror {};
 

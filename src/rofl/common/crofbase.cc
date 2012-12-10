@@ -1119,7 +1119,7 @@ crofbase::send_packet_in_message(
 				std::set<cfspentry*> nse_list;
 
 				nse_list = fsptable.find_matching_entries(
-						match.oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).uint32(),
+						match.oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).uint32_value(),
 						total_len,
 						n_pack);
 

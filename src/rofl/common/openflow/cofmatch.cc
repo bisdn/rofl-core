@@ -294,7 +294,7 @@ cofmatch::get_in_port() throw (eOFmatchNotFound)
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_IN_PORT].uint32();
+	return oxmlist[OFPXMT_OFB_IN_PORT].uint32_value();
 }
 
 
@@ -313,7 +313,7 @@ cofmatch::get_in_phy_port() throw (eOFmatchNotFound)
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_IN_PHY_PORT].uint32();
+	return oxmlist[OFPXMT_OFB_IN_PHY_PORT].uint32_value();
 }
 
 
@@ -332,7 +332,7 @@ cofmatch::get_metadata() throw (eOFmatchNotFound)
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_METADATA].uint64();
+	return (oxmlist[OFPXMT_OFB_METADATA].uint64_value() & oxmlist[OFPXMT_OFB_METADATA].uint64_mask());
 }
 
 
@@ -353,7 +353,13 @@ cofmatch::get_eth_dst() throw (eOFmatchNotFound)
 
 	cmacaddr maddr(oxmlist[OFPXMT_OFB_ETH_DST].oxm_uint48t->value, OFP_ETH_ALEN);
 
-	return maddr;
+	cmacaddr mmask("ff:ff:ff:ff:ff:ff");
+	if (oxmlist[OFPXMT_OFB_ETH_DST].get_oxm_hasmask())
+	{
+		mmask.assign(oxmlist[OFPXMT_OFB_ETH_DST].oxm_uint48t->mask, OFP_ETH_ALEN);
+	}
+
+	return (maddr & mmask);
 }
 
 
@@ -367,7 +373,12 @@ cofmatch::get_eth_src() throw (eOFmatchNotFound)
 
 	cmacaddr maddr(oxmlist[OFPXMT_OFB_ETH_SRC].oxm_uint48t->value, OFP_ETH_ALEN);
 
-	return maddr;
+	cmacaddr mmask("ff:ff:ff:ff:ff:ff");
+	if (oxmlist[OFPXMT_OFB_ETH_SRC].get_oxm_hasmask())
+	{
+		mmask.assign(oxmlist[OFPXMT_OFB_ETH_SRC].oxm_uint48t->mask, OFP_ETH_ALEN);
+	}
+	return (maddr & mmask);
 }
 
 
@@ -393,7 +404,7 @@ cofmatch::get_eth_type() throw (eOFmatchNotFound)
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_ETH_TYPE].uint16();
+	return oxmlist[OFPXMT_OFB_ETH_TYPE].uint16_value();
 }
 
 
@@ -415,7 +426,7 @@ cofmatch::get_vlan_vid()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_VLAN_VID].uint16();
+	return (oxmlist[OFPXMT_OFB_VLAN_VID].uint16_value() & oxmlist[OFPXMT_OFB_VLAN_VID].uint16_mask());
 }
 
 
@@ -438,7 +449,7 @@ cofmatch::get_vlan_pcp()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_VLAN_PCP].uint8();
+	return oxmlist[OFPXMT_OFB_VLAN_PCP].uint8_value();
 }
 
 
@@ -461,7 +472,7 @@ cofmatch::get_mpls_label()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_MPLS_LABEL].uint32();
+	return oxmlist[OFPXMT_OFB_MPLS_LABEL].uint32_value();
 }
 
 
@@ -482,7 +493,7 @@ cofmatch::get_mpls_tc()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_MPLS_TC].uint8();
+	return oxmlist[OFPXMT_OFB_MPLS_TC].uint8_value();
 }
 
 
@@ -504,7 +515,7 @@ cofmatch::get_pppoe_type()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_PPPOE_TYPE].uint8();
+	return oxmlist[OFPXMT_OFB_PPPOE_TYPE].uint8_value();
 }
 
 
@@ -527,7 +538,7 @@ cofmatch::get_pppoe_code()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_PPPOE_CODE].uint8();
+	return oxmlist[OFPXMT_OFB_PPPOE_CODE].uint8_value();
 }
 
 
@@ -548,7 +559,7 @@ cofmatch::get_pppoe_sessid()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_PPPOE_SID].uint16();
+	return oxmlist[OFPXMT_OFB_PPPOE_SID].uint16_value();
 }
 
 
@@ -569,7 +580,7 @@ cofmatch::get_ppp_prot()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_PPP_PROT].uint16();
+	return oxmlist[OFPXMT_OFB_PPP_PROT].uint16_value();
 }
 
 
@@ -591,7 +602,14 @@ cofmatch::get_ipv4_src()
 	}
 
 	caddress src(AF_INET, "0.0.0.0");
-	src.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_SRC].uint32());
+	if (oxmlist[OFPXMT_OFB_IPV4_SRC].get_oxm_hasmask())
+	{
+		src.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_SRC].uint32_value() & oxmlist[OFPXMT_OFB_IPV4_SRC].uint32_mask());
+	}
+	else
+	{
+		src.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_SRC].uint32_value());
+	}
 
 	return src;
 }
@@ -617,7 +635,14 @@ cofmatch::get_ipv4_dst()
 	}
 
 	caddress dst(AF_INET, "0.0.0.0");
-	dst.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_DST].uint32());
+	if (oxmlist[OFPXMT_OFB_IPV4_DST].get_oxm_hasmask())
+	{
+		dst.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_DST].uint32_value() & oxmlist[OFPXMT_OFB_IPV4_DST].uint32_mask());
+	}
+	else
+	{
+		dst.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_DST].uint32_value());
+	}
 
 	return dst;
 }
@@ -642,7 +667,7 @@ cofmatch::get_arp_opcode()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_ARP_OP].uint16();
+	return oxmlist[OFPXMT_OFB_ARP_OP].uint16_value();
 }
 
 
@@ -667,7 +692,13 @@ cofmatch::get_arp_sha()
 
 	cmacaddr sha(oxmlist[OFPXMT_OFB_ARP_SHA].oxm_uint48t->value, OFP_ETH_ALEN);
 
-	return sha;
+	cmacaddr mask("ff:ff:ff:ff:ff:ff");
+	if (oxmlist[OFPXMT_OFB_ARP_SHA].get_oxm_hasmask())
+	{
+		mask.assign(oxmlist[OFPXMT_OFB_ARP_SHA].oxm_uint48t->mask, OFP_ETH_ALEN);
+	}
+
+	return (sha & mask);
 }
 
 
@@ -692,7 +723,13 @@ cofmatch::get_arp_tha()
 
 	cmacaddr tha(oxmlist[OFPXMT_OFB_ARP_THA].oxm_uint48t->value, OFP_ETH_ALEN);
 
-	return tha;
+	cmacaddr mask("ff:ff:ff:ff:ff:ff");
+	if (oxmlist[OFPXMT_OFB_ARP_THA].get_oxm_hasmask())
+	{
+		mask.assign(oxmlist[OFPXMT_OFB_ARP_THA].oxm_uint48t->mask, OFP_ETH_ALEN);
+	}
+
+	return (tha & mask);
 }
 
 
@@ -716,7 +753,14 @@ cofmatch::get_arp_spa()
 	}
 
 	caddress spa(AF_INET, "0.0.0.0");
-	spa.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_SPA].uint32());
+	if (oxmlist[OFPXMT_OFB_ARP_SPA].get_oxm_hasmask())
+	{
+		spa.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_SPA].uint32_value() & oxmlist[OFPXMT_OFB_ARP_SPA].uint32_mask());
+	}
+	else
+	{
+		spa.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_SPA].uint32_value());
+	}
 
 	return spa;
 }
@@ -742,7 +786,14 @@ cofmatch::get_arp_tpa()
 	}
 
 	caddress tpa(AF_INET, "0.0.0.0");
-	tpa.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_TPA].uint32());
+	if (oxmlist[OFPXMT_OFB_ARP_TPA].get_oxm_hasmask())
+	{
+		tpa.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_TPA].uint32_value() & oxmlist[OFPXMT_OFB_ARP_TPA].uint32_mask());
+	}
+	else
+	{
+		tpa.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_TPA].uint32_value());
+	}
 
 	return tpa;
 }
@@ -767,7 +818,7 @@ cofmatch::get_ip_proto()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_IP_PROTO].uint8();
+	return oxmlist[OFPXMT_OFB_IP_PROTO].uint8_value();
 }
 
 
@@ -790,7 +841,7 @@ cofmatch::get_ip_dscp()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_IP_DSCP].uint8();
+	return oxmlist[OFPXMT_OFB_IP_DSCP].uint8_value();
 }
 
 
@@ -813,7 +864,7 @@ cofmatch::get_ip_ecn()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_IP_ECN].uint8();
+	return oxmlist[OFPXMT_OFB_IP_ECN].uint8_value();
 }
 
 
@@ -836,7 +887,7 @@ cofmatch::get_icmpv4_type()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_ICMPV4_TYPE].uint16();
+	return oxmlist[OFPXMT_OFB_ICMPV4_TYPE].uint16_value();
 }
 
 
@@ -859,7 +910,7 @@ cofmatch::get_icmpv4_code()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_ICMPV4_CODE].uint16();
+	return oxmlist[OFPXMT_OFB_ICMPV4_CODE].uint16_value();
 }
 
 
@@ -881,7 +932,7 @@ cofmatch::get_udp_src() throw (eOFmatchNotFound)
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_UDP_SRC].uint16();
+	return oxmlist[OFPXMT_OFB_UDP_SRC].uint16_value();
 }
 
 
@@ -901,7 +952,7 @@ cofmatch::get_udp_dst() throw (eOFmatchNotFound)
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_UDP_DST].uint16();
+	return oxmlist[OFPXMT_OFB_UDP_DST].uint16_value();
 }
 
 
@@ -923,7 +974,7 @@ cofmatch::get_tcp_src()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_TCP_SRC].uint16();
+	return oxmlist[OFPXMT_OFB_TCP_SRC].uint16_value();
 }
 
 
@@ -946,7 +997,7 @@ cofmatch::get_tcp_dst()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_TCP_DST].uint16();
+	return oxmlist[OFPXMT_OFB_TCP_DST].uint16_value();
 }
 
 
@@ -970,7 +1021,7 @@ cofmatch::get_sctp_src()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_SCTP_SRC].uint16();
+	return oxmlist[OFPXMT_OFB_SCTP_SRC].uint16_value();
 }
 
 
@@ -993,7 +1044,7 @@ cofmatch::get_sctp_dst()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_SCTP_DST].uint16();
+	return oxmlist[OFPXMT_OFB_SCTP_DST].uint16_value();
 }
 
 

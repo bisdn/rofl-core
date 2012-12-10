@@ -152,10 +152,18 @@ of12_match_t* of12_init_icmpv4_code_match(of12_match_t* prev, of12_match_t* next
 
 
 
+#if 0
 /* match group */
 void of12_init_match_group(of12_match_group_t* group);
 void of12_destroy_match_group(of12_match_group_t* group);
 void of12_match_group_push_match(of12_match_group_t* group, of12_match_t* match);
+#endif
+
+/* match group */
+of12_match_group_t* of12_new_match_group();
+void of12_init_match_group(of12_match_group_t* group);
+void of12_destroy_match_group(of12_match_group_t* group);
+void of12_match_group_push_back(of12_match_group_t* group, of12_match_t* match);
 
 /* Push match at the end of the match */
 unsigned int of12_add_match(of12_match_t* root_match, of12_match_t* add_match);
