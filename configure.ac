@@ -188,10 +188,10 @@ AC_CONFIG_FILES([
 	src/rofl/platform/unix/Makefile
 	src/rofl/experimental/Makefile
 	src/rofl/common/protocols/Makefile
-	src/rofl/common/controller/Makefile
 	src/rofl/common/openflow/extensions/Makefile
 	src/rofl/common/openflow/Makefile
 	src/rofl/common/Makefile
+	src/rofl/control/Makefile
 	src/rofl/Makefile
 	src/rofl/config/Makefile
 

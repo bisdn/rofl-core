@@ -43,6 +43,7 @@ librofl_pipeline_platform_la_SOURCES = \
 	lock.h \
 	platform_lock.h \
 	platform_hooks.h \
+	memory.h \
 	$(MALLOC_SOURCES)
 	
 librofl_pipeline_platform_la_LIBADD = librofl_pipeline_platform_thread.la

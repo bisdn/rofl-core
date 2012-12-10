@@ -8,12 +8,12 @@
 #include <map>
 #include <string>
 
-#include "../ciosrv.h"
-#include "../cerror.h"
+#include "../common/ciosrv.h"
+#include "../common/cerror.h"
 //#include "../cfwdelem.h" 
 
 #include "cgtentry.h"
-#include "../openflow/cofpacket.h"
+#include "../common/openflow/cofpacket.h"
 #include "cftentry.h"
 
 /* forward declaration */

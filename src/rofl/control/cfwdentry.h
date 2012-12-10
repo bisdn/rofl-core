@@ -12,17 +12,17 @@ extern "C" {
 #endif
 #include <endian.h>
 #ifndef htobe16
-#include "../endian_conversion.h"
+#include "../common/endian_conversion.h"
 #endif
 
-#include "../openflow/openflow12.h"
+#include "../common/openflow/openflow12.h"
 #ifdef __cplusplus
 }
 #endif
 
-#include "../ciosrv.h"
-#include "../cmacaddr.h"
-#include "../cvastring.h"
+#include "../common/ciosrv.h"
+#include "../common/cmacaddr.h"
+#include "../common/cvastring.h"
 
 //#include "openflow/cofdpath.h"
 

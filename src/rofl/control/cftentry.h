@@ -16,7 +16,7 @@
 extern "C" {
 #endif
 
-#include "../openflow/openflow12.h"
+#include "../common/openflow/openflow12.h"
 #include <inttypes.h>
 #include <sys/time.h>
 #include <pthread.h>
@@ -26,21 +26,21 @@ extern "C" {
 }
 #endif
 
-#include "../cclock.h"
-#include "../cmemory.h"
-#include "../cerror.h"
-#include "../ciosrv.h"
-#include "../cvastring.h"
-#include "../thread_helper.h"
+#include "../common/cclock.h"
+#include "../common/cmemory.h"
+#include "../common/cerror.h"
+#include "../common/ciosrv.h"
+#include "../common/cvastring.h"
+#include "../common/thread_helper.h"
 //#include "../cfwdelem.h"
 
-#include "../openflow/cofmatch.h"
-#include "../openflow/cofaction.h"
-#include "../openflow/cofinlist.h"
-#include "../openflow/cofpacket.h"
-#include "../openflow/cofinst.h"
+#include "../common/openflow/cofmatch.h"
+#include "../common/openflow/cofaction.h"
+#include "../common/openflow/cofinlist.h"
+#include "../common/openflow/cofpacket.h"
+#include "../common/openflow/cofinst.h"
 
-#include "../protocols/fetherframe.h"
+#include "../common/protocols/fetherframe.h"
 
 class cfwdelem;
 class cofctl;

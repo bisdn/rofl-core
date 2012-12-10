@@ -683,6 +683,39 @@ public:
 			uint16_t dst_port);
 
 
+	/**
+	 *
+	 */
+	uint16_t
+	get_sctp_src()
+		throw (eOFmatchNotFound);
+
+
+
+	/**
+	 *
+	 */
+	void
+	set_sctp_src(
+			uint16_t src_port);
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_sctp_dst()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_sctp_dst(
+			uint16_t dst_port);
+
+
 
 #ifndef NDEBUG
 	/**

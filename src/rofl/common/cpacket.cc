@@ -2398,13 +2398,11 @@ cpacket::parse_ipv4(
 			parse_tcp(p_ptr, p_len);
 		}
 		break;
-#if 0
 	case fsctpframe::SCTP_IP_PROTO:
 		{
 			parse_sctp(p_ptr, p_len);
 		}
 		break;
-#endif
 	default:
 		{
 			if (p_len > 0)
@@ -2537,6 +2535,34 @@ cpacket::parse_sctp(
 		uint8_t *data,
 		size_t datalen)
 {
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
+
+	if (p_len < sizeof(struct fsctpframe::sctp_hdr_t))
+	{
+		return;
+	}
+
+	fsctpframe *sctp = new fsctpframe(p_ptr, sizeof(struct fsctpframe::sctp_hdr_t));
+
+	match.set_sctp_dst(sctp->get_dport());
+	match.set_sctp_src(sctp->get_sport());
+
+	frame_append(sctp);
+
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_sctp() "
+			"sctp: %s\nmatch: %s", this, sctp->c_str(), match.c_str());
+
+	p_ptr += sizeof(struct fsctpframe::sctp_hdr_t);
+	p_len -= sizeof(struct fsctpframe::sctp_hdr_t);
+
+
+	if (p_len > 0)
+	{
+		fframe *payload = new fframe(p_ptr, p_len);
+
+		frame_append(payload);
+	}
 
 
 }

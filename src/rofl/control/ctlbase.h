@@ -11,11 +11,11 @@
 #include <pthread.h>
 
 #include "cfwdelem.h"
-#include "../openflow/cofstats.h"
-#include "../openflow/cflowentry.h"
-#include "../cvastring.h"
+#include "../common/openflow/cofstats.h"
+#include "../common/openflow/cflowentry.h"
+#include "../common/cvastring.h"
 #include "cadapt.h"
-#include "../cxidstore.h"
+#include "../common/cxidstore.h"
 
 
 class eCtlBase 					: public eFwdElemBase {};

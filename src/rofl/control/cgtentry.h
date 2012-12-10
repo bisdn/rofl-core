@@ -13,19 +13,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "../openflow/openflow12.h"
+#include "../common/openflow/openflow12.h"
 #include <inttypes.h>
 #include <sys/time.h>
 #ifdef __cplusplus
 }
 #endif
 
-#include "../ciosrv.h"
-#include "../cmemory.h"
-#include "../cvastring.h"
+#include "../common/ciosrv.h"
+#include "../common/cmemory.h"
+#include "../common/cvastring.h"
 
-#include "../openflow/cofbclist.h"
-#include "../openflow/cofbucket.h"
+#include "../common/openflow/cofbclist.h"
+#include "../common/openflow/cofbucket.h"
 
 
 // forward declarations
