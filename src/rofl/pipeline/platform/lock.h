@@ -17,7 +17,7 @@ ROFL_PIPELINE_BEGIN_DECLS
 
 /* MUTEX operations */
 //Init&destroy
-int platform_mutex_init(platform_mutex_t* mutex, void* params);
+platform_mutex_t* platform_mutex_init(void* params);
 void platform_mutex_destroy(platform_mutex_t* mutex);
 
 //Operations
@@ -26,7 +26,7 @@ void platform_mutex_unlock(platform_mutex_t* mutex);
 
 /* RWLOCK */
 //Init&destroy
-int platform_rwlock_init(platform_rwlock_t* rwlock, void* params);
+platform_rwlock_t* platform_rwlock_init(void* params);
 void platform_rwlock_destroy(platform_rwlock_t* rwlock);
 
 //Read

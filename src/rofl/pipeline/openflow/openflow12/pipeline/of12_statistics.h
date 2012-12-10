@@ -32,7 +32,7 @@ struct of12_stats_flow
 	uint64_t initial_time_nsec;
 	uint64_t last_time_sec;
 	uint64_t last_time_usec;
-	platform_mutex_t mutex; //Mutual exclusion among insertion/deletion threads
+	platform_mutex_t* mutex; //Mutual exclusion among insertion/deletion threads
 };
 typedef struct of12_stats_flow of12_stats_flow_t;
 
@@ -72,7 +72,7 @@ struct of12_stats_port
 	//uint64_t rx_crc_err;	/* Number of CRC errors. */
 	//uint64_t collisions;	/* Number of collisions. */
 	
-	platform_mutex_t mutex; /*mutual exclusion to update the statistics*/
+	platform_mutex_t* mutex; /*mutual exclusion to update the statistics*/
 };
 typedef struct of12_stats_port of12_stats_port_t;
 
@@ -82,7 +82,7 @@ struct of12_stats_queue
 	uint64_t tx_packets;
 	uint64_t tx_errors;
 	
-	platform_mutex_t mutex;
+	platform_mutex_t* mutex;
 };
 typedef struct of12_stats_queue of12_stats_queue_t;
 

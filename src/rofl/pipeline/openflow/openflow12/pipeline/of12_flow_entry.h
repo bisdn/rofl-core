@@ -42,7 +42,7 @@ struct of12_flow_entry{
 	//FIXME
 
 	//RWlock
-	platform_rwlock_t rwlock;
+	platform_rwlock_t* rwlock;
 	
 	//timer
 	struct of12_timers_info timer_info;

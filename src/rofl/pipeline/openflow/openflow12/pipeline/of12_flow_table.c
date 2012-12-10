@@ -22,9 +22,9 @@ of12_init_table(of12_flow_table_t* table, const unsigned int table_index,
 		const enum matching_algorithm_available algorithm)
 {
 	//Initializing mutexes
-	if(platform_mutex_init(&table->mutex, NULL))
+	if(0 == (table->mutex = platform_mutex_init(NULL)))
 		return EXIT_FAILURE;
-	if(platform_rwlock_init(&table->rwlock, NULL))
+	if(0 == (table->rwlock = platform_rwlock_init(NULL)))
 		return EXIT_FAILURE;
 	
 	table->number = table_index;

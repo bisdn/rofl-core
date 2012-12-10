@@ -65,7 +65,7 @@ struct physical_switch{
 	* Other state 
 	*/
 	//Mutex
-	platform_mutex_t mutex;
+	platform_mutex_t* mutex;
 	
 	//Opaque platform specific extra state 
 	platform_switch_state_t* platform_state;	

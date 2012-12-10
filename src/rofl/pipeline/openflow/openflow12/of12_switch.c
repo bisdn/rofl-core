@@ -31,7 +31,7 @@ of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int nu
 	sw->platform_state=NULL;
 	
 	//Mutex
-	if(platform_mutex_init(&sw->mutex, NULL)){
+	if(0 == (sw->mutex = platform_mutex_init(NULL))){
 		cutil_free_shared(sw->name);
 		cutil_free_shared(sw);
 		return NULL; 

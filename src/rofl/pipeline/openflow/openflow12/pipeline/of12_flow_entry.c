@@ -22,7 +22,7 @@ of12_init_flow_entry(
 
 	memset(entry,0,sizeof(of12_flow_entry_t));	
 	
-	if(platform_rwlock_init(&entry->rwlock, NULL)){
+	if(0 == (entry->rwlock = platform_rwlock_init(NULL))){
 		cutil_free_shared(entry);
 		return NULL; 
 	}
