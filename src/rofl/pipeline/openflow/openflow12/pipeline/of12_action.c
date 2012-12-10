@@ -19,7 +19,7 @@
 #define OF12_AT_2_BITS_MASK 0x00000000000FFFFF
 
 /* Actions init and destroyed */
-of12_packet_action_t* of12_init_packet_action(of12_packet_action_type_t type, uint64_t field, of12_group_t* group, of12_packet_action_t* prev, of12_packet_action_t* next){
+of12_packet_action_t* of12_init_packet_action(of12_packet_action_type_t type, uint64_t field, of12_packet_action_t* prev, of12_packet_action_t* next){
 
 	of12_packet_action_t* action;
 
