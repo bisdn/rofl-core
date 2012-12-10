@@ -10,7 +10,8 @@
 *
 */
 
-#include "platform_lock.h"
+typedef void platform_mutex_t;
+typedef void platform_rwlock_t;
 
 //C++ extern C
 ROFL_PIPELINE_BEGIN_DECLS

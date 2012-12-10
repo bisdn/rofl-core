@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = platform common util openflow
+SUBDIRS = common util openflow
 
 lib_LTLIBRARIES = librofl_pipeline.la
 
