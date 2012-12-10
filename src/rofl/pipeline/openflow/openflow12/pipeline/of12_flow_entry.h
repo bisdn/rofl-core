@@ -57,9 +57,6 @@ struct of12_flow_entry{
 	uint64_t cookie;
 	uint64_t cookie_mask;
 
-	uint16_t idle_timeout;
-	uint16_t hard_timeout;
-
 	uint32_t out_port;
 	uint32_t out_group;
 
