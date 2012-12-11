@@ -76,10 +76,10 @@ unsigned int of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned 
 		return EXIT_FAILURE;	
 
 	//Allow single add/remove operation over the switch 
-	platform_mutex_lock(&sw->mutex);
+	platform_mutex_lock(sw->mutex);
 	
 	if(sw->logical_ports[port_num].attachment_state){
-		platform_mutex_unlock(&sw->mutex);
+		platform_mutex_unlock(sw->mutex);
 		return EXIT_FAILURE;
 	}
 
@@ -89,7 +89,7 @@ unsigned int of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned 
 	sw->num_of_ports++;
 
 	//Return success
-	platform_mutex_unlock(&sw->mutex);
+	platform_mutex_unlock(sw->mutex);
 	return EXIT_SUCCESS;
 }
 
@@ -100,7 +100,7 @@ unsigned int of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, 
 		return EXIT_FAILURE;	
 
 	//Allow single add/remove operation over the switch 
-	platform_mutex_lock(&sw->mutex);
+	platform_mutex_lock(sw->mutex);
 
 	for(i=1;i<LOGICAL_SWITCH_MAX_LOG_PORTS;i++){
 		if(!sw->logical_ports[i].attachment_state){
@@ -113,13 +113,13 @@ unsigned int of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, 
 			
 				
 			//Return success
-			platform_mutex_unlock(&sw->mutex);
+			platform_mutex_unlock(sw->mutex);
 			return EXIT_SUCCESS;
 		}
 	}
 	
 	//No slots free
-	platform_mutex_unlock(&sw->mutex);
+	platform_mutex_unlock(sw->mutex);
 	return EXIT_FAILURE;
 }
 
@@ -129,10 +129,10 @@ unsigned int of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigne
 		return EXIT_FAILURE;
 
 	//Allow single add/remove operation over the switch 
-	platform_mutex_lock(&sw->mutex);
+	platform_mutex_lock(sw->mutex);
 
 	if(sw->logical_ports[port_num].attachment_state != LOGICAL_PORT_STATE_ATTACHED){
-		platform_mutex_unlock(&sw->mutex);
+		platform_mutex_unlock(sw->mutex);
 		return EXIT_FAILURE;
 	}
 
@@ -141,7 +141,7 @@ unsigned int of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigne
 	sw->num_of_ports--;
 	
 	//return success
-	platform_mutex_unlock(&sw->mutex);
+	platform_mutex_unlock(sw->mutex);
 	return EXIT_SUCCESS;
 }
 
@@ -153,7 +153,7 @@ unsigned int of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* port
 		return EXIT_FAILURE;	
 
 	//Allow single add/remove operation over the switch 
-	platform_mutex_lock(&sw->mutex);
+	platform_mutex_lock(sw->mutex);
 
 	for(i=0;i<LOGICAL_SWITCH_MAX_LOG_PORTS;i++){
 		if(sw->logical_ports[i].port == port){
@@ -162,13 +162,13 @@ unsigned int of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* port
 			sw->logical_ports[i].port = NULL;
 			sw->num_of_ports--;
 
-			platform_mutex_unlock(&sw->mutex);
+			platform_mutex_unlock(sw->mutex);
 			return EXIT_SUCCESS;
 		}
 	}	
 	
 	//Not found 
-	platform_mutex_unlock(&sw->mutex);
+	platform_mutex_unlock(sw->mutex);
 	return EXIT_FAILURE;
 }
 
@@ -177,7 +177,7 @@ unsigned int of12_detach_all_ports_from_switch(of12_switch_t* sw){
 	unsigned int i;
 
 	//Allow single add/remove operation over the switch 
-	platform_mutex_lock(&sw->mutex);
+	platform_mutex_lock(sw->mutex);
 
 	for(i=0;i<LOGICAL_SWITCH_MAX_LOG_PORTS;i++){
 		//Detach
@@ -186,7 +186,7 @@ unsigned int of12_detach_all_ports_from_switch(of12_switch_t* sw){
 	}	
 	
 	//Not found 
-	platform_mutex_unlock(&sw->mutex);
+	platform_mutex_unlock(sw->mutex);
 	return EXIT_SUCCESS;
 }
 

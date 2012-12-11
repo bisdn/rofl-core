@@ -51,7 +51,7 @@ unsigned int of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	of12_match_t* match = entry->matchs;
 
 	//wait for any thread which is still using the entry (processing a packet)
-	platform_rwlock_wrlock(&entry->rwlock);
+	platform_rwlock_wrlock(entry->rwlock);
 	
 	//Destroy matches recursively
 	while(match){

@@ -110,7 +110,7 @@ unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_
 				entry->next = it; 
 
 				//Prevent readers to jump in
-				platform_rwlock_wrlock(&table->rwlock);
+				platform_rwlock_wrlock(table->rwlock);
 					
 				//Place in the head
 				it->prev = entry;
@@ -121,7 +121,7 @@ unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_
 				entry->next = prev->next;
 				
 				//Prevent readers to jump in
-				platform_rwlock_wrlock(&table->rwlock);
+				platform_rwlock_wrlock(table->rwlock);
 				
 				//Add to n+1 if not tail
 				if(prev->next)
@@ -136,7 +136,7 @@ unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_
 			entry->table = table;
 	
 			//Unlock mutexes
-			platform_rwlock_wrunlock(&table->rwlock);
+			platform_rwlock_wrunlock(table->rwlock);
 			return EXIT_SUCCESS;
 		}
 	}
@@ -144,12 +144,12 @@ unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_
 	//Append at the end of the table
 	entry->next = NULL;
 	
-	platform_rwlock_wrlock(&table->rwlock);
+	platform_rwlock_wrlock(table->rwlock);
 	prev->next = entry;
 	table->num_of_entries++;
 	
 	//Unlock mutexes
-	platform_rwlock_wrunlock(&table->rwlock);
+	platform_rwlock_wrunlock(table->rwlock);
 	return EXIT_SUCCESS;
 }
 
@@ -173,7 +173,7 @@ static of12_flow_entry_t* of12_remove_flow_entry_table_specific_imp(of12_flow_ta
 		return NULL; 
 
 	//Prevent readers to jump in
-	platform_rwlock_wrlock(&table->rwlock);
+	platform_rwlock_wrlock(table->rwlock);
 	
 	if(!specific_entry->prev){
 		//First table entry
@@ -189,7 +189,7 @@ static of12_flow_entry_t* of12_remove_flow_entry_table_specific_imp(of12_flow_ta
 	table->num_of_entries--;
 	
 	//Green light to readers and other writers			
-	platform_rwlock_wrunlock(&table->rwlock);
+	platform_rwlock_wrunlock(table->rwlock);
 
 	//WE DONT'T DESTROY the rule, only deatach it from the table. Destroying is up to the driver
 	return specific_entry;

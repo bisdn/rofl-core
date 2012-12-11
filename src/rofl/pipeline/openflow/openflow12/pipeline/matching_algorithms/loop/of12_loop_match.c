@@ -16,12 +16,12 @@ inline unsigned int of12_add_flow_entry_loop(of12_flow_table_t *const table, of1
 	unsigned int return_value;
 
 	//Allow single add/remove operation over the table
-	platform_mutex_lock(&table->mutex);
+	platform_mutex_lock(table->mutex);
 	
 	return_value = of12_add_flow_entry_table_imp(table, entry);
 
 	//Green light to other threads
-	platform_mutex_unlock(&table->mutex);
+	platform_mutex_unlock(table->mutex);
 
 	return return_value;
 }
@@ -32,7 +32,7 @@ inline unsigned int of12_remove_flow_entry_loop(of12_flow_table_t *const table ,
 	//Allow single add/remove operation over the table
 	if(!mutex_acquired)
 	{
-		platform_mutex_lock(&table->mutex);
+		platform_mutex_lock(table->mutex);
 	}
 	
 	table_deletion_result = of12_remove_flow_entry_table_imp(table, entry,specific_entry,strict);
@@ -47,7 +47,7 @@ inline unsigned int of12_remove_flow_entry_loop(of12_flow_table_t *const table ,
 	//Green light to other threads
 	if(!mutex_acquired)
 	{
-		platform_mutex_unlock(&table->mutex);
+		platform_mutex_unlock(table->mutex);
 	}
 
 	if(!table_deletion_result)
@@ -64,7 +64,7 @@ inline of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const tab
 	of12_flow_entry_t *entry;
 
 	//Prevent writers to change structure during matching
-	platform_rwlock_rdlock(&table->rwlock);
+	platform_rwlock_rdlock(table->rwlock);
 	
 	//Table is sorted out by nº of hits and priority N. First full match => best_match 
 	for(entry = table->entries;entry!=NULL;entry = entry->next){
@@ -85,17 +85,17 @@ inline of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const tab
 
 		if(matched){
 			//Lock writers to modify the entry while packet processing. WARNING!!!! this must be released by the pipeline, once packet is processed!
-			platform_rwlock_rdlock(&entry->rwlock);
+			platform_rwlock_rdlock(entry->rwlock);
 
 			//Green light for writers
-			platform_rwlock_rdunlock(&table->rwlock);
+			platform_rwlock_rdunlock(table->rwlock);
 			return entry;
 		}
 	}
 	
 	//No match
 	//Green light for writers
-	platform_rwlock_rdunlock(&table->rwlock);
+	platform_rwlock_rdunlock(table->rwlock);
 	return NULL; 
 }
 
