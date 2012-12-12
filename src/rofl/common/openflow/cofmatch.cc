@@ -383,16 +383,30 @@ cofmatch::get_eth_src() throw (eOFmatchNotFound)
 
 
 void
-cofmatch::set_eth_dst(cmacaddr const& maddr)
+cofmatch::set_eth_dst(cmacaddr const& maddr, cmacaddr const& mmask)
 {
-	oxmlist[OFPXMT_OFB_ETH_DST] = coxmatch_ofb_eth_dst(maddr);
+	if (cmacaddr("ff:ff:ff:ff:ff:ff") == mmask)
+	{
+		oxmlist[OFPXMT_OFB_ETH_DST] = coxmatch_ofb_eth_dst(maddr);
+	}
+	else
+	{
+		oxmlist[OFPXMT_OFB_ETH_DST] = coxmatch_ofb_eth_dst(maddr, mmask);
+	}
 }
 
 
 void
-cofmatch::set_eth_src(cmacaddr const& maddr)
+cofmatch::set_eth_src(cmacaddr const& maddr, cmacaddr const& mmask)
 {
-	oxmlist[OFPXMT_OFB_ETH_SRC] = coxmatch_ofb_eth_src(maddr);
+	if (cmacaddr("ff:ff:ff:ff:ff:ff") == mmask)
+	{
+		oxmlist[OFPXMT_OFB_ETH_SRC] = coxmatch_ofb_eth_src(maddr);
+	}
+	else
+	{
+		oxmlist[OFPXMT_OFB_ETH_SRC] = coxmatch_ofb_eth_src(maddr, mmask);
+	}
 }
 
 

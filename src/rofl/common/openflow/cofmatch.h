@@ -255,7 +255,8 @@ public:
 	 */
 	void
 	set_eth_dst(
-			cmacaddr const& maddr);
+			cmacaddr const& maddr,
+			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
 
 
 	/**
@@ -271,7 +272,8 @@ public:
 	 */
 	void
 	set_eth_src(
-			cmacaddr const& maddr);
+			cmacaddr const& maddr,
+			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
 
 
 	/**
