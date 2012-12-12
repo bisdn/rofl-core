@@ -61,6 +61,12 @@ struct of12_flow_entry{
 	uint32_t out_group;
 
 	uint16_t flags;
+
+	/*
+	 * added 2012-12-12
+	 */
+
+	uint8_t reason;
 };
 typedef struct of12_flow_entry of12_flow_entry_t;
 
