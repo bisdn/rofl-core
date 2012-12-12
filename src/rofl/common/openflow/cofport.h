@@ -142,7 +142,7 @@ public:
 	/**
 	 *
 	 */
-	void
+	virtual void
 	link_state_phy_down()
 	{
 		state |= OFPPS_LINK_DOWN;
@@ -152,7 +152,7 @@ public:
 	/**
 	 *
 	 */
-	void
+	virtual void
 	link_state_phy_up()
 	{
 		state &= ~OFPPS_LINK_DOWN;
@@ -172,7 +172,7 @@ public:
 	/**
 	 *
 	 */
-	void
+	virtual void
 	recv_port_mod(
 			uint32_t config,
 			uint32_t mask,
