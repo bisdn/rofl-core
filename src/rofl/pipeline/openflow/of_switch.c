@@ -27,6 +27,20 @@ inline unsigned int of_process_packet_pipeline(const of_switch_t* sw, datapacket
 	}
 }	
 
+//Wrapping of timers processing
+inline void of_process_pipeline_tables_timeout_expirations(const of_switch_t* sw){
+	
+	switch(sw->of_ver){
+		case OF_VERSION_12: 
+			of12_process_pipeline_tables_timeout_expirations(((of12_switch_t*)sw)->pipeline);
+			break;
+		default: 
+			//return EXIT_FAILURE;
+			break;
+	}
+}	
+
+
 //Wrapping of port management 
 inline unsigned int of_get_switch_ports(of_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports){
 	switch(sw->of_ver){

@@ -51,6 +51,9 @@ inline unsigned int of_destroy_switch(const of_switch_t* sw);
 //Wrapping of processing
 unsigned int of_process_packet_pipeline(const of_switch_t* sw, datapacket_t *const pkt);
 
+//Wrapping timers
+void of_process_pipeline_tables_timeout_expirations(const of_switch_t* sw);
+
 //Wrapping port management
 unsigned int of_get_switch_ports(of_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports);
 unsigned int of_attach_port_to_switch_at_port_num(of_switch_t* sw, unsigned int port_num, switch_port_t* port);
