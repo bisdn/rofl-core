@@ -91,12 +91,6 @@ protected:
 	handle_conn_refused()
 	{
 	};
-	/** new incoming connection (listening mode)
-	 */
-	virtual void
-	handle_accepted(int newsd, caddress &ra)
-	{
-	};
 	/** connection was closed
 	 */
 	virtual void

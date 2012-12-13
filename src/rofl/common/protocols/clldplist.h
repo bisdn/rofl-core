@@ -58,7 +58,7 @@ public: // methods
 	 * for all instructions defined in this->invec
 	 */
 	size_t
-	length();
+	length() const;
 
 	/** dump info string
 	 */

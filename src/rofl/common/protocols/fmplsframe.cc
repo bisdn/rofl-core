@@ -80,19 +80,19 @@ fmplsframe::payload_insert(
 
 
 uint8_t*
-fmplsframe::payload() throw (eFrameNoPayload)
+fmplsframe::payload() const throw (eFrameNoPayload)
 {
 	if (framelen() <= sizeof(struct mpls_hdr_t))
 		throw eFrameNoPayload();
 
-	initialize();
+	//initialize(); // commented out 2012-12-13
 
 	return (soframe() + sizeof(struct mpls_hdr_t));
 }
 
 
 size_t
-fmplsframe::payloadlen() throw (eFrameNoPayload)
+fmplsframe::payloadlen() const throw (eFrameNoPayload)
 {
 	if (framelen() <= sizeof(struct mpls_hdr_t))
 		throw eFrameNoPayload();
@@ -102,9 +102,9 @@ fmplsframe::payloadlen() throw (eFrameNoPayload)
 
 
 void
-fmplsframe::validate() throw (eMplsFrameTooShort)
+fmplsframe::validate(uint16_t total_len) throw (eMplsFrameTooShort)
 {
-	initialize();
+	//initialize(); // commented out 2012-12-13
 
 	if (framelen() < (sizeof(struct mpls_hdr_t)))
 	{

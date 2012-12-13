@@ -90,9 +90,9 @@ ftcpframe::payload_insert(
 
 
 uint8_t*
-ftcpframe::payload() throw (eFrameNoPayload)
+ftcpframe::payload() const throw (eFrameNoPayload)
 {
-	initialize();
+	//initialize(); // commented out 2012-12-13
 	if (!data)
 		throw eFrameNoPayload();
 	return data;
@@ -100,9 +100,9 @@ ftcpframe::payload() throw (eFrameNoPayload)
 
 
 size_t
-ftcpframe::payloadlen() throw (eFrameNoPayload)
+ftcpframe::payloadlen() const throw (eFrameNoPayload)
 {
-	initialize();
+	//initialize(); // commented out 2012-12-13
 	if (!datalen)
 		throw eFrameNoPayload();
 	return datalen;
@@ -110,7 +110,7 @@ ftcpframe::payloadlen() throw (eFrameNoPayload)
 
 
 void
-ftcpframe::validate() throw (eTcpFrameTooShort)
+ftcpframe::validate(uint16_t total_len) throw (eTcpFrameTooShort)
 {
 	initialize();
 

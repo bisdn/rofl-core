@@ -70,21 +70,21 @@ flldpframe::payload_insert(
 
 
 uint8_t*
-flldpframe::payload() throw (eFrameNoPayload)
+flldpframe::payload() const throw (eFrameNoPayload)
 {
 	return NULL;
 }
 
 
 size_t
-flldpframe::payloadlen() throw (eFrameNoPayload)
+flldpframe::payloadlen() const throw (eFrameNoPayload)
 {
 	return tlvs.length();
 }
 
 
 void
-flldpframe::validate() throw (eFrameInvalidSyntax)
+flldpframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
 {
 	initialize();
 

@@ -76,7 +76,7 @@ clldptlv::get_hdr_length() const
 
 
 size_t
-clldptlv::length()
+clldptlv::length() const
 {
 	return (sizeof(struct lldp_tlv_hdr_t) + get_hdr_length());
 }

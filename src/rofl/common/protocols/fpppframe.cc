@@ -425,7 +425,7 @@ fpppframe::tryfcs16(
 
 
 void
-fpppframe::validate() throw (eFrameInvalidSyntax)
+fpppframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
 {
 	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p):validate() %s", this, c_str());
 
@@ -788,7 +788,7 @@ fpppframe::c_str()
 
 
 uint8_t*
-fpppframe::payload() throw (eFrameNoPayload)
+fpppframe::payload() const throw (eFrameNoPayload)
 {
 	switch (be16toh(ppp_hdr->prot)) {
 	case PPP_PROT_IPV4:
@@ -799,7 +799,7 @@ fpppframe::payload() throw (eFrameNoPayload)
 
 
 size_t
-fpppframe::payloadlen() throw (eFrameNoPayload)
+fpppframe::payloadlen() const throw (eFrameNoPayload)
 {
 	switch (be16toh(ppp_hdr->prot)) {
 	case PPP_PROT_IPV4:

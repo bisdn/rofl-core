@@ -181,7 +181,7 @@ public: // methods
 	 *
 	 */
 	size_t
-	length();
+	length() const;
 
 	/** packs LLDP TLV to (tlv, tlvlen)
 	 *

@@ -96,10 +96,10 @@ throw (eLLDPlistInval)
 
 
 size_t
-clldplist::length()
+clldplist::length() const
 {
 	size_t tlvlen = 0;
-	coflist<clldptlv>::iterator it;
+	coflist<clldptlv>::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		tlvlen += (*it).length();

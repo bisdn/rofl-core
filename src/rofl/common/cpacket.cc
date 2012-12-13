@@ -166,7 +166,7 @@ cpacket::cpacket(
 		//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
 		data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, pack.framelen())),
 		packet_receive_time(time(NULL)),
-		in_port(in_port),
+		in_port(0),
 		out_port(0)
 {
 	WRITELOG(CPACKET, DBG, "cpacket(%p)::cpacket()", this);

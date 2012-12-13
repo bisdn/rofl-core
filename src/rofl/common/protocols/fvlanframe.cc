@@ -84,31 +84,31 @@ fvlanframe::payload_insert(
 
 
 uint8_t*
-fvlanframe::payload() throw (eFrameNoPayload)
+fvlanframe::payload() const throw (eFrameNoPayload)
 {
 	if (framelen() <= sizeof(struct vlan_hdr_t))
 		throw eFrameNoPayload();
 
-	initialize();
+	//initialize();c
 
 	return (soframe() + sizeof(struct vlan_hdr_t));
 }
 
 
 size_t
-fvlanframe::payloadlen() throw (eFrameNoPayload)
+fvlanframe::payloadlen() const throw (eFrameNoPayload)
 {
 	if (framelen() <= sizeof(struct vlan_hdr_t))
 		throw eFrameNoPayload();
 
-	initialize();
+	//initialize();uint16_t total_len = 0
 
 	return (framelen() - sizeof(struct vlan_hdr_t));
 }
 
 
 void
-fvlanframe::validate() throw (eVlanFrameTooShort)
+fvlanframe::validate(uint16_t total_len) throw (eVlanFrameTooShort)
 {
 	initialize();
 
