@@ -4,6 +4,7 @@
 
 #include "caddress.h"
 
+using namespace rofl;
 
 caddress::caddress(size_t size) :
 	cmemory(size),

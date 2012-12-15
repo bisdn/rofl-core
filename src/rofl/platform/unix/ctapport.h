@@ -28,6 +28,9 @@ extern "C" {
 
 #include "clinuxport.h"
 
+namespace rofl
+{
+
 /** error classes */
 class eTapPortInval : public cerror {}; // invalid parameter
 class eTapPortWriteFailed : public cerror {}; // write failed
@@ -116,5 +119,7 @@ protected: // data structures
 	// tap file descriptor
 	int fd;
 };
+
+}; // end of namespace
 
 #endif

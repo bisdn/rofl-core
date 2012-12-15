@@ -33,6 +33,9 @@ extern "C" {
 
 #include "../cvastring.h"
 
+namespace rofl
+{
+
 class eSctpFrameBase 		: public eFrameBase {};
 class eSctpFrameTooShort	: public eSctpFrameBase, public eFrameInvalidSyntax {};
 class eSctpFrameInvalChksum	: public eSctpFrameBase {};
@@ -186,7 +189,6 @@ private: // methods
 
 };
 
-
-
+}; // end of namespace
 
 #endif /* FSCTPFRAME_H_ */

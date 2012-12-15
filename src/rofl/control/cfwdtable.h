@@ -38,6 +38,8 @@ extern "C" {
 
 #include "rofl/platform/unix/csyslog.h"
 
+namespace rofl
+{
 
 class cfwdentry; // forward declaration
 
@@ -128,5 +130,7 @@ public:
 public: // auxiliary classes
 
 };
+
+}; // end of namespace
 
 #endif

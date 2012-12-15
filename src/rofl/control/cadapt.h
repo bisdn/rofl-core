@@ -26,6 +26,8 @@
 #include <rofl/common/cxidstore.h>
 #include <rofl/common/openflow/cofport.h>
 
+namespace rofl
+{
 
 // forward declarations, see below for the definitions
 class cadapt_ctl;
@@ -488,7 +490,6 @@ public:
 		};
 };
 
-
-
+}; // end of namespace
 
 #endif /* CADAPT_H */

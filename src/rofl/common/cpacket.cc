@@ -4,6 +4,8 @@
 
 #include "cpacket.h"
 
+using namespace rofl;
+
 bool				cpacket::cpacket_init = false;
 std::string			cpacket::s_cpacket_info;
 pthread_rwlock_t 	cpacket::cpacket_lock;

@@ -24,6 +24,8 @@ extern "C" {
 #include "../cmacaddr.h"
 #include "../cvastring.h"
 
+namespace rofl
+{
 
 class eVlanFrameBase 			: public eFrameBase {};
 class eVlanFrameInvalidSyntax 	: public eVlanFrameBase, public eFrameInvalidSyntax {}; // invalid syntax
@@ -214,5 +216,6 @@ private: // data structures
 
 };
 
+}; // end of namespace
 
 #endif

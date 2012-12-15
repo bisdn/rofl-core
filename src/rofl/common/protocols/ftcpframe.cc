@@ -4,6 +4,7 @@
 
 #include "ftcpframe.h"
 
+using namespace rofl;
 
 ftcpframe::ftcpframe(
 		uint8_t* data,

@@ -34,6 +34,9 @@ extern "C" {
 #include "../caddress.h"
 #include "../coflist.h"
 
+namespace rofl
+{
+
 /* error classes */
 class eOxmBase : public cerror {}; // error base class for class cofinstruction
 class eOxmInval : public eOxmBase {}; // invalid parameter
@@ -1717,5 +1720,6 @@ public:
 	~coxmatch_ofb_ppp_prot() {};
 };
 
+}; // end of namespace
 
 #endif /* COXMATCH_H_ */

@@ -30,6 +30,9 @@ extern "C" {
 
 #include "cofaclist.h"
 
+namespace rofl
+{
+
 /* error classes */
 class eBucketBase : public cerror {}; // error base class for class cofbucket
 class eBucketInval : public eBucketBase {}; // parameter is invalid
@@ -112,5 +115,7 @@ private:
 	std::string info; // info string
 
 };
+
+}; // end of namespace
 
 #endif

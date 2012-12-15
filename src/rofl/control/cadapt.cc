@@ -11,6 +11,7 @@
 
 #include "cadapt.h"
 
+using namespace rofl;
 
 void
 cadapt_ctl::bind(

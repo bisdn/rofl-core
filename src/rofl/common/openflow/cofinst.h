@@ -32,6 +32,9 @@ extern "C" {
 
 #include "cofaction.h"
 
+namespace rofl
+{
+
 /* error classes */
 class eInstructionBase : public cerror {}; // error base class for class cofinstruction
 class eInstructionInval : public eInstructionBase {}; // invalid parameter
@@ -274,7 +277,7 @@ public:
 	~cofinst_write_metadata() {};
 };
 
-
+}; // end of namespace
 
 
 #endif

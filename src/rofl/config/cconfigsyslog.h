@@ -14,6 +14,9 @@
 
 #include "rofl/platform/unix/csyslog.h"
 
+namespace rofl
+{
+
 class cconfigsyslog : public csyslog
 {
 public:
@@ -36,5 +39,7 @@ private:
 	cconfigsyslog();
 	~cconfigsyslog();
 };
+
+}; // end of namespace
 
 #endif /* CCONFIGSYSLOG_H_ */

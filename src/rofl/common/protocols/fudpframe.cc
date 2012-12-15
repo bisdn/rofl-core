@@ -4,6 +4,8 @@
 
 #include "fudpframe.h"
 
+using namespace rofl;
+
 fudpframe::fudpframe(
 		uint8_t* data,
 		size_t datalen) :

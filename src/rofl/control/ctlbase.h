@@ -17,8 +17,10 @@
 #include "cadapt.h"
 #include "../common/cxidstore.h"
 
+namespace rofl
+{
 
-class eCtlBase 					: public eFwdElemBase {};
+class eCtlBase 				: public eFwdElemBase {};
 class eCtlBaseInval 			: public eCtlBase {};
 class eCtlBaseExists 			: public eCtlBase {};
 class eCtlBaseNotFound 			: public eCtlBase {};
@@ -996,6 +998,7 @@ private:
 		};
 };
 
+}; // end of namespace
 
 #endif
 

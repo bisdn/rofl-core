@@ -28,6 +28,9 @@ extern "C" {
 #include "cvastring.h"
 #include "openflow/cofmatch.h"
 
+namespace rofl
+{
+
 class eRoflExpBase 		: public cerror {};
 class eRoflExpInval 	: public eRoflExpBase {};
 
@@ -248,6 +251,7 @@ public:
 		};
 };
 
+}; // end of namespace
 
 #endif
 

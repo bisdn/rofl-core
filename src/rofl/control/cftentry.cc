@@ -4,6 +4,8 @@
 
 #include "cftentry.h"
 
+using namespace rofl;
+
 /*static*/std::set<cftentry*>		cftentry::cftentry_set;
 
 cftentry::cftentry(

@@ -4,6 +4,7 @@
 
 #include "fvlanframe.h"
 
+using namespace rofl;
 
 fvlanframe::fvlanframe(
 		uint8_t *data,

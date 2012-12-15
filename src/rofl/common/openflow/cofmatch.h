@@ -33,6 +33,10 @@ extern "C" {
 #include "rofl/platform/unix/csyslog.h"
 #include "coxmlist.h"
 
+namespace rofl
+{
+
+
 class eOFmatchBase : public cerror {}; // error base class cofmatch
 class eOFmatchType : public eOFmatchBase {};
 class eOFmatchInval : public eOFmatchBase {};
@@ -727,5 +731,7 @@ public:
 	test();
 #endif
 };
+
+}; // end of namespace
 
 #endif

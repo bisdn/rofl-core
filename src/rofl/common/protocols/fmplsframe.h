@@ -26,6 +26,9 @@ extern "C" {
 #include "../cmemory.h"
 #include "../cvastring.h"
 
+namespace rofl
+{
+
 class eMplsFrameBase 			: public eFrameBase {};
 class eMplsFrameInvalidSyntax 	: public eMplsFrameBase, public eFrameInvalidSyntax {}; // invalid syntax
 class eMplsFrameTooShort		: public eMplsFrameInvalidSyntax {};
@@ -50,7 +53,6 @@ public: // static
 		uint8_t label[3];
 		uint8_t ttl;
 	} __attribute__((packed));
-
 
 public: // methods
 
@@ -220,5 +222,7 @@ public:
 
 };
 #endif
+
+}; // end of namespace
 
 #endif

@@ -4,6 +4,7 @@
 
 #include "fpppoeframe.h"
 
+using namespace rofl;
 
 fpppoeframe::fpppoeframe(
 		uint8_t* data,

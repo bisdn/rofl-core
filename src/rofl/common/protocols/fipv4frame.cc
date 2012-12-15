@@ -4,6 +4,7 @@
 
 #include "fipv4frame.h"
 
+using namespace rofl;
 
 fipv4frame::fipv4frame(
 		uint8_t* data,

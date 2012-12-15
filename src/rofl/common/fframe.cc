@@ -4,6 +4,7 @@
 
 #include "fframe.h"
 
+using namespace rofl;
 
 fframe::fframe(
 		uint8_t *_data,

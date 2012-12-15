@@ -15,6 +15,9 @@
 
 #include "clldptlv.h"
 
+namespace rofl
+{
+
 class eLLDPlistBase : public cerror {}; // base error class cofinlist
 class eLLDPlistInval : public eLLDPlistBase {}; // invalid parameter
 class eLLDPlistNotFound : public eLLDPlistBase {}; // element not found
@@ -88,5 +91,7 @@ public: // auxiliary classes
 	};
 
 };
+
+}; // end of namespace
 
 #endif

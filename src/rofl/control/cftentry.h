@@ -42,6 +42,9 @@ extern "C" {
 
 #include "../common/protocols/fetherframe.h"
 
+namespace rofl
+{
+
 class cfwdelem;
 class cofctl;
 
@@ -396,5 +399,6 @@ public:
 
 };
 
+}; // end of namespace
 
 #endif

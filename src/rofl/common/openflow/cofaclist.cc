@@ -5,6 +5,8 @@
 
 #include "cofaclist.h"
 
+using namespace rofl;
+
 cofaclist::cofaclist()
 {
 

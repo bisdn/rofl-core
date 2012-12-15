@@ -22,6 +22,9 @@ extern "C" {
 #include "cvastring.h"
 #include "rofl/platform/unix/csyslog.h"
 
+namespace rofl
+{
+
 class eFrameBase : public cerror {}; // error base class fframe
 class eFrameNoPayload : public eFrameBase {}; // no payload in frame
 class eFrameOutOfRange : public eFrameBase {}; // too many data to copy
@@ -46,8 +49,8 @@ private:
 			FFRAME_FLAG_MEM = (1 << 0), 		// fframe is self-containing memory area for frame
 		};
 
-		cmemory 				 mem; 			// frame container, if none was specified in constructor => this is used for creating new frames from scratch
-		uint8_t 				*data; 			// data area
+		cmemory 				 mem; 			// frame container, if none was specified in constructor => this is used for creating new frames from scratch		uint8_t 				*data; 			// data area
+		uint8_t                                 *data;                  // data area
 		size_t 					 datalen; 		// data area length
 //		uint16_t 				 total_len; 	// real length of packet
 		std::string 			 info; 			// info string
@@ -224,6 +227,6 @@ public:
 	};
 };
 
-
+}; // end of namespace
 
 #endif

@@ -57,8 +57,10 @@ extern "C" {
 #include "../common/openflow/cofstats.h"
 #include "../common/openflow/extensions/cfsptable.h"
 
+namespace rofl
+{
 
-
+class cfttable;
 
 /* error classes */
 class eFwdElemBase					: public cerror {};   // base error class cfwdelem
@@ -66,8 +68,6 @@ class eFwdElemNotFound 				: public eFwdElemBase {}; // internal entity not foun
 class eFwdElemTableNotFound 		: public eFwdElemBase {};
 class eFwdElemGotoTableNotFound		: public eFwdElemBase {};
 
-
-class cfttable;
 
 
 /**
@@ -720,5 +720,6 @@ private: // data structures
 	};
 };
 
+}; // end of namespace
 
 #endif

@@ -33,6 +33,8 @@ extern "C" {
 #include "cofinlist.h"
 #include "coxmatch.h"
 
+namespace rofl
+{
 
 class eFlowEntryBase : public cerror {}; // error base class cflowentry
 class eFlowEntryInvalid : public eFlowEntryBase {}; // invalid parameter
@@ -254,5 +256,7 @@ private: // data structures
 	std::string info;				// info string
 	cmemory flow_mod_area;			// flow mod memory area
 };
+
+}; // end of namespace
 
 #endif

@@ -4,4 +4,6 @@
 
 #include "cerror.h"
 
+using namespace rofl;
+
 std::set<cerror*> cerr_list;

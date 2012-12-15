@@ -12,6 +12,7 @@
 
 #include "coxmlist.h"
 
+using namespace rofl;
 
 coxmlist::coxmlist() :
 	area(OFPXMT_OFB_MAX * sizeof(coxmatch*)),

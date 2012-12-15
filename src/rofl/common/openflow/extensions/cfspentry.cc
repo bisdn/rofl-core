@@ -4,6 +4,8 @@
 
 #include "cfspentry.h"
 
+using namespace rofl;
+
 cfspentry::cfspentry(
 		cfspentry_owner *__fspowner,
 		cofmatch __ofmatch,

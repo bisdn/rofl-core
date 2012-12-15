@@ -25,6 +25,9 @@ extern "C" {
 #include "../caddress.h"
 #include "../cvastring.h"
 
+namespace rofl
+{
+
 // error classes
 class eIPv4FrameBase : public eFrameBase {}; // base error class for cpppoepacket
 class eIPv4FrameTagNotFound : public eIPv4FrameBase {}; // pppoe tag not found
@@ -360,5 +363,7 @@ private: // data structures
 	//< info string
 	std::string info;
 };
+
+}; // end of namespace
 
 #endif

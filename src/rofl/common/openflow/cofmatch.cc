@@ -4,6 +4,8 @@
 
 #include "cofmatch.h"
 
+using namespace rofl;
+
 cofmatch::cofmatch(
 		uint16_t type)
 {

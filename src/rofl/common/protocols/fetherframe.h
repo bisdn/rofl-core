@@ -24,6 +24,9 @@ extern "C" {
 #include "../cmacaddr.h"
 #include "../cvastring.h"
 
+namespace rofl
+{
+
 class eEtherFrameInvalidSyntax : public eFrameInvalidSyntax {}; // invalid syntax
 
 /** Ethernet frame
@@ -184,5 +187,6 @@ private: // data structures
 
 };
 
+}; // end of namespace
 
 #endif

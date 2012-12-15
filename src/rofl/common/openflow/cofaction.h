@@ -35,6 +35,11 @@ extern "C" {
 #define ORAN 1
 #endif
 
+
+namespace rofl
+{
+
+
 /* error classes */
 class eActionBase : public cerror {};
 class eActionInval : public eActionBase {}; // invalid parameter
@@ -619,6 +624,6 @@ public:
 	~cofaction_pop_ppp() {};
 };
 
-
+}; // end of namespace
 
 #endif // COFACTION_H

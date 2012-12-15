@@ -23,6 +23,8 @@ extern "C" {
 #include "../caddress.h"
 #include "../cvastring.h"
 
+namespace rofl
+{
 
 class eICMPv4FrameBase 				: public eFrameBase {};
 class eICMPv4FrameInvalidSyntax 	: public eICMPv4FrameBase, public eFrameInvalidSyntax {};
@@ -194,5 +196,7 @@ private: // data structures
 private: // methods
 
 };
+
+}; // end of namespace
 
 #endif

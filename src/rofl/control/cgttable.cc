@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "cgttable.h"
+// This include must be here due to some exception definitions needed by cgtentry #FIXME: define in another file
+#include "cgtentry.h"
+
+using namespace rofl;
 
 cgttable::cgttable() :
 	lookup_count(0),
@@ -103,17 +107,18 @@ cgtentry*
 cgttable::add_gt_entry(
 		cgtentry_owner* owner,
 		struct ofp_group_mod *grp_mod) throw (eGroupTableExists,
-												eGteInval,
-												eActionBadOutPort,
-												eGroupTableLoopDetected)
+							eGroupTableGroupModInvalID,
+							eGroupTableGroupModBadOutPort,
+							eGroupTableLoopDetected)
 {
+    try {
 	WRITELOG(CGTTABLE, WARN, "cgttable(%p)::add_gt_entry() "
 			"", this);
 
 
 	if (OFPG_MAX < be32toh(grp_mod->group_id))
 	{
-		throw eGteInval();
+		throw eGroupTableGroupModInvalID();
 	}
 
 	if (grp_table.find(be32toh(grp_mod->group_id)) != grp_table.end())
@@ -132,17 +137,28 @@ cgttable::add_gt_entry(
 			"group:%s", this, grp_table[be32toh(grp_mod->group_id)]->c_str());
 
 	return grp_table[be32toh(grp_mod->group_id)];
+
+    } catch (eActionBadOutPort& e) {
+
+        throw eGroupTableGroupModBadOutPort();
+    }
+
+    return 0;
 }
 
 
 cgtentry*
 cgttable::modify_gt_entry(
 		cgtentry_owner *owner,
-		struct ofp_group_mod *grp_mod) throw (eGteInval, eGroupTableModNonExisting, eGroupTableLoopDetected)
+		struct ofp_group_mod *grp_mod)
+throw (
+       eGroupTableGroupModInvalID,
+       eGroupTableModNonExisting,
+       eGroupTableLoopDetected)
 {
 	if (OFPG_MAX < be32toh(grp_mod->group_id))
 	{
-		throw eGteInval();
+		throw eGroupTableGroupModInvalID();
 	}
 
 	if (grp_table.find(be32toh(grp_mod->group_id)) == grp_table.end())
@@ -175,7 +191,10 @@ cgttable::modify_gt_entry(
 cgtentry*
 cgttable::rem_gt_entry(
 		cgtentry_owner *owner,
-		struct ofp_group_mod *grp_mod) throw (eGteInval, eGroupTableNotFound)
+		struct ofp_group_mod *grp_mod)
+throw (
+    eGroupTableGroupModInvalID,
+    eGroupTableNotFound)
 {
 	if (OFPG_ALL == be32toh(grp_mod->group_id))
 	{
@@ -197,7 +216,7 @@ cgttable::rem_gt_entry(
 
 		if (OFPG_MAX < be32toh(grp_mod->group_id))
 		{
-			throw eGteInval();
+			throw eGroupTableGroupModInvalID();
 		}
 
 		if (grp_table.find(be32toh(grp_mod->group_id)) == grp_table.end())

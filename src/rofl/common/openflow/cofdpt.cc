@@ -4,6 +4,8 @@
 
 #include "cofdpt.h"
 
+using namespace rofl;
+
 cofdpt::cofdpt(
 		crofbase *rofbase,
 		int newsd,

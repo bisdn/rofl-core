@@ -27,6 +27,9 @@ extern "C" {
 #include "../fframe.h"
 #include "../cvastring.h"
 
+namespace rofl
+{
+
 class ePPPBase : public eFrameBase {};
 class ePPPInval : public ePPPBase {};
 class ePPPFrameHdlcDecodeFailed : public eFrameBase {}; // HDLC decoding failed
@@ -339,5 +342,7 @@ private: // data structures
 	std::string info;
 
 };
+
+}; // end of namespace
 
 #endif

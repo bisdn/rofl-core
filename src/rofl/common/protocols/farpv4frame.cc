@@ -4,6 +4,7 @@
 
 #include "farpv4frame.h"
 
+using namespace rofl;
 
 farpv4frame::farpv4frame(
 		uint8_t* data,

@@ -56,6 +56,8 @@ extern "C" {
 #include "openflow/cofstats.h"
 #include "openflow/extensions/cfsptable.h"
 
+namespace rofl
+{
 
 
 /* error classes */
@@ -1668,6 +1670,7 @@ private: // methods for attaching/detaching other cofbase instances
 
 };
 
+}; // end of namespace
 
 #endif
 

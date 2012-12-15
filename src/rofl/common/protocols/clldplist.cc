@@ -4,6 +4,8 @@
 
 #include "clldplist.h"
 
+using namespace rofl;
+
 clldplist::clldplist()
 {
 

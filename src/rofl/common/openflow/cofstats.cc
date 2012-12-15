@@ -12,6 +12,7 @@
 
 #include <rofl/common/openflow/cofstats.h>
 
+using namespace rofl;
 
 cofstats::cofstats(
 		size_t bodylen) :

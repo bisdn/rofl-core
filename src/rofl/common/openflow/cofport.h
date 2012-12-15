@@ -42,6 +42,9 @@ extern "C" {
 // forward declarations
 class cofdpath;
 
+namespace rofl
+{
+
 /* error classes */
 class eOFportBase : public cerror {};
 class eOFportInval : public eOFportBase {};
@@ -312,5 +315,7 @@ public:
 	};
 	uint32_t port_no;
 };
+
+}; // end of namespace
 
 #endif

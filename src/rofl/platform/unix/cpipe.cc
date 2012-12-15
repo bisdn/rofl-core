@@ -4,6 +4,8 @@
 
 #include "cpipe.h"
 
+using namespace rofl;
+
 cpipe::cpipe() throw (ePipeInit)
 {
 	// create two pipes for connecting stdin and stdout

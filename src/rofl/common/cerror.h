@@ -22,6 +22,9 @@ extern "C" {
 }
 #endif
 
+namespace rofl
+{
+
 // base class for entire error class hierarchy
 class cerror
 {
@@ -57,6 +60,8 @@ public:
 }; //< oops, fix me exception :D
 class eInternalError 		: public cerror {}; //< some internal error occured
 class eDebug 				: public cerror {};
+
+}; // end of namespace
 
 #endif
 

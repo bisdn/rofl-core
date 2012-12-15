@@ -4,6 +4,8 @@
 
 #include "cgroupentry.h"
 
+using namespace rofl;
+
 cgroupentry::cgroupentry() :
 	group_mod(NULL),
 	group_mod_area(sizeof(struct ofp_group_mod) + 128/*space for actions, will be extended in method pack() if necessary*/)

@@ -28,6 +28,9 @@ extern "C" {
 
 #include "clldplist.h"
 
+namespace rofl
+{
+
 class eLldpFrameInvalidSyntax : public eFrameInvalidSyntax {}; // invalid syntax
 
 /** LLDP frame
@@ -158,5 +161,7 @@ private: // data structures
 
 	std::string info;
 };
+
+}; // end of namespace
 
 #endif

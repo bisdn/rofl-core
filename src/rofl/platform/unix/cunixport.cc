@@ -4,8 +4,9 @@
 
 #include "cunixport.h"
 
-std::set<cunixport*> cunixport::cunixport_list;
+using namespace rofl;
 
+std::set<cunixport*> cunixport::cunixport_list;
 
 cunixport::cunixport(
 		cport_owner *owner,

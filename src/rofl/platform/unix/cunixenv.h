@@ -25,6 +25,8 @@ extern "C" {
 #include <stdexcept>
 #include "csyslog.h"
 
+namespace rofl
+{
 
 /*
 * Helper class to manipulate easily arguments in C++ programs. Argmuents are ALWAYS strings
@@ -135,5 +137,7 @@ private:
 	 */
 	~cunixenv();
 };
+
+}; // end of namespace
 
 #endif

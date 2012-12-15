@@ -18,6 +18,9 @@
 #include "cofbclist.h"
 #include "cofinst.h"
 
+namespace rofl
+{
+
 class eGroupEntryBase : public cerror {};
 class eGroupEntryOutOfMem : public eGroupEntryBase {}; // out of memory
 
@@ -87,5 +90,6 @@ private: // data structures
 	cmemory group_mod_area;			// group mod memory area
 };
 
+}; // end of namespace
 
 #endif

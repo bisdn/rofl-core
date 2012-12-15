@@ -11,8 +11,7 @@
 
 #include <rofl/common/protocols/fsctpframe.h>
 
-
-
+using namespace rofl;
 
 fsctpframe::fsctpframe(
 		uint8_t* data,

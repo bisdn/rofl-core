@@ -4,6 +4,8 @@
 
 #include "fpppframe.h"
 
+using namespace rofl;
+
 /*
 * FCS lookup table as calculated by the table generator.
 */

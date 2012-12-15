@@ -22,6 +22,8 @@ extern "C" {
 #include "../caddress.h"
 #include "../cvastring.h"
 
+namespace rofl
+{
 
 class eUdpFrameBase 		: public eFrameBase {};
 class eUdpFrameTooShort		: public eUdpFrameBase, public eFrameInvalidSyntax {};
@@ -185,5 +187,7 @@ private: // methods
 
 
 };
+
+}; // end of namespace
 
 #endif

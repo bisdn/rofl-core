@@ -33,6 +33,8 @@ extern "C" {
 }
 #endif
 
+namespace rofl
+{
 
 class eARPv4FrameBase			: public eFrameInval {};
 class eARPv4FrameTooShort		: public eARPv4FrameBase, public eFrameInvalidSyntax {};
@@ -287,5 +289,7 @@ private: // data structures
 	std::string info;
 
 };
+
+}; // end of namespace
 
 #endif

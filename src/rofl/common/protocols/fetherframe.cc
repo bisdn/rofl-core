@@ -4,6 +4,7 @@
 
 #include "fetherframe.h"
 
+using namespace rofl;
 
 fetherframe::fetherframe(
 		uint8_t *data,

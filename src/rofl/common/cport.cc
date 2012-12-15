@@ -4,9 +4,9 @@
 
 #include "cport.h"
 
+using namespace rofl;
+
 /* static */ std::set<cport*> cport::cport_list;
-
-
 
 cport::cport(
 		cport_owner *owner,

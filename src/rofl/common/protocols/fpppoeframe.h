@@ -27,6 +27,8 @@ extern "C" {
 #include "../cvastring.h"
 #include "cpppoelist.h"
 
+namespace rofl
+{
 
 // error classes
 class ePPPoEFrameBase 			: public eFrameBase {}; 			// base error class for cpppoepacket
@@ -356,5 +358,7 @@ private: // data structures
 	//< info string
 	std::string info;
 };
+
+}; // end of namespace
 
 #endif

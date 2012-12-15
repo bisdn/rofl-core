@@ -4,6 +4,7 @@
 
 #include "cofctl.h"
 
+using namespace rofl;
 
 cofctl::cofctl(
 		crofbase *rofbase,

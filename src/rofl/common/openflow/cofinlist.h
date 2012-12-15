@@ -13,6 +13,9 @@
 #include "cofaction.h"
 #include "cofinst.h"
 
+namespace rofl
+{
+
 class eInListBase : public cerror {}; // base error class cofinlist
 class eInListInval : public eInListBase {}; // invalid parameter
 class eInListNotFound : public eInListBase {}; // element not found
@@ -94,5 +97,7 @@ private:
 	std::string info; // info string
 
 };
+
+}; // end of namespace
 
 #endif

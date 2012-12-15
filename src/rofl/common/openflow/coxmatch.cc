@@ -11,7 +11,7 @@
 
 #include "coxmatch.h"
 
-
+using namespace rofl;
 
 coxmatch::coxmatch(size_t size) :
 	cmemory(size),

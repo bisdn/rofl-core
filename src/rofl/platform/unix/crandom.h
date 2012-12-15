@@ -24,6 +24,9 @@ extern "C" {
 #include "rofl/common/cerror.h"
 #include "rofl/common/cmemory.h"
 
+namespace rofl
+{
+
 class eRandomBase : public eMemBase {}; // error base class crandom
 class eRandomOpenFailed : public eRandomBase {}; // open system-call failed
 class eRandomReadFailed : public eRandomBase {}; // read system-call failed
@@ -73,5 +76,7 @@ public:
 	 */
 	uint64_t uint64();
 };
+
+}; // end of namespace
 
 #endif

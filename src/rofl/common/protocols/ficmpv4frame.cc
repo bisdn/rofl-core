@@ -4,6 +4,8 @@
 
 #include "ficmpv4frame.h"
 
+using namespace rofl;
+
 ficmpv4frame::ficmpv4frame(
 		uint8_t* data,
 		size_t datalen) :

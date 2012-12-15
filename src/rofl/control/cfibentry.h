@@ -19,6 +19,9 @@ extern "C" {
 #include "../common/ciosrv.h"
 #include "../common/cvastring.h"
 
+namespace rofl
+{
+
 class cfibentry_owner; // forward declaration
 
 class cfibentry : public ciosrv {
@@ -108,5 +111,7 @@ public:
 	virtual ~cfibentry_owner() {};
 	virtual void fibentry_timeout(cfibentry *fibentry) = 0;
 };
+
+}; // end of namespace
 
 #endif

@@ -4,6 +4,8 @@
 
 #include "cfwdentry.h"
 
+using namespace rofl;
+
 cfwdentry::cfwdentry(
 		std::set<cfwdentry*> *__fwdtable,
 		cmacaddr const& __maddr,

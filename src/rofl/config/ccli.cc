@@ -12,6 +12,8 @@
 #include "ccli.h"
 #include "cconfigsyslog.h"
 
+using namespace rofl;
+
 // todo move into a separate config interface
 static int
 cmd_set_debuglevel(struct cli_def *cli, UNUSED(const char *command), char *argv[], int argc)

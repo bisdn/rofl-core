@@ -4,6 +4,8 @@
 
 #include "fmplsframe.h"
 
+using namespace rofl;
+
 fmplsframe::fmplsframe(
 		uint8_t *data,
 		size_t datalen) :

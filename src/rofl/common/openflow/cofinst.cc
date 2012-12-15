@@ -4,6 +4,8 @@
 
 #include "cofinst.h"
 
+using namespace rofl;
+
 std::set<cofinst*> cofinst::cofinst_set;
 
 cofinst::cofinst(

@@ -4,6 +4,8 @@
 
 #include "cofpacket.h"
 
+using namespace rofl;
+
 /*static*/std::set<cofpacket*> cofpacket::cofpacket_list;
 /*static*/std::string cofpacket::pinfo;
 

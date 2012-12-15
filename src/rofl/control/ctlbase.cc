@@ -4,6 +4,8 @@
 
 #include "ctlbase.h"
 
+using namespace rofl;
+
 ctlbase::ctlbase(
 		uint64_t lldpid,
 		std::string dpname,

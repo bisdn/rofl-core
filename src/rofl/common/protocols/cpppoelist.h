@@ -14,6 +14,9 @@
 
 #include "cpppoetlv.h"
 
+namespace rofl
+{
+
 class ePPPoElistBase : public cerror {}; // base error class cofinlist
 class ePPPoElistInval : public ePPPoElistBase {}; // invalid parameter
 class ePPPoElistNotFound : public ePPPoElistBase {}; // element not found
@@ -88,5 +91,7 @@ public: // auxiliary classes
 	};
 
 };
+
+}; // end of namespace
 
 #endif

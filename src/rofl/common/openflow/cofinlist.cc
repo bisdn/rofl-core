@@ -4,6 +4,8 @@
 
 #include "cofinlist.h"
 
+using namespace rofl;
+
 cofinlist::cofinlist()
 {
 	WRITELOG(COFINST, DBG, "cofinlist(%p)::cofinlist()", this);

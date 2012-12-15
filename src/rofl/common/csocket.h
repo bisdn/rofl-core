@@ -31,6 +31,9 @@ extern "C" {
 }
 #endif
 
+namespace rofl
+{
+
 /* error classes */
 class eSocketBase     		: public cerror {}; /**< base class for socket related errors */
 class eSocketBindFailed		: public eSocketBase {}; /**< bind system call failed */
@@ -357,5 +360,7 @@ private:
 	 */
 	void dequeue_packet() throw (eSocketSendFailed, eSocketShortSend);
 };
+
+}; // end of namespace
 
 #endif

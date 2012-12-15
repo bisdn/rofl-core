@@ -4,6 +4,8 @@
 
 #include "crandom.h"
 
+using namespace rofl;
+
 crandom::crandom(size_t vallen)
 {
 	rand(vallen);

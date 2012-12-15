@@ -40,6 +40,8 @@ extern "C" {
 #include "cmemory.h"
 #include "rofl/platform/unix/csyslog.h"
 
+namespace rofl
+{
 
 /* error classes */
 class eAddress : public cerror {}; // base class caddress related errors
@@ -278,5 +280,7 @@ public: // static
 	test();
 
 };
+
+}; // end of namespace
 
 #endif

@@ -5,7 +5,7 @@
 
 #include "cofaction.h"
 
-
+using namespace rofl;
 
 cofaction::cofaction(
 	size_t datalen) :

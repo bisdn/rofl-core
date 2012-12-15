@@ -4,6 +4,8 @@
 
 #include "cmacaddr.h"
 
+using namespace rofl;
+
 cmacaddr::cmacaddr() :
 	cmemory(OFP_ETH_ALEN)
 {

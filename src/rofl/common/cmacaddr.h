@@ -20,6 +20,9 @@ extern "C" {
 #include "cvastring.h"
 #include "cmemory.h"
 
+namespace rofl
+{
+
 class cmacaddr : public cmemory {
 public:
 
@@ -117,5 +120,7 @@ public:
 	virtual
 	~cmacbcast() {};
 };
+
+}; // end of namespace
 
 #endif

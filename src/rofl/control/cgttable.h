@@ -16,26 +16,30 @@
 #include "../common/openflow/cofpacket.h"
 #include "cftentry.h"
 
-/* forward declaration */
-class cfwdelem;
-class cofctl;
-class cgtentry;
-class cgtentry_owner;
-class eGroupEntryInval;
+namespace rofl
+{
+
+  /* forward declaration */
+  class cfwdelem;
+  class cofctl;
+  class cgtentry;
+  class cgtentry_owner;
+  class eGroupEntryInval;
 
 /* error classes */
-class eGroupTableBase : public cerror {};
-class eGroupTableInval : public eGroupTableBase {}; // invalid flow-mod entry received
-class eGroupTableExists : public eGroupTableBase {};
-class eGroupTableNoMatch : public eGroupTableBase {}; // no matching entry found
-class eGroupTableEntryOverlaps : public eGroupTableBase {}; // entry overlaps with existing entry in flow-table
+class eGroupTableBase           : public cerror {};
+class eGroupTableInval          : public eGroupTableBase {}; // invalid flow-mod entry received
+class eGroupTableExists         : public eGroupTableBase {};
+class eGroupTableNoMatch        : public eGroupTableBase {}; // no matching entry found
+class eGroupTableEntryOverlaps  : public eGroupTableBase {}; // entry overlaps with existing entry in flow-table
 class eGroupTableClassificationFailed : public eGroupTableBase {}; // invalid packet frame for classification
-class eGroupTableNotFound : public eGroupTableBase {}; // element not found
-class eGroupTableLoopDetected : public eGroupTableBase {}; // loop found in group table
+class eGroupTableNotFound       : public eGroupTableBase {}; // element not found
+class eGroupTableLoopDetected   : public eGroupTableBase {}; // loop found in group table
 class eGroupTableModNonExisting : public eGroupTableBase {}; // enttry for modification not found
+class eGroupTableGroupModInval  : public eGroupTableBase {};
+class eGroupTableGroupModInvalID  : public eGroupTableBase {};
+class eGroupTableGroupModBadOutPort : public eGroupTableBase {};
 
-// This include must be here due to some exception definitions needed by cgtentry #FIXME: define in another file
-#include "cgtentry.h"
 
 class cgttable :
 	public ciosrv
@@ -107,9 +111,9 @@ public:
 	add_gt_entry(
 			cgtentry_owner *owner,
 			struct ofp_group_mod *grp_mod) throw (eGroupTableExists,
-													eGteInval,
-													eActionBadOutPort,
-													eGroupTableLoopDetected);
+								eGroupTableGroupModInvalID,
+								eGroupTableGroupModBadOutPort,
+								eGroupTableLoopDetected);
 
 
 	/** update a cgtentry
@@ -117,9 +121,9 @@ public:
 	cgtentry*
 	modify_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod) throw (eGteInval,
-													eGroupTableModNonExisting,
-													eGroupTableLoopDetected);
+			struct ofp_group_mod *grp_mod) throw (eGroupTableGroupModInvalID,
+			                                      eGroupTableModNonExisting,
+			                                      eGroupTableLoopDetected);
 
 
 	/** delete a cgtentry
@@ -127,8 +131,8 @@ public:
 	cgtentry*
 	rem_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod) throw (eGteInval,
-													eGroupTableNotFound);
+			struct ofp_group_mod *grp_mod) throw (eGroupTableGroupModInvalID,
+								eGroupTableNotFound);
 
 
 	/** get group stats for all group_ids
@@ -169,4 +173,7 @@ private:
 
 };
 
+}; // end of namespace
+
 #endif
+

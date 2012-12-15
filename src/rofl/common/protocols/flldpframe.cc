@@ -4,6 +4,7 @@
 
 #include "flldpframe.h"
 
+using namespace rofl;
 
 flldpframe::flldpframe(
 		uint8_t *data,

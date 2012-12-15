@@ -5,9 +5,9 @@
 
 #include "crofbase.h"
 
+using namespace rofl;
+
 /* static */ std::set<crofbase*> crofbase::rofbases;
-
-
 
 crofbase::crofbase() throw (eRofBaseExists) :
 		xid_used_max(CPCP_DEFAULT_XID_USED_MAX),

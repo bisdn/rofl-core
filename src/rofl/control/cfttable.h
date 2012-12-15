@@ -32,6 +32,8 @@ extern "C" {
 #include "../common/protocols/fdataframe.h"
 #endif
 
+namespace rofl
+{
 
 /* error classes */
 class eFlowTableInval 					: public cerror {}; // invalid flow-mod entry received
@@ -432,5 +434,7 @@ private: // data structures
 
 	std::string info;
 };
+
+}; // end of namespace
 
 #endif

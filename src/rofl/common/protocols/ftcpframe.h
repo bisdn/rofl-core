@@ -24,6 +24,9 @@ extern "C" {
 
 #include "../cvastring.h"
 
+namespace rofl
+{
+
 class eTcpFrameBase 		: public eFrameBase {};
 class eTcpFrameTooShort		: public eTcpFrameBase, public eFrameInvalidSyntax {};
 class eTcpFrameInvalChksum	: public eTcpFrameBase {};
@@ -199,5 +202,7 @@ private: // data structures
 private: // methods
 
 };
+
+}; // end of namespace
 
 #endif

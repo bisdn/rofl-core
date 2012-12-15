@@ -16,6 +16,9 @@
 
 #include "clinuxport.h"
 
+namespace rofl
+{
+
 class cethport_search;
 
 class cethport :
@@ -122,5 +125,6 @@ protected:
 	caddress baddr;
 };
 
+}; // end of namespace
 
 #endif
