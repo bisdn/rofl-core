@@ -6,6 +6,7 @@
 #define COFIPV4PORT_H 1
 
 #include <string>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,7 +28,7 @@ extern "C" {
 #include "rofl/common/caddress.h"
 #include "rofl/common/cvastring.h"
 
-
+namespace rofl {
 
 class cofipv4port :
 	public csyslog
@@ -93,5 +94,8 @@ private: // data structures
 		std::string info;
 
 };
+
+}  // namespace rofl
+
 #endif
 

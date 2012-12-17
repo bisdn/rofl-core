@@ -23,7 +23,7 @@ extern "C" {
 #include "rofl/common/cvastring.h"
 #include "rofl/platform/unix/crandom.h"
 
-
+namespace rofl {
 
 class eSpfBase : public eGraphBase {};
 class eSpfNotFound : public eSpfBase {};
@@ -118,5 +118,7 @@ private: // data structures
 	std::string info;
 
 };
+
+}  // namespace rofl
 
 #endif
