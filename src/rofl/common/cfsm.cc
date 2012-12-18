@@ -4,6 +4,8 @@
 
 #include "cfsm.h"
 
+using namespace rofl;
+
 cfsm::cfsm() :
 	fsm_state(0)
 {

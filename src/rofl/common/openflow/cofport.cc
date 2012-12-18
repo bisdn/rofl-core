@@ -4,6 +4,7 @@
 
 #include "cofport.h"
 
+using namespace rofl;
 
 /* static */
 void

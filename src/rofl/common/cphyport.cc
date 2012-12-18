@@ -12,6 +12,7 @@
 
 #include <cphyport.h>
 
+using namespace rofl;
 
 cphyport::cphyport(
 		std::map<uint32_t, cphyport*> *port_list,

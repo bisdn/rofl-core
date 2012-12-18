@@ -29,6 +29,9 @@ extern "C" {
 #include "cofaction.h"
 #include "cofinst.h"
 
+namespace rofl
+{
+
 class cofactionset : public csyslog
 {
 public:
@@ -103,5 +106,7 @@ private:
 
 	std::string info; // info string
 };
+
+}; // end of namespace
 
 #endif /* COFACTIONSET_H_ */

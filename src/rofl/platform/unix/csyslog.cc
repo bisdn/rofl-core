@@ -4,6 +4,8 @@
 
 #include"csyslog.h"
 
+using namespace rofl;
+
 /* static */ std::string csyslog::ident = std::string("rofl");
 /* static */ int csyslog::facility = LOG_USER;
 /* static */ int csyslog::option = LOG_CONS;

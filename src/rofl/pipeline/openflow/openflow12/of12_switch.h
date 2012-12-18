@@ -34,7 +34,7 @@ struct of12_switch{
 	of12_pipeline_t* pipeline;
 	
 	//Mutex
-	platform_mutex_t mutex;
+	platform_mutex_t* mutex;
 
 	uint16_t flags; 			// SET-CONFIG/GET-CONFIG
 	uint16_t miss_send_len;			// SET-CONFIG/GET-CONFIG

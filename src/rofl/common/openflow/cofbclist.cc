@@ -4,6 +4,8 @@
 
 #include "cofbclist.h"
 
+using namespace rofl;
+
 cofbclist::cofbclist(int bcnum)
 {
 	for (int i = 0; i < bcnum; ++i)

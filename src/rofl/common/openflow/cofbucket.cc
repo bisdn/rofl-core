@@ -4,6 +4,7 @@
 
 #include "cofbucket.h"
 
+using namespace rofl;
 
 cofbucket::cofbucket(
 		uint16_t weight,

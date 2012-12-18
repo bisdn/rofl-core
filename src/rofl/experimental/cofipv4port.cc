@@ -4,6 +4,8 @@
 
 #include "cofipv4port.h"
 
+using namespace rofl;
+
 cofipv4port::cofipv4port(
 		uint32_t __portno,
 		caddress const& __addr,
@@ -32,9 +34,9 @@ cofipv4port::cofipv4port(
 		peer(caddress(AF_INET, "0.0.0.0")),
 		flags(__flags)
 {
-	addr.s4addr->sin_addr.s_addr = htobe32(__addr);
-	mask.s4addr->sin_addr.s_addr = htobe32(__mask);
-	peer.s4addr->sin_addr.s_addr = htobe32(__peer);
+	addr.ca_s4addr->sin_addr.s_addr = htobe32(__addr);
+	mask.ca_s4addr->sin_addr.s_addr = htobe32(__mask);
+	peer.ca_s4addr->sin_addr.s_addr = htobe32(__peer);
 }
 
 
@@ -65,9 +67,9 @@ void
 cofipv4port::pack(struct ofp_rofl_ipv4_port *port)
 {
 	port->flags 	= htobe32(flags);
-	port->ipaddr 	= addr.s4addr->sin_addr.s_addr;
-	port->mask 		= mask.s4addr->sin_addr.s_addr;
-	port->peer 		= peer.s4addr->sin_addr.s_addr;
+	port->ipaddr 	= addr.ca_s4addr->sin_addr.s_addr;
+	port->mask 		= mask.ca_s4addr->sin_addr.s_addr;
+	port->peer 		= peer.ca_s4addr->sin_addr.s_addr;
 	port->portno 	= htobe32(portno);
 }
 
@@ -76,9 +78,9 @@ void
 cofipv4port::unpack(struct ofp_rofl_ipv4_port *port)
 {
 	flags 	= be32toh(port->flags);
-	addr.s4addr->sin_addr.s_addr = port->ipaddr;
-	mask.s4addr->sin_addr.s_addr = port->mask;
-	peer.s4addr->sin_addr.s_addr = port->peer;
+	addr.ca_s4addr->sin_addr.s_addr = port->ipaddr;
+	mask.ca_s4addr->sin_addr.s_addr = port->mask;
+	peer.ca_s4addr->sin_addr.s_addr = port->peer;
 	portno	= be32toh(port->portno);
 }
 

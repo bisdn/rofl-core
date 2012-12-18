@@ -24,6 +24,9 @@ extern "C" {
 }
 #endif
 
+namespace rofl
+{
+
 class eLLDPbase : public cerror {};
 class eLLDPInval : public eLLDPbase {};
 
@@ -181,7 +184,7 @@ public: // methods
 	 *
 	 */
 	size_t
-	length();
+	length() const;
 
 	/** packs LLDP TLV to (tlv, tlvlen)
 	 *
@@ -588,5 +591,7 @@ public:
 		return info.c_str();
 	};
 };
+
+}; // end of namespace
 
 #endif

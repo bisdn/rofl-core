@@ -5,6 +5,8 @@
 
 #include "cofportlist.h"
 
+using namespace rofl;
+
 cofportlist::cofportlist()
 {
 	WRITELOG(COFINST, DBG, "cofportlist(%p)::cofportlist()", this);

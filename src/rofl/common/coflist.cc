@@ -4,6 +4,8 @@
 
 #include "coflist.h"
 
+using namespace rofl;
+
 template <class T>
 coflist<T>::coflist()
 {

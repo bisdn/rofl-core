@@ -4,8 +4,9 @@
 
 #include "ctapport.h"
 
-std::set<ctapport*> ctapport::ctapport_list;
+using namespace rofl;
 
+std::set<ctapport*> ctapport::ctapport_list;
 
 ctapport::ctapport(
 		cport_owner *owner,

@@ -33,6 +33,10 @@ extern "C" {
 #include "rofl/platform/unix/csyslog.h"
 #include "coxmlist.h"
 
+namespace rofl
+{
+
+
 class eOFmatchBase : public cerror {}; // error base class cofmatch
 class eOFmatchType : public eOFmatchBase {};
 class eOFmatchInval : public eOFmatchBase {};
@@ -255,7 +259,8 @@ public:
 	 */
 	void
 	set_eth_dst(
-			cmacaddr const& maddr);
+			cmacaddr const& maddr,
+			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
 
 
 	/**
@@ -271,7 +276,8 @@ public:
 	 */
 	void
 	set_eth_src(
-			cmacaddr const& maddr);
+			cmacaddr const& maddr,
+			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
 
 
 	/**
@@ -725,5 +731,7 @@ public:
 	test();
 #endif
 };
+
+}; // end of namespace
 
 #endif

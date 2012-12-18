@@ -16,6 +16,8 @@ extern "C" {
 }
 #endif
 
+namespace rofl
+{
 
 /** interface for finite state machines
  */
@@ -57,5 +59,7 @@ protected:
 
 	int fsm_state; // current state
 };
+
+}; // end of namespace
 
 #endif

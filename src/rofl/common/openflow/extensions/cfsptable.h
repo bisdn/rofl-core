@@ -15,6 +15,9 @@
 #include "../../cpacket.h"
 #include "cfspentry.h"
 
+namespace rofl
+{
+
 class eFspTable : public cerror {}; 			// base class cnstable errors
 class eFspNoMatch : public eFspTable {};		// no matching entry found
 class eFspEntryOverlap : public eFspTable {}; 	// new namespace entry overlaps
@@ -183,5 +186,6 @@ private:
 	char c_info[512];             // info string (verbose)
 };
 
+}; // end of namespace
 
 #endif

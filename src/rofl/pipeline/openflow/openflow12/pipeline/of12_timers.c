@@ -561,14 +561,14 @@ static unsigned int of12_add_single_timer(of12_flow_table_t* const table, const 
 unsigned int of12_add_timer(of12_flow_table_t* const table, of12_flow_entry_t* const entry){
 	unsigned int res;
 
-	platform_mutex_lock(&table->mutex);
+	platform_mutex_lock(table->mutex);
 	
 	if(entry->timer_info.idle_timeout)
 	{
 		res = of12_add_single_timer(table, entry->timer_info.idle_timeout, entry, IDLE_TO); //is_idle = 1
 		if(res == EXIT_FAILURE)
 		{
-			platform_mutex_unlock(&table->mutex);
+			platform_mutex_unlock(table->mutex);
 			return EXIT_FAILURE;
 		}
 	}
@@ -577,12 +577,12 @@ unsigned int of12_add_timer(of12_flow_table_t* const table, of12_flow_entry_t* c
 		res = of12_add_single_timer(table, entry->timer_info.hard_timeout, entry, HARD_TO); //is_idle = 0
 		if(res == EXIT_FAILURE)
 		{
-			platform_mutex_unlock(&table->mutex);
+			platform_mutex_unlock(table->mutex);
 			return EXIT_FAILURE;
 		}
 	}
 	
-	platform_mutex_unlock(&table->mutex);
+	platform_mutex_unlock(table->mutex);
 	return EXIT_SUCCESS;
 }
 
@@ -598,7 +598,7 @@ void of12_process_pipeline_tables_timeout_expirations(const of12_pipeline_t* pip
 	for(i=0;i<pipeline->num_of_tables;i++)
 	{
 		of12_flow_table_t* table = &pipeline->tables[i];
-		platform_mutex_lock(&table->mutex);
+		platform_mutex_lock(table->mutex);
 #if OF12_TIMER_STATIC_ALLOCATION_SLOTS
 		while(table->timers[table->current_timer_group].timeout<=now)
 		{
@@ -615,7 +615,7 @@ void of12_process_pipeline_tables_timeout_expirations(const of12_pipeline_t* pip
 			if(of12_destroy_all_entries_from_timer_group(slot_it, table)!=EXIT_SUCCESS)
 			{
 				fprintf(stderr,"Error while destroying timer group\n");
-				platform_mutex_unlock(&table->mutex);
+				platform_mutex_unlock(table->mutex);
 				return;
 			}
 			next = slot_it->next;
@@ -623,7 +623,7 @@ void of12_process_pipeline_tables_timeout_expirations(const of12_pipeline_t* pip
 				of12_destroy_timer_group(slot_it, table);
 		}		
 #endif
-		platform_mutex_unlock(&table->mutex);
+		platform_mutex_unlock(table->mutex);
 	}
 	return;
 }

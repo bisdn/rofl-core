@@ -18,6 +18,9 @@ extern "C" {
 #include "../cofmatch.h"
 #include "../../cvastring.h"
 
+namespace rofl
+{
+
 class cfspentry_owner {
 public:
 	virtual ~cfspentry_owner() {};
@@ -81,5 +84,7 @@ public: // data structures
 	std::string info;
 
 };
+
+}; // end of namespace
 
 #endif

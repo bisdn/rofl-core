@@ -70,8 +70,8 @@ struct of12_flow_table{
 	matching_auxiliary_t* matching_aux[2];
 
 	//Mutexes
-	platform_mutex_t mutex; //Mutual exclusion among insertion/deletion threads
-	platform_rwlock_t rwlock; //Readers mutex
+	platform_mutex_t* mutex; //Mutual exclusion among insertion/deletion threads
+	platform_rwlock_t* rwlock; //Readers mutex
 
 	
 	//Configuration stuff

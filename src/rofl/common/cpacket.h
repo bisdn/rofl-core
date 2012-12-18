@@ -63,6 +63,10 @@ extern "C" {
 #include "protocols/fsctpframe.h"
 #include "protocols/fetherframe.h"
 
+namespace rofl
+{
+
+
 /* Forward declarations */
 class fetherframe;
 class fvlanframe;
@@ -942,5 +946,7 @@ public: // static methods
 	static void
 	test();
 };
+
+}; // end of namespace
 
 #endif

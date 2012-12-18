@@ -16,6 +16,9 @@
 
 #include "clinuxport.h"
 
+namespace rofl
+{
+
 class cethport_search;
 
 class cethport :
@@ -91,12 +94,6 @@ protected:
 	handle_conn_refused()
 	{
 	};
-	/** new incoming connection (listening mode)
-	 */
-	virtual void
-	handle_accepted(int newsd, caddress &ra)
-	{
-	};
 	/** connection was closed
 	 */
 	virtual void
@@ -128,5 +125,6 @@ protected:
 	caddress baddr;
 };
 
+}; // end of namespace
 
 #endif

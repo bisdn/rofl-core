@@ -110,7 +110,7 @@ void of12_stats_table_init(of12_flow_table_t * table)
  */
 inline void of12_stats_table_lookup_inc(of12_flow_table_t * table)
 {
-	platform_atomic_inc64(&table->stats.lookup_count,&table->mutex);
+	platform_atomic_inc64(&table->stats.lookup_count,table->mutex);
 }
 /**
  * of12_stats_table_matched_update
@@ -118,7 +118,7 @@ inline void of12_stats_table_lookup_inc(of12_flow_table_t * table)
  */
 inline void of12_stats_table_matches_inc(of12_flow_table_t * table)
 {
-	platform_atomic_inc64(&table->stats.matched_count,&table->mutex);
+	platform_atomic_inc64(&table->stats.matched_count,table->mutex);
 }
 
 //Aggregate Statistics functions
@@ -145,24 +145,28 @@ void of12_stats_port_init(of12_stats_port_t *port_stats)
 	port_stats->rx_bytes = 0;
 	port_stats->tx_bytes = 0;
 	
-	platform_mutex_init(&(port_stats->mutex),NULL);
+	if (0 == (port_stats->mutex = platform_mutex_init(NULL)))
+	{
+		// log error
+		return;
+	}
 }
 
 void of12_stats_port_destroy(of12_stats_port_t *port_stats)
 {
-	platform_mutex_destroy(&(port_stats->mutex));
+	platform_mutex_destroy(port_stats->mutex);
 }
 
 inline void of12_stats_port_rx_packet_inc(of12_stats_port_t *port_stats, uint64_t bytes_rx)
 {
-	platform_atomic_inc64(&port_stats->rx_packets,&port_stats->mutex);
-	platform_atomic_add64(&port_stats->rx_bytes,&bytes_rx, &port_stats->mutex);
+	platform_atomic_inc64(&port_stats->rx_packets,port_stats->mutex);
+	platform_atomic_add64(&port_stats->rx_bytes,&bytes_rx, port_stats->mutex);
 }
 
 inline void of12_stats_port_tx_packet_inc(of12_stats_port_t *port_stats, uint64_t bytes_tx)
 {
-	platform_atomic_inc64(&port_stats->tx_packets,&port_stats->mutex);
-	platform_atomic_add64(&port_stats->tx_bytes,&bytes_tx, &port_stats->mutex);
+	platform_atomic_inc64(&port_stats->tx_packets,port_stats->mutex);
+	platform_atomic_add64(&port_stats->tx_bytes,&bytes_tx, port_stats->mutex);
 }
 
 /** TODO not yet implemented for ports
@@ -181,23 +185,26 @@ void of12_stats_queue_init(of12_stats_queue_t *queue_stats)
 	queue_stats->tx_bytes=0;
 	queue_stats->tx_packets=0;
 	queue_stats->tx_errors=0;
-	platform_mutex_init(&(queue_stats->mutex),NULL);
+	if (0 == (queue_stats->mutex = platform_mutex_init(NULL)))
+	{
+		return;
+	}
 }
 
 void of12_stats_queue_destroy(of12_stats_queue_t *queue_stats)
 {
-	platform_mutex_destroy(&(queue_stats->mutex));
+	platform_mutex_destroy(queue_stats->mutex);
 }
 
 inline void of12_stats_queue_tx_packet_inc(of12_stats_queue_t *queue_stats, uint64_t bytes)
 {
-	platform_atomic_inc64(&queue_stats->tx_packets, &queue_stats->mutex);
-	platform_atomic_add64(&queue_stats->tx_bytes, &bytes, &queue_stats->mutex);
+	platform_atomic_inc64(&queue_stats->tx_packets, queue_stats->mutex);
+	platform_atomic_add64(&queue_stats->tx_bytes, &bytes, queue_stats->mutex);
 }
 
 inline void of12_stats_queue_tx_errors_inc(of12_stats_queue_t *queue_stats)
 {
-	platform_atomic_inc64(&queue_stats->tx_errors, &queue_stats->mutex);
+	platform_atomic_inc64(&queue_stats->tx_errors, queue_stats->mutex);
 }
 
 /**

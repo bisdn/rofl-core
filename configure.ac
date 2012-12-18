@@ -87,6 +87,23 @@ else
 	AC_MSG_RESULT(no)
 fi
 
+# build with POSIX malloc
+AC_MSG_CHECKING(build with posix malloc)
+posix_malloc_default="no"
+AC_ARG_ENABLE(posix_malloc,
+	AS_HELP_STRING([--enable-posix-malloc], [Build with posix malloc [default=no]])
+		, , enable_posix_malloc=$posix_malloc_default)
+
+if test "$enable_posix_malloc" = "yes"; then
+	AM_CONDITIONAL(POSIX_MALLOC, [true])
+	AC_DEFINE(POSIX_MALLOC)
+	AC_MSG_RESULT(yes)
+else
+	AM_CONDITIONAL(POSIX_MALLOC, [false])
+	AC_MSG_RESULT(no)
+fi
+
+
 
 
 AC_MSG_CHECKING(for pipeline support)

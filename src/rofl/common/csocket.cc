@@ -4,6 +4,8 @@
 
 #include "csocket.h"
 
+using namespace rofl;
+
 std::set<csocket*> csocket::csock_list;
 
 

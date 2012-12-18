@@ -25,6 +25,9 @@ extern "C" {
 
 #include "../coflist.h"
 
+namespace rofl
+{
+
 class ePPPoEbase : public cerror {};
 class ePPPoEInval : public ePPPoEbase {};
 class ePPPoENotFound : public ePPPoEbase {};
@@ -447,7 +450,7 @@ TAG_LENGTH
 +--------------+--------------+--------------+--------------+
 #endif
 
-
+}; // end of namespace
 
 
 #endif

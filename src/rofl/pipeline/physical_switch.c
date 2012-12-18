@@ -6,7 +6,7 @@ static physical_switch_t psw;
 void physical_switch_init(){
 
 	//FIXME: check error
-	platform_mutex_init(&psw.mutex, NULL);
+	psw.mutex = platform_mutex_init(NULL);
 	
 	memset(psw.physical_ports,0,sizeof(psw.physical_ports));
 	memset(psw.tunnel_ports,0,sizeof(psw.tunnel_ports));
@@ -18,7 +18,7 @@ physical_switch_t* get_physical_switch(){
 }
 
 void physical_switch_destroy(){
-		
+	platform_mutex_destroy(psw.mutex);
 }
 
 //General static methods

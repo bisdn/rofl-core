@@ -19,6 +19,9 @@
 #include <rofl/common/cclock.h>
 #include <rofl/common/cvalue.h>
 
+namespace rofl
+{
+
 #define XIDSTORE_ALL_XIDS	0xffffffff
 
 class eXidStoreBase 			: public cerror {};
@@ -183,5 +186,6 @@ protected:
 
 };
 
+}; // end of namespace
 
 #endif /* CXIDSTORE_H */

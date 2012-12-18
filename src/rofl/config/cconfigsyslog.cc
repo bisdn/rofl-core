@@ -11,6 +11,8 @@
 
 #include "cconfigsyslog.h"
 
+using namespace rofl;
+
 /*static */cconfigsyslog&
 cconfigsyslog::getInstance()
 {

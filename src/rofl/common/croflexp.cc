@@ -4,7 +4,7 @@
 
 #include "croflexp.h"
 
-
+using namespace rofl;
 
 croflexp::croflexp(
 		uint8_t *buf,

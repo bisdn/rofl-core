@@ -4,6 +4,8 @@
 
 #include "cgraph.h"
 
+using namespace rofl;
+
 template <class T, class U>
 cgraph<T, U>::cgraph()
 {

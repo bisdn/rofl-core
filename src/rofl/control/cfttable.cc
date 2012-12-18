@@ -5,6 +5,8 @@
 
 #include "cfttable.h"
 
+using namespace rofl;
+
 uint64_t cfttable::all_matches =
 		((uint64_t)1 << OFPXMT_OFB_IN_PORT 	) |
 		((uint64_t)1 << OFPXMT_OFB_IN_PHY_PORT) |

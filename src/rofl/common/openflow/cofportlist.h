@@ -13,6 +13,9 @@
 
 #include "cofport.h"
 
+namespace rofl
+{
+
 class ePortListBase : public cerror {}; // base error class cofinlist
 class ePortListInval : public ePortListBase {}; // invalid parameter
 class ePortListNotFound : public ePortListBase {}; // element not found
@@ -106,5 +109,7 @@ private:
 	std::string info; // info string
 
 };
+
+}; // end of namespace
 
 #endif

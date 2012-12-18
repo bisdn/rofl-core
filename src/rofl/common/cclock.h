@@ -28,6 +28,8 @@ extern "C" {
 #include "cvastring.h"
 #include "rofl/platform/unix/csyslog.h"
 
+namespace rofl
+{
 
 class cclock :
 	public csyslog
@@ -134,5 +136,6 @@ public:
 	c_str();
 };
 
+}; // end of namespace
 
 #endif /* CCLOCK_H_ */

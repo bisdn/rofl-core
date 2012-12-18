@@ -4,6 +4,7 @@
 
 #include "ciosrv.h"
 
+using namespace rofl;
 
 bool cont = true;
 

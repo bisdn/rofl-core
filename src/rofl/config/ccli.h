@@ -21,6 +21,9 @@
 #include "rofl/common/csocket.h"
 #include "rofl/common/cerror.h"
 
+namespace rofl
+{
+
 #ifdef __GNUC__
 # define UNUSED(d) d __attribute__ ((unused))
 #else
@@ -137,5 +140,7 @@ private:
 	// bound interface
 	caddress baddr;
 };
+
+}; // end of namespace
 
 #endif /* CCLI_H_ */

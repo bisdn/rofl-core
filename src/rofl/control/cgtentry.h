@@ -27,6 +27,12 @@ extern "C" {
 #include "../common/openflow/cofbclist.h"
 #include "../common/openflow/cofbucket.h"
 
+//This include must go here due to some Exceptions defined within cgttable.h FIXME: define in another file?
+#include "cgttable.h"
+
+
+namespace rofl
+{
 
 // forward declarations
 class cfwdelem;
@@ -39,8 +45,6 @@ class eGteBase : public cerror {};
 class eGteInval : public eGteBase {};
 class eGteBadType : public eGteBase {};
 
-//This include must go here due to some Exceptions defined within cgttable.h FIXME: define in another file?
-#include "cgttable.h"
 
 class cgtentry : public ciosrv {
 public:
@@ -52,8 +56,7 @@ public:
 	 */
 	cgtentry(
 		cgtentry_owner *owner,
-		cgttable *grp_table,
-		struct ofp_group_mod *grp_mod)
+		cgttable *grp_table,		struct ofp_group_mod *grp_mod)
 			throw (eGteInval,
 					eGteBadType,
 					eActionBadOutPort);
@@ -156,4 +159,7 @@ public:
 
 	virtual void gtentry_timeout(cgtentry *entry, uint16_t timeout) = 0;
 };
+
+}; // end of namespace
+
 #endif

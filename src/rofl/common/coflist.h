@@ -14,6 +14,9 @@
 
 #include "rofl/platform/unix/csyslog.h"
 
+namespace rofl
+{
+
 class eOFlistBase : public cerror {}; // base error class cofinlist
 class eOFlistInval : public eOFlistBase {}; // invalid parameter
 class eOFlistNotFound : public eOFlistBase {}; // element not found
@@ -111,5 +114,7 @@ public: // methods
 	bool
 	empty() const;
 };
+
+}; // end of namespace
 
 #endif

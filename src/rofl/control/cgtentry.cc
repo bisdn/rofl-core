@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "cgtentry.h"
-//#include "cgttable.h" //FIXME: This should NOT be here
+
+using namespace rofl;
 
 cgtentry::cgtentry(cgtentry_owner *owner) :
 	owner(owner),

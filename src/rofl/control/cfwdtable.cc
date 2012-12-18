@@ -4,6 +4,8 @@
 
 #include "cfwdtable.h"
 
+using namespace rofl;
+
 cfwdtable::cfwdtable()
 {
 	WRITELOG(FWDTABLE, DBG, "cfwdtable::cfwdtable() ");

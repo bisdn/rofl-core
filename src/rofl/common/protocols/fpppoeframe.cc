@@ -4,6 +4,7 @@
 
 #include "fpppoeframe.h"
 
+using namespace rofl;
 
 fpppoeframe::fpppoeframe(
 		uint8_t* data,
@@ -95,7 +96,7 @@ fpppoeframe::payload_insert(
 
 
 uint8_t*
-fpppoeframe::payload() throw (eFrameNoPayload)
+fpppoeframe::payload() const throw (eFrameNoPayload)
 {
 	if (!pppdata)
 		throw eFrameNoPayload();
@@ -104,7 +105,7 @@ fpppoeframe::payload() throw (eFrameNoPayload)
 
 
 size_t
-fpppoeframe::payloadlen() throw (eFrameNoPayload)
+fpppoeframe::payloadlen() const throw (eFrameNoPayload)
 {
 	if (!pppdatalen)
 		throw eFrameNoPayload();
@@ -113,7 +114,7 @@ fpppoeframe::payloadlen() throw (eFrameNoPayload)
 
 
 void
-fpppoeframe::validate() throw (ePPPoEFrameTooShort,
+fpppoeframe::validate(uint16_t total_len) throw (ePPPoEFrameTooShort,
 									ePPPoEFrameInvalType,
 									ePPPoEFrameInvalVersion,
 									ePPPoEFrameInvalCode,
@@ -121,7 +122,7 @@ fpppoeframe::validate() throw (ePPPoEFrameTooShort,
 									ePPPoEPadtInvalCode,
 									ePPPoEPadtInvalSid)
 {
-	initialize();
+	//initialize(); // commented out 2012-12-13
 
 	if (!complete())
 	{

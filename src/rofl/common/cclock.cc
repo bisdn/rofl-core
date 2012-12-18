@@ -11,6 +11,8 @@
 
 #include "cclock.h"
 
+using namespace rofl;
+
 #define CC_CLOCK_ONE_SECOND_S 1
 #define CC_CLOCK_ONE_SECOND_NS 1000000000
 

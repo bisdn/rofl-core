@@ -23,6 +23,8 @@ extern "C" {
 #include "../caddress.h"
 #include "../cvastring.h"
 
+namespace rofl
+{
 
 class eICMPv4FrameBase 				: public eFrameBase {};
 class eICMPv4FrameInvalidSyntax 	: public eICMPv4FrameBase, public eFrameInvalidSyntax {};
@@ -116,7 +118,7 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual void
-	validate() throw (eICMPv4FrameTooShort);
+	validate(uint16_t total_len = 0) throw (eICMPv4FrameTooShort);
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *
@@ -135,13 +137,13 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual uint8_t*
-	payload() throw (eFrameNoPayload);
+	payload() const throw (eFrameNoPayload);
 
 	/** get payload length
 	 *
 	 */
 	virtual size_t
-	payloadlen() throw (eFrameNoPayload);
+	payloadlen() const throw (eFrameNoPayload);
 
 	/** dump info
 	 *
@@ -194,5 +196,7 @@ private: // data structures
 private: // methods
 
 };
+
+}; // end of namespace
 
 #endif

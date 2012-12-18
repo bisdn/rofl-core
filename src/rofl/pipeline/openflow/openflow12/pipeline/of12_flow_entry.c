@@ -8,8 +8,13 @@
 * Intializer and destructor
 */
 
-of12_flow_entry_t* of12_init_flow_entry(const uint16_t priority, of12_match_t* matchs, of12_flow_entry_t* prev, of12_flow_entry_t* next){ 
-	
+//of12_flow_entry_t* of12_init_flow_entry(const uint16_t priority, of12_match_group_t* match_group, of12_flow_entry_t* prev, of12_flow_entry_t* next){
+
+of12_flow_entry_t*
+of12_init_flow_entry(
+		of12_flow_entry_t* prev,
+		of12_flow_entry_t* next)
+{
 	of12_flow_entry_t* entry = (of12_flow_entry_t*)cutil_malloc_shared(sizeof(of12_flow_entry_t));
 	
 	if(!entry)
@@ -17,21 +22,23 @@ of12_flow_entry_t* of12_init_flow_entry(const uint16_t priority, of12_match_t* m
 
 	memset(entry,0,sizeof(of12_flow_entry_t));	
 	
-	if(platform_rwlock_init(&entry->rwlock, NULL)){
+	if(0 == (entry->rwlock = platform_rwlock_init(NULL))){
 		cutil_free_shared(entry);
 		return NULL; 
 	}
 
-	entry->priority = priority;
 	entry->prev = prev;
 	entry->next = next;
 	
-	if(matchs){
+#if 0
+	if(match_group){
+
 		if(of12_add_match_to_entry(entry,matchs)!=EXIT_SUCCESS){
 			cutil_free_shared(entry);
 			return NULL;
 		}
 	}
+#endif
 	
 	of12_init_instruction_group(&entry->instructions);
 	
@@ -44,7 +51,7 @@ unsigned int of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	of12_match_t* match = entry->matchs;
 
 	//wait for any thread which is still using the entry (processing a packet)
-	platform_rwlock_wrlock(&entry->rwlock);
+	platform_rwlock_wrlock(entry->rwlock);
 	
 	//Destroy matches recursively
 	while(match){

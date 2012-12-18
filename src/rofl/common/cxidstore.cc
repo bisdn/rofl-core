@@ -11,6 +11,7 @@
 
 #include <rofl/common/cxidstore.h>
 
+using namespace rofl;
 
 void
 cxidstore::xid_add(

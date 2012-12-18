@@ -4,6 +4,8 @@
 
 #include "cfibentry.h"
 
+using namespace rofl;
+
 cfibentry::cfibentry(
 		cfibentry_owner *__owner,
 		std::set<cfibentry*> *__fib_table,

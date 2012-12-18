@@ -4,6 +4,7 @@
 
 #include "cethport.h"
 
+using namespace rofl;
 
 /*static*/ std::set<cethport*> cethport::cethport_list;
 

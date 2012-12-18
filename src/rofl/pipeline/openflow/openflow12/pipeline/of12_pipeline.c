@@ -101,7 +101,7 @@ unsigned int of12_process_packet_pipeline(const of12_pipeline_t* pipeline , data
 				i = table_to_go-1;
 
 				//Green light for writers
-				platform_rwlock_rdunlock(&match->rwlock);
+				platform_rwlock_rdunlock(match->rwlock);
 	
 				continue;
 			}
@@ -110,7 +110,7 @@ unsigned int of12_process_packet_pipeline(const of12_pipeline_t* pipeline , data
 			of12_process_write_actions(pkt);
 
 			//Green light for writers
-			platform_rwlock_rdunlock(&match->rwlock);
+			platform_rwlock_rdunlock(match->rwlock);
 	
 			return EXIT_SUCCESS;
 		}else{

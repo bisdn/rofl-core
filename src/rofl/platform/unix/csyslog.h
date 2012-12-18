@@ -31,6 +31,9 @@ extern "C" {
 }
 #endif
 
+namespace rofl
+{
+
 #ifndef NDEBUG
 #define WRITELOG(...) writelog(__VA_ARGS__)
 #else
@@ -224,5 +227,7 @@ private:
 	static std::vector<std::string> level_names;
 	static std::vector<std::string> class_names;
 };
+
+}; // end of namespace
 
 #endif

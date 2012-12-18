@@ -28,6 +28,9 @@ extern "C" {
 #include <rofl/platform/unix/csyslog.h>
 #include <rofl/common/openflow/cofport.h>
 
+namespace rofl
+{
+
 /**
  * base class for all physical ports on an OF enabled element
  *
@@ -67,5 +70,7 @@ public:
 	~cphyport();
 
 };
+
+}; // end of namespace
 
 #endif /* CPHYPORT_H_ */

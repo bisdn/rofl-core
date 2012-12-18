@@ -34,6 +34,9 @@ extern "C" {
 #include "../caddress.h"
 #include "../coflist.h"
 
+namespace rofl
+{
+
 /* error classes */
 class eOxmBase : public cerror {}; // error base class for class cofinstruction
 class eOxmInval : public eOxmBase {}; // invalid parameter
@@ -248,7 +251,7 @@ public: // methods
 	 *
 	 */
 	bool
-	get_oxm_hasmask();
+	get_oxm_hasmask() const;
 
 
 	/**
@@ -270,28 +273,56 @@ public: // methods
 	 *
 	 */
 	uint8_t
-	uint8() const throw (eOxmInval);
+	uint8_value() const throw (eOxmInval);
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	uint8_mask() const throw (eOxmInval);
 
 
 	/**
 	 *
 	 */
 	uint16_t
-	uint16() const throw (eOxmInval);
+	uint16_value() const throw (eOxmInval);
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	uint16_mask() const throw (eOxmInval);
 
 
 	/**
 	 *
 	 */
 	uint32_t
-	uint32() const throw (eOxmInval);
+	uint32_value() const throw (eOxmInval);
+
+
+	/**
+	 *
+	 */
+	uint32_t
+	uint32_mask() const throw (eOxmInval);
 
 
 	/**
 	 *
 	 */
 	uint64_t
-	uint64() const throw (eOxmInval);
+	uint64_value() const throw (eOxmInval);
+
+
+	/**
+	 *
+	 */
+	uint64_t
+	uint64_mask() const throw (eOxmInval);
 
 
 	/**
@@ -1689,5 +1720,6 @@ public:
 	~coxmatch_ofb_ppp_prot() {};
 };
 
+}; // end of namespace
 
 #endif /* COXMATCH_H_ */

@@ -24,6 +24,8 @@ extern "C" {
 #include "rofl/common/cmemory.h"
 #include "rofl/common/ciosrv.h"
 
+namespace rofl {
+
 class eGraphBase : public cerror {};
 class eGraphOutOfRange : public eGraphBase {};
 class eGraphUnreachable : public eGraphBase {};
@@ -179,9 +181,8 @@ private: // auxiliary classes
 			return (p.second == graph_id);
 		};
 	};
-
-
-
 };
+
+}  // namespace rofl
 
 #endif

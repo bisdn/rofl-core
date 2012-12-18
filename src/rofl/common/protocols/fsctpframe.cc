@@ -11,8 +11,7 @@
 
 #include <rofl/common/protocols/fsctpframe.h>
 
-
-
+using namespace rofl;
 
 fsctpframe::fsctpframe(
 		uint8_t* data,
@@ -96,9 +95,9 @@ fsctpframe::payload_insert(
 
 
 uint8_t*
-fsctpframe::payload() throw (eFrameNoPayload)
+fsctpframe::payload() const throw (eFrameNoPayload)
 {
-	initialize();
+	//initialize(); // commented out 2012-12-13
 	if (!data)
 		throw eFrameNoPayload();
 	return data;
@@ -106,9 +105,9 @@ fsctpframe::payload() throw (eFrameNoPayload)
 
 
 size_t
-fsctpframe::payloadlen() throw (eFrameNoPayload)
+fsctpframe::payloadlen() const throw (eFrameNoPayload)
 {
-	initialize();
+	//initialize(); // commented out 2012-12-13
 	if (!datalen)
 		throw eFrameNoPayload();
 	return datalen;
@@ -116,7 +115,7 @@ fsctpframe::payloadlen() throw (eFrameNoPayload)
 
 
 void
-fsctpframe::validate() throw (eSctpFrameTooShort)
+fsctpframe::validate(uint16_t total_len) throw (eSctpFrameTooShort)
 {
 	initialize();
 

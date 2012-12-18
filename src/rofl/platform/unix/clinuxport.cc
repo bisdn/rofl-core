@@ -11,6 +11,7 @@
 
 #include "clinuxport.h"
 
+using namespace rofl;
 
 clinuxport::clinuxport(
 		cport_owner *owner,

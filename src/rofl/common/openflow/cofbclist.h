@@ -27,6 +27,9 @@ extern "C" {
 #include "../cvastring.h"
 #include "cofbucket.h"
 
+namespace rofl
+{
+
 class eBcListBase : public cerror {}; // base error class for cofbclist
 class eBcListInval : public eBcListBase {};
 class eBcListOutOfRange : public eBcListBase {};
@@ -97,5 +100,7 @@ private:
 	std::string info; // info string
 
 };
+
+}; // end of namespace
 
 #endif

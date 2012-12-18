@@ -4,6 +4,8 @@
 
 #include "cpppoetlv.h"
 
+using namespace rofl;
+
 cpppoetlv::cpppoetlv(size_t tlvlen) :
 	tlvmem(tlvlen),
 	tlv_hdr((struct pppoe_tag_hdr_t*)tlvmem.somem())

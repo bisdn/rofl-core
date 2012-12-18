@@ -4,6 +4,7 @@
 
 #include "farpv4frame.h"
 
+using namespace rofl;
 
 farpv4frame::farpv4frame(
 		uint8_t* data,
@@ -78,7 +79,7 @@ farpv4frame::payload_insert(
 
 
 uint8_t*
-farpv4frame::payload() throw (eFrameNoPayload)
+farpv4frame::payload() const throw (eFrameNoPayload)
 {
 	throw eFrameNoPayload();
 	return NULL;
@@ -86,7 +87,7 @@ farpv4frame::payload() throw (eFrameNoPayload)
 
 
 size_t
-farpv4frame::payloadlen() throw (eFrameNoPayload)
+farpv4frame::payloadlen() const throw (eFrameNoPayload)
 {
 	throw eFrameNoPayload();
 	return 0;
@@ -94,7 +95,7 @@ farpv4frame::payloadlen() throw (eFrameNoPayload)
 
 
 void
-farpv4frame::validate() throw (eARPv4FrameTooShort)
+farpv4frame::validate(uint16_t total_len) throw (eARPv4FrameTooShort)
 {
 	initialize();
 

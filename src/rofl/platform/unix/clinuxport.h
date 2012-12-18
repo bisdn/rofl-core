@@ -25,6 +25,9 @@ extern "C" {
 
 #include "rofl/common/cport.h"
 
+namespace rofl
+{
+
 class clinuxport :
 	public cport
 {
@@ -94,5 +97,7 @@ public:
 	virtual uint32_t
 	get_state() throw (ePortSocketCallFailed, ePortIoctlCallFailed);
 };
+
+}; // end of namespace
 
 #endif /* CLINUXPORT_H_ */

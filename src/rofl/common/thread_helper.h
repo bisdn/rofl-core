@@ -26,6 +26,9 @@ extern "C" {
 
 #include "rofl/platform/unix/csyslog.h"
 
+namespace rofl
+{
+
 class eLockBase : public cerror {};
 class eLockInval : public eLockBase {};
 class eLockWouldBlock : public eLockBase {};
@@ -159,5 +162,6 @@ public:
 		}
 };
 
+}; // end of namespace
 
 #endif /* THREAD_HELPER_H_ */

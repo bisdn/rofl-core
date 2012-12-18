@@ -4,6 +4,7 @@
 
 #include "fipv4frame.h"
 
+using namespace rofl;
 
 fipv4frame::fipv4frame(
 		uint8_t* data,
@@ -100,9 +101,9 @@ fipv4frame::payload_insert(
 
 
 uint8_t*
-fipv4frame::payload() throw (eFrameNoPayload)
+fipv4frame::payload() const throw (eFrameNoPayload)
 {
-	initialize();
+	//initialize(); // commented out 2012-12-13
 	if (!ipv4data)
 		throw eFrameNoPayload();
 	return ipv4data;
@@ -110,9 +111,9 @@ fipv4frame::payload() throw (eFrameNoPayload)
 
 
 size_t
-fipv4frame::payloadlen() throw (eFrameNoPayload)
+fipv4frame::payloadlen() const throw (eFrameNoPayload)
 {
-	initialize();
+	//initialize(); // commented out 2012-12-13
 	if (!ipv4datalen)
 		throw eFrameNoPayload();
 	return ipv4datalen;

@@ -4,6 +4,7 @@
 
 #include "fetherframe.h"
 
+using namespace rofl;
 
 fetherframe::fetherframe(
 		uint8_t *data,
@@ -90,24 +91,24 @@ fetherframe::payload_insert(
 
 
 uint8_t*
-fetherframe::payload() throw (eFrameNoPayload)
+fetherframe::payload() const throw (eFrameNoPayload)
 {
 	if (framelen() <= sizeof(struct eth_hdr_t))
 		throw eFrameNoPayload();
 
-	initialize();
+	//initialize(); // commented out 2012-12-13
 
 	return (soframe() + sizeof(struct eth_hdr_t));
 }
 
 
 size_t
-fetherframe::payloadlen() throw (eFrameNoPayload)
+fetherframe::payloadlen() const throw (eFrameNoPayload)
 {
 	if (framelen() <= sizeof(struct eth_hdr_t))
 		throw eFrameNoPayload();
 
-	initialize();
+	//initialize(); // commented out 2012-12-13
 
 	return (framelen() - sizeof(struct eth_hdr_t));
 }
@@ -115,7 +116,7 @@ fetherframe::payloadlen() throw (eFrameNoPayload)
 
 
 void
-fetherframe::validate() throw (eFrameInvalidSyntax)
+fetherframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
 {
 	initialize();
 

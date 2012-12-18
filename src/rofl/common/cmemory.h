@@ -26,6 +26,8 @@ extern "C" {
 
 #include "cerror.h"
 
+namespace rofl
+{
 
 /* error classes */
 class eMemBase 				: public cerror {};
@@ -295,5 +297,7 @@ private: // methods
 
 
 };
+
+}; // end of namespace
 
 #endif

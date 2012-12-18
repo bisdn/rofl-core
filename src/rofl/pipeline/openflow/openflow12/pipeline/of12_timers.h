@@ -45,6 +45,12 @@ typedef struct of12_entry_timer of12_entry_timer_t;
 struct of12_timers_info{
 	uint32_t hard_timeout;
 	uint32_t idle_timeout;
+	/*
+	 * added 2012-12-12
+	 */
+	uint32_t duration_sec;
+	uint32_t duration_nsec;
+	/* end */
 	of12_entry_timer_t * idle_timer_entry;
 	of12_entry_timer_t * hard_timer_entry;
 };

@@ -4,13 +4,11 @@
 
 #include "cmemory.h"
 
-
+using namespace rofl;
 
 /*static*/std::set<cmemory*> 	cmemory::cmemory_list;
-/*static*/pthread_mutex_t 		cmemory::memlock;
-/*static*/int 					cmemory::memlockcnt = 0;
-
-
+/*static*/pthread_mutex_t       cmemory::memlock;
+/*static*/int 			cmemory::memlockcnt = 0;
 
 cmemory::cmemory(
 		size_t len) :

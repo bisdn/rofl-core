@@ -33,9 +33,11 @@ extern "C" {
 }
 #endif
 
+namespace rofl
+{
 
 class eARPv4FrameBase			: public eFrameInval {};
-class eARPv4FrameTooShort		: public eARPv4FrameBase {};
+class eARPv4FrameTooShort		: public eARPv4FrameBase, public eFrameInvalidSyntax {};
 
 
 class farpv4frame : public fframe {
@@ -238,7 +240,7 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual void
-	validate() throw (eARPv4FrameTooShort);
+	validate(uint16_t total_len = 0) throw (eARPv4FrameTooShort);
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *
@@ -257,13 +259,13 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual uint8_t*
-	payload() throw (eFrameNoPayload);
+	payload() const throw (eFrameNoPayload);
 
 	/** get payload length
 	 *
 	 */
 	virtual size_t
-	payloadlen() throw (eFrameNoPayload);
+	payloadlen() const throw (eFrameNoPayload);
 
 	/** dump info
 	 *
@@ -287,5 +289,7 @@ private: // data structures
 	std::string info;
 
 };
+
+}; // end of namespace
 
 #endif

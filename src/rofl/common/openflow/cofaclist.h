@@ -14,6 +14,9 @@
 #include "../coflist.h"
 #include "cofaction.h"
 
+namespace rofl
+{
+
 class eAcListBase : public cerror {}; // base error class for cofaclist
 class eAcListInval : public eAcListBase {}; // parameter is invalid
 class eAcListNotFound : public eAcListBase {}; // element not found
@@ -126,5 +129,7 @@ private:
 
 	std::string info; // info string
 };
+
+}; // end of namespace
 
 #endif

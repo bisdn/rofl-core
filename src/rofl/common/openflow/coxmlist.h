@@ -24,6 +24,9 @@
 
 #include "coxmatch.h"
 
+namespace rofl
+{
+
 class eOxmListBase : public cerror {};
 class eOxmListInval : public eOxmListBase {}; // invalid parameter
 class eOxmListBadLen : public eOxmListBase {}; // bad length
@@ -241,5 +244,7 @@ public: // methods
 		static void
 		test();
 };
+
+}; // end of namespace
 
 #endif /* COXMLIST_H_ */

@@ -40,6 +40,9 @@ extern "C" {
 // forward declarations
 class cofbase;
 
+namespace rofl
+{
+
 class eOFpacketBase : public cerror {};
 class eOFpacketInval : public eOFpacketBase {};
 class eOFpacketNoData : public eOFpacketBase {};
@@ -1795,5 +1798,6 @@ public:
 		};
 };
 
+}; // end of namespace
 
 #endif

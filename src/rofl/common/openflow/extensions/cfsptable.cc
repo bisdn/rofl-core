@@ -4,6 +4,8 @@
 
 #include "cfsptable.h"
 
+using namespace rofl;
+
 cfsptable::cfsptable()
 { }
 

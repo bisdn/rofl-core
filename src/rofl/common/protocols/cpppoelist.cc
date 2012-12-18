@@ -5,6 +5,7 @@
 
 #include "cpppoelist.h"
 
+using namespace rofl;
 
 cpppoelist::cpppoelist()
 {

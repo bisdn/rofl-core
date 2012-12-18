@@ -36,6 +36,8 @@ extern "C" {
 
 #include "rofl/platform/unix/crandom.h"
 
+namespace rofl
+{
 
 #define SIOCBASE 0x01
 
@@ -320,6 +322,7 @@ public: // helper classes
 	};
 };
 
+}; // end of namespace
 
 #endif
 

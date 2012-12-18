@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = platform common util openflow
+SUBDIRS = common util openflow platform
 
 lib_LTLIBRARIES = librofl_pipeline.la
 
@@ -13,7 +13,7 @@ librofl_pipeline_la_SOURCES = physical_switch.h \
 	physical_switch.c \
 	switch_port.h
 
-librofl_pipeline_la_LIBADD = common/librofl_pipeline_common.la \
+librofl_pipeline_la_LIBADD = \
+	common/librofl_pipeline_common.la \
 	util/librofl_pipeline_util.la \
-	openflow/librofl_pipeline_openflow.la \
-	platform/librofl_pipeline_platform.la
+	openflow/librofl_pipeline_openflow.la

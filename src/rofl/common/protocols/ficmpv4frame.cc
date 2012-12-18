@@ -4,6 +4,8 @@
 
 #include "ficmpv4frame.h"
 
+using namespace rofl;
+
 ficmpv4frame::ficmpv4frame(
 		uint8_t* data,
 		size_t datalen) :
@@ -90,9 +92,9 @@ ficmpv4frame::payload_insert(
 
 
 uint8_t*
-ficmpv4frame::payload() throw (eFrameNoPayload)
+ficmpv4frame::payload() const throw (eFrameNoPayload)
 {
-	initialize();
+	//initialize(); // commented out 2012-12-13
 	if (!data)
 		throw eFrameNoPayload();
 	return data;
@@ -100,9 +102,9 @@ ficmpv4frame::payload() throw (eFrameNoPayload)
 
 
 size_t
-ficmpv4frame::payloadlen() throw (eFrameNoPayload)
+ficmpv4frame::payloadlen() const throw (eFrameNoPayload)
 {
-	initialize();
+	//initialize(); // commented out 2012-12-13
 	if (!datalen)
 		throw eFrameNoPayload();
 	return datalen;
@@ -110,7 +112,7 @@ ficmpv4frame::payloadlen() throw (eFrameNoPayload)
 
 
 void
-ficmpv4frame::validate() throw (eICMPv4FrameTooShort)
+ficmpv4frame::validate(uint16_t total_len) throw (eICMPv4FrameTooShort)
 {
 	initialize();
 

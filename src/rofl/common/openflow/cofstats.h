@@ -17,6 +17,8 @@
 #include <rofl/common/cvastring.h>
 #include <rofl/common/openflow/cofmatch.h>
 
+namespace rofl
+{
 
 class eOFstatsBase			: public cerror {};
 class eOFstatsTooShort		: public eOFstatsBase {};
@@ -322,5 +324,6 @@ public:
 		~cofstats_aggregate_reply() {};
 };
 
+}; // end of namespace
 
 #endif /* COFSTATS_H */

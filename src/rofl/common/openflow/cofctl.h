@@ -30,6 +30,8 @@ extern "C" {
 #include "cofmatch.h"
 #include "extensions/cfspentry.h"
 
+namespace rofl
+{
 
 
 class eOFctlBase 			: public cerror {};
@@ -396,6 +398,6 @@ private:
 			cofpacket *pack);
 };
 
-
+}; // end of namespace
 
 #endif

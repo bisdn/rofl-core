@@ -4,6 +4,8 @@
 
 #include "clldptlv.h"
 
+using namespace rofl;
+
 clldptlv::clldptlv(size_t tlvlen) :
 	tlvmem(tlvlen),
 	tlv_hdr((struct lldp_tlv_hdr_t*)tlvmem.somem())
@@ -76,7 +78,7 @@ clldptlv::get_hdr_length() const
 
 
 size_t
-clldptlv::length()
+clldptlv::length() const
 {
 	return (sizeof(struct lldp_tlv_hdr_t) + get_hdr_length());
 }

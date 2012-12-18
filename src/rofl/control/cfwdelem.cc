@@ -5,9 +5,9 @@
 
 #include "cfwdelem.h"
 
+using namespace rofl;
 
 /* static */ std::set<cfwdelem*> cfwdelem::fwdelems;
-
 
 /* static */
 cfwdelem*

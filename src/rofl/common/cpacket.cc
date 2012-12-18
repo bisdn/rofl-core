@@ -4,6 +4,8 @@
 
 #include "cpacket.h"
 
+using namespace rofl;
+
 bool				cpacket::cpacket_init = false;
 std::string			cpacket::s_cpacket_info;
 pthread_rwlock_t 	cpacket::cpacket_lock;
@@ -166,7 +168,7 @@ cpacket::cpacket(
 		//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
 		data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, pack.framelen())),
 		packet_receive_time(time(NULL)),
-		in_port(in_port),
+		in_port(0),
 		out_port(0)
 {
 	WRITELOG(CPACKET, DBG, "cpacket(%p)::cpacket()", this);
@@ -1210,28 +1212,28 @@ cpacket::set_field(coxmatch const& oxm)
 			break;
 		case OFPXMT_OFB_ETH_TYPE:
 			{
-				uint16_t eth_type = oxm.uint16();
+				uint16_t eth_type = oxm.uint16_value();
 				ether()->set_dl_type(eth_type);
 				match.set_eth_type(eth_type);
 			}
 			break;
 		case OFPXMT_OFB_VLAN_VID:
 			{
-				uint16_t vid = oxm.uint16();
+				uint16_t vid = oxm.uint16_value();
 				vlan()->set_dl_vlan_id(vid);
 				match.set_vlan_vid(vid);
 			}
 			break;
 		case OFPXMT_OFB_VLAN_PCP:
 			{
-				uint8_t pcp = oxm.uint8();
+				uint8_t pcp = oxm.uint8_value();
 				vlan()->set_dl_vlan_pcp(pcp);
 				match.set_vlan_pcp(pcp);
 			}
 			break;
 		case OFPXMT_OFB_IP_DSCP:
 			{
-				uint8_t dscp = oxm.uint8();
+				uint8_t dscp = oxm.uint8_value();
 				ipv4()->set_ipv4_dscp(dscp);
 				ipv4()->ipv4_calc_checksum();
 				match.set_ip_dscp(dscp);
@@ -1239,7 +1241,7 @@ cpacket::set_field(coxmatch const& oxm)
 			break;
 		case OFPXMT_OFB_IP_ECN:
 			{
-				uint8_t ecn = oxm.uint8();
+				uint8_t ecn = oxm.uint8_value();
 				ipv4()->set_ipv4_ecn(ecn);
 				ipv4()->ipv4_calc_checksum();
 				match.set_ip_ecn(ecn);
@@ -1247,7 +1249,7 @@ cpacket::set_field(coxmatch const& oxm)
 			break;
 		case OFPXMT_OFB_IP_PROTO:
 			{
-				uint8_t proto = oxm.uint8();
+				uint8_t proto = oxm.uint8_value();
 				ipv4()->set_ipv4_proto(proto);
 				ipv4()->ipv4_calc_checksum();
 				match.set_ip_proto(proto);
@@ -1256,7 +1258,7 @@ cpacket::set_field(coxmatch const& oxm)
 		case OFPXMT_OFB_IPV4_SRC:
 			{
 				caddress src(AF_INET, "0.0.0.0");
-				src.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
+				src.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32_value());
 				ipv4()->set_ipv4_src(src);
 				ipv4()->ipv4_calc_checksum();
 				match.set_ipv4_src(src);
@@ -1265,7 +1267,7 @@ cpacket::set_field(coxmatch const& oxm)
 		case OFPXMT_OFB_IPV4_DST:
 			{
 				caddress dst(AF_INET, "0.0.0.0");
-				dst.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
+				dst.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32_value());
 				ipv4()->set_ipv4_dst(dst);
 				ipv4()->ipv4_calc_checksum();
 				match.set_ipv4_dst(dst);
@@ -1273,7 +1275,7 @@ cpacket::set_field(coxmatch const& oxm)
 			break;
 		case OFPXMT_OFB_TCP_SRC:
 			{
-				uint16_t port = oxm.uint16();
+				uint16_t port = oxm.uint16_value();
 				tcp()->set_sport(port);
 				match.set_tcp_src(port);
 				tcp()->tcp_calc_checksum(
@@ -1286,7 +1288,7 @@ cpacket::set_field(coxmatch const& oxm)
 			break;
 		case OFPXMT_OFB_TCP_DST:
 			{
-				uint16_t port = oxm.uint16();
+				uint16_t port = oxm.uint16_value();
 				tcp()->set_dport(port);
 				match.set_tcp_dst(port);
 				tcp()->tcp_calc_checksum(
@@ -1299,7 +1301,7 @@ cpacket::set_field(coxmatch const& oxm)
 			break;
 		case OFPXMT_OFB_UDP_SRC:
 			{
-				uint16_t port = oxm.uint16();
+				uint16_t port = oxm.uint16_value();
 				udp()->set_sport(port);
 				match.set_udp_src(port);
 				udp()->udp_calc_checksum(
@@ -1312,7 +1314,7 @@ cpacket::set_field(coxmatch const& oxm)
 			break;
 		case OFPXMT_OFB_UDP_DST:
 			{
-				uint16_t port = oxm.uint16();
+				uint16_t port = oxm.uint16_value();
 				udp()->set_dport(port);
 				match.set_udp_dst(port);
 				udp()->udp_calc_checksum(
@@ -1326,7 +1328,7 @@ cpacket::set_field(coxmatch const& oxm)
 		case OFPXMT_OFB_SCTP_SRC:
 			{
 #if 0
-				sctp().set_sport(oxm.uint16());
+				sctp().set_sport(oxm.uint16_value());
 				sctp().udp_calc_checksum(
 						ipv4(-1).get_ipv4_src(),
 						ipv4(-1).get_ipv4_dst(),
@@ -1340,7 +1342,7 @@ cpacket::set_field(coxmatch const& oxm)
 		case OFPXMT_OFB_SCTP_DST:
 			{
 #if 0
-				sctp().set_dport(oxm.uint16());
+				sctp().set_dport(oxm.uint16_value());
 				sctp().udp_calc_checksum(
 						ipv4(-1).get_ipv4_src(),
 						ipv4(-1).get_ipv4_dst(),
@@ -1353,7 +1355,7 @@ cpacket::set_field(coxmatch const& oxm)
 			break;
 		case OFPXMT_OFB_ICMPV4_TYPE:
 			{
-				uint16_t type = oxm.uint16();
+				uint16_t type = oxm.uint16_value();
 				icmpv4()->set_icmp_type(type);
 				icmpv4()->icmpv4_calc_checksum();
 				ipv4()->ipv4_calc_checksum();
@@ -1362,7 +1364,7 @@ cpacket::set_field(coxmatch const& oxm)
 			break;
 		case OFPXMT_OFB_ICMPV4_CODE:
 			{
-				uint16_t code = oxm.uint16();
+				uint16_t code = oxm.uint16_value();
 				icmpv4()->set_icmp_code(code);
 				icmpv4()->icmpv4_calc_checksum();
 				ipv4()->ipv4_calc_checksum();
@@ -1371,7 +1373,7 @@ cpacket::set_field(coxmatch const& oxm)
 			break;
 		case OFPXMT_OFB_ARP_OP:
 			{
-				uint16_t opcode = oxm.uint16();
+				uint16_t opcode = oxm.uint16_value();
 				arpv4()->set_opcode(opcode);
 				match.set_arp_opcode(opcode);
 			}
@@ -1379,7 +1381,7 @@ cpacket::set_field(coxmatch const& oxm)
 		case OFPXMT_OFB_ARP_SPA:
 			{
 				caddress spa(AF_INET, "0.0.0.0");
-				spa.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
+				spa.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32_value());
 				arpv4()->set_nw_src(spa);
 				match.set_arp_spa(spa);
 			}
@@ -1387,7 +1389,7 @@ cpacket::set_field(coxmatch const& oxm)
 		case OFPXMT_OFB_ARP_TPA:
 			{
 				caddress tpa(AF_INET, "0.0.0.0");
-				tpa.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32());
+				tpa.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32_value());
 				arpv4()->set_nw_dst(tpa);
 				match.set_arp_tpa(tpa);
 			}
@@ -1420,14 +1422,14 @@ cpacket::set_field(coxmatch const& oxm)
 			break;
 		case OFPXMT_OFB_MPLS_LABEL:
 			{
-				uint32_t label = oxm.uint32();
+				uint32_t label = oxm.uint32_value();
 				mpls()->set_mpls_label(label);
 				match.set_mpls_label(label);
 			}
 			break;
 		case OFPXMT_OFB_MPLS_TC:
 			{
-				uint8_t tc = oxm.uint8();
+				uint8_t tc = oxm.uint8_value();
 				mpls()->set_mpls_tc(tc);
 				match.set_mpls_tc(tc);
 			}
@@ -1437,28 +1439,28 @@ cpacket::set_field(coxmatch const& oxm)
 		 */
 		case OFPXMT_OFB_PPPOE_CODE:
 			{
-				uint8_t code = oxm.uint8();
+				uint8_t code = oxm.uint8_value();
 				pppoe()->set_pppoe_code(code);
 				match.set_pppoe_code(code);
 			}
 			break;
 		case OFPXMT_OFB_PPPOE_TYPE:
 			{
-				uint8_t type = oxm.uint8();
+				uint8_t type = oxm.uint8_value();
 				pppoe()->set_pppoe_type(type);
 				match.oxmlist[OFPXMT_OFB_PPPOE_TYPE] = coxmatch_ofb_pppoe_type(type);
 			}
 			break;
 		case OFPXMT_OFB_PPPOE_SID:
 			{
-				uint16_t sid = oxm.uint16();
+				uint16_t sid = oxm.uint16_value();
 				pppoe()->set_pppoe_sessid(sid);
 				match.set_pppoe_sessid(sid);
 			}
 			break;
 		case OFPXMT_OFB_PPP_PROT:
 			{
-				uint16_t prot = oxm.uint16();
+				uint16_t prot = oxm.uint16_value();
 				ppp()->set_ppp_prot(prot);
 				match.set_ppp_prot(prot);
 			}

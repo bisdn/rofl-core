@@ -4,6 +4,8 @@
 
 #include "cunixenv.h"
 
+using namespace rofl;
+
 extern char* optarg;
 
 /* static */const std::string daemon_dir("/var/tmp");

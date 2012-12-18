@@ -27,6 +27,9 @@ extern "C" {
 #include <rofl/common/cmemory.h>
 #include <rofl/common/cerror.h>
 
+namespace rofl
+{
+
 class eValueBase 			: public cerror {};
 class eValueInval 			: public eValueBase {};
 
@@ -184,5 +187,6 @@ public:
 		};
 };
 
+}; // end of namespace
 
 #endif /* CVALUE_H */

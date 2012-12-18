@@ -22,9 +22,9 @@ of12_init_table(of12_flow_table_t* table, const unsigned int table_index,
 		const enum matching_algorithm_available algorithm)
 {
 	//Initializing mutexes
-	if(platform_mutex_init(&table->mutex, NULL))
+	if(0 == (table->mutex = platform_mutex_init(NULL)))
 		return EXIT_FAILURE;
-	if(platform_rwlock_init(&table->rwlock, NULL))
+	if(0 == (table->rwlock = platform_rwlock_init(NULL)))
 		return EXIT_FAILURE;
 	
 	table->number = table_index;
@@ -50,8 +50,8 @@ unsigned int of12_destroy_table(of12_flow_table_t* table){
 	
 	of12_flow_entry_t* entry;
 	
-	platform_mutex_lock(&table->mutex);
-	platform_rwlock_wrlock(&table->rwlock);
+	platform_mutex_lock(table->mutex);
+	platform_rwlock_wrlock(table->rwlock);
 	
 	entry = table->entries; 
 	while(entry){
@@ -64,8 +64,8 @@ unsigned int of12_destroy_table(of12_flow_table_t* table){
 	if(table->maf.destroy_hook)
 		table->maf.destroy_hook(table);
 
-	platform_mutex_destroy(&table->mutex);
-	platform_rwlock_destroy(&table->rwlock);
+	platform_mutex_destroy(table->mutex);
+	platform_rwlock_destroy(table->rwlock);
 	
 	//Do NOT free table, since it was allocated in a single buffer in pipeline.c	
 	return EXIT_SUCCESS;
@@ -110,7 +110,7 @@ unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_
 				entry->next = it; 
 
 				//Prevent readers to jump in
-				platform_rwlock_wrlock(&table->rwlock);
+				platform_rwlock_wrlock(table->rwlock);
 					
 				//Place in the head
 				it->prev = entry;
@@ -121,7 +121,7 @@ unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_
 				entry->next = prev->next;
 				
 				//Prevent readers to jump in
-				platform_rwlock_wrlock(&table->rwlock);
+				platform_rwlock_wrlock(table->rwlock);
 				
 				//Add to n+1 if not tail
 				if(prev->next)
@@ -136,7 +136,7 @@ unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_
 			entry->table = table;
 	
 			//Unlock mutexes
-			platform_rwlock_wrunlock(&table->rwlock);
+			platform_rwlock_wrunlock(table->rwlock);
 			return EXIT_SUCCESS;
 		}
 	}
@@ -144,12 +144,12 @@ unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_
 	//Append at the end of the table
 	entry->next = NULL;
 	
-	platform_rwlock_wrlock(&table->rwlock);
+	platform_rwlock_wrlock(table->rwlock);
 	prev->next = entry;
 	table->num_of_entries++;
 	
 	//Unlock mutexes
-	platform_rwlock_wrunlock(&table->rwlock);
+	platform_rwlock_wrunlock(table->rwlock);
 	return EXIT_SUCCESS;
 }
 
@@ -173,7 +173,7 @@ static of12_flow_entry_t* of12_remove_flow_entry_table_specific_imp(of12_flow_ta
 		return NULL; 
 
 	//Prevent readers to jump in
-	platform_rwlock_wrlock(&table->rwlock);
+	platform_rwlock_wrlock(table->rwlock);
 	
 	if(!specific_entry->prev){
 		//First table entry
@@ -189,7 +189,7 @@ static of12_flow_entry_t* of12_remove_flow_entry_table_specific_imp(of12_flow_ta
 	table->num_of_entries--;
 	
 	//Green light to readers and other writers			
-	platform_rwlock_wrunlock(&table->rwlock);
+	platform_rwlock_wrunlock(table->rwlock);
 
 	//WE DONT'T DESTROY the rule, only deatach it from the table. Destroying is up to the driver
 	return specific_entry;

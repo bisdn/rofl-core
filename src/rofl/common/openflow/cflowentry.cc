@@ -4,6 +4,8 @@
 
 #include "cflowentry.h"
 
+using namespace rofl;
+
 cflowentry::cflowentry(uint16_t __type) throw (eFlowEntryOutOfMem) :
 		match(__type),
 		flow_mod(NULL),

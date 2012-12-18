@@ -26,6 +26,9 @@ extern "C" {
 
 //#include "openflow/cofdpath.h"
 
+namespace rofl
+{
+
 class eFwdEntryBase : public cerror {};
 class eFwdEntrySearchInvalidHWAddr : public eFwdEntryBase {}; // no
 class eFwdEntryInvalidHWAddr : public eFwdEntryBase {}; // no
@@ -42,7 +45,7 @@ class cfwdentry : public ciosrv {
 
 	enum cfwdentry_timer_t {
 		TIMER_CFWDENTRY_BASE = 0x0016,
-		TIMER_CFWDENTRY_EXPIRED = ((TIMER_CFWDENTRY_BASE << 16) || 0x0001),
+		TIMER_CFWDENTRY_EXPIRED = ((TIMER_CFWDENTRY_BASE << 16) | 0x0001),
 	};
 
 public: // data structures
@@ -129,5 +132,7 @@ protected: // data structures
 	time_t fwdentry_timeout;
 
 };
+
+}; // end of namespace
 
 #endif

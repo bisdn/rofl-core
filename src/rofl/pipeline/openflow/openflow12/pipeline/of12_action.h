@@ -131,7 +131,7 @@ typedef struct{
 ROFL_PIPELINE_BEGIN_DECLS
 
 //Action
-of12_packet_action_t* of12_init_packet_action(of12_packet_action_type_t type, uint64_t field, of12_group_t* group, of12_packet_action_t* prev, of12_packet_action_t* next);
+of12_packet_action_t* of12_init_packet_action(of12_packet_action_type_t type, uint64_t field, of12_packet_action_t* prev, of12_packet_action_t* next);
 void of12_destroy_packet_action(of12_packet_action_t* action);
 
 //Action group

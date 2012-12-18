@@ -11,6 +11,8 @@
 
 #include "cofactionset.h"
 
+using namespace rofl;
+
 /*static*/std::map<uint16_t, int> cofactionset::action_indices;
 
 cofactionset::cofactionset() :

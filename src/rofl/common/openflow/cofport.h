@@ -42,6 +42,9 @@ extern "C" {
 // forward declarations
 class cofdpath;
 
+namespace rofl
+{
+
 /* error classes */
 class eOFportBase : public cerror {};
 class eOFportInval : public eOFportBase {};
@@ -142,7 +145,7 @@ public:
 	/**
 	 *
 	 */
-	void
+	virtual void
 	link_state_phy_down()
 	{
 		state |= OFPPS_LINK_DOWN;
@@ -152,7 +155,7 @@ public:
 	/**
 	 *
 	 */
-	void
+	virtual void
 	link_state_phy_up()
 	{
 		state &= ~OFPPS_LINK_DOWN;
@@ -172,7 +175,7 @@ public:
 	/**
 	 *
 	 */
-	void
+	virtual void
 	recv_port_mod(
 			uint32_t config,
 			uint32_t mask,
@@ -312,5 +315,7 @@ public:
 	};
 	uint32_t port_no;
 };
+
+}; // end of namespace
 
 #endif

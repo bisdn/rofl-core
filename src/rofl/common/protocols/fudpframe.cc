@@ -4,6 +4,8 @@
 
 #include "fudpframe.h"
 
+using namespace rofl;
+
 fudpframe::fudpframe(
 		uint8_t* data,
 		size_t datalen) :
@@ -87,9 +89,9 @@ fudpframe::payload_insert(
 
 
 uint8_t*
-fudpframe::payload() throw (eFrameNoPayload)
+fudpframe::payload() const throw (eFrameNoPayload)
 {
-	initialize();
+	//initialize(); // commented out 2012-12-13
 	if (!data)
 		throw eFrameNoPayload();
 	return data;
@@ -97,9 +99,9 @@ fudpframe::payload() throw (eFrameNoPayload)
 
 
 size_t
-fudpframe::payloadlen() throw (eFrameNoPayload)
+fudpframe::payloadlen() const throw (eFrameNoPayload)
 {
-	initialize();
+	//initialize(); // commented out 2012-12-13
 	if (!datalen)
 		throw eFrameNoPayload();
 	return datalen;
@@ -110,7 +112,7 @@ fudpframe::payloadlen() throw (eFrameNoPayload)
 
 
 void
-fudpframe::validate() throw (eUdpFrameTooShort)
+fudpframe::validate(uint16_t total_len) throw (eUdpFrameTooShort)
 {
 	initialize();
 

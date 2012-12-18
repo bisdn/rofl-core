@@ -42,20 +42,39 @@ struct of12_flow_entry{
 	//FIXME
 
 	//RWlock
-	platform_rwlock_t rwlock;
+	platform_rwlock_t* rwlock;
 	
 	//timer
 	struct of12_timers_info timer_info;
 	
 	//statistics
 	of12_stats_flow_t stats;
+
+	/*
+	 * added 2012-12-10
+	 */
+
+	uint64_t cookie;
+	uint64_t cookie_mask;
+
+	uint32_t out_port;
+	uint32_t out_group;
+
+	uint16_t flags;
+
+	/*
+	 * added 2012-12-12
+	 */
+
+	uint8_t reason;
 };
 typedef struct of12_flow_entry of12_flow_entry_t;
 
 //C++ extern C
 ROFL_PIPELINE_BEGIN_DECLS
 
-of12_flow_entry_t* of12_init_flow_entry(const uint16_t priority, of12_match_t* matchs, of12_flow_entry_t* prev, of12_flow_entry_t* next); 
+//of12_flow_entry_t* of12_init_flow_entry(const uint16_t priority, of12_match_group_t* match_group, of12_flow_entry_t* prev, of12_flow_entry_t* next);
+of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry_t* next);
 unsigned int of12_destroy_flow_entry(of12_flow_entry_t* entry); 
 
 //Add match

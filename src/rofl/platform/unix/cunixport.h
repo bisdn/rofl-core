@@ -14,6 +14,9 @@
 #include "rofl/common/cpacket.h"
 #include "clinuxport.h"
 
+namespace rofl
+{
+
 class cunixport_search;
 
 class cunixport :
@@ -95,5 +98,6 @@ protected:
 	caddress baddr;
 };
 
+}; // end of namespace
 
 #endif

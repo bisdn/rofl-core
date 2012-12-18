@@ -43,6 +43,8 @@ extern "C" {
 #include "extensions/cfsptable.h"
 
 
+namespace rofl
+{
 
 
 /* error classes */
@@ -749,5 +751,7 @@ private:
 	send_message_via_socket(
 			cofpacket *pack);
 };
+
+}; // end of namespace
 
 #endif

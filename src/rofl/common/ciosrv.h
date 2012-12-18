@@ -40,6 +40,9 @@ extern "C" {
 #include "rofl/platform/unix/csyslog.h"
 #include "rofl/platform/unix/cpipe.h"
 
+namespace rofl
+{
+
 /** class defining ioctl commands exchanged between ciosrv entities
  *
  */
@@ -544,5 +547,7 @@ private: // data structures
 	std::string info;
 
 };
+
+}; // end of namespace
 
 #endif
