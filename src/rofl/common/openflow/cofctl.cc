@@ -27,7 +27,9 @@ cofctl::cofctl(
 {
 	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
 
-	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, 0);
+	register_timer(COFCTL_TIMER_SEND_HELLO, 0);
+
+	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
 
 	rofbase->handle_ctl_open(this);
 }
@@ -165,6 +167,11 @@ cofctl::handle_timeout(
 		int opaque)
 {
 	switch (opaque) {
+	case COFCTL_TIMER_SEND_HELLO:
+                {
+                        rofbase->send_hello_message(this);
+                }
+                break;
 	case COFCTL_TIMER_RECONNECT:
 		{
 			if (socket)
@@ -212,6 +219,8 @@ cofctl::handle_connected(
 	fprintf(stderr, "C:ctl[%s] ", socket->raddr.c_str());
 #endif
 	rofbase->handle_ctl_open(this);
+
+	rofbase->send_hello_message(this);
 
 	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, 0);
 }

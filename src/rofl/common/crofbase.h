@@ -782,7 +782,7 @@ public:
 	virtual void
 	send_hello_message(
 			cofdpt *dpt,
-			uint8_t *body, size_t bodylen);
+			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
 
 	/** Send a OF HELLO.message to controller.
 	 *
@@ -790,7 +790,7 @@ public:
 	virtual void
 	send_hello_message(
 			cofctl *ctl,
-			uint8_t *body, size_t bodylen);
+			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
 
 	// ECHO request/reply
 	//

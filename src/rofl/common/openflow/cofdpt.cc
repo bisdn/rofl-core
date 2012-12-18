@@ -40,7 +40,7 @@ cofdpt::cofdpt(
 
 	new_state(COFDPT_STATE_WAIT_FEATURES);
 
-	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, 0);
+	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
 }
 
 
@@ -119,6 +119,8 @@ cofdpt::handle_connected(
 #ifndef NDEBUG
 	fprintf(stderr, "C:dpt[%s] ", socket->raddr.c_str());
 #endif
+	rofbase->send_hello_message(this);
+
 	new_state(COFDPT_STATE_WAIT_FEATURES);
 
 	rofbase->send_features_request(this);
@@ -469,7 +471,9 @@ cofdpt::handle_timeout(int opaque)
 	switch (opaque) {
 	case COFDPT_TIMER_FEATURES_REQUEST:
 		{
-			rofbase->send_features_request(this);
+		        rofbase->send_hello_message(this);
+
+		        rofbase->send_features_request(this);
 		}
 		break;
 	case COFDPT_TIMER_FEATURES_REPLY:
