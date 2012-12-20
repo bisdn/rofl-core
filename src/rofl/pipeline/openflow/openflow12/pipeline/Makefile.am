@@ -31,6 +31,7 @@ librofl_pipeline_openflow12_pipeline_la_SOURCES = of12_action.h \
 	of12_match.c \
 	of12_packet_matches.c \
 	of12_pipeline.c \
-	of12_timers.c
+	of12_timers.c \
+	of12_statistics.c
 
 librofl_pipeline_openflow12_pipeline_la_LIBADD = matching_algorithms/librofl_pipeline_openflow12_pipeline_matching_algorithms.la

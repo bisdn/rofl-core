@@ -3,6 +3,7 @@
 #include "of12_flow_table.h"
 #include "of12_flow_entry.h"
 #include "of12_timers.h"
+#include <rofl/pipeline/platform/atomic_operations.h>
 
 /**
  * Here the functions that initialize and update
@@ -26,7 +27,7 @@ void of12_stats_flow_init(of12_flow_entry_t * entry)
 	entry->stats.packet_count = 0;
 	entry->stats.byte_count = 0;
 
-	platform_mutex_init(&(entry->stats.mutex), NULL);
+	entry->stats.mutex = platform_mutex_init(NULL);
 
 	return;
 }

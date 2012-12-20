@@ -1,6 +1,7 @@
 #ifndef __OF12_STATISTICS_H__
 #define __OF12_STATISTICS_H__
 
+#include <inttypes.h>
 #include "../../../platform/lock.h"
 #define OF12_STATS_NS_IN_A_SEC 1000000000
 
