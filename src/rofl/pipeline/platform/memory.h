@@ -24,6 +24,7 @@ void cutil_free( void *data );
 void cutil_free_shared( void *data );
 void* cutil_memcpy( void *dst, const void *src, size_t length );
 void* cutil_memset( void *src, int c, size_t length );
+void* cutil_memmove( void *dst, const void *src, size_t length );
 
 //C++ extern C
 ROFL_PIPELINE_END_DECLS
