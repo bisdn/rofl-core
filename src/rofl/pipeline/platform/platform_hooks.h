@@ -34,7 +34,7 @@ void platform_dec_nw_ttl(datapacket_t* pkt);
 void platform_dec_mpls_ttl(datapacket_t* pkt);
 
 /* Set field */
-void platform_set_mpls_ttl(datapacket_t* pktm, uint8_t new_ttl);
+void platform_set_mpls_ttl(datapacket_t* pkt, uint8_t new_ttl);
 void platform_set_nw_ttl(datapacket_t* pkt, uint8_t new_ttl);
 void platform_set_queue(datapacket_t* pkt, uint32_t queue);
 
