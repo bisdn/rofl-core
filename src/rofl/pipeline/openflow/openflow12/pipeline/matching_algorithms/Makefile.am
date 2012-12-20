@@ -15,6 +15,10 @@ library_include_HEADERS = matching_algorithms.h \
 	matching_algorithms_available.h
 
 # loop matching
+librofl_pipeline_openflow12_pipeline_matching_algorithms_loop_ladir = \
+	$(library_includedir)/loop
+librofl_pipeline_openflow12_pipeline_matching_algorithms_loop_la_HEADERS = \
+	loop/of12_loop_match.h
 librofl_pipeline_openflow12_pipeline_matching_algorithms_loop_la_SOURCES = \
 	loop/of12_loop_match.c \
 	loop/of12_loop_match.h

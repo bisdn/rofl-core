@@ -18,3 +18,4 @@ librofl_pipeline_platform_la_SOURCES = \
 	atomic_operations.h \
 	lock.h \
 	memory.h
+
