@@ -60,7 +60,7 @@ inline unsigned int of12_remove_flow_entry_loop(of12_flow_table_t *const table ,
 }
 	
 /* FLOW entry lookup entry point */ 
-inline of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const table, of12_packet_matches_t *const pkt){
+of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const table, of12_packet_matches_t *const pkt){
 	of12_flow_entry_t *entry;
 
 	//Prevent writers to change structure during matching
