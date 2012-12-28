@@ -149,13 +149,16 @@ fpppoeframe::validate(uint16_t total_len)
                   throw ePPPoEFrameInvalVersion();
           }
 
-          if (get_hdr_length() > (framelen() - sizeof(struct fpppoeframe::pppoe_hdr_t)))
+#if 0
+          // FIXME: set total_len appropriately
+          if (get_hdr_length() > (total_len - sizeof(struct fpppoeframe::pppoe_hdr_t)))
           {
               WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
                                                       "invalid PPPoE frame rcvd: invalid header length => %s", this, c_str());
 
               throw ePPPoEFrameTooShort();
           }
+#endif
 
           switch (pppoe_hdr->code) {
           case PPPOE_CODE_SESSION_DATA:
