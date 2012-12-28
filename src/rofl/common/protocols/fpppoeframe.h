@@ -31,7 +31,7 @@ namespace rofl
 {
 
 // error classes
-class ePPPoEFrameBase 			: public ePPPoEFrameInvalidSyntax {}; 			// base error class for cpppoepacket
+class ePPPoEFrameBase 			: public eFrameBase {}; 			// base error class for cpppoepacket
 class ePPPoEFrameTagNotFound 	: public ePPPoEFrameBase {}; 		// pppoe tag not found
 class ePPPoEFrameInvalidSyntax 	: public ePPPoEFrameBase, public eFrameInvalidSyntax {}; 		// frame has invalid syntax
 class ePPPoEFrameTooShort		: public ePPPoEFrameInvalidSyntax {};	// length is invalid for PPPoE frame
@@ -205,7 +205,6 @@ public: // overloaded from fframe
 	/** validate (frame structure)
 	 *
 	 */
-#if 0
 	virtual void
 	validate(uint16_t total_len = 0) throw (ePPPoEFrameTooShort,
 						ePPPoEFrameInvalType,
@@ -213,10 +212,9 @@ public: // overloaded from fframe
 						ePPPoEFrameInvalCode,
 						ePPPoEPadsInvalSid,
 						ePPPoEPadtInvalCode,
-						ePPPoEPadtInvalSid);
-#endif
-	virtual void
-        validate(uint16_t total_len = 0) throw (eFrameInvalidSyntax);
+						ePPPoEPadtInvalSid,
+						ePPPoEPadiNoSvcTag,
+						ePPPoEPadrNoSvcTag);
 
 
 	/** initialize (set eth_hdr, pppoe_hdr)

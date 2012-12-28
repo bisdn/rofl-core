@@ -121,7 +121,6 @@ fpppoeframe::payloadlen() const throw (eFrameNoPayload)
 }
 
 
-#if 0
 void
 fpppoeframe::validate(uint16_t total_len) throw (ePPPoEFrameTooShort,
 									ePPPoEFrameInvalType,
@@ -130,9 +129,6 @@ fpppoeframe::validate(uint16_t total_len) throw (ePPPoEFrameTooShort,
 									ePPPoEPadsInvalSid,
 									ePPPoEPadtInvalCode,
 									ePPPoEPadtInvalSid)
-#endif
-void
-fpppoeframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
 {
 	//initialize(); // commented out 2012-12-13
 
