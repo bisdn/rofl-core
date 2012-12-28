@@ -132,7 +132,7 @@ fpppoeframe::validate(uint16_t total_len) throw (ePPPoEFrameTooShort,
 									ePPPoEPadtInvalSid)
 #endif
 void
-fpppoeframe::validate(uint16_t total_len) throw (ePPPoEFrameBase, eFrameInvalidSyntax)
+fpppoeframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
 {
 	//initialize(); // commented out 2012-12-13
 
