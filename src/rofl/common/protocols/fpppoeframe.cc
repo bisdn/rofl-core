@@ -6,6 +6,14 @@
 
 using namespace rofl;
 
+/*
+ * comment: use define -DSTRICT_MODE_RFC2516 in order to activate
+ * checking of presence of PPPoE tags in discovery frames
+ */
+#ifndef STRICT_MODE_RFC2516
+#define STRICT_MODE_RFC2516 1
+#endif
+
 fpppoeframe::fpppoeframe(
 		uint8_t* data,
 		size_t datalen) :
@@ -489,10 +497,6 @@ fpppoeframe::parse_pppoe_tags() throw (eFrameInvalidSyntax)
 void
 fpppoeframe::validate_pppoe_discovery_padi() throw (eFrameInvalidSyntax)
 {
-#if 0
-	//parse_pppoe_tags(); // fill in pppoe_tags vector
-#endif
-
 	try {
 
 		//fprintf(stderr, "YYY => pppoe: %s\n", c_str());
@@ -514,26 +518,20 @@ fpppoeframe::validate_pppoe_discovery_padi() throw (eFrameInvalidSyntax)
 
 		tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME);
 
-
 	} catch (ePPPoElistNotFound& e) {
 
+#ifdef STRICT_MODE_RFC2516
 		throw ePPPoEPadiNoSvcTag();
-	}
-#if 0
-	std::map<enum pppoe_tag_t, struct pppoe_tag_hdr_t*>::iterator it;
-
-	if ((it = pppoe_tags.find(PPPOE_TAG_SERVICE_NAME)) == pppoe_tags.end()) // tag -Service-Name- must be present
-		throw eFrameInvalidSyntax();
+#else
+		WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate_pppoe_discovery_padi() "
+		    "invalid PPPoE PADI frame rcvd => no SVCname tag found", this);
 #endif
+	}
 }
 
 void
 fpppoeframe::validate_pppoe_discovery_pado() throw (eFrameInvalidSyntax)
 {
-#if 0
-	parse_pppoe_tags(); // fill in pppoe_tags vector
-#endif
-
 	try {
 
 		if (PPPOE_CODE_PADO != get_pppoe_code())
@@ -548,29 +546,20 @@ fpppoeframe::validate_pppoe_discovery_pado() throw (eFrameInvalidSyntax)
 
 		tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME); // tag -Service-Name- must be present
 
-#if 0
-	std::map<enum pppoe_tag_t, struct pppoe_tag_hdr_t*>::iterator it;
-
-	if ((it = pppoe_tags.find(PPPOE_TAG_AC_NAME)) == pppoe_tags.end()) // tag -AC-Name- must be present
-		throw ePPPoEFrameInvalidSyntax();
-
-	if ((it = pppoe_tags.find(PPPOE_TAG_SERVICE_NAME)) == pppoe_tags.end()) // tag -Service-Name- must be present
-		throw ePPPoEFrameInvalidSyntax();
-#endif
-
 	} catch (ePPPoElistNotFound& e) {
-		throw eFrameInvalidSyntax();
 
+#ifdef STRICT_MODE_RFC2516
+             throw eFrameInvalidSyntax();
+#else
+             WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate_pppoe_discovery_pado() "
+                    "invalid PPPoE PADO frame rcvd => no SVCname tag or no ACname tag found", this);
+#endif
 	}
 }
 
 void
 fpppoeframe::validate_pppoe_discovery_padr() throw (eFrameInvalidSyntax)
 {
-#if 0
-	parse_pppoe_tags(); // fill in pppoe_tags vector
-#endif
-
 	try {
 
 		if (PPPOE_CODE_PADR != get_pppoe_code())
@@ -585,24 +574,18 @@ fpppoeframe::validate_pppoe_discovery_padr() throw (eFrameInvalidSyntax)
 
 	} catch (ePPPoElistNotFound& e) {
 
-		throw ePPPoEPadrNoSvcTag();
-	}
-
-#if 0
-	std::map<enum pppoe_tag_t, struct pppoe_tag_hdr_t*>::iterator it;
-
-	if ((it = pppoe_tags.find(PPPOE_TAG_SERVICE_NAME)) == pppoe_tags.end()) // tag -Service-Name- must be present
-		throw eFrameInvalidSyntax();
+#ifdef STRICT_MODE_RFC2516
+	     throw ePPPoEPadrNoSvcTag();
+#else
+             WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate_pppoe_discovery_padr() "
+                    "invalid PPPoE PADR frame rcvd => no SVCname tag found", this);
 #endif
+	}
 }
 
 void
 fpppoeframe::validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalCode, ePPPoEPadsInvalSid)
 {
-#if 0
-	parse_pppoe_tags(); // fill in pppoe_tags vector
-#endif
-
 	try {
 
 		if (PPPOE_CODE_PADS != get_pppoe_code())
@@ -617,16 +600,14 @@ fpppoeframe::validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalCode, ePPPoE
 		// FIXME: this behavior is invalid compared to RFC 2516, check section 5.4
 
 	} catch (ePPPoElistNotFound& e) {
-		throw eFrameInvalidSyntax();
 
-	}
-
-#if 0
-	std::map<enum pppoe_tag_t, struct pppoe_tag_hdr_t*>::iterator it;
-
-	if ((it = pppoe_tags.find(PPPOE_TAG_SERVICE_NAME)) == pppoe_tags.end()) // tag -Service-Name- must be present
-		throw eFrameInvalidSyntax();
+#ifdef STRICT_MODE_RFC2516
+             throw eFrameInvalidSyntax();
+#else
+             WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate_pppoe_discovery_pads() "
+                    "invalid PPPoE PADS frame rcvd => no SVCname tag found", this);
 #endif
+	}
 }
 
 
