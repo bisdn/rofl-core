@@ -205,6 +205,7 @@ public: // overloaded from fframe
 	/** validate (frame structure)
 	 *
 	 */
+#if 0
 	virtual void
 	validate(uint16_t total_len = 0) throw (ePPPoEFrameTooShort,
 						ePPPoEFrameInvalType,
@@ -213,6 +214,10 @@ public: // overloaded from fframe
 						ePPPoEPadsInvalSid,
 						ePPPoEPadtInvalCode,
 						ePPPoEPadtInvalSid);
+#endif
+	virtual void
+        validate(uint16_t total_len = 0) throw (ePPPoEFrameBase);
+
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *
