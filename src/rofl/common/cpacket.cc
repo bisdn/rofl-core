@@ -1874,7 +1874,13 @@ cpacket::classify(uint32_t in_port /* host byte order */)
 
 	match.set_in_port(in_port);
 
-	parse_ether(data.first, data.second);
+	try {
+
+	    parse_ether(data.first, data.second);
+
+	} catch (cerror& e) {
+	    // catch all exceptions here
+	}
 }
 
 
