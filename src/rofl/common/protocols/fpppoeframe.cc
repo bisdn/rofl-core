@@ -128,7 +128,9 @@ fpppoeframe::validate(uint16_t total_len) throw (ePPPoEFrameTooShort,
 									ePPPoEFrameInvalCode,
 									ePPPoEPadsInvalSid,
 									ePPPoEPadtInvalCode,
-									ePPPoEPadtInvalSid)
+									ePPPoEPadtInvalSid,
+									ePPPoEPadiNoSvcTag,
+									ePPPoEPadrNoSvcTag)
 {
 	//initialize(); // commented out 2012-12-13
 
