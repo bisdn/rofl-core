@@ -38,13 +38,9 @@ class ePPPoEFrameTooShort		: public ePPPoEFrameInvalidSyntax {};	// length is in
 class ePPPoEFrameInvalVersion	        : public ePPPoEFrameInvalidSyntax {};	// invalid PPPoE version
 class ePPPoEFrameInvalType		: public ePPPoEFrameInvalidSyntax {};	// invalid PPPoE type
 class ePPPoEFrameInvalCode		: public ePPPoEFrameInvalidSyntax {};	// invalid PPPoE code
-class ePPPoEPadiInvalSid		: public ePPPoEFrameInvalidSyntax {};	// invalid sid in PADI
-class ePPPoEPadiNoSvcTag		: public ePPPoEFrameInvalidSyntax {};	// no svcname tag in PADI
-class ePPPoEPadiInvalTags		: public ePPPoEFrameInvalidSyntax {}; 	// invalid tags size
-class ePPPoEPadrInvalSid		: public ePPPoEFrameInvalidSyntax {};	// invalid sid in PADR
-class ePPPoEPadrNoSvcTag		: public ePPPoEFrameInvalidSyntax {};	// no svcname tag in PADR
-class ePPPoEPadsInvalSid		: public ePPPoEFrameInvalidSyntax {};	// invalid sid in PADS
-class ePPPoEPadtInvalSid		: public ePPPoEFrameInvalidSyntax {}; 	// invalid sid in PADT
+class ePPPoEFrameInvalSid		: public ePPPoEFrameInvalidSyntax {};	// invalid sid in PADI
+class ePPPoEFrameNoSvcTag		: public ePPPoEFrameInvalidSyntax {};	// no svcname tag in PADI
+class ePPPoEFrameInvalTags		: public ePPPoEFrameInvalidSyntax {}; 	// invalid tags size
 
 
 class cpacket;
@@ -203,14 +199,7 @@ public: // overloaded from fframe
 	 *
 	 */
 	virtual void
-	validate(uint16_t total_len = 0) throw (ePPPoEFrameTooShort,
-						ePPPoEFrameInvalType,
-						ePPPoEFrameInvalVersion,
-						ePPPoEFrameInvalCode,
-						ePPPoEPadsInvalSid,
-						ePPPoEPadtInvalSid,
-						ePPPoEPadiNoSvcTag,
-						ePPPoEPadrNoSvcTag);
+	validate(uint16_t total_len = 0) throw (eFrameInvalidSyntax);
 
 
 	/** initialize (set eth_hdr, pppoe_hdr)
@@ -328,35 +317,22 @@ private: // methods
 	 *
 	 */
 	void
-	validate_pppoe_session() throw (ePPPoEFrameInvalCode);
+	validate_pppoe_session() throw (ePPPoEFrameInvalSid, eFrameInvalidSyntax);
 
 	/** validate PPPoE discovery packet
 	 *
 	 */
 	void
-	validate_pppoe_discovery_padi() throw (ePPPoEFrameInvalidSyntax);
+	validate_pppoe_discovery_padi() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
 	void
-	validate_pppoe_discovery_pado() throw (ePPPoEFrameInvalidSyntax);
+	validate_pppoe_discovery_pado() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
 	void
-	validate_pppoe_discovery_padr() throw (ePPPoEFrameInvalidSyntax);
+	validate_pppoe_discovery_padr() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
         void
-        validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalidSyntax);
+        validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
         void
-        validate_pppoe_discovery_padt() throw (ePPPoEFrameInvalidSyntax);
-#if 0
-	void
-	validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalCode, ePPPoEPadsInvalSid);
-	void
-	validate_pppoe_discovery_padt() throw (ePPPoEPadtInvalCode, ePPPoEPadtInvalSid);
-#endif
+        validate_pppoe_discovery_padt() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
 
-#if 0
-	/** parse PPPoE tags in PADI, PADO, PADR, PADS, PADT
-	 *
-	 */
-	void
-	parse_pppoe_tags() throw (eFrameInvalidSyntax);
-#endif
 
 private: // data structures
 
