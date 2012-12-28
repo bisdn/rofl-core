@@ -31,22 +31,19 @@ namespace rofl
 {
 
 // error classes
-class ePPPoEFrameBase 			: public eFrameBase {}; 			// base error class for cpppoepacket
-class ePPPoEFrameTagNotFound 	: public ePPPoEFrameBase {}; 		// pppoe tag not found
-class ePPPoEFrameInvalidSyntax 	: public ePPPoEFrameBase, public eFrameInvalidSyntax {}; 		// frame has invalid syntax
+class ePPPoEFrameBase 			: public eFrameBase {}; 		// base error class for cpppoepacket
+class ePPPoEFrameTagNotFound 	        : public ePPPoEFrameBase {}; 		// pppoe tag not found
+class ePPPoEFrameInvalidSyntax 	        : public ePPPoEFrameBase, public eFrameInvalidSyntax {}; 		// frame has invalid syntax
 class ePPPoEFrameTooShort		: public ePPPoEFrameInvalidSyntax {};	// length is invalid for PPPoE frame
-class ePPPoEFrameInvalVersion	: public ePPPoEFrameInvalidSyntax {};	// invalid PPPoE version
+class ePPPoEFrameInvalVersion	        : public ePPPoEFrameInvalidSyntax {};	// invalid PPPoE version
 class ePPPoEFrameInvalType		: public ePPPoEFrameInvalidSyntax {};	// invalid PPPoE type
 class ePPPoEFrameInvalCode		: public ePPPoEFrameInvalidSyntax {};	// invalid PPPoE code
-class ePPPoEPadiInvalCode		: public ePPPoEFrameInvalidSyntax {};	// invalid code in PADI
 class ePPPoEPadiInvalSid		: public ePPPoEFrameInvalidSyntax {};	// invalid sid in PADI
 class ePPPoEPadiNoSvcTag		: public ePPPoEFrameInvalidSyntax {};	// no svcname tag in PADI
 class ePPPoEPadiInvalTags		: public ePPPoEFrameInvalidSyntax {}; 	// invalid tags size
-class ePPPoEPadrInvalCode		: public ePPPoEFrameInvalidSyntax {};	// invalid code in PADR
 class ePPPoEPadrInvalSid		: public ePPPoEFrameInvalidSyntax {};	// invalid sid in PADR
 class ePPPoEPadrNoSvcTag		: public ePPPoEFrameInvalidSyntax {};	// no svcname tag in PADR
 class ePPPoEPadsInvalSid		: public ePPPoEFrameInvalidSyntax {};	// invalid sid in PADS
-class ePPPoEPadtInvalCode		: public ePPPoEFrameInvalidSyntax {};	// invalid code in PADT
 class ePPPoEPadtInvalSid		: public ePPPoEFrameInvalidSyntax {}; 	// invalid sid in PADT
 
 
@@ -188,7 +185,7 @@ public: // methods
 	 *
 	 */
 	void
-	unpack(uint8_t *frame, size_t framelen) throw (ePPPoEInval);
+	unpack(uint8_t *frame, size_t framelen) throw (ePPPoEInval, eFrameInvalidSyntax);
 
 public: // overloaded from fframe
 
@@ -211,7 +208,6 @@ public: // overloaded from fframe
 						ePPPoEFrameInvalVersion,
 						ePPPoEFrameInvalCode,
 						ePPPoEPadsInvalSid,
-						ePPPoEPadtInvalCode,
 						ePPPoEPadtInvalSid,
 						ePPPoEPadiNoSvcTag,
 						ePPPoEPadrNoSvcTag);
@@ -338,15 +334,21 @@ private: // methods
 	 *
 	 */
 	void
-	validate_pppoe_discovery_padi() throw (eFrameInvalidSyntax);
+	validate_pppoe_discovery_padi() throw (ePPPoEFrameInvalidSyntax);
 	void
-	validate_pppoe_discovery_pado() throw (eFrameInvalidSyntax);
+	validate_pppoe_discovery_pado() throw (ePPPoEFrameInvalidSyntax);
 	void
-	validate_pppoe_discovery_padr() throw (eFrameInvalidSyntax);
+	validate_pppoe_discovery_padr() throw (ePPPoEFrameInvalidSyntax);
+        void
+        validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalidSyntax);
+        void
+        validate_pppoe_discovery_padt() throw (ePPPoEFrameInvalidSyntax);
+#if 0
 	void
 	validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalCode, ePPPoEPadsInvalSid);
 	void
 	validate_pppoe_discovery_padt() throw (ePPPoEPadtInvalCode, ePPPoEPadtInvalSid);
+#endif
 
 #if 0
 	/** parse PPPoE tags in PADI, PADO, PADR, PADS, PADT
