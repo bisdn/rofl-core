@@ -883,6 +883,7 @@ ciosrv::__handle_timeout()
 		{
 			return;
 		}
+
 		handle_timeout(*it);
 	}
 }
@@ -1097,15 +1098,18 @@ ciosrv::destroy()
 {
 	pthread_t tid = pthread_self();
 
-	RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_WRITE);
+	if (ciosrv::iodata.find(tid) != ciosrv::iodata.end())
+	{
+          RwLock lock(&ciosrv::iodata_lock, RwLock::RWLOCK_WRITE);
 
-	/*
-	 * deallocate per-thread data structures
-	 */
+          /*
+           * deallocate per-thread data structures
+           */
 
-	delete iodata[tid]; iodata.erase(tid);
-	pthread_mutex_destroy(&(ciosrv::ciosrv_list_mutex[tid]));
-	pthread_rwlock_destroy(&(ciosrv::ciosrv_wakeup_rwlock[tid]));
+          delete iodata[tid]; iodata.erase(tid);
+          pthread_mutex_destroy(&(ciosrv::ciosrv_list_mutex[tid]));
+          pthread_rwlock_destroy(&(ciosrv::ciosrv_wakeup_rwlock[tid]));
+        }
 
 	if (ciosrv::iodata.empty())
 	{

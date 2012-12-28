@@ -11,7 +11,7 @@ using namespace rofl;
  * checking of presence of PPPoE tags in discovery frames
  */
 #ifndef STRICT_MODE_RFC2516
-#define STRICT_MODE_RFC2516 1
+#define STRICT_MODE_RFC2516 0
 #endif
 
 fpppoeframe::fpppoeframe(
