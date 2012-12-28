@@ -5,6 +5,7 @@
 #include <rofl/common/cclock.h>
 #include <stdlib.h>
 
+using namespace rofl;
 
 void check_cclock();
 

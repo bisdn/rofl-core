@@ -8,6 +8,7 @@
 #include <rofl/common/cpacket.h>
 #include <stdlib.h>
 
+using namespace rofl;
 
 void check_parser();
 void check_push_pop_vlan();
