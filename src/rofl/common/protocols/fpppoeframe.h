@@ -216,7 +216,7 @@ public: // overloaded from fframe
 						ePPPoEPadtInvalSid);
 #endif
 	virtual void
-        validate(uint16_t total_len = 0) throw (ePPPoEFrameBase);
+        validate(uint16_t total_len = 0) throw (ePPPoEFrameBase, ePPPoEFrameInvalidSyntax);
 
 
 	/** initialize (set eth_hdr, pppoe_hdr)
