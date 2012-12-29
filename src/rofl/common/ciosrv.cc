@@ -20,7 +20,7 @@ void sighandler(int sig)
 }
 
 pthread_rwlock_t ciosrv::iothread_lock;
-std::map<pthread_t, ciosrv::ciothread*> ciosrv::iothread;
+std::map<pthread_t, ciosrv::ciothread*> ciosrv::threads;
 
 
 
@@ -32,6 +32,8 @@ ciosrv::ciosrv() :
 		tid(pthread_self()),
 		tv_mem(sizeof(struct timeval))
 {
+        ciosrv::init(); // initialize ciothread structure for this thread if necessary
+
 	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::ciosrv()", this);
 
 	pthread_mutex_init(&event_mutex, NULL);
@@ -43,7 +45,7 @@ ciosrv::ciosrv() :
 
 	{
 		//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
-		ciosrv::iothread[tid]->ciosrv_insertion_list.insert(this);
+		ciosrv::threads[tid]->ciosrv_insertion_list.insert(this);
 	}
 }
 
@@ -58,40 +60,42 @@ ciosrv::~ciosrv()
 	{
 		//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
 
-		ciosrv::iothread[tid]->ciosrv_deletion_list.insert(this);
+		ciosrv::threads[tid]->ciosrv_deletion_list.insert(this);
 		//ciosrv_list[tid].erase(this);
 
 		RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
 
+restart1:
 		for (std::map<int, ciosrv*>::iterator
-				it = iothread[tid]->rfds.begin(); it != iothread[tid]->rfds.end(); ++it)
+				it = threads[tid]->rfds.begin(); it != threads[tid]->rfds.end(); ++it)
 		{
 			if (it->second == this)
 			{
-				iothread[tid]->rfds.erase(it); // invalidates iodata[tid]->rfds iterator
-				it = iothread[tid]->rfds.begin();
+				threads[tid]->rfds.erase(it); // invalidates iodata[tid]->rfds iterator
+				goto restart1;
 			}
 		}
 
+restart2:
 		for (std::map<int, ciosrv*>::iterator
-				it = iothread[tid]->wfds.begin(); it != iothread[tid]->wfds.end(); ++it)
+				it = threads[tid]->wfds.begin(); it != threads[tid]->wfds.end(); ++it)
 		{
 			if (it->second == this)
 			{
-				iothread[tid]->wfds.erase(it);  // invalidates iodata[tid]->rfds iterator
-				it = iothread[tid]->wfds.begin();
+				threads[tid]->wfds.erase(it);  // invalidates iodata[tid]->rfds iterator
+				goto restart2;
 			}
 		}
 
-restart:
+restart3:
 		for (std::list<ciosrv*>::iterator
-				it = iothread[tid]->ciosrv_timeouts.begin();
-						it != iothread[tid]->ciosrv_timeouts.end(); ++it)
+				it = threads[tid]->ciosrv_timeouts.begin();
+						it != threads[tid]->ciosrv_timeouts.end(); ++it)
 		{
 			if ((*it) == this)
 			{
-				iothread[tid]->ciosrv_timeouts.erase(it);
-				goto restart;
+				threads[tid]->ciosrv_timeouts.erase(it);
+				goto restart3;
 			}
 		}
 	}
@@ -112,7 +116,7 @@ ciosrv::c_str()
 
 	info.assign(vas("ciosrv(%p) rfds: ", this));
 	for (std::map<int, ciosrv*>::iterator
-			it = iothread[tid]->rfds.begin(); it != iothread[tid]->rfds.end(); ++it)
+			it = threads[tid]->rfds.begin(); it != threads[tid]->rfds.end(); ++it)
 	{
 		if (it->second != this)
 		{
@@ -123,7 +127,7 @@ ciosrv::c_str()
 
 	info.append(" wfds: ");
 	for (std::map<int, ciosrv*>::iterator
-			it = iothread[tid]->wfds.begin(); it != iothread[tid]->wfds.end(); ++it)
+			it = threads[tid]->wfds.begin(); it != threads[tid]->wfds.end(); ++it)
 	{
 		if (it->second != this)
 		{
@@ -207,10 +211,10 @@ ciosrv::notify(cevent const& ev)
 		 */
 
 		{
-			RwLock lock(&ciosrv::iothread[tid]->wakeup_rwlock, RwLock::RWLOCK_WRITE); // for locking ciosrv_wakeup[tid]
+			RwLock lock(&(ciosrv::threads[tid]->wakeup_rwlock), RwLock::RWLOCK_WRITE); // for locking ciosrv_wakeup[tid]
 
 			// insert this to list of entities with pending events
-			ciosrv::iothread[tid]->ciosrv_wakeup.insert(this);
+			ciosrv::threads[tid]->ciosrv_wakeup.insert(this);
 
 #if 0
 			std::string s_wakeup;
@@ -227,18 +231,18 @@ ciosrv::notify(cevent const& ev)
 
 			RwLock lock2(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
 
-			if (iothread[tid]->flags.test(CIOSRV_FLAG_WAKEUP_CALLED))
+			if (threads[tid]->flags.test(CIOSRV_FLAG_WAKEUP_CALLED))
 			{
 				WRITELOG(CIOSRV, DBG, "ciosrv(%p)::notify() wakeup call is pending", this);
 				return;
 			}
 
 			WRITELOG(CIOSRV, DBG, "ciosrv(%p)::notify() send new wake-up call", this);
-			iothread[tid]->flags.set(CIOSRV_FLAG_WAKEUP_CALLED);
+			threads[tid]->flags.set(CIOSRV_FLAG_WAKEUP_CALLED);
 		}
 
 		// wake up this thread from select()
-		ciosrv::iothread[tid]->pipe->writemsg();
+		ciosrv::threads[tid]->pipe->writemsg();
 
 
 	} catch (eLockWouldBlock& e) {
@@ -262,7 +266,7 @@ ciosrv::register_filedesc_r(int fd)
 	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
 
 	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::register_filedesc_r() fd=%d", this, fd);
-	iothread[tid]->rfds[fd] = this;
+	threads[tid]->rfds[fd] = this;
 }
 
 void
@@ -271,7 +275,7 @@ ciosrv::deregister_filedesc_r(int fd)
 	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
 
 	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::deregister_filedesc_r() fd=%d", this, fd);
-	iothread[tid]->rfds.erase(fd);
+	threads[tid]->rfds.erase(fd);
 }
 
 void
@@ -280,7 +284,7 @@ ciosrv::register_filedesc_w(int fd)
 	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
 
 	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::register_filedesc_w() fd=%d", this, fd);
-	iothread[tid]->wfds[fd] = this;
+	threads[tid]->wfds[fd] = this;
 }
 
 void
@@ -289,7 +293,7 @@ ciosrv::deregister_filedesc_w(int fd)
 	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
 
 	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::deregister_filedesc_w() fd=%d", this, fd);
-	iothread[tid]->wfds.erase(fd);
+	threads[tid]->wfds.erase(fd);
 }
 
 void
@@ -410,30 +414,30 @@ ciosrv::fdset(int& maxfd,
 	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
 
 	// wakeup pipe
-	FD_SET(iothread[tid]->pipe->pipefd[0], readfds);
-	maxfd = (iothread[tid]->pipe->pipefd[0] > maxfd) ? iothread[tid]->pipe->pipefd[0] : maxfd;
+	FD_SET(threads[tid]->pipe->pipefd[0], readfds);
+	maxfd = (threads[tid]->pipe->pipefd[0] > maxfd) ? threads[tid]->pipe->pipefd[0] : maxfd;
 
 
 	{
 		//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
 
 		// add ciosrv instances from ciosrv_insertion_list to ciosrv_list
-		for (it = ciosrv::iothread[tid]->ciosrv_insertion_list.begin();
-				it != ciosrv::iothread[tid]->ciosrv_insertion_list.end(); ++it)
+		for (it = ciosrv::threads[tid]->ciosrv_insertion_list.begin();
+				it != ciosrv::threads[tid]->ciosrv_insertion_list.end(); ++it)
 		{
 			//WRITELOG(CIOSRV, DBG, "ciosrv::fdset() inserting %p", (*it));
-			ciosrv::iothread[tid]->ciosrv_list.insert(*it);
+			ciosrv::threads[tid]->ciosrv_list.insert(*it);
 		}
-		ciosrv::iothread[tid]->ciosrv_insertion_list.clear();
+		ciosrv::threads[tid]->ciosrv_insertion_list.clear();
 
 		// remove ciosrv instances from ciosrv_list defined in ciosrv_deletion_list
-		for (it = ciosrv::iothread[tid]->ciosrv_deletion_list.begin();
-				it != ciosrv::iothread[tid]->ciosrv_deletion_list.end(); ++it)
+		for (it = ciosrv::threads[tid]->ciosrv_deletion_list.begin();
+				it != ciosrv::threads[tid]->ciosrv_deletion_list.end(); ++it)
 		{
 			//WRITELOG(CIOSRV, DBG, "ciosrv::fdset() deleting %p", (*it));
-			ciosrv::iothread[tid]->ciosrv_list.erase(*it);
+			ciosrv::threads[tid]->ciosrv_list.erase(*it);
 		}
-		ciosrv::iothread[tid]->ciosrv_deletion_list.clear();
+		ciosrv::threads[tid]->ciosrv_deletion_list.clear();
 
 
 
@@ -464,7 +468,7 @@ ciosrv::fdset(int& maxfd,
 	//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
 
 	for (std::map<int, ciosrv*>::iterator
-			iit = iothread[tid]->rfds.begin(); iit != iothread[tid]->rfds.end(); ++iit)
+			iit = threads[tid]->rfds.begin(); iit != threads[tid]->rfds.end(); ++iit)
 	{
 		//WRITELOG(CIOSRV, DBG, "ciosrv::fdset() read-fd:%d", iit->first);
 		FD_SET(iit->first, readfds);
@@ -472,7 +476,7 @@ ciosrv::fdset(int& maxfd,
 	}
 
 	for (std::map<int, ciosrv*>::iterator
-			iit = iothread[tid]->wfds.begin(); iit != iothread[tid]->wfds.end(); ++iit)
+			iit = threads[tid]->wfds.begin(); iit != threads[tid]->wfds.end(); ++iit)
 	{
 		//WRITELOG(CIOSRV, DBG, "ciosrv::fdset() write-fd:%d", iit->first);
 		FD_SET(iit->first, writefds);
@@ -494,10 +498,10 @@ ciosrv::next_timeout(
 
 	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
 
-	iothread[tid]->ciosrv_timeouts.clear();
+	threads[tid]->ciosrv_timeouts.clear();
 
 	for (std::set<ciosrv*>::iterator
-			it = ciosrv::iothread[tid]->ciosrv_list.begin(); it != ciosrv::iothread[tid]->ciosrv_list.end(); ++it)
+			it = ciosrv::threads[tid]->ciosrv_list.begin(); it != ciosrv::threads[tid]->ciosrv_list.end(); ++it)
 	{
 #if 0
 		WRITELOG(CIOSRV, DBG, "ciosrv::next_timeout() ciosrv:%p %s",
@@ -519,12 +523,12 @@ ciosrv::next_timeout(
 		if (timeout < ntimeout)
 		{
 			ntimeout = timeout;
-			iothread[tid]->ciosrv_timeouts.clear();
-			iothread[tid]->ciosrv_timeouts.push_back(*it);
+			threads[tid]->ciosrv_timeouts.clear();
+			threads[tid]->ciosrv_timeouts.push_back(*it);
 
 #if 0
 			for (std::list<ciosrv*>::iterator
-					it = iothread[tid]->ciosrv_timeouts.begin(); it != iothread[tid]->ciosrv_timeouts.end(); ++it)
+					it = threads[tid]->ciosrv_timeouts.begin(); it != threads[tid]->ciosrv_timeouts.end(); ++it)
 			{
 				WRITELOG(CIOSRV, DBG, "ciosrv::next_timeout() [1] ciosrv-timeout-list: %p", *it);
 			}
@@ -532,10 +536,10 @@ ciosrv::next_timeout(
 		}
 		else if (timeout == ntimeout)
 		{
-			iothread[tid]->ciosrv_timeouts.push_back(*it);
+			threads[tid]->ciosrv_timeouts.push_back(*it);
 #if 0
 			for (std::list<ciosrv*>::iterator
-					it = iothread[tid]->ciosrv_timeouts.begin(); it != iothread[tid]->ciosrv_timeouts.end(); ++it)
+					it = threads[tid]->ciosrv_timeouts.begin(); it != threads[tid]->ciosrv_timeouts.end(); ++it)
 			{
 				WRITELOG(CIOSRV, DBG, "ciosrv::next_timeout() [2] ciosrv-timeout-list: %p", *it);
 			}
@@ -546,13 +550,13 @@ ciosrv::next_timeout(
 #if 0
 	std::string s_ciosrv_timeouts;
 	for (std::list<ciosrv*>::iterator
-			it = iothread[tid]->ciosrv_timeouts.begin(); it != iothread[tid]->ciosrv_timeouts.end(); ++it)
+			it = threads[tid]->ciosrv_timeouts.begin(); it != threads[tid]->ciosrv_timeouts.end(); ++it)
 	{
 		cvastring vas(32);
 		s_ciosrv_timeouts.append(vas("%p ", *it));
 	}
 	WRITELOG(CIOSRV, DBG, "ciosrv::next_timeout() [%d] ciosrv-timeout-list: %s",
-			iothread[tid]->ciosrv_timeouts.size(),
+			threads[tid]->ciosrv_timeouts.size(),
 			s_ciosrv_timeouts.c_str());
 #endif
 
@@ -605,7 +609,7 @@ ciosrv::handle(int rc,
 		// use local copy of fdsets
 		// cio->rfds and cio->wfds may be changed within the handle_Xevent methods
 
-		if (FD_ISSET(iothread[tid]->pipe->pipefd[0], readfds))
+		if (FD_ISSET(threads[tid]->pipe->pipefd[0], readfds))
 		{
 			handle_events(rc, readfds, exceptfds);
 		}
@@ -613,7 +617,7 @@ ciosrv::handle(int rc,
 		// make temporary copy of rfds
 		std::list<int> rfds;
 		for (std::map<int, ciosrv*>::iterator
-				it = iothread[tid]->rfds.begin(); it != iothread[tid]->rfds.end(); ++it)
+				it = threads[tid]->rfds.begin(); it != threads[tid]->rfds.end(); ++it)
 		{
 			rfds.push_back(it->first);
 		}
@@ -623,7 +627,7 @@ ciosrv::handle(int rc,
 		// make temporary copy of wfds
 		std::list<int> wfds;
 		for (std::map<int, ciosrv*>::iterator
-				it = iothread[tid]->wfds.begin(); it != iothread[tid]->wfds.end(); ++it)
+				it = threads[tid]->wfds.begin(); it != threads[tid]->wfds.end(); ++it)
 		{
 			wfds.push_back(it->first);
 		}
@@ -668,13 +672,13 @@ next_element:
 
 		{
 			//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
-			if (iothread[tid]->rfds.find(fd) == iothread[tid]->rfds.end())
+			if (threads[tid]->rfds.find(fd) == threads[tid]->rfds.end())
 			{
 				goto next_element;
 			}
 		}
 
-		ciosrv *cio = iothread[tid]->rfds[fd];
+		ciosrv *cio = threads[tid]->rfds[fd];
 		// check whether cio is still a valid object
 		{
 #if 0
@@ -686,7 +690,7 @@ next_element:
 								"(%d deleted in this round)", cio,
 								ciosrv_deletion_list[tid].size());
 
-				iothread[tid]->rfds.erase(fd);
+				threads[tid]->rfds.erase(fd);
 				goto next_element; // do nothing for this object, as it was already deleted
 			}
 #endif
@@ -736,13 +740,13 @@ next_element:
 
 		{
 			//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
-			if (iothread[tid]->wfds.find(fd) == iothread[tid]->wfds.end())
+			if (threads[tid]->wfds.find(fd) == threads[tid]->wfds.end())
 			{
 				goto next_element;
 			}
 		}
 
-		ciosrv *cio = iothread[tid]->wfds[fd];
+		ciosrv *cio = threads[tid]->wfds[fd];
 		// check whether cio is still a valid object
 		{
 #if 0
@@ -754,7 +758,7 @@ next_element:
 								"(%d deleted in this round)", cio,
 								ciosrv_deletion_list[tid].size());
 
-				iothread[tid]->wfds.erase(fd);
+				threads[tid]->wfds.erase(fd);
 				goto next_element; // do nothing for this object, as it was already deleted
 			}
 #endif
@@ -788,21 +792,21 @@ ciosrv::handle_timeouts()
 	{
 		//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
 		for (std::list<ciosrv*>::iterator
-				it = iothread[tid]->ciosrv_timeouts.begin();
-						it != iothread[tid]->ciosrv_timeouts.end(); ++it)
+				it = threads[tid]->ciosrv_timeouts.begin();
+						it != threads[tid]->ciosrv_timeouts.end(); ++it)
 		{
-			if (ciosrv::iothread[tid]->ciosrv_deletion_list.find(*it) != ciosrv::iothread[tid]->ciosrv_deletion_list.end())
+			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(*it) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
 			{
 				WRITELOG(CIOSRV, DBG, "ciosrv::handle_timeouts(): skipping already deleted object %p "
 								"(%d deleted in this round)", *it,
-								ciosrv::iothread[tid]->ciosrv_deletion_list.size());
+								ciosrv::threads[tid]->ciosrv_deletion_list.size());
 
 				continue; // do nothing for this object, as it was already deleted
 			}
 
 			p_timeouts.push_back(*it);
 		}
-		iothread[tid]->ciosrv_timeouts.clear();
+		threads[tid]->ciosrv_timeouts.clear();
 	}
 
 	/*
@@ -812,11 +816,11 @@ ciosrv::handle_timeouts()
 	for (std::list<ciosrv*>::iterator
 			it = p_timeouts.begin(); it != p_timeouts.end(); ++it)
 	{
-		if (ciosrv::iothread[tid]->ciosrv_deletion_list.find(*it) != ciosrv::iothread[tid]->ciosrv_deletion_list.end())
+		if (ciosrv::threads[tid]->ciosrv_deletion_list.find(*it) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
 		{
 			WRITELOG(CIOSRV, DBG, "ciosrv::handle_timeouts(): skipping already deleted object %p "
 							"(%d deleted in this round)", *it,
-							ciosrv::iothread[tid]->ciosrv_deletion_list.size());
+							ciosrv::threads[tid]->ciosrv_deletion_list.size());
 
 			continue; // do nothing for this object, as it was already deleted
 		}
@@ -862,11 +866,11 @@ ciosrv::__handle_timeout()
 		WRITELOG(CIOSRV, DBG, "ciosrv(%p)::__handle_timeout() calling timer => type:0x%x",
 					this, *it);
 
-		if (ciosrv::iothread[tid]->ciosrv_deletion_list.find(this) != ciosrv::iothread[tid]->ciosrv_deletion_list.end())
+		if (ciosrv::threads[tid]->ciosrv_deletion_list.find(this) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
 		{
 			return;
 		}
-		if (ciosrv::iothread[tid]->ciosrv_list.find(this) == ciosrv::iothread[tid]->ciosrv_list.end())
+		if (ciosrv::threads[tid]->ciosrv_list.find(this) == ciosrv::threads[tid]->ciosrv_list.end())
 		{
 			return;
 		}
@@ -887,8 +891,8 @@ ciosrv::handle_events(int rc,
 	pthread_t tid = pthread_self();
 
 	{
-		RwLock lock(&ciosrv::iothread[tid]->wakeup_rwlock, RwLock::RWLOCK_WRITE); // for locking ciosrv_wakeup[tid]
-		ciosrv::iothread[tid]->flags.reset(CIOSRV_FLAG_WAKEUP_CALLED);
+		RwLock lock(&ciosrv::threads[tid]->wakeup_rwlock, RwLock::RWLOCK_WRITE); // for locking ciosrv_wakeup[tid]
+		ciosrv::threads[tid]->flags.reset(CIOSRV_FLAG_WAKEUP_CALLED);
 	}
 
 	WRITELOG(CIOSRV, DBG, "ciosrv(0x%x)::handle_events() XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
@@ -917,15 +921,15 @@ ciosrv::handle_events(int rc,
 
 	std::vector<ciosrv*> wakeup_list;
 	{
-		RwLock lock(&ciosrv::iothread[tid]->wakeup_rwlock, RwLock::RWLOCK_READ); // for locking ciosrv_wakeup[tid]
+		RwLock lock(&ciosrv::threads[tid]->wakeup_rwlock, RwLock::RWLOCK_READ); // for locking ciosrv_wakeup[tid]
 
-		for (std::set<ciosrv*>::iterator ct = ciosrv::iothread[tid]->ciosrv_wakeup.begin();
-				ct != ciosrv::iothread[tid]->ciosrv_wakeup.end(); ++ct)
+		for (std::set<ciosrv*>::iterator ct = ciosrv::threads[tid]->ciosrv_wakeup.begin();
+				ct != ciosrv::threads[tid]->ciosrv_wakeup.end(); ++ct)
 		{
 			{
 				//Lock lock(&ciosrv::ciosrv_list_mutex[tid]); // for locking ciosrv_deletion_list[tid]
 
-				if (ciosrv::iothread[tid]->ciosrv_deletion_list.find(*ct) != ciosrv::iothread[tid]->ciosrv_deletion_list.end())
+				if (ciosrv::threads[tid]->ciosrv_deletion_list.find(*ct) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
 				{
 					WRITELOG(CIOSRV, DBG, "ciosrv()::handle_events() ciosrv:0x%x already deleted, ignoring", *ct);
 					continue;
@@ -945,7 +949,7 @@ ciosrv::handle_events(int rc,
 			wakeup_list.push_back(*ct);
 		}
 
-		ciosrv::iothread[tid]->ciosrv_wakeup.clear(); // clear ciosrv_wakeup list for this thread tid
+		ciosrv::threads[tid]->ciosrv_wakeup.clear(); // clear ciosrv_wakeup list for this thread tid
 	}
 
 #if 0
@@ -980,7 +984,7 @@ ciosrv::handle_events(int rc,
 
 		{
 			//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
-			if (ciosrv::iothread[tid]->ciosrv_deletion_list.find(*it) != ciosrv::iothread[tid]->ciosrv_deletion_list.end())
+			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(*it) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
 			{
 				WRITELOG(CIOSRV, DBG, "ciosrv()::handle_events() ciosrv:0x%x already deleted, ignoring", *it);
 				continue;
@@ -1017,7 +1021,7 @@ ciosrv::handle_events(int rc,
 			delete evt;
 
 			//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
-			if (ciosrv::iothread[tid]->ciosrv_deletion_list.find(cio) != ciosrv::iothread[tid]->ciosrv_deletion_list.end())
+			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(cio) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
 			{
 				WRITELOG(CIOSRV, DBG, "ciosrv()::handle_events() ciosrv:0x%x already deleted, ignoring", *it);
 				break;
@@ -1033,7 +1037,7 @@ ciosrv::handle_events(int rc,
 
 	WRITELOG(CIOSRV, DBG, "ciosrv()::handle_events() pipe wakeup on thread: 0x%x", pthread_self());
 
-	iothread[tid]->pipe->recvmsg(); // clear pipe readfd
+	threads[tid]->pipe->recvmsg(); // clear pipe readfd
 
 
 	WRITELOG(CIOSRV, DBG, "ciosrv(0x%x)::handle_events() ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
@@ -1051,7 +1055,7 @@ ciosrv::child_sig_handler (int x) {
 void
 ciosrv::init()
 {
-	if (ciosrv::iothread.empty())
+	if (ciosrv::threads.empty())
 	{
 		pthread_rwlock_init(&ciosrv::iothread_lock, 0);
 	}
@@ -1064,9 +1068,9 @@ ciosrv::init()
 
 	pthread_t tid = pthread_self();
 
-	if (iothread.find(tid) == iothread.end())
+	if (threads.find(tid) == threads.end())
 	{
-		iothread[tid] = new ciothread();
+		threads[tid] = new ciothread();
 	}
 }
 
@@ -1077,7 +1081,7 @@ ciosrv::destroy()
 {
 	pthread_t tid = pthread_self();
 
-	if (ciosrv::iothread.find(tid) != ciosrv::iothread.end())
+	if (ciosrv::threads.find(tid) != ciosrv::threads.end())
 	{
           RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_WRITE);
 
@@ -1085,10 +1089,10 @@ ciosrv::destroy()
            * deallocate per-thread data structures
            */
 
-          delete iothread[tid]; iothread.erase(tid);
+          delete threads[tid]; threads.erase(tid);
         }
 
-	if (ciosrv::iothread.empty())
+	if (ciosrv::threads.empty())
 	{
 		pthread_rwlock_destroy(&ciosrv::iothread_lock);
 	}
@@ -1202,7 +1206,7 @@ ciosrv::ciosrv_exists(ciosrv* iosrv) throw (eIoSvcNotFound)
 {
 	pthread_t tid = pthread_self();
 
-	if (ciosrv::iothread[tid]->ciosrv_list.find(iosrv) == ciosrv::iothread[tid]->ciosrv_list.end())
+	if (ciosrv::threads[tid]->ciosrv_list.find(iosrv) == ciosrv::threads[tid]->ciosrv_list.end())
 		throw eIoSvcNotFound();
 	return iosrv;
 }
@@ -1218,8 +1222,8 @@ ciosrv::dump_fdsets()
 	cvastring vas(256);
 
 	for (std::set<ciosrv*>::iterator
-			ht = ciosrv::iothread[tid]->ciosrv_list.begin();
-	      ht != ciosrv::iothread[tid]->ciosrv_list.end(); ++ht)
+			ht = ciosrv::threads[tid]->ciosrv_list.begin();
+	      ht != ciosrv::threads[tid]->ciosrv_list.end(); ++ht)
 	{
 		info.append(vas("%s\n",(*ht)->c_str()));
 	}
@@ -1244,7 +1248,7 @@ ciosrv::dump_active_fdsets(
 
 	std::set<ciosrv*>::iterator it;
 
-	Lock lock(&(ciosrv::iothread[tid]->ciosrv_list_mutex));
+	Lock lock(&(ciosrv::threads[tid]->ciosrv_list_mutex));
 
 
 	if (rc > 0)
@@ -1254,7 +1258,7 @@ ciosrv::dump_active_fdsets(
 		RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
 
 		for (std::map<int, ciosrv*>::iterator
-				iit = iothread[tid]->rfds.begin(); iit != iothread[tid]->rfds.end(); ++iit)
+				iit = threads[tid]->rfds.begin(); iit != threads[tid]->rfds.end(); ++iit)
 		{
 			if (FD_ISSET(iit->first, readfds))
 			{
@@ -1268,7 +1272,7 @@ ciosrv::dump_active_fdsets(
 		}
 
 		for (std::map<int, ciosrv*>::iterator
-				iit = iothread[tid]->wfds.begin(); iit != iothread[tid]->wfds.end(); ++iit)
+				iit = threads[tid]->wfds.begin(); iit != threads[tid]->wfds.end(); ++iit)
 		{
 			if (FD_ISSET(iit->first, writefds))
 			{

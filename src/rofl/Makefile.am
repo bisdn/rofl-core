@@ -20,4 +20,4 @@ lib_LTLIBRARIES = librofl.la
 librofl_la_SOURCES = rofl.h 
 librofl_la_LIBADD = common/libcommon.la config/libconfig.la platform/libplatform.la $(EXPERIMENTAL_LIBS)
 
-
+AM_LDFLAGS= -static

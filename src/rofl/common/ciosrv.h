@@ -176,12 +176,13 @@ class ciosrv : public virtual csyslog
 		};
 		~ciothread()
 		{
+#if 0
                         for (std::set<ciosrv*>::iterator it = ciosrv_list.begin();
                             it != ciosrv_list.end(); ++it)
                         {
                             delete (*it);
                         }
-
+#endif
                         pthread_mutex_destroy(&(ciosrv_list_mutex));
 	                pthread_rwlock_destroy(&(wakeup_rwlock));
 			delete pipe;
@@ -192,7 +193,7 @@ class ciosrv : public virtual csyslog
 protected:
 
 	static pthread_rwlock_t iothread_lock;
-	static std::map<pthread_t, ciothread*> iothread; // fds and timers for thread tid
+	static std::map<pthread_t, ciothread*> threads; // fds and timers for thread tid
 
 private: // static
 

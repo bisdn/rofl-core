@@ -24,3 +24,5 @@ librofl_control_la_LIBADD = ../common/libcommon.la
 
 library_includedir=$(includedir)/rofl/control
 library_include_HEADERS = cadapt.h  cfibentry.h  cfwdelem.h  cfwdentry.h cfwdtable.h  ctlbase.h  cfttable.h  cgttable.h  cftentry.h  cgtentry.h 
+
+AM_LDFLAGS= -static
