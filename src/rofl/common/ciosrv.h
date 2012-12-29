@@ -144,25 +144,46 @@ class eIoSvcNotFound        : public eIoSvcBase {}; //< element not found
  */
 class ciosrv : public virtual csyslog
 {
-	class ciodata {
+	class ciothread {
 	public:
-		pthread_t tid;		// thread id
-		cpipe *pipe;		// wakeup pipe
-		std::map<int, ciosrv*> rfds; 	// read fds
-		std::map<int, ciosrv*> wfds;	// write fds
-		std::list<ciosrv*> ciosrv_timeouts; // set with all ciosrv instances with timeout in next round
-		std::bitset<32> flags; //< flags
+		pthread_t               tid;		// thread id
+		cpipe                   *pipe;	        // wakeup pipe
+		std::map<int, ciosrv*>  rfds; 	        // read fds
+		std::map<int, ciosrv*>  wfds;	        // write fds
+		std::list<ciosrv*>      ciosrv_timeouts;// set with all ciosrv instances with timeout in next round
+		std::bitset<32>         flags;          //< flags
+
+		pthread_rwlock_t wakeup_rwlock;  // rwlock for cevent lists
+	        pthread_mutex_t  ciosrv_list_mutex;     // mutex for cevent lists
+	        std::set<class ciosrv*> ciosrv_insertion_list; //< list of all ciosrv instances new inserted
+	        std::set<class ciosrv*> ciosrv_list;           //< list of all ciosrv instances
+	        std::set<class ciosrv*> ciosrv_deletion_list;  //< list of all ciosrv instances scheduled for deletion
+	        std::set<class ciosrv*> ciosrv_wakeup;         //< list of all cioctl commands rcvd
+
+	        int evlockinit; // = 0 => destroy mutex
+
 	public:
 		/** constructor
 		 *
 		 */
-		ciodata() :
-			tid(pthread_self())
+		ciothread() :
+			tid(pthread_self()),
+			evlockinit(0)
 		{
 			pipe = new cpipe();
+			pthread_rwlock_init(&(wakeup_rwlock), NULL);
+			pthread_mutex_init(&(ciosrv_list_mutex), NULL);
 		};
-		~ciodata()
+		~ciothread()
 		{
+                        for (std::set<ciosrv*>::iterator it = ciosrv_list.begin();
+                            it != ciosrv_list.end(); ++it)
+                        {
+                            delete (*it);
+                        }
+
+                        pthread_mutex_destroy(&(ciosrv_list_mutex));
+	                pthread_rwlock_destroy(&(wakeup_rwlock));
 			delete pipe;
 		};
 	};
@@ -170,11 +191,8 @@ class ciosrv : public virtual csyslog
 
 protected:
 
-	static pthread_rwlock_t iodata_lock;
-
-	static std::map<pthread_t, ciodata*> iodata; // fds and timers for thread tid
-
-	static std::map<pthread_t, pthread_rwlock_t> ciosrv_wakeup_rwlock; // rwlock for cevent lists
+	static pthread_rwlock_t iothread_lock;
+	static std::map<pthread_t, ciothread*> iothread; // fds and timers for thread tid
 
 private: // static
 
@@ -183,15 +201,6 @@ private: // static
 						// wake up called thread
 	};
 
-	static std::map<pthread_t, pthread_mutex_t> ciosrv_list_mutex; // mutex for cevent lists
-	static std::map<pthread_t, std::set<class ciosrv*> > ciosrv_insertion_list; //< list of all ciosrv instances new inserted
-	static std::map<pthread_t, std::set<class ciosrv*> > ciosrv_list; //< list of all ciosrv instances
-	static std::map<pthread_t, std::set<class ciosrv*> > ciosrv_deletion_list; //< list of all ciosrv instances scheduled for deletion
-	static std::map<pthread_t, std::set<class ciosrv*> > ciosrv_wakeup; //< list of all cioctl commands rcvd
-	//static std::map<pthread_t, pthread_mutex_t*> ciosrvlock; //< mutexes for threads
-
-
-	static std::map<pthread_t, int> evlockinit; // = 0 => destroy mutex
 
 	/** dump information about all registered fdsets
 	 *
