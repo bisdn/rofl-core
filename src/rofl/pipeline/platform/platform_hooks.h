@@ -22,9 +22,9 @@ void platform_pop_ppp(datapacket_t* pkt);
 
 /* PUSH */
 void platform_push_ppp(datapacket_t* pkt);
-void platform_push_pppoe(datapacket_t* pkt);
-void platform_push_mpls(datapacket_t* pkt);
-void platform_push_vlan(datapacket_t* pkt);
+void platform_push_pppoe(datapacket_t* pkt, uint16_t ether_type);
+void platform_push_mpls(datapacket_t* pkt, uint16_t ether_type);
+void platform_push_vlan(datapacket_t* pkt, uint16_t ether_type);
 
 /* Copy ttl out*/
 void platform_copy_ttl_out(datapacket_t* pkt);

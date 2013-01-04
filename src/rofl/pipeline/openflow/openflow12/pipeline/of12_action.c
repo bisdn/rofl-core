@@ -241,11 +241,11 @@ inline void of12_process_packet_action(datapacket_t* pkt, of12_packet_action_t* 
 			break;
 		case OF12_AT_PUSH_PPP: platform_push_ppp(pkt);	
 			break;
-		case OF12_AT_PUSH_PPPOE: platform_push_pppoe(pkt);
+		case OF12_AT_PUSH_PPPOE: platform_push_pppoe(pkt, (uint16_t)(action->field));
 			break;
-		case OF12_AT_PUSH_MPLS: platform_push_mpls(pkt);
+		case OF12_AT_PUSH_MPLS: platform_push_mpls(pkt, (uint16_t)(action->field));
 			break;
-		case OF12_AT_PUSH_VLAN: platform_push_vlan(pkt);
+		case OF12_AT_PUSH_VLAN: platform_push_vlan(pkt, (uint16_t)(action->field));
 			break;
 		case OF12_AT_COPY_TTL_OUT: platform_copy_ttl_out(pkt);
 			break;
