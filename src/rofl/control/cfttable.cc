@@ -77,7 +77,6 @@ uint32_t cfttable::all_actions =
 		(1 << OFPAT_SET_FIELD) 		|
 		(1 << OFPAT_PUSH_PPPOE)		|
 		(1 << OFPAT_POP_PPPOE) 		|
-		(1 << OFPAT_PUSH_PPP)		|
 		(1 << OFPAT_POP_PPP);
 
 

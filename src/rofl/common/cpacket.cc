@@ -2776,9 +2776,6 @@ cpacket::handle_action(
 	case OFPAT_POP_PPPOE:
 		action_pop_pppoe(action);
 		break;
-	case OFPAT_PUSH_PPP:
-		action_push_ppp(action);
-		break;
 	case OFPAT_POP_PPP:
 		action_pop_ppp(action);
 		break;

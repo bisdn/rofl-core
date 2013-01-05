@@ -90,7 +90,6 @@ public: // data structures
 
 #define oac_push_pppoe oac_oacu.oacu_push		// action: push pppoe
 #define oac_pop_pppoe oac_oacu.oacu_pop_pppoe	// action: pop_pppoe
-#define oac_push_ppp oac_oacu.oacu_header		// action: push ppp (with plain header)
 #define oac_pop_ppp oac_oacu.oacu_header		// action: pop ppp (with plain header)
 #define oac_set_field oac_oacu.oacu_set_field	// action: set field
 
@@ -580,28 +579,6 @@ public:
 	~cofaction_pop_pppoe() {};
 };
 
-
-
-
-/** OFPAT_PUSH_PPP
- *
- */
-class cofaction_push_ppp : public cofaction {
-public:
-	/** constructor
-	 */
-	cofaction_push_ppp() :
-				cofaction(sizeof(struct ofp_action_header))
-	{
-		oac_header->type = htobe16(OFPAT_PUSH_PPP);
-		oac_header->len = htobe16(sizeof(struct ofp_action_header));
-	};
-
-	/** destructor
-	 */
-	virtual
-	~cofaction_push_ppp() {};
-};
 
 
 /** OFPAT_POP_PPP

@@ -39,7 +39,6 @@ cofactionset::init_action_indices()
 		cofactionset::action_indices[OFPAT_POP_PPPOE]   	= 2;
 		cofactionset::action_indices[OFPAT_POP_MPLS] 		= 3;
 		cofactionset::action_indices[OFPAT_POP_VLAN] 		= 4;
-		cofactionset::action_indices[OFPAT_PUSH_PPP]    	= 5;
 		cofactionset::action_indices[OFPAT_PUSH_PPPOE]  	= 6;
 		cofactionset::action_indices[OFPAT_PUSH_MPLS] 		= 7;
 		cofactionset::action_indices[OFPAT_PUSH_VLAN] 		= 8;
