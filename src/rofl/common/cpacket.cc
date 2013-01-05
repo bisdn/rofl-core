@@ -438,7 +438,7 @@ cpacket::tag_insert(
 	memmove(soframe() - len, soframe(), sizeof(struct fetherframe::eth_hdr_t));
 	memset(soframe() + sizeof(struct fetherframe::eth_hdr_t) - len, 0x00, len);
 
-	data.first 	-= len;
+	data.first  -= len;
 	data.second += len;
 
 	ether()->reset(data.first, sizeof(struct fetherframe::eth_hdr_t));
@@ -1733,11 +1733,40 @@ cpacket::push_pppoe(uint16_t ethertype)
 
 		ether()->set_dl_type(ethertype);
 
-		fpppoeframe *pppoe = new fpppoeframe(
-									tag_insert(sizeof(struct fpppoeframe::pppoe_hdr_t)),
-										sizeof(struct fpppoeframe::pppoe_hdr_t));
+		fpppoeframe *pppoe = (fpppoeframe*)0;
+		fpppframe *ppp = (fpppframe*)0;
 
-		frame_push(pppoe);
+		switch (ethertype) {
+		case fpppoeframe::PPPOE_ETHER_DISCOVERY:
+		{
+		    pppoe = new fpppoeframe(
+				tag_insert(sizeof(struct fpppoeframe::pppoe_hdr_t)),
+				            sizeof(struct fpppoeframe::pppoe_hdr_t));
+
+		    frame_push(pppoe);
+		}
+		    break;
+		case fpppoeframe::PPPOE_ETHER_SESSION:
+		{
+                    ppp = new fpppframe(
+                                tag_insert(sizeof(struct fpppframe::ppp_hdr_t)),
+                                            sizeof(struct fpppframe::ppp_hdr_t));
+
+                    frame_push(ppp);
+
+                    ppp->set_ppp_prot(0x0000);
+                    match.set_ppp_prot(0x0000);
+
+                    pppoe = new fpppoeframe(
+                              tag_insert(sizeof(struct fpppoeframe::pppoe_hdr_t)),
+                                          sizeof(struct fpppoeframe::pppoe_hdr_t));
+
+                    frame_push(pppoe);
+
+                    len += sizeof(uint16_t);
+		}
+		    break;
+		}
 
 		pppoe->set_pppoe_vers(fpppoeframe::PPPOE_VERSION);
 		pppoe->set_pppoe_type(fpppoeframe::PPPOE_TYPE);
