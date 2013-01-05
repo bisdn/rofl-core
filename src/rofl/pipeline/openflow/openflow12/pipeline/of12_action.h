@@ -22,7 +22,6 @@ typedef enum{
 	OF12_AT_POP_VLAN,			/* Pop the outer VLAN tag */
 	OF12_AT_POP_MPLS,			/* Pop the outer MPLS tag */
 	OF12_AT_POP_PPPOE,			/* Pop the PPPoE tag */
-	OF12_AT_POP_PPP,			/* Pop the PPP tag */
 
 	/*
 	*Push: first PPP, PPPoE, MPLS, VLAN

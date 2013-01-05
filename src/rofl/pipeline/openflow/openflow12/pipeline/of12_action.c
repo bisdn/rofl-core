@@ -237,8 +237,6 @@ inline void of12_process_packet_action(datapacket_t* pkt, of12_packet_action_t* 
 			break;
 		case OF12_AT_POP_PPPOE: platform_pop_pppoe(pkt);
 			break;
-		case OF12_AT_POP_PPP: platform_pop_ppp(pkt);
-			break;
 		case OF12_AT_PUSH_PPPOE: platform_push_pppoe(pkt, action->field);
 			break;
 		case OF12_AT_PUSH_MPLS: platform_push_mpls(pkt, action->field);
@@ -358,8 +356,6 @@ static void of12_dump_packet_action(of12_packet_action_t action){
 		case OF12_AT_POP_MPLS:fprintf(stderr, "POP_MPLS");
 			break;
 		case OF12_AT_POP_PPPOE:fprintf(stderr, "POP_PPPOE");
-			break;
-		case OF12_AT_POP_PPP:fprintf(stderr, "POP_PPP");
 			break;
 		case OF12_AT_PUSH_PPPOE:fprintf(stderr, "PUSH_PPPOE");
 			break;

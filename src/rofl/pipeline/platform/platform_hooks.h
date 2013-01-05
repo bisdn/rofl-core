@@ -18,7 +18,6 @@ void platform_copy_ttl_in(datapacket_t* pkt);
 void platform_pop_vlan(datapacket_t* pkt);
 void platform_pop_mpls(datapacket_t* pkt);
 void platform_pop_pppoe(datapacket_t* pkt);
-void platform_pop_ppp(datapacket_t* pkt);
 
 /* PUSH */
 void platform_push_pppoe(datapacket_t* pkt, uint16_t ether_type);
