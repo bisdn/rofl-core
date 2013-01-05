@@ -622,7 +622,6 @@ enum ofp_action_type {
 	OFPAT_SET_FIELD 	= 25, 	/* Set a header field using OXM TLV format. */
 	OFPAT_PUSH_PPPOE 	= 26,	/* Push a new PPPoE tag */
 	OFPAT_POP_PPPOE 	= 27,	/* Pop the PPPoE tag */
-	OFPAT_POP_PPP 		= 29,	/* Pop the PPP tag */
 	OFPAT_EXPERIMENTER	= 0xffff
 };
 

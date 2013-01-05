@@ -225,13 +225,6 @@ throw (eActionBadLen, eActionBadOutPort)
 			throw eActionBadLen();
 		}
 		break;
-	case OFPAT_POP_PPP:
-		oac_push = (struct ofp_action_push*)oac_header;
-		if (action.memlen() < sizeof(struct ofp_action_push))
-		{
-			throw eActionBadLen();
-		}
-		break;
 	default:
 		WRITELOG(COFACTION, DBG, "cofaction(%p)::__parse_action() invalid action type %d => %s", this, be16toh(oac_header->type), action.c_str());
 		throw eActionInvalType();
@@ -299,9 +292,6 @@ cofaction::length()
 
 	case OFPAT_POP_PPPOE:
 		return sizeof(struct ofp_action_pop_pppoe);
-
-	case OFPAT_POP_PPP:
-		return sizeof(struct ofp_action_header);
 
 	case OFPAT_SET_FIELD:
 		return action.memlen();
@@ -472,13 +462,6 @@ cofaction::__make_info()
 				 this,
 				 length(),
 				 be16toh(oac_pop_pppoe->ethertype)));
-		break;
-
-	case OFPAT_POP_PPP:
-		info.assign(vas(
-				 "cofaction(%p) OFPAT_POP_PPP length[%zu]",
-				 this,
-				 length()));
 		break;
 
 	case OFPAT_SET_FIELD:
