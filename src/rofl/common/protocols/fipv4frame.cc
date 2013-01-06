@@ -350,6 +350,13 @@ fipv4frame::get_ipv4_proto()
 }
 
 
+uint16_t
+fipv4frame::get_ipv4_length()
+{
+    return be16toh(ipv4_hdr->length);
+}
+
+
 void
 fipv4frame::set_ipv4_length(uint16_t length)
 {
