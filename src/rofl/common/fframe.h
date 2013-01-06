@@ -225,6 +225,26 @@ public:
 	{
 		return (0 == datalen);
 	};
+
+
+	/** shift left
+	 *
+	 */
+	void
+	shift_left(size_t bytes)
+	{
+	    data -= bytes;
+	};
+
+
+	/** shift right
+	 *
+	 */
+	void
+	shift_right(size_t bytes)
+	{
+	  data += bytes;
+	};
 };
 
 }; // end of namespace

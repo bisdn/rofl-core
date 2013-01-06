@@ -233,9 +233,9 @@ inline void of12_process_packet_action(datapacket_t* pkt, of12_packet_action_t* 
 			break;
 		case OF12_AT_POP_VLAN: platform_pop_vlan(pkt);
 			break;
-		case OF12_AT_POP_MPLS: platform_pop_mpls(pkt);
+		case OF12_AT_POP_MPLS: platform_pop_mpls(pkt, action->field);
 			break;
-		case OF12_AT_POP_PPPOE: platform_pop_pppoe(pkt);
+		case OF12_AT_POP_PPPOE: platform_pop_pppoe(pkt, action->field);
 			break;
 		case OF12_AT_PUSH_PPPOE: platform_push_pppoe(pkt, action->field);
 			break;
