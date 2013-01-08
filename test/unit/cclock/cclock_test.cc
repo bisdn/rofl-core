@@ -4,6 +4,7 @@
 
 #include <rofl/common/cclock.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 using namespace rofl;
 
