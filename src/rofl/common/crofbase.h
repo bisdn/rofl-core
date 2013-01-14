@@ -341,7 +341,7 @@ protected:
 	 * datapath.
 	 */
 	virtual void
-	handle_features_reply_timeout(cofdpt *sw) {};
+	handle_features_reply_timeout(cofdpt *dpt);
 
 	/** Handle OF get-config request. To be overwritten by derived class.
 	 *
@@ -372,7 +372,7 @@ protected:
 	 * @param sw cotswitch instance from whom a GET-CONFIG.reply was expected.
 	 */
 	virtual void
-	handle_get_config_reply_timeout(cofdpt *sw) {};
+	handle_get_config_reply_timeout(cofdpt *dpt);
 
 	/** Handle OF stats request. NOT to be overwritten by derived class.
 	 *
