@@ -83,6 +83,11 @@ cofctl::send_message(
     }
 
     switch (pack->ofh_header->type) {
+    case OFPT_HELLO:
+            {
+                    // ...
+            }
+            break;
     case OFPT_ERROR:
             {
                     // ...
