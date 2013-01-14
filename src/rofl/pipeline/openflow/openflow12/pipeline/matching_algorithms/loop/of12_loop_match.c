@@ -1,6 +1,5 @@
 #include "of12_loop_match.h"
 
-
 #include <stdlib.h>
 #include "../../../../../util/rofl_pipeline_utils.h"
 #include "../../of12_flow_table.h"
@@ -20,6 +19,14 @@ inline unsigned int of12_add_flow_entry_loop(of12_flow_table_t *const table, of1
 	
 	return_value = of12_add_flow_entry_table_imp(table, entry);
 
+	//FIXME TODO
+	/*if(mutex_acquired!=MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION)
+	{
+		//Add/update counters
+		//Add/update timers
+	}*/
+	
+	
 	//Green light to other threads
 	platform_mutex_unlock(table->mutex);
 

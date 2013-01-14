@@ -38,7 +38,7 @@ void of12_stats_flow_init(of12_flow_entry_t * entry)
  */
 void of12_stats_flow_destroy(of12_flow_entry_t* entry)
 {
-	platform_mutex_destroy(&entry->stats.mutex);
+	platform_mutex_destroy(entry->stats.mutex);
 }
 
 /**
@@ -49,10 +49,10 @@ void of12_stats_flow_duration_update(of12_flow_entry_t * entry)
 	struct timeval now;
 	of12_gettimeofday(&now, NULL);
 	
-	platform_mutex_lock(&(entry->stats.mutex));
+	platform_mutex_lock(entry->stats.mutex);
 	entry->stats.last_time_sec = now.tv_sec;
 	entry->stats.last_time_usec = now.tv_usec;
-	platform_mutex_unlock(&(entry->stats.mutex));
+	platform_mutex_unlock(entry->stats.mutex);
 }
 
 /**
@@ -62,7 +62,7 @@ void of12_stats_flow_get_duration(of12_flow_entry_t * entry)
 {
 	uint32_t nsec_now;
 	
-	platform_mutex_lock(&entry->stats.mutex);
+	platform_mutex_lock(entry->stats.mutex);
 	
 	nsec_now = entry->stats.last_time_usec*1000;
 	
@@ -78,7 +78,7 @@ void of12_stats_flow_get_duration(of12_flow_entry_t * entry)
 		entry->stats.duration_sec--;
 	}
 	
-	platform_mutex_unlock(&entry->stats.mutex);
+	platform_mutex_unlock(entry->stats.mutex);
 	
 	return;
 }
@@ -89,8 +89,8 @@ void of12_stats_flow_get_duration(of12_flow_entry_t * entry)
  */
 inline void of12_stats_flow_inc(of12_flow_entry_t * entry,uint64_t bytes_rx)
 {
-	platform_atomic_inc64(&entry->stats.packet_count,&entry->stats.mutex);
-	platform_atomic_add64(&entry->stats.byte_count,&bytes_rx, &entry->stats.mutex);
+	platform_atomic_inc64(&entry->stats.packet_count,entry->stats.mutex);
+	platform_atomic_add64(&entry->stats.byte_count,&bytes_rx, entry->stats.mutex);
 }
 
 //Table Statistics functions

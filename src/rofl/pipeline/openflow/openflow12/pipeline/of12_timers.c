@@ -47,7 +47,7 @@ void of12_time_forward(uint64_t sec, uint64_t usec, struct timeval * time)
  */
 int of12_gettimeofday(struct timeval * tval, struct timezone * tzone)
 {
-#ifdef DEBUG
+#ifdef TIMERS_FAKE_TIME
 	of12_time_forward(0,0,tval);
 	fprintf(stderr,"NOT usig real system time (%lu:%lu)\n", tval->tv_sec, tval->tv_usec);
 	return 0;

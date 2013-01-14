@@ -12,13 +12,9 @@
 #define OF12_TIMER_SLOT_MS 1000 //1s
 
 //Flag to define the usage of static allocation of slots for the timers
-#define OF12_TIMER_STATIC_ALLOCATION_SLOTS 0
+#define OF12_TIMER_STATIC_ALLOCATION_SLOTS 1
 
-#ifdef DEBUG
-#define OF12_TIMER_GROUPS_MAX 50
-#else
 #define OF12_TIMER_GROUPS_MAX 65536 //timeouts are given in a uint16_t=> 2^16
-#endif
 
 //fwd declarations
 struct of12_pipeline;
