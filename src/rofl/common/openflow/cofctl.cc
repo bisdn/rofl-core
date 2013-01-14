@@ -27,7 +27,7 @@ cofctl::cofctl(
 {
 	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
 
-	register_timer(COFCTL_TIMER_SEND_HELLO, 0);
+	rofbase->send_hello_message(this);
 }
 
 

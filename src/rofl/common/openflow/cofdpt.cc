@@ -41,7 +41,7 @@ cofdpt::cofdpt(
 
 	init_state(COFDPT_STATE_DISCONNECTED);
 
-        register_timer(COFDPT_TIMER_SEND_HELLO, 0);
+        rofbase->send_hello_message(this);
 
 #if 0
 	register_timer(COFDPT_TIMER_FEATURES_REQUEST, 0);
