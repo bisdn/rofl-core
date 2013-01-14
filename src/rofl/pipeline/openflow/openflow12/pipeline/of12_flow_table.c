@@ -22,9 +22,9 @@ of12_init_table(of12_flow_table_t* table, const unsigned int table_index,
 		const enum matching_algorithm_available algorithm)
 {
 	//Initializing mutexes
-	if(0 == (table->mutex = platform_mutex_init(NULL)))
+	if(NULL == (table->mutex = platform_mutex_init(NULL)))
 		return EXIT_FAILURE;
-	if(0 == (table->rwlock = platform_rwlock_init(NULL)))
+	if(NULL == (table->rwlock = platform_rwlock_init(NULL)))
 		return EXIT_FAILURE;
 	
 	table->number = table_index;
@@ -39,9 +39,16 @@ of12_init_table(of12_flow_table_t* table, const unsigned int table_index,
 	table->matching_aux[0] = NULL; 
 	table->matching_aux[1] = NULL;
 
+	//Initializing timers. NOTE does that need to be done here or somewhere else?
+#if OF12_TIMER_STATIC_ALLOCATION_SLOTS
+	of12_timer_group_static_init(table);
+#else
+	table->timers = NULL;
+#endif
+	
 	if(table->maf.init_hook)
 		return table->maf.init_hook(table);
-
+	
 	return EXIT_SUCCESS;
 }
 
@@ -67,6 +74,8 @@ unsigned int of12_destroy_table(of12_flow_table_t* table){
 	platform_mutex_destroy(table->mutex);
 	platform_rwlock_destroy(table->rwlock);
 	
+	//NOTE missing destruction of timers
+	
 	//Do NOT free table, since it was allocated in a single buffer in pipeline.c	
 	return EXIT_SUCCESS;
 }
@@ -86,7 +95,9 @@ unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_
 	of12_flow_entry_t *it, *prev;
 	
 	if(table->num_of_entries == OF12_MAX_NUMBER_OF_TABLE_ENTRIES)
+	{
 		return EXIT_FAILURE; 
+	}
 
 	if(!table->entries){
 		//No rule yet

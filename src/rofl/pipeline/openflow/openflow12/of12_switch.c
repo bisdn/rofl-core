@@ -1,22 +1,21 @@
+#include <stdio.h>
 #include "of12_switch.h"
 
 #include "../../platform/cutil.h"
 #include "../../platform/memory.h"
 
-#include <stdio.h>
-
 /* Initializer and destructor */
 of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, of12_flow_table_config_t config){
 
 	of12_switch_t* sw;
-	
-	if((sw = (of12_switch_t*)cutil_malloc_shared(sizeof(of12_switch_t))) == NULL)
+	sw = (of12_switch_t*)cutil_malloc_shared(sizeof(of12_switch_t));
+	if(sw == NULL)
 		return NULL;
 
 	//Filling in values
 	sw->of_ver = OF_VERSION_12;	
 	sw->dpid = dpid;
-	sw->name = (char*)cutil_malloc_shared(strlen(name)+1); 
+	sw->name = (char*)cutil_malloc_shared(strlen(name)+1);
 	if(sw->name == NULL){
 		cutil_free_shared(sw);
 		return NULL;
@@ -31,7 +30,7 @@ of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int nu
 	sw->platform_state=NULL;
 	
 	//Mutex
-	if(0 == (sw->mutex = platform_mutex_init(NULL))){
+	if(NULL == (sw->mutex = platform_mutex_init(NULL))){
 		cutil_free_shared(sw->name);
 		cutil_free_shared(sw);
 		return NULL; 
