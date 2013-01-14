@@ -74,7 +74,7 @@ void
 cofctl::send_message(
 		cofpacket *pack)
 {
-    if (not flags.test(COFCTL_FLAG_HELLO_RCVD))
+    if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO))
     {
         WRITELOG(CFWD, DBG, "cofctrl(%p)::send_message() "
             "dropping message, as no HELLO rcvd from peer yet, pack: %s",
