@@ -42,14 +42,6 @@ cofdpt::cofdpt(
 	init_state(COFDPT_STATE_DISCONNECTED);
 
         register_timer(COFDPT_TIMER_SEND_HELLO, 0);
-
-#if 0
-	register_timer(COFDPT_TIMER_FEATURES_REQUEST, 0);
-
-	new_state(COFDPT_STATE_WAIT_FEATURES);
-
-	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
-#endif
 }
 
 
