@@ -50,11 +50,11 @@ coxmlist::operator= (
 
 	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
 	{
-		if ((coxmatch*)0 == oxmlist.oxmvec[i])
-		{
-			continue;
-		}
-		oxmvec[i] = new coxmatch(*(oxmlist.oxmvec[i]));
+             if ((coxmatch*)0 == oxmlist.oxmvec[i])
+             {
+                    continue;
+             }
+             oxmvec[i] = new coxmatch(*(oxmlist.oxmvec[i]));
 	}
 
 	return *this;

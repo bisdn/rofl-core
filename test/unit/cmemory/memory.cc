@@ -5,6 +5,7 @@
 #include <rofl/common/cmemory.h>
 #include <stdlib.h>
 
+using namespace rofl;
 
 void check_index_operator();
 void check_insert();

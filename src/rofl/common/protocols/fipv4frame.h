@@ -306,6 +306,11 @@ public:
 	uint8_t
 	get_ipv4_proto();
 
+        /**
+         */
+        uint16_t
+        get_ipv4_length();
+
 	/**
 	 */
 	void

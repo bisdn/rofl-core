@@ -5,6 +5,7 @@
 #include <rofl/common/croflexp.h>
 #include <stdlib.h>
 
+using namespace rofl;
 
 void check_rext_flowspace();
 

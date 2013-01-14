@@ -6,6 +6,14 @@
 
 using namespace rofl;
 
+/*
+ * comment: use define -DSTRICT_MODE_RFC2516 in order to activate
+ * checking of presence of PPPoE tags in discovery frames
+ */
+#ifndef STRICT_MODE_RFC2516
+#define STRICT_MODE_RFC2516 0
+#endif
+
 fpppoeframe::fpppoeframe(
 		uint8_t* data,
 		size_t datalen) :
@@ -114,72 +122,215 @@ fpppoeframe::payloadlen() const throw (eFrameNoPayload)
 
 
 void
-fpppoeframe::validate(uint16_t total_len) throw (ePPPoEFrameTooShort,
-									ePPPoEFrameInvalType,
-									ePPPoEFrameInvalVersion,
-									ePPPoEFrameInvalCode,
-									ePPPoEPadsInvalSid,
-									ePPPoEPadtInvalCode,
-									ePPPoEPadtInvalSid)
+fpppoeframe::validate(uint16_t total_len)
+      throw (eFrameInvalidSyntax)
 {
-	//initialize(); // commented out 2012-12-13
+    try {
+          //initialize(); // commented out 2012-12-13
 
-	if (!complete())
-	{
-		WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
-							"invalid PPPoE frame rcvd: incomplete => %s", this, c_str());
-		throw ePPPoEFrameTooShort();
-	}
+          if (!complete())
+          {
+                  WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
+                                                          "invalid PPPoE frame rcvd: incomplete => %s", this, c_str());
+                  throw ePPPoEFrameTooShort();
+          }
 
-	if (PPPOE_TYPE != get_pppoe_type())
-	{
-		WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
-							"invalid PPPoE frame rcvd: type => %s", this, c_str());
-		throw ePPPoEFrameInvalType();
-	}
+          if (PPPOE_TYPE != get_pppoe_type())
+          {
+                  WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
+                                                          "invalid PPPoE frame rcvd: type => %s", this, c_str());
+                  throw ePPPoEFrameInvalType();
+          }
 
-	if (PPPOE_VERSION != get_pppoe_vers())
-	{
-		WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
-							"invalid PPPoE frame rcvd: version => %s", this, c_str());
-		throw ePPPoEFrameInvalVersion();
-	}
+          if (PPPOE_VERSION != get_pppoe_vers())
+          {
+                  WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
+                                                          "invalid PPPoE frame rcvd: version => %s", this, c_str());
+                  throw ePPPoEFrameInvalVersion();
+          }
 
-	switch (pppoe_hdr->code) {
-	case PPPOE_CODE_SESSION_DATA:
-		validate_pppoe_session();
-		break;
-	case PPPOE_CODE_PADI:
-		validate_pppoe_discovery_padi();
-		break;
-	case PPPOE_CODE_PADO:
-		validate_pppoe_discovery_pado();
-		break;
-	case PPPOE_CODE_PADR:
-		validate_pppoe_discovery_padr();
-		break;
-	case PPPOE_CODE_PADS:
-		validate_pppoe_discovery_pads();
-		break;
-	case PPPOE_CODE_PADT:
-		validate_pppoe_discovery_padt();
-		break;
-	default:
-		throw ePPPoEFrameInvalCode();
-		break;
-	}
+#if 0
+          // FIXME: set total_len appropriately
+          if (get_hdr_length() > (total_len - sizeof(struct fpppoeframe::pppoe_hdr_t)))
+          {
+              WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
+                                                      "invalid PPPoE frame rcvd: invalid header length => %s", this, c_str());
+
+              throw ePPPoEFrameTooShort();
+          }
+#endif
+
+          switch (pppoe_hdr->code) {
+          case PPPOE_CODE_SESSION_DATA:
+                  validate_pppoe_session();
+                  break;
+          case PPPOE_CODE_PADI:
+                  validate_pppoe_discovery_padi();
+                  break;
+          case PPPOE_CODE_PADO:
+                  validate_pppoe_discovery_pado();
+                  break;
+          case PPPOE_CODE_PADR:
+                  validate_pppoe_discovery_padr();
+                  break;
+          case PPPOE_CODE_PADS:
+                  validate_pppoe_discovery_pads();
+                  break;
+          case PPPOE_CODE_PADT:
+                  validate_pppoe_discovery_padt();
+                  break;
+          default:
+                  throw ePPPoEFrameInvalCode();
+                  break;
+          }
+
+          return;
+
+    } catch (ePPPoEFrameInvalCode& e) {
+
+        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
+               "invalid PPPoE frame rcvd => unsupported code", this);
+
+    } catch (ePPPoEFrameInvalType& e) {
+
+        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
+               "invalid PPPoE frame rcvd => unsupported type", this);
+
+    } catch (ePPPoEFrameInvalVersion& e) {
+
+        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
+               "invalid PPPoE frame rcvd => unsupported version", this);
+
+    } catch (ePPPoElistNotFound& e) {
+
+        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
+               "invalid PPPoE frame rcvd => no SVCname tag or no ACname tag found", this);
+
+    } catch (ePPPoEFrameInvalSid& e) {
+
+        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
+            "invalid PPPoE frame rcvd => invalid session id", this);
+
+    } catch (ePPPoEFrameTooShort& e) {
+
+        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
+            "invalid PPPoE frame rcvd => invalid header length specified", this);
+
+    } catch (ePPPoEBadLen& e) {
+
+        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
+                    "invalid PPPoE frame rcvd => unable to parse tags", this);
+
+    } catch (...) {
+
+        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
+                    "invalid PPPoE frame rcvd => generic error", this);
+
+    }
+
+    throw eFrameInvalidSyntax();
 }
 
 
 void
-fpppoeframe::validate_pppoe_session() throw (ePPPoEFrameInvalCode)
+fpppoeframe::validate_pppoe_discovery_padi()
+      throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound)
 {
-	if (0x0000 != get_pppoe_code()) // code field must not be 0
-	{
-		WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::is_valid_pppoe_session(): "
-						"invalid PPPoE code %d", this, get_pppoe_type());
-		throw ePPPoEFrameInvalCode();
-	}
+#ifdef STRICT_MODE_RFC2516
+    if (0x0000 != get_pppoe_sessid()) // session id must be 0x0000
+    {
+        throw ePPPoEFrameInvalSid();
+    }
+#endif
+
+    tags.unpack(pppoe_hdr->data, (framelen() - sizeof(struct fpppoeframe::pppoe_hdr_t)));
+
+#ifdef STRICT_MODE_RFC2516
+    tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME);
+#endif
+}
+
+
+void
+fpppoeframe::validate_pppoe_discovery_pado()
+      throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound)
+{
+#ifdef STRICT_MODE_RFC2516
+    if (0x0000 != get_pppoe_sessid()) // session id must be 0x0000
+    {
+        throw ePPPoEFrameInvalSid();
+    }
+#endif
+
+    tags.unpack(pppoe_hdr->data, get_hdr_length());
+
+#ifdef STRICT_MODE_RFC2516
+    tags.find_pppoe_tlv(PPPOE_TAG_AC_NAME); // tag -AC-Name- must be present
+
+    tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME); // tag -Service-Name- must be present
+#endif
+
+}
+
+void
+fpppoeframe::validate_pppoe_discovery_padr()
+      throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound)
+{
+#ifdef STRICT_MODE_RFC2516
+    if (0x0000 != get_pppoe_sessid())
+    {
+        throw ePPPoEFrameInvalSid();
+    }
+#endif
+
+    tags.unpack(pppoe_hdr->data, get_hdr_length());
+
+#ifdef STRICT_MODE_RFC2516
+    tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME);
+#endif
+}
+
+
+void
+fpppoeframe::validate_pppoe_discovery_pads()
+      throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound)
+{
+    tags.unpack(pppoe_hdr->data, get_hdr_length());
+
+#ifdef STRICT_MODE_RFC2516
+    tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME);
+#endif
+
+    // FIXME: this behavior is invalid compared to RFC 2516, check section 5.4
+}
+
+
+
+void
+fpppoeframe::validate_pppoe_discovery_padt()
+      throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound)
+{
+#ifdef STRICT_MODE_RFC2516
+    if (0x0000 == get_pppoe_sessid()) // session id should not be 0x0000 for a PADT (ongoing session)
+    {
+        // some devices set sessid to 0x0000 in PADT, although it is forbidden in RFC 2516.
+        // Be liberal what you accept ... including all crappy stuff from other people.
+        throw ePPPoEFrameInvalSid();
+    }
+#endif
+}
+
+
+void
+fpppoeframe::validate_pppoe_session()
+      throw (ePPPoEFrameInvalSid, eFrameInvalidSyntax)
+{
+#ifdef STRICT_MODE_RFC2516
+    if (0x0000 == get_pppoe_sessid()) // sessid must not be 0
+    {
+            throw ePPPoEFrameInvalSid();
+    }
+#endif
 
 	size_t res_len = framelen() - sizeof(struct pppoe_hdr_t); // effective PPPoE payload length
 
@@ -364,7 +515,7 @@ fpppoeframe::pack(uint8_t *frame, size_t framelen) throw (ePPPoEInval)
 
 
 void
-fpppoeframe::unpack(uint8_t *frame, size_t framelen) throw (ePPPoEInval)
+fpppoeframe::unpack(uint8_t *frame, size_t framelen) throw (ePPPoEInval, eFrameInvalidSyntax)
 {
 	reset(frame, framelen);
 
@@ -374,281 +525,7 @@ fpppoeframe::unpack(uint8_t *frame, size_t framelen) throw (ePPPoEInval)
 	validate();
 }
 
-#if 0
-void
-fpppoeframe::parse_pppoe_tags() throw (eFrameInvalidSyntax)
-{
-	struct pppoe_tag_hdr_t *tag = (struct pppoe_tag_hdr_t*)(pppoe_hdr->data);
-	size_t res_len = be16toh(pppoe_hdr->length); // remaining length after pppoe header
 
-	tags.unpack(pppoe_hdr->data, res_len);
-
-	pppoe_tags.clear(); // initialize vector of pppoe tag pointers
-
-	if (res_len == 0) // no tags at all
-		return;
-
-	while (res_len > 0)
-	{
-		WRITELOG(CPACKET, DBG, "fpppoeframe(%p)::parse_pppoe_tags() tag=%p tag->type=%d tag->length=%d res_len=%d",
-				this, tag, be16toh(tag->type), be16toh(tag->length), res_len);
-
-		if (res_len < sizeof(struct pppoe_tag_hdr_t))
-		{
-			WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): "
-							"remaining length insufficient for tag (%d > %d)",
-							this, res_len, sizeof(struct pppoe_tag_hdr_t));
-			return; // throw exception instead?
-		}
-
-		size_t tag_len = be16toh(tag->length); // excludes the pppoe tag header fields type and value!
-		if ((sizeof(struct pppoe_tag_hdr_t) +  tag_len) > res_len)
-		{
-			WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): "
-							"invalid tag length field (%d > %d)",
-							this, (sizeof(struct pppoe_tag_hdr_t) + tag_len), res_len);
-			return; // throw exception instead?
-		}
-
-		switch (be16toh(tag->type)) {
-		case PPPOE_TAG_END_OF_LIST:
-			if (be16toh(tag->length) != 0x0000)
-			{
-				WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -End-of-List- with "
-						"invalid length field (%d)", this, be16toh(tag->length));
-				throw eFrameInvalidSyntax();
-			}
-			break;
-		case PPPOE_TAG_SERVICE_NAME:
-			if (be16toh(tag->length) == 0)
-			{
-				WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -Service-Name- with "
-						"invalid length field (%d)", this, be16toh(tag->length));
-				throw eFrameInvalidSyntax();
-			}
-			break;
-		case PPPOE_TAG_AC_NAME:
-			if (be16toh(tag->length) == 0)
-			{
-				WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -AC-Name- with "
-						"invalid length field (%d)", this, be16toh(tag->length));
-				throw eFrameInvalidSyntax();
-			}
-			break;
-		case PPPOE_TAG_HOST_UNIQ:
-			if (be16toh(tag->length) == 0)
-			{
-				WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -Host-Uniq- with "
-						"invalid length field (%d)", this, be16toh(tag->length));
-				throw eFrameInvalidSyntax();
-			}
-			break;
-		case PPPOE_TAG_AC_COOKIE:
-			if (be16toh(tag->length) == 0)
-			{
-				WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -AC-Cookie- with "
-						"invalid length field (%d)", this, be16toh(tag->length));
-				throw eFrameInvalidSyntax();
-			}
-			break;
-		case PPPOE_TAG_VENDOR_SPECIFIC:
-			if (be16toh(tag->length) < 4)
-			{
-				WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): PPPoE tag -Vendor-Specific- with "
-						"invalid length field (%d)", this, be16toh(tag->length));
-				throw eFrameInvalidSyntax();
-			}
-			break;
-		case PPPOE_TAG_RELAY_SESSION_ID:
-			// nothing to do, opaque tag value, so may be zero in length
-			break;
-		case PPPOE_TAG_SERVICE_NAME_ERROR:
-			// nothing to do, may be zero or not
-			break;
-		case PPPOE_TAG_AC_SYSTEM_ERROR:
-			// nothing to do, may be zero or not
-			break;
-		case PPPOE_TAG_GENERIC_ERROR:
-			// nothing to do, may be zero or not
-			break;
-		default:
-			WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::parse_pppoe_tags(): "
-										"unknown tag type (%d)", this, be16toh(tag->type));
-			break;
-		}
-
-		pppoe_tags[(enum pppoe_tag_t)be16toh(tag->type)] = tag;
-
-		res_len -= (sizeof(struct pppoe_tag_hdr_t) + tag_len);
-		tag = (struct pppoe_tag_hdr_t*)((uint8_t*)tag + (sizeof(struct pppoe_tag_hdr_t) + tag_len));
-	}
-
-}
-#endif
-
-void
-fpppoeframe::validate_pppoe_discovery_padi() throw (eFrameInvalidSyntax)
-{
-#if 0
-	//parse_pppoe_tags(); // fill in pppoe_tags vector
-#endif
-
-	try {
-
-		//fprintf(stderr, "YYY => pppoe: %s\n", c_str());
-
-		if (PPPOE_CODE_PADI != get_pppoe_code())
-			throw ePPPoEPadiInvalCode();
-
-		if (0x0000 != get_pppoe_sessid()) // session id must be 0x0000
-			throw ePPPoEPadiInvalSid();
-
-		if (get_hdr_length() > (framelen() - sizeof(struct fpppoeframe::pppoe_hdr_t)))
-		{
-			throw ePPPoEFrameTooShort();
-		}
-
-		tags.unpack(pppoe_hdr->data, (framelen() - sizeof(struct fpppoeframe::pppoe_hdr_t)));
-
-		//fprintf(stderr, "validate_pppoe_discovery_padi() tags: %s\n", tags.c_str());
-
-		tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME);
-
-
-	} catch (ePPPoElistNotFound& e) {
-
-		throw ePPPoEPadiNoSvcTag();
-	}
-#if 0
-	std::map<enum pppoe_tag_t, struct pppoe_tag_hdr_t*>::iterator it;
-
-	if ((it = pppoe_tags.find(PPPOE_TAG_SERVICE_NAME)) == pppoe_tags.end()) // tag -Service-Name- must be present
-		throw eFrameInvalidSyntax();
-#endif
-}
-
-void
-fpppoeframe::validate_pppoe_discovery_pado() throw (eFrameInvalidSyntax)
-{
-#if 0
-	parse_pppoe_tags(); // fill in pppoe_tags vector
-#endif
-
-	try {
-
-		if (PPPOE_CODE_PADO != get_pppoe_code())
-			throw eFrameInvalidSyntax();
-
-		if (0x0000 != get_pppoe_sessid()) // session id must be 0x0000
-			throw eFrameInvalidSyntax();
-
-		tags.unpack(pppoe_hdr->data, get_hdr_length());
-
-		tags.find_pppoe_tlv(PPPOE_TAG_AC_NAME); // tag -AC-Name- must be present
-
-		tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME); // tag -Service-Name- must be present
-
-#if 0
-	std::map<enum pppoe_tag_t, struct pppoe_tag_hdr_t*>::iterator it;
-
-	if ((it = pppoe_tags.find(PPPOE_TAG_AC_NAME)) == pppoe_tags.end()) // tag -AC-Name- must be present
-		throw ePPPoEFrameInvalidSyntax();
-
-	if ((it = pppoe_tags.find(PPPOE_TAG_SERVICE_NAME)) == pppoe_tags.end()) // tag -Service-Name- must be present
-		throw ePPPoEFrameInvalidSyntax();
-#endif
-
-	} catch (ePPPoElistNotFound& e) {
-		throw eFrameInvalidSyntax();
-
-	}
-}
-
-void
-fpppoeframe::validate_pppoe_discovery_padr() throw (eFrameInvalidSyntax)
-{
-#if 0
-	parse_pppoe_tags(); // fill in pppoe_tags vector
-#endif
-
-	try {
-
-		if (PPPOE_CODE_PADR != get_pppoe_code())
-			throw ePPPoEPadrInvalCode();
-
-		if (0x0000 != get_pppoe_sessid())
-			throw ePPPoEPadrInvalSid();
-
-		tags.unpack(pppoe_hdr->data, get_hdr_length());
-
-		tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME);
-
-	} catch (ePPPoElistNotFound& e) {
-
-		throw ePPPoEPadrNoSvcTag();
-	}
-
-#if 0
-	std::map<enum pppoe_tag_t, struct pppoe_tag_hdr_t*>::iterator it;
-
-	if ((it = pppoe_tags.find(PPPOE_TAG_SERVICE_NAME)) == pppoe_tags.end()) // tag -Service-Name- must be present
-		throw eFrameInvalidSyntax();
-#endif
-}
-
-void
-fpppoeframe::validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalCode, ePPPoEPadsInvalSid)
-{
-#if 0
-	parse_pppoe_tags(); // fill in pppoe_tags vector
-#endif
-
-	try {
-
-		if (PPPOE_CODE_PADS != get_pppoe_code())
-		{
-			throw ePPPoEFrameInvalCode();
-		}
-
-		tags.unpack(pppoe_hdr->data, get_hdr_length());
-
-		tags.find_pppoe_tlv(PPPOE_TAG_SERVICE_NAME);
-
-		// FIXME: this behavior is invalid compared to RFC 2516, check section 5.4
-
-	} catch (ePPPoElistNotFound& e) {
-		throw eFrameInvalidSyntax();
-
-	}
-
-#if 0
-	std::map<enum pppoe_tag_t, struct pppoe_tag_hdr_t*>::iterator it;
-
-	if ((it = pppoe_tags.find(PPPOE_TAG_SERVICE_NAME)) == pppoe_tags.end()) // tag -Service-Name- must be present
-		throw eFrameInvalidSyntax();
-#endif
-}
-
-
-void
-fpppoeframe::validate_pppoe_discovery_padt() throw (ePPPoEPadtInvalCode, ePPPoEPadtInvalSid)
-{
-#if 0
-	parse_pppoe_tags(); // fill in pppoe_tags vector
-#endif
-
-	if (get_pppoe_code() != PPPOE_CODE_PADT)
-	{
-		throw ePPPoEPadtInvalCode();
-	}
-
-	if (0x0000 == get_pppoe_sessid()) // session id should not be 0x0000 for a PADT (ongoing session)
-	{
-		// some devices set sessid to 0x0000 in PADT, although it is forbidden in RFC 2516.
-		// Be liberal what you accept ... including all crappy stuff from other people.
-		//throw ePPPoEPadtInvalSid();
-	}
-}
 
 
 const char*

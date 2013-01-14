@@ -6,7 +6,6 @@
 #include <rofl/common/cmacaddr.h>
 #include <rofl/common/cmemory.h>
 #include <rofl/common/cpacket.h>
-#include <rofl/common/protocols/fpppoeframe.h>
 #include <stdlib.h>
 
 using namespace rofl;
@@ -16,7 +15,6 @@ void check_push_pop_vlan();
 void check_push_pop_mpls();
 void check_push_pop_pppoe_and_ppp();
 void check_pbb();
-void check_fpppoeframe();
 
 cmemory create_ether_header(
 		cmacaddr const& dst,
@@ -55,8 +53,6 @@ cmemory create_payload(
 		size_t size,
 		uint8_t value);
 
-cmemory create_pppoe_vendorid_tags();
-
 //cmemory create_ipv4_header();
 
 
@@ -66,13 +62,10 @@ int
 main(int args, char** argv)
 {
 	//check_parser();
-#if 0
 	check_push_pop_vlan();
 	check_push_pop_mpls();
 	check_push_pop_pppoe_and_ppp();
 	check_pbb();
-#endif
-	check_fpppoeframe();
 
 	return EXIT_SUCCESS;
 }
@@ -165,54 +158,6 @@ cmemory create_ppp_tag(
 	ppp[1] = (prot & 0x00ff) >> 0;
 
 	return ppp;
-}
-
-
-cmemory create_pppoe_vendorid_tags()
-{
-  cmemory circuitid(32);
-
-  cmemory& c = circuitid;
-
-  // tag-type 0x0105 (vendor-specific
-  c[0] = 0x01;
-  c[1] = 0x05;
-  c[2] = 0x00;
-  c[3] = 0x1c;
-
-  // vendorid=3561
-  c[4] = 0x00;
-  c[5] = 0x00;
-  c[6] = 0x0d;
-  c[7] = 0xe9;
-
-  // specific tags
-  c[8] = 0x01;
-  c[9] = 0x16;
-  c[10] = 0x43;
-  c[11] = 0x69;
-  c[12] = 0x72;
-  c[13] = 0x63;
-  c[14] = 0x75;
-  c[15] = 0x69;
-  c[16] = 0x74;
-  c[17] = 0x49;
-  c[18] = 0x44;
-  c[19] = 0x20;
-  c[20] = 0x61;
-  c[21] = 0x74;
-  c[22] = 0x6d;
-  c[23] = 0x20;
-  c[24] = 0x30;
-  c[25] = 0x2f;
-  c[26] = 0x32;
-  c[27] = 0x3a;
-  c[28] = 0x31;
-  c[29] = 0x2e;
-  c[30] = 0x33;
-  c[31] = 0x32;
-
-  return circuitid;
 }
 
 
@@ -749,50 +694,3 @@ check_pbb()
 	}
 }
 
-
-void
-check_fpppoeframe()
-{
-        try {
-                cmemory ptest(0);
-
-                ptest += create_ether_header(
-                                cmacaddr("00:11:11:11:11:11"),
-                                cmacaddr("00:22:22:22:22:22"),
-                                0x8100);
-                ptest += create_vlan_tag(0x52, 0x0, 0x88a8 /*IEEE802.1ad Q-in-Q*/);
-                ptest += create_vlan_tag(0x07, 0x0, 0x8100);
-                ptest += create_vlan_tag(0x777, 0x0, 0x8863);
-                ptest += create_pppoe_tag(/*code=*/0x19, /*sid=*/0x0000, /*len=*/7+32);
-                cmemory tags = create_payload(7, 0x00);
-
-                tags[0] = 0x01; // svcname tag
-                tags[1] = 0x99; // svcname tag
-                tags[2] = 0x00; // length
-                tags[3] = 0x03; // length
-                tags[4] = 0x41; // 'A'
-                tags[5] = 0x41; // 'A'
-                tags[6] = 0x41; // 'A'
-
-                ptest += tags;
-
-                ptest += create_pppoe_vendorid_tags();
-
-                printf("check_pbb() test packet: %s\n", ptest.c_str());
-
-                cpacket a1(ptest.somem(), ptest.memlen(), /*in_port=*/3, true);
-
-                printf("a1: %s\n", a1.c_str());
-
-                a1.pppoe(0)->validate();
-
-                fprintf(stderr, "Ende!\n");
-
-        } catch (eFrameInvalidSyntax& e) {
-
-                exit(EXIT_FAILURE);
-        } catch (ePPPoEBadLen& e) {
-
-                exit(EXIT_FAILURE);
-        }
-}

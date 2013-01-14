@@ -16,15 +16,13 @@ void platform_copy_ttl_in(datapacket_t* pkt);
 
 /* POP */
 void platform_pop_vlan(datapacket_t* pkt);
-void platform_pop_mpls(datapacket_t* pkt);
-void platform_pop_pppoe(datapacket_t* pkt);
-void platform_pop_ppp(datapacket_t* pkt);
+void platform_pop_mpls(datapacket_t* pkt, uint16_t ether_type);
+void platform_pop_pppoe(datapacket_t* pkt, uint16_t ether_type);
 
 /* PUSH */
-void platform_push_ppp(datapacket_t* pkt);
-void platform_push_pppoe(datapacket_t* pkt);
-void platform_push_mpls(datapacket_t* pkt);
-void platform_push_vlan(datapacket_t* pkt);
+void platform_push_pppoe(datapacket_t* pkt, uint16_t ether_type);
+void platform_push_mpls(datapacket_t* pkt, uint16_t ether_type);
+void platform_push_vlan(datapacket_t* pkt, uint16_t ether_type);
 
 /* Copy ttl out*/
 void platform_copy_ttl_out(datapacket_t* pkt);
@@ -34,7 +32,7 @@ void platform_dec_nw_ttl(datapacket_t* pkt);
 void platform_dec_mpls_ttl(datapacket_t* pkt);
 
 /* Set field */
-void platform_set_mpls_ttl(datapacket_t* pktm, uint8_t new_ttl);
+void platform_set_mpls_ttl(datapacket_t* pkt, uint8_t new_ttl);
 void platform_set_nw_ttl(datapacket_t* pkt, uint8_t new_ttl);
 void platform_set_queue(datapacket_t* pkt, uint32_t queue);
 

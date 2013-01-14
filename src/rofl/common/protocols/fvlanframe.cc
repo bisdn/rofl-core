@@ -155,7 +155,7 @@ fvlanframe::set_dl_vlan_pcp(uint8_t pcp)
 	vlan_hdr->hdr = htobe16(v);
 #endif
 
-	vlan_hdr->byte0 = ((pcp & 0x07) << 5) + (vlan_hdr->byte0 & 0x0f);
+	vlan_hdr->byte0 = ((pcp & 0x07) << 5) + (vlan_hdr->byte0 & 0x1f);
 }
 
 
@@ -180,7 +180,14 @@ fvlanframe::set_dl_vlan_cfi(bool cfi)
 #endif
 
 	vlan_hdr->byte0 &= 0xef;
-	vlan_hdr->byte0  = (cfi << 4);
+	if (cfi)
+	{
+	    vlan_hdr->byte0 |= (1 << 4);
+	}
+	else
+	{
+	    vlan_hdr->byte0 &= ~(1 << 4);
+	}
 }
 
 

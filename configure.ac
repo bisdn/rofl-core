@@ -219,6 +219,7 @@ AC_CONFIG_FILES([
 	test/unit/cmemory/Makefile
 	test/unit/cpacket/Makefile
 	test/unit/croflexp/Makefile
+	test/unit/frames/Makefile
 
 	doc/Makefile
 	])
