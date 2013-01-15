@@ -30,6 +30,8 @@ enum of12_flow_removal_strictness_t
 	STRICT
 };
 
+#define OF12_MATCHING_ALGORITHMS_MAX_DESCRIPTION_LENGTH 256
+
 struct matching_algorithm_functions
 {
 	// init and destroy
@@ -56,6 +58,9 @@ struct matching_algorithm_functions
 	// dump flow table
 	void
 	(*dump_hook)(struct of12_flow_table * const);
+	
+	//description of the matching algorithm
+	char description[OF12_MATCHING_ALGORITHMS_MAX_DESCRIPTION_LENGTH];
 };
 
 void

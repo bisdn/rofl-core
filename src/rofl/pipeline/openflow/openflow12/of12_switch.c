@@ -5,7 +5,7 @@
 #include "../../platform/memory.h"
 
 /* Initializer and destructor */
-of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, of12_flow_table_config_t config){
+of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* list,of12_flow_table_config_t config){
 
 	of12_switch_t* sw;
 	sw = (of12_switch_t*)cutil_malloc_shared(sizeof(of12_switch_t));
@@ -37,7 +37,7 @@ of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int nu
 	}
 	
 	//Setup pipeline	
-	sw->pipeline = of12_init_pipeline(num_of_tables, config);
+	sw->pipeline = of12_init_pipeline(num_of_tables, list, config);
 	if(sw->pipeline == NULL){
 		cutil_free_shared(sw->name);
 		cutil_free_shared(sw);

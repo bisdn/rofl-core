@@ -9,6 +9,7 @@
 
 #define LOOP_NO_MATCH 0
 #define LOOP_MATCH 1
+#define LOOP_DESCRIPTION "The loop algorithm searches the list of entries by its priority order. On the worst case the performance is o(N) with the number of entries"
 
 /* Flow management routines. Wraps call with mutex.  */
 inline unsigned int of12_add_flow_entry_loop(of12_flow_table_t *const table, of12_flow_entry_t *const entry){
@@ -116,5 +117,6 @@ load_matching_algorithm_loop(struct matching_algorithm_functions *f)
 		f->dump_hook = NULL;
 		f->init_hook = NULL;
 		f->destroy_hook = NULL;
+		strncpy(f->description,LOOP_DESCRIPTION, OF12_MATCHING_ALGORITHMS_MAX_DESCRIPTION_LENGTH);
 	}
 }
