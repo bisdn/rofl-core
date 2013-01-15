@@ -18,7 +18,7 @@ cofdpt::cofdpt(
 	n_buffers(0),
 	n_tables(0),
 	capabilities(0),
-	flags(0),
+	offlags(0),
 	miss_send_len(0),
 	socket(new csocket(this, newsd, ra, domain, type, protocol)),
 	rofbase(rofbase),
@@ -34,13 +34,14 @@ cofdpt::cofdpt(
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::cofdpt() "
 			"dpid:%"PRIu64" ", this, dpid);
 
-	init_state(COFDPT_STATE_WAIT_FEATURES);
+#ifndef NDEBUG
+        caddress raddr(ra);
+        fprintf(stderr, "A:dpt[%s] ", raddr.c_str());
+#endif
 
-	register_timer(COFDPT_TIMER_FEATURES_REQUEST, 0);
+	init_state(COFDPT_STATE_DISCONNECTED);
 
-	new_state(COFDPT_STATE_WAIT_FEATURES);
-
-	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
+        register_timer(COFDPT_TIMER_SEND_HELLO, 0);
 }
 
 
@@ -56,7 +57,7 @@ cofdpt::cofdpt(
 	n_buffers(0),
 	n_tables(0),
 	capabilities(0),
-	flags(0),
+	offlags(0),
 	miss_send_len(0),
 	socket(new csocket(this, domain, type, protocol)),
 	rofbase(rofbase),
@@ -119,13 +120,7 @@ cofdpt::handle_connected(
 #ifndef NDEBUG
 	fprintf(stderr, "C:dpt[%s] ", socket->raddr.c_str());
 #endif
-	rofbase->send_hello_message(this);
-
-	new_state(COFDPT_STATE_WAIT_FEATURES);
-
-	rofbase->send_features_request(this);
-
-	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, 0);
+	register_timer(COFDPT_TIMER_SEND_HELLO, 0);
 }
 
 
@@ -284,6 +279,13 @@ cofdpt::handle_message(
 		pack->ctl = this;
 #endif
 
+	        if (not flags.test(COFDPT_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO))
+	        {
+	            WRITELOG(COFCTL, WARN, "cofdpt(%p)::handle_message() "
+	                "no HELLO rcvd yet, dropping message, pack: %s", this, pack->c_str());
+	            delete pack; return;
+	        }
+
 		switch (pack->ofh_header->type) {
 		case OFPT_HELLO:
 			{
@@ -389,6 +391,14 @@ void
 cofdpt::send_message(
 		cofpacket *pack)
 {
+    if (not flags.test(COFDPT_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO))
+    {
+        WRITELOG(CFWD, DBG, "cofdpt(%p)::send_message() "
+            "dropping message, as no HELLO rcvd from peer yet => pack: %s",
+            this, pack->c_str());
+        delete pack; return;
+    }
+
 	switch (pack->ofh_header->type) {
 	case OFPT_HELLO:
 		{
@@ -469,10 +479,13 @@ void
 cofdpt::handle_timeout(int opaque)
 {
 	switch (opaque) {
+	case COFDPT_TIMER_SEND_HELLO:
+                {
+                        rofbase->send_hello_message(this);
+                }
+                break;
 	case COFDPT_TIMER_FEATURES_REQUEST:
 		{
-		        rofbase->send_hello_message(this);
-
 		        rofbase->send_features_request(this);
 		}
 		break;
@@ -548,16 +561,22 @@ cofdpt::hello_rcvd(cofpacket *pack)
 							OFPHFC_INCOMPATIBLE,
 							(uint8_t*) explanation, strlen(explanation));
 
-		send_message(reply);
+		send_message_via_socket(reply); // circumvent ::send_message, as COFDPT_FLAG_HELLO_RCVD is not set
+
+		handle_closed(socket, socket->sd);
 	}
 	else
 	{
-		new_state(COFDPT_STATE_CONNECTED);
+            WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() "
+                "HELLO exchanged with peer entity, attaching ...", this);
 
-		WRITELOG(COFRPC, DBG, "cofdpt(%p): HELLO exchanged with peer entity, attaching ...", this);
+	    flags.set(COFDPT_FLAG_HELLO_RCVD);
 
-		// start sending ECHO requests
-		register_timer(COFDPT_TIMER_ECHO_REPLY, rpc_echo_interval);
+            new_state(COFDPT_STATE_WAIT_FEATURES);
+
+            rofbase->send_features_request(this);
+
+            rofbase->send_echo_request(this);
 	}
 
 	delete pack;
@@ -593,6 +612,23 @@ cofdpt::echo_reply_rcvd(cofpacket *pack)
 	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
 }
 
+
+
+void
+cofdpt::handle_echo_reply_timeout()
+{
+        WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_echo_reply_timeout() ", this);
+
+        // TODO: repeat ECHO request multiple times (should be configurable)
+
+        socket->cclose();
+        new_state(COFDPT_STATE_DISCONNECTED);
+        if (dptflags.test(COFDPT_FLAG_ACTIVE_SOCKET))
+        {
+                try_to_connect(true);
+        }
+        rofbase->handle_dpt_close(this);
+}
 
 
 
@@ -670,23 +706,6 @@ cofdpt::features_reply_rcvd(
 
 
 
-void
-cofdpt::handle_echo_reply_timeout()
-{
-	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_echo_reply_timeout() ", this);
-
-	// TODO: repeat ECHO request multiple times (should be configurable)
-
-	socket->cclose();
-	new_state(COFDPT_STATE_DISCONNECTED);
-	if (dptflags.test(COFDPT_FLAG_ACTIVE_SOCKET))
-	{
-		try_to_connect(true);
-	}
-	rofbase->handle_dpt_close(this);
-}
-
-
 
 void
 cofdpt::handle_features_reply_timeout()
@@ -713,7 +732,7 @@ cofdpt::get_config_reply_rcvd(
 {
 	cancel_timer(COFDPT_TIMER_GET_CONFIG_REPLY);
 
-	flags = be16toh(pack->ofh_switch_config->flags);
+	offlags = be16toh(pack->ofh_switch_config->flags);
 	miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
 
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::get_config_reply_rcvd() "

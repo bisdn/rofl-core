@@ -83,19 +83,20 @@ private:
 		/* cofdpt timer types */
 		enum cofdpt_timer_t {
 			COFDPT_TIMER_BASE = 0xc721,
-			COFDPT_TIMER_RECONNECT			= ((COFDPT_TIMER_BASE) << 16 | (0x01 << 8)),
+			COFDPT_TIMER_RECONNECT		= ((COFDPT_TIMER_BASE) << 16 | (0x01 << 8)),
 			COFDPT_TIMER_FEATURES_REQUEST 	= ((COFDPT_TIMER_BASE) << 16 | (0x02 << 8)),
 			COFDPT_TIMER_FEATURES_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x03 << 8)),
 			COFDPT_TIMER_GET_CONFIG_REQUEST = ((COFDPT_TIMER_BASE) << 16 | (0x04 << 8)),
 			COFDPT_TIMER_GET_CONFIG_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x05 << 8)),
-			COFDPT_TIMER_STATS_REQUEST 		= ((COFDPT_TIMER_BASE) << 16 | (0x06 << 8)),
-			COFDPT_TIMER_STATS_REPLY 		= ((COFDPT_TIMER_BASE) << 16 | (0x07 << 8)),
+			COFDPT_TIMER_STATS_REQUEST 	= ((COFDPT_TIMER_BASE) << 16 | (0x06 << 8)),
+			COFDPT_TIMER_STATS_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x07 << 8)),
 			COFDPT_TIMER_BARRIER_REQUEST 	= ((COFDPT_TIMER_BASE) << 16 | (0x08 << 8)),
-			COFDPT_TIMER_BARRIER_REPLY 		= ((COFDPT_TIMER_BASE) << 16 | (0x09 << 8)),
+			COFDPT_TIMER_BARRIER_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x09 << 8)),
 			COFDPT_TIMER_LLDP_SEND_DISC 	= ((COFDPT_TIMER_BASE) << 16 | (0x0a << 8)),
-			COFDPT_TIMER_ECHO_REQUEST		= ((COFDPT_TIMER_BASE) << 16 | (0x0b << 8)),
-			COFDPT_TIMER_ECHO_REPLY			= ((COFDPT_TIMER_BASE) << 16 | (0x0c << 8)),
+			COFDPT_TIMER_ECHO_REQUEST	= ((COFDPT_TIMER_BASE) << 16 | (0x0b << 8)),
+			COFDPT_TIMER_ECHO_REPLY	        = ((COFDPT_TIMER_BASE) << 16 | (0x0c << 8)),
 			COFDPT_TIMER_SEND_ECHO_REQUEST	= ((COFDPT_TIMER_BASE) << 16 | (0x0d << 8)),
+			COFDPT_TIMER_SEND_HELLO         = ((COFDPT_TIMER_BASE) << 16 | (0x0e << 8)),
 		};
 
 		/* cofdpt state types */
@@ -111,6 +112,7 @@ private:
 		/* cofdpt flags */
 		enum cofdpt_flag_t {
 			COFDPT_FLAG_ACTIVE_SOCKET		= (1 << 0),
+			COFDPT_FLAG_HELLO_RCVD                  = (1 << 1),
 		};
 
 #define DEFAULT_DP_FEATURES_REPLY_TIMEOUT 		10
@@ -118,6 +120,7 @@ private:
 #define DEFAULT_DP_STATS_REPLY_TIMEOUT 			10
 #define DEFAULT_DB_BARRIER_REPLY_TIMEOUT 		10
 
+		std::bitset<32>                          flags;
 
 public: // data structures
 
@@ -132,7 +135,7 @@ public: // data structures
 
 		std::map<uint32_t, cofport*> 	ports;			// list of ports
 		std::bitset<32> 				dptflags;		// 'fragmentation' flags
-		uint16_t						flags;
+		uint16_t						offlags;
 		uint16_t 						miss_send_len; 	// length of bytes sent to controller
 
 		cfsptable 						fsptable;		// flowspace registration table

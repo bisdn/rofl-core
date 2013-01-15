@@ -27,11 +27,7 @@ cofctl::cofctl(
 {
 	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
 
-	register_timer(COFCTL_TIMER_SEND_HELLO, 0);
-
-	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
-
-	rofbase->handle_ctl_open(this);
+        register_timer(COFCTL_TIMER_SEND_HELLO, 0);
 }
 
 
@@ -78,80 +74,93 @@ void
 cofctl::send_message(
 		cofpacket *pack)
 {
-	switch (pack->ofh_header->type) {
-	case OFPT_ERROR:
-		{
-			// ...
-		}
-		break;
-	case OFPT_ECHO_REQUEST:
-		{
-			echo_request_sent(pack);
-		}
-		break;
-	case OFPT_ECHO_REPLY:
-		{
-			// do nothing here
-		}
-		break;
-	case OFPT_EXPERIMENTER:
-		{
-			// ...
-		}
-		break;
-	case OFPT_FEATURES_REPLY:
-		{
-			features_reply_sent(pack);
-		}
-		break;
-	case OFPT_GET_CONFIG_REPLY:
-		{
-			get_config_reply_sent(pack);
-		}
-		break;
-	case OFPT_PACKET_IN:
-		{
-			// asynchronous ...
-		}
-		break;
-	case OFPT_FLOW_REMOVED:
-		{
-			// asynchronous ...
-		}
-		break;
-	case OFPT_PORT_STATUS:
-		{
-			// asynchronous ...
-		}
-		break;
-	case OFPT_STATS_REPLY:
-		{
-			stats_reply_sent(pack);
-		}
-		break;
-	case OFPT_BARRIER_REPLY:
-		{
-			barrier_reply_sent(pack);
-		}
-		break;
-	case OFPT_QUEUE_GET_CONFIG_REPLY:
-		{
-			queue_get_config_reply_sent(pack);
-		}
-		break;
-	case OFPT_ROLE_REPLY:
-		{
-			role_reply_sent(pack);
-		}
-		break;
-	default:
-		{
-			WRITELOG(COFCTL, WARN, "cofctl(%p)::send_message() "
-					"dropping invalid packet: %s", this, pack->c_str());
-			delete pack;
-		}
-		return;
-	}
+    if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO))
+    {
+        WRITELOG(CFWD, DBG, "cofctrl(%p)::send_message() "
+            "dropping message, as no HELLO rcvd from peer yet, pack: %s",
+            this, pack->c_str());
+        delete pack; return;
+    }
+
+    switch (pack->ofh_header->type) {
+    case OFPT_HELLO:
+            {
+                    // ...
+            }
+            break;
+    case OFPT_ERROR:
+            {
+                    // ...
+            }
+            break;
+    case OFPT_ECHO_REQUEST:
+            {
+                    echo_request_sent(pack);
+            }
+            break;
+    case OFPT_ECHO_REPLY:
+            {
+                    // do nothing here
+            }
+            break;
+    case OFPT_EXPERIMENTER:
+            {
+                    // ...
+            }
+            break;
+    case OFPT_FEATURES_REPLY:
+            {
+                    features_reply_sent(pack);
+            }
+            break;
+    case OFPT_GET_CONFIG_REPLY:
+            {
+                    get_config_reply_sent(pack);
+            }
+            break;
+    case OFPT_PACKET_IN:
+            {
+                    // asynchronous ...
+            }
+            break;
+    case OFPT_FLOW_REMOVED:
+            {
+                    // asynchronous ...
+            }
+            break;
+    case OFPT_PORT_STATUS:
+            {
+                    // asynchronous ...
+            }
+            break;
+    case OFPT_STATS_REPLY:
+            {
+                    stats_reply_sent(pack);
+            }
+            break;
+    case OFPT_BARRIER_REPLY:
+            {
+                    barrier_reply_sent(pack);
+            }
+            break;
+    case OFPT_QUEUE_GET_CONFIG_REPLY:
+            {
+                    queue_get_config_reply_sent(pack);
+            }
+            break;
+    case OFPT_ROLE_REPLY:
+            {
+                    role_reply_sent(pack);
+            }
+            break;
+    default:
+            {
+                    WRITELOG(COFCTL, WARN, "cofctl(%p)::send_message() "
+                                    "dropping invalid packet: %s", this, pack->c_str());
+                    delete pack;
+            }
+            return;
+    }
 
 #ifndef NDEBUG
 	fprintf(stderr, "s:%d ", pack->ofh_header->type);
@@ -218,11 +227,7 @@ cofctl::handle_connected(
 #ifndef NDEBUG
 	fprintf(stderr, "C:ctl[%s] ", socket->raddr.c_str());
 #endif
-	rofbase->handle_ctl_open(this);
-
-	rofbase->send_hello_message(this);
-
-	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, 0);
+	register_timer(COFCTL_TIMER_SEND_HELLO, 0);
 }
 
 
@@ -382,6 +387,13 @@ cofctl::handle_message(
 	pack->ctl = this;
 #endif
 
+	if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO))
+        {
+	    WRITELOG(COFCTL, WARN, "cofctl(%p)::handle_message() "
+	        "no HELLO rcvd yet, dropping message, pack: %s", this, pack->c_str());
+	    delete pack; return;
+        }
+
 	switch (pack->ofh_header->type) {
 	case OFPT_HELLO:
 		{
@@ -483,31 +495,37 @@ cofctl::hello_rcvd(cofpacket *pack)
 	// OpenFlow versions do not match, send error, close connection
 	if (pack->ofh_header->version != OFP_VERSION)
 	{
-		new_state(STATE_CTL_DISCONNECTED);
+            new_state(STATE_CTL_DISCONNECTED);
 
-		// invalid OFP_VERSION
-		char explanation[256];
-		bzero(explanation, sizeof(explanation));
-		snprintf(explanation, sizeof(explanation) - 1,
-				"unsupported OF version (%d), supported version is (%d)",
-				(pack->ofh_header->version), OFP_VERSION);
+            // invalid OFP_VERSION
+            char explanation[256];
+            bzero(explanation, sizeof(explanation));
+            snprintf(explanation, sizeof(explanation) - 1,
+                            "unsupported OF version (%d), supported version is (%d)",
+                            (pack->ofh_header->version), OFP_VERSION);
 
-		cofpacket_error *reply = new cofpacket_error(
-							pack->get_xid(),
-							OFPET_HELLO_FAILED,
-							OFPHFC_INCOMPATIBLE,
-							(uint8_t*) explanation, strlen(explanation));
+            cofpacket_error *reply = new cofpacket_error(
+                                                    pack->get_xid(),
+                                                    OFPET_HELLO_FAILED,
+                                                    OFPHFC_INCOMPATIBLE,
+                                                    (uint8_t*) explanation, strlen(explanation));
 
-		send_message(reply);
+            send_message_via_socket(reply);
+
+            handle_closed(socket, socket->sd);
 	}
 	else
 	{
-		new_state(STATE_CTL_ESTABLISHED);
+	    flags.set(COFCTL_FLAG_HELLO_RCVD);
 
-		WRITELOG(COFRPC, DBG, "cofctl(%p): HELLO exchanged with peer entity, attaching ...", this);
+            new_state(STATE_CTL_ESTABLISHED);
 
-		// start sending ECHO requests
-		register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
+            WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() "
+                "HELLO exchanged with peer entity, attaching ...", this);
+
+            rofbase->send_echo_request(this);
+
+            rofbase->handle_ctl_open(this);
 	}
 
 	delete pack;

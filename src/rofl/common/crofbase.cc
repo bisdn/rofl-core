@@ -768,6 +768,18 @@ crofbase::send_features_reply(
 
 
 
+
+void
+crofbase::handle_features_reply_timeout(cofdpt *dpt)
+{
+    if (ofdpt_set.find(dpt) != ofdpt_set.end())
+    {
+            delete dpt;
+            ofdpt_set.erase(dpt);
+    }
+}
+
+
 #if 0
 void
 crofbase::recv_message(
@@ -810,6 +822,18 @@ crofbase::send_get_config_reply(cofctl *ctl, uint32_t xid, uint16_t flags, uint1
 					miss_send_len);
 
 	ofctrl_find(ctl)->send_message(pack);
+}
+
+
+
+void
+crofbase::handle_get_config_reply_timeout(cofdpt *dpt)
+{
+    if (ofdpt_set.find(dpt) != ofdpt_set.end())
+    {
+           delete dpt;
+           ofdpt_set.erase(dpt);
+    }
 }
 
 
