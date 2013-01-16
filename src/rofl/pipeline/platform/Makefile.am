@@ -20,4 +20,4 @@ librofl_pipeline_platform_la_SOURCES = \
 	lock.h \
 	memory.h \
 	platform_hooks.h \
-	platform_locks.h
+	platform_lock.h
