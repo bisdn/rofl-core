@@ -1,6 +1,8 @@
 #ifndef PLATFORM_HOOKS
 #define PLATFORM_HOOKS
 
+#include <stdint.h>
+
 /*
 *
 * Prototypes of the functions that platform must support and provide an implementation.
