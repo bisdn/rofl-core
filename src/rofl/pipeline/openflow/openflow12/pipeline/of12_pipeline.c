@@ -2,7 +2,9 @@
 #include "of12_instruction.h"
 #include "../../../platform/lock.h"
 #include "../../../platform/memory.h"
+#include "../../../platform/platform_hooks.h"
 #include "matching_algorithms/matching_algorithms_available.h"
+#include "../openflow12.h"
 
 #include <stdio.h>
 
@@ -121,6 +123,7 @@ unsigned int of12_process_packet_pipeline(const of12_pipeline_t* pipeline , data
 			}else if(pipeline->tables[i].default_action == OF12_TABLE_MISS_CONTROLLER){
 				fprintf(stderr,"Table MISS_CONTROLLER %u\n",i);	
 				/* FIXME: Generate packet in*/fprintf(stderr,"Packet at %p generated a PACKET_IN event to the controller\n",pkt);
+                platform_packet_in(pipeline->tables[i].number/*or only i*/, pkt, OFPR_NO_MATCH);
 				return EXIT_FAILURE;	
 			}
 			//else -> continue with the pipeline	
