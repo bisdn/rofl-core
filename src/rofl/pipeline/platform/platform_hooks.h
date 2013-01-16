@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#include "../util/rofl_pipeline_utils.h"
+#include "../common/datapacket.h"
+
 /*
 *
 * Prototypes of the functions that platform must support and provide an implementation.
