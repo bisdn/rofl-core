@@ -1,6 +1,10 @@
 #ifndef PLATFORM_HOOKS
 #define PLATFORM_HOOKS
 
+#include <stdint.h>
+
+#include "../util/rofl_pipeline_utils.h"
+#include "../common/datapacket.h"
 #include "../openflow/of_switch.h"
 
 /*
