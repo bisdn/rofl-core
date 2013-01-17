@@ -42,6 +42,8 @@ typedef struct{
 
 }of_switch_t;
 
+typedef int of_packet_in_reason_t;
+
 //C++ extern C
 ROFL_PIPELINE_BEGIN_DECLS
 
