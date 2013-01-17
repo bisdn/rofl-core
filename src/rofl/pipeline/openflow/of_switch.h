@@ -46,7 +46,7 @@ typedef struct{
 ROFL_PIPELINE_BEGIN_DECLS
 
 //Wrapping destroy
-inline unsigned int of_destroy_switch(const of_switch_t* sw);
+unsigned int of_destroy_switch(const of_switch_t* sw);
 
 //Wrapping of processing
 unsigned int of_process_packet_pipeline(const of_switch_t* sw, datapacket_t *const pkt);
