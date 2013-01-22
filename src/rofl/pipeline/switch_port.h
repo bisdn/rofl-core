@@ -92,7 +92,7 @@ struct switch_port{
 	char* name;
 
 	//Port state
-	port_stats_t state;
+	port_state_t state;
 	
 	// Port statistics
 	port_stats_t stats;
