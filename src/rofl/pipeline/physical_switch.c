@@ -41,11 +41,11 @@ unsigned int physical_switch_add_logical_switch(of_switch_t* sw){
 		return EXIT_FAILURE;
 	
 	//Serialize
-	platform_mutex_lock(&psw.mutex);
+	platform_mutex_lock(psw.mutex);
 
 	if(psw.num_of_logical_switches == PHYSICAL_SWITCH_MAX_LS){
 		//Serialize
-		platform_mutex_unlock(&psw.mutex);
+		platform_mutex_unlock(psw.mutex);
 		return EXIT_FAILURE;
 	}
 	
@@ -58,7 +58,7 @@ unsigned int physical_switch_add_logical_switch(of_switch_t* sw){
 	psw.logical_switches[i] = sw;
 	psw.num_of_logical_switches++;
 
-	platform_mutex_unlock(&psw.mutex);
+	platform_mutex_unlock(psw.mutex);
 	return EXIT_SUCCESS;
 }
 
@@ -68,10 +68,10 @@ unsigned int physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid){
 	of_switch_t* sw;
 
 	//Serialize
-	platform_mutex_lock(&psw.mutex);
+	platform_mutex_lock(psw.mutex);
 
 	if(!physical_switch_get_logical_switch_by_dpid(dpid)){
-		platform_mutex_unlock(&psw.mutex);
+		platform_mutex_unlock(psw.mutex);
 		return EXIT_FAILURE;
 	}
 	
@@ -84,7 +84,7 @@ unsigned int physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid){
 			psw.num_of_logical_switches--;
 
 			//Free the rest to do stuff with the physical sw
-			platform_mutex_unlock(&psw.mutex);
+			platform_mutex_unlock(psw.mutex);
 
 			//Destroy the switch				
 			of_destroy_switch(sw);				
@@ -94,7 +94,7 @@ unsigned int physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid){
 	}
 	
 	//This statement can never be reached	
-	platform_mutex_unlock(&psw.mutex);
+	platform_mutex_unlock(psw.mutex);
 	return EXIT_FAILURE;
 }
 
@@ -123,11 +123,11 @@ unsigned int physical_switch_attach_physical_port_num_to_logical_switch(unsigned
 		return EXIT_FAILURE;
 	
 	//Serialize
-	platform_mutex_lock(&psw.mutex);
+	platform_mutex_lock(psw.mutex);
 
 	return_val = of_attach_port_to_switch(sw, psw.physical_ports[port_num], logical_switch_port_num);
 	
-	platform_mutex_unlock(&psw.mutex);
+	platform_mutex_unlock(psw.mutex);
 	return return_val;
 }
 
@@ -139,11 +139,11 @@ unsigned int physical_switch_attach_port_to_logical_switch(switch_port_t* port, 
 		return EXIT_FAILURE;
 	
 	//Serialize
-	platform_mutex_lock(&psw.mutex);
+	platform_mutex_lock(psw.mutex);
 
 	return_val = of_attach_port_to_switch(sw, port, port_num);
 	
-	platform_mutex_unlock(&psw.mutex);
+	platform_mutex_unlock(psw.mutex);
 	return return_val;
 
 }
@@ -156,11 +156,11 @@ unsigned int physical_switch_attach_port_to_logical_switch_at_port_num(switch_po
 		return EXIT_FAILURE;
 
 	//Serialize
-	platform_mutex_lock(&psw.mutex);
+	platform_mutex_lock(psw.mutex);
 
 	return_val = of_attach_port_to_switch_at_port_num(sw, port_num, port);
 
-	platform_mutex_unlock(&psw.mutex);
+	platform_mutex_unlock(psw.mutex);
 	return return_val;
 }
 
@@ -172,11 +172,11 @@ unsigned int physical_switch_detach_port_num_from_logical_switch(unsigned int po
 		return EXIT_FAILURE;
 
 	//Serialize
-	platform_mutex_lock(&psw.mutex);
+	platform_mutex_lock(psw.mutex);
 
 	return_val = of_detach_port_from_switch_by_port_num(sw, port_num);
 	
-	platform_mutex_unlock(&psw.mutex);
+	platform_mutex_unlock(psw.mutex);
 	return return_val;
 
 }
@@ -189,11 +189,11 @@ unsigned int physical_switch_detach_port_from_logical_switch(switch_port_t* port
 		return EXIT_FAILURE;
 
 	//Serialize
-	platform_mutex_lock(&psw.mutex);
+	platform_mutex_lock(psw.mutex);
 
 	return_val = of_detach_port_from_switch(sw, port);
 	
-	platform_mutex_unlock(&psw.mutex);
+	platform_mutex_unlock(psw.mutex);
 	return return_val;
 
 
@@ -207,11 +207,11 @@ unsigned int physical_switch_detach_all_ports_from_logical_switch(of_switch_t* s
 		return EXIT_FAILURE;
 
 	//Serialize
-	platform_mutex_lock(&psw.mutex);
+	platform_mutex_lock(psw.mutex);
 
 	return_val = of_detach_all_ports_from_switch(sw);
 	
-	platform_mutex_unlock(&psw.mutex);
+	platform_mutex_unlock(psw.mutex);
 	return return_val;
 
 }
