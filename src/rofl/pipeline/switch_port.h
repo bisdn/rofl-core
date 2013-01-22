@@ -92,6 +92,9 @@ struct switch_port{
 	char* name;
 
 	//Port state
+	port_stats_t state;
+	
+	// Port statistics
 	port_stats_t stats;
 
 	//Port capabilities; bitmaps!
