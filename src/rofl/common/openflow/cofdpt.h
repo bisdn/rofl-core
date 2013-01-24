@@ -112,7 +112,8 @@ private:
 		/* cofdpt flags */
 		enum cofdpt_flag_t {
 			COFDPT_FLAG_ACTIVE_SOCKET		= (1 << 0),
-			COFDPT_FLAG_HELLO_RCVD                  = (1 << 1),
+			COFDPT_FLAG_HELLO_RCVD          = (1 << 1),
+			COFDPT_FLAG_HELLO_SENT			= (1 << 2),
 		};
 
 #define DEFAULT_DP_FEATURES_REPLY_TIMEOUT 		10

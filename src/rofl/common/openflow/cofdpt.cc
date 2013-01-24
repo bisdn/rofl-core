@@ -480,13 +480,20 @@ cofdpt::handle_timeout(int opaque)
 {
 	switch (opaque) {
 	case COFDPT_TIMER_SEND_HELLO:
-                {
-                        rofbase->send_hello_message(this);
-                }
-                break;
+		{
+			rofbase->send_hello_message(this);
+
+			if (flags.test(COFDPT_FLAG_HELLO_RCVD))
+			{
+				rofbase->send_features_request(this);
+
+				rofbase->send_echo_request(this);
+			}
+		}
+		break;
 	case COFDPT_TIMER_FEATURES_REQUEST:
 		{
-		        rofbase->send_features_request(this);
+		    rofbase->send_features_request(this);
 		}
 		break;
 	case COFDPT_TIMER_FEATURES_REPLY:
@@ -567,16 +574,23 @@ cofdpt::hello_rcvd(cofpacket *pack)
 	}
 	else
 	{
-            WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() "
+        WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() "
                 "HELLO exchanged with peer entity, attaching ...", this);
 
 	    flags.set(COFDPT_FLAG_HELLO_RCVD);
 
-            new_state(COFDPT_STATE_WAIT_FEATURES);
+        new_state(COFDPT_STATE_WAIT_FEATURES);
 
-            rofbase->send_features_request(this);
+        if (flags.test(COFDPT_FLAG_HELLO_SENT))
+        {
+        	rofbase->send_features_request(this);
 
-            rofbase->send_echo_request(this);
+        	rofbase->send_echo_request(this);
+        }
+        else
+        {
+        	reset_timer(COFDPT_TIMER_SEND_HELLO, 0);
+        }
 	}
 
 	delete pack;
