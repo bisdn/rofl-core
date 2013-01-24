@@ -3,6 +3,7 @@
 
 #include "../../platform/cutil.h"
 #include "../../platform/memory.h"
+#include "../of_switch.h"
 
 /* Initializer and destructor */
 of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* list,of12_flow_table_config_t config){
@@ -86,6 +87,9 @@ unsigned int of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned 
 	sw->logical_ports[port_num].attachment_state = LOGICAL_PORT_STATE_ATTACHED;
 	sw->logical_ports[port_num].port = port;
 	sw->num_of_ports++;
+	
+	//Initialize also port structure
+	port->attached_sw = (of_switch_t*)sw;
 
 	//Return success
 	platform_mutex_unlock(sw->mutex);
@@ -109,7 +113,8 @@ unsigned int of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, 
 			sw->num_of_ports++;
 			*port_num = i;
 			
-			
+			//Initialize port
+			port->attached_sw = (of_switch_t*)sw;
 				
 			//Return success
 			platform_mutex_unlock(sw->mutex);
@@ -134,6 +139,9 @@ unsigned int of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigne
 		platform_mutex_unlock(sw->mutex);
 		return EXIT_FAILURE;
 	}
+	
+	//Free port
+	sw->logical_ports[port_num].port->attached_sw = NULL;
 
 	sw->logical_ports[port_num].attachment_state = LOGICAL_PORT_STATE_DETACHED;
 	sw->logical_ports[port_num].port = NULL;
@@ -156,6 +164,10 @@ unsigned int of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* port
 
 	for(i=0;i<LOGICAL_SWITCH_MAX_LOG_PORTS;i++){
 		if(sw->logical_ports[i].port == port){
+			
+			//Free port
+			sw->logical_ports[i].port->attached_sw = NULL;
+			
 			//Detach
 			sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_DETACHED;
 			sw->logical_ports[i].port = NULL;
@@ -179,6 +191,10 @@ unsigned int of12_detach_all_ports_from_switch(of12_switch_t* sw){
 	platform_mutex_lock(sw->mutex);
 
 	for(i=0;i<LOGICAL_SWITCH_MAX_LOG_PORTS;i++){
+		
+		//Free port
+		sw->logical_ports[i].port->attached_sw = NULL;
+		
 		//Detach
 		sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_DETACHED;
 		sw->logical_ports[i].port = NULL;

@@ -25,7 +25,7 @@ typedef uint32_t of_flow_table_config_t;
 //Platform dependent opaque state
 typedef void of_switch_platform_state_t;
 
-typedef struct{
+ struct of_switch{
 
 	//Make sure ALL ofXX_switch_t contain this three fields
 	//at the VERY beginning 
@@ -40,7 +40,8 @@ typedef struct{
 	of_switch_platform_state_t* platform_state;
 	/* End of common part */
 
-}of_switch_t;
+};
+typedef struct of_switch of_switch_t;
 
 typedef int of_packet_in_reason_t;
 

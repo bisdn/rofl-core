@@ -11,6 +11,7 @@
 *.swp
 *.swo
 *.m4
+*.kdev4
 
 Makefile.in
 Makefile

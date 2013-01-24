@@ -48,6 +48,29 @@ typedef uint32_t port_features_t;
 //Opaque platform port state (to be used, maybe, for platform hooks)
 typedef void platform_port_state_t;
 
+//Port stats
+struct port_stats {
+    uint64_t rx_packets;     /* Number of received packets. */
+    uint64_t tx_packets;     /* Number of transmitted packets. */
+    uint64_t rx_bytes;       /* Number of received bytes. */
+    uint64_t tx_bytes;       /* Number of transmitted bytes. */
+    uint64_t rx_dropped;     /* Number of packets dropped by RX. */
+    uint64_t tx_dropped;     /* Number of packets dropped by TX. */
+    uint64_t rx_errors;      /* Number of receive errors.  This is a super-set
+                                of more specific receive errors and should be
+                                greater than or equal to the sum of all
+                                rx_*_err values. */
+    uint64_t tx_errors;      /* Number of transmit errors.  This is a super-set
+                                of more specific transmit errors and should be
+                                greater than or equal to the sum of all
+                                tx_*_err values (none currently defined.) */
+    uint64_t rx_frame_err;   /* Number of frame alignment errors. */
+    uint64_t rx_over_err;    /* Number of packets with RX overrun. */
+    uint64_t rx_crc_err;     /* Number of CRC errors. */
+    uint64_t collisions;     /* Number of collisions. */
+};
+typedef struct port_stats port_stats_t;
+
 //Port state
 struct switch_port{
 
@@ -69,7 +92,10 @@ struct switch_port{
 	char* name;
 
 	//Port state
-	port_state_t state;	
+	port_state_t state;
+	
+	// Port statistics
+	port_stats_t stats;
 
 	//Port capabilities; bitmaps!
 	port_features_t curr;          /* Current features. */
@@ -104,7 +130,6 @@ typedef void of_stats_port;
 typedef struct{
 	logical_switch_port_attachment_state_t attachment_state;
 	switch_port_t* port;
-	of_stats_port* stats;
 }logical_switch_port_t;
 
 #endif //PHYSICAL_PORT
