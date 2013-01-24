@@ -183,6 +183,8 @@ cofctl::handle_timeout(
 			if (flags.test(COFCTL_FLAG_HELLO_RCVD))
 			{
 				rofbase->send_echo_request(this);
+
+				rofbase->handle_ctl_open(this);
 			}
 		}
 		break;
@@ -534,10 +536,6 @@ cofctl::hello_rcvd(cofpacket *pack)
 
 			rofbase->handle_ctl_open(this);
 		}
-		else
-		{
-			reset_timer(COFCTL_TIMER_SEND_HELLO, 0);
-        }
 	}
 
 	delete pack;

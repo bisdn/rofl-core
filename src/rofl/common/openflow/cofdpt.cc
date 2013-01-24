@@ -587,10 +587,6 @@ cofdpt::hello_rcvd(cofpacket *pack)
 
         	rofbase->send_echo_request(this);
         }
-        else
-        {
-        	reset_timer(COFDPT_TIMER_SEND_HELLO, 0);
-        }
 	}
 
 	delete pack;
