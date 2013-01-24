@@ -1093,12 +1093,13 @@ cfwdelem::cftentry_hard_timeout(
 }
 
 
-
+#if 0
 void
 cfwdelem::cftentry_delete(
 		cftentry *fte)
 {
 
 }
+#endif
 
 

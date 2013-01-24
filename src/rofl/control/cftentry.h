@@ -84,6 +84,7 @@ class cftentry_owner
 {
 public:
 	virtual ~cftentry_owner() {};
+#if 0
 	/**
 	 * @name	ftentry_delete
 	 * @brief  	notifies owner when no consumers for this cftentry exist any more
@@ -91,6 +92,7 @@ public:
 	 */
 	virtual void
 	ftentry_idle_for_deletion(cftentry *entry) = 0;
+#endif
 	/**
 	 * @name	ftentry_idle_timeout
 	 * @brief  	notifies owner about a timeout event for this cftentry instance
@@ -220,7 +222,8 @@ public:
 
 
 
-	/**
+	/** called by owner of this cftentry instance
+	 * notification to cftentry instance to remove itself
 	 *
 	 */
 	void

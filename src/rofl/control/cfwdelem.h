@@ -595,12 +595,14 @@ public: // overloaded from cfttable_owner
 			cftentry *fte);
 
 
+#if 0
 	/**
 	 *
 	 */
 	virtual void
 	cftentry_delete(
 			cftentry *fte);
+#endif
 
 
 
