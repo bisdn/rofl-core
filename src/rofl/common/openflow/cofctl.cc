@@ -180,6 +180,8 @@ cofctl::handle_timeout(
 		{
 			rofbase->send_hello_message(this);
 
+			flags.set(COFCTL_FLAG_HELLO_SENT);
+
 			if (flags.test(COFCTL_FLAG_HELLO_RCVD))
 			{
 				rofbase->send_echo_request(this);

@@ -483,6 +483,8 @@ cofdpt::handle_timeout(int opaque)
 		{
 			rofbase->send_hello_message(this);
 
+			flags.set(COFDPT_FLAG_HELLO_SENT);
+
 			if (flags.test(COFDPT_FLAG_HELLO_RCVD))
 			{
 				rofbase->send_features_request(this);
