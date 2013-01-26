@@ -56,6 +56,8 @@ unsigned int of12_destroy_switch(of12_switch_t* sw){
 	//TODO: trace if result != SUCCESS
 	(void)result;
 	
+	platform_mutex_destroy(sw->mutex);
+	
 	cutil_free_shared(sw->name);
 	cutil_free_shared(sw);
 	
