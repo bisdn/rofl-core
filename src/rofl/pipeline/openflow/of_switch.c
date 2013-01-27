@@ -21,10 +21,12 @@ inline unsigned int of_process_packet_pipeline(const of_switch_t* sw, datapacket
 	
 	switch(sw->of_ver){
 		case OF_VERSION_12: 
-			return of12_process_packet_pipeline(((of12_switch_t*)sw)->pipeline, pkt);
+			of12_process_packet_pipeline(((of12_switch_t*)sw)->pipeline, pkt);
 		default: 
 			return EXIT_FAILURE;
 	}
+
+	return EXIT_SUCCESS;
 }	
 
 //Wrapping of timers processing

@@ -89,8 +89,11 @@ void platform_set_ppp_proto(datapacket_t* pkt, uint16_t proto);
 /* Output action */
 void platform_output_packet(datapacket_t* pkt, uint32_t port_num);
 
-/*Packet in*/
+//Packet in
 void platform_packet_in(uint8_t table_id, datapacket_t* pkt, of_packet_in_reason_t reason);
+
+//Packet drop
+void platform_packet_drop(datapacket_t* pkt);
 
 //Ports
 uint32_t platform_get_packet_port_in(datapacket_t *const pkt);
