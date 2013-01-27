@@ -132,5 +132,9 @@ void of12_process_packet_pipeline(const of12_pipeline_t* pipeline , datapacket_t
 			}
 			//else -> continue with the pipeline	
 		}
-	}	
+	}
+	
+	//No match/default table action -> DROP the packet	
+	platform_packet_drop(pkt);
+
 }
