@@ -55,6 +55,10 @@ unsigned int of12_destroy_switch(of12_switch_t* sw){
 
 	//TODO: trace if result != SUCCESS
 	(void)result;
+
+	//TODO: rwlock
+	
+	platform_mutex_destroy(sw->mutex);
 	
 	cutil_free_shared(sw->name);
 	cutil_free_shared(sw);
@@ -192,8 +196,9 @@ unsigned int of12_detach_all_ports_from_switch(of12_switch_t* sw){
 
 	for(i=0;i<LOGICAL_SWITCH_MAX_LOG_PORTS;i++){
 		
-		//Free port
-		sw->logical_ports[i].port->attached_sw = NULL;
+		//Mark port as non-attached to current sw
+		if(sw->logical_ports[i].port)
+			sw->logical_ports[i].port->attached_sw = NULL;
 		
 		//Detach
 		sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_DETACHED;
