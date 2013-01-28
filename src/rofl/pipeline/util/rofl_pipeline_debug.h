@@ -33,7 +33,7 @@ enum rofl_pipeline_debug_class {
 	/* do not put anything beyond MAX_DEBUG_CLASS! */
 };
 
-#define ROFL_DBG_DEFAULT	{ DEBUG } /* default for each class */
+#define ROFL_DBG_DEFAULT	{ DBG } /* default for each class */
 
 extern int rofl_pipeline_debug_level[MAX_DEBUG_CLASS];
 extern int (*rofl_pipeline_debug_print)(const char *format, ... );

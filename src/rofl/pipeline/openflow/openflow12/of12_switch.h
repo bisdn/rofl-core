@@ -9,10 +9,6 @@
 #include "../../util/rofl_pipeline_utils.h"
 #include "../../platform/lock.h"
 
-#ifndef LOGICAL_SWITCH_MAX_LOG_PORTS
-	#define LOGICAL_SWITCH_MAX_LOG_PORTS 129 //128, 0 slot NEVER used
-#endif
-
 struct of12_switch{
 	
 	//General switch instance information
@@ -22,14 +18,14 @@ struct of12_switch{
 	uint64_t dpid;
 	char* name;
 	unsigned int num_of_ports;
-		
+	
+	//Switch logical ports 
+	logical_switch_port_t logical_ports[LOGICAL_SWITCH_MAX_LOG_PORTS];
+ 	
 	//Platform agnostic pointer
 	of_switch_platform_state_t* platform_state;
 	/* End of common part */
 
-	//Switch logical ports 
-	logical_switch_port_t logical_ports[LOGICAL_SWITCH_MAX_LOG_PORTS];
- 	
 	//pipeline
 	of12_pipeline_t* pipeline;
 	
