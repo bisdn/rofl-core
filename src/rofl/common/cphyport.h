@@ -45,10 +45,6 @@ class cphyport :
 public:
 
 
-private:
-
-		std::map<uint32_t, cphyport*> *port_list;
-
 
 /*
  * methods
@@ -59,15 +55,22 @@ public:
 	 *
 	 */
 	cphyport(
-			std::map<uint32_t, cphyport*> *port_list = 0,
-			uint32_t port_no = 0);
+			std::map<uint32_t, cofport*> *port_list = 0,
+			uint32_t port_no = 0) :
+				cofport(port_list)
+	{
+		cofport::port_no = port_no;
+	};
 
 
 	/**
 	 *
 	 */
 	virtual
-	~cphyport();
+	~cphyport()
+	{
+
+	};
 
 };
 

@@ -128,7 +128,7 @@ cfwdelem::c_str()
 
 	// cofport instances
 	info.append(vas("\nlist of registered cofport instances: =>"));
-	std::map<uint32_t, cphyport*>::iterator it;
+	std::map<uint32_t, cofport*>::iterator it;
 	for (it = phy_ports.begin(); it != phy_ports.end(); ++it)
 	{
 		info.append(vas("\n  %s", it->second->c_str()));
@@ -300,7 +300,7 @@ cfwdelem::handle_features_request(cofctl *ofctrl, cofpacket *request)
 
  	struct ofp_port *port = (struct ofp_port*)body.somem();
 
- 	for (std::map<uint32_t, cphyport*>::iterator
+ 	for (std::map<uint32_t, cofport*>::iterator
  			it = phy_ports.begin(); it != phy_ports.end(); ++it)
  	{
  		it->second->pack(port, sizeof(struct ofp_port));
@@ -417,7 +417,7 @@ cfwdelem::handle_port_stats_request(
 	try {
 		if (OFPP_ANY == port_no)
 		{
-			for (std::map<uint32_t, cphyport*>::iterator
+			for (std::map<uint32_t, cofport*>::iterator
 					it = phy_ports.begin(); it != phy_ports.end(); ++it)
 			{
 				cofport *port = it->second;
