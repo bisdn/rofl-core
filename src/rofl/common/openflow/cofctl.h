@@ -79,10 +79,11 @@ private: // data structures
 
 	enum cofctl_flag_t {
 		COFCTL_FLAG_HELLO_RCVD 			= (1 << 0),
-		COFCTL_FLAG_SERVER_SOCKET 		= (1 << 1),			// socket spawns new worker sockets upon accept
-		COFCTL_FLAG_WORKER_SOCKET 		= (1 << 2),			// socket maintains active connection (actively or passively created)
-		COFCTL_FLAG_ACTIVE_SOCKET 		= (1 << 3),			// connection was actively established
-		COFCTL_FLAG_RECONNECT_PENDING	= (1 << 4),
+		COFCTL_FLAG_HELLO_SENT			= (1 << 1),
+		COFCTL_FLAG_SERVER_SOCKET 		= (1 << 2),			// socket spawns new worker sockets upon accept
+		COFCTL_FLAG_WORKER_SOCKET 		= (1 << 3),			// socket maintains active connection (actively or passively created)
+		COFCTL_FLAG_ACTIVE_SOCKET 		= (1 << 4),			// connection was actively established
+		COFCTL_FLAG_RECONNECT_PENDING	= (1 << 5),
 	};
 
 	// timer types used by cofrpc

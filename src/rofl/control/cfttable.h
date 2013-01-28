@@ -66,11 +66,13 @@ public:
 	 */
 	virtual void
 	cftentry_hard_timeout(cftentry *fte) = 0;
+#if 0
 	/**
 	 *
 	 */
 	virtual void
 	cftentry_delete(cftentry *fte) = 0;
+#endif
 };
 
 
@@ -94,7 +96,9 @@ private: // data structures
 	cfttable_owner 			*owner; 		// owning instance of this cfttable (or NULL)
 	std::string 			info; 			// info string
 	pthread_rwlock_t 		ft_rwlock; 		// rwlock for this flowtable
+#if 0
 	std::set<cftentry*>		deletion_list;
+#endif
 
 public: // data structures
 
@@ -269,6 +273,7 @@ public:
 public: // overloaded from cftentry
 
 
+#if 0
 	/**
 	 * @name	ftentry_delete
 	 * @brief  	notifies owner about a timeout event for this cftentry instance
@@ -278,6 +283,7 @@ public: // overloaded from cftentry
 	 */
 	virtual void
 	ftentry_idle_for_deletion(cftentry *entry);
+#endif
 
 
 	/**

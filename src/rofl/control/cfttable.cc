@@ -157,6 +157,7 @@ cfttable::handle_timeout(
 		int opaque)
 {
 	switch (opaque) {
+#if 0
 	case CFTTABLE_TIMER_DELETE_TABLE:
 	{
 		for (std::set<cftentry*>::iterator
@@ -167,6 +168,7 @@ cfttable::handle_timeout(
 		deletion_list.clear();
 	}
 		break;
+#endif
 	}
 }
 
@@ -181,7 +183,7 @@ cfttable::cftentry_factory(
 }
 
 
-
+#if 0
 void
 cfttable::ftentry_idle_for_deletion(
 		cftentry *entry)
@@ -202,6 +204,7 @@ cfttable::ftentry_idle_for_deletion(
 
 	reset_timer(CFTTABLE_TIMER_DELETE_TABLE, 0);
 }
+#endif
 
 
 
@@ -219,10 +222,16 @@ cfttable::ftentry_idle_timeout(
 	 * as it still might be in use by some packet engines.
 	 */
 	try {
+		// send IDLE-TIMEOUT notification to owner
 		owner->cftentry_idle_timeout(entry);
+
+		// remove pointer to entry from our own set of cftentry instances
+		flow_table.erase(entry);
+
 	} catch (cerror& e) {}
 
-	entry->schedule_deletion();
+	// DO NOT SCHEDULE THE ENTRIES DELETION HERE! CFTENTRY WILL TAKE CARE OF ITS REMOVAL AUTONOMOUSLY!
+	//entry->schedule_deletion();
 }
 
 
@@ -241,10 +250,16 @@ cfttable::ftentry_hard_timeout(
 	 * as it still might be in use by some packet engines.
 	 */
 	try {
+		// send HARD-TIMEOUT notification to owner
 		owner->cftentry_hard_timeout(entry);
+
+		// remove pointer to entry from our own set of cftentry instances
+		flow_table.erase(entry);
+
 	} catch (cerror& e) {}
 
-	entry->schedule_deletion();
+	// DO NOT SCHEDULE THE ENTRIES DELETION HERE! CFTENTRY WILL TAKE CARE OF ITS REMOVAL AUTONOMOUSLY!
+	//entry->schedule_deletion();
 }
 
 
@@ -583,6 +598,8 @@ cfttable::add_ft_entry(
 				it = delete_table.begin(); it != delete_table.end(); ++it)
 		{
 			(*it)->schedule_deletion();
+
+			flow_table.erase(*it);
 		}
 	}
 	delete_table.clear();
@@ -775,6 +792,9 @@ delete_entry:
 
 
 		(*it)->schedule_deletion();
+
+		flow_table.erase(*it);
+
 		begin = flow_table.begin();
 	}
 

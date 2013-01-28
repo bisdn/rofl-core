@@ -73,7 +73,7 @@ unsigned int of12_destroy_pipeline(of12_pipeline_t* pipeline){
 * Packet processing through pipeline
 *
 */
-unsigned int of12_process_packet_pipeline(const of12_pipeline_t* pipeline , datapacket_t *const pkt){
+void of12_process_packet_pipeline(const of12_pipeline_t* pipeline , datapacket_t *const pkt){
 
 	//Loop over tables
 	unsigned int i, table_to_go;
@@ -102,7 +102,7 @@ unsigned int of12_process_packet_pipeline(const of12_pipeline_t* pipeline , data
 				fprintf(stderr,"Going to table %u->%u\n",i,table_to_go);
 				i = table_to_go-1;
 
-				//Green light for writers
+				//Unlock the entry so that it can eventually be modified/deleted
 				platform_rwlock_rdunlock(match->rwlock);
 	
 				continue;
@@ -111,23 +111,30 @@ unsigned int of12_process_packet_pipeline(const of12_pipeline_t* pipeline , data
 			//Process WRITE actions
 			of12_process_write_actions(pkt);
 
-			//Green light for writers
+			//Unlock the entry so that it can eventually be modified/deleted
 			platform_rwlock_rdunlock(match->rwlock);
 	
-			return EXIT_SUCCESS;
 		}else{
 			//Not matched, look for table_miss behaviour 
 			if(pipeline->tables[i].default_action == OF12_TABLE_MISS_DROP){
+
 				fprintf(stderr,"Table MISS_DROP %u\n",i);	
-				return EXIT_FAILURE;
+				platform_packet_drop(pkt);
+				return;
+
 			}else if(pipeline->tables[i].default_action == OF12_TABLE_MISS_CONTROLLER){
+			
 				fprintf(stderr,"Table MISS_CONTROLLER %u\n",i);	
-				/* FIXME: Generate packet in*/fprintf(stderr,"Packet at %p generated a PACKET_IN event to the controller\n",pkt);
-                platform_packet_in(pipeline->tables[i].number/*or only i*/, pkt, OFPR_NO_MATCH);
-				return EXIT_FAILURE;	
+				fprintf(stderr,"Packet at %p generated a PACKET_IN event to the controller\n",pkt);
+				
+				platform_packet_in(i, pkt, OFPR_NO_MATCH);
+				return;
 			}
 			//else -> continue with the pipeline	
 		}
-	}	
-	return EXIT_FAILURE;
+	}
+	
+	//No match/default table action -> DROP the packet	
+	platform_packet_drop(pkt);
+
 }

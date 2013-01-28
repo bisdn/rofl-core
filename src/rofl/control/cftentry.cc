@@ -156,10 +156,15 @@ cftentry::handle_event(cevent const& ev)
 				"idle for deletion", this);
 
 		/*
+		 * Our usage counter has dropped to 0. Execute self-destruction.
+		 */
+		delete this; return;
+
+		/*
 		 * Our usage counter has dropped to 0. Send notification to our flow_table, we
 		 * are ready for deletion.
 		 */
-		if (owner) { owner->ftentry_idle_for_deletion(this); };
+		//if (owner) { owner->ftentry_idle_for_deletion(this); };
 	}
 		return;
 	}
@@ -226,8 +231,12 @@ cftentry::handle_timeout(int opaque)
 				cancel_timer(TIMER_FTE_HARD_TIMEOUT);
 			}
 
+			// send notification to owner => OWNER MUST REMOVE ALL REFERENCES TO THIS ENTRY FROM ITS INTERNAL STRUCTURES
 			if (owner) { owner->ftentry_idle_timeout(this, be16toh(flow_mod->idle_timeout)); };
 		}
+
+		// initiate deletion of this cftentry => this may call this instance's destructor, so we must return at the end of this block
+		schedule_deletion();
 	}
 		return;
 
@@ -261,8 +270,12 @@ cftentry::handle_timeout(int opaque)
 				cancel_timer(TIMER_FTE_IDLE_TIMEOUT);
 			}
 
+			// send notification to owner => OWNER MUST REMOVE ALL REFERENCES TO THIS ENTRY FROM ITS INTERNAL STRUCTURES
 			if (owner) { owner->ftentry_hard_timeout(this, be16toh(flow_mod->hard_timeout)); };
 		}
+
+		// initiate deletion of this cftentry => this may call this instance's destructor, so we must return at the end of this block
+		schedule_deletion();
 	}
 		return;
 
@@ -289,15 +302,18 @@ cftentry::schedule_deletion()
 		{
 			flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
 		}
-	}
+	} // flock relases usage_lock here, do not delete this cftentry instance before removing ulock from stack
 
 	{
 		RwLock ulock(&usage_lock, RwLock::RWLOCK_READ);
-		if (0 == usage_cnt)
+		if (usage_cnt > 0)
 		{
-			if (owner) { owner->ftentry_idle_for_deletion(this); };
+			return;
 		}
-	}
+	} // ulock relases usage_lock here, do not delete this cftentry instance before removing ulock from stack
+
+	delete this; return;
+	//if (owner) { owner->ftentry_idle_for_deletion(this); };
 }
 
 
@@ -306,13 +322,19 @@ void
 cftentry::sem_inc() throw (eFtEntryUnAvail)
 {
 	/*
+	 * THIS METHOD RUNS IN CONTEXT OF PACKET ENGINE THREAD!
+	 */
+
+	/*
 	 * security check: if flag TIMER-EXPIRED is set, we are rejecting requests for using this cftentry instance
 	 */
-	RwLock flock(&flags_lock, RwLock::RWLOCK_READ);
-	if (flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
 	{
-		WRITELOG(FTE, DBG, "cftentry(%p)::sem_inc() scheduled for removal, thus unavailable", this);
-		throw eFtEntryUnAvail();
+		RwLock flock(&flags_lock, RwLock::RWLOCK_READ);
+		if (flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
+		{
+			WRITELOG(FTE, DBG, "cftentry(%p)::sem_inc() scheduled for removal, thus unavailable", this);
+			throw eFtEntryUnAvail();
+		}
 	}
 
 	RwLock ulock(&usage_lock, RwLock::RWLOCK_WRITE);
@@ -326,11 +348,12 @@ cftentry::sem_inc() throw (eFtEntryUnAvail)
 void
 cftentry::sem_dec()
 {
+	/*
+	 * THIS METHOD RUNS IN CONTEXT OF PACKET ENGINE THREAD!
+	 */
+
 	RwLock ulock(&usage_lock, RwLock::RWLOCK_WRITE);
-
-	--usage_cnt;
-
-	usage_cnt = (usage_cnt < 0) ? 0 : usage_cnt;
+	usage_cnt = (usage_cnt > 0) ? (usage_cnt - 1) : 0;
 
 	WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() usage_cnt: %d", this, usage_cnt);
 

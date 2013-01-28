@@ -177,10 +177,19 @@ cofctl::handle_timeout(
 {
 	switch (opaque) {
 	case COFCTL_TIMER_SEND_HELLO:
-                {
-                        rofbase->send_hello_message(this);
-                }
-                break;
+		{
+			rofbase->send_hello_message(this);
+
+			flags.set(COFCTL_FLAG_HELLO_SENT);
+
+			if (flags.test(COFCTL_FLAG_HELLO_RCVD))
+			{
+				rofbase->send_echo_request(this);
+
+				rofbase->handle_ctl_open(this);
+			}
+		}
+		break;
 	case COFCTL_TIMER_RECONNECT:
 		{
 			if (socket)
@@ -495,37 +504,40 @@ cofctl::hello_rcvd(cofpacket *pack)
 	// OpenFlow versions do not match, send error, close connection
 	if (pack->ofh_header->version != OFP_VERSION)
 	{
-            new_state(STATE_CTL_DISCONNECTED);
+		new_state(STATE_CTL_DISCONNECTED);
 
-            // invalid OFP_VERSION
-            char explanation[256];
-            bzero(explanation, sizeof(explanation));
-            snprintf(explanation, sizeof(explanation) - 1,
-                            "unsupported OF version (%d), supported version is (%d)",
-                            (pack->ofh_header->version), OFP_VERSION);
+		// invalid OFP_VERSION
+		char explanation[256];
+		bzero(explanation, sizeof(explanation));
+		snprintf(explanation, sizeof(explanation) - 1,
+						"unsupported OF version (%d), supported version is (%d)",
+						(pack->ofh_header->version), OFP_VERSION);
 
-            cofpacket_error *reply = new cofpacket_error(
-                                                    pack->get_xid(),
-                                                    OFPET_HELLO_FAILED,
-                                                    OFPHFC_INCOMPATIBLE,
-                                                    (uint8_t*) explanation, strlen(explanation));
+		cofpacket_error *reply = new cofpacket_error(
+												pack->get_xid(),
+												OFPET_HELLO_FAILED,
+												OFPHFC_INCOMPATIBLE,
+												(uint8_t*) explanation, strlen(explanation));
 
-            send_message_via_socket(reply);
+		send_message_via_socket(reply);
 
-            handle_closed(socket, socket->sd);
+		handle_closed(socket, socket->sd);
 	}
 	else
 	{
 	    flags.set(COFCTL_FLAG_HELLO_RCVD);
 
-            new_state(STATE_CTL_ESTABLISHED);
+		new_state(STATE_CTL_ESTABLISHED);
 
-            WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() "
-                "HELLO exchanged with peer entity, attaching ...", this);
+		WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() "
+			"HELLO exchanged with peer entity, attaching ...", this);
 
-            rofbase->send_echo_request(this);
+		if (flags.test(COFCTL_FLAG_HELLO_SENT))
+		{
+			rofbase->send_echo_request(this);
 
-            rofbase->handle_ctl_open(this);
+			rofbase->handle_ctl_open(this);
+		}
 	}
 
 	delete pack;
