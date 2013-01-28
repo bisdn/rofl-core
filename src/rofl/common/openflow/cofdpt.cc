@@ -1043,7 +1043,7 @@ cofdpt::port_status_rcvd(cofpacket *pack)
 	case OFPPR_ADD:
 		if (ports.find(be32toh(pack->ofh_port_status->desc.port_no)) == ports.end())
 		{
-			cofport *lport = new cofport(&ports, &(pack->ofh_port_status->desc), sizeof(struct ofp_port));
+			cofport *lport = new cofport(&ports, be32toh(pack->ofh_port_status->desc.port_no), &(pack->ofh_port_status->desc), sizeof(struct ofp_port));
 
 			// let derived class handle PORT-STATUS message
 			rofbase->handle_port_status(this, pack, lport);

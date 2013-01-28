@@ -38,7 +38,7 @@ cofport::ports_parse(
 			throw eOFportMalformed();
 		}
 
-		cofport *ofport = new cofport(&portsmap, phdr, sizeof(struct ofp_port));
+		cofport *ofport = new cofport(&portsmap, be32toh(phdr->port_no), phdr, sizeof(struct ofp_port));
 
 		//__ports[ofport->port_no] = ofport;
 		portsmap[ofport->port_no] = ofport;
@@ -70,9 +70,10 @@ cofport::ports_get_free_port_no(
 
 cofport::cofport(
 	std::map<uint32_t, cofport*> *port_list,
+	uint32_t portno,
 	struct ofp_port *port,
 	size_t port_len) :
-			port_no(0),
+			port_no(portno),
 			hwaddr(cmacaddr("00:00:00:00:00:00")),
 			name(std::string("")),
 			config(0),

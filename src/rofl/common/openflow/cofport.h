@@ -109,6 +109,7 @@ public:
 	 */
 	cofport(
 			std::map<uint32_t, cofport*> *port_list,
+			uint32_t port_no,
 			struct ofp_port *port = (struct ofp_port*)0,
 			size_t port_len = 0);
 
