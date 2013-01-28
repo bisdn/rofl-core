@@ -9,10 +9,6 @@
 #include "../../util/rofl_pipeline_utils.h"
 #include "../../platform/lock.h"
 
-#ifndef LOGICAL_SWITCH_MAX_LOG_PORTS
-	#define LOGICAL_SWITCH_MAX_LOG_PORTS 129 //128, 0 slot NEVER used
-#endif
-
 struct of12_switch{
 	
 	//General switch instance information

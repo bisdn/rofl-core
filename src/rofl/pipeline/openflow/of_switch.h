@@ -19,6 +19,10 @@ typedef enum{
 	//Add more here...
 }of_version_t;
 
+#ifndef LOGICAL_SWITCH_MAX_LOG_PORTS
+	#define LOGICAL_SWITCH_MAX_LOG_PORTS 129 //128, 0 slot NEVER used
+#endif
+
 //Opaque table config (OF version agnostic)
 typedef uint32_t of_flow_table_config_t; 
 
