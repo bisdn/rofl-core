@@ -36,6 +36,9 @@ typedef void of_switch_platform_state_t;
 	char* name;
 	unsigned int num_of_ports;
 	
+	//Switch logical ports 
+	logical_switch_port_t logical_ports[LOGICAL_SWITCH_MAX_LOG_PORTS];
+ 	
 	//Platform agnostic pointer
 	of_switch_platform_state_t* platform_state;
 	/* End of common part */
