@@ -91,7 +91,10 @@ cofport::cofport(
 		unpack(port, port_len);
 	}
 
-	(*port_list)[port_no] = this;
+	if (0 != port_list)
+	{
+		(*port_list)[port_no] = this;
+	}
 
 	WRITELOG(CPORT, DBG, "cofport(%p)::cofport() port_list:%p %s", this, port_list, c_str());
 }
