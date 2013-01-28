@@ -151,7 +151,7 @@ protected: // data structures
 	uint32_t 						capabilities; 	// capabilities
 	uint16_t 						flags; 			// config: flags
 	uint16_t 						miss_send_len; 	// config: miss_send_len
-	std::map<uint32_t, cphyport*> 	phy_ports; 		// ports that we present to the higher layer
+	std::map<uint32_t, cofport*> 	phy_ports; 		// ports that we present to the higher layer
 
 	std::map<uint8_t, cfttable*> 	flow_tables; 	// OF1.1 forwarding tables for this emulated switch instance (layer-(n), not layer-(n-1)!)
 	cgttable 						group_table; 	// OF1.1 group table
