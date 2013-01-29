@@ -37,7 +37,13 @@ class ePPPFrameOptionNotFound 	: public eFrameBase {}; // PPP option not found
 class ePPPFrameInvalidSyntax 	: public eFrameBase {}; // PPP frame with invalid syntax
 class ePPPLcpNotFound 			: public ePPPBase {};
 class ePPPLcpOptionNotFound 	: public ePPPBase {};
+class ePPPLcpOptionInvalid		: public ePPPBase {};
+class ePPPIpcpOptionNotFound	: public ePPPBase {};
+class ePPPIpcpOptionInvalid		: public ePPPBase {};
 
+
+class fppp_lcp_option; // forward declaration, see below
+class fppp_ipcp_option; // forward declaration, see below
 
 class fpppframe : public fframe {
 public: // static
@@ -122,14 +128,14 @@ public: // static
 	} __attribute__((packed));
 
 	enum ppp_lcp_option_t {
-		PPP_LCP_OPT_RESERVED = 0x00,
-		PPP_LCP_OPT_MRU = 0x01,
-		PPP_LCP_OPT_ACCM = 0x02,
-		PPP_LCP_OPT_AUTH_PROT = 0x03,
-		PPP_LCP_OPT_QUAL_PROT = 0x04,
-		PPP_LCP_OPT_MAGIC_NUM = 0x05,
-		PPP_LCP_OPT_PFC = 0x07,
-		PPP_LCP_OPT_ACFC = 0x08,
+		PPP_LCP_OPT_RESERVED 	= 0x00,
+		PPP_LCP_OPT_MRU 		= 0x01,
+		PPP_LCP_OPT_ACCM 		= 0x02,
+		PPP_LCP_OPT_AUTH_PROT 	= 0x03,
+		PPP_LCP_OPT_QUAL_PROT 	= 0x04,
+		PPP_LCP_OPT_MAGIC_NUM 	= 0x05,
+		PPP_LCP_OPT_PFC 		= 0x07,
+		PPP_LCP_OPT_ACFC 		= 0x08,
 	};
 
 	/**
@@ -149,16 +155,23 @@ public: // static
 	enum ppp_ipcp_option_t {
 		PPP_IPCP_OPT_IPV4_DEP	= 1,   //!< PPP_IPCP_OPT_IPV4_DEP
 		PPP_IPCP_OPT_IP_COMP	= 2,   //!< PPP_IPCP_OPT_IP_COMP
-		PPP_IPCP_OPT_IPV4		= 3,   //!< PPP_IPCP_OPT_IPV4
-		PPP_IPCP_OPT_MOB_IPV4	= 4,   //!< PPP_IPCP_OPT_MOB_IPV4
+		PPP_IPCP_OPT_IPV4		= 3,   //!< PPP_IPCP_OPT_IPV4		RFC 1332
+		PPP_IPCP_OPT_MOB_IPV4	= 4,   //!< PPP_IPCP_OPT_MOB_IPV4 	RFC 2290
 		PPP_IPCP_OPT_PRIM_DNS	= 129, //!< PPP_IPCP_OPT_PRIM_DNS
 		PPP_IPCP_OPT_PRIM_MBNS	= 130, //!< PPP_IPCP_OPT_PRIM_MBNS
 		PPP_IPCP_OPT_SEC_DNS	= 131, //!< PPP_IPCP_OPT_SEC_DNS
 		PPP_IPCP_OPT_SEC_MBNS	= 132  //!< PPP_IPCP_OPT_SEC_MBNS
 	};
 
-	/* structure for lcp and ipcp */
+	/* structure for lcp */
 	struct ppp_lcp_opt_hdr_t {
+		uint8_t option;
+		uint8_t length; // includes this header and data
+		uint8_t data[0];
+	} __attribute__((packed));
+
+	/* structure for ipcp */
+	struct ppp_ipcp_opt_hdr_t {
 		uint8_t option;
 		uint8_t length; // includes this header and data
 		uint8_t data[0];
@@ -204,14 +217,14 @@ public: // methods
 	/** find lcp specific option
 	 *
 	 */
-	struct fpppframe::ppp_lcp_opt_hdr_t*
+	fppp_lcp_option*
 	lcp_option_find(
 			enum ppp_lcp_option_t type) throw (ePPPFrameOptionNotFound);
 
 	/**
 	 * find ipcp specific option
 	 */
-	struct fpppframe::ppp_lcp_opt_hdr_t*
+	fppp_ipcp_option*
 	ipcp_option_find(
 			enum ppp_ipcp_option_t type) throw (ePPPFrameOptionNotFound);
 
@@ -268,8 +281,14 @@ public:
 	/**
 	 *
 	 */
-	struct ppp_lcp_opt_hdr_t*
+	fppp_lcp_option*
 	get_lcp_option(enum ppp_lcp_option_t option) throw (ePPPLcpOptionNotFound);
+
+	/**
+	 *
+	 */
+	fppp_ipcp_option*
+	get_ipcp_option(enum ppp_ipcp_option_t option) throw (ePPPIpcpOptionNotFound);
 
 
 public: // overloaded from fframe
@@ -337,8 +356,8 @@ public: // data structures
 	struct ppp_hdr_t* ppp_hdr; // PPP header if present
 	struct ppp_lcp_hdr_t *ppp_lcp_hdr; // PPP LCP header if present
 	struct ppp_lcp_hdr_t *ppp_ipcp_hdr; // PPP IPCP header if present
-	std::map<enum fpppframe::ppp_lcp_option_t, struct fpppframe::ppp_lcp_opt_hdr_t*> lcp_options; // LCP options, if any
-	std::map<enum fpppframe::ppp_ipcp_option_t, struct fpppframe::ppp_lcp_opt_hdr_t*> ipcp_options; // IPCP options, if any
+	std::map<enum fpppframe::ppp_lcp_option_t, fppp_lcp_option*> lcp_options; // LCP options, if any
+	std::map<enum fpppframe::ppp_ipcp_option_t, fppp_ipcp_option*> ipcp_options; // IPCP options, if any
 
 private: // methods
 
@@ -387,6 +406,135 @@ private: // data structures
 	std::string info;
 
 };
+
+
+class fppp_lcp_option : public fframe {
+public:
+	struct fpppframe::ppp_lcp_opt_hdr_t *hdr;
+public:
+	fppp_lcp_option(uint8_t *opt, size_t optlen) :
+		fframe(opt, optlen), hdr((struct fpppframe::ppp_lcp_opt_hdr_t*)opt) {};
+	fppp_lcp_option(fpppframe::ppp_lcp_opt_hdr_t *opt, size_t optlen) :
+		fframe((uint8_t*)opt, optlen), hdr(opt) {};
+	void validate() throw (ePPPLcpOptionInvalid) {
+		if (hdr->length < sizeof(uint16_t)) throw ePPPLcpOptionInvalid();
+		switch (hdr->option) {
+		case fpppframe::PPP_LCP_OPT_RESERVED: {
+			if (hdr->length < 2) throw ePPPLcpOptionInvalid();
+		}
+			break;
+		case fpppframe::PPP_LCP_OPT_MRU: {
+			if (hdr->length < 4) throw ePPPLcpOptionInvalid();
+		}
+			break;
+		case fpppframe::PPP_LCP_OPT_ACCM: {
+			if (hdr->length < 6) throw ePPPLcpOptionInvalid();
+		}
+			break;
+		case fpppframe::PPP_LCP_OPT_AUTH_PROT: {
+			if (hdr->length < 4) throw ePPPLcpOptionInvalid();
+		}
+			break;
+		case fpppframe::PPP_LCP_OPT_QUAL_PROT: {
+			if (hdr->length < 4) throw ePPPLcpOptionInvalid();
+		}
+			break;
+		case fpppframe::PPP_LCP_OPT_MAGIC_NUM: {
+			if (hdr->length < 6) throw ePPPLcpOptionInvalid();
+		}
+			break;
+		case fpppframe::PPP_LCP_OPT_PFC: {
+			if (hdr->length < 2) throw ePPPLcpOptionInvalid();
+		}
+			break;
+		case fpppframe::PPP_LCP_OPT_ACFC: {
+			if (hdr->length < 2) throw ePPPLcpOptionInvalid();
+		}
+			break;
+		default: {
+			// do nothing
+		}
+			break;
+		}
+	};
+	uint16_t
+	get_mru() throw (ePPPLcpOptionInvalid) {
+		if (fpppframe::PPP_LCP_OPT_MRU != hdr->option) throw ePPPLcpOptionInvalid();
+		return (be16toh(*(uint16_t*)(hdr->data)));
+	};
+	uint32_t
+	get_accm() throw (ePPPLcpOptionInvalid) {
+		if (fpppframe::PPP_LCP_OPT_ACCM != hdr->option) throw ePPPLcpOptionInvalid();
+		return (be32toh(*(uint32_t*)(hdr->data)));
+	};
+	uint32_t
+	get_magic_num() throw (ePPPLcpOptionInvalid) {
+		if (fpppframe::PPP_LCP_OPT_MAGIC_NUM != hdr->option) throw ePPPLcpOptionInvalid();
+		return (be32toh(*(uint32_t*)(hdr->data)));
+	};
+};
+
+
+
+class fppp_ipcp_option : public fframe {
+public:
+	struct fpppframe::ppp_ipcp_opt_hdr_t *hdr;
+public:
+	fppp_ipcp_option(uint8_t *opt, size_t optlen) :
+		fframe(opt, optlen), hdr((struct fpppframe::ppp_ipcp_opt_hdr_t*)opt) {};
+	fppp_ipcp_option(fpppframe::ppp_ipcp_opt_hdr_t *opt, size_t optlen) :
+		fframe((uint8_t*)opt, optlen), hdr(opt) {};
+	void validate() throw (ePPPIpcpOptionInvalid) {
+		if (hdr->length < sizeof(uint16_t)) throw ePPPIpcpOptionInvalid();
+		switch (hdr->option) {
+		case fpppframe::PPP_IPCP_OPT_IP_COMP: {
+			if (hdr->length < 4) throw ePPPIpcpOptionInvalid();
+		}
+			break;
+		case fpppframe::PPP_IPCP_OPT_IPV4: {
+			if (hdr->length < 6) throw ePPPIpcpOptionInvalid();
+		}
+			break;
+		case fpppframe::PPP_IPCP_OPT_MOB_IPV4: {
+			if (hdr->length < 6) throw ePPPIpcpOptionInvalid();
+		}
+			break;
+		case fpppframe::PPP_IPCP_OPT_PRIM_DNS: {
+			if (hdr->length < 6) throw ePPPIpcpOptionInvalid();
+		}
+			break;
+		case fpppframe::PPP_IPCP_OPT_PRIM_MBNS: {
+			if (hdr->length < 6) throw ePPPIpcpOptionInvalid();
+		}
+			break;
+		case fpppframe::PPP_IPCP_OPT_SEC_DNS: {
+			if (hdr->length < 6) throw ePPPIpcpOptionInvalid();
+		}
+			break;
+		case fpppframe::PPP_IPCP_OPT_SEC_MBNS: {
+			if (hdr->length < 6) throw ePPPIpcpOptionInvalid();
+		}
+			break;
+
+		default: {
+			// do nothing
+		}
+			break;
+		}
+	};
+	uint32_t
+	get_ipv4() throw (ePPPIpcpOptionInvalid) {
+		if (fpppframe::PPP_IPCP_OPT_IPV4 != hdr->option) throw ePPPIpcpOptionInvalid();
+		return (be32toh(*(uint32_t*)(hdr->data)));
+	};
+	uint32_t
+	get_mob_ipv4() throw (ePPPIpcpOptionInvalid) {
+		if (fpppframe::PPP_IPCP_OPT_MOB_IPV4 != hdr->option) throw ePPPIpcpOptionInvalid();
+		return (be32toh(*(uint32_t*)(hdr->data)));
+	};
+};
+
+
 
 }; // end of namespace
 

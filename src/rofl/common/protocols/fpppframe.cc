@@ -63,7 +63,15 @@ fpppframe::fpppframe(
 
 fpppframe::~fpppframe()
 {
+	while (not lcp_options.empty()) {
+		delete lcp_options.begin()->second;
+		lcp_options.erase(lcp_options.begin());
+	}
 
+	while (not ipcp_options.empty()) {
+		delete ipcp_options.begin()->second;
+		ipcp_options.erase(ipcp_options.begin());
+	}
 }
 
 
@@ -492,69 +500,55 @@ fpppframe::validate_lcp() throw (ePPPFrameInvalidSyntax)
 void
 fpppframe::parse_lcp_options() throw (ePPPFrameInvalidSyntax)
 {
-	struct ppp_lcp_opt_hdr_t *opt = (struct ppp_lcp_opt_hdr_t*)ppp_lcp_hdr->data;
-	size_t res_len = be16toh(ppp_lcp_hdr->length) - sizeof(struct ppp_lcp_hdr_t);
+	try {
+		struct ppp_lcp_opt_hdr_t *opt = (struct ppp_lcp_opt_hdr_t*)ppp_lcp_hdr->data;
+		size_t res_len = be16toh(ppp_lcp_hdr->length) - sizeof(struct ppp_lcp_hdr_t);
 
-	lcp_options.clear();
+		while (not lcp_options.empty()) {
+			delete lcp_options.begin()->second;
+			lcp_options.erase(lcp_options.begin());
+		}
 
-	if (res_len == 0) // no options available
-		return;
+		if (res_len == 0) // no options available
+			return;
 
-	while (res_len > 0)
-	{
-		WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::parse_lcp_options() opt=%p opt->option=%d opt->length=%d res_len=%d",
-				this, opt, opt->option, opt->length, res_len);
-
-
-		if (res_len < sizeof(struct ppp_lcp_opt_hdr_t))
+		while (res_len > 0)
 		{
-			WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_lcp_options(): "
-							"remaining length insufficient for option (%d > %d) %s",
-							this, res_len, sizeof(struct ppp_lcp_opt_hdr_t), c_str());
-			return; // throw exception instead?
+			WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::parse_lcp_options() opt=%p opt->option=%d opt->length=%d res_len=%d",
+					this, opt, opt->option, opt->length, res_len);
+
+
+			if (res_len < sizeof(struct ppp_lcp_opt_hdr_t))
+			{
+				WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_lcp_options(): "
+								"remaining length insufficient for option (%d > %d) %s",
+								this, res_len, sizeof(struct ppp_lcp_opt_hdr_t), c_str());
+				return; // throw exception instead?
+			}
+
+			size_t opt_len = opt->length; // includes option and length field
+			if ((opt_len > res_len) || (opt_len < sizeof(struct ppp_lcp_opt_hdr_t)))
+			{
+				WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_lcp_options(): "
+								"invalid option length field (%d > %d) %s",
+								this, opt_len, res_len, c_str());
+				return; // throw exception instead?
+			}
+
+			lcp_options[(enum ppp_lcp_option_t)opt->option] = new fppp_lcp_option(opt, opt_len);
+
+			lcp_options[(enum ppp_lcp_option_t)opt->option]->validate();
+
+			res_len -= opt_len;
+			opt = (struct ppp_lcp_opt_hdr_t*)((uint8_t*)opt + opt_len);
 		}
 
-		size_t opt_len = opt->length; // includes option and length field
-		if ((opt_len > res_len) || (opt_len < sizeof(struct ppp_lcp_opt_hdr_t)))
-		{
-			WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_lcp_options(): "
-							"invalid option length field (%d > %d) %s",
-							this, opt_len, res_len, c_str());
-			return; // throw exception instead?
-		}
+	} catch (ePPPLcpOptionInvalid& e) {
 
+		WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_lcp_options(): "
+						"option validation failed",	this);
 
-		switch (opt->option) {
-		case PPP_LCP_OPT_RESERVED:
-
-			break;
-		case PPP_LCP_OPT_MRU:
-
-			break;
-		case PPP_LCP_OPT_ACCM:
-
-			break;
-		case PPP_LCP_OPT_AUTH_PROT:
-
-			break;
-		case PPP_LCP_OPT_QUAL_PROT:
-
-			break;
-		case PPP_LCP_OPT_MAGIC_NUM:
-
-			break;
-		case PPP_LCP_OPT_PFC:
-
-			break;
-		case PPP_LCP_OPT_ACFC:
-
-			break;
-		}
-
-		lcp_options[(enum ppp_lcp_option_t)opt->option] = opt;
-
-		res_len -= opt_len;
-		opt = (struct ppp_lcp_opt_hdr_t*)((uint8_t*)opt + opt_len);
+		throw ePPPFrameInvalidSyntax();
 	}
 }
 
@@ -606,75 +600,74 @@ fpppframe::validate_ipcp() throw (ePPPFrameInvalidSyntax)
 void
 fpppframe::parse_ipcp_options() throw (ePPPFrameInvalidSyntax)
 {
-	// fixme
-	struct ppp_lcp_opt_hdr_t *opt = (struct ppp_lcp_opt_hdr_t*)ppp_ipcp_hdr->data;
-	size_t res_len = be16toh(ppp_ipcp_hdr->length) - sizeof(struct ppp_lcp_hdr_t);
+	try {
+		struct ppp_ipcp_opt_hdr_t *opt = (struct ppp_ipcp_opt_hdr_t*)ppp_ipcp_hdr->data;
+		size_t res_len = be16toh(ppp_ipcp_hdr->length) - sizeof(struct ppp_lcp_hdr_t);
 
-	ipcp_options.clear();
+		while (not ipcp_options.empty()) {
+			delete ipcp_options.begin()->second;
+			ipcp_options.erase(ipcp_options.begin());
+		}
 
-	if (res_len == 0) // no options available
-		return;
+		if (res_len == 0) // no options available
+			return;
 
-	while (res_len > 0)
-	{
-		WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::parse_ipcp_options() opt=%p opt->option=%d opt->length=%d res_len=%d",
-				this, opt, opt->option, opt->length, res_len);
-
-
-		if (res_len < sizeof(struct ppp_lcp_opt_hdr_t))
+		while (res_len > 0)
 		{
-			WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_ipcp_options(): "
-							"remaining length insufficient for option (%d > %d) %s",
-							this, res_len, sizeof(struct ppp_lcp_opt_hdr_t), c_str());
-			return; // throw exception instead?
+			WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::parse_ipcp_options() opt=%p opt->option=%d opt->length=%d res_len=%d",
+					this, opt, opt->option, opt->length, res_len);
+
+
+			if (res_len < sizeof(struct ppp_ipcp_opt_hdr_t))
+			{
+				WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_ipcp_options(): "
+								"remaining length insufficient for option (%d > %d) %s",
+								this, res_len, sizeof(struct ppp_lcp_opt_hdr_t), c_str());
+				return; // throw exception instead?
+			}
+
+			size_t opt_len = opt->length; // includes option and length field
+			if ((opt_len > res_len) || (opt_len < sizeof(struct ppp_lcp_opt_hdr_t)))
+			{
+				WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_ipcp_options(): "
+								"invalid option length field (%d > %d) %s",
+								this, opt_len, res_len, c_str());
+				return; // throw exception instead?
+			}
+
+			ipcp_options[(enum ppp_ipcp_option_t)opt->option] = new fppp_ipcp_option(opt, opt_len);
+
+			ipcp_options[(enum ppp_ipcp_option_t)opt->option]->validate();
+
+			res_len -= opt_len;
+			opt = (struct ppp_ipcp_opt_hdr_t*)((uint8_t*)opt + opt_len);
 		}
+	} catch (ePPPIpcpOptionInvalid& e) {
 
-		size_t opt_len = opt->length; // includes option and length field
-		if ((opt_len > res_len) || (opt_len < sizeof(struct ppp_lcp_opt_hdr_t)))
-		{
-			WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_ipcp_options(): "
-							"invalid option length field (%d > %d) %s",
-							this, opt_len, res_len, c_str());
-			return; // throw exception instead?
-		}
+		WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_ipcp_options(): "
+						"option validation failed",	this);
 
-
-		switch (opt->option) {
-		case PPP_IPCP_OPT_IPV4_DEP:
-		case PPP_IPCP_OPT_IP_COMP:
-		case PPP_IPCP_OPT_IPV4:
-		case PPP_IPCP_OPT_MOB_IPV4:
-		case PPP_IPCP_OPT_PRIM_DNS:
-		case PPP_IPCP_OPT_PRIM_MBNS:
-		case PPP_IPCP_OPT_SEC_DNS:
-		case PPP_IPCP_OPT_SEC_MBNS:
-			break;
-		}
-
-		ipcp_options[(enum ppp_ipcp_option_t)opt->option] = opt;
-
-		res_len -= opt_len;
-		opt = (struct ppp_lcp_opt_hdr_t*)((uint8_t*)opt + opt_len);
+		throw ePPPFrameInvalidSyntax();
 	}
 }
 
 
-struct fpppframe::ppp_lcp_opt_hdr_t*
+fppp_lcp_option*
 fpppframe::lcp_option_find(
 		enum ppp_lcp_option_t type) throw (ePPPFrameOptionNotFound)
 {
-	std::map<enum ppp_lcp_option_t, struct ppp_lcp_opt_hdr_t*>::const_iterator it;
+	std::map<enum ppp_lcp_option_t, fppp_lcp_option*>::const_iterator it;
 	if ((it = lcp_options.find(type)) == lcp_options.end())
 		throw ePPPFrameOptionNotFound();
 	return it->second;
 }
 
 
-struct fpppframe::ppp_lcp_opt_hdr_t*
+fppp_ipcp_option*
 fpppframe::ipcp_option_find(
 		enum ppp_ipcp_option_t type) throw (ePPPFrameOptionNotFound)
 {
-	std::map<enum ppp_ipcp_option_t, struct ppp_lcp_opt_hdr_t*>::const_iterator it;
+	std::map<enum ppp_ipcp_option_t, fppp_ipcp_option*>::const_iterator it;
 	if ((it = ipcp_options.find(type)) == ipcp_options.end())
 		throw ePPPFrameOptionNotFound();
 	return it->second;
@@ -886,11 +879,21 @@ fpppframe::set_lcp_length(uint16_t len) throw (ePPPLcpNotFound)
 }
 
 
-struct fpppframe::ppp_lcp_opt_hdr_t*
+fppp_lcp_option*
 fpppframe::get_lcp_option(enum ppp_lcp_option_t option) throw (ePPPLcpOptionNotFound)
 {
 	if (lcp_options.find(option) == lcp_options.end()) throw ePPPLcpOptionNotFound();
 
 	return lcp_options[option];
 }
+
+
+fppp_ipcp_option*
+fpppframe::get_ipcp_option(enum ppp_ipcp_option_t option) throw (ePPPIpcpOptionNotFound)
+{
+	if (ipcp_options.find(option) == ipcp_options.end()) throw ePPPIpcpOptionNotFound();
+
+	return ipcp_options[option];
+}
+
 
