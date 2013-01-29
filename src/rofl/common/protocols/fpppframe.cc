@@ -888,6 +888,60 @@ fpppframe::get_lcp_option(enum ppp_lcp_option_t option) throw (ePPPLcpOptionNotF
 }
 
 
+uint8_t
+fpppframe::get_ipcp_code() throw (ePPPIpcpNotFound)
+{
+	if (0 == ppp_ipcp_hdr) throw ePPPIpcpNotFound();
+
+	return ppp_ipcp_hdr->code;
+}
+
+
+void
+fpppframe::set_ipcp_code(uint8_t code) throw (ePPPIpcpNotFound)
+{
+	if (0 == ppp_ipcp_hdr) throw ePPPIpcpNotFound();
+
+	ppp_ipcp_hdr->code = code;
+}
+
+
+uint8_t
+fpppframe::get_ipcp_ident() throw (ePPPIpcpNotFound)
+{
+	if (0 == ppp_ipcp_hdr) throw ePPPIpcpNotFound();
+
+	return ppp_ipcp_hdr->ident;
+}
+
+
+void
+fpppframe::set_ipcp_ident(uint8_t ident) throw (ePPPIpcpNotFound)
+{
+	if (0 == ppp_ipcp_hdr) throw ePPPIpcpNotFound();
+
+	ppp_ipcp_hdr->ident = ident;
+}
+
+
+uint16_t
+fpppframe::get_ipcp_length() throw (ePPPIpcpNotFound)
+{
+	if (0 == ppp_ipcp_hdr) throw ePPPIpcpNotFound();
+
+	return be16toh(ppp_ipcp_hdr->length);
+}
+
+
+void
+fpppframe::set_ipcp_length(uint16_t len) throw (ePPPIpcpNotFound)
+{
+	if (0 == ppp_ipcp_hdr) throw ePPPIpcpNotFound();
+
+	ppp_ipcp_hdr->length = htobe16(len);
+}
+
+
 fppp_ipcp_option*
 fpppframe::get_ipcp_option(enum ppp_ipcp_option_t option) throw (ePPPIpcpOptionNotFound)
 {

@@ -38,6 +38,7 @@ class ePPPFrameInvalidSyntax 	: public eFrameBase {}; // PPP frame with invalid 
 class ePPPLcpNotFound 			: public ePPPBase {};
 class ePPPLcpOptionNotFound 	: public ePPPBase {};
 class ePPPLcpOptionInvalid		: public ePPPBase {};
+class ePPPIpcpNotFound 			: public ePPPBase {};
 class ePPPIpcpOptionNotFound	: public ePPPBase {};
 class ePPPIpcpOptionInvalid		: public ePPPBase {};
 
@@ -283,6 +284,42 @@ public:
 	 */
 	fppp_lcp_option*
 	get_lcp_option(enum ppp_lcp_option_t option) throw (ePPPLcpOptionNotFound);
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_ipcp_code() throw (ePPPIpcpNotFound);
+
+	/**
+	 *
+	 */
+	void
+	set_ipcp_code(uint8_t code) throw (ePPPIpcpNotFound);
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_ipcp_ident() throw (ePPPIpcpNotFound);
+
+	/**
+	 *
+	 */
+	void
+	set_ipcp_ident(uint8_t ident) throw (ePPPIpcpNotFound);
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_ipcp_length() throw (ePPPIpcpNotFound);
+
+	/**
+	 *
+	 */
+	void
+	set_ipcp_length(uint16_t len) throw (ePPPIpcpNotFound);
 
 	/**
 	 *
