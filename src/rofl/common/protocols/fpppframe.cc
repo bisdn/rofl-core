@@ -832,3 +832,65 @@ fpppframe::set_ppp_prot(uint16_t prot)
 }
 
 
+uint8_t
+fpppframe::get_lcp_code() throw (ePPPLcpNotFound)
+{
+	if (0 == ppp_lcp_hdr) throw ePPPLcpNotFound();
+
+	return ppp_lcp_hdr->code;
+}
+
+
+void
+fpppframe::set_lcp_code(uint8_t code) throw (ePPPLcpNotFound)
+{
+	if (0 == ppp_lcp_hdr) throw ePPPLcpNotFound();
+
+	ppp_lcp_hdr->code = code;
+}
+
+
+uint8_t
+fpppframe::get_lcp_ident() throw (ePPPLcpNotFound)
+{
+	if (0 == ppp_lcp_hdr) throw ePPPLcpNotFound();
+
+	return ppp_lcp_hdr->ident;
+}
+
+
+void
+fpppframe::set_lcp_ident(uint8_t ident) throw (ePPPLcpNotFound)
+{
+	if (0 == ppp_lcp_hdr) throw ePPPLcpNotFound();
+
+	ppp_lcp_hdr->ident = ident;
+}
+
+
+uint16_t
+fpppframe::get_lcp_length() throw (ePPPLcpNotFound)
+{
+	if (0 == ppp_lcp_hdr) throw ePPPLcpNotFound();
+
+	return be16toh(ppp_lcp_hdr->length);
+}
+
+
+void
+fpppframe::set_lcp_length(uint16_t len) throw (ePPPLcpNotFound)
+{
+	if (0 == ppp_lcp_hdr) throw ePPPLcpNotFound();
+
+	ppp_lcp_hdr->length = htobe16(len);
+}
+
+
+struct fpppframe::ppp_lcp_opt_hdr_t*
+fpppframe::get_lcp_option(enum ppp_lcp_option_t option) throw (ePPPLcpOptionNotFound)
+{
+	if (lcp_options.find(option) == lcp_options.end()) throw ePPPLcpOptionNotFound();
+
+	return lcp_options[option];
+}
+

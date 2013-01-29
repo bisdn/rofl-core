@@ -30,11 +30,13 @@ extern "C" {
 namespace rofl
 {
 
-class ePPPBase : public eFrameBase {};
-class ePPPInval : public ePPPBase {};
+class ePPPBase 					: public eFrameBase {};
+class ePPPInval 				: public ePPPBase {};
 class ePPPFrameHdlcDecodeFailed : public eFrameBase {}; // HDLC decoding failed
-class ePPPFrameOptionNotFound : public eFrameBase {}; // PPP option not found
-class ePPPFrameInvalidSyntax : public eFrameBase {}; // PPP frame with invalid syntax
+class ePPPFrameOptionNotFound 	: public eFrameBase {}; // PPP option not found
+class ePPPFrameInvalidSyntax 	: public eFrameBase {}; // PPP frame with invalid syntax
+class ePPPLcpNotFound 			: public ePPPBase {};
+class ePPPLcpOptionNotFound 	: public ePPPBase {};
 
 
 class fpppframe : public fframe {
@@ -53,14 +55,15 @@ public: // static
 	//
 
 	enum ppp_prot_t {
-		PPP_PROT_PADDING = 0x0001, // 0x00 0x01 in network byte order
-		PPP_PROT_LCP = 0xc021, // 0xc0 0x21 in network byte order
-		PPP_PROT_PAP = 0xc023, // 0xc0 0x23 in network byte order
-		PPP_PROT_LQR = 0xc025, // 0xc0 0x25 in network byte order
-		PPP_PROT_CHAP = 0xc223, // 0xc2 0x23 in network byte order
-		PPP_PROT_IPCP = 0x8021, // 0x80 0x21 in network byte order
-		PPP_PROT_IPV4 = 0x0021, // 0x00 0x21 in network byte order
-		PPP_PROT_CCP = 0x80fd, // 0x80 0xfd in network byte order
+		PPP_PROT_PADDING 	= 0x0001, // 0x00 0x01 in network byte order
+		PPP_PROT_LCP 		= 0xc021, // 0xc0 0x21 in network byte order
+		PPP_PROT_PAP 		= 0xc023, // 0xc0 0x23 in network byte order
+		PPP_PROT_LQR 		= 0xc025, // 0xc0 0x25 in network byte order
+		PPP_PROT_CHAP 		= 0xc223, // 0xc2 0x23 in network byte order
+		PPP_PROT_EAP 		= 0xc227, // 0xc2 0x27 in network byte order
+		PPP_PROT_IPCP 		= 0x8021, // 0x80 0x21 in network byte order
+		PPP_PROT_IPV4 		= 0x0021, // 0x00 0x21 in network byte order
+		PPP_PROT_CCP 		= 0x80fd, // 0x80 0xfd in network byte order
 	};
 
 	struct ppp_hdr_t {
@@ -225,6 +228,48 @@ public:
 	 */
 	void
 	set_ppp_prot(uint16_t code);
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_lcp_code() throw (ePPPLcpNotFound);
+
+	/**
+	 *
+	 */
+	void
+	set_lcp_code(uint8_t code) throw (ePPPLcpNotFound);
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_lcp_ident() throw (ePPPLcpNotFound);
+
+	/**
+	 *
+	 */
+	void
+	set_lcp_ident(uint8_t ident) throw (ePPPLcpNotFound);
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_lcp_length() throw (ePPPLcpNotFound);
+
+	/**
+	 *
+	 */
+	void
+	set_lcp_length(uint16_t len) throw (ePPPLcpNotFound);
+
+	/**
+	 *
+	 */
+	struct ppp_lcp_opt_hdr_t*
+	get_lcp_option(enum ppp_lcp_option_t option) throw (ePPPLcpOptionNotFound);
 
 
 public: // overloaded from fframe
