@@ -8,6 +8,8 @@
 fprintf(stderr,"<%s:%d>%s\n",__func__,__LINE__,line);\
 exit(-1);\
 }while(0)
+#else
+#define DEBUG_ERROR_EXIT(line)
 #endif
 
 /*
