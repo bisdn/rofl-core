@@ -560,15 +560,15 @@ static unsigned int of12_add_single_timer(of12_flow_table_t* const table, const 
 //Add timer to a table
 unsigned int of12_add_timer(of12_flow_table_t* const table, of12_flow_entry_t* const entry){
 	unsigned int res;
-
-	platform_mutex_lock(table->mutex);
+	//NOTE we don't use that lock because this is only called from of12_add_flow_entry...()
+	//platform_mutex_lock(table->mutex);
 	
 	if(entry->timer_info.idle_timeout)
 	{
 		res = of12_add_single_timer(table, entry->timer_info.idle_timeout, entry, IDLE_TO); //is_idle = 1
 		if(res == EXIT_FAILURE)
 		{
-			platform_mutex_unlock(table->mutex);
+			//platform_mutex_unlock(table->mutex);
 			return EXIT_FAILURE;
 		}
 	}
@@ -577,12 +577,12 @@ unsigned int of12_add_timer(of12_flow_table_t* const table, of12_flow_entry_t* c
 		res = of12_add_single_timer(table, entry->timer_info.hard_timeout, entry, HARD_TO); //is_idle = 0
 		if(res == EXIT_FAILURE)
 		{
-			platform_mutex_unlock(table->mutex);
+			//platform_mutex_unlock(table->mutex);
 			return EXIT_FAILURE;
 		}
 	}
 	
-	platform_mutex_unlock(table->mutex);
+	//platform_mutex_unlock(table->mutex);
 	return EXIT_SUCCESS;
 }
 
