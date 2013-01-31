@@ -434,7 +434,7 @@ protected:
 	 * @param pack PORT-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_port_mod(cofctl *ofctrl, cofpacket *pack) throw (ePortModBadPort);
+	handle_port_mod(cofctl *ofctrl, cofpacket *pack);
 
 	/** Handle OF flow-removed message. To be overwritten by derived class.
 	 *

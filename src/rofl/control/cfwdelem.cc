@@ -859,7 +859,7 @@ cfwdelem::handle_table_mod(cofctl *ofctrl, cofpacket *pack)
 
 
 void
-cfwdelem::handle_port_mod(cofctl *ofctrl, cofpacket *pack) throw (ePortModBadPort)
+cfwdelem::handle_port_mod(cofctl *ofctrl, cofpacket *pack)
 {
 	uint32_t port_no = be32toh(pack->ofh_port_mod->port_no);
 

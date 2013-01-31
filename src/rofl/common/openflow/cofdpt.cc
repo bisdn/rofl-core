@@ -265,25 +265,17 @@ cofdpt::handle_message(
 	try {
 		if (not pack->is_valid())
 		{
-			WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
+			writelog(COFDPT, ERROR, "cofdpt(%p)::handle_message() "
 					"dropping invalid packet: %s", this, pack->c_str());
 			delete pack; return;
 		}
 
-#ifndef NDEBUG
-		fprintf(stderr, "r:%d ", pack->ofh_header->type);
-#endif
-
-#if 0
-		pack->ctl = this;
-#endif
-
-	        if (not flags.test(COFDPT_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO))
-	        {
-	            WRITELOG(COFCTL, WARN, "cofdpt(%p)::handle_message() "
-	                "no HELLO rcvd yet, dropping message, pack: %s", this, pack->c_str());
-	            delete pack; return;
-	        }
+		if (not flags.test(COFDPT_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO))
+		{
+			writelog(COFCTL, ERROR, "cofdpt(%p)::handle_message() "
+				"no HELLO rcvd yet, dropping message, pack: %s", this, pack->c_str());
+			delete pack; return;
+		}
 
 		switch (pack->ofh_header->type) {
 		case OFPT_HELLO:

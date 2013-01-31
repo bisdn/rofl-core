@@ -377,13 +377,13 @@ cofctl::handle_message(
 	try {
 		if (not pack->is_valid())
 		{
-			WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
+			writelog(COFCTL, ERROR, "cofctl(%p)::handle_message() "
 					"dropping invalid packet: %s", this, pack->c_str());
 			delete pack; return;
 		}
 
 		if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO)) {
-			WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
+			writelog(COFCTL, ERROR, "cofctl(%p)::handle_message() "
 				"no HELLO rcvd yet, dropping message, pack: %s", this, pack->c_str());
 			delete pack; return;
 		}
