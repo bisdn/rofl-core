@@ -406,96 +406,6 @@ crofbase::cofdpt_factory(
 
 
 
-#if 0
-void
-crofbase::dpath_attach(cofbase* dp)
-{
-	if (NULL == dp) return;
-
-	cofdpt *sw = NULL;
-
-	try {
-
-		sw = ofswitch_find(dp);
-
-	} catch (eOFbaseNotAttached& e) {
-		sw = new cofdpt(this, dp, &ofdpath_list);
-		WRITELOG(CROFBASE, INFO, "crofbase(%p)::dpath_attach() cofbase: %p cofswitch: %s", this, dp, sw->c_str());
-	}
-
-	send_down_hello_message(sw);
-}
-
-
-void
-crofbase::dpath_detach(cofbase* dp)
-{
-	if (NULL == dp) return;
-
-	cofdpt *sw = NULL;
-	try {
-		sw = ofswitch_find(dp);
-
-		// sends a HELLO with BYE flag to controller and deletes our ofctrl instance
-		send_down_hello_message(sw, true /*BYE*/);
-
-		handle_dpath_close(sw);
-
-		WRITELOG(CROFBASE, INFO, "crofbase(%p)::dpath_detach() cofbase: %p cofswitch: %s", this, dp, sw->c_str());
-
-		delete sw;
-
-
-	} catch (eOFbaseNotAttached& e) { }
-}
-
-
-void
-crofbase::ctrl_attach(cofbase* dp) throw (eRofBaseFspSupportDisabled)
-{
-	// sanity check: entity must exist
-	if (NULL == dp) return;
-
-	cofctl *ofctrl = NULL;
-
-	// namespaces disabled? block attachment attempts
-	if ((not fe_flags.test(NSP_ENABLED)) && (not ofctrl_list.empty()))
-	{
-		throw eRofBaseFspSupportDisabled();
-	}
-
-	// check for existence of control entity
-	if (ofctrl_list.find(dp) == ofctrl_list.end())
-	{
-		ofctrl = new cofctl(this, dp, &ofctrl_list);
-		WRITELOG(CROFBASE, INFO, "crofbase(%p)::ctrl_attach() cofbase: %p cofctrl: %s",
-				this, dp, ofctrl->c_str());
-	}
-
-	send_up_hello_message(ofctrl);
-}
-
-
-void
-crofbase::ctrl_detach(cofbase* dp)
-{
-	if (NULL == dp) return;
-
-	std::map<cofbase*, cofctl*>::iterator it;
-	if ((it = ofctrl_list.find(dp)) != ofctrl_list.end())
-	{
-		WRITELOG(CROFBASE, INFO, "crofbase(%p)::ctrl_detach() cofbase: %p cofctrl: %s",
-				this, dp, it->second->c_str());
-
-		// sends a HELLO with BYE flag to controller and deletes our ofctrl instance
-		send_up_hello_message(it->second, true /*BYE*/);
-
-		delete it->second;
-	}
-}
-#endif
-
-
 
 void
 crofbase::handle_timeout(int opaque)
@@ -507,12 +417,6 @@ crofbase::handle_timeout(int opaque)
 					"cofpacket statistics => %s", this, cofpacket::packet_info());
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::handle_timeout() "
 					"cpacket statistics => %s", this, cpacket::cpacket_info());
-#if 0
-			fprintf(stdout, "crofbase(%p)::handle_timeout() "
-					"cofpacket statistics => %s", this, cofpacket::packet_info());
-			fprintf(stdout, "crofbase(%p)::handle_timeout() "
-					"cpacket statistics => %s", this, cpacket::cpacket_info());
-#endif
 			register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
 			break;
 		default:
@@ -779,19 +683,6 @@ crofbase::handle_features_reply_timeout(cofdpt *dpt)
     }
 }
 
-
-#if 0
-void
-crofbase::recv_message(
-		cofpacket *pack)
-{
-	try {
-		ta_validate(be32toh(pack->ofh_header->xid), pack->ofh_header->type);
-	} catch (eOFbaseXidInval& e) {
-
-	}
-}
-#endif
 
 
 
@@ -1139,60 +1030,50 @@ crofbase::send_packet_in_message(
 
 		if (fe_flags.test(NSP_ENABLED))
 		{
-			try {
-				std::set<cfspentry*> nse_list;
+			std::set<cfspentry*> nse_list;
 
-				nse_list = fsptable.find_matching_entries(
-						match.oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).uint32_value(),
-						total_len,
-						n_pack);
+			nse_list = fsptable.find_matching_entries(
+					match.oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).uint32_value(),
+					total_len,
+					n_pack);
 
-				WRITELOG(CROFBASE, WARN, "crofbase(%p) nse_list.size()=%d", this, nse_list.size());
+			WRITELOG(CROFBASE, WARN, "crofbase(%p) nse_list.size()=%d", this, nse_list.size());
 
-				if (nse_list.empty())
-				{
-					throw eRofBaseNoCtrl();
-				}
-
-				for (std::set<cfspentry*>::iterator
-						it = nse_list.begin(); it != nse_list.end(); ++it)
-				{
-					cofctl *ofctrl = dynamic_cast<cofctl*>( (*nse_list.begin())->fspowner );
-					if (OFPCR_ROLE_SLAVE == ofctrl->role)
-					{
-						WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
-								"ofctrl:%p is SLAVE, ignoring", this, ofctrl);
-						continue;
-					}
-
-
-					cofpacket_packet_in *pack = new cofpacket_packet_in(
-														ta_new_async_xid(),
-														buffer_id,
-														total_len,
-														reason,
-														table_id,
-														data,
-														datalen);
-
-					pack->match = match;
-
-					pack->pack();
-
-					WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
-									"sending PACKET-IN for buffer_id:0x%x to controller %s, pack: %s",
-									this, buffer_id, ofctrl->c_str(), pack->c_str());
-
-					// straight call to layer-(n+1) entity's fe_up_packet_in() method
-					ofctrl_find(ofctrl)->send_message(pack);
-				}
-
-			} catch (eFspNoMatch& e) {
-				cpacket pack(data, datalen);
-				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() no ctrl found for packet: %s", this, pack.c_str());
+			if (nse_list.empty())
+			{
 				throw eRofBaseNoCtrl();
 			}
 
+			for (std::set<cfspentry*>::iterator
+					it = nse_list.begin(); it != nse_list.end(); ++it)
+			{
+				cofctl *ofctrl = dynamic_cast<cofctl*>( (*nse_list.begin())->fspowner );
+				if (OFPCR_ROLE_SLAVE == ofctrl->role)
+				{
+					WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
+							"ofctrl:%p is SLAVE, ignoring", this, ofctrl);
+					continue;
+				}
+				cofpacket_packet_in *pack = new cofpacket_packet_in(
+													ta_new_async_xid(),
+													buffer_id,
+													total_len,
+													reason,
+													table_id,
+													data,
+													datalen);
+
+				pack->match = match;
+
+				pack->pack();
+
+				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
+								"sending PACKET-IN for buffer_id:0x%x to controller %s, pack: %s",
+								this, buffer_id, ofctrl->c_str(), pack->c_str());
+
+				// straight call to layer-(n+1) entity's fe_up_packet_in() method
+				ofctrl_find(ofctrl)->send_message(pack);
+			}
 
 			return;
 		}
@@ -1202,11 +1083,7 @@ crofbase::send_packet_in_message(
 			{
 				throw eRofBaseNoCtrl();
 			}
-
 			cofctl *ofctrl = *(ofctl_set.begin());
-
-
-
 
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 							"sending PACKET-IN for buffer_id:0x%x to controller %s",
@@ -1222,7 +1099,6 @@ crofbase::send_packet_in_message(
 												datalen);
 
 			pack->match = match;
-
 			pack->pack();
 
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
@@ -1233,7 +1109,15 @@ crofbase::send_packet_in_message(
 			ofctrl_find(ofctrl)->send_message(pack);
 		}
 
+	} catch (eFspNoMatch& e) {
+
+		cpacket pack(data, datalen);
+		WRITELOG(CROFBASE, ERROR, "crofbase(%p)::send_packet_in_message() no ctrl found for packet: %s", this, pack.c_str());
+
 	} catch (eRofBaseNotFound& e) {
+
+		cpacket pack(data, datalen);
+		WRITELOG(CROFBASE, ERROR, "crofbase(%p)::send_packet_in_message() no ctrl found for packet: %s", this, pack.c_str());
 
 	}
 }
@@ -1601,7 +1485,7 @@ crofbase::send_flow_removed_message(
 
 	} catch (eRofBaseNotFound& e) {
 
-		WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_removed_message() cofctrl instance not found", this);
+		WRITELOG(CROFBASE, ERROR, "crofbase(%p)::send_flow_removed_message() cofctrl instance not found", this);
 
 	}
 }
