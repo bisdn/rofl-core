@@ -123,27 +123,16 @@ class eBadInstUnsupMetadata			: public eBadInstBase {};		// OFPBIC_UNSUP_METADAT
 class eBadInstUnsupMetadataMask		: public eBadInstBase {};		// OFPBIC_UNSUP_METADATA_MASK
 class eBadInstUnsupExpInst			: public eBadInstBase {};		// OFPBIC_UNSUP_EXP_INST
 
-
-/* ofp_error_msg 'code' values for OFPET_BAD_MATCH.  'data' contains at least
- * the first 64 bytes of the failed request. */
-enum ofp_bad_match_code {
-    OFPBMC_BAD_TYPE,            /* Unsupported match type specified by the
-                                   match */
-    OFPBMC_BAD_LEN,             /* Length problem in match. */
-    OFPBMC_BAD_TAG,             /* Match uses an unsupported tag/encap. */
-    OFPBMC_BAD_DL_ADDR_MASK,    /* Unsupported datalink addr mask - switch does
-                                   not support arbitrary datalink address
-                                   mask. */
-    OFPBMC_BAD_NW_ADDR_MASK,    /* Unsupported network addr mask - switch does
-                                   not support arbitrary network address
-                                   mask. */
-    OFPBMC_BAD_WILDCARDS,       /* Unsupported wildcard specified in the
-                                   match. */
-    OFPBMC_BAD_FIELD,		/* Unsupported field in the match. */
-    OFPBMC_BAD_VALUE,		/* Unsupported value in a match field. */
-};
-
-
+/* exceptions for action-containing requests according to OpenFlow */
+class eBadMatchBase					: public eRofBase {};
+class eBadMatchBadType				: public eBadMatchBase {}; 		// OFPBMC_BAD_TYPE
+class eBadMatchBadLen				: public eBadMatchBase {};		// OFPBMC_BAD_LEN
+class eBadMatchBadTag				: public eBadMatchBase {};		// OFPBMC_BAD_TAG
+class eBadMatchBadDlAddrMask		: public eBadMatchBase {};		// OFPBMC_BAD_DL_ADDR_MASK
+class eBadMatchBadNwAddrMask		: public eBadMatchBase {};		// OFPBMC_BAD_NW_ADDR_MASK
+class eBadMatchBadWildcards			: public eBadMatchBase {};		// OFPBMC_BAD_WILDCARDS
+class eBadMatchBadField				: public eBadMatchBase {};		// OFPBMC_BAD_FIELD
+class eBadMatchBadValue				: public eBadMatchBase {};		// OFPBMC_BAD_VALUE
 
 /* exceptions for flow-mod tables and flow-mod entries according to OpenFlow */
 class eFlowModBase					: public eRofBase {};

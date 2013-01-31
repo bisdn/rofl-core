@@ -862,6 +862,110 @@ cofctl::handle_message(
 					pack->soframe(), pack->framelen());
 
 		delete pack;
+	} catch (eBadMatchBadType& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Unsupported match type specified by the match, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_MATCH,
+					OFPBMC_BAD_TYPE,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadMatchBadLen& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Length problem in match, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_MATCH,
+					OFPBMC_BAD_LEN,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadMatchBadTag& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Match uses an unsupported tag/encap, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_MATCH,
+					OFPBMC_BAD_TAG,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadMatchBadDlAddrMask& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Unsupported datalink addr mask, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_MATCH,
+					OFPBMC_BAD_DL_ADDR_MASK,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadMatchBadNwAddrMask& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Unsupported network addr mask, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_MATCH,
+					OFPBMC_BAD_NW_ADDR_MASK,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadMatchBadWildcards& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Unsupported wildcard specified in the match, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_MATCH,
+					OFPBMC_BAD_WILDCARDS,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadMatchBadField& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Unsupported field in the match, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_MATCH,
+					OFPBMC_BAD_FIELD,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadMatchBadValue& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Unsupported value in a match field, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_MATCH,
+					OFPBMC_BAD_VALUE,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
 	}
 }
 
