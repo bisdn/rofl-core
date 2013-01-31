@@ -15,7 +15,6 @@ extern "C" {
 #endif
 
 
-
 // ROFL vendor extension identifier
 #define VENDOR_EXT_ROFL 0x551bcccc	// shamelessly taken
 

@@ -1317,6 +1317,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 		delete pack;
 	} catch (eActionBadLen& e) {
 
+		throw eBadActionBadLen();
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
 				"invalid flow-mod packet received: action with bad length", this);
 
