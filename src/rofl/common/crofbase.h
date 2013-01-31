@@ -55,7 +55,7 @@ extern "C" {
 #include "openflow/cgroupentry.h"
 #include "openflow/cofstats.h"
 #include "openflow/extensions/cfsptable.h"
-#include "openflow/openflow_rofl.h"
+#include "openflow/openflow_rofl_exceptions.h"
 
 namespace rofl
 {

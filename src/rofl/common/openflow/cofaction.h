@@ -26,7 +26,7 @@ extern "C" {
 #include "../cmacaddr.h"
 #include "../cvastring.h"
 #include "../coflist.h"
-#include "openflow_rofl.h"
+#include "openflow_rofl_exceptions.h"
 
 #include "rofl/platform/unix/csyslog.h"
 
