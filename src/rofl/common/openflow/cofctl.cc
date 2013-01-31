@@ -376,73 +376,492 @@ void
 cofctl::handle_message(
 		cofpacket *pack)
 {
-	if (not pack->is_valid())
-	{
-		WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
-				"dropping invalid packet: %s", this, pack->c_str());
-		delete pack; return;
-	}
+	try {
+		if (not pack->is_valid())
+		{
+			WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
+					"dropping invalid packet: %s", this, pack->c_str());
+			delete pack; return;
+		}
 
-	if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO)) {
-	    WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
-	        "no HELLO rcvd yet, dropping message, pack: %s", this, pack->c_str());
-	    delete pack; return;
-    }
+		if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO)) {
+			WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
+				"no HELLO rcvd yet, dropping message, pack: %s", this, pack->c_str());
+			delete pack; return;
+		}
 
-	switch (pack->ofh_header->type) {
-	case OFPT_HELLO: {
-		hello_rcvd(pack);
-	} break;
-	case OFPT_ECHO_REQUEST: {
-		echo_request_rcvd(pack);
-	} break;
-	case OFPT_ECHO_REPLY: {
-		echo_reply_rcvd(pack);
-	} break;
-	case OFPT_EXPERIMENTER:	{
-		experimenter_rcvd(pack);
-	} break;
-	case OFPT_FEATURES_REQUEST:	{
-		features_request_rcvd(pack);
-	} break;
-	case OFPT_GET_CONFIG_REQUEST: {
-		get_config_request_rcvd(pack);
-	} break;
-	case OFPT_SET_CONFIG: {
-		set_config_rcvd(pack);
-	} break;
-	case OFPT_PACKET_OUT: {
-		packet_out_rcvd(pack);
-	} break;
-	case OFPT_FLOW_MOD: {
-		flow_mod_rcvd(pack);
-	} break;
-	case OFPT_GROUP_MOD: {
-		group_mod_rcvd(pack);
-	} break;
-	case OFPT_PORT_MOD: {
-		port_mod_rcvd(pack);
-	} break;
-	case OFPT_TABLE_MOD: {
-		table_mod_rcvd(pack);
-	} break;
-	case OFPT_STATS_REQUEST: {
-		stats_request_rcvd(pack);
-	} break;
-	case OFPT_BARRIER_REQUEST: {
-		barrier_request_rcvd(pack);
-	} break;
-	case OFPT_QUEUE_GET_CONFIG_REQUEST: {
-		queue_get_config_request_rcvd(pack);
-	} break;
-	case OFPT_ROLE_REQUEST: {
-		role_request_rcvd(pack);
-	} break;
-	default: {
-		WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
-				"dropping unknown packet: %s", this, pack->c_str());
+		switch (pack->ofh_header->type) {
+		case OFPT_HELLO: {
+			hello_rcvd(pack);
+		} break;
+		case OFPT_ECHO_REQUEST: {
+			echo_request_rcvd(pack);
+		} break;
+		case OFPT_ECHO_REPLY: {
+			echo_reply_rcvd(pack);
+		} break;
+		case OFPT_EXPERIMENTER:	{
+			experimenter_rcvd(pack);
+		} break;
+		case OFPT_FEATURES_REQUEST:	{
+			features_request_rcvd(pack);
+		} break;
+		case OFPT_GET_CONFIG_REQUEST: {
+			get_config_request_rcvd(pack);
+		} break;
+		case OFPT_SET_CONFIG: {
+			set_config_rcvd(pack);
+		} break;
+		case OFPT_PACKET_OUT: {
+			packet_out_rcvd(pack);
+		} break;
+		case OFPT_FLOW_MOD: {
+			flow_mod_rcvd(pack);
+		} break;
+		case OFPT_GROUP_MOD: {
+			group_mod_rcvd(pack);
+		} break;
+		case OFPT_PORT_MOD: {
+			port_mod_rcvd(pack);
+		} break;
+		case OFPT_TABLE_MOD: {
+			table_mod_rcvd(pack);
+		} break;
+		case OFPT_STATS_REQUEST: {
+			stats_request_rcvd(pack);
+		} break;
+		case OFPT_BARRIER_REQUEST: {
+			barrier_request_rcvd(pack);
+		} break;
+		case OFPT_QUEUE_GET_CONFIG_REQUEST: {
+			queue_get_config_request_rcvd(pack);
+		} break;
+		case OFPT_ROLE_REQUEST: {
+			role_request_rcvd(pack);
+		} break;
+		default: {
+			WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
+					"dropping unknown packet: %s", this, pack->c_str());
+			delete pack;
+		} return;
+		}
+
+	} catch (eBadRequestBadVersion& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"ofp_header.version not supported, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_REQUEST,
+					OFPBRC_BAD_VERSION,
+					pack->soframe(), pack->framelen());
+
 		delete pack;
-	} return;
+	} catch (eBadRequestBadType& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"ofp_header.type not supported, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_REQUEST,
+					OFPBRC_BAD_TYPE,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadRequestBadStat& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"ofp_stats_request.type not supported, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_REQUEST,
+					OFPBRC_BAD_STAT,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadRequestBadExperimenter& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Experimenter id not supported, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_REQUEST,
+					OFPBRC_BAD_EXPERIMENTER,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadRequestBadExpType& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Experimenter type not supported, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_REQUEST,
+					OFPBRC_BAD_EXP_TYPE,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadRequestEperm& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Permissions error, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_REQUEST,
+					OFPBRC_EPERM,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadRequestBadLen& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Wrong request length for type, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_REQUEST,
+					OFPBRC_BAD_LEN,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadRequestBufferEmpty& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Specified buffer has already been used, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_REQUEST,
+					OFPBRC_BUFFER_EMPTY,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadRequestBufferUnknown& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Specified buffer does not exist, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_REQUEST,
+					OFPBRC_BUFFER_UNKNOWN,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadRequestBadTableId& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Specified table-id invalid or does not exist, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_REQUEST,
+					OFPBRC_BAD_TABLE_ID,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadRequestIsSlave& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Denied because controller is slave, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_REQUEST,
+					OFPBRC_IS_SLAVE,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadRequestBadPort& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Invalid port, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_REQUEST,
+					OFPBRC_BAD_PORT,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadRequestBadPacket& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Invalid packet in packet-out, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_REQUEST,
+					OFPBRC_BAD_PACKET,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadActionBadType& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Unknown action type, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_BAD_TYPE,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadActionBadLen& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Length problem in actions, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_BAD_LEN,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadActionBadExperimenter& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Unknown experimenter id specified, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_BAD_EXPERIMENTER,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadActionBadExperimenterType& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Unknown action type for experimenter id, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_BAD_EXPERIMENTER_TYPE,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadActionBadOutPort& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Problem validating output port, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_BAD_OUT_PORT,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadActionBadArgument& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Bad action argument, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_BAD_ARGUMENT,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadActionEperm& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Permissions error, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_EPERM,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadActionTooMany& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Can't handle this many actions, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_TOO_MANY,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadActionBadQueue& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Problem validating output queue, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_BAD_QUEUE,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadActionBadOutGroup& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Invalid group id in forward action, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_BAD_OUT_GROUP,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadActionMatchInconsistent& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Action can't apply for this match, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_MATCH_INCONSISTENT,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadActionUnsupportedOrder& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Action order is unsupported for the action list in an Apply-Actions instruction, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_UNSUPPORTED_ORDER,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadActionBadTag& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Actions uses an unsupported tag/encap, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_ACTION,
+					OFPBAC_BAD_TAG,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadInstUnknownInst& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Unknown instruction, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_INSTRUCTION,
+					OFPBIC_UNKNOWN_INST,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadInstUnsupInst& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Switch or table does not support the instruction, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_INSTRUCTION,
+					OFPBIC_UNSUP_INST,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadInstBadTableId& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Invalid Table-ID specified, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_INSTRUCTION,
+					OFPBIC_BAD_TABLE_ID,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadInstUnsupMetadata& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Metadata value unsupported by datapath, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_INSTRUCTION,
+					OFPBIC_UNSUP_METADATA,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadInstUnsupMetadataMask& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Metadata mask value unsupported by datapath, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_INSTRUCTION,
+					OFPBIC_UNSUP_METADATA_MASK,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+	} catch (eBadInstUnsupExpInst& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::handle_message() "
+				"Specific experimenter instruction unsupported, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_BAD_INSTRUCTION,
+					OFPBIC_UNSUP_EXP_INST,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
 	}
 }
 
@@ -451,48 +870,71 @@ cofctl::handle_message(
 void
 cofctl::hello_rcvd(cofpacket *pack)
 {
-	WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() pack: %s", this, pack->c_str());
+	try {
+		WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() pack: %s", this, pack->c_str());
 
-	// OpenFlow versions do not match, send error, close connection
-	if (pack->ofh_header->version != OFP_VERSION)
-	{
-		new_state(STATE_CTL_DISCONNECTED);
+		// OpenFlow versions do not match, send error, close connection
+		if (pack->ofh_header->version != OFP_VERSION)
+		{
+			new_state(STATE_CTL_DISCONNECTED);
 
-		// invalid OFP_VERSION
-		char explanation[256];
-		bzero(explanation, sizeof(explanation));
-		snprintf(explanation, sizeof(explanation) - 1,
-						"unsupported OF version (%d), supported version is (%d)",
-						(pack->ofh_header->version), OFP_VERSION);
+			// invalid OFP_VERSION
+			char explanation[256];
+			bzero(explanation, sizeof(explanation));
+			snprintf(explanation, sizeof(explanation) - 1,
+							"unsupported OF version (%d), supported version is (%d)",
+							(pack->ofh_header->version), OFP_VERSION);
 
-		cofpacket_error *reply = new cofpacket_error(
-												pack->get_xid(),
-												OFPET_HELLO_FAILED,
-												OFPHFC_INCOMPATIBLE,
-												(uint8_t*) explanation, strlen(explanation));
+			throw eHelloIncompatible();
+		}
+		else
+		{
+			flags.set(COFCTL_FLAG_HELLO_RCVD);
 
-		send_message_via_socket(reply);
+			new_state(STATE_CTL_ESTABLISHED);
+
+			WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() "
+				"HELLO exchanged with peer entity, attaching ...", this);
+
+			if (flags.test(COFCTL_FLAG_HELLO_SENT))
+			{
+				rofbase->send_echo_request(this);
+
+				rofbase->handle_ctl_open(this);
+			}
+		}
+
+		delete pack;
+
+	} catch (eHelloIncompatible& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::hello_rcvd() "
+				"No compatible version, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_HELLO_FAILED,
+					OFPHFC_INCOMPATIBLE,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
 
 		handle_closed(socket, socket->sd);
+	} catch (eHelloEperm& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::hello_rcvd() "
+				"Permissions error, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_HELLO_FAILED,
+					OFPHFC_EPERM,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
 	}
-	else
-	{
-	    flags.set(COFCTL_FLAG_HELLO_RCVD);
-
-		new_state(STATE_CTL_ESTABLISHED);
-
-		WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() "
-			"HELLO exchanged with peer entity, attaching ...", this);
-
-		if (flags.test(COFCTL_FLAG_HELLO_SENT))
-		{
-			rofbase->send_echo_request(this);
-
-			rofbase->handle_ctl_open(this);
-		}
-	}
-
-	delete pack;
 }
 
 
@@ -604,8 +1046,6 @@ cofctl::set_config_rcvd(cofpacket *pack)
 
 		rofbase->handle_set_config(this, pack);
 
-		return; // Attention: We are deleting pack after the catch block, so we must return here!
-
 	} catch (eSwitchConfigBadFlags& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::set_config_rcvd() "
@@ -618,6 +1058,7 @@ cofctl::set_config_rcvd(cofpacket *pack)
 					OFPSCFC_BAD_FLAGS,
 					pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eSwitchConfigBadLen& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::set_config_rcvd() "
@@ -630,9 +1071,8 @@ cofctl::set_config_rcvd(cofpacket *pack)
 					OFPSCFC_BAD_LEN,
 					pack->soframe(), pack->framelen());
 
+		delete pack;
 	}
-
-	delete pack;
 }
 
 
@@ -680,8 +1120,6 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 
 		rofbase->handle_flow_mod(this, pack);
 
-		return; // Attention: We are deleting pack after the catch block, so we must return here!
-
 	} catch (eFlowModUnknown& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -694,6 +1132,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 					OFPFMFC_UNKNOWN,
 					pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eFlowModTableFull& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -706,6 +1145,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 					OFPFMFC_TABLE_FULL,
 					pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eFlowModBadTableId& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -718,6 +1158,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 					OFPFMFC_BAD_TABLE_ID,
 					pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eFlowModOverlap& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -730,6 +1171,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 					OFPFMFC_OVERLAP,
 					pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eFlowModEperm& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -742,6 +1184,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 					OFPFMFC_EPERM,
 					pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eFlowModBadTimeout&e ) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -754,6 +1197,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 					OFPFMFC_BAD_TIMEOUT,
 					pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eFlowModBadCommand& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -766,6 +1210,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 					OFPFMFC_BAD_COMMAND,
 					pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eActionBadLen& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -778,6 +1223,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 					OFPBAC_BAD_LEN,
 					pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eFspNotAllowed& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -791,6 +1237,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPFMFC_EPERM,
 				pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eRofBaseTableNotFound& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -804,6 +1251,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPFMFC_BAD_TABLE_ID,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eInstructionInvalType& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -816,6 +1264,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPBIC_UNKNOWN_INST,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eRofBaseGotoTableNotFound& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -828,6 +1277,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPBIC_BAD_TABLE_ID,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eInstructionBadExperimenter& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -840,6 +1290,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPBIC_UNSUP_EXP_INST,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eOFmatchInvalBadValue& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -852,6 +1303,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPBMC_BAD_VALUE,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (cerror &e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::flow_mod_rcvd() "
@@ -864,9 +1316,8 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPFMFC_UNKNOWN,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	}
-
-	delete pack;
 }
 
 
@@ -883,8 +1334,6 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 
 		rofbase->handle_group_mod(this, pack);
 
-		return; // Attention: We are deleting pack after the catch block, so we must return here!
-
 	} catch (eActionBadLen& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -899,6 +1348,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModExists& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -912,6 +1362,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModInval& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -925,6 +1376,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModWeightUnsupported& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -938,6 +1390,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModOutOfGroups& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -951,6 +1404,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModOutOfBuckets& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -964,6 +1418,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModChainingUnsupported& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -977,6 +1432,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModWatchUnsupported& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -990,6 +1446,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModLoop& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -1003,6 +1460,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModUnknownGroup& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -1016,6 +1474,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModChainedGroup& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -1029,6 +1488,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModBadType& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -1042,6 +1502,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModBadCommand& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -1055,6 +1516,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModBadBucket& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -1068,6 +1530,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModBadWatch& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -1081,6 +1544,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModEperm& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -1094,6 +1558,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
+		delete pack;
 	} catch (eGroupModBase &e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -1106,9 +1571,8 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				0, // there is no OFPGMFC_UNKNOWN defined yet
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	}
-
-	delete pack;
 }
 
 
@@ -1124,8 +1588,6 @@ cofctl::port_mod_rcvd(cofpacket *pack) throw (eOFctlPortNotFound)
 
 		rofbase->handle_port_mod(this, pack);
 
-		return; // Attention: We are deleting pack after the catch block, so we must return here!
-
 	} catch (ePortModBadPort& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::port_mod_rcvd() "
@@ -1138,6 +1600,7 @@ cofctl::port_mod_rcvd(cofpacket *pack) throw (eOFctlPortNotFound)
 				OFPPMFC_BAD_PORT,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (ePortModBadHwAddr& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::port_mod_rcvd() "
@@ -1150,6 +1613,7 @@ cofctl::port_mod_rcvd(cofpacket *pack) throw (eOFctlPortNotFound)
 				OFPPMFC_BAD_HW_ADDR,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (ePortModBadConfig& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::port_mod_rcvd() "
@@ -1162,6 +1626,7 @@ cofctl::port_mod_rcvd(cofpacket *pack) throw (eOFctlPortNotFound)
 				OFPPMFC_BAD_CONFIG,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (ePortModBadAdvertise& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::port_mod_rcvd() "
@@ -1174,9 +1639,8 @@ cofctl::port_mod_rcvd(cofpacket *pack) throw (eOFctlPortNotFound)
 				OFPPMFC_BAD_ADVERTISE,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	}
-
-	delete pack;
 }
 
 
@@ -1191,8 +1655,6 @@ cofctl::table_mod_rcvd(cofpacket *pack)
 
 		rofbase->handle_table_mod(this, pack);
 
-		return; // Attention: We are deleting pack after the catch block, so we must return here!
-
 	} catch (eTableModBadTable& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::table_mod_rcvd() "
@@ -1205,6 +1667,7 @@ cofctl::table_mod_rcvd(cofpacket *pack)
 				OFPTMFC_BAD_TABLE,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eTableModBadConfig& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::table_mod_rcvd() "
@@ -1217,9 +1680,8 @@ cofctl::table_mod_rcvd(cofpacket *pack)
 				OFPTMFC_BAD_CONFIG,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	}
-
-	delete pack;
 }
 
 
@@ -1380,8 +1842,6 @@ cofctl::role_request_rcvd(cofpacket *pack)
 
 		rofbase->handle_role_request(this, pack);
 
-		return; // Attention: We are deleting pack after the catch block, so we must return here!
-
 	} catch (eRoleRequestStale& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::role_request_rcvd() "
@@ -1394,6 +1854,7 @@ cofctl::role_request_rcvd(cofpacket *pack)
 				OFPRRFC_STALE,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eRoleRequestUnsupported& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::role_request_rcvd() "
@@ -1406,6 +1867,7 @@ cofctl::role_request_rcvd(cofpacket *pack)
 				OFPRRFC_UNSUP,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	} catch (eRoleRequestBadRole& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::role_request_rcvd() "
@@ -1418,9 +1880,8 @@ cofctl::role_request_rcvd(cofpacket *pack)
 				OFPRRFC_BAD_ROLE,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
+		delete pack;
 	}
-
-	delete pack;
 }
 
 
