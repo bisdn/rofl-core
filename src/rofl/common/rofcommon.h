@@ -5,14 +5,8 @@
 #ifndef ROFCOMMON_H
 #define ROFCOMMON_H 1
 
-#include "cfwdelem.h"
-#include "ciosrv.h"
-#include "openflow/cofrpc.h"
-//#include "cterminus.h"
-
-#include "rofl/config/cconfig.h"
-
-#include "rofl/platform/unix/csyslog.h"
-//#include "datapath/cdatapath.h"
+#include "crofbase.h"
+#include "cofctl.h"
+#include "cofdpt.h"
 
 #endif
