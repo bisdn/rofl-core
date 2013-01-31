@@ -76,25 +76,62 @@ class eRofBaseTableNotFound 		: public eRofBase {}; // flow-table not found (e.g
 class eRofBaseGotoTableNotFound 	: public eRofBase {}; // table-id specified in OFPIT_GOTO_TABLE invalid
 class eRofBaseFspSupportDisabled 	: public eRofBase {};
 
+/* exceptions for flow-mod tables and flow-mod entries according to OpenFlow */
+class eFlowModBase					: public cerror {};
+class eFlowModUnknown				: public eFlowModBase {};		// OFPFMFC_UNKNOWN
+class eFlowModTableFull				: public eFlowModBase {};		// OFPFMFC_TABLE_FULL
+class eFlowModBadTableId			: public eFlowModBase {};		// OFPFMFC_BAD_TABLE_ID
+class eFlowModOverlap				: public eFlowModBase {}; 		// OFPFMFC_OVERLAP
+class eFlowModEperm					: public eFlowModBase {};		// OFPFMFC_EPERM
+class eFlowModBadTimeout			: public eFlowModBase {};		// OFPFMFC_BAD_TIMEOUT
+class eFlowModBadCommand			: public eFlowModBase {};		// OFPFMFC_BAD_COMMAND
 
-/* exceptions for group group tables and entries according to OpenFlow */
-class eGroupBase					: public cerror {};
-class eGroupExists 					: public eGroupBase {};		// OFPGMFC_GROUP_EXISTS
-class eGroupInval					: public eGroupBase {};		// OFPGMFC_INVALID_GROUP
-class eGroupWeightUnsupported		: public eGroupBase {};		// OFPGMFC_WEIGHT_UNSUPPORTED
-class eGroupOutOfGroups				: public eGroupBase {}; 	// OFPGMFC_OUT_OF_GROUPS
-class eGroupOutOfBuckets			: public eGroupBase {}; 	// OFPGMFC_OUT_OF_BUCKETS
-class eGroupChainingUnsupported		: public eGroupBase {};		// OFPGMFC_CHAINING_UNSUPPORTED
-class eGroupWatchUnsupported		: public eGroupBase {};		// OFPGMFC_WATCH_UNSUPPORTED
-class eGroupLoop					: public eGroupBase {};		// OFPGMFC_LOOP
-class eGroupUnknownGroup			: public eGroupBase {};		// OFPGMFC_UNKNOWN_GROUP
-class eGroupChainedGroup			: public eGroupBase {};		// OFPGMFC_CHAINED_GROUP
-class eGroupBadType					: public eGroupBase {}; 	// OFPGMFC_BAD_TYPE
-class eGroupBadCommand				: public eGroupBase {};		// OFPGMFC_BAD_COMMAND
-class eGroupBadBucket				: public eGroupBase {};		// OFPGMFC_BAD_BUCKET
-class eGroupBadWatch				: public eGroupBase {}; 	// OFPGMFC_BAD_WATCH
-class eGroupEperm					: public eGroupBase {};		// OFPGMFC_EPERM
+/* exceptions for group table and group entries according to OpenFlow */
+class eGroupModBase					: public cerror {};
+class eGroupModExists 				: public eGroupModBase {};		// OFPGMFC_GROUP_EXISTS
+class eGroupModInval				: public eGroupModBase {};		// OFPGMFC_INVALID_GROUP
+class eGroupModWeightUnsupported	: public eGroupModBase {};		// OFPGMFC_WEIGHT_UNSUPPORTED
+class eGroupModOutOfGroups			: public eGroupModBase {}; 		// OFPGMFC_OUT_OF_GROUPS
+class eGroupModOutOfBuckets			: public eGroupModBase {}; 		// OFPGMFC_OUT_OF_BUCKETS
+class eGroupModChainingUnsupported	: public eGroupModBase {};		// OFPGMFC_CHAINING_UNSUPPORTED
+class eGroupModWatchUnsupported		: public eGroupModBase {};		// OFPGMFC_WATCH_UNSUPPORTED
+class eGroupModLoop					: public eGroupModBase {};		// OFPGMFC_LOOP
+class eGroupModUnknownGroup			: public eGroupModBase {};		// OFPGMFC_UNKNOWN_GROUP
+class eGroupModChainedGroup			: public eGroupModBase {};		// OFPGMFC_CHAINED_GROUP
+class eGroupModBadType				: public eGroupModBase {}; 		// OFPGMFC_BAD_TYPE
+class eGroupModBadCommand			: public eGroupModBase {};		// OFPGMFC_BAD_COMMAND
+class eGroupModBadBucket			: public eGroupModBase {};		// OFPGMFC_BAD_BUCKET
+class eGroupModBadWatch				: public eGroupModBase {}; 		// OFPGMFC_BAD_WATCH
+class eGroupModEperm				: public eGroupModBase {};		// OFPGMFC_EPERM
 
+/* exceptions for port-mod commands according to OpenFlow */
+class ePortModBase					: public cerror {};
+class ePortModBadPort				: public ePortModBase {};		// OFPPMFC_BAD_PORT
+class ePortModBadHwAddr				: public ePortModBase {};		// OFPPMFC_BAD_HW_ADDR
+class ePortModBadConfig				: public ePortModBase {};		// OFPPMFC_BAD_CONFIG
+class ePortModBadAdvertise			: public ePortModBase {};		// OFPPMFC_BAD_ADVERTISE
+
+/* exceptions for table-mod commands according to OpenFlow */
+class eTableModBase					: public cerror {};
+class eTableModBadTable				: public eTableModBase {};		// OFPTMFC_BAD_TABLE
+class eTableModBadConfig			: public eTableModBase {};		// OFPTMFC_BAD_CONFIG
+
+/* exceptions for queue-op commands according to OpenFlow */
+class eQueueOpBase					: public cerror {};
+class eQueueOpBadPort				: public eQueueOpBase {};		// OFPQOFC_BAD_PORT
+class eQueueOpBadQueue				: public eQueueOpBase {};		// OFPQOFC_BAD_QUEUE
+class eQueueOpEperm					: public eQueueOpBase {};		// OFPQOFC_EPERM
+
+/* exceptions for switch-config commands according to OpenFlow */
+class eSwitchConfigBase				: public cerror {};
+class eSwitchConfigBadFlags			: public eSwitchConfigBase {};	// OFPSCFC_BAD_FLAGS
+class eSwitchConfigBadLen			: public eSwitchConfigBase {};	// OFPSCFC_BAD_LEN
+
+/* exceptions for role-request commands according to OpenFlow */
+class eRoleRequestBase				: public cerror {};
+class eRoleRequestStale				: public eRoleRequestBase {};	// OFPRRFC_STALE
+class eRoleRequestUnsupported		: public eRoleRequestBase {};	// OFPRRFC_UNSUPPORTED
+class eRoleRequestBadRole			: public eRoleRequestBase {};	// OFPRRFC_BAD_ROLE
 
 
 class cofctl;

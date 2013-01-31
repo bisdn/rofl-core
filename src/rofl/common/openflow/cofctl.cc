@@ -596,12 +596,43 @@ cofctl::get_config_reply_sent(cofpacket *pack)
 void
 cofctl::set_config_rcvd(cofpacket *pack)
 {
-	if (OFPCR_ROLE_SLAVE == role)
-	{
-		send_error_is_slave(pack); return;
+	try {
+		if (OFPCR_ROLE_SLAVE == role)
+		{
+			send_error_is_slave(pack); return;
+		}
+
+		rofbase->handle_set_config(this, pack);
+
+		return; // Attention: We are deleting pack after the catch block, so we must return here!
+
+	} catch (eSwitchConfigBadFlags& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::set_config_rcvd() "
+				"Specified flags is invalid, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_SWITCH_CONFIG_FAILED,
+					OFPSCFC_BAD_FLAGS,
+					pack->soframe(), pack->framelen());
+
+	} catch (eSwitchConfigBadLen& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::set_config_rcvd() "
+				"Specified len is invalid, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_SWITCH_CONFIG_FAILED,
+					OFPSCFC_BAD_LEN,
+					pack->soframe(), pack->framelen());
+
 	}
 
-	rofbase->handle_set_config(this, pack);
+	delete pack;
 }
 
 
@@ -649,6 +680,91 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 
 		rofbase->handle_flow_mod(this, pack);
 
+		return; // Attention: We are deleting pack after the catch block, so we must return here!
+
+	} catch (eFlowModUnknown& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
+				"unspecified error, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_FLOW_MOD_FAILED,
+					OFPFMFC_UNKNOWN,
+					pack->soframe(), pack->framelen());
+
+	} catch (eFlowModTableFull& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
+				"table full, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_FLOW_MOD_FAILED,
+					OFPFMFC_TABLE_FULL,
+					pack->soframe(), pack->framelen());
+
+	} catch (eFlowModBadTableId& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
+				"bad table-id, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_FLOW_MOD_FAILED,
+					OFPFMFC_BAD_TABLE_ID,
+					pack->soframe(), pack->framelen());
+
+	} catch (eFlowModOverlap& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
+				"flow-mod overlaps while CHECK_OVERLAP flag is set, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_FLOW_MOD_FAILED,
+					OFPFMFC_OVERLAP,
+					pack->soframe(), pack->framelen());
+
+	} catch (eFlowModEperm& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
+				"permissions error, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_FLOW_MOD_FAILED,
+					OFPFMFC_EPERM,
+					pack->soframe(), pack->framelen());
+
+	} catch (eFlowModBadTimeout&e ) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
+				"bad timeout value, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_FLOW_MOD_FAILED,
+					OFPFMFC_BAD_TIMEOUT,
+					pack->soframe(), pack->framelen());
+
+	} catch (eFlowModBadCommand& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
+				"bad command value, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_FLOW_MOD_FAILED,
+					OFPFMFC_BAD_COMMAND,
+					pack->soframe(), pack->framelen());
 
 	} catch (eActionBadLen& e) {
 
@@ -661,9 +777,6 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 					OFPET_BAD_ACTION,
 					OFPBAC_BAD_LEN,
 					pack->soframe(), pack->framelen());
-
-		delete pack;
-
 
 	} catch (eFspNotAllowed& e) {
 
@@ -678,8 +791,6 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPFMFC_EPERM,
 				pack->soframe(), pack->framelen());
 
-		delete pack;
-
 	} catch (eRofBaseTableNotFound& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -693,8 +804,6 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPFMFC_BAD_TABLE_ID,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
-		delete pack;
-
 	} catch (eInstructionInvalType& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -706,8 +815,6 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPET_BAD_INSTRUCTION,
 				OFPBIC_UNKNOWN_INST,
 				(uint8_t*)pack->soframe(), pack->framelen());
-
-		delete pack;
 
 	} catch (eRofBaseGotoTableNotFound& e) {
 
@@ -721,8 +828,6 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPBIC_BAD_TABLE_ID,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
-		delete pack;
-
 	} catch (eInstructionBadExperimenter& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -734,8 +839,6 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPET_BAD_INSTRUCTION,
 				OFPBIC_UNSUP_EXP_INST,
 				(uint8_t*)pack->soframe(), pack->framelen());
-
-		delete pack;
 
 	} catch (eOFmatchInvalBadValue& e) {
 
@@ -749,8 +852,6 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPBMC_BAD_VALUE,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
-		delete pack;
-
 	} catch (cerror &e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::flow_mod_rcvd() "
@@ -763,9 +864,9 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 				OFPFMFC_UNKNOWN,
 				(uint8_t*)pack->soframe(), pack->framelen());
 
-		delete pack;
-
 	}
+
+	delete pack;
 }
 
 
@@ -798,7 +899,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupExists& e) {
+	} catch (eGroupModExists& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"group-id already exists, pack: %s", this, pack->c_str());
@@ -811,7 +912,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupInval& e) {
+	} catch (eGroupModInval& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"group specified is invalid, pack: %s", this, pack->c_str());
@@ -824,7 +925,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupWeightUnsupported& e) {
+	} catch (eGroupModWeightUnsupported& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"group weight unsupported, pack: %s", this, pack->c_str());
@@ -837,7 +938,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupOutOfGroups& e) {
+	} catch (eGroupModOutOfGroups& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"out of groups, pack: %s", this, pack->c_str());
@@ -850,7 +951,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupOutOfBuckets& e) {
+	} catch (eGroupModOutOfBuckets& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"out of buckets, pack: %s", this, pack->c_str());
@@ -863,7 +964,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupChainingUnsupported& e) {
+	} catch (eGroupModChainingUnsupported& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"chaining unsupported, pack: %s", this, pack->c_str());
@@ -876,7 +977,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupWatchUnsupported& e) {
+	} catch (eGroupModWatchUnsupported& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"group watch unsupported, pack: %s", this, pack->c_str());
@@ -889,7 +990,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupLoop& e) {
+	} catch (eGroupModLoop& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"group would cause a loop, pack: %s", this, pack->c_str());
@@ -902,7 +1003,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupUnknownGroup& e) {
+	} catch (eGroupModUnknownGroup& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"group-modify for non-existing group attempted, pack: %s", this, pack->c_str());
@@ -915,7 +1016,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupChainedGroup& e) {
+	} catch (eGroupModChainedGroup& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"group not deleted, as another group is forwarding to it, pack: %s", this, pack->c_str());
@@ -928,7 +1029,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupBadType& e) {
+	} catch (eGroupModBadType& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"unsupported or unknown group type, pack: %s", this, pack->c_str());
@@ -941,7 +1042,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupBadCommand& e) {
+	} catch (eGroupModBadCommand& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"unsupported or unknown command, pack: %s", this, pack->c_str());
@@ -954,7 +1055,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupBadBucket& e) {
+	} catch (eGroupModBadBucket& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"error in bucket, pack: %s", this, pack->c_str());
@@ -967,7 +1068,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupBadWatch& e) {
+	} catch (eGroupModBadWatch& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"error in watch port/group, pack: %s", this, pack->c_str());
@@ -980,7 +1081,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupEperm& e) {
+	} catch (eGroupModEperm& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"permissions error, pack: %s", this, pack->c_str());
@@ -993,7 +1094,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-	} catch (eGroupBase &e) {
+	} catch (eGroupModBase &e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"default catch for eGroupBase exception", this);
@@ -1015,24 +1116,110 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 void
 cofctl::port_mod_rcvd(cofpacket *pack) throw (eOFctlPortNotFound)
 {
-	if (OFPCR_ROLE_SLAVE == role)
-	{
-		send_error_is_slave(pack); return;
+	try {
+		if (OFPCR_ROLE_SLAVE == role)
+		{
+			send_error_is_slave(pack); return;
+		}
+
+		rofbase->handle_port_mod(this, pack);
+
+		return; // Attention: We are deleting pack after the catch block, so we must return here!
+
+	} catch (ePortModBadPort& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::port_mod_rcvd() "
+				"Specified port number does not exist, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_PORT_MOD_FAILED,
+				OFPPMFC_BAD_PORT,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
+	} catch (ePortModBadHwAddr& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::port_mod_rcvd() "
+				"Specified hardware address does not match the port number, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_PORT_MOD_FAILED,
+				OFPPMFC_BAD_HW_ADDR,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
+	} catch (ePortModBadConfig& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::port_mod_rcvd() "
+				"Specified config is invalid, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_PORT_MOD_FAILED,
+				OFPPMFC_BAD_CONFIG,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
+	} catch (ePortModBadAdvertise& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::port_mod_rcvd() "
+				"Specified advertise is invalid, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_PORT_MOD_FAILED,
+				OFPPMFC_BAD_ADVERTISE,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
 	}
 
-	rofbase->handle_port_mod(this, pack);
+	delete pack;
 }
 
 
 void
 cofctl::table_mod_rcvd(cofpacket *pack)
 {
-	if (OFPCR_ROLE_SLAVE == role)
-	{
-		send_error_is_slave(pack); return;
+	try {
+		if (OFPCR_ROLE_SLAVE == role)
+		{
+			send_error_is_slave(pack); return;
+		}
+
+		rofbase->handle_table_mod(this, pack);
+
+		return; // Attention: We are deleting pack after the catch block, so we must return here!
+
+	} catch (eTableModBadTable& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::table_mod_rcvd() "
+				"Specified table does not exist, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_TABLE_MOD_FAILED,
+				OFPTMFC_BAD_TABLE,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
+	} catch (eTableModBadConfig& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::table_mod_rcvd() "
+				"Specified config is invalid, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_TABLE_MOD_FAILED,
+				OFPTMFC_BAD_CONFIG,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
 	}
 
-	rofbase->handle_table_mod(this, pack);
+	delete pack;
 }
 
 
@@ -1136,62 +1323,104 @@ void
 cofctl::role_request_rcvd(cofpacket *pack)
 {
 	try {
-		xidstore.xid_add(this, be32toh(pack->ofh_header->xid));
+		try {
+			xidstore.xid_add(this, be32toh(pack->ofh_header->xid));
 
-	} catch (eXidStoreXidBusy& e) {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::role_request_rcvd() retransmission xid:0x%x",
-				this, be32toh(pack->ofh_header->xid));
-	}
+		} catch (eXidStoreXidBusy& e) {
+			WRITELOG(COFCTL, WARN, "cofctl(%p)::role_request_rcvd() retransmission xid:0x%x",
+					this, be32toh(pack->ofh_header->xid));
+		}
 
-	switch (be32toh(pack->ofh_role_request->role)) {
-	case OFPCR_ROLE_MASTER:
-	case OFPCR_ROLE_SLAVE:
-		if (role_initialized)
-		{
-			uint64_t gen_id = be64toh(pack->ofh_role_request->generation_id);
-			uint64_t dist = (gen_id > cached_generation_id) ?
-					(gen_id - cached_generation_id) % std::numeric_limits<uint64_t>::max() :
-					(gen_id + std::numeric_limits<uint64_t>::max() + cached_generation_id) % std::numeric_limits<uint64_t>::max();
-
-			if (dist >= (std::numeric_limits<uint64_t>::max() / 2))
+		switch (be32toh(pack->ofh_role_request->role)) {
+		case OFPCR_ROLE_MASTER:
+		case OFPCR_ROLE_SLAVE:
+			if (role_initialized)
 			{
-				rofbase->send_error_message(this, pack->get_xid(), OFPET_ROLE_REQUEST_FAILED, OFPRRFC_STALE);
-				return;
-			}
-		}
-		else
-		{
-			role_initialized = true;
-		}
-		cached_generation_id = be64toh(pack->ofh_role_request->generation_id);
-		break;
-	default:
-		break;
-	}
+				uint64_t gen_id = be64toh(pack->ofh_role_request->generation_id);
+				uint64_t dist = (gen_id > cached_generation_id) ?
+						(gen_id - cached_generation_id) % std::numeric_limits<uint64_t>::max() :
+						(gen_id + std::numeric_limits<uint64_t>::max() + cached_generation_id) % std::numeric_limits<uint64_t>::max();
 
-	role = be32toh(pack->ofh_role_request->role);
+				if (dist >= (std::numeric_limits<uint64_t>::max() / 2))
+				{
+					throw eRoleRequestStale();
+				}
+			}
+			else
+			{
+				role_initialized = true;
+			}
+			cached_generation_id = be64toh(pack->ofh_role_request->generation_id);
+			break;
+		default:
+			break;
+		}
+
+		role = be32toh(pack->ofh_role_request->role);
 
 #if 0
-	for (std::map<cofbase*, cofctl*>::iterator
-			it = rofbase->ofctrl_list.begin(); it != rofbase->ofctrl_list.end(); ++it)
-	{
-		cofctl* ofctrl = it->second;
-
-		if (ofctrl == this)
+		for (std::map<cofbase*, cofctl*>::iterator
+				it = rofbase->ofctrl_list.begin(); it != rofbase->ofctrl_list.end(); ++it)
 		{
-			continue;
-		}
+			cofctl* ofctrl = it->second;
 
-		if (OFPCR_ROLE_MASTER == ofctrl->role)
-		{
-			ofctrl->role = OFPCR_ROLE_SLAVE;
+			if (ofctrl == this)
+			{
+				continue;
+			}
+
+			if (OFPCR_ROLE_MASTER == ofctrl->role)
+			{
+				ofctrl->role = OFPCR_ROLE_SLAVE;
+			}
 		}
-	}
 #endif
 
-	//pack->ofh_role_request->generation_id;
+		//pack->ofh_role_request->generation_id;
 
-	rofbase->handle_role_request(this, pack);
+		rofbase->handle_role_request(this, pack);
+
+		return; // Attention: We are deleting pack after the catch block, so we must return here!
+
+	} catch (eRoleRequestStale& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::role_request_rcvd() "
+				"Stale Message: old generation_id, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_ROLE_REQUEST_FAILED,
+				OFPRRFC_STALE,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
+	} catch (eRoleRequestUnsupported& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::role_request_rcvd() "
+				"Controller role change unsupported, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_ROLE_REQUEST_FAILED,
+				OFPRRFC_UNSUP,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
+	} catch (eRoleRequestBadRole& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::role_request_rcvd() "
+				"Invalid role, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_ROLE_REQUEST_FAILED,
+				OFPRRFC_BAD_ROLE,
+				(uint8_t*)pack->soframe(), pack->framelen());
+
+	}
+
+	delete pack;
 }
 
 
