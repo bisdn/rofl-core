@@ -77,6 +77,26 @@ class eRofBaseGotoTableNotFound 	: public eRofBase {}; // table-id specified in 
 class eRofBaseFspSupportDisabled 	: public eRofBase {};
 
 
+/* exceptions for group group tables and entries according to OpenFlow */
+class eGroupBase					: public cerror {};
+class eGroupExists 					: public eGroupBase {};		// OFPGMFC_GROUP_EXISTS
+class eGroupInval					: public eGroupBase {};		// OFPGMFC_INVALID_GROUP
+class eGroupWeightUnsupported		: public eGroupBase {};		// OFPGMFC_WEIGHT_UNSUPPORTED
+class eGroupOutOfGroups				: public eGroupBase {}; 	// OFPGMFC_OUT_OF_GROUPS
+class eGroupOutOfBuckets			: public eGroupBase {}; 	// OFPGMFC_OUT_OF_BUCKETS
+class eGroupChainingUnsupported		: public eGroupBase {};		// OFPGMFC_CHAINING_UNSUPPORTED
+class eGroupWatchUnsupported		: public eGroupBase {};		// OFPGMFC_WATCH_UNSUPPORTED
+class eGroupLoop					: public eGroupBase {};		// OFPGMFC_LOOP
+class eGroupUnknownGroup			: public eGroupBase {};		// OFPGMFC_UNKNOWN_GROUP
+class eGroupChainedGroup			: public eGroupBase {};		// OFPGMFC_CHAINED_GROUP
+class eGroupBadType					: public eGroupBase {}; 	// OFPGMFC_BAD_TYPE
+class eGroupBadCommand				: public eGroupBase {};		// OFPGMFC_BAD_COMMAND
+class eGroupBadBucket				: public eGroupBase {};		// OFPGMFC_BAD_BUCKET
+class eGroupBadWatch				: public eGroupBase {}; 	// OFPGMFC_BAD_WATCH
+class eGroupEperm					: public eGroupBase {};		// OFPGMFC_EPERM
+
+
+
 class cofctl;
 class cofdpt;
 

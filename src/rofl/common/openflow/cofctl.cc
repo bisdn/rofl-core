@@ -267,8 +267,7 @@ cofctl::handle_read(
 
 		pcppack = (0 != fragment) ? fragment : new cofpacket();
 
-		while (true)
-		{
+		while (true) {
 			// SSL support: client or server side, done in derived class
 
 			// TODO: this will be replaced with SSL socket later
@@ -278,27 +277,23 @@ cofctl::handle_read(
 			if (rc < 0) // error occured (or non-blocking)
 			{
 				switch(errno) {
-				case EAGAIN:
-					{
-						// more bytes are needed, store pcppack in fragment pointer
-						fragment = pcppack;
-					}
+				case EAGAIN: {
+					fragment = pcppack;	// more bytes are needed, store pcppack in fragment pointer
+				}
 					return;
-				case ECONNREFUSED:
-					{
-						try_to_connect(); // reconnect
-					}
+				case ECONNREFUSED: {
+					try_to_connect(); // reconnect
+				}
 					return;
 				case ECONNRESET:
-				default:
-					{
-						WRITELOG(COFCTL, WARN, "cofctl(%p)::handle_read() "
-								"an error occured, closing => errno: %d (%s)",
-								this, errno, strerror(errno));
+				default: {
+					WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_read() "
+							"an error occured, closing => errno: %d (%s)",
+							this, errno, strerror(errno));
 
 
-						handle_closed(socket, sd);
-					}
+					handle_closed(socket, sd);
+				}
 					return;
 				}
 			}
@@ -335,11 +330,11 @@ cofctl::handle_read(
 			}
 		}
 
-	} catch (cerror &e) {
+	} catch (eOFpacketInval& e) {
 
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::handle_read() "
-				"errno: %d (%s) generic error %s",
-				this, errno, strerror(errno), pcppack->c_str());
+		WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_read() "
+				"invalid packet received, dropping. Closing socket. Packet: %s",
+				this, pcppack->c_str());
 
 		if (pcppack)
 		{
@@ -383,114 +378,71 @@ cofctl::handle_message(
 {
 	if (not pack->is_valid())
 	{
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::handle_message() "
+		WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
 				"dropping invalid packet: %s", this, pack->c_str());
 		delete pack; return;
 	}
 
-#ifndef NDEBUG
-	fprintf(stderr, "r:%d ", pack->ofh_header->type);
-#endif
-
-#if 0
-	pack->ctl = this;
-#endif
-
-	if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO))
-        {
-	    WRITELOG(COFCTL, WARN, "cofctl(%p)::handle_message() "
+	if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO)) {
+	    WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
 	        "no HELLO rcvd yet, dropping message, pack: %s", this, pack->c_str());
 	    delete pack; return;
-        }
+    }
 
 	switch (pack->ofh_header->type) {
-	case OFPT_HELLO:
-		{
-			hello_rcvd(pack);
-		}
-		break;
-	case OFPT_ECHO_REQUEST:
-		{
-			echo_request_rcvd(pack);
-		}
-		break;
-	case OFPT_ECHO_REPLY:
-		{
-			echo_reply_rcvd(pack);
-		}
-		break;
-	case OFPT_EXPERIMENTER:
-		{
-			experimenter_rcvd(pack);
-		}
-		break;
-	case OFPT_FEATURES_REQUEST:
-		{
-			features_request_rcvd(pack);
-		}
-		break;
-	case OFPT_GET_CONFIG_REQUEST:
-		{
-			get_config_request_rcvd(pack);
-		}
-		break;
-	case OFPT_SET_CONFIG:
-		{
-			set_config_rcvd(pack);
-		}
-		break;
-	case OFPT_PACKET_OUT:
-		{
-			packet_out_rcvd(pack);
-		}
-		break;
-	case OFPT_FLOW_MOD:
-		{
-			flow_mod_rcvd(pack);
-		}
-		break;
-	case OFPT_GROUP_MOD:
-		{
-			group_mod_rcvd(pack);
-		}
-		break;
-	case OFPT_PORT_MOD:
-		{
-			port_mod_rcvd(pack);
-		}
-		break;
-	case OFPT_TABLE_MOD:
-		{
-			table_mod_rcvd(pack);
-		}
-		break;
-	case OFPT_STATS_REQUEST:
-		{
-			stats_request_rcvd(pack);
-		}
-		break;
-	case OFPT_BARRIER_REQUEST:
-		{
-			barrier_request_rcvd(pack);
-		}
-		break;
-	case OFPT_QUEUE_GET_CONFIG_REQUEST:
-		{
-			queue_get_config_request_rcvd(pack);
-		}
-		break;
-	case OFPT_ROLE_REQUEST:
-		{
-			role_request_rcvd(pack);
-		}
-		break;
-	default:
-		{
-			WRITELOG(COFCTL, WARN, "cofctl(%p)::handle_message() "
-					"dropping packet: %s", this, pack->c_str());
-			delete pack;
-		}
-		return;
+	case OFPT_HELLO: {
+		hello_rcvd(pack);
+	} break;
+	case OFPT_ECHO_REQUEST: {
+		echo_request_rcvd(pack);
+	} break;
+	case OFPT_ECHO_REPLY: {
+		echo_reply_rcvd(pack);
+	} break;
+	case OFPT_EXPERIMENTER:	{
+		experimenter_rcvd(pack);
+	} break;
+	case OFPT_FEATURES_REQUEST:	{
+		features_request_rcvd(pack);
+	} break;
+	case OFPT_GET_CONFIG_REQUEST: {
+		get_config_request_rcvd(pack);
+	} break;
+	case OFPT_SET_CONFIG: {
+		set_config_rcvd(pack);
+	} break;
+	case OFPT_PACKET_OUT: {
+		packet_out_rcvd(pack);
+	} break;
+	case OFPT_FLOW_MOD: {
+		flow_mod_rcvd(pack);
+	} break;
+	case OFPT_GROUP_MOD: {
+		group_mod_rcvd(pack);
+	} break;
+	case OFPT_PORT_MOD: {
+		port_mod_rcvd(pack);
+	} break;
+	case OFPT_TABLE_MOD: {
+		table_mod_rcvd(pack);
+	} break;
+	case OFPT_STATS_REQUEST: {
+		stats_request_rcvd(pack);
+	} break;
+	case OFPT_BARRIER_REQUEST: {
+		barrier_request_rcvd(pack);
+	} break;
+	case OFPT_QUEUE_GET_CONFIG_REQUEST: {
+		queue_get_config_request_rcvd(pack);
+	} break;
+	case OFPT_ROLE_REQUEST: {
+		role_request_rcvd(pack);
+	} break;
+	default: {
+		WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
+				"dropping unknown packet: %s", this, pack->c_str());
+		delete pack;
+	} return;
 	}
 }
 
@@ -582,7 +534,7 @@ cofctl::features_request_rcvd(cofpacket *pack)
 		xidstore.xid_add(this, be32toh(pack->ofh_header->xid), 0);
 
 	} catch (eXidStoreXidBusy& e) {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::features_request_rcvd() retransmission", this);
+		WRITELOG(COFCTL, ERROR, "cofctl(%p)::features_request_rcvd() retransmission", this);
 	}
 
 	rofbase->handle_features_request(this, pack);
@@ -601,7 +553,7 @@ cofctl::features_reply_sent(cofpacket *pack)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::features_reply_sent() "
+		WRITELOG(COFCTL, ERROR, "cofctl(%p)::features_reply_sent() "
 				"xid:0x%x not found",
 				this, xid);
 	}
@@ -633,7 +585,7 @@ cofctl::get_config_reply_sent(cofpacket *pack)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::get_config_reply_sent() "
+		WRITELOG(COFCTL, ERROR, "cofctl(%p)::get_config_reply_sent() "
 				"xid:0x%x not found",
 				this, xid);
 	}
@@ -670,7 +622,7 @@ cofctl::packet_out_rcvd(cofpacket *pack)
 void
 cofctl::flow_mod_rcvd(cofpacket *pack)
 {
-	WRITELOG(CFWD, DBG, "cofctl(%p)::flow_mod_rcvd() pack: %s", this, pack->c_str());
+	WRITELOG(CROFBASE, DBG, "cofctl(%p)::flow_mod_rcvd() pack: %s", this, pack->c_str());
 
 	try {
 		if (OFPCR_ROLE_SLAVE == role)
@@ -698,17 +650,9 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 		rofbase->handle_flow_mod(this, pack);
 
 
-	} catch (eLockWouldBlock& e) {
-
-		throw;
-
-	} catch (eLockInval& e) {
-
-		throw;
-
 	} catch (eActionBadLen& e) {
 
-		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
 				"invalid flow-mod packet received: action with bad length", this);
 
 		rofbase->send_error_message(
@@ -723,8 +667,8 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 
 	} catch (eFspNotAllowed& e) {
 
-		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
-				"-FLOW-MOD- blocked due to mismatch in nsp "
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
+				"-FLOW-MOD- blocked due to mismatch in flowspace "
 				"registration\n%s", this, rofbase->fsptable.c_str());
 
 		rofbase->send_error_message(
@@ -738,7 +682,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 
 	} catch (eRofBaseTableNotFound& e) {
 
-		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
 				"invalid flow-table %d specified",
 				this, pack->ofh_flow_mod->table_id);
 
@@ -753,7 +697,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 
 	} catch (eInstructionInvalType& e) {
 
-		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
 				"unknown instruction found", this);
 
 		rofbase->send_error_message(
@@ -767,7 +711,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 
 	} catch (eRofBaseGotoTableNotFound& e) {
 
-		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
 				"GOTO-TABLE instruction with invalid table-id", this);
 
 		rofbase->send_error_message(
@@ -781,7 +725,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 
 	} catch (eInstructionBadExperimenter& e) {
 
-		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
 				"unknown OFPIT_EXPERIMENTER extension received", this);
 
 		rofbase->send_error_message(
@@ -795,7 +739,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 
 	} catch (eOFmatchInvalBadValue& e) {
 
-		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
 				"bad value in match structure", this);
 
 		rofbase->send_error_message(
@@ -809,7 +753,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 
 	} catch (cerror &e) {
 
-		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_flow_mod() "
+		writelog(CROFBASE, ERROR, "crofbase(%p)::flow_mod_rcvd() "
 				"default catch for cerror exception", this);
 
 		rofbase->send_error_message(
@@ -838,10 +782,11 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 
 		rofbase->handle_group_mod(this, pack);
 
+		return; // Attention: We are deleting pack after the catch block, so we must return here!
 
 	} catch (eActionBadLen& e) {
 
-		WRITELOG(CROFBASE, DBG, "crofbase(%p)::recv_group_mod() "
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"invalid group-mod packet received: action with "
 				"bad length", this);
 
@@ -853,12 +798,216 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->soframe(),
 				pack->framelen());
 
-		delete pack;
+	} catch (eGroupExists& e) {
 
-	} catch (...) {
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"group-id already exists, pack: %s", this, pack->c_str());
 
-		delete pack;
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_GROUP_EXISTS,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupInval& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"group specified is invalid, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_INVALID_GROUP,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupWeightUnsupported& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"group weight unsupported, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_WEIGHT_UNSUPPORTED,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupOutOfGroups& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"out of groups, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_OUT_OF_GROUPS,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupOutOfBuckets& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"out of buckets, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_OUT_OF_BUCKETS,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupChainingUnsupported& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"chaining unsupported, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_CHAINING_UNSUPPORTED,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupWatchUnsupported& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"group watch unsupported, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_WATCH_UNSUPPORTED,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupLoop& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"group would cause a loop, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_LOOP,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupUnknownGroup& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"group-modify for non-existing group attempted, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_UNKNOWN_GROUP,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupChainedGroup& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"group not deleted, as another group is forwarding to it, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_CHAINED_GROUP,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupBadType& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"unsupported or unknown group type, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_BAD_TYPE,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupBadCommand& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"unsupported or unknown command, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_BAD_COMMAND,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupBadBucket& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"error in bucket, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_BAD_BUCKET,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupBadWatch& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"error in watch port/group, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_BAD_WATCH,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupEperm& e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"permissions error, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				OFPGMFC_EPERM,
+				pack->soframe(),
+				pack->framelen());
+
+	} catch (eGroupBase &e) {
+
+		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
+				"default catch for eGroupBase exception", this);
+
+		rofbase->send_error_message(
+				this,
+				pack->get_xid(),
+				OFPET_GROUP_MOD_FAILED,
+				0, // there is no OFPGMFC_UNKNOWN defined yet
+				(uint8_t*)pack->soframe(), pack->framelen());
+
 	}
+
+	delete pack;
 }
 
 
