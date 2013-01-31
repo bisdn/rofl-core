@@ -34,9 +34,6 @@ namespace rofl
 {
 
 
-class eOFctlBase 			: public cerror {};
-class eOFctlPortNotFound 	: public eOFctlBase {};
-
 
 class crofbase;
 
@@ -241,7 +238,7 @@ protected:
 	/** handle incoming PORT-MOD messages
 	 */
 	void
-	port_mod_rcvd(cofpacket *pack) throw (eOFctlPortNotFound);
+	port_mod_rcvd(cofpacket *pack);
 
 	/** handle incoming TABLE-MOD messages
 	 */

@@ -219,11 +219,11 @@ cofdpt::handle_read(
 			}
 		}
 
-	} catch (cerror &e) {
+	} catch (eOFpacketInval& e) {
 
-		WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_read() "
-				"errno: %d (%s) generic error %s",
-				this, errno, strerror(errno), pcppack->c_str());
+		WRITELOG(COFDPT, ERROR, "cofctl(%p)::handle_read() "
+				"invalid packet received, dropping. Closing socket. Packet: %s",
+				this, pcppack->c_str());
 
 		if (pcppack)
 		{
@@ -232,7 +232,6 @@ cofdpt::handle_read(
 
 		handle_closed(socket, sd);
 	}
-
 }
 
 
@@ -378,10 +377,10 @@ cofdpt::handle_message(
 
 	} catch (eRofBaseXidInval& e) {
 
-		WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
-				"dropping invalid packet: %s", this, pack->c_str());
+		writelog(COFDPT, ERROR, "cofdpt(%p)::handle_message() "
+				"packet with invalid transaction id rcvd, pack: %s", this, pack->c_str());
 
-		delete pack; return;
+		delete pack;
 	}
 }
 
@@ -550,48 +549,79 @@ cofdpt::handle_timeout(int opaque)
 void
 cofdpt::hello_rcvd(cofpacket *pack)
 {
-	WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() pack: %s", this, pack->c_str());
+	try {
+		WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() pack: %s", this, pack->c_str());
 
-	// OpenFlow versions do not match, send error, close connection
-	if (pack->ofh_header->version != OFP_VERSION)
-	{
-		new_state(COFDPT_STATE_DISCONNECTED);
+		// OpenFlow versions do not match, send error, close connection
+		if (pack->ofh_header->version != OFP_VERSION)
+		{
+			new_state(COFDPT_STATE_DISCONNECTED);
 
-		// invalid OFP_VERSION
-		char explanation[256];
-		bzero(explanation, sizeof(explanation));
-		snprintf(explanation, sizeof(explanation) - 1,
-				"unsupported OF version (%d), supported version is (%d)",
-				(pack->ofh_header->version), OFP_VERSION);
+			// invalid OFP_VERSION
+			char explanation[256];
+			bzero(explanation, sizeof(explanation));
+			snprintf(explanation, sizeof(explanation) - 1,
+					"unsupported OF version (%d), supported version is (%d)",
+					(pack->ofh_header->version), OFP_VERSION);
 
-		cofpacket_error *reply = new cofpacket_error(
-							pack->get_xid(),
-							OFPET_HELLO_FAILED,
-							OFPHFC_INCOMPATIBLE,
-							(uint8_t*) explanation, strlen(explanation));
+			cofpacket_error *reply = new cofpacket_error(
+								pack->get_xid(),
+								OFPET_HELLO_FAILED,
+								OFPHFC_INCOMPATIBLE,
+								(uint8_t*) explanation, strlen(explanation));
 
-		send_message_via_socket(reply); // circumvent ::send_message, as COFDPT_FLAG_HELLO_RCVD is not set
+			send_message_via_socket(reply); // circumvent ::send_message, as COFDPT_FLAG_HELLO_RCVD is not set
 
+			handle_closed(socket, socket->sd);
+		}
+		else
+		{
+			WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() "
+					"HELLO exchanged with peer entity, attaching ...", this);
+
+			flags.set(COFDPT_FLAG_HELLO_RCVD);
+
+			new_state(COFDPT_STATE_WAIT_FEATURES);
+
+			if (flags.test(COFDPT_FLAG_HELLO_SENT))
+			{
+				rofbase->send_features_request(this);
+
+				rofbase->send_echo_request(this);
+			}
+		}
+
+		delete pack;
+
+	} catch (eHelloIncompatible& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::hello_rcvd() "
+				"No compatible version, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_HELLO_FAILED,
+					OFPHFC_INCOMPATIBLE,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
+		handle_closed(socket, socket->sd);
+	} catch (eHelloEperm& e) {
+
+		writelog(CROFBASE, ERROR, "cofctl(%p)::hello_rcvd() "
+				"Permissions error, pack: %s", this, pack->c_str());
+
+		rofbase->send_error_message(
+					this,
+					pack->get_xid(),
+					OFPET_HELLO_FAILED,
+					OFPHFC_EPERM,
+					pack->soframe(), pack->framelen());
+
+		delete pack;
 		handle_closed(socket, socket->sd);
 	}
-	else
-	{
-        WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() "
-                "HELLO exchanged with peer entity, attaching ...", this);
-
-	    flags.set(COFDPT_FLAG_HELLO_RCVD);
-
-        new_state(COFDPT_STATE_WAIT_FEATURES);
-
-        if (flags.test(COFDPT_FLAG_HELLO_SENT))
-        {
-        	rofbase->send_features_request(this);
-
-        	rofbase->send_echo_request(this);
-        }
-	}
-
-	delete pack;
 }
 
 

@@ -1010,6 +1010,22 @@ public:
 		uint8_t* data = NULL,
 		size_t datalen = 0);
 
+	/** Send OF ERROR.message to datapath entity.
+	 *
+	 * @param type One of OFPET_*
+	 * @param code error code
+	 * @param data failed request
+	 * @param datalen length of failed request
+	 */
+	virtual void
+	send_error_message(
+		cofdpt *dpt,
+		uint32_t xid,
+		uint16_t type,
+		uint16_t code,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
 	// FLOW-MOD message
 	//
 

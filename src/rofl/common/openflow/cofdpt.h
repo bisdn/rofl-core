@@ -359,49 +359,6 @@ public:
 	group_mod_reset();
 
 
-#if 0
-	/*
-	 * overloaded from cftentry_owner
-	 */
-
-
-	/**
-	 * @name	ftentry_timeout
-	 * @brief	Called when a flowtable entry stored in (@see flow_tables) expires.
-	 *
-	 * Called by an expired cftentry instance. Default behaviour is to ignore
-	 * this event.
-	 *
-	 * @param[in] entry cftentry instance expired.
-	 * @param[in] timeout value for expired timer in seconds.
-	 */
-	virtual void
-    ftentry_timeout(
-    		cftentry *entry,
-    		uint16_t timeout);
-
-
-	/*
-	 *  overloaded from cgtentry_owner
-	 */
-
-	/**
-	 * @name	gtentry_timeout
-	 * @brief	Called when a grouptable entry stored in (@see group_tables) expires.
-	 *
-	 * Called by an expired gftentry instance. Default behaviour is to ignore
-	 * this event. Note: There are no timeput values for group entries in OF
-	 * yet.
-	 *
-	 * @param[in] entry cgtentry instance expired.
-	 * @param[in] timeout value for expired timer in seconds.
-	 */
-	virtual void
-    gtentry_timeout(
-    		cgtentry *entry,
-    		uint16_t timeout);
-#endif
-
 
 	/*
 	 * overloaded from ciosrv
@@ -431,14 +388,6 @@ public:
 	const char*
 	c_str();
 
-
-
-
-
-
-
-
-protected:
 
 
 protected:

@@ -342,8 +342,6 @@ cofctl::handle_read(
 		}
 
 		handle_closed(socket, sd);
-
-		throw;
 	}
 
 }
@@ -1023,7 +1021,6 @@ cofctl::hello_rcvd(cofpacket *pack)
 					pack->soframe(), pack->framelen());
 
 		delete pack;
-
 		handle_closed(socket, socket->sd);
 	} catch (eHelloEperm& e) {
 
@@ -1038,6 +1035,7 @@ cofctl::hello_rcvd(cofpacket *pack)
 					pack->soframe(), pack->framelen());
 
 		delete pack;
+		handle_closed(socket, socket->sd);
 	}
 }
 
@@ -1654,7 +1652,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 
 
 void
-cofctl::port_mod_rcvd(cofpacket *pack) throw (eOFctlPortNotFound)
+cofctl::port_mod_rcvd(cofpacket *pack)
 {
 	try {
 		if (OFPCR_ROLE_SLAVE == role)

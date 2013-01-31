@@ -859,13 +859,13 @@ cfwdelem::handle_table_mod(cofctl *ofctrl, cofpacket *pack)
 
 
 void
-cfwdelem::handle_port_mod(cofctl *ofctrl, cofpacket *pack)
+cfwdelem::handle_port_mod(cofctl *ofctrl, cofpacket *pack) throw (ePortModBadPort)
 {
 	uint32_t port_no = be32toh(pack->ofh_port_mod->port_no);
 
 	if (phy_ports.find(port_no) == phy_ports.end())
 	{
-		throw eOFctlPortNotFound();
+		throw ePortModBadPort();
 	}
 
 	phy_ports[port_no]->recv_port_mod(

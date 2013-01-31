@@ -1258,6 +1258,50 @@ crofbase::send_error_message(
 
 
 
+void
+crofbase::send_error_message(
+	cofdpt *dpt,
+	uint32_t xid,
+	uint16_t type,
+	uint16_t code,
+	uint8_t* data,
+	size_t datalen)
+{
+	WRITELOG(CROFBASE, DBG, "crofbase::send_error_message()");
+
+	xid = (xid == 0) ? ta_new_async_xid() : xid;
+
+	if (0 != dpt)
+	{
+		cofpacket_error *pack =
+				new cofpacket_error(
+						xid,
+						type,
+						code,
+						data, datalen);
+
+		// straight call to layer-(n+1) entity's fe_up_packet_in() method
+		ofswitch_find(dpt)->send_message(pack);
+	}
+	else
+	{
+		for (std::set<cofdpt*>::iterator
+				it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
+		{
+			cofpacket_error *pack =
+					new cofpacket_error(
+							xid,
+							type,
+							code,
+							data, datalen);
+
+			(*it)->send_message(pack);
+		}
+	}
+}
+
+
+
 /*
  * FLOW-MOD message
  */
