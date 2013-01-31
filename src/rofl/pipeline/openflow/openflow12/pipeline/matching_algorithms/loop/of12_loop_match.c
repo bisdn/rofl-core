@@ -21,13 +21,13 @@ inline unsigned int of12_add_flow_entry_loop(of12_flow_table_t *const table, of1
 	return_value = of12_add_flow_entry_table_imp(table, entry);
 
 	//FIXME TODO
-	/*if(mutex_acquired!=MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION)
-	{
+	//if(mutex_acquired!=MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION)
+	//{
 		//Add/update counters
-		//Add/update timers
-	}*/
-	
-	
+	//Add/update timers NOTE check return value;
+	of12_add_timer(table,entry);
+	//}
+
 	//Green light to other threads
 	platform_mutex_unlock(table->mutex);
 
@@ -45,12 +45,13 @@ inline unsigned int of12_remove_flow_entry_loop(of12_flow_table_t *const table ,
 	
 	table_deletion_result = of12_remove_flow_entry_table_imp(table, entry,specific_entry,strict);
 
-	//FIXME TODO
-	/*if(mutex_acquired!=MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION)
+	if(mutex_acquired!=MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION)
 	{
 		//Add/update counters
+		//FIXME TODO
 		//Add/update timers
-	}*/
+		of12_destroy_timer_entries(entry,table);
+	}
 	
 	//Green light to other threads
 	if(!mutex_acquired)
