@@ -18,7 +18,7 @@ cofaction::cofaction(
 
 cofaction::cofaction(
 	struct ofp_action_header* achdr,
-	size_t aclen) throw (eActionBadLen, eActionBadOutPort) :
+	size_t aclen) throw (eBadActionBadLen, eBadActionBadOutPort) :
 	action(aclen)
 {
 	WRITELOG(COFACTION, DBG, "cofaction(%p)::cofaction()", this);
@@ -26,7 +26,7 @@ cofaction::cofaction(
 
 	if (be16toh(oac_header->len) > aclen)
 	{
-		throw eActionBadLen();
+		throw eBadActionBadLen();
 	}
 
 	unpack(achdr, aclen);
@@ -82,7 +82,7 @@ void
 cofaction::unpack(
 	struct ofp_action_header *achdr,
 	size_t aclen)
-throw (eActionBadLen, eActionBadOutPort)
+throw (eBadActionBadLen, eBadActionBadOutPort, eBadActionBadType)
 {
 	if (action.memlen() < aclen)
 	{
@@ -95,7 +95,7 @@ throw (eActionBadLen, eActionBadOutPort)
 			this, oac_header, action.c_str());
 
 	if (be16toh(oac_header->len) < sizeof(struct ofp_action_header))
-		throw eActionBadLen();
+		throw eBadActionBadLen();
 
 
 	switch (be16toh(oac_header->type)) {
@@ -104,12 +104,12 @@ throw (eActionBadLen, eActionBadOutPort)
 			oac_output = (struct ofp_action_output*)oac_header;
 			if (action.memlen() < sizeof(struct ofp_action_output))
 			{
-				throw eActionBadLen();
+				throw eBadActionBadLen();
 			}
 			uint32_t port_no = be32toh(oac_output->port);
 			if ((OFPP_ANY == port_no) || (0 == port_no))
 			{
-				throw eActionBadOutPort();
+				throw eBadActionBadOutPort();
 			}
 		}
 		break;
@@ -117,117 +117,118 @@ throw (eActionBadLen, eActionBadOutPort)
 		oac_set_field = (struct ofp_action_set_field*)oac_header;
 		if (action.memlen() < sizeof(struct ofp_action_set_field))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_COPY_TTL_OUT:
 		// only generic oac_header is used
 		if (action.memlen() < sizeof(struct ofp_action_header))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_COPY_TTL_IN:
 		// only generic oac_header is used
 		if (action.memlen() < sizeof(struct ofp_action_header))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_SET_MPLS_TTL:
 		oac_mpls_ttl = (struct ofp_action_mpls_ttl*)oac_header;
 		if (action.memlen() < sizeof(struct ofp_action_mpls_ttl))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_DEC_MPLS_TTL:
 		oac_push = (struct ofp_action_push*)oac_header;
 		if (action.memlen() < sizeof(struct ofp_action_push))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_PUSH_VLAN:
 		oac_push = (struct ofp_action_push*)oac_header;
 		if (action.memlen() < sizeof(struct ofp_action_push))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_POP_VLAN:
 		// only generic oac_header is used
 		if (action.memlen() < sizeof(struct ofp_action_header))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_PUSH_MPLS:
 		oac_push = (struct ofp_action_push*)oac_header;
 		if (action.memlen() < sizeof(struct ofp_action_push))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_POP_MPLS:
 		oac_pop_mpls = (struct ofp_action_pop_mpls*)oac_header;
 		if (action.memlen() < sizeof(struct ofp_action_pop_mpls))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_SET_QUEUE:
 		oac_set_queue = (struct ofp_action_set_queue*)oac_header;
 		if (action.memlen() < sizeof(struct ofp_action_set_queue))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_GROUP:
 		oac_group = (struct ofp_action_group*)oac_header;
 		if (action.memlen() < sizeof(struct ofp_action_group))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_SET_NW_TTL:
 		oac_nw_ttl = (struct ofp_action_nw_ttl*)oac_header;
 		if (action.memlen() < sizeof(struct ofp_action_nw_ttl))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_DEC_NW_TTL:
 		// only generic oac_header is used
 		if (action.memlen() < sizeof(struct ofp_action_header))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_EXPERIMENTER:
 		oac_experimenter_header = (struct ofp_action_experimenter_header*)oac_header;
 		if (action.memlen() < sizeof(struct ofp_action_experimenter_header))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_PUSH_PPPOE:
 		oac_push = (struct ofp_action_push*)oac_header;
 		if (action.memlen() < sizeof(struct ofp_action_push))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	case OFPAT_POP_PPPOE:
 		oac_pop_pppoe = (struct ofp_action_pop_pppoe*)oac_header;
 		if (action.memlen() < sizeof(struct ofp_action_pop_pppoe))
 		{
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 		}
 		break;
 	default:
 		WRITELOG(COFACTION, DBG, "cofaction(%p)::__parse_action() invalid action type %d => %s", this, be16toh(oac_header->type), action.c_str());
-		throw eActionInvalType();
+		throw eBadActionBadType();
+		//throw eActionInvalType();
 		break;
 	}
 	

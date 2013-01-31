@@ -73,7 +73,7 @@ public: // methods
 	unpack(
 		struct ofp_bucket *buckets, // parses memory area buckets and creates cofbucket instance in this->bcvec
 		size_t bclen) 					// length of memory area to be parsed
-	throw (eBucketBadLen, eActionBadOutPort);
+	throw (eBucketBadLen, eBadActionBadOutPort);
 
 	/** builds an array of struct ofp_buckets from this->bcvec
 	 */

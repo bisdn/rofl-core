@@ -59,7 +59,7 @@ std::vector<cofaction>&
 cofaclist::unpack(
 		struct ofp_action_header *achdr,
 		size_t aclen)
-throw (eActionBadLen, eActionBadOutPort)
+throw (eBadActionBadLen, eBadActionBadOutPort)
 {
 	reset(); // clears elems
 
@@ -73,7 +73,7 @@ throw (eActionBadLen, eActionBadOutPort)
 	while (aclen > 0)
 	{
 		if (be16toh(achdr->len) < sizeof(struct ofp_action_header))
-			throw eActionBadLen();
+			throw eBadActionBadLen();
 
 		next() = cofaction(achdr, be16toh(achdr->len) );
 

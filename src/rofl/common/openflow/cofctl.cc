@@ -1315,20 +1315,6 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 					pack->soframe(), pack->framelen());
 
 		delete pack;
-	} catch (eActionBadLen& e) {
-
-		throw eBadActionBadLen();
-		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"invalid flow-mod packet received: action with bad length", this);
-
-		rofbase->send_error_message(
-					this,
-					pack->get_xid(),
-					OFPET_BAD_ACTION,
-					OFPBAC_BAD_LEN,
-					pack->soframe(), pack->framelen());
-
-		delete pack;
 	} catch (eFspNotAllowed& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::flow_mod_rcvd() "
@@ -1439,21 +1425,6 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 
 		rofbase->handle_group_mod(this, pack);
 
-	} catch (eActionBadLen& e) {
-
-		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
-				"invalid group-mod packet received: action with "
-				"bad length", this);
-
-		rofbase->send_error_message(
-				this,
-				pack->get_xid(),
-				OFPET_BAD_ACTION,
-				OFPBAC_BAD_LEN,
-				pack->soframe(),
-				pack->framelen());
-
-		delete pack;
 	} catch (eGroupModExists& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
@@ -1468,7 +1439,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 				pack->framelen());
 
 		delete pack;
-	} catch (eGroupModInval& e) {
+	} catch (eGroupModInvalGroup& e) {
 
 		writelog(CROFBASE, ERROR, "crofbase(%p)::group_mod_rcvd() "
 				"group specified is invalid, pack: %s", this, pack->c_str());

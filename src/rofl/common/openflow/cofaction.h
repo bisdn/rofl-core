@@ -40,14 +40,10 @@ extern "C" {
 namespace rofl
 {
 
-
 /* error classes */
-class eActionBase : public cerror {};
-class eActionInval : public eActionBase {}; // invalid parameter
-class eActionBadLen : public eActionBase {}; // bad length
-class eActionInvalType : public eActionBase {}; // invalid action type
-class eActionBadOutPort : public eActionBase {}; // bad out port specified
-class eActionHeaderBadLen : public eActionBase {}; // invalid action header
+class eActionBase 			: public cerror {};
+class eActionInval 			: public eActionBase {}; // invalid parameter
+class eActionInvalType 		: public eActionBase {}; // invalid action type
 
 
 
@@ -108,7 +104,7 @@ public: // methods
 	 */
 	cofaction(
 		struct ofp_action_header* action, 
-		size_t aclen) throw (eActionBadLen, eActionBadOutPort);
+		size_t aclen) throw (eBadActionBadLen, eBadActionBadOutPort);
 
 	/** copy constructor
 	 */
@@ -153,7 +149,7 @@ public: // methods
 	unpack(
 		struct ofp_action_header *achdr,
 		size_t aclen)
-		throw (eActionBadLen, eActionBadOutPort);
+		throw (eBadActionBadLen, eBadActionBadOutPort, eBadActionBadType);
 
 	/**
 	 *

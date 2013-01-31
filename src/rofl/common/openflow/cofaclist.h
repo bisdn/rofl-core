@@ -79,7 +79,7 @@ public: // methods
 	unpack(
 			struct ofp_action_header *actions,
 			size_t aclen)
-		throw (eActionBadLen, eActionBadOutPort);
+		throw (eBadActionBadLen, eBadActionBadOutPort);
 
 	/** builds an array of struct ofp_instructions
 	 * from a std::vector<cofinst*>

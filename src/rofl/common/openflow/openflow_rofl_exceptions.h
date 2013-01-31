@@ -83,7 +83,7 @@ class eFlowModBadCommand			: public eFlowModBase {};		// OFPFMFC_BAD_COMMAND
 /* exceptions for group table and group entries according to OpenFlow */
 class eGroupModBase					: public eOpenFlowBase {};
 class eGroupModExists 				: public eGroupModBase {};		// OFPGMFC_GROUP_EXISTS
-class eGroupModInval				: public eGroupModBase {};		// OFPGMFC_INVALID_GROUP
+class eGroupModInvalGroup			: public eGroupModBase {};		// OFPGMFC_INVALID_GROUP
 class eGroupModWeightUnsupported	: public eGroupModBase {};		// OFPGMFC_WEIGHT_UNSUPPORTED
 class eGroupModOutOfGroups			: public eGroupModBase {}; 		// OFPGMFC_OUT_OF_GROUPS
 class eGroupModOutOfBuckets			: public eGroupModBase {}; 		// OFPGMFC_OUT_OF_BUCKETS

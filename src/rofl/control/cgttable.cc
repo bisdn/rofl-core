@@ -67,13 +67,13 @@ cgttable::operator= (const cgttable& gt)
 
 
 cgtentry*
-cgttable::operator[] (const uint32_t& grp_id) throw(eGroupTableNotFound)
+cgttable::operator[] (const uint32_t& grp_id) throw(eBadRequestBadTableId)
 {
 	if (grp_table.find(grp_id) != grp_table.end())
 	{
 		return grp_table[grp_id];
 	}
-	throw eGroupTableNotFound();
+	throw eBadRequestBadTableId();
 }
 
 
@@ -106,24 +106,24 @@ cgttable::update_gt_entry(
 cgtentry*
 cgttable::add_gt_entry(
 		cgtentry_owner* owner,
-		struct ofp_group_mod *grp_mod) throw (eGroupTableExists,
-							eGroupTableGroupModInvalID,
-							eGroupTableGroupModBadOutPort,
-							eGroupTableLoopDetected)
+		struct ofp_group_mod *grp_mod)
+throw (eGroupModExists,
+		eGroupModInvalGroup,
+		eGroupModLoop,
+		eBadActionBadOutPort)
 {
-    try {
-	WRITELOG(CGTTABLE, WARN, "cgttable(%p)::add_gt_entry() "
+	WRITELOG(CGTTABLE, DBG, "cgttable(%p)::add_gt_entry() "
 			"", this);
 
 
 	if (OFPG_MAX < be32toh(grp_mod->group_id))
 	{
-		throw eGroupTableGroupModInvalID();
+		throw eGroupModInvalGroup();
 	}
 
 	if (grp_table.find(be32toh(grp_mod->group_id)) != grp_table.end())
 	{
-		throw eGroupTableExists();
+		throw eGroupModExists();
 	}
 
 
@@ -133,17 +133,10 @@ cgttable::add_gt_entry(
 
 	loop_check(grp_table[be32toh(grp_mod->group_id)], be32toh(grp_mod->group_id));
 
-	WRITELOG(CGTTABLE, WARN, "cgttable(%p)::add_gt_entry() "
+	WRITELOG(CGTTABLE, DBG, "cgttable(%p)::add_gt_entry() "
 			"group:%s", this, grp_table[be32toh(grp_mod->group_id)]->c_str());
 
 	return grp_table[be32toh(grp_mod->group_id)];
-
-    } catch (eActionBadOutPort& e) {
-
-        throw eGroupTableGroupModBadOutPort();
-    }
-
-    return 0;
 }
 
 
@@ -152,18 +145,18 @@ cgttable::modify_gt_entry(
 		cgtentry_owner *owner,
 		struct ofp_group_mod *grp_mod)
 throw (
-       eGroupTableGroupModInvalID,
-       eGroupTableModNonExisting,
-       eGroupTableLoopDetected)
+		eGroupModInvalGroup,
+		eGroupModUnknownGroup,
+		eGroupModLoop)
 {
 	if (OFPG_MAX < be32toh(grp_mod->group_id))
 	{
-		throw eGroupTableGroupModInvalID();
+		throw eGroupModInvalGroup();
 	}
 
 	if (grp_table.find(be32toh(grp_mod->group_id)) == grp_table.end())
 	{
-		throw eGroupTableModNonExisting();
+		throw eGroupModUnknownGroup();
 	}
 
 	cgtentry *gte = grp_table[be32toh(grp_mod->group_id)];
@@ -193,8 +186,7 @@ cgttable::rem_gt_entry(
 		cgtentry_owner *owner,
 		struct ofp_group_mod *grp_mod)
 throw (
-    eGroupTableGroupModInvalID,
-    eGroupTableNotFound)
+		eGroupModInvalGroup)
 {
 	if (OFPG_ALL == be32toh(grp_mod->group_id))
 	{
@@ -216,7 +208,7 @@ throw (
 
 		if (OFPG_MAX < be32toh(grp_mod->group_id))
 		{
-			throw eGroupTableGroupModInvalID();
+			throw eGroupModInvalGroup();
 		}
 
 		if (grp_table.find(be32toh(grp_mod->group_id)) == grp_table.end())
@@ -288,7 +280,7 @@ cgttable::get_group_features_stats(
 
 void
 cgttable::loop_check(
-		cgtentry *gte, uint32_t loop_group_id) throw (eGroupTableLoopDetected)
+		cgtentry *gte, uint32_t loop_group_id) throw (eGroupModLoop)
 {
 	if ((cgtentry*)0 == gte)
 	{
@@ -318,7 +310,7 @@ cgttable::loop_check(
 
 			if (group_id == loop_group_id)
 			{
-				throw eGroupTableLoopDetected();
+				throw eGroupModLoop();
 			}
 			else
 			{

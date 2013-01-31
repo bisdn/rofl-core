@@ -97,7 +97,7 @@ void
 cofbucket::unpack(
 		struct ofp_bucket* bucket,
 		size_t bclen)
-throw (eBucketBadLen, eActionBadOutPort)
+throw (eBucketBadLen, eBadActionBadOutPort)
 {
 	if (bclen < sizeof(struct ofp_bucket))
 		throw eBucketBadLen();

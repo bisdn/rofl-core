@@ -40,7 +40,7 @@ std::vector<cofbucket>&
 cofbclist::unpack(
 		struct ofp_bucket *buckets,
 		size_t bclen)
-throw (eBucketBadLen, eActionBadOutPort)
+throw (eBucketBadLen, eBadActionBadOutPort)
 {
 	reset(); // clears elems
 

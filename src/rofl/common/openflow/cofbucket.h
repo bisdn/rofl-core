@@ -94,7 +94,7 @@ public: // per instance methods
 	 */
 	void
 	unpack(struct ofp_bucket* bucket, size_t bclen)
-		throw (eBucketBadLen, eActionBadOutPort);
+		throw (eBucketBadLen, eBadActionBadOutPort);
 
 	/** bucket length
 	 */

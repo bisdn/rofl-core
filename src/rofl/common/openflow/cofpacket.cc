@@ -666,7 +666,7 @@ cofpacket::is_valid_group_mod()
 
 		return true;
 
-	} catch (eActionBadOutPort& e) {
+	} catch (eBadActionBadOutPort& e) {
 		return true; // FIXME: dont ask
 	}
 	return false; // just to make eclipse happy ...

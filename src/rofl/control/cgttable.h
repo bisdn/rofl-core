@@ -15,6 +15,7 @@
 #include "cgtentry.h"
 #include "../common/openflow/cofpacket.h"
 #include "cftentry.h"
+#include "../common/openflow/openflow_rofl_exceptions.h"
 
 namespace rofl
 {
@@ -29,16 +30,16 @@ namespace rofl
 /* error classes */
 class eGroupTableBase           : public cerror {};
 class eGroupTableInval          : public eGroupTableBase {}; // invalid flow-mod entry received
-class eGroupTableExists         : public eGroupTableBase {};
-class eGroupTableNoMatch        : public eGroupTableBase {}; // no matching entry found
-class eGroupTableEntryOverlaps  : public eGroupTableBase {}; // entry overlaps with existing entry in flow-table
-class eGroupTableClassificationFailed : public eGroupTableBase {}; // invalid packet frame for classification
-class eGroupTableNotFound       : public eGroupTableBase {}; // element not found
-class eGroupTableLoopDetected   : public eGroupTableBase {}; // loop found in group table
-class eGroupTableModNonExisting : public eGroupTableBase {}; // enttry for modification not found
-class eGroupTableGroupModInval  : public eGroupTableBase {};
-class eGroupTableGroupModInvalID  : public eGroupTableBase {};
-class eGroupTableGroupModBadOutPort : public eGroupTableBase {};
+//class eGroupTableExists         : public eGroupTableBase {};
+//class eGroupTableNoMatch        : public eGroupTableBase {}; // no matching entry found
+//class eGroupTableEntryOverlaps  : public eGroupTableBase {}; // entry overlaps with existing entry in flow-table
+//class eGroupTableClassificationFailed : public eGroupTableBase {}; // invalid packet frame for classification
+//class eGroupTableNotFound       : public eGroupTableBase {}; // element not found
+//class eGroupTableLoopDetected   : public eGroupTableBase {}; // loop found in group table
+//class eGroupTableModNonExisting : public eGroupTableBase {}; // enttry for modification not found
+//class eGroupTableGroupModInval  : public eGroupTableBase {};
+//class eGroupTableGroupModInvalID  : public eGroupTableBase {};
+//class eGroupTableGroupModBadOutPort : public eGroupTableBase {};
 
 
 class cgttable :
@@ -94,7 +95,7 @@ public:
 	 */
 	cgtentry*
 	operator[] (
-			const uint32_t& grp_id) throw(eGroupTableNotFound);
+			const uint32_t& grp_id) throw(eBadRequestBadTableId);
 
 
 	/** common entry method for add/update/delete a cgtentry
@@ -110,10 +111,11 @@ public:
 	cgtentry*
 	add_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod) throw (eGroupTableExists,
-								eGroupTableGroupModInvalID,
-								eGroupTableGroupModBadOutPort,
-								eGroupTableLoopDetected);
+			struct ofp_group_mod *grp_mod)
+	throw (eGroupModExists,
+			eGroupModInvalGroup,
+			eGroupModLoop,
+			eBadActionBadOutPort);
 
 
 	/** update a cgtentry
@@ -121,9 +123,9 @@ public:
 	cgtentry*
 	modify_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod) throw (eGroupTableGroupModInvalID,
-			                                      eGroupTableModNonExisting,
-			                                      eGroupTableLoopDetected);
+			struct ofp_group_mod *grp_mod) throw (eGroupModInvalGroup,
+			                                      eGroupModUnknownGroup,
+			                                      eGroupModLoop);
 
 
 	/** delete a cgtentry
@@ -131,8 +133,7 @@ public:
 	cgtentry*
 	rem_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod) throw (eGroupTableGroupModInvalID,
-								eGroupTableNotFound);
+			struct ofp_group_mod *grp_mod) throw (eGroupModInvalGroup);
 
 
 	/** get group stats for all group_ids
@@ -169,7 +170,7 @@ private:
 	void
 	loop_check(
 			cgtentry *gte,
-			uint32_t loop_group_id) throw (eGroupTableLoopDetected);
+			uint32_t loop_group_id) throw (eGroupModLoop);
 
 };
 
