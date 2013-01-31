@@ -22,7 +22,7 @@ of12_init_flow_entry(
 
 	memset(entry,0,sizeof(of12_flow_entry_t));	
 	
-	if(0 == (entry->rwlock = platform_rwlock_init(NULL))){
+	if(NULL == (entry->rwlock = platform_rwlock_init(NULL))){
 		cutil_free_shared(entry);
 		return NULL; 
 	}
@@ -66,6 +66,8 @@ unsigned int of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	
 	//TODO statistics counters
 
+	platform_rwlock_destroy(entry->rwlock);
+	
 	//Destroy entry itself
 	cutil_free_shared(entry);	
 	
