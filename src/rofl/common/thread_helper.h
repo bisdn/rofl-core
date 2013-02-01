@@ -40,9 +40,7 @@ public:
 	Lock(pthread_mutex_t *mutex, bool blocking = true) throw (eLockWouldBlock) :
 		mutex(mutex), locked(false)
 	{
-#if 0
 		WRITELOG(CTHREAD, DBG, "thread %x lock mutex %p -trying-", pthread_self(), mutex);
-#endif
 		if (blocking)
 		{
 			pthread_mutex_lock(this->mutex);
@@ -61,24 +59,18 @@ public:
 			}
 		}
 		locked = true;
-#if 0
 		WRITELOG(CTHREAD, DBG, "thread %x lock mutex %p -locked-", pthread_self(), mutex);
-#endif
 	}
 
 	virtual
 	~Lock()
 	{
-#if 0
 		WRITELOG(CTHREAD, DBG, "thread %x unlock mutex %p -trying-", pthread_self(), mutex);
-#endif
 		if (locked)
 		{
 			pthread_mutex_unlock(this->mutex);
 		}
-#if 0
 		WRITELOG(CTHREAD, DBG, "thread %x unlock mutex %p -unlocked-", pthread_self(), mutex);
-#endif
 	}
 
 private:
@@ -107,10 +99,8 @@ public:
 				bool blocking = true) throw (eLockWouldBlock, eLockInval) :
 			rwlock(rwlock), locked(false)
 		{
-#if 0
 			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x rwlock %p -trying- %s lock",
 					this, pthread_self(), rwlock, (rwtype == RWLOCK_READ) ? "READ" : "WRITE");
-#endif
 			if (blocking)
 			{
 				switch (rwtype) {
@@ -151,10 +141,8 @@ public:
 				}
 			}
 			locked = true;
-#if 0
 			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x rwlock %p -locked- %s lock",
 					this, pthread_self(), rwlock, (rwtype == RWLOCK_READ) ? "READ" : "WRITE");
-#endif
 		};
 
 		/** destructor unlocks rwlock (if it has been locked)
@@ -163,18 +151,14 @@ public:
 		virtual
 		~RwLock()
 		{
-#if 0
 			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x unlock rwlock %p -trying-",
 					this, pthread_self(), rwlock);
-#endif
 			if (locked)
 			{
 				pthread_rwlock_unlock(rwlock);
 			}
-#if 0
 			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x unlock rwlock %p -unlocked-",
 					this, pthread_self(), rwlock);
-#endif
 		}
 };
 
