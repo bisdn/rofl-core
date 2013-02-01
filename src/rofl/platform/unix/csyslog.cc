@@ -264,6 +264,7 @@ csyslog::init_level_names()
 	level_names[WARN]      = std::string("warn");
 	level_names[NOTICE]    = std::string("notice");
 	level_names[INFO]      = std::string("info");
+	level_names[TRACE]     = std::string("trace");
 	level_names[DBG]       = std::string("dbg");
 }
 
