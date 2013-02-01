@@ -25,7 +25,7 @@ cofctl::cofctl(
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL)
 {
-	WRITELOG(CFWD, TRACE, "cofctl(%p)::cofctl() TCP accept", this);
+	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
 
         register_timer(COFCTL_TIMER_SEND_HELLO, 0);
 }
@@ -50,7 +50,7 @@ cofctl::cofctl(
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL)
 {
-	WRITELOG(COFCTL, TRACE, "cofctl(%p)::cofctl() TCP connect", this);
+	WRITELOG(COFCTL, DBG, "cofctl(%p)::cofctl() TCP connect", this);
 
 	flags.set(COFCTL_FLAG_ACTIVE_SOCKET);
 
@@ -61,7 +61,7 @@ cofctl::cofctl(
 
 cofctl::~cofctl()
 {
-	WRITELOG(COFCTL, TRACE, "cofctl(%p)::~cofctl()", this);
+	WRITELOG(COFCTL, DBG, "cofctl(%p)::~cofctl()", this);
 
 	rofbase->fsptable.delete_fsp_entries(this);
 

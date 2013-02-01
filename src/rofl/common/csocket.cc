@@ -449,57 +449,64 @@ csocket::send_packet(cmemory* pack)
 void
 csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 {
-	RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
-
-	int rc;
-	WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() pout_squeue.size()=%d",
-			this, pout_squeue.size());
-
-	while (not pout_squeue.empty())
 	{
-		cmemory *pack = pout_squeue.front();
+		RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
 
-		if ((rc = sendto(sd, pack->somem(), pack->memlen(), MSG_NOSIGNAL, NULL, 0)) < 0)
+		int rc;
+		WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() pout_squeue.size()=%d",
+				this, pout_squeue.size());
+
+		while (not pout_squeue.empty())
 		{
-			WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
-					"errno=%d (%s) pack: %s",
-					this, errno, strerror(errno), pack->c_str());
+			cmemory *pack = pout_squeue.front();
 
-			switch (errno) {
-			case EAGAIN:
-				break;
-			case EPIPE:
-				cclose(); // clears also pout_squeue
-				handle_closed(sd);
-				return;
-			case EMSGSIZE:
-				WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
-						"dropping packet, errno=%d (%s) pack: %s",
-						this, errno, strerror(errno), pack->c_str());
-				break;
-			default:
+			if ((rc = sendto(sd, pack->somem(), pack->memlen(), MSG_NOSIGNAL, NULL, 0)) < 0)
+			{
 				WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
 						"errno=%d (%s) pack: %s",
 						this, errno, strerror(errno), pack->c_str());
-				throw eSocketSendFailed();
+
+				switch (errno) {
+				case EAGAIN:
+					break;
+				case EPIPE:
+
+					goto out;
+					return;
+				case EMSGSIZE:
+					WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
+							"dropping packet, errno=%d (%s) pack: %s",
+							this, errno, strerror(errno), pack->c_str());
+					break;
+				default:
+					WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
+							"errno=%d (%s) pack: %s",
+							this, errno, strerror(errno), pack->c_str());
+					throw eSocketSendFailed();
+				}
 			}
+			else if ((rc < (int)pack->memlen()))
+			{
+				throw eSocketShortSend();
+			}
+
+			WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
+					"wrote %d bytes to socket %d", this, rc, sd);
+
+			pout_squeue.pop_front();
+
+			delete pack;
 		}
-		else if ((rc < (int)pack->memlen()))
+
+		if (pout_squeue.empty())
 		{
-			throw eSocketShortSend();
+			deregister_filedesc_w(sd);
 		}
 
-		WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
-				"wrote %d bytes to socket %d", this, rc, sd);
-
-		pout_squeue.pop_front();
-
-		delete pack;
-	}
-
-	if (pout_squeue.empty())
-	{
-		deregister_filedesc_w(sd);
-	}
+		return;
+	} // unlocks pout_squeue_lock
+out:
+	cclose(); // clears also pout_squeue
+	handle_closed(sd);
 }
 
