@@ -2134,19 +2134,15 @@ cofctl::experimenter_rcvd(cofpacket *pack)
 			{
 				try {
 
-					WRITELOG(COFCTL, TRACE, "cofctl(%p)::experimenter_message_rcvd() "
-							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => pending for %s",
-							this, rexp.match.c_str());
-
 					rofbase->fsptable.insert_fsp_entry(this, rexp.match);
 
-					WRITELOG(COFCTL, TRACE, "cofctl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, INFO, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => -ADDED- %s\n%s",
 							this, c_str(), rofbase->fsptable.c_str());
 
 				} catch (eFspEntryOverlap& e) {
 
-					WRITELOG(COFCTL, TRACE, "cofctl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, WARN, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => -REJECTED- (overlap)",
 							this);
 
@@ -2158,19 +2154,15 @@ cofctl::experimenter_rcvd(cofpacket *pack)
 			{
 				try {
 
-					WRITELOG(COFCTL, TRACE, "cofctl(%p)::experimenter_message_rcvd() "
-							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => pending for %s",
-							this, rexp.match.c_str());
-
 					rofbase->fsptable.delete_fsp_entry(this, rexp.match, true /*strict*/);
 
-					WRITELOG(COFCTL, TRACE, "cofctl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, INFO, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => -DELETED- %s\n%s",
 							this, c_str(), rofbase->fsptable.c_str());
 
 				} catch (eFspEntryNotFound& e) {
 
-					WRITELOG(COFCTL, TRACE, "cofctl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, WARN, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => -NOT-FOUND-",
 							this);
 
