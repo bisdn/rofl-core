@@ -219,8 +219,8 @@ cofctl::handle_accepted(
 		int newsd,
 		caddress const& ra)
 {
-#ifndef NDEBUG
 	caddress raddr(ra);
+#ifndef NDEBUG
 	fprintf(stderr, "A:ctl[%s] ", raddr.c_str());
 #endif
 	writelog(COFCTL, WARN, "cofctl(%p)::handle_accepted() "
