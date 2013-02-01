@@ -2311,7 +2311,7 @@ cofctl::send_message_via_socket(
 
 	pack->pack(mem->somem(), mem->memlen());
 
-	WRITELOG(COFCTL, TRACE, "cofctl(%p)::send_message_via_socket() new cmemory: %s",
+	WRITELOG(COFCTL, DBG, "cofctl(%p)::send_message_via_socket() new cmemory: %s",
 				this, mem->c_str());
 
 	delete pack;
