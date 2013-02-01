@@ -223,6 +223,10 @@ cofctl::handle_accepted(
 	caddress raddr(ra);
 	fprintf(stderr, "A:ctl[%s] ", raddr.c_str());
 #endif
+	writelog(COFCTL, WARN, "cofctl(%p)::handle_accepted() "
+			"local:%s remote: %s",
+			this, socket->laddr.c_str(), raddr.c_str());
+
 	// do nothing
 }
 
@@ -236,6 +240,10 @@ cofctl::handle_connected(
 #ifndef NDEBUG
 	fprintf(stderr, "C:ctl[%s] ", socket->raddr.c_str());
 #endif
+	writelog(COFCTL, WARN, "cofctl(%p)::handle_connected() "
+			"local:%s remote: %s",
+			this, socket->laddr.c_str(), socket->raddr.c_str());
+
 	register_timer(COFCTL_TIMER_SEND_HELLO, 0);
 }
 
@@ -246,6 +254,10 @@ cofctl::handle_connect_refused(
 		csocket *socket,
 		int sd)
 {
+	writelog(COFCTL, WARN, "cofctl(%p)::handle_connect_refused() "
+			"local:%s remote: %s",
+			this, socket->laddr.c_str(), socket->raddr.c_str());
+
 	// TODO: signal event back to rofbase
 	if (flags.test(COFCTL_FLAG_ACTIVE_SOCKET))
 	{
@@ -353,6 +365,10 @@ cofctl::handle_closed(
 		csocket *socket,
 		int sd)
 {
+	writelog(COFCTL, WARN, "cofctl(%p)::handle_closed() "
+			"local:%s remote: %s",
+			this, socket->laddr.c_str(), socket->raddr.c_str());
+
 	socket->cclose();
 
 	cancel_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT);
@@ -1231,7 +1247,7 @@ cofctl::packet_out_rcvd(cofpacket *pack)
 void
 cofctl::flow_mod_rcvd(cofpacket *pack)
 {
-	WRITELOG(COFCTL, DBG, "cofctl(%p)::flow_mod_rcvd() pack: %s", this, pack->c_str());
+	WRITELOG(COFCTL, TRACE, "cofctl(%p)::flow_mod_rcvd() pack: %s", this, pack->c_str());
 
 	try {
 		if (OFPCR_ROLE_SLAVE == role)
@@ -2118,19 +2134,19 @@ cofctl::experimenter_rcvd(cofpacket *pack)
 			{
 				try {
 
-					WRITELOG(COFCTL, DBG, "cofctl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, TRACE, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => pending for %s",
 							this, rexp.match.c_str());
 
 					rofbase->fsptable.insert_fsp_entry(this, rexp.match);
 
-					WRITELOG(COFCTL, DBG, "cofctl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, TRACE, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => -ADDED- %s\n%s",
 							this, c_str(), rofbase->fsptable.c_str());
 
 				} catch (eFspEntryOverlap& e) {
 
-					WRITELOG(COFCTL, DBG, "cofctl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, TRACE, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => -REJECTED- (overlap)",
 							this);
 
@@ -2142,19 +2158,19 @@ cofctl::experimenter_rcvd(cofpacket *pack)
 			{
 				try {
 
-					WRITELOG(COFCTL, DBG, "cofctl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, TRACE, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => pending for %s",
 							this, rexp.match.c_str());
 
 					rofbase->fsptable.delete_fsp_entry(this, rexp.match, true /*strict*/);
 
-					WRITELOG(COFCTL, DBG, "cofctl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, TRACE, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => -DELETED- %s\n%s",
 							this, c_str(), rofbase->fsptable.c_str());
 
 				} catch (eFspEntryNotFound& e) {
 
-					WRITELOG(COFCTL, DBG, "cofctl(%p)::experimenter_message_rcvd() "
+					WRITELOG(COFCTL, TRACE, "cofctl(%p)::experimenter_message_rcvd() "
 							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => -NOT-FOUND-",
 							this);
 
@@ -2259,7 +2275,7 @@ cofctl::try_to_connect(bool reset_timeout)
 		return;
 	}
 
-	WRITELOG(COFCTL, DBG, "cofctl(%p)::try_to_connect() "
+	WRITELOG(COFCTL, INFO, "cofctl(%p)::try_to_connect() "
 			"reconnect in %d seconds (reconnect_counter:%d)",
 			this, reconnect_in_seconds, reconnect_counter);
 
@@ -2295,7 +2311,7 @@ cofctl::send_message_via_socket(
 
 	pack->pack(mem->somem(), mem->memlen());
 
-	WRITELOG(COFCTL, DBG, "cofctl(%p): new cmemory: %s",
+	WRITELOG(COFCTL, TRACE, "cofctl(%p)::send_message_via_socket() new cmemory: %s",
 				this, mem->c_str());
 
 	delete pack;
@@ -2304,60 +2320,3 @@ cofctl::send_message_via_socket(
 }
 
 
-
-#if 0
-switch (pack->ofh_header->type) {
-case OFPT_HELLO:
-	break;
-case OFPT_ERROR:
-	break;
-case OFPT_ECHO_REQUEST:
-	break;
-case OFPT_ECHO_REPLY:
-	break;
-case OFPT_EXPERIMENTER:
-	break;
-case OFPT_FEATURES_REQUEST:
-	break;
-case OFPT_FEATURES_REPLY:
-	break;
-case OFPT_GET_CONFIG_REQUEST:
-	break;
-case OFPT_GET_CONFIG_REPLY:
-	break;
-case OFPT_SET_CONFIG:
-	break;
-case OFPT_PACKET_IN:
-	break;
-case OFPT_FLOW_REMOVED:
-	break;
-case OFPT_PORT_STATUS:
-	break;
-case OFPT_PACKET_OUT:
-	break;
-case OFPT_FLOW_MOD:
-	break;
-case OFPT_GROUP_MOD:
-	break;
-case OFPT_PORT_MOD:
-	break;
-case OFPT_TABLE_MOD:
-	break;
-case OFPT_STATS_REQUEST:
-	break;
-case OFPT_STATS_REPLY:
-	break;
-case OFPT_BARRIER_REQUEST:
-	break;
-case OFPT_BARRIER_REPLY:
-	break;
-case OFPT_QUEUE_GET_CONFIG_REQUEST:
-	break;
-case OFPT_QUEUE_GET_CONFIG_REPLY:
-	break;
-case OFPT_ROLE_REQUEST:
-	break;
-case OFPT_ROLE_REPLY:
-	break;
-}
-#endif
