@@ -497,17 +497,17 @@ public:
 	uint16_t
 	get_mru() throw (ePPPLcpOptionInvalid) {
 		if (fpppframe::PPP_LCP_OPT_MRU != hdr->option) throw ePPPLcpOptionInvalid();
-		return (be16toh(*(uint16_t*)(hdr->data)));
+		return (uint16_t)((hdr->data[0] << 8) + hdr->data[1]);
 	};
 	uint32_t
 	get_accm() throw (ePPPLcpOptionInvalid) {
 		if (fpppframe::PPP_LCP_OPT_ACCM != hdr->option) throw ePPPLcpOptionInvalid();
-		return (be32toh(*(uint32_t*)(hdr->data)));
+		return (uint32_t)((hdr->data[0] << 24) + (hdr->data[1] << 16) + (hdr->data[2] << 8) + (hdr->data[3] << 0));
 	};
 	uint32_t
 	get_magic_num() throw (ePPPLcpOptionInvalid) {
 		if (fpppframe::PPP_LCP_OPT_MAGIC_NUM != hdr->option) throw ePPPLcpOptionInvalid();
-		return (be32toh(*(uint32_t*)(hdr->data)));
+		return (uint32_t)((hdr->data[0] << 24) + (hdr->data[1] << 16) + (hdr->data[2] << 8) + (hdr->data[3] << 0));
 	};
 };
 
@@ -562,12 +562,12 @@ public:
 	uint32_t
 	get_ipv4() throw (ePPPIpcpOptionInvalid) {
 		if (fpppframe::PPP_IPCP_OPT_IPV4 != hdr->option) throw ePPPIpcpOptionInvalid();
-		return (be32toh(*(uint32_t*)(hdr->data)));
+		return (uint32_t)((hdr->data[0] << 24) + (hdr->data[1] << 16) + (hdr->data[2] << 8) + (hdr->data[3] << 0));
 	};
 	uint32_t
 	get_mob_ipv4() throw (ePPPIpcpOptionInvalid) {
 		if (fpppframe::PPP_IPCP_OPT_MOB_IPV4 != hdr->option) throw ePPPIpcpOptionInvalid();
-		return (be32toh(*(uint32_t*)(hdr->data)));
+		return (uint32_t)((hdr->data[0] << 24) + (hdr->data[1] << 16) + (hdr->data[2] << 8) + (hdr->data[3] << 0));
 	};
 };
 
