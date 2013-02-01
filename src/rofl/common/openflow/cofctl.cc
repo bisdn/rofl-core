@@ -2137,8 +2137,8 @@ cofctl::experimenter_rcvd(cofpacket *pack)
 					rofbase->fsptable.insert_fsp_entry(this, rexp.match);
 
 					WRITELOG(COFCTL, INFO, "cofctl(%p)::experimenter_message_rcvd() "
-							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => -ADDED- %s\n%s",
-							this, c_str(), rofbase->fsptable.c_str());
+							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => -ADDED-\n%s",
+							this, rofbase->fsptable.c_str());
 
 				} catch (eFspEntryOverlap& e) {
 
@@ -2157,8 +2157,8 @@ cofctl::experimenter_rcvd(cofpacket *pack)
 					rofbase->fsptable.delete_fsp_entry(this, rexp.match, true /*strict*/);
 
 					WRITELOG(COFCTL, INFO, "cofctl(%p)::experimenter_message_rcvd() "
-							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => -DELETED- %s\n%s",
-							this, c_str(), rofbase->fsptable.c_str());
+							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => -DELETED-\n%s",
+							this, rofbase->fsptable.c_str());
 
 				} catch (eFspEntryNotFound& e) {
 

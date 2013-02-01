@@ -699,12 +699,12 @@ next_element:
 
 		if (FD_ISSET(fd, readfds))
 		{
-			WRITELOG(CIOSRV, DBG, "ciosrv::handle_rfds(): -UUU- handle r/x events read-fds:  %d", fd);
+			WRITELOG(CIOSRV, DBG, "ciosrv::handle_rfds(): handle r/x events read-fds:  %d", fd);
 			cio->handle_revent(fd);
 		}
 		if (FD_ISSET(fd, exceptfds))
 		{
-			WRITELOG(CIOSRV, DBG, "ciosrv::handle_rfds(): -UUU- handle r/x events excp-fds:  %d", fd);
+			WRITELOG(CIOSRV, DBG, "ciosrv::handle_rfds(): handle r/x events excp-fds:  %d", fd);
 			cio->handle_xevent(fd);
 		}
 	}
@@ -766,12 +766,12 @@ next_element:
 
 		if (FD_ISSET(fd, writefds))
 		{
-			WRITELOG(CIOSRV, DBG, "ciosrv::handle_wfds(): -VVV- handle w/x events write-fds:  %d", fd);
+			WRITELOG(CIOSRV, DBG, "ciosrv::handle_wfds(): handle w/x events write-fds:  %d", fd);
 			cio->handle_wevent(fd);
 		}
 		if (FD_ISSET(fd, exceptfds))
 		{
-			WRITELOG(CIOSRV, DBG, "ciosrv::handle_wfds(): -VVV- handle w/x events excp-fds:  %d", fd);
+			WRITELOG(CIOSRV, DBG, "ciosrv::handle_wfds(): handle w/x events excp-fds:  %d", fd);
 			cio->handle_xevent(fd);
 		}
 	}
@@ -895,8 +895,7 @@ ciosrv::handle_events(int rc,
 		ciosrv::threads[tid]->flags.reset(CIOSRV_FLAG_WAKEUP_CALLED);
 	}
 
-	WRITELOG(CIOSRV, DBG, "ciosrv(0x%x)::handle_events() XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-			tid);
+	WRITELOG(CIOSRV, DBG, "ciosrv(0x%x)::handle_events()", tid);
 
 #if 0
 	{
@@ -1047,7 +1046,7 @@ ciosrv::handle_events(int rc,
 
 /* static */void
 ciosrv::child_sig_handler (int x) {
-	WRITELOG(CIOSRV, DBG, "got signal");
+	WRITELOG(CIOSRV, WARN, "got signal: %d", x);
     // signal(SIGCHLD, child_sig_handler);
 }
 
@@ -1164,7 +1163,7 @@ ciosrv::run()
 			// handle error conditions
 			switch (errno) {
 			case EINTR:
-				WRITELOG(CIOSRV, DBG, "pselect() got interrupted");
+				WRITELOG(CIOSRV, WARN, "pselect() got interrupted");
 				goto handle_packets;
 				break;
 			default:
