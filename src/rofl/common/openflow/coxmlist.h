@@ -21,6 +21,7 @@
 #include "../cerror.h"
 #include "../cvastring.h"
 #include "rofl/platform/unix/csyslog.h"
+#include "../openflow/openflow_rofl_exceptions.h"
 
 #include "coxmatch.h"
 
@@ -127,8 +128,7 @@ public: // methods
 		void
 		unpack(
 				struct ofp_oxm_hdr *oxm_hdr,
-				size_t oxm_len)
-					throw (eOxmListBadLen, eOxmListInval);
+				size_t oxm_len);
 
 
 		/** builds an array of struct ofp_instruction from this->oxmvec
@@ -137,8 +137,7 @@ public: // methods
 		struct ofp_oxm_hdr*
 		pack(
 				struct ofp_oxm_hdr *oxm_hdr,
-				size_t oxm_len)
-					throw (eOxmListInval);
+				size_t oxm_len);
 
 
 		/** returns required length for array of struct ofp_instruction

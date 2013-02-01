@@ -68,7 +68,8 @@ public:
 		WARN			, /* = 4 warning conditions */
 		NOTICE			, /* = 5 normal but significant condition */
 		INFO			, /* = 6 informational */
-		DBG				, /* = 7 debug-level messages */
+		TRACE			, /* = 7 tracing */
+		DBG				, /* = 8 debug-level messages */
 		MAX_DEBUG_LEVEL /* DO NOT USE */
 		/* do not put anything beyond MAX_DEBUG_LEVEL! */
 	};

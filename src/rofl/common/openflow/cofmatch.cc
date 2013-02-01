@@ -235,6 +235,10 @@ cofmatch::unpack(struct ofp_match* m, size_t mlen) throw (eOFmatchInval)
 	match.type		= (m->type);
 	match.length	= (m->length);
 
+	if (OFPMT_OXM != be16toh(match.type)) {
+		throw eBadMatchBadType();
+	}
+
 	mlen -= 2 * sizeof(uint16_t);
 
 	if (mlen > 0)

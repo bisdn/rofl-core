@@ -157,14 +157,13 @@ void
 coxmlist::unpack(
 		struct ofp_oxm_hdr* oxm_hdr,
 		size_t oxm_len)
-			throw (eOxmListBadLen, eOxmListInval)
 {
 	clear(); // clears oxmvec
 
 	// sanity check: oxm_len must be of size at least of ofp_oxm_hdr
 	if (oxm_len < (int)sizeof(struct ofp_oxm_hdr))
 	{
-		throw eOxmListBadLen();
+		throw eBadMatchBadLen();
 	}
 
 	// first instruction
@@ -182,7 +181,7 @@ coxmlist::unpack(
 
 		if (oxm.get_oxm_field() >= OFPXMT_OFB_MAX)
 		{
-			throw eOxmListInval();
+			throw eBadMatchBadField();
 		}
 
 		(*this)[oxm.get_oxm_field()] = oxm;
@@ -197,13 +196,12 @@ struct ofp_oxm_hdr*
 coxmlist::pack(
 		struct ofp_oxm_hdr* oxm_hdr,
 		size_t oxm_len)
-			throw (eOxmListInval)
 {
 	size_t needed_oxm_len = length();
 
 	if (oxm_len < needed_oxm_len)
 	{
-		throw eOxmListInval();
+		throw eBadMatchBadLen();
 	}
 
 	struct ofp_oxm_hdr *hdr = oxm_hdr; // first oxm header
