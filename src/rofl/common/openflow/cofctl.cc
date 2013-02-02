@@ -1262,7 +1262,12 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 			case OFPFC_ADD:
 			case OFPFC_MODIFY:
 			case OFPFC_MODIFY_STRICT:
+				/*
+				 * deactivated for Darmstadt demonstration, needs exact fix
+				 */
+#if 0
 				rofbase->fsptable.flow_mod_allowed(this, pack->match);
+#endif
 				break;
 				/*
 				 * this allows generic DELETE commands to be applied
