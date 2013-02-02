@@ -418,18 +418,15 @@ ctlbase::handle_packet_in(
 		cofdpt *sw,
 		cofpacket *pack)
 {
-	WRITELOG(CFWD, DBG, "\n\n\nUUU\n\n\nctlbase(%s)::handle_packet_in() pack:%s",
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() pack:%s",
 			dpname.c_str(), pack->c_str());
-
 
 
 	if (sw != dpath)
 	{
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() rcvd packet from non-registered dpath"
-				"sw: %p dpath: %p", dpname.c_str(), sw, dpath);
-
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() rcvd packet from non-registered dpath",
-				dpname.c_str());
+		WRITELOG(CFWD, WARN, "ctlbase(%s)::handle_packet_in() "
+				"rcvd packet from non-registered dpath sw: %p dpath: %p, dropping",
+				dpname.c_str(), sw, dpath);
 
 		delete pack; return;
 	}
@@ -446,7 +443,7 @@ ctlbase::handle_packet_in(
 		// more than one subscription matches? should not happen here => error
 		if (fsp_list.size() > 1)
 		{
-			WRITELOG(CFWD, DBG, "\n\n\n\nVVV\n\nctlbase(%s)::handle_packet_in() "
+			WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
 					"too many results from fsptable:%s",
 					dpname.c_str(), sw->fsptable.c_str());
 
@@ -482,35 +479,34 @@ ctlbase::handle_packet_in(
 
 	} catch (eFspNoMatch& e) {
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
-				"no flowspace subscription for packet found =>"
-				" fsptable: %s\ndata: %s",
-				dpname.c_str(), fsptable.c_str(), pack->packet.c_str());
+		writelog(CFWD, WARN, "ctlbase(%s)::handle_packet_in() "
+				"no flowspace subscription for packet found =>\n"
+				"=> packet: %s\n=> fsptable: %s",
+				dpname.c_str(), pack->packet.c_str(), fsptable.c_str());
 
 	} catch (eCtlBaseInval& e) {
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
-				"too many subscriptions found for packet, unspecified behaviour, pack: %s",
+		writelog(CFWD, WARN, "ctlbase(%s)::handle_packet_in() "
+				"too many flowspace subscriptions found for packet, "
+				"unspecified behaviour, dropping packet: %s",
 				dpname.c_str(), pack->c_str());
 
 	} catch (eInternalError& e) {
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
-				"internal error, found fspentry owner which is not of type cctlmod. WTF???, pack: %s",
-				dpname.c_str(), pack->c_str());
+		writelog(CFWD, WARN, "ctlbase(%s)::handle_packet_in() "
+				"internal error, found fspentry owner which is not of type cadapt. FIX This!",
+				dpname.c_str());
 
 	} catch (eFrameInvalidSyntax& e) {
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
+		writelog(CFWD, WARN, "ctlbase(%s)::handle_packet_in() "
 				"frame with invalid syntax received, dropping. pack: %s",
 				dpname.c_str(), pack->c_str());
 
-		throw;
-
 	} catch (eOFpacketNoData& e) {
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
-				"PACKET-IN without attached payload, dropping. pack: %s",
+		writelog(CFWD, WARN, "ctlbase(%s)::handle_packet_in() "
+				"PACKET-IN rcvd without attached payload, dropping. pack: %s",
 				dpname.c_str(), pack->c_str());
 	}
 
@@ -533,7 +529,7 @@ ctlbase::fsp_open(
 		// match is defined for a specific inport, filter through the adapter
 		if (n_ports.find(in_port) == n_ports.end())
 		{
-			WRITELOG(CFWD, DBG, "ctlbase(%s)::fsp_open() "
+			writelog(CFWD, WARN, "ctlbase(%s)::fsp_open() "
 					"match refers to in_port: 0x%x, which does not exist, ignoring",
 					dpname.c_str(), in_port);
 
@@ -545,15 +541,19 @@ ctlbase::fsp_open(
 				"match: %s",
 				dpname.c_str(), match.c_str());
 
+
 	} catch (eOFmatchNotFound& e) {
 
 		// no in_port, do nothing with our adapters
+		writelog(CFWD, WARN, "ctlbase(%s)::fsp_open() "
+				"match without in_port received, ignoring fsp-open command",
+				dpname.c_str());
 	}
 
 	if (0 == dpath)
 	{
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::fsp_open() "
-				"no dpt available, igoring",
+		writelog(CFWD, WARN, "ctlbase(%s)::fsp_open() "
+				"match without in_port received, not adapting match",
 				dpname.c_str());
 
 		return;
@@ -611,7 +611,7 @@ ctlbase::fsp_close(
 		// match is defined for a specific inport, filter through the adapter
 		if (n_ports.find(in_port) == n_ports.end())
 		{
-			WRITELOG(CFWD, DBG, "ctlbase(%s)::fsp_close() "
+			writelog(CFWD, WARN, "ctlbase(%s)::fsp_close() "
 					"match refers to in_port: 0x%x, which does not exist, ignoring",
 					dpname.c_str(), in_port);
 
@@ -626,11 +626,14 @@ ctlbase::fsp_close(
 	} catch (eOFmatchNotFound& e) {
 
 		// no in_port, do nothing with our adapters
+		writelog(CFWD, WARN, "ctlbase(%s)::fsp_close() "
+				"match without in_port received, not adapting match",
+				dpname.c_str());
 	}
 
 	if (0 == dpath)
 	{
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::fsp_close() "
+		writelog(CFWD, WARN, "ctlbase(%s)::fsp_close() "
 				"no dpt available, igoring",
 				dpname.c_str());
 
@@ -659,9 +662,9 @@ ctlbase::handle_port_status(
 
 	if (sw != dpath)
 	{
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() "
+		writelog(CFWD, WARN, "ctlbase(%s)::handle_port_status() "
 				"rcvd packet from non-registered dpath"
-				" sw: %p dpath: %p", dpname.c_str(), sw, dpath);
+				" sw:%p dpath:%p, ignoring", dpname.c_str(), sw, dpath);
 
 		delete pack; return;
 	}
@@ -705,13 +708,13 @@ ctlbase::ctl_get_free_portno(
 		uint32_t requested)
 			throw (eAdaptNotFound)
 {
-	uint32_t portno = (requested != 0) ? requested : 1;;
+	uint32_t portno = (requested != 0) ? requested : 1;
 
-	while (n_ports.find(portno) != n_ports.end())
-	{
+	while (n_ports.find(portno) != n_ports.end()) {
 		portno++;
-		if (portno == std::numeric_limits<uint32_t>::max())
-		{
+		if (portno == std::numeric_limits<uint32_t>::max()) {
+			writelog(CFWD, WARN, "ctlbase(%s)::ctl_get_free_portno() "
+					"no free port-no available", dpname.c_str());
 			throw eAdaptNotFound();
 		}
 	}
@@ -742,57 +745,71 @@ ctlbase::ctl_handle_port_status(
 		cofport *ofport)
 {
 	cadapt* adapt = dynamic_cast<cadapt*>( dpt );
-
-	if ((0 == adapt) || (0 == ofport))
-	{
+	if ((0 == adapt) || (0 == ofport)) {
 		return;
 	}
 
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_port_status() "
-			"reason: %d port: %s\n"
-			"ctlbase: %s", dpname.c_str(), reason, ofport->c_str(), this->c_str());
-
 	switch (reason) {
-	case OFPPR_ADD:
-		{
-			/* sanity check: the port_no must not be in use currently */
-			if (n_ports.find(ofport->port_no) != n_ports.end())
-			{
-				throw eCtlBaseExists();
-			}
+	case OFPPR_ADD: {
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_port_status() "
+				"-ADD- reason:%d port:%u",
+				dpname.c_str(), reason, ofport->port_no);
 
-			n_ports[ofport->port_no] = adapt;
-			adports[ofport->port_no] = ofport;
+		/* sanity check: the port_no must not be in use currently */
+		if (n_ports.find(ofport->port_no) != n_ports.end()) {
+			writelog(CFWD, WARN, "ctlbase(%s)::ctl_handle_port_status() "
+					"-ADD- port:%u, unable to add port => already exists",
+					dpname.c_str(), reason, ofport->port_no);
+			throw eCtlBaseExists();
 		}
+
+		n_ports[ofport->port_no] = adapt;
+		adports[ofport->port_no] = ofport;
+	}
 		break;
-	case OFPPR_DELETE:
-		{
-			/* sanity check: the port_no must exist */
-			if (n_ports.find(ofport->port_no) == n_ports.end())
-			{
-				return;
-			}
+	case OFPPR_DELETE: {
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_port_status() "
+				"-DELETE- reason:%d port:%u",
+				dpname.c_str(), reason, ofport->port_no);
 
-			if (n_ports[ofport->port_no] != adapt)
-			{
-				return;
-			}
-
-			n_ports.erase(ofport->port_no);
-			adports.erase(ofport->port_no);
+		/* sanity check: the port_no must exist */
+		if (n_ports.find(ofport->port_no) == n_ports.end()) {
+			writelog(CFWD, WARN, "ctlbase(%s)::ctl_handle_port_status() "
+						"-DELETE- port:%u, unable to delete port => not found",
+						dpname.c_str(), ofport->port_no);
+			return;
 		}
-		break;
-	case OFPPR_MODIFY:
-		{
-			/* sanity check: the port_no must exist */
-			if (n_ports.find(ofport->port_no) == n_ports.end())
-			{
-				throw eCtlBaseNotFound();
-			}
-		}
-		break;
-	default:
 
+		if (n_ports[ofport->port_no] != adapt) {
+			writelog(CFWD, WARN, "ctlbase(%s)::ctl_handle_port_status() "
+						"-DELETE- port:%u, unable to delete port => assigned adapter mismatch",
+						dpname.c_str(), ofport->port_no);
+			return;
+		}
+
+		n_ports.erase(ofport->port_no);
+		adports.erase(ofport->port_no);
+	}
+		break;
+	case OFPPR_MODIFY: {
+		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_port_status() "
+				"-MODIFY- reason:%d port:%u",
+				dpname.c_str(), reason, ofport->port_no);
+
+		/* sanity check: the port_no must exist */
+		if (n_ports.find(ofport->port_no) == n_ports.end()) {
+			writelog(CFWD, WARN, "ctlbase(%s)::ctl_handle_port_status() "
+					"-MODIFY- reason:%d port:%u, unable to modify port => not found",
+					dpname.c_str(), reason, ofport->port_no);
+			throw eCtlBaseNotFound();
+		}
+	}
+		break;
+	default: {
+		writelog(CFWD, WARN, "ctlbase(%s)::ctl_handle_port_status() "
+				"invalid reason:%d for port:%u, ignoring",
+				dpname.c_str(), reason, ofport->port_no);
+	}
 		break;
 	}
 
@@ -875,9 +892,9 @@ ctlbase::ctl_handle_packet_in(
 
 	} catch (eFrameInvalidSyntax& e) {
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_packet_in() "
-				"frame with invalid syntax, dropping", dpname.c_str());
-
+		writelog(CFWD, WARN, "ctlbase(%s)::ctl_handle_packet_in() "
+				"frame with invalid syntax, dropping packet: %s",
+				dpname.c_str(), pack.c_str());
 	}
 }
 
@@ -1589,12 +1606,10 @@ ctlbase::send_flow_mod_message(
 
 	} catch (eOFmatchNotFound& e) {
 
-		WRITELOG(CFWD, DBG, "ctlbase(%s)::send_flow_mod_message() "
-					   "no in_port found in Flow-Mod message, ignoring",
-					   dpname.c_str());
-
+		writelog(CFWD, WARN, "ctlbase(%s)::send_flow_mod_message() "
+					   "no in_port found in Flow-Mod message, ignoring match: %s",
+					   dpname.c_str(), ofmatch.c_str());
 		throw eCtlBaseInval();
-
 	}
 }
 
