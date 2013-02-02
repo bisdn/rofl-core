@@ -351,14 +351,17 @@ cftentry::sem_dec()
 	/*
 	 * THIS METHOD RUNS IN CONTEXT OF PACKET ENGINE THREAD!
 	 */
+	int tmp_usage_cnt = 0;
+	{
+		RwLock ulock(&usage_lock, RwLock::RWLOCK_WRITE);
+		usage_cnt = (usage_cnt > 0) ? (usage_cnt - 1) : 0;
+		tmp_usage_cnt = usage_cnt;
+	}
 
-	RwLock ulock(&usage_lock, RwLock::RWLOCK_WRITE);
-	usage_cnt = (usage_cnt > 0) ? (usage_cnt - 1) : 0;
-
-	WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() usage_cnt: %d", this, usage_cnt);
+	WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() usage_cnt: %d", this, tmp_usage_cnt);
 
 	RwLock flock(&flags_lock, RwLock::RWLOCK_READ);
-	if ((flags.test(CFTENTRY_FLAG_TIMER_EXPIRED) && (0 == usage_cnt)))
+	if ((flags.test(CFTENTRY_FLAG_TIMER_EXPIRED) && (0 == tmp_usage_cnt)))
 	{
 		WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() initiating removal", this);
 		notify(cevent(CFTENTRY_EVENT_IDLE_FOR_DELETION));
