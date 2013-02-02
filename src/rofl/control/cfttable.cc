@@ -660,7 +660,7 @@ cfttable::modify_ft_entry(
 	return fte;
 }
 
-
+#if 0
 void
 cfttable::rem_ft_entry(
 		cfttable_owner *owner,
@@ -793,9 +793,108 @@ delete_entry:
 
 		(*it)->schedule_deletion();
 
-		flow_table.erase(it);
+		flow_table.erase(*it);
 
 		begin = flow_table.begin();
+	}
+
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::rem_ft_entry() cfttable.size():%d", this, flow_table.size());
+
+	//dump_ftentries();
+}
+#endif
+
+
+void
+cfttable::rem_ft_entry(
+		cfttable_owner *owner,
+		cofpacket* pack,
+		bool strict /* = false (default) */)
+{
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::rem_ft_entry() pack->match: %s", this, pack->match.c_str());
+	//dump_ftentries();
+
+	RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
+
+	std::set<cftentry*> deletion_list;
+	uint32_t out_port 	= be32toh(pack->ofh_flow_mod->out_port);
+	uint32_t out_group 	= be32toh(pack->ofh_flow_mod->out_group);
+
+	for (std::set<cftentry*>::iterator it = flow_table.begin();
+			it != flow_table.end(); ++it) {
+		cftentry* entry = (*it);
+		if (not entry->overlaps(pack->match, strict)) {
+			continue;
+		}
+
+		if ((OFPP_ANY == out_port) && (OFPG_ANY == out_group)) {
+			deletion_list.insert(entry);
+		} else if (OFPG_ANY == out_group) {
+			// find all OFPAT_OUTPUT actions ...
+
+			// ... in OFPIT_APPLY_ACTIONS
+			try {
+				cofaclist& actions =  (*it)->find_inst(OFPIT_APPLY_ACTIONS).actions;
+				cofaclist::iterator at;
+
+				for (at = actions.begin(); at != actions.end(); ++at) {
+					cofaction& action = (*at);
+
+					if (be16toh(action.oac_header->type) == OFPAT_OUTPUT) {
+						if (be32toh(action.oac_output->port) == out_port) {
+							deletion_list.insert(entry);
+						}
+					}
+				}
+			} catch (eFteInstNotFound& e) {
+			}
+
+			// ... in OFPIT_WRITE_ACTIONS
+			try {
+				// ... in OFPIT_WRITE_ACTIONS (we're lucky here: only a single OFPAT_OUTPUT can exist here!)
+				if (be32toh(
+						entry->find_inst(OFPIT_WRITE_ACTIONS).
+								find_action(OFPAT_OUTPUT).oac_output->port) == out_port) {
+					deletion_list.insert(entry);
+				}
+			} catch (eFteInstNotFound& e) {
+			} catch (eInstructionActionNotFound& e) {
+			}
+		} else if (OFPP_ANY == out_port) {
+			// find all OFPAT_GROUP actions ...
+
+			// ... in OFPIT_APPLY_ACTIONS
+			try {
+				cofaclist& actions =  (*it)->find_inst(OFPIT_APPLY_ACTIONS).actions;
+				cofaclist::iterator at;
+				for (at = actions.begin(); at != actions.end(); ++at) {
+					cofaction& action = (*at);
+					if (be16toh(action.oac_header->type) == OFPAT_GROUP) {
+						if (be32toh(action.oac_group->group_id) == out_group) {
+							deletion_list.insert(entry);
+						}
+					}
+				}
+			} catch (eFteInstNotFound& e) {
+			}
+
+			// ... in OFPIT_WRITE_ACTIONS
+			try {
+				// ... in OFPIT_WRITE_ACTIONS (we're lucky here: only a single OFPAT_OUTPUT can exist here!)
+				if (be32toh((*it)->find_inst(OFPIT_WRITE_ACTIONS).
+						find_action(OFPAT_GROUP).oac_group->group_id) == out_group) {
+					deletion_list.insert(entry);
+				}
+			} catch (eFteInstNotFound& e) {
+			} catch (eInstructionActionNotFound& e) {
+			}
+		}
+	}
+
+	while (not deletion_list.empty()) {
+		cftentry *entry = *(deletion_list.begin());
+		deletion_list.erase(deletion_list.begin());
+		entry->schedule_deletion();
 	}
 
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::rem_ft_entry() cfttable.size():%d", this, flow_table.size());
