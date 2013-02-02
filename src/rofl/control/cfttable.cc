@@ -793,7 +793,7 @@ delete_entry:
 
 		(*it)->schedule_deletion();
 
-		flow_table.erase(*it);
+		flow_table.erase(it);
 
 		begin = flow_table.begin();
 	}
