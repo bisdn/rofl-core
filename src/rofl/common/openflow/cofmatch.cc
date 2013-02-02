@@ -644,6 +644,15 @@ cofmatch::set_ipv4_src(
 }
 
 
+void
+cofmatch::set_ipv4_src(
+		caddress const& src,
+		caddress const& mask)
+{
+	oxmlist[OFPXMT_OFB_IPV4_SRC] = coxmatch_ofb_ipv4_src(src, mask);
+}
+
+
 
 caddress
 cofmatch::get_ipv4_dst()
@@ -674,6 +683,15 @@ cofmatch::set_ipv4_dst(
 		caddress const& dst)
 {
 	oxmlist[OFPXMT_OFB_IPV4_DST] = coxmatch_ofb_ipv4_dst(dst);
+}
+
+
+void
+cofmatch::set_ipv4_dst(
+		caddress const& dst,
+		caddress const& mask)
+{
+	oxmlist[OFPXMT_OFB_IPV4_DST] = coxmatch_ofb_ipv4_dst(dst, mask);
 }
 
 

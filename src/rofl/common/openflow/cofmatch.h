@@ -444,6 +444,15 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_ipv4_src(
+			caddress const& src,
+			caddress const& mask);
+
+
+	/**
+	 *
+	 */
 	caddress
 	get_ipv4_dst()
 		throw (eOFmatchNotFound);
@@ -455,6 +464,15 @@ public:
 	void
 	set_ipv4_dst(
 			caddress const& dst);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ipv4_dst(
+			caddress const& dst,
+			caddress const& mask);
 
 
 	/**
