@@ -721,7 +721,7 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 	try {
 
 		try {
-			WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() new fte created: %s", this, fte->c_str());
+			WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_flow_mod() checking Goto-Table", this);
 
 			cofinst& inst = pack->instructions.find_inst(OFPIT_GOTO_TABLE);
 
