@@ -1368,14 +1368,16 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 	} catch (eFlowModBase& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::flow_mod_rcvd() "
-				"base class of exception eFlowModBase caught, pack: %s", this, pack->c_str());
+				"base class of exception eFlowModBase caught, pack: %s",
+				this, pack->c_str());
 
 		delete pack;
 	} catch (eFspNotAllowed& e) {
 
 		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
 				"-FLOW-MOD- blocked due to mismatch in flowspace "
-				"registration\n%s", this, rofbase->fsptable.c_str());
+				"registration, match: %s\nflowspace-table: %s",
+				this, pack->match.c_str(), rofbase->fsptable.c_str());
 
 		rofbase->send_error_message(
 				this,
