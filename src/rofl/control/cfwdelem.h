@@ -501,11 +501,9 @@ protected:
 	 * after this method block has been left, so do not rely on fte
 	 * afterwards.
 	 *
-	 * @param ftable pointer to flow-table where flow table entry was deleted
-	 * @param fte pointer to deleted flow table entry
 	 */
 	virtual void
-	flow_mod_delete(cofctl *ofctrl, cofpacket *pack, cfttable *ftable, cftentry *fte) {};
+	flow_mod_delete(cofctl *ofctrl, cofpacket *pack) {};
 
 	/**
 	 * @name	flow_mod_add

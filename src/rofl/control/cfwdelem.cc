@@ -796,7 +796,7 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 		} break;
 		case OFPFC_DELETE:
 		case OFPFC_DELETE_STRICT: {
-			flow_mod_delete(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+			flow_mod_delete(ofctrl, pack);
 		} break;
 		default: {
 			writelog(CFWD, WARN, "cfwdelem(%s)::handle_flow_mod() "
@@ -805,6 +805,8 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 			throw eFlowModUnknown();
 		} break;
 		}
+
+		delete pack;
 
 	} catch (eFlowTableEntryOverlaps& e) {
 
