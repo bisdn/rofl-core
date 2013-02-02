@@ -719,6 +719,22 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 	cftentry *fte = NULL;
 
 	try {
+
+		try {
+			WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() new fte created: %s", this, fte->c_str());
+
+			cofinst& inst = pack->instructions.find_inst(OFPIT_GOTO_TABLE);
+
+			if (flow_tables.find(inst.oin_goto_table->table_id) == flow_tables.end()) {
+				writelog(CFWD, WARN, "cfwdelem(%s)::handle_flow_mod() "
+						"flow-entry error, bad table-id %d in Goto-Table instruction",
+						dpname.c_str(), pack->ofh_flow_mod->table_id);
+				throw eFlowModBadTableId();
+			}
+
+		} catch (eInListNotFound& e) {}
+
+
 		// table_id == 255 (all tables)
 		if (OFPTT_ALL == pack->ofh_flow_mod->table_id)
 		{
@@ -746,58 +762,49 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 
 			// do not lock here flow_table[i]
 
-			if ((fte = flow_tables[pack->ofh_flow_mod->table_id]->
-							update_ft_entry(this, pack)) == NULL) {
-				writelog(CFWD, WARN, "cfwdelem(%s)::handle_flow_mod() "
-						"flow-entry error when updating local flow-table",
-						dpname.c_str());
-				throw eFlowModUnknown();
-			}
+			fte = flow_tables[pack->ofh_flow_mod->table_id]->update_ft_entry(this, pack);
 
-
-
-			fte->ctl = ofctrl; // store controlling entity for this cftentry
-			WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
-					this, pack->ofh_flow_mod->table_id, fte->c_str());
-
-
-			try {
-				WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() new fte created: %s", this, fte->c_str());
-
-				cofinst& inst = fte->instructions.find_inst(OFPIT_GOTO_TABLE);
-
-				if (flow_tables.find(inst.oin_goto_table->table_id) == flow_tables.end()) {
-					writelog(CFWD, WARN, "cfwdelem(%s)::handle_flow_mod() "
-							"flow-entry error, bad table-id %d in Goto-Table instruction",
-							dpname.c_str(), pack->ofh_flow_mod->table_id);
-					throw eFlowModBadTableId();
-				}
-
-			} catch (eInListNotFound& e) {}
-		}
-
-		if (0 != fte) {
 			switch (pack->ofh_flow_mod->command) {
-			case OFPFC_ADD: {
-				flow_mod_add(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
-			} break;
+			case OFPFC_ADD:
 			case OFPFC_MODIFY:
-			case OFPFC_MODIFY_STRICT: {
-				flow_mod_modify(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+			case OFPFC_MODIFY_STRICT: { // check cftentry instance
+				if (0 == fte) {
+					writelog(CFWD, WARN, "cfwdelem(%s)::handle_flow_mod() "
+							"flow-entry error when updating local flow-table",
+							dpname.c_str());
+					throw eFlowModUnknown();
+				}
+				fte->ctl = ofctrl; // store controlling entity for this cftentry
+				WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
+						this, pack->ofh_flow_mod->table_id, fte->c_str());
 			} break;
 			case OFPFC_DELETE:
-			case OFPFC_DELETE_STRICT: {
-				flow_mod_delete(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
-			} break;
+			case OFPFC_DELETE_STRICT:
 			default: {
-				writelog(CFWD, WARN, "cfwdelem(%s)::handle_flow_mod() "
-						"flow-entry error => invalid command %d",
-						dpname.c_str(), pack->ofh_flow_mod->command);
-				throw eFlowModUnknown();
+				// do nothing here
 			} break;
 			}
 		}
 
+		switch (pack->ofh_flow_mod->command) {
+		case OFPFC_ADD: {
+			flow_mod_add(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+		} break;
+		case OFPFC_MODIFY:
+		case OFPFC_MODIFY_STRICT: {
+			flow_mod_modify(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+		} break;
+		case OFPFC_DELETE:
+		case OFPFC_DELETE_STRICT: {
+			flow_mod_delete(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+		} break;
+		default: {
+			writelog(CFWD, WARN, "cfwdelem(%s)::handle_flow_mod() "
+					"flow-entry error => invalid command %d",
+					dpname.c_str(), pack->ofh_flow_mod->command);
+			throw eFlowModUnknown();
+		} break;
+		}
 
 	} catch (eFlowTableEntryOverlaps& e) {
 
