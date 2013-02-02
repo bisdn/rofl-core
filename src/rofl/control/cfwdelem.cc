@@ -806,8 +806,6 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 		} break;
 		}
 
-		delete pack;
-
 	} catch (eFlowTableEntryOverlaps& e) {
 
 		writelog(CFWD, WARN, "cfwdelem(%s)::handle_flow_mod() "
