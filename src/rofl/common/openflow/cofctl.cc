@@ -1247,7 +1247,7 @@ cofctl::packet_out_rcvd(cofpacket *pack)
 void
 cofctl::flow_mod_rcvd(cofpacket *pack)
 {
-	WRITELOG(COFCTL, TRACE, "cofctl(%p)::flow_mod_rcvd() pack: %s", this, pack->c_str());
+	WRITELOG(COFCTL, DBG, "cofctl(%p)::flow_mod_rcvd() pack: %s", this, pack->c_str());
 
 	try {
 		if (OFPCR_ROLE_SLAVE == role)
