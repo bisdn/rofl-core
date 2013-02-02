@@ -1037,7 +1037,7 @@ crofbase::send_packet_in_message(
 					total_len,
 					n_pack);
 
-			WRITELOG(CROFBASE, WARN, "crofbase(%p) nse_list.size()=%d", this, nse_list.size());
+			WRITELOG(CROFBASE, DBG, "crofbase(%p) nse_list.size()=%d", this, nse_list.size());
 
 			if (nse_list.empty())
 			{
