@@ -224,7 +224,8 @@ cftentry::handle_timeout(int opaque)
 		removal_reason = OFPRR_IDLE_TIMEOUT;
 
 		{
-			RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
+			//RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
+			RwLock lock(&usage_lock, RwLock::RWLOCK_WRITE);
 			if (0 == usage_cnt)
 			{
 				if (pending_timer(TIMER_FTE_HARD_TIMEOUT))
@@ -265,7 +266,8 @@ cftentry::handle_timeout(int opaque)
 		removal_reason = OFPRR_HARD_TIMEOUT;
 
 		{
-			RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
+			//RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
+			RwLock lock(&usage_lock, RwLock::RWLOCK_WRITE);
 			if (0 == usage_cnt)
 			{
 				if (pending_timer(TIMER_FTE_IDLE_TIMEOUT))
@@ -328,7 +330,8 @@ cftentry::schedule_deletion()
 
 	// flock relases usage_lock here, do not delete this cftentry instance before removing ulock from stack
 	{
-		RwLock ulock(&usage_lock, RwLock::RWLOCK_READ);
+		//RwLock ulock(&usage_lock, RwLock::RWLOCK_READ);
+		RwLock ulock(&usage_lock, RwLock::RWLOCK_WRITE); // intentional WRITE-LOCK, we must not remove this instance unless we have acquired the writelock
 		if (usage_cnt > 0)
 		{
 			return;
