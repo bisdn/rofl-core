@@ -160,6 +160,7 @@ cftentry::handle_event(cevent const& ev)
 		 */
 		Lock lock(&usage_mutex);
 		if (0 == usage_cnt) {
+			cancel_all_timer();
 			register_timer(TIMER_FTE_REMOVAL, 2);
 		} else {
 			notify(cevent(CFTENTRY_EVENT_IDLE_FOR_DELETION));
