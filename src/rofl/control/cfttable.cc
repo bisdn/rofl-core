@@ -561,7 +561,8 @@ cfttable::add_ft_entry(
 							"ftentry overlaps, sending error message back", this);
 
 					// throw exception, calling instance has to send error message to controller
-					throw eFlowTableEntryOverlaps();
+					//throw eFlowTableEntryOverlaps();
+					throw eFlowModOverlap();
 				}
 			}
 
@@ -571,6 +572,7 @@ cfttable::add_ft_entry(
 						cftentry::ftentry_find_overlap(pack->match, true /* strict */))) != flow_table.end())
 			{
 				WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() deleting duplicate %p", this, (*it));
+				(*it)->disable_entry();
 				delete_table.insert(*it);
 				++it;
 			}
@@ -597,17 +599,13 @@ cfttable::add_ft_entry(
 		for (std::set<cftentry*>::iterator
 				it = delete_table.begin(); it != delete_table.end(); ++it)
 		{
-			(*it)->schedule_deletion();
-
 			flow_table.erase(*it);
+			(*it)->schedule_deletion();
 		}
+		delete_table.clear();
 	}
-	delete_table.clear();
-
-
 
 	update_group_ref_counts(fte);
-
 
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [2]\n %s", this, c_str());
 
