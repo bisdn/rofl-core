@@ -25,7 +25,7 @@ cftentry::cftentry(
 {
 	cftentry::cftentry_set.insert(this);
 
-	pthread_rwlock_init(&usage_lock, NULL);
+	pthread_mutex_init(&usage_mutex, NULL);
 	pthread_mutex_init(&flags_mutex, NULL);
 	pthread_rwlock_init(&access_time_lock, NULL);
 
@@ -59,7 +59,7 @@ cftentry::cftentry(
 {
 	cftentry::cftentry_set.insert(this);
 
-	pthread_rwlock_init(&usage_lock, NULL);
+	pthread_mutex_init(&usage_mutex, NULL);
 	pthread_mutex_init(&flags_mutex, NULL);
 	pthread_rwlock_init(&access_time_lock, NULL);
 
@@ -118,7 +118,7 @@ cftentry::cftentry(
 {
 	cftentry::cftentry_set.insert(this);
 
-	pthread_rwlock_init(&usage_lock, NULL);
+	pthread_mutex_init(&usage_mutex, NULL);
 	pthread_mutex_init(&flags_mutex, NULL);
 	pthread_rwlock_init(&access_time_lock, NULL);
 
@@ -139,7 +139,7 @@ cftentry::~cftentry()
 	}
 
 	pthread_rwlock_destroy(&access_time_lock);
-	pthread_rwlock_destroy(&usage_lock);
+	pthread_mutex_destroy(&usage_mutex);
 	pthread_mutex_destroy(&flags_mutex);
 }
 
@@ -225,7 +225,7 @@ cftentry::handle_timeout(int opaque)
 
 		{
 			//RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
-			RwLock lock(&usage_lock, RwLock::RWLOCK_WRITE);
+			Lock lock(&usage_mutex);
 			if (0 == usage_cnt)
 			{
 				if (pending_timer(TIMER_FTE_HARD_TIMEOUT))
@@ -267,7 +267,7 @@ cftentry::handle_timeout(int opaque)
 
 		{
 			//RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
-			RwLock lock(&usage_lock, RwLock::RWLOCK_WRITE);
+			Lock lock(&usage_mutex);
 			if (0 == usage_cnt)
 			{
 				if (pending_timer(TIMER_FTE_IDLE_TIMEOUT))
@@ -331,7 +331,7 @@ cftentry::schedule_deletion()
 	// flock relases usage_lock here, do not delete this cftentry instance before removing ulock from stack
 	{
 		//RwLock ulock(&usage_lock, RwLock::RWLOCK_READ);
-		RwLock ulock(&usage_lock, RwLock::RWLOCK_WRITE); // intentional WRITE-LOCK, we must not remove this instance unless we have acquired the writelock
+		Lock lock(&usage_mutex); // intentional WRITE-LOCK, we must not remove this instance unless we have acquired the writelock
 		if (usage_cnt > 0)
 		{
 			return;
@@ -363,7 +363,7 @@ cftentry::sem_inc() throw (eFtEntryUnAvail)
 		}
 	}
 
-	RwLock ulock(&usage_lock, RwLock::RWLOCK_WRITE);
+	Lock ulock(&usage_mutex);
 	++usage_cnt;
 
 	WRITELOG(FTE, DBG, "cftentry(%p)::sem_inc() usage_cnt: %d", this, usage_cnt);
@@ -377,10 +377,10 @@ cftentry::sem_dec()
 	/*
 	 * THIS METHOD RUNS IN CONTEXT OF PACKET ENGINE THREAD!
 	 */
-	{
-		RwLock ulock(&usage_lock, RwLock::RWLOCK_WRITE);
+	//{
+		Lock lock(&usage_mutex);
 		usage_cnt = (usage_cnt > 0) ? (usage_cnt - 1) : 0;
-	}
+	//}
 
 	WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() usage_cnt: %d", this, usage_cnt);
 
@@ -457,7 +457,8 @@ cftentry::__update()
 	 * apply these normally.
 	 */
 
-	RwLock lock(&usage_lock, RwLock::RWLOCK_WRITE);
+	//RwLock lock(&usage_mutex, RwLock::RWLOCK_WRITE);
+	Lock lock(&usage_mutex);
 
 	this->flags &= ~CFTENTRY_FLAG_COPY_ON_WRITE;
 
@@ -510,7 +511,8 @@ cftentry::hw_fte_rmvd(int fpc_handle, int cause)
 cofinst&
 cftentry::find_inst(enum ofp_instruction_type type)
 {
-	RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
+	//RwLock lock(&usage_mutex, RwLock::RWLOCK_READ);
+	Lock lock(&usage_mutex);
 	WRITELOG(FTE, DBG, "cftentry(%p)::find_inst() blub:\n%s",
 			this, instructions.find_inst(type).c_str());
 	//WRITELOG(FTE, DBG, "cftentry(%p)::find_inst() instructions:\n%s", this, inlist.c_str());

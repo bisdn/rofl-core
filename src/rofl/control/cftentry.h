@@ -146,7 +146,7 @@ private: // data structures
 
 protected:
 
-		pthread_rwlock_t 		usage_lock;	 		// rwlock for usage_cnt
+		pthread_mutex_t 		usage_mutex;		// mutex for usage_cnt
 		pthread_mutex_t 		flags_mutex;		// mutex for flags
 		cftentry_owner 			*owner;				// ptr to entity owning this cftentry
 		std::set<cftentry*> 	*flow_table;		// ptr to flow_table this entry belongs to
