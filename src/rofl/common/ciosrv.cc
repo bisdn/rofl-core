@@ -896,7 +896,6 @@ ciosrv::__handle_timeout()
 				return;
 			}
 		}
-
 	}
 }
 
