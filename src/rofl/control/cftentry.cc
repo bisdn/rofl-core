@@ -223,17 +223,19 @@ cftentry::handle_timeout(int opaque)
 
 		removal_reason = OFPRR_IDLE_TIMEOUT;
 
-		RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
-		if (0 == usage_cnt)
 		{
-			if (pending_timer(TIMER_FTE_HARD_TIMEOUT))
+			RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
+			if (0 == usage_cnt)
 			{
-				cancel_timer(TIMER_FTE_HARD_TIMEOUT);
-			}
+				if (pending_timer(TIMER_FTE_HARD_TIMEOUT))
+				{
+					cancel_timer(TIMER_FTE_HARD_TIMEOUT);
+				}
 
-			// send notification to owner => OWNER MUST REMOVE ALL REFERENCES TO THIS ENTRY FROM ITS INTERNAL STRUCTURES
-			if (owner) { owner->ftentry_idle_timeout(this, be16toh(flow_mod->idle_timeout)); };
-		}
+				// send notification to owner => OWNER MUST REMOVE ALL REFERENCES TO THIS ENTRY FROM ITS INTERNAL STRUCTURES
+				if (owner) { owner->ftentry_idle_timeout(this, be16toh(flow_mod->idle_timeout)); };
+			}
+		} // unlock lock here
 
 		// initiate deletion of this cftentry => this may call this instance's destructor, so we must return at the end of this block
 		schedule_deletion();
@@ -262,17 +264,19 @@ cftentry::handle_timeout(int opaque)
 
 		removal_reason = OFPRR_HARD_TIMEOUT;
 
-		RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
-		if (0 == usage_cnt)
 		{
-			if (pending_timer(TIMER_FTE_IDLE_TIMEOUT))
+			RwLock lock(&usage_lock, RwLock::RWLOCK_READ);
+			if (0 == usage_cnt)
 			{
-				cancel_timer(TIMER_FTE_IDLE_TIMEOUT);
-			}
+				if (pending_timer(TIMER_FTE_IDLE_TIMEOUT))
+				{
+					cancel_timer(TIMER_FTE_IDLE_TIMEOUT);
+				}
 
-			// send notification to owner => OWNER MUST REMOVE ALL REFERENCES TO THIS ENTRY FROM ITS INTERNAL STRUCTURES
-			if (owner) { owner->ftentry_hard_timeout(this, be16toh(flow_mod->hard_timeout)); };
-		}
+				// send notification to owner => OWNER MUST REMOVE ALL REFERENCES TO THIS ENTRY FROM ITS INTERNAL STRUCTURES
+				if (owner) { owner->ftentry_hard_timeout(this, be16toh(flow_mod->hard_timeout)); };
+			}
+		} // unlock lock here
 
 		// initiate deletion of this cftentry => this may call this instance's destructor, so we must return at the end of this block
 		schedule_deletion();
