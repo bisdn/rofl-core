@@ -147,7 +147,7 @@ private: // data structures
 protected:
 
 		pthread_rwlock_t 		usage_lock;	 		// rwlock for usage_cnt
-		pthread_rwlock_t 		flags_lock;	 		// rwlock for flags
+		pthread_mutex_t 		flags_mutex;		// mutex for flags
 		cftentry_owner 			*owner;				// ptr to entity owning this cftentry
 		std::set<cftentry*> 	*flow_table;		// ptr to flow_table this entry belongs to
 
@@ -220,6 +220,27 @@ public:
 	operator=(
 			const cftentry& fte);
 
+
+	/**
+	 *
+	 */
+	bool
+	is_disabled();
+
+
+	/** enables this cftentry instance
+	 * this will allow engines to use this entry
+	 */
+	void
+	enable_entry();
+
+
+	/** disables this cftentry instance
+	 * this will prevent engines from using this entry
+	 * the entry will not be deleted
+	 */
+	void
+	disable_entry();
 
 
 	/** called by owner of this cftentry instance

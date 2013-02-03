@@ -26,7 +26,7 @@ cftentry::cftentry(
 	cftentry::cftentry_set.insert(this);
 
 	pthread_rwlock_init(&usage_lock, NULL);
-	pthread_rwlock_init(&flags_lock, NULL);
+	pthread_mutex_init(&flags_mutex, NULL);
 	pthread_rwlock_init(&access_time_lock, NULL);
 
 	make_info();
@@ -60,7 +60,7 @@ cftentry::cftentry(
 	cftentry::cftentry_set.insert(this);
 
 	pthread_rwlock_init(&usage_lock, NULL);
-	pthread_rwlock_init(&flags_lock, NULL);
+	pthread_mutex_init(&flags_mutex, NULL);
 	pthread_rwlock_init(&access_time_lock, NULL);
 
 	// flow_mod copy remains in network byte order !!!
@@ -119,7 +119,7 @@ cftentry::cftentry(
 	cftentry::cftentry_set.insert(this);
 
 	pthread_rwlock_init(&usage_lock, NULL);
-	pthread_rwlock_init(&flags_lock, NULL);
+	pthread_mutex_init(&flags_mutex, NULL);
 	pthread_rwlock_init(&access_time_lock, NULL);
 
 	*this = fte;
@@ -140,7 +140,7 @@ cftentry::~cftentry()
 
 	pthread_rwlock_destroy(&access_time_lock);
 	pthread_rwlock_destroy(&usage_lock);
-	pthread_rwlock_destroy(&flags_lock);
+	pthread_mutex_destroy(&flags_mutex);
 }
 
 
@@ -287,6 +287,30 @@ cftentry::handle_timeout(int opaque)
 
 
 
+bool
+cftentry::is_disabled()
+{
+	Lock fmutex(&flags_mutex);
+	return (flags.test(CFTENTRY_FLAG_TIMER_EXPIRED));
+}
+
+
+void
+cftentry::enable_entry()
+{
+	Lock fmutex(&flags_mutex);
+	flags.reset(CFTENTRY_FLAG_TIMER_EXPIRED);
+}
+
+
+void
+cftentry::disable_entry()
+{
+	Lock fmutex(&flags_mutex);
+	flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
+}
+
+
 void
 cftentry::schedule_deletion()
 {
@@ -296,14 +320,9 @@ cftentry::schedule_deletion()
 	/*
 	 * already scheduled for deletion?
 	 */
-	{
-		RwLock flock(&flags_lock, RwLock::RWLOCK_WRITE);
-		if (not flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
-		{
-			flags.set(CFTENTRY_FLAG_TIMER_EXPIRED);
-		}
-	} // flock relases usage_lock here, do not delete this cftentry instance before removing ulock from stack
+	disable_entry();
 
+	// flock relases usage_lock here, do not delete this cftentry instance before removing ulock from stack
 	{
 		RwLock ulock(&usage_lock, RwLock::RWLOCK_READ);
 		if (usage_cnt > 0)
@@ -329,7 +348,7 @@ cftentry::sem_inc() throw (eFtEntryUnAvail)
 	 * security check: if flag TIMER-EXPIRED is set, we are rejecting requests for using this cftentry instance
 	 */
 	{
-		RwLock flock(&flags_lock, RwLock::RWLOCK_READ);
+		Lock fmutex(&flags_mutex);
 		if (flags.test(CFTENTRY_FLAG_TIMER_EXPIRED))
 		{
 			WRITELOG(FTE, DBG, "cftentry(%p)::sem_inc() scheduled for removal, thus unavailable", this);
@@ -360,7 +379,7 @@ cftentry::sem_dec()
 
 	WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() usage_cnt: %d", this, tmp_usage_cnt);
 
-	RwLock flock(&flags_lock, RwLock::RWLOCK_READ);
+	Lock fmutex(&flags_mutex);
 	if ((flags.test(CFTENTRY_FLAG_TIMER_EXPIRED) && (0 == tmp_usage_cnt)))
 	{
 		WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() initiating removal", this);

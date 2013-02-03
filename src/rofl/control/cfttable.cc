@@ -828,6 +828,7 @@ cfttable::rem_ft_entry(
 		}
 
 		if ((OFPP_ANY == out_port) && (OFPG_ANY == out_group)) {
+			entry->disable_entry();
 			delete_table.insert(entry);
 		} else if (OFPG_ANY == out_group) {
 			// find all OFPAT_OUTPUT actions ...
@@ -842,6 +843,7 @@ cfttable::rem_ft_entry(
 
 					if (be16toh(action.oac_header->type) == OFPAT_OUTPUT) {
 						if (be32toh(action.oac_output->port) == out_port) {
+							entry->disable_entry();
 							delete_table.insert(entry);
 						}
 					}
@@ -855,6 +857,7 @@ cfttable::rem_ft_entry(
 				if (be32toh(
 						entry->find_inst(OFPIT_WRITE_ACTIONS).
 								find_action(OFPAT_OUTPUT).oac_output->port) == out_port) {
+					entry->disable_entry();
 					delete_table.insert(entry);
 				}
 			} catch (eFteInstNotFound& e) {
@@ -871,6 +874,7 @@ cfttable::rem_ft_entry(
 					cofaction& action = (*at);
 					if (be16toh(action.oac_header->type) == OFPAT_GROUP) {
 						if (be32toh(action.oac_group->group_id) == out_group) {
+							entry->disable_entry();
 							delete_table.insert(entry);
 						}
 					}
@@ -883,6 +887,7 @@ cfttable::rem_ft_entry(
 				// ... in OFPIT_WRITE_ACTIONS (we're lucky here: only a single OFPAT_OUTPUT can exist here!)
 				if (be32toh((*it)->find_inst(OFPIT_WRITE_ACTIONS).
 						find_action(OFPAT_GROUP).oac_group->group_id) == out_group) {
+					entry->disable_entry();
 					delete_table.insert(entry);
 				}
 			} catch (eFteInstNotFound& e) {
