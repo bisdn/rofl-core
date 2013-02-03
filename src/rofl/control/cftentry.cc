@@ -158,7 +158,7 @@ cftentry::handle_event(cevent const& ev)
 		/*
 		 * Our usage counter has dropped to 0. Execute self-destruction.
 		 */
-		delete this; return;
+		register_timer(TIMER_FTE_REMOVAL, 2);
 
 		/*
 		 * Our usage counter has dropped to 0. Send notification to our flow_table, we
@@ -284,6 +284,13 @@ cftentry::handle_timeout(int opaque)
 		schedule_deletion();
 	}
 		return;
+	case TIMER_FTE_REMOVAL: {
+
+		removal_reason = OFPRR_DELETE;
+		// TODO: add owner->ftentry_removal(this);
+		delete this;
+	}
+		return;
 
 	default:
 		WRITELOG(FTE, DBG, "cftentry(%p)::handle_timeout() unknown timer (%d)", this, opaque);
@@ -338,7 +345,8 @@ cftentry::schedule_deletion()
 		}
 	} // ulock relases usage_lock here, do not delete this cftentry instance before removing ulock from stack
 
-	delete this; return;
+	notify(cevent(CFTENTRY_EVENT_IDLE_FOR_DELETION));
+	//delete this; return;
 	//if (owner) { owner->ftentry_idle_for_deletion(this); };
 }
 

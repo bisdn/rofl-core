@@ -137,8 +137,9 @@ private: // data structures
 		};
 
 		enum cftentry_timer_t {
-			TIMER_FTE_IDLE_TIMEOUT = 1,
-			TIMER_FTE_HARD_TIMEOUT = 2,
+			TIMER_FTE_REMOVAL = 1,
+			TIMER_FTE_IDLE_TIMEOUT = 2,
+			TIMER_FTE_HARD_TIMEOUT = 3,
 		};
 
 		int 					usage_cnt;			// semaphore counter
