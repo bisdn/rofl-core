@@ -884,8 +884,19 @@ ciosrv::__handle_timeout()
 				return;
 			}
 		}
-
 		handle_timeout(*it);
+		{
+			Lock lock(&(threads[tid]->ciosrv_list_mutex));
+			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(this) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
+			{
+				return;
+			}
+			if (ciosrv::threads[tid]->ciosrv_list.find(this) == ciosrv::threads[tid]->ciosrv_list.end())
+			{
+				return;
+			}
+		}
+
 	}
 }
 
