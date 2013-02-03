@@ -59,7 +59,7 @@ ciosrv::~ciosrv()
 	// magic: we add our this pointer to ciosrv_deletion_list, so that ciosrv::handle can check for our removal
 	{
 		//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
-
+		Lock tlock(&(threads[tid]->ciosrv_list_mutex));
 		ciosrv::threads[tid]->ciosrv_deletion_list.insert(this);
 		//ciosrv_list[tid].erase(this);
 
@@ -795,6 +795,7 @@ ciosrv::handle_timeouts()
 				it = threads[tid]->ciosrv_timeouts.begin();
 						it != threads[tid]->ciosrv_timeouts.end(); ++it)
 		{
+			Lock lock(&(threads[tid]->ciosrv_list_mutex));
 			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(*it) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
 			{
 				WRITELOG(CIOSRV, DBG, "ciosrv::handle_timeouts(): skipping already deleted object %p "
@@ -816,13 +817,16 @@ ciosrv::handle_timeouts()
 	for (std::list<ciosrv*>::iterator
 			it = p_timeouts.begin(); it != p_timeouts.end(); ++it)
 	{
-		if (ciosrv::threads[tid]->ciosrv_deletion_list.find(*it) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
 		{
-			WRITELOG(CIOSRV, DBG, "ciosrv::handle_timeouts(): skipping already deleted object %p "
-							"(%d deleted in this round)", *it,
-							ciosrv::threads[tid]->ciosrv_deletion_list.size());
+			Lock lock(&(threads[tid]->ciosrv_list_mutex));
+			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(*it) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
+			{
+				WRITELOG(CIOSRV, DBG, "ciosrv::handle_timeouts(): skipping already deleted object %p "
+								"(%d deleted in this round)", *it,
+								ciosrv::threads[tid]->ciosrv_deletion_list.size());
 
-			continue; // do nothing for this object, as it was already deleted
+				continue; // do nothing for this object, as it was already deleted
+		}
 		}
 		(*it)->__handle_timeout();
 	}
@@ -865,14 +869,16 @@ ciosrv::__handle_timeout()
 	{
 		WRITELOG(CIOSRV, DBG, "ciosrv(%p)::__handle_timeout() calling timer => type:0x%x",
 					this, *it);
-
-		if (ciosrv::threads[tid]->ciosrv_deletion_list.find(this) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
 		{
-			return;
-		}
-		if (ciosrv::threads[tid]->ciosrv_list.find(this) == ciosrv::threads[tid]->ciosrv_list.end())
-		{
-			return;
+			Lock lock(&(threads[tid]->ciosrv_list_mutex));
+			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(this) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
+			{
+				return;
+			}
+			if (ciosrv::threads[tid]->ciosrv_list.find(this) == ciosrv::threads[tid]->ciosrv_list.end())
+			{
+				return;
+			}
 		}
 
 		handle_timeout(*it);
@@ -927,11 +933,13 @@ ciosrv::handle_events(int rc,
 		{
 			{
 				//Lock lock(&ciosrv::ciosrv_list_mutex[tid]); // for locking ciosrv_deletion_list[tid]
-
-				if (ciosrv::threads[tid]->ciosrv_deletion_list.find(*ct) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
 				{
-					WRITELOG(CIOSRV, DBG, "ciosrv()::handle_events() ciosrv:0x%x already deleted, ignoring", *ct);
-					continue;
+					Lock lock(&(threads[tid]->ciosrv_list_mutex));
+					if (ciosrv::threads[tid]->ciosrv_deletion_list.find(*ct) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
+					{
+						WRITELOG(CIOSRV, DBG, "ciosrv()::handle_events() ciosrv:0x%x already deleted, ignoring", *ct);
+						continue;
+					}
 				}
 
 				try {
@@ -982,6 +990,7 @@ ciosrv::handle_events(int rc,
 		WRITELOG(CIOSRV, DBG, "ciosrv()::handle_events() for object ciosrv:0x%x", *it);
 
 		{
+			Lock lock(&(threads[tid]->ciosrv_list_mutex));
 			//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
 			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(*it) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
 			{
@@ -1020,10 +1029,13 @@ ciosrv::handle_events(int rc,
 			delete evt;
 
 			//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
-			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(cio) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
 			{
-				WRITELOG(CIOSRV, DBG, "ciosrv()::handle_events() ciosrv:0x%x already deleted, ignoring", *it);
-				break;
+				Lock lock(&(threads[tid]->ciosrv_list_mutex));
+				if (ciosrv::threads[tid]->ciosrv_deletion_list.find(cio) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
+				{
+					WRITELOG(CIOSRV, DBG, "ciosrv()::handle_events() ciosrv:0x%x already deleted, ignoring", *it);
+					break;
+				}
 			}
 		}
 
