@@ -377,8 +377,10 @@ cftentry::sem_dec()
 	/*
 	 * THIS METHOD RUNS IN CONTEXT OF PACKET ENGINE THREAD!
 	 */
-	RwLock ulock(&usage_lock, RwLock::RWLOCK_WRITE);
-	usage_cnt = (usage_cnt > 0) ? (usage_cnt - 1) : 0;
+	{
+		RwLock ulock(&usage_lock, RwLock::RWLOCK_WRITE);
+		usage_cnt = (usage_cnt > 0) ? (usage_cnt - 1) : 0;
+	}
 
 	WRITELOG(FTE, DBG, "cftentry(%p)::sem_dec() usage_cnt: %d", this, usage_cnt);
 
