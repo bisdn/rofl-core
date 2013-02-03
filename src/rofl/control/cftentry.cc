@@ -291,6 +291,7 @@ cftentry::handle_timeout(int opaque)
 		return;
 	case TIMER_FTE_REMOVAL: {
 
+		cancel_all_timer();
 		removal_reason = OFPRR_DELETE;
 		// TODO: add owner->ftentry_removal(this);
 		delete this;
