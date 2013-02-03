@@ -816,7 +816,7 @@ cfttable::rem_ft_entry(
 
 	RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
 
-	std::set<cftentry*> deletion_list;
+	std::set<cftentry*> delete_table;
 	uint32_t out_port 	= be32toh(pack->ofh_flow_mod->out_port);
 	uint32_t out_group 	= be32toh(pack->ofh_flow_mod->out_group);
 
@@ -828,7 +828,7 @@ cfttable::rem_ft_entry(
 		}
 
 		if ((OFPP_ANY == out_port) && (OFPG_ANY == out_group)) {
-			deletion_list.insert(entry);
+			delete_table.insert(entry);
 		} else if (OFPG_ANY == out_group) {
 			// find all OFPAT_OUTPUT actions ...
 
@@ -842,7 +842,7 @@ cfttable::rem_ft_entry(
 
 					if (be16toh(action.oac_header->type) == OFPAT_OUTPUT) {
 						if (be32toh(action.oac_output->port) == out_port) {
-							deletion_list.insert(entry);
+							delete_table.insert(entry);
 						}
 					}
 				}
@@ -855,7 +855,7 @@ cfttable::rem_ft_entry(
 				if (be32toh(
 						entry->find_inst(OFPIT_WRITE_ACTIONS).
 								find_action(OFPAT_OUTPUT).oac_output->port) == out_port) {
-					deletion_list.insert(entry);
+					delete_table.insert(entry);
 				}
 			} catch (eFteInstNotFound& e) {
 			} catch (eInstructionActionNotFound& e) {
@@ -871,7 +871,7 @@ cfttable::rem_ft_entry(
 					cofaction& action = (*at);
 					if (be16toh(action.oac_header->type) == OFPAT_GROUP) {
 						if (be32toh(action.oac_group->group_id) == out_group) {
-							deletion_list.insert(entry);
+							delete_table.insert(entry);
 						}
 					}
 				}
@@ -883,7 +883,7 @@ cfttable::rem_ft_entry(
 				// ... in OFPIT_WRITE_ACTIONS (we're lucky here: only a single OFPAT_OUTPUT can exist here!)
 				if (be32toh((*it)->find_inst(OFPIT_WRITE_ACTIONS).
 						find_action(OFPAT_GROUP).oac_group->group_id) == out_group) {
-					deletion_list.insert(entry);
+					delete_table.insert(entry);
 				}
 			} catch (eFteInstNotFound& e) {
 			} catch (eInstructionActionNotFound& e) {
@@ -891,11 +891,23 @@ cfttable::rem_ft_entry(
 		}
 	}
 
-	while (not deletion_list.empty()) {
-		cftentry *entry = *(deletion_list.begin());
-		deletion_list.erase(deletion_list.begin());
-		entry->schedule_deletion();
+	/*
+	 * we cannot simply remove a cftentry instance, as it might be in use by some packet engine.
+	 * Therefore, we mark all cftentry instances for deletion in std::set delete_table.
+	 * This will result in calls to cfttable::cftentry_idle_for_deletion() where we can
+	 * safely destroy these entries.
+	 */
+	if (not delete_table.empty())
+	{
+		for (std::set<cftentry*>::iterator
+				it = delete_table.begin(); it != delete_table.end(); ++it)
+		{
+			(*it)->schedule_deletion();
+
+			flow_table.erase(*it);
+		}
 	}
+	delete_table.clear();
 
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::rem_ft_entry() cfttable.size():%d", this, flow_table.size());
 
