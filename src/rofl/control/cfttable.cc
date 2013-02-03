@@ -902,12 +902,11 @@ cfttable::rem_ft_entry(
 		for (std::set<cftentry*>::iterator
 				it = delete_table.begin(); it != delete_table.end(); ++it)
 		{
-			(*it)->schedule_deletion();
-
 			flow_table.erase(*it);
+			(*it)->schedule_deletion();
 		}
+		delete_table.clear();
 	}
-	delete_table.clear();
 
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::rem_ft_entry() cfttable.size():%d", this, flow_table.size());
 
