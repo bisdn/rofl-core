@@ -826,7 +826,11 @@ ciosrv::handle_timeouts()
 								ciosrv::threads[tid]->ciosrv_deletion_list.size());
 
 				continue; // do nothing for this object, as it was already deleted
-		}
+			}
+			if (ciosrv::threads[tid]->ciosrv_list.find(*it) == ciosrv::threads[tid]->ciosrv_list.end())
+			{
+				continue;
+			}
 		}
 		(*it)->__handle_timeout();
 	}
