@@ -885,6 +885,7 @@ ciosrv::__handle_timeout()
 			}
 		}
 		handle_timeout(*it);
+#if 0
 		{
 			Lock lock(&(threads[tid]->ciosrv_list_mutex));
 			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(this) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
@@ -896,6 +897,7 @@ ciosrv::__handle_timeout()
 				return;
 			}
 		}
+#endif
 	}
 }
 
