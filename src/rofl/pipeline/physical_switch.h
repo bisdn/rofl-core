@@ -39,7 +39,7 @@
 */
 
 //Opaque platform state (to be used, maybe, for platform hooks)
-typedef void platform_switch_state_t;
+typedef void platform_physical_switch_state_t;
 
 struct physical_switch{
 
@@ -68,7 +68,7 @@ struct physical_switch{
 	platform_mutex_t* mutex;
 	
 	//Opaque platform specific extra state 
-	platform_switch_state_t* platform_state;	
+	platform_physical_switch_state_t* platform_state;	
 };
 typedef struct physical_switch physical_switch_t; 
 
