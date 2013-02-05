@@ -12,6 +12,8 @@
  *
  */
 
+#include <stdlib.h>
+
 /*
 * Common(!) return codes
 */
