@@ -5,6 +5,7 @@
 #include "../../../platform/platform_hooks.h"
 #include "matching_algorithms/matching_algorithms_available.h"
 #include "../openflow12.h"
+#include "../of12_switch.h"
 
 #include <stdio.h>
 
@@ -73,7 +74,7 @@ unsigned int of12_destroy_pipeline(of12_pipeline_t* pipeline){
 * Packet processing through pipeline
 *
 */
-void of12_process_packet_pipeline(const of12_pipeline_t* pipeline , datapacket_t *const pkt){
+void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt){
 
 	//Loop over tables
 	unsigned int i, table_to_go;
@@ -88,10 +89,10 @@ void of12_process_packet_pipeline(const of12_pipeline_t* pipeline , datapacket_t
 	of12_init_packet_write_actions(pkt, &write_actions); 
 		
 	//FIXME: add metadata+write operations 
-	for(i=OF12_FIRST_FLOW_TABLE_INDEX;i<pipeline->num_of_tables;i++){
+	for(i=OF12_FIRST_FLOW_TABLE_INDEX;i< ((of12_switch_t*)sw)->pipeline->num_of_tables;i++){
 		
 		//Perform lookup	
-		match = of12_find_best_match_table((of12_flow_table_t* const)&pipeline->tables[i],(of12_packet_matches_t *const)&pkt_matches);	
+		match = of12_find_best_match_table((of12_flow_table_t* const)&((of12_switch_t*)sw)->pipeline->tables[i],(of12_packet_matches_t *const)&pkt_matches);
 		
 		if(match){
 			fprintf(stderr,"Matched at table: %u, entry: %p\n",i,match);
@@ -116,13 +117,13 @@ void of12_process_packet_pipeline(const of12_pipeline_t* pipeline , datapacket_t
 	
 		}else{
 			//Not matched, look for table_miss behaviour 
-			if(pipeline->tables[i].default_action == OF12_TABLE_MISS_DROP){
+			if(((of12_switch_t*)sw)->pipeline->tables[i].default_action == OF12_TABLE_MISS_DROP){
 
 				fprintf(stderr,"Table MISS_DROP %u\n",i);	
 				platform_packet_drop(pkt);
 				return;
 
-			}else if(pipeline->tables[i].default_action == OF12_TABLE_MISS_CONTROLLER){
+			}else if(((of12_switch_t*)sw)->pipeline->tables[i].default_action == OF12_TABLE_MISS_CONTROLLER){
 			
 				fprintf(stderr,"Table MISS_CONTROLLER %u\n",i);	
 				fprintf(stderr,"Packet at %p generated a PACKET_IN event to the controller\n",pkt);

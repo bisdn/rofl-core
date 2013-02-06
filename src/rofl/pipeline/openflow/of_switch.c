@@ -21,7 +21,8 @@ inline unsigned int of_process_packet_pipeline(const of_switch_t* sw, datapacket
 	
 	switch(sw->of_ver){
 		case OF_VERSION_12: 
-			of12_process_packet_pipeline(((of12_switch_t*)sw)->pipeline, pkt);
+			of12_process_packet_pipeline(sw, pkt);
+			break;
 		default: 
 			return EXIT_FAILURE;
 	}
