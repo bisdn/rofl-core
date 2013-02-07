@@ -5,6 +5,7 @@
 #include "../../../util/rofl_pipeline_utils.h"
 #include "of12_flow_table.h"
 #include "../../../common/datapacket.h"
+#include "../../of_switch.h"
 
 #define OF12_MAX_FLOWTABLES 256 //As per 1.2 spec
 
@@ -33,7 +34,7 @@ of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum match
 unsigned int of12_destroy_pipeline(of12_pipeline_t* pipeline);
 
 //Packet processing
-void of12_process_packet_pipeline(const of12_pipeline_t* pipeline, datapacket_t *const pkt);
+void of12_process_packet_pipeline(const of_switch_t* sw, datapacket_t *const pkt);
 
 //C++ extern C
 ROFL_PIPELINE_END_DECLS

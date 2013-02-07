@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-# build this before anything else
+SUBDIRS = openflow
 
 noinst_LTLIBRARIES = librofl_pipeline_platform.la
 
