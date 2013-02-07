@@ -94,6 +94,7 @@ unsigned int of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned 
 	
 	//Initialize also port structure
 	port->attached_sw = (of_switch_t*)sw;
+	port->of_port_num = port_num; 
 
 	//Return success
 	platform_mutex_unlock(sw->mutex);
@@ -119,6 +120,7 @@ unsigned int of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, 
 			
 			//Initialize port
 			port->attached_sw = (of_switch_t*)sw;
+			port->of_port_num = i; 
 				
 			//Return success
 			platform_mutex_unlock(sw->mutex);
@@ -146,6 +148,7 @@ unsigned int of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigne
 	
 	//Free port
 	sw->logical_ports[port_num].port->attached_sw = NULL;
+	sw->logical_ports[port_num].port->of_port_num = 0;
 
 	sw->logical_ports[port_num].attachment_state = LOGICAL_PORT_STATE_DETACHED;
 	sw->logical_ports[port_num].port = NULL;
@@ -171,7 +174,8 @@ unsigned int of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* port
 			
 			//Free port
 			sw->logical_ports[i].port->attached_sw = NULL;
-			
+			sw->logical_ports[i].port->of_port_num = 0;
+
 			//Detach
 			sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_DETACHED;
 			sw->logical_ports[i].port = NULL;
