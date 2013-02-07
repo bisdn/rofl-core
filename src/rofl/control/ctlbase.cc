@@ -1587,7 +1587,7 @@ ctlbase::send_flow_mod_message(
 
 		writelog(CFWD, INFO, "ctlbase(%s)::send_flow_mod_message() sending Flow-Mod: "
 				"command: %d table-id:%d idle-timeout:%d hard-timeout:%d\n"
-				"priority:%d buffer-id:%d out-port:%lu out-group:%lu flags:%d\n"
+				"priority:%d buffer-id:0x%x out-port:0x%x out-group:0x%x flags:%d\n"
 				"match => %s\n"
 				"instructions => %s\n",
 				dpname.c_str(),
