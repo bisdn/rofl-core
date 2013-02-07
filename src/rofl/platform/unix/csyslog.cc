@@ -78,11 +78,6 @@ csyslog::initlog(
 void
 csyslog::writelog(DebugClass debugClass, DebugLevel level, const char *fmt, ...)
 {
-#ifdef NDEBUG
-	if (level >= DBG)
-		return;
-#endif
-
 	if (level > debugClasses[debugClass])
 	{
 		return;
