@@ -3,6 +3,7 @@
 #include "../../../platform/lock.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/platform_hooks.h"
+#include "../../../platform/openflow/openflow12/platform_hooks_of12.h"
 #include "matching_algorithms/matching_algorithms_available.h"
 #include "../openflow12.h"
 #include "../of12_switch.h"
@@ -127,8 +128,8 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 			
 				fprintf(stderr,"Table MISS_CONTROLLER %u\n",i);	
 				fprintf(stderr,"Packet at %p generated a PACKET_IN event to the controller\n",pkt);
-				
-				platform_packet_in(sw, i, pkt, OFPR_NO_MATCH);
+
+				platform_of12_packet_in(sw, i, pkt, OFPR_NO_MATCH);
 				return;
 			}
 			//else -> continue with the pipeline	
