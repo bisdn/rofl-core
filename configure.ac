@@ -1,4 +1,4 @@
-AC_INIT(ROFL, 0.2.21, rofl@bisdn.de, rofl)
+AC_INIT(ROFL, 0.2.22, rofl@bisdn.de, rofl)
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_MACRO_DIR([m4])
 AC_GNU_SOURCE
