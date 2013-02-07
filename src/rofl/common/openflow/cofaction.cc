@@ -307,9 +307,8 @@ cofaction::length()
 const char*
 cofaction::c_str()
 {
-#ifndef NDEBUG
 	__make_info();
-#else
+#if 0
 	cvastring vas;
 	info.assign(vas("cofaction(%p)", this));
 #endif
