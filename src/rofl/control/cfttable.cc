@@ -405,7 +405,6 @@ const char*
 cfttable::c_str()
 {
 	cvastring vas(4096);
-	info.assign("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH [S]\n");
 	info.append(vas("cfttable(%p)::flow_table table_id:%d config: %d =>\n",
 			this, table_id, config));
 	int i = 0;
@@ -415,7 +414,6 @@ cfttable::c_str()
 		//info.append(vas("  %s\n\n", (*it)->c_str()));
 		info.append(vas("  [%d]: %s\n", i++, (*it)->c_str()));
 	}
-	info.append("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH [E]");
 	return info.c_str();
 }
 
