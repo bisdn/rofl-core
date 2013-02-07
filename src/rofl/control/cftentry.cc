@@ -86,10 +86,8 @@ cftentry::cftentry(
 		register_timer(TIMER_FTE_IDLE_TIMEOUT, be16toh(this->flow_mod->idle_timeout));
 	}
 
-#ifndef NDEBUG
 	// create info string for debugging
 	make_info(); // todo if no debugging is specified this should not be used
-#endif
 
 	WRITELOG(FTE, DBG, "cftentry(%p)::cftentry() [2] %s %s", this, c_str(), instructions.c_str());
 
