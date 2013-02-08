@@ -115,7 +115,8 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 
 			//Unlock the entry so that it can eventually be modified/deleted
 			platform_rwlock_rdunlock(match->rwlock);
-	
+
+			return;	
 		}else{
 			//Not matched, look for table_miss behaviour 
 			if(((of12_switch_t*)sw)->pipeline->tables[i].default_action == OF12_TABLE_MISS_DROP){
