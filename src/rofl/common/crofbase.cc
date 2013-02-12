@@ -26,6 +26,25 @@ crofbase::~crofbase()
 	crofbase::rofbases.erase(this);
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::~crofbase()", this);
 
+	rpc_close_all();
+}
+
+
+void
+crofbase::rpc_close_all()
+{
+	// close the listening sockets
+	for (std::set<csocket*>::iterator it = rpc[RPC_CTL].begin();
+			it != rpc[RPC_CTL].end(); ++it)
+	{
+		delete (*it);
+	}
+
+	for (std::set<csocket*>::iterator it = rpc[RPC_DPT].begin();
+			it != rpc[RPC_DPT].end(); ++it)
+	{
+		delete (*it);
+	}
 
 	// detach from higher layer entities
 	for (std::set<cofctl*>::iterator

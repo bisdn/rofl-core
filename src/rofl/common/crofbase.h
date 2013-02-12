@@ -241,6 +241,14 @@ public:
 	rpc_disconnect_from_dpt(
 			cofdpt *dpath);
 
+
+	/**
+	 *
+	 */
+	void
+	rpc_close_all();
+
+
 protected:
 
 
