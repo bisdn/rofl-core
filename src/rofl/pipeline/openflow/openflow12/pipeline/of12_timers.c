@@ -78,7 +78,7 @@ void of12_dump_timers_structure(of12_timer_group_t * timer_group)
 	for(i=0;i<OF12_TIMER_GROUPS_MAX;i++)
 	{
 		fprintf(stderr,"timer group on position %p\n", &(tg[i]));
-		fprintf(stderr,"	[%p] TO:%lu Nent:%d h:%p t:%p\n",&(tg[i]), tg[i].timeout,
+		fprintf(stderr,"	[%p] TO:%"PRIu64" Nent:%d h:%p t:%p\n",&(tg[i]), tg[i].timeout,
 			tg[i].list.num_of_timers, tg[i].list.head, tg[i].list.tail);
 		for(et=tg[i].list.head; et; et=et->next)
 			fprintf(stderr,"	[%p] fe:%p prev:%p next:%p tg:%p\n", et,et->entry, et->prev, et->next, et->group);

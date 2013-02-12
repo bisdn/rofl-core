@@ -373,7 +373,7 @@ cfttable::get_aggregate_flow_stats(
 
 #ifndef NDEBUG
 		fprintf(stderr, "cfttable::get_aggregate_flow_stats() "
-				"packet_count: 0x%lx byte_count: 0x%lx flow_count: 0x%lx",
+				"packet_count: 0x%"PRIx64" byte_count: 0x%"PRIx64" flow_count: 0x%"PRIx64,
 				packet_count, byte_count, flow_count);
 #endif
 	}
