@@ -18,9 +18,9 @@ struct of_switch;
 
 //Port state
 typedef enum{
-    PORT_STATE_LINK_DOWN, 
-    PORT_STATE_BLOCKED,
-    PORT_STATE_LIVE
+    PORT_STATE_LINK_DOWN	= 1 << 0, 
+    PORT_STATE_BLOCKED 		= 1 << 1,
+    PORT_STATE_LIVE 		= 1 << 2,
 }port_state_t;
 
 //Port capabilities
