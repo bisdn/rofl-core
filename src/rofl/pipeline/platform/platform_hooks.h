@@ -5,7 +5,6 @@
 
 #include "../util/rofl_pipeline_utils.h"
 #include "../common/datapacket.h"
-#include "../openflow/of_switch.h"
 
 /*
 *
@@ -16,6 +15,9 @@
 //C++ extern C
 ROFL_PIPELINE_BEGIN_DECLS
 
+/*
+* Actions over the packet
+*/
 
 /* Copy ttl */
 void platform_copy_ttl_in(datapacket_t* pkt);
@@ -91,6 +93,10 @@ void platform_output_packet(datapacket_t* pkt, uint32_t port_num);
 
 //Packet drop
 void platform_packet_drop(datapacket_t* pkt);
+
+/*
+* Packet value getters 
+*/
 
 //Ports
 uint32_t platform_get_packet_port_in(datapacket_t *const pkt);

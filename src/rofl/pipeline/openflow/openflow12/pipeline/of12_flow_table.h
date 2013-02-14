@@ -88,7 +88,6 @@ struct of12_flow_table{
 
 	uint32_t config;         	/* Bitmap of OFPTC_* values */
 	uint32_t max_entries;    	/* Max number of entries supported. */
-	uint32_t active_count;   	/* Number of active entries. */
 
 	/* 
 	* Matching algorithm related function pointers. Matching algorithm should implement them. 
