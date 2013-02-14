@@ -13,11 +13,11 @@ endif
 
 SUBDIRS = common config platform control $(EXPERIMENTAL_DIRS) $(PIPELINE_DIRS)
 
-library_includedir=$(includedir)/rofl 
-include_HEADERS=rofl.h
+#library_includedir=$(includedir)/rofl 
+#include_HEADERS=rofl.h
 
 lib_LTLIBRARIES = librofl.la
-librofl_la_SOURCES = rofl.h 
+librofl_la_SOURCES = #rofl.h 
 librofl_la_LIBADD = common/libcommon.la config/libconfig.la platform/libplatform.la $(EXPERIMENTAL_LIBS)
 
 AM_LDFLAGS= -static

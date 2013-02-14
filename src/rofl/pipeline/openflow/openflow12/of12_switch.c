@@ -4,7 +4,7 @@
 #include "../../platform/cutil.h"
 #include "../../platform/memory.h"
 #include "../of_switch.h"
-#include "../../platform/platform_of12_hooks.h"
+#include "../../platform/openflow/openflow12/platform_hooks_of12.h"
 
 /* Initializer and destructor */
 of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* list,of12_flow_table_config_t config){
@@ -47,8 +47,13 @@ of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int nu
 	}
 	
 	//Allow the platform to add specific configurations to the switch
-	platform_post_init_of12_switch(sw);
-		
+	if(platform_post_init_of12_switch(sw) != ROFL_SUCCESS){
+		of12_destroy_pipeline(sw->pipeline);	
+		cutil_free_shared(sw->name);
+		cutil_free_shared(sw);
+		return NULL;
+	}
+
 	return sw;
 }
 
@@ -57,7 +62,8 @@ unsigned int of12_destroy_switch(of12_switch_t* sw){
 	unsigned int result;
 
 	//Allow the platform to do specific things before deletion 
-	platform_pre_destroy_of12_switch(sw);
+	if(platform_pre_destroy_of12_switch(sw) != ROFL_SUCCESS)
+		return EXIT_FAILURE;
 		
 	result = of12_destroy_pipeline(sw->pipeline);
 

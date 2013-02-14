@@ -11,8 +11,7 @@ librofl_pipeline_platform_la_HEADERS = \
 	atomic_operations.h \
 	lock.h \
 	memory.h \
-	platform_hooks.h\
-	platform_of12_hooks.h
+	platform_hooks.h
 
 librofl_pipeline_platform_la_SOURCES = \
 	cutil.h \
