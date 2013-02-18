@@ -8,13 +8,12 @@
 /* Instruction type. From OF12: enum ofp_12_instruction_type */
 typedef enum {
     OF12_IT_NO_INSTRUCTION	= 0,		/* Setup the metadata field for use later in pipeline */
-    OF12_IT_APPLY_ACTIONS	= 1,		/* Applies the action(s) immediately */
-    OF12_IT_CLEAR_ACTIONS	= 2,		/* Clears all actions from the datapath action set */
+    OF12_IT_GOTO_TABLE		= 1,		/* Setup the next table in the lookup pipeline */
+    OF12_IT_WRITE_METADATA	= 2,		/* Setup the metadata field for use later in pipeline */
     OF12_IT_WRITE_ACTIONS	= 3,		/* Write the action(s) onto the datapath action set */
-    OF12_IT_WRITE_METADATA	= 4,		/* Setup the metadata field for use later in pipeline */
-
-    OF12_IT_EXPERIMENTER	= 5,		/* Experimenter instruction */
-    OF12_IT_GOTO_TABLE		= 6,		/* Setup the next table in the lookup pipeline */
+    OF12_IT_APPLY_ACTIONS	= 4,		/* Applies the action(s) immediately */
+    OF12_IT_CLEAR_ACTIONS	= 5,		/* Clears all actions from the datapath action set */
+    OF12_IT_EXPERIMENTER	= 0xFFFF,		/* Experimenter instruction */
 }of12_instruction_type_t;
 
 /* Instruction abstraction data structure */

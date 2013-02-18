@@ -42,7 +42,7 @@ typedef struct of12_switch of12_switch_t;
 ROFL_PIPELINE_BEGIN_DECLS
 
 /* Initializer and destroyer */
-of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* list,of12_flow_table_config_t config);
+of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* list,of12_flow_table_miss_config_t config);
 unsigned int of12_destroy_switch(of12_switch_t* sw);
 
 /* Port management */

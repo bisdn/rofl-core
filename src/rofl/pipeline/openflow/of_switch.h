@@ -24,7 +24,7 @@ typedef enum{
 #endif
 
 //Opaque table config (OF version agnostic)
-typedef uint32_t of_flow_table_config_t; 
+typedef uint32_t of_flow_table_miss_config_t; 
 
 //Platform dependent opaque state
 typedef void of_switch_platform_state_t;

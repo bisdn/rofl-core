@@ -35,7 +35,22 @@ typedef enum{
 	OF12_TABLE_MISS_CONTINUE   = 1 << 0, /* Continue to the next table in the */
 	OF12_TABLE_MISS_DROP       = 1 << 1, /* Drop the packet. */
 	OF12_TABLE_MISS_MASK       = 3
-}of12_flow_table_config_t; 
+}of12_flow_table_miss_config_t; 
+
+typedef struct{
+	//Configuration stuff
+	uint64_t match;		 	/* Bitmap of (1 << OFPXMT_*) that indicate the	fields the table can match on. */
+	uint64_t wildcards;      	/* Bitmap of (1 << OFPXMT_*) wildcards that are supported by the table. */
+	uint32_t write_actions;  	/* Bitmap of OFPAT_* that are supported by the table with OFPIT_WRITE_ACTIONS. */
+	uint32_t apply_actions;  	/* Bitmap of OFPAT_* that are supported by the table with OFPIT_APPLY_ACTIONS. */
+	uint64_t write_setfields;	/* Bitmap of (1 << OFPXMT_*) header fields that can be set with OFPIT_WRITE_ACTIONS. */
+	uint64_t apply_setfields;	/* Bitmap of (1 << OFPXMT_*) header fields that can be set with OFPIT_APPLY_ACTIONS. */
+	uint64_t metadata_match; 	/* Bits of metadata table can match. */
+	uint64_t metadata_write; 	/* Bits of metadata table can write. */
+	uint32_t instructions;	 	/* Bitmap of OF12_IT_* values supported. */
+	uint32_t table_miss_config;	/* Bitmap of OF12_TABLE_MISS_* values */
+}of12_flow_table_config_t;
+
 
 /**
  * Main table abstraction
@@ -51,10 +66,8 @@ struct of12_flow_table{
 	//List of flow_entry_t pointers	
 	of12_flow_entry_t* entries;
 	unsigned int num_of_entries;
+	unsigned int max_entries;    	/* Max number of entries supported. */
 
-	//Table config
-	of12_flow_table_config_t default_action;
-	
 	//Timers associated
 #if OF12_TIMER_STATIC_ALLOCATION_SLOTS
 	unsigned int current_timer_group; /*in case of static allocation indicates the timer group*/
@@ -63,6 +76,10 @@ struct of12_flow_table{
 	struct of12_timer_group* timers;
 #endif
 	
+	//Table config
+	of12_flow_table_miss_config_t default_action; 
+	of12_flow_table_config_t config;
+
 	//statistics
 	of12_stats_table_t stats;
 	
@@ -72,22 +89,6 @@ struct of12_flow_table{
 	//Mutexes
 	platform_mutex_t* mutex; //Mutual exclusion among insertion/deletion threads
 	platform_rwlock_t* rwlock; //Readers mutex
-
-	
-	//Configuration stuff
-	uint64_t match;		 	/* Bitmap of (1 << OFPXMT_*) that indicate the	fields the table can match on. */
-	uint64_t wildcards;      	/* Bitmap of (1 << OFPXMT_*) wildcards that are supported by the table. */
-	uint32_t write_actions;  	/* Bitmap of OFPAT_* that are supported by the table with OFPIT_WRITE_ACTIONS. */
-	uint32_t apply_actions;  	/* Bitmap of OFPAT_* that are supported by the table with OFPIT_APPLY_ACTIONS. */
-	uint64_t write_setfields;	/* Bitmap of (1 << OFPXMT_*) header fields that can be set with OFPIT_WRITE_ACTIONS. */
-	uint64_t apply_setfields;	/* Bitmap of (1 << OFPXMT_*) header fields that can be set with OFPIT_APPLY_ACTIONS. */
-	uint64_t metadata_match; 	/* Bits of metadata table can match. */
-	uint64_t metadata_write; 	/* Bits of metadata table can write. */
-	uint32_t instructions;	 	/* Bitmap of OFPIT_* values supported. */
-
-
-	uint32_t config;         	/* Bitmap of OFPTC_* values */
-	uint32_t max_entries;    	/* Max number of entries supported. */
 
 	/* 
 	* Matching algorithm related function pointers. Matching algorithm should implement them. 
@@ -108,7 +109,7 @@ typedef struct of12_flow_table of12_flow_table_t;
 ROFL_PIPELINE_BEGIN_DECLS
 
 //Table init and destroy
-unsigned int of12_init_table(of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_config_t config, const enum matching_algorithm_available algorithm);
+unsigned int of12_init_table(of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm);
 unsigned int of12_destroy_table(of12_flow_table_t* table);
 
 //Flow-mod installation and removal

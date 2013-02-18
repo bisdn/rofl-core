@@ -15,7 +15,7 @@
 */
 
 /* Management operations */
-of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum matching_algorithm_available* list, const of12_flow_table_config_t table_config){
+of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum matching_algorithm_available* list, const of12_flow_table_miss_config_t table_config){
 	int i;	
 	of12_pipeline_t* pipeline;
 
