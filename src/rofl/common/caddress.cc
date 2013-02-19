@@ -122,6 +122,22 @@ caddress::caddress(
 }
 
 
+caddress::caddress(
+		struct sockaddr_in6 *sa,
+		size_t salen) throw (eAddressInval) :
+		cmemory(sizeof(struct sockaddr_in6))
+{
+	if (salen < sizeof(struct sockaddr_in6))
+	{
+		throw eAddressInval();
+	}
+
+	ca_s6addr = (struct sockaddr*)somem();
+
+	memcpy((void*)ca_s6addr, (void*)sa, salen);
+}
+
+
 caddress::caddress(caddress const& ca)
 {
 	*this = ca;

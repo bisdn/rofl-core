@@ -128,6 +128,14 @@ public:
 	 *
 	 */
 	caddress(
+			struct sockaddr_in6 *sa,
+			size_t salen) throw (eAddressInval);
+
+
+	/**
+	 *
+	 */
+	caddress(
 			struct sockaddr_in *sa,
 			size_t salen) throw (eAddressInval);
 
