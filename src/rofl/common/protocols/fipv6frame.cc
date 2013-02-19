@@ -183,7 +183,7 @@ fipv6frame::c_str()
 {
 	cvastring vas;
 
-	info.assign(vas("[fipv6frame(%p) dst:%s src:%s length:%d vers:%d flow-label:0x%x tc:0x%x nxthdr:%d hops:%d ]",
+	info.assign(vas("[fipv6frame(%p) dst:%s src:%s length:0x%x vers:%d flow-label:0x%x tc:0x%x nxthdr:%d hops:%d ]",
 			this,
 			get_ipv6_dst().addr_c_str(),
 			get_ipv6_src().addr_c_str(),
