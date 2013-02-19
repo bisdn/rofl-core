@@ -2071,6 +2071,11 @@ cpacket::parse_ether(
 			parse_ipv4(p_ptr, p_len);
 		}
 		break;
+	case fipv6frame::IPV6_ETHER:
+		{
+			parse_ipv6(p_ptr, p_len);
+		}
+		break;
 	default:
 		{
 			if (p_len > 0)
@@ -2149,6 +2154,11 @@ cpacket::parse_vlan(
 	case fipv4frame::IPV4_ETHER:
 		{
 			parse_ipv4(p_ptr, p_len);
+		}
+		break;
+	case fipv6frame::IPV6_ETHER:
+		{
+			parse_ipv6(p_ptr, p_len);
 		}
 		break;
 	default:
@@ -2323,6 +2333,14 @@ cpacket::parse_ppp(
 			parse_ipv4(p_ptr, p_len);
 		}
 		break;
+	case fpppframe::PPP_PROT_IPV6:
+		{
+			p_ptr += sizeof(struct fpppframe::ppp_hdr_t);
+			p_len -= sizeof(struct fpppframe::ppp_hdr_t);
+
+			parse_ipv6(p_ptr, p_len);
+		}
+		break;
 	default:
 		{
 			ppp->unpack(p_ptr, p_len);
@@ -2425,6 +2443,18 @@ cpacket::parse_ipv4(
 			parse_icmpv4(p_ptr, p_len);
 		}
 		break;
+	case fipv6frame::IPV6_IP_PROTO:
+		{
+			parse_ipv6(p_ptr, p_len);
+		}
+		break;
+#if 0
+	case ficmpv6frame::ICMPV6_IP_PROTO:
+		{
+			parse_icmpv6(p_ptr, p_len);
+		}
+		break;
+#endif
 	case fudpframe::UDP_IP_PROTO:
 		{
 			parse_udp(p_ptr, p_len);
@@ -2488,6 +2518,26 @@ cpacket::parse_icmpv4(
 
 		frame_append(payload);
 	}
+}
+
+
+
+void
+cpacket::parse_ipv6(
+		uint8_t *data,
+		size_t datalen)
+{
+	throw eNotImplemented();
+}
+
+
+
+void
+cpacket::parse_icmpv6(
+		uint8_t *data,
+		size_t datalen)
+{
+	throw eNotImplemented();
 }
 
 

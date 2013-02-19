@@ -57,6 +57,8 @@ extern "C" {
 #include "protocols/fpppframe.h"
 #include "protocols/fipv4frame.h"
 #include "protocols/ficmpv4frame.h"
+#include "protocols/fipv6frame.h"
+//#include "protocols/ficmpv6frame.h"
 #include "protocols/farpv4frame.h"
 #include "protocols/fudpframe.h"
 #include "protocols/ftcpframe.h"
@@ -907,6 +909,24 @@ private: // methods
 	 */
 	void
 	parse_icmpv4(
+			uint8_t *data,
+			size_t datalen);
+
+
+	/**
+	 *
+	 */
+	void
+	parse_ipv6(
+			uint8_t *data,
+			size_t datalen);
+
+
+	/**
+	 *
+	 */
+	void
+	parse_icmpv6(
 			uint8_t *data,
 			size_t datalen);
 

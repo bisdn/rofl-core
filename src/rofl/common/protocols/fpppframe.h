@@ -70,6 +70,8 @@ public: // static
 		PPP_PROT_EAP 		= 0xc227, // 0xc2 0x27 in network byte order
 		PPP_PROT_IPCP 		= 0x8021, // 0x80 0x21 in network byte order
 		PPP_PROT_IPV4 		= 0x0021, // 0x00 0x21 in network byte order
+		PPP_PROT_IPV6CP 	= 0x8057, // 0x80 0x57 in network byte order
+		PPP_PROT_IPV6 		= 0x0057, // 0x00 0x57 in network byte order
 		PPP_PROT_CCP 		= 0x80fd, // 0x80 0xfd in network byte order
 	};
 

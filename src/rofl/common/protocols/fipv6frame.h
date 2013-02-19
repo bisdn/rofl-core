@@ -125,7 +125,7 @@ public: // static
 		IPPROTO_ICMP 				= 1,
 		IPPROTO_TCP 				= 6,
 		IPPROTO_UDP 				= 17,
-		IPPROTO_IPV6 				= 41,
+		IPV6_IP_PROTO 				= 41,
 		IPPROTO_IPV6_ROUTE			= 43,
 		IPPROTO_IPV6_FRAG			= 44,
 		IPPROTO_IPV6_ICMP			= 58,

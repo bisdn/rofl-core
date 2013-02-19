@@ -49,7 +49,6 @@ fipv6frame::initialize() throw (eIPv6FrameInval)
 	case IPPROTO_IPV6_HOPOPT:
 	case IPPROTO_IPV6_ROUTE:
 	case IPPROTO_IPV6_FRAG:
-	case IPPROTO_IPV6_ICMP:
 	case IPPROTO_IPV6_NONXT:
 	case IPPROTO_IPV6_OPTS:
 	case IPPROTO_IPV6_MIPV6: {
@@ -68,7 +67,6 @@ fipv6frame::initialize() throw (eIPv6FrameInval)
 			case IPPROTO_IPV6_HOPOPT:
 			case IPPROTO_IPV6_ROUTE:
 			case IPPROTO_IPV6_FRAG:
-			case IPPROTO_IPV6_ICMP:
 			case IPPROTO_IPV6_NONXT:
 			case IPPROTO_IPV6_OPTS:
 			case IPPROTO_IPV6_MIPV6: {
