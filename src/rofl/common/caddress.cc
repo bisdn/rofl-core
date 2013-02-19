@@ -132,7 +132,7 @@ caddress::caddress(
 		throw eAddressInval();
 	}
 
-	ca_s6addr = (struct sockaddr*)somem();
+	ca_s6addr = (struct sockaddr_in6*)somem();
 
 	memcpy((void*)ca_s6addr, (void*)sa, salen);
 }
