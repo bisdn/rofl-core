@@ -171,7 +171,7 @@ caddress::operator=(const caddress& ca)
 	cmemory::operator= (ca);
 
 	ca_saddr = (struct sockaddr*)somem();
-	salen = memlen();
+	salen = ca.salen;
 
 	return *this;
 }
@@ -234,6 +234,13 @@ caddress::operator== (caddress const& ca) const
 			return true;
 		}
 		break;
+	case AF_INET6:
+		if (not memcmp(ca_s6addr->sin6_addr.s6_addr, ca.ca_s6addr->sin6_addr.s6_addr,
+				sizeof(struct sockaddr_in6)))
+		{
+			return true;
+		}
+		break;
 	default:
 		throw eNotImplemented();
 	}
@@ -266,8 +273,8 @@ caddress::c_str()
 				salen));
 		break;
 	case AF_INET6:
-		inet_ntop(AF_INET, &(ca_s6addr->sin6_addr), (char*)mem.somem(), mem.memlen()-1);
-		info.assign(vas("[caddress(%p) AF_INET6/%s:%d/%d]",
+		inet_ntop(AF_INET6, &(ca_s6addr->sin6_addr), (char*)mem.somem(), mem.memlen()-1);
+		info.assign(vas("[caddress(%p) AF_INET6/%s port:%d salen:%d]",
 				this,
 				mem.somem(),
 				be16toh(ca_s6addr->sin6_port),
@@ -300,7 +307,7 @@ caddress::addr_c_str()
 		info.assign(vas("%s", mem.somem()));
 		break;
 	case AF_INET6:
-		inet_ntop(AF_INET, &(ca_s6addr->sin6_addr), (char*)mem.somem(), mem.memlen()-1);
+		inet_ntop(AF_INET6, &(ca_s6addr->sin6_addr), (char*)mem.somem(), mem.memlen()-1);
 		info.assign(vas("%s", mem.somem()));
 		break;
 	case AF_UNIX:

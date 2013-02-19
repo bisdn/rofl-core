@@ -141,10 +141,10 @@ fipv6frameTest::testSrcAddress()
 {
 	ipv6->set_ipv6_src(*ipv6_src);
 
-	printf("ipv6: %s\n", ipv6->c_str());
+	//printf("ipv6: %s\n", ipv6->c_str());
 
 	CPPUNIT_ASSERT(not memcmp(ipv6->ipv6_hdr->src, ipv6_src->ca_s6addr->sin6_addr.s6_addr, 16));
-	//CPPUNIT_ASSERT(ipv6->get_ipv6_src() == *ipv6_src);
+	CPPUNIT_ASSERT(ipv6->get_ipv6_src() == *ipv6_src);
 }
 
 
@@ -154,10 +154,10 @@ fipv6frameTest::testDstAddress()
 {
 	ipv6->set_ipv6_dst(*ipv6_dst);
 
-	printf("ipv6: %s\n", ipv6->c_str());
+	//printf("ipv6: %s\n", ipv6->c_str());
 
 	CPPUNIT_ASSERT(not memcmp(ipv6->ipv6_hdr->dst, ipv6_dst->ca_s6addr->sin6_addr.s6_addr, 16));
-	//CPPUNIT_ASSERT(ipv6->get_ipv6_dst() == *ipv6_dst);
+	CPPUNIT_ASSERT(ipv6->get_ipv6_dst() == *ipv6_dst);
 }
 
 
