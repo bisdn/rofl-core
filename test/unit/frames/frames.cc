@@ -210,6 +210,7 @@ create_payload(size_t size, uint8_t value)
 void
 check_push_pop_vlan()
 {
+	fprintf(stderr, "TEST: check_push_pop_vlan()\n");
 	cmemory start(0);
 
 	start += create_ether_header(
@@ -340,6 +341,7 @@ check_push_pop_vlan()
 void
 check_push_pop_mpls()
 {
+	fprintf(stderr, "TEST: check_push_pop_mpls()\n");
 	cmemory pack(0);
 
 	pack += create_ether_header(
@@ -353,7 +355,7 @@ check_push_pop_mpls()
 
 
 	/*
-	 * sub-test-1 => push mpls tag and set fields, pop mpls tag again
+	 * sub-test-1 => push mpls tag and set fields, pop mexpectedpls tag again
 	 */
 	{
 		cmemory result1(0);
@@ -482,6 +484,7 @@ check_push_pop_mpls()
 void
 check_push_pop_pppoe_and_ppp()
 {
+	fprintf(stderr, "TEST: check_push_pop_pppoe_and_ppp()\n");
 	cmemory pack(0);
 
 	pack += create_ether_header(
@@ -509,7 +512,7 @@ check_push_pop_pppoe_and_ppp()
 		result1 += create_ipv4_header(0x00, 38, 0x4444, 0x10, 0x00, caddress(AF_INET, "10.1.1.1"), caddress(AF_INET, "10.2.2.2"));
 		result1 += create_payload(18, 0x80);
 
-
+		fprintf(stderr, "EXPECTED: result1: %s\n", result1.c_str());
 
 
 		cpacket a1(pack.somem(), pack.memlen(), /*in_port=*/3, true);
@@ -517,9 +520,10 @@ check_push_pop_pppoe_and_ppp()
 
 
 		printf("push pppoe and ppp tags => code: 0x00, type: 0x01, sid: 0xfeed, ppp-prot: 0x0021 ...");
-		a1.push_ppp(0x0021);
+		//a1.push_ppp(0x0021);
 
 		a1.push_pppoe(0x8864);
+		a1.set_field(coxmatch_ofb_ppp_prot(0x0021));
 		a1.set_field(coxmatch_ofb_pppoe_code(0x00));
 		a1.set_field(coxmatch_ofb_pppoe_type(0x01));
 		a1.set_field(coxmatch_ofb_pppoe_sid(0xfeed));
@@ -562,6 +566,7 @@ check_push_pop_pppoe_and_ppp()
 void
 check_parser()
 {
+	fprintf(stderr, "TEST: check_parser()\n");
 	cmemory ptest(0);
 
 	ptest += create_ether_header(
@@ -612,6 +617,7 @@ check_parser()
 void
 check_pbb()
 {
+	fprintf(stderr, "TEST: check_pbb()\n");
 	try {
 		cmemory ptest(0);
 

@@ -572,9 +572,10 @@ check_push_pop_pppoe_and_ppp()
 
 
 		printf("push pppoe and ppp tags => code: 0x00, type: 0x01, sid: 0xfeed, ppp-prot: 0x0021 ...");
-		a1.push_ppp(0x0021);
+		//a1.push_ppp(0x0021);
 
 		a1.push_pppoe(0x8864);
+		a1.set_field(coxmatch_ofb_ppp_prot(0x0021));
 		a1.set_field(coxmatch_ofb_pppoe_code(0x00));
 		a1.set_field(coxmatch_ofb_pppoe_type(0x01));
 		a1.set_field(coxmatch_ofb_pppoe_sid(0xfeed));
@@ -767,7 +768,7 @@ check_fpppoeframe()
                 cmemory tags = create_payload(7, 0x00);
 
                 tags[0] = 0x01; // svcname tag
-                tags[1] = 0x99; // svcname tag
+                tags[1] = 0x01; // svcname tag
                 tags[2] = 0x00; // length
                 tags[3] = 0x03; // length
                 tags[4] = 0x41; // 'A'

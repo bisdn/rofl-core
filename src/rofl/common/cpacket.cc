@@ -1835,7 +1835,7 @@ cpacket::pop_pppoe(uint16_t ethertype)
 }
 
 
-
+#if 0
 void
 cpacket::push_ppp(uint16_t code)
 {
@@ -1859,7 +1859,7 @@ cpacket::push_ppp(uint16_t code)
 				"memory allocation failed", this);
 	}
 }
-
+#endif
 
 
 void
@@ -2955,7 +2955,7 @@ cpacket::action_pop_pppoe(
 			this, be16toh(action.oac_pop_pppoe->ethertype), c_str());
 }
 
-
+#if 0
 void
 cpacket::action_push_ppp(
 		cofaction& action)
@@ -2970,7 +2970,7 @@ cpacket::action_push_ppp(
 	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_ppp() "
 			"set to ppp [2] pack: %s", this, c_str());
 }
-
+#endif
 
 void
 cpacket::action_pop_ppp(

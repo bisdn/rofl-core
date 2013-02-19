@@ -666,12 +666,13 @@ public:
 	pop_pppoe(
 			uint16_t ethertype);
 
-
+#if 0
 	/** push ppp
 	 */
 	void
 	push_ppp(
 			uint16_t code);
+#endif
 
 	/** pop pppoe
 	 */
@@ -779,12 +780,13 @@ public: // action related methods
 		cofaction& action);
 
 
-
+#if 0
 	/**
 	 * action: push ppp
 	 */
 	void action_push_ppp(
 		cofaction& action);
+#endif
 
 
 	/**

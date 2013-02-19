@@ -1,5 +1,5 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = test1 cclock cmemory cpacket croflexp frames
+SUBDIRS = test1 cclock cmemory cpacket croflexp frames fipv6frame
 
 
