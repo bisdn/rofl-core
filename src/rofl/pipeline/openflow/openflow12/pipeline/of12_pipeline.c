@@ -31,6 +31,7 @@ of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum match
 	//Fill in
 	pipeline->num_of_tables = num_of_tables;
 
+
 	//Allocate tables and initialize	
 	pipeline->tables = (of12_flow_table_t*)cutil_malloc_shared(sizeof(of12_flow_table_t)*num_of_tables);
 	
@@ -47,7 +48,16 @@ of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum match
 			return NULL;
 		}
 	}
-	
+
+	//Set datapath capabilities
+	pipeline->capabilities = 	OF12_CAP_FLOW_STATS |
+					OF12_CAP_TABLE_STATS |
+					OF12_CAP_PORT_STATS |
+					//OF12_CAP_GROUP_STATS | //FIXME: add when groups are implemented
+					//OF12_CAP_IP_REASM |
+					OF12_CAP_QUEUE_STATS;
+					//OF12_CAP_ARP_MATCH_IP;
+
 	return pipeline;
 }
 
@@ -130,7 +140,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 				fprintf(stderr,"Table MISS_CONTROLLER %u\n",i);	
 				fprintf(stderr,"Packet at %p generated a PACKET_IN event to the controller\n",pkt);
 
-				platform_of12_packet_in(sw, i, pkt, OFPR_NO_MATCH);
+				platform_of12_packet_in(sw, i, pkt, OF12PR_NO_MATCH);
 				return;
 			}
 			//else -> continue with the pipeline	

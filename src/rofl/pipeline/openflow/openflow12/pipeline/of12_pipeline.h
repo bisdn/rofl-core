@@ -9,6 +9,17 @@
 
 #define OF12_MAX_FLOWTABLES 256 //As per 1.2 spec
 
+/* Capabilities supported by the datapath pipeline. */
+enum of12_capabilities {
+    OF12_CAP_FLOW_STATS     = 1 << 0,  /* Flow statistics. */
+    OF12_CAP_TABLE_STATS    = 1 << 1,  /* Table statistics. */
+    OF12_CAP_PORT_STATS     = 1 << 2,  /* Port statistics. */
+    OF12_CAP_GROUP_STATS    = 1 << 3,  /* Group statistics. */
+    OF12_CAP_IP_REASM       = 1 << 5,  /* Can reassemble IP fragments. */
+    OF12_CAP_QUEUE_STATS    = 1 << 6,  /* Queue statistics. */
+    OF12_CAP_ARP_MATCH_IP   = 1 << 7   /* Match IP addresses in ARP pkts. */
+};
+
 struct of12_pipeline{
 	
 	//Number of tables
@@ -17,7 +28,7 @@ struct of12_pipeline{
 	//Number of buffers
 	unsigned int num_of_buffers;
 
-	//Capabilities (OFPC_FLOW_STATS, OFPC_TABLE_STATS, ...)
+	//Capabilities (OF12_CAP_FLOW_STATS, OF12_CAP_TABLE_STATS, ...)
 	unsigned int capabilities;
 
 	//Array of tables; 

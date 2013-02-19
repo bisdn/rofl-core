@@ -39,12 +39,12 @@ typedef enum{
 
 typedef struct{
 	//Configuration stuff
-	uint64_t match;		 	/* Bitmap of (1 << OFPXMT_*) that indicate the	fields the table can match on. */
-	uint64_t wildcards;      	/* Bitmap of (1 << OFPXMT_*) wildcards that are supported by the table. */
+	uint64_t match;		 	/* Bitmap of (1 << OF12_MATCH_*) that indicate the	fields the table can match on. */
+	uint64_t wildcards;      	/* Bitmap of (1 << OF12_MATCH_*) wildcards that are supported by the table. */
 	uint32_t write_actions;  	/* Bitmap of OFPAT_* that are supported by the table with OFPIT_WRITE_ACTIONS. */
 	uint32_t apply_actions;  	/* Bitmap of OFPAT_* that are supported by the table with OFPIT_APPLY_ACTIONS. */
-	uint64_t write_setfields;	/* Bitmap of (1 << OFPXMT_*) header fields that can be set with OFPIT_WRITE_ACTIONS. */
-	uint64_t apply_setfields;	/* Bitmap of (1 << OFPXMT_*) header fields that can be set with OFPIT_APPLY_ACTIONS. */
+	uint64_t write_setfields;	/* Bitmap of (1 << OF12_MATCH_*) header fields that can be set with OFPIT_WRITE_ACTIONS. */
+	uint64_t apply_setfields;	/* Bitmap of (1 << OF12_MATCH_*) header fields that can be set with OFPIT_APPLY_ACTIONS. */
 	uint64_t metadata_match; 	/* Bits of metadata table can match. */
 	uint64_t metadata_write; 	/* Bits of metadata table can write. */
 	uint32_t instructions;	 	/* Bitmap of OF12_IT_* values supported. */

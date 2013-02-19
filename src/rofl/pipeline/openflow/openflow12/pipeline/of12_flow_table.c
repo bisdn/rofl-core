@@ -1,6 +1,7 @@
 #include "of12_flow_table.h"
 
 #include <stdio.h>
+#include "../openflow12.h"
 
 /* 
 * Openflow table operations
@@ -27,6 +28,7 @@ unsigned int of12_init_table(of12_flow_table_t* table, const unsigned int table_
 	table->number = table_index;
 	table->entries = NULL;
 	table->num_of_entries = 0;
+	table->max_entries = OF12_MAX_NUMBER_OF_TABLE_ENTRIES;
 	table->default_action = config;
 	
 	//Setting up the matching algorithm	
@@ -42,7 +44,106 @@ unsigned int of12_init_table(of12_flow_table_t* table, const unsigned int table_
 #else
 	table->timers = NULL;
 #endif
+
+	//Set default behaviour MISS Controller	
+	table->default_action = OF12_TABLE_MISS_CONTROLLER;
 	
+	/* Setting up basic characteristics of the table */
+	table->config.table_miss_config = (1 << OF12_TABLE_MISS_CONTROLLER) | (1 << OF12_TABLE_MISS_CONTINUE) | (1 << OF12_TABLE_MISS_DROP);
+
+	//Match
+	table->config.match = 	 (1UL << OF12_MATCH_IN_PHY_PORT) |
+				   //(1UL << OF12_MATCH_METADATA) |
+				   (1UL << OF12_MATCH_ETH_DST) |
+				   (1UL << OF12_MATCH_ETH_SRC) |
+				   (1UL << OF12_MATCH_ETH_TYPE) |
+				   (1UL << OF12_MATCH_VLAN_VID) |
+				   (1UL << OF12_MATCH_VLAN_PCP) |
+				   (1UL << OF12_MATCH_IP_DSCP) |
+				   (1UL << OF12_MATCH_IP_ECN) |
+				   (1UL << OF12_MATCH_IP_PROTO) |
+				   (1UL << OF12_MATCH_IPV4_SRC) |
+				   (1UL << OF12_MATCH_IPV4_DST) |
+				   (1UL << OF12_MATCH_TCP_SRC) |
+				   (1UL << OF12_MATCH_TCP_DST) |
+				   (1UL << OF12_MATCH_UDP_SRC) |
+				   (1UL << OF12_MATCH_UDP_DST) |
+				   (1UL << OF12_MATCH_SCTP_SRC) |
+				   (1UL << OF12_MATCH_SCTP_DST) |
+				   (1UL << OF12_MATCH_ICMPV4_TYPE) |
+				   (1UL << OF12_MATCH_ICMPV4_CODE) |
+				   (1UL << OF12_MATCH_MPLS_LABEL) |
+				   (1UL << OF12_MATCH_MPLS_TC) |
+				   (1UL << OF12_MATCH_PPPOE_CODE) |
+				   (1UL << OF12_MATCH_PPPOE_TYPE) |
+				   (1UL << OF12_MATCH_PPPOE_SID) |
+				   (1UL << OF12_MATCH_PPP_PROT);
+
+	//Wildcards
+	table->config.wildcards =  (1UL << OF12_MATCH_ETH_DST) |
+				   (1UL << OF12_MATCH_ETH_SRC) |
+				   (1UL << OF12_MATCH_VLAN_VID) |
+				   (1UL << OF12_MATCH_IP_DSCP) |
+				   (1UL << OF12_MATCH_IPV4_SRC) |
+				   (1UL << OF12_MATCH_IPV4_DST) |
+				   (1UL << OF12_MATCH_ICMPV4_TYPE) |
+				   (1UL << OF12_MATCH_ICMPV4_CODE) |
+				   (1UL << OF12_MATCH_MPLS_LABEL);
+
+	//Write actions and apply actions
+	table->config.apply_actions =   ( 1 << OF12PAT_OUTPUT ) |
+					( 1 << OF12PAT_COPY_TTL_OUT ) |
+					( 1 << OF12PAT_COPY_TTL_IN ) |
+					( 1 << OF12PAT_SET_MPLS_TTL ) |
+					( 1 << OF12PAT_DEC_MPLS_TTL ) |
+					( 1 << OF12PAT_PUSH_VLAN ) |
+					( 1 << OF12PAT_POP_VLAN ) |
+					( 1 << OF12PAT_PUSH_MPLS ) |
+					( 1 << OF12PAT_POP_MPLS ) |
+					( 1 << OF12PAT_SET_QUEUE ) |
+					//( 1 << OF12PAT_GROUP ) | //FIXME: add when groups are implemented 
+					( 1 << OF12PAT_SET_NW_TTL ) |
+					( 1 << OF12PAT_DEC_NW_TTL ) |
+					( 1 << OF12PAT_SET_FIELD ) |
+					( 1 << OF12PAT_PUSH_PPPOE ) |
+					( 1 << OF12PAT_POP_PPPOE );
+						
+	/*
+	//This is the translation to internal OF12_AT of above's statement
+	
+	table->config.apply_actions = (1U << OF12_AT_OUTPUT) |
+					(1U << OF12_AT_COPY_TTL_OUT) |
+					(1U << OF12_AT_COPY_TTL_IN ) |
+					(1U << OF12_AT_SET_MPLS_TTL ) |
+					(1U << OF12_AT_DEC_MPLS_TTL ) |
+					(1U << OF12_AT_PUSH_VLAN ) |
+					(1U << OF12_AT_POP_VLAN ) | 
+					(1U << OF12_AT_PUSH_MPLS ) |
+					(1U << OF12_AT_POP_MPLS ) |
+					(1U << OF12_AT_SET_QUEUE ) |
+					(1U << OF12_AT_GROUP ) |
+					(1U << OF12_AT_SET_NW_TTL ) |
+					(1U << OF12_AT_DEC_NW_TTL ) |
+					(1U << OF12_AT_SET_FIELD ) | 
+					(1U << OF12_AT_PUSH_PPPOE ) |
+					(1U << OF12_AT_POP_PPPOE );
+					//(1U << OF12_AT_EXPERIMENTER );
+	*/
+
+
+	table->config.write_actions = table->config.apply_actions;
+
+	//Write actions and apply actions set fields
+	table->config.write_setfields = table->config.match; 
+	table->config.apply_setfields = table->config.match; 
+
+	//Set fields
+	table->config.metadata_match = 0x0; //FIXME: implement METADATA
+	table->config.metadata_write = 0x0; //FIXME: implement METADATA
+	
+
+
+	//Allow matching algorithms to do stuff	
 	if(table->maf.init_hook)
 		return table->maf.init_hook(table);
 	

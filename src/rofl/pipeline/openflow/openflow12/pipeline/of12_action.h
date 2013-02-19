@@ -7,7 +7,9 @@
 #include "../../../common/datapacket.h"
 
 /* 
-* Actions over a packet as per defined in OF12. Comming from of12_12_action_type enum. WARNING: values are MODIFIED and are reorder! Order matters, as when write actions are executed are done in order 
+* Actions over a packet as per defined in OF12. Set operations are converted to actions for pipeline simplification. This is comming from of12_action_type enum. 
+
+!!WARNING: values are MODIFIED and are reorder! Order matters, as when write actions are executed are done in order 
 */
 typedef enum{
 	//No action. This MUST always exist and the value MUST be 0	
