@@ -1,8 +1,9 @@
-#include <rofl/common/protocols/fipv6frame.h>
+#include "rofl/common/protocols/fipv6frame.h"
+#include "rofl/common/cmemory.h"
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-
+using namespace rofl;
 
 class fipv6frameTest : public CppUnit::TestFixture {
 

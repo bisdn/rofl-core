@@ -11,6 +11,8 @@ int main( int argc, char **argv)
   CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry();
   runner.addTest( registry.makeTest() );
   bool wasSuccessful = runner.run( "", false );
-  return wasSuccessful;
+
+  int rc = (wasSuccessful) ? EXIT_SUCCESS : EXIT_FAILURE;
+  return rc;
 }
 
