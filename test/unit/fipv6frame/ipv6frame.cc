@@ -1,12 +1,16 @@
-#include <rofl/common/protocols/fipv6frame.h>
+#include <cppunit/extensions/TestFactoryRegistry.h>
+#include <cppunit/ui/text/TestRunner.h>
+#include "fipv6frametest.h"
 #include <stdlib.h>
 
 using namespace rofl;
 
-
-int
-main(int argc, char** argv)
+int main( int argc, char **argv)
 {
-
-	return 0;
+  CppUnit::TextUi::TestRunner runner;
+  CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry();
+  runner.addTest( registry.makeTest() );
+  bool wasSuccessful = runner.run( "", false );
+  return wasSuccessful;
 }
+
