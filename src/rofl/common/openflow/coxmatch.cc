@@ -231,13 +231,19 @@ coxmatch::c_str()
 			case OFPXMT_OFB_IPV6_DST:
 			case OFPXMT_OFB_IPV6_ND_TARGET:
 				{
-					info.assign(vas("OXM-TLV [%s:%s] => [%s] hm:%d len:%d padded-len:%d",
+					fframe f_addr(oxm_ipv6addr->addr, 16);
+					fframe f_mask((size_t)0);
+					if (get_oxm_hasmask()) {
+						f_mask = fframe(oxm_ipv6addr->mask, 16);
+					}
+					info.assign(vas("OXM-TLV [%s:%s] => hm:%d len:%d padded-len:%d addr:%s mask:%s",
 							class2desc(get_oxm_class()),
 							type2desc(get_oxm_class(), get_oxm_field()),
-							cmemory::c_str(),
 							get_oxm_hasmask(),
 							get_oxm_length(),
-							length()));
+							length(),
+							f_addr.c_str(),
+							f_mask.c_str()));
 				}
 				break;
 
@@ -290,6 +296,7 @@ coxmatch::c_str()
 			case OFPXMT_OFB_IPV4_DST:
 			case OFPXMT_OFB_ARP_SPA:
 			case OFPXMT_OFB_ARP_TPA:
+			case OFPXMT_OFB_IPV6_FLABEL:
 				{
 					caddress addr(AF_INET, "0.0.0.0");
 					addr.ca_s4addr->sin_addr.s_addr = htobe32(uint32_value());
@@ -767,7 +774,7 @@ coxmatch::oxm_typedesc_t oxm_typedesc[] = {
 	{ OFPXMT_OFB_IPV6_FLABEL, 	"IPV6_FLABEL" },
 	{ OFPXMT_OFB_ICMPV6_TYPE, 	"ICMPV6_TYPE" },
 	{ OFPXMT_OFB_ICMPV6_CODE, 	"ICMPV6_CODE" },
-	{ OFPXMT_OFB_IPV6_ND_TARGET, "IPV6_ND_TARGET" },
+	{ OFPXMT_OFB_IPV6_ND_TARGET,"IPV6_ND_TARGET" },
 	{ OFPXMT_OFB_IPV6_ND_SLL, 	"IPV6_ND_SLL" },
 	{ OFPXMT_OFB_IPV6_ND_TLL, 	"IPV6_ND_TLL" },
 	{ OFPXMT_OFB_MPLS_LABEL, 	"MPLS_LABEL" },

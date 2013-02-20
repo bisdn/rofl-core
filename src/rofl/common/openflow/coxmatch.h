@@ -33,6 +33,7 @@ extern "C" {
 #include "../cmacaddr.h"
 #include "../caddress.h"
 #include "../coflist.h"
+#include "../fframe.h"
 
 namespace rofl
 {
@@ -869,6 +870,200 @@ public:
 };
 
 
+/** OXM_OF_IPV6_SRC
+ *
+ */
+class coxmatch_ofb_ipv6_src :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_src(
+			uint8_t *addr, size_t addr_len) throw (eOxmBadLen) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 1 * 16 * sizeof(uint8_t))
+	{
+		if (addr_len < 16) {
+			throw eOxmBadLen();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_IPV6_SRC);
+		set_oxm_length(1 * 16 * sizeof(uint8_t));
+		memcpy(oxm_ipv6addr->addr, addr, 16);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_src(
+			uint8_t *addr, size_t addr_len ,
+			uint8_t *mask, size_t mask_len) throw (eOxmBadLen) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * 16 * sizeof(uint8_t))
+	{
+		if ((addr_len < 16) || (mask_len < 16)) {
+			throw eOxmBadLen();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_IPV6_SRC);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * 16 * sizeof(uint8_t));
+		memcpy(oxm_ipv6addr->addr, addr, 16);
+		memcpy(oxm_ipv6addr->mask, mask, 16);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_src(
+			caddress const& addr) throw (eOxmInval) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 1 * 16 * sizeof(uint8_t))
+	{
+		if (addr.ca_saddr->sa_family != AF_INET6) {
+			throw eOxmInval();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_IPV6_SRC);
+		set_oxm_length(1 * 16 * sizeof(uint8_t));
+		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_src(
+			caddress const& addr,
+			caddress const& mask) throw (eOxmInval) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * 16 * sizeof(uint8_t))
+	{
+		if ((addr.ca_saddr->sa_family != AF_INET6) || (mask.ca_saddr->sa_family != AF_INET6)) {
+			throw eOxmInval();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_IPV6_SRC);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * 16 * sizeof(uint8_t));
+		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
+		memcpy(oxm_ipv6addr->mask, mask.ca_s6addr->sin6_addr.s6_addr, 16);
+	};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofb_ipv6_src() {};
+};
+
+
+/** OXM_OF_IPV6_DST
+ *
+ */
+class coxmatch_ofb_ipv6_dst :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_dst(
+			uint8_t *addr, size_t addr_len) throw (eOxmBadLen) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 1 * 16 * sizeof(uint8_t))
+	{
+		if (addr_len < 16) {
+			throw eOxmBadLen();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_IPV6_DST);
+		set_oxm_length(1 * 16 * sizeof(uint8_t));
+		memcpy(oxm_ipv6addr->addr, addr, 16);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_dst(
+			uint8_t *addr, size_t addr_len ,
+			uint8_t *mask, size_t mask_len) throw (eOxmBadLen) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * 16 * sizeof(uint8_t))
+	{
+		if ((addr_len < 16) || (mask_len < 16)) {
+			throw eOxmBadLen();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_IPV6_DST);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * 16 * sizeof(uint8_t));
+		memcpy(oxm_ipv6addr->addr, addr, 16);
+		memcpy(oxm_ipv6addr->mask, mask, 16);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_dst(
+			caddress const& addr) throw (eOxmInval) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 1 * 16 * sizeof(uint8_t))
+	{
+		if (addr.ca_saddr->sa_family != AF_INET6) {
+			throw eOxmInval();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_IPV6_DST);
+		set_oxm_length(1 * 16 * sizeof(uint8_t));
+		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_dst(
+			caddress const& addr,
+			caddress const& mask) throw (eOxmInval) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * 16 * sizeof(uint8_t))
+	{
+		if ((addr.ca_saddr->sa_family != AF_INET6) || (mask.ca_saddr->sa_family != AF_INET6)) {
+			throw eOxmInval();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_IPV6_DST);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * 16 * sizeof(uint8_t));
+		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
+		memcpy(oxm_ipv6addr->mask, mask.ca_s6addr->sin6_addr.s6_addr, 16);
+	};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofb_ipv6_dst() {};
+};
+
+
+/** OXM_OF_IPV6_DST
+ *
+ */
+class coxmatch_ofb_ipv6_nd_target :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_nd_target(
+			uint8_t *addr, size_t addr_len) throw (eOxmBadLen) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 1 * 16 * sizeof(uint8_t))
+	{
+		if (addr_len < 16) {
+			throw eOxmBadLen();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_IPV6_ND_TARGET);
+		set_oxm_length(1 * 16 * sizeof(uint8_t));
+		memcpy(oxm_ipv6addr->addr, addr, 16);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_nd_target(
+			caddress const& addr) throw (eOxmInval) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 1 * 16 * sizeof(uint8_t))
+	{
+		if (addr.ca_saddr->sa_family != AF_INET6) {
+			throw eOxmInval();
+		}
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_IPV6_ND_TARGET);
+		set_oxm_length(1 * 16 * sizeof(uint8_t));
+		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
+	};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofb_ipv6_nd_target() {};
+};
+
+
 /** OXM_OF_TCP_SRC
  *
  */
@@ -1319,91 +1514,6 @@ public:
 };
 
 
-/** OXM_OF_IPV6_SRC
- *
- */
-class coxmatch_ofb_ipv6_src :
-	public coxmatch
-{
-public:
-	/** constructor
-	 */
-	coxmatch_ofb_ipv6_src(
-			caddress const& addr) throw (eOxmInval) :
-				coxmatch(sizeof(struct ofp_oxm_hdr) + 16)
-	{
-		if (addr.ca_saddr->sa_family != AF_INET6)
-		{
-			throw eOxmInval();
-		}
-		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
-		set_oxm_field(OFPXMT_OFB_IPV6_SRC);
-		set_oxm_length(16);
-		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
-	};
-	/** constructor
-	 */
-	coxmatch_ofb_ipv6_src(
-			caddress const& addr,
-			caddress const& mask) throw (eOxmInval) :
-				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * 16)
-	{
-		if ((addr.ca_saddr->sa_family != AF_INET6) || (mask.ca_saddr->sa_family != AF_INET6))
-		{
-			throw eOxmInval();
-		}
-		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
-		set_oxm_field(OFPXMT_OFB_IPV6_SRC);
-		set_oxm_hasmask(true);
-		set_oxm_length(2 * 16);
-		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
-		memcpy(oxm_ipv6addr->mask, mask.ca_s6addr->sin6_addr.s6_addr, 16);
-	};
-	/** destructor
-	 */
-	virtual
-	~coxmatch_ofb_ipv6_src() {};
-};
-
-
-
-/** OXM_OF_IPV6_DST
- *
- */
-class coxmatch_ofb_ipv6_dst :
-	public coxmatch
-{
-public:
-	/** constructor
-	 */
-	coxmatch_ofb_ipv6_dst(
-			caddress const& addr) :
-				coxmatch(sizeof(struct ofp_oxm_hdr) + 16)
-	{
-		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
-		set_oxm_field(OFPXMT_OFB_IPV6_DST);
-		set_oxm_length(16);
-		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
-	};
-	/** constructor
-	 */
-	coxmatch_ofb_ipv6_dst(
-			caddress const& addr,
-			caddress const& mask) :
-				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * 16)
-	{
-		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
-		set_oxm_field(OFPXMT_OFB_IPV6_DST);
-		set_oxm_hasmask(true);
-		set_oxm_length(2 * 16);
-		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
-		memcpy(oxm_ipv6addr->mask, mask.ca_s6addr->sin6_addr.s6_addr, 16);
-	};
-	/** destructor
-	 */
-	virtual
-	~coxmatch_ofb_ipv6_dst() {};
-};
 
 
 
@@ -1495,30 +1605,6 @@ public:
 	~coxmatch_ofb_icmpv6_code() {};
 };
 
-
-/** OXM_OF_IPV6_ND_TARGET
- *
- */
-class coxmatch_ofb_ipv6_nd_target :
-	public coxmatch
-{
-public:
-	/** constructor
-	 */
-	coxmatch_ofb_ipv6_nd_target(
-			caddress const& addr) :
-				coxmatch(sizeof(struct ofp_oxm_hdr) + 16)
-	{
-		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
-		set_oxm_field(OFPXMT_OFB_IPV6_ND_TARGET);
-		set_oxm_length(16);
-		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
-	};
-	/** destructor
-	 */
-	virtual
-	~coxmatch_ofb_ipv6_nd_target() {};
-};
 
 
 /** OXM_OF_IPV6_ND_SLL
