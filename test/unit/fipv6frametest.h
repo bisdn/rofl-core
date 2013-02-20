@@ -17,6 +17,7 @@ class fipv6frameTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testHopLimit );
 	CPPUNIT_TEST( testSrcAddress );
 	CPPUNIT_TEST( testDstAddress );
+	CPPUNIT_TEST( testAllHeaders );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -38,5 +39,6 @@ public:
 	void testHopLimit();
 	void testSrcAddress();
 	void testDstAddress();
+	void testAllHeaders();
 };
 

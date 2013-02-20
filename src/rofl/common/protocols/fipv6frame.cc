@@ -41,66 +41,50 @@ fipv6frame::initialize() throw (eIPv6FrameInval)
 		return; // ok, no valid IP version number, so we assume, this header is empty, skip all parsing below
 	}
 
+
+	// loop variables
+	uint8_t nxthdr = ipv6_hdr->nxthdr;
+	struct fipv6ext::ipv6_ext_hdr_t *ipv6ext_hdr = (struct fipv6ext::ipv6_ext_hdr_t*)(ipv6_hdr + 1);	// next (potential) IPv6 extension header
 	int reslen = framelen() - sizeof(struct ipv6_hdr_t); // remaining length without static IPv6 header
-	struct fipv6ext::ipv6_ext_hdr_t *ipv6ext_hdr = ((struct fipv6ext::ipv6_ext_hdr_t*)soframe()) + 1;	// next (potential) IPv6 extension header
 
-	// any IPv6 extension headers?
-	switch (ipv6_hdr->nxthdr) {
-	case IPPROTO_IPV6_HOPOPT:
-	case IPPROTO_IPV6_ROUTE:
-	case IPPROTO_IPV6_FRAG:
-	case IPPROTO_IPV6_NONXT:
-	case IPPROTO_IPV6_OPTS:
-	case IPPROTO_IPV6_MIPV6: {
+	while (true) {
+		// any IPv6 extension headers?
+		switch (nxthdr) {
+		case IPPROTO_IPV6_NONXT: {
+			// do nothing
+		} return;
+		case IPPROTO_IPV6_HOPOPT:
+		case IPPROTO_IPV6_ROUTE:
+		case IPPROTO_IPV6_FRAG:
+		case IPPROTO_IPV6_OPTS:
+		case IPPROTO_IPV6_MIPV6: {
 
-		// sanity check 1: remaining length must be at least 8 bytes in each extension header
-		if (reslen < 8) {
-			throw eIPv6FrameInval();
-		}
-		// sanity check 2: remaining length must be at least 8 bytes + value from ipv6_ext_hdr->len
-		if (reslen < (8 + ipv6ext_hdr->len)) {
-			throw eIPv6FrameInval();
-		}
-
-		while (true) {
-			switch (ipv6ext_hdr->nxthdr) {
-			case IPPROTO_IPV6_HOPOPT:
-			case IPPROTO_IPV6_ROUTE:
-			case IPPROTO_IPV6_FRAG:
-			case IPPROTO_IPV6_NONXT:
-			case IPPROTO_IPV6_OPTS:
-			case IPPROTO_IPV6_MIPV6: {
-
-				// sanity check 1: remaining length must be at least 8 bytes in each extension header
-				if (reslen < 8) {
-					throw eIPv6FrameInval();
-				}
-				// sanity check 2: remaining length must be at least 8 bytes + value from ipv6_ext_hdr->len
-				if (reslen < (8 + ipv6ext_hdr->len)) {
-					throw eIPv6FrameInval();
-				}
-				// real length of header extension
-				size_t extlen = 8 + ipv6ext_hdr->len;
-
-				ipv6exts.push_back(fipv6ext(ipv6ext_hdr, extlen));
-
-				// move forward
-				ipv6ext_hdr = (struct fipv6ext::ipv6_ext_hdr_t*)(((uint8_t*)ipv6ext_hdr) + extlen);
-				reslen -= extlen;
-
-			} break;
-			default: {
-				ipv6data = (uint8_t*)ipv6ext_hdr;
-				ipv6datalen = reslen;
-			} return;
+			// sanity check 1: remaining length must be at least 8 bytes (=1 block) in each extension header
+			if (reslen < 8) {
+				throw eIPv6FrameInval();
 			}
+
+			// real length of header extension in bytes
+			int extlen = 8 * (ipv6ext_hdr->len + 1);
+
+			// sanity check 2: remaining length must be at least 8 bytes * (value + 1) from ipv6_ext_hdr->len
+			if (reslen < extlen) {
+				throw eIPv6FrameInval();
+			}
+
+			ipv6exts.push_back(fipv6ext(ipv6ext_hdr, extlen));
+
+			// move forward
+			nxthdr = ipv6ext_hdr->nxthdr;
+			ipv6ext_hdr = (struct fipv6ext::ipv6_ext_hdr_t*)(((uint8_t*)ipv6ext_hdr) + extlen);
+			reslen -= extlen;
+
+		} break;
+		default: {
+			ipv6data = (uint8_t*)ipv6ext_hdr;
+			ipv6datalen = reslen;
+		} return;
 		}
-	} break;
-	// no IPv6 extensions headers, we are done
-	default: {
-		ipv6data = (uint8_t*)ipv6ext_hdr;
-		ipv6datalen = reslen;
-	}
 	}
 }
 
@@ -181,7 +165,12 @@ fipv6frame::c_str()
 {
 	cvastring vas;
 
-	info.assign(vas("[fipv6frame(%p) dst:%s src:%s length:0x%x vers:%d flow-label:0x%x tc:0x%x nxthdr:%d hops:%d ]",
+	std::string s_exts;
+	for (std::vector<fipv6ext>::iterator it = ipv6exts.begin(); it != ipv6exts.end(); ++it) {
+		s_exts.append((*it).c_str()); s_exts.append(std::string(" "));
+	}
+
+	info.assign(vas("[fipv6frame(%p) dst:%s src:%s length:0x%x vers:%d flow-label:0x%x tc:0x%x nxthdr:%d hops:%d exts(%d):%s mem:%s]",
 			this,
 			get_ipv6_dst().addr_c_str(),
 			get_ipv6_src().addr_c_str(),
@@ -190,7 +179,10 @@ fipv6frame::c_str()
 			get_flow_label(),
 			get_traffic_class(),
 			get_next_header(),
-			get_hop_limit()
+			get_hop_limit(),
+			ipv6exts.size(),
+			s_exts.c_str(),
+			fframe::c_str()
 			));
 
 	return info.c_str();

@@ -37,6 +37,9 @@ class eIPv6FrameInval 			: public eIPv6FrameBase {}; // invalid parameter
 
 
 class fipv6ext : public fframe {
+private:
+
+	std::string 			info;
 
 public: // static
 
@@ -49,7 +52,7 @@ public: // static
 
 public:
 
-	struct ipv6_ext_hdr_t *exthdr;
+	struct ipv6_ext_hdr_t 	*exthdr;
 
 public:
 	// default constructor
@@ -85,6 +88,13 @@ public:
 		fframe::operator= (ipv6ext);
 		exthdr = (struct ipv6_ext_hdr_t*)soframe();
 		return *this;
+	};
+	const char*
+	c_str() {
+		cvastring vas(256);
+		info.assign(vas("[IPv6-ext-hdr(%p): nxthdr:%d hdrextlen:%d block-cnt:%d bytes-len:%d]",
+				exthdr, exthdr->nxthdr, exthdr->len, (exthdr->len + 1), (exthdr->len + 1) * 8));
+		return info.c_str();
 	};
 };
 

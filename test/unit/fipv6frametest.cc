@@ -11,21 +11,53 @@ CPPUNIT_TEST_SUITE_REGISTRATION( fipv6frameTest );
 void
 fipv6frameTest::setUp()
 {
-	mem = new cmemory(sizeof(struct fipv6frame::ipv6_hdr_t));
-	(*(mem))[0] = 0x6a; // version = 6, tc[higher nibble]=5
-	(*(mem))[1] = 0xa3; // tc[lower nibble]=4, flow-label=3
-	(*(mem))[2] = 0x33; // flowlabel
-	(*(mem))[3] = 0x33; // flowlabel
-	(*(mem))[4] = 0x00; // payload length
-	(*(mem))[5] = 0x00; // payload length
-	(*(mem))[6] = 0x41; // next header = IPv6
-	(*(mem))[7] = 0x40; // hop limit = 64
+	mem = new cmemory(sizeof(struct fipv6frame::ipv6_hdr_t) + 7 * 8 * sizeof(uint8_t));
+	(*mem)[0] = 0x6a; // version = 6, tc[higher nibble]=a
+	(*mem)[1] = 0xa3; // tc[lower nibble]=a, flow-label=3
+	(*mem)[2] = 0x33; // flowlabel
+	(*mem)[3] = 0x33; // flowlabel
+	(*mem)[4] = 0x00; // payload length
+	(*mem)[5] = 0x00; // payload length
+	(*mem)[6] = 0x00; // next header = hop-by-hop
+	(*mem)[7] = 0x40; // hop limit = 64
 	for (int i = 8; i < 24; i++) {
 		(*(mem))[i] = 0x11; // source address
 	}
 	for (int i = 24; i < 40; i++) {
 		(*(mem))[i] = 0x22; // destination address
 	}
+
+	// hop-by-hop option
+	(*mem)[40] = 43; 	// next header: routing option
+	(*mem)[41] = 0x00;  // length = (n-1) * 8 with n=1 blocks => result=0
+	for (int i = 42; i<48; i++) {
+		(*mem)[i] = 0xaa;
+	}
+
+	// routing option
+	(*mem)[48] = 135; 	// next header: mobile IPv6 option
+	(*mem)[49] = 0x01; 	// length = (n-1) * 8 with n=2 blocks => result=1
+	for (int i = 50; i<64; i++) {
+		(*mem)[i] = 0xcc;
+	}
+
+	// mobile IPv6 option
+	(*mem)[64] = 6; 	// next header: UDP header
+	(*mem)[65] = 0x02; 	// length = (n-1) * 8 with n=3 blocks => result=2
+	for (int i = 66; i<88; i++) {
+		(*mem)[i] = 0xdd;
+	}
+
+	// UDP header
+	(*mem)[88] = 0x99;	// source port
+	(*mem)[89] = 0x99; 	// source port
+	(*mem)[90] = 0x88;	// destination port
+	(*mem)[91] = 0x88;	// destination port
+	(*mem)[92] = 0x00;	// length (including header)
+	(*mem)[93] = 0x08;	// length (including header) is 8bytes => no payload
+	(*mem)[94] = 0x00;	// no checksum calculated
+	(*mem)[95] = 0x00;	// no checksum calculated
+
 
 	ipv6 = new fipv6frame(mem->somem(), mem->memlen());
 
@@ -160,5 +192,28 @@ fipv6frameTest::testDstAddress()
 	CPPUNIT_ASSERT(ipv6->get_ipv6_dst() == *ipv6_dst);
 }
 
+
+
+void
+fipv6frameTest::testAllHeaders()
+{
+	printf("ipv6: %s\n", ipv6->c_str());
+	testVersion();
+	//printf("vers: %s\n", ipv6->c_str());
+	testTrafficClass();
+	//printf("tc: %s\n", ipv6->c_str());
+	testFlowLabel();
+	//printf("flow-label: %s\n", ipv6->c_str());
+	testPayloadLength();
+	//printf("payloadlen: %s\n", ipv6->c_str());
+	testNextHeader();
+	//printf("nxthdr: %s\n", ipv6->c_str());
+	testHopLimit();
+	//printf("hoplimit: %s\n", ipv6->c_str());
+	testSrcAddress();
+	//printf("src: %s\n", ipv6->c_str());
+	testDstAddress();
+	//printf("dst: %s\n", ipv6->c_str());
+}
 
 
