@@ -132,8 +132,8 @@ ficmpv6frame::c_str()
 
 	info.assign(vas("[ficmpv6frame(%p) type[%d] code[%d] checksum[0x%x] %s]",
 			this,
-			be16toh(icmpv6_hdr->type),
-			be16toh(icmpv6_hdr->code),
+			icmpv6_hdr->type,
+			icmpv6_hdr->code,
 			be16toh(icmpv6_hdr->checksum),
 			fframe::c_str() ));
 
