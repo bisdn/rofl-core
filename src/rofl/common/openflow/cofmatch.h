@@ -556,6 +556,72 @@ public:
 			caddress const& tpa);
 
 
+	/**
+	 *
+	 */
+	caddress
+	get_ipv6_src()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ipv6_src(
+			caddress const& addr);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ipv6_src(
+			caddress const& addr,
+			caddress const& mask);
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_ipv6_dst()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ipv6_dst(
+			caddress const& addr);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ipv6_dst(
+			caddress const& addr,
+			caddress const& mask);
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_ipv6_nd_target()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ipv6_nd_target(
+			caddress const& addr);
+
+
 
 	/**
 	 *
@@ -609,7 +675,7 @@ public:
 	/**
 	 *
 	 */
-	uint16_t
+	uint8_t
 	get_icmpv4_type()
 		throw (eOFmatchNotFound);
 
@@ -620,13 +686,13 @@ public:
 	 */
 	void
 	set_icmpv4_type(
-			uint16_t type);
+			uint8_t type);
 
 
 	/**
 	 *
 	 */
-	uint16_t
+	uint8_t
 	get_icmpv4_code()
 		throw (eOFmatchNotFound);
 
@@ -637,8 +703,90 @@ public:
 	 */
 	void
 	set_icmpv4_code(
-			uint16_t code);
+			uint8_t code);
 
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_icmpv6_type()
+		throw (eOFmatchNotFound);
+
+
+
+	/**
+	 *
+	 */
+	void
+	set_icmpv6_type(
+			uint8_t type);
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_icmpv6_code()
+		throw (eOFmatchNotFound);
+
+
+
+	/**
+	 *
+	 */
+	void
+	set_icmpv6_code(
+			uint8_t code);
+
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_ipv6_flabel()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ipv6_flabel(
+			uint32_t flabel);
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_ipv6_nd_sll()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ipv6_nd_sll(
+			cmacaddr const& maddr);
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_ipv6_nd_tll()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_ipv6_nd_tll(
+			cmacaddr const& maddr);
 
 
 	/**

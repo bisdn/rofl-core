@@ -847,6 +847,122 @@ cofmatch::set_arp_tpa(
 
 
 
+
+caddress
+cofmatch::get_ipv6_src()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_SRC))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	caddress addr(sizeof(struct sockaddr_in6));
+	addr.ca_saddr->sa_family = AF_INET6;
+	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxmlist[OFPXMT_OFB_IPV6_SRC].oxm_ipv6addr->addr, 16);
+
+	if (oxmlist[OFPXMT_OFB_IPV6_SRC].get_oxm_hasmask())
+	{
+		caddress mask(sizeof(struct sockaddr_in6));
+		mask.ca_saddr->sa_family = AF_INET6;
+		memcpy(mask.ca_s6addr->sin6_addr.s6_addr, oxmlist[OFPXMT_OFB_IPV6_SRC].oxm_ipv6addr->mask, 16);
+		addr = addr & mask;
+	}
+	return addr;
+}
+
+
+
+void
+cofmatch::set_ipv6_src(
+		caddress const& addr)
+{
+	oxmlist[OFPXMT_OFB_IPV6_SRC] = coxmatch_ofb_ipv6_src(addr);
+}
+
+
+
+void
+cofmatch::set_ipv6_src(
+		caddress const& addr,
+		caddress const& mask)
+{
+	oxmlist[OFPXMT_OFB_IPV6_SRC] = coxmatch_ofb_ipv6_src(addr, mask);
+}
+
+
+
+caddress
+cofmatch::get_ipv6_dst()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_DST))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	caddress addr(sizeof(struct sockaddr_in6));
+	addr.ca_saddr->sa_family = AF_INET6;
+	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxmlist[OFPXMT_OFB_IPV6_DST].oxm_ipv6addr->addr, 16);
+
+	if (oxmlist[OFPXMT_OFB_IPV6_DST].get_oxm_hasmask())
+	{
+		caddress mask(sizeof(struct sockaddr_in6));
+		mask.ca_saddr->sa_family = AF_INET6;
+		memcpy(mask.ca_s6addr->sin6_addr.s6_addr, oxmlist[OFPXMT_OFB_IPV6_DST].oxm_ipv6addr->mask, 16);
+		addr = addr & mask;
+	}
+	return addr;
+}
+
+
+
+void
+cofmatch::set_ipv6_dst(
+		caddress const& addr)
+{
+	oxmlist[OFPXMT_OFB_IPV6_DST] = coxmatch_ofb_ipv6_dst(addr);
+}
+
+
+
+void
+cofmatch::set_ipv6_dst(
+		caddress const& addr,
+		caddress const& mask)
+{
+	oxmlist[OFPXMT_OFB_IPV6_DST] = coxmatch_ofb_ipv6_dst(addr, mask);
+}
+
+
+
+caddress
+cofmatch::get_ipv6_nd_target()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_TARGET))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	caddress addr(sizeof(struct sockaddr_in6));
+	addr.ca_saddr->sa_family = AF_INET6;
+	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxmlist[OFPXMT_OFB_IPV6_ND_TARGET].oxm_ipv6addr->addr, 16);
+
+	return addr;
+}
+
+
+
+void
+cofmatch::set_ipv6_nd_target(
+		caddress const& addr)
+{
+	oxmlist[OFPXMT_OFB_IPV6_ND_TARGET] = coxmatch_ofb_ipv6_nd_target(addr);
+}
+
+
+
 uint8_t
 cofmatch::get_ip_proto()
 	throw (eOFmatchNotFound)
@@ -916,7 +1032,7 @@ cofmatch::set_ip_ecn(
 
 
 
-uint16_t
+uint8_t
 cofmatch::get_icmpv4_type()
 	throw (eOFmatchNotFound)
 {
@@ -925,21 +1041,21 @@ cofmatch::get_icmpv4_type()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_ICMPV4_TYPE].uint16_value();
+	return oxmlist[OFPXMT_OFB_ICMPV4_TYPE].uint8_value();
 }
 
 
 
 void
 cofmatch::set_icmpv4_type(
-		uint16_t type)
+		uint8_t type)
 {
 	oxmlist[OFPXMT_OFB_ICMPV4_TYPE] = coxmatch_ofb_icmpv4_type(type);
 }
 
 
 
-uint16_t
+uint8_t
 cofmatch::get_icmpv4_code()
 	throw (eOFmatchNotFound)
 {
@@ -948,16 +1064,147 @@ cofmatch::get_icmpv4_code()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_ICMPV4_CODE].uint16_value();
+	return oxmlist[OFPXMT_OFB_ICMPV4_CODE].uint8_value();
 }
 
 
 
 void
 cofmatch::set_icmpv4_code(
-		uint16_t code)
+		uint8_t code)
 {
 	oxmlist[OFPXMT_OFB_ICMPV4_CODE] = coxmatch_ofb_icmpv4_code(code);
+}
+
+
+
+uint8_t
+cofmatch::get_icmpv6_type()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ICMPV6_TYPE))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist[OFPXMT_OFB_ICMPV6_TYPE].uint8_value();
+}
+
+
+
+void
+cofmatch::set_icmpv6_type(
+		uint8_t type)
+{
+	oxmlist[OFPXMT_OFB_ICMPV6_TYPE] = coxmatch_ofb_icmpv6_type(type);
+}
+
+
+
+uint8_t
+cofmatch::get_icmpv6_code()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ICMPV6_CODE))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist[OFPXMT_OFB_ICMPV6_CODE].uint8_value();
+}
+
+
+
+void
+cofmatch::set_icmpv6_code(
+		uint8_t code)
+{
+	oxmlist[OFPXMT_OFB_ICMPV6_CODE] = coxmatch_ofb_icmpv6_code(code);
+}
+
+
+
+uint32_t
+cofmatch::get_ipv6_flabel()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_FLABEL))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist[OFPXMT_OFB_IPV6_FLABEL].uint32_value();
+}
+
+
+
+void
+cofmatch::set_ipv6_flabel(
+		uint32_t flabel)
+{
+	oxmlist[OFPXMT_OFB_IPV6_FLABEL] = coxmatch_ofb_ipv6_flabel(flabel);
+}
+
+
+
+cmacaddr
+cofmatch::get_ipv6_nd_sll()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_SLL))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	cmacaddr maddr(oxmlist[OFPXMT_OFB_IPV6_ND_SLL].oxm_uint48t->value, OFP_ETH_ALEN);
+
+	cmacaddr mask("ff:ff:ff:ff:ff:ff");
+	if (oxmlist[OFPXMT_OFB_IPV6_ND_SLL].get_oxm_hasmask())
+	{
+		mask.assign(oxmlist[OFPXMT_OFB_IPV6_ND_SLL].oxm_uint48t->mask, OFP_ETH_ALEN);
+	}
+
+	return (maddr & mask);
+}
+
+
+
+void
+cofmatch::set_ipv6_nd_sll(
+		cmacaddr const& maddr)
+{
+	oxmlist[OFPXMT_OFB_IPV6_ND_SLL] = coxmatch_ofb_ipv6_nd_sll(maddr);
+}
+
+
+
+cmacaddr
+cofmatch::get_ipv6_nd_tll()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_TLL))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	cmacaddr maddr(oxmlist[OFPXMT_OFB_IPV6_ND_TLL].oxm_uint48t->value, OFP_ETH_ALEN);
+
+	cmacaddr mask("ff:ff:ff:ff:ff:ff");
+	if (oxmlist[OFPXMT_OFB_IPV6_ND_TLL].get_oxm_hasmask())
+	{
+		mask.assign(oxmlist[OFPXMT_OFB_IPV6_ND_TLL].oxm_uint48t->mask, OFP_ETH_ALEN);
+	}
+
+	return (maddr & mask);
+}
+
+
+
+void
+cofmatch::set_ipv6_nd_tll(
+		cmacaddr const& maddr)
+{
+	oxmlist[OFPXMT_OFB_IPV6_ND_TLL] = coxmatch_ofb_ipv6_nd_tll(maddr);
 }
 
 
