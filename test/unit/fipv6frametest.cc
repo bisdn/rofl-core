@@ -197,7 +197,7 @@ fipv6frameTest::testDstAddress()
 void
 fipv6frameTest::testAllHeaders()
 {
-	printf("ipv6: %s\n", ipv6->c_str());
+	//printf("ipv6: %s\n", ipv6->c_str());
 	testVersion();
 	//printf("vers: %s\n", ipv6->c_str());
 	testTrafficClass();
