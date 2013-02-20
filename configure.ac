@@ -222,7 +222,6 @@ AC_CONFIG_FILES([
 	test/unit/cpacket/Makefile
 	test/unit/croflexp/Makefile
 	test/unit/frames/Makefile
-	test/unit/fipv6frame/Makefile
 
 	doc/Makefile
 	])
