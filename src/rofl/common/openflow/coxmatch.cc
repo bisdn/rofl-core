@@ -296,7 +296,6 @@ coxmatch::c_str()
 			case OFPXMT_OFB_IPV4_DST:
 			case OFPXMT_OFB_ARP_SPA:
 			case OFPXMT_OFB_ARP_TPA:
-			case OFPXMT_OFB_IPV6_FLABEL:
 				{
 					caddress addr(AF_INET, "0.0.0.0");
 					addr.ca_s4addr->sin_addr.s_addr = htobe32(uint32_value());
@@ -305,6 +304,18 @@ coxmatch::c_str()
 							class2desc(get_oxm_class()),
 							type2desc(get_oxm_class(), get_oxm_field()),
 							addr.addr_c_str(),
+							get_oxm_hasmask(),
+							get_oxm_length(),
+							length()));
+				}
+				break;
+
+			case OFPXMT_OFB_IPV6_FLABEL:
+				{
+					info.assign(vas("OXM-TLV [%s:%s] => [%d] hm:%d len:%d padded-len:%d",
+							class2desc(get_oxm_class()),
+							type2desc(get_oxm_class(), get_oxm_field()),
+							uint32_value(),
 							get_oxm_hasmask(),
 							get_oxm_length(),
 							length()));
