@@ -58,7 +58,7 @@ extern "C" {
 #include "protocols/fipv4frame.h"
 #include "protocols/ficmpv4frame.h"
 #include "protocols/fipv6frame.h"
-//#include "protocols/ficmpv6frame.h"
+#include "protocols/ficmpv6frame.h"
 #include "protocols/farpv4frame.h"
 #include "protocols/fudpframe.h"
 #include "protocols/ftcpframe.h"
@@ -82,6 +82,8 @@ class fudpframe;
 class ftcpframe;
 class fsctpframe;
 class fetherframe;
+class fipv6frame;
+class ficmpv6frame;
 
 
 
@@ -532,6 +534,22 @@ public:
 	 */
 	ficmpv4frame*
 	icmpv4(
+			int i = 0) throw (ePacketNotFound);
+
+	/** return pointer to this->ipv6 frame
+	 * keep in mind: valid only while this instance is alive!
+	 *
+	 */
+	fipv6frame*
+	ipv6(
+			int i = 0) throw (ePacketNotFound);
+
+	/** return pointer to this->icmpv6 frame
+	 * keep in mind: valid only while this instance is alive!
+	 *
+	 */
+	ficmpv6frame*
+	icmpv6(
 			int i = 0) throw (ePacketNotFound);
 
 	/** return pointer to this->udp frame

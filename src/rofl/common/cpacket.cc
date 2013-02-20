@@ -1046,6 +1046,129 @@ cpacket::icmpv4(int i) throw (ePacketNotFound)
 }
 
 
+
+fipv6frame*
+cpacket::ipv6(int i) throw (ePacketNotFound)
+{
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<fipv6frame*>( frame ))
+			{
+				return (dynamic_cast<fipv6frame*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<fipv6frame*>( frame ))
+			{
+				return (dynamic_cast<fipv6frame*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
+}
+
+
+
+ficmpv6frame*
+cpacket::icmpv6(int i) throw (ePacketNotFound)
+{
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<ficmpv6frame*>( frame ))
+			{
+				return (dynamic_cast<ficmpv6frame*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<ficmpv6frame*>( frame ))
+			{
+				return (dynamic_cast<ficmpv6frame*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
+}
+
+
+
 fudpframe*
 cpacket::udp(int i) throw (ePacketNotFound)
 {
@@ -2448,7 +2571,7 @@ cpacket::parse_ipv4(
 			parse_ipv6(p_ptr, p_len);
 		}
 		break;
-#if 0
+#if THIS_DOES_NOT_MAKE_SENSE_HERE
 	case ficmpv6frame::ICMPV6_IP_PROTO:
 		{
 			parse_icmpv6(p_ptr, p_len);
@@ -2527,7 +2650,72 @@ cpacket::parse_ipv6(
 		uint8_t *data,
 		size_t datalen)
 {
-	throw eNotImplemented();
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
+
+	if (p_len < sizeof(struct fipv6frame::ipv6_hdr_t)) // base header
+	{
+		return;
+	}
+
+	fipv6frame *ip = new fipv6frame(p_ptr, sizeof(struct fipv6frame::ipv6_hdr_t));
+
+	match.set_ip_proto(ip->get_next_header());
+	match.set_ipv6_dst(ip->get_ipv6_dst());
+	match.set_ipv6_src(ip->get_ipv6_src());
+	match.set_ipv6_flabel(ip->get_flow_label());
+
+
+	frame_append(ip);
+
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_ipv6() "
+			"ip: %s\nmatch: %s", this, ip->c_str(), match.c_str());
+
+	p_ptr += sizeof(struct fipv6frame::ipv6_hdr_t);
+	p_len -= sizeof(struct fipv6frame::ipv6_hdr_t);
+
+	switch (match.get_ip_proto()) {
+	case fipv4frame::IPV4_IP_PROTO:
+		{
+			parse_ipv4(p_ptr, p_len);
+		}
+		break;
+	case fipv6frame::IPV6_IP_PROTO:
+		{
+			parse_ipv6(p_ptr, p_len);
+		}
+		break;
+	case ficmpv6frame::ICMPV6_IP_PROTO:
+		{
+			parse_icmpv6(p_ptr, p_len);
+		}
+		break;
+	case fudpframe::UDP_IP_PROTO:
+		{
+			parse_udp(p_ptr, p_len);
+		}
+		break;
+	case ftcpframe::TCP_IP_PROTO:
+		{
+			parse_tcp(p_ptr, p_len);
+		}
+		break;
+	case fsctpframe::SCTP_IP_PROTO:
+		{
+			parse_sctp(p_ptr, p_len);
+		}
+		break;
+	default:
+		{
+			if (p_len > 0)
+			{
+				fframe *payload = new fframe(p_ptr, p_len);
+
+				frame_append(payload);
+			}
+		}
+		break;
+	}
 }
 
 
@@ -2537,7 +2725,34 @@ cpacket::parse_icmpv6(
 		uint8_t *data,
 		size_t datalen)
 {
-	throw eNotImplemented();
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
+
+	if (p_len < sizeof(struct ficmpv6frame::icmpv6_hdr_t))
+	{
+		return;
+	}
+
+	ficmpv6frame *icmp = new ficmpv6frame(p_ptr, sizeof(struct ficmpv6frame::icmpv6_hdr_t));
+
+	match.set_icmpv6_type(icmp->get_icmpv6_type());
+	match.set_icmpv6_code(icmp->get_icmpv6_code());
+
+	frame_append(icmp);
+
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_icmpv6() "
+			"icmp: %s\nmatch: %s", this, icmp->c_str(), match.c_str());
+
+	p_ptr += sizeof(struct ficmpv6frame::icmpv6_hdr_t);
+	p_len -= sizeof(struct ficmpv6frame::icmpv6_hdr_t);
+
+
+	if (p_len > 0)
+	{
+		fframe *payload = new fframe(p_ptr, p_len);
+
+		frame_append(payload);
+	}
 }
 
 
