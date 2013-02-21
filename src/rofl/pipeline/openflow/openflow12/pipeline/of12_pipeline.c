@@ -110,6 +110,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 			table_to_go = of12_process_instructions(sw, i, pkt, &match->instructions);
 	
 			if(table_to_go > i && table_to_go < OF12_MAX_FLOWTABLES){
+
 				fprintf(stderr,"Going to table %u->%u\n",i,table_to_go);
 				i = table_to_go-1;
 

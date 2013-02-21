@@ -71,6 +71,7 @@ unsigned int of12_process_instructions(const struct of_switch* sw, const unsigne
 
 	unsigned int i;
 
+	//Although of12_instruction_type_t uses the same numbering of OF1.2, which is stupidly not in order, we have to do this to make endpoints easier to code.
 	for(i=0;i<OF12_IT_GOTO_TABLE;i++){
 	
 		//Check all instructions in order 
