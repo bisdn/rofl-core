@@ -1521,36 +1521,34 @@ public:
 
 public:
 
-	// COFSWITCH related methods
+	// cofdpt related methods
 	//
 
 	/** find cofswitch instance
 	 */
-	cofdpt&
-	dpath_find(
+	cofdpt*
+	dpt_find(
 		uint64_t dpid) throw (eRofBaseNotFound);
 
-	cofdpt&
-	dpath_find(
+	cofdpt*
+	dpt_find(
 		std::string s_dpid) throw (eRofBaseNotFound);
 
-	cofdpt&
-	dpath_find(
+	cofdpt*
+	dpt_find(
 		cmacaddr dl_dpid) throw (eRofBaseNotFound);
 
-
-	/** find cofswitch instance
-	 */
 	cofdpt*
-	ofswitch_find(
+	dpt_find(
 			cofdpt* dpt) throw (eRofBaseNotFound);
 
-
+#if 0
 	/** find cofswitch instance
 	 */
 	cofdpt*
 	ofswitch_exists(
 			const cofdpt *ofswitch) throw (eRofBaseNotFound);
+#endif
 
 	// COFCTRL related methods
 	//
@@ -1559,16 +1557,16 @@ public:
 	/** find cofctrl instance
 	 */
 	cofctl*
-	ofctrl_find(
+	ctl_find(
 			cofctl* entity) throw (eRofBaseNotFound);
 
-
+#if 0
 	/** find cofctrl instance
 	 */
 	cofctl*
-	ofctrl_exists(
+	ctl_exists(
 			const cofctl *ofctrl) throw (eRofBaseNotFound);
-
+#endif
 
 	/** for use by cofdpt
 	 *
