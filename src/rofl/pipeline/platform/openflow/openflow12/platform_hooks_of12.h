@@ -13,6 +13,15 @@
 #include "../../../openflow/openflow12/of12_switch.h"
 #include "../../../../pipeline/common/datapacket.h"
 
+/*
+* Packet-in reason (of12p_packet_in_reason enum)
+*/
+enum of12_packet_in_reason {
+    OF12_PKT_IN_NO_MATCH = 0,      /* No matching flow. */
+    OF12_PKT_IN_ACTION = 1,        /* Action explicitly output to controller. */
+    OF12_PKT_IN_INVALID_TTL = 2	/* Packet has invalid TTL */
+};
+
 //C++ extern C
 ROFL_PIPELINE_BEGIN_DECLS
 

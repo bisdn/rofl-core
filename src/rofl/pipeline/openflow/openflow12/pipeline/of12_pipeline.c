@@ -5,7 +5,6 @@
 #include "../../../platform/platform_hooks.h"
 #include "../../../platform/openflow/openflow12/platform_hooks_of12.h"
 #include "matching_algorithms/matching_algorithms_available.h"
-#include "../openflow12.h"
 #include "../of12_switch.h"
 
 #include <stdio.h>
@@ -100,7 +99,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 	of12_init_packet_write_actions(pkt, &write_actions); 
 		
 	//FIXME: add metadata+write operations 
-	for(i=OF12_FIRST_FLOW_TABLE_INDEX;i< ((of12_switch_t*)sw)->pipeline->num_of_tables;i++){
+	for(i=OF12_FIRST_FLOW_TABLE_INDEX; i < ((of12_switch_t*)sw)->pipeline->num_of_tables ; i++){
 		
 		//Perform lookup	
 		match = of12_find_best_match_table((of12_flow_table_t* const)&((of12_switch_t*)sw)->pipeline->tables[i],(of12_packet_matches_t *const)&pkt_matches);
@@ -108,7 +107,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 		if(match){
 			fprintf(stderr,"Matched at table: %u, entry: %p\n",i,match);
 
-			table_to_go = of12_process_instructions(pkt, &match->instructions);
+			table_to_go = of12_process_instructions(sw, i, pkt, &match->instructions);
 	
 			if(table_to_go > i && table_to_go < OF12_MAX_FLOWTABLES){
 				fprintf(stderr,"Going to table %u->%u\n",i,table_to_go);
@@ -121,7 +120,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 			}
 
 			//Process WRITE actions
-			of12_process_write_actions(pkt);
+			of12_process_write_actions(sw, i, pkt);
 
 			//Unlock the entry so that it can eventually be modified/deleted
 			platform_rwlock_rdunlock(match->rwlock);
@@ -140,7 +139,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 				fprintf(stderr,"Table MISS_CONTROLLER %u\n",i);	
 				fprintf(stderr,"Packet at %p generated a PACKET_IN event to the controller\n",pkt);
 
-				platform_of12_packet_in(sw, i, pkt, OF12PR_NO_MATCH);
+				platform_of12_packet_in(sw, i, pkt, OF12_PKT_IN_NO_MATCH);
 				return;
 			}
 			//else -> continue with the pipeline	

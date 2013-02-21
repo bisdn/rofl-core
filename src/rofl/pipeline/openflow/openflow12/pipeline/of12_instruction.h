@@ -40,6 +40,8 @@ typedef struct{
 	of12_instruction_t instructions[OF12_IT_GOTO_TABLE]; //Latest must ALWAYS be go to table
 }of12_instruction_group_t;
 
+//Fwd declaration
+struct of_switch;
 
 /*
 *
@@ -58,7 +60,7 @@ void of12_destroy_instruction_group(of12_instruction_group_t* group);
 void of12_add_instruction_to_group(of12_instruction_group_t* group, of12_instruction_type_t type, of12_action_group_t* apply_actions, of12_write_actions_t* write_actions, unsigned int go_to_table);
 void of12_remove_instruction_from_the_group(of12_instruction_group_t* group, of12_instruction_type_t type);
 
-unsigned int of12_process_instructions(datapacket_t *const pkt, const of12_instruction_group_t* instructions);
+unsigned int of12_process_instructions(const struct of_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of12_instruction_group_t* instructions);
 
 //Dump
 void of12_dump_instructions(of12_instruction_group_t group);
