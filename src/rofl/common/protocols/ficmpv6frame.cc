@@ -6,14 +6,15 @@
 
 using namespace rofl;
 
+
 ficmpv6frame::ficmpv6frame(
 		uint8_t* data,
 		size_t datalen) :
 		fframe(data, datalen),
-		icmpv6_hdr(0),
 		data(0),
 		datalen(0)
 {
+	icmpv6_hdr = 0;
 	initialize();
 }
 
@@ -209,5 +210,59 @@ void
 ficmpv6frame::set_icmpv6_type(uint8_t type)
 {
 	icmpv6_hdr->type = type;
+}
+
+
+
+
+ficmpv6opt::ficmpv6opt(
+		uint8_t *data,
+		size_t datalen) :
+				fframe(data, datalen)
+{
+	icmpv6_opt = (struct icmpv6_option_hdr_t*)data;
+}
+
+ficmpv6opt::ficmpv6opt(
+		struct icmpv6_option_hdr_t *data,
+		size_t datalen) :
+				fframe((uint8_t*)data, datalen)
+{
+	icmpv6_opt = (struct icmpv6_option_hdr_t*)data;
+}
+
+ficmpv6opt::~ficmpv6opt()
+{
+
+}
+
+ficmpv6opt::ficmpv6opt(
+		ficmpv6opt const& opt) :
+				fframe((size_t)opt.framelen())
+{
+	*this = opt;
+}
+
+ficmpv6opt&
+ficmpv6opt::operator= (ficmpv6opt const& opt)
+{
+	if (this == &opt)
+		return *this;
+
+	fframe::operator= (opt);
+
+	icmpv6_opt = (struct icmpv6_option_hdr_t*)soframe();
+
+	return *this;
+}
+
+const char*
+ficmpv6opt::c_str()
+{
+	cvastring vas;
+
+	info.assign(vas("[ficmvp6opt(%p) ]", this));
+
+	return info.c_str();
 }
 

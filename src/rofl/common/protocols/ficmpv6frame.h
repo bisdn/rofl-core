@@ -27,8 +27,115 @@ namespace rofl
 {
 
 class eICMPv6FrameBase 				: public eFrameBase {};
+class eICMPv6FrameInvalType			: public eICMPv6FrameBase {};
+class eICMPv6FrameInvalCode			: public eICMPv6FrameBase {};
 class eICMPv6FrameInvalidSyntax 	: public eICMPv6FrameBase, public eFrameInvalidSyntax {};
 class eICMPv6FrameTooShort			: public eICMPv6FrameInvalidSyntax {};
+
+
+
+
+
+
+
+class ficmpv6opt : public fframe {
+
+	#define IPV6_ADDR_LEN		16
+	#define ETHER_ADDR_LEN		6
+
+	std::string 						info;
+
+public: // static definitions and constants
+
+	/*
+	 * ICMPv6 NDP options
+	 */
+
+	/* ICMPv6 generic option header */
+	struct icmpv6_option_hdr_t {
+		uint8_t 						type;
+		uint8_t							len;
+		uint8_t 						data[0];
+	} __attribute__((packed));
+
+
+	/* ICMPv6 link layer address option */
+	struct icmpv6_lla_option_t {
+		struct icmpv6_option_hdr_t		hdr;
+		uint8_t							addr[ETHER_ADDR_LEN]; // len=1 (in 8-octets wide blocks) and we assume Ethernet here
+	} __attribute__((packed));
+
+	enum icmpv6_lla_type_t {
+		ICMPV6_LLADDR_SOURCE 			= 1,
+		ICMPV6_LLADDR_TARGET 			= 2,
+	};
+
+	/* ICMPv6 prefix information option */
+	struct icmpv6_prefix_info_t {
+		struct icmpv6_option_hdr_t		hdr;
+		uint8_t							pfxlen;
+		uint8_t							flags;
+		uint32_t						valid_lifetime;
+		uint32_t						preferred_lifetime;
+		uint32_t						reserved;
+		uint8_t							prefix[IPV6_ADDR_LEN];
+	} __attribute__((packed));
+
+	/* ICMPv6 redirected option header */
+	struct icmpv6_redirected_hdr_t {
+		struct icmpv6_option_hdr_t		hdr;
+		uint8_t							reserved[6];
+		uint8_t							data[0];
+	} __attribute__((packed));
+
+	/* ICMPv6 MTU option */
+	struct icmpv6_mtu_t {
+		struct icmpv6_option_hdr_t		hdr;
+		uint8_t							reserved[2];
+		uint32_t						mtu;
+	} __attribute__((packed));
+
+public:
+
+	union {
+		struct icmpv6_option_hdr_t		*optu;
+		struct icmpv6_lla_option_t		*optu_lla;
+		struct icmpv6_prefix_info_t		*optu_pfx;
+		struct icmpv6_redirected_hdr_t	*optu_rdr;
+		struct icmpv6_mtu_t				*optu_mtu;
+	} icmpv6optu;
+
+#define icmpv6_opt			icmpv6optu.optu
+#define icmpv6_opt_lla		icmpv6optu.optu_lla
+#define icmpv6_opt_pfx		icmpv6optu.optu_pfx
+#define icmpv6_opt_rdr		icmpv6optu.optu_rdr
+#define icmpv6_opt_mtu		icmpv6optu.optu_mtu
+
+public:
+	/**
+	 */
+	ficmpv6opt(uint8_t *data, size_t datalen);
+	/**
+	 */
+	ficmpv6opt(struct icmpv6_option_hdr_t *data, size_t datalen);
+	/**
+	 */
+	virtual ~ficmpv6opt();
+	/** copy constructor
+	 */
+	ficmpv6opt(ficmpv6opt const& opt);
+	/** assignment operator
+	 */
+	ficmpv6opt& operator= (ficmpv6opt const& opt);
+	/**
+	 */
+	virtual const char* c_str();
+};
+
+
+
+
+
 
 
 
@@ -37,60 +144,7 @@ class ficmpv6frame : public fframe {
 #define IPV6_ADDR_LEN		16
 #define ETHER_ADDR_LEN		6
 
-public:
-
-	/* ICMPv6 constants and definitions */
-
-	/* ICMPv6 generic header */
-	struct icmpv6_hdr_t {
-		uint8_t 	type;
-		uint8_t 	code;
-		uint16_t 	checksum;
-		uint8_t 	data[0];
-	} __attribute__((packed));
-
-	/* ICMPv6 generic option header */
-	struct icmpv6_option_hdr_t {
-		uint8_t 	type;
-		uint8_t		len;
-		uint8_t 	data[0];
-	} __attribute__((packed));
-
-	/* ICMPv6 neighbor solicitation */
-	struct icmpv6_neighbor_solicitation_hdr_t {
-		struct icmpv6_hdr_t			icmpv6_hdr;				// type=135, code=0
-		uint32_t 					reserved;				// reserved for later use, for now: mbz
-		uint8_t						taddr[IPV6_ADDR_LEN]; 	// =target address
-		struct icmpv6_option_hdr_t	options[0];
-	} __attribute__((packed));
-
-
-
-
-	/*
-	 * ICMPv6 options
-	 */
-
-#define ICMPV6_LLADDR_SOURCE	1
-#define ICMPV6_LLADDR_TARGET	2
-
-	/* ICMPv6 link layer address option */
-	struct icmpv6_link_layer_addr_option_t {
-		uint8_t 	type;
-		uint8_t		len;
-		uint8_t		addr[ETHER_ADDR_LEN];
-	} __attribute__((packed));
-
-
-
-	/* for ICMPv6 checksum calculation */
-	struct icmpv6_pseudo_hdr_t {
-		uint8_t 	src[IPV6_ADDR_LEN];
-		uint8_t 	dst[IPV6_ADDR_LEN];
-		uint32_t 	icmpv6_len;				// payload length (extension headers + ICMPv6 message)
-		uint8_t 	zeros[3];				// = 0
-		uint8_t 	nxthdr;					// = 58 (=ICMPV6_IP_PROTO, see below)
-	} __attribute__((packed));
+public:	/* ICMPv6 constants and definitions */
 
 	enum icmpv6_ip_proto_t {
 		ICMPV6_IP_PROTO = 58,
@@ -134,11 +188,103 @@ public:
 		ICMPV6_DEST_UNREACH_CODE_ERROR_IN_SOURCE_ROUTING_HEADER				= 7,
 	};
 
+
+
+
+
+	/*
+	 * ICMPv6 NDP message types
+	 */
+
+	/* ICMPv6 generic header */
+	struct icmpv6_hdr_t {
+		uint8_t 						type;
+		uint8_t 						code;
+		uint16_t 						checksum;
+		uint8_t 						data[0];
+	} __attribute__((packed));
+
+	/* ICMPv6 router solicitation */
+	struct icmpv6_router_solicitation_hdr_t {
+		struct icmpv6_hdr_t				icmpv6_hdr;				// type=133, code=0
+		uint32_t 						reserved;				// reserved for later use, for now: mbz
+		struct ficmpv6opt::icmpv6_option_hdr_t		options[0];
+	} __attribute__((packed));
+
+	/* ICMPv6 router advertisement */
+	struct icmpv6_router_advertisement_hdr_t {
+		struct icmpv6_hdr_t				icmpv6_hdr;				// type=134, code=0
+		uint8_t 						cur_hop_limit;
+		uint8_t							flags;
+		uint16_t 						rtr_lifetime;
+		uint32_t						reachable_timer;
+		uint32_t 						retrans_timer;
+		struct ficmpv6opt::icmpv6_option_hdr_t		options[0];
+	} __attribute__((packed));
+
+	/* ICMPv6 neighbor solicitation */
+	struct icmpv6_neighbor_solicitation_hdr_t {
+		struct icmpv6_hdr_t			icmpv6_hdr;				// type=135, code=0
+		uint32_t 					reserved;				// reserved for later use, for now: mbz
+		uint8_t						taddr[IPV6_ADDR_LEN]; 	// =target address
+		struct ficmpv6opt::icmpv6_option_hdr_t		options[0];
+	} __attribute__((packed));
+
+	/* ICMPv6 neighbor advertisement */
+	struct icmpv6_neighbor_advertisement_hdr_t {
+		struct icmpv6_hdr_t			icmpv6_hdr;				// type=136, code=0
+		uint32_t 					flags;
+		uint8_t						taddr[IPV6_ADDR_LEN]; 	// =target address
+		struct ficmpv6opt::icmpv6_option_hdr_t		options[0];
+	} __attribute__((packed));
+
+	/* ICMPv6 redirect message */
+	struct icmpv6_redirect_hdr_t {
+		struct icmpv6_hdr_t			icmpv6_hdr;				// type=137, code=0
+		uint32_t 					reserved;				// reserved for later use, for now: mbz
+		uint8_t						taddr[IPV6_ADDR_LEN]; 	// =target address
+		uint8_t						daddr[IPV6_ADDR_LEN];	// =destination address
+		struct ficmpv6opt::icmpv6_option_hdr_t		options[0];
+	} __attribute__((packed));
+
+
+	/*
+	 * ICMPv6 pseudo header
+	 */
+
+	/* for ICMPv6 checksum calculation */
+	struct icmpv6_pseudo_hdr_t {
+		uint8_t 	src[IPV6_ADDR_LEN];
+		uint8_t 	dst[IPV6_ADDR_LEN];
+		uint32_t 	icmpv6_len;				// payload length (extension headers + ICMPv6 message)
+		uint8_t 	zeros[3];				// = 0
+		uint8_t 	nxthdr;					// = 58 (=ICMPV6_IP_PROTO, see below)
+	} __attribute__((packed));
+
+
+
 #define DEFAULT_ICMPV6_FRAME_SIZE sizeof(struct icmpv6_hdr_t)
 
 public: // data structures
 
-	struct icmpv6_hdr_t 		*icmpv6_hdr;		// ICMPv6 message header
+	union {
+		struct icmpv6_hdr_t 						*icmpv6u_hdr;					// ICMPv6 message header
+		struct icmpv6_router_solicitation_hdr_t		*icmpv6u_rtr_solicitation_hdr;	// ICMPv6 rtr solicitation
+		struct icmpv6_router_advertisement_hdr_t	*icmpv6u_rtr_advertisement_hdr;	// ICMPv6 rtr advertisement
+		struct icmpv6_neighbor_solicitation_hdr_t	*icmpv6u_ndp_solication_hdr;	// ICMPv6 NDP solication header
+		struct icmpv6_neighbor_advertisement_hdr_t	*icmpv6u_ndp_advertisement_hdr;	// ICMPv6 NDP advertisement header
+		struct icmpv6_redirect_hdr_t				*icmpv6u_redirect_hdr;			// ICMPV6 redirect header
+	} icmpv6u;
+
+#define icmpv6_hdr 			icmpv6u.icmpv6u_hdr
+#define icmpv6_rtr_sol_hdr 	icmpv6u.icmpv6u_rtr_solication_hdr
+#define icmpv6_rtr_adv_hdr	icmpv6u.icmpv6u_rtr_advertisement_hdr
+#define icmpv6_ndp_sol_hdr 	icmpv6u.icmpv6u_ndp_solication_hdr
+#define icmpv6_ndp_adv_hdr	icmpv6u.icmpv6u_ndp_advertisement_hdr
+#define icmpv6_ndp_red_hdr	icmpv6u.icmpv6u_redirect_hdr
+
+	std::vector<ficmpv6opt> 	 icmpv6opts;	// ICMPv6 NDP options
+
 	uint8_t 					*data; 			// ICMPv6 message body
 	size_t 						 datalen;		// ICMPv6 message body length
 
@@ -252,6 +398,56 @@ public:
 	 */
 	void
 	set_icmpv6_type(uint8_t type);
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_icmpv6_ndp_rtr_flag() throw (eICMPv6FrameInvalType);
+
+	/**
+	 *
+	 */
+	void
+	set_icmpv6_ndp_rtr_flag() throw (eICMPv6FrameInvalType);
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_icmpv6_ndp_solicited_flag() throw (eICMPv6FrameInvalType);
+
+	/**
+	 *
+	 */
+	void
+	set_icmpv6_ndp_solicited_flag() throw (eICMPv6FrameInvalType);
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_icmpv6_ndp_override_flag() throw (eICMPv6FrameInvalType);
+
+	/**
+	 *
+	 */
+	void
+	set_icmpv6_ndp_override_flag() throw (eICMPv6FrameInvalType);
+
+	/**
+	 *
+	 */
+	caddress
+	get_icmpv6_ndp_taddr() throw (eICMPv6FrameInvalType);
+
+	/**
+	 *
+	 */
+	void
+	set_icmpv6_ndp_taddr(caddress const& addr) throw (eICMPv6FrameInvalType);
+
+
 
 
 private: // methods

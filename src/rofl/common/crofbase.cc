@@ -89,19 +89,6 @@ crofbase::c_str()
 }
 
 
-#if 0
-cofdpt*
-crofbase::ofswitch_exists(const cofdpt *ofdpt) throw (eRofBaseNotFound)
-{
-	cofdpt *dpt = (cofdpt*)ofdpt;
-	if (ofdpt_set.find(dpt) == ofdpt_set.end())
-	{
-		throw eRofBaseNotFound();
-	}
-	return dpt;
-}
-#endif
-
 
 void
 crofbase::nsp_enable(bool enable)
@@ -514,20 +501,6 @@ crofbase::ctl_find(cofctl *ctl) throw (eRofBaseNotFound)
 	return ctl;
 }
 
-
-
-#if 0
-cofctl*
-crofbase::ctl_exists(const cofctl *ofctl) throw (eRofBaseNotFound)
-{
-	cofctl *ctl = (cofctl*)ofctl;
-	if (ofctl_set.find(ctl) == ofctl_set.end())
-	{
-		throw eRofBaseNotFound();
-	}
-	return ctl;
-}
-#endif
 
 
 
