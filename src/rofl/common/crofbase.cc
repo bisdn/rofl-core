@@ -89,20 +89,7 @@ crofbase::c_str()
 }
 
 
-
-cofctl*
-crofbase::ofctrl_exists(const cofctl *ofctl) throw (eRofBaseNotFound)
-{
-	cofctl *ctl = (cofctl*)ofctl;
-	if (ofctl_set.find(ctl) == ofctl_set.end())
-	{
-		throw eRofBaseNotFound();
-	}
-	return ctl;
-}
-
-
-
+#if 0
 cofdpt*
 crofbase::ofswitch_exists(const cofdpt *ofdpt) throw (eRofBaseNotFound)
 {
@@ -113,6 +100,7 @@ crofbase::ofswitch_exists(const cofdpt *ofdpt) throw (eRofBaseNotFound)
 	}
 	return dpt;
 }
+#endif
 
 
 void
@@ -463,40 +451,40 @@ crofbase::handle_experimenter_message(cofctl *ofctrl, cofpacket *pack)
 }
 
 
-cofdpt&
-crofbase::dpath_find(uint64_t dpid) throw (eRofBaseNotFound)
+cofdpt*
+crofbase::dpt_find(uint64_t dpid) throw (eRofBaseNotFound)
 {
 	for (std::set<cofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
 		if ((*it)->dpid == dpid)
-			return *(*it);
+			return (*it);
 	}
 	throw eRofBaseNotFound();
 }
 
 
-cofdpt&
-crofbase::dpath_find(std::string s_dpid) throw (eRofBaseNotFound)
+cofdpt*
+crofbase::dpt_find(std::string s_dpid) throw (eRofBaseNotFound)
 {
 	for (std::set<cofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
 		if ((*it)->s_dpid == s_dpid)
-			return *(*it);
+			return (*it);
 	}
 	throw eRofBaseNotFound();
 }
 
 
-cofdpt&
-crofbase::dpath_find(cmacaddr dl_dpid) throw (eRofBaseNotFound)
+cofdpt*
+crofbase::dpt_find(cmacaddr dl_dpid) throw (eRofBaseNotFound)
 {
 	for (std::set<cofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
 		if ((*it)->dpmac == dl_dpid)
-			return *(*it);
+			return (*it);
 	}
 	throw eRofBaseNotFound();
 }
@@ -505,7 +493,7 @@ crofbase::dpath_find(cmacaddr dl_dpid) throw (eRofBaseNotFound)
 
 
 cofdpt*
-crofbase::ofswitch_find(cofdpt *dpt) throw (eRofBaseNotFound)
+crofbase::dpt_find(cofdpt *dpt) throw (eRofBaseNotFound)
 {
 	if (ofdpt_set.find(dpt) == ofdpt_set.end())
 	{
@@ -517,7 +505,7 @@ crofbase::ofswitch_find(cofdpt *dpt) throw (eRofBaseNotFound)
 
 
 cofctl*
-crofbase::ofctrl_find(cofctl *ctl) throw (eRofBaseNotFound)
+crofbase::ctl_find(cofctl *ctl) throw (eRofBaseNotFound)
 {
 	if (ofctl_set.find(ctl) == ofctl_set.end())
 	{
@@ -526,6 +514,20 @@ crofbase::ofctrl_find(cofctl *ctl) throw (eRofBaseNotFound)
 	return ctl;
 }
 
+
+
+#if 0
+cofctl*
+crofbase::ctl_exists(const cofctl *ofctl) throw (eRofBaseNotFound)
+{
+	cofctl *ctl = (cofctl*)ofctl;
+	if (ofctl_set.find(ctl) == ofctl_set.end())
+	{
+		throw eRofBaseNotFound();
+	}
+	return ctl;
+}
+#endif
 
 
 
@@ -550,7 +552,7 @@ crofbase::send_hello_message(
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_hello_message() new %s", this,
 			pack->c_str());
 
-	ofctrl_find(ctl)->send_message(pack);
+	ctl_find(ctl)->send_message(pack);
 }
 
 
@@ -569,7 +571,7 @@ crofbase::send_hello_message(
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_hello_message() new %s", this,
 			pack->c_str());
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -587,7 +589,7 @@ crofbase::send_echo_request(
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_request() %s",
 			this, pack->c_str());
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -605,7 +607,7 @@ crofbase::send_echo_reply(
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_reply() %s",
 				this, pack->c_str());
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -622,7 +624,7 @@ crofbase::send_echo_request(
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_request() %s",
 				this, pack->c_str());
 
-	ofctrl_find(ctl)->send_message(pack);
+	ctl_find(ctl)->send_message(pack);
 }
 
 
@@ -640,7 +642,7 @@ crofbase::send_echo_reply(
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_reply() %s",
 				this, pack->c_str());
 
-	ofctrl_find(ctl)->send_message(pack);
+	ctl_find(ctl)->send_message(pack);
 }
 
 
@@ -657,7 +659,7 @@ crofbase::send_features_request(cofdpt *dpt)
 	cofpacket_features_request *pack = new cofpacket_features_request(
 							ta_add_request(OFPT_FEATURES_REQUEST));
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -686,7 +688,7 @@ crofbase::send_features_reply(
 
 	reply->pack(); // adjust fields, e.g. length in ofp_header
 
-	ofctrl_find(ctl)->send_message(reply);
+	ctl_find(ctl)->send_message(reply);
 }
 
 
@@ -715,7 +717,7 @@ crofbase::send_get_config_request(
 	cofpacket_get_config_request *pack = new cofpacket_get_config_request(
 								ta_add_request(OFPT_GET_CONFIG_REQUEST));
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -731,7 +733,7 @@ crofbase::send_get_config_reply(cofctl *ctl, uint32_t xid, uint16_t flags, uint1
 					flags,
 					miss_send_len);
 
-	ofctrl_find(ctl)->send_message(pack);
+	ctl_find(ctl)->send_message(pack);
 }
 
 
@@ -771,7 +773,7 @@ crofbase::send_stats_request(
 
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 
 	return xid;
 }
@@ -964,7 +966,7 @@ crofbase::send_stats_reply(
 										body,
 										bodylen);
 
-	ofctrl_find(ctl)->send_message(pack);
+	ctl_find(ctl)->send_message(pack);
 }
 
 
@@ -987,7 +989,7 @@ crofbase::send_set_config_message(
 						flags,
 						miss_send_len);
 
-		ofswitch_find(dpt)->send_message(pack);
+		dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -1020,7 +1022,7 @@ crofbase::send_packet_out_message(
 
 	pack->pack();
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -1091,7 +1093,7 @@ crofbase::send_packet_in_message(
 								this, buffer_id, ofctrl->c_str(), pack->c_str());
 
 				// straight call to layer-(n+1) entity's fe_up_packet_in() method
-				ofctrl_find(ofctrl)->send_message(pack);
+				ctl_find(ofctrl)->send_message(pack);
 			}
 
 			return;
@@ -1106,7 +1108,7 @@ crofbase::send_packet_in_message(
 
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 							"sending PACKET-IN for buffer_id:0x%x to controller %s",
-							this, buffer_id, ofctrl_find(ofctrl)->c_str());
+							this, buffer_id, ctl_find(ofctrl)->c_str());
 
 			cofpacket_packet_in *pack = new cofpacket_packet_in(
 												ta_new_async_xid(),
@@ -1125,7 +1127,7 @@ crofbase::send_packet_in_message(
 							this, buffer_id, pack->c_str());
 
 			// straight call to layer-(n+1) entity's fe_up_packet_in() method
-			ofctrl_find(ofctrl)->send_message(pack);
+			ctl_find(ofctrl)->send_message(pack);
 		}
 
 	} catch (eFspNoMatch& e) {
@@ -1157,7 +1159,7 @@ crofbase::send_barrier_request(cofdpt *sw)
 
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 
-	ofswitch_find(sw)->send_message(pack);
+	dpt_find(sw)->send_message(pack);
 
 	return xid;
 }
@@ -1174,7 +1176,7 @@ crofbase::send_barrier_reply(
 	cofpacket_barrier_reply *pack =
 			new cofpacket_barrier_reply(xid);
 
-	ofctrl_find(ctl)->send_message(pack);
+	ctl_find(ctl)->send_message(pack);
 }
 
 
@@ -1199,7 +1201,7 @@ crofbase::send_role_request(
 					role,
 					generation_id);
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -1219,7 +1221,7 @@ crofbase::send_role_reply(
 					role,
 					generation_id);
 
-	ofctrl_find(ctl)->send_message(pack);
+	ctl_find(ctl)->send_message(pack);
 }
 
 
@@ -1256,7 +1258,7 @@ crofbase::send_error_message(
 						data, datalen);
 
 		// straight call to layer-(n+1) entity's fe_up_packet_in() method
-		ofctrl_find(ctl)->send_message(pack);
+		ctl_find(ctl)->send_message(pack);
 	}
 	else
 	{
@@ -1300,7 +1302,7 @@ crofbase::send_error_message(
 						data, datalen);
 
 		// straight call to layer-(n+1) entity's fe_up_packet_in() method
-		ofswitch_find(dpt)->send_message(pack);
+		dpt_find(dpt)->send_message(pack);
 	}
 	else
 	{
@@ -1365,7 +1367,7 @@ crofbase::send_flow_mod_message(
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_mod_message() "
 			"pack: %s", this, pack->c_str());
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -1398,7 +1400,7 @@ crofbase::send_flow_mod_message(
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_mod_message() pack: %s",
 			this, pack->c_str());
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -1426,7 +1428,7 @@ crofbase::send_group_mod_message(
 
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_group_mod_message() %s", this, pack->c_str());
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -1454,7 +1456,7 @@ crofbase::send_port_mod_message(
 						mask,
 						advertise);
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -1479,7 +1481,7 @@ crofbase::send_table_mod_message(
 
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_table_mod_message() %s", this, pack->c_str());
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -1543,7 +1545,7 @@ crofbase::send_flow_removed_message(
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_removed_message() to controller %s", this, ofctrl->c_str());
 
 			// straight call to layer-(n+1) entity's fe_up_packet_in() method
-			ofctrl_find(ofctrl)->send_message(pack);
+			ctl_find(ofctrl)->send_message(pack);
 		}
 
 	} catch (eRofBaseNotFound& e) {
@@ -1621,7 +1623,7 @@ crofbase::send_queue_get_config_request(
 						ta_add_request(OFPT_QUEUE_GET_CONFIG_REQUEST),
 						port);
 
-	ofswitch_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -1639,7 +1641,7 @@ crofbase::send_queue_get_config_reply(
 						xid,
 						portno);
 
-	ofctrl_find(ctl)->send_message(pack);
+	ctl_find(ctl)->send_message(pack);
 }
 
 
@@ -1683,7 +1685,7 @@ crofbase::send_experimenter_message(
 	}
 	else
 	{
-		ofswitch_find(dpt)->send_message(pack);
+		dpt_find(dpt)->send_message(pack);
 	}
 }
 

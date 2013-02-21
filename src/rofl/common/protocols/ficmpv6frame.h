@@ -35,16 +35,53 @@ class eICMPv6FrameTooShort			: public eICMPv6FrameInvalidSyntax {};
 class ficmpv6frame : public fframe {
 
 #define IPV6_ADDR_LEN		16
+#define ETHER_ADDR_LEN		6
 
 public:
 
 	/* ICMPv6 constants and definitions */
+
+	/* ICMPv6 generic header */
 	struct icmpv6_hdr_t {
 		uint8_t 	type;
 		uint8_t 	code;
 		uint16_t 	checksum;
 		uint8_t 	data[0];
 	} __attribute__((packed));
+
+	/* ICMPv6 generic option header */
+	struct icmpv6_option_hdr_t {
+		uint8_t 	type;
+		uint8_t		len;
+		uint8_t 	data[0];
+	} __attribute__((packed));
+
+	/* ICMPv6 neighbor solicitation */
+	struct icmpv6_neighbor_solicitation_hdr_t {
+		struct icmpv6_hdr_t			icmpv6_hdr;				// type=135, code=0
+		uint32_t 					reserved;				// reserved for later use, for now: mbz
+		uint8_t						taddr[IPV6_ADDR_LEN]; 	// =target address
+		struct icmpv6_option_hdr_t	options[0];
+	} __attribute__((packed));
+
+
+
+
+	/*
+	 * ICMPv6 options
+	 */
+
+#define ICMPV6_LLADDR_SOURCE	1
+#define ICMPV6_LLADDR_TARGET	2
+
+	/* ICMPv6 link layer address option */
+	struct icmpv6_link_layer_addr_option_t {
+		uint8_t 	type;
+		uint8_t		len;
+		uint8_t		addr[ETHER_ADDR_LEN];
+	} __attribute__((packed));
+
+
 
 	/* for ICMPv6 checksum calculation */
 	struct icmpv6_pseudo_hdr_t {
