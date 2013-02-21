@@ -223,6 +223,8 @@ ficmpv6opt::ficmpv6opt(
 	icmpv6_opt = (struct icmpv6_option_hdr_t*)data;
 }
 
+
+
 ficmpv6opt::ficmpv6opt(
 		struct icmpv6_option_hdr_t *data,
 		size_t datalen) :
@@ -231,10 +233,14 @@ ficmpv6opt::ficmpv6opt(
 	icmpv6_opt = (struct icmpv6_option_hdr_t*)data;
 }
 
+
+
 ficmpv6opt::~ficmpv6opt()
 {
 
 }
+
+
 
 ficmpv6opt::ficmpv6opt(
 		ficmpv6opt const& opt) :
@@ -242,6 +248,8 @@ ficmpv6opt::ficmpv6opt(
 {
 	*this = opt;
 }
+
+
 
 ficmpv6opt&
 ficmpv6opt::operator= (ficmpv6opt const& opt)
@@ -256,6 +264,8 @@ ficmpv6opt::operator= (ficmpv6opt const& opt)
 	return *this;
 }
 
+
+
 const char*
 ficmpv6opt::c_str()
 {
@@ -265,4 +275,58 @@ ficmpv6opt::c_str()
 
 	return info.c_str();
 }
+
+
+uint8_t
+ficmpv6opt::get_pfx_on_link_flag()
+		throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort)
+{
+	if (ICMPV6_OPT_PREFIX_INFO != icmpv6_opt->type) {
+		throw eICMPv6FrameInvalType();
+	}
+	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	return ((icmpv6_opt_pfx->flags & 0b10000000) >> 7);
+}
+
+
+
+void
+ficmpv6opt::set_pfx_on_link_flag(uint8_t flag)
+		throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	icmpv6_opt_pfx->flags = (icmpv6_opt_pfx->flags & 0b01111111) | ((flag & 0x01) << 7);
+}
+
+
+
+uint8_t
+ficmpv6opt::get_pfx_aac_flag()
+		throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort)
+{
+	if (ICMPV6_OPT_PREFIX_INFO != icmpv6_opt->type) {
+		throw eICMPv6FrameInvalType();
+	}
+	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	return ((icmpv6_opt_pfx->flags & 0b01000000) >> 6);
+}
+
+
+
+void
+ficmpv6opt::set_pfx_aac_flag(uint8_t flag)
+		throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	icmpv6_opt_pfx->flags = (icmpv6_opt_pfx->flags & 0b10111111) | ((flag & 0x01) << 6);
+}
+
 

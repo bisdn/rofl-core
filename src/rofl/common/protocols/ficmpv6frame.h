@@ -51,6 +51,14 @@ public: // static definitions and constants
 	 * ICMPv6 NDP options
 	 */
 
+	enum icmpv6_ndp_option_type_t {
+		ICMPV6_OPT_LLADDR_SOURCE 		= 1,
+		ICMPV6_OPT_LLADDR_TARGET 		= 2,
+		ICMPV6_OPT_PREFIX_INFO			= 3,
+		ICMPV6_OPT_REDIRECT				= 4,
+		ICMPV6_OPT_MTU					= 5,
+	};
+
 	/* ICMPv6 generic option header */
 	struct icmpv6_option_hdr_t {
 		uint8_t 						type;
@@ -64,11 +72,6 @@ public: // static definitions and constants
 		struct icmpv6_option_hdr_t		hdr;
 		uint8_t							addr[ETHER_ADDR_LEN]; // len=1 (in 8-octets wide blocks) and we assume Ethernet here
 	} __attribute__((packed));
-
-	enum icmpv6_lla_type_t {
-		ICMPV6_LLADDR_SOURCE 			= 1,
-		ICMPV6_LLADDR_TARGET 			= 2,
-	};
 
 	/* ICMPv6 prefix information option */
 	struct icmpv6_prefix_info_t {
@@ -130,6 +133,18 @@ public:
 	/**
 	 */
 	virtual const char* c_str();
+	/**
+	 */
+	uint8_t get_pfx_on_link_flag() throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort);
+	/**
+	 */
+	void set_pfx_on_link_flag(uint8_t flag) throw (eICMPv6FrameTooShort);
+	/**
+	 */
+	uint8_t get_pfx_aac_flag() throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort);
+	/**
+	 */
+	void set_pfx_aac_flag(uint8_t flag) throw (eICMPv6FrameTooShort);
 };
 
 
