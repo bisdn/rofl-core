@@ -261,7 +261,7 @@ ficmpv6opt::c_str()
 {
 	cvastring vas;
 
-	info.assign(vas("[ficmvp6opt(%p) ]", this));
+	info.assign(vas("[ficmvp6opt(%p) %s]", this, fframe::c_str()));
 
 	return info.c_str();
 }
