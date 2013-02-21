@@ -22,6 +22,7 @@ extern "C" {
 #include "../fframe.h"
 #include "../caddress.h"
 #include "../cvastring.h"
+#include "../cmacaddr.h"
 
 namespace rofl
 {
@@ -133,6 +134,25 @@ public:
 	/**
 	 */
 	virtual const char* c_str();
+public:
+	/**
+	 */
+	uint8_t get_opt_type();
+	/**
+	 */
+	void set_opt_type(uint8_t type);
+	/**
+	 */
+	cmacaddr get_ll_taddr() throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort);
+	/**
+	 */
+	void set_ll_taddr(cmacaddr const& addr) throw (eICMPv6FrameTooShort);
+	/**
+	 */
+	cmacaddr get_ll_saddr() throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort);
+	/**
+	 */
+	void set_ll_saddr(cmacaddr const& addr) throw (eICMPv6FrameTooShort);
 	/**
 	 */
 	uint8_t get_pfx_on_link_flag() throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort);
