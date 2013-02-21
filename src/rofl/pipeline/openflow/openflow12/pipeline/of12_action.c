@@ -1,9 +1,11 @@
 #include "of12_action.h"
 
+#include <stdio.h>
+
 #include "of12_packet_matches.h" //TODO: evaluate if this is the best approach to update of12_matches after actions
 #include "../../../platform/platform_hooks.h"
 #include "../../../platform/memory.h"
-#include <stdio.h>
+#include "../../../platform/openflow/openflow12/platform_hooks_of12.h"
 
 
 //Byte masks
@@ -224,7 +226,7 @@ void of12_clear_write_actions(of12_write_actions_t* write_actions){
 }
 
 /* Contains switch with all the different action functions */
-inline void of12_process_packet_action(datapacket_t* pkt, of12_packet_action_t* action){
+inline void of12_process_packet_action(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt, of12_packet_action_t* action){
 
 	switch(action->type){
 		case OF12_AT_NO_ACTION: /*TODO: print some error traces? */
@@ -306,17 +308,34 @@ inline void of12_process_packet_action(datapacket_t* pkt, of12_packet_action_t* 
 			break;
 		case OF12_AT_EXPERIMENTER: //FIXME: implement
 			break;
-		case OF12_AT_OUTPUT: platform_output_packet(pkt, action->field);
+		case OF12_AT_OUTPUT: 
+			
+			if(action->field == OF12_PORT_NORMAL){
+
+				//Generate packet in
+				platform_of12_packet_in(sw, table_id, pkt, OF12_PKT_IN_ACTION);
+
+			}else if(action->field == OF12_PORT_TABLE || 
+				 action->field == OF12_PORT_NORMAL ||
+				 action->field == OF12_PORT_ANY || 
+				 action->field == OF12_PORT_MAX ){	
+				//Do nothing
+
+			}else{
+
+				//Output to real port
+				platform_output_packet(pkt, action->field);
+			}
 			break;
 	}
 }
 
-void of12_process_apply_actions(datapacket_t* pkt, const of12_action_group_t* apply_actions_group){
+void of12_process_apply_actions(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of12_action_group_t* apply_actions_group){
 
 	of12_packet_action_t* it;
 
 	for(it=apply_actions_group->head;it;it=it->next){
-		of12_process_packet_action(pkt, it);
+		of12_process_packet_action(sw, table_id, pkt, it);
 	}	
 	of12_update_packet_matches(pkt); //TODO: evaluate wether it can be updated directly on of12_process_packet action without calling again platform methods, and evaluate the performance impact
 }
@@ -326,7 +345,7 @@ void of12_process_apply_actions(datapacket_t* pkt, const of12_action_group_t* ap
 * The of12_process_write_actions is meant to encapsulate the processing of the write actions
 *
 */
-void of12_process_write_actions(datapacket_t* pkt){
+void of12_process_write_actions(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt){
 
 	unsigned int i;
 	of12_write_actions_t* packet_write_actions;
@@ -336,7 +355,7 @@ void of12_process_write_actions(datapacket_t* pkt){
 	
 	for(i=0;i<OF12_AT_NUMBER;i++){
 		if(packet_write_actions->write_actions[i].type){
-			of12_process_packet_action(pkt, &packet_write_actions->write_actions[i]);
+			of12_process_packet_action(sw, table_id, pkt, &packet_write_actions->write_actions[i]);
 		}
 	}
 }

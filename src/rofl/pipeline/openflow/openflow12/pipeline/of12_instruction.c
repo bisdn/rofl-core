@@ -67,7 +67,7 @@ void of12_add_instruction_to_group(of12_instruction_group_t* group, of12_instruc
 }
 
 /* Process instructions */
-unsigned int of12_process_instructions(datapacket_t *const pkt, const of12_instruction_group_t* instructions){
+unsigned int of12_process_instructions(const struct of_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of12_instruction_group_t* instructions){
 
 	unsigned int i;
 
@@ -75,7 +75,7 @@ unsigned int of12_process_instructions(datapacket_t *const pkt, const of12_instr
 	
 		//Check all instructions in order 
 		switch(instructions->instructions[i].type){
-			case OF12_IT_APPLY_ACTIONS: of12_process_apply_actions(pkt,instructions->instructions[i].apply_actions); 
+			case OF12_IT_APPLY_ACTIONS: of12_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions); 
 					break;
     			case OF12_IT_CLEAR_ACTIONS: of12_clear_write_actions((of12_write_actions_t*)pkt->write_actions);
 					break;

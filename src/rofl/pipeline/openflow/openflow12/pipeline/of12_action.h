@@ -84,6 +84,34 @@ typedef enum{
 
 #define OF12_AT_NUMBER OF12_AT_OUTPUT+1 
 
+/* Special port numbers, according to OF12 (of12p_port_no ) */ 
+enum of12_port_numbers {
+
+	/* Maximum number of physical switch ports. */
+	OF12_PORT_MAX = 0xffffff00,
+
+	/* Fake output "ports". */
+	OF12_PORT_IN_PORT = 0xfffffff8,  /* Send the packet out the input port.  This
+	virtual port must be explicitly used
+	in order to send back out of the input
+	port. */
+
+	OF12_PORT_TABLE      = 0xfffffff9,	/* Submit the packet to the first flow table
+						NB: This destination port can only be
+						used in packet-out messages. */
+	OF12_PORT_NORMAL     = 0xfffffffa,	/* Process with normal L2/L3 switching. */
+	OF12_PORT_FLOOD      = 0xfffffffb,	/* All physical ports in VLAN, except input
+						port and those blocked or link down. */
+	OF12_PORT_ALL        = 0xfffffffc,	/* All physical ports except input port. */
+	OF12_PORT_CONTROLLER = 0xfffffffd,  	/* Send to controller. */
+	OF12_PORT_LOCAL      = 0xfffffffe,  	/* Local openflow "port". */
+	OF12_PORT_ANY        = 0xffffffff	/* Wildcard port used only for flow mod
+						(delete) and flow stats requests. Selects
+						all flows regardless of output port
+						(including flows with no output port). */
+};
+
+
 typedef void of12_group_t;		//FIXME: remove when appropiate of12_group implementation is available
 
 /* Packet action abstraction data structure */
@@ -121,6 +149,9 @@ typedef struct{
 	
 }of12_write_actions_t;
 
+//Fwd declaration
+struct of_switch;
+
 /*
 *
 * Function prototypes
@@ -139,7 +170,7 @@ of12_action_group_t* of12_init_action_group(of12_packet_action_t* actions);
 void of12_destroy_action_group(of12_action_group_t* group);
 
 //Apply actions
-void of12_process_apply_actions(datapacket_t* pkt, const of12_action_group_t* apply_actions_group);
+void of12_process_apply_actions(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of12_action_group_t* apply_actions_group);
 
 //Write actions data structure management
 void of12_init_packet_write_actions(datapacket_t *const pkt, of12_write_actions_t* write_actions);
@@ -149,7 +180,7 @@ void of12_clear_write_actions(of12_write_actions_t* write_actions);
 void of12_destroy_write_actions(of12_write_actions_t* write_actions);
 void of12_set_packet_action_on_write_actions(of12_write_actions_t* write_actions, of12_packet_action_t* action);
 
-void of12_process_write_actions(datapacket_t* pkt);
+void of12_process_write_actions(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt);
 
 //Push packet action
 void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_action_t* action);
