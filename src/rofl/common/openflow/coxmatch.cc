@@ -450,11 +450,7 @@ coxmatch::get_oxm_length()
 uint8_t
 coxmatch::u8value() const
 {
-	if (get_oxm_hasmask()) {
-		return (uint8_value() & uint8_mask());
-	} else {
-		return uint8_value();
-	}
+	return (uint8_value() & (get_oxm_hasmask() ? uint8_mask() : 0xff));
 }
 
 
@@ -462,11 +458,7 @@ coxmatch::u8value() const
 uint16_t
 coxmatch::u16value() const
 {
-	if (get_oxm_hasmask()) {
-		return (uint16_value() & uint16_mask());
-	} else {
-		return (uint16_value());
-	}
+	return (uint16_value() & (get_oxm_hasmask() ? uint16_mask() : 0xffff));
 }
 
 
@@ -474,11 +466,7 @@ coxmatch::u16value() const
 uint32_t
 coxmatch::u32value() const
 {
-	if (get_oxm_hasmask()) {
-		return (uint32_value() & uint32_mask());
-	} else {
-		return uint32_value();
-	}
+	return (uint32_value() & (get_oxm_hasmask() ? uint32_mask() : 0xffffffff));
 }
 
 
@@ -486,11 +474,7 @@ coxmatch::u32value() const
 uint64_t
 coxmatch::u64value() const
 {
-	if (get_oxm_hasmask()) {
-		return (uint64_value() & uint64_mask());
-	} else {
-		return uint64_value();
-	}
+	return (uint64_value() & (get_oxm_hasmask() ? uint64_mask() : 0xffffffffffffffff));
 }
 
 
