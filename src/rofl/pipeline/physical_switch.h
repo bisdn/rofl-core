@@ -31,6 +31,8 @@
 #ifndef PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS
 	#define PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS 32
 #endif
+	
+#define PHYSICAL_SWITCH_MAX_NUM_META_PORTS 8
 
 /*
 *
@@ -60,6 +62,9 @@ struct physical_switch{
 
 	//virtual ports (which are not tunnel)
 	switch_port_t* virtual_ports[PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS]; //Not used yet
+
+	//meta ports (esoteric ports). This is NOT an array of pointers!
+	switch_port_t meta_ports[PHYSICAL_SWITCH_MAX_NUM_META_PORTS]; 
 
 	/* 
 	* Other state 

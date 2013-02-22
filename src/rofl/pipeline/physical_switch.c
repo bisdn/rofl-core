@@ -2,17 +2,26 @@
 
 static physical_switch_t psw;
 
+//Meta port FLOOD shortcut
+#define META_PORT_FLOOD_INDEX 0
+switch_port_t* flood_meta_port = &psw.meta_ports[META_PORT_FLOOD_INDEX];
+
 //init&destroy
 void physical_switch_init(){
-
 	//FIXME: check error
 	psw.mutex = platform_mutex_init(NULL);
 	
 	memset(psw.physical_ports,0,sizeof(psw.physical_ports));
 	memset(psw.tunnel_ports,0,sizeof(psw.tunnel_ports));
 	memset(psw.virtual_ports,0,sizeof(psw.virtual_ports));
-
+	memset(psw.meta_ports,0,sizeof(psw.meta_ports));
+	
+	//Generate metaports
+	//Flood
+	psw.meta_ports[META_PORT_FLOOD_INDEX].type = PORT_TYPE_META_FLOOD;
+	psw.meta_ports[META_PORT_FLOOD_INDEX].name = "Flood meta port";
 }
+
 physical_switch_t* get_physical_switch(){
 	return &psw;
 }

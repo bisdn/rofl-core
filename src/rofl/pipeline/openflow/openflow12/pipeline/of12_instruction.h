@@ -2,6 +2,7 @@
 #define __OF12_INSTRUCTION_H__
 
 #include <inttypes.h> 
+#include <stdbool.h>
 #include "../../../util/rofl_pipeline_utils.h"
 #include "of12_action.h"
 
@@ -22,10 +23,10 @@ struct of12_instruction{
 	//Type and value(for set fields and push)
 	of12_instruction_type_t type;
 
-	//Action group for APPLY 
+	//Action group for APPLY_ACTIONS type only 
 	of12_action_group_t* apply_actions;
 
-	//WRITE actions 	
+	//WRITE_ACTIONS type only actions 	
 	of12_write_actions_t* write_actions;
 
 	//GO-TO-TABLE
@@ -39,6 +40,12 @@ typedef struct{
 	unsigned int num_of_instructions;
 
 	of12_instruction_t instructions[OF12_IT_GOTO_TABLE]; //Latest must ALWAYS be go to table
+	
+	//Flag indicating that there are multiple 
+	//outputs in several instructions/in an apply 
+	//actions group
+	bool has_multiple_outputs;
+	
 }of12_instruction_group_t;
 
 //Fwd declaration

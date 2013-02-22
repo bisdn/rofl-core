@@ -71,6 +71,16 @@ struct port_stats {
 };
 typedef struct port_stats port_stats_t;
 
+typedef enum{
+	PORT_TYPE_INVALID 	= 0,
+	PORT_TYPE_PHYSICAL 	= 1,
+	PORT_TYPE_VIRTUAL 	= 2,
+	PORT_TYPE_TUNNEL 	= 3,
+	PORT_TYPE_META		= 4, 
+	//Special meta ports
+	PORT_TYPE_META_FLOOD	= 5
+}port_type_t;
+
 //Port state
 struct switch_port{
 
@@ -82,8 +92,7 @@ struct switch_port{
 	bool up;
 
 	//Is virtual/tun
-	bool is_virtual;
-	bool is_tunnel;
+	port_type_t type;
 
 	//Forward packets
 	bool forward_packets;	

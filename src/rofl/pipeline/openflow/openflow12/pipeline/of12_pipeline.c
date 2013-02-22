@@ -121,10 +121,16 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 			}
 
 			//Process WRITE actions
-			of12_process_write_actions(sw, i, pkt);
+			of12_process_write_actions(sw, i, pkt, match->instructions.has_multiple_outputs);
 
 			//Unlock the entry so that it can eventually be modified/deleted
 			platform_rwlock_rdunlock(match->rwlock);
+
+			//Drop packet Only if there has been copy(cloning of the packet) due to 
+			//multiple output actions
+			if(match->instructions.has_multiple_outputs)
+				platform_packet_drop(pkt);
+							
 
 			return;	
 		}else{
@@ -151,3 +157,22 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 	platform_packet_drop(pkt);
 
 }
+
+/*
+* Process the packet out 
+*/
+void of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of12_action_group_t* apply_actions_group){
+
+	//Temporal stack vars for matches and write actions
+	of12_packet_matches_t pkt_matches;
+	of12_write_actions_t write_actions;
+	
+	//Initialize packet for OF1.2 pipeline processing 
+	of12_init_packet_matches(pkt, &pkt_matches); 
+	of12_init_packet_write_actions(pkt, &write_actions); 
+
+	//Just process the action group
+	of12_process_apply_actions(sw, 0, pkt, apply_actions_group, apply_actions_group->num_of_output_actions > 1 );
+	
+}
+	
