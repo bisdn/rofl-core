@@ -1542,13 +1542,6 @@ public:
 	dpt_find(
 			cofdpt* dpt) throw (eRofBaseNotFound);
 
-#if 0
-	/** find cofswitch instance
-	 */
-	cofdpt*
-	ofswitch_exists(
-			const cofdpt *ofswitch) throw (eRofBaseNotFound);
-#endif
 
 	// COFCTRL related methods
 	//
@@ -1560,13 +1553,6 @@ public:
 	ctl_find(
 			cofctl* entity) throw (eRofBaseNotFound);
 
-#if 0
-	/** find cofctrl instance
-	 */
-	cofctl*
-	ctl_exists(
-			const cofctl *ofctrl) throw (eRofBaseNotFound);
-#endif
 
 	/** for use by cofdpt
 	 *

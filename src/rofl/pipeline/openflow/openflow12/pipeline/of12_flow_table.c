@@ -72,12 +72,12 @@ unsigned int of12_init_table(of12_flow_table_t* table, const unsigned int table_
 				   (1UL << OF12_MATCH_SCTP_DST) |
 				   (1UL << OF12_MATCH_ICMPV4_TYPE) |
 				   (1UL << OF12_MATCH_ICMPV4_CODE) |
-				   (1UL << OF12_MATCH_MPLS_LABEL) |
-				   (1UL << OF12_MATCH_MPLS_TC) |
-				   (1UL << OF12_MATCH_PPPOE_CODE) |
-				   (1UL << OF12_MATCH_PPPOE_TYPE) |
-				   (1UL << OF12_MATCH_PPPOE_SID) |
-				   (1UL << OF12_MATCH_PPP_PROT);
+				   (UINT64_C(1) << OF12_MATCH_MPLS_LABEL) |
+				   (UINT64_C(1) << OF12_MATCH_MPLS_TC) |
+				   (UINT64_C(1) << OF12_MATCH_PPPOE_CODE) |
+				   (UINT64_C(1) << OF12_MATCH_PPPOE_TYPE) |
+				   (UINT64_C(1) << OF12_MATCH_PPPOE_SID) |
+				   (UINT64_C(1) << OF12_MATCH_PPP_PROT);
 
 	//Wildcards
 	table->config.wildcards =  (1UL << OF12_MATCH_ETH_DST) |
@@ -88,7 +88,7 @@ unsigned int of12_init_table(of12_flow_table_t* table, const unsigned int table_
 				   (1UL << OF12_MATCH_IPV4_DST) |
 				   (1UL << OF12_MATCH_ICMPV4_TYPE) |
 				   (1UL << OF12_MATCH_ICMPV4_CODE) |
-				   (1UL << OF12_MATCH_MPLS_LABEL);
+				   (UINT64_C(1) << OF12_MATCH_MPLS_LABEL);
 
 	//Write actions and apply actions
 	table->config.apply_actions =   ( 1 << OF12PAT_OUTPUT ) |

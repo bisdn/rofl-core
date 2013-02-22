@@ -6,14 +6,15 @@
 
 using namespace rofl;
 
+
 ficmpv6frame::ficmpv6frame(
 		uint8_t* data,
 		size_t datalen) :
 		fframe(data, datalen),
-		icmpv6_hdr(0),
 		data(0),
 		datalen(0)
 {
+	icmpv6_hdr = (struct icmpv6_hdr_t*)soframe();
 	initialize();
 }
 
@@ -21,8 +22,11 @@ ficmpv6frame::ficmpv6frame(
 
 ficmpv6frame::ficmpv6frame(
 		size_t len) :
-		fframe(len)
+		fframe(len),
+		data(0),
+		datalen(0)
 {
+	icmpv6_hdr = (struct icmpv6_hdr_t*)soframe();
 	initialize();
 }
 
@@ -35,21 +39,229 @@ ficmpv6frame::~ficmpv6frame()
 
 
 
+ficmpv6opt&
+ficmpv6frame::get_option(ficmpv6opt::icmpv6_option_type_t type) throw (eICMPv6FrameNotFound)
+{
+	if (icmpv6opts.find(type) == icmpv6opts.end()) {
+		throw eICMPv6FrameNotFound();
+	}
+	return icmpv6opts[type];
+}
+
+
+
 void
 ficmpv6frame::initialize()
 {
-	icmpv6_hdr = (struct icmpv6_hdr_t*)soframe();
-	if (framelen() > sizeof(struct icmpv6_hdr_t))
-	{
-		data = icmpv6_hdr->data;
-		datalen = framelen() - sizeof(struct icmpv6_hdr_t);
-	}
-	else
-	{
-		data = NULL;
-		datalen = 0;
+	try {
+		if (framelen() < sizeof(struct icmpv6_hdr_t)) {
+			return;
+		}
+
+		switch (get_icmpv6_type()) {
+		case ICMPV6_TYPE_DESTINATION_UNREACHABLE: {
+			parse_icmpv6_dest_unreach();
+		} break;
+		case ICMPV6_TYPE_PACKET_TOO_BIG: {
+			parse_icmpv6_pkt_too_big();
+		} break;
+		case ICMPV6_TYPE_TIME_EXCEEDED: {
+			parse_icmpv6_time_exceeded();
+		} break;
+		case ICMPV6_TYPE_PARAMETER_PROBLEM: {
+			parse_icmpv6_param_problem();
+		} break;
+		case ICMPV6_TYPE_ECHO_REQUEST: {
+			parse_icmpv6_echo_request();
+		} break;
+		case ICMPV6_TYPE_ECHO_REPLY: {
+			parse_icmpv6_echo_reply();
+		} break;
+		case ICMPV6_TYPE_ROUTER_SOLICATION: {
+			parse_icmpv6_rtr_solicitation();
+		} break;
+		case ICMPV6_TYPE_ROUTER_ADVERTISEMENT: {
+			parse_icmpv6_rtr_advertisement();
+		} break;
+		case ICMPV6_TYPE_NEIGHBOR_SOLICITATION: {
+			parse_icmpv6_neighbor_solicitation();
+		} break;
+		case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT: {
+			parse_icmpv6_neighbor_advertisement();
+		} break;
+		case ICMPV6_TYPE_REDIRECT_MESSAGE: {
+			parse_icmpv6_redirect();
+		} break;
+		default: {
+			writelog(FFRAME, INFO, "ficmpv6frame::initialize() unsupported ICMPv6 message type detected");
+		} break;
+		}
+
+	} catch (eICMPv6FrameTooShort& e) {
+		writelog(FFRAME, WARN, "ficmpv6frame(%p)::initialize() ICMPv6 frame too short", this);
 	}
 }
+
+
+
+void
+ficmpv6frame::parse_icmpv6_options(
+		struct ficmpv6opt::icmpv6_option_hdr_t *option, size_t optlen) throw (eICMPv6FrameTooShort)
+{
+	icmpv6opts.clear();
+	if (((ficmpv6opt::icmpv6_option_hdr_t*)0 == option) || (0 == optlen)) {
+		return;
+	}
+	int reslen = optlen;
+	struct ficmpv6opt::icmpv6_option_hdr_t *nextopt = option;
+
+	while (true) {
+		if (reslen < (int)sizeof(struct ficmpv6opt::icmpv6_option_hdr_t)) {
+			return;
+		}
+		if (0 == nextopt->len) {
+			writelog(FFRAME, WARN, "ficmpv6frame(%p)::parse_icmpv6_options() found invalid ICMPv6 option (len=0), ignoring", this);
+			return;
+		}
+		size_t optlen = 8 * nextopt->len; // length is measured in blocks of 8-octets
+		if (reslen < (int)optlen) {
+			writelog(FFRAME, WARN, "ficmpv6frame(%p)::parse_icmpv6_options() found invalid ICMPv6 option (too short), ignoring", this);
+			return;
+		}
+
+		icmpv6opts[(ficmpv6opt::icmpv6_option_type_t)(nextopt->type)] = ficmpv6opt(nextopt, optlen);
+		nextopt = (struct ficmpv6opt::icmpv6_option_hdr_t*)(((uint8_t*)nextopt) + optlen);
+		reslen -= optlen;
+	}
+}
+
+
+
+inline void
+ficmpv6frame::parse_icmpv6_dest_unreach() throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_dest_unreach_hdr_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	data = icmpv6_dest_unreach->data;
+	datalen = framelen() - sizeof(struct icmpv6_dest_unreach_hdr_t);
+}
+
+
+
+inline void
+ficmpv6frame::parse_icmpv6_pkt_too_big() throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_pkt_too_big_hdr_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	data = icmpv6_pkt_too_big->data;
+	datalen = framelen() - sizeof(struct icmpv6_pkt_too_big_hdr_t);
+}
+
+
+
+inline void
+ficmpv6frame::parse_icmpv6_time_exceeded() throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_time_exceeded_hdr_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	data = icmpv6_time_exceeded->data;
+	datalen = framelen() - sizeof(struct icmpv6_time_exceeded_hdr_t);
+}
+
+
+
+inline void
+ficmpv6frame::parse_icmpv6_param_problem() throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_param_problem_hdr_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	data = icmpv6_param_problem->data;
+	datalen = framelen() - sizeof(struct icmpv6_param_problem_hdr_t);
+}
+
+
+
+inline void
+ficmpv6frame::parse_icmpv6_echo_request() throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_echo_request_hdr_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	data = icmpv6_echo_request->data;
+	datalen = framelen() - sizeof(struct icmpv6_echo_request_hdr_t);
+}
+
+
+
+inline void
+ficmpv6frame::parse_icmpv6_echo_reply() throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_echo_reply_hdr_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	data = icmpv6_echo_reply->data;
+	datalen = framelen() - sizeof(struct icmpv6_echo_reply_hdr_t);
+}
+
+
+
+inline void
+ficmpv6frame::parse_icmpv6_rtr_solicitation() throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_router_solicitation_hdr_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	parse_icmpv6_options(icmpv6_rtr_solicitation->options, framelen() - sizeof(struct icmpv6_router_solicitation_hdr_t));
+}
+
+
+
+inline void
+ficmpv6frame::parse_icmpv6_rtr_advertisement() throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_router_advertisement_hdr_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	parse_icmpv6_options(icmpv6_rtr_advertisement->options, framelen() - sizeof(struct icmpv6_router_advertisement_hdr_t));
+}
+
+
+
+inline void
+ficmpv6frame::parse_icmpv6_neighbor_solicitation() throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_neighbor_solicitation_hdr_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	parse_icmpv6_options(icmpv6_neighbor_solicitation->options, framelen() - sizeof(struct icmpv6_neighbor_solicitation_hdr_t));
+}
+
+
+
+inline void
+ficmpv6frame::parse_icmpv6_neighbor_advertisement() throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_neighbor_advertisement_hdr_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	parse_icmpv6_options(icmpv6_neighbor_advertisement->options, framelen() - sizeof(struct icmpv6_neighbor_advertisement_hdr_t));
+}
+
+
+
+inline void
+ficmpv6frame::parse_icmpv6_redirect() throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_redirect_hdr_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	parse_icmpv6_options(icmpv6_redirect->options, framelen() - sizeof(struct icmpv6_redirect_hdr_t));
+}
+
 
 
 bool
@@ -130,11 +342,19 @@ ficmpv6frame::c_str()
 {
 	cvastring vas;
 
-	info.assign(vas("[ficmpv6frame(%p) type[%d] code[%d] checksum[0x%x] %s]",
+	std::string s_opts;
+	for (std::map<ficmpv6opt::icmpv6_option_type_t, ficmpv6opt>::iterator it = icmpv6opts.begin();
+			it != icmpv6opts.end(); ++it) {
+		s_opts.append(vas("%s ", it->second.c_str()));
+	}
+
+	info.assign(vas("[ficmpv6frame(%p) type[%d] code[%d] checksum[0x%x] icmpv6opts(%d):%s fframe:%s]",
 			this,
 			icmpv6_hdr->type,
 			icmpv6_hdr->code,
 			be16toh(icmpv6_hdr->checksum),
+			icmpv6opts.size(),
+			s_opts.c_str(),
 			fframe::c_str() ));
 
 	return info.c_str();
@@ -210,4 +430,193 @@ ficmpv6frame::set_icmpv6_type(uint8_t type)
 {
 	icmpv6_hdr->type = type;
 }
+
+
+
+
+ficmpv6opt::ficmpv6opt(
+		uint8_t *data,
+		size_t datalen) :
+				fframe(data, datalen)
+{
+	icmpv6_opt = (struct icmpv6_option_hdr_t*)data;
+}
+
+
+
+ficmpv6opt::ficmpv6opt(
+		struct icmpv6_option_hdr_t *data,
+		size_t datalen) :
+				fframe((uint8_t*)data, datalen)
+{
+	icmpv6_opt = (struct icmpv6_option_hdr_t*)data;
+}
+
+
+
+ficmpv6opt::~ficmpv6opt()
+{
+
+}
+
+
+
+ficmpv6opt::ficmpv6opt(
+		ficmpv6opt const& opt) :
+				fframe((size_t)opt.framelen())
+{
+	*this = opt;
+}
+
+
+
+ficmpv6opt&
+ficmpv6opt::operator= (ficmpv6opt const& opt)
+{
+	if (this == &opt)
+		return *this;
+
+	fframe::operator= (opt);
+
+	icmpv6_opt = (struct icmpv6_option_hdr_t*)soframe();
+
+	return *this;
+}
+
+
+
+const char*
+ficmpv6opt::c_str()
+{
+	cvastring vas;
+
+	info.assign(vas("[ficmpv6opt(%p) %s]", this, fframe::c_str()));
+
+	return info.c_str();
+}
+
+
+
+uint8_t
+ficmpv6opt::get_opt_type()
+{
+	return icmpv6_opt->type;
+}
+
+
+
+void
+ficmpv6opt::set_opt_type(uint8_t type)
+{
+	icmpv6_opt->type = type;
+}
+
+
+
+cmacaddr
+ficmpv6opt::get_ll_taddr()
+		throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort)
+{
+	if (ICMPV6_OPT_LLADDR_TARGET != icmpv6_opt->type) {
+		throw eICMPv6FrameInvalType();
+	}
+	if (framelen() < sizeof(struct icmpv6_lla_option_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	return cmacaddr(icmpv6_opt_lla->addr, ETHER_ADDR_LEN);
+}
+
+
+
+void
+ficmpv6opt::set_ll_taddr(cmacaddr const& addr)
+		throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_lla_option_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	memcpy(icmpv6_opt_lla->addr, addr.somem(), ETHER_ADDR_LEN);
+}
+
+
+
+cmacaddr
+ficmpv6opt::get_ll_saddr()
+		throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort)
+{
+	if (ICMPV6_OPT_LLADDR_SOURCE != icmpv6_opt->type) {
+		throw eICMPv6FrameInvalType();
+	}
+	if (framelen() < sizeof(struct icmpv6_lla_option_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	return cmacaddr(icmpv6_opt_lla->addr, ETHER_ADDR_LEN);
+}
+
+
+
+void
+ficmpv6opt::set_ll_saddr(cmacaddr const& addr)
+		throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_lla_option_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	memcpy(icmpv6_opt_lla->addr, addr.somem(), ETHER_ADDR_LEN);
+}
+
+
+
+uint8_t
+ficmpv6opt::get_pfx_on_link_flag()
+		throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort)
+{
+	if (ICMPV6_OPT_PREFIX_INFO != icmpv6_opt->type) {
+		throw eICMPv6FrameInvalType();
+	}
+	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	return ((icmpv6_opt_pfx->flags & 0b10000000) >> 7);
+}
+
+
+
+void
+ficmpv6opt::set_pfx_on_link_flag(uint8_t flag)
+		throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	icmpv6_opt_pfx->flags = (icmpv6_opt_pfx->flags & 0b01111111) | ((flag & 0x01) << 7);
+}
+
+
+
+uint8_t
+ficmpv6opt::get_pfx_aac_flag()
+		throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort)
+{
+	if (ICMPV6_OPT_PREFIX_INFO != icmpv6_opt->type) {
+		throw eICMPv6FrameInvalType();
+	}
+	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	return ((icmpv6_opt_pfx->flags & 0b01000000) >> 6);
+}
+
+
+
+void
+ficmpv6opt::set_pfx_aac_flag(uint8_t flag)
+		throw (eICMPv6FrameTooShort)
+{
+	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
+		throw eICMPv6FrameTooShort();
+	}
+	icmpv6_opt_pfx->flags = (icmpv6_opt_pfx->flags & 0b10111111) | ((flag & 0x01) << 6);
+}
+
 
