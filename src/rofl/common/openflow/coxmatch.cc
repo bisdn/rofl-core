@@ -446,6 +446,124 @@ coxmatch::get_oxm_length()
 }
 
 
+
+uint8_t
+coxmatch::u8value()
+{
+	if (get_oxm_hasmask()) {
+		return (uint8_value() & uint8_mask());
+	} else {
+		return uint8_value();
+	}
+}
+
+
+
+uint16_t
+coxmatch::u16value()
+{
+	if (get_oxm_hasmask()) {
+		return (uint16_value() & uint16_mask());
+	} else {
+		return (uint16_value());
+	}
+}
+
+
+
+uint32_t
+coxmatch::u32value()
+{
+	if (get_oxm_hasmask()) {
+		return (uint32_value() & uint32_mask());
+	} else {
+		return uint32_value();
+	}
+}
+
+
+
+uint64_t
+coxmatch::u64value()
+{
+	if (get_oxm_hasmask()) {
+		return (uint64_value() & uint64_mask());
+	} else {
+		return uint64_value();
+	}
+}
+
+
+
+cmacaddr
+coxmatch::u48value()
+{
+	switch (get_oxm_class()) {
+	case OFPXMC_OPENFLOW_BASIC: {
+		switch (get_oxm_field()) {
+		case OFPXMT_OFB_ETH_DST:
+		case OFPXMT_OFB_ETH_SRC:
+		case OFPXMT_OFB_ARP_SHA:
+		case OFPXMT_OFB_ARP_THA:
+		case OFPXMT_OFB_IPV6_ND_SLL:
+		case OFPXMT_OFB_IPV6_ND_TLL:
+			break;
+		default:
+			throw eOxmInval();
+			break;
+		}
+	} break;
+	default: {
+		throw eOxmInval();
+	} break;
+	}
+
+	cmacaddr addr(oxm_uint48t->value, 6);
+	if (get_oxm_hasmask()) {
+		cmacaddr mask(oxm_uint48t->mask, 6);
+		return (addr & mask);
+	} else {
+		return (addr);
+	}
+}
+
+
+
+caddress
+coxmatch::u128value()
+{
+	switch (get_oxm_class()) {
+	case OFPXMC_OPENFLOW_BASIC: {
+		switch (get_oxm_field()) {
+		case OFPXMT_OFB_IPV6_SRC:
+		case OFPXMT_OFB_IPV6_DST:
+		case OFPXMT_OFB_IPV6_ND_TARGET:
+			break;
+		default:
+			throw eOxmInval();
+			break;
+		}
+	} break;
+	default: {
+		throw eOxmInval();
+	} break;
+	}
+
+	caddress addr(sizeof(struct sockaddr_in6));
+	addr.ca_s6addr->sin6_family = AF_INET6;
+	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxm_ipv6addr->addr, 16);
+	if (get_oxm_hasmask()) {
+		caddress mask(sizeof(struct sockaddr_in6));
+		mask.ca_s6addr->sin6_family = AF_INET6;
+		memcpy(mask.ca_s6addr->sin6_addr.s6_addr, oxm_ipv6addr->mask, 16);
+		return (addr & mask);
+	} else {
+		return (addr);
+	}
+}
+
+
+
 uint8_t
 coxmatch::uint8_value() const throw (eOxmInval)
 {

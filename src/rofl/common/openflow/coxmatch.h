@@ -273,6 +273,17 @@ public: // methods
 	/**
 	 *
 	 */
+	uint8_t  u8value();
+	uint16_t u16value();
+	uint32_t u32value();
+	uint64_t u64value();
+	cmacaddr u48value();
+	caddress u128value();
+
+
+	/**
+	 *
+	 */
 	uint8_t
 	uint8_value() const throw (eOxmInval);
 
