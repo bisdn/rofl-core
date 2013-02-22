@@ -119,9 +119,13 @@ ficmpv6frame::parse_icmpv6_options(
 		if (reslen < (int)sizeof(struct ficmpv6opt::icmpv6_option_hdr_t)) {
 			return;
 		}
+		if (0 == nextopt->len) {
+			writelog(FFRAME, WARN, "ficmpv6frame(%p)::parse_icmpv6_options() found invalid ICMPv6 option (len=0), ignoring", this);
+			return;
+		}
 		size_t optlen = 8 * nextopt->len; // length is measured in blocks of 8-octets
 		if (reslen < (int)optlen) {
-			writelog(FFRAME, WARN, "ficmpv6frame(%p)::parse_icmpv6_options() found invalid ICMPv6 option, ignoring", this);
+			writelog(FFRAME, WARN, "ficmpv6frame(%p)::parse_icmpv6_options() found invalid ICMPv6 option (too short), ignoring", this);
 			return;
 		}
 
@@ -344,11 +348,12 @@ ficmpv6frame::c_str()
 		s_opts.append(vas("%s ", it->second.c_str()));
 	}
 
-	info.assign(vas("[ficmpv6frame(%p) type[%d] code[%d] checksum[0x%x] icmpv6opts:%s fframe:%s]",
+	info.assign(vas("[ficmpv6frame(%p) type[%d] code[%d] checksum[0x%x] icmpv6opts(%d):%s fframe:%s]",
 			this,
 			icmpv6_hdr->type,
 			icmpv6_hdr->code,
 			be16toh(icmpv6_hdr->checksum),
+			icmpv6opts.size(),
 			s_opts.c_str(),
 			fframe::c_str() ));
 

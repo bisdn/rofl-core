@@ -11,12 +11,18 @@ class ficmpv6frameTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( ficmpv6frameTest );
 	CPPUNIT_TEST( testICMPv6Type );
 	CPPUNIT_TEST( testICMPv6Code );
+	CPPUNIT_TEST( testICMPv6ShortFrame );
+	CPPUNIT_TEST( testICMPv6OptionWithLengthNull );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
 
 	cmemory 		*mem;
+	cmemory			*mem_t;
+	cmemory			*mem_n;
 	ficmpv6frame 	*icmpv6;
+	ficmpv6frame	*icmpv6_too_short;
+	ficmpv6frame	*icmpv6_option_len_null;
 
 public:
 	void setUp();
@@ -24,5 +30,7 @@ public:
 
 	void testICMPv6Type();
 	void testICMPv6Code();
+	void testICMPv6ShortFrame();
+	void testICMPv6OptionWithLengthNull();
 };
 
