@@ -448,7 +448,7 @@ coxmatch::get_oxm_length()
 
 
 uint8_t
-coxmatch::u8value()
+coxmatch::u8value() const
 {
 	if (get_oxm_hasmask()) {
 		return (uint8_value() & uint8_mask());
@@ -460,7 +460,7 @@ coxmatch::u8value()
 
 
 uint16_t
-coxmatch::u16value()
+coxmatch::u16value() const
 {
 	if (get_oxm_hasmask()) {
 		return (uint16_value() & uint16_mask());
@@ -472,7 +472,7 @@ coxmatch::u16value()
 
 
 uint32_t
-coxmatch::u32value()
+coxmatch::u32value() const
 {
 	if (get_oxm_hasmask()) {
 		return (uint32_value() & uint32_mask());
@@ -484,7 +484,7 @@ coxmatch::u32value()
 
 
 uint64_t
-coxmatch::u64value()
+coxmatch::u64value() const
 {
 	if (get_oxm_hasmask()) {
 		return (uint64_value() & uint64_mask());
@@ -496,7 +496,7 @@ coxmatch::u64value()
 
 
 cmacaddr
-coxmatch::u48value()
+coxmatch::u48value() const
 {
 	switch (get_oxm_class()) {
 	case OFPXMC_OPENFLOW_BASIC: {
@@ -530,7 +530,7 @@ coxmatch::u48value()
 
 
 caddress
-coxmatch::u128value()
+coxmatch::u128value() const
 {
 	switch (get_oxm_class()) {
 	case OFPXMC_OPENFLOW_BASIC: {

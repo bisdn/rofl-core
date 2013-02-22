@@ -273,12 +273,12 @@ public: // methods
 	/**
 	 *
 	 */
-	uint8_t  u8value();
-	uint16_t u16value();
-	uint32_t u32value();
-	uint64_t u64value();
-	cmacaddr u48value();
-	caddress u128value();
+	uint8_t  u8value() const;
+	uint16_t u16value() const;
+	uint32_t u32value() const;
+	uint64_t u64value() const;
+	cmacaddr u48value() const;
+	caddress u128value() const;
 
 
 	/**

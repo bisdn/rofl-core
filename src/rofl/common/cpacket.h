@@ -617,6 +617,13 @@ public:
 			coxmatch const& oxm);
 
 
+	/**
+	 */
+	void
+	set_field_basic_class(
+			coxmatch const& oxm);
+
+
 	/** copy ttl out
 	 */
 	void
