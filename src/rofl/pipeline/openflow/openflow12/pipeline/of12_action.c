@@ -340,7 +340,7 @@ static inline void of12_process_packet_action(const struct of_switch* sw, const 
 					pkt_to_send = pkt;
 
 				//Output to the real port
-				platform_output_packet(sw, pkt_to_send, action->field);
+				platform_output_packet(pkt_to_send, action->field);
 			}
 			break;
 	}
