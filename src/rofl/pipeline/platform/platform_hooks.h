@@ -5,6 +5,7 @@
 
 #include "../util/rofl_pipeline_utils.h"
 #include "../common/datapacket.h"
+#include "../switch_port.h"
 
 /*
 *
@@ -96,7 +97,7 @@ void platform_set_ppp_proto(datapacket_t* pkt, uint16_t proto);
 * If a flooding output actions needs to be done, the function
 * has itself to deal with packet replication.
 */
-void platform_output_packet(datapacket_t* pkt, uint32_t port_num);
+void platform_output_packet(datapacket_t* pkt, switch_port_t* port);
 
 /**
 * Creates a copy (in heap) of the datapacket_t structure including any

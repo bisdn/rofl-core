@@ -3,10 +3,13 @@
 #include <stdio.h>
 
 #include "of12_packet_matches.h" //TODO: evaluate if this is the best approach to update of12_matches after actions
+#include "../../../physical_switch.h"
 #include "../../../platform/platform_hooks.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/openflow/openflow12/platform_hooks_of12.h"
 
+//Flood port
+extern switch_port_t* flood_meta_port;
 
 //Byte masks
 #define OF12_AT_6_BYTE_MASK 0x0000FFFFFFFFFFFF
@@ -339,8 +342,16 @@ static inline void of12_process_packet_action(const struct of_switch* sw, const 
 				}else
 					pkt_to_send = pkt;
 
-				//Output to the real port
-				platform_output_packet(pkt_to_send, action->field);
+				//Perform output
+				if(action->field == OF12_PORT_FLOOD || 
+				   action->field == OF12_PORT_ALL){
+					//Flood
+					platform_output_packet(pkt_to_send, flood_meta_port);
+				}else{
+					//Single port output
+					platform_output_packet(pkt_to_send, sw->logical_ports[action->field].port);
+				}
+				
 			}
 			break;
 	}
