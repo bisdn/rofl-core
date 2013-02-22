@@ -5,6 +5,8 @@
 #ifndef ficmpv6frame_H
 #define ficmpv6frame_H 1
 
+#include <map>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -28,6 +30,7 @@ namespace rofl
 {
 
 class eICMPv6FrameBase 				: public eFrameBase {};
+class eICMPv6FrameNotFound			: public eICMPv6FrameBase {};
 class eICMPv6FrameInvalType			: public eICMPv6FrameBase {};
 class eICMPv6FrameInvalCode			: public eICMPv6FrameBase {};
 class eICMPv6FrameInvalidSyntax 	: public eICMPv6FrameBase, public eFrameInvalidSyntax {};
@@ -52,7 +55,7 @@ public: // static definitions and constants
 	 * ICMPv6 NDP options
 	 */
 
-	enum icmpv6_ndp_option_type_t {
+	enum icmpv6_option_type_t {
 		ICMPV6_OPT_LLADDR_SOURCE 		= 1,
 		ICMPV6_OPT_LLADDR_TARGET 		= 2,
 		ICMPV6_OPT_PREFIX_INFO			= 3,
@@ -118,7 +121,7 @@ public:
 public:
 	/**
 	 */
-	ficmpv6opt(uint8_t *data, size_t datalen);
+	ficmpv6opt(uint8_t *data = (uint8_t*)0, size_t datalen = 0);
 	/**
 	 */
 	ficmpv6opt(struct icmpv6_option_hdr_t *data, size_t datalen);
@@ -318,7 +321,7 @@ public: // data structures
 #define icmpv6_ndp_adv_hdr	icmpv6u.icmpv6u_ndp_advertisement_hdr
 #define icmpv6_ndp_red_hdr	icmpv6u.icmpv6u_redirect_hdr
 
-	std::vector<ficmpv6opt> 	 icmpv6opts;	// ICMPv6 NDP options
+	std::map<ficmpv6opt::icmpv6_option_type_t, ficmpv6opt> 	 icmpv6opts;	// ICMPv6 NDP options
 
 	uint8_t 					*data; 			// ICMPv6 message body
 	size_t 						 datalen;		// ICMPv6 message body length
@@ -357,6 +360,13 @@ public:
 	 */
 	void
 	icmpv6_calc_checksum();
+
+
+	/** get specific ICMPv6 option
+	 *
+	 */
+	ficmpv6opt&
+	get_opt(ficmpv6opt::icmpv6_option_type_t type) throw (eICMPv6FrameNotFound);
 
 
 public: // overloaded from fframe

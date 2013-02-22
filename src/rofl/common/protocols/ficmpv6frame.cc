@@ -36,6 +36,17 @@ ficmpv6frame::~ficmpv6frame()
 
 
 
+ficmpv6opt&
+ficmpv6frame::get_opt(ficmpv6opt::icmpv6_option_type_t type) throw (eICMPv6FrameNotFound)
+{
+	if (icmpv6opts.find(type) == icmpv6opts.end()) {
+		throw eICMPv6FrameNotFound();
+	}
+	return icmpv6opts[type];
+}
+
+
+
 void
 ficmpv6frame::initialize()
 {
@@ -51,6 +62,7 @@ ficmpv6frame::initialize()
 		datalen = 0;
 	}
 }
+
 
 
 bool
