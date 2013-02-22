@@ -5,6 +5,7 @@
 
 #include "../util/rofl_pipeline_utils.h"
 #include "../common/datapacket.h"
+#include "../openflow/of_switch.h"
 
 /*
 *
@@ -88,8 +89,27 @@ void platform_set_pppoe_sid(datapacket_t* pkt, uint16_t sid);
 //PPP
 void platform_set_ppp_proto(datapacket_t* pkt, uint16_t proto);
 
-/* Output action */
-void platform_output_packet(datapacket_t* pkt, uint32_t port_num);
+/**
+* Output packet to the port(s)
+* The action HAS to implement the destruction/release of the pkt
+* (including if the pkt is a replica).
+*
+* If a flooding output actions needs to be done, the function
+* has itself to deal with packet replication.
+*/
+void platform_output_packet(const of_switch_t* sw, datapacket_t* pkt, uint32_t port_num);
+
+/**
+* Creates a copy (in heap) of the datapacket_t structure including any
+* platform specific state (->platform_state). The following behaviour
+* is expected from this hook:
+* 
+* - All data fields and pointers of datapacket_t struct must be memseted to 0, except:
+* - datapacket_t flag is_replica must be set to true
+* - platform_state, if used, must be replicated (copied) otherwise NULL
+*
+*/
+datapacket_t* platform_replicate_packet(datapacket_t* pkt);
 
 //Packet drop
 void platform_packet_drop(datapacket_t* pkt);

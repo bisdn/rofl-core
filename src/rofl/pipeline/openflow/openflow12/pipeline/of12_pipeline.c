@@ -121,10 +121,16 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 			}
 
 			//Process WRITE actions
-			of12_process_write_actions(sw, i, pkt);
+			of12_process_write_actions(sw, i, pkt, match->instructions.has_multiple_outputs);
 
 			//Unlock the entry so that it can eventually be modified/deleted
 			platform_rwlock_rdunlock(match->rwlock);
+
+			//Drop packet Only if there has been copy(cloning of the packet) due to 
+			//multiple output actions
+			if(match->instructions.has_multiple_outputs)
+				platform_packet_drop(pkt);
+							
 
 			return;	
 		}else{

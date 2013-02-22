@@ -13,7 +13,8 @@ static void of12_init_instruction(of12_instruction_t* inst, of12_instruction_typ
 	inst->write_actions = write_actions;
 
 	if(type == OF12_IT_GOTO_TABLE)
-		inst->go_to_table = go_to_table;	
+		inst->go_to_table = go_to_table;
+	
 }
 
 
@@ -59,11 +60,21 @@ void of12_remove_instruction_from_the_group(of12_instruction_group_t* group, of1
 //Addition of instruction to group
 void of12_add_instruction_to_group(of12_instruction_group_t* group, of12_instruction_type_t type, of12_action_group_t* apply_actions, of12_write_actions_t* write_actions, unsigned int go_to_table){
 
+	unsigned int apply_num_of_outputs=0;
+
 	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(type)].type != OF12_IT_NO_INSTRUCTION)
 		of12_remove_instruction_from_the_group(group,type);
 		
 	of12_init_instruction(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(type)], type, apply_actions, write_actions, go_to_table);
 	group->num_of_instructions++;
+
+	if(group->instructions[OF12_IT_APPLY_ACTIONS].apply_actions)
+		apply_num_of_outputs = group->instructions[OF12_IT_APPLY_ACTIONS].apply_actions->num_of_output_actions;
+
+	//Assign flag
+	group->has_multiple_outputs =  apply_num_of_outputs > 1 || 
+				    ( (apply_num_of_outputs > 0) && (group->instructions[OF12_IT_WRITE_ACTIONS].type != OF12_IT_NO_INSTRUCTION) );
+
 }
 
 /* Process instructions */
@@ -75,7 +86,7 @@ unsigned int of12_process_instructions(const struct of_switch* sw, const unsigne
 	
 		//Check all instructions in order 
 		switch(instructions->instructions[i].type){
-			case OF12_IT_APPLY_ACTIONS: of12_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions); 
+			case OF12_IT_APPLY_ACTIONS: of12_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, instructions->has_multiple_outputs); 
 					break;
     			case OF12_IT_CLEAR_ACTIONS: of12_clear_write_actions((of12_write_actions_t*)pkt->write_actions);
 					break;

@@ -128,6 +128,10 @@ of12_action_group_t* of12_init_action_group(of12_packet_action_t* actions){
 		action_group->head = actions;
 	
 		for(;actions;actions=actions->next, number_of_actions++){
+
+			if(actions->type == OF12_AT_OUTPUT)
+				action_group->num_of_output_actions++;
+
 			if(!actions->next){
 				action_group->tail = actions;
 				break;
@@ -139,7 +143,7 @@ of12_action_group_t* of12_init_action_group(of12_packet_action_t* actions){
 	}
 
 	action_group->num_of_actions = number_of_actions;
-	
+
 	return action_group;
 }
 
@@ -226,7 +230,7 @@ void of12_clear_write_actions(of12_write_actions_t* write_actions){
 }
 
 /* Contains switch with all the different action functions */
-inline void of12_process_packet_action(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt, of12_packet_action_t* action){
+static inline void of12_process_packet_action(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt, of12_packet_action_t* action, bool replicate_pkts){
 
 	switch(action->type){
 		case OF12_AT_NO_ACTION: /*TODO: print some error traces? */
@@ -322,20 +326,32 @@ inline void of12_process_packet_action(const struct of_switch* sw, const unsigne
 				//Do nothing
 
 			}else{
+				//Pointer to the packet to send
+				datapacket_t* pkt_to_send;			
+	
+				//Duplicate the packet only if necessary
+				if(replicate_pkts){
+					pkt_to_send = platform_replicate_packet(pkt);
+	
+					//check for wrong copy
+					if(!pkt_to_send)
+						return;
+				}else
+					pkt_to_send = pkt;
 
-				//Output to real port
-				platform_output_packet(pkt, action->field);
+				//Output to the real port
+				platform_output_packet(sw, pkt_to_send, action->field);
 			}
 			break;
 	}
 }
 
-void of12_process_apply_actions(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of12_action_group_t* apply_actions_group){
+void of12_process_apply_actions(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of12_action_group_t* apply_actions_group, bool replicate_pkts){
 
 	of12_packet_action_t* it;
 
 	for(it=apply_actions_group->head;it;it=it->next){
-		of12_process_packet_action(sw, table_id, pkt, it);
+		of12_process_packet_action(sw, table_id, pkt, it, replicate_pkts);
 	}	
 	of12_update_packet_matches(pkt); //TODO: evaluate wether it can be updated directly on of12_process_packet action without calling again platform methods, and evaluate the performance impact
 }
@@ -345,7 +361,7 @@ void of12_process_apply_actions(const struct of_switch* sw, const unsigned int t
 * The of12_process_write_actions is meant to encapsulate the processing of the write actions
 *
 */
-void of12_process_write_actions(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt){
+void of12_process_write_actions(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts){
 
 	unsigned int i;
 	of12_write_actions_t* packet_write_actions;
@@ -355,7 +371,7 @@ void of12_process_write_actions(const struct of_switch* sw, const unsigned int t
 	
 	for(i=0;i<OF12_AT_NUMBER;i++){
 		if(packet_write_actions->write_actions[i].type){
-			of12_process_packet_action(sw, table_id, pkt, &packet_write_actions->write_actions[i]);
+			of12_process_packet_action(sw, table_id, pkt, &packet_write_actions->write_actions[i], replicate_pkts);
 		}
 	}
 }
