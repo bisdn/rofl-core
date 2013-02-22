@@ -761,7 +761,7 @@ public:
 	 *
 	 */
 	cmacaddr
-	get_ipv6_nd_sll()
+	get_icmpv6_neighbor_source_lladdr()
 		throw (eOFmatchNotFound);
 
 
@@ -769,7 +769,7 @@ public:
 	 *
 	 */
 	void
-	set_ipv6_nd_sll(
+	set_icmpv6_neighbor_source_lladdr(
 			cmacaddr const& maddr);
 
 
@@ -777,7 +777,7 @@ public:
 	 *
 	 */
 	cmacaddr
-	get_ipv6_nd_tll()
+	get_icmpv6_neighbor_target_lladdr()
 		throw (eOFmatchNotFound);
 
 
@@ -785,8 +785,24 @@ public:
 	 *
 	 */
 	void
-	set_ipv6_nd_tll(
+	set_icmpv6_neighbor_target_lladdr(
 			cmacaddr const& maddr);
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_icmpv6_neighbor_taddr()
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	void
+	set_icmpv6_neighbor_taddr(
+			caddress const& addr);
 
 
 	/**

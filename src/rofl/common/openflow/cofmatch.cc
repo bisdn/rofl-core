@@ -1148,7 +1148,7 @@ cofmatch::set_ipv6_flabel(
 
 
 cmacaddr
-cofmatch::get_ipv6_nd_sll()
+cofmatch::get_icmpv6_neighbor_source_lladdr()
 	throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_SLL))
@@ -1170,7 +1170,7 @@ cofmatch::get_ipv6_nd_sll()
 
 
 void
-cofmatch::set_ipv6_nd_sll(
+cofmatch::set_icmpv6_neighbor_source_lladdr(
 		cmacaddr const& maddr)
 {
 	oxmlist[OFPXMT_OFB_IPV6_ND_SLL] = coxmatch_ofb_ipv6_nd_sll(maddr);
@@ -1179,7 +1179,7 @@ cofmatch::set_ipv6_nd_sll(
 
 
 cmacaddr
-cofmatch::get_ipv6_nd_tll()
+cofmatch::get_icmpv6_neighbor_target_lladdr()
 	throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_TLL))
@@ -1201,10 +1201,36 @@ cofmatch::get_ipv6_nd_tll()
 
 
 void
-cofmatch::set_ipv6_nd_tll(
+cofmatch::set_icmpv6_neighbor_target_lladdr(
 		cmacaddr const& maddr)
 {
 	oxmlist[OFPXMT_OFB_IPV6_ND_TLL] = coxmatch_ofb_ipv6_nd_tll(maddr);
+}
+
+
+
+caddress
+cofmatch::get_icmpv6_neighbor_taddr()
+	throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_TARGET))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	caddress addr(sizeof(struct sockaddr_in6));
+	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxmlist[OFPXMT_OFB_IPV6_ND_TARGET].oxm_ipv6addr->addr, 16);
+
+	return addr;
+}
+
+
+
+void
+cofmatch::set_icmpv6_neighbor_taddr(
+		caddress const& addr)
+{
+	oxmlist[OFPXMT_OFB_IPV6_ND_TARGET] = coxmatch_ofb_ipv6_nd_target(addr);
 }
 
 

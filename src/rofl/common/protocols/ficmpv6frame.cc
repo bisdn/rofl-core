@@ -434,6 +434,77 @@ ficmpv6frame::set_icmpv6_type(uint8_t type)
 
 
 
+caddress
+ficmpv6frame::get_icmpv6_neighbor_taddr() throw (eICMPv6FrameInvalType)
+{
+	caddress addr(sizeof(struct sockaddr_in6));
+	addr.ca_s6addr->sin6_family = AF_INET6;
+
+	try {
+		switch (get_icmpv6_type()) {
+		case ICMPV6_TYPE_NEIGHBOR_SOLICITATION: {
+			memcpy(addr.ca_s6addr->sin6_addr.s6_addr, icmpv6_neighbor_solicitation->taddr, IPV6_ADDR_LEN);
+		} break;
+		case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT: {
+			memcpy(addr.ca_s6addr->sin6_addr.s6_addr, icmpv6_neighbor_advertisement->taddr, IPV6_ADDR_LEN);
+		} break;
+		case ICMPV6_TYPE_REDIRECT_MESSAGE: {
+			memcpy(addr.ca_s6addr->sin6_addr.s6_addr, icmpv6_redirect->taddr, IPV6_ADDR_LEN);
+		} break;
+		default: {
+			throw eICMPv6FrameInvalType();
+		}
+		}
+
+	} catch (eICMPv6FrameInvalType& e) {
+
+		writelog(FFRAME, WARN, "ficmpv6frame(%p)::get_icmpv6_neighbor_taddr() "
+				"invalid frame type", this);
+	}
+
+	return addr;
+}
+
+
+
+void
+ficmpv6frame::set_icmpv6_neighbor_taddr(caddress const& addr) throw (eICMPv6FrameInvalType)
+{
+	try {
+		if (not addr.is_af_inet6()) {
+			return;
+		}
+		switch (get_icmpv6_type()) {
+		case ICMPV6_TYPE_NEIGHBOR_SOLICITATION: {
+			memcpy(icmpv6_neighbor_solicitation->taddr, addr.ca_s6addr->sin6_addr.s6_addr, IPV6_ADDR_LEN);
+		} break;
+		case ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT: {
+			memcpy(icmpv6_neighbor_advertisement->taddr, addr.ca_s6addr->sin6_addr.s6_addr, IPV6_ADDR_LEN);
+		} break;
+		case ICMPV6_TYPE_REDIRECT_MESSAGE: {
+			memcpy(icmpv6_redirect->taddr, addr.ca_s6addr->sin6_addr.s6_addr, IPV6_ADDR_LEN);
+		} break;
+		default: {
+			throw eICMPv6FrameInvalType();
+		}
+		}
+
+	} catch (eICMPv6FrameInvalType& e) {
+
+		writelog(FFRAME, WARN, "ficmpv6frame(%p)::set_icmpv6_neighbor_taddr() "
+				"invalid frame type", this);
+	}
+}
+
+
+
+
+
+
+
+
+
+
 ficmpv6opt::ficmpv6opt(
 		uint8_t *data,
 		size_t datalen) :

@@ -549,13 +549,13 @@ public:
 	 *
 	 */
 	caddress
-	get_icmpv6_ndp_taddr() throw (eICMPv6FrameInvalType);
+	get_icmpv6_neighbor_taddr() throw (eICMPv6FrameInvalType);
 
 	/**
 	 *
 	 */
 	void
-	set_icmpv6_ndp_taddr(caddress const& addr) throw (eICMPv6FrameInvalType);
+	set_icmpv6_neighbor_taddr(caddress const& addr) throw (eICMPv6FrameInvalType);
 
 
 

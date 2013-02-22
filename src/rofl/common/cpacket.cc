@@ -1532,16 +1532,87 @@ cpacket::set_field(coxmatch const& oxm)
 			}
 			break;
 		case OFPXMT_OFB_IPV6_SRC:
+			{
+				caddress addr(sizeof(struct sockaddr_in6));
+				addr.ca_s6addr->sin6_family = AF_INET6;
+				if (not oxm.get_oxm_hasmask()) {
+					memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxm.oxm_ipv6addr->addr, 16);
+				} else {
+#if 0
+					memcpy(addr.ca_s6addr->sin6_addr.s6_addr,
+							oxm.oxm_ipv6addr->addr & oxm.oxm_ipv6addr->mask, 16);
+#endif
+				}
+				ipv6()->set_ipv6_src(addr);
+				match.set_ipv6_src(addr);
+			}
+			break;
 		case OFPXMT_OFB_IPV6_DST:
+			{
+				caddress addr(sizeof(struct sockaddr_in6));
+				addr.ca_s6addr->sin6_family = AF_INET6;
+				if (not oxm.get_oxm_hasmask()) {
+					memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxm.oxm_ipv6addr->addr, 16);
+				} else {
+#if 0
+					memcpy(addr.ca_s6addr->sin6_addr.s6_addr,
+							oxm.oxm_ipv6addr->addr & oxm.oxm_ipv6addr->mask, 16);
+#endif
+				}
+				ipv6()->set_ipv6_dst(addr);
+				match.set_ipv6_dst(addr);
+			}
+			break;
 		case OFPXMT_OFB_IPV6_FLABEL:
+			{
+				if (not oxm.get_oxm_hasmask()) {
+					ipv6()->set_flow_label(oxm.uint32_value());
+					match.set_ipv6_flabel(oxm.uint32_value());
+				} else {
+					ipv6()->set_flow_label(oxm.uint32_value() & oxm.uint32_mask());
+					match.set_ipv6_flabel(oxm.uint32_value() & oxm.uint32_mask());
+				}
+			}
+			break;
 		case OFPXMT_OFB_ICMPV6_TYPE:
+			{
+				icmpv6()->set_icmpv6_type(oxm.uint8_value());
+				match.set_icmpv6_type(oxm.uint8_value());
+			}
+			break;
 		case OFPXMT_OFB_ICMPV6_CODE:
+			{
+				icmpv6()->set_icmpv6_code(oxm.uint8_value());
+				match.set_icmpv6_code(oxm.uint8_value());
+			}
+			break;
 		case OFPXMT_OFB_IPV6_ND_TARGET:
+			{
+				caddress addr(sizeof(struct sockaddr_in6));
+				addr.ca_s6addr->sin6_family = AF_INET6;
+				if (not oxm.get_oxm_hasmask()) {
+					memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxm.oxm_ipv6addr->addr, 16);
+				} else {
+#if 0
+					memcpy(addr.ca_s6addr->sin6_addr.s6_addr,
+							oxm.oxm_ipv6addr->addr & oxm.oxm_ipv6addr->mask, 16);
+#endif
+				}
+				icmpv6()->set_icmpv6_neighbor_taddr(addr);
+				match.set_icmpv6_neighbor_taddr(addr);
+			}
+			break;
 		case OFPXMT_OFB_IPV6_ND_SLL:
+			{
+				cmacaddr maddr(oxm.oxm_uint48t->value, OFP_ETH_ALEN);
+				icmpv6()->get_option(ficmpv6opt::ICMPV6_OPT_LLADDR_SOURCE).set_ll_saddr(maddr);
+			}
+			break;
 		case OFPXMT_OFB_IPV6_ND_TLL:
-			WRITELOG(CPACKET, WARN, "cpacket(%p)::set_field() "
-					"NOT IMPLEMENTED! => class:0x%x field:%d, ignoring",
-					this, oxm.get_oxm_class(), oxm.get_oxm_field());
+			{
+				cmacaddr maddr(oxm.oxm_uint48t->value, OFP_ETH_ALEN);
+				icmpv6()->get_option(ficmpv6opt::ICMPV6_OPT_LLADDR_TARGET).set_ll_taddr(maddr);
+			}
 			break;
 		case OFPXMT_OFB_MPLS_LABEL:
 			{
