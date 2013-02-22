@@ -157,3 +157,22 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 	platform_packet_drop(pkt);
 
 }
+
+/*
+* Process the packet out 
+*/
+void of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of12_action_group_t* apply_actions_group){
+
+	//Temporal stack vars for matches and write actions
+	of12_packet_matches_t pkt_matches;
+	of12_write_actions_t write_actions;
+	
+	//Initialize packet for OF1.2 pipeline processing 
+	of12_init_packet_matches(pkt, &pkt_matches); 
+	of12_init_packet_write_actions(pkt, &write_actions); 
+
+	//Just process the action group
+	of12_process_apply_actions(sw, 0, pkt, apply_actions_group, apply_actions_group->num_of_output_actions > 1 );
+	
+}
+	

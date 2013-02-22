@@ -47,6 +47,9 @@ unsigned int of12_destroy_pipeline(of12_pipeline_t* pipeline);
 //Packet processing
 void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt);
 
+//Process the packet out
+void of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of12_action_group_t* apply_actions_group);
+
 //C++ extern C
 ROFL_PIPELINE_END_DECLS
 
