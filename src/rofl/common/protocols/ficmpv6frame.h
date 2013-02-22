@@ -189,30 +189,30 @@ public:	/* ICMPv6 constants and definitions */
 	};
 
 	enum icmpv6_type_t {
-		ICMPV6_TYPE_DESTINATION_UNREACHABLE 		= 1,
-		ICMPV6_TYPE_PACKET_TOO_BIG					= 2,
-		ICMPV6_TYPE_TIME_EXCEEDED					= 3,
-		ICMPV6_TYPE_PARAMETER_PROBLEM				= 4,
-		ICMPV6_TYPE_ECHO_REQUEST					= 128,
-		ICMPV6_TYPE_ECHO_REPLY						= 129,
-		ICMPV6_TYPE_MULTICAST_LISTENER_QUERY		= 130,
-		ICMPV6_TYPE_MULTICAST_LISTENER_REPORT		= 131,
-		ICMPV6_TYPE_MULTICAST_LISTENER_DONE			= 132,
-		ICMPV6_TYPE_ROUTER_SOLICATION				= 133,
-		ICMPV6_TYPE_ROUTER_ADVERTISEMENT			= 134,
-		ICMPV6_TYPE_NEIGHBOR_SOLICITATION			= 135,
-		ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT			= 136,
-		ICMPV6_TYPE_REDIRECT_MESSAGE				= 137,
-		ICMPV6_TYPE_ROUTER_RENUMBERING				= 138,
-		ICMPV6_TYPE_ICMP_NODE_INFORMATION_QUERY		= 139,
-		ICMPV6_TYPE_ICMP_NODE_INFORMATION_RESPONSE	= 140,
+		ICMPV6_TYPE_DESTINATION_UNREACHABLE 							= 1,
+		ICMPV6_TYPE_PACKET_TOO_BIG										= 2,
+		ICMPV6_TYPE_TIME_EXCEEDED										= 3,
+		ICMPV6_TYPE_PARAMETER_PROBLEM									= 4,
+		ICMPV6_TYPE_ECHO_REQUEST										= 128,
+		ICMPV6_TYPE_ECHO_REPLY											= 129,
+		ICMPV6_TYPE_MULTICAST_LISTENER_QUERY							= 130,
+		ICMPV6_TYPE_MULTICAST_LISTENER_REPORT							= 131,
+		ICMPV6_TYPE_MULTICAST_LISTENER_DONE								= 132,
+		ICMPV6_TYPE_ROUTER_SOLICATION									= 133,
+		ICMPV6_TYPE_ROUTER_ADVERTISEMENT								= 134,
+		ICMPV6_TYPE_NEIGHBOR_SOLICITATION								= 135,
+		ICMPV6_TYPE_NEIGHBOR_ADVERTISEMENT								= 136,
+		ICMPV6_TYPE_REDIRECT_MESSAGE									= 137,
+		ICMPV6_TYPE_ROUTER_RENUMBERING									= 138,
+		ICMPV6_TYPE_ICMP_NODE_INFORMATION_QUERY							= 139,
+		ICMPV6_TYPE_ICMP_NODE_INFORMATION_RESPONSE						= 140,
 		ICMPV6_TYPE_INVERSE_NEIGHBOR_DISCOVERY_SOLICITATION_MESSAGE 	= 141,
 		ICMPV6_TYPE_INVERSE_NEIGHBOR_DISCOVERY_ADVERTISEMENT_MESSAGE 	= 142,
 		ICMPV6_TYPE_MULTICAST_LISTENER_DISCOVERY_REPORT					= 143,
 		ICMPV6_TYPE_HOME_AGENT_ADDRESS_DISCOVERY_REQUEST_MESSAGE		= 144,
 		ICMPV6_TYPE_HOME_AGENT_ADDRESS_DISCOVERY_REPLY_MESSAGE			= 145,
-		ICMPV6_TYPE_MOBILE_PREFIX_SOLICITATION		= 146,
-		ICMPV6_TYPE_MOBILE_PREFIX_ADVERTISEMENT		= 147,
+		ICMPV6_TYPE_MOBILE_PREFIX_SOLICITATION							= 146,
+		ICMPV6_TYPE_MOBILE_PREFIX_ADVERTISEMENT							= 147,
 	};
 
 	enum icmpv6_destination_unreachable_code_t {
@@ -231,7 +231,7 @@ public:	/* ICMPv6 constants and definitions */
 
 
 	/*
-	 * ICMPv6 NDP message types
+	 * ICMPv6 message types
 	 */
 
 	/* ICMPv6 generic header */
@@ -241,6 +241,59 @@ public:	/* ICMPv6 constants and definitions */
 		uint16_t 						checksum;
 		uint8_t 						data[0];
 	} __attribute__((packed));
+
+
+	/*
+	 * ICMPv6 error message types
+	 */
+
+	/* ICMPv6 message format for Destination Unreachable */
+	struct icmpv6_dest_unreach_hdr_t {
+		struct icmpv6_hdr_t				icmpv6_hdr;				// type=133, code=0
+		uint32_t						unused;					// a 32bit value
+		uint8_t							data[0];				// the IP packet
+	} __attribute__((packed));
+
+	/* ICMPv6 message format for Packet Too Big */
+	struct icmpv6_pkt_too_big_hdr_t {
+		struct icmpv6_hdr_t				icmpv6_hdr;				// type=133, code=0
+		uint32_t						unused;					// a 32bit value
+		uint8_t							data[0];				// the IP packet
+	} __attribute__((packed));
+
+	/* ICMPv6 message format for Time Exceeded */
+	struct icmpv6_time_exceeded_hdr_t {
+		struct icmpv6_hdr_t				icmpv6_hdr;				// type=133, code=0
+		uint32_t						unused;					// a 32bit value
+		uint8_t							data[0];				// the IP packet
+	} __attribute__((packed));
+
+	/* ICMPv6 message format for Parameter Problem */
+	struct icmpv6_param_problem_hdr_t {
+		struct icmpv6_hdr_t				icmpv6_hdr;				// type=133, code=0
+		uint32_t						pointer;				// a 32bit value
+		uint8_t							data[0];				// the IP packet
+	} __attribute__((packed));
+
+	/* ICMPv6 echo request message format */
+	struct icmpv6_echo_request_hdr_t {
+		struct icmpv6_hdr_t				icmpv6_hdr;				// type=133, code=0
+		uint16_t						id;
+		uint16_t 						seqno;
+		uint8_t							data[0];				// arbitrary data
+	} __attribute__((packed));
+
+	/* ICMPv6 echo reply message format */
+	struct icmpv6_echo_reply_hdr_t {
+		struct icmpv6_hdr_t				icmpv6_hdr;				// type=133, code=0
+		uint16_t						id;
+		uint16_t 						seqno;
+		uint8_t							data[0];				// arbitrary data
+	} __attribute__((packed));
+
+	/*
+	 * ICMPv6 NDP message types
+	 */
 
 	/* ICMPv6 router solicitation */
 	struct icmpv6_router_solicitation_hdr_t {
@@ -306,20 +359,32 @@ public:	/* ICMPv6 constants and definitions */
 public: // data structures
 
 	union {
-		struct icmpv6_hdr_t 						*icmpv6u_hdr;					// ICMPv6 message header
-		struct icmpv6_router_solicitation_hdr_t		*icmpv6u_rtr_solicitation_hdr;	// ICMPv6 rtr solicitation
-		struct icmpv6_router_advertisement_hdr_t	*icmpv6u_rtr_advertisement_hdr;	// ICMPv6 rtr advertisement
-		struct icmpv6_neighbor_solicitation_hdr_t	*icmpv6u_ndp_solication_hdr;	// ICMPv6 NDP solication header
-		struct icmpv6_neighbor_advertisement_hdr_t	*icmpv6u_ndp_advertisement_hdr;	// ICMPv6 NDP advertisement header
-		struct icmpv6_redirect_hdr_t				*icmpv6u_redirect_hdr;			// ICMPV6 redirect header
+		struct icmpv6_hdr_t 						*icmpv6u_hdr;							// ICMPv6 message header
+		struct icmpv6_dest_unreach_hdr_t			*icmpv6u_dst_unreach_hdr;				// ICMPv6 destination unreachable
+		struct icmpv6_pkt_too_big_hdr_t				*icmpv6u_pkt_too_big_hdr;				// ICMPv6 packet too big
+		struct icmpv6_time_exceeded_hdr_t			*icmpv6u_time_exceeded_hdr;				// ICMPv6 time exceeded
+		struct icmpv6_param_problem_hdr_t			*icmpv6u_param_problem_hdr;				// ICMPv6 parameter problem
+		struct icmpv6_echo_request_hdr_t			*icmpv6u_echo_request_hdr;				// ICMPv6 echo request
+		struct icmpv6_echo_reply_hdr_t				*icmpv6u_echo_reply_hdr;				// ICMPv6 echo reply
+		struct icmpv6_router_solicitation_hdr_t		*icmpv6u_rtr_solicitation_hdr;			// ICMPv6 rtr solicitation
+		struct icmpv6_router_advertisement_hdr_t	*icmpv6u_rtr_advertisement_hdr;			// ICMPv6 rtr advertisement
+		struct icmpv6_neighbor_solicitation_hdr_t	*icmpv6u_neighbor_solication_hdr;		// ICMPv6 NDP solication header
+		struct icmpv6_neighbor_advertisement_hdr_t	*icmpv6u_neighbor_advertisement_hdr;	// ICMPv6 NDP advertisement header
+		struct icmpv6_redirect_hdr_t				*icmpv6u_redirect_hdr;					// ICMPV6 redirect header
 	} icmpv6u;
 
-#define icmpv6_hdr 			icmpv6u.icmpv6u_hdr
-#define icmpv6_rtr_sol_hdr 	icmpv6u.icmpv6u_rtr_solication_hdr
-#define icmpv6_rtr_adv_hdr	icmpv6u.icmpv6u_rtr_advertisement_hdr
-#define icmpv6_ndp_sol_hdr 	icmpv6u.icmpv6u_ndp_solication_hdr
-#define icmpv6_ndp_adv_hdr	icmpv6u.icmpv6u_ndp_advertisement_hdr
-#define icmpv6_ndp_red_hdr	icmpv6u.icmpv6u_redirect_hdr
+#define icmpv6_hdr 						icmpv6u.icmpv6u_hdr
+#define icmpv6_dest_unreach				icmpv6u.icmpv6u_dst_unreach_hdr
+#define icmpv6_pkt_too_big				icmpv6u.icmpv6u_pkt_too_big_hdr
+#define icmpv6_time_exceeded			icmpv6u.icmpv6u_time_exceeded_hdr
+#define icmpv6_param_problem			icmpv6u.icmpv6u_param_problem_hdr
+#define icmpv6_echo_request				icmpv6u.icmpv6u_echo_request_hdr
+#define icmpv6_echo_reply				icmpv6u.icmpv6u_echo_reply_hdr
+#define icmpv6_rtr_solicitation			icmpv6u.icmpv6u_rtr_solicitation_hdr
+#define icmpv6_rtr_advertisement		icmpv6u.icmpv6u_rtr_advertisement_hdr
+#define icmpv6_neighbor_solicitation	icmpv6u.icmpv6u_neighbor_solication_hdr
+#define icmpv6_neighbor_advertisement	icmpv6u.icmpv6u_neighbor_advertisement_hdr
+#define icmpv6_redirect					icmpv6u.icmpv6u_redirect_hdr
 
 	std::map<ficmpv6opt::icmpv6_option_type_t, ficmpv6opt> 	 icmpv6opts;	// ICMPv6 NDP options
 
@@ -366,7 +431,7 @@ public:
 	 *
 	 */
 	ficmpv6opt&
-	get_opt(ficmpv6opt::icmpv6_option_type_t type) throw (eICMPv6FrameNotFound);
+	get_option(ficmpv6opt::icmpv6_option_type_t type) throw (eICMPv6FrameNotFound);
 
 
 public: // overloaded from fframe
@@ -497,6 +562,54 @@ public:
 
 private: // methods
 
+	/**
+	 */
+	void
+	parse_icmpv6_options(struct ficmpv6opt::icmpv6_option_hdr_t *option, size_t optlen) throw (eICMPv6FrameTooShort);
+	/**
+	 */
+	void
+	parse_icmpv6_dest_unreach() throw (eICMPv6FrameTooShort);
+	/**
+	 */
+	void
+	parse_icmpv6_pkt_too_big() throw (eICMPv6FrameTooShort);
+	/**
+	 */
+	void
+	parse_icmpv6_time_exceeded() throw (eICMPv6FrameTooShort);
+	/**
+	 */
+	void
+	parse_icmpv6_param_problem() throw (eICMPv6FrameTooShort);
+	/**
+	 */
+	void
+	parse_icmpv6_echo_request() throw (eICMPv6FrameTooShort);
+	/**
+	 */
+	void
+	parse_icmpv6_echo_reply() throw (eICMPv6FrameTooShort);
+	/**
+	 */
+	void
+	parse_icmpv6_rtr_solicitation() throw (eICMPv6FrameTooShort);
+	/**
+	 */
+	void
+	parse_icmpv6_rtr_advertisement() throw (eICMPv6FrameTooShort);
+	/**
+	 */
+	void
+	parse_icmpv6_neighbor_solicitation() throw (eICMPv6FrameTooShort);
+	/**
+	 */
+	void
+	parse_icmpv6_neighbor_advertisement() throw (eICMPv6FrameTooShort);
+	/**
+	 */
+	void
+	parse_icmpv6_redirect() throw (eICMPv6FrameTooShort);
 };
 
 }; // end of namespace
