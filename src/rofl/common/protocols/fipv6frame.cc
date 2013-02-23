@@ -26,6 +26,17 @@ fipv6frame::~fipv6frame()
 
 
 
+fipv6ext&
+fipv6frame::get_ext_hdr(enum ipv6_ext_t type) throw (eIPv6FrameNotFound)
+{
+	if (ipv6exts.find(type) == ipv6exts.end()) {
+		throw eIPv6FrameNotFound();
+	}
+	return ipv6exts[type];
+}
+
+
+
 void
 fipv6frame::initialize() throw (eIPv6FrameInval)
 {
@@ -72,7 +83,7 @@ fipv6frame::initialize() throw (eIPv6FrameInval)
 				throw eIPv6FrameInval();
 			}
 
-			ipv6exts.push_back(fipv6ext(ipv6ext_hdr, extlen));
+			ipv6exts[(enum ipv6_ext_t)(ipv6ext_hdr->nxthdr)] = fipv6ext(ipv6ext_hdr, extlen);
 
 			// move forward
 			nxthdr = ipv6ext_hdr->nxthdr;
@@ -166,8 +177,8 @@ fipv6frame::c_str()
 	cvastring vas;
 
 	std::string s_exts;
-	for (std::vector<fipv6ext>::iterator it = ipv6exts.begin(); it != ipv6exts.end(); ++it) {
-		s_exts.append((*it).c_str()); s_exts.append(std::string(" "));
+	for (std::map<enum ipv6_ext_t, fipv6ext>::iterator it = ipv6exts.begin(); it != ipv6exts.end(); ++it) {
+		s_exts.append(it->second.c_str()); s_exts.append(std::string(" "));
 	}
 
 	info.assign(vas("[fipv6frame(%p) dst:%s src:%s length:0x%x vers:%d flow-label:0x%x tc:0x%x nxthdr:%d hops:%d exts(%d):%s mem:%s]",

@@ -33,6 +33,7 @@ class eIPv6FrameBase 			: public eFrameBase {}; 	// base error class for cpppoep
 class eIPv6FrameTagNotFound 	: public eIPv6FrameBase {}; // pppoe tag not found
 class eIPv6FrameInvalidSyntax 	: public eIPv6FrameBase {}; // frame has invalid syntax
 class eIPv6FrameInval 			: public eIPv6FrameBase {}; // invalid parameter
+class eIPv6FrameNotFound		: public eIPv6FrameBase {}; // element not found
 
 
 
@@ -55,6 +56,11 @@ public:
 	struct ipv6_ext_hdr_t 	*exthdr;
 
 public:
+	// default constructor
+	fipv6ext() :
+		fframe((size_t)0),
+		exthdr(0)
+	{};
 	// default constructor
 	fipv6ext(struct ipv6_ext_hdr_t* hdr, size_t hdrlen) throw (eIPv6FrameInval) :
 		fframe((uint8_t*)hdr, hdrlen),
@@ -99,6 +105,10 @@ public:
 };
 
 
+
+
+
+
 /** pppoe mixin for cpacket
  *
  */
@@ -130,7 +140,7 @@ public: // static
 		uint8_t data[0];
 	} __attribute__((packed));
 
-	enum ip_proto_t {
+	enum ipv6_ext_t {
 		IPPROTO_IPV6_HOPOPT 		= 0,
 		IPPROTO_ICMP 				= 1,
 		IPPROTO_TCP 				= 6,
@@ -147,10 +157,10 @@ public: // static
 
 public: // data structures
 
-	struct ipv6_hdr_t 		*ipv6_hdr;		// pointer to pppoe header
-	uint8_t 				*ipv6data;		// payload data
-	size_t 					 ipv6datalen;	// ppp data length
-	std::vector<fipv6ext> 	 ipv6exts;		// IPv6 extensions headers
+	struct ipv6_hdr_t 						*ipv6_hdr;		// pointer to pppoe header
+	uint8_t 								*ipv6data;		// payload data
+	size_t 					 				 ipv6datalen;	// ppp data length
+	std::map<enum ipv6_ext_t, fipv6ext> 	 ipv6exts;		// IPv6 extensions headers
 
 public: // methods
 
@@ -175,6 +185,14 @@ public: // methods
 	 */
 	void
 	ipv6_calc_checksum();
+
+
+	/**
+	 *
+	 */
+	fipv6ext&
+	get_ext_hdr(enum ipv6_ext_t type)
+			throw (eIPv6FrameNotFound);
 
 
 public: // overloaded from fframe
