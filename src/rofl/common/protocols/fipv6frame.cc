@@ -83,7 +83,7 @@ fipv6frame::initialize() throw (eIPv6FrameInval)
 				throw eIPv6FrameInval();
 			}
 
-			ipv6exts[(enum ipv6_ext_t)(ipv6ext_hdr->nxthdr)] = fipv6ext(ipv6ext_hdr, extlen);
+			ipv6exts[(enum ipv6_ext_t)(nxthdr)] = fipv6ext(ipv6ext_hdr, extlen);
 
 			// move forward
 			nxthdr = ipv6ext_hdr->nxthdr;
