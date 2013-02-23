@@ -1385,15 +1385,13 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 		match.set_ip_proto(proto);
 	} break;
 	case OFPXMT_OFB_IPV4_SRC: {
-		caddress src(AF_INET, "0.0.0.0");
-		src.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32_value());
+		caddress src(oxm.u32addr());
 		ipv4()->set_ipv4_src(src);
 		ipv4()->ipv4_calc_checksum();
 		match.set_ipv4_src(src);
 	} break;
 	case OFPXMT_OFB_IPV4_DST: {
-		caddress dst(AF_INET, "0.0.0.0");
-		dst.ca_s4addr->sin_addr.s_addr = htobe32(oxm.uint32_value());
+		caddress dst(oxm.u32addr());
 		ipv4()->set_ipv4_dst(dst);
 		ipv4()->ipv4_calc_checksum();
 		match.set_ipv4_dst(dst);
@@ -1492,14 +1490,12 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 		match.set_arp_opcode(opcode);
 	} break;
 	case OFPXMT_OFB_ARP_SPA: {
-		caddress spa(AF_INET, "0.0.0.0");
-		spa.ca_s4addr->sin_addr.s_addr = htobe32(oxm.u32value());
+		caddress spa(oxm.u32addr());
 		arpv4()->set_nw_src(spa);
 		match.set_arp_spa(spa);
 	} break;
 	case OFPXMT_OFB_ARP_TPA: {
-		caddress tpa(AF_INET, "0.0.0.0");
-		tpa.ca_s4addr->sin_addr.s_addr = htobe32(oxm.u32value());
+		caddress tpa(oxm.u32addr());
 		arpv4()->set_nw_dst(tpa);
 		match.set_arp_tpa(tpa);
 	} break;
