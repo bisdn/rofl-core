@@ -620,18 +620,7 @@ cofmatch::get_ipv4_src()
 	{
 		throw eOFmatchNotFound();
 	}
-
-	caddress src(AF_INET, "0.0.0.0");
-	if (oxmlist[OFPXMT_OFB_IPV4_SRC].get_oxm_hasmask())
-	{
-		src.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_SRC].uint32_value() & oxmlist[OFPXMT_OFB_IPV4_SRC].uint32_mask());
-	}
-	else
-	{
-		src.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_SRC].uint32_value());
-	}
-
-	return src;
+	return oxmlist[OFPXMT_OFB_IPV4_SRC].u32addr();
 }
 
 
@@ -662,18 +651,7 @@ cofmatch::get_ipv4_dst()
 	{
 		throw eOFmatchNotFound();
 	}
-
-	caddress dst(AF_INET, "0.0.0.0");
-	if (oxmlist[OFPXMT_OFB_IPV4_DST].get_oxm_hasmask())
-	{
-		dst.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_DST].uint32_value() & oxmlist[OFPXMT_OFB_IPV4_DST].uint32_mask());
-	}
-	else
-	{
-		dst.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_IPV4_DST].uint32_value());
-	}
-
-	return dst;
+	return oxmlist[OFPXMT_OFB_IPV4_DST].u32addr();
 }
 
 
@@ -704,7 +682,6 @@ cofmatch::get_arp_opcode()
 	{
 		throw eOFmatchNotFound();
 	}
-
 	return oxmlist[OFPXMT_OFB_ARP_OP].uint16_value();
 }
 
@@ -727,16 +704,7 @@ cofmatch::get_arp_sha()
 	{
 		throw eOFmatchNotFound();
 	}
-
-	cmacaddr sha(oxmlist[OFPXMT_OFB_ARP_SHA].oxm_uint48t->value, OFP_ETH_ALEN);
-
-	cmacaddr mask("ff:ff:ff:ff:ff:ff");
-	if (oxmlist[OFPXMT_OFB_ARP_SHA].get_oxm_hasmask())
-	{
-		mask.assign(oxmlist[OFPXMT_OFB_ARP_SHA].oxm_uint48t->mask, OFP_ETH_ALEN);
-	}
-
-	return (sha & mask);
+	return oxmlist[OFPXMT_OFB_ARP_SHA].u48addr();
 }
 
 
@@ -758,16 +726,7 @@ cofmatch::get_arp_tha()
 	{
 		throw eOFmatchNotFound();
 	}
-
-	cmacaddr tha(oxmlist[OFPXMT_OFB_ARP_THA].oxm_uint48t->value, OFP_ETH_ALEN);
-
-	cmacaddr mask("ff:ff:ff:ff:ff:ff");
-	if (oxmlist[OFPXMT_OFB_ARP_THA].get_oxm_hasmask())
-	{
-		mask.assign(oxmlist[OFPXMT_OFB_ARP_THA].oxm_uint48t->mask, OFP_ETH_ALEN);
-	}
-
-	return (tha & mask);
+	return oxmlist[OFPXMT_OFB_ARP_THA].u48addr();
 }
 
 
@@ -789,18 +748,7 @@ cofmatch::get_arp_spa()
 	{
 		throw eOFmatchNotFound();
 	}
-
-	caddress spa(AF_INET, "0.0.0.0");
-	if (oxmlist[OFPXMT_OFB_ARP_SPA].get_oxm_hasmask())
-	{
-		spa.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_SPA].uint32_value() & oxmlist[OFPXMT_OFB_ARP_SPA].uint32_mask());
-	}
-	else
-	{
-		spa.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_SPA].uint32_value());
-	}
-
-	return spa;
+	return oxmlist[OFPXMT_OFB_ARP_SPA].u32addr();
 }
 
 
@@ -822,18 +770,7 @@ cofmatch::get_arp_tpa()
 	{
 		throw eOFmatchNotFound();
 	}
-
-	caddress tpa(AF_INET, "0.0.0.0");
-	if (oxmlist[OFPXMT_OFB_ARP_TPA].get_oxm_hasmask())
-	{
-		tpa.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_TPA].uint32_value() & oxmlist[OFPXMT_OFB_ARP_TPA].uint32_mask());
-	}
-	else
-	{
-		tpa.ca_s4addr->sin_addr.s_addr = htobe32(oxmlist[OFPXMT_OFB_ARP_TPA].uint32_value());
-	}
-
-	return tpa;
+	return oxmlist[OFPXMT_OFB_ARP_TPA].u32addr();
 }
 
 
@@ -857,18 +794,7 @@ cofmatch::get_ipv6_src()
 		throw eOFmatchNotFound();
 	}
 
-	caddress addr(sizeof(struct sockaddr_in6));
-	addr.ca_saddr->sa_family = AF_INET6;
-	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxmlist[OFPXMT_OFB_IPV6_SRC].oxm_ipv6addr->addr, 16);
-
-	if (oxmlist[OFPXMT_OFB_IPV6_SRC].get_oxm_hasmask())
-	{
-		caddress mask(sizeof(struct sockaddr_in6));
-		mask.ca_saddr->sa_family = AF_INET6;
-		memcpy(mask.ca_s6addr->sin6_addr.s6_addr, oxmlist[OFPXMT_OFB_IPV6_SRC].oxm_ipv6addr->mask, 16);
-		addr = addr & mask;
-	}
-	return addr;
+	return oxmlist[OFPXMT_OFB_IPV6_SRC].u128addr();
 }
 
 
@@ -900,19 +826,7 @@ cofmatch::get_ipv6_dst()
 	{
 		throw eOFmatchNotFound();
 	}
-
-	caddress addr(sizeof(struct sockaddr_in6));
-	addr.ca_saddr->sa_family = AF_INET6;
-	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxmlist[OFPXMT_OFB_IPV6_DST].oxm_ipv6addr->addr, 16);
-
-	if (oxmlist[OFPXMT_OFB_IPV6_DST].get_oxm_hasmask())
-	{
-		caddress mask(sizeof(struct sockaddr_in6));
-		mask.ca_saddr->sa_family = AF_INET6;
-		memcpy(mask.ca_s6addr->sin6_addr.s6_addr, oxmlist[OFPXMT_OFB_IPV6_DST].oxm_ipv6addr->mask, 16);
-		addr = addr & mask;
-	}
-	return addr;
+	return oxmlist[OFPXMT_OFB_IPV6_DST].u128addr();
 }
 
 
@@ -944,12 +858,7 @@ cofmatch::get_ipv6_nd_target()
 	{
 		throw eOFmatchNotFound();
 	}
-
-	caddress addr(sizeof(struct sockaddr_in6));
-	addr.ca_saddr->sa_family = AF_INET6;
-	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxmlist[OFPXMT_OFB_IPV6_ND_TARGET].oxm_ipv6addr->addr, 16);
-
-	return addr;
+	return oxmlist[OFPXMT_OFB_IPV6_ND_TARGET].u128addr();
 }
 
 
@@ -1087,7 +996,7 @@ cofmatch::get_icmpv6_type()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_ICMPV6_TYPE].uint8_value();
+	return oxmlist[OFPXMT_OFB_ICMPV6_TYPE].u8value();
 }
 
 
@@ -1110,7 +1019,7 @@ cofmatch::get_icmpv6_code()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_ICMPV6_CODE].uint8_value();
+	return oxmlist[OFPXMT_OFB_ICMPV6_CODE].u8value();
 }
 
 
@@ -1133,7 +1042,7 @@ cofmatch::get_ipv6_flabel()
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_IPV6_FLABEL].uint32_value();
+	return oxmlist[OFPXMT_OFB_IPV6_FLABEL].u32value();
 }
 
 
@@ -1147,6 +1056,16 @@ cofmatch::set_ipv6_flabel(
 
 
 
+void
+cofmatch::set_ipv6_flabel(
+		uint32_t flabel,
+		uint32_t mask)
+{
+	oxmlist[OFPXMT_OFB_IPV6_FLABEL] = coxmatch_ofb_ipv6_flabel(flabel, mask);
+}
+
+
+
 cmacaddr
 cofmatch::get_icmpv6_neighbor_source_lladdr()
 	throw (eOFmatchNotFound)
@@ -1155,16 +1074,7 @@ cofmatch::get_icmpv6_neighbor_source_lladdr()
 	{
 		throw eOFmatchNotFound();
 	}
-
-	cmacaddr maddr(oxmlist[OFPXMT_OFB_IPV6_ND_SLL].oxm_uint48t->value, OFP_ETH_ALEN);
-
-	cmacaddr mask("ff:ff:ff:ff:ff:ff");
-	if (oxmlist[OFPXMT_OFB_IPV6_ND_SLL].get_oxm_hasmask())
-	{
-		mask.assign(oxmlist[OFPXMT_OFB_IPV6_ND_SLL].oxm_uint48t->mask, OFP_ETH_ALEN);
-	}
-
-	return (maddr & mask);
+	return oxmlist[OFPXMT_OFB_IPV6_ND_SLL].u48addr();
 }
 
 
@@ -1186,16 +1096,7 @@ cofmatch::get_icmpv6_neighbor_target_lladdr()
 	{
 		throw eOFmatchNotFound();
 	}
-
-	cmacaddr maddr(oxmlist[OFPXMT_OFB_IPV6_ND_TLL].oxm_uint48t->value, OFP_ETH_ALEN);
-
-	cmacaddr mask("ff:ff:ff:ff:ff:ff");
-	if (oxmlist[OFPXMT_OFB_IPV6_ND_TLL].get_oxm_hasmask())
-	{
-		mask.assign(oxmlist[OFPXMT_OFB_IPV6_ND_TLL].oxm_uint48t->mask, OFP_ETH_ALEN);
-	}
-
-	return (maddr & mask);
+	return oxmlist[OFPXMT_OFB_IPV6_ND_TLL].u48addr();
 }
 
 
@@ -1217,11 +1118,7 @@ cofmatch::get_icmpv6_neighbor_taddr()
 	{
 		throw eOFmatchNotFound();
 	}
-
-	caddress addr(sizeof(struct sockaddr_in6));
-	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxmlist[OFPXMT_OFB_IPV6_ND_TARGET].oxm_ipv6addr->addr, 16);
-
-	return addr;
+	return oxmlist[OFPXMT_OFB_IPV6_ND_TARGET].u128addr();
 }
 
 
@@ -1242,7 +1139,6 @@ cofmatch::get_udp_src() throw (eOFmatchNotFound)
 	{
 		throw eOFmatchNotFound();
 	}
-
 	return oxmlist[OFPXMT_OFB_UDP_SRC].uint16_value();
 }
 
@@ -1262,7 +1158,6 @@ cofmatch::get_udp_dst() throw (eOFmatchNotFound)
 	{
 		throw eOFmatchNotFound();
 	}
-
 	return oxmlist[OFPXMT_OFB_UDP_DST].uint16_value();
 }
 
@@ -1284,7 +1179,6 @@ cofmatch::get_tcp_src()
 	{
 		throw eOFmatchNotFound();
 	}
-
 	return oxmlist[OFPXMT_OFB_TCP_SRC].uint16_value();
 }
 
@@ -1307,7 +1201,6 @@ cofmatch::get_tcp_dst()
 	{
 		throw eOFmatchNotFound();
 	}
-
 	return oxmlist[OFPXMT_OFB_TCP_DST].uint16_value();
 }
 
@@ -1331,7 +1224,6 @@ cofmatch::get_sctp_src()
 	{
 		throw eOFmatchNotFound();
 	}
-
 	return oxmlist[OFPXMT_OFB_SCTP_SRC].uint16_value();
 }
 
@@ -1354,7 +1246,6 @@ cofmatch::get_sctp_dst()
 	{
 		throw eOFmatchNotFound();
 	}
-
 	return oxmlist[OFPXMT_OFB_SCTP_DST].uint16_value();
 }
 

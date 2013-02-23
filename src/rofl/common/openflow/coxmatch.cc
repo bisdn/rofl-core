@@ -479,8 +479,41 @@ coxmatch::u64value() const
 
 
 
+caddress
+coxmatch::u32addr() const
+{
+	switch (get_oxm_class()) {
+	case OFPXMC_OPENFLOW_BASIC: {
+		switch (get_oxm_field()) {
+		case OFPXMT_OFB_IPV4_SRC:
+		case OFPXMT_OFB_IPV4_DST:
+		case OFPXMT_OFB_ARP_SPA:
+		case OFPXMT_OFB_ARP_TPA:
+			break;
+		default:
+			throw eOxmInval();
+			break;
+		}
+	} break;
+	default: {
+		throw eOxmInval();
+	} break;
+	}
+
+	caddress addr(sizeof(struct sockaddr_in));
+	addr.ca_s4addr->sin_family = AF_INET;
+	if (get_oxm_hasmask()) {
+		addr.ca_s4addr->sin_addr.s_addr = (oxm_uint32t->dword & oxm_uint32t->mask);
+	} else {
+		addr.ca_s4addr->sin_addr.s_addr = oxm_uint32t->dword;
+	}
+	return addr;
+}
+
+
+
 cmacaddr
-coxmatch::u48value() const
+coxmatch::u48addr() const
 {
 	switch (get_oxm_class()) {
 	case OFPXMC_OPENFLOW_BASIC: {
@@ -514,7 +547,7 @@ coxmatch::u48value() const
 
 
 caddress
-coxmatch::u128value() const
+coxmatch::u128addr() const
 {
 	switch (get_oxm_class()) {
 	case OFPXMC_OPENFLOW_BASIC: {

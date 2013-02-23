@@ -1334,12 +1334,12 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 {
 	switch (oxm.get_oxm_field()) {
 	case OFPXMT_OFB_ETH_DST: {
-		cmacaddr maddr(oxm.u48value());
+		cmacaddr maddr(oxm.u48addr());
 		ether()->set_dl_dst(maddr);
 		match.set_eth_dst(maddr);
 	} break;
 	case OFPXMT_OFB_ETH_SRC: {
-		cmacaddr maddr(oxm.u48value());
+		cmacaddr maddr(oxm.u48addr());
 		ether()->set_dl_src(maddr);
 		match.set_eth_src(maddr);
 	} break;
@@ -1504,22 +1504,22 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 		match.set_arp_tpa(tpa);
 	} break;
 	case OFPXMT_OFB_ARP_SHA: {
-		cmacaddr sha(oxm.u48value());
+		cmacaddr sha(oxm.u48addr());
 		arpv4()->set_dl_src(sha);
 		match.set_arp_sha(sha);
 	} break;
 	case OFPXMT_OFB_ARP_THA: {
-		cmacaddr tha(oxm.u48value());
+		cmacaddr tha(oxm.u48addr());
 		arpv4()->set_dl_dst(tha);
 		match.set_arp_tha(tha);
 	} break;
 	case OFPXMT_OFB_IPV6_SRC: {
-		caddress addr(oxm.u128value());
+		caddress addr(oxm.u128addr());
 		ipv6()->set_ipv6_src(addr);
 		match.set_ipv6_src(addr);
 	} break;
 	case OFPXMT_OFB_IPV6_DST: {
-		caddress addr(oxm.u128value());
+		caddress addr(oxm.u128addr());
 		ipv6()->set_ipv6_dst(addr);
 		match.set_ipv6_dst(addr);
 	} break;
@@ -1539,17 +1539,17 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 		match.set_icmpv6_code(code);
 	} break;
 	case OFPXMT_OFB_IPV6_ND_TARGET: {
-		caddress addr(oxm.u128value());
+		caddress addr(oxm.u128addr());
 		icmpv6()->set_icmpv6_neighbor_taddr(addr);
 		match.set_icmpv6_neighbor_taddr(addr);
 	} break;
 	case OFPXMT_OFB_IPV6_ND_SLL: {
-		cmacaddr maddr(oxm.u48value());
+		cmacaddr maddr(oxm.u48addr());
 		icmpv6()->get_option(ficmpv6opt::ICMPV6_OPT_LLADDR_SOURCE).set_ll_saddr(maddr);
 		match.set_icmpv6_neighbor_source_lladdr(maddr);
 	} break;
 	case OFPXMT_OFB_IPV6_ND_TLL: {
-		cmacaddr maddr(oxm.u48value());
+		cmacaddr maddr(oxm.u48addr());
 		icmpv6()->get_option(ficmpv6opt::ICMPV6_OPT_LLADDR_TARGET).set_ll_taddr(maddr);
 		match.set_icmpv6_neighbor_target_lladdr(maddr);
 	} break;

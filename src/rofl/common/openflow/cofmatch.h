@@ -760,6 +760,15 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_ipv6_flabel(
+			uint32_t flabel,
+			uint32_t mask);
+
+
+	/**
+	 *
+	 */
 	cmacaddr
 	get_icmpv6_neighbor_source_lladdr()
 		throw (eOFmatchNotFound);
