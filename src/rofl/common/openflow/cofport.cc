@@ -87,8 +87,8 @@ cofport::cofport(
 			max_speed(0),
 #endif
 			cmemory(sizeof(struct ofp_port)),
-			of_port((struct ofp_port*)somem()),
-			port_list(port_list)
+			port_list(port_list),
+			of_port((struct ofp_port*)somem())
 {
 	reset_stats();
 	if ((0 != port) && (port_len >= sizeof(struct ofp_port)))
@@ -122,8 +122,8 @@ cofport::cofport(
 			max_speed(0),
 #endif
 			cmemory(sizeof(struct ofp_port)),
-			of_port((struct ofp_port*)somem()),
-			port_list(0)
+			port_list(0),
+			of_port((struct ofp_port*)somem())
 {
 	reset_stats();
 	if ((0 != port) && (port_len >= sizeof(struct ofp_port)))
@@ -392,7 +392,7 @@ cofport::recv_port_mod(
 	}
 
 	WRITELOG(CPORT, DBG, "cofport(%s:%d)::recv_port_mod() config:0x%x advertise:0x%x",
-			name.c_str(), of_port->port_no, of_port->config, of_port->advertised);
+			get_name().c_str(), of_port->port_no, of_port->config, of_port->advertised);
 }
 
 

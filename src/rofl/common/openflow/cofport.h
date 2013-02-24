@@ -58,11 +58,12 @@ class cofport :
 {
 private: // data structures
 
-	struct ofp_port						*of_port;
 	std::map<uint32_t, cofport*> 		*port_list; 	// port_list this port belongs to
 	std::string 						 info; 			// info string
 
 public: // data structures
+
+	struct ofp_port						*of_port;
 
 	/*
 	 * port statistics
@@ -262,9 +263,99 @@ public:
 	 *
 	 */
 	virtual void
+	link_state_set_blocked()
+	{
+		set_state(get_state() | OFPPS_BLOCKED);
+	};
+
+
+	/**
+	 *
+	 */
+	virtual void
+	link_state_clr_blocked()
+	{
+		set_state(get_state() & ~OFPPS_BLOCKED);
+	};
+
+
+	/**
+	 *
+	 */
+	virtual bool
+	link_state_is_blocked()
+	{
+		return (get_state() & OFPPS_BLOCKED);
+	};
+
+
+	/**
+	 *
+	 */
+	virtual void
+	link_state_set_live()
+	{
+		set_state(get_state() | OFPPS_LIVE);
+	};
+
+
+	/**
+	 *
+	 */
+	virtual void
+	link_state_clr_live()
+	{
+		set_state(get_state() & ~OFPPS_LIVE);
+	};
+
+
+	/**
+	 *
+	 */
+	virtual bool
+	link_state_is_live()
+	{
+		return (get_state() & OFPPS_LIVE);
+	};
+
+
+	/**
+	 *
+	 */
+	virtual void
+	link_state_set_link_down()
+	{
+		set_state(get_state() | OFPPS_LINK_DOWN);
+	};
+
+
+	/**
+	 *
+	 */
+	virtual void
+	link_state_clr_link_down()
+	{
+		set_state(get_state() & ~OFPPS_LINK_DOWN);
+	};
+
+
+	/**
+	 *
+	 */
+	virtual bool
+	link_state_is_link_down()
+	{
+		return (get_state() & OFPPS_LINK_DOWN);
+	};
+
+
+	/**
+	 *
+	 */
+	virtual void
 	link_state_phy_down()
 	{
-		of_port->state |= OFPPS_LINK_DOWN;
+		set_state(get_state() | OFPPS_LINK_DOWN);
 	};
 
 
@@ -274,7 +365,7 @@ public:
 	virtual void
 	link_state_phy_up()
 	{
-		of_port->state &= ~OFPPS_LINK_DOWN;
+		set_state(get_state() & ~OFPPS_LINK_DOWN);
 	};
 
 
