@@ -41,7 +41,7 @@ cofport::ports_parse(
 		cofport *ofport = new cofport(&portsmap, be32toh(phdr->port_no), phdr, sizeof(struct ofp_port));
 
 		//__ports[ofport->port_no] = ofport;
-		portsmap[ofport->port_no] = ofport;
+		portsmap[ofport->get_port_no()] = ofport;
 
 		phdr++;
 		portslen -= sizeof(struct ofp_port);
@@ -73,6 +73,7 @@ cofport::cofport(
 	uint32_t portno,
 	struct ofp_port *port,
 	size_t port_len) :
+#if 0
 			port_no(portno),
 			hwaddr(cmacaddr("00:00:00:00:00:00")),
 			name(std::string("")),
@@ -84,6 +85,9 @@ cofport::cofport(
 			peer(0),
 			curr_speed(0),
 			max_speed(0),
+#endif
+			cmemory(sizeof(struct ofp_port)),
+			of_port((struct ofp_port*)somem()),
 			port_list(port_list)
 {
 	reset_stats();
@@ -94,7 +98,7 @@ cofport::cofport(
 
 	if (0 != port_list)
 	{
-		(*port_list)[port_no] = this;
+		(*port_list)[portno] = this;
 	}
 
 	WRITELOG(CPORT, DBG, "cofport(%p)::cofport() port_list:%p %s", this, port_list, c_str());
@@ -104,6 +108,7 @@ cofport::cofport(
 cofport::cofport(
 		struct ofp_port* port,
 		size_t port_len) :
+#if 0
 			port_no(0),
 			hwaddr(cmacaddr("00:00:00:00:00:00")),
 			name(std::string("")),
@@ -115,6 +120,9 @@ cofport::cofport(
 			peer(0),
 			curr_speed(0),
 			max_speed(0),
+#endif
+			cmemory(sizeof(struct ofp_port)),
+			of_port((struct ofp_port*)somem()),
 			port_list(0)
 {
 	reset_stats();
@@ -134,7 +142,7 @@ cofport::~cofport()
 
 	if (0 != port_list)
 	{
-		port_list->erase(port_no);
+		port_list->erase(get_port_no());
 	}
 }
 
@@ -156,20 +164,170 @@ cofport::operator= (cofport const& port)
 
 	WRITELOG(CPORT, DBG, "cofport(%p)::operator=() from port:%p", this, &port);
 
-	port_list 		= 0;
-	port_no 		= port.port_no;
-	hwaddr 			= port.hwaddr;
-	name 			= port.name;
-	config 			= port.config;
-	state 			= port.state;
-	curr 			= port.curr;
-	advertised 		= port.advertised;
-	supported 		= port.supported;
-	peer 			= port.peer;
-	curr_speed 		= port.curr_speed;
-	max_speed 		= port.max_speed;
+	cmemory::operator= (port);
+
+	of_port = (struct ofp_port*)somem();
+
+	//port_list 		= 0;
 
 	return *this;
+}
+
+
+
+uint32_t
+cofport::get_port_no() const
+{
+	return be32toh(of_port->port_no);
+}
+
+
+void
+cofport::set_port_no(uint32_t port_no)
+{
+	of_port->port_no = htobe32(port_no);
+}
+
+
+cmacaddr
+cofport::get_hwaddr() const
+{
+	return cmacaddr(of_port->hw_addr, OFP_ETH_ALEN);
+}
+
+
+void
+cofport::set_hwaddr(cmacaddr const& maddr)
+{
+	memcpy(of_port->hw_addr, maddr.somem(), OFP_ETH_ALEN);
+}
+
+
+std::string
+cofport::get_name() const
+{
+	return std::string(of_port->name, OFP_MAX_PORT_NAME_LEN);
+}
+
+
+void
+cofport::set_name(std::string name)
+{
+	size_t len = (name.length() > OFP_MAX_PORT_NAME_LEN) ? OFP_MAX_PORT_NAME_LEN : name.length();
+	memset(of_port->name, 0, OFP_MAX_PORT_NAME_LEN);
+	memcpy(of_port->name, name.c_str(), len);
+}
+
+
+uint32_t
+cofport::get_config() const
+{
+	return be32toh(of_port->config);
+}
+
+
+void
+cofport::set_config(uint32_t config)
+{
+	of_port->config = htobe32(config);
+}
+
+
+uint32_t
+cofport::get_state() const
+{
+	return be32toh(of_port->state);
+}
+
+
+void
+cofport::set_state(uint32_t state)
+{
+	of_port->state = htobe32(state);
+}
+
+
+uint32_t
+cofport::get_curr() const
+{
+	return be32toh(of_port->curr);
+}
+
+
+void
+cofport::set_curr(uint32_t curr)
+{
+	of_port->curr = htobe32(curr);
+}
+
+
+uint32_t
+cofport::get_advertised() const
+{
+	return be32toh(of_port->advertised);
+}
+
+
+void
+cofport::set_advertised(uint32_t advertised)
+{
+	of_port->advertised = htobe32(advertised);
+}
+
+
+uint32_t
+cofport::get_supported() const
+{
+	return be32toh(of_port->supported);
+}
+
+
+void
+cofport::set_supported(uint32_t supported)
+{
+	of_port->supported = htobe32(supported);
+}
+
+
+uint32_t
+cofport::get_peer() const
+{
+	return be32toh(of_port->peer);
+}
+
+
+void
+cofport::set_peer(uint32_t peer)
+{
+	of_port->peer = htobe32(peer);
+}
+
+
+uint32_t
+cofport::get_curr_speed() const
+{
+	return be32toh(of_port->curr_speed);
+}
+
+
+void
+cofport::set_curr_speed(uint32_t curr_speed)
+{
+	of_port->curr_speed = htobe32(curr_speed);
+}
+
+
+uint32_t
+cofport::get_max_speed() const
+{
+	return be32toh(of_port->max_speed);
+}
+
+
+void
+cofport::set_max_speed(uint32_t max_speed)
+{
+	of_port->max_speed = htobe32(max_speed);
 }
 
 
@@ -184,11 +342,11 @@ cofport::recv_port_mod(
 	{
 		if (config & OFPPC_PORT_DOWN)
 		{
-			this->config |= OFPPC_PORT_DOWN;
+			of_port->config |= OFPPC_PORT_DOWN;
 		}
 		else
 		{
-			this->config &= ~OFPPC_PORT_DOWN;
+			of_port->config &= ~OFPPC_PORT_DOWN;
 		}
 	}
 
@@ -196,11 +354,11 @@ cofport::recv_port_mod(
 	{
 		if (config & OFPPC_NO_RECV)
 		{
-			this->config |= OFPPC_NO_RECV;
+			of_port->config |= OFPPC_NO_RECV;
 		}
 		else
 		{
-			this->config &= ~OFPPC_NO_RECV;
+			of_port->config &= ~OFPPC_NO_RECV;
 		}
 	}
 
@@ -208,11 +366,11 @@ cofport::recv_port_mod(
 	{
 		if (config & OFPPC_NO_PACKET_IN)
 		{
-			this->config |= OFPPC_NO_PACKET_IN;
+			of_port->config |= OFPPC_NO_PACKET_IN;
 		}
 		else
 		{
-			this->config &= ~OFPPC_NO_PACKET_IN;
+			of_port->config &= ~OFPPC_NO_PACKET_IN;
 		}
 	}
 
@@ -220,21 +378,21 @@ cofport::recv_port_mod(
 	{
 		if (config & OFPPC_NO_FWD)
 		{
-			this->config |= OFPPC_NO_FWD;
+			of_port->config |= OFPPC_NO_FWD;
 		}
 		else
 		{
-			this->config &= ~OFPPC_NO_FWD;
+			of_port->config &= ~OFPPC_NO_FWD;
 		}
 	}
 
 	if (0 != advertise)
 	{
-		this->advertised = advertise;
+		of_port->advertised = advertise;
 	}
 
 	WRITELOG(CPORT, DBG, "cofport(%s:%d)::recv_port_mod() config:0x%x advertise:0x%x",
-			name.c_str(), port_no, this->config, this->advertised);
+			name.c_str(), of_port->port_no, of_port->config, of_port->advertised);
 }
 
 
@@ -256,17 +414,17 @@ cofport::c_str()
 			"config:%d state:%d curr:%d advertised:%d "
 			"supported:%d peer:%d curr_speed:%d max_speed:%d",
 			this,
-			port_no,
-			hwaddr.c_str(),
-			name.c_str(),
-			config,
-			state,
-			curr,
-			advertised,
-			supported,
-			peer,
-			curr_speed,
-			max_speed));
+			get_port_no(),
+			get_hwaddr().c_str(),
+			get_name().c_str(),
+			get_config(),
+			get_state(),
+			get_curr(),
+			get_advertised(),
+			get_supported(),
+			get_peer(),
+			get_curr_speed(),
+			get_max_speed()));
 
 	return info.c_str();
 }
@@ -282,6 +440,9 @@ throw (eOFportInval)
 		throw eOFportInval();
 	}
 
+	memcpy(port, somem(), sizeof(struct ofp_port));
+
+#if 0
 	port->port_no 		= htobe32(port_no);
 
 	memcpy(port->hw_addr, hwaddr.somem(), OFP_ETH_ALEN);
@@ -298,6 +459,7 @@ throw (eOFportInval)
 	port->peer 			= htobe32(peer);
 	port->curr_speed 	= htobe32(curr_speed);
 	port->max_speed 	= htobe32(max_speed);
+#endif
 
 	return port;
 }
@@ -313,6 +475,9 @@ throw (eOFportInval)
 		throw eOFportInval();
 	}
 
+	assign((uint8_t*)port, portlen);
+
+#if 0
 	port_no 	= be32toh(port->port_no);
 
 	hwaddr = cmacaddr(port->hw_addr, OFP_ETH_ALEN);
@@ -327,6 +492,7 @@ throw (eOFportInval)
 	peer 		= be32toh(port->peer);
 	curr_speed 	= be32toh(port->curr_speed);
 	max_speed 	= be32toh(port->max_speed);
+#endif
 
 	return port;
 }
@@ -360,7 +526,7 @@ cofport::get_port_stats(
 	cmemory pstats(sizeof(struct ofp_port_stats));
 	struct ofp_port_stats* stats = (struct ofp_port_stats*)pstats.somem();
 
-	stats->port_no					= htobe32(port_no);
+	stats->port_no					= htobe32(get_port_no());
 	stats->rx_packets				= htobe32(rx_packets);
 	stats->tx_packets				= htobe32(tx_packets);
 	stats->rx_bytes					= htobe32(rx_bytes);
@@ -385,12 +551,12 @@ cofport::test()
 {
 	cofport p1;
 
-	p1.port_no = 1;
-	p1.config = 10;
-	p1.curr = 2;
-	p1.hwaddr = cmacaddr("00:11:11:11:11:11");
-	p1.curr_speed = 0xdeadbeef;
-	p1.max_speed = 0xdeafdeaf;
+	p1.set_port_no(1);
+	p1.set_config(10);
+	p1.set_curr(2);
+	p1.set_hwaddr(cmacaddr("00:11:11:11:11:11"));
+	p1.set_curr_speed(0xdeadbeef);
+	p1.set_max_speed(0xdeafdeaf);
 
 	fprintf(stderr, "p1 => %s\n", p1.c_str());
 

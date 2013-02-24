@@ -130,12 +130,12 @@ cofportlist::test()
 {
 	cofport p1;
 
-	p1.port_no = 17;
-	p1.hwaddr = cmacaddr("00:11:11:11:11:11");
-	p1.name.assign("geb0");
-	p1.advertised = 0xaaaa;
-	p1.curr = 0xbbbb;
-	p1.config = 0xcccc;
+	p1.set_port_no(17);
+	p1.set_hwaddr(cmacaddr("00:11:11:11:11:11"));
+	p1.set_name(std::string("geb0"));
+	p1.set_advertised(0xaaaa);
+	p1.set_curr(0xbbbb);
+	p1.set_config(0xcccc);
 
 	cofportlist pl1;
 
@@ -144,10 +144,10 @@ cofportlist::test()
 	pl1[2] = cofport();
 	pl1[3] = p1;
 
-	pl1[0].port_no = 8;
-	pl1[0].name.assign("ge1");
-	pl1[0].advertised = 77777;
-	pl1[0].hwaddr = cmacaddr("00:22:22:22:22:22");
+	pl1[0].set_port_no(8);
+	pl1[0].set_name(std::string("ge1"));
+	pl1[0].set_advertised(77777);
+	pl1[0].set_hwaddr(cmacaddr("00:22:22:22:22:22"));
 
 	fprintf(stderr, "portlist => %s\n", pl1.c_str());
 

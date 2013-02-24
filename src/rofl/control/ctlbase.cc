@@ -756,15 +756,15 @@ ctlbase::ctl_handle_port_status(
 				dpname.c_str(), reason, ofport->port_no);
 
 		/* sanity check: the port_no must not be in use currently */
-		if (n_ports.find(ofport->port_no) != n_ports.end()) {
+		if (n_ports.find(ofport->get_port_no()) != n_ports.end()) {
 			writelog(CFWD, WARN, "ctlbase(%s)::ctl_handle_port_status() "
 					"-ADD- port:%u, unable to add port => already exists",
-					dpname.c_str(), reason, ofport->port_no);
+					dpname.c_str(), reason, ofport->get_port_no());
 			throw eCtlBaseExists();
 		}
 
-		n_ports[ofport->port_no] = adapt;
-		adports[ofport->port_no] = ofport;
+		n_ports[ofport->get_port_no()] = adapt;
+		adports[ofport->get_port_no()] = ofport;
 	}
 		break;
 	case OFPPR_DELETE: {
@@ -773,34 +773,34 @@ ctlbase::ctl_handle_port_status(
 				dpname.c_str(), reason, ofport->port_no);
 
 		/* sanity check: the port_no must exist */
-		if (n_ports.find(ofport->port_no) == n_ports.end()) {
+		if (n_ports.find(ofport->get_port_no()) == n_ports.end()) {
 			writelog(CFWD, WARN, "ctlbase(%s)::ctl_handle_port_status() "
 						"-DELETE- port:%u, unable to delete port => not found",
-						dpname.c_str(), ofport->port_no);
+						dpname.c_str(), ofport->get_port_no());
 			return;
 		}
 
-		if (n_ports[ofport->port_no] != adapt) {
+		if (n_ports[ofport->get_port_no()] != adapt) {
 			writelog(CFWD, WARN, "ctlbase(%s)::ctl_handle_port_status() "
 						"-DELETE- port:%u, unable to delete port => assigned adapter mismatch",
-						dpname.c_str(), ofport->port_no);
+						dpname.c_str(), ofport->get_port_no());
 			return;
 		}
 
-		n_ports.erase(ofport->port_no);
-		adports.erase(ofport->port_no);
+		n_ports.erase(ofport->get_port_no());
+		adports.erase(ofport->get_port_no());
 	}
 		break;
 	case OFPPR_MODIFY: {
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_port_status() "
 				"-MODIFY- reason:%d port:%u",
-				dpname.c_str(), reason, ofport->port_no);
+				dpname.c_str(), reason, ofport->get_port_no());
 
 		/* sanity check: the port_no must exist */
-		if (n_ports.find(ofport->port_no) == n_ports.end()) {
+		if (n_ports.find(ofport->get_port_no()) == n_ports.end()) {
 			writelog(CFWD, WARN, "ctlbase(%s)::ctl_handle_port_status() "
 					"-MODIFY- reason:%d port:%u, unable to modify port => not found",
-					dpname.c_str(), reason, ofport->port_no);
+					dpname.c_str(), reason, ofport->get_port_no());
 			throw eCtlBaseNotFound();
 		}
 	}
@@ -808,7 +808,7 @@ ctlbase::ctl_handle_port_status(
 	default: {
 		writelog(CFWD, WARN, "ctlbase(%s)::ctl_handle_port_status() "
 				"invalid reason:%d for port:%u, ignoring",
-				dpname.c_str(), reason, ofport->port_no);
+				dpname.c_str(), reason, ofport->get_port_no());
 	}
 		break;
 	}

@@ -54,27 +54,15 @@ class eOFportMalformed : public eOFportBase {}; // malformed array of structs of
 
 
 class cofport :
-	public csyslog
+	public cmemory
 {
-/*
- *  data structures
- */
-public:
+private: // data structures
 
-	/*
-	 * parameters from struct ofp_port
-	 */
-	uint32_t 							port_no;
-	cmacaddr 							hwaddr;
-	std::string 						name;
-	uint32_t 							config;
-	uint32_t 							state;
-	uint32_t 							curr;
-	uint32_t 							advertised;
-	uint32_t 							supported;
-	uint32_t 							peer;
-	uint32_t 							curr_speed;
-	uint32_t 							max_speed;
+	struct ofp_port						*of_port;
+	std::map<uint32_t, cofport*> 		*port_list; 	// port_list this port belongs to
+	std::string 						 info; 			// info string
+
+public: // data structures
 
 	/*
 	 * port statistics
@@ -91,11 +79,6 @@ public:
 	uint64_t 							rx_over_err;
 	uint64_t 							rx_crc_err;
 	uint64_t 							collisions;
-
-private:
-
-	std::map<uint32_t, cofport*> 		*port_list; 	// port_list this port belongs to
-	std::string 						info; 			// info string
 
 
 
@@ -142,6 +125,138 @@ public:
 			cofport const& port);
 
 
+public:
+
+
+	/**
+	 */
+	uint32_t
+	get_port_no() const;
+
+
+	/**
+	 */
+	void
+	set_port_no(uint32_t port_no);
+
+
+	/**
+	 */
+	cmacaddr
+	get_hwaddr() const;
+
+
+	/**
+	 */
+	void
+	set_hwaddr(cmacaddr const& maddr);
+
+
+	/**
+	 */
+	std::string
+	get_name() const;
+
+
+	/**
+	 */
+	void
+	set_name(std::string name);
+
+	/**
+	 */
+	uint32_t
+	get_config() const;
+
+
+	/**
+	 */
+	void
+	set_config(uint32_t config);
+
+	/**
+	 */
+	uint32_t
+	get_state() const;
+
+
+	/**
+	 */
+	void
+	set_state(uint32_t state);
+
+
+	/**
+	 */
+	uint32_t
+	get_curr() const;
+
+
+	/**
+	 */
+	void
+	set_curr(uint32_t curr);
+
+
+	/**
+	 */
+	uint32_t
+	get_advertised() const;
+
+
+	/**
+	 */
+	void
+	set_advertised(uint32_t advertised);
+
+
+	/**
+	 */
+	uint32_t
+	get_supported() const;
+
+
+	/**
+	 */
+	void
+	set_supported(uint32_t supported);
+
+
+	/**
+	 */
+	uint32_t
+	get_peer() const;
+
+
+	/**
+	 */
+	void
+	set_peer(uint32_t peer);
+
+
+	/**
+	 */
+	uint32_t
+	get_curr_speed() const;
+
+
+	/**
+	 */
+	void
+	set_curr_speed(uint32_t curr_speed);
+
+
+	/**
+	 */
+	uint32_t
+	get_max_speed() const;
+
+
+	/**
+	 */
+	void
+	set_max_speed(uint32_t max_speed);
+
 
 	/**
 	 *
@@ -149,7 +264,7 @@ public:
 	virtual void
 	link_state_phy_down()
 	{
-		state |= OFPPS_LINK_DOWN;
+		of_port->state |= OFPPS_LINK_DOWN;
 	};
 
 
@@ -159,7 +274,7 @@ public:
 	virtual void
 	link_state_phy_up()
 	{
-		state &= ~OFPPS_LINK_DOWN;
+		of_port->state &= ~OFPPS_LINK_DOWN;
 	};
 
 
@@ -169,7 +284,7 @@ public:
 	bool
 	link_state_phy_is_up()
 	{
-		return (0 == (state & OFPPS_LINK_DOWN));
+		return (0 == (get_state() & OFPPS_LINK_DOWN));
 	};
 
 
@@ -266,10 +381,10 @@ public:
 	cofport_find_by_port_no(uint32_t _port_no) :
 		port_no(_port_no) {};
 	bool operator() (cofport *ofport) {
-		return (ofport->port_no == port_no);
+		return (ofport->get_port_no() == port_no);
 	};
 	bool operator() (std::pair<uint32_t, cofport*> const& p) {
-		return (p.second->port_no == port_no);
+		return (p.second->get_port_no() == port_no);
 	};
 };
 
@@ -280,11 +395,11 @@ public:
 	cofport_find_by_port_name(std::string _port_name) :
 		port_name(_port_name) {};
 	bool operator() (cofport *ofport) {
-		std::string name(ofport->name);
+		std::string name(ofport->get_name());
 		return (name == port_name);
 	};
 	bool operator() (std::pair<uint32_t, cofport*> const& p) {
-		std::string name(p.second->name);
+		std::string name(p.second->get_name());
 		return (name == port_name);
 	};
 };
@@ -297,11 +412,11 @@ public:
 	cofport_find_by_maddr(cmacaddr const& maddr) :
 		maddr(maddr) {};
 	bool operator() (cofport *ofport) {
-		cmacaddr hwaddr(ofport->hwaddr);
+		cmacaddr hwaddr(ofport->get_hwaddr());
 		return (maddr == hwaddr);
 	};
 	bool operator() (std::pair<uint32_t, cofport*> const& p) {
-		cmacaddr hwaddr(p.second->hwaddr);
+		cmacaddr hwaddr(p.second->get_hwaddr());
 		return (maddr == hwaddr);
 	};
 };
@@ -312,7 +427,7 @@ public:
 	cofport_find_port_no(uint32_t port_no) :
 		port_no(port_no) {};
 	bool operator() (cofport const& ofport) {
-		return (ofport.port_no == port_no);
+		return (ofport.get_port_no() == port_no);
 	};
 	uint32_t port_no;
 };

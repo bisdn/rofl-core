@@ -107,7 +107,7 @@ fi
 
 
 AC_MSG_CHECKING(for pipeline support)
-PIPELINE_SUPPORT="no"
+PIPELINE_SUPPORT="yes"
 AC_ARG_ENABLE(pipeline,
 	AS_HELP_STRING([--enable-pipeline], [Enable pipeline support [default=no]]),
 [ if test "$enableval" = "yes"; then
