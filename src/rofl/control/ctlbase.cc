@@ -753,7 +753,7 @@ ctlbase::ctl_handle_port_status(
 	case OFPPR_ADD: {
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_port_status() "
 				"-ADD- reason:%d port:%u",
-				dpname.c_str(), reason, ofport->port_no);
+				dpname.c_str(), reason, ofport->get_port_no());
 
 		/* sanity check: the port_no must not be in use currently */
 		if (n_ports.find(ofport->get_port_no()) != n_ports.end()) {
@@ -770,7 +770,7 @@ ctlbase::ctl_handle_port_status(
 	case OFPPR_DELETE: {
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_port_status() "
 				"-DELETE- reason:%d port:%u",
-				dpname.c_str(), reason, ofport->port_no);
+				dpname.c_str(), reason, ofport->get_port_no());
 
 		/* sanity check: the port_no must exist */
 		if (n_ports.find(ofport->get_port_no()) == n_ports.end()) {
