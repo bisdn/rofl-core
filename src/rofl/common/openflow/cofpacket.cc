@@ -991,17 +991,17 @@ cofpacket::test()
 
 	cofport ofport;
 
-	ofport.port_no 		= port_no;
-	ofport.hwaddr 		= hwaddr;
-	ofport.name 		= devname;
-	ofport.config 		= config;
-	ofport.state 		= state;
-	ofport.curr 		= curr;
-	ofport.advertised 	= advertised;
-	ofport.supported 	= supported;
-	ofport.peer 		= peer;
-	ofport.curr_speed 	= curr_speed;
-	ofport.max_speed 	= max_speed;
+	ofport.set_port_no(port_no);
+	ofport.set_hwaddr(hwaddr);
+	ofport.set_name(devname);
+	ofport.set_config(config);
+	ofport.set_state(state);
+	ofport.set_curr(curr);
+	ofport.set_advertised(advertised);
+	ofport.set_supported(supported);
+	ofport.set_peer(peer);
+	ofport.set_curr_speed(curr_speed);
+	ofport.set_max_speed(max_speed);
 
 	features_reply.ports.next() = ofport;
 
