@@ -479,6 +479,7 @@ throw (eOFportInval)
 	}
 
 	assign((uint8_t*)port, portlen);
+	of_port = (struct ofp_port*)somem();
 
 #if 0
 	port_no 	= be32toh(port->port_no);
