@@ -119,7 +119,7 @@ void of12_destroy_packet_action(of12_packet_action_t* action){
 /* Action group init and destroy */
 of12_action_group_t* of12_init_action_group(of12_packet_action_t* actions){
 
-	unsigned int number_of_actions=0;
+	unsigned int number_of_actions=0, number_of_output_actions=0;
 	of12_action_group_t* action_group;
 	
 	action_group = cutil_malloc_shared(sizeof(of12_action_group_t));
@@ -133,7 +133,7 @@ of12_action_group_t* of12_init_action_group(of12_packet_action_t* actions){
 		for(;actions;actions=actions->next, number_of_actions++){
 
 			if(actions->type == OF12_AT_OUTPUT)
-				action_group->num_of_output_actions++;
+				number_of_output_actions++;
 
 			if(!actions->next){
 				action_group->tail = actions;
@@ -146,6 +146,7 @@ of12_action_group_t* of12_init_action_group(of12_packet_action_t* actions){
 	}
 
 	action_group->num_of_actions = number_of_actions;
+	action_group->num_of_output_actions = number_of_output_actions;
 
 	return action_group;
 }
@@ -180,6 +181,9 @@ void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_ac
 	
 	group->num_of_actions++;
 
+	if(action->type == OF12_AT_OUTPUT)
+		group->num_of_output_actions++;
+	
 }
 
 /* Write actions init */
