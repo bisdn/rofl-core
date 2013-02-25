@@ -148,7 +148,9 @@ cofport::~cofport()
 
 
 
-cofport::cofport(cofport const& port)
+cofport::cofport(cofport const& port) :
+		cmemory(sizeof(struct ofp_port)),
+		of_port((struct ofp_port*)somem())
 {
 	*this = port;
 }
