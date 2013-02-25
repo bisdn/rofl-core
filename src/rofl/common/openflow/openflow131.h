@@ -151,6 +151,62 @@ enum ofp13_oxm_ofb_match_fields {
 };
 
 
+/* Bit definitions for IPv6 Extension Header pseudo-field. */
+enum ofp13_ipv6exthdr_flags {
+	OFPIEH_NONEXT = 1 << 0,			/* "No next header" encountered. */
+	OFPIEH_ESP = 1 << 1,			/* Encrypted Sec Payload header present. */
+	OFPIEH_AUTH = 1 << 2,			/* Authentication header present. */
+	OFPIEH_DEST	= 1 << 3,			/* 1 or 2 dest headers present. */
+	OFPIEH_FRAG	= 1 << 4,			/* Fragment header present. */
+	OFPIEH_ROUTER = 1 << 5,			/* Router header present. */
+	OFPIEH_HOP = 1 << 6,			/* Hop-by-hop header present. */
+	OFPIEH_UNREP = 1 << 7,			/* Unexpected repeats encountered. */
+	OFPIEH_UNSEQ = 1 << 8,			/* Unexpected sequencing encountered. */
+};
+
+
+enum ofp13_instruction_type {
+	OFPIT_GOTO_TABLE = 1,			/* Setup the next table in the lookup pipeline */
+	OFPIT_WRITE_METADATA = 2,		/* Setup the metadata field for use later in pipeline */
+	OFPIT_WRITE_ACTIONS = 3,		/* Write the action(s) onto the datapath action set */
+	OFPIT_APPLY_ACTIONS = 4,		/* Applies the action(s) immediately */
+	OFPIT_CLEAR_ACTIONS = 5,		/* Clears all actions from the datapath action set */
+	OFPIT_METER = 6,				/* Apply meter (rate limiter) */
+	OFPIT_EXPERIMENTER = 0xFFFF, 	/* Experimenter instruction */
+};
+
+
+/* Instruction structure for OFPIT_METER */
+struct ofp13_instruction_meter {
+	uint16_t type;					/* OFPIT_METER */
+	uint16_t len;					/* Length is 8. */
+	uint32_t meter_id;				/* Meter instance. */
+};
+OFP_ASSERT(sizeof(struct ofp13_instruction_meter) == 8);
+
+
+enum ofp13_action_type {
+	OFPAT_OUTPUT = 0, 				/* Output to switch port. */
+	OFPAT_COPY_TTL_OUT = 11, 		/* Copy TTL "outwards" -- from next-to-outermost to outermost */
+	OFPAT_COPY_TTL_IN = 12, 		/* Copy TTL "inwards" -- from outermost to next-to-outermost */
+	OFPAT_SET_MPLS_TTL = 15, 		/* MPLS TTL */
+	OFPAT_DEC_MPLS_TTL = 16, 		/* Decrement MPLS TTL */
+	OFPAT_PUSH_VLAN = 17, 			/* Push a new VLAN tag */
+	OFPAT_POP_VLAN = 18, 			/* Pop the outer VLAN tag */
+	OFPAT_PUSH_MPLS = 19, 			/* Push a new MPLS tag */
+	OFPAT_POP_MPLS = 20, 			/* Pop the outer MPLS tag */
+	OFPAT_SET_QUEUE = 21, 			/* Set queue id when outputting to a port */
+	OFPAT_GROUP = 22, 				/* Apply group. */
+	OFPAT_SET_NW_TTL = 23, 			/* IP TTL. */
+	OFPAT_DEC_NW_TTL = 24, 			/* Decrement IP TTL. */
+	OFPAT_SET_FIELD = 25, 			/* Set a header field using OXM TLV format. */
+	OFPAT_PUSH_PBB = 26, 			/* Push a new PBB service tag (I-TAG) */
+	OFPAT_POP_PBB = 27, 			/* Pop the outer PBB service tag (I-TAG) */
+	OFPAT_PUSH_PPPOE = 30,			/* Push a new PPPoE tag */
+	OFPAT_POP_PPPOE = 31,			/* Pop the PPPoE tag */
+	OFPAT_EXPERIMENTER = 0xffff,
+};
+
 
 
 
