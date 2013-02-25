@@ -1794,9 +1794,8 @@ crofbase::ta_new_async_xid()
 
 	return r.uint32();
 #endif
-
-	while (ta_pending_reqs.find(xid_start) != ta_pending_reqs.end())
-	{
+	//FIXME! TODO
+	while (ta_pending_reqs.find(xid_start) != ta_pending_reqs.end()){
 		xid_start++;
 	}
 
