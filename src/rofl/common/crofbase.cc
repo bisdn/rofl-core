@@ -406,17 +406,20 @@ crofbase::handle_timeout(int opaque)
 {
 	try {
 		switch (opaque) {
-		case TIMER_FE_DUMP_OFPACKETS:
+		case TIMER_FE_DUMP_OFPACKETS: {
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::handle_timeout() "
 					"cofpacket statistics => %s", this, cofpacket::packet_info());
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::handle_timeout() "
 					"cpacket statistics => %s", this, cpacket::cpacket_info());
 			register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
-			break;
-		default:
+		} break;
+		case CROFBASE_TIMER_WAKEUP: {
+			// do nothing, just re-schedule via ciosrv::run()::pselect()
+		} break;
+		default: {
 			//WRITELOG(CROFBASE, DBG, "crofbase::handle_timeout() "
 			//		"received unknown timer event %d", opaque);
-			break;
+		} break;
 		}
 
 	} catch (eIoSvcUnhandledTimer& e) {
@@ -424,6 +427,28 @@ crofbase::handle_timeout(int opaque)
 	}
 }
 
+
+
+void
+crofbase::handle_event(cevent const& ev)
+{
+	cevent event(ev);
+	switch (event.cmd) {
+	case CROFBASE_EVENT_WAKEUP: {
+		// do nothing, just re-schedule via ciosrv::run()::pselect()
+	} break;
+	}
+}
+
+
+void
+crofbase::wakeup()
+{
+	if (tid != pthread_self())
+	{
+		notify(CROFBASE_EVENT_WAKEUP);
+	}
+}
 
 
 void

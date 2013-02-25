@@ -121,9 +121,14 @@ public:
 
 protected:
 
-	enum fwdelem_timer_t {
+	enum crofbase_event_t {
+		CROFBASE_EVENT_WAKEUP	= 1,
+	};
+
+	enum crofbase_timer_t {
 		TIMER_FE_BASE = (0x0020 << 16),
 		TIMER_FE_DUMP_OFPACKETS,
+		CROFBASE_TIMER_WAKEUP,
 	};
 
 	enum crofbase_rpc_t { // for cofrpc *rpc[2]; (see below)
@@ -247,6 +252,13 @@ public:
 	 */
 	void
 	rpc_close_all();
+
+
+	/**
+	 *
+	 */
+	void
+	wakeup();
 
 
 protected:
@@ -744,6 +756,13 @@ protected:	// overloaded from ciosrv
 	virtual void
 	handle_timeout(
 		int opaque);
+
+
+	/**
+	 * Handle cioctl events received
+	 */
+	virtual void
+	handle_event(cevent const& ev);
 
 
 public: // miscellaneous methods
