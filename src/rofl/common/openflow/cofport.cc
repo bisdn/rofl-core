@@ -150,6 +150,7 @@ cofport::~cofport()
 
 cofport::cofport(cofport const& port) :
 		cmemory(sizeof(struct ofp_port)),
+		port_list(0),
 		of_port((struct ofp_port*)somem())
 {
 	*this = port;
