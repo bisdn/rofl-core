@@ -481,7 +481,7 @@ public:
 		/**
 		 *
 		 */
-		const char*
+		virtual const char*
 		c_str()
 		{
 			cvastring vas;

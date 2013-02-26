@@ -1667,7 +1667,7 @@ protected:
 	 */
 
 	std::map<uint32_t, uint8_t> 			ta_pending_reqs; 	// list of pending requests
-	std::vector<uint32_t> 					xids_used;			// list of recently used xids
+	std::set<uint32_t>	 					xids_used;			// list of recently used xids
 	size_t 									xid_used_max; 		// reusing xids: max number of currently blocked xid entries stored
 	uint32_t 								xid_start; 			// start value xid
 #define CPCP_DEFAULT_XID_USED_MAX       16
