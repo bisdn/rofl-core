@@ -1819,10 +1819,16 @@ crofbase::ta_new_async_xid()
 
 	return r.uint32();
 #endif
-	//FIXME! TODO
-	while (ta_pending_reqs.find(xid_start) != ta_pending_reqs.end()){
-		xid_start++;
+
+	if (xids_used.size() > xid_used_max) {
+		xids_used.clear();
 	}
+
+	do {
+		xid_start++;
+	} while (xids_used.find(xid_start) != xids_used.end());
+
+	xids_used.insert(xid_start);
 
 	return xid_start;
 }
