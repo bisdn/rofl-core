@@ -43,11 +43,11 @@ of_switch_t* physical_switch_get_logical_switch_by_dpid(const uint64_t dpid){
 }
 
 //Add/remove methods
-unsigned int physical_switch_add_logical_switch(of_switch_t* sw){
+rofl_result_t physical_switch_add_logical_switch(of_switch_t* sw){
 	int i;
 
 	if(physical_switch_get_logical_switch_by_dpid(sw->dpid))
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 	
 	//Serialize
 	platform_mutex_lock(psw.mutex);
@@ -55,7 +55,7 @@ unsigned int physical_switch_add_logical_switch(of_switch_t* sw){
 	if(psw.num_of_logical_switches == PHYSICAL_SWITCH_MAX_LS){
 		//Serialize
 		platform_mutex_unlock(psw.mutex);
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 	}
 	
 	//Look for an available slot
@@ -68,10 +68,10 @@ unsigned int physical_switch_add_logical_switch(of_switch_t* sw){
 	psw.num_of_logical_switches++;
 
 	platform_mutex_unlock(psw.mutex);
-	return EXIT_SUCCESS;
+	return ROFL_SUCCESS;
 }
 
-unsigned int physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid){
+rofl_result_t physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid){
 
 	int i;
 	of_switch_t* sw;
@@ -81,7 +81,7 @@ unsigned int physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid){
 
 	if(!physical_switch_get_logical_switch_by_dpid(dpid)){
 		platform_mutex_unlock(psw.mutex);
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 	}
 	
 	for(i=0;i<PHYSICAL_SWITCH_MAX_LS;i++){
@@ -98,16 +98,16 @@ unsigned int physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid){
 			//Destroy the switch				
 			of_destroy_switch(sw);				
 			
-			return EXIT_SUCCESS;
+			return ROFL_SUCCESS;
 		}
 	}
 	
 	//This statement can never be reached	
 	platform_mutex_unlock(psw.mutex);
-	return EXIT_FAILURE;
+	return ROFL_FAILURE;
 }
 
-unsigned int physical_switch_remove_logical_switch(of_switch_t* sw){
+rofl_result_t physical_switch_remove_logical_switch(of_switch_t* sw){
 	return physical_switch_remove_logical_switch_by_dpid(sw->dpid);
 }
 
@@ -117,19 +117,20 @@ of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_po
 }
 
 //Platform port mapping methods
-unsigned int get_logical_switch_ports(of_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports){
+//TODO: take this from here
+rofl_result_t get_logical_switch_ports(of_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports){
 	if(!sw)
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 
 	return of_get_switch_ports(sw,ports,num_of_ports,logical_sw_max_ports);
 }
 
-unsigned int physical_switch_attach_physical_port_num_to_logical_switch(unsigned int port_num, of_switch_t* sw, unsigned int* logical_switch_port_num){
+rofl_result_t physical_switch_attach_physical_port_num_to_logical_switch(unsigned int port_num, of_switch_t* sw, unsigned int* logical_switch_port_num){
 	
-	unsigned int return_val;
+	rofl_result_t return_val;
 
 	if( !sw || port_num >= PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS || psw.physical_ports[port_num]->attached_sw )
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 	
 	//Serialize
 	platform_mutex_lock(psw.mutex);
@@ -140,12 +141,12 @@ unsigned int physical_switch_attach_physical_port_num_to_logical_switch(unsigned
 	return return_val;
 }
 
-unsigned int physical_switch_attach_port_to_logical_switch(switch_port_t* port, of_switch_t* sw, unsigned int* port_num){
+rofl_result_t physical_switch_attach_port_to_logical_switch(switch_port_t* port, of_switch_t* sw, unsigned int* port_num){
 
-	unsigned int return_val;
+	rofl_result_t return_val;
 
 	if( !sw || !port || port->attached_sw )
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 	
 	//Serialize
 	platform_mutex_lock(psw.mutex);
@@ -157,12 +158,12 @@ unsigned int physical_switch_attach_port_to_logical_switch(switch_port_t* port, 
 
 }
 
-unsigned int physical_switch_attach_port_to_logical_switch_at_port_num(switch_port_t* port, of_switch_t* sw, unsigned int port_num){
+rofl_result_t physical_switch_attach_port_to_logical_switch_at_port_num(switch_port_t* port, of_switch_t* sw, unsigned int port_num){
 
-	unsigned int return_val;
+	rofl_result_t return_val;
 
 	if( !sw || !port || port->attached_sw )
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 
 	//Serialize
 	platform_mutex_lock(psw.mutex);
@@ -174,11 +175,11 @@ unsigned int physical_switch_attach_port_to_logical_switch_at_port_num(switch_po
 }
 
 
-unsigned int physical_switch_detach_port_num_from_logical_switch(unsigned int port_num, of_switch_t* sw){
-	unsigned int return_val;
+rofl_result_t physical_switch_detach_port_num_from_logical_switch(unsigned int port_num, of_switch_t* sw){
+	rofl_result_t return_val;
 
 	if( !sw )
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 
 	//Serialize
 	platform_mutex_lock(psw.mutex);
@@ -190,12 +191,12 @@ unsigned int physical_switch_detach_port_num_from_logical_switch(unsigned int po
 
 }
 
-unsigned int physical_switch_detach_port_from_logical_switch(switch_port_t* port, of_switch_t* sw){
+rofl_result_t physical_switch_detach_port_from_logical_switch(switch_port_t* port, of_switch_t* sw){
 
-	unsigned int return_val;
+	rofl_result_t return_val;
 
 	if( !sw || !port )
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 
 	//Serialize
 	platform_mutex_lock(psw.mutex);
@@ -208,12 +209,12 @@ unsigned int physical_switch_detach_port_from_logical_switch(switch_port_t* port
 
 }
 
-unsigned int physical_switch_detach_all_ports_from_logical_switch(of_switch_t* sw){
+rofl_result_t physical_switch_detach_all_ports_from_logical_switch(of_switch_t* sw){
 
-	unsigned int return_val;
+	rofl_result_t return_val;
 
 	if( !sw )
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 
 	//Serialize
 	platform_mutex_lock(psw.mutex);

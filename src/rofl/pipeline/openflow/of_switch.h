@@ -2,6 +2,7 @@
 #define __OF_SWITCH_H__
 
 #include <inttypes.h> 
+#include "rofl.h"
 #include "../switch_port.h"
 #include "../util/rofl_pipeline_utils.h"
 #include "../common/datapacket.h"
@@ -56,21 +57,21 @@ typedef int of_packet_in_reason_t;
 ROFL_PIPELINE_BEGIN_DECLS
 
 //Wrapping destroy
-unsigned int of_destroy_switch(const of_switch_t* sw);
+rofl_result_t of_destroy_switch(const of_switch_t* sw);
 
 //Wrapping of processing
-unsigned int of_process_packet_pipeline(const of_switch_t* sw, datapacket_t *const pkt);
+rofl_result_t of_process_packet_pipeline(const of_switch_t* sw, datapacket_t *const pkt);
 
 //Wrapping timers
 void of_process_pipeline_tables_timeout_expirations(const of_switch_t* sw);
 
 //Wrapping port management
-unsigned int of_get_switch_ports(of_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports);
-unsigned int of_attach_port_to_switch_at_port_num(of_switch_t* sw, unsigned int port_num, switch_port_t* port);
-unsigned int of_attach_port_to_switch(of_switch_t* sw, switch_port_t* port, unsigned int* port_num);
-unsigned int of_detach_port_from_switch_by_port_num(of_switch_t* sw, unsigned int port_num);
-unsigned int of_detach_port_from_switch(of_switch_t* sw, switch_port_t* port);
-unsigned int of_detach_all_ports_from_switch(of_switch_t* sw);
+rofl_result_t of_get_switch_ports(of_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports);
+rofl_result_t of_attach_port_to_switch_at_port_num(of_switch_t* sw, unsigned int port_num, switch_port_t* port);
+rofl_result_t of_attach_port_to_switch(of_switch_t* sw, switch_port_t* port, unsigned int* port_num);
+rofl_result_t of_detach_port_from_switch_by_port_num(of_switch_t* sw, unsigned int port_num);
+rofl_result_t of_detach_port_from_switch(of_switch_t* sw, switch_port_t* port);
+rofl_result_t of_detach_all_ports_from_switch(of_switch_t* sw);
 
 //C++ extern C
 ROFL_PIPELINE_END_DECLS

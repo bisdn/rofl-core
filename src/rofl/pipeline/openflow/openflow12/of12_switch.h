@@ -3,7 +3,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "../../switch_port.h"
+#include "rofl.h"
+#include "../of_switch.h"
 #include "../of_switch.h"
 #include "pipeline/of12_pipeline.h"
 #include "../../util/rofl_pipeline_utils.h"
@@ -43,15 +44,15 @@ ROFL_PIPELINE_BEGIN_DECLS
 
 /* Initializer and destroyer */
 of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* list,of12_flow_table_miss_config_t config);
-unsigned int of12_destroy_switch(of12_switch_t* sw);
+rofl_result_t of12_destroy_switch(of12_switch_t* sw);
 
 /* Port management */
-unsigned int of12_get_switch_ports(of12_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports);
-unsigned int of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned int port_num, switch_port_t* port);
-unsigned int of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, unsigned int* port_num);
-unsigned int of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigned int port_num);
-unsigned int of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* port);
-unsigned int of12_detach_all_ports_from_switch(of12_switch_t* sw);
+rofl_result_t of12_get_switch_ports(of12_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports);
+rofl_result_t of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned int port_num, switch_port_t* port);
+rofl_result_t of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, unsigned int* port_num);
+rofl_result_t of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigned int port_num);
+rofl_result_t of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* port);
+rofl_result_t of12_detach_all_ports_from_switch(of12_switch_t* sw);
 
 /* Dump */
 void of12_dump_switch(of12_switch_t* sw);

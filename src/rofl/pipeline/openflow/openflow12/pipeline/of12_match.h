@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <string.h>
+#include <stdbool.h>
 #include "../../../util/rofl_pipeline_utils.h"
 #include "../../../common/ternary_fields.h"
 //#include "../../../common/datapacket.h"
@@ -166,7 +167,7 @@ void of12_destroy_match_group(of12_match_group_t* group);
 void of12_match_group_push_back(of12_match_group_t* group, of12_match_t* match);
 
 /* Push match at the end of the match */
-unsigned int of12_add_match(of12_match_t* root_match, of12_match_t* add_match);
+rofl_result_t of12_add_match(of12_match_t* root_match, of12_match_t* add_match);
 
 /* 
 * Match copy
@@ -186,9 +187,9 @@ void of12_destroy_match(of12_match_t* match);
 /*
 * Matching 
 */
-unsigned int of12_equal_matches(of12_match_t* match1, of12_match_t* match2);
-unsigned int of12_is_submatch(of12_match_t* sub_match, of12_match_t* match);
-unsigned int of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* it);
+bool of12_equal_matches(of12_match_t* match1, of12_match_t* match2);
+bool of12_is_submatch(of12_match_t* sub_match, of12_match_t* match);
+bool of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* it);
 
 /*
 * Dumping

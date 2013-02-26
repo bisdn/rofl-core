@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <sys/time.h>
+#include "rofl.h" 
 #include "../../../util/rofl_pipeline_utils.h"
 
 /*
@@ -79,9 +80,9 @@ typedef struct of12_timer_group of12_timer_group_t;
 ROFL_PIPELINE_BEGIN_DECLS
 
 //Timer functions outside tu
-unsigned int of12_add_timer(struct of12_flow_table* const table, struct of12_flow_entry* const entry);
+rofl_result_t of12_add_timer(struct of12_flow_table* const table, struct of12_flow_entry* const entry);
 void of12_process_pipeline_tables_timeout_expirations(const struct of12_pipeline* pipeline);
-unsigned int of12_destroy_timer_entries(struct of12_flow_entry * entry, struct of12_flow_table * table);
+rofl_result_t of12_destroy_timer_entries(struct of12_flow_entry * entry, struct of12_flow_table * table);
 void of12_dump_timers_structure(of12_timer_group_t * timer_group);
 void of12_timer_group_static_init(struct of12_flow_table* table);
 void of12_time_forward(uint64_t sec, uint64_t usec, struct timeval * time);

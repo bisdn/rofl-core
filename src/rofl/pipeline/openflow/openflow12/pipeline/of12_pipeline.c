@@ -41,7 +41,7 @@ of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum match
 
 	for(i=0;i<num_of_tables;i++){
 		//TODO: if we would have tables with different config, table_config should be an array of table_config_t objects, one for each table
-		if(of12_init_table(&pipeline->tables[i],i,table_config, list[i]) != EXIT_SUCCESS){
+		if(of12_init_table(&pipeline->tables[i],i,table_config, list[i]) != ROFL_SUCCESS){
 			cutil_free_shared(pipeline->tables);
 			cutil_free_shared(pipeline);
 			return NULL;
@@ -60,7 +60,7 @@ of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum match
 	return pipeline;
 }
 
-unsigned int of12_destroy_pipeline(of12_pipeline_t* pipeline){
+rofl_result_t of12_destroy_pipeline(of12_pipeline_t* pipeline){
 
 	int i;
 	
@@ -74,7 +74,7 @@ unsigned int of12_destroy_pipeline(of12_pipeline_t* pipeline){
 
 	cutil_free_shared(pipeline);
 
-	return EXIT_SUCCESS;
+	return ROFL_SUCCESS;
 
 }
 
