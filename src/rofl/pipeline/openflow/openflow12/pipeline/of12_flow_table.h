@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdint.h>
+#include "rofl.h"
 #include "../../../util/rofl_pipeline_utils.h"
 #include "../../../platform/lock.h"
 #include "of12_flow_entry.h"
@@ -109,12 +110,12 @@ typedef struct of12_flow_table of12_flow_table_t;
 ROFL_PIPELINE_BEGIN_DECLS
 
 //Table init and destroy
-unsigned int of12_init_table(of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm);
-unsigned int of12_destroy_table(of12_flow_table_t* table);
+rofl_result_t of12_init_table(of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm);
+rofl_result_t of12_destroy_table(of12_flow_table_t* table);
 
 //Flow-mod installation and removal
-unsigned int of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry);
-unsigned int of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness_t strict, of12_mutex_acquisition_required_t mutex_acquired);
+rofl_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry);
+rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness_t strict, of12_mutex_acquisition_required_t mutex_acquired);
 
 //Find best match
 of12_flow_entry_t* of12_find_best_match_table(of12_flow_table_t *const table, of12_packet_matches_t *const pkt); 
@@ -123,8 +124,11 @@ of12_flow_entry_t* of12_find_best_match_table(of12_flow_table_t *const table, of
 void of12_dump_table(of12_flow_table_t* table);
 
 
-//Table implementation of add/remove (on the table). Probably to be used or not by the matching algorithm
-unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry); 
+/*
+* Table implementation of add/remove (on the table). Probably to be used or not by the matching algorithm
+* WARNING: this should never be used by anything except a matching algorithm. Never use it from the driver 
+*/
+rofl_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry); 
 /*
 * specific_entry is the pointer to the *same* entry as in the table, that means the same exact *pointer*, whereas in the entry only matches are checked.
 * entry must be set to NULL and viceversa when using a form of the call. 

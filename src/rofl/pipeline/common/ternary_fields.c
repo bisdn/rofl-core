@@ -59,10 +59,10 @@ inline utern_t* init_utern128(uint128_t value, uint128_t mask){ //uint128_t funn
 /*
 * Single destructor
 */
-unsigned int destroy_utern(utern_t* utern){
+rofl_result_t destroy_utern(utern_t* utern){
 	cutil_free_shared(utern);
 	//FIXME: maybe check returning value
-	return EXIT_SUCCESS; 
+	return ROFL_SUCCESS; 
 }	
 
 
@@ -70,17 +70,17 @@ unsigned int destroy_utern(utern_t* utern){
 * Comparison 
 */
 
-inline unsigned int utern_compare8(const utern8_t* tern, const uint8_t value){
+inline bool utern_compare8(const utern8_t* tern, const uint8_t value){
 	return (tern->value & tern->mask) == (value & tern->mask); 
 }
-inline unsigned int utern_compare16(const utern16_t* tern, const uint16_t value){
+inline bool utern_compare16(const utern16_t* tern, const uint16_t value){
 	return (tern->value & tern->mask) == (value & tern->mask); 
 }
-inline unsigned int utern_compare32(const utern32_t* tern, const uint32_t value){
+inline bool utern_compare32(const utern32_t* tern, const uint32_t value){
 	return (tern->value & tern->mask) == (value & tern->mask); 
 }
 
-inline unsigned int utern_compare64(const utern64_t* tern, const uint64_t value){
+inline bool utern_compare64(const utern64_t* tern, const uint64_t value){
 	return (tern->value & tern->mask) == (value & tern->mask); 
 }
 
@@ -88,40 +88,40 @@ inline unsigned int utern_compare64(const utern64_t* tern, const uint64_t value)
 * Contained 
 */
 //Extensive tern is a more generic (with a less restrictive mask or equal) to tern
-inline unsigned int utern_is_contained8(const utern8_t* extensive_tern, const utern8_t* tern){
+inline bool utern_is_contained8(const utern8_t* extensive_tern, const utern8_t* tern){
 	if(((extensive_tern->mask ^ tern->mask) & extensive_tern->mask) > 0)
-		return 0;
+		return false;
 	return (extensive_tern->value & extensive_tern->mask) == (tern->value & extensive_tern->mask); 
 }
-unsigned int utern_is_contained16(const utern16_t* extensive_tern, const utern16_t* tern){
+bool utern_is_contained16(const utern16_t* extensive_tern, const utern16_t* tern){
 	if(((extensive_tern->mask ^ tern->mask) & extensive_tern->mask) > 0)
-		return 0;
+		return false;
 	return (extensive_tern->value & extensive_tern->mask) == (tern->value & extensive_tern->mask);
 }
-unsigned int utern_is_contained32(const utern32_t* extensive_tern, const utern32_t* tern){
+bool utern_is_contained32(const utern32_t* extensive_tern, const utern32_t* tern){
 	if(((extensive_tern->mask ^ tern->mask) & extensive_tern->mask) > 0)
-		return 0;
+		return false;
 	return (extensive_tern->value & extensive_tern->mask) == (tern->value & extensive_tern->mask);
 }
-unsigned int utern_is_contained64(const utern64_t* extensive_tern, const utern64_t* tern){
+bool utern_is_contained64(const utern64_t* extensive_tern, const utern64_t* tern){
 	if(((extensive_tern->mask ^ tern->mask) & extensive_tern->mask) > 0)
-		return 0;
+		return false;
 	return (extensive_tern->value & extensive_tern->mask) == (tern->value & extensive_tern->mask);
 }
 
 /*
 * Check if two ternary values are equal
 */
-inline unsigned int utern_equals8(const utern8_t* tern1, const utern8_t* tern2){
+inline bool utern_equals8(const utern8_t* tern1, const utern8_t* tern2){
 	return (tern1->value == tern2->value) && (tern1->mask == tern2->mask);
 }
-inline unsigned int utern_equals16(const utern16_t* tern1, const utern16_t* tern2){
+inline bool utern_equals16(const utern16_t* tern1, const utern16_t* tern2){
 	return (tern1->value == tern2->value) && (tern1->mask == tern2->mask);
 }
-inline unsigned int utern_equals32(const utern32_t* tern1, const utern32_t* tern2){
+inline bool utern_equals32(const utern32_t* tern1, const utern32_t* tern2){
 	return (tern1->value == tern2->value) && (tern1->mask == tern2->mask);
 }
-inline unsigned int utern_equals64(const utern64_t* tern1, const utern64_t* tern2){
+inline bool utern_equals64(const utern64_t* tern1, const utern64_t* tern2){
 	return (tern1->value == tern2->value) && (tern1->mask == tern2->mask);
 }
 
@@ -218,7 +218,7 @@ inline utern_t* utern64_get_alike(const utern64_t tern1, const utern64_t tern2){
 
 #if 0
 //Not used yet
-inline unsigned int utern_compare128(const utern_t* tern, const void* value){
+inline bool utern_compare128(const utern_t* tern, const void* value){
 	utern128_t* tmp = (utern128_t*)tern;
 	uint64_t* tmp_tern1 = (uint64_t*)tmp->value;
 	uint64_t* tmp_tern2 = (uint64_t*)(tmp->value+64);
@@ -238,7 +238,7 @@ inline unsigned int utern_compare128(const utern_t* tern, const void* value){
 ///SLOW
 
 /* Exported method utern_compare */ 
-inline unsigned int utern_compare(const utern_t* tern, void* value){
+inline bool utern_compare(const utern_t* tern, void* value){
 	
 	//TODO: tweak order for performance
 	
@@ -254,6 +254,6 @@ inline unsigned int utern_compare(const utern_t* tern, void* value){
 	}else if(tern->type == UTERN128_T){
 		return utern_compare128(tern,value); 
 	}else 
-		return 0;
+		return false;
 }*/
 #endif

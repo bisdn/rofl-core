@@ -12,8 +12,8 @@
 #define LOOP_DESCRIPTION "The loop algorithm searches the list of entries by its priority order. On the worst case the performance is o(N) with the number of entries"
 
 /* Flow management routines. Wraps call with mutex.  */
-inline unsigned int of12_add_flow_entry_loop(of12_flow_table_t *const table, of12_flow_entry_t *const entry){
-	unsigned int return_value;
+inline rofl_result_t of12_add_flow_entry_loop(of12_flow_table_t *const table, of12_flow_entry_t *const entry){
+	rofl_result_t return_value;
 
 	//Allow single add/remove operation over the table
 	platform_mutex_lock(table->mutex);
@@ -34,7 +34,7 @@ inline unsigned int of12_add_flow_entry_loop(of12_flow_table_t *const table, of1
 	return return_value;
 }
 
-inline unsigned int of12_remove_flow_entry_loop(of12_flow_table_t *const table , of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness_t strict, of12_mutex_acquisition_required_t mutex_acquired){
+inline rofl_result_t of12_remove_flow_entry_loop(of12_flow_table_t *const table , of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness_t strict, of12_mutex_acquisition_required_t mutex_acquired){
 	of12_flow_entry_t* table_deletion_result;
 
 	//Allow single add/remove operation over the table
@@ -60,12 +60,12 @@ inline unsigned int of12_remove_flow_entry_loop(of12_flow_table_t *const table ,
 	}
 
 	if(!table_deletion_result)
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 
 	//Destroy the entry 
 	of12_destroy_flow_entry(table_deletion_result);
 	
-	return EXIT_SUCCESS; 
+	return ROFL_SUCCESS; 
 }
 	
 /* FLOW entry lookup entry point */ 

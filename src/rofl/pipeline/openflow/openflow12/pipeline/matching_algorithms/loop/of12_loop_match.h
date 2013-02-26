@@ -4,6 +4,7 @@
 
 #include "../matching_algorithms.h"
 #include "../../of12_flow_table.h"
+#include "rofl.h"
 
 //C++ extern C
 ROFL_PIPELINE_BEGIN_DECLS

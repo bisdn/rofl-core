@@ -2,6 +2,7 @@
 #define __OF12_PIPELINE_H__
 
 #include <stdlib.h>
+#include "rofl.h" 
 #include "../../../util/rofl_pipeline_utils.h"
 #include "of12_flow_table.h"
 #include "../../../common/datapacket.h"
@@ -42,7 +43,7 @@ ROFL_PIPELINE_BEGIN_DECLS
 
 /* Pipeline mgmt */
 of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum matching_algorithm_available* list, const of12_flow_table_miss_config_t table_config);
-unsigned int of12_destroy_pipeline(of12_pipeline_t* pipeline);
+rofl_result_t of12_destroy_pipeline(of12_pipeline_t* pipeline);
 
 //Packet processing
 void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt);

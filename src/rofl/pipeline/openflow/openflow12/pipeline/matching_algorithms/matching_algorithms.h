@@ -8,6 +8,7 @@
 #ifndef MATCHING_ALGORITHMS_H_
 #define MATCHING_ALGORITHMS_H_
 
+#include "rofl.h"
 #include "../of12_flow_entry.h"
 #include "matching_algorithms_available.h"
 /**
@@ -35,16 +36,16 @@ enum of12_flow_removal_strictness_t
 struct matching_algorithm_functions
 {
 	// init and destroy
-	unsigned int
+	rofl_result_t
 	(*init_hook)(struct of12_flow_table * const);
-	unsigned int
+	rofl_result_t
 	(*destroy_hook)(struct of12_flow_table * const); //Mutual exclusion will already be taken by the of12_flow_table destructor
 
 	// flow management
-	unsigned int
+	rofl_result_t
 	(*add_flow_entry_hook)(struct of12_flow_table * const,
 			of12_flow_entry_t * const);
-	unsigned int
+	rofl_result_t
 	(*remove_flow_entry_hook)(struct of12_flow_table * const,
 			of12_flow_entry_t * const, of12_flow_entry_t * const,
 			const enum of12_flow_removal_strictness_t,

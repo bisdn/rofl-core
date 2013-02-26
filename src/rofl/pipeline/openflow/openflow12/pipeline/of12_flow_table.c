@@ -17,13 +17,13 @@
 */ 
 
 /* Initalizer. Table struct has been allocated by pipeline initializer. */
-unsigned int of12_init_table(of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm){
+rofl_result_t of12_init_table(of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm){
 
 	//Initializing mutexes
 	if(NULL == (table->mutex = platform_mutex_init(NULL)))
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 	if(NULL == (table->rwlock = platform_rwlock_init(NULL)))
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 	
 	table->number = table_index;
 	table->entries = NULL;
@@ -147,11 +147,11 @@ unsigned int of12_init_table(of12_flow_table_t* table, const unsigned int table_
 	if(table->maf.init_hook)
 		return table->maf.init_hook(table);
 	
-	return EXIT_SUCCESS;
+	return ROFL_SUCCESS;
 }
 
 /* Destructor. Table object is freed by pipeline destructor */
-unsigned int of12_destroy_table(of12_flow_table_t* table){
+rofl_result_t of12_destroy_table(of12_flow_table_t* table){
 	
 	of12_flow_entry_t* entry;
 	
@@ -175,26 +175,25 @@ unsigned int of12_destroy_table(of12_flow_table_t* table){
 	//NOTE missing destruction of timers
 	
 	//Do NOT free table, since it was allocated in a single buffer in pipeline.c	
-	return EXIT_SUCCESS;
+	return ROFL_SUCCESS;
 }
 
 /*
 *    TODO:
 *    - Use hashs for entries and a hashmap ? 
 *    - Add checkings entry (overlap, non overlap)
-*    - Add timers
 */
 
 /* 
 * Adds flow_entry to the main table. This function is NOT thread safe, and mutual exclusion should be 
 * acquired BEFORE this function being called, using table->mutex var. 
 */
-unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry){
+rofl_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry){
 	of12_flow_entry_t *it, *prev;
 	
 	if(table->num_of_entries == OF12_MAX_NUMBER_OF_TABLE_ENTRIES)
 	{
-		return EXIT_FAILURE; 
+		return ROFL_FAILURE; 
 	}
 
 	if(!table->entries){
@@ -206,7 +205,7 @@ unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_
 		entry->table = table;
 	
 		table->num_of_entries++;
-		return EXIT_SUCCESS;
+		return ROFL_SUCCESS;
 	}
 
 	//Look for appropiate position in the table
@@ -246,7 +245,7 @@ unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_
 	
 			//Unlock mutexes
 			platform_rwlock_wrunlock(table->rwlock);
-			return EXIT_SUCCESS;
+			return ROFL_SUCCESS;
 		}
 	}
 	
@@ -259,13 +258,13 @@ unsigned int of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_
 	
 	//Unlock mutexes
 	platform_rwlock_wrunlock(table->rwlock);
-	return EXIT_SUCCESS;
+	return ROFL_SUCCESS;
 }
 
 /*
+*
 * Removal of specific entry
 * Warning pointer to the entry MUST be a valid pointer. Some rudimentary checking are made, such checking linked list correct state, but no further checkings are done
-* In particular
 *
 */
 static of12_flow_entry_t* of12_remove_flow_entry_table_specific_imp(of12_flow_table_t *const table, of12_flow_entry_t *const specific_entry){
@@ -393,10 +392,10 @@ of12_flow_entry_t* of12_remove_flow_entry_table_imp(of12_flow_table_t *const tab
 * Specific matchings may point them to their own routines, but they MUST always call
 * of12_[whatever]_flow_entry_table_imp in order to update the main tables
 */
-inline unsigned int of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry){
+inline rofl_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry){
 	return table->maf.add_flow_entry_hook(table,entry);
 }
-inline unsigned int of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness_t strict, of12_mutex_acquisition_required_t mutex_acquired ){
+inline rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness_t strict, of12_mutex_acquisition_required_t mutex_acquired ){
 	return table->maf.remove_flow_entry_hook(table,entry,specific_entry,strict, mutex_acquired);
 }
 

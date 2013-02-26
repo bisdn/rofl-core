@@ -57,13 +57,13 @@ of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int nu
 	return sw;
 }
 
-unsigned int of12_destroy_switch(of12_switch_t* sw){
+rofl_result_t of12_destroy_switch(of12_switch_t* sw){
 
-	unsigned int result;
+	rofl_result_t result;
 
 	//Allow the platform to do specific things before deletion 
 	if(platform_pre_destroy_of12_switch(sw) != ROFL_SUCCESS)
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 		
 	result = of12_destroy_pipeline(sw->pipeline);
 
@@ -77,28 +77,28 @@ unsigned int of12_destroy_switch(of12_switch_t* sw){
 	cutil_free_shared(sw->name);
 	cutil_free_shared(sw);
 	
-	return EXIT_SUCCESS;
+	return ROFL_SUCCESS;
 }
 
 /* Port management */
-unsigned int of12_get_switch_ports(of12_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports){
+rofl_result_t of12_get_switch_ports(of12_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports){
 	*ports = sw->logical_ports;
 	*num_of_ports = sw->num_of_ports;
 	*logical_sw_max_ports = LOGICAL_SWITCH_MAX_LOG_PORTS;
-	return EXIT_SUCCESS;
+	return ROFL_SUCCESS;
 }
 
-unsigned int of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned int port_num, switch_port_t* port){
+rofl_result_t of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned int port_num, switch_port_t* port){
 
 	if(!port || !port_num || port_num >= LOGICAL_SWITCH_MAX_LOG_PORTS)
-		return EXIT_FAILURE;	
+		return ROFL_FAILURE;	
 
 	//Allow single add/remove operation over the switch 
 	platform_mutex_lock(sw->mutex);
 	
 	if(sw->logical_ports[port_num].attachment_state){
 		platform_mutex_unlock(sw->mutex);
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 	}
 
 	//Initialize logical port 
@@ -112,14 +112,14 @@ unsigned int of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned 
 
 	//Return success
 	platform_mutex_unlock(sw->mutex);
-	return EXIT_SUCCESS;
+	return ROFL_SUCCESS;
 }
 
-unsigned int of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, unsigned int* port_num){
+rofl_result_t of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, unsigned int* port_num){
 	unsigned int i;
 
 	if(!port || port->attached_sw) 
-		return EXIT_FAILURE;	
+		return ROFL_FAILURE;	
 
 	//Allow single add/remove operation over the switch 
 	platform_mutex_lock(sw->mutex);
@@ -138,26 +138,26 @@ unsigned int of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, 
 				
 			//Return success
 			platform_mutex_unlock(sw->mutex);
-			return EXIT_SUCCESS;
+			return ROFL_SUCCESS;
 		}
 	}
 	
 	//No slots free
 	platform_mutex_unlock(sw->mutex);
-	return EXIT_FAILURE;
+	return ROFL_FAILURE;
 }
 
-unsigned int of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigned int port_num){
+rofl_result_t of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigned int port_num){
 
 	if(!port_num)
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 
 	//Allow single add/remove operation over the switch 
 	platform_mutex_lock(sw->mutex);
 
 	if(sw->logical_ports[port_num].attachment_state != LOGICAL_PORT_STATE_ATTACHED){
 		platform_mutex_unlock(sw->mutex);
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 	}
 	
 	//Free port
@@ -170,15 +170,15 @@ unsigned int of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigne
 	
 	//return success
 	platform_mutex_unlock(sw->mutex);
-	return EXIT_SUCCESS;
+	return ROFL_SUCCESS;
 }
 
-unsigned int of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* port){
+rofl_result_t of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* port){
 
 	unsigned int i;
 
 	if(!port) 
-		return EXIT_FAILURE;	
+		return ROFL_FAILURE;	
 
 	//Allow single add/remove operation over the switch 
 	platform_mutex_lock(sw->mutex);
@@ -196,16 +196,16 @@ unsigned int of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* port
 			sw->num_of_ports--;
 
 			platform_mutex_unlock(sw->mutex);
-			return EXIT_SUCCESS;
+			return ROFL_SUCCESS;
 		}
 	}	
 	
 	//Not found 
 	platform_mutex_unlock(sw->mutex);
-	return EXIT_FAILURE;
+	return ROFL_FAILURE;
 }
 
-unsigned int of12_detach_all_ports_from_switch(of12_switch_t* sw){
+rofl_result_t of12_detach_all_ports_from_switch(of12_switch_t* sw){
 
 	unsigned int i;
 
@@ -225,7 +225,7 @@ unsigned int of12_detach_all_ports_from_switch(of12_switch_t* sw){
 	
 	//Not found 
 	platform_mutex_unlock(sw->mutex);
-	return EXIT_SUCCESS;
+	return ROFL_SUCCESS;
 }
 
 /* Dumping */

@@ -3,6 +3,7 @@
 
 #include <stdlib.h> 
 #include <string.h> 
+#include "rofl.h"
 #include "platform/lock.h"
 #include "util/rofl_pipeline_utils.h"
 #include "openflow/of_switch.h"
@@ -87,9 +88,9 @@ physical_switch_t* get_physical_switch(void);
 void physical_switch_destroy(void);
 
 //Add/remove methods
-unsigned int physical_switch_add_logical_switch(of_switch_t* sw);
-unsigned int physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid);
-unsigned int physical_switch_remove_logical_switch(of_switch_t* sw);
+rofl_result_t physical_switch_add_logical_switch(of_switch_t* sw);
+rofl_result_t physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid);
+rofl_result_t physical_switch_remove_logical_switch(of_switch_t* sw);
 
 //Getters
 of_switch_t* physical_switch_get_logical_switch_by_dpid(const uint64_t dpid);
@@ -106,13 +107,13 @@ TODO: add create virtual link and add/remove tunnel.
 */
 
 //Logical switch port management
-unsigned int get_logical_switch_ports(of_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports);
-unsigned int physical_switch_attach_port_num_to_logical_switch(unsigned int port_num, of_switch_t* sw, unsigned int* logical_switch_port_num);
-unsigned int physical_switch_attach_port_to_logical_switch(switch_port_t* port, of_switch_t* sw, unsigned int* port_num);
-unsigned int physical_switch_attach_port_to_logical_switch_at_port_num(switch_port_t* port, of_switch_t* sw, unsigned int port_num);
-unsigned int physical_switch_detach_port_num_from_logical_switch(unsigned int port_num, of_switch_t* sw);
-unsigned int physical_switch_detach_port_from_logical_switch(switch_port_t* port, of_switch_t* sw);
-unsigned int physical_switch_detach_all_ports_from_logical_switch(of_switch_t* sw);
+rofl_result_t get_logical_switch_ports(of_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports);
+rofl_result_t physical_switch_attach_port_num_to_logical_switch(unsigned int port_num, of_switch_t* sw, unsigned int* logical_switch_port_num);
+rofl_result_t physical_switch_attach_port_to_logical_switch(switch_port_t* port, of_switch_t* sw, unsigned int* port_num);
+rofl_result_t physical_switch_attach_port_to_logical_switch_at_port_num(switch_port_t* port, of_switch_t* sw, unsigned int port_num);
+rofl_result_t physical_switch_detach_port_num_from_logical_switch(unsigned int port_num, of_switch_t* sw);
+rofl_result_t physical_switch_detach_port_from_logical_switch(switch_port_t* port, of_switch_t* sw);
+rofl_result_t physical_switch_detach_all_ports_from_logical_switch(of_switch_t* sw);
 
 //C++ extern C
 ROFL_PIPELINE_END_DECLS

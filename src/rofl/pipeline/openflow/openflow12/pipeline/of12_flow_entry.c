@@ -33,7 +33,7 @@ of12_init_flow_entry(
 #if 0
 	if(match_group){
 
-		if(of12_add_match_to_entry(entry,matchs)!=EXIT_SUCCESS){
+		if(of12_add_match_to_entry(entry,matchs)!=ROFL_SUCCESS){
 			cutil_free_shared(entry);
 			return NULL;
 		}
@@ -46,7 +46,7 @@ of12_init_flow_entry(
 
 }
 
-unsigned int of12_destroy_flow_entry(of12_flow_entry_t* entry){
+rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	
 	of12_match_t* match = entry->matchs;
 
@@ -71,15 +71,15 @@ unsigned int of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	//Destroy entry itself
 	cutil_free_shared(entry);	
 	
-	return EXIT_SUCCESS;
+	return ROFL_SUCCESS;
 }
 
 //Adds one or more to the entry
-unsigned int of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* match){
+rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* match){
 	unsigned int i=0;
 
 	if(!match)
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 	if(entry->matchs){
 		of12_add_match(entry->matchs, match);		
 
@@ -98,7 +98,7 @@ unsigned int of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* mat
 		//Set the number of matches
 		entry->num_of_matches=i;
 	}
-	return EXIT_SUCCESS;
+	return ROFL_SUCCESS;
 }
 
 void of12_dump_flow_entry(of12_flow_entry_t* entry){

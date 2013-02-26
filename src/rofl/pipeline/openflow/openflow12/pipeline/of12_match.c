@@ -212,16 +212,12 @@ inline of12_match_t* of12_init_icmpv4_code_match(of12_match_t* prev, of12_match_
 
 
 /* Instruction groups init and destroy */
-of12_match_group_t*
-of12_new_match_group()
-{
+of12_match_group_t* of12_new_match_group(){
 
 	of12_match_group_t *group = (of12_match_group_t*)cutil_malloc_shared(sizeof(of12_match_group_t));
 
-	if(0 == group)
-	{
-		return (of12_match_group_t*)0;
-	}
+	if(!group)
+		return NULL; 
 
 	of12_init_match_group(group);
 
@@ -279,13 +275,13 @@ void of12_match_group_push_back(of12_match_group_t* group, of12_match_t* match){
 
 
 /* Push match at the end of the match */
-unsigned int of12_add_match(of12_match_t* root_match, of12_match_t* add_match){
+rofl_result_t of12_add_match(of12_match_t* root_match, of12_match_t* add_match){
 	of12_match_t* it;
 	
 	it = root_match;
 
 	if(!it)
-		return EXIT_FAILURE;
+		return ROFL_FAILURE;
 	
 	while(it->next)
 		it = it->next;
@@ -294,7 +290,7 @@ unsigned int of12_add_match(of12_match_t* root_match, of12_match_t* add_match){
 	it->next = add_match;
 	add_match->prev = it; 
 	
-	return EXIT_SUCCESS;
+	return ROFL_SUCCESS;
 }
 /*
 * Copy match to heap. Leaves next and prev pointers to NULL
@@ -422,21 +418,17 @@ void of12_destroy_match(of12_match_t* match){
 * 
 */
 
-//FIXME: either define this in the header or hardcode values
-#define MATCH 1
-#define NO_MATCH 0
-
 //Compare matches
-inline unsigned int of12_equal_matches(of12_match_t* match1, of12_match_t* match2){
+inline bool of12_equal_matches(of12_match_t* match1, of12_match_t* match2){
 
 	if( match1->type != match2->type )
-		return NO_MATCH;	
+		return false; 
 
 	switch(match1->type){
 		case OF12_MATCH_IN_PORT: return utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
 		case OF12_MATCH_IN_PHY_PORT: return utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
 	  	case OF12_MATCH_METADATA: //TODO FIXME
-					return NO_MATCH;
+					return false;
    		case OF12_MATCH_ETH_DST: return utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
    		case OF12_MATCH_ETH_SRC: return utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
    		case OF12_MATCH_ETH_TYPE: return utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
@@ -462,21 +454,21 @@ inline unsigned int of12_equal_matches(of12_match_t* match1, of12_match_t* match
 		/* Add more here ...*/
 		default:
 			//Should NEVER reach this point
-			return NO_MATCH;
+			return false; 
 	}	
 }
 
 //Finds out if sub_match is a submatch of match
-inline unsigned int of12_is_submatch(of12_match_t* sub_match, of12_match_t* match){
+inline bool of12_is_submatch(of12_match_t* sub_match, of12_match_t* match){
 
 	if( match->type != sub_match->type )
-		return NO_MATCH;	
+		return false; 
 
 	switch(match->type){
 		case OF12_MATCH_IN_PORT: return utern_is_contained32((utern32_t*)sub_match->value,(utern32_t*)match->value);
 		case OF12_MATCH_IN_PHY_PORT: return utern_is_contained32((utern32_t*)sub_match->value,(utern32_t*)match->value);
 	  	case OF12_MATCH_METADATA: //TODO FIXME
-					return NO_MATCH;
+					return false;
    		case OF12_MATCH_ETH_DST: return utern_is_contained64((utern64_t*)sub_match->value,(utern64_t*)match->value);
    		case OF12_MATCH_ETH_SRC: return utern_is_contained64((utern64_t*)sub_match->value,(utern64_t*)match->value);
    		case OF12_MATCH_ETH_TYPE: return utern_is_contained16((utern16_t*)sub_match->value,(utern16_t*)match->value);
@@ -502,7 +494,7 @@ inline unsigned int of12_is_submatch(of12_match_t* sub_match, of12_match_t* matc
 		/* Add more here ...*/
 		default:
 			//Should NEVER reach this point
-			return NO_MATCH;
+			return false;
 	}	
 }
 /*
@@ -510,18 +502,18 @@ inline unsigned int of12_is_submatch(of12_match_t* sub_match, of12_match_t* matc
 * CHECK fields against packet
 *
 */
-inline unsigned int of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* it){
+inline bool of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* it){
 	if(!it)
-		return NO_MATCH;
+		return false;
 	
 	switch(it->type){
 		//Phy
 		case OF12_MATCH_IN_PORT: return utern_compare32((utern32_t*)it->value,pkt->port_in);
-		case OF12_MATCH_IN_PHY_PORT: if(!pkt->port_in) return NO_MATCH; //According to spec
+		case OF12_MATCH_IN_PHY_PORT: if(!pkt->port_in) return false; //According to spec
 					return utern_compare32((utern32_t*)it->value,pkt->phy_port_in);
 		//Metadata
 	  	case OF12_MATCH_METADATA: //TODO FIXME
-					return NO_MATCH;
+					return false;
 		//802
    		case OF12_MATCH_ETH_DST:  return utern_compare64((utern64_t*)it->value,pkt->eth_dst);
    		case OF12_MATCH_ETH_SRC:  return utern_compare64((utern64_t*)it->value,pkt->eth_src);
@@ -529,56 +521,56 @@ inline unsigned int of12_check_match(const of12_packet_matches_t* pkt, of12_matc
 		
 		//802.1q
    		case OF12_MATCH_VLAN_VID: return utern_compare16((utern16_t*)it->value,pkt->vlan_vid);
-   		case OF12_MATCH_VLAN_PCP: if(!pkt->vlan_vid) return NO_MATCH;
+   		case OF12_MATCH_VLAN_PCP: if(!pkt->vlan_vid) return false;
 					return utern_compare8((utern8_t*)it->value,pkt->vlan_pcp);
 		//MPLS
-   		case OF12_MATCH_MPLS_LABEL: if(!(pkt->eth_type == OF12_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF12_ETH_TYPE_MPLS_MULTICAST )) return NO_MATCH;
+   		case OF12_MATCH_MPLS_LABEL: if(!(pkt->eth_type == OF12_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF12_ETH_TYPE_MPLS_MULTICAST )) return false;
 					return utern_compare32((utern32_t*)it->value,pkt->mpls_label);
-   		case OF12_MATCH_MPLS_TC: if(!(pkt->eth_type == OF12_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF12_ETH_TYPE_MPLS_MULTICAST )) return NO_MATCH; 
+   		case OF12_MATCH_MPLS_TC: if(!(pkt->eth_type == OF12_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF12_ETH_TYPE_MPLS_MULTICAST )) return false; 
 					return utern_compare8((utern8_t*)it->value,pkt->mpls_tc);
 		//IP
-   		case OF12_MATCH_IP_PROTO: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return NO_MATCH; 
+   		case OF12_MATCH_IP_PROTO: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return false; 
 					return utern_compare8((utern8_t*)it->value,pkt->ip_proto);
 		//IPv4
-   		case OF12_MATCH_IPV4_SRC: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return NO_MATCH; 
+   		case OF12_MATCH_IPV4_SRC: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return false; 
 					return utern_compare32((utern32_t*)it->value, pkt->ipv4_src);
-   		case OF12_MATCH_IPV4_DST:if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 ||(pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return NO_MATCH;  
+   		case OF12_MATCH_IPV4_DST:if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 ||(pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return false;  
 					return utern_compare32((utern32_t*)it->value, pkt->ipv4_dst);
 	
 		//TCP
-   		case OF12_MATCH_TCP_SRC: if(!(pkt->ip_proto == OF12_IP_PROTO_TCP)) return NO_MATCH; 
+   		case OF12_MATCH_TCP_SRC: if(!(pkt->ip_proto == OF12_IP_PROTO_TCP)) return false; 
 					return utern_compare16((utern16_t*)it->value,pkt->tcp_src);
-   		case OF12_MATCH_TCP_DST: if(!(pkt->ip_proto == OF12_IP_PROTO_TCP)) return NO_MATCH; 
+   		case OF12_MATCH_TCP_DST: if(!(pkt->ip_proto == OF12_IP_PROTO_TCP)) return false; 
 					return utern_compare16((utern16_t*)it->value,pkt->tcp_dst);
 	
 		//UDP
-   		case OF12_MATCH_UDP_SRC: if(!(pkt->ip_proto == OF12_IP_PROTO_UDP)) return NO_MATCH; 	
+   		case OF12_MATCH_UDP_SRC: if(!(pkt->ip_proto == OF12_IP_PROTO_UDP)) return false; 	
 					return utern_compare16((utern16_t*)it->value,pkt->udp_src);
-   		case OF12_MATCH_UDP_DST: if(!(pkt->ip_proto == OF12_IP_PROTO_UDP)) return NO_MATCH; 
+   		case OF12_MATCH_UDP_DST: if(!(pkt->ip_proto == OF12_IP_PROTO_UDP)) return false; 
 					return utern_compare16((utern16_t*)it->value,pkt->udp_dst);
 		
 		//ICMPv4
-    		case OF12_MATCH_ICMPV4_TYPE: if(!(pkt->ip_proto == OF12_IP_PROTO_ICMPV4)) return NO_MATCH; 
+    		case OF12_MATCH_ICMPV4_TYPE: if(!(pkt->ip_proto == OF12_IP_PROTO_ICMPV4)) return false; 
 					return utern_compare8((utern8_t*)it->value,pkt->icmpv4_type);
-   		case OF12_MATCH_ICMPV4_CODE: if(!(pkt->ip_proto == OF12_IP_PROTO_ICMPV4)) return NO_MATCH; 
+   		case OF12_MATCH_ICMPV4_CODE: if(!(pkt->ip_proto == OF12_IP_PROTO_ICMPV4)) return false; 
 					return utern_compare8((utern8_t*)it->value,pkt->icmpv4_code);
   		
 		//PPPoE related extensions
-   		case OF12_MATCH_PPPOE_CODE: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return NO_MATCH;  
+   		case OF12_MATCH_PPPOE_CODE: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return false;  
 						return utern_compare8((utern8_t*)it->value,pkt->pppoe_code);
-   		case OF12_MATCH_PPPOE_TYPE: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return NO_MATCH; 
+   		case OF12_MATCH_PPPOE_TYPE: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return false; 
 						return utern_compare8((utern8_t*)it->value,pkt->pppoe_type);
-   		case OF12_MATCH_PPPOE_SID: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return NO_MATCH; 
+   		case OF12_MATCH_PPPOE_SID: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return false; 
 						return utern_compare16((utern16_t*)it->value,pkt->pppoe_sid);
 
 		//PPP 
-   		case OF12_MATCH_PPP_PROT: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return NO_MATCH; 
+   		case OF12_MATCH_PPP_PROT: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return false; 
 						return utern_compare16((utern16_t*)it->value,pkt->ppp_proto);
 
 		// Add more here ...
 		default:
 			//Should NEVER reach this point; TODO, add trace for debugging?
-			return NO_MATCH;
+			return false;
 	}
 }
 
