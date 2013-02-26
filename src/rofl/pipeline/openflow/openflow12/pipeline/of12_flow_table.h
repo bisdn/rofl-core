@@ -84,7 +84,7 @@ struct of12_flow_table{
 	//statistics
 	of12_stats_table_t stats;
 	
-	//Auxiliary algorithm specific structs
+	//Place-holder for auxiliary algorithm state 
 	matching_auxiliary_t* matching_aux[2];
 
 	//Mutexes
@@ -122,21 +122,6 @@ of12_flow_entry_t* of12_find_best_match_table(of12_flow_table_t *const table, of
 
 //Dump
 void of12_dump_table(of12_flow_table_t* table);
-
-
-/*
-* Table implementation of add/remove (on the table). Probably to be used or not by the matching algorithm
-* WARNING: this should never be used by anything except a matching algorithm. Never use it from the driver 
-*/
-rofl_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry); 
-/*
-* specific_entry is the pointer to the *same* entry as in the table, that means the same exact *pointer*, whereas in the entry only matches are checked.
-* entry must be set to NULL and viceversa when using a form of the call. 
-* Returns deatached entry, but NOT destroyed
-*/
-of12_flow_entry_t* of12_remove_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness_t strict);
-
-of12_flow_entry_t* of12_remove_flow_entry_table_non_specific_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness_t strict);
 
 //C++ extern C
 ROFL_PIPELINE_END_DECLS
