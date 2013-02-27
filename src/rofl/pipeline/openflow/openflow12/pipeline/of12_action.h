@@ -156,7 +156,7 @@ typedef struct{
 }of12_write_actions_t;
 
 //Fwd declaration
-struct of_switch;
+struct of12_switch;
 
 /*
 *
@@ -176,7 +176,7 @@ of12_action_group_t* of12_init_action_group(of12_packet_action_t* actions);
 void of12_destroy_action_group(of12_action_group_t* group);
 
 //Apply actions
-void of12_process_apply_actions(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of12_action_group_t* apply_actions_group, bool replicate_pkts);
+void of12_process_apply_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of12_action_group_t* apply_actions_group, bool replicate_pkts);
 
 //Write actions data structure management
 void of12_init_packet_write_actions(datapacket_t *const pkt, of12_write_actions_t* write_actions);
@@ -186,7 +186,7 @@ void of12_clear_write_actions(of12_write_actions_t* write_actions);
 void of12_destroy_write_actions(of12_write_actions_t* write_actions);
 void of12_set_packet_action_on_write_actions(of12_write_actions_t* write_actions, of12_packet_action_t* action);
 
-void of12_process_write_actions(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts);
+void of12_process_write_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts);
 
 //Push packet action
 void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_action_t* action);

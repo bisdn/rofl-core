@@ -237,7 +237,7 @@ void of12_clear_write_actions(of12_write_actions_t* write_actions){
 }
 
 /* Contains switch with all the different action functions */
-static inline void of12_process_packet_action(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt, of12_packet_action_t* action, bool replicate_pkts){
+static inline void of12_process_packet_action(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, of12_packet_action_t* action, bool replicate_pkts){
 
 	switch(action->type){
 		case OF12_AT_NO_ACTION: /*TODO: print some error traces? */
@@ -361,7 +361,7 @@ static inline void of12_process_packet_action(const struct of_switch* sw, const 
 	}
 }
 
-void of12_process_apply_actions(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of12_action_group_t* apply_actions_group, bool replicate_pkts){
+void of12_process_apply_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of12_action_group_t* apply_actions_group, bool replicate_pkts){
 
 	of12_packet_action_t* it;
 
@@ -376,7 +376,7 @@ void of12_process_apply_actions(const struct of_switch* sw, const unsigned int t
 * The of12_process_write_actions is meant to encapsulate the processing of the write actions
 *
 */
-void of12_process_write_actions(const struct of_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts){
+void of12_process_write_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts){
 
 	unsigned int i;
 	of12_write_actions_t* packet_write_actions;
