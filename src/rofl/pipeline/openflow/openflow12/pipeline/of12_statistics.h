@@ -87,8 +87,6 @@ struct of12_stats_queue
 };
 typedef struct of12_stats_queue of12_stats_queue_t;
 
-#if 0
-//TODO
 struct of12_stats_bucket_counter
 {
 	uint64_t packet_count;
@@ -104,7 +102,6 @@ struct of12_stats_group
 	struct of12_stats_bucket_counter bucket_stats[0];
 };
 typedef struct of12_stats_group of12_stats_group_t;
-#endif
 
 /** operations in statistics.c **/
 
