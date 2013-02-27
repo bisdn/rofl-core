@@ -10,11 +10,8 @@
 
 //of12_flow_entry_t* of12_init_flow_entry(const uint16_t priority, of12_match_group_t* match_group, of12_flow_entry_t* prev, of12_flow_entry_t* next){
 
-of12_flow_entry_t*
-of12_init_flow_entry(
-		of12_flow_entry_t* prev,
-		of12_flow_entry_t* next)
-{
+of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry_t* next){
+
 	of12_flow_entry_t* entry = (of12_flow_entry_t*)cutil_malloc_shared(sizeof(of12_flow_entry_t));
 	
 	if(!entry)
@@ -41,6 +38,9 @@ of12_init_flow_entry(
 #endif
 	
 	of12_init_instruction_group(&entry->instructions);
+
+	//init stats
+	of12_stats_flow_init(entry);
 	
 	return entry;	
 

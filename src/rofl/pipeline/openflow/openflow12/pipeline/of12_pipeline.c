@@ -107,7 +107,16 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 		if(match){
 			fprintf(stderr,"Matched at table: %u, entry: %p\n",i,match);
 
+			//Update table and entry statistics
+			of12_stats_table_matches_inc(&((of12_switch_t*)sw)->pipeline->tables[i]);
+			of12_stats_flow_update_match(match, pkt_matches.pkt_size_bytes);
+
+			//Update entry timers
+			of12_timer_update_entry(match);
+
+			//Process instructions
 			table_to_go = of12_process_instructions(sw, i, pkt, &match->instructions);
+
 	
 			if(table_to_go > i && table_to_go < OF12_MAX_FLOWTABLES){
 
@@ -134,6 +143,9 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 
 			return;	
 		}else{
+			//Update table statistics
+			of12_stats_table_lookup_inc(&((of12_switch_t*)sw)->pipeline->tables[i]);
+
 			//Not matched, look for table_miss behaviour 
 			if(((of12_switch_t*)sw)->pipeline->tables[i].default_action == OF12_TABLE_MISS_DROP){
 

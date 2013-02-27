@@ -22,8 +22,8 @@ void of12_stats_flow_init(of12_flow_entry_t * entry)
 {
 	struct timeval now;
 	of12_gettimeofday(&now, NULL);
-	entry->stats.initial_time_sec = now.tv_sec;
-	entry->stats.initial_time_nsec = now.tv_usec * 1000;
+	
+	entry->stats.initial_time = now;
 	entry->stats.packet_count = 0;
 	entry->stats.byte_count = 0;
 
@@ -42,53 +42,34 @@ void of12_stats_flow_destroy(of12_flow_entry_t* entry)
 }
 
 /**
- * of12_stats_flow_duration_update()
+ * of12_stats_flow_reset_counts
  */
-void of12_stats_flow_duration_update(of12_flow_entry_t * entry)
+void of12_stats_flow_reset_counts(of12_flow_entry_t * entry)
 {
-	struct timeval now;
-	of12_gettimeofday(&now, NULL);
-	
 	platform_mutex_lock(entry->stats.mutex);
-	entry->stats.last_time_sec = now.tv_sec;
-	entry->stats.last_time_usec = now.tv_usec;
+	entry->stats.packet_count = entry->stats.byte_count =  0;
 	platform_mutex_unlock(entry->stats.mutex);
 }
 
 /**
  * of12_stats_flow_get_duration()
  */
-void of12_stats_flow_get_duration(of12_flow_entry_t * entry)
-{
-	uint32_t nsec_now;
-	
-	platform_mutex_lock(entry->stats.mutex);
-	
-	nsec_now = entry->stats.last_time_usec*1000;
-	
-	entry->stats.duration_sec = entry->stats.last_time_sec - entry->stats.initial_time_sec;
-	
-	if(nsec_now >= entry->stats.initial_time_nsec)
-	{
-		entry->stats.duration_nsec = nsec_now - entry->stats.initial_time_nsec;
-	}
-	else
-	{
-		entry->stats.duration_nsec = OF12_STATS_NS_IN_A_SEC + nsec_now - entry->stats.initial_time_nsec;
-		entry->stats.duration_sec--;
-	}
-	
-	platform_mutex_unlock(entry->stats.mutex);
-	
-	return;
-}
+void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec){
+	struct timeval now, diff;
 
+	of12_gettimeofday(&now, NULL);
+	
+	timersub(&now, &entry->stats.initial_time, &diff);
+	*sec = diff.tv_sec;
+	
+	*nsec = ( (diff.tv_usec*1000)&0xFFFFFFFF00000000 )>>32;	
+}
+	
 /**
- * of12_stats_flow_update
+ * of12_stats_flow_update_match
  * input arguments: bytes_rx, flow_entry
  */
-inline void of12_stats_flow_inc(of12_flow_entry_t * entry,uint64_t bytes_rx)
-{
+inline void of12_stats_flow_update_match(of12_flow_entry_t * entry,uint64_t bytes_rx){
 	platform_atomic_inc64(&entry->stats.packet_count,entry->stats.mutex);
 	platform_atomic_add64(&entry->stats.byte_count,&bytes_rx, entry->stats.mutex);
 }
@@ -119,6 +100,7 @@ inline void of12_stats_table_lookup_inc(of12_flow_table_t * table)
  */
 inline void of12_stats_table_matches_inc(of12_flow_table_t * table)
 {
+	platform_atomic_inc64(&table->stats.lookup_count,table->mutex);
 	platform_atomic_inc64(&table->stats.matched_count,table->mutex);
 }
 

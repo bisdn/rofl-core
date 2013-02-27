@@ -118,6 +118,9 @@ void platform_packet_drop(datapacket_t* pkt);
 * Packet value getters 
 */
 
+//Packet size
+uint32_t platform_get_packet_size_bytes(datapacket_t *const pkt);
+
 //Ports
 uint32_t platform_get_packet_port_in(datapacket_t *const pkt);
 uint32_t platform_get_packet_phy_port_in(datapacket_t *const pkt);	

@@ -12,6 +12,9 @@
 */
 typedef struct{
 
+	//Packet size
+	uint32_t pkt_size_bytes;	/* Packet size in bytes */
+
 	//Ports
 	uint32_t port_in;		/* Switch input port. */
 	uint32_t phy_port_in;		/* Switch physical input port. */

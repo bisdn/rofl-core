@@ -141,7 +141,8 @@ rofl_result_t of12_init_table(of12_flow_table_t* table, const unsigned int table
 	table->config.metadata_match = 0x0; //FIXME: implement METADATA
 	table->config.metadata_write = 0x0; //FIXME: implement METADATA
 	
-
+	//Init stats
+	of12_stats_table_init(table);
 
 	//Allow matching algorithms to do stuff	
 	if(table->maf.init_hook)
