@@ -9,6 +9,7 @@ librofl_pipeline_openflow12_pipeline_ladir = $(includedir)/rofl/pipeline/openflo
 librofl_pipeline_openflow12_pipeline_la_HEADERS = of12_action.h \
 	of12_flow_entry.h \
 	of12_flow_table.h \
+	of12_group_table.h \
 	of12_instruction.h \
 	of12_match.h \
 	of12_packet_matches.h \
@@ -19,6 +20,7 @@ librofl_pipeline_openflow12_pipeline_la_HEADERS = of12_action.h \
 librofl_pipeline_openflow12_pipeline_la_SOURCES = of12_action.h \
 	of12_flow_entry.h \
 	of12_flow_table.h \
+	of12_group_table.h \
 	of12_instruction.h \
 	of12_match.h \
 	of12_packet_matches.h \
@@ -27,6 +29,7 @@ librofl_pipeline_openflow12_pipeline_la_SOURCES = of12_action.h \
 	of12_action.c \
 	of12_flow_entry.c \
 	of12_flow_table.c \
+	of12_group_table.c \
 	of12_instruction.c \
 	of12_match.c \
 	of12_packet_matches.c \

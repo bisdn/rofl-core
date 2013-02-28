@@ -222,6 +222,7 @@ AC_CONFIG_FILES([
 	test/unit/cpacket/Makefile
 	test/unit/croflexp/Makefile
 	test/unit/frames/Makefile
+	test/rofl/pipeline/openflow/openflow12/pipeline/Makefile
 
 	doc/Makefile
 	])
