@@ -144,7 +144,7 @@ static of12_flow_entry_t* of12_remove_flow_entry_table_specific_imp(of12_flow_ta
 * This function shall NOT be used if there is some prior knowledge by the lookup algorithm before (specially a pointer to the entry), as it is inherently VERY innefficient
 */
 
-static of12_flow_entry_t* of12_remove_flow_entry_table_non_specific_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness_t strict){
+static of12_flow_entry_t* of12_remove_flow_entry_table_non_specific_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict){
 	int already_matched;
 	of12_flow_entry_t *it;
 	of12_match_t *match_it, *table_entry_match_it;
@@ -211,7 +211,7 @@ static of12_flow_entry_t* of12_remove_flow_entry_table_non_specific_imp(of12_flo
 * 
 */
 
-static of12_flow_entry_t* of12_remove_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness_t strict){
+static of12_flow_entry_t* of12_remove_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness strict){
 
 	if( (entry&&specific_entry) || ( !entry && !specific_entry) )
 		return NULL; 
@@ -244,7 +244,7 @@ inline rofl_result_t of12_add_flow_entry_loop(of12_flow_table_t *const table, of
 	return return_value;
 }
 
-inline rofl_result_t of12_remove_flow_entry_loop(of12_flow_table_t *const table , of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness_t strict, of12_mutex_acquisition_required_t mutex_acquired){
+inline rofl_result_t of12_remove_flow_entry_loop(of12_flow_table_t *const table , of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness strict, of12_mutex_acquisition_required_t mutex_acquired){
 	of12_flow_entry_t* table_deletion_result;
 
 	//Allow single add/remove operation over the table

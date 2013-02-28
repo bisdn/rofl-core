@@ -115,7 +115,7 @@ rofl_result_t of12_destroy_table(of12_flow_table_t* table);
 
 //Flow-mod installation and removal
 rofl_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry);
-rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness_t strict, of12_mutex_acquisition_required_t mutex_acquired);
+rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness strict, of12_mutex_acquisition_required_t mutex_acquired);
 
 //Find best match
 of12_flow_entry_t* of12_find_best_match_table(of12_flow_table_t *const table, of12_packet_matches_t *const pkt); 

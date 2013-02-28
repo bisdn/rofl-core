@@ -24,13 +24,6 @@ enum of12_mutex_acquisition_required
 };
 typedef enum of12_mutex_acquisition_required of12_mutex_acquisition_required_t;
 
-//FlOW removal operations
-enum of12_flow_removal_strictness_t
-{
-	NOT_STRICT = 0,
-	STRICT
-};
-
 #define OF12_MATCHING_ALGORITHMS_MAX_DESCRIPTION_LENGTH 256
 
 struct matching_algorithm_functions
@@ -48,7 +41,7 @@ struct matching_algorithm_functions
 	rofl_result_t
 	(*remove_flow_entry_hook)(struct of12_flow_table * const,
 			of12_flow_entry_t * const, of12_flow_entry_t * const,
-			const enum of12_flow_removal_strictness_t,
+			const enum of12_flow_removal_strictness,
 			of12_mutex_acquisition_required_t);
 
 	// lookup
