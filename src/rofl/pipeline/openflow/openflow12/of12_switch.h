@@ -33,8 +33,6 @@ struct of12_switch{
 	//Mutex
 	platform_mutex_t* mutex;
 
-	uint16_t flags; 			// SET-CONFIG/GET-CONFIG
-	uint16_t miss_send_len;			// SET-CONFIG/GET-CONFIG
 };
 
 typedef struct of12_switch of12_switch_t;

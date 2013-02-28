@@ -16,6 +16,15 @@
 struct of12_flow_table;
 struct of12_timers_info;
 
+//Flow removal operations
+typedef enum of12_flow_removal_strictness{
+	NOT_STRICT = 0,
+	STRICT
+}of12_flow_removal_strictness_t;
+
+/*
+* OF12 Flow enetry structure
+*/
 struct of12_flow_entry{
 	
 	//Entry priority	

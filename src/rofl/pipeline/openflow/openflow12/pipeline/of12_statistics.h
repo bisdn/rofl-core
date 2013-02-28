@@ -2,6 +2,7 @@
 #define __OF12_STATISTICS_H__
 
 #include <inttypes.h>
+#include <sys/time.h>
 #include "../../../platform/lock.h"
 #define OF12_STATS_NS_IN_A_SEC 1000000000
 
@@ -23,16 +24,12 @@
 
 struct of12_stats_flow
 {
-	uint32_t duration_sec;
-	uint32_t duration_nsec;
 	uint64_t packet_count;
 	uint64_t byte_count;
+
 	//And more not so interesting
-	
-	uint64_t initial_time_sec;
-	uint64_t initial_time_nsec;
-	uint64_t last_time_sec;
-	uint64_t last_time_usec;
+	struct timeval initial_time;
+
 	platform_mutex_t* mutex; //Mutual exclusion among insertion/deletion threads
 };
 typedef struct of12_stats_flow of12_stats_flow_t;
@@ -113,13 +110,19 @@ ROFL_PIPELINE_BEGIN_DECLS
 
 void of12_stats_flow_init(struct of12_flow_entry * entry);
 void of12_stats_flow_destroy(struct of12_flow_entry * entry);
-void of12_stats_flow_duration_update(struct of12_flow_entry * entry);
-void of12_stats_flow_get_duration(struct of12_flow_entry * entry);
-inline void of12_stats_flow_inc(struct of12_flow_entry * entry,uint64_t bytes_rx);
+void of12_stats_flow_reset_counts(struct of12_flow_entry * entry);
+void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec);
+void of12_stats_flow_update_match(struct of12_flow_entry * entry,uint64_t bytes_rx);
+void of12_stats_flow_inc(struct of12_flow_entry * entry,uint64_t bytes_rx);
 void of12_stats_table_init(struct of12_flow_table * table);
 void of12_stats_table_lookup_inc(struct of12_flow_table * table);
 void of12_stats_table_matches_inc(struct of12_flow_table * table);
+
 //void of12_stats_aggregate_collect (struct of12_flow_entry* entry, of12_stats_aggregate_t* aggregate);
+
+/*
+* FIXME TODO XXX Move it down to the port
+*/
 void of12_stats_port_init(of12_stats_port_t* port_stats);
 void of12_stats_port_destroy(of12_stats_port_t *port_stats);
 inline void of12_stats_port_rx_packet_inc(of12_stats_port_t *port_stats, uint64_t bytes_rx);

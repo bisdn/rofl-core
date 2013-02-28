@@ -33,7 +33,7 @@ rofl_result_t platform_post_init_of12_switch(of12_switch_t* sw);
 rofl_result_t platform_pre_destroy_of12_switch(of12_switch_t* sw);
 
 //Packet in
-void platform_of12_packet_in(const of_switch_t* sw, uint8_t table_id, datapacket_t* pkt, of_packet_in_reason_t reason);
+void platform_of12_packet_in(const of12_switch_t* sw, uint8_t table_id, datapacket_t* pkt, of_packet_in_reason_t reason);
 
 //Extern C
 ROFL_PIPELINE_END_DECLS

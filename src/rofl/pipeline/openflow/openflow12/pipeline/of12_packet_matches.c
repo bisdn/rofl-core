@@ -9,6 +9,9 @@ void of12_update_packet_matches(datapacket_t *const pkt){
 		
 	of12_packet_matches_t* matches = (of12_packet_matches_t*)pkt->matches;
 
+	//Pkt size
+	matches->pkt_size_bytes = platform_get_packet_size_bytes(pkt);
+	
 	//Ports
 	matches->port_in = platform_get_packet_port_in(pkt);
 	matches->phy_port_in = platform_get_packet_phy_port_in(pkt);	

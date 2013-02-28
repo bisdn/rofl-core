@@ -48,6 +48,11 @@ of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum match
 		}
 	}
 
+	/*
+	* Setting default capabilities and miss_send_lent. driver can afterwards 
+	* modify them at its will, via the hook.
+	*/
+
 	//Set datapath capabilities
 	pipeline->capabilities = 	OF12_CAP_FLOW_STATS |
 					OF12_CAP_TABLE_STATS |
@@ -56,6 +61,10 @@ of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum match
 					//OF12_CAP_IP_REASM |
 					OF12_CAP_QUEUE_STATS;
 					//OF12_CAP_ARP_MATCH_IP;
+
+	//Set MISS-SEND length to default 
+	pipeline->miss_send_len = OF12_DEFAULT_MISS_SEND_LEN;
+	
 
 	return pipeline;
 }
@@ -107,7 +116,16 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 		if(match){
 			fprintf(stderr,"Matched at table: %u, entry: %p\n",i,match);
 
-			table_to_go = of12_process_instructions(sw, i, pkt, &match->instructions);
+			//Update table and entry statistics
+			of12_stats_table_matches_inc(&((of12_switch_t*)sw)->pipeline->tables[i]);
+			of12_stats_flow_update_match(match, pkt_matches.pkt_size_bytes);
+
+			//Update entry timers
+			of12_timer_update_entry(match);
+
+			//Process instructions
+			table_to_go = of12_process_instructions((of12_switch_t*)sw, i, pkt, &match->instructions);
+
 	
 			if(table_to_go > i && table_to_go < OF12_MAX_FLOWTABLES){
 
@@ -121,7 +139,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 			}
 
 			//Process WRITE actions
-			of12_process_write_actions(sw, i, pkt, match->instructions.has_multiple_outputs);
+			of12_process_write_actions((of12_switch_t*)sw, i, pkt, match->instructions.has_multiple_outputs);
 
 			//Unlock the entry so that it can eventually be modified/deleted
 			platform_rwlock_rdunlock(match->rwlock);
@@ -134,6 +152,9 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 
 			return;	
 		}else{
+			//Update table statistics
+			of12_stats_table_lookup_inc(&((of12_switch_t*)sw)->pipeline->tables[i]);
+
 			//Not matched, look for table_miss behaviour 
 			if(((of12_switch_t*)sw)->pipeline->tables[i].default_action == OF12_TABLE_MISS_DROP){
 
@@ -146,7 +167,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 				fprintf(stderr,"Table MISS_CONTROLLER %u\n",i);	
 				fprintf(stderr,"Packet at %p generated a PACKET_IN event to the controller\n",pkt);
 
-				platform_of12_packet_in(sw, i, pkt, OF12_PKT_IN_NO_MATCH);
+				platform_of12_packet_in((of12_switch_t*)sw, i, pkt, OF12_PKT_IN_NO_MATCH);
 				return;
 			}
 			//else -> continue with the pipeline	
@@ -172,7 +193,7 @@ void of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const
 	of12_init_packet_write_actions(pkt, &write_actions); 
 
 	//Just process the action group
-	of12_process_apply_actions(sw, 0, pkt, apply_actions_group, apply_actions_group->num_of_output_actions > 1 );
+	of12_process_apply_actions((of12_switch_t*)sw, 0, pkt, apply_actions_group, apply_actions_group->num_of_output_actions > 1 );
 	
 }
 	

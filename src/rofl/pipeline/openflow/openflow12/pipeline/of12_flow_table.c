@@ -141,7 +141,8 @@ rofl_result_t of12_init_table(of12_flow_table_t* table, const unsigned int table
 	table->config.metadata_match = 0x0; //FIXME: implement METADATA
 	table->config.metadata_write = 0x0; //FIXME: implement METADATA
 	
-
+	//Init stats
+	of12_stats_table_init(table);
 
 	//Allow matching algorithms to do stuff	
 	if(table->maf.init_hook)
@@ -187,7 +188,7 @@ rofl_result_t of12_destroy_table(of12_flow_table_t* table){
 inline rofl_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry){
 	return table->maf.add_flow_entry_hook(table,entry);
 }
-inline rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness_t strict, of12_mutex_acquisition_required_t mutex_acquired ){
+inline rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness strict, of12_mutex_acquisition_required_t mutex_acquired ){
 	return table->maf.remove_flow_entry_hook(table,entry,specific_entry,strict, mutex_acquired);
 }
 
