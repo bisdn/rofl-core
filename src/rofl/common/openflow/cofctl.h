@@ -73,6 +73,7 @@ private: // data structures
 	int 							reconnect_in_seconds; 	// reconnect in x seconds
 	int 							reconnect_counter;
 	int 							rpc_echo_interval;		// default ECHO time interval
+	uint8_t							version;				// OpenFlow version negotiated for this session
 
 	enum cofctl_flag_t {
 		COFCTL_FLAG_HELLO_RCVD 			= (1 << 0),
@@ -137,6 +138,12 @@ public: // methods
 	 */
 	const char*
 	c_str();
+
+
+	/**
+	 */
+	uint8_t
+	get_version();
 
 
 	/**

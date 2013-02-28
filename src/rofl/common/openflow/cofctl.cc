@@ -48,7 +48,8 @@ cofctl::cofctl(
 				fragment(0),
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
-				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL)
+				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
+				version(0)
 {
 	WRITELOG(COFCTL, DBG, "cofctl(%p)::cofctl() TCP connect", this);
 
@@ -66,6 +67,14 @@ cofctl::~cofctl()
 	rofbase->fsptable.delete_fsp_entries(this);
 
 	delete socket;
+}
+
+
+
+uint8_t
+cofctl::get_version()
+{
+	return version;
 }
 
 
@@ -1031,6 +1040,9 @@ cofctl::hello_rcvd(cofpacket *pack)
 		}
 		else
 		{
+			// TODO: determine properly version from hello elements in OpenFlow 1.3
+			version = pack->ofh_header->version;
+
 			flags.set(COFCTL_FLAG_HELLO_RCVD);
 
 			new_state(STATE_CTL_ESTABLISHED);

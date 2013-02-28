@@ -1,11 +1,14 @@
 #include "openflow12.h"
 
+#define OFP13_VERSION   0x04
+
 // A.1 OpenFlow Header
 
 /* unaltered since OpenFlow 1.2, new message types defined */
 
 enum ofp13_type {
-    /* Immutable messages. */
+#if 0
+	/* Immutable messages. */
     OFPT_HELLO 					= 0,    /* Symmetric message */
     OFPT_ERROR 					= 1,	/* Symmetric message */
     OFPT_ECHO_REQUEST 			= 2,	/* Symmetric message */
@@ -46,7 +49,7 @@ enum ofp13_type {
     /* Controller role change request messages. */
     OFPT_ROLE_REQUEST    		= 24, /* Controller/switch message */
     OFPT_ROLE_REPLY				= 25, /* Controller/switch message */
-
+#endif
     /* Asynchronous message configuration. */
    	OFPT_GET_ASYNC_REQUEST		= 26, /* Controller/switch message */
     OFPT_GET_ASYNC_REPLY		= 27, /* Controller/switch message */

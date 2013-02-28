@@ -544,6 +544,7 @@ crofbase::send_hello_message(
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_hello_message()", this);
 
 	cofpacket_hello *pack = new cofpacket_hello(
+										cofctl->get_version(),
 										ta_new_async_xid(),
 										(uint8_t*)body, bodylen);
 

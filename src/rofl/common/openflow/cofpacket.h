@@ -31,6 +31,7 @@ extern "C" {
 #include "rofl/platform/unix/csyslog.h"
 
 #include "openflow12.h"
+#include "openflow13.h"
 #include "cofmatch.h"
 #include "cofinlist.h"
 #include "cofaclist.h"
@@ -107,7 +108,9 @@ public: // data structures
 
 	union {
 		struct ofp_header				  		*ofhu_hdr;
-		struct ofp_switch_features 				*ofhu_sfhdr;
+		struct ofp13_hello						*of13hu_hello;
+		struct ofp12_switch_features 			*of12hu_sfhdr;
+		struct ofp13_switch_features			*of13hu_sfhdr;
 		struct ofp_switch_config 				*ofhu_schdr;
 		struct ofp_flow_mod 					*ofhu_fmhdr;
 		struct ofp_port_mod 					*ofhu_pmhdr;
@@ -124,12 +127,17 @@ public: // data structures
 		struct ofp_group_mod					*ofhu_grphdr;
 		struct ofp_table_mod					*ofhu_tblhdr;
 		struct ofp_role_request					*ofhu_rolehdr;
+		struct ofp13_meter_mod					*of13hu_methdr;
 	} ofh_ofhu;
 
 #define ofh_header								ofh_ofhu.ofhu_hdr
-#define ofh_switch_features 					ofh_ofhu.ofhu_sfhdr
-#define ofh_switch_config 						ofh_ofhu.ofhu_schdr
-#define ofh_flow_mod 							ofh_ofhu.ofhu_fmhdr
+#define ofh13_hello								ofh_ofhu.of13hu_hello
+#define of12h_switch_features 					ofh_ofhu.of12hu_sfhdr
+#define of13h_switch_features 					ofh_ofhu.of13hu_sfhdr
+#define of12h_switch_config 					ofh_ofhu.ofhu_schdr
+#define of13h_switch_config 					ofh_ofhu.ofhu_schdr
+#define of12h_flow_mod 							ofh_ofhu.ofhu_fmhdr
+#define of13h_flow_mod 							ofh_ofhu.ofhu_fmhdr
 #define ofh_port_mod 							ofh_ofhu.ofhu_pmhdr
 #define ofh_queue_get_config_request 			ofh_ofhu.ofhu_qgcrqhdr
 #define ofh_queue_get_config_reply 				ofh_ofhu.ofhu_qgcrphdr
@@ -144,6 +152,7 @@ public: // data structures
 #define ofh_group_mod							ofh_ofhu.ofhu_grphdr
 #define ofh_table_mod							ofh_ofhu.ofhu_tblhdr
 #define ofh_role_request						ofh_ofhu.ofhu_rolehdr
+#define ofh13_meter_mod							ofh_ofhu.of13hu_methdr
 
 #define OFP_FLOW_MOD_STATIC_HDR_LEN					48
 #define OFP_FLOW_REMOVED_STATIC_HDR_LEN				48
@@ -152,7 +161,8 @@ public: // data structures
 #define OFP_FLOW_STATS_REPLY_STATIC_BODY_LEN		48
 #define OFP_AGGR_STATS_REQUEST_STATIC_HDR_LEN		32	// without struct ofp_match
 #define OFP_GROUP_STATS_REPLY_STATIC_BODY_LEN		32
-#define OFP_GROUP_DESC_STATS_REPLY_STATIC_BODY_LEN 8
+#define OFP_GROUP_DESC_STATS_REPLY_STATIC_BODY_LEN 	8
+#define OFP13_METER_MOD_STATIC_HDR_LEN				16
 
 	union {
 		uint8_t									*ofbu_sreq;
@@ -355,7 +365,7 @@ public:
 	{
 		if (i >= switch_features_num_ports)
 			return NULL;
-		return &(ofh_switch_features->ports[i]);
+		return &(of12h_switch_features->ports[i]);
 	}
 	
 protected:
@@ -440,6 +450,9 @@ protected:
 	 */
 	bool is_valid_table_mod();
 
+	/** validate meter mod messages
+	 */
+	bool is_valid_meter_mod();
 
 public: // test method
 
@@ -469,13 +482,13 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_hello(uint32_t xid = 0, uint8_t* data = 0, size_t datalen = 0) :
+		cofpacket_hello(uint8_t version, uint32_t xid = 0, uint8_t* data = 0, size_t datalen = 0) :
 			cofpacket(	sizeof(struct ofp_header) + datalen,
 						sizeof(struct ofp_header) + datalen)
 		{
 			body.assign(data, datalen);
 
-			ofh_header->version 	= OFP_VERSION;
+			ofh_header->version 	= version; // OFP12_VERSION, OFP13_VERSION, ...
 			ofh_header->length		= htobe16(sizeof(struct ofp_header) + sizeof(uint32_t));
 			ofh_header->type 		= OFPT_HELLO;
 			ofh_header->xid			= htobe32(xid);
@@ -670,18 +683,18 @@ public:
 				uint32_t n_buffers = 0,
 				uint8_t n_tables = 0,
 				uint32_t capabilities = 0) :
-			cofpacket(	sizeof(struct ofp_switch_features),
-						sizeof(struct ofp_switch_features))
+			cofpacket(	sizeof(struct ofp12_switch_features),
+						sizeof(struct ofp12_switch_features))
 		{
 			ofh_header->version 	= OFP_VERSION;
-			ofh_header->length		= htobe16(sizeof(struct ofp_switch_features));
+			ofh_header->length		= htobe16(sizeof(struct ofp12_switch_features));
 			ofh_header->type 		= OFPT_FEATURES_REPLY;
 			ofh_header->xid			= htobe32(xid);
 
-			ofh_switch_features->datapath_id 	= htobe64(dpid);
-			ofh_switch_features->n_buffers 		= htobe32(n_buffers);
-			ofh_switch_features->n_tables 		= n_tables;
-			ofh_switch_features->capabilities 	= htobe32(capabilities);
+			of12h_switch_features->datapath_id 	= htobe64(dpid);
+			of12h_switch_features->n_buffers 		= htobe32(n_buffers);
+			of12h_switch_features->n_tables 		= n_tables;
+			of12h_switch_features->capabilities 	= htobe32(capabilities);
 		};
 		/** destructor
 		 *
@@ -694,7 +707,7 @@ public:
 		virtual size_t
 		length()
 		{
-			return (sizeof(struct ofp_switch_features) + ports.length());
+			return (sizeof(struct ofp12_switch_features) + ports.length());
 		};
 		/**
 		 *
@@ -709,8 +722,8 @@ public:
 				return;
 			}
 
-			memcpy(buf, memarea.somem(), sizeof(struct ofp_switch_features));
-			ports.pack((struct ofp_port*)(buf + sizeof(struct ofp_switch_features)), ports.length());
+			memcpy(buf, memarea.somem(), sizeof(struct ofp12_switch_features));
+			ports.pack((struct ofp_port*)(buf + sizeof(struct ofp12_switch_features)), ports.length());
 		};
 };
 

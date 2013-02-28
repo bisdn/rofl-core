@@ -155,6 +155,7 @@ private:
 		int 							 reconnect_in_seconds; 	// reconnect in x seconds
 		int 							 reconnect_counter;
 		int 							 rpc_echo_interval;		// default ECHO time interval
+		uint8_t							 version;		// OpenFlow version negotiated
 
 		int 							 features_reply_timeout;
 		int 							 get_config_reply_timeout;
@@ -195,6 +196,13 @@ public:
 	 */
 	virtual
 	~cofdpt();
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_version();
 
 
 public:

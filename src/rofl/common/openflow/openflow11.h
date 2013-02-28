@@ -284,7 +284,7 @@ struct ofp_port {
 OFP_ASSERT(sizeof(struct ofp_port) == 64);
 
 /* Switch features. */
-struct ofp_switch_features {
+struct ofp12_switch_features {
     struct ofp_header header;
     uint64_t datapath_id;   /* Datapath unique ID.  The lower 48-bits are for
                                a MAC address, while the upper 16-bits are
@@ -304,7 +304,7 @@ struct ofp_switch_features {
                                   is inferred from the length field in
                                   the header. */
 };
-OFP_ASSERT(sizeof(struct ofp_switch_features) == 32);
+OFP_ASSERT(sizeof(struct ofp12_switch_features) == 32);
 
 /* What changed about the physical port */
 enum ofp_port_reason {

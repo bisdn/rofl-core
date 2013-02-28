@@ -71,7 +71,7 @@
 /* The most significant bit being set in the version field indicates an
  * experimental OpenFlow version.
  */
-#define OFP_VERSION   0x03
+#define OFP12_VERSION   0x03
 
 #define OFP_MAX_TABLE_NAME_LEN 32
 #define OFP_MAX_PORT_NAME_LEN  16
@@ -300,7 +300,7 @@ struct ofp_port {
 OFP_ASSERT(sizeof(struct ofp_port) == 64);
 
 /* Switch features. */
-struct ofp_switch_features {
+struct ofp12_switch_features {
     struct ofp_header header;
     uint64_t datapath_id;   /* Datapath unique ID.  The lower 48-bits are for
                                a MAC address, while the upper 16-bits are
@@ -320,7 +320,7 @@ struct ofp_switch_features {
                                   is inferred from the length field in
                                   the header. */
 };
-OFP_ASSERT(sizeof(struct ofp_switch_features) == 32);
+OFP_ASSERT(sizeof(struct ofp12_switch_features) == 32);
 
 /* What changed about the physical port */
 enum ofp_port_reason {

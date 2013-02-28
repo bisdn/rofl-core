@@ -26,6 +26,7 @@ cofdpt::cofdpt(
 	reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 	reconnect_counter(0),
 	rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
+	version(0),
 	features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 	get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 	stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
@@ -94,6 +95,14 @@ cofdpt::~cofdpt()
 	{
 		delete (ports.begin()->second);
 	}
+}
+
+
+
+uint8_t
+cofdpt::get_version()
+{
+	return version;
 }
 
 
@@ -688,7 +697,7 @@ cofdpt::features_reply_rcvd(
 		capabilities 	= be32toh(pack->ofh_switch_features->capabilities);
 
 		int portslen = be16toh(pack->ofh_switch_features->header.length) -
-												sizeof(struct ofp_switch_features);
+												sizeof(struct ofp12_switch_features);
 
 
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() "

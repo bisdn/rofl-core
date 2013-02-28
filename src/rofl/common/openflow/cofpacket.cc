@@ -301,8 +301,10 @@ cofpacket::is_valid()
 	case OFPT_PORT_MOD:
 		return is_valid_port_mod();
 	case OFPT_STATS_REQUEST:
+	case OFPT_MULTIPART_REQUEST:
 		return is_valid_stats_request();
 	case OFPT_STATS_REPLY:
+	case OFPT_MULTIPART_REPLY:
 		return is_valid_stats_reply();
 	case OFPT_QUEUE_GET_CONFIG_REQUEST:
 		return is_valid_queue_get_config_request();
@@ -314,6 +316,8 @@ cofpacket::is_valid()
 		return is_valid_group_mod();
 	case OFPT_TABLE_MOD:
 		return is_valid_table_mod();
+	case OFPT_METER_MOD:
+		return is_valid_meter_mod();
 	default:
 		return false;
 	}
@@ -325,19 +329,35 @@ cofpacket::is_valid()
 bool
 cofpacket::is_valid_hello_msg()
 {
-	ofh_header = (struct ofp_header*)soframe();
-	if (stored < sizeof(struct ofp_header))
-		return false;
-	if (stored < be16toh(ofh_header->length))
-		return false;
-	if (stored > sizeof(struct ofp_header))
-	{
-		if (0 == body.memlen())
+	switch (ofh_header->version) {
+	case OFP12_VERSION: {
+		ofh_header = (struct ofp_header*)soframe();
+		if (stored < sizeof(struct ofp_header))
+			return false;
+		if (stored < be16toh(ofh_header->length))
+			return false;
+		if (stored > sizeof(struct ofp_header))
 		{
-			body.assign(soframe() + sizeof(struct ofp_header),
-					stored - sizeof(struct ofp_header));
+			if (0 == body.memlen())
+			{
+				body.assign(soframe() + sizeof(struct ofp_header),
+						stored - sizeof(struct ofp_header));
+			}
 		}
+	} break;
+	case OFP13_VERSION: {
+		ofh_header = (struct ofp_header*)soframe();
+		if (stored < sizeof(struct ofp_header))
+			return false;
+		if (stored < be16toh(ofh_header->length))
+			return false;
+		// TODO: create hello elements list
+	} break;
+	default: {
+		throw eBadRequestBadVersion();
+	} break;
 	}
+
 	return true;
 }
 
@@ -386,6 +406,8 @@ bool
 cofpacket::is_valid_hdr_only()
 {
 	if (stored < sizeof(struct ofp_header))
+		return false;
+	if (stored < be16toh(ofh_header->length))
 		return false;
 	return true;
 }
@@ -438,7 +460,7 @@ cofpacket::is_valid_error_msg()
 	default:
 		WRITELOG(COFPACKET, DBG, "cofpacket(%p)::is_valid_error_msg() "
 				"unknown error msg type: %d", this, be16toh(ofh_error_msg->type));
-		return true;
+		break;
 	}
 	body.assign(ofh_error_msg->data,
 			stored - sizeof(struct ofp_error_msg));
@@ -448,22 +470,40 @@ cofpacket::is_valid_error_msg()
 bool
 cofpacket::is_valid_switch_features()
 {
-	ofh_switch_features = (struct ofp_switch_features*)soframe();
-	if (stored < sizeof(struct ofp_switch_features))
-		return false;
+	switch (ofh_header->version) {
+	case OFP12_VERSION: {
+		of12h_switch_features = (struct ofp12_switch_features*)soframe();
+		if (stored < sizeof(struct ofp12_switch_features))
+			return false;
 
-	size_t ports_len = stored - sizeof(struct ofp_switch_features);
+		size_t ports_len = stored - sizeof(struct ofp12_switch_features);
 
-	if (ports_len > 0)
-	{
-		body.assign((uint8_t*)ofh_switch_features->ports, ports_len);
-		switch_features_num_ports = (ports_len) / sizeof(struct ofp_port);
-	}
-	else
-	{
+		if (ports_len > 0)
+		{
+			body.assign((uint8_t*)of12h_switch_features->ports, ports_len);
+			switch_features_num_ports = (ports_len) / sizeof(struct ofp_port);
+		}
+		else
+		{
+			body.clear();
+			switch_features_num_ports = 0;
+		}
+
+	} break;
+	case OFP13_VERSION: {
+		of13h_switch_features = (struct ofp13_switch_features*)soframe();
+		if (stored < sizeof(struct ofp13_switch_features))
+			return false;
+
 		body.clear();
 		switch_features_num_ports = 0;
+
+	} break;
+	default: {
+		throw eBadRequestBadVersion();
+	} break;
 	}
+
 
 	return true;
 }
@@ -471,9 +511,16 @@ cofpacket::is_valid_switch_features()
 bool
 cofpacket::is_valid_switch_config()
 {
-	ofh_switch_config = (struct ofp_switch_config*)soframe();
-	if (stored < sizeof(struct ofp_switch_config))
-		return false;
+	switch (ofh_header->version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		of12h_switch_config = of13h_switch_config = (struct ofp_switch_config*)soframe();
+		if (stored < sizeof(struct ofp_switch_config))
+			return false;
+		if (stored < be16toh(ofh_header->length))
+			return false;
+	} break;
+	}
 	return true;
 }
 
@@ -758,11 +805,24 @@ cofpacket::is_valid_queue_get_config_reply()
 	ofh_queue_get_config_reply = (struct ofp_queue_get_config_reply*)soframe();
 	if (stored < sizeof(struct ofp_queue_get_config_reply))
 		return false;
+	if (stored < be16toh(ofh_queue_get_config_reply->header.length))
+		return false;
 	body.assign((uint8_t*)ofh_queue_get_config_reply->queues,
 			stored - sizeof(struct ofp_queue_get_config_reply));
 	return true;
 }
 
+bool
+cofpacket::is_valid_meter_mod()
+{
+	ofh13_meter_mod = (struct ofp13_meter_mod*)soframe();
+	if (stored < sizeof(struct ofp13_meter_mod))
+		return false;
+	if (stored < be16toh(ofh13_meter_mod->header.length))
+		return false;
+	// TODO: create list of meter bands
+	return true;
+}
 
 const char*
 cofpacket::c_str()
