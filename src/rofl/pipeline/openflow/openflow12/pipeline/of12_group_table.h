@@ -11,7 +11,7 @@ typedef struct of12_action_bucket{
 	uint32_t port;
 	uint32_t group;
 	uint32_t num_of_actions;
-	enum of12p_group_type action_type_list[];
+	enum of12p_group_type *action_type_list;
 	of12_stats_bucket_counter_t stats;
 }of12_action_buckets_t;
 
