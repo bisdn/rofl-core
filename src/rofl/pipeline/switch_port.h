@@ -19,7 +19,7 @@ struct of_switch;
 //Port state
 typedef enum{
     PORT_STATE_LINK_DOWN	= 1 << 0, 
-    PORT_STATE_BLOCKED 		= 1 << 1,
+    PORT_STATE_BLOCKED 		= 1 << 1, //We are not hybrid we might not need this
     PORT_STATE_LIVE 		= 1 << 2,
 }port_state_t;
 
@@ -82,7 +82,7 @@ typedef enum{
 }port_type_t;
 
 //Port state
-struct switch_port{
+typedef struct switch_port{
 
 	//mac address
 	uint8_t hwaddr[SW_PORT_ETH_ALEN];
@@ -91,12 +91,15 @@ struct switch_port{
 	//Admin. state of the port
 	bool up;
 
+	//Forward packets
+	bool forward_packets;	
+
+	//Drop incomming packets
+	bool drop_received;
+
 	//Is virtual/tun
 	port_type_t type;
 
-	//Forward packets
-	bool forward_packets;	
-	
 	//Port name
 	char* name;
 
@@ -112,23 +115,26 @@ struct switch_port{
 	port_features_t supported;     /* Features supported by the port. */
 	port_features_t peer;          /* Features advertised by peer. */ 
 
-	/* OF related stuff */
+	//Current speeds
+	port_features_t curr_speed;
+	port_features_t curr_max_speed;
+		
+	/* 
+	* OF related stuff
+	*/
 	bool of_generate_packet_in;
-
 	//OF port number != phyisical port num => probably should be somehow merged into the ofXX_port.. let's see
 	unsigned int of_port_num; //XXX: 
-	
-	/* Pointer to current logical switch attached */
+	//Pointer to current logical switch attached
 	struct of_switch* attached_sw;	
  	
 	/* Opaque platform port specific extra state */
 	platform_port_state_t* platform_port_state; 
-};
-typedef struct switch_port switch_port_t;
+}switch_port_t;
 
 
 /* Logical port abstraction (to be used by logical switches) */
-typedef enum{
+typedef enum logical_switch_port_attachment_state{
 	LOGICAL_PORT_STATE_FREE = 0,
 	LOGICAL_PORT_STATE_ATTACHED = 1,
 	LOGICAL_PORT_STATE_DETACHED = 2
@@ -136,7 +142,7 @@ typedef enum{
 
 typedef void of_stats_port;
 
-typedef struct{
+typedef struct logical_switch_port{
 	logical_switch_port_attachment_state_t attachment_state;
 	switch_port_t* port;
 }logical_switch_port_t;

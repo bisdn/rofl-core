@@ -9,8 +9,9 @@
 #include "../../of_switch.h"
 
 #define OF12_MAX_FLOWTABLES 256 //As per 1.2 spec
+#define OF12_DEFAULT_MISS_SEND_LEN 128 //As per 1.2 spec
 
-/* Capabilities supported by the datapath pipeline. */
+/* Capabilities supported by the datapath pipeline. -> Direct mapping to  */
 enum of12_capabilities {
     OF12_CAP_FLOW_STATS     = 1 << 0,  /* Flow statistics. */
     OF12_CAP_TABLE_STATS    = 1 << 1,  /* Table statistics. */
@@ -29,8 +30,11 @@ struct of12_pipeline{
 	//Number of buffers
 	unsigned int num_of_buffers;
 
-	//Capabilities (OF12_CAP_FLOW_STATS, OF12_CAP_TABLE_STATS, ...)
+	//Capabilities bitmap (OF12_CAP_FLOW_STATS, OF12_CAP_TABLE_STATS, ...)
 	unsigned int capabilities;
+
+	//Miss send length
+	uint16_t miss_send_len;
 
 	//Array of tables; 
 	of12_flow_table_t* tables;

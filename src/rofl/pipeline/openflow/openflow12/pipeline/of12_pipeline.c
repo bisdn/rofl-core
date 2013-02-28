@@ -48,6 +48,11 @@ of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum match
 		}
 	}
 
+	/*
+	* Setting default capabilities and miss_send_lent. driver can afterwards 
+	* modify them at its will, via the hook.
+	*/
+
 	//Set datapath capabilities
 	pipeline->capabilities = 	OF12_CAP_FLOW_STATS |
 					OF12_CAP_TABLE_STATS |
@@ -56,6 +61,10 @@ of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum match
 					//OF12_CAP_IP_REASM |
 					OF12_CAP_QUEUE_STATS;
 					//OF12_CAP_ARP_MATCH_IP;
+
+	//Set MISS-SEND length to default 
+	pipeline->miss_send_len = OF12_DEFAULT_MISS_SEND_LEN;
+	
 
 	return pipeline;
 }
