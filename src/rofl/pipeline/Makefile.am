@@ -11,6 +11,7 @@ librofl_pipeline_la_HEADERS = physical_switch.h \
 
 librofl_pipeline_la_SOURCES = physical_switch.h \
 	physical_switch.c \
+	switch_port.c \
 	switch_port.h
 
 librofl_pipeline_la_LIBADD = \
