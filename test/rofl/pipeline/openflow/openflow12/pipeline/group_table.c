@@ -1,17 +1,16 @@
 #include <stdlib.h>
 #include <stdio.h>
-//#include <string.h>
 #include <assert.h>
-//#include <unistd.h>
 
-#include "../../../../../../src/rofl/pipeline/openflow/openflow12/pipeline/of12_group_table.h"
 #include "../../../../../../src/rofl.h"
-//#include "../../../../../../src/rofl/pipeline/platform/lock.h"
-//#include "../../../../../../src/rofl/pipeline/platform/memory.h"
+#include "../../../../../../src/rofl/pipeline/openflow/openflow12/pipeline/of12_group_table.h"
+#include "../../../../../../src/rofl/pipeline/openflow/of_switch.h"
+
+switch_port_t flood_meta_port;
 
 int basic_test(){
 	
-	of12_group_table_t *gt= of12_group_table_init();
+	of12_group_table_t *gt= of12_init_group_table();
 	//create a table, create some entries, remove and modify
 	if( gt == NULL){
 		fprintf(stderr,"<%s:%d>Error\n",__func__,__LINE__);
@@ -44,14 +43,14 @@ int basic_test(){
 	
 	assert(gt->num_of_entries==0);
 	
-	of12_group_table_destroy(gt);
+	of12_destroy_group_table(gt);
 	
 	fprintf(stderr,"<%s:%d>Test passed\n",__func__,__LINE__);
 	return ROFL_SUCCESS;
 }
 
 int expected_errors_test(){
-	of12_group_table_t *gt= of12_group_table_init();
+	of12_group_table_t *gt= of12_init_group_table();
 	enum of12p_group_type type = OF12PGT_ALL;
 	uint32_t id=12;
 	
@@ -76,7 +75,7 @@ int expected_errors_test(){
 	assert(gt->head->type==type);
 	assert(gt->tail->type==type+1);
 	
-	of12_group_table_destroy(gt);
+	of12_destroy_group_table(gt);
 	
 	return ROFL_SUCCESS;
 }

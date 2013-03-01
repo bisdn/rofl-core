@@ -12,8 +12,9 @@
 #include "of12_group_table.h"
 #include "../../../platform/memory.h"
 
+static rofl_result_t of12_destroy_group_bucket_all(of12_group_entry_t *ge);
 
-of12_group_table_t* of12_group_table_init(){
+of12_group_table_t* of12_init_group_table(){
 	of12_group_table_t *gt;
 	gt = (of12_group_table_t *) cutil_malloc_shared(sizeof(of12_group_table_t));
 	
@@ -28,7 +29,7 @@ of12_group_table_t* of12_group_table_init(){
 	return gt;
 }
 
-void of12_group_table_destroy(of12_group_table_t* gt){
+void of12_destroy_group_table(of12_group_table_t* gt){
 	of12_group_entry_t *iterator=NULL, *next=NULL;
 	//check if there are existing entries and deleting them
 	
@@ -61,7 +62,7 @@ of12_group_entry_t *of12_group_search(of12_group_table_t *gt, uint32_t id){
 }
 
 static
-rofl_result_t of12_group_entry_init(of12_group_table_t *gt, enum of12p_group_type type, uint32_t id){
+rofl_result_t of12_init_group_entry(of12_group_table_t *gt, enum of12p_group_type type, uint32_t id){
 	of12_group_entry_t* ge=NULL;
 	
 	//TODO we should recieve the list of actions that must be stored in the buckets
@@ -70,8 +71,10 @@ rofl_result_t of12_group_entry_init(of12_group_table_t *gt, enum of12p_group_typ
 	if (ge == NULL){
 		return ROFL_FAILURE;
 	}
-	//TODO validate action sets
 	
+	//TODO validate action sets here
+	
+	ge->bl_head = ge->bl_tail = NULL;
 	ge->id = id;
 	ge->type = type;
 	
@@ -99,14 +102,14 @@ rofl_result_t of12_group_add(of12_group_table_t *gt, enum of12p_group_type type,
 			return ROFL_FAILURE;
 	}
 	
-	if (of12_group_entry_init(gt,type,id)!=ROFL_SUCCESS){
+	if (of12_init_group_entry(gt,type,id)!=ROFL_SUCCESS){
 		return ROFL_FAILURE;
 	}
 	return ROFL_SUCCESS;
 }
 
 static
-rofl_result_t of12_group_entry_destroy(of12_group_table_t *gt, of12_group_entry_t *ge){
+rofl_result_t of12_destroy_group_entry(of12_group_table_t *gt, of12_group_entry_t *ge){
 	//detach
 	if(ge->next)
 	ge->next->prev = ge->prev;
@@ -121,6 +124,9 @@ rofl_result_t of12_group_entry_destroy(of12_group_table_t *gt, of12_group_entry_
 	
 	gt->num_of_entries--;
 	
+	//destroy buckets & actions inside
+	of12_destroy_group_bucket_all(ge);
+	
 	//free
 	cutil_free_shared(ge);
 	
@@ -134,7 +140,7 @@ rofl_result_t of12_group_delete(of12_group_table_t *gt, uint32_t id){
 		return ROFL_SUCCESS; //if it is not found no need to throw an error
 	}
 	
-	if(of12_group_entry_destroy(gt,ge)!=ROFL_SUCCESS){
+	if(of12_destroy_group_entry(gt,ge)!=ROFL_SUCCESS){
 		return ROFL_FAILURE;
 	}
 	return ROFL_SUCCESS;
@@ -149,14 +155,48 @@ rofl_result_t of12_group_modify(of12_group_table_t *gt, enum of12p_group_type ty
 		return ROFL_FAILURE;
 	}
 	
-	if(of12_group_entry_destroy(gt,ge)!=ROFL_SUCCESS)
+	if(of12_destroy_group_entry(gt,ge)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;
-	if(of12_group_entry_init(gt,type,id)!=ROFL_SUCCESS)
+	if(of12_init_group_entry(gt,type,id)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;
 	
 	return ROFL_SUCCESS;
 }
 
+rofl_result_t of12_init_group_bucket(of12_group_entry_t *ge, uint32_t weigth, uint32_t group, uint32_t port, of12_packet_action_t *actions){
+	of12_group_bucket_t *bk = cutil_malloc_shared(sizeof(of12_group_bucket_t));
+	if (bk == NULL)
+		return ROFL_FAILURE;
+	
+	bk->next= NULL;
+	bk->weigth= weigth;
+	bk->group=group;
+	bk->port=port;
+	bk->actions = of12_init_action_group(actions);
+	
+	//insert the bucket
+	if (ge->bl_head == NULL && 	ge->bl_tail == NULL)
+		ge->bl_head = ge->bl_tail = bk;
+	else{
+		ge->bl_tail->next = bk;
+		ge->bl_tail = bk;
+	}
+	
+	return ROFL_SUCCESS;
+}
+
+static
+rofl_result_t of12_destroy_group_bucket_all(of12_group_entry_t *ge){
+	of12_group_bucket_t *bk_it, *next;
+	
+	for(bk_it=ge->bl_head;bk_it!=NULL;bk_it=next){
+		next = bk_it->next;
+		of12_destroy_action_group(bk_it->actions);
+		cutil_free_shared(bk_it);
+	}
+	
+	return ROFL_SUCCESS;
+}
 
 
 
