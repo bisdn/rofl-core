@@ -545,10 +545,10 @@ enum oxm_ofb_match_fields {
 	OFPXMT_OFB_MPLS_LABEL = 34,		/* MPLS label. */
 	OFPXMT_OFB_MPLS_TC = 35,		/* MPLS TC. */
 	/* PPP/PPPoE related extensions */
-	OFPXMT_OFB_PPPOE_CODE = 36,		/* PPPoE code */
-	OFPXMT_OFB_PPPOE_TYPE = 37,		/* PPPoE type */
-	OFPXMT_OFB_PPPOE_SID = 38,		/* PPPoE session id */
-	OFPXMT_OFB_PPP_PROT = 39,		/* PPP protocol */
+	OFPXMT_OFB_PPPOE_CODE = 40,		/* PPPoE code */
+	OFPXMT_OFB_PPPOE_TYPE = 41,		/* PPPoE type */
+	OFPXMT_OFB_PPPOE_SID = 42,		/* PPPoE session id */
+	OFPXMT_OFB_PPP_PROT = 43,		/* PPP protocol */
 	/* max value */
 	OFPXMT_OFB_MAX,
 };
@@ -585,7 +585,7 @@ OFP_ASSERT(sizeof(struct ofp_packet_in) == 24);
 #endif
 
 /* Packet received on port (datapath -> controller). */
-struct ofp_packet_in {
+struct ofp12_packet_in {
 	struct ofp_header header;
 	uint32_t buffer_id;			/* ID assigned by datapath. */
 	uint16_t total_len;			/* Full length of frame. */
@@ -601,7 +601,7 @@ struct ofp_packet_in {
 	//uint8_t pad[2];			/* Align to 64 bit + 16 bit */
 	//uint8_t data[0];			/* Ethernet frame */
 };
-OFP_ASSERT(sizeof(struct ofp_packet_in) == 24);
+OFP_ASSERT(sizeof(struct ofp12_packet_in) == 24);
 
 #define OFP_NO_BUFFER	0xffffffff
 
@@ -620,8 +620,8 @@ enum ofp_action_type {
 	OFPAT_SET_NW_TTL 	= 23, 	/* IP TTL. */
 	OFPAT_DEC_NW_TTL 	= 24, 	/* Decrement IP TTL. */
 	OFPAT_SET_FIELD 	= 25, 	/* Set a header field using OXM TLV format. */
-	OFPAT_PUSH_PPPOE 	= 26,	/* Push a new PPPoE tag */
-	OFPAT_POP_PPPOE 	= 27,	/* Pop the PPPoE tag */
+	//OFPAT_PUSH_PPPOE 	= 26,	/* Push a new PPPoE tag */
+	//OFPAT_POP_PPPOE 	= 27,	/* Pop the PPPoE tag */
 	OFPAT_EXPERIMENTER	= 0xffff
 };
 
@@ -788,11 +788,13 @@ enum ofp_flow_wildcards {
     OFPFW_TP_DST      = 1 << 7,  /* TCP/UDP/SCTP destination port. */
     OFPFW_MPLS_LABEL  = 1 << 8,  /* MPLS label. */
     OFPFW_MPLS_TC     = 1 << 9,  /* MPLS TC. */
+#if 0
 #ifdef ORAN
     OFPFW_PPPOE_CODE  = 1 << 10, /* PPPoE code */
     OFPFW_PPPOE_TYPE  = 1 << 11, /* PPPoE type */
     OFPFW_PPPOE_SESS  = 1 << 12, /* PPPoE session */
     OFPFW_PPP_CODE	  = 1 << 13, /* PPP code */
+#endif
 #endif
 
     /* Wildcard all fields. */

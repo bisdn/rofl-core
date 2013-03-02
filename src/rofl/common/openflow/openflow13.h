@@ -72,7 +72,9 @@ OFP_ASSERT(sizeof(struct ofp13_packet_queue) == 16);
 
 
 enum ofp13_queue_properties {
+#if 0
 	OFPQT_MIN_RATE = 1,				/* Minimum datarate guaranteed. */
+#endif
 	OFPQT_MAX_RATE = 2,				/* Maximum datarate. */
 	OFPQT_EXPERIMENTER = 0xffff,	/* Experimenter defined property. */
 };
@@ -108,6 +110,7 @@ OFP_ASSERT(sizeof(struct ofp13_queue_prop_experimenter) == 16);
 
 /* OXM Flow match field types for OpenFlow basic class. */
 enum ofp13_oxm_ofb_match_fields {
+#if 0
 	OFPXMT_OFB_IN_PORT = 0,			/* Switch input port. */				// required
 	OFPXMT_OFB_IN_PHY_PORT = 1,		/* Switch physical input port. */
 	OFPXMT_OFB_METADATA = 2,		/* Metadata passed between tables. */
@@ -144,10 +147,12 @@ enum ofp13_oxm_ofb_match_fields {
 	OFPXMT_OFB_IPV6_ND_TLL = 33,	/* Target link-layer for ND. */
 	OFPXMT_OFB_MPLS_LABEL = 34,		/* MPLS label. */
 	OFPXMT_OFB_MPLS_TC = 35,		/* MPLS TC. */
+#endif
 	OFPXMT_OFP_MPLS_BOS = 36,		/* MPLS BoS bit. */
 	OFPXMT_OFB_PBB_ISID = 37,		/* PBB I-SID. */
 	OFPXMT_OFB_TUNNEL_ID = 38,		/* Logical Port Metadata. */
 	OFPXMT_OFB_IPV6_EXTHDR = 39,	/* IPv6 Extension Header pseudo-field */
+#if 0
 	/* PPP/PPPoE related extensions */
 	OFPXMT_OFB_PPPOE_CODE = 40,		/* PPPoE code */
 	OFPXMT_OFB_PPPOE_TYPE = 41,		/* PPPoE type */
@@ -155,6 +160,7 @@ enum ofp13_oxm_ofb_match_fields {
 	OFPXMT_OFB_PPP_PROT = 43,		/* PPP protocol */
 	/* max value */
 	OFPXMT_OFB_MAX,
+#endif
 };
 
 
@@ -173,13 +179,17 @@ enum ofp13_ipv6exthdr_flags {
 
 
 enum ofp13_instruction_type {
+#if 0
 	OFPIT_GOTO_TABLE = 1,			/* Setup the next table in the lookup pipeline */
 	OFPIT_WRITE_METADATA = 2,		/* Setup the metadata field for use later in pipeline */
 	OFPIT_WRITE_ACTIONS = 3,		/* Write the action(s) onto the datapath action set */
 	OFPIT_APPLY_ACTIONS = 4,		/* Applies the action(s) immediately */
 	OFPIT_CLEAR_ACTIONS = 5,		/* Clears all actions from the datapath action set */
+#endif
 	OFPIT_METER = 6,				/* Apply meter (rate limiter) */
+#if 0
 	OFPIT_EXPERIMENTER = 0xFFFF, 	/* Experimenter instruction */
+#endif
 };
 
 
@@ -193,6 +203,7 @@ OFP_ASSERT(sizeof(struct ofp13_instruction_meter) == 8);
 
 
 enum ofp13_action_type {
+#if 0
 	OFPAT_OUTPUT = 0, 				/* Output to switch port. */
 	OFPAT_COPY_TTL_OUT = 11, 		/* Copy TTL "outwards" -- from next-to-outermost to outermost */
 	OFPAT_COPY_TTL_IN = 12, 		/* Copy TTL "inwards" -- from outermost to next-to-outermost */
@@ -207,11 +218,14 @@ enum ofp13_action_type {
 	OFPAT_SET_NW_TTL = 23, 			/* IP TTL. */
 	OFPAT_DEC_NW_TTL = 24, 			/* Decrement IP TTL. */
 	OFPAT_SET_FIELD = 25, 			/* Set a header field using OXM TLV format. */
+#endif
 	OFPAT_PUSH_PBB = 26, 			/* Push a new PBB service tag (I-TAG) */
 	OFPAT_POP_PBB = 27, 			/* Pop the outer PBB service tag (I-TAG) */
 	OFPAT_PUSH_PPPOE = 30,			/* Push a new PPPoE tag */
 	OFPAT_POP_PPPOE = 31,			/* Pop the PPPoE tag */
+#if 0
 	OFPAT_EXPERIMENTER = 0xffff,
+#endif
 };
 
 
@@ -237,12 +251,15 @@ OFP_ASSERT(sizeof(struct ofp13_switch_features) == 32);
 
 /* Capabilities supported by the datapath. */
 enum ofp13_capabilities {
+#if 0
 	OFPC_FLOW_STATS 	= 1 << 0, /* Flow statistics. */
 	OFPC_TABLE_STATS	= 1 << 1, /* Table statistics. */
 	OFPC_PORT_STATS		= 1 << 2, /* Port statistics. */
 	OFPC_GROUP_STATS	= 1 << 3, /* Group statistics. */
 	OFPC_IP_REASM		= 1 << 5, /* Can reassemble IP fragments. */
 	OFPC_QUEUE_STATS	= 1 << 6, /* Queue statistics. */
+	//OFPC_ARP_MATCH_IP removed from OF1.3 /* Match IP addresses in ARP pkts. */
+#endif
 	OFPC_PORT_BLOCKED	= 1 << 8, /* Switch will block looping ports. */
 };
 
@@ -253,11 +270,15 @@ enum ofp13_capabilities {
 /* unaltered message types since OpenFlow 1.2, flag constants have change */
 
 enum ofp13_config_flags {
+#if 0
 	/* Handling of IP fragments. */
 	OFPC_FRAG_NORMAL 	= 0,		/* No special handling for fragments. */
 	OFPC_FRAG_DROP		= 1 << 0, 	/* Drop fragments. */
 	OFPC_FRAG_REASM		= 1 << 1, 	/* Reassemble (only if OFPC_IP_REASM set). */
 	OFPC_FRAG_MASK		= 3,
+
+	// OFPC_INVALID_TTL_TO_CONTROLLER was removed in OF1.3
+#endif
 };
 
 
@@ -280,9 +301,11 @@ enum ofp13_table_config {
 /* unaltered since OpenFlow 1.2, flag constants have changed */
 
 enum ofp13_flow_mod_flags {
+#if 0
 	OFPFF_SEND_FLOW_REM 	= 1 << 0,	/* Send flow removed message when flow expires or is deleted. */
 	OFPFF_CHECK_OVERLAP		= 1 << 1, 	/* Check for overlapping entries first. */
 	OFPFF_RESET_COUNTS		= 1 << 2,	/* Reset flow packet and byte counts. */
+#endif
 	OFPFF_NO_PKT_COUNTS		= 1 << 3,	/* Don’t keep track of packet count. */
 	OFPFF_NO_BYT_COUNTS		= 1 << 4,	/* Don’t keep track of byte count. */
 };
@@ -300,16 +323,6 @@ enum ofp13_flow_mod_flags {
 
 // A3.4.4 Meter Modification Message
 
-/* Meter configuration. OFPT_METER_MOD. */
-struct ofp13_meter_mod {
-	struct ofp_header header;
-	uint16_t command; 		/* One of OFPMC_*. */
-	uint16_t flags;			/* One of OFPMF_*. */
-	uint32_t meter_id;		/* Meter instance. */
-	struct ofp_meter_band_header bands[0];
-	/* The bands length is inferred from the length field in the header. */
-};
-OFP_ASSERT(sizeof(struct ofp13_meter_mod) == 16);
 
 /* Meter numbering. Flow meters can use any number up to OFPM_MAX. */
 enum ofp13_meter {
@@ -383,6 +396,19 @@ struct ofp13_meter_band_experimenter {
 	uint32_t experimenter; 	/* Experimenter ID which takes the same form as in struct ofp_experimenter_header. */
 };
 OFP_ASSERT(sizeof(struct ofp13_meter_band_experimenter) == 16);
+
+
+/* Meter configuration. OFPT_METER_MOD. */
+struct ofp13_meter_mod {
+	struct ofp_header header;
+	uint16_t command; 		/* One of OFPMC_*. */
+	uint16_t flags;			/* One of OFPMF_*. */
+	uint32_t meter_id;		/* Meter instance. */
+	struct ofp13_meter_band_header bands[0];
+	/* The bands length is inferred from the length field in the header. */
+};
+OFP_ASSERT(sizeof(struct ofp13_meter_mod) == 16);
+
 
 
 
@@ -595,21 +621,6 @@ OFP_ASSERT(sizeof(struct ofp13_table_stats) == 24);
 
 // A3.5.5 Table Features
 
-/* Body for ofp_multipart_request of type OFPMP_TABLE_FEATURES./
- * Body of reply to OFPMP_TABLE_FEATURES request. */
-struct ofp13_table_features {
-	uint16_t length;			/* Length is padded to 64 bits. */
-	uint8_t table_id;			/* Identifier of table. Lower numbered tables are consulted first. */
-	uint8_t pad[5];				/* Align to 64-bits. */
-	char name[OFP_MAX_TABLE_NAME_LEN];
-	uint64_t metadata_match;	/* Bits of metadata table can match. */
-	uint64_t metadata_write; 	/* Bits of metadata table can write. */
-	uint32_t config;			/* Bitmap of OFPTC_* values */
-	uint32_t max_entries;		/* Max number of entries supported. */
-	/* Table Feature Property list */
-	struct ofp_table_feature_prop_header properties[0];
-};
-OFP_ASSERT(sizeof(struct ofp13_table_features) == 64);
 
 
 /* Table Feature property types.
@@ -710,6 +721,26 @@ struct ofp13_table_feature_prop_experimenter {
 	uint32_t experimenter_data[0];
 };
 OFP_ASSERT(sizeof(struct ofp13_table_feature_prop_experimenter) == 12);
+
+
+/* Body for ofp_multipart_request of type OFPMP_TABLE_FEATURES./
+ * Body of reply to OFPMP_TABLE_FEATURES request. */
+struct ofp13_table_features {
+	uint16_t length;			/* Length is padded to 64 bits. */
+	uint8_t table_id;			/* Identifier of table. Lower numbered tables are consulted first. */
+	uint8_t pad[5];				/* Align to 64-bits. */
+	char name[OFP_MAX_TABLE_NAME_LEN];
+	uint64_t metadata_match;	/* Bits of metadata table can match. */
+	uint64_t metadata_write; 	/* Bits of metadata table can write. */
+	uint32_t config;			/* Bitmap of OFPTC_* values */
+	uint32_t max_entries;		/* Max number of entries supported. */
+	/* Table Feature Property list */
+	struct ofp13_table_feature_prop_header properties[0];
+};
+OFP_ASSERT(sizeof(struct ofp13_table_features) == 64);
+
+
+
 
 // A3.5.6 Port Statistics
 
@@ -858,10 +889,12 @@ OFP_ASSERT(sizeof(struct ofp13_group_features) == 40);
 
 /* Group configuration flags */
 enum ofp13_group_capabilities {
+#if 0
 	OFPGFC_SELECT_WEIGHT 		= 1 << 0, 	/* Support weight for select groups */
 	OFPGFC_SELECT_LIVENESS 		= 1 << 1, 	/* Support liveness for select groups */
 	OFPGFC_CHAINING 			= 1 << 2, 	/* Support chaining groups */
 	OFPGFC_CHAINING_CHECKS 		= 1 << 3, 	/* Check chaining for loops and delete */
+#endif
 };
 
 // A3.5.12 Meter Statistics
@@ -874,6 +907,14 @@ struct ofp13_meter_multipart_request {
 OFP_ASSERT(sizeof(struct ofp13_meter_multipart_request) == 8);
 
 
+
+/* Statistics for each meter band */
+struct ofp13_meter_band_stats {
+	uint64_t packet_band_count;	/* Number of packets in band. */
+	uint64_t byte_band_count; 	/* Number of bytes in band. */
+};
+OFP_ASSERT(sizeof(struct ofp13_meter_band_stats) == 16);
+
 /* Body of reply to OFPMP_METER request. Meter statistics. */
 struct ofp13_meter_stats {
 	uint32_t meter_id;			/* Meter instance. */
@@ -884,16 +925,10 @@ struct ofp13_meter_stats {
 	uint64_t byte_in_count;		/* Number of bytes in input. */
 	uint32_t duration_sec; 		/* Time meter has been alive in seconds. */
 	uint32_t duration_nsec; 	/* Time meter has been alive in nanoseconds beyond duration_sec. */
-	struct ofp_meter_band_stats band_stats[0]; /* The band_stats length is inferred from the length field. */
+	struct ofp13_meter_band_stats band_stats[0]; /* The band_stats length is inferred from the length field. */
 };
 OFP_ASSERT(sizeof(struct ofp13_meter_stats) == 40);
 
-/* Statistics for each meter band */
-struct ofp13_meter_band_stats {
-	uint64_t packet_band_count;	/* Number of packets in band. */
-	uint64_t byte_band_count; 	/* Number of bytes in band. */
-};
-OFP_ASSERT(sizeof(struct ofp13_meter_band_stats) == 16);
 
 // A3.5.13 Meter Configuration Statistics
 
@@ -904,7 +939,7 @@ struct ofp13_meter_config {
 	uint16_t length;			/* Length of this entry. */
 	uint16_t flags;				/* All OFPMC_* that apply. */
 	uint32_t meter_id;			/* Meter instance. */
-	struct ofp_meter_band_header bands[0]; /* The bands length is inferred from the length field. */
+	struct ofp13_meter_band_header bands[0]; /* The bands length is inferred from the length field. */
 };
 OFP_ASSERT(sizeof(struct ofp13_meter_config) == 8);
 
@@ -1010,6 +1045,7 @@ OFP_ASSERT(sizeof(struct ofp13_packet_in) == 32);
 * will not change in future versions of the protocol (although new values may
 * be added). */
 enum ofp13_error_type {
+#if 0
 	OFPET_HELLO_FAILED			= 0, 	/* Hello protocol failed. */
 	OFPET_BAD_REQUEST			= 1, 	/* Request was not understood. */
 	OFPET_BAD_ACTION			= 2, 	/* Error in action description. */
@@ -1022,32 +1058,27 @@ enum ofp13_error_type {
 	OFPET_QUEUE_OP_FAILED		= 9, 	/* Queue operation failed. */
 	OFPET_SWITCH_CONFIG_FAILED 	= 10, 	/* Switch config request failed. */
 	OFPET_ROLE_REQUEST_FAILED 	= 11, 	/* Controller Role request failed. */
+#endif
 	OFPET_METER_MOD_FAILED		= 12, 	/* Error in meter. */
 	OFPET_TABLE_FEATURES_FAILED = 13, 	/* Setting table features failed. */
+#if 0
 	OFPET_EXPERIMENTER 			= 0xffff/* Experimenter error messages. */
+#endif
 };
 
 /* ofp_error_msg ’code’ values for OFPET_HELLO_FAILED. ’data’ contains an
  * ASCII text string that may give failure details. */
 enum ofp13_hello_failed_code {
+#if 0
 	OFPHFC_INCOMPATIBLE 		= 0,	/* No compatible version. */
 	OFPHFC_EPERM 				= 1,  	/* Permissions error. */
+#endif
 };
 
 
 
 // A5.1 Hello
 
-
-/* OFPT_HELLO. This message includes zero or more hello elements having
-* variable size. Unknown elements types must be ignored/skipped, to allow
-* for future extensions. */
-struct ofp13_hello {
-	struct ofp_header header;
-	/* Hello element list */
-	struct ofp_hello_elem_header elements[0];
-};
-OFP_ASSERT(sizeof(struct ofp13_hello) == 8);
 
 
 /* Hello elements types.
@@ -1076,6 +1107,18 @@ struct ofp13_hello_elem_versionbitmap {
 	uint32_t bitmaps[0];/* List of bitmaps - supported versions */
 };
 OFP_ASSERT(sizeof(struct ofp13_hello_elem_versionbitmap) == 4);
+
+
+/* OFPT_HELLO. This message includes zero or more hello elements having
+* variable size. Unknown elements types must be ignored/skipped, to allow
+* for future extensions. */
+struct ofp13_hello {
+	struct ofp_header header;
+	/* Hello element list */
+	struct ofp13_hello_elem_header elements[0];
+};
+OFP_ASSERT(sizeof(struct ofp13_hello) == 8);
+
 
 
 // A5.2 Echo Request

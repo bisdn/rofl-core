@@ -1025,7 +1025,7 @@ cofctl::hello_rcvd(cofpacket *pack)
 		WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() pack: %s", this, pack->c_str());
 
 		// OpenFlow versions do not match, send error, close connection
-		if (pack->ofh_header->version != OFP_VERSION)
+		if (pack->ofh_header->version != OFP12_VERSION)
 		{
 			new_state(STATE_CTL_DISCONNECTED);
 
@@ -1034,7 +1034,7 @@ cofctl::hello_rcvd(cofpacket *pack)
 			bzero(explanation, sizeof(explanation));
 			snprintf(explanation, sizeof(explanation) - 1,
 							"unsupported OF version (%d), supported version is (%d)",
-							(pack->ofh_header->version), OFP_VERSION);
+							(pack->ofh_header->version), OFP12_VERSION);
 
 			throw eHelloIncompatible();
 		}
@@ -1270,7 +1270,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 		// check, whether the controlling pack->entity is allowed to install this flow-mod
 		if (rofbase->fe_flags.test(crofbase::NSP_ENABLED))
 		{
-			switch (pack->ofh_flow_mod->command) {
+			switch (pack->of12h_flow_mod->command) {
 			case OFPFC_ADD:
 			case OFPFC_MODIFY:
 			case OFPFC_MODIFY_STRICT:
@@ -1408,7 +1408,7 @@ cofctl::flow_mod_rcvd(cofpacket *pack)
 
 		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
 				"invalid flow-table %d specified",
-				this, pack->ofh_flow_mod->table_id);
+				this, pack->of12h_flow_mod->table_id);
 
 		rofbase->send_error_message(
 				this,

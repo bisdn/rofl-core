@@ -554,7 +554,7 @@ cofdpt::hello_rcvd(cofpacket *pack)
 		WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() pack: %s", this, pack->c_str());
 
 		// OpenFlow versions do not match, send error, close connection
-		if (pack->ofh_header->version != OFP_VERSION)
+		if (pack->ofh_header->version != OFP12_VERSION)
 		{
 			new_state(COFDPT_STATE_DISCONNECTED);
 
@@ -563,9 +563,10 @@ cofdpt::hello_rcvd(cofpacket *pack)
 			bzero(explanation, sizeof(explanation));
 			snprintf(explanation, sizeof(explanation) - 1,
 					"unsupported OF version (%d), supported version is (%d)",
-					(pack->ofh_header->version), OFP_VERSION);
+					(pack->ofh_header->version), OFP12_VERSION);
 
 			cofpacket_error *reply = new cofpacket_error(
+								OFP12_VERSION,
 								pack->get_xid(),
 								OFPET_HELLO_FAILED,
 								OFPHFC_INCOMPATIBLE,
@@ -691,12 +692,12 @@ cofdpt::features_reply_rcvd(
 	try {
 		cancel_timer(COFDPT_TIMER_FEATURES_REPLY);
 
-		dpid 			= be64toh(pack->ofh_switch_features->datapath_id);
-		n_buffers 		= be32toh(pack->ofh_switch_features->n_buffers);
-		n_tables 		= pack->ofh_switch_features->n_tables;
-		capabilities 	= be32toh(pack->ofh_switch_features->capabilities);
+		dpid 			= be64toh(pack->of12h_switch_features->datapath_id);
+		n_buffers 		= be32toh(pack->of12h_switch_features->n_buffers);
+		n_tables 		= pack->of12h_switch_features->n_tables;
+		capabilities 	= be32toh(pack->of12h_switch_features->capabilities);
 
-		int portslen = be16toh(pack->ofh_switch_features->header.length) -
+		int portslen = be16toh(pack->of12h_switch_features->header.length) -
 												sizeof(struct ofp12_switch_features);
 
 
@@ -705,7 +706,7 @@ cofdpt::features_reply_rcvd(
 				this, dpid, pack->c_str());
 
 
-		cofport::ports_parse(ports, pack->ofh_switch_features->ports, portslen);
+		cofport::ports_parse(ports, pack->of12h_switch_features->ports, portslen);
 
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() %s", this, this->c_str());
 
@@ -775,8 +776,8 @@ cofdpt::get_config_reply_rcvd(
 {
 	cancel_timer(COFDPT_TIMER_GET_CONFIG_REPLY);
 
-	offlags = be16toh(pack->ofh_switch_config->flags);
-	miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
+	offlags = be16toh(pack->of12h_switch_config->flags);
+	miss_send_len = be16toh(pack->of12h_switch_config->miss_send_len);
 
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::get_config_reply_rcvd() "
 			"dpid:%"PRIu64" ",
@@ -949,7 +950,7 @@ cofdpt::flow_mod_sent(
 		cofpacket *pack) throw (eOFdpathNotFound)
 {
 	try {
-		WRITELOG(COFDPT, DBG, "cofdpt(%p)::flow_mod_sent() table_id: %d", this, pack->ofh_flow_mod->table_id);
+		WRITELOG(COFDPT, DBG, "cofdpt(%p)::flow_mod_sent() table_id: %d", this, pack->of12h_flow_mod->table_id);
 
 
 	} catch (cerror& e) {
