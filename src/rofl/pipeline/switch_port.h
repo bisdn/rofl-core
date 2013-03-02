@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
+#include "rofl.h"
+#include "platform/lock.h"
+
 /*
 *
 * Implements the physical port abstraction 
@@ -15,6 +18,7 @@
 struct of_switch;
 
 #define SW_PORT_ETH_ALEN 6
+#define SWITCH_PORT_MAX_LEN_NAME 20
 
 //Port state
 typedef enum{
@@ -49,27 +53,29 @@ typedef uint32_t port_features_t;
 typedef void platform_port_state_t;
 
 //Port stats
-struct port_stats {
-    uint64_t rx_packets;     /* Number of received packets. */
-    uint64_t tx_packets;     /* Number of transmitted packets. */
-    uint64_t rx_bytes;       /* Number of received bytes. */
-    uint64_t tx_bytes;       /* Number of transmitted bytes. */
-    uint64_t rx_dropped;     /* Number of packets dropped by RX. */
-    uint64_t tx_dropped;     /* Number of packets dropped by TX. */
-    uint64_t rx_errors;      /* Number of receive errors.  This is a super-set
-                                of more specific receive errors and should be
-                                greater than or equal to the sum of all
-                                rx_*_err values. */
-    uint64_t tx_errors;      /* Number of transmit errors.  This is a super-set
-                                of more specific transmit errors and should be
-                                greater than or equal to the sum of all
-                                tx_*_err values (none currently defined.) */
-    uint64_t rx_frame_err;   /* Number of frame alignment errors. */
-    uint64_t rx_over_err;    /* Number of packets with RX overrun. */
-    uint64_t rx_crc_err;     /* Number of CRC errors. */
-    uint64_t collisions;     /* Number of collisions. */
-};
-typedef struct port_stats port_stats_t;
+typedef struct port_stats {
+	uint64_t rx_packets;     /* Number of received packets. */
+	uint64_t tx_packets;     /* Number of transmitted packets. */
+	uint64_t rx_bytes;       /* Number of received bytes. */
+	uint64_t tx_bytes;       /* Number of transmitted bytes. */
+	uint64_t rx_dropped;     /* Number of packets dropped by RX. */
+	uint64_t tx_dropped;     /* Number of packets dropped by TX. */
+	uint64_t rx_errors;      /* Number of receive errors.  This is a super-set
+				of more specific receive errors and should be
+				greater than or equal to the sum of all
+				rx_*_err values. */
+	uint64_t tx_errors;      /* Number of transmit errors.  This is a super-set
+				of more specific transmit errors and should be
+				greater than or equal to the sum of all
+				tx_*_err values (none currently defined.) */
+	uint64_t rx_frame_err;   /* Number of frame alignment errors. */
+	uint64_t rx_over_err;    /* Number of packets with RX overrun. */
+	uint64_t rx_crc_err;     /* Number of CRC errors. */
+	uint64_t collisions;     /* Number of collisions. */
+
+	//Mutex for statistics
+	platform_mutex_t* mutex;
+}port_stats_t;
 
 typedef enum{
 	PORT_TYPE_INVALID 	= 0,
@@ -101,7 +107,7 @@ typedef struct switch_port{
 	port_type_t type;
 
 	//Port name
-	char* name;
+	char name[SWITCH_PORT_MAX_LEN_NAME];
 
 	//Port state
 	port_state_t state;
@@ -140,11 +146,58 @@ typedef enum logical_switch_port_attachment_state{
 	LOGICAL_PORT_STATE_DETACHED = 2
 }logical_switch_port_attachment_state_t; 
 
-typedef void of_stats_port;
-
 typedef struct logical_switch_port{
 	logical_switch_port_attachment_state_t attachment_state;
 	switch_port_t* port;
 }logical_switch_port_t;
+
+/* 
+* Functions
+*/
+
+//C++ extern C
+ROFL_PIPELINE_BEGIN_DECLS
+
+/**
+* Init a switch_port structure
+*/
+switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_state_t state);
+
+/**
+* Destroy a switch_port structure
+*/
+rofl_result_t switch_port_destroy(switch_port_t* port);
+
+//Port Statistics
+
+/**
+* Increments atomically all the statistics of the port. Fill in with 0 the ones that should
+* be left untouched.
+*/
+/*inline*/ void switch_port_stats_inc(switch_port_t* port,
+				uint64_t rx_packets,
+				uint64_t tx_packets,
+				uint64_t rx_bytes,
+				uint64_t tx_bytes,
+				uint64_t rx_dropped,
+				uint64_t tx_dropped
+				/*uint64_t rx_errors,
+				uint64_t tx_errors,
+				uint64_t rx_frame_err,
+				uint64_t rx_over_err,
+				uint64_t rx_crc_err,
+				uint64_t collisions*/);
+
+
+/*
+* Conveninent wrappers just to avoid messing up with the bitmaps
+*/
+/*inline*/ void switch_port_add_capabilities(port_features_t* bitmap, port_features_t features);
+/*inline*/ void switch_port_remove_capabilities(port_features_t* bitmap, port_features_t features);
+/*inline*/ void switch_port_set_current_speed(switch_port_t* port, port_features_t speed);
+/*inline*/ void switch_port_set_current_max_speed(switch_port_t* port, port_features_t speed);
+
+//C++ extern C
+ROFL_PIPELINE_END_DECLS
 
 #endif //PHYSICAL_PORT

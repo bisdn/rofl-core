@@ -95,6 +95,7 @@ rofl_result_t physical_switch_remove_logical_switch(of_switch_t* sw);
 //Getters
 of_switch_t* physical_switch_get_logical_switch_by_dpid(const uint64_t dpid);
 of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_port_t port);
+switch_port_t* physical_switch_get_port_by_name(const char *name);
 
 /* Port management routines*/
 
