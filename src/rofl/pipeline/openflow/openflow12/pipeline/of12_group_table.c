@@ -12,7 +12,9 @@
 #include "of12_group_table.h"
 #include "../../../platform/memory.h"
 
+static rofl_result_t of12_init_group_bucket(of12_group_entry_t *ge, uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions);
 static rofl_result_t of12_destroy_group_bucket_all(of12_group_entry_t *ge);
+static rofl_result_t of12_destroy_group_entry(of12_group_table_t *gt, of12_group_entry_t *ge);
 
 of12_group_table_t* of12_init_group_table(){
 	of12_group_table_t *gt;
@@ -36,7 +38,7 @@ void of12_destroy_group_table(of12_group_table_t* gt){
 	for(iterator=gt->head; iterator!=NULL; iterator=next)
 	{
 		next=iterator->next;
-		cutil_free_shared(iterator);
+		of12_destroy_group_entry(gt,iterator);
 	}
 	
 	
@@ -62,7 +64,9 @@ of12_group_entry_t *of12_group_search(of12_group_table_t *gt, uint32_t id){
 }
 
 static
-rofl_result_t of12_init_group_entry(of12_group_table_t *gt, enum of12p_group_type type, uint32_t id){
+rofl_result_t of12_init_group_entry(of12_group_table_t *gt, of12_group_type_t type, uint32_t id,
+									uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions){
+	
 	of12_group_entry_t* ge=NULL;
 	
 	//TODO we should recieve the list of actions that must be stored in the buckets
@@ -92,17 +96,21 @@ rofl_result_t of12_init_group_entry(of12_group_table_t *gt, enum of12p_group_typ
 	gt->tail = ge;
 	gt->num_of_entries++;
 	
+	if(of12_init_group_bucket(ge,weigth,group,port, actions)!=ROFL_SUCCESS)
+		return ROFL_FAILURE;
+	
 	return ROFL_SUCCESS;
 }
 
-rofl_result_t of12_group_add(of12_group_table_t *gt, enum of12p_group_type type, uint32_t id){
+rofl_result_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, 
+							 uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions){
 	
 	//check wether onither entry with this ID already exists
 	if(of12_group_search(gt,id)!=NULL){
 			return ROFL_FAILURE;
 	}
 	
-	if (of12_init_group_entry(gt,type,id)!=ROFL_SUCCESS){
+	if (of12_init_group_entry(gt,type,id, weigth, group, port, actions)!=ROFL_SUCCESS){
 		return ROFL_FAILURE;
 	}
 	return ROFL_SUCCESS;
@@ -147,7 +155,8 @@ rofl_result_t of12_group_delete(of12_group_table_t *gt, uint32_t id){
 }
 
 
-rofl_result_t of12_group_modify(of12_group_table_t *gt, enum of12p_group_type type, uint32_t id){
+rofl_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, 
+								uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions){
 	
 	//search && remove && add
 	of12_group_entry_t *ge = of12_group_search(gt,id);
@@ -157,13 +166,13 @@ rofl_result_t of12_group_modify(of12_group_table_t *gt, enum of12p_group_type ty
 	
 	if(of12_destroy_group_entry(gt,ge)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;
-	if(of12_init_group_entry(gt,type,id)!=ROFL_SUCCESS)
+	if(of12_init_group_entry(gt,type,id,weigth,group,port,actions)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;
 	
 	return ROFL_SUCCESS;
 }
-
-rofl_result_t of12_init_group_bucket(of12_group_entry_t *ge, uint32_t weigth, uint32_t group, uint32_t port, of12_packet_action_t *actions){
+static
+rofl_result_t of12_init_group_bucket(of12_group_entry_t *ge, uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions){
 	of12_group_bucket_t *bk = cutil_malloc_shared(sizeof(of12_group_bucket_t));
 	if (bk == NULL)
 		return ROFL_FAILURE;
@@ -172,7 +181,7 @@ rofl_result_t of12_init_group_bucket(of12_group_entry_t *ge, uint32_t weigth, ui
 	bk->weigth= weigth;
 	bk->group=group;
 	bk->port=port;
-	bk->actions = of12_init_action_group(actions);
+	bk->actions = actions;//of12_init_action_group(actions);
 	
 	//insert the bucket
 	if (ge->bl_head == NULL && 	ge->bl_tail == NULL)
@@ -191,7 +200,7 @@ rofl_result_t of12_destroy_group_bucket_all(of12_group_entry_t *ge){
 	
 	for(bk_it=ge->bl_head;bk_it!=NULL;bk_it=next){
 		next = bk_it->next;
-		of12_destroy_action_group(bk_it->actions);
+		///*of12_destroy_action_group(bk_it->actions);*/
 		cutil_free_shared(bk_it);
 	}
 	
