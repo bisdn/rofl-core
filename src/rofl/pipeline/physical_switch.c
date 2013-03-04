@@ -19,7 +19,7 @@ void physical_switch_init(){
 	//Generate metaports
 	//Flood
 	psw.meta_ports[META_PORT_FLOOD_INDEX].type = PORT_TYPE_META_FLOOD;
-	psw.meta_ports[META_PORT_FLOOD_INDEX].name = "Flood meta port";
+	strncpy(psw.meta_ports[META_PORT_FLOOD_INDEX].name, "Flood meta port", SWITCH_PORT_MAX_LEN_NAME);
 }
 
 physical_switch_t* get_physical_switch(){
@@ -38,6 +38,24 @@ of_switch_t* physical_switch_get_logical_switch_by_dpid(const uint64_t dpid){
 		if( psw.logical_switches[i] && psw.logical_switches[i]->dpid == dpid)
 			return psw.logical_switches[i];
 	}
+
+	return NULL;
+}
+
+/*
+ * Get the port by its name
+ */
+switch_port_t* physical_switch_get_port_by_name(const char *name){
+
+	unsigned int i;
+	
+	for(i=0;i<PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;i++){
+		if(psw.physical_ports[i] != NULL && strncmp(psw.physical_ports[i]->name,name, SWITCH_PORT_MAX_LEN_NAME)==0){
+			return psw.physical_ports[i];
+		}
+	}
+
+	//TODO: add tunnel, virtual...
 
 	return NULL;
 }
