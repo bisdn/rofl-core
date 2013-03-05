@@ -28,6 +28,8 @@ of12_group_table_t* of12_init_group_table(){
 	gt->head = NULL;
 	gt->tail = NULL;
 	
+	gt->rwlock = platform_rwlock_init(NULL);
+	
 	return gt;
 }
 
@@ -40,6 +42,8 @@ void of12_destroy_group_table(of12_group_table_t* gt){
 		next=iterator->next;
 		of12_destroy_group_entry(gt,iterator);
 	}
+	///WARNING we need to make sure that no one is in so we can destroy the mutex!!!
+	platform_rwlock_destroy(gt->rwlock);
 	
 	
 	cutil_free_shared(gt);
@@ -105,14 +109,19 @@ rofl_result_t of12_init_group_entry(of12_group_table_t *gt, of12_group_type_t ty
 rofl_result_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, 
 							 uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions){
 	
+	platform_rwlock_wrlock(gt->rwlock);
+	
 	//check wether onither entry with this ID already exists
 	if(of12_group_search(gt,id)!=NULL){
-			return ROFL_FAILURE;
+		platform_rwlock_wrunlock(gt->rwlock);
+		return ROFL_FAILURE;
 	}
 	
 	if (of12_init_group_entry(gt,type,id, weigth, group, port, actions)!=ROFL_SUCCESS){
+		platform_rwlock_wrunlock(gt->rwlock);
 		return ROFL_FAILURE;
 	}
+	platform_rwlock_wrunlock(gt->rwlock);
 	return ROFL_SUCCESS;
 }
 
@@ -143,14 +152,19 @@ rofl_result_t of12_destroy_group_entry(of12_group_table_t *gt, of12_group_entry_
 
 rofl_result_t of12_group_delete(of12_group_table_t *gt, uint32_t id){
 	
+	platform_rwlock_wrlock(gt->rwlock);
+	
 	of12_group_entry_t *ge = of12_group_search(gt,id);
 	if(ge==NULL){
+		platform_rwlock_wrunlock(gt->rwlock);
 		return ROFL_SUCCESS; //if it is not found no need to throw an error
 	}
 	
 	if(of12_destroy_group_entry(gt,ge)!=ROFL_SUCCESS){
+		platform_rwlock_wrunlock(gt->rwlock);
 		return ROFL_FAILURE;
 	}
+	platform_rwlock_wrunlock(gt->rwlock);
 	return ROFL_SUCCESS;
 }
 
@@ -158,17 +172,24 @@ rofl_result_t of12_group_delete(of12_group_table_t *gt, uint32_t id){
 rofl_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, 
 								uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions){
 	
+	platform_rwlock_wrlock(gt->rwlock);
+	
 	//search && remove && add
 	of12_group_entry_t *ge = of12_group_search(gt,id);
 	if (ge == NULL){
+		platform_rwlock_wrunlock(gt->rwlock);
 		return ROFL_FAILURE;
 	}
 	
-	if(of12_destroy_group_entry(gt,ge)!=ROFL_SUCCESS)
+	if(of12_destroy_group_entry(gt,ge)!=ROFL_SUCCESS){
+		platform_rwlock_wrunlock(gt->rwlock);
 		return ROFL_FAILURE;
-	if(of12_init_group_entry(gt,type,id,weigth,group,port,actions)!=ROFL_SUCCESS)
+	}
+	if(of12_init_group_entry(gt,type,id,weigth,group,port,actions)!=ROFL_SUCCESS){
+		platform_rwlock_wrunlock(gt->rwlock);
 		return ROFL_FAILURE;
-	
+	}
+	platform_rwlock_wrunlock(gt->rwlock);
 	return ROFL_SUCCESS;
 }
 static
@@ -206,9 +227,4 @@ rofl_result_t of12_destroy_group_bucket_all(of12_group_entry_t *ge){
 	
 	return ROFL_SUCCESS;
 }
-
-
-
-
-
 

@@ -4,6 +4,7 @@
 #include "rofl.h"
 #include "of12_statistics.h"
 #include "of12_action.h"
+#include <rofl/pipeline/platform/lock.h>
 
 typedef struct of12_group_bucket{
 	uint16_t weigth;
@@ -37,6 +38,9 @@ typedef struct of12_group_entry{
 
 typedef struct of12_group_table{
 	uint32_t num_of_entries;
+	
+	platform_rwlock_t *rwlock;
+	
 	struct of12_group_entry *head;
 	struct of12_group_entry *tail;
 }of12_group_table_t;
