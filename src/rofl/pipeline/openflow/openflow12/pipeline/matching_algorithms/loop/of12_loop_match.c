@@ -21,11 +21,10 @@
 * Adds flow_entry to the main table. This function is NOT thread safe, and mutual exclusion should be 
 * acquired BEFORE this function being called, using table->mutex var. 
 */
-static rofl_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry){
+static rofl_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
 	of12_flow_entry_t *it, *prev;
 	
-	if(table->num_of_entries == OF12_MAX_NUMBER_OF_TABLE_ENTRIES)
-	{
+	if(table->num_of_entries == OF12_MAX_NUMBER_OF_TABLE_ENTRIES){
 		return ROFL_FAILURE; 
 	}
 
@@ -144,7 +143,7 @@ static of12_flow_entry_t* of12_remove_flow_entry_table_specific_imp(of12_flow_ta
 * This function shall NOT be used if there is some prior knowledge by the lookup algorithm before (specially a pointer to the entry), as it is inherently VERY innefficient
 */
 
-static of12_flow_entry_t* of12_remove_flow_entry_table_non_specific_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict){
+static of12_flow_entry_t* of12_remove_flow_entry_table_non_specific_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
 	int already_matched;
 	of12_flow_entry_t *it;
 	of12_match_t *match_it, *table_entry_match_it;
@@ -211,24 +210,25 @@ static of12_flow_entry_t* of12_remove_flow_entry_table_non_specific_imp(of12_flo
 * 
 */
 
-static of12_flow_entry_t* of12_remove_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness strict){
+static inline of12_flow_entry_t* of12_remove_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, uint32_t out_port, uint32_t out_group, const enum of12_flow_removal_strictness strict){
 
 	if( (entry&&specific_entry) || ( !entry && !specific_entry) )
-		return NULL; 
+		return NULL;
+ 
 	if(entry)
-		return of12_remove_flow_entry_table_non_specific_imp(table, entry, strict);
+		return of12_remove_flow_entry_table_non_specific_imp(table, entry, strict, out_port, out_group);
 	else
 		return of12_remove_flow_entry_table_specific_imp(table, specific_entry);
 }
 
 /* Flow management routines. Wraps call with mutex.  */
-inline rofl_result_t of12_add_flow_entry_loop(of12_flow_table_t *const table, of12_flow_entry_t *const entry){
+rofl_result_t of12_add_flow_entry_loop(of12_flow_table_t *const table, of12_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
 	rofl_result_t return_value;
 
 	//Allow single add/remove operation over the table
 	platform_mutex_lock(table->mutex);
 	
-	return_value = of12_add_flow_entry_table_imp(table, entry);
+	return_value = of12_add_flow_entry_table_imp(table, entry, check_overlap, reset_counts);
 
 	//FIXME TODO
 	//if(mutex_acquired!=MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION)
@@ -244,19 +244,18 @@ inline rofl_result_t of12_add_flow_entry_loop(of12_flow_table_t *const table, of
 	return return_value;
 }
 
-inline rofl_result_t of12_remove_flow_entry_loop(of12_flow_table_t *const table , of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness strict, of12_mutex_acquisition_required_t mutex_acquired){
+rofl_result_t of12_remove_flow_entry_loop(of12_flow_table_t *const table , of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group, of12_mutex_acquisition_required_t mutex_acquired){
+
 	of12_flow_entry_t* table_deletion_result;
 
 	//Allow single add/remove operation over the table
-	if(!mutex_acquired)
-	{
+	if(!mutex_acquired){
 		platform_mutex_lock(table->mutex);
 	}
 	
-	table_deletion_result = of12_remove_flow_entry_table_imp(table, entry,specific_entry,strict);
+	table_deletion_result = of12_remove_flow_entry_table_imp(table, entry, specific_entry, strict, out_port, out_group);
 
-	if(mutex_acquired!=MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION)
-	{
+	if(mutex_acquired!=MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION){
 		//Add/update counters
 		//FIXME TODO
 		//Add/update timers
@@ -264,8 +263,7 @@ inline rofl_result_t of12_remove_flow_entry_loop(of12_flow_table_t *const table 
 	}
 	
 	//Green light to other threads
-	if(!mutex_acquired)
-	{
+	if(!mutex_acquired){
 		platform_mutex_unlock(table->mutex);
 	}
 
@@ -323,12 +321,13 @@ load_matching_algorithm_loop(struct matching_algorithm_functions *f)
 {
 	if (NULL != f) {
 		f->add_flow_entry_hook = of12_add_flow_entry_loop;
+		f->modify_flow_entry_hook = NULL; //XXX TODO FIXME
 		f->remove_flow_entry_hook = of12_remove_flow_entry_loop;
 		f->find_best_match_hook = of12_find_best_match_loop;
 		f->dump_hook = NULL;
 		f->init_hook = NULL;
 		f->destroy_hook = NULL;
-		strncpy(f->description,LOOP_DESCRIPTION, OF12_MATCHING_ALGORITHMS_MAX_DESCRIPTION_LENGTH);
+		strncpy(f->description, LOOP_DESCRIPTION, OF12_MATCHING_ALGORITHMS_MAX_DESCRIPTION_LENGTH);
 	}
 }
 

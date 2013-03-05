@@ -387,7 +387,7 @@ static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer
 		of12_fill_new_timer_entry_info(entry_timer->entry,0,0);
 #else
 		//fprintf(stderr,"Erasing real entries of table \n"); //NOTE Delete
-		of12_remove_flow_entry_table(table,NULL,entry_timer->entry, STRICT, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
+		of12_remove_specific_flow_entry_table(table,entry_timer->entry, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
 #endif
 		return ROFL_SUCCESS; // timeout expired so no need to reschedule !!! we have to delete the entry
 	}
@@ -440,7 +440,7 @@ static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_
 				of12_fill_new_timer_entry_info(entry_iterator->entry,0,0);
 #else
 				//fprintf(stderr,"Erasing real entries of table \n"); //NOTE DELETE
-				of12_remove_flow_entry_table(table,NULL,entry_iterator->entry, STRICT, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
+				of12_remove_specific_flow_entry_table(table,entry_iterator->entry, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
 #endif
 			}
 			if(entry_iterator)

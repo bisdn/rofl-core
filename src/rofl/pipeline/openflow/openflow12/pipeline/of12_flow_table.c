@@ -1,7 +1,10 @@
 #include "of12_flow_table.h"
 
 #include <stdio.h>
-#include "../openflow12.h"
+#include <stdio.h>
+#include "../openflow12.h" //FIXME: necessary for the OF12PAT_. Probably wise to redefine only them in of12_action.h
+
+#include "of12_group_table.h"
 
 /* 
 * Openflow table operations
@@ -185,11 +188,21 @@ rofl_result_t of12_destroy_table(of12_flow_table_t* table){
 * Specific matchings may point them to their own routines, but they MUST always call
 * of12_[whatever]_flow_entry_table_imp in order to update the main tables
 */
-inline rofl_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry){
-	return table->maf.add_flow_entry_hook(table,entry);
+inline rofl_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
+	return table->maf.add_flow_entry_hook(table, entry, check_overlap, reset_counts);
 }
-inline rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness strict, of12_mutex_acquisition_required_t mutex_acquired ){
-	return table->maf.remove_flow_entry_hook(table,entry,specific_entry,strict, mutex_acquired);
+
+
+inline rofl_result_t of12_modify_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, bool reset_counts){
+	return table->maf.modify_flow_entry_hook(table, entry, strict, reset_counts);
+}
+
+inline rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
+	return table->maf.remove_flow_entry_hook(table, entry, NULL, strict,  out_port, out_group, MUTEX_NOT_ACQUIRED);
+}
+
+rofl_result_t of12_remove_specific_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const specific_entry, of12_mutex_acquisition_required_t mutex_acquired){
+	return table->maf.remove_flow_entry_hook(table, NULL, specific_entry, STRICT, OF12_PORT_ANY, OF12_GROUP_ANY, mutex_acquired);
 }
 
 /* Main process_packet_through */

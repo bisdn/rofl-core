@@ -48,35 +48,19 @@ struct of12_flow_entry{
 	//Instructions
 	of12_instruction_group_t instructions;
 
-	//Counters
-	//FIXME
+	//Cookie
+	uint64_t cookie;
+	uint64_t cookie_mask;
 
-	//RWlock
-	platform_rwlock_t* rwlock;
-	
-	//timer
+	//Timers
 	struct of12_timers_info timer_info;
 	
 	//statistics
 	of12_stats_flow_t stats;
 
-	/*
-	 * added 2012-12-10
-	 */
+	//RWlock
+	platform_rwlock_t* rwlock;
 
-	uint64_t cookie;
-	uint64_t cookie_mask;
-
-	uint32_t out_port;
-	uint32_t out_group;
-
-	uint16_t flags;
-
-	/*
-	 * added 2012-12-12
-	 */
-
-	uint8_t reason;
 };
 typedef struct of12_flow_entry of12_flow_entry_t;
 
