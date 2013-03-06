@@ -113,7 +113,8 @@ enum of12_port_numbers {
 };
 
 
-typedef void of12_group_t;		//FIXME: remove when appropiate of12_group implementation is available
+//fwd declaration
+struct of12_group;
 
 /* Packet action abstraction data structure */
 struct of12_packet_action{
@@ -122,7 +123,7 @@ struct of12_packet_action{
 	uint64_t field;			//TODO: substitute for a 128 value for IPv6 support
 
 	//group
-	of12_group_t* group;
+	struct of12_group* group;
 	
 	//DLL
 	struct of12_packet_action* prev;
@@ -168,7 +169,7 @@ struct of12_switch;
 ROFL_PIPELINE_BEGIN_DECLS
 
 //Action
-of12_packet_action_t* of12_init_packet_action(of12_packet_action_type_t type, uint64_t field, of12_packet_action_t* prev, of12_packet_action_t* next);
+of12_packet_action_t* of12_init_packet_action(const struct of12_switch* sw,of12_packet_action_type_t type, uint64_t field, of12_packet_action_t* prev, of12_packet_action_t* next);
 void of12_destroy_packet_action(of12_packet_action_t* action);
 
 //Action group
@@ -195,6 +196,9 @@ void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_ac
 void of12_dump_write_actions(of12_write_actions_t* write_actions_group);
 void of12_dump_action_group(of12_action_group_t* action_group);
 
+//validate actions
+bool of12_validate_action_group(of12_action_group_t *ag);
+bool of12_validate_write_actions(of12_write_actions_t *wa);
 
 
 //C++ extern C

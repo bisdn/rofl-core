@@ -5,6 +5,7 @@
 #include "rofl.h" 
 #include "../../../util/rofl_pipeline_utils.h"
 #include "of12_flow_table.h"
+#include "of12_group_table.h"
 #include "../../../common/datapacket.h"
 #include "../../of_switch.h"
 
@@ -38,6 +39,9 @@ struct of12_pipeline{
 
 	//Array of tables; 
 	of12_flow_table_t* tables;
+	
+	//Group table
+	of12_group_table_t* groups;
 	
 };
 typedef struct of12_pipeline of12_pipeline_t;

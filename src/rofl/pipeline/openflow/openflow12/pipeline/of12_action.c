@@ -24,8 +24,10 @@ extern switch_port_t* flood_meta_port;
 #define OF12_AT_3_BITS_MASK 0x00000000000FFFFF
 #define OF12_AT_2_BITS_MASK 0x00000000000FFFFF
 
+static void of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t* group);
+
 /* Actions init and destroyed */
-of12_packet_action_t* of12_init_packet_action(of12_packet_action_type_t type, uint64_t field, of12_packet_action_t* prev, of12_packet_action_t* next){
+of12_packet_action_t* of12_init_packet_action(const struct of12_switch* sw, of12_packet_action_type_t type, uint64_t field, of12_packet_action_t* prev, of12_packet_action_t* next){
 
 	of12_packet_action_t* action;
 
@@ -96,6 +98,10 @@ of12_packet_action_t* of12_init_packet_action(of12_packet_action_type_t type, ui
 		//2 bit values
 		case OF12_AT_SET_FIELD_IP_ECN:
 			action->field = field&OF12_AT_2_BITS_MASK;
+			break;
+		case OF12_AT_GROUP:
+			action->field =  field&OF12_AT_4_BYTE_MASK; //id of the group
+			action->group = of12_group_search(sw->pipeline->groups, action->field); // pointer to the group
 			break;
 		//case OF12_AT_SET_QUEUE: TODO
 		default:
@@ -315,7 +321,7 @@ static inline void of12_process_packet_action(const struct of12_switch* sw, cons
 			break;
 		case OF12_AT_SET_FIELD_PPP_PROT: platform_set_ppp_proto(pkt, action->field);
 			break;
-		case OF12_AT_GROUP: //FIXME: implement
+		case OF12_AT_GROUP: of12_process_group_actions(sw, table_id, pkt, action->field, action->group);
 			break;
 		case OF12_AT_EXPERIMENTER: //FIXME: implement
 			break;
@@ -390,7 +396,40 @@ void of12_process_write_actions(const struct of12_switch* sw, const unsigned int
 		}
 	}
 }
-
+static
+void of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t *group){
+	of12_group_bucket_t *it_bk;
+	
+	//process the actions in the buckets depending on the type
+	switch(group->type){
+		case OF12_GROUP_TYPE_ALL:
+			//executes all buckets
+			for (it_bk = group->bl_head; it_bk!=NULL;it_bk = it_bk->next){
+				//process all actions in the bucket
+				// WARNING rdlock
+				of12_process_apply_actions(sw,table_id,pkt,it_bk->actions, it_bk->actions->num_of_output_actions > 1);
+				// WARNING rdunlock
+			}
+			break;
+		case OF12_GROUP_TYPE_SELECT:
+			//optional
+			//fprintf(stderr,"<%s:%d> Group type not implemented",__func__,__LINE__);
+			break;
+		case OF12_GROUP_TYPE_INDIRECT:
+			//executes the "one bucket defined"
+			// WARNING rdlock
+			of12_process_apply_actions(sw,table_id,pkt,group->bl_head->actions, group->bl_head->actions->num_of_output_actions > 1);
+			// WARNING rdunlock
+			break;
+		case OF12_GROUP_TYPE_FF:
+			//optional
+			//fprintf(stderr,"<%s:%d> Group type not implemented",__func__,__LINE__);
+			break;
+		default:
+			break;
+	}
+	
+}
 
 /* Dumping */
 static void of12_dump_packet_action(of12_packet_action_t action){
@@ -507,3 +546,12 @@ void of12_dump_action_group(of12_action_group_t* action_group){
 	}
 }
 
+bool of12_validate_action_group(of12_action_group_t *ag){
+	//TODO we need to validate the actions here!
+	return true;
+}
+
+bool of12_validate_write_actions(of12_write_actions_t *wa){
+	//TODO we need to validate the actions here!
+	return true;
+}
