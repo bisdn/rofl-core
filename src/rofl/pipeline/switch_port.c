@@ -82,7 +82,7 @@ void switch_port_stats_inc(switch_port_t* port,
 				
 	//TODO: evaluate to use lock-less strategies (single threaded I/O subsystems)
 	//or target platform specific atomic_incs
-	platform_mutex_lock(&port->stats.mutex);
+	platform_mutex_lock(port->stats.mutex);
 	
 	//Do all the stuff
 	port->stats.rx_packets += rx_packets;
@@ -100,7 +100,7 @@ void switch_port_stats_inc(switch_port_t* port,
 	port->stats.rx_crc_err += rx_crc_err;
 	port->stats.collisions += collisions;
 */
-	platform_mutex_unlock(&port->stats.mutex);
+	platform_mutex_unlock(port->stats.mutex);
 }
 
 /*

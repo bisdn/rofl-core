@@ -1,5 +1,7 @@
 #include <inttypes.h>
 #include <rofl/pipeline/common/datapacket.h>
+#include <rofl/pipeline/physical_switch.h>
+#include <rofl/pipeline/openflow/of_switch.h>
 
 void platform_copy_ttl_in(datapacket_t* pkt){
 }
@@ -79,4 +81,11 @@ void platform_set_ppp_proto(datapacket_t* pkt, uint16_t proto){
 }
 void platform_output_packet(datapacket_t* pkt, uint32_t port_num){
 }
+void platform_replicate_packet(datapacket_t* pkt){
+}
 
+//other mockups
+void platform_of12_packet_in(const of_switch_t* sw, uint8_t table_id, datapacket_t* pkt, of_packet_in_reason_t reason){
+}
+void of12_update_packet_matches(datapacket_t *const pkt){
+}
