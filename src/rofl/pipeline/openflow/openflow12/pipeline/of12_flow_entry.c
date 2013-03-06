@@ -4,12 +4,12 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include "of12_action.h"
+#include "of12_group_table.h"
 
 /*
 * Intializer and destructor
 */
-
-//of12_flow_entry_t* of12_init_flow_entry(const uint16_t priority, of12_match_group_t* match_group, of12_flow_entry_t* prev, of12_flow_entry_t* next){
 
 of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry_t* next, bool notify_removal){
 
@@ -25,21 +25,12 @@ of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry
 		assert(0);
 		return NULL; 
 	}
-
+	
+	//Init linked list
 	entry->prev = prev;
 	entry->next = next;
 	
-#if 0
-	if(match_group){
-
-		if(of12_add_match_to_entry(entry,matchs)!=ROFL_SUCCESS){
-			cutil_free_shared(entry);
-			return NULL;
-		}
-	}
-#endif
-	
-	of12_init_instruction_group(&entry->instructions);
+	of12_init_instruction_group(&entry->inst_grp);
 
 	//init stats
 	of12_stats_flow_init(entry);
@@ -73,7 +64,7 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	}
 
 	//Destroy instructions
-	of12_destroy_instruction_group(&entry->instructions);
+	of12_destroy_instruction_group(&entry->inst_grp);
 	
 	platform_rwlock_destroy(entry->rwlock);
 	
@@ -85,36 +76,53 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 
 //Adds one or more to the entry
 rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* match){
-	unsigned int i=0;
+
+	unsigned int new_matches;
 
 	if(!match)
 		return ROFL_FAILURE;
+
+	//Determine number of new matches.
+	for(new_matches=0;match;match=match->next,new_matches++);
+
 	if(entry->matchs){
 		of12_add_match(entry->matchs, match);		
-
-		//Set number of matches
-		for(;match;match=match->next,i++); //TODO: this could also be done in of12_add_match...
-
-		entry->num_of_matches+=i;
+		entry->num_of_matches+=new_matches;
 	}else{
 		entry->matchs = match;
 
 		//Make sure is correctly formed
 		match->prev = NULL;
 
-		for(;match;match=match->next,i++); //TODO: this could also be done in of12_add_match...
-
 		//Set the number of matches
-		entry->num_of_matches=i;
+		entry->num_of_matches=new_matches;
 	}
 	return ROFL_SUCCESS;
 }
 
+rofl_result_t of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_flow_entry_t* mod, bool reset_counts){
+
+
+	//Lock entry
+	platform_rwlock_wrlock(entry_to_update->rwlock);
+
+	//Copy instructions
+	of12_update_instructions(&entry_to_update->inst_grp, &mod->inst_grp);
+
+	//Reset counts
+	if(reset_counts)
+		of12_stats_flow_reset_counts(entry_to_update);
+
+	//Unlock
+	platform_rwlock_wrunlock(entry_to_update->rwlock);
+
+	return ROFL_SUCCESS;
+}
 /**
 * Checks whether two entries overlap overlapping. This is potentially an expensive call.
 * Try to avoid using it, if the matching algorithm can guess via other (more efficient) ways...
 */
-bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_cookie){
+bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_cookie, uint32_t out_port, uint32_t out_group){
 
 	of12_match_t* it_orig, *it_entry;
 	
@@ -141,6 +149,24 @@ bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_e
 		}
 	}
 
+
+	//Check out group actions
+	if( out_group != OF12_GROUP_ANY && ( 
+			!of12_write_actions_has(entry->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_GROUP, out_group) &&
+			!of12_apply_actions_has(entry->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_GROUP, out_group)
+			)
+	)
+		return false;
+
+
+	//Check out port actions
+	if( out_port != OF12_PORT_ANY && ( 
+			!of12_write_actions_has(entry->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_OUTPUT, out_port) &&
+			!of12_apply_actions_has(entry->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_OUTPUT, out_port)
+			)
+	)
+		return false;
+
 	return true;
 }
 
@@ -148,7 +174,7 @@ bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_e
 * Checks whether an entry is contained in the other. This is potentially an expensive call.
 * Try to avoid using it, if the matching algorithm can guess via other (more efficient) ways...
 */
-bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow_entry_t*const subentry, bool check_cookie){
+bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow_entry_t*const subentry, bool check_cookie, uint32_t out_port, uint32_t out_group){
 
 	of12_match_t* it_orig, *it_subentry;
 	
@@ -175,12 +201,30 @@ bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow
 		}
 	}
 
+	//Check out group actions
+	if( out_group != OF12_GROUP_ANY && ( 
+			!of12_write_actions_has(original->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_GROUP, out_group) &&
+			!of12_apply_actions_has(original->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_GROUP, out_group)
+			)
+	)
+		return false;
+
+
+	//Check out port actions
+	if( out_port != OF12_PORT_ANY && ( 
+			!of12_write_actions_has(original->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_OUTPUT, out_port) &&
+			!of12_apply_actions_has(original->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_OUTPUT, out_port)
+			)
+	)
+		return false;
+
+
 	return true;
 }
 /**
 * Checks if entry is identical to another one
 */
-bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry){
+bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group){
 
 	of12_match_t* it_original, *it_entry;
 	
@@ -204,6 +248,24 @@ bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_ent
 			return false;
 	}
 
+	//Check out group actions
+	if( out_group != OF12_GROUP_ANY && ( 
+			!of12_write_actions_has(original->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_GROUP, out_group) &&
+			!of12_apply_actions_has(original->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_GROUP, out_group)
+			)
+	)
+		return false;
+
+
+	//Check out port actions
+	if( out_port != OF12_PORT_ANY && ( 
+			!of12_write_actions_has(original->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_OUTPUT, out_port) &&
+			!of12_apply_actions_has(original->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_OUTPUT, out_port)
+			)
+	)
+		return false;
+
+
 	return true;
 }
 
@@ -213,6 +275,6 @@ void of12_dump_flow_entry(of12_flow_entry_t* entry){
 	fprintf(stderr," Matches:{");
 	of12_dump_matches(entry->matchs);
 	fprintf(stderr,"}\n\t\t");
-	of12_dump_instructions(entry->instructions);
+	of12_dump_instructions(entry->inst_grp);
 	fprintf(stderr,"\n");
 }

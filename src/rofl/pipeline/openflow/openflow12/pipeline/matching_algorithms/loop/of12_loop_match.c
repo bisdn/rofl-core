@@ -6,21 +6,30 @@
 #include "../../of12_flow_table.h"
 #include "../../of12_flow_entry.h"
 #include "../../of12_match.h"
+#include "../../of12_group_table.h"
 #include "../../../../../platform/lock.h"
 
 #define LOOP_NO_MATCH 0
 #define LOOP_MATCH 1
 #define LOOP_DESCRIPTION "The loop algorithm searches the list of entries by its priority order. On the worst case the performance is o(N) with the number of entries"
 
-/*
-*    TODO: lots of improvements could be done in terms of performance. 
-*          Create your own matching algorithm for that!
+/**
+* This matching algorithm is the most simple and straightforward
+* implementation according to the spec. Very useful for testing
+* and debugging; e.g. tracking problems in other components of
+* the datapath.
+*
+* Lots of improvements could be done in terms of performance. 
+* No optimizations are applied to this one. 
+*
+* If you want more performance: just create a new matching
+* algorithm!
 */
 
 /**
 * Looks for an overlapping entry from the entry pointer by start_entry. This is an EXPENSIVE call
 */
-static of12_flow_entry_t* of12_flow_table_loop_check_overlapping(of12_flow_entry_t *const start_entry, of12_flow_entry_t* entry, bool check_cookie){
+static of12_flow_entry_t* of12_flow_table_loop_check_overlapping(of12_flow_entry_t *const start_entry, of12_flow_entry_t* entry, bool check_cookie, uint32_t out_port, uint32_t out_group){
 
 	of12_flow_entry_t* it; //Just for code clarity
 
@@ -29,7 +38,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_overlapping(of12_flow_entry
 		return NULL;
 
 	for(it=start_entry; it->next != NULL; it=it->next){
-		if( of12_flow_entry_check_overlap(it, entry, check_cookie) )
+		if( of12_flow_entry_check_overlap(it, entry, check_cookie, out_port, out_group) )
 			return it;
 	}	
 	return NULL;
@@ -38,7 +47,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_overlapping(of12_flow_entry
 /**
 * Looks for a previously added entry from the entry pointer by start_entry. This is an EXPENSIVE call
 */
-static of12_flow_entry_t* of12_flow_table_loop_check_identical(of12_flow_entry_t *const start_entry, of12_flow_entry_t* entry){
+static of12_flow_entry_t* of12_flow_table_loop_check_identical(of12_flow_entry_t *const start_entry, of12_flow_entry_t* entry, uint32_t out_port, uint32_t out_group){
 
 	of12_flow_entry_t* it; //Just for code clarity
 
@@ -47,7 +56,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_identical(of12_flow_entry_t
 		return NULL;
 
 	for(it=start_entry; it->next != NULL; it=it->next){
-		if( of12_flow_entry_check_equal(it, entry) )
+		if( of12_flow_entry_check_equal(it, entry, out_port, out_group) )
 			return it;
 	}	
 	return NULL;
@@ -115,7 +124,7 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 		//Point entry table to us
 		entry->table = table;
 
-		//Set Timers
+		//Set Timers //XXX take this out of here!
 		of12_add_timer(table,entry);
 	
 		table->num_of_entries++;
@@ -123,12 +132,12 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 	}
 
 	//Check overlapping
-	if(check_overlap && of12_flow_table_loop_check_overlapping(table->entries, entry, false)) //Why spec is saying not to match cookie only in flow_mod add??
+	if(check_overlap && of12_flow_table_loop_check_overlapping(table->entries, entry, false, OF12_PORT_ANY, OF12_GROUP_ANY)) //Why spec is saying not to match cookie only in flow_mod add??
 		return ROFL_OF12_FM_OVERLAP;
 
 	//Look for existing entries (only if check_overlap is false)
 	if(!check_overlap)
-		existing = of12_flow_table_loop_check_identical(table->entries, entry);
+		existing = of12_flow_table_loop_check_identical(table->entries, entry, OF12_PORT_ANY, OF12_GROUP_ANY);
 
 	if(existing){
 		//There was already an entry. Update it..
@@ -177,7 +186,7 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 			//Point entry table to us
 			entry->table = table;
 	
-			//Set Timers
+			//Set Timers //XXX take this out of here!
 			of12_add_timer(table,entry);
 	
 			//Unlock mutexes
@@ -220,7 +229,7 @@ static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_tab
 
 		if( strict == STRICT ){
 			//Strict make sure they are equal
-			if( of12_flow_entry_check_equal(it, entry) ){
+			if( of12_flow_entry_check_equal(it, entry, out_port, out_group ) ){
 				
 				if(of12_remove_flow_entry_table_specific_imp(table, it) != ROFL_SUCCESS){
 					assert(0); //This should never happen
@@ -230,7 +239,7 @@ static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_tab
 				break;
 			}
 		}else{
-			if( of12_flow_entry_check_contained(it, entry, true) ){
+			if( of12_flow_entry_check_contained(it, entry, true, out_port, out_group) ){
 				
 				if(of12_remove_flow_entry_table_specific_imp(table, it) != ROFL_SUCCESS){
 					assert(0); //This should never happen
@@ -304,21 +313,19 @@ rofl_result_t of12_modify_flow_entry_loop(of12_flow_table_t *const table, of12_f
 
 		if( strict == STRICT ){
 			//Strict make sure they are equal
-			if( of12_flow_entry_check_equal(it, entry) ){
-				//XXX: call update			
-	
+			if( of12_flow_entry_check_equal(it, entry, OF12_PORT_ANY, OF12_GROUP_ANY) ){
+				of12_update_flow_entry(it, entry, reset_counts);
 				moded++;
 				break;
 			}
 		}else{
-			if( of12_flow_entry_check_contained(it, entry, true) ){
-				//XXX: call update			
+			if( of12_flow_entry_check_contained(it, entry, true, OF12_PORT_ANY, OF12_GROUP_ANY) ){
+				of12_update_flow_entry(it, entry, reset_counts);
 				moded++;
 			}
 		}
 	}
 
-	//Green light to other threads
 	platform_mutex_unlock(table->mutex);
 
 	if(moded == 0)	

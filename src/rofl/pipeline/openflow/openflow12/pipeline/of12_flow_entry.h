@@ -46,7 +46,7 @@ struct of12_flow_entry{
 	struct of12_flow_table* table;
 	
 	//Instructions
-	of12_instruction_group_t instructions;
+	of12_instruction_group_t inst_grp;
 
 	//Cookie
 	uint64_t cookie;
@@ -77,10 +77,13 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry);
 //Add match
 rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* match);
 
+//Update entry
+rofl_result_t of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_flow_entry_t* mod, bool reset_counts);
+
 //Flow comparison
-bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry);
-bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_cookie);
-bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow_entry_t*const subentry, bool check_cookie);
+bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group);
+bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_cookie, uint32_t out_port, uint32_t out_group);
+bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow_entry_t*const subentry, bool check_cookie, uint32_t out_port, uint32_t out_group);
 
 //Dump flow
 void of12_dump_flow_entry(of12_flow_entry_t* entry);

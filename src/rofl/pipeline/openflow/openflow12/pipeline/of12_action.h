@@ -4,6 +4,7 @@
 #include <inttypes.h> 
 #include <string.h> 
 #include <stdbool.h>
+#include "rofl.h"
 #include "../../../util/rofl_pipeline_utils.h"
 #include "../../../common/datapacket.h"
 
@@ -188,8 +189,17 @@ void of12_set_packet_action_on_write_actions(of12_write_actions_t* write_actions
 
 void of12_process_write_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts);
 
+//Update apply/write
+rofl_result_t of12_update_apply_actions(of12_action_group_t* group, of12_action_group_t* new_group);
+rofl_result_t of12_update_write_actions(of12_write_actions_t* group, of12_write_actions_t* new_group);
+
+
 //Push packet action
 void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_action_t* action);
+
+//Checking functions
+bool of12_write_actions_has(of12_write_actions_t* write_actions, of12_packet_action_type_t type, uint64_t value);
+bool of12_apply_actions_has(const of12_action_group_t* apply_actions_group, of12_packet_action_type_t type, uint64_t value);
 
 //Dump
 void of12_dump_write_actions(of12_write_actions_t* write_actions_group);

@@ -124,7 +124,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 			of12_timer_update_entry(match);
 
 			//Process instructions
-			table_to_go = of12_process_instructions((of12_switch_t*)sw, i, pkt, &match->instructions);
+			table_to_go = of12_process_instructions((of12_switch_t*)sw, i, pkt, &match->inst_grp);
 
 	
 			if(table_to_go > i && table_to_go < OF12_MAX_FLOWTABLES){
@@ -139,14 +139,14 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 			}
 
 			//Process WRITE actions
-			of12_process_write_actions((of12_switch_t*)sw, i, pkt, match->instructions.has_multiple_outputs);
+			of12_process_write_actions((of12_switch_t*)sw, i, pkt, match->inst_grp.has_multiple_outputs);
 
 			//Unlock the entry so that it can eventually be modified/deleted
 			platform_rwlock_rdunlock(match->rwlock);
 
 			//Drop packet Only if there has been copy(cloning of the packet) due to 
 			//multiple output actions
-			if(match->instructions.has_multiple_outputs)
+			if(match->inst_grp.has_multiple_outputs)
 				platform_packet_drop(pkt);
 							
 
