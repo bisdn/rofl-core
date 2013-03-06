@@ -201,6 +201,7 @@ inline rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table
 	return table->maf.remove_flow_entry_hook(table, entry, NULL, strict,  out_port, out_group, MUTEX_NOT_ACQUIRED);
 }
 
+//This API call should NOT be called from outside pipeline library
 rofl_result_t of12_remove_specific_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const specific_entry, of12_mutex_acquisition_required_t mutex_acquired){
 	return table->maf.remove_flow_entry_hook(table, NULL, specific_entry, STRICT, OF12_PORT_ANY, OF12_GROUP_ANY, mutex_acquired);
 }

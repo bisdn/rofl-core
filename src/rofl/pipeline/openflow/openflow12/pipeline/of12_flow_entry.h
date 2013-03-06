@@ -52,6 +52,9 @@ struct of12_flow_entry{
 	uint64_t cookie;
 	uint64_t cookie_mask;
 
+	//Notify when removed
+	bool notify_removal;
+
 	//Timers
 	struct of12_timers_info timer_info;
 	
@@ -68,7 +71,7 @@ typedef struct of12_flow_entry of12_flow_entry_t;
 ROFL_PIPELINE_BEGIN_DECLS
 
 //of12_flow_entry_t* of12_init_flow_entry(const uint16_t priority, of12_match_group_t* match_group, of12_flow_entry_t* prev, of12_flow_entry_t* next);
-of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry_t* next);
+of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry_t* next, bool notify_removal);
 rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry); 
 
 //Add match
@@ -76,7 +79,8 @@ rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* ma
 
 //Flow comparison
 bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry);
-bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry);
+bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_cookie);
+bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow_entry_t*const subentry, bool check_cookie);
 
 //Dump flow
 void of12_dump_flow_entry(of12_flow_entry_t* entry);

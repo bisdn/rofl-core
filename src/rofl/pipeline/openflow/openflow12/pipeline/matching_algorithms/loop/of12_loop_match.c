@@ -1,6 +1,7 @@
 #include "of12_loop_match.h"
 
 #include <stdlib.h>
+#include <assert.h>
 #include "../../../../../util/rofl_pipeline_utils.h"
 #include "../../of12_flow_table.h"
 #include "../../of12_flow_entry.h"
@@ -12,14 +13,14 @@
 #define LOOP_DESCRIPTION "The loop algorithm searches the list of entries by its priority order. On the worst case the performance is o(N) with the number of entries"
 
 /*
-*    TODO:
-*    - Use hashs for entries and a hashmap ? 
+*    TODO: lots of improvements could be done in terms of performance. 
+*          Create your own matching algorithm for that!
 */
 
 /**
-* Looks for an overlapping entry from the entry pointer by start_entry
+* Looks for an overlapping entry from the entry pointer by start_entry. This is an EXPENSIVE call
 */
-static of12_flow_entry_t* of12_flow_table_loop_check_overlapping(of12_flow_entry_t *const start_entry, of12_flow_entry_t* entry){
+static of12_flow_entry_t* of12_flow_table_loop_check_overlapping(of12_flow_entry_t *const start_entry, of12_flow_entry_t* entry, bool check_cookie){
 
 	of12_flow_entry_t* it; //Just for code clarity
 
@@ -28,14 +29,14 @@ static of12_flow_entry_t* of12_flow_table_loop_check_overlapping(of12_flow_entry
 		return NULL;
 
 	for(it=start_entry; it->next != NULL; it=it->next){
-		if( of12_flow_entry_check_overlap(it, entry) )
+		if( of12_flow_entry_check_overlap(it, entry, check_cookie) )
 			return it;
 	}	
 	return NULL;
 }
 
 /**
-* Looks for a previously added entry from the entry pointer by start_entry
+* Looks for a previously added entry from the entry pointer by start_entry. This is an EXPENSIVE call
 */
 static of12_flow_entry_t* of12_flow_table_loop_check_identical(of12_flow_entry_t *const start_entry, of12_flow_entry_t* entry){
 
@@ -113,13 +114,16 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 		table->entries = entry;
 		//Point entry table to us
 		entry->table = table;
+
+		//Set Timers
+		of12_add_timer(table,entry);
 	
 		table->num_of_entries++;
 		return ROFL_OF12_FM_SUCCESS;
 	}
 
 	//Check overlapping
-	if(check_overlap && of12_flow_table_loop_check_overlapping(table->entries, entry))
+	if(check_overlap && of12_flow_table_loop_check_overlapping(table->entries, entry, false)) //Why spec is saying not to match cookie only in flow_mod add??
 		return ROFL_OF12_FM_OVERLAP;
 
 	//Look for existing entries (only if check_overlap is false)
@@ -173,6 +177,9 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 			//Point entry table to us
 			entry->table = table;
 	
+			//Set Timers
+			of12_add_timer(table,entry);
+	
 			//Unlock mutexes
 			platform_rwlock_wrunlock(table->rwlock);
 			return ROFL_OF12_FM_SUCCESS;
@@ -201,56 +208,43 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 */
 
 static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
-	int already_matched;
+
+	int deleted=0; 
 	of12_flow_entry_t *it;
-	of12_match_t *match_it, *table_entry_match_it;
 
 	if(table->num_of_entries == 0) 
 		return ROFL_FAILURE; 
 
 	//Loop over all the table entries	
 	for(it=table->entries; it; it=it->next){
-		if(it->num_of_matches<entry->num_of_matches) //Fast skipping, if table iterator is more restrictive than entry
-			continue;
-		if(strict && (entry->priority != it->priority || entry->num_of_matches != it->num_of_matches)) //Fast skipping for strict
-			continue;
-	
-		for(match_it = entry->matchs, already_matched=0; match_it; match_it = match_it->next){
-			for(table_entry_match_it = it->matchs; table_entry_match_it; table_entry_match_it = table_entry_match_it->next){
-				//Fast skip
-				if(match_it->type != table_entry_match_it->type)
-					continue;
 
-				if(strict){
-					//Check if the matches are exactly the same ones
-					if(of12_equal_matches(match_it, table_entry_match_it)){
-						already_matched++;
-							
-						//Check if the number of matches are the same, and entry has no more matches	
-						if(already_matched == entry->num_of_matches) //No need to check #hits as entry->num_of_matches == it->num_of_matches
-							//WE DONT'T DESTROY the rule, only deatach it from the table. Destroying is up to the matching algorithm 
-							return of12_remove_flow_entry_table_specific_imp(table, it);	
-						else
-							break; //Next entry match, skip rest	
-					}
-				}else{
-					if(!of12_is_submatch(match_it,table_entry_match_it)){
-						//If not a subset. Signal to skip
-						already_matched = -1;
-					}
-					break; //Skip rest of the matches
+		if( strict == STRICT ){
+			//Strict make sure they are equal
+			if( of12_flow_entry_check_equal(it, entry) ){
+				
+				if(of12_remove_flow_entry_table_specific_imp(table, it) != ROFL_SUCCESS){
+					assert(0); //This should never happen
+					return ROFL_FAILURE;
 				}
-			}
-			if(already_matched < 0) //If not strict and there was a match out-of-scope, skip rest of matches
+				deleted++;
 				break;
-		}
-		if(!strict && already_matched ==0){ //That means entry is within entry vect. space 
-			//WE DONT'T DESTROY the rule, only deatach it from the table. Destroying is up to the matching algorithm 
-			return of12_remove_flow_entry_table_specific_imp(table, it);
+			}
+		}else{
+			if( of12_flow_entry_check_contained(it, entry, true) ){
+				
+				if(of12_remove_flow_entry_table_specific_imp(table, it) != ROFL_SUCCESS){
+					assert(0); //This should never happen
+					return ROFL_FAILURE;
+				}
+				deleted++;
+			}
 		}
 	}
+
+	if(deleted == 0)	
+		return ROFL_FAILURE; 
 	
-	return ROFL_FAILURE; 
+	return ROFL_SUCCESS;
 }
 
 
@@ -278,7 +272,7 @@ static inline rofl_result_t of12_remove_flow_entry_table_imp(of12_flow_table_t *
 		return of12_remove_flow_entry_table_specific_imp(table, specific_entry);
 }
 
-/* Flow management routines. Wraps call with mutex.  */
+/* Conveniently wraps call with mutex.  */
  rofl_of12_fm_result_t of12_add_flow_entry_loop(of12_flow_table_t *const table, of12_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
 
 	rofl_of12_fm_result_t return_value;
@@ -288,14 +282,6 @@ static inline rofl_result_t of12_remove_flow_entry_table_imp(of12_flow_table_t *
 	
 	return_value = of12_add_flow_entry_table_imp(table, entry, check_overlap, reset_counts);
 
-	//FIXME TODO
-	//if(mutex_acquired!=MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION)
-	//{
-		//Add/update counters
-	//Add/update timers NOTE check return value;
-	of12_add_timer(table,entry);
-	//}
-
 	//Green light to other threads
 	platform_mutex_unlock(table->mutex);
 
@@ -304,9 +290,41 @@ static inline rofl_result_t of12_remove_flow_entry_table_imp(of12_flow_table_t *
 
 rofl_result_t of12_modify_flow_entry_loop(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, bool reset_counts){
 
-	//TODO: implement
+	int moded=0; 
+	of12_flow_entry_t *it;
 
-	return ROFL_FAILURE;
+	if(table->num_of_entries == 0) 
+		return ROFL_FAILURE; 
+
+	//Allow single add/remove operation over the table
+	platform_mutex_lock(table->mutex);
+	
+	//Loop over all the table entries	
+	for(it=table->entries; it; it=it->next){
+
+		if( strict == STRICT ){
+			//Strict make sure they are equal
+			if( of12_flow_entry_check_equal(it, entry) ){
+				//XXX: call update			
+	
+				moded++;
+				break;
+			}
+		}else{
+			if( of12_flow_entry_check_contained(it, entry, true) ){
+				//XXX: call update			
+				moded++;
+			}
+		}
+	}
+
+	//Green light to other threads
+	platform_mutex_unlock(table->mutex);
+
+	if(moded == 0)	
+		return ROFL_FAILURE; 
+	
+	return ROFL_SUCCESS;
 }
 
 rofl_result_t of12_remove_flow_entry_loop(of12_flow_table_t *const table , of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group, of12_mutex_acquisition_required_t mutex_acquired){
