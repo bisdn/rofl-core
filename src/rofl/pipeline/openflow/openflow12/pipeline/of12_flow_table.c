@@ -188,7 +188,7 @@ rofl_result_t of12_destroy_table(of12_flow_table_t* table){
 * Specific matchings may point them to their own routines, but they MUST always call
 * of12_[whatever]_flow_entry_table_imp in order to update the main tables
 */
-inline rofl_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
+inline rofl_of12_fm_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
 	return table->maf.add_flow_entry_hook(table, entry, check_overlap, reset_counts);
 }
 

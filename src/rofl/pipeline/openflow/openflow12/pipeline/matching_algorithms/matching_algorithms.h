@@ -29,7 +29,7 @@ struct matching_algorithm_functions
 	(*destroy_hook)(struct of12_flow_table * const); //Mutual exclusion will already be taken by the of12_flow_table destructor
 
 	// flow management
-	rofl_result_t
+	rofl_of12_fm_result_t
 	(*add_flow_entry_hook)(struct of12_flow_table * const,
 			of12_flow_entry_t * const,
 			bool,

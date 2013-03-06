@@ -74,6 +74,9 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry);
 //Add match
 rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* match);
 
+//Flow comparison
+bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry);
+bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry);
 
 //Dump flow
 void of12_dump_flow_entry(of12_flow_entry_t* entry);

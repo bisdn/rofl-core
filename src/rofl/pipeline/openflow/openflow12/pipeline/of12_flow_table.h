@@ -115,7 +115,7 @@ rofl_result_t of12_destroy_table(of12_flow_table_t* table);
 /*
 * Flow-mod installation and removal
 */
-rofl_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, bool check_overlap, bool reset_counts);
+rofl_of12_fm_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, bool check_overlap, bool reset_counts);
 
 rofl_result_t of12_modify_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, bool reset_counts);
 

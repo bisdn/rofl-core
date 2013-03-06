@@ -338,21 +338,22 @@ static rofl_result_t of12_destroy_single_timer_entry_clean(of12_entry_timer_t* e
  * (this function will only be called from outside of the timers structure
  * and assumes that the mutex is already locked.)
  */
-rofl_result_t of12_destroy_timer_entries(of12_flow_entry_t * entry, of12_flow_table_t * table)
-{
+rofl_result_t of12_destroy_timer_entries(of12_flow_entry_t * entry){
 	// We need to erase both hard and idle timer_entries
 	// NOTE do I need to put the timeout value to zero
 	// or I just supose that the whole entry is going to be deleted?
-	if(entry->timer_info.hard_timeout)
-	{
-		if(of12_destroy_single_timer_entry_clean(entry->timer_info.hard_timer_entry, table)!=ROFL_SUCCESS)
+
+	if(!entry->table)
+		return ROFL_FAILURE;
+
+	if(entry->timer_info.hard_timeout){
+		if(of12_destroy_single_timer_entry_clean(entry->timer_info.hard_timer_entry, entry->table)!=ROFL_SUCCESS)
 			return ROFL_FAILURE;
 		entry->timer_info.hard_timer_entry = NULL;
 	}
 		
-	if(entry->timer_info.idle_timeout)
-	{
-		if(of12_destroy_single_timer_entry_clean(entry->timer_info.idle_timer_entry, table)!=ROFL_SUCCESS)
+	if(entry->timer_info.idle_timeout){
+		if(of12_destroy_single_timer_entry_clean(entry->timer_info.idle_timer_entry, entry->table)!=ROFL_SUCCESS)
 			return ROFL_FAILURE;
 		entry->timer_info.idle_timer_entry = NULL;
 	}

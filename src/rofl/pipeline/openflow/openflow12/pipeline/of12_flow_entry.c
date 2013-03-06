@@ -53,6 +53,9 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	//wait for any thread which is still using the entry (processing a packet)
 	platform_rwlock_wrlock(entry->rwlock);
 	
+	//destroying timers, if any
+	of12_destroy_timer_entries(entry);
+
 	//Destroy matches recursively
 	while(match){
 		of12_match_t* next = match->next;
@@ -64,8 +67,6 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	//Destroy instructions
 	of12_destroy_instruction_group(&entry->instructions);
 	
-	//TODO statistics counters
-
 	platform_rwlock_destroy(entry->rwlock);
 	
 	//Destroy entry itself
@@ -99,6 +100,58 @@ rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* ma
 		entry->num_of_matches=i;
 	}
 	return ROFL_SUCCESS;
+}
+
+//Check overlapping
+bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry){
+
+//	of12_match_t* it_original, *it_entry;
+	
+	//Check cookie first
+	if(entry->cookie){
+		if( (entry->cookie&entry->cookie_mask) == (original->cookie&entry->cookie_mask) )
+			return false;
+	}
+
+	//Check priority
+	if(entry->priority != original->priority)
+		return false;
+
+	//Check if matchs are contained
+	//WARNING function assumes exact same order!
+	/*for(it_new=;;){
+		
+	}*/
+
+	return true;
+}
+
+//Check if entry is identical
+bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry){
+
+	of12_match_t* it_original, *it_entry;
+	
+	//Check cookie first
+	if(entry->cookie){
+		if( (entry->cookie&entry->cookie_mask) == (original->cookie&entry->cookie_mask) )
+			return false;
+	}
+
+	//Check priority
+	if(entry->priority != original->priority)
+		return false;
+
+	//Fast Check #matchs
+	if(original->num_of_matches != entry->num_of_matches) 
+		return false;
+
+	//In-depth check of apply and write actions
+	for(it_original = original->matchs, it_entry = entry->matchs; it_entry != NULL; it_original = it_original->next, it_entry = it_entry->next){	
+		if(!of12_equal_matches(it_original,it_entry))
+			return false;
+	}
+	
+	return true;
 }
 
 void of12_dump_flow_entry(of12_flow_entry_t* entry){

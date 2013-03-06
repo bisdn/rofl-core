@@ -2,6 +2,16 @@
 #define __OF12_UTILS_H__
 
 /*
+* Extended flowmod return codes
+*/
+typedef enum rofl_of12_fm_result{
+	ROFL_OF12_FM_SUCCESS	= EXIT_SUCCESS,
+	ROFL_OF12_FM_FAILURE	= EXIT_FAILURE,
+	ROFL_OF12_FM_OVERLAP
+	
+}rofl_of12_fm_result_t;
+
+/*
 * Mutex state for flow_entry_removal 
 */
 typedef enum of12_mutex_acquisition_required{
