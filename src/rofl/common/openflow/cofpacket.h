@@ -1034,17 +1034,18 @@ public:
 				uint32_t out_port = 0,
 				uint32_t out_group = 0,
 				uint16_t flags = 0) :
-			cofpacket(	OFP_FLOW_MOD_STATIC_HDR_LEN,
-						OFP_FLOW_MOD_STATIC_HDR_LEN)
+			cofpacket(	OFP12_FLOW_MOD_STATIC_HDR_LEN,
+						OFP12_FLOW_MOD_STATIC_HDR_LEN)
 		{
 			ofh_header->version 	= version;
-			ofh_header->length		= htobe16(OFP_FLOW_MOD_STATIC_HDR_LEN);
 			ofh_header->type 		= OFPT_FLOW_MOD;
 			ofh_header->xid			= htobe32(xid);
 
 			switch (version) {
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
+				ofh_header->length				= htobe16(OFP12_FLOW_MOD_STATIC_HDR_LEN);
+
 				of12h_flow_mod->cookie			= htobe64(cookie);
 				of12h_flow_mod->cookie_mask		= htobe64(cookie_mask);
 				of12h_flow_mod->table_id		= table_id;
@@ -1072,7 +1073,7 @@ public:
 		virtual size_t
 		length()
 		{
-			return (OFP_FLOW_MOD_STATIC_HDR_LEN + match.length() + instructions.length());
+			return (OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length() + instructions.length());
 		};
 		/**
 		 *
@@ -1087,13 +1088,13 @@ public:
 				return;
 			}
 
-			memcpy(buf, memarea.somem(), OFP_FLOW_MOD_STATIC_HDR_LEN);
+			memcpy(buf, memarea.somem(), OFP12_FLOW_MOD_STATIC_HDR_LEN);
 
 			match.pack((struct ofp_match*)
-					(buf + OFP_FLOW_MOD_STATIC_HDR_LEN), match.length());
+					(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN), match.length());
 
 			instructions.pack((struct ofp_instruction*)
-					(buf + OFP_FLOW_MOD_STATIC_HDR_LEN + match.length()), instructions.length());
+					(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length()), instructions.length());
 		};
 };
 
@@ -1187,7 +1188,7 @@ public:
 				memcpy(buf, memarea.somem(), OFP_FLOW_REMOVED_STATIC_HDR_LEN);
 
 				match.pack((struct ofp_match*)
-						(buf + OFP_FLOW_MOD_STATIC_HDR_LEN), match.length());
+						(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN), match.length());
 			} break;
 			default:
 				throw eNotImplemented();

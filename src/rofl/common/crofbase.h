@@ -995,6 +995,7 @@ public:
 		uint16_t total_len,
 		uint8_t reason,
 		uint8_t table_id,
+		uint64_t cookie,
 		cofmatch &match,
 		uint8_t *data,
 		size_t datalen) throw(eRofBaseNoCtrl);

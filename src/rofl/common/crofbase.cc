@@ -544,7 +544,7 @@ crofbase::send_hello_message(
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_hello_message()", this);
 
 	cofpacket_hello *pack = new cofpacket_hello(
-										cofctl->get_version(),
+										ctl->get_version(),
 										ta_new_async_xid(),
 										(uint8_t*)body, bodylen);
 
@@ -564,6 +564,7 @@ crofbase::send_hello_message(
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_hello_message()", this);
 
 	cofpacket_hello *pack = new cofpacket_hello(
+										dpt->get_version(),
 										ta_new_async_xid(),
 										(uint8_t*)body, bodylen);
 
@@ -583,6 +584,7 @@ crofbase::send_echo_request(
 {
 	cofpacket_echo_request *pack =
 			new cofpacket_echo_request(
+					dpt->get_version(),
 					ta_add_request(OFPT_ECHO_REQUEST), body, bodylen);
 
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_request() %s",
@@ -601,6 +603,7 @@ crofbase::send_echo_reply(
 {
 	cofpacket_echo_reply *pack =
 			new cofpacket_echo_reply(
+					dpt->get_version(),
 					xid, body, bodylen);
 
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_reply() %s",
@@ -618,6 +621,7 @@ crofbase::send_echo_request(
 {
 	cofpacket_echo_request *pack =
 			new cofpacket_echo_request(
+					ctl->get_version(),
 					ta_add_request(OFPT_ECHO_REQUEST), body, bodylen);
 
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_request() %s",
@@ -636,6 +640,7 @@ crofbase::send_echo_reply(
 {
 	cofpacket_echo_reply *pack =
 			new cofpacket_echo_reply(
+					ctl->get_version(),
 					xid, body, bodylen);
 
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_reply() %s",
@@ -1011,6 +1016,7 @@ crofbase::send_packet_out_message(
 {
 	cofpacket_packet_out *pack =
 			new cofpacket_packet_out(
+					dpt->get_version(),
 					ta_new_async_xid(),
 					buffer_id,
 					in_port,
@@ -1037,6 +1043,7 @@ crofbase::send_packet_in_message(
 	uint16_t total_len,
 	uint8_t reason,
 	uint8_t table_id,
+	uint64_t cookie,
 	cofmatch& match,
 	uint8_t* data,
 	size_t datalen) throw(eRofBaseNoCtrl)
@@ -1067,19 +1074,21 @@ crofbase::send_packet_in_message(
 			for (std::set<cfspentry*>::iterator
 					it = nse_list.begin(); it != nse_list.end(); ++it)
 			{
-				cofctl *ofctrl = dynamic_cast<cofctl*>( (*nse_list.begin())->fspowner );
-				if (OFPCR_ROLE_SLAVE == ofctrl->role)
+				cofctl *ctl = dynamic_cast<cofctl*>( (*nse_list.begin())->fspowner );
+				if (OFPCR_ROLE_SLAVE == ctl->role)
 				{
 					WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
-							"ofctrl:%p is SLAVE, ignoring", this, ofctrl);
+							"ofctrl:%p is SLAVE, ignoring", this, ctl);
 					continue;
 				}
 				cofpacket_packet_in *pack = new cofpacket_packet_in(
+													ctl->get_version(),
 													ta_new_async_xid(),
 													buffer_id,
 													total_len,
 													reason,
 													table_id,
+													cookie,
 													data,
 													datalen);
 
@@ -1089,10 +1098,10 @@ crofbase::send_packet_in_message(
 
 				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 								"sending PACKET-IN for buffer_id:0x%x to controller %s, pack: %s",
-								this, buffer_id, ofctrl->c_str(), pack->c_str());
+								this, buffer_id, ctl->c_str(), pack->c_str());
 
 				// straight call to layer-(n+1) entity's fe_up_packet_in() method
-				ctl_find(ofctrl)->send_message(pack);
+				ctl_find(ctl)->send_message(pack);
 			}
 
 			return;
@@ -1110,11 +1119,13 @@ crofbase::send_packet_in_message(
 							this, buffer_id, ctl_find(ofctrl)->c_str());
 
 			cofpacket_packet_in *pack = new cofpacket_packet_in(
+												ofctrl->get_version(),
 												ta_new_async_xid(),
 												buffer_id,
 												total_len,
 												reason,
 												table_id,
+												cookie,
 												data,
 												datalen);
 
@@ -1251,6 +1262,7 @@ crofbase::send_error_message(
 	{
 		cofpacket_error *pack =
 				new cofpacket_error(
+						ctl->get_version(),
 						xid,
 						type,
 						code,
@@ -1266,6 +1278,7 @@ crofbase::send_error_message(
 		{
 			cofpacket_error *pack =
 					new cofpacket_error(
+							(*it)->get_version(),
 							xid,
 							type,
 							code,
@@ -1295,6 +1308,7 @@ crofbase::send_error_message(
 	{
 		cofpacket_error *pack =
 				new cofpacket_error(
+						dpt->get_version(),
 						xid,
 						type,
 						code,
@@ -1310,6 +1324,7 @@ crofbase::send_error_message(
 		{
 			cofpacket_error *pack =
 					new cofpacket_error(
+							(*it)->get_version(),
 							xid,
 							type,
 							code,
@@ -1448,6 +1463,7 @@ crofbase::send_port_mod_message(
 {
 	cofpacket_port_mod *pack =
 			new cofpacket_port_mod(
+						dpt->get_version(),
 						ta_new_async_xid(),
 						port_no,
 						hwaddr,
@@ -1474,6 +1490,7 @@ crofbase::send_table_mod_message(
 {
 	cofpacket_table_mod *pack =
 			new cofpacket_table_mod(
+						dpt->get_version(),
 						ta_new_async_xid(),
 						table_id,
 						config);
@@ -1593,6 +1610,7 @@ crofbase::send_port_status_message(
 
 		cofpacket_port_status *pack =
 				new cofpacket_port_status(
+							(*it)->get_version(),
 							ta_new_async_xid(),
 							reason,
 							phy_port,
@@ -1663,6 +1681,7 @@ crofbase::send_experimenter_message(
 {
 	cofpacket_experimenter *pack =
 			new cofpacket_experimenter(
+						dpt->get_version(),
 						ta_new_async_xid(),
 						experimenter_id,
 						exp_type,
@@ -1700,6 +1719,7 @@ crofbase::send_experimenter_message(
 {
 	cofpacket_experimenter *pack =
 			new cofpacket_experimenter(
+						ctl->get_version(),
 						ta_new_async_xid(),
 						experimenter_id,
 						exp_type,

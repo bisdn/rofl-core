@@ -972,7 +972,7 @@ cofdpt::flow_rmvd_rcvd(
 void
 cofdpt::flow_mod_reset()
 {
-	cflowentry fe;
+	cflowentry fe(version);
 	fe.set_command(OFPFC_DELETE);
 	fe.set_table_id(OFPTT_ALL /*all tables*/);
 
