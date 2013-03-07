@@ -44,17 +44,28 @@ class eFlowEntryOutOfMem : public eFlowEntryBase {}; // out of memory
 class cflowentry :
 	public csyslog
 {
-public: // static methods
+private: // data structures
 
-	static void test();
+	uint8_t 		of_version;		// OpenFlow version in use
 
 public: // data structures
 
-	cofmatch match; 				// cofmatch class containing ofp_match structure
+	cofmatch 		match; 			// cofmatch class containing ofp_match structure
 
-	cofinlist instructions; 		// list of instructions
+	cofinlist 		instructions; 	// list of instructions
 
-	struct ofp_flow_mod *flow_mod; 	// ofp_flow_mod structure
+	union {
+		struct ofp12_flow_mod 		*ofmu12_flow_mod;
+		struct ofp13_flow_mod		*ofmu13_flow_mod;
+	} ofm_ofmu;
+
+#define of12m_flow_mod		ofm_ofmu.ofmu12_flow_mod
+#define of13m_flow_mod		ofm_ofmu.ofmu13_flow_mod
+
+
+public: // static methods
+
+	static void test();
 
 
 
@@ -62,7 +73,7 @@ public: // methods
 
 	/** constructor
 	 */
-	cflowentry(uint16_t type = OFPMT_OXM) throw (eFlowEntryOutOfMem);
+	cflowentry(uint8_t of_version, uint16_t type = OFPMT_OXM) throw (eFlowEntryOutOfMem);
 
 	/** destructor
 	 */
@@ -100,58 +111,6 @@ public: // methods
 	size_t
 	pack();
 
-#if 0
-public: // setter methods for ofp_match structure
-
-	/**
-	 */
-	void match_set_type(const uint16_t& type = OFPMT_STANDARD);
-	/**
-	 */
-	void match_set_in_port(const uint16_t& in_port);
-	/**
-	 */
-	void match_set_dl_src(const cmemory& dl_src, const cmemory& dl_src_mask = cmemory(0));
-	/**
-	 */
-	void match_set_dl_dst(const cmemory& dl_dst, const cmemory& dl_dst_mask = cmemory(0));
-	/**
-	 */
-	void match_set_dl_type(const uint16_t& dl_type);
-	/**
-	 */
-	void match_set_dl_vlan(const uint16_t& dl_vlan);
-	/**
-	 */
-	void match_set_dl_vlan_pcp(const uint8_t& dl_vlan_pcp);
-	/**
-	 */
-	void match_set_nw_tos(const uint8_t& nw_tos);
-	/**
-	 */
-	void match_set_nw_proto(const uint8_t& nw_proto);
-	/**
-	 */
-	void match_set_nw_src(const caddress& nw_src, uint8_t nw_mask = 0);
-	/**
-	 */
-	void match_set_nw_dst(const caddress& nw_dst, uint8_t nw_mask = 0);
-	/**
-	 */
-	void match_set_tp_src(const uint16_t& tp_src);
-	/**
-	 */
-	void match_set_tp_dst(const uint16_t& tp_dst);
-	/**
-	 */
-	void match_set_pppoe_code(uint8_t code);
-	/**
-	 */
-	void match_set_pppoe_type(uint8_t type);
-	/**
-	 */
-	void match_set_pppoe_sessid(uint16_t sessid);
-#endif
 
 public: // setter methods for ofp_flow_mod structure
 
