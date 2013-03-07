@@ -27,7 +27,7 @@ extern switch_port_t* flood_meta_port;
 static void of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t* group);
 
 /* Actions init and destroyed */
-of12_packet_action_t* of12_init_packet_action(const struct of12_switch* sw, of12_packet_action_type_t type, uint64_t field, of12_packet_action_t* prev, of12_packet_action_t* next){
+of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */of12_packet_action_type_t type, uint64_t field, of12_packet_action_t* prev, of12_packet_action_t* next){
 
 	of12_packet_action_t* action;
 
@@ -101,7 +101,7 @@ of12_packet_action_t* of12_init_packet_action(const struct of12_switch* sw, of12
 			break;
 		case OF12_AT_GROUP:
 			action->field =  field&OF12_AT_4_BYTE_MASK; //id of the group
-			action->group = of12_group_search(sw->pipeline->groups, action->field); // pointer to the group
+			//action->group = of12_group_search(sw->pipeline->groups, action->field); // pointer to the group //FIXME evaluate if this can be done here or not
 			break;
 		//case OF12_AT_SET_QUEUE: TODO
 		default:
@@ -118,7 +118,6 @@ of12_packet_action_t* of12_init_packet_action(const struct of12_switch* sw, of12
 
 void of12_destroy_packet_action(of12_packet_action_t* action){
 
-	//FIXME destroy port group
 	cutil_free_shared(action);
 }
 
@@ -138,7 +137,7 @@ of12_action_group_t* of12_init_action_group(of12_packet_action_t* actions){
 	
 		for(;actions;actions=actions->next, number_of_actions++){
 
-			if(actions->type == OF12_AT_OUTPUT)
+			if(actions->type == OF12_AT_OUTPUT || actions->type == OF12_AT_GROUP)
 				number_of_output_actions++;
 
 			if(!actions->next){
@@ -187,7 +186,7 @@ void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_ac
 	
 	group->num_of_actions++;
 
-	if(action->type == OF12_AT_OUTPUT)
+	if(action->type == OF12_AT_OUTPUT || action->type == OF12_AT_GROUP)
 		group->num_of_output_actions++;
 	
 }
@@ -396,6 +395,66 @@ void of12_process_write_actions(const struct of12_switch* sw, const unsigned int
 		}
 	}
 }
+
+//Update apply/write
+rofl_result_t of12_update_apply_actions(of12_action_group_t* group, of12_action_group_t* new_group){
+
+	of12_packet_action_t* new_list_head, *new_list_tail, *old,*it; 
+
+	old = group->head;
+	new_list_head = NULL;
+	new_list_tail = NULL;
+	
+	//Clone all actions aside 
+	for(it=group->head;it;it=it->next){
+		new_list_tail = of12_init_packet_action(it->type,it->field, new_list_tail,NULL);
+
+		//Make sure is correctly linked back
+		if(new_list_tail->prev)
+			(new_list_tail->prev)->next = new_list_tail;
+
+		if(!new_list_tail)
+			goto update_apply_actions_error;
+	
+		if(!new_list_head)
+			new_list_head = new_list_tail;
+	}
+
+	//Reassign
+	group->head = new_list_head;
+	group->tail = new_list_tail;
+	group->num_of_actions = new_group->num_of_actions;
+	group->num_of_output_actions = new_group->num_of_output_actions;
+	
+	//Delete old action chain 
+	for(it=old; it; it=it->next){
+		of12_destroy_packet_action(it);
+	}
+
+	return ROFL_SUCCESS;
+
+update_apply_actions_error:
+
+	//Destroy copies 
+	for(it=new_list_head; it; it = it->next)
+		of12_destroy_packet_action(it);
+
+	return ROFL_FAILURE;	
+	
+}
+
+rofl_result_t of12_update_write_actions(of12_write_actions_t* group, of12_write_actions_t* new_group){
+	unsigned int i;
+
+	for(i=0;i<OF12_AT_NUMBER;i++){
+		group->write_actions[i] = new_group->write_actions[i];
+	}
+
+	group->num_of_actions = new_group->num_of_actions;
+
+	return ROFL_SUCCESS;
+}
+
 static
 void of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t *group){
 	of12_group_bucket_t *it_bk;
@@ -430,6 +489,31 @@ void of12_process_group_actions(const struct of12_switch* sw, const unsigned int
 	}
 	
 }
+//Checking functions
+bool of12_write_actions_has(of12_write_actions_t* write_actions, of12_packet_action_type_t type, uint64_t value){
+	of12_packet_action_t action = write_actions->write_actions[type];
+
+	if(!write_actions)
+		return false;	
+
+	return (action.type != OF12_AT_NO_ACTION) && (value != 0x0 && action.field == value ); 
+}
+
+bool of12_apply_actions_has(const of12_action_group_t* apply_actions_group, of12_packet_action_type_t type, uint64_t value){
+
+	of12_packet_action_t *it;
+
+	if(!apply_actions_group)
+		return false;	
+
+
+	for(it=apply_actions_group->head; it; it=it->next){
+		if( (it->type == type) && (value != 0x0 && it->field == value) )
+			return true;
+	}
+	return false;	
+}
+
 
 /* Dumping */
 static void of12_dump_packet_action(of12_packet_action_t action){

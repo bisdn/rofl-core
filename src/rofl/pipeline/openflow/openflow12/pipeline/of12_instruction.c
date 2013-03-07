@@ -77,6 +77,34 @@ void of12_add_instruction_to_group(of12_instruction_group_t* group, of12_instruc
 
 }
 
+
+//Update instructions
+rofl_result_t of12_update_instructions(of12_instruction_group_t* group, of12_instruction_group_t* new_group){
+	
+
+	//Apply Actions
+	if(of12_update_apply_actions(group->instructions[OF12_IT_APPLY_ACTIONS].apply_actions, new_group->instructions[OF12_IT_APPLY_ACTIONS].apply_actions)!=ROFL_SUCCESS)
+		return ROFL_FAILURE;	
+
+	//Write actions	
+	if(of12_update_write_actions(group->instructions[OF12_IT_WRITE_ACTIONS].write_actions, new_group->instructions[OF12_IT_WRITE_ACTIONS].write_actions) != ROFL_SUCCESS)
+		return ROFL_FAILURE;	
+
+	//Static ones
+	//TODO: METADATA && EXPERIMENTER
+	
+	//Static stuff
+	group->instructions[OF12_IT_CLEAR_ACTIONS] = new_group->instructions[OF12_IT_CLEAR_ACTIONS];	
+	group->instructions[OF12_IT_GOTO_TABLE] = new_group->instructions[OF12_IT_GOTO_TABLE];
+			
+
+	//Static stuff
+	group->num_of_instructions = new_group->num_of_instructions;
+	group->has_multiple_outputs = new_group->has_multiple_outputs;
+	
+	return ROFL_SUCCESS;
+}
+
 /* Process instructions */
 unsigned int of12_process_instructions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of12_instruction_group_t* instructions){
 
