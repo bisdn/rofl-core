@@ -64,7 +64,9 @@ of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum match
 
 	//Set MISS-SEND length to default 
 	pipeline->miss_send_len = OF12_DEFAULT_MISS_SEND_LEN;
-	
+
+	//init groups
+	pipeline->groups = of12_init_group_table();
 
 	return pipeline;
 }
@@ -72,6 +74,9 @@ of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum match
 rofl_result_t of12_destroy_pipeline(of12_pipeline_t* pipeline){
 
 	int i;
+	
+	//destrouy groups
+	of12_destroy_group_table(pipeline->groups);
 	
 	for(i=0;i<pipeline->num_of_tables;i++){
 		//We don't care about errors here, maybe add trace TODO
