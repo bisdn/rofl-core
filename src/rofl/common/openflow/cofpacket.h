@@ -110,7 +110,8 @@ public: // data structures
 		struct ofp12_switch_features 			*of12hu_sfhdr;
 		struct ofp13_switch_features			*of13hu_sfhdr;
 		struct ofp_switch_config 				*ofhu_schdr;
-		struct ofp_flow_mod 					*ofhu_fmhdr;
+		struct ofp12_flow_mod 					*of12hu_fmhdr;
+		struct ofp13_flow_mod 					*of13hu_fmhdr;
 		struct ofp_port_mod 					*ofhu_pmhdr;
 		struct ofp_queue_get_config_request 	*ofhu_qgcrqhdr;
 		struct ofp_queue_get_config_reply   	*ofhu_qgcrphdr;
@@ -135,8 +136,8 @@ public: // data structures
 #define of13h_switch_features 					ofh_ofhu.of13hu_sfhdr
 #define of12h_switch_config 					ofh_ofhu.ofhu_schdr
 #define of13h_switch_config 					ofh_ofhu.ofhu_schdr
-#define of12h_flow_mod 							ofh_ofhu.ofhu_fmhdr
-#define of13h_flow_mod 							ofh_ofhu.ofhu_fmhdr
+#define of12h_flow_mod 							ofh_ofhu.of12hu_fmhdr
+#define of13h_flow_mod 							ofh_ofhu.of13hu_fmhdr
 #define ofh_port_mod 							ofh_ofhu.ofhu_pmhdr
 #define ofh_queue_get_config_request 			ofh_ofhu.ofhu_qgcrqhdr
 #define ofh_queue_get_config_reply 				ofh_ofhu.ofhu_qgcrphdr
@@ -154,7 +155,8 @@ public: // data structures
 #define ofh_role_request						ofh_ofhu.ofhu_rolehdr
 #define ofh13_meter_mod							ofh_ofhu.of13hu_methdr
 
-#define OFP_FLOW_MOD_STATIC_HDR_LEN					48
+#define OFP12_FLOW_MOD_STATIC_HDR_LEN				48
+#define OFP13_FLOW_MOD_STATIC_HDR_LEN				48
 #define OFP_FLOW_REMOVED_STATIC_HDR_LEN				48
 #define OFP12_PACKET_IN_STATIC_HDR_LEN				16
 #define OFP13_PACKET_IN_STATIC_HDR_LEN				24

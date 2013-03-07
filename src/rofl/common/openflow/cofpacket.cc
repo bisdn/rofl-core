@@ -301,10 +301,10 @@ cofpacket::is_valid()
 	case OFPT_PORT_MOD:
 		return is_valid_port_mod();
 	case OFPT_STATS_REQUEST:
-	case OFPT_MULTIPART_REQUEST:
+	//case OFPT_MULTIPART_REQUEST: // OFPT_STATS_REQUEST equals OFPT_MULTIPART_REQUEST
 		return is_valid_stats_request();
 	case OFPT_STATS_REPLY:
-	case OFPT_MULTIPART_REPLY:
+	//case OFPT_MULTIPART_REPLY: // OFPT_STATS_REPLY equals OFPT_MULTIPART_REPLY
 		return is_valid_stats_reply();
 	case OFPT_QUEUE_GET_CONFIG_REQUEST:
 		return is_valid_queue_get_config_request();
@@ -514,7 +514,7 @@ cofpacket::is_valid_switch_config()
 	switch (ofh_header->version) {
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
-		of12h_switch_config = of13h_switch_config = (struct ofp_switch_config*)soframe();
+		of12h_switch_config = /* of13h_switch_config = */ (struct ofp_switch_config*)soframe();
 		if (stored < sizeof(struct ofp_switch_config))
 			return false;
 		if (stored < be16toh(ofh_header->length))
@@ -527,49 +527,97 @@ cofpacket::is_valid_switch_config()
 bool
 cofpacket::is_valid_packet_in()
 {
-	ofh_packet_in = (struct ofp_packet_in*)soframe();
 
-	/*
-	 * static part of struct ofp_packet_in also contains static fields from struct ofp_match (i.e. type and length)
-	 */
-	if (stored < sizeof(struct ofp_packet_in))
-	{
-		return false;
+	switch (ofh_header->version) {
+	case OFP12_VERSION: {
+		/*
+		 * static part of struct ofp_packet_in also contains static fields from struct ofp_match (i.e. type and length)
+		 */
+		if (stored < OFP12_PACKET_IN_STATIC_HDR_LEN)
+		{
+			return false;
+		}
+
+		/*
+		 * get variable length struct ofp_match
+		 */
+		if (be16toh(of12h_packet_in->match.type) != OFPMT_OXM) // must be extensible match
+		{
+			return false;
+		}
+
+		if (be16toh(of12h_packet_in->match.length) > (stored - 16 /* fixed part outside of struct ofp_match is 16bytes */))
+		{
+			return false;
+		}
+
+		match.unpack(&(of12h_packet_in->match), be16toh(of12h_packet_in->match.length));
+
+		/*
+		 * set data and datalen variables
+		 */
+		uint16_t offset = OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2;
+
+		//body.assign((uint8_t*)(soframe() + offset), stored - (offset)); // +2: magic :)
+
+		uint32_t in_port = 0;
+
+		try {
+			in_port = match.get_in_port();
+		} catch (eOFmatchNotFound& e) {
+			in_port = 0;
+		}
+
+		packet.unpack(in_port, (uint8_t*)(soframe() + offset), stored - (offset)); // +2: magic :)
+
+	} break;
+	case OFP13_VERSION: {
+		/*
+		 * static part of struct ofp_packet_in also contains static fields from struct ofp_match (i.e. type and length)
+		 */
+		if (stored < OFP13_PACKET_IN_STATIC_HDR_LEN)
+		{
+			return false;
+		}
+
+		/*
+		 * get variable length struct ofp_match
+		 */
+		if (be16toh(of13h_packet_in->match.type) != OFPMT_OXM) // must be extensible match
+		{
+			return false;
+		}
+
+		if (be16toh(of13h_packet_in->match.length) > (stored - 16 /* fixed part outside of struct ofp_match is 16bytes */))
+		{
+			return false;
+		}
+
+		match.unpack(&(of13h_packet_in->match), be16toh(of12h_packet_in->match.length));
+
+		/*
+		 * set data and datalen variables
+		 */
+		uint16_t offset = OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2;
+
+		//body.assign((uint8_t*)(soframe() + offset), stored - (offset)); // +2: magic :)
+
+		uint32_t in_port = 0;
+
+		try {
+			in_port = match.get_in_port();
+		} catch (eOFmatchNotFound& e) {
+			in_port = 0;
+		}
+
+		packet.unpack(in_port, (uint8_t*)(soframe() + offset), stored - (offset)); // +2: magic :)
+
+	} break;
+	default: {
+		throw eBadRequestBadVersion();
 	}
-
-	/*
-	 * get variable length struct ofp_match
-	 */
-	if (be16toh(ofh_packet_in->match.type) != OFPMT_OXM) // must be extensible match
-	{
-		return false;
 	}
-
-	if (be16toh(ofh_packet_in->match.length) > (stored - 16 /* fixed part outside of struct ofp_match is 16bytes */))
-	{
-		return false;
-	}
-
-	match.unpack(&(ofh_packet_in->match), be16toh(ofh_packet_in->match.length));
-
-	/*
-	 * set data and datalen variables
-	 */
-	uint16_t offset = OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2;
-
-	//body.assign((uint8_t*)(soframe() + offset), stored - (offset)); // +2: magic :)
-
-	uint32_t in_port = 0;
-
-	try {
-		in_port = match.get_in_port();
-	} catch (eOFmatchNotFound& e) {
-		in_port = 0;
-	}
-
-	packet.unpack(in_port, (uint8_t*)(soframe() + offset), stored - (offset)); // +2: magic :)
-
-	return true; // packet is valid
+	return true;
 }
 
 bool
@@ -637,53 +685,102 @@ bool
 cofpacket::is_valid_flow_mod()
 {
 	try {
-		ofh_flow_mod = (struct ofp_flow_mod*)soframe();
 
-		if (stored < sizeof(struct ofp_flow_mod)) // includes static part of struct ofp_match (i.e. type and length)
-		{
-			return false;
+		switch (ofh_header->version) {
+		case OFP12_VERSION: {
+			if (stored < sizeof(struct ofp12_flow_mod)) {// includes static part of struct ofp_match (i.e. type and length)
+				return false;
+			}
+
+			/* OFP_FLOW_MOD_STATIC_HDR_LEN = length of generic flow-mod header
+			 * according to OpenFlow-spec-1.2 is 48bytes
+			 */
+
+			if ((be16toh(of12h_flow_mod->match.length)) > (stored - OFP12_FLOW_MOD_STATIC_HDR_LEN)) {
+							// stored - OFP_FLOW_MOD_STATIC_HDR_LEN is #bytes for struct ofp_match and array of struct ofp_instructions
+				fprintf(stderr, "1.2 ");
+				return false; // match too long
+			}
+
+			/*
+			 * unpack ofp_match structure
+			 */
+
+			match.unpack(&(of12h_flow_mod->match), be16toh(of12h_flow_mod->match.length));
+
+			WRITELOG(COFPACKET, DBG, "cofpacket(%p)::is_valid_flow_mod() "
+					"match: %s", this, match.c_str());
+
+			// check size of received flow-mod message
+			/*
+			 * match.length() returns length of struct ofp_match including padding
+			 */
+			if ((OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length()) > stored) {
+				return false;
+			}
+
+			/*
+			 * unpack instructions list
+			 */
+
+			struct ofp_instruction *insts = (struct ofp_instruction*)(
+									(uint8_t*)&(of12h_flow_mod->match) + match.length());
+
+			size_t instslen = stored -
+					(OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length());
+
+			instructions.unpack(insts, instslen);
+
+		} break;
+		case OFP13_VERSION: {
+			if (stored < sizeof(struct ofp13_flow_mod)) {// includes static part of struct ofp_match (i.e. type and length)
+				return false;
+			}
+
+			/* OFP_FLOW_MOD_STATIC_HDR_LEN = length of generic flow-mod header
+			 * according to OpenFlow-spec-1.2 is 48bytes
+			 */
+
+			if ((be16toh(of13h_flow_mod->match.length)) > (stored - OFP13_FLOW_MOD_STATIC_HDR_LEN)) {
+							// stored - OFP_FLOW_MOD_STATIC_HDR_LEN is #bytes for struct ofp_match and array of struct ofp_instructions
+				fprintf(stderr, "1.2 ");
+				return false; // match too long
+			}
+
+			/*
+			 * unpack ofp_match structure
+			 */
+
+			match.unpack(&(of13h_flow_mod->match), be16toh(of13h_flow_mod->match.length));
+
+			WRITELOG(COFPACKET, DBG, "cofpacket(%p)::is_valid_flow_mod() "
+					"match: %s", this, match.c_str());
+
+			// check size of received flow-mod message
+			/*
+			 * match.length() returns length of struct ofp_match including padding
+			 */
+			if ((OFP13_FLOW_MOD_STATIC_HDR_LEN + match.length()) > stored) {
+				return false;
+			}
+
+			/*
+			 * unpack instructions list
+			 */
+
+			struct ofp_instruction *insts = (struct ofp_instruction*)(
+									(uint8_t*)&(of13h_flow_mod->match) + match.length());
+
+			size_t instslen = stored -
+					(OFP13_FLOW_MOD_STATIC_HDR_LEN + match.length());
+
+			instructions.unpack(insts, instslen);
+
+		} break;
+		default: {
+			throw eBadRequestBadVersion();
 		}
-
-		/* OFP_FLOW_MOD_STATIC_HDR_LEN = length of generic flow-mod header
-		 * according to OpenFlow-spec-1.2 is 48bytes
-		 */
-
-		if ((be16toh(ofh_flow_mod->match.length)) > (stored - OFP_FLOW_MOD_STATIC_HDR_LEN))
-						// stored - OFP_FLOW_MOD_STATIC_HDR_LEN is #bytes for struct ofp_match and array of struct ofp_instructions
-		{
-			fprintf(stderr, "1.2 ");
-			return false; // match too long
 		}
-
-		/*
-		 * unpack ofp_match structure
-		 */
-
-		match.unpack(&(ofh_flow_mod->match), be16toh(ofh_flow_mod->match.length));
-
-		WRITELOG(COFPACKET, DBG, "cofpacket(%p)::is_valid_flow_mod() "
-				"match: %s", this, match.c_str());
-
-		// check size of received flow-mod message
-		/*
-		 * match.length() returns length of struct ofp_match including padding
-		 */
-		if ((OFP_FLOW_MOD_STATIC_HDR_LEN + match.length()) > stored)
-		{
-			return false;
-		}
-
-		/*
-		 * unpack instructions list
-		 */
-
-		struct ofp_instruction *insts = (struct ofp_instruction*)(
-								(uint8_t*)&(ofh_flow_mod->match) + match.length());
-
-		size_t instslen = stored -
-				(OFP_FLOW_MOD_STATIC_HDR_LEN + match.length());
-
-		instructions.unpack(insts, instslen);
 
 	} catch (eOFmatchInval& e) {
 		fprintf(stderr, "1.4 ");

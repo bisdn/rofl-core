@@ -925,7 +925,7 @@ enum ofp_flow_mod_flags {
 };
 
 /* Flow setup and teardown (controller -> datapath). */
-struct ofp_flow_mod {
+struct ofp12_flow_mod {
     struct ofp_header header;
     uint64_t cookie;             /* Opaque controller-issued identifier. */
     uint64_t cookie_mask;        /* Mask used to restrict the cookie bits
@@ -954,7 +954,7 @@ struct ofp_flow_mod {
     struct ofp_match match;       /* Fields to match */
     //struct ofp_instruction instructions[0]; /* Instruction set */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_mod) == 56);
+OFP_ASSERT(sizeof(struct ofp12_flow_mod) == 56);
 
 /* Group numbering. Groups can use any number up to OFPG_MAX. */
 enum ofp_group {
