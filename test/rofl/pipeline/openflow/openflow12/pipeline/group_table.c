@@ -79,18 +79,22 @@ void expected_errors_test(){
 void add_and_delete_buckets_test(){
 	
 	of12_packet_action_t* pkt_action;
+	of12_switch_t sw;
+	enum matching_algorithm_available list=matching_algorithm_loop;
+	sw.pipeline = of12_init_pipeline(1,&list,OF12_TABLE_MISS_DROP);
 	
 	tu.actions = of12_init_action_group(NULL);
 	
-	pkt_action = of12_init_packet_action(OF12_AT_COPY_TTL_IN,1,NULL,NULL);
+	pkt_action = of12_init_packet_action(&sw,OF12_AT_COPY_TTL_IN,1,NULL,NULL);
 	of12_push_packet_action_to_group(tu.actions,pkt_action);
-	pkt_action = of12_init_packet_action(OF12_AT_GROUP,1,NULL,NULL);
+	pkt_action = of12_init_packet_action(&sw,OF12_AT_GROUP,1,NULL,NULL);
 	of12_push_packet_action_to_group(tu.actions,pkt_action);
 	
 	of12_group_add(tu.gt,tu.type,tu.id, tu.weight, tu.group, tu.port, tu.actions);
 	of12_group_delete(tu.gt,tu.id);
 	
 	of12_destroy_action_group(tu.actions);
+	of12_destroy_pipeline(sw.pipeline);
 }
 
 void concurrency_routine(void * param){
@@ -126,27 +130,15 @@ void concurrency_test(void){
 	
 }
 
-// TODO delete thid main and let cunit work!
-/*
-int main(int args, char **argv){
-	int nok=0, nko=0;
+void references_test(void){
+	of12_flow_entry_t entry, entry2;
+	assert (of12_group_add(tu.gt, tu.type, tu.id, tu.weight, tu.group, tu.port, tu.actions)==ROFL_SUCCESS);
+	assert(of12_add_reference_entry_in_group(tu.gt->head,&entry)==ROFL_SUCCESS);
+	assert(tu.gt->head->referencing_entries != NULL);
 	
-	fprintf(stderr,"<%s:%d>Test for group table\n",__func__,__LINE__);
+	assert(of12_add_reference_entry_in_group(tu.gt->head,&entry2)==ROFL_SUCCESS);
+	assert(of12_delete_reference_entry_in_group(tu.gt->head,&entry2)==ROFL_SUCCESS);
+	assert(of12_delete_reference_entry_in_group(tu.gt->head,&entry2)==ROFL_FAILURE);
 	
-	if(basic_test()==ROFL_SUCCESS) nok++;
-	else nko++;
-	
-	if(expected_errors_test()==ROFL_SUCCESS) nok++;
-	else nko++;
-	
-	if(add_and_delete_buckets_test()==ROFL_SUCCESS) nok++;
-	else nko++;
-	
-	if(add_and_delete_buckets_test()==ROFL_SUCCESS) nok++;
-	else nko++;
-	
-	fprintf(stderr,"<%s:%d>Test finished OK:%d KO:%d\n",__func__,__LINE__,nok,nko);
-	if (nko == 0) return ROFL_SUCCESS;
-	else return ROFL_FAILURE;
+	assert(of12_group_delete(tu.gt, tu.id)==ROFL_SUCCESS);
 }
-*/

@@ -15,6 +15,7 @@
 static rofl_result_t of12_init_group_bucket(of12_group_t *ge, uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions);
 static rofl_result_t of12_destroy_group_bucket_all(of12_group_t *ge);
 static rofl_result_t of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge);
+static rofl_result_t of12_delete_referenced_entries(of12_group_t *group);
 
 of12_group_table_t* of12_init_group_table(){
 	of12_group_table_t *gt;
@@ -83,6 +84,8 @@ rofl_result_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, ui
 	ge->bl_head = ge->bl_tail = NULL;
 	ge->id = id;
 	ge->type = type;
+	ge->referencing_entries = NULL;
+	ge->group_table = gt;
 	
 	//insert in the end
 	if (gt->head == NULL && gt->tail == NULL){
@@ -138,7 +141,9 @@ rofl_result_t of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge){
 	
 	gt->num_of_entries--;
 	
-	//TODO delete all entries refering to this group.
+	//delete all entries refering to this group.
+	if(of12_delete_referenced_entries(ge)!=ROFL_SUCCESS)
+		return ROFL_FAILURE;
 	
 	//destroy buckets & actions inside
 	of12_destroy_group_bucket_all(ge);
@@ -225,6 +230,62 @@ rofl_result_t of12_destroy_group_bucket_all(of12_group_t *ge){
 		next = bk_it->next;
 		///*of12_destroy_action_group(bk_it->actions);*/
 		cutil_free_shared(bk_it);
+	}
+	
+	return ROFL_SUCCESS;
+}
+
+rofl_result_t of12_add_reference_entry_in_group(of12_group_t *group, of12_flow_entry_t *entry){
+	of12_entries_list_t *el = cutil_malloc_shared(sizeof(of12_entries_list_t));
+	
+	platform_rwlock_wrlock(); //TODO locking
+	
+	if(el == NULL)
+		return ROFL_FAILURE;
+	
+	el->entry = entry;
+	el->prev = NULL;
+	el->next = group->referencing_entries;
+	//insert, order is not important
+	if (group->referencing_entries){
+		group->referencing_entries->prev = el;
+	}
+	group->referencing_entries = el;
+	
+	return ROFL_SUCCESS;
+}
+
+rofl_result_t of12_delete_reference_entry_in_group(of12_group_t *group, of12_flow_entry_t *entry){
+	of12_entries_list_t *it_el;
+	
+	for (it_el = group->referencing_entries; it_el ; it_el=it_el->next)
+		if(it_el->entry == entry) break;
+		
+	if(!it_el) //not found
+		return ROFL_FAILURE;
+	
+	//extract
+	if(it_el->next)
+		it_el->next->prev = it_el->prev;
+	
+	if(it_el->prev)
+		it_el->prev->next = it_el->next;
+	
+	if(it_el == group->referencing_entries)
+		group->referencing_entries = it_el->next;
+	
+	cutil_free_shared(it_el);
+	
+	return ROFL_SUCCESS;
+}
+
+static
+rofl_result_t of12_delete_referenced_entries(of12_group_t *group){
+	of12_entries_list_t *it_el, *next;
+	
+	for(it_el=group->referencing_entries; it_el; it_el=next){
+		next=it_el->next;
+		cutil_free_shared(it_el);
 	}
 	
 	return ROFL_SUCCESS;
