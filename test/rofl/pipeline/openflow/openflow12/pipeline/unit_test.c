@@ -24,7 +24,7 @@ int main(){
    if ((NULL == CU_add_test(pSuite, "test basic", basic_test)) ||
        (NULL == CU_add_test(pSuite, "test expected errors", expected_errors_test)) ||
        (NULL == CU_add_test(pSuite, "test buckets", add_and_delete_buckets_test)) || 
-		(NULL == CU_add_test(pSuite, "test conccurrent", concurrency_test)) )
+		(NULL == CU_add_test(pSuite, "test concurrent", concurrency_test)) )
    {
       CU_cleanup_registry();
       return CU_get_error();

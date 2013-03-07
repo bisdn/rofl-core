@@ -49,6 +49,11 @@ struct matching_algorithm_functions
 	(*find_best_match_hook)(struct of12_flow_table * const,
 			of12_packet_matches_t * const);
 
+	// flow-stats
+	of12_flow_entry_t*
+	(*find_all_matches_hook)(struct of12_flow_table * const,
+			of12_packet_matches_t * const);
+
 	// dump flow table
 	void
 	(*dump_hook)(struct of12_flow_table * const);
