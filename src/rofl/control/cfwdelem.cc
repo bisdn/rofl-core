@@ -238,7 +238,7 @@ cfwdelem::ftentry_timeout(
 		cftentry *fte,
 		uint16_t timeout)
 {
-	if (OFPFF_SEND_FLOW_REM & be16toh(fte->flow_mod->flags))
+	if (fte->get_flags() & OFPFF_SEND_FLOW_REM)
 	{
 		cclock since;
 		since -= fte->flow_create_time;
@@ -246,14 +246,14 @@ cfwdelem::ftentry_timeout(
 		send_flow_removed_message(
 			fte->ctl,
 			fte->ofmatch,
-			be64toh(fte->flow_mod->cookie),
-			fte->flow_mod->priority,
+			fte->get_cookie(),
+			fte->get_priority(),
 			fte->removal_reason,
-			fte->flow_mod->table_id,
+			fte->get_tableid(),
 			since.ts.tv_sec,
 			since.ts.tv_nsec,
-			be16toh(fte->flow_mod->idle_timeout),
-			be16toh(fte->flow_mod->hard_timeout),
+			fte->get_idle_timeout(),
+			fte->get_hard_timeout(),
 			fte->rx_packets,
 			fte->rx_bytes);
 	}

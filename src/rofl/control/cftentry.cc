@@ -972,6 +972,116 @@ cftentry::s_str()
 
 
 
+uint8_t
+cftentry::get_version()
+{
+	return of_version;
+}
+
+
+
+uint16_t
+cftentry::get_flags()
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be16toh(of12m_flow_mod->flags);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint64_t
+cftentry::get_cookie()
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be64toh(of12m_flow_mod->cookie);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint16_t
+cftentry::get_priority()
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be16toh(of12m_flow_mod->priority);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint8_t
+cftentry::get_tableid()
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return of12m_flow_mod->table_id;
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint16_t
+cftentry::get_idle_timeout()
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be16toh(of12m_flow_mod->idle_timeout);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint16_t
+cftentry::get_hard_timeout()
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be16toh(of12m_flow_mod->hard_timeout);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
 void
 cftentry::test()
 {

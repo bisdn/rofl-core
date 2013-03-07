@@ -142,6 +142,7 @@ private: // data structures
 			TIMER_FTE_HARD_TIMEOUT = 3,
 		};
 
+		uint8_t					of_version;
 		int 					usage_cnt;			// semaphore counter
 		std::string 			info; 				// info string
 
@@ -175,8 +176,14 @@ public:
 		uint32_t 				out_group;			// output group for this ft-entry
 		cofmatch 				ofmatch;			// cofmatch instance containing struct ofp_match for this ftentry
 		cmemory 				m_flowmod;			// memory area for storing the generic part of ofp_flow_mod
-		struct ofp_flow_mod 	*flow_mod;			// copy of ofp_flow_mod structure (network byte order)
 
+		union {
+			struct ofp12_flow_mod 		*ofmu12_flow_mod;
+			struct ofp13_flow_mod		*ofmu13_flow_mod;
+		} ofm_ofmu;
+
+#define of12m_flow_mod		ofm_ofmu.ofmu12_flow_mod
+#define of13m_flow_mod		ofm_ofmu.ofmu13_flow_mod
 
 
 public:
@@ -367,6 +374,57 @@ public:
 	 */
 	static void
 	test();
+
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_version();
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_flags();
+
+
+	/**
+	 *
+	 */
+	uint64_t
+	get_cookie();
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_priority();
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_tableid();
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_idle_timeout();
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_hard_timeout();
+
 
 public: // overloaded from hw_fte_cb
 
