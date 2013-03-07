@@ -15,7 +15,8 @@ librofl_pipeline_openflow12_pipeline_la_HEADERS = of12_action.h \
 	of12_packet_matches.h \
 	of12_pipeline.h \
 	of12_timers.h \
-	of12_statistics.h
+	of12_statistics.h\
+	of12_utils.h
 
 librofl_pipeline_openflow12_pipeline_la_SOURCES = of12_action.h \
 	of12_flow_entry.h \

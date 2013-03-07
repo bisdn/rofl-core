@@ -3,14 +3,15 @@
 #include "../../../platform/memory.h"
 
 #include <stdio.h>
+#include <assert.h>
+#include "of12_action.h"
+#include "of12_group_table.h"
 
 /*
 * Intializer and destructor
 */
 
-//of12_flow_entry_t* of12_init_flow_entry(const uint16_t priority, of12_match_group_t* match_group, of12_flow_entry_t* prev, of12_flow_entry_t* next){
-
-of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry_t* next){
+of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry_t* next, bool notify_removal){
 
 	of12_flow_entry_t* entry = (of12_flow_entry_t*)cutil_malloc_shared(sizeof(of12_flow_entry_t));
 	
@@ -21,26 +22,21 @@ of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry
 	
 	if(NULL == (entry->rwlock = platform_rwlock_init(NULL))){
 		cutil_free_shared(entry);
+		assert(0);
 		return NULL; 
 	}
-
+	
+	//Init linked list
 	entry->prev = prev;
 	entry->next = next;
 	
-#if 0
-	if(match_group){
-
-		if(of12_add_match_to_entry(entry,matchs)!=ROFL_SUCCESS){
-			cutil_free_shared(entry);
-			return NULL;
-		}
-	}
-#endif
-	
-	of12_init_instruction_group(&entry->instructions);
+	of12_init_instruction_group(&entry->inst_grp);
 
 	//init stats
 	of12_stats_flow_init(entry);
+
+	//Flags
+	entry->notify_removal = notify_removal;
 	
 	return entry;	
 
@@ -53,6 +49,12 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	//wait for any thread which is still using the entry (processing a packet)
 	platform_rwlock_wrlock(entry->rwlock);
 	
+	//destroying timers, if any
+	of12_destroy_timer_entries(entry);
+
+
+	//FIXME TODO XXX Implement flow_removed message
+
 	//Destroy matches recursively
 	while(match){
 		of12_match_t* next = match->next;
@@ -62,10 +64,8 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	}
 
 	//Destroy instructions
-	of12_destroy_instruction_group(&entry->instructions);
+	of12_destroy_instruction_group(&entry->inst_grp);
 	
-	//TODO statistics counters
-
 	platform_rwlock_destroy(entry->rwlock);
 	
 	//Destroy entry itself
@@ -76,29 +76,199 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 
 //Adds one or more to the entry
 rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* match){
-	unsigned int i=0;
+
+	unsigned int new_matches;
 
 	if(!match)
 		return ROFL_FAILURE;
+
 	if(entry->matchs){
 		of12_add_match(entry->matchs, match);		
-
-		//Set number of matches
-		for(;match;match=match->next,i++); //TODO: this could also be done in of12_add_match...
-
-		entry->num_of_matches+=i;
 	}else{
 		entry->matchs = match;
 
 		//Make sure is correctly formed
 		match->prev = NULL;
 
-		for(;match;match=match->next,i++); //TODO: this could also be done in of12_add_match...
-
 		//Set the number of matches
-		entry->num_of_matches=i;
+		entry->num_of_matches=0;
 	}
+
+	//Determine number of new matches.
+	for(new_matches=0;match;match=match->next,new_matches++);
+
+	entry->num_of_matches+=new_matches;
+
 	return ROFL_SUCCESS;
+}
+
+rofl_result_t of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_flow_entry_t* mod, bool reset_counts){
+
+
+	//Lock entry
+	platform_rwlock_wrlock(entry_to_update->rwlock);
+
+	//Copy instructions
+	of12_update_instructions(&entry_to_update->inst_grp, &mod->inst_grp);
+
+	//Reset counts
+	if(reset_counts)
+		of12_stats_flow_reset_counts(entry_to_update);
+
+	//Unlock
+	platform_rwlock_wrunlock(entry_to_update->rwlock);
+
+	return ROFL_SUCCESS;
+}
+/**
+* Checks whether two entries overlap overlapping. This is potentially an expensive call.
+* Try to avoid using it, if the matching algorithm can guess via other (more efficient) ways...
+*/
+bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group){
+
+	of12_match_t* it_orig, *it_entry;
+	
+	//Check cookie first
+	if(check_cookie && entry->cookie){
+		if( (entry->cookie&entry->cookie_mask) == (original->cookie&entry->cookie_mask) )
+			return false;
+	}
+
+	//Check priority
+	if(check_priority && (entry->priority != original->priority))
+		return false;
+
+	//Check if matchs are contained. This is expensive..
+	for( it_entry = entry->matchs; it_entry; it_entry = it_entry->next ){
+		for( it_orig = original->matchs; it_orig; it_orig = it_orig->next ){
+
+			//Skip if different types
+			if( it_entry->type != it_orig->type)
+				continue;	
+			
+			if( of12_is_submatch( it_entry, it_orig ) || of12_is_submatch( it_orig, it_entry ) )
+				return false;
+		}
+	}
+
+
+	//Check out group actions
+	if( out_group != OF12_GROUP_ANY && ( 
+			!of12_write_actions_has(entry->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_GROUP, out_group) &&
+			!of12_apply_actions_has(entry->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_GROUP, out_group)
+			)
+	)
+		return false;
+
+
+	//Check out port actions
+	if( out_port != OF12_PORT_ANY && ( 
+			!of12_write_actions_has(entry->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_OUTPUT, out_port) &&
+			!of12_apply_actions_has(entry->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_OUTPUT, out_port)
+			)
+	)
+		return false;
+
+	return true;
+}
+
+/**
+* Checks whether an entry is contained in the other. This is potentially an expensive call.
+* Try to avoid using it, if the matching algorithm can guess via other (more efficient) ways...
+*/
+bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow_entry_t*const subentry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group){
+
+	of12_match_t* it_orig, *it_subentry;
+	
+	//Check cookie first
+	if(check_cookie && subentry->cookie){
+		if( (subentry->cookie&subentry->cookie_mask) == (original->cookie&subentry->cookie_mask) )
+			return false;
+	}
+
+	//Check priority
+	if(check_priority && (original->priority != subentry->priority))
+		return false;
+
+	//Check if matchs are contained. This is expensive..
+	for( it_subentry = subentry->matchs; it_subentry; it_subentry = it_subentry->next ){
+		for( it_orig = original->matchs; it_orig; it_orig = it_orig->next ){
+	
+			//Skip if different types
+			if( it_subentry->type != it_orig->type)
+				continue;	
+			
+			if( of12_is_submatch( it_subentry, it_orig ) )
+				return false;
+		}
+	}
+
+	//Check out group actions
+	if( out_group != OF12_GROUP_ANY && ( 
+			!of12_write_actions_has(original->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_GROUP, out_group) &&
+			!of12_apply_actions_has(original->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_GROUP, out_group)
+			)
+	)
+		return false;
+
+
+	//Check out port actions
+	if( out_port != OF12_PORT_ANY && ( 
+			!of12_write_actions_has(original->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_OUTPUT, out_port) &&
+			!of12_apply_actions_has(original->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_OUTPUT, out_port)
+			)
+	)
+		return false;
+
+
+	return true;
+}
+/**
+* Checks if entry is identical to another one
+*/
+bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group){
+
+	of12_match_t* it_original, *it_entry;
+	
+	//Check cookie first
+	if(entry->cookie){
+		if( (entry->cookie&entry->cookie_mask) == (original->cookie&entry->cookie_mask) )
+			return false;
+	}
+
+	//Check priority
+	if(entry->priority != original->priority)
+		return false;
+
+	//Fast Check #matchs
+	if(original->num_of_matches != entry->num_of_matches) 
+		return false;
+
+	//Matches in-depth check
+	for(it_original = original->matchs, it_entry = entry->matchs; it_entry != NULL; it_original = it_original->next, it_entry = it_entry->next){	
+		if(!of12_equal_matches(it_original,it_entry))
+			return false;
+	}
+
+	//Check out group actions
+	if( out_group != OF12_GROUP_ANY && ( 
+			!of12_write_actions_has(original->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_GROUP, out_group) &&
+			!of12_apply_actions_has(original->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_GROUP, out_group)
+			)
+	)
+		return false;
+
+
+	//Check out port actions
+	if( out_port != OF12_PORT_ANY && ( 
+			!of12_write_actions_has(original->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_OUTPUT, out_port) &&
+			!of12_apply_actions_has(original->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_OUTPUT, out_port)
+			)
+	)
+		return false;
+
+
+	return true;
 }
 
 void of12_dump_flow_entry(of12_flow_entry_t* entry){
@@ -107,6 +277,6 @@ void of12_dump_flow_entry(of12_flow_entry_t* entry){
 	fprintf(stderr," Matches:{");
 	of12_dump_matches(entry->matchs);
 	fprintf(stderr,"}\n\t\t");
-	of12_dump_instructions(entry->instructions);
+	of12_dump_instructions(entry->inst_grp);
 	fprintf(stderr,"\n");
 }

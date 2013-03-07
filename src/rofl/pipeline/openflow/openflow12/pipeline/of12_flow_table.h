@@ -2,6 +2,7 @@
 #define __OF12_FLOW_TABLEH__
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include "rofl.h"
@@ -10,14 +11,13 @@
 #include "of12_flow_entry.h"
 #include "of12_timers.h"
 #include "of12_statistics.h"
+#include "of12_utils.h"
 #include "matching_algorithms/matching_algorithms.h"
-
 
 
 /*
 * Flow table abstraction
 */
-
 
 #define OF12_FIRST_FLOW_TABLE_INDEX 0 //As per 1.2 spec
 #define OF12_MAX_NUMBER_OF_TABLE_ENTRIES 0xFFFFFFFF
@@ -28,7 +28,6 @@ struct of12_timer_group;
 
 //Agnostic auxiliary matching structures. 
 typedef void matching_auxiliary_t;
-
 
 //Table behaviour (ofp_table_config)
 typedef enum{
@@ -56,7 +55,7 @@ typedef struct{
 /**
  * Main table abstraction
  */
-struct of12_flow_table{
+typedef struct of12_flow_table{
 
 	//Table number
 	unsigned int number;
@@ -95,10 +94,8 @@ struct of12_flow_table{
 	* Matching algorithm related function pointers. Matching algorithm should implement them. 
 	*/
 	struct matching_algorithm_functions maf;
-};
 
-//Make it beatiful
-typedef struct of12_flow_table of12_flow_table_t;
+}of12_flow_table_t;
 
 /*
 *
@@ -109,18 +106,32 @@ typedef struct of12_flow_table of12_flow_table_t;
 //C++ extern C
 ROFL_PIPELINE_BEGIN_DECLS
 
-//Table init and destroy
+/*
+* Table init and destroy
+*/
 rofl_result_t of12_init_table(of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm);
 rofl_result_t of12_destroy_table(of12_flow_table_t* table);
 
-//Flow-mod installation and removal
-rofl_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry);
-rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness strict, of12_mutex_acquisition_required_t mutex_acquired);
+/*
+* Flow-mod installation and removal
+*/
+rofl_of12_fm_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, bool check_overlap, bool reset_counts);
 
-//Find best match
+rofl_result_t of12_modify_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, bool reset_counts);
+
+rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group);
+
+//This API call is meant to ONLY be used internally within the pipeline library (timers)
+rofl_result_t of12_remove_specific_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const specific_entry, of12_mutex_acquisition_required_t mutex_acquired);
+
+/*
+* Entry lookup
+*/ 
 of12_flow_entry_t* of12_find_best_match_table(of12_flow_table_t *const table, of12_packet_matches_t *const pkt); 
 
-//Dump
+/*
+* Table dumping
+*/
 void of12_dump_table(of12_flow_table_t* table);
 
 //C++ extern C

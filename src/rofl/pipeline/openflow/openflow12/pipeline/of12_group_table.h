@@ -6,6 +6,8 @@
 #include "of12_action.h"
 #include <rofl/pipeline/platform/lock.h>
 
+#define OF12_GROUP_ANY 0xffffffff /* Wildcard group used only for flow stats */
+
 typedef struct of12_group_bucket{
 	uint16_t weigth;
 	uint32_t port;
@@ -20,9 +22,9 @@ typedef struct of12_group_bucket{
 
 typedef enum{
 	OF12_GROUP_TYPE_ALL 		= 0,	/* All (multicast/broadcast) group.  */
-    OF12_GROUP_TYPE_SELECT 		= 1,   	/* Select group. */
-    OF12_GROUP_TYPE_INDIRECT 	= 2, 	/* Indirect group. */
-    OF12_GROUP_TYPE_FF	 		= 3,	/* Fast failover group. */
+	OF12_GROUP_TYPE_SELECT 		= 1,   	/* Select group. */
+	OF12_GROUP_TYPE_INDIRECT 	= 2, 	/* Indirect group. */
+	OF12_GROUP_TYPE_FF	 	= 3,	/* Fast failover group. */
 }of12_group_type_t;
 
 typedef struct of12_group{

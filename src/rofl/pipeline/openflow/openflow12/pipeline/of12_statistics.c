@@ -1,4 +1,6 @@
 #include "of12_statistics.h"
+
+#include <assert.h> 
 #include "of12_pipeline.h"
 #include "of12_flow_table.h"
 #include "of12_flow_entry.h"
@@ -128,8 +130,8 @@ void of12_stats_port_init(of12_stats_port_t *port_stats)
 	port_stats->rx_bytes = 0;
 	port_stats->tx_bytes = 0;
 	
-	if (0 == (port_stats->mutex = platform_mutex_init(NULL)))
-	{
+	if (NULL == (port_stats->mutex = platform_mutex_init(NULL))){
+		assert(0);
 		// log error
 		return;
 	}
