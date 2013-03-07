@@ -1063,6 +1063,26 @@ OFP_ASSERT(sizeof(struct ofp13_packet_in) == 32);
 
 /* unaltered since OpenFlow 1.2 */
 
+/* Flow removed (datapath -> controller). */ // adjusted to OF1.2
+struct ofp13_flow_removed {
+    struct ofp_header header;
+    uint64_t cookie;          /* Opaque controller-issued identifier. */
+
+    uint16_t priority;        /* Priority level of flow entry. */
+    uint8_t reason;           /* One of OFPRR_*. */
+    uint8_t table_id;         /* ID of the table */
+
+    uint32_t duration_sec;    /* Time flow was alive in seconds. */
+    uint32_t duration_nsec;   /* Time flow was alive in nanoseconds beyond
+                                 duration_sec. */
+    uint16_t idle_timeout;    /* Idle timeout from original flow mod. */
+    uint16_t hard_timeout;    /* Idle timeout from original flow mod. */
+    uint64_t packet_count;
+    uint64_t byte_count;
+    struct ofp_match match;   /* Description of fields. */
+};
+OFP_ASSERT(sizeof(struct ofp13_flow_removed) == 56);
+
 
 // A4.3 Port Status Message
 

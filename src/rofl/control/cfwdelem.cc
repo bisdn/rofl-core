@@ -338,10 +338,13 @@ cfwdelem::handle_get_config_request(cofctl *ctrl, cofpacket *pack)
 
 
 void
-cfwdelem::handle_set_config(cofctl *ofctrl, cofpacket *pack)
+cfwdelem::handle_set_config(cofctl *ctl, cofpacket_set_config *pack)
 {
-	flags = be16toh(pack->ofh_switch_config->flags);
-	miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
+	flags 			= pack->get_flags();
+	miss_send_len 	= pack->get_miss_send_len();
+
+	//flags = be16toh(pack->ofh_switch_config->flags);
+	//miss_send_len = be16toh(pack->ofh_switch_config->miss_send_len);
 
 	delete pack;
 }
@@ -714,7 +717,7 @@ cfwdelem::fib_table_find(uint64_t from, uint64_t to) throw (eFwdElemNotFound)
 
 
 void
-cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
+cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket_flow_mod *pack)
 {
 	cftentry *fte = NULL;
 
@@ -728,7 +731,7 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 			if (flow_tables.find(inst.oin_goto_table->table_id) == flow_tables.end()) {
 				writelog(CFWD, WARN, "cfwdelem(%s)::handle_flow_mod() "
 						"flow-entry error, bad table-id %d in Goto-Table instruction",
-						dpname.c_str(), pack->ofh_flow_mod->table_id);
+						dpname.c_str(), pack->get_table_id());
 				throw eFlowModBadTableId();
 			}
 
@@ -736,7 +739,7 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 
 
 		// table_id == 255 (all tables)
-		if (OFPTT_ALL == pack->ofh_flow_mod->table_id)
+		if (OFPTT_ALL == pack->get_table_id())
 		{
 			std::map<uint8_t, cfttable*>::iterator it;
 			for (it = flow_tables.begin(); it != flow_tables.end(); ++it)
@@ -745,7 +748,7 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 				{
 					fte->ctl = ofctrl; // store controlling entity for this cftentry
 					WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
-							this, pack->ofh_flow_mod->table_id, fte->c_str());
+							this, pack->get_table_id(), fte->c_str());
 				}
 			}
 		}
@@ -753,18 +756,18 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 		else
 		{
 			// check for existence of specified table
-			if (flow_tables.find(pack->ofh_flow_mod->table_id) == flow_tables.end()) {
+			if (flow_tables.find(pack->get_table_id()) == flow_tables.end()) {
 				writelog(CFWD, WARN, "cfwdelem(%s)::handle_flow_mod() "
 						"flow-entry error, bad table-id %d",
-						dpname.c_str(), pack->ofh_flow_mod->table_id);
+						dpname.c_str(), pack->get_table_id());
 				throw eFlowModBadTableId();
 			}
 
 			// do not lock here flow_table[i]
 
-			fte = flow_tables[pack->ofh_flow_mod->table_id]->update_ft_entry(this, pack);
+			fte = flow_tables[pack->get_table_id()]->update_ft_entry(this, pack);
 
-			switch (pack->ofh_flow_mod->command) {
+			switch (pack->get_command()) {
 			case OFPFC_ADD:
 			case OFPFC_MODIFY:
 			case OFPFC_MODIFY_STRICT: { // check cftentry instance
@@ -776,7 +779,7 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 				}
 				fte->ctl = ofctrl; // store controlling entity for this cftentry
 				WRITELOG(CFWD, DBG, "cofctrl(%p)::flow_mod_rcvd() table_id %d new %s",
-						this, pack->ofh_flow_mod->table_id, fte->c_str());
+						this, pack->get_table_id(), fte->c_str());
 			} break;
 			case OFPFC_DELETE:
 			case OFPFC_DELETE_STRICT:
@@ -786,13 +789,13 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 			}
 		}
 
-		switch (pack->ofh_flow_mod->command) {
+		switch (pack->get_command()) {
 		case OFPFC_ADD: {
-			flow_mod_add(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+			flow_mod_add(ofctrl, pack, flow_tables[pack->get_table_id()], fte);
 		} break;
 		case OFPFC_MODIFY:
 		case OFPFC_MODIFY_STRICT: {
-			flow_mod_modify(ofctrl, pack, flow_tables[pack->ofh_flow_mod->table_id], fte);
+			flow_mod_modify(ofctrl, pack, flow_tables[pack->get_table_id()], fte);
 		} break;
 		case OFPFC_DELETE:
 		case OFPFC_DELETE_STRICT: {
@@ -801,7 +804,7 @@ cfwdelem::handle_flow_mod(cofctl *ofctrl, cofpacket *pack)
 		default: {
 			writelog(CFWD, WARN, "cfwdelem(%s)::handle_flow_mod() "
 					"flow-entry error => invalid command %d",
-					dpname.c_str(), pack->ofh_flow_mod->command);
+					dpname.c_str(), pack->get_command());
 			throw eFlowModUnknown();
 		} break;
 		}
@@ -922,11 +925,11 @@ cfwdelem::handle_stats_reply(cofdpt *dpt, cofpacket *pack)
 
 
 void
-cfwdelem::handle_flow_removed(cofdpt *sw, cofpacket *pack)
+cfwdelem::handle_flow_removed(cofdpt *sw, cofpacket_flow_removed *pack)
 {
-	if (flow_tables.find(pack->ofh_flow_mod->table_id) != flow_tables.end())
+	if (flow_tables.find(pack->get_table_id()) != flow_tables.end())
 	{
-		flow_tables[pack->ofh_flow_mod->table_id]->update_ft_entry(this, pack);
+		flow_tables[pack->get_table_id()]->update_ft_entry(this, pack);
 	}
 	delete pack;
 }
@@ -976,7 +979,7 @@ void
 cfwdelem::cftentry_idle_timeout(
 		cftentry *fte)
 {
-	if (OFPFF_SEND_FLOW_REM & be16toh(fte->flow_mod->flags))
+	if (OFPFF_SEND_FLOW_REM & fte->get_flags())
 	{
 		cclock since;
 		since -= fte->flow_create_time;
@@ -984,14 +987,14 @@ cfwdelem::cftentry_idle_timeout(
 		send_flow_removed_message(
 			fte->ctl,
 			fte->ofmatch,
-			be64toh(fte->flow_mod->cookie),
-			fte->flow_mod->priority,
+			fte->get_cookie(),
+			fte->get_priority(),
 			fte->removal_reason,
-			fte->flow_mod->table_id,
+			fte->get_tableid(),
 			since.ts.tv_sec,
 			since.ts.tv_nsec,
-			be16toh(fte->flow_mod->idle_timeout),
-			be16toh(fte->flow_mod->hard_timeout),
+			fte->get_idle_timeout(),
+			fte->get_hard_timeout(),
 			fte->rx_packets,
 			fte->rx_bytes);
 	}
@@ -1004,7 +1007,7 @@ void
 cfwdelem::cftentry_hard_timeout(
 		cftentry *fte)
 {
-	if (OFPFF_SEND_FLOW_REM & be16toh(fte->flow_mod->flags))
+	if (OFPFF_SEND_FLOW_REM & fte->get_flags())
 	{
 		cclock since;
 		since -= fte->flow_create_time;
@@ -1012,14 +1015,14 @@ cfwdelem::cftentry_hard_timeout(
 		send_flow_removed_message(
 			fte->ctl,
 			fte->ofmatch,
-			be64toh(fte->flow_mod->cookie),
-			fte->flow_mod->priority,
+			fte->get_cookie(),
+			fte->get_priority(),
 			fte->removal_reason,
-			fte->flow_mod->table_id,
+			fte->get_tableid(),
 			since.ts.tv_sec,
 			since.ts.tv_nsec,
-			be16toh(fte->flow_mod->idle_timeout),
-			be16toh(fte->flow_mod->hard_timeout),
+			fte->get_idle_timeout(),
+			fte->get_hard_timeout(),
 			fte->rx_packets,
 			fte->rx_bytes);
 	}

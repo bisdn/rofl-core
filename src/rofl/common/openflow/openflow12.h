@@ -1020,7 +1020,7 @@ enum ofp_flow_removed_reason {
 };
 
 /* Flow removed (datapath -> controller). */ // adjusted to OF1.2
-struct ofp_flow_removed {
+struct ofp12_flow_removed {
     struct ofp_header header;
     uint64_t cookie;          /* Opaque controller-issued identifier. */
 
@@ -1037,7 +1037,7 @@ struct ofp_flow_removed {
     uint64_t byte_count;
     struct ofp_match match;   /* Description of fields. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_removed) == 56);
+OFP_ASSERT(sizeof(struct ofp12_flow_removed) == 56);
 
 /* Values for ’type’ in ofp_error_message. These values are immutable: they
 * will not change in future versions of the protocol (although new values may

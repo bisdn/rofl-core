@@ -653,17 +653,17 @@ cofpacket::is_valid_packet_out()
 bool
 cofpacket::is_valid_flow_removed()
 {
-	ofh_flow_removed = (struct ofp_flow_removed*)soframe();
+	of12h_flow_rmvd = (struct ofp12_flow_removed*)soframe();
 
-	size_t frgenlen = sizeof(struct ofp_flow_removed) - sizeof(struct ofp_match);
+	size_t frgenlen = sizeof(struct ofp12_flow_removed) - sizeof(struct ofp_match);
 
 	if (stored < frgenlen)
 		return false;
 
-	size_t matchlen = be16toh(ofh_flow_removed->header.length);
+	size_t matchlen = be16toh(of12h_flow_rmvd->header.length);
 
 	try  {
-		match.unpack(&(ofh_flow_removed->match), matchlen);
+		match.unpack(&(of12h_flow_rmvd->match), matchlen);
 	} catch (eOFmatchInval& e) {
 		return false;
 	}

@@ -564,7 +564,7 @@ protected:
 	 */
 	void
 	flow_rmvd_rcvd(
-			cofpacket *pack);
+			cofpacket_flow_removed *pack);
 
 
 	/**
@@ -610,7 +610,7 @@ protected:
 	 */
 	void
 	packet_in_rcvd(
-			cofpacket *pack);
+			cofpacket_packet_in *pack);
 
 
 	/** handle PORT-STATUS message

@@ -252,7 +252,16 @@ public:
 	cftentry*
 	update_ft_entry(
 			cfttable_owner *owner,
-			cofpacket *pack) throw (eFlowTableInval);
+			cofpacket_flow_mod *pack) throw (eFlowTableInval);
+
+	/**
+	 * add, update, remove flow table entry based on flow_mod
+	 */
+	cftentry*
+	update_ft_entry(
+			cfttable_owner *owner,
+			cofpacket_flow_removed *pack) throw (eFlowTableInval);
+
 
 	/**
 	 * find all cftentries that match a given struct ofp_match
@@ -333,7 +342,7 @@ protected:
 	cftentry*
 	add_ft_entry(
 			cfttable_owner *owner,
-			cofpacket *pack) throw(eFlowTableEntryOverlaps);
+			cofpacket_flow_mod *pack) throw(eFlowTableEntryOverlaps);
 
 	/**
 	 * modify an existing flow table entry
@@ -342,7 +351,7 @@ protected:
 	cftentry*
 	modify_ft_entry(
 			cfttable_owner *owner,
-			cofpacket *pack,
+			cofpacket_flow_mod *pack,
 			bool strict = false);
 
 	/**
@@ -352,7 +361,7 @@ protected:
 	void
 	rem_ft_entry(
 			cfttable_owner *owner,
-			cofpacket *pack,
+			cofpacket_flow_mod *pack,
 			bool strict = false);
 
 

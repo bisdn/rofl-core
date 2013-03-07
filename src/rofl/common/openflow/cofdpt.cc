@@ -325,12 +325,12 @@ cofdpt::handle_message(
 			break;
 		case OFPT_PACKET_IN:
 			{
-				packet_in_rcvd(pack);
+				packet_in_rcvd(new cofpacket_packet_in(pack));
 			}
 			break;
 		case OFPT_FLOW_REMOVED:
 			{
-				flow_rmvd_rcvd(pack);
+				flow_rmvd_rcvd(new cofpacket_flow_removed(pack));
 			}
 			break;
 		case OFPT_PORT_STATUS:
@@ -962,7 +962,7 @@ cofdpt::flow_mod_sent(
 
 void
 cofdpt::flow_rmvd_rcvd(
-		cofpacket *pack)
+		cofpacket_flow_removed *pack)
 {
 	rofbase->handle_flow_removed(this, pack);
 }
@@ -1024,7 +1024,7 @@ cofdpt::port_mod_sent(cofpacket *pack)
 }
 
 void
-cofdpt::packet_in_rcvd(cofpacket *pack)
+cofdpt::packet_in_rcvd(cofpacket_packet_in *pack)
 {
 	try {
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::packet_in_rcvd() %s", this, pack->c_str());

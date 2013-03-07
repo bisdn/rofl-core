@@ -377,7 +377,7 @@ ctlbase::handle_error(
 void
 ctlbase::handle_flow_mod(
 		cofctl *ctl,
-		cofpacket *pack)
+		cofpacket_flow_mod *pack)
 {
 	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_flow_mod() "
 			"pack: %s", dpname.c_str(), pack->c_str());
@@ -390,17 +390,17 @@ ctlbase::handle_flow_mod(
 
 	ctlbase::send_flow_mod_message(
 			pack->match,
-			be64toh(pack->ofh_flow_mod->cookie),
-			be64toh(pack->ofh_flow_mod->cookie_mask),
-			pack->ofh_flow_mod->table_id,
-			pack->ofh_flow_mod->command,
-			be16toh(pack->ofh_flow_mod->idle_timeout),
-			be16toh(pack->ofh_flow_mod->hard_timeout),
-			be16toh(pack->ofh_flow_mod->priority),
-			be32toh(pack->ofh_flow_mod->buffer_id),
-			be32toh(pack->ofh_flow_mod->out_port),
-			be32toh(pack->ofh_flow_mod->out_group),
-			be16toh(pack->ofh_flow_mod->flags),
+			pack->get_cookie(),
+			pack->get_cookie_mask(),
+			pack->get_table_id(),
+			pack->get_command(),
+			pack->get_idle_timeout(),
+			pack->get_hard_timeout(),
+			pack->get_priority(),
+			pack->get_buffer_id(),
+			pack->get_out_port(),
+			pack->get_out_group(),
+			pack->get_flags(),
 			pack->instructions);
 
 	delete pack;
@@ -416,7 +416,7 @@ ctlbase::handle_flow_mod(
 void
 ctlbase::handle_packet_in(
 		cofdpt *sw,
-		cofpacket *pack)
+		cofpacket_packet_in *pack)
 {
 	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() pack:%s",
 			dpname.c_str(), pack->c_str());
@@ -437,7 +437,7 @@ ctlbase::handle_packet_in(
 		std::set<cfspentry*> fsp_list =
 				sw->fsptable.find_matching_entries(
 						pack->match.get_in_port(),
-						be16toh(pack->ofh_packet_in->total_len),
+						pack->get_total_len(),
 						pack->packet);
 
 		// more than one subscription matches? should not happen here => error
@@ -469,10 +469,10 @@ ctlbase::handle_packet_in(
 
 		adapt->ctl_handle_packet_in(
 				this,
-				be32toh(pack->ofh_packet_in->buffer_id),
-				be16toh(pack->ofh_packet_in->total_len),
-				pack->ofh_packet_in->table_id,
-				pack->ofh_packet_in->reason,
+				pack->get_buffer_id(),
+				pack->get_total_len(),
+				pack->get_table_id(),
+				pack->get_reason(),
 				pack->match,
 				pack->packet);
 
@@ -871,7 +871,7 @@ ctlbase::ctl_handle_packet_in(
 				WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_packet_in() "
 						"sending PACKET-IN to ctl: %s", dpname.c_str(), ctl->c_str());
 
-				send_packet_in_message(buffer_id, total_len, reason, table_id, match, pack.soframe(), pack.framelen());
+				send_packet_in_message(buffer_id, total_len, reason, table_id, /*cookie=*/0, match, pack.soframe(), pack.framelen());
 			} catch (eRofBaseNoCtrl& e) {}
 		}
 

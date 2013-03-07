@@ -493,7 +493,7 @@ cfttable::find_best_matches(
 cftentry*
 cfttable::update_ft_entry(
 		cfttable_owner *owner,
-		cofpacket *pack) throw (eFlowTableInval)
+		cofpacket_flow_mod *pack) throw (eFlowTableInval)
 {
 	if ((OFPT_FLOW_MOD != pack->ofh_header->type) || (not pack->is_valid()))
 	{
@@ -502,7 +502,7 @@ cfttable::update_ft_entry(
 
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_ft_entry()", this);
 
-	switch (pack->ofh_flow_mod->command) {
+	switch (pack->get_command()) {
 	case OFPFC_ADD:
 		return add_ft_entry(owner, pack);
 
@@ -520,11 +520,27 @@ cfttable::update_ft_entry(
 
 	default:
 		WRITELOG(CFTTABLE, WARN, "unknown flow mod command [%d] received",
-				 pack->ofh_flow_mod->command); break;
+				 pack->get_command()); break;
 	}
 	return (cftentry*)0;
 }
 
+
+
+cftentry*
+cfttable::update_ft_entry(
+		cfttable_owner *owner,
+		cofpacket_flow_removed *pack) throw (eFlowTableInval)
+{
+	if ((OFPT_FLOW_MOD != pack->ofh_header->type) || (not pack->is_valid()))
+	{
+		throw eFlowTableInval();
+	}
+
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_ft_entry()", this);
+
+	return (cftentry*)0;
+}
 
 
 
@@ -532,7 +548,7 @@ cfttable::update_ft_entry(
 cftentry*
 cfttable::add_ft_entry(
 		cfttable_owner *owner,
-		cofpacket *pack) throw(eFlowTableEntryOverlaps)
+		cofpacket_flow_mod *pack) throw(eFlowTableEntryOverlaps)
 {
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry()", this);
 	//dump_ftentries();
@@ -547,7 +563,7 @@ cfttable::add_ft_entry(
 		if (not flow_table.empty())
 		{
 			// check for OFPFF_CHECK_OVERLAP
-			if (be16toh(pack->ofh_flow_mod->flags) & OFPFF_CHECK_OVERLAP)
+			if (pack->get_flags() & OFPFF_CHECK_OVERLAP)
 			{
 				WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() "
 						"checking for overlapping entries", this);
@@ -614,7 +630,7 @@ cfttable::add_ft_entry(
 cftentry*
 cfttable::modify_ft_entry(
 		cfttable_owner *owner,
-		cofpacket *pack,
+		cofpacket_flow_mod *pack,
 		bool strict /* = false (default) */)
 {
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::modify_ft_entry()", this);
@@ -804,7 +820,7 @@ delete_entry:
 void
 cfttable::rem_ft_entry(
 		cfttable_owner *owner,
-		cofpacket* pack,
+		cofpacket_flow_mod* pack,
 		bool strict /* = false (default) */)
 {
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::rem_ft_entry() pack->match: %s", this, pack->match.c_str());
@@ -813,8 +829,8 @@ cfttable::rem_ft_entry(
 	RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
 
 	std::set<cftentry*> delete_table;
-	uint32_t out_port 	= be32toh(pack->ofh_flow_mod->out_port);
-	uint32_t out_group 	= be32toh(pack->ofh_flow_mod->out_group);
+	uint32_t out_port 	= pack->get_out_port();
+	uint32_t out_group 	= pack->get_out_group();
 
 	for (std::set<cftentry*>::iterator it = flow_table.begin();
 			it != flow_table.end(); ++it) {
@@ -1131,7 +1147,7 @@ cftsearch::operator() (
 			__max_hits = hits;
 			__exact_hits = exact_hits;
 			__wildcard_hits = wildcard_hits;
-			__priority = be16toh(fte->flow_mod->priority);
+			__priority = fte->get_priority();
 
 		} catch (eFtEntryUnAvail& e) {
 			WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() ignoring entry as it is unavailable => cftentry:%p", this, fte);
@@ -1143,16 +1159,16 @@ cftsearch::operator() (
 		try {
 			fte->sem_inc();						// mark cftentry instance fte as being in use by cfwdengine
 
-			if (be16toh(fte->flow_mod->priority) > __priority)    // better priority
+			if (fte->get_priority() > __priority)    // better priority
 			{
 				// remove all old entries from matching_entries
 				matching_entries.clear();
 
-				__priority = be16toh(fte->flow_mod->priority);
+				__priority = fte->get_priority();
 
 				WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() new best hit with higher priority => cftentry:%p", this, fte);
 			}
-			else if (be16toh(fte->flow_mod->priority) == __priority)   // same match and priority
+			else if (fte->get_priority() == __priority)   // same match and priority
 			{
 				WRITELOG(CFTSEARCH, DBG, "cftsearch(%p)::operator() identical hit with same hits and priority => cftentry:%p", this, fte);
 			}

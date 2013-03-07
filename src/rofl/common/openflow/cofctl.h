@@ -169,7 +169,7 @@ protected:
 	 *
 	 */
 	void
-	hello_rcvd(cofpacket *pack);
+	hello_rcvd(cofpacket_hello *pack);
 
 
 	/**
@@ -235,7 +235,7 @@ protected:
 	/** handle incoming FLOW-MOD messages
 	 */
 	void
-	flow_mod_rcvd(cofpacket *pack);
+	flow_mod_rcvd(cofpacket_flow_mod *pack);
 
 	/** handle incoming GROUP-MOD messages
 	 */

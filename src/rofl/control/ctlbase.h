@@ -573,7 +573,7 @@ protected:
 	 * @param pack PACKET-IN.message packet received from datapath
 	 */
 	virtual void
-	handle_packet_in(cofdpt *sw, cofpacket *pack);
+	handle_packet_in(cofdpt *sw, cofpacket_packet_in *pack);
 
 
 	/** Handle OF barrier reply. To be overwritten by derived class.
@@ -618,7 +618,7 @@ protected:
 	 * @param pack FLOW-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_flow_mod(cofctl *ctl, cofpacket *pack);
+	handle_flow_mod(cofctl *ctl, cofpacket_flow_mod *pack);
 
 
 	/** Handle OF port-status message. To be overwritten by derived class.

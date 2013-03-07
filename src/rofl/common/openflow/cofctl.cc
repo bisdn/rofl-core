@@ -415,7 +415,7 @@ cofctl::handle_message(
 
 		switch (pack->ofh_header->type) {
 		case OFPT_HELLO: {
-			hello_rcvd(pack);
+			hello_rcvd(new cofpacket_hello(pack));
 		} break;
 		case OFPT_ECHO_REQUEST: {
 			echo_request_rcvd(pack);
@@ -439,7 +439,7 @@ cofctl::handle_message(
 			packet_out_rcvd(pack);
 		} break;
 		case OFPT_FLOW_MOD: {
-			flow_mod_rcvd(pack);
+			flow_mod_rcvd(new cofpacket_flow_mod(pack));
 		} break;
 		case OFPT_GROUP_MOD: {
 			group_mod_rcvd(pack);
@@ -465,9 +465,11 @@ cofctl::handle_message(
 		default: {
 			WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
 					"dropping unknown packet: %s", this, pack->c_str());
-			delete pack;
+			//delete pack;
 		} return;
 		}
+
+		delete pack;
 
 	} catch (eBadRequestBadVersion& e) {
 
@@ -1019,7 +1021,7 @@ cofctl::handle_message(
 
 
 void
-cofctl::hello_rcvd(cofpacket *pack)
+cofctl::hello_rcvd(cofpacket_hello *pack)
 {
 	try {
 		WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() pack: %s", this, pack->c_str());
@@ -1257,7 +1259,7 @@ cofctl::packet_out_rcvd(cofpacket *pack)
 
 
 void
-cofctl::flow_mod_rcvd(cofpacket *pack)
+cofctl::flow_mod_rcvd(cofpacket_flow_mod *pack)
 {
 	WRITELOG(COFCTL, DBG, "cofctl(%p)::flow_mod_rcvd() pack: %s", this, pack->c_str());
 

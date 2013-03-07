@@ -404,7 +404,7 @@ protected:
 	 * @param pack FLOW-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_flow_mod(cofctl *ofctrl, cofpacket *pack);
+	handle_flow_mod(cofctl *ofctrl, cofpacket_flow_mod *pack);
 
 	/** Handle OF group-mod message. To be overwritten by derived class.
 	 *
@@ -445,7 +445,7 @@ protected:
 	 * @param pack FLOW-REMOVED.message packet received from datapath
 	 */
 	virtual void
-	handle_flow_removed(cofdpt *sw, cofpacket *pack);
+	handle_flow_removed(cofdpt *sw, cofpacket_flow_removed *pack);
 
 	/** Handle OF set-config message. To be overwritten by derived class.
 	 *
@@ -455,7 +455,7 @@ protected:
 	 * @param pack SET-CONFIG.message packet received from controller.
 	 */
 	virtual void
-	handle_set_config(cofctl *ofctrl, cofpacket *pack);
+	handle_set_config(cofctl *ctl, cofpacket_set_config *pack);
 
 	/** Handle OF queue-get-config reply. To be overwritten by derived class.
  	 *

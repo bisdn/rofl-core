@@ -516,7 +516,7 @@ protected:
 	 * @param pack PACKET-IN.message packet received from datapath
 	 */
 	virtual void
-	handle_packet_in(cofdpt *sw, cofpacket *pack) { delete pack; };
+	handle_packet_in(cofdpt *sw, cofpacket_packet_in *pack) { delete pack; };
 
 	/** Handle OF barrier request. To be overwritten by derived class.
 	 *
@@ -567,7 +567,7 @@ protected:
 	 * @param pack FLOW-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_flow_mod(cofctl *ofctrl, cofpacket *pack) { delete pack; };
+	handle_flow_mod(cofctl *ofctrl, cofpacket_flow_mod *pack) { delete pack; };
 
 	/** Handle OF group-mod message. To be overwritten by derived class.
 	 *
@@ -608,7 +608,7 @@ protected:
 	 * @param pack FLOW-REMOVED.message packet received from datapath
 	 */
 	virtual void
-	handle_flow_removed(cofdpt *sw, cofpacket *pack) { delete pack; };
+	handle_flow_removed(cofdpt *sw, cofpacket_flow_removed *pack) { delete pack; };
 
 	/** Handle OF port-status message. To be overwritten by derived class.
 	 *
