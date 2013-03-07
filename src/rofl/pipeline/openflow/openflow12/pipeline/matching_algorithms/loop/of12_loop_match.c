@@ -38,7 +38,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_overlapping(of12_flow_entry
 		return NULL;
 
 	for(it=start_entry; it->next != NULL; it=it->next){
-		if( of12_flow_entry_check_overlap(it, entry, check_cookie, out_port, out_group) )
+		if( of12_flow_entry_check_overlap(it, entry, true, check_cookie, out_port, out_group) )
 			return it;
 	}	
 	return NULL;
@@ -239,7 +239,7 @@ static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_tab
 				break;
 			}
 		}else{
-			if( of12_flow_entry_check_contained(it, entry, true, out_port, out_group) ){
+			if( of12_flow_entry_check_contained(it, entry, strict, true, out_port, out_group) ){
 				
 				if(of12_remove_flow_entry_table_specific_imp(table, it) != ROFL_SUCCESS){
 					assert(0); //This should never happen
@@ -319,7 +319,7 @@ rofl_result_t of12_modify_flow_entry_loop(of12_flow_table_t *const table, of12_f
 				break;
 			}
 		}else{
-			if( of12_flow_entry_check_contained(it, entry, true, OF12_PORT_ANY, OF12_GROUP_ANY) ){
+			if( of12_flow_entry_check_contained(it, entry, strict, true, OF12_PORT_ANY, OF12_GROUP_ANY) ){
 				of12_update_flow_entry(it, entry, reset_counts);
 				moded++;
 			}
@@ -343,7 +343,7 @@ rofl_result_t of12_remove_flow_entry_loop(of12_flow_table_t *const table , of12_
 		platform_mutex_lock(table->mutex);
 	}
 	
-	result = of12_remove_flow_entry_table_imp(table, entry, specific_entry, strict, out_port, out_group);
+	result = of12_remove_flow_entry_table_imp(table, entry, specific_entry, out_port, out_group, strict);
 
 	//Green light to other threads
 	if(!mutex_acquired){

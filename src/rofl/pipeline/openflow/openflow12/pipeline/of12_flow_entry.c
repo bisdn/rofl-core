@@ -82,12 +82,8 @@ rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* ma
 	if(!match)
 		return ROFL_FAILURE;
 
-	//Determine number of new matches.
-	for(new_matches=0;match;match=match->next,new_matches++);
-
 	if(entry->matchs){
 		of12_add_match(entry->matchs, match);		
-		entry->num_of_matches+=new_matches;
 	}else{
 		entry->matchs = match;
 
@@ -95,8 +91,14 @@ rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* ma
 		match->prev = NULL;
 
 		//Set the number of matches
-		entry->num_of_matches=new_matches;
+		entry->num_of_matches=0;
 	}
+
+	//Determine number of new matches.
+	for(new_matches=0;match;match=match->next,new_matches++);
+
+	entry->num_of_matches+=new_matches;
+
 	return ROFL_SUCCESS;
 }
 
@@ -122,7 +124,7 @@ rofl_result_t of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_fl
 * Checks whether two entries overlap overlapping. This is potentially an expensive call.
 * Try to avoid using it, if the matching algorithm can guess via other (more efficient) ways...
 */
-bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_cookie, uint32_t out_port, uint32_t out_group){
+bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group){
 
 	of12_match_t* it_orig, *it_entry;
 	
@@ -133,7 +135,7 @@ bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_e
 	}
 
 	//Check priority
-	if(entry->priority != original->priority)
+	if(check_priority && (entry->priority != original->priority))
 		return false;
 
 	//Check if matchs are contained. This is expensive..
@@ -174,7 +176,7 @@ bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_e
 * Checks whether an entry is contained in the other. This is potentially an expensive call.
 * Try to avoid using it, if the matching algorithm can guess via other (more efficient) ways...
 */
-bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow_entry_t*const subentry, bool check_cookie, uint32_t out_port, uint32_t out_group){
+bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow_entry_t*const subentry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group){
 
 	of12_match_t* it_orig, *it_subentry;
 	
@@ -185,7 +187,7 @@ bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow
 	}
 
 	//Check priority
-	if(subentry->priority != original->priority)
+	if(check_priority && (original->priority != subentry->priority))
 		return false;
 
 	//Check if matchs are contained. This is expensive..

@@ -5,10 +5,12 @@
 #include "rofl.h" 
 #include "../../../util/rofl_pipeline_utils.h"
 #include "of12_flow_table.h"
+#include "of12_group_table.h"
 #include "../../../common/datapacket.h"
 #include "../../of_switch.h"
 
-#define OF12_MAX_FLOWTABLES 256 //As per 1.2 spec
+#define OF12_MAX_FLOWTABLES 255 //As per 1.2 spec
+#define OF12_FLOW_TABLE_ALL 0xFF //As per 1.2 spec
 #define OF12_DEFAULT_MISS_SEND_LEN 128 //As per 1.2 spec
 
 /* Capabilities supported by the datapath pipeline. -> Direct mapping to  */
@@ -38,6 +40,9 @@ struct of12_pipeline{
 
 	//Array of tables; 
 	of12_flow_table_t* tables;
+	
+	//Group table
+	of12_group_table_t* groups;
 	
 };
 typedef struct of12_pipeline of12_pipeline_t;

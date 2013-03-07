@@ -82,8 +82,8 @@ rofl_result_t of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_fl
 
 //Flow comparison
 bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group);
-bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_cookie, uint32_t out_port, uint32_t out_group);
-bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow_entry_t*const subentry, bool check_cookie, uint32_t out_port, uint32_t out_group);
+bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group);
+bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow_entry_t*const subentry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group);
 
 //Dump flow
 void of12_dump_flow_entry(of12_flow_entry_t* entry);
