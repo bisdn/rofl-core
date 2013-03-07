@@ -238,7 +238,7 @@ rofl_result_t of12_destroy_group_bucket_all(of12_group_t *ge){
 rofl_result_t of12_add_reference_entry_in_group(of12_group_t *group, of12_flow_entry_t *entry){
 	of12_entries_list_t *el = cutil_malloc_shared(sizeof(of12_entries_list_t));
 	
-	platform_rwlock_wrlock(); //TODO locking
+	//platform_rwlock_wrlock(); //TODO locking
 	
 	if(el == NULL)
 		return ROFL_FAILURE;

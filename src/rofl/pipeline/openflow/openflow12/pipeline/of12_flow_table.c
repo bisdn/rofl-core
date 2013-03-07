@@ -186,10 +186,26 @@ rofl_result_t of12_destroy_table(of12_flow_table_t* table){
 * of12_[whatever]_flow_entry_table_imp in order to update the main tables
 */
 inline rofl_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry){
-	return table->maf.add_flow_entry_hook(table,entry);
+	rofl_result_t res = table->maf.add_flow_entry_hook(table,entry);
+	
+	if(res==ROFL_FAILURE)
+		return ROFL_FAILURE;
+	
+	//TODO take out timers configuration from implementation of flow insertion
+	
+	//TODO registrate the entry in a group list
+	
+	return ROFL_SUCCESS;
 }
 inline rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness strict, of12_mutex_acquisition_required_t mutex_acquired ){
-	return table->maf.remove_flow_entry_hook(table,entry,specific_entry,strict, mutex_acquired);
+	rofl_result_t res = table->maf.remove_flow_entry_hook(table,entry,specific_entry,strict, mutex_acquired);
+	
+	if(res==ROFL_FAILURE)
+		return ROFL_FAILURE;
+	
+	//TODO take out timers configuration from implementation of flow insertion
+	
+	return ROFL_FAILURE;
 }
 
 /* Main process_packet_through */
