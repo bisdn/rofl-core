@@ -20,9 +20,10 @@ cftentry::cftentry(
 		rx_packets(0),
 		rx_bytes(0),
 		out_port(OFPP_ANY),
-		out_group(OFPG_ANY),
-		flow_mod(0)
+		out_group(OFPG_ANY)
 {
+	of12m_flow_mod = (struct ofp12_flow_mod*)0;
+
 	cftentry::cftentry_set.insert(this);
 
 	pthread_mutex_init(&usage_mutex, NULL);
