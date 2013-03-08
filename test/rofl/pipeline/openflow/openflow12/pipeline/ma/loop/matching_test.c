@@ -106,6 +106,20 @@ static void test_uninstall_wildcard_add_flows(of12_flow_entry_t** entries, unsig
 
 }
 
+static void clean_pipeline(of12_switch_t* sw){
+	
+	of12_flow_entry_t* deleting_entry = of12_init_flow_entry(NULL, NULL, false); 
+
+	CU_ASSERT(deleting_entry != NULL);
+
+	CU_ASSERT(of12_remove_flow_entry_table(&sw->pipeline->tables[0], deleting_entry, NOT_STRICT, OF12_PORT_ANY, OF12_GROUP_ANY) == ROFL_SUCCESS);
+	
+	//Check real size of the table
+	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
+
+
+}
+
 void test_uninstall_wildcard(){
 
 	unsigned int num_of_flows=rand()%20;
@@ -167,10 +181,12 @@ void test_uninstall_wildcard(){
 	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
 
 
-//With no-match(complete wildcard 
+//With no-match(complete wildcard)
+
 	//Reload
 	test_uninstall_wildcard_add_flows(entries, num_of_flows);
 
+#if 0 
 	//Do the deletion with no matches
 	deleting_entry = of12_init_flow_entry(NULL, NULL, false); 
 	CU_ASSERT(deleting_entry != NULL);
@@ -179,18 +195,126 @@ void test_uninstall_wildcard(){
 	
 	//Check real size of the table
 	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
-
-}
-#if 0
-void add_and_delete_buckets_test(){
-	
-}
-
-void concurrency_routine(void * param){
-
-}
-
-void concurrency_test(void){
-	
-}
 #endif
+	clean_pipeline(sw);
+}
+
+void test_overlap(){
+
+	of12_flow_entry_t* entry;
+
+/*
+*  
+* non overlapping matches 
+*
+*/
+	/* 1 match - */
+	//Create two entries 1 match same matches != scope and add with overlap=1
+	entry = of12_init_flow_entry(NULL, NULL, false); 
+
+	//Add match
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entry, true,false) == ROFL_OF12_FM_SUCCESS);
+	
+	//Add second entry
+	entry = of12_init_flow_entry(NULL, NULL, false); 
+
+	//Add match
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_port_in_match(NULL,NULL,2)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entry, true,false) == ROFL_OF12_FM_SUCCESS);
+	
+	clean_pipeline(sw);	
+
+	/* 4 match -  */
+	//Create two entries with 4 match same matches != scope and add with overlap=1
+	entry = of12_init_flow_entry(NULL, NULL, false); 
+	CU_ASSERT(entry != NULL);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_eth_src_match(NULL,NULL,0x999999999999, 0xffffffffffff)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip4_dst_match(NULL,NULL,0x11111111, 0xfffffff)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip4_src_match(NULL,NULL,0x22222222, 0xfffffff)) == ROFL_SUCCESS);
+	
+	CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entry, true,false) == ROFL_OF12_FM_SUCCESS);
+
+	entry = of12_init_flow_entry(NULL, NULL, false); 
+	CU_ASSERT(entry != NULL);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_port_in_match(NULL,NULL,2)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_eth_src_match(NULL,NULL,0x7777, 0xffffffffffff)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip4_dst_match(NULL,NULL,0x44444444, 0xfffffff)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip4_src_match(NULL,NULL,0x33333333, 0xfffffff)) == ROFL_SUCCESS);
+
+	CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entry, true,false) == ROFL_OF12_FM_SUCCESS);
+
+	clean_pipeline(sw);	
+
+	/* 1 match - different types */
+	//Create two entries with 2 match with different types and add with overlap=1
+	entry = of12_init_flow_entry(NULL, NULL, false); 
+
+	//Add match
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entry, true,false) == ROFL_OF12_FM_SUCCESS);
+	
+	//Add second entry
+	entry = of12_init_flow_entry(NULL, NULL, false); 
+
+	//Add match
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_eth_src_match(NULL,NULL,0x999999999999, 0xffffffffffff)) == ROFL_SUCCESS);
+	
+	CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entry, true,false) == ROFL_OF12_FM_OVERLAP);
+	
+	clean_pipeline(sw);	
+
+/*
+*  
+* overlapping matches 
+*
+*/
+	/* 4 match -  */
+	//Create two entries with 4 match same matches != scope except some and add with overlap=1
+	entry = of12_init_flow_entry(NULL, NULL, false); 
+	CU_ASSERT(entry != NULL);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_eth_src_match(NULL,NULL,0x999999999999, 0xffffffffffff)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip4_dst_match(NULL,NULL,0x11111111, 0xfffffff)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip4_src_match(NULL,NULL,0x22222233, 0xfffff00)) == ROFL_SUCCESS);
+	
+	CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entry, true,false) == ROFL_OF12_FM_SUCCESS);
+
+	entry = of12_init_flow_entry(NULL, NULL, false); 
+	CU_ASSERT(entry != NULL);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_eth_src_match(NULL,NULL,0x999999999999, 0xffffffffffff)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip4_dst_match(NULL,NULL,0x11111144, 0xfffff00)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip4_src_match(NULL,NULL,0x22222233, 0xfffff00)) == ROFL_SUCCESS);
+
+	CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entry, true,false) != ROFL_OF12_FM_SUCCESS);
+
+	clean_pipeline(sw);	
+
+	/* 2 match -  */
+	//Create two entries with 2 match same matches, one with different scope, and one that overlaps add with overlap=1
+	entry = of12_init_flow_entry(NULL, NULL, false); 
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip4_dst_match(NULL,NULL,0x11111111, 0xfffffff)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip4_src_match(NULL,NULL,0x22222233, 0xffffff0)) == ROFL_SUCCESS);
+	
+	CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entry, true,false) == ROFL_OF12_FM_SUCCESS);
+
+	entry = of12_init_flow_entry(NULL, NULL, false); 
+	CU_ASSERT(entry != NULL);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip4_dst_match(NULL,NULL,0x11111144, 0xfffff00)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip4_src_match(NULL,NULL,0x22222233, 0xfffff00)) == ROFL_SUCCESS);
+
+	CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entry, true,false) != ROFL_OF12_FM_SUCCESS);
+
+	clean_pipeline(sw);	
+
+
+/* non overlapping matchies */
+	
+	//Create two entries 1 match same matches != scope and add with overlap=1
+	
+//	clean_pipeline(sw);	
+
+
+}
