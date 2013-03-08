@@ -373,6 +373,30 @@ public:
 		return &(of12h_switch_features->ports[i]);
 	}
 	
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const
+	{
+		return ((0 != ofh_header) ? ofh_header->version : 0);
+	};
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_length() const
+	{
+		return ((0 != ofh_header) ? be16toh(ofh_header->length) : 0);
+	};
+
+
+
+
+
+
 protected:
 
 	/** validate hello messages

@@ -321,8 +321,9 @@ public:
 	 * update struct ofp_flow_mod
 	 */
 	virtual void
-	update_flow_mod(cofpacket *pack) throw (eFteInvalid);
+	update_flow_mod(cofpacket_flow_mod *pack) throw (eFteInvalid);
 
+#if 0
 	/**
 	 * send flow stats reply for this entry
 	 */
@@ -333,6 +334,8 @@ public:
 		uint16_t flags,
 		struct ofp_flow_stats_request *req,
 		size_t reqlen);
+#endif
+
 
 	/**
 	 * send flow stats reply for this entry
@@ -383,49 +386,56 @@ public:
 	 *
 	 */
 	uint8_t
-	get_version();
+	get_version() const;
 
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_flags();
+	get_flags() const;
 
 
 	/**
 	 *
 	 */
 	uint64_t
-	get_cookie();
+	get_cookie() const;
+
+
+	/**
+	 *
+	 */
+	uint64_t
+	get_cookie_mask() const;
 
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_priority();
+	get_priority() const;
 
 
 	/**
 	 *
 	 */
 	uint8_t
-	get_tableid();
+	get_tableid() const;
 
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_idle_timeout();
+	get_idle_timeout() const;
 
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_hard_timeout();
+	get_hard_timeout() const;
 
 
 public: // overloaded from hw_fte_cb
