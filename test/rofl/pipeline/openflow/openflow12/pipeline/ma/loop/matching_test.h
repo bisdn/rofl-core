@@ -19,8 +19,8 @@ int set_up(void);
 int tear_down(void);
 	
 /* Test cases */
-void test_install_simple_flow_mod(void);
-void test_uninstall_all(void);
+void test_install_empty_flow_mod(void);
+void test_install_overlapping_specific(void);
 void test_overlap(void);
 
 

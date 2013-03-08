@@ -22,8 +22,9 @@ int main(int args, char** argv){
 
 	/* add the tests to the suite */
 	/* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
-	if ((NULL == CU_add_test(pSuite, "test install simple flowmod", test_install_simple_flow_mod)) ||
-	(NULL == CU_add_test(pSuite, "test uninstall all", test_uninstall_all)) ||
+	if ((NULL == CU_add_test(pSuite, "test install empty flowmod", test_install_empty_flow_mod)) ||
+	(NULL == CU_add_test(pSuite, "test uninstall all", test_install_overlapping_specific)) ||
+	//(NULL == CU_add_test(pSuite, "test uninstall all", test_uninstall_all_wildcarded)) ||
 	(NULL == CU_add_test(pSuite, "test overlap add", test_overlap)) 
 	
 		)
