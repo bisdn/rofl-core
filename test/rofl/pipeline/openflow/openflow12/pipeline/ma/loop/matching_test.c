@@ -111,6 +111,8 @@ void test_uninstall_wildcard(){
 	unsigned int num_of_flows=rand()%20;
 	of12_flow_entry_t* entries[20], *deleting_entry;
 
+
+//With PORT_IN (first match)
 	//Add flows	
 	test_uninstall_wildcard_add_flows(entries, num_of_flows);
 
@@ -118,14 +120,56 @@ void test_uninstall_wildcard(){
 	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == num_of_flows);
 
 	//Do the deletion with the common match
-//	CU_ASSERT(of12_remove_flow_entry_table(&sw->pipeline->tables[0], deleting_entry, NOT_STRICT, OF12_PORT_ANY, OF12_GROUP_ANY) == ROFL_SUCCESS);
+	deleting_entry = of12_init_flow_entry(NULL, NULL, false); 
+	CU_ASSERT(deleting_entry != NULL);
+	CU_ASSERT(of12_add_match_to_entry(deleting_entry,of12_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
 
+	CU_ASSERT(of12_remove_flow_entry_table(&sw->pipeline->tables[0], deleting_entry, NOT_STRICT, OF12_PORT_ANY, OF12_GROUP_ANY) == ROFL_SUCCESS);
 	
 	//Check real size of the table
-//	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
-	
+	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
+
+//With ETH_SRC only (second match)	
 	//Reload
-//	test_uninstall_wildcard_add_flows(entries, num_of_flows);
+	test_uninstall_wildcard_add_flows(entries, num_of_flows);
+
+	//Check real size of the table
+	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == num_of_flows);
+
+	//Do the deletion with the common match
+	deleting_entry = of12_init_flow_entry(NULL, NULL, false); 
+	CU_ASSERT(deleting_entry != NULL);
+	CU_ASSERT(of12_add_match_to_entry(deleting_entry,of12_init_eth_src_match(NULL,NULL,0x012345678901, 0xFFFFFFFFFFFF)) == ROFL_SUCCESS);
+
+	CU_ASSERT(of12_remove_flow_entry_table(&sw->pipeline->tables[0], deleting_entry, NOT_STRICT, OF12_PORT_ANY, OF12_GROUP_ANY) == ROFL_SUCCESS);
+	
+	//Check real size of the table
+	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
+
+//With ALL with masks to 0 (the ones possible)
+	//Reload
+	test_uninstall_wildcard_add_flows(entries, num_of_flows);
+
+	//Check real size of the table
+	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == num_of_flows);
+
+	//Do the deletion with the common match
+	deleting_entry = of12_init_flow_entry(NULL, NULL, false); 
+	CU_ASSERT(deleting_entry != NULL);
+	CU_ASSERT(of12_add_match_to_entry(deleting_entry,of12_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(deleting_entry,of12_init_eth_src_match(NULL,NULL,0x999999999999, 0x000000000000)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(deleting_entry,of12_init_ip4_dst_match(NULL,NULL,rand()%0x11111111, 0x0000000)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(deleting_entry,of12_init_ip4_dst_match(NULL,NULL,rand()%0x22222222, 0x0000000)) == ROFL_SUCCESS);
+
+	CU_ASSERT(of12_remove_flow_entry_table(&sw->pipeline->tables[0], deleting_entry, NOT_STRICT, OF12_PORT_ANY, OF12_GROUP_ANY) == ROFL_SUCCESS);
+	
+	//Check real size of the table
+	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
+
+
+//With no-match(complete wildcard 
+	//Reload
+	test_uninstall_wildcard_add_flows(entries, num_of_flows);
 
 	//Do the deletion with no matches
 	deleting_entry = of12_init_flow_entry(NULL, NULL, false); 
