@@ -581,6 +581,14 @@ public:
 			ofh_header->type 		= OFPT_ECHO_REQUEST;
 			ofh_header->xid			= htobe32(xid);
 		};
+		/** constructor
+		 *
+		 */
+		cofpacket_echo_request(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
+		};
 		/** destructor
 		 *
 		 */
@@ -638,6 +646,14 @@ public:
 			ofh_header->type 		= OFPT_ECHO_REPLY;
 			ofh_header->xid			= htobe32(xid);
 		};
+		/** constructor
+		 *
+		 */
+		cofpacket_echo_reply(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
+		};
 		/** destructor
 		 *
 		 */
@@ -693,6 +709,14 @@ public:
 			ofh_header->type 		= OFPT_FEATURES_REQUEST;
 			ofh_header->xid			= htobe32(xid);
 		};
+		/** constructor
+		 *
+		 */
+		cofpacket_features_request(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
+		};
 		/** destructor
 		 *
 		 */
@@ -742,6 +766,14 @@ public:
 			default:
 				throw eBadVersion();
 			}
+		};
+		/** constructor
+		 *
+		 */
+		cofpacket_features_reply(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -813,6 +845,14 @@ public:
 			ofh_header->type 		= OFPT_GET_CONFIG_REQUEST;
 			ofh_header->xid			= htobe32(xid);
 		};
+		/** constructor
+		 *
+		 */
+		cofpacket_get_config_request(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
+		};
 		/** destructor
 		 *
 		 */
@@ -851,6 +891,14 @@ public:
 				of12h_switch_config->miss_send_len	= htobe16(miss_send_len);
 			} break;
 			}
+		};
+		/** constructor
+		 *
+		 */
+		cofpacket_get_config_reply(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -981,6 +1029,14 @@ public:
 			ofh_header->type 		= OFPT_BARRIER_REQUEST;
 			ofh_header->xid			= htobe32(xid);
 		};
+		/** constructor
+		 *
+		 */
+		cofpacket_barrier_request(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
+		};
 		/** destructor
 		 *
 		 */
@@ -1007,6 +1063,14 @@ public:
 			ofh_header->length		= htobe16(sizeof(struct ofp_header));
 			ofh_header->type 		= OFPT_BARRIER_REPLY;
 			ofh_header->xid			= htobe32(xid);
+		};
+		/** constructor
+		 *
+		 */
+		cofpacket_barrier_reply(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -1045,6 +1109,14 @@ public:
 
 			ofh_error_msg->type		= htobe16(type);
 			ofh_error_msg->code		= htobe16(code);
+		};
+		/** constructor
+		 *
+		 */
+		cofpacket_error(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -1740,6 +1812,14 @@ public:
 				throw eBadVersion();
 			}
 		};
+		/** constructor
+		 *
+		 */
+		cofpacket_packet_out(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
+		};
 		/** destructor
 		 *
 		 */
@@ -1828,6 +1908,14 @@ public:
 				throw eBadVersion();
 			}
 		};
+		/** constructor
+		 *
+		 */
+		cofpacket_port_status(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
+		};
 		/** destructor
 		 *
 		 */
@@ -1893,6 +1981,14 @@ public:
 				throw eBadVersion();
 			}
 		};
+		/** constructor
+		 *
+		 */
+		cofpacket_port_mod(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
+		};
 		/** destructor
 		 *
 		 */
@@ -1954,6 +2050,14 @@ public:
 			default:
 				throw eBadVersion();
 			}
+		};
+		/** constructor
+		 *
+		 */
+		cofpacket_group_mod(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -2037,6 +2141,14 @@ public:
 				throw eBadVersion();
 			}
 		};
+		/** constructor
+		 *
+		 */
+		cofpacket_table_mod(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
+		};
 		/** destructor
 		 *
 		 */
@@ -2089,6 +2201,14 @@ public:
 
 			ofh_stats_request->type		= htobe16(type);
 			ofh_stats_request->flags	= htobe16(flags);
+		};
+		/** constructor
+		 *
+		 */
+		cofpacket_stats_request(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -2151,6 +2271,14 @@ public:
 
 			ofh_stats_reply->type		= htobe16(type);
 			ofh_stats_reply->flags		= htobe16(flags);
+		};
+		/** constructor
+		 *
+		 */
+		cofpacket_stats_reply(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -2219,6 +2347,14 @@ public:
 				throw eBadVersion();
 			}
 		};
+		/** constructor
+		 *
+		 */
+		cofpacket_queue_get_config_request(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
+		};
 		/** destructor
 		 *
 		 */
@@ -2278,6 +2414,14 @@ public:
 				throw eBadVersion();
 			}
 		};
+		/** constructor
+		 *
+		 */
+		cofpacket_queue_get_config_reply(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
+		};
 		/** destructor
 		 *
 		 */
@@ -2331,6 +2475,14 @@ public:
 
 			ofh_experimenter->experimenter		= htobe32(experimenter);
 			ofh_experimenter->exp_type			= htobe32(exp_type);
+		};
+		/** constructor
+		 *
+		 */
+		cofpacket_experimenter(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -2398,6 +2550,14 @@ public:
 				throw eBadVersion();
 			}
 		};
+		/** constructor
+		 *
+		 */
+		cofpacket_role_request(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
+		};
 		/** destructor
 		 *
 		 */
@@ -2454,6 +2614,14 @@ public:
 			default:
 				throw eBadVersion();
 			}
+		};
+		/** constructor
+		 *
+		 */
+		cofpacket_role_reply(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator =(*pack);
 		};
 		/** destructor
 		 *
