@@ -96,6 +96,9 @@ void add_and_delete_buckets_test(){
 void concurrency_routine(void * param){
 	info_th_t* info = (info_th_t *)param;
 	int i=0;
+
+	(void)info;
+
 	fprintf (stderr,"Hallo\n");
 	
 	assert (of12_group_add(tu.gt, info->id, info->id, tu.weight, tu.group, tu.port, tu.actions)==ROFL_SUCCESS);
