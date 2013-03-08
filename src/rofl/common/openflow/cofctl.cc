@@ -23,7 +23,8 @@ cofctl::cofctl(
 				fragment(0),
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
-				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL)
+				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
+				version(0)
 {
 	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
 
@@ -418,49 +419,49 @@ cofctl::handle_message(
 			hello_rcvd(new cofpacket_hello(pack));
 		} break;
 		case OFPT_ECHO_REQUEST: {
-			echo_request_rcvd(pack);
+			echo_request_rcvd(new cofpacket_echo_request(pack));
 		} break;
 		case OFPT_ECHO_REPLY: {
-			echo_reply_rcvd(pack);
+			echo_reply_rcvd(new cofpacket_echo_reply(pack));
 		} break;
 		case OFPT_EXPERIMENTER:	{
-			experimenter_rcvd(pack);
+			experimenter_rcvd(new cofpacket_experimenter(pack));
 		} break;
 		case OFPT_FEATURES_REQUEST:	{
-			features_request_rcvd(pack);
+			features_request_rcvd(new cofpacket_features_request(pack));
 		} break;
 		case OFPT_GET_CONFIG_REQUEST: {
-			get_config_request_rcvd(pack);
+			get_config_request_rcvd(new cofpacket_get_config_request(pack));
 		} break;
 		case OFPT_SET_CONFIG: {
-			set_config_rcvd(pack);
+			set_config_rcvd(new cofpacket_set_config(pack));
 		} break;
 		case OFPT_PACKET_OUT: {
-			packet_out_rcvd(pack);
+			packet_out_rcvd(new cofpacket_packet_out(pack));
 		} break;
 		case OFPT_FLOW_MOD: {
 			flow_mod_rcvd(new cofpacket_flow_mod(pack));
 		} break;
 		case OFPT_GROUP_MOD: {
-			group_mod_rcvd(pack);
+			group_mod_rcvd(new cofpacket_group_mod(pack));
 		} break;
 		case OFPT_PORT_MOD: {
-			port_mod_rcvd(pack);
+			port_mod_rcvd(new cofpacket_port_mod(pack));
 		} break;
 		case OFPT_TABLE_MOD: {
-			table_mod_rcvd(pack);
+			table_mod_rcvd(new cofpacket_table_mod(pack));
 		} break;
 		case OFPT_STATS_REQUEST: {
-			stats_request_rcvd(pack);
+			stats_request_rcvd(new cofpacket_stats_request(pack));
 		} break;
 		case OFPT_BARRIER_REQUEST: {
-			barrier_request_rcvd(pack);
+			barrier_request_rcvd(new cofpacket_barrier_request(pack));
 		} break;
 		case OFPT_QUEUE_GET_CONFIG_REQUEST: {
-			queue_get_config_request_rcvd(pack);
+			queue_get_config_request_rcvd(new cofpacket_queue_get_config_request(pack));
 		} break;
 		case OFPT_ROLE_REQUEST: {
-			role_request_rcvd(pack);
+			role_request_rcvd(new cofpacket_role_request(pack));
 		} break;
 		default: {
 			WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
@@ -1110,7 +1111,7 @@ cofctl::echo_request_sent(cofpacket *pack)
 
 
 void
-cofctl::echo_request_rcvd(cofpacket *pack)
+cofctl::echo_request_rcvd(cofpacket_echo_request *pack)
 {
 	// send echo reply back including any appended data
 	rofbase->send_echo_reply(this, pack->get_xid(), pack->body.somem(), pack->body.memlen());
@@ -1123,7 +1124,7 @@ cofctl::echo_request_rcvd(cofpacket *pack)
 
 
 void
-cofctl::echo_reply_rcvd(cofpacket *pack)
+cofctl::echo_reply_rcvd(cofpacket_echo_reply *pack)
 {
 	cancel_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT);
 	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
@@ -1132,7 +1133,7 @@ cofctl::echo_reply_rcvd(cofpacket *pack)
 
 
 void
-cofctl::features_request_rcvd(cofpacket *pack)
+cofctl::features_request_rcvd(cofpacket_features_request *pack)
 {
 	try {
 		xidstore.xid_add(this, be32toh(pack->ofh_header->xid), 0);
@@ -1166,7 +1167,7 @@ cofctl::features_reply_sent(cofpacket *pack)
 
 
 void
-cofctl::get_config_request_rcvd(cofpacket *pack)
+cofctl::get_config_request_rcvd(cofpacket_get_config_request *pack)
 {
 	if (OFPCR_ROLE_SLAVE == role)
 	{
@@ -1198,7 +1199,7 @@ cofctl::get_config_reply_sent(cofpacket *pack)
 
 
 void
-cofctl::set_config_rcvd(cofpacket *pack)
+cofctl::set_config_rcvd(cofpacket_set_config *pack)
 {
 	try {
 		if (OFPCR_ROLE_SLAVE == role)
@@ -1246,7 +1247,7 @@ cofctl::set_config_rcvd(cofpacket *pack)
 
 
 void
-cofctl::packet_out_rcvd(cofpacket *pack)
+cofctl::packet_out_rcvd(cofpacket_packet_out *pack)
 {
 	if (OFPCR_ROLE_SLAVE == role)
 	{
@@ -1491,7 +1492,7 @@ cofctl::flow_mod_rcvd(cofpacket_flow_mod *pack)
 
 
 void
-cofctl::group_mod_rcvd(cofpacket *pack)
+cofctl::group_mod_rcvd(cofpacket_group_mod *pack)
 {
 	try {
 
@@ -1724,7 +1725,7 @@ cofctl::group_mod_rcvd(cofpacket *pack)
 
 
 void
-cofctl::port_mod_rcvd(cofpacket *pack)
+cofctl::port_mod_rcvd(cofpacket_port_mod *pack)
 {
 	try {
 		if (OFPCR_ROLE_SLAVE == role)
@@ -1797,7 +1798,7 @@ cofctl::port_mod_rcvd(cofpacket *pack)
 
 
 void
-cofctl::table_mod_rcvd(cofpacket *pack)
+cofctl::table_mod_rcvd(cofpacket_table_mod *pack)
 {
 	try {
 		if (OFPCR_ROLE_SLAVE == role)
@@ -1845,7 +1846,7 @@ cofctl::table_mod_rcvd(cofpacket *pack)
 
 
 void
-cofctl::stats_request_rcvd(cofpacket *pack)
+cofctl::stats_request_rcvd(cofpacket_stats_request *pack)
 {
 	try {
 		xidstore.xid_add(this, be32toh(pack->ofh_header->xid));
@@ -1940,7 +1941,7 @@ cofctl::stats_reply_sent(cofpacket *pack)
 
 
 void
-cofctl::role_request_rcvd(cofpacket *pack)
+cofctl::role_request_rcvd(cofpacket_role_request *pack)
 {
 	try {
 		try {
@@ -2070,7 +2071,7 @@ cofctl::role_reply_sent(cofpacket *pack)
 
 
 void
-cofctl::barrier_request_rcvd(cofpacket *pack)
+cofctl::barrier_request_rcvd(cofpacket_barrier_request *pack)
 {
 	try {
 		xidstore.xid_add(this, be32toh(pack->ofh_header->xid));
@@ -2105,7 +2106,7 @@ cofctl::barrier_reply_sent(cofpacket *pack)
 
 
 void
-cofctl::queue_get_config_request_rcvd(cofpacket *pack)
+cofctl::queue_get_config_request_rcvd(cofpacket_queue_get_config_request *pack)
 {
 	try {
 		xidstore.xid_add(this, be32toh(pack->ofh_header->xid));
@@ -2140,7 +2141,7 @@ cofctl::queue_get_config_reply_sent(cofpacket *pack)
 
 
 void
-cofctl::experimenter_rcvd(cofpacket *pack)
+cofctl::experimenter_rcvd(cofpacket_experimenter *pack)
 {
 	switch (be32toh(pack->ofh_experimenter->experimenter)) {
 	case OFPEXPID_ROFL:

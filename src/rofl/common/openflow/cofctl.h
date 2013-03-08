@@ -183,25 +183,25 @@ protected:
 	 *
 	 */
 	void
-	echo_request_rcvd(cofpacket *pack);
+	echo_request_rcvd(cofpacket_echo_request *pack);
 
 
 	/**
 	 *
 	 */
 	void
-	echo_reply_rcvd(cofpacket *pack);
+	echo_reply_rcvd(cofpacket_echo_reply *pack);
 
 
 	/** handle incoming vendor message (ROFL extensions)
 	 */
 	void
-	experimenter_rcvd(cofpacket *pack);
+	experimenter_rcvd(cofpacket_experimenter *pack);
 
 	/** handle incoming FEATURE requests
 	 */
 	void
-	features_request_rcvd(cofpacket *pack);
+	features_request_rcvd(cofpacket_features_request *pack);
 
 	/**
 	 *
@@ -213,7 +213,7 @@ protected:
 	 *
 	 */
 	void
-	get_config_request_rcvd(cofpacket *pack);
+	get_config_request_rcvd(cofpacket_get_config_request *pack);
 
 	/**
 	 *
@@ -225,12 +225,12 @@ protected:
 	 *
 	 */
 	void
-	set_config_rcvd(cofpacket *pack);
+	set_config_rcvd(cofpacket_set_config *pack);
 
 	/** handle incoming PACKET-OUT messages
 	 */
 	void
-	packet_out_rcvd(cofpacket *pack);
+	packet_out_rcvd(cofpacket_packet_out *pack);
 
 	/** handle incoming FLOW-MOD messages
 	 */
@@ -240,23 +240,23 @@ protected:
 	/** handle incoming GROUP-MOD messages
 	 */
 	void
-	group_mod_rcvd(cofpacket *pack);
+	group_mod_rcvd(cofpacket_group_mod *pack);
 
 	/** handle incoming PORT-MOD messages
 	 */
 	void
-	port_mod_rcvd(cofpacket *pack);
+	port_mod_rcvd(cofpacket_port_mod *pack);
 
 	/** handle incoming TABLE-MOD messages
 	 */
 	void
-	table_mod_rcvd(cofpacket *pack);
+	table_mod_rcvd(cofpacket_table_mod *pack);
 
 	/** STATS-REQUEST received
 	 *
 	 */
 	void
-	stats_request_rcvd(cofpacket *pack);
+	stats_request_rcvd(cofpacket_stats_request *pack);
 
 	/**
 	 *
@@ -267,7 +267,7 @@ protected:
 	/** handle incoming ROLE-REQUEST messages
 	 */
 	void
-	role_request_rcvd(cofpacket *pack);
+	role_request_rcvd(cofpacket_role_request *pack);
 
 	/**
 	 *
@@ -278,7 +278,7 @@ protected:
 	/** handle incoming BARRIER request
 	 */
 	void
-	barrier_request_rcvd(cofpacket *pack);
+	barrier_request_rcvd(cofpacket_barrier_request *pack);
 
 	/** BARRIER reply sent back
 	 *
@@ -290,7 +290,7 @@ protected:
 	 *
 	 */
 	void
-	queue_get_config_request_rcvd(cofpacket *pack);
+	queue_get_config_request_rcvd(cofpacket_queue_get_config_request *pack);
 
 	/**
 	 *
