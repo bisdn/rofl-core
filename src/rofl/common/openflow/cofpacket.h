@@ -989,6 +989,36 @@ public:
 		{
 			return (sizeof(struct ofp_switch_config));
 		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_flags()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(of12h_switch_config->flags); // no change since OF1.2
+			} break;
+			default:
+				throw eBadVersion();
+			}
+		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_miss_send_len()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(of12h_switch_config->miss_send_len); // no change since OF1.2
+			} break;
+			default:
+				throw eBadVersion();
+			}
+		};
 };
 
 
