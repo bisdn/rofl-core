@@ -366,21 +366,15 @@ cofdpt::send_message(
     }
 
 	switch (pack->ofh_header->type) {
-	case OFPT_HELLO:
-		{
-			// do nothing here
-		}
-		break;
-	case OFPT_ECHO_REQUEST:
-		{
-			echo_request_sent(pack);
-		}
-		break;
-	case OFPT_ECHO_REPLY:
-		{
-			// do nothing here
-		}
-		break;
+	case OFPT_HELLO: {
+		// do nothing here
+	} break;
+	case OFPT_ECHO_REQUEST: {
+		echo_request_sent(pack);
+	} break;
+	case OFPT_ECHO_REPLY: {
+		// do nothing here
+	} break;
 	case OFPT_ERROR:
 	case OFPT_EXPERIMENTER:
 	case OFPT_SET_CONFIG:
@@ -388,48 +382,32 @@ cofdpt::send_message(
 	case OFPT_FLOW_MOD:
 	case OFPT_GROUP_MOD:
 	case OFPT_PORT_MOD:
-	case OFPT_TABLE_MOD:
-		{
-			// asynchronous messages, no transaction => do nothing here
-		}
-		break;
-	case OFPT_FEATURES_REQUEST:
-		{
-			features_request_sent(pack);
-		}
-		break;
-	case OFPT_GET_CONFIG_REQUEST:
-		{
-			get_config_request_sent(pack);
-		}
-		break;
-	case OFPT_STATS_REQUEST:
-		{
-			stats_request_sent(pack);
-		}
-		break;
-	case OFPT_BARRIER_REQUEST:
-		{
-			barrier_request_sent(pack);
-		}
-		break;
-	case OFPT_QUEUE_GET_CONFIG_REQUEST:
-		{
-			queue_get_config_request_sent(pack);
-		}
-		break;
-	case OFPT_ROLE_REQUEST:
-		{
-			role_request_sent(pack);
-		}
-		break;
-	default:
-		{
-			WRITELOG(COFDPT, WARN, "cofdpt(%p)::send_message() "
-					"dropping invalid packet: %s", this, pack->c_str());
-			delete pack;
-		}
-		return;
+	case OFPT_TABLE_MOD: {
+		// asynchronous messages, no transaction => do nothing here
+	} break;
+	case OFPT_FEATURES_REQUEST: {
+		features_request_sent(pack);
+	} break;
+	case OFPT_GET_CONFIG_REQUEST: {
+		get_config_request_sent(pack);
+	} break;
+	case OFPT_STATS_REQUEST: {
+		stats_request_sent(pack);
+	} break;
+	case OFPT_BARRIER_REQUEST: {
+		barrier_request_sent(pack);
+	} break;
+	case OFPT_QUEUE_GET_CONFIG_REQUEST: {
+		queue_get_config_request_sent(pack);
+	} break;
+	case OFPT_ROLE_REQUEST: {
+		role_request_sent(pack);
+	} break;
+	default: {
+		WRITELOG(COFDPT, WARN, "cofdpt(%p)::send_message() "
+				"dropping invalid packet: %s", this, pack->c_str());
+		delete pack;
+	} return;
 	}
 
 #ifndef NDEBUG

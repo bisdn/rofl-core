@@ -94,82 +94,50 @@ cofctl::send_message(
 
     switch (pack->ofh_header->type) {
     case OFPT_HELLO:
-            {
-                    // ...
-            }
-            break;
-    case OFPT_ERROR:
-            {
-                    // ...
-            }
-            break;
-    case OFPT_ECHO_REQUEST:
-            {
-                    echo_request_sent(pack);
-            }
-            break;
-    case OFPT_ECHO_REPLY:
-            {
-                    // do nothing here
-            }
-            break;
-    case OFPT_EXPERIMENTER:
-            {
-                    // ...
-            }
-            break;
-    case OFPT_FEATURES_REPLY:
-            {
-                    features_reply_sent(pack);
-            }
-            break;
-    case OFPT_GET_CONFIG_REPLY:
-            {
-                    get_config_reply_sent(pack);
-            }
-            break;
-    case OFPT_PACKET_IN:
-            {
-                    // asynchronous ...
-            }
-            break;
-    case OFPT_FLOW_REMOVED:
-            {
-                    // asynchronous ...
-            }
-            break;
-    case OFPT_PORT_STATUS:
-            {
-                    // asynchronous ...
-            }
-            break;
-    case OFPT_STATS_REPLY:
-            {
-                    stats_reply_sent(pack);
-            }
-            break;
-    case OFPT_BARRIER_REPLY:
-            {
-                    barrier_reply_sent(pack);
-            }
-            break;
-    case OFPT_QUEUE_GET_CONFIG_REPLY:
-            {
-                    queue_get_config_reply_sent(pack);
-            }
-            break;
-    case OFPT_ROLE_REPLY:
-            {
-                    role_reply_sent(pack);
-            }
-            break;
-    default:
-            {
-                    WRITELOG(COFCTL, WARN, "cofctl(%p)::send_message() "
-                                    "dropping invalid packet: %s", this, pack->c_str());
-                    delete pack;
-            }
-            return;
+    case OFPT_ERROR: {
+		// ...
+	} break;
+    case OFPT_ECHO_REQUEST: {
+		echo_request_sent(pack);
+	} break;
+    case OFPT_ECHO_REPLY: {
+    	// do nothing here
+	} break;
+    case OFPT_EXPERIMENTER: {
+		// ...
+	} break;
+    case OFPT_FEATURES_REPLY: {
+		features_reply_sent(pack);
+	} break;
+    case OFPT_GET_CONFIG_REPLY: {
+		get_config_reply_sent(pack);
+	} break;
+    case OFPT_PACKET_IN: {
+		// asynchronous ...
+	} break;
+    case OFPT_FLOW_REMOVED: {
+		// asynchronous ...
+	} break;
+    case OFPT_PORT_STATUS: {
+		// asynchronous ...
+	} break;
+    case OFPT_STATS_REPLY: {
+		stats_reply_sent(pack);
+	} break;
+    case OFPT_BARRIER_REPLY: {
+		barrier_reply_sent(pack);
+	} break;
+    case OFPT_QUEUE_GET_CONFIG_REPLY: {
+		queue_get_config_reply_sent(pack);
+	} break;
+    case OFPT_ROLE_REPLY: {
+		role_reply_sent(pack);
+	} break;
+    default: {
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::send_message() "
+						"dropping invalid packet: %s", this, pack->c_str());
+		delete pack;
+	} return;
     }
 
 #ifndef NDEBUG
