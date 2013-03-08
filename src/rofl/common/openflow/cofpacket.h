@@ -1254,6 +1254,36 @@ public:
 
 			memcpy(buf + sizeof(struct ofp_error_msg), body.somem(), body.memlen());
 		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_type()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(ofh_error_msg->type); // no change since OF1.2
+			} break;
+			default:
+				throw eBadVersion();
+			}
+		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_code()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(ofh_error_msg->code); // no change since OF1.2
+			} break;
+			default:
+				throw eBadVersion();
+			}
+		};
 };
 
 
