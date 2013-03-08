@@ -193,6 +193,7 @@ public:
 	 *
 	 */
 	cftentry(
+			uint8_t of_version,
 			cftentry_owner *owner = NULL,
 			cofctl *ctl = NULL);
 
@@ -201,10 +202,11 @@ public:
 	 *
 	 */
 	cftentry(
-		cftentry_owner *owner,
-		std::set<cftentry*> *flow_table,
-		cofpacket *pack,
-		cofctl *ctl = NULL);
+			uint8_t of_version,
+			cftentry_owner *owner,
+			std::set<cftentry*> *flow_table,
+			cofpacket_flow_mod *pack,
+			cofctl *ctl = NULL);
 
 
 	/** destructor

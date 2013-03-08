@@ -626,9 +626,10 @@ public: // specific hardware support
 	virtual
 	cftentry*
 	hw_create_cftentry(
-		cftentry_owner *owner,
-		std::set<cftentry*> *flow_table,
-		cofpacket *pack);
+			uint8_t of_version,
+			cftentry_owner *owner,
+			std::set<cftentry*> *flow_table,
+			cofpacket_flow_mod *pack);
 
 public: // overloaded from cftentry_owner
 

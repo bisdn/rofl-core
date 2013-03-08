@@ -174,7 +174,7 @@ public:
 	virtual cftentry*
 	cftentry_factory(
 			std::set<cftentry*> *flow_table,
-			cofpacket *pack);
+			cofpacket_flow_mod *pack);
 
 
 	/** returns true for table policy OFPTC_TABLE_MISS_CONTROLLER

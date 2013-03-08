@@ -9,18 +9,20 @@ using namespace rofl;
 /*static*/std::set<cftentry*>		cftentry::cftentry_set;
 
 cftentry::cftentry(
+		uint8_t of_version,
 		cftentry_owner *owner,
 		cofctl *ctl) :
-		usage_cnt(0),
-		owner(owner),
-		flow_table(0),
-		ctl(ctl),
-		uid(0),
-		removal_reason(OFPRR_DELETE),
-		rx_packets(0),
-		rx_bytes(0),
-		out_port(OFPP_ANY),
-		out_group(OFPG_ANY)
+				of_version(of_version),
+				usage_cnt(0),
+				owner(owner),
+				flow_table(0),
+				ctl(ctl),
+				uid(0),
+				removal_reason(OFPRR_DELETE),
+				rx_packets(0),
+				rx_bytes(0),
+				out_port(OFPP_ANY),
+				out_group(OFPG_ANY)
 {
 	of12m_flow_mod = (struct ofp12_flow_mod*)0;
 
@@ -39,24 +41,24 @@ cftentry::cftentry(
 
 
 cftentry::cftentry(
+		uint8_t of_version,
 		cftentry_owner *owner,
 		std::set<cftentry*> *flow_table,
-		cofpacket *pack,
+		cofpacket_flow_mod *pack,
 		cofctl *ctl) :
-		usage_cnt(0),
-		owner(owner),
-		flow_table(flow_table),
-		ctl(ctl),
-		uid(0),
-		instructions(pack->instructions),
-		removal_reason(OFPRR_DELETE),
-		rx_packets(0),
-		rx_bytes(0),
-		out_port(be32toh(pack->ofh_flow_mod->out_port)),
-		out_group(be32toh(pack->ofh_flow_mod->out_group)),
-		ofmatch(pack->match),
-		m_flowmod(sizeof(struct ofp_flow_mod) - sizeof(struct ofp_match)),
-		flow_mod((struct ofp_flow_mod*)m_flowmod.somem())
+				of_version(of_version),
+				usage_cnt(0),
+				owner(owner),
+				flow_table(flow_table),
+				ctl(ctl),
+				uid(0),
+				instructions(pack->instructions),
+				removal_reason(OFPRR_DELETE),
+				rx_packets(0),
+				rx_bytes(0),
+				out_port(pack->get_out_port()),
+				out_group(pack->get_out_group()),
+				ofmatch(pack->match)
 {
 	cftentry::cftentry_set.insert(this);
 
@@ -64,10 +66,25 @@ cftentry::cftentry(
 	pthread_mutex_init(&flags_mutex, NULL);
 	pthread_rwlock_init(&access_time_lock, NULL);
 
-	// flow_mod copy remains in network byte order !!!
-	// we copy the generic flow mod header only, i.e. ofp_match and all instructions are
-	// stored in this->match and this->inlist !
-	memcpy(m_flowmod.somem(), (uint8_t*)pack->ofh_flow_mod, m_flowmod.memlen());
+
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		m_flowmod.resize(sizeof(struct ofp12_flow_mod) - sizeof(struct ofp_match)),
+		of12m_flow_mod = (struct ofp12_flow_mod*)(m_flowmod.somem());
+
+		// flow_mod copy remains in network byte order !!!
+			// we copy the generic flow mod header only, i.e. ofp_match and all instructions are
+			// stored in this->match and this->inlist !
+			memcpy(m_flowmod.somem(), (uint8_t*)pack->of12h_flow_mod, m_flowmod.memlen());
+
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+
+
 
 	__update();
 
@@ -76,15 +93,15 @@ cftentry::cftentry(
 	last_access_time = cclock::now();
 
 	// set hard timeout always
-	if (be16toh(this->flow_mod->hard_timeout) != OFP_FLOW_PERMANENT)
+	if (pack->get_hard_timeout() != OFP_FLOW_PERMANENT)
 	{
-		register_timer(TIMER_FTE_HARD_TIMEOUT, be16toh(this->flow_mod->hard_timeout));
+		register_timer(TIMER_FTE_HARD_TIMEOUT, pack->get_hard_timeout());
 	}
 
 	// set idle timeout only, when flow_mod->idle_timeout < flow_mod->hard_timeout
-	if (be16toh(this->flow_mod->idle_timeout) != OFP_FLOW_PERMANENT)
+	if (pack->get_idle_timeout() != OFP_FLOW_PERMANENT)
 	{
-		register_timer(TIMER_FTE_IDLE_TIMEOUT, be16toh(this->flow_mod->idle_timeout));
+		register_timer(TIMER_FTE_IDLE_TIMEOUT, pack->get_idle_timeout());
 	}
 
 	// create info string for debugging

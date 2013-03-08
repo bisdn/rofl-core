@@ -177,9 +177,9 @@ cfttable::handle_timeout(
 cftentry*
 cfttable::cftentry_factory(
 		std::set<cftentry*> *flow_table,
-		cofpacket *pack)
+		cofpacket_flow_mod *pack)
 {
-	return new cftentry(this, flow_table, pack);
+	return new cftentry(pack->ofh_header->version, this, flow_table, pack);
 }
 
 

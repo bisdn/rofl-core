@@ -224,11 +224,12 @@ cfwdelem::handle_timeout(int opaque)
 
 cftentry*
 cfwdelem::hw_create_cftentry(
-	cftentry_owner *owner,
-	std::set<cftentry*> *flow_table,
-	cofpacket *pack)
+		uint8_t of_version,
+		cftentry_owner *owner,
+		std::set<cftentry*> *flow_table,
+		cofpacket_flow_mod *pack)
 {
-	return new cftentry(owner, flow_table, pack);
+	return new cftentry(of_version, owner, flow_table, pack);
 }
 
 
