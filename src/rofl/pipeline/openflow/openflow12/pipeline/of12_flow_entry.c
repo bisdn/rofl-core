@@ -198,7 +198,7 @@ bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow
 			if( it_subentry->type != it_orig->type)
 				continue;	
 			
-			if( of12_is_submatch( it_subentry, it_orig ) )
+			if( !of12_is_submatch( it_subentry, it_orig ) )
 				return false;
 		}
 	}
