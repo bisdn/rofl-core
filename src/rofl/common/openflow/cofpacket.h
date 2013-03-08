@@ -823,6 +823,82 @@ public:
 				throw eBadVersion();
 			}
 		};
+		/**
+		 *
+		 */
+		uint64_t
+		get_dpid() const
+		{
+			switch (get_version()) {
+			case OFP12_VERSION: {
+				return be64toh(of12h_switch_features->datapath_id);
+			} break;
+			case OFP13_VERSION: {
+				return be64toh(of13h_switch_features->datapath_id);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_n_buffers() const
+		{
+			switch (get_version()) {
+			case OFP12_VERSION: {
+				return be32toh(of12h_switch_features->n_buffers);
+			} break;
+			case OFP13_VERSION: {
+				return be32toh(of13h_switch_features->n_buffers);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint8_t
+		get_n_tables() const
+		{
+			switch (get_version()) {
+			case OFP12_VERSION: {
+				return be32toh(of12h_switch_features->n_tables);
+			} break;
+			case OFP13_VERSION: {
+				return be32toh(of13h_switch_features->n_tables);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_capabilities() const
+		{
+			switch (get_version()) {
+			case OFP12_VERSION: {
+				return be32toh(of12h_switch_features->capabilities);
+			} break;
+			case OFP13_VERSION: {
+				return be32toh(of13h_switch_features->capabilities);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
 };
 
 
