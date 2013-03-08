@@ -9,6 +9,7 @@
 #include <CUnit/Basic.h>
 
 #include "rofl/pipeline/openflow/openflow12/of12_switch.h"
+#include "rofl/pipeline/openflow/openflow12/pipeline/of12_match.h"
 #include "rofl/pipeline/openflow/openflow12/pipeline/of12_flow_entry.h"
 #include "rofl/pipeline/openflow/openflow12/pipeline/of12_flow_table.h"
 #include "rofl/pipeline/openflow/openflow12/pipeline/matching_algorithms/matching_algorithms_available.h"
@@ -21,7 +22,7 @@ int tear_down(void);
 /* Test cases */
 void test_install_empty_flow_mod(void);
 void test_install_overlapping_specific(void);
-void test_overlap(void);
+void test_uninstall_wildcard(void);
 
 
 #endif

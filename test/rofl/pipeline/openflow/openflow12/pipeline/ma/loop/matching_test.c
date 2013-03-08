@@ -34,21 +34,21 @@ void test_install_empty_flow_mod(){
 	//Install
 	CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entry, false,false) == ROFL_OF12_FM_SUCCESS);
 	
-	//Check really size of the table
+	//Check real size of the table
 	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 1);
 	
 	//Uninstall (specific)	
 	CU_ASSERT(of12_remove_flow_entry_table(&sw->pipeline->tables[0], entry, STRICT, OF12_PORT_ANY, OF12_GROUP_ANY) == ROFL_SUCCESS);
 	
-	//Check really size of the table
+	//Check real size of the table
 	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
 	
 }
 
 void test_install_overlapping_specific(){
 
-	unsigned int i, num_of_flows=rand()%5;//50;
-	of12_flow_entry_t* entries[250];
+	unsigned int i, num_of_flows=rand()%20;
+	of12_flow_entry_t* entries[20];
 
 	//Install N flowmods which identical => should put only one
 	for(i=0;i<num_of_flows;i++){
@@ -59,7 +59,7 @@ void test_install_overlapping_specific(){
 		CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entries[i], false,false) == ROFL_OF12_FM_SUCCESS);
 	}
 
-	//Check really size of the table
+	//Check real size of the table
 	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 1);
 	
 	//Uninstall all using specific method
@@ -76,22 +76,66 @@ void test_install_overlapping_specific(){
 		}
 	}
 
-	//Check really size of the table
+	//Check real size of the table
 	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);	
 }
 
-void test_overlap(){
 
-	//Install
+static void test_uninstall_wildcard_add_flows(of12_flow_entry_t** entries, unsigned int num_of_flows){
+	unsigned int i;
+
+	//Install N flowmods with one identical match and the rest randomly generated
+	for(i=0;i<num_of_flows;i++){
+		entries[i] = of12_init_flow_entry(NULL, NULL, false); 
 	
-	//Try overlapping(same flow_mod)
+		//Add two match common
+		CU_ASSERT(of12_add_match_to_entry(entries[i],of12_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
+		CU_ASSERT(of12_add_match_to_entry(entries[i],of12_init_eth_src_match(NULL,NULL,0x012345678901, 0xFFFFFFFFFFFF)) == ROFL_SUCCESS);
 
-	//Try less restricting flow_mod overlapping
+		//Add random matches 
+		CU_ASSERT(of12_add_match_to_entry(entries[i],of12_init_eth_dst_match(NULL,NULL,rand()%0xFFFFFFFF, 0xFFFFFFFFFFFF)) == ROFL_SUCCESS);
 
-	//Test non overlapping flow_mod
+		if(rand()%100 > 50)
+			CU_ASSERT(of12_add_match_to_entry(entries[i],of12_init_ip4_dst_match(NULL,NULL,rand()%0xFFFFFFFF, 0xFFFFFFF)) == ROFL_SUCCESS);
 
-	//Uninstall
+		if(rand()%100 > 80)
+			CU_ASSERT(of12_add_match_to_entry(entries[i],of12_init_ip4_src_match(NULL,NULL,rand()%0xFFFFFFFF, 0xFFFFFFF)) == ROFL_SUCCESS);
 	
+		CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entries[i], false,false) == ROFL_OF12_FM_SUCCESS);
+	}
+
+}
+
+void test_uninstall_wildcard(){
+
+	unsigned int num_of_flows=rand()%20;
+	of12_flow_entry_t* entries[20], *deleting_entry;
+
+	//Add flows	
+	test_uninstall_wildcard_add_flows(entries, num_of_flows);
+
+	//Check real size of the table
+	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == num_of_flows);
+
+	//Do the deletion with the common match
+//	CU_ASSERT(of12_remove_flow_entry_table(&sw->pipeline->tables[0], deleting_entry, NOT_STRICT, OF12_PORT_ANY, OF12_GROUP_ANY) == ROFL_SUCCESS);
+
+	
+	//Check real size of the table
+//	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
+	
+	//Reload
+//	test_uninstall_wildcard_add_flows(entries, num_of_flows);
+
+	//Do the deletion with no matches
+	deleting_entry = of12_init_flow_entry(NULL, NULL, false); 
+	CU_ASSERT(deleting_entry != NULL);
+	
+	CU_ASSERT(of12_remove_flow_entry_table(&sw->pipeline->tables[0], deleting_entry, NOT_STRICT, OF12_PORT_ANY, OF12_GROUP_ANY) == ROFL_SUCCESS);
+	
+	//Check real size of the table
+	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
+
 }
 #if 0
 void add_and_delete_buckets_test(){

@@ -196,16 +196,28 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 		}
 	}
 	
-	//There are no entries in the table
-	entry->next = entry->prev = NULL;	
-	
+	if(!table->entries){
+		//There are no entries in the table
+		entry->next = entry->prev = NULL;	
+	}else{
+		//Last item
+		entry->next = NULL;
+		entry->prev = prev;
+	}
+
 	//Point entry table to us
 	entry->table = table;
 
 	//Prevent readers to jump in
 	platform_rwlock_wrlock(table->rwlock);
 
-	table->entries = entry;
+	if(!table->entries){
+		//No entries
+		table->entries = entry;
+	}else{
+		//Last
+		prev->next = entry;
+	}
 	table->num_of_entries++;
 
 	
