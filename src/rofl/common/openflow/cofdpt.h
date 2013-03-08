@@ -405,7 +405,7 @@ protected:
 	 *
 	 */
 	void
-	hello_rcvd(cofpacket *pack);
+	hello_rcvd(cofpacket_hello *pack);
 
 
 	/**
@@ -419,20 +419,20 @@ protected:
 	 *
 	 */
 	void
-	echo_request_rcvd(cofpacket *pack);
+	echo_request_rcvd(cofpacket_echo_request *pack);
 
 
 	/**
 	 *
 	 */
 	void
-	echo_reply_rcvd(cofpacket *pack);
+	echo_reply_rcvd(cofpacket_echo_reply *pack);
 
 
 	/** handle incoming vendor message (ROFL extensions)
 	 */
 	void
-	experimenter_rcvd(cofpacket *pack);
+	experimenter_rcvd(cofpacket_experimenter *pack);
 
 
 	/**
@@ -458,7 +458,7 @@ protected:
 	 */
 	void
 	features_reply_rcvd(
-			cofpacket *pack);
+			cofpacket_features_reply *pack);
 
 
 	/**
@@ -484,7 +484,7 @@ protected:
 	 */
 	void
 	get_config_reply_rcvd(
-			cofpacket *pack);
+			cofpacket_get_config_reply *pack);
 
 
 	/**
@@ -510,7 +510,7 @@ protected:
 	 */
 	void
 	stats_reply_rcvd(
-			cofpacket *pack);
+			cofpacket_stats_reply *pack);
 
 
 
@@ -536,7 +536,7 @@ protected:
 	 */
 	void
 	barrier_reply_rcvd(
-			cofpacket *pack);
+			cofpacket_barrier_reply *pack);
 
 
 	/**
@@ -617,7 +617,7 @@ protected:
 	 */
 	void
 	port_status_rcvd(
-			cofpacket *pack);
+			cofpacket_port_status *pack);
 
 
 
@@ -634,7 +634,7 @@ protected:
 	 */
 	void
 	role_reply_rcvd(
-			cofpacket *pack);
+			cofpacket_role_reply *pack);
 
 
 	/**
@@ -650,7 +650,7 @@ protected:
 	 */
 	void
 	queue_get_config_reply_rcvd(
-			cofpacket *pack);
+			cofpacket_queue_get_config_reply *pack);
 
 
 

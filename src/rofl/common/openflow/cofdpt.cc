@@ -288,92 +288,57 @@ cofdpt::handle_message(
 		}
 
 		switch (pack->ofh_header->type) {
-		case OFPT_HELLO:
-			{
-				hello_rcvd(pack);
-			}
-			break;
-		case OFPT_ECHO_REQUEST:
-			{
-				echo_request_rcvd(pack);
-			}
-			break;
-		case OFPT_ECHO_REPLY:
-			{
-				rofbase->ta_validate(pack->get_xid(), OFPT_ECHO_REQUEST);
-
-				echo_reply_rcvd(pack);
-			}
-			break;
-		case OFPT_EXPERIMENTER:
-			{
-				experimenter_rcvd(pack);
-			}
-			break;
-		case OFPT_FEATURES_REPLY:
-			{
-				rofbase->ta_validate(pack->get_xid(), OFPT_FEATURES_REQUEST);
-
-				features_reply_rcvd(pack);
-			}
-			break;
-		case OFPT_GET_CONFIG_REPLY:
-			{
-				rofbase->ta_validate(pack->get_xid(), OFPT_GET_CONFIG_REQUEST);
-
-				get_config_reply_rcvd(pack);
-			}
-			break;
-		case OFPT_PACKET_IN:
-			{
-				packet_in_rcvd(new cofpacket_packet_in(pack));
-			}
-			break;
-		case OFPT_FLOW_REMOVED:
-			{
-				flow_rmvd_rcvd(new cofpacket_flow_removed(pack));
-			}
-			break;
-		case OFPT_PORT_STATUS:
-			{
-				port_status_rcvd(pack);
-			}
-			break;
-		case OFPT_STATS_REPLY:
-			{
-				rofbase->ta_validate(pack->get_xid(), OFPT_STATS_REQUEST);
-
-				stats_reply_rcvd(pack);
-			}
-			break;
-		case OFPT_BARRIER_REPLY:
-			{
-				rofbase->ta_validate(pack->get_xid(), OFPT_BARRIER_REQUEST);
-
-				barrier_reply_rcvd(pack);
-			}
-			break;
-		case OFPT_QUEUE_GET_CONFIG_REPLY:
-			{
-				rofbase->ta_validate(pack->get_xid(), OFPT_QUEUE_GET_CONFIG_REQUEST);
-
-				queue_get_config_reply_rcvd(pack);
-			}
-			break;
-		case OFPT_ROLE_REPLY:
-			{
-				rofbase->ta_validate(pack->get_xid(), OFPT_ROLE_REQUEST);
-
-				role_reply_rcvd(pack);
-			}
-			break;
-		default:
-			{
-				WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
-						"dropping packet: %s", this, pack->c_str());
-				delete pack;
-			}
-			return;
+		case OFPT_HELLO: {
+			hello_rcvd(new cofpacket_hello(pack));
+		} break;
+		case OFPT_ECHO_REQUEST: {
+			echo_request_rcvd(new cofpacket_echo_request(pack));
+		} break;
+		case OFPT_ECHO_REPLY: {
+			rofbase->ta_validate(pack->get_xid(), OFPT_ECHO_REQUEST);
+			echo_reply_rcvd(new cofpacket_echo_reply(pack));
+		} break;
+		case OFPT_EXPERIMENTER: {
+			experimenter_rcvd(new cofpacket_experimenter(pack));
+		} break;
+		case OFPT_FEATURES_REPLY: {
+			rofbase->ta_validate(pack->get_xid(), OFPT_FEATURES_REQUEST);
+			features_reply_rcvd(new cofpacket_features_reply(pack));
+		} break;
+		case OFPT_GET_CONFIG_REPLY: {
+			rofbase->ta_validate(pack->get_xid(), OFPT_GET_CONFIG_REQUEST);
+			get_config_reply_rcvd(new cofpacket_get_config_reply(pack));
+		} break;
+		case OFPT_PACKET_IN: {
+			packet_in_rcvd(new cofpacket_packet_in(pack));
+		} break;
+		case OFPT_FLOW_REMOVED: {
+			flow_rmvd_rcvd(new cofpacket_flow_removed(pack));
+		} break;
+		case OFPT_PORT_STATUS: {
+			port_status_rcvd(new cofpacket_port_status(pack));
+		} break;
+		case OFPT_STATS_REPLY: {
+			rofbase->ta_validate(pack->get_xid(), OFPT_STATS_REQUEST);
+			stats_reply_rcvd(new cofpacket_stats_reply(pack));
+		} break;
+		case OFPT_BARRIER_REPLY: {
+			rofbase->ta_validate(pack->get_xid(), OFPT_BARRIER_REQUEST);
+			barrier_reply_rcvd(new cofpacket_barrier_reply(pack));
+		} break;
+		case OFPT_QUEUE_GET_CONFIG_REPLY: {
+			rofbase->ta_validate(pack->get_xid(), OFPT_QUEUE_GET_CONFIG_REQUEST);
+			queue_get_config_reply_rcvd(new cofpacket_queue_get_config_reply(pack));
+		} break;
+		case OFPT_ROLE_REPLY: {
+			rofbase->ta_validate(pack->get_xid(), OFPT_ROLE_REQUEST);
+			role_reply_rcvd(new cofpacket_role_reply(pack));
+		} break;
+		default: {
+			WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
+					"dropping packet: %s", this, pack->c_str());
+			delete pack;
+		} return;
 		}
 
 
@@ -549,7 +514,7 @@ cofdpt::handle_timeout(int opaque)
 
 
 void
-cofdpt::hello_rcvd(cofpacket *pack)
+cofdpt::hello_rcvd(cofpacket_hello *pack)
 {
 	try {
 		WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() pack: %s", this, pack->c_str());
@@ -638,7 +603,7 @@ cofdpt::echo_request_sent(cofpacket *pack)
 
 
 void
-cofdpt::echo_request_rcvd(cofpacket *pack)
+cofdpt::echo_request_rcvd(cofpacket_echo_request *pack)
 {
 	// send echo reply back including any appended data
 	rofbase->send_echo_reply(this, pack->get_xid(), pack->body.somem(), pack->body.memlen());
@@ -651,7 +616,7 @@ cofdpt::echo_request_rcvd(cofpacket *pack)
 
 
 void
-cofdpt::echo_reply_rcvd(cofpacket *pack)
+cofdpt::echo_reply_rcvd(cofpacket_echo_reply *pack)
 {
 	cancel_timer(COFDPT_TIMER_ECHO_REPLY);
 	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
@@ -688,7 +653,7 @@ cofdpt::features_request_sent(
 
 void
 cofdpt::features_reply_rcvd(
-		cofpacket *pack)
+		cofpacket_features_reply *pack)
 {
 	try {
 		cancel_timer(COFDPT_TIMER_FEATURES_REPLY);
@@ -773,7 +738,7 @@ cofdpt::get_config_request_sent(
 
 void
 cofdpt::get_config_reply_rcvd(
-		cofpacket *pack)
+		cofpacket_get_config_reply *pack)
 {
 	cancel_timer(COFDPT_TIMER_GET_CONFIG_REPLY);
 
@@ -831,7 +796,7 @@ cofdpt::stats_request_sent(
 
 void
 cofdpt::stats_reply_rcvd(
-		cofpacket *pack)
+		cofpacket_stats_reply *pack)
 {
 	cancel_timer(COFDPT_TIMER_STATS_REPLY);
 
@@ -907,7 +872,7 @@ cofdpt::barrier_request_sent(
 
 
 void
-cofdpt::barrier_reply_rcvd(cofpacket *pack)
+cofdpt::barrier_reply_rcvd(cofpacket_barrier_reply *pack)
 {
 	cancel_timer(COFDPT_TIMER_BARRIER_REPLY);
 
@@ -1066,7 +1031,7 @@ cofdpt::packet_in_rcvd(cofpacket_packet_in *pack)
 
 
 void
-cofdpt::port_status_rcvd(cofpacket *pack)
+cofdpt::port_status_rcvd(cofpacket_port_status *pack)
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(0x%016llx)::port_status_rcvd() %s",
 			dpid, pack->c_str());
@@ -1152,7 +1117,7 @@ cofdpt::fsp_close(cofmatch const& ofmatch)
 
 
 void
-cofdpt::experimenter_rcvd(cofpacket *pack)
+cofdpt::experimenter_rcvd(cofpacket_experimenter *pack)
 {
 	switch (be32toh(pack->ofh_experimenter->experimenter)) {
 	default:
@@ -1175,7 +1140,7 @@ cofdpt::role_request_sent(
 
 
 void
-cofdpt::role_reply_rcvd(cofpacket *pack)
+cofdpt::role_reply_rcvd(cofpacket_role_reply *pack)
 {
 	rofbase->handle_role_reply(this, pack);
 }
@@ -1192,7 +1157,7 @@ cofdpt::queue_get_config_request_sent(
 
 void
 cofdpt::queue_get_config_reply_rcvd(
-		cofpacket *pack)
+		cofpacket_queue_get_config_reply *pack)
 {
 	// TODO
 }
