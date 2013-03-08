@@ -37,7 +37,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_overlapping(of12_flow_entry
 	if(!start_entry)
 		return NULL;
 
-	for(it=start_entry; it->next != NULL; it=it->next){
+	for(it=start_entry; it != NULL; it=it->next){
 		if( of12_flow_entry_check_overlap(it, entry, true, check_cookie, out_port, out_group) )
 			return it;
 	}	
@@ -55,7 +55,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_identical(of12_flow_entry_t
 	if(!start_entry)
 		return NULL;
 
-	for(it=start_entry; it->next != NULL; it=it->next){
+	for(it=start_entry; it != NULL; it=it->next){
 		if( of12_flow_entry_check_equal(it, entry, out_port, out_group) )
 			return it;
 	}	
