@@ -1,7 +1,10 @@
 #include <inttypes.h>
 #include <rofl/pipeline/common/datapacket.h>
 
-
+uint32_t
+platform_get_packet_size_bytes(datapacket_t * const pkt){
+	return 0; 
+}
 uint32_t platform_get_packet_port_in(datapacket_t *const pkt){
 	return 0;
 }

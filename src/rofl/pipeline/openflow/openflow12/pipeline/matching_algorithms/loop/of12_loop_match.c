@@ -37,7 +37,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_overlapping(of12_flow_entry
 	if(!start_entry)
 		return NULL;
 
-	for(it=start_entry; it->next != NULL; it=it->next){
+	for(it=start_entry; it != NULL; it=it->next){
 		if( of12_flow_entry_check_overlap(it, entry, true, check_cookie, out_port, out_group) )
 			return it;
 	}	
@@ -55,7 +55,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_identical(of12_flow_entry_t
 	if(!start_entry)
 		return NULL;
 
-	for(it=start_entry; it->next != NULL; it=it->next){
+	for(it=start_entry; it != NULL; it=it->next){
 		if( of12_flow_entry_check_equal(it, entry, out_port, out_group) )
 			return it;
 	}	
@@ -219,14 +219,17 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
 
 	int deleted=0; 
-	of12_flow_entry_t *it;
+	of12_flow_entry_t *it, *it_next;
 
 	if(table->num_of_entries == 0) 
 		return ROFL_FAILURE; 
 
 	//Loop over all the table entries	
-	for(it=table->entries; it; it=it->next){
-
+	for(it=table->entries; it; it=it_next){
+		
+		//Save next item
+		it_next = it->next;
+		
 		if( strict == STRICT ){
 			//Strict make sure they are equal
 			if( of12_flow_entry_check_equal(it, entry, out_port, out_group ) ){

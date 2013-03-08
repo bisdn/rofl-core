@@ -60,21 +60,25 @@ void of12_remove_instruction_from_the_group(of12_instruction_group_t* group, of1
 //Addition of instruction to group
 void of12_add_instruction_to_group(of12_instruction_group_t* group, of12_instruction_type_t type, of12_action_group_t* apply_actions, of12_write_actions_t* write_actions, unsigned int go_to_table){
 
-	unsigned int apply_num_of_outputs=0;
-
+	unsigned int num_of_outputs=0;
+	
 	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(type)].type != OF12_IT_NO_INSTRUCTION)
 		of12_remove_instruction_from_the_group(group,type);
 		
 	of12_init_instruction(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(type)], type, apply_actions, write_actions, go_to_table);
 	group->num_of_instructions++;
 
-	if(group->instructions[OF12_IT_APPLY_ACTIONS].apply_actions)
-		apply_num_of_outputs = group->instructions[OF12_IT_APPLY_ACTIONS].apply_actions->num_of_output_actions;
+	//Set flag for lazy copying
+	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions)
+		num_of_outputs += group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions->num_of_output_actions;
+	
+	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_OUTPUT].type != OF12_AT_NO_ACTION)
+		num_of_outputs++;
+	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_GROUP].type != OF12_AT_NO_ACTION)
+		num_of_outputs++;
 
 	//Assign flag
-	group->has_multiple_outputs =  apply_num_of_outputs > 1 || 
-				    ( (apply_num_of_outputs > 0) && (group->instructions[OF12_IT_WRITE_ACTIONS].type != OF12_IT_NO_INSTRUCTION) );
-
+	group->has_multiple_outputs =  (num_of_outputs > 1); 
 }
 
 
@@ -83,19 +87,19 @@ rofl_result_t of12_update_instructions(of12_instruction_group_t* group, of12_ins
 	
 
 	//Apply Actions
-	if(of12_update_apply_actions(group->instructions[OF12_IT_APPLY_ACTIONS].apply_actions, new_group->instructions[OF12_IT_APPLY_ACTIONS].apply_actions)!=ROFL_SUCCESS)
+	if(of12_update_apply_actions(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions, new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;	
 
 	//Write actions	
-	if(of12_update_write_actions(group->instructions[OF12_IT_WRITE_ACTIONS].write_actions, new_group->instructions[OF12_IT_WRITE_ACTIONS].write_actions) != ROFL_SUCCESS)
+	if(of12_update_write_actions(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions, new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions) != ROFL_SUCCESS)
 		return ROFL_FAILURE;	
 
 	//Static ones
 	//TODO: METADATA && EXPERIMENTER
 	
 	//Static stuff
-	group->instructions[OF12_IT_CLEAR_ACTIONS] = new_group->instructions[OF12_IT_CLEAR_ACTIONS];	
-	group->instructions[OF12_IT_GOTO_TABLE] = new_group->instructions[OF12_IT_GOTO_TABLE];
+	group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_CLEAR_ACTIONS)] = new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_CLEAR_ACTIONS)];	
+	group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_GOTO_TABLE)] = new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_GOTO_TABLE)];
 			
 
 	//Static stuff

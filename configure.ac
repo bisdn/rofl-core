@@ -127,7 +127,11 @@ AM_COND_IF([PIPELINE_SUPPORT],[AC_CONFIG_FILES([
         src/rofl/pipeline/openflow/openflow12/Makefile
         src/rofl/pipeline/openflow/openflow12/pipeline/Makefile
         src/rofl/pipeline/openflow/openflow12/pipeline/matching_algorithms/Makefile
-        src/rofl/pipeline/util/Makefile])])
+        src/rofl/pipeline/util/Makefile
+
+	test/rofl/pipeline/openflow/openflow12/pipeline/Makefile
+	test/rofl/pipeline/openflow/openflow12/pipeline/ma/loop/Makefile
+])])
 
 ## pipeline
 MATCHING_ALGORITHMS_DIR="src/rofl/pipeline/openflow/openflow12/pipeline/matching_algorithms"
@@ -222,7 +226,6 @@ AC_CONFIG_FILES([
 	test/unit/cpacket/Makefile
 	test/unit/croflexp/Makefile
 	test/unit/frames/Makefile
-	test/rofl/pipeline/openflow/openflow12/pipeline/Makefile
 
 	doc/Makefile
 	])
