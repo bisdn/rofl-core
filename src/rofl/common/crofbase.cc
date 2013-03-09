@@ -963,11 +963,12 @@ crofbase::send_stats_reply(
 
 	cofpacket_stats_reply *pack =
 			new cofpacket_stats_reply(
-							xid,
-							stats_type,
-							flags,
-							body,
-							bodylen);
+					ctl->get_version(),
+					xid,
+					stats_type,
+					flags,
+					body,
+					bodylen);
 
 	ctl_find(ctl)->send_message(pack);
 }
@@ -991,13 +992,14 @@ crofbase::send_stats_desc_reply(
 
 	cofpacket_stats_desc_reply *pack =
 			new cofpacket_stats_desc_reply(
-							xid,
-							flags,
-							mfr_desc,
-							hw_desc,
-							sw_desc,
-							serial_num,
-							dp_desc);
+					ctl->get_version(),
+					xid,
+					flags,
+					mfr_desc,
+					hw_desc,
+					sw_desc,
+					serial_num,
+					dp_desc);
 
 	ctl_find(ctl)->send_message(pack);
 }
