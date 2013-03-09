@@ -1861,7 +1861,7 @@ bool
 crofbase::ta_validate(
 		cofpacket *pack)
 {
-		return ta_validate(be32toh(pack->ofh_header->xid), pack->ofh_header->type);
+		return ta_validate(pack->get_xid(), pack->ofh_header->type);
 }
 
 
