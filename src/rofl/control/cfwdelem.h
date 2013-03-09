@@ -287,7 +287,7 @@ protected:
 	 * @param pack OF packet received from controlling entity.
 	 */
 	virtual void
-	handle_features_request(cofctl *ofctrl, cofpacket *pack);
+	handle_features_request(cofctl *ctl, cofpacket_features_request *pack);
 
 
 	/** Handle OF get-config request. To be overwritten by derived class.
@@ -299,7 +299,7 @@ protected:
 	 * @pack OF GET-CONFIG.request packet received from controller
 	 */
 	virtual void
-	handle_get_config_request(cofctl *ctrl, cofpacket *pack);
+	handle_get_config_request(cofctl *ctrl, cofpacket_get_config_request *pack);
 
 
 
@@ -317,63 +317,63 @@ protected:
 	 *
 	 */
 	virtual void
-	handle_desc_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_desc_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_table_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_table_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_port_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_port_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_flow_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_flow_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_aggregate_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_aggregate_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_queue_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_queue_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_group_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_desc_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_group_desc_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_features_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_group_features_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/** Handle OF stats reply. To be overwritten by derived class.
@@ -385,7 +385,7 @@ protected:
 	 * @param pack STATS.reply packet received from datapath
 	 */
 	virtual void
-	handle_stats_reply(cofdpt *sw, cofpacket *pack);
+	handle_stats_reply(cofdpt *sw, cofpacket_stats_reply *pack);
 
 	/** Handle OF stats reply timeout. To be overwritten by derived class.
 	 *
@@ -404,7 +404,7 @@ protected:
 	 * @param pack FLOW-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_flow_mod(cofctl *ofctrl, cofpacket_flow_mod *pack);
+	handle_flow_mod(cofctl *ctl, cofpacket_flow_mod *pack);
 
 	/** Handle OF group-mod message. To be overwritten by derived class.
 	 *
@@ -414,7 +414,7 @@ protected:
 	 * @param pack GROUP-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_group_mod(cofctl *ofctrl, cofpacket *pack);
+	handle_group_mod(cofctl *ctl, cofpacket_group_mod *pack);
 
 	/** Handle OF table-mod message. To be overwritten by derived class.
 	 *
@@ -424,7 +424,7 @@ protected:
 	 * @param pack TABLE-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_table_mod(cofctl *ofctrl, cofpacket *pack);
+	handle_table_mod(cofctl *ctl, cofpacket_table_mod *pack);
 
 	/** Handle OF port-mod message. To be overwritten by derived class.
 	 *
@@ -434,7 +434,7 @@ protected:
 	 * @param pack PORT-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_port_mod(cofctl *ofctrl, cofpacket *pack);
+	handle_port_mod(cofctl *ctl, cofpacket_port_mod *pack);
 
 	/** Handle OF flow-removed message. To be overwritten by derived class.
 	 *
@@ -466,7 +466,7 @@ protected:
 	 * @param pack QUEUE-GET-CONFIG.reply packet received from datapath
 	 */
 	virtual void
-	handle_queue_get_config_reply(cofdpt *sw, cofpacket *pack) { delete pack; };
+	handle_queue_get_config_reply(cofdpt *sw, cofpacket_queue_get_config_reply *pack) { delete pack; };
 
 	/**
 	 * @name	flow_mod_add
@@ -478,7 +478,7 @@ protected:
 	 * @param fte pointer to new flow table entry
 	 */
 	virtual void
-	flow_mod_add(cofctl *ofctrl, cofpacket *pack, cfttable *ftable, cftentry *fte) {};
+	flow_mod_add(cofctl *ctl, cofpacket_flow_mod *pack, cfttable *ftable, cftentry *fte) {};
 
 	/**
 	 * @name	flow_mod_modify
@@ -490,7 +490,7 @@ protected:
 	 * @param fte pointer to modified flow table entry
 	 */
 	virtual void
-	flow_mod_modify(cofctl *ofctrl, cofpacket *pack, cfttable *ftable, cftentry *fte) {};
+	flow_mod_modify(cofctl *ctl, cofpacket_flow_mod *pack, cfttable *ftable, cftentry *fte) {};
 
 	/**
 	 * @name	flow_mod_delete
@@ -503,7 +503,7 @@ protected:
 	 *
 	 */
 	virtual void
-	flow_mod_delete(cofctl *ofctrl, cofpacket *pack) {};
+	flow_mod_delete(cofctl *ctl, cofpacket_flow_mod *pack) {};
 
 	/**
 	 * @name	flow_mod_add
@@ -515,7 +515,7 @@ protected:
 	 * @param fte pointer to new flow table entry
 	 */
 	virtual void
-	group_mod_add(cofpacket *pack, cgtentry *gte) {};
+	group_mod_add(cofctl *ctl, cofpacket_group_mod *pack, cgtentry *gte) {};
 
 	/**
 	 * @name	flow_mod_modify
@@ -527,7 +527,7 @@ protected:
 	 * @param fte pointer to modified flow table entry
 	 */
 	virtual void
-	group_mod_modify(cofpacket *pack, cgtentry *gte) {};
+	group_mod_modify(cofctl *ctl, cofpacket_group_mod *pack, cgtentry *gte) {};
 
 	/**
 	 * @name	flow_mod_delete
@@ -542,7 +542,7 @@ protected:
 	 * @param fte pointer to deleted flow table entry
 	 */
 	virtual void
-	group_mod_delete(cofpacket *pack, cgtentry *gte) {};
+	group_mod_delete(cofctl *ctl, cofpacket_group_mod *pack, cgtentry *gte) {};
 
 
 protected:	// overloaded from ciosrv
