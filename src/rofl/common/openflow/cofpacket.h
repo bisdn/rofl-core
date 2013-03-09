@@ -395,7 +395,84 @@ public:
 	};
 
 
+	/**
+	 *
+	 */
+	virtual cofmatch&
+	get_match()
+	{
+		return match;
+	};
 
+
+	/**
+	 *
+	 */
+	virtual cofaclist&
+	get_actions()
+	{
+		return actions;
+	};
+
+
+	/**
+	 *
+	 */
+	virtual cofinlist&
+	get_instructions()
+	{
+		return instructions;
+	}
+
+
+	/**
+	 *
+	 */
+	virtual cofbclist&
+	get_buckets()
+	{
+		return buckets;
+	};
+
+
+	/**
+	 *
+	 */
+	virtual cofportlist&
+	get_port_list()
+	{
+		return ports;
+	};
+
+
+	/**
+	 *
+	 */
+	virtual cofport&
+	get_port_desc()
+	{
+		return port;
+	};
+
+
+	/**
+	 *
+	 */
+	virtual cmemory&
+	get_body()
+	{
+		return body;
+	};
+
+
+	/**
+	 *
+	 */
+	virtual cpacket&
+	get_packet()
+	{
+		return packet;
+	};
 
 
 
