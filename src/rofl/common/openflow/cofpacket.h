@@ -2950,13 +2950,14 @@ public:
 		cofpacket_stats_desc_reply(
 				uint8_t of_version = 0,
 				uint32_t xid = 0,
+				uint16_t type = OFPST_DESC,
 				uint16_t flags = 0,
 				std::string const& mfr_desc = std::string(""),
 				std::string const&  hw_desc = std::string(""),
 				std::string const&  sw_desc = std::string(""),
 				std::string const&  serial_num = std::string(""),
 				std::string const&  dp_desc = std::string("")) :
-			cofpacket_stats_reply(of_version, xid, OFPST_DESC, flags)
+			cofpacket_stats_reply(of_version, xid, type, flags)
 		{
 			cofpacket::body.resize(sizeof(struct ofp_desc_stats));
 			struct ofp_desc_stats *desc_stats = (struct ofp_desc_stats*)(cofpacket::body.somem());

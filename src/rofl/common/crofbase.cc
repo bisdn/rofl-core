@@ -994,6 +994,7 @@ crofbase::send_stats_desc_reply(
 			new cofpacket_stats_desc_reply(
 					ctl->get_version(),
 					xid,
+					OFPST_DESC,
 					flags,
 					mfr_desc,
 					hw_desc,
