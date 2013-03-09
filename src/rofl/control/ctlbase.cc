@@ -246,9 +246,7 @@ ctlbase::handle_dpath_close(
  * STATS-reply
  */
 void
-ctlbase::handle_stats_reply(
-		cofdpt *sw,
-		cofpacket *pack)
+ctlbase::handle_stats_reply(cofdpt *dpt, cofpacket_stats_reply *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
@@ -300,9 +298,7 @@ ctlbase::handle_stats_reply_timeout(
 
 
 void
-ctlbase::handle_packet_out(
-		cofctl *ctl,
-		cofpacket *pack)
+ctlbase::handle_packet_out(cofctl *ctl, cofpacket_packet_out *pack)
 {
 	/*
 	 * TODO: check Packet-Out with FSP registration
@@ -325,9 +321,7 @@ ctlbase::handle_packet_out(
 
 
 void
-ctlbase::handle_barrier_reply(
-		cofdpt *sw,
-		cofpacket *pack)
+ctlbase::handle_barrier_reply(cofdpt *sw, cofpacket_barrier_reply *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
@@ -365,9 +359,7 @@ ctlbase::handle_barrier_reply_timeout(
  * ERROR
  */
 void
-ctlbase::handle_error(
-		cofdpt *sw,
-		cofpacket *pack)
+ctlbase::handle_error(cofdpt *sw, cofpacket_error *pack)
 {
 
 }
@@ -565,7 +557,7 @@ ctlbase::fsp_open(
 
 
 void
-ctlbase::handle_features_request(cofctl *ofctrl, cofpacket *request)
+ctlbase::handle_features_request(cofctl *ctl, cofpacket_features_request *request)
 {
  	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_features_request()", dpname.c_str());
 
@@ -583,7 +575,7 @@ ctlbase::handle_features_request(cofctl *ofctrl, cofpacket *request)
  	}
 
  	send_features_reply(
- 			ofctrl,
+ 			ctl,
  			request->get_xid(),
  			dpid,
  			n_buffers,
@@ -653,12 +645,9 @@ ctlbase::fsp_close(
  * received by layer (n-1) datapath, sending to adapters for handling changes in port status
  */
 void
-ctlbase::handle_port_status(
-		cofdpt *sw,
-		cofpacket *pack,
-		cofport *port)
+ctlbase::handle_port_status(cofdpt *sw, cofpacket_port_status *pack)
 {
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() %s", dpname.c_str(), port->c_str());
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() %s", dpname.c_str(), pack->get_port_desc().c_str());
 
 	if (sw != dpath)
 	{
@@ -670,7 +659,7 @@ ctlbase::handle_port_status(
 	}
 
 	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() "
-			"%s", dpname.c_str(), port->c_str());
+			"%s", dpname.c_str(), pack->get_port_desc().c_str());
 
 	for (std::map<unsigned int, std::list<cadapt*> >::iterator
 			it = adstacks.begin(); it != adstacks.end(); ++it)
@@ -680,7 +669,7 @@ ctlbase::handle_port_status(
 		stack.back()->ctl_handle_port_status(
 				this,
 				pack->ofh_port_status->reason,
-				port);
+				&(pack->get_port_desc()));
 	}
 
 	delete pack;

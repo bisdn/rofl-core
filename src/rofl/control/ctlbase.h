@@ -40,20 +40,9 @@ class ctlbase :
 protected:
 
 		uint64_t							 lldpid;		// layer (n-1) dpid in use (used in constructor)
-		cofdpt							*dpath;			// layer (n-1) datapath in use (once it has connected)
+		cofdpt								*dpath;			// layer (n-1) datapath in use (once it has connected)
 		std::map<uint32_t, cadapt*> 		 n_ports; 		// map of portno's => cadapt mappings
 		std::map<uint32_t, cofport*>		 adports;		// adapted ports as registered by the cadapters
-
-#if 0
-		class adstack {
-		public:
-			cadapt_dpt						*head;
-			cadapt_ctl						*tail;
-
-			adstack(cadapt_dpt *dpt = 0, cadapt_ctl *ctl = 0) :
-				head(dpt), tail(ctl) {};
-		};
-#endif
 
 		std::map<unsigned int, std::list<cadapt*> > 	 adstacks;		// map of all adapters registered with this ctlbase
 
@@ -171,7 +160,7 @@ protected:
 	 * @param pack OF packet received from controlling entity.
 	 */
 	virtual void
-	handle_features_request(cofctl *ofctrl, cofpacket *pack);
+	handle_features_request(cofctl *ofctrl, cofpacket_features_request *pack);
 
 
 	/**
@@ -540,7 +529,7 @@ protected:
 	 * @param pack STATS.reply packet received from datapath
 	 */
 	virtual void
-	handle_stats_reply(cofdpt *sw, cofpacket *pack);
+	handle_stats_reply(cofdpt *sw, cofpacket_stats_reply *pack);
 
 
 	/** Handle OF stats reply timeout. To be overwritten by derived class.
@@ -561,7 +550,7 @@ protected:
 	 * @param pack PACKET-OUT.message packet received from controller.
 	 */
 	virtual void
-	handle_packet_out(cofctl *ofctrl, cofpacket *pack);
+	handle_packet_out(cofctl *ofctrl, cofpacket_packet_out *pack);
 
 
 	/** Handle OF packet-in messages. To be overwritten by derived class.
@@ -585,7 +574,7 @@ protected:
 	 * @param pack BARRIER.reply packet received from datapath
 	 */
 	virtual void
-	handle_barrier_reply(cofdpt *sw, cofpacket *pack);
+	handle_barrier_reply(cofdpt *sw, cofpacket_barrier_reply *pack);
 
 
 	/** Handle OF barrier reply timeout. To be overwritten by derived class.
@@ -607,7 +596,7 @@ protected:
 	 * @param pack ERROR.message packet received from datapath
 	 */
 	virtual void
-	handle_error(cofdpt *dpt, cofpacket *pack);
+	handle_error(cofdpt *dpt, cofpacket_error *pack);
 
 
 	/** Handle OF flow-mod message. To be overwritten by derived class.
@@ -630,7 +619,7 @@ protected:
 	 * @param pack PORT-STATUS.message packet received from datapath
 	 */
 	virtual void
-	handle_port_status(cofdpt *dpt, cofpacket *pack, cofport *port);
+	handle_port_status(cofdpt *dpt, cofpacket_port_status *pack);
 
 
 	/** Handle new dpath
