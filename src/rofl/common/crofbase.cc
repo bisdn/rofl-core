@@ -987,13 +987,13 @@ crofbase::send_set_config_message(
 	uint16_t flags,
 	uint16_t miss_send_len)
 {
-		cofpacket_set_config *pack =
-				new cofpacket_set_config(
-						ta_new_async_xid(),
-						flags,
-						miss_send_len);
+	cofpacket_set_config *pack =
+			new cofpacket_set_config(
+					ta_new_async_xid(),
+					flags,
+					miss_send_len);
 
-		dpt_find(dpt)->send_message(pack);
+	dpt_find(dpt)->send_message(pack);
 }
 
 
@@ -1359,19 +1359,20 @@ crofbase::send_flow_mod_message(
 	uint16_t flags,
 	cofinlist& inlist)
 {
-	cofpacket_flow_mod *pack = new cofpacket_flow_mod(
-											ta_new_async_xid(),
-											cookie,
-											cookie_mask,
-											table_id,
-											command,
-											idle_timeout,
-											hard_timeout,
-											priority,
-											buffer_id,
-											out_port,
-											out_group,
-											flags);
+	cofpacket_flow_mod *pack =
+			new cofpacket_flow_mod(
+						ta_new_async_xid(),
+						cookie,
+						cookie_mask,
+						table_id,
+						command,
+						idle_timeout,
+						hard_timeout,
+						priority,
+						buffer_id,
+						out_port,
+						out_group,
+						flags);
 
 	pack->match = ofmatch;
 	pack->instructions = inlist;
