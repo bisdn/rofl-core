@@ -138,7 +138,7 @@ bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_e
 	if(check_priority && (entry->priority != original->priority))
 		return false;
 
-	//Check if matchs are contained. This is expensive..
+	//Check if matchs are contained. This is expensive.. //FIXME: move this to of12_match
 	for( it_entry = entry->matchs; it_entry; it_entry = it_entry->next ){
 		for( it_orig = original->matchs; it_orig; it_orig = it_orig->next ){
 
@@ -146,7 +146,7 @@ bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_e
 			if( it_entry->type != it_orig->type)
 				continue;	
 			
-			if( of12_is_submatch( it_entry, it_orig ) || of12_is_submatch( it_orig, it_entry ) )
+			if( !of12_is_submatch( it_entry, it_orig ) && !of12_is_submatch( it_orig, it_entry ) )
 				return false;
 		}
 	}
@@ -190,7 +190,7 @@ bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow
 	if(check_priority && (original->priority != subentry->priority))
 		return false;
 
-	//Check if matchs are contained. This is expensive..
+	//Check if matchs are contained. This is expensive.. //FIXME: move this to of12_match
 	for( it_subentry = subentry->matchs; it_subentry; it_subentry = it_subentry->next ){
 		for( it_orig = original->matchs; it_orig; it_orig = it_orig->next ){
 	
@@ -198,7 +198,7 @@ bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow
 			if( it_subentry->type != it_orig->type)
 				continue;	
 			
-			if( of12_is_submatch( it_subentry, it_orig ) )
+			if( !of12_is_submatch( it_subentry, it_orig ) )
 				return false;
 		}
 	}
@@ -244,7 +244,7 @@ bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_ent
 	if(original->num_of_matches != entry->num_of_matches) 
 		return false;
 
-	//Matches in-depth check
+	//Matches in-depth check //FIXME: move this to of12_match
 	for(it_original = original->matchs, it_entry = entry->matchs; it_entry != NULL; it_original = it_original->next, it_entry = it_entry->next){	
 		if(!of12_equal_matches(it_original,it_entry))
 			return false;

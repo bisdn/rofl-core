@@ -37,7 +37,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_overlapping(of12_flow_entry
 	if(!start_entry)
 		return NULL;
 
-	for(it=start_entry; it->next != NULL; it=it->next){
+	for(it=start_entry; it != NULL; it=it->next){
 		if( of12_flow_entry_check_overlap(it, entry, true, check_cookie, out_port, out_group) )
 			return it;
 	}	
@@ -55,7 +55,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_identical(of12_flow_entry_t
 	if(!start_entry)
 		return NULL;
 
-	for(it=start_entry; it->next != NULL; it=it->next){
+	for(it=start_entry; it != NULL; it=it->next){
 		if( of12_flow_entry_check_equal(it, entry, out_port, out_group) )
 			return it;
 	}	
@@ -66,7 +66,8 @@ static of12_flow_entry_t* of12_flow_table_loop_check_identical(of12_flow_entry_t
 /*
 *
 * Removal of specific entry
-* Warning pointer to the entry MUST be a valid pointer. Some rudimentary checking are made, such checking linked list correct state, but no further checkings are done
+* Warning pointer to the entry MUST be a valid pointer. Some rudimentary checking are made, such checking linked list correct state,
+* and table pointer, but no further checkings are done (including lookup in the table linked list)
 *
 */
 static rofl_result_t of12_remove_flow_entry_table_specific_imp(of12_flow_table_t *const table, of12_flow_entry_t *const specific_entry){
@@ -145,7 +146,7 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 			entry->stats = existing->stats; 
 
 		//Delete old entry
-		if(!of12_remove_flow_entry_table_specific_imp(table,existing))
+		if(of12_remove_flow_entry_table_specific_imp(table,existing) != ROFL_SUCCESS)
 			return ROFL_OF12_FM_FAILURE;
 
 		//Let it add normally...
@@ -195,11 +196,28 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 		}
 	}
 	
-	//Append at the end of the table
-	entry->next = NULL;
-	
+	if(!table->entries){
+		//There are no entries in the table
+		entry->next = entry->prev = NULL;	
+	}else{
+		//Last item
+		entry->next = NULL;
+		entry->prev = prev;
+	}
+
+	//Point entry table to us
+	entry->table = table;
+
+	//Prevent readers to jump in
 	platform_rwlock_wrlock(table->rwlock);
-	prev->next = entry;
+
+	if(!table->entries){
+		//No entries
+		table->entries = entry;
+	}else{
+		//Last
+		prev->next = entry;
+	}
 	table->num_of_entries++;
 
 	
