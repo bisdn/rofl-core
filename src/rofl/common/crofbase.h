@@ -336,7 +336,7 @@ protected:
 	 * @param pack OF packet received from controlling entity.
 	 */
 	virtual void
-	handle_features_request(cofctl *ofctrl, cofpacket *pack) { delete pack; };
+	handle_features_request(cofctl *ctl, cofpacket_features_request *pack) { delete pack; };
 
 	/** Handle OF features reply. To be overwritten by derived class.
 	 *
@@ -352,7 +352,7 @@ protected:
 	 * @param pack The FEATURES.reply packet received.
 	 */
 	virtual void
-	handle_features_reply(cofdpt *sw, cofpacket *pack) { delete pack; };
+	handle_features_reply(cofdpt *sw, cofpacket_features_reply *pack) { delete pack; };
 
 	/** Handle OF features reply timeout. To be overwritten by derived class.
 	 *
@@ -375,7 +375,7 @@ protected:
 	 * @pack OF GET-CONFIG.request packet received from controller
 	 */
 	virtual void
-	handle_get_config_request(cofctl *ctrl, cofpacket *pack) { delete pack; };
+	handle_get_config_request(cofctl *ctrl, cofpacket_get_config_request *pack) { delete pack; };
 
 	/** Handle OF get-config reply. To be overwritten by derived class.
 	 *
@@ -386,7 +386,7 @@ protected:
 	 * @pack OF GET-CONFIG.reply packet received from datapath
 	 */
 	virtual void
-	handle_get_config_reply(cofdpt *sw, cofpacket *pack) { delete pack; };
+	handle_get_config_reply(cofdpt *sw, cofpacket_get_config_reply *pack) { delete pack; };
 
 	/** Handle OF get-config reply timeout. To be overwritten by derived class.
 	 *
@@ -404,77 +404,77 @@ protected:
 	 * @param pack STATS.request packet received from controller.
 	 */
 	void
-	handle_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_desc_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_desc_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_table_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_table_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_port_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_port_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_flow_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_flow_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_aggregate_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_aggregate_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_queue_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_queue_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_group_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_desc_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_group_desc_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_features_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_group_features_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_experimenter_stats_request(cofctl *ofctrl, cofpacket *pack);
+	handle_experimenter_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
 
 
 	/** Handle OF stats reply. To be overwritten by derived class.
@@ -486,7 +486,7 @@ protected:
 	 * @param pack STATS.reply packet received from datapath
 	 */
 	virtual void
-	handle_stats_reply(cofdpt *sw, cofpacket *pack) { delete pack; };
+	handle_stats_reply(cofdpt *sw, cofpacket_stats_reply *pack) { delete pack; };
 
 	/** Handle OF stats reply timeout. To be overwritten by derived class.
 	 *
@@ -505,7 +505,7 @@ protected:
 	 * @param pack PACKET-OUT.message packet received from controller.
 	 */
 	virtual void
-	handle_packet_out(cofctl *ofctrl, cofpacket *pack) { delete pack; };
+	handle_packet_out(cofctl *ctl, cofpacket_packet_out *pack) { delete pack; };
 
 	/** Handle OF packet-in messages. To be overwritten by derived class.
 	 *
@@ -526,7 +526,7 @@ protected:
 	 * @param pack BARRIER.request packet received from controller.
 	 */
 	virtual void
-	handle_barrier_request(cofctl *ofctrl, cofpacket *pack) { delete pack; };
+	handle_barrier_request(cofctl *ctl, cofpacket_barrier_request *pack) { delete pack; };
 
 	/** Handle OF barrier reply. To be overwritten by derived class.
 	 *
@@ -537,7 +537,7 @@ protected:
 	 * @param pack BARRIER.reply packet received from datapath
 	 */
 	virtual void
-	handle_barrier_reply(cofdpt *sw, cofpacket *pack) { delete pack; };
+	handle_barrier_reply(cofdpt *sw, cofpacket_barrier_reply *pack) { delete pack; };
 
 	/** Handle OF barrier reply timeout. To be overwritten by derived class.
 	 *
@@ -557,7 +557,7 @@ protected:
 	 * @param pack ERROR.message packet received from datapath
 	 */
 	virtual void
-	handle_error(cofdpt *sw, cofpacket *pack) { delete pack; };
+	handle_error(cofdpt *sw, cofpacket_error *pack) { delete pack; };
 
 	/** Handle OF flow-mod message. To be overwritten by derived class.
 	 *
@@ -567,7 +567,7 @@ protected:
 	 * @param pack FLOW-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_flow_mod(cofctl *ofctrl, cofpacket_flow_mod *pack) { delete pack; };
+	handle_flow_mod(cofctl *ctl, cofpacket_flow_mod *pack) { delete pack; };
 
 	/** Handle OF group-mod message. To be overwritten by derived class.
 	 *
@@ -577,7 +577,7 @@ protected:
 	 * @param pack GROUP-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_group_mod(cofctl *ofctrl, cofpacket *pack) { delete pack; };
+	handle_group_mod(cofctl *ctl, cofpacket_group_mod *pack) { delete pack; };
 
 	/** Handle OF table-mod message. To be overwritten by derived class.
 	 *
@@ -587,7 +587,7 @@ protected:
 	 * @param pack TABLE-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_table_mod(cofctl *ofctrl, cofpacket *pack) { delete pack; };
+	handle_table_mod(cofctl *ctl, cofpacket_table_mod *pack) { delete pack; };
 
 	/** Handle OF port-mod message. To be overwritten by derived class.
 	 *
@@ -597,7 +597,7 @@ protected:
 	 * @param pack PORT-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_port_mod(cofctl *ofctrl, cofpacket *pack) { delete pack; };
+	handle_port_mod(cofctl *ctl, cofpacket_port_mod *pack) { delete pack; };
 
 	/** Handle OF flow-removed message. To be overwritten by derived class.
 	 *
@@ -619,7 +619,7 @@ protected:
 	 * @param pack PORT-STATUS.message packet received from datapath
 	 */
 	virtual void
-	handle_port_status(cofdpt *sw, cofpacket *pack, cofport *port) { delete pack; };
+	handle_port_status(cofdpt *sw, cofpacket_port_status *pack) { delete pack; };
 
 	/** Handle OF set-config message. To be overwritten by derived class.
 	 *
@@ -629,7 +629,7 @@ protected:
 	 * @param pack SET-CONFIG.message packet received from controller.
 	 */
 	virtual void
-	handle_set_config(cofctl *ofctrl, cofpacket *pack) { delete pack; };
+	handle_set_config(cofctl *ctl, cofpacket_set_config *pack) { delete pack; };
 
 	/** Handle OF queue-get-config request. To be overwritten by derived class.
  	 *
@@ -640,7 +640,7 @@ protected:
 	 * @param pack QUEUE-GET-CONFIG.reply packet received from datapath
 	 */
 	virtual void
-	handle_queue_get_config_request(cofctl *ofctrl, cofpacket *pack) { delete pack; };
+	handle_queue_get_config_request(cofctl *ctl, cofpacket_queue_get_config_request *pack) { delete pack; };
 
 	/** Handle OF queue-get-config reply. To be overwritten by derived class.
  	 *
@@ -651,7 +651,7 @@ protected:
 	 * @param pack QUEUE-GET-CONFIG.reply packet received from datapath
 	 */
 	virtual void
-	handle_queue_get_config_reply(cofdpt *sw, cofpacket *pack) { delete pack; };
+	handle_queue_get_config_reply(cofdpt *sw, cofpacket_queue_get_config_reply *pack) { delete pack; };
 
 	/** Handle OF experimenter message. To be overwritten by derived class.
 	 *
@@ -661,7 +661,7 @@ protected:
 	 * @param pack VENDOR.message packet received from controller.
 	 */
 	virtual void
-	handle_experimenter_message(cofctl *ofctrl, cofpacket *pack);
+	handle_experimenter_message(cofctl *ctl, cofpacket_experimenter *pack);
 
 	/** Handle OF experimenter message. To be overwritten by derived class.
 	 *
@@ -672,7 +672,7 @@ protected:
 	 * @param pack VENDOR.message packet received from datapath
 	 */
 	virtual void
-	handle_experimenter_message(cofdpt *sw, cofpacket *pack) { delete pack; };
+	handle_experimenter_message(cofdpt *sw, cofpacket_experimenter *pack) { delete pack; };
 
 	/** Handle new dpath
 	 *
@@ -724,7 +724,7 @@ protected:
 	 * @param pack ROLE.request packet received from controller.
 	 */
 	virtual void
-	handle_role_request(cofctl *ofctrl, cofpacket *pack) { delete pack; };
+	handle_role_request(cofctl *ctl, cofpacket_role_request *pack) { delete pack; };
 
 	/** Handle OF role reply. To be overwritten by derived class.
 	 *
@@ -735,7 +735,7 @@ protected:
 	 * @param pack ROLE.reply packet received from datapath
 	 */
 	virtual void
-	handle_role_reply(cofdpt *sw, cofpacket *pack) { delete pack; };
+	handle_role_reply(cofdpt *sw, cofpacket_role_reply *pack) { delete pack; };
 
 	/** Handle OF role reply timeout. To be overwritten by derived class.
 	 *
@@ -879,7 +879,7 @@ public:
 	 */
 	virtual void
 	send_features_reply(
-			cofctl *ofctrl,
+			cofctl *ctl,
 			uint32_t xid,
 			uint64_t dpid,
 			uint32_t n_buffers,
@@ -904,7 +904,7 @@ public:
 	 */
 	virtual void
 	send_get_config_reply(
-			cofctl *ofctrl,
+			cofctl *ctl,
 			uint32_t xid,
 			uint16_t flags,
 			uint16_t miss_send_len);
@@ -948,7 +948,7 @@ public:
 	 */
 	virtual void
 	send_stats_reply(
-		cofctl *ofctrl,
+		cofctl *ctl,
 		uint32_t xid,
 		uint16_t stats_type,
 		uint8_t *body = NULL,
@@ -1016,7 +1016,7 @@ public:
 	 */
 	virtual void
 	send_barrier_reply(
-			cofctl *ofctrl,
+			cofctl *ctl,
 			uint32_t xid);
 
 	// ERROR message
@@ -1031,7 +1031,7 @@ public:
 	 */
 	virtual void
 	send_error_message(
-		cofctl *ofctrl,
+		cofctl *ctl,
 		uint32_t xid,
 		uint16_t type,
 		uint16_t code,
@@ -1190,7 +1190,7 @@ public:
 	 */
 	virtual void
 	send_flow_removed_message(
-		cofctl *ofctrl,
+		cofctl *ctl,
 		cofmatch& ofmatch,
 		uint64_t cookie,
 		uint16_t priority,
@@ -1304,7 +1304,7 @@ public:
 	 */
 	virtual void
 	send_role_reply(
-			cofctl *ofctrl,
+			cofctl *ctl,
 			uint32_t xid,
 			uint32_t role,
 			uint64_t generation_id);

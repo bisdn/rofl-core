@@ -452,7 +452,7 @@ crofbase::wakeup()
 
 
 void
-crofbase::handle_experimenter_message(cofctl *ofctrl, cofpacket *pack)
+crofbase::handle_experimenter_message(cofctl *ofctrl, cofpacket_experimenter *pack)
 {
 	// base class does not support any vendor extensions, so: send error indication
 	size_t datalen = (pack->framelen() > 64) ? 64 : pack->framelen();
@@ -785,7 +785,7 @@ crofbase::send_stats_request(
 
 
 void
-crofbase::handle_stats_request(cofctl *ofctrl, cofpacket *pack)
+crofbase::handle_stats_request(cofctl *ofctrl, cofpacket_stats_request *pack)
 {
 	/*
 	 * default handler for all unknown (or unimplemented :) stats requests
@@ -801,7 +801,7 @@ crofbase::handle_stats_request(cofctl *ofctrl, cofpacket *pack)
 void
 crofbase::handle_desc_stats_request(
 		cofctl *ofctrl,
-		cofpacket *pack)
+		cofpacket_stats_request *pack)
 {
 	/*
 	 * default handler for all unknown (or unimplemented :) stats requests
@@ -816,7 +816,7 @@ crofbase::handle_desc_stats_request(
 void
 crofbase::handle_table_stats_request(
 		cofctl *ofctrl,
-		cofpacket *pack)
+		cofpacket_stats_request *pack)
 {
 	/*
 	 * default handler for all unknown (or unimplemented :) stats requests
@@ -831,7 +831,7 @@ crofbase::handle_table_stats_request(
 void
 crofbase::handle_port_stats_request(
 		cofctl *ofctrl,
-		cofpacket *pack)
+		cofpacket_stats_request *pack)
 {
 	/*
 	 * default handler for all unknown (or unimplemented :) stats requests
@@ -846,7 +846,7 @@ crofbase::handle_port_stats_request(
 void
 crofbase::handle_flow_stats_request(
 		cofctl *ofctrl,
-		cofpacket *pack)
+		cofpacket_stats_request *pack)
 {
 	/*
 	 * default handler for all unknown (or unimplemented :) stats requests
@@ -861,7 +861,7 @@ crofbase::handle_flow_stats_request(
 void
 crofbase::handle_aggregate_stats_request(
 		cofctl *ofctrl,
-		cofpacket *pack)
+		cofpacket_stats_request *pack)
 {
 	/*
 	 * default handler for all unknown (or unimplemented :) stats requests
@@ -876,7 +876,7 @@ crofbase::handle_aggregate_stats_request(
 void
 crofbase::handle_queue_stats_request(
 		cofctl *ofctrl,
-		cofpacket *pack)
+		cofpacket_stats_request *pack)
 {
 	/*
 	 * default handler for all unknown (or unimplemented :) stats requests
@@ -891,7 +891,7 @@ crofbase::handle_queue_stats_request(
 void
 crofbase::handle_group_stats_request(
 		cofctl *ofctrl,
-		cofpacket *pack)
+		cofpacket_stats_request *pack)
 {
 	/*
 	 * default handler for all unknown (or unimplemented :) stats requests
@@ -906,7 +906,7 @@ crofbase::handle_group_stats_request(
 void
 crofbase::handle_group_desc_stats_request(
 		cofctl *ofctrl,
-		cofpacket *pack)
+		cofpacket_stats_request *pack)
 {
 	/*
 	 * default handler for all unknown (or unimplemented :) stats requests
@@ -921,7 +921,7 @@ crofbase::handle_group_desc_stats_request(
 void
 crofbase::handle_group_features_stats_request(
 		cofctl *ofctrl,
-		cofpacket *pack)
+		cofpacket_stats_request *pack)
 {
 	/*
 	 * default handler for all unknown (or unimplemented :) stats requests
@@ -936,7 +936,7 @@ crofbase::handle_group_features_stats_request(
 void
 crofbase::handle_experimenter_stats_request(
 		cofctl *ofctrl,
-		cofpacket *pack)
+		cofpacket_stats_request *pack)
 {
 	/*
 	 * default handler for all unknown (or unimplemented :) stats requests

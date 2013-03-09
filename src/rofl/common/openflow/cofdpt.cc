@@ -1019,10 +1019,12 @@ cofdpt::port_status_rcvd(cofpacket_port_status *pack)
 	case OFPPR_ADD:
 		if (ports.find(be32toh(pack->ofh_port_status->desc.port_no)) == ports.end())
 		{
-			cofport *lport = new cofport(&ports, be32toh(pack->ofh_port_status->desc.port_no), &(pack->ofh_port_status->desc), sizeof(struct ofp_port));
+			//cofport *lport = new cofport(&ports, be32toh(pack->ofh_port_status->desc.port_no), &(pack->ofh_port_status->desc), sizeof(struct ofp_port));
+			new cofport(&ports, be32toh(pack->ofh_port_status->desc.port_no), &(pack->ofh_port_status->desc), sizeof(struct ofp_port));
 
 			// let derived class handle PORT-STATUS message
-			rofbase->handle_port_status(this, pack, lport);
+			//rofbase->handle_port_status(this, pack, lport);
+			rofbase->handle_port_status(this, pack);
 		}
 		break;
 	case OFPPR_DELETE:
@@ -1030,7 +1032,8 @@ cofdpt::port_status_rcvd(cofpacket_port_status *pack)
 		{
 			uint32_t port_no = be32toh(pack->ofh_port_status->desc.port_no);
 			// let derived class handle PORT-STATUS message
-			rofbase->handle_port_status(this, pack, ports[port_no]);
+			//rofbase->handle_port_status(this, pack, ports[port_no]);
+			rofbase->handle_port_status(this, pack);
 
 			// do not access pack here, as it was already deleted by rofbase->handle_port_status() !!!
 			delete ports[port_no];
@@ -1046,7 +1049,8 @@ cofdpt::port_status_rcvd(cofpacket_port_status *pack)
 																sizeof(struct ofp_port));
 
 			// let derived class handle PORT-STATUS message
-			rofbase->handle_port_status(this, pack, ports[be32toh(pack->ofh_port_status->desc.port_no)]);
+			//rofbase->handle_port_status(this, pack, ports[be32toh(pack->ofh_port_status->desc.port_no)]);
+			rofbase->handle_port_status(this, pack);
 		}
 		break;
 	}
