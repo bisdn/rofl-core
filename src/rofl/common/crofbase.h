@@ -914,7 +914,7 @@ public:
 
 	/** Send OF STATS.request to data path entity.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
+	 * @param dpt cofswitch instance representing the data path to be addressed
 	 * @param type One of the OFPST_* constants
 	 * @param flags OFPSF_REQ_* flags
 	 * @param body Body of a STATS request
@@ -922,11 +922,32 @@ public:
 	 */
 	virtual uint32_t
 	send_stats_request(
-		cofdpt *sw,
+		cofdpt *dpt,
 		uint16_t type,
 		uint16_t flags,
 		uint8_t *body = NULL,
 		size_t bodylen = 0);
+
+	/** Send OF FLOW STATS.request to data path entity.
+	 *
+	 * @param dpt cofswitch instance representing the data path to be addressed
+	 * @param type One of the OFPST_* constants
+	 * @param flags OFPSF_REQ_* flags
+	 * @param body Body of a STATS request
+	 * @param bodylen length of STATS request body
+	 */
+	virtual uint32_t
+	send_flow_stats_request(
+		cofdpt *dpt,
+		uint16_t type,
+		uint16_t flags,
+		uint8_t table_id,
+		uint32_t out_port,
+		uint32_t out_group,
+		uint64_t cookie,
+		uint64_t cookie_mask,
+		cofmatch const& match);
+
 
 private:
 
@@ -955,7 +976,7 @@ public:
 		size_t bodylen = 0,
 		bool more = false);
 
-	/** Send OF STATS DESC.reply to controlling entity.
+	/** Send OF DESC STATS.reply to controlling entity.
 	 *
 	 * @param xid transaction ID used in STATS request
 	 * @param stats_type One of the OFPST_* constants
@@ -964,7 +985,7 @@ public:
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
-	send_stats_desc_reply(
+	send_desc_stats_reply(
 		cofctl *ctl,
 		uint32_t xid,
 		std::string const& mfr_desc,

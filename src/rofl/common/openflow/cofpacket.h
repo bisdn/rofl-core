@@ -2829,6 +2829,98 @@ public:
 };
 
 
+
+/** OFPT_FLOW_STATS_REQUEST
+ *
+ */
+class cofpacket_flow_stats_request :
+	public cofpacket_stats_request
+{
+public:
+		/** constructor
+		 *
+		 */
+		cofpacket_flow_stats_request(
+				uint8_t of_version = 0,
+				uint32_t xid = 0,
+				uint16_t type = OFPST_FLOW,
+				uint16_t flags = 0,
+				uint8_t table_id = 0,
+				uint32_t out_port = OFPP_ANY,
+				uint32_t out_group = OFPG_ANY,
+				uint64_t cookie = 0,
+				uint64_t cookie_mask = 0) :
+			cofpacket_stats_request(of_version, xid, type, flags)
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION: {
+				size_t flow_stats_body_len = 32;
+				cofpacket::body.resize(flow_stats_body_len);
+				struct ofp_flow_stats_request* flow_stats = (struct ofp_flow_stats_request*)(body.somem());
+
+				flow_stats->table_id		= table_id;
+				flow_stats->out_port		= htobe32(out_port);
+				flow_stats->out_group		= htobe32(out_group);
+				flow_stats->cookie			= htobe64(cookie);
+				flow_stats->cookie_mask		= htobe64(cookie_mask);
+
+			} break;
+			case OFP13_VERSION: {
+				// TODO
+				throw eNotImplemented();
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+		};
+		/** constructor
+		 *
+		 */
+		cofpacket_flow_stats_request(cofpacket const *pack)
+		{
+			cofpacket::operator =(*pack);
+		};
+		/** destructor
+		 *
+		 */
+		virtual
+		~cofpacket_flow_stats_request() {};
+		/** length
+		 *
+		 */
+		virtual size_t
+		length()
+		{
+			return (sizeof(struct ofp_stats_request) + body.memlen() + match.length());
+		};
+		/**
+		 *
+		 */
+		virtual void
+		pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0) throw (eOFpacketInval)
+		{
+			ofh_header->length = htobe16(length());
+
+			if (((uint8_t*)0 == buf) || (buflen < length()))
+			{
+				return;
+			}
+
+			memcpy(buf, memarea.somem(), sizeof(struct ofp_stats_request));
+
+			memcpy(buf + sizeof(struct ofp_stats_request), body.somem(), body.memlen());
+
+			match.pack((struct ofp_match*)(buf + sizeof(struct ofp_stats_request) +
+														body.memlen()), match.length());
+		};
+};
+
+
+
+
+
+
 /** OFPT_STATS_REPLY
  *
  */

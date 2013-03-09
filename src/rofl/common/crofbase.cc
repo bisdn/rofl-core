@@ -804,6 +804,43 @@ crofbase::send_stats_request(
 
 
 
+uint32_t
+crofbase::send_flow_stats_request(
+		cofdpt *dpt,
+		uint16_t type,
+		uint16_t flags,
+		uint8_t table_id,
+		uint32_t out_port,
+		uint32_t out_group,
+		uint64_t cookie,
+		uint64_t cookie_mask,
+		cofmatch const& match)
+{
+	cofpacket_stats_request *pack =
+			new cofpacket_flow_stats_request(
+					dpt->get_version(),
+					ta_add_request(OFPT_STATS_REQUEST),
+					OFPST_FLOW,
+					flags,
+					table_id,
+					out_port,
+					out_group,
+					cookie,
+					cookie_mask);
+
+	pack->match = match;
+
+	pack->pack();
+
+	uint32_t xid = be32toh(pack->ofh_header->xid);
+
+	dpt_find(dpt)->send_message(pack);
+
+	return xid;
+}
+
+
+
 void
 crofbase::handle_stats_request(cofctl *ofctrl, cofpacket_stats_request *pack)
 {
@@ -996,7 +1033,7 @@ crofbase::send_stats_reply(
 
 
 void
-crofbase::send_stats_desc_reply(
+crofbase::send_desc_stats_reply(
 	cofctl *ctl,
 	uint32_t xid,
 	std::string const& mfr_desc,
