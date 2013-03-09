@@ -36,6 +36,7 @@ extern "C" {
 #include "cofaclist.h"
 #include "cofbclist.h"
 #include "cofportlist.h"
+#include "cofport.h"
 
 // forward declarations
 class cofbase;
@@ -99,6 +100,7 @@ public: // data structures
 	cofinlist 		instructions;		// list of instructions
 	cofbclist 		buckets;			// list of buckets
 	cofportlist		ports;				// list of ports (for Features-Reply messages)
+	cofport			port;				// a single port (for Port-Status messages)
 	cmemory			body;				// body of OF packet, e.g. data, experimental body, stats body, etc.
 	cpacket			packet;				// valid for Packet-In and Packet-Out, empty otherwise
 
@@ -1676,6 +1678,57 @@ public:
 		/**
 		 *
 		 */
+		uint64_t
+		get_cookie()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be64toh(of12h_flow_rmvd->cookie);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_priority()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(of12h_flow_rmvd->priority);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint8_t
+		get_reason()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return of12h_flow_rmvd->reason;
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
 		uint8_t
 		get_table_id()
 		{
@@ -1683,6 +1736,108 @@ public:
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return of12h_flow_rmvd->table_id;
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_duration_sec()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(of12h_flow_rmvd->duration_sec);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_duration_nsec()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(of12h_flow_rmvd->duration_nsec);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_idle_timeout()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(of12h_flow_rmvd->idle_timeout);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_hard_timeout()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(of12h_flow_rmvd->hard_timeout);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint64_t
+		get_packet_count()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be64toh(of12h_flow_rmvd->packet_count);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint64_t
+		get_byte_count()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be64toh(of12h_flow_rmvd->byte_count);
 			} break;
 			default: {
 				throw eBadVersion();
@@ -1941,7 +2096,7 @@ public:
 			case OFP13_VERSION: {
 				ofh_packet_out->buffer_id		= htobe32(buffer_id);
 				ofh_packet_out->in_port			= htobe32(in_port);
-				ofh_packet_out->actions_len		= htobe16(0); // filled in when method pack() is being called
+				ofh_packet_out->actions_len		= htobe16(0); // filled in when method pack() is called
 
 			} break;
 			default:
@@ -2002,6 +2157,57 @@ public:
 			default:
 				throw eBadVersion();
 			}
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_buffer_id()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_packet_out->buffer_id);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_in_port()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_packet_out->in_port);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_actions_len()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(ofh_packet_out->actions_len);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
 		};
 };
 
@@ -2146,6 +2352,74 @@ public:
 			}
 			return 0;
 		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_port_no()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_port_mod->port_no);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_config()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_port_mod->config);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_mask()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_port_mod->mask);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_advertise()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_port_mod->advertise);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
 };
 
 
@@ -2240,6 +2514,57 @@ public:
 				throw eBadVersion();
 			}
 		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_command()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(ofh_group_mod->command);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint8_t
+		get_port_no()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return ofh_group_mod->type;
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_group_id()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_group_mod->group_id);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
 };
 
 
@@ -2303,6 +2628,40 @@ public:
 			} break;
 			default:
 				throw eBadVersion();
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint8_t
+		get_table_id()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return ofh_table_mod->table_id;
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_config()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_table_mod->config);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
 			}
 			return 0;
 		};
@@ -2375,6 +2734,40 @@ public:
 			memcpy(buf, memarea.somem(), sizeof(struct ofp_stats_request));
 
 			memcpy(buf + sizeof(struct ofp_stats_request), body.somem(), body.memlen());
+		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_type()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(ofh_stats_request->type);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_flags()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(ofh_stats_request->flags);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
 		};
 };
 
@@ -2449,6 +2842,40 @@ public:
 				memcpy(buf + sizeof(struct ofp_stats_reply), body.somem(), body.memlen());
 			}
 		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_type()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(ofh_stats_reply->type);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_flags()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(ofh_stats_reply->flags);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
 };
 
 
@@ -2509,6 +2936,23 @@ public:
 			} break;
 			default:
 				throw eBadVersion();
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_port()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_queue_get_config_request->port);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
 			}
 			return 0;
 		};
@@ -2577,6 +3021,23 @@ public:
 			default:
 				throw eBadVersion();
 			}
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_port() const
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_queue_get_config_reply->port);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
 		};
 };
 
@@ -2650,6 +3111,40 @@ public:
 
 			memcpy(buf + sizeof(struct ofp_experimenter_header), body.somem(), body.memlen());
 		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_experimenter() const
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_experimenter->experimenter);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_exp_type() const
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_experimenter->exp_type);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
 };
 
 
@@ -2715,6 +3210,40 @@ public:
 			}
 			return 0;
 		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_role() const
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_role_request->role);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint64_t
+		get_generation_id() const
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be64toh(ofh_role_request->generation_id);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
 };
 
 
@@ -2777,6 +3306,40 @@ public:
 			} break;
 			default:
 				throw eBadVersion();
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_role() const
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be32toh(ofh_role_request->role);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint64_t
+		get_generation_id() const
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be64toh(ofh_role_request->generation_id);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
 			}
 			return 0;
 		};

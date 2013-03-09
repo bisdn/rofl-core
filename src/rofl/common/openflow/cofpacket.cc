@@ -90,6 +90,8 @@ cofpacket::operator=(const cofpacket &p)
 	instructions 	= p.instructions;
 	body			= p.body;
 	packet			= p.packet;
+	ports			= p.ports;
+	port			= p.port;
 
 	ofh_header = (struct ofp_header*)soframe();
 
@@ -677,6 +679,9 @@ cofpacket::is_valid_port_status()
 	ofh_port_status = (struct ofp_port_status*)soframe();
 	if (stored < sizeof(struct ofp_port_status))
 		return false;
+
+	port.assign((uint8_t*)&(ofh_port_status->desc), sizeof(struct ofp_port));
+
 	return true;
 }
 
