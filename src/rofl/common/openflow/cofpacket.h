@@ -569,13 +569,13 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_hello(uint8_t version, uint32_t xid = 0, uint8_t* data = 0, size_t datalen = 0) :
+		cofpacket_hello(uint8_t of_version = 0, uint32_t xid = 0, uint8_t* data = 0, size_t datalen = 0) :
 			cofpacket(	sizeof(struct ofp_header) + datalen,
 						sizeof(struct ofp_header) + datalen)
 		{
 			body.assign(data, datalen);
 
-			ofh_header->version 	= version; // OFP12_VERSION, OFP13_VERSION, ...
+			ofh_header->version 	= of_version; // OFP12_VERSION, OFP13_VERSION, ...
 			ofh_header->length		= htobe16(sizeof(struct ofp_header) + sizeof(uint32_t));
 			ofh_header->type 		= OFPT_HELLO;
 			ofh_header->xid			= htobe32(xid);
@@ -628,13 +628,13 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_echo_request(uint8_t version, uint32_t xid = 0, uint8_t *data = (uint8_t*)0, size_t datalen = 0) :
+		cofpacket_echo_request(uint8_t of_version = 0, uint32_t xid = 0, uint8_t *data = (uint8_t*)0, size_t datalen = 0) :
 			cofpacket(	sizeof(struct ofp_header) + datalen,
 						sizeof(struct ofp_header) + datalen)
 		{
 			cofpacket::body.assign(data, datalen);
 
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_header) + datalen);
 			ofh_header->type 		= OFPT_ECHO_REQUEST;
 			ofh_header->xid			= htobe32(xid);
@@ -693,13 +693,13 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_echo_reply(uint8_t version, uint32_t xid = 0, uint8_t *data = (uint8_t*)0, size_t datalen = 0) :
+		cofpacket_echo_reply(uint8_t of_version = 0, uint32_t xid = 0, uint8_t *data = (uint8_t*)0, size_t datalen = 0) :
 			cofpacket(	sizeof(struct ofp_header) + datalen,
 						sizeof(struct ofp_header) + datalen)
 		{
 			cofpacket::body.assign(data, datalen);
 
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_header) + datalen);
 			ofh_header->type 		= OFPT_ECHO_REPLY;
 			ofh_header->xid			= htobe32(xid);
@@ -758,11 +758,11 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_features_request(uint8_t version, uint32_t xid = 0) :
+		cofpacket_features_request(uint8_t of_version = 0, uint32_t xid = 0) :
 			cofpacket(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_header));
 			ofh_header->type 		= OFPT_FEATURES_REQUEST;
 			ofh_header->xid			= htobe32(xid);
@@ -794,7 +794,7 @@ public:
 		 *
 		 */
 		cofpacket_features_reply(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint64_t dpid = 0,
 				uint32_t n_buffers = 0,
@@ -803,7 +803,7 @@ public:
 			cofpacket(	sizeof(struct ofp12_switch_features),
 						sizeof(struct ofp12_switch_features))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp12_switch_features));
 			ofh_header->type 		= OFPT_FEATURES_REPLY;
 			ofh_header->xid			= htobe32(xid);
@@ -970,11 +970,11 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_get_config_request(uint8_t version, uint32_t xid = 0) :
+		cofpacket_get_config_request(uint8_t of_version = 0, uint32_t xid = 0) :
 			cofpacket(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_header));
 			ofh_header->type 		= OFPT_GET_CONFIG_REQUEST;
 			ofh_header->xid			= htobe32(xid);
@@ -1006,19 +1006,19 @@ public:
 		 *
 		 */
 		cofpacket_get_config_reply(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint16_t flags = 0,
 				uint16_t miss_send_len = 0) :
 			cofpacket(	sizeof(struct ofp_switch_config),
 						sizeof(struct ofp_switch_config))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_switch_config));
 			ofh_header->type 		= OFPT_GET_CONFIG_REPLY;
 			ofh_header->xid			= htobe32(xid);
 
-			switch (version) {
+			switch (of_version) {
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				of12h_switch_config->flags			= htobe16(flags);
@@ -1091,19 +1091,19 @@ public:
 		 *
 		 */
 		cofpacket_set_config(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint16_t flags = 0,
 				uint16_t miss_send_len = 0) :
 			cofpacket(	sizeof(struct ofp_switch_config),
 						sizeof(struct ofp_switch_config))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_switch_config));
 			ofh_header->type 		= OFPT_SET_CONFIG;
 			ofh_header->xid			= htobe32(xid);
 
-			switch (version) {
+			switch (of_version) {
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				of12h_switch_config->flags			= htobe16(flags);
@@ -1184,11 +1184,11 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_barrier_request(uint8_t version, uint32_t xid = 0) :
+		cofpacket_barrier_request(uint8_t of_version = 0, uint32_t xid = 0) :
 			cofpacket(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_header));
 			ofh_header->type 		= OFPT_BARRIER_REQUEST;
 			ofh_header->xid			= htobe32(xid);
@@ -1219,11 +1219,11 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_barrier_reply(uint8_t version, uint32_t xid = 0) :
+		cofpacket_barrier_reply(uint8_t of_version = 0, uint32_t xid = 0) :
 			cofpacket(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_header));
 			ofh_header->type 		= OFPT_BARRIER_REPLY;
 			ofh_header->xid			= htobe32(xid);
@@ -1255,7 +1255,7 @@ public:
 		 *
 		 */
 		cofpacket_error(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint16_t type = 0,
 				uint16_t code = 0,
@@ -1266,7 +1266,7 @@ public:
 		{
 			cofpacket::body.assign(data, datalen);
 
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_header) + body.memlen());
 			ofh_header->type 		= OFPT_ERROR;
 			ofh_header->xid			= htobe32(xid);
@@ -1356,7 +1356,7 @@ public:
 		 *
 		 */
 		cofpacket_flow_mod(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint64_t cookie = 0,
 				uint64_t cookie_mask = 0,
@@ -1372,11 +1372,11 @@ public:
 			cofpacket(	OFP12_FLOW_MOD_STATIC_HDR_LEN,
 						OFP12_FLOW_MOD_STATIC_HDR_LEN)
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->type 		= OFPT_FLOW_MOD;
 			ofh_header->xid			= htobe32(xid);
 
-			switch (version) {
+			switch (of_version) {
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				ofh_header->length				= htobe16(OFP12_FLOW_MOD_STATIC_HDR_LEN);
@@ -1639,7 +1639,7 @@ public:
 		 *
 		 */
 		cofpacket_flow_removed(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint64_t cookie = 0,
 				uint16_t priority = 0,
@@ -1654,12 +1654,12 @@ public:
 			cofpacket(	OFP_FLOW_REMOVED_STATIC_HDR_LEN,
 						OFP_FLOW_REMOVED_STATIC_HDR_LEN)
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(OFP_FLOW_REMOVED_STATIC_HDR_LEN);
 			ofh_header->type 		= OFPT_FLOW_REMOVED;
 			ofh_header->xid			= htobe32(xid);
 
-			switch (version) {
+			switch (of_version) {
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				of12h_flow_rmvd->cookie			= htobe64(cookie);
@@ -1915,7 +1915,7 @@ public:
 		 *
 		 */
 		cofpacket_packet_in(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint32_t buffer_id = 0,
 				uint16_t total_len = 0,
@@ -1929,12 +1929,12 @@ public:
 			//cofpacket::body.assign(data, datalen);
 			cofpacket::packet.unpack(OFPP_CONTROLLER, data, datalen);
 
-			switch (version) {
+			switch (of_version) {
 			case OFP12_VERSION: {
 				cofpacket::memarea.resize(OFP12_PACKET_IN_STATIC_HDR_LEN);
 				cofpacket::stored = OFP12_PACKET_IN_STATIC_HDR_LEN;
 
-				ofh_header->version 	= version;
+				ofh_header->version 	= of_version;
 				ofh_header->length		= htobe16(OFP12_PACKET_IN_STATIC_HDR_LEN + 2 + packet.framelen());
 				ofh_header->type 		= OFPT_PACKET_IN;
 				ofh_header->xid			= htobe32(xid);
@@ -1948,7 +1948,7 @@ public:
 				cofpacket::memarea.resize(OFP13_PACKET_IN_STATIC_HDR_LEN);
 				cofpacket::stored = OFP13_PACKET_IN_STATIC_HDR_LEN;
 
-				ofh_header->version 	= version;
+				ofh_header->version 	= of_version;
 				ofh_header->length		= htobe16(OFP12_PACKET_IN_STATIC_HDR_LEN + 2 + packet.framelen());
 				ofh_header->type 		= OFPT_PACKET_IN;
 				ofh_header->xid			= htobe32(xid);
@@ -2130,7 +2130,7 @@ public:
 		 *
 		 */
 		cofpacket_packet_out(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint32_t buffer_id = 0,
 				uint32_t in_port = 0,
@@ -2142,12 +2142,12 @@ public:
 			//cofpacket::body.assign(data, datalen);
 			cofpacket::packet.unpack(in_port, data, datalen);
 
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_packet_out) + datalen);
 			ofh_header->type 		= OFPT_PACKET_OUT;
 			ofh_header->xid			= htobe32(xid);
 
-			switch (version) {
+			switch (of_version) {
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				ofh_packet_out->buffer_id		= htobe32(buffer_id);
@@ -2280,7 +2280,7 @@ public:
 		 *
 		 */
 		cofpacket_port_status(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint8_t reason = 0,
 				struct ofp_port *desc = (struct ofp_port*)0,
@@ -2288,12 +2288,12 @@ public:
 			cofpacket(	sizeof(struct ofp_port_status),
 						sizeof(struct ofp_port_status))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_port_status));
 			ofh_header->type 		= OFPT_PORT_STATUS;
 			ofh_header->xid			= htobe32(xid);
 
-			switch (version) {
+			switch (of_version) {
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				ofh_port_status->reason	= reason;
@@ -2349,7 +2349,7 @@ public:
 		 *
 		 */
 		cofpacket_port_mod(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint32_t port_no = 0,
 				cmacaddr const& hwaddr = cmacaddr("00:00:00:00:00:00"),
@@ -2359,12 +2359,12 @@ public:
 			cofpacket(	sizeof(struct ofp_port_mod),
 						sizeof(struct ofp_port_mod))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_port_mod));
 			ofh_header->type 		= OFPT_PORT_MOD;
 			ofh_header->xid			= htobe32(xid);
 
-			switch (version) {
+			switch (of_version) {
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				ofh_port_mod->port_no			= htobe32(port_no);
@@ -2492,7 +2492,7 @@ public:
 		 *
 		 */
 		cofpacket_group_mod(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint16_t command = 0,
 				uint8_t  type = 0,
@@ -2500,12 +2500,12 @@ public:
 			cofpacket(	sizeof(struct ofp_group_mod),
 						sizeof(struct ofp_group_mod))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_group_mod));
 			ofh_header->type 		= OFPT_GROUP_MOD;
 			ofh_header->xid			= htobe32(xid);
 
-			switch (version) {
+			switch (of_version) {
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				ofh_group_mod->command		= htobe16(command);
@@ -2636,14 +2636,14 @@ public:
 		 *
 		 */
 		cofpacket_table_mod(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint8_t  table_id = 0,
 				uint32_t config = 0) :
 			cofpacket(	sizeof(struct ofp_table_mod),
 						sizeof(struct ofp_table_mod))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_table_mod));
 			ofh_header->type 		= OFPT_TABLE_MOD;
 			ofh_header->xid			= htobe32(xid);
@@ -2735,6 +2735,7 @@ public:
 		 *
 		 */
 		cofpacket_stats_request(
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint16_t type = 0,
 				uint16_t flags = 0,
@@ -2745,7 +2746,7 @@ public:
 		{
 			cofpacket::body.assign(data, datalen);
 
-			ofh_header->version 	= OFP12_VERSION;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_stats_request) + body.memlen());
 			ofh_header->type 		= OFPT_STATS_REQUEST;
 			ofh_header->xid			= htobe32(xid);
@@ -3006,13 +3007,13 @@ public:
 		 *
 		 */
 		cofpacket_queue_get_config_request(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint32_t port = 0) :
 			cofpacket(	sizeof(struct ofp_queue_get_config_request),
 						sizeof(struct ofp_queue_get_config_request))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_queue_get_config_request));
 			ofh_header->type 		= OFPT_QUEUE_GET_CONFIG_REQUEST;
 			ofh_header->xid			= htobe32(xid);
@@ -3090,13 +3091,13 @@ public:
 		 *
 		 */
 		cofpacket_queue_get_config_reply(
-				uint8_t version,
+				uint8_t of_version,
 				uint32_t xid = 0,
 				uint32_t port = 0) :
 			cofpacket(	sizeof(struct ofp_queue_get_config_reply),
 						sizeof(struct ofp_queue_get_config_reply))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_queue_get_config_reply));
 			ofh_header->type 		= OFPT_QUEUE_GET_CONFIG_REPLY;
 			ofh_header->xid			= htobe32(xid);
@@ -3169,7 +3170,7 @@ public:
 		 *
 		 */
 		cofpacket_experimenter(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint32_t experimenter = 0,
 				uint32_t exp_type = 0,
@@ -3180,7 +3181,7 @@ public:
 		{
 			cofpacket::body.assign(data, datalen);
 
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_experimenter_header) + body.memlen());
 			ofh_header->type 		= OFPT_EXPERIMENTER;
 			ofh_header->xid			= htobe32(xid);
@@ -3275,14 +3276,14 @@ public:
 		 *
 		 */
 		cofpacket_role_request(
-				uint8_t version,
+				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint32_t role = 0,
 				uint64_t generation_id = 0) :
 			cofpacket(	sizeof(struct ofp_role_request),
 						sizeof(struct ofp_role_request))
 		{
-			ofh_header->version 	= version;
+			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_queue_get_config_reply));
 			ofh_header->type 		= OFPT_ROLE_REQUEST;
 			ofh_header->xid			= htobe32(xid);
