@@ -207,11 +207,9 @@ cfwdelem::handle_timeout(int opaque)
 {
 	try {
 		switch (opaque) {
-		default:
-			{
-				crofbase::handle_timeout(opaque);
-			}
-			break;
+		default: {
+			crofbase::handle_timeout(opaque);
+		} break;
 		}
 
 

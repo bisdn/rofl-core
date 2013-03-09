@@ -47,6 +47,7 @@ cofpacket::packet_info()
 cofpacket::cofpacket(size_t size, size_t used) :
 	stored(used),
 	memarea(size),
+	entity(0),
 	body(0),
 	packet((size_t)0),
 	switch_features_num_ports(0)
