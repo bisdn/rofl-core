@@ -958,17 +958,46 @@ crofbase::send_stats_reply(
 		bool more)
 {
 	uint16_t flags = 0;
-	if (more)
-		flags = htobe16(OFPSF_REPLY_MORE);
-	else
-		flags = htobe16(0);
 
-	cofpacket_stats_reply *pack = new cofpacket_stats_reply(
-										xid,
-										stats_type,
-										flags,
-										body,
-										bodylen);
+	flags |= (more) ? OFPSF_REPLY_MORE : 0;
+
+	cofpacket_stats_reply *pack =
+			new cofpacket_stats_reply(
+							xid,
+							stats_type,
+							flags,
+							body,
+							bodylen);
+
+	ctl_find(ctl)->send_message(pack);
+}
+
+
+
+void
+crofbase::send_stats_desc_reply(
+	cofctl *ctl,
+	uint32_t xid,
+	std::string const& mfr_desc,
+	std::string const&  hw_desc,
+	std::string const&  sw_desc,
+	std::string const&  serial_num,
+	std::string const&  dp_desc,
+	bool more)
+{
+	uint16_t flags = 0;
+
+	flags |= (more) ? OFPSF_REPLY_MORE : 0;
+
+	cofpacket_stats_desc_reply *pack =
+			new cofpacket_stats_desc_reply(
+							xid,
+							flags,
+							mfr_desc,
+							hw_desc,
+							sw_desc,
+							serial_num,
+							dp_desc);
 
 	ctl_find(ctl)->send_message(pack);
 }

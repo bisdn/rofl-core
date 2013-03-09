@@ -955,6 +955,25 @@ public:
 		size_t bodylen = 0,
 		bool more = false);
 
+	/** Send OF STATS DESC.reply to controlling entity.
+	 *
+	 * @param xid transaction ID used in STATS request
+	 * @param stats_type One of the OFPST_* constants
+	 * @param body Body of a STATS reply
+	 * @param bodylen length of STATS reply body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_stats_desc_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		std::string const& mfr_desc,
+		std::string const&  hw_desc,
+		std::string const&  sw_desc,
+		std::string const&  serial_num,
+		std::string const&  dp_desc,
+		bool more = false);
+
 	// PACKET-OUT message
 	//
 

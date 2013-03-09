@@ -2935,6 +2935,63 @@ public:
 };
 
 
+
+/** OFPT_STATS_DESC_REPLY
+ *
+ */
+class cofpacket_stats_desc_reply :
+	public cofpacket_stats_reply
+{
+public:
+		/** constructor
+		 *
+		 */
+		cofpacket_stats_desc_reply(
+				uint32_t xid = 0,
+				uint16_t flags = 0,
+				std::string const& mfr_desc = std::string(""),
+				std::string const&  hw_desc = std::string(""),
+				std::string const&  sw_desc = std::string(""),
+				std::string const&  serial_num = std::string(""),
+				std::string const&  dp_desc = std::string("")) :
+			cofpacket_stats_reply(xid, OFPST_DESC, flags)
+		{
+			cofpacket::body.resize(sizeof(struct ofp_desc_stats));
+			struct ofp_desc_stats *desc_stats = (struct ofp_desc_stats*)(cofpacket::body.somem());
+
+			switch (ofh_header->version) {
+			case OFP12_VERSION: {
+				snprintf(desc_stats->mfr_desc, DESC_STR_LEN, mfr_desc.c_str(), mfr_desc.length());
+				snprintf(desc_stats->hw_desc, DESC_STR_LEN, hw_desc.c_str(), hw_desc.length());
+				snprintf(desc_stats->sw_desc, DESC_STR_LEN, sw_desc.c_str(), sw_desc.length());
+				snprintf(desc_stats->serial_num, DESC_STR_LEN, serial_num.c_str(), serial_num.length());
+				snprintf(desc_stats->dp_desc, DESC_STR_LEN, dp_desc.c_str(), dp_desc.length());
+			} break;
+			case OFP13_VERSION: {
+				// TODO
+				throw eNotImplemented();
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+		};
+		/** constructor
+		 *
+		 */
+		cofpacket_stats_desc_reply(cofpacket const *pack)
+		{
+			cofpacket::operator =(*pack);
+		};
+		/** destructor
+		 *
+		 */
+		virtual
+		~cofpacket_stats_desc_reply() {};
+};
+
+
+
 /** OFPT_QUEUE_GET_CONFIG_REQUEST
  *
  */
