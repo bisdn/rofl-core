@@ -399,70 +399,49 @@ public:
 	 *
 	 */
 	virtual cofmatch&
-	get_match()
-	{
-		return match;
-	};
+	get_match() { return match; };
 
 
 	/**
 	 *
 	 */
 	virtual cofaclist&
-	get_actions()
-	{
-		return actions;
-	};
+	get_actions() { return actions; };
 
 
 	/**
 	 *
 	 */
 	virtual cofinlist&
-	get_instructions()
-	{
-		return instructions;
-	}
+	get_instructions() { return instructions; };
 
 
 	/**
 	 *
 	 */
 	virtual cofbclist&
-	get_buckets()
-	{
-		return buckets;
-	};
+	get_buckets() { return buckets; };
 
 
 	/**
 	 *
 	 */
 	virtual cofportlist&
-	get_port_list()
-	{
-		return ports;
-	};
+	get_port_list() { return ports; };
 
 
 	/**
 	 *
 	 */
 	virtual cofport&
-	get_port_desc()
-	{
-		return port;
-	};
+	get_port_desc() { return port; };
 
 
 	/**
 	 *
 	 */
 	virtual cmemory&
-	get_body()
-	{
-		return body;
-	};
+	get_body() { return body; };
 
 
 	/**
