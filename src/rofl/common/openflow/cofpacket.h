@@ -112,7 +112,9 @@ public: // data structures
 		struct ofp10_switch_features 			*of10hu_sfhdr;
 		struct ofp12_switch_features 			*of12hu_sfhdr;
 		struct ofp13_switch_features			*of13hu_sfhdr;
-		struct ofp_switch_config 				*ofhu_schdr;
+		struct ofp10_switch_config 				*of10hu_schdr;
+		struct ofp12_switch_config 				*of12hu_schdr;
+		struct ofp13_switch_config 				*of13hu_schdr;
 		struct ofp12_flow_mod 					*of12hu_fmhdr;
 		struct ofp13_flow_mod 					*of13hu_fmhdr;
 		struct ofp_port_mod 					*ofhu_pmhdr;
@@ -139,8 +141,9 @@ public: // data structures
 #define of10h_switch_features 					ofh_ofhu.of10hu_sfhdr
 #define of12h_switch_features 					ofh_ofhu.of12hu_sfhdr
 #define of13h_switch_features 					ofh_ofhu.of13hu_sfhdr
-#define of12h_switch_config 					ofh_ofhu.ofhu_schdr
-#define of13h_switch_config 					ofh_ofhu.ofhu_schdr
+#define of10h_switch_config 					ofh_ofhu.of10hu_schdr
+#define of12h_switch_config 					ofh_ofhu.of12hu_schdr
+#define of13h_switch_config 					ofh_ofhu.of13hu_schdr
 #define of12h_flow_mod 							ofh_ofhu.of12hu_fmhdr
 #define of13h_flow_mod 							ofh_ofhu.of13hu_fmhdr
 #define ofh_port_mod 							ofh_ofhu.ofhu_pmhdr
@@ -450,10 +453,7 @@ public:
 	 *
 	 */
 	virtual cpacket&
-	get_packet()
-	{
-		return packet;
-	};
+	get_packet() { return packet; };
 
 
 
@@ -1082,20 +1082,23 @@ public:
 				uint32_t xid = 0,
 				uint16_t flags = 0,
 				uint16_t miss_send_len = 0) :
-			cofpacket(	sizeof(struct ofp_switch_config),
-						sizeof(struct ofp_switch_config))
+			cofpacket(	sizeof(struct ofp10_switch_config),
+						sizeof(struct ofp10_switch_config))
 		{
 			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_switch_config));
+			ofh_header->length		= htobe16(sizeof(struct ofp10_switch_config));
 			ofh_header->type 		= OFPT_GET_CONFIG_REPLY;
 			ofh_header->xid			= htobe32(xid);
 
 			switch (of_version) {
+			case OFP10_VERSION:
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				of12h_switch_config->flags			= htobe16(flags);
-				of12h_switch_config->miss_send_len	= htobe16(miss_send_len);
+				of10h_switch_config->flags			= htobe16(flags);
+				of10h_switch_config->miss_send_len	= htobe16(miss_send_len);
 			} break;
+			default:
+				throw eBadVersion();
 			}
 		};
 		/** constructor
@@ -1117,7 +1120,7 @@ public:
 		virtual size_t
 		length()
 		{
-			return (sizeof(struct ofp_switch_config));
+			return (sizeof(struct ofp10_switch_config));
 		};
 		/**
 		 *
@@ -1126,9 +1129,10 @@ public:
 		get_flags()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION:
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				return be16toh(of12h_switch_config->flags); // no change since OF1.2
+				return be16toh(of10h_switch_config->flags); // no change since OF1.0
 			} break;
 			default:
 				throw eBadVersion();
@@ -1141,9 +1145,10 @@ public:
 		get_miss_send_len()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION:
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				return be16toh(of12h_switch_config->miss_send_len); // no change since OF1.2
+				return be16toh(of10h_switch_config->miss_send_len); // no change since OF1.0
 			} break;
 			default:
 				throw eBadVersion();
@@ -1167,19 +1172,20 @@ public:
 				uint32_t xid = 0,
 				uint16_t flags = 0,
 				uint16_t miss_send_len = 0) :
-			cofpacket(	sizeof(struct ofp_switch_config),
-						sizeof(struct ofp_switch_config))
+			cofpacket(	sizeof(struct ofp10_switch_config),
+						sizeof(struct ofp10_switch_config))
 		{
 			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_switch_config));
+			ofh_header->length		= htobe16(sizeof(struct ofp10_switch_config));
 			ofh_header->type 		= OFPT_SET_CONFIG;
 			ofh_header->xid			= htobe32(xid);
 
 			switch (of_version) {
+			case OFP10_VERSION:
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				of12h_switch_config->flags			= htobe16(flags);
-				of12h_switch_config->miss_send_len	= htobe16(miss_send_len);
+				of10h_switch_config->flags			= htobe16(flags);
+				of10h_switch_config->miss_send_len	= htobe16(miss_send_len);
 			} break;
 			default:
 				throw eBadVersion();
@@ -1205,9 +1211,10 @@ public:
 		length()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION:
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				return (sizeof(struct ofp_switch_config)); // no change since OF1.2
+				return (sizeof(struct ofp10_switch_config)); // no change since OF1.0
 			} break;
 			default:
 				throw eBadVersion();
@@ -1220,9 +1227,10 @@ public:
 		get_flags()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION:
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				return be16toh(of12h_switch_config->flags); // no change since OF1.2
+				return be16toh(of10h_switch_config->flags); // no change since OF1.0
 			} break;
 			default:
 				throw eBadVersion();
@@ -1235,6 +1243,7 @@ public:
 		get_miss_send_len()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION:
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be16toh(of12h_switch_config->miss_send_len); // no change since OF1.2

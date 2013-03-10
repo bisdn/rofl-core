@@ -528,14 +528,17 @@ bool
 cofpacket::is_valid_switch_config()
 {
 	switch (ofh_header->version) {
+	case OFP10_VERSION:
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
-		of12h_switch_config = /* of13h_switch_config = */ (struct ofp_switch_config*)soframe();
-		if (stored < sizeof(struct ofp_switch_config))
+		of10h_switch_config = (struct ofp10_switch_config*)soframe();
+		if (stored < sizeof(struct ofp10_switch_config))
 			return false;
 		if (stored < be16toh(ofh_header->length))
 			return false;
 	} break;
+	default:
+		throw eBadRequestBadVersion();
 	}
 	return true;
 }

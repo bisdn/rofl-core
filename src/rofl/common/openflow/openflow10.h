@@ -36,28 +36,7 @@
 #ifndef OPENFLOW_OPENFLOW10_H
 #define OPENFLOW_OPENFLOW10_H 1
 
-#ifdef __KERNEL__
-#include <linux/types.h>
-#else
-#include <stdint.h>
-#endif
-
-#ifdef SWIG
-#define OFP10_ASSERT(EXPR)        /* SWIG can't handle OFP10_ASSERT. */
-#elif !defined(__cplusplus)
-/* Build-time assertion for use in a declaration context. */
-#define OFP10_ASSERT(EXPR)                                                \
-        extern int (*build_assert(void))[ sizeof(struct {               \
-                    unsigned int build_assert_failed : (EXPR) ? 1 : -1; })]
-#else /* __cplusplus */
-#define OFP10_ASSERT(_EXPR) typedef int build_assert_failed[(_EXPR) ? 1 : -1]
-#endif /* __cplusplus */
-
-#ifndef SWIG
-#define OFP10_PACKED __attribute__((packed))
-#else
-#define OFP10_PACKED              /* SWIG doesn't understand __attribute. */
-#endif
+#include "openflow_common.h"
 
 /* Version number:
  * Non-experimental versions released: 0x01
@@ -68,13 +47,6 @@
  */
 #define OFP10_VERSION   0x01
 
-#define OFP10_MAX_TABLE_NAME_LEN 32
-#define OFP10_MAX_PORT_NAME_LEN  16
-
-#define OFP10_TCP_PORT  6633
-#define OFP10_SSL_PORT  6633
-
-#define OFP10_ETH_ALEN 6          /* Bytes in an Ethernet address. */
 
 /* Port numbering.  Physical ports are numbered starting from 1. */
 enum ofp10_port {
@@ -98,62 +70,11 @@ enum ofp10_port {
     OFP10P_NONE       = 0xffff   /* Not associated with a physical port. */
 };
 
-#if 0
-enum ofp10_type {
-    /* Immutable messages. */
-    OFP10T_HELLO,               /* Symmetric message */
-    OFP10T_ERROR,               /* Symmetric message */
-    OFP10T_ECHO_REQUEST,        /* Symmetric message */
-    OFP10T_ECHO_REPLY,          /* Symmetric message */
-    OFP10T_VENDOR,              /* Symmetric message */
-
-    /* Switch configuration messages. */
-    OFP10T_FEATURES_REQUEST,    /* Controller/switch message */
-    OFP10T_FEATURES_REPLY,      /* Controller/switch message */
-    OFP10T_GET_CONFIG_REQUEST,  /* Controller/switch message */
-    OFP10T_GET_CONFIG_REPLY,    /* Controller/switch message */
-    OFP10T_SET_CONFIG,          /* Controller/switch message */
-
-    /* Asynchronous messages. */
-    OFP10T_PACKET_IN,           /* Async message */
-    OFP10T_FLOW_REMOVED,        /* Async message */
-    OFP10T_PORT_STATUS,         /* Async message */
-
-    /* Controller command messages. */
-    OFP10T_PACKET_OUT,          /* Controller/switch message */
-    OFP10T_FLOW_MOD,            /* Controller/switch message */
-    OFP10T_PORT_MOD,            /* Controller/switch message */
-
-    /* Statistics messages. */
-    OFP10T_STATS_REQUEST,       /* Controller/switch message */
-    OFP10T_STATS_REPLY,         /* Controller/switch message */
-
-    /* Barrier messages. */
-    OFP10T_BARRIER_REQUEST,     /* Controller/switch message */
-    OFP10T_BARRIER_REPLY,       /* Controller/switch message */
-
-    /* Queue Configuration messages. */
-    OFP10T_QUEUE_GET_CONFIG_REQUEST,  /* Controller/switch message */
-    OFP10T_QUEUE_GET_CONFIG_REPLY     /* Controller/switch message */
-
-};
-#endif
-
-/* Header on all OpenFlow packets. */
-struct ofp10_header {
-    uint8_t version;    /* OFP10_VERSION. */
-    uint8_t type;       /* One of the OFP10T_ constants. */
-    uint16_t length;    /* Length including this ofp10_header. */
-    uint32_t xid;       /* Transaction id associated with this packet.
-                           Replies use the same id as was in the request
-                           to facilitate pairing. */
-};
-OFP10_ASSERT(sizeof(struct ofp10_header) == 8);
 
 /* OFP10T_HELLO.  This message has an empty body, but implementations must
  * ignore any data included in the body, to allow for future extensions. */
 struct ofp10_hello {
-    struct ofp10_header header;
+    struct ofp_header header;
 };
 
 #define OFP10_DEFAULT_MISS_SEND_LEN   128
@@ -168,12 +89,12 @@ enum ofp10_config_flags {
 
 /* Switch configuration. */
 struct ofp10_switch_config {
-    struct ofp10_header header;
+    struct ofp_header header;
     uint16_t flags;             /* OFP10C_* flags. */
     uint16_t miss_send_len;     /* Max bytes of new flow that datapath should
                                    send to the controller. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_switch_config) == 12);
+OFP_ASSERT(sizeof(struct ofp10_switch_config) == 12);
 
 /* Capabilities supported by the datapath. */
 enum ofp10_capabilities {
@@ -239,8 +160,8 @@ enum ofp10_port_features {
 /* Description of a physical port */
 struct ofp10_phy_port {
     uint16_t port_no;
-    uint8_t hw_addr[OFP10_ETH_ALEN];
-    char name[OFP10_MAX_PORT_NAME_LEN]; /* Null-terminated */
+    uint8_t hw_addr[OFP_ETH_ALEN];
+    char name[OFP_MAX_PORT_NAME_LEN]; /* Null-terminated */
 
     uint32_t config;        /* Bitmap of OFP10PC_* flags. */
     uint32_t state;         /* Bitmap of OFP10PS_* flags. */
@@ -252,11 +173,11 @@ struct ofp10_phy_port {
     uint32_t supported;     /* Features supported by the port. */
     uint32_t peer;          /* Features advertised by peer. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_phy_port) == 48);
+OFP_ASSERT(sizeof(struct ofp10_phy_port) == 48);
 
 /* Switch features. */
 struct ofp10_switch_features {
-    struct ofp10_header header;
+    struct ofp_header header;
     uint64_t datapath_id;   /* Datapath unique ID.  The lower 48-bits are for
                                a MAC address, while the upper 16-bits are
                                implementer-defined. */
@@ -275,7 +196,7 @@ struct ofp10_switch_features {
                                       is inferred from the length field in
                                       the header. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_switch_features) == 32);
+OFP_ASSERT(sizeof(struct ofp10_switch_features) == 32);
 
 /* What changed about the physical port */
 enum ofp10_port_reason {
@@ -286,18 +207,18 @@ enum ofp10_port_reason {
 
 /* A physical port has changed in the datapath */
 struct ofp10_port_status {
-    struct ofp10_header header;
+    struct ofp_header header;
     uint8_t reason;          /* One of OFP10PR_*. */
     uint8_t pad[7];          /* Align to 64-bits. */
     struct ofp10_phy_port desc;
 };
-OFP10_ASSERT(sizeof(struct ofp10_port_status) == 64);
+OFP_ASSERT(sizeof(struct ofp10_port_status) == 64);
 
 /* Modify behavior of the physical port */
 struct ofp10_port_mod {
-    struct ofp10_header header;
+    struct ofp_header header;
     uint16_t port_no;
-    uint8_t hw_addr[OFP10_ETH_ALEN]; /* The hardware address is not
+    uint8_t hw_addr[OFP_ETH_ALEN]; /* The hardware address is not
                                       configurable.  This is used to
                                       sanity-check the request, so it must
                                       be the same as returned in an
@@ -310,7 +231,7 @@ struct ofp10_port_mod {
                                bits to prevent any action taking place. */
     uint8_t pad[4];         /* Pad to 64-bits. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_port_mod) == 32);
+OFP_ASSERT(sizeof(struct ofp10_port_mod) == 32);
 
 /* Why is this packet being sent to the controller? */
 enum ofp10_packet_in_reason {
@@ -320,7 +241,7 @@ enum ofp10_packet_in_reason {
 
 /* Packet received on port (datapath -> controller). */
 struct ofp10_packet_in {
-    struct ofp10_header header;
+    struct ofp_header header;
     uint32_t buffer_id;     /* ID assigned by datapath. */
     uint16_t total_len;     /* Full length of frame. */
     uint16_t in_port;       /* Port on which frame was received. */
@@ -333,7 +254,7 @@ struct ofp10_packet_in {
                                offsetof(struct ofp10_packet_in, data) ==
                                sizeof(struct ofp10_packet_in) - 2. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_packet_in) == 20);
+OFP_ASSERT(sizeof(struct ofp10_packet_in) == 20);
 
 enum ofp10_action_type {
     OFP10AT_OUTPUT,           /* Output to switch port. */
@@ -361,7 +282,7 @@ struct ofp10_action_output {
     uint16_t port;                  /* Output port. */
     uint16_t max_len;               /* Max length to send to controller. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_action_output) == 8);
+OFP_ASSERT(sizeof(struct ofp10_action_output) == 8);
 
 /* The VLAN id is 12 bits, so we can use the entire 16 bits to indicate
  * special conditions.  All ones is used to match that no VLAN id was
@@ -375,7 +296,7 @@ struct ofp10_action_vlan_vid {
     uint16_t vlan_vid;              /* VLAN id. */
     uint8_t pad[2];
 };
-OFP10_ASSERT(sizeof(struct ofp10_action_vlan_vid) == 8);
+OFP_ASSERT(sizeof(struct ofp10_action_vlan_vid) == 8);
 
 /* Action structure for OFP10AT_SET_VLAN_PCP. */
 struct ofp10_action_vlan_pcp {
@@ -384,16 +305,16 @@ struct ofp10_action_vlan_pcp {
     uint8_t vlan_pcp;               /* VLAN priority. */
     uint8_t pad[3];
 };
-OFP10_ASSERT(sizeof(struct ofp10_action_vlan_pcp) == 8);
+OFP_ASSERT(sizeof(struct ofp10_action_vlan_pcp) == 8);
 
 /* Action structure for OFP10AT_SET_DL_SRC/DST. */
 struct ofp10_action_dl_addr {
     uint16_t type;                  /* OFP10AT_SET_DL_SRC/DST. */
     uint16_t len;                   /* Length is 16. */
-    uint8_t dl_addr[OFP10_ETH_ALEN];  /* Ethernet address. */
+    uint8_t dl_addr[OFP_ETH_ALEN];  /* Ethernet address. */
     uint8_t pad[6];
 };
-OFP10_ASSERT(sizeof(struct ofp10_action_dl_addr) == 16);
+OFP_ASSERT(sizeof(struct ofp10_action_dl_addr) == 16);
 
 /* Action structure for OFP10AT_SET_NW_SRC/DST. */
 struct ofp10_action_nw_addr {
@@ -401,7 +322,7 @@ struct ofp10_action_nw_addr {
     uint16_t len;                   /* Length is 8. */
     uint32_t nw_addr;               /* IP address. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_action_nw_addr) == 8);
+OFP_ASSERT(sizeof(struct ofp10_action_nw_addr) == 8);
 
 /* Action structure for OFP10AT_SET_TP_SRC/DST. */
 struct ofp10_action_tp_port {
@@ -410,7 +331,7 @@ struct ofp10_action_tp_port {
     uint16_t tp_port;               /* TCP/UDP port. */
     uint8_t pad[2];
 };
-OFP10_ASSERT(sizeof(struct ofp10_action_tp_port) == 8);
+OFP_ASSERT(sizeof(struct ofp10_action_tp_port) == 8);
 
 /* Action structure for OFP10AT_SET_NW_TOS. */
 struct ofp10_action_nw_tos {
@@ -419,7 +340,7 @@ struct ofp10_action_nw_tos {
     uint8_t nw_tos;                 /* IP ToS (DSCP field, 6 bits). */
     uint8_t pad[3];
 };
-OFP10_ASSERT(sizeof(struct ofp10_action_nw_tos) == 8);
+OFP_ASSERT(sizeof(struct ofp10_action_nw_tos) == 8);
 
 /* Action header for OFP10AT_VENDOR. The rest of the body is vendor-defined. */
 struct ofp10_action_vendor_header {
@@ -428,7 +349,7 @@ struct ofp10_action_vendor_header {
     uint32_t vendor;                /* Vendor ID, which takes the same form
                                        as in "struct ofp10_vendor_header". */
 };
-OFP10_ASSERT(sizeof(struct ofp10_action_vendor_header) == 8);
+OFP_ASSERT(sizeof(struct ofp10_action_vendor_header) == 8);
 
 /* Action header that is common to all actions.  The length includes the
  * header and any padding used to make the action 64-bit aligned.
@@ -441,11 +362,11 @@ struct ofp10_action_header {
                                        64-bit aligned. */
     uint8_t pad[4];
 };
-OFP10_ASSERT(sizeof(struct ofp10_action_header) == 8);
+OFP_ASSERT(sizeof(struct ofp10_action_header) == 8);
 
 /* Send packet (controller -> datapath). */
 struct ofp10_packet_out {
-    struct ofp10_header header;
+    struct ofp_header header;
     uint32_t buffer_id;           /* ID assigned by datapath (-1 if none). */
     uint16_t in_port;             /* Packet's input port (OFP10P_NONE if none). */
     uint16_t actions_len;         /* Size of action array in bytes. */
@@ -454,7 +375,7 @@ struct ofp10_packet_out {
                                      from the length field in the header.
                                      (Only meaningful if buffer_id == -1.) */
 };
-OFP10_ASSERT(sizeof(struct ofp10_packet_out) == 16);
+OFP_ASSERT(sizeof(struct ofp10_packet_out) == 16);
 
 enum ofp10_flow_mod_command {
     OFP10FC_ADD,              /* New flow. */
@@ -522,8 +443,8 @@ enum ofp10_flow_wildcards {
 struct ofp10_match {
     uint32_t wildcards;        /* Wildcard fields. */
     uint16_t in_port;          /* Input switch port. */
-    uint8_t dl_src[OFP10_ETH_ALEN]; /* Ethernet source address. */
-    uint8_t dl_dst[OFP10_ETH_ALEN]; /* Ethernet destination address. */
+    uint8_t dl_src[OFP_ETH_ALEN]; /* Ethernet source address. */
+    uint8_t dl_dst[OFP_ETH_ALEN]; /* Ethernet destination address. */
     uint16_t dl_vlan;          /* Input VLAN id. */
     uint8_t dl_vlan_pcp;       /* Input VLAN priority. */
     uint8_t pad1[1];           /* Align to 64-bits */
@@ -537,7 +458,7 @@ struct ofp10_match {
     uint16_t tp_src;           /* TCP/UDP source port. */
     uint16_t tp_dst;           /* TCP/UDP destination port. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_match) == 40);
+OFP_ASSERT(sizeof(struct ofp10_match) == 40);
 
 /* The match fields for ICMP type and code use the transport source and
  * destination port fields, respectively. */
@@ -560,7 +481,7 @@ enum ofp10_flow_mod_flags {
 
 /* Flow setup and teardown (controller -> datapath). */
 struct ofp10_flow_mod {
-    struct ofp10_header header;
+    struct ofp_header header;
     struct ofp10_match match;      /* Fields to match */
     uint64_t cookie;             /* Opaque controller-issued identifier. */
 
@@ -580,7 +501,7 @@ struct ofp10_flow_mod {
                                             from the length field in the
                                             header. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_flow_mod) == 72);
+OFP_ASSERT(sizeof(struct ofp10_flow_mod) == 72);
 
 /* Why was this flow removed? */
 enum ofp10_flow_removed_reason {
@@ -591,7 +512,7 @@ enum ofp10_flow_removed_reason {
 
 /* Flow removed (datapath -> controller). */
 struct ofp10_flow_removed {
-    struct ofp10_header header;
+    struct ofp_header header;
     struct ofp10_match match;   /* Description of fields. */
     uint64_t cookie;          /* Opaque controller-issued identifier. */
 
@@ -607,7 +528,7 @@ struct ofp10_flow_removed {
     uint64_t packet_count;
     uint64_t byte_count;
 };
-OFP10_ASSERT(sizeof(struct ofp10_flow_removed) == 88);
+OFP_ASSERT(sizeof(struct ofp10_flow_removed) == 88);
 
 /* Values for 'type' in ofp10_error_message.  These values are immutable: they
  * will not change in future versions of the protocol (although new values may
@@ -631,8 +552,8 @@ enum ofp10_hello_failed_code {
 /* ofp10_error_msg 'code' values for OFP10ET_BAD_REQUEST.  'data' contains at least
  * the first 64 bytes of the failed request. */
 enum ofp10_bad_request_code {
-    OFP10BRC_BAD_VERSION,         /* ofp10_header.version not supported. */
-    OFP10BRC_BAD_TYPE,            /* ofp10_header.type not supported. */
+    OFP10BRC_BAD_VERSION,         /* ofp_header.version not supported. */
+    OFP10BRC_BAD_TYPE,            /* ofp_header.type not supported. */
     OFP10BRC_BAD_STAT,            /* ofp10_stats_request.type not supported. */
     OFP10BRC_BAD_VENDOR,          /* Vendor not supported (in ofp10_vendor_header
                                  * or ofp10_stats_request or ofp10_stats_reply). */
@@ -688,14 +609,14 @@ enum ofp10_queue_op_failed_code {
 
 /* OFP10T_ERROR: Error message (datapath -> controller). */
 struct ofp10_error_msg {
-    struct ofp10_header header;
+    struct ofp_header header;
 
     uint16_t type;
     uint16_t code;
     uint8_t data[0];          /* Variable-length data.  Interpreted based
                                  on the type and code. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_error_msg) == 12);
+OFP_ASSERT(sizeof(struct ofp10_error_msg) == 12);
 
 enum ofp10_stats_types {
     /* Description of this OpenFlow switch.
@@ -736,24 +657,24 @@ enum ofp10_stats_types {
 };
 
 struct ofp10_stats_request {
-    struct ofp10_header header;
+    struct ofp_header header;
     uint16_t type;              /* One of the OFP10ST_* constants. */
     uint16_t flags;             /* OFP10SF_REQ_* flags (none yet defined). */
     uint8_t body[0];            /* Body of the request. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_stats_request) == 12);
+OFP_ASSERT(sizeof(struct ofp10_stats_request) == 12);
 
 enum ofp10_stats_reply_flags {
     OFP10SF_REPLY_MORE  = 1 << 0  /* More replies to follow. */
 };
 
 struct ofp10_stats_reply {
-    struct ofp10_header header;
+    struct ofp_header header;
     uint16_t type;              /* One of the OFP10ST_* constants. */
     uint16_t flags;             /* OFP10SF_REPLY_* flags. */
     uint8_t body[0];            /* Body of the reply. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_stats_reply) == 12);
+OFP_ASSERT(sizeof(struct ofp10_stats_reply) == 12);
 
 #define DESC_STR_LEN   256
 #define SERIAL_NUM_LEN 32
@@ -766,7 +687,7 @@ struct ofp10_desc_stats {
     char serial_num[SERIAL_NUM_LEN];   /* Serial number. */
     char dp_desc[DESC_STR_LEN];        /* Human readable description of datapath. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_desc_stats) == 1056);
+OFP_ASSERT(sizeof(struct ofp10_desc_stats) == 1056);
 
 /* Body for ofp10_stats_request of type OFP10ST_FLOW. */
 struct ofp10_flow_stats_request {
@@ -778,7 +699,7 @@ struct ofp10_flow_stats_request {
                                  as an output port.  A value of OFP10P_NONE
                                  indicates no restriction. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_flow_stats_request) == 44);
+OFP_ASSERT(sizeof(struct ofp10_flow_stats_request) == 44);
 
 /* Body of reply to OFP10ST_FLOW request. */
 struct ofp10_flow_stats {
@@ -799,7 +720,7 @@ struct ofp10_flow_stats {
     uint64_t byte_count;      /* Number of bytes in flow. */
     struct ofp10_action_header actions[0]; /* Actions. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_flow_stats) == 88);
+OFP_ASSERT(sizeof(struct ofp10_flow_stats) == 88);
 
 /* Body for ofp10_stats_request of type OFP10ST_AGGREGATE. */
 struct ofp10_aggregate_stats_request {
@@ -811,7 +732,7 @@ struct ofp10_aggregate_stats_request {
                                  as an output port.  A value of OFP10P_NONE
                                  indicates no restriction. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_aggregate_stats_request) == 44);
+OFP_ASSERT(sizeof(struct ofp10_aggregate_stats_request) == 44);
 
 /* Body of reply to OFP10ST_AGGREGATE request. */
 struct ofp10_aggregate_stats_reply {
@@ -820,14 +741,14 @@ struct ofp10_aggregate_stats_reply {
     uint32_t flow_count;      /* Number of flows. */
     uint8_t pad[4];           /* Align to 64 bits. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_aggregate_stats_reply) == 24);
+OFP_ASSERT(sizeof(struct ofp10_aggregate_stats_reply) == 24);
 
 /* Body of reply to OFP10ST_TABLE request. */
 struct ofp10_table_stats {
     uint8_t table_id;        /* Identifier of table.  Lower numbered tables
                                 are consulted first. */
     uint8_t pad[3];          /* Align to 32-bits. */
-    char name[OFP10_MAX_TABLE_NAME_LEN];
+    char name[OFP_MAX_TABLE_NAME_LEN];
     uint32_t wildcards;      /* Bitmap of OFP10FW_* wildcards that are
                                 supported by the table. */
     uint32_t max_entries;    /* Max number of entries supported. */
@@ -835,7 +756,7 @@ struct ofp10_table_stats {
     uint64_t lookup_count;   /* Number of packets looked up in table. */
     uint64_t matched_count;  /* Number of packets that hit table. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_table_stats) == 64);
+OFP_ASSERT(sizeof(struct ofp10_table_stats) == 64);
 
 /* Body for ofp10_stats_request of type OFP10ST_PORT. */
 struct ofp10_port_stats_request {
@@ -845,7 +766,7 @@ struct ofp10_port_stats_request {
                               * OFP10P_NONE). */
     uint8_t pad[6];
 };
-OFP10_ASSERT(sizeof(struct ofp10_port_stats_request) == 8);
+OFP_ASSERT(sizeof(struct ofp10_port_stats_request) == 8);
 
 /* Body of reply to OFP10ST_PORT request. If a counter is unsupported, set
  * the field to all ones. */
@@ -871,18 +792,18 @@ struct ofp10_port_stats {
     uint64_t rx_crc_err;     /* Number of CRC errors. */
     uint64_t collisions;     /* Number of collisions. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_port_stats) == 104);
+OFP_ASSERT(sizeof(struct ofp10_port_stats) == 104);
 
 /* Vendor extension. */
 struct ofp10_vendor_header {
-    struct ofp10_header header;   /* Type OFP10T_VENDOR. */
+    struct ofp_header header;   /* Type OFP10T_VENDOR. */
     uint32_t vendor;            /* Vendor ID:
                                  * - MSB 0: low-order bytes are IEEE OUI.
                                  * - MSB != 0: defined by OpenFlow
                                  *   consortium. */
     /* Vendor-defined arbitrary additional data. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_vendor_header) == 12);
+OFP_ASSERT(sizeof(struct ofp10_vendor_header) == 12);
 
 /* All ones is used to indicate all queues in a port (for stats retrieval). */
 #define OFP10Q_ALL      0xffffffff
@@ -903,7 +824,7 @@ struct ofp10_queue_prop_header {
     uint16_t len;         /* Length of property, including this header. */
     uint8_t pad[4];       /* 64-bit alignemnt. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_queue_prop_header) == 8);
+OFP_ASSERT(sizeof(struct ofp10_queue_prop_header) == 8);
 
 /* Min-Rate queue property description. */
 struct ofp10_queue_prop_min_rate {
@@ -911,7 +832,7 @@ struct ofp10_queue_prop_min_rate {
     uint16_t rate;        /* In 1/10 of a percent; >1000 -> disabled. */
     uint8_t pad[6];       /* 64-bit alignment */
 };
-OFP10_ASSERT(sizeof(struct ofp10_queue_prop_min_rate) == 16);
+OFP_ASSERT(sizeof(struct ofp10_queue_prop_min_rate) == 16);
 
 /* Full description for a queue. */
 struct ofp10_packet_queue {
@@ -920,25 +841,25 @@ struct ofp10_packet_queue {
     uint8_t pad[2];        /* 64-bit alignment. */
     struct ofp10_queue_prop_header properties[0]; /* List of properties. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_packet_queue) == 8);
+OFP_ASSERT(sizeof(struct ofp10_packet_queue) == 8);
 
 /* Query for port queue configuration. */
 struct ofp10_queue_get_config_request {
-    struct ofp10_header header;
+    struct ofp_header header;
     uint16_t port;         /* Port to be queried. Should refer
                               to a valid physical port (i.e. < OFP10P_MAX) */
     uint8_t pad[2];        /* 32-bit alignment. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_queue_get_config_request) == 12);
+OFP_ASSERT(sizeof(struct ofp10_queue_get_config_request) == 12);
 
 /* Queue configuration for a given port. */
 struct ofp10_queue_get_config_reply {
-    struct ofp10_header header;
+    struct ofp_header header;
     uint16_t port;
     uint8_t pad[6];
     struct ofp10_packet_queue queues[0]; /* List of configured queues. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_queue_get_config_reply) == 16);
+OFP_ASSERT(sizeof(struct ofp10_queue_get_config_reply) == 16);
 
 /* OFP10AT_ENQUEUE action struct: send packets to given queue on port. */
 struct ofp10_action_enqueue {
@@ -950,14 +871,14 @@ struct ofp10_action_enqueue {
     uint8_t pad[6];           /* Pad for 64-bit alignment. */
     uint32_t queue_id;        /* Where to enqueue the packets. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_action_enqueue) == 16);
+OFP_ASSERT(sizeof(struct ofp10_action_enqueue) == 16);
 
 struct ofp10_queue_stats_request {
     uint16_t port_no;        /* All ports if OFP10T_ALL. */
     uint8_t pad[2];          /* Align to 32-bits. */
     uint32_t queue_id;       /* All queues if OFP10Q_ALL. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_queue_stats_request) == 8);
+OFP_ASSERT(sizeof(struct ofp10_queue_stats_request) == 8);
 
 struct ofp10_queue_stats {
     uint16_t port_no;
@@ -967,6 +888,6 @@ struct ofp10_queue_stats {
     uint64_t tx_packets;     /* Number of transmitted packets. */
     uint64_t tx_errors;      /* Number of packets dropped due to overrun. */
 };
-OFP10_ASSERT(sizeof(struct ofp10_queue_stats) == 32);
+OFP_ASSERT(sizeof(struct ofp10_queue_stats) == 32);
 
 #endif /* openflow/openflow.h */
