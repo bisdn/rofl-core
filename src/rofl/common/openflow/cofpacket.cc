@@ -474,6 +474,22 @@ bool
 cofpacket::is_valid_switch_features()
 {
 	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		of10h_switch_features = (struct ofp10_switch_features*)soframe();
+		if (stored < sizeof(struct ofp10_switch_features))
+			return false;
+
+		size_t ports_len = stored - sizeof(struct ofp10_switch_features);
+
+		if (ports_len > 0) {
+			body.assign((uint8_t*)of10h_switch_features->ports, ports_len);
+			switch_features_num_ports = (ports_len) / sizeof(struct ofp_port);
+		} else {
+			body.clear();
+			switch_features_num_ports = 0;
+		}
+
+	} break;
 	case OFP12_VERSION: {
 		of12h_switch_features = (struct ofp12_switch_features*)soframe();
 		if (stored < sizeof(struct ofp12_switch_features))
@@ -481,13 +497,10 @@ cofpacket::is_valid_switch_features()
 
 		size_t ports_len = stored - sizeof(struct ofp12_switch_features);
 
-		if (ports_len > 0)
-		{
+		if (ports_len > 0) {
 			body.assign((uint8_t*)of12h_switch_features->ports, ports_len);
 			switch_features_num_ports = (ports_len) / sizeof(struct ofp_port);
-		}
-		else
-		{
+		} else {
 			body.clear();
 			switch_features_num_ports = 0;
 		}

@@ -885,6 +885,8 @@ public:
 			uint32_t n_buffers,
 			uint8_t n_tables,
 			uint32_t capabilities,
+			uint8_t of13_auxiliary_id = 0,
+			uint32_t of10_actions_bitmap = 0,
 			uint8_t *ports = (uint8_t*)0,
 			size_t portslen = 0);
 

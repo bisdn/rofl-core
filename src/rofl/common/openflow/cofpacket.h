@@ -109,6 +109,7 @@ public: // data structures
 	union {
 		struct ofp_header				  		*ofhu_hdr;
 		struct ofp13_hello						*of13hu_hello;
+		struct ofp10_switch_features 			*of10hu_sfhdr;
 		struct ofp12_switch_features 			*of12hu_sfhdr;
 		struct ofp13_switch_features			*of13hu_sfhdr;
 		struct ofp_switch_config 				*ofhu_schdr;
@@ -135,6 +136,7 @@ public: // data structures
 
 #define ofh_header								ofh_ofhu.ofhu_hdr
 #define ofh13_hello								ofh_ofhu.of13hu_hello
+#define of10h_switch_features 					ofh_ofhu.of10hu_sfhdr
 #define of12h_switch_features 					ofh_ofhu.of12hu_sfhdr
 #define of13h_switch_features 					ofh_ofhu.of13hu_sfhdr
 #define of12h_switch_config 					ofh_ofhu.ofhu_schdr
@@ -794,31 +796,50 @@ public:
 		 *
 		 */
 		cofpacket_features_reply(
-				uint8_t of_version = 0,
+				uint8_t  of_version = 0,
 				uint32_t xid = 0,
 				uint64_t dpid = 0,
 				uint32_t n_buffers = 0,
-				uint8_t n_tables = 0,
-				uint32_t capabilities = 0) :
-			cofpacket(	sizeof(struct ofp12_switch_features),
-						sizeof(struct ofp12_switch_features))
+				uint8_t  n_tables = 0,
+				uint32_t capabilities = 0,
+				uint8_t  of13_auxiliary_id = 0,  /*OF1.3*/
+				uint32_t of10_actions_bitmap = 0 /*OF1.0*/) :
+			cofpacket(	sizeof(struct ofp_header),
+						sizeof(struct ofp_header))
 		{
 			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp12_switch_features));
+			ofh_header->length		= htobe16(0);
 			ofh_header->type 		= OFPT_FEATURES_REPLY;
 			ofh_header->xid			= htobe32(xid);
 
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				ofh_header->length		= htobe16(sizeof(struct ofp10_switch_features));
+				cofpacket::resize(sizeof(struct ofp10_switch_features));
+
+				of10h_switch_features->datapath_id 		= htobe64(dpid);
+				of10h_switch_features->n_buffers 		= htobe32(n_buffers);
+				of10h_switch_features->n_tables 		= n_tables;
+				of10h_switch_features->capabilities 	= htobe32(capabilities);
+				of10h_switch_features->actions			= htobe32(of10_actions_bitmap);
+			} break;
 			case OFP12_VERSION: {
+				ofh_header->length		= htobe16(sizeof(struct ofp12_switch_features));
+				cofpacket::resize(sizeof(struct ofp12_switch_features));
+
 				of12h_switch_features->datapath_id 		= htobe64(dpid);
 				of12h_switch_features->n_buffers 		= htobe32(n_buffers);
 				of12h_switch_features->n_tables 		= n_tables;
 				of12h_switch_features->capabilities 	= htobe32(capabilities);
 			} break;
 			case OFP13_VERSION: {
+				ofh_header->length		= htobe16(sizeof(struct ofp13_switch_features));
+				cofpacket::resize(sizeof(struct ofp13_switch_features));
+
 				of13h_switch_features->datapath_id 		= htobe64(dpid);
 				of13h_switch_features->n_buffers 		= htobe32(n_buffers);
 				of13h_switch_features->n_tables 		= n_tables;
+				of13h_switch_features->auxiliary_id		= of13_auxiliary_id;
 				of13h_switch_features->capabilities 	= htobe32(capabilities);
 			} break;
 			default:
@@ -845,6 +866,9 @@ public:
 		length()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return (sizeof(struct ofp10_switch_features) + ports.length());
+			} break;
 			case OFP12_VERSION: {
 				return (sizeof(struct ofp12_switch_features) + ports.length());
 			} break;
@@ -870,6 +894,10 @@ public:
 			}
 
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				memcpy(buf, memarea.somem(), sizeof(struct ofp10_switch_features));
+				ports.pack((struct ofp_port*)(buf + sizeof(struct ofp10_switch_features)), ports.length());
+			} break;
 			case OFP12_VERSION: {
 				memcpy(buf, memarea.somem(), sizeof(struct ofp12_switch_features));
 				ports.pack((struct ofp_port*)(buf + sizeof(struct ofp12_switch_features)), ports.length());
@@ -888,6 +916,9 @@ public:
 		get_dpid() const
 		{
 			switch (get_version()) {
+			case OFP10_VERSION: {
+				return be64toh(of10h_switch_features->datapath_id);
+			} break;
 			case OFP12_VERSION: {
 				return be64toh(of12h_switch_features->datapath_id);
 			} break;
@@ -907,6 +938,9 @@ public:
 		get_n_buffers() const
 		{
 			switch (get_version()) {
+			case OFP10_VERSION: {
+				return be32toh(of10h_switch_features->n_buffers);
+			} break;
 			case OFP12_VERSION: {
 				return be32toh(of12h_switch_features->n_buffers);
 			} break;
@@ -926,11 +960,30 @@ public:
 		get_n_tables() const
 		{
 			switch (get_version()) {
+			case OFP10_VERSION: {
+				return be32toh(of10h_switch_features->n_tables);
+			} break;
 			case OFP12_VERSION: {
 				return be32toh(of12h_switch_features->n_tables);
 			} break;
 			case OFP13_VERSION: {
 				return be32toh(of13h_switch_features->n_tables);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/** OF1.3
+		 *
+		 */
+		uint8_t
+		get_auxiliary_id() const
+		{
+			switch (get_version()) {
+			case OFP13_VERSION: {
+				return of13h_switch_features->auxiliary_id;
 			} break;
 			default: {
 				throw eBadVersion();
@@ -945,11 +998,30 @@ public:
 		get_capabilities() const
 		{
 			switch (get_version()) {
+			case OFP10_VERSION: {
+				return be32toh(of10h_switch_features->capabilities);
+			} break;
 			case OFP12_VERSION: {
 				return be32toh(of12h_switch_features->capabilities);
 			} break;
 			case OFP13_VERSION: {
 				return be32toh(of13h_switch_features->capabilities);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/** OF1.0 only
+		 *
+		 */
+		uint32_t
+		get_actions_bitmap() const
+		{
+			switch (get_version()) {
+			case OFP10_VERSION: {
+				return be32toh(of10h_switch_features->actions);
 			} break;
 			default: {
 				throw eBadVersion();

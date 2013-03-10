@@ -8,6 +8,7 @@
 #ifndef OPENFLOW_H_
 #define OPENFLOW_H_ 1
 
+#include "openflow10.h"
 //#include "openflow11.h"
 #include "openflow12.h"
 #include "openflow13.h"

@@ -689,6 +689,8 @@ crofbase::send_features_reply(
 		uint32_t n_buffers,
 		uint8_t n_tables,
 		uint32_t capabilities,
+		uint8_t of13_auxiliary_id,
+		uint32_t of10_actions_bitmap,
 		uint8_t *ports,
 		size_t portslen)
 {
@@ -701,7 +703,9 @@ crofbase::send_features_reply(
 					dpid,
 					n_buffers,
 					n_tables,
-					capabilities);
+					capabilities,
+					of13_auxiliary_id,
+					of10_actions_bitmap);
 
 	reply->ports.unpack((struct ofp_port*)ports, portslen);
 

@@ -581,6 +581,8 @@ ctlbase::handle_features_request(cofctl *ctl, cofpacket_features_request *reques
  			n_buffers,
  			n_tables,
  			capabilities,
+ 			0, // of13_auxiliary_id
+ 			0, // of10_actions_bitmap
  			body.somem(),
  			body.memlen());
 
