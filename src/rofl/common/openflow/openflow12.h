@@ -1116,16 +1116,6 @@ enum ofp_role_request_failed_code {
 	OFPRRFC_BAD_ROLE = 2, /* Invalid role. */
 };
 
-/* OFPT_ERROR: Error message (datapath -> controller). */
-struct ofp_error_msg {
-    struct ofp_header header;
-
-    uint16_t type;
-    uint16_t code;
-    uint8_t data[0];          /* Variable-length data.  Interpreted based
-                                 on the type and code.  No padding. */
-};
-OFP_ASSERT(sizeof(struct ofp_error_msg) == 12);
 
 enum ofp_stats_types {
     /* Description of this OpenFlow switch.

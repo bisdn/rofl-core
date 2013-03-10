@@ -115,6 +115,7 @@ public: // data structures
 		struct ofp10_switch_config 				*of10hu_schdr;
 		struct ofp12_switch_config 				*of12hu_schdr;
 		struct ofp13_switch_config 				*of13hu_schdr;
+		struct ofp10_flow_mod 					*of10hu_fmhdr;
 		struct ofp12_flow_mod 					*of12hu_fmhdr;
 		struct ofp13_flow_mod 					*of13hu_fmhdr;
 		struct ofp_port_mod 					*ofhu_pmhdr;
@@ -125,6 +126,7 @@ public: // data structures
 		struct ofp_packet_out 					*ofhu_pohdr;
 		struct ofp12_packet_in 					*of12hu_pihdr;
 		struct ofp13_packet_in 					*of13hu_pihdr;
+		struct ofp10_flow_removed 				*of10hu_frhdr;
 		struct ofp12_flow_removed 				*of12hu_frhdr;
 		struct ofp13_flow_removed 				*of13hu_frhdr;
 		struct ofp_port_status 					*ofhu_pshdr;
@@ -144,6 +146,7 @@ public: // data structures
 #define of10h_switch_config 					ofh_ofhu.of10hu_schdr
 #define of12h_switch_config 					ofh_ofhu.of12hu_schdr
 #define of13h_switch_config 					ofh_ofhu.of13hu_schdr
+#define of10h_flow_mod 							ofh_ofhu.of10hu_fmhdr
 #define of12h_flow_mod 							ofh_ofhu.of12hu_fmhdr
 #define of13h_flow_mod 							ofh_ofhu.of13hu_fmhdr
 #define ofh_port_mod 							ofh_ofhu.ofhu_pmhdr
@@ -154,6 +157,7 @@ public: // data structures
 #define ofh_packet_out							ofh_ofhu.ofhu_pohdr
 #define of12h_packet_in							ofh_ofhu.of12hu_pihdr
 #define of13h_packet_in							ofh_ofhu.of13hu_pihdr
+#define of10h_flow_rmvd							ofh_ofhu.of10hu_frhdr
 #define of12h_flow_rmvd							ofh_ofhu.of12hu_frhdr
 #define of13h_flow_rmvd							ofh_ofhu.of13hu_frhdr
 #define ofh_port_status							ofh_ofhu.ofhu_pshdr
@@ -164,9 +168,12 @@ public: // data structures
 #define ofh_role_request						ofh_ofhu.ofhu_rolehdr
 #define ofh13_meter_mod							ofh_ofhu.of13hu_methdr
 
+#define OFP10_FLOW_MOD_STATIC_HDR_LEN				72
 #define OFP12_FLOW_MOD_STATIC_HDR_LEN				48
 #define OFP13_FLOW_MOD_STATIC_HDR_LEN				48
-#define OFP_FLOW_REMOVED_STATIC_HDR_LEN				48
+#define OFP10_FLOW_REMOVED_STATIC_HDR_LEN			88
+#define OFP12_FLOW_REMOVED_STATIC_HDR_LEN			48
+#define OFP13_FLOW_REMOVED_STATIC_HDR_LEN			48
 #define OFP12_PACKET_IN_STATIC_HDR_LEN				16
 #define OFP13_PACKET_IN_STATIC_HDR_LEN				24
 #define OFP_FLOW_STATS_REQUEST_STATIC_HDR_LEN		(sizeof(struct ofp_stats_request) + 32)
@@ -1400,6 +1407,7 @@ public:
 		get_type()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION:
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be16toh(ofh_error_msg->type); // no change since OF1.2
@@ -1415,6 +1423,7 @@ public:
 		get_code()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION:
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be16toh(ofh_error_msg->code); // no change since OF1.2
@@ -1450,17 +1459,30 @@ public:
 				uint32_t out_port = 0,
 				uint32_t out_group = 0,
 				uint16_t flags = 0) :
-			cofpacket(	OFP12_FLOW_MOD_STATIC_HDR_LEN,
-						OFP12_FLOW_MOD_STATIC_HDR_LEN)
+			cofpacket(	sizeof(struct ofp_header),
+						sizeof(struct ofp_header))
 		{
 			ofh_header->version 	= of_version;
 			ofh_header->type 		= OFPT_FLOW_MOD;
+			ofh_header->length		= htobe16(length());
 			ofh_header->xid			= htobe32(xid);
 
 			switch (of_version) {
+			case OFP10_VERSION: {
+				cofpacket::memarea.resize(OFP10_FLOW_MOD_STATIC_HDR_LEN);
+
+				of10h_flow_mod->cookie			= htobe64(cookie);
+				of10h_flow_mod->command			= htobe16((uint16_t)command);
+				of10h_flow_mod->idle_timeout	= htobe16(idle_timeout);
+				of10h_flow_mod->hard_timeout	= htobe16(hard_timeout);
+				of10h_flow_mod->priority		= htobe16(priority);
+				of10h_flow_mod->buffer_id		= htobe32(buffer_id);
+				of10h_flow_mod->out_port		= htobe16(out_port & 0x0000ffff);
+				of10h_flow_mod->flags			= htobe16(flags);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				ofh_header->length				= htobe16(OFP12_FLOW_MOD_STATIC_HDR_LEN);
+				cofpacket::memarea.resize(OFP12_FLOW_MOD_STATIC_HDR_LEN);
 
 				of12h_flow_mod->cookie			= htobe64(cookie);
 				of12h_flow_mod->cookie_mask		= htobe64(cookie_mask);
@@ -1496,7 +1518,18 @@ public:
 		virtual size_t
 		length()
 		{
-			return (OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length() + instructions.length());
+			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return (OFP10_FLOW_MOD_STATIC_HDR_LEN + match.length() + actions.length());
+			} break;
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return (OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length() + instructions.length());
+			} break;
+			default:
+				throw eBadVersion();
+			}
+			return 0;
 		};
 		/**
 		 *
@@ -1511,13 +1544,32 @@ public:
 				return;
 			}
 
-			memcpy(buf, memarea.somem(), OFP12_FLOW_MOD_STATIC_HDR_LEN);
+			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				memcpy(buf, memarea.somem(), OFP10_FLOW_MOD_STATIC_HDR_LEN);
 
-			match.pack((struct ofp_match*)
-					(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN), match.length());
+				match.pack((struct ofp_match*)
+						(struct ofp_match*)(buf + sizeof(struct ofp_header)),
+														sizeof(struct ofp10_match));
 
-			instructions.pack((struct ofp_instruction*)
-					(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length()), instructions.length());
+				actions.pack((struct ofp_action_header*)
+						(buf + OFP10_FLOW_MOD_STATIC_HDR_LEN), actions.length());
+
+			} break;
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				memcpy(buf, memarea.somem(), OFP12_FLOW_MOD_STATIC_HDR_LEN);
+
+				match.pack((struct ofp_match*)
+						(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN), match.length());
+
+				instructions.pack((struct ofp_instruction*)
+						(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length()), instructions.length());
+
+			} break;
+			default:
+				throw eBadVersion();
+			}
 		};
 		/**
 		 *
@@ -1543,6 +1595,9 @@ public:
 		get_command()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return (be16toh(of10h_flow_mod->command) & 0x00ff);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return of12h_flow_mod->command;
@@ -1560,13 +1615,15 @@ public:
 		get_cookie()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be64toh(of10h_flow_mod->cookie);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be64toh(of12h_flow_mod->cookie);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1581,9 +1638,8 @@ public:
 			case OFP13_VERSION: {
 				return be64toh(of12h_flow_mod->cookie_mask);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1594,13 +1650,15 @@ public:
 		get_idle_timeout()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be16toh(of10h_flow_mod->idle_timeout);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be16toh(of12h_flow_mod->idle_timeout);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1611,13 +1669,15 @@ public:
 		get_hard_timeout()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be16toh(of10h_flow_mod->hard_timeout);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be16toh(of12h_flow_mod->hard_timeout);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1628,13 +1688,15 @@ public:
 		get_priority()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be16toh(of10h_flow_mod->priority);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be16toh(of12h_flow_mod->priority);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1645,13 +1707,15 @@ public:
 		get_buffer_id()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be32toh(of10h_flow_mod->buffer_id);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be32toh(of12h_flow_mod->buffer_id);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1662,13 +1726,15 @@ public:
 		get_out_port()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return (uint32_t)be16toh(of10h_flow_mod->out_port);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be32toh(of12h_flow_mod->out_port);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1683,9 +1749,8 @@ public:
 			case OFP13_VERSION: {
 				return be32toh(of12h_flow_mod->out_group);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1696,13 +1761,15 @@ public:
 		get_flags()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be16toh(of10h_flow_mod->flags);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be16toh(of12h_flow_mod->flags);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1732,17 +1799,31 @@ public:
 				uint16_t hard_timeout = 0,
 				uint64_t packet_count = 0,
 				uint64_t byte_count = 0) :
-			cofpacket(	OFP_FLOW_REMOVED_STATIC_HDR_LEN,
-						OFP_FLOW_REMOVED_STATIC_HDR_LEN)
+			cofpacket(	sizeof(struct ofp_header),
+						sizeof(struct ofp_header))
 		{
 			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(OFP_FLOW_REMOVED_STATIC_HDR_LEN);
+			ofh_header->length		= htobe16(length());
 			ofh_header->type 		= OFPT_FLOW_REMOVED;
 			ofh_header->xid			= htobe32(xid);
 
 			switch (of_version) {
+			case OFP10_VERSION: {
+				cofpacket::memarea.resize(OFP10_FLOW_REMOVED_STATIC_HDR_LEN);
+
+				of10h_flow_rmvd->cookie 		= htobe64(cookie);
+				of10h_flow_rmvd->priority		= htobe16(priority);
+				of10h_flow_rmvd->reason			= reason;
+				of10h_flow_rmvd->duration_sec	= htobe32(duration_sec);
+				of10h_flow_rmvd->duration_nsec	= htobe32(duration_nsec);
+				of10h_flow_rmvd->idle_timeout	= htobe16(idle_timeout);
+				of10h_flow_rmvd->packet_count	= htobe64(packet_count);
+				of10h_flow_rmvd->byte_count		= htobe64(byte_count);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
+				cofpacket::memarea.resize(OFP12_FLOW_REMOVED_STATIC_HDR_LEN);
+
 				of12h_flow_rmvd->cookie			= htobe64(cookie);
 				of12h_flow_rmvd->priority		= htobe16(priority);
 				of12h_flow_rmvd->reason			= reason;
@@ -1778,9 +1859,12 @@ public:
 		length()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return OFP10_FLOW_REMOVED_STATIC_HDR_LEN;
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				return (OFP_FLOW_REMOVED_STATIC_HDR_LEN + match.length());
+				return (OFP12_FLOW_REMOVED_STATIC_HDR_LEN + match.length());
 			} break;
 			default:
 				throw eBadVersion();
@@ -1801,9 +1885,15 @@ public:
 			}
 
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				memcpy(buf, memarea.somem(), OFP10_FLOW_REMOVED_STATIC_HDR_LEN);
+
+				match.pack((struct ofp10_match*)
+						(buf + sizeof(struct ofp_header)), sizeof(struct ofp10_match));
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				memcpy(buf, memarea.somem(), OFP_FLOW_REMOVED_STATIC_HDR_LEN);
+				memcpy(buf, memarea.somem(), OFP12_FLOW_REMOVED_STATIC_HDR_LEN);
 
 				match.pack((struct ofp_match*)
 						(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN), match.length());
@@ -1819,13 +1909,15 @@ public:
 		get_cookie()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be64toh(of10h_flow_rmvd->cookie);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be64toh(of12h_flow_rmvd->cookie);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1836,13 +1928,15 @@ public:
 		get_priority()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be16toh(of10h_flow_rmvd->priority);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be16toh(of12h_flow_rmvd->priority);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1853,13 +1947,15 @@ public:
 		get_reason()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return of10h_flow_rmvd->reason;
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return of12h_flow_rmvd->reason;
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1874,9 +1970,8 @@ public:
 			case OFP13_VERSION: {
 				return of12h_flow_rmvd->table_id;
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1887,13 +1982,15 @@ public:
 		get_duration_sec()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be32toh(of10h_flow_rmvd->duration_sec);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be32toh(of12h_flow_rmvd->duration_sec);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1904,13 +2001,15 @@ public:
 		get_duration_nsec()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be32toh(of10h_flow_rmvd->duration_nsec);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be32toh(of12h_flow_rmvd->duration_nsec);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1921,13 +2020,15 @@ public:
 		get_idle_timeout()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be16toh(of10h_flow_rmvd->idle_timeout);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be16toh(of12h_flow_rmvd->idle_timeout);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1942,9 +2043,8 @@ public:
 			case OFP13_VERSION: {
 				return be16toh(of12h_flow_rmvd->hard_timeout);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1955,13 +2055,15 @@ public:
 		get_packet_count()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be64toh(of10h_flow_rmvd->packet_count);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be64toh(of12h_flow_rmvd->packet_count);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -1972,6 +2074,9 @@ public:
 		get_byte_count()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be64toh(of10h_flow_rmvd->byte_count);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be64toh(of12h_flow_rmvd->byte_count);

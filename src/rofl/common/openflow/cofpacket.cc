@@ -672,21 +672,41 @@ cofpacket::is_valid_packet_out()
 bool
 cofpacket::is_valid_flow_removed()
 {
-	of12h_flow_rmvd = (struct ofp12_flow_removed*)soframe();
+	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		of10h_flow_rmvd = (struct ofp10_flow_removed*)soframe();
 
-	size_t frgenlen = sizeof(struct ofp12_flow_removed) - sizeof(struct ofp_match);
+		if (stored < sizeof(struct ofp10_flow_removed))
+			return false;
 
-	if (stored < frgenlen)
-		return false;
+		try {
+			match.unpack(&(of10h_flow_rmvd->match), sizeof(struct ofp10_match));
+		} catch (eOFmatchInval& e) {
+			return false;
+		}
 
-	size_t matchlen = be16toh(of12h_flow_rmvd->header.length);
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		of12h_flow_rmvd = (struct ofp12_flow_removed*)soframe();
 
-	try  {
-		match.unpack(&(of12h_flow_rmvd->match), matchlen);
-	} catch (eOFmatchInval& e) {
-		return false;
+		size_t frgenlen = sizeof(struct ofp12_flow_removed) - sizeof(struct ofp_match);
+
+		if (stored < frgenlen)
+			return false;
+
+		size_t matchlen = be16toh(of12h_flow_rmvd->header.length);
+
+		try  {
+			match.unpack(&(of12h_flow_rmvd->match), matchlen);
+		} catch (eOFmatchInval& e) {
+			return false;
+		}
+
+	} break;
+	default:
+		throw eBadRequestBadVersion();
 	}
-
 	return true;	
 }
 

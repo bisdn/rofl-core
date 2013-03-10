@@ -70,7 +70,6 @@ enum ofp10_port {
     OFP10P_NONE       = 0xffff   /* Not associated with a physical port. */
 };
 
-
 /* OFP10T_HELLO.  This message has an empty body, but implementations must
  * ignore any data included in the body, to allow for future extensions. */
 struct ofp10_hello {
@@ -607,16 +606,6 @@ enum ofp10_queue_op_failed_code {
     OFP10QOFC_EPERM               /* Permissions error. */
 };
 
-/* OFP10T_ERROR: Error message (datapath -> controller). */
-struct ofp10_error_msg {
-    struct ofp_header header;
-
-    uint16_t type;
-    uint16_t code;
-    uint8_t data[0];          /* Variable-length data.  Interpreted based
-                                 on the type and code. */
-};
-OFP_ASSERT(sizeof(struct ofp10_error_msg) == 12);
 
 enum ofp10_stats_types {
     /* Description of this OpenFlow switch.

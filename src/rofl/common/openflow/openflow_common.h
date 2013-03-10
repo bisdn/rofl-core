@@ -52,6 +52,18 @@ struct ofp_header {
 OFP_ASSERT(sizeof(struct ofp_header) == 8);
 
 
+/* OFPT_ERROR: Error message (datapath -> controller). */
+struct ofp_error_msg {
+    struct ofp_header header;
+
+    uint16_t type;
+    uint16_t code;
+    uint8_t data[0];          /* Variable-length data.  Interpreted based
+                                 on the type and code.  No padding. */
+};
+OFP_ASSERT(sizeof(struct ofp_error_msg) == 12);
+
+
 enum ofp_type {
 	/* Immutable messages. */
     OFPT_HELLO 					= 0,    /* Symmetric message */

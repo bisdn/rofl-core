@@ -14,7 +14,7 @@ extern "C" {
 #include <endian.h>
 #include <stdio.h>
 #include <string.h>
-#include "openflow12.h"
+#include "openflow.h"
 #include <endian.h>
 #ifndef be32toh
 #include "../endian_conversion.h"
@@ -139,12 +139,31 @@ public:
 			size_t mlen) throw (eOFmatchInval);
 
 
+	/** copy internal struct ofp10_match into specified ofp_match ptr 'm'
+	 * @return pointer 'm'
+	 *
+	 */
+	struct ofp10_match*
+	pack(
+			struct ofp10_match* m,
+			size_t mlen) throw (eOFmatchInval);
+
+
 	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match
 	 *
 	 */
 	void
 	unpack(
 			struct ofp_match* m,
+			size_t mlen) throw (eOFmatchInval);
+
+
+	/** copy ofp10_match structure pointed to by 'm' into internal struct ofp10_match
+	 *
+	 */
+	void
+	unpack(
+			struct ofp10_match* m,
 			size_t mlen) throw (eOFmatchInval);
 
 
