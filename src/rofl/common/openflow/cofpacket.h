@@ -124,6 +124,7 @@ public: // data structures
 		struct ofp_stats_request 				*ofhu_srqhdr;
 		struct ofp_stats_reply   				*ofhu_srphdr;
 		struct ofp_packet_out 					*ofhu_pohdr;
+		struct ofp10_packet_in 					*of10hu_pihdr;
 		struct ofp12_packet_in 					*of12hu_pihdr;
 		struct ofp13_packet_in 					*of13hu_pihdr;
 		struct ofp10_flow_removed 				*of10hu_frhdr;
@@ -155,6 +156,7 @@ public: // data structures
 #define ofh_stats_request						ofh_ofhu.ofhu_srqhdr
 #define ofh_stats_reply							ofh_ofhu.ofhu_srphdr
 #define ofh_packet_out							ofh_ofhu.ofhu_pohdr
+#define of10h_packet_in							ofh_ofhu.of10hu_pihdr
 #define of12h_packet_in							ofh_ofhu.of12hu_pihdr
 #define of13h_packet_in							ofh_ofhu.of13hu_pihdr
 #define of10h_flow_rmvd							ofh_ofhu.of10hu_frhdr
@@ -174,6 +176,7 @@ public: // data structures
 #define OFP10_FLOW_REMOVED_STATIC_HDR_LEN			88
 #define OFP12_FLOW_REMOVED_STATIC_HDR_LEN			48
 #define OFP13_FLOW_REMOVED_STATIC_HDR_LEN			48
+#define OFP10_PACKET_IN_STATIC_HDR_LEN				20
 #define OFP12_PACKET_IN_STATIC_HDR_LEN				16
 #define OFP13_PACKET_IN_STATIC_HDR_LEN				24
 #define OFP_FLOW_STATS_REQUEST_STATIC_HDR_LEN		(sizeof(struct ofp_stats_request) + 32)
@@ -320,39 +323,27 @@ public:
 	 *
 	 */
 	uint8_t*
-	soframe() const
-	{
-		return memarea.somem();
-	};
+	soframe() const { return memarea.somem(); };
 
 	/** frame length
 	 *
 	 */
 	size_t
-	framelen() const
-	{
-		return memarea.memlen();
-	};
+	framelen() const { return memarea.memlen(); };
 
 
 	/**
 	 *
 	 */
 	uint8_t*
-	memptr()
-	{
-		return (soframe() + stored);
-	};
+	memptr() { return (soframe() + stored); };
 
 
 	/**
 	 *
 	 */
 	void
-	stored_bytes(size_t __stored)
-	{
-		stored += __stored;
-	};
+	stored_bytes(size_t __stored) { stored += __stored; };
 
 
 	/** returns xid field in host byte order from header
@@ -2108,22 +2099,33 @@ public:
 				uint8_t reason = 0,
 				uint8_t table_id = 0,
 				uint64_t cookie = 0,
+				uint32_t in_port = 0, /*OF1.0*/
 				uint8_t *data = (uint8_t*)0,
 				size_t datalen = 0) :
-			cofpacket(0, 0)
+			cofpacket(	sizeof(struct ofp_header),
+						sizeof(struct ofp_header))
 		{
 			//cofpacket::body.assign(data, datalen);
 			cofpacket::packet.unpack(OFPP_CONTROLLER, data, datalen);
 
+			ofh_header->version 	= of_version;
+			ofh_header->length		= htobe16(OFP12_PACKET_IN_STATIC_HDR_LEN + 2 + packet.framelen());
+			ofh_header->type 		= OFPT_PACKET_IN;
+			ofh_header->xid			= htobe32(xid);
+
 			switch (of_version) {
+			case OFP10_VERSION: {
+				cofpacket::memarea.resize(OFP10_PACKET_IN_STATIC_HDR_LEN);
+				cofpacket::stored = OFP10_PACKET_IN_STATIC_HDR_LEN;
+
+				of10h_packet_in->buffer_id		= htobe32(buffer_id);
+				of10h_packet_in->total_len		= htobe16(total_len);
+				of10h_packet_in->in_port		= htobe16((uint16_t)(in_port & 0x0000ffff));
+				of10h_packet_in->reason			= reason;
+			} break;
 			case OFP12_VERSION: {
 				cofpacket::memarea.resize(OFP12_PACKET_IN_STATIC_HDR_LEN);
 				cofpacket::stored = OFP12_PACKET_IN_STATIC_HDR_LEN;
-
-				ofh_header->version 	= of_version;
-				ofh_header->length		= htobe16(OFP12_PACKET_IN_STATIC_HDR_LEN + 2 + packet.framelen());
-				ofh_header->type 		= OFPT_PACKET_IN;
-				ofh_header->xid			= htobe32(xid);
 
 				of12h_packet_in->buffer_id		= htobe32(buffer_id);
 				of12h_packet_in->total_len		= htobe16(total_len);
@@ -2133,11 +2135,6 @@ public:
 			case OFP13_VERSION: {
 				cofpacket::memarea.resize(OFP13_PACKET_IN_STATIC_HDR_LEN);
 				cofpacket::stored = OFP13_PACKET_IN_STATIC_HDR_LEN;
-
-				ofh_header->version 	= of_version;
-				ofh_header->length		= htobe16(OFP12_PACKET_IN_STATIC_HDR_LEN + 2 + packet.framelen());
-				ofh_header->type 		= OFPT_PACKET_IN;
-				ofh_header->xid			= htobe32(xid);
 
 				of13h_packet_in->buffer_id		= htobe32(buffer_id);
 				of13h_packet_in->total_len		= htobe16(total_len);
@@ -2169,6 +2166,9 @@ public:
 		length()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return (OFP10_PACKET_IN_STATIC_HDR_LEN + 2 + packet.framelen());
+			} break;
 			case OFP12_VERSION: {
 				return (OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());
 			} break;
@@ -2197,6 +2197,11 @@ public:
 			 * Please note: +2 magic => provides proper alignment of IPv4 addresses in pin_data as defined by OF spec
 			 */
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				memcpy(buf, memarea.somem(), OFP10_PACKET_IN_STATIC_HDR_LEN);
+				memcpy(buf + OFP10_PACKET_IN_STATIC_HDR_LEN + 2, packet.soframe(), packet.framelen());
+
+			} break;
 			case OFP12_VERSION: {
 				memcpy(buf, memarea.somem(), OFP12_PACKET_IN_STATIC_HDR_LEN);
 				match.pack((struct ofp_match*)
@@ -2229,9 +2234,8 @@ public:
 			case OFP13_VERSION: {
 				return of12h_packet_in->table_id;
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -2242,13 +2246,15 @@ public:
 		get_reason()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return of10h_packet_in->reason;
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return of12h_packet_in->reason;
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -2259,13 +2265,15 @@ public:
 		get_total_len()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be16toh(of10h_packet_in->total_len);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be16toh(of12h_packet_in->total_len);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -2276,13 +2284,15 @@ public:
 		get_buffer_id()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be32toh(of10h_packet_in->buffer_id);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
 				return be32toh(of12h_packet_in->buffer_id);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -2296,9 +2306,23 @@ public:
 			case OFP13_VERSION: {
 				return be64toh(of13h_packet_in->cookie);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint32_t
+		get_in_port()
+		{
+			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be16toh(of10h_packet_in->in_port);
 			} break;
+			default:
+				throw eBadVersion();
 			}
 			return 0;
 		};

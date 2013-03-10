@@ -548,12 +548,31 @@ cofpacket::is_valid_packet_in()
 {
 
 	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		/*
+		 * static part of struct ofp_packet_in also contains static fields from struct ofp_match (i.e. type and length)
+		 */
+		if (stored < OFP10_PACKET_IN_STATIC_HDR_LEN) {
+			return false;
+		}
+
+		/*
+		 * set data and datalen variables
+		 */
+		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN + 2;
+
+		//body.assign((uint8_t*)(soframe() + offset), stored - (offset)); // +2: magic :)
+
+		uint32_t in_port = be32toh(of10h_packet_in->in_port);
+
+		packet.unpack(in_port, (uint8_t*)(soframe() + offset), stored - (offset)); // +2: magic :)
+
+	} break;
 	case OFP12_VERSION: {
 		/*
 		 * static part of struct ofp_packet_in also contains static fields from struct ofp_match (i.e. type and length)
 		 */
-		if (stored < OFP12_PACKET_IN_STATIC_HDR_LEN)
-		{
+		if (stored < OFP12_PACKET_IN_STATIC_HDR_LEN) {
 			return false;
 		}
 
@@ -594,8 +613,7 @@ cofpacket::is_valid_packet_in()
 		/*
 		 * static part of struct ofp_packet_in also contains static fields from struct ofp_match (i.e. type and length)
 		 */
-		if (stored < OFP13_PACKET_IN_STATIC_HDR_LEN)
-		{
+		if (stored < OFP13_PACKET_IN_STATIC_HDR_LEN) {
 			return false;
 		}
 

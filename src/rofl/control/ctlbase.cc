@@ -862,7 +862,7 @@ ctlbase::ctl_handle_packet_in(
 				WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_packet_in() "
 						"sending PACKET-IN to ctl: %s", dpname.c_str(), ctl->c_str());
 
-				send_packet_in_message(buffer_id, total_len, reason, table_id, /*cookie=*/0, match, pack.soframe(), pack.framelen());
+				send_packet_in_message(buffer_id, total_len, reason, table_id, /*cookie=*/0, /*in_port for OF1.0=*/0, match, pack.soframe(), pack.framelen());
 			} catch (eRofBaseNoCtrl& e) {}
 		}
 

@@ -1038,6 +1038,7 @@ public:
 		uint8_t reason,
 		uint8_t table_id,
 		uint64_t cookie,
+		uint16_t in_port, // for OF1.0
 		cofmatch &match,
 		uint8_t *data,
 		size_t datalen) throw(eRofBaseNoCtrl);

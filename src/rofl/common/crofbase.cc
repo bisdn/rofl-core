@@ -1138,6 +1138,7 @@ crofbase::send_packet_in_message(
 	uint8_t reason,
 	uint8_t table_id,
 	uint64_t cookie,
+	uint16_t in_port, // for OF 1.0
 	cofmatch& match,
 	uint8_t* data,
 	size_t datalen) throw(eRofBaseNoCtrl)
@@ -1184,6 +1185,7 @@ crofbase::send_packet_in_message(
 								reason,
 								table_id,
 								cookie,
+								in_port, /* in_port for OF1.0 */
 								data,
 								datalen);
 
@@ -1222,6 +1224,7 @@ crofbase::send_packet_in_message(
 							reason,
 							table_id,
 							cookie,
+							in_port, /* in_port for OF1.0 */
 							data,
 							datalen);
 
