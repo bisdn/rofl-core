@@ -72,9 +72,9 @@ void of12_add_instruction_to_group(of12_instruction_group_t* group, of12_instruc
 	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions)
 		num_of_outputs += group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions->num_of_output_actions;
 	
-	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_OUTPUT].type != OF12_AT_NO_ACTION)
+	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions && group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_OUTPUT].type != OF12_AT_NO_ACTION)
 		num_of_outputs++;
-	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_GROUP].type != OF12_AT_NO_ACTION)
+	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions && group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_GROUP].type != OF12_AT_NO_ACTION)
 		num_of_outputs++;
 
 	//Assign flag
@@ -87,12 +87,19 @@ rofl_result_t of12_update_instructions(of12_instruction_group_t* group, of12_ins
 	
 
 	//Apply Actions
-	if(of12_update_apply_actions(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions, new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions)!=ROFL_SUCCESS)
+	if(of12_update_apply_actions(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions, new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;	
 
+	//Make sure apply actions inst is marked as NULL, so that is not released
+	memset(&new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)],0,sizeof(of12_instruction_t));
+
 	//Write actions	
-	if(of12_update_write_actions(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions, new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions) != ROFL_SUCCESS)
+	if(of12_update_write_actions(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions, new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions) != ROFL_SUCCESS)
 		return ROFL_FAILURE;	
+
+	//Make sure write actions inst is marked as NULL, so that is not freed 
+	memset(&new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)],0,sizeof(of12_instruction_t));
+
 
 	//Static ones
 	//TODO: METADATA && EXPERIMENTER

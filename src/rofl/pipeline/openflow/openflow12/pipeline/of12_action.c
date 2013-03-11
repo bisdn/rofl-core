@@ -207,6 +207,7 @@ of12_write_actions_t* of12_init_write_actions(){
 	memset(write_actions, 0, sizeof(of12_write_actions_t));
 	return write_actions;
 }
+
 void of12_destroy_write_actions(of12_write_actions_t* write_actions){
 	cutil_free_shared(write_actions);	
 }
@@ -397,61 +398,31 @@ void of12_process_write_actions(const struct of12_switch* sw, const unsigned int
 }
 
 //Update apply/write
-rofl_result_t of12_update_apply_actions(of12_action_group_t* group, of12_action_group_t* new_group){
+rofl_result_t of12_update_apply_actions(of12_action_group_t** group, of12_action_group_t* new_group){
 
-	of12_packet_action_t* new_list_head, *new_list_tail, *old,*it; 
+	of12_action_group_t* old_group = *group;
 
-	old = group->head;
-	new_list_head = NULL;
-	new_list_tail = NULL;
-	
-	//Clone all actions aside 
-	for(it=group->head;it;it=it->next){
-		new_list_tail = of12_init_packet_action(it->type,it->field, new_list_tail,NULL);
+	//Transfer
+	*group = new_group;
 
-		//Make sure is correctly linked back
-		if(new_list_tail->prev)
-			(new_list_tail->prev)->next = new_list_tail;
-
-		if(!new_list_tail)
-			goto update_apply_actions_error;
-	
-		if(!new_list_head)
-			new_list_head = new_list_tail;
-	}
-
-	//Reassign
-	group->head = new_list_head;
-	group->tail = new_list_tail;
-	group->num_of_actions = new_group->num_of_actions;
-	group->num_of_output_actions = new_group->num_of_output_actions;
-	
-	//Delete old action chain 
-	for(it=old; it; it=it->next){
-		of12_destroy_packet_action(it);
-	}
+	//Release if necessary
+	if(old_group)
+		of12_destroy_action_group(old_group);	
 
 	return ROFL_SUCCESS;
-
-update_apply_actions_error:
-
-	//Destroy copies 
-	for(it=new_list_head; it; it = it->next)
-		of12_destroy_packet_action(it);
-
-	return ROFL_FAILURE;	
-	
 }
 
-rofl_result_t of12_update_write_actions(of12_write_actions_t* group, of12_write_actions_t* new_group){
-	unsigned int i;
+rofl_result_t of12_update_write_actions(of12_write_actions_t** group, of12_write_actions_t* new_group){
 
-	for(i=0;i<OF12_AT_NUMBER;i++){
-		group->write_actions[i] = new_group->write_actions[i];
-	}
-
-	group->num_of_actions = new_group->num_of_actions;
-
+	of12_write_actions_t* old_group = *group;
+	
+	//Transfer
+	*group = new_group;
+	
+	//Destroy old group	
+	if(old_group)
+		of12_destroy_write_actions(old_group);
+	
 	return ROFL_SUCCESS;
 }
 

@@ -240,7 +240,7 @@ static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_tab
 	of12_flow_entry_t *it, *it_next;
 
 	if(table->num_of_entries == 0) 
-		return ROFL_FAILURE; 
+		return ROFL_SUCCESS; //according to spec 
 
 	//Loop over all the table entries	
 	for(it=table->entries; it; it=it_next){
@@ -271,8 +271,9 @@ static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_tab
 		}
 	}
 
-	if(deleted == 0)	
-		return ROFL_FAILURE; 
+	//Even if no deletions are performed return SUCCESS
+	//if(deleted == 0)	
+	//	return ROFL_FAILURE; 
 	
 	return ROFL_SUCCESS;
 }

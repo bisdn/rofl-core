@@ -24,8 +24,9 @@ int main(int args, char** argv){
 	/* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
 	if ((NULL == CU_add_test(pSuite, "test install empty flowmod", test_install_empty_flow_mod)) ||
 	(NULL == CU_add_test(pSuite, "test uninstall all", test_install_overlapping_specific)) ||
-	//(NULL == CU_add_test(pSuite, "test uninstall all", test_uninstall_all_wildcarded)) ||
-	(NULL == CU_add_test(pSuite, "test uninstall wildcard", test_uninstall_wildcard)) 
+	(NULL == CU_add_test(pSuite, "test uninstall wildcard", test_uninstall_wildcard)) || 
+	(NULL == CU_add_test(pSuite, "test check overlap addition", test_overlap)) || 
+	(NULL == CU_add_test(pSuite, "test flow modify", test_flow_modify))  
 	
 		)
 	{
