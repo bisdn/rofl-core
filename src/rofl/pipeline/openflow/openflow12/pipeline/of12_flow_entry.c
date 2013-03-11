@@ -33,7 +33,7 @@ of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry
 	of12_init_instruction_group(&entry->inst_grp);
 
 	//init stats
-	of12_stats_flow_init(entry);
+	of12_init_flow_stats(entry);
 
 	//Flags
 	entry->notify_removal = notify_removal;
@@ -52,6 +52,8 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	//destroying timers, if any
 	of12_destroy_timer_entries(entry);
 
+	//destroy stats
+	of12_destroy_flow_stats(entry);
 
 	//FIXME TODO XXX Implement flow_removed message
 

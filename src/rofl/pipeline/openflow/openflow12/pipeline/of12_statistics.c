@@ -20,7 +20,7 @@
  * of12_stats_flow_init
  * stores the time when the flow entry was created
  */
-void of12_stats_flow_init(of12_flow_entry_t * entry)
+void of12_init_flow_stats(of12_flow_entry_t * entry)
 {
 	struct timeval now;
 	of12_gettimeofday(&now, NULL);
@@ -38,7 +38,7 @@ void of12_stats_flow_init(of12_flow_entry_t * entry)
  * of12_stats_flow_destroy
  * basically destroys the mutex
  */
-void of12_stats_flow_destroy(of12_flow_entry_t* entry)
+void of12_destroy_flow_stats(of12_flow_entry_t* entry)
 {
 	platform_mutex_destroy(entry->stats.mutex);
 }
