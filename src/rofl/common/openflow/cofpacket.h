@@ -123,7 +123,9 @@ public: // data structures
 		struct ofp_queue_get_config_reply   	*ofhu_qgcrphdr;
 		struct ofp_stats_request 				*ofhu_srqhdr;
 		struct ofp_stats_reply   				*ofhu_srphdr;
-		struct ofp_packet_out 					*ofhu_pohdr;
+		struct ofp10_packet_out 				*of10hu_pohdr;
+		struct ofp12_packet_out 				*of12hu_pohdr;
+		struct ofp13_packet_out 				*of13hu_pohdr;
 		struct ofp10_packet_in 					*of10hu_pihdr;
 		struct ofp12_packet_in 					*of12hu_pihdr;
 		struct ofp13_packet_in 					*of13hu_pihdr;
@@ -155,7 +157,9 @@ public: // data structures
 #define ofh_queue_get_config_reply 				ofh_ofhu.ofhu_qgcrphdr
 #define ofh_stats_request						ofh_ofhu.ofhu_srqhdr
 #define ofh_stats_reply							ofh_ofhu.ofhu_srphdr
-#define ofh_packet_out							ofh_ofhu.ofhu_pohdr
+#define of10h_packet_out						ofh_ofhu.of10hu_pohdr
+#define of12h_packet_out						ofh_ofhu.of12hu_pohdr
+#define of13h_packet_out						ofh_ofhu.of13hu_pohdr
 #define of10h_packet_in							ofh_ofhu.of10hu_pihdr
 #define of12h_packet_in							ofh_ofhu.of12hu_pihdr
 #define of13h_packet_in							ofh_ofhu.of13hu_pihdr
@@ -2346,23 +2350,32 @@ public:
 				uint32_t in_port = 0,
 				uint8_t *data = (uint8_t*)0,
 				size_t datalen = 0) :
-			cofpacket(	sizeof(struct ofp_packet_out) + datalen,
-						sizeof(struct ofp_packet_out) + datalen)
+			cofpacket(	sizeof(struct ofp_header),
+						sizeof(struct ofp_header))
 		{
-			//cofpacket::body.assign(data, datalen);
 			cofpacket::packet.unpack(in_port, data, datalen);
 
 			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_packet_out) + datalen);
+			ofh_header->length		= htobe16(0);
 			ofh_header->type 		= OFPT_PACKET_OUT;
 			ofh_header->xid			= htobe32(xid);
 
 			switch (of_version) {
+			case OFP10_VERSION: {
+				cofpacket::memarea.resize(sizeof(struct ofp10_packet_out));
+
+				of10h_packet_out->buffer_id		= htobe32(buffer_id);
+				of10h_packet_out->in_port		= htobe16((uint16_t)(in_port & 0x0000ffff));
+				of10h_packet_out->actions_len	= htobe16(0); // filled in when method pack() is called
+
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				ofh_packet_out->buffer_id		= htobe32(buffer_id);
-				ofh_packet_out->in_port			= htobe32(in_port);
-				ofh_packet_out->actions_len		= htobe16(0); // filled in when method pack() is called
+				cofpacket::memarea.resize(sizeof(struct ofp12_packet_out));
+
+				of12h_packet_out->buffer_id		= htobe32(buffer_id);
+				of12h_packet_out->in_port		= htobe32(in_port);
+				of12h_packet_out->actions_len	= htobe16(0); // filled in when method pack() is called
 
 			} break;
 			default:
@@ -2389,9 +2402,12 @@ public:
 		length()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return (sizeof(struct ofp10_packet_out) + actions.length() + packet.framelen());
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				return (sizeof(struct ofp_packet_out) + actions.length() + packet.framelen());
+				return (sizeof(struct ofp12_packet_out) + actions.length() + packet.framelen());
 			} break;
 			default:
 				throw eBadVersion();
@@ -2405,7 +2421,19 @@ public:
 		pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0) throw (eOFpacketInval)
 		{
 			ofh_header->length 				= htobe16(length());
-			ofh_packet_out->actions_len 	= htobe16(actions.length());
+			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				of10h_packet_out->actions_len 	= htobe16(actions.length());
+
+			} break;
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				of12h_packet_out->actions_len 	= htobe16(actions.length());
+
+			} break;
+			default:
+				throw eBadVersion();
+			}
 
 			if (((uint8_t*)0 == buf) || (buflen < length()))
 			{
@@ -2413,11 +2441,17 @@ public:
 			}
 
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				memcpy(buf, memarea.somem(), sizeof(struct ofp10_packet_out));
+				actions.pack((struct ofp_action_header*)(buf + sizeof(struct ofp10_packet_out)), actions.length());
+				memcpy(buf + sizeof(struct ofp10_packet_out) + actions.length(), packet.soframe(), packet.framelen());
+
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				memcpy(buf, memarea.somem(), sizeof(struct ofp_packet_out));
-				actions.pack((struct ofp_action_header*)(buf + sizeof(struct ofp_packet_out)), actions.length());
-				memcpy(buf + sizeof(struct ofp_packet_out) + actions.length(), packet.soframe(), packet.framelen());
+				memcpy(buf, memarea.somem(), sizeof(struct ofp12_packet_out));
+				actions.pack((struct ofp_action_header*)(buf + sizeof(struct ofp12_packet_out)), actions.length());
+				memcpy(buf + sizeof(struct ofp12_packet_out) + actions.length(), packet.soframe(), packet.framelen());
 
 			} break;
 			default:
@@ -2431,13 +2465,15 @@ public:
 		get_buffer_id()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be32toh(of10h_packet_out->buffer_id);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				return be32toh(ofh_packet_out->buffer_id);
+				return be32toh(of12h_packet_out->buffer_id);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -2448,13 +2484,15 @@ public:
 		get_in_port()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return (uint32_t)be16toh(of10h_packet_out->in_port);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				return be32toh(ofh_packet_out->in_port);
+				return be32toh(of12h_packet_out->in_port);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};
@@ -2465,13 +2503,15 @@ public:
 		get_actions_len()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return be16toh(of10h_packet_out->actions_len);
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				return be16toh(ofh_packet_out->actions_len);
+				return be16toh(of12h_packet_out->actions_len);
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
 			return 0;
 		};

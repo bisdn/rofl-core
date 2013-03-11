@@ -350,18 +350,16 @@ struct ofp10_action_vendor_header {
 };
 OFP_ASSERT(sizeof(struct ofp10_action_vendor_header) == 8);
 
-/* Action header that is common to all actions.  The length includes the
- * header and any padding used to make the action 64-bit aligned.
- * NB: The length of an action *must* always be a multiple of eight. */
-struct ofp10_action_header {
-    uint16_t type;                  /* One of OFP10AT_*. */
-    uint16_t len;                   /* Length of action, including this
-                                       header.  This is the length of action,
-                                       including any padding to make it
-                                       64-bit aligned. */
-    uint8_t pad[4];
-};
-OFP_ASSERT(sizeof(struct ofp10_action_header) == 8);
+
+
+
+
+
+
+
+
+
+
 
 /* Send packet (controller -> datapath). */
 struct ofp10_packet_out {
@@ -369,7 +367,7 @@ struct ofp10_packet_out {
     uint32_t buffer_id;           /* ID assigned by datapath (-1 if none). */
     uint16_t in_port;             /* Packet's input port (OFP10P_NONE if none). */
     uint16_t actions_len;         /* Size of action array in bytes. */
-    struct ofp10_action_header actions[0]; /* Actions. */
+    struct ofp_action_header actions[0]; /* Actions. */
     /* uint8_t data[0]; */        /* Packet data.  The length is inferred
                                      from the length field in the header.
                                      (Only meaningful if buffer_id == -1.) */
@@ -496,7 +494,7 @@ struct ofp10_flow_mod {
                                      output port.  A value of OFP10P_NONE
                                      indicates no restriction. */
     uint16_t flags;               /* One of OFP10FF_*. */
-    struct ofp10_action_header actions[0]; /* The action length is inferred
+    struct ofp_action_header actions[0]; /* The action length is inferred
                                             from the length field in the
                                             header. */
 };
@@ -707,7 +705,7 @@ struct ofp10_flow_stats {
     uint64_t cookie;          /* Opaque controller-issued identifier. */
     uint64_t packet_count;    /* Number of packets in flow. */
     uint64_t byte_count;      /* Number of bytes in flow. */
-    struct ofp10_action_header actions[0]; /* Actions. */
+    struct ofp_action_header actions[0]; /* Actions. */
 };
 OFP_ASSERT(sizeof(struct ofp10_flow_stats) == 88);
 

@@ -620,25 +620,12 @@ struct ofp_action_experimenter_header {
 };
 OFP_ASSERT(sizeof(struct ofp_action_experimenter_header) == 8);
 
-/* Action header that is common to all actions.  The length includes the
- * header and any padding used to make the action 64-bit aligned.
- * NB: The length of an action *must* always be a multiple of eight. */
-struct ofp_action_header {
-    uint16_t type;                  /* One of OFPAT_*. */
-    uint16_t len;                   /* Length of action, including this
-                                       header.  This is the length of action,
-                                       including any padding to make it
-                                       64-bit aligned. */
-    uint8_t pad[4];
-};
-OFP_ASSERT(sizeof(struct ofp_action_header) == 8);
-
 
 
 
 
 /* Send packet (controller -> datapath). */
-struct ofp_packet_out {
+struct ofp12_packet_out {
     struct ofp_header header;
     uint32_t buffer_id;           /* ID assigned by datapath (-1 if none). */
     uint32_t in_port;             /* Packet's input port or OFPP_CONTROLLER. */
@@ -649,7 +636,7 @@ struct ofp_packet_out {
                                      from the length field in the header.
                                      (Only meaningful if buffer_id == -1.) */
 };
-OFP_ASSERT(sizeof(struct ofp_packet_out) == 24);
+OFP_ASSERT(sizeof(struct ofp12_packet_out) == 24);
 
 enum ofp_flow_mod_command {
     OFPFC_ADD,              /* New flow. */

@@ -968,6 +968,20 @@ OFP_ASSERT(sizeof(struct ofp13_experimenter_multipart_header) == 8);
 
 /* unaltered since OpenFlow 1.2 */
 
+/* Send packet (controller -> datapath). */
+struct ofp13_packet_out {
+    struct ofp_header header;
+    uint32_t buffer_id;           /* ID assigned by datapath (-1 if none). */
+    uint32_t in_port;             /* Packet's input port or OFPP_CONTROLLER. */
+    uint16_t actions_len;         /* Size of action array in bytes. */
+    uint8_t pad[6];
+    struct ofp_action_header actions[0]; /* Action list. */
+    /* uint8_t data[0]; */        /* Packet data.  The length is inferred
+                                     from the length field in the header.
+                                     (Only meaningful if buffer_id == -1.) */
+};
+OFP_ASSERT(sizeof(struct ofp13_packet_out) == 24);
+
 
 // A3.8 Barrier Message
 

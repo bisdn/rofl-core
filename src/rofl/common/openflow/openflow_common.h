@@ -147,4 +147,19 @@ enum ofp_port_no {
 };
 
 
+/* Action header that is common to all actions.  The length includes the
+ * header and any padding used to make the action 64-bit aligned.
+ * NB: The length of an action *must* always be a multiple of eight. */
+struct ofp_action_header {
+    uint16_t type;                  /* One of OFPAT_*. */
+    uint16_t len;                   /* Length of action, including this
+                                       header.  This is the length of action,
+                                       including any padding to make it
+                                       64-bit aligned. */
+    uint8_t pad[4];
+};
+OFP_ASSERT(sizeof(struct ofp_action_header) == 8);
+
+
+
 #endif /* OPENFLOW_COMMON_H_ */

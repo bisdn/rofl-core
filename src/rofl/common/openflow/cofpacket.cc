@@ -660,30 +660,46 @@ cofpacket::is_valid_packet_in()
 bool
 cofpacket::is_valid_packet_out()
 {
-	ofh_packet_out = (struct ofp_packet_out*)soframe();
-	if (stored < sizeof(struct ofp_packet_out))
-		return false;
+	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		of10h_packet_out = (struct ofp10_packet_out*)soframe();
+		if (stored < sizeof(struct ofp10_packet_out))
+			return false;
 
-#if 0
-	body.assign(((uint8_t*)ofh_packet_out) +
-					sizeof(struct ofp_packet_out) +
-						be16toh(ofh_packet_out->actions_len),
-						be16toh(ofh_packet_out->header.length) -
-											sizeof(struct ofp_packet_out) -
-												be16toh(ofh_packet_out->actions_len));
-#endif
+		packet.unpack((uint32_t)be16toh(of10h_packet_out->in_port),
+					((uint8_t*)of10h_packet_out) +
+						sizeof(struct ofp10_packet_out) +
+							be16toh(of10h_packet_out->actions_len),
+							be16toh(of10h_packet_out->header.length) -
+												sizeof(struct ofp10_packet_out) -
+													be16toh(of10h_packet_out->actions_len));
 
-	packet.unpack(OFPP_CONTROLLER,
-				((uint8_t*)ofh_packet_out) +
-					sizeof(struct ofp_packet_out) +
-						be16toh(ofh_packet_out->actions_len),
-						be16toh(ofh_packet_out->header.length) -
-											sizeof(struct ofp_packet_out) -
-												be16toh(ofh_packet_out->actions_len));
+		actions.unpack(of10h_packet_out->actions,
+						be16toh(of10h_packet_out->actions_len));
 
-	actions.unpack(ofh_packet_out->actions,
-					be16toh(ofh_packet_out->actions_len));
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		of12h_packet_out = (struct ofp12_packet_out*)soframe();
+		if (stored < sizeof(struct ofp12_packet_out))
+			return false;
 
+		packet.unpack(be32toh(of12h_packet_out->in_port),
+					((uint8_t*)of12h_packet_out) +
+						sizeof(struct ofp12_packet_out) +
+							be16toh(of12h_packet_out->actions_len),
+							be16toh(of12h_packet_out->header.length) -
+												sizeof(struct ofp12_packet_out) -
+													be16toh(of12h_packet_out->actions_len));
+
+		actions.unpack(of12h_packet_out->actions,
+						be16toh(of12h_packet_out->actions_len));
+
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
 	return true;
 }
 

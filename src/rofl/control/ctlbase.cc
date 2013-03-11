@@ -310,8 +310,8 @@ ctlbase::handle_packet_out(cofctl *ctl, cofpacket_packet_out *pack)
 			dpname.c_str(), pack->packet.c_str());
 
 	ctlbase::send_packet_out_message(
-			be32toh(pack->ofh_packet_out->buffer_id),
-			be32toh(pack->ofh_packet_out->in_port),
+			be32toh(pack->of12h_packet_out->buffer_id),
+			be32toh(pack->of12h_packet_out->in_port),
 			pack->actions,
 			new cpacket(pack->packet));
 
