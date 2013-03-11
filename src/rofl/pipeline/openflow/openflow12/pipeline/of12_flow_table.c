@@ -189,6 +189,8 @@ rofl_result_t of12_destroy_table(of12_flow_table_t* table){
 * of12_[whatever]_flow_entry_table_imp in order to update the main tables
 */
 inline rofl_of12_fm_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
+	//TODO take out timers configuration from implementation of flow insertion	
+	//TODO registrate the entry in a group list
 	return table->maf.add_flow_entry_hook(table, entry, check_overlap, reset_counts);
 }
 
@@ -198,6 +200,7 @@ inline rofl_result_t of12_modify_flow_entry_table(of12_flow_table_t *const table
 }
 
 inline rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
+	//TODO take out timers configuration from implementation of flow insertion
 	return table->maf.remove_flow_entry_hook(table, entry, NULL, strict,  out_port, out_group, MUTEX_NOT_ACQUIRED);
 }
 
