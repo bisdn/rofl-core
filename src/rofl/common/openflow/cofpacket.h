@@ -906,11 +906,11 @@ public:
 			switch (ofh_header->version) {
 			case OFP10_VERSION: {
 				memcpy(buf, memarea.somem(), sizeof(struct ofp10_switch_features));
-				ports.pack((struct ofp_port*)(buf + sizeof(struct ofp10_switch_features)), ports.length());
+				ports.pack((struct ofp10_port*)(buf + sizeof(struct ofp10_switch_features)), ports.length());
 			} break;
 			case OFP12_VERSION: {
 				memcpy(buf, memarea.somem(), sizeof(struct ofp12_switch_features));
-				ports.pack((struct ofp_port*)(buf + sizeof(struct ofp12_switch_features)), ports.length());
+				ports.pack((struct ofp12_port*)(buf + sizeof(struct ofp12_switch_features)), ports.length());
 			} break;
 			case OFP13_VERSION: {
 				memcpy(buf, memarea.somem(), sizeof(struct ofp13_switch_features));

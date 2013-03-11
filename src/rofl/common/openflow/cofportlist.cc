@@ -19,40 +19,41 @@ cofportlist::~cofportlist()
 }
 
 
+template<class T>
 std::vector<cofport>&
 cofportlist::unpack(
-		struct ofp_port *ports,
+		T *ports,
 		size_t portlen)
 throw (ePortListInval)
 {
 	reset(); // clears bcvec
 
 	// sanity check: bclen must be of size at least of ofp_bucket
-	if (portlen < (int)sizeof(struct ofp_port))
+	if (portlen < (int)sizeof(T))
 		return elems;
 
-	// first instruction
-	struct ofp_port *porthdr = ports;
+	// first port
+	T *porthdr = ports;
 
-
-	while (portlen > 0)
-	{
-		if (portlen < sizeof(struct ofp_port))
+	while (portlen > 0) {
+		if (portlen < sizeof(T))
 			throw ePortListInval();
 
-		next() = cofport(porthdr, sizeof(struct ofp_port) );
+		next() = cofport(porthdr, sizeof(T) );
 
-		portlen -= sizeof(struct ofp_port);
-		porthdr = (struct ofp_port*)(((uint8_t*)porthdr) + sizeof(struct ofp_port));
+		portlen -= sizeof(T);
+		porthdr++;
 	}
 
 	return elems;
 }
 
 
-struct ofp_port*
+
+template<class T>
+T*
 cofportlist::pack(
-	struct ofp_port *ports,
+	T *ports,
 	size_t portlen) throw (ePortListInval)
 {
 	size_t needed_inlen = length();
@@ -60,19 +61,46 @@ cofportlist::pack(
 	if (portlen < needed_inlen)
 		throw ePortListInval();
 
-	struct ofp_port *porthdr = ports; // first ofp_port header
+	T *porthdr = ports; // first ofp_port header
 
 	cofportlist::iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		cofport& port = (*it);
 
-		porthdr = (struct ofp_port*)
+		porthdr = (T*)
 				((uint8_t*)(port.pack(porthdr, port.length())) + port.length());
 	}
 
 	return ports;
 }
+
+
+#if 0
+struct ofp10_port*
+cofportlist::pack(
+	struct ofp10_port *ports,
+	size_t portlen) throw (ePortListInval)
+{
+	size_t needed_inlen = length();
+
+	if (portlen < needed_inlen)
+		throw ePortListInval();
+
+	struct ofp10_port *porthdr = ports; // first ofp_port header
+
+	cofportlist::iterator it;
+	for (it = elems.begin(); it != elems.end(); ++it)
+	{
+		cofport& port = (*it);
+
+		porthdr = (struct ofp10_port*)
+				((uint8_t*)(port.pack(porthdr, port.length())) + port.length());
+	}
+
+	return ports;
+}
+#endif
 
 
 size_t
@@ -153,13 +181,13 @@ cofportlist::test()
 
 	cmemory mem(pl1.length());
 
-	pl1.pack((struct ofp_port*)mem.somem(), mem.memlen());
+	pl1.pack((struct ofp10_port*)mem.somem(), mem.memlen());
 
 	fprintf(stderr, "portlist.packed => %s\n", mem.c_str());
 
 	cofportlist pl2;
 
-	pl2.unpack((struct ofp_port*)mem.somem(), mem.memlen());
+	pl2.unpack((struct ofp10_port*)mem.somem(), mem.memlen());
 
 	fprintf(stderr, "portlist.unpacked => %s\n", pl2.c_str());
 
