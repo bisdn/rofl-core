@@ -24,6 +24,7 @@ void test_install_empty_flow_mod(void);
 void test_install_overlapping_specific(void);
 void test_uninstall_wildcard(void);
 void test_overlap(void);
+void test_flow_modify(void);
 
 
 #endif
