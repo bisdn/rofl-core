@@ -91,14 +91,14 @@ rofl_result_t of12_update_instructions(of12_instruction_group_t* group, of12_ins
 		return ROFL_FAILURE;	
 
 	//Make sure apply actions inst is marked as NULL, so that is not released
-	memset(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)],0,sizeof(of12_instruction_t));
+	memset(&new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)],0,sizeof(of12_instruction_t));
 
 	//Write actions	
 	if(of12_update_write_actions(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions, new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions) != ROFL_SUCCESS)
 		return ROFL_FAILURE;	
 
 	//Make sure write actions inst is marked as NULL, so that is not freed 
-	memset(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)],0,sizeof(of12_instruction_t));
+	memset(&new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)],0,sizeof(of12_instruction_t));
 
 
 	//Static ones
