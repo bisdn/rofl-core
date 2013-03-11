@@ -132,7 +132,9 @@ public: // data structures
 		struct ofp10_flow_removed 				*of10hu_frhdr;
 		struct ofp12_flow_removed 				*of12hu_frhdr;
 		struct ofp13_flow_removed 				*of13hu_frhdr;
-		struct ofp_port_status 					*ofhu_pshdr;
+		struct ofp10_port_status 				*of10hu_pshdr;
+		struct ofp12_port_status 				*of12hu_pshdr;
+		struct ofp13_port_status 				*of13hu_pshdr;
 		struct ofp_error_msg 					*ofhu_emhdr;
 		struct ofp_experimenter_header			*ofhu_exphdr;
 		struct ofp_group_mod					*ofhu_grphdr;
@@ -166,7 +168,9 @@ public: // data structures
 #define of10h_flow_rmvd							ofh_ofhu.of10hu_frhdr
 #define of12h_flow_rmvd							ofh_ofhu.of12hu_frhdr
 #define of13h_flow_rmvd							ofh_ofhu.of13hu_frhdr
-#define ofh_port_status							ofh_ofhu.ofhu_pshdr
+#define of10h_port_status						ofh_ofhu.of10hu_pshdr
+#define of12h_port_status						ofh_ofhu.of12hu_pshdr
+#define of13h_port_status						ofh_ofhu.of13hu_pshdr
 #define ofh_error_msg							ofh_ofhu.ofhu_emhdr
 #define ofh_experimenter						ofh_ofhu.ofhu_exphdr
 #define ofh_group_mod							ofh_ofhu.ofhu_grphdr
@@ -364,6 +368,7 @@ public:
 	set_xid(uint32_t xid);
 
 
+#if 0
 	/** returns the number of phy ports included in a FEATURES-Request
 	 */
 	int 
@@ -371,7 +376,9 @@ public:
 	{
 		return switch_features_num_ports; // valid only, if type == FEATURES-REPLY
 	}
+#endif
 
+#if 0
 	/** returns the ofp_phy_port structure at index i
 	 */
 	struct ofp_port*
@@ -381,6 +388,7 @@ public:
 			return NULL;
 		return &(of12h_switch_features->ports[i]);
 	}
+#endif
 	
 	/**
 	 *
@@ -2535,20 +2543,31 @@ public:
 				uint8_t reason = 0,
 				struct ofp_port *desc = (struct ofp_port*)0,
 				size_t desclen = 0) :
-			cofpacket(	sizeof(struct ofp_port_status),
-						sizeof(struct ofp_port_status))
+			cofpacket(	sizeof(struct ofp_header),
+						sizeof(struct ofp_header))
 		{
 			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_port_status));
+			ofh_header->length		= htobe16(0);
 			ofh_header->type 		= OFPT_PORT_STATUS;
 			ofh_header->xid			= htobe32(xid);
 
 			switch (of_version) {
+			case OFP10_VERSION: {
+				cofpacket::memarea.resize(sizeof(struct ofp10_port_status));
+
+				of10h_port_status->reason = reason;
+				if (desclen >= sizeof(struct ofp10_port)) {
+					memcpy((uint8_t*)&(of10h_port_status->desc), desc, sizeof(struct ofp10_port));
+				}
+
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				ofh_port_status->reason	= reason;
-				if (desclen >= sizeof(struct ofp_port)) {
-					memcpy((uint8_t*)&(ofh_port_status->desc), desc, sizeof(struct ofp_port));
+				cofpacket::memarea.resize(sizeof(struct ofp12_port_status));
+
+				of12h_port_status->reason	= reason;
+				if (desclen >= sizeof(struct ofp12_port)) {
+					memcpy((uint8_t*)&(of12h_port_status->desc), desc, sizeof(struct ofp12_port));
 				}
 
 			} break;
@@ -2576,15 +2595,32 @@ public:
 		length()
 		{
 			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				return (sizeof(struct ofp10_port_status));
+			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				return (sizeof(struct ofp_port_status));
+				return (sizeof(struct ofp12_port_status));
 			} break;
 			default:
 				throw eBadVersion();
 			}
 			return 0;
 		};
+		/**
+		 *
+		 */
+		uint8_t
+		get_reason()
+		{
+			switch (ofh_header->version) {
+			case OFP10_VERSION: return of10h_port_status->reason;
+			case OFP12_VERSION: return of12h_port_status->reason;
+			case OFP13_VERSION: return of13h_port_status->reason;
+			default: throw eBadVersion();
+			}
+			return 0;
+		}
 };
 
 

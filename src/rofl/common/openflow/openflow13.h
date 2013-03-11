@@ -1059,6 +1059,14 @@ OFP_ASSERT(sizeof(struct ofp13_flow_removed) == 56);
 
 /* unaltered since OpenFlow 1.2 */
 
+/* A physical port has changed in the datapath */
+struct ofp13_port_status {
+    struct ofp_header header;
+    uint8_t reason;          /* One of OFPPR_*. */
+    uint8_t pad[7];          /* Align to 64-bits. */
+    struct ofp13_port desc;
+};
+OFP_ASSERT(sizeof(struct ofp13_port_status) == 80);
 
 // A4.4 Error Message
 

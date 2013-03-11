@@ -169,7 +169,7 @@ enum ofp_port_features {
 };
 
 /* Description of a port */
-struct ofp_port {
+struct ofp12_port {
     uint32_t port_no;
     uint8_t pad[4];
     uint8_t hw_addr[OFP_ETH_ALEN];
@@ -189,7 +189,7 @@ struct ofp_port {
     uint32_t curr_speed;    /* Current port bitrate in kbps. */
     uint32_t max_speed;     /* Max port bitrate in kbps */
 };
-OFP_ASSERT(sizeof(struct ofp_port) == 64);
+OFP_ASSERT(sizeof(struct ofp12_port) == 64);
 
 /* Switch features. */
 struct ofp12_switch_features {
@@ -208,7 +208,7 @@ struct ofp12_switch_features {
     uint32_t reserved;
 
     /* Port info.*/
-    struct ofp_port ports[0];  /* Port definitions.  The number of ports
+    struct ofp12_port ports[0];  /* Port definitions.  The number of ports
                                   is inferred from the length field in
                                   the header. */
 };
@@ -222,13 +222,13 @@ enum ofp_port_reason {
 };
 
 /* A physical port has changed in the datapath */
-struct ofp_port_status {
+struct ofp12_port_status {
     struct ofp_header header;
     uint8_t reason;          /* One of OFPPR_*. */
     uint8_t pad[7];          /* Align to 64-bits. */
-    struct ofp_port desc;
+    struct ofp12_port desc;
 };
-OFP_ASSERT(sizeof(struct ofp_port_status) == 80);
+OFP_ASSERT(sizeof(struct ofp12_port_status) == 80);
 
 /* Modify behavior of the physical port */
 struct ofp_port_mod {

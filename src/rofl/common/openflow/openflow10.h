@@ -49,7 +49,7 @@
 
 
 /* Port numbering.  Physical ports are numbered starting from 1. */
-enum ofp10_port {
+enum ofp10_virt_port {
     /* Maximum number of physical switch ports. */
     OFP10P_MAX = 0xff00,
 
@@ -157,7 +157,7 @@ enum ofp10_port_features {
 };
 
 /* Description of a physical port */
-struct ofp10_phy_port {
+struct ofp10_port {
     uint16_t port_no;
     uint8_t hw_addr[OFP_ETH_ALEN];
     char name[OFP_MAX_PORT_NAME_LEN]; /* Null-terminated */
@@ -172,7 +172,7 @@ struct ofp10_phy_port {
     uint32_t supported;     /* Features supported by the port. */
     uint32_t peer;          /* Features advertised by peer. */
 };
-OFP_ASSERT(sizeof(struct ofp10_phy_port) == 48);
+OFP_ASSERT(sizeof(struct ofp10_port) == 48);
 
 /* Switch features. */
 struct ofp10_switch_features {
@@ -191,7 +191,7 @@ struct ofp10_switch_features {
     uint32_t actions;       /* Bitmap of supported "ofp10_action_type"s. */
 
     /* Port info.*/
-    struct ofp10_phy_port ports[0];  /* Port definitions.  The number of ports
+    struct ofp10_port ports[0];  /* Port definitions.  The number of ports
                                       is inferred from the length field in
                                       the header. */
 };
@@ -209,7 +209,7 @@ struct ofp10_port_status {
     struct ofp_header header;
     uint8_t reason;          /* One of OFP10PR_*. */
     uint8_t pad[7];          /* Align to 64-bits. */
-    struct ofp10_phy_port desc;
+    struct ofp10_port desc;
 };
 OFP_ASSERT(sizeof(struct ofp10_port_status) == 64);
 

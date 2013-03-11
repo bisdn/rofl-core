@@ -6,50 +6,110 @@
 
 using namespace rofl;
 
+
+
+
+
 /* static */
 void
 cofport::ports_parse(
 		std::map<uint32_t, cofport*>& portsmap,
-		struct ofp_port *ports, // ptr to array of ofp_phy_ports
+		struct ofp10_port *ports, // ptr to array of ofp_phy_ports
 		int portslen) // number of bytes in array
 	throw (eOFportMalformed)
 {
-	//std::map<uint32_t, cofport*> __ports;
-
-	if (portslen == 0)
-	{
-		//return __ports;
+	if (0 == ports) {
 		return;
 	}
 
-	// sanity check: portslen must be of size at least of ofp_phy_port
-	if (portslen < (int)sizeof(struct ofp_port))
-	{
+	// sanity check: portslen must be of size at least of ofp10_port
+	if (sizeof(struct ofp10_port) <= (unsigned int)portslen) {
 		throw eOFportMalformed();
 	}
 
 	// first struct ofp_phy_port
-	struct ofp_port *phdr = ports;
+	struct ofp10_port *phdr = ports;
 
-	while (portslen > 0)
-	{
-		if (portslen < (int)sizeof(struct ofp_port))
-		{
+	while (portslen > 0) {
+		if (portslen < (int)sizeof(struct ofp10_port)) {
 			throw eOFportMalformed();
 		}
-
-		cofport *ofport = new cofport(&portsmap, be32toh(phdr->port_no), phdr, sizeof(struct ofp_port));
-
-		//__ports[ofport->port_no] = ofport;
+		cofport *ofport = new cofport(phdr, sizeof(struct ofp10_port), &portsmap, be16toh(phdr->port_no));
 		portsmap[ofport->get_port_no()] = ofport;
-
 		phdr++;
-		portslen -= sizeof(struct ofp_port);
+		portslen -= sizeof(struct ofp10_port);
 	}
-	//return __ports;
 }
 
 
+
+/* static */
+void
+cofport::ports_parse(
+		std::map<uint32_t, cofport*>& portsmap,
+		struct ofp12_port *ports, // ptr to array of ofp12_ports
+		int portslen) // number of bytes in array
+	throw (eOFportMalformed)
+{
+	if (0 == ports) {
+		return;
+	}
+
+	// sanity check: portslen must be of size at least of ofp12_port
+	if (sizeof(struct ofp12_port) <= (unsigned int)portslen) {
+		throw eOFportMalformed();
+	}
+
+	// first struct ofp_phy_port
+	struct ofp12_port *phdr = ports;
+
+	while (portslen > 0) {
+		if (portslen < (int)sizeof(struct ofp12_port)) {
+			throw eOFportMalformed();
+		}
+		cofport *ofport = new cofport(phdr, sizeof(struct ofp12_port), &portsmap, be32toh(phdr->port_no));
+		portsmap[ofport->get_port_no()] = ofport;
+		phdr++;
+		portslen -= sizeof(struct ofp12_port);
+	}
+}
+
+
+
+/* static */
+void
+cofport::ports_parse(
+		std::map<uint32_t, cofport*>& portsmap,
+		struct ofp13_port *ports, // ptr to array of ofp13_ports
+		int portslen) // number of bytes in array
+	throw (eOFportMalformed)
+{
+	if (0 == ports) {
+		return;
+	}
+
+	// sanity check: portslen must be of size at least of ofp13_port
+	if (sizeof(struct ofp13_port) <= (unsigned int)portslen) {
+		throw eOFportMalformed();
+	}
+
+	// first struct ofp_phy_port
+	struct ofp13_port *phdr = ports;
+
+	while (portslen > 0) {
+		if (portslen < (int)sizeof(struct ofp13_port)) {
+			throw eOFportMalformed();
+		}
+		cofport *ofport = new cofport(phdr, sizeof(struct ofp13_port), &portsmap, be32toh(phdr->port_no));
+		portsmap[ofport->get_port_no()] = ofport;
+		phdr++;
+		portslen -= sizeof(struct ofp13_port);
+	}
+}
+
+
+
+#if 0
 /*static*/ uint32_t
 cofport::ports_get_free_port_no(
 	std::map<uint32_t, cofport*> *port_list) throw (eOFportNotFound)
@@ -66,38 +126,43 @@ cofport::ports_get_free_port_no(
 	}
 	return port_no;
 }
+#endif
+
+
+
+cofport::cofport(uint8_t of_version) :
+		of_version(of_version),
+		port_list(0)
+{
+	reset_stats();
+	switch (of_version) {
+	case OFP10_VERSION: memarea.resize(sizeof(struct ofp10_port)); ofh10_port = (struct ofp10_port*)memarea.somem(); break;
+	case OFP12_VERSION: memarea.resize(sizeof(struct ofp12_port)); ofh12_port = (struct ofp12_port*)memarea.somem(); break;
+	case OFP13_VERSION: memarea.resize(sizeof(struct ofp13_port)); ofh13_port = (struct ofp13_port*)memarea.somem(); break;
+	default: ofh10_port = (struct ofp10_port*)0; break;
+	}
+}
+
 
 
 cofport::cofport(
+	struct ofp10_port *port,
+	size_t port_len,
 	std::map<uint32_t, cofport*> *port_list,
-	uint32_t portno,
-	struct ofp_port *port,
-	size_t port_len) :
-#if 0
-			port_no(portno),
-			hwaddr(cmacaddr("00:00:00:00:00:00")),
-			name(std::string("")),
-			config(0),
-			state(0),
-			curr(0),
-			advertised(0),
-			supported(0),
-			peer(0),
-			curr_speed(0),
-			max_speed(0),
-#endif
-			cmemory(sizeof(struct ofp_port)),
+	uint32_t portno) :
+			of_version(OFP10_VERSION),
 			port_list(port_list),
-			of_port((struct ofp_port*)somem())
+			memarea(sizeof(struct ofp10_port))
 {
+	ofh10_port = (struct ofp10_port*)memarea.somem();
+
 	reset_stats();
-	if ((0 != port) && (port_len >= sizeof(struct ofp_port)))
-	{
+
+	if ((0 != port) && (port_len >= sizeof(struct ofp10_port))) {
 		unpack(port, port_len);
 	}
 
-	if (0 != port_list)
-	{
+	if (0 != port_list) {
 		(*port_list)[portno] = this;
 	}
 
@@ -105,33 +170,57 @@ cofport::cofport(
 }
 
 
+
 cofport::cofport(
-		struct ofp_port* port,
-		size_t port_len) :
-#if 0
-			port_no(0),
-			hwaddr(cmacaddr("00:00:00:00:00:00")),
-			name(std::string("")),
-			config(0),
-			state(0),
-			curr(0),
-			advertised(0),
-			supported(0),
-			peer(0),
-			curr_speed(0),
-			max_speed(0),
-#endif
-			cmemory(sizeof(struct ofp_port)),
-			port_list(0),
-			of_port((struct ofp_port*)somem())
+	struct ofp12_port *port,
+	size_t port_len,
+	std::map<uint32_t, cofport*> *port_list,
+	uint32_t portno) :
+			of_version(OFP12_VERSION),
+			port_list(port_list),
+			memarea(sizeof(struct ofp12_port))
 {
+	ofh12_port = (struct ofp12_port*)memarea.somem();
+
 	reset_stats();
-	if ((0 != port) && (port_len >= sizeof(struct ofp_port)))
-	{
+
+	if ((0 != port) && (port_len >= sizeof(struct ofp12_port))) {
 		unpack(port, port_len);
 	}
+
+	if (0 != port_list) {
+		(*port_list)[portno] = this;
+	}
+
 	WRITELOG(CPORT, DBG, "cofport(%p)::cofport() port_list:%p %s", this, port_list, c_str());
 }
+
+
+
+cofport::cofport(
+	struct ofp13_port *port,
+	size_t port_len,
+	std::map<uint32_t, cofport*> *port_list,
+	uint32_t portno) :
+			of_version(OFP13_VERSION),
+			port_list(port_list),
+			memarea(sizeof(struct ofp13_port))
+{
+	ofh13_port = (struct ofp13_port*)memarea.somem();
+
+	reset_stats();
+
+	if ((0 != port) && (port_len >= sizeof(struct ofp13_port))) {
+		unpack(port, port_len);
+	}
+
+	if (0 != port_list) {
+		(*port_list)[portno] = this;
+	}
+
+	WRITELOG(CPORT, DBG, "cofport(%p)::cofport() port_list:%p %s", this, port_list, c_str());
+}
+
 
 
 cofport::~cofport()
@@ -140,8 +229,7 @@ cofport::~cofport()
 
 	WRITELOG(CPORT, DBG, "cofport(%p)::~cofport() port_list:%p ", this, port_list);
 
-	if (0 != port_list)
-	{
+	if (0 != port_list) {
 		port_list->erase(get_port_no());
 	}
 }
@@ -149,12 +237,23 @@ cofport::~cofport()
 
 
 cofport::cofport(cofport const& port) :
-		cmemory(sizeof(struct ofp_port)),
-		port_list(0),
-		of_port((struct ofp_port*)somem())
+		port_list(0)
 {
 	*this = port;
 }
+
+
+
+cofport::cofport(cofport const& port, std::map<uint32_t, cofport*> *port_list, uint32_t port_no) :
+		port_list(port_list)
+{
+	*this = port;
+
+	if (0 != port_list) {
+		(*port_list)[port_no] = this;
+	}
+}
+
 
 
 cofport&
@@ -167,11 +266,10 @@ cofport::operator= (cofport const& port)
 
 	WRITELOG(CPORT, DBG, "cofport(%p)::operator=() from port:%p", this, &port);
 
-	cmemory::operator= (port);
+	this->of_version 	= port.of_version;
+	this->memarea 		= port.memarea;
 
-	of_port = (struct ofp_port*)somem();
-
-	//port_list 		= 0;
+	//port_list 		= 0; // keep port_list as it is
 
 	return *this;
 }
@@ -181,156 +279,441 @@ cofport::operator= (cofport const& port)
 uint32_t
 cofport::get_port_no() const
 {
-	return be32toh(of_port->port_no);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return (uint32_t)be16toh((ofh10_port)->port_no);
+	} break;
+	case OFP12_VERSION: {
+		return be32toh(ofh12_port->port_no);
+	} break;
+	case OFP13_VERSION: {
+		return be32toh(ofh13_port->port_no);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
 }
+
 
 
 void
 cofport::set_port_no(uint32_t port_no)
 {
-	of_port->port_no = htobe32(port_no);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		ofh10_port->port_no = htobe16((uint16_t)(port_no & 0x0000ffff));
+	} break;
+	case OFP12_VERSION: {
+		ofh12_port->port_no = htobe32(port_no);
+	} break;
+	case OFP13_VERSION: {
+		ofh13_port->port_no = htobe32(port_no);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
+
 
 
 cmacaddr
 cofport::get_hwaddr() const
 {
-	return cmacaddr(of_port->hw_addr, OFP_ETH_ALEN);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return cmacaddr(ofh10_port->hw_addr, OFP_ETH_ALEN);
+	} break;
+	case OFP12_VERSION: {
+		return cmacaddr(ofh12_port->hw_addr, OFP_ETH_ALEN);
+	} break;
+	case OFP13_VERSION: {
+		return cmacaddr(ofh13_port->hw_addr, OFP_ETH_ALEN);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return cmacaddr("00:00:00:00:00:00");
 }
 
 
 void
 cofport::set_hwaddr(cmacaddr const& maddr)
 {
-	memcpy(of_port->hw_addr, maddr.somem(), OFP_ETH_ALEN);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		memcpy(ofh10_port->hw_addr, maddr.somem(), OFP_ETH_ALEN);
+	} break;
+	case OFP12_VERSION: {
+		memcpy(ofh12_port->hw_addr, maddr.somem(), OFP_ETH_ALEN);
+	} break;
+	case OFP13_VERSION: {
+		memcpy(ofh13_port->hw_addr, maddr.somem(), OFP_ETH_ALEN);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 
 std::string
 cofport::get_name() const
 {
-	return std::string(of_port->name, OFP_MAX_PORT_NAME_LEN);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return std::string(ofh10_port->name, OFP_MAX_PORT_NAME_LEN);
+	} break;
+	case OFP12_VERSION: {
+		return std::string(ofh12_port->name, OFP_MAX_PORT_NAME_LEN);
+	} break;
+	case OFP13_VERSION: {
+		return std::string(ofh13_port->name, OFP_MAX_PORT_NAME_LEN);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return std::string("");
 }
+
 
 
 void
 cofport::set_name(std::string name)
 {
 	size_t len = (name.length() > OFP_MAX_PORT_NAME_LEN) ? OFP_MAX_PORT_NAME_LEN : name.length();
-	memset(of_port->name, 0, OFP_MAX_PORT_NAME_LEN);
-	memcpy(of_port->name, name.c_str(), len);
+
+	switch (of_version) {
+	case OFP10_VERSION: {
+		memset(ofh10_port->name, 0, OFP_MAX_PORT_NAME_LEN);
+		memcpy(ofh10_port->name, name.c_str(), len);
+	} break;
+	case OFP12_VERSION: {
+		memset(ofh12_port->name, 0, OFP_MAX_PORT_NAME_LEN);
+		memcpy(ofh12_port->name, name.c_str(), len);
+	} break;
+	case OFP13_VERSION: {
+		memset(ofh13_port->name, 0, OFP_MAX_PORT_NAME_LEN);
+		memcpy(ofh13_port->name, name.c_str(), len);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
+
 
 
 uint32_t
 cofport::get_config() const
 {
-	return be32toh(of_port->config);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return be32toh(ofh10_port->config);
+	} break;
+	case OFP12_VERSION: {
+		return be32toh(ofh12_port->config);
+	} break;
+	case OFP13_VERSION: {
+		return be32toh(ofh13_port->config);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
 }
+
 
 
 void
 cofport::set_config(uint32_t config)
 {
-	of_port->config = htobe32(config);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		ofh10_port->config = htobe32(config);
+	} break;
+	case OFP12_VERSION: {
+		ofh12_port->config = htobe32(config);
+	} break;
+	case OFP13_VERSION: {
+		ofh13_port->config = htobe32(config);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
+
 
 
 uint32_t
 cofport::get_state() const
 {
-	return be32toh(of_port->state);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return be32toh(ofh10_port->state);
+	} break;
+	case OFP12_VERSION: {
+		return be32toh(ofh12_port->state);
+	} break;
+	case OFP13_VERSION: {
+		return be32toh(ofh13_port->state);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
 }
+
 
 
 void
 cofport::set_state(uint32_t state)
 {
-	of_port->state = htobe32(state);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		ofh10_port->state = htobe32(state);
+	} break;
+	case OFP12_VERSION: {
+		ofh12_port->state = htobe32(state);
+	} break;
+	case OFP13_VERSION: {
+		ofh13_port->state = htobe32(state);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
+
 
 
 uint32_t
 cofport::get_curr() const
 {
-	return be32toh(of_port->curr);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return be32toh(ofh10_port->curr);
+	} break;
+	case OFP12_VERSION: {
+		return be32toh(ofh12_port->curr);
+	} break;
+	case OFP13_VERSION: {
+		return be32toh(ofh13_port->curr);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
 }
+
 
 
 void
 cofport::set_curr(uint32_t curr)
 {
-	of_port->curr = htobe32(curr);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		ofh10_port->curr = htobe32(curr);
+	} break;
+	case OFP12_VERSION: {
+		ofh12_port->curr = htobe32(curr);
+	} break;
+	case OFP13_VERSION: {
+		ofh13_port->curr = htobe32(curr);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
+
 
 
 uint32_t
 cofport::get_advertised() const
 {
-	return be32toh(of_port->advertised);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return be32toh(ofh10_port->advertised);
+	} break;
+	case OFP12_VERSION: {
+		return be32toh(ofh12_port->advertised);
+	} break;
+	case OFP13_VERSION: {
+		return be32toh(ofh13_port->advertised);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
 }
+
 
 
 void
 cofport::set_advertised(uint32_t advertised)
 {
-	of_port->advertised = htobe32(advertised);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		ofh10_port->advertised = htobe32(advertised);
+	} break;
+	case OFP12_VERSION: {
+		ofh12_port->advertised = htobe32(advertised);
+	} break;
+	case OFP13_VERSION: {
+		ofh13_port->advertised = htobe32(advertised);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
+
 
 
 uint32_t
 cofport::get_supported() const
 {
-	return be32toh(of_port->supported);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return be32toh(ofh10_port->supported);
+	} break;
+	case OFP12_VERSION: {
+		return be32toh(ofh12_port->supported);
+	} break;
+	case OFP13_VERSION: {
+		return be32toh(ofh13_port->supported);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
 }
+
 
 
 void
 cofport::set_supported(uint32_t supported)
 {
-	of_port->supported = htobe32(supported);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		ofh10_port->supported = htobe32(supported);
+	} break;
+	case OFP12_VERSION: {
+		ofh12_port->supported = htobe32(supported);
+	} break;
+	case OFP13_VERSION: {
+		ofh13_port->supported = htobe32(supported);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
+
 
 
 uint32_t
 cofport::get_peer() const
 {
-	return be32toh(of_port->peer);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return be32toh(ofh10_port->peer);
+	} break;
+	case OFP12_VERSION: {
+		return be32toh(ofh12_port->peer);
+	} break;
+	case OFP13_VERSION: {
+		return be32toh(ofh13_port->peer);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
 }
+
 
 
 void
 cofport::set_peer(uint32_t peer)
 {
-	of_port->peer = htobe32(peer);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		ofh10_port->peer = htobe32(peer);
+	} break;
+	case OFP12_VERSION: {
+		ofh12_port->peer = htobe32(peer);
+	} break;
+	case OFP13_VERSION: {
+		ofh13_port->peer = htobe32(peer);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
+
 
 
 uint32_t
 cofport::get_curr_speed() const
 {
-	return be32toh(of_port->curr_speed);
+	switch (of_version) {
+	case OFP12_VERSION: {
+		return be32toh(ofh12_port->curr_speed);
+	} break;
+	case OFP13_VERSION: {
+		return be32toh(ofh13_port->curr_speed);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
 }
+
 
 
 void
 cofport::set_curr_speed(uint32_t curr_speed)
 {
-	of_port->curr_speed = htobe32(curr_speed);
+	switch (of_version) {
+	case OFP12_VERSION: {
+		ofh12_port->curr_speed = htobe32(curr_speed);
+	} break;
+	case OFP13_VERSION: {
+		ofh13_port->curr_speed = htobe32(curr_speed);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
+
 
 
 uint32_t
 cofport::get_max_speed() const
 {
-	return be32toh(of_port->max_speed);
+	switch (of_version) {
+	case OFP12_VERSION: {
+		return be32toh(ofh12_port->max_speed);
+	} break;
+	case OFP13_VERSION: {
+		return be32toh(ofh13_port->max_speed);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
 }
+
 
 
 void
 cofport::set_max_speed(uint32_t max_speed)
 {
-	of_port->max_speed = htobe32(max_speed);
+	switch (of_version) {
+	case OFP12_VERSION: {
+		ofh12_port->max_speed = htobe32(max_speed);
+	} break;
+	case OFP13_VERSION: {
+		ofh13_port->max_speed = htobe32(max_speed);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 
@@ -341,61 +724,44 @@ cofport::recv_port_mod(
 		uint32_t mask,
 		uint32_t advertise)
 {
-	if (mask & OFPPC_PORT_DOWN)
-	{
-		if (config & OFPPC_PORT_DOWN)
-		{
-			of_port->config |= OFPPC_PORT_DOWN;
-		}
-		else
-		{
-			of_port->config &= ~OFPPC_PORT_DOWN;
+	if (mask & OFPPC_PORT_DOWN) {
+		if (config & OFPPC_PORT_DOWN) {
+			set_config(get_config() |  OFPPC_PORT_DOWN);
+		} else {
+			set_config(get_config() & ~OFPPC_PORT_DOWN);
 		}
 	}
 
-	if (mask & OFPPC_NO_RECV)
-	{
-		if (config & OFPPC_NO_RECV)
-		{
-			of_port->config |= OFPPC_NO_RECV;
-		}
-		else
-		{
-			of_port->config &= ~OFPPC_NO_RECV;
+	if (mask & OFPPC_NO_RECV) {
+		if (config & OFPPC_NO_RECV) {
+			set_config(get_config() |  OFPPC_NO_RECV);
+		} else {
+			set_config(get_config() & ~OFPPC_NO_RECV);
 		}
 	}
 
-	if (mask & OFPPC_NO_PACKET_IN)
-	{
-		if (config & OFPPC_NO_PACKET_IN)
-		{
-			of_port->config |= OFPPC_NO_PACKET_IN;
-		}
-		else
-		{
-			of_port->config &= ~OFPPC_NO_PACKET_IN;
+	if (mask & OFPPC_NO_PACKET_IN) {
+		if (config & OFPPC_NO_PACKET_IN) {
+			set_config(get_config() |  OFPPC_NO_PACKET_IN);
+		} else {
+			set_config(get_config() & ~OFPPC_NO_PACKET_IN);
 		}
 	}
 
-	if (mask & OFPPC_NO_FWD)
-	{
-		if (config & OFPPC_NO_FWD)
-		{
-			of_port->config |= OFPPC_NO_FWD;
-		}
-		else
-		{
-			of_port->config &= ~OFPPC_NO_FWD;
+	if (mask & OFPPC_NO_FWD) {
+		if (config & OFPPC_NO_FWD) {
+			set_config(get_config() |  OFPPC_NO_FWD);
+		} else {
+			set_config(get_config() & ~OFPPC_NO_FWD);
 		}
 	}
 
-	if (0 != advertise)
-	{
-		of_port->advertised = advertise;
+	if (0 != advertise) {
+		set_advertised(advertise);
 	}
 
 	WRITELOG(CPORT, DBG, "cofport(%s:%d)::recv_port_mod() config:0x%x advertise:0x%x",
-			get_name().c_str(), of_port->port_no, of_port->config, of_port->advertised);
+			get_name().c_str(), get_port_no(), get_config(), get_advertised());
 }
 
 
@@ -403,7 +769,13 @@ cofport::recv_port_mod(
 size_t
 cofport::length()
 {
-	return sizeof(struct ofp_port);
+	switch (of_version) {
+	case OFP10_VERSION: return sizeof(struct ofp10_port);
+	case OFP12_VERSION: return sizeof(struct ofp12_port);
+	case OFP13_VERSION: return sizeof(struct ofp13_port);
+	default: throw eBadVersion();
+	}
+	return 0;
 }
 
 
@@ -413,90 +785,162 @@ cofport::c_str()
 {
 	cvastring vas;
 
-	info.assign(vas("cofport(%p): port_no:%d hwaddr:%s name:%s "
-			"config:%d state:%d curr:%d advertised:%d "
-			"supported:%d peer:%d curr_speed:%d max_speed:%d",
-			this,
-			get_port_no(),
-			get_hwaddr().c_str(),
-			get_name().c_str(),
-			get_config(),
-			get_state(),
-			get_curr(),
-			get_advertised(),
-			get_supported(),
-			get_peer(),
-			get_curr_speed(),
-			get_max_speed()));
+	switch (of_version) {
+	case OFP10_VERSION: {
+		info.assign(vas("cofport(%p): port_no:%d hwaddr:%s name:%s "
+				"config:%d state:%d curr:%d advertised:%d "
+				"supported:%d peer:%d",
+				this,
+				get_port_no(),
+				get_hwaddr().c_str(),
+				get_name().c_str(),
+				get_config(),
+				get_state(),
+				get_curr(),
+				get_advertised(),
+				get_supported(),
+				get_peer()));
+
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		info.assign(vas("cofport(%p): port_no:%d hwaddr:%s name:%s "
+				"config:%d state:%d curr:%d advertised:%d "
+				"supported:%d peer:%d curr_speed:%d max_speed:%d",
+				this,
+				get_port_no(),
+				get_hwaddr().c_str(),
+				get_name().c_str(),
+				get_config(),
+				get_state(),
+				get_curr(),
+				get_advertised(),
+				get_supported(),
+				get_peer(),
+				get_curr_speed(),
+				get_max_speed()));
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
 	return info.c_str();
 }
 
 
-struct ofp_port*
-cofport::pack(
-	struct ofp_port* port, size_t portlen)
-throw (eOFportInval)
+
+struct ofp10_port*
+cofport::pack(struct ofp10_port* port, size_t portlen) throw (eOFportInval)
 {
-	if (portlen < sizeof(struct ofp_port))
-	{
+	if (OFP10_VERSION != of_version) {
+		throw eBadVersion();
+	}
+
+	if (portlen < sizeof(struct ofp10_port)) {
 		throw eOFportInval();
 	}
 
-	memcpy(port, somem(), sizeof(struct ofp_port));
-
-#if 0
-	port->port_no 		= htobe32(port_no);
-
-	memcpy(port->hw_addr, hwaddr.somem(), OFP_ETH_ALEN);
-	memset(port->name, 0, OFP_MAX_PORT_NAME_LEN);
-	size_t namelen = name.length() > (OFP_MAX_PORT_NAME_LEN - 1) ?
-			OFP_MAX_PORT_NAME_LEN - 1 : name.length();
-	memcpy(port->name, name.c_str(), namelen);
-
-	port->config 		= htobe32(config);
-	port->state 		= htobe32(state);
-	port->curr 			= htobe32(curr);
-	port->advertised 	= htobe32(advertised);
-	port->supported 	= htobe32(supported);
-	port->peer 			= htobe32(peer);
-	port->curr_speed 	= htobe32(curr_speed);
-	port->max_speed 	= htobe32(max_speed);
-#endif
+	memcpy(port, memarea.somem(), sizeof(struct ofp10_port));
 
 	return port;
 }
 
 
-struct ofp_port*
-cofport::unpack(
-	struct ofp_port* port, size_t portlen)
-throw (eOFportInval)
+
+struct ofp12_port*
+cofport::pack(struct ofp12_port* port, size_t portlen) throw (eOFportInval)
 {
-	if (portlen < sizeof(struct ofp_port))
-	{
+	if (OFP12_VERSION != of_version) {
+		throw eBadVersion();
+	}
+
+	if (portlen < sizeof(struct ofp12_port)) {
 		throw eOFportInval();
 	}
 
-	assign((uint8_t*)port, portlen);
-	of_port = (struct ofp_port*)somem();
+	memcpy(port, memarea.somem(), sizeof(struct ofp12_port));
 
-#if 0
-	port_no 	= be32toh(port->port_no);
+	return port;
+}
 
-	hwaddr = cmacaddr(port->hw_addr, OFP_ETH_ALEN);
-	//memcpy(hwaddr.somem(), port->hw_addr, OFP_ETH_ALEN);
-	name.assign(port->name, OFP_MAX_PORT_NAME_LEN);
 
-	config 		= be32toh(port->config);
-	state 		= be32toh(port->state);
-	curr 		= be32toh(port->curr);
-	advertised 	= be32toh(port->advertised);
-	supported 	= be32toh(port->supported);
-	peer 		= be32toh(port->peer);
-	curr_speed 	= be32toh(port->curr_speed);
-	max_speed 	= be32toh(port->max_speed);
-#endif
+
+struct ofp13_port*
+cofport::pack(struct ofp13_port* port, size_t portlen) throw (eOFportInval)
+{
+	if (OFP13_VERSION != of_version) {
+		throw eBadVersion();
+	}
+
+	if (portlen < sizeof(struct ofp13_port)) {
+		throw eOFportInval();
+	}
+
+	memcpy(port, memarea.somem(), sizeof(struct ofp13_port));
+
+	return port;
+}
+
+
+
+struct ofp10_port*
+cofport::unpack(
+	struct ofp10_port* port, size_t portlen)
+throw (eOFportInval)
+{
+	if (OFP10_VERSION != of_version) {
+		throw eBadVersion();
+	}
+
+	if (portlen < sizeof(struct ofp10_port)) {
+		throw eOFportInval();
+	}
+
+	memarea.assign((uint8_t*)port, portlen);
+	ofh10_port = (struct ofp10_port*)memarea.somem();
+
+	return port;
+}
+
+
+
+struct ofp12_port*
+cofport::unpack(
+	struct ofp12_port* port, size_t portlen)
+throw (eOFportInval)
+{
+	if (OFP12_VERSION != of_version) {
+		throw eBadVersion();
+	}
+
+	if (portlen < sizeof(struct ofp12_port)) {
+		throw eOFportInval();
+	}
+
+	memarea.assign((uint8_t*)port, portlen);
+	ofh12_port = (struct ofp12_port*)memarea.somem();
+
+	return port;
+}
+
+
+
+struct ofp13_port*
+cofport::unpack(
+	struct ofp13_port* port, size_t portlen)
+throw (eOFportInval)
+{
+	if (OFP13_VERSION != of_version) {
+		throw eBadVersion();
+	}
+
+	if (portlen < sizeof(struct ofp13_port)) {
+		throw eOFportInval();
+	}
+
+	memarea.assign((uint8_t*)port, portlen);
+	ofh13_port = (struct ofp13_port*)memarea.somem();
 
 	return port;
 }
@@ -564,15 +1008,15 @@ cofport::test()
 
 	fprintf(stderr, "p1 => %s\n", p1.c_str());
 
-	cmemory mem(sizeof(struct ofp_port));
+	cmemory mem(sizeof(struct ofp10_port));
 
-	p1.pack((struct ofp_port*)mem.somem(), mem.memlen());
+	p1.pack((struct ofp10_port*)mem.somem(), mem.memlen());
 
 	fprintf(stderr, "p1.packed => %s\n", mem.c_str());
 
 	cofport p2;
 
-	p2.unpack((struct ofp_port*)mem.somem(), mem.memlen());
+	p2.unpack((struct ofp10_port*)mem.somem(), mem.memlen());
 
 	fprintf(stderr, "p1.unpacked => %s\n", p2.c_str());
 }

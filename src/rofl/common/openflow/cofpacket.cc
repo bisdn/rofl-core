@@ -744,17 +744,33 @@ cofpacket::is_valid_flow_removed()
 	return true;	
 }
 
+
+
 bool
 cofpacket::is_valid_port_status()
 {
-	ofh_port_status = (struct ofp_port_status*)soframe();
-	if (stored < sizeof(struct ofp_port_status))
-		return false;
+	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		if (stored < sizeof(struct ofp10_port_status))
+			return false;
 
-	port.assign((uint8_t*)&(ofh_port_status->desc), sizeof(struct ofp_port));
+		port.assign((uint8_t*)&(of10h_port_status->desc), sizeof(struct ofp10_port));
 
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		if (stored < sizeof(struct ofp12_port_status))
+			return false;
+
+		port.assign((uint8_t*)&(of12h_port_status->desc), sizeof(struct ofp12_port));
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
 	return true;
 }
+
 
 
 bool

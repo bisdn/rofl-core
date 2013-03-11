@@ -1015,12 +1015,12 @@ cofdpt::port_status_rcvd(cofpacket_port_status *pack)
 			dpid, pack->c_str());
 
 	std::map<uint32_t, cofport*>::iterator it;
-	switch (pack->ofh_port_status->reason) {
+	switch (pack->get_reason()) {
 	case OFPPR_ADD:
-		if (ports.find(be32toh(pack->ofh_port_status->desc.port_no)) == ports.end())
+		if (ports.find(pack->port.get_port_no()) == ports.end())
 		{
 			//cofport *lport = new cofport(&ports, be32toh(pack->ofh_port_status->desc.port_no), &(pack->ofh_port_status->desc), sizeof(struct ofp_port));
-			new cofport(&ports, be32toh(pack->ofh_port_status->desc.port_no), &(pack->ofh_port_status->desc), sizeof(struct ofp_port));
+			new cofport(pack->port, &ports, pack->port.get_port_no());
 
 			// let derived class handle PORT-STATUS message
 			//rofbase->handle_port_status(this, pack, lport);
@@ -1028,9 +1028,9 @@ cofdpt::port_status_rcvd(cofpacket_port_status *pack)
 		}
 		break;
 	case OFPPR_DELETE:
-		if (ports.find(be32toh(pack->ofh_port_status->desc.port_no)) != ports.end())
+		if (ports.find(pack->port.get_port_no()) != ports.end())
 		{
-			uint32_t port_no = be32toh(pack->ofh_port_status->desc.port_no);
+			uint32_t port_no = pack->port.get_port_no();
 			// let derived class handle PORT-STATUS message
 			//rofbase->handle_port_status(this, pack, ports[port_no]);
 			rofbase->handle_port_status(this, pack);
@@ -1042,11 +1042,9 @@ cofdpt::port_status_rcvd(cofpacket_port_status *pack)
 		}
 		break;
 	case OFPPR_MODIFY:
-		if (ports.find(be32toh(pack->ofh_port_status->desc.port_no)) != ports.end())
+		if (ports.find(pack->port.get_port_no()) != ports.end())
 		{
-			ports[be32toh(pack->ofh_port_status->desc.port_no)]->unpack(
-																&(pack->ofh_port_status->desc),
-																sizeof(struct ofp_port));
+			*(ports[pack->port.get_port_no()]) = pack->port;
 
 			// let derived class handle PORT-STATUS message
 			//rofbase->handle_port_status(this, pack, ports[be32toh(pack->ofh_port_status->desc.port_no)]);
