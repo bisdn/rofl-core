@@ -191,8 +191,8 @@ void of12_set_packet_action_on_write_actions(of12_write_actions_t* write_actions
 void of12_process_write_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts);
 
 //Update apply/write
-rofl_result_t of12_update_apply_actions(of12_action_group_t* group, of12_action_group_t* new_group);
-rofl_result_t of12_update_write_actions(of12_write_actions_t* group, of12_write_actions_t* new_group);
+rofl_result_t of12_update_apply_actions(of12_action_group_t** group, of12_action_group_t* new_group);
+rofl_result_t of12_update_write_actions(of12_write_actions_t** group, of12_write_actions_t* new_group);
 
 
 //Push packet action

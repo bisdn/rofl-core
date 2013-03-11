@@ -118,6 +118,9 @@ rofl_result_t of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_fl
 	//Unlock
 	platform_rwlock_wrunlock(entry_to_update->rwlock);
 
+	//Destroy the mod entry
+	of12_destroy_flow_entry(mod);
+
 	return ROFL_SUCCESS;
 }
 /**
