@@ -48,33 +48,34 @@ void test_install_empty_flow_mod(){
 void test_install_overlapping_specific(){
 
 	unsigned int i, num_of_flows=rand()%20;
-	of12_flow_entry_t* entries[20];
+	of12_flow_entry_t* entry;
 
 	//Install N flowmods which identical => should put only one
 	for(i=0;i<num_of_flows;i++){
-		entries[i] = of12_init_flow_entry(NULL, NULL, false); 
-		CU_ASSERT(entries[i] != NULL);
-		if(i>1)	
-			CU_ASSERT(entries[i] != entries[i-1]);
-		CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entries[i], false,false) == ROFL_OF12_FM_SUCCESS);
+		entry = of12_init_flow_entry(NULL, NULL, false); 
+		CU_ASSERT(of12_add_match_to_entry(entry,of12_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
+	
+		CU_ASSERT(entry != NULL);
+		CU_ASSERT(of12_add_flow_entry_table(&sw->pipeline->tables[0], entry, false,false) == ROFL_OF12_FM_SUCCESS);
 	}
 
 	//Check real size of the table
 	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 1);
 	
-	//Uninstall all using specific method
-	for(i=0;i<num_of_flows;i++){
-		rofl_result_t specific_remove_result = of12_remove_flow_entry_table(&sw->pipeline->tables[0], entries[i], STRICT, OF12_PORT_ANY, OF12_GROUP_ANY);
+	//Uninstall all 
+	entry = of12_init_flow_entry(NULL, NULL, false); 
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
+	rofl_result_t specific_remove_result = of12_remove_flow_entry_table(&sw->pipeline->tables[0], entry, STRICT, OF12_PORT_ANY, OF12_GROUP_ANY);
+	CU_ASSERT( specific_remove_result == ROFL_SUCCESS ); //First must succeeed
 
-		if(i){
-			CU_ASSERT( specific_remove_result != ROFL_SUCCESS ); //First must succeeed
-		}else{
-			CU_ASSERT( specific_remove_result == ROFL_SUCCESS ); //Rest fail
-		}
-		if(!i && (specific_remove_result != ROFL_SUCCESS)){
-			of12_dump_table(&sw->pipeline->tables[0]);
-		}
-	}
+	//Check real size of the table
+	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);	
+	
+	entry = of12_init_flow_entry(NULL, NULL, false); 
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
+	specific_remove_result = of12_remove_flow_entry_table(&sw->pipeline->tables[0], entry, STRICT, OF12_PORT_ANY, OF12_GROUP_ANY);
+	CU_ASSERT( specific_remove_result == ROFL_SUCCESS ); //Second too according to spec (no entries)
+
 
 	//Check real size of the table
 	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);	

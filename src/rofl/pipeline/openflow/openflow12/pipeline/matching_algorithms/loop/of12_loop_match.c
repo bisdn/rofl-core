@@ -142,9 +142,12 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 
 	if(existing){
 		//There was already an entry. Update it..
-		if(!reset_counts)
-			entry->stats = existing->stats; 
-
+		if(!reset_counts){
+			entry->stats.packet_count = existing->stats.packet_count; 
+			entry->stats.byte_count = existing->stats.byte_count; 
+			entry->stats.initial_time = existing->stats.initial_time; 
+		}
+		
 		//Delete old entry
 		if(of12_remove_flow_entry_table_specific_imp(table,existing) != ROFL_SUCCESS)
 			return ROFL_OF12_FM_FAILURE;
