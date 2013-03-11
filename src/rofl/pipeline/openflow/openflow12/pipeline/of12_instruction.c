@@ -72,9 +72,9 @@ void of12_add_instruction_to_group(of12_instruction_group_t* group, of12_instruc
 	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions)
 		num_of_outputs += group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions->num_of_output_actions;
 	
-	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_OUTPUT].type != OF12_AT_NO_ACTION)
+	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions && group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_OUTPUT].type != OF12_AT_NO_ACTION)
 		num_of_outputs++;
-	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_GROUP].type != OF12_AT_NO_ACTION)
+	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions && group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_GROUP].type != OF12_AT_NO_ACTION)
 		num_of_outputs++;
 
 	//Assign flag
