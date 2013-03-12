@@ -10,6 +10,7 @@
 #include "../cvastring.h"
 #include "../cerror.h"
 #include "../coflist.h"
+#include "openflow.h"
 
 #include "cofport.h"
 
@@ -83,6 +84,35 @@ public: // methods
 		T *ports, // pointer to memory area for storing this->invec
 		size_t portlen) 					// length of memory area
 	throw (ePortListInval);
+
+
+	/** builds an array of struct ofp_instruction from this->invec
+	 */
+	struct ofp10_port*			// returns parameter "struct ofp_instruction *instructions"
+	pack(
+		struct ofp10_port *ports, // pointer to memory area for storing this->invec
+		size_t portlen) 					// length of memory area
+	throw (ePortListInval);
+
+
+#if 0
+	/** builds an array of struct ofp_instruction from this->invec
+	 */
+	struct ofp12_port*			// returns parameter "struct ofp_instruction *instructions"
+	pack(
+		struct ofp12_port *ports, // pointer to memory area for storing this->invec
+		size_t portlen) 					// length of memory area
+	throw (ePortListInval);
+
+
+	/** builds an array of struct ofp_instruction from this->invec
+	 */
+	struct ofp13_port*			// returns parameter "struct ofp_instruction *instructions"
+	pack(
+		struct ofp13_port *ports, // pointer to memory area for storing this->invec
+		size_t portlen) 					// length of memory area
+	throw (ePortListInval);
+#endif
 
 
 	/** returns required length for array of struct ofp_instruction

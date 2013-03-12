@@ -34,19 +34,18 @@ throw (ePortListInval)
 	if (portlen < (int)sizeof(T))
 		return elems;
 
-	// first instruction
-	T* porthdr = ports;
+	// first port
+	T *porthdr = ports;
 
+	while (portlen > 0) {
 
-	while (portlen > 0)
-	{
 		if (portlen < sizeof(T))
 			throw ePortListInval();
 
 		next() = cofport(porthdr, sizeof(T) );
 
 		portlen -= sizeof(T);
-		porthdr = (T*)(((uint8_t*)porthdr) + sizeof(T));
+		porthdr++;
 	}
 
 	return elems;
@@ -65,7 +64,7 @@ cofportlist::pack(
 	if (portlen < needed_inlen)
 		throw ePortListInval();
 
-	T* porthdr = ports; // first ofp_port header
+	T *porthdr = ports; // first ofp_port header
 
 	cofportlist::iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
@@ -78,6 +77,8 @@ cofportlist::pack(
 
 	return ports;
 }
+
+
 
 
 
