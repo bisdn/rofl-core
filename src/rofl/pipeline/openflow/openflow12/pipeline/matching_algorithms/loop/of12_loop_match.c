@@ -328,7 +328,7 @@ rofl_result_t of12_modify_flow_entry_loop(of12_flow_table_t *const table, of12_f
 	of12_flow_entry_t *it;
 
 	if(table->num_of_entries == 0) 
-		return ROFL_FAILURE; 
+		return ROFL_SUCCESS; //Acording to spec 
 
 	//Allow single add/remove operation over the table
 	platform_mutex_lock(table->mutex);
@@ -339,13 +339,15 @@ rofl_result_t of12_modify_flow_entry_loop(of12_flow_table_t *const table, of12_f
 		if( strict == STRICT ){
 			//Strict make sure they are equal
 			if( of12_flow_entry_check_equal(it, entry, OF12_PORT_ANY, OF12_GROUP_ANY) ){
-				of12_update_flow_entry(it, entry, reset_counts);
+				if(of12_update_flow_entry(it, entry, reset_counts) != ROFL_SUCCESS)
+					return ROFL_FAILURE;
 				moded++;
 				break;
 			}
 		}else{
 			if( of12_flow_entry_check_contained(it, entry, strict, true, OF12_PORT_ANY, OF12_GROUP_ANY) ){
-				of12_update_flow_entry(it, entry, reset_counts);
+				if(of12_update_flow_entry(it, entry, reset_counts) != ROFL_SUCCESS)
+					return ROFL_FAILURE;
 				moded++;
 			}
 		}
@@ -353,8 +355,9 @@ rofl_result_t of12_modify_flow_entry_loop(of12_flow_table_t *const table, of12_f
 
 	platform_mutex_unlock(table->mutex);
 
-	if(moded == 0)	
-		return ROFL_FAILURE; 
+	//According to spec
+	//if(moded == 0)	
+	//	return ROFL_FAILURE; 
 	
 	return ROFL_SUCCESS;
 }
