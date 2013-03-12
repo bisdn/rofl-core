@@ -906,11 +906,11 @@ public:
 			switch (ofh_header->version) {
 			case OFP10_VERSION: {
 				memcpy(buf, memarea.somem(), sizeof(struct ofp10_switch_features));
-				ports.pack((struct ofp_port*)(buf + sizeof(struct ofp10_switch_features)), ports.length());
+				ports.pack((struct ofp10_port*)(buf + sizeof(struct ofp10_switch_features)), ports.length());
 			} break;
 			case OFP12_VERSION: {
 				memcpy(buf, memarea.somem(), sizeof(struct ofp12_switch_features));
-				ports.pack((struct ofp_port*)(buf + sizeof(struct ofp12_switch_features)), ports.length());
+				ports.pack((struct ofp12_port*)(buf + sizeof(struct ofp12_switch_features)), ports.length());
 			} break;
 			case OFP13_VERSION: {
 				memcpy(buf, memarea.somem(), sizeof(struct ofp13_switch_features));
@@ -2541,8 +2541,7 @@ public:
 				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint8_t reason = 0,
-				struct ofp_port *desc = (struct ofp_port*)0,
-				size_t desclen = 0) :
+				cofport const& port = cofport()) :
 			cofpacket(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
@@ -2551,14 +2550,16 @@ public:
 			ofh_header->type 		= OFPT_PORT_STATUS;
 			ofh_header->xid			= htobe32(xid);
 
+			if (port.get_version() != of_version) {
+				throw eBadVersion();
+			}
+
 			switch (of_version) {
 			case OFP10_VERSION: {
 				cofpacket::memarea.resize(sizeof(struct ofp10_port_status));
 
 				of10h_port_status->reason = reason;
-				if (desclen >= sizeof(struct ofp10_port)) {
-					memcpy((uint8_t*)&(of10h_port_status->desc), desc, sizeof(struct ofp10_port));
-				}
+				port.pack(&(of10h_port_status->desc), sizeof(struct ofp10_port));
 
 			} break;
 			case OFP12_VERSION:
@@ -2566,9 +2567,7 @@ public:
 				cofpacket::memarea.resize(sizeof(struct ofp12_port_status));
 
 				of12h_port_status->reason	= reason;
-				if (desclen >= sizeof(struct ofp12_port)) {
-					memcpy((uint8_t*)&(of12h_port_status->desc), desc, sizeof(struct ofp12_port));
-				}
+				port.pack(&(of12h_port_status->desc), sizeof(struct ofp12_port));
 
 			} break;
 			default:

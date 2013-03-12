@@ -66,11 +66,13 @@ private: // data structures
 public: // data structures
 
 	union {
+		uint8_t							*ofpu_port;
 		struct ofp10_port				*ofpu10_port;
 		struct ofp12_port				*ofpu12_port;
 		struct ofp13_port				*ofpu13_port;
 	} ofp_ofpu;
 
+#define ofh_port   ofp_ofpu.ofpu_port
 #define ofh10_port ofp_ofpu.ofpu10_port
 #define ofh12_port ofp_ofpu.ofpu12_port
 #define ofh13_port ofp_ofpu.ofpu13_port
@@ -156,8 +158,8 @@ public:
 	 */
 	cofport(
 			cofport const& port,
-			std::map<uint32_t, cofport*> *port_list = 0,
-			uint32_t port_no = 0);
+			std::map<uint32_t, cofport*> *port_list,
+			uint32_t port_no);
 
 
 
@@ -170,12 +172,13 @@ public:
 	/**
 	 *
 	 */
-	struct ofp10_port*
+	template<class T>
+	T*
 	pack(
-			struct ofp10_port *port,
-			size_t portlen) throw (eOFportInval);
+			T* port,
+			size_t portlen) const throw (eOFportInval);
 
-
+#if 0
 	/**
 	 *
 	 */
@@ -192,17 +195,18 @@ public:
 	pack(
 			struct ofp13_port *port,
 			size_t portlen) throw (eOFportInval);
-
+#endif
 
 	/**
 	 *
 	 */
-	struct ofp10_port*
+	template<class T>
+	T*
 	unpack(
-			struct ofp10_port *port,
+			T* port,
 			size_t portlen) throw (eOFportInval);
 
-
+#if 0
 	/**
 	 *
 	 */
@@ -219,7 +223,7 @@ public:
 	unpack(
 			struct ofp13_port *port,
 			size_t portlen) throw (eOFportInval);
-
+#endif
 
 
 	/** dump internals
@@ -249,6 +253,12 @@ public:
 	get_port_stats(
 			cmemory& body);
 
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const;
 
 
 public:

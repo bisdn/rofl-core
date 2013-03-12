@@ -691,8 +691,7 @@ crofbase::send_features_reply(
 		uint32_t capabilities,
 		uint8_t of13_auxiliary_id,
 		uint32_t of10_actions_bitmap,
-		uint8_t *ports,
-		size_t portslen)
+		cofportlist const& portlist)
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_features_reply()", this);
 
@@ -707,7 +706,7 @@ crofbase::send_features_reply(
 					of13_auxiliary_id,
 					of10_actions_bitmap);
 
-	reply->ports.unpack((struct ofp_port*)ports, portslen);
+	reply->ports = portlist;
 
 	reply->pack(); // adjust fields, e.g. length in ofp_header
 
@@ -1692,21 +1691,10 @@ crofbase::send_flow_removed_message(
 void
 crofbase::send_port_status_message(
 	uint8_t reason,
-	cofport *port)
+	cofport const& port)
 {
-	WRITELOG(CROFBASE, DBG, "crofbase::send_port_status_message() %s", port->c_str());
-	struct ofp_port phy_port;
-	send_port_status_message(reason, port->pack(&phy_port, sizeof(phy_port)));
-}
-
-
-
-void
-crofbase::send_port_status_message(
-	uint8_t reason,
-	struct ofp_port *phy_port)
-{
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_port_status_message()", this);
+	cofport c_port(port); // FIXME: c_str should be const
+	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_port_status_message() %s", this, c_port.c_str());
 	//if (!ctrl)
 	//	throw eRofBaseNoCtrl();
 
@@ -1722,8 +1710,7 @@ crofbase::send_port_status_message(
 							(*it)->get_version(),
 							ta_new_async_xid(),
 							reason,
-							phy_port,
-							sizeof(struct ofp_port));
+							port);
 
 		(*it)->send_message(pack);
 	}

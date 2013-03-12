@@ -148,7 +148,7 @@ cfwdelem::port_attach(
 	{
 		new cphyport(&phy_ports, port_no);
 
-		send_port_status_message(OFPPR_ADD, phy_ports[port_no]);
+		send_port_status_message(OFPPR_ADD, *phy_ports[port_no]);
 	}
 }
 
@@ -160,7 +160,7 @@ cfwdelem::port_detach(
 {
 	if (phy_ports.find(port_no) != phy_ports.end())
 	{
-		send_port_status_message(OFPPR_DELETE, phy_ports[port_no]);
+		send_port_status_message(OFPPR_DELETE, *phy_ports[port_no]);
 
 		delete phy_ports[port_no];
 	}
@@ -294,17 +294,12 @@ cfwdelem::handle_features_request(cofctl *ctl, cofpacket_features_request *reque
 {
  	WRITELOG(CFWD, DBG, "cfwdelem(%s)::handle_features_request()", dpname.c_str());
 
-
- 	cmemory body(phy_ports.size() * sizeof(struct ofp_port));
-
- 	struct ofp_port *port = (struct ofp_port*)body.somem();
+ 	cofportlist portlist;
 
  	for (std::map<uint32_t, cofport*>::iterator
  			it = phy_ports.begin(); it != phy_ports.end(); ++it)
  	{
- 		it->second->pack(port, sizeof(struct ofp_port));
- 		WRITELOG(CFWD, DBG, "==> %s", it->second->c_str());
- 		port++;
+ 		portlist.next() = *(it->second);
  	}
 
  	send_features_reply(
@@ -316,8 +311,7 @@ cfwdelem::handle_features_request(cofctl *ctl, cofpacket_features_request *reque
  			capabilities,
  			0, // of13_auxiliary_id
  			0, // of10_actions_bitmap
- 			body.somem(),
- 			body.memlen());
+ 			portlist);
 
  	delete request;
 }

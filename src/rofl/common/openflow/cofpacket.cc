@@ -483,7 +483,7 @@ cofpacket::is_valid_switch_features()
 
 		if (ports_len > 0) {
 			body.assign((uint8_t*)of10h_switch_features->ports, ports_len);
-			switch_features_num_ports = (ports_len) / sizeof(struct ofp_port);
+			switch_features_num_ports = (ports_len) / sizeof(struct ofp10_port);
 		} else {
 			body.clear();
 			switch_features_num_ports = 0;
@@ -499,7 +499,7 @@ cofpacket::is_valid_switch_features()
 
 		if (ports_len > 0) {
 			body.assign((uint8_t*)of12h_switch_features->ports, ports_len);
-			switch_features_num_ports = (ports_len) / sizeof(struct ofp_port);
+			switch_features_num_ports = (ports_len) / sizeof(struct ofp12_port);
 		} else {
 			body.clear();
 			switch_features_num_ports = 0;
@@ -754,7 +754,7 @@ cofpacket::is_valid_port_status()
 		if (stored < sizeof(struct ofp10_port_status))
 			return false;
 
-		port.assign((uint8_t*)&(of10h_port_status->desc), sizeof(struct ofp10_port));
+		port.unpack(&(of10h_port_status->desc), sizeof(struct ofp10_port));
 
 	} break;
 	case OFP12_VERSION:
@@ -762,7 +762,7 @@ cofpacket::is_valid_port_status()
 		if (stored < sizeof(struct ofp12_port_status))
 			return false;
 
-		port.assign((uint8_t*)&(of12h_port_status->desc), sizeof(struct ofp12_port));
+		port.unpack(&(of12h_port_status->desc), sizeof(struct ofp12_port));
 
 	} break;
 	default:

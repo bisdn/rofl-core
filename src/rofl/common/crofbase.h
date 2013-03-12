@@ -887,8 +887,7 @@ public:
 			uint32_t capabilities,
 			uint8_t of13_auxiliary_id = 0,
 			uint32_t of10_actions_bitmap = 0,
-			uint8_t *ports = (uint8_t*)0,
-			size_t portslen = 0);
+			cofportlist const& portlist = cofportlist());
 
 	// GET-CONFIG request/reply
 	//
@@ -1257,17 +1256,7 @@ public:
 	virtual void
 	send_port_status_message(
 		uint8_t reason,
-		cofport *port);
-
-	/** Send OF PORT-STATUS.message to controlling entity.
-	 *
-	 * @param reason One of OFPPR_*
-	 * @param phy_port phy_port structure containing the ports current status
-	 */
-	virtual void
-	send_port_status_message(
-		uint8_t reason,
-		struct ofp_port *phy_port);
+		cofport const& port);
 
 	// SET-CONFIG message
 	//

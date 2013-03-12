@@ -561,17 +561,12 @@ ctlbase::handle_features_request(cofctl *ctl, cofpacket_features_request *reques
 {
  	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_features_request()", dpname.c_str());
 
-
- 	cmemory body(adports.size() * sizeof(struct ofp_port));
-
- 	struct ofp_port *port = (struct ofp_port*)body.somem();
+ 	cofportlist portlist;
 
  	for (std::map<uint32_t, cofport*>::iterator
  			it = adports.begin(); it != adports.end(); ++it)
  	{
- 		it->second->pack(port, sizeof(struct ofp_port));
- 		WRITELOG(CFWD, DBG, "==> %s", it->second->c_str());
- 		port++;
+ 		portlist.next() = *(it->second);
  	}
 
  	send_features_reply(
@@ -583,8 +578,7 @@ ctlbase::handle_features_request(cofctl *ctl, cofpacket_features_request *reques
  			capabilities,
  			0, // of13_auxiliary_id
  			0, // of10_actions_bitmap
- 			body.somem(),
- 			body.memlen());
+ 			portlist);
 
  	delete request;
 }
@@ -670,7 +664,7 @@ ctlbase::handle_port_status(cofdpt *sw, cofpacket_port_status *pack)
 
 		stack.back()->ctl_handle_port_status(
 				this,
-				pack->ofh_port_status->reason,
+				pack->get_reason(),
 				&(pack->get_port_desc()));
 	}
 
@@ -816,7 +810,7 @@ ctlbase::ctl_handle_port_status(
 				"ctlbase: %s", dpname.c_str(), (*it)->c_str());
 
 		try {
-			send_port_status_message(reason, ofport);
+			send_port_status_message(reason, *ofport);
 		} catch (eRofBaseNoCtrl& e) {}
 	}
 }
