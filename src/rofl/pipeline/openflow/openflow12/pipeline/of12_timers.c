@@ -378,14 +378,19 @@ static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer
 	expiration_time = of12_get_expiration_time_slotted(entry_timer->entry->timer_info.idle_timeout, &(entry_timer->time_last_update));
 	of12_timer_timeout_type_t is_idle = IDLE_TO;
 	
+	
 	if(expiration_time <= now)
 	{
-		//check if there is another entry for the hard TO and delete it
-		if (entry_timer->entry->timer_info.hard_timer_entry)
-			of12_destroy_single_timer_entry_clean(entry_timer->entry->timer_info.hard_timer_entry, table);
+	//IDLE TIMER EXPIRED
+		//NOTE we will let the entry_timer be cleared from outside ()//check if there is another entry for the hard TO and delete it
+		//if (entry_timer->entry->timer_info.hard_timer_entry)
+			//of12_destroy_single_timer_entry_clean(entry_timer->entry->timer_info.hard_timer_entry, table);
+	
 #ifdef DEBUG_NO_REAL_PIPE
 		fprintf(stderr,"NOT erasing real entries of table \n");
 		of12_fill_new_timer_entry_info(entry_timer->entry,0,0);
+		//we need to destroy the entries
+		of12_destroy_timer_entries(entry_timer->entry);
 #else
 		//fprintf(stderr,"Erasing real entries of table \n"); //NOTE Delete
 		of12_remove_specific_flow_entry_table(table,entry_timer->entry, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
@@ -419,11 +424,12 @@ static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer
  */
 static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_t* tg, of12_flow_table_t * table)
 {
-	of12_entry_timer_t* entry_iterator, *next;
+	of12_entry_timer_t* entry_iterator, *next/*, *prev*/;
 	if(tg->list.num_of_timers>0 && tg->list.head)
 	{
 		for(entry_iterator = tg->list.head; entry_iterator; entry_iterator=next)
 		{
+			//prev = entry_iterator->prev;
 			next = entry_iterator->next;
 			
 			if(entry_iterator->type == IDLE_TO)
@@ -434,21 +440,23 @@ static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_
 			else
 			{
 				//check if there is another entry for the idle TO and delete it
-				if (entry_iterator->entry->timer_info.idle_timer_entry)
-					of12_destroy_single_timer_entry_clean(entry_iterator->entry->timer_info.idle_timer_entry, table);
+				//if (entry_iterator->entry->timer_info.idle_timer_entry)
+					//of12_destroy_single_timer_entry_clean(entry_iterator->entry->timer_info.idle_timer_entry, table);
 #ifdef DEBUG_NO_REAL_PIPE
 				fprintf(stderr,"NOT erasing real entries of table \n");
 				of12_fill_new_timer_entry_info(entry_iterator->entry,0,0);
+				//we delete the enrty_timer form outside
+				of12_destroy_timer_entries(entry_iterator->entry);
 #else
 				//fprintf(stderr,"Erasing real entries of table \n"); //NOTE DELETE
 				of12_remove_specific_flow_entry_table(table,entry_iterator->entry, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
 #endif
 			}
-			if(entry_iterator)
-			{
-				cutil_free_shared(entry_iterator);
-				entry_iterator = NULL;
-			}
+			//if(entry_iterator) THIS IS DONE from outside
+			//{
+				//cutil_free_shared(entry_iterator);
+				//entry_iterator = NULL;
+			//}
 		}
 	}
 	return ROFL_SUCCESS;
