@@ -60,6 +60,28 @@ switch_port_t* physical_switch_get_port_by_name(const char *name){
 	return NULL;
 }
 
+/*
+* Get a port by port_num
+*/
+switch_port_t* physical_switch_get_port_by_num(const uint64_t dpid, unsigned int port_num){
+
+	of_switch_t* lsw;	
+
+	lsw = physical_switch_get_logical_switch_by_dpid(dpid);
+
+	if(!lsw)
+		return NULL;	
+
+	//Check port range
+	if( port_num >= LOGICAL_SWITCH_MAX_LOG_PORTS || port_num == 0)  
+		return NULL;
+	
+	if( lsw->logical_ports[port_num].attachment_state != LOGICAL_PORT_STATE_ATTACHED )
+		return NULL;
+	
+	return lsw->logical_ports[port_num].port;
+}
+
 //Add/remove methods
 rofl_result_t physical_switch_add_logical_switch(of_switch_t* sw){
 	int i;
