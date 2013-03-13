@@ -157,20 +157,56 @@ public:
 	 * @return pointer 'm'
 	 *
 	 */
-	template<class T>
-	T*
+	struct ofp10_match*
 	pack(
-			T* m,
+			struct ofp10_match* m,
 			size_t mlen) throw (eOFmatchInval);
 
 
 	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match
 	 *
 	 */
-	template<class T>
 	void
 	unpack(
-			T* m,
+			struct ofp10_match* m,
+			size_t mlen) throw (eOFmatchInval);
+
+
+	/** copy internal struct ofp_match into specified ofp_match ptr 'm'
+	 * @return pointer 'm'
+	 *
+	 */
+	struct ofp12_match*
+	pack(
+			struct ofp12_match* m,
+			size_t mlen) throw (eOFmatchInval);
+
+
+	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match
+	 *
+	 */
+	void
+	unpack(
+			struct ofp12_match* m,
+			size_t mlen) throw (eOFmatchInval);
+
+
+	/** copy internal struct ofp_match into specified ofp_match ptr 'm'
+	 * @return pointer 'm'
+	 *
+	 */
+	struct ofp13_match*
+	pack(
+			struct ofp13_match* m,
+			size_t mlen) throw (eOFmatchInval);
+
+
+	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match
+	 *
+	 */
+	void
+	unpack(
+			struct ofp13_match* m,
 			size_t mlen) throw (eOFmatchInval);
 
 

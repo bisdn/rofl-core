@@ -238,56 +238,268 @@ cofmatch::validate() throw (eOFmatchInval)
 }
 
 
+
 size_t
 cofmatch::length_internal()
 {
-	/*
-	 * returns length of struct ofp_match including padding
-	 */
-	size_t match_len = 2 * sizeof(uint16_t); // first two 16bit fields in struct ofp_match
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return OFP10_MATCH_STATIC_LEN;
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		/*
+		 * returns length of struct ofp_match including padding
+		 */
+		size_t match_len = 2 * sizeof(uint16_t); // first two 16bit fields in struct ofp_match
 
-	match_len += oxmlist.length();
+		match_len += oxmlist.length();
 
-	if (0 != (match_len % sizeof(uint64_t)))
-	{
-		match_len = ((match_len / sizeof(uint64_t)) + 1) * sizeof(uint64_t);
+		if (0 != (match_len % sizeof(uint64_t)))
+		{
+			match_len = ((match_len / sizeof(uint64_t)) + 1) * sizeof(uint64_t);
+		}
+		return match_len;
+	} break;
+	default:
+		throw eBadVersion();
 	}
-	return match_len;
+	return 0;
 }
+
+
 
 size_t
 cofmatch::length()
 {
-	size_t total_length = sizeof(match.type) + sizeof(match.length) + oxmlist.length();
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return OFP10_MATCH_STATIC_LEN;
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		size_t total_length = 2*sizeof(uint16_t) + oxmlist.length(); // type + length + list
 
-	size_t pad = (0x7 & total_length);
-	/* append padding if not a multiple of 8 */
-	if (pad) {
-		total_length += 8 - pad;
+		size_t pad = (0x7 & total_length);
+		/* append padding if not a multiple of 8 */
+		if (pad) {
+			total_length += 8 - pad;
+		}
+		return total_length;
 	}
-	return total_length;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
 }
 
 
-struct ofp_match*
-cofmatch::pack(struct ofp_match* m, size_t mlen) throw (eOFmatchInval)
+
+struct ofp10_match*
+cofmatch::pack(struct ofp10_match* m, size_t mlen) throw (eOFmatchInval)
 {
-	if (mlen < length())
-	{
+	if (mlen < length()) {
 		throw eOFmatchInval();
 	}
 
+	uint32_t wildcards = 0;
 
-	//match.length = htobe16(sizeof(match.type) + sizeof(match.length) + oxmlist.length());
-
-	//match.length = htobe16(length());
 	/*
 	 * fill in real length, i.e. excluding padding
 	 */
-	match.length = htobe16(2 * sizeof(uint16_t) + oxmlist.length());
+	memset(m, 0, mlen);
 
-	m->type 	= match.type;
-	m->length 	= match.length;
+	// in_port
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT)) {
+		m->in_port = htobe16((uint16_t)(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).u32value() && 0x0000ffff));
+	} else {
+		wildcards |= OFP10FW_IN_PORT;
+	}
+
+	// dl_src
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC)) {
+		cmacaddr maddr = oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).u48addr();
+		memcpy(m->dl_src, maddr.somem(), OFP_ETH_ALEN);
+	} else {
+		wildcards |= OFP10FW_DL_SRC;
+	}
+
+	// dl_dst
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST)) {
+		cmacaddr maddr = oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST).u48addr();
+		memcpy(m->dl_dst, maddr.somem(), OFP_ETH_ALEN);
+	} else {
+		wildcards |= OFP10FW_DL_DST;
+	}
+
+	// dl_vlan
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID)) {
+		m->dl_vlan = htobe16(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).u16value());
+	} else {
+		wildcards |= OFP10FW_DL_VLAN;
+	}
+
+	// dl_vlan_pcp
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP)) {
+		m->dl_vlan_pcp = oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP).u8value();
+	} else {
+		wildcards |= OFP10FW_DL_VLAN_PCP;
+	}
+
+	// dl_type
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE)) {
+		m->dl_type = htobe16(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE).u16value());
+	} else {
+		wildcards |= OFP10FW_DL_TYPE;
+	}
+
+	// nw_tos
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_DSCP)) {
+		m->nw_tos = oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_DSCP).u8value();
+	} else {
+		wildcards |= OFP10FW_NW_TOS;
+	}
+
+	// nw_proto
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_PROTO)) {
+		m->nw_tos = oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_PROTO).u8value();
+	} else {
+		wildcards |= OFP10FW_NW_PROTO;
+	}
+
+	// nw_src
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC)) {
+		m->nw_src = htobe32(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).u32value());
+		if (oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).get_oxm_hasmask()) {
+			std::bitset<32> mask(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).uint32_mask());
+			wildcards |= ((32 - mask.count()) << OFP10FW_NW_SRC_SHIFT) & OFP10FW_NW_SRC_MASK;
+		}
+	} else {
+		wildcards |= OFP10FW_NW_SRC_ALL;
+	}
+
+	// nw_dst
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST)) {
+		m->nw_dst = htobe32(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).uint32_value());
+		if (oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).get_oxm_hasmask()) {
+			std::bitset<32> mask(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).uint32_mask());
+			wildcards |= ((32 - mask.count()) << OFP10FW_NW_DST_SHIFT) & OFP10FW_NW_DST_MASK;
+		}
+	} else {
+		wildcards |= OFP10FW_NW_DST_ALL;
+	}
+
+	// tp_src
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OF12PXMT_OFB_TCP_SRC)) {
+		m->tp_src = htobe16(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_SRC).u16value());
+	} else {
+		wildcards |= OFP10FW_TP_SRC;
+	}
+
+	// tp_dst
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OF12PXMT_OFB_TCP_DST)) {
+		m->tp_dst = htobe16(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_DST).u16value());
+	} else {
+		wildcards |= OFP10FW_TP_DST;
+	}
+
+	m->wildcards = htobe32(wildcards);
+
+	return m;
+}
+
+
+
+void
+cofmatch::unpack(struct ofp10_match* m, size_t mlen) throw (eOFmatchInval)
+{
+	if (mlen < OFP10_MATCH_STATIC_LEN) {
+		throw eOFmatchInval();
+	}
+
+	uint32_t wildcards = be32toh(m->wildcards);
+
+	// in_port
+	if (!(wildcards & OFP10FW_IN_PORT)) {
+		set_in_port(be32toh(m->in_port));
+	}
+
+	// dl_src
+	if (!(wildcards & OFP10FW_DL_SRC)) {
+		set_eth_src(cmacaddr(m->dl_src, OFP_ETH_ALEN));
+	}
+
+	// dl_dst
+	if (!(wildcards & OFP10FW_DL_DST)) {
+		set_eth_dst(cmacaddr(m->dl_dst, OFP_ETH_ALEN));
+	}
+
+	// dl_vlan
+	if (!(wildcards & OFP10FW_DL_VLAN)) {
+		set_vlan_vid(be16toh(m->dl_vlan));
+	}
+
+	// dl_vlan_pcp
+	if (!(wildcards & OFP10FW_DL_VLAN_PCP)) {
+		set_vlan_pcp(m->dl_vlan_pcp);
+	}
+
+	// dl_type
+	if (!(wildcards & OFP10FW_DL_TYPE)) {
+		set_eth_type(be16toh(m->dl_type));
+	}
+
+	// nw_tos
+	if (!(wildcards & OFP10FW_NW_TOS)) {
+		set_ip_dscp(m->nw_tos);
+	}
+
+	// nw_proto
+	if (!(wildcards & OFP10FW_NW_PROTO)) {
+		set_ip_proto(m->nw_proto);
+	}
+
+	// nw_src
+	{
+		uint32_t num_of_bits = (wildcards & OFP10FW_NW_SRC_MASK) >> OFP10FW_NW_SRC_SHIFT;
+
+		//~((1 << num_of_bits) - 1)
+	}
+
+	// nw_dst
+	{
+
+	}
+
+	// tp_src
+	if (!(wildcards & OFP10FW_TP_SRC)) {
+		set_tcp_src(be16toh(m->tp_src));
+	}
+
+	// tp_dst
+	if (!(wildcards & OFP10FW_TP_DST)) {
+		set_tcp_dst(be16toh(m->tp_dst));
+	}
+
+	validate();
+}
+
+
+
+struct ofp12_match*
+cofmatch::pack(struct ofp12_match* m, size_t mlen) throw (eOFmatchInval)
+{
+	if (mlen < length()) {
+		throw eOFmatchInval();
+	}
+
+	/*
+	 * fill in real length, i.e. excluding padding
+	 */
+	ofh12_match->length = htobe16(2 * sizeof(uint16_t) + oxmlist.length());
+
+	m->type 	= ofh12_match->type;
+	m->length 	= ofh12_match->length;
 
 	oxmlist.pack((struct ofp_oxm_hdr*)(m->oxm_fields), oxmlist.length());
 
@@ -295,30 +507,77 @@ cofmatch::pack(struct ofp_match* m, size_t mlen) throw (eOFmatchInval)
 }
 
 
+
 void
-cofmatch::unpack(struct ofp_match* m, size_t mlen) throw (eOFmatchInval)
+cofmatch::unpack(struct ofp12_match* m, size_t mlen) throw (eOFmatchInval)
 {
-	if (mlen < (sizeof(uint16_t) + sizeof(uint16_t)))
-	{
+	if (mlen < (sizeof(uint16_t) + sizeof(uint16_t))) {
 		throw eOFmatchInval();
 	}
 
-	match.type		= (m->type);
-	match.length	= (m->length);
+	ofh12_match->type	= (m->type);
+	ofh12_match->length	= (m->length);
 
-	if (OFPMT_OXM != be16toh(match.type)) {
+	if (OFPMT_OXM != be16toh(ofh12_match->type)) {
 		throw eBadMatchBadType();
 	}
 
 	mlen -= 2 * sizeof(uint16_t);
 
-	if (mlen > 0)
-	{
+	if (mlen > 0) {
 		oxmlist.unpack((struct ofp_oxm_hdr*)m->oxm_fields, mlen);
 	}
 
 	validate();
 }
+
+
+
+struct ofp13_match*
+cofmatch::pack(struct ofp13_match* m, size_t mlen) throw (eOFmatchInval)
+{
+	if (mlen < length()) {
+		throw eOFmatchInval();
+	}
+
+	/*
+	 * fill in real length, i.e. excluding padding
+	 */
+	ofh13_match->length = htobe16(2 * sizeof(uint16_t) + oxmlist.length());
+
+	m->type 	= ofh13_match->type;
+	m->length 	= ofh13_match->length;
+
+	oxmlist.pack((struct ofp_oxm_hdr*)(m->oxm_fields), oxmlist.length());
+
+	return m;
+}
+
+
+
+void
+cofmatch::unpack(struct ofp13_match* m, size_t mlen) throw (eOFmatchInval)
+{
+	if (mlen < (sizeof(uint16_t) + sizeof(uint16_t))) {
+		throw eOFmatchInval();
+	}
+
+	ofh13_match->type	= (m->type);
+	ofh13_match->length	= (m->length);
+
+	if (OFPMT_OXM != be16toh(ofh13_match->type)) {
+		throw eBadMatchBadType();
+	}
+
+	mlen -= 2 * sizeof(uint16_t);
+
+	if (mlen > 0) {
+		oxmlist.unpack((struct ofp_oxm_hdr*)m->oxm_fields, mlen);
+	}
+
+	validate();
+}
+
 
 
 bool 
