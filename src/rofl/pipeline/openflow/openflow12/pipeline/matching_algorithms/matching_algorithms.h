@@ -10,6 +10,7 @@
 
 #include "rofl.h"
 #include "../of12_flow_entry.h"
+#include "../of12_statistics.h"
 #include "../of12_utils.h"
 #include "matching_algorithms_available.h"
 /**
@@ -24,44 +25,58 @@ struct matching_algorithm_functions
 {
 	// init and destroy
 	rofl_result_t
-	(*init_hook)(struct of12_flow_table * const);
+	(*init_hook)(struct of12_flow_table *const table);
 	rofl_result_t
-	(*destroy_hook)(struct of12_flow_table * const); //Mutual exclusion will already be taken by the of12_flow_table destructor
+	(*destroy_hook)(struct of12_flow_table *const table); //Mutual exclusion will already be taken by the of12_flow_table destructor
 
 	// flow management
 	rofl_of12_fm_result_t
-	(*add_flow_entry_hook)(struct of12_flow_table * const,
-			of12_flow_entry_t * const,
-			bool,
-			bool);
+	(*add_flow_entry_hook)(struct of12_flow_table *const table,
+			of12_flow_entry_t *const entry,
+			bool check_overlap,
+			bool reset_counts);
 
 	rofl_result_t
-	(*modify_flow_entry_hook)(struct of12_flow_table * const,
-			of12_flow_entry_t * const,
-			const enum of12_flow_removal_strictness,
-			bool);
+	(*modify_flow_entry_hook)(struct of12_flow_table *const table,
+			of12_flow_entry_t *const entry,
+			const enum of12_flow_removal_strictness strict,
+			bool reset_counts);
 	
 	rofl_result_t
-	(*remove_flow_entry_hook)(struct of12_flow_table * const,
-			of12_flow_entry_t * const, of12_flow_entry_t * const,
-			const enum of12_flow_removal_strictness,
+	(*remove_flow_entry_hook)(struct of12_flow_table *const table,
+			of12_flow_entry_t *const entry, 
+			of12_flow_entry_t *const specific_entry,
+			const enum of12_flow_removal_strictness strict,
 			uint32_t out_port,
 			uint32_t out_group,
-			of12_mutex_acquisition_required_t);
+			of12_mutex_acquisition_required_t mutex_acquired);
 
 	// lookup
 	of12_flow_entry_t*
-	(*find_best_match_hook)(struct of12_flow_table * const,
-			of12_packet_matches_t * const);
+	(*find_best_match_hook)(struct of12_flow_table *const table,
+			of12_packet_matches_t *const pkt_matches);
 
-	// flow-stats
-	of12_flow_entry_t*
-	(*find_all_matches_hook)(struct of12_flow_table * const,
-			of12_packet_matches_t * const);
+	// flow stats
+	of12_stats_flow_msg_t*	
+	(*get_flow_stats)(struct of12_flow_table *const table,
+			uint64_t cookie,
+			uint64_t cookie_mask,
+			uint32_t out_port, 
+			uint32_t out_group,
+			of12_match_t *const matchs);
+
+	of12_stats_flow_aggregate_msg_t*	
+	(*get_flow_aggregate_stats)(struct of12_flow_table *const table,
+			uint64_t cookie,
+			uint64_t cookie_mask,
+			uint32_t out_port, 
+			uint32_t out_group,
+			of12_match_t *const matchs);
+
 
 	// dump flow table
 	void
-	(*dump_hook)(struct of12_flow_table * const);
+	(*dump_hook)(struct of12_flow_table *const table);
 	
 	//description of the matching algorithm
 	char description[OF12_MATCHING_ALGORITHMS_MAX_DESCRIPTION_LENGTH];

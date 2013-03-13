@@ -22,8 +22,14 @@
 
 /*counters OF 1.2 specification page 13*/
 
-struct of12_stats_flow
-{
+//fwd declarations
+struct of12_flow_entry;
+struct of12_flow_table;
+struct of12_match;
+
+
+//Flow entry stats (entry state)
+typedef struct of12_stats_flow{
 	uint64_t packet_count;
 	uint64_t byte_count;
 
@@ -31,26 +37,51 @@ struct of12_stats_flow
 	struct timeval initial_time;
 
 	platform_mutex_t* mutex; //Mutual exclusion among insertion/deletion threads
-};
-typedef struct of12_stats_flow of12_stats_flow_t;
+}of12_stats_flow_t;
 
-struct of12_stats_aggregate
-{
+/*
+* flow stats entry messages
+*/
+typedef struct of12_stats_single_flow_msg{
+	uint8_t table_id;
+	uint16_t priority;
+	uint64_t cookie;
+	
+	uint32_t duration_sec;
+	uint32_t duration_nsec;
+	
+	uint16_t idle_timeout;
+	uint16_t hard_timeout;
+	
+	uint64_t packet_count;
+	uint64_t byte_count;
+	
+	struct of12_match* matches;
+	
+	struct of12_stats_single_flow_msg* next;
+}of12_stats_single_flow_msg_t;
+
+//Variable length array
+typedef struct of12_stats_flow_msg{
+	uint32_t 			num_of_entries; 
+	of12_stats_single_flow_msg_t* 	flows_head;
+	of12_stats_single_flow_msg_t* 	flows_tail;
+}of12_stats_flow_msg_t;
+
+typedef struct of12_stats_flow_aggregate_msg{
 	uint64_t packet_count;
 	uint64_t byte_count;
 	uint32_t flow_count;
-};
-typedef struct of12_stats_aggregate of12_stats_aggregate_t;
+}of12_stats_flow_aggregate_msg_t;
 
-struct of12_stats_table
-{
+//Table stats (table state)
+typedef struct of12_stats_table{
 	uint64_t lookup_count; /* Number of packets looked up in table. */
 	uint64_t matched_count; /* Number of packets that hit table. */
-};
-typedef struct of12_stats_table of12_stats_table_t;
+}of12_stats_table_t;
 
-struct of12_stats_port
-{
+//Port stats (port state)
+typedef struct of12_stats_port{
 	uint64_t rx_packets;	/* Number of received packets. */
 	uint64_t tx_packets;	/* Number of transmitted packets. */
 	uint64_t rx_bytes;		/* Number of received bytes. */
@@ -71,45 +102,52 @@ struct of12_stats_port
 	//uint64_t collisions;	/* Number of collisions. */
 	
 	platform_mutex_t* mutex; /*mutual exclusion to update the statistics*/
-};
-typedef struct of12_stats_port of12_stats_port_t;
+}of12_stats_port_t;
 
-struct of12_stats_queue
-{
+//Port stats (port state)
+typedef struct of12_stats_queue{
 	uint64_t tx_bytes;
 	uint64_t tx_packets;
 	uint64_t tx_errors;
 	
 	platform_mutex_t* mutex;
-};
-typedef struct of12_stats_queue of12_stats_queue_t;
+}of12_stats_queue_t;
 
-struct of12_stats_bucket_counter
-{
+//Group stats, bucket
+typedef struct of12_stats_bucket_counter{
 	uint64_t packet_count;
 	uint64_t byte_count;
-};
-typedef struct of12_stats_bucket_counter of12_stats_bucket_counter_t;
+}of12_stats_bucket_counter_t;
 
-struct of12_stats_group
-{
+//Group stats
+typedef struct of12_stats_group{
 	uint32_t ref_count;
 	uint64_t packet_count;
 	uint64_t byte_count;
 	struct of12_stats_bucket_counter bucket_stats[0];
-};
-typedef struct of12_stats_group of12_stats_group_t;
+}of12_stats_group_t;
 
 /** operations in statistics.c **/
-
-//fwd declarations
-struct of12_flow_entry;
-struct of12_flow_table;
 
 ROFL_PIPELINE_BEGIN_DECLS
 
 void of12_init_flow_stats(struct of12_flow_entry * entry);
 void of12_destroy_flow_stats(struct of12_flow_entry * entry);
+
+//msgs
+of12_stats_single_flow_msg_t* of12_init_stats_single_flow_msg(struct of12_flow_entry* entry);
+void of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg);
+
+of12_stats_flow_msg_t* of12_init_stats_flow_msg(void);
+void of12_destroy_stats_flow_msg(of12_stats_flow_msg_t* msg);
+
+//Push to msg
+void of12_push_single_flow_stats_to_msg(of12_stats_flow_msg_t* msg, of12_stats_single_flow_msg_t* sfs);
+
+
+of12_stats_flow_aggregate_msg_t* of12_init_stats_flow_aggregate_msg(void);
+void of12_destroy_stats_flow_aggregate_msg(of12_stats_flow_aggregate_msg_t* msg);
+
 void of12_stats_flow_reset_counts(struct of12_flow_entry * entry);
 void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec);
 void of12_stats_flow_update_match(struct of12_flow_entry * entry,uint64_t bytes_rx);
@@ -117,8 +155,6 @@ void of12_stats_flow_inc(struct of12_flow_entry * entry,uint64_t bytes_rx);
 void of12_stats_table_init(struct of12_flow_table * table);
 void of12_stats_table_lookup_inc(struct of12_flow_table * table);
 void of12_stats_table_matches_inc(struct of12_flow_table * table);
-
-//void of12_stats_aggregate_collect (struct of12_flow_entry* entry, of12_stats_aggregate_t* aggregate);
 
 /*
 * FIXME TODO XXX Move it down to the port

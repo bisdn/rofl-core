@@ -22,7 +22,7 @@
 #endif
 
 #ifndef PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS
-	#define PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS 48 
+	#define PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS 128 
 #endif
 
 #ifndef PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS
@@ -96,6 +96,7 @@ rofl_result_t physical_switch_remove_logical_switch(of_switch_t* sw);
 of_switch_t* physical_switch_get_logical_switch_by_dpid(const uint64_t dpid);
 of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_port_t port);
 switch_port_t* physical_switch_get_port_by_name(const char *name);
+switch_port_t* physical_switch_get_port_by_num(const uint64_t dpid, unsigned int port_num);
 
 /* Port management routines*/
 

@@ -330,6 +330,42 @@ inline of12_match_t* of12_copy_match(of12_match_t* match){
 	}	
 	
 }
+
+/* 
+* Whole (linked list) Match copy -> this should be deprecated in favour of the match group
+*/
+of12_match_t* of12_copy_matches(of12_match_t* matches){
+
+	of12_match_t* prev, *curr, *it, *copy;
+	
+	if(!matches)
+		return NULL;
+	
+	for(prev=NULL,copy=NULL, it=matches; it; it = it->next){
+
+		curr = of12_copy_match(it);
+
+		if(!curr){
+			//FIXME: attempt to delete previous
+			return NULL;
+		}	
+
+		//Set initial match
+		if(!copy)
+			copy = curr;
+
+		if(prev)
+			prev->next = curr;
+
+		curr->prev = prev;	
+		prev = curr;
+	}
+
+	return copy;	
+}
+
+
+
 /*
 * Try to find the largest common value among match1 and match2, being ALWAYS match2 with a more strict mask 
 */

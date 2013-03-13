@@ -1,6 +1,7 @@
 #include "of12_action.h"
 
 #include <stdio.h>
+#include <assert.h>
 
 #include "of12_packet_matches.h" //TODO: evaluate if this is the best approach to update of12_matches after actions
 #include "../../../physical_switch.h"
@@ -172,6 +173,11 @@ void of12_destroy_action_group(of12_action_group_t* group){
 
 /* Addition of an action to an action group */
 void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_action_t* action){
+
+	if(!action){
+		assert(0);
+		return;
+	}
 
 	if(!group->tail){
 		group->head = action; 
