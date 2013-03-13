@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "../../../../../util/rofl_pipeline_utils.h"
+#include "../../of12_pipeline.h"
 #include "../../of12_flow_table.h"
 #include "../../of12_flow_entry.h"
 #include "../../of12_match.h"
@@ -428,18 +429,20 @@ of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const table, of1
 * Statistics
 *
 */
-of12_stats_flow_msg_t* of12_get_flow_stats_loop(struct of12_flow_table *const table,
+of12_stats_flow_msg_t* of12_get_flow_stats_loop(struct of12_pipeline *const pipeline,
+		uint32_t table_id,
 		uint64_t cookie,
 		uint64_t cookie_mask,
 		uint32_t out_port, 
 		uint32_t out_group,
 		of12_match_t *const matchs){
-	
+
+	uint32_t i,tid_start, tid_end;	
 	of12_flow_entry_t* entry, flow_stats_entry;
 	of12_stats_flow_msg_t* msg = of12_init_stats_flow_msg();
 	of12_stats_single_flow_msg_t* flow_stats;
 
-	if(!msg)
+	if(!msg || table_id >= pipeline->num_of_tables)
 		return NULL;
 
 	//Create a flow_stats_entry
@@ -448,45 +451,61 @@ of12_stats_flow_msg_t* of12_get_flow_stats_loop(struct of12_flow_table *const ta
 	flow_stats_entry.cookie = cookie;
 	flow_stats_entry.cookie_mask = cookie_mask;
 
-	//Mark table as being read
-	platform_rwlock_rdlock(table->rwlock);
-
-	//Loop over the table and calculate stats
-	for(entry = table->entries;entry!=NULL;entry = entry->next){
-	
-		//Check if is contained 
-		if(of12_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
-			//Create a new single flow entry and fillin 
-			flow_stats = of12_init_stats_single_flow_msg(entry);
-			
-			if(!flow_stats){
-				of12_destroy_stats_flow_msg(msg);
-				return NULL;	
-			}
-	
-			//Push this stat to the msg
-			of12_push_single_flow_stats_to_msg(msg, flow_stats);	
-		}
-	
+	//Set the tables to go through
+	if(table_id == OF12_FLOW_TABLE_ALL){
+		tid_start = 0;
+		tid_end = pipeline->num_of_tables;
+	}else{
+		tid_start = table_id;
+		tid_end = table_id+1; 
 	}
+
+	for(i=tid_start;i<tid_end;i++){
+		
+		//Mark table as being read
+		platform_rwlock_rdlock(pipeline->tables[i].rwlock);
+
+
+		//Loop over the table and calculate stats
+		for(entry = pipeline->tables[i].entries;entry!=NULL;entry = entry->next){
+		
+			//Check if is contained 
+			if(of12_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
+				//Create a new single flow entry and fillin 
+				flow_stats = of12_init_stats_single_flow_msg(entry);
+				
+				if(!flow_stats){
+					of12_destroy_stats_flow_msg(msg);
+					return NULL;	
+				}
+		
+				//Push this stat to the msg
+				of12_push_single_flow_stats_to_msg(msg, flow_stats);	
+			}
+		
+		}
+
+		//Release the table
+		platform_rwlock_rdunlock(pipeline->tables[i].rwlock);
 	
-	//Release the table
-	platform_rwlock_rdunlock(table->rwlock);
-	
+	}	
+
 	return msg;
 }
 
-of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats_loop(struct of12_flow_table *const table,
+of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats_loop(struct of12_pipeline *const pipeline,
+		uint32_t table_id,
 		uint64_t cookie,
 		uint64_t cookie_mask,
 		uint32_t out_port, 
 		uint32_t out_group,
 		of12_match_t *const matchs){
 
+	uint32_t i, tid_start, tid_end;	
 	of12_flow_entry_t* entry, flow_stats_entry;
 	of12_stats_flow_aggregate_msg_t* msg = of12_init_stats_flow_aggregate_msg();
 
-	if(!msg)
+	if(!msg || table_id >= pipeline->num_of_tables)
 		return NULL;
 
 	//Create a flow_stats_entry
@@ -495,24 +514,37 @@ of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats_loop(struct of12_
 	flow_stats_entry.cookie = cookie;
 	flow_stats_entry.cookie_mask = cookie_mask;
 
-	//Mark table as being read
-	platform_rwlock_rdlock(table->rwlock);
-
-	//Loop over the table and calculate stats
-	for(entry = table->entries;entry!=NULL;entry = entry->next){
-	
-		//Check if is contained 
-		if(of12_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
-			//Increment stats
-			msg->packet_count += entry->stats.packet_count;
-			msg->byte_count += entry->stats.byte_count;
-			msg->flow_count++;
-		}
-	
+	//Set the tables to go through
+	if(table_id == OF12_FLOW_TABLE_ALL){
+		tid_start = 0;
+		tid_end = pipeline->num_of_tables;
+	}else{
+		tid_start = table_id;
+		tid_end = table_id+1; 
 	}
-	
-	//Release the table
-	platform_rwlock_rdunlock(table->rwlock);
+
+	for(i=tid_start;i<tid_end;i++){
+		
+		//Mark table as being read
+		platform_rwlock_rdlock(pipeline->tables[i].rwlock);
+
+		//Loop over the table and calculate stats
+		for(entry = pipeline->tables[i].entries;entry!=NULL;entry = entry->next){
+		
+			//Check if is contained 
+			if(of12_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
+				//Increment stats
+				msg->packet_count += entry->stats.packet_count;
+				msg->byte_count += entry->stats.byte_count;
+				msg->flow_count++;
+			}
+		
+		}
+		
+		//Release the table
+		platform_rwlock_rdunlock(pipeline->tables[i].rwlock);
+
+	}
 	
 	return msg;
 }
