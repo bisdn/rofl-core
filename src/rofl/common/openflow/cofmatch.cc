@@ -390,14 +390,14 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen) throw (eOFmatchInval)
 	}
 
 	// tp_src
-	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OF12PXMT_OFB_TCP_SRC)) {
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_SRC)) {
 		m->tp_src = htobe16(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_SRC).u16value());
 	} else {
 		wildcards |= OFP10FW_TP_SRC;
 	}
 
 	// tp_dst
-	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OF12PXMT_OFB_TCP_DST)) {
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_DST)) {
 		m->tp_dst = htobe16(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_DST).u16value());
 	} else {
 		wildcards |= OFP10FW_TP_DST;
@@ -462,13 +462,31 @@ cofmatch::unpack(struct ofp10_match* m, size_t mlen) throw (eOFmatchInval)
 	// nw_src
 	{
 		uint32_t num_of_bits = (wildcards & OFP10FW_NW_SRC_MASK) >> OFP10FW_NW_SRC_SHIFT;
-
-		//~((1 << num_of_bits) - 1)
+		uint32_t u_mask = ~((1 << num_of_bits) - 1);
+		caddress addr(AF_INET, "0.0.0.0");
+		caddress mask(AF_INET, "0.0.0.0");
+		addr.ca_s4addr->sin_addr.s_addr = m->nw_src;
+		mask.ca_s4addr->sin_addr.s_addr = htobe32(u_mask);
+		if (num_of_bits > 0) {
+			set_ipv4_src(addr, mask);
+		} else {
+			set_ipv4_src(addr);
+		}
 	}
 
 	// nw_dst
 	{
-
+		uint32_t num_of_bits = (wildcards & OFP10FW_NW_DST_MASK) >> OFP10FW_NW_DST_SHIFT;
+		uint32_t u_mask = ~((1 << num_of_bits) - 1);
+		caddress addr(AF_INET, "0.0.0.0");
+		caddress mask(AF_INET, "0.0.0.0");
+		addr.ca_s4addr->sin_addr.s_addr = m->nw_dst;
+		mask.ca_s4addr->sin_addr.s_addr = htobe32(u_mask);
+		if (num_of_bits > 0) {
+			set_ipv4_dst(addr, mask);
+		} else {
+			set_ipv4_dst(addr);
+		}
 	}
 
 	// tp_src
@@ -594,7 +612,24 @@ bool
 cofmatch::operator== (
 	cofmatch& m)
 {
-	return ((match.type == m.match.type) && (oxmlist == m.oxmlist));
+	if (of_version != m.of_version) {
+		return false;
+	}
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return (oxmlist == m.oxmlist);
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		if (ofh12_match->type != m.ofh12_match->type) {
+			return false;
+		}
+		return (oxmlist == m.oxmlist);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return false;
 }
 
 
@@ -603,13 +638,27 @@ cofmatch::c_str()
 {
 	cvastring vas(3172);
 
-	info.assign(vas("cofmatch(%p) hdr.type:%d hdr.length:%d stored:%lu oxmlist.length:%lu oxmlist:%s",
-			this,
-			be16toh(match.type),
-			be16toh(match.length),
-			length(),
-			oxmlist.length(),
-			oxmlist.c_str()));
+	switch (of_version) {
+	case OFP10_VERSION: {
+		info.assign(vas("cofmatch(%p) oxmlist.length:%lu oxmlist:%s",
+				this,
+				oxmlist.length(),
+				oxmlist.c_str()));
+
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		info.assign(vas("cofmatch(%p) hdr.type:%d hdr.length:%d stored:%lu oxmlist.length:%lu oxmlist:%s",
+				this,
+				be16toh(ofh12_match->type),
+				be16toh(ofh12_match->length),
+				length(),
+				oxmlist.length(),
+				oxmlist.c_str()));
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
 	return info.c_str();
 }
@@ -618,7 +667,14 @@ cofmatch::c_str()
 void
 cofmatch::set_type(uint16_t type)
 {
-	match.type = htobe16(type);
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		ofh12_match->type = htobe16(type);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 
@@ -644,6 +700,15 @@ cofmatch::set_in_port(uint32_t in_port)
 uint32_t
 cofmatch::get_in_phy_port() throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PHY_PORT))
 	{
 		throw eOFmatchNotFound();
@@ -656,6 +721,15 @@ cofmatch::get_in_phy_port() throw (eOFmatchNotFound)
 void
 cofmatch::set_in_phy_port(uint32_t in_port)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IN_PHY_PORT] = coxmatch_ofb_in_phy_port(in_port);
 }
 
@@ -663,6 +737,15 @@ cofmatch::set_in_phy_port(uint32_t in_port)
 uint64_t
 cofmatch::get_metadata() throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_METADATA))
 	{
 		throw eOFmatchNotFound();
@@ -675,6 +758,15 @@ cofmatch::get_metadata() throw (eOFmatchNotFound)
 void
 cofmatch::set_metadata(uint64_t metadata)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_METADATA] = coxmatch_ofb_metadata(metadata);
 }
 
@@ -817,6 +909,15 @@ uint32_t
 cofmatch::get_mpls_label()
 	throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_LABEL))
 	{
 		throw eOFmatchNotFound();
@@ -830,6 +931,15 @@ void
 cofmatch::set_mpls_label(
 		uint32_t label)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_MPLS_LABEL] = coxmatch_ofb_mpls_label(label);
 }
 
@@ -838,6 +948,15 @@ uint8_t
 cofmatch::get_mpls_tc()
 	throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_TC))
 	{
 		throw eOFmatchNotFound();
@@ -851,6 +970,15 @@ void
 cofmatch::set_mpls_tc(
 		uint8_t tc)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_MPLS_TC] = coxmatch_ofb_mpls_tc(tc);
 }
 
@@ -1119,6 +1247,15 @@ caddress
 cofmatch::get_ipv6_src()
 	throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_SRC))
 	{
 		throw eOFmatchNotFound();
@@ -1133,6 +1270,15 @@ void
 cofmatch::set_ipv6_src(
 		caddress const& addr)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_SRC] = coxmatch_ofb_ipv6_src(addr);
 }
 
@@ -1143,6 +1289,15 @@ cofmatch::set_ipv6_src(
 		caddress const& addr,
 		caddress const& mask)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_SRC] = coxmatch_ofb_ipv6_src(addr, mask);
 }
 
@@ -1165,6 +1320,15 @@ void
 cofmatch::set_ipv6_dst(
 		caddress const& addr)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_DST] = coxmatch_ofb_ipv6_dst(addr);
 }
 
@@ -1175,6 +1339,15 @@ cofmatch::set_ipv6_dst(
 		caddress const& addr,
 		caddress const& mask)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_DST] = coxmatch_ofb_ipv6_dst(addr, mask);
 }
 
@@ -1184,6 +1357,15 @@ caddress
 cofmatch::get_ipv6_nd_target()
 	throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_TARGET))
 	{
 		throw eOFmatchNotFound();
@@ -1197,6 +1379,15 @@ void
 cofmatch::set_ipv6_nd_target(
 		caddress const& addr)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_ND_TARGET] = coxmatch_ofb_ipv6_nd_target(addr);
 }
 
@@ -1252,6 +1443,15 @@ uint8_t
 cofmatch::get_ip_ecn()
 	throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_ECN))
 	{
 		throw eOFmatchNotFound();
@@ -1266,6 +1466,15 @@ void
 cofmatch::set_ip_ecn(
 		uint8_t ecn)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IP_ECN] = coxmatch_ofb_ip_ecn(ecn);
 }
 
@@ -1321,6 +1530,15 @@ uint8_t
 cofmatch::get_icmpv6_type()
 	throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ICMPV6_TYPE))
 	{
 		throw eOFmatchNotFound();
@@ -1335,6 +1553,15 @@ void
 cofmatch::set_icmpv6_type(
 		uint8_t type)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_ICMPV6_TYPE] = coxmatch_ofb_icmpv6_type(type);
 }
 
@@ -1344,6 +1571,15 @@ uint8_t
 cofmatch::get_icmpv6_code()
 	throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ICMPV6_CODE))
 	{
 		throw eOFmatchNotFound();
@@ -1358,6 +1594,15 @@ void
 cofmatch::set_icmpv6_code(
 		uint8_t code)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_ICMPV6_CODE] = coxmatch_ofb_icmpv6_code(code);
 }
 
@@ -1367,6 +1612,15 @@ uint32_t
 cofmatch::get_ipv6_flabel()
 	throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_FLABEL))
 	{
 		throw eOFmatchNotFound();
@@ -1381,6 +1635,15 @@ void
 cofmatch::set_ipv6_flabel(
 		uint32_t flabel)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_FLABEL] = coxmatch_ofb_ipv6_flabel(flabel);
 }
 
@@ -1391,6 +1654,15 @@ cofmatch::set_ipv6_flabel(
 		uint32_t flabel,
 		uint32_t mask)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_FLABEL] = coxmatch_ofb_ipv6_flabel(flabel, mask);
 }
 
@@ -1400,6 +1672,15 @@ cmacaddr
 cofmatch::get_icmpv6_neighbor_source_lladdr()
 	throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_SLL))
 	{
 		throw eOFmatchNotFound();
@@ -1413,6 +1694,15 @@ void
 cofmatch::set_icmpv6_neighbor_source_lladdr(
 		cmacaddr const& maddr)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_ND_SLL] = coxmatch_ofb_ipv6_nd_sll(maddr);
 }
 
@@ -1422,6 +1712,15 @@ cmacaddr
 cofmatch::get_icmpv6_neighbor_target_lladdr()
 	throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_TLL))
 	{
 		throw eOFmatchNotFound();
@@ -1435,6 +1734,15 @@ void
 cofmatch::set_icmpv6_neighbor_target_lladdr(
 		cmacaddr const& maddr)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_ND_TLL] = coxmatch_ofb_ipv6_nd_tll(maddr);
 }
 
@@ -1444,6 +1752,15 @@ caddress
 cofmatch::get_icmpv6_neighbor_taddr()
 	throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_TARGET))
 	{
 		throw eOFmatchNotFound();
@@ -1457,6 +1774,15 @@ void
 cofmatch::set_icmpv6_neighbor_taddr(
 		caddress const& addr)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_ND_TARGET] = coxmatch_ofb_ipv6_nd_target(addr);
 }
 
@@ -1550,6 +1876,15 @@ uint16_t
 cofmatch::get_sctp_src()
 	throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_SCTP_SRC))
 	{
 		throw eOFmatchNotFound();
@@ -1563,6 +1898,15 @@ void
 cofmatch::set_sctp_src(
 		uint16_t src_port)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_SCTP_SRC] = coxmatch_ofb_sctp_src(src_port);
 }
 
@@ -1572,6 +1916,15 @@ uint16_t
 cofmatch::get_sctp_dst()
 	throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_SCTP_DST))
 	{
 		throw eOFmatchNotFound();
@@ -1585,9 +1938,17 @@ void
 cofmatch::set_sctp_dst(
 		uint16_t dst_port)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_SCTP_DST] = coxmatch_ofb_sctp_dst(dst_port);
 }
-
 
 
 #ifndef NDEBUG
@@ -1602,7 +1963,7 @@ cofmatch::test()
 
 	cmemory mem(m.length());
 
-	m.pack((struct ofp_match*)mem.somem(), mem.memlen());
+	m.pack((struct ofp12_match*)mem.somem(), mem.memlen());
 	fprintf(stderr, "match: %s\nmem:%s\n\n", m.c_str(), mem.c_str());
 
 	cofmatch tm(m);
@@ -1611,7 +1972,7 @@ cofmatch::test()
 
 	cofmatch cm;
 
-	cm.unpack((struct ofp_match*)mem.somem(), mem.memlen());
+	cm.unpack((struct ofp12_match*)mem.somem(), mem.memlen());
 	fprintf(stderr, "unpack: %s\n\n", cm.c_str());
 
 	{
