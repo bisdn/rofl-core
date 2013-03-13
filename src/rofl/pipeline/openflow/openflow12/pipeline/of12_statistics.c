@@ -106,21 +106,6 @@ inline void of12_stats_table_matches_inc(of12_flow_table_t * table)
 	platform_atomic_inc64(&table->stats.matched_count,table->mutex);
 }
 
-//Aggregate Statistics functions
-/**
- * of12_stats_aggregate_collect
- * WARNING no idea how to do that
- * When an aggregate flow statistics is received
- * we need to look for the entries that match  the specified
- * matches and aggregate all their statistics
- */
-void of12_stats_aggregate_collect (of12_flow_entry_t *entry, of12_stats_aggregate_t *aggregate)
-{
-	aggregate->flow_count++;
-	aggregate->byte_count += entry->stats.byte_count;
-	aggregate->packet_count += entry->stats.packet_count;
-	return;
-}
 
 //Port & Queue functions
 void of12_stats_port_init(of12_stats_port_t *port_stats)

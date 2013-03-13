@@ -380,9 +380,10 @@ rofl_result_t of12_remove_flow_entry_loop(of12_flow_table_t *const table , of12_
 
 	return result;
 }
+
 	
 /* FLOW entry lookup entry point */ 
-of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const table, of12_packet_matches_t *const pkt){
+of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const table, of12_packet_matches_t *const pkt_matches){
 	of12_flow_entry_t *entry;
 
 	//Prevent writers to change structure during matching
@@ -395,7 +396,7 @@ of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const table, of1
 		of12_match_t* it = entry->matchs; 
 
 		for(;;){
-			if(!of12_check_match(pkt, it))
+			if(!of12_check_match(pkt_matches, it))
 				break;
 			if (it->next == NULL){
 				/* Last match, then rule has matched */
@@ -421,19 +422,57 @@ of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const table, of1
 	return NULL; 
 }
 
-void
-load_matching_algorithm_loop(struct matching_algorithm_functions *f)
-{
+
+/*
+*
+* Statistics
+*
+*/
+of12_stats_flow_msg_t* of12_get_flow_stats_loop(struct of12_flow_table *const table,
+		uint64_t cookie,
+		uint64_t cookie_mask,
+		uint32_t out_port, 
+		uint32_t out_group,
+		of12_packet_matches_t *const matches){
+	
+	return NULL;
+}
+
+of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats_loop(struct of12_flow_table *const table,
+		uint64_t cookie,
+		uint64_t cookie_mask,
+		uint32_t out_port, 
+		uint32_t out_group,
+		of12_packet_matches_t *const matches){
+
+	return NULL;
+}
+
+
+void load_matching_algorithm_loop(struct matching_algorithm_functions *f){
+
 	if (NULL != f) {
+		//Init and destroy hooks
+		f->init_hook = NULL;
+		f->destroy_hook = NULL;
+	
+		//Flow mods
 		f->add_flow_entry_hook = of12_add_flow_entry_loop;
 		f->modify_flow_entry_hook = of12_modify_flow_entry_loop;
 		f->remove_flow_entry_hook = of12_remove_flow_entry_loop;
+	
+		//Find best match
 		f->find_best_match_hook = of12_find_best_match_loop;
+
+		//Stats
+		f->get_flow_stats = of12_get_flow_stats_loop;
+		f->get_flow_aggregate_stats = of12_get_flow_aggregate_stats_loop;
+
+		//Dumping	
 		f->dump_hook = NULL;
-		f->init_hook = NULL;
-		f->destroy_hook = NULL;
 		strncpy(f->description, LOOP_DESCRIPTION, OF12_MATCHING_ALGORITHMS_MAX_DESCRIPTION_LENGTH);
 	}
+
 }
 
 
