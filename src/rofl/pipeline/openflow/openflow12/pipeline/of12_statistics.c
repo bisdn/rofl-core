@@ -5,6 +5,7 @@
 #include "of12_flow_table.h"
 #include "of12_flow_entry.h"
 #include "of12_timers.h"
+#include "../../../platform/memory.h"
 #include <rofl/pipeline/platform/atomic_operations.h>
 
 /**
@@ -41,6 +42,44 @@ void of12_init_flow_stats(of12_flow_entry_t * entry)
 void of12_destroy_flow_stats(of12_flow_entry_t* entry)
 {
 	platform_mutex_destroy(entry->stats.mutex);
+}
+
+
+/*
+* Msg aggregate flow stats
+*/
+of12_stats_flow_aggregate_msg_t* of12_init_stats_flow_aggregate_msg(){
+
+	of12_stats_flow_aggregate_msg_t* msg = (of12_stats_flow_aggregate_msg_t*)cutil_malloc_shared(sizeof(of12_stats_flow_aggregate_msg_t));
+
+	//Init counters
+	if(msg)
+		memset(msg,0,sizeof(msg));
+
+	return msg;
+}
+void of12_destroy_stats_flow_aggregate_msg(of12_stats_flow_aggregate_msg_t* msg){
+
+	if(msg)
+		cutil_free_shared(msg);
+}
+
+/*
+* Msg flow stats
+*/
+of12_stats_flow_msg_t* of12_init_stats_flow_msg(){
+
+	of12_stats_flow_msg_t* msg = (of12_stats_flow_msg_t*)cutil_malloc_shared(sizeof(of12_stats_flow_msg_t)); 
+
+	//Init counters
+	if(msg)
+		memset(msg,0,sizeof(msg));
+
+	return msg;
+}
+void of12_destroy_stats_flow_msg(of12_stats_flow_msg_t* msg){
+	if(msg)
+		cutil_free_shared(msg);
 }
 
 /**

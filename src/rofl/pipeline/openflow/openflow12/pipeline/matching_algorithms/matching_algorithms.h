@@ -63,7 +63,7 @@ struct matching_algorithm_functions
 			uint64_t cookie_mask,
 			uint32_t out_port, 
 			uint32_t out_group,
-			of12_packet_matches_t *const matches);
+			of12_match_t *const matchs);
 
 	of12_stats_flow_aggregate_msg_t*	
 	(*get_flow_aggregate_stats)(struct of12_flow_table *const table,
@@ -71,7 +71,7 @@ struct matching_algorithm_functions
 			uint64_t cookie_mask,
 			uint32_t out_port, 
 			uint32_t out_group,
-			of12_packet_matches_t *const matches);
+			of12_match_t *const matchs);
 
 
 	// dump flow table

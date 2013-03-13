@@ -130,6 +130,13 @@ ROFL_PIPELINE_BEGIN_DECLS
 
 void of12_init_flow_stats(struct of12_flow_entry * entry);
 void of12_destroy_flow_stats(struct of12_flow_entry * entry);
+
+//msgs
+of12_stats_flow_msg_t* of12_init_stats_flow_msg(void);
+of12_stats_flow_aggregate_msg_t* of12_init_stats_flow_aggregate_msg(void);
+void of12_destroy_stats_flow_aggregate_msg(of12_stats_flow_aggregate_msg_t* msg);
+void of12_destroy_stats_flow_msg(of12_stats_flow_msg_t* msg);
+
 void of12_stats_flow_reset_counts(struct of12_flow_entry * entry);
 void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec);
 void of12_stats_flow_update_match(struct of12_flow_entry * entry,uint64_t bytes_rx);
