@@ -38,11 +38,11 @@ namespace rofl
 {
 
 
-class eOFmatchBase : public cerror {}; // error base class cofmatch
-class eOFmatchType : public eOFmatchBase {};
-class eOFmatchInval : public eOFmatchBase {};
-class eOFmatchNotFound : public eOFmatchBase {};
-class eOFmatchInvalBadValue : public eOFmatchInval {};
+class eOFmatchBase 			: public cerror {}; // error base class cofmatch
+class eOFmatchType 			: public eOFmatchBase {};
+class eOFmatchInval 		: public eOFmatchBase {};
+class eOFmatchNotFound 		: public eOFmatchBase {};
+class eOFmatchInvalBadValue	: public eOFmatchInval {};
 
 
 
@@ -50,14 +50,30 @@ class eOFmatchInvalBadValue : public eOFmatchInval {};
 class cofmatch :
 	public csyslog
 {
-public: // data structures
-
-	struct ofp_match match;		// struct ofp_match header (including oxm_fields)
-	coxmlist oxmlist;			// list of all oxms
-
 private: // data structures
 
-	std::string info; 	// info string
+	uint8_t 		of_version;		// OpenFlow version used for this cofmatch instance
+	std::string 	info; 			// info string
+	coxmlist 		oxmlist;		// list of all oxms
+	cmemory 		memarea;
+
+#define OFP10_MATCH_STATIC_LEN	(sizeof(struct ofp10_match))
+#define OFP12_MATCH_STATIC_LEN  (2*sizeof(uint16_t))
+#define OFP13_MATCH_STATIC_LEN  (2*sizeof(uint16_t))
+
+public: // data structures
+
+	union {
+		struct ofp10_match*		ofp10u_match;
+		struct ofp12_match*		ofp12u_match;
+		struct ofp13_match*		ofp13u_match;
+	} ofpu;
+
+#define ofh10_match ofpu.ofp10u_match
+#define ofh12_match ofpu.ofp12u_match
+#define ofh13_match ofpu.ofp13u_match
+
+
 
 public: // methods
 
@@ -65,15 +81,18 @@ public: // methods
 	 *
 	 */
 	cofmatch(
+			uint8_t of_version = OFP12_VERSION,
 			uint16_t type = OFPMT_OXM);
 
 
 	/** constructor
 	 *
 	 */
+	template<class T>
 	cofmatch(
-		struct ofp_match *__match,
-		size_t __matchlen);
+			uint8_t of_version,
+			T* match,
+			size_t matchlen);
 
 
 	/** copy constructor
@@ -123,47 +142,35 @@ public: // methods
 	size_t
 	length();
 
+
 private:
+
+
 	size_t
 	length_internal();
 
 
 public:
+
+
 	/** copy internal struct ofp_match into specified ofp_match ptr 'm'
 	 * @return pointer 'm'
 	 *
 	 */
-	struct ofp_match*
+	template<class T>
+	T*
 	pack(
-			struct ofp_match* m,
-			size_t mlen) throw (eOFmatchInval);
-
-
-	/** copy internal struct ofp10_match into specified ofp_match ptr 'm'
-	 * @return pointer 'm'
-	 *
-	 */
-	struct ofp10_match*
-	pack(
-			struct ofp10_match* m,
+			T* m,
 			size_t mlen) throw (eOFmatchInval);
 
 
 	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match
 	 *
 	 */
+	template<class T>
 	void
 	unpack(
-			struct ofp_match* m,
-			size_t mlen) throw (eOFmatchInval);
-
-
-	/** copy ofp10_match structure pointed to by 'm' into internal struct ofp10_match
-	 *
-	 */
-	void
-	unpack(
-			struct ofp10_match* m,
+			T* m,
 			size_t mlen) throw (eOFmatchInval);
 
 
@@ -190,7 +197,6 @@ public:
 	reset();
 
 
-
 	/**
 	 *
 	 */
@@ -200,7 +206,6 @@ public:
 			uint16_t& exact_hits,
 			uint16_t& wildcard_hits,
 			uint16_t& missed);
-
 
 
 	/**

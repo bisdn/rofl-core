@@ -621,7 +621,7 @@ cflowentry::pack()
 		instslen = instructions.length();
 		ofmatch_len = match.length();
 		// length of generic ofp_flow_mod header without ofp_match
-		fm_len = sizeof(struct ofp13_flow_mod) - sizeof(ofp_match);
+		fm_len = sizeof(struct ofp12_flow_mod) - sizeof(ofp12_match);
 
 		packlen = fm_len + ofmatch_len + instslen;
 
@@ -649,7 +649,7 @@ cflowentry::pack()
 
 		WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [1] flow_mod_area: %s", this, flow_mod_area.c_str());
 
-		struct ofp_match* m = (struct ofp_match*)(flow_mod_area.somem() + fm_len);
+		struct ofp12_match* m = (struct ofp12_match*)(flow_mod_area.somem() + fm_len);
 		match.pack(m, ofmatch_len);
 
 		WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [2] flow_mod_area: %s", this, flow_mod_area.c_str());
@@ -682,10 +682,10 @@ cflowentry::test()
 	fe.set_idle_timeout(5);
 	fe.set_hard_timeout(0);
 
-	fe.match.oxmlist[OFPXMT_OFB_IN_PORT] 	= coxmatch_ofb_in_port(1);
-	fe.match.oxmlist[OFPXMT_OFB_ETH_TYPE] 	= coxmatch_ofb_eth_type(0x0800);
-	fe.match.oxmlist[OFPXMT_OFB_ETH_SRC] 	= coxmatch_ofb_eth_src(dl_src);
-	fe.match.oxmlist[OFPXMT_OFB_ETH_DST]	= coxmatch_ofb_eth_dst(dl_dst);
+	fe.match.set_in_port(1);
+	fe.match.set_eth_type(0x0800);
+	fe.match.set_eth_src(dl_src);
+	fe.match.set_eth_dst(dl_dst);
 
 	fe.instructions[0] = cofinst_clear_actions();
 

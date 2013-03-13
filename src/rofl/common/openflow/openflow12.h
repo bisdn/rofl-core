@@ -261,7 +261,7 @@ enum ofp_packet_in_reason {
 
 
 /* Fields to match against flows */
-struct ofp_match {
+struct ofp12_match {
 	uint16_t type;			/* One of OFPMT_* */
 	uint16_t length;		/* Length of ofp_match (excluding padding) */
 	/* Followed by:
@@ -274,7 +274,7 @@ struct ofp_match {
 	uint8_t oxm_fields[4];
 	/* OXMs start here - Make compiler happy */
 };
-OFP_ASSERT(sizeof(struct ofp_match) == 8);
+OFP_ASSERT(sizeof(struct ofp12_match) == 8);
 
 
 /* The match type indicates the match structure (set of fields that compose the
@@ -483,7 +483,7 @@ struct ofp12_packet_in {
 	uint16_t total_len;			/* Full length of frame. */
 	uint8_t reason;				/* Reason packet is being sent (one of OFPR_*) */
 	uint8_t table_id;			/* ID of the table that was looked up */
-	struct ofp_match match; 	/* Packet metadata. Variable size. */
+	struct ofp12_match match; 	/* Packet metadata. Variable size. */
 	/* Followed by:
 	 * - Exactly 2 all-zero padding bytes, then
 	 * - An Ethernet frame whose length is inferred from header.length.
@@ -830,7 +830,7 @@ struct ofp12_flow_mod {
                                      indicates no restriction. */
     uint16_t flags;               /* One of OFPFF_*. */
     uint8_t pad[2];
-    struct ofp_match match;       /* Fields to match */
+    struct ofp12_match match;     /* Fields to match */
     //struct ofp_instruction instructions[0]; /* Instruction set */
 };
 OFP_ASSERT(sizeof(struct ofp12_flow_mod) == 56);
@@ -914,7 +914,7 @@ struct ofp12_flow_removed {
     uint16_t hard_timeout;    /* Idle timeout from original flow mod. */
     uint64_t packet_count;
     uint64_t byte_count;
-    struct ofp_match match;   /* Description of fields. */
+    struct ofp12_match match; /* Description of fields. */
 };
 OFP_ASSERT(sizeof(struct ofp12_flow_removed) == 56);
 
@@ -1209,7 +1209,7 @@ struct ofp_flow_stats_request {
     uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that
                                  must match. A value of 0 indicates
                                  no restriction. */
-    struct ofp_match match;   /* Fields to match. */
+    struct ofp12_match match; /* Fields to match. */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 40);
 
@@ -1229,7 +1229,7 @@ struct ofp_flow_stats {
     uint64_t cookie;          /* Opaque controller-issued identifier. */
     uint64_t packet_count;    /* Number of packets in flow. */
     uint64_t byte_count;      /* Number of bytes in flow. */
-    struct ofp_match match;   /* Description of fields. */
+    struct ofp12_match match; /* Description of fields. */
     //struct ofp_instruction instructions[0]; /* Instruction set. */
 };
 OFP_ASSERT(sizeof(struct ofp_flow_stats) == 56);
@@ -1251,7 +1251,7 @@ struct ofp_aggregate_stats_request {
     uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that
                                  must match. A value of 0 indicates
                                  no restriction. */
-    struct ofp_match match;   /* Fields to match. */
+    struct ofp12_match match; /* Fields to match. */
 };
 OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 40);
 

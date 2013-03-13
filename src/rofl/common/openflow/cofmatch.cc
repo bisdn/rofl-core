@@ -7,32 +7,81 @@
 using namespace rofl;
 
 cofmatch::cofmatch(
-		uint16_t type)
+		uint8_t of_version,
+		uint16_t type) :
+				of_version(of_version)
 {
+	switch (of_version) {
+	case OFP10_VERSION: {
+		memarea.resize(OFP10_MATCH_STATIC_LEN);
+		ofh10_match = (struct ofp10_match*)memarea.somem();
+	} break;
+	case OFP12_VERSION: {
+		memarea.resize(OFP12_MATCH_STATIC_LEN);
+		ofh12_match = (struct ofp12_match*)memarea.somem();
+		ofh12_match->type 	= htobe16(type);
+		ofh12_match->length = htobe16(length());
+	} break;
+	case OFP13_VERSION: {
+		memarea.resize(OFP13_MATCH_STATIC_LEN);
+		ofh13_match = (struct ofp13_match*)memarea.somem();
+		ofh13_match->type 	= htobe16(type);
+		ofh13_match->length = htobe16(length());
+	} break;
+	default:
+		throw eBadVersion();
+	}
 	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [1]", this);
-
-	bzero(&match, sizeof(match));
-
-	match.type = htobe16(type);
-	match.length = htobe16(length());
 
 	reset();
 
 	validate();
 }
 
+
+
+template<class T>
 cofmatch::cofmatch(
-	struct ofp_match *__match, size_t __matchlen)
+		uint8_t of_version,
+		T* match,
+		size_t matchlen) :
+			of_version(of_version)
 {
 	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [2]", this);
 
+	switch (of_version) {
+	case OFP10_VERSION: {
+		if (OFP10_MATCH_STATIC_LEN != matchlen) {
+			throw eBadVersion();
+		}
+		unpack(match, matchlen);
+	} break;
+	case OFP12_VERSION: {
+		if (OFP12_MATCH_STATIC_LEN != matchlen) {
+			throw eBadVersion();
+		}
+		unpack(match, matchlen);
+	} break;
+	case OFP13_VERSION: {
+		if (OFP13_MATCH_STATIC_LEN != matchlen) {
+			throw eBadVersion();
+		}
+		unpack(match, matchlen);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	validate();
 }
+
+
 
 cofmatch::~cofmatch()
 {
 	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::~cofmatch()", this);
 }
+
 
 
 cofmatch&
@@ -47,8 +96,8 @@ cofmatch::operator= (const cofmatch& m)
 	WRITELOG(COFMATCH, DBG, "cofmatch(%p)::operator=() [1] *this: %s", this, this->c_str());
 #endif
 
-	match.type 		= m.match.type;
-	match.length 	= m.match.length;
+	of_version		= m.of_version;
+	memarea			= m.memarea;
 	oxmlist			= m.oxmlist;
 
 #if 0
@@ -66,7 +115,17 @@ bool
 cofmatch::operator< (
 		cofmatch const& m) const
 {
-	return (oxmlist < m.oxmlist);
+	if (of_version != m.of_version) {
+		return (of_version < m.of_version);
+	}
+
+	switch (of_version) {
+	case OFP10_VERSION: return (memcmp(memarea.somem(), m.memarea.somem(), memarea.memlen()));
+	case OFP12_VERSION: return (oxmlist < m.oxmlist);
+	case OFP13_VERSION: return (oxmlist < m.oxmlist);
+	default: throw eBadVersion();
+	}
+	return true;
 }
 
 
@@ -76,9 +135,21 @@ cofmatch::reset()
 {
 	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::reset()", this);
 
-	oxmlist.clear();
-	match.length = htobe16(length());
-
+	switch (of_version) {
+	case OFP10_VERSION: {
+		memset(ofh10_match, 0, OFP10_MATCH_STATIC_LEN);
+	} break;
+	case OFP12_VERSION: {
+		oxmlist.clear();
+		ofh12_match->length = htobe16(length());
+	} break;
+	case OFP13_VERSION: {
+		oxmlist.clear();
+		ofh13_match->length = htobe16(length());
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 

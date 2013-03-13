@@ -1551,8 +1551,8 @@ public:
 			case OFP10_VERSION: {
 				memcpy(buf, memarea.somem(), OFP10_FLOW_MOD_STATIC_HDR_LEN);
 
-				match.pack((struct ofp_match*)
-						(struct ofp_match*)(buf + sizeof(struct ofp_header)),
+				match.pack((struct ofp10_match*)
+						(struct ofp10_match*)(buf + sizeof(struct ofp_header)),
 														sizeof(struct ofp10_match));
 
 				actions.pack((struct ofp_action_header*)
@@ -1563,7 +1563,7 @@ public:
 			case OFP13_VERSION: {
 				memcpy(buf, memarea.somem(), OFP12_FLOW_MOD_STATIC_HDR_LEN);
 
-				match.pack((struct ofp_match*)
+				match.pack((struct ofp12_match*)
 						(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN), match.length());
 
 				instructions.pack((struct ofp_instruction*)
@@ -1898,7 +1898,7 @@ public:
 			case OFP13_VERSION: {
 				memcpy(buf, memarea.somem(), OFP12_FLOW_REMOVED_STATIC_HDR_LEN);
 
-				match.pack((struct ofp_match*)
+				match.pack((struct ofp12_match*)
 						(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN), match.length());
 			} break;
 			default:
@@ -2216,14 +2216,14 @@ public:
 			} break;
 			case OFP12_VERSION: {
 				memcpy(buf, memarea.somem(), OFP12_PACKET_IN_STATIC_HDR_LEN);
-				match.pack((struct ofp_match*)
+				match.pack((struct ofp12_match*)
 						(buf + OFP12_PACKET_IN_STATIC_HDR_LEN), match.length());
 				memcpy(buf + OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
 
 			} break;
 			case OFP13_VERSION: {
 				memcpy(buf, memarea.somem(), OFP13_PACKET_IN_STATIC_HDR_LEN);
-				match.pack((struct ofp_match*)
+				match.pack((struct ofp13_match*)
 						(buf + OFP13_PACKET_IN_STATIC_HDR_LEN), match.length());
 				memcpy(buf + OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
 
@@ -3196,7 +3196,7 @@ public:
 
 			memcpy(buf + sizeof(struct ofp_stats_request), body.somem(), body.memlen());
 
-			match.pack((struct ofp_match*)(buf + sizeof(struct ofp_stats_request) +
+			match.pack((struct ofp12_match*)(buf + sizeof(struct ofp_stats_request) +
 														body.memlen()), match.length());
 		};
 };

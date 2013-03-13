@@ -194,7 +194,7 @@ public:
 		{
 			packed.resize(length());
 			memcpy(packed.somem(), body.somem(), body.memlen());
-			match.pack((struct ofp_match*)(packed.somem() + body.memlen()), match.length());
+			match.pack((struct ofp12_match*)(packed.somem() + body.memlen()), match.length());
 			return packed;
 		};
 };
@@ -264,7 +264,7 @@ public:
 		{
 			packed.resize(length());
 			memcpy(packed.somem(), body.somem(), body.memlen());
-			match.pack((struct ofp_match*)(packed.somem() + body.memlen()), match.length());
+			match.pack((struct ofp12_match*)(packed.somem() + body.memlen()), match.length());
 			return packed;
 		};
 		/**
@@ -280,7 +280,7 @@ public:
 			body.assign(buf, OFS_AGGR_STATS_STATIC_HDR_LEN);
 			ofs_aggr_stats_request = (struct ofp_aggregate_stats_request*)body.somem();
 			match.reset();
-			match.unpack((struct ofp_match*)(buf + OFS_AGGR_STATS_STATIC_HDR_LEN),
+			match.unpack((struct ofp12_match*)(buf + OFS_AGGR_STATS_STATIC_HDR_LEN),
 					buflen - OFS_AGGR_STATS_STATIC_HDR_LEN);
 		};
 		/**

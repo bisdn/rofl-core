@@ -120,7 +120,7 @@ struct ofp_vendor_ext_rofl_nsp {
 	struct ofp_vendor_ext_rofl header;	// common headers
 //	uint64_t controller_id;				// controller id (survive socket down events? => ...)
 	uint32_t result;					// result of associated request, set to 0 in request
-	struct ofp_match match[0];			// matching structure
+	struct ofp12_match match[0];		// matching structure
 };
 
 /* A controller entity should be enabled to register multiple nsp structs in parallel,
