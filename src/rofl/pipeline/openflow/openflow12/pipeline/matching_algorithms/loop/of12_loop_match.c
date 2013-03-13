@@ -435,7 +435,45 @@ of12_stats_flow_msg_t* of12_get_flow_stats_loop(struct of12_flow_table *const ta
 		uint32_t out_group,
 		of12_match_t *const matchs){
 	
-	return NULL;
+	of12_flow_entry_t* entry, flow_stats_entry;
+	of12_stats_flow_msg_t* msg = of12_init_stats_flow_msg();
+	of12_stats_single_flow_msg_t* flow_stats;
+
+	if(!msg)
+		return NULL;
+
+	//Create a flow_stats_entry
+	memset(&flow_stats_entry,0,sizeof(of12_flow_entry_t));
+	flow_stats_entry.matchs = matchs;
+	flow_stats_entry.cookie = cookie;
+	flow_stats_entry.cookie_mask = cookie_mask;
+
+	//Mark table as being read
+	platform_rwlock_rdlock(table->rwlock);
+
+	//Loop over the table and calculate stats
+	for(entry = table->entries;entry!=NULL;entry = entry->next){
+	
+		//Check if is contained 
+		if(of12_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
+			//Create a new single flow entry and fillin 
+			flow_stats = of12_init_stats_single_flow_msg(entry);
+			
+			if(!flow_stats){
+				of12_destroy_stats_flow_msg(msg);
+				return NULL;	
+			}
+	
+			//Push this stat to the msg
+			of12_push_single_flow_stats_to_msg(msg, flow_stats);	
+		}
+	
+	}
+	
+	//Release the table
+	platform_rwlock_rdunlock(table->rwlock);
+	
+	return msg;
 }
 
 of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats_loop(struct of12_flow_table *const table,

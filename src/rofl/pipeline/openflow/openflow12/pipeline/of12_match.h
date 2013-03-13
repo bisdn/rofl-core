@@ -170,9 +170,17 @@ void of12_match_group_push_back(of12_match_group_t* group, of12_match_t* match);
 rofl_result_t of12_add_match(of12_match_t* root_match, of12_match_t* add_match);
 
 /* 
-* Match copy
+* Single Match copy
+* TODO: deprecate this in favour of match_group
 */
 of12_match_t* of12_copy_match(of12_match_t* match);
+
+/* 
+* Whole (linked list) Match copy
+* TODO: deprecate this in favour of match_group
+*/
+of12_match_t* of12_copy_matches(of12_match_t* matches);
+
 
 /* 
 * Get alike match 

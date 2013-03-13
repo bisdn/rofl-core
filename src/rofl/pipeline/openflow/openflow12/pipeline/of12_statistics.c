@@ -67,6 +67,41 @@ void of12_destroy_stats_flow_aggregate_msg(of12_stats_flow_aggregate_msg_t* msg)
 /*
 * Msg flow stats
 */
+of12_stats_single_flow_msg_t* of12_init_stats_single_flow_msg(of12_flow_entry_t* entry){
+
+	of12_stats_single_flow_msg_t* msg;
+
+	if(!entry)
+		return NULL;
+
+	msg = (of12_stats_single_flow_msg_t*)cutil_malloc_shared(sizeof(of12_stats_single_flow_msg_t)); 
+	//Fill static values
+	if(entry->table)
+		msg->table_id = entry->table->number;
+	msg->priority = entry->priority;
+	msg->cookie = entry->cookie;
+	msg->idle_timeout = entry->timer_info.idle_timeout;
+	msg->hard_timeout = entry->timer_info.hard_timeout;
+	msg->byte_count = entry->stats.byte_count;
+	msg->packet_count = entry->stats.packet_count;
+
+	//Get durations
+	of12_stats_flow_get_duration(entry, &msg->duration_sec, &msg->duration_nsec);
+
+	//Copy matches
+	msg->matches = of12_copy_matches(entry->matchs);
+
+	return msg;
+}
+void of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg){
+
+	if(msg->matches)
+		of12_destroy_match(msg->matches);
+
+	if(msg)
+		cutil_free_shared(msg);
+}
+
 of12_stats_flow_msg_t* of12_init_stats_flow_msg(){
 
 	of12_stats_flow_msg_t* msg = (of12_stats_flow_msg_t*)cutil_malloc_shared(sizeof(of12_stats_flow_msg_t)); 
@@ -78,8 +113,32 @@ of12_stats_flow_msg_t* of12_init_stats_flow_msg(){
 	return msg;
 }
 void of12_destroy_stats_flow_msg(of12_stats_flow_msg_t* msg){
+	
+	of12_stats_single_flow_msg_t* item, *next_item; 
+	
+	for(item=msg->flows_head; item; item = next_item){
+		next_item = item->next;
+		of12_destroy_stats_single_flow_msg(item);
+	}
+	
+	//If there are single flow messages delete them	
+
 	if(msg)
 		cutil_free_shared(msg);
+}
+
+//Push to stats_flow_msg
+void of12_push_single_flow_stats_to_msg(of12_stats_flow_msg_t* msg, of12_stats_single_flow_msg_t* sfs){
+
+	if(!msg)
+		return;
+
+	if(!msg->flows_head)
+		msg->flows_head = sfs;
+	else
+		msg->flows_tail->next = sfs;
+	
+	msg->flows_tail = sfs;
 }
 
 /**

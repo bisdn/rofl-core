@@ -57,12 +57,15 @@ typedef struct of12_stats_single_flow_msg{
 	uint64_t byte_count;
 	
 	struct of12_match* matches;
+	
+	struct of12_stats_single_flow_msg* next;
 }of12_stats_single_flow_msg_t;
 
 //Variable length array
 typedef struct of12_stats_flow_msg{
 	uint32_t 			num_of_entries; 
-	of12_stats_single_flow_msg_t* 	flows;
+	of12_stats_single_flow_msg_t* 	flows_head;
+	of12_stats_single_flow_msg_t* 	flows_tail;
 }of12_stats_flow_msg_t;
 
 typedef struct of12_stats_flow_aggregate_msg{
@@ -132,10 +135,18 @@ void of12_init_flow_stats(struct of12_flow_entry * entry);
 void of12_destroy_flow_stats(struct of12_flow_entry * entry);
 
 //msgs
+of12_stats_single_flow_msg_t* of12_init_stats_single_flow_msg(struct of12_flow_entry* entry);
+void of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg);
+
 of12_stats_flow_msg_t* of12_init_stats_flow_msg(void);
+void of12_destroy_stats_flow_msg(of12_stats_flow_msg_t* msg);
+
+//Push to msg
+void of12_push_single_flow_stats_to_msg(of12_stats_flow_msg_t* msg, of12_stats_single_flow_msg_t* sfs);
+
+
 of12_stats_flow_aggregate_msg_t* of12_init_stats_flow_aggregate_msg(void);
 void of12_destroy_stats_flow_aggregate_msg(of12_stats_flow_aggregate_msg_t* msg);
-void of12_destroy_stats_flow_msg(of12_stats_flow_msg_t* msg);
 
 void of12_stats_flow_reset_counts(struct of12_flow_entry * entry);
 void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec);
