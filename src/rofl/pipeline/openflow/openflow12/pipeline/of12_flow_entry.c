@@ -285,3 +285,17 @@ void of12_dump_flow_entry(of12_flow_entry_t* entry){
 	of12_dump_instructions(entry->inst_grp);
 	fprintf(stderr,"\n");
 }
+
+/**
+ * check if the entry is valid for insertion
+ */
+rofl_result_t of12_validate_flow_entry(of12_flow_entry_t* entry){
+	//TODO
+	
+	//check write actions
+	
+	//check apply actions
+	
+	return ROFL_SUCCESS;
+}
+

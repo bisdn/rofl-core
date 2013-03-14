@@ -1,4 +1,5 @@
 #include "of12_instruction.h"
+#include "of12_flow_entry.h"
 
 #include <stdio.h>
 
@@ -114,6 +115,13 @@ rofl_result_t of12_update_instructions(of12_instruction_group_t* group, of12_ins
 	group->has_multiple_outputs = new_group->has_multiple_outputs;
 	
 	return ROFL_SUCCESS;
+}
+
+/* Check whether instructions contain group */
+bool of12_instructions_contain_group(of12_flow_entry_t *const entry, const unsigned int group_id){
+
+	return of12_write_actions_has(entry->inst_grp.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions,OF12_AT_GROUP,group_id)
+		|| of12_apply_actions_has(entry->inst_grp.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions,OF12_AT_GROUP,group_id);
 }
 
 /* Process instructions */

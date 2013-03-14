@@ -28,12 +28,6 @@ typedef enum{
 	OF12_GROUP_TYPE_FF	 	= 3,	/* Fast failover group. */
 }of12_group_type_t;
 
-typedef struct of12_entries_list{
-	of12_flow_entry_t *entry;
-	struct of12_entries_list *next;
-	struct of12_entries_list *prev;
-}of12_entries_list_t;
-
 struct of12_group_table;
 
 typedef struct of12_group{
@@ -44,8 +38,6 @@ typedef struct of12_group{
 	of12_group_bucket_t *bl_tail;
 	
 	struct of12_group_table *group_table;
-	
-	of12_entries_list_t *referencing_entries;
 	
 	struct of12_group *next;
 	struct of12_group *prev;
@@ -60,17 +52,17 @@ typedef struct of12_group_table{
 	struct of12_group *tail;
 }of12_group_table_t;
 
+//fwd decls
+struct of12_pipeline;
 
 //function declarations
 of12_group_table_t* of12_init_group_table(void);
 void of12_destroy_group_table(of12_group_table_t* gt);
 rofl_result_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id,
 							 uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions);
-rofl_result_t of12_group_delete(of12_group_table_t *gt, uint32_t id);
+rofl_result_t of12_group_delete(of12_group_table_t *gt, uint32_t id, struct of12_pipeline *pipeline);
 of12_group_t *of12_group_search(of12_group_table_t *gt, uint32_t id);
 rofl_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id,
 								uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions);
-rofl_result_t of12_add_reference_entry_in_group(of12_group_t *group, of12_flow_entry_t *entry);
-rofl_result_t of12_delete_reference_entry_in_group(of12_group_t *group, of12_flow_entry_t *entry);
 
 #endif // __OF12_GROUP_TABLE_H__

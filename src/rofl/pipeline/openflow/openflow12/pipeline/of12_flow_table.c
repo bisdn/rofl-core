@@ -5,6 +5,7 @@
 #include "../openflow12.h" //FIXME: necessary for the OF12PAT_. Probably wise to redefine only them in of12_action.h
 
 #include "of12_group_table.h"
+#include "of12_pipeline.h"
 
 /* 
 * Openflow table operations
@@ -21,7 +22,7 @@
 
 /* Initalizer. Table struct has been allocated by pipeline initializer. */
 rofl_result_t of12_init_table(of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm){
-
+	
 	//Initializing mutexes
 	if(NULL == (table->mutex = platform_mutex_init(NULL)))
 		return ROFL_FAILURE;
@@ -188,30 +189,105 @@ rofl_result_t of12_destroy_table(of12_flow_table_t* table){
 * Specific matchings may point them to their own routines, but they MUST always call
 * of12_[whatever]_flow_entry_table_imp in order to update the main tables
 */
-inline rofl_of12_fm_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
-	//TODO take out timers configuration from implementation of flow insertion	
-	//TODO registrate the entry in a group list
-	return table->maf.add_flow_entry_hook(table, entry, check_overlap, reset_counts);
+inline rofl_of12_fm_result_t of12_add_flow_entry_table(of12_pipeline_t *const pipeline, const unsigned int table_id, of12_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
+
+	rofl_of12_fm_result_t result;
+	of12_flow_table_t* table;
+	
+	//Verify table_id
+	if(table_id >= pipeline->num_of_tables)
+		return ROFL_OF12_FM_FAILURE;
+
+	table = &pipeline->tables[table_id];
+
+	//Take rd lock over the grouptable (avoid deletion of groups while flow entry insertion)
+	platform_rwlock_rdlock(pipeline->groups->rwlock);
+
+	//Verify entry
+	if(of12_validate_flow_entry(entry) != ROFL_SUCCESS){
+		//Release rdlock
+		platform_rwlock_rdunlock(pipeline->groups->rwlock);
+		return ROFL_OF12_FM_FAILURE;
+	}
+
+
+	//Perform insertion
+	result = table->maf.add_flow_entry_hook(table, entry, check_overlap, reset_counts);
+
+	if(result != ROFL_OF12_FM_SUCCESS){
+		//Release rdlock
+		platform_rwlock_rdunlock(pipeline->groups->rwlock);
+		return result;
+	}
+	
+	//Add timer
+	of12_add_timer(table, entry);
+
+	//Release rdlock
+	platform_rwlock_rdunlock(pipeline->groups->rwlock);
+
+	//Return value
+	return result;
 }
 
 
-inline rofl_result_t of12_modify_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, bool reset_counts){
-	return table->maf.modify_flow_entry_hook(table, entry, strict, reset_counts);
+inline rofl_result_t of12_modify_flow_entry_table(of12_pipeline_t *const pipeline, const unsigned int table_id, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, bool reset_counts){
+	rofl_result_t result;
+	of12_flow_table_t* table;
+	
+	//Verify table_id
+	if(table_id >= pipeline->num_of_tables)
+		return ROFL_FAILURE;
+
+	table = &pipeline->tables[table_id];
+
+	//Take rd lock over the grouptable (avoid deletion of groups while flow entry insertion)
+	platform_rwlock_rdlock(pipeline->groups->rwlock);
+
+	//Verify entry
+	if(of12_validate_flow_entry(entry) != ROFL_SUCCESS){
+		//Release rdlock
+		platform_rwlock_rdunlock(pipeline->groups->rwlock);
+		return ROFL_FAILURE;
+	}
+
+	//Perform insertion
+	result = table->maf.modify_flow_entry_hook(table, entry, strict, reset_counts);
+
+	if(result != ROFL_SUCCESS){
+		//Release rdlock
+		platform_rwlock_rdunlock(pipeline->groups->rwlock);
+		return result;
+	}
+	
+	//Release rdlock
+	platform_rwlock_rdunlock(pipeline->groups->rwlock);
+
+	//Return value
+	return result;
 }
 
-inline rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
-	//TODO take out timers configuration from implementation of flow insertion
-	return table->maf.remove_flow_entry_hook(table, entry, NULL, strict,  out_port, out_group, MUTEX_NOT_ACQUIRED);
+inline rofl_result_t of12_remove_flow_entry_table(of12_pipeline_t *const pipeline, const unsigned int table_id, of12_flow_entry_t* entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
+	
+	//Verify table_id
+	if(table_id >= pipeline->num_of_tables)
+		return ROFL_FAILURE;
+
+	return  pipeline->tables[table_id].maf.remove_flow_entry_hook(&pipeline->tables[table_id], entry, NULL, strict,  out_port, out_group, MUTEX_NOT_ACQUIRED);
 }
 
 //This API call should NOT be called from outside pipeline library
-rofl_result_t of12_remove_specific_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const specific_entry, of12_mutex_acquisition_required_t mutex_acquired){
-	return table->maf.remove_flow_entry_hook(table, NULL, specific_entry, STRICT, OF12_PORT_ANY, OF12_GROUP_ANY, mutex_acquired);
+rofl_result_t of12_remove_specific_flow_entry_table(of12_pipeline_t *const pipeline, const unsigned int table_id, of12_flow_entry_t *const specific_entry, of12_mutex_acquisition_required_t mutex_acquired){
+	//Verify table_id
+	if(table_id >= pipeline->num_of_tables)
+		return ROFL_FAILURE;
+
+	return pipeline->tables[table_id].maf.remove_flow_entry_hook(&pipeline->tables[table_id], NULL, specific_entry, STRICT, OF12_PORT_ANY, OF12_GROUP_ANY, mutex_acquired);
 }
 
 /* Main process_packet_through */
 inline of12_flow_entry_t* of12_find_best_match_table(of12_flow_table_t *const table, of12_packet_matches_t *const pkt){
-	return table->maf.find_best_match_hook(table,pkt);
+	return table->maf.find_best_match_hook(table, pkt);
 }	
 
 

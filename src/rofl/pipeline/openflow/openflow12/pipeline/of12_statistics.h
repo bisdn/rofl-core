@@ -26,6 +26,7 @@
 struct of12_flow_entry;
 struct of12_flow_table;
 struct of12_match;
+struct of12_pipeline;
 
 
 //Flow entry stats (entry state)
@@ -167,6 +168,12 @@ void of12_stats_queue_init(of12_stats_queue_t *queue_stats);
 void of12_stats_queue_destroy(of12_stats_queue_t *queue_stats);
 inline void of12_stats_queue_tx_packet_inc(of12_stats_queue_t *queue_stats, uint64_t bytes);
 inline void of12_stats_queue_tx_errors_inc(of12_stats_queue_t *queue_stats);
+
+/*
+* External interfaces
+*/
+of12_stats_flow_msg_t* of12_get_flow_stats(struct of12_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of12_match* matchs);
+of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats(struct of12_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of12_match* matchs);
 
 ROFL_PIPELINE_END_DECLS
 

@@ -280,3 +280,74 @@ inline void of12_stats_queue_tx_errors_inc(of12_stats_queue_t *queue_stats)
  * of12_stats_group_update
  * of12_stats_bucket_update
  */
+
+
+/*
+* External interfaces
+*/
+
+of12_stats_flow_msg_t* of12_get_flow_stats(struct of12_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of12_match* matchs){
+
+	uint32_t i,tid_start, tid_end;	
+	of12_stats_flow_msg_t* msg;
+
+	//Verify table_id
+	if(table_id >= pipeline->num_of_tables && table_id != OF12_FLOW_TABLE_ALL)
+		return NULL;
+
+	//Create the message 
+	msg = of12_init_stats_flow_msg();
+	if(!msg)
+		return NULL;
+
+	//Set the tables to go through
+	if(table_id == OF12_FLOW_TABLE_ALL){
+		tid_start = 0;
+		tid_end = pipeline->num_of_tables;
+	}else{
+		tid_start = table_id;
+		tid_end = table_id+1; 
+	}
+
+	for(i=tid_start;i<tid_end;i++){
+		if(pipeline->tables[i].maf.get_flow_stats_hook(&pipeline->tables[i], cookie, cookie_mask, out_port, out_group, matchs, msg) != ROFL_SUCCESS){
+			of12_destroy_stats_flow_msg(msg);
+			return NULL;
+		} 
+	}
+	
+	return msg;
+}
+of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats(struct of12_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of12_match* matchs){
+	
+	uint32_t i, tid_start, tid_end;	
+	of12_stats_flow_aggregate_msg_t* msg;
+
+	//Verify table_id
+	if(table_id >= pipeline->num_of_tables && table_id != OF12_FLOW_TABLE_ALL)
+		return NULL;
+
+	//Create the message 
+	msg = of12_init_stats_flow_aggregate_msg();
+	if(!msg)
+		return NULL;
+
+	//Set the tables to go through
+	if(table_id == OF12_FLOW_TABLE_ALL){
+		tid_start = 0;
+		tid_end = pipeline->num_of_tables;
+	}else{
+		tid_start = table_id;
+		tid_end = table_id+1; 
+	}
+
+	for(i=tid_start;i<tid_end;i++){
+		if(pipeline->tables[i].maf.get_flow_aggregate_stats_hook(&pipeline->tables[i], cookie, cookie_mask, out_port, out_group, matchs, msg) != ROFL_SUCCESS){
+			of12_destroy_stats_flow_aggregate_msg(msg);
+			return NULL;
+		} 
+	}
+	
+	return msg;	
+}
+

@@ -3,14 +3,14 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "../../../../../util/rofl_pipeline_utils.h"
+#include "../../of12_pipeline.h"
 #include "../../of12_flow_table.h"
 #include "../../of12_flow_entry.h"
 #include "../../of12_match.h"
 #include "../../of12_group_table.h"
+#include "../../of12_instruction.h"
 #include "../../../../../platform/lock.h"
 
-#define LOOP_NO_MATCH 0
-#define LOOP_MATCH 1
 #define LOOP_DESCRIPTION "The loop algorithm searches the list of entries by its priority order. On the worst case the performance is o(N) with the number of entries"
 
 /**
@@ -125,9 +125,6 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 		//Point entry table to us
 		entry->table = table;
 
-		//Set Timers //XXX take this out of here!
-		of12_add_timer(table,entry);
-	
 		table->num_of_entries++;
 		return ROFL_OF12_FM_SUCCESS;
 	}
@@ -189,10 +186,7 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 	
 			//Point entry table to us
 			entry->table = table;
-	
-			//Set Timers //XXX take this out of here!
-			of12_add_timer(table,entry);
-	
+
 			//Unlock mutexes
 			platform_rwlock_wrunlock(table->rwlock);
 			return ROFL_OF12_FM_SUCCESS;
@@ -384,6 +378,8 @@ rofl_result_t of12_remove_flow_entry_loop(of12_flow_table_t *const table , of12_
 	
 /* FLOW entry lookup entry point */ 
 of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const table, of12_packet_matches_t *const pkt_matches){
+	
+	of12_match_t* it;
 	of12_flow_entry_t *entry;
 
 	//Prevent writers to change structure during matching
@@ -391,19 +387,13 @@ of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const table, of1
 	
 	//Table is sorted out by nº of hits and priority N. First full match => best_match 
 	for(entry = table->entries;entry!=NULL;entry = entry->next){
-		unsigned int matched = LOOP_NO_MATCH;
+		bool matched = true;
 		
-		of12_match_t* it = entry->matchs; 
-
-		for(;;){
-			if(!of12_check_match(pkt_matches, it))
-				break;
-			if (it->next == NULL){
-				/* Last match, then rule has matched */
-				matched = LOOP_MATCH; 
+		for( it=entry->matchs ; it ; it=it->next ){
+			if(!of12_check_match(pkt_matches, it)){
+				matched = false;
 				break;
 			}
-			it = it->next;
 		}
 
 		if(matched){
@@ -428,19 +418,19 @@ of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const table, of1
 * Statistics
 *
 */
-of12_stats_flow_msg_t* of12_get_flow_stats_loop(struct of12_flow_table *const table,
+rofl_result_t of12_get_flow_stats_loop(struct of12_flow_table *const table,
 		uint64_t cookie,
 		uint64_t cookie_mask,
 		uint32_t out_port, 
 		uint32_t out_group,
-		of12_match_t *const matchs){
-	
+		of12_match_t *const matchs,
+		of12_stats_flow_msg_t* msg){
+
 	of12_flow_entry_t* entry, flow_stats_entry;
-	of12_stats_flow_msg_t* msg = of12_init_stats_flow_msg();
 	of12_stats_single_flow_msg_t* flow_stats;
 
-	if(!msg)
-		return NULL;
+	if(!msg || !table)
+		return ROFL_FAILURE;
 
 	//Create a flow_stats_entry
 	memset(&flow_stats_entry,0,sizeof(of12_flow_entry_t));
@@ -448,48 +438,48 @@ of12_stats_flow_msg_t* of12_get_flow_stats_loop(struct of12_flow_table *const ta
 	flow_stats_entry.cookie = cookie;
 	flow_stats_entry.cookie_mask = cookie_mask;
 
+	
 	//Mark table as being read
 	platform_rwlock_rdlock(table->rwlock);
 
+
 	//Loop over the table and calculate stats
-	for(entry = table->entries;entry!=NULL;entry = entry->next){
+	for(entry = table->entries; entry!=NULL; entry = entry->next){
 	
 		//Check if is contained 
 		if(of12_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
 			//Create a new single flow entry and fillin 
 			flow_stats = of12_init_stats_single_flow_msg(entry);
 			
-			if(!flow_stats){
-				of12_destroy_stats_flow_msg(msg);
-				return NULL;	
-			}
+			if(!flow_stats)
+				return ROFL_FAILURE;	
 	
 			//Push this stat to the msg
 			of12_push_single_flow_stats_to_msg(msg, flow_stats);	
 		}
 	
 	}
-	
+
 	//Release the table
 	platform_rwlock_rdunlock(table->rwlock);
-	
-	return msg;
+
+	return ROFL_SUCCESS;
 }
 
-of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats_loop(struct of12_flow_table *const table,
+rofl_result_t of12_get_flow_aggregate_stats_loop(struct of12_flow_table *const table,
 		uint64_t cookie,
 		uint64_t cookie_mask,
 		uint32_t out_port, 
 		uint32_t out_group,
-		of12_match_t *const matchs){
+		of12_match_t *const matchs,
+		of12_stats_flow_aggregate_msg_t* msg){
 
 	of12_flow_entry_t* entry, flow_stats_entry;
-	of12_stats_flow_aggregate_msg_t* msg = of12_init_stats_flow_aggregate_msg();
 
-	if(!msg)
-		return NULL;
+	if(!msg || !table)
+		return ROFL_FAILURE;
 
-	//Create a flow_stats_entry
+	//Flow stats entry for easy comparison
 	memset(&flow_stats_entry,0,sizeof(of12_flow_entry_t));
 	flow_stats_entry.matchs = matchs;
 	flow_stats_entry.cookie = cookie;
@@ -499,7 +489,7 @@ of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats_loop(struct of12_
 	platform_rwlock_rdlock(table->rwlock);
 
 	//Loop over the table and calculate stats
-	for(entry = table->entries;entry!=NULL;entry = entry->next){
+	for(entry = table->entries; entry!=NULL; entry = entry->next){
 	
 		//Check if is contained 
 		if(of12_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
@@ -514,9 +504,42 @@ of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats_loop(struct of12_
 	//Release the table
 	platform_rwlock_rdunlock(table->rwlock);
 	
-	return msg;
+	return ROFL_SUCCESS;
 }
 
+/* Group related FLOW entry lookup */ 
+of12_flow_entry_t* of12_find_entry_using_group_loop(of12_flow_table_t *const table, const unsigned int group_id){
+
+	of12_match_t* it;
+	of12_flow_entry_t *entry;
+
+	//Prevent writers to change structure during matching
+	platform_rwlock_rdlock(table->rwlock);
+	
+	//Find an entry that refers to the group with group_id
+	for(entry = table->entries;entry!=NULL;entry = entry->next){
+		
+		bool has_group = false;	
+		
+		for( it=entry->matchs; it; it=it->next ){
+			if(of12_instructions_contain_group(entry, group_id)){
+				has_group = true;
+				break;
+			}
+		}
+
+		if(has_group){
+			//Green light for writers
+			platform_rwlock_rdunlock(table->rwlock);
+			return entry;
+		}
+	}
+	
+	//No match
+	//Green light for writers
+	platform_rwlock_rdunlock(table->rwlock);
+	return NULL; 
+}
 
 void load_matching_algorithm_loop(struct matching_algorithm_functions *f){
 
@@ -534,8 +557,12 @@ void load_matching_algorithm_loop(struct matching_algorithm_functions *f){
 		f->find_best_match_hook = of12_find_best_match_loop;
 
 		//Stats
-		f->get_flow_stats = of12_get_flow_stats_loop;
-		f->get_flow_aggregate_stats = of12_get_flow_aggregate_stats_loop;
+		f->get_flow_stats_hook = of12_get_flow_stats_loop;
+		f->get_flow_aggregate_stats_hook = of12_get_flow_aggregate_stats_loop;
+
+		//Find group related entries	
+		f->find_entry_using_group_hook = of12_find_entry_using_group_loop;
+
 
 		//Dumping	
 		f->dump_hook = NULL;
