@@ -201,12 +201,12 @@ inline rofl_of12_fm_result_t of12_add_flow_entry_table(of12_pipeline_t *const pi
 	table = &pipeline->tables[table_id];
 
 	//Take rd lock over the grouptable (avoid deletion of groups while flow entry insertion)
-	platform_rwlock_rdlock(&pipeline->groups->rwlock);
+	platform_rwlock_rdlock(pipeline->groups->rwlock);
 
 	//Verify entry
 	if(of12_validate_flow_entry(entry) != ROFL_SUCCESS){
 		//Release rdlock
-		platform_rwlock_rdunlock(&pipeline->groups->rwlock);
+		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		return ROFL_OF12_FM_FAILURE;
 	}
 
@@ -216,7 +216,7 @@ inline rofl_of12_fm_result_t of12_add_flow_entry_table(of12_pipeline_t *const pi
 
 	if(result != ROFL_OF12_FM_SUCCESS){
 		//Release rdlock
-		platform_rwlock_rdunlock(&pipeline->groups->rwlock);
+		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		return result;
 	}
 	
@@ -224,7 +224,7 @@ inline rofl_of12_fm_result_t of12_add_flow_entry_table(of12_pipeline_t *const pi
 	of12_add_timer(table, entry);
 
 	//Release rdlock
-	platform_rwlock_rdunlock(&pipeline->groups->rwlock);
+	platform_rwlock_rdunlock(pipeline->groups->rwlock);
 
 	//Return value
 	return result;
@@ -242,12 +242,12 @@ inline rofl_result_t of12_modify_flow_entry_table(of12_pipeline_t *const pipelin
 	table = &pipeline->tables[table_id];
 
 	//Take rd lock over the grouptable (avoid deletion of groups while flow entry insertion)
-	platform_rwlock_rdlock(&pipeline->groups->rwlock);
+	platform_rwlock_rdlock(pipeline->groups->rwlock);
 
 	//Verify entry
 	if(of12_validate_flow_entry(entry) != ROFL_SUCCESS){
 		//Release rdlock
-		platform_rwlock_rdunlock(&pipeline->groups->rwlock);
+		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		return ROFL_FAILURE;
 	}
 
@@ -256,12 +256,12 @@ inline rofl_result_t of12_modify_flow_entry_table(of12_pipeline_t *const pipelin
 
 	if(result != ROFL_SUCCESS){
 		//Release rdlock
-		platform_rwlock_rdunlock(&pipeline->groups->rwlock);
+		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		return result;
 	}
 	
 	//Release rdlock
-	platform_rwlock_rdunlock(&pipeline->groups->rwlock);
+	platform_rwlock_rdunlock(pipeline->groups->rwlock);
 
 	//Return value
 	return result;

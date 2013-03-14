@@ -39,7 +39,7 @@ void test_insert_and_expiration_static(of12_pipeline_t * pipeline, uint32_t hard
 	CU_ASSERT(single_entry!=NULL);
 	of12_fill_new_timer_entry_info(single_entry,hard_timeout,0);
 	CU_ASSERT(single_entry->timer_info.hard_timeout==hard_timeout);
-	CU_ASSERT(of12_add_flow_entry_table(table, single_entry, false, false)==ROFL_OF12_FM_SUCCESS);
+	CU_ASSERT(of12_add_flow_entry_table(pipeline,0, single_entry, false, false)==ROFL_OF12_FM_SUCCESS);
 	
 	//ASSERT(of12_add_timer(table, single_entry)==EXIT_SUCCESS,"add timer failed");
 
@@ -77,7 +77,7 @@ void test_insert_and_extract_static(of12_pipeline_t * pipeline, uint32_t hard_ti
 		entry_list[i] = of12_init_flow_entry(NULL,NULL,false);
 		of12_fill_new_timer_entry_info(entry_list[i],hard_timeout,0); 	//WARNING supposition: the entry is filled up alone
 		of12_add_match_to_entry(entry_list[i],of12_init_port_in_match(NULL,NULL,i));
-		of12_add_flow_entry_table(table, entry_list[i], false, false);
+		of12_add_flow_entry_table(pipeline,0, entry_list[i], false, false);
 		
 		CU_ASSERT(table->timers[slot].list.num_of_timers==i+1);
 		CU_ASSERT(table->timers[slot].list.head != NULL); //this can improve with the actual addersses
@@ -125,7 +125,7 @@ void test_insert_and_extract_static(of12_pipeline_t * pipeline, uint32_t hard_ti
 		CU_ASSERT(table->timers[slot].list.num_of_timers==(num_of_entries-i-1));
 		platform_mutex_unlock(table->mutex);
 		
-		of12_remove_flow_entry_table(table, entry_list[i], NOT_STRICT,OF12_PORT_ANY,OF12_GROUP_ANY);
+		of12_remove_flow_entry_table(pipeline,0, entry_list[i], NOT_STRICT,OF12_PORT_ANY,OF12_GROUP_ANY);
 	}
 		
 	free(entry_list);
@@ -184,7 +184,7 @@ void test_insert_both_expires_one_check_the_other_static(of12_pipeline_t * pipel
 	
 	of12_flow_entry_t *single_entry = of12_init_flow_entry(NULL,NULL,false);
 	of12_fill_new_timer_entry_info(single_entry,hto,ito);
-	of12_add_flow_entry_table(table, single_entry, false, false);
+	of12_add_flow_entry_table(pipeline,0, single_entry, false, false);
 	
 	//CU_ASSERT(of12_add_timer(table, entry)==EXIT_SUCCESS,"error add timer");
 	
@@ -233,7 +233,7 @@ void test_insert_and_extract_dynamic(of12_pipeline_t * pipeline, uint32_t hard_t
 		entry_list[i] = of12_init_flow_entry(NULL,NULL,false);
 		of12_fill_new_timer_entry_info(entry_list[i],hard_timeout,0);
 		of12_add_match_to_entry(entry_list[i],of12_init_port_in_match(NULL,NULL,i));
-		of12_add_flow_entry_table(table, entry_list[i], false, false);
+		of12_add_flow_entry_table(pipeline,0, entry_list[i], false, false);
 		//CU_ASSERT(of12_add_timer(table, entry_list[i]));
 		
 		CU_ASSERT(table->timers->list.num_of_timers==i+1);
@@ -297,7 +297,7 @@ void test_simple_idle_dynamic(of12_pipeline_t * pipeline, uint32_t ito)
 	
 	of12_flow_entry_t *entry=of12_init_flow_entry(NULL,NULL,false);
 	of12_fill_new_timer_entry_info(entry,0,ito);
-	CU_ASSERT(of12_add_flow_entry_table(table, entry, false, false)==ROFL_OF12_FM_SUCCESS);
+	CU_ASSERT(of12_add_flow_entry_table(pipeline,0, entry, false, false)==ROFL_OF12_FM_SUCCESS);
 	
 	//insert a timer
 	//CU_ASSERT(of12_add_timer(table, entry)==EXIT_SUCCESS);
@@ -334,7 +334,7 @@ void test_insert_both_expires_one_check_the_other_dynamic(of12_pipeline_t * pipe
 	
 	of12_flow_entry_t *single_entry = of12_init_flow_entry(NULL,NULL,false);
 	of12_fill_new_timer_entry_info(single_entry,hto,ito);
-	of12_add_flow_entry_table(table, single_entry, false, false);
+	of12_add_flow_entry_table(pipeline,0, single_entry, false, false);
 	
 	if(hto==ito)
 	{
@@ -375,7 +375,7 @@ void test_incremental_insert_and_expiration_dynamic(of12_pipeline_t * pipeline)
 		CU_ASSERT(entry_list[i]!=NULL);
 		of12_fill_new_timer_entry_info(entry_list[i],timeout,0);
 		of12_add_match_to_entry(entry_list[i],of12_init_port_in_match(NULL,NULL,i));
-		CU_ASSERT(of12_add_flow_entry_table(table, entry_list[i], false, false)==ROFL_OF12_FM_SUCCESS);
+		CU_ASSERT(of12_add_flow_entry_table(pipeline,0, entry_list[i], false, false)==ROFL_OF12_FM_SUCCESS);
 		
 		//if(i==0)
 		//{
