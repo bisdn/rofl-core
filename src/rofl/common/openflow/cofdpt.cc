@@ -949,6 +949,12 @@ cofdpt::group_mod_reset()
 void
 cofdpt::table_mod_sent(cofpacket *pack)
 {
+	cofpacket_table_mod *table_mod = dynamic_cast<cofpacket_table_mod*>( pack );
+
+	if (0 == table_mod) {
+		return;
+	}
+
 	// TODO: adjust local flowtable
 }
 
@@ -956,15 +962,21 @@ cofdpt::table_mod_sent(cofpacket *pack)
 void
 cofdpt::port_mod_sent(cofpacket *pack)
 {
-	if (ports.find(be32toh(pack->ofh_port_mod->port_no)) == ports.end())
+	cofpacket_port_mod *port_mod = dynamic_cast<cofpacket_port_mod*>( pack );
+
+	if (0 == port_mod) {
+		return;
+	}
+
+	if (ports.find(port_mod->get_port_no()) == ports.end())
 	{
 		return;
 	}
 
-	ports[be32toh(pack->ofh_port_mod->port_no)]->recv_port_mod(
-										be32toh(pack->ofh_port_mod->config),
-										be32toh(pack->ofh_port_mod->mask),
-										be32toh(pack->ofh_port_mod->advertise));
+	ports[port_mod->get_port_no()]->recv_port_mod(
+											port_mod->get_config(),
+											port_mod->get_mask(),
+											port_mod->get_advertise());
 }
 
 void

@@ -1824,7 +1824,7 @@ cofctl::stats_request_rcvd(cofpacket_stats_request *pack)
 				this, be32toh(pack->ofh_header->xid));
 	}
 
-	switch (be16toh(pack->ofh_stats_request->type)) {
+	switch (pack->get_type()) {
 	case OFPST_DESC:
 		{
 			rofbase->handle_desc_stats_request(this, pack);
@@ -1879,7 +1879,7 @@ cofctl::stats_request_rcvd(cofpacket_stats_request *pack)
 		{
 			WRITELOG(COFCTL, WARN, "cofctl(%p)::recv_stats_request() "
 					"unknown stats request type (%d)",
-					this, be16toh(pack->ofh_stats_request->type));
+					this, pack->get_type());
 
 			rofbase->handle_stats_request(this, pack);
 		}

@@ -327,6 +327,25 @@ enum ofp13_flow_mod_flags {
 
 /* unaltered since OpenFlow 1.2 */
 
+/* Modify behavior of the physical port */
+struct ofp13_port_mod {
+    struct ofp_header header;
+    uint32_t port_no;
+    uint8_t pad[4];
+    uint8_t hw_addr[OFP_ETH_ALEN]; /* The hardware address is not
+                                      configurable.  This is used to
+                                      sanity-check the request, so it must
+                                      be the same as returned in an
+                                      ofp_port struct. */
+    uint8_t pad2[2];        /* Pad to 64 bits. */
+    uint32_t config;        /* Bitmap of OFPPC_* flags. */
+    uint32_t mask;          /* Bitmap of OFPPC_* flags to be changed. */
+
+    uint32_t advertise;     /* Bitmap of OFPPF_*.  Zero all bits to prevent
+                               any action taking place. */
+    uint8_t pad3[4];        /* Pad to 64 bits. */
+};
+OFP_ASSERT(sizeof(struct ofp13_port_mod) == 40);
 
 // A3.4.4 Meter Modification Message
 
@@ -981,6 +1000,23 @@ OFP_ASSERT(sizeof(struct ofp13_experimenter_multipart_header) == 8);
 
 /* unaltered since OpenFlow 1.2 */
 
+/* Query for port queue configuration. */
+struct ofp13_queue_get_config_request {
+    struct ofp_header header;
+    uint32_t port;         /* Port to be queried. Should refer
+                              to a valid physical port (i.e. < OFPP_MAX) */
+    uint8_t pad[4];
+};
+OFP_ASSERT(sizeof(struct ofp13_queue_get_config_request) == 16);
+
+/* Queue configuration for a given port. */
+struct ofp13_queue_get_config_reply {
+    struct ofp_header header;
+    uint32_t port;
+    uint8_t pad[4];
+    struct ofp_packet_queue queues[0]; /* List of configured queues. */
+};
+OFP_ASSERT(sizeof(struct ofp13_queue_get_config_reply) == 16);
 
 // A3.7 Packet-Out Message
 

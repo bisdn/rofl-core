@@ -231,7 +231,7 @@ struct ofp12_port_status {
 OFP_ASSERT(sizeof(struct ofp12_port_status) == 80);
 
 /* Modify behavior of the physical port */
-struct ofp_port_mod {
+struct ofp12_port_mod {
     struct ofp_header header;
     uint32_t port_no;
     uint8_t pad[4];
@@ -248,7 +248,7 @@ struct ofp_port_mod {
                                any action taking place. */
     uint8_t pad3[4];        /* Pad to 64 bits. */
 };
-OFP_ASSERT(sizeof(struct ofp_port_mod) == 40);
+OFP_ASSERT(sizeof(struct ofp12_port_mod) == 40);
 
 /* Why is this packet being sent to the controller? */
 enum ofp_packet_in_reason {
@@ -1157,14 +1157,14 @@ enum ofp_stats_types {
     OFPST_EXPERIMENTER = 0xffff
 };
 
-struct ofp_stats_request {
+struct ofp12_stats_request {
     struct ofp_header header;
     uint16_t type;              /* One of the OFPST_* constants. */
     uint16_t flags;             /* OFPSF_REQ_* flags (none yet defined). */
     uint8_t pad[4];
     uint8_t body[0];            /* Body of the request. */
 };
-OFP_ASSERT(sizeof(struct ofp_stats_request) == 16);
+OFP_ASSERT(sizeof(struct ofp12_stats_request) == 16);
 
 enum ofp_stats_reply_flags {
     OFPSF_REPLY_MORE  = 1 << 0  /* More replies to follow. */
@@ -1193,7 +1193,7 @@ struct ofp_desc_stats {
 OFP_ASSERT(sizeof(struct ofp_desc_stats) == 1056);
 
 /* Body for ofp_stats_request of type OFPST_FLOW. */
-struct ofp_flow_stats_request {
+struct ofp12_flow_stats_request {
     uint8_t table_id;         /* ID of table to read (from ofp_table_stats),
                                  0xff for all tables. */
     uint8_t pad[3];           /* Align to 64 bits. */
@@ -1211,7 +1211,7 @@ struct ofp_flow_stats_request {
                                  no restriction. */
     struct ofp12_match match; /* Fields to match. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 40);
+OFP_ASSERT(sizeof(struct ofp12_flow_stats_request) == 40);
 
 /* Body of reply to OFPST_FLOW request. */
 struct ofp_flow_stats {
@@ -1235,7 +1235,7 @@ struct ofp_flow_stats {
 OFP_ASSERT(sizeof(struct ofp_flow_stats) == 56);
 
 /* Body for ofp_stats_request of type OFPST_AGGREGATE. */
-struct ofp_aggregate_stats_request {
+struct ofp12_aggregate_stats_request {
     uint8_t table_id;         /* ID of table to read (from ofp_table_stats)
                                  0xff for all tables. */
     uint8_t pad[3];           /* Align to 64 bits. */
@@ -1253,7 +1253,7 @@ struct ofp_aggregate_stats_request {
                                  no restriction. */
     struct ofp12_match match; /* Fields to match. */
 };
-OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 40);
+OFP_ASSERT(sizeof(struct ofp12_aggregate_stats_request) == 40);
 
 /* Body of reply to OFPST_AGGREGATE request. */
 struct ofp_aggregate_stats_reply {
@@ -1462,22 +1462,22 @@ struct ofp_packet_queue {
 OFP_ASSERT(sizeof(struct ofp_packet_queue) == 8);
 
 /* Query for port queue configuration. */
-struct ofp_queue_get_config_request {
+struct ofp12_queue_get_config_request {
     struct ofp_header header;
     uint32_t port;         /* Port to be queried. Should refer
                               to a valid physical port (i.e. < OFPP_MAX) */
     uint8_t pad[4];
 };
-OFP_ASSERT(sizeof(struct ofp_queue_get_config_request) == 16);
+OFP_ASSERT(sizeof(struct ofp12_queue_get_config_request) == 16);
 
 /* Queue configuration for a given port. */
-struct ofp_queue_get_config_reply {
+struct ofp12_queue_get_config_reply {
     struct ofp_header header;
     uint32_t port;
     uint8_t pad[4];
     struct ofp_packet_queue queues[0]; /* List of configured queues. */
 };
-OFP_ASSERT(sizeof(struct ofp_queue_get_config_reply) == 16);
+OFP_ASSERT(sizeof(struct ofp12_queue_get_config_reply) == 16);
 
 /* OFPAT_SET_QUEUE action struct: send packets to given queue on port. */
 struct ofp_action_set_queue {

@@ -118,10 +118,17 @@ public: // data structures
 		struct ofp10_flow_mod 					*of10hu_fmhdr;
 		struct ofp12_flow_mod 					*of12hu_fmhdr;
 		struct ofp13_flow_mod 					*of13hu_fmhdr;
-		struct ofp_port_mod 					*ofhu_pmhdr;
-		struct ofp_queue_get_config_request 	*ofhu_qgcrqhdr;
-		struct ofp_queue_get_config_reply   	*ofhu_qgcrphdr;
-		struct ofp_stats_request 				*ofhu_srqhdr;
+		struct ofp10_port_mod 					*of10hu_pmhdr;
+		struct ofp12_port_mod 					*of12hu_pmhdr;
+		struct ofp13_port_mod 					*of13hu_pmhdr;
+		struct ofp10_queue_get_config_request 	*of10hu_qgcrqhdr;
+		struct ofp12_queue_get_config_request 	*of12hu_qgcrqhdr;
+		struct ofp13_queue_get_config_request 	*of13hu_qgcrqhdr;
+		struct ofp10_queue_get_config_reply   	*ofh10u_qgcrphdr;
+		struct ofp12_queue_get_config_reply   	*ofh12u_qgcrphdr;
+		struct ofp13_queue_get_config_reply   	*ofh13u_qgcrphdr;
+		struct ofp10_stats_request 				*of10hu_srqhdr;
+		struct ofp12_stats_request 				*of12hu_srqhdr;
 		struct ofp_stats_reply   				*ofhu_srphdr;
 		struct ofp10_packet_out 				*of10hu_pohdr;
 		struct ofp12_packet_out 				*of12hu_pohdr;
@@ -154,10 +161,17 @@ public: // data structures
 #define of10h_flow_mod 							ofh_ofhu.of10hu_fmhdr
 #define of12h_flow_mod 							ofh_ofhu.of12hu_fmhdr
 #define of13h_flow_mod 							ofh_ofhu.of13hu_fmhdr
-#define ofh_port_mod 							ofh_ofhu.ofhu_pmhdr
-#define ofh_queue_get_config_request 			ofh_ofhu.ofhu_qgcrqhdr
-#define ofh_queue_get_config_reply 				ofh_ofhu.ofhu_qgcrphdr
-#define ofh_stats_request						ofh_ofhu.ofhu_srqhdr
+#define of10h_port_mod 							ofh_ofhu.of10hu_pmhdr
+#define of12h_port_mod 							ofh_ofhu.of12hu_pmhdr
+#define of13h_port_mod 							ofh_ofhu.of13hu_pmhdr
+#define of10h_queue_get_config_request 			ofh_ofhu.of10hu_qgcrqhdr
+#define of12h_queue_get_config_request 			ofh_ofhu.of12hu_qgcrqhdr
+#define of13h_queue_get_config_request 			ofh_ofhu.of13hu_qgcrqhdr
+#define of10h_queue_get_config_reply 			ofh_ofhu.of10hu_qgcrphdr
+#define of12h_queue_get_config_reply 			ofh_ofhu.of12hu_qgcrphdr
+#define of13h_queue_get_config_reply 			ofh_ofhu.of13hu_qgcrphdr
+#define of10h_stats_request						ofh_ofhu.of10hu_srqhdr
+#define of12h_stats_request						ofh_ofhu.of12hu_srqhdr
 #define ofh_stats_reply							ofh_ofhu.ofhu_srphdr
 #define of10h_packet_out						ofh_ofhu.of10hu_pohdr
 #define of12h_packet_out						ofh_ofhu.of12hu_pohdr
@@ -196,14 +210,14 @@ public: // data structures
 
 	union {
 		uint8_t									*ofbu_sreq;
-		struct ofp_port_stats_request			*ofbu_psreq;
-		struct ofp_port_stats_reply				*ofbu_psreply;
-		struct ofp_flow_stats_request			*ofbu_fsreq;
-		struct ofp_flow_stats					*ofbu_fsreply;
-		struct ofp_aggregate_stats_request		*ofbu_asreq;
-		struct ofp_aggregate_stats_reply		*ofbu_asreply;
-		struct ofp_group_stats_request			*ofbu_gsreq;
-		struct ofp_group_stats					*ofbu_gsreply;
+		struct ofp12_port_stats_request			*ofbu_psreq;
+		struct ofp12_port_stats_reply			*ofbu_psreply;
+		struct ofp12_flow_stats_request			*ofbu_fsreq;
+		struct ofp12_flow_stats					*ofbu_fsreply;
+		struct ofp12_aggregate_stats_request	*ofbu_asreq;
+		struct ofp12_aggregate_stats_reply		*ofbu_asreply;
+		struct ofp12_group_stats_request		*ofbu_gsreq;
+		struct ofp12_group_stats				*ofbu_gsreply;
 	} ofb_ofbu;
 
 
@@ -1472,7 +1486,7 @@ public:
 
 			switch (of_version) {
 			case OFP10_VERSION: {
-				cofpacket::memarea.resize(OFP10_FLOW_MOD_STATIC_HDR_LEN);
+				cofpacket::resize(OFP10_FLOW_MOD_STATIC_HDR_LEN);
 
 				of10h_flow_mod->cookie			= htobe64(cookie);
 				of10h_flow_mod->command			= htobe16((uint16_t)command);
@@ -1485,7 +1499,7 @@ public:
 			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				cofpacket::memarea.resize(OFP12_FLOW_MOD_STATIC_HDR_LEN);
+				cofpacket::resize(OFP12_FLOW_MOD_STATIC_HDR_LEN);
 
 				of12h_flow_mod->cookie			= htobe64(cookie);
 				of12h_flow_mod->cookie_mask		= htobe64(cookie_mask);
@@ -1812,7 +1826,7 @@ public:
 
 			switch (of_version) {
 			case OFP10_VERSION: {
-				cofpacket::memarea.resize(OFP10_FLOW_REMOVED_STATIC_HDR_LEN);
+				cofpacket::resize(OFP10_FLOW_REMOVED_STATIC_HDR_LEN);
 
 				of10h_flow_rmvd->cookie 		= htobe64(cookie);
 				of10h_flow_rmvd->priority		= htobe16(priority);
@@ -1825,7 +1839,7 @@ public:
 			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				cofpacket::memarea.resize(OFP12_FLOW_REMOVED_STATIC_HDR_LEN);
+				cofpacket::resize(OFP12_FLOW_REMOVED_STATIC_HDR_LEN);
 
 				of12h_flow_rmvd->cookie			= htobe64(cookie);
 				of12h_flow_rmvd->priority		= htobe16(priority);
@@ -2127,7 +2141,7 @@ public:
 
 			switch (of_version) {
 			case OFP10_VERSION: {
-				cofpacket::memarea.resize(OFP10_PACKET_IN_STATIC_HDR_LEN);
+				cofpacket::resize(OFP10_PACKET_IN_STATIC_HDR_LEN);
 				cofpacket::stored = OFP10_PACKET_IN_STATIC_HDR_LEN;
 
 				of10h_packet_in->buffer_id		= htobe32(buffer_id);
@@ -2136,7 +2150,7 @@ public:
 				of10h_packet_in->reason			= reason;
 			} break;
 			case OFP12_VERSION: {
-				cofpacket::memarea.resize(OFP12_PACKET_IN_STATIC_HDR_LEN);
+				cofpacket::resize(OFP12_PACKET_IN_STATIC_HDR_LEN);
 				cofpacket::stored = OFP12_PACKET_IN_STATIC_HDR_LEN;
 
 				of12h_packet_in->buffer_id		= htobe32(buffer_id);
@@ -2145,7 +2159,7 @@ public:
 				of12h_packet_in->table_id		= table_id;
 			} break;
 			case OFP13_VERSION: {
-				cofpacket::memarea.resize(OFP13_PACKET_IN_STATIC_HDR_LEN);
+				cofpacket::resize(OFP13_PACKET_IN_STATIC_HDR_LEN);
 				cofpacket::stored = OFP13_PACKET_IN_STATIC_HDR_LEN;
 
 				of13h_packet_in->buffer_id		= htobe32(buffer_id);
@@ -2370,7 +2384,7 @@ public:
 
 			switch (of_version) {
 			case OFP10_VERSION: {
-				cofpacket::memarea.resize(sizeof(struct ofp10_packet_out));
+				cofpacket::resize(sizeof(struct ofp10_packet_out));
 
 				of10h_packet_out->buffer_id		= htobe32(buffer_id);
 				of10h_packet_out->in_port		= htobe16((uint16_t)(in_port & 0x0000ffff));
@@ -2379,7 +2393,7 @@ public:
 			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				cofpacket::memarea.resize(sizeof(struct ofp12_packet_out));
+				cofpacket::resize(sizeof(struct ofp12_packet_out));
 
 				of12h_packet_out->buffer_id		= htobe32(buffer_id);
 				of12h_packet_out->in_port		= htobe32(in_port);
@@ -2556,7 +2570,7 @@ public:
 
 			switch (of_version) {
 			case OFP10_VERSION: {
-				cofpacket::memarea.resize(sizeof(struct ofp10_port_status));
+				cofpacket::resize(sizeof(struct ofp10_port_status));
 
 				of10h_port_status->reason = reason;
 				port.pack(&(of10h_port_status->desc), sizeof(struct ofp10_port));
@@ -2564,7 +2578,7 @@ public:
 			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				cofpacket::memarea.resize(sizeof(struct ofp12_port_status));
+				cofpacket::resize(sizeof(struct ofp12_port_status));
 
 				of12h_port_status->reason	= reason;
 				port.pack(&(of12h_port_status->desc), sizeof(struct ofp12_port));
@@ -2640,127 +2654,41 @@ public:
 				cmacaddr const& hwaddr = cmacaddr("00:00:00:00:00:00"),
 				uint32_t config = 0,
 				uint32_t mask = 0,
-				uint32_t advertise = 0) :
-			cofpacket(	sizeof(struct ofp_port_mod),
-						sizeof(struct ofp_port_mod))
-		{
-			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_port_mod));
-			ofh_header->type 		= OFPT_PORT_MOD;
-			ofh_header->xid			= htobe32(xid);
-
-			switch (of_version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				ofh_port_mod->port_no			= htobe32(port_no);
-				ofh_port_mod->config			= htobe32(config);
-				ofh_port_mod->mask				= htobe32(mask);
-				ofh_port_mod->advertise			= htobe32(advertise);
-
-				memcpy(ofh_port_mod->hw_addr, hwaddr.somem(), OFP_ETH_ALEN);
-
-			} break;
-			default:
-				throw eBadVersion();
-			}
-		};
+				uint32_t advertise = 0);
 		/** constructor
 		 *
 		 */
-		cofpacket_port_mod(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
-		{
-			cofpacket::operator =(*pack);
-		};
+		cofpacket_port_mod(cofpacket const *pack);
 		/** destructor
 		 *
 		 */
 		virtual
-		~cofpacket_port_mod() {};
+		~cofpacket_port_mod();
 		/** length
 		 *
 		 */
 		virtual size_t
-		length()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return (sizeof(struct ofp_port_mod));
-			} break;
-			default:
-				throw eBadVersion();
-			}
-			return 0;
-		};
+		length();
 		/**
 		 *
 		 */
 		uint32_t
-		get_port_no()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be32toh(ofh_port_mod->port_no);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_port_no();
 		/**
 		 *
 		 */
 		uint32_t
-		get_config()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be32toh(ofh_port_mod->config);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_config();
 		/**
 		 *
 		 */
 		uint32_t
-		get_mask()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be32toh(ofh_port_mod->mask);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_mask();
 		/**
 		 *
 		 */
 		uint32_t
-		get_advertise()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be32toh(ofh_port_mod->advertise);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_advertise();
 };
 
 
@@ -2781,131 +2709,41 @@ public:
 				uint32_t xid = 0,
 				uint16_t command = 0,
 				uint8_t  type = 0,
-				uint32_t group_id = 0) :
-			cofpacket(	sizeof(struct ofp_group_mod),
-						sizeof(struct ofp_group_mod))
-		{
-			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_group_mod));
-			ofh_header->type 		= OFPT_GROUP_MOD;
-			ofh_header->xid			= htobe32(xid);
-
-			switch (of_version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				ofh_group_mod->command		= htobe16(command);
-				ofh_group_mod->type			= type;
-				ofh_group_mod->group_id		= htobe32(group_id);
-
-			} break;
-			default:
-				throw eBadVersion();
-			}
-		};
+				uint32_t group_id = 0);
 		/** constructor
 		 *
 		 */
-		cofpacket_group_mod(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
-		{
-			cofpacket::operator =(*pack);
-		};
+		cofpacket_group_mod(cofpacket const *pack);
 		/** destructor
 		 *
 		 */
 		virtual
-		~cofpacket_group_mod() {};
+		~cofpacket_group_mod();
 		/** length
 		 *
 		 */
 		virtual size_t
-		length()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return (sizeof(struct ofp_group_mod) + buckets.length());
-			} break;
-			default:
-				throw eBadVersion();
-			}
-			return 0;
-		};
+		length();
 		/**
 		 *
 		 */
 		virtual void
-		pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0) throw (eOFpacketInval)
-		{
-			ofh_header->length = htobe16(length());
-
-			if (((uint8_t*)0 == buf) || (buflen < length()))
-			{
-				return;
-			}
-
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				memcpy(buf, memarea.somem(), sizeof(struct ofp_group_mod));
-				buckets.pack((struct ofp_bucket*)(buf + sizeof(struct ofp_group_mod)), buckets.length());
-
-			} break;
-			default:
-				throw eBadVersion();
-			}
-		};
+		pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0) throw (eOFpacketInval);
 		/**
 		 *
 		 */
 		uint16_t
-		get_command()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be16toh(ofh_group_mod->command);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_command();
 		/**
 		 *
 		 */
 		uint8_t
-		get_port_no()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return ofh_group_mod->type;
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_port_no();
 		/**
 		 *
 		 */
 		uint32_t
-		get_group_id()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be32toh(ofh_group_mod->group_id);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_group_id();
 };
 
 
@@ -2924,88 +2762,31 @@ public:
 				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint8_t  table_id = 0,
-				uint32_t config = 0) :
-			cofpacket(	sizeof(struct ofp_table_mod),
-						sizeof(struct ofp_table_mod))
-		{
-			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_table_mod));
-			ofh_header->type 		= OFPT_TABLE_MOD;
-			ofh_header->xid			= htobe32(xid);
-
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				ofh_table_mod->table_id			= table_id;
-				ofh_table_mod->config			= htobe32(config);
-			} break;
-			default:
-				throw eBadVersion();
-			}
-		};
+				uint32_t config = 0);
 		/** constructor
 		 *
 		 */
-		cofpacket_table_mod(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
-		{
-			cofpacket::operator =(*pack);
-		};
+		cofpacket_table_mod(cofpacket const *pack);
 		/** destructor
 		 *
 		 */
 		virtual
-		~cofpacket_table_mod() {};
+		~cofpacket_table_mod();
 		/** length
 		 *
 		 */
 		virtual size_t
-		length()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return (sizeof(struct ofp_table_mod));
-			} break;
-			default:
-				throw eBadVersion();
-			}
-			return 0;
-		};
+		length();
 		/**
 		 *
 		 */
 		uint8_t
-		get_table_id()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return ofh_table_mod->table_id;
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_table_id();
 		/**
 		 *
 		 */
 		uint32_t
-		get_config()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be32toh(ofh_table_mod->config);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_config();
 };
 
 
@@ -3025,92 +2806,36 @@ public:
 				uint16_t type = 0,
 				uint16_t flags = 0,
 				uint8_t *data = (uint8_t*)0,
-				size_t datalen = 0) :
-			cofpacket(	sizeof(struct ofp_stats_request),
-						sizeof(struct ofp_stats_request))
-		{
-			cofpacket::body.assign(data, datalen);
-
-			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_stats_request) + body.memlen());
-			ofh_header->type 		= OFPT_STATS_REQUEST;
-			ofh_header->xid			= htobe32(xid);
-
-			ofh_stats_request->type		= htobe16(type);
-			ofh_stats_request->flags	= htobe16(flags);
-		};
+				size_t datalen = 0);
 		/** constructor
 		 *
 		 */
-		cofpacket_stats_request(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
-		{
-			cofpacket::operator =(*pack);
-		};
+		cofpacket_stats_request(cofpacket const *pack);
 		/** destructor
 		 *
 		 */
 		virtual
-		~cofpacket_stats_request() {};
+		~cofpacket_stats_request();
 		/** length
 		 *
 		 */
 		virtual size_t
-		length()
-		{
-			return (sizeof(struct ofp_stats_request) + body.memlen());
-		};
+		length();
 		/**
 		 *
 		 */
 		virtual void
-		pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0) throw (eOFpacketInval)
-		{
-			ofh_header->length = htobe16(length());
-
-			if (((uint8_t*)0 == buf) || (buflen < length()))
-			{
-				return;
-			}
-
-			memcpy(buf, memarea.somem(), sizeof(struct ofp_stats_request));
-
-			memcpy(buf + sizeof(struct ofp_stats_request), body.somem(), body.memlen());
-		};
+		pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0) throw (eOFpacketInval);
 		/**
 		 *
 		 */
 		uint16_t
-		get_type()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be16toh(ofh_stats_request->type);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_type();
 		/**
 		 *
 		 */
 		uint16_t
-		get_flags()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be16toh(ofh_stats_request->flags);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_flags();
 };
 
 
@@ -3141,7 +2866,7 @@ public:
 			case OFP12_VERSION: {
 				size_t flow_stats_body_len = 32;
 				cofpacket::body.resize(flow_stats_body_len);
-				struct ofp_flow_stats_request* flow_stats = (struct ofp_flow_stats_request*)(body.somem());
+				struct ofp12_flow_stats_request* flow_stats = (struct ofp12_flow_stats_request*)(body.somem());
 
 				flow_stats->table_id		= table_id;
 				flow_stats->out_port		= htobe32(out_port);
@@ -3177,7 +2902,7 @@ public:
 		virtual size_t
 		length()
 		{
-			return (sizeof(struct ofp_stats_request) + body.memlen() + match.length());
+			return (sizeof(struct ofp12_stats_request) + body.memlen() + match.length());
 		};
 		/**
 		 *
@@ -3192,11 +2917,11 @@ public:
 				return;
 			}
 
-			memcpy(buf, memarea.somem(), sizeof(struct ofp_stats_request));
+			memcpy(buf, memarea.somem(), sizeof(struct ofp12_stats_request));
 
-			memcpy(buf + sizeof(struct ofp_stats_request), body.somem(), body.memlen());
+			memcpy(buf + sizeof(struct ofp12_stats_request), body.somem(), body.memlen());
 
-			match.pack((struct ofp12_match*)(buf + sizeof(struct ofp_stats_request) +
+			match.pack((struct ofp12_match*)(buf + sizeof(struct ofp12_stats_request) +
 														body.memlen()), match.length());
 		};
 };
@@ -3373,6 +3098,18 @@ public:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 /** OFPT_QUEUE_GET_CONFIG_REQUEST
  *
  */
@@ -3386,71 +3123,32 @@ public:
 		cofpacket_queue_get_config_request(
 				uint8_t of_version = 0,
 				uint32_t xid = 0,
-				uint32_t port = 0) :
-			cofpacket(	sizeof(struct ofp_queue_get_config_request),
-						sizeof(struct ofp_queue_get_config_request))
-		{
-			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_queue_get_config_request));
-			ofh_header->type 		= OFPT_QUEUE_GET_CONFIG_REQUEST;
-			ofh_header->xid			= htobe32(xid);
-
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				ofh_queue_get_config_request->port		= htobe32(port);
-			} break;
-			default:
-				throw eBadVersion();
-			}
-		};
+				uint32_t port = 0);
 		/** constructor
 		 *
 		 */
-		cofpacket_queue_get_config_request(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
-		{
-			cofpacket::operator =(*pack);
-		};
+		cofpacket_queue_get_config_request(cofpacket const *pack);
 		/** destructor
 		 *
 		 */
 		virtual
-		~cofpacket_queue_get_config_request() {};
+		~cofpacket_queue_get_config_request();
 		/** length
 		 *
 		 */
 		virtual size_t
-		length()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return (sizeof(struct ofp_queue_get_config_request));
-			} break;
-			default:
-				throw eBadVersion();
-			}
-			return 0;
-		};
+		length();
 		/**
 		 *
 		 */
 		uint32_t
-		get_port()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be32toh(ofh_queue_get_config_request->port);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_port() const;
 };
+
+
+
+
+
 
 
 /** OFPT_QUEUE_GET_CONFIG_REPLY
@@ -3470,70 +3168,34 @@ public:
 		cofpacket_queue_get_config_reply(
 				uint8_t of_version,
 				uint32_t xid = 0,
-				uint32_t port = 0) :
-			cofpacket(	sizeof(struct ofp_queue_get_config_reply),
-						sizeof(struct ofp_queue_get_config_reply))
-		{
-			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_queue_get_config_reply));
-			ofh_header->type 		= OFPT_QUEUE_GET_CONFIG_REPLY;
-			ofh_header->xid			= htobe32(xid);
-
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				ofh_queue_get_config_reply->port		= htobe32(port);
-			} break;
-			default:
-				throw eBadVersion();
-			}
-		};
+				uint32_t port = 0);
 		/** constructor
 		 *
 		 */
-		cofpacket_queue_get_config_reply(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
-		{
-			cofpacket::operator =(*pack);
-		};
+		cofpacket_queue_get_config_reply(cofpacket const *pack);
 		/** destructor
 		 *
 		 */
 		virtual
-		~cofpacket_queue_get_config_reply() {};
+		~cofpacket_queue_get_config_reply();
 		/** length
 		 *
 		 */
 		virtual size_t
-		length()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return (sizeof(struct ofp_queue_get_config_reply));
-			} break;
-			default:
-				throw eBadVersion();
-			}
-		};
+		length();
 		/**
 		 *
 		 */
 		uint32_t
-		get_port() const
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be32toh(ofh_queue_get_config_reply->port);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_port() const;
 };
+
+
+
+
+
+
+
 
 
 /** OFPT_EXPERIMENTER
@@ -3661,7 +3323,7 @@ public:
 						sizeof(struct ofp_role_request))
 		{
 			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_queue_get_config_reply));
+			ofh_header->length		= htobe16(sizeof(struct ofp_role_request));
 			ofh_header->type 		= OFPT_ROLE_REQUEST;
 			ofh_header->xid			= htobe32(xid);
 
@@ -3760,7 +3422,7 @@ public:
 						sizeof(struct ofp_role_request))
 		{
 			ofh_header->version 	= version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_queue_get_config_reply));
+			ofh_header->length		= htobe16(sizeof(struct ofp_role_request));
 			ofh_header->type 		= OFPT_ROLE_REPLY;
 			ofh_header->xid			= htobe32(xid);
 

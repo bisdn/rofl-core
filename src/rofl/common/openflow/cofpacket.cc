@@ -923,40 +923,77 @@ cofpacket::is_valid_table_mod()
 bool
 cofpacket::is_valid_port_mod()
 {
-	ofh_port_mod = (struct ofp_port_mod*)soframe();
-	if (stored < sizeof(struct ofp_port_mod))
-		return false;
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		of10h_port_mod = (struct ofp10_port_mod*)soframe();
+		if (stored < sizeof(struct ofp10_port_mod))
+			return false;
+
+	} break;
+	case OFP12_VERSION: {
+		of12h_port_mod = (struct ofp12_port_mod*)soframe();
+		if (stored < sizeof(struct ofp12_port_mod))
+			return false;
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
 	return true;
 }
 
 bool
 cofpacket::is_valid_stats_request()
 {
-	ofh_stats_request = (struct ofp_stats_request*)soframe();
-	if (stored < sizeof(struct ofp_stats_request))
-		return false;
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		of10h_stats_request = (struct ofp10_stats_request*)soframe();
+		if (stored < sizeof(struct ofp10_stats_request))
+			return false;
 
-	size_t body_len = stored - sizeof(struct ofp_stats_request);
+		size_t body_len = stored - sizeof(struct ofp10_stats_request);
 
-	body.assign((uint8_t*)ofh_stats_request->body, body_len);
+		body.assign((uint8_t*)of10h_stats_request->body, body_len);
 
-	ofb_stats_request = (uint8_t*)body.somem();
+		match.reset();
 
-	switch (be16toh(ofh_stats_request->type)) {
-	case OFPST_FLOW:
-		{
-			match.reset();
-			size_t match_len = stored - OFP_FLOW_STATS_REQUEST_STATIC_HDR_LEN;
-			match.unpack(&(ofb_flow_stats_request->match), match_len);
+		switch (be16toh(of10h_stats_request->type)) {
+		case OFPST_FLOW: {
+			struct ofp10_flow_stats_request *flow_stats = (struct ofp10_flow_stats_request*)body.somem();
+			match.unpack(&(flow_stats->match), sizeof(struct ofp10_stats_request));
+		} break;
+		case OFPST_AGGREGATE: {
+			struct ofp10_aggregate_stats_request *aggregate_stats = (struct ofp10_flow_stats_request*)body.somem();
+			match.unpack(&(aggregate_stats->match), sizeof(struct ofp10_stats_request));
+		} break;
 		}
-		break;
-	case OFPST_AGGREGATE:
-		{
-			match.reset();
-			size_t match_len = stored - OFP_AGGR_STATS_REQUEST_STATIC_HDR_LEN;
-			match.unpack(&(ofb_aggregate_stats_request->match), match_len);
+
+	} break;
+	case OFP12_VERSION: {
+		of12h_stats_request = (struct ofp12_stats_request*)soframe();
+		if (stored < sizeof(struct ofp12_stats_request))
+			return false;
+
+		size_t body_len = stored - sizeof(struct ofp12_stats_request);
+
+		body.assign((uint8_t*)of12h_stats_request->body, body_len);
+
+		match.reset();
+
+		switch (be16toh(of12h_stats_request->type)) {
+		case OFPST_FLOW: {
+			struct ofp12_flow_stats_request *flow_stats = (struct ofp12_flow_stats_request*)body.somem();
+			match.unpack(&(flow_stats->match), stored - sizeof(struct ofp12stats_request));
+		} break;
+		case OFPST_AGGREGATE: {
+			struct ofp12_aggregate_stats_request *aggregate_stats = (struct ofp12_flow_stats_request*)body.somem();
+			match.unpack(&(aggregate_stats->match), stored - sizeof(struct ofp12_stats_request));
+		} break;
 		}
-		break;
+
+	} break;
+	default:
+		throw eBadVersion();
 	}
 
 	// TODO: description fields
@@ -1663,5 +1700,706 @@ cofpacket::test()
 	}
 #endif
 }
+
+
+
+
+/*
+ * Port-Modify
+ */
+
+
+cofpacket_port_mod::cofpacket_port_mod(
+		uint8_t of_version,
+		uint32_t xid,
+		uint32_t port_no,
+		cmacaddr const& hwaddr,
+		uint32_t config,
+		uint32_t mask,
+		uint32_t advertise) :
+	cofpacket(	sizeof(struct ofp_header),
+				sizeof(struct ofp_header))
+{
+	ofh_header->version 	= of_version;
+	ofh_header->length		= htobe16(length());
+	ofh_header->type 		= OFPT_PORT_MOD;
+	ofh_header->xid			= htobe32(xid);
+
+	switch (of_version) {
+	case OFP10_VERSION: {
+		cofpacket::resize(sizeof(struct ofp10_port_mod));
+		cofpacket::stored = sizeof(struct ofp10_port_mod);
+
+		of10h_port_mod->port_no			= htobe16((uint16_t)(port_no & 0x0000ffff));
+		of10h_port_mod->config			= htobe32(config);
+		of10h_port_mod->mask			= htobe32(mask);
+		of10h_port_mod->advertise		= htobe32(advertise);
+
+		memcpy(of10h_port_mod->hw_addr, hwaddr.somem(), OFP_ETH_ALEN);
+
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		cofpacket::resize(sizeof(struct ofp12_port_mod));
+		cofpacket::stored = sizeof(struct ofp12_port_mod);
+
+		of12h_port_mod->port_no			= htobe32(port_no);
+		of12h_port_mod->config			= htobe32(config);
+		of12h_port_mod->mask			= htobe32(mask);
+		of12h_port_mod->advertise		= htobe32(advertise);
+
+		memcpy(of12h_port_mod->hw_addr, hwaddr.somem(), OFP_ETH_ALEN);
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+};
+
+
+
+cofpacket_port_mod::cofpacket_port_mod(cofpacket const *pack) :
+	cofpacket(pack->framelen(), pack->framelen())
+{
+	cofpacket::operator =(*pack);
+};
+
+
+
+
+cofpacket_port_mod::~cofpacket_port_mod() {};
+
+
+
+size_t
+cofpacket_port_mod::length()
+{
+	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		return (sizeof(struct ofp10_port_mod));
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return (sizeof(struct ofp12_port_mod));
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+};
+
+
+
+uint32_t
+cofpacket_port_mod::get_port_no()
+{
+	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		return (uint32_t)be16toh(of10h_port_mod->port_no);
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be32toh(of12h_port_mod->port_no);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+};
+
+
+
+uint32_t
+cofpacket_port_mod::get_config()
+{
+	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		return be32toh(of10h_port_mod->config);
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be32toh(of12h_port_mod->config);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+};
+
+
+
+uint32_t
+cofpacket_port_mod::get_mask()
+{
+	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		return be32toh(of10h_port_mod->mask);
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be32toh(of12h_port_mod->mask);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+};
+
+
+
+uint32_t
+cofpacket_port_mod::get_advertise()
+{
+	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		return be32toh(of10h_port_mod->advertise);
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be32toh(of12h_port_mod->advertise);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+};
+
+
+
+/*
+ * OFPT_GROUP_MOD
+ */
+
+cofpacket_group_mod::cofpacket_group_mod(
+				uint8_t of_version,
+				uint32_t xid,
+				uint16_t command,
+				uint8_t  type,
+				uint32_t group_id) :
+			cofpacket(	sizeof(struct ofp_group_mod),
+						sizeof(struct ofp_group_mod))
+{
+	ofh_header->version 	= of_version;
+	ofh_header->length		= htobe16(sizeof(struct ofp_group_mod));
+	ofh_header->type 		= OFPT_GROUP_MOD;
+	ofh_header->xid			= htobe32(xid);
+
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		ofh_group_mod->command		= htobe16(command);
+		ofh_group_mod->type			= type;
+		ofh_group_mod->group_id		= htobe32(group_id);
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+cofpacket_group_mod::cofpacket_group_mod(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+{
+	cofpacket::operator =(*pack);
+};
+
+
+
+
+cofpacket_group_mod::~cofpacket_group_mod() {};
+
+
+
+size_t
+cofpacket_group_mod::length()
+{
+	switch (ofh_header->version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return (sizeof(struct ofp_group_mod) + buckets.length());
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+void
+cofpacket_group_mod::pack(uint8_t *buf, size_t buflen) throw (eOFpacketInval)
+{
+	ofh_header->length = htobe16(length());
+
+	if (((uint8_t*)0 == buf) || (buflen < length()))
+	{
+		return;
+	}
+
+	switch (ofh_header->version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		memcpy(buf, memarea.somem(), sizeof(struct ofp_group_mod));
+		buckets.pack((struct ofp_bucket*)(buf + sizeof(struct ofp_group_mod)), buckets.length());
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+uint16_t
+cofpacket_group_mod::get_command()
+{
+	switch (ofh_header->version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be16toh(ofh_group_mod->command);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint8_t
+cofpacket_group_mod::get_port_no()
+{
+	switch (ofh_header->version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return ofh_group_mod->type;
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint32_t
+cofpacket_group_mod::get_group_id()
+{
+	switch (ofh_header->version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be32toh(ofh_group_mod->group_id);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+/*
+ * OFPT_TABLE_MOD
+ */
+
+
+cofpacket_table_mod::cofpacket_table_mod(
+		uint8_t of_version,
+		uint32_t xid,
+		uint8_t  table_id,
+		uint32_t config) :
+	cofpacket(	sizeof(struct ofp_table_mod),
+				sizeof(struct ofp_table_mod))
+{
+	ofh_header->version 	= of_version;
+	ofh_header->length		= htobe16(sizeof(struct ofp_table_mod));
+	ofh_header->type 		= OFPT_TABLE_MOD;
+	ofh_header->xid			= htobe32(xid);
+
+	switch (ofh_header->version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		ofh_table_mod->table_id			= table_id;
+		ofh_table_mod->config			= htobe32(config);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+cofpacket_table_mod::cofpacket_table_mod(cofpacket const *pack) :
+	cofpacket(pack->framelen(), pack->framelen())
+{
+	cofpacket::operator =(*pack);
+}
+
+
+
+cofpacket_table_mod::~cofpacket_table_mod()
+{
+
+}
+
+
+
+size_t
+cofpacket_table_mod::length()
+{
+	switch (ofh_header->version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return (sizeof(struct ofp_table_mod));
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+uint8_t
+cofpacket_table_mod::get_table_id()
+{
+	switch (ofh_header->version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return ofh_table_mod->table_id;
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint32_t
+cofpacket_table_mod::get_config()
+{
+	switch (ofh_header->version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be32toh(ofh_table_mod->config);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+
+
+/*
+ * OFPT_STATS_REQUEST
+ */
+
+
+cofpacket_stats_request::cofpacket_stats_request(
+		uint8_t of_version,
+		uint32_t xid,
+		uint16_t type,
+		uint16_t flags,
+		uint8_t *data,
+		size_t datalen) :
+	cofpacket(	sizeof(struct ofp_stats_request),
+				sizeof(struct ofp_stats_request))
+{
+	cofpacket::body.assign(data, datalen);
+
+	ofh_header->version 	= of_version;
+	ofh_header->length		= htobe16(length());
+	ofh_header->type 		= OFPT_STATS_REQUEST;
+	ofh_header->xid			= htobe32(xid);
+
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		of10h_stats_request->type	= htobe16(type);
+		of10h_stats_request->flags	= htobe16(flags);
+	} break;
+	case OFP12_VERSION: {
+		of12h_stats_request->type	= htobe16(type);
+		of12h_stats_request->flags	= htobe16(flags);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+cofpacket_stats_request::cofpacket_stats_request(cofpacket const *pack) :
+	cofpacket(pack->framelen(), pack->framelen())
+{
+	cofpacket::operator =(*pack);
+}
+
+
+
+cofpacket_stats_request::~cofpacket_stats_request()
+{
+
+}
+
+
+
+size_t
+cofpacket_stats_request::length()
+{
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		return (sizeof(struct ofp10_stats_request) + body.memlen());
+	} break;
+	case OFP12_VERSION: {
+		return (sizeof(struct ofp12_stats_request) + body.memlen()); // 4 bytes padding make the different from 1.0 to 1.2
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+void
+cofpacket_stats_request::pack(uint8_t *buf, size_t buflen) throw (eOFpacketInval)
+{
+	ofh_header->length = htobe16(length());
+
+	if (((uint8_t*)0 == buf) || (buflen < length()))
+	{
+		return;
+	}
+
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		memcpy(buf, memarea.somem(), sizeof(struct ofp10_stats_request));
+		memcpy(buf + sizeof(struct ofp10_stats_request), body.somem(), body.memlen());
+	} break;
+	case OFP12_VERSION: {
+		memcpy(buf, memarea.somem(), sizeof(struct ofp12_stats_request));
+		memcpy(buf + sizeof(struct ofp12_stats_request), body.somem(), body.memlen());
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+uint16_t
+cofpacket_stats_request::get_type()
+{
+	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		return be16toh(of10h_stats_request->type);
+	} break;
+	case OFP12_VERSION: {
+		return be16toh(of12h_stats_request->type);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+uint16_t
+cofpacket_stats_request::get_flags()
+{
+	switch (ofh_header->version) {
+	case OFP13_VERSION: {
+		return be16toh(of10h_stats_request->flags);
+	} break;
+	case OFP12_VERSION: {
+		return be16toh(of12h_stats_request->flags);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+
+
+/*
+ * OFPT_QUEUE_GET_CONFIG_REQUEST
+ */
+
+
+
+cofpacket_queue_get_config_request::cofpacket_queue_get_config_request(
+		uint8_t of_version,
+		uint32_t xid,
+		uint32_t port) :
+	cofpacket(	sizeof(struct ofp_queue_get_config_request),
+				sizeof(struct ofp_queue_get_config_request))
+{
+	ofh_header->version 	= of_version;
+	ofh_header->length		= htobe16(length());
+	ofh_header->type 		= OFPT_QUEUE_GET_CONFIG_REQUEST;
+	ofh_header->xid			= htobe32(xid);
+
+	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		of10h_queue_get_config_request->port = htobe16((uint16_t)(port & 0x0000ffff));
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		of12h_queue_get_config_request->port = htobe32(port);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+cofpacket_queue_get_config_request::cofpacket_queue_get_config_request(cofpacket const *pack) :
+	cofpacket(pack->framelen(), pack->framelen())
+{
+	cofpacket::operator =(*pack);
+}
+
+
+
+cofpacket_queue_get_config_request::~cofpacket_queue_get_config_request()
+{
+
+}
+
+
+
+size_t
+cofpacket_queue_get_config_request::length()
+{
+	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		return (sizeof(struct ofp10_queue_get_config_request));
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return (sizeof(struct ofp12_queue_get_config_request));
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+uint32_t
+cofpacket_queue_get_config_request::get_port() const
+{
+	switch (ofh_header->version) {
+	case OFP10_VERSION: {
+		return (uint32_t)be16toh(of10h_queue_get_config_request->port);
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be32toh(of12h_queue_get_config_request->port);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+
+
+/*
+ * OFPT_QUEUE_GET_CONFIG_REPLY
+ */
+
+
+
+cofpacket_queue_get_config_reply::cofpacket_queue_get_config_reply(
+		uint8_t of_version,
+		uint32_t xid,
+		uint32_t port) :
+	cofpacket(	sizeof(struct ofp_queue_get_config_reply),
+				sizeof(struct ofp_queue_get_config_reply))
+{
+	ofh_header->version 	= of_version;
+	ofh_header->length		= htobe16(sizeof(struct ofp_queue_get_config_reply));
+	ofh_header->type 		= OFPT_QUEUE_GET_CONFIG_REPLY;
+	ofh_header->xid			= htobe32(xid);
+
+	switch (ofh_header->version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		of12h_queue_get_config_reply->port = htobe32(port);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+cofpacket_queue_get_config_reply::cofpacket_queue_get_config_reply(cofpacket const *pack) :
+	cofpacket(pack->framelen(), pack->framelen())
+{
+	cofpacket::operator =(*pack);
+}
+
+
+
+cofpacket_queue_get_config_reply::~cofpacket_queue_get_config_reply()
+{
+
+}
+
+
+
+size_t
+cofpacket_queue_get_config_reply::length()
+{
+	switch (ofh_header->version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return (sizeof(struct ofp_queue_get_config_reply));
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+uint32_t
+cofpacket_queue_get_config_reply::get_port() const
+{
+	switch (ofh_header->version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be32toh(ofh_queue_get_config_reply->port);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
 
 
