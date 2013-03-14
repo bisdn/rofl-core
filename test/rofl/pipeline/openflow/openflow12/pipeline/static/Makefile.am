@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-static_unit_test_CFLAGS= -DTIMERS_FAKE_TIME -DOF12_TIMER_STATIC_ALLOCATION_SLOTS
+static_unit_test_CFLAGS= -DTIMERS_FAKE_TIME
 
 static_unit_test_SOURCES=../unit_test.c \
 	../timers_hard_timeout.c \
