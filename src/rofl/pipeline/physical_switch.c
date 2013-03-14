@@ -1,5 +1,7 @@
 #include "physical_switch.h"
 
+#include <assert.h>
+
 static physical_switch_t psw;
 
 //Meta port FLOOD shortcut
@@ -92,6 +94,7 @@ rofl_result_t physical_switch_add_logical_switch(of_switch_t* sw){
 	//Serialize
 	platform_mutex_lock(psw.mutex);
 
+	// check bounds
 	if(psw.num_of_logical_switches == PHYSICAL_SWITCH_MAX_LS){
 		//Serialize
 		platform_mutex_unlock(psw.mutex);
