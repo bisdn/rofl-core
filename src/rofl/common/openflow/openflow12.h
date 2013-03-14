@@ -1214,7 +1214,7 @@ struct ofp12_flow_stats_request {
 OFP_ASSERT(sizeof(struct ofp12_flow_stats_request) == 40);
 
 /* Body of reply to OFPST_FLOW request. */
-struct ofp_flow_stats {
+struct ofp12_flow_stats {
     uint16_t length;          /* Length of this entry. */
     uint8_t table_id;         /* ID of table flow came from. */
     uint8_t pad;
@@ -1232,7 +1232,7 @@ struct ofp_flow_stats {
     struct ofp12_match match; /* Description of fields. */
     //struct ofp_instruction instructions[0]; /* Instruction set. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_stats) == 56);
+OFP_ASSERT(sizeof(struct ofp12_flow_stats) == 56);
 
 /* Body for ofp_stats_request of type OFPST_AGGREGATE. */
 struct ofp12_aggregate_stats_request {

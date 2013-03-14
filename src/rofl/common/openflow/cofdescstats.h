@@ -15,22 +15,19 @@
 namespace rofl
 {
 
-class cofdescstats :
-		public cmemory
+class cofdescstats
 {
 private: // data structures
 
-	uint8_t of_version;
+	uint8_t 		of_version;
+	std::string 	mfr_desc;
+	std::string		hw_desc;
+	std::string		sw_desc;
+	std::string		serial_num;
+	std::string		dp_desc;
 
 public: // data structures
 
-	union {
-		struct ofp10_desc_stats		*ofhu10_desc_stats;
-		struct ofp12_desc_stats		*ofhu12_desc_stats;
-	} ofhu;
-
-#define ofh10_desc_stats ofhu.ofhu10_desc_stats
-#define ofh12_desc_stats ofhu.ofhu12_desc_stats
 
 public:
 	/**
@@ -99,6 +96,18 @@ public:
 	 */
 	std::string
 	get_dp_desc() const;
+
+	/**
+	 *
+	 */
+	void
+	pack(uint8_t *buf, size_t buflen) const;
+
+	/**
+	 *
+	 */
+	void
+	unpack(uint8_t *buf, size_t buflen);
 };
 
 }

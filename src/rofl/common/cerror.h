@@ -60,6 +60,7 @@ public:
 }; //< oops, fix me exception :D
 class eInternalError 		: public cerror {}; //< some internal error occured
 class eDebug 				: public cerror {};
+class eInval				: public cerror {};
 
 }; // end of namespace
 
