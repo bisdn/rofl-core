@@ -94,6 +94,7 @@ rofl_result_t physical_switch_add_logical_switch(of_switch_t* sw){
 	//Serialize
 	platform_mutex_lock(psw.mutex);
 
+	// check bounds
 	if(psw.num_of_logical_switches == PHYSICAL_SWITCH_MAX_LS){
 		//Serialize
 		platform_mutex_unlock(psw.mutex);
@@ -104,13 +105,6 @@ rofl_result_t physical_switch_add_logical_switch(of_switch_t* sw){
 	for(i=0;i<PHYSICAL_SWITCH_MAX_LS;i++){
 		if(!psw.logical_switches[i])
 			break;
-	}
-
-	// check bounds
-	if (PHYSICAL_SWITCH_MAX_LS <= i) {
-		assert(0);
-		platform_mutex_unlock(psw.mutex);
-		return ROFL_FAILURE;
 	}
 
 	psw.logical_switches[i] = sw;
