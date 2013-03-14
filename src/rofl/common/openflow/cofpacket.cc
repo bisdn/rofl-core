@@ -724,7 +724,7 @@ cofpacket::is_valid_flow_removed()
 	case OFP13_VERSION: {
 		of12h_flow_rmvd = (struct ofp12_flow_removed*)soframe();
 
-		size_t frgenlen = sizeof(struct ofp12_flow_removed) - sizeof(struct ofp_match);
+		size_t frgenlen = sizeof(struct ofp12_flow_removed) - sizeof(struct ofp12_match);
 
 		if (stored < frgenlen)
 			return false;
@@ -1156,9 +1156,9 @@ cofpacket::test()
 	}
 
 
-	match.oxmlist[OFPXMT_OFB_IN_PORT] = coxmatch_ofb_in_port(47);
-	match.oxmlist[OFPXMT_OFB_IN_PHY_PORT] = coxmatch_ofb_in_phy_port(47);
-	match.oxmlist[OFPXMT_OFB_METADATA] = coxmatch_ofb_metadata(0x4343434343434343);
+	match.set_in_port(47);
+	match.set_in_phy_port(47);
+	match.set_metadata(0x4343434343434343);
 
 
 
@@ -1166,7 +1166,7 @@ cofpacket::test()
 	 * HELLO
 	 */
 	uint32_t cookie = 0x55555555;
-	cofpacket_hello hello(xid, (uint8_t*)&cookie, sizeof(cookie));
+	cofpacket_hello hello(OFP12_VERSION, xid, (uint8_t*)&cookie, sizeof(cookie));
 	packed.clear();
 	packed.resize(hello.length());
 	hello.pack(packed.somem(), packed.memlen());
@@ -1175,7 +1175,7 @@ cofpacket::test()
 	/*
 	 * ECHO-REQUEST
 	 */
-	cofpacket_echo_request echo_request(xid, body.somem(), body.memlen());
+	cofpacket_echo_request echo_request(OFP12_VERSION, xid, body.somem(), body.memlen());
 	packed.clear();
 	packed.resize(echo_request.length());
 	echo_request.pack(packed.somem(), packed.memlen());
@@ -1184,7 +1184,7 @@ cofpacket::test()
 	/*
 	 * ECHO-REPLY
 	 */
-	cofpacket_echo_reply echo_reply(xid, body.somem(), body.memlen());
+	cofpacket_echo_reply echo_reply(OFP12_VERSION, xid, body.somem(), body.memlen());
 	packed.clear();
 	packed.resize(echo_reply.length());
 	echo_reply.pack(packed.somem(), packed.memlen());
@@ -1193,7 +1193,7 @@ cofpacket::test()
 	/*
 	 * ERROR
 	 */
-	cofpacket_error error(xid, /*type=*/3, /*code=*/4, body.somem(), body.memlen());
+	cofpacket_error error(OFP12_VERSION, xid, /*type=*/3, /*code=*/4, body.somem(), body.memlen());
 	packed.clear();
 	packed.resize(error.length());
 	error.pack(packed.somem(), packed.memlen());
@@ -1202,7 +1202,7 @@ cofpacket::test()
 	/*
 	 * EXPERIMENTER
 	 */
-	cofpacket_experimenter experimenter(xid, /*exp_id=*/7, /*exp_type=*/8, body.somem(), body.memlen());
+	cofpacket_experimenter experimenter(OFP12_VERSION, xid, /*exp_id=*/7, /*exp_type=*/8, body.somem(), body.memlen());
 	packed.clear();
 	packed.resize(experimenter.length());
 	experimenter.pack(packed.somem(), packed.memlen());
@@ -1211,7 +1211,7 @@ cofpacket::test()
 	/*
 	 * FEATURES-REQUEST
 	 */
-	cofpacket_features_request features_request(xid);
+	cofpacket_features_request features_request(OFP12_VERSION, xid);
 	packed.clear();
 	packed.resize(features_request.length());
 	features_request.pack(packed.somem(), packed.memlen());
@@ -1296,10 +1296,10 @@ cofpacket::test()
 		uint16_t total_len = body.memlen();
 		uint8_t reason = 0xbb;
 		uint8_t table_id = 0xdd;
-		cofpacket_packet_in packet_in(xid, buffer_id, total_len, reason, table_id, body.somem(), body.memlen());
-		packet_in.match.oxmlist[OFPXMT_OFB_IN_PORT] = coxmatch_ofb_in_port(48);
-		packet_in.match.oxmlist[OFPXMT_OFB_IN_PHY_PORT] = coxmatch_ofb_in_phy_port(48);
-		packet_in.match.oxmlist[OFPXMT_OFB_METADATA] = coxmatch_ofb_metadata(0xee11ee11ee11ee11);
+		cofpacket_packet_in packet_in(OFP12_VERSION, xid, buffer_id, total_len, reason, table_id, /*cookie=*/0, /*OF1.0-inport=*/0, body.somem(), body.memlen());
+		packet_in.match.set_in_port(48);
+		packet_in.match.set_in_phy_port(48);
+		packet_in.match.set_metadata(0xee11ee11ee11ee11);
 		packed.clear();
 		packed.resize(packet_in.length());
 		packet_in.pack(packed.somem(), packed.memlen());
@@ -1323,6 +1323,7 @@ cofpacket::test()
 		uint64_t byte_count = 0x6464646464646464;
 
 		cofpacket_flow_removed flow_removed(
+										OFP12_VERSION,
 										xid,
 										cookie,
 										priority,
@@ -1335,9 +1336,9 @@ cofpacket::test()
 										packet_count,
 										byte_count);
 
-		flow_removed.match.oxmlist[OFPXMT_OFB_IN_PORT] = coxmatch_ofb_in_port(48);
-		flow_removed.match.oxmlist[OFPXMT_OFB_IN_PHY_PORT] = coxmatch_ofb_in_phy_port(48);
-		flow_removed.match.oxmlist[OFPXMT_OFB_METADATA] = coxmatch_ofb_metadata(0xee11ee11ee11ee11);
+		flow_removed.match.set_in_port(48);
+		flow_removed.match.set_in_phy_port(48);
+		flow_removed.match.set_metadata(0xee11ee11ee11ee11);
 		packed.clear();
 		packed.resize(flow_removed.length());
 		flow_removed.pack(packed.somem(), packed.memlen());
@@ -1349,29 +1350,24 @@ cofpacket::test()
 	 */
 	{
 		uint8_t reason = 0xbb;
-		struct ofp_port desc;
-		desc.port_no 		= 0xaabbcc01;
-		desc.hw_addr[0]		= 0x11;
-		desc.hw_addr[1]		= 0x11;
-		desc.hw_addr[2]		= 0x11;
-		desc.hw_addr[3]		= 0x11;
-		desc.hw_addr[4]		= 0x11;
-		desc.hw_addr[5]		= 0x11;
-		strncpy(desc.name, "eth0", OFP_MAX_PORT_NAME_LEN - 1);
-		desc.config  		= 0xaabbcc02;
-		desc.state			= 0xaabbcc03;
-		desc.curr			= 0xaabbcc04;
-		desc.advertised 	= 0xaabbcc05;
-		desc.supported		= 0xaabbcc06;
-		desc.peer			= 0xaabbcc07;
-		desc.curr_speed		= 0xaabbcc08;
-		desc.max_speed		= 0xaabbcc09;
+		cofport desc;
+		desc.set_port_no(0xaabbcc01);
+		desc.set_hwaddr(cmacaddr("11:11:11:11:11:11"));
+		desc.set_name(std::string("eth0"));
+		desc.set_config(0xaabbcc02);
+		desc.set_state(0xaabbcc03);
+		desc.set_curr(0xaabbcc04);
+		desc.set_advertised(0xaabbcc05);
+		desc.set_supported(0xaabbcc06);
+		desc.set_peer(0xaabbcc07);
+		desc.set_curr_speed(0xaabbcc08);
+		desc.set_max_speed(0xaabbcc09);
 
 		cofpacket_port_status port_status(
+										OFP12_VERSION,
 										xid,
 										reason,
-										&desc,
-										sizeof(desc));
+										desc);
 
 		packed.clear();
 		packed.resize(port_status.length());
@@ -1387,6 +1383,7 @@ cofpacket::test()
 		uint32_t in_port 	= 48;
 
 		cofpacket_packet_out packet_out(
+										OFP12_VERSION,
 										xid,
 										buffer_id,
 										in_port,
@@ -1422,6 +1419,7 @@ cofpacket::test()
 		uint16_t flags 			= 0xdddd;
 
 		cofpacket_flow_mod flow_mod(
+								OFP12_VERSION,
 								xid,
 								cookie,
 								cookie_mask,
@@ -1435,10 +1433,10 @@ cofpacket::test()
 								out_group,
 								flags);
 
-		flow_mod.match.oxmlist[OFPXMT_OFB_IN_PORT] = coxmatch_ofb_in_port(48);
-		flow_mod.match.oxmlist[OFPXMT_OFB_IN_PHY_PORT] = coxmatch_ofb_in_phy_port(48);
-		flow_mod.match.oxmlist[OFPXMT_OFB_METADATA] = coxmatch_ofb_metadata(0xee11ee11ee11ee11);
-		flow_mod.match.oxmlist[OFPXMT_OFB_IP_PROTO] = coxmatch_ofb_ip_proto(6);
+		flow_mod.match.set_in_port(48);
+		flow_mod.match.set_in_phy_port(48);
+		flow_mod.match.set_metadata(0xee11ee11ee11ee11);
+		flow_mod.match.set_ip_proto(6);
 
 		flow_mod.instructions.next() = cofinst_apply_actions();
 		flow_mod.instructions[0].actions[0] = cofaction_output(0);
@@ -1465,6 +1463,7 @@ cofpacket::test()
 		uint32_t group_id		= 0xeeeeeeee;
 
 		cofpacket_group_mod pack(
+								OFP12_VERSION,
 								xid,
 								command,
 								type,
@@ -1487,6 +1486,7 @@ cofpacket::test()
 		uint32_t advertise 		= 0x55555555;
 
 		cofpacket_port_mod pack(
+								OFP12_VERSION,
 								xid,
 								port_no,
 								hwaddr,
@@ -1508,6 +1508,7 @@ cofpacket::test()
 		uint32_t config 		= 0x33333333;
 
 		cofpacket_table_mod pack(
+								OFP12_VERSION,
 								xid,
 								table_id,
 								config);
@@ -1526,6 +1527,7 @@ cofpacket::test()
 		uint16_t flags			= 0x2222;
 
 		cofpacket_stats_request pack(
+								OFP12_VERSION,
 								xid,
 								type,
 								flags,
@@ -1546,6 +1548,7 @@ cofpacket::test()
 		uint16_t flags			= 0x2222;
 
 		cofpacket_stats_reply pack(
+								OFP12_VERSION,
 								xid,
 								type,
 								flags,
@@ -1564,6 +1567,7 @@ cofpacket::test()
 		uint32_t xid 			= 0x74747474;
 
 		cofpacket_barrier_request pack(
+								OFP12_VERSION,
 								xid);
 
 		cmemory mem(pack.length());
@@ -1578,6 +1582,7 @@ cofpacket::test()
 		uint32_t xid 			= 0x74747474;
 
 		cofpacket_barrier_reply pack(
+								OFP12_VERSION,
 								xid);
 
 		cmemory mem(pack.length());
@@ -1593,6 +1598,7 @@ cofpacket::test()
 		uint32_t port			= 0x11223344;
 
 		cofpacket_queue_get_config_request pack(
+								OFP12_VERSION,
 								xid,
 								port);
 
@@ -1609,6 +1615,7 @@ cofpacket::test()
 		uint32_t port			= 0x11223344;
 
 		cofpacket_queue_get_config_reply pack(
+								OFP12_VERSION,
 								xid,
 								port);
 
@@ -1626,6 +1633,7 @@ cofpacket::test()
 		uint64_t generation_id	= 0x22ee22ee22ee22ee;
 
 		cofpacket_role_request pack(
+								OFP12_VERSION,
 								xid,
 								role,
 								generation_id);
@@ -1644,6 +1652,7 @@ cofpacket::test()
 		uint64_t generation_id	= 0x22ee22ee22ee22ee;
 
 		cofpacket_role_reply pack(
+								OFP12_VERSION,
 								xid,
 								role,
 								generation_id);

@@ -337,6 +337,7 @@ public:
 #endif
 
 
+#if 0
 	/**
 	 * send flow stats reply for this entry
 	 */
@@ -344,6 +345,7 @@ public:
 	handle_stats_request(
 		struct ofp_flow_stats **flow_stats,
 		size_t *flow_stats_len);
+#endif
 
 
 	/** OFPST_FLOW_STATS

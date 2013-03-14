@@ -54,7 +54,8 @@ class eOFportMalformed 		: public eOFportBase {}; // malformed array of structs 
 
 
 
-class cofport
+class cofport :
+		public csyslog
 {
 private: // data structures
 

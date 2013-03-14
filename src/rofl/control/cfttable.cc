@@ -1130,7 +1130,7 @@ cftsearch::operator() (
 			exact_hits,
 			wildcard_hits,
 			missed,
-			be16toh(fte->flow_mod->priority));
+			fte->get_priority());
 
 
 	if ((hits > __max_hits) ||

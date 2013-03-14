@@ -1454,7 +1454,7 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 				sctp().framelen());
 #endif
 		ipv4()->ipv4_calc_checksum();
-		match.oxmlist[OFPXMT_OFB_SCTP_SRC] = oxm;
+		match.set_sctp_src(oxm.u16value());
 		// TODO: handle IPv6
 	} break;
 	case OFPXMT_OFB_SCTP_DST: {
@@ -1467,7 +1467,7 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 				sctp().framelen());
 #endif
 		ipv4()->ipv4_calc_checksum();
-		match.oxmlist[OFPXMT_OFB_SCTP_DST] = oxm;
+		match.set_sctp_dst(oxm.u16value());
 		// TODO: handle IPv6
 	} break;
 	case OFPXMT_OFB_ICMPV4_TYPE: {
@@ -1570,7 +1570,7 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 	case OFPXMT_OFB_PPPOE_TYPE: {
 		uint8_t type = oxm.u8value();
 		pppoe()->set_pppoe_type(type);
-		match.oxmlist[OFPXMT_OFB_PPPOE_TYPE] = coxmatch_ofb_pppoe_type(type);
+		match.set_pppoe_type(type);
 	} break;
 	case OFPXMT_OFB_PPPOE_SID: {
 		uint16_t sid = oxm.u16value();
@@ -2906,7 +2906,8 @@ cpacket::calc_hits(
 		uint16_t& wildcard_hits,
 		uint16_t& missed)
 {
-	match.oxmlist.calc_hits(ofmatch.oxmlist, exact_hits, wildcard_hits, missed);
+	this->match.is_matching(ofmatch, exact_hits, wildcard_hits, missed);
+	//match.oxmlist.calc_hits(ofmatch.oxmlist, exact_hits, wildcard_hits, missed);
 }
 
 

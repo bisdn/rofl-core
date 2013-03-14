@@ -70,7 +70,7 @@ cftentry::cftentry(
 	switch (of_version) {
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
-		m_flowmod.resize(sizeof(struct ofp12_flow_mod) - sizeof(struct ofp_match)),
+		m_flowmod.resize(sizeof(struct ofp12_flow_mod) - sizeof(struct ofp12_match)),
 		of12m_flow_mod = (struct ofp12_flow_mod*)(m_flowmod.somem());
 
 		// flow_mod copy remains in network byte order !!!
@@ -624,7 +624,7 @@ cftentry::update_flow_mod(cofpacket_flow_mod *pack) throw (eFteInvalid)
 	__update();
 }
 
-
+#if 0
 void
 cftentry::handle_stats_request(
 	struct ofp_flow_stats **flow_stats,
@@ -662,6 +662,7 @@ cftentry::handle_stats_request(
 			(struct ofp_instruction*)((uint8_t*)&((*flow_stats)->match) + ofmatch.length()),
 			instructions.length());
 }
+#endif
 
 
 #if 0
