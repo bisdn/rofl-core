@@ -84,7 +84,6 @@ rofl_result_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, ui
 	ge->bl_head = ge->bl_tail = NULL;
 	ge->id = id;
 	ge->type = type;
-	ge->referencing_entries = NULL;
 	ge->group_table = gt;
 	
 	//insert in the end
@@ -126,7 +125,26 @@ rofl_result_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uin
 }
 
 static
-rofl_result_t of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge){
+void of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge){
+	
+	//destroy buckets & actions inside
+	of12_destroy_group_bucket_all(ge);
+	//free
+	cutil_free_shared(ge);
+}
+
+static
+rofl_result_t of12_extract_group(of12_group_table_t *gt, of12_group_t *ge){
+	
+	//take write lock of the table
+	platform_rwlock_wrlock(gt->rwlock);
+	//check if the group is still in the table
+	if(ge->group_table==NULL){
+		platform_rwlock_wrunlock(gt->rwlock);
+		return ROFL_FAILURE;
+	}
+	ge->group_table = NULL;
+	
 	//detach
 	if(ge->next)
 	ge->next->prev = ge->prev;
@@ -140,35 +158,35 @@ rofl_result_t of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge){
 		gt->tail = ge->prev;
 	
 	gt->num_of_entries--;
-	
-	//delete all entries refering to this group.
-	if(of12_delete_referenced_entries(ge)!=ROFL_SUCCESS)
-		return ROFL_FAILURE;
-	
-	//destroy buckets & actions inside
-	of12_destroy_group_bucket_all(ge);
-	
-	//free
-	cutil_free_shared(ge);
-	
+	//leave write lock of the table
+	platform_rwlock_wrunlock(gt->rwlock);
 	return ROFL_SUCCESS;
 }
 
-rofl_result_t of12_group_delete(of12_group_table_t *gt, uint32_t id){
+rofl_result_t of12_group_delete(of12_group_table_t *gt, uint32_t id, of12_pipeline_t *pipeline){
+	int i;
+	of12_flow_entry_t* entry;
+	of12_group_t *ge;
 	
-	platform_rwlock_wrlock(gt->rwlock);
-	
-	of12_group_t *ge = of12_group_search(gt,id);
-	if(ge==NULL){
-		platform_rwlock_wrunlock(gt->rwlock);
+	//search the table for the group
+	if((ge=of12_group_search(gt,id))==NULL);
 		return ROFL_SUCCESS; //if it is not found no need to throw an error
+	
+	//extract the group without destroying it (only the first thread that comes gets it)
+	if(of12_extract_group(gt, ge)==ROFL_FAILURE)
+		return ROFL_SUCCESS; //if it is not found no need to throw an error
+	
+	//loop for all the tables and erase entries that point to the group
+	for(i=0; i<pipeline->num_of_tables; i++){
+		while((entry=pipeline->tables[i].maf.find_entry_using_group_hook(pipeline->tables[i],ge->id))!=NULL){
+			pipeline->tables[i].maf.remove_flow_entry_hook(entry);
+		}
 	}
 	
-	if(of12_destroy_group(gt,ge)!=ROFL_SUCCESS){
-		platform_rwlock_wrunlock(gt->rwlock);
+	//destroy the group
+	if(of12_destroy_group(gt,ge)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;
-	}
-	platform_rwlock_wrunlock(gt->rwlock);
+	
 	return ROFL_SUCCESS;
 }
 
@@ -223,7 +241,7 @@ rofl_result_t of12_init_group_bucket(of12_group_t *ge, uint32_t weigth, uint32_t
 }
 
 static
-rofl_result_t of12_destroy_group_bucket_all(of12_group_t *ge){
+void of12_destroy_group_bucket_all(of12_group_t *ge){
 	of12_group_bucket_t *bk_it, *next;
 	
 	for(bk_it=ge->bl_head;bk_it!=NULL;bk_it=next){
@@ -231,8 +249,6 @@ rofl_result_t of12_destroy_group_bucket_all(of12_group_t *ge){
 		///*of12_destroy_action_group(bk_it->actions);*/
 		cutil_free_shared(bk_it);
 	}
-	
-	return ROFL_SUCCESS;
 }
 
 rofl_result_t of12_add_reference_entry_in_group(of12_group_t *group, of12_flow_entry_t *entry){
@@ -289,4 +305,13 @@ rofl_result_t of12_delete_referenced_entries(of12_group_t *group){
 	}
 	
 	return ROFL_SUCCESS;
+}
+
+rofl_result_t of12_validate_group(){
+	//TODO
+	//We don't allow GO_TO_TABLE in a action of a group
+	//We don't allow GO_TO_ENTRY in a action of a group
+	//verify that the group exist
+	//verify apply actions
+	//verify write actions
 }

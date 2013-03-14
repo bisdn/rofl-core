@@ -5,6 +5,7 @@
 #include "of12_statistics.h"
 #include "of12_action.h"
 #include "of12_flow_entry.h"
+#include "of12_pipeline.h"
 #include <rofl/pipeline/platform/lock.h>
 
 #define OF12_GROUP_ANY 0xffffffff /* Wildcard group used only for flow stats */
@@ -28,12 +29,6 @@ typedef enum{
 	OF12_GROUP_TYPE_FF	 	= 3,	/* Fast failover group. */
 }of12_group_type_t;
 
-typedef struct of12_entries_list{
-	of12_flow_entry_t *entry;
-	struct of12_entries_list *next;
-	struct of12_entries_list *prev;
-}of12_entries_list_t;
-
 struct of12_group_table;
 
 typedef struct of12_group{
@@ -44,8 +39,6 @@ typedef struct of12_group{
 	of12_group_bucket_t *bl_tail;
 	
 	struct of12_group_table *group_table;
-	
-	of12_entries_list_t *referencing_entries;
 	
 	struct of12_group *next;
 	struct of12_group *prev;
