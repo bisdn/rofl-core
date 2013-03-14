@@ -566,8 +566,8 @@ void load_matching_algorithm_loop(struct matching_algorithm_functions *f){
 		f->find_best_match_hook = of12_find_best_match_loop;
 
 		//Stats
-		f->get_flow_stats = of12_get_flow_stats_loop;
-		f->get_flow_aggregate_stats = of12_get_flow_aggregate_stats_loop;
+		f->get_flow_stats_hook = of12_get_flow_stats_loop;
+		f->get_flow_aggregate_stats_hook = of12_get_flow_aggregate_stats_loop;
 
 		//Dumping	
 		f->dump_hook = NULL;

@@ -58,7 +58,7 @@ struct matching_algorithm_functions
 
 	// flow stats
 	of12_stats_flow_msg_t*	
-	(*get_flow_stats)(struct of12_pipeline *const pipeline,
+	(*get_flow_stats_hook)(struct of12_pipeline *const pipeline,
 			uint32_t table_id,
 			uint64_t cookie,
 			uint64_t cookie_mask,
@@ -67,7 +67,7 @@ struct matching_algorithm_functions
 			of12_match_t *const matchs);
 
 	of12_stats_flow_aggregate_msg_t*	
-	(*get_flow_aggregate_stats)(struct of12_pipeline *const pipeline,
+	(*get_flow_aggregate_stats_hook)(struct of12_pipeline *const pipeline,
 			uint32_t table_id,
 			uint64_t cookie,
 			uint64_t cookie_mask,
