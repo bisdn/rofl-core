@@ -57,22 +57,22 @@ struct matching_algorithm_functions
 			of12_packet_matches_t *const pkt_matches);
 
 	// flow stats
-	of12_stats_flow_msg_t*	
-	(*get_flow_stats_hook)(struct of12_pipeline *const pipeline,
-			uint32_t table_id,
+	rofl_result_t
+	(*get_flow_stats_hook)(struct of12_flow_table *const table,
 			uint64_t cookie,
 			uint64_t cookie_mask,
 			uint32_t out_port, 
 			uint32_t out_group,
-			of12_match_t *const matchs);
-	of12_stats_flow_aggregate_msg_t*	
-	(*get_flow_aggregate_stats_hook)(struct of12_pipeline *const pipeline,
-			uint32_t table_id,
+			of12_match_t *const matchs,
+			of12_stats_flow_msg_t* msg);
+	rofl_result_t	
+	(*get_flow_aggregate_stats_hook)(struct of12_flow_table *const table,
 			uint64_t cookie,
 			uint64_t cookie_mask,
 			uint32_t out_port, 
 			uint32_t out_group,
-			of12_match_t *const matchs);
+			of12_match_t *const matchs,
+			of12_stats_flow_aggregate_msg_t* msg);
 
 	//Finds the first entry that uses the group
 	//this is usually used when a group is deleted
