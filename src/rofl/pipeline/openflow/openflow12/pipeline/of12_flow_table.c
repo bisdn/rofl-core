@@ -21,7 +21,7 @@
 
 /* Initalizer. Table struct has been allocated by pipeline initializer. */
 rofl_result_t of12_init_table(of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm){
-
+	
 	//Initializing mutexes
 	if(NULL == (table->mutex = platform_mutex_init(NULL)))
 		return ROFL_FAILURE;

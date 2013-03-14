@@ -132,6 +132,8 @@ AM_COND_IF([PIPELINE_SUPPORT],[AC_CONFIG_FILES([
 
 	test/rofl/pipeline/openflow/openflow12/pipeline/Makefile
 	test/rofl/pipeline/openflow/openflow12/pipeline/ma/loop/Makefile
+	test/rofl/pipeline/openflow/openflow12/pipeline/dynamic/Makefile
+	test/rofl/pipeline/openflow/openflow12/pipeline/static/Makefile
 ])])
 
 ## pipeline

@@ -49,7 +49,7 @@ int of12_gettimeofday(struct timeval * tval, struct timezone * tzone)
 {
 #ifdef TIMERS_FAKE_TIME
 	of12_time_forward(0,0,tval);
-	fprintf(stderr,"NOT usig real system time (%lu:%lu)\n", tval->tv_sec, tval->tv_usec);
+	//fprintf(stderr,"NOT usig real system time (%lu:%lu)\n", tval->tv_sec, tval->tv_usec);
 	return 0;
 #else
 	//gettimeofday(tval,tzone);
@@ -198,11 +198,10 @@ static of12_timer_group_t* of12_timer_group_init(uint64_t timeout, of12_timer_gr
 	if (tg_next) tg_next->prev=new_group;
 	//if there is a node forewards we place the new one before
 	if (tg_prev) tg_prev->next=new_group;
-
-#if ! OF12_TIMER_STATIC_ALLOCATION_SLOTS
+	
 	if(table->timers == tg_next)
 		table->timers = new_group;
-#endif
+	
 	return new_group;
 }
 
