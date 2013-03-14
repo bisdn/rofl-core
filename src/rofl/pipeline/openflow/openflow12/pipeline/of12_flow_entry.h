@@ -31,6 +31,7 @@ struct of12_flow_entry{
 	uint16_t priority;
 	
 	//Array of matches
+	//TODO: deprecate this in favour of match_group
 	of12_match_t* matchs;
 	
 	//Number of necessary matches (hits)
