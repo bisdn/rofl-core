@@ -51,7 +51,7 @@ struct matching_algorithm_functions
 			uint32_t out_group,
 			of12_mutex_acquisition_required_t mutex_acquired);
 
-	// lookup
+	//Packet matching lookup
 	of12_flow_entry_t*
 	(*find_best_match_hook)(struct of12_flow_table *const table,
 			of12_packet_matches_t *const pkt_matches);
@@ -65,7 +65,6 @@ struct matching_algorithm_functions
 			uint32_t out_port, 
 			uint32_t out_group,
 			of12_match_t *const matchs);
-
 	of12_stats_flow_aggregate_msg_t*	
 	(*get_flow_aggregate_stats_hook)(struct of12_pipeline *const pipeline,
 			uint32_t table_id,
@@ -74,6 +73,12 @@ struct matching_algorithm_functions
 			uint32_t out_port, 
 			uint32_t out_group,
 			of12_match_t *const matchs);
+
+	//Finds the first entry that uses the group
+	//this is usually used when a group is deleted
+	of12_flow_entry_t*
+	(*find_entry_using_group_hook)(struct of12_flow_table *const table,
+			const unsigned int group_id);
 
 
 	// dump flow table

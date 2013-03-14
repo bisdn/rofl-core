@@ -51,6 +51,7 @@ typedef struct{
 
 //Fwd declaration
 struct of12_switch;
+struct of12_flow_entry;
 
 /*
 *
@@ -72,6 +73,8 @@ void of12_remove_instruction_from_the_group(of12_instruction_group_t* group, of1
 //Update instructions
 rofl_result_t of12_update_instructions(of12_instruction_group_t* group, of12_instruction_group_t* new_group);
 
+//Check whether instructions contain group
+bool of12_instructions_contain_group(struct of12_flow_entry *const entry, const unsigned int group_id);
 
 unsigned int of12_process_instructions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of12_instruction_group_t* instructions);
 

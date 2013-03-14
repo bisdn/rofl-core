@@ -116,6 +116,13 @@ rofl_result_t of12_update_instructions(of12_instruction_group_t* group, of12_ins
 	return ROFL_SUCCESS;
 }
 
+/* Check whether instructions contain group */
+bool of12_instructions_contain_group(of12_flow_entry_t *const entry, const unsigned int group_id){
+
+	return of12_apply_actions_has(entry->inst_grp.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions,OF12_AT_GROUP,group_id)
+		|| of12_apply_actions_has(entry->inst_grp.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions,OF12_AT_GROUP,group_id);
+}
+
 /* Process instructions */
 unsigned int of12_process_instructions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of12_instruction_group_t* instructions){
 
