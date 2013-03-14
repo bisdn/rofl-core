@@ -13,7 +13,12 @@
 #define OF12_TIMER_SLOT_MS 1000 //1s
 
 //Flag to define the usage of static allocation of slots for the timers
-#define OF12_TIMER_STATIC_ALLOCATION_SLOTS 1
+#ifndef OF12_TIMER_STATIC_ALLOCATION_SLOTS
+	#error "Dynamic timers are not yet supported."
+	#define OF12_TIMER_STATIC_ALLOCATION_SLOTS 0
+#else
+	#define OF12_TIMER_STATIC_ALLOCATION_SLOTS 1
+#endif
 
 #define OF12_TIMER_GROUPS_MAX 65536 //timeouts are given in a uint16_t=> 2^16
 
