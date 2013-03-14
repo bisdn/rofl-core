@@ -192,12 +192,13 @@ rofl_result_t of12_destroy_table(of12_flow_table_t* table){
 inline rofl_of12_fm_result_t of12_add_flow_entry_table(of12_pipeline_t *const pipeline, const unsigned int table_id, of12_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
 
 	rofl_of12_fm_result_t result;
+	of12_flow_table_t* table;
 	
 	//Verify table_id
 	if(table_id >= pipeline->num_of_tables)
 		return ROFL_OF12_FM_FAILURE;
 
-	table = pipeline->tables[table_id];
+	table = &pipeline->tables[table_id];
 
 	//Take rd lock over the grouptable (avoid deletion of groups while flow entry insertion)
 	platform_rwlock_rdlock(&pipeline->groups->rwlock);
@@ -232,12 +233,13 @@ inline rofl_of12_fm_result_t of12_add_flow_entry_table(of12_pipeline_t *const pi
 
 inline rofl_result_t of12_modify_flow_entry_table(of12_pipeline_t *const pipeline, const unsigned int table_id, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, bool reset_counts){
 	rofl_result_t result;
+	of12_flow_table_t* table;
 	
 	//Verify table_id
 	if(table_id >= pipeline->num_of_tables)
 		return ROFL_FAILURE;
 
-	table = pipeline->tables[table_id];
+	table = &pipeline->tables[table_id];
 
 	//Take rd lock over the grouptable (avoid deletion of groups while flow entry insertion)
 	platform_rwlock_rdlock(&pipeline->groups->rwlock);
@@ -271,7 +273,7 @@ inline rofl_result_t of12_remove_flow_entry_table(of12_pipeline_t *const pipelin
 	if(table_id >= pipeline->num_of_tables)
 		return ROFL_FAILURE;
 
-	return  pipeline->tables[table_id].maf.remove_flow_entry_hook(table, entry, NULL, strict,  out_port, out_group, MUTEX_NOT_ACQUIRED);
+	return  pipeline->tables[table_id].maf.remove_flow_entry_hook(&pipeline->tables[table_id], entry, NULL, strict,  out_port, out_group, MUTEX_NOT_ACQUIRED);
 }
 
 //This API call should NOT be called from outside pipeline library
@@ -280,7 +282,7 @@ rofl_result_t of12_remove_specific_flow_entry_table(of12_pipeline_t *const pipel
 	if(table_id >= pipeline->num_of_tables)
 		return ROFL_FAILURE;
 
-	return pipeline->tables[table_id].maf.remove_flow_entry_hook(table, NULL, specific_entry, STRICT, OF12_PORT_ANY, OF12_GROUP_ANY, mutex_acquired);
+	return pipeline->tables[table_id].maf.remove_flow_entry_hook(&pipeline->tables[table_id], NULL, specific_entry, STRICT, OF12_PORT_ANY, OF12_GROUP_ANY, mutex_acquired);
 }
 
 /* Main process_packet_through */

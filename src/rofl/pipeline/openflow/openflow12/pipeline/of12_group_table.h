@@ -5,7 +5,6 @@
 #include "of12_statistics.h"
 #include "of12_action.h"
 #include "of12_flow_entry.h"
-#include "of12_pipeline.h"
 #include <rofl/pipeline/platform/lock.h>
 
 #define OF12_GROUP_ANY 0xffffffff /* Wildcard group used only for flow stats */

@@ -25,6 +25,7 @@
 
 //fwd decl
 struct of12_timer_group;
+struct of12_pipeline;
 
 //Agnostic auxiliary matching structures. 
 typedef void matching_auxiliary_t;
@@ -115,14 +116,14 @@ rofl_result_t of12_destroy_table(of12_flow_table_t* table);
 /*
 * Flow-mod installation and removal
 */
-rofl_of12_fm_result_t of12_add_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, bool check_overlap, bool reset_counts);
+rofl_of12_fm_result_t of12_add_flow_entry_table(struct of12_pipeline *const pipeline, const unsigned int table_id, of12_flow_entry_t *const entry, bool check_overlap, bool reset_counts);
 
-rofl_result_t of12_modify_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, bool reset_counts);
-
-rofl_result_t of12_remove_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t* entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group);
+rofl_result_t of12_modify_flow_entry_table(struct of12_pipeline *const pipeline, const unsigned int table_id, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, bool reset_counts);
+	
+rofl_result_t of12_remove_flow_entry_table(struct of12_pipeline *const pipeline, const unsigned int table_id, of12_flow_entry_t* entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group);
 
 //This API call is meant to ONLY be used internally within the pipeline library (timers)
-rofl_result_t of12_remove_specific_flow_entry_table(of12_flow_table_t *const table, of12_flow_entry_t *const specific_entry, of12_mutex_acquisition_required_t mutex_acquired);
+rofl_result_t of12_remove_specific_flow_entry_table(struct of12_pipeline *const pipeline, const unsigned int table_id, of12_flow_entry_t *const specific_entry, of12_mutex_acquisition_required_t mutex_acquired);
 
 /*
 * Entry lookup

@@ -81,6 +81,9 @@ rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* ma
 //Update entry
 rofl_result_t of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_flow_entry_t* mod, bool reset_counts);
 
+//check if the entry is valid for insertion
+rofl_result_t of12_validate_flow_entry(of12_flow_entry_t* entry);
+	
 //Flow comparison
 bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group);
 bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group);
