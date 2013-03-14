@@ -10,12 +10,12 @@
  * if a table has an action that says so, the actions of the bucket will be applied
  */
 #include "of12_group_table.h"
+#include "of12_pipeline.h"
 #include "../../../platform/memory.h"
 
 static rofl_result_t of12_init_group_bucket(of12_group_t *ge, uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions);
-static rofl_result_t of12_destroy_group_bucket_all(of12_group_t *ge);
-static rofl_result_t of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge);
-static rofl_result_t of12_delete_referenced_entries(of12_group_t *group);
+static void of12_destroy_group_bucket_all(of12_group_t *ge);
+static void of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge);
 
 of12_group_table_t* of12_init_group_table(){
 	of12_group_table_t *gt;
@@ -178,14 +178,13 @@ rofl_result_t of12_group_delete(of12_group_table_t *gt, uint32_t id, of12_pipeli
 	
 	//loop for all the tables and erase entries that point to the group
 	for(i=0; i<pipeline->num_of_tables; i++){
-		while((entry=pipeline->tables[i].maf.find_entry_using_group_hook(pipeline->tables[i],ge->id))!=NULL){
-			pipeline->tables[i].maf.remove_flow_entry_hook(entry);
+		while((entry=pipeline->tables[i].maf.find_entry_using_group_hook(&pipeline->tables[i],ge->id))!=NULL){
+			of12_remove_specific_flow_entry_table(pipeline,i,entry,MUTEX_NOT_ACQUIRED);
 		}
 	}
 	
 	//destroy the group
-	if(of12_destroy_group(gt,ge)!=ROFL_SUCCESS)
-		return ROFL_FAILURE;
+	of12_destroy_group(gt,ge);
 	
 	return ROFL_SUCCESS;
 }
@@ -193,6 +192,8 @@ rofl_result_t of12_group_delete(of12_group_table_t *gt, uint32_t id, of12_pipeli
 
 rofl_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, 
 								uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions){
+	//NOTE this is not well implemented yet
+	return ROFL_FAILURE;
 	
 	platform_rwlock_wrlock(gt->rwlock);
 	
@@ -202,11 +203,13 @@ rofl_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, 
 		platform_rwlock_wrunlock(gt->rwlock);
 		return ROFL_FAILURE;
 	}
-	
+	/*
+	 * TODO we should manage the modify properly
 	if(of12_destroy_group(gt,ge)!=ROFL_SUCCESS){
 		platform_rwlock_wrunlock(gt->rwlock);
 		return ROFL_FAILURE;
 	}
+	*/
 	if(of12_init_group(gt,type,id,weigth,group,port,actions)!=ROFL_SUCCESS){
 		platform_rwlock_wrunlock(gt->rwlock);
 		return ROFL_FAILURE;
@@ -250,7 +253,8 @@ void of12_destroy_group_bucket_all(of12_group_t *ge){
 		cutil_free_shared(bk_it);
 	}
 }
-
+/*
+ * DEPRECATED
 rofl_result_t of12_add_reference_entry_in_group(of12_group_t *group, of12_flow_entry_t *entry){
 	of12_entries_list_t *el = cutil_malloc_shared(sizeof(of12_entries_list_t));
 	
@@ -306,7 +310,7 @@ rofl_result_t of12_delete_referenced_entries(of12_group_t *group){
 	
 	return ROFL_SUCCESS;
 }
-
+*/
 rofl_result_t of12_validate_group(){
 	//TODO
 	//We don't allow GO_TO_TABLE in a action of a group
@@ -314,4 +318,5 @@ rofl_result_t of12_validate_group(){
 	//verify that the group exist
 	//verify apply actions
 	//verify write actions
+	return ROFL_FAILURE;
 }

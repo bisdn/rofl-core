@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 
-static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_t* tg, of12_flow_table_t * table);
+static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_t* tg, of12_pipeline_t *const pipeline, unsigned int id);
 #if ! OF12_TIMER_STATIC_ALLOCATION_SLOTS
 static of12_timer_group_t* of12_dynamic_slot_search(of12_flow_table_t* const table, uint64_t expiration_time);
 #endif
@@ -152,21 +152,21 @@ void of12_timer_group_static_init(of12_flow_table_t* table)
  * - we must set the new timeout
  * - we must update the pointer to the next timer group
  */
-static void of12_timer_group_rotate(of12_timer_group_t *tg, of12_flow_table_t *table)
+static void of12_timer_group_rotate(of12_pipeline_t *const pipeline, of12_timer_group_t *tg , unsigned int id_table)
 {
 	if(tg->list.head)
 	{
 		//erase_all_entries;
-		if(of12_destroy_all_entries_from_timer_group(tg, table)!=ROFL_SUCCESS)
+		if(of12_destroy_all_entries_from_timer_group(tg, pipeline, id_table)!=ROFL_SUCCESS)
 			fprintf(stderr,"ERROR in destroying timer group\n");
 	}
 	tg->timeout += OF12_TIMER_SLOT_MS*OF12_TIMER_GROUPS_MAX;
 	tg->list.num_of_timers=0;
 	tg->list.head = tg->list.tail = NULL;
 
-	table->current_timer_group++;
-	if(table->current_timer_group>=OF12_TIMER_GROUPS_MAX)
-		table->current_timer_group=0;
+	pipeline->tables[id_table].current_timer_group++;
+	if(pipeline->tables[id_table].current_timer_group>=OF12_TIMER_GROUPS_MAX)
+		pipeline->tables[id_table].current_timer_group=0;
 }
 
 #else
@@ -368,7 +368,7 @@ rofl_result_t of12_destroy_timer_entries(of12_flow_entry_t * entry){
  * of12_reschedule_idle_timer
  * check if there is the need of re-scheduling an idle timer
  */
-static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer, of12_flow_table_t * table)
+static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer, of12_pipeline_t *const pipeline, unsigned int id_table)
 {
 	struct timeval system_time;
 	of12_gettimeofday(&system_time,NULL);
@@ -392,20 +392,20 @@ static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer
 		of12_destroy_timer_entries(entry_timer->entry);
 #else
 		//fprintf(stderr,"Erasing real entries of table \n"); //NOTE Delete
-		of12_remove_specific_flow_entry_table(table,entry_timer->entry, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
+		of12_remove_specific_flow_entry_table(pipeline, id_table, entry_timer->entry, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
 #endif
 		return ROFL_SUCCESS; // timeout expired so no need to reschedule !!! we have to delete the entry
 	}
 	
 #if OF12_TIMER_STATIC_ALLOCATION_SLOTS
 	
-	int slot_delta = expiration_time - table->timers[table->current_timer_group].timeout; //ms
-	int slot_position = (table->current_timer_group + slot_delta/OF12_TIMER_SLOT_MS) % OF12_TIMER_GROUPS_MAX;
-	if(of12_entry_timer_init(&(table->timers[slot_position]), entry_timer->entry, is_idle, &(entry_timer->time_last_update))==NULL)
+	int slot_delta = expiration_time - pipeline->tables[id_table].timers[pipeline->tables[id_table].current_timer_group].timeout; //ms
+	int slot_position = (pipeline->tables[id_table].current_timer_group + slot_delta/OF12_TIMER_SLOT_MS) % OF12_TIMER_GROUPS_MAX;
+	if(of12_entry_timer_init(&(pipeline->tables[id_table].timers[slot_position]), entry_timer->entry, is_idle, &(entry_timer->time_last_update))==NULL)
 		return ROFL_FAILURE;
 #else
 		
-	of12_timer_group_t * tg_iterator=of12_dynamic_slot_search(table, expiration_time);
+	of12_timer_group_t * tg_iterator=of12_dynamic_slot_search(pipeline->tables[id_table], expiration_time);
 	if(tg_iterator==NULL)
 		return ROFL_FAILURE;
 	// add entry to this group. new_group.list->num_of_timers++; ...
@@ -421,7 +421,7 @@ static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer
  * This is ment to be used when a timer expires and we want to delete
  * all the entries of the group and the group itself
  */
-static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_t* tg, of12_flow_table_t * table)
+static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_t* tg, of12_pipeline_t *const pipeline, unsigned int id_table)
 {
 	of12_entry_timer_t* entry_iterator, *next/*, *prev*/;
 	if(tg->list.num_of_timers>0 && tg->list.head)
@@ -433,7 +433,7 @@ static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_
 			
 			if(entry_iterator->type == IDLE_TO)
 			{
-				if(of12_reschedule_idle_timer(entry_iterator, table)!=ROFL_SUCCESS) //WARNING return value for erasing the idle timeout
+				if(of12_reschedule_idle_timer(entry_iterator, pipeline, id_table)!=ROFL_SUCCESS) //WARNING return value for erasing the idle timeout
 					return ROFL_FAILURE;
 			}
 			else
@@ -448,7 +448,7 @@ static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_
 				of12_destroy_timer_entries(entry_iterator->entry);
 #else
 				//fprintf(stderr,"Erasing real entries of table \n"); //NOTE DELETE
-				of12_remove_specific_flow_entry_table(table,entry_iterator->entry, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
+				of12_remove_specific_flow_entry_table(pipeline, id_table,entry_iterator->entry, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
 #endif
 			}
 			//if(entry_iterator) THIS IS DONE from outside
@@ -594,7 +594,7 @@ rofl_result_t of12_add_timer(of12_flow_table_t* const table, of12_flow_entry_t* 
 	return ROFL_SUCCESS;
 }
 
-void of12_process_pipeline_tables_timeout_expirations(const of12_pipeline_t* pipeline){
+void of12_process_pipeline_tables_timeout_expirations(of12_pipeline_t *const pipeline){
 
 	unsigned int i;
 	
@@ -611,7 +611,7 @@ void of12_process_pipeline_tables_timeout_expirations(const of12_pipeline_t* pip
 		while(table->timers[table->current_timer_group].timeout<=now)
 		{
 			//rotate the timers
-			of12_timer_group_rotate(&(table->timers[table->current_timer_group]),table);
+			of12_timer_group_rotate(pipeline,&(table->timers[table->current_timer_group]),i);
 		}
 #else	
 		of12_timer_group_t* slot_it, *next;
