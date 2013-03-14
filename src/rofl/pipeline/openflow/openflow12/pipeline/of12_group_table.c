@@ -16,6 +16,7 @@
 static rofl_result_t of12_init_group_bucket(of12_group_t *ge, uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions);
 static void of12_destroy_group_bucket_all(of12_group_t *ge);
 static void of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge);
+static rofl_result_t of12_validate_group(of12_action_group_t* actions);
 
 of12_group_table_t* of12_init_group_table(){
 	of12_group_table_t *gt;
@@ -79,7 +80,8 @@ rofl_result_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, ui
 	}
 	
 	//validate action set
-	of12_validate_action_group(actions);
+	if(of12_validate_group(actions)==ROFL_FAILURE)
+		return ROFL_FAILURE;
 	
 	ge->bl_head = ge->bl_tail = NULL;
 	ge->id = id;
@@ -253,70 +255,21 @@ void of12_destroy_group_bucket_all(of12_group_t *ge){
 		cutil_free_shared(bk_it);
 	}
 }
-/*
- * DEPRECATED
-rofl_result_t of12_add_reference_entry_in_group(of12_group_t *group, of12_flow_entry_t *entry){
-	of12_entries_list_t *el = cutil_malloc_shared(sizeof(of12_entries_list_t));
-	
-	//platform_rwlock_wrlock(); //TODO locking
-	
-	if(el == NULL)
-		return ROFL_FAILURE;
-	
-	el->entry = entry;
-	el->prev = NULL;
-	el->next = group->referencing_entries;
-	//insert, order is not important
-	if (group->referencing_entries){
-		group->referencing_entries->prev = el;
-	}
-	group->referencing_entries = el;
-	
-	return ROFL_SUCCESS;
-}
-
-rofl_result_t of12_delete_reference_entry_in_group(of12_group_t *group, of12_flow_entry_t *entry){
-	of12_entries_list_t *it_el;
-	
-	for (it_el = group->referencing_entries; it_el ; it_el=it_el->next)
-		if(it_el->entry == entry) break;
-		
-	if(!it_el) //not found
-		return ROFL_FAILURE;
-	
-	//extract
-	if(it_el->next)
-		it_el->next->prev = it_el->prev;
-	
-	if(it_el->prev)
-		it_el->prev->next = it_el->next;
-	
-	if(it_el == group->referencing_entries)
-		group->referencing_entries = it_el->next;
-	
-	cutil_free_shared(it_el);
-	
-	return ROFL_SUCCESS;
-}
-
 static
-rofl_result_t of12_delete_referenced_entries(of12_group_t *group){
-	of12_entries_list_t *it_el, *next;
+rofl_result_t of12_validate_group(of12_action_group_t* actions){
+
+	//we dont allow OF12_AT_GROUP
+	//and neither OF12_AT_OUTPUT in the case of OF12_PORT_TABLE
+	of12_packet_action_t *it;
 	
-	for(it_el=group->referencing_entries; it_el; it_el=next){
-		next=it_el->next;
-		cutil_free_shared(it_el);
+	for(it=actions->head; it; it=it->next){
+		if(it->type == OF12_AT_GROUP)
+			return ROFL_FAILURE;
+		if(it->type == OF12_AT_OUTPUT && it->field == OF12_PORT_TABLE)
+			return ROFL_FAILURE;
 	}
-	
-	return ROFL_SUCCESS;
-}
-*/
-rofl_result_t of12_validate_group(){
-	//TODO
-	//We don't allow GO_TO_TABLE in a action of a group
-	//We don't allow GO_TO_ENTRY in a action of a group
-	//verify that the group exist
+		
 	//verify apply actions
-	//verify write actions
+	of12_validate_action_group(actions);
 	return ROFL_FAILURE;
 }

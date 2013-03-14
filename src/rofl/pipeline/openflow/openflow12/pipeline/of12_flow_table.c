@@ -204,7 +204,7 @@ inline rofl_of12_fm_result_t of12_add_flow_entry_table(of12_pipeline_t *const pi
 	platform_rwlock_rdlock(pipeline->groups->rwlock);
 
 	//Verify entry
-	if(of12_validate_flow_entry(entry) != ROFL_SUCCESS){
+	if(of12_validate_flow_entry(pipeline->groups, entry) != ROFL_SUCCESS){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		return ROFL_OF12_FM_FAILURE;
@@ -245,7 +245,7 @@ inline rofl_result_t of12_modify_flow_entry_table(of12_pipeline_t *const pipelin
 	platform_rwlock_rdlock(pipeline->groups->rwlock);
 
 	//Verify entry
-	if(of12_validate_flow_entry(entry) != ROFL_SUCCESS){
+	if(of12_validate_flow_entry(pipeline->groups,entry) != ROFL_SUCCESS){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		return ROFL_FAILURE;

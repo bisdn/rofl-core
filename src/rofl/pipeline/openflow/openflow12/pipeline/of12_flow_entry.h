@@ -15,6 +15,7 @@
 
 struct of12_flow_table;
 struct of12_timers_info;
+struct of12_group_table;
 
 //Flow removal operations
 typedef enum of12_flow_removal_strictness{
@@ -82,7 +83,7 @@ rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* ma
 rofl_result_t of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_flow_entry_t* mod, bool reset_counts);
 
 //check if the entry is valid for insertion
-rofl_result_t of12_validate_flow_entry(of12_flow_entry_t* entry);
+rofl_result_t of12_validate_flow_entry(struct of12_group_table *gt, of12_flow_entry_t* entry);
 	
 //Flow comparison
 bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group);
