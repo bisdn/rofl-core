@@ -18,7 +18,7 @@
 namespace rofl
 {
 
-class cofflowstatsrequest
+class cofflow_stats_request
 {
 private: // data structures
 
@@ -37,13 +37,15 @@ public:
 	/**
 	 *
 	 */
-	cofflowstatsrequest(
-			uint8_t of_version);
+	cofflow_stats_request(
+			uint8_t of_version,
+			uint8_t *buf = (uint8_t*)0,
+			size_t buflen = 0);
 
 	/**
 	 *
 	 */
-	cofflowstatsrequest(
+	cofflow_stats_request(
 			uint8_t of_version,
 			cofmatch const& match,
 			uint8_t table_id,
@@ -53,7 +55,7 @@ public:
 	/**
 	 *
 	 */
-	cofflowstatsrequest(
+	cofflow_stats_request(
 			uint8_t of_version,
 			cofmatch const& match,
 			uint8_t table_id,
@@ -67,21 +69,21 @@ public:
 	 *
 	 */
 	virtual
-	~cofflowstatsrequest();
+	~cofflow_stats_request();
 
 
 	/**
 	 *
 	 */
-	cofflowstatsrequest(
-			cofflowstatsrequest const& flowstatsrequest);
+	cofflow_stats_request(
+			cofflow_stats_request const& flowstatsrequest);
 
 	/**
 	 *
 	 */
-	cofflowstatsrequest&
+	cofflow_stats_request&
 	operator= (
-			cofflowstatsrequest const& flowstatsrequest);
+			cofflow_stats_request const& flowstatsrequest);
 
 
 	/**
@@ -144,7 +146,7 @@ public:
 
 
 
-class cofflowstats
+class cofflow_stats_reply
 {
 private: // data structures
 
@@ -169,13 +171,16 @@ public:
 	/**
 	 *
 	 */
-	cofflowstats(
-			uint8_t of_version);
+	cofflow_stats_reply(
+			uint8_t of_version,
+			uint8_t *buf = (uint8_t*)0,
+			size_t buflen = 0);
+
 
 	/**
 	 *
 	 */
-	cofflowstats(
+	cofflow_stats_reply(
 			uint8_t of_version,
 			uint8_t table_id,
 			uint32_t duration_sec,
@@ -193,7 +198,7 @@ public:
 	/**
 	 *
 	 */
-	cofflowstats(
+	cofflow_stats_reply(
 			uint8_t of_version,
 			uint8_t table_id,
 			uint32_t duration_sec,
@@ -213,21 +218,21 @@ public:
 	 *
 	 */
 	virtual
-	~cofflowstats();
+	~cofflow_stats_reply();
 
 
 	/**
 	 *
 	 */
-	cofflowstats(
-			cofflowstats const& flowstats);
+	cofflow_stats_reply(
+			cofflow_stats_reply const& flowstats);
 
 	/**
 	 *
 	 */
-	cofflowstats&
+	cofflow_stats_reply&
 	operator= (
-			cofflowstats const& flowstats);
+			cofflow_stats_reply const& flowstats);
 
 
 	/**
@@ -242,6 +247,13 @@ public:
 	 */
 	void
 	unpack(uint8_t *buf, size_t buflen);
+
+
+	/**
+	 *
+	 */
+	size_t
+	length() const;
 
 
 	/**

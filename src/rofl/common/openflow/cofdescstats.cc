@@ -4,14 +4,14 @@ using namespace rofl;
 
 
 
-cofdescstats::cofdescstats(
+cofdesc_stats_reply::cofdesc_stats_reply(
 		uint8_t of_version) :
 				of_version(of_version)
 {}
 
 
 
-cofdescstats::cofdescstats(
+cofdesc_stats_reply::cofdesc_stats_reply(
 		uint8_t of_version,
 		std::string const& mfr_desc,
 		std::string const& hw_desc,
@@ -28,22 +28,22 @@ cofdescstats::cofdescstats(
 
 
 
-cofdescstats::~cofdescstats()
+cofdesc_stats_reply::~cofdesc_stats_reply()
 {}
 
 
 
-cofdescstats::cofdescstats(
-		cofdescstats const& descstats)
+cofdesc_stats_reply::cofdesc_stats_reply(
+		cofdesc_stats_reply const& descstats)
 {
 	*this = descstats;
 }
 
 
 
-cofdescstats&
-cofdescstats::operator= (
-		cofdescstats const& descstats)
+cofdesc_stats_reply&
+cofdesc_stats_reply::operator= (
+		cofdesc_stats_reply const& descstats)
 {
 	if (this == &descstats)
 		return *this;
@@ -61,7 +61,7 @@ cofdescstats::operator= (
 
 
 std::string
-cofdescstats::get_mfr_desc() const
+cofdesc_stats_reply::get_mfr_desc() const
 {
 	return mfr_desc;
 }
@@ -69,7 +69,7 @@ cofdescstats::get_mfr_desc() const
 
 
 std::string
-cofdescstats::get_hw_desc() const
+cofdesc_stats_reply::get_hw_desc() const
 {
 	return hw_desc;
 }
@@ -77,7 +77,7 @@ cofdescstats::get_hw_desc() const
 
 
 std::string
-cofdescstats::get_sw_desc() const
+cofdesc_stats_reply::get_sw_desc() const
 {
 	return sw_desc;
 }
@@ -85,7 +85,7 @@ cofdescstats::get_sw_desc() const
 
 
 std::string
-cofdescstats::get_serial_num() const
+cofdesc_stats_reply::get_serial_num() const
 {
 	return serial_num;
 }
@@ -93,7 +93,7 @@ cofdescstats::get_serial_num() const
 
 
 std::string
-cofdescstats::get_dp_desc() const
+cofdesc_stats_reply::get_dp_desc() const
 {
 	return dp_desc;
 }
@@ -101,7 +101,7 @@ cofdescstats::get_dp_desc() const
 
 
 void
-cofdescstats::pack(uint8_t *buf, size_t buflen) const
+cofdesc_stats_reply::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
@@ -136,7 +136,7 @@ cofdescstats::pack(uint8_t *buf, size_t buflen) const
 
 
 void
-cofdescstats::unpack(uint8_t *buf, size_t buflen)
+cofdesc_stats_reply::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {

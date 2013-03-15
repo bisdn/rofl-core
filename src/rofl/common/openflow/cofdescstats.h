@@ -15,7 +15,7 @@
 namespace rofl
 {
 
-class cofdescstats
+class cofdesc_stats_reply
 {
 private: // data structures
 
@@ -33,13 +33,13 @@ public:
 	/**
 	 *
 	 */
-	cofdescstats(
+	cofdesc_stats_reply(
 			uint8_t of_version);
 
 	/**
 	 *
 	 */
-	cofdescstats(
+	cofdesc_stats_reply(
 			uint8_t of_version,
 			std::string const& mfr_desc,
 			std::string const& hw_desc,
@@ -51,21 +51,21 @@ public:
 	 *
 	 */
 	virtual
-	~cofdescstats();
+	~cofdesc_stats_reply();
 
 
 	/**
 	 *
 	 */
-	cofdescstats(
-			cofdescstats const& descstats);
+	cofdesc_stats_reply(
+			cofdesc_stats_reply const& descstats);
 
 	/**
 	 *
 	 */
-	cofdescstats&
+	cofdesc_stats_reply&
 	operator= (
-			cofdescstats const& descstats);
+			cofdesc_stats_reply const& descstats);
 
 	/**
 	 *

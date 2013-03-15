@@ -2,19 +2,25 @@
 
 using namespace rofl;
 
-cofflowstatsrequest::cofflowstatsrequest(
-		uint8_t of_version) :
+cofflow_stats_request::cofflow_stats_request(
+		uint8_t of_version,
+		uint8_t *buf,
+		size_t buflen) :
 				of_version(of_version),
 				table_id(0),
 				out_port(0),
 				out_group(0),
 				cookie(0),
 				cookie_mask(0)
-{}
+{
+	if ((buflen > 0) && (0 != buf)) {
+		unpack(buf, buflen);
+	}
+}
 
 
 
-cofflowstatsrequest::cofflowstatsrequest(
+cofflow_stats_request::cofflow_stats_request(
 		uint8_t of_version,
 		cofmatch const& match,
 		uint8_t table_id,
@@ -30,7 +36,7 @@ cofflowstatsrequest::cofflowstatsrequest(
 
 
 
-cofflowstatsrequest::cofflowstatsrequest(
+cofflow_stats_request::cofflow_stats_request(
 		uint8_t of_version,
 		cofmatch const& match,
 		uint8_t table_id,
@@ -49,22 +55,22 @@ cofflowstatsrequest::cofflowstatsrequest(
 
 
 
-cofflowstatsrequest::~cofflowstatsrequest()
+cofflow_stats_request::~cofflow_stats_request()
 {}
 
 
 
-cofflowstatsrequest::cofflowstatsrequest(
-		cofflowstatsrequest const& request)
+cofflow_stats_request::cofflow_stats_request(
+		cofflow_stats_request const& request)
 {
 	*this = request;
 }
 
 
 
-cofflowstatsrequest&
-cofflowstatsrequest::operator= (
-		cofflowstatsrequest const& request)
+cofflow_stats_request&
+cofflow_stats_request::operator= (
+		cofflow_stats_request const& request)
 {
 	if (this == &request)
 		return *this;
@@ -83,7 +89,7 @@ cofflowstatsrequest::operator= (
 
 
 uint8_t
-cofflowstatsrequest::get_version() const
+cofflow_stats_request::get_version() const
 {
 	return of_version;
 }
@@ -91,7 +97,7 @@ cofflowstatsrequest::get_version() const
 
 
 cofmatch&
-cofflowstatsrequest::get_match()
+cofflow_stats_request::get_match()
 {
 	return match;
 }
@@ -99,7 +105,7 @@ cofflowstatsrequest::get_match()
 
 
 uint8_t
-cofflowstatsrequest::get_table_id() const
+cofflow_stats_request::get_table_id() const
 {
 	return table_id;
 }
@@ -107,7 +113,7 @@ cofflowstatsrequest::get_table_id() const
 
 
 uint32_t
-cofflowstatsrequest::get_out_port() const
+cofflow_stats_request::get_out_port() const
 {
 	return out_port;
 }
@@ -115,7 +121,7 @@ cofflowstatsrequest::get_out_port() const
 
 
 uint32_t
-cofflowstatsrequest::get_out_group() const
+cofflow_stats_request::get_out_group() const
 {
 	switch (of_version) {
 	case OFP12_VERSION:
@@ -129,7 +135,7 @@ cofflowstatsrequest::get_out_group() const
 
 
 uint64_t
-cofflowstatsrequest::get_cookie() const
+cofflow_stats_request::get_cookie() const
 {
 	switch (of_version) {
 	case OFP12_VERSION:
@@ -143,7 +149,7 @@ cofflowstatsrequest::get_cookie() const
 
 
 uint64_t
-cofflowstatsrequest::get_cookie_mask() const
+cofflow_stats_request::get_cookie_mask() const
 {
 	switch (of_version) {
 	case OFP12_VERSION:
@@ -157,7 +163,7 @@ cofflowstatsrequest::get_cookie_mask() const
 
 
 void
-cofflowstatsrequest::pack(uint8_t *buf, size_t buflen) const
+cofflow_stats_request::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
@@ -189,7 +195,7 @@ cofflowstatsrequest::pack(uint8_t *buf, size_t buflen) const
 
 
 void
-cofflowstatsrequest::unpack(uint8_t *buf, size_t buflen)
+cofflow_stats_request::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
@@ -222,8 +228,10 @@ cofflowstatsrequest::unpack(uint8_t *buf, size_t buflen)
 
 
 
-cofflowstats::cofflowstats(
-		uint8_t of_version) :
+cofflow_stats_reply::cofflow_stats_reply(
+		uint8_t of_version,
+		uint8_t *buf,
+		size_t buflen) :
 				of_version(of_version),
 				table_id(0),
 				duration_sec(0),
@@ -234,11 +242,15 @@ cofflowstats::cofflowstats(
 				cookie(0),
 				packet_count(0),
 				byte_count(0)
-{}
+{
+	if ((buflen > 0) && (0 != buf)) {
+		unpack(buf, buflen);
+	}
+}
 
 
 
-cofflowstats::cofflowstats(
+cofflow_stats_reply::cofflow_stats_reply(
 		uint8_t of_version,
 		uint8_t table_id,
 		uint32_t duration_sec,
@@ -267,7 +279,7 @@ cofflowstats::cofflowstats(
 
 
 
-cofflowstats::cofflowstats(
+cofflow_stats_reply::cofflow_stats_reply(
 		uint8_t of_version,
 		uint8_t table_id,
 		uint32_t duration_sec,
@@ -296,114 +308,278 @@ cofflowstats::cofflowstats(
 
 
 
-cofflowstats::~cofflowstats()
+cofflow_stats_reply::~cofflow_stats_reply()
 {}
 
 
 
-cofflowstats::cofflowstats(
-		cofflowstats const& flowstats)
+cofflow_stats_reply::cofflow_stats_reply(
+		cofflow_stats_reply const& flowstats)
 {
 	*this = flowstats;
 }
 
 
 
-cofflowstats&
-cofflowstats::operator= (
-		cofflowstats const& flowstats);
+cofflow_stats_reply&
+cofflow_stats_reply::operator= (
+		cofflow_stats_reply const& fs)
+{
+	if (this == &fs)
+		return *this;
+
+	of_version 		= fs.of_version;
+	table_id 		= fs.table_id;
+	duration_sec 	= fs.duration_sec;
+	duration_nsec 	= fs.duration_nsec;
+	priority 		= fs.priority;
+	idle_timeout 	= fs.idle_timeout;
+	hard_timeout 	= fs.hard_timeout;
+	cookie 			= fs.cookie;
+	packet_count 	= fs.packet_count;
+	byte_count 		= fs.byte_count;
+	match 			= fs.match;
+	actions 		= fs.actions;
+	instructions 	= fs.instructions;
+
+	return *this;
+}
 
 
-/**
- *
- */
+
 void
-cofflowstats::pack(uint8_t *buf, size_t buflen) const;
+cofflow_stats_reply::pack(uint8_t *buf, size_t buflen) const
+{
+	switch (of_version) {
+	case OFP10_VERSION: {
+		if (buflen < length())
+			throw eInval();
+
+		struct ofp10_flow_stats *fs = (struct ofp10_flow_stats*)buf;
+
+		fs->length 			= htobe16(length());
+		fs->table_id 		= table_id;
+		match.pack(&(fs->match), sizeof(struct ofp10_match));
+		fs->duration_sec 	= htobe32(duration_sec);
+		fs->duration_nsec 	= htobe32(duration_nsec);
+		fs->priority		= htobe16(priority);
+		fs->idle_timeout	= htobe16(idle_timeout);
+		fs->hard_timeout	= htobe16(hard_timeout);
+		fs->cookie			= htobe64(cookie);
+		fs->packet_count	= htobe64(packet_count);
+		fs->byte_count		= htobe64(byte_count);
+		actions.pack(fs->actions, buflen - sizeof(struct ofp10_flow_stats));
+
+	} break;
+	case OFP12_VERSION: {
+		if (buflen < length())
+			throw eInval();
+
+		struct ofp12_flow_stats *fs = (struct ofp12_flow_stats*)buf;
+
+		fs->length 			= htobe16(length());
+		fs->table_id 		= table_id;
+		fs->duration_sec 	= htobe32(duration_sec);
+		fs->duration_nsec 	= htobe32(duration_nsec);
+		fs->priority		= htobe16(priority);
+		fs->idle_timeout	= htobe16(idle_timeout);
+		fs->hard_timeout	= htobe16(hard_timeout);
+		fs->cookie			= htobe64(cookie);
+		fs->packet_count	= htobe64(packet_count);
+		fs->byte_count		= htobe64(byte_count);
+		match.pack(&(fs->match), match.length());
+		instructions.pack(((uint8_t*)&(fs->match)) + match.length, instructions.length());
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
 
 
-/**
- *
- */
+
 void
-cofflowstats::unpack(uint8_t *buf, size_t buflen);
+cofflow_stats_reply::unpack(uint8_t *buf, size_t buflen)
+{
+	switch (of_version) {
+	case OFP10_VERSION: {
+		if (buflen < sizeof(struct ofp10_flow_stats))
+			throw eInval();
+
+		struct ofp10_flow_stats* fs = (struct ofp10_flow_stats*)buf;
+
+		table_id		= fs->table_id;
+		duration_sec	= be32toh(fs->duration_sec);
+		duration_nsec	= be32toh(fs->duration_nsec);
+		priority		= be16toh(fs->priority);
+		idle_timeout	= be16toh(fs->idle_timeout);
+		hard_timeout	= be16toh(fs->hard_timeout);
+		cookie			= be64toh(fs->cookie);
+		packet_count	= be64toh(fs->packet_count);
+		byte_count		= be64toh(fs->byte_count);
+
+		match.unpack(&(fs->match), sizeof(struct ofp10_match));
+		actions.unpack(fs->actions, buflen - sizeof(struct ofp10_flow_stats));
+
+	} break;
+	case OFP12_VERSION: {
+		if (buflen < sizeof(struct ofp12_flow_stats))
+			throw eInval();
+
+		struct ofp12_flow_stats* fs = (struct ofp12_flow_stats*)buf;
+
+		table_id		= fs->table_id;
+		duration_sec	= be32toh(fs->duration_sec);
+		duration_nsec	= be32toh(fs->duration_nsec);
+		priority		= be16toh(fs->priority);
+		idle_timeout	= be16toh(fs->idle_timeout);
+		hard_timeout	= be16toh(fs->hard_timeout);
+		cookie			= be64toh(fs->cookie);
+		packet_count	= be64toh(fs->packet_count);
+		byte_count		= be64toh(fs->byte_count);
+
+		// derive length for match
+		uint16_t matchlen = be16toh(fs->match.length);
+
+		size_t pad = (0x7 & matchlen);
+		/* append padding if not a multiple of 8 */
+		if (pad) {
+			matchlen += 8 - pad;
+		}
+
+		if (buflen < (sizeof(struct ofp12_flow_stats) - 4 + matchlen))
+			throw eInval();
+
+		match.unpack(&(fs->match), matchlen);
+		instructions.unpack(buf + sizeof(struct ofp12_flow_stats) - 4 + matchlen,
+									buflen - sizeof(struct ofp12_flow_stats) + 4 + matchlen);
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
 
 
-/**
- *
- */
+
+size_t
+cofflow_stats_reply::length() const
+{
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return (sizeof(struct ofp10_flow_stats) + actions.length());
+	} break;
+	case OFP12_VERSION: {
+		return (sizeof(struct ofp12_flow_stats) + match.length() + instructions.length());
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
 uint8_t
-cofflowstats::get_version() const;
+cofflow_stats_reply::get_version() const
+{
+	return of_version;
+}
 
 
-/**
- *
- */
+
 uint8_t
-cofflowstats::get_table_id() const;
+cofflow_stats_reply::get_table_id() const
+{
+	return table_id;
+}
 
-/**
- *
- */
+
+
 uint32_t
-cofflowstats::get_duration_sec() const;
+cofflow_stats_reply::get_duration_sec() const
+{
+	return duration_sec;
+}
 
-/**
- *
- */
+
+
 uint32_t
-cofflowstats::get_duration_nsec() const;
+cofflow_stats_reply::get_duration_nsec() const
+{
+	return duration_nsec;
+}
 
-/**
- *
- */
+
+
 uint16_t
-cofflowstats::get_priority() const;
+cofflow_stats_reply::get_priority() const
+{
+	return priority;
+}
 
-/**
- *
- */
+
+
 uint16_t
-cofflowstats::get_idle_timeout() const;
+cofflow_stats_reply::get_idle_timeout() const
+{
+	return idle_timeout;
+}
 
-/**
- *
- */
+
+
 uint16_t
-cofflowstats::get_hard_timeout() const;
+cofflow_stats_reply::get_hard_timeout() const
+{
+	return hard_timeout;
+}
 
-/**
- *
- */
+
+
 uint64_t
-cofflowstats::get_cookie() const;
+cofflow_stats_reply::get_cookie() const
+{
+	return cookie;
+}
 
-/**
- *
- */
+
+
 uint64_t
-cofflowstats::get_packet_count() const;
+cofflow_stats_reply::get_packet_count() const
+{
+	return packet_count;
+}
 
-/**
- *
- */
+
+
 uint64_t
-cofflowstats::get_byte_count() const;
+cofflow_stats_reply::get_byte_count() const
+{
+	return byte_count;
+}
 
-/**
- *
- */
+
+
 cofmatch&
-cofflowstats::get_match();
+cofflow_stats_reply::get_match()
+{
+	return match;
+}
 
-/**
- *
- */
+
+
 cofaclist&
-cofflowstats::get_actions();
+cofflow_stats_reply::get_actions()
+{
+	return actions;
+}
 
-/**
- *
- */
+
+
 cofinlist&
-cofflowstats::get_instructions();
+cofflow_stats_reply::get_instructions()
+{
+	return instructions;
+}
+
 

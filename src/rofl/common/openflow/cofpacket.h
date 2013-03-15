@@ -94,17 +94,17 @@ protected: // data structures
 
 public: // data structures
 
-	cofbase 		*entity; 			// source entity that emitted this packet
-	cofmatch 		match; 				// ofp_match structure
-	cofaclist 		actions; 			// list of actions (for Packet-Out messages)
-	cofinlist 		instructions;		// list of instructions
-	cofbclist 		buckets;			// list of buckets
-	cofportlist		ports;				// list of ports (for Features-Reply messages)
-	cofport			port;				// a single port (for Port-Status messages)
-	cmemory			body;				// body of OF packet, e.g. data, experimental body, stats body, etc.
-	cpacket			packet;				// valid for Packet-In and Packet-Out, empty otherwise
+	cofbase 			*entity; 			// source entity that emitted this packet
+	cofmatch 			match; 				// ofp_match structure
+	cofaclist 			actions; 			// list of actions (for Packet-Out messages)
+	cofinlist 			instructions;		// list of instructions
+	cofbclist 			buckets;			// list of buckets
+	cofportlist			ports;				// list of ports (for Features-Reply messages)
+	cofport				port;				// a single port (for Port-Status messages)
+	cmemory				body;				// body of OF packet, e.g. data, experimental body, stats body, etc.
+	cpacket				packet;				// valid for Packet-In and Packet-Out, empty otherwise
 
-	int switch_features_num_ports; 		// valid only, if type == FEATURES-REPLY
+	//int switch_features_num_ports; 		// valid only, if type == FEATURES-REPLY
 
 	union {
 		struct ofp_header				  		*ofhu_hdr;
@@ -2929,14 +2929,18 @@ public:
 
 
 
-
-
 /** OFPT_STATS_REPLY
  *
  */
 class cofpacket_stats_reply :
 	public cofpacket
 {
+private:
+
+	cofdesc_stats_reply 	desc_stats_reply;
+	cofflow_stats_request 	flow_stats_request;
+	cofflow_stats_reply 	flow_stats_reply;
+
 public:
 		/** constructor
 		 *
@@ -3098,8 +3102,35 @@ public:
 
 
 
+class cofpacket_flow_stats_reply :
+		public cofpacket_stats_reply
+{
+private:
+
+	cofflow_stats_reply flowstats;
+
+public:
+
+	virtual
+	cofflow_stats_reply&
+	get_body()
+	{
+		return flowstats;
+	}
+
+};
 
 
+
+void
+blubber()
+{
+	cofpacket_flow_stats_reply reply;
+	if (OFPTT_ALL == reply.get_body().get_table_id())
+	{
+		// do something fancy here ...
+	}
+};
 
 
 

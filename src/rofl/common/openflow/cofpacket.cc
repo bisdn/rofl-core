@@ -1003,12 +1003,28 @@ cofpacket::is_valid_stats_request()
 bool
 cofpacket::is_valid_stats_reply()
 {
-	ofh_stats_reply = (struct ofp_stats_reply*)soframe();
-	if (stored < sizeof(struct ofp_stats_reply))
-		return false;
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		ofh_stats_reply = (struct ofp10_stats_reply*)soframe();
+		if (stored < sizeof(struct ofp_stats_reply))
+			return false;
 
-	body.assign((uint8_t*)ofh_stats_reply->body,
-			stored - sizeof(struct ofp_stats_reply));
+		body.assign((uint8_t*)ofh_stats_reply->body,
+				stored - sizeof(struct ofp_stats_reply));
+
+	} break;
+	case OFP12_VERSION: {
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
+	switch (be16toh(ofh_stats_reply->type)) {
+	case OFPST_DESC: {
+
+	} break;
+	}
 
 	ofb_stats_request = (uint8_t*)body.somem();
 
