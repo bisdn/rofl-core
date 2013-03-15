@@ -54,7 +54,7 @@ of12_stats_flow_aggregate_msg_t* of12_init_stats_flow_aggregate_msg(){
 
 	//Init counters
 	if(msg)
-		memset(msg,0,sizeof(msg));
+		memset(msg,0,sizeof(*msg));
 
 	return msg;
 }
@@ -108,7 +108,7 @@ of12_stats_flow_msg_t* of12_init_stats_flow_msg(){
 
 	//Init counters
 	if(msg)
-		memset(msg,0,sizeof(msg));
+		memset(msg,0,sizeof(*msg));
 
 	return msg;
 }
