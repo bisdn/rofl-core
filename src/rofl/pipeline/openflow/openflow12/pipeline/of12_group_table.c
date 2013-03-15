@@ -70,9 +70,10 @@ of12_group_t *of12_group_search(of12_group_table_t *gt, uint32_t id){
 
 static
 rofl_result_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, uint32_t id,
-									uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions){
+							uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t **actions){
 	
 	of12_group_t* ge=NULL;
+	int i;
 	
 	ge = (of12_group_t *) cutil_malloc_shared(sizeof(of12_group_t));
 	if (ge == NULL){
@@ -80,13 +81,16 @@ rofl_result_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, ui
 	}
 	
 	//validate action set
-	if(of12_validate_group(actions)==ROFL_FAILURE)
-		return ROFL_FAILURE;
+	for(i=0;actions[i]!=NULL;i++){
+		if(of12_validate_group(actions[i])==ROFL_FAILURE)
+			return ROFL_FAILURE;
+	}
 	
 	ge->bl_head = ge->bl_tail = NULL;
 	ge->id = id;
 	ge->type = type;
 	ge->group_table = gt;
+	ge->rwlock = platform_rwlock_init(NULL);
 	
 	//insert in the end
 	if (gt->head == NULL && gt->tail == NULL){
@@ -101,14 +105,16 @@ rofl_result_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, ui
 	gt->tail = ge;
 	gt->num_of_entries++;
 	
-	if(of12_init_group_bucket(ge,weigth,group,port, actions)!=ROFL_SUCCESS)
-		return ROFL_FAILURE;
+	for(i=0;actions[i]!=NULL;i++){
+		if(of12_init_group_bucket(ge,weigth,group,port, actions[i])!=ROFL_SUCCESS)
+			return ROFL_FAILURE;
+	}
 	
 	return ROFL_SUCCESS;
 }
 
 rofl_result_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, 
-							 uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions){
+							 uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t **actions){
 	
 	platform_rwlock_wrlock(gt->rwlock);
 	
@@ -129,8 +135,13 @@ rofl_result_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uin
 static
 void of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge){
 	
+	platform_rwlock_wrlock(ge->rwlock);
+	
 	//destroy buckets & actions inside
 	of12_destroy_group_bucket_all(ge);
+	
+	platform_rwlock_destroy(ge->rwlock);
+
 	//free
 	cutil_free_shared(ge);
 }
@@ -191,36 +202,38 @@ rofl_result_t of12_group_delete(of12_group_table_t *gt, uint32_t id, of12_pipeli
 	return ROFL_SUCCESS;
 }
 
-
+/**
+ * Function that searches a group
+ * and modifies the action buckets inside
+ * @param actions is a null ended array with the action groups for each bucket
+ */
 rofl_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, 
-								uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions){
-	//NOTE this is not well implemented yet
-	return ROFL_FAILURE;
-	
-	platform_rwlock_wrlock(gt->rwlock);
-	
-	//search && remove && add
+								uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t **actions){
+	int i;
+
 	of12_group_t *ge = of12_group_search(gt,id);
 	if (ge == NULL){
 		platform_rwlock_wrunlock(gt->rwlock);
 		return ROFL_FAILURE;
 	}
-	/*
-	 * TODO we should manage the modify properly
-	if(of12_destroy_group(gt,ge)!=ROFL_SUCCESS){
-		platform_rwlock_wrunlock(gt->rwlock);
-		return ROFL_FAILURE;
+	
+	platform_rwlock_wrlock(ge->rwlock);
+	
+	of12_destroy_group_bucket_all(ge);
+	
+	for(i=0;actions[i]!=NULL;i++){
+		if(of12_init_group_bucket(ge,weigth,group,port,actions[i])==ROFL_FAILURE){
+			platform_rwlock_wrunlock(ge->rwlock);
+			return ROFL_FAILURE;
+		}
 	}
-	*/
-	if(of12_init_group(gt,type,id,weigth,group,port,actions)!=ROFL_SUCCESS){
-		platform_rwlock_wrunlock(gt->rwlock);
-		return ROFL_FAILURE;
-	}
-	platform_rwlock_wrunlock(gt->rwlock);
+	platform_rwlock_wrunlock(ge->rwlock);
+	
 	return ROFL_SUCCESS;
 }
 static
 rofl_result_t of12_init_group_bucket(of12_group_t *ge, uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t *actions){
+	
 	of12_group_bucket_t *bk = cutil_malloc_shared(sizeof(of12_group_bucket_t));
 	if (bk == NULL)
 		return ROFL_FAILURE;
@@ -251,7 +264,8 @@ void of12_destroy_group_bucket_all(of12_group_t *ge){
 	
 	for(bk_it=ge->bl_head;bk_it!=NULL;bk_it=next){
 		next = bk_it->next;
-		///*of12_destroy_action_group(bk_it->actions);*/
+		//NOTE  of12_destroy_action_group(bk_it->actions);
+		//were are the action groups created and deleted?
 		cutil_free_shared(bk_it);
 	}
 }
