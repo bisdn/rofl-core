@@ -1,9 +1,13 @@
 #include "of12_flow_entry.h"
 
 #include "../../../platform/memory.h"
+#include "../../../platform/openflow/openflow12/platform_hooks_of12.h"
 
 #include <stdio.h>
 #include <assert.h>
+#include "../of12_switch.h"
+#include "of12_pipeline.h"
+#include "of12_flow_table.h"
 #include "of12_action.h"
 #include "of12_group_table.h"
 
@@ -42,7 +46,9 @@ of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry
 
 }
 
-rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
+
+//This function is meant to only be used internally
+rofl_result_t of12_destroy_flow_entry_with_reason(of12_flow_entry_t* entry, of12_flow_remove_reason_t reason){
 	
 	of12_match_t* match = entry->matchs;
 
@@ -52,10 +58,16 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	//destroying timers, if any
 	of12_destroy_timer_entries(entry);
 
+	//Notify flow removed
+	if(entry->notify_removal && (reason != OF12_FLOW_REMOVE_NO_REASON ) ){
+		//Safety checks
+		if(entry->table && entry->table->pipeline && entry->table->pipeline->sw)
+			platform_of12_notify_flow_removed(entry->table->pipeline->sw, reason, entry);	
+			
+	}	
+
 	//destroy stats
 	of12_destroy_flow_stats(entry);
-
-	//FIXME TODO XXX Implement flow_removed message
 
 	//Destroy matches recursively
 	while(match){
@@ -74,6 +86,11 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	cutil_free_shared(entry);	
 	
 	return ROFL_SUCCESS;
+}
+
+//This is the interface FIXME: delete _
+rofl_result_t of12_destroy_flow_entry_(of12_flow_entry_t* entry){
+	return of12_destroy_flow_entry_with_reason(entry, OF12_FLOW_REMOVE_NO_REASON);	
 }
 
 //Adds one or more to the entry
@@ -121,7 +138,7 @@ rofl_result_t of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_fl
 	platform_rwlock_wrunlock(entry_to_update->rwlock);
 
 	//Destroy the mod entry
-	of12_destroy_flow_entry(mod);
+	of12_destroy_flow_entry_with_reason(mod, OF12_FLOW_REMOVE_NO_REASON);
 
 	return ROFL_SUCCESS;
 }

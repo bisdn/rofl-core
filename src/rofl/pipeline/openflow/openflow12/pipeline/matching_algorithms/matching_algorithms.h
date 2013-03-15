@@ -49,6 +49,7 @@ struct matching_algorithm_functions
 			const enum of12_flow_removal_strictness strict,
 			uint32_t out_port,
 			uint32_t out_group,
+			of12_flow_remove_reason_t reason,
 			of12_mutex_acquisition_required_t mutex_acquired);
 
 	//Packet matching lookup

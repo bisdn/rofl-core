@@ -14,9 +14,12 @@
 */
 
 /* Management operations */
-of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum matching_algorithm_available* list, const of12_flow_table_miss_config_t table_config){
+of12_pipeline_t* of12_init_pipeline(struct of12_switch* sw, const unsigned int num_of_tables, enum matching_algorithm_available* list, const of12_flow_table_miss_config_t table_config){
 	int i;	
 	of12_pipeline_t* pipeline;
+
+	if(!sw)
+		return NULL;
 
 	//Verify params
 	if( ! (num_of_tables <= OF12_MAX_FLOWTABLES && num_of_tables > 0) )
@@ -28,6 +31,7 @@ of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum match
 		return NULL;
 	
 	//Fill in
+	pipeline->sw = sw;
 	pipeline->num_of_tables = num_of_tables;
 
 
@@ -41,7 +45,7 @@ of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum match
 
 	for(i=0;i<num_of_tables;i++){
 		//TODO: if we would have tables with different config, table_config should be an array of table_config_t objects, one for each table
-		if(of12_init_table(&pipeline->tables[i],i,table_config, list[i]) != ROFL_SUCCESS){
+		if(of12_init_table(pipeline, &pipeline->tables[i],i,table_config, list[i]) != ROFL_SUCCESS){
 			cutil_free_shared(pipeline->tables);
 			cutil_free_shared(pipeline);
 			return NULL;

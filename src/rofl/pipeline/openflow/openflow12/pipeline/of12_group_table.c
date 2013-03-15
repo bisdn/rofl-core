@@ -181,7 +181,7 @@ rofl_result_t of12_group_delete(of12_group_table_t *gt, uint32_t id, of12_pipeli
 	//loop for all the tables and erase entries that point to the group
 	for(i=0; i<pipeline->num_of_tables; i++){
 		while((entry=pipeline->tables[i].maf.find_entry_using_group_hook(&pipeline->tables[i],ge->id))!=NULL){
-			of12_remove_specific_flow_entry_table(pipeline,i,entry,MUTEX_NOT_ACQUIRED);
+			of12_remove_specific_flow_entry_table(pipeline,i,entry, OF12_FLOW_REMOVE_GROUP_DELETE, MUTEX_NOT_ACQUIRED);
 		}
 	}
 	

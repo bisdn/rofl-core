@@ -91,6 +91,9 @@ typedef struct of12_flow_table{
 	platform_mutex_t* mutex; //Mutual exclusion among insertion/deletion threads
 	platform_rwlock_t* rwlock; //Readers mutex
 
+	//Reference back
+	struct of12_pipeline* pipeline;
+
 	/* 
 	* Matching algorithm related function pointers. Matching algorithm should implement them. 
 	*/
@@ -110,7 +113,7 @@ ROFL_PIPELINE_BEGIN_DECLS
 /*
 * Table init and destroy
 */
-rofl_result_t of12_init_table(of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm);
+rofl_result_t of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm);
 rofl_result_t of12_destroy_table(of12_flow_table_t* table);
 
 /*
@@ -123,7 +126,7 @@ rofl_result_t of12_modify_flow_entry_table(struct of12_pipeline *const pipeline,
 rofl_result_t of12_remove_flow_entry_table(struct of12_pipeline *const pipeline, const unsigned int table_id, of12_flow_entry_t* entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group);
 
 //This API call is meant to ONLY be used internally within the pipeline library (timers)
-rofl_result_t of12_remove_specific_flow_entry_table(struct of12_pipeline *const pipeline, const unsigned int table_id, of12_flow_entry_t *const specific_entry, of12_mutex_acquisition_required_t mutex_acquired);
+rofl_result_t of12_remove_specific_flow_entry_table(struct of12_pipeline *const pipeline, const unsigned int table_id, of12_flow_entry_t *const specific_entry, of12_flow_remove_reason_t reason, of12_mutex_acquisition_required_t mutex_acquired);
 
 /*
 * Entry lookup

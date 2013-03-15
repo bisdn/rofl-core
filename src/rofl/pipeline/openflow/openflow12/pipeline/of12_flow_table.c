@@ -21,14 +21,19 @@
 */ 
 
 /* Initalizer. Table struct has been allocated by pipeline initializer. */
-rofl_result_t of12_init_table(of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm){
-	
+rofl_result_t of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm){
+
+	//Safety checks
+	if(!pipeline || !table)
+		return ROFL_FAILURE;	
+
 	//Initializing mutexes
 	if(NULL == (table->mutex = platform_mutex_init(NULL)))
 		return ROFL_FAILURE;
 	if(NULL == (table->rwlock = platform_rwlock_init(NULL)))
 		return ROFL_FAILURE;
 	
+	table->pipeline = pipeline;
 	table->number = table_index;
 	table->entries = NULL;
 	table->num_of_entries = 0;
@@ -158,19 +163,10 @@ rofl_result_t of12_init_table(of12_flow_table_t* table, const unsigned int table
 /* Destructor. Table object is freed by pipeline destructor */
 rofl_result_t of12_destroy_table(of12_flow_table_t* table){
 	
-	of12_flow_entry_t* entry;
-	
 	platform_mutex_lock(table->mutex);
 	platform_rwlock_wrlock(table->rwlock);
-	
-	entry = table->entries; 
-	while(entry){
-		of12_flow_entry_t* next = entry->next;
-		//TODO: maybe check result of destroy and print traces...	
-		of12_destroy_flow_entry(entry);		
-		entry = next; 
-	}
 
+	//Let the matching algorithm destroy its own state
 	if(table->maf.destroy_hook)
 		table->maf.destroy_hook(table);
 
@@ -273,16 +269,16 @@ inline rofl_result_t of12_remove_flow_entry_table(of12_pipeline_t *const pipelin
 	if(table_id >= pipeline->num_of_tables)
 		return ROFL_FAILURE;
 
-	return  pipeline->tables[table_id].maf.remove_flow_entry_hook(&pipeline->tables[table_id], entry, NULL, strict,  out_port, out_group, MUTEX_NOT_ACQUIRED);
+	return  pipeline->tables[table_id].maf.remove_flow_entry_hook(&pipeline->tables[table_id], entry, NULL, strict,  out_port, out_group, OF12_FLOW_REMOVE_DELETE, MUTEX_NOT_ACQUIRED);
 }
 
 //This API call should NOT be called from outside pipeline library
-rofl_result_t of12_remove_specific_flow_entry_table(of12_pipeline_t *const pipeline, const unsigned int table_id, of12_flow_entry_t *const specific_entry, of12_mutex_acquisition_required_t mutex_acquired){
+rofl_result_t of12_remove_specific_flow_entry_table(of12_pipeline_t *const pipeline, const unsigned int table_id, of12_flow_entry_t *const specific_entry, of12_flow_remove_reason_t reason, of12_mutex_acquisition_required_t mutex_acquired){
 	//Verify table_id
 	if(table_id >= pipeline->num_of_tables)
 		return ROFL_FAILURE;
 
-	return pipeline->tables[table_id].maf.remove_flow_entry_hook(&pipeline->tables[table_id], NULL, specific_entry, STRICT, OF12_PORT_ANY, OF12_GROUP_ANY, mutex_acquired);
+	return pipeline->tables[table_id].maf.remove_flow_entry_hook(&pipeline->tables[table_id], NULL, specific_entry, STRICT, OF12_PORT_ANY, OF12_GROUP_ANY, reason, mutex_acquired);
 }
 
 /* Main process_packet_through */
