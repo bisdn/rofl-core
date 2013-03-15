@@ -11,6 +11,7 @@
 #include "rofl.h"
 #include "../../../openflow/of_switch.h"
 #include "../../../openflow/openflow12/of12_switch.h"
+#include "../../../openflow/openflow12/pipeline/of12_flow_entry.h"
 #include "../../../../pipeline/common/datapacket.h"
 
 /*
@@ -21,6 +22,8 @@ enum of12_packet_in_reason {
     OF12_PKT_IN_ACTION = 1,        /* Action explicitly output to controller. */
     OF12_PKT_IN_INVALID_TTL = 2	/* Packet has invalid TTL */
 };
+
+
 
 //C++ extern C
 ROFL_PIPELINE_BEGIN_DECLS
@@ -34,6 +37,12 @@ rofl_result_t platform_pre_destroy_of12_switch(of12_switch_t* sw);
 
 //Packet in
 void platform_of12_packet_in(const of12_switch_t* sw, uint8_t table_id, datapacket_t* pkt, of_packet_in_reason_t reason);
+
+//Flow removed
+void platform_of12_notify_flow_removed(const of12_switch_t* sw, 	
+						of12_flow_remove_reason_t reason, 
+						of12_flow_entry_t* removed_flow_entry);
+
 
 //Extern C
 ROFL_PIPELINE_END_DECLS

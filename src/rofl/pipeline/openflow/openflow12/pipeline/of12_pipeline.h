@@ -24,6 +24,9 @@ enum of12_capabilities {
     OF12_CAP_ARP_MATCH_IP   = 1 << 7   /* Match IP addresses in ARP pkts. */
 };
 
+//Fwd declaration
+struct of12_switch;
+
 struct of12_pipeline{
 	
 	//Number of tables
@@ -43,7 +46,9 @@ struct of12_pipeline{
 	
 	//Group table
 	of12_group_table_t* groups;
-	
+
+	//Reference back
+	struct of12_switch* sw;	
 };
 typedef struct of12_pipeline of12_pipeline_t;
 
@@ -51,7 +56,7 @@ typedef struct of12_pipeline of12_pipeline_t;
 ROFL_PIPELINE_BEGIN_DECLS
 
 /* Pipeline mgmt */
-of12_pipeline_t* of12_init_pipeline(const unsigned int num_of_tables, enum matching_algorithm_available* list, const of12_flow_table_miss_config_t table_config);
+of12_pipeline_t* of12_init_pipeline(struct of12_switch* sw, const unsigned int num_of_tables, enum matching_algorithm_available* list, const of12_flow_table_miss_config_t table_config);
 rofl_result_t of12_destroy_pipeline(of12_pipeline_t* pipeline);
 
 //Packet processing

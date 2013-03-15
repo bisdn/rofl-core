@@ -23,6 +23,16 @@ typedef enum of12_flow_removal_strictness{
 	STRICT
 }of12_flow_removal_strictness_t;
 
+//Flow remove reasons (enum ofp_flow_removed_reason
+typedef enum of12_flow_remove_reason {
+	OF12_FLOW_REMOVE_IDLE_TIMEOUT=0,		/* Flow idle time exceeded idle_timeout. */
+	OF12_FLOW_REMOVE_HARD_TIMEOUT=1,		/* Time exceeded hard_timeout. */
+	OF12_FLOW_REMOVE_DELETE=2,			/* Evicted by a DELETE flow mod. */
+	OF12_FLOW_REMOVE_GROUP_DELETE=3,		/* Group was removed. */
+
+	OF12_FLOW_REMOVE_NO_REASON = 0xFF		/* No reason -> do not notify */
+}of12_flow_remove_reason_t;
+
 /*
 * OF12 Flow enetry structure
 */
@@ -74,6 +84,7 @@ ROFL_PIPELINE_BEGIN_DECLS
 
 //of12_flow_entry_t* of12_init_flow_entry(const uint16_t priority, of12_match_group_t* match_group, of12_flow_entry_t* prev, of12_flow_entry_t* next);
 of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry_t* next, bool notify_removal);
+rofl_result_t of12_destroy_flow_entry_with_reason(of12_flow_entry_t* entry, of12_flow_remove_reason_t reason); 
 rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry); 
 
 //Add match

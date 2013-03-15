@@ -39,7 +39,7 @@ of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int nu
 	}
 	
 	//Setup pipeline	
-	sw->pipeline = of12_init_pipeline(num_of_tables, list, config);
+	sw->pipeline = of12_init_pipeline(sw, num_of_tables, list, config);
 	if(sw->pipeline == NULL){
 		cutil_free_shared(sw->name);
 		cutil_free_shared(sw);

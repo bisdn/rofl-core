@@ -392,7 +392,7 @@ static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer
 		of12_destroy_timer_entries(entry_timer->entry);
 #else
 		//fprintf(stderr,"Erasing real entries of table \n"); //NOTE Delete
-		of12_remove_specific_flow_entry_table(pipeline, id_table, entry_timer->entry, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
+		of12_remove_specific_flow_entry_table(pipeline, id_table, entry_timer->entry, OF12_FLOW_REMOVE_IDLE_TIMEOUT, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
 #endif
 		return ROFL_SUCCESS; // timeout expired so no need to reschedule !!! we have to delete the entry
 	}
@@ -448,7 +448,7 @@ static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_
 				of12_destroy_timer_entries(entry_iterator->entry);
 #else
 				//fprintf(stderr,"Erasing real entries of table \n"); //NOTE DELETE
-				of12_remove_specific_flow_entry_table(pipeline, id_table,entry_iterator->entry, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
+				of12_remove_specific_flow_entry_table(pipeline, id_table,entry_iterator->entry, OF12_FLOW_REMOVE_HARD_TIMEOUT, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
 #endif
 			}
 			//if(entry_iterator) THIS IS DONE from outside
