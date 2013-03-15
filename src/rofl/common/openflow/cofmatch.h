@@ -140,7 +140,7 @@ public: // methods
 	/** return required length for packed cofmatch (includes padding to 64bit)
 	 */
 	size_t
-	length();
+	length() const;
 
 
 private:
@@ -160,7 +160,7 @@ public:
 	struct ofp10_match*
 	pack(
 			struct ofp10_match* m,
-			size_t mlen) throw (eOFmatchInval);
+			size_t mlen) const throw (eOFmatchInval);
 
 
 	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match
@@ -179,7 +179,7 @@ public:
 	struct ofp12_match*
 	pack(
 			struct ofp12_match* m,
-			size_t mlen) throw (eOFmatchInval);
+			size_t mlen) const throw (eOFmatchInval);
 
 
 	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match
@@ -198,7 +198,7 @@ public:
 	struct ofp13_match*
 	pack(
 			struct ofp13_match* m,
-			size_t mlen) throw (eOFmatchInval);
+			size_t mlen) const throw (eOFmatchInval);
 
 
 	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match

@@ -195,7 +195,7 @@ coxmlist::unpack(
 struct ofp_oxm_hdr*
 coxmlist::pack(
 		struct ofp_oxm_hdr* oxm_hdr,
-		size_t oxm_len)
+		size_t oxm_len) const
 {
 	size_t needed_oxm_len = length();
 
@@ -224,7 +224,7 @@ coxmlist::pack(
 
 
 size_t
-coxmlist::length()
+coxmlist::length() const
 {
 	size_t oxm_len = 0;
 	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
@@ -261,7 +261,7 @@ coxmlist::c_str()
 bool
 coxmlist::exists(
 		uint16_t oxm_class,
-		uint8_t oxm_field)
+		uint8_t oxm_field) const
 {
 	return ((coxmatch*)0 != oxmvec[oxm_field]);
 }
@@ -271,7 +271,7 @@ coxmatch&
 coxmlist::oxm_find(
 		uint16_t oxm_class,
 		uint8_t oxm_field)
-			throw (eOxmListNotFound)
+			const throw (eOxmListNotFound)
 {
 #if 0
 #ifndef NDEBUG
@@ -293,8 +293,9 @@ coxmlist::oxm_find(
 		throw eOxmListNotFound();
 	}
 
+	coxmatch oxm((*this)[oxm_field]);
 	WRITELOG(COXMLIST, DBG, "coxmlist(%p)::oxm_find() class:0x%x field:%d found => %s",
-					this, oxm_class, oxm_field, (*this)[oxm_field].c_str());
+					this, oxm_class, oxm_field, oxm.c_str());
 
 	return (*this)[oxm_field];
 }

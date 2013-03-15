@@ -75,7 +75,7 @@ cofinlist::pack(
 
 
 size_t
-cofinlist::length()
+cofinlist::length() const
 {
 	size_t inlen = 0;
 	cofinlist::iterator it;

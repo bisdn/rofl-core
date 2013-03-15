@@ -37,6 +37,8 @@ extern "C" {
 #include "cofbclist.h"
 #include "cofportlist.h"
 #include "cofport.h"
+#include "cofdescstats.h"
+#include "cofflowstats.h"
 
 // forward declarations
 class cofbase;
@@ -94,15 +96,19 @@ protected: // data structures
 
 public: // data structures
 
-	cofbase 			*entity; 			// source entity that emitted this packet
-	cofmatch 			match; 				// ofp_match structure
-	cofaclist 			actions; 			// list of actions (for Packet-Out messages)
-	cofinlist 			instructions;		// list of instructions
-	cofbclist 			buckets;			// list of buckets
-	cofportlist			ports;				// list of ports (for Features-Reply messages)
-	cofport				port;				// a single port (for Port-Status messages)
-	cmemory				body;				// body of OF packet, e.g. data, experimental body, stats body, etc.
-	cpacket				packet;				// valid for Packet-In and Packet-Out, empty otherwise
+	cofbase 				*entity; 			// source entity that emitted this packet
+	cofmatch 				match; 				// ofp_match structure
+	cofaclist 				actions; 			// list of actions (for Packet-Out messages)
+	cofinlist 				instructions;		// list of instructions
+	cofbclist 				buckets;			// list of buckets
+	cofportlist				ports;				// list of ports (for Features-Reply messages)
+	cofport					port;				// a single port (for Port-Status messages)
+	cmemory					body;				// body of OF packet, e.g. data, experimental body, stats body, etc.
+	cpacket					packet;				// valid for Packet-In and Packet-Out, empty otherwise
+	cofdesc_stats_reply 	desc_stats_reply;	// description statistics
+	cofflow_stats_request 	flow_stats_request;	// flow statistics request
+	cofflow_stats_reply 	flow_stats_reply;	// flow statistics reply
+
 
 	//int switch_features_num_ports; 		// valid only, if type == FEATURES-REPLY
 
@@ -2790,6 +2796,7 @@ public:
 };
 
 
+
 /** OFPT_STATS_REQUEST
  *
  */
@@ -2836,6 +2843,210 @@ public:
 		 */
 		uint16_t
 		get_flags();
+};
+
+
+
+/** OFPT_STATS_REPLY
+ *
+ */
+class cofpacket_stats_reply :
+	public cofpacket
+{
+public:
+		/** constructor
+		 *
+		 */
+		cofpacket_stats_reply(
+				uint8_t of_version = 0,
+				uint32_t xid = 0,
+				uint16_t type = 0,
+				uint16_t flags = 0,
+				uint8_t *data = (uint8_t*)0,
+				size_t datalen = 0) :
+			cofpacket(	sizeof(struct ofp_stats_reply),
+						sizeof(struct ofp_stats_reply))
+		{
+			cofpacket::body.assign(data, datalen);
+
+			ofh_header->version 	= of_version;
+			ofh_header->length		= htobe16(sizeof(struct ofp_stats_reply) + body.memlen());
+			ofh_header->type 		= OFPT_STATS_REPLY;
+			ofh_header->xid			= htobe32(xid);
+
+			ofh_stats_reply->type	= htobe16(type);
+			ofh_stats_reply->flags	= htobe16(flags);
+		};
+		/** constructor
+		 *
+		 */
+		cofpacket_stats_reply(
+				uint8_t of_version = 0,
+				uint32_t xid = 0,
+				uint16_t flags = 0,
+				cofdesc_stats_reply const& desc_stats) :
+			cofpacket(	sizeof(struct ofp_header),
+						sizeof(struct ofp_header))
+		{
+			cofpacket::desc_stats_reply = desc_stats;
+
+			ofh_header->version 	= of_version;
+			ofh_header->length		= htobe16(sizeof(struct ofp_stats_reply) + desc_stats_reply.length());
+			ofh_header->type 		= OFPT_STATS_REPLY;
+			ofh_header->xid			= htobe32(xid);
+
+			ofh_stats_reply->type	= htobe16(OFPST_DESC);
+			ofh_stats_reply->flags	= htobe16(flags);
+		};
+		/** constructor
+		 *
+		 */
+		cofpacket_stats_reply(cofpacket const *pack) :
+			cofpacket(pack->framelen(), pack->framelen())
+		{
+			cofpacket::operator=(*pack);
+		};
+		/** destructor
+		 *
+		 */
+		virtual
+		~cofpacket_stats_reply() {};
+		/** length
+		 *
+		 */
+		virtual size_t
+		length()
+		{
+			return (sizeof(struct ofp_stats_reply) + body.memlen());
+		};
+		/**
+		 *
+		 */
+		virtual void
+		pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0) throw (eOFpacketInval)
+		{
+			ofh_header->length = htobe16(length());
+
+			if (((uint8_t*)0 == buf) || (buflen < length()))
+			{
+				return;
+			}
+
+			memcpy(buf, memarea.somem(), sizeof(struct ofp_stats_reply));
+
+			if (body.memlen() > 0)
+			{
+				memcpy(buf + sizeof(struct ofp_stats_reply), body.somem(), body.memlen());
+			}
+		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_type()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(ofh_stats_reply->type);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+		/**
+		 *
+		 */
+		uint16_t
+		get_flags()
+		{
+			switch (ofh_header->version) {
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				return be16toh(ofh_stats_reply->flags);
+			} break;
+			default: {
+				throw eBadVersion();
+			} break;
+			}
+			return 0;
+		};
+};
+
+
+
+/** OFPT_DESC_STATS_REPLY
+ *
+ */
+class cofpacket_desc_stats_reply :
+	public cofpacket_stats_reply
+{
+public:
+		/** constructor
+		 *
+		 */
+		cofpacket_desc_stats_reply(
+				uint8_t of_version = 0,
+				uint32_t xid = 0,
+				uint16_t flags = 0,
+				cofdesc_stats_reply const& desc_stats) :
+			cofpacket_stats_reply(of_version, xid, OFPST_DESC, flags)
+		{
+			body.resize(desc_stats.length());
+			desc_stats.pack(body.somem(), body.memlen());
+		};
+		/** destructor
+		 *
+		 */
+		virtual
+		~cofpacket_desc_stats_reply() {};
+		/**
+		 *
+		 */
+		cofdesc_stats_reply&
+		get_desc_stats()
+		{
+			return desc_stats_reply;
+		};
+};
+
+
+
+/** OFPT_FLOW_STATS_REPLY
+ *
+ */
+class cofpacket_flow_stats_reply :
+	public cofpacket_stats_reply
+{
+public:
+		/** constructor
+		 *
+		 */
+		cofpacket_flow_stats_reply(
+				uint8_t of_version = 0,
+				uint32_t xid = 0,
+				uint16_t flags = 0,
+				cofflow_stats_reply const& flow_stats_reply) :
+			cofpacket_stats_reply(of_version, xid, OFPST_FLOW, flags)
+		{
+			body.resize(flow_stats_reply.length());
+			flow_stats_reply.pack(body.somem(), body.memlen());
+		};
+		/** destructor
+		 *
+		 */
+		virtual
+		~cofpacket_flow_stats_reply() {};
+		/**
+		 *
+		 */
+		cofflow_stats_reply&
+		get_flow_stats_reply()
+		{
+			return flow_stats_reply;
+		};
 };
 
 
@@ -2927,120 +3138,6 @@ public:
 };
 
 
-
-
-/** OFPT_STATS_REPLY
- *
- */
-class cofpacket_stats_reply :
-	public cofpacket
-{
-private:
-
-	cofdesc_stats_reply 	desc_stats_reply;
-	cofflow_stats_request 	flow_stats_request;
-	cofflow_stats_reply 	flow_stats_reply;
-
-public:
-		/** constructor
-		 *
-		 */
-		cofpacket_stats_reply(
-				uint8_t of_version = 0,
-				uint32_t xid = 0,
-				uint16_t type = 0,
-				uint16_t flags = 0,
-				uint8_t *data = (uint8_t*)0,
-				size_t datalen = 0) :
-			cofpacket(	sizeof(struct ofp_stats_reply),
-						sizeof(struct ofp_stats_reply))
-		{
-			cofpacket::body.assign(data, datalen);
-
-			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_stats_reply) + body.memlen());
-			ofh_header->type 		= OFPT_STATS_REPLY;
-			ofh_header->xid			= htobe32(xid);
-
-			ofh_stats_reply->type		= htobe16(type);
-			ofh_stats_reply->flags		= htobe16(flags);
-		};
-		/** constructor
-		 *
-		 */
-		cofpacket_stats_reply(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
-		{
-			cofpacket::operator =(*pack);
-		};
-		/** destructor
-		 *
-		 */
-		virtual
-		~cofpacket_stats_reply() {};
-		/** length
-		 *
-		 */
-		virtual size_t
-		length()
-		{
-			return (sizeof(struct ofp_stats_reply) + body.memlen());
-		};
-		/**
-		 *
-		 */
-		virtual void
-		pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0) throw (eOFpacketInval)
-		{
-			ofh_header->length = htobe16(length());
-
-			if (((uint8_t*)0 == buf) || (buflen < length()))
-			{
-				return;
-			}
-
-			memcpy(buf, memarea.somem(), sizeof(struct ofp_stats_reply));
-
-			if (body.memlen() > 0)
-			{
-				memcpy(buf + sizeof(struct ofp_stats_reply), body.somem(), body.memlen());
-			}
-		};
-		/**
-		 *
-		 */
-		uint16_t
-		get_type()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be16toh(ofh_stats_reply->type);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
-		/**
-		 *
-		 */
-		uint16_t
-		get_flags()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be16toh(ofh_stats_reply->flags);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
-};
 
 
 

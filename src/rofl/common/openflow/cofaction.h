@@ -129,7 +129,7 @@ public: // methods
 	/** return length of action in bytes
 	 */
 	size_t
-	length();
+	length() const;
 
 	/** dump info string for this action
 	 */

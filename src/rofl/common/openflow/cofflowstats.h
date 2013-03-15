@@ -103,6 +103,13 @@ public:
 	/**
 	 *
 	 */
+	size_t
+	length() const;
+
+
+	/**
+	 *
+	 */
 	uint8_t
 	get_version() const;
 

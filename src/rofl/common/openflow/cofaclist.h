@@ -94,7 +94,7 @@ public: // methods
 	 * for all actions defined in std::vector<cofaction*>
 	 */
 	size_t
-	length();
+	length() const;
 
 	/** counts number of actions of specific type in ActionList acvec of this instruction
 	 */

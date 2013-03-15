@@ -243,7 +243,7 @@ cofaction::soaction()
 
 
 size_t
-cofaction::length()
+cofaction::length() const
 {
 	switch (be16toh(oac_header->type)) {
 	case OFPAT_OUTPUT:
@@ -297,9 +297,11 @@ cofaction::length()
 	case OFPAT_SET_FIELD:
 		return action.memlen();
 
-	default:
-		WRITELOG(COFACTION, DBG, "cofaction(%p)::actionlen() unknown action type %d => action: %s", this, be16toh(oac_header->type), action.c_str());
+	default: {
+		cofaction tmp(action);
+		WRITELOG(COFACTION, DBG, "cofaction(%p)::actionlen() unknown action type %d => action: %s", this, be16toh(oac_header->type), tmp.c_str());
 		throw eActionInvalType();
+	}
 	}
 }
 

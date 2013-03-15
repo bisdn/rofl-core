@@ -108,6 +108,12 @@ public:
 	 */
 	void
 	unpack(uint8_t *buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	size_t
+	length() const;
 };
 
 }

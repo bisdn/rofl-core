@@ -270,7 +270,7 @@ cofmatch::length_internal()
 
 
 size_t
-cofmatch::length()
+cofmatch::length() const
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
@@ -296,7 +296,7 @@ cofmatch::length()
 
 
 struct ofp10_match*
-cofmatch::pack(struct ofp10_match* m, size_t mlen) throw (eOFmatchInval)
+cofmatch::pack(struct ofp10_match* m, size_t mlen) const throw (eOFmatchInval)
 {
 	if (mlen < length()) {
 		throw eOFmatchInval();
@@ -505,7 +505,7 @@ cofmatch::unpack(struct ofp10_match* m, size_t mlen) throw (eOFmatchInval)
 
 
 struct ofp12_match*
-cofmatch::pack(struct ofp12_match* m, size_t mlen) throw (eOFmatchInval)
+cofmatch::pack(struct ofp12_match* m, size_t mlen) const throw (eOFmatchInval)
 {
 	if (mlen < length()) {
 		throw eOFmatchInval();
@@ -552,7 +552,7 @@ cofmatch::unpack(struct ofp12_match* m, size_t mlen) throw (eOFmatchInval)
 
 
 struct ofp13_match*
-cofmatch::pack(struct ofp13_match* m, size_t mlen) throw (eOFmatchInval)
+cofmatch::pack(struct ofp13_match* m, size_t mlen) const throw (eOFmatchInval)
 {
 	if (mlen < length()) {
 		throw eOFmatchInval();

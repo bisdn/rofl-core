@@ -169,3 +169,23 @@ cofdesc_stats_reply::unpack(uint8_t *buf, size_t buflen)
 }
 
 
+
+size_t
+cofdesc_stats_reply::length() const
+{
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return (sizeof(struct ofp10_desc_stats));
+	} break;
+	case OFP12_VERSION: {
+		return (sizeof(struct ofp12_desc_stats));
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+

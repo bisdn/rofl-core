@@ -107,10 +107,10 @@ throw (eAcListInval)
 
 
 size_t
-cofaclist::length()
+cofaclist::length() const
 {
 	size_t len = 0;
-	cofaclist::iterator it;
+	cofaclist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		len += (*it).length();

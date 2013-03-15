@@ -176,7 +176,7 @@ cofflow_stats_request::pack(uint8_t *buf, size_t buflen) const
 		match.pack(&(req->match), sizeof(struct ofp10_match));
 	} break;
 	case OFP12_VERSION: {
-		if (buflen < (sizeof(struct ofp12_flow_stats_request) - 4 + match.length()))
+		if (buflen < (sizeof(struct ofp12_flow_stats_request) - sizeof(struct ofp12_match) + match.length()))
 			throw eInval();
 
 		struct ofp12_flow_stats_request *req = (struct ofp12_flow_stats_request*)buf;
@@ -185,7 +185,7 @@ cofflow_stats_request::pack(uint8_t *buf, size_t buflen) const
 		req->out_group		= htobe32(out_group);
 		req->cookie			= htobe64(cookie);
 		req->cookie_mask 	= htobe64(cookie_mask);
-		match.pack(&(req->match), sizeof(struct ofp12_flow_stats_request) - 4);
+		match.pack(&(req->match), buflen - sizeof(struct ofp12_flow_stats_request) + sizeof(struct ofp12_match));
 	} break;
 	default:
 		throw eBadVersion();
@@ -214,12 +214,29 @@ cofflow_stats_request::unpack(uint8_t *buf, size_t buflen)
 
 		struct ofp12_flow_stats_request *req = (struct ofp12_flow_stats_request*)buf;
 
-		match.unpack(&(req->match), buflen - (sizeof(struct ofp12_flow_stats_request) - 4));
+		match.unpack(&(req->match), buflen - sizeof(struct ofp12_flow_stats_request) + sizeof(struct ofp12_match));
 		table_id 		= req->table_id;
 		out_port 		= be32toh(req->out_port);
 		out_group 		= be32toh(req->out_group);
 		cookie 			= be64toh(req->cookie);
 		cookie_mask 	= be64toh(req->cookie_mask);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+size_t
+cofflow_stats_request::length() const
+{
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return sizeof(struct ofp10_flow_stats_request);
+	} break;
+	case OFP12_VERSION: {
+		return (sizeof(struct ofp12_flow_stats_request) - sizeof(struct ofp12_match) + match.length());
 	} break;
 	default:
 		throw eBadVersion();
