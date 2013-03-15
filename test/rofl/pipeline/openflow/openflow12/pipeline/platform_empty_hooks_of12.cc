@@ -36,3 +36,8 @@ void platform_of12_packet_in(const of12_switch_t* sw, uint8_t table_id, datapack
 {
 
 }
+
+void platform_of12_notify_flow_removed(const of12_switch_t* sw, of12_flow_remove_reason_t reason, of12_flow_entry_t *entry)
+{
+
+}
