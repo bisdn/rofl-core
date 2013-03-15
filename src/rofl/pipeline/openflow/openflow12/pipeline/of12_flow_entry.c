@@ -88,8 +88,9 @@ rofl_result_t of12_destroy_flow_entry_with_reason(of12_flow_entry_t* entry, of12
 	return ROFL_SUCCESS;
 }
 
-//This is the interface FIXME: delete _
-rofl_result_t of12_destroy_flow_entry_(of12_flow_entry_t* entry){
+//This is the interface to be used when deleting entries used as
+//a message or not inserted in a table 
+rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	return of12_destroy_flow_entry_with_reason(entry, OF12_FLOW_REMOVE_NO_REASON);	
 }
 

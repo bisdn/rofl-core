@@ -85,7 +85,7 @@ ROFL_PIPELINE_BEGIN_DECLS
 //of12_flow_entry_t* of12_init_flow_entry(const uint16_t priority, of12_match_group_t* match_group, of12_flow_entry_t* prev, of12_flow_entry_t* next);
 of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry_t* next, bool notify_removal);
 rofl_result_t of12_destroy_flow_entry_with_reason(of12_flow_entry_t* entry, of12_flow_remove_reason_t reason); 
-rofl_result_t of12_destroy_flow_entry_(of12_flow_entry_t* entry); 
+rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry); 
 
 //Add match
 rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* match);
