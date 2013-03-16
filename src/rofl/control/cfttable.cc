@@ -266,11 +266,11 @@ cfttable::ftentry_hard_timeout(
 
 struct ofp_table_stats*
 cfttable::get_table_stats(
-		struct ofp_table_stats* table_stats,
+		struct ofp12_table_stats* table_stats,
 		size_t table_stats_len)
 throw (eFlowTableInval)
 {
-	if (table_stats_len < sizeof(struct ofp_table_stats))
+	if (table_stats_len < sizeof(struct ofp12_table_stats))
 		throw eFlowTableInval();
 
 	/* uint8_t  */ table_stats->table_id 		= table_id;
@@ -296,11 +296,11 @@ throw (eFlowTableInval)
 
 void
 cfttable::set_table_stats(
-		struct ofp_table_stats* table_stats,
+		struct ofp12_table_stats* table_stats,
 		size_t table_stats_len)
 throw (eFlowTableInval)
 {
-	if (table_stats_len < sizeof(struct ofp_table_stats))
+	if (table_stats_len < sizeof(struct ofp12_table_stats))
 		throw eFlowTableInval();
 
 	if (table_stats->table_id != table_id)

@@ -202,14 +202,14 @@ public:
 	 */
 	struct ofp_table_stats*
 	get_table_stats(
-			struct ofp_table_stats* table_stats,
+			struct ofp12_table_stats* table_stats,
 			size_t table_stats_len) throw (eFlowTableInval);
 
 	/** set table statistics gathered from physical data path
 	 */
 	void
 	set_table_stats(
-			struct ofp_table_stats* table_stats,
+			struct ofp12_table_stats* table_stats,
 			size_t table_stats_len) throw (eFlowTableInval);
 
 	/** OFPST_FLOW_STATS

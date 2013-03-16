@@ -97,6 +97,7 @@ cofpacket::operator=(const cofpacket &p)
 	flow_stats_reply	= p.flow_stats_reply;
 	aggr_stats_request	= p.aggr_stats_request;
 	aggr_stats_reply	= p.aggr_stats_reply;
+	table_stats_reply	= p.table_stats_reply;
 
 	ofh_header = (struct ofp_header*)soframe();
 
@@ -966,6 +967,10 @@ cofpacket::is_valid_stats_request()
 			aggr_stats_request.set_version(OFP10_VERSION);
 			aggr_stats_request.unpack(of10h_stats_request->body, body_len);
 		} break;
+		case OFPST_PORT: {
+			port_stats_request.set_version(OFP10_VERSION);
+			port_stats_request.unpack(of10h_stats_request->body, body_len);
+		} break;
 		default:
 			body.assign(of10h_stats_request->body, body_len);
 		}
@@ -988,6 +993,10 @@ cofpacket::is_valid_stats_request()
 		case OFPST_AGGREGATE: {
 			aggr_stats_request.set_version(OFP12_VERSION);
 			aggr_stats_request.unpack(of12h_stats_request->body, body_len);
+		} break;
+		case OFPST_PORT: {
+			port_stats_request.set_version(OFP12_VERSION);
+			port_stats_request.unpack(of12h_stats_request->body, body_len);
 		} break;
 		default:
 			body.assign(of12h_stats_request->body, body_len);
@@ -1030,6 +1039,14 @@ cofpacket::is_valid_stats_reply()
 			aggr_stats_reply.set_version(OFP10_VERSION);
 			aggr_stats_reply.unpack(of10h_stats_reply->body, body_len);
 		} break;
+		case OFPST_TABLE: {
+			table_stats_reply.set_version(OFP10_VERSION);
+			table_stats_reply.unpack(of10h_stats_reply->body, body_len);
+		} break;
+		case OFPST_PORT: {
+			port_stats_reply.set_version(OFP10_VERSION);
+			port_stats_reply.unpack(of10h_stats_reply->body, body_len);
+		} break;
 		default:
 			body.assign((uint8_t*)of10h_stats_reply->body, body_len);
 		}
@@ -1056,6 +1073,14 @@ cofpacket::is_valid_stats_reply()
 		case OFPST_AGGREGATE: {
 			aggr_stats_reply.set_version(OFP12_VERSION);
 			aggr_stats_reply.unpack(of12h_stats_reply->body, body_len);
+		} break;
+		case OFPST_TABLE: {
+			table_stats_reply.set_version(OFP12_VERSION);
+			table_stats_reply.unpack(of12h_stats_reply->body, body_len);
+		} break;
+		case OFPST_PORT: {
+			port_stats_reply.set_version(OFP12_VERSION);
+			port_stats_reply.unpack(of12h_stats_reply->body, body_len);
 		} break;
 		default:
 			body.assign(of12h_stats_reply->body, body_len);

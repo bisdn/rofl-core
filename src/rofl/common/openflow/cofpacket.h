@@ -40,6 +40,8 @@ extern "C" {
 #include "cofdescstats.h"
 #include "cofflowstats.h"
 #include "cofaggrstats.h"
+#include "coftablestats.h"
+#include "cofportstats.h"
 
 // forward declarations
 class cofbase;
@@ -110,8 +112,10 @@ public: // data structures
 	cofflow_stats_request 	flow_stats_request;	// flow statistics request
 	cofflow_stats_reply 	flow_stats_reply;	// flow statistics reply
 	cofaggr_stats_request	aggr_stats_request;	// aggregate statistics request
-	cofaggr_stats_reply		aggr_stats_reply;	// aggregate statustucs reply
-
+	cofaggr_stats_reply		aggr_stats_reply;	// aggregate statistics reply
+	coftable_stats_reply	table_stats_reply;	// table statistics reply
+	cofport_stats_request	port_stats_request;	// port statistics request
+	cofport_stats_reply		port_stats_reply;	// port statistics reply
 
 	//int switch_features_num_ports; 		// valid only, if type == FEATURES-REPLY
 
@@ -219,6 +223,7 @@ public: // data structures
 #define OFP_GROUP_DESC_STATS_REPLY_STATIC_BODY_LEN 	8
 #define OFP13_METER_MOD_STATIC_HDR_LEN				16
 
+#if 0
 	union {
 		uint8_t									*ofbu_sreq;
 		struct ofp12_port_stats_request			*ofbu_psreq;
@@ -241,7 +246,7 @@ public: // data structures
 #define ofb_aggregate_stats_reply				ofb_ofbu.ofbu_asreply
 #define ofb_group_stats_request					ofb_ofbu.ofbu_gsreq
 #define ofb_group_stats_reply					ofb_ofbu.ofbu_gsreply
-
+#endif
 
 
 public:
@@ -525,6 +530,12 @@ public:
 	virtual cofaggr_stats_reply&
 	get_aggr_stats_reply() { return aggr_stats_reply; };
 
+
+	/**
+	 *
+	 */
+	virtual coftable_stats_reply&
+	get_table_stats_reply() { return table_stats_reply; };
 
 
 protected:

@@ -1291,7 +1291,7 @@ enum ofp_flow_match_fields {
 };
 
 /* Body of reply to OFPST_TABLE request. */
-struct ofp_table_stats {
+struct ofp12_table_stats {
     uint8_t table_id;        /* Identifier of table.  Lower numbered tables
                                 are consulted first. */
     uint8_t pad[7];          /* Align to 64-bits. */
@@ -1317,21 +1317,21 @@ struct ofp_table_stats {
     uint64_t lookup_count;   /* Number of packets looked up in table. */
     uint64_t matched_count;  /* Number of packets that hit table. */
 };
-OFP_ASSERT(sizeof(struct ofp_table_stats) == 128);
+OFP_ASSERT(sizeof(struct ofp12_table_stats) == 128);
 
 /* Body for ofp_stats_request of type OFPST_PORT. */
-struct ofp_port_stats_request {
+struct ofp12_port_stats_request {
     uint32_t port_no;        /* OFPST_PORT message must request statistics
                               * either for a single port (specified in
                               * port_no) or for all ports (if port_no ==
                               * OFPP_ANY). */
     uint8_t pad[4];
 };
-OFP_ASSERT(sizeof(struct ofp_port_stats_request) == 8);
+OFP_ASSERT(sizeof(struct ofp12_port_stats_request) == 8);
 
 /* Body of reply to OFPST_PORT request. If a counter is unsupported, set
  * the field to all ones. */
-struct ofp_port_stats {
+struct ofp12_port_stats {
     uint32_t port_no;
     uint8_t pad[4];          /* Align to 64-bits. */
     uint64_t rx_packets;     /* Number of received packets. */
@@ -1353,7 +1353,7 @@ struct ofp_port_stats {
     uint64_t rx_crc_err;     /* Number of CRC errors. */
     uint64_t collisions;     /* Number of collisions. */
 };
-OFP_ASSERT(sizeof(struct ofp_port_stats) == 104);
+OFP_ASSERT(sizeof(struct ofp12_port_stats) == 104);
 
 /* Body of OFPST_GROUP request. */
 struct ofp_group_stats_request {

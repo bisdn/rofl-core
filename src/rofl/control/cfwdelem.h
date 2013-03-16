@@ -56,6 +56,7 @@ extern "C" {
 #include "../common/openflow/cgroupentry.h"
 #include "../common/openflow/cofstats.h"
 #include "../common/openflow/extensions/cfsptable.h"
+#include "../common/openflow/cofdescstats.h"
 
 namespace rofl
 {

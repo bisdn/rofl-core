@@ -349,19 +349,20 @@ cfwdelem::handle_set_config(cofctl *ctl, cofpacket_set_config *pack)
 void
 cfwdelem::handle_desc_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 {
-	struct ofp_desc_stats desc_stats;
-	memset(&desc_stats, 0, sizeof(desc_stats));
-	snprintf(desc_stats.mfr_desc, 		DESC_STR_LEN, 	"rofl");
-	snprintf(desc_stats.hw_desc, 		DESC_STR_LEN, 	"v0.1.0");
-	snprintf(desc_stats.sw_desc, 		DESC_STR_LEN, 	"v0.1.0");
-	snprintf(desc_stats.serial_num, 	SERIAL_NUM_LEN, "0");
-	snprintf(desc_stats.dp_desc, 		DESC_STR_LEN, 	"revised OpenFlow library");
+	std::string mfr_desc("Revised OpenFlow Library");
+	std::string hw_desc("v0.2.22");
+	std::string sw_desc("v0.2.22");
+	std::string serial_num("0");
+	std::string dp_desc("somehow, somewhere, ...");
 
-	send_stats_reply(
+	send_desc_stats_reply(
 					ctl,
 					pack->get_xid(),
-					OFPST_DESC,
-					(uint8_t*)&desc_stats, sizeof(desc_stats));
+					mfr_desc,
+					hw_desc,
+					sw_desc,
+					serial_num,
+					dp_desc);
 
 	delete pack;
 }
@@ -371,28 +372,38 @@ cfwdelem::handle_desc_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 void
 cfwdelem::handle_table_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 {
-	cmemory body(flow_tables.size() * sizeof(struct ofp_table_stats)); // array of struct ofp_table_stats
+	switch (ctl->get_version()) {
+	case OFP10_VERSION: {
 
-	struct ofp_table_stats *table_stats = // auxiliary pointer for iterating through array of table_stats
-			(struct ofp_table_stats*)body.somem();
+	} break;
+	case OFP12_VERSION: {
+		cmemory body(flow_tables.size() * sizeof(struct ofp12_table_stats)); // array of struct ofp_table_stats
+
+		struct ofp12_table_stats *table_stats = // auxiliary pointer for iterating through array of table_stats
+				(struct ofp12_table_stats*)body.somem();
 
 
-	std::map<uint8_t, cfttable*>::iterator it;
-	for (it = flow_tables.begin(); it != flow_tables.end(); ++it)
-	{
-		it->second->get_table_stats(table_stats, sizeof(struct ofp_table_stats));
+		std::map<uint8_t, cfttable*>::iterator it;
+		for (it = flow_tables.begin(); it != flow_tables.end(); ++it)
+		{
+			it->second->get_table_stats(table_stats, sizeof(struct ofp12_table_stats));
 
-		table_stats++; // jump to start of array + 1
+			table_stats++; // jump to start of array + 1
+		}
+
+		WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_stats_table_request() table_stats[%p] body: %s",
+				this, table_stats, body.c_str());
+
+		send_stats_reply(
+				ctl,
+				pack->get_xid(),
+				OFPST_TABLE,
+				(uint8_t*)body.somem(), body.memlen());
+
+	} break;
+	default:
+		break;
 	}
-
-	WRITELOG(CFWD, DBG, "cfwdelem(%p)::handle_stats_table_request() table_stats[%p] body: %s",
-			this, table_stats, body.c_str());
-
-	send_stats_reply(
-			ctl,
-			pack->get_xid(),
-			OFPST_TABLE,
-			(uint8_t*)body.somem(), body.memlen());
 
 	delete pack;
 }
