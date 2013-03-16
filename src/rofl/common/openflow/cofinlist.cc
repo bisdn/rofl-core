@@ -24,7 +24,7 @@ cofinlist::unpack(
 		size_t inlen)
 throw (eInstructionBadLen)
 {
-	reset(); // clears bcvec
+	clear(); // clears bcvec
 
 	// sanity check: bclen must be of size of at least ofp_instruction
 	if (inlen < (int)sizeof(struct ofp_instruction))
@@ -78,7 +78,7 @@ size_t
 cofinlist::length() const
 {
 	size_t inlen = 0;
-	cofinlist::iterator it;
+	cofinlist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		inlen += (*it).length();

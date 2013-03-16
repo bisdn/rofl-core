@@ -34,7 +34,7 @@ public:
 	 *
 	 */
 	cofdesc_stats_reply(
-			uint8_t of_version);
+			uint8_t of_version = 0);
 
 	/**
 	 *

@@ -1170,14 +1170,14 @@ enum ofp_stats_reply_flags {
     OFPSF_REPLY_MORE  = 1 << 0  /* More replies to follow. */
 };
 
-struct ofp_stats_reply {
+struct ofp12_stats_reply {
     struct ofp_header header;
     uint16_t type;              /* One of the OFPST_* constants. */
     uint16_t flags;             /* OFPSF_REPLY_* flags. */
     uint8_t pad[4];
     uint8_t body[0];            /* Body of the reply. */
 };
-OFP_ASSERT(sizeof(struct ofp_stats_reply) == 16);
+OFP_ASSERT(sizeof(struct ofp12_stats_reply) == 16);
 
 #define DESC_STR_LEN   256
 #define SERIAL_NUM_LEN 32
@@ -1256,13 +1256,13 @@ struct ofp12_aggregate_stats_request {
 OFP_ASSERT(sizeof(struct ofp12_aggregate_stats_request) == 40);
 
 /* Body of reply to OFPST_AGGREGATE request. */
-struct ofp_aggregate_stats_reply {
+struct ofp12_aggregate_stats_reply {
     uint64_t packet_count;    /* Number of packets in flows. */
     uint64_t byte_count;      /* Number of bytes in flows. */
     uint32_t flow_count;      /* Number of flows. */
     uint8_t pad[4];           /* Align to 64 bits. */
 };
-OFP_ASSERT(sizeof(struct ofp_aggregate_stats_reply) == 24);
+OFP_ASSERT(sizeof(struct ofp12_aggregate_stats_reply) == 24);
 
 /* Flow match fields. */
 enum ofp_flow_match_fields {

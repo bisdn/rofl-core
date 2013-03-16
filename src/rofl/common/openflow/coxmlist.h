@@ -168,7 +168,7 @@ public: // methods
 		oxm_find(
 				uint16_t oxm_class,
 				uint8_t oxm_field)
-					const throw (eOxmListNotFound);
+					throw (eOxmListNotFound);
 
 
 		/** find a specific OXM TLV and return a copy
@@ -178,7 +178,7 @@ public: // methods
 		oxm_copy(
 				uint16_t oxm_class,
 				uint8_t oxm_field)
-					throw (eOxmListNotFound);
+					const throw (eOxmListNotFound);
 
 
 		/** erase oxmlist

@@ -114,7 +114,7 @@ croflexp::validate_flowspace()
 	case OFPRET_FSP_ADD:
 	case OFPRET_FSP_DELETE:
 		{
-			match.reset();
+			match.clear();
 
 			if (mem.memlen() > sizeof(struct ofp_rofl_ext_flowspace))
 			{

@@ -133,9 +133,9 @@ cflowentry::reset()
 {
 	WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::reset()", this);
 
-	match.reset();
+	match.clear();
 
-	instructions.reset();
+	instructions.clear();
 
 	flow_mod_area.clear();
 

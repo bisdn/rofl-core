@@ -230,7 +230,7 @@ public:
 	 *
 	 */
 	void
-	reset();
+	clear();
 
 
 	/**

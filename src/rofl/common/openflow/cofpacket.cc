@@ -49,8 +49,7 @@ cofpacket::cofpacket(size_t size, size_t used) :
 	memarea(size),
 	entity(0),
 	body(0),
-	packet((size_t)0),
-	switch_features_num_ports(0)
+	packet((size_t)0)
 {
 	ofh_header = (struct ofp_header*)soframe();
 	ofh_header->length = stored;
@@ -84,15 +83,20 @@ cofpacket::operator=(const cofpacket &p)
 		return *this;
 	}
 
-	memarea 		= p.memarea;
-	match			= p.match;
-	actions			= p.actions;
-	buckets 		= p.buckets;
-	instructions 	= p.instructions;
-	body			= p.body;
-	packet			= p.packet;
-	ports			= p.ports;
-	port			= p.port;
+	memarea 			= p.memarea;
+	match				= p.match;
+	actions				= p.actions;
+	buckets 			= p.buckets;
+	instructions 		= p.instructions;
+	body				= p.body;
+	packet				= p.packet;
+	ports				= p.ports;
+	port				= p.port;
+	desc_stats_reply	= p.desc_stats_reply;
+	flow_stats_request	= p.flow_stats_request;
+	flow_stats_reply	= p.flow_stats_reply;
+	aggr_stats_request	= p.aggr_stats_request;
+	aggr_stats_reply	= p.aggr_stats_reply;
 
 	ofh_header = (struct ofp_header*)soframe();
 
@@ -118,10 +122,10 @@ void
 cofpacket::reset()
 {
 	memarea.clear();
-	match.reset();
-	actions.reset();
-	buckets.reset();
-	instructions.reset();
+	match.clear();
+	actions.clear();
+	buckets.clear();
+	instructions.clear();
 	ofh_header = (struct ofp_header*)memarea.somem();
 }
 
@@ -482,11 +486,9 @@ cofpacket::is_valid_switch_features()
 		size_t ports_len = stored - sizeof(struct ofp10_switch_features);
 
 		if (ports_len > 0) {
-			body.assign((uint8_t*)of10h_switch_features->ports, ports_len);
-			switch_features_num_ports = (ports_len) / sizeof(struct ofp10_port);
+			ports.unpack(of10h_switch_features->ports, ports_len);
 		} else {
-			body.clear();
-			switch_features_num_ports = 0;
+			ports.clear();
 		}
 
 	} break;
@@ -498,11 +500,9 @@ cofpacket::is_valid_switch_features()
 		size_t ports_len = stored - sizeof(struct ofp12_switch_features);
 
 		if (ports_len > 0) {
-			body.assign((uint8_t*)of12h_switch_features->ports, ports_len);
-			switch_features_num_ports = (ports_len) / sizeof(struct ofp12_port);
+			ports.unpack(of12h_switch_features->ports, ports_len);
 		} else {
-			body.clear();
-			switch_features_num_ports = 0;
+			ports.clear();
 		}
 
 	} break;
@@ -511,8 +511,7 @@ cofpacket::is_valid_switch_features()
 		if (stored < sizeof(struct ofp13_switch_features))
 			return false;
 
-		body.clear();
-		switch_features_num_ports = 0;
+		ports.clear();
 
 	} break;
 	default: {
@@ -953,19 +952,17 @@ cofpacket::is_valid_stats_request()
 
 		size_t body_len = stored - sizeof(struct ofp10_stats_request);
 
-		body.assign((uint8_t*)of10h_stats_request->body, body_len);
-
-		match.reset();
+		match.clear();
 
 		switch (be16toh(of10h_stats_request->type)) {
 		case OFPST_FLOW: {
-			struct ofp10_flow_stats_request *flow_stats = (struct ofp10_flow_stats_request*)body.somem();
-			match.unpack(&(flow_stats->match), sizeof(struct ofp10_stats_request));
+			flow_stats_request.unpack((uint8_t*)of10h_stats_request->body, body_len);
 		} break;
 		case OFPST_AGGREGATE: {
-			struct ofp10_aggregate_stats_request *aggregate_stats = (struct ofp10_flow_stats_request*)body.somem();
-			match.unpack(&(aggregate_stats->match), sizeof(struct ofp10_stats_request));
+			aggr_stats_request.unpack((uint8_t*)of10h_stats_request->body, body_len);
 		} break;
+		default:
+			body.assign((uint8_t*)of10h_stats_request->body, body_len);
 		}
 
 	} break;
@@ -978,17 +975,17 @@ cofpacket::is_valid_stats_request()
 
 		body.assign((uint8_t*)of12h_stats_request->body, body_len);
 
-		match.reset();
+		match.clear();
 
 		switch (be16toh(of12h_stats_request->type)) {
 		case OFPST_FLOW: {
-			struct ofp12_flow_stats_request *flow_stats = (struct ofp12_flow_stats_request*)body.somem();
-			match.unpack(&(flow_stats->match), stored - sizeof(struct ofp12stats_request));
+			flow_stats_request.unpack((uint8_t*)of12h_stats_request->body, body_len);
 		} break;
 		case OFPST_AGGREGATE: {
-			struct ofp12_aggregate_stats_request *aggregate_stats = (struct ofp12_flow_stats_request*)body.somem();
-			match.unpack(&(aggregate_stats->match), stored - sizeof(struct ofp12_stats_request));
+			aggr_stats_request.unpack((uint8_t*)of12h_stats_request->body, body_len);
 		} break;
+		default:
+			body.assign((uint8_t*)of12h_stats_request->body, body_len);
 		}
 
 	} break;
@@ -1005,15 +1002,45 @@ cofpacket::is_valid_stats_reply()
 {
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		ofh_stats_reply = (struct ofp10_stats_reply*)soframe();
-		if (stored < sizeof(struct ofp_stats_reply))
+		of10h_stats_reply = (struct ofp10_stats_reply*)soframe();
+		if (stored < sizeof(struct ofp10_stats_reply))
 			return false;
 
-		body.assign((uint8_t*)ofh_stats_reply->body,
-				stored - sizeof(struct ofp_stats_reply));
+		size_t body_len = stored - sizeof(struct ofp10_stats_reply);
+
+		match.clear();
+
+		switch (be16toh(of10h_stats_reply->type)) {
+		case OFPST_FLOW: {
+			flow_stats_reply.unpack((uint8_t*)of10h_stats_reply->body, body_len);
+		} break;
+		case OFPST_AGGREGATE: {
+			aggr_stats_reply.unpack((uint8_t*)of10h_stats_reply->body, body_len);
+		} break;
+		default:
+			body.assign((uint8_t*)of10h_stats_reply->body, body_len);
+		}
 
 	} break;
 	case OFP12_VERSION: {
+		of12h_stats_reply = (struct ofp12_stats_reply*)soframe();
+		if (stored < sizeof(struct ofp12_stats_reply))
+			return false;
+
+		size_t body_len = stored - sizeof(struct ofp12_stats_reply);
+
+		match.clear();
+
+		switch (be16toh(of12h_stats_reply->type)) {
+		case OFPST_FLOW: {
+			flow_stats_reply.unpack((uint8_t*)of12h_stats_reply->body, body_len);
+		} break;
+		case OFPST_AGGREGATE: {
+			aggr_stats_reply.unpack((uint8_t*)of12h_stats_reply->body, body_len);
+		} break;
+		default:
+			body.assign((uint8_t*)of10h_stats_reply->body, body_len);
+		}
 
 	} break;
 	default:
@@ -2249,6 +2276,147 @@ cofpacket_stats_request::get_flags()
 	return 0;
 }
 
+
+
+
+/*
+ * OFPT_STATS_REPLY
+ */
+
+
+cofpacket_stats_reply::cofpacket_stats_reply(
+		uint8_t of_version,
+		uint32_t xid,
+		uint16_t type,
+		uint16_t flags,
+		uint8_t *data,
+		size_t datalen) :
+	cofpacket(	sizeof(struct ofp_header),
+				sizeof(struct ofp_header))
+{
+	cofpacket::body.assign(data, datalen);
+
+	ofh_header->version 	= of_version;
+	ofh_header->length		= htobe16(sizeof(struct ofp_stats_reply) + body.memlen());
+	ofh_header->type 		= OFPT_STATS_REPLY;
+	ofh_header->xid			= htobe32(xid);
+
+	switch (of_version) {
+	case OFP10_VERSION: {
+		cofpacket::resize(sizeof(struct ofp10_stats_reply));
+		of10h_stats_reply->type		= htobe16(type);
+		of10h_stats_reply->flags	= htobe16(flags);
+
+	} break;
+	case OFP12_VERSION: {
+		cofpacket::resize(sizeof(struct ofp12_stats_reply));
+		of12h_stats_reply->type		= htobe16(type);
+		of12h_stats_reply->flags	= htobe16(flags);
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+cofpacket_stats_reply::cofpacket_stats_reply(cofpacket const *pack) :
+	cofpacket(pack->framelen(), pack->framelen())
+{
+	cofpacket::operator=(*pack);
+}
+
+
+
+cofpacket_stats_reply::~cofpacket_stats_reply()
+{
+
+}
+
+
+
+size_t
+cofpacket_stats_reply::length()
+{
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		return (sizeof(struct ofp10_stats_reply) + body.memlen());
+	} break;
+	case OFP12_VERSION: {
+		return (sizeof(struct ofp12_stats_reply) + body.memlen());
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+void
+cofpacket_stats_reply::pack(uint8_t *buf, size_t buflen) throw (eOFpacketInval)
+{
+	ofh_header->length = htobe16(length());
+
+	if (((uint8_t*)0 == buf) || (buflen < length()))
+	{
+		return;
+	}
+
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		memcpy(buf, memarea.somem(), sizeof(struct ofp10_stats_reply));
+		if (body.memlen() > 0) {
+			memcpy(buf + sizeof(struct ofp10_stats_reply), body.somem(), body.memlen());
+		}
+	} break;
+	case OFP12_VERSION: {
+		memcpy(buf, memarea.somem(), sizeof(struct ofp12_stats_reply));
+		if (body.memlen() > 0) {
+			memcpy(buf + sizeof(struct ofp12_stats_reply), body.somem(), body.memlen());
+		}
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+uint16_t
+cofpacket_stats_reply::get_type()
+{
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		return be16toh(of10h_stats_reply->type);
+	} break;
+	case OFP12_VERSION: {
+		return be16toh(of12h_stats_reply->type);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+uint16_t
+cofpacket_stats_reply::get_flags()
+{
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		return be16toh(of10h_stats_reply->flags);
+	} break;
+	case OFP12_VERSION: {
+		return be16toh(of12h_stats_reply->flags);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
 
 
 

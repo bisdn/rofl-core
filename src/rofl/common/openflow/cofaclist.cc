@@ -61,7 +61,7 @@ cofaclist::unpack(
 		size_t aclen)
 throw (eBadActionBadLen, eBadActionBadOutPort)
 {
-	reset(); // clears elems
+	clear(); // clears elems
 
 	WRITELOG(COFACTION, DBG, "cofaclist(%p)::unpack() aclen:%d", this, aclen);
 

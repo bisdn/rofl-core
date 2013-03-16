@@ -66,7 +66,7 @@ void
 cofinst::reset()
 {
 	instruction.clear();
-	actions.reset();
+	actions.clear();
 }
 
 
@@ -201,7 +201,7 @@ cofinst::soinst()
 
 
 size_t
-cofinst::length() throw (eInstructionInvalType)
+cofinst::length() const throw (eInstructionInvalType)
 {
 	switch (be16toh(oin_header->type)) {
 	case OFPIT_APPLY_ACTIONS:

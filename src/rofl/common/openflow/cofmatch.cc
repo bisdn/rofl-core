@@ -33,7 +33,7 @@ cofmatch::cofmatch(
 	}
 	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [1]", this);
 
-	reset();
+	clear();
 
 	validate();
 }
@@ -131,7 +131,7 @@ cofmatch::operator< (
 
 
 void
-cofmatch::reset()
+cofmatch::clear()
 {
 	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::reset()", this);
 
@@ -311,14 +311,14 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen) const throw (eOFmatchInval)
 
 	// in_port
 	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT)) {
-		m->in_port = htobe16((uint16_t)(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).u32value() && 0x0000ffff));
+		m->in_port = htobe16((uint16_t)(oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).u32value() && 0x0000ffff));
 	} else {
 		wildcards |= OFP10FW_IN_PORT;
 	}
 
 	// dl_src
 	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC)) {
-		cmacaddr maddr = oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).u48addr();
+		cmacaddr maddr = oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).u48addr();
 		memcpy(m->dl_src, maddr.somem(), OFP_ETH_ALEN);
 	} else {
 		wildcards |= OFP10FW_DL_SRC;
@@ -326,7 +326,7 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen) const throw (eOFmatchInval)
 
 	// dl_dst
 	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST)) {
-		cmacaddr maddr = oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST).u48addr();
+		cmacaddr maddr = oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST).u48addr();
 		memcpy(m->dl_dst, maddr.somem(), OFP_ETH_ALEN);
 	} else {
 		wildcards |= OFP10FW_DL_DST;
@@ -334,44 +334,44 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen) const throw (eOFmatchInval)
 
 	// dl_vlan
 	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID)) {
-		m->dl_vlan = htobe16(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).u16value());
+		m->dl_vlan = htobe16(oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).u16value());
 	} else {
 		wildcards |= OFP10FW_DL_VLAN;
 	}
 
 	// dl_vlan_pcp
 	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP)) {
-		m->dl_vlan_pcp = oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP).u8value();
+		m->dl_vlan_pcp = oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP).u8value();
 	} else {
 		wildcards |= OFP10FW_DL_VLAN_PCP;
 	}
 
 	// dl_type
 	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE)) {
-		m->dl_type = htobe16(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE).u16value());
+		m->dl_type = htobe16(oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE).u16value());
 	} else {
 		wildcards |= OFP10FW_DL_TYPE;
 	}
 
 	// nw_tos
 	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_DSCP)) {
-		m->nw_tos = oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_DSCP).u8value();
+		m->nw_tos = oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_DSCP).u8value();
 	} else {
 		wildcards |= OFP10FW_NW_TOS;
 	}
 
 	// nw_proto
 	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_PROTO)) {
-		m->nw_tos = oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_PROTO).u8value();
+		m->nw_tos = oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_PROTO).u8value();
 	} else {
 		wildcards |= OFP10FW_NW_PROTO;
 	}
 
 	// nw_src
 	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC)) {
-		m->nw_src = htobe32(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).u32value());
-		if (oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).get_oxm_hasmask()) {
-			std::bitset<32> mask(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).uint32_mask());
+		m->nw_src = htobe32(oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).u32value());
+		if (oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).get_oxm_hasmask()) {
+			std::bitset<32> mask(oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).uint32_mask());
 			wildcards |= ((32 - mask.count()) << OFP10FW_NW_SRC_SHIFT) & OFP10FW_NW_SRC_MASK;
 		}
 	} else {
@@ -380,9 +380,9 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen) const throw (eOFmatchInval)
 
 	// nw_dst
 	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST)) {
-		m->nw_dst = htobe32(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).uint32_value());
-		if (oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).get_oxm_hasmask()) {
-			std::bitset<32> mask(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).uint32_mask());
+		m->nw_dst = htobe32(oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).uint32_value());
+		if (oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).get_oxm_hasmask()) {
+			std::bitset<32> mask(oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).uint32_mask());
 			wildcards |= ((32 - mask.count()) << OFP10FW_NW_DST_SHIFT) & OFP10FW_NW_DST_MASK;
 		}
 	} else {
@@ -391,14 +391,14 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen) const throw (eOFmatchInval)
 
 	// tp_src
 	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_SRC)) {
-		m->tp_src = htobe16(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_SRC).u16value());
+		m->tp_src = htobe16(oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_SRC).u16value());
 	} else {
 		wildcards |= OFP10FW_TP_SRC;
 	}
 
 	// tp_dst
 	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_DST)) {
-		m->tp_dst = htobe16(oxmlist.oxm_find(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_DST).u16value());
+		m->tp_dst = htobe16(oxmlist.oxm_copy(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_DST).u16value());
 	} else {
 		wildcards |= OFP10FW_TP_DST;
 	}

@@ -201,7 +201,7 @@ cpacket::reset()
 	flags.reset(FLAG_VLAN_PRESENT);
 	flags.reset(FLAG_MPLS_PRESENT);
 
-	match.reset();
+	match.clear();
 
 	while (head != 0)
 	{
@@ -3243,7 +3243,7 @@ cpacket::action_pop_ppp(
 #if 0
 	WRITELOG(CFRAME, DBG, "cpacket(%p)::classify() in_port:%d", this, in_port);
 
-	reset();
+	clear();
 
 	if (piobuf.empty())
 	{

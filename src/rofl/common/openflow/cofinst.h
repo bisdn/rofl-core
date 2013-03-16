@@ -114,7 +114,7 @@ public: // methods
 	/** return length of action in bytes
 	 */
 	size_t
-	length() throw (eInstructionInvalType);
+	length() const throw (eInstructionInvalType);
 
 	/** find specific action
 	 */

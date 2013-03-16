@@ -271,7 +271,7 @@ coxmatch&
 coxmlist::oxm_find(
 		uint16_t oxm_class,
 		uint8_t oxm_field)
-			const throw (eOxmListNotFound)
+			throw (eOxmListNotFound)
 {
 #if 0
 #ifndef NDEBUG
@@ -293,7 +293,7 @@ coxmlist::oxm_find(
 		throw eOxmListNotFound();
 	}
 
-	coxmatch oxm((*this)[oxm_field]);
+	coxmatch oxm = oxm_find(oxm_class, oxm_field);
 	WRITELOG(COXMLIST, DBG, "coxmlist(%p)::oxm_find() class:0x%x field:%d found => %s",
 					this, oxm_class, oxm_field, oxm.c_str());
 
@@ -305,7 +305,7 @@ coxmatch
 coxmlist::oxm_copy(
 		uint16_t oxm_class,
 		uint8_t oxm_field)
-			throw (eOxmListNotFound)
+			const throw (eOxmListNotFound)
 {
 	if (not exists(oxm_class, oxm_field))
 	{
@@ -315,7 +315,8 @@ coxmlist::oxm_copy(
 		throw eOxmListNotFound();
 	}
 
-	coxmatch oxm((*this)[oxm_field]);
+	coxmatch oxm = *(oxmvec[oxm_field]);
+
 	WRITELOG(COXMLIST, DBG, "coxmlist(%p)::oxm_copy() class:0x%x field:%d found => %s",
 					this, oxm_class, oxm_field, oxm.c_str());
 

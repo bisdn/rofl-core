@@ -298,7 +298,7 @@ cofaction::length() const
 		return action.memlen();
 
 	default: {
-		cofaction tmp(action);
+		cofaction tmp(*this);
 		WRITELOG(COFACTION, DBG, "cofaction(%p)::actionlen() unknown action type %d => action: %s", this, be16toh(oac_header->type), tmp.c_str());
 		throw eActionInvalType();
 	}

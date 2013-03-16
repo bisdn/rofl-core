@@ -42,7 +42,7 @@ cofbclist::unpack(
 		size_t bclen)
 throw (eBucketBadLen, eBadActionBadOutPort)
 {
-	reset(); // clears elems
+	clear(); // clears elems
 
 	WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() bclen:%d", this, bclen);
 

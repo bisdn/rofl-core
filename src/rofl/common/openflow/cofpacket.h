@@ -39,6 +39,7 @@ extern "C" {
 #include "cofport.h"
 #include "cofdescstats.h"
 #include "cofflowstats.h"
+#include "cofaggrstats.h"
 
 // forward declarations
 class cofbase;
@@ -108,6 +109,8 @@ public: // data structures
 	cofdesc_stats_reply 	desc_stats_reply;	// description statistics
 	cofflow_stats_request 	flow_stats_request;	// flow statistics request
 	cofflow_stats_reply 	flow_stats_reply;	// flow statistics reply
+	cofaggr_stats_request	aggr_stats_request;	// aggregate statistics request
+	cofaggr_stats_reply		aggr_stats_reply;	// aggregate statustucs reply
 
 
 	//int switch_features_num_ports; 		// valid only, if type == FEATURES-REPLY
@@ -135,7 +138,8 @@ public: // data structures
 		struct ofp13_queue_get_config_reply   	*ofh13u_qgcrphdr;
 		struct ofp10_stats_request 				*of10hu_srqhdr;
 		struct ofp12_stats_request 				*of12hu_srqhdr;
-		struct ofp_stats_reply   				*ofhu_srphdr;
+		struct ofp10_stats_reply   				*of10hu_srphdr;
+		struct ofp12_stats_reply   				*of12hu_srphdr;
 		struct ofp10_packet_out 				*of10hu_pohdr;
 		struct ofp12_packet_out 				*of12hu_pohdr;
 		struct ofp13_packet_out 				*of13hu_pohdr;
@@ -178,7 +182,8 @@ public: // data structures
 #define of13h_queue_get_config_reply 			ofh_ofhu.of13hu_qgcrphdr
 #define of10h_stats_request						ofh_ofhu.of10hu_srqhdr
 #define of12h_stats_request						ofh_ofhu.of12hu_srqhdr
-#define ofh_stats_reply							ofh_ofhu.ofhu_srphdr
+#define of10h_stats_reply						ofh_ofhu.of10hu_srphdr
+#define of12h_stats_reply						ofh_ofhu.of12hu_srphdr
 #define of10h_packet_out						ofh_ofhu.of10hu_pohdr
 #define of12h_packet_out						ofh_ofhu.of12hu_pohdr
 #define of13h_packet_out						ofh_ofhu.of13hu_pohdr
@@ -2863,116 +2868,36 @@ public:
 				uint16_t type = 0,
 				uint16_t flags = 0,
 				uint8_t *data = (uint8_t*)0,
-				size_t datalen = 0) :
-			cofpacket(	sizeof(struct ofp_stats_reply),
-						sizeof(struct ofp_stats_reply))
-		{
-			cofpacket::body.assign(data, datalen);
-
-			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_stats_reply) + body.memlen());
-			ofh_header->type 		= OFPT_STATS_REPLY;
-			ofh_header->xid			= htobe32(xid);
-
-			ofh_stats_reply->type	= htobe16(type);
-			ofh_stats_reply->flags	= htobe16(flags);
-		};
+				size_t datalen = 0);
 		/** constructor
 		 *
 		 */
-		cofpacket_stats_reply(
-				uint8_t of_version = 0,
-				uint32_t xid = 0,
-				uint16_t flags = 0,
-				cofdesc_stats_reply const& desc_stats) :
-			cofpacket(	sizeof(struct ofp_header),
-						sizeof(struct ofp_header))
-		{
-			cofpacket::desc_stats_reply = desc_stats;
-
-			ofh_header->version 	= of_version;
-			ofh_header->length		= htobe16(sizeof(struct ofp_stats_reply) + desc_stats_reply.length());
-			ofh_header->type 		= OFPT_STATS_REPLY;
-			ofh_header->xid			= htobe32(xid);
-
-			ofh_stats_reply->type	= htobe16(OFPST_DESC);
-			ofh_stats_reply->flags	= htobe16(flags);
-		};
-		/** constructor
-		 *
-		 */
-		cofpacket_stats_reply(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
-		{
-			cofpacket::operator=(*pack);
-		};
+		cofpacket_stats_reply(cofpacket const *pack);
 		/** destructor
 		 *
 		 */
 		virtual
-		~cofpacket_stats_reply() {};
+		~cofpacket_stats_reply();
 		/** length
 		 *
 		 */
 		virtual size_t
-		length()
-		{
-			return (sizeof(struct ofp_stats_reply) + body.memlen());
-		};
+		length();
 		/**
 		 *
 		 */
 		virtual void
-		pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0) throw (eOFpacketInval)
-		{
-			ofh_header->length = htobe16(length());
-
-			if (((uint8_t*)0 == buf) || (buflen < length()))
-			{
-				return;
-			}
-
-			memcpy(buf, memarea.somem(), sizeof(struct ofp_stats_reply));
-
-			if (body.memlen() > 0)
-			{
-				memcpy(buf + sizeof(struct ofp_stats_reply), body.somem(), body.memlen());
-			}
-		};
+		pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0) throw (eOFpacketInval);
 		/**
 		 *
 		 */
 		uint16_t
-		get_type()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be16toh(ofh_stats_reply->type);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_type();
 		/**
 		 *
 		 */
 		uint16_t
-		get_flags()
-		{
-			switch (ofh_header->version) {
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
-				return be16toh(ofh_stats_reply->flags);
-			} break;
-			default: {
-				throw eBadVersion();
-			} break;
-			}
-			return 0;
-		};
+		get_flags();
 };
 
 
@@ -2991,7 +2916,7 @@ public:
 				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint16_t flags = 0,
-				cofdesc_stats_reply const& desc_stats) :
+				cofdesc_stats_reply const& desc_stats = cofdesc_stats_reply()) :
 			cofpacket_stats_reply(of_version, xid, OFPST_DESC, flags)
 		{
 			body.resize(desc_stats.length());
@@ -3028,7 +2953,7 @@ public:
 				uint8_t of_version = 0,
 				uint32_t xid = 0,
 				uint16_t flags = 0,
-				cofflow_stats_reply const& flow_stats_reply) :
+				cofflow_stats_reply const& flow_stats_reply = cofflow_stats_reply()) :
 			cofpacket_stats_reply(of_version, xid, OFPST_FLOW, flags)
 		{
 			body.resize(flow_stats_reply.length());
@@ -3163,11 +3088,21 @@ public:
 				std::string const&  dp_desc = std::string("")) :
 			cofpacket_stats_reply(of_version, xid, type, flags)
 		{
-			cofpacket::body.resize(sizeof(struct ofp_desc_stats));
-			struct ofp_desc_stats *desc_stats = (struct ofp_desc_stats*)(cofpacket::body.somem());
+			switch (get_version()) {
+			case OFP10_VERSION: {
+				cofpacket_stats_reply::body.resize(sizeof(struct ofp10_desc_stats));
+				struct ofp10_desc_stats *desc_stats = (struct ofp10_desc_stats*)(cofpacket::body.somem());
 
-			switch (ofh_header->version) {
+				snprintf(desc_stats->mfr_desc, DESC_STR_LEN, mfr_desc.c_str(), mfr_desc.length());
+				snprintf(desc_stats->hw_desc, DESC_STR_LEN, hw_desc.c_str(), hw_desc.length());
+				snprintf(desc_stats->sw_desc, DESC_STR_LEN, sw_desc.c_str(), sw_desc.length());
+				snprintf(desc_stats->serial_num, DESC_STR_LEN, serial_num.c_str(), serial_num.length());
+				snprintf(desc_stats->dp_desc, DESC_STR_LEN, dp_desc.c_str(), dp_desc.length());
+			} break;
 			case OFP12_VERSION: {
+				cofpacket_stats_reply::body.resize(sizeof(struct ofp12_desc_stats));
+				struct ofp12_desc_stats *desc_stats = (struct ofp12_desc_stats*)(cofpacket::body.somem());
+
 				snprintf(desc_stats->mfr_desc, DESC_STR_LEN, mfr_desc.c_str(), mfr_desc.length());
 				snprintf(desc_stats->hw_desc, DESC_STR_LEN, hw_desc.c_str(), hw_desc.length());
 				snprintf(desc_stats->sw_desc, DESC_STR_LEN, sw_desc.c_str(), sw_desc.length());
@@ -3178,56 +3113,35 @@ public:
 				// TODO
 				throw eNotImplemented();
 			} break;
-			default: {
+			default:
 				throw eBadVersion();
-			} break;
 			}
-		};
-		/** constructor
-		 *
-		 */
-		cofpacket_stats_desc_reply(cofpacket const *pack)
-		{
-			cofpacket::operator =(*pack);
 		};
 		/** destructor
 		 *
 		 */
 		virtual
 		~cofpacket_stats_desc_reply() {};
+		/**
+		 *
+		 */
+		size_t
+		length() const
+		{
+			switch (get_version()) {
+			case OFP10_VERSION: {
+				return sizeof(struct ofp10_desc_stats);
+			} break;
+			case OFP12_VERSION: {
+				return sizeof(struct ofp12_desc_stats);
+			} break;
+			default:
+				throw eBadVersion();
+			}
+			return 0;
+		};
 };
 
-
-
-class cofpacket_flow_stats_reply :
-		public cofpacket_stats_reply
-{
-private:
-
-	cofflow_stats_reply flowstats;
-
-public:
-
-	virtual
-	cofflow_stats_reply&
-	get_body()
-	{
-		return flowstats;
-	}
-
-};
-
-
-
-void
-blubber()
-{
-	cofpacket_flow_stats_reply reply;
-	if (OFPTT_ALL == reply.get_body().get_table_id())
-	{
-		// do something fancy here ...
-	}
-};
 
 
 
