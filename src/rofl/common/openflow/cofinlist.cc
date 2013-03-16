@@ -52,7 +52,7 @@ throw (eInstructionBadLen)
 struct ofp_instruction*
 cofinlist::pack(
 	struct ofp_instruction *instructions,
-	size_t inlen) throw (eInListInval)
+	size_t inlen) const throw (eInListInval)
 {
 	size_t needed_inlen = length();
 
@@ -61,10 +61,10 @@ cofinlist::pack(
 
 	struct ofp_instruction *inhdr = instructions; // first instruction header
 
-	cofinlist::iterator it;
+	cofinlist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
-		cofinst& inst = (*it);
+		cofinst const& inst = (*it);
 
 		inhdr = (struct ofp_instruction*)
 				((uint8_t*)(inst.pack(inhdr, inst.length())) + inst.length());

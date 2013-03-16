@@ -88,6 +88,14 @@ cofflow_stats_request::operator= (
 
 
 
+void
+cofflow_stats_request::set_version(uint8_t of_version)
+{
+	this->of_version = of_version;
+}
+
+
+
 uint8_t
 cofflow_stats_request::get_version() const
 {
@@ -405,7 +413,7 @@ cofflow_stats_reply::pack(uint8_t *buf, size_t buflen) const
 		fs->packet_count	= htobe64(packet_count);
 		fs->byte_count		= htobe64(byte_count);
 		match.pack(&(fs->match), match.length());
-		instructions.pack(((uint8_t*)&(fs->match)) + match.length, instructions.length());
+		instructions.pack((struct ofp_instruction*)((uint8_t*)&(fs->match)) + match.length(), instructions.length());
 
 	} break;
 	default:
@@ -468,7 +476,7 @@ cofflow_stats_reply::unpack(uint8_t *buf, size_t buflen)
 			throw eInval();
 
 		match.unpack(&(fs->match), matchlen);
-		instructions.unpack(buf + sizeof(struct ofp12_flow_stats) - 4 + matchlen,
+		instructions.unpack((struct ofp_instruction*)(buf + sizeof(struct ofp12_flow_stats) - 4 + matchlen),
 									buflen - sizeof(struct ofp12_flow_stats) + 4 + matchlen);
 
 	} break;
@@ -493,6 +501,14 @@ cofflow_stats_reply::length() const
 		throw eBadVersion();
 	}
 	return 0;
+}
+
+
+
+void
+cofflow_stats_reply::set_version(uint8_t of_version)
+{
+	this->of_version = of_version;
 }
 
 

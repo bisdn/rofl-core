@@ -73,7 +73,7 @@ cofinst::reset()
 struct ofp_instruction*
 cofinst::pack(
 	struct ofp_instruction* inhdr,
-	size_t inlen) throw (eInstructionInval)
+	size_t inlen) const throw (eInstructionInval)
 {
 	//Lock lock(&inmutex);
 

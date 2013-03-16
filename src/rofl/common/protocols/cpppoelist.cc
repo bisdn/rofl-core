@@ -25,7 +25,7 @@ cpppoelist::unpack(
 		int tlvlen)
 throw (ePPPoEBadLen)
 {
-	reset(); // clears elems vector
+	clear(); // clears elems vector
 
 	// sanity check: bclen must be of size at least of ofp_bucket
 	if (tlvlen < (int)sizeof(struct cpppoetlv::pppoe_tag_hdr_t))

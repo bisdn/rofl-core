@@ -133,9 +133,9 @@ public: // data structures
 		struct ofp10_queue_get_config_request 	*of10hu_qgcrqhdr;
 		struct ofp12_queue_get_config_request 	*of12hu_qgcrqhdr;
 		struct ofp13_queue_get_config_request 	*of13hu_qgcrqhdr;
-		struct ofp10_queue_get_config_reply   	*ofh10u_qgcrphdr;
-		struct ofp12_queue_get_config_reply   	*ofh12u_qgcrphdr;
-		struct ofp13_queue_get_config_reply   	*ofh13u_qgcrphdr;
+		struct ofp10_queue_get_config_reply   	*of10hu_qgcrphdr;
+		struct ofp12_queue_get_config_reply   	*of12hu_qgcrphdr;
+		struct ofp13_queue_get_config_reply   	*of13hu_qgcrphdr;
 		struct ofp10_stats_request 				*of10hu_srqhdr;
 		struct ofp12_stats_request 				*of12hu_srqhdr;
 		struct ofp10_stats_reply   				*of10hu_srphdr;
@@ -489,6 +489,41 @@ public:
 	 */
 	virtual cpacket&
 	get_packet() { return packet; };
+
+
+	/**
+	 *
+	 */
+	virtual cofdesc_stats_reply&
+	get_desc_stats_reply() { return desc_stats_reply; };
+
+
+	/**
+	 *
+	 */
+	virtual cofflow_stats_request&
+	get_flow_stats_request() { return flow_stats_request; };
+
+
+	/**
+	 *
+	 */
+	virtual cofflow_stats_reply&
+	get_flow_stats_reply() { return flow_stats_reply; };
+
+
+	/**
+	 *
+	 */
+	virtual cofaggr_stats_request&
+	get_aggr_stats_request() { return aggr_stats_request; };
+
+
+	/**
+	 *
+	 */
+	virtual cofaggr_stats_reply&
+	get_aggr_stats_reply() { return aggr_stats_reply; };
 
 
 

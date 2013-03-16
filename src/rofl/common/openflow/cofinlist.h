@@ -72,7 +72,7 @@ public: // methods
 	pack(
 		struct ofp_instruction *instructions, // pointer to memory area for storing this->invec
 		size_t inlen) 					// length of memory area
-	throw (eInListInval);
+	const throw (eInListInval);
 
 	/** returns required length for array of struct ofp_instruction
 	 * for all instructions defined in this->invec

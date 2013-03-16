@@ -90,13 +90,12 @@ throw (eBadActionBadLen, eBadActionBadOutPort)
 struct ofp_action_header*
 cofaclist::pack(
 	struct ofp_action_header *achdr,
-	size_t aclen)
-throw (eAcListInval)
+	size_t aclen) const throw (eAcListInval)
 {
 	if (aclen < length())
 		throw eAcListInval();
 
-	cofaclist::iterator it;
+	cofaclist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		achdr = (struct ofp_action_header*)

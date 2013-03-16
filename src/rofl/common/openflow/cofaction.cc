@@ -64,7 +64,7 @@ cofaction::operator= (const cofaction& ac)
 struct ofp_action_header*
 cofaction::pack(
 	struct ofp_action_header* achdr,
-	size_t aclen) throw (eActionInval)
+	size_t aclen) const throw (eActionInval)
 {
 	if (aclen < this->length())
 		throw eActionInval();
@@ -236,7 +236,7 @@ throw (eBadActionBadLen, eBadActionBadOutPort, eBadActionBadType)
 
 
 struct ofp_action_header*
-cofaction::soaction()
+cofaction::soaction() const
 {
 	return (struct ofp_action_header*)(action.somem());
 }	

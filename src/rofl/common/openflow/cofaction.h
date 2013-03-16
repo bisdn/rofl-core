@@ -124,7 +124,7 @@ public: // methods
 	/** return pointer to ofp_action_header start
 	 */
 	struct ofp_action_header* 
-	soaction();
+	soaction() const;
 
 	/** return length of action in bytes
 	 */
@@ -141,7 +141,7 @@ public: // methods
 	struct ofp_action_header*
 	pack(
 		struct ofp_action_header* achdr,
-		size_t aclen) throw (eActionInval);
+		size_t aclen) const throw (eActionInval);
 
 	/** unpack
 	 */

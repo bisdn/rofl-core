@@ -60,6 +60,22 @@ cofdesc_stats_reply::operator= (
 
 
 
+void
+cofdesc_stats_reply::set_version(uint8_t of_version)
+{
+	this->of_version = of_version;
+}
+
+
+
+uint8_t
+cofdesc_stats_reply::get_version() const
+{
+	return of_version;
+}
+
+
+
 std::string
 cofdesc_stats_reply::get_mfr_desc() const
 {

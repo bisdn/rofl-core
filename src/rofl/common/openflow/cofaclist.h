@@ -88,7 +88,7 @@ public: // methods
 	pack(
 			struct ofp_action_header *actions,
 			size_t aclen)
-		throw (eAcListInval);
+		const throw (eAcListInval);
 
 	/** returns required length for array of struct ofp_action_headers
 	 * for all actions defined in std::vector<cofaction*>

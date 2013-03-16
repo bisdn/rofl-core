@@ -28,7 +28,7 @@ cofportlist::unpack(
 		size_t portlen)
 throw (ePortListInval)
 {
-	reset(); // clears bcvec
+	clear(); // clears bcvec
 
 	// sanity check: bclen must be of size at least of ofp_bucket
 	if (portlen < (int)sizeof(T))

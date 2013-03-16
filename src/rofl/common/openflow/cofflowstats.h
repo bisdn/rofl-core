@@ -14,6 +14,7 @@
 #include "cofinlist.h"
 #include "../../platform/unix/csyslog.h"
 #include "openflow.h"
+#include "openflow_rofl_exceptions.h"
 
 namespace rofl
 {
@@ -105,6 +106,13 @@ public:
 	 */
 	size_t
 	length() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_version(uint8_t of_version);
 
 
 	/**
@@ -261,6 +269,13 @@ public:
 	 */
 	size_t
 	length() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_version(uint8_t of_version);
 
 
 	/**

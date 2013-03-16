@@ -88,6 +88,14 @@ cofaggr_stats_request::operator= (
 
 
 
+void
+cofaggr_stats_request::set_version(uint8_t of_version)
+{
+	this->of_version = of_version;
+}
+
+
+
 uint8_t
 cofaggr_stats_request::get_version() const
 {
@@ -380,6 +388,14 @@ cofaggr_stats_reply::length() const
 		throw eBadVersion();
 	}
 	return 0;
+}
+
+
+
+void
+cofaggr_stats_reply::set_version(uint8_t of_version)
+{
+	this->of_version = of_version;
 }
 
 
