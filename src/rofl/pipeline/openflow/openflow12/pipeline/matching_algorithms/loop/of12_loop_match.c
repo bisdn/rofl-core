@@ -70,7 +70,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_identical(of12_flow_entry_t
 * and table pointer, but no further checkings are done (including lookup in the table linked list)
 *
 */
-static rofl_result_t of12_remove_flow_entry_table_specific_imp(of12_flow_table_t *const table, of12_flow_entry_t *const specific_entry){
+static rofl_result_t of12_remove_flow_entry_table_specific_imp(of12_flow_table_t *const table, of12_flow_entry_t *const specific_entry, of12_flow_remove_reason_t reason){
 	
 	if(table->num_of_entries == 0) 
 		return ROFL_FAILURE; 
@@ -103,7 +103,7 @@ static rofl_result_t of12_remove_flow_entry_table_specific_imp(of12_flow_table_t
 	platform_rwlock_wrunlock(table->rwlock);
 
 	//Destroy entry
-	return of12_destroy_flow_entry(specific_entry);
+	return of12_destroy_flow_entry_with_reason(specific_entry, reason);
 }
 
 /* 
@@ -146,7 +146,7 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 		}
 		
 		//Delete old entry
-		if(of12_remove_flow_entry_table_specific_imp(table,existing) != ROFL_SUCCESS)
+		if(of12_remove_flow_entry_table_specific_imp(table,existing, OF12_FLOW_REMOVE_NO_REASON) != ROFL_SUCCESS)
 			return ROFL_OF12_FM_FAILURE;
 
 		//Let it add normally...
@@ -231,7 +231,7 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 * This function shall NOT be used if there is some prior knowledge by the lookup algorithm before (specially a pointer to the entry), as it is inherently VERY innefficient
 */
 
-static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
+static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group, of12_flow_remove_reason_t reason){
 
 	int deleted=0; 
 	of12_flow_entry_t *it, *it_next;
@@ -249,7 +249,7 @@ static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_tab
 			//Strict make sure they are equal
 			if( of12_flow_entry_check_equal(it, entry, out_port, out_group ) ){
 				
-				if(of12_remove_flow_entry_table_specific_imp(table, it) != ROFL_SUCCESS){
+				if(of12_remove_flow_entry_table_specific_imp(table, it, reason) != ROFL_SUCCESS){
 					assert(0); //This should never happen
 					return ROFL_FAILURE;
 				}
@@ -259,7 +259,7 @@ static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_tab
 		}else{
 			if( of12_flow_entry_check_contained(it, entry, strict, true, out_port, out_group) ){
 				
-				if(of12_remove_flow_entry_table_specific_imp(table, it) != ROFL_SUCCESS){
+				if(of12_remove_flow_entry_table_specific_imp(table, it, reason) != ROFL_SUCCESS){
 					assert(0); //This should never happen
 					return ROFL_FAILURE;
 				}
@@ -289,15 +289,15 @@ static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_tab
 * 
 */
 
-static inline rofl_result_t of12_remove_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, uint32_t out_port, uint32_t out_group, const enum of12_flow_removal_strictness strict){
+static inline rofl_result_t of12_remove_flow_entry_table_imp(of12_flow_table_t *const table, of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, uint32_t out_port, uint32_t out_group, of12_flow_remove_reason_t reason, const enum of12_flow_removal_strictness strict){
 
 	if( (entry&&specific_entry) || ( !entry && !specific_entry) )
 		return ROFL_FAILURE;
  
 	if(entry)
-		return of12_remove_flow_entry_table_non_specific_imp(table, entry, strict, out_port, out_group);
+		return of12_remove_flow_entry_table_non_specific_imp(table, entry, strict, out_port, out_group, reason);
 	else
-		return of12_remove_flow_entry_table_specific_imp(table, specific_entry);
+		return of12_remove_flow_entry_table_specific_imp(table, specific_entry, reason);
 }
 
 /* Conveniently wraps call with mutex.  */
@@ -356,7 +356,7 @@ rofl_result_t of12_modify_flow_entry_loop(of12_flow_table_t *const table, of12_f
 	return ROFL_SUCCESS;
 }
 
-rofl_result_t of12_remove_flow_entry_loop(of12_flow_table_t *const table , of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group, of12_mutex_acquisition_required_t mutex_acquired){
+rofl_result_t of12_remove_flow_entry_loop(of12_flow_table_t *const table , of12_flow_entry_t *const entry, of12_flow_entry_t *const specific_entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group, of12_flow_remove_reason_t reason, of12_mutex_acquisition_required_t mutex_acquired){
 
 	rofl_result_t result;
 
@@ -365,7 +365,7 @@ rofl_result_t of12_remove_flow_entry_loop(of12_flow_table_t *const table , of12_
 		platform_mutex_lock(table->mutex);
 	}
 	
-	result = of12_remove_flow_entry_table_imp(table, entry, specific_entry, out_port, out_group, strict);
+	result = of12_remove_flow_entry_table_imp(table, entry, specific_entry, out_port, out_group,reason, strict);
 
 	//Green light to other threads
 	if(!mutex_acquired){
@@ -541,12 +541,29 @@ of12_flow_entry_t* of12_find_entry_using_group_loop(of12_flow_table_t *const tab
 	return NULL; 
 }
 
+rofl_result_t of12_destroy_loop(struct of12_flow_table *const table){
+
+	of12_flow_entry_t *entry, *next;
+
+	//Destroy all entries
+	for(entry = table->entries; entry; entry = next){
+		next = entry->next;
+		of12_destroy_flow_entry_with_reason(entry, OF12_FLOW_REMOVE_NO_REASON);
+	}
+
+	table->entries = NULL;
+
+	return ROFL_SUCCESS;
+}
+
+
+
 void load_matching_algorithm_loop(struct matching_algorithm_functions *f){
 
 	if (NULL != f) {
 		//Init and destroy hooks
 		f->init_hook = NULL;
-		f->destroy_hook = NULL;
+		f->destroy_hook = of12_destroy_loop;
 	
 		//Flow mods
 		f->add_flow_entry_hook = of12_add_flow_entry_loop;

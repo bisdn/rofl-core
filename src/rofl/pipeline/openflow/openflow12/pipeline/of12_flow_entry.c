@@ -1,9 +1,13 @@
 #include "of12_flow_entry.h"
 
 #include "../../../platform/memory.h"
+#include "../../../platform/openflow/openflow12/platform_hooks_of12.h"
 
 #include <stdio.h>
 #include <assert.h>
+#include "../of12_switch.h"
+#include "of12_pipeline.h"
+#include "of12_flow_table.h"
 #include "of12_action.h"
 #include "of12_group_table.h"
 
@@ -42,7 +46,9 @@ of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry
 
 }
 
-rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
+
+//This function is meant to only be used internally
+rofl_result_t of12_destroy_flow_entry_with_reason(of12_flow_entry_t* entry, of12_flow_remove_reason_t reason){
 	
 	of12_match_t* match = entry->matchs;
 
@@ -52,10 +58,16 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	//destroying timers, if any
 	of12_destroy_timer_entries(entry);
 
+	//Notify flow removed
+	if(entry->notify_removal && (reason != OF12_FLOW_REMOVE_NO_REASON ) ){
+		//Safety checks
+		if(entry->table && entry->table->pipeline && entry->table->pipeline->sw)
+			platform_of12_notify_flow_removed(entry->table->pipeline->sw, reason, entry);	
+			
+	}	
+
 	//destroy stats
 	of12_destroy_flow_stats(entry);
-
-	//FIXME TODO XXX Implement flow_removed message
 
 	//Destroy matches recursively
 	while(match){
@@ -74,6 +86,12 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
 	cutil_free_shared(entry);	
 	
 	return ROFL_SUCCESS;
+}
+
+//This is the interface to be used when deleting entries used as
+//a message or not inserted in a table 
+rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry){
+	return of12_destroy_flow_entry_with_reason(entry, OF12_FLOW_REMOVE_NO_REASON);	
 }
 
 //Adds one or more to the entry
@@ -121,7 +139,7 @@ rofl_result_t of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_fl
 	platform_rwlock_wrunlock(entry_to_update->rwlock);
 
 	//Destroy the mod entry
-	of12_destroy_flow_entry(mod);
+	of12_destroy_flow_entry_with_reason(mod, OF12_FLOW_REMOVE_NO_REASON);
 
 	return ROFL_SUCCESS;
 }
@@ -289,12 +307,49 @@ void of12_dump_flow_entry(of12_flow_entry_t* entry){
 /**
  * check if the entry is valid for insertion
  */
-rofl_result_t of12_validate_flow_entry(of12_flow_entry_t* entry){
+rofl_result_t of12_validate_flow_entry(of12_group_table_t *gt, of12_flow_entry_t* entry){
 	//TODO
+	int i, j;
+	of12_packet_action_t *pa_it;
+	of12_action_group_t *ac_it;
 	
+	//if there is a group action we should check that the group exists
+	for(i=0;i<OF12_IT_GOTO_TABLE;i++){
+		switch(entry->inst_grp.instructions[i].type){
+			case OF12_IT_NO_INSTRUCTION:
+				continue;
+				break;
+				
+			case OF12_IT_APPLY_ACTIONS:
+				ac_it = entry->inst_grp.instructions[i].apply_actions;
+				if(ac_it){
+					for(pa_it=ac_it->head; pa_it; pa_it=pa_it->next){
+						if(pa_it->type == OF12_AT_GROUP && of12_group_search(gt,pa_it->field)==NULL ){
+							return ROFL_FAILURE;
+						}
+					}
+				}
+				break;
+				
+			case OF12_IT_WRITE_ACTIONS:
+				for(j=0;j<OF12_AT_NUMBER;j++){
+					pa_it = &(entry->inst_grp.instructions[i].write_actions->write_actions[j]);
+					if(pa_it && pa_it->type == OF12_AT_GROUP && of12_group_search(gt,pa_it->field)==NULL ){
+						return ROFL_FAILURE;
+					}
+				}
+				break;
+				
+			default:
+				continue;
+				break;
+		}
+	}
 	//check write actions
+	//of12_validate_action_group();
 	
 	//check apply actions
+	//of12_validate_write_actions();
 	
 	return ROFL_SUCCESS;
 }

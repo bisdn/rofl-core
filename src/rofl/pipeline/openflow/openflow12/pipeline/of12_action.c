@@ -440,12 +440,12 @@ void of12_process_group_actions(const struct of12_switch* sw, const unsigned int
 	switch(group->type){
 		case OF12_GROUP_TYPE_ALL:
 			//executes all buckets
-			platform_rwlock_rdlock(sw->pipeline->groups->rwlock);
+			platform_rwlock_rdlock(group->rwlock);
 			for (it_bk = group->bl_head; it_bk!=NULL;it_bk = it_bk->next){
 				//process all actions in the bucket
 				of12_process_apply_actions(sw,table_id,pkt,it_bk->actions, it_bk->actions->num_of_output_actions > 1);
 			}
-			platform_rwlock_rdunlock(sw->pipeline->groups->rwlock);
+			platform_rwlock_rdunlock(group->rwlock);
 			break;
 		case OF12_GROUP_TYPE_SELECT:
 			//optional
@@ -453,9 +453,9 @@ void of12_process_group_actions(const struct of12_switch* sw, const unsigned int
 			break;
 		case OF12_GROUP_TYPE_INDIRECT:
 			//executes the "one bucket defined"
-			platform_rwlock_rdlock(sw->pipeline->groups->rwlock);
+			platform_rwlock_rdlock(group->rwlock);
 			of12_process_apply_actions(sw,table_id,pkt,group->bl_head->actions, group->bl_head->actions->num_of_output_actions > 1);
-			platform_rwlock_rdunlock(sw->pipeline->groups->rwlock);
+			platform_rwlock_rdunlock(group->rwlock);
 			break;
 		case OF12_GROUP_TYPE_FF:
 			//optional
