@@ -32,7 +32,7 @@ extern "C" {
 #include "../coflist.h"
 #include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
-
+#include "cofportstats.h"
 
 
 
@@ -63,6 +63,7 @@ private: // data structures
 	std::map<uint32_t, cofport*> 		*port_list; 	// port_list this port belongs to
 	std::string 						 info; 			// info string
 	cmemory 							 memarea;		// ofpXX_port structure
+	cofport_stats_reply					 port_stats;
 
 public: // data structures
 
@@ -78,6 +79,7 @@ public: // data structures
 #define ofh12_port ofp_ofpu.ofpu12_port
 #define ofh13_port ofp_ofpu.ofpu13_port
 
+#if 0
 	/*
 	 * port statistics
 	 */
@@ -93,7 +95,7 @@ public: // data structures
 	uint64_t 							rx_over_err;
 	uint64_t 							rx_crc_err;
 	uint64_t 							collisions;
-
+#endif
 
 
 /*
@@ -250,9 +252,8 @@ public:
 	/**
 	 *
 	 */
-	void
-	get_port_stats(
-			cmemory& body);
+	cofport_stats_reply&
+	get_port_stats();
 
 
 	/**

@@ -432,3 +432,26 @@ cofaggr_stats_reply::get_flow_count() const
 
 
 
+void
+cofaggr_stats_reply::set_packet_count(uint64_t packet_count)
+{
+	this->packet_count = packet_count;
+}
+
+
+
+void
+cofaggr_stats_reply::set_byte_count(uint64_t byte_count)
+{
+	this->byte_count = byte_count;
+}
+
+
+
+void
+cofaggr_stats_reply::set_flow_count(uint32_t flow_count)
+{
+	this->flow_count = flow_count;
+}
+
+

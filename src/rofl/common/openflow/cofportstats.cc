@@ -371,6 +371,25 @@ cofport_stats_reply::length() const
 
 
 void
+cofport_stats_reply::reset()
+{
+	rx_packets = 0;
+	tx_packets = 0;
+	rx_bytes = 0;
+	tx_bytes = 0;
+	rx_dropped = 0;
+	tx_dropped = 0;
+	rx_errors = 0;
+	tx_errors = 0;
+	rx_frame_err = 0;
+	rx_over_err = 0;
+	rx_crc_err = 0;
+	collisions = 0;
+}
+
+
+
+void
 cofport_stats_reply::set_version(uint8_t of_version)
 {
 	this->of_version = of_version;
@@ -488,5 +507,108 @@ cofport_stats_reply::get_collisions() const
 	return collisions;
 }
 
+
+
+void
+cofport_stats_reply::set_portno(uint32_t port_no)
+{
+	this->port_no = port_no;
+}
+
+
+
+void
+cofport_stats_reply::set_rx_packets(uint64_t rx_packets)
+{
+	this->rx_packets = rx_packets;
+}
+
+
+
+void
+cofport_stats_reply::set_tx_packets(uint64_t tx_packets)
+{
+	this->tx_packets = tx_packets;
+}
+
+
+
+void
+cofport_stats_reply::set_rx_bytes(uint64_t rx_bytes)
+{
+	this->rx_bytes = rx_bytes;
+}
+
+
+
+void
+cofport_stats_reply::set_tx_bytes(uint64_t tx_bytes)
+{
+	this->tx_bytes = tx_bytes;
+}
+
+
+
+void
+cofport_stats_reply::set_rx_dropped(uint64_t rx_dropped)
+{
+	this->rx_dropped = rx_dropped;
+}
+
+
+
+void
+cofport_stats_reply::set_tx_dropped(uint64_t tx_dropped)
+{
+	this->tx_dropped = tx_dropped;
+}
+
+
+
+void
+cofport_stats_reply::set_rx_errors(uint64_t rx_errors)
+{
+	this->rx_errors = rx_errors;
+}
+
+
+
+void
+cofport_stats_reply::set_tx_errors(uint64_t tx_errors)
+{
+	this->tx_errors = tx_errors;
+}
+
+
+
+void
+cofport_stats_reply::set_rx_frame_err(uint64_t rx_frame_err)
+{
+	this->rx_frame_err = rx_frame_err;
+}
+
+
+
+void
+cofport_stats_reply::set_rx_over_err(uint64_t rx_over_err)
+{
+	this->rx_over_err = rx_over_err;
+}
+
+
+
+void
+cofport_stats_reply::set_rx_crc_err(uint64_t rx_crc_err)
+{
+	this->rx_crc_err = rx_crc_err;
+}
+
+
+
+void
+cofport_stats_reply::set_collisions(uint64_t collisions)
+{
+	this->collisions = collisions;
+}
 
 

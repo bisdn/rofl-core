@@ -268,6 +268,27 @@ public:
 	 */
 	uint32_t
 	get_flow_count() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_packet_count(uint64_t packet_count);
+
+
+	/**
+	 *
+	 */
+	void
+	set_byte_count(uint64_t byte_count);
+
+
+	/**
+	 *
+	 */
+	void
+	set_flow_count(uint32_t flow_count);
 };
 
 

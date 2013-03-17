@@ -211,6 +211,13 @@ public:
 	 *
 	 */
 	void
+	reset();
+
+
+	/**
+	 *
+	 */
+	void
 	set_version(uint8_t of_version);
 
 
@@ -298,6 +305,84 @@ public:
 	 */
 	uint64_t
 	get_collisions() const;
+
+	/**
+	 *
+	 */
+	void
+	set_portno(uint32_t port_no);
+
+	/**
+	 *
+	 */
+	void
+	set_rx_packets(uint64_t rx_packets);
+
+	/**
+	 *
+	 */
+	void
+	set_tx_packets(uint64_t tx_packets);
+
+	/**
+	 *
+	 */
+	void
+	set_rx_bytes(uint64_t rx_bytes);
+
+	/**
+	 *
+	 */
+	void
+	set_tx_bytes(uint64_t tx_bytes);
+
+	/**
+	 *
+	 */
+	void
+	set_rx_dropped(uint64_t rx_dropped);
+
+	/**
+	 *
+	 */
+	void
+	set_tx_dropped(uint64_t tx_dropped);
+
+	/**
+	 *
+	 */
+	void
+	set_rx_errors(uint64_t rx_errors);
+
+	/**
+	 *
+	 */
+	void
+	set_tx_errors(uint64_t tx_errors);
+
+	/**
+	 *
+	 */
+	void
+	set_rx_frame_err(uint64_t rx_frame_err);
+
+	/**
+	 *
+	 */
+	void
+	set_rx_over_err(uint64_t rx_over_err);
+
+	/**
+	 *
+	 */
+	void
+	set_rx_crc_err(uint64_t rx_crc_err);
+
+	/**
+	 *
+	 */
+	void
+	set_collisions(uint64_t collisions);
 };
 
 

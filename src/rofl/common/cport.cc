@@ -15,7 +15,8 @@ cport::cport(
 			max_out_queue_size(CPORT_DEFAULT_MAX_OUT_QUEUE_SIZE),
 			owner(owner),
 			devname(devname),
-			devtype(devtype),
+			devtype(devtype)
+#if 0
 			rx_packets(0),
 			tx_packets(0),
 			rx_bytes(0),
@@ -28,6 +29,7 @@ cport::cport(
 			rx_over_err(0xffffffff),
 			rx_crc_err(0xffffffff),
 			collisions(0xffffffff)
+#endif
 {
 	cport::cport_list.insert(this);
 	WRITELOG(CPORT, DBG, "cport(%s)::cport() %s", devname.c_str(), c_str());
@@ -135,7 +137,7 @@ cport::enqueue(
 }
 
 
-
+#if 0
 struct ofp_port_stats*
 cport::get_port_stats(
 		struct ofp_port_stats* port_stats,
@@ -159,6 +161,15 @@ cport::get_port_stats(
 	port_stats->rx_crc_err 	= rx_crc_err;
 	port_stats->collisions 	= collisions;
 
+	return port_stats;
+}
+#endif
+
+
+
+cofport_stats_reply&
+cport::get_port_stats()
+{
 	return port_stats;
 }
 

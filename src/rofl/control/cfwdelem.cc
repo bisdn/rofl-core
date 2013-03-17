@@ -413,7 +413,8 @@ cfwdelem::handle_table_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 void
 cfwdelem::handle_port_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 {
-	uint32_t port_no = be32toh(pack->ofb_port_stats_request->port_no);
+	//uint32_t port_no = be32toh(pack->ofb_port_stats_request->port_no);
+	uint32_t port_no = pack->get_port_stats_request().get_portno();
 
 	cmemory body(0);
 
@@ -424,7 +425,11 @@ cfwdelem::handle_port_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 					it = phy_ports.begin(); it != phy_ports.end(); ++it)
 			{
 				cofport *port = it->second;
-				port->get_port_stats(body);
+				cofport_stats_reply& stats_reply = port->get_port_stats();
+				cmemory m_stats(stats_reply.length());
+				stats_reply.pack(m_stats.somem(), m_stats.memlen());
+
+				body += m_stats;
 			}
 		}
 		else
@@ -434,7 +439,9 @@ cfwdelem::handle_port_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 				throw eFwdElemNotFound();
 			}
 
-			phy_ports[port_no]->get_port_stats(body);
+			cofport_stats_reply& stats_reply = phy_ports[port_no]->get_port_stats();
+			body.resize(stats_reply.length());
+			stats_reply.pack(body.somem(), body.memlen());
 		}
 
 		send_stats_reply(
@@ -460,7 +467,8 @@ cfwdelem::handle_port_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 void
 cfwdelem::handle_flow_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 {
-	uint8_t table_id = pack->ofb_flow_stats_request->table_id;
+	//uint8_t table_id = pack->ofb_flow_stats_request->table_id;
+	uint8_t table_id = pack->get_flow_stats_request().get_table_id();
 
 	cmemory body(0);
 
@@ -474,11 +482,11 @@ cfwdelem::handle_flow_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 				cfttable* fttable = it->second;
 				fttable->get_flow_stats(
 						body,
-						be32toh(pack->ofb_flow_stats_request->out_port),
-						be32toh(pack->ofb_flow_stats_request->out_group),
-						be64toh(pack->ofb_flow_stats_request->cookie),
-						be64toh(pack->ofb_flow_stats_request->cookie_mask),
-						pack->match);
+						pack->get_flow_stats_request().get_out_port(),
+						pack->get_flow_stats_request().get_out_group(),
+						pack->get_flow_stats_request().get_cookie(),
+						pack->get_flow_stats_request().get_cookie_mask(),
+						pack->get_flow_stats_request().get_match());
 			}
 		}
 		else
@@ -490,11 +498,11 @@ cfwdelem::handle_flow_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 
 			flow_tables[table_id]->get_flow_stats(
 							body,
-							be32toh(pack->ofb_flow_stats_request->out_port),
-							be32toh(pack->ofb_flow_stats_request->out_group),
-							be64toh(pack->ofb_flow_stats_request->cookie),
-							be64toh(pack->ofb_flow_stats_request->cookie_mask),
-							pack->match);
+							pack->get_flow_stats_request().get_out_port(),
+							pack->get_flow_stats_request().get_out_group(),
+							pack->get_flow_stats_request().get_cookie(),
+							pack->get_flow_stats_request().get_cookie_mask(),
+							pack->get_flow_stats_request().get_match());
 		}
 
 		send_stats_reply(
@@ -520,7 +528,8 @@ cfwdelem::handle_flow_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 void
 cfwdelem::handle_aggregate_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 {
-	uint8_t table_id = pack->ofb_aggregate_stats_request->table_id;
+	//uint8_t table_id = pack->ofb_aggregate_stats_request->table_id;
+	uint8_t table_id = pack->get_aggr_stats_request().get_table_id();
 
 	uint64_t packet_count = 0;
 	uint64_t byte_count = 0;
@@ -548,11 +557,11 @@ cfwdelem::handle_aggregate_stats_request(cofctl *ctl, cofpacket_stats_request *p
 						packet_count,
 						byte_count,
 						flow_count,
-						be32toh(pack->ofb_flow_stats_request->out_port),
-						be32toh(pack->ofb_flow_stats_request->out_group),
-						be64toh(pack->ofb_flow_stats_request->cookie),
-						be64toh(pack->ofb_flow_stats_request->cookie_mask),
-						pack->match);
+						pack->get_flow_stats_request().get_out_port(),
+						pack->get_flow_stats_request().get_out_group(),
+						pack->get_flow_stats_request().get_cookie(),
+						pack->get_flow_stats_request().get_cookie_mask(),
+						pack->get_flow_stats_request().get_match());
 
 #if 0
 				fprintf(stderr, "cfwdelem::handle_aggregate_stats_request() "
@@ -572,28 +581,31 @@ cfwdelem::handle_aggregate_stats_request(cofctl *ctl, cofpacket_stats_request *p
 							packet_count,
 							byte_count,
 							flow_count,
-							be32toh(pack->ofb_flow_stats_request->out_port),
-							be32toh(pack->ofb_flow_stats_request->out_group),
-							be64toh(pack->ofb_flow_stats_request->cookie),
-							be64toh(pack->ofb_flow_stats_request->cookie_mask),
-							pack->match);
+							pack->get_flow_stats_request().get_out_port(),
+							pack->get_flow_stats_request().get_out_group(),
+							pack->get_flow_stats_request().get_cookie(),
+							pack->get_flow_stats_request().get_cookie_mask(),
+							pack->get_flow_stats_request().get_match());
 		}
 
-		struct ofp_aggregate_stats_reply aggr_stats_reply;
+		cofaggr_stats_reply aggr_stats_reply(ctl->get_version());
 
-		aggr_stats_reply.packet_count 	= htobe64(packet_count);
-		aggr_stats_reply.byte_count 	= htobe64(byte_count);
-		aggr_stats_reply.flow_count		= htobe32(flow_count);
+		aggr_stats_reply.set_packet_count(packet_count);
+		aggr_stats_reply.set_byte_count(byte_count);
+		aggr_stats_reply.set_flow_count(flow_count);
 
 		WRITELOG(CFWD, DBG, "cfwdelem(%s)::handle_aggregate_stats_request() "
 				"packet_count:%llu byte_count:%llu flow_count:%llu",
 				dpname.c_str(), packet_count, byte_count, flow_count);
 
+		cmemory body(aggr_stats_reply.length());
+		aggr_stats_reply.pack(body.somem(), body.memlen());
+
 		send_stats_reply(
 						ctl,
 						pack->get_xid(),
 						OFPST_AGGREGATE,
-						(uint8_t*)&aggr_stats_reply, sizeof(aggr_stats_reply));
+						body.somem(), body.memlen());
 
 
 

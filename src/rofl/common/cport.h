@@ -17,6 +17,7 @@
 #include "cmacaddr.h"
 #include "thread_helper.h"
 #include "cvastring.h"
+#include "openflow/cofportstats.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -168,6 +169,7 @@ class cport :
 private: // data structures
 
 	std::string 				info;
+	cofport_stats_reply			port_stats;
 
 protected: // data structures
 
@@ -200,6 +202,7 @@ public: // data structures
 	std::string 				devname;    // port name
 	std::string 				devtype; 	// port type ("phy", "bcm", "vport", rofl.)
 
+#if 0
 	// port statistics
 	uint64_t 					rx_packets;
 	uint64_t 					tx_packets;
@@ -213,7 +216,7 @@ public: // data structures
 	uint64_t 					rx_over_err;
 	uint64_t 					rx_crc_err;
 	uint64_t 					collisions;
-
+#endif
 
 
 
@@ -287,14 +290,20 @@ public:
 	const char*
 	c_str();
 
-
+#if 0
 	/** get port statistics
 	 */
 	struct ofp_port_stats*
 	get_port_stats(
 			struct ofp_port_stats* port_stats,
 			size_t port_stats_len);
+#endif
 
+	/**
+	 *
+	 */
+	cofport_stats_reply&
+	get_port_stats();
 
 
 protected: // methods

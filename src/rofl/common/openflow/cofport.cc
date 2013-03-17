@@ -132,7 +132,8 @@ cofport::ports_get_free_port_no(
 
 cofport::cofport(uint8_t of_version) :
 		of_version(of_version),
-		port_list(0)
+		port_list(0),
+		port_stats(of_version)
 {
 	reset_stats();
 	switch (of_version) {
@@ -152,7 +153,8 @@ cofport::cofport(
 	uint32_t portno) :
 			of_version(OFP10_VERSION),
 			port_list(port_list),
-			memarea(sizeof(struct ofp10_port))
+			memarea(sizeof(struct ofp10_port)),
+			port_stats(OFP10_VERSION)
 {
 	ofh10_port = (struct ofp10_port*)memarea.somem();
 
@@ -178,7 +180,8 @@ cofport::cofport(
 	uint32_t portno) :
 			of_version(OFP12_VERSION),
 			port_list(port_list),
-			memarea(sizeof(struct ofp12_port))
+			memarea(sizeof(struct ofp12_port)),
+			port_stats(OFP12_VERSION)
 {
 	ofh12_port = (struct ofp12_port*)memarea.somem();
 
@@ -204,7 +207,8 @@ cofport::cofport(
 	uint32_t portno) :
 			of_version(OFP13_VERSION),
 			port_list(port_list),
-			memarea(sizeof(struct ofp13_port))
+			memarea(sizeof(struct ofp13_port)),
+			port_stats(OFP13_VERSION)
 {
 	ofh13_port = (struct ofp13_port*)memarea.somem();
 
@@ -268,10 +272,21 @@ cofport::operator= (cofport const& port)
 
 	this->of_version 	= port.of_version;
 	this->memarea 		= port.memarea;
+	this->port_stats	= port.port_stats;
+
+	this->ofh_port		= (uint8_t*)memarea.somem();
 
 	//port_list 		= 0; // keep port_list as it is
 
 	return *this;
+}
+
+
+
+cofport_stats_reply&
+cofport::get_port_stats()
+{
+	return port_stats;
 }
 
 
@@ -961,6 +976,8 @@ throw (eOFportInval)
 void
 cofport::reset_stats()
 {
+	port_stats.reset();
+#if 0
 	rx_packets 		= 0;
 	tx_packets 		= 0;
 	rx_bytes 		= 0;
@@ -973,9 +990,10 @@ cofport::reset_stats()
 	rx_over_err 	= 0;
 	rx_crc_err 		= 0;
 	collisions 		= 0;
+#endif
 }
 
-
+#if 0
 void
 cofport::get_port_stats(
 		cmemory& body)
@@ -999,6 +1017,8 @@ cofport::get_port_stats(
 
 	body += pstats;
 }
+#endif
+
 
 
 

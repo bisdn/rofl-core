@@ -538,6 +538,20 @@ public:
 	get_table_stats_reply() { return table_stats_reply; };
 
 
+	/**
+	 *
+	 */
+	virtual cofport_stats_request&
+	get_port_stats_request() { return port_stats_request; };
+
+
+	/**
+	 *
+	 */
+	virtual cofport_stats_reply&
+	get_port_stats_reply() { return port_stats_reply; };
+
+
 protected:
 
 	/** validate hello messages
