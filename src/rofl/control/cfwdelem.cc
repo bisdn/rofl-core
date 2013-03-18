@@ -879,11 +879,12 @@ cfwdelem::handle_stats_reply(cofdpt *dpt, cofpacket_stats_reply *pack)
 	switch (pack->get_type()) {
 	case OFPST_TABLE: {
 		try {
-			int n_tables = pack->get_datalen() / sizeof(struct ofp_table_stats);
+			// FIXME: version specific code
+			int n_tables = pack->get_datalen() / sizeof(struct ofp12_table_stats);
 
 			for (int i = 0; i < n_tables; ++i) {
-				struct ofp_table_stats *table_stats =
-						&((struct ofp_table_stats*)pack->ofh_stats_reply->body)[i];
+				struct ofp12_table_stats *table_stats =
+						&((struct ofp12_table_stats*)pack->of12h_stats_reply->body)[i];
 
 				if (flow_tables.find(table_stats->table_id) == flow_tables.end())
 				{
@@ -892,7 +893,7 @@ cfwdelem::handle_stats_reply(cofdpt *dpt, cofpacket_stats_reply *pack)
 				}
 
 				flow_tables[table_stats->table_id]->set_table_stats(
-									table_stats, sizeof(struct ofp_table_stats));
+									table_stats, sizeof(struct ofp12_table_stats));
 			}
 		} catch (eOFpacketNoData& e) {}
 	} break;

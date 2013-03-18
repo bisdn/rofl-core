@@ -255,13 +255,13 @@ ctlbase::handle_stats_reply(cofdpt *dpt, cofpacket_stats_reply *pack)
 
 		if (xidstore.xid_find(xid).owner == this)
 		{
-			handle_stats_reply(this, xid, be16toh(pack->ofh_stats_reply->type),
+			handle_stats_reply(this, xid, be16toh(pack->of12h_stats_reply->type),
 									pack->body.somem(), pack->body.memlen());
 		}
 		else
 		{
 			call_adapter(dynamic_cast<cadapt*>( xidstore.xid_find(xid).owner ))->
-					ctl_handle_stats_reply(this, xid, be16toh(pack->ofh_stats_reply->type),
+					ctl_handle_stats_reply(this, xid, be16toh(pack->of12h_stats_reply->type),
 									pack->body.somem(), pack->body.memlen());
 		}
 

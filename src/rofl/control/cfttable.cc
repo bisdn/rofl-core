@@ -264,7 +264,7 @@ cfttable::ftentry_hard_timeout(
 
 
 
-struct ofp_table_stats*
+struct ofp12_table_stats*
 cfttable::get_table_stats(
 		struct ofp12_table_stats* table_stats,
 		size_t table_stats_len)

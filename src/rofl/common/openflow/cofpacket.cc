@@ -978,10 +978,12 @@ cofpacket::is_valid_stats_request()
 			port_stats_request.unpack(of10h_stats_request->body, body_len);
 		} break;
 		case OFPST_QUEUE: {
-
+			queue_stats_request.set_version(OFP10_VERSION);
+			queue_stats_request.unpack(of10h_stats_request->body, body_len);
 		} break;
 		case OFPST_GROUP: {
-
+			group_stats_request.set_version(OFP10_VERSION);
+			group_stats_request.unpack(of10h_stats_request->body, body_len);
 		} break;
 		default:
 			body.assign(of10h_stats_request->body, body_len);
@@ -1009,6 +1011,14 @@ cofpacket::is_valid_stats_request()
 		case OFPST_PORT: {
 			port_stats_request.set_version(OFP12_VERSION);
 			port_stats_request.unpack(of12h_stats_request->body, body_len);
+		} break;
+		case OFPST_QUEUE: {
+			queue_stats_request.set_version(OFP12_VERSION);
+			queue_stats_request.unpack(of12h_stats_request->body, body_len);
+		} break;
+		case OFPST_GROUP: {
+			group_stats_request.set_version(OFP12_VERSION);
+			group_stats_request.unpack(of12h_stats_request->body, body_len);
 		} break;
 		default:
 			body.assign(of12h_stats_request->body, body_len);
@@ -1059,6 +1069,14 @@ cofpacket::is_valid_stats_reply()
 			port_stats_reply.set_version(OFP10_VERSION);
 			port_stats_reply.unpack(of10h_stats_reply->body, body_len);
 		} break;
+		case OFPST_QUEUE: {
+			queue_stats_reply.set_version(OFP10_VERSION);
+			queue_stats_reply.unpack(of10h_stats_reply->body, body_len);
+		} break;
+		case OFPST_GROUP: {
+			group_stats_reply.set_version(OFP10_VERSION);
+			group_stats_reply.unpack(of10h_stats_reply->body, body_len);
+		} break;
 		default:
 			body.assign((uint8_t*)of10h_stats_reply->body, body_len);
 		}
@@ -1093,6 +1111,14 @@ cofpacket::is_valid_stats_reply()
 		case OFPST_PORT: {
 			port_stats_reply.set_version(OFP12_VERSION);
 			port_stats_reply.unpack(of12h_stats_reply->body, body_len);
+		} break;
+		case OFPST_QUEUE: {
+			queue_stats_reply.set_version(OFP12_VERSION);
+			queue_stats_reply.unpack(of12h_stats_reply->body, body_len);
+		} break;
+		case OFPST_GROUP: {
+			group_stats_reply.set_version(OFP12_VERSION);
+			group_stats_reply.unpack(of12h_stats_reply->body, body_len);
 		} break;
 		default:
 			body.assign(of12h_stats_reply->body, body_len);

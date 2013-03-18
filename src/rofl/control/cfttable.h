@@ -200,7 +200,7 @@ public:
 
 	/** return table statistics
 	 */
-	struct ofp_table_stats*
+	struct ofp12_table_stats*
 	get_table_stats(
 			struct ofp12_table_stats* table_stats,
 			size_t table_stats_len) throw (eFlowTableInval);
