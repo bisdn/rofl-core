@@ -408,7 +408,7 @@ crofbase::handle_timeout(int opaque)
 		switch (opaque) {
 		case TIMER_FE_DUMP_OFPACKETS: {
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::handle_timeout() "
-					"cofpacket statistics => %s", this, cofpacket::packet_info());
+					"cofpacket statistics => %s", this, cofmsg::packet_info());
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::handle_timeout() "
 					"cpacket statistics => %s", this, cpacket::cpacket_info());
 			register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
@@ -1792,7 +1792,7 @@ crofbase::send_experimenter_message(
 		for (std::set<cofdpt*>::iterator
 				it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 		{
-			(*it)->send_message(new cofpacket(*pack));
+			(*it)->send_message(new cofmsg(*pack));
 		}
 		delete pack;
 	}
@@ -1830,7 +1830,7 @@ crofbase::send_experimenter_message(
 		for (std::set<cofctl*>::iterator
 				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
 		{
-			(*it)->send_message(new cofpacket(*pack));
+			(*it)->send_message(new cofmsg(*pack));
 		}
 
 		delete pack;
@@ -1953,7 +1953,7 @@ crofbase::ta_new_async_xid()
 
 bool
 crofbase::ta_validate(
-		cofpacket *pack)
+		cofmsg *pack)
 {
 		return ta_validate(pack->get_xid(), pack->ofh_header->type);
 }

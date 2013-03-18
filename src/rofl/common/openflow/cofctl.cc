@@ -82,7 +82,7 @@ cofctl::get_version()
 
 void
 cofctl::send_message(
-		cofpacket *pack)
+		cofmsg *pack)
 {
     if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO))
     {
@@ -252,7 +252,7 @@ cofctl::handle_read(
 {
 	int rc;
 
-	cofpacket *pcppack = (cofpacket*)0;
+	cofmsg *pcppack = (cofmsg*)0;
 	try {
 
 		pcppack = (0 != fragment) ? fragment : new cofpacket();
@@ -311,7 +311,7 @@ cofctl::handle_read(
 				if (pcppack->complete())
 				{
 					// fragment is complete, set back to NULL
-					fragment = (cofpacket*)0;
+					fragment = (cofmsg*)0;
 					handle_message(pcppack);
 
 					break;
@@ -328,7 +328,7 @@ cofctl::handle_read(
 
 		if (pcppack)
 		{
-			delete pcppack; pcppack = (cofpacket*)0;
+			delete pcppack; pcppack = (cofmsg*)0;
 		}
 
 		handle_closed(socket, sd);
@@ -366,7 +366,7 @@ cofctl::handle_closed(
 
 void
 cofctl::handle_message(
-		cofpacket *pack)
+		cofmsg *pack)
 {
 	try {
 		if (not pack->is_valid())
@@ -1071,7 +1071,7 @@ cofctl::hello_rcvd(cofpacket_hello *pack)
 
 
 void
-cofctl::echo_request_sent(cofpacket *pack)
+cofctl::echo_request_sent(cofmsg *pack)
 {
 	reset_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT, 5); // TODO: multiple concurrent echo-requests?
 }
@@ -1116,7 +1116,7 @@ cofctl::features_request_rcvd(cofpacket_features_request *pack)
 
 
 void
-cofctl::features_reply_sent(cofpacket *pack)
+cofctl::features_reply_sent(cofmsg *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
@@ -1148,7 +1148,7 @@ cofctl::get_config_request_rcvd(cofpacket_get_config_request *pack)
 
 
 void
-cofctl::get_config_reply_sent(cofpacket *pack)
+cofctl::get_config_reply_sent(cofmsg *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
@@ -1890,7 +1890,7 @@ cofctl::stats_request_rcvd(cofpacket_stats_request *pack)
 
 
 void
-cofctl::stats_reply_sent(cofpacket *pack)
+cofctl::stats_reply_sent(cofmsg *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
@@ -2020,7 +2020,7 @@ cofctl::role_request_rcvd(cofpacket_role_request *pack)
 
 
 void
-cofctl::role_reply_sent(cofpacket *pack)
+cofctl::role_reply_sent(cofmsg *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
@@ -2055,7 +2055,7 @@ cofctl::barrier_request_rcvd(cofpacket_barrier_request *pack)
 
 
 void
-cofctl::barrier_reply_sent(cofpacket *pack)
+cofctl::barrier_reply_sent(cofmsg *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
@@ -2090,7 +2090,7 @@ cofctl::queue_get_config_request_rcvd(cofpacket_queue_get_config_request *pack)
 
 
 void
-cofctl::queue_get_config_reply_sent(cofpacket *pack)
+cofctl::queue_get_config_reply_sent(cofmsg *pack)
 {
 	uint32_t xid = be32toh(pack->ofh_header->xid);
 	try {
@@ -2236,7 +2236,7 @@ cofctl::transaction(uint32_t xid)
 
 
 void
-cofctl::send_error_is_slave(cofpacket *pack)
+cofctl::send_error_is_slave(cofmsg *pack)
 {
 	size_t len = (pack->length() > 64) ? 64 : pack->length();
 	rofbase->send_error_message(this,
@@ -2282,7 +2282,7 @@ cofctl::try_to_connect(bool reset_timeout)
 
 void
 cofctl::send_message_via_socket(
-		cofpacket *pack)
+		cofmsg *pack)
 {
 	if (0 == socket)
 	{

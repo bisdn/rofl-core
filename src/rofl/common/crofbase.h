@@ -1353,7 +1353,7 @@ private: // methods
 	 * and call overloaded handle_feature_request() method
 	 */
 	void
-	recv_features_request(cofctl *ctl, cofpacket *pack);
+	recv_features_request(cofctl *ctl, cofmsg *pack);
 
 	// GET-CONFIG request
 	//
@@ -1362,7 +1362,7 @@ private: // methods
 	 *
 	 */
 	void
-	recv_get_config_request(cofctl *ctl, cofpacket *pack);
+	recv_get_config_request(cofctl *ctl, cofmsg *pack);
 
 	// STATS request
 	//
@@ -1371,7 +1371,7 @@ private: // methods
 	 * and call handle_stats_request() method
 	 */
 	void
-	recv_stats_request(cofctl *ctl, cofpacket *pack);
+	recv_stats_request(cofctl *ctl, cofmsg *pack);
 
 	// PACKET-OUT message
 	//
@@ -1380,7 +1380,7 @@ private: // methods
 	 * and call overloaded handle_packet_out() method
 	 */
 	void
-	recv_packet_out(cofctl *ctl, cofpacket *pack);
+	recv_packet_out(cofctl *ctl, cofmsg *pack);
 
 	// PACKET-IN message
 	//
@@ -1389,7 +1389,7 @@ private: // methods
 	 * and call overloaded handle_packet_in() method
 	 */
 	void
-	recv_packet_in(cofdpt *dpt, cofpacket *pack);
+	recv_packet_in(cofdpt *dpt, cofmsg *pack);
 
 	// ERROR message
 	//
@@ -1398,7 +1398,7 @@ private: // methods
 	 * and call overloaded handle_error() method
 	 */
 	void
-	recv_error(cofdpt *dpt, cofpacket *pack);
+	recv_error(cofdpt *dpt, cofmsg *pack);
 
 	// FLOW-MOD message
 	//
@@ -1407,7 +1407,7 @@ private: // methods
 	 * and call overloaded handle_flow_mod() method
 	 */
 	void
-	recv_flow_mod(cofctl *ctl, cofpacket *pack);
+	recv_flow_mod(cofctl *ctl, cofmsg *pack);
 
 	// GROUP-MOD message
 	//
@@ -1416,7 +1416,7 @@ private: // methods
 	 * and call overloaded handle_group_mod() method
 	 */
 	void
-	recv_group_mod(cofctl *ctl, cofpacket *pack);
+	recv_group_mod(cofctl *ctl, cofmsg *pack);
 
 	// TABLE-MOD message
 	//
@@ -1425,7 +1425,7 @@ private: // methods
 	 * and call overloaded handle_table_mod() method
 	 */
 	void
-	recv_table_mod(cofctl *ctl, cofpacket *pack);
+	recv_table_mod(cofctl *ctl, cofmsg *pack);
 
 	// PORT-MOD message
 	//
@@ -1434,7 +1434,7 @@ private: // methods
 	 * and call overloaded handle_port_mod() method
 	 */
 	void
-	recv_port_mod(cofctl *ctl, cofpacket *pack);
+	recv_port_mod(cofctl *ctl, cofmsg *pack);
 
 	// FLOW-REMOVED message
 	//
@@ -1443,7 +1443,7 @@ private: // methods
 	 * and call overloaded handle_flow_removed() method
 	 */
 	void
-	recv_flow_removed(cofdpt *dpt, cofpacket *pack);
+	recv_flow_removed(cofdpt *dpt, cofmsg *pack);
 
 	// PORT-STATUS message
 	//
@@ -1452,7 +1452,7 @@ private: // methods
 	 * and call overloaded handle_port_status() method
 	 */
 	void
-	recv_port_status(cofdpt *dpt, cofpacket *pack);
+	recv_port_status(cofdpt *dpt, cofmsg *pack);
 
 	// SET-CONFIG message
 	//
@@ -1461,7 +1461,7 @@ private: // methods
 	 * and call overloaded handle_set_config() method
 	 */
 	void
-	recv_set_config(cofctl *ctl, cofpacket *pack);
+	recv_set_config(cofctl *ctl, cofmsg *pack);
 
 	// BARRIER request
 	//
@@ -1470,7 +1470,7 @@ private: // methods
 	 * and call overloaded handle_barrier_request() method
 	 */
 	void
-	recv_barrier_request(cofctl *ctl, cofpacket *pack);
+	recv_barrier_request(cofctl *ctl, cofmsg *pack);
 
 	// EXPERIMENTER message
 	//
@@ -1478,12 +1478,12 @@ private: // methods
 	/** receive experimenter message
 	 */
 	void
-	recv_experimenter_message(cofctl *ctl, cofpacket *pack);
+	recv_experimenter_message(cofctl *ctl, cofmsg *pack);
 
 	/** receive experimenter message
 	 */
 	void
-	recv_experimenter_message(cofdpt *dpt, cofpacket *pack);
+	recv_experimenter_message(cofdpt *dpt, cofmsg *pack);
 
 	// ROLE-REQUEST message
 	//
@@ -1492,7 +1492,7 @@ private: // methods
 	 * and call overloaded handle_role_request() method
 	 */
 	void
-	recv_role_request(cofctl *ctl, cofpacket *pack);
+	recv_role_request(cofctl *ctl, cofmsg *pack);
 
 	// ROLE-REPLY message
 	//
@@ -1501,7 +1501,7 @@ private: // methods
 	 * and call overloaded handle_role_reply() method
 	 */
 	void
-	recv_role_reply(cofdpt *dpt, cofpacket *pack);
+	recv_role_reply(cofdpt *dpt, cofmsg *pack);
 
 	// QUEUE-GET-CONFIG-REQUEST message
 	//
@@ -1510,7 +1510,7 @@ private: // methods
 	 * and call overloaded handle_queue_get_config_request() method
 	 */
 	void
-	recv_queue_get_config_request(cofctl *ctl, cofpacket *pack);
+	recv_queue_get_config_request(cofctl *ctl, cofmsg *pack);
 
 	// QUEUE-GET-CONFIG-REPLY message
 	//
@@ -1519,7 +1519,7 @@ private: // methods
 	 * and call overloaded handle_queue_get_config_reply() method
 	 */
 	void
-	recv_queue_get_config_reply(cofdpt *dpt, cofpacket *pack);
+	recv_queue_get_config_reply(cofdpt *dpt, cofmsg *pack);
 
 
 public:
@@ -1684,7 +1684,7 @@ protected:
 	 */
 	bool
 	ta_validate(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 	/** returns true if a xid is used by a pending

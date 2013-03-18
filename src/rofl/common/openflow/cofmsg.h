@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COFPACKET_H
-#define COFPACKET_H
+#ifndef COFMSG_H
+#define COFMSG_H 1
 
 #include <set>
 #include <string>
@@ -58,7 +58,6 @@ class eOFpacketNoData : public eOFpacketBase {};
 class eOFpacketHeaderInval : public eOFpacketBase {}; // invalid header
 
 
-
 /** cofpacket
  * - contains a packet from OpenFlow protocol
  * - provides container for validating an OpenFlow packet
@@ -67,12 +66,227 @@ class eOFpacketHeaderInval : public eOFpacketBase {}; // invalid header
  * - stores pointer to cofbase entity the packet was received from
  *   (either cfwdelem or cofrpc)
  */
-class cofpacket :
+class cofmsg :
 	public csyslog
 {
 public: // static
 
-	static std::set<cofpacket*> cofpacket_list; //< list of allocated cofpacket instances
+	static std::set<cofmsg*> cofpacket_list; //< list of allocated cofpacket instances
+
+private: // static
+
+	static std::string pinfo; //< information string for cofpacket::cofpacket_list
+
+public:
+
+	/** return information string about allocated cofpacket instances
+	 */
+	static
+	const char*
+	packet_info();
+
+	typedef struct {
+		ofp_type type;
+		char desc[64];
+	} typedesc_t;
+
+
+private: // data structures
+
+	std::string 	 	 info;				// info string for method c_str()
+
+protected: // data structures
+
+	struct ofp_header	*ofh_header;		// generic OpenFlow header
+	cmemory 			*memarea;			// OpenFlow packet received from socket
+
+public:
+
+	/** constructor
+	 *
+	 */
+	cofmsg(
+			size_t size = sizeof(struct ofp_header));
+
+
+	/**
+	 *
+	 */
+	cofmsg(
+			cmemory *memarea);
+
+
+	/** copy constructor
+	 *
+	 */
+	cofmsg(
+			cofmsg const& p);
+
+
+	/** destructor
+	 *
+	 */
+	virtual
+	~cofmsg();
+
+
+	/** assignment operator
+	 *
+	 */
+	cofmsg&
+	operator=(
+			cofmsg const& p);
+
+
+	/** dump packet content
+	 *
+	 */
+	virtual const char*
+	c_str();
+
+
+	/** reset packet content
+	 *
+	 */
+	virtual void
+	reset();
+
+
+	/** returns length of packet in packed state
+	 *
+	 */
+	virtual size_t
+	length() = 0;
+
+
+	/** pack OFpacket content to specified buffer
+	 *
+	 */
+	virtual void
+	pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0) = 0;
+
+
+	/** unpack OFpacket content from specified buffer
+	 *
+	 */
+	virtual void
+	unpack(uint8_t *buf, size_t buflen) = 0;
+
+
+	/** parse packet and validate it
+	 */
+	virtual bool
+	is_valid() = 0;
+
+
+	/**
+	 */
+	virtual void
+	resize(size_t len);
+
+
+	/** start of frame
+	 *
+	 */
+	uint8_t*
+	soframe() const { return memarea->somem(); };
+
+
+	/** frame length
+	 *
+	 */
+	size_t
+	framelen() const { return memarea->memlen(); };
+
+
+public:
+
+
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_version(uint8_t versiob);
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_length() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_length(uint16_t len);
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_type() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_type(uint8_t type);
+
+
+	/** returns xid field in host byte order from header
+	 *
+	 */
+	uint32_t
+	get_xid() const;
+
+
+	/** sets xid field in header
+	 *
+	 */
+	void
+	set_xid(uint32_t xid);
+
+
+private: // methods
+
+	/** return description for ofp_type
+	 */
+	static const char*
+	type2desc(ofp_type type);
+
+};
+
+
+
+
+#if 0
+/** cofpacket
+ * - contains a packet from OpenFlow protocol
+ * - provides container for validating an OpenFlow packet
+ * - stores during validation actions, matches, instructions, buckets, ofports
+ *   in appropriate containers
+ * - stores pointer to cofbase entity the packet was received from
+ *   (either cfwdelem or cofrpc)
+ */
+class cofmsg :
+	public csyslog
+{
+public: // static
+
+	static std::set<cofmsg*> cofpacket_list; //< list of allocated cofpacket instances
 
 private: // static
 
@@ -262,7 +476,7 @@ public:
 	/** constructor
 	 *
 	 */
-	cofpacket(
+	cofmsg(
 			size_t size = sizeof(struct ofp_header),
 			size_t used = 0);
 
@@ -270,23 +484,23 @@ public:
 	/** copy constructor
 	 *
 	 */
-	cofpacket(
-			cofpacket const& p);
+	cofmsg(
+			cofmsg const& p);
 
 
 	/** destructor
 	 *
 	 */
 	virtual
-	~cofpacket();
+	~cofmsg();
 
 
 	/** assignment operator
 	 *
 	 */
-	cofpacket&
+	cofmsg&
 	operator=(
-			cofpacket const& p);
+			cofmsg const& p);
 
 
 	/** dump packet content
@@ -697,82 +911,26 @@ private: // methods
 	type2desc(ofp_type type);
 
 };
+#endif
 
 
-/**
- *
- */
-class cofpacket_hello :
-	public cofpacket
-{
-public:
-		/** constructor
-		 *
-		 */
-		cofpacket_hello(uint8_t of_version = 0, uint32_t xid = 0, uint8_t* data = 0, size_t datalen = 0) :
-			cofpacket(	sizeof(struct ofp_header) + datalen,
-						sizeof(struct ofp_header) + datalen)
-		{
-			body.assign(data, datalen);
 
-			ofh_header->version 	= of_version; // OFP12_VERSION, OFP13_VERSION, ...
-			ofh_header->length		= htobe16(sizeof(struct ofp_header) + sizeof(uint32_t));
-			ofh_header->type 		= OFPT_HELLO;
-			ofh_header->xid			= htobe32(xid);
-		};
-		cofpacket_hello(cofpacket *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
-		{
-			cofpacket::operator= (*pack);
-		};
-		/** destructor
-		 *
-		 */
-		virtual
-		~cofpacket_hello() {};
-		/** length
-		 *
-		 */
-		virtual size_t
-		length()
-		{
-			return (sizeof(struct ofp_header) + body.memlen());
-		};
-		/**
-		 *
-		 */
-		virtual void
-		pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0) throw (eOFpacketInval)
-		{
-			ofh_header->length = htobe16(length());
-
-			if (((uint8_t*)0 == buf) || (buflen < length()))
-			{
-				return;
-			}
-
-			memcpy(buf, memarea.somem(), sizeof(struct ofp_header));
-
-			memcpy(buf + sizeof(struct ofp_header), body.somem(), body.memlen());
-		};
-};
-
-
+#if 0
 /**
  *
  */
 class cofpacket_echo_request :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
 		 *
 		 */
 		cofpacket_echo_request(uint8_t of_version = 0, uint32_t xid = 0, uint8_t *data = (uint8_t*)0, size_t datalen = 0) :
-			cofpacket(	sizeof(struct ofp_header) + datalen,
+			cofmsg(	sizeof(struct ofp_header) + datalen,
 						sizeof(struct ofp_header) + datalen)
 		{
-			cofpacket::body.assign(data, datalen);
+			cofmsg::body.assign(data, datalen);
 
 			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_header) + datalen);
@@ -782,10 +940,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_echo_request(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_echo_request(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -827,17 +985,17 @@ public:
  *
  */
 class cofpacket_echo_reply :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
 		 *
 		 */
 		cofpacket_echo_reply(uint8_t of_version = 0, uint32_t xid = 0, uint8_t *data = (uint8_t*)0, size_t datalen = 0) :
-			cofpacket(	sizeof(struct ofp_header) + datalen,
+			cofmsg(	sizeof(struct ofp_header) + datalen,
 						sizeof(struct ofp_header) + datalen)
 		{
-			cofpacket::body.assign(data, datalen);
+			cofmsg::body.assign(data, datalen);
 
 			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_header) + datalen);
@@ -847,10 +1005,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_echo_reply(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_echo_reply(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -892,14 +1050,14 @@ public:
  *
  */
 class cofpacket_features_request :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
 		 *
 		 */
 		cofpacket_features_request(uint8_t of_version = 0, uint32_t xid = 0) :
-			cofpacket(	sizeof(struct ofp_header),
+			cofmsg(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
 			ofh_header->version 	= of_version;
@@ -910,10 +1068,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_features_request(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_features_request(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -927,7 +1085,7 @@ public:
  *
  */
 class cofpacket_features_reply :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -942,7 +1100,7 @@ public:
 				uint32_t capabilities = 0,
 				uint8_t  of13_auxiliary_id = 0,  /*OF1.3*/
 				uint32_t of10_actions_bitmap = 0 /*OF1.0*/) :
-			cofpacket(	sizeof(struct ofp_header),
+			cofmsg(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
 			ofh_header->version 	= of_version;
@@ -953,7 +1111,7 @@ public:
 			switch (ofh_header->version) {
 			case OFP10_VERSION: {
 				ofh_header->length		= htobe16(sizeof(struct ofp10_switch_features));
-				cofpacket::resize(sizeof(struct ofp10_switch_features));
+				cofmsg::resize(sizeof(struct ofp10_switch_features));
 
 				of10h_switch_features->datapath_id 		= htobe64(dpid);
 				of10h_switch_features->n_buffers 		= htobe32(n_buffers);
@@ -963,7 +1121,7 @@ public:
 			} break;
 			case OFP12_VERSION: {
 				ofh_header->length		= htobe16(sizeof(struct ofp12_switch_features));
-				cofpacket::resize(sizeof(struct ofp12_switch_features));
+				cofmsg::resize(sizeof(struct ofp12_switch_features));
 
 				of12h_switch_features->datapath_id 		= htobe64(dpid);
 				of12h_switch_features->n_buffers 		= htobe32(n_buffers);
@@ -972,7 +1130,7 @@ public:
 			} break;
 			case OFP13_VERSION: {
 				ofh_header->length		= htobe16(sizeof(struct ofp13_switch_features));
-				cofpacket::resize(sizeof(struct ofp13_switch_features));
+				cofmsg::resize(sizeof(struct ofp13_switch_features));
 
 				of13h_switch_features->datapath_id 		= htobe64(dpid);
 				of13h_switch_features->n_buffers 		= htobe32(n_buffers);
@@ -987,10 +1145,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_features_reply(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_features_reply(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -1174,14 +1332,14 @@ public:
  *
  */
 class cofpacket_get_config_request :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
 		 *
 		 */
 		cofpacket_get_config_request(uint8_t of_version = 0, uint32_t xid = 0) :
-			cofpacket(	sizeof(struct ofp_header),
+			cofmsg(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
 			ofh_header->version 	= of_version;
@@ -1192,10 +1350,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_get_config_request(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_get_config_request(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -1209,7 +1367,7 @@ public:
  *
  */
 class cofpacket_get_config_reply :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -1220,7 +1378,7 @@ public:
 				uint32_t xid = 0,
 				uint16_t flags = 0,
 				uint16_t miss_send_len = 0) :
-			cofpacket(	sizeof(struct ofp10_switch_config),
+			cofmsg(	sizeof(struct ofp10_switch_config),
 						sizeof(struct ofp10_switch_config))
 		{
 			ofh_header->version 	= of_version;
@@ -1242,10 +1400,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_get_config_reply(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_get_config_reply(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -1299,7 +1457,7 @@ public:
  *
  */
 class cofpacket_set_config :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -1310,7 +1468,7 @@ public:
 				uint32_t xid = 0,
 				uint16_t flags = 0,
 				uint16_t miss_send_len = 0) :
-			cofpacket(	sizeof(struct ofp10_switch_config),
+			cofmsg(	sizeof(struct ofp10_switch_config),
 						sizeof(struct ofp10_switch_config))
 		{
 			ofh_header->version 	= of_version;
@@ -1332,10 +1490,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_set_config(cofpacket *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_set_config(cofmsg *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -1397,14 +1555,14 @@ public:
  *
  */
 class cofpacket_barrier_request :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
 		 *
 		 */
 		cofpacket_barrier_request(uint8_t of_version = 0, uint32_t xid = 0) :
-			cofpacket(	sizeof(struct ofp_header),
+			cofmsg(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
 			ofh_header->version 	= of_version;
@@ -1415,10 +1573,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_barrier_request(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_barrier_request(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -1432,14 +1590,14 @@ public:
  *
  */
 class cofpacket_barrier_reply :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
 		 *
 		 */
 		cofpacket_barrier_reply(uint8_t of_version = 0, uint32_t xid = 0) :
-			cofpacket(	sizeof(struct ofp_header),
+			cofmsg(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
 			ofh_header->version 	= of_version;
@@ -1450,10 +1608,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_barrier_reply(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_barrier_reply(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -1467,7 +1625,7 @@ public:
  *
  */
 class cofpacket_error :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -1480,10 +1638,10 @@ public:
 				uint16_t code = 0,
 				uint8_t *data = (uint8_t*)0,
 				size_t datalen = 0) :
-			cofpacket(	sizeof(struct ofp_error_msg) + datalen,
+			cofmsg(	sizeof(struct ofp_error_msg) + datalen,
 						sizeof(struct ofp_error_msg) + datalen)
 		{
-			cofpacket::body.assign(data, datalen);
+			cofmsg::body.assign(data, datalen);
 
 			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_header) + body.memlen());
@@ -1496,10 +1654,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_error(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_error(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -1570,7 +1728,7 @@ public:
  *
  */
 class cofpacket_flow_mod :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -1590,7 +1748,7 @@ public:
 				uint32_t out_port = 0,
 				uint32_t out_group = 0,
 				uint16_t flags = 0) :
-			cofpacket(	sizeof(struct ofp_header),
+			cofmsg(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
 			ofh_header->version 	= of_version;
@@ -1600,7 +1758,7 @@ public:
 
 			switch (of_version) {
 			case OFP10_VERSION: {
-				cofpacket::resize(OFP10_FLOW_MOD_STATIC_HDR_LEN);
+				cofmsg::resize(OFP10_FLOW_MOD_STATIC_HDR_LEN);
 
 				of10h_flow_mod->cookie			= htobe64(cookie);
 				of10h_flow_mod->command			= htobe16((uint16_t)command);
@@ -1613,7 +1771,7 @@ public:
 			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				cofpacket::resize(OFP12_FLOW_MOD_STATIC_HDR_LEN);
+				cofmsg::resize(OFP12_FLOW_MOD_STATIC_HDR_LEN);
 
 				of12h_flow_mod->cookie			= htobe64(cookie);
 				of12h_flow_mod->cookie_mask		= htobe64(cookie_mask);
@@ -1634,9 +1792,9 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_flow_mod(cofpacket const *pack)
+		cofpacket_flow_mod(cofmsg const *pack)
 		{
-			cofpacket::operator= (*pack);
+			cofmsg::operator= (*pack);
 		};
 		/** destructor
 		 *
@@ -1911,7 +2069,7 @@ public:
  *
  */
 class cofpacket_flow_removed :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -1930,7 +2088,7 @@ public:
 				uint16_t hard_timeout = 0,
 				uint64_t packet_count = 0,
 				uint64_t byte_count = 0) :
-			cofpacket(	sizeof(struct ofp_header),
+			cofmsg(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
 			ofh_header->version 	= of_version;
@@ -1940,7 +2098,7 @@ public:
 
 			switch (of_version) {
 			case OFP10_VERSION: {
-				cofpacket::resize(OFP10_FLOW_REMOVED_STATIC_HDR_LEN);
+				cofmsg::resize(OFP10_FLOW_REMOVED_STATIC_HDR_LEN);
 
 				of10h_flow_rmvd->cookie 		= htobe64(cookie);
 				of10h_flow_rmvd->priority		= htobe16(priority);
@@ -1953,7 +2111,7 @@ public:
 			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				cofpacket::resize(OFP12_FLOW_REMOVED_STATIC_HDR_LEN);
+				cofmsg::resize(OFP12_FLOW_REMOVED_STATIC_HDR_LEN);
 
 				of12h_flow_rmvd->cookie			= htobe64(cookie);
 				of12h_flow_rmvd->priority		= htobe16(priority);
@@ -1973,10 +2131,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_flow_removed(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_flow_removed(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator=(*pack);
+			cofmsg::operator=(*pack);
 		};
 		/** destructor
 		 *
@@ -2225,7 +2383,7 @@ public:
  *
  */
 class cofpacket_packet_in :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -2242,11 +2400,11 @@ public:
 				uint32_t in_port = 0, /*OF1.0*/
 				uint8_t *data = (uint8_t*)0,
 				size_t datalen = 0) :
-			cofpacket(	sizeof(struct ofp_header),
+			cofmsg(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
 			//cofpacket::body.assign(data, datalen);
-			cofpacket::packet.unpack(OFPP_CONTROLLER, data, datalen);
+			cofmsg::packet.unpack(OFPP_CONTROLLER, data, datalen);
 
 			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(OFP12_PACKET_IN_STATIC_HDR_LEN + 2 + packet.framelen());
@@ -2255,8 +2413,8 @@ public:
 
 			switch (of_version) {
 			case OFP10_VERSION: {
-				cofpacket::resize(OFP10_PACKET_IN_STATIC_HDR_LEN);
-				cofpacket::stored = OFP10_PACKET_IN_STATIC_HDR_LEN;
+				cofmsg::resize(OFP10_PACKET_IN_STATIC_HDR_LEN);
+				cofmsg::stored = OFP10_PACKET_IN_STATIC_HDR_LEN;
 
 				of10h_packet_in->buffer_id		= htobe32(buffer_id);
 				of10h_packet_in->total_len		= htobe16(total_len);
@@ -2264,8 +2422,8 @@ public:
 				of10h_packet_in->reason			= reason;
 			} break;
 			case OFP12_VERSION: {
-				cofpacket::resize(OFP12_PACKET_IN_STATIC_HDR_LEN);
-				cofpacket::stored = OFP12_PACKET_IN_STATIC_HDR_LEN;
+				cofmsg::resize(OFP12_PACKET_IN_STATIC_HDR_LEN);
+				cofmsg::stored = OFP12_PACKET_IN_STATIC_HDR_LEN;
 
 				of12h_packet_in->buffer_id		= htobe32(buffer_id);
 				of12h_packet_in->total_len		= htobe16(total_len);
@@ -2273,8 +2431,8 @@ public:
 				of12h_packet_in->table_id		= table_id;
 			} break;
 			case OFP13_VERSION: {
-				cofpacket::resize(OFP13_PACKET_IN_STATIC_HDR_LEN);
-				cofpacket::stored = OFP13_PACKET_IN_STATIC_HDR_LEN;
+				cofmsg::resize(OFP13_PACKET_IN_STATIC_HDR_LEN);
+				cofmsg::stored = OFP13_PACKET_IN_STATIC_HDR_LEN;
 
 				of13h_packet_in->buffer_id		= htobe32(buffer_id);
 				of13h_packet_in->total_len		= htobe16(total_len);
@@ -2289,10 +2447,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_packet_in(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_packet_in(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -2473,7 +2631,7 @@ public:
  *
  */
 class cofpacket_packet_out :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -2486,10 +2644,10 @@ public:
 				uint32_t in_port = 0,
 				uint8_t *data = (uint8_t*)0,
 				size_t datalen = 0) :
-			cofpacket(	sizeof(struct ofp_header),
+			cofmsg(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
-			cofpacket::packet.unpack(in_port, data, datalen);
+			cofmsg::packet.unpack(in_port, data, datalen);
 
 			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(0);
@@ -2498,7 +2656,7 @@ public:
 
 			switch (of_version) {
 			case OFP10_VERSION: {
-				cofpacket::resize(sizeof(struct ofp10_packet_out));
+				cofmsg::resize(sizeof(struct ofp10_packet_out));
 
 				of10h_packet_out->buffer_id		= htobe32(buffer_id);
 				of10h_packet_out->in_port		= htobe16((uint16_t)(in_port & 0x0000ffff));
@@ -2507,7 +2665,7 @@ public:
 			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				cofpacket::resize(sizeof(struct ofp12_packet_out));
+				cofmsg::resize(sizeof(struct ofp12_packet_out));
 
 				of12h_packet_out->buffer_id		= htobe32(buffer_id);
 				of12h_packet_out->in_port		= htobe32(in_port);
@@ -2521,10 +2679,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_packet_out(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_packet_out(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -2659,7 +2817,7 @@ public:
  *
  */
 class cofpacket_port_status :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -2670,7 +2828,7 @@ public:
 				uint32_t xid = 0,
 				uint8_t reason = 0,
 				cofport const& port = cofport()) :
-			cofpacket(	sizeof(struct ofp_header),
+			cofmsg(	sizeof(struct ofp_header),
 						sizeof(struct ofp_header))
 		{
 			ofh_header->version 	= of_version;
@@ -2684,7 +2842,7 @@ public:
 
 			switch (of_version) {
 			case OFP10_VERSION: {
-				cofpacket::resize(sizeof(struct ofp10_port_status));
+				cofmsg::resize(sizeof(struct ofp10_port_status));
 
 				of10h_port_status->reason = reason;
 				port.pack(&(of10h_port_status->desc), sizeof(struct ofp10_port));
@@ -2692,7 +2850,7 @@ public:
 			} break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: {
-				cofpacket::resize(sizeof(struct ofp12_port_status));
+				cofmsg::resize(sizeof(struct ofp12_port_status));
 
 				of12h_port_status->reason	= reason;
 				port.pack(&(of12h_port_status->desc), sizeof(struct ofp12_port));
@@ -2705,10 +2863,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_port_status(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_port_status(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -2755,7 +2913,7 @@ public:
  *
  */
 class cofpacket_port_mod :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -2772,7 +2930,7 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_port_mod(cofpacket const *pack);
+		cofpacket_port_mod(cofmsg const *pack);
 		/** destructor
 		 *
 		 */
@@ -2812,7 +2970,7 @@ public:
  *
  */
 class cofpacket_group_mod :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -2827,7 +2985,7 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_group_mod(cofpacket const *pack);
+		cofpacket_group_mod(cofmsg const *pack);
 		/** destructor
 		 *
 		 */
@@ -2866,7 +3024,7 @@ public:
  *
  */
 class cofpacket_table_mod :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -2880,7 +3038,7 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_table_mod(cofpacket const *pack);
+		cofpacket_table_mod(cofmsg const *pack);
 		/** destructor
 		 *
 		 */
@@ -2909,7 +3067,7 @@ public:
  *
  */
 class cofpacket_stats_request :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -2925,7 +3083,7 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_stats_request(cofpacket const *pack);
+		cofpacket_stats_request(cofmsg const *pack);
 		/** destructor
 		 *
 		 */
@@ -2959,7 +3117,7 @@ public:
  *
  */
 class cofpacket_stats_reply :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -2975,7 +3133,7 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_stats_reply(cofpacket const *pack);
+		cofpacket_stats_reply(cofmsg const *pack);
 		/** destructor
 		 *
 		 */
@@ -3104,7 +3262,7 @@ public:
 			switch (ofh_header->version) {
 			case OFP12_VERSION: {
 				size_t flow_stats_body_len = 32;
-				cofpacket::body.resize(flow_stats_body_len);
+				cofmsg::body.resize(flow_stats_body_len);
 				struct ofp12_flow_stats_request* flow_stats = (struct ofp12_flow_stats_request*)(body.somem());
 
 				flow_stats->table_id		= table_id;
@@ -3126,9 +3284,9 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_flow_stats_request(cofpacket const *pack)
+		cofpacket_flow_stats_request(cofmsg const *pack)
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -3194,7 +3352,7 @@ public:
 			switch (get_version()) {
 			case OFP10_VERSION: {
 				cofpacket_stats_reply::body.resize(sizeof(struct ofp10_desc_stats));
-				struct ofp10_desc_stats *desc_stats = (struct ofp10_desc_stats*)(cofpacket::body.somem());
+				struct ofp10_desc_stats *desc_stats = (struct ofp10_desc_stats*)(cofmsg::body.somem());
 
 				snprintf(desc_stats->mfr_desc, DESC_STR_LEN, mfr_desc.c_str(), mfr_desc.length());
 				snprintf(desc_stats->hw_desc, DESC_STR_LEN, hw_desc.c_str(), hw_desc.length());
@@ -3204,7 +3362,7 @@ public:
 			} break;
 			case OFP12_VERSION: {
 				cofpacket_stats_reply::body.resize(sizeof(struct ofp12_desc_stats));
-				struct ofp12_desc_stats *desc_stats = (struct ofp12_desc_stats*)(cofpacket::body.somem());
+				struct ofp12_desc_stats *desc_stats = (struct ofp12_desc_stats*)(cofmsg::body.somem());
 
 				snprintf(desc_stats->mfr_desc, DESC_STR_LEN, mfr_desc.c_str(), mfr_desc.length());
 				snprintf(desc_stats->hw_desc, DESC_STR_LEN, hw_desc.c_str(), hw_desc.length());
@@ -3259,7 +3417,7 @@ public:
  *
  */
 class cofpacket_queue_get_config_request :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -3272,7 +3430,7 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_queue_get_config_request(cofpacket const *pack);
+		cofpacket_queue_get_config_request(cofmsg const *pack);
 		/** destructor
 		 *
 		 */
@@ -3300,7 +3458,7 @@ public:
  *
  */
 class cofpacket_queue_get_config_reply :
-	public cofpacket
+	public cofmsg
 {
 		/*
 		 * Note: we have no queue support yet. Thus, QUEUE-GET-CONFIG-REPLY contains always
@@ -3317,7 +3475,7 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_queue_get_config_reply(cofpacket const *pack);
+		cofpacket_queue_get_config_reply(cofmsg const *pack);
 		/** destructor
 		 *
 		 */
@@ -3347,7 +3505,7 @@ public:
  *
  */
 class cofpacket_experimenter :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -3360,10 +3518,10 @@ public:
 				uint32_t exp_type = 0,
 				uint8_t *data = (uint8_t*)0,
 				size_t datalen = 0) :
-			cofpacket(	sizeof(struct ofp_experimenter_header) + datalen,
+			cofmsg(	sizeof(struct ofp_experimenter_header) + datalen,
 						sizeof(struct ofp_experimenter_header) + datalen)
 		{
-			cofpacket::body.assign(data, datalen);
+			cofmsg::body.assign(data, datalen);
 
 			ofh_header->version 	= of_version;
 			ofh_header->length		= htobe16(sizeof(struct ofp_experimenter_header) + body.memlen());
@@ -3377,10 +3535,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_experimenter(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_experimenter(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -3453,7 +3611,7 @@ public:
  *
  */
 class cofpacket_role_request :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -3464,7 +3622,7 @@ public:
 				uint32_t xid = 0,
 				uint32_t role = 0,
 				uint64_t generation_id = 0) :
-			cofpacket(	sizeof(struct ofp_role_request),
+			cofmsg(	sizeof(struct ofp_role_request),
 						sizeof(struct ofp_role_request))
 		{
 			ofh_header->version 	= of_version;
@@ -3485,10 +3643,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_role_request(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_role_request(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -3552,7 +3710,7 @@ public:
  *
  */
 class cofpacket_role_reply :
-	public cofpacket
+	public cofmsg
 {
 public:
 		/** constructor
@@ -3563,7 +3721,7 @@ public:
 				uint32_t xid = 0,
 				uint32_t role = 0,
 				uint64_t generation_id = 0) :
-			cofpacket(	sizeof(struct ofp_role_request),
+			cofmsg(	sizeof(struct ofp_role_request),
 						sizeof(struct ofp_role_request))
 		{
 			ofh_header->version 	= version;
@@ -3584,10 +3742,10 @@ public:
 		/** constructor
 		 *
 		 */
-		cofpacket_role_reply(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+		cofpacket_role_reply(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 		{
-			cofpacket::operator =(*pack);
+			cofmsg::operator =(*pack);
 		};
 		/** destructor
 		 *
@@ -3645,7 +3803,7 @@ public:
 			return 0;
 		};
 };
-
+#endif
 }; // end of namespace
 
 #endif

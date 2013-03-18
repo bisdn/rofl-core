@@ -69,7 +69,7 @@ private: // data structures
 
 	cxidstore						xidstore;
 	std::string 					info;					// info string
-	cofpacket						*fragment;				// fragment of OF packet rcvd on fragment during last call(s)
+	cofmsg						*fragment;				// fragment of OF packet rcvd on fragment during last call(s)
 	int 							reconnect_in_seconds; 	// reconnect in x seconds
 	int 							reconnect_counter;
 	int 							rpc_echo_interval;		// default ECHO time interval
@@ -159,7 +159,7 @@ public: // methods
 	 */
 	void
 	send_message(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 protected:
@@ -176,7 +176,7 @@ protected:
 	 *
 	 */
 	void
-	echo_request_sent(cofpacket *pack);
+	echo_request_sent(cofmsg *pack);
 
 
 	/**
@@ -207,7 +207,7 @@ protected:
 	 *
 	 */
 	void
-	features_reply_sent(cofpacket *pack);
+	features_reply_sent(cofmsg *pack);
 
 	/**
 	 *
@@ -219,7 +219,7 @@ protected:
 	 *
 	 */
 	void
-	get_config_reply_sent(cofpacket *pack);
+	get_config_reply_sent(cofmsg *pack);
 
 	/**
 	 *
@@ -262,7 +262,7 @@ protected:
 	 *
 	 */
 	void
-	stats_reply_sent(cofpacket *pack);
+	stats_reply_sent(cofmsg *pack);
 
 	/** handle incoming ROLE-REQUEST messages
 	 */
@@ -273,7 +273,7 @@ protected:
 	 *
 	 */
 	void
-	role_reply_sent(cofpacket *pack);
+	role_reply_sent(cofmsg *pack);
 
 	/** handle incoming BARRIER request
 	 */
@@ -284,7 +284,7 @@ protected:
 	 *
 	 */
 	void
-	barrier_reply_sent(cofpacket *pack);
+	barrier_reply_sent(cofmsg *pack);
 
 	/**
 	 *
@@ -296,7 +296,7 @@ protected:
 	 *
 	 */
 	void
-	queue_get_config_reply_sent(cofpacket *pack);
+	queue_get_config_reply_sent(cofmsg *pack);
 
 protected: // methods
 
@@ -305,7 +305,7 @@ protected: // methods
 	 *
 	 */
 	void
-	send_error_is_slave(cofpacket *pack);
+	send_error_is_slave(cofmsg *pack);
 
 
 protected:
@@ -384,7 +384,7 @@ private:
 	 */
 	void
 	handle_message(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 	/**
@@ -400,7 +400,7 @@ private:
 	 */
 	void
 	send_message_via_socket(
-			cofpacket *pack);
+			cofmsg *pack);
 };
 
 }; // end of namespace

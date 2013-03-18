@@ -151,7 +151,7 @@ private:
 		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store
 
 		std::string 					 info;			// info string
-		cofpacket						*fragment;		// fragment of OF packet rcvd on fragment during last call(s)
+		cofmsg						*fragment;		// fragment of OF packet rcvd on fragment during last call(s)
 		int 							 reconnect_in_seconds; 	// reconnect in x seconds
 		int 							 reconnect_counter;
 		int 							 rpc_echo_interval;		// default ECHO time interval
@@ -262,7 +262,7 @@ public:
 	 */
 	void
 	send_message(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 
@@ -412,7 +412,7 @@ protected:
 	 *
 	 */
 	void
-	echo_request_sent(cofpacket *pack);
+	echo_request_sent(cofmsg *pack);
 
 
 	/**
@@ -443,7 +443,7 @@ protected:
 	 */
 	void
 	features_request_sent(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 	/**
@@ -469,7 +469,7 @@ protected:
 	 */
 	void
 	get_config_request_sent(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 	/**
@@ -495,7 +495,7 @@ protected:
 	 */
 	void
 	stats_request_sent(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 	/**
@@ -522,7 +522,7 @@ protected:
 	 */
 	void
 	barrier_request_sent(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 	/**
@@ -551,7 +551,7 @@ protected:
 	 */
 	void
 	flow_mod_sent(
-			cofpacket *pack) throw (eOFdpathNotFound);
+			cofmsg *pack) throw (eOFdpathNotFound);
 
 
 	/**
@@ -577,7 +577,7 @@ protected:
 	 */
 	void
 	group_mod_sent(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 	/**
@@ -590,7 +590,7 @@ protected:
 	 */
 	void
 	table_mod_sent(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 	/**
@@ -603,7 +603,7 @@ protected:
 	 */
 	void
 	port_mod_sent(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 	/** handle PACKET-IN message
@@ -626,7 +626,7 @@ protected:
 	 */
 	void
 	role_request_sent(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 	/** handle ROLE-REPLY messages
@@ -642,7 +642,7 @@ protected:
 	 */
 	void
 	queue_get_config_request_sent(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 	/**
@@ -694,7 +694,7 @@ private:
 	 */
 	void
 	handle_message(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 	/**
@@ -710,7 +710,7 @@ private:
 	 */
 	void
 	send_message_via_socket(
-			cofpacket *pack);
+			cofmsg *pack);
 };
 
 }; // end of namespace

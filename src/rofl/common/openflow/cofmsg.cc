@@ -2,25 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "cofpacket.h"
+#include "cofmsg.h"
 
 using namespace rofl;
 
-/*static*/std::set<cofpacket*> cofpacket::cofpacket_list;
-/*static*/std::string cofpacket::pinfo;
+/*static*/std::set<cofmsg*> cofmsg::cofpacket_list;
+/*static*/std::string cofmsg::pinfo;
 
 /*static*/const char*
-cofpacket::packet_info()
+cofmsg::packet_info()
 {
 	cvastring vas;
-	pinfo.assign(vas("cofpackets allocated: %d\n", cofpacket::cofpacket_list.size()));
+	pinfo.assign(vas("cofpackets allocated: %d\n", cofmsg::cofpacket_list.size()));
 
 	std::map<uint8_t, unsigned int> counter;
-	for (std::set<cofpacket*>::iterator
-			it = cofpacket::cofpacket_list.begin();
-				it != cofpacket::cofpacket_list.end(); ++it)
+	for (std::set<cofmsg*>::iterator
+			it = cofmsg::cofpacket_list.begin();
+				it != cofmsg::cofpacket_list.end(); ++it)
 	{
-		cofpacket *pack = (*it);
+		cofmsg *pack = (*it);
 		if (counter.find(pack->ofh_header->type) == counter.end())
 		{
 			counter[pack->ofh_header->type] = 1;
@@ -35,7 +35,7 @@ cofpacket::packet_info()
 			it = counter.begin(); it != counter.end(); ++it)
 	{
 		pinfo.append(vas("  %s => %lu",
-						cofpacket::type2desc((enum ofp_type)it->first),
+						cofmsg::type2desc((enum ofp_type)it->first),
 						it->second));
 	}
 
@@ -44,7 +44,155 @@ cofpacket::packet_info()
 
 
 
-cofpacket::cofpacket(size_t size, size_t used) :
+cofmsg::cofmsg(size_t size) :
+	memarea(new memarea(size)),
+	ofh_header(0)
+{
+	ofh_header = (struct ofp_header*)soframe();
+	ofh_header->length = htobe16(size);
+}
+
+
+
+cofmsg::cofmsg(cmemory *memarea) :
+		memarea(memarea),
+		ofh_header(0)
+{
+	if (0 == memarea) {
+		throw eInval();
+	}
+	ofh_header = (struct ofp_header*)(memarea->somem());
+
+	if (memarea->memlen() < sizeof(struct ofp_header)) {
+		throw eInval();
+	}
+
+	if (get_length() > memarea->memlen()) {
+		throw eInval();
+	}
+}
+
+
+
+cofmsg::cofmsg(cofmsg const& p) :
+		memarea(0),
+		ofh_header(0)
+{
+	*this = p;
+}
+
+
+
+
+cofmsg&
+cofmsg::operator=(const cofmsg &p)
+{
+	if (this == &p)
+		return *this;
+
+	if (memarea)
+		delete memarea;
+
+	memarea 	= new memarea(*(p.memarea));
+	ofh_header 	= (struct ofp_header*)(memarea->somem());
+
+	return *this;
+}
+
+
+
+void
+cofmsg::reset()
+{
+	if (memarea) {
+		memarea->clear();
+	}
+}
+
+
+
+uint32_t
+cofmsg::get_xid() const
+{
+	if (0 == ofh_header)
+		throw eInval();
+	return be32toh(ofh_header->xid);
+}
+
+
+
+void
+cofmsg::set_xid(uint32_t xid)
+{
+	if (0 == ofh_header)
+		throw eInval();
+	ofh_header->xid = htobe32(xid);
+}
+
+
+
+uint8_t
+cofmsg::get_version() const
+{
+	if (0 == ofh_header)
+		throw eInval();
+	return ofh_header->version;
+}
+
+
+
+void
+cofmsg::set_version(uint8_t version)
+{
+	if (0 == ofh_header)
+		throw eInval();
+	ofh_header->version = version;
+}
+
+
+
+uint16_t
+cofmsg::get_length() const
+{
+	if (0 == ofh_header)
+		throw eInval();
+	return be16toh(ofh_header->length);
+}
+
+
+
+void
+cofmsg::set_length(uint16_t len)
+{
+	if (0 == ofh_header)
+		throw eInval();
+	ofh_header->length = htobe16(len);
+}
+
+
+
+uint8_t
+cofmsg::get_type() const
+{
+	if (0 == ofh_header)
+		throw eInval();
+	return ofh_header->type;
+}
+
+
+
+void
+cofmsg::set_type(uint8_t type)
+{
+	if (0 == ofh_header)
+		throw eInval();
+	ofh_header->type = type;
+}
+
+
+
+#if 0
+cofmsg::cofmsg(size_t size, size_t used) :
 	stored(used),
 	memarea(size),
 	entity(0),
@@ -58,14 +206,14 @@ cofpacket::cofpacket(size_t size, size_t used) :
 
 
 
-cofpacket::~cofpacket()
+cofmsg::~cofmsg()
 {
 	//cofpacket::cofpacket_list.erase(this);
 }
 
 
 
-cofpacket::cofpacket(cofpacket const& p) :
+cofmsg::cofmsg(cofmsg const& p) :
 		body(0),
 		packet((size_t)0)
 {
@@ -75,8 +223,8 @@ cofpacket::cofpacket(cofpacket const& p) :
 
 
 
-cofpacket&
-cofpacket::operator=(const cofpacket &p)
+cofmsg&
+cofmsg::operator=(const cofmsg &p)
 {
 	if (this == &p)
 	{
@@ -113,21 +261,21 @@ cofpacket::operator=(const cofpacket &p)
 
 
 uint32_t
-cofpacket::get_xid()
+cofmsg::get_xid()
 {
 	return be32toh(ofh_header->xid);
 }
 
 
 void
-cofpacket::set_xid(uint32_t xid)
+cofmsg::set_xid(uint32_t xid)
 {
 	ofh_header->xid = htobe32(xid);
 }
 
 
 void
-cofpacket::reset()
+cofmsg::reset()
 {
 	memarea.clear();
 	match.clear();
@@ -139,14 +287,14 @@ cofpacket::reset()
 
 
 size_t
-cofpacket::length()
+cofmsg::length()
 {
 	return (sizeof(struct ofp_header));
 }
 
 
 void
-cofpacket::pack(uint8_t *buf, size_t buflen) throw (eOFpacketInval)
+cofmsg::pack(uint8_t *buf, size_t buflen) throw (eOFpacketInval)
 {
 	ofh_header->length = htobe16(length());
 
@@ -160,14 +308,14 @@ cofpacket::pack(uint8_t *buf, size_t buflen) throw (eOFpacketInval)
 
 
 void
-cofpacket::unpack(uint8_t *buf, size_t buflen)
+cofmsg::unpack(uint8_t *buf, size_t buflen)
 {
 	memarea.assign(buf, buflen);
 }
 
 
 bool
-cofpacket::complete() throw (eOFpacketInval)
+cofmsg::complete() throw (eOFpacketInval)
 {
 	if (stored < sizeof(struct ofp_header))
 	{
@@ -193,7 +341,7 @@ cofpacket::complete() throw (eOFpacketInval)
 
 
 bool
-cofpacket::is_too_large()
+cofmsg::is_too_large()
 {
 	if (stored > be16toh(ofh_header->length))
 	{
@@ -204,7 +352,7 @@ cofpacket::is_too_large()
 
 
 size_t
-cofpacket::need_bytes()
+cofmsg::need_bytes()
 {
 	// if we haven't read at least one ofp_header, fill the header
 	if (stored < sizeof(struct ofp_header))
@@ -244,7 +392,7 @@ cofpacket::need_bytes()
 
 
 void
-cofpacket::resize(size_t len)
+cofmsg::resize(size_t len)
 {
 	memarea.resize(len);
 	ofh_header = (struct ofp_header*)soframe();
@@ -252,14 +400,14 @@ cofpacket::resize(size_t len)
 
 
 bool
-cofpacket::has_data()
+cofmsg::has_data()
 {
 	return (0 == body.memlen()) ? false : true;
 }
 
 
 uint8_t*
-cofpacket::get_data() throw (eOFpacketNoData)
+cofmsg::get_data() throw (eOFpacketNoData)
 {
 	if (0 == body.memlen())
 	{
@@ -270,7 +418,7 @@ cofpacket::get_data() throw (eOFpacketNoData)
 
 
 size_t
-cofpacket::get_datalen() throw (eOFpacketNoData)
+cofmsg::get_datalen() throw (eOFpacketNoData)
 {
 	if (0 == body.memlen())
 	{
@@ -281,7 +429,7 @@ cofpacket::get_datalen() throw (eOFpacketNoData)
 
 
 bool
-cofpacket::is_valid()
+cofmsg::is_valid()
 {
 	ofh_header = (struct ofp_header*)soframe();
 	switch (ofh_header->type) {
@@ -342,7 +490,7 @@ cofpacket::is_valid()
 
 
 bool
-cofpacket::is_valid_hello_msg()
+cofmsg::is_valid_hello_msg()
 {
 	switch (ofh_header->version) {
 	case OFP12_VERSION: {
@@ -378,7 +526,7 @@ cofpacket::is_valid_hello_msg()
 
 
 bool
-cofpacket::is_valid_echo_request()
+cofmsg::is_valid_echo_request()
 {
 	ofh_header = (struct ofp_header*)soframe();
 	if (stored < sizeof(struct ofp_header))
@@ -398,7 +546,7 @@ cofpacket::is_valid_echo_request()
 
 
 bool
-cofpacket::is_valid_echo_reply()
+cofmsg::is_valid_echo_reply()
 {
 	ofh_header = (struct ofp_header*)soframe();
 	if (stored < sizeof(struct ofp_header))
@@ -418,7 +566,7 @@ cofpacket::is_valid_echo_reply()
 
 
 bool
-cofpacket::is_valid_hdr_only()
+cofmsg::is_valid_hdr_only()
 {
 	if (stored < sizeof(struct ofp_header))
 		return false;
@@ -429,7 +577,7 @@ cofpacket::is_valid_hdr_only()
 
 
 bool
-cofpacket::is_valid_experimenter_message()
+cofmsg::is_valid_experimenter_message()
 {
 	ofh_experimenter = (struct ofp_experimenter_header*)soframe();
 	if (stored < sizeof(struct ofp_header))
@@ -443,7 +591,7 @@ cofpacket::is_valid_experimenter_message()
 
 
 bool
-cofpacket::is_valid_error_msg()
+cofmsg::is_valid_error_msg()
 {
 	ofh_error_msg = (struct ofp_error_msg*)soframe();
 	if (stored < sizeof(struct ofp_error_msg))
@@ -483,7 +631,7 @@ cofpacket::is_valid_error_msg()
 }
 
 bool
-cofpacket::is_valid_switch_features()
+cofmsg::is_valid_switch_features()
 {
 	switch (ofh_header->version) {
 	case OFP10_VERSION: {
@@ -532,7 +680,7 @@ cofpacket::is_valid_switch_features()
 }
 
 bool
-cofpacket::is_valid_switch_config()
+cofmsg::is_valid_switch_config()
 {
 	switch (ofh_header->version) {
 	case OFP10_VERSION:
@@ -551,7 +699,7 @@ cofpacket::is_valid_switch_config()
 }
 
 bool
-cofpacket::is_valid_packet_in()
+cofmsg::is_valid_packet_in()
 {
 
 	switch (ofh_header->version) {
@@ -665,7 +813,7 @@ cofpacket::is_valid_packet_in()
 }
 
 bool
-cofpacket::is_valid_packet_out()
+cofmsg::is_valid_packet_out()
 {
 	switch (ofh_header->version) {
 	case OFP10_VERSION: {
@@ -711,7 +859,7 @@ cofpacket::is_valid_packet_out()
 }
 
 bool
-cofpacket::is_valid_flow_removed()
+cofmsg::is_valid_flow_removed()
 {
 	switch (ofh_header->version) {
 	case OFP10_VERSION: {
@@ -754,7 +902,7 @@ cofpacket::is_valid_flow_removed()
 
 
 bool
-cofpacket::is_valid_port_status()
+cofmsg::is_valid_port_status()
 {
 	switch (ofh_header->version) {
 	case OFP10_VERSION: {
@@ -781,7 +929,7 @@ cofpacket::is_valid_port_status()
 
 
 bool
-cofpacket::is_valid_flow_mod()
+cofmsg::is_valid_flow_mod()
 {
 	try {
 
@@ -896,7 +1044,7 @@ cofpacket::is_valid_flow_mod()
 
 
 bool
-cofpacket::is_valid_group_mod()
+cofmsg::is_valid_group_mod()
 {
 	try {
 		ofh_group_mod = (struct ofp_group_mod*)soframe();
@@ -917,7 +1065,7 @@ cofpacket::is_valid_group_mod()
 
 
 bool
-cofpacket::is_valid_table_mod()
+cofmsg::is_valid_table_mod()
 {
 	ofh_table_mod = (struct ofp_table_mod*)soframe();
 	if (stored < sizeof(struct ofp_table_mod))
@@ -929,7 +1077,7 @@ cofpacket::is_valid_table_mod()
 
 
 bool
-cofpacket::is_valid_port_mod()
+cofmsg::is_valid_port_mod()
 {
 	switch (get_version()) {
 	case OFP10_VERSION: {
@@ -953,7 +1101,7 @@ cofpacket::is_valid_port_mod()
 
 
 bool
-cofpacket::is_valid_stats_request()
+cofmsg::is_valid_stats_request()
 {
 	switch (get_version()) {
 	case OFP10_VERSION: {
@@ -1033,7 +1181,7 @@ cofpacket::is_valid_stats_request()
 
 
 bool
-cofpacket::is_valid_stats_reply()
+cofmsg::is_valid_stats_reply()
 {
 	switch (get_version()) {
 	case OFP10_VERSION: {
@@ -1133,7 +1281,7 @@ cofpacket::is_valid_stats_reply()
 
 
 bool
-cofpacket::is_valid_queue_get_config_request()
+cofmsg::is_valid_queue_get_config_request()
 {
 	switch (get_version()) {
 	case OFP10_VERSION: {
@@ -1158,7 +1306,7 @@ cofpacket::is_valid_queue_get_config_request()
 
 
 bool
-cofpacket::is_valid_queue_get_config_reply()
+cofmsg::is_valid_queue_get_config_reply()
 {
 	switch (get_version()) {
 	case OFP10_VERSION: {
@@ -1191,7 +1339,7 @@ cofpacket::is_valid_queue_get_config_reply()
 
 
 bool
-cofpacket::is_valid_meter_mod()
+cofmsg::is_valid_meter_mod()
 {
 	ofh13_meter_mod = (struct ofp13_meter_mod*)soframe();
 	if (stored < sizeof(struct ofp13_meter_mod))
@@ -1205,7 +1353,7 @@ cofpacket::is_valid_meter_mod()
 
 
 const char*
-cofpacket::c_str()
+cofmsg::c_str()
 {
 	cvastring vas(4096);
 
@@ -1282,9 +1430,10 @@ cofpacket::c_str()
 
 	return info.c_str();
 }
+#endif
 
 
-cofpacket::typedesc_t typedesc[] = {
+cofmsg::typedesc_t typedesc[] = {
 		{ OFPT_HELLO, "HELLO" },
 		{ OFPT_ERROR, "ERROR" },
 		{ OFPT_ECHO_REQUEST, "ECHO-REQUEST" },
@@ -1319,7 +1468,7 @@ cofpacket::typedesc_t typedesc[] = {
 
 
 const char*
-cofpacket::type2desc(ofp_type ptype)
+cofmsg::type2desc(ofp_type ptype)
 {
 	for (int i = 0; i < (int)(sizeof(typedesc) / sizeof(typedesc_t)); i++)
 	{
@@ -1331,9 +1480,47 @@ cofpacket::type2desc(ofp_type ptype)
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+
+
 /*static*/
 void
-cofpacket::test()
+cofmsg::test()
 {
 #ifndef NDEBUG
 	cmemory packed;
@@ -1638,7 +1825,7 @@ cofpacket::test()
 		flow_mod.pack(packed.somem(), packed.memlen());
 		fprintf(stderr, "FLOW-MOD: %s\n", packed.c_str());
 
-		cofpacket unpack;
+		cofmsg unpack;
 		unpack.memarea = packed;
 		unpack.stored_bytes(packed.memlen());
 		unpack.is_valid();
@@ -1871,7 +2058,7 @@ cofpacket_port_mod::cofpacket_port_mod(
 		uint32_t config,
 		uint32_t mask,
 		uint32_t advertise) :
-	cofpacket(	sizeof(struct ofp_header),
+	cofmsg(	sizeof(struct ofp_header),
 				sizeof(struct ofp_header))
 {
 	ofh_header->version 	= of_version;
@@ -1881,8 +2068,8 @@ cofpacket_port_mod::cofpacket_port_mod(
 
 	switch (of_version) {
 	case OFP10_VERSION: {
-		cofpacket::resize(sizeof(struct ofp10_port_mod));
-		cofpacket::stored = sizeof(struct ofp10_port_mod);
+		cofmsg::resize(sizeof(struct ofp10_port_mod));
+		cofmsg::stored = sizeof(struct ofp10_port_mod);
 
 		of10h_port_mod->port_no			= htobe16((uint16_t)(port_no & 0x0000ffff));
 		of10h_port_mod->config			= htobe32(config);
@@ -1894,8 +2081,8 @@ cofpacket_port_mod::cofpacket_port_mod(
 	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
-		cofpacket::resize(sizeof(struct ofp12_port_mod));
-		cofpacket::stored = sizeof(struct ofp12_port_mod);
+		cofmsg::resize(sizeof(struct ofp12_port_mod));
+		cofmsg::stored = sizeof(struct ofp12_port_mod);
 
 		of12h_port_mod->port_no			= htobe32(port_no);
 		of12h_port_mod->config			= htobe32(config);
@@ -1912,10 +2099,10 @@ cofpacket_port_mod::cofpacket_port_mod(
 
 
 
-cofpacket_port_mod::cofpacket_port_mod(cofpacket const *pack) :
-	cofpacket(pack->framelen(), pack->framelen())
+cofpacket_port_mod::cofpacket_port_mod(cofmsg const *pack) :
+	cofmsg(pack->framelen(), pack->framelen())
 {
-	cofpacket::operator =(*pack);
+	cofmsg::operator =(*pack);
 };
 
 
@@ -2031,7 +2218,7 @@ cofpacket_group_mod::cofpacket_group_mod(
 				uint16_t command,
 				uint8_t  type,
 				uint32_t group_id) :
-			cofpacket(	sizeof(struct ofp_group_mod),
+			cofmsg(	sizeof(struct ofp_group_mod),
 						sizeof(struct ofp_group_mod))
 {
 	ofh_header->version 	= of_version;
@@ -2054,10 +2241,10 @@ cofpacket_group_mod::cofpacket_group_mod(
 
 
 
-cofpacket_group_mod::cofpacket_group_mod(cofpacket const *pack) :
-			cofpacket(pack->framelen(), pack->framelen())
+cofpacket_group_mod::cofpacket_group_mod(cofmsg const *pack) :
+			cofmsg(pack->framelen(), pack->framelen())
 {
-	cofpacket::operator =(*pack);
+	cofmsg::operator =(*pack);
 };
 
 
@@ -2168,7 +2355,7 @@ cofpacket_table_mod::cofpacket_table_mod(
 		uint32_t xid,
 		uint8_t  table_id,
 		uint32_t config) :
-	cofpacket(	sizeof(struct ofp_table_mod),
+	cofmsg(	sizeof(struct ofp_table_mod),
 				sizeof(struct ofp_table_mod))
 {
 	ofh_header->version 	= of_version;
@@ -2189,10 +2376,10 @@ cofpacket_table_mod::cofpacket_table_mod(
 
 
 
-cofpacket_table_mod::cofpacket_table_mod(cofpacket const *pack) :
-	cofpacket(pack->framelen(), pack->framelen())
+cofpacket_table_mod::cofpacket_table_mod(cofmsg const *pack) :
+	cofmsg(pack->framelen(), pack->framelen())
 {
-	cofpacket::operator =(*pack);
+	cofmsg::operator =(*pack);
 }
 
 
@@ -2268,10 +2455,10 @@ cofpacket_stats_request::cofpacket_stats_request(
 		uint16_t flags,
 		uint8_t *data,
 		size_t datalen) :
-	cofpacket(	sizeof(struct ofp_header),
+	cofmsg(	sizeof(struct ofp_header),
 				sizeof(struct ofp_header))
 {
-	cofpacket::body.assign(data, datalen);
+	cofmsg::body.assign(data, datalen);
 
 	ofh_header->version 	= of_version;
 	ofh_header->length		= htobe16(length());
@@ -2280,12 +2467,12 @@ cofpacket_stats_request::cofpacket_stats_request(
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		cofpacket::resize(sizeof(struct ofp10_stats_request));
+		cofmsg::resize(sizeof(struct ofp10_stats_request));
 		of10h_stats_request->type	= htobe16(type);
 		of10h_stats_request->flags	= htobe16(flags);
 	} break;
 	case OFP12_VERSION: {
-		cofpacket::resize(sizeof(struct ofp12_stats_request));
+		cofmsg::resize(sizeof(struct ofp12_stats_request));
 		of12h_stats_request->type	= htobe16(type);
 		of12h_stats_request->flags	= htobe16(flags);
 	} break;
@@ -2296,10 +2483,10 @@ cofpacket_stats_request::cofpacket_stats_request(
 
 
 
-cofpacket_stats_request::cofpacket_stats_request(cofpacket const *pack) :
-	cofpacket(pack->framelen(), pack->framelen())
+cofpacket_stats_request::cofpacket_stats_request(cofmsg const *pack) :
+	cofmsg(pack->framelen(), pack->framelen())
 {
-	cofpacket::operator =(*pack);
+	cofmsg::operator =(*pack);
 }
 
 
@@ -2404,10 +2591,10 @@ cofpacket_stats_reply::cofpacket_stats_reply(
 		uint16_t flags,
 		uint8_t *data,
 		size_t datalen) :
-	cofpacket(	sizeof(struct ofp_header),
+	cofmsg(	sizeof(struct ofp_header),
 				sizeof(struct ofp_header))
 {
-	cofpacket::body.assign(data, datalen);
+	cofmsg::body.assign(data, datalen);
 
 	ofh_header->version 	= of_version;
 	ofh_header->length		= htobe16(length());
@@ -2416,13 +2603,13 @@ cofpacket_stats_reply::cofpacket_stats_reply(
 
 	switch (of_version) {
 	case OFP10_VERSION: {
-		cofpacket::resize(sizeof(struct ofp10_stats_reply));
+		cofmsg::resize(sizeof(struct ofp10_stats_reply));
 		of10h_stats_reply->type		= htobe16(type);
 		of10h_stats_reply->flags	= htobe16(flags);
 
 	} break;
 	case OFP12_VERSION: {
-		cofpacket::resize(sizeof(struct ofp12_stats_reply));
+		cofmsg::resize(sizeof(struct ofp12_stats_reply));
 		of12h_stats_reply->type		= htobe16(type);
 		of12h_stats_reply->flags	= htobe16(flags);
 
@@ -2434,10 +2621,10 @@ cofpacket_stats_reply::cofpacket_stats_reply(
 
 
 
-cofpacket_stats_reply::cofpacket_stats_reply(cofpacket const *pack) :
-	cofpacket(pack->framelen(), pack->framelen())
+cofpacket_stats_reply::cofpacket_stats_reply(cofmsg const *pack) :
+	cofmsg(pack->framelen(), pack->framelen())
 {
-	cofpacket::operator=(*pack);
+	cofmsg::operator=(*pack);
 }
 
 
@@ -2546,7 +2733,7 @@ cofpacket_queue_get_config_request::cofpacket_queue_get_config_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint32_t port) :
-	cofpacket(	sizeof(struct ofp_header),
+	cofmsg(	sizeof(struct ofp_header),
 				sizeof(struct ofp_header))
 {
 	ofh_header->version 	= of_version;
@@ -2556,12 +2743,12 @@ cofpacket_queue_get_config_request::cofpacket_queue_get_config_request(
 
 	switch (ofh_header->version) {
 	case OFP10_VERSION: {
-		cofpacket::resize(sizeof(struct ofp10_queue_get_config_request));
+		cofmsg::resize(sizeof(struct ofp10_queue_get_config_request));
 		of10h_queue_get_config_request->port = htobe16((uint16_t)(port & 0x0000ffff));
 	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
-		cofpacket::resize(sizeof(struct ofp12_queue_get_config_request));
+		cofmsg::resize(sizeof(struct ofp12_queue_get_config_request));
 		of12h_queue_get_config_request->port = htobe32(port);
 	} break;
 	default:
@@ -2571,10 +2758,10 @@ cofpacket_queue_get_config_request::cofpacket_queue_get_config_request(
 
 
 
-cofpacket_queue_get_config_request::cofpacket_queue_get_config_request(cofpacket const *pack) :
-	cofpacket(pack->framelen(), pack->framelen())
+cofpacket_queue_get_config_request::cofpacket_queue_get_config_request(cofmsg const *pack) :
+	cofmsg(pack->framelen(), pack->framelen())
 {
-	cofpacket::operator =(*pack);
+	cofmsg::operator =(*pack);
 }
 
 
@@ -2636,7 +2823,7 @@ cofpacket_queue_get_config_reply::cofpacket_queue_get_config_reply(
 		uint8_t of_version,
 		uint32_t xid,
 		uint32_t port) :
-	cofpacket(	sizeof(struct ofp_header),
+	cofmsg(	sizeof(struct ofp_header),
 				sizeof(struct ofp_header))
 {
 	ofh_header->version 	= of_version;
@@ -2646,12 +2833,12 @@ cofpacket_queue_get_config_reply::cofpacket_queue_get_config_reply(
 
 	switch (ofh_header->version) {
 	case OFP10_VERSION: {
-		cofpacket::resize(sizeof(struct ofp10_queue_get_config_reply));
+		cofmsg::resize(sizeof(struct ofp10_queue_get_config_reply));
 		of10h_queue_get_config_reply->port = htobe16((uint16_t)(port & 0x0000ffff));
 	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
-		cofpacket::resize(sizeof(struct ofp12_queue_get_config_reply));
+		cofmsg::resize(sizeof(struct ofp12_queue_get_config_reply));
 		of12h_queue_get_config_reply->port = htobe32(port);
 	} break;
 	default:
@@ -2661,10 +2848,10 @@ cofpacket_queue_get_config_reply::cofpacket_queue_get_config_reply(
 
 
 
-cofpacket_queue_get_config_reply::cofpacket_queue_get_config_reply(cofpacket const *pack) :
-	cofpacket(pack->framelen(), pack->framelen())
+cofpacket_queue_get_config_reply::cofpacket_queue_get_config_reply(cofmsg const *pack) :
+	cofmsg(pack->framelen(), pack->framelen())
 {
-	cofpacket::operator =(*pack);
+	cofmsg::operator =(*pack);
 }
 
 
@@ -2713,5 +2900,5 @@ cofpacket_queue_get_config_reply::get_port() const
 }
 
 
-
+#endif
 

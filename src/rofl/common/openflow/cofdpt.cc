@@ -156,7 +156,7 @@ cofdpt::handle_read(
 {
 	int rc;
 
-	cofpacket *pcppack = (cofpacket*)0;
+	cofmsg *pcppack = (cofmsg*)0;
 	try {
 
 		pcppack = (0 != fragment) ? fragment : new cofpacket();
@@ -220,7 +220,7 @@ cofdpt::handle_read(
 				if (pcppack->complete())
 				{
 					// fragment is complete, set back to NULL
-					fragment = (cofpacket*)0;
+					fragment = (cofmsg*)0;
 					handle_message(pcppack);
 
 					break;
@@ -237,7 +237,7 @@ cofdpt::handle_read(
 
 		if (pcppack)
 		{
-			delete pcppack; pcppack = (cofpacket*)0;
+			delete pcppack; pcppack = (cofmsg*)0;
 		}
 
 		handle_closed(socket, sd);
@@ -270,7 +270,7 @@ cofdpt::handle_closed(
 
 void
 cofdpt::handle_message(
-		cofpacket *pack)
+		cofmsg *pack)
 {
 	try {
 		if (not pack->is_valid())
@@ -355,7 +355,7 @@ cofdpt::handle_message(
 
 void
 cofdpt::send_message(
-		cofpacket *pack)
+		cofmsg *pack)
 {
     if (not flags.test(COFDPT_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO))
     {
@@ -573,7 +573,7 @@ cofdpt::hello_rcvd(cofpacket_hello *pack)
 
 
 void
-cofdpt::echo_request_sent(cofpacket *pack)
+cofdpt::echo_request_sent(cofmsg *pack)
 {
 	reset_timer(COFDPT_TIMER_ECHO_REPLY, 5); // TODO: multiple concurrent echo-requests?
 }
@@ -622,7 +622,7 @@ cofdpt::handle_echo_reply_timeout()
 
 void
 cofdpt::features_request_sent(
-		cofpacket *pack)
+		cofmsg *pack)
 {
 	register_timer(COFDPT_TIMER_FEATURES_REPLY, features_reply_timeout /* seconds */);
 }
@@ -707,7 +707,7 @@ cofdpt::handle_features_reply_timeout()
 
 void
 cofdpt::get_config_request_sent(
-		cofpacket *pack)
+		cofmsg *pack)
 {
 	register_timer(COFDPT_TIMER_GET_CONFIG_REPLY, get_config_reply_timeout);
 }
@@ -754,7 +754,7 @@ cofdpt::handle_get_config_reply_timeout()
 
 void
 cofdpt::stats_request_sent(
-		cofpacket *pack)
+		cofmsg *pack)
 {
 	try {
 		xidstore[OFPT_STATS_REQUEST].xid_add(this, pack->get_xid(), stats_reply_timeout);
@@ -831,7 +831,7 @@ restart:
 
 void
 cofdpt::barrier_request_sent(
-		cofpacket *pack)
+		cofmsg *pack)
 {
 	try {
 		xidstore[OFPT_BARRIER_REQUEST].xid_add(this, pack->get_xid(), barrier_reply_timeout);
@@ -891,7 +891,7 @@ restart:
 
 void
 cofdpt::flow_mod_sent(
-		cofpacket *pack) throw (eOFdpathNotFound)
+		cofmsg *pack) throw (eOFdpathNotFound)
 {
 	try {
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::flow_mod_sent() table_id: %d", this, pack->of12h_flow_mod->table_id);
@@ -927,7 +927,7 @@ cofdpt::flow_mod_reset()
 
 void
 cofdpt::group_mod_sent(
-		cofpacket *pack)
+		cofmsg *pack)
 {
 
 }
@@ -947,7 +947,7 @@ cofdpt::group_mod_reset()
 
 
 void
-cofdpt::table_mod_sent(cofpacket *pack)
+cofdpt::table_mod_sent(cofmsg *pack)
 {
 	cofpacket_table_mod *table_mod = dynamic_cast<cofpacket_table_mod*>( pack );
 
@@ -960,7 +960,7 @@ cofdpt::table_mod_sent(cofpacket *pack)
 
 
 void
-cofdpt::port_mod_sent(cofpacket *pack)
+cofdpt::port_mod_sent(cofmsg *pack)
 {
 	cofpacket_port_mod *port_mod = dynamic_cast<cofpacket_port_mod*>( pack );
 
@@ -1124,7 +1124,7 @@ cofdpt::experimenter_rcvd(cofpacket_experimenter *pack)
 
 void
 cofdpt::role_request_sent(
-		cofpacket *pack)
+		cofmsg *pack)
 {
 
 }
@@ -1140,7 +1140,7 @@ cofdpt::role_reply_rcvd(cofpacket_role_reply *pack)
 
 void
 cofdpt::queue_get_config_request_sent(
-		cofpacket *pack)
+		cofmsg *pack)
 {
 	// TODO
 }
@@ -1249,7 +1249,7 @@ cofdpt::try_to_connect(bool reset_timeout)
 
 void
 cofdpt::send_message_via_socket(
-		cofpacket *pack)
+		cofmsg *pack)
 {
 	if (0 == socket)
 	{
