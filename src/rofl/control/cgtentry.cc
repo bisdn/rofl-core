@@ -100,6 +100,7 @@ void
 cgtentry::get_group_stats(
 		cmemory& body)
 {
+#if 0
 	cmemory gstats(OFP_GROUP_STATS_REPLY_STATIC_BODY_LEN); // 32 bytes in OF1.2
 	struct ofp_group_stats* group_stats = (struct ofp_group_stats*)gstats.somem();
 
@@ -118,6 +119,7 @@ cgtentry::get_group_stats(
 	}
 
 	body += gstats;
+#endif
 }
 
 

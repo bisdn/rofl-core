@@ -820,6 +820,8 @@ cftentry::get_flow_stats(
 		/*
 		 * create struct ofp_flow_stats and append to body
 		 */
+		// FIXME:
+#if 0
 		cmemory fstats(OFP_FLOW_STATS_REPLY_STATIC_BODY_LEN + ofmatch.length() + instructions.length());
 		struct ofp_flow_stats* flow_stats = (struct ofp_flow_stats*)fstats.somem();
 
@@ -836,12 +838,13 @@ cftentry::get_flow_stats(
 
 		ofmatch.pack(&(flow_stats->match), ofmatch.length());
 
+
 		struct ofp_instruction *inst = (struct ofp_instruction*)((uint8_t*)&(flow_stats->match) + ofmatch.length());
 
 		instructions.pack(inst, instructions.length());
 
 		body += fstats;
-
+#endif
 	} break;
 	default: {
 		throw eBadVersion();
