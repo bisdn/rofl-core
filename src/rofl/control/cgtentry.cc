@@ -127,6 +127,8 @@ void
 cgtentry::get_group_desc_stats(
 		cmemory& body)
 {
+	// FIXME: statistics management, should return cofgroupdescstats object
+#if 0
 	cmemory gstats(OFP_GROUP_DESC_STATS_REPLY_STATIC_BODY_LEN + buckets.length()); // 8 bytes in OF1.2
 	struct ofp_group_desc_stats* group_desc_stats =
 						(struct ofp_group_desc_stats*)gstats.somem();
@@ -143,6 +145,7 @@ cgtentry::get_group_desc_stats(
 	WRITELOG(CGTENTRY, DBG, "cgtentry(%p)::get_group_desc_stats() body:%s", this, gstats.c_str());
 
 	body += gstats;
+#endif
 }
 
 
