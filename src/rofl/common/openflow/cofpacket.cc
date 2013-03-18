@@ -98,6 +98,12 @@ cofpacket::operator=(const cofpacket &p)
 	aggr_stats_request	= p.aggr_stats_request;
 	aggr_stats_reply	= p.aggr_stats_reply;
 	table_stats_reply	= p.table_stats_reply;
+	port_stats_request	= p.port_stats_request;
+	port_stats_reply	= p.port_stats_reply;
+	queue_stats_request	= p.queue_stats_request;
+	queue_stats_reply	= p.queue_stats_reply;
+	group_stats_request	= p.group_stats_request;
+	group_stats_reply	= p.group_stats_reply;
 
 	ofh_header = (struct ofp_header*)soframe();
 
@@ -970,6 +976,12 @@ cofpacket::is_valid_stats_request()
 		case OFPST_PORT: {
 			port_stats_request.set_version(OFP10_VERSION);
 			port_stats_request.unpack(of10h_stats_request->body, body_len);
+		} break;
+		case OFPST_QUEUE: {
+
+		} break;
+		case OFPST_GROUP: {
+
 		} break;
 		default:
 			body.assign(of10h_stats_request->body, body_len);

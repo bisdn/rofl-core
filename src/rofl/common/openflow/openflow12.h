@@ -1356,21 +1356,21 @@ struct ofp12_port_stats {
 OFP_ASSERT(sizeof(struct ofp12_port_stats) == 104);
 
 /* Body of OFPST_GROUP request. */
-struct ofp_group_stats_request {
+struct ofp12_group_stats_request {
     uint32_t group_id;       /* All groups if OFPG_ALL. */
     uint8_t pad[4];          /* Align to 64 bits. */
 };
-OFP_ASSERT(sizeof(struct ofp_group_stats_request) == 8);
+OFP_ASSERT(sizeof(struct ofp12_group_stats_request) == 8);
 
 /* Used in group stats replies. */
-struct ofp_bucket_counter {
+struct ofp12_bucket_counter {
     uint64_t packet_count;   /* Number of packets processed by bucket. */
     uint64_t byte_count;     /* Number of bytes processed by bucket. */
 };
-OFP_ASSERT(sizeof(struct ofp_bucket_counter) == 16);
+OFP_ASSERT(sizeof(struct ofp12_bucket_counter) == 16);
 
 /* Body of reply to OFPST_GROUP request. */
-struct ofp_group_stats {
+struct ofp12_group_stats {
     uint16_t length;         /* Length of this entry. */
     uint8_t pad[2];          /* Align to 64 bits. */
     uint32_t group_id;       /* Group identifier. */
@@ -1379,9 +1379,9 @@ struct ofp_group_stats {
     uint8_t pad2[4];         /* Align to 64 bits. */
     uint64_t packet_count;   /* Number of packets processed by group. */
     uint64_t byte_count;     /* Number of bytes processed by group. */
-    struct ofp_bucket_counter bucket_stats[0];
+    struct ofp12_bucket_counter bucket_stats[0];
 };
-OFP_ASSERT(sizeof(struct ofp_group_stats) == 32);
+OFP_ASSERT(sizeof(struct ofp12_group_stats) == 32);
 
 /* Body of reply to OFPST_GROUP_DESC request. */
 struct ofp_group_desc_stats {
@@ -1487,20 +1487,20 @@ struct ofp_action_set_queue {
 };
 OFP_ASSERT(sizeof(struct ofp_action_set_queue) == 8);
 
-struct ofp_queue_stats_request {
+struct ofp12_queue_stats_request {
     uint32_t port_no;        /* All ports if OFPP_ANY. */
     uint32_t queue_id;       /* All queues if OFPQ_ALL. */
 };
-OFP_ASSERT(sizeof(struct ofp_queue_stats_request) == 8);
+OFP_ASSERT(sizeof(struct ofp12_queue_stats_request) == 8);
 
-struct ofp_queue_stats {
+struct ofp12_queue_stats {
     uint32_t port_no;
     uint32_t queue_id;       /* Queue i.d */
     uint64_t tx_bytes;       /* Number of transmitted bytes. */
     uint64_t tx_packets;     /* Number of transmitted packets. */
     uint64_t tx_errors;      /* Number of packets dropped due to overrun. */
 };
-OFP_ASSERT(sizeof(struct ofp_queue_stats) == 32);
+OFP_ASSERT(sizeof(struct ofp12_queue_stats) == 32);
 
 
 

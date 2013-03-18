@@ -42,6 +42,8 @@ extern "C" {
 #include "cofaggrstats.h"
 #include "coftablestats.h"
 #include "cofportstats.h"
+#include "cofqueuestats.h"
+#include "cofgroupstats.h"
 
 // forward declarations
 class cofbase;
@@ -116,6 +118,10 @@ public: // data structures
 	coftable_stats_reply	table_stats_reply;	// table statistics reply
 	cofport_stats_request	port_stats_request;	// port statistics request
 	cofport_stats_reply		port_stats_reply;	// port statistics reply
+	cofqueue_stats_request	queue_stats_request;// queue statistics request
+	cofqueue_stats_reply	queue_stats_reply;	// queue statistics reply
+	cofgroup_stats_request	group_stats_request;// group statistics request
+	cofgroup_stats_reply	group_stats_reply;	// group statistics reply
 
 	//int switch_features_num_ports; 		// valid only, if type == FEATURES-REPLY
 
@@ -550,6 +556,34 @@ public:
 	 */
 	virtual cofport_stats_reply&
 	get_port_stats_reply() { return port_stats_reply; };
+
+
+	/**
+	 *
+	 */
+	virtual cofqueue_stats_request&
+	get_queue_stats_request() { return queue_stats_request; };
+
+
+	/**
+	 *
+	 */
+	virtual cofqueue_stats_reply&
+	get_queue_stats_reply() { return queue_stats_reply; };
+
+
+	/**
+	 *
+	 */
+	virtual cofgroup_stats_request&
+	get_group_stats_request() { return group_stats_request; };
+
+
+	/**
+	 *
+	 */
+	virtual cofgroup_stats_reply&
+	get_group_stats_reply() { return group_stats_reply; };
 
 
 protected:

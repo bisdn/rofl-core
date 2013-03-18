@@ -879,7 +879,7 @@ struct ofp13_group_stats {
 	uint64_t byte_count; 	/* Number of bytes processed by group. */
 	uint32_t duration_sec; 	/* Time group has been alive in seconds. */
 	uint32_t duration_nsec; /* Time group has been alive in nanoseconds beyond duration_sec. */
-	struct ofp_bucket_counter bucket_stats[0];
+	struct ofp12_bucket_counter bucket_stats[0];
 };
 OFP_ASSERT(sizeof(struct ofp13_group_stats) == 40);
 

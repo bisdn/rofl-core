@@ -135,8 +135,8 @@ void
 cofbucket::get_bucket_stats(
 		cmemory& body)
 {
-	cmemory bstats(sizeof(struct ofp_bucket_counter));
-	struct ofp_bucket_counter* bucket_counter = (struct ofp_bucket_counter*)bstats.somem();
+	cmemory bstats(sizeof(struct ofp12_bucket_counter));
+	struct ofp12_bucket_counter* bucket_counter = (struct ofp12_bucket_counter*)bstats.somem();
 
 	bucket_counter->packet_count 	= htobe64(packet_count);
 	bucket_counter->byte_count		= htobe64(byte_count);

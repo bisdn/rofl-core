@@ -642,7 +642,8 @@ cfwdelem::handle_queue_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 void
 cfwdelem::handle_group_stats_request(cofctl *ctl, cofpacket_stats_request *pack)
 {
-	uint32_t group_id = be32toh(pack->ofb_group_stats_request->group_id);
+	//uint32_t group_id = be32toh(pack->ofb_group_stats_request->group_id);
+	uint32_t group_id = pack->get_group_stats_request().get_group_id();
 
 	cmemory body(0);
 
