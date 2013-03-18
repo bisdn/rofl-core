@@ -139,6 +139,8 @@ uint8_t platform_get_packet_vlan_pcp(datapacket_t *const pkt);
 
 //IPv4
 uint8_t platform_get_packet_ip_proto(datapacket_t *const pkt);
+uint8_t platform_get_packet_ip_ecn(datapacket_t *const pkt);
+uint8_t platform_get_packet_ip_dscp(datapacket_t *const pkt);
 uint32_t platform_get_packet_ipv4_src(datapacket_t *const pkt);
 uint32_t platform_get_packet_ipv4_dst(datapacket_t *const pkt);
 

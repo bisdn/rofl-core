@@ -54,7 +54,7 @@ of12_stats_flow_aggregate_msg_t* of12_init_stats_flow_aggregate_msg(){
 
 	//Init counters
 	if(msg)
-		memset(msg,0,sizeof(msg));
+		memset(msg,0,sizeof(*msg));
 
 	return msg;
 }
@@ -95,11 +95,13 @@ of12_stats_single_flow_msg_t* of12_init_stats_single_flow_msg(of12_flow_entry_t*
 }
 void of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg){
 
+	if(!msg)
+		return;
+
 	if(msg->matches)
 		of12_destroy_match(msg->matches);
 
-	if(msg)
-		cutil_free_shared(msg);
+	cutil_free_shared(msg);
 }
 
 of12_stats_flow_msg_t* of12_init_stats_flow_msg(){
@@ -108,7 +110,7 @@ of12_stats_flow_msg_t* of12_init_stats_flow_msg(){
 
 	//Init counters
 	if(msg)
-		memset(msg,0,sizeof(msg));
+		memset(msg,0,sizeof(*msg));
 
 	return msg;
 }
@@ -139,6 +141,8 @@ void of12_push_single_flow_stats_to_msg(of12_stats_flow_msg_t* msg, of12_stats_s
 		msg->flows_tail->next = sfs;
 	
 	msg->flows_tail = sfs;
+	sfs->next = NULL;
+	msg->num_of_entries++;
 }
 
 /**
@@ -329,6 +333,7 @@ of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats(struct of12_pipel
 
 	//Create the message 
 	msg = of12_init_stats_flow_aggregate_msg();
+
 	if(!msg)
 		return NULL;
 
