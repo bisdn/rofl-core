@@ -104,6 +104,7 @@ cofpacket::operator=(const cofpacket &p)
 	queue_stats_reply	= p.queue_stats_reply;
 	group_stats_request	= p.group_stats_request;
 	group_stats_reply	= p.group_stats_reply;
+	group_desc_stats_reply	= p.group_desc_stats_reply;
 
 	ofh_header = (struct ofp_header*)soframe();
 
