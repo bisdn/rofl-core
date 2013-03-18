@@ -87,7 +87,7 @@ public: // per instance methods
 	/** pack bucket
 	 */
 	struct ofp_bucket*
-	pack(struct ofp_bucket* bucket, size_t bclen)
+	pack(struct ofp_bucket* bucket, size_t bclen) const
 		throw (eBucketBadLen);
 
 	/** unpack bucket
@@ -99,7 +99,7 @@ public: // per instance methods
 	/** bucket length
 	 */
 	size_t
-	length();
+	length() const;
 
 
 	/**

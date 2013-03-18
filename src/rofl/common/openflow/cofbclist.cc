@@ -21,6 +21,17 @@ cofbclist::~cofbclist()
 }
 
 
+cofbclist&
+cofbclist::operator= (cofbclist const& bclist)
+{
+	if (this == &bclist)
+		return *this;
+
+	coflist<cofbucket>::operator= (bclist);
+
+	return *this;
+}
+
 
 const char*
 cofbclist::c_str()
@@ -78,7 +89,7 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 struct ofp_bucket*
 cofbclist::pack(
 	struct ofp_bucket *buckets,
-	size_t bclen) throw (eBcListInval)
+	size_t bclen) const throw (eBcListInval)
 {
 	size_t needed_bclen = length();
 
@@ -87,12 +98,12 @@ cofbclist::pack(
 
 	struct ofp_bucket *bchdr = buckets; // first bucket header
 
-	WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::pack() %s", this, c_str());
+	WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::pack()", this);
 
-	cofbclist::iterator it;
+	cofbclist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
-		cofbucket& bucket = (*it);
+		cofbucket const& bucket = (*it);
 
 		bchdr = (struct ofp_bucket*)
 				((uint8_t*)(bucket.pack(bchdr, bucket.length())) + bucket.length());
@@ -103,10 +114,10 @@ cofbclist::pack(
 
 
 size_t
-cofbclist::length()
+cofbclist::length() const
 {
 	size_t len = 0;
-	cofbclist::iterator it;
+	cofbclist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		len += (*it).length();

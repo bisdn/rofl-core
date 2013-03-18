@@ -59,13 +59,7 @@ public: // methods
 
 	/**
 	 */
-	cofbclist& operator= (cofbclist const& bclist)
-	{
-		if (this == &bclist)
-			return *this;
-		coflist<cofbucket>::operator= (bclist);
-		return *this;
-	};
+	cofbclist& operator= (cofbclist const& bclist);
 
 	/** stores cofbucket instances in this->bcvec from a packed array struct ofp_bucket (e.g. in struct ofp_group_mod)
 	 */
@@ -80,14 +74,14 @@ public: // methods
 	struct ofp_bucket*				// returns parameter "struct ofp_bucket *buckets"
 	pack(
 		struct ofp_bucket *buckets, // pointer to memory area for storing this->bcvec
-		size_t bclen) 					// length of memory area
+		size_t bclen) const			// length of memory area
 	throw (eBcListInval);
 
 	/** returns required length for array of struct ofp_bucket
 	 * for all buckets defined in this->bcvec
 	 */
 	size_t
-	length();
+	length() const;
 
 	/** dump info string
 	 */

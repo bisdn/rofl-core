@@ -1384,14 +1384,14 @@ struct ofp12_group_stats {
 OFP_ASSERT(sizeof(struct ofp12_group_stats) == 32);
 
 /* Body of reply to OFPST_GROUP_DESC request. */
-struct ofp_group_desc_stats {
+struct ofp12_group_desc_stats {
     uint16_t length;              /* Length of this entry. */
     uint8_t type;                 /* One of OFPGT_*. */
     uint8_t pad;                  /* Pad to 64 bits. */
     uint32_t group_id;            /* Group identifier. */
     struct ofp_bucket buckets[0];
 };
-OFP_ASSERT(sizeof(struct ofp_group_desc_stats) == 8);
+OFP_ASSERT(sizeof(struct ofp12_group_desc_stats) == 8);
 
 /* Body of reply to OFPST_GROUP_FEATURES request. Group features. */
 struct ofp_group_features_stats {

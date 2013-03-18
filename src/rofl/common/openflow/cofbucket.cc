@@ -70,7 +70,7 @@ cofbucket::c_str()
 struct ofp_bucket*
 cofbucket::pack(
 		struct ofp_bucket* bucket,
-		size_t bclen)
+		size_t bclen) const
 throw (eBucketBadLen)
 {
 	size_t __bclen = sizeof(struct ofp_bucket) + actions.length();
@@ -78,7 +78,7 @@ throw (eBucketBadLen)
 	if (bclen < __bclen)
 		throw eBucketBadLen();
 
-	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::pack() %s", this, c_str());
+	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::pack()", this);
 
 	bucket->len = htobe16(__bclen);
 	bucket->weight = htobe16(weight);
@@ -116,7 +116,7 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 
 
 size_t
-cofbucket::length()
+cofbucket::length() const
 {
 	size_t total_length = 16 * sizeof(uint8_t) + actions.length();
 
