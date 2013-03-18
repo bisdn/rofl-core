@@ -61,13 +61,14 @@ cofmsg::cofmsg(cmemory *memarea) :
 	if (0 == memarea) {
 		throw eInval();
 	}
-	ofh_header = (struct ofp_header*)(memarea->somem());
 
-	if (memarea->memlen() < sizeof(struct ofp_header)) {
+	if (framelen() < sizeof(struct ofp_header)) {
 		throw eInval();
 	}
 
-	if (get_length() > memarea->memlen()) {
+	ofh_header = (struct ofp_header*)soframe();
+
+	if (get_length() > framelen()) {
 		throw eInval();
 	}
 }
@@ -93,8 +94,8 @@ cofmsg::operator=(const cofmsg &p)
 	if (memarea)
 		delete memarea;
 
-	memarea 	= new memarea(*(p.memarea));
-	ofh_header 	= (struct ofp_header*)(memarea->somem());
+	memarea 	= new cmemory(*(p.memarea));
+	ofh_header 	= (struct ofp_header*)(soframe());
 
 	return *this;
 }
@@ -106,6 +107,44 @@ cofmsg::reset()
 {
 	if (memarea) {
 		memarea->clear();
+	}
+}
+
+
+
+void
+cofmsg::pack(uint8_t *buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < framelen())
+		throw eInval();
+
+	memcpy(buf, soframe(), framelen());
+}
+
+
+
+void
+cofmsg::unpack(uint8_t *buf, size_t buflen)
+{
+	if (0 == memarea) {
+		memarea = new cmemory(buflen);
+	} else {
+		memarea->resize(buflen);
+		memarea->clear();
+	}
+	memarea->assign(buf, buflen);
+
+	if (framelen() < sizeof(struct ofp_header)) {
+		throw eInval();
+	}
+
+	ofh_header = (struct ofp_header*)soframe();
+
+	if (get_length() > framelen()) {
+		throw eInval();
 	}
 }
 

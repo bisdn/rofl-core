@@ -163,20 +163,20 @@ public:
 	 *
 	 */
 	virtual void
-	pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0) = 0;
+	pack(uint8_t *buf = (uint8_t*)0, size_t buflen = 0);
 
 
 	/** unpack OFpacket content from specified buffer
 	 *
 	 */
 	virtual void
-	unpack(uint8_t *buf, size_t buflen) = 0;
+	unpack(uint8_t *buf, size_t buflen);
 
 
 	/** parse packet and validate it
 	 */
-	virtual bool
-	is_valid() = 0;
+	virtual void
+	validate() = 0;
 
 
 	/**
@@ -197,6 +197,20 @@ public:
 	 */
 	size_t
 	framelen() const { return memarea->memlen(); };
+
+
+	/** start of frame
+	 *
+	 */
+	uint8_t*
+	sobody() const { return (soframe() + sizeof(struct ofp_header)); };
+
+
+	/** frame length
+	 *
+	 */
+	size_t
+	bodylen() const { return (framelen() - sizeof(struct ofp_header)); };
 
 
 public:

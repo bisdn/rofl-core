@@ -94,8 +94,16 @@ public:
 
 	/** parse packet and validate it
 	 */
-	virtual bool
-	is_valid();
+	virtual void
+	validate();
+
+public:
+
+	/**
+	 *
+	 */
+	cmemory&
+	get_body();
 };
 
 } // end of namespace rofl

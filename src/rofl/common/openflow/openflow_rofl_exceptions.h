@@ -132,7 +132,7 @@ class eRoleRequestBadRole			: public eRoleRequestBase {};	// OFPRRFC_BAD_ROLE
  * further rofl internal exceptions
  */
 class eBadVersion					: public cerror {};
-
+class eBadSyntax					: public cerror {};
 }
 
 #endif

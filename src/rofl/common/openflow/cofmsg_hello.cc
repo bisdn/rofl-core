@@ -2,8 +2,6 @@
 
 using namespace rofl;
 
-
-
 cofmsg_hello::cofmsg_hello(
 		uint8_t of_version,
 		uint32_t xid,
@@ -17,6 +15,15 @@ cofmsg_hello::cofmsg_hello(
 	set_length(sizeof(struct ofp_header));
 	set_type(OFPT_HELLO);
 	set_xid(xid);
+}
+
+
+
+cofmsg_hello::cofmsg_hello(
+		cmemory *memarea) :
+	cofmsg(memarea)
+{
+	validate();
 }
 
 
@@ -52,15 +59,6 @@ cofmsg_hello::~cofmsg_hello()
 
 
 
-cofmsg_hello::cofmsg_hello(
-		cmemory *memarea) :
-				cofmsg_hello(memarea)
-{
-	unpack(memarea->somem(), memarea->memlen());
-}
-
-
-
 void
 cofmsg_hello::reset()
 {
@@ -89,7 +87,7 @@ cofmsg_hello::pack(uint8_t *buf, size_t buflen)
 	if (buflen < length())
 		throw eInval();
 
-	memcpy(buf, soframe(), framelen());
+	cofmsg::pack(buf, buflen);
 
 	memcpy(buf + sizeof(struct ofp_header), body.somem(), body.memlen());
 }
@@ -99,11 +97,46 @@ cofmsg_hello::pack(uint8_t *buf, size_t buflen)
 void
 cofmsg_hello::unpack(uint8_t *buf, size_t buflen)
 {
+	cofmsg::unpack(buf, buflen);
 
+	validate();
 }
 
 
-	/** parse packet and validate it
-	 */
-	virtual bool
-	is_valid();
+
+void
+cofmsg_hello::validate()
+{
+	switch (get_version()) {
+	case OFP10_VERSION:
+	case OFP12_VERSION: {
+		if (framelen() < sizeof(struct ofp_header))
+			throw eBadSyntax();
+		if (framelen() < get_length())
+			throw eBadSyntax();
+		if (get_length() > sizeof(struct ofp_header)) {
+			body.assign(soframe() + sizeof(struct ofp_header),
+						framelen() - sizeof(struct ofp_header));
+		}
+	} break;
+	case OFP13_VERSION: {
+		if (framelen() < sizeof(struct ofp_header))
+			throw eBadSyntax();
+		if (framelen() < get_length())
+			throw eBadSyntax();
+		// TODO: create hello elements list
+	} break;
+	default:
+		throw eBadRequestBadVersion();
+	}
+}
+
+
+
+cmemory&
+cofmsg_hello::get_body()
+{
+	return body;
+}
+
+
