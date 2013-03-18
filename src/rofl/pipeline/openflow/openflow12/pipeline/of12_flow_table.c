@@ -39,6 +39,9 @@ rofl_result_t of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t*
 	table->num_of_entries = 0;
 	table->max_entries = OF12_MAX_NUMBER_OF_TABLE_ENTRIES;
 	table->default_action = config;
+
+	//Set name FIXME: put proper name (table0, table1...)
+	strncpy(table->name,"table",OF12_MAX_TABLE_NAME_LEN);
 	
 	//Setting up the matching algorithm	
 	load_matching_algorithm(algorithm, &table->maf);
