@@ -115,8 +115,7 @@ cofmsg_hello::validate()
 		if (framelen() < get_length())
 			throw eBadSyntax();
 		if (get_length() > sizeof(struct ofp_header)) {
-			body.assign(soframe() + sizeof(struct ofp_header),
-						framelen() - sizeof(struct ofp_header));
+			body.assign(sobody(), bodylen());
 		}
 	} break;
 	case OFP13_VERSION: {
