@@ -44,6 +44,7 @@ extern "C" {
 #include "cofportstats.h"
 #include "cofqueuestats.h"
 #include "cofgroupstats.h"
+#include "cofgroupdescstats.h"
 
 // forward declarations
 class cofbase;
@@ -122,6 +123,7 @@ public: // data structures
 	cofqueue_stats_reply	queue_stats_reply;	// queue statistics reply
 	cofgroup_stats_request	group_stats_request;// group statistics request
 	cofgroup_stats_reply	group_stats_reply;	// group statistics reply
+	cofgroup_desc_stats_reply 	group_desc_stats_reply;		// group description statistics reply
 
 	//int switch_features_num_ports; 		// valid only, if type == FEATURES-REPLY
 
@@ -584,6 +586,13 @@ public:
 	 */
 	virtual cofgroup_stats_reply&
 	get_group_stats_reply() { return group_stats_reply; };
+
+
+	/**
+	 *
+	 */
+	virtual cofgroup_desc_stats_reply&
+	get_group_desc_stats_reply() { return group_desc_stats_reply; };
 
 
 protected:
