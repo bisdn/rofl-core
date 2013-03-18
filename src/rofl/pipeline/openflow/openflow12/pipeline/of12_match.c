@@ -787,9 +787,9 @@ void of12_dump_matches(of12_match_t* matches){
 
 			case OF12_MATCH_IP_PROTO:  fprintf(stderr,"[IP_PROTO:%u], ",((utern8_t*)it->value)->value);
 				break; 
-			case OF12_MATCH_IP_ECN:  fprintf(stderr,"[IP_ECN:%u], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_IP_ECN:  fprintf(stderr,"[IP_ECN:0x%x], ",((utern8_t*)it->value)->value);
 				break; 
-			case OF12_MATCH_IP_DSCP:  fprintf(stderr,"[IP_DSCP:%u], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_IP_DSCP:  fprintf(stderr,"[IP_DSCP:0x%x], ",((utern8_t*)it->value)->value);
 				break; 
 
 			case OF12_MATCH_IPV4_SRC:  fprintf(stderr,"[IP4_SRC:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
@@ -839,36 +839,49 @@ void of12_full_dump_matches(of12_match_t* matches){
 				break;
 			case OF12_MATCH_IN_PHY_PORT: fprintf(stderr,"[PHY_PORT_IN:%u|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
 				break; 
+
 			case OF12_MATCH_METADATA: //TODO FIXME
 						break;
+
 			case OF12_MATCH_ETH_DST: fprintf(stderr,"[ETH_DST:0x%llx|0x%llx],  ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
 				break; 
 			case OF12_MATCH_ETH_SRC:  fprintf(stderr,"[ETH_SRC:0x%llx|0x%llx], ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
 				break; 
 			case OF12_MATCH_ETH_TYPE:  fprintf(stderr,"[ETH_TYPE:0x%x|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
+
 			case OF12_MATCH_VLAN_VID:  fprintf(stderr,"[VLAN_ID:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
 			case OF12_MATCH_VLAN_PCP:  fprintf(stderr,"[VLAN_PCP:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
 				break; 
+
 			case OF12_MATCH_MPLS_LABEL:  fprintf(stderr,"[MPLS_LABEL:%u|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
 				break; 
 			case OF12_MATCH_MPLS_TC:  fprintf(stderr,"[MPLS_TC:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
 				break; 
+
+			case OF12_MATCH_IP_ECN:  fprintf(stderr,"[IP_ECN:0x%x|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+				break; 
+			case OF12_MATCH_IP_DSCP:  fprintf(stderr,"[IP_DSCP:0x%x|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+				break; 
 			case OF12_MATCH_IP_PROTO:  fprintf(stderr,"[IP_PROTO:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
 				break; 
+
 			case OF12_MATCH_IPV4_SRC:  fprintf(stderr,"[IP4_SRC:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
 				break; 
 			case OF12_MATCH_IPV4_DST:  fprintf(stderr,"[IP4_DST:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
 				break; 
+
 			case OF12_MATCH_TCP_SRC:  fprintf(stderr,"[TCP_SRC:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
 			case OF12_MATCH_TCP_DST:  fprintf(stderr,"[TCP_DST:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
+
 			case OF12_MATCH_UDP_SRC:  fprintf(stderr,"[UDP_SRC:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
 			case OF12_MATCH_UDP_DST:  fprintf(stderr,"[UDP_DST:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
+
 			case OF12_MATCH_ICMPV4_TYPE:  fprintf(stderr,"[ICMPV4_TYPE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
 				break; 
 			case OF12_MATCH_ICMPV4_CODE:  fprintf(stderr,"[ICMPV4_CODE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
@@ -881,8 +894,10 @@ void of12_full_dump_matches(of12_match_t* matches){
 				break; 
 			case OF12_MATCH_PPPOE_SID:  fprintf(stderr,"[PPPOE_SID:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
+
 			case OF12_MATCH_PPP_PROT:  fprintf(stderr,"[PPP_PROT:%u|0x%x] ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
+
 			/* Add more here ...*/
 			default:
 				fprintf(stderr,"[UNKOWN!],");
