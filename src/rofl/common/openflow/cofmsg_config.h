@@ -124,7 +124,6 @@ public:
 			uint8_t of_version = 0,
 			uint8_t  type = OFPT_GET_CONFIG_REPLY,
 			uint32_t xid = 0,
-			uint64_t dpid = 0,
 			uint16_t flags = 0,
 			uint16_t miss_send_len = 0);
 
@@ -204,80 +203,26 @@ public:
 	/**
 	 *
 	 */
-	uint64_t
-	get_dpid() const;
+	uint16_t
+	get_flags() const;
 
 	/**
 	 *
 	 */
 	void
-	set_dpid(uint64_t dpid);
+	set_flags(uint16_t flags);
 
 	/**
 	 *
 	 */
-	uint32_t
-	get_n_buffers() const;
-
-	/**
-	 *
-	 */
-	void
-	set_n_buffers(uint32_t n_buffers);
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_n_tables() const;
+	uint16_t
+	get_miss_send_len() const;
 
 	/**
 	 *
 	 */
 	void
-	set_n_tables(uint8_t n_tables);
-
-	/** OF1.3
-	 *
-	 */
-	uint8_t
-	get_auxiliary_id() const;
-
-	/**
-	 *
-	 */
-	void
-	set_auxiliary_id(uint8_t auxiliary_id);
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_capabilities() const;
-
-	/**
-	 *
-	 */
-	void
-	set_capabilities(uint32_t capabilities);
-
-	/** OF1.0 only
-	 *
-	 */
-	uint32_t
-	get_actions_bitmap() const;
-
-	/**
-	 *
-	 */
-	void
-	set_actions_bitmap(uint32_t actions_bitmap);
-
-	/**
-	 *
-	 */
-	cofportlist&
-	get_ports();
+	set_miss_send_len(uint16_t miss_send_len);
 };
 
 } // end of namespace rofl
