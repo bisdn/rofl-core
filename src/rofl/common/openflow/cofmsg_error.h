@@ -1,14 +1,15 @@
 /*
- * cofmsg_hello.h
+ * cofmsg_error.h
  *
  *  Created on: 18.03.2013
  *      Author: andi
  */
 
-#ifndef COFMSG_HELLO_H_
-#define COFMSG_HELLO_H_ 1
+#ifndef COFMSG_ERROR_H_
+#define COFMSG_ERROR_H_ 1
 
 #include "cofmsg.h"
+#include "openflow.h"
 
 namespace rofl
 {
@@ -16,12 +17,13 @@ namespace rofl
 /**
  *
  */
-class cofmsg_hello :
+class cofmsg_error :
 	public cofmsg
 {
 private:
 
-	cmemory			body;
+	cmemory				 	 body;
+	struct ofp_error_msg	*err_msg;
 
 public:
 
@@ -29,9 +31,11 @@ public:
 	/** constructor
 	 *
 	 */
-	cofmsg_hello(
+	cofmsg_error(
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
+			uint16_t err_type = 0,
+			uint16_t err_code = 0,
 			uint8_t* data = 0,
 			size_t datalen = 0);
 
@@ -39,29 +43,29 @@ public:
 	/**
 	 *
 	 */
-	cofmsg_hello(
-			cofmsg_hello const& hello);
+	cofmsg_error(
+			cofmsg_error const& error);
 
 
 	/**
 	 *
 	 */
-	cofmsg_hello&
+	cofmsg_error&
 	operator= (
-			cofmsg_hello const& hello);
+			cofmsg_error const& error);
 
 
 	/** destructor
 	 *
 	 */
 	virtual
-	~cofmsg_hello() {};
+	~cofmsg_error() {};
 
 
 	/**
 	 *
 	 */
-	cofmsg_hello(cmemory *memarea);
+	cofmsg_error(cmemory *memarea);
 
 
 	/** reset packet content
@@ -75,7 +79,7 @@ public:
 	 *
 	 */
 	virtual size_t
-	length() const;
+	length() = 0;
 
 
 	/**
@@ -102,10 +106,34 @@ public:
 	/**
 	 *
 	 */
+	uint16_t
+	get_err_type() const;
+
+	/**
+	 *
+	 */
+	void
+	set_err_type(uint16_t type);
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_err_code() const;
+
+	/**
+	 *
+	 */
+	void
+	set_err_code(uint16_t code);
+
+	/**
+	 *
+	 */
 	cmemory&
 	get_body();
 };
 
 } // end of namespace rofl
 
-#endif /* COFMSG_HELLO_H_ */
+#endif /* COFMSG_ERROR_H_ */

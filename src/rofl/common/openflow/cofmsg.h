@@ -156,7 +156,7 @@ public:
 	 *
 	 */
 	virtual size_t
-	length() = 0;
+	length() const;
 
 
 	/** pack OFpacket content to specified buffer
@@ -176,7 +176,7 @@ public:
 	/** parse packet and validate it
 	 */
 	virtual void
-	validate() = 0;
+	validate();
 
 
 	/**

@@ -782,7 +782,7 @@ cofport::recv_port_mod(
 
 
 size_t
-cofport::length()
+cofport::length() const
 {
 	switch (of_version) {
 	case OFP10_VERSION: return sizeof(struct ofp10_port);

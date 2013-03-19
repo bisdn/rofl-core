@@ -239,7 +239,7 @@ public:
 	 *
 	 */
 	size_t
-	length();
+	length() const;
 
 
 	/** sets all statistics counters to zero

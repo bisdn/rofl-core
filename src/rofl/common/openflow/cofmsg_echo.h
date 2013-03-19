@@ -1,12 +1,12 @@
 /*
- * cofmsg_hello.h
+ * cofmsg_echo.h
  *
  *  Created on: 18.03.2013
  *      Author: andi
  */
 
-#ifndef COFMSG_HELLO_H_
-#define COFMSG_HELLO_H_ 1
+#ifndef COFMSG_ECHO_H_
+#define COFMSG_ECHO_H_ 1
 
 #include "cofmsg.h"
 
@@ -16,7 +16,7 @@ namespace rofl
 /**
  *
  */
-class cofmsg_hello :
+class cofmsg_echo :
 	public cofmsg
 {
 private:
@@ -29,8 +29,9 @@ public:
 	/** constructor
 	 *
 	 */
-	cofmsg_hello(
+	cofmsg_echo(
 			uint8_t of_version = 0,
+			uint8_t type = OFPT_ECHO_REQUEST,
 			uint32_t xid = 0,
 			uint8_t* data = 0,
 			size_t datalen = 0);
@@ -39,29 +40,29 @@ public:
 	/**
 	 *
 	 */
-	cofmsg_hello(
-			cofmsg_hello const& hello);
+	cofmsg_echo(
+			cofmsg_echo const& echo);
 
 
 	/**
 	 *
 	 */
-	cofmsg_hello&
+	cofmsg_echo&
 	operator= (
-			cofmsg_hello const& hello);
+			cofmsg_echo const& echo);
 
 
 	/** destructor
 	 *
 	 */
 	virtual
-	~cofmsg_hello() {};
+	~cofmsg_echo() {};
 
 
 	/**
 	 *
 	 */
-	cofmsg_hello(cmemory *memarea);
+	cofmsg_echo(cmemory *memarea);
 
 
 	/** reset packet content
@@ -108,4 +109,4 @@ public:
 
 } // end of namespace rofl
 
-#endif /* COFMSG_HELLO_H_ */
+#endif /* COFMSG_ECHO_H_ */

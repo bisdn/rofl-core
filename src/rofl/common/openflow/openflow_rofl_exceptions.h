@@ -133,6 +133,7 @@ class eRoleRequestBadRole			: public eRoleRequestBase {};	// OFPRRFC_BAD_ROLE
  */
 class eBadVersion					: public cerror {};
 class eBadSyntax					: public cerror {};
+class eBadSyntaxTooShort			: public eBadSyntax {};
 }
 
 #endif

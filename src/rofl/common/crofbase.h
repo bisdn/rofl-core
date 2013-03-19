@@ -42,7 +42,7 @@ extern "C" {
 //#include "rofl/experimental/crib.h"
 #include "rofl/platform/unix/crandom.h"
 
-#include "openflow/cofpacket.h"
+#include "openflow/cofmsg.h"
 #include "openflow/cofport.h"
 #include "openflow/cofdpt.h"
 #include "openflow/cofctl.h"

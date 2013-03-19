@@ -1,9 +1,10 @@
-#include "cofmsg_hello.h"
+#include "cofmsg_echo.h"
 
 using namespace rofl;
 
-cofmsg_hello::cofmsg_hello(
+cofmsg_echo::cofmsg_echo(
 		uint8_t of_version,
+		uint8_t type,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen) :
@@ -13,13 +14,13 @@ cofmsg_hello::cofmsg_hello(
 
 	set_version(of_version);
 	set_length(sizeof(struct ofp_header));
-	set_type(OFPT_HELLO);
+	set_type(type);
 	set_xid(xid);
 }
 
 
 
-cofmsg_hello::cofmsg_hello(
+cofmsg_echo::cofmsg_echo(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
@@ -28,31 +29,31 @@ cofmsg_hello::cofmsg_hello(
 
 
 
-cofmsg_hello::cofmsg_hello(
-		cofmsg_hello const& hello)
+cofmsg_echo::cofmsg_echo(
+		cofmsg_echo const& echo)
 {
-	*this = hello;
+	*this = echo;
 }
 
 
 
-cofmsg_hello&
-cofmsg_hello::operator= (
-		cofmsg_hello const& hello)
+cofmsg_echo&
+cofmsg_echo::operator= (
+		cofmsg_echo const& echo)
 {
-	if (this == &hello)
+	if (this == &echo)
 		return *this;
 
-	cofmsg::operator =(hello);
+	cofmsg::operator =(echo);
 
-	body = hello.body;
+	body = echo.body;
 
 	return *this;
 }
 
 
 
-cofmsg_hello::~cofmsg_hello()
+cofmsg_echo::~cofmsg_echo()
 {
 
 }
@@ -60,7 +61,7 @@ cofmsg_hello::~cofmsg_hello()
 
 
 void
-cofmsg_hello::reset()
+cofmsg_echo::reset()
 {
 	cofmsg::reset();
 	body.clear();
@@ -69,7 +70,7 @@ cofmsg_hello::reset()
 
 
 size_t
-cofmsg_hello::length() const
+cofmsg_echo::length() const
 {
 	return (sizeof(struct ofp_header) + body.memlen());
 }
@@ -77,7 +78,7 @@ cofmsg_hello::length() const
 
 
 void
-cofmsg_hello::pack(uint8_t *buf, size_t buflen)
+cofmsg_echo::pack(uint8_t *buf, size_t buflen)
 {
 	set_length(length());
 
@@ -95,7 +96,7 @@ cofmsg_hello::pack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_hello::unpack(uint8_t *buf, size_t buflen)
+cofmsg_echo::unpack(uint8_t *buf, size_t buflen)
 {
 	cofmsg::unpack(buf, buflen);
 
@@ -105,19 +106,17 @@ cofmsg_hello::unpack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_hello::validate()
+cofmsg_echo::validate()
 {
 	cofmsg::validate(); // check generic OpenFlow header
 
 	switch (get_version()) {
 	case OFP10_VERSION:
-	case OFP12_VERSION: {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
 		if (get_length() > sizeof(struct ofp_header)) {
 			body.assign(sobody(), bodylen());
 		}
-	} break;
-	case OFP13_VERSION: {
-		// TODO: create hello elements list
 	} break;
 	default:
 		throw eBadRequestBadVersion();
@@ -127,7 +126,7 @@ cofmsg_hello::validate()
 
 
 cmemory&
-cofmsg_hello::get_body()
+cofmsg_echo::get_body()
 {
 	return body;
 }

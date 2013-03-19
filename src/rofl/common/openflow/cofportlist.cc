@@ -83,10 +83,10 @@ cofportlist::pack(
 
 
 size_t
-cofportlist::length()
+cofportlist::length() const
 {
 	size_t inlen = 0;
-	cofportlist::iterator it;
+	cofportlist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		inlen += (*it).length();

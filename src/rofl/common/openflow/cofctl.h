@@ -25,7 +25,7 @@ extern "C" {
 #include "../cvastring.h"
 #include "../csocket.h"
 #include "../cfsm.h"
-#include <rofl/common/openflow/cofpacket.h>
+#include "../openflow/cofmsg.h"
 
 #include "cofmatch.h"
 #include "extensions/cfspentry.h"

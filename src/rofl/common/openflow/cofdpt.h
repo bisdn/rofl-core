@@ -38,7 +38,7 @@ extern "C" {
 #include "cfttable.h"
 #include "cgttable.h"
 #endif
-#include "cofpacket.h"
+#include "cofmsg.h"
 #include "cofport.h"
 #include "extensions/cfsptable.h"
 
