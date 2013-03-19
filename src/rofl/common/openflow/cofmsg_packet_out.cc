@@ -5,11 +5,11 @@ using namespace rofl;
 cofmsg_packet_out::cofmsg_packet_out(
 		uint8_t of_version,
 		uint32_t xid,
-		uint32_t buffer_id = 0,
-		uint32_t in_port = 0,
-		cofaclist const& actions = cofaclist(),
-		uint8_t *data = (uint8_t*)0,
-		size_t datalen = 0) :
+		uint32_t buffer_id,
+		uint32_t in_port,
+		cofaclist const& actions,
+		uint8_t *data,
+		size_t datalen) :
 	cofmsg(sizeof(struct ofp_header)),
 	actions(actions),
 	packet(data, datalen)
