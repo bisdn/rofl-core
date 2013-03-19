@@ -71,6 +71,12 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 		case OF12_AT_SET_FIELD_UDP_DST:
 		case OF12_AT_SET_FIELD_PPPOE_SID:
 		case OF12_AT_SET_FIELD_PPP_PROT:
+		/*case OF12_AT_POP_VLAN: TODO: CHECK THIS*/
+		case OF12_AT_POP_MPLS: 
+		case OF12_AT_POP_PPPOE: 
+		case OF12_AT_PUSH_PPPOE:
+		case OF12_AT_PUSH_MPLS: 
+		case OF12_AT_PUSH_VLAN: 
 			action->field = field&OF12_AT_2_BYTE_MASK;
 			break;
 		//13 bit values
