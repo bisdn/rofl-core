@@ -5,16 +5,16 @@ using namespace rofl;
 cofmsg_flow_removed::cofmsg_flow_removed(
 		uint8_t of_version,
 		uint32_t xid,
-		uint64_t cookie = 0,
-		uint16_t priority = 0,
-		uint8_t  reason = 0,
-		uint8_t  table_id = 0,
-		uint32_t duration_sec = 0,
-		uint32_t duration_nsec = 0,
-		uint16_t idle_timeout = 0,
-		uint16_t hard_timeout = 0,
-		uint64_t packet_count = 0,
-		uint64_t byte_count = 0) :
+		uint64_t cookie,
+		uint16_t priority,
+		uint8_t  reason,
+		uint8_t  table_id,
+		uint32_t duration_sec,
+		uint32_t duration_nsec,
+		uint16_t idle_timeout,
+		uint16_t hard_timeout,
+		uint64_t packet_count,
+		uint64_t byte_count) :
 	cofmsg(sizeof(struct ofp_header))
 {
 	ofh_flow_removed = soframe();
