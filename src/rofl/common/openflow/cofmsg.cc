@@ -158,9 +158,8 @@ cofmsg::validate()
 
 	ofh_header = (struct ofp_header*)soframe();
 
-	if (get_length() > framelen()) {
+	if (get_length() > framelen())
 		throw eBadSyntaxTooShort();
-	}
 }
 
 

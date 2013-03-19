@@ -304,6 +304,8 @@ cofmsg_features_reply::validate()
 {
 	cofmsg::validate(); // check generic OpenFlow header
 
+	ofh_switch_features = soframe();
+
 	ports.clear();
 
 	switch (get_version()) {
