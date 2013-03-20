@@ -21,7 +21,7 @@ cofbucket::cofbucket(
 
 
 cofbucket::cofbucket(
-		struct ofp_bucket *bucket,
+		struct ofp12_bucket *bucket,
 		size_t bclen) :
 	packet_count(0),
 	byte_count(0),
@@ -67,13 +67,13 @@ cofbucket::c_str()
 }
 
 
-struct ofp_bucket*
+struct ofp12_bucket*
 cofbucket::pack(
-		struct ofp_bucket* bucket,
+		struct ofp12_bucket* bucket,
 		size_t bclen) const
 throw (eBucketBadLen)
 {
-	size_t __bclen = sizeof(struct ofp_bucket) + actions.length();
+	size_t __bclen = sizeof(struct ofp12_bucket) + actions.length();
 
 	if (bclen < __bclen)
 		throw eBucketBadLen();
@@ -85,7 +85,7 @@ throw (eBucketBadLen)
 	bucket->watch_port = htobe32(watch_port);
 	bucket->watch_group = htobe32(watch_group);
 
-	size_t aclen = bclen - sizeof(struct ofp_bucket);
+	size_t aclen = bclen - sizeof(struct ofp12_bucket);
 
 	actions.pack(bucket->actions, aclen);
 
@@ -95,18 +95,66 @@ throw (eBucketBadLen)
 
 void
 cofbucket::unpack(
-		struct ofp_bucket* bucket,
+		struct ofp12_bucket* bucket,
 		size_t bclen)
 throw (eBucketBadLen, eBadActionBadOutPort)
 {
-	if (bclen < sizeof(struct ofp_bucket))
+	if (bclen < sizeof(struct ofp12_bucket))
 		throw eBucketBadLen();
 
 	weight = be16toh(bucket->weight);
 	watch_port = be32toh(bucket->watch_port);
 	watch_group = be32toh(bucket->watch_group);
 
-	size_t aclen = bclen - sizeof(struct ofp_bucket);
+	size_t aclen = bclen - sizeof(struct ofp12_bucket);
+
+	if (aclen >= sizeof(struct ofp_action_header))
+	{
+		actions.unpack(bucket->actions, aclen);
+	}
+}
+
+
+struct ofp13_bucket*
+cofbucket::pack(
+		struct ofp13_bucket* bucket,
+		size_t bclen) const
+throw (eBucketBadLen)
+{
+	size_t __bclen = sizeof(struct ofp13_bucket) + actions.length();
+
+	if (bclen < __bclen)
+		throw eBucketBadLen();
+
+	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::pack()", this);
+
+	bucket->len = htobe16(__bclen);
+	bucket->weight = htobe16(weight);
+	bucket->watch_port = htobe32(watch_port);
+	bucket->watch_group = htobe32(watch_group);
+
+	size_t aclen = bclen - sizeof(struct ofp13_bucket);
+
+	actions.pack(bucket->actions, aclen);
+
+	return bucket;
+}
+
+
+void
+cofbucket::unpack(
+		struct ofp13_bucket* bucket,
+		size_t bclen)
+throw (eBucketBadLen, eBadActionBadOutPort)
+{
+	if (bclen < sizeof(struct ofp13_bucket))
+		throw eBucketBadLen();
+
+	weight = be16toh(bucket->weight);
+	watch_port = be32toh(bucket->watch_port);
+	watch_group = be32toh(bucket->watch_group);
+
+	size_t aclen = bclen - sizeof(struct ofp13_bucket);
 
 	if (aclen >= sizeof(struct ofp_action_header))
 	{

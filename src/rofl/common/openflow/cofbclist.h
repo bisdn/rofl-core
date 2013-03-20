@@ -65,15 +65,31 @@ public: // methods
 	 */
 	std::vector<cofbucket>&		// returns reference to this->bcvec
 	unpack(
-		struct ofp_bucket *buckets, // parses memory area buckets and creates cofbucket instance in this->bcvec
+		struct ofp12_bucket *buckets, // parses memory area buckets and creates cofbucket instance in this->bcvec
 		size_t bclen) 					// length of memory area to be parsed
 	throw (eBucketBadLen, eBadActionBadOutPort);
 
 	/** builds an array of struct ofp_buckets from this->bcvec
 	 */
-	struct ofp_bucket*				// returns parameter "struct ofp_bucket *buckets"
+	struct ofp12_bucket*				// returns parameter "struct ofp_bucket *buckets"
 	pack(
-		struct ofp_bucket *buckets, // pointer to memory area for storing this->bcvec
+		struct ofp12_bucket *buckets, // pointer to memory area for storing this->bcvec
+		size_t bclen) const			// length of memory area
+	throw (eBcListInval);
+
+	/** stores cofbucket instances in this->bcvec from a packed array struct ofp_bucket (e.g. in struct ofp_group_mod)
+	 */
+	std::vector<cofbucket>&		// returns reference to this->bcvec
+	unpack(
+		struct ofp13_bucket *buckets, // parses memory area buckets and creates cofbucket instance in this->bcvec
+		size_t bclen) 					// length of memory area to be parsed
+	throw (eBucketBadLen, eBadActionBadOutPort);
+
+	/** builds an array of struct ofp_buckets from this->bcvec
+	 */
+	struct ofp13_bucket*				// returns parameter "struct ofp_bucket *buckets"
+	pack(
+		struct ofp13_bucket *buckets, // pointer to memory area for storing this->bcvec
 		size_t bclen) const			// length of memory area
 	throw (eBcListInval);
 

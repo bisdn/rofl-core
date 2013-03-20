@@ -322,6 +322,37 @@ enum ofp13_flow_mod_flags {
 
 /* unaltered since OpenFlow 1.2 */
 
+/* Bucket for use in groups. */
+struct ofp13_bucket {
+    uint16_t len;                   /* Length the bucket in bytes, including
+                                       this header and any padding to make it
+                                       64-bit aligned. */
+    uint16_t weight;                /* Relative weight of bucket.  Only
+                                       defined for select groups. */
+    uint32_t watch_port;            /* Port whose state affects whether this
+                                       bucket is live.  Only required for fast
+                                       failover groups. */
+    uint32_t watch_group;           /* Group whose state affects whether this
+                                       bucket is live.  Only required for fast
+                                       failover groups. */
+    uint8_t pad[4];
+    struct ofp_action_header actions[0]; /* The action length is inferred
+                                           from the length field in the
+                                           header. */
+};
+OFP_ASSERT(sizeof(struct ofp13_bucket) == 16);
+
+/* Group setup and teardown (controller -> datapath). */
+struct ofp13_group_mod {
+    struct ofp_header header;
+    uint16_t command;             /* One of OFPGC_*. */
+    uint8_t type;                 /* One of OFPGT_*. */
+    uint8_t pad;                  /* Pad to 64 bits. */
+    uint32_t group_id;            /* Group identifier. */
+    struct ofp13_bucket buckets[0]; /* The bucket length is inferred from the
+                                     length field in the header. */
+};
+OFP_ASSERT(sizeof(struct ofp13_group_mod) == 16);
 
 // A3.4.3 Port Modification Message
 
@@ -898,7 +929,7 @@ struct ofp13_group_desc_stats {
 	uint8_t type;			/* One of OFPGT_*. */
 	uint8_t pad;			/* Pad to 64 bits. */
 	uint32_t group_id;		/* Group identifier. */
-	struct ofp_bucket buckets[0];
+	struct ofp12_bucket buckets[0];
 };
 OFP_ASSERT(sizeof(struct ofp13_group_desc_stats) == 8);
 

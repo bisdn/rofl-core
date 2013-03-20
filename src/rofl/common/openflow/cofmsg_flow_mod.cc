@@ -29,7 +29,7 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 
 	switch (of_version) {
 	case OFP10_VERSION: {
-		cofmsg::resize(OFP10_FLOW_MOD_STATIC_HDR_LEN);
+		resize(OFP10_FLOW_MOD_STATIC_HDR_LEN);
 
 		ofh10_flow_mod->cookie			= htobe64(cookie);
 		ofh10_flow_mod->command			= htobe16((uint16_t)command);
@@ -74,7 +74,7 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 
 	switch (of_version) {
 	case OFP12_VERSION: {
-		cofmsg::resize(OFP12_FLOW_MOD_STATIC_HDR_LEN);
+		resize(OFP12_FLOW_MOD_STATIC_HDR_LEN);
 
 		ofh12_flow_mod->cookie			= htobe64(cookie);
 		ofh12_flow_mod->cookie_mask		= htobe64(cookie_mask);
@@ -89,7 +89,7 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 		ofh12_flow_mod->flags			= htobe16(flags);
 	} break;
 	case OFP13_VERSION: {
-		cofmsg::resize(OFP13_FLOW_MOD_STATIC_HDR_LEN);
+		resize(OFP13_FLOW_MOD_STATIC_HDR_LEN);
 
 		ofh13_flow_mod->cookie			= htobe64(cookie);
 		ofh13_flow_mod->cookie_mask		= htobe64(cookie_mask);
