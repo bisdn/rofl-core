@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef __PHYSICAL_PORT_H__
 #define __PHYSICAL_PORT_H__
 
@@ -7,10 +11,18 @@
 #include "rofl.h"
 #include "platform/lock.h"
 
-/*
+
+/**
+* @author	Marc Sune(marc.sune@bisdn.de)  
+* @brief	Port abstraction API	
 *
-* Implements the physical port abstraction 
-*      Author: msune
+* switch_port implements the switch port abstraction.
+* There are three types of ports:
+*
+*	- Physical: representing an interface or device.
+*	- Tunnel: a tunnel endpoint termination.
+*	- Virtual: anything that does not fall to previous cat.
+*	- Meta: meta type should NEVER be used by the user.  
 *
 */
 
@@ -159,22 +171,23 @@ typedef struct logical_switch_port{
 ROFL_PIPELINE_BEGIN_DECLS
 
 /**
-* Init a switch_port structure
+* @brief Init a switch_port structure
 */
 switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_state_t state);
 
 /**
-* Destroy a switch_port structure
+* @brief Destroy a switch_port structure
 */
 rofl_result_t switch_port_destroy(switch_port_t* port);
 
 //Port Statistics
 
-/**
-* Increments atomically all the statistics of the port. Fill in with 0 the ones that should
+/*
+* @brief Increments atomically all the statistics of the port. Fill in with 0 the ones that should
 * be left untouched.
+*
 */
-/*inline*/ void switch_port_stats_inc(switch_port_t* port,
+void _intern_switch_port_stats_inc(switch_port_t* port,
 				uint64_t rx_packets,
 				uint64_t tx_packets,
 				uint64_t rx_bytes,
@@ -192,10 +205,26 @@ rofl_result_t switch_port_destroy(switch_port_t* port);
 /*
 * Conveninent wrappers just to avoid messing up with the bitmaps
 */
-/*inline*/ void switch_port_add_capabilities(port_features_t* bitmap, port_features_t features);
-/*inline*/ void switch_port_remove_capabilities(port_features_t* bitmap, port_features_t features);
-/*inline*/ void switch_port_set_current_speed(switch_port_t* port, port_features_t speed);
-/*inline*/ void switch_port_set_current_max_speed(switch_port_t* port, port_features_t speed);
+
+/**
+* @brief Adds capabilities to the port
+*/
+void switch_port_add_capabilities(port_features_t* bitmap, port_features_t features);
+
+/**
+* @brief Removes capabilities to the port
+*/
+void switch_port_remove_capabilities(port_features_t* bitmap, port_features_t features);
+
+/**
+* @brief Sets current speed
+*/
+void switch_port_set_current_speed(switch_port_t* port, port_features_t speed);
+
+/**
+* @brief Sets current MAX speed 
+*/
+void switch_port_set_current_max_speed(switch_port_t* port, port_features_t speed);
 
 //C++ extern C
 ROFL_PIPELINE_END_DECLS

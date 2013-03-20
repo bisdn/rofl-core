@@ -168,6 +168,7 @@ rofl_result_t get_logical_switch_ports(of_switch_t* sw, logical_switch_port_t** 
 	return of_get_switch_ports(sw,ports,num_of_ports,logical_sw_max_ports);
 }
 
+#if 0
 rofl_result_t physical_switch_attach_physical_port_num_to_logical_switch(unsigned int port_num, of_switch_t* sw, unsigned int* logical_switch_port_num){
 	
 	rofl_result_t return_val;
@@ -183,6 +184,7 @@ rofl_result_t physical_switch_attach_physical_port_num_to_logical_switch(unsigne
 	platform_mutex_unlock(psw.mutex);
 	return return_val;
 }
+#endif
 
 rofl_result_t physical_switch_attach_port_to_logical_switch(switch_port_t* port, of_switch_t* sw, unsigned int* port_num){
 
