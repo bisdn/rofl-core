@@ -267,6 +267,14 @@ enum ofp13_table_config {
 	OFPTC_DEPRECATED_MASK	= 3, 	/* Deprecated bits */
 };
 
+/* Configure/Modify behavior of a flow table */
+struct ofp13_table_mod {
+    struct ofp_header header;
+    uint8_t table_id;       /* ID of the table, 0xFF indicates all tables */
+    uint8_t pad[3];         /* Pad to 32 bits */
+    uint32_t config;        /* Bitmap of OFPTC_* flags */
+};
+OFP_ASSERT(sizeof(struct ofp13_table_mod) == 16);
 
 
 // A3.4 Modify State Messages

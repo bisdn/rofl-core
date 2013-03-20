@@ -107,13 +107,13 @@ enum ofp_table {
 
 
 /* Configure/Modify behavior of a flow table */
-struct ofp_table_mod {
+struct ofp12_table_mod {
     struct ofp_header header;
     uint8_t table_id;       /* ID of the table, 0xFF indicates all tables */
     uint8_t pad[3];         /* Pad to 32 bits */
     uint32_t config;        /* Bitmap of OFPTC_* flags */
 };
-OFP_ASSERT(sizeof(struct ofp_table_mod) == 16);
+OFP_ASSERT(sizeof(struct ofp12_table_mod) == 16);
 
 /* Capabilities supported by the datapath. */
 enum ofp_capabilities {
