@@ -9,8 +9,11 @@ cofmsg_stats::cofmsg_stats(
 		uint8_t  type,
 		uint32_t xid,
 		uint32_t stats_type,
-		uint32_t stats_flags) :
-	cofmsg(sizeof(struct ofp_header))
+		uint32_t stats_flags,
+		uint8_t *data,
+		size_t datalen) :
+	cofmsg(sizeof(struct ofp_header)),
+	body(data, datalen)
 {
 	ofh_stats_request = soframe();
 
@@ -20,17 +23,17 @@ cofmsg_stats::cofmsg_stats(
 
 	switch (of_version) {
 	case OFP10_VERSION: {
-		resize(sizeof(struct ofp10_stats_request));
+		resize(sizeof(struct ofp10_stats_request) + body.memlen());
 		ofh12_stats_request->type			= htobe16(stats_type);
 		ofh12_stats_request->flags			= htobe16(stats_flags);
 	} break;
 	case OFP12_VERSION: {
-		resize(sizeof(struct ofp12_stats_request));
+		resize(sizeof(struct ofp12_stats_request) + body.memlen());
 		ofh12_stats_request->type			= htobe16(stats_type);
 		ofh12_stats_request->flags			= htobe16(stats_flags);
 	} break;
 	case OFP13_VERSION: {
-		resize(sizeof(struct ofp13_multipart_request));
+		resize(sizeof(struct ofp13_multipart_request) + body.memlen());
 		ofh13_multipart_request->type		= htobe16(stats_type);
 		ofh13_multipart_request->flags		= htobe16(stats_flags);
 	} break;
@@ -69,6 +72,8 @@ cofmsg_stats::operator= (
 
 	ofh_stats_request = soframe();
 
+	body	= stats.body;
+
 	return *this;
 }
 
@@ -103,13 +108,13 @@ cofmsg_stats::length() const
 {
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		return sizeof(struct ofp10_stats_request);
+		return sizeof(struct ofp10_stats_request) + body.memlen();
 	} break;
 	case OFP12_VERSION: {
-		return sizeof(struct ofp12_stats_request);
+		return sizeof(struct ofp12_stats_request) + body.memlen();
 	} break;
 	case OFP13_VERSION: {
-		return sizeof(struct ofp13_multipart_request);
+		return sizeof(struct ofp13_multipart_request) + body.memlen();
 	} break;
 	default:
 		throw eBadVersion();
@@ -132,19 +137,22 @@ cofmsg_stats::pack(uint8_t *buf, size_t buflen)
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		if (buflen < sizeof(struct ofp10_stats_request))
+		if (buflen < (sizeof(struct ofp10_stats_request) + body.memlen()))
 			throw eInval();
 		memcpy(buf, soframe(), sizeof(struct ofp10_stats_request));
+		memcpy(buf + sizeof(struct ofp10_stats_request), body.somem(), body.memlen());
 	} break;
 	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_stats_request))
+		if (buflen < (sizeof(struct ofp12_stats_request) + body.memlen()))
 			throw eInval();
 		memcpy(buf, soframe(), sizeof(struct ofp12_stats_request));
+		memcpy(buf + sizeof(struct ofp12_stats_request), body.somem(), body.memlen());
 	} break;
 	case OFP13_VERSION: {
-		if (buflen < sizeof(struct ofp13_multipart_request))
+		if (buflen < (sizeof(struct ofp13_multipart_request) + body.memlen()))
 			throw eInval();
 		memcpy(buf, soframe(), sizeof(struct ofp13_multipart_request));
+		memcpy(buf + sizeof(struct ofp13_multipart_request), body.somem(), body.memlen());
 	} break;
 	default:
 		throw eBadVersion();
@@ -174,14 +182,17 @@ cofmsg_stats::validate()
 	case OFP10_VERSION: {
 		if (get_length() < sizeof(struct ofp10_stats_request))
 			throw eBadSyntaxTooShort();
+		body.assign(ofh10_stats_request->body, get_length() - sizeof(struct ofp10_stats_request));
 	} break;
 	case OFP12_VERSION: {
 		if (get_length() < sizeof(struct ofp12_stats_request))
 			throw eBadSyntaxTooShort();
+		body.assign(ofh12_stats_request->body, get_length() - sizeof(struct ofp12_stats_request));
 	} break;
 	case OFP13_VERSION: {
 		if (get_length() < sizeof(struct ofp13_multipart_request))
 			throw eBadSyntaxTooShort();
+		body.assign(ofh13_multipart_request->body, get_length() - sizeof(struct ofp13_multipart_request));
 	} break;
 	default:
 		throw eBadRequestBadVersion();
@@ -269,4 +280,13 @@ cofmsg_stats::set_stats_flags(uint16_t stats_flags)
 		throw eBadVersion();
 	}
 }
+
+
+
+cmemory&
+cofmsg_stats::get_body()
+{
+	return body;
+}
+
 

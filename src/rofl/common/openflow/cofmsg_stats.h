@@ -21,6 +21,8 @@ class cofmsg_stats :
 {
 private:
 
+	cmemory				body;	// for experimental statistics messages
+
 	union {
 		uint8_t*						ofhu_stats_request;
 		struct ofp10_stats_request*		ofhu10_stats_request;
@@ -44,7 +46,9 @@ public:
 			uint8_t  type = OFPT_STATS_REQUEST,
 			uint32_t xid = 0,
 			uint32_t stats_type = 0,
-			uint32_t stats_flags = 0);
+			uint32_t stats_flags = 0,
+			uint8_t *data = (uint8_t*)data,
+			size_t datalen = 0);
 
 
 	/**
@@ -66,7 +70,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_stats() {};
+	~cofmsg_stats();
 
 
 	/**
@@ -142,6 +146,12 @@ public:
 	 */
 	void
 	set_stats_flags(uint16_t flags);
+
+	/**
+	 *
+	 */
+	cmemory&
+	get_body();
 };
 
 } // end of namespace rofl
