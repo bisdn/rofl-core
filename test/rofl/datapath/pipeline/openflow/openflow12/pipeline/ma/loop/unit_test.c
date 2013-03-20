@@ -5,6 +5,7 @@
 #include "matching_test.h"
 
 int main(int args, char** argv){
+
 	int return_code;
 	//main to call all the other tests written in the oder files in this folder
 	CU_pSuite pSuite = NULL;
@@ -41,5 +42,6 @@ int main(int args, char** argv){
 	CU_basic_run_tests();
 	return_code = CU_get_number_of_failures();
 	CU_cleanup_registry();
+
 	return return_code;
 }
