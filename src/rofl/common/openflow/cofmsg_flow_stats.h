@@ -8,11 +8,17 @@
 #ifndef COFMSG_FLOW_STATS_H_
 #define COFMSG_FLOW_STATS_H_ 1
 
+#include <vector>
+
 #include "cofmsg_stats.h"
 #include "cofflowstats.h"
 
 namespace rofl
 {
+
+//
+// TODO: arrays of flow-stats !!!
+//
 
 /**
  *
@@ -22,7 +28,7 @@ class cofmsg_flow_stats :
 {
 private:
 
-	cofflow_stats_reply 		flow_stats;
+	std::vector<cofflow_stats_reply> 	flow_stats;
 
 	union {
 		uint8_t*						ofhu_flow_stats;
@@ -46,7 +52,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			cofflow_stats_reply const& flow_stats = cofflow_stats_reply());
+			std::vector<cofflow_stats_reply> const& flow_stats = std::vector<cofflow_stats_reply>(0));
 
 
 	/**
@@ -124,7 +130,7 @@ public:
 	/**
 	 *
 	 */
-	cofflow_stats_reply&
+	std::vector<cofflow_stats_reply>&
 	get_flow_stats();
 };
 

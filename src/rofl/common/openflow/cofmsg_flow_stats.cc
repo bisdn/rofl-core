@@ -8,18 +8,22 @@ cofmsg_flow_stats::cofmsg_flow_stats(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags,
-		cofflow_stats_reply const& flow_stats) :
+		std::vector<cofflow_stats_reply> const& flow_stats) :
 	cofmsg_stats(of_version, OFPT_STATS_REPLY, xid, OFPST_FLOW, flags),
 	flow_stats(flow_stats)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
-		resize(sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_flow_stats));
-		flow_stats.pack(soframe() + sizeof(struct ofh10_stats_reply), sizeof(struct ofp10_flow_stats));
+		resize(sizeof(struct ofp10_stats_reply) + flow_stats.size() * sizeof(struct ofp10_flow_stats));
+		for (unsigned int i = 0; i < flow_stats.size(); i++) {
+			flow_stats[i].pack(soframe() + i * sizeof(struct ofh10_stats_reply), sizeof(struct ofp10_flow_stats));
+		}
 	} break;
 	case OFP12_VERSION: {
-		resize(sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_flow_stats));
-		flow_stats.pack(soframe() + sizeof(struct ofh12_stats_reply), sizeof(struct ofp12_flow_stats));
+		resize(sizeof(struct ofp12_stats_reply) + flow_stats.size() * sizeof(struct ofp12_flow_stats));
+		for (unsigned int i = 0; i < flow_stats.size(); i++) {
+			flow_stats[i].pack(soframe() + i * sizeof(struct ofh12_stats_reply), sizeof(struct ofp12_flow_stats));
+		}
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -108,10 +112,10 @@ cofmsg_flow_stats::length() const
 {
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_stats_reply) + flow_stats.length());
+		return (sizeof(struct ofp10_stats_reply) + flow_stats.size() * sizeof(struct ofp10_desc_stats));
 	} break;
 	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_stats_reply) + flow_stats.length());
+		return (sizeof(struct ofp12_stats_reply) + flow_stats.size() * sizeof(struct ofp12_desc_stats));
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -136,16 +140,22 @@ cofmsg_flow_stats::pack(uint8_t *buf, size_t buflen)
 	if (buflen < length())
 		throw eInval();
 
+	flow_stats.clear();
+
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		if (buflen < (sizeof(struct ofp10_stats_reply) + flow_stats.length()))
+		if (buflen < length())
 			throw eInval();
-		flow_stats.pack(buf + sizeof(struct ofp10_stats_reply), flow_stats.length());
+		for (unsigned int i = 0; i < flow_stats.size(); i++) {
+			flow_stats[i].pack(soframe() + i * sizeof(struct ofh10_stats_reply), sizeof(struct ofp10_flow_stats));
+		}
 	} break;
 	case OFP12_VERSION: {
-		if (buflen < (sizeof(struct ofp12_stats_reply) + flow_stats.length()))
+		if (buflen < length())
 			throw eInval();
-		flow_stats.pack(buf + sizeof(struct ofp12_stats_reply), flow_stats.length());
+		for (unsigned int i = 0; i < flow_stats.size(); i++) {
+			flow_stats[i].pack(soframe() + i * sizeof(struct ofh12_stats_reply), sizeof(struct ofp12_flow_stats));
+		}
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -175,16 +185,22 @@ cofmsg_flow_stats::validate()
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		if (get_length() < (sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_flow_stats)))
+		if (get_length() < sizeof(struct ofp10_stats_reply))
 			throw eBadSyntaxTooShort();
-		ofh_flow_stats = soframe() + sizeof(struct ofp10_stats_reply);
-		flow_stats.unpack(ofh_flow_stats, sizeof(struct ofp10_flow_stats));
+		for (unsigned int i = 0; i < ((get_length() - sizeof(struct ofp10_stats_reply)) / sizeof(struct ofp10_flow_stats)); i++) {
+			cofflow_stats_reply flow_stats_reply;
+			flow_stats_reply.unpack(soframe() + sizeof(struct ofp10_stats_reply) + i * sizeof(struct ofp10_flow_stats), sizeof(struct ofp10_flow_stats));
+			flow_stats.push_back(flow_stats_reply);
+		}
 	} break;
 	case OFP12_VERSION: {
-		if (get_length() < (sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_flow_stats)))
+		if (get_length() < (sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_flow_stats)))
 			throw eBadSyntaxTooShort();
-		ofh_flow_stats = soframe() + sizeof(struct ofp12_stats_reply);
-		flow_stats.unpack(ofh_flow_stats, sizeof(struct ofp12_flow_stats));
+		for (unsigned int i = 0; i < ((get_length() - sizeof(struct ofp12_stats_reply)) / sizeof(struct ofp12_flow_stats)); i++) {
+			cofflow_stats_reply flow_stats_reply;
+			flow_stats_reply.unpack(soframe() + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_flow_stats), sizeof(struct ofp12_flow_stats));
+			flow_stats.push_back(flow_stats_reply);
+		}
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -197,7 +213,7 @@ cofmsg_flow_stats::validate()
 
 
 
-cofflow_stats_reply&
+std::vector<cofflow_stats_reply>&
 cofmsg_flow_stats::get_flow_stats()
 {
 	return flow_stats;
