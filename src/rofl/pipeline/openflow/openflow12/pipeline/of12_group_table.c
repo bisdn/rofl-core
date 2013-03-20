@@ -12,10 +12,12 @@
 #include "of12_group_table.h"
 #include "of12_pipeline.h"
 #include "../../../platform/memory.h"
+#include "../../../../common/openflow/openflow12.h"
 
 static void of12_destroy_bucket_list(of12_group_t *ge);
 static void of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge);
-static rofl_result_t of12_validate_group(of12_action_group_t* actions);
+static of12_group_mod_err_t of12_validate_group(of12_action_group_t* actions);
+bool of12_bucket_list_has_weights(of12_bucket_list_t *bl);
 
 of12_group_table_t* of12_init_group_table(){
 	of12_group_table_t *gt;
@@ -68,28 +70,40 @@ of12_group_t *of12_group_search(of12_group_table_t *gt, uint32_t id){
 }
 
 static
-rofl_result_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
+of12_group_mod_err_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
 							//uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t **actions){
-	
+	of12_group_mod_err_t ret_val;
 	of12_group_t* ge=NULL;
 	of12_bucket_t* bu_it;
 	
 	ge = (of12_group_t *) cutil_malloc_shared(sizeof(of12_group_t));
 	if (ge == NULL){
-		return ROFL_FAILURE;
+		return OF12_GROUP_MOD_ERR_OGRUPS;
 	}
+	
+	//TODO check type
+	
+	if(id == OFPG_ALL || id == OFPG_ANY || id > OFPG_MAX)
+		return OF12_GROUP_MOD_ERR_INVAL;
 	
 	//validate action set
-	for(bu_it=ge->bc_list->head;bu_it!=NULL;bu_it=bu_it->next){
-		if(of12_validate_group(bu_it->actions)==ROFL_FAILURE)
-			return ROFL_FAILURE;
+	for(bu_it=buckets->head;bu_it!=NULL;bu_it=bu_it->next){
+		if((ret_val=of12_validate_group(bu_it->actions))!=OF12_GROUP_MOD_ERR_OK)
+			return ret_val;
 	}
+	if(type == OF12_GROUP_TYPE_INDIRECT && buckets->num_of_buckets>1)
+		return OF12_GROUP_MOD_ERR_INVAL;
+	if( (type == OF12_GROUP_TYPE_ALL || type == OF12_GROUP_TYPE_INDIRECT) && of12_bucket_list_has_weights(buckets))
+		return OF12_GROUP_MOD_ERR_INVAL;
+	if (type == OF12_GROUP_TYPE_SELECT && of12_bucket_list_has_weights(buckets) == false)
+		return OF12_GROUP_MOD_ERR_INVAL;
 	
-	ge->bc_list->head = ge->bc_list->tail = NULL;
+	ge->bc_list = buckets;
 	ge->id = id;
 	ge->type = type;
 	ge->group_table = gt;
 	ge->rwlock = platform_rwlock_init(NULL);
+	//TODO init statistics ge->stats
 	
 	//insert in the end
 	if (gt->head == NULL && gt->tail == NULL){
@@ -104,32 +118,28 @@ rofl_result_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, ui
 	gt->tail = ge;
 	gt->num_of_entries++;
 	
-	/*for(i=0;buckets[i]!=NULL;i++){
-		if(of12_init_group_bucket(ge,buckets[i])!=ROFL_SUCCESS)
-			return ROFL_FAILURE;
-	}*/
-	ge->bc_list = buckets;
-	
-	return ROFL_SUCCESS;
+	return OF12_GROUP_MOD_ERR_OK;
 }
 
-rofl_result_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
+of12_group_mod_err_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
 							 //uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t **actions){
-	
+	of12_group_mod_err_t ret_val;
 	platform_rwlock_wrlock(gt->rwlock);
 	
 	//check wether onither entry with this ID already exists
 	if(of12_group_search(gt,id)!=NULL){
 		platform_rwlock_wrunlock(gt->rwlock);
-		return ROFL_FAILURE;
+		return OF12_GROUP_MOD_ERR_EXISTS;
 	}
 	
-	if (of12_init_group(gt,type,id, buckets)!=ROFL_SUCCESS){
+	ret_val=of12_init_group(gt,type,id, buckets);
+	if (ret_val!=OF12_GROUP_MOD_ERR_OK){
 		platform_rwlock_wrunlock(gt->rwlock);
-		return ROFL_FAILURE;
+		return ret_val;
 	}
+	
 	platform_rwlock_wrunlock(gt->rwlock);
-	return ROFL_SUCCESS;
+	return OF12_GROUP_MOD_ERR_OK;
 }
 
 static
@@ -176,18 +186,38 @@ rofl_result_t of12_extract_group(of12_group_table_t *gt, of12_group_t *ge){
 	return ROFL_SUCCESS;
 }
 
-rofl_result_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_table_t *gt, uint32_t id){
+of12_group_mod_err_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_table_t *gt, uint32_t id){
 	int i;
 	of12_flow_entry_t* entry;
-	of12_group_t *ge;
+	of12_group_t *ge, *next;
+	
+	//TODO if the group value is OFPG_ALL, delete all groups 
+	if(id == OFPG_ALL){
+		for(ge = gt->head; ge; ge=next){
+			next = ge->next;
+			//extract the group without destroying it (only the first thread that comes gets it)
+			if(of12_extract_group(gt, ge)==ROFL_FAILURE)
+				return OF12_GROUP_MOD_ERR_OK; //if it is not found no need to throw an error
+			
+			//loop for all the tables and erase entries that point to the group
+			for(i=0; i<pipeline->num_of_tables; i++){
+				while((entry=pipeline->tables[i].maf.find_entry_using_group_hook(&pipeline->tables[i],ge->id))!=NULL){
+					of12_remove_specific_flow_entry_table(pipeline,i,entry, OF12_FLOW_REMOVE_GROUP_DELETE, MUTEX_NOT_ACQUIRED);
+				}
+			}
+			//destroy the group
+			of12_destroy_group(gt,ge);
+		}
+		return OF12_GROUP_MOD_ERR_OK;
+	}
 	
 	//search the table for the group
 	if((ge=of12_group_search(gt,id))==NULL);
-		return ROFL_SUCCESS; //if it is not found no need to throw an error
+		return OF12_GROUP_MOD_ERR_OK; //if it is not found no need to throw an error
 	
 	//extract the group without destroying it (only the first thread that comes gets it)
 	if(of12_extract_group(gt, ge)==ROFL_FAILURE)
-		return ROFL_SUCCESS; //if it is not found no need to throw an error
+		return OF12_GROUP_MOD_ERR_OK; //if it is not found no need to throw an error
 	
 	//loop for all the tables and erase entries that point to the group
 	for(i=0; i<pipeline->num_of_tables; i++){
@@ -199,7 +229,7 @@ rofl_result_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_table_t *g
 	//destroy the group
 	of12_destroy_group(gt,ge);
 	
-	return ROFL_SUCCESS;
+	return OF12_GROUP_MOD_ERR_OK;
 }
 
 /**
@@ -207,20 +237,32 @@ rofl_result_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_table_t *g
  * and modifies the action buckets inside
  * @param actions is a null ended array with the action groups for each bucket
  */
-rofl_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
-
+of12_group_mod_err_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
+	of12_bucket_t* bu_it;
+	of12_group_mod_err_t ret_val;
 	of12_group_t *ge = of12_group_search(gt,id);
 	if (ge == NULL){
 		platform_rwlock_wrunlock(gt->rwlock);
-		return ROFL_FAILURE;
+		return OF12_GROUP_MOD_ERR_UNKGRP;
 	}
 	
 	/*WARNING validate actions?*/
+	for(bu_it=buckets->head;bu_it!=NULL;bu_it=bu_it->next){
+		if((ret_val=of12_validate_group(bu_it->actions))!=OF12_GROUP_MOD_ERR_OK)
+			return ret_val;
+	}
+	if(type == OF12_GROUP_TYPE_INDIRECT && buckets->num_of_buckets>1)
+		return OF12_GROUP_MOD_ERR_INVAL;
+	if(type == OF12_GROUP_TYPE_ALL && of12_bucket_list_has_weights(buckets))
+		return OF12_GROUP_MOD_ERR_INVAL;
 	
 	platform_rwlock_wrlock(ge->rwlock);
 	
 	of12_destroy_bucket_list(ge);
 	ge->bc_list = buckets;
+	ge->id = id;
+	ge->type = type;
+	ge->group_table = gt;
 	/*for(i=0;buckets[i]!=NULL;i++){
 		if(of12_init_group_bucket(ge,buckets[i])==ROFL_FAILURE){
 			platform_rwlock_wrunlock(ge->rwlock);
@@ -233,18 +275,27 @@ rofl_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, 
 }
 
 of12_bucket_list_t *of12_init_bucket_list(void){
-	return cutil_malloc_shared(sizeof(of12_bucket_list_t));
+	of12_bucket_list_t *bl = cutil_malloc_shared(sizeof(of12_bucket_list_t));
+	if (bl == NULL)
+		return NULL;
+	
+	bl->num_of_buckets=0;
+	bl->head = NULL;
+	bl->tail = NULL;
+	return bl;
 }
 
 rofl_result_t of12_insert_bucket_in_list(of12_bucket_list_t *bu_list,of12_bucket_t *bucket){
 	
 	if(bu_list->head==NULL && bu_list->tail==NULL){
-		bu_list->head = bu_list->tail = bucket;
+		bu_list->head = bucket;
+		bu_list->tail = bucket;
 	}
 	else{
 		bu_list->tail->next = bucket;
 		bu_list->tail = bucket;
 	}
+	bu_list->num_of_buckets++;
 	return ROFL_SUCCESS;
 }
 
@@ -259,6 +310,7 @@ of12_bucket_t *of12_init_bucket(uint16_t weight, uint32_t port, uint32_t group, 
 	bk->port= port;
 	bk->group= group;
 	bk->actions = actions;// actions must be already initialized
+	//TODO init statistics bk->stats
 	
 	return bk;
 }
@@ -276,7 +328,7 @@ void of12_destroy_bucket_list(of12_group_t *ge){
 	cutil_free(ge->bc_list);
 }
 static
-rofl_result_t of12_validate_group(of12_action_group_t* actions){
+of12_group_mod_err_t of12_validate_group(of12_action_group_t* actions){
 
 	//we dont allow OF12_AT_GROUP
 	//and neither OF12_AT_OUTPUT in the case of OF12_PORT_TABLE
@@ -284,12 +336,23 @@ rofl_result_t of12_validate_group(of12_action_group_t* actions){
 	
 	for(it=actions->head; it; it=it->next){
 		if(it->type == OF12_AT_GROUP)
-			return ROFL_FAILURE;
+			return OF12_GROUP_MOD_ERR_CHAIN;
 		if(it->type == OF12_AT_OUTPUT && it->field == OF12_PORT_TABLE)
-			return ROFL_FAILURE;
+			return OF12_GROUP_MOD_ERR_INVAL;
 	}
 		
 	//verify apply actions
-	of12_validate_action_group(actions);
-	return ROFL_FAILURE;
+	if(of12_validate_action_group(actions)==false)
+		return OF12_GROUP_MOD_ERR_INVAL;
+	
+	return OF12_GROUP_MOD_ERR_OK;
+}
+
+bool of12_bucket_list_has_weights(of12_bucket_list_t *bl){
+	of12_bucket_t *bu_it;
+	for(bu_it = bl->head; bu_it!=NULL; bu_it=bu_it->next){
+		if(bu_it->weight!=0)
+			return true;
+	}
+	return false;
 }
