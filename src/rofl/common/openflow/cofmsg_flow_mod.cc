@@ -15,8 +15,8 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 		uint32_t buffer_id,
 		uint16_t out_port,
 		uint16_t flags,
-		cofaclist const& actions = cofinlist(),
-		cofmatch const& match = cofmatch()) :
+		cofaclist const& actions,
+		cofmatch const& match) :
 	cofmsg(sizeof(struct ofp_header)),
 	instructions(instructions),
 	match(match)

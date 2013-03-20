@@ -61,7 +61,7 @@ public:
 			uint32_t buffer_id = 0,
 			uint16_t out_port = 0,
 			uint16_t flags = 0,
-			cofaclist const& actions = cofinlist(),
+			cofaclist const& actions = cofaclist(),
 			cofmatch const& match = cofmatch());
 
 

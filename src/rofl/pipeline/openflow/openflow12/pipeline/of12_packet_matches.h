@@ -32,9 +32,9 @@ typedef struct{
 	uint8_t vlan_pcp;		/* VLAN PCP. */
 
 	//IPv4
-	//uint8_t ip_dscp;		/* IP DSCP (6 bits in ToS field). */
-	//uint8_t ip_ecn;		/* IP ECN (2 bits in ToS field). */
 	uint8_t ip_proto;		/* IP protocol. */
+	uint8_t ip_dscp;		/* IP DSCP (6 bits in ToS field). */
+	uint8_t ip_ecn;			/* IP ECN (2 bits in ToS field). */
 	uint32_t ipv4_src;		/* IPv4 source address. */
 	uint32_t ipv4_dst;		/* IPv4 destination address. */
 

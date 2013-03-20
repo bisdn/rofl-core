@@ -28,8 +28,11 @@ void of12_update_packet_matches(datapacket_t *const pkt){
 	matches->vlan_vid = platform_get_packet_vlan_vid(pkt);
 	matches->vlan_pcp = platform_get_packet_vlan_pcp(pkt);
 
-	//IPv4
 	matches->ip_proto = platform_get_packet_ip_proto(pkt);
+	matches->ip_ecn = platform_get_packet_ip_ecn(pkt);
+	matches->ip_dscp = platform_get_packet_ip_dscp(pkt);
+	
+	//IPv4
 	matches->ipv4_src = platform_get_packet_ipv4_src(pkt);
 	matches->ipv4_dst = platform_get_packet_ipv4_dst(pkt);
 

@@ -413,6 +413,11 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen) const throw (eOFmatchInval)
 void
 cofmatch::unpack(struct ofp10_match* m, size_t mlen) throw (eOFmatchInval)
 {
+	of_version = OFP10_VERSION;
+	oxmlist.clear();
+	memarea.resize(OFP10_MATCH_STATIC_LEN);
+	ofh10_match = (struct ofp10_match*)memarea.somem();
+
 	if (mlen < OFP10_MATCH_STATIC_LEN) {
 		throw eOFmatchInval();
 	}
@@ -529,6 +534,14 @@ cofmatch::pack(struct ofp12_match* m, size_t mlen) const throw (eOFmatchInval)
 void
 cofmatch::unpack(struct ofp12_match* m, size_t mlen) throw (eOFmatchInval)
 {
+	of_version = OFP12_VERSION;
+	oxmlist.clear();
+	memarea.resize(OFP12_MATCH_STATIC_LEN);
+	ofh12_match = (struct ofp12_match*)memarea.somem();
+	ofh12_match->type 	= htobe16(OFPMT_OXM);
+	ofh12_match->length = htobe16(length());
+
+
 	if (mlen < (sizeof(uint16_t) + sizeof(uint16_t))) {
 		throw eOFmatchInval();
 	}
@@ -576,6 +589,13 @@ cofmatch::pack(struct ofp13_match* m, size_t mlen) const throw (eOFmatchInval)
 void
 cofmatch::unpack(struct ofp13_match* m, size_t mlen) throw (eOFmatchInval)
 {
+	of_version = OFP13_VERSION;
+	oxmlist.clear();
+	memarea.resize(OFP12_MATCH_STATIC_LEN);
+	ofh13_match = (struct ofp13_match*)memarea.somem();
+	ofh13_match->type 	= htobe16(OFPMT_OXM);
+	ofh13_match->length = htobe16(length());
+
 	if (mlen < (sizeof(uint16_t) + sizeof(uint16_t))) {
 		throw eOFmatchInval();
 	}

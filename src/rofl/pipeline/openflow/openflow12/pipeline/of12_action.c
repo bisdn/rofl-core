@@ -71,6 +71,12 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 		case OF12_AT_SET_FIELD_UDP_DST:
 		case OF12_AT_SET_FIELD_PPPOE_SID:
 		case OF12_AT_SET_FIELD_PPP_PROT:
+		/*case OF12_AT_POP_VLAN: TODO: CHECK THIS*/
+		case OF12_AT_POP_MPLS: 
+		case OF12_AT_POP_PPPOE: 
+		case OF12_AT_PUSH_PPPOE:
+		case OF12_AT_PUSH_MPLS: 
+		case OF12_AT_PUSH_VLAN: 
 			action->field = field&OF12_AT_2_BYTE_MASK;
 			break;
 		//13 bit values
@@ -254,77 +260,96 @@ static inline void of12_process_packet_action(const struct of12_switch* sw, cons
 	switch(action->type){
 		case OF12_AT_NO_ACTION: /*TODO: print some error traces? */
 			break;
+
 		case OF12_AT_COPY_TTL_IN: platform_copy_ttl_in(pkt);
 			break;
+
 		case OF12_AT_POP_VLAN: platform_pop_vlan(pkt);
 			break;
 		case OF12_AT_POP_MPLS: platform_pop_mpls(pkt, action->field);
 			break;
+
 		case OF12_AT_POP_PPPOE: platform_pop_pppoe(pkt, action->field);
 			break;
 		case OF12_AT_PUSH_PPPOE: platform_push_pppoe(pkt, action->field);
 			break;
+
 		case OF12_AT_PUSH_MPLS: platform_push_mpls(pkt, action->field);
 			break;
 		case OF12_AT_PUSH_VLAN: platform_push_vlan(pkt, action->field);
 			break;
+
 		case OF12_AT_COPY_TTL_OUT: platform_copy_ttl_out(pkt);
 			break;
+
 		case OF12_AT_DEC_NW_TTL: platform_dec_nw_ttl(pkt);
 			break;
 		case OF12_AT_DEC_MPLS_TTL: platform_dec_mpls_ttl(pkt);
 			break;
+
 		case OF12_AT_SET_MPLS_TTL: platform_set_mpls_ttl(pkt, action->field);
 			break;
 		case OF12_AT_SET_NW_TTL: platform_set_nw_ttl(pkt, action->field);
 			break;
+
 		case OF12_AT_SET_QUEUE: platform_set_queue(pkt, action->field);
 			break;
+
 		//TODO 
 		//case OF12_AT_SET_FIELD_METADATA: platform_set_metadata(pkt, action->field);
 		//	break;
+
 		case OF12_AT_SET_FIELD_ETH_DST: platform_set_eth_dst(pkt, action->field); 
 			break;
 		case OF12_AT_SET_FIELD_ETH_SRC: platform_set_eth_src(pkt, action->field); 
 			break;
 		case OF12_AT_SET_FIELD_ETH_TYPE: platform_set_eth_type(pkt, action->field);
 			break;
+
 		case OF12_AT_SET_FIELD_VLAN_VID: platform_set_vlan_vid(pkt, action->field);
 			break;
 		case OF12_AT_SET_FIELD_VLAN_PCP: platform_set_vlan_pcp(pkt, action->field);
 			break;
+
 		case OF12_AT_SET_FIELD_IP_DSCP:  platform_set_ip_dscp(pkt, action->field);
 			break;
 		case OF12_AT_SET_FIELD_IP_ECN:   platform_set_ip_ecn(pkt, action->field);
 			break;
 		case OF12_AT_SET_FIELD_IP_PROTO: platform_set_ip_proto(pkt, action->field);
 			break;
+
 		case OF12_AT_SET_FIELD_IPV4_SRC: platform_set_ipv4_src(pkt, action->field);
 			break;
 		case OF12_AT_SET_FIELD_IPV4_DST: platform_set_ipv4_dst(pkt, action->field);
 			break;
+
 		case OF12_AT_SET_FIELD_TCP_SRC:  platform_set_tcp_src(pkt, action->field);
 			break;
 		case OF12_AT_SET_FIELD_TCP_DST:  platform_set_tcp_dst(pkt, action->field);
 			break;
+
 		case OF12_AT_SET_FIELD_UDP_SRC:  platform_set_udp_src(pkt, action->field);
 			break;
 		case OF12_AT_SET_FIELD_UDP_DST:   platform_set_udp_dst(pkt, action->field);
 			break;
+
 		case OF12_AT_SET_FIELD_ICMPV4_TYPE: platform_set_icmpv4_type(pkt, action->field);
 			break;
 		case OF12_AT_SET_FIELD_ICMPV4_CODE: platform_set_icmpv4_code(pkt, action->field);
 			break;
+
 		case OF12_AT_SET_FIELD_MPLS_LABEL: platform_set_mpls_label(pkt, action->field);
 			break;
 		case OF12_AT_SET_FIELD_MPLS_TC: platform_set_mpls_tc(pkt, action->field);
 			break;
+
 		case OF12_AT_SET_FIELD_PPPOE_CODE: platform_set_pppoe_code(pkt, action->field);
 			break;
 		case OF12_AT_SET_FIELD_PPPOE_TYPE: platform_set_pppoe_type(pkt, action->field);
 			break;
 		case OF12_AT_SET_FIELD_PPPOE_SID: platform_set_pppoe_sid(pkt, action->field);
 			break;
+
 		case OF12_AT_SET_FIELD_PPP_PROT: platform_set_ppp_proto(pkt, action->field);
 			break;
 		case OF12_AT_GROUP: of12_process_group_actions(sw, table_id, pkt, action->field, action->group);
@@ -434,14 +459,14 @@ rofl_result_t of12_update_write_actions(of12_write_actions_t** group, of12_write
 
 static
 void of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t *group){
-	of12_group_bucket_t *it_bk;
+	of12_bucket_t *it_bk;
 	
 	//process the actions in the buckets depending on the type
 	switch(group->type){
 		case OF12_GROUP_TYPE_ALL:
 			//executes all buckets
 			platform_rwlock_rdlock(group->rwlock);
-			for (it_bk = group->bl_head; it_bk!=NULL;it_bk = it_bk->next){
+			for (it_bk = group->bc_list->head; it_bk!=NULL;it_bk = it_bk->next){
 				//process all actions in the bucket
 				of12_process_apply_actions(sw,table_id,pkt,it_bk->actions, it_bk->actions->num_of_output_actions > 1);
 			}
@@ -454,7 +479,7 @@ void of12_process_group_actions(const struct of12_switch* sw, const unsigned int
 		case OF12_GROUP_TYPE_INDIRECT:
 			//executes the "one bucket defined"
 			platform_rwlock_rdlock(group->rwlock);
-			of12_process_apply_actions(sw,table_id,pkt,group->bl_head->actions, group->bl_head->actions->num_of_output_actions > 1);
+			of12_process_apply_actions(sw,table_id,pkt,group->bc_list->head->actions, group->bc_list->head->actions->num_of_output_actions > 1);
 			platform_rwlock_rdunlock(group->rwlock);
 			break;
 		case OF12_GROUP_TYPE_FF:
@@ -499,83 +524,105 @@ static void of12_dump_packet_action(of12_packet_action_t action){
 	switch(action.type){
 		case OF12_AT_NO_ACTION: /*TODO: print some error traces? */
 			break;
+
 		case OF12_AT_COPY_TTL_IN: fprintf(stderr, "TTL_IN");
 			break;
+
 		case OF12_AT_POP_VLAN:fprintf(stderr, "POP_VLAN");
 			break;
 		case OF12_AT_POP_MPLS:fprintf(stderr, "POP_MPLS");
 			break;
 		case OF12_AT_POP_PPPOE:fprintf(stderr, "POP_PPPOE");
 			break;
+
 		case OF12_AT_PUSH_PPPOE:fprintf(stderr, "PUSH_PPPOE");
 			break;
 		case OF12_AT_PUSH_MPLS:fprintf(stderr, "PUSH_MPLS");
 			break;
 		case OF12_AT_PUSH_VLAN:fprintf(stderr, "PUSH_VLAN");
 			break;
+
 		case OF12_AT_COPY_TTL_OUT:fprintf(stderr, "COPY_TTL_OUT");
 			break;
+
 		case OF12_AT_DEC_NW_TTL:fprintf(stderr, "DEC_NW_TTL");
 			break;
 		case OF12_AT_DEC_MPLS_TTL:fprintf(stderr, "DEC_MPLS_TTL");
 			break;
+
 		case OF12_AT_SET_MPLS_TTL:fprintf(stderr, "SET_MPLS_TTL%llx",(long long unsigned int)action.field);
 			break;
 		case OF12_AT_SET_NW_TTL:fprintf(stderr, "SET_NW_TTL: %llx",(long long unsigned int)action.field);
 			break;
+
 		case OF12_AT_SET_QUEUE:fprintf(stderr, "SET_QUEUE:%llx",(long long unsigned int)action.field);
 			break;
+
 		//TODO 
 		//case OF12_AT_SET_FIELD_METADATA:
 		//	break;
+
 		case OF12_AT_SET_FIELD_ETH_DST: fprintf(stderr, "SET_ETH_DST: %llx",(long long unsigned int)action.field); 
 			break;
 		case OF12_AT_SET_FIELD_ETH_SRC: fprintf(stderr, "SET_ETH_SRC: %llx",(long long unsigned int)action.field);
 			break;
 		case OF12_AT_SET_FIELD_ETH_TYPE:fprintf(stderr, "SET_ETH_TYPE: %llx",(long long unsigned int)action.field);
 			break;
+
 		case OF12_AT_SET_FIELD_VLAN_VID:fprintf(stderr, "SET_VLAN_VID: %llx",(long long unsigned int)action.field);
 			break;
 		case OF12_AT_SET_FIELD_VLAN_PCP:fprintf(stderr, "SET_VLAN_PCP: %llx",(long long unsigned int)action.field);
 			break;
+
 		case OF12_AT_SET_FIELD_IP_DSCP: fprintf(stderr, "SET_IP_DSCP: %llx",(long long unsigned int)action.field);
 			break;
 		case OF12_AT_SET_FIELD_IP_ECN:  fprintf(stderr, "SET_IP_ECN: %llx",(long long unsigned int)action.field);
 			break;
+
 		case OF12_AT_SET_FIELD_IP_PROTO:fprintf(stderr, "SET_IP_PROTO: %llx",(long long unsigned int)action.field);
 			break;
+
 		case OF12_AT_SET_FIELD_IPV4_SRC:fprintf(stderr, "SET_IPV4_SRC: %llx",(long long unsigned int)action.field);
 			break;
 		case OF12_AT_SET_FIELD_IPV4_DST:fprintf(stderr, "SET_IPV4_DST: %llx",(long long unsigned int)action.field);
 			break;
+
 		case OF12_AT_SET_FIELD_TCP_SRC: fprintf(stderr, "SET_TCP_SRC: %llx",(long long unsigned int)action.field);
 			break;
 		case OF12_AT_SET_FIELD_TCP_DST: fprintf(stderr, "SET_TCP_DST: %llx",(long long unsigned int)action.field);
 			break;
+
 		case OF12_AT_SET_FIELD_UDP_SRC: fprintf(stderr, "SET_UDP_SRC: %llx",(long long unsigned int)action.field);
 			break;
 		case OF12_AT_SET_FIELD_UDP_DST:  fprintf(stderr, "SET_UDP_DST: %llx",(long long unsigned int)action.field);
 			break;
+
 		case OF12_AT_SET_FIELD_ICMPV4_TYPE:fprintf(stderr, "SET_ICMPV4_TYPE: %llx",(long long unsigned int)action.field);
 			break;
 		case OF12_AT_SET_FIELD_ICMPV4_CODE:fprintf(stderr, "SET_ICMPV4_CODE: %llx",(long long unsigned int)action.field);
 			break;
+
 		case OF12_AT_SET_FIELD_MPLS_LABEL:fprintf(stderr, "SET_MPLS_LABEL: %llx",(long long unsigned int)action.field);
 			break;
 		case OF12_AT_SET_FIELD_MPLS_TC:fprintf(stderr, "SET_MPLS_TC: %llx",(long long unsigned int)action.field);
 			break;
+
 		case OF12_AT_SET_FIELD_PPPOE_CODE:fprintf(stderr, "SET_PPPOE_CODE: %llx",(long long unsigned int)action.field);
 			break;
 		case OF12_AT_SET_FIELD_PPPOE_TYPE:fprintf(stderr, "SET_PPPOE_TYPE: %llx",(long long unsigned int)action.field);
 			break;
 		case OF12_AT_SET_FIELD_PPPOE_SID:fprintf(stderr, "SET_PPPOE_SID: %llx",(long long unsigned int)action.field);
 			break;
+
 		case OF12_AT_SET_FIELD_PPP_PROT:fprintf(stderr, "SET_PPP_PROT: %llx",(long long unsigned int)action.field);
 			break;
+
 		case OF12_AT_GROUP:fprintf(stderr, "GROUP");
 			break;
+
 		case OF12_AT_EXPERIMENTER:fprintf(stderr, "EXPERIMENTER");
 			break;
+
 		case OF12_AT_OUTPUT:fprintf(stderr, "OUTPUT: %llx",(long long unsigned int)action.field);
 			break;
 	}
