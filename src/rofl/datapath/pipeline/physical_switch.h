@@ -16,7 +16,7 @@
 /**
 * @file physical_switch.h
 * @author Marc Sune(marc.sune@bisdn.de)  
-* @brief Physical switch API	
+* @brief Physical switch API    
 *
 * The physical switch is the abstraction that contains
 * the state of a forwarding device (e.g. a physical switch, 
@@ -24,32 +24,32 @@
 *
 * The physical switch stores fundamentally information about:
 *
-*	- System ports(net interfaces): the ports availableon the system. This 
-*	        interfaces may be physical ports, or virtual,
-*		depending on the system. The semantic of a 
-*		virtual port is strictly bound to the system
-*		in which is running (take a look at switch_port.h
-*		for more details).
+*    - System ports(net interfaces): the ports availableon the system. This 
+*      interfaces may be physical ports, or virtual,
+*      depending on the system. The semantic of a 
+*      virtual port is strictly bound to the system
+*      in which is running (take a look at switch_port.h
+*      for more details).
 *
-* 		The discovery of the system ports is up to the library user. It
-*		must be done during initialization and before ANY logical switch 
-*		has been added to the physical switch.
+*      The discovery of the system ports is up to the library user. It
+*      must be done during initialization and before ANY logical switch 
+*      has been added to the physical switch.
 *
-* 	- Logical switches instances: a logical switch instance is a runnable
-*		instance of a switch that uses one or more of the ports available
-*		in the phyisical system. In other words, a logical switch is what
-*		OF protocol defines as "datapath", but only concerning forwarding
-*		(excluding the OF endpoint).
+*    - Logical switches instances: a logical switch instance is a runnable
+*      instance of a switch that uses one or more of the ports available
+*      in the phyisical system. In other words, a logical switch is what
+*      OF protocol defines as "datapath", but only concerning forwarding
+*      (excluding the OF endpoint).
 *
-*		Logical switches are of type of_switch, and may be created using
-*		the version specific init/destroy functions provided by the library.
-*		(e.g. of12_init_switch). Immediately after, they must be added to
-*		the physical switch. Note that instances not added to the physical
-*		switch are completely meaningless(*).
+*       Logical switches are of type of_switch, and may be created using
+*       the version specific init/destroy functions provided by the library.
+*       (e.g. of12_init_switch). Immediately after, they must be added to
+*       the physical switch. Note that instances not added to the physical
+*       switch are completely meaningless(*).
 *
-*		Once added the ports can be attached to the logical switch, and 
-*		eventually, in the case of the software switches, start to process
-*		packets using the call of_process_packet_pipeline.
+*       Once added the ports can be attached to the logical switch, and 
+*       eventually, in the case of the software switches, start to process
+*       packets using the call of_process_packet_pipeline.
 *
 *
 * A typical usage of the library in the case of a software switch (that is, it uses
@@ -64,10 +64,10 @@
 * physical_switch_t* psw = get_physical_switch();
 *
 * for i in num of interfaces:
-*	switch_port_t* port = switch_port_init();
-*	//Fill in port struct...(e.g. port name, speed..)
-*	port->name = "eth0";
-* 	psw->physical_ports[i] = port;
+*    switch_port_t* port = switch_port_init();
+*    //Fill in port struct...(e.g. port name, speed..)
+*    port->name = "eth0";
+*     psw->physical_ports[i] = port;
 *
 *
 * //Now we create one or more Logical switch instances
@@ -95,21 +95,21 @@
 
 
 #ifndef PHYSICAL_SWITCH_MAX_LS
-	#define PHYSICAL_SWITCH_MAX_LS 64
+    #define PHYSICAL_SWITCH_MAX_LS 64
 #endif
 
 #ifndef PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS
-	#define PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS 128 
+    #define PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS 128 
 #endif
 
 #ifndef PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS
-	#define PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS 128
+    #define PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS 128
 #endif
 
 #ifndef PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS
-	#define PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS 32
+    #define PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS 32
 #endif
-	
+    
 #define PHYSICAL_SWITCH_MAX_NUM_META_PORTS 8
 
 
@@ -119,35 +119,35 @@ typedef void platform_physical_switch_state_t;
 
 typedef struct physical_switch{
 
-	/*
-	* List of all logical switches in the system
-	*/
-	unsigned int num_of_logical_switches;
-	of_switch_t* logical_switches[PHYSICAL_SWITCH_MAX_LS];
+    /*
+    * List of all logical switches in the system
+    */
+    unsigned int num_of_logical_switches;
+    of_switch_t* logical_switches[PHYSICAL_SWITCH_MAX_LS];
 
-	/*
-	* Ports
-	*/
-	//physical: index is the physical port of the platform.
-	switch_port_t* physical_ports[PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS];
+    /*
+    * Ports
+    */
+    //physical: index is the physical port of the platform.
+    switch_port_t* physical_ports[PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS];
 
-	//tunnel ports
-	switch_port_t* tunnel_ports[PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS]; //Not used yet
+    //tunnel ports
+    switch_port_t* tunnel_ports[PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS]; //Not used yet
 
-	//virtual ports (which are not tunnel)
-	switch_port_t* virtual_ports[PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS]; //Not used yet
+    //virtual ports (which are not tunnel)
+    switch_port_t* virtual_ports[PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS]; //Not used yet
 
-	//meta ports (esoteric ports). This is NOT an array of pointers!
-	switch_port_t meta_ports[PHYSICAL_SWITCH_MAX_NUM_META_PORTS]; 
+    //meta ports (esoteric ports). This is NOT an array of pointers!
+    switch_port_t meta_ports[PHYSICAL_SWITCH_MAX_NUM_META_PORTS]; 
 
-	/* 
-	* Other state 
-	*/
-	//Mutex
-	platform_mutex_t* mutex;
-	
-	//Opaque platform specific extra state 
-	platform_physical_switch_state_t* platform_state;	
+    /* 
+    * Other state 
+    */
+    //Mutex
+    platform_mutex_t* mutex;
+    
+    //Opaque platform specific extra state 
+    platform_physical_switch_state_t* platform_state;	
 }physical_switch_t; 
 
 //C++ extern C
@@ -158,17 +158,17 @@ ROFL_PIPELINE_BEGIN_DECLS
 //
 
 /**
-* @brief	Initializes the physical switch. This call must be done before anyone else. 
+* @brief    Initializes the physical switch. This call must be done before anyone else. 
 */
 void physical_switch_init(void);
 
 /**
-* @brief	Returns a pointer to the physical switch. This seldomly needs to be used. 
+* @brief    Returns a pointer to the physical switch. This seldomly needs to be used. 
 */
 physical_switch_t* get_physical_switch(void);
 
 /**
-* @brief	Destroys the physical switch state. 
+* @brief    Destroys the physical switch state. 
 *
 * This call destroys the physical switch state. This call will NOT destroy any logical switch 
 * or any port switch previously placed in the physical switch port list.
@@ -176,35 +176,34 @@ physical_switch_t* get_physical_switch(void);
 void physical_switch_destroy(void);
 
 /**
-* @brief	Add a logical switch to the pool. 
+* @brief    Add a logical switch to the pool. 
 *
 * This call adds a previously initialized logical switch to the current logical
 * switch pool 
 *
-* @param sw	Pointer to an of_switch_t structure. The switch must have been previously initialized
-* 		using ofXX_init_switch() call.
+* @param sw    Pointer to an of_switch_t structure. The switch must have been previously initialized using ofXX_init_switch() call.
 */
 rofl_result_t physical_switch_add_logical_switch(of_switch_t* sw);
 
 /**
-* @brief	Attemps to remove a previously added logical switch from the pool
-*		by dpid. 
+* @brief Attemps to remove a previously added logical switch from the pool
+* by dpid. 
 */
 rofl_result_t physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid);
 
 /**
-* @brief	Attemps to remove a previously added logical switch from the pool 
+* @brief    Attemps to remove a previously added logical switch from the pool 
 */
 rofl_result_t physical_switch_remove_logical_switch(of_switch_t* sw);
 
 //Getters
 /**
-* @brief	Attemps to retrieve a logical switch from the pool by its dpid 
+* @brief    Attemps to retrieve a logical switch from the pool by its dpid 
 */
 of_switch_t* physical_switch_get_logical_switch_by_dpid(const uint64_t dpid);
 
 /**
-* @brief	Attemps to retrieve the logical switch attached to the port
+* @brief    Attemps to retrieve the logical switch attached to the port
 */
 of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_port_t port);
 
@@ -227,8 +226,8 @@ switch_port_t* physical_switch_get_port_by_name(const char *name);
 * Attempts to retrieve a port previously added to the phyisical switch and attached
 * to the logical switch identified by the dpid and attached to port number
 *
-* @param dpid 		Datapath ID of the switch 
-* @param port_num	Port number 	
+* @param dpid     	Datapath ID of the switch 
+* @param port_num    Port number 	
 *
 */
 switch_port_t* physical_switch_get_port_by_num(const uint64_t dpid, unsigned int port_num);
@@ -237,7 +236,7 @@ switch_port_t* physical_switch_get_port_by_num(const uint64_t dpid, unsigned int
 //Physical switch list
 /**
 * @brief Retrieve the physical port list
-* @param num_of_ports	Pointer to an int. Number of ports will be filled by the lib.
+* @param num_of_ports    Pointer to an int. Number of ports will be filled by the lib.
 */
 void physical_switch_get_physical_ports(switch_port_t* ports, unsigned int* num_of_ports);
 /*
@@ -249,7 +248,7 @@ TODO: add create virtual link and add/remove tunnel.
 //Logical switch port management
 /**
 * @brief Retrieve the physical port list
-* @param num_of_ports	Pointer to an int. Number of ports will be filled by the lib.
+* @param num_of_ports    Pointer to an int. Number of ports will be filled by the lib.
 */
 rofl_result_t get_logical_switch_ports(of_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports);
 
@@ -259,7 +258,7 @@ rofl_result_t physical_switch_attach_port_num_to_logical_switch(unsigned int por
 
 /**
 * @brief Attaches port to logical switch 
-* @param port_num	Pointer to an int. The LS port number (OF number), will be filled. 
+* @param port_num Pointer to an int. The LS port number (OF number), will be filled. 
 */
 rofl_result_t physical_switch_attach_port_to_logical_switch(switch_port_t* port, of_switch_t* sw, unsigned int* port_num);
 
@@ -270,7 +269,7 @@ rofl_result_t physical_switch_attach_port_to_logical_switch(switch_port_t* port,
 * another port was previously attached there (reuse of port numbers is
 * strictly forbidden).
 *
-* @param port_num	The LS port number (OF number) where to attach port.
+* @param port_num The LS port number (OF number) where to attach port.
 */
 rofl_result_t physical_switch_attach_port_to_logical_switch_at_port_num(switch_port_t* port, of_switch_t* sw, unsigned int port_num);
 
