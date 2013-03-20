@@ -1085,6 +1085,14 @@ OFP_ASSERT(sizeof(struct ofp13_packet_out) == 24);
 
 /* unaltered since OpenFlow 1.2 */
 
+/* Role request and reply message. */
+struct ofp13_role_request {
+	struct ofp_header header; 	/* Type OFPT_ROLE_REQUEST/OFPT_ROLE_REPLY. */
+	uint32_t role;				/* One of NX_ROLE_*. */
+	uint8_t pad[4];				/* Align to 64 bits. */
+	uint64_t generation_id;		/* Master Election Generation Id */
+};
+OFP_ASSERT(sizeof(struct ofp13_role_request) == 24);
 
 // A3.10 Set Asynchronous Configuration Message
 

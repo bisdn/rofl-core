@@ -1505,13 +1505,13 @@ OFP_ASSERT(sizeof(struct ofp12_queue_stats) == 32);
 
 
 /* Role request and reply message. */
-struct ofp_role_request {
+struct ofp12_role_request {
 	struct ofp_header header; 	/* Type OFPT_ROLE_REQUEST/OFPT_ROLE_REPLY. */
 	uint32_t role;				/* One of NX_ROLE_*. */
 	uint8_t pad[4];				/* Align to 64 bits. */
 	uint64_t generation_id;		/* Master Election Generation Id */
 };
-OFP_ASSERT(sizeof(struct ofp_role_request) == 24);
+OFP_ASSERT(sizeof(struct ofp12_role_request) == 24);
 
 /* Controller roles. */
 enum ofp_controller_role {
