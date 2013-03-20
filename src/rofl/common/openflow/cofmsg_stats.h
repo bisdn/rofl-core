@@ -51,7 +51,7 @@ public:
 	 *
 	 */
 	cofmsg_stats(
-			cofmsg_stats const& role);
+			cofmsg_stats const& stats);
 
 
 	/**
@@ -59,7 +59,7 @@ public:
 	 */
 	cofmsg_stats&
 	operator= (
-			cofmsg_stats const& role);
+			cofmsg_stats const& stats);
 
 
 	/** destructor
@@ -87,6 +87,13 @@ public:
 	 */
 	virtual void
 	resize(size_t len);
+
+
+	/** returns length of packet in packed state
+	 *
+	 */
+	virtual size_t
+	length() const;
 
 
 	/**
