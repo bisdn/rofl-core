@@ -1,45 +1,45 @@
 /*
- * cofmsg_queue_stats.h
+ * cofmsg_group_stats.h
  *
  *  Created on: 18.03.2013
  *      Author: andi
  */
 
-#ifndef COFMSG_QUEUE_STATS_H_
-#define COFMSG_QUEUE_STATS_H_ 1
+#ifndef COFMSG_GROUP_STATS_H_
+#define COFMSG_GROUP_STATS_H_ 1
 
 #include <vector>
 
 #include "cofmsg_stats.h"
-#include "cofqueuestats.h"
+#include "cofgroupstats.h"
 
 namespace rofl
 {
 
 //
-// TODO: arrays of queue-stats !!!
+// TODO: arrays of group-stats !!!
 //
 
 /**
  *
  */
-class cofmsg_queue_stats :
+class cofmsg_group_stats :
 	public cofmsg_stats
 {
 private:
 
-	std::vector<cofqueue_stats_reply> 	queue_stats;
+	std::vector<cofgroup_stats_reply> 	group_stats;
 
 	union {
-		uint8_t*						ofhu_queue_stats;
-		struct ofp10_queue_stats*		ofhu10_queue_stats;
-		struct ofp12_queue_stats*		ofhu12_queue_stats;
+		uint8_t*						ofhu_group_stats;
+		struct ofp10_group_stats*		ofhu10_group_stats;
+		struct ofp12_group_stats*		ofhu12_group_stats;
 		// TODO: OF1.3
 	} ofhu;
 
-#define ofh_queue_stats   			ofhu.ofhu_queue_stats
-#define ofh10_queue_stats 			ofhu.ofhu10_queue_stats
-#define ofh12_queue_stats 			ofhu.ofhu12_queue_stats
+#define ofh_group_stats   			ofhu.ofhu_group_stats
+#define ofh10_group_stats 			ofhu.ofhu10_group_stats
+#define ofh12_group_stats 			ofhu.ofhu12_group_stats
 // TODO OF1.3
 
 public:
@@ -48,39 +48,39 @@ public:
 	/** constructor
 	 *
 	 */
-	cofmsg_queue_stats(
+	cofmsg_group_stats(
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			std::vector<cofqueue_stats_reply> const& queue_stats = std::vector<cofqueue_stats_reply>(0));
+			std::vector<cofgroup_stats_reply> const& group_stats = std::vector<cofgroup_stats_reply>(0));
 
 
 	/**
 	 *
 	 */
-	cofmsg_queue_stats(
-			cofmsg_queue_stats const& stats);
+	cofmsg_group_stats(
+			cofmsg_group_stats const& stats);
 
 
 	/**
 	 *
 	 */
-	cofmsg_queue_stats&
+	cofmsg_group_stats&
 	operator= (
-			cofmsg_queue_stats const& stats);
+			cofmsg_group_stats const& stats);
 
 
 	/** destructor
 	 *
 	 */
 	virtual
-	~cofmsg_queue_stats();
+	~cofmsg_group_stats() {};
 
 
 	/**
 	 *
 	 */
-	cofmsg_queue_stats(cmemory *memarea);
+	cofmsg_group_stats(cmemory *memarea);
 
 
 	/** reset packet content
@@ -130,10 +130,10 @@ public:
 	/**
 	 *
 	 */
-	std::vector<cofqueue_stats_reply>&
-	get_queue_stats();
+	std::vector<cofgroup_stats_reply>&
+	get_group_stats();
 };
 
 } // end of namespace rofl
 
-#endif /* COFMSG_QUEUE_STATS_H_ */
+#endif /* COFMSG_GROUP_STATS_H_ */
