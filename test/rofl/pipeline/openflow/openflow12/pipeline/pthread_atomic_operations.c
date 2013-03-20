@@ -30,3 +30,10 @@ void platform_atomic_add32(uint32_t* counter, uint32_t* value, platform_mutex_t*
 	(*counter)+=(*value);
 	platform_mutex_unlock(mutex);
 }
+
+void platform_atomic_dec32(uint32_t* counter, platform_mutex_t* mutex)
+{
+	platform_mutex_lock(mutex);
+	(*counter)--;
+	platform_mutex_unlock(mutex);
+}

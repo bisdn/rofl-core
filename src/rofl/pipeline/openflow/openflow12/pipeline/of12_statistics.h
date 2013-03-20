@@ -118,6 +118,7 @@ typedef struct of12_stats_queue{
 typedef struct of12_stats_bucket_counter{
 	uint64_t packet_count;
 	uint64_t byte_count;
+	platform_mutex_t* mutex;
 }of12_stats_bucket_counter_t;
 
 //Group stats
@@ -126,6 +127,7 @@ typedef struct of12_stats_group{
 	uint64_t packet_count;
 	uint64_t byte_count;
 	struct of12_stats_bucket_counter bucket_stats[0];
+	platform_mutex_t* mutex;
 }of12_stats_group_t;
 
 /** operations in statistics.c **/
@@ -156,6 +158,14 @@ void of12_stats_flow_inc(struct of12_flow_entry * entry,uint64_t bytes_rx);
 void of12_stats_table_init(struct of12_flow_table * table);
 void of12_stats_table_lookup_inc(struct of12_flow_table * table);
 void of12_stats_table_matches_inc(struct of12_flow_table * table);
+
+void of12_init_group_stats(of12_stats_group_t *group_stats);
+void of12_stats_group_update(of12_stats_group_t *gr_stats, uint64_t bytes);
+void of12_stats_group_inc_reference(of12_stats_group_t *gr_stats);
+void of12_stats_group_dec_reference(of12_stats_group_t *gr_stats);
+
+void of12_init_bucket_stats(of12_stats_bucket_counter_t *bc_stats);
+void of12_stats_bucket_update(of12_stats_bucket_counter_t* bc_stats, uint64_t bytes);
 
 /*
 * FIXME TODO XXX Move it down to the port

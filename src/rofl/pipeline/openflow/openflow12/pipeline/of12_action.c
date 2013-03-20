@@ -463,6 +463,7 @@ void of12_process_group_actions(const struct of12_switch* sw, const unsigned int
 			for (it_bk = group->bc_list->head; it_bk!=NULL;it_bk = it_bk->next){
 				//process all actions in the bucket
 				of12_process_apply_actions(sw,table_id,pkt,it_bk->actions, it_bk->actions->num_of_output_actions > 1);
+				of12_stats_bucket_update(it_bk->stats, (of12_packet_matches_t *)(pkt->matches)->pkt_size_bytes);
 			}
 			platform_rwlock_rdunlock(group->rwlock);
 			break;
@@ -474,6 +475,7 @@ void of12_process_group_actions(const struct of12_switch* sw, const unsigned int
 			//executes the "one bucket defined"
 			platform_rwlock_rdlock(group->rwlock);
 			of12_process_apply_actions(sw,table_id,pkt,group->bc_list->head->actions, group->bc_list->head->actions->num_of_output_actions > 1);
+			of12_stats_bucket_update(group->bc_list->head->stats, (of12_packet_matches_t *)(pkt->matches)->pkt_size_bytes);
 			platform_rwlock_rdunlock(group->rwlock);
 			break;
 		case OF12_GROUP_TYPE_FF:
@@ -483,6 +485,7 @@ void of12_process_group_actions(const struct of12_switch* sw, const unsigned int
 		default:
 			break;
 	}
+	of12_stats_group_update(group->stats, (of12_packet_matches_t *)(pkt->matches)->pkt_size_bytes);
 	
 }
 //Checking functions

@@ -103,7 +103,7 @@ of12_group_mod_err_t of12_init_group(of12_group_table_t *gt, of12_group_type_t t
 	ge->type = type;
 	ge->group_table = gt;
 	ge->rwlock = platform_rwlock_init(NULL);
-	//TODO init statistics ge->stats
+	of12_init_group_stats(&ge->stats);
 	
 	//insert in the end
 	if (gt->head == NULL && gt->tail == NULL){
@@ -246,7 +246,7 @@ of12_group_mod_err_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t
 		return OF12_GROUP_MOD_ERR_UNKGRP;
 	}
 	
-	/*WARNING validate actions?*/
+	/*WARNING validate actions? NEW FUNCTION!*/
 	for(bu_it=buckets->head;bu_it!=NULL;bu_it=bu_it->next){
 		if((ret_val=of12_validate_group(bu_it->actions))!=OF12_GROUP_MOD_ERR_OK)
 			return ret_val;
@@ -310,7 +310,7 @@ of12_bucket_t *of12_init_bucket(uint16_t weight, uint32_t port, uint32_t group, 
 	bk->port= port;
 	bk->group= group;
 	bk->actions = actions;// actions must be already initialized
-	//TODO init statistics bk->stats
+	of12_init_bucket_stats(&bk->stats);
 	
 	return bk;
 }

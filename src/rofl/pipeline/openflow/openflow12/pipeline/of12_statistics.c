@@ -5,6 +5,7 @@
 #include "of12_flow_table.h"
 #include "of12_flow_entry.h"
 #include "of12_timers.h"
+#include "of12_group_table.h"
 #include "../../../platform/memory.h"
 #include <rofl/pipeline/platform/atomic_operations.h>
 
@@ -279,12 +280,39 @@ inline void of12_stats_queue_tx_errors_inc(of12_stats_queue_t *queue_stats)
 	platform_atomic_inc64(&queue_stats->tx_errors, queue_stats->mutex);
 }
 
-/**
- * TODO  not yet implemented
- * of12_stats_group_update
- * of12_stats_bucket_update
- */
+void of12_init_group_stats(of12_stats_group_t *group_stats){
+	//NOTE group_stats->bucket_stats; do we need the references to the stats of all the buckets directly?
+	group_stats->byte_count = 0;
+	group_stats->packet_count = 0;
+	group_stats->ref_count = 0;
+}
 
+//void of12_destroy_group_stats();
+
+void of12_stats_group_update(of12_stats_group_t *gr_stats, uint64_t bytes){
+	platform_atomic_inc64(&gr_stats->packet_count, gr_stats->mutex);
+	platform_atomic_add64(&gr_stats->byte_count, &bytes, gr_stats->mutex);
+}
+
+void of12_stats_group_inc_reference(of12_stats_group_t *gr_stats){
+	platform_atomic_inc32(&gr_stats->ref_count, gr_stats->mutex);
+}
+
+void of12_stats_group_dec_reference(of12_stats_group_t *gr_stats){
+	platform_atomic_dec32(&gr_stats->ref_count, gr_stats->mutex);
+}
+
+void of12_init_bucket_stats(of12_stats_bucket_counter_t *bc_stats){
+	bc_stats->byte_count = 0;
+	bc_stats->packet_count = 0;
+}
+
+//void of12_destroy_buckets_stats();
+
+void of12_stats_bucket_update(of12_stats_bucket_counter_t* bc_stats, uint64_t bytes){
+	platform_atomic_inc64(&bc_stats->packet_count, bc_stats->mutex);
+	platform_atomic_add64(&bc_stats->byte_count, &bytes, bc_stats->mutex);
+}
 
 /*
 * External interfaces
