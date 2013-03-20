@@ -19,17 +19,15 @@
 namespace rofl
 {
 
-class cofaggr_stats_request
+class cofgroup_features_stats_reply
 {
 private: // data structures
 
 	uint8_t 	of_version;
-	cofmatch 	match;
-	uint8_t 	table_id;
-	uint32_t	out_port;
-	uint32_t	out_group;
-	uint64_t	cookie;
-	uint64_t	cookie_mask;
+	uint32_t	types;
+	uint32_t	capabilities;
+	uint32_t	max_groups[4];
+	uint32_t	actions[4];
 
 public: // data structures
 
@@ -38,53 +36,42 @@ public:
 	/**
 	 *
 	 */
-	cofaggr_stats_request(
+	cofgroup_features_stats_reply(
 			uint8_t of_version = 0,
 			uint8_t *buf = (uint8_t*)0,
 			size_t buflen = 0);
 
-	/**
-	 *
-	 */
-	cofaggr_stats_request(
-			uint8_t of_version,
-			cofmatch const& match,
-			uint8_t table_id,
-			uint16_t out_port);
-
 
 	/**
 	 *
 	 */
-	cofaggr_stats_request(
+	cofgroup_features_stats_reply(
 			uint8_t of_version,
-			cofmatch const& match,
-			uint8_t table_id,
-			uint32_t out_port,
-			uint32_t out_group,
-			uint64_t cookie,
-			uint64_t cookie_mask);
+			uint32_t types,
+			uint32_t capabilities,
+			std::vector<uint32_t> const& max_groups,
+			std::vector<uint32_t> const& actions);
 
 
 	/**
 	 *
 	 */
 	virtual
-	~cofaggr_stats_request();
+	~cofgroup_features_stats_reply();
 
 
 	/**
 	 *
 	 */
-	cofaggr_stats_request(
-			cofaggr_stats_request const& flowstatsrequest);
+	cofgroup_features_stats_reply(
+			cofgroup_features_stats_reply const& group_features_stats);
 
 	/**
 	 *
 	 */
-	cofaggr_stats_request&
+	cofgroup_features_stats_reply&
 	operator= (
-			cofaggr_stats_request const& flowstatsrequest);
+			cofgroup_features_stats_reply const& group_features_stats);
 
 
 	/**
@@ -108,138 +95,7 @@ public:
 	length() const;
 
 
-	/**
-	 *
-	 */
-	void
-	set_version(uint8_t of_version);
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_version() const;
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_table_id() const;
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_out_port() const;
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_out_group() const;
-
-	/**
-	 *
-	 */
-	uint64_t
-	get_cookie() const;
-
-	/**
-	 *
-	 */
-	uint64_t
-	get_cookie_mask() const;
-
-	/**
-	 *
-	 */
-	cofmatch&
-	get_match();
-};
-
-
-
-class cofaggr_stats_reply
-{
-private: // data structures
-
-	uint8_t 	of_version;
-	uint64_t	packet_count;
-	uint64_t	byte_count;
-	uint32_t	flow_count;
-
-public: // data structures
-
-
 public:
-	/**
-	 *
-	 */
-	cofaggr_stats_reply(
-			uint8_t of_version = 0,
-			uint8_t *buf = (uint8_t*)0,
-			size_t buflen = 0);
-
-
-	/**
-	 *
-	 */
-	cofaggr_stats_reply(
-			uint8_t of_version,
-			uint64_t packet_count,
-			uint64_t byte_count,
-			uint32_t flow_count);
-
-
-	/**
-	 *
-	 */
-	virtual
-	~cofaggr_stats_reply();
-
-
-	/**
-	 *
-	 */
-	cofaggr_stats_reply(
-			cofaggr_stats_reply const& aggrstats);
-
-	/**
-	 *
-	 */
-	cofaggr_stats_reply&
-	operator= (
-			cofaggr_stats_reply const& aggrstats);
-
-
-	/**
-	 *
-	 */
-	void
-	pack(uint8_t *buf, size_t buflen) const;
-
-
-	/**
-	 *
-	 */
-	void
-	unpack(uint8_t *buf, size_t buflen);
-
-
-	/**
-	 *
-	 */
-	size_t
-	length() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_version(uint8_t of_version);
 
 
 	/**
@@ -252,43 +108,50 @@ public:
 	/**
 	 *
 	 */
-	uint64_t
-	get_packet_count() const;
-
-
-	/**
-	 *
-	 */
-	uint64_t
-	get_byte_count() const;
+	void
+	set_version(uint8_t of_version);
 
 
 	/**
 	 *
 	 */
 	uint32_t
-	get_flow_count() const;
+	get_types() const;
 
 
 	/**
 	 *
 	 */
 	void
-	set_packet_count(uint64_t packet_count);
+	set_types(uint32_t types);
+
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_capabilities() const;
 
 
 	/**
 	 *
 	 */
 	void
-	set_byte_count(uint64_t byte_count);
+	set_capabilities(uint32_t capabilities);
 
 
 	/**
 	 *
 	 */
-	void
-	set_flow_count(uint32_t flow_count);
+	std::vector<uint32_t>&
+	get_max_groups();
+
+
+	/**
+	 *
+	 */
+	std::vector<uint32_t>&
+	get_actions();
 };
 
 

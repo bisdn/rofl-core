@@ -1394,13 +1394,13 @@ struct ofp12_group_desc_stats {
 OFP_ASSERT(sizeof(struct ofp12_group_desc_stats) == 8);
 
 /* Body of reply to OFPST_GROUP_FEATURES request. Group features. */
-struct ofp_group_features_stats {
+struct ofp12_group_features_stats {
 	uint32_t types;				/* Bitmap of OFPGT_* values supported. */
 	uint32_t capabilities;		/* Bitmap of OFPGFC_* capability supported. */
 	uint32_t max_groups[4];		/* Maximum number of groups for each type. */
 	uint32_t actions[4];		/* Bitmaps of OFPAT_* that are supported. */
 };
-OFP_ASSERT(sizeof(struct ofp_group_features_stats) == 40);
+OFP_ASSERT(sizeof(struct ofp12_group_features_stats) == 40);
 
 /* Group configuration flags */
 enum ofp_group_capabilities {
