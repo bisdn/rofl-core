@@ -1,7 +1,7 @@
 #include <inttypes.h>
-#include <rofl/pipeline/common/datapacket.h>
-#include <rofl/pipeline/physical_switch.h>
-#include <rofl/pipeline/openflow/of_switch.h>
+#include <rofl/datapath/pipeline/common/datapacket.h>
+#include <rofl/datapath/pipeline/physical_switch.h>
+#include <rofl/datapath/pipeline/openflow/of_switch.h>
 
 void platform_copy_ttl_in(datapacket_t* pkt){
 }

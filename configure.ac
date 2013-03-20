@@ -215,9 +215,9 @@ AC_CONFIG_FILES([
 	src/rofl/common/openflow/Makefile
 	src/rofl/common/Makefile
 	
-	src/rofl/controller/platform/Makefile
+	src/rofl/platform/unix/Makefile
+	
 	src/rofl/controller/config/Makefile
-	src/rofl/controller/platform/unix/Makefile
 	src/rofl/controller/experimental/Makefile
 	src/rofl/controller/control/Makefile
 	src/rofl/controller/Makefile

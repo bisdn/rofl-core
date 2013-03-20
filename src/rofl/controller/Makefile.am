@@ -7,7 +7,7 @@ EXPERIMENTAL_DIRS=experimental
 EXPERIMENTAL_LIBS=experimental/libexperimental.la 
 endif
 
-SUBDIRS = config platform control $(EXPERIMENTAL_DIRS) $(PIPELINE_DIRS)
+SUBDIRS = config control $(EXPERIMENTAL_DIRS) $(PIPELINE_DIRS)
 
 #library_includedir=$(includedir)/rofl 
 #include_HEADERS=rofl.h

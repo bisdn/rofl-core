@@ -6,9 +6,9 @@
  */
 
 #include <assert.h>
-#include <rofl/pipeline/platform/openflow/openflow12/platform_hooks_of12.h>
-#include <rofl/pipeline/openflow/openflow12/of12_switch.h>
-#include <rofl/pipeline/openflow/openflow12/pipeline/of12_flow_table.h>
+#include <rofl/datapath/pipeline/platform/openflow/openflow12/platform_hooks_of12.h>
+#include <rofl/datapath/pipeline/openflow/openflow12/of12_switch.h>
+#include <rofl/datapath/pipeline/openflow/openflow12/pipeline/of12_flow_table.h>
 
 
 /*

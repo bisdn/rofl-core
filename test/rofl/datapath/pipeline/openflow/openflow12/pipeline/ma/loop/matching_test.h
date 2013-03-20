@@ -8,12 +8,12 @@
 #include <unistd.h>
 #include <CUnit/Basic.h>
 
-#include "rofl/pipeline/openflow/openflow12/of12_switch.h"
-#include "rofl/pipeline/openflow/openflow12/pipeline/of12_match.h"
-#include "rofl/pipeline/openflow/openflow12/pipeline/of12_flow_entry.h"
-#include "rofl/pipeline/openflow/openflow12/pipeline/of12_flow_table.h"
-#include "rofl/pipeline/openflow/openflow12/pipeline/matching_algorithms/matching_algorithms_available.h"
-#include "rofl/pipeline/openflow/openflow12/pipeline/matching_algorithms/loop/of12_loop_match.h"
+#include "rofl/datapath/pipeline/openflow/openflow12/of12_switch.h"
+#include "rofl/datapath/pipeline/openflow/openflow12/pipeline/of12_match.h"
+#include "rofl/datapath/pipeline/openflow/openflow12/pipeline/of12_flow_entry.h"
+#include "rofl/datapath/pipeline/openflow/openflow12/pipeline/of12_flow_table.h"
+#include "rofl/datapath/pipeline/openflow/openflow12/pipeline/matching_algorithms/matching_algorithms_available.h"
+#include "rofl/datapath/pipeline/openflow/openflow12/pipeline/matching_algorithms/loop/of12_loop_match.h"
 
 /* Setup/teardown */
 int set_up(void);

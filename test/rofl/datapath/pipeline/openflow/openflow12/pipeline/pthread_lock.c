@@ -1,5 +1,5 @@
-#include <rofl/pipeline/platform/lock.h>
-#include <rofl/pipeline/platform/memory.h>
+#include <rofl/datapath/pipeline/platform/lock.h>
+#include <rofl/datapath/pipeline/platform/memory.h>
 
 #include <pthread.h>
 

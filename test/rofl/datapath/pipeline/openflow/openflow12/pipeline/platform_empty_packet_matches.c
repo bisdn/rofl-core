@@ -1,5 +1,5 @@
 #include <inttypes.h>
-#include <rofl/pipeline/common/datapacket.h>
+#include <rofl/datapath/pipeline/common/datapacket.h>
 
 uint32_t
 platform_get_packet_size_bytes(datapacket_t * const pkt){

@@ -8,9 +8,9 @@
 #include "CUnit/Basic.h"
 #include "lib_assert.h"
 #include "lib_random.h"
-#include "rofl/pipeline/openflow/openflow12/pipeline/matching_algorithms/matching_algorithms_available.h"
-#include "rofl/pipeline/openflow/openflow12/pipeline/of12_match.h"
-#include "rofl/pipeline/openflow/openflow12/pipeline/of12_group_table.h"
+#include "rofl/datapath/pipeline/openflow/openflow12/pipeline/matching_algorithms/matching_algorithms_available.h"
+#include "rofl/datapath/pipeline/openflow/openflow12/pipeline/of12_match.h"
+#include "rofl/datapath/pipeline/openflow/openflow12/pipeline/of12_group_table.h"
 
 #include <sys/mman.h>
 

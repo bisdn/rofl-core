@@ -1,4 +1,4 @@
-#include <rofl/pipeline/platform/atomic_operations.h>
+#include <rofl/datapath/pipeline/platform/atomic_operations.h>
 
 
 /// these functins increase by one the counter

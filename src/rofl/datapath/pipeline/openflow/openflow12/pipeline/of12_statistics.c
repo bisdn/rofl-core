@@ -6,7 +6,7 @@
 #include "of12_flow_entry.h"
 #include "of12_timers.h"
 #include "../../../platform/memory.h"
-#include <rofl/pipeline/platform/atomic_operations.h>
+#include "../../../platform/atomic_operations.h"
 
 /**
  * Here the functions that initialize and update
