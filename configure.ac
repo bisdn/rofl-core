@@ -110,7 +110,7 @@ fi
 AC_MSG_CHECKING(for pipeline support)
 PIPELINE_SUPPORT="yes"
 AC_ARG_ENABLE(pipeline,
-	AS_HELP_STRING([--enable-pipeline], [Enable pipeline support [default=no]]),
+	AS_HELP_STRING([--enable-pipeline], [Enable pipeline support [default=yes]]),
 [ if test "$enableval" = "yes"; then
     PIPELINE_SUPPORT="yes"
     AC_DEFINE(PIPELINE_SUPPORT)
@@ -119,25 +119,25 @@ AC_ARG_ENABLE(pipeline,
 AC_MSG_RESULT($PIPELINE_SUPPORT)
 AM_CONDITIONAL(PIPELINE_SUPPORT, test $PIPELINE_SUPPORT = yes)
 AM_COND_IF([PIPELINE_SUPPORT],[AC_CONFIG_FILES([
-        src/rofl/pipeline/Makefile
-        src/rofl/pipeline/common/Makefile
-        src/rofl/pipeline/platform/Makefile
-        src/rofl/pipeline/platform/openflow/Makefile
-		src/rofl/pipeline/platform/openflow/openflow12/Makefile
-        src/rofl/pipeline/openflow/Makefile
-        src/rofl/pipeline/openflow/openflow12/Makefile
-        src/rofl/pipeline/openflow/openflow12/pipeline/Makefile
-        src/rofl/pipeline/openflow/openflow12/pipeline/matching_algorithms/Makefile
-        src/rofl/pipeline/util/Makefile
+        src/rofl/datapath/pipeline/Makefile
+        src/rofl/datapath/pipeline/common/Makefile
+        src/rofl/datapath/pipeline/platform/Makefile
+        src/rofl/datapath/pipeline/platform/openflow/Makefile
+	src/rofl/datapath/pipeline/platform/openflow/openflow12/Makefile
+        src/rofl/datapath/pipeline/openflow/Makefile
+        src/rofl/datapath/pipeline/openflow/openflow12/Makefile
+        src/rofl/datapath/pipeline/openflow/openflow12/pipeline/Makefile
+        src/rofl/datapath/pipeline/openflow/openflow12/pipeline/matching_algorithms/Makefile
+        src/rofl/datapath/pipeline/util/Makefile
 
-	test/rofl/pipeline/openflow/openflow12/pipeline/Makefile
-	test/rofl/pipeline/openflow/openflow12/pipeline/ma/loop/Makefile
-	test/rofl/pipeline/openflow/openflow12/pipeline/dynamic/Makefile
-	test/rofl/pipeline/openflow/openflow12/pipeline/static/Makefile
+	test/rofl/datapath/pipeline/openflow/openflow12/pipeline/Makefile
+	test/rofl/datapath/pipeline/openflow/openflow12/pipeline/ma/loop/Makefile
+	test/rofl/datapath/pipeline/openflow/openflow12/pipeline/dynamic/Makefile
+	test/rofl/datapath/pipeline/openflow/openflow12/pipeline/static/Makefile
 ])])
 
 ## pipeline
-MATCHING_ALGORITHMS_DIR="src/rofl/pipeline/openflow/openflow12/pipeline/matching_algorithms"
+MATCHING_ALGORITHMS_DIR="src/rofl/datapath/pipeline/openflow/openflow12/pipeline/matching_algorithms"
 AC_SUBST(MATCHING_ALGORITHMS_DIR)
 MATCHING_ALGORITHMS="loop"
 MATCHING_ALGORITHM_LIBS=""
@@ -210,16 +210,18 @@ AC_CONFIG_FILES([
 
 	Makefile
 	src/Makefile
-	src/rofl/platform/Makefile
-	src/rofl/platform/unix/Makefile
-	src/rofl/experimental/Makefile
 	src/rofl/common/protocols/Makefile
 	src/rofl/common/openflow/extensions/Makefile
 	src/rofl/common/openflow/Makefile
 	src/rofl/common/Makefile
-	src/rofl/control/Makefile
+	
+	src/rofl/controller/platform/Makefile
+	src/rofl/controller/config/Makefile
+	src/rofl/controller/platform/unix/Makefile
+	src/rofl/controller/experimental/Makefile
+	src/rofl/controller/control/Makefile
+	src/rofl/controller/Makefile
 	src/rofl/Makefile
-	src/rofl/config/Makefile
 
 	test/Makefile
 	test/unit/Makefile
