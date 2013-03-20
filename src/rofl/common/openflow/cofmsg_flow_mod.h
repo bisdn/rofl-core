@@ -9,6 +9,7 @@
 #define COFMSG_FLOW_MOD_H_ 1
 
 #include "cofmsg.h"
+#include "cofaclist.h"
 #include "cofinlist.h"
 #include "cofmatch.h"
 
@@ -23,7 +24,8 @@ class cofmsg_flow_mod :
 {
 private:
 
-	cofinlist			instructions;
+	cofaclist			actions; 		// for OF1.0
+	cofinlist			instructions; 	// since OF1.1
 	cofmatch			match;
 
 	union {
@@ -49,7 +51,25 @@ public:
 	 *
 	 */
 	cofmsg_flow_mod(
-			uint8_t of_version = 0,
+			uint8_t of_version = 0, // must be OFP10_VERSION
+			uint32_t xid = 0,
+			uint64_t cookie = 0,
+			uint8_t  command = 0,
+			uint16_t idle_timeout = 0,
+			uint16_t hard_timeout = 0,
+			uint16_t priority = 0,
+			uint32_t buffer_id = 0,
+			uint16_t out_port = 0,
+			uint16_t flags = 0,
+			cofaclist const& actions = cofinlist(),
+			cofmatch const& match = cofmatch());
+
+
+	/** constructor
+	 *
+	 */
+	cofmsg_flow_mod(
+			uint8_t of_version = 0,  // OFP12_VERSION, OFP13_VERSION, and beyond
 			uint32_t xid = 0,
 			uint64_t cookie = 0,
 			uint64_t cookie_mask = 0,
@@ -269,6 +289,12 @@ public:
 	 */
 	void
 	set_flags(uint16_t flags);
+
+	/**
+	 *
+	 */
+	cofaclist&
+	get_actions();
 
 	/**
 	 *

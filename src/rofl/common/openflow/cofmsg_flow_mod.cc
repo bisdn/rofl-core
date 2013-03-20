@@ -2,6 +2,50 @@
 
 using namespace rofl;
 
+
+
+cofmsg_flow_mod::cofmsg_flow_mod(
+		uint8_t of_version,
+		uint32_t xid,
+		uint64_t cookie,
+		uint8_t  command,
+		uint16_t idle_timeout,
+		uint16_t hard_timeout,
+		uint16_t priority,
+		uint32_t buffer_id,
+		uint16_t out_port,
+		uint16_t flags,
+		cofaclist const& actions = cofinlist(),
+		cofmatch const& match = cofmatch()) :
+	cofmsg(sizeof(struct ofp_header)),
+	instructions(instructions),
+	match(match)
+{
+	ofh_flow_mod = soframe();
+
+	set_version(of_version);
+	set_type(OFPT_FLOW_MOD);
+	set_xid(xid);
+
+	switch (of_version) {
+	case OFP10_VERSION: {
+		cofmsg::resize(OFP10_FLOW_MOD_STATIC_HDR_LEN);
+
+		ofh10_flow_mod->cookie			= htobe64(cookie);
+		ofh10_flow_mod->command			= htobe16((uint16_t)command);
+		ofh10_flow_mod->idle_timeout	= htobe16(idle_timeout);
+		ofh10_flow_mod->hard_timeout	= htobe16(hard_timeout);
+		ofh10_flow_mod->priority		= htobe16(priority);
+		ofh10_flow_mod->buffer_id		= htobe32(buffer_id);
+		ofh10_flow_mod->out_port		= htobe16(out_port);
+		ofh10_flow_mod->flags			= htobe16(flags);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
 cofmsg_flow_mod::cofmsg_flow_mod(
 		uint8_t of_version,
 		uint32_t xid,
@@ -15,10 +59,12 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 		uint32_t buffer_id,
 		uint32_t out_port,
 		uint32_t out_group,
-		uint16_t flags) :
+		uint16_t flags,
+		cofinlist const& instructions,
+		cofmatch const& match) :
 	cofmsg(sizeof(struct ofp_header)),
-	actions(actions),
-	packet(data, datalen)
+	instructions(instructions),
+	match(match)
 {
 	ofh_flow_mod = soframe();
 
@@ -27,32 +73,35 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 	set_xid(xid);
 
 	switch (of_version) {
-	case OFP10_VERSION: {
-		cofmsg::resize(sizeof(struct ofp10_flow_mod));
-		set_length(length());
-
-		ofh10_flow_mod->buffer_id		= htobe32(buffer_id);
-		ofh10_flow_mod->in_port		= htobe16((uint16_t)(in_port & 0x0000ffff));
-		ofh10_flow_mod->actions_len	= htobe16(actions.length()); // filled in when method pack() is called
-
-	} break;
 	case OFP12_VERSION: {
-		cofmsg::resize(sizeof(struct ofp12_flow_mod));
-		set_length(length());
+		cofmsg::resize(OFP12_FLOW_MOD_STATIC_HDR_LEN);
 
+		ofh12_flow_mod->cookie			= htobe64(cookie);
+		ofh12_flow_mod->cookie_mask		= htobe64(cookie_mask);
+		ofh12_flow_mod->table_id		= table_id;
+		ofh12_flow_mod->command			= command;
+		ofh12_flow_mod->idle_timeout	= htobe16(idle_timeout);
+		ofh12_flow_mod->hard_timeout	= htobe16(hard_timeout);
+		ofh12_flow_mod->priority		= htobe16(priority);
 		ofh12_flow_mod->buffer_id		= htobe32(buffer_id);
-		ofh12_flow_mod->in_port		= htobe32(in_port);
-		ofh12_flow_mod->actions_len	= htobe16(actions.length()); // filled in when method pack() is called
-
+		ofh12_flow_mod->out_port		= htobe32(out_port);
+		ofh12_flow_mod->out_group		= htobe32(out_group);
+		ofh12_flow_mod->flags			= htobe16(flags);
 	} break;
 	case OFP13_VERSION: {
-		cofmsg::resize(sizeof(struct ofp12_flow_mod));
-		set_length(length());
+		cofmsg::resize(OFP13_FLOW_MOD_STATIC_HDR_LEN);
 
+		ofh13_flow_mod->cookie			= htobe64(cookie);
+		ofh13_flow_mod->cookie_mask		= htobe64(cookie_mask);
+		ofh13_flow_mod->table_id		= table_id;
+		ofh13_flow_mod->command			= command;
+		ofh13_flow_mod->idle_timeout	= htobe16(idle_timeout);
+		ofh13_flow_mod->hard_timeout	= htobe16(hard_timeout);
+		ofh13_flow_mod->priority		= htobe16(priority);
 		ofh13_flow_mod->buffer_id		= htobe32(buffer_id);
-		ofh13_flow_mod->in_port		= htobe32(in_port);
-		ofh13_flow_mod->actions_len	= htobe16(actions.length()); // filled in when method pack() is called
-
+		ofh13_flow_mod->out_port		= htobe32(out_port);
+		ofh13_flow_mod->out_group		= htobe32(out_group);
+		ofh13_flow_mod->flags			= htobe16(flags);
 	} break;
 	default:
 		throw eBadVersion();
@@ -89,8 +138,9 @@ cofmsg_flow_mod::operator= (
 
 	ofh_flow_mod = soframe();
 
-	actions	= flow_mod.actions;
-	packet 	= flow_mod.packet;
+	actions			= flow_mod.actions; // OF1.0 only
+	instructions 	= flow_mod.instructions;
+	match			= flow_mod.match;
 
 	return *this;
 }
@@ -109,7 +159,8 @@ cofmsg_flow_mod::reset()
 {
 	cofmsg::reset();
 	actions.clear();
-	packet.reset();
+	instructions.clear();
+	match.clear();
 }
 
 
@@ -126,15 +177,15 @@ cofmsg_flow_mod::resize(size_t len)
 size_t
 cofmsg_flow_mod::length() const
 {
-	switch (get_version()) {
+	switch (ofh_header->version) {
 	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_flow_mod) + actions.length() + packet.framelen());
+		return (OFP10_FLOW_MOD_STATIC_HDR_LEN + match.length() + actions.length());
 	} break;
 	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_flow_mod) + actions.length() + packet.framelen());
+		return (OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length() + instructions.length());
 	} break;
 	case OFP13_VERSION: {
-		return (sizeof(struct ofp13_flow_mod) + actions.length() + packet.framelen());
+		return (OFP13_FLOW_MOD_STATIC_HDR_LEN + match.length() + instructions.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -149,20 +200,6 @@ cofmsg_flow_mod::pack(uint8_t *buf, size_t buflen)
 {
 	set_length(length());
 
-	switch (get_version()) {
-	case OFP10_VERSION: {
-		ofh10_flow_mod->actions_len 	= htobe16(actions.length());
-	} break;
-	case OFP12_VERSION: {
-		ofh12_flow_mod->actions_len 	= htobe16(actions.length());
-	} break;
-	case OFP13_VERSION: {
-		ofh13_flow_mod->actions_len 	= htobe16(actions.length());
-	} break;
-	default:
-		throw eBadVersion();
-	}
-
 	if ((0 == buf) || (0 == buflen))
 		return;
 
@@ -171,19 +208,26 @@ cofmsg_flow_mod::pack(uint8_t *buf, size_t buflen)
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		memcpy(buf, soframe(), sizeof(struct ofp10_flow_mod));
-		actions.pack((struct ofp_action_header*)(buf + sizeof(struct ofp10_flow_mod)), actions.length());
-		memcpy(buf + sizeof(struct ofp10_flow_mod) + actions.length(), packet.soframe(), packet.framelen());
+		memcpy(buf, soframe(), OFP10_FLOW_MOD_STATIC_HDR_LEN);
+		match.pack((struct ofp10_match*)
+				(struct ofp10_match*)(buf + sizeof(struct ofp_header)),
+												sizeof(struct ofp10_match));
+		actions.pack((struct ofp_action_header*)
+				(buf + OFP10_FLOW_MOD_STATIC_HDR_LEN), actions.length());
 	} break;
 	case OFP12_VERSION: {
-		memcpy(buf, soframe(), sizeof(struct ofp12_flow_mod));
-		actions.pack((struct ofp_action_header*)(buf + sizeof(struct ofp12_flow_mod)), actions.length());
-		memcpy(buf + sizeof(struct ofp12_flow_mod) + actions.length(), packet.soframe(), packet.framelen());
+		memcpy(buf, soframe(), OFP12_FLOW_MOD_STATIC_HDR_LEN);
+		match.pack((struct ofp12_match*)
+				(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN), match.length());
+		instructions.pack((struct ofp_instruction*)
+				(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length()), instructions.length());
 	} break;
 	case OFP13_VERSION: {
-		memcpy(buf, soframe(), sizeof(struct ofp13_flow_mod));
-		actions.pack((struct ofp_action_header*)(buf + sizeof(struct ofp13_flow_mod)), actions.length());
-		memcpy(buf + sizeof(struct ofp13_flow_mod) + actions.length(), packet.soframe(), packet.framelen());
+		memcpy(buf, soframe(), OFP13_FLOW_MOD_STATIC_HDR_LEN);
+		match.pack((struct ofp13_match*)
+				(buf + OFP13_FLOW_MOD_STATIC_HDR_LEN), match.length());
+		instructions.pack((struct ofp_instruction*)
+				(buf + OFP13_FLOW_MOD_STATIC_HDR_LEN + match.length()), instructions.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -210,68 +254,82 @@ cofmsg_flow_mod::validate()
 	ofh_flow_mod = soframe();
 
 	actions.clear();
-	packet.reset();
+	instructions.clear();
+	match.clear();
+
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
 		if (get_length() < sizeof(struct ofp10_flow_mod))
 			throw eBadSyntaxTooShort();
-
-		if (get_length() < (sizeof(struct ofp10_flow_mod) + be16toh(ofh10_flow_mod->actions_len)))
-			throw eBadSyntaxTooShort();
-
-		actions.unpack(ofh10_flow_mod->actions,
-						be16toh(ofh10_flow_mod->actions_len));
-
-		if (OFP_NO_BUFFER != be16toh(ofh10_flow_mod->buffer_id)) {
-			packet.unpack((uint32_t)be16toh(ofh10_flow_mod->in_port),
-						((uint8_t*)ofh10_flow_mod) +
-							sizeof(struct ofp10_flow_mod) +
-								be16toh(ofh10_flow_mod->actions_len),
-								be16toh(ofh10_flow_mod->header.length) -
-													sizeof(struct ofp10_flow_mod) -
-														be16toh(ofh10_flow_mod->actions_len));
-		}
+		match.unpack(&(ofh10_flow_mod->match), sizeof(struct ofp10_match));
+		actions.unpack(ofh10_flow_mod->actions, get_length() - sizeof(struct ofp10_flow_mod));
 	} break;
 	case OFP12_VERSION: {
-		if (framelen() < sizeof(struct ofp12_flow_mod))
+		// struct ofp12_flow_mod includes static part of struct ofp12_match (i.e. type and length) !!
+		if (get_length() < sizeof(struct ofp12_flow_mod))
 			throw eBadSyntaxTooShort();
 
-		if (get_length() < (sizeof(struct ofp12_flow_mod) + be16toh(ofh12_flow_mod->actions_len)))
+		/* OFP_FLOW_MOD_STATIC_HDR_LEN = length of generic flow-mod header
+		 * according to OpenFlow-spec-1.2 is 48bytes
+		 */
+
+		// OFP12_FLOW_MOD_STATIC_HDR_LEN does NOT include static part of struct ofp12_match !!
+		if ((be16toh(ofh12_flow_mod->match.length)) > (get_length() - OFP12_FLOW_MOD_STATIC_HDR_LEN))
 			throw eBadSyntaxTooShort();
 
-		actions.unpack(ofh12_flow_mod->actions,
-						be16toh(ofh12_flow_mod->actions_len));
+		// stored - OFP_FLOW_MOD_STATIC_HDR_LEN is #bytes for struct ofp_match and array of struct ofp_instructions
 
-		if (OFP_NO_BUFFER != be16toh(ofh12_flow_mod->buffer_id)) {
-			packet.unpack(be32toh(ofh12_flow_mod->in_port),
-						((uint8_t*)ofh12_flow_mod) +
-							sizeof(struct ofp12_flow_mod) +
-								be16toh(ofh12_flow_mod->actions_len),
-								be16toh(ofh12_flow_mod->header.length) -
-													sizeof(struct ofp12_flow_mod) -
-														be16toh(ofh12_flow_mod->actions_len));
-		}
+		/*
+		 * unpack ofp_match structure
+		 */
+		match.unpack(&(ofh12_flow_mod->match), be16toh(ofh12_flow_mod->match.length));
+
+
+		// match.length() returns length of struct ofp12_match including padding
+		if (get_length() < (OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length()))
+			throw eBadSyntaxTooShort();
+
+		/*
+		 * unpack instructions list
+		 */
+		struct ofp_instruction *insts = (struct ofp_instruction*)((uint8_t*)&(ofh12_flow_mod->match) + match.length());
+		size_t instslen = get_length() - (OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length());
+		instructions.unpack(insts, instslen);
+
 	} break;
 	case OFP13_VERSION: {
-		if (framelen() < sizeof(struct ofp13_flow_mod))
+		// struct ofp13_flow_mod includes static part of struct ofp13_match (i.e. type and length) !!
+		if (get_length() < sizeof(struct ofp13_flow_mod))
 			throw eBadSyntaxTooShort();
 
-		if (get_length() < (sizeof(struct ofp13_flow_mod) + be16toh(ofh13_flow_mod->actions_len)))
+		/* OFP_FLOW_MOD_STATIC_HDR_LEN = length of generic flow-mod header
+		 * according to OpenFlow-spec-1.3 is 48bytes
+		 */
+
+		// OFP13_FLOW_MOD_STATIC_HDR_LEN does NOT include static part of struct ofp13_match !!
+		if ((be16toh(ofh12_flow_mod->match.length)) > (get_length() - OFP12_FLOW_MOD_STATIC_HDR_LEN))
 			throw eBadSyntaxTooShort();
 
-		actions.unpack(ofh13_flow_mod->actions,
-						be16toh(ofh13_flow_mod->actions_len));
+		// stored - OFP_FLOW_MOD_STATIC_HDR_LEN is #bytes for struct ofp_match and array of struct ofp_instructions
 
-		if (OFP_NO_BUFFER != be16toh(ofh13_flow_mod->buffer_id)) {
-			packet.unpack(be32toh(ofh13_flow_mod->in_port),
-						((uint8_t*)ofh13_flow_mod) +
-							sizeof(struct ofp13_flow_mod) +
-								be16toh(ofh13_flow_mod->actions_len),
-								be16toh(ofh13_flow_mod->header.length) -
-													sizeof(struct ofp13_flow_mod) -
-														be16toh(ofh13_flow_mod->actions_len));
-		}
+		/*
+		 * unpack ofp_match structure
+		 */
+		match.unpack(&(ofh13_flow_mod->match), be16toh(ofh13_flow_mod->match.length));
+
+
+		// match.length() returns length of struct ofp13_match including padding
+		if (get_length() < (OFP13_FLOW_MOD_STATIC_HDR_LEN + match.length()))
+			throw eBadSyntaxTooShort();
+
+		/*
+		 * unpack instructions list
+		 */
+		struct ofp_instruction *insts = (struct ofp_instruction*)((uint8_t*)&(ofh13_flow_mod->match) + match.length());
+		size_t instslen = get_length() - (OFP13_FLOW_MOD_STATIC_HDR_LEN + match.length());
+		instructions.unpack(insts, instslen);
+
 	} break;
 	default:
 		throw eBadRequestBadVersion();
@@ -711,6 +769,14 @@ cofmsg_flow_mod::set_flags(uint16_t flags)
 	default:
 		throw eBadVersion();
 	}
+}
+
+
+
+cofaclist&
+cofmsg_flow_mod::get_actions()
+{
+	return actions;
 }
 
 
