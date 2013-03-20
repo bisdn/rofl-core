@@ -59,9 +59,9 @@ public:
 	/**
 	 *
 	 */
-	cofmsg_stats&
+	cofmsg_desc_stats&
 	operator= (
-			cofmsg_stats const& stats);
+			cofmsg_desc_stats const& stats);
 
 
 	/** destructor
