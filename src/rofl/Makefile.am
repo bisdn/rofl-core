@@ -6,13 +6,13 @@ if PIPELINE_SUPPORT
 PIPELINE_DIRS=datapath/pipeline
 endif
 
-SUBDIRS = common controller $(PIPELINE_DIRS)
+SUBDIRS = common controller $(PIPELINE_DIRS) platform
 
 #library_includedir=$(includedir)/rofl 
 #include_HEADERS=rofl.h
 
 lib_LTLIBRARIES = librofl.la
 librofl_la_SOURCES = #rofl.h 
-librofl_la_LIBADD = common/librofl_common.la controller/librofl_controller.la #datapath/libdatapath.la
+librofl_la_LIBADD = common/librofl_common.la controller/librofl_controller.la  platform/libplatform.la 
 
 AM_LDFLAGS= -static

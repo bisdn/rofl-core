@@ -4,7 +4,7 @@ SUBDIRS = pipeline
 
 noinst_LTLIBRARIES = librofl_pipeline_openflow12.la
 
-library_includedir = $(includedir)/rofl/pipeline/openflow/openflow12
+library_includedir = $(includedir)/rofl/datapath/pipeline/openflow/openflow12
 
 library_include_HEADERS = of12_switch.h \
 	openflow12.h

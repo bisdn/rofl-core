@@ -2,7 +2,7 @@ MAINTAINERCLEANFILES = Makefile.in
 
 noinst_LTLIBRARIES = libconfig.la
 
-library_includedir=$(includedir)/rofl/controller/config
+library_includedir=$(includedir)/rofl/common/config
 
 library_include_HEADERS = ccli.h \
 	cconfigsyslog.h 

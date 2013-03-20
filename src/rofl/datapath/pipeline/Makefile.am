@@ -4,7 +4,7 @@ SUBDIRS = common util openflow platform
 
 lib_LTLIBRARIES = librofl_pipeline.la
 
-librofl_pipeline_ladir = $(includedir)/rofl/pipeline
+librofl_pipeline_ladir = $(includedir)/rofl/datapath/pipeline
 
 librofl_pipeline_la_HEADERS = physical_switch.h \
 	switch_port.h 

@@ -40,6 +40,22 @@ else
 	AC_MSG_RESULT(no)
 fi
 
+# Make verbosity 
+AC_MSG_CHECKING(whether to compile in verbose mode)
+AC_ARG_ENABLE(verbose,
+	AS_HELP_STRING([--verbose], [turn on verbose mode [default=no]])
+		, verbose="yes", verbose="no")
+
+if test "$verbose" = "yes"; then
+	AC_MSG_RESULT(yes)
+	AM_SILENT_RULES([no])	
+else
+	AC_MSG_RESULT(no)
+	AM_SILENT_RULES([yes])	
+fi
+
+
+
 # Check for profiling mode
 AC_MSG_CHECKING(whether to enable profiling mode)
 profile_default="no"
@@ -210,14 +226,15 @@ AC_CONFIG_FILES([
 
 	Makefile
 	src/Makefile
+	src/rofl/common/config/Makefile
 	src/rofl/common/protocols/Makefile
 	src/rofl/common/openflow/extensions/Makefile
 	src/rofl/common/openflow/Makefile
 	src/rofl/common/Makefile
 	
+	src/rofl/platform/Makefile
 	src/rofl/platform/unix/Makefile
 	
-	src/rofl/controller/config/Makefile
 	src/rofl/controller/experimental/Makefile
 	src/rofl/controller/control/Makefile
 	src/rofl/controller/Makefile

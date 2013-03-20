@@ -2,7 +2,7 @@ MAINTAINERCLEANFILES = Makefile.in
 
 noinst_LTLIBRARIES = librofl_pipeline_util.la
 
-library_includedir = $(includedir)/rofl/pipeline/util
+library_includedir = $(includedir)/rofl/datapath/pipeline/util
 
 library_include_HEADERS = rofl_pipeline_utils.h
 

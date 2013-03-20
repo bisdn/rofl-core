@@ -9,7 +9,7 @@ EXTRA_LTLIBRARIES = \
 
 noinst_LTLIBRARIES = $(MATCHING_ALGORITHM_LIBADD) librofl_pipeline_openflow12_pipeline_matching_algorithms.la
 
-library_includedir = $(includedir)/rofl/pipeline/openflow/openflow12/pipeline/matching_algorithms
+library_includedir = $(includedir)/rofl/datapath/pipeline/openflow/openflow12/pipeline/matching_algorithms
 
 library_include_HEADERS = matching_algorithms.h \
 	matching_algorithms_available.h

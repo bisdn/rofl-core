@@ -4,7 +4,7 @@ SUBDIRS = matching_algorithms
 
 noinst_LTLIBRARIES = librofl_pipeline_openflow12_pipeline.la
 
-librofl_pipeline_openflow12_pipeline_ladir = $(includedir)/rofl/pipeline/openflow/openflow12/pipeline
+librofl_pipeline_openflow12_pipeline_ladir = $(includedir)/rofl/datapath/pipeline/openflow/openflow12/pipeline
 
 librofl_pipeline_openflow12_pipeline_la_HEADERS = of12_action.h \
 	of12_flow_entry.h \

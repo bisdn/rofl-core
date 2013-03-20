@@ -21,7 +21,7 @@ libplatform_unix_la_SOURCES = cethport.cc \
 	cunixenv.h \
 	cunixport.h
 
-library_includedir = $(includedir)/rofl/controller/platform/unix
+library_includedir = $(includedir)/rofl/platform/unix
 
 library_include_HEADERS = cethport.h \
 	clinuxport.h \

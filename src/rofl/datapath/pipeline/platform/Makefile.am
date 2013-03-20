@@ -4,7 +4,7 @@ SUBDIRS = openflow
 
 noinst_LTLIBRARIES = librofl_pipeline_platform.la
 
-librofl_pipeline_platform_ladir = $(includedir)/rofl/pipeline/platform
+librofl_pipeline_platform_ladir = $(includedir)/rofl/datapath/pipeline/platform
 
 librofl_pipeline_platform_la_HEADERS = \
 	cutil.h \
