@@ -14,8 +14,9 @@
 #include "switch_port.h"
 
 /**
-* @author	Marc Sune(marc.sune@bisdn.de)  
-* @brief	Physical switch API	
+* @file physical_switch.h
+* @author Marc Sune(marc.sune@bisdn.de)  
+* @brief Physical switch API	
 *
 * The physical switch is the abstraction that contains
 * the state of a forwarding device (e.g. a physical switch, 
@@ -90,8 +91,8 @@
 *
 * @endcode
 *
-*
 */
+
 
 #ifndef PHYSICAL_SWITCH_MAX_LS
 	#define PHYSICAL_SWITCH_MAX_LS 64

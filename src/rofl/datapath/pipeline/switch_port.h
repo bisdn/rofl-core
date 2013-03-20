@@ -2,6 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+* @file switch_port.h
+* @author Marc Sune(marc.sune@bisdn.de)  
+* @brief Port abstraction API	
+*/
+
+
 #ifndef __PHYSICAL_PORT_H__
 #define __PHYSICAL_PORT_H__
 
@@ -13,8 +20,7 @@
 
 
 /**
-* @author	Marc Sune(marc.sune@bisdn.de)  
-* @brief	Port abstraction API	
+* @brief Port abstraction API	
 *
 * switch_port implements the switch port abstraction.
 * There are three types of ports:
