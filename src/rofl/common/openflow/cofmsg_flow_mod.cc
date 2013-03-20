@@ -338,8 +338,6 @@ cofmsg_flow_mod::validate()
 
 
 
-
-
 uint8_t
 cofmsg_flow_mod::get_table_id() const
 {
