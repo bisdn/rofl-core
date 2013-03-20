@@ -25,11 +25,16 @@ private:
 		uint8_t*						ofhu_role_request;
 		struct ofp12_role_request*		ofhu12_role_request;
 		struct ofp13_role_request*		ofhu13_role_request;
+		struct ofp12_role_request*		ofhu12_role_reply;
+		struct ofp13_role_request*		ofhu13_role_reply;
 	} ofhu;
 
-#define ofh_role_request   ofhu.ofhu_role_request
-#define ofh12_role_request ofhu.ofhu12_role_request
-#define ofh13_role_request ofhu.ofhu13_role_request
+#define ofh_role_request   	ofhu.ofhu_role_request
+#define ofh12_role_request 	ofhu.ofhu12_role_request
+#define ofh13_role_request 	ofhu.ofhu13_role_request
+#define ofh12_role_reply 	ofhu.ofhu12_role_reply
+#define ofh13_role_reply 	ofhu.ofhu13_role_reply
+
 
 public:
 
