@@ -37,8 +37,8 @@ extern "C" {
 #include "../common/openflow/cofmatch.h"
 #include "../common/openflow/cofaction.h"
 #include "../common/openflow/cofinlist.h"
-#include "../common/openflow/cofpacket.h"
 #include "../common/openflow/cofinst.h"
+#include "../common/openflow/cofmsg_flow_mod.h"
 
 #include "../common/protocols/fetherframe.h"
 
@@ -205,7 +205,7 @@ public:
 			uint8_t of_version,
 			cftentry_owner *owner,
 			std::set<cftentry*> *flow_table,
-			cofpacket_flow_mod *pack,
+			cofmsg_flow_mod *msg,
 			cofctl *ctl = NULL);
 
 
@@ -321,7 +321,7 @@ public:
 	 * update struct ofp_flow_mod
 	 */
 	virtual void
-	update_flow_mod(cofpacket_flow_mod *pack) throw (eFteInvalid);
+	update_flow_mod(cofmsg_flow_mod *msg) throw (eFteInvalid);
 
 #if 0
 	/**

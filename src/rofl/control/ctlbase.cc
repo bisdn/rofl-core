@@ -246,23 +246,23 @@ ctlbase::handle_dpath_close(
  * STATS-reply
  */
 void
-ctlbase::handle_stats_reply(cofdpt *dpt, cofpacket_stats_reply *pack)
+ctlbase::handle_stats_reply(cofdpt *dpt, cofmsg_stats_reply *msg)
 {
-	uint32_t xid = be32toh(pack->ofh_header->xid);
+	uint32_t xid = msg->get_xid();
 	try {
 
 		WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_stats_reply() ", dpname.c_str());
 
 		if (xidstore.xid_find(xid).owner == this)
 		{
-			handle_stats_reply(this, xid, be16toh(pack->of12h_stats_reply->type),
-									pack->body.somem(), pack->body.memlen());
+			handle_stats_reply(this, xid, msg->get_stats_type(),
+									msg->get_body().somem(), msg->get_body().memlen());
 		}
 		else
 		{
 			call_adapter(dynamic_cast<cadapt*>( xidstore.xid_find(xid).owner ))->
-					ctl_handle_stats_reply(this, xid, be16toh(pack->of12h_stats_reply->type),
-									pack->body.somem(), pack->body.memlen());
+					ctl_handle_stats_reply(this, xid, msg->get_stats_type(),
+									msg->get_body().somem(), msg->get_body().memlen());
 		}
 
 		xidstore.xid_rem(xid); // remove xid from store
@@ -298,7 +298,7 @@ ctlbase::handle_stats_reply_timeout(
 
 
 void
-ctlbase::handle_packet_out(cofctl *ctl, cofpacket_packet_out *pack)
+ctlbase::handle_packet_out(cofctl *ctl, cofmsg_packet_out *msg)
 {
 	/*
 	 * TODO: check Packet-Out with FSP registration
@@ -307,23 +307,23 @@ ctlbase::handle_packet_out(cofctl *ctl, cofpacket_packet_out *pack)
 
 	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_out() "
 			"pack: %s",
-			dpname.c_str(), pack->packet.c_str());
+			dpname.c_str(), msg->get_packet().c_str());
 
 	ctlbase::send_packet_out_message(
-			be32toh(pack->of12h_packet_out->buffer_id),
-			be32toh(pack->of12h_packet_out->in_port),
-			pack->actions,
-			new cpacket(pack->packet));
+			msg->get_buffer_id(),
+			msg->get_in_port(),
+			msg->get_actions(),
+			new cpacket(msg->get_packet()));
 
-	delete pack;
+	delete msg;
 }
 
 
 
 void
-ctlbase::handle_barrier_reply(cofdpt *sw, cofpacket_barrier_reply *pack)
+ctlbase::handle_barrier_reply(cofdpt *sw, cofmsg_barrier_reply *msg)
 {
-	uint32_t xid = be32toh(pack->ofh_header->xid);
+	uint32_t xid = msg->get_xid();
 	try {
 #if 0
 		call_adapter(dynamic_cast<cadapt*>( xidstore.xid_find(xid).owner ))->
@@ -359,7 +359,7 @@ ctlbase::handle_barrier_reply_timeout(
  * ERROR
  */
 void
-ctlbase::handle_error(cofdpt *sw, cofpacket_error *pack)
+ctlbase::handle_error(cofdpt *sw, cofmsg_error *pack)
 {
 
 }
@@ -369,7 +369,7 @@ ctlbase::handle_error(cofdpt *sw, cofpacket_error *pack)
 void
 ctlbase::handle_flow_mod(
 		cofctl *ctl,
-		cofpacket_flow_mod *pack)
+		cofmsg_flow_mod *pack)
 {
 	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_flow_mod() "
 			"pack: %s", dpname.c_str(), pack->c_str());
@@ -381,7 +381,7 @@ ctlbase::handle_flow_mod(
 
 
 	ctlbase::send_flow_mod_message(
-			pack->match,
+			pack->get_match(),
 			pack->get_cookie(),
 			pack->get_cookie_mask(),
 			pack->get_table_id(),
@@ -393,7 +393,7 @@ ctlbase::handle_flow_mod(
 			pack->get_out_port(),
 			pack->get_out_group(),
 			pack->get_flags(),
-			pack->instructions);
+			pack->get_instructions());
 
 	delete pack;
 }
@@ -408,10 +408,10 @@ ctlbase::handle_flow_mod(
 void
 ctlbase::handle_packet_in(
 		cofdpt *sw,
-		cofpacket_packet_in *pack)
+		cofmsg_packet_in *msg)
 {
 	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() pack:%s",
-			dpname.c_str(), pack->c_str());
+			dpname.c_str(), msg->c_str());
 
 
 	if (sw != dpath)
@@ -420,7 +420,7 @@ ctlbase::handle_packet_in(
 				"rcvd packet from non-registered dpath sw: %p dpath: %p, dropping",
 				dpname.c_str(), sw, dpath);
 
-		delete pack; return;
+		delete msg; return;
 	}
 
 	try {
@@ -428,9 +428,9 @@ ctlbase::handle_packet_in(
 		// find all adapters whose flowspace registrations match the packet
 		std::set<cfspentry*> fsp_list =
 				sw->fsptable.find_matching_entries(
-						pack->match.get_in_port(),
-						pack->get_total_len(),
-						pack->packet);
+						msg->get_match().get_in_port(),
+						msg->get_total_len(),
+						msg->get_packet());
 
 		// more than one subscription matches? should not happen here => error
 		if (fsp_list.size() > 1)
@@ -455,18 +455,18 @@ ctlbase::handle_packet_in(
 				"fspentry: %s\ndata: %s\nctlmod: %s",
 				dpname.c_str(),
 				fspentry->c_str(),
-				pack->packet.c_str(),
+				msg->get_packet().c_str(),
 				adapt->c_str());
 
 
 		adapt->ctl_handle_packet_in(
 				this,
-				pack->get_buffer_id(),
-				pack->get_total_len(),
-				pack->get_table_id(),
-				pack->get_reason(),
-				pack->match,
-				pack->packet);
+				msg->get_buffer_id(),
+				msg->get_total_len(),
+				msg->get_table_id(),
+				msg->get_reason(),
+				msg->get_match(),
+				msg->get_packet());
 
 
 	} catch (eFspNoMatch& e) {
@@ -474,14 +474,14 @@ ctlbase::handle_packet_in(
 		writelog(CFWD, WARN, "ctlbase(%s)::handle_packet_in() "
 				"no flowspace subscription for packet found =>\n"
 				"=> packet: %s\n=> fsptable: %s",
-				dpname.c_str(), pack->packet.c_str(), fsptable.c_str());
+				dpname.c_str(), msg->get_packet().c_str(), fsptable.c_str());
 
 	} catch (eCtlBaseInval& e) {
 
 		writelog(CFWD, WARN, "ctlbase(%s)::handle_packet_in() "
 				"too many flowspace subscriptions found for packet, "
 				"unspecified behaviour, dropping packet: %s",
-				dpname.c_str(), pack->c_str());
+				dpname.c_str(), msg->c_str());
 
 	} catch (eInternalError& e) {
 
@@ -493,16 +493,16 @@ ctlbase::handle_packet_in(
 
 		writelog(CFWD, WARN, "ctlbase(%s)::handle_packet_in() "
 				"frame with invalid syntax received, dropping. pack: %s",
-				dpname.c_str(), pack->c_str());
+				dpname.c_str(), msg->c_str());
 
 	} catch (eOFpacketNoData& e) {
 
 		writelog(CFWD, WARN, "ctlbase(%s)::handle_packet_in() "
 				"PACKET-IN rcvd without attached payload, dropping. pack: %s",
-				dpname.c_str(), pack->c_str());
+				dpname.c_str(), msg->c_str());
 	}
 
-	delete pack;
+	delete msg;
 }
 
 
@@ -557,7 +557,7 @@ ctlbase::fsp_open(
 
 
 void
-ctlbase::handle_features_request(cofctl *ctl, cofpacket_features_request *request)
+ctlbase::handle_features_request(cofctl *ctl, cofmsg_features_request *request)
 {
  	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_features_request()", dpname.c_str());
 
@@ -641,9 +641,9 @@ ctlbase::fsp_close(
  * received by layer (n-1) datapath, sending to adapters for handling changes in port status
  */
 void
-ctlbase::handle_port_status(cofdpt *sw, cofpacket_port_status *pack)
+ctlbase::handle_port_status(cofdpt *sw, cofmsg_port_status *pack)
 {
-	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() %s", dpname.c_str(), pack->get_port_desc().c_str());
+	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() %s", dpname.c_str(), pack->get_port().c_str());
 
 	if (sw != dpath)
 	{
@@ -655,7 +655,7 @@ ctlbase::handle_port_status(cofdpt *sw, cofpacket_port_status *pack)
 	}
 
 	WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_port_status() "
-			"%s", dpname.c_str(), pack->get_port_desc().c_str());
+			"%s", dpname.c_str(), pack->get_port().c_str());
 
 	for (std::map<unsigned int, std::list<cadapt*> >::iterator
 			it = adstacks.begin(); it != adstacks.end(); ++it)
@@ -665,7 +665,7 @@ ctlbase::handle_port_status(cofdpt *sw, cofpacket_port_status *pack)
 		stack.back()->ctl_handle_port_status(
 				this,
 				pack->get_reason(),
-				&(pack->get_port_desc()));
+				&(pack->get_port()));
 	}
 
 	delete pack;

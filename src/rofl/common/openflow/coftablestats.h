@@ -134,14 +134,20 @@ public:
 	/**
 	 *
 	 */
-	std::string
-	get_name() const;
+	std::string&
+	get_name();
 
 	/**
 	 *
 	 */
 	uint64_t
 	get_match() const;
+
+	/**
+	 *
+	 */
+	uint64_t
+	get_wildcards() const;
 
 	/**
 	 *
@@ -188,8 +194,8 @@ public:
 	/**
 	 *
 	 */
-	uint32_t
-	get_config() const;
+	uint32_t&
+	get_config();
 
 	/**
 	 *
@@ -206,14 +212,14 @@ public:
 	/**
 	 *
 	 */
-	uint64_t
-	get_lookup_count() const;
+	uint64_t&
+	get_lookup_count();
 
 	/**
 	 *
 	 */
-	uint64_t
-	get_matched_count() const;
+	uint64_t&
+	get_matched_count();
 
 	/**
 	 *

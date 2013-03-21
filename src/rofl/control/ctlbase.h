@@ -160,7 +160,7 @@ protected:
 	 * @param pack OF packet received from controlling entity.
 	 */
 	virtual void
-	handle_features_request(cofctl *ofctrl, cofpacket_features_request *pack);
+	handle_features_request(cofctl *ofctrl, cofmsg_features_request *pack);
 
 
 	/**
@@ -529,7 +529,7 @@ protected:
 	 * @param pack STATS.reply packet received from datapath
 	 */
 	virtual void
-	handle_stats_reply(cofdpt *sw, cofpacket_stats_reply *pack);
+	handle_stats_reply(cofdpt *sw, cofmsg_stats_reply *pack);
 
 
 	/** Handle OF stats reply timeout. To be overwritten by derived class.
@@ -550,7 +550,7 @@ protected:
 	 * @param pack PACKET-OUT.message packet received from controller.
 	 */
 	virtual void
-	handle_packet_out(cofctl *ofctrl, cofpacket_packet_out *pack);
+	handle_packet_out(cofctl *ofctrl, cofmsg_packet_out *pack);
 
 
 	/** Handle OF packet-in messages. To be overwritten by derived class.
@@ -562,7 +562,7 @@ protected:
 	 * @param pack PACKET-IN.message packet received from datapath
 	 */
 	virtual void
-	handle_packet_in(cofdpt *sw, cofpacket_packet_in *pack);
+	handle_packet_in(cofdpt *sw, cofmsg_packet_in *pack);
 
 
 	/** Handle OF barrier reply. To be overwritten by derived class.
@@ -574,7 +574,7 @@ protected:
 	 * @param pack BARRIER.reply packet received from datapath
 	 */
 	virtual void
-	handle_barrier_reply(cofdpt *sw, cofpacket_barrier_reply *pack);
+	handle_barrier_reply(cofdpt *sw, cofmsg_barrier_reply *pack);
 
 
 	/** Handle OF barrier reply timeout. To be overwritten by derived class.
@@ -596,7 +596,7 @@ protected:
 	 * @param pack ERROR.message packet received from datapath
 	 */
 	virtual void
-	handle_error(cofdpt *dpt, cofpacket_error *pack);
+	handle_error(cofdpt *dpt, cofmsg_error *pack);
 
 
 	/** Handle OF flow-mod message. To be overwritten by derived class.
@@ -607,7 +607,7 @@ protected:
 	 * @param pack FLOW-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_flow_mod(cofctl *ctl, cofpacket_flow_mod *pack);
+	handle_flow_mod(cofctl *ctl, cofmsg_flow_mod *pack);
 
 
 	/** Handle OF port-status message. To be overwritten by derived class.
@@ -619,7 +619,7 @@ protected:
 	 * @param pack PORT-STATUS.message packet received from datapath
 	 */
 	virtual void
-	handle_port_status(cofdpt *dpt, cofpacket_port_status *pack);
+	handle_port_status(cofdpt *dpt, cofmsg_port_status *pack);
 
 
 	/** Handle new dpath

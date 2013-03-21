@@ -27,6 +27,8 @@ extern "C" {
 #include "../common/openflow/cofbclist.h"
 #include "../common/openflow/cofbucket.h"
 #include "../common/openflow/openflow_rofl_exceptions.h"
+#include "../common/openflow/cofmsg_group_mod.h"
+#include "../common/openflow/cofmsg_group_stats.h"
 
 //This include must go here due to some Exceptions defined within cgttable.h FIXME: define in another file?
 #include "cgttable.h"
@@ -55,7 +57,8 @@ public:
 	 */
 	cgtentry(
 		cgtentry_owner *owner,
-		cgttable *grp_table,		struct ofp_group_mod *grp_mod)
+		cgttable *grp_table,
+		cofmsg_group_mod *group_mod)
 			throw (eGroupModBadBucket,
 					eGroupModBadType,
 					eBadActionBadOutPort);

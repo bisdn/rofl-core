@@ -163,8 +163,8 @@ coftable_stats_reply::get_table_id() const
 
 
 
-std::string
-coftable_stats_reply::get_name() const
+std::string&
+coftable_stats_reply::get_name()
 {
 	return name;
 }
@@ -175,6 +175,14 @@ uint64_t
 coftable_stats_reply::get_match() const
 {
 	return match;
+}
+
+
+
+uint64_t
+coftable_stats_reply::get_wildcards() const
+{
+	return wildcards;
 }
 
 
@@ -235,8 +243,8 @@ coftable_stats_reply::get_instructions() const
 
 
 
-uint32_t
-coftable_stats_reply::get_config() const
+uint32_t&
+coftable_stats_reply::get_config()
 {
 	return config;
 }
@@ -259,16 +267,16 @@ coftable_stats_reply::get_active_count() const
 
 
 
-uint64_t
-coftable_stats_reply::get_lookup_count() const
+uint64_t&
+coftable_stats_reply::get_lookup_count()
 {
 	return lookup_count;
 }
 
 
 
-uint64_t
-coftable_stats_reply::get_matched_count() const
+uint64_t&
+coftable_stats_reply::get_matched_count()
 {
 	return matched_count;
 }

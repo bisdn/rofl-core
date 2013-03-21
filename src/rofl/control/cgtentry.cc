@@ -23,7 +23,7 @@ cgtentry::cgtentry(cgtentry_owner *owner) :
 cgtentry::cgtentry(
 		cgtentry_owner *owner,
 		cgttable *_grp_table,
-		struct ofp_group_mod *grp_mod) throw (eGroupModBadBucket, eGroupModBadType, eBadActionBadOutPort) :
+		cofmsg_group_mod *group_mod) throw (eGroupModBadBucket, eGroupModBadType, eBadActionBadOutPort) :
 		owner(owner),
 		grp_table(_grp_table),
 		ref_count(0),
@@ -31,13 +31,9 @@ cgtentry::cgtentry(
 		byte_count(0),
 		group_mod(0)
 {
-	this->group_id = be32toh(grp_mod->group_id);
-	this->group_type = grp_mod->type;
-	if (be16toh(grp_mod->header.length) > sizeof(struct ofp_group_mod))
-	{
-		size_t bclen = be16toh(grp_mod->header.length) - sizeof(struct ofp_group_mod);
-		buckets.unpack(grp_mod->buckets, bclen);
-	}
+	this->group_id 		= group_mod->get_group_id();
+	this->group_type 	= group_mod->get_group_type();
+	this->buckets 		= group_mod->get_buckets();
 
 	switch (group_type) {
 	case OFPGT_ALL:

@@ -92,30 +92,22 @@ cfttable::cfttable(
 		uint64_t metadata_match,
 		uint64_t metadata_write,
 		uint32_t instructions,
-		uint32_t config) :
+		uint32_t config,
+		uint32_t active_count,
+		uint64_t lookup_count,
+		uint64_t matched_count) :
 			owner(owner),
-			table_id(table_id),
-			match(match),
-			wildcards(wildcards),
-			write_actions(write_actions),
-			apply_actions(apply_actions),
-			write_setfields(write_setfields),
-			apply_setfields(apply_setfields),
-			metadata_match(metadata_match),
-			metadata_write(metadata_write),
-			instructions(instructions),
-			config(config), // default flow-table behavior: send to controller
-			max_entries(max_entries),
-			active_count(0),
-			lookup_count(0),
-			matched_count(0)
+			table_stats(OFP12_VERSION, table_id, std::string(""), match, wildcards,
+					write_actions, apply_actions, write_setfields, apply_setfields,
+					metadata_match, metadata_write, instructions, config, max_entries,
+					active_count, lookup_count, matched_count)
 {
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::cfttable() constructor: %s", this, c_str());
 
 	pthread_rwlock_init(&ft_rwlock, NULL);
 
 	cvastring vas(32);
-	table_name.assign(vas("table%04d", table_id));
+	table_stats.get_name() = std::string(vas("table%04d", table_id));
 }
 
 
@@ -177,9 +169,9 @@ cfttable::handle_timeout(
 cftentry*
 cfttable::cftentry_factory(
 		std::set<cftentry*> *flow_table,
-		cofpacket_flow_mod *pack)
+		cofmsg_flow_mod *msg)
 {
-	return new cftentry(pack->ofh_header->version, this, flow_table, pack);
+	return new cftentry(msg->get_version(), this, flow_table, msg);
 }
 
 
@@ -264,15 +256,11 @@ cfttable::ftentry_hard_timeout(
 
 
 
-struct ofp12_table_stats*
-cfttable::get_table_stats(
-		struct ofp12_table_stats* table_stats,
-		size_t table_stats_len)
+coftable_stats_reply&
+cfttable::get_table_stats()
 throw (eFlowTableInval)
 {
-	if (table_stats_len < sizeof(struct ofp12_table_stats))
-		throw eFlowTableInval();
-
+#if 0
 	/* uint8_t  */ table_stats->table_id 		= table_id;
 	/* char[32] */ strncpy(table_stats->name, table_name.c_str(), OFP_MAX_TABLE_NAME_LEN);
 	/* uint64_t */ table_stats->match 			= htobe64(match);
@@ -289,39 +277,42 @@ throw (eFlowTableInval)
 	/* uint32_t */ table_stats->active_count 	= htobe32(flow_table.size());
 	/* uint64_t */ table_stats->lookup_count 	= htobe64(lookup_count);
 	/* uint64_t */ table_stats->matched_count 	= htobe64(matched_count);
+#endif
 
 	return table_stats;
 }
 
 
+
 void
 cfttable::set_table_stats(
-		struct ofp12_table_stats* table_stats,
-		size_t table_stats_len)
+		coftable_stats_reply const& table_stats)
 throw (eFlowTableInval)
 {
-	if (table_stats_len < sizeof(struct ofp12_table_stats))
+	if (table_stats.get_table_id() != table_id)
 		throw eFlowTableInval();
 
-	if (table_stats->table_id != table_id)
-		throw eFlowTableInval();
+	this->table_stats = table_stats;
 
-	table_name.assign(table_stats->name, OFP_MAX_TABLE_NAME_LEN);
-	match 			= be64toh(table_stats->match);
-	wildcards 		= be64toh(table_stats->wildcards);
-	write_actions 	= be32toh(table_stats->write_actions);
-	apply_actions 	= be32toh(table_stats->apply_actions);
-	write_setfields = be64toh(table_stats->write_setfields);
-	apply_setfields = be64toh(table_stats->apply_setfields);
-	metadata_match 	= be64toh(table_stats->metadata_match);
-	metadata_write 	= be64toh(table_stats->metadata_write);
-	instructions 	= be32toh(table_stats->instructions);
-	config 			= be32toh(table_stats->config);
-	max_entries 	= be32toh(table_stats->max_entries);
-	active_count 	= be32toh(table_stats->active_count);
-	lookup_count 	= be64toh(table_stats->lookup_count);
-	matched_count 	= be64toh(table_stats->matched_count);
+#if 0
+	table_name		= table_stats.get_name();
+	match			= table_stats.get_match();
+	wildcards		= table_stats.get_wildcards();
+	write_actions	= table_stats.get_write_actions();
+	apply_actions	= table_stats.get_apply_actions();
+	write_setfields	= table_stats.get_write_setfields();
+	apply_setfields	= table_stats.get_apply_setfields();
+	metadata_match	= table_stats.get_metadata_match();
+	metadata_write	= table_stats.get_metadata_write();
+	instructions	= table_stats.get_instructions();
+	config			= table_stats.get_config();
+	max_entries		= table_stats.get_max_entries();
+	active_count	= table_stats.get_active_count();
+	lookup_count	= table_stats.get_lookup_count();
+	matched_count	= table_stats.get_matched_count();
+#endif
 }
+
 
 
 void
@@ -383,21 +374,21 @@ cfttable::get_aggregate_flow_stats(
 bool
 cfttable::policy_table_miss_controller()
 {
-	return (config == OFPTC_TABLE_MISS_CONTROLLER);
+	return (table_stats.get_config() == OFPTC_TABLE_MISS_CONTROLLER);
 }
 
 
 bool
 cfttable::policy_table_miss_continue()
 {
-	return (config == OFPTC_TABLE_MISS_CONTINUE);
+	return (table_stats.get_config() == OFPTC_TABLE_MISS_CONTINUE);
 }
 
 
 bool
 cfttable::policy_table_miss_drop()
 {
-	return (config == OFPTC_TABLE_MISS_DROP);
+	return (table_stats.get_config() == OFPTC_TABLE_MISS_DROP);
 }
 
 
@@ -406,7 +397,7 @@ cfttable::c_str()
 {
 	cvastring vas(4096);
 	info.append(vas("cfttable(%p)::flow_table table_id:%d config: %d =>\n",
-			this, table_id, config));
+			this, table_id, table_stats.get_config()));
 	int i = 0;
 	std::set<cftentry*>::iterator it;
 	for (it = flow_table.begin(); it != flow_table.end(); ++it)
@@ -467,11 +458,11 @@ cfttable::find_best_matches(
 
 		WRITELOG(CFTTABLE, DBG, "cfttable(%p)::find_best_matches() %s", this, ftsearch.c_str());
 
-		lookup_count++;
+		table_stats.get_lookup_count()++;
 
 		if (not ftsearch.matching_entries.empty())
 		{
-			matched_count++;
+			table_stats.get_matched_count()++;
 		}
 
 		/* search.macthing_entries contains now a list of matching cftentries with the highest
@@ -493,13 +484,8 @@ cfttable::find_best_matches(
 cftentry*
 cfttable::update_ft_entry(
 		cfttable_owner *owner,
-		cofpacket_flow_mod *pack) throw (eFlowTableInval)
+		cofmsg_flow_mod *pack) throw (eFlowTableInval)
 {
-	if ((OFPT_FLOW_MOD != pack->ofh_header->type) || (not pack->is_valid()))
-	{
-		throw eFlowTableInval();
-	}
-
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_ft_entry()", this);
 
 	switch (pack->get_command()) {
@@ -530,13 +516,8 @@ cfttable::update_ft_entry(
 cftentry*
 cfttable::update_ft_entry(
 		cfttable_owner *owner,
-		cofpacket_flow_removed *pack) throw (eFlowTableInval)
+		cofmsg_flow_removed *pack) throw (eFlowTableInval)
 {
-	if ((OFPT_FLOW_MOD != pack->ofh_header->type) || (not pack->is_valid()))
-	{
-		throw eFlowTableInval();
-	}
-
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::update_ft_entry()", this);
 
 	return (cftentry*)0;
@@ -548,7 +529,7 @@ cfttable::update_ft_entry(
 cftentry*
 cfttable::add_ft_entry(
 		cfttable_owner *owner,
-		cofpacket_flow_mod *pack) throw(eFlowTableEntryOverlaps)
+		cofmsg_flow_mod *msg) throw(eFlowTableEntryOverlaps)
 {
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry()", this);
 	//dump_ftentries();
@@ -563,13 +544,13 @@ cfttable::add_ft_entry(
 		if (not flow_table.empty())
 		{
 			// check for OFPFF_CHECK_OVERLAP
-			if (pack->get_flags() & OFPFF_CHECK_OVERLAP)
+			if (msg->get_flags() & OFPFF_CHECK_OVERLAP)
 			{
 				WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() "
 						"checking for overlapping entries", this);
 
 				if (find_if(flow_table.begin(), flow_table.end(),
-						cftentry::ftentry_find_overlap(pack->match, false /* not strict */)) != flow_table.end())
+						cftentry::ftentry_find_overlap(msg->get_match(), false /* not strict */)) != flow_table.end())
 				{
 					WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() "
 							"ftentry overlaps, sending error message back", this);
@@ -583,7 +564,7 @@ cfttable::add_ft_entry(
 			// remove any duplicate ft-entry (equals strictly new ft-entry)
 			std::set<cftentry*>::iterator it = flow_table.begin();
 			while ((it = find_if(it, flow_table.end(),
-						cftentry::ftentry_find_overlap(pack->match, true /* strict */))) != flow_table.end())
+						cftentry::ftentry_find_overlap(msg->get_match(), true /* strict */))) != flow_table.end())
 			{
 				WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() deleting duplicate %p", this, (*it));
 				(*it)->disable_entry();
@@ -597,7 +578,7 @@ cfttable::add_ft_entry(
 		WRITELOG(CFTTABLE, DBG, "cfttable(%p)::add_ft_entry() [1]\n %s", this, c_str());
 
 		// inserts automatically to this->flow_table
-		fte = cftentry_factory(&flow_table, pack);
+		fte = cftentry_factory(&flow_table, msg);
 	}
 
 
@@ -630,7 +611,7 @@ cfttable::add_ft_entry(
 cftentry*
 cfttable::modify_ft_entry(
 		cfttable_owner *owner,
-		cofpacket_flow_mod *pack,
+		cofmsg_flow_mod *msg,
 		bool strict /* = false (default) */)
 {
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::modify_ft_entry()", this);
@@ -646,9 +627,9 @@ cfttable::modify_ft_entry(
 	while (it != flow_table.end())
 	{
 		if ((it = find_if(it, flow_table.end(),
-				cftentry::ftentry_find_overlap(pack->match, strict /* strict */))) != flow_table.end())
+				cftentry::ftentry_find_overlap(msg->get_match(), strict /* strict */))) != flow_table.end())
 		{
-			(*it)->update_flow_mod(pack);
+			(*it)->update_flow_mod(msg);
 			update_group_ref_counts((*it));
 			noupdates = false;
 
@@ -662,7 +643,7 @@ cfttable::modify_ft_entry(
 	// if no updates were done, add new entry
 	if (noupdates)
 	{
-		return add_ft_entry(owner, pack);
+		return add_ft_entry(owner, msg);
 	}
 
 	WRITELOG(CFTTABLE, DBG, "cfttable::modify_ft_entry()\n %s", fte->c_str());
@@ -676,7 +657,7 @@ cfttable::modify_ft_entry(
 void
 cfttable::rem_ft_entry(
 		cfttable_owner *owner,
-		cofpacket* pack,
+		cofmsg* pack,
 		bool strict /* = false (default) */)
 {
 	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::rem_ft_entry() pack->match: %s", this, pack->match.c_str());
@@ -820,22 +801,22 @@ delete_entry:
 void
 cfttable::rem_ft_entry(
 		cfttable_owner *owner,
-		cofpacket_flow_mod* pack,
+		cofmsg_flow_mod* msg,
 		bool strict /* = false (default) */)
 {
-	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::rem_ft_entry() pack->match: %s", this, pack->match.c_str());
+	WRITELOG(CFTTABLE, DBG, "cfttable(%p)::rem_ft_entry() pack->match: %s", this, msg->get_match().c_str());
 	//dump_ftentries();
 
 	RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
 
 	std::set<cftentry*> delete_table;
-	uint32_t out_port 	= pack->get_out_port();
-	uint32_t out_group 	= pack->get_out_group();
+	uint32_t out_port 	= msg->get_out_port();
+	uint32_t out_group 	= msg->get_out_group();
 
 	for (std::set<cftentry*>::iterator it = flow_table.begin();
 			it != flow_table.end(); ++it) {
 		cftentry* entry = (*it);
-		if (not entry->overlaps(pack->match, strict)) {
+		if (not entry->overlaps(msg->get_match(), strict)) {
 			continue;
 		}
 
@@ -936,7 +917,7 @@ cfttable::set_config(
 		uint32_t config)
 {
 	RwLock lock(&ft_rwlock, RwLock::RWLOCK_WRITE);
-	this->config = config;
+	table_stats.get_config() = config;
 }
 
 

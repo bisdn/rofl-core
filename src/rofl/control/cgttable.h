@@ -13,7 +13,6 @@
 //#include "../cfwdelem.h" 
 
 #include "cgtentry.h"
-#include "../common/openflow/cofpacket.h"
 #include "cftentry.h"
 #include "../common/openflow/openflow_rofl_exceptions.h"
 
@@ -103,7 +102,7 @@ public:
 	cgtentry*
 	update_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod);
+			cofmsg_group_mod *grp_mod);
 
 
 	/** add a cgtentry
@@ -111,7 +110,7 @@ public:
 	cgtentry*
 	add_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod)
+			cofmsg_group_mod *grp_mod)
 	throw (eGroupModExists,
 			eGroupModInvalGroup,
 			eGroupModLoop,
@@ -123,7 +122,7 @@ public:
 	cgtentry*
 	modify_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod) throw (eGroupModInvalGroup,
+			cofmsg_group_mod *grp_mod) throw (eGroupModInvalGroup,
 			                                      eGroupModUnknownGroup,
 			                                      eGroupModLoop);
 
@@ -133,7 +132,7 @@ public:
 	cgtentry*
 	rem_gt_entry(
 			cgtentry_owner *owner,
-			struct ofp_group_mod *grp_mod) throw (eGroupModInvalGroup);
+			cofmsg_group_mod *grp_mod) throw (eGroupModInvalGroup);
 
 
 	/** get group stats for all group_ids
