@@ -70,6 +70,13 @@ public: // per instance methods
 			size_t bclen);
 
 
+	/** constructor
+	 */
+	cofbucket(
+			struct ofp13_bucket *bucket,
+			size_t bclen);
+
+
 	/** destructor
 	 */
 	virtual

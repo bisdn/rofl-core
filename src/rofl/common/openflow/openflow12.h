@@ -1412,7 +1412,7 @@ enum ofp_group_capabilities {
 
 
 /* Experimenter extension. */
-struct ofp_experimenter_header {
+struct ofp12_experimenter_header {
     struct ofp_header header;   /* Type OFPT_EXPERIMENTER. */
     uint32_t experimenter;      /* Experimenter ID:
                                  * - MSB 0: low-order bytes are IEEE OUI.
@@ -1420,8 +1420,9 @@ struct ofp_experimenter_header {
                                  *   consortium. */
     uint32_t exp_type;			/* Experimenter defined. */
     /* Experimenter-defined arbitrary additional data. */
+    uint8_t body[0];
 };
-OFP_ASSERT(sizeof(struct ofp_experimenter_header) == 16);
+OFP_ASSERT(sizeof(struct ofp12_experimenter_header) == 16);
 
 /* All ones is used to indicate all queues in a port (for stats retrieval). */
 #define OFPQ_ALL      0xffffffff

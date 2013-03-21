@@ -789,6 +789,7 @@ struct ofp10_vendor_header {
                                  * - MSB != 0: defined by OpenFlow
                                  *   consortium. */
     /* Vendor-defined arbitrary additional data. */
+    uint8_t body[0];
 };
 OFP_ASSERT(sizeof(struct ofp10_vendor_header) == 12);
 

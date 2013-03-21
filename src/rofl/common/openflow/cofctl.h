@@ -26,6 +26,19 @@ extern "C" {
 #include "../csocket.h"
 #include "../cfsm.h"
 #include "../openflow/cofmsg.h"
+#include "../openflow/cofmsg_hello.h"
+#include "../openflow/cofmsg_echo.h"
+#include "../openflow/cofmsg_error.h"
+#include "../openflow/cofmsg_features.h"
+#include "../openflow/cofmsg_config.h"
+#include "../openflow/cofmsg_packet_in.h"
+#include "../openflow/cofmsg_flow_removed.h"
+#include "../openflow/cofmsg_port_status.h"
+#include "../openflow/cofmsg_stats.h"
+#include "../openflow/cofmsg_barrier.h"
+#include "../openflow/cofmsg_queue_get_config.h"
+#include "../openflow/cofmsg_role.h"
+
 
 #include "cofmatch.h"
 #include "extensions/cfspentry.h"
@@ -69,7 +82,7 @@ private: // data structures
 
 	cxidstore						xidstore;
 	std::string 					info;					// info string
-	cofmsg						*fragment;				// fragment of OF packet rcvd on fragment during last call(s)
+	cmemory							*fragment;				// fragment of OF packet rcvd on fragment during last call(s)
 	int 							reconnect_in_seconds; 	// reconnect in x seconds
 	int 							reconnect_counter;
 	int 							rpc_echo_interval;		// default ECHO time interval
@@ -169,7 +182,7 @@ protected:
 	 *
 	 */
 	void
-	hello_rcvd(cofpacket_hello *pack);
+	hello_rcvd(cofmsg_hello *pack);
 
 
 	/**
@@ -183,25 +196,25 @@ protected:
 	 *
 	 */
 	void
-	echo_request_rcvd(cofpacket_echo_request *pack);
+	echo_request_rcvd(cofmsg_echo *pack);
 
 
 	/**
 	 *
 	 */
 	void
-	echo_reply_rcvd(cofpacket_echo_reply *pack);
+	echo_reply_rcvd(cofmsg_echo *pack);
 
 
 	/** handle incoming vendor message (ROFL extensions)
 	 */
 	void
-	experimenter_rcvd(cofpacket_experimenter *pack);
+	experimenter_rcvd(cofmsg *pack);
 
 	/** handle incoming FEATURE requests
 	 */
 	void
-	features_request_rcvd(cofpacket_features_request *pack);
+	features_request_rcvd(cofmsg_features_request *pack);
 
 	/**
 	 *
@@ -213,7 +226,7 @@ protected:
 	 *
 	 */
 	void
-	get_config_request_rcvd(cofpacket_get_config_request *pack);
+	get_config_request_rcvd(cofmsg_get_config_request *pack);
 
 	/**
 	 *
@@ -225,38 +238,38 @@ protected:
 	 *
 	 */
 	void
-	set_config_rcvd(cofpacket_set_config *pack);
+	set_config_rcvd(cofmsg_config *pack);
 
 	/** handle incoming PACKET-OUT messages
 	 */
 	void
-	packet_out_rcvd(cofpacket_packet_out *pack);
+	packet_out_rcvd(cofmsg_packet_out *pack);
 
 	/** handle incoming FLOW-MOD messages
 	 */
 	void
-	flow_mod_rcvd(cofpacket_flow_mod *pack);
+	flow_mod_rcvd(cofmsg_flow_mod *pack);
 
 	/** handle incoming GROUP-MOD messages
 	 */
 	void
-	group_mod_rcvd(cofpacket_group_mod *pack);
+	group_mod_rcvd(cofmsg_group_mod *pack);
 
 	/** handle incoming PORT-MOD messages
 	 */
 	void
-	port_mod_rcvd(cofpacket_port_mod *pack);
+	port_mod_rcvd(cofmsg_port_mod *pack);
 
 	/** handle incoming TABLE-MOD messages
 	 */
 	void
-	table_mod_rcvd(cofpacket_table_mod *pack);
+	table_mod_rcvd(cofmsg_table_mod *pack);
 
 	/** STATS-REQUEST received
 	 *
 	 */
 	void
-	stats_request_rcvd(cofpacket_stats_request *pack);
+	stats_request_rcvd(cofmsg_stats *pack);
 
 	/**
 	 *
@@ -267,7 +280,7 @@ protected:
 	/** handle incoming ROLE-REQUEST messages
 	 */
 	void
-	role_request_rcvd(cofpacket_role_request *pack);
+	role_request_rcvd(cofmsg_role *pack);
 
 	/**
 	 *
@@ -278,7 +291,7 @@ protected:
 	/** handle incoming BARRIER request
 	 */
 	void
-	barrier_request_rcvd(cofpacket_barrier_request *pack);
+	barrier_request_rcvd(cofmsg_barrier *pack);
 
 	/** BARRIER reply sent back
 	 *
@@ -290,7 +303,7 @@ protected:
 	 *
 	 */
 	void
-	queue_get_config_request_rcvd(cofpacket_queue_get_config_request *pack);
+	queue_get_config_request_rcvd(cofmsg_queue_get_config_request *pack);
 
 	/**
 	 *
@@ -384,7 +397,7 @@ private:
 	 */
 	void
 	handle_message(
-			cofmsg *pack);
+			cmemory *pack);
 
 
 	/**

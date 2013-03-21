@@ -34,6 +34,20 @@ cofbucket::cofbucket(
 }
 
 
+cofbucket::cofbucket(
+		struct ofp13_bucket *bucket,
+		size_t bclen) :
+	packet_count(0),
+	byte_count(0),
+	weight(0),
+	watch_port(0),
+	watch_group(0)
+{
+	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::cofbucket()", this);
+	unpack(bucket, bclen);
+}
+
+
 cofbucket::~cofbucket()
 {
 	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::~cofbucket()", this);
