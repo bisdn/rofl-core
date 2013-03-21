@@ -4,7 +4,176 @@ using namespace rofl;
 
 
 
-cofmsg_group_desc_stats::cofmsg_group_desc_stats(
+
+cofmsg_group_desc_stats_request::cofmsg_group_desc_stats_request(
+		uint8_t of_version,
+		uint32_t xid,
+		uint16_t flags) :
+	cofmsg_stats(of_version, OFPT_STATS_REQUEST, xid, OFPST_GROUP_DESC, flags)
+{
+	switch (of_version) {
+	case OFP10_VERSION: {
+		resize(sizeof(struct ofp10_stats_request));
+	} break;
+	case OFP12_VERSION: {
+		resize(sizeof(struct ofp12_stats_request));
+	} break;
+	case OFP13_VERSION: {
+		// TODO
+		throw eNotImplemented();
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+cofmsg_group_desc_stats_request::cofmsg_group_desc_stats_request(
+		cmemory *memarea) :
+	cofmsg_stats(memarea)
+{
+	validate();
+}
+
+
+
+cofmsg_group_desc_stats_request::cofmsg_group_desc_stats_request(
+		cofmsg_group_desc_stats_request const& stats)
+{
+	*this = stats;
+}
+
+
+
+cofmsg_group_desc_stats_request&
+cofmsg_group_desc_stats_request::operator= (
+		cofmsg_group_desc_stats_request const& stats)
+{
+	if (this == &stats)
+		return *this;
+
+	cofmsg_stats::operator =(stats);
+
+	return *this;
+}
+
+
+
+cofmsg_group_desc_stats_request::~cofmsg_group_desc_stats_request()
+{
+
+}
+
+
+
+void
+cofmsg_group_desc_stats_request::reset()
+{
+	cofmsg_stats::reset();
+}
+
+
+
+void
+cofmsg_group_desc_stats_request::resize(size_t len)
+{
+	cofmsg::resize(len);
+}
+
+
+
+size_t
+cofmsg_group_desc_stats_request::length() const
+{
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		return (sizeof(struct ofp10_stats_request));
+	} break;
+	case OFP12_VERSION: {
+		return (sizeof(struct ofp12_stats_request));
+	} break;
+	case OFP13_VERSION: {
+		// TODO
+		throw eNotImplemented();
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+void
+cofmsg_group_desc_stats_request::pack(uint8_t *buf, size_t buflen)
+{
+	cofmsg_stats::pack(buf, buflen); // copies common statistics header
+
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < length())
+		throw eInval();
+
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		if (buflen < length())
+			throw eInval();
+	} break;
+	case OFP12_VERSION: {
+		if (buflen < length())
+			throw eInval();
+	} break;
+	case OFP13_VERSION: {
+		// TODO
+		throw eNotImplemented();
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofmsg_group_desc_stats_request::unpack(uint8_t *buf, size_t buflen)
+{
+	cofmsg_stats::unpack(buf, buflen);
+
+	validate();
+}
+
+
+
+void
+cofmsg_group_desc_stats_request::validate()
+{
+	cofmsg_stats::validate(); // check generic statistics header
+
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		if (get_length() < sizeof(struct ofp10_stats_request))
+			throw eBadSyntaxTooShort();
+	} break;
+	case OFP12_VERSION: {
+		if (get_length() < (sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_group_desc_stats)))
+			throw eBadSyntaxTooShort();
+	} break;
+	case OFP13_VERSION: {
+		// TODO
+		throw eNotImplemented();
+	} break;
+	default:
+		throw eBadRequestBadVersion();
+	}
+}
+
+
+
+
+
+cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags,
@@ -36,7 +205,7 @@ cofmsg_group_desc_stats::cofmsg_group_desc_stats(
 
 
 
-cofmsg_group_desc_stats::cofmsg_group_desc_stats(
+cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 		cmemory *memarea) :
 	cofmsg_stats(memarea)
 {
@@ -45,17 +214,17 @@ cofmsg_group_desc_stats::cofmsg_group_desc_stats(
 
 
 
-cofmsg_group_desc_stats::cofmsg_group_desc_stats(
-		cofmsg_group_desc_stats const& stats)
+cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
+		cofmsg_group_desc_stats_reply const& stats)
 {
 	*this = stats;
 }
 
 
 
-cofmsg_group_desc_stats&
-cofmsg_group_desc_stats::operator= (
-		cofmsg_group_desc_stats const& stats)
+cofmsg_group_desc_stats_reply&
+cofmsg_group_desc_stats_reply::operator= (
+		cofmsg_group_desc_stats_reply const& stats)
 {
 	if (this == &stats)
 		return *this;
@@ -69,7 +238,7 @@ cofmsg_group_desc_stats::operator= (
 
 
 
-cofmsg_group_desc_stats::~cofmsg_group_desc_stats()
+cofmsg_group_desc_stats_reply::~cofmsg_group_desc_stats_reply()
 {
 
 }
@@ -77,7 +246,7 @@ cofmsg_group_desc_stats::~cofmsg_group_desc_stats()
 
 
 void
-cofmsg_group_desc_stats::reset()
+cofmsg_group_desc_stats_reply::reset()
 {
 	cofmsg_stats::reset();
 }
@@ -85,7 +254,7 @@ cofmsg_group_desc_stats::reset()
 
 
 void
-cofmsg_group_desc_stats::resize(size_t len)
+cofmsg_group_desc_stats_reply::resize(size_t len)
 {
 	cofmsg::resize(len);
 	switch (get_version()) {
@@ -108,7 +277,7 @@ cofmsg_group_desc_stats::resize(size_t len)
 
 
 size_t
-cofmsg_group_desc_stats::length() const
+cofmsg_group_desc_stats_reply::length() const
 {
 	switch (get_version()) {
 	case OFP10_VERSION: {
@@ -130,7 +299,7 @@ cofmsg_group_desc_stats::length() const
 
 
 void
-cofmsg_group_desc_stats::pack(uint8_t *buf, size_t buflen)
+cofmsg_group_desc_stats_reply::pack(uint8_t *buf, size_t buflen)
 {
 	cofmsg_stats::pack(buf, buflen); // copies common statistics header
 
@@ -139,8 +308,6 @@ cofmsg_group_desc_stats::pack(uint8_t *buf, size_t buflen)
 
 	if (buflen < length())
 		throw eInval();
-
-	group_desc_stats.clear();
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
@@ -169,7 +336,7 @@ cofmsg_group_desc_stats::pack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_group_desc_stats::unpack(uint8_t *buf, size_t buflen)
+cofmsg_group_desc_stats_reply::unpack(uint8_t *buf, size_t buflen)
 {
 	cofmsg_stats::unpack(buf, buflen);
 
@@ -179,9 +346,11 @@ cofmsg_group_desc_stats::unpack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_group_desc_stats::validate()
+cofmsg_group_desc_stats_reply::validate()
 {
 	cofmsg_stats::validate(); // check generic statistics header
+
+	group_desc_stats.clear();
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
@@ -214,7 +383,7 @@ cofmsg_group_desc_stats::validate()
 
 
 std::vector<cofgroup_desc_stats_reply>&
-cofmsg_group_desc_stats::get_group_desc_stats()
+cofmsg_group_desc_stats_reply::get_group_desc_stats()
 {
 	return group_desc_stats;
 }

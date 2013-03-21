@@ -466,31 +466,31 @@ cofctl::handle_message(
 
 			switch (stats_type) {
 			case OFPST_DESC: {
-				pack = new cofmsg_desc_stats(msg);
+				pack = new cofmsg_desc_stats_request(msg);
 			} break;
 			case OFPST_FLOW: {
-				pack = new cofmsg_flow_stats(msg);
+				pack = new cofmsg_flow_stats_request(msg);
 			} break;
 			case OFPST_AGGREGATE: {
-				pack = new cofmsg_aggr_stats(msg);
+				pack = new cofmsg_aggr_stats_request(msg);
 			} break;
 			case OFPST_TABLE: {
-				pack = new cofmsg_table_stats(msg);
+				pack = new cofmsg_table_stats_request(msg);
 			} break;
 			case OFPST_PORT: {
-				pack = new cofmsg_port_stats(msg);
+				pack = new cofmsg_port_stats_request(msg);
 			} break;
 			case OFPST_QUEUE: {
-				pack = new cofmsg_queue_stats(msg);
+				pack = new cofmsg_queue_stats_request(msg);
 			} break;
 			case OFPST_GROUP: {
-				pack = new cofmsg_group_stats(msg);
+				pack = new cofmsg_group_stats_request(msg);
 			} break;
 			case OFPST_GROUP_DESC: {
-				pack = new cofmsg_group_desc_stats(msg);
+				pack = new cofmsg_group_desc_stats_request(msg);
 			} break;
 			case OFPST_GROUP_FEATURES: {
-				pack = new cofmsg_group_features_stats(msg);
+				pack = new cofmsg_group_features_stats_request(msg);
 			} break;
 			// TODO: experimenter statistics
 			default: {
@@ -1930,31 +1930,31 @@ cofctl::stats_request_rcvd(cofmsg_stats *msg)
 
 	switch (msg->get_type()) {
 	case OFPST_DESC: {
-		rofbase->handle_desc_stats_request(this, dynamic_cast<cofmsg_desc_stats*>( msg ));
+		rofbase->handle_desc_stats_request(this, dynamic_cast<cofmsg_desc_stats_reply*>( msg ));
 	} break;
 	case OFPST_TABLE: {
-		rofbase->handle_table_stats_request(this, dynamic_cast<cofmsg_table_stats*>( msg ));
+		rofbase->handle_table_stats_request(this, dynamic_cast<cofmsg_table_stats_reply*>( msg ));
 	} break;
 	case OFPST_PORT: {
-		rofbase->handle_port_stats_request(this, dynamic_cast<cofmsg_port_stats*>( msg ));
+		rofbase->handle_port_stats_request(this, dynamic_cast<cofmsg_port_stats_reply*>( msg ));
 	} break;
 	case OFPST_FLOW: {
-		rofbase->handle_flow_stats_request(this, dynamic_cast<cofmsg_flow_stats*>( msg ));
+		rofbase->handle_flow_stats_request(this, dynamic_cast<cofmsg_flow_stats_request*>( msg ));
 	} break;
 	case OFPST_AGGREGATE: {
-		rofbase->handle_aggregate_stats_request(this, dynamic_cast<cofmsg_aggr_stats*>( msg ));
+		rofbase->handle_aggregate_stats_request(this, dynamic_cast<cofmsg_aggr_stats_reply*>( msg ));
 	} break;
 	case OFPST_QUEUE: {
-		rofbase->handle_queue_stats_request(this, dynamic_cast<cofmsg_queue_stats*>( msg ));
+		rofbase->handle_queue_stats_request(this, dynamic_cast<cofmsg_queue_stats_reply*>( msg ));
 	} break;
 	case OFPST_GROUP: {
-		rofbase->handle_group_stats_request(this, dynamic_cast<cofmsg_group_stats*>( msg ));
+		rofbase->handle_group_stats_request(this, dynamic_cast<cofmsg_group_stats_reply*>( msg ));
 	} break;
 	case OFPST_GROUP_DESC: {
-		rofbase->handle_group_desc_stats_request(this, dynamic_cast<cofmsg_group_desc_stats*>( msg ));
+		rofbase->handle_group_desc_stats_request(this, dynamic_cast<cofmsg_group_desc_stats_reply*>( msg ));
 	} break;
 	case OFPST_GROUP_FEATURES: {
-		rofbase->handle_group_features_stats_request(this, dynamic_cast<cofmsg_group_features_stats*>( msg ));
+		rofbase->handle_group_features_stats_request(this, dynamic_cast<cofmsg_group_features_stats_reply*>( msg ));
 	} break;
 	case OFPST_EXPERIMENTER: {
 		rofbase->handle_experimenter_stats_request(this, dynamic_cast<cofmsg_stats*>( msg ));

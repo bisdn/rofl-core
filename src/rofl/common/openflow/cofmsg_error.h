@@ -79,7 +79,7 @@ public:
 	 *
 	 */
 	virtual size_t
-	length() = 0;
+	length();
 
 
 	/**

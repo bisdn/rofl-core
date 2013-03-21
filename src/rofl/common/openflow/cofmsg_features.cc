@@ -132,8 +132,10 @@ cofmsg_features_reply::cofmsg_features_reply(
 		uint8_t  n_tables,
 		uint32_t capabilities,
 		uint32_t of10_actions_bitmap,
-		uint8_t  of13_auxiliary_id) :
-	cofmsg(sizeof(struct ofp_header))
+		uint8_t  of13_auxiliary_id,
+		cofportlist const& ports = cofportlist()) :
+	cofmsg(sizeof(struct ofp_header)),
+	ports(ports)
 {
 	ofh_switch_features = soframe();
 

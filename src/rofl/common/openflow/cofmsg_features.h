@@ -130,7 +130,8 @@ public:
 			uint8_t  n_tables = 0,
 			uint32_t capabilities = 0,
 			uint32_t of10_actions_bitmap = 0,
-			uint8_t  of13_auxiliary_id = 0);
+			uint8_t  of13_auxiliary_id = 0,
+			cofportlist const& ports = cofportlist());
 
 
 	/**

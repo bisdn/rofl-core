@@ -404,77 +404,77 @@ protected:
 	 * @param pack STATS.request packet received from controller.
 	 */
 	void
-	handle_stats_request(cofctl *ctl, cofmsg_stats *msg);
+	handle_stats_request(cofctl *ctl, cofmsg_stats *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_desc_stats_request(cofctl *ctl, cofmsg_desc_stats *msg);
+	handle_desc_stats_request(cofctl *ctl, cofmsg_desc_stats_reply *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_table_stats_request(cofctl *ctl, cofmsg_table_stats *msg);
+	handle_table_stats_request(cofctl *ctl, cofmsg_table_stats_reply *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_port_stats_request(cofctl *ctl, cofmsg_port_stats *msg);
+	handle_port_stats_request(cofctl *ctl, cofmsg_port_stats_reply *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_flow_stats_request(cofctl *ctl, cofmsg_flow_stats *msg);
+	handle_flow_stats_request(cofctl *ctl, cofmsg_flow_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_aggregate_stats_request(cofctl *ctl, cofmsg_aggr_stats *msg);
+	handle_aggregate_stats_request(cofctl *ctl, cofmsg_aggr_stats_reply *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_queue_stats_request(cofctl *ctl, cofmsg_queue_stats *msg);
+	handle_queue_stats_request(cofctl *ctl, cofmsg_queue_stats_reply *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_stats_request(cofctl *ctl, cofmsg_group_stats *msg);
+	handle_group_stats_request(cofctl *ctl, cofmsg_group_stats_reply *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_desc_stats_request(cofctl *ctl, cofmsg_group_desc_stats *msg);
+	handle_group_desc_stats_request(cofctl *ctl, cofmsg_group_desc_stats_reply *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_features_stats_request(cofctl *ctl, cofmsg_group_features_stats *msg);
+	handle_group_features_stats_request(cofctl *ctl, cofmsg_group_features_stats_reply *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_experimenter_stats_request(cofctl *ctl, cofmsg_stats *msg);
+	handle_experimenter_stats_request(cofctl *ctl, cofmsg_stats *msg) { throw eBadRequestBadStat(); };
 
 
 	/** Handle OF stats reply. To be overwritten by derived class.
@@ -924,8 +924,8 @@ public:
 	virtual uint32_t
 	send_stats_request(
 		cofdpt *dpt,
-		uint16_t type,
-		uint16_t flags,
+		uint16_t stats_type,
+		uint16_t stats_flags,
 		uint8_t *body = NULL,
 		size_t bodylen = 0);
 
@@ -940,14 +940,8 @@ public:
 	virtual uint32_t
 	send_flow_stats_request(
 		cofdpt *dpt,
-		uint16_t type,
 		uint16_t flags,
-		uint8_t table_id,
-		uint32_t out_port,
-		uint32_t out_group,
-		uint64_t cookie,
-		uint64_t cookie_mask,
-		cofmatch const& match);
+		cofflow_stats_request const& flow_stats_request);
 
 
 private:
@@ -989,11 +983,7 @@ public:
 	send_desc_stats_reply(
 		cofctl *ctl,
 		uint32_t xid,
-		std::string const& mfr_desc,
-		std::string const&  hw_desc,
-		std::string const&  sw_desc,
-		std::string const&  serial_num,
-		std::string const&  dp_desc,
+		cofdesc_stats_reply const& desc_stats,
 		bool more = false);
 
 	// PACKET-OUT message
