@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "of12_switch.h"
 
-#include "../../platform/cutil.h"
 #include "../../platform/memory.h"
 #include "../of_switch.h"
 #include "../../platform/openflow/openflow12/platform_hooks_of12.h"
@@ -10,16 +9,16 @@
 of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* list,of12_flow_table_miss_config_t config){
 
 	of12_switch_t* sw;
-	sw = (of12_switch_t*)cutil_malloc_shared(sizeof(of12_switch_t));
+	sw = (of12_switch_t*)platform_malloc_shared(sizeof(of12_switch_t));
 	if(sw == NULL)
 		return NULL;
 
 	//Filling in values
 	sw->of_ver = OF_VERSION_12;	
 	sw->dpid = dpid;
-	sw->name = (char*)cutil_malloc_shared(strlen(name)+1);
+	sw->name = (char*)platform_malloc_shared(strlen(name)+1);
 	if(sw->name == NULL){
-		cutil_free_shared(sw);
+		platform_free_shared(sw);
 		return NULL;
 	}
 	strcpy(sw->name,name);
@@ -33,24 +32,24 @@ of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int nu
 	
 	//Mutex
 	if(NULL == (sw->mutex = platform_mutex_init(NULL))){
-		cutil_free_shared(sw->name);
-		cutil_free_shared(sw);
+		platform_free_shared(sw->name);
+		platform_free_shared(sw);
 		return NULL; 
 	}
 	
 	//Setup pipeline	
 	sw->pipeline = of12_init_pipeline(sw, num_of_tables, list, config);
 	if(sw->pipeline == NULL){
-		cutil_free_shared(sw->name);
-		cutil_free_shared(sw);
+		platform_free_shared(sw->name);
+		platform_free_shared(sw);
 		return NULL;
 	}
 	
 	//Allow the platform to add specific configurations to the switch
 	if(platform_post_init_of12_switch(sw) != ROFL_SUCCESS){
 		of12_destroy_pipeline(sw->pipeline);	
-		cutil_free_shared(sw->name);
-		cutil_free_shared(sw);
+		platform_free_shared(sw->name);
+		platform_free_shared(sw);
 		return NULL;
 	}
 
@@ -74,8 +73,8 @@ rofl_result_t of12_destroy_switch(of12_switch_t* sw){
 	
 	platform_mutex_destroy(sw->mutex);
 	
-	cutil_free_shared(sw->name);
-	cutil_free_shared(sw);
+	platform_free_shared(sw->name);
+	platform_free_shared(sw);
 	
 	return ROFL_SUCCESS;
 }

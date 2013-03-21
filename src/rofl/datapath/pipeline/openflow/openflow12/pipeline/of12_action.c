@@ -34,7 +34,7 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 
 	if(!type)
 		return NULL;
-	action = cutil_malloc_shared(sizeof(of12_packet_action_t));
+	action = platform_malloc_shared(sizeof(of12_packet_action_t));
 
 	if(!action)
 		return NULL;
@@ -125,7 +125,7 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 
 void of12_destroy_packet_action(of12_packet_action_t* action){
 
-	cutil_free_shared(action);
+	platform_free_shared(action);
 }
 
 /* Action group init and destroy */
@@ -134,7 +134,7 @@ of12_action_group_t* of12_init_action_group(of12_packet_action_t* actions){
 	unsigned int number_of_actions=0, number_of_output_actions=0;
 	of12_action_group_t* action_group;
 	
-	action_group = cutil_malloc_shared(sizeof(of12_action_group_t));
+	action_group = platform_malloc_shared(sizeof(of12_action_group_t));
 
 	if(!action_group)
 		return NULL;
@@ -174,7 +174,7 @@ void of12_destroy_action_group(of12_action_group_t* group){
 		next = it->next; 
 		of12_destroy_packet_action(it);
 	}
-	cutil_free_shared(group);	
+	platform_free_shared(group);	
 }
 
 /* Addition of an action to an action group */
@@ -211,7 +211,7 @@ void of12_init_packet_write_actions(datapacket_t *const pkt, of12_write_actions_
 
 of12_write_actions_t* of12_init_write_actions(){
 
-	of12_write_actions_t* write_actions = cutil_malloc_shared(sizeof(of12_write_actions_t)); 
+	of12_write_actions_t* write_actions = platform_malloc_shared(sizeof(of12_write_actions_t)); 
 
 	if(!write_actions)
 		return NULL;
@@ -221,7 +221,7 @@ of12_write_actions_t* of12_init_write_actions(){
 }
 
 void of12_destroy_write_actions(of12_write_actions_t* write_actions){
-	cutil_free_shared(write_actions);	
+	platform_free_shared(write_actions);	
 }
 
 void of12_set_packet_action_on_write_actions(of12_write_actions_t* write_actions, of12_packet_action_t* action){

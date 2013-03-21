@@ -15,19 +15,19 @@
  */
 
 //Per core memory allocators
-inline void* cutil_malloc( size_t length ){
+inline void* platform_malloc( size_t length ){
 	return malloc( length );
 }
-inline void cutil_free( void *data ){
+inline void platform_free( void *data ){
 	free( data );
 }
 
 //Shared memory allocators
-/*inline*/ void* cutil_malloc_shared( size_t length ){ //VICTOR
+/*inline*/ void* platform_malloc_shared( size_t length ){ //VICTOR
 	return malloc( length );
 }
 
-inline void cutil_free_shared( void *data ){
+inline void platform_free_shared( void *data ){
 	free( data );
 }
 

@@ -14,13 +14,13 @@
 //Init&destroy
 inline platform_mutex_t* platform_mutex_init(void* params){
 
-	pthread_mutex_t* mutex = (pthread_mutex_t*)cutil_malloc_shared(sizeof(pthread_mutex_t));
+	pthread_mutex_t* mutex = (pthread_mutex_t*)platform_malloc_shared(sizeof(pthread_mutex_t));
 
 	if(!mutex)
 		return NULL;
 
 	if( pthread_mutex_init(mutex, params) < 0){
-		cutil_free_shared(mutex);
+		platform_free_shared(mutex);
 		return NULL;
 	}
 
@@ -29,7 +29,7 @@ inline platform_mutex_t* platform_mutex_init(void* params){
 
 inline void platform_mutex_destroy(platform_mutex_t* mutex){
 	pthread_mutex_destroy(mutex);
-	cutil_free_shared(mutex);
+	platform_free_shared(mutex);
 }
 
 //Operations
@@ -46,13 +46,13 @@ inline void platform_mutex_unlock(platform_mutex_t* mutex){
 //Init&destroy
 inline platform_rwlock_t* platform_rwlock_init(void* params){
 
-	pthread_rwlock_t* rwlock = (pthread_rwlock_t*)cutil_malloc_shared(sizeof(pthread_rwlock_t));
+	pthread_rwlock_t* rwlock = (pthread_rwlock_t*)platform_malloc_shared(sizeof(pthread_rwlock_t));
 
 	if(!rwlock)
 		return NULL;
 
 	if(pthread_rwlock_init(rwlock, params) < 0){
-		cutil_free_shared(rwlock);
+		platform_free_shared(rwlock);
 		return NULL;
 	}
 	
@@ -61,7 +61,7 @@ inline platform_rwlock_t* platform_rwlock_init(void* params){
 
 inline void platform_rwlock_destroy(platform_rwlock_t* rwlock){
 	pthread_rwlock_destroy(rwlock);
-	cutil_free_shared(rwlock);
+	platform_free_shared(rwlock);
 }
 
 //Read

@@ -50,7 +50,7 @@ void of12_destroy_flow_stats(of12_flow_entry_t* entry)
 */
 of12_stats_flow_aggregate_msg_t* of12_init_stats_flow_aggregate_msg(){
 
-	of12_stats_flow_aggregate_msg_t* msg = (of12_stats_flow_aggregate_msg_t*)cutil_malloc_shared(sizeof(of12_stats_flow_aggregate_msg_t));
+	of12_stats_flow_aggregate_msg_t* msg = (of12_stats_flow_aggregate_msg_t*)platform_malloc_shared(sizeof(of12_stats_flow_aggregate_msg_t));
 
 	//Init counters
 	if(msg)
@@ -61,7 +61,7 @@ of12_stats_flow_aggregate_msg_t* of12_init_stats_flow_aggregate_msg(){
 void of12_destroy_stats_flow_aggregate_msg(of12_stats_flow_aggregate_msg_t* msg){
 
 	if(msg)
-		cutil_free_shared(msg);
+		platform_free_shared(msg);
 }
 
 /*
@@ -74,7 +74,7 @@ of12_stats_single_flow_msg_t* of12_init_stats_single_flow_msg(of12_flow_entry_t*
 	if(!entry)
 		return NULL;
 
-	msg = (of12_stats_single_flow_msg_t*)cutil_malloc_shared(sizeof(of12_stats_single_flow_msg_t)); 
+	msg = (of12_stats_single_flow_msg_t*)platform_malloc_shared(sizeof(of12_stats_single_flow_msg_t)); 
 	//Fill static values
 	if(entry->table)
 		msg->table_id = entry->table->number;
@@ -101,12 +101,12 @@ void of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg){
 	if(msg->matches)
 		of12_destroy_match(msg->matches);
 
-	cutil_free_shared(msg);
+	platform_free_shared(msg);
 }
 
 of12_stats_flow_msg_t* of12_init_stats_flow_msg(){
 
-	of12_stats_flow_msg_t* msg = (of12_stats_flow_msg_t*)cutil_malloc_shared(sizeof(of12_stats_flow_msg_t)); 
+	of12_stats_flow_msg_t* msg = (of12_stats_flow_msg_t*)platform_malloc_shared(sizeof(of12_stats_flow_msg_t)); 
 
 	//Init counters
 	if(msg)
@@ -126,7 +126,7 @@ void of12_destroy_stats_flow_msg(of12_stats_flow_msg_t* msg){
 	//If there are single flow messages delete them	
 
 	if(msg)
-		cutil_free_shared(msg);
+		platform_free_shared(msg);
 }
 
 //Push to stats_flow_msg

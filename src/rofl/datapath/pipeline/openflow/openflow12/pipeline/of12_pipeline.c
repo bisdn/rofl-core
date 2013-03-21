@@ -25,7 +25,7 @@ of12_pipeline_t* of12_init_pipeline(struct of12_switch* sw, const unsigned int n
 	if( ! (num_of_tables <= OF12_MAX_FLOWTABLES && num_of_tables > 0) )
 		return NULL;
 	
-	pipeline = (of12_pipeline_t*)cutil_malloc_shared(sizeof(of12_pipeline_t));
+	pipeline = (of12_pipeline_t*)platform_malloc_shared(sizeof(of12_pipeline_t));
 
 	if(!pipeline)
 		return NULL;
@@ -36,18 +36,18 @@ of12_pipeline_t* of12_init_pipeline(struct of12_switch* sw, const unsigned int n
 
 
 	//Allocate tables and initialize	
-	pipeline->tables = (of12_flow_table_t*)cutil_malloc_shared(sizeof(of12_flow_table_t)*num_of_tables);
+	pipeline->tables = (of12_flow_table_t*)platform_malloc_shared(sizeof(of12_flow_table_t)*num_of_tables);
 	
 	if(!pipeline->tables){
-		cutil_free_shared(pipeline);
+		platform_free_shared(pipeline);
 		return NULL;
 	}
 
 	for(i=0;i<num_of_tables;i++){
 		//TODO: if we would have tables with different config, table_config should be an array of table_config_t objects, one for each table
 		if(of12_init_table(pipeline, &pipeline->tables[i],i,table_config, list[i]) != ROFL_SUCCESS){
-			cutil_free_shared(pipeline->tables);
-			cutil_free_shared(pipeline);
+			platform_free_shared(pipeline->tables);
+			platform_free_shared(pipeline);
 			return NULL;
 		}
 	}
@@ -88,9 +88,9 @@ rofl_result_t of12_destroy_pipeline(of12_pipeline_t* pipeline){
 	}
 			
 	//Now release table resources (allocated as single block)
-	cutil_free_shared(pipeline->tables);
+	platform_free_shared(pipeline->tables);
 
-	cutil_free_shared(pipeline);
+	platform_free_shared(pipeline);
 
 	return ROFL_SUCCESS;
 

@@ -10,7 +10,7 @@
 
 //Phy
 inline of12_match_t* of12_init_port_in_match(of12_match_t* prev, of12_match_t* next, uint32_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_IN_PORT; 
 	match->value = init_utern32(value,0xFFFFFFFF); //No wildcard
 	match->prev = prev;
@@ -19,7 +19,7 @@ inline of12_match_t* of12_init_port_in_match(of12_match_t* prev, of12_match_t* n
 }
 
 inline of12_match_t* of12_init_port_in_phy_match(of12_match_t* prev, of12_match_t* next, uint32_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_IN_PHY_PORT; 
 	match->value = init_utern32(value,0xFFFFFFFF); //No wildcard 
 	match->prev = prev;
@@ -31,7 +31,7 @@ inline of12_match_t* of12_init_port_in_phy_match(of12_match_t* prev, of12_match_
 
 //ETHERNET
 inline of12_match_t* of12_init_eth_dst_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_ETH_DST; 
 	match->value = init_utern64(value&0x0000FFFFFFFFFFFF,mask&0x0000FFFFFFFFFFFF); //Enforce mask bits are always 00 for the first bits 
 	match->prev = prev;
@@ -39,7 +39,7 @@ inline of12_match_t* of12_init_eth_dst_match(of12_match_t* prev, of12_match_t* n
 	return match;
 }
 inline of12_match_t* of12_init_eth_src_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_ETH_SRC; 
 	match->value = init_utern64(value&0x0000FFFFFFFFFFFF,mask&0x0000FFFFFFFFFFFF); //Enforce mask bits are always 00 for the first bits 
 	match->prev = prev;
@@ -47,7 +47,7 @@ inline of12_match_t* of12_init_eth_src_match(of12_match_t* prev, of12_match_t* n
 	return match;
 }
 inline of12_match_t* of12_init_eth_type_match(of12_match_t* prev, of12_match_t* next, uint16_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_ETH_TYPE; 
 	match->value = init_utern16(value,0xFFFF); //No wildcard 
 	match->prev = prev;
@@ -57,7 +57,7 @@ inline of12_match_t* of12_init_eth_type_match(of12_match_t* prev, of12_match_t* 
 
 //8021.q
 inline of12_match_t* of12_init_vlan_vid_match(of12_match_t* prev, of12_match_t* next, uint16_t value, uint16_t mask){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_VLAN_VID; 
 	match->value = init_utern16(value&0x1FFF,mask&0x1FFF); //Ensure only 13 bit value
 	match->prev = prev;
@@ -65,7 +65,7 @@ inline of12_match_t* of12_init_vlan_vid_match(of12_match_t* prev, of12_match_t* 
 	return match;
 }
 inline of12_match_t* of12_init_vlan_pcp_match(of12_match_t* prev, of12_match_t* next, uint8_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_VLAN_PCP; 
 	match->value = init_utern8(value&0x07,0x07); //Ensure only 3 bit value, no wildcard 
 	match->prev = prev;
@@ -75,7 +75,7 @@ inline of12_match_t* of12_init_vlan_pcp_match(of12_match_t* prev, of12_match_t* 
 
 //MPLS
 inline of12_match_t* of12_init_mpls_label_match(of12_match_t* prev, of12_match_t* next, uint32_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_MPLS_LABEL; 
 	match->value = init_utern32(value&0x000FFFFF,0x000FFFFF); //no wildcard?? wtf! 
 	match->prev = prev;
@@ -83,7 +83,7 @@ inline of12_match_t* of12_init_mpls_label_match(of12_match_t* prev, of12_match_t
 	return match;
 }
 inline of12_match_t* of12_init_mpls_tc_match(of12_match_t* prev, of12_match_t* next, uint8_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_MPLS_TC; 
 	match->value = init_utern8(value&0x07,0x07); //Ensure only 3 bit value, no wildcard 
 	match->prev = prev;
@@ -92,7 +92,7 @@ inline of12_match_t* of12_init_mpls_tc_match(of12_match_t* prev, of12_match_t* n
 }
 //PPPoE
 inline of12_match_t* of12_init_pppoe_code_match(of12_match_t* prev, of12_match_t* next, uint8_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_PPPOE_CODE; 
 	match->value = init_utern8(value,0xFF); //no wildcard 
 	match->prev = prev;
@@ -100,7 +100,7 @@ inline of12_match_t* of12_init_pppoe_code_match(of12_match_t* prev, of12_match_t
 	return match;
 }
 inline of12_match_t* of12_init_pppoe_type_match(of12_match_t* prev, of12_match_t* next, uint8_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_PPPOE_TYPE; 
 	match->value = init_utern8(value&0x0F,0x0F); //Ensure only 4 bit value, no wildcard 
 	match->prev = prev;
@@ -108,7 +108,7 @@ inline of12_match_t* of12_init_pppoe_type_match(of12_match_t* prev, of12_match_t
 	return match;
 }
 inline of12_match_t* of12_init_pppoe_session_match(of12_match_t* prev, of12_match_t* next, uint16_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_PPPOE_SID; 
 	match->value = init_utern16(value,0xFFFF); //no wildcard 
 	match->prev = prev;
@@ -117,7 +117,7 @@ inline of12_match_t* of12_init_pppoe_session_match(of12_match_t* prev, of12_matc
 }
 //PPP
 inline of12_match_t* of12_init_ppp_prot_match(of12_match_t* prev, of12_match_t* next, uint16_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_PPP_PROT; 
 	match->value = init_utern16(value,0xFFFF); //no wildcard 
 	match->prev = prev;
@@ -126,7 +126,7 @@ inline of12_match_t* of12_init_ppp_prot_match(of12_match_t* prev, of12_match_t* 
 }
 //IPv4
 inline of12_match_t* of12_init_ip4_src_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_IPV4_SRC;
 	match->value = init_utern32(value,mask); 
 	match->prev = prev;
@@ -134,7 +134,7 @@ inline of12_match_t* of12_init_ip4_src_match(of12_match_t* prev, of12_match_t* n
 	return match;
 }
 inline of12_match_t* of12_init_ip4_dst_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_IPV4_DST;
 	match->value = init_utern32(value,mask); 
 	match->prev = prev;
@@ -142,7 +142,7 @@ inline of12_match_t* of12_init_ip4_dst_match(of12_match_t* prev, of12_match_t* n
 	return match;
 }
 inline of12_match_t* of12_init_ip_proto_match(of12_match_t* prev, of12_match_t* next, uint8_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_IP_PROTO; 
 	match->value = init_utern8(value,0xFF); //no wildcard 
 	match->prev = prev;
@@ -150,7 +150,7 @@ inline of12_match_t* of12_init_ip_proto_match(of12_match_t* prev, of12_match_t* 
 	return match;
 }
 inline of12_match_t* of12_init_ip_dscp_match(of12_match_t* prev, of12_match_t* next, uint8_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_IP_DSCP; 
 	match->value = init_utern8(value,0x3F); //no wildcard 
 	match->prev = prev;
@@ -159,7 +159,7 @@ inline of12_match_t* of12_init_ip_dscp_match(of12_match_t* prev, of12_match_t* n
 }
 
 inline of12_match_t* of12_init_ip_ecn_match(of12_match_t* prev, of12_match_t* next, uint8_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_IP_ECN; 
 	match->value = init_utern8(value,0x03); //no wildcard 
 	match->prev = prev;
@@ -170,7 +170,7 @@ inline of12_match_t* of12_init_ip_ecn_match(of12_match_t* prev, of12_match_t* ne
 
 //TCP
 inline of12_match_t* of12_init_tcp_src_match(of12_match_t* prev, of12_match_t* next, uint16_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_TCP_SRC;
 	match->value = init_utern16(value,0xFFFF); //no wildcard 
 	match->prev = prev;
@@ -178,7 +178,7 @@ inline of12_match_t* of12_init_tcp_src_match(of12_match_t* prev, of12_match_t* n
 	return match;
 }
 inline of12_match_t* of12_init_tcp_dst_match(of12_match_t* prev, of12_match_t* next, uint16_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_TCP_DST;
 	match->value = init_utern16(value,0xFFFF); //no wildcard 
 	match->prev = prev;
@@ -187,7 +187,7 @@ inline of12_match_t* of12_init_tcp_dst_match(of12_match_t* prev, of12_match_t* n
 }
 //UDP
 inline of12_match_t* of12_init_udp_src_match(of12_match_t* prev, of12_match_t* next, uint16_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_UDP_SRC;
 	match->value = init_utern16(value,0xFFFF); //no wildcard 
 	match->prev = prev;
@@ -195,7 +195,7 @@ inline of12_match_t* of12_init_udp_src_match(of12_match_t* prev, of12_match_t* n
 	return match;
 }
 inline of12_match_t* of12_init_udp_dst_match(of12_match_t* prev, of12_match_t* next, uint16_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_UDP_DST;
 	match->value = init_utern16(value,0xFFFF); //no wildcard 
 	match->prev = prev;
@@ -204,7 +204,7 @@ inline of12_match_t* of12_init_udp_dst_match(of12_match_t* prev, of12_match_t* n
 }
 //ICMPv4
 inline of12_match_t* of12_init_icmpv4_type_match(of12_match_t* prev, of12_match_t* next, uint8_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_ICMPV4_TYPE; 
 	match->value = init_utern8(value,0xFF); //no wildcard 
 	match->prev = prev;
@@ -212,7 +212,7 @@ inline of12_match_t* of12_init_icmpv4_type_match(of12_match_t* prev, of12_match_
 	return match;
 }
 inline of12_match_t* of12_init_icmpv4_code_match(of12_match_t* prev, of12_match_t* next, uint8_t value){
-	of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_ICMPV4_CODE; 
 	match->value = init_utern8(value,0xFF); //no wildcard 
 	match->prev = prev;
@@ -230,7 +230,7 @@ inline of12_match_t* of12_init_icmpv4_code_match(of12_match_t* prev, of12_match_
 /* Instruction groups init and destroy */
 of12_match_group_t* of12_new_match_group(){
 
-	of12_match_group_t *group = (of12_match_group_t*)cutil_malloc_shared(sizeof(of12_match_group_t));
+	of12_match_group_t *group = (of12_match_group_t*)platform_malloc_shared(sizeof(of12_match_group_t));
 
 	if(!group)
 		return NULL; 
@@ -473,7 +473,7 @@ inline of12_match_t* of12_get_alike_match(of12_match_t* match1, of12_match_t* ma
 			return NULL; 
 	}	
 	if(common_tern){
-		of12_match_t* match = (of12_match_t*)cutil_malloc_shared(sizeof(of12_match_t));
+		of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 		match->value = common_tern;
 		match->type = match1->type;
 		match->next = NULL;
@@ -487,7 +487,7 @@ inline of12_match_t* of12_get_alike_match(of12_match_t* match1, of12_match_t* ma
 */
 void of12_destroy_match(of12_match_t* match){
 	destroy_utern(match->value);
-	cutil_free_shared(match);
+	platform_free_shared(match);
 }
 
 /*

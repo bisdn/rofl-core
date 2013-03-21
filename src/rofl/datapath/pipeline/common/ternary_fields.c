@@ -6,7 +6,7 @@
 * Initializers
 */
 inline utern_t* init_utern8(uint8_t value, uint8_t mask){
-	utern8_t* tern = (utern8_t*)cutil_malloc_shared(sizeof(utern8_t));
+	utern8_t* tern = (utern8_t*)platform_malloc_shared(sizeof(utern8_t));
 
 	if(!tern)
 		return NULL;
@@ -17,7 +17,7 @@ inline utern_t* init_utern8(uint8_t value, uint8_t mask){
 	return (utern_t*)tern;
 }
 inline utern_t* init_utern16(uint16_t value, uint16_t mask){
-	utern16_t* tern = (utern16_t*)cutil_malloc_shared(sizeof(utern16_t));
+	utern16_t* tern = (utern16_t*)platform_malloc_shared(sizeof(utern16_t));
 
 	if(!tern)
 		return NULL;
@@ -28,7 +28,7 @@ inline utern_t* init_utern16(uint16_t value, uint16_t mask){
 	return (utern_t*)tern;
 }
 inline utern_t* init_utern32(uint32_t value, uint32_t mask){
-	utern32_t* tern = (utern32_t*)cutil_malloc_shared(sizeof(utern32_t));
+	utern32_t* tern = (utern32_t*)platform_malloc_shared(sizeof(utern32_t));
 
 	if(!tern)
 		return NULL;
@@ -39,7 +39,7 @@ inline utern_t* init_utern32(uint32_t value, uint32_t mask){
 	return (utern_t*)tern;
 }
 inline utern_t* init_utern64(uint64_t value, uint64_t mask){
-	utern64_t* tern = (utern64_t*)cutil_malloc_shared(sizeof(utern64_t));
+	utern64_t* tern = (utern64_t*)platform_malloc_shared(sizeof(utern64_t));
 
 	if(!tern)
 		return NULL;
@@ -60,7 +60,7 @@ inline utern_t* init_utern128(uint128_t value, uint128_t mask){ //uint128_t funn
 * Single destructor
 */
 rofl_result_t destroy_utern(utern_t* utern){
-	cutil_free_shared(utern);
+	platform_free_shared(utern);
 	//FIXME: maybe check returning value
 	return ROFL_SUCCESS; 
 }	

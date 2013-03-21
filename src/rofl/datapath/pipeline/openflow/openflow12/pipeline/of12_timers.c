@@ -179,7 +179,7 @@ static of12_timer_group_t* of12_timer_group_init(uint64_t timeout, of12_timer_gr
 {
 	// create the new timer_group
 	of12_timer_group_t* new_group;
-	new_group = cutil_malloc_shared(sizeof(of12_timer_group_t));
+	new_group = platform_malloc_shared(sizeof(of12_timer_group_t));
 	if(new_group == NULL)
 	{
 		fprintf(stderr,"<%s:%d> Error allocating memory\n",__func__,__LINE__);
@@ -218,7 +218,7 @@ static void of12_destroy_timer_group(of12_timer_group_t* tg, of12_flow_table_t* 
 			table->timers = tg->next;
 	if(tg->next)
 		(tg->next)->prev=tg->prev;
-	cutil_free_shared(tg);
+	platform_free_shared(tg);
 	tg = NULL;
 }
 #endif
@@ -230,7 +230,7 @@ static void of12_destroy_timer_group(of12_timer_group_t* tg, of12_flow_table_t* 
 static of12_entry_timer_t* of12_entry_timer_init(of12_timer_group_t* tg, of12_flow_entry_t* entry, of12_timer_timeout_type_t is_idle, struct timeval * last_update)
 {
 	of12_entry_timer_t* new_entry;
-	new_entry = cutil_malloc_shared(sizeof(of12_entry_timer_t));
+	new_entry = platform_malloc_shared(sizeof(of12_entry_timer_t));
 	if(new_entry==NULL)
 	{
 		fprintf(stderr,"<%s:%d> Error allocating memory\n",__func__,__LINE__);
@@ -319,7 +319,7 @@ static rofl_result_t of12_destroy_single_timer_entry_clean(of12_entry_timer_t* e
 		if(entry->group->list.num_of_timers == 0)
 			of12_destroy_timer_group(entry->group,table);
 #endif
-		cutil_free_shared(entry);
+		platform_free_shared(entry);
 		entry = NULL;
 
 		return ROFL_SUCCESS;
@@ -453,7 +453,7 @@ static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_
 			}
 			//if(entry_iterator) THIS IS DONE from outside
 			//{
-				//cutil_free_shared(entry_iterator);
+				//platform_free_shared(entry_iterator);
 				//entry_iterator = NULL;
 			//}
 		}

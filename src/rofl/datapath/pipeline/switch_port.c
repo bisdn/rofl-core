@@ -12,7 +12,7 @@ switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_stat
 	switch_port_t* port;
 
 	//Allocate space
-	port = cutil_malloc_shared(sizeof(switch_port_t));
+	port = platform_malloc_shared(sizeof(switch_port_t));
 
 	if(!port)
 		return NULL;
@@ -24,7 +24,7 @@ switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_stat
 	port->stats.mutex = platform_mutex_init(NULL);
 
 	if(!port->stats.mutex){
-		cutil_free_shared(port);
+		platform_free_shared(port);
 		return NULL;
 	}
 
@@ -57,7 +57,7 @@ rofl_result_t switch_port_destroy(switch_port_t* port){
 	platform_mutex_destroy(port->stats.mutex);
 	
 	//Free shared port
-	cutil_free_shared(port);
+	platform_free_shared(port);
 	
 	return ROFL_SUCCESS;
 }

@@ -17,7 +17,7 @@
 
 of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry_t* next, bool notify_removal){
 
-	of12_flow_entry_t* entry = (of12_flow_entry_t*)cutil_malloc_shared(sizeof(of12_flow_entry_t));
+	of12_flow_entry_t* entry = (of12_flow_entry_t*)platform_malloc_shared(sizeof(of12_flow_entry_t));
 	
 	if(!entry)
 		return NULL;
@@ -25,7 +25,7 @@ of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry
 	memset(entry,0,sizeof(of12_flow_entry_t));	
 	
 	if(NULL == (entry->rwlock = platform_rwlock_init(NULL))){
-		cutil_free_shared(entry);
+		platform_free_shared(entry);
 		assert(0);
 		return NULL; 
 	}
@@ -83,7 +83,7 @@ rofl_result_t of12_destroy_flow_entry_with_reason(of12_flow_entry_t* entry, of12
 	platform_rwlock_destroy(entry->rwlock);
 	
 	//Destroy entry itself
-	cutil_free_shared(entry);	
+	platform_free_shared(entry);	
 	
 	return ROFL_SUCCESS;
 }

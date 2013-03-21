@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef __TERNARY_FIELDS_H__
 #define __TERNARY_FIELDS_H__
 
@@ -5,7 +9,11 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include "rofl.h"
-#include "../platform/cutil.h"
+#include "../util/rofl_pipeline_utils.h"
+
+/**
+* @author Marc Sune<marc.sune (at) bisdn.de>
+*/
 
 enum utern_type_t {
 	UTERN8_T = 0,  //8 bit

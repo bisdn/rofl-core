@@ -19,7 +19,7 @@ static rofl_result_t of12_validate_group(of12_action_group_t* actions);
 
 of12_group_table_t* of12_init_group_table(){
 	of12_group_table_t *gt;
-	gt = (of12_group_table_t *) cutil_malloc_shared(sizeof(of12_group_table_t));
+	gt = (of12_group_table_t *) platform_malloc_shared(sizeof(of12_group_table_t));
 	
 	if(gt==NULL){
 		return NULL;
@@ -48,7 +48,7 @@ void of12_destroy_group_table(of12_group_table_t* gt){
 	platform_rwlock_destroy(gt->rwlock);
 	
 	
-	cutil_free_shared(gt);
+	platform_free_shared(gt);
 }
 
 /**
@@ -74,7 +74,7 @@ rofl_result_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, ui
 	of12_group_t* ge=NULL;
 	of12_bucket_t* bu_it;
 	
-	ge = (of12_group_t *) cutil_malloc_shared(sizeof(of12_group_t));
+	ge = (of12_group_t *) platform_malloc_shared(sizeof(of12_group_t));
 	if (ge == NULL){
 		return ROFL_FAILURE;
 	}
@@ -143,7 +143,7 @@ void of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge){
 	platform_rwlock_destroy(ge->rwlock);
 
 	//free
-	cutil_free_shared(ge);
+	platform_free_shared(ge);
 }
 
 static
@@ -233,7 +233,7 @@ rofl_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, 
 }
 
 of12_bucket_list_t *of12_init_bucket_list(void){
-	return cutil_malloc_shared(sizeof(of12_bucket_list_t));
+	return platform_malloc_shared(sizeof(of12_bucket_list_t));
 }
 
 rofl_result_t of12_insert_bucket_in_list(of12_bucket_list_t *bu_list,of12_bucket_t *bucket){
@@ -250,7 +250,7 @@ rofl_result_t of12_insert_bucket_in_list(of12_bucket_list_t *bu_list,of12_bucket
 
 of12_bucket_t *of12_init_bucket(uint16_t weight, uint32_t port, uint32_t group, of12_action_group_t* actions){
 	
-	of12_bucket_t *bk = cutil_malloc_shared(sizeof(of12_bucket_t));
+	of12_bucket_t *bk = platform_malloc_shared(sizeof(of12_bucket_t));
 	if (bk == NULL)
 		return NULL;
 	
@@ -271,9 +271,9 @@ void of12_destroy_bucket_list(of12_group_t *ge){
 		next = bk_it->next;
 		//NOTE were are the action groups created and deleted?
 		of12_destroy_action_group(bk_it->actions);
-		cutil_free_shared(bk_it);
+		platform_free_shared(bk_it);
 	}
-	cutil_free(ge->bc_list);
+	platform_free(ge->bc_list);
 }
 static
 rofl_result_t of12_validate_group(of12_action_group_t* actions){

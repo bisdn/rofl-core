@@ -4,8 +4,9 @@
 
 /**
 * @file switch_port.h
-* @author Marc Sune(marc.sune@bisdn.de)  
-* @brief Port abstraction API	
+* @author Marc Sune<marc.sune (at) bisdn.de>
+*
+* @brief Port abstraction and API 
 */
 
 
@@ -18,19 +19,6 @@
 #include "rofl.h"
 #include "platform/lock.h"
 
-
-/**
-* @brief Port abstraction API	
-*
-* switch_port implements the switch port abstraction.
-* There are three types of ports:
-*
-*	- Physical: representing an interface or device.
-*	- Tunnel: a tunnel endpoint termination.
-*	- Virtual: anything that does not fall to previous cat.
-*	- Meta: meta type should NEVER be used by the user.  
-*
-*/
 
 //fwd decl
 struct of_switch;
@@ -105,7 +93,19 @@ typedef enum{
 	PORT_TYPE_META_FLOOD	= 5
 }port_type_t;
 
-//Port state
+
+/**
+* @brief Port abstraction
+*
+* switch_port implements the switch port abstraction.
+* There are four types of ports:
+*
+*  - PORT_TYPE_PHYSICAL: representing a system's interface or device.
+*  - PORT_TYPE_TUNNEL: a tunnel endpoint termination.
+*  - PORT_TYPE_VIRTUAL: anything that does not fall to previous cat.
+*  - PORT_TYPE_META: meta type should NEVER be used by the user.  
+*
+*/
 typedef struct switch_port{
 
 	//mac address
@@ -178,11 +178,13 @@ ROFL_PIPELINE_BEGIN_DECLS
 
 /**
 * @brief Init a switch_port structure
+* @ingroup  mgmt
 */
 switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_state_t state);
 
 /**
 * @brief Destroy a switch_port structure
+* @ingroup  mgmt
 */
 rofl_result_t switch_port_destroy(switch_port_t* port);
 
@@ -191,6 +193,7 @@ rofl_result_t switch_port_destroy(switch_port_t* port);
 /*
 * @brief Increments atomically all the statistics of the port. Fill in with 0 the ones that should
 * be left untouched.
+* @ingroup  mgmt
 *
 */
 void _intern_switch_port_stats_inc(switch_port_t* port,
@@ -214,21 +217,25 @@ void _intern_switch_port_stats_inc(switch_port_t* port,
 
 /**
 * @brief Adds capabilities to the port
+* @ingroup  mgmt
 */
 void switch_port_add_capabilities(port_features_t* bitmap, port_features_t features);
 
 /**
 * @brief Removes capabilities to the port
+* @ingroup  mgmt
 */
 void switch_port_remove_capabilities(port_features_t* bitmap, port_features_t features);
 
 /**
 * @brief Sets current speed
+* @ingroup  mgmt
 */
 void switch_port_set_current_speed(switch_port_t* port, port_features_t speed);
 
 /**
 * @brief Sets current MAX speed 
+* @ingroup  mgmt
 */
 void switch_port_set_current_max_speed(switch_port_t* port, port_features_t speed);
 
