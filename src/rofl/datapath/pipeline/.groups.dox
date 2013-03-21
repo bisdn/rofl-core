@@ -1,0 +1,97 @@
+//
+// Doxygen group definition
+//
+
+//Core
+/**
+*
+* @defgroup core Core APIs and data structures
+* @brief The core APIs and data structures are the ones used both internally and for data exchanging with 
+* the library user.
+*
+* Only the documented structures and APIs should be used by the user library.
+*
+* @defgroup core_of12 Openflow v1.2 core APIs and data structures
+* @brief The core Openflow v1.2 APIs and data structures are the ones used both internally and for data exchanging with 
+* the library user.
+* @ingroup core 
+*
+*/
+
+//Matching algorithms
+/**
+* @defgroup core_of12_ma Extendable software matching algorithm API 
+* @brief API defining the interface of new (software/hybrid) matching algorithms. 
+* @ingroup core_of12
+* Defines the set of APIs or interfaces to extend core library with new software/hybrid matching algorithms within
+* the table matching process.
+*
+*/
+
+//Switch runtime
+/**
+*
+* @defgroup sw_runtime Switch Runtime APIs
+* @brief APIs used by software switches and hybrid ones, which process packets and/or process entry expirations. 
+*
+* Only the documented structures and APIs should be used by the user library.
+*/
+
+
+//Mgmt
+/**
+*
+* @defgroup mgmt Managment API
+* @brief Mananagement of the system's/device state (physical switch), including logical switches and ports. 
+*
+* The management API, and the data structure contained, are used to manage the system state (physical switch). 
+*
+* This is roughly:
+*  - Device ports (network interface)
+*    - Port statistics
+*  - Logical switch creation and destruction
+*  - Attachement of ports to logical switches
+*
+*/
+
+//Openflow APIs
+
+/**
+* @defgroup endpoint Openflow end-point APIs 
+* @brief Set of APIs that library consumes in order to communicate asynchronous events 
+*
+*
+* @defgroup endpoint_of12 Openflow v1.2 end-point APIs
+* @brief Openflow version 1.2 asynchronous events APIs
+* @ingroup endpoint 
+*
+*/
+
+//Platform APIs
+
+/**
+* @defgroup platform Platform APIs 
+* @brief Platform APIs is a group of APIs which are used by the library but its implementation is platform specific. 
+* 
+* Platform APIs is the group of APIs that are used internally in the library, but its implementation is
+* platform specific. Examples are memory management and locking. The user of the library MUST implement all the
+* platform APIs.
+* 
+* @defgroup platform_lock Locking API
+* @brief Locking (mutex, rwlock) API definition, that must be implemented by the library users
+* @ingroup platform 
+*
+* @defgroup platform_atomic Atomic Operations API
+* @brief Atomic operations (atomic add, inc...) API definition, that must be implemented by the library users
+* @ingroup platform 
+*
+*
+* @defgroup platform_memory Memory API
+* @brief Memory management(malloc, free..) API definition, that must be implemented by the library users
+* @ingroup platform
+*
+* @defgroup platform_packet Packet Mangling API
+* @brief Packet Mangling API that must be implemented by the library users
+* @ingroup platform
+*
+*/
