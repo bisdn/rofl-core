@@ -11,11 +11,11 @@ librofl_pipeline_platform_la_HEADERS = \
 	atomic_operations.h \
 	lock.h \
 	memory.h \
-	platform_hooks.h
+	packet.h
 
 librofl_pipeline_platform_la_SOURCES = \
 	cutil.h \
 	atomic_operations.h \
 	lock.h \
 	memory.h \
-	platform_hooks.h
+	packet.h

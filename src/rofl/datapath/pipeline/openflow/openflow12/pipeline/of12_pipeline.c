@@ -2,7 +2,7 @@
 #include "of12_instruction.h"
 #include "../../../platform/lock.h"
 #include "../../../platform/memory.h"
-#include "../../../platform/platform_hooks.h"
+#include "../../../platform/packet.h"
 #include "../../../platform/openflow/openflow12/platform_hooks_of12.h"
 #include "matching_algorithms/matching_algorithms_available.h"
 #include "../of12_switch.h"

@@ -5,7 +5,7 @@
 
 #include "of12_packet_matches.h" //TODO: evaluate if this is the best approach to update of12_matches after actions
 #include "../../../physical_switch.h"
-#include "../../../platform/platform_hooks.h"
+#include "../../../platform/packet.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/openflow/openflow12/platform_hooks_of12.h"
 
@@ -261,96 +261,96 @@ static inline void of12_process_packet_action(const struct of12_switch* sw, cons
 		case OF12_AT_NO_ACTION: /*TODO: print some error traces? */
 			break;
 
-		case OF12_AT_COPY_TTL_IN: platform_copy_ttl_in(pkt);
+		case OF12_AT_COPY_TTL_IN: platform_packet_copy_ttl_in(pkt);
 			break;
 
-		case OF12_AT_POP_VLAN: platform_pop_vlan(pkt);
+		case OF12_AT_POP_VLAN: platform_packet_pop_vlan(pkt);
 			break;
-		case OF12_AT_POP_MPLS: platform_pop_mpls(pkt, action->field);
-			break;
-
-		case OF12_AT_POP_PPPOE: platform_pop_pppoe(pkt, action->field);
-			break;
-		case OF12_AT_PUSH_PPPOE: platform_push_pppoe(pkt, action->field);
+		case OF12_AT_POP_MPLS: platform_packet_pop_mpls(pkt, action->field);
 			break;
 
-		case OF12_AT_PUSH_MPLS: platform_push_mpls(pkt, action->field);
+		case OF12_AT_POP_PPPOE: platform_packet_pop_pppoe(pkt, action->field);
 			break;
-		case OF12_AT_PUSH_VLAN: platform_push_vlan(pkt, action->field);
-			break;
-
-		case OF12_AT_COPY_TTL_OUT: platform_copy_ttl_out(pkt);
+		case OF12_AT_PUSH_PPPOE: platform_packet_push_pppoe(pkt, action->field);
 			break;
 
-		case OF12_AT_DEC_NW_TTL: platform_dec_nw_ttl(pkt);
+		case OF12_AT_PUSH_MPLS: platform_packet_push_mpls(pkt, action->field);
 			break;
-		case OF12_AT_DEC_MPLS_TTL: platform_dec_mpls_ttl(pkt);
-			break;
-
-		case OF12_AT_SET_MPLS_TTL: platform_set_mpls_ttl(pkt, action->field);
-			break;
-		case OF12_AT_SET_NW_TTL: platform_set_nw_ttl(pkt, action->field);
+		case OF12_AT_PUSH_VLAN: platform_packet_push_vlan(pkt, action->field);
 			break;
 
-		case OF12_AT_SET_QUEUE: platform_set_queue(pkt, action->field);
+		case OF12_AT_COPY_TTL_OUT: platform_packet_copy_ttl_out(pkt);
+			break;
+
+		case OF12_AT_DEC_NW_TTL: platform_packet_dec_nw_ttl(pkt);
+			break;
+		case OF12_AT_DEC_MPLS_TTL: platform_packet_dec_mpls_ttl(pkt);
+			break;
+
+		case OF12_AT_SET_MPLS_TTL: platform_packet_set_mpls_ttl(pkt, action->field);
+			break;
+		case OF12_AT_SET_NW_TTL: platform_packet_set_nw_ttl(pkt, action->field);
+			break;
+
+		case OF12_AT_SET_QUEUE: platform_packet_set_queue(pkt, action->field);
 			break;
 
 		//TODO 
-		//case OF12_AT_SET_FIELD_METADATA: platform_set_metadata(pkt, action->field);
+		//case OF12_AT_SET_FIELD_METADATA: platform_packet_set_metadata(pkt, action->field);
 		//	break;
 
-		case OF12_AT_SET_FIELD_ETH_DST: platform_set_eth_dst(pkt, action->field); 
+		case OF12_AT_SET_FIELD_ETH_DST: platform_packet_set_eth_dst(pkt, action->field); 
 			break;
-		case OF12_AT_SET_FIELD_ETH_SRC: platform_set_eth_src(pkt, action->field); 
+		case OF12_AT_SET_FIELD_ETH_SRC: platform_packet_set_eth_src(pkt, action->field); 
 			break;
-		case OF12_AT_SET_FIELD_ETH_TYPE: platform_set_eth_type(pkt, action->field);
-			break;
-
-		case OF12_AT_SET_FIELD_VLAN_VID: platform_set_vlan_vid(pkt, action->field);
-			break;
-		case OF12_AT_SET_FIELD_VLAN_PCP: platform_set_vlan_pcp(pkt, action->field);
+		case OF12_AT_SET_FIELD_ETH_TYPE: platform_packet_set_eth_type(pkt, action->field);
 			break;
 
-		case OF12_AT_SET_FIELD_IP_DSCP:  platform_set_ip_dscp(pkt, action->field);
+		case OF12_AT_SET_FIELD_VLAN_VID: platform_packet_set_vlan_vid(pkt, action->field);
 			break;
-		case OF12_AT_SET_FIELD_IP_ECN:   platform_set_ip_ecn(pkt, action->field);
-			break;
-		case OF12_AT_SET_FIELD_IP_PROTO: platform_set_ip_proto(pkt, action->field);
+		case OF12_AT_SET_FIELD_VLAN_PCP: platform_packet_set_vlan_pcp(pkt, action->field);
 			break;
 
-		case OF12_AT_SET_FIELD_IPV4_SRC: platform_set_ipv4_src(pkt, action->field);
+		case OF12_AT_SET_FIELD_IP_DSCP:  platform_packet_set_ip_dscp(pkt, action->field);
 			break;
-		case OF12_AT_SET_FIELD_IPV4_DST: platform_set_ipv4_dst(pkt, action->field);
+		case OF12_AT_SET_FIELD_IP_ECN:   platform_packet_set_ip_ecn(pkt, action->field);
 			break;
-
-		case OF12_AT_SET_FIELD_TCP_SRC:  platform_set_tcp_src(pkt, action->field);
-			break;
-		case OF12_AT_SET_FIELD_TCP_DST:  platform_set_tcp_dst(pkt, action->field);
+		case OF12_AT_SET_FIELD_IP_PROTO: platform_packet_set_ip_proto(pkt, action->field);
 			break;
 
-		case OF12_AT_SET_FIELD_UDP_SRC:  platform_set_udp_src(pkt, action->field);
+		case OF12_AT_SET_FIELD_IPV4_SRC: platform_packet_set_ipv4_src(pkt, action->field);
 			break;
-		case OF12_AT_SET_FIELD_UDP_DST:   platform_set_udp_dst(pkt, action->field);
-			break;
-
-		case OF12_AT_SET_FIELD_ICMPV4_TYPE: platform_set_icmpv4_type(pkt, action->field);
-			break;
-		case OF12_AT_SET_FIELD_ICMPV4_CODE: platform_set_icmpv4_code(pkt, action->field);
+		case OF12_AT_SET_FIELD_IPV4_DST: platform_packet_set_ipv4_dst(pkt, action->field);
 			break;
 
-		case OF12_AT_SET_FIELD_MPLS_LABEL: platform_set_mpls_label(pkt, action->field);
+		case OF12_AT_SET_FIELD_TCP_SRC:  platform_packet_set_tcp_src(pkt, action->field);
 			break;
-		case OF12_AT_SET_FIELD_MPLS_TC: platform_set_mpls_tc(pkt, action->field);
-			break;
-
-		case OF12_AT_SET_FIELD_PPPOE_CODE: platform_set_pppoe_code(pkt, action->field);
-			break;
-		case OF12_AT_SET_FIELD_PPPOE_TYPE: platform_set_pppoe_type(pkt, action->field);
-			break;
-		case OF12_AT_SET_FIELD_PPPOE_SID: platform_set_pppoe_sid(pkt, action->field);
+		case OF12_AT_SET_FIELD_TCP_DST:  platform_packet_set_tcp_dst(pkt, action->field);
 			break;
 
-		case OF12_AT_SET_FIELD_PPP_PROT: platform_set_ppp_proto(pkt, action->field);
+		case OF12_AT_SET_FIELD_UDP_SRC:  platform_packet_set_udp_src(pkt, action->field);
+			break;
+		case OF12_AT_SET_FIELD_UDP_DST:   platform_packet_set_udp_dst(pkt, action->field);
+			break;
+
+		case OF12_AT_SET_FIELD_ICMPV4_TYPE: platform_packet_set_icmpv4_type(pkt, action->field);
+			break;
+		case OF12_AT_SET_FIELD_ICMPV4_CODE: platform_packet_set_icmpv4_code(pkt, action->field);
+			break;
+
+		case OF12_AT_SET_FIELD_MPLS_LABEL: platform_packet_set_mpls_label(pkt, action->field);
+			break;
+		case OF12_AT_SET_FIELD_MPLS_TC: platform_packet_set_mpls_tc(pkt, action->field);
+			break;
+
+		case OF12_AT_SET_FIELD_PPPOE_CODE: platform_packet_set_pppoe_code(pkt, action->field);
+			break;
+		case OF12_AT_SET_FIELD_PPPOE_TYPE: platform_packet_set_pppoe_type(pkt, action->field);
+			break;
+		case OF12_AT_SET_FIELD_PPPOE_SID: platform_packet_set_pppoe_sid(pkt, action->field);
+			break;
+
+		case OF12_AT_SET_FIELD_PPP_PROT: platform_packet_set_ppp_proto(pkt, action->field);
 			break;
 		case OF12_AT_GROUP: of12_process_group_actions(sw, table_id, pkt, action->field, action->group);
 			break;
@@ -375,7 +375,7 @@ static inline void of12_process_packet_action(const struct of12_switch* sw, cons
 	
 				//Duplicate the packet only if necessary
 				if(replicate_pkts){
-					pkt_to_send = platform_replicate_packet(pkt);
+					pkt_to_send = platform_packet_replicate(pkt);
 	
 					//check for wrong copy
 					if(!pkt_to_send)
@@ -387,10 +387,10 @@ static inline void of12_process_packet_action(const struct of12_switch* sw, cons
 				if(action->field == OF12_PORT_FLOOD || 
 				   action->field == OF12_PORT_ALL){
 					//Flood
-					platform_output_packet(pkt_to_send, flood_meta_port);
+					platform_packet_output(pkt_to_send, flood_meta_port);
 				}else{
 					//Single port output
-					platform_output_packet(pkt_to_send, sw->logical_ports[action->field].port);
+					platform_packet_output(pkt_to_send, sw->logical_ports[action->field].port);
 				}
 				
 			}

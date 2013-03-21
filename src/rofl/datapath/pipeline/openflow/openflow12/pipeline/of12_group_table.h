@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef __OF12_GROUP_TABLE_H__
 #define __OF12_GROUP_TABLE_H__
 
@@ -9,6 +13,16 @@
 
 #define OF12_GROUP_ANY 0xffffffff /* Wildcard group used only for flow stats */
 
+/**
+* @file of12_group_table.h
+* @author Victor Alvarez<victor.alvarez (at) bisdn.de>, Marc Sune<marc.sune (at) bisdn.de>
+* @brief Openflow v1.2 group table subsystem 
+*/
+
+/**
+* @ingroup core_of12 
+* Group bucket
+*/
 typedef struct of12_bucket{
 	uint16_t weight;
 	uint32_t port;
@@ -21,12 +35,20 @@ typedef struct of12_bucket{
 	
 }of12_bucket_t;
 
+/**
+* @ingroup core_of12 
+* Group bucket list 
+*/
 typedef struct of12_bucket_list{
 	int num_of_buckets;
 	of12_bucket_t* head;
 	of12_bucket_t *tail;
 }of12_bucket_list_t;
 
+/**
+* @ingroup core_of12 
+* Group type
+*/
 typedef enum{
 	OF12_GROUP_TYPE_ALL 		= 0,	/* All (multicast/broadcast) group.  */
 	OF12_GROUP_TYPE_SELECT 		= 1,   	/* Select group. */
@@ -36,6 +58,10 @@ typedef enum{
 
 struct of12_group_table;
 
+/**
+* @ingroup core_of12 
+* Group structure definition
+*/ 
 typedef struct of12_group{
 	uint32_t id;
 	of12_group_type_t type;
@@ -67,14 +93,16 @@ ROFL_PIPELINE_BEGIN_DECLS
 
 //function declarations
 of12_group_table_t* of12_init_group_table(void);
-void of12_destroy_group_table(of12_group_table_t* gt);
-rofl_result_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
-rofl_result_t of12_group_delete( struct of12_pipeline *pipeline, of12_group_table_t *gt, uint32_t id);
 of12_group_t *of12_group_search(of12_group_table_t *gt, uint32_t id);
-rofl_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
 of12_bucket_list_t *of12_init_bucket_list(void);
 of12_bucket_t *of12_init_bucket(uint16_t weight, uint32_t port, uint32_t group, of12_action_group_t* actions);
 rofl_result_t of12_insert_bucket_in_list(of12_bucket_list_t *bu_list,of12_bucket_t *bucket);
+
+void of12_destroy_group_table(of12_group_table_t* gt);
+rofl_result_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
+rofl_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
+rofl_result_t of12_group_delete( struct of12_pipeline *pipeline, of12_group_table_t *gt, uint32_t id);
+
 
 //C++ extern C
 ROFL_PIPELINE_END_DECLS

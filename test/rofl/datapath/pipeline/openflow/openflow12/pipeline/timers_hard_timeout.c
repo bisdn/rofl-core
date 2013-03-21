@@ -417,7 +417,7 @@ void test_incremental_insert_and_expiration_dynamic(of12_pipeline_t * pipeline)
 static int setup_test(of12_switch_t** sw)
 {
 	enum matching_algorithm_available ma_list=matching_algorithm_loop;
-	(*sw) = of12_init_switch("Test switch",0x0101,1,&ma_list,1);
+	(*sw) = of12_init_switch("Test switch",0x0101,1,&ma_list);
 	CU_ASSERT(sw!=NULL);
 /*	
 	table->mutex = platform_mutex_init(NULL);

@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef __OF12_PACKET_MATCHES_H__
 #define __OF12_PACKET_MATCHES_H__
 
@@ -6,6 +10,9 @@
 #include "../../../util/rofl_pipeline_utils.h"
 #include "../../../common/datapacket.h"
 
+/**
+* @author Marc Sune<marc.sune (at) bisdn.de>
+*/
 
 /* 
 * Packet OF12 matching values. Matching structure expected by the pipeline for Openflow 1.2

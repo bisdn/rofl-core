@@ -14,9 +14,6 @@
 * @file of12_statistics.h
 * @author Victor Alvarez<victor.alvarez (at) bisdn.de>, Marc Sune<marc.sune (at) bisdn.de>
 * @brief Openflow v1.2 statistics subsystem 
-*
-* @warning This is an internal subsystem and should never be used
-* outside the library 
 */
 
 

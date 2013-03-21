@@ -92,4 +92,8 @@
 * @brief Memory management(malloc, free..) API definition, that must be implemented by the library users
 * @ingroup platform
 *
+* @defgroup platform_packet Packet Mangling API
+* @brief Packet Mangling API that must be implemented by the library users
+* @ingroup platform
+*
 */

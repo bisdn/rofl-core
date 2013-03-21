@@ -8,7 +8,7 @@ int set_up(){
 	matching_algorithm_loop, matching_algorithm_loop};
 
 	//Create instance	
-	sw = of12_init_switch("Test switch",0x0101,4,ma_list,1);
+	sw = of12_init_switch("Test switch",0x0101,4,ma_list);
 	
 	if(!sw)
 		return EXIT_FAILURE;
