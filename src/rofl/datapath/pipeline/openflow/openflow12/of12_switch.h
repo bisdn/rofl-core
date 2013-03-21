@@ -23,9 +23,10 @@
 */
 
 /**
+* @ingroup core_of12 
 * Openflow-enabled v1.2 switch abstraction
 */
-struct of12_switch{
+typedef struct of12_switch{
 	
 	//General switch instance information
 	
@@ -48,15 +49,21 @@ struct of12_switch{
 	//Mutex
 	platform_mutex_t* mutex;
 
-};
-
-typedef struct of12_switch of12_switch_t;
+}of12_switch_t;
 
 //C++ extern C
 ROFL_PIPELINE_BEGIN_DECLS
 
 /* Initializer and destroyer */
-of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* list,of12_flow_table_miss_config_t config);
+/**
+* @brief Creates an Openflow v1.2 forwarding instance.  
+* @ingroup core_of12 
+* @param num_of_tables Number of tables that the v1.2 pipeline should have. This is immutable 
+* during the lifetime of the switch.
+* @param ma_list An array with num_of_tables, with the matching algorithm that should
+* be used in each table (0..num_of_tables-1) 
+*/
+of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* ma_list);
 rofl_result_t of12_destroy_switch(of12_switch_t* sw);
 
 /* Port management */
@@ -68,7 +75,15 @@ rofl_result_t of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* por
 rofl_result_t of12_detach_all_ports_from_switch(of12_switch_t* sw);
 
 /* Dump */
+/**
+* @brief Dumps the Openflow v1.2 forwarding instance, for debugging purposes.  
+* @ingroup core_of12 
+*/
 void of12_dump_switch(of12_switch_t* sw);
+/**
+* @brief Dumps the Openflow v1.2 forwarding instance, for debugging purposes.  
+* @ingroup core_of12 
+*/
 void of12_full_dump_switch(of12_switch_t* sw);
 
 //C++ extern C

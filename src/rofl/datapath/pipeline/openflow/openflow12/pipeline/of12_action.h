@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef __OF12_ACTION_H__
 #define __OF12_ACTION_H__
 
@@ -8,10 +12,59 @@
 #include "../../../util/rofl_pipeline_utils.h"
 #include "../../../common/datapacket.h"
 
-/* 
-* Actions over a packet as per defined in OF12. Set operations are converted to actions for pipeline simplification. This is comming from of12_action_type enum. 
+/**
+* @file of12_action.h
+* @author Marc Sune<marc.sune (at) bisdn.de>
+*
+* @brief Openflow v1.2 actions 
+*
+* Actions are a part of a of12_flow_entry. The typical
+* workflow for creation of actions is:
+*
+* Apply actions(pseudo-code):
+* @code
+*
+* group = of12_init_action_group()
+*
+* for(i in openflow_msg->apply_actions)
+*   action = of12_init_packet_action(i->type, i->field)
+*   of12_push_packet_action_to_group(group, action)
+*
+*   //Action can never be accessed or freed now!
+*   //This is forbidded 
+*   //of12_destroy_packet_action(action)
+*   //action->type = something; //R/W access is also forbidden
+*
+* //To release resources
+* of12_destroy_action_group(group)
+* @endcode
+*
+* Write actions(pseudo-code):
+* @code
+*
+* write_actions = of12_init_write_actions()
+*
+* for(i in openflow_msg->write_actions)
+*   action = of12_init_packet_action(i->type, i->field)
+*   of12_set_packet_action_on_write_actions(write_actions,action);
+*   //Action must be freed(set only copies the action)
+*   of12_destroy_packet_action(action)
+*   
+*
+* //To release resources
+* of12_destroy_write_actions(group)
+* @endcode
+*
+*/
 
-!!WARNING: values are MODIFIED and are reorder! Order matters, as when write actions are executed are done in order 
+
+/**
+* @ingroup core_of12 
+* Actions over a packet as per defined in OF12. Set operations are converted to actions
+* for pipeline simplification. This is comming from of12_action_type enum. 
+*
+* @warning values are MODIFIED from OF specification and are reorder! Order matters,
+* as when write actions are executed are done in order.
 */
 typedef enum{
 	//No action. This MUST always exist and the value MUST be 0	
@@ -86,7 +139,10 @@ typedef enum{
 
 #define OF12_AT_NUMBER OF12_AT_OUTPUT+1 
 
-/* Special port numbers, according to OF12 (of12p_port_no ) */ 
+/**
+* @ingroup core_of12 
+* Special port numbers, according to OF12 (of12p_port_no )
+*/
 enum of12_port_numbers {
 
 	/* Maximum number of physical switch ports. */
@@ -117,11 +173,16 @@ enum of12_port_numbers {
 //fwd declaration
 struct of12_group;
 
-/* Packet action abstraction data structure */
-struct of12_packet_action{
+/**
+* @ingroup core_of12 
+* Packet action abstraction data structure 
+*/
+typedef struct of12_packet_action{
 	//Type and value(for set fields and push)
 	of12_packet_action_type_t type;
-	uint64_t field;			//TODO: substitute for a 128 value for IPv6 support
+
+	/** @TODO substitute for a 128 value for IPv6 support */
+	uint64_t field;
 
 	//group
 	struct of12_group* group;
@@ -129,10 +190,12 @@ struct of12_packet_action{
 	//DLL
 	struct of12_packet_action* prev;
 	struct of12_packet_action* next;
-};
-typedef struct of12_packet_action of12_packet_action_t;
+}of12_packet_action_t;
 
-/* Action group, using a double-linked-list */ 
+/**
+* @ingroup core_of12 
+* Action group (apply-actions) structure
+*/
 typedef struct{
 
 	//Number of actions in the list
@@ -147,7 +210,10 @@ typedef struct{
 	
 }of12_action_group_t;
 
-/* Write actions structure */
+/**
+* @ingroup core_of12 
+* Write actions structure
+*/
 typedef struct{
 	//Presence of action flag => type == 0
 	of12_packet_action_t write_actions[OF12_AT_NUMBER];
@@ -170,33 +236,74 @@ struct of12_switch;
 ROFL_PIPELINE_BEGIN_DECLS
 
 //Action
+/**
+* @ingroup core_of12 
+* Initializes a packet action (OF action)
+*
+* Each field set consitutes an action per-se. 
+*/
 of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw,*/of12_packet_action_type_t type, uint64_t field, of12_packet_action_t* prev, of12_packet_action_t* next);
+
+/**
+* @ingroup core_of12 
+* Destroys packet action (OF action)
+*/
 void of12_destroy_packet_action(of12_packet_action_t* action);
 
 //Action group
+/**
+* @ingroup core_of12 
+* Create an action group (apply actions) 
+*/
 of12_action_group_t* of12_init_action_group(of12_packet_action_t* actions);
+
+/**
+* @ingroup core_of12 
+* Destroy an action group. This also destroys actions contained
+*/
 void of12_destroy_action_group(of12_action_group_t* group);
+
+//Push packet action
+/**
+* @ingroup core_of12 
+* Push an action to the group. The action can no longer be used or freed
+* from outside of the library. of12_destroy_action_group() will destroy it. 
+*/
+void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_action_t* action);
+
 
 //Apply actions
 void of12_process_apply_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of12_action_group_t* apply_actions_group, bool replicate_pkts);
 
 //Write actions data structure management
+/**
+* @ingroup core_of12 
+* Init a write actions group
+*/
 void of12_init_packet_write_actions(datapacket_t *const pkt, of12_write_actions_t* write_actions);
 of12_write_actions_t* of12_init_write_actions(void);
-void of12_update_packet_write_actions(datapacket_t* pkt, const of12_write_actions_t* entry_write_actions);
-void of12_clear_write_actions(of12_write_actions_t* write_actions);
+
+/**
+* @ingroup core_of12 
+* Destroy a write_actions instance. This also destroys actions contained
+*/
 void of12_destroy_write_actions(of12_write_actions_t* write_actions);
+
+/**
+* @ingroup core_of12 
+* Set (copy) the action to the write actions. The action pointer can safely used
+* outside the library, and released. 
+*/
 void of12_set_packet_action_on_write_actions(of12_write_actions_t* write_actions, of12_packet_action_t* action);
 
+void of12_update_packet_write_actions(datapacket_t* pkt, const of12_write_actions_t* entry_write_actions);
+void of12_clear_write_actions(of12_write_actions_t* write_actions);
 void of12_process_write_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts);
 
 //Update apply/write
 rofl_result_t of12_update_apply_actions(of12_action_group_t** group, of12_action_group_t* new_group);
 rofl_result_t of12_update_write_actions(of12_write_actions_t** group, of12_write_actions_t* new_group);
 
-
-//Push packet action
-void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_action_t* action);
 
 //Checking functions
 bool of12_write_actions_has(of12_write_actions_t* write_actions, of12_packet_action_type_t type, uint64_t value);

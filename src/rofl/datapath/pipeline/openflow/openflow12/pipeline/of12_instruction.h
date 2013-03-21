@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef __OF12_INSTRUCTION_H__
 #define __OF12_INSTRUCTION_H__
 
@@ -7,7 +11,47 @@
 #include "../../../util/rofl_pipeline_utils.h"
 #include "of12_action.h"
 
-/* Instruction type. From OF12: enum ofp_12_instruction_type */
+/**
+* @file of12_instruction.h
+* @author Marc Sune<marc.sune (at) bisdn.de>
+*
+* @brief Openflow v1.2 instructions 
+*
+* Instructions should never be used directly. Instructions
+* are arleady part of the of12_flow_entry.
+* 
+* How to add and remove instructions (pseudo-code):
+* @code
+*
+* entry = of12_init_flow_entry()
+* action_group = of12_init_action_group()
+*
+* //Push actions... (refer to of12_action.h)
+*
+* //APPLY ACTIONS
+* of12_add_instruction_to_group(&entry->inst_grp, OF12_IT_APPLY_ACTIONS, action_group,NULL,0)
+*
+* //WRITE ACTIONS
+* write_actions = of12_init_write_actions()
+* //Add actions to write group... (refer to of12_action.h)
+*
+* of12_add_instruction_to_group(&entry->inst_grp, OF12_IT_APPLY_ACTIONS, NULL, write_actions,0)
+*
+* //GOTO_TABLE
+* of12_add_instruction_to_group(&entry->inst_grp, OF12_IT_GOTO_TABLE, NULL, NULL,10)
+* 
+*
+* //To release resources
+* of12_destroy_flow_entry(entry)
+* @endcode
+*
+*/
+
+
+
+/**
+* Instruction type. From OF12: enum ofp_12_instruction_type 
+*/
 typedef enum {
     OF12_IT_NO_INSTRUCTION	= 0,		/* Setup the metadata field for use later in pipeline */
     OF12_IT_APPLY_ACTIONS	= 1,		/* Applies the action(s) immediately */
@@ -63,11 +107,26 @@ struct of12_flow_entry;
 ROFL_PIPELINE_BEGIN_DECLS
 
 //Instruction group
+
 void of12_init_instruction_group(of12_instruction_group_t* group);
 void of12_destroy_instruction_group(of12_instruction_group_t* group);
 
 //Add/remove instructions to/from group
+/**
+* @brief Adds an instruction of the group 
+* @ingroup core_of12 
+* @param type Instruction type (OF12_IT_XX) 
+* @param apply_actions (For OF12_IT_APPLY_ACTIONS only)Apply actions group, with actions PREVIOUSLY filled. The group instance cannot be further accessed or freed from outside the library 
+* @param apply_actions (For OF12_IT_WRITE_ACTIONS only) Write_actions group, with actions PREVIOUSLY filled. The group instance cannot be further accessed or freed from outside the library.
+* @param go_to_table (For OF12_IT_GO_TO_TABLE only) Index of the table to go. 
+*/
 void of12_add_instruction_to_group(of12_instruction_group_t* group, of12_instruction_type_t type, of12_action_group_t* apply_actions, of12_write_actions_t* write_actions, unsigned int go_to_table);
+/**
+* @brief Remove an instruction of the group 
+* @ingroup core_of12 
+* @param group Instruction group 
+* @param type Instruction type (OF12_IT_XX) 
+*/
 void of12_remove_instruction_from_the_group(of12_instruction_group_t* group, of12_instruction_type_t type);
 
 //Update instructions

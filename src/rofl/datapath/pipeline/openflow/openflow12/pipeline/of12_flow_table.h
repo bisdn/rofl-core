@@ -113,7 +113,7 @@ ROFL_PIPELINE_BEGIN_DECLS
 /*
 * Table init and destroy
 */
-rofl_result_t of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm);
+rofl_result_t of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const enum matching_algorithm_available algorithm);
 rofl_result_t of12_destroy_table(of12_flow_table_t* table);
 
 /*

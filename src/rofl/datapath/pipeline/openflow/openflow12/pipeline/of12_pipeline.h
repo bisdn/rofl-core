@@ -56,7 +56,7 @@ typedef struct of12_pipeline of12_pipeline_t;
 ROFL_PIPELINE_BEGIN_DECLS
 
 /* Pipeline mgmt */
-of12_pipeline_t* of12_init_pipeline(struct of12_switch* sw, const unsigned int num_of_tables, enum matching_algorithm_available* list, const of12_flow_table_miss_config_t table_config);
+of12_pipeline_t* of12_init_pipeline(struct of12_switch* sw, const unsigned int num_of_tables, enum matching_algorithm_available* list);
 rofl_result_t of12_destroy_pipeline(of12_pipeline_t* pipeline);
 
 //Packet processing

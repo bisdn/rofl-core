@@ -6,7 +6,7 @@
 #include "../../platform/openflow/openflow12/platform_hooks_of12.h"
 
 /* Initializer and destructor */
-of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* list,of12_flow_table_miss_config_t config){
+of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* list){
 
 	of12_switch_t* sw;
 	sw = (of12_switch_t*)platform_malloc_shared(sizeof(of12_switch_t));
@@ -38,7 +38,7 @@ of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int nu
 	}
 	
 	//Setup pipeline	
-	sw->pipeline = of12_init_pipeline(sw, num_of_tables, list, config);
+	sw->pipeline = of12_init_pipeline(sw, num_of_tables, list);
 	if(sw->pipeline == NULL){
 		platform_free_shared(sw->name);
 		platform_free_shared(sw);

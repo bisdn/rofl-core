@@ -21,7 +21,7 @@
 */ 
 
 /* Initalizer. Table struct has been allocated by pipeline initializer. */
-rofl_result_t of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const of12_flow_table_miss_config_t config, const enum matching_algorithm_available algorithm){
+rofl_result_t of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const enum matching_algorithm_available algorithm){
 
 	//Safety checks
 	if(!pipeline || !table)
@@ -38,7 +38,7 @@ rofl_result_t of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t*
 	table->entries = NULL;
 	table->num_of_entries = 0;
 	table->max_entries = OF12_MAX_NUMBER_OF_TABLE_ENTRIES;
-	table->default_action = config;
+	table->default_action = OF12_TABLE_MISS_CONTROLLER;
 
 	//Set name FIXME: put proper name (table0, table1...)
 	strncpy(table->name,"table",OF12_MAX_TABLE_NAME_LEN);

@@ -26,15 +26,21 @@ struct of_switch;
 #define SW_PORT_ETH_ALEN 6
 #define SWITCH_PORT_MAX_LEN_NAME 20
 
-//Port state
+/**
+* @brief Port state 
+* @ingroup core 
+*/
 typedef enum{
     PORT_STATE_LINK_DOWN	= 1 << 0, 
     PORT_STATE_BLOCKED 		= 1 << 1, //We are not hybrid we might not need this
     PORT_STATE_LIVE 		= 1 << 2,
 }port_state_t;
 
-//Port capabilities
-enum port_features{
+/**
+* @brief Port features 
+* @ingroup core
+*/
+typedef enum port_features{
     PORT_FEATURE_10MB_HD    = 1 << 0,  /* 10 Mb half-duplex rate support. */
     PORT_FEATURE_10MB_FD    = 1 << 1,  /* 10 Mb full-duplex rate support. */
     PORT_FEATURE_100MB_HD   = 1 << 2,  /* 100 Mb half-duplex rate support. */
@@ -52,13 +58,15 @@ enum port_features{
     PORT_FEATURE_AUTONEG    = 1 << 13, /* Auto-negotiation. */
     PORT_FEATURE_PAUSE      = 1 << 14, /* Pause. */
     PORT_FEATURE_PAUSE_ASYM = 1 << 15  /* Asymmetric pause. */
-};
-typedef uint32_t port_features_t;
+}port_features_t;
 
 //Opaque platform port state (to be used, maybe, for platform hooks)
 typedef void platform_port_state_t;
 
-//Port stats
+/**
+* @brief Port stats 
+* @ingroup core
+*/
 typedef struct port_stats {
 	uint64_t rx_packets;     /* Number of received packets. */
 	uint64_t tx_packets;     /* Number of transmitted packets. */
@@ -83,6 +91,10 @@ typedef struct port_stats {
 	platform_mutex_t* mutex;
 }port_stats_t;
 
+/**
+* @brief Port type 
+* @ingroup core
+*/
 typedef enum{
 	PORT_TYPE_INVALID 	= 0,
 	PORT_TYPE_PHYSICAL 	= 1,
@@ -96,6 +108,7 @@ typedef enum{
 
 /**
 * @brief Port abstraction
+* @ingroup core
 *
 * switch_port implements the switch port abstraction.
 * There are four types of ports:
