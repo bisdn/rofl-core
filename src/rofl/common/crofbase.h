@@ -336,7 +336,7 @@ protected:
 	 * @param pack OF packet received from controlling entity.
 	 */
 	virtual void
-	handle_features_request(cofctl *ctl, cofpacket_features_request *pack) { delete pack; };
+	handle_features_request(cofctl *ctl, cofmsg_features_request *msg) { delete msg; };
 
 	/** Handle OF features reply. To be overwritten by derived class.
 	 *
@@ -352,7 +352,7 @@ protected:
 	 * @param pack The FEATURES.reply packet received.
 	 */
 	virtual void
-	handle_features_reply(cofdpt *sw, cofpacket_features_reply *pack) { delete pack; };
+	handle_features_reply(cofdpt *dpt, cofmsg_features_reply *msg) { delete msg; };
 
 	/** Handle OF features reply timeout. To be overwritten by derived class.
 	 *
@@ -375,7 +375,7 @@ protected:
 	 * @pack OF GET-CONFIG.request packet received from controller
 	 */
 	virtual void
-	handle_get_config_request(cofctl *ctrl, cofpacket_get_config_request *pack) { delete pack; };
+	handle_get_config_request(cofctl *ctl, cofmsg_get_config_request *msg) { delete msg; };
 
 	/** Handle OF get-config reply. To be overwritten by derived class.
 	 *
@@ -386,7 +386,7 @@ protected:
 	 * @pack OF GET-CONFIG.reply packet received from datapath
 	 */
 	virtual void
-	handle_get_config_reply(cofdpt *sw, cofpacket_get_config_reply *pack) { delete pack; };
+	handle_get_config_reply(cofdpt *dpt, cofmsg_config *msg) { delete msg; };
 
 	/** Handle OF get-config reply timeout. To be overwritten by derived class.
 	 *
@@ -404,77 +404,77 @@ protected:
 	 * @param pack STATS.request packet received from controller.
 	 */
 	void
-	handle_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
+	handle_stats_request(cofctl *ctl, cofmsg_stats *msg);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_desc_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
+	handle_desc_stats_request(cofctl *ctl, cofmsg_desc_stats *msg);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_table_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
+	handle_table_stats_request(cofctl *ctl, cofmsg_table_stats *msg);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_port_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
+	handle_port_stats_request(cofctl *ctl, cofmsg_port_stats *msg);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_flow_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
+	handle_flow_stats_request(cofctl *ctl, cofmsg_flow_stats *msg);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_aggregate_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
+	handle_aggregate_stats_request(cofctl *ctl, cofmsg_aggr_stats *msg);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_queue_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
+	handle_queue_stats_request(cofctl *ctl, cofmsg_queue_stats *msg);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
+	handle_group_stats_request(cofctl *ctl, cofmsg_group_stats *msg);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_desc_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
+	handle_group_desc_stats_request(cofctl *ctl, cofmsg_group_desc_stats *msg);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_features_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
+	handle_group_features_stats_request(cofctl *ctl, cofmsg_group_features_stats *msg);
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_experimenter_stats_request(cofctl *ctl, cofpacket_stats_request *pack);
+	handle_experimenter_stats_request(cofctl *ctl, cofmsg_stats *msg);
 
 
 	/** Handle OF stats reply. To be overwritten by derived class.
@@ -486,7 +486,7 @@ protected:
 	 * @param pack STATS.reply packet received from datapath
 	 */
 	virtual void
-	handle_stats_reply(cofdpt *sw, cofpacket_stats_reply *pack) { delete pack; };
+	handle_stats_reply(cofdpt *dpt, cofmsg_stats *msg) { delete msg; };
 
 	/** Handle OF stats reply timeout. To be overwritten by derived class.
 	 *
@@ -495,7 +495,7 @@ protected:
 	 * @param sw cotswitch instance from whom a GET-CONFIG.reply was expected.
 	 */
 	virtual void
-	handle_stats_reply_timeout(cofdpt *sw, uint32_t xid) {};
+	handle_stats_reply_timeout(cofdpt *dpt, uint32_t xid) {};
 
 	/** Handle OF packet-out messages. To be overwritten by derived class.
 	 *
@@ -505,7 +505,7 @@ protected:
 	 * @param pack PACKET-OUT.message packet received from controller.
 	 */
 	virtual void
-	handle_packet_out(cofctl *ctl, cofpacket_packet_out *pack) { delete pack; };
+	handle_packet_out(cofctl *ctl, cofmsg_packet_out *msg) { delete msg; };
 
 	/** Handle OF packet-in messages. To be overwritten by derived class.
 	 *
@@ -516,7 +516,7 @@ protected:
 	 * @param pack PACKET-IN.message packet received from datapath
 	 */
 	virtual void
-	handle_packet_in(cofdpt *sw, cofpacket_packet_in *pack) { delete pack; };
+	handle_packet_in(cofdpt *dpt, cofmsg_packet_in *msg) { delete msg; };
 
 	/** Handle OF barrier request. To be overwritten by derived class.
 	 *
@@ -526,7 +526,7 @@ protected:
 	 * @param pack BARRIER.request packet received from controller.
 	 */
 	virtual void
-	handle_barrier_request(cofctl *ctl, cofpacket_barrier_request *pack) { delete pack; };
+	handle_barrier_request(cofctl *ctl, cofmsg_barrier *msg) { delete msg; };
 
 	/** Handle OF barrier reply. To be overwritten by derived class.
 	 *
@@ -537,7 +537,7 @@ protected:
 	 * @param pack BARRIER.reply packet received from datapath
 	 */
 	virtual void
-	handle_barrier_reply(cofdpt *sw, cofpacket_barrier_reply *pack) { delete pack; };
+	handle_barrier_reply(cofdpt *dpt, cofmsg_barrier *msg) { delete msg; };
 
 	/** Handle OF barrier reply timeout. To be overwritten by derived class.
 	 *
@@ -546,7 +546,7 @@ protected:
 	 * @param sw cotswitch instance from whom a BARRIER.reply was expected.
 	 */
 	virtual void
-	handle_barrier_reply_timeout(cofdpt *sw, uint32_t xid) {};
+	handle_barrier_reply_timeout(cofdpt *dpt, uint32_t xid) {};
 
 	/** Handle OF error message. To be overwritten by derived class.
 	 *
@@ -557,7 +557,7 @@ protected:
 	 * @param pack ERROR.message packet received from datapath
 	 */
 	virtual void
-	handle_error(cofdpt *sw, cofpacket_error *pack) { delete pack; };
+	handle_error(cofdpt *dpt, cofmsg_error *msg) { delete msg; };
 
 	/** Handle OF flow-mod message. To be overwritten by derived class.
 	 *
@@ -567,7 +567,7 @@ protected:
 	 * @param pack FLOW-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_flow_mod(cofctl *ctl, cofpacket_flow_mod *pack) { delete pack; };
+	handle_flow_mod(cofctl *ctl, cofmsg_flow_mod *msg) { delete msg; };
 
 	/** Handle OF group-mod message. To be overwritten by derived class.
 	 *
@@ -577,7 +577,7 @@ protected:
 	 * @param pack GROUP-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_group_mod(cofctl *ctl, cofpacket_group_mod *pack) { delete pack; };
+	handle_group_mod(cofctl *ctl, cofmsg_group_mod *msg) { delete msg; };
 
 	/** Handle OF table-mod message. To be overwritten by derived class.
 	 *
@@ -587,7 +587,7 @@ protected:
 	 * @param pack TABLE-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_table_mod(cofctl *ctl, cofpacket_table_mod *pack) { delete pack; };
+	handle_table_mod(cofctl *ctl, cofmsg_table_mod *msg) { delete msg; };
 
 	/** Handle OF port-mod message. To be overwritten by derived class.
 	 *
@@ -597,7 +597,7 @@ protected:
 	 * @param pack PORT-MOD.message packet received from controller.
 	 */
 	virtual void
-	handle_port_mod(cofctl *ctl, cofpacket_port_mod *pack) { delete pack; };
+	handle_port_mod(cofctl *ctl, cofmsg_port_mod *msg) { delete msg; };
 
 	/** Handle OF flow-removed message. To be overwritten by derived class.
 	 *
@@ -608,7 +608,7 @@ protected:
 	 * @param pack FLOW-REMOVED.message packet received from datapath
 	 */
 	virtual void
-	handle_flow_removed(cofdpt *sw, cofpacket_flow_removed *pack) { delete pack; };
+	handle_flow_removed(cofdpt *dpt, cofmsg_flow_removed *msg) { delete msg; };
 
 	/** Handle OF port-status message. To be overwritten by derived class.
 	 *
@@ -619,7 +619,7 @@ protected:
 	 * @param pack PORT-STATUS.message packet received from datapath
 	 */
 	virtual void
-	handle_port_status(cofdpt *sw, cofpacket_port_status *pack) { delete pack; };
+	handle_port_status(cofdpt *dpt, cofmsg_port_status *msg) { delete msg; };
 
 	/** Handle OF set-config message. To be overwritten by derived class.
 	 *
@@ -629,7 +629,7 @@ protected:
 	 * @param pack SET-CONFIG.message packet received from controller.
 	 */
 	virtual void
-	handle_set_config(cofctl *ctl, cofpacket_set_config *pack) { delete pack; };
+	handle_set_config(cofctl *ctl, cofmsg_config *msg) { delete msg; };
 
 	/** Handle OF queue-get-config request. To be overwritten by derived class.
  	 *
@@ -640,7 +640,7 @@ protected:
 	 * @param pack QUEUE-GET-CONFIG.reply packet received from datapath
 	 */
 	virtual void
-	handle_queue_get_config_request(cofctl *ctl, cofpacket_queue_get_config_request *pack) { delete pack; };
+	handle_queue_get_config_request(cofctl *ctl, cofmsg_queue_get_config_request *msg) { delete msg; };
 
 	/** Handle OF queue-get-config reply. To be overwritten by derived class.
  	 *
@@ -651,7 +651,7 @@ protected:
 	 * @param pack QUEUE-GET-CONFIG.reply packet received from datapath
 	 */
 	virtual void
-	handle_queue_get_config_reply(cofdpt *sw, cofpacket_queue_get_config_reply *pack) { delete pack; };
+	handle_queue_get_config_reply(cofdpt *dpt, cofmsg_queue_get_config_reply *msg) { delete msg; };
 
 	/** Handle OF experimenter message. To be overwritten by derived class.
 	 *
@@ -661,7 +661,7 @@ protected:
 	 * @param pack VENDOR.message packet received from controller.
 	 */
 	virtual void
-	handle_experimenter_message(cofctl *ctl, cofpacket_experimenter *pack);
+	handle_experimenter_message(cofctl *ctl, cofmsg_experimenter *msg);
 
 	/** Handle OF experimenter message. To be overwritten by derived class.
 	 *
@@ -672,7 +672,7 @@ protected:
 	 * @param pack VENDOR.message packet received from datapath
 	 */
 	virtual void
-	handle_experimenter_message(cofdpt *sw, cofpacket_experimenter *pack) { delete pack; };
+	handle_experimenter_message(cofdpt *dpt, cofmsg_experimenter *msg) { delete msg; };
 
 	/** Handle new dpath
 	 *
@@ -681,7 +681,7 @@ protected:
 	 * @param sw new cofswitch instance
 	 */
 	virtual void
-	handle_dpath_open(cofdpt *sw) {};
+	handle_dpath_open(cofdpt *dpt) {};
 
 	/** Handle close event on dpath
 	 *
@@ -690,7 +690,7 @@ protected:
 	 * @param sw cofswitch instance to be deleted
 	 */
 	virtual void
-	handle_dpath_close(cofdpt *sw) {};
+	handle_dpath_close(cofdpt *dpt) {};
 
 	/** Handle new ctrl
 	 *
@@ -699,7 +699,7 @@ protected:
 	 * @param ctrl new cofctrl instance
 	 */
 	virtual void
-	handle_ctrl_open(cofctl *ctrl) {};
+	handle_ctrl_open(cofctl *ctl) {};
 
 	/** Handle close event on ctrl
 	 *
@@ -708,13 +708,13 @@ protected:
 	 * @param ctrl cofctrl instance to be deleted
 	 */
 	virtual void
-	handle_ctrl_close(cofctl *ctrl) {};
+	handle_ctrl_close(cofctl *ctl) {};
 
 	/** Handle timeout for GET-FSP request
 	 *
 	 */
 	virtual void
-	handle_get_fsp_reply_timeout(cofdpt *sw) {};
+	handle_get_fsp_reply_timeout(cofdpt *dpt) {};
 
 	/** Handle OF role request. To be overwritten by derived class.
 	 *
@@ -724,7 +724,7 @@ protected:
 	 * @param pack ROLE.request packet received from controller.
 	 */
 	virtual void
-	handle_role_request(cofctl *ctl, cofpacket_role_request *pack) { delete pack; };
+	handle_role_request(cofctl *ctl, cofmsg_role *msg) { delete msg; };
 
 	/** Handle OF role reply. To be overwritten by derived class.
 	 *
@@ -735,7 +735,7 @@ protected:
 	 * @param pack ROLE.reply packet received from datapath
 	 */
 	virtual void
-	handle_role_reply(cofdpt *sw, cofpacket_role_reply *pack) { delete pack; };
+	handle_role_reply(cofdpt *dpt, cofmsg_role *msg) { delete msg; };
 
 	/** Handle OF role reply timeout. To be overwritten by derived class.
 	 *
@@ -744,7 +744,7 @@ protected:
 	 * @param sw cotswitch instance from whom a ROLE.reply was expected.
 	 */
 	virtual void
-	handle_role_reply_timeout(cofdpt *sw) {};
+	handle_role_reply_timeout(cofdpt *dpt) {};
 
 
 protected:	// overloaded from ciosrv

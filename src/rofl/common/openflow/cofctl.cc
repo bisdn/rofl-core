@@ -28,7 +28,7 @@ cofctl::cofctl(
 {
 	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
 
-        register_timer(COFCTL_TIMER_SEND_HELLO, 0);
+	register_timer(COFCTL_TIMER_SEND_HELLO, 0);
 }
 
 
@@ -407,8 +407,8 @@ cofctl::handle_message(
 			echo_reply_rcvd(dynamic_cast<cofmsg_echo*>( pack ));
 		} break;
 		case OFPT_EXPERIMENTER:	{
-			pack = new cofmsg(msg);
-			experimenter_rcvd(dynamic_cast<cofmsg*>( pack ));
+			pack = new cofmsg_experimenter(msg);
+			experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( pack ));
 		} break;
 		case OFPT_FEATURES_REQUEST:	{
 			pack = new cofmsg_features_request(msg);
@@ -2190,12 +2190,12 @@ cofctl::queue_get_config_reply_sent(cofmsg *msg)
 
 
 void
-cofctl::experimenter_rcvd(cofmsg *msg)
+cofctl::experimenter_rcvd(cofmsg_experimenter *msg)
 {
-	switch (be32toh(msg->ofh_experimenter->experimenter)) {
+	switch (msg->get_experimenter_id()) {
 	case OFPEXPID_ROFL:
 	{
-		switch (be32toh(msg->ofh_experimenter->exp_type)) {
+		switch (msg->get_experimenter_type()) {
 		case croflexp::OFPRET_FLOWSPACE:
 		{
 			croflexp rexp(msg->body.somem(), msg->body.memlen());

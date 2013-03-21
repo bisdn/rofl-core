@@ -38,6 +38,7 @@ extern "C" {
 #include "../openflow/cofmsg_barrier.h"
 #include "../openflow/cofmsg_queue_get_config.h"
 #include "../openflow/cofmsg_role.h"
+#include "../openflow/cofmsg_experimenter.h"
 
 
 #include "cofmatch.h"
@@ -209,7 +210,7 @@ protected:
 	/** handle incoming vendor message (ROFL extensions)
 	 */
 	void
-	experimenter_rcvd(cofmsg *pack);
+	experimenter_rcvd(cofmsg_experimenter *pack);
 
 	/** handle incoming FEATURE requests
 	 */
