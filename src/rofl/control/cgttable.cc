@@ -258,8 +258,8 @@ void
 cgttable::get_group_features_stats(
 		cmemory& body)
 {
-	cmemory fstats(sizeof(struct ofp_group_features_stats));
-	struct ofp_group_features_stats* stats = (struct ofp_group_features_stats*)fstats.somem();
+	cmemory fstats(sizeof(struct ofp12_group_features_stats));
+	struct ofp12_group_features_stats* stats = (struct ofp12_group_features_stats*)fstats.somem();
 
 	/*
 	 * we do not have support for the various group types yet, so send all 0 back

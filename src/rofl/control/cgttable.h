@@ -8,6 +8,20 @@
 #include <map>
 #include <string>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <inttypes.h>
+
+#ifndef htobe16
+#include "endian_conversion.h"
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
+
 #include "../common/ciosrv.h"
 #include "../common/cerror.h"
 //#include "../cfwdelem.h" 
@@ -15,6 +29,7 @@
 #include "cgtentry.h"
 #include "cftentry.h"
 #include "../common/openflow/openflow_rofl_exceptions.h"
+#include "../common/openflow/cofgroupfeaturesstats.h"
 
 namespace rofl
 {
@@ -50,6 +65,7 @@ public: // data structures
 	std::map<uint32_t, cgtentry*> 		grp_table;		// flow_table: set of cftentries
 	uint64_t 							lookup_count;	// lookup counter
 	uint64_t 							matched_count;	// matched counter
+	cofgroup_features_stats_reply		features_stats;
 
 public:
 

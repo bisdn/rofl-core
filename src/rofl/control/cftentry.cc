@@ -44,7 +44,7 @@ cftentry::cftentry(
 		uint8_t of_version,
 		cftentry_owner *owner,
 		std::set<cftentry*> *flow_table,
-		cofpacket_flow_mod *pack,
+		cofmsg_flow_mod *pack,
 		cofctl *ctl) :
 				of_version(of_version),
 				usage_cnt(0),
@@ -52,13 +52,13 @@ cftentry::cftentry(
 				flow_table(flow_table),
 				ctl(ctl),
 				uid(0),
-				instructions(pack->instructions),
+				instructions(pack->get_instructions()),
 				removal_reason(OFPRR_DELETE),
 				rx_packets(0),
 				rx_bytes(0),
 				out_port(pack->get_out_port()),
 				out_group(pack->get_out_group()),
-				ofmatch(pack->match)
+				ofmatch(pack->get_match())
 {
 	cftentry::cftentry_set.insert(this);
 
@@ -76,8 +76,9 @@ cftentry::cftentry(
 		// flow_mod copy remains in network byte order !!!
 			// we copy the generic flow mod header only, i.e. ofp_match and all instructions are
 			// stored in this->match and this->inlist !
-			memcpy(m_flowmod.somem(), (uint8_t*)pack->of12h_flow_mod, m_flowmod.memlen());
-
+#if 0
+			memcpy(m_flowmod.somem(), (uint8_t*)pack->of12_flow_mod, m_flowmod.memlen());
+#endif
 	} break;
 	default: {
 		throw eBadVersion();
@@ -594,13 +595,8 @@ cftentry::used(cpacket& pack)
 
 
 void
-cftentry::update_flow_mod(cofpacket_flow_mod *pack) throw (eFteInvalid)
+cftentry::update_flow_mod(cofmsg_flow_mod *pack) throw (eFteInvalid)
 {
-	if (OFPT_FLOW_MOD != pack->ofh_header->type)
-	{
-		throw eFteInvalid();
-	}
-
 	if (pack->get_version() != of_version)
 	{
 		throw eFteInvalid();
@@ -608,18 +604,22 @@ cftentry::update_flow_mod(cofpacket_flow_mod *pack) throw (eFteInvalid)
 
 	switch (of_version) {
 	case OFP12_VERSION: {
+#if 0
 		memcpy(m_flowmod.somem(), pack->of12h_flow_mod, m_flowmod.memlen());
+#endif
 	} break;
 	case OFP13_VERSION: {
+#if 0
 		memcpy(m_flowmod.somem(), pack->of13h_flow_mod, m_flowmod.memlen());
+#endif
 	} break;
 	default: {
 
 	} break;
 	}
 
-	ofmatch 		= pack->match;
-	instructions  	= pack->instructions;
+	ofmatch 		= pack->get_match();
+	instructions  	= pack->get_instructions();
 
 	__update();
 }
