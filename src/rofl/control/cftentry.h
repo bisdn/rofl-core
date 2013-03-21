@@ -38,7 +38,7 @@ extern "C" {
 #include "../common/openflow/cofaction.h"
 #include "../common/openflow/cofinlist.h"
 #include "../common/openflow/cofinst.h"
-#include "../common/openflow/cofmsg_flow_mod.h"
+#include "../common/openflow/messages/cofmsg_flow_mod.h"
 
 #include "../common/protocols/fetherframe.h"
 

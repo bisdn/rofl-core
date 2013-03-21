@@ -24,8 +24,8 @@ extern "C" {
 #include "../common/cvastring.h"
 #include "../common/thread_helper.h"
 #include "../common/openflow/coftablestats.h"
-#include "../common/openflow/cofmsg_flow_mod.h"
-#include "../common/openflow/cofmsg_flow_removed.h"
+#include "../common/openflow/messages/cofmsg_flow_mod.h"
+#include "../common/openflow/messages/cofmsg_flow_removed.h"
 
 
 #include "cftentry.h"

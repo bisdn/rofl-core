@@ -9,9 +9,9 @@
 #define COFMSG_FLOW_MOD_H_ 1
 
 #include "cofmsg.h"
-#include "cofaclist.h"
-#include "cofinlist.h"
-#include "cofmatch.h"
+#include "rofl/common/openflow/cofaclist.h"
+#include "rofl/common/openflow/cofinlist.h"
+#include "rofl/common/openflow/cofmatch.h"
 
 namespace rofl
 {

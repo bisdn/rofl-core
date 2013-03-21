@@ -27,8 +27,8 @@ extern "C" {
 #include "../common/openflow/cofbclist.h"
 #include "../common/openflow/cofbucket.h"
 #include "../common/openflow/openflow_rofl_exceptions.h"
-#include "../common/openflow/cofmsg_group_mod.h"
-#include "../common/openflow/cofmsg_group_stats.h"
+#include "../common/openflow/messages/cofmsg_group_mod.h"
+#include "../common/openflow/messages/cofmsg_group_stats.h"
 
 //This include must go here due to some Exceptions defined within cgttable.h FIXME: define in another file?
 #include "cgttable.h"

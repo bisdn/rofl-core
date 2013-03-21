@@ -9,7 +9,7 @@
 #define COFMSG_FLOW_REMOVED_H_ 1
 
 #include "cofmsg.h"
-#include "cofmatch.h"
+#include "rofl/common/openflow/cofmatch.h"
 
 namespace rofl
 {

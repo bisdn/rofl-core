@@ -9,7 +9,7 @@
 #define COFMSG_ERROR_H_ 1
 
 #include "cofmsg.h"
-#include "openflow.h"
+#include "rofl/common/openflow/openflow.h"
 
 namespace rofl
 {

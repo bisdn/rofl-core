@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "cofmsg_stats.h"
-#include "cofgroupstats.h"
+#include "rofl/common/openflow/cofgroupstats.h"
 
 namespace rofl
 {

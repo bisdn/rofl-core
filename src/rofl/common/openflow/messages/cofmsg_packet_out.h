@@ -9,8 +9,8 @@
 #define COFMSG_PACKET_OUT_H_ 1
 
 #include "cofmsg.h"
-#include "cofaclist.h"
-#include "../cpacket.h"
+#include "rofl/common/openflow/cofaclist.h"
+#include "rofl/common/cpacket.h"
 
 namespace rofl
 {

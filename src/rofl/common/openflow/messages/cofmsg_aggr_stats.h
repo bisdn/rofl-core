@@ -9,7 +9,7 @@
 #define COFMSG_AGGR_STATS_H_ 1
 
 #include "cofmsg_stats.h"
-#include "cofaggrstats.h"
+#include "rofl/common/openflow/cofaggrstats.h"
 
 namespace rofl
 {

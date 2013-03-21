@@ -9,7 +9,7 @@
 #define COFMSG_FEATURES_H_ 1
 
 #include "cofmsg.h"
-#include "cofportlist.h"
+#include "rofl/common/openflow/cofportlist.h"
 
 namespace rofl
 {

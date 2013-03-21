@@ -9,7 +9,7 @@
 #define COFMSG_PORT_STATUS_H_ 1
 
 #include "cofmsg.h"
-#include "cofport.h"
+#include "rofl/common/openflow/cofport.h"
 
 namespace rofl
 {

@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "cofmsg_stats.h"
-#include "cofqueuestats.h"
+#include "rofl/common/openflow/cofqueuestats.h"
 
 namespace rofl
 {

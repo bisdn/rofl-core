@@ -9,7 +9,7 @@
 #define COFMSG_GROUP_MOD_H_ 1
 
 #include "cofmsg.h"
-#include "cofbclist.h"
+#include "rofl/common/openflow/cofbclist.h"
 
 namespace rofl
 {
