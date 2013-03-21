@@ -3,7 +3,7 @@
 #include "../../../platform/lock.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/packet.h"
-#include "../../../platform/openflow/openflow12/platform_hooks_of12.h"
+#include "../of12_endpoint_hooks.h"
 #include "matching_algorithms/matching_algorithms_available.h"
 #include "../of12_switch.h"
 

@@ -138,8 +138,6 @@ AM_COND_IF([PIPELINE_SUPPORT],[AC_CONFIG_FILES([
         src/rofl/datapath/pipeline/Makefile
         src/rofl/datapath/pipeline/common/Makefile
         src/rofl/datapath/pipeline/platform/Makefile
-        src/rofl/datapath/pipeline/platform/openflow/Makefile
-	src/rofl/datapath/pipeline/platform/openflow/openflow12/Makefile
         src/rofl/datapath/pipeline/openflow/Makefile
         src/rofl/datapath/pipeline/openflow/openflow12/Makefile
         src/rofl/datapath/pipeline/openflow/openflow12/pipeline/Makefile

@@ -1,7 +1,5 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = openflow
-
 noinst_LTLIBRARIES = librofl_pipeline_platform.la
 
 librofl_pipeline_platform_ladir = $(includedir)/rofl/datapath/pipeline/platform

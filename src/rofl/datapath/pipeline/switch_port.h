@@ -203,13 +203,13 @@ rofl_result_t switch_port_destroy(switch_port_t* port);
 
 //Port Statistics
 
-/*
-* @brief Increments atomically all the statistics of the port. Fill in with 0 the ones that should
+/**
+* @brief Increments atomically all the statistics of the port; shall be used by ports on TX/RX. 
+* Fill in with 0 the ones that should
 * be left untouched.
 * @ingroup  mgmt
-*
 */
-void _intern_switch_port_stats_inc(switch_port_t* port,
+void switch_port_stats_inc(switch_port_t* port,
 				uint64_t rx_packets,
 				uint64_t tx_packets,
 				uint64_t rx_bytes,

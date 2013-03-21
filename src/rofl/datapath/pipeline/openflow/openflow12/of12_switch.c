@@ -3,7 +3,7 @@
 
 #include "../../platform/memory.h"
 #include "../of_switch.h"
-#include "../../platform/openflow/openflow12/platform_hooks_of12.h"
+#include "of12_endpoint_hooks.h"
 
 /* Initializer and destructor */
 of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* list){

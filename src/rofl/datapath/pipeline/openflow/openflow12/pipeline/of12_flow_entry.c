@@ -1,7 +1,7 @@
 #include "of12_flow_entry.h"
 
 #include "../../../platform/memory.h"
-#include "../../../platform/openflow/openflow12/platform_hooks_of12.h"
+#include "../of12_endpoint_hooks.h"
 
 #include <stdio.h>
 #include <assert.h>
