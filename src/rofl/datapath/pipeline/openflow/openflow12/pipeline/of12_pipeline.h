@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef __OF12_PIPELINE_H__
 #define __OF12_PIPELINE_H__
 
@@ -13,7 +17,16 @@
 #define OF12_FLOW_TABLE_ALL 0xFF //As per 1.2 spec
 #define OF12_DEFAULT_MISS_SEND_LEN 128 //As per 1.2 spec
 
-/* Capabilities supported by the datapath pipeline. -> Direct mapping to  */
+/**
+* @file of12_pipeline.h
+* @author Marc Sune<marc.sune (at) bisdn.de>
+*
+* @brief Openflow v1.2 pipeline abstraction
+*/
+
+/**
+* Capabilities supported by the datapath pipeline. -> Direct mapping to  
+*/
 enum of12_capabilities {
     OF12_CAP_FLOW_STATS     = 1 << 0,  /* Flow statistics. */
     OF12_CAP_TABLE_STATS    = 1 << 1,  /* Table statistics. */
@@ -27,7 +40,10 @@ enum of12_capabilities {
 //Fwd declaration
 struct of12_switch;
 
-struct of12_pipeline{
+/** 
+* Openflow v1.2 pipeline abstraction data structure
+*/
+typedef struct of12_pipeline{
 	
 	//Number of tables
 	unsigned int num_of_tables;
@@ -49,8 +65,7 @@ struct of12_pipeline{
 
 	//Reference back
 	struct of12_switch* sw;	
-};
-typedef struct of12_pipeline of12_pipeline_t;
+}of12_pipeline_t;
 
 //C++ extern C
 ROFL_PIPELINE_BEGIN_DECLS

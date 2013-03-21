@@ -50,6 +50,7 @@
 
 
 /**
+* @ingroup core_of12 
 * Instruction type. From OF12: enum ofp_12_instruction_type 
 */
 typedef enum {

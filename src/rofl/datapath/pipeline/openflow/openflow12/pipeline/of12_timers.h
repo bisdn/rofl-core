@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef __OF12_TIMERSH__
 #define __OF12_TIMERSH__
 
@@ -6,6 +10,15 @@
 #include <sys/time.h>
 #include "rofl.h" 
 #include "../../../util/rofl_pipeline_utils.h"
+
+/**
+* @file of12_timers.h
+* @author Victor Alvarez<victor.alvarez (at) bisdn.de>
+* @brief Openflow v1.2 timers subsystem
+*
+* @warning This is an internal subsystem and should never be used
+* outside the pipeline
+*/
 
 /*
 * OF12 Timers. Implementation assumes (and enforces) that ALL timers will expire in a multiple of OF12_TIMER_SLOT_MS ms
