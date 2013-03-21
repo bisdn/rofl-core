@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef __OF12_STATISTICS_H__
 #define __OF12_STATISTICS_H__
 
@@ -7,12 +11,14 @@
 #define OF12_STATS_NS_IN_A_SEC 1000000000
 
 /**
- * Definition of the structures that will hold all the data
- * for the statistics to be recorded
- * 
- * must decide what is implemented and in which way to make it
- * as fast as possible
- */
+* @file of12_statistics.h
+* @author Victor Alvarez<victor.alvarez (at) bisdn.de>, Marc Sune<marc.sune (at) bisdn.de>
+* @brief Openflow v1.2 statistics subsystem 
+*
+* @warning This is an internal subsystem and should never be used
+* outside the library 
+*/
+
 
 /*From openflow 1.2 specification, page 50*/
 /*
@@ -40,8 +46,9 @@ typedef struct of12_stats_flow{
 	platform_mutex_t* mutex; //Mutual exclusion among insertion/deletion threads
 }of12_stats_flow_t;
 
-/*
-* flow stats entry messages
+/**
+* @ingroup core_of12 
+* Single flow entry stats message
 */
 typedef struct of12_stats_single_flow_msg{
 	uint8_t table_id;
@@ -62,13 +69,20 @@ typedef struct of12_stats_single_flow_msg{
 	struct of12_stats_single_flow_msg* next;
 }of12_stats_single_flow_msg_t;
 
-//Variable length array
+/**
+* @ingroup core_of12 
+* Linked list containing all the individual flow stats 
+*/
 typedef struct of12_stats_flow_msg{
 	uint32_t 			num_of_entries; 
 	of12_stats_single_flow_msg_t* 	flows_head;
 	of12_stats_single_flow_msg_t* 	flows_tail;
 }of12_stats_flow_msg_t;
 
+/**
+* @ingroup core_of12 
+* Aggregated flow stats message 
+*/
 typedef struct of12_stats_flow_aggregate_msg{
 	uint64_t packet_count;
 	uint64_t byte_count;
@@ -136,17 +150,25 @@ void of12_init_flow_stats(struct of12_flow_entry * entry);
 void of12_destroy_flow_stats(struct of12_flow_entry * entry);
 
 //msgs
+void of12_push_single_flow_stats_to_msg(of12_stats_flow_msg_t* msg, of12_stats_single_flow_msg_t* sfs);
 of12_stats_single_flow_msg_t* of12_init_stats_single_flow_msg(struct of12_flow_entry* entry);
 void of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg);
 
 of12_stats_flow_msg_t* of12_init_stats_flow_msg(void);
+/**
+* @ingroup core_of12 
+* Destroy a flow_stats message
+*/
 void of12_destroy_stats_flow_msg(of12_stats_flow_msg_t* msg);
 
 //Push to msg
-void of12_push_single_flow_stats_to_msg(of12_stats_flow_msg_t* msg, of12_stats_single_flow_msg_t* sfs);
 
-
+//Aggregate messages
 of12_stats_flow_aggregate_msg_t* of12_init_stats_flow_aggregate_msg(void);
+/**
+* @ingroup core_of12 
+* Destroy aggreagated flow_stats message
+*/
 void of12_destroy_stats_flow_aggregate_msg(of12_stats_flow_aggregate_msg_t* msg);
 
 void of12_stats_flow_reset_counts(struct of12_flow_entry * entry);
@@ -162,17 +184,29 @@ void of12_stats_table_matches_inc(struct of12_flow_table * table);
 */
 void of12_stats_port_init(of12_stats_port_t* port_stats);
 void of12_stats_port_destroy(of12_stats_port_t *port_stats);
-inline void of12_stats_port_rx_packet_inc(of12_stats_port_t *port_stats, uint64_t bytes_rx);
-inline void of12_stats_port_tx_packet_inc(of12_stats_port_t *port_stats, uint64_t bytes_tx);
 void of12_stats_queue_init(of12_stats_queue_t *queue_stats);
 void of12_stats_queue_destroy(of12_stats_queue_t *queue_stats);
-inline void of12_stats_queue_tx_packet_inc(of12_stats_queue_t *queue_stats, uint64_t bytes);
-inline void of12_stats_queue_tx_errors_inc(of12_stats_queue_t *queue_stats);
+
+void of12_stats_port_tx_packet_inc(of12_stats_port_t *port_stats, uint64_t bytes_tx);
+void of12_stats_port_rx_packet_inc(of12_stats_port_t *port_stats, uint64_t bytes_rx);
+void of12_stats_queue_tx_packet_inc(of12_stats_queue_t *queue_stats, uint64_t bytes);
+void of12_stats_queue_tx_errors_inc(of12_stats_queue_t *queue_stats);
 
 /*
 * External interfaces
 */
+/**
+* @ingroup core_of12 
+* Retrieves individual flow stats 
+* @return of12_stats_flow_msg_t instance that must be destroyed using of12_destroy_stats_flow_msg() 
+*/
 of12_stats_flow_msg_t* of12_get_flow_stats(struct of12_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of12_match* matchs);
+
+/**
+* @ingroup core_of12 
+* Retrieves aggregated flow stats 
+* @return of12_stats_flow_aggregate_msg_t instance that must be destroyed using of12_destroy_stats_flow_aggregate_msg() 
+*/
 of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats(struct of12_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of12_match* matchs);
 
 ROFL_PIPELINE_END_DECLS
