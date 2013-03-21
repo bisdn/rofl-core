@@ -16,7 +16,7 @@ namespace rofl
 /**
  *
  */
-class cofmsg_echo :
+class cofmsg_echo_request :
 	public cofmsg
 {
 private:
@@ -29,9 +29,9 @@ public:
 	/** constructor
 	 *
 	 */
-	cofmsg_echo(
+	cofmsg_echo_request(
 			uint8_t of_version = 0,
-			uint8_t type = OFPT_ECHO_REQUEST,
+			uint8_t type = 0,
 			uint32_t xid = 0,
 			uint8_t* data = 0,
 			size_t datalen = 0);
@@ -40,29 +40,29 @@ public:
 	/**
 	 *
 	 */
-	cofmsg_echo(
-			cofmsg_echo const& echo);
+	cofmsg_echo_request(
+			cofmsg_echo_request const& echo);
 
 
 	/**
 	 *
 	 */
-	cofmsg_echo&
+	cofmsg_echo_request&
 	operator= (
-			cofmsg_echo const& echo);
+			cofmsg_echo_request const& echo);
 
 
 	/** destructor
 	 *
 	 */
 	virtual
-	~cofmsg_echo() {};
+	~cofmsg_echo_request() {};
 
 
 	/**
 	 *
 	 */
-	cofmsg_echo(cmemory *memarea);
+	cofmsg_echo_request(cmemory *memarea);
 
 
 	/** reset packet content
@@ -106,6 +106,9 @@ public:
 	cmemory&
 	get_body();
 };
+
+
+typedef cofmsg_echo_request cofmsg_echo_reply;
 
 } // end of namespace rofl
 

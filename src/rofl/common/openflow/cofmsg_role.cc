@@ -4,7 +4,7 @@ using namespace rofl;
 
 
 
-cofmsg_role::cofmsg_role(
+cofmsg_role_request::cofmsg_role_request(
 		uint8_t of_version,
 		uint8_t  type,
 		uint32_t xid,
@@ -36,7 +36,7 @@ cofmsg_role::cofmsg_role(
 
 
 
-cofmsg_role::cofmsg_role(
+cofmsg_role_request::cofmsg_role_request(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
@@ -45,17 +45,17 @@ cofmsg_role::cofmsg_role(
 
 
 
-cofmsg_role::cofmsg_role(
-		cofmsg_role const& role)
+cofmsg_role_request::cofmsg_role_request(
+		cofmsg_role_request const& role)
 {
 	*this = role;
 }
 
 
 
-cofmsg_role&
-cofmsg_role::operator= (
-		cofmsg_role const& role)
+cofmsg_role_request&
+cofmsg_role_request::operator= (
+		cofmsg_role_request const& role)
 {
 	if (this == &role)
 		return *this;
@@ -69,7 +69,7 @@ cofmsg_role::operator= (
 
 
 
-cofmsg_role::~cofmsg_role()
+cofmsg_role_request::~cofmsg_role_request()
 {
 
 }
@@ -77,7 +77,7 @@ cofmsg_role::~cofmsg_role()
 
 
 void
-cofmsg_role::reset()
+cofmsg_role_request::reset()
 {
 	cofmsg::reset();
 }
@@ -85,7 +85,7 @@ cofmsg_role::reset()
 
 
 void
-cofmsg_role::resize(size_t len)
+cofmsg_role_request::resize(size_t len)
 {
 	cofmsg::resize(len);
 	ofh_role_request = soframe();
@@ -94,7 +94,7 @@ cofmsg_role::resize(size_t len)
 
 
 size_t
-cofmsg_role::length() const
+cofmsg_role_request::length() const
 {
 	switch (get_version()) {
 	case OFP12_VERSION: {
@@ -112,7 +112,7 @@ cofmsg_role::length() const
 
 
 void
-cofmsg_role::pack(uint8_t *buf, size_t buflen)
+cofmsg_role_request::pack(uint8_t *buf, size_t buflen)
 {
 	set_length(length());
 
@@ -141,7 +141,7 @@ cofmsg_role::pack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_role::unpack(uint8_t *buf, size_t buflen)
+cofmsg_role_request::unpack(uint8_t *buf, size_t buflen)
 {
 	cofmsg::unpack(buf, buflen);
 
@@ -151,7 +151,7 @@ cofmsg_role::unpack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_role::validate()
+cofmsg_role_request::validate()
 {
 	cofmsg::validate(); // check generic OpenFlow header
 
@@ -174,7 +174,7 @@ cofmsg_role::validate()
 
 
 uint32_t
-cofmsg_role::get_role() const
+cofmsg_role_request::get_role() const
 {
 	switch (get_version()) {
 	case OFP12_VERSION: {
@@ -192,7 +192,7 @@ cofmsg_role::get_role() const
 
 
 void
-cofmsg_role::set_role(uint32_t role)
+cofmsg_role_request::set_role(uint32_t role)
 {
 	switch (get_version()) {
 	case OFP12_VERSION: {
@@ -209,7 +209,7 @@ cofmsg_role::set_role(uint32_t role)
 
 
 uint64_t
-cofmsg_role::get_generation_id() const
+cofmsg_role_request::get_generation_id() const
 {
 	switch (get_version()) {
 	case OFP12_VERSION: {
@@ -227,7 +227,7 @@ cofmsg_role::get_generation_id() const
 
 
 void
-cofmsg_role::set_generation_id(uint64_t generation_id)
+cofmsg_role_request::set_generation_id(uint64_t generation_id)
 {
 	switch (get_version()) {
 	case OFP12_VERSION: {
@@ -241,87 +241,5 @@ cofmsg_role::set_generation_id(uint64_t generation_id)
 	}
 }
 
-
-
-
-uint32_t
-cofmsg_role::get_mask() const
-{
-	switch (get_version()) {
-	case OFP10_VERSION: {
-		return be32toh(ofh10_role->mask);
-	} break;
-	case OFP12_VERSION: {
-		return be32toh(ofh12_role->mask);
-	} break;
-	case OFP13_VERSION: {
-		return be32toh(ofh13_role->mask);
-	} break;
-	default:
-		throw eBadVersion();
-	}
-	return 0;
-}
-
-
-
-void
-cofmsg_role::set_mask(uint32_t mask)
-{
-	switch (get_version()) {
-	case OFP10_VERSION: {
-		ofh10_role->mask = htobe32(mask);
-	} break;
-	case OFP12_VERSION: {
-		ofh12_role->mask = htobe32(mask);
-	} break;
-	case OFP13_VERSION: {
-		ofh13_role->mask = htobe32(mask);
-	} break;
-	default:
-		throw eBadVersion();
-	}
-}
-
-
-
-uint32_t
-cofmsg_role::get_advertise() const
-{
-	switch (get_version()) {
-	case OFP10_VERSION: {
-		return be32toh(ofh10_role->advertise);
-	} break;
-	case OFP12_VERSION: {
-		return be32toh(ofh12_role->advertise);
-	} break;
-	case OFP13_VERSION: {
-		return be32toh(ofh13_role->advertise);
-	} break;
-	default:
-		throw eBadVersion();
-	}
-	return 0;
-}
-
-
-
-void
-cofmsg_role::set_advertise(uint32_t advertise)
-{
-	switch (get_version()) {
-	case OFP10_VERSION: {
-		ofh10_role->advertise = htobe32(advertise);
-	} break;
-	case OFP12_VERSION: {
-		ofh12_role->advertise = htobe32(advertise);
-	} break;
-	case OFP13_VERSION: {
-		ofh13_role->advertise = htobe32(advertise);
-	} break;
-	default:
-		throw eBadVersion();
-	}
-}
 
 

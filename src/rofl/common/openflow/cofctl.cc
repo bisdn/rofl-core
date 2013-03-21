@@ -373,92 +373,92 @@ cofctl::handle_closed(
 
 void
 cofctl::handle_message(
-		cmemory *msg)
+		cmemory *mem)
 {
-	cofmsg *pack = (cofmsg*)0;
+	cofmsg *msg = (cofmsg*)0;
 
 	try {
 
-		if (0 == msg) {
+		if (0 == mem) {
 			writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
 					"assert(msg != 0) failed", this);
 			return;
 		}
 
-		struct ofp_header* ofh_header = (struct ofp_header*)msg->somem();
+		struct ofp_header* ofh_header = (struct ofp_header*)mem->somem();
 
 		if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (OFPT_HELLO != ofh_header->type)) {
 			writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"no HELLO rcvd yet, dropping message, msg: %s", this, msg->c_str());
-			delete msg; return;
+				"no HELLO rcvd yet, dropping message, msg: %s", this, mem->c_str());
+			delete mem; return;
 		}
 
 		switch (ofh_header->type) {
 		case OFPT_HELLO: {
-			pack = new cofmsg_hello(msg);
-			hello_rcvd(dynamic_cast<cofmsg_hello*>( pack ));
+			msg = new cofmsg_hello(mem);
+			hello_rcvd(dynamic_cast<cofmsg_hello*>( msg ));
 		} break;
 		case OFPT_ECHO_REQUEST: {
-			pack = new cofmsg_echo(msg);
-			echo_request_rcvd(dynamic_cast<cofmsg_echo*>( pack ));
+			msg = new cofmsg_echo_request(mem);
+			echo_request_rcvd(dynamic_cast<cofmsg_echo_request*>( msg ));
 		} break;
 		case OFPT_ECHO_REPLY: {
-			pack = new cofmsg_echo(msg);
-			echo_reply_rcvd(dynamic_cast<cofmsg_echo*>( pack ));
+			msg = new cofmsg_echo_reply(mem);
+			echo_reply_rcvd(dynamic_cast<cofmsg_echo_reply*>( msg ));
 		} break;
 		case OFPT_EXPERIMENTER:	{
-			pack = new cofmsg_experimenter(msg);
-			experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( pack ));
+			msg = new cofmsg_experimenter(mem);
+			experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ));
 		} break;
 		case OFPT_FEATURES_REQUEST:	{
-			pack = new cofmsg_features_request(msg);
-			features_request_rcvd(dynamic_cast<cofmsg_features_request*>( pack ));
+			msg = new cofmsg_features_request(mem);
+			features_request_rcvd(dynamic_cast<cofmsg_features_request*>( msg ));
 		} break;
 		case OFPT_GET_CONFIG_REQUEST: {
-			pack = new cofmsg_get_config_request(msg);
-			get_config_request_rcvd(dynamic_cast<cofmsg_get_config_request*>( pack ));
+			msg = new cofmsg_get_config_request(mem);
+			get_config_request_rcvd(dynamic_cast<cofmsg_get_config_request*>( msg ));
 		} break;
 		case OFPT_SET_CONFIG: {
-			pack = new cofmsg_config(msg);
-			set_config_rcvd(dynamic_cast<cofmsg_config*>( pack ));
+			msg = new cofmsg_config(mem);
+			set_config_rcvd(dynamic_cast<cofmsg_config*>( msg ));
 		} break;
 		case OFPT_PACKET_OUT: {
-			pack = new cofmsg_packet_out(msg);
-			packet_out_rcvd(dynamic_cast<cofmsg_packet_out*>( pack ));
+			msg = new cofmsg_packet_out(mem);
+			packet_out_rcvd(dynamic_cast<cofmsg_packet_out*>( msg ));
 		} break;
 		case OFPT_FLOW_MOD: {
-			pack = new cofmsg_flow_mod(msg);
-			flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( pack ));
+			msg = new cofmsg_flow_mod(mem);
+			flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( msg ));
 		} break;
 		case OFPT_GROUP_MOD: {
-			pack = new cofmsg_group_mod(msg);
-			group_mod_rcvd(dynamic_cast<cofmsg_group_mod*>( pack ));
+			msg = new cofmsg_group_mod(mem);
+			group_mod_rcvd(dynamic_cast<cofmsg_group_mod*>( msg ));
 		} break;
 		case OFPT_PORT_MOD: {
-			pack = new cofmsg_port_mod(msg);
-			port_mod_rcvd(dynamic_cast<cofmsg_port_mod*>( pack ));
+			msg = new cofmsg_port_mod(mem);
+			port_mod_rcvd(dynamic_cast<cofmsg_port_mod*>( msg ));
 		} break;
 		case OFPT_TABLE_MOD: {
-			pack = new cofmsg_table_mod(msg);
-			table_mod_rcvd(dynamic_cast<cofmsg_table_mod*>( pack ));
+			msg = new cofmsg_table_mod(mem);
+			table_mod_rcvd(dynamic_cast<cofmsg_table_mod*>( msg ));
 		} break;
 		case OFPT_STATS_REQUEST: {
 			uint16_t stats_type = 0;
 			switch (ofh_header->version) {
 			case OFP10_VERSION: {
-				if (msg->memlen() < sizeof(struct ofp10_stats_request))
+				if (mem->memlen() < sizeof(struct ofp10_stats_request))
 					throw eBadSyntaxTooShort();
-				stats_type = be16toh(((struct ofp10_stats_request*)msg->somem())->type);
+				stats_type = be16toh(((struct ofp10_stats_request*)mem->somem())->type);
 			} break;
 			case OFP12_VERSION: {
-				if (msg->memlen() < sizeof(struct ofp12_stats_request))
+				if (mem->memlen() < sizeof(struct ofp12_stats_request))
 					throw eBadSyntaxTooShort();
-				stats_type = be16toh(((struct ofp12_stats_request*)msg->somem())->type);
+				stats_type = be16toh(((struct ofp12_stats_request*)mem->somem())->type);
 			} break;
 			case OFP13_VERSION: {
-				if (msg->memlen() < sizeof(struct ofp13_multipart_request))
+				if (mem->memlen() < sizeof(struct ofp13_multipart_request))
 					throw eBadSyntaxTooShort();
-				stats_type = be16toh(((struct ofp13_multipart_request*)msg->somem())->type);
+				stats_type = be16toh(((struct ofp13_multipart_request*)mem->somem())->type);
 			} break;
 			default:
 				throw eBadVersion();
@@ -466,56 +466,56 @@ cofctl::handle_message(
 
 			switch (stats_type) {
 			case OFPST_DESC: {
-				pack = new cofmsg_desc_stats_request(msg);
+				msg = new cofmsg_desc_stats_request(mem);
 			} break;
 			case OFPST_FLOW: {
-				pack = new cofmsg_flow_stats_request(msg);
+				msg = new cofmsg_flow_stats_request(mem);
 			} break;
 			case OFPST_AGGREGATE: {
-				pack = new cofmsg_aggr_stats_request(msg);
+				msg = new cofmsg_aggr_stats_request(mem);
 			} break;
 			case OFPST_TABLE: {
-				pack = new cofmsg_table_stats_request(msg);
+				msg = new cofmsg_table_stats_request(mem);
 			} break;
 			case OFPST_PORT: {
-				pack = new cofmsg_port_stats_request(msg);
+				msg = new cofmsg_port_stats_request(mem);
 			} break;
 			case OFPST_QUEUE: {
-				pack = new cofmsg_queue_stats_request(msg);
+				msg = new cofmsg_queue_stats_request(mem);
 			} break;
 			case OFPST_GROUP: {
-				pack = new cofmsg_group_stats_request(msg);
+				msg = new cofmsg_group_stats_request(mem);
 			} break;
 			case OFPST_GROUP_DESC: {
-				pack = new cofmsg_group_desc_stats_request(msg);
+				msg = new cofmsg_group_desc_stats_request(mem);
 			} break;
 			case OFPST_GROUP_FEATURES: {
-				pack = new cofmsg_group_features_stats_request(msg);
+				msg = new cofmsg_group_features_stats_request(mem);
 			} break;
 			// TODO: experimenter statistics
 			default: {
-				pack = new cofmsg_stats(msg);
+				msg = new cofmsg_stats(mem);
 			} break;
 			}
 
-			stats_request_rcvd(dynamic_cast<cofmsg_stats*>( pack ));
+			stats_request_rcvd(dynamic_cast<cofmsg_stats*>( msg ));
 		} break;
 		case OFPT_BARRIER_REQUEST: {
-			pack = new cofmsg_barrier(msg);
-			barrier_request_rcvd(dynamic_cast<cofmsg_barrier*>( pack ));
+			msg = new cofmsg_barrier_request(mem);
+			barrier_request_rcvd(dynamic_cast<cofmsg_barrier_request*>( msg ));
 		} break;
 		case OFPT_QUEUE_GET_CONFIG_REQUEST: {
-			pack = new cofmsg_queue_get_config_request(msg);
-			queue_get_config_request_rcvd(dynamic_cast<cofmsg_queue_get_config_request*>( pack ));
+			msg = new cofmsg_queue_get_config_request(mem);
+			queue_get_config_request_rcvd(dynamic_cast<cofmsg_queue_get_config_request*>( msg ));
 		} break;
 		case OFPT_ROLE_REQUEST: {
-			pack = new cofmsg_role(msg);
-			role_request_rcvd(dynamic_cast<cofmsg_role*>( pack ));
+			msg = new cofmsg_role_request(mem);
+			role_request_rcvd(dynamic_cast<cofmsg_role_request*>( msg ));
 		} break;
 		default: {
 			WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
-					"dropping unknown packet: %s", this, msg->c_str());
-			delete msg;
+					"dropping unknown packet: %s", this, mem->c_str());
+			delete mem;
 		} return;
 		}
 
@@ -524,573 +524,573 @@ cofctl::handle_message(
 	} catch (eBadSyntaxTooShort& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Wrong request length for type, pack: %s", this, pack->c_str());
+				"Wrong request length for type, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_BAD_LEN,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadVersion& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"ofp_header.version not supported, pack: %s", this, pack->c_str());
+				"ofp_header.version not supported, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_BAD_VERSION,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestBadVersion& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"ofp_header.version not supported, pack: %s", this, pack->c_str());
+				"ofp_header.version not supported, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_BAD_VERSION,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestBadType& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"ofp_header.type not supported, pack: %s", this, pack->c_str());
+				"ofp_header.type not supported, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_BAD_TYPE,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestBadStat& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"ofp_stats_request.type not supported, pack: %s", this, pack->c_str());
+				"ofp_stats_request.type not supported, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_BAD_STAT,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestBadExperimenter& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Experimenter id not supported, pack: %s", this, pack->c_str());
+				"Experimenter id not supported, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_BAD_EXPERIMENTER,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestBadExpType& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Experimenter type not supported, pack: %s", this, pack->c_str());
+				"Experimenter type not supported, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_BAD_EXP_TYPE,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestEperm& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Permissions error, pack: %s", this, pack->c_str());
+				"Permissions error, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_EPERM,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestBadLen& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Wrong request length for type, pack: %s", this, pack->c_str());
+				"Wrong request length for type, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_BAD_LEN,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestBufferEmpty& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Specified buffer has already been used, pack: %s", this, pack->c_str());
+				"Specified buffer has already been used, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_BUFFER_EMPTY,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestBufferUnknown& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Specified buffer does not exist, pack: %s", this, pack->c_str());
+				"Specified buffer does not exist, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_BUFFER_UNKNOWN,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestBadTableId& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Specified table-id invalid or does not exist, pack: %s", this, pack->c_str());
+				"Specified table-id invalid or does not exist, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_BAD_TABLE_ID,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestIsSlave& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Denied because controller is slave, pack: %s", this, pack->c_str());
+				"Denied because controller is slave, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_IS_SLAVE,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestBadPort& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Invalid port, pack: %s", this, pack->c_str());
+				"Invalid port, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_BAD_PORT,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestBadPacket& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Invalid packet in packet-out, pack: %s", this, pack->c_str());
+				"Invalid packet in packet-out, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_REQUEST,
 					OFPBRC_BAD_PACKET,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadRequestBase& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"base class of exception eBadRequestBase caught, pack: %s", this, pack->c_str());
+				"base class of exception eBadRequestBase caught, pack: %s", this, msg->c_str());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionBadType& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Unknown action type, pack: %s", this, pack->c_str());
+				"Unknown action type, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_BAD_TYPE,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionBadLen& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Length problem in actions, pack: %s", this, pack->c_str());
+				"Length problem in actions, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_BAD_LEN,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionBadExperimenter& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Unknown experimenter id specified, pack: %s", this, pack->c_str());
+				"Unknown experimenter id specified, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_BAD_EXPERIMENTER,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionBadExperimenterType& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Unknown action type for experimenter id, pack: %s", this, pack->c_str());
+				"Unknown action type for experimenter id, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_BAD_EXPERIMENTER_TYPE,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionBadOutPort& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Problem validating output port, pack: %s", this, pack->c_str());
+				"Problem validating output port, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_BAD_OUT_PORT,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionBadArgument& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Bad action argument, pack: %s", this, pack->c_str());
+				"Bad action argument, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_BAD_ARGUMENT,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionEperm& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Permissions error, pack: %s", this, pack->c_str());
+				"Permissions error, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_EPERM,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionTooMany& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Can't handle this many actions, pack: %s", this, pack->c_str());
+				"Can't handle this many actions, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_TOO_MANY,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionBadQueue& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Problem validating output queue, pack: %s", this, pack->c_str());
+				"Problem validating output queue, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_BAD_QUEUE,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionBadOutGroup& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Invalid group id in forward action, pack: %s", this, pack->c_str());
+				"Invalid group id in forward action, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_BAD_OUT_GROUP,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionMatchInconsistent& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Action can't apply for this match, pack: %s", this, pack->c_str());
+				"Action can't apply for this match, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_MATCH_INCONSISTENT,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionUnsupportedOrder& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Action order is unsupported for the action list in an Apply-Actions instruction, pack: %s", this, pack->c_str());
+				"Action order is unsupported for the action list in an Apply-Actions instruction, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_UNSUPPORTED_ORDER,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionBadTag& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Actions uses an unsupported tag/encap, pack: %s", this, pack->c_str());
+				"Actions uses an unsupported tag/encap, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_ACTION,
 					OFPBAC_BAD_TAG,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadActionBase& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"base class of exception eBadActionBase caught, pack: %s", this, pack->c_str());
+				"base class of exception eBadActionBase caught, pack: %s", this, msg->c_str());
 
-		delete pack;
+		delete msg;
 	} catch (eBadInstUnknownInst& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Unknown instruction, pack: %s", this, pack->c_str());
+				"Unknown instruction, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_INSTRUCTION,
 					OFPBIC_UNKNOWN_INST,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadInstUnsupInst& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Switch or table does not support the instruction, pack: %s", this, pack->c_str());
+				"Switch or table does not support the instruction, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_INSTRUCTION,
 					OFPBIC_UNSUP_INST,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadInstBadTableId& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Invalid Table-ID specified, pack: %s", this, pack->c_str());
+				"Invalid Table-ID specified, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_INSTRUCTION,
 					OFPBIC_BAD_TABLE_ID,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadInstUnsupMetadata& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Metadata value unsupported by datapath, pack: %s", this, pack->c_str());
+				"Metadata value unsupported by datapath, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_INSTRUCTION,
 					OFPBIC_UNSUP_METADATA,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadInstUnsupMetadataMask& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Metadata mask value unsupported by datapath, pack: %s", this, pack->c_str());
+				"Metadata mask value unsupported by datapath, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_INSTRUCTION,
 					OFPBIC_UNSUP_METADATA_MASK,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadInstUnsupExpInst& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Specific experimenter instruction unsupported, pack: %s", this, pack->c_str());
+				"Specific experimenter instruction unsupported, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_INSTRUCTION,
 					OFPBIC_UNSUP_EXP_INST,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadInstBase& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"base class of exception eBadInstBase caught, pack: %s", this, pack->c_str());
+				"base class of exception eBadInstBase caught, pack: %s", this, msg->c_str());
 
-		delete pack;
+		delete msg;
 	} catch (eBadMatchBadType& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Unsupported match type specified by the match, pack: %s", this, pack->c_str());
+				"Unsupported match type specified by the match, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_MATCH,
 					OFPBMC_BAD_TYPE,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadMatchBadLen& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Length problem in match, pack: %s", this, pack->c_str());
+				"Length problem in match, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_MATCH,
 					OFPBMC_BAD_LEN,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadMatchBadTag& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Match uses an unsupported tag/encap, pack: %s", this, pack->c_str());
+				"Match uses an unsupported tag/encap, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_MATCH,
 					OFPBMC_BAD_TAG,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadMatchBadDlAddrMask& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Unsupported datalink addr mask, pack: %s", this, pack->c_str());
+				"Unsupported datalink addr mask, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_MATCH,
 					OFPBMC_BAD_DL_ADDR_MASK,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadMatchBadNwAddrMask& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Unsupported network addr mask, pack: %s", this, pack->c_str());
+				"Unsupported network addr mask, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_MATCH,
 					OFPBMC_BAD_NW_ADDR_MASK,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadMatchBadWildcards& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Unsupported wildcard specified in the match, pack: %s", this, pack->c_str());
+				"Unsupported wildcard specified in the match, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_MATCH,
 					OFPBMC_BAD_WILDCARDS,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadMatchBadField& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Unsupported field in the match, pack: %s", this, pack->c_str());
+				"Unsupported field in the match, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_MATCH,
 					OFPBMC_BAD_FIELD,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadMatchBadValue& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Unsupported value in a match field, pack: %s", this, pack->c_str());
+				"Unsupported value in a match field, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_BAD_MATCH,
 					OFPBMC_BAD_VALUE,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eBadMatchBase& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"base class of exception eBadMatchBase caught, pack: %s", this, pack->c_str());
+				"base class of exception eBadMatchBase caught, pack: %s", this, msg->c_str());
 
-		delete pack;
+		delete msg;
 	}
 }
 
@@ -1186,7 +1186,7 @@ cofctl::echo_request_sent(cofmsg *pack)
 
 
 void
-cofctl::echo_request_rcvd(cofmsg_echo *msg)
+cofctl::echo_request_rcvd(cofmsg_echo_request *msg)
 {
 	// send echo reply back including any appended data
 	rofbase->send_echo_reply(this, msg->get_xid(), msg->body.somem(), msg->body.memlen());
@@ -1201,7 +1201,7 @@ cofctl::echo_request_rcvd(cofmsg_echo *msg)
 
 
 void
-cofctl::echo_reply_rcvd(cofmsg_echo *msg)
+cofctl::echo_reply_rcvd(cofmsg_echo_request *msg)
 {
 	cancel_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT);
 	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
@@ -1990,7 +1990,7 @@ cofctl::stats_reply_sent(cofmsg *msg)
 
 
 void
-cofctl::role_request_rcvd(cofmsg_role *msg)
+cofctl::role_request_rcvd(cofmsg_role_request *msg)
 {
 	try {
 		try {
@@ -2120,7 +2120,7 @@ cofctl::role_reply_sent(cofmsg *pack)
 
 
 void
-cofctl::barrier_request_rcvd(cofmsg_barrier *msg)
+cofctl::barrier_request_rcvd(cofmsg_barrier_request *msg)
 {
 	try {
 		xidstore.xid_add(this, msg->get_xid());

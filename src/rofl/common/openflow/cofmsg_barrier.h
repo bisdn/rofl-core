@@ -16,7 +16,7 @@ namespace rofl
 /**
  *
  */
-class cofmsg_barrier :
+class cofmsg_barrier_request :
 	public cofmsg
 {
 private:
@@ -29,7 +29,7 @@ public:
 	/** constructor
 	 *
 	 */
-	cofmsg_barrier(
+	cofmsg_barrier_request(
 			uint8_t of_version = 0,
 			uint8_t type = OFPT_BARRIER_REQUEST,
 			uint32_t xid = 0,
@@ -40,29 +40,29 @@ public:
 	/**
 	 *
 	 */
-	cofmsg_barrier(
-			cofmsg_barrier const& barrier);
+	cofmsg_barrier_request(
+			cofmsg_barrier_request const& barrier);
 
 
 	/**
 	 *
 	 */
-	cofmsg_barrier&
+	cofmsg_barrier_request&
 	operator= (
-			cofmsg_barrier const& barrier);
+			cofmsg_barrier_request const& barrier);
 
 
 	/** destructor
 	 *
 	 */
 	virtual
-	~cofmsg_barrier() {};
+	~cofmsg_barrier_request() {};
 
 
 	/**
 	 *
 	 */
-	cofmsg_barrier(cmemory *memarea);
+	cofmsg_barrier_request(cmemory *memarea);
 
 
 	/** reset packet content
@@ -106,6 +106,10 @@ public:
 	cmemory&
 	get_body();
 };
+
+
+typedef cofmsg_barrier_request cofmsg_barrier_reply;
+
 
 } // end of namespace rofl
 

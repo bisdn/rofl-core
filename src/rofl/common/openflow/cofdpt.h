@@ -151,7 +151,7 @@ private:
 		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store
 
 		std::string 					 info;			// info string
-		cofmsg						*fragment;		// fragment of OF packet rcvd on fragment during last call(s)
+		cmemory							*fragment;		// fragment of OF packet rcvd on fragment during last call(s)
 		int 							 reconnect_in_seconds; 	// reconnect in x seconds
 		int 							 reconnect_counter;
 		int 							 rpc_echo_interval;		// default ECHO time interval
@@ -405,34 +405,39 @@ protected:
 	 *
 	 */
 	void
-	hello_rcvd(cofpacket_hello *pack);
+	hello_rcvd(
+			cofmsg_hello *msg);
 
 
 	/**
 	 *
 	 */
 	void
-	echo_request_sent(cofmsg *pack);
+	echo_request_sent(
+			cofmsg_echo_request *msg);
 
 
 	/**
 	 *
 	 */
 	void
-	echo_request_rcvd(cofpacket_echo_request *pack);
+	echo_request_rcvd(
+			cofmsg_echo_request *msg);
 
 
 	/**
 	 *
 	 */
 	void
-	echo_reply_rcvd(cofpacket_echo_reply *pack);
+	echo_reply_rcvd(
+			cofmsg_echo_request *msg);
 
 
 	/** handle incoming vendor message (ROFL extensions)
 	 */
 	void
-	experimenter_rcvd(cofpacket_experimenter *pack);
+	experimenter_rcvd(
+			cofmsg_experimenter *msg);
 
 
 	/**
@@ -443,7 +448,7 @@ protected:
 	 */
 	void
 	features_request_sent(
-			cofmsg *pack);
+			cofmsg_features_request *msg);
 
 
 	/**
@@ -458,7 +463,7 @@ protected:
 	 */
 	void
 	features_reply_rcvd(
-			cofpacket_features_reply *pack);
+			cofpacket_features_reply *msg);
 
 
 	/**
@@ -469,7 +474,7 @@ protected:
 	 */
 	void
 	get_config_request_sent(
-			cofmsg *pack);
+			cofmsg_get_config_request *pack);
 
 
 	/**

@@ -526,7 +526,7 @@ protected:
 	 * @param pack BARRIER.request packet received from controller.
 	 */
 	virtual void
-	handle_barrier_request(cofctl *ctl, cofmsg_barrier *msg) { delete msg; };
+	handle_barrier_request(cofctl *ctl, cofmsg_barrier_request *msg) { delete msg; };
 
 	/** Handle OF barrier reply. To be overwritten by derived class.
 	 *
@@ -537,7 +537,7 @@ protected:
 	 * @param pack BARRIER.reply packet received from datapath
 	 */
 	virtual void
-	handle_barrier_reply(cofdpt *dpt, cofmsg_barrier *msg) { delete msg; };
+	handle_barrier_reply(cofdpt *dpt, cofmsg_barrier_request *msg) { delete msg; };
 
 	/** Handle OF barrier reply timeout. To be overwritten by derived class.
 	 *
@@ -724,7 +724,7 @@ protected:
 	 * @param pack ROLE.request packet received from controller.
 	 */
 	virtual void
-	handle_role_request(cofctl *ctl, cofmsg_role *msg) { delete msg; };
+	handle_role_request(cofctl *ctl, cofmsg_role_request *msg) { delete msg; };
 
 	/** Handle OF role reply. To be overwritten by derived class.
 	 *
@@ -735,7 +735,7 @@ protected:
 	 * @param pack ROLE.reply packet received from datapath
 	 */
 	virtual void
-	handle_role_reply(cofdpt *dpt, cofmsg_role *msg) { delete msg; };
+	handle_role_reply(cofdpt *dpt, cofmsg_role_request *msg) { delete msg; };
 
 	/** Handle OF role reply timeout. To be overwritten by derived class.
 	 *

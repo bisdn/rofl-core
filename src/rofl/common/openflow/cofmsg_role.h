@@ -16,7 +16,7 @@ namespace rofl
 /**
  *
  */
-class cofmsg_role :
+class cofmsg_role_request :
 	public cofmsg
 {
 private:
@@ -42,7 +42,7 @@ public:
 	/** constructor
 	 *
 	 */
-	cofmsg_role(
+	cofmsg_role_request(
 			uint8_t of_version = 0,
 			uint8_t  type = OFPT_ROLE_REQUEST,
 			uint32_t xid = 0,
@@ -53,29 +53,29 @@ public:
 	/**
 	 *
 	 */
-	cofmsg_role(
-			cofmsg_role const& role);
+	cofmsg_role_request(
+			cofmsg_role_request const& role);
 
 
 	/**
 	 *
 	 */
-	cofmsg_role&
+	cofmsg_role_request&
 	operator= (
-			cofmsg_role const& role);
+			cofmsg_role_request const& role);
 
 
 	/** destructor
 	 *
 	 */
 	virtual
-	~cofmsg_role() {};
+	~cofmsg_role_request() {};
 
 
 	/**
 	 *
 	 */
-	cofmsg_role(cmemory *memarea);
+	cofmsg_role_request(cmemory *memarea);
 
 
 	/** reset packet content
@@ -146,6 +146,8 @@ public:
 	void
 	set_generation_id(uint64_t generation_id);
 };
+
+typedef cofmsg_role_request cofmsg_role_reply;
 
 } // end of namespace rofl
 

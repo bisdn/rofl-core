@@ -2,7 +2,7 @@
 
 using namespace rofl;
 
-cofmsg_echo::cofmsg_echo(
+cofmsg_echo_request::cofmsg_echo_request(
 		uint8_t of_version,
 		uint8_t type,
 		uint32_t xid,
@@ -20,7 +20,7 @@ cofmsg_echo::cofmsg_echo(
 
 
 
-cofmsg_echo::cofmsg_echo(
+cofmsg_echo_request::cofmsg_echo_request(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
@@ -29,17 +29,17 @@ cofmsg_echo::cofmsg_echo(
 
 
 
-cofmsg_echo::cofmsg_echo(
-		cofmsg_echo const& echo)
+cofmsg_echo_request::cofmsg_echo_request(
+		cofmsg_echo_request const& echo)
 {
 	*this = echo;
 }
 
 
 
-cofmsg_echo&
-cofmsg_echo::operator= (
-		cofmsg_echo const& echo)
+cofmsg_echo_request&
+cofmsg_echo_request::operator= (
+		cofmsg_echo_request const& echo)
 {
 	if (this == &echo)
 		return *this;
@@ -53,7 +53,7 @@ cofmsg_echo::operator= (
 
 
 
-cofmsg_echo::~cofmsg_echo()
+cofmsg_echo_request::~cofmsg_echo_request()
 {
 
 }
@@ -61,7 +61,7 @@ cofmsg_echo::~cofmsg_echo()
 
 
 void
-cofmsg_echo::reset()
+cofmsg_echo_request::reset()
 {
 	cofmsg::reset();
 	body.clear();
@@ -70,7 +70,7 @@ cofmsg_echo::reset()
 
 
 size_t
-cofmsg_echo::length() const
+cofmsg_echo_request::length() const
 {
 	return (sizeof(struct ofp_header) + body.memlen());
 }
@@ -78,7 +78,7 @@ cofmsg_echo::length() const
 
 
 void
-cofmsg_echo::pack(uint8_t *buf, size_t buflen)
+cofmsg_echo_request::pack(uint8_t *buf, size_t buflen)
 {
 	set_length(length());
 
@@ -96,7 +96,7 @@ cofmsg_echo::pack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_echo::unpack(uint8_t *buf, size_t buflen)
+cofmsg_echo_request::unpack(uint8_t *buf, size_t buflen)
 {
 	cofmsg::unpack(buf, buflen);
 
@@ -106,7 +106,7 @@ cofmsg_echo::unpack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_echo::validate()
+cofmsg_echo_request::validate()
 {
 	cofmsg::validate(); // check generic OpenFlow header
 
@@ -126,7 +126,7 @@ cofmsg_echo::validate()
 
 
 cmemory&
-cofmsg_echo::get_body()
+cofmsg_echo_request::get_body()
 {
 	return body;
 }

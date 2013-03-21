@@ -197,14 +197,14 @@ protected:
 	 *
 	 */
 	void
-	echo_request_rcvd(cofmsg_echo *pack);
+	echo_request_rcvd(cofmsg_echo_request *pack);
 
 
 	/**
 	 *
 	 */
 	void
-	echo_reply_rcvd(cofmsg_echo *pack);
+	echo_reply_rcvd(cofmsg_echo_request *pack);
 
 
 	/** handle incoming vendor message (ROFL extensions)
@@ -281,7 +281,7 @@ protected:
 	/** handle incoming ROLE-REQUEST messages
 	 */
 	void
-	role_request_rcvd(cofmsg_role *pack);
+	role_request_rcvd(cofmsg_role_request *pack);
 
 	/**
 	 *
@@ -292,7 +292,7 @@ protected:
 	/** handle incoming BARRIER request
 	 */
 	void
-	barrier_request_rcvd(cofmsg_barrier *pack);
+	barrier_request_rcvd(cofmsg_barrier_request *pack);
 
 	/** BARRIER reply sent back
 	 *

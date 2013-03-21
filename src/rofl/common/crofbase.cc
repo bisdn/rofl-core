@@ -585,8 +585,8 @@ crofbase::send_echo_request(
 		cofdpt *dpt,
 		uint8_t *body, size_t bodylen)
 {
-	cofmsg_echo *msg =
-			new cofmsg_echo(
+	cofmsg_echo_request *msg =
+			new cofmsg_echo_request(
 					dpt->get_version(),
 					OFPT_ECHO_REQUEST,
 					ta_add_request(OFPT_ECHO_REQUEST),
@@ -607,8 +607,8 @@ crofbase::send_echo_reply(
 		uint32_t xid,
 		uint8_t *body, size_t bodylen)
 {
-	cofmsg_echo *msg =
-			new cofmsg_echo(
+	cofmsg_echo_request *msg =
+			new cofmsg_echo_request(
 					dpt->get_version(),
 					OFPT_ECHO_REPLY,
 					xid,
@@ -628,8 +628,8 @@ crofbase::send_echo_request(
 		cofctl *ctl,
 		uint8_t *body, size_t bodylen)
 {
-	cofmsg_echo *msg =
-			new cofmsg_echo(
+	cofmsg_echo_request *msg =
+			new cofmsg_echo_request(
 					ctl->get_version(),
 					OFPT_ECHO_REQUEST,
 					ta_add_request(OFPT_ECHO_REQUEST),
@@ -650,8 +650,8 @@ crofbase::send_echo_reply(
 		uint32_t xid,
 		uint8_t *body, size_t bodylen)
 {
-	cofmsg_echo *msg =
-			new cofmsg_echo(
+	cofmsg_echo_request *msg =
+			new cofmsg_echo_request(
 					ctl->get_version(),
 					OFPT_ECHO_REPLY,
 					xid,
@@ -858,6 +858,8 @@ crofbase::send_stats_reply(
 					body,
 					bodylen);
 
+	msg->pack();
+
 	ctl_find(ctl)->send_message(msg);
 }
 
@@ -880,6 +882,8 @@ crofbase::send_desc_stats_reply(
 					xid,
 					flags,
 					desc_stats);
+
+	msg->pack();
 
 	ctl_find(ctl)->send_message(msg);
 }
@@ -1077,9 +1081,10 @@ crofbase::send_packet_in_message(
 uint32_t
 crofbase::send_barrier_request(cofdpt *dpt)
 {
-	cofmsg_barrier *msg =
-			new cofmsg_barrier(
+	cofmsg_barrier_request *msg =
+			new cofmsg_barrier_request(
 					dpt->get_version(),
+					OFPT_BARRIER_REQUEST,
 					ta_add_request(OFPT_BARRIER_REQUEST));
 
 	uint32_t xid = msg->get_xid();
@@ -1098,9 +1103,10 @@ crofbase::send_barrier_reply(
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_barrier_reply()", this);
 
-	cofmsg_barrier *msg =
-			new cofmsg_barrier(
+	cofmsg_barrier_reply *msg =
+			new cofmsg_barrier_reply(
 					ctl->get_version(),
+					OFPT_BARRIER_REPLY,
 					xid);
 
 	ctl_find(ctl)->send_message(msg);
@@ -1122,9 +1128,10 @@ crofbase::send_role_request(
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_role_request()", this);
 
-	cofmsg_role *msg =
-			new cofmsg_role(
+	cofmsg_role_request *msg =
+			new cofmsg_role_request(
 					dpt->get_version(),
+					OFPT_ROLE_REQUEST,
 					ta_add_request(OFPT_ROLE_REQUEST),
 					role,
 					generation_id);
@@ -1143,9 +1150,10 @@ crofbase::send_role_reply(
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_role_reply()", this);
 
-	cofmsg_role *msg =
-			new cofmsg_role(
+	cofmsg_role_reply *msg =
+			new cofmsg_role_reply(
 					ctl->get_version(),
+					OFPT_ROLE_REPLY,
 					xid,
 					role,
 					generation_id);
