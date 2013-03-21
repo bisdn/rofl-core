@@ -5,6 +5,8 @@
 #ifndef PLATFORM_MEMORY_H_
 #define PLATFORM_MEMORY_H_
 
+#include <stddef.h>
+#include <stdlib.h>
 #include "../util/rofl_pipeline_utils.h"
 
 /**
@@ -37,12 +39,9 @@
 //C++ extern C
 ROFL_PIPELINE_BEGIN_DECLS
 
-#include <stddef.h>
-#include <stdlib.h>
-
 /**
 * @brief Allocates a chunk of dynamic memory of size length
-* @ingroup  platform
+* @ingroup platform_memory
 *
 * This in LIBC compatible platforms is equivalent to malloc()
 */
@@ -52,7 +51,7 @@ void* platform_malloc( size_t length );
 * @brief Allocates a chunk of dynamic memory of size length, which
 * must be accessible (R/W) for all the threads/hw threads, cores...
 * that may interact with the same logical switch.
-* @ingroup  platform
+* @ingroup platform_memory
 */
 void* platform_malloc_shared( size_t length );
 
@@ -60,7 +59,7 @@ void* platform_malloc_shared( size_t length );
 /**
 * @brief Frees a chunk of dynamic memory previously allocated with
 * platform_malloc().
-* @ingroup  platform
+* @ingroup platform_memory
 *
 * This in LIBC compatible platforms is equivalent to free()
 */
@@ -69,7 +68,7 @@ void platform_free( void* data );
 /**
 * @brief Frees a chunk of dynamic memory previously allocated with
 * platform_malloc_shared().
-* @ingroup  platform
+* @ingroup platform_memory
 *
 * This in LIBC compatible platforms is equivalent to free()
 */
@@ -77,19 +76,19 @@ void platform_free_shared( void* data );
 
 /**
 * @brief Copies a chunk of memory. Equivalent to LIBC memcpy() 
-* @ingroup  platform
+* @ingroup platform_memory
 */
 void* platform_memcpy( void* dst, const void* src, size_t length );
 
 /**
 * @brief Sets 'c' to the whole chunk of memory. Equivalent to LIBC memset() 
-* @ingroup  platform
+* @ingroup platform_memory
 */
 void* platform_memset( void* src, int c, size_t length );
 
 /**
 * @brief Moves a chunk of memory from src to dst. Equivalent to memmove().
-* @ingroup  platform
+* @ingroup platform_memory
 *
 * The user of the library can assume both src and dst ointers will ALWAYS
 * be allocated via the same call (malloc/malloc_shared)

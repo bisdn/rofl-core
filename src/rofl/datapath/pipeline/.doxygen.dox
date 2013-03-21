@@ -1,0 +1,68 @@
+/**
+* @mainpage ROFL-PIPELINE library documentation 
+*
+* @section intro_sec Brief introduction
+*
+* This is the introduction. TODO put general overview
+*
+* @section install Installation
+*
+* @subsection step1 Step 1: Opening the box
+*
+* etc...
+*/
+
+//Groups
+
+/**
+*
+* @defgroup mgmt Managment API
+* @brief Mananagement of the system's/device state (physical switch), including logical switches and ports. 
+*
+* The management API, and the data structure contained, are used to manage the system state (physical switch). 
+*
+* This is roughly:
+*  - Device ports (network interface)
+*    - Port statistics
+*  - Logical switch creation and destruction
+*  - Attachement of ports to logical switches
+*
+*/
+
+//Openflow APIs
+
+/**
+* @defgroup endpoint Openflow end-point APIs 
+* @brief Groups the Openflow related APIs exposed and consumed by the pipeline libray. 
+*
+*
+* @defgroup endpoint_of12 Openflow v1.2 end-point APIs
+* @brief Openflow version 1.2 APIs
+* @ingroup endpoint 
+*
+*/
+
+//Platform APIs
+
+/**
+* @defgroup platform Platform APIs 
+* @brief Platform APIs is a group of APIs which are used by the library but its implementation is platform specific. 
+* 
+* Platform APIs is the group of APIs that are used internally in the library, but its implementation is
+* platform specific. Examples are memory management and locking. The user of the library MUST implement all the
+* platform APIs.
+* 
+* @defgroup platform_lock Locking API
+* @brief Locking (mutex, rwlock) API definition, that must be implemented by the library users
+* @ingroup platform 
+*
+* @defgroup platform_atomic Atomic Operations API
+* @brief Atomic operations (atomic add, inc...) API definition, that must be implemented by the library users
+* @ingroup platform 
+*
+*
+* @defgroup platform_memory Memory API
+* @brief Memory management(malloc, free..) API definition, that must be implemented by the library users
+* @ingroup platform
+*
+*/
