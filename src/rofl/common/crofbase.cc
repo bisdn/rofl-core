@@ -1005,10 +1005,9 @@ crofbase::send_packet_in_message(
 								table_id,
 								cookie,
 								in_port, /* in_port for OF1.0 */
+								match,
 								data,
 								datalen);
-
-				pack->match = match;
 
 				pack->pack();
 
@@ -1044,10 +1043,10 @@ crofbase::send_packet_in_message(
 							table_id,
 							cookie,
 							in_port, /* in_port for OF1.0 */
+							match,
 							data,
 							datalen);
 
-			pack->match = match;
 			pack->pack();
 
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
@@ -1300,10 +1299,9 @@ crofbase::send_flow_mod_message(
 					buffer_id,
 					out_port,
 					out_group,
-					flags);
-
-	pack->match = ofmatch;
-	pack->instructions = inlist;
+					flags,
+					inlist,
+					ofmatch);
 
 	pack->pack();
 
@@ -1334,10 +1332,9 @@ crofbase::send_flow_mod_message(
 					fe.get_buffer_id(),
 					fe.get_out_port(),
 					fe.get_out_group(),
-					fe.get_flags());
-
-	pack->match = fe.match;
-	pack->instructions = fe.instructions;
+					fe.get_flags(),
+					fe.instructions,
+					fe.match);
 
 	pack->pack();
 
@@ -1365,9 +1362,8 @@ crofbase::send_group_mod_message(
 					ta_new_async_xid(),
 					be16toh(ge.group_mod->command),
 					ge.group_mod->type,
-					be32toh(ge.group_mod->group_id));
-
-	pack->buckets = ge.buckets;
+					be32toh(ge.group_mod->group_id),
+					ge.buckets);
 
 	pack->pack();
 
@@ -1484,9 +1480,8 @@ crofbase::send_flow_removed_message(
 							idle_timeout,
 							hard_timeout,
 							packet_count,
-							byte_count);
-
-			pack->match = ofmatch;
+							byte_count,
+							ofmatch);
 
 			pack->pack();
 
@@ -1780,9 +1775,9 @@ crofbase::ta_new_async_xid()
 
 bool
 crofbase::ta_validate(
-		cofmsg *pack)
+		cofmsg *msg)
 {
-		return ta_validate(pack->get_xid(), pack->ofh_header->type);
+		return ta_validate(msg->get_xid(), msg->get_type());
 }
 
 

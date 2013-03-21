@@ -162,7 +162,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_table_stats_reply() {};
+	~cofmsg_table_stats_reply();
 
 
 	/**

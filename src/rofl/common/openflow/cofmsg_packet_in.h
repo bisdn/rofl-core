@@ -57,6 +57,7 @@ public:
 			uint8_t  table_id = 0,
 			uint64_t cookie = 0,
 			uint16_t in_port = 0, /*OF1.0*/
+			cofmatch const& match = cofmatch(),
 			uint8_t *data = (uint8_t*)0,
 			size_t datalen = 0);
 
@@ -80,7 +81,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_packet_in() {};
+	~cofmsg_packet_in();
 
 
 	/**

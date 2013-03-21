@@ -68,7 +68,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_group_mod() {};
+	~cofmsg_group_mod();
 
 
 	/**

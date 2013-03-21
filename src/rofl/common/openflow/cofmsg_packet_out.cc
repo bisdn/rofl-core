@@ -103,7 +103,7 @@ cofmsg_packet_out::reset()
 {
 	cofmsg::reset();
 	actions.clear();
-	packet.reset();
+	packet.clear();
 }
 
 
@@ -204,7 +204,7 @@ cofmsg_packet_out::validate()
 	ofh_packet_out = soframe();
 
 	actions.clear();
-	packet.reset();
+	packet.clear();
 
 	switch (get_version()) {
 	case OFP10_VERSION: {

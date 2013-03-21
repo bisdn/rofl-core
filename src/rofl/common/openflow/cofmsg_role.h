@@ -16,22 +16,22 @@ namespace rofl
 /**
  *
  */
-class cofmsg_role_request :
+class cofmsg_role :
 	public cofmsg
 {
 private:
 
 	union {
-		uint8_t*						ofhu_role_request;
-		struct ofp12_role_request*		ofhu12_role_request;
-		struct ofp13_role_request*		ofhu13_role_request;
+		uint8_t*						ofhu_role_;
+		struct ofp12_role_request*		ofhu12_role_;
+		struct ofp13_role_request*		ofhu13_role_;
 		struct ofp12_role_request*		ofhu12_role_reply;
 		struct ofp13_role_request*		ofhu13_role_reply;
 	} ofhu;
 
-#define ofh_role_request   	ofhu.ofhu_role_request
-#define ofh12_role_request 	ofhu.ofhu12_role_request
-#define ofh13_role_request 	ofhu.ofhu13_role_request
+#define ofh_role_request	ofhu.ofhu_role_
+#define ofh12_role_request 	ofhu.ofhu12_role_
+#define ofh13_role_request 	ofhu.ofhu13_role_
 #define ofh12_role_reply 	ofhu.ofhu12_role_reply
 #define ofh13_role_reply 	ofhu.ofhu13_role_reply
 
@@ -42,7 +42,7 @@ public:
 	/** constructor
 	 *
 	 */
-	cofmsg_role_request(
+	cofmsg_role(
 			uint8_t of_version = 0,
 			uint8_t  type = OFPT_ROLE_REQUEST,
 			uint32_t xid = 0,
@@ -53,29 +53,29 @@ public:
 	/**
 	 *
 	 */
-	cofmsg_role_request(
-			cofmsg_role_request const& role);
+	cofmsg_role(
+			cofmsg_role const& role);
 
 
 	/**
 	 *
 	 */
-	cofmsg_role_request&
+	cofmsg_role&
 	operator= (
-			cofmsg_role_request const& role);
+			cofmsg_role const& role);
 
 
 	/** destructor
 	 *
 	 */
 	virtual
-	~cofmsg_role_request() {};
+	~cofmsg_role();
 
 
 	/**
 	 *
 	 */
-	cofmsg_role_request(cmemory *memarea);
+	cofmsg_role(cmemory *memarea);
 
 
 	/** reset packet content
@@ -147,7 +147,10 @@ public:
 	set_generation_id(uint64_t generation_id);
 };
 
-typedef cofmsg_role_request cofmsg_role_reply;
+
+typedef cofmsg_role cofmsg_role_request;
+typedef cofmsg_role cofmsg_role_reply;
+
 
 } // end of namespace rofl
 

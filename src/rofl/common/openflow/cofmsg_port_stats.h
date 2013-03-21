@@ -129,7 +129,7 @@ public:
 	/**
 	 *
 	 */
-	std::vector<cofport_stats_request>&
+	cofport_stats_request&
 	get_port_stats();
 };
 

@@ -66,7 +66,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_queue_get_config_request() {};
+	~cofmsg_queue_get_config_request();
 
 
 	/**
@@ -191,7 +191,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_queue_get_config_reply() {};
+	~cofmsg_queue_get_config_reply();
 
 
 	/**

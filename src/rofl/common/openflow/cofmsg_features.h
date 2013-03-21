@@ -50,7 +50,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_features_request() {};
+	~cofmsg_features_request();
 
 
 	/**
@@ -153,7 +153,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_features_reply() {};
+	~cofmsg_features_reply();
 
 
 	/**

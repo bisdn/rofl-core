@@ -91,7 +91,6 @@ void
 cofmsg_port_status::reset()
 {
 	cofmsg::reset();
-	port.clear();
 }
 
 
@@ -173,8 +172,6 @@ cofmsg_port_status::validate()
 	cofmsg::validate(); // check generic OpenFlow header
 
 	ofh_port_status = soframe();
-
-	port.clear();
 
 	switch (get_version()) {
 	case OFP10_VERSION: {

@@ -222,6 +222,15 @@ cpacket::reset()
 
 
 void
+cpacket::clear()
+{
+	reset();
+	mem.clear();
+}
+
+
+
+void
 cpacket::mem_resize(
 		size_t size)
 {

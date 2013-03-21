@@ -197,7 +197,7 @@ cofmsg_port_stats_request::validate()
 
 
 
-std::vector<cofport_stats_request>&
+cofport_stats_request&
 cofmsg_port_stats_request::get_port_stats()
 {
 	return port_stats;

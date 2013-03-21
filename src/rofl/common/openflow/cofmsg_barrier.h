@@ -56,7 +56,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_barrier() {};
+	~cofmsg_barrier();
 
 
 	/**

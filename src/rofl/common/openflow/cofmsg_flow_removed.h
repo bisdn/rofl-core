@@ -58,7 +58,8 @@ public:
 			uint16_t idle_timeout = 0,
 			uint16_t hard_timeout = 0,
 			uint64_t packet_count = 0,
-			uint64_t byte_count = 0);
+			uint64_t byte_count = 0,
+			cofmatch const& match = cofmatch());
 
 
 	/**
@@ -80,7 +81,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_flow_removed() {};
+	~cofmsg_flow_removed();
 
 
 	/**

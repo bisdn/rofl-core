@@ -75,7 +75,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_flow_stats_request() {};
+	~cofmsg_flow_stats_request();
 
 
 	/**
@@ -131,7 +131,7 @@ public:
 	/**
 	 *
 	 */
-	std::vector<cofflow_stats_request>&
+	cofflow_stats_request&
 	get_flow_stats();
 };
 
@@ -191,7 +191,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_flow_stats_reply() {};
+	~cofmsg_flow_stats_reply();
 
 
 	/**

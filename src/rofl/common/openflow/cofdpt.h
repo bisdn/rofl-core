@@ -436,7 +436,7 @@ protected:
 	 */
 	void
 	echo_request_sent(
-			cofmsg_echo_request *msg);
+			cofmsg *msg);
 
 
 	/**
@@ -470,7 +470,7 @@ protected:
 	 */
 	void
 	features_request_sent(
-			cofmsg_features_request *msg);
+			cofmsg *msg);
 
 
 	/**
@@ -496,7 +496,7 @@ protected:
 	 */
 	void
 	get_config_request_sent(
-			cofmsg_get_config_request *pack);
+			cofmsg *msg);
 
 
 	/**
@@ -576,10 +576,8 @@ protected:
 	 *
 	 * @throws eOFdpathNotFound Thrown when the table-id specified in pack cannot be found.
 	 */
-	void flow_mod_sent(cofmsg* pack) throw (eOFdpathNotFound) {
-
-	}
-
+	void flow_mod_sent(
+			cofmsg* msg);
 
 	/**
 	 * @name	flow_rmvd_rcvd

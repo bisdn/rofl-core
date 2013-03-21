@@ -50,7 +50,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_get_config_request() {};
+	~cofmsg_get_config_request();
 
 
 	/**
@@ -147,7 +147,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_config() {};
+	~cofmsg_config();
 
 
 	/**

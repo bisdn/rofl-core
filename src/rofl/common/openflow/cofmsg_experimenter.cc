@@ -181,7 +181,7 @@ cofmsg_experimenter::validate()
 		body.assign(ofh10_vendor->body, get_length() - sizeof(struct ofp10_vendor_header));
 	} break;
 	case OFP12_VERSION: {
-		if (get_length() < sizeof(struct ofp12_experimenter_request))
+		if (get_length() < sizeof(struct ofp12_experimenter_header))
 			throw eBadSyntaxTooShort();
 		body.assign(ofh12_experimenter->body, get_length() - sizeof(struct ofp12_experimenter_header));
 	} break;

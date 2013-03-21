@@ -161,7 +161,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_desc_stats_reply() {};
+	~cofmsg_desc_stats_reply();
 
 
 	/**

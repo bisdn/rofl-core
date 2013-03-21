@@ -182,16 +182,10 @@ cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 	group_desc_stats(group_desc_stats)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		resize(sizeof(struct ofp10_stats_reply) + group_desc_stats.size() * sizeof(struct ofp10_group_desc_stats));
-		for (unsigned int i = 0; i < group_desc_stats.size(); i++) {
-			group_desc_stats[i].pack(soframe() + i * sizeof(struct ofh10_stats_reply), sizeof(struct ofp10_group_desc_stats));
-		}
-	} break;
 	case OFP12_VERSION: {
 		resize(sizeof(struct ofp12_stats_reply) + group_desc_stats.size() * sizeof(struct ofp12_group_desc_stats));
 		for (unsigned int i = 0; i < group_desc_stats.size(); i++) {
-			group_desc_stats[i].pack(soframe() + i * sizeof(struct ofh12_stats_reply), sizeof(struct ofp12_group_desc_stats));
+			group_desc_stats[i].pack(soframe() + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_group_desc_stats));
 		}
 	} break;
 	case OFP13_VERSION: {
@@ -258,9 +252,6 @@ cofmsg_group_desc_stats_reply::resize(size_t len)
 {
 	cofmsg::resize(len);
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		ofh_group_desc_stats = soframe() + sizeof(struct ofp10_stats_reply);
-	} break;
 	case OFP12_VERSION: {
 		ofh_group_desc_stats = soframe() + sizeof(struct ofp12_stats_reply);
 	} break;
@@ -280,9 +271,6 @@ size_t
 cofmsg_group_desc_stats_reply::length() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_stats_reply) + group_desc_stats.size() * sizeof(struct ofp10_desc_stats));
-	} break;
 	case OFP12_VERSION: {
 		return (sizeof(struct ofp12_stats_reply) + group_desc_stats.size() * sizeof(struct ofp12_desc_stats));
 	} break;
@@ -310,18 +298,11 @@ cofmsg_group_desc_stats_reply::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (buflen < length())
-			throw eInval();
-		for (unsigned int i = 0; i < group_desc_stats.size(); i++) {
-			group_desc_stats[i].pack(soframe() + i * sizeof(struct ofh10_stats_reply), sizeof(struct ofp10_group_desc_stats));
-		}
-	} break;
 	case OFP12_VERSION: {
 		if (buflen < length())
 			throw eInval();
 		for (unsigned int i = 0; i < group_desc_stats.size(); i++) {
-			group_desc_stats[i].pack(soframe() + i * sizeof(struct ofh12_stats_reply), sizeof(struct ofp12_group_desc_stats));
+			group_desc_stats[i].pack(soframe() + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_group_desc_stats));
 		}
 	} break;
 	case OFP13_VERSION: {
@@ -353,15 +334,6 @@ cofmsg_group_desc_stats_reply::validate()
 	group_desc_stats.clear();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (get_length() < sizeof(struct ofp10_stats_reply))
-			throw eBadSyntaxTooShort();
-		for (unsigned int i = 0; i < ((get_length() - sizeof(struct ofp10_stats_reply)) / sizeof(struct ofp10_group_desc_stats)); i++) {
-			cofgroup_desc_stats_reply group_desc_stats_reply;
-			group_desc_stats_reply.unpack(soframe() + sizeof(struct ofp10_stats_reply) + i * sizeof(struct ofp10_group_desc_stats), sizeof(struct ofp10_group_desc_stats));
-			group_desc_stats.push_back(group_desc_stats_reply);
-		}
-	} break;
 	case OFP12_VERSION: {
 		if (get_length() < (sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_group_desc_stats)))
 			throw eBadSyntaxTooShort();

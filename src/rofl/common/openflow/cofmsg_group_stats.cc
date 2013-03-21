@@ -200,7 +200,7 @@ cofmsg_group_stats_reply::cofmsg_group_stats_reply(
 	case OFP12_VERSION: {
 		resize(sizeof(struct ofp12_stats_reply) + group_stats.size() * sizeof(struct ofp12_group_stats));
 		for (unsigned int i = 0; i < group_stats.size(); i++) {
-			group_stats[i].pack(soframe() + i * sizeof(struct ofh12_stats_reply), sizeof(struct ofp12_group_stats));
+			group_stats[i].pack(soframe() + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_group_stats));
 		}
 	} break;
 	case OFP13_VERSION: {
@@ -317,7 +317,7 @@ cofmsg_group_stats_reply::pack(uint8_t *buf, size_t buflen)
 		if (buflen < length())
 			throw eInval();
 		for (unsigned int i = 0; i < group_stats.size(); i++) {
-			group_stats[i].pack(soframe() + i * sizeof(struct ofh12_stats_reply), sizeof(struct ofp12_group_stats));
+			group_stats[i].pack(soframe() + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_group_stats));
 		}
 	} break;
 	case OFP13_VERSION: {

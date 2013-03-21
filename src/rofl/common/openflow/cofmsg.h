@@ -97,8 +97,8 @@ private: // data structures
 
 protected: // data structures
 
-	struct ofp_header	*ofh_header;		// generic OpenFlow header
 	cmemory 			*memarea;			// OpenFlow packet received from socket
+	struct ofp_header	*ofh_header;		// generic OpenFlow header
 
 public:
 

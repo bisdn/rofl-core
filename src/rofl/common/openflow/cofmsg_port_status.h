@@ -68,7 +68,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_port_status() {};
+	~cofmsg_port_status();
 
 
 	/**

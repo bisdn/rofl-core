@@ -7,7 +7,7 @@ using namespace rofl;
 cofmsg_port_mod::cofmsg_port_mod(
 		uint8_t of_version,
 		uint32_t xid,
-		uint32_t port_no = 0,
+		uint32_t port_no,
 		cmacaddr const& hwaddr,
 		uint32_t config,
 		uint32_t mask,

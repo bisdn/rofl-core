@@ -63,7 +63,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_table_mod() {};
+	~cofmsg_table_mod();
 
 
 	/**

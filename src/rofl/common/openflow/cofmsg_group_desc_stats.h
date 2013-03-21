@@ -163,7 +163,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_group_desc_stats_reply() {};
+	~cofmsg_group_desc_stats_reply();
 
 
 	/**

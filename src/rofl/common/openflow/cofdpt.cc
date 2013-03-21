@@ -242,7 +242,7 @@ cofdpt::handle_read(
 				"invalid packet received, dropping. Closing socket. Packet: %s",
 				this, mem->c_str());
 		if (mem) {
-			delete mem; fragment = (cofmsg*)0;
+			delete mem; fragment = (cmemory*)0;
 		}
 		handle_closed(socket, sd);
 	}
@@ -439,22 +439,22 @@ cofdpt::handle_message(
 
 void
 cofdpt::send_message(
-		cofmsg *pack)
+		cofmsg *msg)
 {
-    if (not flags.test(COFDPT_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO))
+    if (not flags.test(COFDPT_FLAG_HELLO_RCVD) && (msg->get_type() != OFPT_HELLO))
     {
         WRITELOG(CFWD, DBG, "cofdpt(%p)::send_message() "
             "dropping message, as no HELLO rcvd from peer yet => pack: %s",
-            this, pack->c_str());
-        delete pack; return;
+            this, msg->c_str());
+        delete msg; return;
     }
 
-	switch (pack->ofh_header->type) {
+	switch (msg->get_type()) {
 	case OFPT_HELLO: {
 		// do nothing here
 	} break;
 	case OFPT_ECHO_REQUEST: {
-		echo_request_sent(pack);
+		echo_request_sent(msg);
 	} break;
 	case OFPT_ECHO_REPLY: {
 		// do nothing here
@@ -470,35 +470,31 @@ cofdpt::send_message(
 		// asynchronous messages, no transaction => do nothing here
 	} break;
 	case OFPT_FEATURES_REQUEST: {
-		features_request_sent(pack);
+		features_request_sent(msg);
 	} break;
 	case OFPT_GET_CONFIG_REQUEST: {
-		get_config_request_sent(pack);
+		get_config_request_sent(msg);
 	} break;
 	case OFPT_STATS_REQUEST: {
-		stats_request_sent(pack);
+		stats_request_sent(msg);
 	} break;
 	case OFPT_BARRIER_REQUEST: {
-		barrier_request_sent(pack);
+		barrier_request_sent(msg);
 	} break;
 	case OFPT_QUEUE_GET_CONFIG_REQUEST: {
-		queue_get_config_request_sent(pack);
+		queue_get_config_request_sent(msg);
 	} break;
 	case OFPT_ROLE_REQUEST: {
-		role_request_sent(pack);
+		role_request_sent(msg);
 	} break;
 	default: {
 		WRITELOG(COFDPT, WARN, "cofdpt(%p)::send_message() "
-				"dropping invalid packet: %s", this, pack->c_str());
-		delete pack;
+				"dropping invalid packet: %s", this, msg->c_str());
+		delete msg;
 	} return;
 	}
 
-#ifndef NDEBUG
-	fprintf(stderr, "s:%d ", pack->ofh_header->type);
-#endif
-
-	send_message_via_socket(pack);
+	send_message_via_socket(msg);
 }
 
 
@@ -591,7 +587,7 @@ cofdpt::hello_rcvd(cofmsg_hello *msg)
 			bzero(explanation, sizeof(explanation));
 			snprintf(explanation, sizeof(explanation) - 1,
 					"unsupported OF version (%d), supported version is (%d)",
-					(msg->ofh_header->version), OFP12_VERSION);
+					msg->get_version(), OFP12_VERSION);
 
 			cofmsg_error *reply = new cofmsg_error(
 								OFP12_VERSION,
@@ -668,7 +664,7 @@ void
 cofdpt::echo_request_rcvd(cofmsg_echo_request *msg)
 {
 	// send echo reply back including any appended data
-	rofbase->send_echo_reply(this, msg->get_xid(), msg->body.somem(), msg->body.memlen());
+	rofbase->send_echo_reply(this, msg->get_xid(), msg->get_body().somem(), msg->get_body().memlen());
 
 	delete msg;
 
@@ -728,8 +724,19 @@ cofdpt::features_reply_rcvd(
 		n_buffers 		= msg->get_n_buffers();
 		n_tables 		= msg->get_n_tables();
 		capabilities 	= msg->get_capabilities();
-		ports			= msg->get_ports();
+		cofportlist portlist = msg->get_ports();
 
+		for (std::map<uint32_t, cofport*>::iterator it = ports.begin();
+				it != ports.end(); ++it) {
+			delete it->second;
+		}
+		ports.clear();
+
+		for (cofportlist::iterator it = portlist.begin();
+				it != portlist.end(); ++it) {
+			cofport& port = (*it);
+			ports[port.get_port_no()] = new cofport(port);
+		}
 
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() "
 				"dpid:%"PRIu64" pack:%s",
@@ -972,7 +979,7 @@ restart:
 
 void
 cofdpt::flow_mod_sent(
-		cofmsg *msg) throw (eOFdpathNotFound)
+		cofmsg *msg)
 {
 	try {
 		cofmsg_flow_mod *flow_mod = dynamic_cast<cofmsg_flow_mod*>( msg );
@@ -1031,7 +1038,7 @@ cofdpt::group_mod_reset()
 void
 cofdpt::table_mod_sent(cofmsg *pack)
 {
-	cofpacket_table_mod *table_mod = dynamic_cast<cofpacket_table_mod*>( pack );
+	cofmsg_table_mod *table_mod = dynamic_cast<cofmsg_table_mod*>( pack );
 
 	if (0 == table_mod) {
 		return;
@@ -1075,7 +1082,7 @@ cofdpt::packet_in_rcvd(cofmsg_packet_in *msg)
 #endif
 
 		// datalen must be at least one Ethernet header in size
-		if (msg->packet.length() >= (2 * OFP_ETH_ALEN + sizeof(uint16_t)))
+		if (msg->get_packet().length() >= (2 * OFP_ETH_ALEN + sizeof(uint16_t)))
 		{
 #if 0
 			// update local forwarding table

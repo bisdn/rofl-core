@@ -11,9 +11,11 @@ cofmsg_packet_in::cofmsg_packet_in(
 		uint8_t  table_id,
 		uint64_t cookie,
 		uint16_t in_port, /*OF1.0*/
-		uint8_t *data = (uint8_t*)0,
-		size_t datalen = 0) :
-	cofmsg(sizeof(struct ofp_header))
+		cofmatch const& match,
+		uint8_t *data,
+		size_t datalen) :
+	cofmsg(sizeof(struct ofp_header)),
+	match(match)
 {
 	ofh_packet_in = soframe();
 
@@ -105,7 +107,7 @@ cofmsg_packet_in::reset()
 {
 	cofmsg::reset();
 	match.clear();
-	packet.reset();
+	packet.clear();
 }
 
 
@@ -196,7 +198,7 @@ cofmsg_packet_in::validate()
 	ofh_packet_in = soframe();
 
 	match.clear();
-	packet.reset();
+	packet.clear();
 
 	switch (get_version()) {
 	case OFP10_VERSION: {

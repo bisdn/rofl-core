@@ -23,11 +23,11 @@ class cofgroup_features_stats_reply
 {
 private: // data structures
 
-	uint8_t 	of_version;
-	uint32_t	types;
-	uint32_t	capabilities;
-	uint32_t	max_groups[4];
-	uint32_t	actions[4];
+	uint8_t 				of_version;
+	uint32_t				types;
+	uint32_t				capabilities;
+	std::vector<uint32_t>	max_groups;
+	std::vector<uint32_t>	actions;
 
 public: // data structures
 

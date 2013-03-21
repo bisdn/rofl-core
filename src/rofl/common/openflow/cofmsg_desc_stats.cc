@@ -188,11 +188,11 @@ cofmsg_desc_stats_reply::cofmsg_desc_stats_reply(
 	switch (of_version) {
 	case OFP10_VERSION: {
 		resize(sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_desc_stats));
-		desc_stats.pack(soframe() + sizeof(struct ofh10_stats_reply), sizeof(struct ofp10_desc_stats));
+		desc_stats.pack(soframe() + sizeof(struct ofp10_stats_reply), sizeof(struct ofp10_desc_stats));
 	} break;
 	case OFP12_VERSION: {
 		resize(sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_desc_stats));
-		desc_stats.pack(soframe() + sizeof(struct ofh12_stats_reply), sizeof(struct ofp12_desc_stats));
+		desc_stats.pack(soframe() + sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_desc_stats));
 	} break;
 	case OFP13_VERSION: {
 		// TODO

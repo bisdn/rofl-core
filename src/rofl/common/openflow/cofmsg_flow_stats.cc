@@ -197,7 +197,7 @@ cofmsg_flow_stats_request::validate()
 
 
 
-std::vector<cofflow_stats_request>&
+cofflow_stats_request&
 cofmsg_flow_stats_request::get_flow_stats()
 {
 	return flow_stats;

@@ -158,7 +158,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_group_features_stats_reply() {};
+	~cofmsg_group_features_stats_reply();
 
 
 	/**

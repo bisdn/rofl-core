@@ -45,7 +45,7 @@ cofmsg::packet_info()
 
 
 cofmsg::cofmsg(size_t size) :
-	memarea(new memarea(size)),
+	memarea(new cmemory(size)),
 	ofh_header(0)
 {
 	ofh_header = (struct ofp_header*)soframe();

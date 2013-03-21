@@ -18,15 +18,15 @@ cofmsg_queue_get_config_request::cofmsg_queue_get_config_request(
 
 	switch (of_version) {
 	case OFP10_VERSION: {
-		resize(sizeof(struct ofp10_queue_get_config));
+		resize(sizeof(struct ofp10_queue_get_config_request));
 		ofh10_queue_get_config_request->port	= htobe16((uint16_t)(port_no & 0x0000ffff));
 	} break;
 	case OFP12_VERSION: {
-		resize(sizeof(struct ofp12_queue_get_config));
+		resize(sizeof(struct ofp12_queue_get_config_request));
 		ofh12_queue_get_config_request->port	= htobe32(port_no);
 	} break;
 	case OFP13_VERSION: {
-		resize(sizeof(struct ofp13_queue_get_config));
+		resize(sizeof(struct ofp13_queue_get_config_request));
 		ofh13_queue_get_config_request->port	= htobe32(port_no);
 	} break;
 	default:
@@ -232,8 +232,8 @@ cofmsg_queue_get_config_reply::cofmsg_queue_get_config_reply(
 		uint8_t of_version,
 		uint32_t xid,
 		uint32_t port_no,
-		uint8_t *data = (uint8_t*)0,
-		size_t datalen = 0) :
+		uint8_t *data,
+		size_t datalen) :
 	cofmsg(sizeof(struct ofp_header)),
 	queues(data, datalen)
 {
@@ -245,15 +245,15 @@ cofmsg_queue_get_config_reply::cofmsg_queue_get_config_reply(
 
 	switch (of_version) {
 	case OFP10_VERSION: {
-		resize(sizeof(struct ofp10_queue_get_config));
+		resize(sizeof(struct ofp10_queue_get_config_reply));
 		ofh10_queue_get_config_reply->port	= htobe16((uint16_t)(port_no & 0x0000ffff));
 	} break;
 	case OFP12_VERSION: {
-		resize(sizeof(struct ofp12_queue_get_config));
+		resize(sizeof(struct ofp12_queue_get_config_reply));
 		ofh12_queue_get_config_reply->port	= htobe32(port_no);
 	} break;
 	case OFP13_VERSION: {
-		resize(sizeof(struct ofp13_queue_get_config));
+		resize(sizeof(struct ofp13_queue_get_config_reply));
 		ofh13_queue_get_config_reply->port	= htobe32(port_no);
 	} break;
 	default:

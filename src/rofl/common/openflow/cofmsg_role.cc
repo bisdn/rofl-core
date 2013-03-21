@@ -4,7 +4,7 @@ using namespace rofl;
 
 
 
-cofmsg_role_request::cofmsg_role_request(
+cofmsg_role::cofmsg_role(
 		uint8_t of_version,
 		uint8_t  type,
 		uint32_t xid,
@@ -36,7 +36,7 @@ cofmsg_role_request::cofmsg_role_request(
 
 
 
-cofmsg_role_request::cofmsg_role_request(
+cofmsg_role::cofmsg_role(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
@@ -45,7 +45,7 @@ cofmsg_role_request::cofmsg_role_request(
 
 
 
-cofmsg_role_request::cofmsg_role_request(
+cofmsg_role::cofmsg_role(
 		cofmsg_role_request const& role)
 {
 	*this = role;
@@ -54,7 +54,7 @@ cofmsg_role_request::cofmsg_role_request(
 
 
 cofmsg_role_request&
-cofmsg_role_request::operator= (
+cofmsg_role::operator= (
 		cofmsg_role_request const& role)
 {
 	if (this == &role)
@@ -69,7 +69,7 @@ cofmsg_role_request::operator= (
 
 
 
-cofmsg_role_request::~cofmsg_role_request()
+cofmsg_role::~cofmsg_role()
 {
 
 }
@@ -77,7 +77,7 @@ cofmsg_role_request::~cofmsg_role_request()
 
 
 void
-cofmsg_role_request::reset()
+cofmsg_role::reset()
 {
 	cofmsg::reset();
 }
@@ -85,7 +85,7 @@ cofmsg_role_request::reset()
 
 
 void
-cofmsg_role_request::resize(size_t len)
+cofmsg_role::resize(size_t len)
 {
 	cofmsg::resize(len);
 	ofh_role_request = soframe();
@@ -94,7 +94,7 @@ cofmsg_role_request::resize(size_t len)
 
 
 size_t
-cofmsg_role_request::length() const
+cofmsg_role::length() const
 {
 	switch (get_version()) {
 	case OFP12_VERSION: {
@@ -112,7 +112,7 @@ cofmsg_role_request::length() const
 
 
 void
-cofmsg_role_request::pack(uint8_t *buf, size_t buflen)
+cofmsg_role::pack(uint8_t *buf, size_t buflen)
 {
 	set_length(length());
 
@@ -141,7 +141,7 @@ cofmsg_role_request::pack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_role_request::unpack(uint8_t *buf, size_t buflen)
+cofmsg_role::unpack(uint8_t *buf, size_t buflen)
 {
 	cofmsg::unpack(buf, buflen);
 
@@ -151,7 +151,7 @@ cofmsg_role_request::unpack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_role_request::validate()
+cofmsg_role::validate()
 {
 	cofmsg::validate(); // check generic OpenFlow header
 
@@ -174,7 +174,7 @@ cofmsg_role_request::validate()
 
 
 uint32_t
-cofmsg_role_request::get_role() const
+cofmsg_role::get_role() const
 {
 	switch (get_version()) {
 	case OFP12_VERSION: {
@@ -192,7 +192,7 @@ cofmsg_role_request::get_role() const
 
 
 void
-cofmsg_role_request::set_role(uint32_t role)
+cofmsg_role::set_role(uint32_t role)
 {
 	switch (get_version()) {
 	case OFP12_VERSION: {
@@ -209,7 +209,7 @@ cofmsg_role_request::set_role(uint32_t role)
 
 
 uint64_t
-cofmsg_role_request::get_generation_id() const
+cofmsg_role::get_generation_id() const
 {
 	switch (get_version()) {
 	case OFP12_VERSION: {
@@ -227,7 +227,7 @@ cofmsg_role_request::get_generation_id() const
 
 
 void
-cofmsg_role_request::set_generation_id(uint64_t generation_id)
+cofmsg_role::set_generation_id(uint64_t generation_id)
 {
 	switch (get_version()) {
 	case OFP12_VERSION: {

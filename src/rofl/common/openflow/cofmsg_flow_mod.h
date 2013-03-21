@@ -105,7 +105,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_flow_mod() {};
+	~cofmsg_flow_mod();
 
 
 	/**

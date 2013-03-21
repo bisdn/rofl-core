@@ -14,8 +14,10 @@ cofmsg_flow_removed::cofmsg_flow_removed(
 		uint16_t idle_timeout,
 		uint16_t hard_timeout,
 		uint64_t packet_count,
-		uint64_t byte_count) :
-	cofmsg(sizeof(struct ofp_header))
+		uint64_t byte_count,
+		cofmatch const& match) :
+	cofmsg(sizeof(struct ofp_header)),
+	match(match)
 {
 	ofh_flow_removed = soframe();
 

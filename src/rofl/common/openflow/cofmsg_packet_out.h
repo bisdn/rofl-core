@@ -73,7 +73,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_packet_out() {};
+	~cofmsg_packet_out();
 
 
 	/**

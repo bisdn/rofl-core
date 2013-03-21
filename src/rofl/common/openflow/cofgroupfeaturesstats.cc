@@ -99,7 +99,7 @@ cofgroup_features_stats_reply::unpack(uint8_t *buf, size_t buflen)
 	switch (of_version) {
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
-		if (buflen < sizeof(struct ofp12_group_features_stats_reply))
+		if (buflen < sizeof(struct ofp12_group_features_stats))
 			throw eInval();
 
 		struct ofp12_group_features_stats* fs = (struct ofp12_group_features_stats*)buf;
@@ -121,10 +121,8 @@ size_t
 cofgroup_features_stats_reply::length() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_group_features_stats));
-	} break;
-	case OFP12_VERSION: {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
 		return (sizeof(struct ofp12_group_features_stats));
 	} break;
 	default:

@@ -59,7 +59,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_error() {};
+	~cofmsg_error();
 
 
 	/**

@@ -55,7 +55,7 @@ public:
 	 *
 	 */
 	virtual
-	~cofmsg_hello() {};
+	~cofmsg_hello();
 
 
 	/**
