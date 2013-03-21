@@ -49,7 +49,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
-			cofgroup_stats_request const& group_stats);
+			cofgroup_stats_request const& group_stats = cofgroup_stats_request());
 
 
 	/**

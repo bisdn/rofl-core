@@ -10,7 +10,7 @@
 
 #include "cofmsg.h"
 #include "cofmatch.h"
-#include "cpacket.h"
+#include "../cpacket.h"
 
 namespace rofl
 {

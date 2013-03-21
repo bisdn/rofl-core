@@ -140,10 +140,6 @@ cofctl::send_message(
 	} return;
     }
 
-#ifndef NDEBUG
-	fprintf(stderr, "s:%d ", pack->ofh_header->type);
-#endif
-
 	send_message_via_socket(pack);
 }
 
@@ -255,7 +251,7 @@ cofctl::handle_read(
 	cmemory *mem = (cmemory*)0;
 	try {
 
-		mem = (0 != fragment) ? fragment : new cofmsg(sizeof(struct ofp_header));
+		mem = (0 != fragment) ? fragment : new cmemory(sizeof(struct ofp_header));
 
 		while (true) {
 
@@ -1187,7 +1183,7 @@ void
 cofctl::echo_request_rcvd(cofmsg_echo_request *msg)
 {
 	// send echo reply back including any appended data
-	rofbase->send_echo_reply(this, msg->get_xid(), msg->body.somem(), msg->body.memlen());
+	rofbase->send_echo_reply(this, msg->get_xid(), msg->get_body().somem(), msg->get_body().memlen());
 
 	delete msg;
 
@@ -1470,7 +1466,7 @@ cofctl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
 				"-FLOW-MOD- blocked due to mismatch in flowspace "
 				"registration, match: %s\nflowspace-table: %s",
-				this, msg->match.c_str(), rofbase->fsptable.c_str());
+				this, msg->get_match().c_str(), rofbase->fsptable.c_str());
 
 		rofbase->send_error_message(
 				this,
@@ -1926,7 +1922,7 @@ cofctl::stats_request_rcvd(cofmsg_stats *msg)
 				"retransmission xid:0x%x", this, msg->get_xid());
 	}
 
-	switch (msg->get_type()) {
+	switch (msg->get_stats_type()) {
 	case OFPST_DESC: {
 		rofbase->handle_desc_stats_request(this, dynamic_cast<cofmsg_desc_stats_request*>( msg ));
 	} break;
@@ -1996,7 +1992,7 @@ cofctl::role_request_rcvd(cofmsg_role_request *msg)
 
 		} catch (eXidStoreXidBusy& e) {
 			WRITELOG(COFCTL, WARN, "cofctl(%p)::role_request_rcvd() retransmission xid:0x%x",
-					this, be32toh(msg->ofh_header->xid));
+					this, msg->get_xid());
 		}
 
 		switch (msg->get_role()) {
@@ -2099,9 +2095,9 @@ cofctl::role_request_rcvd(cofmsg_role_request *msg)
 
 
 void
-cofctl::role_reply_sent(cofmsg *pack)
+cofctl::role_reply_sent(cofmsg *msg)
 {
-	uint32_t xid = be32toh(pack->ofh_header->xid);
+	uint32_t xid = msg->get_xid();
 	try {
 
 		xidstore.xid_find(xid);
@@ -2125,7 +2121,7 @@ cofctl::barrier_request_rcvd(cofmsg_barrier_request *msg)
 
 	} catch (eXidStoreXidBusy& e) {
 		WRITELOG(COFCTL, WARN, "cofctl(%p)::barrier_request_rcvd() retransmission xid:0x%x",
-				this, be32toh(msg->ofh_header->xid));
+				this, msg->get_xid());
 	}
 
 	rofbase->handle_barrier_request(this, msg);
@@ -2134,9 +2130,9 @@ cofctl::barrier_request_rcvd(cofmsg_barrier_request *msg)
 
 
 void
-cofctl::barrier_reply_sent(cofmsg *pack)
+cofctl::barrier_reply_sent(cofmsg *msg)
 {
-	uint32_t xid = be32toh(pack->ofh_header->xid);
+	uint32_t xid = msg->get_xid();
 	try {
 
 		xidstore.xid_find(xid);
@@ -2160,7 +2156,7 @@ cofctl::queue_get_config_request_rcvd(cofmsg_queue_get_config_request *msg)
 
 	} catch (eXidStoreXidBusy& e) {
 		WRITELOG(COFCTL, WARN, "cofctl(%p)::queue_get_config_request_rcvd() retransmission xid:0x%x",
-				this, be32toh(msg->ofh_header->xid));
+				this, msg->get_xid());
 	}
 
 	rofbase->handle_queue_get_config_request(this, msg);
@@ -2196,7 +2192,7 @@ cofctl::experimenter_rcvd(cofmsg_experimenter *msg)
 		switch (msg->get_experimenter_type()) {
 		case croflexp::OFPRET_FLOWSPACE:
 		{
-			croflexp rexp(msg->body.somem(), msg->body.memlen());
+			croflexp rexp(msg->get_body().somem(), msg->get_body().memlen());
 
 			switch (rexp.rext_fsp->command) {
 			case croflexp::OFPRET_FSP_ADD:

@@ -5,8 +5,8 @@
  *      Author: andi
  */
 
-#ifndef COFAGGRSTATS_H_
-#define COFAGGRSTATS_H_ 1
+#ifndef COFGROUPFEATURESSTATS_H_
+#define COFGROUPFEATURESSTATS_H_ 1
 
 #include "../cmemory.h"
 #include "cofmatch.h"
@@ -157,4 +157,4 @@ public:
 
 } /* end of namespace */
 
-#endif /* COFAGGRSTATS_H_ */
+#endif /* COFGROUPFEATURESSTATS_H_ */

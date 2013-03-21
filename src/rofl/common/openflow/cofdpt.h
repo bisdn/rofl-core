@@ -33,14 +33,36 @@ extern "C" {
 #include "../protocols/fetherframe.h"
 #include "../cxidstore.h"
 #include "../csocket.h"
+#include "cofport.h"
+#include "extensions/cfsptable.h"
 
 #if 0
 #include "cfttable.h"
 #include "cgttable.h"
 #endif
 #include "cofmsg.h"
-#include "cofport.h"
-#include "extensions/cfsptable.h"
+#include "cofmsg_hello.h"
+#include "cofmsg_echo.h"
+#include "cofmsg_error.h"
+#include "cofmsg_features.h"
+#include "cofmsg_config.h"
+#include "cofmsg_packet_in.h"
+#include "cofmsg_flow_removed.h"
+#include "cofmsg_port_status.h"
+#include "cofmsg_stats.h"
+#include "cofmsg_desc_stats.h"
+#include "cofmsg_flow_stats.h"
+#include "cofmsg_aggr_stats.h"
+#include "cofmsg_table_stats.h"
+#include "cofmsg_port_stats.h"
+#include "cofmsg_queue_stats.h"
+#include "cofmsg_group_stats.h"
+#include "cofmsg_group_desc_stats.h"
+#include "cofmsg_group_features_stats.h"
+#include "cofmsg_barrier.h"
+#include "cofmsg_queue_get_config.h"
+#include "cofmsg_role.h"
+#include "cofmsg_experimenter.h"
 
 
 namespace rofl

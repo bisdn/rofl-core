@@ -13,9 +13,6 @@ cofmsg_group_features_stats_request::cofmsg_group_features_stats_request(
 	cofmsg_stats(of_version, OFPT_STATS_REPLY, xid, OFPST_GROUP_FEATURES, flags)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		resize(sizeof(struct ofp10_stats_request));
-	} break;
 	case OFP12_VERSION: {
 		resize(sizeof(struct ofp12_stats_request));
 	} break;
@@ -88,9 +85,6 @@ size_t
 cofmsg_group_features_stats_request::length() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_stats_request));
-	} break;
 	case OFP12_VERSION: {
 		return (sizeof(struct ofp12_stats_request));
 	} break;
@@ -118,10 +112,6 @@ cofmsg_group_features_stats_request::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (buflen < (sizeof(struct ofp10_stats_request)))
-			throw eInval();
-	} break;
 	case OFP12_VERSION: {
 		if (buflen < (sizeof(struct ofp12_stats_request)))
 			throw eInval();
@@ -153,10 +143,6 @@ cofmsg_group_features_stats_request::validate()
 	cofmsg_stats::validate(); // check generic statistics header
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (get_length() < (sizeof(struct ofp10_stats_request)))
-			throw eBadSyntaxTooShort();
-	} break;
 	case OFP12_VERSION: {
 		if (get_length() < (sizeof(struct ofp12_stats_request)))
 			throw eBadSyntaxTooShort();
@@ -183,10 +169,6 @@ cofmsg_group_features_stats_reply::cofmsg_group_features_stats_reply(
 	group_features_stats(group_features_stats)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		resize(sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_group_features_stats));
-		group_features_stats.pack(soframe() + sizeof(struct ofp10_stats_reply), sizeof(struct ofp10_group_features_stats));
-	} break;
 	case OFP12_VERSION: {
 		resize(sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_group_features_stats));
 		group_features_stats.pack(soframe() + sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_group_features_stats));
@@ -255,9 +237,6 @@ cofmsg_group_features_stats_reply::resize(size_t len)
 {
 	cofmsg::resize(len);
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		ofh_group_features_stats = soframe() + sizeof(struct ofp10_stats_reply);
-	} break;
 	case OFP12_VERSION: {
 		ofh_group_features_stats = soframe() + sizeof(struct ofp12_stats_reply);
 	} break;
@@ -277,9 +256,6 @@ size_t
 cofmsg_group_features_stats_reply::length() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_stats_reply) + group_features_stats.length());
-	} break;
 	case OFP12_VERSION: {
 		return (sizeof(struct ofp12_stats_reply) + group_features_stats.length());
 	} break;
@@ -307,11 +283,6 @@ cofmsg_group_features_stats_reply::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (buflen < (sizeof(struct ofp10_stats_reply) + group_features_stats.length()))
-			throw eInval();
-		group_features_stats.pack(buf + sizeof(struct ofp10_stats_reply), group_features_stats.length());
-	} break;
 	case OFP12_VERSION: {
 		if (buflen < (sizeof(struct ofp12_stats_reply) + group_features_stats.length()))
 			throw eInval();
@@ -344,12 +315,6 @@ cofmsg_group_features_stats_reply::validate()
 	cofmsg_stats::validate(); // check generic statistics header
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (get_length() < (sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_group_features_stats)))
-			throw eBadSyntaxTooShort();
-		ofh_group_features_stats = soframe() + sizeof(struct ofp10_stats_reply);
-		group_features_stats.unpack(ofh_group_features_stats, sizeof(struct ofp10_group_features_stats));
-	} break;
 	case OFP12_VERSION: {
 		if (get_length() < (sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_group_features_stats)))
 			throw eBadSyntaxTooShort();

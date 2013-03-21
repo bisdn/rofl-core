@@ -47,7 +47,7 @@ public:
 			uint32_t xid = 0,
 			uint32_t stats_type = 0,
 			uint32_t stats_flags = 0,
-			uint8_t *data = (uint8_t*)data,
+			uint8_t *data = (uint8_t*)0,
 			size_t datalen = 0);
 
 

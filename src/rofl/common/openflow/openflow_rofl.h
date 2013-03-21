@@ -8,7 +8,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-	#include "openflow12.h"
+	#include "openflow.h"
 	#include <inttypes.h>
 #ifdef __cplusplus
 }
@@ -44,7 +44,7 @@ enum ofp_rofl_ext_type {
 /* common header ROFL vendor extensions
  */
 struct ofp_vendor_ext_rofl {
-	struct ofp_experimenter_header header;
+	struct ofp12_experimenter_header header;
 										// common header including normal and vendor OpenFlow header
 	uint32_t exttype;					// rofl extension type
 	uint8_t payload[0];					// pointer to payload following header

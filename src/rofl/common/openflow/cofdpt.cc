@@ -159,7 +159,7 @@ cofdpt::handle_read(
 	cmemory *mem = (cmemory*)0;
 	try {
 
-		mem = (0 != fragment) ? fragment : new cofmsg(sizeof(struct ofp_header));
+		mem = (0 != fragment) ? fragment : new cmemory(sizeof(struct ofp_header));
 
 		while (true) {
 
@@ -862,6 +862,8 @@ cofdpt::stats_reply_rcvd(
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::stats_reply_rcvd() "
 			"dpid:%"PRIu64" ",
 			this, dpid);
+
+	// msg->get_stats_reply() !!!
 
 	rofbase->handle_stats_reply(this, msg);
 

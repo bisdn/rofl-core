@@ -53,15 +53,15 @@ public:
 	 *
 	 */
 	cofmsg_aggr_stats_request(
-			cofmsg_aggr_stats_reply const& stats);
+			cofmsg_aggr_stats_request const& stats);
 
 
 	/**
 	 *
 	 */
-	cofmsg_aggr_stats_reply&
+	cofmsg_aggr_stats_request&
 	operator= (
-			cofmsg_aggr_stats_reply const& stats);
+			cofmsg_aggr_stats_request const& stats);
 
 
 	/** destructor

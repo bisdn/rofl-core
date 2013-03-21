@@ -10,7 +10,7 @@
 
 #include "cofmsg.h"
 #include "cofaclist.h"
-#include "cpacket.h"
+#include "../cpacket.h"
 
 namespace rofl
 {
@@ -125,18 +125,6 @@ public:
 
 public:
 
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_buffer_id() const;
-
-	/**
-	 *
-	 */
-	void
-	set_buffer_id(uint32_t buffer_id);
 
 	/**
 	 *

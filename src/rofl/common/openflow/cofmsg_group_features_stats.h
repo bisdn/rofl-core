@@ -117,14 +117,12 @@ private:
 	cofgroup_features_stats_reply 		group_features_stats;
 
 	union {
-		uint8_t*						ofhu_group_features_stats;
-		struct ofp10_group_features_stats*		ofhu10_group_features_stats;
+		uint8_t*								ofhu_group_features_stats;
 		struct ofp12_group_features_stats*		ofhu12_group_features_stats;
 		// TODO: OF1.3
 	} ofhu;
 
 #define ofh_group_features_stats   			ofhu.ofhu_group_features_stats
-#define ofh10_group_features_stats 			ofhu.ofhu10_group_features_stats
 #define ofh12_group_features_stats 			ofhu.ofhu12_group_features_stats
 // TODO OF1.3
 
