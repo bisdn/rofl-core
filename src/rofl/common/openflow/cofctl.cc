@@ -252,38 +252,38 @@ cofctl::handle_read(
 {
 	int rc = 0;
 
-	cmemory *msg = (cmemory*)0;
+	cmemory *mem = (cmemory*)0;
 	try {
 
-		msg = (0 != fragment) ? fragment : new cofmsg(sizeof(struct ofp_header));
+		mem = (0 != fragment) ? fragment : new cofmsg(sizeof(struct ofp_header));
 
 		while (true) {
 
 			uint16_t msg_len = 0;
 
 			// how many bytes do we have to read?
-			if (msg->memlen() < sizeof(struct ofp_header)) {
+			if (mem->memlen() < sizeof(struct ofp_header)) {
 				msg_len = sizeof(struct ofp_header);
 			} else {
-				struct ofp_header *ofh_header = (struct ofp_header*)msg->somem();
+				struct ofp_header *ofh_header = (struct ofp_header*)mem->somem();
 				msg_len = be16toh(ofh_header->length);
 			}
 
 			// resize msg buffer, if necessary
-			if (msg->memlen() < msg_len) {
-				msg->resize(msg_len);
+			if (mem->memlen() < msg_len) {
+				mem->resize(msg_len);
 			}
 
 			// TODO: SSL/TLS socket
 
 			// read from socket
-			rc = read(sd, (void*)(msg->somem() + msg->memlen()), msg_len - msg->memlen());
+			rc = read(sd, (void*)(mem->somem() + mem->memlen()), msg_len - mem->memlen());
 
 			if (rc < 0) // error occured (or non-blocking)
 			{
 				switch(errno) {
 				case EAGAIN: {
-					fragment = msg;	// more bytes are needed, store pointer to msg in "fragment"
+					fragment = mem;	// more bytes are needed, store pointer to msg in "fragment"
 				} return;
 				case ECONNREFUSED: {
 					try_to_connect(); // reconnect
@@ -305,8 +305,8 @@ cofctl::handle_read(
 						"peer closed connection, closing local endpoint => rc: %d",
 						this, rc);
 
-				if (msg) {
-					delete msg; fragment = (cmemory*)0;
+				if (mem) {
+					delete mem; fragment = (cmemory*)0;
 				}
 				handle_closed(socket, sd);
 				return;
@@ -314,14 +314,14 @@ cofctl::handle_read(
 			else // rc > 0, // some bytes were received, check for completeness of packet
 			{
 				// minimum message length received, check completeness of message
-				if (msg->memlen() >= sizeof(struct ofp_header)) {
-					struct ofp_header *ofh_header = (struct ofp_header*)msg->somem();
+				if (mem->memlen() >= sizeof(struct ofp_header)) {
+					struct ofp_header *ofh_header = (struct ofp_header*)mem->somem();
 					uint16_t msg_len = be16toh(ofh_header->length);
 
 					// ok, message was received completely
-					if (msg_len == msg->memlen()) {
+					if (msg_len == mem->memlen()) {
 						fragment = (cmemory*)0;
-						handle_message(msg);
+						handle_message(mem);
 						return;
 					}
 				}
@@ -332,12 +332,10 @@ cofctl::handle_read(
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_read() "
 				"invalid packet received, dropping. Closing socket. Packet: %s",
-				this, msg->c_str());
-
-		if (msg) {
-			delete msg; fragment = (cmemory*)0;
+				this, mem->c_str());
+		if (mem) {
+			delete mem; fragment = (cmemory*)0;
 		}
-
 		handle_closed(socket, sd);
 	}
 
@@ -419,8 +417,8 @@ cofctl::handle_message(
 			get_config_request_rcvd(dynamic_cast<cofmsg_get_config_request*>( msg ));
 		} break;
 		case OFPT_SET_CONFIG: {
-			msg = new cofmsg_config(mem);
-			set_config_rcvd(dynamic_cast<cofmsg_config*>( msg ));
+			msg = new cofmsg_set_config(mem);
+			set_config_rcvd(dynamic_cast<cofmsg_set_config*>( msg ));
 		} break;
 		case OFPT_PACKET_OUT: {
 			msg = new cofmsg_packet_out(mem);
@@ -494,11 +492,11 @@ cofctl::handle_message(
 			} break;
 			// TODO: experimenter statistics
 			default: {
-				msg = new cofmsg_stats(mem);
+				msg = new cofmsg_stats_request(mem);
 			} break;
 			}
 
-			stats_request_rcvd(dynamic_cast<cofmsg_stats*>( msg ));
+			stats_request_rcvd(dynamic_cast<cofmsg_stats_request*>( msg ));
 		} break;
 		case OFPT_BARRIER_REQUEST: {
 			msg = new cofmsg_barrier_request(mem);
@@ -1201,7 +1199,7 @@ cofctl::echo_request_rcvd(cofmsg_echo_request *msg)
 
 
 void
-cofctl::echo_reply_rcvd(cofmsg_echo_request *msg)
+cofctl::echo_reply_rcvd(cofmsg_echo_reply *msg)
 {
 	cancel_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT);
 	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
@@ -1277,7 +1275,7 @@ cofctl::get_config_reply_sent(cofmsg *msg)
 
 
 void
-cofctl::set_config_rcvd(cofmsg_config *msg)
+cofctl::set_config_rcvd(cofmsg_set_config *msg)
 {
 	try {
 		if (OFPCR_ROLE_SLAVE == role) {
@@ -1930,31 +1928,31 @@ cofctl::stats_request_rcvd(cofmsg_stats *msg)
 
 	switch (msg->get_type()) {
 	case OFPST_DESC: {
-		rofbase->handle_desc_stats_request(this, dynamic_cast<cofmsg_desc_stats_reply*>( msg ));
+		rofbase->handle_desc_stats_request(this, dynamic_cast<cofmsg_desc_stats_request*>( msg ));
 	} break;
 	case OFPST_TABLE: {
-		rofbase->handle_table_stats_request(this, dynamic_cast<cofmsg_table_stats_reply*>( msg ));
+		rofbase->handle_table_stats_request(this, dynamic_cast<cofmsg_table_stats_request*>( msg ));
 	} break;
 	case OFPST_PORT: {
-		rofbase->handle_port_stats_request(this, dynamic_cast<cofmsg_port_stats_reply*>( msg ));
+		rofbase->handle_port_stats_request(this, dynamic_cast<cofmsg_port_stats_request*>( msg ));
 	} break;
 	case OFPST_FLOW: {
 		rofbase->handle_flow_stats_request(this, dynamic_cast<cofmsg_flow_stats_request*>( msg ));
 	} break;
 	case OFPST_AGGREGATE: {
-		rofbase->handle_aggregate_stats_request(this, dynamic_cast<cofmsg_aggr_stats_reply*>( msg ));
+		rofbase->handle_aggregate_stats_request(this, dynamic_cast<cofmsg_aggr_stats_request*>( msg ));
 	} break;
 	case OFPST_QUEUE: {
-		rofbase->handle_queue_stats_request(this, dynamic_cast<cofmsg_queue_stats_reply*>( msg ));
+		rofbase->handle_queue_stats_request(this, dynamic_cast<cofmsg_queue_stats_request*>( msg ));
 	} break;
 	case OFPST_GROUP: {
-		rofbase->handle_group_stats_request(this, dynamic_cast<cofmsg_group_stats_reply*>( msg ));
+		rofbase->handle_group_stats_request(this, dynamic_cast<cofmsg_group_stats_request*>( msg ));
 	} break;
 	case OFPST_GROUP_DESC: {
-		rofbase->handle_group_desc_stats_request(this, dynamic_cast<cofmsg_group_desc_stats_reply*>( msg ));
+		rofbase->handle_group_desc_stats_request(this, dynamic_cast<cofmsg_group_desc_stats_request*>( msg ));
 	} break;
 	case OFPST_GROUP_FEATURES: {
-		rofbase->handle_group_features_stats_request(this, dynamic_cast<cofmsg_group_features_stats_reply*>( msg ));
+		rofbase->handle_group_features_stats_request(this, dynamic_cast<cofmsg_group_features_stats_request*>( msg ));
 	} break;
 	case OFPST_EXPERIMENTER: {
 		rofbase->handle_experimenter_stats_request(this, dynamic_cast<cofmsg_stats*>( msg ));

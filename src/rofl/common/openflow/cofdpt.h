@@ -430,7 +430,7 @@ protected:
 	 */
 	void
 	echo_reply_rcvd(
-			cofmsg_echo_request *msg);
+			cofmsg_echo_reply *msg);
 
 
 	/** handle incoming vendor message (ROFL extensions)
@@ -463,7 +463,7 @@ protected:
 	 */
 	void
 	features_reply_rcvd(
-			cofpacket_features_reply *msg);
+			cofmsg_features_reply *msg);
 
 
 	/**
@@ -489,7 +489,7 @@ protected:
 	 */
 	void
 	get_config_reply_rcvd(
-			cofpacket_get_config_reply *pack);
+			cofmsg_get_config_reply *msg);
 
 
 	/**
@@ -515,7 +515,7 @@ protected:
 	 */
 	void
 	stats_reply_rcvd(
-			cofpacket_stats_reply *pack);
+			cofmsg_stats *msg);
 
 
 
@@ -541,7 +541,7 @@ protected:
 	 */
 	void
 	barrier_reply_rcvd(
-			cofpacket_barrier_reply *pack);
+			cofmsg_barrier_reply *msg);
 
 
 	/**
@@ -554,9 +554,9 @@ protected:
 	 *
 	 * @throws eOFdpathNotFound Thrown when the table-id specified in pack cannot be found.
 	 */
-	void
-	flow_mod_sent(
-			cofmsg *pack) throw (eOFdpathNotFound);
+	void flow_mod_sent(cofmsg* pack) throw (eOFdpathNotFound) {
+
+	}
 
 
 	/**
@@ -569,7 +569,7 @@ protected:
 	 */
 	void
 	flow_rmvd_rcvd(
-			cofpacket_flow_removed *pack);
+			cofmsg_flow_removed *msg);
 
 
 	/**
@@ -615,14 +615,14 @@ protected:
 	 */
 	void
 	packet_in_rcvd(
-			cofpacket_packet_in *pack);
+			cofmsg_packet_in *msg);
 
 
 	/** handle PORT-STATUS message
 	 */
 	void
 	port_status_rcvd(
-			cofpacket_port_status *pack);
+			cofmsg_port_status *msg);
 
 
 
@@ -639,7 +639,7 @@ protected:
 	 */
 	void
 	role_reply_rcvd(
-			cofpacket_role_reply *pack);
+			cofmsg_role_reply *msg);
 
 
 	/**
@@ -655,7 +655,7 @@ protected:
 	 */
 	void
 	queue_get_config_reply_rcvd(
-			cofpacket_queue_get_config_reply *pack);
+			cofmsg_queue_get_config_reply *msg);
 
 
 
@@ -699,7 +699,7 @@ private:
 	 */
 	void
 	handle_message(
-			cofmsg *pack);
+			cmemory *mem);
 
 
 	/**
@@ -715,7 +715,7 @@ private:
 	 */
 	void
 	send_message_via_socket(
-			cofmsg *pack);
+			cofmsg *msg);
 };
 
 }; // end of namespace

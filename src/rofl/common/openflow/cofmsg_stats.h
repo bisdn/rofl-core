@@ -154,6 +154,11 @@ public:
 	get_body();
 };
 
+
+typedef cofmsg_stats cofmsg_stats_request;
+typedef cofmsg_stats cofmsg_stats_reply;
+
+
 } // end of namespace rofl
 
 #endif /* COFMSG_STATS_H_ */

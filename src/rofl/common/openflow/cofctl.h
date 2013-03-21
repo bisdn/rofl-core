@@ -204,7 +204,7 @@ protected:
 	 *
 	 */
 	void
-	echo_reply_rcvd(cofmsg_echo_request *pack);
+	echo_reply_rcvd(cofmsg_echo_reply *pack);
 
 
 	/** handle incoming vendor message (ROFL extensions)
@@ -239,7 +239,7 @@ protected:
 	 *
 	 */
 	void
-	set_config_rcvd(cofmsg_config *pack);
+	set_config_rcvd(cofmsg_set_config *pack);
 
 	/** handle incoming PACKET-OUT messages
 	 */

@@ -386,7 +386,7 @@ protected:
 	 * @pack OF GET-CONFIG.reply packet received from datapath
 	 */
 	virtual void
-	handle_get_config_reply(cofdpt *dpt, cofmsg_config *msg) { delete msg; };
+	handle_get_config_reply(cofdpt *dpt, cofmsg_get_config_reply *msg) { delete msg; };
 
 	/** Handle OF get-config reply timeout. To be overwritten by derived class.
 	 *
@@ -404,28 +404,28 @@ protected:
 	 * @param pack STATS.request packet received from controller.
 	 */
 	void
-	handle_stats_request(cofctl *ctl, cofmsg_stats *msg) { throw eBadRequestBadStat(); };
+	handle_stats_request(cofctl *ctl, cofmsg_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_desc_stats_request(cofctl *ctl, cofmsg_desc_stats_reply *msg) { throw eBadRequestBadStat(); };
+	handle_desc_stats_request(cofctl *ctl, cofmsg_desc_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_table_stats_request(cofctl *ctl, cofmsg_table_stats_reply *msg) { throw eBadRequestBadStat(); };
+	handle_table_stats_request(cofctl *ctl, cofmsg_table_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_port_stats_request(cofctl *ctl, cofmsg_port_stats_reply *msg) { throw eBadRequestBadStat(); };
+	handle_port_stats_request(cofctl *ctl, cofmsg_port_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
@@ -439,42 +439,42 @@ protected:
 	 *
 	 */
 	virtual void
-	handle_aggregate_stats_request(cofctl *ctl, cofmsg_aggr_stats_reply *msg) { throw eBadRequestBadStat(); };
+	handle_aggregate_stats_request(cofctl *ctl, cofmsg_aggr_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_queue_stats_request(cofctl *ctl, cofmsg_queue_stats_reply *msg) { throw eBadRequestBadStat(); };
+	handle_queue_stats_request(cofctl *ctl, cofmsg_queue_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_stats_request(cofctl *ctl, cofmsg_group_stats_reply *msg) { throw eBadRequestBadStat(); };
+	handle_group_stats_request(cofctl *ctl, cofmsg_group_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_desc_stats_request(cofctl *ctl, cofmsg_group_desc_stats_reply *msg) { throw eBadRequestBadStat(); };
+	handle_group_desc_stats_request(cofctl *ctl, cofmsg_group_desc_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_group_features_stats_request(cofctl *ctl, cofmsg_group_features_stats_reply *msg) { throw eBadRequestBadStat(); };
+	handle_group_features_stats_request(cofctl *ctl, cofmsg_group_features_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
 	 *
 	 */
 	virtual void
-	handle_experimenter_stats_request(cofctl *ctl, cofmsg_stats *msg) { throw eBadRequestBadStat(); };
+	handle_experimenter_stats_request(cofctl *ctl, cofmsg_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 	/** Handle OF stats reply. To be overwritten by derived class.
@@ -486,7 +486,7 @@ protected:
 	 * @param pack STATS.reply packet received from datapath
 	 */
 	virtual void
-	handle_stats_reply(cofdpt *dpt, cofmsg_stats *msg) { delete msg; };
+	handle_stats_reply(cofdpt *dpt, cofmsg_stats_reply *msg) { delete msg; };
 
 	/** Handle OF stats reply timeout. To be overwritten by derived class.
 	 *
@@ -496,6 +496,77 @@ protected:
 	 */
 	virtual void
 	handle_stats_reply_timeout(cofdpt *dpt, uint32_t xid) {};
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_desc_stats_reply(cofdpt *dpt, cofmsg_desc_stats_reply *msg) { delete msg; };
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_table_stats_reply(cofdpt *dpt, cofmsg_table_stats_reply *msg) { delete msg; };
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_port_stats_reply(cofdpt *dpt, cofmsg_port_stats_reply *msg) { delete msg; };
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg) { delete msg; };
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_aggregate_stats_reply(cofdpt *dpt, cofmsg_aggr_stats_reply *msg) { delete msg; };
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_queue_stats_reply(cofdpt *dpt, cofmsg_queue_stats_reply *msg) { delete msg; };
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_group_stats_reply(cofdpt *dpt, cofmsg_group_stats_reply *msg) { delete msg; };
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_group_desc_stats_reply(cofdpt *dpt, cofmsg_group_desc_stats_reply *msg) { delete msg; };
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_group_features_stats_reply(cofdpt *dpt, cofmsg_group_features_stats_reply *msg) { delete msg; };
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_experimenter_stats_reply(cofdpt *dpt, cofmsg_stats_reply *msg) { delete msg; };
+
 
 	/** Handle OF packet-out messages. To be overwritten by derived class.
 	 *
@@ -629,7 +700,7 @@ protected:
 	 * @param pack SET-CONFIG.message packet received from controller.
 	 */
 	virtual void
-	handle_set_config(cofctl *ctl, cofmsg_config *msg) { delete msg; };
+	handle_set_config(cofctl *ctl, cofmsg_set_config *msg) { delete msg; };
 
 	/** Handle OF queue-get-config request. To be overwritten by derived class.
  	 *
@@ -1333,7 +1404,7 @@ public:
 
 
 
-
+#if 0
 private: // methods
 
 	// FEATURES request
@@ -1510,7 +1581,7 @@ private: // methods
 	 */
 	void
 	recv_queue_get_config_reply(cofdpt *dpt, cofmsg *pack);
-
+#endif
 
 public:
 

@@ -2,7 +2,7 @@
 
 using namespace rofl;
 
-cofmsg_barrier_request::cofmsg_barrier_request(
+cofmsg_barrier::cofmsg_barrier(
 		uint8_t of_version,
 		uint8_t type,
 		uint32_t xid,
@@ -20,7 +20,7 @@ cofmsg_barrier_request::cofmsg_barrier_request(
 
 
 
-cofmsg_barrier_request::cofmsg_barrier_request(
+cofmsg_barrier::cofmsg_barrier(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
@@ -29,17 +29,17 @@ cofmsg_barrier_request::cofmsg_barrier_request(
 
 
 
-cofmsg_barrier_request::cofmsg_barrier_request(
-		cofmsg_barrier_request const& barrier)
+cofmsg_barrier::cofmsg_barrier(
+		cofmsg_barrier const& barrier)
 {
 	*this = barrier;
 }
 
 
 
-cofmsg_barrier_request&
-cofmsg_barrier_request::operator= (
-		cofmsg_barrier_request const& barrier)
+cofmsg_barrier&
+cofmsg_barrier::operator= (
+		cofmsg_barrier const& barrier)
 {
 	if (this == &barrier)
 		return *this;
@@ -53,7 +53,7 @@ cofmsg_barrier_request::operator= (
 
 
 
-cofmsg_barrier_request::~cofmsg_barrier_request()
+cofmsg_barrier::~cofmsg_barrier()
 {
 
 }
@@ -61,7 +61,7 @@ cofmsg_barrier_request::~cofmsg_barrier_request()
 
 
 void
-cofmsg_barrier_request::reset()
+cofmsg_barrier::reset()
 {
 	cofmsg::reset();
 	body.clear();
@@ -70,7 +70,7 @@ cofmsg_barrier_request::reset()
 
 
 size_t
-cofmsg_barrier_request::length() const
+cofmsg_barrier::length() const
 {
 	return (sizeof(struct ofp_header) + body.memlen());
 }
@@ -78,7 +78,7 @@ cofmsg_barrier_request::length() const
 
 
 void
-cofmsg_barrier_request::pack(uint8_t *buf, size_t buflen)
+cofmsg_barrier::pack(uint8_t *buf, size_t buflen)
 {
 	set_length(length());
 
@@ -96,7 +96,7 @@ cofmsg_barrier_request::pack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_barrier_request::unpack(uint8_t *buf, size_t buflen)
+cofmsg_barrier::unpack(uint8_t *buf, size_t buflen)
 {
 	cofmsg::unpack(buf, buflen);
 
@@ -106,7 +106,7 @@ cofmsg_barrier_request::unpack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_barrier_request::validate()
+cofmsg_barrier::validate()
 {
 	cofmsg::validate(); // check generic OpenFlow header
 
@@ -126,7 +126,7 @@ cofmsg_barrier_request::validate()
 
 
 cmemory&
-cofmsg_barrier_request::get_body()
+cofmsg_barrier::get_body()
 {
 	return body;
 }

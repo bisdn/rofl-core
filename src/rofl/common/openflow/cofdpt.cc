@@ -154,46 +154,54 @@ cofdpt::handle_read(
 		csocket *socket,
 		int sd)
 {
-	int rc;
+	int rc = 0;
 
-	cofmsg *pcppack = (cofmsg*)0;
+	cmemory *mem = (cmemory*)0;
 	try {
 
-		pcppack = (0 != fragment) ? fragment : new cofpacket();
+		mem = (0 != fragment) ? fragment : new cofmsg(sizeof(struct ofp_header));
 
-		while (true)
-		{
-			// SSL support: client or server side, done in derived class
+		while (true) {
 
-			// TODO: this will be replaced with SSL socket later
-			rc = read(sd, (void*) pcppack->memptr(), pcppack->need_bytes());
+			uint16_t msg_len = 0;
+
+			// how many bytes do we have to read?
+			if (mem->memlen() < sizeof(struct ofp_header)) {
+				msg_len = sizeof(struct ofp_header);
+			} else {
+				struct ofp_header *ofh_header = (struct ofp_header*)mem->somem();
+				msg_len = be16toh(ofh_header->length);
+			}
+
+			// resize msg buffer, if necessary
+			if (mem->memlen() < msg_len) {
+				mem->resize(msg_len);
+			}
+
+			// TODO: SSL/TLS socket
+
+			// read from socket
+			rc = read(sd, (void*)(mem->somem() + mem->memlen()), msg_len - mem->memlen());
 
 
 			if (rc < 0) // error occured (or non-blocking)
 			{
 				switch(errno) {
-				case EAGAIN:
-					{
-						// more bytes are needed, store pcppack in fragment pointer
-						fragment = pcppack;
-					}
-					return;
-				case ECONNREFUSED:
-					{
-						try_to_connect(); // reconnect
-					}
-					return;
+				case EAGAIN: {
+					fragment = mem; // more bytes are needed, store pcppack in fragment pointer
+				} return;
+				case ECONNREFUSED: {
+					try_to_connect(); // reconnect
+				} return;
 				case ECONNRESET:
-				default:
-					{
-						WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_read() "
-								"an error occured, closing => errno: %d (%s)",
-								this, errno, strerror(errno));
+				default: {
+					WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_read() "
+							"an error occured, closing => errno: %d (%s)",
+							this, errno, strerror(errno));
 
 
-						handle_closed(socket, sd);
-					}
-					return;
+					handle_closed(socket, sd);
+				} return;
 				}
 			}
 			else if (rc == 0) // socket was closed
@@ -204,28 +212,27 @@ cofdpt::handle_read(
 						"peer closed connection, closing local endpoint => rc: %d",
 						this, rc);
 
+				if (mem) {
+					delete mem; fragment = (cmemory*)0;
+				}
 				handle_closed(socket, sd);
 
 				return;
 			}
 			else // rc > 0, // some bytes were received, check for completeness of packet
 			{
-				pcppack->stored_bytes(rc);
+				// minimum message length received, check completeness of message
+				if (mem->memlen() >= sizeof(struct ofp_header)) {
+					struct ofp_header *ofh_header = (struct ofp_header*)mem->somem();
+					uint16_t msg_len = be16toh(ofh_header->length);
 
-				//WRITELOG(COFRPC, DBG, "cofrpc::handle_revent(fd=%d) rc=%d need_bytes=%d complete=%s",
-				//		 fd, rc, (int)pcppack->need_bytes(), pcppack->complete() ? "true" : "false");
-
-				// complete() parses the packet internally (otherwise we do not know
-				// that the packet is complete ...)
-				if (pcppack->complete())
-				{
-					// fragment is complete, set back to NULL
-					fragment = (cofmsg*)0;
-					handle_message(pcppack);
-
-					break;
+					// ok, message was received completely
+					if (msg_len == mem->memlen()) {
+						fragment = (cmemory*)0;
+						handle_message(mem);
+						return;
+					}
 				}
-
 			}
 		}
 
@@ -233,13 +240,10 @@ cofdpt::handle_read(
 
 		WRITELOG(COFDPT, ERROR, "cofctl(%p)::handle_read() "
 				"invalid packet received, dropping. Closing socket. Packet: %s",
-				this, pcppack->c_str());
-
-		if (pcppack)
-		{
-			delete pcppack; pcppack = (cofmsg*)0;
+				this, mem->c_str());
+		if (mem) {
+			delete mem; fragment = (cofmsg*)0;
 		}
-
 		handle_closed(socket, sd);
 	}
 }
@@ -270,84 +274,164 @@ cofdpt::handle_closed(
 
 void
 cofdpt::handle_message(
-		cofmsg *pack)
+		cmemory *mem)
 {
+	cofmsg *msg = (cofmsg*)0;
+
 	try {
-		if (not pack->is_valid())
-		{
-			writelog(COFDPT, ERROR, "cofdpt(%p)::handle_message() "
-					"dropping invalid packet: %s", this, pack->c_str());
-			delete pack; return;
+		if (0 == mem) {
+			writelog(COFDPT, WARN, "cofdpt(%p)::handle_message() "
+					"assert(msg != 0) failed", this);
+			return;
 		}
 
-		if (not flags.test(COFDPT_FLAG_HELLO_RCVD) && (pack->ofh_header->type != OFPT_HELLO))
-		{
-			writelog(COFCTL, ERROR, "cofdpt(%p)::handle_message() "
-				"no HELLO rcvd yet, dropping message, pack: %s", this, pack->c_str());
-			delete pack; return;
+		struct ofp_header* ofh_header = (struct ofp_header*)mem->somem();
+
+		if (not flags.test(COFDPT_FLAG_HELLO_RCVD) && (OFPT_HELLO != ofh_header->type)) {
+			writelog(COFDPT, WARN, "cofdpt(%p)::handle_message() "
+				"no HELLO rcvd yet, dropping message, msg: %s", this, mem->c_str());
+			delete mem; return;
 		}
 
-		switch (pack->ofh_header->type) {
+		switch (ofh_header->type) {
 		case OFPT_HELLO: {
-			hello_rcvd(new cofpacket_hello(pack));
+			msg = new cofmsg_hello(mem);
+			hello_rcvd(dynamic_cast<cofmsg_hello*>( msg ));
 		} break;
 		case OFPT_ECHO_REQUEST: {
-			echo_request_rcvd(new cofpacket_echo_request(pack));
+			msg = new cofmsg_echo_request(mem);
+			echo_request_rcvd(dynamic_cast<cofmsg_echo_request*>( msg ));
 		} break;
 		case OFPT_ECHO_REPLY: {
-			rofbase->ta_validate(pack->get_xid(), OFPT_ECHO_REQUEST);
-			echo_reply_rcvd(new cofpacket_echo_reply(pack));
+			msg = new cofmsg_echo_reply(mem);
+			echo_reply_rcvd(dynamic_cast<cofmsg_echo_reply*>( msg ));
 		} break;
-		case OFPT_EXPERIMENTER: {
-			experimenter_rcvd(new cofpacket_experimenter(pack));
+		case OFPT_EXPERIMENTER:	{
+			msg = new cofmsg_experimenter(mem);
+			experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ));
 		} break;
 		case OFPT_FEATURES_REPLY: {
-			rofbase->ta_validate(pack->get_xid(), OFPT_FEATURES_REQUEST);
-			features_reply_rcvd(new cofpacket_features_reply(pack));
+			rofbase->ta_validate(be32toh(ofh_header->xid), OFPT_FEATURES_REQUEST);
+			msg = new cofmsg_features_reply(mem);
+			features_reply_rcvd(dynamic_cast<cofmsg_features_reply*>( msg ));
 		} break;
 		case OFPT_GET_CONFIG_REPLY: {
-			rofbase->ta_validate(pack->get_xid(), OFPT_GET_CONFIG_REQUEST);
-			get_config_reply_rcvd(new cofpacket_get_config_reply(pack));
+			rofbase->ta_validate(be32toh(ofh_header->xid), OFPT_GET_CONFIG_REQUEST);
+			msg = new cofmsg_get_config_reply(mem);
+			get_config_reply_rcvd(dynamic_cast<cofmsg_get_config_reply*>( msg ));
 		} break;
 		case OFPT_PACKET_IN: {
-			packet_in_rcvd(new cofpacket_packet_in(pack));
+			msg = new cofmsg_packet_in(mem);
+			packet_in_rcvd(dynamic_cast<cofmsg_packet_in*>( msg ));
 		} break;
 		case OFPT_FLOW_REMOVED: {
-			flow_rmvd_rcvd(new cofpacket_flow_removed(pack));
+			msg = new cofmsg_flow_removed(mem);
+			flow_rmvd_rcvd(dynamic_cast<cofmsg_flow_removed*>( msg ));
 		} break;
 		case OFPT_PORT_STATUS: {
-			port_status_rcvd(new cofpacket_port_status(pack));
+			msg = new cofmsg_port_status(mem);
+			port_status_rcvd(dynamic_cast<cofmsg_port_status*>( msg ));
 		} break;
 		case OFPT_STATS_REPLY: {
-			rofbase->ta_validate(pack->get_xid(), OFPT_STATS_REQUEST);
-			stats_reply_rcvd(new cofpacket_stats_reply(pack));
+			rofbase->ta_validate(be32toh(ofh_header->xid), OFPT_STATS_REQUEST);
+			uint16_t stats_type = 0;
+			switch (ofh_header->version) {
+			case OFP10_VERSION: {
+				if (mem->memlen() < sizeof(struct ofp10_stats_reply))
+					throw eBadSyntaxTooShort();
+				stats_type = be16toh(((struct ofp10_stats_reply*)mem->somem())->type);
+			} break;
+			case OFP12_VERSION: {
+				if (mem->memlen() < sizeof(struct ofp12_stats_reply))
+					throw eBadSyntaxTooShort();
+				stats_type = be16toh(((struct ofp12_stats_reply*)mem->somem())->type);
+			} break;
+			case OFP13_VERSION: {
+				if (mem->memlen() < sizeof(struct ofp13_multipart_reply))
+					throw eBadSyntaxTooShort();
+				stats_type = be16toh(((struct ofp13_multipart_reply*)mem->somem())->type);
+			} break;
+			default:
+				throw eBadVersion();
+			}
+
+			switch (stats_type) {
+			case OFPST_DESC: {
+				msg = new cofmsg_desc_stats_reply(mem);
+			} break;
+			case OFPST_FLOW: {
+				msg = new cofmsg_flow_stats_reply(mem);
+			} break;
+			case OFPST_AGGREGATE: {
+				msg = new cofmsg_aggr_stats_reply(mem);
+			} break;
+			case OFPST_TABLE: {
+				msg = new cofmsg_table_stats_reply(mem);
+			} break;
+			case OFPST_PORT: {
+				msg = new cofmsg_port_stats_reply(mem);
+			} break;
+			case OFPST_QUEUE: {
+				msg = new cofmsg_queue_stats_reply(mem);
+			} break;
+			case OFPST_GROUP: {
+				msg = new cofmsg_group_stats_reply(mem);
+			} break;
+			case OFPST_GROUP_DESC: {
+				msg = new cofmsg_group_desc_stats_reply(mem);
+			} break;
+			case OFPST_GROUP_FEATURES: {
+				msg = new cofmsg_group_features_stats_reply(mem);
+			} break;
+			// TODO: experimenter statistics
+			default: {
+				msg = new cofmsg_stats_reply(mem);
+			} break;
+			}
+
+			stats_reply_rcvd(dynamic_cast<cofmsg_stats_reply*>( msg ));
 		} break;
 		case OFPT_BARRIER_REPLY: {
-			rofbase->ta_validate(pack->get_xid(), OFPT_BARRIER_REQUEST);
-			barrier_reply_rcvd(new cofpacket_barrier_reply(pack));
+			rofbase->ta_validate(be32toh(ofh_header->xid), OFPT_BARRIER_REQUEST);
+			msg = new cofmsg_barrier_reply(mem);
+			barrier_reply_rcvd(dynamic_cast<cofmsg_barrier_reply*>( msg ));
 		} break;
 		case OFPT_QUEUE_GET_CONFIG_REPLY: {
-			rofbase->ta_validate(pack->get_xid(), OFPT_QUEUE_GET_CONFIG_REQUEST);
-			queue_get_config_reply_rcvd(new cofpacket_queue_get_config_reply(pack));
+			rofbase->ta_validate(be32toh(ofh_header->xid), OFPT_QUEUE_GET_CONFIG_REQUEST);
+			msg = new cofmsg_queue_get_config_reply(mem);
+			queue_get_config_reply_rcvd(dynamic_cast<cofmsg_queue_get_config_reply*>( msg ));
 		} break;
 		case OFPT_ROLE_REPLY: {
-			rofbase->ta_validate(pack->get_xid(), OFPT_ROLE_REQUEST);
-			role_reply_rcvd(new cofpacket_role_reply(pack));
+			rofbase->ta_validate(be32toh(ofh_header->xid), OFPT_ROLE_REQUEST);
+			msg = new cofmsg_role_reply(mem);
+			role_reply_rcvd(dynamic_cast<cofmsg_role_reply*>( msg ));
 		} break;
 		default: {
 			WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
-					"dropping packet: %s", this, pack->c_str());
-			delete pack;
+					"dropping packet: %s", this, mem->c_str());
+			delete mem;
 		} return;
 		}
 
 
+	} catch (eBadSyntaxTooShort& e) {
+
+		writelog(COFCTL, WARN, "cofdpt(%p)::handle_message() "
+				"invalid length value for reply received, msg: %s", this, msg->c_str());
+
+		delete msg;
+	} catch (eBadVersion& e) {
+
+		writelog(COFCTL, WARN, "cofdpt(%p)::handle_message() "
+				"ofp_header.version not supported, pack: %s", this, msg->c_str());
+
+		delete msg;
 	} catch (eRofBaseXidInval& e) {
 
 		writelog(COFDPT, ERROR, "cofdpt(%p)::handle_message() "
-				"packet with invalid transaction id rcvd, pack: %s", this, pack->c_str());
+				"message with invalid transaction id received, message: %s", this, mem->c_str());
 
-		delete pack;
+		delete msg;
 	}
 }
 
@@ -492,13 +576,13 @@ cofdpt::handle_timeout(int opaque)
 
 
 void
-cofdpt::hello_rcvd(cofpacket_hello *pack)
+cofdpt::hello_rcvd(cofmsg_hello *msg)
 {
 	try {
-		WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() pack: %s", this, pack->c_str());
+		WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() pack: %s", this, msg->c_str());
 
 		// OpenFlow versions do not match, send error, close connection
-		if (pack->ofh_header->version != OFP12_VERSION)
+		if (OFP12_VERSION != msg->get_version())
 		{
 			new_state(COFDPT_STATE_DISCONNECTED);
 
@@ -507,11 +591,11 @@ cofdpt::hello_rcvd(cofpacket_hello *pack)
 			bzero(explanation, sizeof(explanation));
 			snprintf(explanation, sizeof(explanation) - 1,
 					"unsupported OF version (%d), supported version is (%d)",
-					(pack->ofh_header->version), OFP12_VERSION);
+					(msg->ofh_header->version), OFP12_VERSION);
 
-			cofpacket_error *reply = new cofpacket_error(
+			cofmsg_error *reply = new cofmsg_error(
 								OFP12_VERSION,
-								pack->get_xid(),
+								msg->get_xid(),
 								OFPET_HELLO_FAILED,
 								OFPHFC_INCOMPATIBLE,
 								(uint8_t*) explanation, strlen(explanation));
@@ -537,35 +621,35 @@ cofdpt::hello_rcvd(cofpacket_hello *pack)
 			}
 		}
 
-		delete pack;
+		delete msg;
 
 	} catch (eHelloIncompatible& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::hello_rcvd() "
-				"No compatible version, pack: %s", this, pack->c_str());
+				"No compatible version, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_HELLO_FAILED,
 					OFPHFC_INCOMPATIBLE,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 		handle_closed(socket, socket->sd);
 	} catch (eHelloEperm& e) {
 
 		writelog(CROFBASE, ERROR, "cofctl(%p)::hello_rcvd() "
-				"Permissions error, pack: %s", this, pack->c_str());
+				"Permissions error, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
-					pack->get_xid(),
+					msg->get_xid(),
 					OFPET_HELLO_FAILED,
 					OFPHFC_EPERM,
-					pack->soframe(), pack->framelen());
+					msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 		handle_closed(socket, socket->sd);
 	}
 }
@@ -581,10 +665,12 @@ cofdpt::echo_request_sent(cofmsg *pack)
 
 
 void
-cofdpt::echo_request_rcvd(cofpacket_echo_request *pack)
+cofdpt::echo_request_rcvd(cofmsg_echo_request *msg)
 {
 	// send echo reply back including any appended data
-	rofbase->send_echo_reply(this, pack->get_xid(), pack->body.somem(), pack->body.memlen());
+	rofbase->send_echo_reply(this, msg->get_xid(), msg->body.somem(), msg->body.memlen());
+
+	delete msg;
 
 	/* Please note: we do not call a handler for echo-requests/replies in rofbase
 	 * and take care of these liveness packets within cofctl and cofdpt
@@ -594,10 +680,12 @@ cofdpt::echo_request_rcvd(cofpacket_echo_request *pack)
 
 
 void
-cofdpt::echo_reply_rcvd(cofpacket_echo_reply *pack)
+cofdpt::echo_reply_rcvd(cofmsg_echo_reply *msg)
 {
 	cancel_timer(COFDPT_TIMER_ECHO_REPLY);
 	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
+
+	delete msg;
 }
 
 
@@ -631,29 +719,23 @@ cofdpt::features_request_sent(
 
 void
 cofdpt::features_reply_rcvd(
-		cofpacket_features_reply *pack)
+		cofmsg_features_reply *msg)
 {
 	try {
 		cancel_timer(COFDPT_TIMER_FEATURES_REPLY);
 
-		dpid 			= be64toh(pack->of12h_switch_features->datapath_id);
-		n_buffers 		= be32toh(pack->of12h_switch_features->n_buffers);
-		n_tables 		= pack->of12h_switch_features->n_tables;
-		capabilities 	= be32toh(pack->of12h_switch_features->capabilities);
-
-		int portslen = be16toh(pack->of12h_switch_features->header.length) -
-												sizeof(struct ofp12_switch_features);
+		dpid 			= msg->get_dpid();
+		n_buffers 		= msg->get_n_buffers();
+		n_tables 		= msg->get_n_tables();
+		capabilities 	= msg->get_capabilities();
+		ports			= msg->get_ports();
 
 
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() "
 				"dpid:%"PRIu64" pack:%s",
-				this, dpid, pack->c_str());
-
-
-		cofport::ports_parse(ports, pack->of12h_switch_features->ports, portslen);
+				this, dpid, msg->c_str());
 
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() %s", this, this->c_str());
-
 
 		// dpid as std::string
 		cvastring vas;
@@ -667,9 +749,6 @@ cofdpt::features_reply_rcvd(
 		dpmac[4] = (dpid & 0x000000000000ff00ULL) >>  8;
 		dpmac[5] = (dpid & 0x00000000000000ffULL) >>  0;
 		dpmac[0] &= 0xfc;
-
-
-
 
 		if (COFDPT_STATE_WAIT_FEATURES == cur_state())
 		{
@@ -716,18 +795,18 @@ cofdpt::get_config_request_sent(
 
 void
 cofdpt::get_config_reply_rcvd(
-		cofpacket_get_config_reply *pack)
+		cofmsg_get_config_reply *msg)
 {
 	cancel_timer(COFDPT_TIMER_GET_CONFIG_REPLY);
 
-	offlags = be16toh(pack->of12h_switch_config->flags);
-	miss_send_len = be16toh(pack->of12h_switch_config->miss_send_len);
+	offlags = msg->get_flags();
+	miss_send_len = msg->get_miss_send_len();
 
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::get_config_reply_rcvd() "
 			"dpid:%"PRIu64" ",
 			this, dpid);
 
-	rofbase->handle_get_config_reply(this, pack);
+	rofbase->handle_get_config_reply(this, msg);
 
 	if (COFDPT_STATE_WAIT_GET_CONFIG == cur_state())
 	{
@@ -774,17 +853,17 @@ cofdpt::stats_request_sent(
 
 void
 cofdpt::stats_reply_rcvd(
-		cofpacket_stats_reply *pack)
+		cofmsg_stats_reply *msg)
 {
 	cancel_timer(COFDPT_TIMER_STATS_REPLY);
 
-	xidstore[OFPT_STATS_REQUEST].xid_rem(be32toh(pack->ofh_header->xid));
+	xidstore[OFPT_STATS_REQUEST].xid_rem(msg->get_xid());
 
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::stats_reply_rcvd() "
 			"dpid:%"PRIu64" ",
 			this, dpid);
 
-	rofbase->handle_stats_reply(this, pack);
+	rofbase->handle_stats_reply(this, msg);
 
 
 	if (COFDPT_STATE_WAIT_TABLE_STATS == cur_state()) // enter state running during initialization
@@ -850,13 +929,13 @@ cofdpt::barrier_request_sent(
 
 
 void
-cofdpt::barrier_reply_rcvd(cofpacket_barrier_reply *pack)
+cofdpt::barrier_reply_rcvd(cofmsg_barrier_reply *msg)
 {
 	cancel_timer(COFDPT_TIMER_BARRIER_REPLY);
 
-	xidstore[OFPT_BARRIER_REQUEST].xid_rem(be32toh(pack->ofh_header->xid));
+	xidstore[OFPT_BARRIER_REQUEST].xid_rem(msg->get_xid());
 
-	rofbase->handle_barrier_reply(this, pack);
+	rofbase->handle_barrier_reply(this, msg);
 }
 
 
@@ -891,11 +970,12 @@ restart:
 
 void
 cofdpt::flow_mod_sent(
-		cofmsg *pack) throw (eOFdpathNotFound)
+		cofmsg *msg) throw (eOFdpathNotFound)
 {
 	try {
-		WRITELOG(COFDPT, DBG, "cofdpt(%p)::flow_mod_sent() table_id: %d", this, pack->of12h_flow_mod->table_id);
+		cofmsg_flow_mod *flow_mod = dynamic_cast<cofmsg_flow_mod*>( msg );
 
+		WRITELOG(COFDPT, DBG, "cofdpt(%p)::flow_mod_sent() table_id: %d", this, flow_mod->get_table_id());
 
 	} catch (cerror& e) {
 		WRITELOG(CFTTABLE, DBG, "unable to add ftentry to local flow_table instance");
@@ -906,9 +986,9 @@ cofdpt::flow_mod_sent(
 
 void
 cofdpt::flow_rmvd_rcvd(
-		cofpacket_flow_removed *pack)
+		cofmsg_flow_removed *msg)
 {
-	rofbase->handle_flow_removed(this, pack);
+	rofbase->handle_flow_removed(this, msg);
 }
 
 
@@ -962,7 +1042,7 @@ cofdpt::table_mod_sent(cofmsg *pack)
 void
 cofdpt::port_mod_sent(cofmsg *pack)
 {
-	cofpacket_port_mod *port_mod = dynamic_cast<cofpacket_port_mod*>( pack );
+	cofmsg_port_mod *port_mod = dynamic_cast<cofmsg_port_mod*>( pack );
 
 	if (0 == port_mod) {
 		return;
@@ -979,23 +1059,25 @@ cofdpt::port_mod_sent(cofmsg *pack)
 											port_mod->get_advertise());
 }
 
+
+
 void
-cofdpt::packet_in_rcvd(cofpacket_packet_in *pack)
+cofdpt::packet_in_rcvd(cofmsg_packet_in *msg)
 {
 	try {
-		WRITELOG(COFDPT, DBG, "cofdpt(%p)::packet_in_rcvd() %s", this, pack->c_str());
+		WRITELOG(COFDPT, DBG, "cofdpt(%p)::packet_in_rcvd() %s", this, msg->c_str());
 
 #if 0
 		// update forwarding table
-		uint32_t in_port = pack->match.get_in_port();
+		uint32_t in_port = msg->match.get_in_port();
 #endif
 
 		// datalen must be at least one Ethernet header in size
-		if (pack->packet.length() >= (2 * OFP_ETH_ALEN + sizeof(uint16_t)))
+		if (msg->packet.length() >= (2 * OFP_ETH_ALEN + sizeof(uint16_t)))
 		{
 #if 0
 			// update local forwarding table
-			fwdtable.mac_learning(pack->packet, dpid, in_port);
+			fwdtable.mac_learning(msg->packet, dpid, in_port);
 
 			WRITELOG(COFDPT, DBG, "cofdpt(0x%llx)::packet_in_rcvd() local fwdtable: %s",
 					dpid, fwdtable.c_str());
@@ -1010,7 +1092,7 @@ cofdpt::packet_in_rcvd(cofpacket_packet_in *pack)
 #endif
 
 			// let derived class handle PACKET-IN event
-			rofbase->handle_packet_in(this, pack);
+			rofbase->handle_packet_in(this, msg);
 		}
 	} catch (eOFmatchNotFound& e) {
 
@@ -1020,49 +1102,53 @@ cofdpt::packet_in_rcvd(cofpacket_packet_in *pack)
 }
 
 
+
 void
-cofdpt::port_status_rcvd(cofpacket_port_status *pack)
+cofdpt::port_status_rcvd(cofmsg_port_status *msg)
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(0x%016llx)::port_status_rcvd() %s",
-			dpid, pack->c_str());
+			dpid, msg->c_str());
 
 	std::map<uint32_t, cofport*>::iterator it;
-	switch (pack->get_reason()) {
-	case OFPPR_ADD:
-		if (ports.find(pack->port.get_port_no()) == ports.end())
+	switch (msg->get_reason()) {
+	case OFPPR_ADD: {
+		if (ports.find(msg->get_port().get_port_no()) == ports.end())
 		{
 			//cofport *lport = new cofport(&ports, be32toh(pack->ofh_port_status->desc.port_no), &(pack->ofh_port_status->desc), sizeof(struct ofp_port));
-			new cofport(pack->port, &ports, pack->port.get_port_no());
+			new cofport(msg->get_port(), &ports, msg->get_port().get_port_no());
 
 			// let derived class handle PORT-STATUS message
 			//rofbase->handle_port_status(this, pack, lport);
-			rofbase->handle_port_status(this, pack);
+			rofbase->handle_port_status(this, msg);
 		}
-		break;
-	case OFPPR_DELETE:
-		if (ports.find(pack->port.get_port_no()) != ports.end())
+	} break;
+	case OFPPR_DELETE: {
+		if (ports.find(msg->get_port().get_port_no()) != ports.end())
 		{
-			uint32_t port_no = pack->port.get_port_no();
+			uint32_t port_no = msg->get_port().get_port_no();
 			// let derived class handle PORT-STATUS message
 			//rofbase->handle_port_status(this, pack, ports[port_no]);
-			rofbase->handle_port_status(this, pack);
+			rofbase->handle_port_status(this, msg);
 
 			// do not access pack here, as it was already deleted by rofbase->handle_port_status() !!!
 			delete ports[port_no];
 
 			ports.erase(port_no);
 		}
-		break;
-	case OFPPR_MODIFY:
-		if (ports.find(pack->port.get_port_no()) != ports.end())
+	} break;
+	case OFPPR_MODIFY: {
+		if (ports.find(msg->get_port().get_port_no()) != ports.end())
 		{
-			*(ports[pack->port.get_port_no()]) = pack->port;
+			*(ports[msg->get_port().get_port_no()]) = msg->get_port();
 
 			// let derived class handle PORT-STATUS message
 			//rofbase->handle_port_status(this, pack, ports[be32toh(pack->ofh_port_status->desc.port_no)]);
-			rofbase->handle_port_status(this, pack);
+			rofbase->handle_port_status(this, msg);
 		}
-		break;
+	} break;
+	default: {
+		delete msg;
+	} break;
 	}
 }
 
@@ -1109,15 +1195,15 @@ cofdpt::fsp_close(cofmatch const& ofmatch)
 
 
 void
-cofdpt::experimenter_rcvd(cofpacket_experimenter *pack)
+cofdpt::experimenter_rcvd(cofmsg_experimenter *msg)
 {
-	switch (be32toh(pack->ofh_experimenter->experimenter)) {
+	switch (msg->get_experimenter_id()) {
 	default:
 		break;
 	}
 
 	// for now: send vendor extensions directly to class derived from crofbase
-	rofbase->handle_experimenter_message(this, pack);
+	rofbase->handle_experimenter_message(this, msg);
 }
 
 
@@ -1132,7 +1218,7 @@ cofdpt::role_request_sent(
 
 
 void
-cofdpt::role_reply_rcvd(cofpacket_role_reply *pack)
+cofdpt::role_reply_rcvd(cofmsg_role_reply *pack)
 {
 	rofbase->handle_role_reply(this, pack);
 }
@@ -1149,7 +1235,7 @@ cofdpt::queue_get_config_request_sent(
 
 void
 cofdpt::queue_get_config_reply_rcvd(
-		cofpacket_queue_get_config_reply *pack)
+		cofmsg_queue_get_config_reply *pack)
 {
 	// TODO
 }

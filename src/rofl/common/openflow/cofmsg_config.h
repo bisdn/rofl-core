@@ -225,6 +225,9 @@ public:
 	set_miss_send_len(uint16_t miss_send_len);
 };
 
+typedef cofmsg_config cofmsg_get_config_reply;
+typedef cofmsg_config cofmsg_set_config;
+
 } // end of namespace rofl
 
 #endif /* COFMSG_CONFIG_H_ */
