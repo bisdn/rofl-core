@@ -14,6 +14,33 @@
 
 //Groups
 
+//Core
+/**
+*
+* @defgroup core Core APIs and data structures
+* @brief The core APIs and data structures are the ones used both internally and for data exchanging with 
+* the library user.
+*
+* Only the documented structures and APIs should be used by the user library.
+*
+* @defgroup core_of12 Openflow v1.2 core APIs and data structures
+* @brief The core Openflow v1.2 APIs and data structures are the ones used both internally and for data exchanging with 
+* the library user.
+* @ingroup core 
+*
+*/
+
+//Switch runtime
+/**
+*
+* @defgroup sw_runtime Switch Runtime APIs
+* @brief APIs used by software switches and hybrid ones, which process packets and/or process entry expirations. 
+*
+* Only the documented structures and APIs should be used by the user library.
+*/
+
+
+//Mgmt
 /**
 *
 * @defgroup mgmt Managment API

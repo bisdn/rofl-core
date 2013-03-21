@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef __OF12_SWITCH_H__
 #define __OF12_SWITCH_H__
 
@@ -10,6 +14,17 @@
 #include "../../util/rofl_pipeline_utils.h"
 #include "../../platform/lock.h"
 
+/**
+* @file of12_switch.h
+* @author Marc Sune<marc.sune (at) bisdn.de>
+*
+* @brief Openflow v1.2 logical switch abstraction
+*
+*/
+
+/**
+* Openflow-enabled v1.2 switch abstraction
+*/
 struct of12_switch{
 	
 	//General switch instance information
