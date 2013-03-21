@@ -24,7 +24,6 @@
 
 /**
 * Packet-in reason (of12p_packet_in_reason enum)
-* @ingroup endpoint_of12 
 * @ingroup core_of12 
 */
 enum of12_packet_in_reason {
@@ -45,26 +44,26 @@ ROFL_PIPELINE_BEGIN_DECLS
 /**
 * @brief Allows the user of the library to pre-configure the switch, as well as perform
 * other platform related actions on switch creation according to platform capabilities 
-* @ingroup core_of12 
+* @ingroup endpoint_of12 
 */
 rofl_result_t platform_post_init_of12_switch(of12_switch_t* sw);
 
 /**
 * @brief Allows the user of the library to perform other platform related actions when
 * a switch is about the be destroyed.
-* @ingroup core_of12 
+* @ingroup endpoint_of12 
 */
 rofl_result_t platform_pre_destroy_of12_switch(of12_switch_t* sw);
 
 /**
 * @brief Packet in event notification 
-* @ingroup core_of12 
+* @ingroup endpoint_of12 
 */
 void platform_of12_packet_in(const of12_switch_t* sw, uint8_t table_id, datapacket_t* pkt, of_packet_in_reason_t reason);
 
 /**
 * @brief Flow removed event notification 
-* @ingroup core_of12 
+* @ingroup endpoint_of12 
 */
 void platform_of12_notify_flow_removed(const of12_switch_t* sw, 	
 						of12_flow_remove_reason_t reason, 

@@ -30,6 +30,16 @@
 *
 */
 
+//Matching algorithms
+/**
+* @defgroup core_of12_ma Extendable software matching algorithm API 
+* @brief API defining the interface of new (software/hybrid) matching algorithms. 
+* @ingroup core_of12
+* Defines the set of APIs or interfaces to extend core library with new software/hybrid matching algorithms within
+* the table matching process.
+*
+*/
+
 //Switch runtime
 /**
 *
@@ -60,11 +70,11 @@
 
 /**
 * @defgroup endpoint Openflow end-point APIs 
-* @brief Groups the Openflow related APIs exposed and consumed by the pipeline libray. 
+* @brief Set of APIs that library consumes in order to communicate asynchronous events 
 *
 *
 * @defgroup endpoint_of12 Openflow v1.2 end-point APIs
-* @brief Openflow version 1.2 APIs
+* @brief Openflow version 1.2 asynchronous events APIs
 * @ingroup endpoint 
 *
 */
