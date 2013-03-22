@@ -110,7 +110,7 @@ typedef enum{
 * @brief Port abstraction
 * @ingroup core
 *
-* switch_port implements the switch port abstraction.
+* The switch_port implements the switch port abstraction.
 * There are four types of ports:
 *
 *  - PORT_TYPE_PHYSICAL: representing a system's interface or device.
