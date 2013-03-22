@@ -321,20 +321,22 @@ rofl_result_t of12_validate_flow_entry(of12_group_table_t *gt, of12_flow_entry_t
 				break;
 				
 			case OF12_IT_APPLY_ACTIONS:
+				of12_validate_action_group(entry->inst_grp.instructions[i].apply_actions);
 				ac_it = entry->inst_grp.instructions[i].apply_actions;
 				if(ac_it){
 					for(pa_it=ac_it->head; pa_it; pa_it=pa_it->next){
-						if(pa_it->type == OF12_AT_GROUP && of12_group_search(gt,pa_it->field)==NULL ){
-							return ROFL_FAILURE;
+						if(pa_it->type == OF12_AT_GROUP && (pa_it->group=of12_group_search(gt,pa_it->field))==NULL){
+								return ROFL_FAILURE;
 						}
 					}
 				}
 				break;
 				
 			case OF12_IT_WRITE_ACTIONS:
+				of12_validate_write_actions(entry->inst_grp.instructions[i].write_actions);
 				for(j=0;j<OF12_AT_NUMBER;j++){
 					pa_it = &(entry->inst_grp.instructions[i].write_actions->write_actions[j]);
-					if(pa_it && pa_it->type == OF12_AT_GROUP && of12_group_search(gt,pa_it->field)==NULL ){
+					if(pa_it && pa_it->type == OF12_AT_GROUP && (pa_it->group=of12_group_search(gt,pa_it->field))==NULL ){
 						return ROFL_FAILURE;
 					}
 				}
@@ -345,11 +347,6 @@ rofl_result_t of12_validate_flow_entry(of12_group_table_t *gt, of12_flow_entry_t
 				break;
 		}
 	}
-	//check write actions
-	//of12_validate_action_group();
-	
-	//check apply actions
-	//of12_validate_write_actions();
 	
 	return ROFL_SUCCESS;
 }

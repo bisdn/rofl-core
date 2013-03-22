@@ -281,13 +281,16 @@ inline void of12_stats_queue_tx_errors_inc(of12_stats_queue_t *queue_stats)
 }
 
 void of12_init_group_stats(of12_stats_group_t *group_stats){
-	//NOTE group_stats->bucket_stats; do we need the references to the stats of all the buckets directly?
+	//NOTE bucket stats are initialized when the group is created, before being attached to the list
+	group_stats->mutex = platform_mutex_init(NULL);
 	group_stats->byte_count = 0;
 	group_stats->packet_count = 0;
 	group_stats->ref_count = 0;
 }
 
-//void of12_destroy_group_stats();
+void of12_destroy_group_stats(of12_stats_group_t* group_stats){
+	platform_mutex_destroy(group_stats->mutex);
+}
 
 void of12_stats_group_update(of12_stats_group_t *gr_stats, uint64_t bytes){
 	platform_atomic_inc64(&gr_stats->packet_count, gr_stats->mutex);
@@ -302,12 +305,93 @@ void of12_stats_group_dec_reference(of12_stats_group_t *gr_stats){
 	platform_atomic_dec32(&gr_stats->ref_count, gr_stats->mutex);
 }
 
+of12_stats_group_msg_t *of12_init_stats_group_msg(unsigned int num_buckets){
+	
+	of12_stats_group_msg_t *msg = (of12_stats_group_msg_t *) cutil_malloc_shared(sizeof(of12_stats_group_msg_t));
+	if(msg){
+		msg->bucket_stats = (of12_stats_bucket_counter_t*) cutil_malloc_shared(sizeof(of12_stats_bucket_counter_t) * num_buckets);
+		if(msg->bucket_stats)
+			return msg;
+		else
+		{
+			cutil_free_shared(msg);
+			return NULL;
+		}
+	}
+	else
+		return NULL;
+}
+
+void of12_destroy_stats_group_msg(of12_stats_group_msg_t* msg){
+	cutil_free_shared(msg->bucket_stats);
+	cutil_free_shared(msg);
+}
+
+of12_stats_group_msg_t *of12_get_group_stats(of12_pipeline_t* pipeline,uint32_t id){
+	of12_bucket_t *bu_it;
+	
+	//find the group
+	of12_group_t* group = of12_group_search(pipeline->groups, id);
+	if(group == NULL) return NULL;
+	
+	of12_stats_group_msg_t* msg=of12_init_stats_group_msg(group->bc_list->num_of_buckets);
+
+	msg->group_id = id;
+	msg->ref_count = group->stats.ref_count;
+	msg->packet_count = group->stats.packet_count;
+	msg->byte_count = group->stats.packet_count;
+	msg->num_of_buckets = group->bc_list->num_of_buckets;
+	
+	//collect statistics from buckets
+	int i=0;
+	for(bu_it=group->bc_list->head;bu_it;bu_it=bu_it->next,i++){
+		msg->bucket_stats[i].byte_count = bu_it->stats.byte_count;
+		msg->bucket_stats[i].packet_count = bu_it->stats.packet_count;
+	}
+	return msg;
+}
+
+of12_stats_group_msg_t *of12_get_group_all_stats(of12_pipeline_t* pipeline,uint32_t id){
+	of12_group_t* group;
+	uint32_t total_buckets=0;
+	int i=0;
+	of12_bucket_t* bu_it;
+	
+	//count Total num of buckets
+	for(group=pipeline->groups->head;group;group=group->next){
+		total_buckets += group->bc_list->num_of_buckets;
+	}
+	
+	of12_stats_group_msg_t* msg=of12_init_stats_group_msg(total_buckets);
+	msg->byte_count= 0;
+	msg->packet_count = 0;
+	msg->ref_count = 0;
+	msg->group_id = id;
+	msg->num_of_buckets = total_buckets;
+	
+	//get stats from all groups
+	for(group=pipeline->groups->head;group;group=group->next){
+		msg->ref_count += group->stats.ref_count;
+		msg->packet_count += group->stats.packet_count;
+		msg->byte_count += group->stats.packet_count;
+		for(bu_it=group->bc_list->head;bu_it;bu_it=bu_it->next,i++){
+			msg->bucket_stats[i].byte_count = bu_it->stats.byte_count;
+			msg->bucket_stats[i].packet_count = bu_it->stats.packet_count;
+		}
+	}
+	
+	return msg;
+}
+
 void of12_init_bucket_stats(of12_stats_bucket_counter_t *bc_stats){
+	bc_stats->mutex = platform_mutex_init(NULL);
 	bc_stats->byte_count = 0;
 	bc_stats->packet_count = 0;
 }
 
-//void of12_destroy_buckets_stats();
+void of12_destroy_buckets_stats(of12_stats_bucket_counter_t *bc_stats){
+	platform_mutex_destroy(bc_stats->mutex);
+}
 
 void of12_stats_bucket_update(of12_stats_bucket_counter_t* bc_stats, uint64_t bytes){
 	platform_atomic_inc64(&bc_stats->packet_count, bc_stats->mutex);

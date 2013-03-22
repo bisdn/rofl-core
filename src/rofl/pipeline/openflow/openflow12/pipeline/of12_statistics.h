@@ -130,6 +130,15 @@ typedef struct of12_stats_group{
 	platform_mutex_t* mutex;
 }of12_stats_group_t;
 
+typedef struct of12_stats_group_msg{
+		uint32_t group_id;
+		uint32_t ref_count;
+		uint64_t packet_count;
+		uint64_t byte_count;
+		int num_of_buckets;/*needed?*/
+		of12_stats_bucket_counter_t *bucket_stats;
+} of12_stats_group_msg_t;
+
 /** operations in statistics.c **/
 
 ROFL_PIPELINE_BEGIN_DECLS
@@ -160,11 +169,16 @@ void of12_stats_table_lookup_inc(struct of12_flow_table * table);
 void of12_stats_table_matches_inc(struct of12_flow_table * table);
 
 void of12_init_group_stats(of12_stats_group_t *group_stats);
+void of12_destroy_group_stats(of12_stats_group_t* group_stats);
 void of12_stats_group_update(of12_stats_group_t *gr_stats, uint64_t bytes);
 void of12_stats_group_inc_reference(of12_stats_group_t *gr_stats);
 void of12_stats_group_dec_reference(of12_stats_group_t *gr_stats);
+of12_stats_group_msg_t *of12_get_group_stats(struct of12_pipeline* pipeline,uint32_t id);
+of12_stats_group_msg_t *of12_get_group_all_stats(struct of12_pipeline* pipeline,uint32_t id);
+void of12_destroy_stats_group_msg(of12_stats_group_msg_t *msg);
 
 void of12_init_bucket_stats(of12_stats_bucket_counter_t *bc_stats);
+void of12_destroy_buckets_stats(of12_stats_bucket_counter_t *bc_stats);
 void of12_stats_bucket_update(of12_stats_bucket_counter_t* bc_stats, uint64_t bytes);
 
 /*

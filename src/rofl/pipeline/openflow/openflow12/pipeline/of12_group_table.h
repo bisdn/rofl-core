@@ -13,7 +13,6 @@ typedef struct of12_bucket{
 	uint16_t weight;
 	uint32_t port;
 	uint32_t group;
-	uint32_t num_of_actions;
 	of12_action_group_t *actions;
 	of12_stats_bucket_counter_t stats;
 	
@@ -22,7 +21,7 @@ typedef struct of12_bucket{
 }of12_bucket_t;
 
 typedef struct of12_bucket_list{
-	int num_of_buckets;
+	unsigned int num_of_buckets;
 	of12_bucket_t* head;
 	of12_bucket_t *tail;
 }of12_bucket_list_t;

@@ -150,6 +150,8 @@ void of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge){
 	//destroy buckets & actions inside
 	of12_destroy_bucket_list(ge);
 	
+	of12_destroy_group_stats(&ge->stats);
+	
 	platform_rwlock_destroy(ge->rwlock);
 
 	//free
@@ -323,6 +325,7 @@ void of12_destroy_bucket_list(of12_group_t *ge){
 		next = bk_it->next;
 		//NOTE were are the action groups created and deleted?
 		of12_destroy_action_group(bk_it->actions);
+		of12_destroy_buckets_stats(&bk_it->stats);
 		cutil_free_shared(bk_it);
 	}
 	cutil_free(ge->bc_list);
