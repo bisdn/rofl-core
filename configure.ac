@@ -216,8 +216,25 @@ AC_CHECK_LIB(cli,cli_telnet_protocol,,[AC_MSG_ERROR([cli library not found])])
 
 #CHECK for doxygen
 AC_CHECK_PROGS([DOXYGEN], [doxygen],)
-if test -z "$DOXYGEN";
-   then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
+if test -z "$DOXYGEN";then
+	AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
+	AM_CONDITIONAL(doc, [false])
+else
+	AC_MSG_CHECKING(whether to compile documentation)
+	doc="no"
+	AC_ARG_ENABLE(doc,
+		AS_HELP_STRING([--doc], [compile documentation if doxygen is available [default=yes]])
+			, doc="yes", )
+
+	if test "$doc" = "yes"; then
+		AM_CONDITIONAL(doc, [true])
+		AC_CONFIG_FILES([doc/doxyfile.conf])	
+		AC_CONFIG_FILES([doc/doxyfile-pipeline.conf])
+		AC_MSG_RESULT(yes)
+	else
+		AC_MSG_RESULT(no)
+		AM_CONDITIONAL(doc, [false])
+	fi
 fi
 
 AC_CONFIG_FILES([
