@@ -62,7 +62,7 @@
 
 /**
 * @defgroup endpoint Openflow end-point APIs 
-* @brief Set of APIs that library consumes in order to communicate asynchronous events to the endpoint or an intermediate layer, that must be implemented by the library users. 
+* @brief APIs that library consumes to communicate asynchronous events to the endpoint or an intermediate layer; must be implemented by the library users. 
 *
 *
 * @defgroup endpoint_of12 Openflow v1.2 end-point APIs
@@ -95,7 +95,7 @@
 * @ingroup platform
 *
 * @defgroup platform_packet Packet Mangling API
-* @brief Packet Mangling API that must be implemented by the library users
+* @brief Packet Mangling API is in charge of packet manipulation and must be implemented by the library users
 * @ingroup platform
 *
 */
