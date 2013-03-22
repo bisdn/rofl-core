@@ -1,22 +1,88 @@
 /**
 *
-* @include .groups.dox
 * @mainpage ROFL-PIPELINE library
 *
-* @section cont Contents 
-*
+* @section doc Documentation 
 * @subsection intro_sec Concept
 *
-* The ROFL-pipeline library is 
+* The ROFL-pipeline library is a platform-independent Openflow forwarding backend engine. The intention was to create a unified common Openflow forwarding backend for several platforms supported by our eXtensible DataPath (xDP <b><-link</b>) in BISDN(<b>TODO link</b>), like the UNIX, Network procesors or Broadcom family boards.
+* 
+* Features:
+*  - Complete Openflow processing pipeline, including abstractions of switch (forwarding only), pipeline, table, entry, matches, actions... as well as the subsystems of timers and stats.
+*  - Support for multiple Openflow pipeline versions simultaneously (in different logical switches).
+*  - Platform indepedent: the library is decoupled from platform specific code. 
+*  - Supports logical switch up to @ref PHYSICAL_SWITCH_MAX_LS running in parallel.
+*  - Runtime port(interface) attachment/detachment to/from logical switches
+*  - Extensible library:
+*     - Easy addition of new Openflow versions
+*     - New Openflow Matches
+*     - New Openflow Actions 
+*     - Clear API to create new software Table Matching Algorithms (flow entry lookup)
+*  - Optimzed for performance: specially when using advanced matching algorithms.
+*  
+* @subsubsection how_can How can ROFL-pipeline library be used
 *
-* @subsubsection how_to How to use it... 
+*  - As the <b>forwarding engine of an Openflow software switch</b>: take a look at xDP software switch that uses ROFL-pipeline for its forwarding modules. 
+*  - To <b>keep the state of the forwarding backend</b> and <b>process flow entry expirations</b> and/or <b>some packets</b> in <b>hybrid hardware/software switches</b>: typically hardware switches that do not support
+*    all of the capabilities exposed by Openflow, and some must be done in software within embedded systems. 
+*  - To <b>only keep the state of the forwarding backend (Openflow configuration)</b> of Openflow Hardware switches: generally to be used by the Openflow endpoint(s)
 *
-* @subsection main_apis APIs consumed and exposed by the library
-* @subsubsection core_apis Core APIs and data structures 
-* @subsubsection platform_apis Platform dependent APIs 
-* @subsubsection runtime_apis Switch Runtime APIs 
-* @subsubsection mgmt_apis Management APIs
-* etc...
+* @subsubsection what_is_not ROFL-pipeline is not...
+* 
+*  - ...a full-fletched Datapath; it cannot be since it deliverately does not provide Openflow endpoint functionality (neither an Openflow protocol parser), nor the platform specific I/O subsystem for packet handling and injection to the Openflow pipeline. Take a look at our xDP for a full-blown datapath using ROFL-pipeline.
+*  - ...a complete Openflow-enabled Forwarding Backend; ROFL-pipeline is deliverately platform independent <b>library</b>, hence it does not deal with thing like the I/O subsystem or other platform specific subsytems. Take a look at our xDP for a full-blown datapath using ROFL-pipeline.
+*  - ...an Openflow endpoint. The Openflow endpoint is out of the scope of ROFL-pipeline.
+*
+* @subsection arch Architecture overview
+*
+* @code
+
+                    +           ^
+                    |           +
+           Mangement|           +Openflow                                  Legend:
+                 API|           +end-point API
+                    |           +                           +-----+        +--> API exposed by
+           +--------v-----------+--------+               ++>|Alg.1|             the library
+           |                             |               +  +-----+
+           |                             |  Extensible   +                 <+++ API consumed by
+   Runtime |                             |  Matching     +  +-----+             the library
+ +--------->        ROFL pipeline        ++++++++++++++++++>|Alg.2|
+     API   |          core lib           |  Algorithm    +  +-----+
+           |                             |  API          +    ...
+           |                             |               +  +-----+
+           +--------------+--------------+               ++>|Alg.N|
+                          +                                 +-----+
+                          +
+                          +
+            +-------------v-------------+
+            |       Platform APIs       |
+            +---------------------------+
+            | Locking,atomic ops,packet |
+            |        mangling...        |
+            +---------------------------+
+* @endcode
+*
+* Exposed by the library:
+*
+*  - @ref core "Core APIs and data structures": @copybrief core
+*  - @ref mgmt : @copybrief mgmt 
+*  - @ref sw_runtime : @copybrief sw_runtime 
+*
+* Consumed by the library:
+*  - @ref platform "Platform dependent APIs", which are subdivided in: 
+     - @ref platform_memory : @copybrief platform_memory
+     - @ref platform_lock : @copybrief platform_lock
+     - @ref platform_atomic : @copybrief platform_atomic
+     - @ref platform_packet : @copybrief platform_packet
+*  - @ref endpoint : @copybrief endpoint
+*  - @ref core_ma : @copybrief core_ma 
+*
+* @subsection contrib How to contribute:
+*
+* TODO...
+* @subsection rel_proj Related projects:
+*
+*  TODO: ROFL, xDP, ROFL-AFA (Abstract Forwarding API)
 *
 * @subsection author Authors:
 *  - Marc Sune Clos <marc.sune (at) bisdn.de>
@@ -24,11 +90,13 @@
 *  - Tobias Jungel <tobias.jungel (at) bisdn.de>
 *  - Andreas Koepsel <andreas.koepsel (at) bisdn.de>
 *
+* TODO: link to BISDN website
+*
 * @subsection license Licensing:
 *
 * The code is distributed under MPL v2: http://www.mozilla.org/MPL/ 
 *
-* The ROFL pipeline library is part of a more extensive library called ROFL (Revised OpenFlow Library), build in C/C++.
+* The ROFL pipeline library is part of a more extensive C/C++ library called ROFL (Revised OpenFlow Library).
 * 
 */
 

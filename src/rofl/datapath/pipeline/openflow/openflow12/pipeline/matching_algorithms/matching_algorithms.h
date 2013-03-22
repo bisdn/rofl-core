@@ -40,13 +40,13 @@ enum of12_mutex_acquisition_required;
 
 /**
 * @brief Set of functions calls to be implemented in order to extend Matching algorithms for OF v1.2.
-* @ingroup core_of12_ma
+* @ingroup core_ma_of12
 * Some calls are optional.
 */
 struct matching_algorithm_functions{
 
 	/**
-	* @ingroup core_of12_ma
+	* @ingroup core_ma_of12
 	* @brief Allows to initilize matching algorithm table state.
 	*
 	* The algorithm may also initialize table->matching_aux structures with
@@ -66,7 +66,7 @@ struct matching_algorithm_functions{
 	*
 	* Remember that the matching algorithm is in charge of mantaining table entry state.
 	* 
-	* @ingroup core_of12_ma
+	* @ingroup core_ma_of12
 	*/
 	rofl_result_t
 	(*destroy_hook)(struct of12_flow_table *const table); //Mutual exclusion will already be taken by the of12_flow_table destructor
@@ -74,7 +74,7 @@ struct matching_algorithm_functions{
 
 	// flow management
 	/**
-	* @ingroup core_of12_ma
+	* @ingroup core_ma_of12
 	* @brief Adds a flow entry to the table
 	*
 	* The algorithm MUST implement the addition of the flow entry into the table. The
@@ -98,7 +98,7 @@ struct matching_algorithm_functions{
 
 
 	/**
-	* @ingroup core_of12_ma
+	* @ingroup core_ma_of12
 	* @brief Modifies a set of flow entries in the table
 	*
 	* The algorithm MUST implement the modification of the flow entry(ies) into the table. The
@@ -126,7 +126,7 @@ struct matching_algorithm_functions{
 
 
 	/**
-	* @ingroup core_of12_ma
+	* @ingroup core_ma_of12
 	* @brief Removes one or more flow entries in the table
 	*
 	* The algorithm MUST implement the removal of the flow entry into the table. The
@@ -160,7 +160,7 @@ struct matching_algorithm_functions{
 
 	//Packet matching lookup
 	/**
-	* @ingroup core_of12_ma 
+	* @ingroup core_ma_of12 
 	* @brief Finds the best match for the packet according the pkt_matches
 	* 
 	* The lookup of the best match may use the algorithm internal representation
@@ -177,7 +177,7 @@ struct matching_algorithm_functions{
 
 	// flow stats
 	/**
-	* @ingroup core_of12_ma 
+	* @ingroup core_ma_of12 
 	* Retrieves aggregate flow stats according to spec 
 	* The operation MUST comply with the behaviour defined in the Openflow v1.2 specification
 	*/
@@ -193,7 +193,7 @@ struct matching_algorithm_functions{
 
 
 	/**
-	* @ingroup core_of12_ma 
+	* @ingroup core_ma_of12 
 	* Retrieves aggregate flow stats according to spec 
 	* The operation MUST comply with the behaviour defined in the Openflow v1.2 specification
 	*/
@@ -208,7 +208,7 @@ struct matching_algorithm_functions{
 
 
 	/**
-	* @ingroup core_of12_ma 
+	* @ingroup core_ma_of12 
 	* The find_entry_using_group_hook() must retrieve the first entry in the
 	* table that contain actions refering to group_id and return it.
 	*
@@ -224,7 +224,7 @@ struct matching_algorithm_functions{
 
 	// dump flow table
 	/**
-	* @ingroup core_of12_ma 
+	* @ingroup core_ma_of12 
 	* Dump hook. Optionally implement this hook to dump internal state of the
 	* flow table when of12_dump_switch() is called.
 	*
@@ -235,7 +235,7 @@ struct matching_algorithm_functions{
 
 	
 	/**
-	* @ingroup core_of12_ma 
+	* @ingroup core_ma_of12 
 	* Description of the matching algorithm. Use a precise description of the 
 	* matching algorith, including its strengths and weaknesses.
 	*/
@@ -244,7 +244,7 @@ struct matching_algorithm_functions{
 
 /**
 * @brief Load matching algorithm instructs the EMA subsytem to register the matching algorithm 
-* @ingroup core_of12_ma
+* @ingroup core_ma_of12
 */
 void load_matching_algorithm(enum matching_algorithm_available m, struct matching_algorithm_functions *f);
 
