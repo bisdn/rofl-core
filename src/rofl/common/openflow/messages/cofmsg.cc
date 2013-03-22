@@ -6,6 +6,45 @@
 
 using namespace rofl;
 
+
+
+cofmsg::typedesc_t typedesc[] = {
+	{ OFPT_HELLO, "HELLO" },
+	{ OFPT_ERROR, "ERROR" },
+	{ OFPT_ECHO_REQUEST, "ECHO-REQUEST" },
+	{ OFPT_ECHO_REPLY, "ECHO-REPLY" },
+	{ OFPT_EXPERIMENTER, "EXPERIMENTER" },
+
+	{ OFPT_FEATURES_REQUEST, "FEATURES-REQUEST" },
+	{ OFPT_FEATURES_REPLY, "FEATURES-REPLY" },
+	{ OFPT_GET_CONFIG_REQUEST, "GET-CONFIG-REQUEST" },
+	{ OFPT_GET_CONFIG_REPLY, "GET-CONFIG-REPLY" },
+	{ OFPT_SET_CONFIG, "SET-CONFIG" },
+
+	{ OFPT_PACKET_IN, "PACKET-IN" },
+	{ OFPT_FLOW_REMOVED, "FLOW-REMOVED" },
+	{ OFPT_PORT_STATUS, "PORT-STATUS" },
+
+	{ OFPT_PACKET_OUT, "PACKET-OUT" },
+	{ OFPT_FLOW_MOD, "FLOW-MOD" },
+	{ OFPT_GROUP_MOD, "GROUP-MOD" },
+	{ OFPT_PORT_MOD, "PORT-MOD" },
+	{ OFPT_TABLE_MOD, "TABLE-MOD" },
+
+	{ OFPT_STATS_REQUEST, "STATS-REQUEST" },
+	{ OFPT_STATS_REPLY, "STATS-REPLY" },
+
+	{ OFPT_BARRIER_REQUEST, "BARRIER-REQUEST" },
+	{ OFPT_BARRIER_REPLY, "BARRIER-REPLY" },
+
+	{ OFPT_QUEUE_GET_CONFIG_REQUEST, "QUEUE-GET-CONFIG-REQUEST" },
+	{ OFPT_QUEUE_GET_CONFIG_REPLY, "QUEUE-GET-CONFIG-REPLY" },
+
+	{ OFPT_ROLE_REQUEST, "ROLE-REQUEST" },
+	{ OFPT_ROLE_REPLY, "ROLE-REPLY" },
+};
+
+
 /*static*/std::set<cofmsg*> cofmsg::cofpacket_list;
 /*static*/std::string cofmsg::pinfo;
 
@@ -41,6 +80,22 @@ cofmsg::packet_info()
 
 	return pinfo.c_str();
 }
+
+
+
+const char*
+cofmsg::type2desc(ofp_type ptype)
+{
+        for (int i = 0; i < (int)(sizeof(typedesc) / sizeof(cofmsg::typedesc_t)); i++)
+        {
+                if (typedesc[i].type == ptype) {
+                        return typedesc[i].desc;
+                }
+        }
+        return NULL;
+}
+
+
 
 
 

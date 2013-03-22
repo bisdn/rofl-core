@@ -275,11 +275,11 @@ cofmsg_features_reply::pack(uint8_t *buf, size_t buflen)
 	switch (get_version()) {
 	case OFP10_VERSION: {
 		memcpy(buf, soframe(), framelen());
-		ports.pack((struct ofp10_port*)(buf + sizeof(struct ofp10_switch_features)), ports.length());
+		ports.pack<struct ofp10_port>((struct ofp10_port*)(buf + sizeof(struct ofp10_switch_features)), ports.length());
 	} break;
 	case OFP12_VERSION: {
 		memcpy(buf, soframe(), framelen());
-		ports.pack((struct ofp12_port*)(buf + sizeof(struct ofp12_switch_features)), ports.length());
+		ports.pack<struct ofp12_port>((struct ofp12_port*)(buf + sizeof(struct ofp12_switch_features)), ports.length());
 	} break;
 	case OFP13_VERSION: {
 		memcpy(buf, soframe(), framelen());
@@ -315,14 +315,14 @@ cofmsg_features_reply::validate()
 		if (get_length() < sizeof(struct ofp10_switch_features))
 			throw eBadSyntaxTooShort();
 		if (get_length() > sizeof(struct ofp10_switch_features)) {
-			ports.unpack(ofh10_switch_features->ports, get_length() - sizeof(struct ofp10_switch_features));
+			ports.unpack<struct ofp10_port>(ofh10_switch_features->ports, get_length() - sizeof(struct ofp10_switch_features));
 		}
 	} break;
 	case OFP12_VERSION: {
 		if (get_length() < sizeof(struct ofp12_switch_features))
 			throw eBadSyntaxTooShort();
 		if (get_length() > sizeof(struct ofp12_switch_features)) {
-			ports.unpack(ofh12_switch_features->ports, get_length() - sizeof(struct ofp12_switch_features));
+			ports.unpack<struct ofp12_port>(ofh12_switch_features->ports, get_length() - sizeof(struct ofp12_switch_features));
 		}
 	} break;
 	case OFP13_VERSION: {

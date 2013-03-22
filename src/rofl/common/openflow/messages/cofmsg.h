@@ -85,6 +85,11 @@ public:
 	const char*
 	packet_info();
 
+    /** return description for ofp_type
+     */
+    static const char*
+    type2desc(ofp_type type);
+
 	typedef struct {
 		ofp_type type;
 		char desc[64];
@@ -272,15 +277,6 @@ public:
 	 */
 	void
 	set_xid(uint32_t xid);
-
-
-private: // methods
-
-	/** return description for ofp_type
-	 */
-	static const char*
-	type2desc(ofp_type type);
-
 };
 
 
