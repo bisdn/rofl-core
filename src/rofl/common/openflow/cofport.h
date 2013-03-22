@@ -181,14 +181,14 @@ public:
 			T* port,
 			size_t portlen) const throw (eOFportInval);
 
-#if 0
+
 	/**
 	 *
 	 */
 	struct ofp12_port*
 	pack(
 			struct ofp12_port *port,
-			size_t portlen) throw (eOFportInval);
+			size_t portlen) const throw (eOFportInval);
 
 
 	/**
@@ -197,8 +197,7 @@ public:
 	struct ofp13_port*
 	pack(
 			struct ofp13_port *port,
-			size_t portlen) throw (eOFportInval);
-#endif
+			size_t portlen) const throw (eOFportInval);
 
 	/**
 	 *
@@ -209,7 +208,7 @@ public:
 			T* port,
 			size_t portlen) throw (eOFportInval);
 
-#if 0
+
 	/**
 	 *
 	 */
@@ -226,7 +225,7 @@ public:
 	unpack(
 			struct ofp13_port *port,
 			size_t portlen) throw (eOFportInval);
-#endif
+
 
 
 	/** dump internals

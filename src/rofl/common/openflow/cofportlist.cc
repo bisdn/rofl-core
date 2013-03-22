@@ -20,7 +20,7 @@ cofportlist::~cofportlist()
 }
 
 
-
+#if 0
 template<class T>
 std::vector<cofport>&
 cofportlist::unpack(
@@ -77,7 +77,7 @@ cofportlist::pack(
 
 	return ports;
 }
-
+#endif
 
 
 std::vector<cofport>&
@@ -115,7 +115,7 @@ throw (ePortListInval)
 struct ofp10_port*
 cofportlist::pack(
 	struct ofp10_port *ports,
-	size_t portlen) throw (ePortListInval)
+	size_t portlen) const throw (ePortListInval)
 {
 	size_t needed_inlen = length();
 
@@ -124,10 +124,10 @@ cofportlist::pack(
 
 	struct ofp10_port *porthdr = ports; // first ofp_port header
 
-	cofportlist::iterator it;
+	cofportlist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
-		cofport& port = (*it);
+		cofport const& port = (*it);
 
 		porthdr = (struct ofp10_port*)
 				((uint8_t*)(port.pack(porthdr, port.length())) + port.length());
@@ -173,7 +173,7 @@ throw (ePortListInval)
 struct ofp12_port*
 cofportlist::pack(
 	struct ofp12_port *ports,
-	size_t portlen) throw (ePortListInval)
+	size_t portlen) const throw (ePortListInval)
 {
 	size_t needed_inlen = length();
 
@@ -182,10 +182,10 @@ cofportlist::pack(
 
 	struct ofp12_port *porthdr = ports; // first ofp_port header
 
-	cofportlist::iterator it;
+	cofportlist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
-		cofport& port = (*it);
+		cofport const& port = (*it);
 
 		porthdr = (struct ofp12_port*)
 				((uint8_t*)(port.pack(porthdr, port.length())) + port.length());

@@ -866,9 +866,9 @@ cofport::pack(T* port, size_t portlen) const throw (eOFportInval)
 
 
 
-#if 0
+
 struct ofp12_port*
-cofport::pack(struct ofp12_port* port, size_t portlen) throw (eOFportInval)
+cofport::pack(struct ofp12_port* port, size_t portlen) const throw (eOFportInval)
 {
 	if (OFP12_VERSION != of_version) {
 		throw eBadVersion();
@@ -886,7 +886,7 @@ cofport::pack(struct ofp12_port* port, size_t portlen) throw (eOFportInval)
 
 
 struct ofp13_port*
-cofport::pack(struct ofp13_port* port, size_t portlen) throw (eOFportInval)
+cofport::pack(struct ofp13_port* port, size_t portlen) const throw (eOFportInval)
 {
 	if (OFP13_VERSION != of_version) {
 		throw eBadVersion();
@@ -900,7 +900,7 @@ cofport::pack(struct ofp13_port* port, size_t portlen) throw (eOFportInval)
 
 	return port;
 }
-#endif
+
 
 
 
@@ -928,7 +928,7 @@ throw (eOFportInval)
 
 
 
-#if 0
+
 struct ofp12_port*
 cofport::unpack(
 	struct ofp12_port* port, size_t portlen)
@@ -968,7 +968,7 @@ throw (eOFportInval)
 
 	return port;
 }
-#endif
+
 
 
 
