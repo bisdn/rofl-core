@@ -76,6 +76,24 @@ public: // methods
 	throw (ePortListInval);
 
 
+	/** stores cofinst instances in this->invec from a packed array struct ofp_instruction (e.g. in struct ofp_flow_mod)
+	 */
+	std::vector<cofport>&			// returns reference to this->invec
+	unpack(
+		struct ofp10_port *ports, // parses memory area buckets and creates cofinst instance in this->invec
+		size_t portlen)					// length of memory area to be parsed
+	throw (ePortListInval);
+
+
+	/** stores cofinst instances in this->invec from a packed array struct ofp_instruction (e.g. in struct ofp_flow_mod)
+	 */
+	std::vector<cofport>&			// returns reference to this->invec
+	unpack(
+		struct ofp12_port *ports, // parses memory area buckets and creates cofinst instance in this->invec
+		size_t portlen)					// length of memory area to be parsed
+	throw (ePortListInval);
+
+
 	/** builds an array of struct ofp_instruction from this->invec
 	 */
 	template<class T>
@@ -95,7 +113,6 @@ public: // methods
 	throw (ePortListInval);
 
 
-#if 0
 	/** builds an array of struct ofp_instruction from this->invec
 	 */
 	struct ofp12_port*			// returns parameter "struct ofp_instruction *instructions"
@@ -104,7 +121,7 @@ public: // methods
 		size_t portlen) 					// length of memory area
 	throw (ePortListInval);
 
-
+#if 0
 	/** builds an array of struct ofp_instruction from this->invec
 	 */
 	struct ofp13_port*			// returns parameter "struct ofp_instruction *instructions"

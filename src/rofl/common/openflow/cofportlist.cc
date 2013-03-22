@@ -80,6 +80,120 @@ cofportlist::pack(
 
 
 
+std::vector<cofport>&
+cofportlist::unpack(
+		struct ofp10_port *ports,
+		size_t portlen)
+throw (ePortListInval)
+{
+	clear(); // clears bcvec
+
+	// sanity check: bclen must be of size at least of ofp_bucket
+	if (portlen < (int)sizeof(struct ofp10_port))
+		return elems;
+
+	// first port
+	struct ofp10_port *porthdr = ports;
+
+	while (portlen > 0) {
+
+		if (portlen < sizeof(struct ofp10_port))
+			throw ePortListInval();
+
+		next() = cofport(porthdr, sizeof(struct ofp10_port) );
+
+		portlen -= sizeof(struct ofp10_port);
+		porthdr++;
+	}
+
+	return elems;
+}
+
+
+
+
+struct ofp10_port*
+cofportlist::pack(
+	struct ofp10_port *ports,
+	size_t portlen) throw (ePortListInval)
+{
+	size_t needed_inlen = length();
+
+	if (portlen < needed_inlen)
+		throw ePortListInval();
+
+	struct ofp10_port *porthdr = ports; // first ofp_port header
+
+	cofportlist::iterator it;
+	for (it = elems.begin(); it != elems.end(); ++it)
+	{
+		cofport& port = (*it);
+
+		porthdr = (struct ofp10_port*)
+				((uint8_t*)(port.pack(porthdr, port.length())) + port.length());
+	}
+
+	return ports;
+}
+
+
+
+std::vector<cofport>&
+cofportlist::unpack(
+		struct ofp12_port *ports,
+		size_t portlen)
+throw (ePortListInval)
+{
+	clear(); // clears bcvec
+
+	// sanity check: bclen must be of size at least of ofp_bucket
+	if (portlen < (int)sizeof(struct ofp12_port))
+		return elems;
+
+	// first port
+	struct ofp12_port *porthdr = ports;
+
+	while (portlen > 0) {
+
+		if (portlen < sizeof(struct ofp12_port))
+			throw ePortListInval();
+
+		next() = cofport(porthdr, sizeof(struct ofp12_port) );
+
+		portlen -= sizeof(struct ofp12_port);
+		porthdr++;
+	}
+
+	return elems;
+}
+
+
+
+
+struct ofp12_port*
+cofportlist::pack(
+	struct ofp12_port *ports,
+	size_t portlen) throw (ePortListInval)
+{
+	size_t needed_inlen = length();
+
+	if (portlen < needed_inlen)
+		throw ePortListInval();
+
+	struct ofp12_port *porthdr = ports; // first ofp_port header
+
+	cofportlist::iterator it;
+	for (it = elems.begin(); it != elems.end(); ++it)
+	{
+		cofport& port = (*it);
+
+		porthdr = (struct ofp12_port*)
+				((uint8_t*)(port.pack(porthdr, port.length())) + port.length());
+	}
+
+	return ports;
+}
+
 
 
 size_t
