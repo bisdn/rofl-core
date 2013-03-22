@@ -833,7 +833,7 @@ protected:
 	 * @param pack ROLE.reply packet received from datapath
 	 */
 	virtual void
-	handle_role_reply(cofdpt *dpt, cofmsg_role_request *msg) { delete msg; };
+	handle_role_reply(cofdpt *dpt, cofmsg_role_reply *msg) { delete msg; };
 
 	/** Handle OF role reply timeout. To be overwritten by derived class.
 	 *
