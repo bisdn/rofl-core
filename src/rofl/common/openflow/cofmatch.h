@@ -64,11 +64,13 @@ private: // data structures
 public: // data structures
 
 	union {
+		uint8_t*				ofpu_match;
 		struct ofp10_match*		ofp10u_match;
 		struct ofp12_match*		ofp12u_match;
 		struct ofp13_match*		ofp13u_match;
 	} ofpu;
 
+#define ofh_match  	ofpu.ofpu_match
 #define ofh10_match ofpu.ofp10u_match
 #define ofh12_match ofpu.ofp12u_match
 #define ofh13_match ofpu.ofp13u_match

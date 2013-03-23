@@ -100,6 +100,8 @@ cofmatch::operator= (const cofmatch& m)
 	memarea			= m.memarea;
 	oxmlist			= m.oxmlist;
 
+	ofh_match = memarea.somem();
+
 #if 0
 	WRITELOG(COFMATCH, DBG, "cofmatch(%p)::operator=() [2] *this: %s", this, this->c_str());
 #endif
