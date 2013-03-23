@@ -273,7 +273,7 @@ cofctl::handle_read(
 			uint16_t msg_len = 0;
 
 			// how many bytes do we have to read?
-			if (mem->memlen() < sizeof(struct ofp_header)) {
+			if (msg_bytes_read < sizeof(struct ofp_header)) {
 				msg_len = sizeof(struct ofp_header);
 			} else {
 				struct ofp_header *ofh_header = (struct ofp_header*)mem->somem();

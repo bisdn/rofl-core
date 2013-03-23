@@ -5,7 +5,7 @@ int
 main(int argc, char** argv)
 {
 	/* update defaults */
-	rofl::csyslog::initlog(rofl::csyslog::LOGTYPE_FILE, rofl::csyslog::DBG,
+	rofl::csyslog::initlog(rofl::csyslog::LOGTYPE_STDERR, rofl::csyslog::DBG,
 			std::string("etherswitch.log"), "an example: ");
 	rofl::csyslog::set_debug_level("ciosrv", "emergency");
 	rofl::csyslog::set_debug_level("cthread", "emergency");
