@@ -301,8 +301,8 @@ coxmlist::oxm_find(
 }
 
 
-coxmatch
-coxmlist::oxm_copy(
+coxmatch const&
+coxmlist::get_oxm(
 		uint16_t oxm_class,
 		uint8_t oxm_field)
 			const throw (eOxmListNotFound)
@@ -315,12 +315,15 @@ coxmlist::oxm_copy(
 		throw eOxmListNotFound();
 	}
 
+	return *(oxmvec[oxm_field]);
+#if 0
 	coxmatch oxm = *(oxmvec[oxm_field]);
 
 	WRITELOG(COXMLIST, DBG, "coxmlist(%p)::oxm_copy() class:0x%x field:%d found => %s",
 					this, oxm_class, oxm_field, oxm.c_str());
 
 	return oxm;
+#endif
 }
 
 

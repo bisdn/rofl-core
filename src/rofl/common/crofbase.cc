@@ -890,6 +890,56 @@ crofbase::send_desc_stats_reply(
 
 
 
+void
+crofbase::send_table_stats_reply(
+	cofctl *ctl,
+	uint32_t xid,
+	std::vector<coftable_stats_reply> const& table_stats,
+	bool more)
+{
+	uint16_t flags = 0;
+
+	flags |= (more) ? OFPSF_REPLY_MORE : 0;
+
+	cofmsg_table_stats_reply *msg =
+			new cofmsg_table_stats_reply(
+					ctl->get_version(),
+					xid,
+					flags,
+					table_stats);
+
+	msg->pack();
+
+	ctl_find(ctl)->send_message(msg);
+}
+
+
+
+void
+crofbase::send_port_stats_reply(
+	cofctl *ctl,
+	uint32_t xid,
+	std::vector<cofport_stats_reply> const& port_stats,
+	bool more)
+{
+	uint16_t flags = 0;
+
+	flags |= (more) ? OFPSF_REPLY_MORE : 0;
+
+	cofmsg_port_stats_reply *msg =
+			new cofmsg_port_stats_reply(
+					ctl->get_version(),
+					xid,
+					flags,
+					port_stats);
+
+	msg->pack();
+
+	ctl_find(ctl)->send_message(msg);
+}
+
+
+
 
 /*
  * SET-CONFIG message

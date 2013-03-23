@@ -174,8 +174,8 @@ public: // methods
 		/** find a specific OXM TLV and return a copy
 		 *
 		 */
-		coxmatch
-		oxm_copy(
+		coxmatch const&
+		get_oxm(
 				uint16_t oxm_class,
 				uint8_t oxm_field)
 					const throw (eOxmListNotFound);

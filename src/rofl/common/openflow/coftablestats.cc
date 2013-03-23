@@ -163,6 +163,14 @@ coftable_stats_reply::get_table_id() const
 
 
 
+void
+coftable_stats_reply::set_table_id(uint8_t table_id)
+{
+	this->table_id = table_id;
+}
+
+
+
 std::string&
 coftable_stats_reply::get_name()
 {
@@ -179,10 +187,26 @@ coftable_stats_reply::get_match() const
 
 
 
+void
+coftable_stats_reply::set_match(uint64_t match)
+{
+	this->match = match;
+}
+
+
+
 uint64_t
 coftable_stats_reply::get_wildcards() const
 {
 	return wildcards;
+}
+
+
+
+void
+coftable_stats_reply::set_wildcards(uint64_t wildcards)
+{
+	this->wildcards = wildcards;
 }
 
 
@@ -195,10 +219,26 @@ coftable_stats_reply::get_write_actions() const
 
 
 
+void
+coftable_stats_reply::set_write_actions(uint32_t write_actions)
+{
+	this->write_actions = write_actions;
+}
+
+
+
 uint32_t
 coftable_stats_reply::get_apply_actions() const
 {
 	return apply_actions;
+}
+
+
+
+void
+coftable_stats_reply::set_apply_actions(uint32_t apply_actions)
+{
+	this->apply_actions = apply_actions;
 }
 
 
@@ -211,10 +251,26 @@ coftable_stats_reply::get_write_setfields() const
 
 
 
+void
+coftable_stats_reply::set_write_setfields(uint64_t write_setfields)
+{
+	this->write_setfields = write_setfields;
+}
+
+
+
 uint64_t
 coftable_stats_reply::get_apply_setfields() const
 {
 	return apply_setfields;
+}
+
+
+
+void
+coftable_stats_reply::set_apply_setfields(uint64_t apply_setfields)
+{
+	this->apply_setfields = apply_setfields;
 }
 
 
@@ -227,6 +283,14 @@ coftable_stats_reply::get_metadata_match() const
 
 
 
+void
+coftable_stats_reply::set_metadata_match(uint64_t metadata_match)
+{
+	this->metadata_match = metadata_match;
+}
+
+
+
 uint64_t
 coftable_stats_reply::get_metadata_write() const
 {
@@ -235,10 +299,26 @@ coftable_stats_reply::get_metadata_write() const
 
 
 
+void
+coftable_stats_reply::set_metadata_write(uint64_t metadata_write)
+{
+	this->metadata_write = metadata_write;
+}
+
+
+
 uint32_t
 coftable_stats_reply::get_instructions() const
 {
 	return instructions;
+}
+
+
+
+void
+coftable_stats_reply::set_instructions(uint32_t instructions)
+{
+	this->instructions = instructions;
 }
 
 

@@ -1084,6 +1084,36 @@ public:
 		cofdesc_stats_reply const& desc_stats,
 		bool more = false);
 
+	/** Send OF TABLE STATS.reply to controlling entity.
+	 *
+	 * @param xid transaction ID used in STATS request
+	 * @param stats_type One of the OFPST_* constants
+	 * @param body Body of a STATS reply
+	 * @param bodylen length of STATS reply body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_table_stats_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		std::vector<coftable_stats_reply> const& table_stats,
+		bool more = false);
+
+	/** Send OF TABLE STATS.reply to controlling entity.
+	 *
+	 * @param xid transaction ID used in STATS request
+	 * @param stats_type One of the OFPST_* constants
+	 * @param body Body of a STATS reply
+	 * @param bodylen length of STATS reply body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_port_stats_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		std::vector<cofport_stats_reply> const& port_stats,
+		bool more = false);
+
 	// PACKET-OUT message
 	//
 

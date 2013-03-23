@@ -134,6 +134,12 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_table_id(uint8_t table_id);
+
+	/**
+	 *
+	 */
 	std::string&
 	get_name();
 
@@ -146,8 +152,20 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_match(uint64_t match);
+
+	/**
+	 *
+	 */
 	uint64_t
 	get_wildcards() const;
+
+	/**
+	 *
+	 */
+	void
+	set_wildcards(uint64_t wildcards);
 
 	/**
 	 *
@@ -158,8 +176,20 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_write_actions(uint32_t write_actions);
+
+	/**
+	 *
+	 */
 	uint32_t
 	get_apply_actions() const;
+
+	/**
+	 *
+	 */
+	void
+	set_apply_actions(uint32_t apply_actions);
 
 	/**
 	 *
@@ -170,8 +200,20 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_write_setfields(uint64_t write_setfields);
+
+	/**
+	 *
+	 */
 	uint64_t
 	get_apply_setfields() const;
+
+	/**
+	 *
+	 */
+	void
+	set_apply_setfields(uint64_t apply_setfields);
 
 	/**
 	 *
@@ -182,14 +224,32 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_metadata_match(uint64_t metadata_match);
+
+	/**
+	 *
+	 */
 	uint64_t
 	get_metadata_write() const;
 
 	/**
 	 *
 	 */
+	void
+	set_metadata_write(uint64_t metadata_write);
+
+	/**
+	 *
+	 */
 	uint32_t
 	get_instructions() const;
+
+	/**
+	 *
+	 */
+	void
+	set_instructions(uint32_t instructions);
 
 	/**
 	 *

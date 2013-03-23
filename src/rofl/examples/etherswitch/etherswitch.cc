@@ -91,8 +91,8 @@ etherswitch::handle_packet_in(
 		fe.set_table_id(0);
 
 		fe.match.set_in_port(msg->get_match().get_in_port());
-		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
-		fe.instructions[0] = cofinst_write_actions();
+		fe.match.set_eth_dst(eth_dst);
+		fe.instructions.next() = cofinst_write_actions();
 		fe.instructions[0].actions.next() = cofaction_output(out_port);
 
 		send_flow_mod_message(
