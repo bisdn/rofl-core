@@ -288,6 +288,8 @@ cofmsg_config::validate()
 {
 	cofmsg::validate(); // check generic OpenFlow header
 
+	ofh_switch_config = soframe();
+
 	switch (get_version()) {
 	case OFP10_VERSION: {
 		if (get_length() < sizeof(struct ofp10_switch_config))
