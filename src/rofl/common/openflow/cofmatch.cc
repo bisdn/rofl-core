@@ -803,6 +803,37 @@ cofmatch::get_eth_dst() const throw (eOFmatchNotFound)
 }
 
 
+
+cmacaddr
+cofmatch::get_eth_dst_addr() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return cmacaddr(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST).oxm_maddr->addr, OFP_ETH_ALEN);
+}
+
+
+
+cmacaddr
+cofmatch::get_eth_dst_mask() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	if (!oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST).get_oxm_hasmask()) {
+		return cmacaddr("ff:ff:ff:ff:ff:ff");
+	}
+
+	return cmacaddr(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST).oxm_maddr->mask, OFP_ETH_ALEN);
+}
+
+
+
 cmacaddr
 cofmatch::get_eth_src() const throw (eOFmatchNotFound)
 {
@@ -813,6 +844,37 @@ cofmatch::get_eth_src() const throw (eOFmatchNotFound)
 
 	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).u48addr();
 }
+
+
+
+cmacaddr
+cofmatch::get_eth_src_addr() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return cmacaddr(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).oxm_maddr->addr, OFP_ETH_ALEN);
+}
+
+
+
+cmacaddr
+cofmatch::get_eth_src_mask() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	if (!oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).get_oxm_hasmask()) {
+		return cmacaddr("ff:ff:ff:ff:ff:ff");
+	}
+
+	return cmacaddr(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).oxm_maddr->mask, OFP_ETH_ALEN);
+}
+
 
 
 void
@@ -873,6 +935,32 @@ cofmatch::get_vlan_vid() const throw (eOFmatchNotFound)
 	}
 
 	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).u16value();
+}
+
+
+
+uint16_t
+cofmatch::get_vlan_vid_value() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).uint16_value();
+}
+
+
+
+uint16_t
+cofmatch::get_vlan_vid_mask() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).uint16_mask();
 }
 
 
@@ -1079,6 +1167,38 @@ cofmatch::get_ipv4_src() const throw (eOFmatchNotFound)
 
 
 
+caddress
+cofmatch::get_ipv4_src_value() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	caddress addr(AF_INET, "0.0.0.0");
+	addr.ca_s4addr->sin_addr.s_addr =
+			htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).uint32_value());
+	return addr;
+}
+
+
+
+caddress
+cofmatch::get_ipv4_src_mask() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	caddress mask(AF_INET, "0.0.0.0");
+	mask.ca_s4addr->sin_addr.s_addr =
+			htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).uint32_mask());
+	return mask;
+}
+
+
+
 void
 cofmatch::set_ipv4_src(
 		caddress const& src)
@@ -1105,6 +1225,38 @@ cofmatch::get_ipv4_dst() const throw (eOFmatchNotFound)
 		throw eOFmatchNotFound();
 	}
 	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).u32addr();
+}
+
+
+
+caddress
+cofmatch::get_ipv4_dst_value() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	caddress addr(AF_INET, "0.0.0.0");
+	addr.ca_s4addr->sin_addr.s_addr =
+			htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).uint32_value());
+	return addr;
+}
+
+
+
+caddress
+cofmatch::get_ipv4_dst_mask() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	caddress mask(AF_INET, "0.0.0.0");
+	mask.ca_s4addr->sin_addr.s_addr =
+			htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).uint32_mask());
+	return mask;
 }
 
 

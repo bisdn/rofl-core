@@ -318,6 +318,22 @@ public:
 	/**
 	 *
 	 */
+	cmacaddr
+	get_eth_dst_addr() const
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_eth_dst_mask() const
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
 	void
 	set_eth_dst(
 			cmacaddr const& maddr,
@@ -329,6 +345,22 @@ public:
 	 */
 	cmacaddr
 	get_eth_src() const
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_eth_src_addr() const
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_eth_src_mask() const
 		throw (eOFmatchNotFound);
 
 
@@ -362,6 +394,22 @@ public:
 	 */
 	uint16_t
 	get_vlan_vid() const
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_vlan_vid_value() const
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_vlan_vid_mask() const
 		throw (eOFmatchNotFound);
 
 
@@ -496,6 +544,22 @@ public:
 	/**
 	 *
 	 */
+	caddress
+	get_ipv4_src_value() const
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_ipv4_src_mask() const
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
 	void
 	set_ipv4_src(
 			caddress const& src);
@@ -515,6 +579,22 @@ public:
 	 */
 	caddress
 	get_ipv4_dst() const
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_ipv4_dst_value() const
+		throw (eOFmatchNotFound);
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_ipv4_dst_mask() const
 		throw (eOFmatchNotFound);
 
 

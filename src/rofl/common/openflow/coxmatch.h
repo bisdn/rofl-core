@@ -281,7 +281,6 @@ public: // methods
 	cmacaddr u48addr() const;
 	caddress u128addr() const;
 
-
 	/**
 	 *
 	 */
