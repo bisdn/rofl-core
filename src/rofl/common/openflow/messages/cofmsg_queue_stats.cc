@@ -282,10 +282,10 @@ cofmsg_queue_stats_reply::length() const
 {
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_stats_reply) + queue_stats.size() * sizeof(struct ofp10_desc_stats));
+		return (sizeof(struct ofp10_stats_reply) + queue_stats.size() * sizeof(struct ofp10_queue_stats));
 	} break;
 	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_stats_reply) + queue_stats.size() * sizeof(struct ofp12_desc_stats));
+		return (sizeof(struct ofp12_stats_reply) + queue_stats.size() * sizeof(struct ofp12_queue_stats));
 	} break;
 	case OFP13_VERSION: {
 		// TODO

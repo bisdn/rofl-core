@@ -185,13 +185,13 @@ cofmsg_table_stats_reply::cofmsg_table_stats_reply(
 	case OFP10_VERSION: {
 		resize(sizeof(struct ofp10_stats_reply) + table_stats.size() * sizeof(struct ofp10_table_stats));
 		for (unsigned int i = 0; i < table_stats.size(); i++) {
-			table_stats[i].pack(soframe() + i * sizeof(struct ofp10_stats_reply), sizeof(struct ofp10_table_stats));
+			table_stats[i].pack(soframe() + sizeof(struct ofp10_stats_reply) + i * sizeof(struct ofp10_stats_reply), sizeof(struct ofp10_table_stats));
 		}
 	} break;
 	case OFP12_VERSION: {
 		resize(sizeof(struct ofp12_stats_reply) + table_stats.size() * sizeof(struct ofp12_table_stats));
 		for (unsigned int i = 0; i < table_stats.size(); i++) {
-			table_stats[i].pack(soframe() + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_table_stats));
+			table_stats[i].pack(soframe() + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_table_stats));
 		}
 	} break;
 	case OFP13_VERSION: {
@@ -279,12 +279,13 @@ cofmsg_table_stats_reply::resize(size_t len)
 size_t
 cofmsg_table_stats_reply::length() const
 {
+	fprintf(stderr, "cofmsg_table_stats_reply::length()\n");
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_stats_reply) + table_stats.size() * sizeof(struct ofp10_desc_stats));
+		return (sizeof(struct ofp10_stats_reply) + table_stats.size() * sizeof(struct ofp10_table_stats));
 	} break;
 	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_stats_reply) + table_stats.size() * sizeof(struct ofp12_desc_stats));
+		return (sizeof(struct ofp12_stats_reply) + table_stats.size() * sizeof(struct ofp12_table_stats));
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -301,6 +302,7 @@ cofmsg_table_stats_reply::length() const
 void
 cofmsg_table_stats_reply::pack(uint8_t *buf, size_t buflen)
 {
+	fprintf(stderr, "cofmsg_table_stats_reply::pack()\n");
 	cofmsg_stats::pack(buf, buflen); // copies common statistics header
 
 	if ((0 == buf) || (0 == buflen))
@@ -314,14 +316,14 @@ cofmsg_table_stats_reply::pack(uint8_t *buf, size_t buflen)
 		if (buflen < length())
 			throw eInval();
 		for (unsigned int i = 0; i < table_stats.size(); i++) {
-			table_stats[i].pack(soframe() + i * sizeof(struct ofp10_stats_reply), sizeof(struct ofp10_table_stats));
+			table_stats[i].pack(buf + sizeof(struct ofp10_stats_reply) + i * sizeof(struct ofp10_table_stats), sizeof(struct ofp10_table_stats));
 		}
 	} break;
 	case OFP12_VERSION: {
 		if (buflen < length())
 			throw eInval();
 		for (unsigned int i = 0; i < table_stats.size(); i++) {
-			table_stats[i].pack(soframe() + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_table_stats));
+			table_stats[i].pack(buf + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_table_stats), sizeof(struct ofp12_table_stats));
 		}
 	} break;
 	case OFP13_VERSION: {
@@ -357,7 +359,7 @@ cofmsg_table_stats_reply::validate()
 		if (get_length() < sizeof(struct ofp10_stats_reply))
 			throw eBadSyntaxTooShort();
 		for (unsigned int i = 0; i < ((get_length() - sizeof(struct ofp10_stats_reply)) / sizeof(struct ofp10_table_stats)); i++) {
-			coftable_stats_reply table_stats_reply;
+			coftable_stats_reply table_stats_reply(OFP10_VERSION);
 			table_stats_reply.unpack(soframe() + sizeof(struct ofp10_stats_reply) + i * sizeof(struct ofp10_table_stats), sizeof(struct ofp10_table_stats));
 			table_stats.push_back(table_stats_reply);
 		}
@@ -366,7 +368,7 @@ cofmsg_table_stats_reply::validate()
 		if (get_length() < (sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_table_stats)))
 			throw eBadSyntaxTooShort();
 		for (unsigned int i = 0; i < ((get_length() - sizeof(struct ofp12_stats_reply)) / sizeof(struct ofp12_table_stats)); i++) {
-			coftable_stats_reply table_stats_reply;
+			coftable_stats_reply table_stats_reply(OFP12_VERSION);
 			table_stats_reply.unpack(soframe() + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_table_stats), sizeof(struct ofp12_table_stats));
 			table_stats.push_back(table_stats_reply);
 		}

@@ -175,6 +175,8 @@ cofmsg_flow_stats_request::validate()
 {
 	cofmsg_stats::validate(); // check generic statistics header
 
+	ofh_flow_stats = soframe();
+
 	switch (get_version()) {
 	case OFP10_VERSION: {
 		if (get_length() < sizeof(struct ofp10_stats_reply))
@@ -350,14 +352,14 @@ cofmsg_flow_stats_reply::pack(uint8_t *buf, size_t buflen)
 		if (buflen < length())
 			throw eInval();
 		for (unsigned int i = 0; i < flow_stats.size(); i++) {
-			flow_stats[i].pack(soframe() + i * sizeof(struct ofp10_stats_reply), sizeof(struct ofp10_flow_stats));
+			flow_stats[i].pack(buf + sizeof(struct ofp10_stats_reply) + i * sizeof(struct ofp10_flow_stats), sizeof(struct ofp10_flow_stats));
 		}
 	} break;
 	case OFP12_VERSION: {
 		if (buflen < length())
 			throw eInval();
 		for (unsigned int i = 0; i < flow_stats.size(); i++) {
-			flow_stats[i].pack(soframe() + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_flow_stats));
+			flow_stats[i].pack(buf + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_flow_stats), sizeof(struct ofp12_flow_stats));
 		}
 	} break;
 	case OFP13_VERSION: {

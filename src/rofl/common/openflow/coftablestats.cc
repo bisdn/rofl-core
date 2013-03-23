@@ -8,7 +8,7 @@ coftable_stats_reply::coftable_stats_reply(
 		uint8_t of_version) :
 				of_version(of_version),
 				table_id(0),
-				name(0),
+				name(std::string("")),
 				match(0),
 				wildcards(0),
 				write_actions(0),
@@ -481,3 +481,29 @@ coftable_stats_reply::length() const
 
 
 
+const char*
+coftable_stats_reply::c_str()
+{
+	cvastring vas;
+
+	info.assign(vas("coftable_stats_reply(%p): ", this));
+	info.append(vas("of_version:%d ", of_version));
+	info.append(vas("table_id:%d ", table_id));
+	info.append(vas("name:%s ", name.c_str()));
+	info.append(vas("match:%d ", match));
+	info.append(vas("wildcards:%d ", wildcards));
+	info.append(vas("write_actions:%d ", write_actions));
+	info.append(vas("apply_actions:%d ", apply_actions));
+	info.append(vas("write_setfields:%d ", write_setfields));
+	info.append(vas("apply_setfields:%d ", apply_setfields));
+	info.append(vas("metadata_match:%d ", metadata_match));
+	info.append(vas("metadata_write:%d ", metadata_write));
+	info.append(vas("instructions:%d ", instructions));
+	info.append(vas("config:%d ", config));
+	info.append(vas("max_entries:%d ", max_entries));
+	info.append(vas("active_count:%d ", active_count));
+	info.append(vas("lookup_count:%d ", lookup_count));
+	info.append(vas("matched_count:%d ", matched_count));
+
+	return info.c_str();
+}

@@ -160,7 +160,7 @@ cofmsg::operator=(const cofmsg &p)
 const char*
 cofmsg::c_str()
 {
-	return info.c_str();
+	return (memarea == 0) ? info.c_str() : memarea->c_str();
 }
 
 

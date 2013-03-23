@@ -118,6 +118,8 @@ cofmsg_error::validate()
 {
 	cofmsg::validate(); // check generic OpenFlow header
 
+	err_msg = (struct ofp_error_msg*)soframe();
+
 	switch (get_version()) {
 	case OFP10_VERSION:
 	case OFP12_VERSION:

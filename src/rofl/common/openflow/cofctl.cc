@@ -397,6 +397,8 @@ cofctl::handle_message(
 			return;
 		}
 
+		fprintf(stderr, "receive: %s\n", mem->c_str());
+
 		struct ofp_header* ofh_header = (struct ofp_header*)mem->somem();
 
 		if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (OFPT_HELLO != ofh_header->type)) {
@@ -2385,6 +2387,8 @@ cofctl::send_message_via_socket(
 	cmemory *mem = new cmemory(pack->length());
 
 	pack->pack(mem->somem(), mem->memlen());
+
+	fprintf(stderr, "send: %s\n", mem->c_str());
 
 	WRITELOG(COFCTL, DBG, "cofctl(%p)::send_message_via_socket() new cmemory: %s",
 				this, mem->c_str());

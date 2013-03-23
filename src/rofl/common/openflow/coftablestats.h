@@ -9,6 +9,7 @@
 #define COFTABLESTATS_H_ 1
 
 #include "../cmemory.h"
+#include "../cvastring.h"
 #include "../../platform/unix/csyslog.h"
 #include "openflow.h"
 #include "openflow_rofl_exceptions.h"
@@ -20,6 +21,7 @@ class coftable_stats_reply
 {
 private: // data structures
 
+	std::string		info;
 	uint8_t 		of_version;
 	uint8_t			table_id;
 	std::string		name;
@@ -102,6 +104,13 @@ public:
 	coftable_stats_reply&
 	operator= (
 			coftable_stats_reply const& table_stats);
+
+
+	/**
+	 *
+	 */
+	const char*
+	c_str();
 
 
 	/**

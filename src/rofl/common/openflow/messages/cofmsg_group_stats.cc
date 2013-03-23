@@ -317,7 +317,7 @@ cofmsg_group_stats_reply::pack(uint8_t *buf, size_t buflen)
 		if (buflen < length())
 			throw eInval();
 		for (unsigned int i = 0; i < group_stats.size(); i++) {
-			group_stats[i].pack(soframe() + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_group_stats));
+			group_stats[i].pack(soframe() + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_group_stats), sizeof(struct ofp12_group_stats));
 		}
 	} break;
 	case OFP13_VERSION: {

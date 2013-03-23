@@ -174,6 +174,8 @@ cofmsg_aggr_stats_request::validate()
 {
 	cofmsg_stats::validate(); // check generic statistics header
 
+	ofh_aggr_stats = soframe();
+
 	switch (get_version()) {
 	case OFP10_VERSION: {
 		if (get_length() < (sizeof(struct ofp10_stats_request) + sizeof(struct ofp10_aggregate_stats_request)))
