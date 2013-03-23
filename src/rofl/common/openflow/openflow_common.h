@@ -37,6 +37,8 @@
 #define OFP_TCP_PORT  6633
 #define OFP_SSL_PORT  6633
 
+#define OFP_VERSION_UNKNOWN 0
+
 #define OFP_ETH_ALEN 6          /* Bytes in an Ethernet address. */
 
 

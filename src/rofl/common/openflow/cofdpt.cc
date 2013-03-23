@@ -23,6 +23,7 @@ cofdpt::cofdpt(
 				socket(new csocket(this, newsd, ra, domain, type, protocol)),
 				rofbase(rofbase),
 				fragment(0),
+				msg_bytes_read(0),
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
@@ -159,7 +160,12 @@ cofdpt::handle_read(
 	cmemory *mem = (cmemory*)0;
 	try {
 
-		mem = (0 != fragment) ? fragment : new cmemory(sizeof(struct ofp_header));
+		if (0 == fragment) {
+			mem = new cmemory(sizeof(struct ofp_header));
+			msg_bytes_read = 0;
+		} else {
+			mem = fragment;
+		}
 
 		while (true) {
 
@@ -172,6 +178,7 @@ cofdpt::handle_read(
 				struct ofp_header *ofh_header = (struct ofp_header*)mem->somem();
 				msg_len = be16toh(ofh_header->length);
 			}
+			fprintf(stderr, "how many? msg_len=%d mem: %s\n", msg_len, mem->c_str());
 
 			// resize msg buffer, if necessary
 			if (mem->memlen() < msg_len) {
@@ -181,7 +188,8 @@ cofdpt::handle_read(
 			// TODO: SSL/TLS socket
 
 			// read from socket
-			rc = read(sd, (void*)(mem->somem() + mem->memlen()), msg_len - mem->memlen());
+			rc = read(sd, (void*)(mem->somem() + msg_bytes_read), msg_len - msg_bytes_read);
+			fprintf(stderr, "read %d bytes\n", rc);
 
 
 			if (rc < 0) // error occured (or non-blocking)
@@ -221,13 +229,15 @@ cofdpt::handle_read(
 			}
 			else // rc > 0, // some bytes were received, check for completeness of packet
 			{
+				msg_bytes_read += rc;
+
 				// minimum message length received, check completeness of message
 				if (mem->memlen() >= sizeof(struct ofp_header)) {
 					struct ofp_header *ofh_header = (struct ofp_header*)mem->somem();
 					uint16_t msg_len = be16toh(ofh_header->length);
 
 					// ok, message was received completely
-					if (msg_len == mem->memlen()) {
+					if (msg_len == msg_bytes_read) {
 						fragment = (cmemory*)0;
 						handle_message(mem);
 						return;

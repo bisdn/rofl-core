@@ -1301,6 +1301,9 @@ crofbase::send_error_message(
 		for (std::set<cofctl*>::iterator
 				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
 		{
+			if (not (*it)->is_established()) {
+				continue;
+			}
 			cofmsg_error *pack =
 					new cofmsg_error(
 							(*it)->get_version(),
@@ -1557,6 +1560,9 @@ crofbase::send_flow_removed_message(
 		for (std::set<cofctl*>::iterator
 				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
 		{
+			if (not (*it)->is_established()) {
+				continue;
+			}
 			cofctl *ofctrl = (*it);
 
 			if (OFPCR_ROLE_SLAVE == ofctrl->role)
@@ -1620,6 +1626,10 @@ crofbase::send_port_status_message(
 	for (std::set<cofctl*>::iterator
 			it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
 	{
+		if (not (*it)->is_established()) {
+			continue;
+		}
+
 		WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_port_status_message() "
 				"to ctrl %s", this, (*it)->c_str());
 
@@ -1751,6 +1761,9 @@ crofbase::send_experimenter_message(
 		for (std::set<cofctl*>::iterator
 				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
 		{
+			if (not (*it)->is_established()) {
+				continue;
+			}
 			(*it)->send_message(new cofmsg(*pack));
 		}
 
