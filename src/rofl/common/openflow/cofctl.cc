@@ -25,7 +25,7 @@ cofctl::cofctl(
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
-				version(0)
+				version(OFP12_VERSION)
 {
 	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
 
@@ -48,10 +48,11 @@ cofctl::cofctl(
 				cached_generation_id(0),
 				socket(new csocket(this, domain, type, protocol)),
 				fragment(0),
+				msg_bytes_read(0),
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
-				version(0)
+				version(OFP12_VERSION)
 {
 	WRITELOG(COFCTL, DBG, "cofctl(%p)::cofctl() TCP connect", this);
 
@@ -288,7 +289,7 @@ cofctl::handle_read(
 			// TODO: SSL/TLS socket
 
 			// read from socket
-			rc = read(sd, (void*)(mem->somem() + mem->memlen()), msg_len - mem->memlen());
+			rc = read(sd, (void*)(mem->somem() + msg_bytes_read), msg_len - msg_bytes_read);
 
 			if (rc < 0) // error occured (or non-blocking)
 			{
