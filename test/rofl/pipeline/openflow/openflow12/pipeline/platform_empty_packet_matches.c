@@ -35,6 +35,12 @@ uint32_t platform_get_packet_ipv4_src(datapacket_t *const pkt){
 uint32_t platform_get_packet_ipv4_dst(datapacket_t *const pkt){
 	return 0;
 }
+uint8_t platform_get_packet_ip_dscp(datapacket_t *const pkt){
+	return 0;
+}
+uint8_t platform_get_packet_ip_ecn(datapacket_t *const pkt){
+	return 0;
+}
 uint16_t platform_get_packet_tcp_dst(datapacket_t *const pkt){
 	return 0;
 }

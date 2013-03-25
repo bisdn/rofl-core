@@ -412,6 +412,10 @@ static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer
 	if(of12_entry_timer_init(tg_iterator, entry_timer->entry, is_idle, &(entry_timer->time_last_update)) == NULL)
 		return ROFL_FAILURE;
 #endif
+		
+	//TODO delete timer_entry that has been rescheduled:
+	of12_destroy_single_timer_entry_clean(entry_timer, &pipeline->tables[id_table]);
+	
 	return ROFL_SUCCESS;
 }
 

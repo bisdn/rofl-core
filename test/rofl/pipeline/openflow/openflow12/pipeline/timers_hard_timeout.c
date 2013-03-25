@@ -138,14 +138,17 @@ void test_insert_and_extract_static(of12_pipeline_t * pipeline, uint32_t hard_ti
 void test_simple_idle_static(of12_pipeline_t * pipeline, uint32_t ito)
 {
 	of12_flow_table_t * table = pipeline->tables;
-	of12_flow_entry_t *entry=of12_init_flow_entry(NULL,NULL,false);
+	of12_flow_entry_t *entry=of12_init_flow_entry(NULL,NULL,false); //NOTE entry is initiated but not inserted in the table. Therefore we must extract it.??
 	struct timeval now;
 	//WARNING not working for slots different than seconds (1000 ms)
 	int slot, i;
 	of12_fill_new_timer_entry_info(entry,0,ito);
 	
+	//insert to table?
+	of12_add_flow_entry_table(pipeline, 0,entry,false, false);
+	
 	//insert a timer
-	CU_ASSERT(of12_add_timer(table, entry)==EXIT_SUCCESS);
+	//CU_ASSERT(of12_add_timer(table, entry)==EXIT_SUCCESS);
 	of12_time_forward(0,0,&now);
 	fprintf(stderr,"added idle TO (%p) at time %lu:%lu for %d seconds\n", entry, now.tv_sec, now.tv_usec, ito);
 	slot = (now.tv_sec+ito)%OF12_TIMER_GROUPS_MAX;
@@ -171,8 +174,18 @@ void test_simple_idle_static(of12_pipeline_t * pipeline, uint32_t ito)
 	for(i=0; i<OF12_TIMER_GROUPS_MAX; i++)
 			CU_ASSERT(table->timers[i].list.num_of_timers == 0);
 	
-	of12_destroy_flow_entry(entry);
+	//of12_destroy_flow_entry(entry);
 	fprintf(stderr,"<%s> test passed\n",__func__);
+}
+
+void debug_how_many_entries_static(of12_flow_table_t *table){
+	unsigned int num=0, i=0;
+	for(i=0; i<OF12_TIMER_GROUPS_MAX;i++){
+		if(table->timers[i].list.num_of_timers>0)
+			fprintf(stderr,"<%s:%d> i=%d\n",__func__,__LINE__,i);
+		num+=table->timers[i].list.num_of_timers;
+	}
+	fprintf(stderr,"<%s:%d> Total num of entr = %d\n",__func__,__LINE__,num);
 }
 
 void test_insert_both_expires_one_check_the_other_static(of12_pipeline_t * pipeline, uint32_t hto, uint32_t ito)
@@ -283,7 +296,7 @@ void test_insert_and_extract_dynamic(of12_pipeline_t * pipeline, uint32_t hard_t
 		CU_ASSERT( of12_destroy_flow_entry(entry_list[i])==ROFL_SUCCESS);
 	}
 	
-	//free(entry_list);
+	free(entry_list);
 	fprintf(stderr,"<%s> test passed\n",__func__);
 }
 
