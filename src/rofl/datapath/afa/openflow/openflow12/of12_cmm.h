@@ -22,7 +22,7 @@
 */
 
 //C++ extern C
-HAL_BEGIN_DECLS
+AFA_BEGIN_DECLS
 
 /**
  * @name    cmm_process_of12_packet_in
@@ -62,7 +62,7 @@ afa_result_t cmm_process_of12_flow_removed(const of12_switch_t* sw,
 					of12_flow_entry_t* removed_flow_entry);
 
 //C++ extern C
-HAL_END_DECLS
+AFA_END_DECLS
 
 #endif /* OF12_CMM_H */
 

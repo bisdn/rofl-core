@@ -30,7 +30,4 @@ typedef enum afa_result {
 	AFA_FM_OVERLAP_FAILURE
 }afa_result_t;
 
-//C++ extern C
-AFA_END_DECLS
-
 #endif /* AFA_H */
