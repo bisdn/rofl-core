@@ -255,6 +255,9 @@ AC_CONFIG_FILES([
 	src/rofl/controller/Makefile
 	src/rofl/Makefile
 
+        src/rofl/datapath/afa/Makefile
+        src/rofl/datapath/afa/openflow/openflow12/Makefile
+	
 	test/Makefile
 	test/unit/Makefile
 	test/unit/test1/Makefile

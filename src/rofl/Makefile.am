@@ -6,7 +6,7 @@ if PIPELINE_SUPPORT
 PIPELINE_DIRS=datapath/pipeline
 endif
 
-SUBDIRS = common controller $(PIPELINE_DIRS) platform
+SUBDIRS = common controller datapath/afa $(PIPELINE_DIRS) platform
 
 #library_includedir=$(includedir)/rofl 
 #include_HEADERS=rofl.h
