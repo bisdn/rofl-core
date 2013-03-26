@@ -25,6 +25,13 @@ enum rofl_result {
 };
 typedef enum rofl_result rofl_result_t;
 
+#ifdef __cplusplus
+	# define ROFL_BEGIN_DECLS extern "C" {
+	# define ROFL_END_DECLS   }
+#else
+	# define ROFL_BEGIN_DECLS
+	# define ROFL_END_DECLS
+#endif
 //TODO: add other stuff here...
 
 #endif //ROFL
