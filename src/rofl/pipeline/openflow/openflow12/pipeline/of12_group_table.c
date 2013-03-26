@@ -12,7 +12,6 @@
 #include "of12_group_table.h"
 #include "of12_pipeline.h"
 #include "../../../platform/memory.h"
-#include "../../../../common/openflow/openflow12.h"
 
 static void of12_destroy_bucket_list(of12_group_t *ge);
 static void of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge);
@@ -83,7 +82,7 @@ of12_group_mod_err_t of12_init_group(of12_group_table_t *gt, of12_group_type_t t
 	
 	//TODO check type
 	
-	if(id == OFPG_ALL || id == OFPG_ANY || id > OFPG_MAX)
+	if(id == OF12_GROUP_ALL || id == OF12_GROUP_ANY || id > OF12_GROUP_MAX)
 		return OF12_GROUP_MOD_ERR_INVAL;
 	
 	//validate action set
@@ -193,8 +192,8 @@ of12_group_mod_err_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_tab
 	of12_flow_entry_t* entry;
 	of12_group_t *ge, *next;
 	
-	//TODO if the group value is OFPG_ALL, delete all groups 
-	if(id == OFPG_ALL){
+	//TODO if the group value is OFP12_GROUP_ALL, delete all groups 
+	if(id == OF12_GROUP_ALL){
 		for(ge = gt->head; ge; ge=next){
 			next = ge->next;
 			//extract the group without destroying it (only the first thread that comes gets it)

@@ -7,6 +7,8 @@
 #include "of12_flow_entry.h"
 #include <rofl/pipeline/platform/lock.h>
 
+#define OF12_GROUP_MAX 0xffffff00
+#define OF12_GROUP_ALL 0xfffffffc  /* Represents all groups for group delete commands. */
 #define OF12_GROUP_ANY 0xffffffff /* Wildcard group used only for flow stats */
 
 typedef struct of12_bucket{
