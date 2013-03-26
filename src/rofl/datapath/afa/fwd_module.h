@@ -15,17 +15,17 @@
 //C++ extern C
 AFA_BEGIN_DECLS
 
-//Init&destroy driver
+//Init&destroy forward module
 /**
 * @name    fwd_module_init
-* @brief   Initializes driver. Before using the AFA_DRIVER routines, higher layers must allow driver to initialize itself
+* @brief   Initializes forward module. Before using the AFA_DRIVER routines, higher layers must allow forward module to initialize itself
 * @ingroup fwd_module_management
 */
 afa_result_t fwd_module_init(void);
 
 /**
 * @name    fwd_module_destroy
-* @brief   Destroy driver state. Allows platform state to be properly released. 
+* @brief   Destroy forward module state. Allows platform state to be properly released. 
 * @ingroup fwd_module_management
 */
 afa_result_t fwd_module_destroy(void);
@@ -40,7 +40,7 @@ afa_result_t fwd_module_destroy(void);
 
 /**
 * @name    fwd_module_create_switch 
-* @brief   Instruct driver to create an OF logical switch 
+* @brief   Instruct forward module to create an OF logical switch 
 * @ingroup logical_switch_management
 * @retval  Pointer to of_switch_t instance 
 */
@@ -56,7 +56,7 @@ of_switch_t* fwd_module_get_switch_by_dpid(uint64_t dpid);
 
 /**
 * @name    fwd_module_destroy_switch_by_dpid 
-* @brief   Instructs the driver to destroy the switch with the specified dpid 
+* @brief   Instructs the forward module to destroy the switch with the specified dpid 
 * @ingroup logical_switch_management
 */
 afa_result_t fwd_module_destroy_switch_by_dpid(uint64_t dpid);
