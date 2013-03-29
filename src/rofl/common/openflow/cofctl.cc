@@ -1144,7 +1144,7 @@ cofctl::hello_rcvd(cofmsg_hello *msg)
 
 			if (flags.test(COFCTL_FLAG_HELLO_SENT))
 			{
-				rofbase->send_echo_request(this);
+				register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, 2);
 
 				rofbase->handle_ctl_open(this);
 			}

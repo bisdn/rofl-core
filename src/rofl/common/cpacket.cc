@@ -411,6 +411,8 @@ cpacket::unpack(
 		mem_resize(len);
 	}
 	memcpy(soframe(), src, len);
+	data.first = soframe();
+	data.second = len;
 	unpack(in_port);
 }
 

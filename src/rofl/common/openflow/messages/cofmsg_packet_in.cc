@@ -15,7 +15,8 @@ cofmsg_packet_in::cofmsg_packet_in(
 		uint8_t *data,
 		size_t datalen) :
 	cofmsg(sizeof(struct ofp_header)),
-	match(match)
+	match(match),
+	packet(data, datalen, match.get_in_port())
 {
 	ofh_packet_in = soframe();
 

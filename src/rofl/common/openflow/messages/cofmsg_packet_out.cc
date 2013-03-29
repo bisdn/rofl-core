@@ -217,8 +217,8 @@ cofmsg_packet_out::validate()
 		actions.unpack(ofh10_packet_out->actions,
 						be16toh(ofh10_packet_out->actions_len));
 
-		if (OFP_NO_BUFFER != be16toh(ofh10_packet_out->buffer_id)) {
-			packet.unpack((uint32_t)be16toh(ofh10_packet_out->in_port),
+		if (OFP_NO_BUFFER != get_buffer_id()) {
+			packet.unpack(get_in_port(),
 						((uint8_t*)ofh10_packet_out) +
 							sizeof(struct ofp10_packet_out) +
 								be16toh(ofh10_packet_out->actions_len),
@@ -237,14 +237,13 @@ cofmsg_packet_out::validate()
 		actions.unpack(ofh12_packet_out->actions,
 						be16toh(ofh12_packet_out->actions_len));
 
-		if (OFP_NO_BUFFER != be16toh(ofh12_packet_out->buffer_id)) {
-			packet.unpack(be32toh(ofh12_packet_out->in_port),
+		if (OFP_NO_BUFFER != get_buffer_id()) {
+			packet.unpack(get_in_port(),
 						((uint8_t*)ofh12_packet_out) +
 							sizeof(struct ofp12_packet_out) +
 								be16toh(ofh12_packet_out->actions_len),
-								be16toh(ofh12_packet_out->header.length) -
-													sizeof(struct ofp12_packet_out) -
-														be16toh(ofh12_packet_out->actions_len));
+								get_length() - sizeof(struct ofp12_packet_out) -
+											be16toh(ofh12_packet_out->actions_len));
 		}
 	} break;
 	case OFP13_VERSION: {
@@ -257,8 +256,8 @@ cofmsg_packet_out::validate()
 		actions.unpack(ofh13_packet_out->actions,
 						be16toh(ofh13_packet_out->actions_len));
 
-		if (OFP_NO_BUFFER != be16toh(ofh13_packet_out->buffer_id)) {
-			packet.unpack(be32toh(ofh13_packet_out->in_port),
+		if (OFP_NO_BUFFER != get_buffer_id()) {
+			packet.unpack(get_in_port(),
 						((uint8_t*)ofh13_packet_out) +
 							sizeof(struct ofp13_packet_out) +
 								be16toh(ofh13_packet_out->actions_len),

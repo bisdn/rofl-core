@@ -624,7 +624,7 @@ cofdpt::hello_rcvd(cofmsg_hello *msg)
 			{
 				rofbase->send_features_request(this);
 
-				rofbase->send_echo_request(this);
+				register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, 2);
 			}
 		}
 
@@ -735,7 +735,7 @@ cofdpt::features_reply_rcvd(
 		n_buffers 		= msg->get_n_buffers();
 		n_tables 		= msg->get_n_tables();
 		capabilities 	= msg->get_capabilities();
-		cofportlist portlist = msg->get_ports();
+		cofportlist& portlist = msg->get_ports();
 
 		for (std::map<uint32_t, cofport*>::iterator it = ports.begin();
 				it != ports.end(); ++it) {
@@ -746,7 +746,7 @@ cofdpt::features_reply_rcvd(
 		for (cofportlist::iterator it = portlist.begin();
 				it != portlist.end(); ++it) {
 			cofport& port = (*it);
-			ports[port.get_port_no()] = new cofport(port);
+			ports[port.get_port_no()] = new cofport(port, &ports, port.get_port_no());
 		}
 
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() "

@@ -8,7 +8,8 @@ cofmsg_echo::cofmsg_echo(
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen) :
-	cofmsg(sizeof(struct ofp_header))
+	cofmsg(sizeof(struct ofp_header)),
+	body(0)
 {
 	body.assign(data, datalen);
 
@@ -22,7 +23,8 @@ cofmsg_echo::cofmsg_echo(
 
 cofmsg_echo::cofmsg_echo(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	body(0)
 {
 	validate();
 }

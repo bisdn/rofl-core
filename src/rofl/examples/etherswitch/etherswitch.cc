@@ -1,9 +1,11 @@
 #include "etherswitch.h"
 
 
-etherswitch::etherswitch()
+etherswitch::etherswitch() :
+	fib_check_timeout(5) // check for expired FIB entries every 5 seconds
 {
 	// ...
+	register_timer(ETHSWITCH_TIMER_FIB, fib_check_timeout);
 }
 
 
@@ -13,6 +15,28 @@ etherswitch::~etherswitch()
 	// ...
 }
 
+
+
+void
+etherswitch::handle_timeout(int opaque)
+{
+	switch (opaque) {
+	case ETHSWITCH_TIMER_FIB: {
+		drop_expired_fib_entries();
+		register_timer(ETHSWITCH_TIMER_FIB, fib_check_timeout);
+	} break;
+	default:
+		crofbase::handle_timeout(opaque);
+	}
+}
+
+
+
+void
+etherswitch::drop_expired_fib_entries()
+{
+	// iterate over all FIB entries and delete expired ones ...
+}
 
 
 void
@@ -74,14 +98,15 @@ etherswitch::handle_packet_in(
 				dpt,
 				msg->get_buffer_id(),
 				msg->get_match().get_in_port(),
-				actions);
+				actions,
+				msg->get_packet().soframe(), msg->get_packet().framelen());
 	}
 	/*
 	 * unicast destination mac is known in FIB
 	 */
 	else
 	{
-		uint32_t out_port = fib[dpt][vlan_id][eth_dst];
+		uint32_t out_port = fib[dpt][vlan_id][eth_dst].port_no;
 
 		cflowentry fe(dpt->get_version());
 
@@ -103,7 +128,8 @@ etherswitch::handle_packet_in(
 	/*
 	 * update FIB
 	 */
-	fib[dpt][vlan_id][eth_src] = msg->get_match().get_in_port(); // may throw eOFmatchNotFound
+	fib[dpt][vlan_id][eth_src].port_no = msg->get_match().get_in_port(); // may throw eOFmatchNotFound
+	fib[dpt][vlan_id][eth_src].timeout = time(NULL) + fib_check_timeout;
 
 	delete msg;
 }

@@ -231,9 +231,10 @@ cofport::~cofport()
 {
 	WRITELOG(CPORT, DBG, "cofport(%p)::~cofport() %s", this, c_str());
 
-	WRITELOG(CPORT, DBG, "cofport(%p)::~cofport() port_list:%p ", this, port_list);
+	if ((std::map<uint32_t, cofport*>*)0 != port_list) {
 
-	if (0 != port_list) {
+		WRITELOG(CPORT, DBG, "cofport(%p)::~cofport() port_list: 0x%x ", this, port_list);
+
 		port_list->erase(get_port_no());
 	}
 }
@@ -803,8 +804,8 @@ cofport::c_str()
 	switch (of_version) {
 	case OFP10_VERSION: {
 		info.assign(vas("cofport(%p): port_no:%d hwaddr:%s name:%s "
-				"config:%d state:%d curr:%d advertised:%d "
-				"supported:%d peer:%d",
+				"config:0x%x state:0x%x curr:0x%x advertised:0x%x "
+				"supported:0x%x peer:0x%x",
 				this,
 				get_port_no(),
 				get_hwaddr().c_str(),
@@ -820,8 +821,8 @@ cofport::c_str()
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		info.assign(vas("cofport(%p): port_no:%d hwaddr:%s name:%s "
-				"config:%d state:%d curr:%d advertised:%d "
-				"supported:%d peer:%d curr_speed:%d max_speed:%d",
+				"config:0x%x state:0x%x curr:0x%x advertised:0x%x "
+				"supported:0x%x peer:0x%x curr_speed:0x%x max_speed:0x%x",
 				this,
 				get_port_no(),
 				get_hwaddr().c_str(),
