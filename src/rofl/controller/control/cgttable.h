@@ -27,9 +27,9 @@ extern "C" {
 //#include "../cfwdelem.h" 
 
 #include "cgtentry.h"
-#include "../../common/openflow/cofpacket.h"
 #include "cftentry.h"
 #include "../../common/openflow/openflow_rofl_exceptions.h"
+#include "../../common/openflow/cofgroupfeaturesstats.h"
 
 namespace rofl
 {
