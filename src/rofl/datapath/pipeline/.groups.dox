@@ -1,0 +1,101 @@
+//
+// Doxygen group definition
+//
+
+//Core
+/**
+*
+* @defgroup core Core APIs and data structures
+* @brief The core APIs and data structures are the ones used both internally and for data exchanging with 
+* the library user.
+*
+* The core APIs expose the initiliazers/destructors and the data structures used by the core library and by the other APIs (exposed and consumed). Only the documented structures and APIs should be used by the user library.
+*
+* @defgroup core_of12 Openflow v1.2 core APIs and data structures
+* @brief The core Openflow v1.2 APIs and data structures are the ones used both internally and for data exchanging with 
+* the library user.
+* @ingroup core 
+*
+*/
+
+//Matching algorithms
+/**
+* @defgroup core_ma Extensible Openflow software matching algorithm APIs 
+* @brief APIs to extend ROFL-pipeline with new (software/hybrid) Openflow table matching algorithms. 
+* @ingroup core
+*
+* @defgroup core_ma_of12 Extensible Openflow v1.2 software matching algorithm API 
+* @brief API to extend ROFL-pipeline with new (software/hybrid) Openflow v1.2 table matching algorithms. 
+* @ingroup core_ma
+* Defines the set of APIs or interfaces to extend core library with new software/hybrid matching algorithms for Openflow version 1.2 within the table matching process.
+*
+*/
+
+//Switch runtime
+/**
+*
+* @defgroup sw_runtime Switch Runtime APIs
+* @brief APIs used by software and hybrid switches, which have to process packets and/or entry expirations. 
+*
+* Only the documented structures and APIs should be used by the user library.
+*/
+
+
+//Mgmt
+/**
+*
+* @defgroup mgmt Managment API
+* @brief Mananagement of the system's/device state (physical switch), including logical switches and ports. 
+*
+* Exposes the api for managing so-called physical switch (the platform), including logical switches and platform ports.
+*
+*
+* This is roughly:
+*  - Device ports (network interface)
+*    - Port statistics
+*  - Logical switch creation and destruction
+*  - Attachement of ports to logical switches
+*
+*/
+
+//Openflow APIs
+
+/**
+* @defgroup endpoint Openflow end-point APIs 
+* @brief APIs that library consumes to communicate asynchronous events to the endpoint or an intermediate layer; must be implemented by the library users. 
+*
+*
+* @defgroup endpoint_of12 Openflow v1.2 end-point APIs
+* @brief Openflow version 1.2 asynchronous events APIs
+* @ingroup endpoint 
+*
+*/
+
+//Platform APIs
+
+/**
+* @defgroup platform Platform APIs 
+* @brief Platform APIs is a group of APIs which are used by the library but its implementation is platform specific. 
+* 
+* Platform APIs is the group of APIs that are used internally in the library, but its implementation is
+* platform specific. Examples are memory management and locking. The user of the library MUST implement all the
+* platform APIs.
+* 
+* @defgroup platform_lock Locking API
+* @brief Locking (mutex, rwlock) API definition, that must be implemented by the library users
+* @ingroup platform 
+*
+* @defgroup platform_atomic Atomic Operations API
+* @brief Atomic operations (atomic add, inc...) API definition, that must be implemented by the library users
+* @ingroup platform 
+*
+*
+* @defgroup platform_memory Memory API
+* @brief Memory management API definition (malloc, free..), that must be implemented by the library users.
+* @ingroup platform
+*
+* @defgroup platform_packet Packet Mangling API
+* @brief Packet Mangling API is in charge of packet manipulation and must be implemented by the library users
+* @ingroup platform
+*
+*/

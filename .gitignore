@@ -25,6 +25,7 @@ ltmain.sh
 missing
 depcomp
 libtool
+compile
 m4
 ar-lib
 

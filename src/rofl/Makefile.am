@@ -3,21 +3,16 @@ MAINTAINERCLEANFILES = Makefile.in
 export INCLUDES += -I$(abs_srcdir)/../ #-I$(abs_builddir)
 
 if PIPELINE_SUPPORT
-PIPELINE_DIRS=pipeline
+PIPELINE_DIRS=datapath/pipeline
 endif
 
-if EXPERIMENTAL 
-EXPERIMENTAL_DIRS=experimental
-EXPERIMENTAL_LIBS=experimental/libexperimental.la 
-endif
-
-SUBDIRS = common config platform control examples $(EXPERIMENTAL_DIRS) $(PIPELINE_DIRS)
+SUBDIRS = common controller datapath/afa $(PIPELINE_DIRS) platform examples
 
 #library_includedir=$(includedir)/rofl 
 #include_HEADERS=rofl.h
 
 lib_LTLIBRARIES = librofl.la
 librofl_la_SOURCES = #rofl.h 
-librofl_la_LIBADD = common/libcommon.la config/libconfig.la platform/libplatform.la $(EXPERIMENTAL_LIBS)
+librofl_la_LIBADD = common/librofl_common.la controller/librofl_controller.la  platform/libplatform.la 
 
 AM_LDFLAGS= -static

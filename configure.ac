@@ -40,6 +40,22 @@ else
 	AC_MSG_RESULT(no)
 fi
 
+# Make verbosity 
+AC_MSG_CHECKING(whether to compile in verbose mode)
+AC_ARG_ENABLE(verbose,
+	AS_HELP_STRING([--verbose], [turn on verbose mode [default=no]])
+		, verbose="yes", verbose="no")
+
+if test "$verbose" = "yes"; then
+	AC_MSG_RESULT(yes)
+	AM_SILENT_RULES([no])	
+else
+	AC_MSG_RESULT(no)
+	AM_SILENT_RULES([yes])	
+fi
+
+
+
 # Check for profiling mode
 AC_MSG_CHECKING(whether to enable profiling mode)
 profile_default="no"
@@ -110,7 +126,7 @@ fi
 AC_MSG_CHECKING(for pipeline support)
 PIPELINE_SUPPORT="yes"
 AC_ARG_ENABLE(pipeline,
-	AS_HELP_STRING([--enable-pipeline], [Enable pipeline support [default=no]]),
+	AS_HELP_STRING([--enable-pipeline], [Enable pipeline support [default=yes]]),
 [ if test "$enableval" = "yes"; then
     PIPELINE_SUPPORT="yes"
     AC_DEFINE(PIPELINE_SUPPORT)
@@ -119,25 +135,23 @@ AC_ARG_ENABLE(pipeline,
 AC_MSG_RESULT($PIPELINE_SUPPORT)
 AM_CONDITIONAL(PIPELINE_SUPPORT, test $PIPELINE_SUPPORT = yes)
 AM_COND_IF([PIPELINE_SUPPORT],[AC_CONFIG_FILES([
-        src/rofl/pipeline/Makefile
-        src/rofl/pipeline/common/Makefile
-        src/rofl/pipeline/platform/Makefile
-        src/rofl/pipeline/platform/openflow/Makefile
-		src/rofl/pipeline/platform/openflow/openflow12/Makefile
-        src/rofl/pipeline/openflow/Makefile
-        src/rofl/pipeline/openflow/openflow12/Makefile
-        src/rofl/pipeline/openflow/openflow12/pipeline/Makefile
-        src/rofl/pipeline/openflow/openflow12/pipeline/matching_algorithms/Makefile
-        src/rofl/pipeline/util/Makefile
+        src/rofl/datapath/pipeline/Makefile
+        src/rofl/datapath/pipeline/common/Makefile
+        src/rofl/datapath/pipeline/platform/Makefile
+        src/rofl/datapath/pipeline/openflow/Makefile
+        src/rofl/datapath/pipeline/openflow/openflow12/Makefile
+        src/rofl/datapath/pipeline/openflow/openflow12/pipeline/Makefile
+        src/rofl/datapath/pipeline/openflow/openflow12/pipeline/matching_algorithms/Makefile
+        src/rofl/datapath/pipeline/util/Makefile
 
-	test/rofl/pipeline/openflow/openflow12/pipeline/Makefile
-	test/rofl/pipeline/openflow/openflow12/pipeline/ma/loop/Makefile
-	test/rofl/pipeline/openflow/openflow12/pipeline/dynamic/Makefile
-	test/rofl/pipeline/openflow/openflow12/pipeline/static/Makefile
+	test/rofl/datapath/pipeline/openflow/openflow12/pipeline/Makefile
+	test/rofl/datapath/pipeline/openflow/openflow12/pipeline/ma/loop/Makefile
+	test/rofl/datapath/pipeline/openflow/openflow12/pipeline/dynamic/Makefile
+	test/rofl/datapath/pipeline/openflow/openflow12/pipeline/static/Makefile
 ])])
 
 ## pipeline
-MATCHING_ALGORITHMS_DIR="src/rofl/pipeline/openflow/openflow12/pipeline/matching_algorithms"
+MATCHING_ALGORITHMS_DIR="src/rofl/datapath/pipeline/openflow/openflow12/pipeline/matching_algorithms"
 AC_SUBST(MATCHING_ALGORITHMS_DIR)
 MATCHING_ALGORITHMS="loop"
 MATCHING_ALGORITHM_LIBS=""
@@ -202,28 +216,53 @@ AC_CHECK_LIB(cli,cli_telnet_protocol,,[AC_MSG_ERROR([cli library not found])])
 
 #CHECK for doxygen
 AC_CHECK_PROGS([DOXYGEN], [doxygen],)
-if test -z "$DOXYGEN";
-   then AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
+if test -z "$DOXYGEN";then
+	AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])
+	AM_CONDITIONAL(doc, [false])
+else
+	AC_MSG_CHECKING(whether to compile documentation)
+	doc="no"
+	AC_ARG_ENABLE(doc,
+		AS_HELP_STRING([--doc], [compile documentation if doxygen is available [default=yes]])
+			, doc="yes", )
+
+	if test "$doc" = "yes"; then
+		AM_CONDITIONAL(doc, [true])
+		AC_CONFIG_FILES([doc/doxyfile.conf])	
+		AC_CONFIG_FILES([doc/doxyfile-pipeline.conf])
+		AC_MSG_RESULT(yes)
+	else
+		AC_MSG_RESULT(no)
+		AM_CONDITIONAL(doc, [false])
+	fi
 fi
 
 AC_CONFIG_FILES([
 
 	Makefile
 	src/Makefile
-	src/rofl/platform/Makefile
-	src/rofl/platform/unix/Makefile
-	src/rofl/experimental/Makefile
+	src/rofl/common/config/Makefile
 	src/rofl/common/protocols/Makefile
 	src/rofl/common/openflow/messages/Makefile
 	src/rofl/common/openflow/extensions/Makefile
 	src/rofl/common/openflow/Makefile
 	src/rofl/common/Makefile
-	src/rofl/control/Makefile
+	
+	src/rofl/platform/Makefile
+	src/rofl/platform/unix/Makefile
+	
+	src/rofl/controller/experimental/Makefile
+	src/rofl/controller/control/Makefile
+	src/rofl/controller/Makefile
+
 	src/rofl/examples/Makefile
 	src/rofl/examples/etherswitch/Makefile
-	src/rofl/Makefile
-	src/rofl/config/Makefile
 
+	src/rofl/Makefile
+
+        src/rofl/datapath/afa/Makefile
+        src/rofl/datapath/afa/openflow/openflow12/Makefile
+	
 	test/Makefile
 	test/unit/Makefile
 	test/unit/test1/Makefile
