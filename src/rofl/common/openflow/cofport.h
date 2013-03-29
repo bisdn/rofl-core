@@ -182,6 +182,16 @@ public:
 			size_t portlen) const throw (eOFportInval);
 
 
+
+	/**
+	 *
+	 */
+	struct ofp10_port*
+	pack(
+			struct ofp10_port *port,
+			size_t portlen) const throw (eOFportInval);
+
+
 	/**
 	 *
 	 */
@@ -207,6 +217,16 @@ public:
 	unpack(
 			T* port,
 			size_t portlen) throw (eOFportInval);
+
+
+	/**
+	 *
+	 */
+	struct ofp10_port*
+	unpack(
+			struct ofp10_port *port,
+			size_t portlen) throw (eOFportInval);
+
 
 
 	/**

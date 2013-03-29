@@ -867,6 +867,24 @@ cofport::pack(T* port, size_t portlen) const throw (eOFportInval)
 
 
 
+struct ofp10_port*
+cofport::pack(struct ofp10_port* port, size_t portlen) const throw (eOFportInval)
+{
+	if (OFP10_VERSION != of_version) {
+		throw eBadVersion();
+	}
+
+	if (portlen < sizeof(struct ofp10_port)) {
+		throw eOFportInval();
+	}
+
+	memcpy(port, memarea.somem(), sizeof(struct ofp10_port));
+
+	return port;
+}
+
+
+
 
 struct ofp12_port*
 cofport::pack(struct ofp12_port* port, size_t portlen) const throw (eOFportInval)
@@ -927,6 +945,26 @@ throw (eOFportInval)
 	return port;
 }
 
+
+
+struct ofp10_port*
+cofport::unpack(
+	struct ofp10_port* port, size_t portlen)
+throw (eOFportInval)
+{
+	if (OFP10_VERSION != of_version) {
+		throw eBadVersion();
+	}
+
+	if (portlen < sizeof(struct ofp10_port)) {
+		throw eOFportInval();
+	}
+
+	memarea.assign((uint8_t*)port, portlen);
+	ofh10_port = (struct ofp10_port*)memarea.somem();
+
+	return port;
+}
 
 
 
