@@ -230,6 +230,7 @@ else
 		AM_CONDITIONAL(doc, [true])
 		AC_CONFIG_FILES([doc/doxyfile.conf])	
 		AC_CONFIG_FILES([doc/doxyfile-pipeline.conf])
+		AC_CONFIG_FILES([doc/doxyfile-afa.conf])
 		AC_MSG_RESULT(yes)
 	else
 		AC_MSG_RESULT(no)
