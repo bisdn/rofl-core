@@ -256,14 +256,15 @@ AC_CONFIG_FILES([
 	src/rofl/controller/control/Makefile
 	src/rofl/controller/Makefile
 
-	src/rofl/examples/Makefile
-	src/rofl/examples/etherswitch/Makefile
-
 	src/rofl/Makefile
 
         src/rofl/datapath/afa/Makefile
         src/rofl/datapath/afa/openflow/openflow12/Makefile
 	
+	examples/Makefile
+	examples/etherswitch/Makefile
+
+
 	test/Makefile
 	test/unit/Makefile
 	test/unit/test1/Makefile

@@ -994,7 +994,7 @@ cofdpt::flow_mod_sent(
 {
 	try {
 		cofmsg_flow_mod *flow_mod = dynamic_cast<cofmsg_flow_mod*>( msg );
-
+		(void)flow_mod; 
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::flow_mod_sent() table_id: %d", this, flow_mod->get_table_id());
 
 	} catch (cerror& e) {

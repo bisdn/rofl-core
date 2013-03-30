@@ -8,9 +8,8 @@ etherswitch_SOURCES = \
 	main.cc \
 	etherswitch.cc \
 	etherswitch.h
-etherswitch_LDADD = -lpthread \
-	-lrofl_control \
-	-lrofl \
+etherswitch_LDADD = ../../src/rofl/librofl.la 
+	-lpthread \
 	-lrt 
 
 AM_LDFLAGS = -static
