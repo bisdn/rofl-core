@@ -60,6 +60,15 @@ cofaggr_stats_request::~cofaggr_stats_request()
 
 
 
+const char*
+cofaggr_stats_request::c_str()
+{
+	// TODO: fill in std::string info
+	return info.c_str();
+}
+
+
+
 cofaggr_stats_request::cofaggr_stats_request(
 		cofaggr_stats_request const& request)
 {
@@ -112,6 +121,14 @@ cofaggr_stats_request::get_match()
 
 
 
+void
+cofaggr_stats_request::set_table_id(uint8_t table_id)
+{
+	this->table_id = table_id;
+}
+
+
+
 uint8_t
 cofaggr_stats_request::get_table_id() const
 {
@@ -120,10 +137,26 @@ cofaggr_stats_request::get_table_id() const
 
 
 
+void
+cofaggr_stats_request::set_out_port(uint32_t out_port)
+{
+	this->out_port = out_port;
+}
+
+
+
 uint32_t
 cofaggr_stats_request::get_out_port() const
 {
 	return out_port;
+}
+
+
+
+void
+cofaggr_stats_request::set_out_group(uint32_t out_group)
+{
+	this->out_group = out_group;
 }
 
 
@@ -142,6 +175,14 @@ cofaggr_stats_request::get_out_group() const
 
 
 
+void
+cofaggr_stats_request::set_cookie(uint64_t cookie)
+{
+	this->cookie = cookie;
+}
+
+
+
 uint64_t
 cofaggr_stats_request::get_cookie() const
 {
@@ -152,6 +193,14 @@ cofaggr_stats_request::get_cookie() const
 		throw eBadVersion();
 	}
 	return cookie;
+}
+
+
+
+void
+cofaggr_stats_request::set_cookie_mask(uint64_t cookie_mask)
+{
+	this->cookie_mask = cookie_mask;
 }
 
 

@@ -31,6 +31,8 @@ private: // data structures
 	uint64_t	cookie;
 	uint64_t	cookie_mask;
 
+	std::string info;
+
 public: // data structures
 
 
@@ -71,6 +73,13 @@ public:
 	 */
 	virtual
 	~cofaggr_stats_request();
+
+
+	/**
+	 *
+	 */
+	virtual const char*
+	c_str();
 
 
 	/**
@@ -125,8 +134,23 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_table_id(uint8_t table_id);
+
+
+	/**
+	 *
+	 */
 	uint8_t
 	get_table_id() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_out_port(uint32_t out_port);
+
 
 	/**
 	 *
@@ -134,11 +158,28 @@ public:
 	uint32_t
 	get_out_port() const;
 
+
+	/**
+	 *
+	 */
+	void
+	set_out_group(uint32_t out_group);
+
+
 	/**
 	 *
 	 */
 	uint32_t
 	get_out_group() const;
+
+
+
+	/**
+	 *
+	 */
+	void
+	set_cookie(uint64_t cookie);
+
 
 	/**
 	 *
@@ -146,11 +187,20 @@ public:
 	uint64_t
 	get_cookie() const;
 
+
+	/**
+	 *
+	 */
+	void
+	set_cookie_mask(uint64_t cookie_mask);
+
+
 	/**
 	 *
 	 */
 	uint64_t
 	get_cookie_mask() const;
+
 
 	/**
 	 *

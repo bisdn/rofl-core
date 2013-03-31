@@ -420,6 +420,41 @@ cofmsg_packet_in::set_reason(uint8_t reason)
 
 
 
+uint8_t
+cofmsg_packet_in::get_table_id() const
+{
+	switch (get_version()) {
+	case OFP12_VERSION: {
+		return (ofh12_packet_in->table_id);
+	} break;
+	case OFP13_VERSION: {
+		return (ofh13_packet_in->table_id);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+void
+cofmsg_packet_in::set_table_id(uint8_t table_id)
+{
+	switch (get_version()) {
+	case OFP12_VERSION: {
+		ofh12_packet_in->table_id = (table_id);
+	} break;
+	case OFP13_VERSION: {
+		ofh13_packet_in->table_id = (table_id);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
 uint16_t
 cofmsg_packet_in::get_in_port() const
 {

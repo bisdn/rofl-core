@@ -8,7 +8,8 @@ cofmsg_barrier::cofmsg_barrier(
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen) :
-	cofmsg(sizeof(struct ofp_header))
+	cofmsg(sizeof(struct ofp_header)),
+	body(0)
 {
 	body.assign(data, datalen);
 

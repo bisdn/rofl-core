@@ -1041,6 +1041,20 @@ public:
 		uint16_t flags,
 		cofflow_stats_request const& flow_stats_request);
 
+	/** Send OF AGGR STATS.request to data path entity.
+	 *
+	 * @param dpt cofswitch instance representing the data path to be addressed
+	 * @param type One of the OFPST_* constants
+	 * @param flags OFPSF_REQ_* flags
+	 * @param body Body of a STATS request
+	 * @param bodylen length of STATS request body
+	 */
+	virtual uint32_t
+	send_aggr_stats_request(
+		cofdpt *dpt,
+		uint16_t flags,
+		cofaggr_stats_request const& aggr_stats_request);
+
 
 private:
 
