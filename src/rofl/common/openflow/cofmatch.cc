@@ -413,7 +413,7 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen) const throw (eOFmatchInval)
 
 
 void
-cofmatch::unpack(struct ofp10_match* m, size_t mlen) throw (eOFmatchInval)
+cofmatch::unpack(struct ofp10_match* m, size_t mlen)
 {
 	of_version = OFP10_VERSION;
 	oxmlist.clear();
@@ -534,7 +534,7 @@ cofmatch::pack(struct ofp12_match* m, size_t mlen) const throw (eOFmatchInval)
 
 
 void
-cofmatch::unpack(struct ofp12_match* m, size_t mlen) throw (eOFmatchInval)
+cofmatch::unpack(struct ofp12_match* m, size_t mlen)
 {
 	of_version = OFP12_VERSION;
 	oxmlist.clear();
@@ -589,7 +589,7 @@ cofmatch::pack(struct ofp13_match* m, size_t mlen) const throw (eOFmatchInval)
 
 
 void
-cofmatch::unpack(struct ofp13_match* m, size_t mlen) throw (eOFmatchInval)
+cofmatch::unpack(struct ofp13_match* m, size_t mlen)
 {
 	of_version = OFP13_VERSION;
 	oxmlist.clear();

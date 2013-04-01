@@ -171,7 +171,7 @@ public:
 	void
 	unpack(
 			struct ofp10_match* m,
-			size_t mlen) throw (eOFmatchInval);
+			size_t mlen);
 
 
 	/** copy internal struct ofp_match into specified ofp_match ptr 'm'
@@ -190,7 +190,7 @@ public:
 	void
 	unpack(
 			struct ofp12_match* m,
-			size_t mlen) throw (eOFmatchInval);
+			size_t mlen);
 
 
 	/** copy internal struct ofp_match into specified ofp_match ptr 'm'
@@ -209,7 +209,7 @@ public:
 	void
 	unpack(
 			struct ofp13_match* m,
-			size_t mlen) throw (eOFmatchInval);
+			size_t mlen);
 
 
 	/** check for an overlap between two ofp_match structures 
