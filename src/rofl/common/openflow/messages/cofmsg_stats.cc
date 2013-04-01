@@ -13,8 +13,10 @@ cofmsg_stats::cofmsg_stats(
 		uint8_t *data,
 		size_t datalen) :
 	cofmsg(sizeof(struct ofp_header)),
-	body(data, datalen)
+	body(0)
 {
+	body.assign(data, datalen);
+
 	ofh_stats_request = soframe();
 
 	set_version(of_version);

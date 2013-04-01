@@ -9,7 +9,8 @@ cofmsg_error::cofmsg_error(
 		uint16_t err_code,
 		uint8_t* data,
 		size_t datalen) :
-	cofmsg(sizeof(struct ofp_error_msg))
+	cofmsg(sizeof(struct ofp_error_msg)),
+	body(0)
 {
 	err_msg = (struct ofp_error_msg*)soframe();
 

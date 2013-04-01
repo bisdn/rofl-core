@@ -12,8 +12,10 @@ cofmsg_experimenter::cofmsg_experimenter(
 		uint8_t *data,
 		size_t datalen) :
 	cofmsg(sizeof(struct ofp_header) + datalen),
-	body(data, datalen)
+	body(0)
 {
+	body.assign(data, datalen);
+
 	ofh_experimenter = soframe();
 
 	set_version(of_version);
