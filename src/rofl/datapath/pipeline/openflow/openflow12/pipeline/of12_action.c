@@ -257,6 +257,8 @@ void of12_clear_write_actions(of12_write_actions_t* write_actions){
 /* Contains switch with all the different action functions */
 static inline void of12_process_packet_action(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, of12_packet_action_t* action, bool replicate_pkts){
 
+	of12_packet_matches_t* pkt_matches = (of12_packet_matches_t*)pkt->matches;
+
 	switch(action->type){
 		case OF12_AT_NO_ACTION: /*TODO: print some error traces? */
 			break;
@@ -264,94 +266,236 @@ static inline void of12_process_packet_action(const struct of12_switch* sw, cons
 		case OF12_AT_COPY_TTL_IN: platform_packet_copy_ttl_in(pkt);
 			break;
 
-		case OF12_AT_POP_VLAN: platform_packet_pop_vlan(pkt);
+		//POP
+		case OF12_AT_POP_VLAN: 
+			//Call platform
+			platform_packet_pop_vlan(pkt);
+			//Update match
+			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
-		case OF12_AT_POP_MPLS: platform_packet_pop_mpls(pkt, action->field);
+		case OF12_AT_POP_MPLS: 
+			//Call platform
+			platform_packet_pop_mpls(pkt, action->field);
+			//Update match
+			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			break;
+		case OF12_AT_POP_PPPOE: 
+			//Call platform
+			platform_packet_pop_pppoe(pkt, action->field);
+			//Update match
+			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			break;
+	
+		//PUSH
+		case OF12_AT_PUSH_PPPOE:
+			//Call platform
+			platform_packet_push_pppoe(pkt, action->field);
+			//Update match
+			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			break;
+		case OF12_AT_PUSH_MPLS:
+			//Call platform
+			platform_packet_push_mpls(pkt, action->field);
+			//Update match
+			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			break;
+		case OF12_AT_PUSH_VLAN:
+			//Call platform
+			platform_packet_push_vlan(pkt, action->field);
+			//Update match
+			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 
-		case OF12_AT_POP_PPPOE: platform_packet_pop_pppoe(pkt, action->field);
+		//TTL
+		case OF12_AT_COPY_TTL_OUT:
+			//Call platform
+			platform_packet_copy_ttl_out(pkt);
 			break;
-		case OF12_AT_PUSH_PPPOE: platform_packet_push_pppoe(pkt, action->field);
+		case OF12_AT_DEC_NW_TTL:
+			//Call platform
+			platform_packet_dec_nw_ttl(pkt);
+			break;
+		case OF12_AT_DEC_MPLS_TTL:
+			//Call platform
+			platform_packet_dec_mpls_ttl(pkt);
+			break;
+		case OF12_AT_SET_MPLS_TTL:
+			//Call platform
+			platform_packet_set_mpls_ttl(pkt, action->field);
+			break;
+		case OF12_AT_SET_NW_TTL:
+			//Call platform
+			platform_packet_set_nw_ttl(pkt, action->field);
 			break;
 
-		case OF12_AT_PUSH_MPLS: platform_packet_push_mpls(pkt, action->field);
-			break;
-		case OF12_AT_PUSH_VLAN: platform_packet_push_vlan(pkt, action->field);
-			break;
-
-		case OF12_AT_COPY_TTL_OUT: platform_packet_copy_ttl_out(pkt);
-			break;
-
-		case OF12_AT_DEC_NW_TTL: platform_packet_dec_nw_ttl(pkt);
-			break;
-		case OF12_AT_DEC_MPLS_TTL: platform_packet_dec_mpls_ttl(pkt);
-			break;
-
-		case OF12_AT_SET_MPLS_TTL: platform_packet_set_mpls_ttl(pkt, action->field);
-			break;
-		case OF12_AT_SET_NW_TTL: platform_packet_set_nw_ttl(pkt, action->field);
-			break;
-
-		case OF12_AT_SET_QUEUE: platform_packet_set_queue(pkt, action->field);
+		//QUEUE
+		case OF12_AT_SET_QUEUE:
+			//Call platform
+			platform_packet_set_queue(pkt, action->field);
 			break;
 
 		//TODO 
 		//case OF12_AT_SET_FIELD_METADATA: platform_packet_set_metadata(pkt, action->field);
 		//	break;
 
-		case OF12_AT_SET_FIELD_ETH_DST: platform_packet_set_eth_dst(pkt, action->field); 
+		//802
+		case OF12_AT_SET_FIELD_ETH_DST: 
+			//Call platform
+			platform_packet_set_eth_dst(pkt, action->field);
+			//Update match
+			pkt_matches->eth_dst = action->field; 
 			break;
-		case OF12_AT_SET_FIELD_ETH_SRC: platform_packet_set_eth_src(pkt, action->field); 
+		case OF12_AT_SET_FIELD_ETH_SRC: 
+			//Call platform
+			platform_packet_set_eth_src(pkt, action->field); 
+			//Update match
+			pkt_matches->eth_src = action->field; 
 			break;
-		case OF12_AT_SET_FIELD_ETH_TYPE: platform_packet_set_eth_type(pkt, action->field);
-			break;
-
-		case OF12_AT_SET_FIELD_VLAN_VID: platform_packet_set_vlan_vid(pkt, action->field);
-			break;
-		case OF12_AT_SET_FIELD_VLAN_PCP: platform_packet_set_vlan_pcp(pkt, action->field);
-			break;
-
-		case OF12_AT_SET_FIELD_IP_DSCP:  platform_packet_set_ip_dscp(pkt, action->field);
-			break;
-		case OF12_AT_SET_FIELD_IP_ECN:   platform_packet_set_ip_ecn(pkt, action->field);
-			break;
-		case OF12_AT_SET_FIELD_IP_PROTO: platform_packet_set_ip_proto(pkt, action->field);
-			break;
-
-		case OF12_AT_SET_FIELD_IPV4_SRC: platform_packet_set_ipv4_src(pkt, action->field);
-			break;
-		case OF12_AT_SET_FIELD_IPV4_DST: platform_packet_set_ipv4_dst(pkt, action->field);
+		case OF12_AT_SET_FIELD_ETH_TYPE: 
+			//Call platform
+			platform_packet_set_eth_type(pkt, action->field);
+			//Update match
+			pkt_matches->eth_type = action->field;
 			break;
 
-		case OF12_AT_SET_FIELD_TCP_SRC:  platform_packet_set_tcp_src(pkt, action->field);
+		//802.1q
+		case OF12_AT_SET_FIELD_VLAN_VID: 
+			//Call platform
+			platform_packet_set_vlan_vid(pkt, action->field);
+			//Update match
+			pkt_matches->vlan_vid = action->field;
 			break;
-		case OF12_AT_SET_FIELD_TCP_DST:  platform_packet_set_tcp_dst(pkt, action->field);
-			break;
-
-		case OF12_AT_SET_FIELD_UDP_SRC:  platform_packet_set_udp_src(pkt, action->field);
-			break;
-		case OF12_AT_SET_FIELD_UDP_DST:   platform_packet_set_udp_dst(pkt, action->field);
-			break;
-
-		case OF12_AT_SET_FIELD_ICMPV4_TYPE: platform_packet_set_icmpv4_type(pkt, action->field);
-			break;
-		case OF12_AT_SET_FIELD_ICMPV4_CODE: platform_packet_set_icmpv4_code(pkt, action->field);
-			break;
-
-		case OF12_AT_SET_FIELD_MPLS_LABEL: platform_packet_set_mpls_label(pkt, action->field);
-			break;
-		case OF12_AT_SET_FIELD_MPLS_TC: platform_packet_set_mpls_tc(pkt, action->field);
+		case OF12_AT_SET_FIELD_VLAN_PCP: 
+			//Call platform
+			platform_packet_set_vlan_pcp(pkt, action->field);
+			//Update match
+			pkt_matches->vlan_pcp = action->field;
 			break;
 
-		case OF12_AT_SET_FIELD_PPPOE_CODE: platform_packet_set_pppoe_code(pkt, action->field);
+		//IP
+		case OF12_AT_SET_FIELD_IP_DSCP:
+			//Call platform
+			platform_packet_set_ip_dscp(pkt, action->field);
+			//Update match
+			pkt_matches->ip_dscp = action->field;
 			break;
-		case OF12_AT_SET_FIELD_PPPOE_TYPE: platform_packet_set_pppoe_type(pkt, action->field);
+		case OF12_AT_SET_FIELD_IP_ECN:
+			//Call platform
+			platform_packet_set_ip_ecn(pkt, action->field);
+			//Update match
+			pkt_matches->ip_ecn = action->field;
 			break;
-		case OF12_AT_SET_FIELD_PPPOE_SID: platform_packet_set_pppoe_sid(pkt, action->field);
+		case OF12_AT_SET_FIELD_IP_PROTO:
+			//Call platform
+			platform_packet_set_ip_proto(pkt, action->field);
+			//Update match
+			pkt_matches->ip_proto = action->field;
 			break;
 
-		case OF12_AT_SET_FIELD_PPP_PROT: platform_packet_set_ppp_proto(pkt, action->field);
+		//IPv4
+		case OF12_AT_SET_FIELD_IPV4_SRC:
+			//Call platform
+			platform_packet_set_ipv4_src(pkt, action->field);
+			//Update match
+			pkt_matches->ipv4_src = action->field;
 			break;
+		case OF12_AT_SET_FIELD_IPV4_DST:
+			//Call platform
+			platform_packet_set_ipv4_dst(pkt, action->field);
+			//Update match
+			pkt_matches->ipv4_dst = action->field;
+			break;
+	
+		//TCP
+		case OF12_AT_SET_FIELD_TCP_SRC:  
+			//Call platform
+			platform_packet_set_tcp_src(pkt, action->field);
+			//Update match
+			pkt_matches->tcp_src = action->field;
+			break;
+		case OF12_AT_SET_FIELD_TCP_DST:
+			//Call platform
+			platform_packet_set_tcp_dst(pkt, action->field);
+			//Update match
+			pkt_matches->tcp_dst = action->field;
+			break;
+
+		//UDP
+		case OF12_AT_SET_FIELD_UDP_SRC:
+			//Call platform
+			platform_packet_set_udp_src(pkt, action->field);
+			//Update match
+			pkt_matches->udp_src = action->field;
+			break;
+		case OF12_AT_SET_FIELD_UDP_DST:
+			//Call platform
+			platform_packet_set_udp_dst(pkt, action->field);
+			//Update match
+			pkt_matches->udp_dst = action->field;
+			break;
+
+		//ICMPv4
+		case OF12_AT_SET_FIELD_ICMPV4_TYPE:
+			//Call platform
+			platform_packet_set_icmpv4_type(pkt, action->field);
+			//Update match
+			pkt_matches->icmpv4_type = action->field;
+			break;
+		case OF12_AT_SET_FIELD_ICMPV4_CODE:
+			//Call platform
+			platform_packet_set_icmpv4_code(pkt, action->field);
+			//Update match
+			pkt_matches->icmpv4_code = action->field;
+			break;
+
+		//MPLS
+		case OF12_AT_SET_FIELD_MPLS_LABEL:
+			//Call platform
+			platform_packet_set_mpls_label(pkt, action->field);
+			//Update match
+			pkt_matches->mpls_label = action->field;
+			break;
+		case OF12_AT_SET_FIELD_MPLS_TC:
+			//Call platform
+			platform_packet_set_mpls_tc(pkt, action->field);
+			//Update match
+			pkt_matches->mpls_tc = action->field;
+			break;
+
+		//PPPoE
+		case OF12_AT_SET_FIELD_PPPOE_CODE:
+			//Call platform
+			platform_packet_set_pppoe_code(pkt, action->field);
+			//Update match
+			pkt_matches->pppoe_code = action->field;
+			break;
+		case OF12_AT_SET_FIELD_PPPOE_TYPE:
+			//Call platform
+			platform_packet_set_pppoe_type(pkt, action->field);
+			//Update match
+			pkt_matches->pppoe_type = action->field;
+			break;
+		case OF12_AT_SET_FIELD_PPPOE_SID:
+			//Call platform
+			platform_packet_set_pppoe_sid(pkt, action->field);
+			//Update match
+			pkt_matches->pppoe_sid = action->field;
+			break;
+
+		//PPP
+		case OF12_AT_SET_FIELD_PPP_PROT:
+			//Call platform
+			platform_packet_set_ppp_proto(pkt, action->field);
+			//Update match
+			pkt_matches->ppp_proto = action->field;
+			break;
+
 		case OF12_AT_GROUP: of12_process_group_actions(sw, table_id, pkt, action->field, action->group);
 			break;
 		case OF12_AT_EXPERIMENTER: //FIXME: implement
