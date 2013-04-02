@@ -691,6 +691,11 @@ void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
 
 	fprintf(stderr,"Packet matches [");	
 
+	if(!pkt){
+		fprintf(stderr,"]. No matches. Probably comming from a PACKET_OUT");	
+		return;
+	}
+	
 	//Ports
 	if(pkt->port_in)
 		fprintf(stderr,"PORT_IN:%u, ",pkt->port_in);
