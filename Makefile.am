@@ -11,6 +11,7 @@ MAINTAINERCLEANFILES = $(top_srcdir)/aclocal.m4 \
 
 export INCLUDES += -I$(abs_srcdir)/src/
 SUBDIRS = src test examples doc  
+export LIBROFL=$(PWD)/src/rofl/librofl.la
 
 install-exec-hook:
 
