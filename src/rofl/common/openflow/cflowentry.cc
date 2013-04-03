@@ -8,7 +8,7 @@ using namespace rofl;
 
 cflowentry::cflowentry(uint8_t of_version, uint16_t __type) throw (eFlowEntryOutOfMem) :
 		of_version(of_version),
-		match(__type)
+		match(of_version, __type)
 {
 	switch (of_version) {
 	case OFP12_VERSION: {

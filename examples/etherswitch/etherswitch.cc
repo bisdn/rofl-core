@@ -71,6 +71,38 @@ etherswitch::handle_packet_in(
 		delete msg; return;
 	}
 
+	/*
+	 * block mac address 01:80:c2:00:00:00
+	 */
+	if (msg->get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
+		msg->get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
+		cflowentry fe(dpt->get_version());
+
+		fe.set_command(OFPFC_ADD);
+		fe.set_buffer_id(msg->get_buffer_id());
+		fe.set_idle_timeout(15);
+		fe.set_table_id(msg->get_table_id());
+
+		fe.match.set_in_port(msg->get_match().get_in_port());
+		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
+		fe.instructions.next() = cofinst_apply_actions();
+
+		fprintf(stderr, "etherswitch: calling FLOW-MOD with entry: %s\n",
+				fe.c_str());
+
+		send_flow_mod_message(
+				dpt,
+				fe);
+
+		delete msg; return;
+	}
+
+	fprintf(stderr, "etherswitch: PACKET-IN from dpid:0x%lux buffer-id:0x%x => from %s to %s type: 0x%x\n",
+			dpt->dpid,
+			msg->get_buffer_id(),
+			msg->get_packet().ether()->get_dl_src().c_str(),
+			msg->get_packet().ether()->get_dl_dst().c_str(),
+			msg->get_packet().ether()->get_dl_type());
 
 	/*
 	 * get VLAN-ID and destination mac
@@ -94,12 +126,24 @@ etherswitch::handle_packet_in(
 		cofaclist actions;
 		actions.next() = cofaction_output(OFPP_FLOOD);
 
-		send_packet_out_message(
-				dpt,
-				msg->get_buffer_id(),
-				msg->get_match().get_in_port(),
-				actions,
-				msg->get_packet().soframe(), msg->get_packet().framelen());
+		if (OFP_NO_BUFFER == msg->get_buffer_id()) {
+			send_packet_out_message(
+					dpt,
+					msg->get_buffer_id(),
+					msg->get_match().get_in_port(),
+					actions,
+					msg->get_packet().soframe(), msg->get_packet().framelen());
+		} else {
+			send_packet_out_message(
+					dpt,
+					msg->get_buffer_id(),
+					msg->get_match().get_in_port(),
+					actions);
+		}
+
+		fprintf(stderr, "etherswitch: calling PACKET-OUT with ActionList: %s\n",
+				actions.c_str());
+
 	}
 	/*
 	 * unicast destination mac is known in FIB
@@ -108,17 +152,23 @@ etherswitch::handle_packet_in(
 	{
 		uint32_t out_port = fib[dpt][vlan_id][eth_dst].port_no;
 
+		if (msg->get_match().get_in_port() == out_port) {
+			delete msg; return;
+		}
+
 		cflowentry fe(dpt->get_version());
 
 		fe.set_command(OFPFC_ADD);
 		fe.set_buffer_id(msg->get_buffer_id());
 		fe.set_idle_timeout(15);
-		fe.set_table_id(0);
+		fe.set_table_id(msg->get_table_id());
 
-		fe.match.set_in_port(msg->get_match().get_in_port());
 		fe.match.set_eth_dst(eth_dst);
 		fe.instructions.next() = cofinst_write_actions();
 		fe.instructions[0].actions.next() = cofaction_output(out_port);
+
+		fprintf(stderr, "etherswitch: calling FLOW-MOD with entry: %s\n",
+				fe.c_str());
 
 		send_flow_mod_message(
 				dpt,

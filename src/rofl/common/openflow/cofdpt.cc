@@ -179,7 +179,7 @@ cofdpt::handle_read(
 				struct ofp_header *ofh_header = (struct ofp_header*)mem->somem();
 				msg_len = be16toh(ofh_header->length);
 			}
-			fprintf(stderr, "how many? msg_len=%d mem: %s\n", msg_len, mem->c_str());
+			//fprintf(stderr, "how many? msg_len=%d mem: %s\n", msg_len, mem->c_str());
 
 			// resize msg buffer, if necessary
 			if (mem->memlen() < msg_len) {
@@ -190,7 +190,7 @@ cofdpt::handle_read(
 
 			// read from socket
 			rc = read(sd, (void*)(mem->somem() + msg_bytes_read), msg_len - msg_bytes_read);
-			fprintf(stderr, "read %d bytes\n", rc);
+			//fprintf(stderr, "read %d bytes\n", rc);
 
 
 			if (rc < 0) // error occured (or non-blocking)

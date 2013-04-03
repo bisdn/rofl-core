@@ -7,7 +7,7 @@ main(int argc, char** argv)
 	/* update defaults */
 	rofl::csyslog::initlog(
 			rofl::csyslog::LOGTYPE_STDERR,
-			rofl::csyslog::DBG,
+			rofl::csyslog::EMERGENCY,
 			std::string("etherswitch.log"),
 			"an example: ");
 
