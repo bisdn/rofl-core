@@ -532,7 +532,7 @@ cofflow_stats_reply::unpack(uint8_t *buf, size_t buflen)
 
 		match.unpack(&(fs->match), matchlen);
 		instructions.unpack((struct ofp_instruction*)(buf + sizeof(struct ofp12_flow_stats) - 4 + matchlen),
-									buflen - sizeof(struct ofp12_flow_stats) + 4 + matchlen);
+									buflen - sizeof(struct ofp12_flow_stats) + 4 - matchlen);
 
 	} break;
 	default:

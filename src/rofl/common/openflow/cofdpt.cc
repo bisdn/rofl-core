@@ -428,13 +428,13 @@ cofdpt::handle_message(
 	} catch (eBadSyntaxTooShort& e) {
 
 		writelog(COFCTL, WARN, "cofdpt(%p)::handle_message() "
-				"invalid length value for reply received, msg: %s", this, msg->c_str());
+				"invalid length value for reply received, msg: %s", this, mem->c_str());
 
 		delete msg;
 	} catch (eBadVersion& e) {
 
 		writelog(COFCTL, WARN, "cofdpt(%p)::handle_message() "
-				"ofp_header.version not supported, pack: %s", this, msg->c_str());
+				"ofp_header.version not supported, pack: %s", this, mem->c_str());
 
 		delete msg;
 	} catch (eRofBaseXidInval& e) {
@@ -882,9 +882,44 @@ cofdpt::stats_reply_rcvd(
 			this, dpid);
 
 	// msg->get_stats_reply() !!!
-
-	rofbase->handle_stats_reply(this, msg);
-
+	switch (msg->get_stats_type()) {
+	case OFPST_DESC: {
+		rofbase->handle_desc_stats_reply(this, dynamic_cast<cofmsg_desc_stats_reply*>( msg ));
+	} break;
+	case OFPST_TABLE: {
+		rofbase->handle_table_stats_reply(this, dynamic_cast<cofmsg_table_stats_reply*>( msg ));
+	} break;
+	case OFPST_PORT: {
+		rofbase->handle_port_stats_reply(this, dynamic_cast<cofmsg_port_stats_reply*>( msg ));
+	} break;
+	case OFPST_FLOW: {
+		rofbase->handle_flow_stats_reply(this, dynamic_cast<cofmsg_flow_stats_reply*>( msg ));
+	} break;
+	case OFPST_AGGREGATE: {
+		rofbase->handle_aggregate_stats_reply(this, dynamic_cast<cofmsg_aggr_stats_reply*>( msg ));
+	} break;
+	case OFPST_QUEUE: {
+		rofbase->handle_queue_stats_reply(this, dynamic_cast<cofmsg_queue_stats_reply*>( msg ));
+	} break;
+	case OFPST_GROUP: {
+		rofbase->handle_group_stats_reply(this, dynamic_cast<cofmsg_group_stats_reply*>( msg ));
+	} break;
+	case OFPST_GROUP_DESC: {
+		rofbase->handle_group_desc_stats_reply(this, dynamic_cast<cofmsg_group_desc_stats_reply*>( msg ));
+	} break;
+	case OFPST_GROUP_FEATURES: {
+		rofbase->handle_group_features_stats_reply(this, dynamic_cast<cofmsg_group_features_stats_reply*>( msg ));
+	} break;
+	case OFPST_EXPERIMENTER: {
+		rofbase->handle_experimenter_stats_reply(this, dynamic_cast<cofmsg_stats*>( msg ));
+	} break;
+	default: {
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::recv_stats_request() "
+				"unknown stats request type (%d)",
+				this, msg->get_type());
+		rofbase->handle_stats_reply(this, dynamic_cast<cofmsg_stats*>( msg ));
+	} break;
+	}
 
 	if (COFDPT_STATE_WAIT_TABLE_STATS == cur_state()) // enter state running during initialization
 	{

@@ -108,7 +108,6 @@ cofmsg_stats::resize(size_t len)
 size_t
 cofmsg_stats::length() const
 {
-	fprintf(stderr, "cofmsg_stats::length()\n");
 	switch (get_version()) {
 	case OFP10_VERSION: {
 		return sizeof(struct ofp10_stats_request) + body.memlen();
@@ -130,7 +129,6 @@ cofmsg_stats::length() const
 void
 cofmsg_stats::pack(uint8_t *buf, size_t buflen)
 {
-	fprintf(stderr, "cofmsg_stats::pack()\n");
 	set_length(length());
 
 	if ((0 == buf) || (0 == buflen))
