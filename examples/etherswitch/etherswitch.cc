@@ -88,6 +88,29 @@ etherswitch::request_flow_stats()
 void
 etherswitch::handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg)
 {
+	if (fib.find(dpt) == fib.end()) {
+		delete msg; return;
+	}
+
+	std::vector<cofflow_stats_reply>& replies = msg->get_flow_stats();
+
+	std::vector<cofflow_stats_reply>::iterator it;
+	for (it = replies.begin(); it != replies.end(); ++it) {
+		switch (it->get_version()) {
+		case OFP10_VERSION: {
+			fprintf(stderr, "FLOW-STATS-REPLY:\n  match: %s\n  actions: %s\n",
+					it->get_match().c_str(), it->get_actions().c_str());
+		} break;
+		case OFP12_VERSION: {
+			fprintf(stderr, "FLOW-STATS-REPLY:\n  match: %s\n  instructions: %s\n",
+					it->get_match().c_str(), it->get_instructions().c_str());
+		} break;
+		default: {
+			// do nothing
+		} break;
+		}
+	}
+
 	delete msg;
 }
 
