@@ -49,9 +49,46 @@ etherswitch::drop_expired_fib_entries()
 void
 etherswitch::request_flow_stats()
 {
-	cofflow_stats_request req;
+	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
+
+	for (it = fib.begin(); it != fib.end(); ++it) {
+		cofdpt *dpt = it->first;
+
+		cofflow_stats_request req;
+
+		switch (dpt->get_version()) {
+		case OFP10_VERSION: {
+			req.set_version(dpt->get_version());
+			req.set_table_id(OFPTT_ALL);
+			req.set_match(cofmatch(OFP10_VERSION));
+			req.set_out_port(OFPP_ANY);
+		} break;
+		case OFP12_VERSION: {
+			req.set_version(dpt->get_version());
+			req.set_table_id(OFPTT_ALL);
+			req.set_match(cofmatch(OFP12_VERSION));
+			req.set_out_port(OFPP_ANY);
+			req.set_out_group(OFPG_ANY);
+			req.set_cookie(0);
+			req.set_cookie_mask(0);
+		} break;
+		default: {
+			// do nothing
+		} break;
+		}
+
+		send_flow_stats_request(dpt, /*flags=*/0, req);
+	}
 
 	register_timer(ETHSWITCH_TIMER_FLOW_STATS, flow_stats_timeout);
+}
+
+
+
+void
+etherswitch::handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg)
+{
+	delete msg;
 }
 
 

@@ -50,6 +50,9 @@ public:
 	virtual void
 	handle_packet_in(cofdpt *dpt, cofmsg_packet_in *msg);
 
+	virtual void
+	handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg);
+
 private:
 
 	void
