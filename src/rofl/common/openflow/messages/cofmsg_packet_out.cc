@@ -58,7 +58,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 cofmsg_packet_out::cofmsg_packet_out(
 		cmemory *memarea) :
 	cofmsg(memarea),
-	packet(0)
+	packet((size_t)0)
 {
 	validate();
 }
