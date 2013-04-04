@@ -3,11 +3,13 @@
 
 etherswitch::etherswitch() :
 	fib_check_timeout(5), // check for expired FIB entries every 5 seconds
-	flow_stats_timeout(10)
+	flow_stats_timeout(10),
+	fm_delete_all_timeout(30)
 {
 	// ...
 	register_timer(ETHSWITCH_TIMER_FIB, fib_check_timeout);
 	register_timer(ETHSWITCH_TIMER_FLOW_STATS, flow_stats_timeout);
+	register_timer(ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL, fm_delete_all_timeout);
 }
 
 
@@ -28,6 +30,9 @@ etherswitch::handle_timeout(int opaque)
 	} break;
 	case ETHSWITCH_TIMER_FLOW_STATS: {
 		request_flow_stats();
+	} break;
+	case ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL: {
+		flow_mod_delete_all();
 	} break;
 	default:
 		crofbase::handle_timeout(opaque);
@@ -117,6 +122,30 @@ etherswitch::handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg)
 	}
 
 	delete msg;
+}
+
+
+
+void
+etherswitch::flow_mod_delete_all()
+{
+	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
+
+	for (it = fib.begin(); it != fib.end(); ++it) {
+		cofdpt *dpt = it->first;
+
+		cflowentry fe(dpt->get_version());
+		fe.set_command(OFPFC_DELETE);
+		fe.set_table_id(OFPTT_ALL);
+		fe.set_out_port(OFPP_ANY);
+		fe.set_out_group(OFPG_ANY);
+
+		fprintf(stderr, "FLOW-MOD: delete all: %s\n", fe.c_str());
+
+		send_flow_mod_message(dpt, fe);
+	}
+
+	register_timer(ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL, fm_delete_all_timeout);
 }
 
 
