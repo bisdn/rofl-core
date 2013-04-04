@@ -186,7 +186,8 @@ cofmsg_group_features_stats_reply::cofmsg_group_features_stats_reply(
 
 cofmsg_group_features_stats_reply::cofmsg_group_features_stats_reply(
 		cmemory *memarea) :
-	cofmsg_stats(memarea)
+	cofmsg_stats(memarea),
+	group_features_stats(get_version())
 {
 	validate();
 }
@@ -316,6 +317,7 @@ cofmsg_group_features_stats_reply::validate()
 
 	switch (get_version()) {
 	case OFP12_VERSION: {
+		group_features_stats.set_version(OFP12_VERSION);
 		if (get_length() < (sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_group_features_stats)))
 			throw eBadSyntaxTooShort();
 		ofh_group_features_stats = soframe() + sizeof(struct ofp12_stats_reply);

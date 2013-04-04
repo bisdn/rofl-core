@@ -35,7 +35,8 @@ cofmsg_aggr_stats_request::cofmsg_aggr_stats_request(
 
 cofmsg_aggr_stats_request::cofmsg_aggr_stats_request(
 		cmemory *memarea) :
-	cofmsg_stats(memarea)
+	cofmsg_stats(memarea),
+	aggr_stats(get_version())
 {
 	validate();
 }
@@ -178,12 +179,14 @@ cofmsg_aggr_stats_request::validate()
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
+		aggr_stats.set_version(OFP10_VERSION);
 		if (get_length() < (sizeof(struct ofp10_stats_request) + sizeof(struct ofp10_aggregate_stats_request)))
 			throw eBadSyntaxTooShort();
 		ofh_aggr_stats = soframe() + sizeof(struct ofp10_stats_request);
 		aggr_stats.unpack(ofh_aggr_stats, sizeof(struct ofp10_aggregate_stats_request));
 	} break;
 	case OFP12_VERSION: {
+		aggr_stats.set_version(OFP12_VERSION);
 		if (get_length() < (sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_aggregate_stats_request)))
 			throw eBadSyntaxTooShort();
 		ofh_aggr_stats = soframe() + sizeof(struct ofp12_stats_request);
@@ -240,7 +243,8 @@ cofmsg_aggr_stats_reply::cofmsg_aggr_stats_reply(
 
 cofmsg_aggr_stats_reply::cofmsg_aggr_stats_reply(
 		cmemory *memarea) :
-	cofmsg_stats(memarea)
+	cofmsg_stats(memarea),
+	aggr_stats(get_version())
 {
 	validate();
 }
@@ -381,13 +385,15 @@ cofmsg_aggr_stats_reply::validate()
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
+		aggr_stats.set_version(OFP10_VERSION);
 		if (get_length() < (sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_aggregate_stats_reply)))
 			throw eBadSyntaxTooShort();
 		ofh_aggr_stats = soframe() + sizeof(struct ofp10_stats_reply);
 		aggr_stats.unpack(ofh_aggr_stats, sizeof(struct ofp10_aggregate_stats_reply));
 	} break;
 	case OFP12_VERSION: {
-		if (get_length() < (sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_aggregate_stats_reply)))
+		aggr_stats.set_version(OFP12_VERSION);
+		if (get_length() < (sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_aggregate_stats_reply)))
 			throw eBadSyntaxTooShort();
 		ofh_aggr_stats = soframe() + sizeof(struct ofp12_stats_reply);
 		aggr_stats.unpack(ofh_aggr_stats, sizeof(struct ofp12_aggregate_stats_reply));

@@ -201,7 +201,8 @@ cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 
 cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 		cmemory *memarea) :
-	cofmsg_stats(memarea)
+	cofmsg_stats(memarea),
+	group_desc_stats(get_version())
 {
 	validate();
 }
@@ -341,7 +342,7 @@ cofmsg_group_desc_stats_reply::validate()
 		ofh_group_desc_stats = soframe() + sizeof(struct ofp12_stats_reply);
 
 		for (unsigned int i = 0; i < ((get_length() - sizeof(struct ofp12_stats_reply)) / sizeof(struct ofp12_group_desc_stats)); i++) {
-			cofgroup_desc_stats_reply group_desc_stats_reply;
+			cofgroup_desc_stats_reply group_desc_stats_reply(OFP12_VERSION);
 			group_desc_stats_reply.unpack(soframe() + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_group_desc_stats), sizeof(struct ofp12_group_desc_stats));
 			group_desc_stats.push_back(group_desc_stats_reply);
 		}

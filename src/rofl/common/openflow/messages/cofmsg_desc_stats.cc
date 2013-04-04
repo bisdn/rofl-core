@@ -207,7 +207,8 @@ cofmsg_desc_stats_reply::cofmsg_desc_stats_reply(
 
 cofmsg_desc_stats_reply::cofmsg_desc_stats_reply(
 		cmemory *memarea) :
-	cofmsg_stats(memarea)
+	cofmsg_stats(memarea),
+	desc_stats(get_version())
 {
 	validate();
 }
@@ -350,12 +351,14 @@ cofmsg_desc_stats_reply::validate()
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
+		desc_stats.set_version(OFP10_VERSION);
 		if (get_length() < (sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_desc_stats)))
 			throw eBadSyntaxTooShort();
 		ofh_desc_stats = soframe() + sizeof(struct ofp10_stats_reply);
 		desc_stats.unpack(ofh_desc_stats, sizeof(struct ofp10_desc_stats));
 	} break;
 	case OFP12_VERSION: {
+		desc_stats.set_version(OFP12_VERSION);
 		if (get_length() < (sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_desc_stats)))
 			throw eBadSyntaxTooShort();
 		ofh_desc_stats = soframe() + sizeof(struct ofp12_stats_reply);
