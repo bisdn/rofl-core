@@ -104,10 +104,26 @@ cofflow_stats_request::get_version() const
 
 
 
+void
+cofflow_stats_request::set_match(cofmatch const& match)
+{
+	this->match = match;
+}
+
+
+
 cofmatch&
 cofflow_stats_request::get_match()
 {
 	return match;
+}
+
+
+
+void
+cofflow_stats_request::set_table_id(uint8_t table_id)
+{
+	this->table_id = table_id;
 }
 
 
@@ -120,10 +136,33 @@ cofflow_stats_request::get_table_id() const
 
 
 
+void
+cofflow_stats_request::set_out_port(uint32_t out_port)
+{
+	this->out_port = out_port;
+}
+
+
+
 uint32_t
 cofflow_stats_request::get_out_port() const
 {
 	return out_port;
+}
+
+
+
+
+void
+cofflow_stats_request::set_out_group(uint32_t out_group)
+{
+	switch (of_version) {
+	case OFP12_VERSION: {
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	this->out_group = out_group;
 }
 
 
@@ -142,6 +181,14 @@ cofflow_stats_request::get_out_group() const
 
 
 
+void
+cofflow_stats_request::set_cookie(uint64_t cookie)
+{
+	this->cookie = cookie;
+}
+
+
+
 uint64_t
 cofflow_stats_request::get_cookie() const
 {
@@ -152,6 +199,14 @@ cofflow_stats_request::get_cookie() const
 		throw eBadVersion();
 	}
 	return cookie;
+}
+
+
+
+void
+cofflow_stats_request::set_cookie_mask(uint64_t cookie_mask)
+{
+	this->cookie_mask = cookie_mask;
 }
 
 

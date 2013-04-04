@@ -114,13 +114,17 @@ public:
 	void
 	set_version(uint8_t of_version);
 
-
 	/**
 	 *
 	 */
 	uint8_t
 	get_version() const;
 
+	/**
+	 *
+	 */
+	void
+	set_table_id(uint8_t table_id);
 
 	/**
 	 *
@@ -131,8 +135,20 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_out_port(uint32_t out_port);
+
+	/**
+	 *
+	 */
 	uint32_t
 	get_out_port() const;
+
+	/**
+	 *
+	 */
+	void
+	set_out_group(uint32_t out_group);
 
 	/**
 	 *
@@ -143,14 +159,32 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_cookie(uint64_t cookie);
+
+	/**
+	 *
+	 */
 	uint64_t
 	get_cookie() const;
 
 	/**
 	 *
 	 */
+	void
+	set_cookie_mask(uint64_t cookie_mask);
+
+	/**
+	 *
+	 */
 	uint64_t
 	get_cookie_mask() const;
+
+	/**
+	 *
+	 */
+	void
+	set_match(cofmatch const& match);
 
 	/**
 	 *

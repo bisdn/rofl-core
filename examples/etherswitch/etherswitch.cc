@@ -2,10 +2,12 @@
 
 
 etherswitch::etherswitch() :
-	fib_check_timeout(5) // check for expired FIB entries every 5 seconds
+	fib_check_timeout(5), // check for expired FIB entries every 5 seconds
+	flow_stats_timeout(10)
 {
 	// ...
 	register_timer(ETHSWITCH_TIMER_FIB, fib_check_timeout);
+	register_timer(ETHSWITCH_TIMER_FLOW_STATS, flow_stats_timeout);
 }
 
 
@@ -23,7 +25,9 @@ etherswitch::handle_timeout(int opaque)
 	switch (opaque) {
 	case ETHSWITCH_TIMER_FIB: {
 		drop_expired_fib_entries();
-		register_timer(ETHSWITCH_TIMER_FIB, fib_check_timeout);
+	} break;
+	case ETHSWITCH_TIMER_FLOW_STATS: {
+		request_flow_stats();
 	} break;
 	default:
 		crofbase::handle_timeout(opaque);
@@ -36,7 +40,20 @@ void
 etherswitch::drop_expired_fib_entries()
 {
 	// iterate over all FIB entries and delete expired ones ...
+
+	register_timer(ETHSWITCH_TIMER_FIB, fib_check_timeout);
 }
+
+
+
+void
+etherswitch::request_flow_stats()
+{
+	cofflow_stats_request req;
+
+	register_timer(ETHSWITCH_TIMER_FLOW_STATS, flow_stats_timeout);
+}
+
 
 
 void

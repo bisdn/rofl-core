@@ -22,11 +22,13 @@ private:
 	// a very simple forwarding information base
 	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > > fib;
 
-	unsigned int 		fib_check_timeout; // periodic timeout for removing expired FIB entries
+	unsigned int 		fib_check_timeout; 	// periodic timeout for removing expired FIB entries
+	unsigned int		flow_stats_timeout;	// periodic timeout for requesting flow stats
 
 	enum etherswitch_timer_t {
-		ETHSWITCH_TIMER_BASE = ((0x6271)),
-		ETHSWITCH_TIMER_FIB = ((ETHSWITCH_TIMER_BASE) + 1),
+		ETHSWITCH_TIMER_BASE 		= ((0x6271)),
+		ETHSWITCH_TIMER_FIB 		= ((ETHSWITCH_TIMER_BASE) + 1),
+		ETHSWITCH_TIMER_FLOW_STATS 	= ((ETHSWITCH_TIMER_BASE) + 2),
 	};
 
 public:
@@ -52,6 +54,9 @@ private:
 
 	void
 	drop_expired_fib_entries();
+
+	void
+	request_flow_stats();
 };
 
 #endif
