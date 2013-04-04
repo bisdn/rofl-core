@@ -62,7 +62,7 @@ public:
 			uint16_t out_port = 0,
 			uint16_t flags = 0,
 			cofaclist const& actions = cofaclist(),
-			cofmatch const& match = cofmatch());
+			cofmatch const& match = cofmatch(OFP10_VERSION));
 
 
 	/** constructor
@@ -83,7 +83,7 @@ public:
 			uint32_t out_group = 0,
 			uint16_t flags = 0,
 			cofinlist const& instructions = cofinlist(),
-			cofmatch const& match = cofmatch());
+			cofmatch const& match = cofmatch(OFP12_VERSION));
 
 
 	/**
