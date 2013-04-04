@@ -66,7 +66,9 @@ etherswitch::request_flow_stats()
 		case OFP12_VERSION: {
 			req.set_version(dpt->get_version());
 			req.set_table_id(OFPTT_ALL);
-			req.set_match(cofmatch(OFP12_VERSION));
+			cofmatch match(OFP12_VERSION);
+			//match.set_eth_dst(cmacaddr("01:80:c2:00:00:00"));
+			req.set_match(match);
 			req.set_out_port(OFPP_ANY);
 			req.set_out_group(OFPG_ANY);
 			req.set_cookie(0);
