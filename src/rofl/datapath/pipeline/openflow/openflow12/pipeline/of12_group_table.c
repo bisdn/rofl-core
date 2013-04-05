@@ -12,6 +12,7 @@
 #include "of12_group_table.h"
 #include "of12_pipeline.h"
 #include "../../../platform/memory.h"
+#include <stdio.h>
 
 static void of12_destroy_bucket_list(of12_group_t *ge);
 static void of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge);
@@ -90,6 +91,14 @@ of12_group_mod_err_t of12_init_group(of12_group_table_t *gt, of12_group_type_t t
 		if((ret_val=of12_validate_group(bu_it->actions))!=OF12_GROUP_MOD_ERR_OK)
 			return ret_val;
 	}
+	
+	//FIXME group types not ssupported
+	if (type == OF12_GROUP_TYPE_SELECT || type == OF12_GROUP_TYPE_FF){
+		fprintf(stderr,"<%s:%d> GROUP TYPE NOT IMPLEMENTED\n",__func__,__LINE__);
+		return OF12_GROUP_MOD_ERR_INVAL;
+	}
+	
+	
 	if(type == OF12_GROUP_TYPE_INDIRECT && buckets->num_of_buckets>1)
 		return OF12_GROUP_MOD_ERR_INVAL;
 	if( (type == OF12_GROUP_TYPE_ALL || type == OF12_GROUP_TYPE_INDIRECT) && of12_bucket_list_has_weights(buckets))

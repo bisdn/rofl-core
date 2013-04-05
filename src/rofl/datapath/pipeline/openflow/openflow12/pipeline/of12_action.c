@@ -497,10 +497,10 @@ void of12_process_group_actions(const struct of12_switch* sw, const unsigned int
 }
 //Checking functions
 bool of12_write_actions_has(of12_write_actions_t* write_actions, of12_packet_action_type_t type, uint64_t value){
-	of12_packet_action_t action = write_actions->write_actions[type];
-
 	if(!write_actions)
 		return false;	
+	
+	of12_packet_action_t action = write_actions->write_actions[type];
 
 	return (action.type != OF12_AT_NO_ACTION) && (value != 0x0 && action.field == value ); 
 }
