@@ -33,6 +33,7 @@ of12_pipeline_t* of12_init_pipeline(struct of12_switch* sw, const unsigned int n
 	//Fill in
 	pipeline->sw = sw;
 	pipeline->num_of_tables = num_of_tables;
+	pipeline->num_of_buffers = 2048; //FIXME: call platform to get this information 
 
 
 	//Allocate tables and initialize	
