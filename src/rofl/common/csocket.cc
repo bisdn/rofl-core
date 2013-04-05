@@ -461,19 +461,7 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 			cmemory *pack = pout_squeue.front();
 
 			int flags = MSG_NOSIGNAL;
-			//if ((rc = sendto(sd, pack->somem(), pack->memlen(), flags, NULL, 0)) < 0)
-
-			struct msghdr msg;
-			memset(&msg, 0, sizeof(msg));
-			struct iovec iov;
-			iov.iov_base = pack->somem();
-			iov.iov_len = pack->memlen();
-			msg.msg_name = raddr.ca_saddr;
-			msg.msg_namelen = raddr.salen;
-			msg.msg_iov = &iov;
-			msg.msg_iovlen = 1;
-
-			if ((rc = sendmsg(sd, &msg, flags)) < 0)
+			if ((rc = sendto(sd, pack->somem(), pack->memlen(), flags, NULL, 0)) < 0)
 			{
 				WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
 						"errno=%d (%s) pack: %s",
