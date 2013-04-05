@@ -468,8 +468,10 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 			struct iovec iov;
 			iov.iov_base = pack->somem();
 			iov.iov_len = pack->memlen();
+			msg.msg_name = raddr.ca_saddr;
+			msg.msg_namelen = raddr.salen;
 			msg.msg_iov = &iov;
-			msg.msg_iovlen = 0;
+			msg.msg_iovlen = 1;
 
 			if ((rc = sendmsg(sd, &msg, flags)) < 0)
 			{
