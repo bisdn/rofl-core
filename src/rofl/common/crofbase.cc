@@ -1017,6 +1017,56 @@ crofbase::send_aggr_stats_reply(
 
 
 
+void
+crofbase::send_group_desc_stats_reply(
+	cofctl *ctl,
+	uint32_t xid,
+	std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
+	bool more)
+{
+	uint16_t flags = 0;
+
+	flags |= (more) ? OFPSF_REPLY_MORE : 0;
+
+	cofmsg_group_desc_stats_reply *msg =
+			new cofmsg_group_desc_stats_reply(
+					ctl->get_version(),
+					xid,
+					flags,
+					group_desc_stats);
+
+	msg->pack();
+
+	ctl_find(ctl)->send_message(msg);
+}
+
+
+
+void
+crofbase::send_group_features_stats_reply(
+	cofctl *ctl,
+	uint32_t xid,
+	cofgroup_features_stats_reply const& group_features_stats,
+	bool more)
+{
+	uint16_t flags = 0;
+
+	flags |= (more) ? OFPSF_REPLY_MORE : 0;
+
+	cofmsg_group_features_stats_reply *msg =
+			new cofmsg_group_features_stats_reply(
+					ctl->get_version(),
+					xid,
+					flags,
+					group_features_stats);
+
+	msg->pack();
+
+	ctl_find(ctl)->send_message(msg);
+}
+
+
+
 /*
  * SET-CONFIG message
  */

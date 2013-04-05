@@ -1058,6 +1058,7 @@ public:
 		cofaggr_stats_request const& aggr_stats_request);
 
 
+
 private:
 
 	/** Helper method for handling DESCription STATS.requests.
@@ -1158,6 +1159,36 @@ public:
 		cofctl *ctl,
 		uint32_t xid,
 		cofaggr_stats_reply const& aggr_stats,
+		bool more = false);
+
+	/** Send OF TABLE STATS.reply to controlling entity.
+	 *
+	 * @param xid transaction ID used in STATS request
+	 * @param stats_type One of the OFPST_* constants
+	 * @param body Body of a STATS reply
+	 * @param bodylen length of STATS reply body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_group_desc_stats_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
+		bool more = false);
+
+	/** Send OF TABLE STATS.reply to controlling entity.
+	 *
+	 * @param xid transaction ID used in STATS request
+	 * @param stats_type One of the OFPST_* constants
+	 * @param body Body of a STATS reply
+	 * @param bodylen length of STATS reply body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_group_features_stats_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		cofgroup_features_stats_reply const& group_features_stats,
 		bool more = false);
 
 	// PACKET-OUT message
