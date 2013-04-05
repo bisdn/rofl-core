@@ -990,6 +990,16 @@ private: // methods
 			size_t datalen);
 
 
+private:
+
+	/**
+	 *
+	 */
+	size_t
+	get_payload_len(
+			fframe *from = (fframe*)0,
+			fframe *to = (fframe*)0);
+
 
 public: // static methods
 

@@ -49,7 +49,7 @@ public:
 
 	static std::set<cmemory*> 		cmemory_list;
 	static pthread_mutex_t 			memlock;
-	static int 					memlockcnt;
+	static int 						memlockcnt;
 
 
 

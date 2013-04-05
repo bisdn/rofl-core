@@ -1606,14 +1606,14 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 void
 cpacket::copy_ttl_out()
 {
-	throw eNotImplemented();
+	throw eNotImplemented(); // FIXME
 }
 
 
 void
 cpacket::copy_ttl_in()
 {
-	throw eNotImplemented();
+	throw eNotImplemented(); // FIXME
 }
 
 
@@ -2877,19 +2877,19 @@ cpacket::calc_checksums()
 	if (flags.test(FLAG_TCP_CHECKSUM))
 	{
 		tcp()->tcp_calc_checksum(
-			ipv4()->get_ipv4_src(),
-			ipv4()->get_ipv4_dst(),
-			ipv4()->get_ipv4_proto(),
-			ipv4()->payloadlen());
+			ipv4(-1)->get_ipv4_src(),
+			ipv4(-1)->get_ipv4_dst(),
+			ipv4(-1)->get_ipv4_proto(),
+			get_payload_len(tcp())); // second parameter = 0 => up to tail frame
 	}
 
 	if (flags.test(FLAG_UDP_CHECKSUM))
 	{
 		udp()->udp_calc_checksum(
-			ipv4()->get_ipv4_src(),
-			ipv4()->get_ipv4_dst(),
-			ipv4()->get_ipv4_proto(),
-			ipv4()->payloadlen());
+			ipv4(-1)->get_ipv4_src(),
+			ipv4(-1)->get_ipv4_dst(),
+			ipv4(-1)->get_ipv4_proto(),
+			get_payload_len(udp())); // second parameter = 0 => up to tail frame
 	}
 
 	if (flags.test(FLAG_IPV4_CHECKSUM))
@@ -3246,6 +3246,23 @@ cpacket::action_pop_ppp(
 			"[2] pack: %s", this, c_str());
 }
 
+
+
+
+size_t
+cpacket::get_payload_len(fframe *from, fframe *to)
+{
+	fframe *curr = (from != 0) ? from : head;
+	fframe *last = (to != 0) ? to->next : tail;
+
+	size_t len = 0;
+
+	while ((curr != 0) && (curr != last)) {
+		len += curr->framelen();
+		curr = curr->next;
+	}
+	return len;
+}
 
 
 

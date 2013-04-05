@@ -17,6 +17,8 @@ crofbase::crofbase() throw (eRofBaseExists) :
 
 	//register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
 
+	pthread_rwlock_init(&xidlock, 0);
+
 	crofbase::rofbases.insert(this);
 }
 
@@ -25,6 +27,8 @@ crofbase::~crofbase()
 {
 	crofbase::rofbases.erase(this);
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::~crofbase()", this);
+
+	pthread_rwlock_destroy(&xidlock);
 
 	rpc_close_all();
 }
@@ -1808,6 +1812,8 @@ uint32_t
 crofbase::ta_add_request(
 		uint8_t type)
 {
+	RwLock lock(&xidlock, RwLock::RWLOCK_WRITE);
+
 	uint32_t xid = ta_new_async_xid();
 
 	// add pair(type, xid) to transaction list
@@ -1833,6 +1839,8 @@ void
 crofbase::ta_rem_request(
 		uint32_t xid)
 {
+	RwLock lock(&xidlock, RwLock::RWLOCK_WRITE);
+
 	ta_pending_reqs.erase(xid);
 	// this yields an exception if type wasn't stored in ta_pending_reqs
 }
@@ -1843,6 +1851,8 @@ bool
 crofbase::ta_pending(
 		uint32_t xid, uint8_t type)
 {
+	RwLock lock(&xidlock, RwLock::RWLOCK_WRITE);
+
 #ifndef NDEBUG
 	std::map<uint32_t, uint8_t>::iterator it;
 	for (it = ta_pending_reqs.begin(); it != ta_pending_reqs.end(); ++it) {
@@ -1865,6 +1875,8 @@ bool
 crofbase::ta_active_xid(
 		uint32_t xid)
 {
+	RwLock lock(&xidlock, RwLock::RWLOCK_READ);
+
 	return(ta_pending_reqs.find(xid) != ta_pending_reqs.end());
 }
 

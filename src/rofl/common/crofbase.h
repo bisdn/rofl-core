@@ -38,6 +38,7 @@ extern "C" {
 #include "croflexp.h"
 #include "cphyport.h"
 #include "csocket.h"
+#include "thread_helper.h"
 
 //#include "rofl/experimental/crib.h"
 #include "rofl/platform/unix/crandom.h"
@@ -129,6 +130,7 @@ private: // packet queues for OpenFlow messages
 
 
 	std::string 				info;			// info string
+	pthread_rwlock_t			xidlock;		// rwlock for transaction ids
 
 
 protected: // data structures
