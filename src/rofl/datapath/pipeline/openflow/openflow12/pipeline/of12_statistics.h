@@ -90,6 +90,8 @@ typedef struct of12_stats_flow_aggregate_msg{
 typedef struct of12_stats_table{
 	uint64_t lookup_count; /* Number of packets looked up in table. */
 	uint64_t matched_count; /* Number of packets that hit table. */
+	
+	platform_mutex_t* mutex; //Mutual exclusion only for stats
 }of12_stats_table_t;
 
 //Port stats (port state)
@@ -184,6 +186,7 @@ void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec,
 void of12_stats_flow_update_match(struct of12_flow_entry * entry,uint64_t bytes_rx);
 void of12_stats_flow_inc(struct of12_flow_entry * entry,uint64_t bytes_rx);
 void of12_stats_table_init(struct of12_flow_table * table);
+void of12_stats_table_destroy(struct of12_flow_table * table);
 void of12_stats_table_lookup_inc(struct of12_flow_table * table);
 void of12_stats_table_matches_inc(struct of12_flow_table * table);
 
