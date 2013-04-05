@@ -1170,6 +1170,21 @@ public:
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
+	send_group_stats_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		std::vector<cofgroup_stats_reply> const& group_stats,
+		bool more = false);
+
+	/** Send OF TABLE STATS.reply to controlling entity.
+	 *
+	 * @param xid transaction ID used in STATS request
+	 * @param stats_type One of the OFPST_* constants
+	 * @param body Body of a STATS reply
+	 * @param bodylen length of STATS reply body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
 	send_group_desc_stats_reply(
 		cofctl *ctl,
 		uint32_t xid,
