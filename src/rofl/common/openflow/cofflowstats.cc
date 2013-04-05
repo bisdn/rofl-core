@@ -550,7 +550,7 @@ cofflow_stats_reply::length() const
 		return (sizeof(struct ofp10_flow_stats) + actions.length());
 	} break;
 	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_flow_stats) + match.length() + instructions.length());
+		return (sizeof(struct ofp12_flow_stats) - sizeof(struct ofp12_match) + match.length() + instructions.length());
 	} break;
 	default:
 		throw eBadVersion();
