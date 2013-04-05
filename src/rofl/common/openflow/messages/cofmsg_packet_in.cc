@@ -130,7 +130,7 @@ cofmsg_packet_in::length() const
 		return (OFP10_PACKET_IN_STATIC_HDR_LEN + 2 + packet.framelen());
 	} break;
 	case OFP12_VERSION: {
-		return (OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());
+		return (sizeof(struct ofp12_packet_in) - sizeof(struct ofp12_match) + match.length() + 2 + packet.framelen());
 	} break;
 	case OFP13_VERSION: {
 		return (OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());
