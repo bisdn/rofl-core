@@ -353,7 +353,7 @@ cofmsg_group_stats_reply::validate()
 		if (get_length() < (sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_group_stats)))
 			throw eBadSyntaxTooShort();
 		for (unsigned int i = 0; i < ((get_length() - sizeof(struct ofp12_stats_reply)) / sizeof(struct ofp12_group_stats)); i++) {
-			cofgroup_stats_reply group_stats_reply;
+			cofgroup_stats_reply group_stats_reply(OFP12_VERSION);
 			group_stats_reply.unpack(soframe() + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_group_stats), sizeof(struct ofp12_group_stats));
 			group_stats.push_back(group_stats_reply);
 		}

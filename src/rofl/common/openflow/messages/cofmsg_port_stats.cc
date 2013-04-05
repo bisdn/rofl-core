@@ -36,7 +36,8 @@ cofmsg_port_stats_request::cofmsg_port_stats_request(
 
 cofmsg_port_stats_request::cofmsg_port_stats_request(
 		cmemory *memarea) :
-	cofmsg_stats(memarea)
+	cofmsg_stats(memarea),
+	port_stats(get_version())
 {
 	validate();
 }
@@ -391,7 +392,7 @@ cofmsg_port_stats_reply::validate()
 		if (get_length() < sizeof(struct ofp10_stats_reply))
 			throw eBadSyntaxTooShort();
 		for (unsigned int i = 0; i < ((get_length() - sizeof(struct ofp10_stats_reply)) / sizeof(struct ofp10_port_stats)); i++) {
-			cofport_stats_reply port_stats_reply;
+			cofport_stats_reply port_stats_reply(OFP10_VERSION);
 			port_stats_reply.unpack(soframe() + sizeof(struct ofp10_stats_reply) + i * sizeof(struct ofp10_port_stats), sizeof(struct ofp10_port_stats));
 			port_stats.push_back(port_stats_reply);
 		}
@@ -400,7 +401,7 @@ cofmsg_port_stats_reply::validate()
 		if (get_length() < (sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_port_stats)))
 			throw eBadSyntaxTooShort();
 		for (unsigned int i = 0; i < ((get_length() - sizeof(struct ofp12_stats_reply)) / sizeof(struct ofp12_port_stats)); i++) {
-			cofport_stats_reply port_stats_reply;
+			cofport_stats_reply port_stats_reply(OFP12_VERSION);
 			port_stats_reply.unpack(soframe() + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_port_stats), sizeof(struct ofp12_port_stats));
 			port_stats.push_back(port_stats_reply);
 		}

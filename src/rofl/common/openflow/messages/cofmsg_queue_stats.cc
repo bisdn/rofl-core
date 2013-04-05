@@ -358,7 +358,7 @@ cofmsg_queue_stats_reply::validate()
 		if (get_length() < sizeof(struct ofp10_stats_reply))
 			throw eBadSyntaxTooShort();
 		for (unsigned int i = 0; i < ((get_length() - sizeof(struct ofp10_stats_reply)) / sizeof(struct ofp10_queue_stats)); i++) {
-			cofqueue_stats_reply queue_stats_reply;
+			cofqueue_stats_reply queue_stats_reply(OFP10_VERSION);
 			queue_stats_reply.unpack(soframe() + sizeof(struct ofp10_stats_reply) + i * sizeof(struct ofp10_queue_stats), sizeof(struct ofp10_queue_stats));
 			queue_stats.push_back(queue_stats_reply);
 		}
@@ -367,7 +367,7 @@ cofmsg_queue_stats_reply::validate()
 		if (get_length() < (sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_queue_stats)))
 			throw eBadSyntaxTooShort();
 		for (unsigned int i = 0; i < ((get_length() - sizeof(struct ofp12_stats_reply)) / sizeof(struct ofp12_queue_stats)); i++) {
-			cofqueue_stats_reply queue_stats_reply;
+			cofqueue_stats_reply queue_stats_reply(OFP12_VERSION);
 			queue_stats_reply.unpack(soframe() + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_queue_stats), sizeof(struct ofp12_queue_stats));
 			queue_stats.push_back(queue_stats_reply);
 		}
