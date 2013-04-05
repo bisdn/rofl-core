@@ -218,7 +218,7 @@ cofmsg_packet_out::validate()
 		actions.unpack(ofh10_packet_out->actions,
 						be16toh(ofh10_packet_out->actions_len));
 
-		if (OFP_NO_BUFFER != get_buffer_id()) {
+		if (OFP_NO_BUFFER == get_buffer_id()) {
 			packet.unpack(get_in_port(),
 						((uint8_t*)ofh10_packet_out) +
 							sizeof(struct ofp10_packet_out) +
@@ -238,7 +238,7 @@ cofmsg_packet_out::validate()
 		actions.unpack(ofh12_packet_out->actions,
 						be16toh(ofh12_packet_out->actions_len));
 
-		if (OFP_NO_BUFFER != get_buffer_id()) {
+		if (OFP_NO_BUFFER == get_buffer_id()) {
 			packet.unpack(get_in_port(),
 						((uint8_t*)ofh12_packet_out) +
 							sizeof(struct ofp12_packet_out) +

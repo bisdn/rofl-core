@@ -223,7 +223,7 @@ cofmsg_packet_in::validate()
 		/*
 		 * static part of struct ofp_packet_in also contains static fields from struct ofp_match (i.e. type and length)
 		 */
-		if (get_length() < (OFP12_PACKET_IN_STATIC_HDR_LEN + sizeof(struct ofp12_match)))
+		if (get_length() < sizeof(struct ofp12_packet_in)) // struct ofp12_packet_in also contains an empty ofp12_match (8bytes)
 			throw eBadSyntaxTooShort();
 
 		/*
@@ -241,7 +241,7 @@ cofmsg_packet_in::validate()
 		/*
 		 * set data and datalen variables
 		 */
-		uint16_t offset = OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2;
+		uint16_t offset = OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2; // +2: magic :)
 
 		uint32_t in_port = 0;
 
@@ -251,7 +251,7 @@ cofmsg_packet_in::validate()
 			in_port = 0;
 		}
 
-		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset)); // +2: magic :)
+		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset));
 
 	} break;
 	case OFP13_VERSION: {
