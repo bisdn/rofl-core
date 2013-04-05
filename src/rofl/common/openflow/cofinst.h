@@ -114,7 +114,7 @@ public: // methods
 	/** return length of action in bytes
 	 */
 	size_t
-	length() throw (eInstructionInvalType);
+	length() const throw (eInstructionInvalType);
 
 	/** find specific action
 	 */
@@ -131,7 +131,7 @@ public: // methods
 	struct ofp_instruction*
 	pack(
 		struct ofp_instruction* inhdr,
-		size_t inlen) throw (eInstructionInval);
+		size_t inlen) const throw (eInstructionInval);
 
 	/** unpack
 	 */

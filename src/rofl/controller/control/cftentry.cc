@@ -9,20 +9,23 @@ using namespace rofl;
 /*static*/std::set<cftentry*>		cftentry::cftentry_set;
 
 cftentry::cftentry(
+		uint8_t of_version,
 		cftentry_owner *owner,
 		cofctl *ctl) :
-		usage_cnt(0),
-		owner(owner),
-		flow_table(0),
-		ctl(ctl),
-		uid(0),
-		removal_reason(OFPRR_DELETE),
-		rx_packets(0),
-		rx_bytes(0),
-		out_port(OFPP_ANY),
-		out_group(OFPG_ANY),
-		flow_mod(0)
+				of_version(of_version),
+				usage_cnt(0),
+				owner(owner),
+				flow_table(0),
+				ctl(ctl),
+				uid(0),
+				removal_reason(OFPRR_DELETE),
+				rx_packets(0),
+				rx_bytes(0),
+				out_port(OFPP_ANY),
+				out_group(OFPG_ANY)
 {
+	of12m_flow_mod = (struct ofp12_flow_mod*)0;
+
 	cftentry::cftentry_set.insert(this);
 
 	pthread_mutex_init(&usage_mutex, NULL);
@@ -38,24 +41,24 @@ cftentry::cftentry(
 
 
 cftentry::cftentry(
+		uint8_t of_version,
 		cftentry_owner *owner,
 		std::set<cftentry*> *flow_table,
-		cofpacket *pack,
+		cofmsg_flow_mod *pack,
 		cofctl *ctl) :
-		usage_cnt(0),
-		owner(owner),
-		flow_table(flow_table),
-		ctl(ctl),
-		uid(0),
-		instructions(pack->instructions),
-		removal_reason(OFPRR_DELETE),
-		rx_packets(0),
-		rx_bytes(0),
-		out_port(be32toh(pack->ofh_flow_mod->out_port)),
-		out_group(be32toh(pack->ofh_flow_mod->out_group)),
-		ofmatch(pack->match),
-		m_flowmod(sizeof(struct ofp_flow_mod) - sizeof(struct ofp_match)),
-		flow_mod((struct ofp_flow_mod*)m_flowmod.somem())
+				of_version(of_version),
+				usage_cnt(0),
+				owner(owner),
+				flow_table(flow_table),
+				ctl(ctl),
+				uid(0),
+				instructions(pack->get_instructions()),
+				removal_reason(OFPRR_DELETE),
+				rx_packets(0),
+				rx_bytes(0),
+				out_port(pack->get_out_port()),
+				out_group(pack->get_out_group()),
+				ofmatch(pack->get_match())
 {
 	cftentry::cftentry_set.insert(this);
 
@@ -63,10 +66,26 @@ cftentry::cftentry(
 	pthread_mutex_init(&flags_mutex, NULL);
 	pthread_rwlock_init(&access_time_lock, NULL);
 
-	// flow_mod copy remains in network byte order !!!
-	// we copy the generic flow mod header only, i.e. ofp_match and all instructions are
-	// stored in this->match and this->inlist !
-	memcpy(m_flowmod.somem(), (uint8_t*)pack->ofh_flow_mod, m_flowmod.memlen());
+
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		m_flowmod.resize(sizeof(struct ofp12_flow_mod) - sizeof(struct ofp12_match)),
+		of12m_flow_mod = (struct ofp12_flow_mod*)(m_flowmod.somem());
+
+		// flow_mod copy remains in network byte order !!!
+			// we copy the generic flow mod header only, i.e. ofp_match and all instructions are
+			// stored in this->match and this->inlist !
+#if 0
+			memcpy(m_flowmod.somem(), (uint8_t*)pack->of12_flow_mod, m_flowmod.memlen());
+#endif
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+
+
 
 	__update();
 
@@ -75,15 +94,15 @@ cftentry::cftentry(
 	last_access_time = cclock::now();
 
 	// set hard timeout always
-	if (be16toh(this->flow_mod->hard_timeout) != OFP_FLOW_PERMANENT)
+	if (pack->get_hard_timeout() != OFP_FLOW_PERMANENT)
 	{
-		register_timer(TIMER_FTE_HARD_TIMEOUT, be16toh(this->flow_mod->hard_timeout));
+		register_timer(TIMER_FTE_HARD_TIMEOUT, pack->get_hard_timeout());
 	}
 
 	// set idle timeout only, when flow_mod->idle_timeout < flow_mod->hard_timeout
-	if (be16toh(this->flow_mod->idle_timeout) != OFP_FLOW_PERMANENT)
+	if (pack->get_idle_timeout() != OFP_FLOW_PERMANENT)
 	{
-		register_timer(TIMER_FTE_IDLE_TIMEOUT, be16toh(this->flow_mod->idle_timeout));
+		register_timer(TIMER_FTE_IDLE_TIMEOUT, pack->get_idle_timeout());
 	}
 
 	// create info string for debugging
@@ -111,8 +130,7 @@ cftentry::cftentry(
 				rx_packets(0),
 				rx_bytes(0),
 				out_port(OFPP_ANY),
-				out_group(OFPG_ANY),
-				flow_mod(0)
+				out_group(OFPG_ANY)
 {
 	cftentry::cftentry_set.insert(this);
 
@@ -211,9 +229,9 @@ cftentry::handle_timeout(int opaque)
 		 */
 		{
 			RwLock rwlock(&access_time_lock, RwLock::RWLOCK_READ);
-			if (((cclock::now().ts.tv_sec - last_access_time.ts.tv_sec)) < be16toh(flow_mod->idle_timeout))
+			if (((cclock::now().ts.tv_sec - last_access_time.ts.tv_sec)) < get_idle_timeout())
 			{
-				time_t remaining_time = be16toh(flow_mod->idle_timeout) -
+				time_t remaining_time = get_idle_timeout() -
 											(cclock::now().ts.tv_sec - last_access_time.ts.tv_sec);
 				register_timer(TIMER_FTE_IDLE_TIMEOUT, remaining_time);
 				return;
@@ -238,7 +256,7 @@ cftentry::handle_timeout(int opaque)
 				}
 
 				// send notification to owner => OWNER MUST REMOVE ALL REFERENCES TO THIS ENTRY FROM ITS INTERNAL STRUCTURES
-				if (owner) { owner->ftentry_idle_timeout(this, be16toh(flow_mod->idle_timeout)); };
+				if (owner) { owner->ftentry_idle_timeout(this, get_idle_timeout()); };
 			}
 		} // unlock lock here
 
@@ -280,7 +298,7 @@ cftentry::handle_timeout(int opaque)
 				}
 
 				// send notification to owner => OWNER MUST REMOVE ALL REFERENCES TO THIS ENTRY FROM ITS INTERNAL STRUCTURES
-				if (owner) { owner->ftentry_hard_timeout(this, be16toh(flow_mod->hard_timeout)); };
+				if (owner) { owner->ftentry_hard_timeout(this, get_hard_timeout()); };
 			}
 		} // unlock lock here
 
@@ -436,12 +454,23 @@ cftentry::operator=(const cftentry& fte)
 	}
 
 	// copy generic flow mod header, match, and instruction list
-	m_flowmod = fte.m_flowmod;
-	ofmatch = fte.ofmatch;
-	instructions = fte.instructions;
+	m_flowmod 		= fte.m_flowmod;
+	ofmatch 		= fte.ofmatch;
+	instructions 	= fte.instructions;
+	of_version 		= fte.of_version;
 
 	// set auxiliary pointer
-	flow_mod = (struct ofp_flow_mod*)m_flowmod.somem();
+	switch (of_version) {
+	case OFP12_VERSION: {
+		of12m_flow_mod = (struct ofp12_flow_mod*)(m_flowmod.somem());
+	} break;
+	case OFP13_VERSION: {
+		of13m_flow_mod = (struct ofp13_flow_mod*)(m_flowmod.somem());
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
 
 	return *this;
 }
@@ -566,22 +595,36 @@ cftentry::used(cpacket& pack)
 
 
 void
-cftentry::update_flow_mod(cofpacket *pack) throw (eFteInvalid)
+cftentry::update_flow_mod(cofmsg_flow_mod *pack) throw (eFteInvalid)
 {
-	if (OFPT_FLOW_MOD != pack->ofh_header->type)
+	if (pack->get_version() != of_version)
 	{
 		throw eFteInvalid();
 	}
 
-	memcpy(m_flowmod.somem(), pack->ofh_flow_mod, m_flowmod.memlen());
+	switch (of_version) {
+	case OFP12_VERSION: {
+#if 0
+		memcpy(m_flowmod.somem(), pack->of12h_flow_mod, m_flowmod.memlen());
+#endif
+	} break;
+	case OFP13_VERSION: {
+#if 0
+		memcpy(m_flowmod.somem(), pack->of13h_flow_mod, m_flowmod.memlen());
+#endif
+	} break;
+	default: {
 
-	ofmatch = pack->match;
-	instructions  = pack->instructions;
+	} break;
+	}
+
+	ofmatch 		= pack->get_match();
+	instructions  	= pack->get_instructions();
 
 	__update();
 }
 
-
+#if 0
 void
 cftentry::handle_stats_request(
 	struct ofp_flow_stats **flow_stats,
@@ -604,10 +647,10 @@ cftentry::handle_stats_request(
 	(*flow_stats)->table_id 		= 1;    // only a single table for now
 	(*flow_stats)->duration_sec 	= htobe32(since.ts.tv_sec);
 	(*flow_stats)->duration_nsec 	= htobe32(since.ts.tv_nsec);
-	(*flow_stats)->priority 		= flow_mod->priority;
-	(*flow_stats)->idle_timeout 	= flow_mod->idle_timeout;
-	(*flow_stats)->hard_timeout 	= flow_mod->hard_timeout;
-	(*flow_stats)->cookie 			= flow_mod->cookie;
+	(*flow_stats)->priority 		= htobe16(get_priority());
+	(*flow_stats)->idle_timeout 	= htobe16(get_idle_timeout());
+	(*flow_stats)->hard_timeout 	= htobe16(get_hard_timeout());
+	(*flow_stats)->cookie 			= htobe64(get_cookie());
 	(*flow_stats)->packet_count 	= htobe64(rx_packets);
 	(*flow_stats)->byte_count 		= htobe64(rx_bytes);
 
@@ -619,8 +662,10 @@ cftentry::handle_stats_request(
 			(struct ofp_instruction*)((uint8_t*)&((*flow_stats)->match) + ofmatch.length()),
 			instructions.length());
 }
+#endif
 
 
+#if 0
 void
 cftentry::ofp_send_flow_stats(
 	uint64_t dpid,
@@ -652,10 +697,10 @@ cftentry::ofp_send_flow_stats(
 
 	stats->duration_sec 		= htobe32(since.ts.tv_sec);
 	stats->duration_nsec 		= htobe32(since.ts.tv_nsec);
-	stats->priority 			= flow_mod->priority;
-	stats->idle_timeout 		= flow_mod->idle_timeout;
-	stats->hard_timeout 		= flow_mod->hard_timeout;
-	stats->cookie 				= flow_mod->cookie;
+	stats->priority 			= htobe16(get_priority());
+	stats->idle_timeout 		= htobe16(get_idle_timeout());
+	stats->hard_timeout 		= htobe16(get_hard_timeout());
+	stats->cookie 				= htobe64(get_cookie());
 	stats->packet_count 		= htobe64(rx_packets);
 	stats->byte_count 			= htobe64(rx_bytes);
 
@@ -663,6 +708,7 @@ cftentry::ofp_send_flow_stats(
 
 	free(stats);
 }
+#endif
 
 
 void
@@ -684,114 +730,128 @@ cftentry::get_flow_stats(
 		return;
 	}
 
-	/*
-	 * out_port must match, if not OFPP_ANY
-	 */
-	if (OFPP_ANY != out_port)
-	{
-		try {
-			cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
+
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		/*
+		 * out_port must match, if not OFPP_ANY
+		 */
+		if (OFPP_ANY != out_port)
+		{
+			try {
+				cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
+
+				try {
+					cofaction& action = inst.find_action(OFPAT_OUTPUT);
+					if (be32toh(action.oac_output->port) == out_port)
+					{
+						found = true;
+					}
+				} catch (eAcListNotFound& e) {}
+
+			} catch (eInListNotFound& e) {}
 
 			try {
-				cofaction& action = inst.find_action(OFPAT_OUTPUT);
-				if (be32toh(action.oac_output->port) == out_port)
-				{
-					found = true;
-				}
-			} catch (eAcListNotFound& e) {}
+				cofinst& inst = instructions.find_inst(OFPIT_WRITE_ACTIONS);
 
-		} catch (eInListNotFound& e) {}
+				try {
+					cofaction& action = inst.find_action(OFPAT_OUTPUT);
+					if (be32toh(action.oac_output->port) == out_port)
+					{
+						found = true;
+					}
+				} catch (eAcListNotFound& e) {}
 
-		try {
-			cofinst& inst = instructions.find_inst(OFPIT_WRITE_ACTIONS);
+			} catch (eInListNotFound& e) {}
+		}
+
+		/*
+		 * out_group must match, if not OFPG_ANY
+		 */
+		if (OFPG_ANY != out_group)
+		{
+			try {
+				cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
+
+				try {
+					cofaction& action = inst.find_action(OFPAT_GROUP);
+
+					if (be32toh(action.oac_group->group_id) == out_group)
+					{
+						found = true;
+					}
+				} catch (eAcListNotFound& e) {}
+
+			} catch (eInListNotFound& e) {}
 
 			try {
-				cofaction& action = inst.find_action(OFPAT_OUTPUT);
-				if (be32toh(action.oac_output->port) == out_port)
-				{
-					found = true;
-				}
-			} catch (eAcListNotFound& e) {}
+				cofinst& inst = instructions.find_inst(OFPIT_WRITE_ACTIONS);
 
-		} catch (eInListNotFound& e) {}
-	}
+				try {
+					cofaction& action = inst.find_action(OFPAT_GROUP);
 
-	/*
-	 * out_group must match, if not OFPG_ANY
-	 */
-	if (OFPG_ANY != out_group)
-	{
-		try {
-			cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
+					if (be32toh(action.oac_group->group_id) == out_group)
+					{
+						found = true;
+					}
+				} catch (eAcListNotFound& e) {}
 
-			try {
-				cofaction& action = inst.find_action(OFPAT_GROUP);
+			} catch (eInListNotFound& e) {}
+		}
 
-				if (be32toh(action.oac_group->group_id) == out_group)
-				{
-					found = true;
-				}
-			} catch (eAcListNotFound& e) {}
+		if (not ((OFPP_ANY == out_port) && (OFPG_ANY == out_group)))
+		{
+			if (not found)
+			{
+				return;
+			}
+		}
 
-		} catch (eInListNotFound& e) {}
-
-		try {
-			cofinst& inst = instructions.find_inst(OFPIT_WRITE_ACTIONS);
-
-			try {
-				cofaction& action = inst.find_action(OFPAT_GROUP);
-
-				if (be32toh(action.oac_group->group_id) == out_group)
-				{
-					found = true;
-				}
-			} catch (eAcListNotFound& e) {}
-
-		} catch (eInListNotFound& e) {}
-	}
-
-	if (not ((OFPP_ANY == out_port) && (OFPG_ANY == out_group)))
-	{
-		if (not found)
+		/*
+		 * cookie must match
+		 */
+		if ((get_cookie() & get_cookie_mask()) != (cookie & cookie_mask))
 		{
 			return;
 		}
+
+
+		/*
+		 * create struct ofp_flow_stats and append to body
+		 */
+		// FIXME:
+#if 0
+		cmemory fstats(OFP_FLOW_STATS_REPLY_STATIC_BODY_LEN + ofmatch.length() + instructions.length());
+		struct ofp_flow_stats* flow_stats = (struct ofp_flow_stats*)fstats.somem();
+
+		flow_stats->length 				= htobe16(fstats.memlen());
+		flow_stats->table_id 			= get_tableid();
+		flow_stats->duration_sec		= htobe32(flow_create_time.ts.tv_sec);
+		flow_stats->duration_nsec		= htobe32(flow_create_time.ts.tv_nsec);
+		flow_stats->priority			= htobe16(get_priority());
+		flow_stats->idle_timeout 		= htobe16(get_idle_timeout());
+		flow_stats->hard_timeout		= htobe16(get_hard_timeout());
+		flow_stats->cookie				= htobe64(get_cookie());
+		flow_stats->packet_count		= htobe64(rx_packets);
+		flow_stats->byte_count			= htobe64(rx_bytes);
+
+		ofmatch.pack(&(flow_stats->match), ofmatch.length());
+
+
+		struct ofp_instruction *inst = (struct ofp_instruction*)((uint8_t*)&(flow_stats->match) + ofmatch.length());
+
+		instructions.pack(inst, instructions.length());
+
+		body += fstats;
+#endif
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
 	}
 
-	/*
-	 * cookie must match
-	 */
-	if ((be64toh(flow_mod->cookie) & be64toh(flow_mod->cookie_mask)) !=
-			(cookie & cookie_mask))
-	{
-		return;
-	}
 
-
-	/*
-	 * create struct ofp_flow_stats and append to body
-	 */
-	cmemory fstats(OFP_FLOW_STATS_REPLY_STATIC_BODY_LEN + ofmatch.length() + instructions.length());
-	struct ofp_flow_stats* flow_stats = (struct ofp_flow_stats*)fstats.somem();
-
-	flow_stats->length 				= htobe16(fstats.memlen());
-	flow_stats->table_id 			= flow_mod->table_id;
-	flow_stats->duration_sec		= htobe32(flow_create_time.ts.tv_sec);
-	flow_stats->duration_nsec		= htobe32(flow_create_time.ts.tv_nsec);
-	flow_stats->priority			= flow_mod->priority;
-	flow_stats->idle_timeout 		= flow_mod->idle_timeout;
-	flow_stats->hard_timeout		= flow_mod->hard_timeout;
-	flow_stats->cookie				= flow_mod->cookie;
-	flow_stats->packet_count		= htobe64(rx_packets);
-	flow_stats->byte_count			= htobe64(rx_bytes);
-
-	ofmatch.pack(&(flow_stats->match), ofmatch.length());
-
-	struct ofp_instruction *inst = (struct ofp_instruction*)((uint8_t*)&(flow_stats->match) + ofmatch.length());
-
-	instructions.pack(inst, instructions.length());
-
-	body += fstats;
 }
 
 
@@ -822,111 +882,120 @@ cftentry::get_aggregate_flow_stats(
 		return;
 	}
 
-	/*
-	 * out_port must match, if not OFPP_ANY
-	 */
-	if (OFPP_ANY != out_port)
-	{
-		try {
-			cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
 
-			try {
-				cofaction& action = inst.find_action(OFPAT_OUTPUT);
-				if (be32toh(action.oac_output->port) == out_port)
-				{
-					goto found;
-				}
-			} catch (eAcListNotFound& e) {}
-
-		} catch (eInListNotFound& e) {}
-
-		try {
-			cofinst& inst = instructions.find_inst(OFPIT_WRITE_ACTIONS);
-
-			try {
-				cofaction& action = inst.find_action(OFPAT_OUTPUT);
-				if (be32toh(action.oac_output->port) == out_port)
-				{
-					goto found;
-				}
-			} catch (eAcListNotFound& e) {}
-
-		} catch (eInListNotFound& e) {}
-	}
-
-	/*
-	 * out_group must match, if not OFPG_ANY
-	 */
-	if (OFPG_ANY != out_group)
-	{
-		try {
-			cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
-
-			try {
-				cofaction& action = inst.find_action(OFPAT_GROUP);
-
-				if (be32toh(action.oac_group->group_id) == out_group)
-				{
-					goto found;
-				}
-			} catch (eAcListNotFound& e) {}
-
-		} catch (eInListNotFound& e) {}
-
-		try {
-			cofinst& inst = instructions.find_inst(OFPIT_WRITE_ACTIONS);
-
-			try {
-				cofaction& action = inst.find_action(OFPAT_GROUP);
-
-				if (be32toh(action.oac_group->group_id) == out_group)
-				{
-					goto found;
-				}
-			} catch (eAcListNotFound& e) {}
-
-		} catch (eInListNotFound& e) {}
-	}
-
-	//fprintf(stderr, "\n\n[R]\n\n\n");
-
-
-	if (not ((OFPP_ANY == out_port) && (OFPG_ANY == out_group)))
-	{
-		//fprintf(stderr, "\n\n[S]\n\n\n");
-
-		if (not found)
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		/*
+		 * out_port must match, if not OFPP_ANY
+		 */
+		if (OFPP_ANY != out_port)
 		{
-			//fprintf(stderr, "\n\n[T]\n\n\n");
+			try {
+				cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
 
-			return;
+				try {
+					cofaction& action = inst.find_action(OFPAT_OUTPUT);
+					if (be32toh(action.oac_output->port) == out_port)
+					{
+						goto found;
+					}
+				} catch (eAcListNotFound& e) {}
+
+			} catch (eInListNotFound& e) {}
+
+			try {
+				cofinst& inst = instructions.find_inst(OFPIT_WRITE_ACTIONS);
+
+				try {
+					cofaction& action = inst.find_action(OFPAT_OUTPUT);
+					if (be32toh(action.oac_output->port) == out_port)
+					{
+						goto found;
+					}
+				} catch (eAcListNotFound& e) {}
+
+			} catch (eInListNotFound& e) {}
 		}
-	}
+
+		/*
+		 * out_group must match, if not OFPG_ANY
+		 */
+		if (OFPG_ANY != out_group)
+		{
+			try {
+				cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
+
+				try {
+					cofaction& action = inst.find_action(OFPAT_GROUP);
+
+					if (be32toh(action.oac_group->group_id) == out_group)
+					{
+						goto found;
+					}
+				} catch (eAcListNotFound& e) {}
+
+			} catch (eInListNotFound& e) {}
+
+			try {
+				cofinst& inst = instructions.find_inst(OFPIT_WRITE_ACTIONS);
+
+				try {
+					cofaction& action = inst.find_action(OFPAT_GROUP);
+
+					if (be32toh(action.oac_group->group_id) == out_group)
+					{
+						goto found;
+					}
+				} catch (eAcListNotFound& e) {}
+
+			} catch (eInListNotFound& e) {}
+		}
+
+		//fprintf(stderr, "\n\n[R]\n\n\n");
+
+
+		if (not ((OFPP_ANY == out_port) && (OFPG_ANY == out_group)))
+		{
+			//fprintf(stderr, "\n\n[S]\n\n\n");
+
+			if (not found)
+			{
+				//fprintf(stderr, "\n\n[T]\n\n\n");
+
+				return;
+			}
+		}
 
 found:
 
-	//fprintf(stderr, "\n\n[U]\n\n\n");
+		//fprintf(stderr, "\n\n[U]\n\n\n");
 
-	/*
-	 * cookie must match
-	 */
-	if ((be64toh(flow_mod->cookie) & be64toh(flow_mod->cookie_mask)) !=
-			(cookie & cookie_mask))
-	{
-		//fprintf(stderr, "\n\n[V]\n\n\n");
+		/*
+		 * cookie must match
+		 */
+		if ((get_cookie() & get_cookie_mask()) != (cookie & cookie_mask))
+		{
+			//fprintf(stderr, "\n\n[V]\n\n\n");
 
-		return;
+			return;
+		}
+
+		//fprintf(stderr, "\n\n[W]\n\n\n");
+
+
+		/*
+		 * create struct ofp_flow_stats and append to body
+		 */
+		packet_count 	+= rx_packets;
+		byte_count 		+= rx_bytes;
+		flow_count 		+= 1;
+
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
 	}
-
-	//fprintf(stderr, "\n\n[W]\n\n\n");
-
-
-	/*
-	 * create struct ofp_flow_stats and append to body
-	 */
-	packet_count 	+= rx_packets;
-	byte_count 		+= rx_bytes;
-	flow_count 		+= 1;
 }
 
 
@@ -938,16 +1007,18 @@ cftentry::make_info()
 	info.assign(vas("cftentry(%p) "
 			"priority:%d "
 			"cookie:0x%llx "
+			"cookie_mask:0x%llx "
 			"idle[%d] hard[%d] outport[0x%x] outgroup[0x%x] "
 			"n_packets[%llu] n_bytes[%llu]\n"
 			"ofpmatch:%s\n"
 			"instructions:%s\n",
 			this,
-			be16toh(flow_mod->priority),
-			be64toh(flow_mod->cookie),
+			get_priority(),
+			get_cookie(),
+			get_cookie_mask(),
 	        // counters and timers
-			be16toh(flow_mod->idle_timeout),
-			be16toh(flow_mod->hard_timeout),
+			get_idle_timeout(),
+			get_hard_timeout(),
 			out_port,
 			out_group,
 			(long long int)rx_packets,
@@ -972,10 +1043,137 @@ cftentry::s_str()
 
 
 
+uint8_t
+cftentry::get_version() const
+{
+	return of_version;
+}
+
+
+
+uint16_t
+cftentry::get_flags() const
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be16toh(of12m_flow_mod->flags);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint64_t
+cftentry::get_cookie() const
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be64toh(of12m_flow_mod->cookie);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint64_t
+cftentry::get_cookie_mask() const
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be64toh(of12m_flow_mod->cookie_mask);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint16_t
+cftentry::get_priority() const
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be16toh(of12m_flow_mod->priority);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint8_t
+cftentry::get_tableid() const
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return of12m_flow_mod->table_id;
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint16_t
+cftentry::get_idle_timeout() const
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be16toh(of12m_flow_mod->idle_timeout);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
+uint16_t
+cftentry::get_hard_timeout() const
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return be16toh(of12m_flow_mod->hard_timeout);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
+}
+
+
+
 void
 cftentry::test()
 {
-	cftentry fe;
+	cftentry fe(OFP12_VERSION);
 
 	cofinlist instructions;
 

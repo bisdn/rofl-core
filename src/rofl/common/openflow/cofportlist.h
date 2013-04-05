@@ -10,6 +10,7 @@
 #include "../cvastring.h"
 #include "../cerror.h"
 #include "../coflist.h"
+#include "openflow.h"
 
 #include "cofport.h"
 
@@ -64,30 +65,79 @@ public: // methods
 		return *this;
 	};
 
+#if 0
+	/** stores cofinst instances in this->invec from a packed array struct ofp_instruction (e.g. in struct ofp_flow_mod)
+	 */
+	template<class T>
+	std::vector<cofport>&			// returns reference to this->invec
+	unpack(
+		T *ports, // parses memory area buckets and creates cofinst instance in this->invec
+		size_t portlen)					// length of memory area to be parsed
+	throw (ePortListInval);
+#endif
 
 	/** stores cofinst instances in this->invec from a packed array struct ofp_instruction (e.g. in struct ofp_flow_mod)
 	 */
 	std::vector<cofport>&			// returns reference to this->invec
 	unpack(
-		struct ofp_port *ports, // parses memory area buckets and creates cofinst instance in this->invec
+		struct ofp10_port *ports, // parses memory area buckets and creates cofinst instance in this->invec
 		size_t portlen)					// length of memory area to be parsed
+	throw (ePortListInval);
+
+
+	/** stores cofinst instances in this->invec from a packed array struct ofp_instruction (e.g. in struct ofp_flow_mod)
+	 */
+	std::vector<cofport>&			// returns reference to this->invec
+	unpack(
+		struct ofp12_port *ports, // parses memory area buckets and creates cofinst instance in this->invec
+		size_t portlen)					// length of memory area to be parsed
+	throw (ePortListInval);
+
+
+#if 0
+	/** builds an array of struct ofp_instruction from this->invec
+	 */
+	template<class T>
+	T*			// returns parameter "struct ofp_instruction *instructions"
+	pack(
+		T *ports, // pointer to memory area for storing this->invec
+		size_t portlen) 					// length of memory area
+	throw (ePortListInval);
+#endif
+
+	/** builds an array of struct ofp_instruction from this->invec
+	 */
+	struct ofp10_port*			// returns parameter "struct ofp_instruction *instructions"
+	pack(
+		struct ofp10_port *ports, // pointer to memory area for storing this->invec
+		size_t portlen) const					// length of memory area
 	throw (ePortListInval);
 
 
 	/** builds an array of struct ofp_instruction from this->invec
 	 */
-	struct ofp_port*			// returns parameter "struct ofp_instruction *instructions"
+	struct ofp12_port*			// returns parameter "struct ofp_instruction *instructions"
 	pack(
-		struct ofp_port *ports, // pointer to memory area for storing this->invec
+		struct ofp12_port *ports, // pointer to memory area for storing this->invec
+		size_t portlen) const					// length of memory area
+	throw (ePortListInval);
+
+#if 0
+	/** builds an array of struct ofp_instruction from this->invec
+	 */
+	struct ofp13_port*			// returns parameter "struct ofp_instruction *instructions"
+	pack(
+		struct ofp13_port *ports, // pointer to memory area for storing this->invec
 		size_t portlen) 					// length of memory area
 	throw (ePortListInval);
+#endif
 
 
 	/** returns required length for array of struct ofp_instruction
 	 * for all instructions defined in this->invec
 	 */
 	size_t
-	length();
+	length() const;
 
 
 	/** dump info string

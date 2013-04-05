@@ -37,8 +37,8 @@ extern "C" {
 #include "../../common/openflow/cofmatch.h"
 #include "../../common/openflow/cofaction.h"
 #include "../../common/openflow/cofinlist.h"
-#include "../../common/openflow/cofpacket.h"
 #include "../../common/openflow/cofinst.h"
+#include "../../common/openflow/messages/cofmsg_flow_mod.h"
 
 #include "../../common/protocols/fetherframe.h"
 
@@ -142,6 +142,7 @@ private: // data structures
 			TIMER_FTE_HARD_TIMEOUT = 3,
 		};
 
+		uint8_t					of_version;
 		int 					usage_cnt;			// semaphore counter
 		std::string 			info; 				// info string
 
@@ -175,8 +176,14 @@ public:
 		uint32_t 				out_group;			// output group for this ft-entry
 		cofmatch 				ofmatch;			// cofmatch instance containing struct ofp_match for this ftentry
 		cmemory 				m_flowmod;			// memory area for storing the generic part of ofp_flow_mod
-		struct ofp_flow_mod 	*flow_mod;			// copy of ofp_flow_mod structure (network byte order)
 
+		union {
+			struct ofp12_flow_mod 		*ofmu12_flow_mod;
+			struct ofp13_flow_mod		*ofmu13_flow_mod;
+		} ofm_ofmu;
+
+#define of12m_flow_mod		ofm_ofmu.ofmu12_flow_mod
+#define of13m_flow_mod		ofm_ofmu.ofmu13_flow_mod
 
 
 public:
@@ -186,6 +193,7 @@ public:
 	 *
 	 */
 	cftentry(
+			uint8_t of_version,
 			cftentry_owner *owner = NULL,
 			cofctl *ctl = NULL);
 
@@ -194,10 +202,11 @@ public:
 	 *
 	 */
 	cftentry(
-		cftentry_owner *owner,
-		std::set<cftentry*> *flow_table,
-		cofpacket *pack,
-		cofctl *ctl = NULL);
+			uint8_t of_version,
+			cftentry_owner *owner,
+			std::set<cftentry*> *flow_table,
+			cofmsg_flow_mod *msg,
+			cofctl *ctl = NULL);
 
 
 	/** destructor
@@ -312,8 +321,9 @@ public:
 	 * update struct ofp_flow_mod
 	 */
 	virtual void
-	update_flow_mod(cofpacket *pack) throw (eFteInvalid);
+	update_flow_mod(cofmsg_flow_mod *msg) throw (eFteInvalid);
 
+#if 0
 	/**
 	 * send flow stats reply for this entry
 	 */
@@ -324,7 +334,10 @@ public:
 		uint16_t flags,
 		struct ofp_flow_stats_request *req,
 		size_t reqlen);
+#endif
 
+
+#if 0
 	/**
 	 * send flow stats reply for this entry
 	 */
@@ -332,6 +345,7 @@ public:
 	handle_stats_request(
 		struct ofp_flow_stats **flow_stats,
 		size_t *flow_stats_len);
+#endif
 
 
 	/** OFPST_FLOW_STATS
@@ -367,6 +381,64 @@ public:
 	 */
 	static void
 	test();
+
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const;
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_flags() const;
+
+
+	/**
+	 *
+	 */
+	uint64_t
+	get_cookie() const;
+
+
+	/**
+	 *
+	 */
+	uint64_t
+	get_cookie_mask() const;
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_priority() const;
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_tableid() const;
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_idle_timeout() const;
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_hard_timeout() const;
+
 
 public: // overloaded from hw_fte_cb
 

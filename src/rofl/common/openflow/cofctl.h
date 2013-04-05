@@ -25,7 +25,35 @@ extern "C" {
 #include "../cvastring.h"
 #include "../csocket.h"
 #include "../cfsm.h"
-#include <rofl/common/openflow/cofpacket.h>
+#include "../openflow/messages/cofmsg.h"
+#include "../openflow/messages/cofmsg_hello.h"
+#include "../openflow/messages/cofmsg_echo.h"
+#include "../openflow/messages/cofmsg_error.h"
+#include "../openflow/messages/cofmsg_features.h"
+#include "../openflow/messages/cofmsg_config.h"
+#include "../openflow/messages/cofmsg_packet_out.h"
+#include "../openflow/messages/cofmsg_packet_in.h"
+#include "../openflow/messages/cofmsg_flow_mod.h"
+#include "../openflow/messages/cofmsg_flow_removed.h"
+#include "../openflow/messages/cofmsg_group_mod.h"
+#include "../openflow/messages/cofmsg_table_mod.h"
+#include "../openflow/messages/cofmsg_port_mod.h"
+#include "../openflow/messages/cofmsg_port_status.h"
+#include "../openflow/messages/cofmsg_stats.h"
+#include "../openflow/messages/cofmsg_desc_stats.h"
+#include "../openflow/messages/cofmsg_flow_stats.h"
+#include "../openflow/messages/cofmsg_aggr_stats.h"
+#include "../openflow/messages/cofmsg_table_stats.h"
+#include "../openflow/messages/cofmsg_port_stats.h"
+#include "../openflow/messages/cofmsg_queue_stats.h"
+#include "../openflow/messages/cofmsg_group_stats.h"
+#include "../openflow/messages/cofmsg_group_desc_stats.h"
+#include "../openflow/messages/cofmsg_group_features_stats.h"
+#include "../openflow/messages/cofmsg_barrier.h"
+#include "../openflow/messages/cofmsg_queue_get_config.h"
+#include "../openflow/messages/cofmsg_role.h"
+#include "../openflow/messages/cofmsg_experimenter.h"
+
 
 #include "cofmatch.h"
 #include "extensions/cfspentry.h"
@@ -69,10 +97,12 @@ private: // data structures
 
 	cxidstore						xidstore;
 	std::string 					info;					// info string
-	cofpacket						*fragment;				// fragment of OF packet rcvd on fragment during last call(s)
+	cmemory							*fragment;				// fragment of OF packet rcvd on fragment during last call(s)
+	size_t							msg_bytes_read; 		// bytes already read for current message
 	int 							reconnect_in_seconds; 	// reconnect in x seconds
 	int 							reconnect_counter;
 	int 							rpc_echo_interval;		// default ECHO time interval
+	uint8_t							version;				// OpenFlow version negotiated for this session
 
 	enum cofctl_flag_t {
 		COFCTL_FLAG_HELLO_RCVD 			= (1 << 0),
@@ -142,6 +172,19 @@ public: // methods
 	/**
 	 *
 	 */
+	bool
+	is_established() const;
+
+
+	/**
+	 */
+	uint8_t
+	get_version();
+
+
+	/**
+	 *
+	 */
 	cxidtrans&
 	transaction(
 			uint32_t xid);
@@ -152,7 +195,7 @@ public: // methods
 	 */
 	void
 	send_message(
-			cofpacket *pack);
+			cofmsg *pack);
 
 
 protected:
@@ -162,134 +205,134 @@ protected:
 	 *
 	 */
 	void
-	hello_rcvd(cofpacket *pack);
+	hello_rcvd(cofmsg_hello *pack);
 
 
 	/**
 	 *
 	 */
 	void
-	echo_request_sent(cofpacket *pack);
+	echo_request_sent(cofmsg *pack);
 
 
 	/**
 	 *
 	 */
 	void
-	echo_request_rcvd(cofpacket *pack);
+	echo_request_rcvd(cofmsg_echo_request *pack);
 
 
 	/**
 	 *
 	 */
 	void
-	echo_reply_rcvd(cofpacket *pack);
+	echo_reply_rcvd(cofmsg_echo_reply *pack);
 
 
 	/** handle incoming vendor message (ROFL extensions)
 	 */
 	void
-	experimenter_rcvd(cofpacket *pack);
+	experimenter_rcvd(cofmsg_experimenter *pack);
 
 	/** handle incoming FEATURE requests
 	 */
 	void
-	features_request_rcvd(cofpacket *pack);
+	features_request_rcvd(cofmsg_features_request *pack);
 
 	/**
 	 *
 	 */
 	void
-	features_reply_sent(cofpacket *pack);
+	features_reply_sent(cofmsg *pack);
 
 	/**
 	 *
 	 */
 	void
-	get_config_request_rcvd(cofpacket *pack);
+	get_config_request_rcvd(cofmsg_get_config_request *pack);
 
 	/**
 	 *
 	 */
 	void
-	get_config_reply_sent(cofpacket *pack);
+	get_config_reply_sent(cofmsg *pack);
 
 	/**
 	 *
 	 */
 	void
-	set_config_rcvd(cofpacket *pack);
+	set_config_rcvd(cofmsg_set_config *pack);
 
 	/** handle incoming PACKET-OUT messages
 	 */
 	void
-	packet_out_rcvd(cofpacket *pack);
+	packet_out_rcvd(cofmsg_packet_out *pack);
 
 	/** handle incoming FLOW-MOD messages
 	 */
 	void
-	flow_mod_rcvd(cofpacket *pack);
+	flow_mod_rcvd(cofmsg_flow_mod *pack);
 
 	/** handle incoming GROUP-MOD messages
 	 */
 	void
-	group_mod_rcvd(cofpacket *pack);
+	group_mod_rcvd(cofmsg_group_mod *pack);
 
 	/** handle incoming PORT-MOD messages
 	 */
 	void
-	port_mod_rcvd(cofpacket *pack);
+	port_mod_rcvd(cofmsg_port_mod *pack);
 
 	/** handle incoming TABLE-MOD messages
 	 */
 	void
-	table_mod_rcvd(cofpacket *pack);
+	table_mod_rcvd(cofmsg_table_mod *pack);
 
 	/** STATS-REQUEST received
 	 *
 	 */
 	void
-	stats_request_rcvd(cofpacket *pack);
+	stats_request_rcvd(cofmsg_stats *pack);
 
 	/**
 	 *
 	 */
 	void
-	stats_reply_sent(cofpacket *pack);
+	stats_reply_sent(cofmsg *pack);
 
 	/** handle incoming ROLE-REQUEST messages
 	 */
 	void
-	role_request_rcvd(cofpacket *pack);
+	role_request_rcvd(cofmsg_role_request *pack);
 
 	/**
 	 *
 	 */
 	void
-	role_reply_sent(cofpacket *pack);
+	role_reply_sent(cofmsg *pack);
 
 	/** handle incoming BARRIER request
 	 */
 	void
-	barrier_request_rcvd(cofpacket *pack);
+	barrier_request_rcvd(cofmsg_barrier_request *pack);
 
 	/** BARRIER reply sent back
 	 *
 	 */
 	void
-	barrier_reply_sent(cofpacket *pack);
+	barrier_reply_sent(cofmsg *pack);
 
 	/**
 	 *
 	 */
 	void
-	queue_get_config_request_rcvd(cofpacket *pack);
+	queue_get_config_request_rcvd(cofmsg_queue_get_config_request *pack);
 
 	/**
 	 *
 	 */
 	void
-	queue_get_config_reply_sent(cofpacket *pack);
+	queue_get_config_reply_sent(cofmsg *pack);
 
 protected: // methods
 
@@ -298,7 +341,7 @@ protected: // methods
 	 *
 	 */
 	void
-	send_error_is_slave(cofpacket *pack);
+	send_error_is_slave(cofmsg *pack);
 
 
 protected:
@@ -377,7 +420,7 @@ private:
 	 */
 	void
 	handle_message(
-			cofpacket *pack);
+			cmemory *pack);
 
 
 	/**
@@ -393,7 +436,7 @@ private:
 	 */
 	void
 	send_message_via_socket(
-			cofpacket *pack);
+			cofmsg *pack);
 };
 
 }; // end of namespace

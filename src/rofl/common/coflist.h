@@ -102,7 +102,7 @@ public: // methods
 	/** reset list (=deletes all elements)
 	 */
 	virtual void
-	reset();
+	clear();
 
 	/** insert an element at position i
 	 */

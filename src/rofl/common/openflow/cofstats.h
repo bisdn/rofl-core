@@ -47,42 +47,42 @@ public:
 		uint8_t									*ofsu_body;
 		/* OFPST_DESC */
 		// empty desc stats body in request
-		struct ofp_desc_stats					*ofsu_desc_reply;
+		struct ofp12_desc_stats					*ofsu_desc_reply;
 
 		/* OFPST_FLOW */
-		struct ofp_flow_stats_request			*ofsu_flow_stats_request;
-		struct ofp_flow_stats					*ofsu_flow_stats_reply;
+		struct ofp12_flow_stats_request			*ofsu_flow_stats_request;
+		struct ofp12_flow_stats					*ofsu_flow_stats_reply;
 
 		/* OFPST_AGGREGATE */
-		struct ofp_aggregate_stats_request		*ofsu_aggr_stats_request;
-		struct ofp_aggregate_stats_reply		*ofsu_aggr_stats_reply;
+		struct ofp12_aggregate_stats_request	*ofsu_aggr_stats_request;
+		struct ofp12_aggregate_stats_reply		*ofsu_aggr_stats_reply;
 
 		/* OFPST_TABLE */
 		// empty table stats body in request
-		struct ofp_table_stats					*ofsu_table_stats_reply;
+		struct ofp12_table_stats				*ofsu_table_stats_reply;
 
 		/* OFPST_PORT */
-		struct ofp_port_stats_request			*ofsu_port_stats_request;
-		struct ofp_port_stats					*ofsu_port_stats_reply;
+		struct ofp12_port_stats_request			*ofsu_port_stats_request;
+		struct ofp12_port_stats					*ofsu_port_stats_reply;
 
 		/* OFPST_QUEUE */
-		struct ofp_queue_stats_request			*ofsu_queue_stats_request;
-		struct ofp_queue_stats					*ofsu_queue_stats_reply;
+		struct ofp12_queue_stats_request		*ofsu_queue_stats_request;
+		struct ofp12_queue_stats				*ofsu_queue_stats_reply;
 
 		/* OFPST_GROUP */
-		struct ofp_group_stats_request			*ofsu_group_stats_request;
-		struct ofp_group_stats					*ofsu_group_stats_reply;
+		struct ofp12_group_stats_request		*ofsu_group_stats_request;
+		struct ofp12_group_stats				*ofsu_group_stats_reply;
 
 		/* OFPST_GROUP_DESC */
 		// empty group desc stats body in request
-		struct ofp_group_desc_stats				*ofsu_group_desc_stats_reply;
+		struct ofp12_group_desc_stats			*ofsu_group_desc_stats_reply;
 
 		/* OFPST_GROUP_FEATURES */
 		// empty group features stats body in request
-		struct ofp_group_features_stats			*ofsu_group_features_stats_reply;
+		struct ofp12_group_features_stats		*ofsu_group_features_stats_reply;
 
 		/* OFPST_EXPERIMENTER */
-		struct ofp_experimenter_stats_header	*ofsu_expr_stats_header;
+		struct ofp12_experimenter_stats_header	*ofsu_expr_stats_header;
 	} ofs_ofsu;
 
 #define ofs_body								ofs_ofsu.ofsu_body
@@ -171,7 +171,7 @@ public:
 		cofstats_flow_request() :
 			cofstats(OFS_FLOW_STATS_STATIC_HDR_LEN)
 		{
-			ofs_flow_stats_request = (struct ofp_flow_stats_request*)body.somem();
+			ofs_flow_stats_request = (struct ofp12_flow_stats_request*)body.somem();
 		};
 		/** destructor
 		 *
@@ -194,7 +194,7 @@ public:
 		{
 			packed.resize(length());
 			memcpy(packed.somem(), body.somem(), body.memlen());
-			match.pack((struct ofp_match*)(packed.somem() + body.memlen()), match.length());
+			match.pack((struct ofp12_match*)(packed.somem() + body.memlen()), match.length());
 			return packed;
 		};
 };
@@ -209,9 +209,9 @@ public:
 		 *
 		 */
 		cofstats_flow_reply() :
-			cofstats(sizeof(struct ofp_flow_stats))
+			cofstats(sizeof(struct ofp12_flow_stats))
 		{
-			ofs_flow_stats = (struct ofp_flow_stats*)body.somem();
+			ofs_flow_stats = (struct ofp12_flow_stats*)body.somem();
 		};
 		/** destructor
 		 *
@@ -236,7 +236,7 @@ public:
 		cofstats_aggregate_request() :
 			cofstats(OFS_AGGR_STATS_STATIC_HDR_LEN)
 		{
-			ofs_aggr_stats_request = (struct ofp_aggregate_stats_request*)body.somem();
+			ofs_aggr_stats_request = (struct ofp12_aggregate_stats_request*)body.somem();
 		};
 		cofstats_aggregate_request(uint8_t* buf, size_t buflen) :
 			cofstats(OFS_AGGR_STATS_STATIC_HDR_LEN)
@@ -264,7 +264,7 @@ public:
 		{
 			packed.resize(length());
 			memcpy(packed.somem(), body.somem(), body.memlen());
-			match.pack((struct ofp_match*)(packed.somem() + body.memlen()), match.length());
+			match.pack((struct ofp12_match*)(packed.somem() + body.memlen()), match.length());
 			return packed;
 		};
 		/**
@@ -273,14 +273,14 @@ public:
 		virtual void
 		unpack(uint8_t *buf, size_t buflen) throw (eOFstatsTooShort)
 		{
-			if (buflen < sizeof(struct ofp_aggregate_stats_request))
+			if (buflen < sizeof(struct ofp12_aggregate_stats_request))
 			{
 				throw eOFstatsTooShort();
 			}
 			body.assign(buf, OFS_AGGR_STATS_STATIC_HDR_LEN);
-			ofs_aggr_stats_request = (struct ofp_aggregate_stats_request*)body.somem();
-			match.reset();
-			match.unpack((struct ofp_match*)(buf + OFS_AGGR_STATS_STATIC_HDR_LEN),
+			ofs_aggr_stats_request = (struct ofp12_aggregate_stats_request*)body.somem();
+			match.clear();
+			match.unpack((struct ofp12_match*)(buf + OFS_AGGR_STATS_STATIC_HDR_LEN),
 					buflen - OFS_AGGR_STATS_STATIC_HDR_LEN);
 		};
 		/**
@@ -313,9 +313,9 @@ public:
 		 *
 		 */
 		cofstats_aggregate_reply() :
-			cofstats(sizeof(struct ofp_aggregate_stats_reply))
+			cofstats(sizeof(struct ofp12_aggregate_stats_reply))
 		{
-			ofs_aggr_stats = (struct ofp_aggregate_stats_reply*)body.somem();
+			ofs_aggr_stats = (struct ofp12_aggregate_stats_reply*)body.somem();
 		};
 		/** destructor
 		 *

@@ -66,14 +66,14 @@ void
 cofinst::reset()
 {
 	instruction.clear();
-	actions.reset();
+	actions.clear();
 }
 
 
 struct ofp_instruction*
 cofinst::pack(
 	struct ofp_instruction* inhdr,
-	size_t inlen) throw (eInstructionInval)
+	size_t inlen) const throw (eInstructionInval)
 {
 	//Lock lock(&inmutex);
 
@@ -201,7 +201,7 @@ cofinst::soinst()
 
 
 size_t
-cofinst::length() throw (eInstructionInvalType)
+cofinst::length() const throw (eInstructionInvalType)
 {
 	switch (be16toh(oin_header->type)) {
 	case OFPIT_APPLY_ACTIONS:

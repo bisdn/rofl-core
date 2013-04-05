@@ -34,7 +34,7 @@ public: // static methods
 public: // data structures
 
 	cofbclist buckets; 					// bucket list
-	struct ofp_group_mod *group_mod; 	// pointer to group_mod_area (see below)
+	struct ofp12_group_mod *group_mod; 	// pointer to group_mod_area (see below)
 
 public: // methods
 

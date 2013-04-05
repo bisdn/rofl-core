@@ -17,7 +17,7 @@ coflist<T>::coflist()
 template <class T>
 coflist<T>::~coflist()
 {
-	reset();
+	clear();
 }
 
 
@@ -30,7 +30,7 @@ coflist<T>::coflist(coflist<T> const& ofl)
 
 template <class T>
 void
-coflist<T>::reset()
+coflist<T>::clear()
 {
 #if 0
 	typename std::vector<T>::iterator it;
@@ -50,7 +50,7 @@ coflist<T>::operator= (coflist<T> const& ofl)
 	if (this == &ofl)
 		return *this;
 
-	this->reset();
+	this->clear();
 
 	typename std::vector<T>::const_iterator it;
 	for (it = ofl.elems.begin(); it != ofl.elems.end(); ++it)

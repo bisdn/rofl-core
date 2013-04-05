@@ -57,7 +57,7 @@ public:
 	cphyport(
 			std::map<uint32_t, cofport*> *port_list,
 			uint32_t port_no) :
-				cofport(port_list, port_no)
+				cofport((struct ofp12_port*)0, 0, port_list, port_no)
 	{
 
 	};

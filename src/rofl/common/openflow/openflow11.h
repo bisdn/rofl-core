@@ -284,7 +284,7 @@ struct ofp_port {
 OFP_ASSERT(sizeof(struct ofp_port) == 64);
 
 /* Switch features. */
-struct ofp_switch_features {
+struct ofp12_switch_features {
     struct ofp_header header;
     uint64_t datapath_id;   /* Datapath unique ID.  The lower 48-bits are for
                                a MAC address, while the upper 16-bits are
@@ -304,7 +304,7 @@ struct ofp_switch_features {
                                   is inferred from the length field in
                                   the header. */
 };
-OFP_ASSERT(sizeof(struct ofp_switch_features) == 32);
+OFP_ASSERT(sizeof(struct ofp12_switch_features) == 32);
 
 /* What changed about the physical port */
 enum ofp_port_reason {
@@ -917,7 +917,7 @@ enum ofp_group {
 };
 
 /* Bucket for use in groups. */
-struct ofp_bucket {
+struct ofp12_bucket {
     uint16_t len;                   /* Length the bucket in bytes, including
                                        this header and any padding to make it
                                        64-bit aligned. */
@@ -934,7 +934,7 @@ struct ofp_bucket {
                                            from the length field in the
                                            header. */
 };
-OFP_ASSERT(sizeof(struct ofp_bucket) == 16);
+OFP_ASSERT(sizeof(struct ofp12_bucket) == 16);
 
 /* Group setup and teardown (controller -> datapath). */
 struct ofp_group_mod {
@@ -943,7 +943,7 @@ struct ofp_group_mod {
     uint8_t type;                 /* One of OFPGT_*. */
     uint8_t pad;                  /* Pad to 64 bits. */
     uint32_t group_id;            /* Group identifier. */
-    struct ofp_bucket buckets[0]; /* The bucket length is inferred from the
+    struct ofp12_bucket buckets[0]; /* The bucket length is inferred from the
                                      length field in the header. */
 };
 OFP_ASSERT(sizeof(struct ofp_group_mod) == 16);
@@ -1434,7 +1434,7 @@ struct ofp_group_desc_stats {
     uint8_t type;                 /* One of OFPGT_*. */
     uint8_t pad;                  /* Pad to 64 bits. */
     uint32_t group_id;            /* Group identifier. */
-    struct ofp_bucket buckets[0];
+    struct ofp12_bucket buckets[0];
 };
 OFP_ASSERT(sizeof(struct ofp_group_desc_stats) == 8);
 

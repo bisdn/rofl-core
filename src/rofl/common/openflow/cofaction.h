@@ -12,7 +12,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "openflow12.h"
+#include "openflow.h"
 #include <endian.h>
 #ifndef htobe16
 #include "../endian_conversion.h"
@@ -124,12 +124,12 @@ public: // methods
 	/** return pointer to ofp_action_header start
 	 */
 	struct ofp_action_header* 
-	soaction();
+	soaction() const;
 
 	/** return length of action in bytes
 	 */
 	size_t
-	length();
+	length() const;
 
 	/** dump info string for this action
 	 */
@@ -141,7 +141,7 @@ public: // methods
 	struct ofp_action_header*
 	pack(
 		struct ofp_action_header* achdr,
-		size_t aclen) throw (eActionInval);
+		size_t aclen) const throw (eActionInval);
 
 	/** unpack
 	 */

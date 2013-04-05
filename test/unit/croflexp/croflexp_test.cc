@@ -36,7 +36,7 @@ check_rext_flowspace()
 
 	croflexp_flowspace *fsp = new croflexp_flowspace(croflexp::OFPRET_FSP_ADD, m);
 
-	cmemory test(m.length()); m.pack((struct ofp_match*)test.somem(), test.memlen());
+	cmemory test(m.length()); m.pack((struct ofp12_match*)test.somem(), test.memlen());
 
 	cmemory result(sizeof(struct croflexp::ofp_rofl_ext_flowspace) + m.length());
 
@@ -50,7 +50,7 @@ check_rext_flowspace()
 	result[6] = 0;
 	result[7] = 0;
 
-	m.pack((struct ofp_match*)(result.somem() +
+	m.pack((struct ofp12_match*)(result.somem() +
 					sizeof(struct croflexp::ofp_rofl_ext_flowspace)), m.length());
 
 

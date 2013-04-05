@@ -7,32 +7,81 @@
 using namespace rofl;
 
 cofmatch::cofmatch(
-		uint16_t type)
+		uint8_t of_version,
+		uint16_t type) :
+				of_version(of_version)
 {
+	switch (of_version) {
+	case OFP10_VERSION: {
+		memarea.resize(OFP10_MATCH_STATIC_LEN);
+		ofh10_match = (struct ofp10_match*)memarea.somem();
+	} break;
+	case OFP12_VERSION: {
+		memarea.resize(OFP12_MATCH_STATIC_LEN);
+		ofh12_match = (struct ofp12_match*)memarea.somem();
+		ofh12_match->type 	= htobe16(type);
+		ofh12_match->length = htobe16(length());
+	} break;
+	case OFP13_VERSION: {
+		memarea.resize(OFP13_MATCH_STATIC_LEN);
+		ofh13_match = (struct ofp13_match*)memarea.somem();
+		ofh13_match->type 	= htobe16(type);
+		ofh13_match->length = htobe16(length());
+	} break;
+	default:
+		throw eBadVersion();
+	}
 	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [1]", this);
 
-	bzero(&match, sizeof(match));
-
-	match.type = htobe16(type);
-	match.length = htobe16(length());
-
-	reset();
+	clear();
 
 	validate();
 }
 
+
+
+template<class T>
 cofmatch::cofmatch(
-	struct ofp_match *__match, size_t __matchlen)
+		uint8_t of_version,
+		T* match,
+		size_t matchlen) :
+			of_version(of_version)
 {
 	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [2]", this);
 
+	switch (of_version) {
+	case OFP10_VERSION: {
+		if (OFP10_MATCH_STATIC_LEN != matchlen) {
+			throw eBadVersion();
+		}
+		unpack(match, matchlen);
+	} break;
+	case OFP12_VERSION: {
+		if (OFP12_MATCH_STATIC_LEN != matchlen) {
+			throw eBadVersion();
+		}
+		unpack(match, matchlen);
+	} break;
+	case OFP13_VERSION: {
+		if (OFP13_MATCH_STATIC_LEN != matchlen) {
+			throw eBadVersion();
+		}
+		unpack(match, matchlen);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	validate();
 }
+
+
 
 cofmatch::~cofmatch()
 {
 	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::~cofmatch()", this);
 }
+
 
 
 cofmatch&
@@ -47,9 +96,11 @@ cofmatch::operator= (const cofmatch& m)
 	WRITELOG(COFMATCH, DBG, "cofmatch(%p)::operator=() [1] *this: %s", this, this->c_str());
 #endif
 
-	match.type 		= m.match.type;
-	match.length 	= m.match.length;
+	of_version		= m.of_version;
+	memarea			= m.memarea;
 	oxmlist			= m.oxmlist;
+
+	ofh_match = memarea.somem();
 
 #if 0
 	WRITELOG(COFMATCH, DBG, "cofmatch(%p)::operator=() [2] *this: %s", this, this->c_str());
@@ -66,19 +117,41 @@ bool
 cofmatch::operator< (
 		cofmatch const& m) const
 {
-	return (oxmlist < m.oxmlist);
+	if (of_version != m.of_version) {
+		return (of_version < m.of_version);
+	}
+
+	switch (of_version) {
+	case OFP10_VERSION: return (memcmp(memarea.somem(), m.memarea.somem(), memarea.memlen()));
+	case OFP12_VERSION: return (oxmlist < m.oxmlist);
+	case OFP13_VERSION: return (oxmlist < m.oxmlist);
+	default: throw eBadVersion();
+	}
+	return true;
 }
 
 
 
 void
-cofmatch::reset()
+cofmatch::clear()
 {
 	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::reset()", this);
 
-	oxmlist.clear();
-	match.length = htobe16(length());
-
+	switch (of_version) {
+	case OFP10_VERSION: {
+		memset(ofh10_match, 0, OFP10_MATCH_STATIC_LEN);
+	} break;
+	case OFP12_VERSION: {
+		oxmlist.clear();
+		ofh12_match->length = htobe16(length());
+	} break;
+	case OFP13_VERSION: {
+		oxmlist.clear();
+		ofh13_match->length = htobe16(length());
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 
@@ -167,56 +240,291 @@ cofmatch::validate() throw (eOFmatchInval)
 }
 
 
+
 size_t
 cofmatch::length_internal()
 {
-	/*
-	 * returns length of struct ofp_match including padding
-	 */
-	size_t match_len = 2 * sizeof(uint16_t); // first two 16bit fields in struct ofp_match
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return OFP10_MATCH_STATIC_LEN;
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		/*
+		 * returns length of struct ofp_match including padding
+		 */
+		size_t match_len = 2 * sizeof(uint16_t); // first two 16bit fields in struct ofp_match
 
-	match_len += oxmlist.length();
+		match_len += oxmlist.length();
 
-	if (0 != (match_len % sizeof(uint64_t)))
-	{
-		match_len = ((match_len / sizeof(uint64_t)) + 1) * sizeof(uint64_t);
+		if (0 != (match_len % sizeof(uint64_t)))
+		{
+			match_len = ((match_len / sizeof(uint64_t)) + 1) * sizeof(uint64_t);
+		}
+		return match_len;
+	} break;
+	default:
+		throw eBadVersion();
 	}
-	return match_len;
+	return 0;
 }
+
+
 
 size_t
-cofmatch::length()
+cofmatch::length() const
 {
-	size_t total_length = sizeof(match.type) + sizeof(match.length) + oxmlist.length();
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return OFP10_MATCH_STATIC_LEN;
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		size_t total_length = 2*sizeof(uint16_t) + oxmlist.length(); // type + length + list
 
-	size_t pad = (0x7 & total_length);
-	/* append padding if not a multiple of 8 */
-	if (pad) {
-		total_length += 8 - pad;
+		size_t pad = (0x7 & total_length);
+		/* append padding if not a multiple of 8 */
+		if (pad) {
+			total_length += 8 - pad;
+		}
+		return total_length;
 	}
-	return total_length;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
 }
 
 
-struct ofp_match*
-cofmatch::pack(struct ofp_match* m, size_t mlen) throw (eOFmatchInval)
+
+struct ofp10_match*
+cofmatch::pack(struct ofp10_match* m, size_t mlen) const throw (eOFmatchInval)
 {
-	if (mlen < length())
-	{
+	if (mlen < length()) {
 		throw eOFmatchInval();
 	}
 
+	uint32_t wildcards = 0;
 
-	//match.length = htobe16(sizeof(match.type) + sizeof(match.length) + oxmlist.length());
-
-	//match.length = htobe16(length());
 	/*
 	 * fill in real length, i.e. excluding padding
 	 */
-	match.length = htobe16(2 * sizeof(uint16_t) + oxmlist.length());
+	memset(m, 0, mlen);
 
-	m->type 	= match.type;
-	m->length 	= match.length;
+	// in_port
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT)) {
+		m->in_port = htobe16((uint16_t)(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).u32value() && 0x0000ffff));
+	} else {
+		wildcards |= OFP10FW_IN_PORT;
+	}
+
+	// dl_src
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC)) {
+		cmacaddr maddr = oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).u48addr();
+		memcpy(m->dl_src, maddr.somem(), OFP_ETH_ALEN);
+	} else {
+		wildcards |= OFP10FW_DL_SRC;
+	}
+
+	// dl_dst
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST)) {
+		cmacaddr maddr = oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST).u48addr();
+		memcpy(m->dl_dst, maddr.somem(), OFP_ETH_ALEN);
+	} else {
+		wildcards |= OFP10FW_DL_DST;
+	}
+
+	// dl_vlan
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID)) {
+		m->dl_vlan = htobe16(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).u16value());
+	} else {
+		wildcards |= OFP10FW_DL_VLAN;
+	}
+
+	// dl_vlan_pcp
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP)) {
+		m->dl_vlan_pcp = oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP).u8value();
+	} else {
+		wildcards |= OFP10FW_DL_VLAN_PCP;
+	}
+
+	// dl_type
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE)) {
+		m->dl_type = htobe16(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE).u16value());
+	} else {
+		wildcards |= OFP10FW_DL_TYPE;
+	}
+
+	// nw_tos
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_DSCP)) {
+		m->nw_tos = oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_DSCP).u8value();
+	} else {
+		wildcards |= OFP10FW_NW_TOS;
+	}
+
+	// nw_proto
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_PROTO)) {
+		m->nw_tos = oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_PROTO).u8value();
+	} else {
+		wildcards |= OFP10FW_NW_PROTO;
+	}
+
+	// nw_src
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC)) {
+		m->nw_src = htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).u32value());
+		if (oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).get_oxm_hasmask()) {
+			std::bitset<32> mask(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).uint32_mask());
+			wildcards |= ((32 - mask.count()) << OFP10FW_NW_SRC_SHIFT) & OFP10FW_NW_SRC_MASK;
+		}
+	} else {
+		wildcards |= OFP10FW_NW_SRC_ALL;
+	}
+
+	// nw_dst
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST)) {
+		m->nw_dst = htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).uint32_value());
+		if (oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).get_oxm_hasmask()) {
+			std::bitset<32> mask(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).uint32_mask());
+			wildcards |= ((32 - mask.count()) << OFP10FW_NW_DST_SHIFT) & OFP10FW_NW_DST_MASK;
+		}
+	} else {
+		wildcards |= OFP10FW_NW_DST_ALL;
+	}
+
+	// tp_src
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_SRC)) {
+		m->tp_src = htobe16(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_SRC).u16value());
+	} else {
+		wildcards |= OFP10FW_TP_SRC;
+	}
+
+	// tp_dst
+	if (oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_DST)) {
+		m->tp_dst = htobe16(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_DST).u16value());
+	} else {
+		wildcards |= OFP10FW_TP_DST;
+	}
+
+	m->wildcards = htobe32(wildcards);
+
+	return m;
+}
+
+
+
+void
+cofmatch::unpack(struct ofp10_match* m, size_t mlen)
+{
+	of_version = OFP10_VERSION;
+	oxmlist.clear();
+	memarea.resize(OFP10_MATCH_STATIC_LEN);
+	ofh10_match = (struct ofp10_match*)memarea.somem();
+
+	if (mlen < OFP10_MATCH_STATIC_LEN) {
+		throw eOFmatchInval();
+	}
+
+	uint32_t wildcards = be32toh(m->wildcards);
+
+	// in_port
+	if (!(wildcards & OFP10FW_IN_PORT)) {
+		set_in_port(be32toh(m->in_port));
+	}
+
+	// dl_src
+	if (!(wildcards & OFP10FW_DL_SRC)) {
+		set_eth_src(cmacaddr(m->dl_src, OFP_ETH_ALEN));
+	}
+
+	// dl_dst
+	if (!(wildcards & OFP10FW_DL_DST)) {
+		set_eth_dst(cmacaddr(m->dl_dst, OFP_ETH_ALEN));
+	}
+
+	// dl_vlan
+	if (!(wildcards & OFP10FW_DL_VLAN)) {
+		set_vlan_vid(be16toh(m->dl_vlan));
+	}
+
+	// dl_vlan_pcp
+	if (!(wildcards & OFP10FW_DL_VLAN_PCP)) {
+		set_vlan_pcp(m->dl_vlan_pcp);
+	}
+
+	// dl_type
+	if (!(wildcards & OFP10FW_DL_TYPE)) {
+		set_eth_type(be16toh(m->dl_type));
+	}
+
+	// nw_tos
+	if (!(wildcards & OFP10FW_NW_TOS)) {
+		set_ip_dscp(m->nw_tos);
+	}
+
+	// nw_proto
+	if (!(wildcards & OFP10FW_NW_PROTO)) {
+		set_ip_proto(m->nw_proto);
+	}
+
+	// nw_src
+	{
+		uint32_t num_of_bits = (wildcards & OFP10FW_NW_SRC_MASK) >> OFP10FW_NW_SRC_SHIFT;
+		uint32_t u_mask = ~((1 << num_of_bits) - 1);
+		caddress addr(AF_INET, "0.0.0.0");
+		caddress mask(AF_INET, "0.0.0.0");
+		addr.ca_s4addr->sin_addr.s_addr = m->nw_src;
+		mask.ca_s4addr->sin_addr.s_addr = htobe32(u_mask);
+		if (num_of_bits > 0) {
+			set_ipv4_src(addr, mask);
+		} else {
+			set_ipv4_src(addr);
+		}
+	}
+
+	// nw_dst
+	{
+		uint32_t num_of_bits = (wildcards & OFP10FW_NW_DST_MASK) >> OFP10FW_NW_DST_SHIFT;
+		uint32_t u_mask = ~((1 << num_of_bits) - 1);
+		caddress addr(AF_INET, "0.0.0.0");
+		caddress mask(AF_INET, "0.0.0.0");
+		addr.ca_s4addr->sin_addr.s_addr = m->nw_dst;
+		mask.ca_s4addr->sin_addr.s_addr = htobe32(u_mask);
+		if (num_of_bits > 0) {
+			set_ipv4_dst(addr, mask);
+		} else {
+			set_ipv4_dst(addr);
+		}
+	}
+
+	// tp_src
+	if (!(wildcards & OFP10FW_TP_SRC)) {
+		set_tcp_src(be16toh(m->tp_src));
+	}
+
+	// tp_dst
+	if (!(wildcards & OFP10FW_TP_DST)) {
+		set_tcp_dst(be16toh(m->tp_dst));
+	}
+
+	validate();
+}
+
+
+
+struct ofp12_match*
+cofmatch::pack(struct ofp12_match* m, size_t mlen) const throw (eOFmatchInval)
+{
+	if (mlen < length()) {
+		throw eOFmatchInval();
+	}
+
+	/*
+	 * fill in real length, i.e. excluding padding
+	 */
+	ofh12_match->length = htobe16(2 * sizeof(uint16_t) + oxmlist.length());
+
+	m->type 	= ofh12_match->type;
+	m->length 	= ofh12_match->length;
 
 	oxmlist.pack((struct ofp_oxm_hdr*)(m->oxm_fields), oxmlist.length());
 
@@ -224,30 +532,92 @@ cofmatch::pack(struct ofp_match* m, size_t mlen) throw (eOFmatchInval)
 }
 
 
+
 void
-cofmatch::unpack(struct ofp_match* m, size_t mlen) throw (eOFmatchInval)
+cofmatch::unpack(struct ofp12_match* m, size_t mlen)
 {
-	if (mlen < (sizeof(uint16_t) + sizeof(uint16_t)))
-	{
+	of_version = OFP12_VERSION;
+	oxmlist.clear();
+	memarea.resize(OFP12_MATCH_STATIC_LEN);
+	ofh12_match = (struct ofp12_match*)memarea.somem();
+	ofh12_match->type 	= htobe16(OFPMT_OXM);
+	ofh12_match->length = htobe16(length());
+
+
+	if (mlen < (sizeof(uint16_t) + sizeof(uint16_t))) {
 		throw eOFmatchInval();
 	}
 
-	match.type		= (m->type);
-	match.length	= (m->length);
+	ofh12_match->type	= (m->type);
+	ofh12_match->length	= (m->length);
 
-	if (OFPMT_OXM != be16toh(match.type)) {
+	if (OFPMT_OXM != be16toh(ofh12_match->type)) {
 		throw eBadMatchBadType();
 	}
 
 	mlen -= 2 * sizeof(uint16_t);
 
-	if (mlen > 0)
-	{
+	if (mlen > 0) {
 		oxmlist.unpack((struct ofp_oxm_hdr*)m->oxm_fields, mlen);
 	}
 
 	validate();
 }
+
+
+
+struct ofp13_match*
+cofmatch::pack(struct ofp13_match* m, size_t mlen) const throw (eOFmatchInval)
+{
+	if (mlen < length()) {
+		throw eOFmatchInval();
+	}
+
+	/*
+	 * fill in real length, i.e. excluding padding
+	 */
+	ofh13_match->length = htobe16(2 * sizeof(uint16_t) + oxmlist.length());
+
+	m->type 	= ofh13_match->type;
+	m->length 	= ofh13_match->length;
+
+	oxmlist.pack((struct ofp_oxm_hdr*)(m->oxm_fields), oxmlist.length());
+
+	return m;
+}
+
+
+
+void
+cofmatch::unpack(struct ofp13_match* m, size_t mlen)
+{
+	of_version = OFP13_VERSION;
+	oxmlist.clear();
+	memarea.resize(OFP12_MATCH_STATIC_LEN);
+	ofh13_match = (struct ofp13_match*)memarea.somem();
+	ofh13_match->type 	= htobe16(OFPMT_OXM);
+	ofh13_match->length = htobe16(length());
+
+	if (mlen < (sizeof(uint16_t) + sizeof(uint16_t))) {
+		throw eOFmatchInval();
+	}
+
+	ofh13_match->type	= (m->type);
+	ofh13_match->length	= (m->length);
+
+	if (OFPMT_OXM != be16toh(ofh13_match->type)) {
+		throw eBadMatchBadType();
+	}
+
+	mlen -= 2 * sizeof(uint16_t);
+
+	if (mlen > 0) {
+		oxmlist.unpack((struct ofp_oxm_hdr*)m->oxm_fields, mlen);
+	}
+
+	validate();
+}
+
 
 
 bool 
@@ -264,7 +634,24 @@ bool
 cofmatch::operator== (
 	cofmatch& m)
 {
-	return ((match.type == m.match.type) && (oxmlist == m.oxmlist));
+	if (of_version != m.of_version) {
+		return false;
+	}
+	switch (of_version) {
+	case OFP10_VERSION: {
+		return (oxmlist == m.oxmlist);
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		if (ofh12_match->type != m.ofh12_match->type) {
+			return false;
+		}
+		return (oxmlist == m.oxmlist);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return false;
 }
 
 
@@ -273,13 +660,27 @@ cofmatch::c_str()
 {
 	cvastring vas(3172);
 
-	info.assign(vas("cofmatch(%p) hdr.type:%d hdr.length:%d stored:%lu oxmlist.length:%lu oxmlist:%s",
-			this,
-			be16toh(match.type),
-			be16toh(match.length),
-			length(),
-			oxmlist.length(),
-			oxmlist.c_str()));
+	switch (of_version) {
+	case OFP10_VERSION: {
+		info.assign(vas("cofmatch(%p) oxmlist.length:%lu oxmlist:%s",
+				this,
+				oxmlist.length(),
+				oxmlist.c_str()));
+
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		info.assign(vas("cofmatch(%p) hdr.type:%d hdr.length:%d stored:%lu oxmlist.length:%lu oxmlist:%s",
+				this,
+				be16toh(ofh12_match->type),
+				be16toh(ofh12_match->length),
+				length(),
+				oxmlist.length(),
+				oxmlist.c_str()));
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
 	return info.c_str();
 }
@@ -288,19 +689,26 @@ cofmatch::c_str()
 void
 cofmatch::set_type(uint16_t type)
 {
-	match.type = htobe16(type);
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		ofh12_match->type = htobe16(type);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 
 uint32_t
-cofmatch::get_in_port() throw (eOFmatchNotFound)
+cofmatch::get_in_port() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_IN_PORT].uint32_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).u32value();
 }
 
 
@@ -312,80 +720,163 @@ cofmatch::set_in_port(uint32_t in_port)
 
 
 uint32_t
-cofmatch::get_in_phy_port() throw (eOFmatchNotFound)
+cofmatch::get_in_phy_port() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PHY_PORT))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_IN_PHY_PORT].uint32_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PHY_PORT).u32value();
 }
 
 
 void
 cofmatch::set_in_phy_port(uint32_t in_port)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IN_PHY_PORT] = coxmatch_ofb_in_phy_port(in_port);
 }
 
 
 uint64_t
-cofmatch::get_metadata() throw (eOFmatchNotFound)
+cofmatch::get_metadata() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_METADATA))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return (oxmlist[OFPXMT_OFB_METADATA].uint64_value() & oxmlist[OFPXMT_OFB_METADATA].uint64_mask());
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_METADATA).u64value();
 }
 
 
 void
 cofmatch::set_metadata(uint64_t metadata)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_METADATA] = coxmatch_ofb_metadata(metadata);
 }
 
 
 cmacaddr
-cofmatch::get_eth_dst() throw (eOFmatchNotFound)
+cofmatch::get_eth_dst() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	cmacaddr maddr(oxmlist[OFPXMT_OFB_ETH_DST].oxm_uint48t->value, OFP_ETH_ALEN);
-
-	cmacaddr mmask("ff:ff:ff:ff:ff:ff");
-	if (oxmlist[OFPXMT_OFB_ETH_DST].get_oxm_hasmask())
-	{
-		mmask.assign(oxmlist[OFPXMT_OFB_ETH_DST].oxm_uint48t->mask, OFP_ETH_ALEN);
-	}
-
-	return (maddr & mmask);
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST).u48addr();
 }
 
 
+
 cmacaddr
-cofmatch::get_eth_src() throw (eOFmatchNotFound)
+cofmatch::get_eth_dst_addr() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return cmacaddr(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST).oxm_maddr->addr, OFP_ETH_ALEN);
+}
+
+
+
+cmacaddr
+cofmatch::get_eth_dst_mask() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	if (!oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST).get_oxm_hasmask()) {
+		return cmacaddr("ff:ff:ff:ff:ff:ff");
+	}
+
+	return cmacaddr(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST).oxm_maddr->mask, OFP_ETH_ALEN);
+}
+
+
+
+cmacaddr
+cofmatch::get_eth_src() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	cmacaddr maddr(oxmlist[OFPXMT_OFB_ETH_SRC].oxm_uint48t->value, OFP_ETH_ALEN);
-
-	cmacaddr mmask("ff:ff:ff:ff:ff:ff");
-	if (oxmlist[OFPXMT_OFB_ETH_SRC].get_oxm_hasmask())
-	{
-		mmask.assign(oxmlist[OFPXMT_OFB_ETH_SRC].oxm_uint48t->mask, OFP_ETH_ALEN);
-	}
-	return (maddr & mmask);
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).u48addr();
 }
+
+
+
+cmacaddr
+cofmatch::get_eth_src_addr() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return cmacaddr(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).oxm_maddr->addr, OFP_ETH_ALEN);
+}
+
+
+
+cmacaddr
+cofmatch::get_eth_src_mask() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	if (!oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).get_oxm_hasmask()) {
+		return cmacaddr("ff:ff:ff:ff:ff:ff");
+	}
+
+	return cmacaddr(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).oxm_maddr->mask, OFP_ETH_ALEN);
+}
+
 
 
 void
@@ -417,14 +908,14 @@ cofmatch::set_eth_src(cmacaddr const& maddr, cmacaddr const& mmask)
 
 
 uint16_t
-cofmatch::get_eth_type() throw (eOFmatchNotFound)
+cofmatch::get_eth_type() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_ETH_TYPE].uint16_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE).u16value();
 }
 
 
@@ -438,15 +929,40 @@ cofmatch::set_eth_type(
 
 
 uint16_t
-cofmatch::get_vlan_vid()
-	throw (eOFmatchNotFound)
+cofmatch::get_vlan_vid() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return (oxmlist[OFPXMT_OFB_VLAN_VID].uint16_value() & oxmlist[OFPXMT_OFB_VLAN_VID].uint16_mask());
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).u16value();
+}
+
+
+
+uint16_t
+cofmatch::get_vlan_vid_value() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).uint16_value();
+}
+
+
+
+uint16_t
+cofmatch::get_vlan_vid_mask() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).uint16_mask();
 }
 
 
@@ -461,15 +977,14 @@ cofmatch::set_vlan_vid(
 
 
 uint8_t
-cofmatch::get_vlan_pcp()
-	throw (eOFmatchNotFound)
+cofmatch::get_vlan_pcp() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_VLAN_PCP].uint8_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP).u8value();
 }
 
 
@@ -484,15 +999,23 @@ cofmatch::set_vlan_pcp(
 
 
 uint32_t
-cofmatch::get_mpls_label()
-	throw (eOFmatchNotFound)
+cofmatch::get_mpls_label() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_LABEL))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_MPLS_LABEL].uint32_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_LABEL).u32value();
 }
 
 
@@ -500,20 +1023,37 @@ void
 cofmatch::set_mpls_label(
 		uint32_t label)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_MPLS_LABEL] = coxmatch_ofb_mpls_label(label);
 }
 
 
 uint8_t
-cofmatch::get_mpls_tc()
-	throw (eOFmatchNotFound)
+cofmatch::get_mpls_tc() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_TC))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_MPLS_TC].uint8_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_MPLS_TC).u8value();
 }
 
 
@@ -521,21 +1061,29 @@ void
 cofmatch::set_mpls_tc(
 		uint8_t tc)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_MPLS_TC] = coxmatch_ofb_mpls_tc(tc);
 }
 
 
 
 uint8_t
-cofmatch::get_pppoe_type()
-	throw (eOFmatchNotFound)
+cofmatch::get_pppoe_type() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_TYPE))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_PPPOE_TYPE].uint8_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_TYPE).u8value();
 }
 
 
@@ -550,15 +1098,14 @@ cofmatch::set_pppoe_type(
 
 
 uint8_t
-cofmatch::get_pppoe_code()
-	throw (eOFmatchNotFound)
+cofmatch::get_pppoe_code() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_CODE))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_PPPOE_CODE].uint8_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_CODE).u8value();
 }
 
 
@@ -571,15 +1118,14 @@ cofmatch::set_pppoe_code(
 
 
 uint16_t
-cofmatch::get_pppoe_sessid()
-	throw (eOFmatchNotFound)
+cofmatch::get_pppoe_sessid() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_SID))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_PPPOE_SID].uint16_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPPOE_SID).u16value();
 }
 
 
@@ -592,15 +1138,14 @@ cofmatch::set_pppoe_sessid(
 
 
 uint16_t
-cofmatch::get_ppp_prot()
-	throw (eOFmatchNotFound)
+cofmatch::get_ppp_prot() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPP_PROT))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_PPP_PROT].uint16_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_PPP_PROT).u16value();
 }
 
 
@@ -613,14 +1158,45 @@ cofmatch::set_ppp_prot(
 
 
 caddress
-cofmatch::get_ipv4_src()
-	throw (eOFmatchNotFound)
+cofmatch::get_ipv4_src() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_IPV4_SRC].u32addr();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).u32addr();
+}
+
+
+
+caddress
+cofmatch::get_ipv4_src_value() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	caddress addr(AF_INET, "0.0.0.0");
+	addr.ca_s4addr->sin_addr.s_addr =
+			htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).uint32_value());
+	return addr;
+}
+
+
+
+caddress
+cofmatch::get_ipv4_src_mask() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	caddress mask(AF_INET, "0.0.0.0");
+	mask.ca_s4addr->sin_addr.s_addr =
+			htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_SRC).uint32_mask());
+	return mask;
 }
 
 
@@ -644,14 +1220,45 @@ cofmatch::set_ipv4_src(
 
 
 caddress
-cofmatch::get_ipv4_dst()
-	throw (eOFmatchNotFound)
+cofmatch::get_ipv4_dst() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_IPV4_DST].u32addr();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).u32addr();
+}
+
+
+
+caddress
+cofmatch::get_ipv4_dst_value() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	caddress addr(AF_INET, "0.0.0.0");
+	addr.ca_s4addr->sin_addr.s_addr =
+			htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).uint32_value());
+	return addr;
+}
+
+
+
+caddress
+cofmatch::get_ipv4_dst_mask() const throw (eOFmatchNotFound)
+{
+	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST))
+	{
+		throw eOFmatchNotFound();
+	}
+
+	caddress mask(AF_INET, "0.0.0.0");
+	mask.ca_s4addr->sin_addr.s_addr =
+			htobe32(oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV4_DST).uint32_mask());
+	return mask;
 }
 
 
@@ -675,14 +1282,13 @@ cofmatch::set_ipv4_dst(
 
 
 uint16_t
-cofmatch::get_arp_opcode()
-	throw (eOFmatchNotFound)
+cofmatch::get_arp_opcode() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_OP))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_ARP_OP].uint16_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_OP).u16value();
 }
 
 
@@ -697,14 +1303,13 @@ cofmatch::set_arp_opcode(
 
 
 cmacaddr
-cofmatch::get_arp_sha()
-	throw (eOFmatchNotFound)
+cofmatch::get_arp_sha() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_SHA))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_ARP_SHA].u48addr();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_SHA).u48addr();
 }
 
 
@@ -719,14 +1324,13 @@ cofmatch::set_arp_sha(
 
 
 cmacaddr
-cofmatch::get_arp_tha()
-	throw (eOFmatchNotFound)
+cofmatch::get_arp_tha() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_THA))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_ARP_THA].u48addr();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_THA).u48addr();
 }
 
 
@@ -741,14 +1345,13 @@ cofmatch::set_arp_tha(
 
 
 caddress
-cofmatch::get_arp_spa()
-		throw (eOFmatchNotFound)
+cofmatch::get_arp_spa() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_SPA))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_ARP_SPA].u32addr();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_SPA).u32addr();
 }
 
 
@@ -763,14 +1366,13 @@ cofmatch::set_arp_spa(
 
 
 caddress
-cofmatch::get_arp_tpa()
-	throw (eOFmatchNotFound)
+cofmatch::get_arp_tpa() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_TPA))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_ARP_TPA].u32addr();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_TPA).u32addr();
 }
 
 
@@ -786,15 +1388,23 @@ cofmatch::set_arp_tpa(
 
 
 caddress
-cofmatch::get_ipv6_src()
-	throw (eOFmatchNotFound)
+cofmatch::get_ipv6_src() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_SRC))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_IPV6_SRC].u128addr();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_SRC).u128addr();
 }
 
 
@@ -803,6 +1413,15 @@ void
 cofmatch::set_ipv6_src(
 		caddress const& addr)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_SRC] = coxmatch_ofb_ipv6_src(addr);
 }
 
@@ -813,20 +1432,28 @@ cofmatch::set_ipv6_src(
 		caddress const& addr,
 		caddress const& mask)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_SRC] = coxmatch_ofb_ipv6_src(addr, mask);
 }
 
 
 
 caddress
-cofmatch::get_ipv6_dst()
-	throw (eOFmatchNotFound)
+cofmatch::get_ipv6_dst() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_DST))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_IPV6_DST].u128addr();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_DST).u128addr();
 }
 
 
@@ -835,6 +1462,15 @@ void
 cofmatch::set_ipv6_dst(
 		caddress const& addr)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_DST] = coxmatch_ofb_ipv6_dst(addr);
 }
 
@@ -845,20 +1481,37 @@ cofmatch::set_ipv6_dst(
 		caddress const& addr,
 		caddress const& mask)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_DST] = coxmatch_ofb_ipv6_dst(addr, mask);
 }
 
 
 
 caddress
-cofmatch::get_ipv6_nd_target()
-	throw (eOFmatchNotFound)
+cofmatch::get_ipv6_nd_target() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_TARGET))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_IPV6_ND_TARGET].u128addr();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_TARGET).u128addr();
 }
 
 
@@ -867,21 +1520,29 @@ void
 cofmatch::set_ipv6_nd_target(
 		caddress const& addr)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_ND_TARGET] = coxmatch_ofb_ipv6_nd_target(addr);
 }
 
 
 
 uint8_t
-cofmatch::get_ip_proto()
-	throw (eOFmatchNotFound)
+cofmatch::get_ip_proto() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_PROTO))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_IP_PROTO].uint8_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_PROTO).u8value();
 }
 
 
@@ -896,15 +1557,14 @@ cofmatch::set_ip_proto(
 
 
 uint8_t
-cofmatch::get_ip_dscp()
-	throw (eOFmatchNotFound)
+cofmatch::get_ip_dscp() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_DSCP))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_IP_DSCP].uint8_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_DSCP).u8value();
 }
 
 
@@ -919,15 +1579,23 @@ cofmatch::set_ip_dscp(
 
 
 uint8_t
-cofmatch::get_ip_ecn()
-	throw (eOFmatchNotFound)
+cofmatch::get_ip_ecn() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_ECN))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_IP_ECN].uint8_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_ECN).u8value();
 }
 
 
@@ -936,21 +1604,29 @@ void
 cofmatch::set_ip_ecn(
 		uint8_t ecn)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IP_ECN] = coxmatch_ofb_ip_ecn(ecn);
 }
 
 
 
 uint8_t
-cofmatch::get_icmpv4_type()
-	throw (eOFmatchNotFound)
+cofmatch::get_icmpv4_type() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ICMPV4_TYPE))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_ICMPV4_TYPE].uint8_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ICMPV4_TYPE).u8value();
 }
 
 
@@ -965,15 +1641,14 @@ cofmatch::set_icmpv4_type(
 
 
 uint8_t
-cofmatch::get_icmpv4_code()
-	throw (eOFmatchNotFound)
+cofmatch::get_icmpv4_code() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ICMPV4_CODE))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_ICMPV4_CODE].uint8_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ICMPV4_CODE).u8value();
 }
 
 
@@ -988,15 +1663,23 @@ cofmatch::set_icmpv4_code(
 
 
 uint8_t
-cofmatch::get_icmpv6_type()
-	throw (eOFmatchNotFound)
+cofmatch::get_icmpv6_type() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ICMPV6_TYPE))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_ICMPV6_TYPE].u8value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ICMPV6_TYPE).u8value();
 }
 
 
@@ -1005,21 +1688,38 @@ void
 cofmatch::set_icmpv6_type(
 		uint8_t type)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_ICMPV6_TYPE] = coxmatch_ofb_icmpv6_type(type);
 }
 
 
 
 uint8_t
-cofmatch::get_icmpv6_code()
-	throw (eOFmatchNotFound)
+cofmatch::get_icmpv6_code() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ICMPV6_CODE))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_ICMPV6_CODE].u8value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ICMPV6_CODE).u8value();
 }
 
 
@@ -1028,21 +1728,38 @@ void
 cofmatch::set_icmpv6_code(
 		uint8_t code)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_ICMPV6_CODE] = coxmatch_ofb_icmpv6_code(code);
 }
 
 
 
 uint32_t
-cofmatch::get_ipv6_flabel()
-	throw (eOFmatchNotFound)
+cofmatch::get_ipv6_flabel() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_FLABEL))
 	{
 		throw eOFmatchNotFound();
 	}
 
-	return oxmlist[OFPXMT_OFB_IPV6_FLABEL].u32value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_FLABEL).u32value();
 }
 
 
@@ -1051,6 +1768,15 @@ void
 cofmatch::set_ipv6_flabel(
 		uint32_t flabel)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_FLABEL] = coxmatch_ofb_ipv6_flabel(flabel);
 }
 
@@ -1061,20 +1787,37 @@ cofmatch::set_ipv6_flabel(
 		uint32_t flabel,
 		uint32_t mask)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_FLABEL] = coxmatch_ofb_ipv6_flabel(flabel, mask);
 }
 
 
 
 cmacaddr
-cofmatch::get_icmpv6_neighbor_source_lladdr()
-	throw (eOFmatchNotFound)
+cofmatch::get_icmpv6_neighbor_source_lladdr() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_SLL))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_IPV6_ND_SLL].u48addr();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_SLL).u48addr();
 }
 
 
@@ -1083,20 +1826,37 @@ void
 cofmatch::set_icmpv6_neighbor_source_lladdr(
 		cmacaddr const& maddr)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_ND_SLL] = coxmatch_ofb_ipv6_nd_sll(maddr);
 }
 
 
 
 cmacaddr
-cofmatch::get_icmpv6_neighbor_target_lladdr()
-	throw (eOFmatchNotFound)
+cofmatch::get_icmpv6_neighbor_target_lladdr() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_TLL))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_IPV6_ND_TLL].u48addr();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_TLL).u48addr();
 }
 
 
@@ -1105,20 +1865,37 @@ void
 cofmatch::set_icmpv6_neighbor_target_lladdr(
 		cmacaddr const& maddr)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_ND_TLL] = coxmatch_ofb_ipv6_nd_tll(maddr);
 }
 
 
 
 caddress
-cofmatch::get_icmpv6_neighbor_taddr()
-	throw (eOFmatchNotFound)
+cofmatch::get_icmpv6_neighbor_taddr() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_TARGET))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_IPV6_ND_TARGET].u128addr();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_ND_TARGET).u128addr();
 }
 
 
@@ -1127,19 +1904,28 @@ void
 cofmatch::set_icmpv6_neighbor_taddr(
 		caddress const& addr)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_IPV6_ND_TARGET] = coxmatch_ofb_ipv6_nd_target(addr);
 }
 
 
 
 uint16_t
-cofmatch::get_udp_src() throw (eOFmatchNotFound)
+cofmatch::get_udp_src() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_UDP_SRC))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_UDP_SRC].uint16_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_UDP_SRC).u16value();
 }
 
 
@@ -1152,13 +1938,13 @@ cofmatch::set_udp_src(
 
 
 uint16_t
-cofmatch::get_udp_dst() throw (eOFmatchNotFound)
+cofmatch::get_udp_dst() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_UDP_DST))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_UDP_DST].uint16_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_UDP_DST).u16value();
 }
 
 
@@ -1172,14 +1958,13 @@ cofmatch::set_udp_dst(
 
 
 uint16_t
-cofmatch::get_tcp_src()
-	throw (eOFmatchNotFound)
+cofmatch::get_tcp_src() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_SRC))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_TCP_SRC].uint16_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_SRC).u16value();
 }
 
 
@@ -1194,14 +1979,13 @@ cofmatch::set_tcp_src(
 
 
 uint16_t
-cofmatch::get_tcp_dst()
-	throw (eOFmatchNotFound)
+cofmatch::get_tcp_dst() const throw (eOFmatchNotFound)
 {
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_DST))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_TCP_DST].uint16_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_TCP_DST).u16value();
 }
 
 
@@ -1217,14 +2001,22 @@ cofmatch::set_tcp_dst(
 
 
 uint16_t
-cofmatch::get_sctp_src()
-	throw (eOFmatchNotFound)
+cofmatch::get_sctp_src() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_SCTP_SRC))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_SCTP_SRC].uint16_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_SCTP_SRC).u16value();
 }
 
 
@@ -1233,20 +2025,37 @@ void
 cofmatch::set_sctp_src(
 		uint16_t src_port)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_SCTP_SRC] = coxmatch_ofb_sctp_src(src_port);
 }
 
 
 
 uint16_t
-cofmatch::get_sctp_dst()
-	throw (eOFmatchNotFound)
+cofmatch::get_sctp_dst() const throw (eOFmatchNotFound)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_SCTP_DST))
 	{
 		throw eOFmatchNotFound();
 	}
-	return oxmlist[OFPXMT_OFB_SCTP_DST].uint16_value();
+	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_SCTP_DST).u16value();
 }
 
 
@@ -1255,9 +2064,17 @@ void
 cofmatch::set_sctp_dst(
 		uint16_t dst_port)
 {
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		// do nothing
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	oxmlist[OFPXMT_OFB_SCTP_DST] = coxmatch_ofb_sctp_dst(dst_port);
 }
-
 
 
 #ifndef NDEBUG
@@ -1272,7 +2089,7 @@ cofmatch::test()
 
 	cmemory mem(m.length());
 
-	m.pack((struct ofp_match*)mem.somem(), mem.memlen());
+	m.pack((struct ofp12_match*)mem.somem(), mem.memlen());
 	fprintf(stderr, "match: %s\nmem:%s\n\n", m.c_str(), mem.c_str());
 
 	cofmatch tm(m);
@@ -1281,7 +2098,7 @@ cofmatch::test()
 
 	cofmatch cm;
 
-	cm.unpack((struct ofp_match*)mem.somem(), mem.memlen());
+	cm.unpack((struct ofp12_match*)mem.somem(), mem.memlen());
 	fprintf(stderr, "unpack: %s\n\n", cm.c_str());
 
 	{

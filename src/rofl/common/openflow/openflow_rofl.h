@@ -8,7 +8,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-	#include "openflow12.h"
+	#include "openflow.h"
 	#include <inttypes.h>
 #ifdef __cplusplus
 }
@@ -44,7 +44,7 @@ enum ofp_rofl_ext_type {
 /* common header ROFL vendor extensions
  */
 struct ofp_vendor_ext_rofl {
-	struct ofp_experimenter_header header;
+	struct ofp12_experimenter_header header;
 										// common header including normal and vendor OpenFlow header
 	uint32_t exttype;					// rofl extension type
 	uint8_t payload[0];					// pointer to payload following header
@@ -120,7 +120,7 @@ struct ofp_vendor_ext_rofl_nsp {
 	struct ofp_vendor_ext_rofl header;	// common headers
 //	uint64_t controller_id;				// controller id (survive socket down events? => ...)
 	uint32_t result;					// result of associated request, set to 0 in request
-	struct ofp_match match[0];			// matching structure
+	struct ofp12_match match[0];		// matching structure
 };
 
 /* A controller entity should be enabled to register multiple nsp structs in parallel,

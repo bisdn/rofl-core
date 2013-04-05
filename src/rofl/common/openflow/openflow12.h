@@ -40,29 +40,7 @@
 #ifndef OPENFLOW_OPENFLOW12_H
 #define OPENFLOW_OPENFLOW12_H 1
 
-#ifdef __KERNEL__
-#include <linux/types.h>
-#else
-#include <stdint.h>
-#endif
-
-#ifdef SWIG
-#define OFP_ASSERT(EXPR)        /* SWIG can't handle OFP_ASSERT. */
-#elif !defined(__cplusplus)
-/* Build-time assertion for use in a declaration context. */
-#define OFP_ASSERT(EXPR)                                                \
-        extern int (*build_assert(void))[ sizeof(struct {               \
-                    unsigned int build_assert_failed : (EXPR) ? 1 : -1; })]
-#else /* __cplusplus */
-#define OFP_ASSERT(_EXPR) typedef int build_assert_failed[(_EXPR) ? 1 : -1]
-#endif /* __cplusplus */
-
-#ifndef SWIG
-#define OFP_PACKED __attribute__((packed))
-#else
-#define OFP_PACKED              /* SWIG doesn't understand __attribute. */
-#endif
-
+#include "openflow_common.h"
 
 /* Version number:
  * Non-experimental versions released: 0x01
@@ -71,96 +49,10 @@
 /* The most significant bit being set in the version field indicates an
  * experimental OpenFlow version.
  */
-#define OFP_VERSION   0x03
+#define OFP12_VERSION   0x03
 
-#define OFP_MAX_TABLE_NAME_LEN 32
-#define OFP_MAX_PORT_NAME_LEN  16
 
-#define OFP_TCP_PORT  6633
-#define OFP_SSL_PORT  6633
 
-#define OFP_ETH_ALEN 6          /* Bytes in an Ethernet address. */
-
-/* Port numbering. Ports are numbered starting from 1. */
-enum ofp_port_no {
-    /* Maximum number of physical switch ports. */
-    OFPP_MAX        = 0xffffff00,
-
-    /* Fake output "ports". */
-    OFPP_IN_PORT    = 0xfffffff8,  /* Send the packet out the input port.  This
-                                      virtual port must be explicitly used
-                                      in order to send back out of the input
-                                      port. */
-    OFPP_TABLE      = 0xfffffff9,  /* Submit the packet to the first flow table
-                                      NB: This destination port can only be
-                                      used in packet-out messages. */
-    OFPP_NORMAL     = 0xfffffffa,  /* Process with normal L2/L3 switching. */
-    OFPP_FLOOD      = 0xfffffffb,  /* All physical ports in VLAN, except input
-                                      port and those blocked or link down. */
-    OFPP_ALL        = 0xfffffffc,  /* All physical ports except input port. */
-    OFPP_CONTROLLER = 0xfffffffd,  /* Send to controller. */
-    OFPP_LOCAL      = 0xfffffffe,  /* Local openflow "port". */
-    OFPP_ANY        = 0xffffffff   /* Wildcard port used only for flow mod
-                                      (delete) and flow stats requests. Selects
-                                      all flows regardless of output port
-                                      (including flows with no output port). */
-};
-
-enum ofp_type {
-    /* Immutable messages. */
-    OFPT_HELLO 					= 0,    /* Symmetric message */
-    OFPT_ERROR 					= 1,	/* Symmetric message */
-    OFPT_ECHO_REQUEST 			= 2,	/* Symmetric message */
-    OFPT_ECHO_REPLY				= 3,    /* Symmetric message */
-    OFPT_EXPERIMENTER			= 4,    /* Symmetric message */
-
-    /* Switch configuration messages. */
-    OFPT_FEATURES_REQUEST		= 5,    /* Controller/switch message */
-    OFPT_FEATURES_REPLY			= 6,    /* Controller/switch message */
-    OFPT_GET_CONFIG_REQUEST		= 7,    /* Controller/switch message */
-    OFPT_GET_CONFIG_REPLY		= 8,    /* Controller/switch message */
-    OFPT_SET_CONFIG				= 9,    /* Controller/switch message */
-
-    /* Asynchronous messages. */
-    OFPT_PACKET_IN				= 10,   /* Async message */
-    OFPT_FLOW_REMOVED			= 11,   /* Async message */
-    OFPT_PORT_STATUS			= 12,   /* Async message */
-
-    /* Controller command messages. */
-    OFPT_PACKET_OUT				= 13,   /* Controller/switch message */
-    OFPT_FLOW_MOD				= 14,   /* Controller/switch message */
-    OFPT_GROUP_MOD				= 15,   /* Controller/switch message */
-    OFPT_PORT_MOD				= 16,   /* Controller/switch message */
-    OFPT_TABLE_MOD				= 17,   /* Controller/switch message */
-
-    /* Statistics messages. */
-    OFPT_STATS_REQUEST			= 18,   /* Controller/switch message */
-    OFPT_STATS_REPLY			= 19,   /* Controller/switch message */
-
-    /* Barrier messages. */
-    OFPT_BARRIER_REQUEST		= 20,   /* Controller/switch message */
-    OFPT_BARRIER_REPLY			= 21,   /* Controller/switch message */
-
-    /* Queue Configuration messages. */
-    OFPT_QUEUE_GET_CONFIG_REQUEST	= 22,  /* Controller/switch message */
-    OFPT_QUEUE_GET_CONFIG_REPLY		= 23,  /* Controller/switch message */
-
-    /* Controller role change request messages. */
-    OFPT_ROLE_REQUEST    		= 24, /* Controller/switch message */
-    OFPT_ROLE_REPLY				= 25, /* Controller/switch message */
-
-};
-
-/* Header on all OpenFlow packets. */
-struct ofp_header {
-    uint8_t version;    /* OFP_VERSION. */
-    uint8_t type;       /* One of the OFPT_ constants. */
-    uint16_t length;    /* Length including this ofp_header. */
-    uint32_t xid;       /* Transaction id associated with this packet.
-                           Replies use the same id as was in the request
-                           to facilitate pairing. */
-};
-OFP_ASSERT(sizeof(struct ofp_header) == 8);
 
 /* OFPT_HELLO.  This message has an empty body, but implementations must
  * ignore any data included in the body, to allow for future extensions. */
@@ -183,13 +75,13 @@ enum ofp_config_flags {
 };
 
 /* Switch configuration. */
-struct ofp_switch_config {
+struct ofp12_switch_config {
     struct ofp_header header;
     uint16_t flags;             /* OFPC_* flags. */
     uint16_t miss_send_len;     /* Max bytes of new flow that datapath should
                                    send to the controller. */
 };
-OFP_ASSERT(sizeof(struct ofp_switch_config) == 12);
+OFP_ASSERT(sizeof(struct ofp12_switch_config) == 12);
 
 /* Flags to indicate behavior of the flow table for unmatched packets.
    These flags are used in ofp_table_stats messages to describe the current
@@ -215,13 +107,13 @@ enum ofp_table {
 
 
 /* Configure/Modify behavior of a flow table */
-struct ofp_table_mod {
+struct ofp12_table_mod {
     struct ofp_header header;
     uint8_t table_id;       /* ID of the table, 0xFF indicates all tables */
     uint8_t pad[3];         /* Pad to 32 bits */
     uint32_t config;        /* Bitmap of OFPTC_* flags */
 };
-OFP_ASSERT(sizeof(struct ofp_table_mod) == 16);
+OFP_ASSERT(sizeof(struct ofp12_table_mod) == 16);
 
 /* Capabilities supported by the datapath. */
 enum ofp_capabilities {
@@ -277,7 +169,7 @@ enum ofp_port_features {
 };
 
 /* Description of a port */
-struct ofp_port {
+struct ofp12_port {
     uint32_t port_no;
     uint8_t pad[4];
     uint8_t hw_addr[OFP_ETH_ALEN];
@@ -297,10 +189,10 @@ struct ofp_port {
     uint32_t curr_speed;    /* Current port bitrate in kbps. */
     uint32_t max_speed;     /* Max port bitrate in kbps */
 };
-OFP_ASSERT(sizeof(struct ofp_port) == 64);
+OFP_ASSERT(sizeof(struct ofp12_port) == 64);
 
 /* Switch features. */
-struct ofp_switch_features {
+struct ofp12_switch_features {
     struct ofp_header header;
     uint64_t datapath_id;   /* Datapath unique ID.  The lower 48-bits are for
                                a MAC address, while the upper 16-bits are
@@ -316,11 +208,11 @@ struct ofp_switch_features {
     uint32_t reserved;
 
     /* Port info.*/
-    struct ofp_port ports[0];  /* Port definitions.  The number of ports
+    struct ofp12_port ports[0];  /* Port definitions.  The number of ports
                                   is inferred from the length field in
                                   the header. */
 };
-OFP_ASSERT(sizeof(struct ofp_switch_features) == 32);
+OFP_ASSERT(sizeof(struct ofp12_switch_features) == 32);
 
 /* What changed about the physical port */
 enum ofp_port_reason {
@@ -330,16 +222,16 @@ enum ofp_port_reason {
 };
 
 /* A physical port has changed in the datapath */
-struct ofp_port_status {
+struct ofp12_port_status {
     struct ofp_header header;
     uint8_t reason;          /* One of OFPPR_*. */
     uint8_t pad[7];          /* Align to 64-bits. */
-    struct ofp_port desc;
+    struct ofp12_port desc;
 };
-OFP_ASSERT(sizeof(struct ofp_port_status) == 80);
+OFP_ASSERT(sizeof(struct ofp12_port_status) == 80);
 
 /* Modify behavior of the physical port */
-struct ofp_port_mod {
+struct ofp12_port_mod {
     struct ofp_header header;
     uint32_t port_no;
     uint8_t pad[4];
@@ -356,7 +248,7 @@ struct ofp_port_mod {
                                any action taking place. */
     uint8_t pad3[4];        /* Pad to 64 bits. */
 };
-OFP_ASSERT(sizeof(struct ofp_port_mod) == 40);
+OFP_ASSERT(sizeof(struct ofp12_port_mod) == 40);
 
 /* Why is this packet being sent to the controller? */
 enum ofp_packet_in_reason {
@@ -369,7 +261,7 @@ enum ofp_packet_in_reason {
 
 
 /* Fields to match against flows */
-struct ofp_match {
+struct ofp12_match {
 	uint16_t type;			/* One of OFPMT_* */
 	uint16_t length;		/* Length of ofp_match (excluding padding) */
 	/* Followed by:
@@ -382,7 +274,7 @@ struct ofp_match {
 	uint8_t oxm_fields[4];
 	/* OXMs start here - Make compiler happy */
 };
-OFP_ASSERT(sizeof(struct ofp_match) == 8);
+OFP_ASSERT(sizeof(struct ofp12_match) == 8);
 
 
 /* The match type indicates the match structure (set of fields that compose the
@@ -545,10 +437,10 @@ enum oxm_ofb_match_fields {
 	OFPXMT_OFB_MPLS_LABEL = 34,		/* MPLS label. */
 	OFPXMT_OFB_MPLS_TC = 35,		/* MPLS TC. */
 	/* PPP/PPPoE related extensions */
-	OFPXMT_OFB_PPPOE_CODE = 36,		/* PPPoE code */
-	OFPXMT_OFB_PPPOE_TYPE = 37,		/* PPPoE type */
-	OFPXMT_OFB_PPPOE_SID = 38,		/* PPPoE session id */
-	OFPXMT_OFB_PPP_PROT = 39,		/* PPP protocol */
+	OFPXMT_OFB_PPPOE_CODE = 40,		/* PPPoE code */
+	OFPXMT_OFB_PPPOE_TYPE = 41,		/* PPPoE type */
+	OFPXMT_OFB_PPPOE_SID = 42,		/* PPPoE session id */
+	OFPXMT_OFB_PPP_PROT = 43,		/* PPP protocol */
 	/* max value */
 	OFPXMT_OFB_MAX,
 };
@@ -585,13 +477,13 @@ OFP_ASSERT(sizeof(struct ofp_packet_in) == 24);
 #endif
 
 /* Packet received on port (datapath -> controller). */
-struct ofp_packet_in {
+struct ofp12_packet_in {
 	struct ofp_header header;
 	uint32_t buffer_id;			/* ID assigned by datapath. */
 	uint16_t total_len;			/* Full length of frame. */
 	uint8_t reason;				/* Reason packet is being sent (one of OFPR_*) */
 	uint8_t table_id;			/* ID of the table that was looked up */
-	struct ofp_match match; 	/* Packet metadata. Variable size. */
+	struct ofp12_match match; 	/* Packet metadata. Variable size. */
 	/* Followed by:
 	 * - Exactly 2 all-zero padding bytes, then
 	 * - An Ethernet frame whose length is inferred from header.length.
@@ -601,7 +493,7 @@ struct ofp_packet_in {
 	//uint8_t pad[2];			/* Align to 64 bit + 16 bit */
 	//uint8_t data[0];			/* Ethernet frame */
 };
-OFP_ASSERT(sizeof(struct ofp_packet_in) == 24);
+OFP_ASSERT(sizeof(struct ofp12_packet_in) == 24);
 
 #define OFP_NO_BUFFER	0xffffffff
 
@@ -620,8 +512,8 @@ enum ofp_action_type {
 	OFPAT_SET_NW_TTL 	= 23, 	/* IP TTL. */
 	OFPAT_DEC_NW_TTL 	= 24, 	/* Decrement IP TTL. */
 	OFPAT_SET_FIELD 	= 25, 	/* Set a header field using OXM TLV format. */
-	OFPAT_PUSH_PPPOE 	= 26,	/* Push a new PPPoE tag */
-	OFPAT_POP_PPPOE 	= 27,	/* Pop the PPPoE tag */
+	//OFPAT_PUSH_PPPOE 	= 26,	/* Push a new PPPoE tag */
+	//OFPAT_POP_PPPOE 	= 27,	/* Pop the PPPoE tag */
 	OFPAT_EXPERIMENTER	= 0xffff
 };
 
@@ -728,25 +620,12 @@ struct ofp_action_experimenter_header {
 };
 OFP_ASSERT(sizeof(struct ofp_action_experimenter_header) == 8);
 
-/* Action header that is common to all actions.  The length includes the
- * header and any padding used to make the action 64-bit aligned.
- * NB: The length of an action *must* always be a multiple of eight. */
-struct ofp_action_header {
-    uint16_t type;                  /* One of OFPAT_*. */
-    uint16_t len;                   /* Length of action, including this
-                                       header.  This is the length of action,
-                                       including any padding to make it
-                                       64-bit aligned. */
-    uint8_t pad[4];
-};
-OFP_ASSERT(sizeof(struct ofp_action_header) == 8);
-
 
 
 
 
 /* Send packet (controller -> datapath). */
-struct ofp_packet_out {
+struct ofp12_packet_out {
     struct ofp_header header;
     uint32_t buffer_id;           /* ID assigned by datapath (-1 if none). */
     uint32_t in_port;             /* Packet's input port or OFPP_CONTROLLER. */
@@ -757,7 +636,7 @@ struct ofp_packet_out {
                                      from the length field in the header.
                                      (Only meaningful if buffer_id == -1.) */
 };
-OFP_ASSERT(sizeof(struct ofp_packet_out) == 24);
+OFP_ASSERT(sizeof(struct ofp12_packet_out) == 24);
 
 enum ofp_flow_mod_command {
     OFPFC_ADD,              /* New flow. */
@@ -788,11 +667,13 @@ enum ofp_flow_wildcards {
     OFPFW_TP_DST      = 1 << 7,  /* TCP/UDP/SCTP destination port. */
     OFPFW_MPLS_LABEL  = 1 << 8,  /* MPLS label. */
     OFPFW_MPLS_TC     = 1 << 9,  /* MPLS TC. */
+#if 0
 #ifdef ORAN
     OFPFW_PPPOE_CODE  = 1 << 10, /* PPPoE code */
     OFPFW_PPPOE_TYPE  = 1 << 11, /* PPPoE type */
     OFPFW_PPPOE_SESS  = 1 << 12, /* PPPoE session */
     OFPFW_PPP_CODE	  = 1 << 13, /* PPP code */
+#endif
 #endif
 
     /* Wildcard all fields. */
@@ -923,7 +804,7 @@ enum ofp_flow_mod_flags {
 };
 
 /* Flow setup and teardown (controller -> datapath). */
-struct ofp_flow_mod {
+struct ofp12_flow_mod {
     struct ofp_header header;
     uint64_t cookie;             /* Opaque controller-issued identifier. */
     uint64_t cookie_mask;        /* Mask used to restrict the cookie bits
@@ -949,10 +830,10 @@ struct ofp_flow_mod {
                                      indicates no restriction. */
     uint16_t flags;               /* One of OFPFF_*. */
     uint8_t pad[2];
-    struct ofp_match match;       /* Fields to match */
+    struct ofp12_match match;     /* Fields to match */
     //struct ofp_instruction instructions[0]; /* Instruction set */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_mod) == 56);
+OFP_ASSERT(sizeof(struct ofp12_flow_mod) == 56);
 
 /* Group numbering. Groups can use any number up to OFPG_MAX. */
 enum ofp_group {
@@ -969,7 +850,7 @@ enum ofp_group {
 };
 
 /* Bucket for use in groups. */
-struct ofp_bucket {
+struct ofp12_bucket {
     uint16_t len;                   /* Length the bucket in bytes, including
                                        this header and any padding to make it
                                        64-bit aligned. */
@@ -986,19 +867,19 @@ struct ofp_bucket {
                                            from the length field in the
                                            header. */
 };
-OFP_ASSERT(sizeof(struct ofp_bucket) == 16);
+OFP_ASSERT(sizeof(struct ofp12_bucket) == 16);
 
 /* Group setup and teardown (controller -> datapath). */
-struct ofp_group_mod {
+struct ofp12_group_mod {
     struct ofp_header header;
     uint16_t command;             /* One of OFPGC_*. */
     uint8_t type;                 /* One of OFPGT_*. */
     uint8_t pad;                  /* Pad to 64 bits. */
     uint32_t group_id;            /* Group identifier. */
-    struct ofp_bucket buckets[0]; /* The bucket length is inferred from the
+    struct ofp12_bucket buckets[0]; /* The bucket length is inferred from the
                                      length field in the header. */
 };
-OFP_ASSERT(sizeof(struct ofp_group_mod) == 16);
+OFP_ASSERT(sizeof(struct ofp12_group_mod) == 16);
 
 /* Group types.  Values in the range [128, 255] are reserved for experimental
  * use. */
@@ -1018,7 +899,7 @@ enum ofp_flow_removed_reason {
 };
 
 /* Flow removed (datapath -> controller). */ // adjusted to OF1.2
-struct ofp_flow_removed {
+struct ofp12_flow_removed {
     struct ofp_header header;
     uint64_t cookie;          /* Opaque controller-issued identifier. */
 
@@ -1033,9 +914,9 @@ struct ofp_flow_removed {
     uint16_t hard_timeout;    /* Idle timeout from original flow mod. */
     uint64_t packet_count;
     uint64_t byte_count;
-    struct ofp_match match;   /* Description of fields. */
+    struct ofp12_match match; /* Description of fields. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_removed) == 56);
+OFP_ASSERT(sizeof(struct ofp12_flow_removed) == 56);
 
 /* Values for ’type’ in ofp_error_message. These values are immutable: they
 * will not change in future versions of the protocol (although new values may
@@ -1222,16 +1103,6 @@ enum ofp_role_request_failed_code {
 	OFPRRFC_BAD_ROLE = 2, /* Invalid role. */
 };
 
-/* OFPT_ERROR: Error message (datapath -> controller). */
-struct ofp_error_msg {
-    struct ofp_header header;
-
-    uint16_t type;
-    uint16_t code;
-    uint8_t data[0];          /* Variable-length data.  Interpreted based
-                                 on the type and code.  No padding. */
-};
-OFP_ASSERT(sizeof(struct ofp_error_msg) == 12);
 
 enum ofp_stats_types {
     /* Description of this OpenFlow switch.
@@ -1286,43 +1157,43 @@ enum ofp_stats_types {
     OFPST_EXPERIMENTER = 0xffff
 };
 
-struct ofp_stats_request {
+struct ofp12_stats_request {
     struct ofp_header header;
     uint16_t type;              /* One of the OFPST_* constants. */
     uint16_t flags;             /* OFPSF_REQ_* flags (none yet defined). */
     uint8_t pad[4];
     uint8_t body[0];            /* Body of the request. */
 };
-OFP_ASSERT(sizeof(struct ofp_stats_request) == 16);
+OFP_ASSERT(sizeof(struct ofp12_stats_request) == 16);
 
 enum ofp_stats_reply_flags {
     OFPSF_REPLY_MORE  = 1 << 0  /* More replies to follow. */
 };
 
-struct ofp_stats_reply {
+struct ofp12_stats_reply {
     struct ofp_header header;
     uint16_t type;              /* One of the OFPST_* constants. */
     uint16_t flags;             /* OFPSF_REPLY_* flags. */
     uint8_t pad[4];
     uint8_t body[0];            /* Body of the reply. */
 };
-OFP_ASSERT(sizeof(struct ofp_stats_reply) == 16);
+OFP_ASSERT(sizeof(struct ofp12_stats_reply) == 16);
 
 #define DESC_STR_LEN   256
 #define SERIAL_NUM_LEN 32
 /* Body of reply to OFPST_DESC request.  Each entry is a NULL-terminated
  * ASCII string. */
-struct ofp_desc_stats {
+struct ofp12_desc_stats {
     char mfr_desc[DESC_STR_LEN];       /* Manufacturer description. */
     char hw_desc[DESC_STR_LEN];        /* Hardware description. */
     char sw_desc[DESC_STR_LEN];        /* Software description. */
     char serial_num[SERIAL_NUM_LEN];   /* Serial number. */
     char dp_desc[DESC_STR_LEN];        /* Human readable description of datapath. */
 };
-OFP_ASSERT(sizeof(struct ofp_desc_stats) == 1056);
+OFP_ASSERT(sizeof(struct ofp12_desc_stats) == 1056);
 
 /* Body for ofp_stats_request of type OFPST_FLOW. */
-struct ofp_flow_stats_request {
+struct ofp12_flow_stats_request {
     uint8_t table_id;         /* ID of table to read (from ofp_table_stats),
                                  0xff for all tables. */
     uint8_t pad[3];           /* Align to 64 bits. */
@@ -1338,12 +1209,12 @@ struct ofp_flow_stats_request {
     uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that
                                  must match. A value of 0 indicates
                                  no restriction. */
-    struct ofp_match match;   /* Fields to match. */
+    struct ofp12_match match; /* Fields to match. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_stats_request) == 40);
+OFP_ASSERT(sizeof(struct ofp12_flow_stats_request) == 40);
 
 /* Body of reply to OFPST_FLOW request. */
-struct ofp_flow_stats {
+struct ofp12_flow_stats {
     uint16_t length;          /* Length of this entry. */
     uint8_t table_id;         /* ID of table flow came from. */
     uint8_t pad;
@@ -1358,13 +1229,13 @@ struct ofp_flow_stats {
     uint64_t cookie;          /* Opaque controller-issued identifier. */
     uint64_t packet_count;    /* Number of packets in flow. */
     uint64_t byte_count;      /* Number of bytes in flow. */
-    struct ofp_match match;   /* Description of fields. */
+    struct ofp12_match match; /* Description of fields. */
     //struct ofp_instruction instructions[0]; /* Instruction set. */
 };
-OFP_ASSERT(sizeof(struct ofp_flow_stats) == 56);
+OFP_ASSERT(sizeof(struct ofp12_flow_stats) == 56);
 
 /* Body for ofp_stats_request of type OFPST_AGGREGATE. */
-struct ofp_aggregate_stats_request {
+struct ofp12_aggregate_stats_request {
     uint8_t table_id;         /* ID of table to read (from ofp_table_stats)
                                  0xff for all tables. */
     uint8_t pad[3];           /* Align to 64 bits. */
@@ -1380,18 +1251,18 @@ struct ofp_aggregate_stats_request {
     uint64_t cookie_mask;     /* Mask used to restrict the cookie bits that
                                  must match. A value of 0 indicates
                                  no restriction. */
-    struct ofp_match match;   /* Fields to match. */
+    struct ofp12_match match; /* Fields to match. */
 };
-OFP_ASSERT(sizeof(struct ofp_aggregate_stats_request) == 40);
+OFP_ASSERT(sizeof(struct ofp12_aggregate_stats_request) == 40);
 
 /* Body of reply to OFPST_AGGREGATE request. */
-struct ofp_aggregate_stats_reply {
+struct ofp12_aggregate_stats_reply {
     uint64_t packet_count;    /* Number of packets in flows. */
     uint64_t byte_count;      /* Number of bytes in flows. */
     uint32_t flow_count;      /* Number of flows. */
     uint8_t pad[4];           /* Align to 64 bits. */
 };
-OFP_ASSERT(sizeof(struct ofp_aggregate_stats_reply) == 24);
+OFP_ASSERT(sizeof(struct ofp12_aggregate_stats_reply) == 24);
 
 /* Flow match fields. */
 enum ofp_flow_match_fields {
@@ -1420,7 +1291,7 @@ enum ofp_flow_match_fields {
 };
 
 /* Body of reply to OFPST_TABLE request. */
-struct ofp_table_stats {
+struct ofp12_table_stats {
     uint8_t table_id;        /* Identifier of table.  Lower numbered tables
                                 are consulted first. */
     uint8_t pad[7];          /* Align to 64-bits. */
@@ -1446,21 +1317,21 @@ struct ofp_table_stats {
     uint64_t lookup_count;   /* Number of packets looked up in table. */
     uint64_t matched_count;  /* Number of packets that hit table. */
 };
-OFP_ASSERT(sizeof(struct ofp_table_stats) == 128);
+OFP_ASSERT(sizeof(struct ofp12_table_stats) == 128);
 
 /* Body for ofp_stats_request of type OFPST_PORT. */
-struct ofp_port_stats_request {
+struct ofp12_port_stats_request {
     uint32_t port_no;        /* OFPST_PORT message must request statistics
                               * either for a single port (specified in
                               * port_no) or for all ports (if port_no ==
                               * OFPP_ANY). */
     uint8_t pad[4];
 };
-OFP_ASSERT(sizeof(struct ofp_port_stats_request) == 8);
+OFP_ASSERT(sizeof(struct ofp12_port_stats_request) == 8);
 
 /* Body of reply to OFPST_PORT request. If a counter is unsupported, set
  * the field to all ones. */
-struct ofp_port_stats {
+struct ofp12_port_stats {
     uint32_t port_no;
     uint8_t pad[4];          /* Align to 64-bits. */
     uint64_t rx_packets;     /* Number of received packets. */
@@ -1482,24 +1353,24 @@ struct ofp_port_stats {
     uint64_t rx_crc_err;     /* Number of CRC errors. */
     uint64_t collisions;     /* Number of collisions. */
 };
-OFP_ASSERT(sizeof(struct ofp_port_stats) == 104);
+OFP_ASSERT(sizeof(struct ofp12_port_stats) == 104);
 
 /* Body of OFPST_GROUP request. */
-struct ofp_group_stats_request {
+struct ofp12_group_stats_request {
     uint32_t group_id;       /* All groups if OFPG_ALL. */
     uint8_t pad[4];          /* Align to 64 bits. */
 };
-OFP_ASSERT(sizeof(struct ofp_group_stats_request) == 8);
+OFP_ASSERT(sizeof(struct ofp12_group_stats_request) == 8);
 
 /* Used in group stats replies. */
-struct ofp_bucket_counter {
+struct ofp12_bucket_counter {
     uint64_t packet_count;   /* Number of packets processed by bucket. */
     uint64_t byte_count;     /* Number of bytes processed by bucket. */
 };
-OFP_ASSERT(sizeof(struct ofp_bucket_counter) == 16);
+OFP_ASSERT(sizeof(struct ofp12_bucket_counter) == 16);
 
 /* Body of reply to OFPST_GROUP request. */
-struct ofp_group_stats {
+struct ofp12_group_stats {
     uint16_t length;         /* Length of this entry. */
     uint8_t pad[2];          /* Align to 64 bits. */
     uint32_t group_id;       /* Group identifier. */
@@ -1508,28 +1379,28 @@ struct ofp_group_stats {
     uint8_t pad2[4];         /* Align to 64 bits. */
     uint64_t packet_count;   /* Number of packets processed by group. */
     uint64_t byte_count;     /* Number of bytes processed by group. */
-    struct ofp_bucket_counter bucket_stats[0];
+    struct ofp12_bucket_counter bucket_stats[0];
 };
-OFP_ASSERT(sizeof(struct ofp_group_stats) == 32);
+OFP_ASSERT(sizeof(struct ofp12_group_stats) == 32);
 
 /* Body of reply to OFPST_GROUP_DESC request. */
-struct ofp_group_desc_stats {
+struct ofp12_group_desc_stats {
     uint16_t length;              /* Length of this entry. */
     uint8_t type;                 /* One of OFPGT_*. */
     uint8_t pad;                  /* Pad to 64 bits. */
     uint32_t group_id;            /* Group identifier. */
-    struct ofp_bucket buckets[0];
+    struct ofp12_bucket buckets[0];
 };
-OFP_ASSERT(sizeof(struct ofp_group_desc_stats) == 8);
+OFP_ASSERT(sizeof(struct ofp12_group_desc_stats) == 8);
 
 /* Body of reply to OFPST_GROUP_FEATURES request. Group features. */
-struct ofp_group_features_stats {
+struct ofp12_group_features_stats {
 	uint32_t types;				/* Bitmap of OFPGT_* values supported. */
 	uint32_t capabilities;		/* Bitmap of OFPGFC_* capability supported. */
 	uint32_t max_groups[4];		/* Maximum number of groups for each type. */
 	uint32_t actions[4];		/* Bitmaps of OFPAT_* that are supported. */
 };
-OFP_ASSERT(sizeof(struct ofp_group_features_stats) == 40);
+OFP_ASSERT(sizeof(struct ofp12_group_features_stats) == 40);
 
 /* Group configuration flags */
 enum ofp_group_capabilities {
@@ -1541,7 +1412,7 @@ enum ofp_group_capabilities {
 
 
 /* Experimenter extension. */
-struct ofp_experimenter_header {
+struct ofp12_experimenter_header {
     struct ofp_header header;   /* Type OFPT_EXPERIMENTER. */
     uint32_t experimenter;      /* Experimenter ID:
                                  * - MSB 0: low-order bytes are IEEE OUI.
@@ -1549,8 +1420,9 @@ struct ofp_experimenter_header {
                                  *   consortium. */
     uint32_t exp_type;			/* Experimenter defined. */
     /* Experimenter-defined arbitrary additional data. */
+    uint8_t body[0];
 };
-OFP_ASSERT(sizeof(struct ofp_experimenter_header) == 16);
+OFP_ASSERT(sizeof(struct ofp12_experimenter_header) == 16);
 
 /* All ones is used to indicate all queues in a port (for stats retrieval). */
 #define OFPQ_ALL      0xffffffff
@@ -1591,22 +1463,22 @@ struct ofp_packet_queue {
 OFP_ASSERT(sizeof(struct ofp_packet_queue) == 8);
 
 /* Query for port queue configuration. */
-struct ofp_queue_get_config_request {
+struct ofp12_queue_get_config_request {
     struct ofp_header header;
     uint32_t port;         /* Port to be queried. Should refer
                               to a valid physical port (i.e. < OFPP_MAX) */
     uint8_t pad[4];
 };
-OFP_ASSERT(sizeof(struct ofp_queue_get_config_request) == 16);
+OFP_ASSERT(sizeof(struct ofp12_queue_get_config_request) == 16);
 
 /* Queue configuration for a given port. */
-struct ofp_queue_get_config_reply {
+struct ofp12_queue_get_config_reply {
     struct ofp_header header;
     uint32_t port;
     uint8_t pad[4];
     struct ofp_packet_queue queues[0]; /* List of configured queues. */
 };
-OFP_ASSERT(sizeof(struct ofp_queue_get_config_reply) == 16);
+OFP_ASSERT(sizeof(struct ofp12_queue_get_config_reply) == 16);
 
 /* OFPAT_SET_QUEUE action struct: send packets to given queue on port. */
 struct ofp_action_set_queue {
@@ -1616,31 +1488,31 @@ struct ofp_action_set_queue {
 };
 OFP_ASSERT(sizeof(struct ofp_action_set_queue) == 8);
 
-struct ofp_queue_stats_request {
+struct ofp12_queue_stats_request {
     uint32_t port_no;        /* All ports if OFPP_ANY. */
     uint32_t queue_id;       /* All queues if OFPQ_ALL. */
 };
-OFP_ASSERT(sizeof(struct ofp_queue_stats_request) == 8);
+OFP_ASSERT(sizeof(struct ofp12_queue_stats_request) == 8);
 
-struct ofp_queue_stats {
+struct ofp12_queue_stats {
     uint32_t port_no;
     uint32_t queue_id;       /* Queue i.d */
     uint64_t tx_bytes;       /* Number of transmitted bytes. */
     uint64_t tx_packets;     /* Number of transmitted packets. */
     uint64_t tx_errors;      /* Number of packets dropped due to overrun. */
 };
-OFP_ASSERT(sizeof(struct ofp_queue_stats) == 32);
+OFP_ASSERT(sizeof(struct ofp12_queue_stats) == 32);
 
 
 
 /* Role request and reply message. */
-struct ofp_role_request {
+struct ofp12_role_request {
 	struct ofp_header header; 	/* Type OFPT_ROLE_REQUEST/OFPT_ROLE_REPLY. */
 	uint32_t role;				/* One of NX_ROLE_*. */
 	uint8_t pad[4];				/* Align to 64 bits. */
 	uint64_t generation_id;		/* Master Election Generation Id */
 };
-OFP_ASSERT(sizeof(struct ofp_role_request) == 24);
+OFP_ASSERT(sizeof(struct ofp12_role_request) == 24);
 
 /* Controller roles. */
 enum ofp_controller_role {

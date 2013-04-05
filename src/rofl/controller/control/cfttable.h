@@ -23,9 +23,10 @@ extern "C" {
 #include "../../common/cerror.h"
 #include "../../common/cvastring.h"
 #include "../../common/thread_helper.h"
+#include "../../common/openflow/coftablestats.h"
+#include "../../common/openflow/messages/cofmsg_flow_mod.h"
+#include "../../common/openflow/messages/cofmsg_flow_removed.h"
 
-
-#include "../../common/openflow/cofpacket.h"
 #include "cftentry.h"
 
 #if 0
@@ -108,6 +109,9 @@ public: // data structures
 
 	std::set<cftentry*> 	flow_table; 	// flow_table: set of cftentries
 	uint8_t 				table_id; 		// OF1.1 table identifier
+
+	coftable_stats_reply	table_stats;
+#if 0
 	std::string 			table_name; 	// OF1.1 table name
 
 	uint64_t 				match; 			// OF1.2 available matching fields
@@ -124,7 +128,7 @@ public: // data structures
 	uint32_t 				active_count;  	// current number of flow-table entries (received from physical data path, flow_table.sie() otherwise!)
 	uint64_t 				lookup_count; 	// number of lookups in this table
 	uint64_t 				matched_count; 	// number of table hits
-
+#endif
 
 public:
 
@@ -145,7 +149,10 @@ public:
 			uint64_t metadata_match = 0,
 			uint64_t metadata_write = 0,
 			uint32_t instructions = cfttable::all_instructions,
-			uint32_t config = OFPTC_TABLE_MISS_CONTROLLER);
+			uint32_t config = OFPTC_TABLE_MISS_CONTROLLER,
+			uint32_t active_count = 0,
+			uint64_t lookup_count = 0,
+			uint64_t matched_count = 0);
 
 
 	/** destructor
@@ -174,7 +181,7 @@ public:
 	virtual cftentry*
 	cftentry_factory(
 			std::set<cftentry*> *flow_table,
-			cofpacket *pack);
+			cofmsg_flow_mod *pack);
 
 
 	/** returns true for table policy OFPTC_TABLE_MISS_CONTROLLER
@@ -200,17 +207,14 @@ public:
 
 	/** return table statistics
 	 */
-	struct ofp_table_stats*
-	get_table_stats(
-			struct ofp_table_stats* table_stats,
-			size_t table_stats_len) throw (eFlowTableInval);
+	coftable_stats_reply&
+	get_table_stats() throw (eFlowTableInval);
 
 	/** set table statistics gathered from physical data path
 	 */
 	void
 	set_table_stats(
-			struct ofp_table_stats* table_stats,
-			size_t table_stats_len) throw (eFlowTableInval);
+			coftable_stats_reply const& table_stats) throw (eFlowTableInval);
 
 	/** OFPST_FLOW_STATS
 	 *
@@ -252,7 +256,16 @@ public:
 	cftentry*
 	update_ft_entry(
 			cfttable_owner *owner,
-			cofpacket *pack) throw (eFlowTableInval);
+			cofmsg_flow_mod *msg) throw (eFlowTableInval);
+
+	/**
+	 * add, update, remove flow table entry based on flow_mod
+	 */
+	cftentry*
+	update_ft_entry(
+			cfttable_owner *owner,
+			cofmsg_flow_removed *msg) throw (eFlowTableInval);
+
 
 	/**
 	 * find all cftentries that match a given struct ofp_match
@@ -333,7 +346,7 @@ protected:
 	cftentry*
 	add_ft_entry(
 			cfttable_owner *owner,
-			cofpacket *pack) throw(eFlowTableEntryOverlaps);
+			cofmsg_flow_mod *pack) throw(eFlowTableEntryOverlaps);
 
 	/**
 	 * modify an existing flow table entry
@@ -342,7 +355,7 @@ protected:
 	cftentry*
 	modify_ft_entry(
 			cfttable_owner *owner,
-			cofpacket *pack,
+			cofmsg_flow_mod *pack,
 			bool strict = false);
 
 	/**
@@ -352,7 +365,7 @@ protected:
 	void
 	rem_ft_entry(
 			cfttable_owner *owner,
-			cofpacket *pack,
+			cofmsg_flow_mod *pack,
 			bool strict = false);
 
 

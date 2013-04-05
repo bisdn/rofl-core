@@ -23,7 +23,7 @@ cgtentry::cgtentry(cgtentry_owner *owner) :
 cgtentry::cgtentry(
 		cgtentry_owner *owner,
 		cgttable *_grp_table,
-		struct ofp_group_mod *grp_mod) throw (eGroupModBadBucket, eGroupModBadType, eBadActionBadOutPort) :
+		cofmsg_group_mod *group_mod) throw (eGroupModBadBucket, eGroupModBadType, eBadActionBadOutPort) :
 		owner(owner),
 		grp_table(_grp_table),
 		ref_count(0),
@@ -31,13 +31,9 @@ cgtentry::cgtentry(
 		byte_count(0),
 		group_mod(0)
 {
-	this->group_id = be32toh(grp_mod->group_id);
-	this->group_type = grp_mod->type;
-	if (be16toh(grp_mod->header.length) > sizeof(struct ofp_group_mod))
-	{
-		size_t bclen = be16toh(grp_mod->header.length) - sizeof(struct ofp_group_mod);
-		buckets.unpack(grp_mod->buckets, bclen);
-	}
+	this->group_id 		= group_mod->get_group_id();
+	this->group_type 	= group_mod->get_group_type();
+	this->buckets 		= group_mod->get_buckets();
 
 	switch (group_type) {
 	case OFPGT_ALL:
@@ -100,6 +96,7 @@ void
 cgtentry::get_group_stats(
 		cmemory& body)
 {
+#if 0
 	cmemory gstats(OFP_GROUP_STATS_REPLY_STATIC_BODY_LEN); // 32 bytes in OF1.2
 	struct ofp_group_stats* group_stats = (struct ofp_group_stats*)gstats.somem();
 
@@ -118,6 +115,7 @@ cgtentry::get_group_stats(
 	}
 
 	body += gstats;
+#endif
 }
 
 
@@ -125,6 +123,8 @@ void
 cgtentry::get_group_desc_stats(
 		cmemory& body)
 {
+	// FIXME: statistics management, should return cofgroupdescstats object
+#if 0
 	cmemory gstats(OFP_GROUP_DESC_STATS_REPLY_STATIC_BODY_LEN + buckets.length()); // 8 bytes in OF1.2
 	struct ofp_group_desc_stats* group_desc_stats =
 						(struct ofp_group_desc_stats*)gstats.somem();
@@ -141,6 +141,7 @@ cgtentry::get_group_desc_stats(
 	WRITELOG(CGTENTRY, DBG, "cgtentry(%p)::get_group_desc_stats() body:%s", this, gstats.c_str());
 
 	body += gstats;
+#endif
 }
 
 

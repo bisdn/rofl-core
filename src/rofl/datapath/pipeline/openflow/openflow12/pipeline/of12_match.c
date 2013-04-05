@@ -691,14 +691,19 @@ void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
 
 	fprintf(stderr,"Packet matches [");	
 
+	if(!pkt){
+		fprintf(stderr,"]. No matches. Probably comming from a PACKET_OUT");	
+		return;
+	}
+	
 	//Ports
 	if(pkt->port_in)
 		fprintf(stderr,"PORT_IN:%u, ",pkt->port_in);
 	if(pkt->phy_port_in)
 		fprintf(stderr,"PHY_PORT_IN:%u, ",pkt->phy_port_in);
-	//Metadata	
-	if(pkt->metadata)
-		fprintf(stderr,"METADATA:%u, ",pkt->phy_port_in);
+	//TODO:Metadata	
+	//if(pkt->metadata)
+	//	fprintf(stderr,"METADATA:%u, ",pkt->metadata);
 	//802	
 	if(pkt->eth_src)
 		fprintf(stderr,"ETH_SRC:0x%llx, ",(long long unsigned)pkt->eth_src);

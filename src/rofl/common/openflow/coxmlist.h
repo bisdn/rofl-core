@@ -137,14 +137,14 @@ public: // methods
 		struct ofp_oxm_hdr*
 		pack(
 				struct ofp_oxm_hdr *oxm_hdr,
-				size_t oxm_len);
+				size_t oxm_len) const;
 
 
 		/** returns required length for array of struct ofp_instruction
 		 * for all instructions defined in this->invec including padding!
 		 */
 		size_t
-		length();
+		length() const;
 
 
 		/** dump info string
@@ -159,7 +159,7 @@ public: // methods
 		bool
 		exists(
 				uint16_t oxm_class,
-				uint8_t oxm_field);
+				uint8_t oxm_field) const;
 
 
 		/** find a specific OXM TLV and return a reference
@@ -174,11 +174,11 @@ public: // methods
 		/** find a specific OXM TLV and return a copy
 		 *
 		 */
-		coxmatch
-		oxm_copy(
+		coxmatch const&
+		get_oxm(
 				uint16_t oxm_class,
 				uint8_t oxm_field)
-					throw (eOxmListNotFound);
+					const throw (eOxmListNotFound);
 
 
 		/** erase oxmlist

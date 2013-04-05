@@ -127,6 +127,13 @@ class eRoleRequestStale				: public eRoleRequestBase {};	// OFPRRFC_STALE
 class eRoleRequestUnsupported		: public eRoleRequestBase {};	// OFPRRFC_UNSUPPORTED
 class eRoleRequestBadRole			: public eRoleRequestBase {};	// OFPRRFC_BAD_ROLE
 
+
+/*
+ * further rofl internal exceptions
+ */
+class eBadVersion					: public cerror {};
+class eBadSyntax					: public cerror {};
+class eBadSyntaxTooShort			: public eBadSyntax {};
 }
 
 #endif

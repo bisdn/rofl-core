@@ -24,7 +24,7 @@ clldplist::unpack(
 		int tlvlen)
 throw (eLLDPBadLen)
 {
-	reset(); // clears elems vector
+	clear(); // clears elems vector
 
 	// sanity check: bclen must be of size at least of ofp_bucket
 	if (tlvlen < (int)sizeof(struct clldptlv::lldp_tlv_hdr_t))

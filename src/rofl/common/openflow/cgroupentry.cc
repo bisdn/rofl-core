@@ -8,7 +8,7 @@ using namespace rofl;
 
 cgroupentry::cgroupentry() :
 	group_mod(NULL),
-	group_mod_area(sizeof(struct ofp_group_mod) + 128/*space for actions, will be extended in method pack() if necessary*/)
+	group_mod_area(sizeof(struct ofp12_group_mod) + 128/*space for actions, will be extended in method pack() if necessary*/)
 {
 	reset();
 }
@@ -29,7 +29,7 @@ cgroupentry::operator= (const cgroupentry& ge)
 	this->buckets = ge.buckets;
 	this->group_mod_area = ge.group_mod_area;
 
-	this->group_mod = (struct ofp_group_mod*)this->group_mod_area.somem();
+	this->group_mod = (struct ofp12_group_mod*)this->group_mod_area.somem();
 
 	return *this;
 }
@@ -39,7 +39,7 @@ void
 cgroupentry::reset()
 {
 	bzero(group_mod_area.somem(), group_mod_area.memlen());
-	group_mod = (struct ofp_group_mod*)group_mod_area.somem();
+	group_mod = (struct ofp12_group_mod*)group_mod_area.somem();
 
 	group_mod->command = htobe16(OFPGC_ADD);			// default: add flow-mod entry
 	group_mod->type = OFPGT_ALL;
@@ -124,10 +124,10 @@ cgroupentry::pack()
 	WRITELOG(UNKNOWN, DBG, "cgroupentry(%p)::pack() [0] bclen[%d] group_mod_area: %s",
 			this, bclen, group_mod_area.c_str());
 
-	if ((sizeof(struct ofp_group_mod) + bclen) > group_mod_area.memlen()) // not enough space? => resize memory area for group_mod
+	if ((sizeof(struct ofp12_group_mod) + bclen) > group_mod_area.memlen()) // not enough space? => resize memory area for group_mod
 	{
-		group_mod_area.resize(sizeof(struct ofp_group_mod) + bclen);
-		group_mod = (struct ofp_group_mod*)group_mod_area.somem();
+		group_mod_area.resize(sizeof(struct ofp12_group_mod) + bclen);
+		group_mod = (struct ofp12_group_mod*)group_mod_area.somem();
 	}
 
 	WRITELOG(UNKNOWN, DBG, "cgroupentry(%p)::pack() [1] bclen[%d] group_mod_area: %s",
@@ -142,7 +142,7 @@ cgroupentry::pack()
 	WRITELOG(UNKNOWN, DBG, "cgroupentry(%p)::pack() [2] bclen[%d] group_mod_area: %s",
 				this, bclen, group_mod_area.c_str());
 
-	return (sizeof(struct ofp_group_mod) + bclen); // return size of struct ofp_group_mod including appended buckets
+	return (sizeof(struct ofp12_group_mod) + bclen); // return size of struct ofp12_group_mod including appended buckets
 }
 
 
@@ -181,7 +181,7 @@ ge.buckets[0].actions[4] = cofaction_set_dl_dst(dl_dst);
 // in cfwdelem::send_group_mod(...)
 cmemory area(1024);
 
-ge.pack((struct ofp_group_mod*)area.somem(), 256);
+ge.pack((struct ofp12_group_mod*)area.somem(), 256);
 
 
 ge.buckets[1].aclist[0].type = OFPAT_OUTPUT;

@@ -66,7 +66,14 @@ public: // per instance methods
 	/** constructor
 	 */
 	cofbucket(
-			struct ofp_bucket *bucket,
+			struct ofp12_bucket *bucket,
+			size_t bclen);
+
+
+	/** constructor
+	 */
+	cofbucket(
+			struct ofp13_bucket *bucket,
 			size_t bclen);
 
 
@@ -86,20 +93,32 @@ public: // per instance methods
 
 	/** pack bucket
 	 */
-	struct ofp_bucket*
-	pack(struct ofp_bucket* bucket, size_t bclen)
+	struct ofp12_bucket*
+	pack(struct ofp12_bucket* bucket, size_t bclen) const
 		throw (eBucketBadLen);
 
 	/** unpack bucket
 	 */
 	void
-	unpack(struct ofp_bucket* bucket, size_t bclen)
+	unpack(struct ofp12_bucket* bucket, size_t bclen)
+		throw (eBucketBadLen, eBadActionBadOutPort);
+
+	/** pack bucket
+	 */
+	struct ofp13_bucket*
+	pack(struct ofp13_bucket* bucket, size_t bclen) const
+		throw (eBucketBadLen);
+
+	/** unpack bucket
+	 */
+	void
+	unpack(struct ofp13_bucket* bucket, size_t bclen)
 		throw (eBucketBadLen, eBadActionBadOutPort);
 
 	/** bucket length
 	 */
 	size_t
-	length();
+	length() const;
 
 
 	/**

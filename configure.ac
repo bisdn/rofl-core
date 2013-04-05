@@ -230,6 +230,7 @@ else
 		AM_CONDITIONAL(doc, [true])
 		AC_CONFIG_FILES([doc/doxyfile.conf])	
 		AC_CONFIG_FILES([doc/doxyfile-pipeline.conf])
+		AC_CONFIG_FILES([doc/doxyfile-afa.conf])
 		AC_MSG_RESULT(yes)
 	else
 		AC_MSG_RESULT(no)
@@ -243,6 +244,7 @@ AC_CONFIG_FILES([
 	src/Makefile
 	src/rofl/common/config/Makefile
 	src/rofl/common/protocols/Makefile
+	src/rofl/common/openflow/messages/Makefile
 	src/rofl/common/openflow/extensions/Makefile
 	src/rofl/common/openflow/Makefile
 	src/rofl/common/Makefile
@@ -253,11 +255,16 @@ AC_CONFIG_FILES([
 	src/rofl/controller/experimental/Makefile
 	src/rofl/controller/control/Makefile
 	src/rofl/controller/Makefile
+
 	src/rofl/Makefile
 
         src/rofl/datapath/afa/Makefile
         src/rofl/datapath/afa/openflow/openflow12/Makefile
 	
+	examples/Makefile
+	examples/etherswitch/Makefile
+
+
 	test/Makefile
 	test/unit/Makefile
 	test/unit/test1/Makefile

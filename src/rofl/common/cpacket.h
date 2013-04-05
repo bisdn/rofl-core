@@ -435,6 +435,13 @@ public:
 			uint32_t in_port /* host byte order */);
 
 
+	/**
+	 *
+	 */
+	void
+	clear();
+
+
 private:
 
 #if 0

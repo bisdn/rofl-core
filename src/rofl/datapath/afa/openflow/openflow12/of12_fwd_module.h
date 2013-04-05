@@ -26,7 +26,7 @@ AFA_BEGIN_DECLS
 
 /**
  * @name    fwd_module_of12_set_port_drop_received_config
- * @brief   Instructs driver to modify port config state 
+ * @brief   Instructs forward module to modify port config state 
  * @ingroup of12_fwd_module_async_event_processing
  *
  * @param dpid 			Datapath ID of the switch 
@@ -37,7 +37,7 @@ afa_result_t fwd_module_of12_set_port_drop_received_config(uint64_t dpid, unsign
 
 /**
  * @name    fwd_module_of12_set_port_forward_config
- * @brief   Instructs driver to modify port config state 
+ * @brief   Instructs forward module to modify port config state 
  * @ingroup of12_fwd_module_async_event_processing
  *
  * @param dpid 			Datapath ID of the switch 
@@ -48,7 +48,7 @@ afa_result_t fwd_module_of12_set_port_forward_config(uint64_t dpid, unsigned int
 
 /**
  * @name    fwd_module_of12_set_port_generate_packet_in_config
- * @brief   Instructs driver to modify port config state 
+ * @brief   Instructs forward module to modify port config state 
  * @ingroup of12_fwd_module_async_event_processing
  *
  * @param dpid 			Datapath ID of the switch 
@@ -59,7 +59,7 @@ afa_result_t fwd_module_of12_set_port_generate_packet_in_config(uint64_t dpid, u
 
 /**
  * @name    fwd_module_of12_set_port_advertise_config
- * @brief   Instructs driver to modify port advertise flags 
+ * @brief   Instructs forward module to modify port advertise flags 
  * @ingroup of12_fwd_module_async_event_processing
  *
  * @param dpid 			Datapath ID of the switch 
@@ -70,7 +70,7 @@ afa_result_t fwd_module_of12_set_port_advertise_config(uint64_t dpid, unsigned i
 
 /**
  * @name    fwd_module_of12_set_pipeline_config
- * @brief   Instructs driver to process a PACKET_OUT event
+ * @brief   Instructs forward module to process a PACKET_OUT event
  * @ingroup of12_fwd_module_async_event_processing
  *
  * @param dpid 		Datapath ID of the switch 
@@ -82,7 +82,7 @@ afa_result_t fwd_module_of12_set_pipeline_config(uint64_t dpid, unsigned int fla
 
 /**
  * @name    fwd_module_of12_set_table_config
- * @brief   Instructs driver to set table configuration(default action)
+ * @brief   Instructs forward module to set table configuration(default action)
  * @ingroup of12_fwd_module_async_event_processing
  *
  * @param dpid 		Datapath ID of the switch
@@ -93,7 +93,7 @@ afa_result_t fwd_module_of12_set_table_config(uint64_t dpid, unsigned int table_
 
 /**
  * @name    fwd_module_of12_process_packet_out
- * @brief   Instructs driver to process a PACKET_OUT event
+ * @brief   Instructs forward module to process a PACKET_OUT event
  * @ingroup of12_fwd_module_async_event_processing
  *
  * @param dpid 		Datapath ID of the switch to process PACKET_OUT
@@ -107,7 +107,7 @@ afa_result_t fwd_module_of12_process_packet_out(uint64_t dpid, uint32_t buffer_i
 
 /**
  * @name    fwd_module_of12_process_flow_mod_add
- * @brief   Instructs driver to process a FLOW_MOD add event
+ * @brief   Instructs forward module to process a FLOW_MOD add event
  * @ingroup of12_fwd_module_async_event_processing
  *
  * @param dpid 		Datapath ID of the switch to install the FLOW_MOD
@@ -121,7 +121,7 @@ afa_result_t fwd_module_of12_process_flow_mod_add(uint64_t dpid, uint8_t table_i
 
 /**
  * @name    fwd_module_of12_process_flow_mod_modify
- * @brief   Instructs driver to process a FLOW_MOD modify event
+ * @brief   Instructs forward module to process a FLOW_MOD modify event
  * @ingroup of12_fwd_module_async_event_processing
  *
  * @param dpid 		Datapath ID of the switch to install the FLOW_MOD
@@ -135,7 +135,7 @@ afa_result_t fwd_module_of12_process_flow_mod_modify(uint64_t dpid, uint8_t tabl
 
 /**
  * @name    fwd_module_of12_process_flow_mod_delete
- * @brief   Instructs driver to process a FLOW_MOD event
+ * @brief   Instructs forward module to process a FLOW_MOD event
  * @ingroup of12_fwd_module_async_event_processing
  *
  * @param dpid 		Datapath ID of the switch to install the FLOW_MOD
@@ -180,7 +180,7 @@ of12_stats_flow_aggregate_msg_t* fwd_module_of12_get_flow_aggregate_stats(uint64
 
 /**
  * @name    fwd_module_of12_group_mod_add
- * @brief   Instructs driver to add a new GROUP
+ * @brief   Instructs forward module to add a new GROUP
  * @ingroup of12_fwd_module_async_event_processing
  *
  * @param dpid 		Datapath ID of the switch to install the GROUP
@@ -189,7 +189,7 @@ of12_group_mod_err_t fwd_module_of12_group_mod_add(uint64_t dpid, of12_group_typ
 
 /**
  * @name    fwd_module_of12_group_mod_modify
- * @brief   Instructs driver to modify the GROUP with identification ID
+ * @brief   Instructs forward module to modify the GROUP with identification ID
  * @ingroup of12_fwd_module_async_event_processing
  *
  * @param dpid 		Datapath ID of the switch to install the GROUP
