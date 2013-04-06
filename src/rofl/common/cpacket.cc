@@ -128,16 +128,17 @@ cpacket::cpacket(
 		size_t buflen,
 		uint32_t in_port,
 		bool do_classify) :
-			head(0),
-			tail(0),
-			hspace(CPACKET_DEFAULT_HSPACE),
-			tspace(0),
-			mem(buflen + hspace + tspace),
-			//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
-			data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, buflen)),
-			packet_receive_time(time(NULL)),
-			in_port(in_port),
-			out_port(0)
+				total_len(buflen),
+				head(0),
+				tail(0),
+				hspace(CPACKET_DEFAULT_HSPACE),
+				tspace(0),
+				mem(buflen + hspace + tspace),
+				//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
+				data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, buflen)),
+				packet_receive_time(time(NULL)),
+				in_port(in_port),
+				out_port(0)
 {
 	WRITELOG(CPACKET, DBG, "cpacket(%p)::cpacket()", this);
 
@@ -162,16 +163,17 @@ cpacket::cpacket(
 
 cpacket::cpacket(
 		cpacket const& pack) :
-		head(0),
-		tail(0),
-		hspace(CPACKET_DEFAULT_HSPACE),
-		tspace(0),
-		mem(pack.framelen() + hspace),
-		//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
-		data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, pack.framelen())),
-		packet_receive_time(time(NULL)),
-		in_port(0),
-		out_port(0)
+				total_len(0),
+				head(0),
+				tail(0),
+				hspace(CPACKET_DEFAULT_HSPACE),
+				tspace(0),
+				mem(pack.framelen() + hspace),
+				//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
+				data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, pack.framelen())),
+				packet_receive_time(time(NULL)),
+				in_port(0),
+				out_port(0)
 {
 	WRITELOG(CPACKET, DBG, "cpacket(%p)::cpacket()", this);
 
@@ -252,6 +254,7 @@ cpacket::operator=(
 
 	reset();
 
+	total_len			= p.total_len;
 	match				= p.match;
 
 	mem_resize(p.framelen());
@@ -532,7 +535,6 @@ cpacket::data_c_str()
 
 	return d_info.c_str();
 }
-
 
 
 
