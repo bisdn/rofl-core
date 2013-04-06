@@ -63,15 +63,16 @@ cpacket::cpacket(
 			size_t size,
 			uint32_t in_port,
 			bool do_classify) :
-			head(0),
-			tail(0),
-			hspace(CPACKET_DEFAULT_HSPACE),
-			tspace(CPACKET_DEFAULT_TSPACE),
-			mem(size + hspace + tspace),
-			data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, size)),
-			packet_receive_time(time(NULL)),
-			in_port(0),
-			out_port(0)
+					total_len(size),
+					head(0),
+					tail(0),
+					hspace(CPACKET_DEFAULT_HSPACE),
+					tspace(CPACKET_DEFAULT_TSPACE),
+					mem(size + hspace + tspace),
+					data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, size)),
+					packet_receive_time(time(NULL)),
+					in_port(0),
+					out_port(0)
 {
 	pthread_rwlock_init(&ac_rwlock, NULL);
 
@@ -92,15 +93,16 @@ cpacket::cpacket(
 		cmemory *mem,
 		uint32_t in_port,
 		bool do_classify) :
-			head(0),
-			tail(0),
-			hspace(CPACKET_DEFAULT_HSPACE),
-			tspace(0),
-			mem(mem->memlen() + hspace + tspace),
-			data(std::pair<uint8_t*, size_t>(this->mem.somem() + hspace, mem->memlen())),
-			packet_receive_time(time(NULL)),
-			in_port(in_port),
-			out_port(0)
+				total_len(mem->memlen()),
+				head(0),
+				tail(0),
+				hspace(CPACKET_DEFAULT_HSPACE),
+				tspace(0),
+				mem(mem->memlen() + hspace + tspace),
+				data(std::pair<uint8_t*, size_t>(this->mem.somem() + hspace, mem->memlen())),
+				packet_receive_time(time(NULL)),
+				in_port(in_port),
+				out_port(0)
 {
 	WRITELOG(CPACKET, DBG, "cpacket(%p)::cpacket()", this);
 
@@ -529,6 +531,40 @@ cpacket::data_c_str()
 	}
 
 	return d_info.c_str();
+}
+
+
+
+
+size_t
+cpacket::get_payload_len(fframe *from, fframe *to)
+{
+	fframe *curr = (from != 0) ? from : head;
+	fframe *last = (to != 0) ? to->next : tail;
+
+	size_t len = 0;
+
+	while ((curr != 0) && (curr != last)) {
+		len += curr->framelen();
+		curr = curr->next;
+	}
+	return len;
+}
+
+
+
+void
+cpacket::set_total_len(uint16_t total_len)
+{
+	this->total_len = total_len;
+}
+
+
+
+size_t
+cpacket::get_total_len()
+{
+	return total_len;
 }
 
 
@@ -3244,24 +3280,6 @@ cpacket::action_pop_ppp(
 
 	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_ppp() "
 			"[2] pack: %s", this, c_str());
-}
-
-
-
-
-size_t
-cpacket::get_payload_len(fframe *from, fframe *to)
-{
-	fframe *curr = (from != 0) ? from : head;
-	fframe *last = (to != 0) ? to->next : tail;
-
-	size_t len = 0;
-
-	while ((curr != 0) && (curr != last)) {
-		len += curr->framelen();
-		curr = curr->next;
-	}
-	return len;
 }
 
 
