@@ -25,6 +25,8 @@ crofbase::crofbase() :
 
 crofbase::~crofbase()
 {
+	rpc_close_all();
+	
 	crofbase::rofbases.erase(this);
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::~crofbase()", this);
 
