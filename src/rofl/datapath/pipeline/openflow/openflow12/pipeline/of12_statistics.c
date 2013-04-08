@@ -222,8 +222,8 @@ void of12_stats_table_lookup_inc(of12_flow_table_t * table)
  */
 void of12_stats_table_matches_inc(of12_flow_table_t * table)
 {
-	platform_atomic_inc64(&table->stats.lookup_count,table->mutex);
-	platform_atomic_inc64(&table->stats.matched_count,table->mutex);
+	platform_atomic_inc64(&table->stats.lookup_count,table->stats.mutex);
+	platform_atomic_inc64(&table->stats.matched_count,table->stats.mutex);
 }
 
 
