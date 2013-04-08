@@ -100,7 +100,6 @@ cofmsg::type2desc(ofp_type ptype)
 
 
 cofmsg::cofmsg(size_t size) :
-		destroy_mem_during_destruction(true),
 		memarea(new cmemory(size)),
 		ofh_header(0)
 {
@@ -111,23 +110,17 @@ cofmsg::cofmsg(size_t size) :
 
 
 cofmsg::cofmsg(cmemory *memarea) :
-		destroy_mem_during_destruction(false),
 		memarea(memarea),
 		ofh_header(0)
 {
 	if (0 == memarea) {
 		throw eInval();
 	}
-
-	validate();
-
-	destroy_mem_during_destruction = true;
 }
 
 
 
 cofmsg::cofmsg(cofmsg const& p) :
-		destroy_mem_during_destruction(true),
 		memarea(0),
 		ofh_header(0)
 {
@@ -138,7 +131,7 @@ cofmsg::cofmsg(cofmsg const& p) :
 
 cofmsg::~cofmsg()
 {
-	if ((destroy_mem_during_destruction) && (0 != memarea)) {
+	if (0 != memarea) {
 		delete memarea;
 	}
 }

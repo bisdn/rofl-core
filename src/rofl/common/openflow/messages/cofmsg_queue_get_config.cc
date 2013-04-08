@@ -40,7 +40,7 @@ cofmsg_queue_get_config_request::cofmsg_queue_get_config_request(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+
 }
 
 
@@ -267,7 +267,7 @@ cofmsg_queue_get_config_reply::cofmsg_queue_get_config_reply(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+
 }
 
 

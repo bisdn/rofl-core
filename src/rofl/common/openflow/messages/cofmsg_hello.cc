@@ -24,7 +24,7 @@ cofmsg_hello::cofmsg_hello(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+
 }
 
 

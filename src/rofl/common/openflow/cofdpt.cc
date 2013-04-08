@@ -307,40 +307,49 @@ cofdpt::handle_message(
 		switch (ofh_header->type) {
 		case OFPT_HELLO: {
 			msg = new cofmsg_hello(mem);
+			msg->validate();
 			hello_rcvd(dynamic_cast<cofmsg_hello*>( msg ));
 		} break;
 		case OFPT_ECHO_REQUEST: {
 			msg = new cofmsg_echo_request(mem);
+			msg->validate();
 			echo_request_rcvd(dynamic_cast<cofmsg_echo_request*>( msg ));
 		} break;
 		case OFPT_ECHO_REPLY: {
 			msg = new cofmsg_echo_reply(mem);
+			msg->validate();
 			echo_reply_rcvd(dynamic_cast<cofmsg_echo_reply*>( msg ));
 		} break;
 		case OFPT_EXPERIMENTER:	{
 			msg = new cofmsg_experimenter(mem);
+			msg->validate();
 			experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ));
 		} break;
 		case OFPT_FEATURES_REPLY: {
 			rofbase->ta_validate(be32toh(ofh_header->xid), OFPT_FEATURES_REQUEST);
 			msg = new cofmsg_features_reply(mem);
+			msg->validate();
 			features_reply_rcvd(dynamic_cast<cofmsg_features_reply*>( msg ));
 		} break;
 		case OFPT_GET_CONFIG_REPLY: {
 			rofbase->ta_validate(be32toh(ofh_header->xid), OFPT_GET_CONFIG_REQUEST);
 			msg = new cofmsg_get_config_reply(mem);
+			msg->validate();
 			get_config_reply_rcvd(dynamic_cast<cofmsg_get_config_reply*>( msg ));
 		} break;
 		case OFPT_PACKET_IN: {
 			msg = new cofmsg_packet_in(mem);
+			msg->validate();
 			packet_in_rcvd(dynamic_cast<cofmsg_packet_in*>( msg ));
 		} break;
 		case OFPT_FLOW_REMOVED: {
 			msg = new cofmsg_flow_removed(mem);
+			msg->validate();
 			flow_rmvd_rcvd(dynamic_cast<cofmsg_flow_removed*>( msg ));
 		} break;
 		case OFPT_PORT_STATUS: {
 			msg = new cofmsg_port_status(mem);
+			msg->validate();
 			port_status_rcvd(dynamic_cast<cofmsg_port_status*>( msg ));
 		} break;
 		case OFPT_STATS_REPLY: {
@@ -348,18 +357,24 @@ cofdpt::handle_message(
 			uint16_t stats_type = 0;
 			switch (ofh_header->version) {
 			case OFP10_VERSION: {
-				if (mem->memlen() < sizeof(struct ofp10_stats_reply))
+				if (mem->memlen() < sizeof(struct ofp10_stats_reply)) {
+					msg = new cofmsg(mem);
 					throw eBadSyntaxTooShort();
+				}
 				stats_type = be16toh(((struct ofp10_stats_reply*)mem->somem())->type);
 			} break;
 			case OFP12_VERSION: {
-				if (mem->memlen() < sizeof(struct ofp12_stats_reply))
+				if (mem->memlen() < sizeof(struct ofp12_stats_reply)) {
+					msg = new cofmsg(mem);
 					throw eBadSyntaxTooShort();
+				}
 				stats_type = be16toh(((struct ofp12_stats_reply*)mem->somem())->type);
 			} break;
 			case OFP13_VERSION: {
-				if (mem->memlen() < sizeof(struct ofp13_multipart_reply))
+				if (mem->memlen() < sizeof(struct ofp13_multipart_reply)) {
+					msg = new cofmsg(mem);
 					throw eBadSyntaxTooShort();
+				}
 				stats_type = be16toh(((struct ofp13_multipart_reply*)mem->somem())->type);
 			} break;
 			default:
@@ -400,21 +415,25 @@ cofdpt::handle_message(
 			} break;
 			}
 
+			msg->validate();
 			stats_reply_rcvd(dynamic_cast<cofmsg_stats_reply*>( msg ));
 		} break;
 		case OFPT_BARRIER_REPLY: {
 			rofbase->ta_validate(be32toh(ofh_header->xid), OFPT_BARRIER_REQUEST);
 			msg = new cofmsg_barrier_reply(mem);
+			msg->validate();
 			barrier_reply_rcvd(dynamic_cast<cofmsg_barrier_reply*>( msg ));
 		} break;
 		case OFPT_QUEUE_GET_CONFIG_REPLY: {
 			rofbase->ta_validate(be32toh(ofh_header->xid), OFPT_QUEUE_GET_CONFIG_REQUEST);
 			msg = new cofmsg_queue_get_config_reply(mem);
+			msg->validate();
 			queue_get_config_reply_rcvd(dynamic_cast<cofmsg_queue_get_config_reply*>( msg ));
 		} break;
 		case OFPT_ROLE_REPLY: {
 			rofbase->ta_validate(be32toh(ofh_header->xid), OFPT_ROLE_REQUEST);
 			msg = new cofmsg_role_reply(mem);
+			msg->validate();
 			role_reply_rcvd(dynamic_cast<cofmsg_role_reply*>( msg ));
 		} break;
 		default: {

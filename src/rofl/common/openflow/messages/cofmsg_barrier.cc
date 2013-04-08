@@ -25,7 +25,7 @@ cofmsg_barrier::cofmsg_barrier(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+
 }
 
 

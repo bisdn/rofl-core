@@ -49,7 +49,7 @@ cofmsg_port_status::cofmsg_port_status(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+
 }
 
 

@@ -411,68 +411,86 @@ cofctl::handle_message(
 		switch (ofh_header->type) {
 		case OFPT_HELLO: {
 			msg = new cofmsg_hello(mem);
+			msg->validate();
 			hello_rcvd(dynamic_cast<cofmsg_hello*>( msg ));
 		} break;
 		case OFPT_ECHO_REQUEST: {
 			msg = new cofmsg_echo_request(mem);
+			msg->validate();
 			echo_request_rcvd(dynamic_cast<cofmsg_echo_request*>( msg ));
 		} break;
 		case OFPT_ECHO_REPLY: {
 			msg = new cofmsg_echo_reply(mem);
+			msg->validate();
 			echo_reply_rcvd(dynamic_cast<cofmsg_echo_reply*>( msg ));
 		} break;
 		case OFPT_EXPERIMENTER:	{
 			msg = new cofmsg_experimenter(mem);
+			msg->validate();
 			experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ));
 		} break;
 		case OFPT_FEATURES_REQUEST:	{
 			msg = new cofmsg_features_request(mem);
+			msg->validate();
 			features_request_rcvd(dynamic_cast<cofmsg_features_request*>( msg ));
 		} break;
 		case OFPT_GET_CONFIG_REQUEST: {
 			msg = new cofmsg_get_config_request(mem);
+			msg->validate();
 			get_config_request_rcvd(dynamic_cast<cofmsg_get_config_request*>( msg ));
 		} break;
 		case OFPT_SET_CONFIG: {
 			msg = new cofmsg_set_config(mem);
+			msg->validate();
 			set_config_rcvd(dynamic_cast<cofmsg_set_config*>( msg ));
 		} break;
 		case OFPT_PACKET_OUT: {
 			msg = new cofmsg_packet_out(mem);
+			msg->validate();
 			packet_out_rcvd(dynamic_cast<cofmsg_packet_out*>( msg ));
 		} break;
 		case OFPT_FLOW_MOD: {
 			msg = new cofmsg_flow_mod(mem);
+			msg->validate();
 			flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( msg ));
 		} break;
 		case OFPT_GROUP_MOD: {
 			msg = new cofmsg_group_mod(mem);
+			msg->validate();
 			group_mod_rcvd(dynamic_cast<cofmsg_group_mod*>( msg ));
 		} break;
 		case OFPT_PORT_MOD: {
 			msg = new cofmsg_port_mod(mem);
+			msg->validate();
 			port_mod_rcvd(dynamic_cast<cofmsg_port_mod*>( msg ));
 		} break;
 		case OFPT_TABLE_MOD: {
 			msg = new cofmsg_table_mod(mem);
+			msg->validate();
 			table_mod_rcvd(dynamic_cast<cofmsg_table_mod*>( msg ));
 		} break;
 		case OFPT_STATS_REQUEST: {
 			uint16_t stats_type = 0;
 			switch (ofh_header->version) {
 			case OFP10_VERSION: {
-				if (mem->memlen() < sizeof(struct ofp10_stats_request))
+				if (mem->memlen() < sizeof(struct ofp10_stats_request)) {
+					msg = new cofmsg(mem);
 					throw eBadSyntaxTooShort();
+				}
 				stats_type = be16toh(((struct ofp10_stats_request*)mem->somem())->type);
 			} break;
 			case OFP12_VERSION: {
-				if (mem->memlen() < sizeof(struct ofp12_stats_request))
+				if (mem->memlen() < sizeof(struct ofp12_stats_request)) {
+					msg = new cofmsg(mem);
 					throw eBadSyntaxTooShort();
+				}
 				stats_type = be16toh(((struct ofp12_stats_request*)mem->somem())->type);
 			} break;
 			case OFP13_VERSION: {
-				if (mem->memlen() < sizeof(struct ofp13_multipart_request))
+				if (mem->memlen() < sizeof(struct ofp13_multipart_request)) {
+					msg = new cofmsg(mem);
 					throw eBadSyntaxTooShort();
+				}
 				stats_type = be16toh(((struct ofp13_multipart_request*)mem->somem())->type);
 			} break;
 			default:
@@ -513,18 +531,22 @@ cofctl::handle_message(
 			} break;
 			}
 
+			msg->validate();
 			stats_request_rcvd(dynamic_cast<cofmsg_stats_request*>( msg ));
 		} break;
 		case OFPT_BARRIER_REQUEST: {
 			msg = new cofmsg_barrier_request(mem);
+			msg->validate();
 			barrier_request_rcvd(dynamic_cast<cofmsg_barrier_request*>( msg ));
 		} break;
 		case OFPT_QUEUE_GET_CONFIG_REQUEST: {
 			msg = new cofmsg_queue_get_config_request(mem);
+			msg->validate();
 			queue_get_config_request_rcvd(dynamic_cast<cofmsg_queue_get_config_request*>( msg ));
 		} break;
 		case OFPT_ROLE_REQUEST: {
 			msg = new cofmsg_role_request(mem);
+			msg->validate();
 			role_request_rcvd(dynamic_cast<cofmsg_role_request*>( msg ));
 		} break;
 		default: {
@@ -539,7 +561,7 @@ cofctl::handle_message(
 	} catch (eBadSyntaxTooShort& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Wrong request length for type, pack: %s", this, mem->c_str());
+				"Wrong request length for type, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
@@ -548,11 +570,11 @@ cofctl::handle_message(
 					OFPBRC_BAD_LEN,
 					mem->somem(), mem->memlen());
 
-		delete mem; // msg construction failed, remove only memory area
+		delete msg;
 	} catch (eBadVersion& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"ofp_header.version not supported, pack: %s", this, mem->c_str());
+				"ofp_header.version not supported, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
@@ -561,11 +583,11 @@ cofctl::handle_message(
 					OFPBRC_BAD_VERSION,
 					mem->somem(), mem->memlen());
 
-		delete mem; // msg construction failed, remove only memory area
+		delete msg;
 	} catch (eBadRequestBadVersion& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"ofp_header.version not supported, pack: %s", this, mem->c_str());
+				"ofp_header.version not supported, pack: %s", this, msg->c_str());
 
 		rofbase->send_error_message(
 					this,
@@ -574,7 +596,7 @@ cofctl::handle_message(
 					OFPBRC_BAD_VERSION,
 					mem->somem(), mem->memlen());
 
-		delete mem; // msg construction failed, remove only memory area
+		delete msg;
 	} catch (eBadRequestBadType& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "

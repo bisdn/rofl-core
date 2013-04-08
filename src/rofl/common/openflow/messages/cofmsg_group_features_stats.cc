@@ -31,7 +31,7 @@ cofmsg_group_features_stats_request::cofmsg_group_features_stats_request(
 		cmemory *memarea) :
 	cofmsg_stats(memarea)
 {
-	validate();
+
 }
 
 
@@ -189,7 +189,7 @@ cofmsg_group_features_stats_reply::cofmsg_group_features_stats_reply(
 	cofmsg_stats(memarea),
 	group_features_stats(get_version())
 {
-	validate();
+
 }
 
 
