@@ -90,17 +90,25 @@ of12_stats_single_flow_msg_t* of12_init_stats_single_flow_msg(of12_flow_entry_t*
 	of12_stats_flow_get_duration(entry, &msg->duration_sec, &msg->duration_nsec);
 
 	//Copy matches
+	//TODO: deprecate this in favour of group_matches
 	msg->matches = of12_copy_matches(entry->matchs);
 
 	return msg;
 }
 void of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg){
 
+	of12_match_t* match;
+
 	if(!msg)
 		return;
 
-	if(msg->matches)
-		of12_destroy_match(msg->matches);
+	//TODO: deprecate this in favour of group_matches
+	match = msg->matches;
+	while(match){
+		of12_match_t *next = match->next;
+		of12_destroy_match(match);
+		match = next;
+	}
 
 	platform_free_shared(msg);
 }
