@@ -9,7 +9,7 @@ using namespace rofl;
 
 /* static */ std::set<crofbase*> crofbase::rofbases;
 
-crofbase::crofbase() throw (eRofBaseExists) :
+crofbase::crofbase() :
 		xid_used_max(CPCP_DEFAULT_XID_USED_MAX),
 		xid_start(crandom(sizeof(uint32_t)).uint32())
 {
@@ -28,9 +28,9 @@ crofbase::~crofbase()
 	crofbase::rofbases.erase(this);
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::~crofbase()", this);
 
-	pthread_rwlock_destroy(&xidlock);
-
 	rpc_close_all();
+
+	pthread_rwlock_destroy(&xidlock);
 }
 
 
