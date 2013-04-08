@@ -548,7 +548,7 @@ cofctl::handle_message(
 					OFPBRC_BAD_LEN,
 					mem->somem(), mem->memlen());
 
-		delete msg;
+		delete mem; // msg construction failed, remove only memory area
 	} catch (eBadVersion& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
@@ -561,7 +561,7 @@ cofctl::handle_message(
 					OFPBRC_BAD_VERSION,
 					mem->somem(), mem->memlen());
 
-		delete msg;
+		delete mem; // msg construction failed, remove only memory area
 	} catch (eBadRequestBadVersion& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
@@ -574,7 +574,7 @@ cofctl::handle_message(
 					OFPBRC_BAD_VERSION,
 					mem->somem(), mem->memlen());
 
-		delete msg;
+		delete mem; // msg construction failed, remove only memory area
 	} catch (eBadRequestBadType& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
