@@ -1230,34 +1230,37 @@ crofbase::send_packet_in_message(
 			{
 				throw eRofBaseNoCtrl();
 			}
-			cofctl *ofctrl = *(ofctl_set.begin());
+			//cofctl *ofctrl = *(ofctl_set.begin());
 
-			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
-							"sending PACKET-IN for buffer_id:0x%x to controller %s",
-							this, buffer_id, ctl_find(ofctrl)->c_str());
+			for (std::set<cofctl*>::iterator it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
 
-			cofmsg_packet_in *pack =
-					new cofmsg_packet_in(
-							ofctrl->get_version(),
-							ta_new_async_xid(),
-							buffer_id,
-							total_len,
-							reason,
-							table_id,
-							cookie,
-							in_port, /* in_port for OF1.0 */
-							match,
-							data,
-							datalen);
+				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
+								"sending PACKET-IN for buffer_id:0x%x to controller %s",
+								this, buffer_id, ctl_find(*it)->c_str());
 
-			pack->pack();
+				cofmsg_packet_in *pack =
+						new cofmsg_packet_in(
+								(*it)->get_version(),
+								ta_new_async_xid(),
+								buffer_id,
+								total_len,
+								reason,
+								table_id,
+								cookie,
+								in_port, /* in_port for OF1.0 */
+								match,
+								data,
+								datalen);
 
-			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
-							"sending PACKET-IN for buffer_id:0x%x pack: %s",
-							this, buffer_id, pack->c_str());
+				pack->pack();
 
-			// straight call to layer-(n+1) entity's fe_up_packet_in() method
-			ctl_find(ofctrl)->send_message(pack);
+				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
+								"sending PACKET-IN for buffer_id:0x%x pack: %s",
+								this, buffer_id, pack->c_str());
+
+				// straight call to layer-(n+1) entity's fe_up_packet_in() method
+				ctl_find(*it)->send_message(pack);
+			}
 		}
 
 	} catch (eFspNoMatch& e) {
