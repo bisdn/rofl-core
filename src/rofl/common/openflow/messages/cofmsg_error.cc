@@ -14,6 +14,7 @@ cofmsg_error::cofmsg_error(
 {
 	err_msg = (struct ofp_error_msg*)soframe();
 
+	cofmsg::resize(sizeof(struct ofp_error_msg) + datalen);
 	body.assign(data, datalen);
 
 	set_version(of_version);
