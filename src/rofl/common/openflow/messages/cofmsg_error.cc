@@ -100,7 +100,7 @@ cofmsg_error::pack(uint8_t *buf, size_t buflen)
 
 	cofmsg::pack(buf, buflen);
 
-	memcpy(buf + sizeof(struct ofp_header), body.somem(), body.memlen());
+	memcpy(buf + sizeof(struct ofp_error_msg), body.somem(), body.memlen());
 }
 
 
