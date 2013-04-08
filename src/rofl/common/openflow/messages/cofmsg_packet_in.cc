@@ -64,7 +64,7 @@ cofmsg_packet_in::cofmsg_packet_in(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+
 }
 
 

@@ -47,7 +47,7 @@ cofmsg_experimenter::cofmsg_experimenter(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+
 }
 
 

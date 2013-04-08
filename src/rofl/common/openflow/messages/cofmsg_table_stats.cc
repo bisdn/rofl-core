@@ -33,7 +33,7 @@ cofmsg_table_stats_request::cofmsg_table_stats_request(
 		cmemory *memarea) :
 	cofmsg_stats(memarea)
 {
-	validate();
+
 }
 
 
@@ -209,7 +209,7 @@ cofmsg_table_stats_reply::cofmsg_table_stats_reply(
 		cmemory *memarea) :
 	cofmsg_stats(memarea)
 {
-	validate();
+
 }
 
 

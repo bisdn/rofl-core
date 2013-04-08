@@ -59,7 +59,7 @@ cofmsg_port_mod::cofmsg_port_mod(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+
 }
 
 

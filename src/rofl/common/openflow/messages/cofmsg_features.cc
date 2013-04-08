@@ -19,7 +19,7 @@ cofmsg_features_request::cofmsg_features_request(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+
 }
 
 
@@ -184,7 +184,7 @@ cofmsg_features_reply::cofmsg_features_reply(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+
 }
 
 

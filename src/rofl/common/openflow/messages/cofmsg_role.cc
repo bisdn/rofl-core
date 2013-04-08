@@ -40,7 +40,7 @@ cofmsg_role::cofmsg_role(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+
 }
 
 

@@ -33,7 +33,7 @@ cofmsg_group_desc_stats_request::cofmsg_group_desc_stats_request(
 		cmemory *memarea) :
 	cofmsg_stats(memarea)
 {
-	validate();
+
 }
 
 
@@ -204,7 +204,7 @@ cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 	cofmsg_stats(memarea),
 	group_desc_stats(get_version())
 {
-	validate();
+
 }
 
 

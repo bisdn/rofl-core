@@ -26,7 +26,7 @@ cofmsg_echo::cofmsg_echo(
 	cofmsg(memarea),
 	body(0)
 {
-	validate();
+
 }
 
 

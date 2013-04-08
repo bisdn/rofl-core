@@ -39,7 +39,7 @@ cofmsg_port_stats_request::cofmsg_port_stats_request(
 	cofmsg_stats(memarea),
 	port_stats(get_version())
 {
-	validate();
+
 }
 
 
@@ -244,7 +244,7 @@ cofmsg_port_stats_reply::cofmsg_port_stats_reply(
 		cmemory *memarea) :
 	cofmsg_stats(memarea)
 {
-	validate();
+
 }
 
 

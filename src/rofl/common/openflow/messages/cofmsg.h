@@ -99,7 +99,6 @@ public:
 private: // data structures
 
 	std::string 	 	 info;				// info string for method c_str()
-	bool				 destroy_mem_during_destruction;		// this flag is set to true, when an exception aborts a constructor
 
 protected: // data structures
 

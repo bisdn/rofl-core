@@ -1,5 +1,6 @@
 #include "etherswitch.h"
 
+#include <inttypes.h>
 
 etherswitch::etherswitch() :
 	fib_check_timeout(5), // check for expired FIB entries every 5 seconds
@@ -84,7 +85,7 @@ etherswitch::request_flow_stats()
 		} break;
 		}
 
-		fprintf(stderr, "etherswitch: calling FLOW-STATS-REQUEST for dpid: 0x%lu\n",
+		fprintf(stderr, "etherswitch: calling FLOW-STATS-REQUEST for dpid: 0x%"PRIu64"\n",
 				dpt->dpid);
 
 		send_flow_stats_request(dpt, /*flags=*/0, req);
@@ -209,7 +210,7 @@ etherswitch::handle_packet_in(
 		delete msg; return;
 	}
 
-	fprintf(stderr, "etherswitch: PACKET-IN from dpid:0x%lu buffer-id:0x%x => from %s to %s type: 0x%x\n",
+	fprintf(stderr, "etherswitch: PACKET-IN from dpid:0x%"PRIu64" buffer-id:0x%x => from %s to %s type: 0x%x\n",
 			dpt->dpid,
 			msg->get_buffer_id(),
 			msg->get_packet().ether()->get_dl_src().c_str(),

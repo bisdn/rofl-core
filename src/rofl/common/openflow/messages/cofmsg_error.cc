@@ -31,7 +31,7 @@ cofmsg_error::cofmsg_error(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+	err_msg = (struct ofp_error_msg*)soframe();
 }
 
 
