@@ -561,7 +561,7 @@ cofctl::handle_message(
 	} catch (eBadSyntaxTooShort& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Wrong request length for type, pack: %s", this, msg->c_str());
+				"Wrong request length for type, pack: %s", this, mem->c_str());
 
 		rofbase->send_error_message(
 					this,
@@ -574,7 +574,7 @@ cofctl::handle_message(
 	} catch (eBadVersion& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"ofp_header.version not supported, pack: %s", this, msg->c_str());
+				"ofp_header.version not supported, pack: %s", this, mem->c_str());
 
 		rofbase->send_error_message(
 					this,
@@ -587,7 +587,7 @@ cofctl::handle_message(
 	} catch (eBadRequestBadVersion& e) {
 
 		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"ofp_header.version not supported, pack: %s", this, msg->c_str());
+				"ofp_header.version not supported, pack: %s", this, mem->c_str());
 
 		rofbase->send_error_message(
 					this,
