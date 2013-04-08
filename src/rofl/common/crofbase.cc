@@ -25,12 +25,13 @@ crofbase::crofbase() throw (eRofBaseExists) :
 
 crofbase::~crofbase()
 {
+	rpc_close_all();
+	
 	crofbase::rofbases.erase(this);
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::~crofbase()", this);
 
 	pthread_rwlock_destroy(&xidlock);
 
-	rpc_close_all();
 }
 
 
