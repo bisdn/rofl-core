@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef PLATFORM_HOOKS_OF12_H_
-#define PLATFORM_HOOKS_OF12_H_
+#ifndef ASYNC_EVENTS_HOOKS_OF12_H_
+#define ASYNC_EVENTS_HOOKS_OF12_H_
 
 #include "rofl.h"
 #include "../of_switch.h"
@@ -12,13 +12,13 @@
 #include "../../../pipeline/common/datapacket.h"
 
 /**
-* @file of12_endpoint_hooks.h
+* @file of12_async_events_hooks_hooks.h
 * @author Marc Sune<marc.sune (at) bisdn.de>, Tobias Jungel<tobias.jungel (at) bisdn.de>  
 *
-* @brief Openflow v1.2 switch(fwd module) -> endpoint interface(hooks)  
+* @brief Openflow v1.2 switch(fwd module) -> asynchronous event notification and hooks) 
 *
-* This file contains the notification, and other related hooks that the library expects to be
-* implemented by the library user.
+* This file contains event notifications, and other related hooks that the library expects to be
+* implemented by the library user, in order to be called appropiately from the pipeline library.
 *
 */
 
@@ -44,26 +44,30 @@ ROFL_PIPELINE_BEGIN_DECLS
 /**
 * @brief Allows the user of the library to pre-configure the switch, as well as perform
 * other platform related actions on switch creation according to platform capabilities 
-* @ingroup endpoint_of12 
+* @ingroup async_events_hooks_of12 
 */
 rofl_result_t platform_post_init_of12_switch(of12_switch_t* sw);
+
+/*
+* Async events
+*/
 
 /**
 * @brief Allows the user of the library to perform other platform related actions when
 * a switch is about the be destroyed.
-* @ingroup endpoint_of12 
+* @ingroup async_events_hooks_of12 
 */
 rofl_result_t platform_pre_destroy_of12_switch(of12_switch_t* sw);
 
 /**
 * @brief Packet in event notification 
-* @ingroup endpoint_of12 
+* @ingroup async_events_hooks_of12 
 */
 void platform_of12_packet_in(const of12_switch_t* sw, uint8_t table_id, datapacket_t* pkt, of_packet_in_reason_t reason);
 
 /**
 * @brief Flow removed event notification 
-* @ingroup endpoint_of12 
+* @ingroup async_events_hooks_of12 
 */
 void platform_of12_notify_flow_removed(const of12_switch_t* sw, 	
 						of12_flow_remove_reason_t reason, 
@@ -73,4 +77,4 @@ void platform_of12_notify_flow_removed(const of12_switch_t* sw,
 //Extern C
 ROFL_PIPELINE_END_DECLS
 
-#endif /* PLATFORM_HOOKS_OF12_H_ */
+#endif /* ASYNC_EVENTS_HOOKS_OF12_H_ */

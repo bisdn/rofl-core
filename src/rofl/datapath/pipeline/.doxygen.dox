@@ -39,8 +39,8 @@
 
                     +           ^
                     |           +
-           Mangement|           +Openflow                                  Legend:
-                 API|           +end-point API
+           Mangement|           +Async events                              Legend:
+                 API|           +and hooks API
                     |           +                           +-----+        +--> API exposed by
            +--------v-----------+--------+               ++>|Alg.1|             the library
            |                             |               +  +-----+
@@ -74,7 +74,7 @@
      - @ref platform_lock : @copybrief platform_lock
      - @ref platform_atomic : @copybrief platform_atomic
      - @ref platform_packet : @copybrief platform_packet
-*  - @ref endpoint : @copybrief endpoint
+*  - @ref async_events_hooks : @copybrief async_events_hooks 
 *  - @ref core_ma : @copybrief core_ma 
 *
 * @subsection contrib How to contribute:

@@ -61,13 +61,13 @@
 //Openflow APIs
 
 /**
-* @defgroup endpoint Openflow end-point APIs 
-* @brief APIs that library consumes to communicate asynchronous events to the endpoint or an intermediate layer; must be implemented by the library users. 
+* @defgroup async_events_hooks Openflow asynchronous events and hooks APIs 
+* @brief APIs that library consumes to communicate asynchronous events (as well as some other hooks) to the endpoint or an intermediate layer; must be implemented by the library users.
 *
 *
-* @defgroup endpoint_of12 Openflow v1.2 end-point APIs
-* @brief Openflow version 1.2 asynchronous events APIs
-* @ingroup endpoint 
+* @defgroup async_events_hooks_of12 Openflow v1.2 events and hooks APIs
+* @brief Openflow version 1.2 asynchronous events and hooks APIs
+* @ingroup async_events_hooks
 *
 */
 
