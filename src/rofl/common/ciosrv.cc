@@ -6,6 +6,7 @@
 
 using namespace rofl;
 
+#if 0
 bool cont = true;
 
 void sighandler(int sig)
@@ -18,14 +19,11 @@ void sighandler(int sig)
 		break;
 	}
 }
+#endif
 
 pthread_rwlock_t ciosrv::iothread_lock;
 std::map<pthread_t, ciosrv::ciothread*> ciosrv::threads;
-
-
-
-
-
+bool ciosrv::keep_on = true;
 
 
 ciosrv::ciosrv() :
@@ -1135,13 +1133,13 @@ ciosrv::run()
 	/*
 	 * signal masks, etc.
 	 */
-
 	sigset_t sigmask, empty_mask;
 	struct sigaction sa;
 
+#if 0
 	signal(SIGINT, &sighandler);
 	signal(SIGTERM, &sighandler);
-
+#endif
 	sigemptyset(&sigmask);
 	sigaddset(&sigmask, SIGCHLD);
 
@@ -1163,7 +1161,7 @@ ciosrv::run()
 	 * the infinite loop ...
 	 */
 
-	while (cont)
+	while (keep_on)
 	{
 		fd_set readfds;
 		fd_set writefds;

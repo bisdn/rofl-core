@@ -80,7 +80,7 @@ cofmsg_flow_removed::cofmsg_flow_removed(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+
 }
 
 

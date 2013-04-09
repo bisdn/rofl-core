@@ -100,8 +100,8 @@ cofmsg::type2desc(ofp_type ptype)
 
 
 cofmsg::cofmsg(size_t size) :
-	memarea(new cmemory(size)),
-	ofh_header(0)
+		memarea(new cmemory(size)),
+		ofh_header(0)
 {
 	ofh_header = (struct ofp_header*)soframe();
 	ofh_header->length = htobe16(size);
@@ -116,8 +116,6 @@ cofmsg::cofmsg(cmemory *memarea) :
 	if (0 == memarea) {
 		throw eInval();
 	}
-
-	validate();
 }
 
 

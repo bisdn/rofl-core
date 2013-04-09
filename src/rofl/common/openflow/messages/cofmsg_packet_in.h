@@ -38,9 +38,9 @@ private:
 #define ofh12_packet_in ofhu.ofhu12_packet_in
 #define ofh13_packet_in ofhu.ofhu13_packet_in
 
-#define OFP10_PACKET_IN_STATIC_HDR_LEN				20
-#define OFP12_PACKET_IN_STATIC_HDR_LEN				16	// length without struct ofp12_match
-#define OFP13_PACKET_IN_STATIC_HDR_LEN				24	// length without struct ofp13_match
+#define OFP10_PACKET_IN_STATIC_HDR_LEN				(sizeof(struct ofp10_packet_in))
+#define OFP12_PACKET_IN_STATIC_HDR_LEN				(sizeof(struct ofp12_packet_in) - sizeof(struct ofp12_match))	// length without struct ofp12_match
+#define OFP13_PACKET_IN_STATIC_HDR_LEN				(sizeof(struct ofp13_packet_in) - sizeof(struct ofp13_match))	// length without struct ofp13_match
 
 public:
 

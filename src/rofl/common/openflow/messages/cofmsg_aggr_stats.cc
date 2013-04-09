@@ -38,7 +38,7 @@ cofmsg_aggr_stats_request::cofmsg_aggr_stats_request(
 	cofmsg_stats(memarea),
 	aggr_stats(get_version())
 {
-	validate();
+
 }
 
 
@@ -246,7 +246,7 @@ cofmsg_aggr_stats_reply::cofmsg_aggr_stats_reply(
 	cofmsg_stats(memarea),
 	aggr_stats(get_version())
 {
-	validate();
+
 }
 
 

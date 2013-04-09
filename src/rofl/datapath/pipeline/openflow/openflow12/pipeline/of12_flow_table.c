@@ -152,6 +152,14 @@ rofl_result_t of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t*
 	//Set fields
 	table->config.metadata_match = 0x0; //FIXME: implement METADATA
 	table->config.metadata_write = 0x0; //FIXME: implement METADATA
+
+	//Instructions
+	table->config.instructions = (1 << OF12PIT_GOTO_TABLE) |
+					(1 << OF12PIT_WRITE_METADATA) |
+					(1 << OF12PIT_WRITE_ACTIONS) |
+					(1 << OF12PIT_APPLY_ACTIONS) |
+					(1 << OF12PIT_CLEAR_ACTIONS);   
+	
 	
 	//Init stats
 	of12_stats_table_init(table);
@@ -176,8 +184,9 @@ rofl_result_t of12_destroy_table(of12_flow_table_t* table){
 	platform_mutex_destroy(table->mutex);
 	platform_rwlock_destroy(table->rwlock);
 	
-	//NOTE missing destruction of timers
-	
+	//Destroy stats
+	of12_stats_table_destroy(table);
+
 	//Do NOT free table, since it was allocated in a single buffer in pipeline.c	
 	return ROFL_SUCCESS;
 }

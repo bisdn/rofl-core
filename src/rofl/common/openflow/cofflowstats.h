@@ -213,6 +213,8 @@ private: // data structures
 	cofaclist	actions;		// for OF1.0
 	cofinlist	instructions;	// for OF1.2
 
+#define OFP12_FLOW_STATS_REPLY_STATIC_HDR_LEN 		48 // bytes
+
 public: // data structures
 
 

@@ -90,17 +90,25 @@ of12_stats_single_flow_msg_t* of12_init_stats_single_flow_msg(of12_flow_entry_t*
 	of12_stats_flow_get_duration(entry, &msg->duration_sec, &msg->duration_nsec);
 
 	//Copy matches
+	//TODO: deprecate this in favour of group_matches
 	msg->matches = of12_copy_matches(entry->matchs);
 
 	return msg;
 }
 void of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg){
 
+	of12_match_t* match;
+
 	if(!msg)
 		return;
 
-	if(msg->matches)
-		of12_destroy_match(msg->matches);
+	//TODO: deprecate this in favour of group_matches
+	match = msg->matches;
+	while(match){
+		of12_match_t *next = match->next;
+		of12_destroy_match(match);
+		match = next;
+	}
 
 	platform_free_shared(msg);
 }
@@ -174,39 +182,48 @@ void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec,
  * of12_stats_flow_update_match
  * input arguments: bytes_rx, flow_entry
  */
-inline void of12_stats_flow_update_match(of12_flow_entry_t * entry,uint64_t bytes_rx){
+void of12_stats_flow_update_match(of12_flow_entry_t * entry,uint64_t bytes_rx){
 	platform_atomic_inc64(&entry->stats.packet_count,entry->stats.mutex);
 	platform_atomic_add64(&entry->stats.byte_count,&bytes_rx, entry->stats.mutex);
 }
 
 //Table Statistics functions
 /**
- * sets the table statistics to zero
- * WARNING need to be atomic?
+ * Initializes table statistics state
  */
 void of12_stats_table_init(of12_flow_table_t * table)
 {
 	table->stats.lookup_count = 0;
 	table->stats.matched_count = 0;
+
+	//Stats mutex	
+	table->stats.mutex = platform_mutex_init(NULL);
 }
 
+/**
+ * Destroys table statistics state
+ */
+void of12_stats_table_destroy(of12_flow_table_t * table)
+{
+	platform_mutex_destroy(table->stats.mutex);
+}
 //NOTE this functions add too much overhead!
 /**
  * of12_stats_table_lookup_update
  * input arguments: flow_table ...?
  */
-inline void of12_stats_table_lookup_inc(of12_flow_table_t * table)
+void of12_stats_table_lookup_inc(of12_flow_table_t * table)
 {
-	platform_atomic_inc64(&table->stats.lookup_count,table->mutex);
+	platform_atomic_inc64(&table->stats.lookup_count,table->stats.mutex);
 }
 /**
  * of12_stats_table_matched_update
  * input arguments: flow_table ...?
  */
-inline void of12_stats_table_matches_inc(of12_flow_table_t * table)
+void of12_stats_table_matches_inc(of12_flow_table_t * table)
 {
-	platform_atomic_inc64(&table->stats.lookup_count,table->mutex);
-	platform_atomic_inc64(&table->stats.matched_count,table->mutex);
+	platform_atomic_inc64(&table->stats.lookup_count,table->stats.mutex);
+	platform_atomic_inc64(&table->stats.matched_count,table->stats.mutex);
 }
 
 
@@ -230,13 +247,13 @@ void of12_stats_port_destroy(of12_stats_port_t *port_stats)
 	platform_mutex_destroy(port_stats->mutex);
 }
 
-inline void of12_stats_port_rx_packet_inc(of12_stats_port_t *port_stats, uint64_t bytes_rx)
+void of12_stats_port_rx_packet_inc(of12_stats_port_t *port_stats, uint64_t bytes_rx)
 {
 	platform_atomic_inc64(&port_stats->rx_packets,port_stats->mutex);
 	platform_atomic_add64(&port_stats->rx_bytes,&bytes_rx, port_stats->mutex);
 }
 
-inline void of12_stats_port_tx_packet_inc(of12_stats_port_t *port_stats, uint64_t bytes_tx)
+void of12_stats_port_tx_packet_inc(of12_stats_port_t *port_stats, uint64_t bytes_tx)
 {
 	platform_atomic_inc64(&port_stats->tx_packets,port_stats->mutex);
 	platform_atomic_add64(&port_stats->tx_bytes,&bytes_tx, port_stats->mutex);
@@ -269,13 +286,13 @@ void of12_stats_queue_destroy(of12_stats_queue_t *queue_stats)
 	platform_mutex_destroy(queue_stats->mutex);
 }
 
-inline void of12_stats_queue_tx_packet_inc(of12_stats_queue_t *queue_stats, uint64_t bytes)
+void of12_stats_queue_tx_packet_inc(of12_stats_queue_t *queue_stats, uint64_t bytes)
 {
 	platform_atomic_inc64(&queue_stats->tx_packets, queue_stats->mutex);
 	platform_atomic_add64(&queue_stats->tx_bytes, &bytes, queue_stats->mutex);
 }
 
-inline void of12_stats_queue_tx_errors_inc(of12_stats_queue_t *queue_stats)
+void of12_stats_queue_tx_errors_inc(of12_stats_queue_t *queue_stats)
 {
 	platform_atomic_inc64(&queue_stats->tx_errors, queue_stats->mutex);
 }

@@ -36,7 +36,6 @@ cofmsg_flow_stats_request::cofmsg_flow_stats_request(
 	cofmsg_stats(memarea)
 {
 	flow_stats.set_version(get_version());
-	validate();
 }
 
 
@@ -238,7 +237,7 @@ cofmsg_flow_stats_reply::cofmsg_flow_stats_reply(
 		cmemory *memarea) :
 	cofmsg_stats(memarea)
 {
-	validate();
+
 }
 
 

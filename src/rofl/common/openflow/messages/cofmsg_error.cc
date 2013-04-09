@@ -14,6 +14,7 @@ cofmsg_error::cofmsg_error(
 {
 	err_msg = (struct ofp_error_msg*)soframe();
 
+	cofmsg::resize(sizeof(struct ofp_error_msg) + datalen);
 	body.assign(data, datalen);
 
 	set_version(of_version);
@@ -31,7 +32,7 @@ cofmsg_error::cofmsg_error(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+	err_msg = (struct ofp_error_msg*)soframe();
 }
 
 
@@ -99,7 +100,7 @@ cofmsg_error::pack(uint8_t *buf, size_t buflen)
 
 	cofmsg::pack(buf, buflen);
 
-	memcpy(buf + sizeof(struct ofp_header), body.somem(), body.memlen());
+	memcpy(buf + sizeof(struct ofp_error_msg), body.somem(), body.memlen());
 }
 
 

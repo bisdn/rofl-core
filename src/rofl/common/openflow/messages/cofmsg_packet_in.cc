@@ -64,7 +64,7 @@ cofmsg_packet_in::cofmsg_packet_in(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	validate();
+
 }
 
 
@@ -130,7 +130,7 @@ cofmsg_packet_in::length() const
 		return (OFP10_PACKET_IN_STATIC_HDR_LEN + 2 + packet.framelen());
 	} break;
 	case OFP12_VERSION: {
-		return (OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());
+		return (sizeof(struct ofp12_packet_in) - sizeof(struct ofp12_match) + match.length() + 2 + packet.framelen());
 	} break;
 	case OFP13_VERSION: {
 		return (OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());
@@ -223,7 +223,7 @@ cofmsg_packet_in::validate()
 		/*
 		 * static part of struct ofp_packet_in also contains static fields from struct ofp_match (i.e. type and length)
 		 */
-		if (get_length() < (OFP12_PACKET_IN_STATIC_HDR_LEN + sizeof(struct ofp12_match)))
+		if (get_length() < sizeof(struct ofp12_packet_in)) // struct ofp12_packet_in also contains an empty ofp12_match (8bytes)
 			throw eBadSyntaxTooShort();
 
 		/*
@@ -241,7 +241,7 @@ cofmsg_packet_in::validate()
 		/*
 		 * set data and datalen variables
 		 */
-		uint16_t offset = OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2;
+		uint16_t offset = OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2; // +2: magic :)
 
 		uint32_t in_port = 0;
 
@@ -251,7 +251,7 @@ cofmsg_packet_in::validate()
 			in_port = 0;
 		}
 
-		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset)); // +2: magic :)
+		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset));
 
 	} break;
 	case OFP13_VERSION: {

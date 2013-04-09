@@ -38,6 +38,7 @@ extern "C" {
 #include "croflexp.h"
 #include "cphyport.h"
 #include "csocket.h"
+#include "thread_helper.h"
 
 //#include "rofl/experimental/crib.h"
 #include "rofl/platform/unix/crandom.h"
@@ -111,6 +112,17 @@ class cofctl;
 class cofdpt;
 
 
+
+/**
+ * \class crofbase
+ * \brief Revised OpenFlow Library core class.
+ *
+ * This class provides functionality for creating OpenFlow
+ * endpoints for data path elements or controllers. crofbase
+ * provides functions for opening listening sockets and
+ * creates instances of \see{ cofctl } and \see{ cofdpt }
+ * for handling individual sessions.
+ */
 class crofbase :
 	public ciosrv,
 	public csocket_owner,
@@ -128,15 +140,17 @@ private: // data structures
 private: // packet queues for OpenFlow messages
 
 
-	std::string 				info;			// info string
+	std::string 				info;			/**< info string */
+	pthread_rwlock_t			xidlock;		/**< rwlock variable for transaction ids
+	 	 	 	 	 	 	 	 	 	 	 	 	 stored in ta_pending_reqs */
 
 
 protected: // data structures
 
-	std::set<cofctl*>			ofctl_set;		// set of connected controllers
-	std::set<cofdpt*>			ofdpt_set;		// set of connected data path elements
+	std::set<cofctl*>			ofctl_set;		/**< set of active controller connections */
+	std::set<cofdpt*>			ofdpt_set;		/**< set of active data path connections */
 
-	cfsptable 					fsptable; 		// namespace table
+	cfsptable 					fsptable; 		/**< flowspace registrations table */
 
 
 public:
@@ -145,51 +159,70 @@ public:
 	friend class cport;
 
 
-
 protected:
 
+	/** \enum crofbase::crofbase_event_t
+	 *
+	 * events defined by crofbase
+	 */
 	enum crofbase_event_t {
-		CROFBASE_EVENT_WAKEUP	= 1,
+		CROFBASE_EVENT_WAKEUP	= 1, /**< wakeup event used in method \see{ wakeup } */
 	};
 
+	/** \enum crofbase::crofbase_timer_t
+	 *
+	 * timers defined by crofbase
+	 */
 	enum crofbase_timer_t {
-		TIMER_FE_BASE = (0x0020 << 16),
-		TIMER_FE_DUMP_OFPACKETS,
-		CROFBASE_TIMER_WAKEUP,
+		TIMER_FE_BASE = (0x0020 << 16),	/**< random number for base timer */
+		TIMER_FE_DUMP_OFPACKETS,		/**< dumps periodically all existing cofmsg instances */
+		CROFBASE_TIMER_WAKEUP,			/**< timer used for waking up via crofbase::wakeup() */
 	};
 
+	/** \enum crofbase::crofbase_rpc_t
+	 *
+	 * crofbase supports both controller and data path role and is
+	 * capable of hosting an arbitrary number of listening sockets
+	 * for ctl and dpt role.
+	 *
+	 * \see rpc
+	 */
 	enum crofbase_rpc_t { // for cofrpc *rpc[2]; (see below)
-		RPC_CTL = 0,
-		RPC_DPT = 1,
+		RPC_CTL = 0,	/**< index for std::set<csocket*> in \see{ rpc } for ctls */
+		RPC_DPT = 1,	/**< index for std::set<csocket*> in \see{ rpc } for dpts */
 	};
 
-	std::set<csocket*>			rpc[2];			// RPC endpoints: rpc[RPC_CTL] and rpc[RPC_DPT]
+	std::set<csocket*>			rpc[2];	/**< two sets of listening sockets for ctl and dpt */
 
 
 public: // static methods and data structures
 
 
-	static std::set<crofbase*> rofbases; 		/**< set of all registered fwdelems */
+	static std::set<crofbase*> rofbases; 		/**< set of all active crofbase instances */
 
 
 public: // constructor + destructor
 
 
-	/** Constructor.
+	/** Constructor
 	 *
-	 * A crofbase instance must have a unique dpname and dpid.
-	 * The constructor verifies dpname's and dpid's uniqueness and throws
-	 * an exception of type eRofBaseExists if these values are already occupied.
+	 * Initializes structures for transaction identifiers. xidlock is the rwlock
+	 * for manipulating the transaction id maps. xid_start defines the first
+	 * transaction id used by crofbase. xid_start is incremented by one for each new
+	 * transaction.
 	 *
-	 * @throw eRofBaseExists
+	 * \see xidlock
+	 * \see xid_start
 	 */
-	crofbase() throw (eRofBaseExists);
+	crofbase();
 
 
-	/** Destructor.
+	/** Destructor
 	 *
-	 * Removes all pending requests from queues fe_down_queue[] and fe_up_queues[]
-	 * and removes this instance from set crofbase::fwdelems.
+	 * Closes all listening sockets for ctl and dpt role.
+	 * Closes all active control connections for role ctl.
+	 * Closes all active control connections for role dpt.
+	 *
 	 */
 	virtual
 	~crofbase();
@@ -203,11 +236,15 @@ public:
 
 	/**
 	 * @name	rpc_listen_for_dpts
-	 * @brief	Opens a listening socket for accepting connection requests from dpts
+	 * @brief	Opens a listening socket for accepting connection requests from data paths
 	 *
 	 * Opens a listening socket for accepting connection requests from dpts.
 	 *
-	 * @param addr Address to bind before listening.
+	 * @param addr Address to bind for listening (default: 0.0.0.0:6633)
+	 * @param domain Socket domain (default: PF_INET)
+	 * @param type Socket type (default: SOCK_STREAM)
+	 * @param protocol Socket protocol (default: IPPROTO_TCP)
+	 * @param backlog Maximum number of concurrent pending connection requests (default: 10)
 	 */
 	void
 	rpc_listen_for_dpts(
@@ -220,11 +257,15 @@ public:
 
 	/**
 	 * @name	rpc_listen_for_ctls
-	 * @brief	Opens a listening socket for accepting connection requests from ctls
+	 * @brief	Opens a listening socket for accepting connection requests from controllers
 	 *
 	 * Opens a listening socket for accepting connection requests from ctls.
 	 *
-	 * @param addr Address to bind before listening.
+	 * @param addr Address to bind for listening (default: 0.0.0.0:6644)
+	 * @param domain Socket domain (default: PF_INET)
+	 * @param type Socket type (default: SOCK_STREAM)
+	 * @param protocol Socket protocol (default: IPPROTO_TCP)
+	 * @param backlog Maximum number of concurrent pending connection requests (default: 10)
 	 */
 	void
 	rpc_listen_for_ctls(
@@ -235,8 +276,18 @@ public:
 			int backlog = 10);
 
 
-	/** Establish OF TCP connection to control entity
+	/**
+	 * @name 	rpc_connect_to_ctl
+	 * @brief	Connects to a remote controller in data path role.
 	 *
+	 * Establishes a socket connection to a remote controller entity.
+	 * When the connection is successfully established, crofbase calls
+	 * method \see{ handle_ctrl_open() }.
+	 *
+	 * @param ra Address to connect to
+	 * @param domain Socket domain (default: PF_INET)
+	 * @param type Socket type (default: SOCK_STREAM)
+	 * @param protocol Socket protocol (default: IPPROTO_TCP)
 	 */
 	void
 	rpc_connect_to_ctl(
@@ -246,7 +297,7 @@ public:
 			int protocol = IPPROTO_TCP);
 
 
-	/** Close OF TCP connection to control entity
+	/**
 	 *
 	 */
 	void
@@ -255,8 +306,18 @@ public:
 
 
 
-	/** Establish OF TCP connection to datapath entity
+	/**
+	 * @name 	rpc_connect_to_dpt
+	 * @brief	Connects to a remote data path in controller role.
 	 *
+	 * Establishes a socket connection to a remote data path element.
+	 * When the connection is successfully established, crofbase calls
+	 * method \see{ handle_dpath_open() }.
+	 *
+	 * @param ra Address to connect to
+	 * @param domain Socket domain (default: PF_INET)
+	 * @param type Socket type (default: SOCK_STREAM)
+	 * @param protocol Socket protocol (default: IPPROTO_TCP)
 	 */
 	void
 	rpc_connect_to_dpt(
@@ -885,10 +946,6 @@ public: // miscellaneous methods
 
 public:
 
-	// allow class cofswitch access to these methods
-	friend class cofdpt;
-	// allow class cofctrl access to these methods
-	friend class cofctl;
 	// allow class cadaptor access to these methods
 	friend class chandler;
 
@@ -1056,6 +1113,7 @@ public:
 		cofaggr_stats_request const& aggr_stats_request);
 
 
+
 private:
 
 	/** Helper method for handling DESCription STATS.requests.
@@ -1156,6 +1214,51 @@ public:
 		cofctl *ctl,
 		uint32_t xid,
 		cofaggr_stats_reply const& aggr_stats,
+		bool more = false);
+
+	/** Send OF TABLE STATS.reply to controlling entity.
+	 *
+	 * @param xid transaction ID used in STATS request
+	 * @param stats_type One of the OFPST_* constants
+	 * @param body Body of a STATS reply
+	 * @param bodylen length of STATS reply body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_group_stats_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		std::vector<cofgroup_stats_reply> const& group_stats,
+		bool more = false);
+
+	/** Send OF TABLE STATS.reply to controlling entity.
+	 *
+	 * @param xid transaction ID used in STATS request
+	 * @param stats_type One of the OFPST_* constants
+	 * @param body Body of a STATS reply
+	 * @param bodylen length of STATS reply body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_group_desc_stats_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
+		bool more = false);
+
+	/** Send OF TABLE STATS.reply to controlling entity.
+	 *
+	 * @param xid transaction ID used in STATS request
+	 * @param stats_type One of the OFPST_* constants
+	 * @param body Body of a STATS reply
+	 * @param bodylen length of STATS reply body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_group_features_stats_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		cofgroup_features_stats_reply const& group_features_stats,
 		bool more = false);
 
 	// PACKET-OUT message
@@ -1767,6 +1870,13 @@ public:
 	ctl_find(
 			cofctl* entity) throw (eRofBaseNotFound);
 
+
+protected:
+
+	// allow class cofswitch access to these methods
+	friend class cofdpt;
+	// allow class cofctrl access to these methods
+	friend class cofctl;
 
 	/** for use by cofdpt
 	 *

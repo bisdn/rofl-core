@@ -9,7 +9,7 @@ using namespace rofl;
 
 /* static */ std::set<crofbase*> crofbase::rofbases;
 
-crofbase::crofbase() throw (eRofBaseExists) :
+crofbase::crofbase() :
 		xid_used_max(CPCP_DEFAULT_XID_USED_MAX),
 		xid_start(crandom(sizeof(uint32_t)).uint32())
 {
@@ -17,16 +17,22 @@ crofbase::crofbase() throw (eRofBaseExists) :
 
 	//register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
 
+	pthread_rwlock_init(&xidlock, 0);
+
 	crofbase::rofbases.insert(this);
 }
 
 
 crofbase::~crofbase()
 {
+	rpc_close_all();
+	
 	crofbase::rofbases.erase(this);
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::~crofbase()", this);
 
 	rpc_close_all();
+
+	pthread_rwlock_destroy(&xidlock);
 }
 
 
@@ -1013,6 +1019,81 @@ crofbase::send_aggr_stats_reply(
 
 
 
+void
+crofbase::send_group_stats_reply(
+	cofctl *ctl,
+	uint32_t xid,
+	std::vector<cofgroup_stats_reply> const& group_stats,
+	bool more)
+{
+	uint16_t flags = 0;
+
+	flags |= (more) ? OFPSF_REPLY_MORE : 0;
+
+	cofmsg_group_stats_reply *msg =
+			new cofmsg_group_stats_reply(
+					ctl->get_version(),
+					xid,
+					flags,
+					group_stats);
+
+	msg->pack();
+
+	ctl_find(ctl)->send_message(msg);
+}
+
+
+
+void
+crofbase::send_group_desc_stats_reply(
+	cofctl *ctl,
+	uint32_t xid,
+	std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
+	bool more)
+{
+	uint16_t flags = 0;
+
+	flags |= (more) ? OFPSF_REPLY_MORE : 0;
+
+	cofmsg_group_desc_stats_reply *msg =
+			new cofmsg_group_desc_stats_reply(
+					ctl->get_version(),
+					xid,
+					flags,
+					group_desc_stats);
+
+	msg->pack();
+
+	ctl_find(ctl)->send_message(msg);
+}
+
+
+
+void
+crofbase::send_group_features_stats_reply(
+	cofctl *ctl,
+	uint32_t xid,
+	cofgroup_features_stats_reply const& group_features_stats,
+	bool more)
+{
+	uint16_t flags = 0;
+
+	flags |= (more) ? OFPSF_REPLY_MORE : 0;
+
+	cofmsg_group_features_stats_reply *msg =
+			new cofmsg_group_features_stats_reply(
+					ctl->get_version(),
+					xid,
+					flags,
+					group_features_stats);
+
+	msg->pack();
+
+	ctl_find(ctl)->send_message(msg);
+}
+
+
+
 /*
  * SET-CONFIG message
  */
@@ -1149,34 +1230,37 @@ crofbase::send_packet_in_message(
 			{
 				throw eRofBaseNoCtrl();
 			}
-			cofctl *ofctrl = *(ofctl_set.begin());
+			//cofctl *ofctrl = *(ofctl_set.begin());
 
-			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
-							"sending PACKET-IN for buffer_id:0x%x to controller %s",
-							this, buffer_id, ctl_find(ofctrl)->c_str());
+			for (std::set<cofctl*>::iterator it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
 
-			cofmsg_packet_in *pack =
-					new cofmsg_packet_in(
-							ofctrl->get_version(),
-							ta_new_async_xid(),
-							buffer_id,
-							total_len,
-							reason,
-							table_id,
-							cookie,
-							in_port, /* in_port for OF1.0 */
-							match,
-							data,
-							datalen);
+				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
+								"sending PACKET-IN for buffer_id:0x%x to controller %s",
+								this, buffer_id, ctl_find(*it)->c_str());
 
-			pack->pack();
+				cofmsg_packet_in *pack =
+						new cofmsg_packet_in(
+								(*it)->get_version(),
+								ta_new_async_xid(),
+								buffer_id,
+								total_len,
+								reason,
+								table_id,
+								cookie,
+								in_port, /* in_port for OF1.0 */
+								match,
+								data,
+								datalen);
 
-			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
-							"sending PACKET-IN for buffer_id:0x%x pack: %s",
-							this, buffer_id, pack->c_str());
+				pack->pack();
 
-			// straight call to layer-(n+1) entity's fe_up_packet_in() method
-			ctl_find(ofctrl)->send_message(pack);
+				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
+								"sending PACKET-IN for buffer_id:0x%x pack: %s",
+								this, buffer_id, pack->c_str());
+
+				// straight call to layer-(n+1) entity's fe_up_packet_in() method
+				ctl_find(*it)->send_message(pack);
+			}
 		}
 
 	} catch (eFspNoMatch& e) {
@@ -1808,6 +1892,8 @@ uint32_t
 crofbase::ta_add_request(
 		uint8_t type)
 {
+	RwLock lock(&xidlock, RwLock::RWLOCK_WRITE);
+
 	uint32_t xid = ta_new_async_xid();
 
 	// add pair(type, xid) to transaction list
@@ -1833,6 +1919,8 @@ void
 crofbase::ta_rem_request(
 		uint32_t xid)
 {
+	RwLock lock(&xidlock, RwLock::RWLOCK_WRITE);
+
 	ta_pending_reqs.erase(xid);
 	// this yields an exception if type wasn't stored in ta_pending_reqs
 }
@@ -1843,6 +1931,8 @@ bool
 crofbase::ta_pending(
 		uint32_t xid, uint8_t type)
 {
+	RwLock lock(&xidlock, RwLock::RWLOCK_WRITE);
+
 #ifndef NDEBUG
 	std::map<uint32_t, uint8_t>::iterator it;
 	for (it = ta_pending_reqs.begin(); it != ta_pending_reqs.end(); ++it) {
@@ -1865,6 +1955,8 @@ bool
 crofbase::ta_active_xid(
 		uint32_t xid)
 {
+	RwLock lock(&xidlock, RwLock::RWLOCK_READ);
+
 	return(ta_pending_reqs.find(xid) != ta_pending_reqs.end());
 }
 

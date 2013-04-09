@@ -460,7 +460,8 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 		{
 			cmemory *pack = pout_squeue.front();
 
-			if ((rc = sendto(sd, pack->somem(), pack->memlen(), MSG_NOSIGNAL, NULL, 0)) < 0)
+			int flags = MSG_NOSIGNAL;
+			if ((rc = sendto(sd, pack->somem(), pack->memlen(), flags, NULL, 0)) < 0)
 			{
 				WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
 						"errno=%d (%s) pack: %s",

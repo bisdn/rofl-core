@@ -197,6 +197,9 @@ protected:
 
 private: // static
 
+	//Flag that allows to stop ciosrv
+	static bool keep_on;
+
 	enum ciosrv_flag_t {
 		CIOSRV_FLAG_WAKEUP_CALLED = (1 << 0), // when set, pipe was already instructed to
 						// wake up called thread
@@ -235,6 +238,11 @@ public: // static
 	 * The select() call is blocking.
 	 */
 	static void run();
+
+	/**
+	* Stop the ciosrv 
+	*/
+	static void stop(){keep_on = false;};
 
 	/**
 	 * Init static variables before running this ciosrv instance.

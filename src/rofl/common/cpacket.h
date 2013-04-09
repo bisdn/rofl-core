@@ -136,6 +136,7 @@ private:
 		std::string 					info;			// info string
 		std::string						d_info;			// data info string (for use by method data_c_str()
 		pthread_rwlock_t 				ac_rwlock;		// rwlock for anchors
+		uint16_t						total_len;		// total_len of packet (for shortened frames in Packet-In)
 
 		enum cpacket_flag_t {
 			FLAG_PPPOE_LENGTH   		= 1,
@@ -465,6 +466,29 @@ private:
 	 */
 	const char*
 	data_c_str();
+
+
+	/** returns length of parsed packet (may be shortened during Packet-In)
+	 *
+	 */
+	size_t
+	get_payload_len(
+			fframe *from = (fframe*)0,
+			fframe *to = (fframe*)0);
+
+
+	/**
+	 *
+	 */
+	void
+	set_total_len(uint16_t total_len);
+
+
+	/**
+	 *
+	 */
+	size_t
+	get_total_len();
 
 
 public:
@@ -988,6 +1012,7 @@ private: // methods
 	parse_sctp(
 			uint8_t *data,
 			size_t datalen);
+
 
 
 

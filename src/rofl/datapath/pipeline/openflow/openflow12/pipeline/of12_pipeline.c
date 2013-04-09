@@ -33,6 +33,7 @@ of12_pipeline_t* of12_init_pipeline(struct of12_switch* sw, const unsigned int n
 	//Fill in
 	pipeline->sw = sw;
 	pipeline->num_of_tables = num_of_tables;
+	pipeline->num_of_buffers = 2048; //FIXME: call platform to get this information 
 
 
 	//Allocate tables and initialize	
@@ -123,6 +124,9 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 		match = of12_find_best_match_table((of12_flow_table_t* const)&((of12_switch_t*)sw)->pipeline->tables[i],(of12_packet_matches_t *const)&pkt_matches);
 		
 		if(match){
+			
+			bool has_multiple_outputs;			
+
 			fprintf(stderr,"Matched at table: %u, entry: %p\n",i,match);
 
 			//Update table and entry statistics
@@ -150,12 +154,15 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 			//Process WRITE actions
 			of12_process_write_actions((of12_switch_t*)sw, i, pkt, match->inst_grp.has_multiple_outputs);
 
+			//Copy flag to avoid race condition and release the entry asap 
+			has_multiple_outputs = match->inst_grp.has_multiple_outputs;
+
 			//Unlock the entry so that it can eventually be modified/deleted
 			platform_rwlock_rdunlock(match->rwlock);
 
 			//Drop packet Only if there has been copy(cloning of the packet) due to 
 			//multiple output actions
-			if(match->inst_grp.has_multiple_outputs)
+			if(has_multiple_outputs)
 				platform_packet_drop(pkt);
 							
 
