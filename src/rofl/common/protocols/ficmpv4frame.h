@@ -99,7 +99,7 @@ public:
 	 *
 	 */
 	void
-	icmpv4_calc_checksum();
+	icmpv4_calc_checksum(uint16_t length);
 
 
 public: // overloaded from fframe

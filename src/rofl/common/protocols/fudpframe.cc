@@ -203,7 +203,7 @@ fudpframe::udp_calc_checksum(
 	// pointer on 16bit words
 	word16 = (uint16_t*)udp_hdr;
 	// number of 16bit words
-	wnum = (datalen / sizeof(uint16_t));
+	wnum = (length/*datalen*/ / sizeof(uint16_t));
 
 	for (int i = 0; i < wnum; i++)
 	{

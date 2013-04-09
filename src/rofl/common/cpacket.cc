@@ -1522,14 +1522,16 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 	case OFPXMT_OFB_ICMPV4_TYPE: {
 		uint16_t type = oxm.u16value();
 		icmpv4()->set_icmp_type(type);
-		icmpv4()->icmpv4_calc_checksum();
+		icmpv4()->icmpv4_calc_checksum(
+            icmpv4()->framelen());
 		ipv4()->ipv4_calc_checksum();
 		match.set_icmpv4_type(type);
 	} break;
 	case OFPXMT_OFB_ICMPV4_CODE: {
 		uint16_t code = oxm.u16value();
 		icmpv4()->set_icmp_code(code);
-		icmpv4()->icmpv4_calc_checksum();
+		icmpv4()->icmpv4_calc_checksum(
+            icmpv4()->framelen());
 		ipv4()->ipv4_calc_checksum();
 		match.set_icmpv4_code(code);
 	} break;
@@ -2937,7 +2939,8 @@ cpacket::calc_checksums()
 
 	if (flags.test(FLAG_ICMPV4_CHECKSUM))
 	{
-		icmpv4()->icmpv4_calc_checksum();
+		icmpv4()->icmpv4_calc_checksum(get_payload_len(
+            icmpv4()));
 	}
 
 	if (flags.test(FLAG_PPPOE_LENGTH))

@@ -143,7 +143,7 @@ ficmpv4frame::c_str()
 
 
 void
-ficmpv4frame::icmpv4_calc_checksum()
+ficmpv4frame::icmpv4_calc_checksum(uint16_t length)
 {
 	initialize();
 
@@ -159,14 +159,14 @@ ficmpv4frame::icmpv4_calc_checksum()
 	uint16_t *word16 = (uint16_t*)icmp_hdr;
 
 	// number of 16bit words
-	int wnum = (sizeof(struct icmpv4_hdr_t) / sizeof(uint16_t));
-
+	//int wnum = (sizeof(struct icmpv4_hdr_t) / sizeof(uint16_t));
+    int wnum = (length / sizeof(uint16_t));
 	// header loop
 	for (int i = 0; i < wnum; i++)
 	{
 		uint32_t tmp = (uint32_t)(be16toh(word16[i]));
 		sum += tmp;
-		//fprintf(stderr, "word16[%d]=0x%08x sum()=0x%08x\n", i, tmp, sum);
+		fprintf(stderr, "word16[%d]=0x%08x sum()=0x%08x\n", i, tmp, sum);
 	}
 
 	// TODO: checksum must also cover data portion of ICMP message!
