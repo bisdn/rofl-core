@@ -1681,7 +1681,7 @@ crofbase::send_flow_removed_message(
 
 			cofmsg_flow_removed *pack =
 					new cofmsg_flow_removed(
-							ctl->get_version(),
+							ofctrl->get_version(),
 							ta_new_async_xid(),
 							cookie,
 							priority,
