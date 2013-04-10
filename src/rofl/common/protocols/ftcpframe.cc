@@ -165,7 +165,7 @@ ftcpframe::tcp_calc_checksum(
 	hdr.dst 		= ip_dst.ca_s4addr->sin_addr.s_addr;
 	hdr.reserved 	= 0;
 	hdr.proto 		= ip_proto;
-	hdr.len 		= htobe16(length);//htobe16(datalen); //
+	hdr.len 		= htobe16(length);//htobe16(datalen);
 
 	// sum
 	uint32_t sum = 0;
@@ -179,9 +179,9 @@ ftcpframe::tcp_calc_checksum(
 	{
 		uint32_t tmp = (uint32_t)(be16toh(word16[i]));
 		sum += tmp;
-		fprintf(stderr, "word16[%d]=0x%08x sum()=0x%08x\n", i, tmp, sum);
+		//fprintf(stderr, "word16[%d]=0x%08x sum()=0x%08x\n", i, tmp, sum);
 	}
-	fprintf(stderr, "   sum(1)=0x%x\n", sum);
+	//fprintf(stderr, "   sum(1)=0x%x\n", sum);
 
 	// part -II- (TCP header + payload)
 	//
@@ -195,16 +195,16 @@ ftcpframe::tcp_calc_checksum(
 	{
 		uint32_t tmp = (uint32_t)(be16toh(word16[i]));
 		sum += tmp;
-		fprintf(stderr, "word16[%d]=0x%08x sum()=0x%08x\n", i, tmp, sum);
+		//fprintf(stderr, "word16[%d]=0x%08x sum()=0x%08x\n", i, tmp, sum);
 	}
 
 	uint16_t res16 = (sum & 0x0000ffff) + ((sum & 0xffff0000) >> 16);
 
-	fprintf(stderr, " res16(1)=0x%x\n", res16);
+	//fprintf(stderr, " res16(1)=0x%x\n", res16);
 
 	tcp_hdr->checksum = htobe16(~res16);
 
-	fprintf(stderr, "~res16(1)=0x%x\n", be16toh(tcp_hdr->checksum));
+	//fprintf(stderr, "~res16(1)=0x%x\n", be16toh(tcp_hdr->checksum));
 }
 
 

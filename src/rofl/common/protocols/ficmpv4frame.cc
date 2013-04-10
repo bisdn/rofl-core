@@ -166,7 +166,7 @@ ficmpv4frame::icmpv4_calc_checksum(uint16_t length)
 	{
 		uint32_t tmp = (uint32_t)(be16toh(word16[i]));
 		sum += tmp;
-		fprintf(stderr, "word16[%d]=0x%08x sum()=0x%08x\n", i, tmp, sum);
+		//fprintf(stderr, "word16[%d]=0x%08x sum()=0x%08x\n", i, tmp, sum);
 	}
 
 	// TODO: checksum must also cover data portion of ICMP message!
