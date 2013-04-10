@@ -65,7 +65,7 @@ typedef enum {
 }of12_instruction_type_t;
 
 /* Instruction abstraction data structure */
-struct of12_instruction{
+typedef struct of12_instruction{
 	//Type and value(for set fields and push)
 	of12_instruction_type_t type;
 
@@ -77,11 +77,10 @@ struct of12_instruction{
 
 	//GO-TO-TABLE
 	unsigned int go_to_table;	
-};
-typedef struct of12_instruction of12_instruction_t;
+}of12_instruction_t;
 
 /* Instruction group, using a double-linked-list */ 
-typedef struct{
+typedef struct of12_instruction_group{
 	//Number of actions in the list
 	unsigned int num_of_instructions;
 
@@ -136,7 +135,11 @@ rofl_result_t of12_update_instructions(of12_instruction_group_t* group, of12_ins
 //Check whether instructions contain group
 bool of12_instructions_contain_group(struct of12_flow_entry *const entry, const unsigned int group_id);
 
+//Copy (clone) instructions: TODO evaluate if is necessary to check for errors
+void of12_copy_instruction_group(of12_instruction_group_t* origin, of12_instruction_group_t* dest);
+
 unsigned int of12_process_instructions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of12_instruction_group_t* instructions);
+
 
 //Dump
 void of12_dump_instructions(of12_instruction_group_t group);

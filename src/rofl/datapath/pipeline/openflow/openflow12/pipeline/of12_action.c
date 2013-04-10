@@ -664,6 +664,85 @@ bool of12_apply_actions_has(const of12_action_group_t* apply_actions_group, of12
 	return false;	
 }
 
+//Copy (cloning) methods
+of12_packet_action_t* of12_copy_packet_action(of12_packet_action_t* action){
+
+	of12_packet_action_t* copy;
+
+	copy = platform_malloc_shared(sizeof(of12_packet_action_t));
+
+	if(!copy)
+		return NULL;
+
+	*copy = *action;
+
+	return copy;
+}
+
+of12_action_group_t* of12_copy_action_group(of12_action_group_t* origin){
+
+	of12_action_group_t* copy;
+	of12_packet_action_t* it;	
+
+	if(!origin)
+		return NULL;
+
+	copy = platform_malloc_shared(sizeof(of12_action_group_t));
+
+
+	if(!copy)
+		return NULL;
+
+	copy->head = copy->tail = NULL;
+	copy->num_of_actions = origin->num_of_actions;
+	copy->num_of_output_actions = origin->num_of_output_actions;
+
+	//Copy al apply actions
+	for(it=origin->head;it->next;it=it->next){
+		of12_packet_action_t* act;
+		
+		act = of12_copy_packet_action(it);
+
+		if(!act){
+			of12_destroy_action_group(copy);
+			return NULL;
+		}	
+
+
+		//Insert in the double linked-list
+		if(!copy->tail){
+			copy->head = act; 
+			act->prev = NULL;
+		}else{
+			act->prev = copy->tail;
+			copy->tail->next = act;
+		}				
+		act->next = NULL;
+		copy->tail = act;
+	}
+
+	return copy;
+}
+
+of12_write_actions_t* of12_copy_write_actions(of12_write_actions_t* origin){
+	
+	of12_write_actions_t* copy; 
+
+	if(!origin)
+		return NULL;
+
+	copy = platform_malloc_shared(sizeof(of12_write_actions_t)); 
+
+	if(!copy)
+		return NULL;
+	
+	//Copy Values
+	*copy = *origin;
+	
+	return copy;
+}
+
+
 
 /* Dumping */
 static void of12_dump_packet_action(of12_packet_action_t action){

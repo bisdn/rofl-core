@@ -26,6 +26,7 @@
 /*counters OF 1.2 specification page 13*/
 
 //fwd declarations
+struct of12_instruction_group;
 struct of12_flow_entry;
 struct of12_flow_table;
 struct of12_match;
@@ -62,6 +63,7 @@ typedef struct of12_stats_single_flow_msg{
 	uint64_t byte_count;
 	
 	struct of12_match* matches;
+	struct of12_instruction_group* inst_grp;
 	
 	struct of12_stats_single_flow_msg* next;
 }of12_stats_single_flow_msg_t;
