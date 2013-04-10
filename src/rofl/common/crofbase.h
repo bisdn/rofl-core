@@ -238,13 +238,11 @@ public:
 	 * @name	rpc_listen_for_dpts
 	 * @brief	Opens a listening socket for accepting connection requests from data paths
 	 *
-	 * Opens a listening socket for accepting connection requests from dpts.
-	 *
-	 * @param addr Address to bind for listening (default: 0.0.0.0:6633)
-	 * @param domain Socket domain (default: PF_INET)
-	 * @param type Socket type (default: SOCK_STREAM)
-	 * @param protocol Socket protocol (default: IPPROTO_TCP)
-	 * @param backlog Maximum number of concurrent pending connection requests (default: 10)
+	 * @param addr Address to bind for listening
+	 * @param domain Socket domain
+	 * @param type Socket type
+	 * @param protocol Socket protocol
+	 * @param backlog Maximum number of concurrent pending connection requests
 	 */
 	void
 	rpc_listen_for_dpts(
@@ -259,13 +257,11 @@ public:
 	 * @name	rpc_listen_for_ctls
 	 * @brief	Opens a listening socket for accepting connection requests from controllers
 	 *
-	 * Opens a listening socket for accepting connection requests from ctls.
-	 *
-	 * @param addr Address to bind for listening (default: 0.0.0.0:6644)
-	 * @param domain Socket domain (default: PF_INET)
-	 * @param type Socket type (default: SOCK_STREAM)
-	 * @param protocol Socket protocol (default: IPPROTO_TCP)
-	 * @param backlog Maximum number of concurrent pending connection requests (default: 10)
+	 * @param addr Address to bind for listening
+	 * @param domain Socket domain
+	 * @param type Socket type
+	 * @param protocol Socket protocol
+	 * @param backlog Maximum number of concurrent pending connection requests
 	 */
 	void
 	rpc_listen_for_ctls(
@@ -282,7 +278,9 @@ public:
 	 *
 	 * Establishes a socket connection to a remote controller entity.
 	 * When the connection is successfully established, crofbase calls
-	 * method \see{ handle_ctrl_open() }.
+	 * method crofbase::handle_ctrl_open().
+	 *
+	 * \see{ handle_ctrl_open() }
 	 *
 	 * @param ra Address to connect to
 	 * @param domain Socket domain (default: PF_INET)
@@ -298,11 +296,16 @@ public:
 
 
 	/**
+	 * @name	rpc_disconnect_from_ctl
+	 * @brief 	Closes a connection to a controller entity with a proper shutdown.
 	 *
+	 * \see{ handle_ctrl_close() }
+	 *
+	 * @param ctl cofctl instance to be disconnected
 	 */
 	void
 	rpc_disconnect_from_ctl(
-			cofctl *ctrl);
+			cofctl *ctl);
 
 
 
@@ -312,7 +315,9 @@ public:
 	 *
 	 * Establishes a socket connection to a remote data path element.
 	 * When the connection is successfully established, crofbase calls
-	 * method \see{ handle_dpath_open() }.
+	 * method crofbase::handle_dpath_open().
+	 *
+	 * \see{ handle_dpath_open() }
 	 *
 	 * @param ra Address to connect to
 	 * @param domain Socket domain (default: PF_INET)
@@ -327,8 +332,13 @@ public:
 			int protocol = IPPROTO_TCP);
 
 
-	/** Close OF TCP connection to datapath entity
+	/**
+	 * @name	rpc_disconnect_from_dpt
+	 * @brief 	Closes a connection to a data path entity with a proper shutdown.
 	 *
+	 * \see{ handle_dpath_close() }
+	 *
+	 * @param dpt cofdpt instance to be disconnected
 	 */
 	void
 	rpc_disconnect_from_dpt(
@@ -336,6 +346,8 @@ public:
 
 
 	/**
+	 * @name	rpc_close_all
+	 * @brief	Closes all open cofctl, cofdpt and listening socket instances.
 	 *
 	 */
 	void
@@ -343,6 +355,8 @@ public:
 
 
 	/**
+	 * @name	wakeup
+	 * @brief	Method for waking up this thread from another thread.
 	 *
 	 */
 	void
@@ -353,6 +367,20 @@ protected:
 
 
 	/**
+	 * @name	cofctl_factory
+	 * @brief	creates a new cofctl instance for an existing socket with sockfd newsd.
+	 *
+	 * This method constructs a new instance of class cofctl for managing a single connection
+	 * to a controller. This class is supposed to be overwritten, if a class derived from crofbase
+	 * intends to overwrite cofctl and add additional functionality. When the initial HELLO message
+	 * exchange in OpenFlow succeeds, method crofbase::handle_ctrl_open() will be called.
+	 *
+	 * @param owner Pointer to this crofbase instance for callbacks used by the cofctl instance
+	 * @param newsd socket descriptor of new created socket for cofctl instance
+	 * @param ra Remote address of peer entity connected via socket referenced by newsd
+	 * @param domain socket domain (see man 2 socket for details)
+	 * @param type socket type (see man 2 socket for details)
+	 * @param protocol socket protocol (see man 2 socket for details)
 	 *
 	 */
 	virtual cofctl*
@@ -366,6 +394,21 @@ protected:
 
 
 	/**
+	 * @name	cofctl_factory
+	 * @brief	Creates a new cofctl instance and tries to connect to a remote controller entity.
+	 *
+	 * This method constructs a new instance of class cofctl for actively establishing a single connection
+	 * to a controller. This class is supposed to be overwritten, if a class derived from crofbase
+	 * intends to overwrite cofctl and add additional functionality. cofctl will indefinitely attempt
+	 * to connect to the peer entity unless it is removed by calling crofbase::rpf_disconnect_from_ctl().
+	 * When connection setup and the initial HELLO message exchange in OpenFlow succeeds, method
+	 * crofbase::handle_ctrl_open() will be called.
+	 *
+	 * @param owner Pointer to this crofbase instance for callbacks used by the cofctl instance
+	 * @param ra Remote address to connect to
+	 * @param domain socket domain (see man 2 socket for details)
+	 * @param type socket type (see man 2 socket for details)
+	 * @param protocol socket protocol (see man 2 socket for details)
 	 *
 	 */
 	virtual cofctl*
@@ -378,6 +421,21 @@ protected:
 
 
 	/**
+	 * @name	cofdpt_factory
+	 * @brief	creates a new cofdpt instance for an existing socket with sockfd newsd.
+	 *
+	 * This method constructs a new instance of class cofdpt for managing a single connection
+	 * to a data path element. This class is supposed to be overwritten, if a class derived from crofbase
+	 * intends to overwrite cofdpt and add additional functionality. When the initial handshake in OpenFlow
+	 * succeeds (FEATURES.request/reply, GET-CONFIG.request/reply, TABLE-STATS.request/reply), method
+	 * crofbase::handle_ctrl_open() will be called.
+	 *
+	 * @param owner Pointer to this crofbase instance for callbacks used by the cofdpt instance
+	 * @param newsd socket descriptor of new created socket for cofdpt instance
+	 * @param ra Remote address of peer entity connected via socket referenced by newsd
+	 * @param domain socket domain (see man 2 socket for details)
+	 * @param type socket type (see man 2 socket for details)
+	 * @param protocol socket protocol (see man 2 socket for details)
 	 *
 	 */
 	virtual cofdpt*
@@ -391,6 +449,21 @@ protected:
 
 
 	/**
+	 * @name	cofdpt_factory
+	 * @brief	Creates a new cofdpt instance and tries to connect to a remote data path element.
+	 *
+	 * This method constructs a new instance of class cofdpt for actively establishing a single connection
+	 * to a data path element. This class is supposed to be overwritten, if a class derived from crofbase
+	 * intends to overwrite cofdpt and add additional functionality. cofdpt will indefinitely attempt
+	 * to connect to the peer entity unless it is removed by calling crofbase::rpf_disconnect_from_dpt().
+	 * When the initial handshake in OpenFlow succeeds (FEATURES.request/reply, GET-CONFIG.request/reply,
+	 * TABLE-STATS.request/reply), method crofbase::handle_dpath_open() will be called.
+	 *
+	 * @param owner Pointer to this crofbase instance for callbacks used by the cofdpt instance
+	 * @param ra Remote address to connect to
+	 * @param domain socket domain (see man 2 socket for details)
+	 * @param type socket type (see man 2 socket for details)
+	 * @param protocol socket protocol (see man 2 socket for details)
 	 *
 	 */
 	virtual cofdpt*
