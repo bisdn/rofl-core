@@ -45,12 +45,14 @@ crofbase::rpc_close_all()
 	{
 		delete (*it);
 	}
+	rpc[RPC_CTL].clear();
 
 	for (std::set<csocket*>::iterator it = rpc[RPC_DPT].begin();
 			it != rpc[RPC_DPT].end(); ++it)
 	{
 		delete (*it);
 	}
+	rpc[RPC_DPT].clear();
 
 	// detach from higher layer entities
 	for (std::set<cofctl*>::iterator
@@ -58,12 +60,14 @@ crofbase::rpc_close_all()
 	{
 		delete (*it);
 	}
+	ofctl_set.clear();
 
 	for (std::set<cofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
 		delete (*it);
 	}
+	ofdpt_set.clear();
 }
 
 
