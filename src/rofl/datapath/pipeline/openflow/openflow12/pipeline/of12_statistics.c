@@ -127,7 +127,9 @@ void of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg){
 
 	//Destroy instructions
 	of12_destroy_instruction_group(msg->inst_grp);
-
+	
+	
+	platform_free_shared(msg->inst_grp);
 	platform_free_shared(msg);
 }
 
