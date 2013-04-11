@@ -218,7 +218,7 @@ typedef struct{
 	//Presence of action flag => type == 0
 	of12_packet_action_t write_actions[OF12_AT_NUMBER];
 	
-	//Number of actions. Merely for dumping and to skip innecessary looip iterations
+	//Number of actions. Merely for dumping and to skip unnecessary loop iterations
 	unsigned int num_of_actions;	
 	
 }of12_write_actions_t;

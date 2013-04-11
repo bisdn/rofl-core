@@ -57,7 +57,7 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 		case OF12_AT_SET_FIELD_IPV4_DST:
 		case OF12_AT_SET_FIELD_IPV4_SRC:
 		case OF12_AT_OUTPUT:
-			action->field = field&OF12_AT_4_BYTE_MASK;
+			action->field = field&OF12_AT_4_BYTE_MASK;	// TODO: max_len when port_no == OFPP_CONTROLLER
 			break;
 		//20 bit values
 		case OF12_AT_SET_FIELD_MPLS_LABEL:
