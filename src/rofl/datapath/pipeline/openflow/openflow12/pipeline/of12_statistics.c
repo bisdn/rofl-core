@@ -4,6 +4,7 @@
 #include "of12_pipeline.h"
 #include "of12_flow_table.h"
 #include "of12_flow_entry.h"
+#include "of12_instruction.h"
 #include "of12_timers.h"
 #include "of12_group_table.h"
 #include "../../../platform/memory.h"
@@ -76,6 +77,17 @@ of12_stats_single_flow_msg_t* of12_init_stats_single_flow_msg(of12_flow_entry_t*
 		return NULL;
 
 	msg = (of12_stats_single_flow_msg_t*)platform_malloc_shared(sizeof(of12_stats_single_flow_msg_t)); 
+
+	if(!msg)
+		return NULL;
+	
+	msg->inst_grp = (of12_instruction_group_t*)platform_malloc_shared(sizeof(of12_instruction_group_t)); 
+	
+	if(!msg->inst_grp){
+		platform_free_shared(msg);
+		return NULL;
+	}
+
 	//Fill static values
 	if(entry->table)
 		msg->table_id = entry->table->number;
@@ -92,6 +104,9 @@ of12_stats_single_flow_msg_t* of12_init_stats_single_flow_msg(of12_flow_entry_t*
 	//Copy matches
 	//TODO: deprecate this in favour of group_matches
 	msg->matches = of12_copy_matches(entry->matchs);
+	
+	//Copy instructions
+	of12_copy_instruction_group(&entry->inst_grp,msg->inst_grp);
 
 	return msg;
 }
@@ -110,6 +125,11 @@ void of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg){
 		match = next;
 	}
 
+	//Destroy instructions
+	of12_destroy_instruction_group(msg->inst_grp);
+	
+	
+	platform_free_shared(msg->inst_grp);
 	platform_free_shared(msg);
 }
 

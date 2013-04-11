@@ -128,38 +128,33 @@ class crofbase :
 	public csocket_owner,
 	public cfsm
 {
-private: // data structures
+private:
 
 	enum crofbase_flag_t {
 		NSP_ENABLED = 0x01,
 	};
 
-	std::bitset<32> fe_flags;
+	std::bitset<32> 					fe_flags;
+	std::string 						info;			/**< info string */
+	pthread_rwlock_t					xidlock;		/**< rwlock variable for transaction ids
+															stored in ta_pending_reqs */
 
+	/*
+	 * data structures
+	 */
 
-private: // packet queues for OpenFlow messages
-
-
-	std::string 				info;			/**< info string */
-	pthread_rwlock_t			xidlock;		/**< rwlock variable for transaction ids
-	 	 	 	 	 	 	 	 	 	 	 	 	 stored in ta_pending_reqs */
+	std::map<uint32_t, uint8_t> 		ta_pending_reqs; 	// list of pending requests
+	std::set<uint32_t>	 				xids_used;			// list of recently used xids
+	size_t 								xid_used_max; 		// reusing xids: max number of currently blocked xid entries stored
+	uint32_t 							xid_start; 			// start value xid
+#define CPCP_DEFAULT_XID_USED_MAX       16
 
 
 protected: // data structures
 
 	std::set<cofctl*>			ofctl_set;		/**< set of active controller connections */
 	std::set<cofdpt*>			ofdpt_set;		/**< set of active data path connections */
-
 	cfsptable 					fsptable; 		/**< flowspace registrations table */
-
-
-public:
-
-
-	friend class cport;
-
-
-protected:
 
 	/** \enum crofbase::crofbase_event_t
 	 *
@@ -195,16 +190,18 @@ protected:
 	std::set<csocket*>			rpc[2];	/**< two sets of listening sockets for ctl and dpt */
 
 
-public: // static methods and data structures
+public:
 
 
+	friend class cport;
 	static std::set<crofbase*> rofbases; 		/**< set of all active crofbase instances */
 
 
-public: // constructor + destructor
+public:
 
-
-	/** Constructor
+	/**
+	 * @name	crofbase
+	 * @brief	Constructor for crofbase
 	 *
 	 * Initializes structures for transaction identifiers. xidlock is the rwlock
 	 * for manipulating the transaction id maps. xid_start defines the first
@@ -217,26 +214,21 @@ public: // constructor + destructor
 	crofbase();
 
 
-	/** Destructor
+	/**
+	 * @name	~crofbase
+	 * @brief	Destructor for crofbase
 	 *
-	 * Closes all listening sockets for ctl and dpt role.
-	 * Closes all active control connections for role ctl.
-	 * Closes all active control connections for role dpt.
+	 * The destructor shuts down all active connections and listening sockets.
 	 *
 	 */
 	virtual
 	~crofbase();
 
 
-public:
-
-	/*
-	 * methods for connecting/disconnecting/accepting calls to/from ctls and dpts
-	 */
 
 	/**
 	 * @name	rpc_listen_for_dpts
-	 * @brief	Opens a listening socket for accepting connection requests from data paths
+	 * @brief	Opens a listening socket for accepting connection requests from data path elements
 	 *
 	 * @param addr Address to bind for listening
 	 * @param domain Socket domain
@@ -363,6 +355,60 @@ public:
 	wakeup();
 
 
+	// cofdpt related methods
+	//
+
+	/** find cofswitch instance
+	 */
+	cofdpt*
+	dpt_find(
+		uint64_t dpid) throw (eRofBaseNotFound);
+
+	cofdpt*
+	dpt_find(
+		std::string s_dpid) throw (eRofBaseNotFound);
+
+	cofdpt*
+	dpt_find(
+		cmacaddr dl_dpid) throw (eRofBaseNotFound);
+
+	cofdpt*
+	dpt_find(
+			cofdpt* dpt) throw (eRofBaseNotFound);
+
+
+	// COFCTRL related methods
+	//
+
+
+	/** find cofctrl instance
+	 */
+	cofctl*
+	ctl_find(
+			cofctl* entity) throw (eRofBaseNotFound);
+
+
+
+
+	/** dump info string
+	 */
+	virtual const char*
+	c_str();
+
+
+	/** enable/disable namespace support
+	 *
+	 */
+	void
+	nsp_enable(bool enable = true);
+
+
+
+
+
+
+
+
 protected:
 
 
@@ -485,35 +531,32 @@ protected:
 	 * a derived class must provide higher layer functionality.
 	 */
 
-	/** Handle OF features request. To be overwritten by derived class.
+	/**
+	 * @name	handle_features_request
+	 * @brief	Called once a FEATURES.request message was received from a controller entity.
 	 *
-	 * OF FEATURES.requests are handled by the crofbase base class in method
-	 * crofbase::send_features_reply(). However,
-	 * this method handle_features_request() may be overloaded by a derived class to get a notification
-	 * upon reception of a FEATURES.request from the controlling entity.
-	 * Default behaviour is to remove the packet from the heap.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param pack OF packet received from controlling entity.
+	 * @param ctl Pointer to cofctl instance from which the FEATURES.request was received
+	 * @param msg Pointer to cofmsg_features_request message containing the received message
 	 */
 	virtual void
 	handle_features_request(cofctl *ctl, cofmsg_features_request *msg) { delete msg; };
 
-	/** Handle OF features reply. To be overwritten by derived class.
+
+	/**
+	 * @name	handle_features_reply
+	 * @brief	Called once a FEATURES.reply message was received from a data path element.
 	 *
-	 * OF FEATURES.replies are handled by the crofbase base class in method
-	 * crofbase::fe_up_features_reply(). This method handle_features_reply()
-	 * may be overwritten by a derived class to get a notification upon
-	 * reception of a FEATURES.reply from a controlled datapath.
-	 * Default behaviour is to remove the packet from the heap.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param sw The cofswitch instance holding all parameters from the
-	 * attached datapath.
-	 * @param pack The FEATURES.reply packet received.
+	 * @param dpt Pointer to cofdpt instance from which the FEATURES.reply was received
+	 * @param msg Pointer to cofmsg_features_reply message containing the received message
 	 */
 	virtual void
 	handle_features_reply(cofdpt *dpt, cofmsg_features_reply *msg) { delete msg; };
+
+
 
 	/** Handle OF features reply timeout. To be overwritten by derived class.
 	 *
@@ -526,6 +569,7 @@ protected:
 	 */
 	virtual void
 	handle_features_reply_timeout(cofdpt *dpt);
+
 
 	/** Handle OF get-config request. To be overwritten by derived class.
 	 *
@@ -979,7 +1023,10 @@ protected:
 	handle_role_reply_timeout(cofdpt *dpt) {};
 
 
-protected:	// overloaded from ciosrv
+
+
+
+	// overloaded from ciosrv
 
 	/** Handle timeout events. This method is overwritten from ciosrv.
 	 *
@@ -995,26 +1042,6 @@ protected:	// overloaded from ciosrv
 	 */
 	virtual void
 	handle_event(cevent const& ev);
-
-
-public: // miscellaneous methods
-
-	/** dump info string
-	 */
-	virtual const char*
-	c_str();
-
-
-	/** enable/disable namespace support
-	 *
-	 */
-	void
-	nsp_enable(bool enable = true);
-
-
-
-
-
 
 
 public:
@@ -1681,184 +1708,6 @@ public:
 
 
 
-#if 0
-private: // methods
-
-	// FEATURES request
-	//
-
-	/** receive (dequeue) feature requests
-	 * and call overloaded handle_feature_request() method
-	 */
-	void
-	recv_features_request(cofctl *ctl, cofmsg *pack);
-
-	// GET-CONFIG request
-	//
-
-	/**
-	 *
-	 */
-	void
-	recv_get_config_request(cofctl *ctl, cofmsg *pack);
-
-	// STATS request
-	//
-
-	/** receive (dequeue) stats requests
-	 * and call handle_stats_request() method
-	 */
-	void
-	recv_stats_request(cofctl *ctl, cofmsg *pack);
-
-	// PACKET-OUT message
-	//
-
-	/** receive (dequeue) packet-out messages
-	 * and call overloaded handle_packet_out() method
-	 */
-	void
-	recv_packet_out(cofctl *ctl, cofmsg *pack);
-
-	// PACKET-IN message
-	//
-
-	/** receive (dequeue) packet-in messages
-	 * and call overloaded handle_packet_in() method
-	 */
-	void
-	recv_packet_in(cofdpt *dpt, cofmsg *pack);
-
-	// ERROR message
-	//
-
-	/** receive (dequeue) error messages
-	 * and call overloaded handle_error() method
-	 */
-	void
-	recv_error(cofdpt *dpt, cofmsg *pack);
-
-	// FLOW-MOD message
-	//
-
-	/** receive (dequeue) flow-mod messages
-	 * and call overloaded handle_flow_mod() method
-	 */
-	void
-	recv_flow_mod(cofctl *ctl, cofmsg *pack);
-
-	// GROUP-MOD message
-	//
-
-	/** receive (dequeue) group-mod messages
-	 * and call overloaded handle_group_mod() method
-	 */
-	void
-	recv_group_mod(cofctl *ctl, cofmsg *pack);
-
-	// TABLE-MOD message
-	//
-
-	/** receive (dequeue) table-mod messages
-	 * and call overloaded handle_table_mod() method
-	 */
-	void
-	recv_table_mod(cofctl *ctl, cofmsg *pack);
-
-	// PORT-MOD message
-	//
-
-	/** receive (dequeue) port-mod messages
-	 * and call overloaded handle_port_mod() method
-	 */
-	void
-	recv_port_mod(cofctl *ctl, cofmsg *pack);
-
-	// FLOW-REMOVED message
-	//
-
-	/** receive (dequeue) flow-removed messages
-	 * and call overloaded handle_flow_removed() method
-	 */
-	void
-	recv_flow_removed(cofdpt *dpt, cofmsg *pack);
-
-	// PORT-STATUS message
-	//
-
-	/** receive (dequeue) port-status messages
-	 * and call overloaded handle_port_status() method
-	 */
-	void
-	recv_port_status(cofdpt *dpt, cofmsg *pack);
-
-	// SET-CONFIG message
-	//
-
-	/** receive (dequeue) set-config messages
-	 * and call overloaded handle_set_config() method
-	 */
-	void
-	recv_set_config(cofctl *ctl, cofmsg *pack);
-
-	// BARRIER request
-	//
-
-	/** receive (dequeue) barrier request
-	 * and call overloaded handle_barrier_request() method
-	 */
-	void
-	recv_barrier_request(cofctl *ctl, cofmsg *pack);
-
-	// EXPERIMENTER message
-	//
-
-	/** receive experimenter message
-	 */
-	void
-	recv_experimenter_message(cofctl *ctl, cofmsg *pack);
-
-	/** receive experimenter message
-	 */
-	void
-	recv_experimenter_message(cofdpt *dpt, cofmsg *pack);
-
-	// ROLE-REQUEST message
-	//
-
-	/** receive (dequeue) role-request messages
-	 * and call overloaded handle_role_request() method
-	 */
-	void
-	recv_role_request(cofctl *ctl, cofmsg *pack);
-
-	// ROLE-REPLY message
-	//
-
-	/** receive (dequeue) role-reply messages
-	 * and call overloaded handle_role_reply() method
-	 */
-	void
-	recv_role_reply(cofdpt *dpt, cofmsg *pack);
-
-	// QUEUE-GET-CONFIG-REQUEST message
-	//
-
-	/** receive (dequeue) queue-get-config-request messages
-	 * and call overloaded handle_queue_get_config_request() method
-	 */
-	void
-	recv_queue_get_config_request(cofctl *ctl, cofmsg *pack);
-
-	// QUEUE-GET-CONFIG-REPLY message
-	//
-
-	/** receive (dequeue) queue-get-config-reply messages
-	 * and call overloaded handle_queue_get_config_reply() method
-	 */
-	void
-	recv_queue_get_config_reply(cofdpt *dpt, cofmsg *pack);
-#endif
 
 public:
 
@@ -1909,39 +1758,6 @@ public:
 			int sd);
 
 
-public:
-
-	// cofdpt related methods
-	//
-
-	/** find cofswitch instance
-	 */
-	cofdpt*
-	dpt_find(
-		uint64_t dpid) throw (eRofBaseNotFound);
-
-	cofdpt*
-	dpt_find(
-		std::string s_dpid) throw (eRofBaseNotFound);
-
-	cofdpt*
-	dpt_find(
-		cmacaddr dl_dpid) throw (eRofBaseNotFound);
-
-	cofdpt*
-	dpt_find(
-			cofdpt* dpt) throw (eRofBaseNotFound);
-
-
-	// COFCTRL related methods
-	//
-
-
-	/** find cofctrl instance
-	 */
-	cofctl*
-	ctl_find(
-			cofctl* entity) throw (eRofBaseNotFound);
 
 
 protected:
@@ -2038,17 +1854,6 @@ protected:
 	bool
 	ta_active_xid(
 			uint32_t xid);
-
-
-	/*
-	 * data structures
-	 */
-
-	std::map<uint32_t, uint8_t> 			ta_pending_reqs; 	// list of pending requests
-	std::set<uint32_t>	 					xids_used;			// list of recently used xids
-	size_t 									xid_used_max; 		// reusing xids: max number of currently blocked xid entries stored
-	uint32_t 								xid_start; 			// start value xid
-#define CPCP_DEFAULT_XID_USED_MAX       16
 
 
 private: // methods for attaching/detaching other cofbase instances

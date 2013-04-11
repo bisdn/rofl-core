@@ -218,7 +218,7 @@ typedef struct{
 	//Presence of action flag => type == 0
 	of12_packet_action_t write_actions[OF12_AT_NUMBER];
 	
-	//Number of actions. Merely for dumping and to skip innecessary looip iterations
+	//Number of actions. Merely for dumping and to skip unnecessary loop iterations
 	unsigned int num_of_actions;	
 	
 }of12_write_actions_t;
@@ -308,6 +308,10 @@ rofl_result_t of12_update_write_actions(of12_write_actions_t** group, of12_write
 //Checking functions
 bool of12_write_actions_has(of12_write_actions_t* write_actions, of12_packet_action_type_t type, uint64_t value);
 bool of12_apply_actions_has(const of12_action_group_t* apply_actions_group, of12_packet_action_type_t type, uint64_t value);
+
+//Copy (cloning) methods
+of12_action_group_t* of12_copy_action_group(of12_action_group_t* origin);
+of12_write_actions_t* of12_copy_write_actions(of12_write_actions_t* origin);
 
 //Dump
 void of12_dump_write_actions(of12_write_actions_t* write_actions_group);

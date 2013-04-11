@@ -116,6 +116,7 @@ cofmsg::cofmsg(cmemory *memarea) :
 	if (0 == memarea) {
 		throw eInval();
 	}
+	ofh_header = (struct ofp_header*)soframe();
 }
 
 

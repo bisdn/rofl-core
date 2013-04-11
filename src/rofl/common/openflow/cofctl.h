@@ -92,6 +92,7 @@ private: // data structures
 
 #define RECONNECT_START_TIMEOUT 5							// start reconnect timeout (default 1s)
 #define DEFAULT_RPC_ECHO_INTERVAL 30 /* seconds */
+#define DEFAULT_ECHO_TIMEOUT 8 /* seconds */
 #define RECONNECT_MAX_TIMEOUT 60							// max reconnect timeout (default 120s)
 
 
@@ -102,6 +103,7 @@ private: // data structures
 	int 							reconnect_in_seconds; 	// reconnect in x seconds
 	int 							reconnect_counter;
 	int 							rpc_echo_interval;		// default ECHO time interval
+	unsigned int 					echo_reply_timeout;		// timeout value for missing ECHO.replies
 	uint8_t							version;				// OpenFlow version negotiated for this session
 
 	enum cofctl_flag_t {

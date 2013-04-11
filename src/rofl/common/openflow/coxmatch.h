@@ -646,7 +646,7 @@ public:
 	/** constructor
 	 */
 	coxmatch_ofb_vlan_pcp(
-			uint16_t pcp) :
+			uint8_t pcp) :
 				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint8_t))
 	{
 		set_oxm_class(OFPXMC_OPENFLOW_BASIC);

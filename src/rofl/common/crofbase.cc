@@ -30,8 +30,6 @@ crofbase::~crofbase()
 	crofbase::rofbases.erase(this);
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::~crofbase()", this);
 
-	rpc_close_all();
-
 	pthread_rwlock_destroy(&xidlock);
 }
 
