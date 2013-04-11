@@ -25,6 +25,7 @@ cofctl::cofctl(
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
+				echo_reply_timeout(DEFAULT_ECHO_TIMEOUT),
 				version(OFP12_VERSION)
 {
 	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
@@ -52,6 +53,7 @@ cofctl::cofctl(
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
+				echo_reply_timeout(DEFAULT_ECHO_TIMEOUT),
 				version(OFP12_VERSION)
 {
 	WRITELOG(COFCTL, DBG, "cofctl(%p)::cofctl() TCP connect", this);
@@ -1167,7 +1169,7 @@ cofctl::hello_rcvd(cofmsg_hello *msg)
 
 			if (flags.test(COFCTL_FLAG_HELLO_SENT))
 			{
-				register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, 2);
+				register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
 
 				rofbase->handle_ctl_open(this);
 			}
@@ -1217,7 +1219,7 @@ cofctl::hello_rcvd(cofmsg_hello *msg)
 void
 cofctl::echo_request_sent(cofmsg *pack)
 {
-	reset_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT, 5); // TODO: multiple concurrent echo-requests?
+	reset_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT, echo_reply_timeout); // TODO: multiple concurrent echo-requests?
 }
 
 
