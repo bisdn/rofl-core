@@ -50,7 +50,7 @@ cofmsg_stats::cofmsg_stats(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-
+	ofh_stats_request = soframe();
 }
 
 
