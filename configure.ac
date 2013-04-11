@@ -51,7 +51,8 @@ if test "$verbose" = "yes"; then
 	AM_SILENT_RULES([no])	
 else
 	AC_MSG_RESULT(no)
-	AM_SILENT_RULES([yes])	
+	# Silent build for automake >= 1.11
+	m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 fi
 
 
