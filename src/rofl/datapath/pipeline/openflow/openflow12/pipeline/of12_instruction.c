@@ -163,24 +163,26 @@ void of12_copy_instruction_group(of12_instruction_group_t* origin, of12_instruct
 		
 		//Check all instructions in order 
 		switch(origin->instructions[i].type){
-    			dest->instructions[i] = origin->instructions[i];	
     			
 			case OF12_IT_CLEAR_ACTIONS: 
 			case OF12_IT_EXPERIMENTER: 
     			case OF12_IT_WRITE_METADATA:
 			case OF12_IT_GOTO_TABLE:  
+    					dest->instructions[i] = origin->instructions[i];	
 					break;
 			
 			case OF12_IT_APPLY_ACTIONS:  
-					//XXX clone apply
+    					dest->instructions[i] = origin->instructions[i];	
     					dest->instructions[i].apply_actions = of12_copy_action_group(origin->instructions[i].apply_actions);	
 					break;
 			case OF12_IT_WRITE_ACTIONS: 
+    					dest->instructions[i] = origin->instructions[i];	
     					dest->instructions[i].write_actions = of12_copy_write_actions(origin->instructions[i].write_actions);	
 					break;
 			
 			default: //Empty instruction 
-				break;	
+    					dest->instructions[i] = origin->instructions[i];	
+					break;	
 		}
 	}	
 }

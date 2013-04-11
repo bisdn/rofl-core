@@ -698,7 +698,7 @@ of12_action_group_t* of12_copy_action_group(of12_action_group_t* origin){
 	copy->num_of_output_actions = origin->num_of_output_actions;
 
 	//Copy al apply actions
-	for(it=origin->head;it->next;it=it->next){
+	for(it=origin->head;it;it=it->next){
 		of12_packet_action_t* act;
 		
 		act = of12_copy_packet_action(it);
