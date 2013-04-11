@@ -47,7 +47,7 @@ struct matching_algorithm_functions{
 
 	/**
 	* @ingroup core_ma_of12
-	* @brief Allows to initilize matching algorithm table state.
+	* @brief Allows to initialize matching algorithm table state.
 	*
 	* The algorithm may also initialize table->matching_aux structures with
 	* its own data (e.g. smart table structures) for further use during operations.
@@ -178,7 +178,7 @@ struct matching_algorithm_functions{
 	// flow stats
 	/**
 	* @ingroup core_ma_of12 
-	* Retrieves aggregate flow stats according to spec 
+	* Retrieves flow stats according to spec 
 	* The operation MUST comply with the behaviour defined in the Openflow v1.2 specification
 	*/
 	rofl_result_t

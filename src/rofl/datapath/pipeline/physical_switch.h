@@ -218,20 +218,20 @@ rofl_result_t physical_switch_add_logical_switch(of_switch_t* sw);
 rofl_result_t physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid);
 
 /**
-* @brief    Attemps to remove a previously added logical switch from the pool 
+* @brief    Attemps to remove a previously added logical switch from the pool.
 * @ingroup  mgmt
 */
 rofl_result_t physical_switch_remove_logical_switch(of_switch_t* sw);
 
 //Getters
 /**
-* @brief    Attemps to retrieve a logical switch from the pool by its dpid 
+* @brief    Attemps to retrieve a logical switch from the pool by its dpid.
 * @ingroup  mgmt
 */
 of_switch_t* physical_switch_get_logical_switch_by_dpid(const uint64_t dpid);
 
 /**
-* @brief    Attemps to retrieve the logical switch attached to the port
+* @brief    Attemps to retrieve the logical switch attached to the port.
 * @ingroup  mgmt
 */
 of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_port_t port);
@@ -242,7 +242,7 @@ of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_po
 //
 
 /**
-* @brief Retrieve a physical switch port by name 
+* @brief Retrieve a physical switch port by name.
 * @ingroup  mgmt
 * 
 * Attempts to retrieve a port previously added to the phyisical switch by its name.
@@ -251,7 +251,7 @@ of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_po
 switch_port_t* physical_switch_get_port_by_name(const char *name);
 
 /**
-* @brief Retrieve a port attached to logical switch with dpid at port num
+* @brief Retrieve a port attached to logical switch with dpid at port num.
 * @ingroup  mgmt
 * 
 * Attempts to retrieve a port previously added to the phyisical switch and attached
@@ -266,7 +266,7 @@ switch_port_t* physical_switch_get_port_by_num(const uint64_t dpid, unsigned int
 
 //Physical switch list
 /**
-* @brief Retrieve the physical port list
+* @brief Retrieve the physical port list.
 * @ingroup  mgmt
 * @param num_of_ports    Pointer to an int. Number of ports will be filled by the lib.
 */
@@ -279,7 +279,7 @@ TODO: add create virtual link and add/remove tunnel.
 
 //Logical switch port management
 /**
-* @brief Retrieve the physical port list
+* @brief Retrieve the physical port list.
 * @ingroup  mgmt
 * @param num_of_ports    Pointer to an int. Number of ports will be filled by the lib.
 */
@@ -290,14 +290,14 @@ rofl_result_t physical_switch_attach_port_num_to_logical_switch(unsigned int por
 #endif
 
 /**
-* @brief Attaches port to logical switch 
+* @brief Attaches port to logical switch.
 * @ingroup  mgmt
 * @param port_num Pointer to an int. The LS port number (OF number), will be filled. 
 */
 rofl_result_t physical_switch_attach_port_to_logical_switch(switch_port_t* port, of_switch_t* sw, unsigned int* port_num);
 
 /**
-* @brief Attaches port to logical switch at port number port_num 
+* @brief Attaches port to logical switch at port number port_num.
 * @ingroup  mgmt
 *
 * The attachment may fail if there is already a port attached or
@@ -321,7 +321,7 @@ rofl_result_t physical_switch_detach_port_num_from_logical_switch(unsigned int p
 rofl_result_t physical_switch_detach_port_from_logical_switch(switch_port_t* port, of_switch_t* sw);
 
 /**
-* @brief Detaches all the ports from the logical switch 
+* @brief Detaches all the ports from the logical switch.
 * @ingroup  mgmt
 */
 rofl_result_t physical_switch_detach_all_ports_from_logical_switch(of_switch_t* sw);

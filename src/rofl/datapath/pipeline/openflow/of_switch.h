@@ -90,7 +90,7 @@ rofl_result_t of_destroy_switch(const of_switch_t* sw);
 
 //Wrapping of processing
 /**
-* @brief Processes a packet through the Openflow pipeline 
+* @brief Processes a packet through the Openflow pipeline.  
 * @ingroup sw_runtime 
 *
 * This call may only be used if the platform does not have a hardware
@@ -105,7 +105,7 @@ rofl_result_t of_process_packet_pipeline(const of_switch_t* sw, datapacket_t *co
 
 //Wrapping timers
 /**
-* @brief Processes flow entry expirations in all the pipeline tables of the switch 
+* @brief Processes flow entry expirations in all the pipeline tables of the switch.
 * @ingroup sw_runtime 
 *
 * This call may only be used if the platform does not have a hardware

@@ -5,13 +5,13 @@
 * @section doc Documentation 
 * @subsection intro_sec Concept
 *
-* The ROFL-pipeline library is a platform-independent Openflow forwarding backend engine. The intention was to create a unified common Openflow forwarding backend for several platforms supported by our eXtensible DataPath (xDP <b><-link</b>) in BISDN(<b>TODO link</b>), like the UNIX, Network procesors or Broadcom family boards.
+* The ROFL-pipeline library is a platform-independent Openflow forwarding backend engine. The intention was to create a unified common Openflow forwarding backend for several platforms supported by our eXtensible DataPath (xDP <b><-link</b>) in <a href="https://www.bisdn.de">BISDN</a>, like the UNIX, Network procesors or Broadcom family boards.
 * 
 * Features:
 *  - Complete Openflow processing pipeline, including abstractions of switch (forwarding only), pipeline, table, entry, matches, actions... as well as the subsystems of timers and stats.
 *  - Support for multiple Openflow pipeline versions simultaneously (in different logical switches).
 *  - Platform indepedent: the library is decoupled from platform specific code. 
-*  - Supports logical switch up to @ref PHYSICAL_SWITCH_MAX_LS running in parallel.
+*  - Supports logical switch up to  \link PHYSICAL_SWITCH_MAX_LS \endlink running in parallel.
 *  - Runtime port(interface) attachment/detachment to/from logical switches
 *  - Extensible library:
 *     - Easy addition of new Openflow versions
@@ -30,7 +30,7 @@
 * @subsubsection what_is_not ROFL-pipeline is not...
 * 
 *  - ...a full-fletched Datapath; it cannot be since it deliverately does not provide Openflow endpoint functionality (neither an Openflow protocol parser), nor the platform specific I/O subsystem for packet handling and injection to the Openflow pipeline. Take a look at our xDP for a full-blown datapath using ROFL-pipeline.
-*  - ...a complete Openflow-enabled Forwarding Backend; ROFL-pipeline is deliverately platform independent <b>library</b>, hence it does not deal with thing like the I/O subsystem or other platform specific subsytems. Take a look at our xDP for a full-blown datapath using ROFL-pipeline.
+*  - ...a complete Openflow-enabled Forwarding Backend; ROFL-pipeline is deliverately platform independent <b>library</b>, hence it does not deal with things like the I/O subsystem or other platform specific subsytems. Take a look at our xDP for a complete Openflow-enabled Forwarding Backend that uses ROFL-pipeline.
 *  - ...an Openflow endpoint. The Openflow endpoint is out of the scope of ROFL-pipeline.
 *
 * @subsection arch Architecture overview
