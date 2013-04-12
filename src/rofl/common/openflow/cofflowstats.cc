@@ -468,7 +468,7 @@ cofflow_stats_reply::pack(uint8_t *buf, size_t buflen) const
 		fs->packet_count	= htobe64(packet_count);
 		fs->byte_count		= htobe64(byte_count);
 		match.pack(&(fs->match), match.length());
-		instructions.pack((struct ofp_instruction*)((uint8_t*)&(fs->match)) + match.length(), instructions.length());
+		instructions.pack((struct ofp_instruction*)(((uint8_t*)&(fs->match)) + match.length()), instructions.length());
 
 	} break;
 	default:
