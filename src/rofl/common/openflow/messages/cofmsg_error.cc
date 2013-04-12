@@ -12,10 +12,11 @@ cofmsg_error::cofmsg_error(
 	cofmsg(sizeof(struct ofp_error_msg)),
 	body(0)
 {
-	err_msg = (struct ofp_error_msg*)soframe();
+	
 
 	cofmsg::resize(sizeof(struct ofp_error_msg) + datalen);
 	body.assign(data, datalen);
+    err_msg = (struct ofp_error_msg*)soframe();
 
 	set_version(of_version);
 	set_length(sizeof(struct ofp_error_msg) + datalen);
