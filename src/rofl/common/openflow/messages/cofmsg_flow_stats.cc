@@ -220,7 +220,6 @@ cofmsg_flow_stats_reply::cofmsg_flow_stats_reply(
 	case OFP10_VERSION:
 	case OFP12_VERSION: {
 		resize(length());
-		pack(soframe(), framelen());
 	} break;
 	case OFP13_VERSION: {
 		// TODO
