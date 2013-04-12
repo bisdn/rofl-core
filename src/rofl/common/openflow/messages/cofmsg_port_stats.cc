@@ -39,7 +39,19 @@ cofmsg_port_stats_request::cofmsg_port_stats_request(
 	cofmsg_stats(memarea),
 	port_stats(get_version())
 {
-
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		ofh_port_stats = soframe() + sizeof(struct ofp10_stats_request);
+	} break;
+	case OFP12_VERSION: {
+		ofh_port_stats = soframe() + sizeof(struct ofp12_stats_request);
+	} break;
+	case OFP13_VERSION: {
+		throw eNotImplemented();
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 
@@ -244,7 +256,19 @@ cofmsg_port_stats_reply::cofmsg_port_stats_reply(
 		cmemory *memarea) :
 	cofmsg_stats(memarea)
 {
-
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		ofh_port_stats = soframe() + sizeof(struct ofp10_stats_reply);
+	} break;
+	case OFP12_VERSION: {
+		ofh_port_stats = soframe() + sizeof(struct ofp12_stats_reply);
+	} break;
+	case OFP13_VERSION: {
+		throw eNotImplemented();
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 

@@ -210,7 +210,19 @@ cofmsg_desc_stats_reply::cofmsg_desc_stats_reply(
 	cofmsg_stats(memarea),
 	desc_stats(get_version())
 {
-
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		ofh_desc_stats = soframe() + sizeof(struct ofp10_stats_reply);
+	} break;
+	case OFP12_VERSION: {
+		ofh_desc_stats = soframe() + sizeof(struct ofp12_stats_reply);
+	} break;
+	case OFP13_VERSION: {
+		throw eNotImplemented();
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 

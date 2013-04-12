@@ -28,14 +28,12 @@ private:
 	cofgroup_stats_request 	group_stats;
 
 	union {
-		uint8_t*						ofhu_group_stats;
-		struct ofp10_group_stats*		ofhu10_group_stats;
-		struct ofp12_group_stats*		ofhu12_group_stats;
+		uint8_t*							ofhu_group_stats;
+		struct ofp12_group_stats_request*	ofhu12_group_stats;
 		// TODO: OF1.3
 	} ofhu;
 
 #define ofh_group_stats   			ofhu.ofhu_group_stats
-#define ofh10_group_stats 			ofhu.ofhu10_group_stats
 #define ofh12_group_stats 			ofhu.ofhu12_group_stats
 // TODO OF1.3
 
@@ -146,13 +144,11 @@ private:
 
 	union {
 		uint8_t*						ofhu_group_stats;
-		struct ofp10_group_stats*		ofhu10_group_stats;
 		struct ofp12_group_stats*		ofhu12_group_stats;
 		// TODO: OF1.3
 	} ofhu;
 
 #define ofh_group_stats   			ofhu.ofhu_group_stats
-#define ofh10_group_stats 			ofhu.ofhu10_group_stats
 #define ofh12_group_stats 			ofhu.ofhu12_group_stats
 // TODO OF1.3
 

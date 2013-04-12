@@ -184,7 +184,7 @@ cofmsg_features_reply::cofmsg_features_reply(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-
+	ofh_switch_features = soframe();
 }
 
 

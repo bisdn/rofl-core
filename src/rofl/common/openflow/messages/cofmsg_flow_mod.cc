@@ -114,7 +114,7 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-
+	ofh_flow_mod = soframe();
 }
 
 

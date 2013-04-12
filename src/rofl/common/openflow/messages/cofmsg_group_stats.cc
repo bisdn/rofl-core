@@ -32,7 +32,16 @@ cofmsg_group_stats_request::cofmsg_group_stats_request(
 		cmemory *memarea) :
 	cofmsg_stats(memarea)
 {
-
+	switch (get_version()) {
+	case OFP12_VERSION: {
+		ofh_group_stats = soframe() + sizeof(struct ofp12_stats_request);
+	} break;
+	case OFP13_VERSION: {
+		throw eNotImplemented();
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 
@@ -218,7 +227,16 @@ cofmsg_group_stats_reply::cofmsg_group_stats_reply(
 		cmemory *memarea) :
 	cofmsg_stats(memarea)
 {
-
+	switch (get_version()) {
+	case OFP12_VERSION: {
+		ofh_group_stats = soframe() + sizeof(struct ofp12_stats_reply);
+	} break;
+	case OFP13_VERSION: {
+		throw eNotImplemented();
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 

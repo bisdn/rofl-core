@@ -210,7 +210,19 @@ cofmsg_queue_stats_reply::cofmsg_queue_stats_reply(
 		cmemory *memarea) :
 	cofmsg_stats(memarea)
 {
-
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		ofh_queue_stats = soframe() + sizeof(struct ofp10_stats_reply);
+	} break;
+	case OFP12_VERSION: {
+		ofh_queue_stats = soframe() + sizeof(struct ofp12_stats_reply);
+	} break;
+	case OFP13_VERSION: {
+		throw eNotImplemented();
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 

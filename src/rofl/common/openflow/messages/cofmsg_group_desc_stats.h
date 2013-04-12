@@ -121,13 +121,11 @@ private:
 
 	union {
 		uint8_t*						ofhu_group_desc_stats;
-		struct ofp10_group_desc_stats*		ofhu10_group_desc_stats;
-		struct ofp12_group_desc_stats*		ofhu12_group_desc_stats;
+		struct ofp12_group_desc_stats*	ofhu12_group_desc_stats;
 		// TODO: OF1.3
 	} ofhu;
 
 #define ofh_group_desc_stats   			ofhu.ofhu_group_desc_stats
-#define ofh10_group_desc_stats 			ofhu.ofhu10_group_desc_stats
 #define ofh12_group_desc_stats 			ofhu.ofhu12_group_desc_stats
 // TODO OF1.3
 

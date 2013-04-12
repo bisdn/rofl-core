@@ -45,7 +45,7 @@ cofmsg_group_mod::cofmsg_group_mod(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-
+	ofh_group_mod = soframe();
 }
 
 

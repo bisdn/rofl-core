@@ -60,7 +60,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 	cofmsg(memarea),
 	packet((size_t)0)
 {
-
+	ofh_packet_out = soframe();
 }
 
 

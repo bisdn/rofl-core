@@ -41,7 +41,7 @@ cofmsg_table_mod::cofmsg_table_mod(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-
+	ofh_table_mod = soframe();
 }
 
 

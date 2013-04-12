@@ -171,7 +171,7 @@ cofmsg_config::cofmsg_config(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-
+	ofh_switch_config = soframe();
 }
 
 
