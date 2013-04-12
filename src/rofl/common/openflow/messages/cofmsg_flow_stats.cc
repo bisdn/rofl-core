@@ -236,7 +236,19 @@ cofmsg_flow_stats_reply::cofmsg_flow_stats_reply(
 		cmemory *memarea) :
 	cofmsg_stats(memarea)
 {
-
+	switch (get_version()) {
+	case OFP10_VERSION: {
+		ofh_flow_stats = soframe() + sizeof(struct ofp10_stats_reply);
+	} break;
+	case OFP12_VERSION: {
+		ofh_flow_stats = soframe() + sizeof(struct ofp12_stats_reply);
+	} break;
+	case OFP13_VERSION: {
+		throw eNotImplemented(); // TODO
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 
