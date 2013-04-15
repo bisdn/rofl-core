@@ -465,8 +465,8 @@ public:
 	ctl_find(
 			cofctl* ctl) throw (eRofBaseNotFound);
 
-	/**@}*/
 
+	/**@}*/
 
 
 
@@ -478,6 +478,7 @@ public:
 
 protected:
 
+protected:
 
 
 	/**
@@ -1233,18 +1234,6 @@ protected:
 
 
 
-	/**
-	 * @brief	Called once a SET-CONFIG.message was received.
-	 *
-	 * To be overwritten by derived class. Default behavior: removes msg from heap.
-	 *
-	 * @param ctl Pointer to cofctl instance from which the SET-CONFIG.message was received
-	 * @param msg Pointer to cofmsg_set_config message containing the received message
-	 */
-	virtual void
-	handle_set_config(cofctl *ctl, cofmsg_set_config *msg) { delete msg; };
-
-
 
 	/**
 	 * @brief	Called once a QUEUE-GET-CONFIG.request message was received from a controller entity.
@@ -1281,7 +1270,8 @@ protected:
 	 * @param msg Pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(cofctl *ctl, cofmsg_experimenter *msg);
+	handle_set_config(cofctl *ctl, cofmsg_set_config *msg) { delete msg; };
+
 
 
 
@@ -1295,6 +1285,19 @@ protected:
 	 */
 	virtual void
 	handle_experimenter_message(cofdpt *dpt, cofmsg_experimenter *msg) { delete msg; };
+
+
+
+	/**
+	 * @brief	Called once an EXPERIMENTER.message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl pointer to cofctl instance from which the EXPERIMENTER.message was received.
+	 * @param msg pointer to cofmsg_experimenter message containing the received message
+	 */
+	virtual void
+	handle_experimenter_message(cofctl *ctl, cofmsg_experimenter *msg);
 
 
 
@@ -1353,8 +1356,6 @@ protected:
 
 
 
-
-
 	/**
 	 * @name Event handlers overwritten from rofl::ciosrv
 	 *
@@ -1362,6 +1363,8 @@ protected:
 	 * make sure to call crofbase::handle_timeout() or crofbase::handle_event()
 	 * within the derived handler method.
 	 */
+
+
 
 	/**@{*/
 
@@ -1389,6 +1392,7 @@ protected:
 
 
 	/**@}*/
+
 
 
 
@@ -2113,7 +2117,6 @@ private:
 	friend class csocket;
 
 
-
 	/** Helper method for handling DESCription STATS.requests.
 	 * Only used within crofbase internally.
 	 */
@@ -2208,6 +2211,7 @@ private:
 			int sd);
 
 
+
 	/**
 	 *
 	 */
@@ -2237,7 +2241,6 @@ private:
 
 
 
-
 	/*
 	 * methods to be called from cofdpt and cofctl
 	 */
@@ -2249,20 +2252,17 @@ private:
 	void
 	handle_dpt_open(cofdpt *dpt);
 
-
 	/** for use by cofdpt
 	 *
 	 */
 	void
 	handle_dpt_close(cofdpt *dpt);
 
-
 	/** for use by cofctl
 	 *
 	 */
 	void
 	handle_ctl_open(cofctl *ctl);
-
 
 	/** for use by cofctl
 	 *
