@@ -1530,19 +1530,29 @@ protected:
 	/**@{*/
 
 
-	// FEATURES request/reply
-	//
 
-	/** Send OF FEATURES.request to data path entity.
+	/**
+	 * @brief	Sends a FEATURES.request to a data path element.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
+	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
 	send_features_request(
-		cofdpt *sw);
+		cofdpt *dpt);
 
-	/** Send OF FEATURES.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a FEATURES.reply to a controller entity.
 	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from FEATURES.request
+	 * @param dpid data path ID of this data path element
+	 * @param n_buffers number of packet buffers available
+	 * @param capabilities data path capabilities (reassembly, etc.)
+	 * @param of13_auxiliary_id auxiliary_id used in OpenFlow 1.3, ignored in other versions
+	 * @param of10_actions_bitmap bitmap of supported actions for OpenFlow 1.0, ignored in other versions
+	 * @param portlist list of cofports in this data path, ignored in OpenFlow 1.3
 	 */
 	virtual void
 	send_features_reply(
@@ -1556,19 +1566,26 @@ protected:
 			uint32_t of10_actions_bitmap = 0,
 			cofportlist const& portlist = cofportlist());
 
-	// GET-CONFIG request/reply
-	//
 
-	/** Send OF GET-CONFIG.request to data path entity.
+
+	/**
+	 * @brief	Sends a GET-CONFIG.request to a data path element.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
+	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
 	send_get_config_request(
-		cofdpt *sw);
+		cofdpt *dpt);
 
-	/** Send OF GET-CONFIG.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a GET-CONFIG.reply to a controller entity.
 	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from GET-CONFIG.request
+	 * @param flags data path flags
+	 * @param miss_send_len default miss_send_len value
 	 */
 	virtual void
 	send_get_config_reply(
@@ -1577,16 +1594,18 @@ protected:
 			uint16_t flags,
 			uint16_t miss_send_len);
 
-	// STATS request/reply
-	//
 
-	/** Send OF STATS.request to data path entity.
+
+
+	/**
+	 * @brief	Sends a STATS.request to a data path element.
 	 *
-	 * @param dpt cofswitch instance representing the data path to be addressed
-	 * @param type One of the OFPST_* constants
-	 * @param flags OFPSF_REQ_* flags
-	 * @param body Body of a STATS request
-	 * @param bodylen length of STATS request body
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_type one of the OFPST_* constants
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param body body of STATS.request
+	 * @param bodylen length of STATS.request body
+	 * @return transaction ID for this STATS.request
 	 */
 	virtual uint32_t
 	send_stats_request(
@@ -1596,27 +1615,31 @@ protected:
 		uint8_t *body = NULL,
 		size_t bodylen = 0);
 
-	/** Send OF FLOW STATS.request to data path entity.
+
+
+	/**
+	 * @brief	Sends a FLOW-STATS.request to a data path element.
 	 *
-	 * @param dpt cofswitch instance representing the data path to be addressed
-	 * @param type One of the OFPST_* constants
-	 * @param flags OFPSF_REQ_* flags
-	 * @param body Body of a STATS request
-	 * @param bodylen length of STATS request body
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param flow_stats_request body of a FLOW-STATS.request
+	 * @return transaction ID for this FLOW-STATS.request
 	 */
 	virtual uint32_t
 	send_flow_stats_request(
 		cofdpt *dpt,
-		uint16_t flags,
+		uint16_t stats_flags,
 		cofflow_stats_request const& flow_stats_request);
 
-	/** Send OF AGGR STATS.request to data path entity.
+
+
+	/**
+	 * @brief	Sends a AGGREGATE-STATS.request to a data path element.
 	 *
-	 * @param dpt cofswitch instance representing the data path to be addressed
-	 * @param type One of the OFPST_* constants
-	 * @param flags OFPSF_REQ_* flags
-	 * @param body Body of a STATS request
-	 * @param bodylen length of STATS request body
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param aggr_stats_request body of an AGGREGATE-STATS.request
+	 * @return transaction ID for this AGGREGATE-STATS.request
 	 */
 	virtual uint32_t
 	send_aggr_stats_request(
@@ -1626,13 +1649,15 @@ protected:
 
 
 
-	/** Send OF STATS.reply to controlling entity.
+	/**
+	 * @brief	Sends a STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
-	 * @param more flag if multiple STATS replies will be sent
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param stats_type one of the OFPST_* constants
+	 * @param body body of a STATS.reply
+	 * @param bodylen length of STATS.reply body
+	 * @param more flag if multiple STATS.reply messages will be sent
 	 */
 	virtual void
 	send_stats_reply(
@@ -1643,12 +1668,14 @@ protected:
 		size_t bodylen = 0,
 		bool more = false);
 
-	/** Send OF DESC STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a DESC-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param desc_stats body of DESC-STATS.reply
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1658,12 +1685,14 @@ protected:
 		cofdesc_stats_reply const& desc_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a TABLE-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param table_stats array of table_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1673,12 +1702,14 @@ protected:
 		std::vector<coftable_stats_reply> const& table_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a PORT-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param port_stats array of port_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1688,12 +1719,14 @@ protected:
 		std::vector<cofport_stats_reply> const& port_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a FLOW-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param flow_stats array of flow_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1703,12 +1736,14 @@ protected:
 		std::vector<cofflow_stats_reply> const& flow_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends an AGGREGATE-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param aggr_stats aggr_stats body
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1718,12 +1753,14 @@ protected:
 		cofaggr_stats_reply const& aggr_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a GROUP-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param group_stats array of group_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1733,12 +1770,14 @@ protected:
 		std::vector<cofgroup_stats_reply> const& group_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a GROUP-DESC-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param group_desc_stats array of group_desc_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1748,12 +1787,14 @@ protected:
 		std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a GROUP-FEATURES-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param group_features_stats group_features_stats body
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1763,21 +1804,21 @@ protected:
 		cofgroup_features_stats_reply const& group_features_stats,
 		bool more = false);
 
-	// PACKET-OUT message
-	//
 
-	/** Send OF PACKET-OUT.message to data path entity.
+
+	/**
+	 * @brief	Sends a PACKET-OUT.message to a data path element.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
+	 * @param dpt pointer to cofdpt instance
 	 * @param buffer_id buffer ID assigned by datapath (-1 if none) in host byte order
-	 * @param in_port Packet’s input port (OFPP_NONE if none) in host byte order
-	 * @param acvec vector containing cofaction instances
-	 * @param data optional packet data to be sent out
-	 * @param datalen
+	 * @param in_port packet’s in-port (OFPP_NONE if none) in host byte order
+	 * @param aclist OpenFlow ActionList
+	 * @param data data packet to be sent out (optional)
+	 * @param datalen length of data packet (optional)
 	 */
 	virtual void
 	send_packet_out_message(
-		cofdpt *sw,
+		cofdpt *dpt,
 		uint32_t buffer_id,
 		uint32_t in_port,
 		cofaclist& aclist,
@@ -1785,17 +1826,20 @@ protected:
 		size_t datalen = 0);
 
 
-	// PACKET-IN message
-	//
 
-	/** Send OF PACKET-IN.message to controlling entity.
+
+	/**
+	 * @brief	Sends a PACKET-IN.message to a controller entity.
 	 *
-	 * @param buffer_id buffer ID assigned by datapath in host byte order
+	 * @param buffer_id buffer ID assigned by data path
 	 * @param total_len Full length of frame
-	 * @param in_port Port on which frame was received
-	 * @param reason Reason packet is being sent (one of OFPR_*)
-	 * @param data Ethernet frame
-	 * @param datalen Ethernet frame length
+	 * @param reason reason packet is being sent (one of OFPR_* flags)
+	 * @param table_id ID of table that generated the PACKET-IN event
+	 * @param cookie cookie of FlowMod entry that generated the PACKET-IN event
+	 * @param in_port port on which frame was received
+	 * @param match match structure generated by data path element for data packet
+	 * @param data data packet
+	 * @param datalen length of data packet
 	 */
 	virtual void
 	send_packet_in_message(
@@ -1809,34 +1853,42 @@ protected:
 		uint8_t *data,
 		size_t datalen) throw(eRofBaseNoCtrl);
 
-	// BARRIER request/reply
-	//
 
-	/** Send OF BARRIER.request to data path entity.
+
+	/**
+	 * @brief	Sends a BARRIER.request to a data path element.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
+	 * @param dpt pointer to cofdpt instance
+	 * @result transaction ID assigned to this request
 	 */
 	virtual uint32_t
 	send_barrier_request(
-		cofdpt *sw);
+		cofdpt *dpt);
 
-	/** Send OF BARRIER.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a BARRIER-reply to a controller entity.
 	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received BARRIER.request
 	 */
 	virtual void
 	send_barrier_reply(
 			cofctl *ctl,
 			uint32_t xid);
 
-	// ERROR message
-	//
 
-	/** Send OF ERROR.message to controlling entity.
+
+	/**
+	 * @brief	Sends an ERROR.message to a controller entity.
 	 *
-	 * @param type One of OFPET_*
-	 * @param code error code
-	 * @param data failed request
-	 * @param datalen length of failed request
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param type one of OpenFlow's OFPET_* flags
+	 * @param code one of OpenFlow's error codes
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
 	 */
 	virtual void
 	send_error_message(
@@ -1847,12 +1899,20 @@ protected:
 		uint8_t* data = NULL,
 		size_t datalen = 0);
 
-	/** Send OF ERROR.message to datapath entity.
+
+
+	/**
+	 * @brief	Sends an ERROR.message to a data path element.
 	 *
-	 * @param type One of OFPET_*
-	 * @param code error code
-	 * @param data failed request
-	 * @param datalen length of failed request
+	 * These messages are used for failed HELLO negotiations and
+	 * experimental extensions.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param xid transaction ID of reply/notification that generated this error message
+	 * @param type one of OpenFlow's OFPET_* flags
+	 * @param code one of OpenFlow's error codes
+	 * @param data first (at least 64) bytes of failed reply/notification
+	 * @param datalen length of failed reply/notification appended to error message
 	 */
 	virtual void
 	send_error_message(
@@ -1863,29 +1923,34 @@ protected:
 		uint8_t* data = NULL,
 		size_t datalen = 0);
 
-	// FLOW-MOD message
-	//
 
-	/** Send OF FLOW-MOD.message to data path entity.
+
+
+	/*
+	 * FIXME: to be removed and replaced by cflowentry
+	 */
+
+	/**
+	 * @brief 	Sends a FLOW-MOD.message to a data path element.
 	 *
-	 * All values in host byte order.
-	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
-	 * @param ofmatch An instance of class cofmatch holding the matching fields
-	 * @param cookie Opaque controller-issued identifier
-	 * @param command One of OFPFC_*
-	 * @param idle_timeout Idle time before discarding (seconds)
-	 * @param hard_timeout Max time before discarding (seconds)
-	 * @param priority Priority level of flow entry
-	 * @param buffer_id Buffered packet to apply to (or -1)
-	 * @param out_port For OFPFC_DELETE* commands, require matching entries to include this as an output port. A value of OFPP_NONE indicates no restriction
-	 * @param flags One of OFPFF_*
-	 * @param acvec Vector of cofaction instances
+	 * @param dpt pointer to cofdpt instance
+	 * @param match matching structure
+	 * @param cookie opaque controller-issued identifier
+	 * @param cookie_mask mask of bits to be overwritten/ignored when modifying FlowMod entries
+	 * @param table_id destination table ID of new FlowMod entry
+	 * @param command one of OpenFlow's command values: Add/Modify/Remove entry
+	 * @param idle_timeout idle timeout before discarding this FlowMod entry in seconds
+	 * @param hard_timeout hard timeout before discarding this FlowMod entry in seconds
+	 * @param priority priority level of flow entry
+	 * @param buffer_id buffer slot where to apply this FlowMod entry
+	 * @param out_port for OFPFC_DELETE* commands, require matching entries to include this as an output port. A value of OFPP_NONE indicates no restriction
+	 * @param flags one of OpenFlow's OFPFF_* flags
+	 * @param inlist InstructionList
 	 */
 	virtual void
 	send_flow_mod_message(
-		cofdpt *sw,
-		cofmatch& ofmatch,
+		cofdpt *dpt,
+		cofmatch& match,
 		uint64_t cookie,
 		uint64_t cookie_mask,
 		uint8_t table_id,
@@ -1899,108 +1964,92 @@ protected:
 		uint16_t flags,
 		cofinlist& inlist);
 
+
+
+	/**
+	 * @brief 	Sends a FLOW-MOD.message to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param flowentry FlowMod entry
+	 */
 	virtual void
 	send_flow_mod_message(
-			cofdpt *sw,
+			cofdpt *dpt,
 			cflowentry& flowentry);
 
-	// GROUP-MOD message
-	//
 
-	/** Send OF GROUP-MOD.message to data path entity.
+
+
+	/**
+	 * @brief 	Sends a GROUP-MOD.message to a data path element.
 	 *
-	 * All values in host byte order.
-	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
-	 * @param ofmatch An instance of class cofmatch holding the matching fields
-	 * @param cookie Opaque controller-issued identifier
-	 * @param command One of OFPFC_*
-	 * @param idle_timeout Idle time before discarding (seconds)
-	 * @param hard_timeout Max time before discarding (seconds)
-	 * @param priority Priority level of flow entry
-	 * @param buffer_id Buffered packet to apply to (or -1)
-	 * @param out_port For OFPFC_DELETE* commands, require matching entries to include this as an output port. A value of OFPP_NONE indicates no restriction
-	 * @param flags One of OFPFF_*
-	 * @param acvec Vector of cofaction instances
+	 * @param dpt pointer to cofdpt instance
+	 * @param groupentry GroupMod entry
 	 */
-#if 0
-	void
-	send_group_mod_message(
-		cofdpt *sw,
-		uint16_t command,
-		uint8_t type,
-		uint32_t group_id,
-		std::vector<cofbucket*>& buckets);
-#endif
-
 	virtual void
 	send_group_mod_message(
-			cofdpt *sw,
+			cofdpt *dpt,
 			cgroupentry& groupentry);
 
-	// TABLE-MOD message
-	//
 
-	/** Send OF GROUP-MOD.message to data path entity.
+
+	/**
+	 * @brief	Sends a TABLE-MOD.message to a data path element.
 	 *
-	 * All values in host byte order.
-	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
-	 * @param table_id the table id according to OF1.1
-	 * @param config table configuration, see openflow.h for OFPTC_TABLE_*
+	 * @param dpt pointer to a cofdpt instance
+	 * @param table_id ID of table to be reconfigured
+	 * @param config new configuration for table
 	 */
 	virtual void
 	send_table_mod_message(
-		cofdpt *sw,
+		cofdpt *dpt,
 		uint8_t table_id,
 		uint32_t config);
 
-	// PORT-MOD message
-	//
 
-	/** Send OF PORT-MOD.message to data path entity.
+
+
+	/**
+	 * @brief	Sends a PORT-MOD.message to a data path element.
 	 *
-	 * All values in host byte order.
-	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
-	 * @param ofmatch An instance of class cofmatch holding the matching fields
-	 * @param port_no Number of port to modify
-	 * @param hw_addr Memory area containing the ports hardware address
-	 * @param hw_addr_len Length of memory area
-	 * @param config Bitmap of OFPPC_* flags
-	 * @param mask Bitmap of OFPPC_* flags to be changed
-	 * @param advertise Bitmap of "ofp_port_features"s. Zero all bits to prevent any action taking place.
+	 * @param dpt pointer to cofdpt instance
+	 * @param port_no number of port to be updated
+	 * @param hwaddr MAC address assigned to port
+	 * @param config OpenFlow config parameter
+	 * * @param mask OpenFlow mask parameter
+	 * * @param advertise OpenFlow advertise parameter
 	 */
 	virtual void
 	send_port_mod_message(
-		cofdpt *sw,
+		cofdpt *dpt,
 		uint32_t port_no,
 		cmacaddr const& hwaddr,
 		uint32_t config,
 		uint32_t mask,
 		uint32_t advertise);
 
-	// FLOW-REMOVED message
-	//
 
-	/** Send OF FLOW-REMOVED.message to controlling entity.
+
+	/**
+	 * @brief	Sends a FLOW-REMOVED.message to a controller entity.
 	 *
-	 * All values in host byte order.
-	 *
-	 * @param ofmatch An instance of class cofmatch holding the matching fields
-	 * @param cookie Opaque controller-issued identifier
-	 * @param priority Priority level of flow entry
-	 * @param reason One of OFPRR_*
-	 * @param duration_sec Time flow was alive in seconds
-	 * @param duration_nsec Time flow was alive in nanoseconds beyond duration_sec
-	 * @param idle_timeout Idle timeout from original flow mod
+	 * @param ctl pointer to cofctl instance
+	 * @param match match structure defined in FlowMod entry
+	 * @param cookie cookie defined in FlowMod entry
+	 * @param priority priority level defined in FlowMOd entry
+	 * @param reason one of OpenFlow's OFPRR_* constants
+	 * @param table_id ID of table from which the FlowMod entry was removed
+	 * @param duration_sec time flow was alive in seconds
+	 * @param duration_nsec time flow was alive in nanoseconds beyond duration_sec
+	 * @param idle_timeout idle timeout from original flow mod
+	 * @param idle_timeout hard timeout from original flow mod
 	 * @param packet_count number of packets handled by this flow mod
 	 * @param byte_count number of bytes handled by this flow mod
 	 */
 	virtual void
 	send_flow_removed_message(
 		cofctl *ctl,
-		cofmatch& ofmatch,
+		cofmatch& match,
 		uint64_t cookie,
 		uint16_t priority,
 		uint8_t reason,
@@ -2012,12 +2061,13 @@ protected:
 		uint64_t packet_count,
 		uint64_t byte_count);
 
-	// PORT-STATUS message
-	//
 
-	/** Send OF PORT-STATUS.message to controlling entity.
+
+
+	/**
+	 * @brief	Sends a PORT-STATUS.message to a controller entity.
 	 *
-	 * @param reason One of OFPPR_*
+	 * @param reason one of OpenFlow's OFPPR_* constants
 	 * @param port cofport instance that changed its status
 	 */
 	virtual void
@@ -2025,36 +2075,43 @@ protected:
 		uint8_t reason,
 		cofport const& port);
 
-	// SET-CONFIG message
-	//
 
-	/** Send OF SET-CONFIG.message to data path entity.
+
+	/**
+	 * @brief	Sends a SET-CONFIG.message to a data path element.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
-	 * @param flags OFPC_* flags
-	 * @param miss_send_len Max bytes of new flow that datapath should send to the controller
+	 * @param dpt pointer to cofdpt instance
+	 * @param flags field of OpenFlow's OFPC_* flags
+	 * @param miss_send_len OpenFlow' miss_send_len parameter
 	 */
 	virtual void
 	send_set_config_message(
-		cofdpt *sw,
+		cofdpt *dpt,
 		uint16_t flags,
 		uint16_t miss_send_len);
 
-	// QUEUE-GET-CONFIG request/reply
-	//
 
-	/** Send OF QUEUE-GET-CONFIG.request to data path entity.
+
+	/**
+	 * @brief	Sends a QUEUE-GET-CONFIG.request to a data path element.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
-	 * @param port Port to be queried. Should refer to a valid physical port (i.e. < OFPP_MAX)
+	 * @param dpt pointer to cofdpt instance
+	 * @param port port to be queried. Should refer to a valid physical port (i.e. < OFPP_MAX)
 	 */
 	virtual void
 	send_queue_get_config_request(
 		cofdpt *sw,
 		uint32_t port);
 
-	/** Send OF QUEUE-GET-CONFIG.reply to controlling entity.
+
+
+	// FIXME: add QUEUE-GET-CONFIG.reply body
+	/**
+	 * @brief	Sends a QUEUE-GET-CONFIG.reply to a controller entity.
 	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from QUEUE-GET-CONFIG.request
+	 * @param portno OpenFlow number assigned to port
 	 */
 	virtual void
 	send_queue_get_config_reply(
@@ -2062,44 +2119,70 @@ protected:
 			uint32_t xid,
 			uint32_t portno);
 
-	/** Send OF experimenter message to data path
+
+
+
+	/**
+	 * @brief 	Sends an EXPERIMENTER.message to a data path element.
 	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param experimenter_id exp_id as assigned by ONF
+	 * @param exp_type exp_type as defined by the ONF member
+	 * @param body pointer to opaque experimenter message body (optional)
+	 * @param bodylen length of body (optional)
 	 */
 	virtual void
 	send_experimenter_message(
-			cofdpt *sw,
+			cofdpt *dpt,
 			uint32_t experimenter_id,
 			uint32_t exp_type,
 			uint8_t *body = NULL,
 			size_t bodylen = 0);
 
-	/** Send OF experimenter message to controller
+
+
+	/**
+	 * @brief 	Sends an EXPERIMENTER.message to a controller entity.
 	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param experimenter_id exp_id as assigned by ONF
+	 * @param exp_type exp_type as defined by the ONF member
+	 * @param body pointer to opaque experimenter message body (optional)
+	 * @param bodylen length of body (optional)
 	 */
 	virtual void
 	send_experimenter_message(
-			cofctl *ctrl,
+			cofctl *ctl,
 			uint32_t experimenter_id,
 			uint32_t exp_type,
 			uint8_t *body = NULL,
 			size_t bodylen = 0);
 
 
-	// ROLE request/reply
-	//
 
-	/** Send OF ROLE.request to data path entity.
+
+	/**
+	 * @brief	Sends a ROLE.request to a data path element.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
+	 * @param dpt pointer to cofdpt instance
+	 * @param role role as defined by OpenFlow
+	 * @param generation_id gen_id as defined by OpenFlow
 	 */
 	virtual void
 	send_role_request(
-		cofdpt *sw,
+		cofdpt *dpt,
 		uint32_t role,
 		uint64_t generation_id);
 
-	/** Send OF ROLE.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a ROLE.reply to a controller entity.
 	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from associated ROLE.request
+	 * @param role defined role from data path
+	 * @param generation_id gen_id as defined by OpenFlow
 	 */
 	virtual void
 	send_role_reply(

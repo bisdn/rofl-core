@@ -1160,6 +1160,7 @@ crofbase::send_packet_out_message(
 
 void
 crofbase::send_packet_in_message(
+		// TODO: add cofctl instance
 	uint32_t buffer_id,
 	uint16_t total_len,
 	uint8_t reason,
