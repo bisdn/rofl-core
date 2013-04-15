@@ -51,7 +51,9 @@ class csocket; // forward declaration for csocket_owner, see below
 
 class csocket_owner
 {
-public:
+protected:
+	friend class csocket;
+
 	virtual ~csocket_owner() {};
 	virtual void handle_accepted(csocket *socket, int newsd, caddress const& ra) = 0;
 	virtual void handle_connected(csocket *socket, int sd) = 0;

@@ -74,7 +74,10 @@ class cofctl :
 	public cfspentry_owner,
 	public cxidowner
 {
-public: // data structures
+
+private: // data structures
+
+	friend class crofbase;
 
 	crofbase 						*rofbase;				// parent crofbase instance
 	std::bitset<32> 				flags;					// config: flags
@@ -83,19 +86,7 @@ public: // data structures
 	bool 							role_initialized;		// true, when role values have been initialized properly
 	uint16_t 						role;					// role of this controller instance
 	uint64_t 						cached_generation_id;	// generation-id used by role requests
-
-protected:
-
 	csocket							*socket;				// TCP socket towards controller
-
-private: // data structures
-
-#define RECONNECT_START_TIMEOUT 5							// start reconnect timeout (default 1s)
-#define DEFAULT_RPC_ECHO_INTERVAL 30 /* seconds */
-#define DEFAULT_ECHO_TIMEOUT 8 /* seconds */
-#define RECONNECT_MAX_TIMEOUT 60							// max reconnect timeout (default 120s)
-
-
 	cxidstore						xidstore;
 	std::string 					info;					// info string
 	cmemory							*fragment;				// fragment of OF packet rcvd on fragment during last call(s)
@@ -136,9 +127,24 @@ private: // data structures
 		STATE_CTL_ESTABLISHED			= 0x04,
 	};
 
+
+#define RECONNECT_START_TIMEOUT 5							// start reconnect timeout (default 1s)
+#define DEFAULT_RPC_ECHO_INTERVAL 30 /* seconds */
+#define DEFAULT_ECHO_TIMEOUT 8 /* seconds */
+#define RECONNECT_MAX_TIMEOUT 60							// max reconnect timeout (default 120s)
+
 public: // methods
 
-	/** constructor (TCP accept)
+
+	/**
+	 * @brief	Constructor for creating new cofctl instance from accepted socket.
+	 *
+	 * @param rofbase pointer to crofbase instance
+	 * @param newsd socket descriptor
+	 * @param ra peer remote address
+	 * @param domain socket domain
+	 * @param type socket type
+	 * @param protocol socket protocol
 	 */
 	cofctl(
 			crofbase *rofbase,
@@ -149,7 +155,16 @@ public: // methods
 			int protocol);
 
 
-	/** constructor (TCP connect)
+
+	/**
+	 * @brief	Constructor for creating new cofctl instance for connecting socket.
+	 *
+	 * @param rofbase pointer to crofbase instance
+	 * @param ra peer remote address
+	 * @param domain socket domain
+	 * @param type socket type
+	 * @param protocol socket protocol
+	 *
 	 */
 	cofctl(
 			crofbase *rofbase,
@@ -159,48 +174,64 @@ public: // methods
 			int protocol);
 
 
-	/** destructor
+
+	/**
+	 * @brief	Destructor.
 	 */
 	virtual
 	~cofctl();
 
 
-	/** return info string
+
+	/**
+	 * @brief	Returns a c-string with information about this instance.
+	 *
+	 * @return c-string
 	 */
 	const char*
 	c_str();
 
 
+
 	/**
-	 *
+	 * @brief	Returns true, when the control handshake (HELLO) has been completed.
 	 */
 	bool
 	is_established() const;
 
 
+
 	/**
+	 * @brief	Returns OpenFlow version negotiated for control connection.
 	 */
 	uint8_t
 	get_version();
 
 
+
 	/**
+	 * @brief	Returns cxidtrans instance associated with transaction ID xid.
 	 *
+	 * @param xid transaction ID
 	 */
 	cxidtrans&
 	transaction(
 			uint32_t xid);
 
 
+
 	/**
+	 * @brief	Sends an OpenFlow message via this cofctl instance.
 	 *
+	 * @param msg pointer to cofmsg instance
 	 */
 	void
 	send_message(
-			cofmsg *pack);
+			cofmsg *msg);
 
 
-protected:
+
+private:
 
 
 	/**
@@ -336,7 +367,7 @@ protected:
 	void
 	queue_get_config_reply_sent(cofmsg *pack);
 
-protected: // methods
+//protected: // methods
 
 
 	/**
@@ -346,7 +377,7 @@ protected: // methods
 	send_error_is_slave(cofmsg *pack);
 
 
-protected:
+//protected:
 
 
 	/**
@@ -358,7 +389,7 @@ protected:
 
 
 
-public:
+private:
 
 
 	/**

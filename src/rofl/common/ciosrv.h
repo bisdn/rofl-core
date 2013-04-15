@@ -292,7 +292,7 @@ public:
 	 *
 	 * Method notify() can be called from every thread within the
 	 * running application. The event management system wakes up
-	 * the thread when sleeping in a poll/select loop and call the
+	 * this thread when in sleeping condition in a poll/select loop and calls its
 	 * handle_event() method.
 	 *
 	 * @param ev the event to be sent to this instance
