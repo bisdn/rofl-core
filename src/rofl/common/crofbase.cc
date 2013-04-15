@@ -452,7 +452,7 @@ crofbase::handle_event(cevent const& ev)
 void
 crofbase::wakeup()
 {
-	if (tid != pthread_self())
+	if (get_thread_id() != pthread_self())
 	{
 		notify(CROFBASE_EVENT_WAKEUP);
 	}
