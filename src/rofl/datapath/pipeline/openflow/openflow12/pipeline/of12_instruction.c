@@ -233,3 +233,10 @@ void of12_dump_instructions(of12_instruction_group_t group){
 		of12_dump_write_actions(group.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions);
 	}	
 }
+
+bool of12_instruction_has(of12_instruction_group_t *inst_grp, of12_packet_action_type_t type, uint64_t value){
+	///returns true if the action type with the specific value is in the set of instructions.
+	
+	return ( of12_write_actions_has(inst_grp->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions, type, value) ||
+		of12_apply_actions_has(inst_grp->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions, type, value) );
+}

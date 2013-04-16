@@ -227,20 +227,12 @@ bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow
 	}
 
 	//Check out group actions
-	if( out_group != OF12_GROUP_ANY && ( 
-			!of12_write_actions_has(original->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_GROUP, out_group) &&
-			!of12_apply_actions_has(original->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_GROUP, out_group)
-			)
-	)
+	if( out_group != OF12_GROUP_ANY && !(of12_instruction_has(&subentry->inst_grp,OF12_AT_GROUP,out_group)) )
 		return false;
 
 
 	//Check out port actions
-	if( out_port != OF12_PORT_ANY && ( 
-			!of12_write_actions_has(original->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_OUTPUT, out_port) &&
-			!of12_apply_actions_has(original->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_OUTPUT, out_port)
-			)
-	)
+	if( out_port != OF12_PORT_ANY && !(of12_instruction_has(&subentry->inst_grp,OF12_AT_OUTPUT,out_port)) )
 		return false;
 
 
