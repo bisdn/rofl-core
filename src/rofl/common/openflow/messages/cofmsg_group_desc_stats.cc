@@ -157,7 +157,7 @@ cofmsg_group_desc_stats_request::validate()
 			throw eBadSyntaxTooShort();
 	} break;
 	case OFP12_VERSION: {
-		if (get_length() < (sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_group_desc_stats)))
+		if (get_length() < (sizeof(struct ofp12_stats_request)))//NOTE group_desc_stats_request has no body //+ sizeof(struct ofp12_group_desc_stats)))
 			throw eBadSyntaxTooShort();
 	} break;
 	case OFP13_VERSION: {
