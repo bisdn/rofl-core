@@ -69,23 +69,14 @@ of12_group_t *of12_group_search(of12_group_table_t *gt, uint32_t id){
 	return NULL;
 }
 
-static
-of12_group_mod_err_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
-							//uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t **actions){
-	of12_group_mod_err_t ret_val;
-	of12_group_t* ge=NULL;
+of12_group_mod_err_t of12_check_group_parameters(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
 	of12_bucket_t* bu_it;
-	
-	ge = (of12_group_t *) platform_malloc_shared(sizeof(of12_group_t));
-	if (ge == NULL){
-		return OF12_GROUP_MOD_ERR_OGRUPS;
-	}
-	
+	of12_group_mod_err_t ret_val;
 	//TODO check type
-	
+    
 	if(id == OF12_GROUP_ALL || id == OF12_GROUP_ANY || id > OF12_GROUP_MAX)
 		return OF12_GROUP_MOD_ERR_INVAL;
-	
+    
 	//validate action set
 	for(bu_it=buckets->head;bu_it!=NULL;bu_it=bu_it->next){
 		if((ret_val=of12_validate_group(bu_it->actions))!=OF12_GROUP_MOD_ERR_OK)
@@ -105,6 +96,23 @@ of12_group_mod_err_t of12_init_group(of12_group_table_t *gt, of12_group_type_t t
 		return OF12_GROUP_MOD_ERR_INVAL;
 	if (type == OF12_GROUP_TYPE_SELECT && of12_bucket_list_has_weights(buckets) == false)
 		return OF12_GROUP_MOD_ERR_INVAL;
+	
+	return OF12_GROUP_MOD_ERR_OK;
+}
+
+static
+of12_group_mod_err_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
+							//uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t **actions){
+	of12_group_mod_err_t ret_val;
+	of12_group_t* ge=NULL;
+	
+	ge = (of12_group_t *) platform_malloc_shared(sizeof(of12_group_t));
+	if (ge == NULL){
+		return OF12_GROUP_MOD_ERR_OGRUPS;
+	}
+	
+	if((ret_val=of12_check_group_parameters(gt,type,id,buckets))!=OF12_GROUP_MOD_ERR_OK)
+        return ret_val;
 	
 	ge->bc_list = buckets;
 	ge->id = id;
@@ -248,23 +256,14 @@ of12_group_mod_err_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_tab
  * @param actions is a null ended array with the action groups for each bucket
  */
 of12_group_mod_err_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
-	of12_bucket_t* bu_it;
 	of12_group_mod_err_t ret_val;
 	of12_group_t *ge = of12_group_search(gt,id);
 	if (ge == NULL){
-		platform_rwlock_wrunlock(gt->rwlock);
 		return OF12_GROUP_MOD_ERR_UNKGRP;
 	}
 	
-	/*WARNING validate actions? NEW FUNCTION!*/
-	for(bu_it=buckets->head;bu_it!=NULL;bu_it=bu_it->next){
-		if((ret_val=of12_validate_group(bu_it->actions))!=OF12_GROUP_MOD_ERR_OK)
-			return ret_val;
-	}
-	if(type == OF12_GROUP_TYPE_INDIRECT && buckets->num_of_buckets>1)
-		return OF12_GROUP_MOD_ERR_INVAL;
-	if(type == OF12_GROUP_TYPE_ALL && of12_bucket_list_has_weights(buckets))
-		return OF12_GROUP_MOD_ERR_INVAL;
+	if((ret_val=of12_check_group_parameters(gt,type,id,buckets))!=OF12_GROUP_MOD_ERR_OK)
+		return ret_val;
 	
 	platform_rwlock_wrlock(ge->rwlock);
 	
