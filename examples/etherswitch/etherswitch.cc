@@ -86,7 +86,7 @@ etherswitch::request_flow_stats()
 		}
 
 		fprintf(stderr, "etherswitch: calling FLOW-STATS-REQUEST for dpid: 0x%"PRIu64"\n",
-				dpt->dpid);
+				dpt->get_dpid());
 
 		send_flow_stats_request(dpt, /*flags=*/0, req);
 	}
@@ -211,7 +211,7 @@ etherswitch::handle_packet_in(
 	}
 
 	fprintf(stderr, "etherswitch: PACKET-IN from dpid:0x%"PRIu64" buffer-id:0x%x => from %s to %s type: 0x%x\n",
-			dpt->dpid,
+			dpt->get_dpid(),
 			msg->get_buffer_id(),
 			msg->get_packet().ether()->get_dl_src().c_str(),
 			msg->get_packet().ether()->get_dl_dst().c_str(),

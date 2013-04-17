@@ -129,7 +129,7 @@ ctlbase::stack_load(
 	if (0 != dpath)
 	{
 		for (std::map<uint32_t, cofport*>::iterator
-				it = dpath->ports.begin(); it != dpath->ports.end(); ++it)
+				it = dpath->get_ports().begin(); it != dpath->get_ports().end(); ++it)
 		{
 			stack.back()->ctl_handle_port_status(this, OFPPR_ADD, it->second);
 		}
@@ -174,7 +174,7 @@ void
 ctlbase::handle_dpath_open(
 		cofdpt *dpt)
 {
-	if ((0 == dpt) || (dpt->dpid != lldpid))
+	if ((0 == dpt) || (dpt->get_dpid() != lldpid))
 	{
 		return;
 	}
@@ -202,7 +202,7 @@ ctlbase::handle_dpath_open(
 		std::list<cadapt*>& stack = it->second;
 
 		for (std::map<uint32_t, cofport*>::iterator
-				jt = dpt->ports.begin(); jt != dpt->ports.end(); ++jt)
+				jt = dpt->get_ports().begin(); jt != dpt->get_ports().end(); ++jt)
 		{
 			stack.back()->ctl_handle_port_status(this, OFPPR_ADD, jt->second);
 		}
@@ -214,7 +214,7 @@ void
 ctlbase::handle_dpath_close(
 		cofdpt *dpath)
 {
-	if ((0 == dpath) || (dpath->dpid != lldpid))
+	if ((0 == dpath) || (dpath->get_dpid() != lldpid))
 	{
 		return;
 	}
@@ -233,7 +233,7 @@ ctlbase::handle_dpath_close(
 		std::list<cadapt*>& stack = it->second;
 
 		for (std::map<uint32_t, cofport*>::iterator
-				jt = dpath->ports.begin(); jt != dpath->ports.end(); ++jt)
+				jt = dpath->get_ports().begin(); jt != dpath->get_ports().end(); ++jt)
 		{
 			stack.back()->ctl_handle_port_status(this, OFPPR_DELETE, jt->second);
 		}
@@ -427,7 +427,7 @@ ctlbase::handle_packet_in(
 
 		// find all adapters whose flowspace registrations match the packet
 		std::set<cfspentry*> fsp_list =
-				sw->fsptable.find_matching_entries(
+				sw->get_fsptable().find_matching_entries(
 						msg->get_match().get_in_port(),
 						msg->get_total_len(),
 						msg->get_packet());
@@ -1186,7 +1186,7 @@ ctlbase::dpt_flowspace_open(
 				"rcvd cofmatch [1] from adapter: %s:\n%s",
 				dpname.c_str(), adapt->c_str(), match.c_str());
 
-		dpath->fsptable.insert_fsp_entry(adapt, match, false /*non-strict*/);
+		dpath->get_fsptable().insert_fsp_entry(adapt, match, false /*non-strict*/);
 
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::dpt_flowspace_open() "
 				"rcvd cofmatch [2] from adapter: %s:\n%s",
@@ -1225,7 +1225,7 @@ ctlbase::dpt_flowspace_close(
 			return;
 		}
 
-		dpath->fsptable.delete_fsp_entry(adapt, match, false /*non-strict*/);
+		dpath->get_fsptable().delete_fsp_entry(adapt, match, false /*non-strict*/);
 
 		WRITELOG(CFWD, DBG, "ctlbase(%s)::dpt_flowspace_close() "
 				"rcvd cofmatch from adapter: %s:\n%s",

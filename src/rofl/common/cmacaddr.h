@@ -23,89 +23,161 @@ extern "C" {
 namespace rofl
 {
 
-class cmacaddr : public cmemory {
+
+/**
+ * @class	cmacaddr
+ * @brief	Helper class for managing hardware addresses.
+ *
+ * This class provides a convenience interface for managing hardware
+ * addresses.
+ */
+class cmacaddr :
+		public cmemory
+{
 public:
 
-	/** constructor
+	/**
+	 * @brief	Constructor.
 	 *
 	 */
 	cmacaddr();
 
-	/** constructor
+
+
+	/**
+	 * @brief	Copy constructor.
 	 *
+	 */
+	cmacaddr(cmacaddr const& ma);
+
+
+
+	/**
+	 * @brief	Construct from memory instance-
+	 *
+	 * @param mem memory area containing the hardware address
 	 */
 	cmacaddr(cmemory const& mem);
 
-	/** constructor
+
+
+	/**
+	 * @brief	Constructor from plain memory area.
 	 *
+	 * @param data pointer to start of memory area
+	 * @param datalen length of memory area
 	 */
 	cmacaddr(uint8_t *data, size_t datalen);
 
-	/** constructor
+
+
+	/**
+	 * @brief	Constructor from std::string.
 	 *
+	 * @param s_addr std::string containing the hardware address defined as "00:00:00:00:00:00"
 	 */
 	cmacaddr(const std::string& s_addr);
 
-	/** constructor
+
+
+	/**
+	 * @brief	Constructor from C-string.
 	 *
+	 * @param s_addr null-terminated c-string containing the hardware address defined as "00:00:00:00:00:00"
 	 */
 	cmacaddr(const char *s_addr);
 
-	/** assignment operator
+
+
+	/**
+	 * @brief	Assignment operator.
 	 *
+	 * @param ma cmacaddr instance to be assigned
 	 */
 	cmacaddr& operator= (cmacaddr const& ma);
 
-	/** destructor
+
+
+	/**
+	 * @brief	Destructor.
 	 *
 	 */
 	virtual
 	~cmacaddr() {};
 
-	/** comparison operator
+
+
+	/**
+	 * @brief	Comparison operator (equal).
 	 *
+	 * @param ma cmacaddr instance to be compared
 	 */
 	bool
 	operator== (
 			cmacaddr const& ma) const;
 
-	/** comparison operator
+
+
+	/**
+	 * @brief	Comparison operator (unequal).
 	 *
+	 * @param ma cmacaddr instance to be compared
 	 */
 	bool
 	operator!= (
 			cmacaddr const& ma) const;
 
-	/** operator&
+
+
+	/**
+	 * @brief	AND operator.
 	 *
+	 * @param ma cmacaddr instance for operation
 	 */
 	cmacaddr&
 	operator& (
 			cmacaddr const& ma);
 
-	/** is multicast?
+
+
+	/**
+	 * @brief	Check for multicast bit in hardware address.
 	 *
+	 * @return true: hardware address has multicast bit set, false otherwise
 	 */
 	bool
 	is_multicast() const;
 
-	/** is broadcast?
+
+
+	/**
+	 * @brief	Check for broadcast hardware address.
 	 *
+	 * @return true: hardware address equals "ff:ff:ff:ff:ff:ff", false otherwise
 	 */
 	bool
 	is_broadcast() const;
 
-	/** is null?
+
+
+	/**
+	 * @brief	Check for null hardware address.
 	 *
+	 * @return true: hardware address equals "00:00:00:00:00:00", false otherwise
 	 */
 	bool
 	is_null() const;
 
+
+
 	/**
+	 * @brief	Returns a C-string containing information about this hardware address.
 	 *
+	 * @return c-string
 	 */
 	const char*
 	c_str() const;
+
 
 private:
 
