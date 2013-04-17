@@ -477,7 +477,7 @@ crofbase::dpt_find(uint64_t dpid) throw (eRofBaseNotFound)
 	for (std::set<cofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
-		if ((*it)->dpid == dpid)
+		if ((*it)->get_dpid() == dpid)
 			return (*it);
 	}
 	throw eRofBaseNotFound();
@@ -490,7 +490,7 @@ crofbase::dpt_find(std::string s_dpid) throw (eRofBaseNotFound)
 	for (std::set<cofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
-		if ((*it)->s_dpid == s_dpid)
+		if ((*it)->get_dpid_s() == s_dpid)
 			return (*it);
 	}
 	throw eRofBaseNotFound();
@@ -503,7 +503,7 @@ crofbase::dpt_find(cmacaddr dl_dpid) throw (eRofBaseNotFound)
 	for (std::set<cofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
-		if ((*it)->dpmac == dl_dpid)
+		if ((*it)->get_hwaddr() == dl_dpid)
 			return (*it);
 	}
 	throw eRofBaseNotFound();

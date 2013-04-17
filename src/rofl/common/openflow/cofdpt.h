@@ -100,7 +100,9 @@ class cofdpt :
 	public cfsm,
 	public cxidowner
 {
-private:
+
+private: // data structures
+
 
 
 		/* cofdpt timer types */
@@ -144,27 +146,22 @@ private:
 #define DEFAULT_DP_STATS_REPLY_TIMEOUT 			10
 #define DEFAULT_DB_BARRIER_REPLY_TIMEOUT 		10
 
-		std::bitset<32>                          flags;
+		std::bitset<32>                 flags;
 
-public: // data structures
-
-														// instance belongs to
-														// (hosted by parent crofbase instance)
 		uint64_t 						dpid;			// datapath id
 		std::string	 					s_dpid;			// datapath id as std::string
-		cmacaddr 						dpmac;			// datapath mac address
+		cmacaddr 						hwaddr;			// datapath mac address
 		uint32_t 						n_buffers; 		// number of buffer lines
 		uint8_t 						n_tables;		// number of tables
 		uint32_t 						capabilities;	// capabilities flags
 
 		std::map<uint32_t, cofport*> 	ports;			// list of ports
 		std::bitset<32> 				dptflags;		// 'fragmentation' flags
-		uint16_t						offlags;
+		uint16_t						config;
 		uint16_t 						miss_send_len; 	// length of bytes sent to controller
 
 		cfsptable 						fsptable;		// flowspace registration table
 
-private:
 
 		csocket							*socket;		// TCP socket towards data path element
 		crofbase 						*rofbase;		// layer-(n) entity
@@ -306,6 +303,96 @@ public:
 	cofport*
 	find_cofport(
 			cmacaddr const& maddr) throw (eOFdpathNotFound);
+
+
+	/**
+	 * @brief	Returns the data path element's data path ID.
+	 *
+	 * @return dpid
+	 */
+	uint64_t
+	get_dpid() const { return dpid; };
+
+
+	/**
+	 * @brief	Returns the data path element's ID string.
+	 *
+	 * @return s_dpid
+	 */
+	std::string
+	get_dpid_s() const { return s_dpid; };
+
+
+	/**
+	 * @brief	Returns the data path element's hardware address.
+	 *
+	 * @return hwaddr
+	 */
+	cmacaddr
+	get_hwaddr() const { return hwaddr; };
+
+
+	/**
+	 * @brief	Returns the data path element's number of buffers for storing data packets.
+	 *
+	 * @return n_buffers
+	 */
+	uint32_t
+	get_n_buffers() const { return n_buffers; };
+
+
+	/**
+	 * @brief	Returns the data path element's number of tables in the OpenFlow pipeline.
+	 *
+	 * @return n_tables
+	 */
+	uint8_t
+	get_n_tables() const { return n_tables; };
+
+
+	/**
+	 * @brief	Returns the data path element's capabilities.
+	 *
+	 * @return capabilities
+	 */
+	uint32_t
+	get_capabilities() const { return capabilities; };
+
+
+	/**
+	 * @brief	Returns the data path element's configuration.
+	 *
+	 * @return config
+	 */
+	uint16_t
+	get_config() const { return config; };
+
+
+	/**
+	 * @brief	Returns the data path element's current miss_send_len parameter.
+	 *
+	 * @return miss_send_len
+	 */
+	uint16_t
+	get_miss_send_len() const { return miss_send_len; };
+
+
+	/**
+	 * @brief	Returns reference to the data path element's flowspace table.
+	 *
+	 * @return fsptable
+	 */
+	cfsptable&
+	get_fsptable() { return fsptable; };
+
+
+	/**
+	 * @brief	Returns reference to the data path element's cofport list.
+	 *
+	 * @return ports
+	 */
+	std::map<uint32_t, cofport*>&
+	get_ports() { return ports; };
 
 	/**@}*/
 

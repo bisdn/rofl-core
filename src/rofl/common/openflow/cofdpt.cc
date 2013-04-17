@@ -14,11 +14,11 @@ cofdpt::cofdpt(
 		int type,
 		int protocol) :
 				dpid(0),
-				dpmac(cmacaddr("00:00:00:00:00:00")),
+				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
 				n_tables(0),
 				capabilities(0),
-				offlags(0),
+				config(0),
 				miss_send_len(0),
 				socket(new csocket(this, newsd, ra, domain, type, protocol)),
 				rofbase(rofbase),
@@ -55,11 +55,11 @@ cofdpt::cofdpt(
 		int type,
 		int protocol) :
 				dpid(0),
-				dpmac(cmacaddr("00:00:00:00:00:00")),
+				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
 				n_tables(0),
 				capabilities(0),
-				offlags(0),
+				config(0),
 				miss_send_len(0),
 				socket(new csocket(this, domain, type, protocol)),
 				rofbase(rofbase),
@@ -779,13 +779,13 @@ cofdpt::features_reply_rcvd(
 		s_dpid = std::string(vas("0x%llx", dpid));
 
 		// lower 48bits from dpid as datapath mac address
-		dpmac[0] = (dpid & 0x0000ff0000000000ULL) >> 40;
-		dpmac[1] = (dpid & 0x000000ff00000000ULL) >> 32;
-		dpmac[2] = (dpid & 0x00000000ff000000ULL) >> 24;
-		dpmac[3] = (dpid & 0x0000000000ff0000ULL) >> 16;
-		dpmac[4] = (dpid & 0x000000000000ff00ULL) >>  8;
-		dpmac[5] = (dpid & 0x00000000000000ffULL) >>  0;
-		dpmac[0] &= 0xfc;
+		hwaddr[0] = (dpid & 0x0000ff0000000000ULL) >> 40;
+		hwaddr[1] = (dpid & 0x000000ff00000000ULL) >> 32;
+		hwaddr[2] = (dpid & 0x00000000ff000000ULL) >> 24;
+		hwaddr[3] = (dpid & 0x0000000000ff0000ULL) >> 16;
+		hwaddr[4] = (dpid & 0x000000000000ff00ULL) >>  8;
+		hwaddr[5] = (dpid & 0x00000000000000ffULL) >>  0;
+		hwaddr[0] &= 0xfc;
 
 		if (COFDPT_STATE_WAIT_FEATURES == cur_state())
 		{
@@ -836,7 +836,7 @@ cofdpt::get_config_reply_rcvd(
 {
 	cancel_timer(COFDPT_TIMER_GET_CONFIG_REPLY);
 
-	offlags = msg->get_flags();
+	config = msg->get_flags();
 	miss_send_len = msg->get_miss_send_len();
 
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::get_config_reply_rcvd() "
