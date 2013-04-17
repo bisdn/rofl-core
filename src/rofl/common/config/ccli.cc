@@ -251,13 +251,20 @@ ccli::handle_accepted(
 	}
 }
 
+static void cli_print_callback_fn(UNUSED(struct cli_def *cli), const char *string)
+{
+    fprintf(stderr, "%s\n", string);
+}
+
 void
 ccli::read_config_file(const std::string& filename) throw (eCliConfigFileNotFound)
 {
 	WRITELOG(CLI, INFO, "open config file %s", filename.c_str());
 	FILE *fh = fopen(filename.c_str(), "r");
 	if (NULL != fh) {
+		cli_print_callback(this->cli, cli_print_callback_fn);
 		cli_file(this->cli, fh, PRIVILEGE_UNPRIVILEGED, MODE_EXEC);
+		cli_print_callback(this->cli, NULL);
 		fclose(fh);
 	} else {
 		WRITELOG(CLI, ERROR, "config file not found %s", filename.c_str());

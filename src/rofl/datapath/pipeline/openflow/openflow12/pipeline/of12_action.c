@@ -502,19 +502,13 @@ static inline void of12_process_packet_action(const struct of12_switch* sw, cons
 			break;
 		case OF12_AT_OUTPUT: 
 			
-			if(action->field == OF12_PORT_NORMAL){
+			if(action->field < OF12_PORT_MAX || 
+				 action->field == OF12_PORT_ALL || 
+				 action->field == OF12_PORT_FLOOD || 
+				 action->field == OF12_PORT_NORMAL || 
+				 action->field == OF12_PORT_CONTROLLER){ 
 
-				//Generate packet in
-				platform_of12_packet_in(sw, table_id, pkt, OF12_PKT_IN_ACTION);
-
-			}else if(action->field == OF12_PORT_TABLE || 
-				 action->field == OF12_PORT_NORMAL ||
-				 action->field == OF12_PORT_ANY || 
-				 action->field == OF12_PORT_MAX ){	
-				//Do nothing
-
-			}else{
-				//Pointer to the packet to send
+				//Pointer for the packet to be sent
 				datapacket_t* pkt_to_send;			
 	
 				//Duplicate the packet only if necessary
@@ -528,15 +522,30 @@ static inline void of12_process_packet_action(const struct of12_switch* sw, cons
 					pkt_to_send = pkt;
 
 				//Perform output
-				if(action->field == OF12_PORT_FLOOD || 
-				   action->field == OF12_PORT_ALL){
-					//Flood
-					platform_packet_output(pkt_to_send, flood_meta_port);
-				}else{
+				if(action->field <= sw->num_of_ports){
+
 					//Single port output
 					platform_packet_output(pkt_to_send, sw->logical_ports[action->field].port);
+
+				}else if(action->field == OF12_PORT_FLOOD || 
+					action->field == OF12_PORT_ALL){
+
+					//Flood
+					platform_packet_output(pkt_to_send, flood_meta_port);
+
+				}else if(action->field == OF12_PORT_CONTROLLER ||
+					action->field == OF12_PORT_NORMAL){
+
+					//Controller
+					platform_of12_packet_in(sw, table_id, pkt_to_send, OF12_PKT_IN_ACTION);
+
+				}else{
+
+					//This condition can never happen, unless port number has been somehow corrupted??
+					assert(0);
+					if(pkt != pkt_to_send)
+						platform_packet_drop(pkt_to_send);
 				}
-				
 			}
 			break;
 	}
@@ -549,7 +558,6 @@ void of12_process_apply_actions(const struct of12_switch* sw, const unsigned int
 	for(it=apply_actions_group->head;it;it=it->next){
 		of12_process_packet_action(sw, table_id, pkt, it, replicate_pkts);
 	}	
-	of12_update_packet_matches(pkt); //TODO: evaluate wether it can be updated directly on of12_process_packet action without calling again platform methods, and evaluate the performance impact
 }
 
 /*
