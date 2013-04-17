@@ -187,7 +187,7 @@ ctlbase::handle_dpath_open(
 
 	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_open() => "
 			"adapters: %d #ports-on-dpt: %d\ndpath: %s ",
-			dpname.c_str(), adstacks.size(), dpt->ports.size(), dpt->c_str());
+			dpname.c_str(), adstacks.size(), dpt->get_ports().size(), dpt->c_str());
 
 	uint16_t flags = 0;
 
@@ -220,7 +220,7 @@ ctlbase::handle_dpath_close(
 	}
 
 	WRITELOG(CCTLMOD, DBG, "ctlbase(%s)::handle_dpath_close() "
-			"dpid: %llu", dpname.c_str(), dpath->dpid);
+			"dpid: %llu", dpname.c_str(), dpath->get_dpid());
 
 	this->dpath = (cofdpt*)0;
 
@@ -437,7 +437,7 @@ ctlbase::handle_packet_in(
 		{
 			WRITELOG(CFWD, DBG, "ctlbase(%s)::handle_packet_in() "
 					"too many results from fsptable:%s",
-					dpname.c_str(), sw->fsptable.c_str());
+					dpname.c_str(), sw->get_fsptable().c_str());
 
 			throw eCtlBaseInval();
 		}
