@@ -268,7 +268,7 @@ cpacket::operator=(
 
 
 uint8_t&
-cpacket::operator[] (size_t index) throw (ePacketOutOfRange)
+cpacket::operator[] (size_t index)
 {
 	return mem[index];
 }
@@ -355,9 +355,12 @@ cpacket::operator+ (
 
 
 void
-cpacket::set_flag_no_packet_in()
+cpacket::set_flag_no_packet_in(bool no_packet_in)
 {
-	flags.set(FLAG_NO_PACKET_IN);
+	if (no_packet_in)
+		flags.set(FLAG_NO_PACKET_IN);
+	else
+		flags.reset(FLAG_NO_PACKET_IN);
 }
 
 
@@ -397,7 +400,7 @@ cpacket::empty() const
 void
 cpacket::pack(
 		uint8_t *dest,
-		size_t len) throw (ePacketInval)
+		size_t len)
 {
 	size_t p_len = (len < framelen()) ? len : framelen();
 	memcpy(dest, soframe(), p_len);
@@ -418,17 +421,9 @@ cpacket::unpack(
 	memcpy(soframe(), src, len);
 	data.first = soframe();
 	data.second = len;
-	unpack(in_port);
-}
-
-
-
-void
-cpacket::unpack(
-		uint32_t in_port)
-{
 	classify(in_port);
 }
+
 
 
 
@@ -569,23 +564,6 @@ cpacket::get_total_len()
 	return total_len;
 }
 
-
-
-void
-cpacket::test()
-{
-#if 0
-	cmemory *m = new cmemory(16);
-
-	fetherframe ether(m->somem(), m->memlen(), m->memlen());
-
-	cpacket a(m);
-
-
-	uint8_t *ptr = a.tag_insert(sizeof(struct fetherframe::eth_hdr_t),
-			sizeof(struct fvlanframe::vlan_hdr_t));
-#endif
-}
 
 
 
@@ -1340,7 +1318,7 @@ cpacket::tcp(int i) throw (ePacketNotFound)
 
 
 fframe*
-cpacket::payload(int i) throw (ePacketNotFound)
+cpacket::payload() throw (ePacketNotFound)
 {
 	/*
 	 * only the tail element can be a payload
