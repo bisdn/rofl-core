@@ -6,6 +6,7 @@
 #include "of12_packet_matches.h" //TODO: evaluate if this is the best approach to update of12_matches after actions
 #include "../../../physical_switch.h"
 #include "../../../platform/packet.h"
+#include "../../../util/logging.h"
 #include "../../../platform/memory.h"
 #include "../of12_async_events_hooks.h"
 
@@ -628,7 +629,7 @@ void of12_process_group_actions(const struct of12_switch* sw, const unsigned int
 			break;
 		case OF12_GROUP_TYPE_SELECT:
 			//optional
-			//fprintf(stderr,"<%s:%d> Group type not implemented",__func__,__LINE__);
+			//ROFL_PIPELINE_DEBUG("<%s:%d> Group type not implemented",__func__,__LINE__);
 			break;
 		case OF12_GROUP_TYPE_INDIRECT:
 			//executes the "one bucket defined"
@@ -639,7 +640,7 @@ void of12_process_group_actions(const struct of12_switch* sw, const unsigned int
 			break;
 		case OF12_GROUP_TYPE_FF:
 			//optional
-			//fprintf(stderr,"<%s:%d> Group type not implemented",__func__,__LINE__);
+			//ROFL_PIPELINE_DEBUG("<%s:%d> Group type not implemented",__func__,__LINE__);
 			break;
 		default:
 			break;
@@ -755,113 +756,113 @@ of12_write_actions_t* of12_copy_write_actions(of12_write_actions_t* origin){
 /* Dumping */
 static void of12_dump_packet_action(of12_packet_action_t action){
 
-	fprintf(stderr,"<");
+	ROFL_PIPELINE_DEBUG("<");
 	switch(action.type){
 		case OF12_AT_NO_ACTION: /*TODO: print some error traces? */
 			break;
 
-		case OF12_AT_COPY_TTL_IN: fprintf(stderr, "TTL_IN");
+		case OF12_AT_COPY_TTL_IN: ROFL_PIPELINE_DEBUG("TTL_IN");
 			break;
 
-		case OF12_AT_POP_VLAN:fprintf(stderr, "POP_VLAN");
+		case OF12_AT_POP_VLAN:ROFL_PIPELINE_DEBUG("POP_VLAN");
 			break;
-		case OF12_AT_POP_MPLS:fprintf(stderr, "POP_MPLS");
+		case OF12_AT_POP_MPLS:ROFL_PIPELINE_DEBUG("POP_MPLS");
 			break;
-		case OF12_AT_POP_PPPOE:fprintf(stderr, "POP_PPPOE");
-			break;
-
-		case OF12_AT_PUSH_PPPOE:fprintf(stderr, "PUSH_PPPOE");
-			break;
-		case OF12_AT_PUSH_MPLS:fprintf(stderr, "PUSH_MPLS");
-			break;
-		case OF12_AT_PUSH_VLAN:fprintf(stderr, "PUSH_VLAN");
+		case OF12_AT_POP_PPPOE:ROFL_PIPELINE_DEBUG("POP_PPPOE");
 			break;
 
-		case OF12_AT_COPY_TTL_OUT:fprintf(stderr, "COPY_TTL_OUT");
+		case OF12_AT_PUSH_PPPOE:ROFL_PIPELINE_DEBUG("PUSH_PPPOE");
+			break;
+		case OF12_AT_PUSH_MPLS:ROFL_PIPELINE_DEBUG("PUSH_MPLS");
+			break;
+		case OF12_AT_PUSH_VLAN:ROFL_PIPELINE_DEBUG("PUSH_VLAN");
 			break;
 
-		case OF12_AT_DEC_NW_TTL:fprintf(stderr, "DEC_NW_TTL");
-			break;
-		case OF12_AT_DEC_MPLS_TTL:fprintf(stderr, "DEC_MPLS_TTL");
+		case OF12_AT_COPY_TTL_OUT:ROFL_PIPELINE_DEBUG("COPY_TTL_OUT");
 			break;
 
-		case OF12_AT_SET_MPLS_TTL:fprintf(stderr, "SET_MPLS_TTL%llx",(long long unsigned int)action.field);
+		case OF12_AT_DEC_NW_TTL:ROFL_PIPELINE_DEBUG("DEC_NW_TTL");
 			break;
-		case OF12_AT_SET_NW_TTL:fprintf(stderr, "SET_NW_TTL: %llx",(long long unsigned int)action.field);
+		case OF12_AT_DEC_MPLS_TTL:ROFL_PIPELINE_DEBUG("DEC_MPLS_TTL");
 			break;
 
-		case OF12_AT_SET_QUEUE:fprintf(stderr, "SET_QUEUE:%llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_MPLS_TTL:ROFL_PIPELINE_DEBUG("SET_MPLS_TTL: %u",action.field);
+			break;
+		case OF12_AT_SET_NW_TTL:ROFL_PIPELINE_DEBUG("SET_NW_TTL: %u",action.field);
+			break;
+
+		case OF12_AT_SET_QUEUE:ROFL_PIPELINE_DEBUG("SET_QUEUE: %u",action.field);
 			break;
 
 		//TODO 
 		//case OF12_AT_SET_FIELD_METADATA:
 		//	break;
 
-		case OF12_AT_SET_FIELD_ETH_DST: fprintf(stderr, "SET_ETH_DST: %llx",(long long unsigned int)action.field); 
+		case OF12_AT_SET_FIELD_ETH_DST: ROFL_PIPELINE_DEBUG("SET_ETH_DST: 0x%"PRIx64,action.field); 
 			break;
-		case OF12_AT_SET_FIELD_ETH_SRC: fprintf(stderr, "SET_ETH_SRC: %llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_FIELD_ETH_SRC: ROFL_PIPELINE_DEBUG("SET_ETH_SRC: 0x%"PRIx64,action.field);
 			break;
-		case OF12_AT_SET_FIELD_ETH_TYPE:fprintf(stderr, "SET_ETH_TYPE: %llx",(long long unsigned int)action.field);
-			break;
-
-		case OF12_AT_SET_FIELD_VLAN_VID:fprintf(stderr, "SET_VLAN_VID: %llx",(long long unsigned int)action.field);
-			break;
-		case OF12_AT_SET_FIELD_VLAN_PCP:fprintf(stderr, "SET_VLAN_PCP: %llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_FIELD_ETH_TYPE:ROFL_PIPELINE_DEBUG("SET_ETH_TYPE: 0x%x",action.field);
 			break;
 
-		case OF12_AT_SET_FIELD_IP_DSCP: fprintf(stderr, "SET_IP_DSCP: %llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_FIELD_VLAN_VID:ROFL_PIPELINE_DEBUG("SET_VLAN_VID: 0x%x",action.field);
 			break;
-		case OF12_AT_SET_FIELD_IP_ECN:  fprintf(stderr, "SET_IP_ECN: %llx",(long long unsigned int)action.field);
-			break;
-
-		case OF12_AT_SET_FIELD_IP_PROTO:fprintf(stderr, "SET_IP_PROTO: %llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_FIELD_VLAN_PCP:ROFL_PIPELINE_DEBUG("SET_VLAN_PCP: 0x%x",action.field);
 			break;
 
-		case OF12_AT_SET_FIELD_IPV4_SRC:fprintf(stderr, "SET_IPV4_SRC: %llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_FIELD_IP_DSCP: ROFL_PIPELINE_DEBUG("SET_IP_DSCP: 0x%x",action.field);
 			break;
-		case OF12_AT_SET_FIELD_IPV4_DST:fprintf(stderr, "SET_IPV4_DST: %llx",(long long unsigned int)action.field);
-			break;
-
-		case OF12_AT_SET_FIELD_TCP_SRC: fprintf(stderr, "SET_TCP_SRC: %llx",(long long unsigned int)action.field);
-			break;
-		case OF12_AT_SET_FIELD_TCP_DST: fprintf(stderr, "SET_TCP_DST: %llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_FIELD_IP_ECN:  ROFL_PIPELINE_DEBUG("SET_IP_ECN: 0x%x",action.field);
 			break;
 
-		case OF12_AT_SET_FIELD_UDP_SRC: fprintf(stderr, "SET_UDP_SRC: %llx",(long long unsigned int)action.field);
-			break;
-		case OF12_AT_SET_FIELD_UDP_DST:  fprintf(stderr, "SET_UDP_DST: %llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_FIELD_IP_PROTO:ROFL_PIPELINE_DEBUG("SET_IP_PROTO: 0x%x",action.field);
 			break;
 
-		case OF12_AT_SET_FIELD_ICMPV4_TYPE:fprintf(stderr, "SET_ICMPV4_TYPE: %llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_FIELD_IPV4_SRC:ROFL_PIPELINE_DEBUG("SET_IPV4_SRC: 0x%x",action.field);
 			break;
-		case OF12_AT_SET_FIELD_ICMPV4_CODE:fprintf(stderr, "SET_ICMPV4_CODE: %llx",(long long unsigned int)action.field);
-			break;
-
-		case OF12_AT_SET_FIELD_MPLS_LABEL:fprintf(stderr, "SET_MPLS_LABEL: %llx",(long long unsigned int)action.field);
-			break;
-		case OF12_AT_SET_FIELD_MPLS_TC:fprintf(stderr, "SET_MPLS_TC: %llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_FIELD_IPV4_DST:ROFL_PIPELINE_DEBUG("SET_IPV4_DST: 0x%x",action.field);
 			break;
 
-		case OF12_AT_SET_FIELD_PPPOE_CODE:fprintf(stderr, "SET_PPPOE_CODE: %llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_FIELD_TCP_SRC: ROFL_PIPELINE_DEBUG("SET_TCP_SRC: %u",action.field);
 			break;
-		case OF12_AT_SET_FIELD_PPPOE_TYPE:fprintf(stderr, "SET_PPPOE_TYPE: %llx",(long long unsigned int)action.field);
-			break;
-		case OF12_AT_SET_FIELD_PPPOE_SID:fprintf(stderr, "SET_PPPOE_SID: %llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_FIELD_TCP_DST: ROFL_PIPELINE_DEBUG("SET_TCP_DST: %u",action.field);
 			break;
 
-		case OF12_AT_SET_FIELD_PPP_PROT:fprintf(stderr, "SET_PPP_PROT: %llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_FIELD_UDP_SRC: ROFL_PIPELINE_DEBUG("SET_UDP_SRC: %u",action.field);
+			break;
+		case OF12_AT_SET_FIELD_UDP_DST:  ROFL_PIPELINE_DEBUG("SET_UDP_DST: %u",action.field);
 			break;
 
-		case OF12_AT_GROUP:fprintf(stderr, "GROUP");
+		case OF12_AT_SET_FIELD_ICMPV4_TYPE:ROFL_PIPELINE_DEBUG("SET_ICMPV4_TYPE: 0x%x",action.field);
+			break;
+		case OF12_AT_SET_FIELD_ICMPV4_CODE:ROFL_PIPELINE_DEBUG("SET_ICMPV4_CODE: 0x%x",action.field);
 			break;
 
-		case OF12_AT_EXPERIMENTER:fprintf(stderr, "EXPERIMENTER");
+		case OF12_AT_SET_FIELD_MPLS_LABEL:ROFL_PIPELINE_DEBUG("SET_MPLS_LABEL: 0x%x",action.field);
+			break;
+		case OF12_AT_SET_FIELD_MPLS_TC:ROFL_PIPELINE_DEBUG("SET_MPLS_TC: 0x%x",action.field);
 			break;
 
-		case OF12_AT_OUTPUT:fprintf(stderr, "OUTPUT: %llx",(long long unsigned int)action.field);
+		case OF12_AT_SET_FIELD_PPPOE_CODE:ROFL_PIPELINE_DEBUG("SET_PPPOE_CODE: 0x%x",action.field);
+			break;
+		case OF12_AT_SET_FIELD_PPPOE_TYPE:ROFL_PIPELINE_DEBUG("SET_PPPOE_TYPE: 0x%x",action.field);
+			break;
+		case OF12_AT_SET_FIELD_PPPOE_SID:ROFL_PIPELINE_DEBUG("SET_PPPOE_SID: 0x%x",action.field);
+			break;
+
+		case OF12_AT_SET_FIELD_PPP_PROT:ROFL_PIPELINE_DEBUG("SET_PPP_PROT: 0x%x",action.field);
+			break;
+
+		case OF12_AT_GROUP:ROFL_PIPELINE_DEBUG("GROUP");
+			break;
+
+		case OF12_AT_EXPERIMENTER:ROFL_PIPELINE_DEBUG("EXPERIMENTER");
+			break;
+
+		case OF12_AT_OUTPUT:ROFL_PIPELINE_DEBUG("OUTPUT port: %u",action.field);
 			break;
 	}
-	fprintf(stderr,">,");
+	ROFL_PIPELINE_DEBUG(">,");
 
 }
 

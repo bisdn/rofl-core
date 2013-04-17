@@ -4,9 +4,9 @@ noinst_LTLIBRARIES = librofl_pipeline_util.la
 
 library_includedir = $(includedir)/rofl/datapath/pipeline/util
 
-library_include_HEADERS = rofl_pipeline_utils.h
+library_include_HEADERS = rofl_pipeline_utils.h logging.h
 
 librofl_pipeline_util_la_SOURCES = cutil.h \
-	rofl_pipeline_debug.h \
-	rofl_pipeline_debug.c
+	logging.h \
+	logging.c
 

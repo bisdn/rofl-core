@@ -1,6 +1,7 @@
 #include "physical_switch.h"
 
 #include <assert.h>
+#include <util/logging.h>
 
 static physical_switch_t psw;
 
@@ -10,6 +11,9 @@ switch_port_t* flood_meta_port = &psw.meta_ports[META_PORT_FLOOD_INDEX];
 
 //init&destroy
 void physical_switch_init(){
+
+	ROFL_PIPELINE_DEBUG("Initializing physical switch\n");
+	
 	//FIXME: check error
 	psw.mutex = platform_mutex_init(NULL);
 	
@@ -29,6 +33,7 @@ physical_switch_t* get_physical_switch(){
 }
 
 void physical_switch_destroy(){
+	ROFL_PIPELINE_DEBUG("Destroying physical switch\n");
 	platform_mutex_destroy(psw.mutex);
 }
 
@@ -119,11 +124,14 @@ rofl_result_t physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid)
 	int i;
 	of_switch_t* sw;
 
+	ROFL_PIPELINE_DEBUG("Removing logical switch with dpid: %"PRIu64"\n",dpid);
+
 	//Serialize
 	platform_mutex_lock(psw.mutex);
 
 	if(!physical_switch_get_logical_switch_by_dpid(dpid)){
 		platform_mutex_unlock(psw.mutex);
+		ROFL_PIPELINE_WARN("Logical switch not found\n");	
 		return ROFL_FAILURE;
 	}
 	

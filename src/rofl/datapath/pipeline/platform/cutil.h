@@ -3,15 +3,6 @@
 
 #include "../util/rofl_pipeline_utils.h"
 
-#ifdef DEBUG
-#define DEBUG_ERROR_EXIT(line) do{\
-fprintf(stderr,"<%s:%d>%s\n",__func__,__LINE__,line);\
-exit(-1);\
-}while(0)
-#else
-#define DEBUG_ERROR_EXIT(line)
-#endif
-
 /*
  * interface for utilities which may be platform specific (doesn't necessarily have to be)
  */
