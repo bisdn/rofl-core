@@ -558,7 +558,6 @@ void of12_process_apply_actions(const struct of12_switch* sw, const unsigned int
 	for(it=apply_actions_group->head;it;it=it->next){
 		of12_process_packet_action(sw, table_id, pkt, it, replicate_pkts);
 	}	
-	of12_update_packet_matches(pkt); //TODO: evaluate wether it can be updated directly on of12_process_packet action without calling again platform methods, and evaluate the performance impact
 }
 
 /*
