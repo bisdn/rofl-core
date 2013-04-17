@@ -125,7 +125,7 @@ void platform_packet_set_ppp_proto(datapacket_t* pkt, uint16_t proto);
 * @ingroup platform_packet
 * Output packet to the port(s)
 * The action HAS to implement the destruction/release of the pkt
-* (including if the pkt is a replica).
+* (including if this pkt is a replica).
 *
 * If a flooding output actions needs to be done, the function
 * has itself to deal with packet replication.
