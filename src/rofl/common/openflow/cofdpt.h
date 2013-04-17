@@ -265,7 +265,7 @@ public:
 public:
 
 	/**
-	 * @name	Data model related methods
+	 * @name	Data path property related methods
 	 *
 	 * These methods provide an interface for querying various properties of the attached data path element.
 	 */
