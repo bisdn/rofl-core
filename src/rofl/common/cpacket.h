@@ -151,7 +151,6 @@ public:
 
 		time_t 				packet_receive_time;	// time this packet was received
 		uint32_t 			in_port;				// incoming port
-		uint32_t			out_port;				// outgoing port when stored within cpktqueue, 0 otherwise
 
 
 #if 1
@@ -165,19 +164,6 @@ public:
 #endif
 
 
-
-
-/*
- * methods
- */
-public: // static methods
-
-
-	/** returns an empty packet
-	 *
-	 */
-	static cpacket
-	pempty();
 
 
 public: // methods

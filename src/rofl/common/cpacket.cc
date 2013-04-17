@@ -12,12 +12,6 @@ pthread_rwlock_t 	cpacket::cpacket_lock;
 std::set<cpacket*> 	cpacket::cpacket_list;
 
 
-cpacket
-cpacket::pempty()
-{
-	return cpacket((size_t)0);
-}
-
 
 const char*
 cpacket::cpacket_info()
@@ -71,8 +65,7 @@ cpacket::cpacket(
 					mem(size + hspace + tspace),
 					data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, size)),
 					packet_receive_time(time(NULL)),
-					in_port(0),
-					out_port(0)
+					in_port(0)
 {
 	pthread_rwlock_init(&ac_rwlock, NULL);
 
@@ -101,8 +94,7 @@ cpacket::cpacket(
 				mem(mem->memlen() + hspace + tspace),
 				data(std::pair<uint8_t*, size_t>(this->mem.somem() + hspace, mem->memlen())),
 				packet_receive_time(time(NULL)),
-				in_port(in_port),
-				out_port(0)
+				in_port(in_port)
 {
 	WRITELOG(CPACKET, DBG, "cpacket(%p)::cpacket()", this);
 
@@ -137,8 +129,7 @@ cpacket::cpacket(
 				//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
 				data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, buflen)),
 				packet_receive_time(time(NULL)),
-				in_port(in_port),
-				out_port(0)
+				in_port(in_port)
 {
 	WRITELOG(CPACKET, DBG, "cpacket(%p)::cpacket()", this);
 
@@ -172,8 +163,7 @@ cpacket::cpacket(
 				//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
 				data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, pack.framelen())),
 				packet_receive_time(time(NULL)),
-				in_port(0),
-				out_port(0)
+				in_port(0)
 {
 	WRITELOG(CPACKET, DBG, "cpacket(%p)::cpacket()", this);
 
