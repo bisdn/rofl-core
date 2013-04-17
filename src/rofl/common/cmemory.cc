@@ -188,7 +188,7 @@ cmemory::operator< (const cmemory& m) const
 
 
 cmemory
-cmemory::operator& (const cmemory& m) const throw (eMemInval)
+cmemory::operator& (const cmemory& m) const
 {
 	if (memlen() != m.memlen())
 	{
@@ -271,7 +271,7 @@ cmemory::assign(
 
 uint8_t*
 cmemory::resize(
-		size_t len) throw (eMemAllocFailed)
+		size_t len)
 {
 	if (0 == len)
 	{
@@ -363,11 +363,10 @@ cmemory::mfree()
 
 
 
-#if 1
 uint8_t*
 cmemory::insert(
 		uint8_t *ptr,
-		size_t len) throw (eMemInval)
+		size_t len)
 {
 	if (not ((ptr >= data.first) && (ptr < (data.first + data.second))))
 	{
@@ -382,7 +381,7 @@ cmemory::insert(
 uint8_t*
 cmemory::insert(
 		unsigned int offset,
-		size_t len) throw (eMemInval)
+		size_t len)
 {
 	if (offset > data.second)
 	{
@@ -422,7 +421,7 @@ cmemory::insert(
 void
 cmemory::remove(
 		uint8_t *ptr,
-		size_t len) throw (eMemInval)
+		size_t len)
 {
 	if (not ((ptr >= data.first) && (ptr < (data.first + data.second))))
 	{
@@ -442,7 +441,7 @@ cmemory::remove(
 void
 cmemory::remove(
 		unsigned int offset,
-		size_t len) throw (eMemInval)
+		size_t len)
 {
 	len = ((offset + len) > data.second) ? data.second - offset : len;
 
@@ -451,14 +450,13 @@ cmemory::remove(
 
 	data.second -= len;
 }
-#endif
 
 
 
 unsigned int
 cmemory::find_first_of(
 		uint8_t value,
-		unsigned int start) throw (eMemNotFound)
+		unsigned int start)
 {
 	for (unsigned int i = start; i < memlen(); i++)
 	{
