@@ -11,10 +11,10 @@ using namespace rofl;
 cethport::cethport(cport_owner *owner, std::string devname) :
 	csocket(0, PF_PACKET, SOCK_RAW, htons(ETH_P_ALL), 10),
 	clinuxport(owner, devname, std::string("phy")),
-	baddr(AF_PACKET, ETH_P_ALL, devname, 0, 0, NULL, 0)
+	baddr(ETH_P_ALL, devname, 0, 0, NULL, 0)
 {
 	WRITELOG(CPORT, DBG, "cethport::cethport dev(%s)", devname.c_str());
-	cpopen(baddr, PF_PACKET, SOCK_RAW, htons(ETH_P_ALL), 10, devname);
+	clisten(baddr, PF_PACKET, SOCK_RAW, htons(ETH_P_ALL), 10, devname);
 	cethport::cethport_list.insert(this);
 
 	enable_interface();

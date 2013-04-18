@@ -18,6 +18,8 @@ csocket::csocket(
 		int backlog) :
 	socket_owner(owner),
 	sd(-1),
+	laddr(domain),
+	raddr(domain),
 	domain(domain),
 	type(type),
 	protocol(protocol),
@@ -42,6 +44,7 @@ csocket::csocket(
 		int backlog) :
 	socket_owner(owner),
 	sd(sd),
+	laddr(domain),
 	raddr(ra),
 	domain(domain),
 	type(type),
@@ -81,7 +84,7 @@ csocket::handle_revent(int fd)
 	// handle socket when in listening state
 	if (sockflags[SOCKET_IS_LISTENING]) {
 		int new_sd;
-		caddress ra;
+		caddress ra(domain);
 
 		if ((new_sd = accept(sd, (struct sockaddr*)(ra.ca_saddr), &(ra.salen))) < 0) {
 			switch (errno) {
@@ -183,7 +186,7 @@ csocket::handle_xevent(int fd)
 
 
 void
-csocket::cpopen(
+csocket::clisten(
 	caddress la,
 	int domain, 
 	int type, 
@@ -306,7 +309,7 @@ csocket::cpopen(
 
 
 void
-csocket::caopen(
+csocket::cconnect(
 	caddress ra,
 	caddress la,
 	int domain, 

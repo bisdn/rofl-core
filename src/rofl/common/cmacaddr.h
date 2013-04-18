@@ -185,6 +185,11 @@ private:
 };
 
 
+
+/**
+ * @class cmacbcast
+ * @brief	A class with a pre-defined hardware address of "ff:ff:ff:ff:ff:ff".
+ */
 class cmacbcast : public cmacaddr {
 public:
 	cmacbcast() :

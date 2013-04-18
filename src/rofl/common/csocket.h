@@ -49,92 +49,154 @@ class eSocketReadFailed		: public eSocketBase {}; /**< read() failed or packet c
 
 class csocket; // forward declaration for csocket_owner, see below
 
+
+/**
+ * @class csocket_owner
+ * @brief	An abstract interface defining the consumer side of a csocket.
+ *
+ * This class defines an abstract interface for interacting with instances of type csocket.
+ * It defines five methods for reception of notifications emitted by specific socket events:
+ * - accepted
+ * - connected
+ * - connect_refised
+ * - read
+ * - closed
+ * All methods are pure abstract and must be implemented by a class deriving from csocket_owner.
+ *
+ * @see csocket
+ */
 class csocket_owner
 {
 protected:
 	friend class csocket;
 
-	virtual ~csocket_owner() {};
-	virtual void handle_accepted(csocket *socket, int newsd, caddress const& ra) = 0;
-	virtual void handle_connected(csocket *socket, int sd) = 0;
-	virtual void handle_connect_refused(csocket *socket, int sd) = 0;
-	virtual void handle_read(csocket *socket, int sd) = 0;
-	virtual void handle_closed(csocket *socket, int sd) = 0;
+	/**
+	 * @brief	Destructor.
+	 */
+	virtual
+	~csocket_owner() {};
+
+	/**
+	 * @brief	Called once a listening socket has accepted a connection request from a remote peer entity.
+	 *
+	 * @param socket pointer to csocket instance emitting the motification
+	 * @param newsd socket descriptor of new created Unix socket
+	 * @param ra address of peer entity
+	 */
+	virtual void
+	handle_accepted(csocket *socket, int newsd, caddress const& ra) = 0;
+
+	/**
+	 * @brief	Called once a connection request to a remote entity has succeeded.
+	 *
+	 * @param socket pointer to csocket instance emitting the motification
+	 * @param sd socket descriptor used for new connection
+	 */
+	virtual void
+	handle_connected(csocket *socket, int sd) = 0;
+
+	/**
+	 * @brief	Called once a connection request to a remote entity failed.
+	 *
+	 * @param socket pointer to csocket instance emitting the notification
+	 * @param sd socket descriptor used for connection
+	 */
+	virtual void
+	handle_connect_refused(csocket *socket, int sd) = 0;
+
+	/**
+	 * @brief	Called once new data is available for reading from the socket.
+	 *
+	 * @param socket pointer to csocket instance emitting the notification
+	 * @param sd socket descriptor used by the connection
+	 */
+	virtual void
+	handle_read(csocket *socket, int sd) = 0;
+
+	/**
+	 * @brief	Called once the socket has been shutdown and closed.
+	 *
+	 * @param socket pointer to csocket instance emitting the notification
+	 * @param sd socket descriptor used by the connection
+	 */
+	virtual void
+	handle_closed(csocket *socket, int sd) = 0;
 };
 
 
 /**
- * Abstract base class for socket operations.
+ * @class csocket
+ * @brief 	A single socket.
  *
  * This class provides basic support for socket based communication.
  * Its aim is to encapsulate functionality for establishing a socket
- * and to provide send() related functions. The reading side must be
- * provided by the derived class. The socket is set to non-blocking mode,
+ * in active and passive mode. For using a socket, the owning class
+ * must implement the interface defined in csocket_owner.
+ *
+ * The socket is set to non-blocking mode,
  * thus it does not block indefinitely during read or write operations,
  * rather it returns control to the calling entity asap.
  *
- * The following function must be overwritten:
- * - handle_read()
+ * For listening sockets, method csocket_owner::handle_accepted() will be
+ * called. The socket owner should create a new csocket instance and assigning
+ * the new obtained socket descriptor to it.
  *
- * The following functions may be overwritten:
- * - handle_accepted()
- * - handle_connected()
- * - handle_conn_refused()
- * - handle_closed()
- *
- * default: TCP/IPv4 with backlog=10 in non-blocking mode
- * csocket *sock = new csocket();
- * caddress la = caddress(AF_INET, "0.0.0.0", 1111);
- * sock->popen(la); => opens a socket with default values on port 1111 in listening mode
+ * @see csocket_owner
  */
 class csocket :
 	public virtual ciosrv
 {
 private:
 
-		pthread_rwlock_t	pout_squeue_lock;	/**< rwlock for access to pout_squeue */
-		std::list<cmemory*> pout_squeue; 		/**< queue of outgoing packets */
+	pthread_rwlock_t			pout_squeue_lock;	/**< rwlock for access to pout_squeue */
+	std::list<cmemory*> 		pout_squeue; 		/**< queue of outgoing packets */
 
-public: // static data structures
-
-	static std::set<csocket*> csock_list; /**< list of all csocket instances */
+	static std::set<csocket*> 	csock_list; 		/**< list of all csocket instances */
 
 protected:
 
-	csocket_owner			*socket_owner;		/**< owner of this csocket instance */
+	csocket_owner				*socket_owner;		/**< owner of this csocket instance */
 
 	enum socket_flag_t {
-		SOCKET_IS_LISTENING = 1, /**< socket is in listening state */
-		CONNECT_PENDING, /**< connect() call is pending */
-		RAW_SOCKET, /**< socket is in raw mode (link layer) */
-		CONNECTED, /**< socket is connected */
+		SOCKET_IS_LISTENING = 1, 	/**< socket is in listening state */
+		CONNECT_PENDING, 			/**< connect() call is pending */
+		RAW_SOCKET, 				/**< socket is in raw mode (link layer) */
+		CONNECTED, 					/**< socket is connected */
 	};
 
-	std::bitset<16> 		sockflags; /**< socket flags (see below) */
+	std::bitset<16> 			sockflags; /**< socket flags (see below) */
 
 public:
 
-	int 					sd; 				/**< the socket descriptor */
-	caddress 				laddr; 				/**< local address socket is bound to */
-	caddress 				raddr; 				/**< remote address of peer entity */
-	int 					domain; 			/**< socket domain (PF_INET, PF_UNIX, ...) */
-	int 					type; 				/**< socket type (SOCK_STREAM, SOCK_DGRAM, ...) */
-	int 					protocol; 			/**< socket protocol (TCP, UDP, SCTP, ...) */
-	int 					backlog; 			/**< backlog value for listen() system call */
+	int 						sd; 				/**< the socket descriptor */
+	caddress 					laddr; 				/**< local address socket is bound to */
+	caddress 					raddr; 				/**< remote address of peer entity */
+	int 						domain; 			/**< socket domain (PF_INET, PF_UNIX, ...) */
+	int 						type; 				/**< socket type (SOCK_STREAM, SOCK_DGRAM, ...) */
+	int 						protocol; 			/**< socket protocol (TCP, UDP, SCTP, ...) */
+	int 						backlog; 			/**< backlog value for listen() system call */
 
 
 public:
+
+
 
 	/**
-	 * Constructor for new sockets created by accept().
+	 * @brief	Constructor for new sockets created by accept().
+	 *
+	 * Use this constructor if you already have an established communication
+	 * association and a valid socket descriptor, e.g. after accepting
+	 * a connection request on a listening socket.
+	 *
+	 * @param owner socket owning entity implementing interface csocket_owner
 	 * @param sd new socket descriptor
-	 * @param domain socket domain (default: PF_INET)
-	 * @param type socket type (default: SOCK_STREAM)
-	 * @param protocol socket protocol (default: 0)
-	 * @param backlog listen backlog (default: 10)
+	 * @param domain socket domain
+	 * @param type socket type
+	 * @param protocol socket protocol
+	 * @param backlog listen backlog
 	 */
 	csocket(csocket_owner *owner,
-			int sd,
+			int newsd,
 			caddress const& ra,
 			int domain 		= PF_INET,
 			int type 		= SOCK_STREAM,
@@ -142,41 +204,55 @@ public:
 			int backlog 	= 10);
 
 
+
 	/**
-	 * Constructor for a new socket (for listening or connecting mode).
-	 * @param domain socket domain (default: PF_INET)
-	 * @param type socket type (default: SOCK_STREAM)
-	 * @param protocol socket protocol (default: 0)
-	 * @param backlog listen backlog (default: 10)
+	 * @brief	Constructor for a new socket (for listening or connecting mode).
+	 *
+	 * Use this constructor for creating a new non-connected socket. In a second
+	 * step, a subsequent call to methods caopen() or cpopen() will either actively establish a connection
+	 * or passively listening for incoming connection requests.
+	 *
+	 * @param owner socket owning entity implementing interface csocket_owner
+	 * @param domain socket domain
+	 * @param type socket type
+	 * @param protocol socket protocol
+	 * @param backlog listen backlog
 	 */
 	csocket(csocket_owner *owner,
-			int domain 	= PF_INET,
+			int domain 		= PF_INET,
 			int type 		= SOCK_STREAM,
 			int protocol 	= IPPROTO_TCP,
 			int backlog 	= 10);
 
 
+
 	/**
-	 * Destructor.
+	 * @brief 	Destructor.
+	 *
 	 */
 	virtual
 	~csocket();
 
+
+
+
 	/**
-	 * Open socket in listening mode (server side).
+	 * @brief	Open socket in listening mode (server side).
 	 *
 	 * This opens a socket in listening mode bound to address 'la'
 	 * with the specified socket parameters.
+	 *
 	 * @param la the local address for binding this socket
-	 * @param domain the socket domain (default: PF_INET)
-	 * @param type the socket type (default: SOCK_STREAM)	 * @param protocol protocol associated with this socket (default: 0 ="use the default protocol for the above socket type")
-	 * @param backlog backlog value used for listen() system call (default: 10)
+	 * @param domain socket domain
+	 * @param type socket type
+	 * @param protocol socket protocol
+	 * @param backlog backlog value
 	 * @throw eSocketListenFailed failure in listen() system call
 	 * @throw eSocketAddressInUse bind error while calling bind()
 	 * @throw eSocketError thrown for all other socket related errors
 	 */
 	void 
-	cpopen(
+	clisten(
 		caddress la,
 		int domain = PF_INET, 
 		int type = SOCK_STREAM, 
@@ -184,46 +260,66 @@ public:
 		int backlog = 10,
 		std::string devname = std::string("")) throw (eSocketError, eSocketListenFailed, eSocketAddressInUse);
 
+
+
+
 	/**
-	 * Open socket and connect to peer entity (client side).
+	 * @brief	Open socket and connect to peer entity (client side).
 	 *
 	 * This opens a socket and connects to a peer entity.
-	 * @param ra the remote address to connect to
-	 * @param domain the socket domain (default: PF_INET)
-	 * @param type the socket type (default: SOCK_STREAM)
-	 * @param protocol protocol associated with this socket (default: 0 ="use the default protocol for the above socket type")
+	 *
+	 * @param ra remote address of peer entity to connect to
+	 * @param la address used for binding socket locally
+	 * @param domain socket domain
+	 * @param type socket type
+	 * @param protocol socket protocol
 	 * @throw eSocketConnectFailed thrown if the connect() operation failed finally
 	 * @throw eSocketError thrown for all other socket related errors
 	 */
-	void caopen(
-		caddress ra, caddress la,
+	void
+	cconnect(
+		caddress ra,
+		caddress la = caddress(AF_INET, "0.0.0.0", 0),
 		int domain = PF_INET, 
 		int type = SOCK_STREAM, 
 		int protocol = 0) throw (eSocketError, eSocketConnectFailed);
 
+
+
 	/**
-	 * Closes this socket.
+	 * @brief	Closes this socket.
 	 *
 	 * Calls the shutdown() system call and closes the socket.
 	 * Also deletes all packets queued in pout_squeue for transmission.
 	 * After calling cclose() it is safe to call caopen() or cpopen() again.
 	 */
-	void cclose();
+	void
+	cclose();
+
+
 
 	/**
-	 * Store a packet for transmission.
+	 * @brief	Store a packet for transmission.
 	 *
-	 * This method stored the packet in the pout_squeue for transmission.
+	 * This method stores the packet in the outgoing queue for transmission.
 	 * If the socket is not connected and not a raw socket, the packet
 	 * will be deleted and thus dropped.
-	 * After pushing the packet pointer onto pout_squeue, the method registers
+	 * After pushing the packet pointer onto the outgoing queue, the method registers
 	 * the socket descriptor for a write operation and returns, giving the
 	 * calling entity back control.
-	 * @param pack the packet to store for transmission
+	 *
+	 * csocket will call mem's destructor in order to remove the packet from heap
+	 * once it has been sent out. Make sure, that mem is pointing to a heap allocated
+	 * cmemory instance!
+	 *
+	 * @param mem cmemory instance to be sent out
 	 */
-	virtual void send_packet(cmemory *mem);
+	virtual void
+	send_packet(cmemory *mem);
 
-protected:
+
+
+private:
 
 
 	//
@@ -237,7 +333,7 @@ protected:
 	 * on the socket. It should be overwritten by a derived class
 	 * if this signal is required for further operation.
 	 */
-	virtual void
+	void
 	handle_connected()
 	{
 		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_connected()", this);
@@ -254,7 +350,7 @@ protected:
 	 * on the socket. It should be overwritten by a derived class
 	 * if the derived class wants to act upon this condition.
 	 */
-	virtual void
+	void
 	handle_conn_refused()
 	{
 		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_conn_refused()", this);
@@ -273,7 +369,7 @@ protected:
 	 * @param  newsd the new socket descriptor
 	 * @param ra reference to the peer entity's address
 	 */
-	virtual void
+	void
 	handle_accepted(int newsd, caddress const& ra)
 	{
 		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_accepted()", this);
@@ -289,7 +385,7 @@ protected:
 	 * This notification method is called when the socket is closed.
 	 * @param sd the socket descriptor
 	 */
-	virtual void
+	void
 	handle_closed(int sd)
 	{
 		deregister_filedesc_r(sd);
@@ -308,7 +404,7 @@ protected:
 	 * must be overwritten by a derived class.
 	 * @param fd the socket descriptor
 	 */
-	virtual void
+	void
 	handle_read(int fd)
 	{
 		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_read()", this);
@@ -318,9 +414,15 @@ protected:
 		}
 	};
 
+
+
+private:
+
+
 	//
 	// inherited from ciosrv
 	//
+
 
 	/**
 	 * Handle read events on socket descriptor.
@@ -334,6 +436,7 @@ protected:
 	virtual void
 	handle_revent(int fd);
 
+
 	/**
 	 * Handle write events on socket descriptor.
 	 *
@@ -345,6 +448,7 @@ protected:
 	virtual void
 	handle_wevent(int fd);
 
+
 	/**
 	 * Handle exception events on socket descriptor.
 	 * @param fd the socket descriptor
@@ -352,7 +456,9 @@ protected:
 	virtual void
 	handle_xevent(int fd);
 
+
 private:
+
 
 	/**
 	 * Send packets in outgoing queue pout_squeue.
@@ -360,7 +466,9 @@ private:
 	 * This method transmits all pending packets from the transmission
 	 * queue pout_squeue.
 	 */
-	void dequeue_packet() throw (eSocketSendFailed, eSocketShortSend);
+	void
+	dequeue_packet() throw (eSocketSendFailed, eSocketShortSend);
+
 };
 
 }; // end of namespace
