@@ -82,7 +82,7 @@ cofdpt::cofdpt(
 
 	dptflags.set(COFDPT_FLAG_ACTIVE_SOCKET);
 
-	socket->caopen(ra, caddress(AF_INET, "0.0.0.0"), domain, type, protocol);
+	socket->cconnect(ra, caddress(AF_INET, "0.0.0.0"), domain, type, protocol);
 }
 
 
@@ -576,7 +576,7 @@ cofdpt::handle_timeout(int opaque)
 		{
 			if (socket)
 			{
-				socket->caopen(socket->raddr, caddress(AF_INET, "0.0.0.0"), socket->domain, socket->type, socket->protocol);
+				socket->cconnect(socket->raddr, caddress(AF_INET, "0.0.0.0"), socket->domain, socket->type, socket->protocol);
 			}
 		}
 		break;

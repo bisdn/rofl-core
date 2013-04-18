@@ -183,7 +183,7 @@ csocket::handle_xevent(int fd)
 
 
 void
-csocket::cpopen(
+csocket::clisten(
 	caddress la,
 	int domain, 
 	int type, 
@@ -306,7 +306,7 @@ csocket::cpopen(
 
 
 void
-csocket::caopen(
+csocket::cconnect(
 	caddress ra,
 	caddress la,
 	int domain, 

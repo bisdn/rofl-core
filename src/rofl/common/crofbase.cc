@@ -254,7 +254,7 @@ crofbase::rpc_listen_for_dpts(
 		int backlog)
 {
 	csocket *socket = new csocket(this, domain, type, protocol, backlog);
-	socket->cpopen(addr, domain, type, protocol, backlog);
+	socket->clisten(addr, domain, type, protocol, backlog);
 	rpc[RPC_DPT].insert(socket);
 }
 
@@ -269,7 +269,7 @@ crofbase::rpc_listen_for_ctls(
 		int backlog)
 {
 	csocket *socket = new csocket(this, domain, type, protocol, backlog);
-	socket->cpopen(addr, domain, type, protocol, backlog);
+	socket->clisten(addr, domain, type, protocol, backlog);
 	rpc[RPC_CTL].insert(socket);
 }
 

@@ -15,7 +15,7 @@ cunixport::cunixport(
 		clinuxport(owner, devname, std::string("vport")),
 		baddr(AF_UNIX, devname.c_str())
 {
-	cpopen(baddr, PF_UNIX, SOCK_DGRAM, 0);
+	clisten(baddr, PF_UNIX, SOCK_DGRAM, 0);
 	cunixport::cunixport_list.insert(this);
 }
 

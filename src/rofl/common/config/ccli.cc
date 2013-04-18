@@ -175,7 +175,7 @@ ccli::ccli(caddress addr) :
 		cli_fd(-1),
 		baddr(addr)
 {
-	socket->cpopen(baddr, PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	socket->clisten(baddr, PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	// Must be called first to setup data structures
 	cli = cli_init();
