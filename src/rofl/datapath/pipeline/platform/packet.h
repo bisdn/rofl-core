@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-#include "../util/rofl_pipeline_utils.h"
+#include "rofl.h"
 #include "../common/datapacket.h"
 #include "../switch_port.h"
 
@@ -32,7 +32,7 @@
 */
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 /*
 * Actions over the packet
@@ -125,7 +125,7 @@ void platform_packet_set_ppp_proto(datapacket_t* pkt, uint16_t proto);
 * @ingroup platform_packet
 * Output packet to the port(s)
 * The action HAS to implement the destruction/release of the pkt
-* (including if the pkt is a replica).
+* (including if this pkt is a replica).
 *
 * If a flooding output actions needs to be done, the function
 * has itself to deal with packet replication.
@@ -202,6 +202,6 @@ uint16_t platform_packet_get_pppoe_sid(datapacket_t *const pkt);
 //PPP related extensions
 uint16_t platform_packet_get_ppp_proto(datapacket_t *const pkt);
 
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //PLATFORM_HOOKS

@@ -32,7 +32,10 @@ class eXidStoreNotFound			: public eXidStoreBase {};		// xid not found
 
 class cxidowner
 {
-public:
+protected:
+
+	friend class cxidstore;
+
 	/** virtual destructor for pure virtual base class
 	 *
 	 */
@@ -108,6 +111,7 @@ class cxidstore :
  * data structures
  */
 private:
+
 
 		std::map<uint32_t, cxidtrans> transactions;
 

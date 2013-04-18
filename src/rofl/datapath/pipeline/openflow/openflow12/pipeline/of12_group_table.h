@@ -111,7 +111,7 @@ typedef enum{
 struct of12_pipeline;
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 //function declarations
 of12_group_table_t* of12_init_group_table(void);
@@ -125,6 +125,6 @@ of12_bucket_t *of12_init_bucket(uint16_t weight, uint32_t port, uint32_t group, 
 rofl_result_t of12_insert_bucket_in_list(of12_bucket_list_t *bu_list,of12_bucket_t *bucket);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif // __OF12_GROUP_TABLE_H__

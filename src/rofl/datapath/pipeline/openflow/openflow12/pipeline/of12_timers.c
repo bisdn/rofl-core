@@ -5,7 +5,7 @@
 
 #include "../../../platform/memory.h"
 
-#include <stdio.h>
+#include "../../../util/logging.h"
 
 static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_t* tg, of12_pipeline_t *const pipeline, unsigned int id);
 #if ! OF12_TIMER_STATIC_ALLOCATION_SLOTS
@@ -49,11 +49,11 @@ int of12_gettimeofday(struct timeval * tval, struct timezone * tzone)
 {
 #ifdef TIMERS_FAKE_TIME
 	of12_time_forward(0,0,tval);
-	//fprintf(stderr,"NOT usig real system time (%lu:%lu)\n", tval->tv_sec, tval->tv_usec);
+	//ROFL_PIPELINE_DEBUG("NOT usig real system time (%lu:%lu)\n", tval->tv_sec, tval->tv_usec);
 	return 0;
 #else
 	//gettimeofday(tval,tzone);
-	//fprintf(stderr,"<%s:%d> Time %lu:%lu\n",__func__,__LINE__,tval->tv_sec, tval->tv_usec);
+	//ROFL_PIPELINE_DEBUG("<%s:%d> Time %lu:%lu\n",__func__,__LINE__,tval->tv_sec, tval->tv_usec);
 	//return 0;
 	return gettimeofday(tval,tzone);
 #endif
@@ -70,30 +70,30 @@ void of12_dump_timers_structure(of12_timer_group_t * timer_group)
 	of12_entry_timer_t * et;
 	if(!tg)
 	{
-		fprintf(stderr,"Timer group list is empty\n");
+		ROFL_PIPELINE_DEBUG("Timer group list is empty\n");
 		return;
 	}
 #if OF12_TIMER_STATIC_ALLOCATION_SLOTS
 	int i;
 	for(i=0;i<OF12_TIMER_GROUPS_MAX;i++)
 	{
-		fprintf(stderr,"timer group on position %p\n", &(tg[i]));
-		fprintf(stderr,"	[%p] TO:%"PRIu64" Nent:%d h:%p t:%p\n",&(tg[i]), tg[i].timeout,
+		ROFL_PIPELINE_DEBUG("timer group on position %p\n", &(tg[i]));
+		ROFL_PIPELINE_DEBUG("	[%p] TO:%"PRIu64" Nent:%d h:%p t:%p\n",&(tg[i]), tg[i].timeout,
 			tg[i].list.num_of_timers, tg[i].list.head, tg[i].list.tail);
 		for(et=tg[i].list.head; et; et=et->next)
-			fprintf(stderr,"	[%p] fe:%p prev:%p next:%p tg:%p\n", et,et->entry, et->prev, et->next, et->group);
+			ROFL_PIPELINE_DEBUG("	[%p] fe:%p prev:%p next:%p tg:%p\n", et,et->entry, et->prev, et->next, et->group);
 	}
 	
 #else
 	if(tg->prev)
-		fprintf(stderr,"NOT the first group!!\n");
+		ROFL_PIPELINE_DEBUG("NOT the first group!!\n");
 	for(;tg!=NULL;tg=tg->next)
 	{
-		fprintf(stderr,"timer group on position %p\n", tg);
-		fprintf(stderr,"	[%p] TO:%"PRIu64" next:%p prev:%p Nent:%d h:%p t:%p\n",tg, tg->timeout, tg->next, tg->prev,
+		ROFL_PIPELINE_DEBUG("timer group on position %p\n", tg);
+		ROFL_PIPELINE_DEBUG("	[%p] TO:%"PRIu64" next:%p prev:%p Nent:%d h:%p t:%p\n",tg, tg->timeout, tg->next, tg->prev,
 			tg->list.num_of_timers, tg->list.head, tg->list.tail);
 		for(et=tg->list.head; et; et=et->next)
-			fprintf(stderr,"	[%p] fe:%p prev:%p next:%p tg:%p\n", et,et->entry, et->prev, et->next, et->group);
+			ROFL_PIPELINE_DEBUG("	[%p] fe:%p prev:%p next:%p tg:%p\n", et,et->entry, et->prev, et->next, et->group);
 	}
 #endif
 }
@@ -158,7 +158,7 @@ static void of12_timer_group_rotate(of12_pipeline_t *const pipeline, of12_timer_
 	{
 		//erase_all_entries;
 		if(of12_destroy_all_entries_from_timer_group(tg, pipeline, id_table)!=ROFL_SUCCESS)
-			fprintf(stderr,"ERROR in destroying timer group\n");
+			ROFL_PIPELINE_DEBUG("ERROR in destroying timer group\n");
 	}
 	tg->timeout += OF12_TIMER_SLOT_MS*OF12_TIMER_GROUPS_MAX;
 	tg->list.num_of_timers=0;
@@ -182,7 +182,7 @@ static of12_timer_group_t* of12_timer_group_init(uint64_t timeout, of12_timer_gr
 	new_group = platform_malloc_shared(sizeof(of12_timer_group_t));
 	if(new_group == NULL)
 	{
-		fprintf(stderr,"<%s:%d> Error allocating memory\n",__func__,__LINE__);
+		ROFL_PIPELINE_DEBUG("<%s:%d> Error allocating memory\n",__func__,__LINE__);
 		return NULL;
 	}
 	new_group->timeout = timeout;
@@ -233,7 +233,7 @@ static of12_entry_timer_t* of12_entry_timer_init(of12_timer_group_t* tg, of12_fl
 	new_entry = platform_malloc_shared(sizeof(of12_entry_timer_t));
 	if(new_entry==NULL)
 	{
-		fprintf(stderr,"<%s:%d> Error allocating memory\n",__func__,__LINE__);
+		ROFL_PIPELINE_DEBUG("<%s:%d> Error allocating memory\n",__func__,__LINE__);
 		return NULL;
 	}
 	new_entry->entry = entry;
@@ -325,7 +325,7 @@ static rofl_result_t of12_destroy_single_timer_entry_clean(of12_entry_timer_t* e
 		return ROFL_SUCCESS;
 
 	}else{
-		fprintf(stderr,"<%s:%d> Not a valid timer entry %p\n",__func__,__LINE__,entry);
+		ROFL_PIPELINE_DEBUG("<%s:%d> Not a valid timer entry %p\n",__func__,__LINE__,entry);
 		return ROFL_FAILURE;
 	}
 }
@@ -386,12 +386,12 @@ static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer
 			//of12_destroy_single_timer_entry_clean(entry_timer->entry->timer_info.hard_timer_entry, table);
 	
 #ifdef DEBUG_NO_REAL_PIPE
-		fprintf(stderr,"NOT erasing real entries of table \n");
+		ROFL_PIPELINE_DEBUG("NOT erasing real entries of table \n");
 		of12_fill_new_timer_entry_info(entry_timer->entry,0,0);
 		//we need to destroy the entries
 		of12_destroy_timer_entries(entry_timer->entry);
 #else
-		//fprintf(stderr,"Erasing real entries of table \n"); //NOTE Delete
+		//ROFL_PIPELINE_DEBUG("Erasing real entries of table \n"); //NOTE Delete
 		of12_remove_specific_flow_entry_table(pipeline, id_table, entry_timer->entry, OF12_FLOW_REMOVE_IDLE_TIMEOUT, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
 #endif
 		return ROFL_SUCCESS; // timeout expired so no need to reschedule !!! we have to delete the entry
@@ -446,12 +446,12 @@ static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_
 				//if (entry_iterator->entry->timer_info.idle_timer_entry)
 					//of12_destroy_single_timer_entry_clean(entry_iterator->entry->timer_info.idle_timer_entry, table);
 #ifdef DEBUG_NO_REAL_PIPE
-				fprintf(stderr,"NOT erasing real entries of table \n");
+				ROFL_PIPELINE_DEBUG("NOT erasing real entries of table \n");
 				of12_fill_new_timer_entry_info(entry_iterator->entry,0,0);
 				//we delete the enrty_timer form outside
 				of12_destroy_timer_entries(entry_iterator->entry);
 #else
-				//fprintf(stderr,"Erasing real entries of table \n"); //NOTE DELETE
+				//ROFL_PIPELINE_DEBUG("Erasing real entries of table \n"); //NOTE DELETE
 				of12_remove_specific_flow_entry_table(pipeline, id_table,entry_iterator->entry, OF12_FLOW_REMOVE_HARD_TIMEOUT, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
 #endif
 			}
@@ -507,7 +507,7 @@ static of12_timer_group_t * of12_dynamic_slot_search(of12_flow_table_t* const ta
 		if (!(tg_iterator->timeout==expiration_time))
 		{
 			// Unexpected outcome ...
-			fprintf(stderr,"<%s:%d> No proper position for this entry found\n",__func__, __LINE__);
+			ROFL_PIPELINE_DEBUG("<%s:%d> No proper position for this entry found\n",__func__, __LINE__);
 			return NULL;
 		}
 	}
@@ -542,7 +542,7 @@ static rofl_result_t of12_add_single_timer(of12_flow_table_t* const table, const
 	// add entries to the position tc + hard_timeout_s
 	if(timeout > OF12_TIMER_GROUPS_MAX)
 	{
-		fprintf(stderr,"Timeout value excedded maximum value (hto=%d, MAX=%d)\n", timeout,OF12_TIMER_GROUPS_MAX);
+		ROFL_PIPELINE_DEBUG("Timeout value excedded maximum value (hto=%d, MAX=%d)\n", timeout,OF12_TIMER_GROUPS_MAX);
 		return ROFL_FAILURE;
 	}
 	
@@ -605,7 +605,7 @@ void of12_process_pipeline_tables_timeout_expirations(of12_pipeline_t *const pip
 	struct timeval system_time;
 	of12_gettimeofday(&system_time,NULL);
 	uint64_t now = of12_get_time_ms(&system_time);
-	//fprintf(stderr,"<%s:%d> Now = %lu\n",__func__,__LINE__, now);
+	//ROFL_PIPELINE_DEBUG("<%s:%d> Now = %lu\n",__func__,__LINE__, now);
 
 	for(i=0;i<pipeline->num_of_tables;i++)
 	{
@@ -626,7 +626,7 @@ void of12_process_pipeline_tables_timeout_expirations(of12_pipeline_t *const pip
 			//remove all entries and the timer group.
 			if(of12_destroy_all_entries_from_timer_group(slot_it, table)!=ROFL_SUCCESS)
 			{
-				fprintf(stderr,"Error while destroying timer group\n");
+				ROFL_PIPELINE_DEBUG("Error while destroying timer group\n");
 				platform_mutex_unlock(table->mutex);
 				return;
 			}

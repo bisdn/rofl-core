@@ -21,6 +21,14 @@ cmacaddr::cmacaddr() :
 }
 
 
+
+cmacaddr::cmacaddr(cmacaddr const& ma)
+{
+	*this = ma;
+}
+
+
+
 cmacaddr::cmacaddr(cmemory const& mem) :
 	cmemory(OFP_ETH_ALEN)
 {

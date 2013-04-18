@@ -92,17 +92,22 @@ typedef struct port_stats {
 }port_stats_t;
 
 /**
-* @brief Port type 
+* @brief Port type enumeration 
 * @ingroup core
+*
+* META ports are fake ports. META distinction is "group" of 
+* port types which are fake ports (not fitting traditional
+* port types classification).
 */
-typedef enum{
-	PORT_TYPE_INVALID 	= 0,
-	PORT_TYPE_PHYSICAL 	= 1,
-	PORT_TYPE_VIRTUAL 	= 2,
-	PORT_TYPE_TUNNEL 	= 3,
-	PORT_TYPE_META		= 4, 
-	//Special meta ports
-	PORT_TYPE_META_FLOOD	= 5
+typedef enum port_type{
+	PORT_TYPE_INVALID 		= 0,
+	PORT_TYPE_PHYSICAL 		= 1,
+	PORT_TYPE_VIRTUAL 		= 2,
+	PORT_TYPE_TUNNEL 		= 3,
+
+	//Special META(fake) ports
+	//PORT_TYPE_META		= 4, 
+	PORT_TYPE_META_FLOOD		= 5
 }port_type_t;
 
 
@@ -116,7 +121,8 @@ typedef enum{
 *  - PORT_TYPE_PHYSICAL: representing a system's interface or device.
 *  - PORT_TYPE_TUNNEL: a tunnel endpoint termination.
 *  - PORT_TYPE_VIRTUAL: anything that does not fall to previous cat.
-*  - PORT_TYPE_META: meta type should NEVER be used by the user.  
+*  - PORT_TYPE_META: meta type should NEVER be used by the user. This 
+*    has nothing to do with Openflow METADATA. 
 *
 */
 typedef struct switch_port{
@@ -187,7 +193,7 @@ typedef struct logical_switch_port{
 */
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 /**
 * @brief Init a switch_port structure
@@ -253,6 +259,6 @@ void switch_port_set_current_speed(switch_port_t* port, port_features_t speed);
 void switch_port_set_current_max_speed(switch_port_t* port, port_features_t speed);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //PHYSICAL_PORT

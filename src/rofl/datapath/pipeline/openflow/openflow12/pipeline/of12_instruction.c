@@ -2,7 +2,7 @@
 #include "of12_flow_entry.h"
 #include "of12_group_table.h"
 
-#include <stdio.h>
+#include "../../../util/logging.h"
 
 /* Instructions init and destroyers */ 
 static void of12_init_instruction(of12_instruction_t* inst, of12_instruction_type_t type, of12_action_group_t* apply_actions, of12_write_actions_t* write_actions, unsigned int go_to_table){
@@ -194,31 +194,31 @@ void of12_dump_instructions(of12_instruction_group_t group){
 
 	unsigned int i,has_write_actions=0, has_apply_actions=0;
 
-	fprintf(stderr,"Inst->> ");
+	ROFL_PIPELINE_INFO("Inst->> ");
 
 	for(i=0;i<OF12_IT_GOTO_TABLE;i++){
 
 		//Check all instructions in order 
 		switch(group.instructions[i].type){
 			case OF12_IT_APPLY_ACTIONS:  
-					fprintf(stderr," APPLY, ");
+					ROFL_PIPELINE_INFO(" APPLY, ");
 					has_apply_actions++;
 					break;
     			case OF12_IT_CLEAR_ACTIONS: 
-					fprintf(stderr," CLEAR, ");
+					ROFL_PIPELINE_INFO(" CLEAR, ");
 					break;
 			case OF12_IT_WRITE_ACTIONS: 
-					fprintf(stderr," WRITE, ");
+					ROFL_PIPELINE_INFO(" WRITE, ");
 					has_write_actions++;
 					break;
     			case OF12_IT_WRITE_METADATA: //TODO:
-					fprintf(stderr," WRITE-META, ");
+					ROFL_PIPELINE_INFO(" WRITE-META, ");
 					break;
 			case OF12_IT_EXPERIMENTER: //TODO:
-					fprintf(stderr," EXP, ");
+					ROFL_PIPELINE_INFO(" EXP, ");
 					break;
     			case OF12_IT_GOTO_TABLE:  
-					fprintf(stderr," GOTO(%u), ",group.instructions[i].go_to_table);
+					ROFL_PIPELINE_INFO(" GOTO(%u), ",group.instructions[i].go_to_table);
 					break;
 				
 			default: //Empty instruction 
@@ -226,11 +226,11 @@ void of12_dump_instructions(of12_instruction_group_t group){
 		}
 	}
 	if( has_apply_actions ){
-		fprintf(stderr,"\n\t\t\tAPP.ACTIONs:");
+		ROFL_PIPELINE_INFO("\n\t\t\tAPP.ACTIONs:");
 		of12_dump_action_group(group.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions);
 	}
 	if( has_write_actions ){
-		fprintf(stderr,"\n\t\t\tWR.ACTIONs:");
+		ROFL_PIPELINE_INFO("\n\t\t\tWR.ACTIONs:");
 		of12_dump_write_actions(group.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions);
 	}	
 }

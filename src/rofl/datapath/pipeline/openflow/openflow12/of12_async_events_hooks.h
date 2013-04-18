@@ -34,7 +34,7 @@ enum of12_packet_in_reason {
 
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 /*
 * Configuration hooks
@@ -61,7 +61,11 @@ rofl_result_t platform_pre_destroy_of12_switch(of12_switch_t* sw);
 
 /**
 * @brief Packet in event notification 
-* @ingroup async_events_hooks_of12 
+* @ingroup async_events_hooks_of12
+*
+* The implementation of packet_in must either store the buffer (pkt) for later reference
+* by the controller or DROP (release) the buffer (pkt) if there was an error on sending
+* the PKT_IN event or no controller is attached. 
 */
 void platform_of12_packet_in(const of12_switch_t* sw, uint8_t table_id, datapacket_t* pkt, of_packet_in_reason_t reason);
 
@@ -75,6 +79,6 @@ void platform_of12_notify_flow_removed(const of12_switch_t* sw,
 
 
 //Extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif /* ASYNC_EVENTS_HOOKS_OF12_H_ */

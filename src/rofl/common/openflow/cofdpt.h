@@ -81,7 +81,8 @@ class eOFdpathNotFound 				: public eOFdptBase {}; // element not found
 class crofbase;
 
 
-/** A class for controlling a single attached data path element in class crofbase.
+/**
+ * \class	A class for controlling a single attached data path element in class crofbase.
  *
  * This class stores state for an attached data path element
  * including its ports (@see cofport). It is tightly bound to
@@ -99,7 +100,9 @@ class cofdpt :
 	public cfsm,
 	public cxidowner
 {
-private:
+
+private: // data structures
+
 
 
 		/* cofdpt timer types */
@@ -143,32 +146,24 @@ private:
 #define DEFAULT_DP_STATS_REPLY_TIMEOUT 			10
 #define DEFAULT_DB_BARRIER_REPLY_TIMEOUT 		10
 
-		std::bitset<32>                          flags;
+		std::bitset<32>                 flags;
 
-public: // data structures
-
-														// instance belongs to
-														// (hosted by parent crofbase instance)
 		uint64_t 						dpid;			// datapath id
 		std::string	 					s_dpid;			// datapath id as std::string
-		cmacaddr 						dpmac;			// datapath mac address
+		cmacaddr 						hwaddr;			// datapath mac address
 		uint32_t 						n_buffers; 		// number of buffer lines
 		uint8_t 						n_tables;		// number of tables
 		uint32_t 						capabilities;	// capabilities flags
 
 		std::map<uint32_t, cofport*> 	ports;			// list of ports
 		std::bitset<32> 				dptflags;		// 'fragmentation' flags
-		uint16_t						offlags;
+		uint16_t						config;
 		uint16_t 						miss_send_len; 	// length of bytes sent to controller
 
 		cfsptable 						fsptable;		// flowspace registration table
 
-protected:
 
 		csocket							*socket;		// TCP socket towards data path element
-
-private:
-
 		crofbase 						*rofbase;		// layer-(n) entity
 		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store
 
@@ -187,7 +182,15 @@ private:
 
 public:
 
-	/** constructor (TCP accept)
+	/**
+	 * @brief 	Constructor for accepted incoming connection on socket.
+	 *
+	 * @param rofbase pointer to crofbase instance
+	 * @param newsd socket descriptor of new established control connection socket
+	 * @param ra peer address of control connection
+	 * @param domain socket domain
+	 * @param type socket type
+	 * @param protocol socket protocol
 	 */
 	cofdpt(
 			crofbase *rofbase,
@@ -198,7 +201,15 @@ public:
 			int protocol);
 
 
-	/** constructor (TCP connect)
+
+	/**
+	 * @brief 	Constructor for creating a new cofdpt instance and actively connecting to a data path element.
+	 *
+	 * @param rofbase pointer to crofbase instance
+	 * @param ra peer address of control connection
+	 * @param domain socket domain
+	 * @param type socket type
+	 * @param protocol socket protocol
 	 */
 	cofdpt(
 			crofbase *rofbase,
@@ -210,25 +221,289 @@ public:
 
 
 	/**
-	 * @name	~cofdpath
-	 * @brief	destructor of class cofdpath
+	 * @brief	Destructor.
 	 *
-	 * Informs fwdelem by calling (@see handle_dpath_close).
-	 * Deletes all cofport instances (@see ports).
-	 * Removes this pointer from fwdelem->ofdpath_list.
+	 * Deallocates all previously allocated resources for storing data model
+	 * exposed by the data path element.
 	 */
 	virtual
 	~cofdpt();
 
 
+
 	/**
+	 * @brief 	Returns the OpenFlow protocol version used for this control connection.
 	 *
+	 * @return OpenFlow version used for this control connection
 	 */
 	uint8_t
 	get_version();
 
 
+
+
+	/**
+	 * @brief	Send an OpenFlow message to the data path element managed by this cofdpt instance.
+	 *
+	 * @param msg an OpenFlow message
+	 */
+	void
+	send_message(
+			cofmsg *msg);
+
+
+
+	/**
+	 * @brief	Returns a C-string with a description of this cofdpt instance.
+	 *
+	 * @return C-string
+	 */
+	const char*
+	c_str();
+
+
 public:
+
+	/**
+	 * @name	Data path property related methods
+	 *
+	 * These methods provide an interface for querying various properties of the attached data path element.
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief 	Find a cofport instance based on OpenFlow port number.
+	 *
+	 * @return pointer to cofport instance
+	 * @throws eOFdpathNotFound if port could not be found
+	 */
+	cofport*
+	find_cofport(
+			uint32_t port_no) throw (eOFdpathNotFound);
+
+
+	/**
+	 * @brief 	Find a cofport instance based on OpenFlow port name (e.g. eth0).
+	 *
+	 * @return pointer to cofport instance
+	 * @throws eOFdpathNotFound if port could not be found
+	 */
+	cofport*
+	find_cofport(
+			std::string port_name) throw (eOFdpathNotFound);
+
+
+	/**
+	 * @brief 	Find a cofport instance based on OpenFlow port hardware address.
+	 *
+	 * @return pointer to cofport instance
+	 * @throws eOFdpathNotFound if port could not be found
+	 */
+	cofport*
+	find_cofport(
+			cmacaddr const& maddr) throw (eOFdpathNotFound);
+
+
+	/**
+	 * @brief	Returns the data path element's data path ID.
+	 *
+	 * @return dpid
+	 */
+	uint64_t
+	get_dpid() const { return dpid; };
+
+
+	/**
+	 * @brief	Returns the data path element's ID string.
+	 *
+	 * @return s_dpid
+	 */
+	std::string
+	get_dpid_s() const { return s_dpid; };
+
+
+	/**
+	 * @brief	Returns the data path element's hardware address.
+	 *
+	 * @return hwaddr
+	 */
+	cmacaddr
+	get_hwaddr() const { return hwaddr; };
+
+
+	/**
+	 * @brief	Returns the data path element's number of buffers for storing data packets.
+	 *
+	 * @return n_buffers
+	 */
+	uint32_t
+	get_n_buffers() const { return n_buffers; };
+
+
+	/**
+	 * @brief	Returns the data path element's number of tables in the OpenFlow pipeline.
+	 *
+	 * @return n_tables
+	 */
+	uint8_t
+	get_n_tables() const { return n_tables; };
+
+
+	/**
+	 * @brief	Returns the data path element's capabilities.
+	 *
+	 * @return capabilities
+	 */
+	uint32_t
+	get_capabilities() const { return capabilities; };
+
+
+	/**
+	 * @brief	Returns the data path element's configuration.
+	 *
+	 * @return config
+	 */
+	uint16_t
+	get_config() const { return config; };
+
+
+	/**
+	 * @brief	Returns the data path element's current miss_send_len parameter.
+	 *
+	 * @return miss_send_len
+	 */
+	uint16_t
+	get_miss_send_len() const { return miss_send_len; };
+
+
+	/**
+	 * @brief	Returns reference to the data path element's flowspace table.
+	 *
+	 * @return fsptable
+	 */
+	cfsptable&
+	get_fsptable() { return fsptable; };
+
+
+	/**
+	 * @brief	Returns reference to the data path element's cofport list.
+	 *
+	 * @return ports
+	 */
+	std::map<uint32_t, cofport*>&
+	get_ports() { return ports; };
+
+	/**@}*/
+
+
+public:
+
+
+	/**
+	 * @name Flowspace management methods
+	 *
+	 * ROFL contains a set of extensions that allows a controller to express parts
+	 * of the overall namespace he is willing to control. The flowspace registration
+	 * contains an OpenFlow match structure. Currently, a registration is hard state,
+	 * i.e. it will be removed only when explicitly requested by the controller or
+	 * the control connection between controller and data path is lost.
+	 *
+	 * Please note: this is going to change in a future revision by a soft state approach!
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief 	Makes a new flowspace registration at the data path element.
+	 *
+	 * This method registers a flowspace on the attached datapath element.
+	 * Calling this method multiple times results in several flowspace
+	 * registrations.
+	 *
+	 * @param ofmatch the flowspace definition to be registered
+	 */
+	void
+	fsp_open(
+			cofmatch const& ofmatch);
+
+
+	/**
+	 * @brief 	Removes a flowspace registration from the attached data path element.
+	 *
+	 * This method deregisters a flowspace on the attached datapath element.
+	 * The default argument is an empty (= all wildcard ofmatch) and removes
+	 * all active flowspace registrations from the datapath element.
+	 *
+	 * @param ofmatch the flowspace definition to be removed
+	 */
+	void
+	fsp_close(
+			cofmatch const& ofmatch = cofmatch());
+
+	/**@}*/
+
+
+public:
+
+	/**
+	 * @name	FlowMod management methods
+	 *
+	 * These methods provide a simple to use interface for managing FlowMod
+	 * entries.
+	 *
+	 * Please note: these methods are subject to change in future revisions.
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief	Removes all flowtable entries from the attached datapath element.
+	 *
+	 * Sends a FlowMod-Delete message to the attached datapath element for removing
+	 * all flowtable entries.
+	 */
+	void
+	flow_mod_reset();
+
+
+	/**
+	 * @brief	Removes all grouptable entries from the attached datapath element.
+	 *
+	 * Sends a GroupMod-Delete message to the attached datapath element for removing
+	 * all grouptable entries.
+	 */
+	void
+	group_mod_reset();
+
+	/**@}*/
+
+private:
+
+	/*
+	 * overloaded from ciosrv
+	 */
+
+	/**
+	 * @name 	handle_timeout
+	 * @brief	handler for timeout events
+	 *
+	 * This virtual method is overloaded from (@see ciosrv) and
+	 * is called upon expiration of a timer.
+	 *
+	 * @param[in] opaque The integer value specifying the type of the expired timer.
+	 */
+	void
+	handle_timeout(
+		int opaque);
+
+
+
+
+
+
+
+private:
 
 
 	/**
@@ -277,151 +552,10 @@ public:
 			int sd);
 
 
-public:
-
-
-	/**
-	 *
-	 */
-	void
-	send_message(
-			cofmsg *pack);
 
 
 
-	/**
-	 * @name	find_cofport
-	 * @brief 	Find a cofport instance by port number
-	 *
-	 * Returns pointer to a cofport instance based on port number or
-	 * throws an exception, if port was not found.
-	 *
-	 * @return cofport Pointer to cofport instance containing all state of sought port.
-	 *
-	 * @throws eOFdpathNotFound port could not be found
-	 */
-	cofport*
-	find_cofport(
-			uint32_t port_no) throw (eOFdpathNotFound);
-
-
-	/**
-	 * @name	find_cofport
-	 * @brief 	Find a cofport instance by port name
-	 *
-	 * Returns pointer to a cofport instance based on port name or
-	 * throws an exception, if port was not found.
-	 *
-	 * @return cofport Pointer to cofport instance containing all state of sought port.
-	 *
-	 * @throws eOFdpathNotFound port could not be found
-	 */
-	cofport*
-	find_cofport(
-			std::string port_name) throw (eOFdpathNotFound);
-
-
-	/**
-	 * @name	find_cofport
-	 * @brief 	Find a cofport instance by port name
-	 *
-	 * Returns pointer to a cofport instance based on port name or
-	 * throws an exception, if port was not found.
-	 *
-	 * @return cofport Pointer to cofport instance containing all state of sought port.
-	 *
-	 * @throws eOFdpathNotFound port could not be found
-	 */
-	cofport*
-	find_cofport(
-			cmacaddr const& maddr) throw (eOFdpathNotFound);
-
-
-	/**
-	 * @name	fsp_open
-	 * @brief 	Registers a flowspace at the attached datapath element.
-	 *
-	 * This method registers a flowspace on the attached datapath element.
-	 * Calling this method multiple times results in several flowspace
-	 * registrations.
-	 *
-	 * @param[in] ofmatch The flowspace definition to be registered.
-	 */
-	void
-	fsp_open(
-			cofmatch const& ofmatch);
-
-
-	/**
-	 * @name	fsp_close
-	 * @brief 	Registers a flowspace at the attached datapath element.
-	 *
-	 * This method deregisters a flowspace on the attached datapath element.
-	 * The default argument is an empty (= all wildcard ofmatch) and removes
-	 * all active flowspace registrations from the datapath element.
-	 *
-	 * @param[in] ofmatch The flowspace definition to be deregistered.
-	 */
-	void
-	fsp_close(
-			cofmatch const& ofmatch = cofmatch());
-
-
-
-	/**
-	 * @name	flow_mod_reset
-	 * @brief	Removes all flowtable entries from the attached datapath element.
-	 *
-	 * Sends a FlowMod-Delete message to the attached datapath element for removing
-	 * all flowtable entries.
-	 */
-	void
-	flow_mod_reset();
-
-
-	/**
-	 * @name	group_mod_reset
-	 * @brief	Removes all grouptable entries from the attached datapath element.
-	 *
-	 * Sends a GroupMod-Delete message to the attached datapath element for removing
-	 * all grouptable entries.
-	 */
-	void
-	group_mod_reset();
-
-
-
-	/*
-	 * overloaded from ciosrv
-	 */
-
-	/**
-	 * @name 	handle_timeout
-	 * @brief	handler for timeout events
-	 *
-	 * This virtual method is overloaded from (@see ciosrv) and
-	 * is called upon expiration of a timer.
-	 *
-	 * @param[in] opaque The integer value specifying the type of the expired timer.
-	 */
-	void
-	handle_timeout(
-		int opaque);
-
-
-
-	/**
-	 * @name	c_str
-	 * @brief	Returns a C-string with a description of this cofdpath instance.
-	 *
-	 * @return const char Pointer to constant C-string (derived from cofdpath::info).
-	 */
-	const char*
-	c_str();
-
-
-
-protected:
+private:
 
 
 	/**

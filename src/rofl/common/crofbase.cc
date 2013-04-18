@@ -417,8 +417,9 @@ crofbase::handle_timeout(int opaque)
 		case TIMER_FE_DUMP_OFPACKETS: {
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::handle_timeout() "
 					"cofmsg statistics => %s", this, cofmsg::packet_info());
-			WRITELOG(CROFBASE, DBG, "crofbase(%p)::handle_timeout() "
-					"cpacket statistics => %s", this, cpacket::cpacket_info());
+// fixme
+//			WRITELOG(CROFBASE, DBG, "crofbase(%p)::handle_timeout() "
+//					"cpacket statistics => %s", this, cpacket::cpacket_info());
 			register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
 		} break;
 		case CROFBASE_TIMER_WAKEUP: {
@@ -452,7 +453,7 @@ crofbase::handle_event(cevent const& ev)
 void
 crofbase::wakeup()
 {
-	if (tid != pthread_self())
+	if (get_thread_id() != pthread_self())
 	{
 		notify(CROFBASE_EVENT_WAKEUP);
 	}
@@ -477,7 +478,7 @@ crofbase::dpt_find(uint64_t dpid) throw (eRofBaseNotFound)
 	for (std::set<cofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
-		if ((*it)->dpid == dpid)
+		if ((*it)->get_dpid() == dpid)
 			return (*it);
 	}
 	throw eRofBaseNotFound();
@@ -490,7 +491,7 @@ crofbase::dpt_find(std::string s_dpid) throw (eRofBaseNotFound)
 	for (std::set<cofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
-		if ((*it)->s_dpid == s_dpid)
+		if ((*it)->get_dpid_s() == s_dpid)
 			return (*it);
 	}
 	throw eRofBaseNotFound();
@@ -503,7 +504,7 @@ crofbase::dpt_find(cmacaddr dl_dpid) throw (eRofBaseNotFound)
 	for (std::set<cofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
-		if ((*it)->dpmac == dl_dpid)
+		if ((*it)->get_hwaddr() == dl_dpid)
 			return (*it);
 	}
 	throw eRofBaseNotFound();
@@ -1160,6 +1161,7 @@ crofbase::send_packet_out_message(
 
 void
 crofbase::send_packet_in_message(
+		// TODO: add cofctl instance
 	uint32_t buffer_id,
 	uint16_t total_len,
 	uint8_t reason,

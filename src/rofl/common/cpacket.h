@@ -105,32 +105,12 @@ class ePacketTypeError 		: public ePacket {}; // specified frame type not found 
 class cpacket :
 	public csyslog
 {
-/*
- * data structures
- */
 private:
 
-		static bool					cpacket_init;
+		static bool						cpacket_init;
 		static std::string				s_cpacket_info;
-
-public:
-
 		static pthread_rwlock_t			cpacket_lock;
 		static std::set<cpacket*> 		cpacket_list;
-
-		static const char*
-		cpacket_info();
-
-		void
-		cpacket_list_insert();
-
-		void
-		cpacket_list_erase();
-
-
-
-private:
-
 
 		std::bitset<32> 				flags;			// flags (e.g. for checksum calculations, NO_PACKET_IN, etc.)
 		std::string 					info;			// info string
@@ -164,17 +144,13 @@ private:
 		cmemory 						 mem;		// packet data + head space
 		std::pair<uint8_t*, size_t>		 data;		// the packet data: defines iov of packet data within cmemory mem
 													// we have also some additional headspace
-
+		cofmatch						 match;		// packet header fields stored in ofmatch
 
 
 public:
 
-
-		cofmatch						 match;		// packet header fields stored in ofmatch
-
 		time_t 				packet_receive_time;	// time this packet was received
 		uint32_t 			in_port;				// incoming port
-		uint32_t			out_port;				// outgoing port when stored within cpktqueue, 0 otherwise
 
 
 #if 1
@@ -190,24 +166,15 @@ public:
 
 
 
-/*
- * methods
- */
-public: // static methods
-
-
-	/** returns an empty packet
-	 *
-	 */
-	static cpacket
-	pempty();
-
-
 public: // methods
 
 
-	/** constructor for creating new empty packets
+	/**
+	 * @brief	Constructor. Creates an empty packet with default size of 1526 bytes.
 	 *
+	 * @param size size of new packet to be created
+	 * @param in_port port this packet was received on
+	 * @param do_classify run the classifier during construction
 	 */
 	cpacket(
 			size_t size = CPACKET_DEFAULT_SIZE,
@@ -215,8 +182,14 @@ public: // methods
 			bool do_classify = false);
 
 
-	/** constructor for storing a memory area specified by (buf, buflen)
-	 *  in a cpacket
+
+	/**
+	 * @brief	Constructor. Creates a new packet and stores the specified memory area in it.
+	 *
+	 * @param buf pointer to start of memory area to be stored
+	 * @param buflen length of memora area to be stored
+	 * @param in_port port this packet was received on
+	 * @param do_classify run the classifier during construction
 	 */
 	cpacket(
 			uint8_t *buf, size_t buflen,
@@ -224,8 +197,13 @@ public: // methods
 			bool do_classify = true);
 
 
-	/** constructor for storing a memory area stored in cmemory mem
-	 *  in a cpacket, mem must not be freed after creating the cpacket instance
+
+	/**
+	 * @brief	Constructor. Creates a new packet and stores the specified memory area in it.
+	 *
+	 * @param mem pointer to cmemory instance containing the memory area to be stored
+	 * @param in_port port this packet was received on
+	 * @param do_classify run the classifier during construction
 	 */
 	cpacket(
 			cmemory *mem,
@@ -233,176 +211,44 @@ public: // methods
 			bool do_classify = true);
 
 
-	/** copy constructor
+
+	/**
+	 * @brief	Copy constructor.
 	 *
+	 * @param pack cpacket instance to be copied
 	 */
 	cpacket(
 			cpacket const& pack);
 
 
-	/** destructor
+
+
+	/**
+	 * @brief	Destructor.
+	 *
 	 */
 	virtual
 	~cpacket();
 
 
-public:
-
-
-	/** assignment operator
-	 */
-	cpacket&
-	operator=(
-			cpacket const& p);
-
-
-	/** return reference to byte at index
-	 *
-	 */
-	uint8_t&
-	operator[] (
-			size_t index) throw (ePacketOutOfRange);
-
 
 	/**
+	 * @brief	Returns a C-string containing information about this cpacket instance.
 	 *
+	 * @return C-string
 	 */
-	bool
-	operator== (
-			cpacket const& p);
-
-
-	/**
-	 *
-	 */
-	bool
-	operator== (
-			cmemory const& m);
-
-
-	/**
-	 *
-	 */
-	bool
-	operator!= (
-			cpacket const& p);
-
-
-	/**
-	 *
-	 */
-	bool
-	operator!= (
-			cmemory const& m);
-
-
-	/**
-	 *
-	 */
-	cpacket&
-	operator+ (
-			fframe const& f);
-
-
-	/**
-	 *
-	 */
-	void
-	operator+= (
-			fframe const& f);
-
-
-	/**
-	 *
-	 */
-	void
-	set_flag_no_packet_in();
-
-
-	/**
-	 *
-	 */
-	bool
-	get_flag_no_packet_in();
-
-
-	/**
-	 *
-	 */
-	uint8_t*
-	soframe() const;
-
-
-	/**
-	 *
-	 */
-	size_t
-	framelen() const;
-
-
-
-	/**
-	 *
-	 */
-	bool
-	empty() const;
-
-
-
-	/** copies all piobufs into memory specified by (dest, len)
-	 *
-	 */
-	void
-	pack(
-			uint8_t *dest,
-			size_t len) throw (ePacketInval);
-
-
-	/**  copies buffer specified by (src, len) into single piobuf
-	 *
-	 */
-	void
-	unpack(
-			uint32_t in_port,
-			uint8_t *src,
-			size_t len);
-
-
-	/**  copies buffer specified by (src, len) into single piobuf
-	 *
-	 */
-	void
-	unpack(
-			uint32_t in_port);
-
-
-	/** returns total length of all piobufs
-	 *
-	 */
-	size_t
-	length();
-
-
-	/** insert space with length 'len' at offset
-	 *
-	 */
-	uint8_t*
-	tag_insert(
-			size_t len) throw (ePacketOutOfRange);
-
-
-	/** remove 'len' bytes at offset
-	 *
-	 */
-	void
-	tag_remove(
-			fframe *frame) throw (ePacketOutOfRange);
-
-
-	/** dump packet
-	 */
-	virtual const char*
+	const char*
 	c_str();
+
+
+
+	/**
+	 * @brief	Clears content of this cpacket instance. Sets memory area to 0 length.
+	 *
+	 */
+	void
+	clear();
+
 
 
 	/** output stream operator
@@ -417,6 +263,907 @@ public:
 		std::cerr << "XXX" << std::endl;
 		return os;
 	};
+
+
+
+public:
+
+
+
+	/**
+	 * @brief	Assignment operator.
+	 *
+	 * @param p cpacket instance to be assigned
+	 */
+	cpacket&
+	operator=(
+			cpacket const& p);
+
+
+
+	/**
+	 * @brief	Index operator. Returns reference to byte at index.
+	 *
+	 * @param index the index of byte to be retrieved from cpacket
+	 */
+	uint8_t&
+	operator[] (
+			size_t index);
+
+
+
+	/**
+	 * @brief	Comparison operator for cpacket instance.
+	 *
+	 * @param p cpacket instance to be compared
+	 */
+	bool
+	operator== (
+			cpacket const& p);
+
+
+
+	/**
+	 * @brief	Comparison operator for cmemory instance.
+	 *
+	 * @param m cmemory instance to be compared
+	 */
+	bool
+	operator== (
+			cmemory const& m);
+
+
+
+	/**
+	 * @brief	Comparison operator for cpacket instance (unequal).
+	 *
+	 * @param p cpacket instance to be compared
+	 */
+	bool
+	operator!= (
+			cpacket const& p);
+
+
+
+	/**
+	 * @brief	Comparison operator for cmemory instance (unequal).
+	 *
+	 * @param m cmemory instance to be compared
+	 */
+	bool
+	operator!= (
+			cmemory const& m);
+
+
+	// FIXME: fix the append operators
+
+
+	/**
+	 * @brief	Appends an fframe instance to this cpacket instance.
+	 *
+	 * @param f fframe instance to be appended
+	 */
+	cpacket&
+	operator+ (
+			fframe const& f);
+
+
+
+	/**
+	 * @brief	Appends an fframe instance to this cpacket instance.
+	 *
+	 * @param f fframe instance to be appended
+	 */
+	void
+	operator+= (
+			fframe const& f);
+
+
+public:
+
+
+
+	/**
+	 * @name	Management methods for querying cpacket's properties
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief	Set/Reset NO-PACKET-IN flag for this cpacket instance.
+	 *
+	 */
+	void
+	set_flag_no_packet_in(bool no_packet_in = true);
+
+
+
+	/**
+	 * @brief	Returns NO-PACKET-IN flag for this cpacket instance.
+	 *
+	 * @return true: NO-PACKET-IN is set, false otherwise
+	 */
+	bool
+	get_flag_no_packet_in();
+
+
+
+	/**
+	 * @brief	Returns reference to cpacket's internal cofmatch instance.
+	 *
+	 * @return cpacket's internal cofmatch instance
+	 */
+	cofmatch&
+	get_match() { return match; };
+
+
+
+	/**
+	 * @brief	Re-calculates all checksums within packet headers (IP, UDP, TCP, ...)
+	 *
+	 */
+	void
+	calc_checksums();
+
+
+
+	/**
+	 * @brief	Returns number of VLAN tags found in packet.
+	 *
+	 */
+	unsigned int
+	cnt_vlan_tags();
+
+
+
+	/**
+	 * @brief	Returns number of MPLS tags found in packet.
+	 *
+	 */
+	unsigned int
+	cnt_mpls_tags();
+
+
+	/**@{*/
+
+
+
+public:
+
+
+	/**
+	 * @brief	Returns start of memory area containing the packet.
+	 *
+	 * @return pointer to start of memory area
+	 */
+	uint8_t*
+	soframe() const;
+
+
+
+	/**
+	 * @brief	Returns length of memory area containing the packet.
+	 *
+	 * @return length of memory area
+	 */
+	size_t
+	framelen() const;
+
+
+
+
+	/**
+	 * @brief	Checks for an empty packet.
+	 *
+	 * @return true: length of memory area is 0, false otherwise
+	 */
+	bool
+	empty() const;
+
+
+
+
+	/**
+	 * @brief	Copies cpacket's internal memory area into specified buffer.
+	 *
+	 * @param dest pointer to start of memory area serving as destination buffer
+	 * @param len length of memory area serving as destination buffer
+	 */
+	void
+	pack(
+			uint8_t *dest,
+			size_t len);
+
+
+
+	/**
+	 * @brief	Copies the specified buffer into cpacket's internal memory area and calls cpacket's classifier.
+	 *
+	 * @param in_port the OpenFlow in_port for this packet
+	 * @param src pointer to start of memory area serving as source buffer
+	 * @param len length of memory area serving as source buffer
+	 */
+	void
+	unpack(
+			uint32_t in_port,
+			uint8_t *src,
+			size_t len);
+
+
+
+	/**
+	 * @brief	Returns the overall length of cpacket. This may differ from total_len in OpenFlow!
+	 *
+	 * @return overall packet length stored in cpacket, not total_len
+	 */
+	size_t
+	length();
+
+
+
+
+public:
+
+
+	/**
+	 * @name	Frame related methods
+	 *
+	 * cpacket maintains a doubly-linked list of protocol specific frame classes, once
+	 * the packet has been classified. These protocol specific frames can be used to
+	 * query or set fields within the supported protocol headers. Within a packet, multiple
+	 * headers (tags) of the same type may exist, e.g. multiple stacked MPLS tags.
+	 * cpacket's interface allows direct access to all found tags by specifying a separate
+	 * index value. Positive indices start at index 0 (fist frame from left side).
+	 * Negative indices start at index -1 (first frame from right side). A data packet
+	 * typically contains some (unparsed) payload, which is referenced to by a
+	 * protocol agnostic fframe instance.
+	 *
+	 * @see fetherframe
+	 * @see fvlanframe
+	 * @see fmplsframe
+	 * @see farpv4frame
+	 * @see fipv4frame
+	 * @see fipv6frame
+	 * @see ...
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief	Returns a protocol specific frame.
+	 *
+	 * cpacket maintains a doubly linked list of protocol specific frames.
+	 * The first frame is always of type fetherframe and refers to the
+	 * Ethernet frame located at the start of the packet. The frame()
+	 * method provides direct access to the DLL of protocol specific frame instances.
+	 * Index 0 refers always to the first Ethernet header.
+	 * Index -1 refers always to the packet's last header (usually the packet's payload).
+	 *
+	 * @param i index of frame to be returned
+	 * @return pointer to fframe instance at index i
+	 * @exception ePacketNotFound is thrown when the frame at the specified index could not be found
+	 */
+	fframe*
+	frame(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+	/**
+	 * @brief	Returns the i'th fetherframe instance found in packet. (0: first from left side, -1: first from right side)
+	 * @see fetherframe
+	 *
+	 * @param i index of fetherframe
+	 * @return pointer to fetherframe instance at index i
+	 * @exception ePacketNotFound is thrown when no fetherframe at index i could be found
+	 */
+	fetherframe*
+	ether(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+	/**
+	 * @brief	Returns the i'th fvlanframe instance found in packet. (0: first from left side, -1: first from right side)
+	 * @see fvlanframe
+	 *
+	 * @param i index of fvlanframe
+	 * @return pointer to fvlanframe instance at index i
+	 * @exception ePacketNotFound is thrown when no fvlanframe at index i could be found
+	 */
+	fvlanframe*
+	vlan(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+	/**
+	 * @brief	Returns the i'th fpppoeframe instance found in packet. (0: first from left side, -1: first from right side)
+	 * @see fpppoeframe
+	 *
+	 * @param i index of fpppoeframe
+	 * @return pointer to fpppoeframe instance at index i
+	 * @exception ePacketNotFound is thrown when no fpppoeframe at index i could be found
+	 */
+	fpppoeframe*
+	pppoe(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+	/**
+	 * @brief	Returns the i'th fpppframe instance found in packet. (0: first from left side, -1: first from right side)
+	 * @see fpppframe
+	 *
+	 * @param i index of fpppframe
+	 * @return pointer to fpppframe instance at index i
+	 * @exception ePacketNotFound is thrown when no fpppframe at index i could be found
+	 */
+	fpppframe*
+	ppp(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+	/**
+	 * @brief	Returns the i'th fmplsframe instance found in packet. (0: first from left side, -1: first from right side)
+	 * @see fmplsframe
+	 *
+	 * @param i index of fmplsframe
+	 * @return pointer to fmplsframe instance at index i
+	 * @exception ePacketNotFound is thrown when no fmplsframe at index i could be found
+	 */
+	fmplsframe*
+	mpls(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+	/**
+	 * @brief	Returns the i'th farpv4frame instance found in packet. (0: first from left side, -1: first from right side)
+	 * @see farpv4frame
+	 *
+	 * @param i index of farpv4frame
+	 * @return pointer to farpv4frame instance at index i
+	 * @exception ePacketNotFound is thrown when no farpv4frame at index i could be found
+	 */
+	farpv4frame*
+	arpv4(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+
+	/**
+	 * @brief	Returns the i'th fipv4frame instance found in packet. (0: first from left side, -1: first from right side)
+	 * @see fipv4frame
+	 *
+	 * @param i index of fipv4frame
+	 * @return pointer to fipv4frame instance at index i
+	 * @exception ePacketNotFound is thrown when no fipv4frame at index i could be found
+	 */
+	fipv4frame*
+	ipv4(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+	/**
+	 * @brief	Returns the i'th ficmpv4frame instance found in packet. (0: first from left side, -1: first from right side)
+	 * @see ficmpv4frame
+	 *
+	 * @param i index of ficmpv4frame
+	 * @return pointer to ficmpv4frame instance at index i
+	 * @exception ePacketNotFound is thrown when no ficmpv4frame at index i could be found	 */
+	ficmpv4frame*
+	icmpv4(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+	/**
+	 * @brief	Returns the i'th fipv6frame instance found in packet. (0: first from left side, -1: first from right side)
+	 * @see fipv6frame
+	 *
+	 * @param i index of fipv6frame
+	 * @return pointer to fipv6frame instance at index i
+	 * @exception ePacketNotFound is thrown when no fipv6frame at index i could be found
+	 */
+	fipv6frame*
+	ipv6(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+	/**
+	 * @brief	Returns the i'th ficmpv6frame instance found in packet. (0: first from left side, -1: first from right side)
+	 * @see ficmpv6frame
+	 *
+	 * @param i index of ficmpv6frame
+	 * @return pointer to ficmpv6frame instance at index i
+	 * @exception ePacketNotFound is thrown when no ficmpv6frame at index i could be found
+	 */
+	ficmpv6frame*
+	icmpv6(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+	/**
+	 * @brief	Returns the i'th fudpframe instance found in packet. (0: first from left side, -1: first from right side)
+	 * @see fudpframe
+	 *
+	 * @param i index of fudpframe
+	 * @return pointer to fudpframe instance at index i
+	 * @exception ePacketNotFound is thrown when no fudpframe at index i could be found
+	 */
+	fudpframe*
+	udp(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+	/**
+	 * @brief	Returns the i'th ftcpframe instance found in packet. (0: first from left side, -1: first from right side)
+	 * @see ftcpframe
+	 *
+	 * @param i index of ftcpframe
+	 * @return pointer to ftcpframe instance at index i
+	 * @exception ePacketNotFound is thrown when no ftcpframe at index i could be found
+	 */
+	ftcpframe*
+	tcp(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+	/**
+	 * @brief	Returns the i'th fsctpframe instance found in packet. (0: first from left side, -1: first from right side)
+	 * @see fsctpframe
+	 *
+	 * @param i index of fsctpframe
+	 * @return pointer to fsctpframe instance at index i
+	 * @exception ePacketNotFound is thrown when no fsctpframe at index i could be found
+	 */
+	fsctpframe*
+	sctp(
+			int i = 0) throw (ePacketNotFound);
+
+
+
+	/**
+	 * @brief	Returns the last fframe instance in cpacket.
+	 * @see fframe
+	 *
+	 * @return pointer to fframe instance at tail
+	 * @exception ePacketNotFound is thrown when no fframe could be found
+	 */
+	fframe*
+	payload() throw (ePacketNotFound);
+
+
+	/**@}*/
+
+
+
+
+
+public: // action related methods
+
+	/**
+	 * @name 	Action related methods
+	 *
+	 * Each method from this group of methods consumes a cofaction or one of
+	 * its derived classes and applies this action on the packet.
+	 *
+	 * @see cofaction
+	 */
+
+	/**@{*/
+
+
+	/**
+	 * @brief	Dispatcher for all actions received.
+	 *
+	 * If you do not know, how to apply an action, call this method.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	handle_action(
+		cofaction& action);
+
+
+
+	/**
+	 * @brief	Apply a SET-FIELD action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_set_field(
+		cofaction& action);
+
+
+
+	/**
+	 * @brief	Apply a COPY-TTL-OUT action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_copy_ttl_out(
+		cofaction& action);
+
+
+
+	/**
+	 * @brief	Apply a COPY-TTL-IN action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_copy_ttl_in(
+		cofaction& action);
+
+
+
+	/**
+	 * @brief	Apply a SET-MPLS-TTL action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_set_mpls_ttl(
+		cofaction& action);
+
+
+
+
+	/**
+	 * @brief	Apply a DEC-MPLS-TTL action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_dec_mpls_ttl(
+		cofaction& action);
+
+
+
+
+	/**
+	 * @brief	Apply a PUSH-VLAN action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_push_vlan(
+		cofaction& action);
+
+
+
+	/**
+	 * @brief	Apply a POP-VLAN action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_pop_vlan(
+		cofaction& action);
+
+
+
+
+	/**
+	 * @brief	Apply a PUSH-MPLS action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_push_mpls(
+		cofaction& action);
+
+
+
+
+	/**
+	 * @brief	Apply a POP-MPLS action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_pop_mpls(
+		cofaction& action);
+
+
+
+
+	/**
+	 * @brief	Apply a SET-NW-TTL action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_set_nw_ttl(
+		cofaction& action);
+
+
+
+
+	/**
+	 * @brief	Apply a DEC-NW-TTL action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_dec_nw_ttl(
+		cofaction& action);
+
+
+
+
+	/**
+	 * @brief	Apply a PUSH-PPPOE action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_push_pppoe(
+		cofaction& action);
+
+
+
+
+	/**
+	 * @brief	Apply a POP-PPPOE action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_pop_pppoe(
+		cofaction& action);
+
+
+
+
+#if 0
+	/**
+	 * action: push ppp
+	 */
+	void action_push_ppp(
+		cofaction& action);
+#endif
+
+
+	/**
+	 * @brief	Apply a POP-PPP action.
+	 *
+	 * @param action cofaction instance to be applied
+	 */
+	void
+	action_pop_ppp(
+		cofaction& action);
+
+
+	/**@}*/
+
+
+
+public:
+
+
+	/**
+	 * @name	Packet manipulation methods
+	 *
+	 * A set of "actions" exists for manipulating a packet's content based on actions
+	 * defined by the OpenFlow specification.
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief	ActionSetField: Sets a header field specified by an OXM-TLV.
+	 *
+	 */
+	void
+	set_field(
+			coxmatch const& oxm);
+
+
+
+	/**
+	 * @brief	ActionCopyTTLout.
+	 *
+	 */
+	void
+	copy_ttl_out();
+
+
+
+	/**
+	 * @brief	ActionCopyTTLin.
+	 *
+	 */
+	void
+	copy_ttl_in();
+
+
+
+	/**
+	 * @brief	ActionSetMplsTTL.
+	 *
+	 * @param mpls_ttl TTL value set into outermost MPLS header
+	 */
+	void
+	set_mpls_ttl(
+			uint8_t mpls_ttl);
+
+
+
+	/**
+	 * @brief	ActionDecMplsTTL.
+	 *
+	 *  Decrements TTL field of outermost MPLS tag by 1.
+	 */
+	void
+	dec_mpls_ttl();
+
+
+
+	/**
+	 * @brief	ActionPushVlan.
+	 *
+	 * Pushes a new outermost VLAN tag onto the packet.
+	 *
+	 * @param ethertype new ethernet type value set in Ethernet header
+	 */
+	void
+	push_vlan(
+			uint16_t ethertype);
+
+
+
+	/**
+	 * @brief	ActionPopVlan.
+	 *
+	 * Removes the outermost VLAN tag from a packet.
+	 */
+	void
+	pop_vlan();
+
+
+
+	/**
+	 * @brief	ActionPushMpls.
+	 *
+	 * Pushes a new outermost MPLS tag onto the packet.
+	 *
+	 * @param ethertype new ethernet type value set in Ethernet header
+	 */
+	void
+	push_mpls(
+			uint16_t ethertype);
+
+
+
+	/**
+	 * @brief	ActionPopMpls.
+	 *
+	 * Removes the outermost MPLS tag from a packet.
+	 *
+	 * @param ethertype new ethernet type value set in Ethernet header
+	 */
+	void
+	pop_mpls(
+			uint16_t ethertype);
+
+
+
+	/**
+	 * @brief	ActionSetNwTTL.
+	 *
+	 * @param nw_ttl new TTL value for network layer protocol
+	 */
+	void
+	set_nw_ttl(
+			uint8_t nw_ttl);
+
+
+
+	/**
+	 * @brief	ActionDecNwTTL.
+	 *
+	 */
+	void
+	dec_nw_ttl();
+
+
+
+	/**
+	 * @brief	ActionPushPPPoE
+	 *
+	 * Pushes a new outermost PPPoE tag onto the packet.
+	 *
+	 * @param ethertype new ethernet type value set in Ethernet header
+	 */
+	void
+	push_pppoe(
+			uint16_t ethertype);
+
+
+
+	/**
+	 * @brief	ActionPopPPPoE.
+	 *
+	 * Removes the outermost PPPoE tag from a packet.
+	 *
+	 * @param ethertype new ethernet type value set in Ethernet header
+	 */
+	void
+	pop_pppoe(
+			uint16_t ethertype);
+
+
+
+#if 0
+	/** push ppp
+	 */
+	void
+	push_ppp(
+			uint16_t code);
+#endif
+
+
+
+	/**
+	 * @brief	ActionPopPPP.
+	 *
+	 * Removes the outermost PPP tag from a packet.
+	 */
+	void
+	pop_ppp();
+
+
+	/**@}*/
+
+
+
+
+private:
+
+
+
+	/**
+	 */
+	void
+	set_field_basic_class(
+			coxmatch const& oxm);
+
+
+
+	/**
+	 * @brief	Inserts a memory block of len bytes after the Ethernet header.
+	 *
+	 * The cpacket container assumes that each stored packet starts with an
+	 * Ethernet header. tag_insert() inserts between the Ethernet header and
+	 * the succeeding payload len bytes, e.g. for VLAN, MPLS, PPPoE tags.
+	 *
+	 * @return start of new inserted memory block within cpacket's memory area
+	 */
+	uint8_t*
+	tag_insert(
+			size_t len) throw (ePacketOutOfRange);
+
+
+	/** remove 'len' bytes at offset
+	 *
+	 */
+	void
+	tag_remove(
+			fframe *frame) throw (ePacketOutOfRange);
+
+
 
 
 	/** calculate hit-rate for cofmatch
@@ -436,22 +1183,23 @@ public:
 			uint32_t in_port /* host byte order */);
 
 
-	/**
-	 *
-	 */
-	void
-	clear();
 
 
 private:
 
-#if 0
-	/** allocate consecutive memory buffer
-	 */
 
-	virtual const char*
-	c_str();
-#endif
+
+	static const char*
+	cpacket_info();
+
+
+	void
+	cpacket_list_insert();
+
+	void
+	cpacket_list_erase();
+
+
 
 
 	/**
@@ -489,369 +1237,6 @@ private:
 	 */
 	size_t
 	get_total_len();
-
-
-public:
-
-
-	/**
-	 *
-	 */
-	fframe*
-	frame(
-			int i = 0) throw (ePacketNotFound);
-
-
-	/** return pointer to this->ether frame
-	 * keep in mind: valid only while this instance is alive!
-	 *
-	 */
-	fetherframe*
-	ether(
-			int i = 0) throw (ePacketNotFound);
-
-	/** return pointer to outer vlan tag
-	 *
-	 */
-	fvlanframe*
-	vlan(
-			int i = 0) throw (ePacketNotFound);
-
-
-	/** return pointer to this->ether frame
-	 * keep in mind: valid only while this instance is alive!
-	 *
-	 */
-	fpppoeframe*
-	pppoe(
-			int i = 0) throw (ePacketNotFound);
-
-	/** return pointer to this->ether frame
-	 * keep in mind: valid only while this instance is alive!
-	 *
-	 */
-	fpppframe*
-	ppp(
-			int i = 0) throw (ePacketNotFound);
-
-
-	/** return pointer to this->ether frame
-	 * keep in mind: valid only while this instance is alive!
-	 *
-	 */
-	fmplsframe*
-	mpls(
-			int i = 0) throw (ePacketNotFound);
-
-	/** return pointer to this->arpv4 frame
-	 * keep in mind: valid only while this instance is alive!
-	 *
-	 */
-	farpv4frame*
-	arpv4(
-			int i = 0) throw (ePacketNotFound);
-
-	/** return pointer to this->ipv4 frame
-	 * keep in mind: valid only while this instance is alive!
-	 *
-	 */
-	fipv4frame*
-	ipv4(
-			int i = 0) throw (ePacketNotFound);
-
-	/** return pointer to this->icmpv4 frame
-	 * keep in mind: valid only while this instance is alive!
-	 *
-	 */
-	ficmpv4frame*
-	icmpv4(
-			int i = 0) throw (ePacketNotFound);
-
-	/** return pointer to this->ipv6 frame
-	 * keep in mind: valid only while this instance is alive!
-	 *
-	 */
-	fipv6frame*
-	ipv6(
-			int i = 0) throw (ePacketNotFound);
-
-	/** return pointer to this->icmpv6 frame
-	 * keep in mind: valid only while this instance is alive!
-	 *
-	 */
-	ficmpv6frame*
-	icmpv6(
-			int i = 0) throw (ePacketNotFound);
-
-	/** return pointer to this->udp frame
-	 * keep in mind: valid only while this instance is alive!
-	 *
-	 */
-	fudpframe*
-	udp(
-			int i = 0) throw (ePacketNotFound);
-
-	/** return pointer to this->tcp frame
-	 * keep in mind: valid only while this instance is alive!
-	 *
-	 */
-	ftcpframe*
-	tcp(
-			int i = 0) throw (ePacketNotFound);
-
-	/** return pointer to this->sctp frame
-	 * keep in mind: valid only while this instance is alive!
-	 *
-	 */
-	fsctpframe*
-	sctp(
-			int i = 0) throw (ePacketNotFound);
-
-	/** return pointer to a payload frame
-	 * keep in mind: valid only while this instance is alive!
-	 *
-	 */
-	fframe*
-	payload(
-			int i = 0) throw (ePacketNotFound);
-
-
-
-	/** recalculates checksums
-	 *
-	 */
-	void
-	calc_checksums();
-
-
-	/**
-	 *
-	 */
-	unsigned int
-	cnt_vlan_tags();
-
-
-	/**
-	 *
-	 */
-	unsigned int
-	cnt_mpls_tags();
-
-
-public:
-
-
-	/**
-	 */
-	void
-	set_field(
-			coxmatch const& oxm);
-
-
-	/**
-	 */
-	void
-	set_field_basic_class(
-			coxmatch const& oxm);
-
-
-	/** copy ttl out
-	 */
-	void
-	copy_ttl_out();
-
-	/** copy ttl in
-	 */
-	void
-	copy_ttl_in();
-
-
-	/** set mpls ttl
-	 */
-	void
-	set_mpls_ttl(
-			uint8_t mpls_ttl);
-
-	/** decrement mpls ttl
-	 */
-	void
-	dec_mpls_ttl();
-
-	/** push vlan
-	 */
-	void
-	push_vlan(
-			uint16_t ethertype);
-
-	/** pop vlan
-	 */
-	void
-	pop_vlan();
-
-	/** push mpls
-	 */
-	void
-	push_mpls(
-			uint16_t ethertype);
-
-	/** pop mpls
-	 */
-	void
-	pop_mpls(
-			uint16_t ethertype);
-
-	/** set nw ttl
-	 */
-	void
-	set_nw_ttl(
-			uint8_t nw_ttl);
-
-	/** decrement nw ttl
-	 */
-	void
-	dec_nw_ttl();
-
-
-	/** push pppoe
-	 */
-	void
-	push_pppoe(
-			uint16_t ethertype);
-
-	/** pop pppoe
-	 */
-	void
-	pop_pppoe(
-			uint16_t ethertype);
-
-#if 0
-	/** push ppp
-	 */
-	void
-	push_ppp(
-			uint16_t code);
-#endif
-
-	/** pop pppoe
-	 */
-	void
-	pop_ppp();
-
-
-public: // action related methods
-
-	/**
-	 * action entry point
-	 */
-	void
-	handle_action(
-		cofaction& action);
-
-	/**
-	 * action: set field
-	 */
-	void action_set_field(
-		cofaction& action);
-
-
-	/**
-	 * action: set copy ttl out
-	 */
-	void action_copy_ttl_out(
-		cofaction& action);
-
-
-	/**
-	 * action: set copy ttl in
-	 */
-	void action_copy_ttl_in(
-		cofaction& action);
-
-
-	/**
-	 * action: set mpls ttl
-	 */
-	void action_set_mpls_ttl(
-		cofaction& action);
-
-
-	/**
-	 * action: dec mpls ttl
-	 */
-	void action_dec_mpls_ttl(
-		cofaction& action);
-
-
-	/**
-	 * action: push vlan
-	 */
-	void action_push_vlan(
-		cofaction& action);
-
-
-	/**
-	 * action: pop vlan
-	 */
-	void action_pop_vlan(
-		cofaction& action);
-
-
-	/**
-	 * action: push mpls
-	 */
-	void action_push_mpls(
-		cofaction& action);
-
-
-	/**
-	 * action: pop mpls
-	 */
-	void action_pop_mpls(
-		cofaction& action);
-
-
-	/**
-	 * action: set nw ttl
-	 */
-	void action_set_nw_ttl(
-		cofaction& action);
-
-
-	/**
-	 * action: dec nw ttl
-	 */
-	void action_dec_nw_ttl(
-		cofaction& action);
-
-
-	/**
-	 * action: push pppoe
-	 */
-	void action_push_pppoe(
-		cofaction& action);
-
-
-	/**
-	 * action: pop pppoe
-	 */
-	void action_pop_pppoe(
-		cofaction& action);
-
-
-#if 0
-	/**
-	 * action: push ppp
-	 */
-	void action_push_ppp(
-		cofaction& action);
-#endif
-
-
-	/**
-	 * action: pop pppoe
-	 */
-	void action_pop_ppp(
-		cofaction& action);
 
 
 
@@ -1016,14 +1401,7 @@ private: // methods
 
 
 
-public: // static methods
 
-
-	/**
-	 *
-	 */
-	static void
-	test();
 };
 
 }; // end of namespace

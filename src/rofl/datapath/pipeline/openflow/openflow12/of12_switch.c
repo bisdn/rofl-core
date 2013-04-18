@@ -1,7 +1,7 @@
-#include <stdio.h>
 #include "of12_switch.h"
 
 #include "../../platform/memory.h"
+#include "../../util/logging.h"
 #include "../of_switch.h"
 #include "of12_async_events_hooks.h"
 
@@ -229,11 +229,11 @@ rofl_result_t of12_detach_all_ports_from_switch(of12_switch_t* sw){
 
 /* Dumping */
 void of12_dump_switch(of12_switch_t* sw){
-	fprintf(stderr,"Openflow switch instance (%p)\n",sw);
-	fprintf(stderr,"========================\n");
-	fprintf(stderr,"Name: %s\n",sw->name);
-	fprintf(stderr,"Openflow version: %d\n",sw->of_ver);
-	fprintf(stderr,"Openflow datapathid: %llu\n",(long long unsigned)sw->dpid);
+	ROFL_PIPELINE_INFO("Openflow switch instance (%p)\n",sw);
+	ROFL_PIPELINE_INFO("========================\n");
+	ROFL_PIPELINE_INFO("Name: %s\n",sw->name);
+	ROFL_PIPELINE_INFO("Openflow version: %d\n",sw->of_ver);
+	ROFL_PIPELINE_INFO("Openflow datapathid: %" PRIu64 "\n",sw->dpid);
 }
 
 void of12_full_dump_switch(of12_switch_t* sw){
@@ -243,6 +243,6 @@ void of12_full_dump_switch(of12_switch_t* sw){
 	/* Dumping tables */		
 	for(i=0;i<sw->pipeline->num_of_tables;i++)
 		of12_dump_table(&sw->pipeline->tables[i]);
-	fprintf(stderr,"--End of pipeline tables--\n\n");
+	ROFL_PIPELINE_INFO("--End of pipeline tables--\n\n");
 }
 

@@ -2,7 +2,6 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include "../../../../../util/rofl_pipeline_utils.h"
 #include "../../of12_pipeline.h"
 #include "../../of12_flow_table.h"
 #include "../../of12_flow_entry.h"

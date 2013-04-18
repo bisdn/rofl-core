@@ -190,17 +190,27 @@ protected: // data structures
 	std::set<csocket*>			rpc[2];	/**< two sets of listening sockets for ctl and dpt */
 
 
+
 public:
 
+#if 0
+	// allow class cadaptor access to these methods
+	friend class chandler;
+
+	friend class bcm_port;
+	// allow class cgttable access to error method
+	friend class cgttable;
+#endif
 
 	friend class cport;
-	static std::set<crofbase*> rofbases; 		/**< set of all active crofbase instances */
 
+	static std::set<crofbase*> rofbases; 		/**< set of all active crofbase instances */
 
 public:
 
+
 	/**
-	 * @name	crofbase
+	 * @fn		crofbase
 	 * @brief	Constructor for crofbase
 	 *
 	 * Initializes structures for transaction identifiers. xidlock is the rwlock
@@ -215,7 +225,7 @@ public:
 
 
 	/**
-	 * @name	~crofbase
+	 * @fn		~crofbase
 	 * @brief	Destructor for crofbase
 	 *
 	 * The destructor shuts down all active connections and listening sockets.
@@ -227,7 +237,46 @@ public:
 
 
 	/**
-	 * @name	rpc_listen_for_dpts
+	 * @brief	Method for waking up this thread from another thread.
+	 *
+	 */
+	void
+	wakeup();
+
+
+
+	/**
+	 * @brief	returns a static c-string with information about this crofbase instance
+	 *
+	 * @result static c-string
+	 */
+	virtual const char*
+	c_str();
+
+
+	/**
+	 * @brief 	enable/disable flowspace registration support in crofbase
+	 *
+	 * @param enable true: enable flowspace support, false: disable flowspace support
+	 */
+	void
+	nsp_enable(bool enable = true);
+
+
+
+
+
+
+public:
+
+	/**
+	 * @name	RPC related methods for opening/closing TCP connections and listening sockets
+	 */
+
+	/**@{*/
+
+	/**
+	 * @fn		rpc_listen_for_dpts
 	 * @brief	Opens a listening socket for accepting connection requests from data path elements
 	 *
 	 * @param addr Address to bind for listening
@@ -246,7 +295,7 @@ public:
 
 
 	/**
-	 * @name	rpc_listen_for_ctls
+	 * @fn		rpc_listen_for_ctls
 	 * @brief	Opens a listening socket for accepting connection requests from controllers
 	 *
 	 * @param addr Address to bind for listening
@@ -265,7 +314,7 @@ public:
 
 
 	/**
-	 * @name 	rpc_connect_to_ctl
+	 * @fn	 	rpc_connect_to_ctl
 	 * @brief	Connects to a remote controller in data path role.
 	 *
 	 * Establishes a socket connection to a remote controller entity.
@@ -288,7 +337,7 @@ public:
 
 
 	/**
-	 * @name	rpc_disconnect_from_ctl
+	 * @fn		rpc_disconnect_from_ctl
 	 * @brief 	Closes a connection to a controller entity with a proper shutdown.
 	 *
 	 * \see{ handle_ctrl_close() }
@@ -302,7 +351,7 @@ public:
 
 
 	/**
-	 * @name 	rpc_connect_to_dpt
+	 * @fn	 	rpc_connect_to_dpt
 	 * @brief	Connects to a remote data path in controller role.
 	 *
 	 * Establishes a socket connection to a remote data path element.
@@ -325,7 +374,7 @@ public:
 
 
 	/**
-	 * @name	rpc_disconnect_from_dpt
+	 * @fn		rpc_disconnect_from_dpt
 	 * @brief 	Closes a connection to a data path entity with a proper shutdown.
 	 *
 	 * \see{ handle_dpath_close() }
@@ -338,7 +387,6 @@ public:
 
 
 	/**
-	 * @name	rpc_close_all
 	 * @brief	Closes all open cofctl, cofdpt and listening socket instances.
 	 *
 	 */
@@ -346,61 +394,80 @@ public:
 	rpc_close_all();
 
 
+	/**@}*/
+
+
+public:
+
 	/**
-	 * @name	wakeup
-	 * @brief	Method for waking up this thread from another thread.
-	 *
+	 * @name	Session related methods for data path elements (cofdpt) and controllers (cofctl)
 	 */
-	void
-	wakeup();
 
+	/**@{*/
 
-	// cofdpt related methods
-	//
-
-	/** find cofswitch instance
+	/**
+	 * @brief	returns pointer to cofdpt instance
+	 *
+	 * @param dpid data path identifier as uint64_t parameter
+	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
+	 * @result pointer to cofdpt instance
 	 */
 	cofdpt*
 	dpt_find(
 		uint64_t dpid) throw (eRofBaseNotFound);
 
+
+	/**
+	 * @brief 	returns pointer to cofdpt instance
+	 *
+	 * @param s_dpid data path identifier as std::string parameter
+	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
+	 * @result pointer to cofdpt instance
+	 */
 	cofdpt*
 	dpt_find(
 		std::string s_dpid) throw (eRofBaseNotFound);
 
+
+	/**
+	 * @brief	returns pointer to cofdpt instance
+	 *
+	 * @param dl_dpid data path MAC address
+	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
+	 * @result pointer to cofdpt instance
+	 */
 	cofdpt*
 	dpt_find(
 		cmacaddr dl_dpid) throw (eRofBaseNotFound);
 
+
+	/**
+	 * @brief 	returns pointer to cofdpt instance
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
+	 * @result pointer to cofdpt instance
+	 */
 	cofdpt*
 	dpt_find(
 			cofdpt* dpt) throw (eRofBaseNotFound);
 
 
-	// COFCTRL related methods
-	//
 
-
-	/** find cofctrl instance
+	/**
+	 * @brief	returns pointer to cofctl instance
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @throws eRofBaseNotFound { thrown when cofctl instance not found }
+	 * @result pointer to cofctl instance
 	 */
 	cofctl*
 	ctl_find(
-			cofctl* entity) throw (eRofBaseNotFound);
+			cofctl* ctl) throw (eRofBaseNotFound);
 
 
+	/**@}*/
 
-
-	/** dump info string
-	 */
-	virtual const char*
-	c_str();
-
-
-	/** enable/disable namespace support
-	 *
-	 */
-	void
-	nsp_enable(bool enable = true);
 
 
 
@@ -411,9 +478,17 @@ public:
 
 protected:
 
+protected:
+
 
 	/**
-	 * @name	cofctl_factory
+	 * @name Methods for managing cofctl and cofdpt instances
+	 */
+
+
+	/**@{*/
+
+	/**
 	 * @brief	creates a new cofctl instance for an existing socket with sockfd newsd.
 	 *
 	 * This method constructs a new instance of class cofctl for managing a single connection
@@ -440,7 +515,6 @@ protected:
 
 
 	/**
-	 * @name	cofctl_factory
 	 * @brief	Creates a new cofctl instance and tries to connect to a remote controller entity.
 	 *
 	 * This method constructs a new instance of class cofctl for actively establishing a single connection
@@ -467,7 +541,6 @@ protected:
 
 
 	/**
-	 * @name	cofdpt_factory
 	 * @brief	creates a new cofdpt instance for an existing socket with sockfd newsd.
 	 *
 	 * This method constructs a new instance of class cofdpt for managing a single connection
@@ -495,7 +568,6 @@ protected:
 
 
 	/**
-	 * @name	cofdpt_factory
 	 * @brief	Creates a new cofdpt instance and tries to connect to a remote data path element.
 	 *
 	 * This method constructs a new instance of class cofdpt for actively establishing a single connection
@@ -522,17 +594,91 @@ protected:
 
 
 
+	/**
+	 * @brief	called once a new cofdpt instance has been created
+	 *
+	 * This method is called, once a new datapath element has attached to this controller.
+	 * Should be overwritten by derived class. Default behaviour: ignores event.
+	 *
+	 * @param dpt pointer to new cofdpt instance
+	 */
+	virtual void
+	handle_dpath_open(cofdpt *dpt) {};
+
+
+	/**
+	 * @brief	called once a cofdpt instance has been closed
+	 *
+	 * Note, that this method is called, once the peer entity has closed the
+	 * control connection. Thus, no further commands should be sent via this
+	 * session object. This method should be overwritten by derived class for
+	 * deallocating any previously allocated resource. Default behaviour: ignores event.
+	 * The further fate of the cofdpt instance depends on its creation:
+	 * for a listening socket, the cofdpt instance will be destroyed automatically.
+	 * for a connecting socket, the cofdpt instance will try to reestablish the connection, unless
+	 * told otherwise.
+	 *
+	 * \see{ rpc_disconnect_from_dpt }
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 */
+	virtual void
+	handle_dpath_close(cofdpt *dpt) {};
+
+
+
+	/**
+	 * @brief	called once a new cofctl instance has been created
+	 *
+	 * This method is called, once a new controller entity has attached to this data path element.
+	 * Should be overwritten by derived class. Default behaviour: ignores event.
+	 *
+	 * @param ctl pointer to new cofctl instance
+	 */
+	virtual void
+	handle_ctrl_open(cofctl *ctl) {};
+
+
+
+	/**
+	 * @brief	called once a cofctl instance has been closed
+	 *
+	 * Note, that this method is called, once the peer entity has closed the
+	 * control connection. Thus, no further commands should be sent via this
+	 * session object. This method should be overwritten by derived class for
+	 * deallocating any previously allocated resource. Default behaviour: ignores event.
+	 * The further fate of the cofctl instance depends on its creation:
+	 * for a listening socket, the cofctl instance will be destroyed automatically.
+	 * for a connecting socket, the cofctl instance will try to reestablish the connection, unless
+	 * told otherwise.
+	 *
+	 * \see{ rpc_disconnect_from_ctl }
+	 *
+	 * @param ctl pointer to cofctl instance
+	 */
+	virtual void
+	handle_ctrl_close(cofctl *ctl) {};
+
+
+	/**@}*/
+
+
+
+
 protected:
 
-	/*
+	/**
+	 * @name Event handlers
+	 *
 	 * The following methods should be overwritten by a derived class
 	 * in order to get reception notifications for the various OF
 	 * packets. While crofbase handles most of the lower layer details,
 	 * a derived class must provide higher layer functionality.
 	 */
 
+	/**@{*/
+
 	/**
-	 * @name	handle_features_request
 	 * @brief	Called once a FEATURES.request message was received from a controller entity.
 	 *
 	 * To be overwritten by derived class. Default behavior: removes msg from heap.
@@ -544,8 +690,8 @@ protected:
 	handle_features_request(cofctl *ctl, cofmsg_features_request *msg) { delete msg; };
 
 
+
 	/**
-	 * @name	handle_features_reply
 	 * @brief	Called once a FEATURES.reply message was received from a data path element.
 	 *
 	 * To be overwritten by derived class. Default behavior: removes msg from heap.
@@ -558,477 +704,674 @@ protected:
 
 
 
-	/** Handle OF features reply timeout. To be overwritten by derived class.
+	/**
+	 * @brief	Called once a timer expires for a FEATURES.reply message.
 	 *
-	 * This method is called when TIMER_SEND_FEATURES_REPLY expires, i.e.
-	 * the FEATURES.reply of a datapath element was lost. This method
-	 * should be overwritten by a derived class.
+	 * Default behaviour: deletes cofdpt instance, thus effectively closing the control connection.
 	 *
-	 * @param sw The cofswitch instance holding all parameters from the attached
-	 * datapath.
+	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
 	handle_features_reply_timeout(cofdpt *dpt);
 
 
-	/** Handle OF get-config request. To be overwritten by derived class.
+
+	/**
+	 * @brief	Called once a GET-CONFIG.request message was received from a controller entity.
 	 *
-	 * Called from within crofbase::fe_down_get_config_request().
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param ctrl cofdpath instance from whom the GET-CONFIG.request was received.
-	 * @pack OF GET-CONFIG.request packet received from controller
+	 * @param ctl Pointer to cofctl instance from which the GET-CONFIG.request was received
+	 * @param msg Pointer to cofmsg_get_config_request message containing the received message
 	 */
 	virtual void
 	handle_get_config_request(cofctl *ctl, cofmsg_get_config_request *msg) { delete msg; };
 
-	/** Handle OF get-config reply. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a GET-CONFIG.reply message was received from a data path element.
 	 *
-	 * Called from within crofbase::fe_up_get_config_reply().
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param sw cofswitch instance from whom the GET-CONFIG.reply was received.
-	 * @pack OF GET-CONFIG.reply packet received from datapath
+	 * @param dpt Pointer to cofdpt instance from which the GET-CONFIG.reply was received
+	 * @param msg Pointer to cofmsg_get_config_reply message containing the received message
 	 */
 	virtual void
 	handle_get_config_reply(cofdpt *dpt, cofmsg_get_config_reply *msg) { delete msg; };
 
-	/** Handle OF get-config reply timeout. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a timer expires for a GET-CONFIG.reply message.
 	 *
-	 * Called upon expiration of TIMER_FE_SEND_GET_CONFIG_REPLY.
+	 * Default behaviour: deletes cofdpt instance, thus effectively closing the control connection.
 	 *
-	 * @param sw cotswitch instance from whom a GET-CONFIG.reply was expected.
+	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
 	handle_get_config_reply_timeout(cofdpt *dpt);
 
-	/** Handle OF stats request. NOT to be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a STATS.request message was received from a controller entity.
 	 *
-	 * Called upon reception of a STATS.request from the controlling entity.
+	 * This method dispatches the received STATS.request by calling individual statistics
+	 * handlers. The derived class should overwrite all specific handlers as required.
+	 * The non-overwritten ones will generate a proper error message for the controller entity.
+	 * Default behaviour: throws an exception of type eBadRequestbadStats.
 	 *
-	 * @param pack STATS.request packet received from controller.
+	 * @see handle_desc_stats_request
+	 * @see handle_table_stats_request
+	 * @see handle_port_stats_request
+	 * @see handle_flow_stats_request
+	 * @see handle_aggregate_stats_request
+	 * @see handle_queue_stats_request
+	 * @see handle_group_stats_request
+	 * @see handle_group_desc_stats_request
+	 * @see handle_group_features_stats_request
+	 * @see handle_experimenter_stats_request
+	 *
+	 * @param ctl Pointer to cofctl instance from which the STATS.request was received
+	 * @param msg Pointer to cofmsg_get_config_request message containing the received message
+	 * @exception eBadRequestBadStat { sends a proper error message to the controller entity }
 	 */
 	void
 	handle_stats_request(cofctl *ctl, cofmsg_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
+	 * @brief	Called once a DESC-STATS.request message was received from a controller entity.
 	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the DESC-STATS.request was received
+	 * @param msg Pointer to cofmsg_desc_stats_request message containing the received message
 	 */
 	virtual void
 	handle_desc_stats_request(cofctl *ctl, cofmsg_desc_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
+
 	/**
+	 * @brief	Called once a TABLE-STATS.request message was received from a controller entity.
 	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the TABLE-STATS.request was received
+	 * @param msg Pointer to cofmsg_table_stats_request message containing the received message
 	 */
 	virtual void
 	handle_table_stats_request(cofctl *ctl, cofmsg_table_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
+
 	/**
+	 * @brief	Called once a PORT-STATS.request message was received from a controller entity.
 	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the PORT-STATS.request was received
+	 * @param msg Pointer to cofmsg_port_stats_request message containing the received message
 	 */
 	virtual void
 	handle_port_stats_request(cofctl *ctl, cofmsg_port_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
+
 	/**
+	 * @brief	Called once a FLOW-STATS.request message was received from a controller entity.
 	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the FLOW-STATS.request was received
+	 * @param msg Pointer to cofmsg_flow_stats_request message containing the received message
 	 */
 	virtual void
 	handle_flow_stats_request(cofctl *ctl, cofmsg_flow_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
+
 	/**
+	 * @brief	Called once an AGGREGATE-STATS.request message was received from a controller entity.
 	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the AGGREGATE-STATS.request was received
+	 * @param msg Pointer to cofmsg_aggr_stats_request message containing the received message
 	 */
 	virtual void
 	handle_aggregate_stats_request(cofctl *ctl, cofmsg_aggr_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
+
 	/**
+	 * @brief	Called once a QUEUE-STATS.request message was received from a controller entity.
 	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the QUEUE-STATS.request was received
+	 * @param msg Pointer to cofmsg_queue_stats_request message containing the received message
 	 */
 	virtual void
 	handle_queue_stats_request(cofctl *ctl, cofmsg_queue_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
+
 	/**
+	 * @brief	Called once a GROUP-STATS.request message was received from a controller entity.
 	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the GROUP-STATS.request was received
+	 * @param msg Pointer to cofmsg_group_stats_request message containing the received message
 	 */
 	virtual void
 	handle_group_stats_request(cofctl *ctl, cofmsg_group_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
+
 	/**
+	 * @brief	Called once a GROUP-DESC-STATS.request message was received from a controller entity.
 	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the GROUP-DESC-STATS.request was received
+	 * @param msg Pointer to cofmsg_group_desc_stats_request message containing the received message
 	 */
 	virtual void
 	handle_group_desc_stats_request(cofctl *ctl, cofmsg_group_desc_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
+
 	/**
+	 * @brief	Called once a GROUP-FEATURES-STATS.request message was received from a controller entity.
 	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the GROUP-FEATURES-STATS.request was received
+	 * @param msg Pointer to cofmsg_group_features_stats_request message containing the received message
 	 */
 	virtual void
 	handle_group_features_stats_request(cofctl *ctl, cofmsg_group_features_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
+
 	/**
+	 * @brief	Called once a EXPERIMENTER-STATS.request message was received from a controller entity.
 	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the EXPERIMENTER-STATS.request was received
+	 * @param msg Pointer to cofmsg_experimenter_stats_request message containing the received message
 	 */
 	virtual void
 	handle_experimenter_stats_request(cofctl *ctl, cofmsg_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
-	/** Handle OF stats reply. To be overwritten by derived class.
+
+	/**
+	 * @brief	Called once a STATS.reply message was received from a data path element.
 	 *
-	 * Called upon reception of a STATS.reply from a datapath entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param sw cofswitch instance from whom a STATS.reply was received
-	 * @param pack STATS.reply packet received from datapath
+	 * @param dpt pointer to cofdpt instance from which the STATS.reply message was received.
+	 * @param msg pointer to cofmsg_stats_reply message containing the received message
 	 */
 	virtual void
 	handle_stats_reply(cofdpt *dpt, cofmsg_stats_reply *msg) { delete msg; };
 
-	/** Handle OF stats reply timeout. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a timer has expired for a STATS.reply message.
 	 *
-	 * Called upon expiration of TIMER_FE_SEND_STATS_REPLY.
+	 * To be overwritten by derived class. Default behaviour: ignores event.
 	 *
-	 * @param sw cotswitch instance from whom a GET-CONFIG.reply was expected.
+	 * @param dpt pointer to cofdpt instance where the timeout occured.
+	 * @param xid transaction ID of STATS.request previously sent to data path element.
 	 */
 	virtual void
 	handle_stats_reply_timeout(cofdpt *dpt, uint32_t xid) {};
 
 
+
 	/**
+	 * @brief	Called once a DESC-STATS.reply message was received.
 	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the DESC-STATS.reply message was received.
+	 * @param msg pointer to cofmsg_desc_stats_reply message containing the received message
 	 */
 	virtual void
 	handle_desc_stats_reply(cofdpt *dpt, cofmsg_desc_stats_reply *msg) { delete msg; };
 
 
+
 	/**
+	 * @brief	Called once a TABLE-STATS.reply message was received.
 	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the TABLE-STATS.reply message was received.
+	 * @param msg pointer to cofmsg_table_stats_reply message containing the received message
 	 */
 	virtual void
 	handle_table_stats_reply(cofdpt *dpt, cofmsg_table_stats_reply *msg) { delete msg; };
 
 
+
 	/**
+	 * @brief	Called once a PORT-STATS.reply message was received.
 	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the PORT-STATS.reply message was received.
+	 * @param msg pointer to cofmsg_port_stats_reply message containing the received message
 	 */
 	virtual void
 	handle_port_stats_reply(cofdpt *dpt, cofmsg_port_stats_reply *msg) { delete msg; };
 
 
+
 	/**
+	 * @brief	Called once a FLOW-STATS.reply message was received.
 	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the FLOW-STATS.reply message was received.
+	 * @param msg pointer to cofmsg_flow_stats_reply message containing the received message
 	 */
 	virtual void
 	handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg) { delete msg; };
 
 
+
 	/**
+	 * @brief	Called once an AGGREGATE-STATS.reply message was received.
 	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the AGGREGATE-STATS.reply message was received.
+	 * @param msg pointer to cofmsg_aggregate_stats_reply message containing the received message
+
 	 */
 	virtual void
 	handle_aggregate_stats_reply(cofdpt *dpt, cofmsg_aggr_stats_reply *msg) { delete msg; };
 
 
+
 	/**
+	 * @brief	Called once a QUEUE-STATS.reply message was received.
 	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the QUEUE-STATS.reply message was received.
+	 * @param msg pointer to cofmsg_queue_stats_reply message containing the received message
 	 */
 	virtual void
 	handle_queue_stats_reply(cofdpt *dpt, cofmsg_queue_stats_reply *msg) { delete msg; };
 
 
+
 	/**
+	 * @brief	Called once a GROUP-STATS.reply message was received.
 	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the GROUP-STATS.reply message was received.
+	 * @param msg pointer to cofmsg_group_stats_reply message containing the received message
 	 */
 	virtual void
 	handle_group_stats_reply(cofdpt *dpt, cofmsg_group_stats_reply *msg) { delete msg; };
 
 
+
 	/**
+	 * @brief	Called once a GROUP-DESC-STATS.reply message was received.
 	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the GROUP-DESC-STATS.reply message was received.
+	 * @param msg pointer to cofmsg_group_desc_stats_reply message containing the received message
 	 */
 	virtual void
 	handle_group_desc_stats_reply(cofdpt *dpt, cofmsg_group_desc_stats_reply *msg) { delete msg; };
 
 
+
 	/**
+	 * @brief	Called once a GROUP-FEATURES-STATS.reply message was received.
 	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the GROUP-FEATURES-STATS.reply message was received.
+	 * @param msg pointer to cofmsg_group_features_stats_reply message containing the received message
 	 */
 	virtual void
 	handle_group_features_stats_reply(cofdpt *dpt, cofmsg_group_features_stats_reply *msg) { delete msg; };
 
 
+
 	/**
+	 * @brief	Called once an EXPERIMENTER-STATS.reply message was received.
 	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the EXPERIMENTER-STATS.reply message was received.
+	 * @param msg pointer to cofmsg_experimenter_stats_reply message containing the received message
 	 */
 	virtual void
 	handle_experimenter_stats_reply(cofdpt *dpt, cofmsg_stats_reply *msg) { delete msg; };
 
 
-	/** Handle OF packet-out messages. To be overwritten by derived class.
+
+	/**
+	 * @brief	Called once a PACKET-OUT.message was received.
 	 *
-	 * Called upon reception of a PACKET-OUT.message from the controlling entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param pack PACKET-OUT.message packet received from controller.
+	 * @param ctl Pointer to cofctl instance from which the PACKET-OUT.message was received
+	 * @param msg Pointer to cofmsg_packet_out message containing the received message
 	 */
 	virtual void
 	handle_packet_out(cofctl *ctl, cofmsg_packet_out *msg) { delete msg; };
 
-	/** Handle OF packet-in messages. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a PACKET-IN.message was received.
 	 *
-	 * Called upon reception of a PACKET-IN.message from a datapath entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param sw cofswitch instance from whom a PACKET-IN.message was received
-	 * @param pack PACKET-IN.message packet received from datapath
+	 * @param dpt pointer to cofdpt instance from which the PACKET-IN.message was received.
+	 * @param msg pointer to cofmsg_packet_in message containing the received message
 	 */
 	virtual void
 	handle_packet_in(cofdpt *dpt, cofmsg_packet_in *msg) { delete msg; };
 
-	/** Handle OF barrier request. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a BARRIER.request message was received from a controller entity.
 	 *
-	 * Called upon reception of a BARRIER.request from the controlling entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param pack BARRIER.request packet received from controller.
+	 * @param ctl Pointer to cofctl instance from which the BARRIER.request was received
+	 * @param msg Pointer to cofmsg_barrier_request message containing the received message
 	 */
 	virtual void
 	handle_barrier_request(cofctl *ctl, cofmsg_barrier_request *msg) { delete msg; };
 
-	/** Handle OF barrier reply. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a BARRIER.reply message was received.
 	 *
-	 * Called upon reception of a BARRIER.reply from a datapath entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param sw cofswitch instance from whom a BARRIER.reply was received
-	 * @param pack BARRIER.reply packet received from datapath
+	 * @param dpt pointer to cofdpt instance from which the BARRIER.reply message was received.
+	 * @param msg pointer to cofmsg_barrier_reply message containing the received message
 	 */
 	virtual void
 	handle_barrier_reply(cofdpt *dpt, cofmsg_barrier_request *msg) { delete msg; };
 
-	/** Handle OF barrier reply timeout. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a timer has expired for a BARRIER.reply message.
 	 *
-	 * Called upon expiration of TIMER_FE_SEND_BARRIER_REPLY.
+	 * To be overwritten by derived class. Default behaviour: ignores event.
 	 *
-	 * @param sw cotswitch instance from whom a BARRIER.reply was expected.
+	 * @param dpt pointer to cofdpt instance where the timeout occured.
+	 * @param xid transaction ID of BARRIER.request previously sent to data path element.
 	 */
 	virtual void
 	handle_barrier_reply_timeout(cofdpt *dpt, uint32_t xid) {};
 
-	/** Handle OF error message. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once an ERROR.message was received.
 	 *
-	 * Called upon reception of an ERROR.message from a datapath entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param sw cofswitch instance from whom an ERROR.message was received
-	 * @param pack ERROR.message packet received from datapath
+	 * @param dpt pointer to cofdpt instance from which the ERROR.message was received.
+	 * @param msg pointer to cofmsg_error message containing the received message
 	 */
 	virtual void
 	handle_error(cofdpt *dpt, cofmsg_error *msg) { delete msg; };
 
-	/** Handle OF flow-mod message. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a FLOW-MOD.message was received.
 	 *
-	 * Called upon reception of a FLOW-MOD.message from the controlling entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param pack FLOW-MOD.message packet received from controller.
+	 * @param ctl Pointer to cofctl instance from which the FLOW-MOD.message was received
+	 * @param msg Pointer to cofmsg_flow_mod message containing the received message
 	 */
 	virtual void
 	handle_flow_mod(cofctl *ctl, cofmsg_flow_mod *msg) { delete msg; };
 
-	/** Handle OF group-mod message. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a GROUP-MOD.message was received.
 	 *
-	 * Called upon reception of a GROUP-MOD.message from the controlling entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param pack GROUP-MOD.message packet received from controller.
+	 * @param ctl Pointer to cofctl instance from which the GROUP-MOD.message was received
+	 * @param msg Pointer to cofmsg_group_mod message containing the received message
 	 */
 	virtual void
 	handle_group_mod(cofctl *ctl, cofmsg_group_mod *msg) { delete msg; };
 
-	/** Handle OF table-mod message. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a TABLE-MOD.message was received.
 	 *
-	 * Called upon reception of a TABLE-MOD.message from the controlling entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param pack TABLE-MOD.message packet received from controller.
+	 * @param ctl Pointer to cofctl instance from which the TABLE-MOD.message was received
+	 * @param msg Pointer to cofmsg_table_mod message containing the received message
 	 */
 	virtual void
 	handle_table_mod(cofctl *ctl, cofmsg_table_mod *msg) { delete msg; };
 
-	/** Handle OF port-mod message. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a PORT-MOD.message was received.
 	 *
-	 * Called upon reception of a PORT-MOD.message from the controlling entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param pack PORT-MOD.message packet received from controller.
+	 * @param ctl Pointer to cofctl instance from which the PORT-MOD.message was received
+	 * @param msg Pointer to cofmsg_port_mod message containing the received message
 	 */
 	virtual void
 	handle_port_mod(cofctl *ctl, cofmsg_port_mod *msg) { delete msg; };
 
-	/** Handle OF flow-removed message. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a FLOW-REMOVED.message was received.
 	 *
-	 * Called upon reception of a FLOW-REMOVED.message from a datapath entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param sw cofswitch instance from whom a FLOW-REMOVED.message was received
-	 * @param pack FLOW-REMOVED.message packet received from datapath
+	 * @param dpt pointer to cofdpt instance from which the FLOW-REMOVED.message was received.
+	 * @param msg pointer to cofmsg_flow_removed message containing the received message
 	 */
 	virtual void
 	handle_flow_removed(cofdpt *dpt, cofmsg_flow_removed *msg) { delete msg; };
 
-	/** Handle OF port-status message. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a PORT-STATUS.message was received.
 	 *
-	 * Called upon reception of a PORT-STATUS.message from a datapath entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param sw cofswitch instance from whom a PORT-STATUS.message was received
-	 * @param pack PORT-STATUS.message packet received from datapath
+	 * @param dpt pointer to cofdpt instance from which the PORT-STATUS.message was received.
+	 * @param msg pointer to cofmsg_port_status message containing the received message
 	 */
 	virtual void
 	handle_port_status(cofdpt *dpt, cofmsg_port_status *msg) { delete msg; };
 
-	/** Handle OF set-config message. To be overwritten by derived class.
-	 *
-	 * Called upon reception of a SET-CONFIG.message from the controlling entity.
-	 * The OF packet must be removed from heap by the overwritten method.
-	 *
-	 * @param pack SET-CONFIG.message packet received from controller.
-	 */
-	virtual void
-	handle_set_config(cofctl *ctl, cofmsg_set_config *msg) { delete msg; };
 
-	/** Handle OF queue-get-config request. To be overwritten by derived class.
- 	 *
-	 * Called upon reception of a QUEUE-GET-CONFIG.reply from a datapath entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+
+
+	/**
+	 * @brief	Called once a QUEUE-GET-CONFIG.request message was received from a controller entity.
 	 *
-	 * @param sw cofswitch instance from whom a QUEUE-GET-CONFIG.reply was received
-	 * @param pack QUEUE-GET-CONFIG.reply packet received from datapath
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the QUEUE-GET-CONFIG.request was received
+	 * @param msg Pointer to cofmsg_queue_get_config_request message containing the received message
 	 */
 	virtual void
 	handle_queue_get_config_request(cofctl *ctl, cofmsg_queue_get_config_request *msg) { delete msg; };
 
-	/** Handle OF queue-get-config reply. To be overwritten by derived class.
- 	 *
-	 * Called upon reception of a QUEUE-GET-CONFIG.reply from a datapath entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+
+
+	/**
+	 * @brief	Called once a QUEUE-GET-CONFIG.reply message was received.
 	 *
-	 * @param sw cofswitch instance from whom a QUEUE-GET-CONFIG.reply was received
-	 * @param pack QUEUE-GET-CONFIG.reply packet received from datapath
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the QUEUE-GET-CONFIG.reply message was received.
+	 * @param msg pointer to cofmsg_queue_get_config_reply message containing the received message
 	 */
 	virtual void
 	handle_queue_get_config_reply(cofdpt *dpt, cofmsg_queue_get_config_reply *msg) { delete msg; };
 
-	/** Handle OF experimenter message. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once an EXPERIMENTER.message was received from a controller entity.
 	 *
-	 * Called upon reception of a VENDOR.message from the controlling entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param pack VENDOR.message packet received from controller.
+	 * @param ctl Pointer to cofctl instance from which the EXPERIMENTER.message was received
+	 * @param msg Pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(cofctl *ctl, cofmsg_experimenter *msg);
+	handle_set_config(cofctl *ctl, cofmsg_set_config *msg) { delete msg; };
 
-	/** Handle OF experimenter message. To be overwritten by derived class.
+
+
+
+	/**
+	 * @brief	Called once an EXPERIMENTER.message was received from a data path element.
 	 *
-	 * Called upon reception of a VENDOR.message from a datapath entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param sw cofswitch instance from whom a VENDOR.message was received
-	 * @param pack VENDOR.message packet received from datapath
+	 * @param dpt pointer to cofdpt instance from which the EXPERIMENTER.message was received.
+	 * @param msg pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
 	handle_experimenter_message(cofdpt *dpt, cofmsg_experimenter *msg) { delete msg; };
 
-	/** Handle new dpath
+
+
+	/**
+	 * @brief	Called once an EXPERIMENTER.message was received from a controller entity.
 	 *
-	 * Called upon creation of a new cofswitch instance.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param sw new cofswitch instance
+	 * @param ctl pointer to cofctl instance from which the EXPERIMENTER.message was received.
+	 * @param msg pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_dpath_open(cofdpt *dpt) {};
+	handle_experimenter_message(cofctl *ctl, cofmsg_experimenter *msg);
 
-	/** Handle close event on dpath
-	 *
-	 * Called upon deletion of a cofswitch instance
-	 *
-	 * @param sw cofswitch instance to be deleted
-	 */
-	virtual void
-	handle_dpath_close(cofdpt *dpt) {};
 
-	/** Handle new ctrl
-	 *
-	 * Called upon creation of a new cofctrl instance.
-	 *
-	 * @param ctrl new cofctrl instance
-	 */
-	virtual void
-	handle_ctrl_open(cofctl *ctl) {};
 
-	/** Handle close event on ctrl
+	/**
+	 * @brief	Called once a timer has expired for an EXPERIMENTER.message.
 	 *
-	 * Called upon deletion of a cofctrl instance
+	 * To be overwritten by derived class. Default behaviour: ignores event.
 	 *
-	 * @param ctrl cofctrl instance to be deleted
-	 */
-	virtual void
-	handle_ctrl_close(cofctl *ctl) {};
-
-	/** Handle timeout for GET-FSP request
-	 *
+	 * @param dpt pointer to cofdpt instance where the timeout occured.
+	 * @param xid transaction ID of EXPERIMENTER.message previously sent to data path element.
 	 */
 	virtual void
 	handle_get_fsp_reply_timeout(cofdpt *dpt) {};
 
-	/** Handle OF role request. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a ROLE.request message was received from a controller entity.
 	 *
-	 * Called upon reception of a ROLE.request from the controlling entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param pack ROLE.request packet received from controller.
+	 * @param ctl Pointer to cofctl instance from which the ROLE.request was received
+	 * @param msg Pointer to cofmsg_role_request message containing the received message
 	 */
 	virtual void
 	handle_role_request(cofctl *ctl, cofmsg_role_request *msg) { delete msg; };
 
-	/** Handle OF role reply. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a ROLE.reply message was received.
 	 *
-	 * Called upon reception of a ROLE.reply from a datapath entity.
-	 * The OF packet must be removed from heap by the overwritten method.
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
 	 *
-	 * @param sw cofswitch instance from whom a ROLE.reply was received
-	 * @param pack ROLE.reply packet received from datapath
+	 * @param dpt pointer to cofdpt instance from which the ROLE.reply message was received.
+	 * @param msg pointer to cofmsg_role_reply message containing the received message
 	 */
 	virtual void
 	handle_role_reply(cofdpt *dpt, cofmsg_role_reply *msg) { delete msg; };
 
-	/** Handle OF role reply timeout. To be overwritten by derived class.
+
+
+	/**
+	 * @brief	Called once a timer has expired for a ROLE.reply.
 	 *
-	 * Called upon expiration of TIMER_FE_SEND_ROLE_REPLY.
+	 * To be overwritten by derived class. Default behaviour: ignores event.
 	 *
-	 * @param sw cotswitch instance from whom a ROLE.reply was expected.
+	 * @param dpt pointer to cofdpt instance where the timeout occured.
+	 * @param xid transaction ID of ROLE.reply message previously sent to data path element.
 	 */
 	virtual void
 	handle_role_reply_timeout(cofdpt *dpt) {};
 
+	/**@}*/
 
 
 
 
-	// overloaded from ciosrv
+	/**
+	 * @name Event handlers overwritten from rofl::ciosrv
+	 *
+	 * When overwriting these methods for implementing own timers/events, please
+	 * make sure to call crofbase::handle_timeout() or crofbase::handle_event()
+	 * within the derived handler method.
+	 */
 
-	/** Handle timeout events. This method is overwritten from ciosrv.
+
+
+	/**@{*/
+
+	/**
+	 * @brief	Handle timer events from rofl::ciosrv.
+	 *
+	 * Timers are used for sending notifications within a single thread.
 	 *
 	 * @param opaque expired timer type
 	 */
@@ -1038,50 +1381,80 @@ protected:
 
 
 	/**
-	 * Handle cioctl events received
+	 * @brief 	Handle non-timer events from rofl::ciosrv
+	 *
+	 * Events are used for sending notifications among different threads.
+	 *
+	 * @param ev event instance
 	 */
 	virtual void
 	handle_event(cevent const& ev);
 
 
-public:
+	/**@}*/
 
-	// allow class cadaptor access to these methods
-	friend class chandler;
 
-	friend class bcm_port;
-	// allow class cgttable access to error method
-	friend class cgttable;
 
-	/* These methods may be called by a derived class to send
-	 * a specific OF packet.
+
+
+
+
+private:
+
+	friend class cofdpt;
+
+	friend class cofctl;
+
+	/**
+	 * @name	Methods for sending OpenFlow messages used solely by cofctl and cofdpt instances
 	 *
+	 * These methods should only be used by cofctl and cfodpt instances.
 	 */
 
-	// HELLO messages
-	//
+	/**@{*/
 
-	/** Send a OF HELLO.message to data path.
+
+	/**
+	 * @brief	Sends HELLO.message to peer data path element.
 	 *
+	 * This method is used only by cofdpt instances and should never be called by classes derived from crofbase.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param body pointer to memory area containing opaque data. will be appended to HELLO message header
+	 * @param bodylen size of memory area containing opaque data
 	 */
 	virtual void
 	send_hello_message(
 			cofdpt *dpt,
 			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
 
-	/** Send a OF HELLO.message to controller.
+
+
+	/**
+	 * @brief	Sends HELLO.message to peer controller entity.
 	 *
+	 * This method is used only by cofctl instances and should never be called by classes derived from crofbase.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param body pointer to memory area containing opaque data. will be appended to HELLO message header
+	 * @param bodylen size of memory area containing opaque data
 	 */
 	virtual void
 	send_hello_message(
 			cofctl *ctl,
 			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
 
-	// ECHO request/reply
-	//
+
+
 
 	/**
+	 * @brief	Sends ECHO.request to peer data path element.
 	 *
+	 * This method is used only by cofdpt instances and should never be called by classes derived from crofbase.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param body pointer to memory area containing opaque data. will be appended to ECHO.request message header
+	 * @param bodylen size of memory area containing opaque data
 	 */
 	virtual void
 	send_echo_request(
@@ -1089,8 +1462,16 @@ public:
 			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
 
 
+
 	/**
+	 * @brief	Sends ECHO.reply to peer data path element.
 	 *
+	 * This method is used only by cofdpt instances and should never be called by classes derived from crofbase.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param xid transaction ID of associated ECHO.request
+	 * @param body pointer to memory area containing opaque data. will be appended to ECHO.reply message header
+	 * @param bodylen size of memory area containing opaque data
 	 */
 	virtual void
 	send_echo_reply(
@@ -1100,7 +1481,13 @@ public:
 
 
 	/**
+	 * @brief	Sends ECHO.request to peer controller entity.
 	 *
+	 * This method is used only by cofctl instances and should never be called by classes derived from crofbase.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param body pointer to memory area containing opaque data. will be appended to ECHO.request message header
+	 * @param bodylen size of memory area containing opaque data
 	 */
 	virtual void
 	send_echo_request(
@@ -1108,8 +1495,16 @@ public:
 			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
 
 
+
 	/**
+	 * @brief	Sends ECHO.reply to peer controller entity.
 	 *
+	 * This method is used only by cofctl instances and should never be called by classes derived from crofbase.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of associated ECHO.request
+	 * @param body pointer to memory area containing opaque data. will be appended to ECHO.reply message header
+	 * @param bodylen size of memory area containing opaque data
 	 */
 	virtual void
 	send_echo_reply(
@@ -1117,20 +1512,47 @@ public:
 			uint32_t xid,
 			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
 
+	/**@}*/
 
-	// FEATURES request/reply
-	//
 
-	/** Send OF FEATURES.request to data path entity.
+
+protected:
+
+
+
+	/**
+	 * @name	Methods for sending OpenFlow messages
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
+	 * These methods may be called by a derived class for sending
+	 * a specific OF message.
+	 */
+
+	/**@{*/
+
+
+
+	/**
+	 * @brief	Sends a FEATURES.request to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
 	send_features_request(
-		cofdpt *sw);
+		cofdpt *dpt);
 
-	/** Send OF FEATURES.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a FEATURES.reply to a controller entity.
 	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from FEATURES.request
+	 * @param dpid data path ID of this data path element
+	 * @param n_buffers number of packet buffers available
+	 * @param capabilities data path capabilities (reassembly, etc.)
+	 * @param of13_auxiliary_id auxiliary_id used in OpenFlow 1.3, ignored in other versions
+	 * @param of10_actions_bitmap bitmap of supported actions for OpenFlow 1.0, ignored in other versions
+	 * @param portlist list of cofports in this data path, ignored in OpenFlow 1.3
 	 */
 	virtual void
 	send_features_reply(
@@ -1144,19 +1566,26 @@ public:
 			uint32_t of10_actions_bitmap = 0,
 			cofportlist const& portlist = cofportlist());
 
-	// GET-CONFIG request/reply
-	//
 
-	/** Send OF GET-CONFIG.request to data path entity.
+
+	/**
+	 * @brief	Sends a GET-CONFIG.request to a data path element.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
+	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
 	send_get_config_request(
-		cofdpt *sw);
+		cofdpt *dpt);
 
-	/** Send OF GET-CONFIG.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a GET-CONFIG.reply to a controller entity.
 	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from GET-CONFIG.request
+	 * @param flags data path flags
+	 * @param miss_send_len default miss_send_len value
 	 */
 	virtual void
 	send_get_config_reply(
@@ -1165,16 +1594,18 @@ public:
 			uint16_t flags,
 			uint16_t miss_send_len);
 
-	// STATS request/reply
-	//
 
-	/** Send OF STATS.request to data path entity.
+
+
+	/**
+	 * @brief	Sends a STATS.request to a data path element.
 	 *
-	 * @param dpt cofswitch instance representing the data path to be addressed
-	 * @param type One of the OFPST_* constants
-	 * @param flags OFPSF_REQ_* flags
-	 * @param body Body of a STATS request
-	 * @param bodylen length of STATS request body
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_type one of the OFPST_* constants
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param body body of STATS.request
+	 * @param bodylen length of STATS.request body
+	 * @return transaction ID for this STATS.request
 	 */
 	virtual uint32_t
 	send_stats_request(
@@ -1184,27 +1615,31 @@ public:
 		uint8_t *body = NULL,
 		size_t bodylen = 0);
 
-	/** Send OF FLOW STATS.request to data path entity.
+
+
+	/**
+	 * @brief	Sends a FLOW-STATS.request to a data path element.
 	 *
-	 * @param dpt cofswitch instance representing the data path to be addressed
-	 * @param type One of the OFPST_* constants
-	 * @param flags OFPSF_REQ_* flags
-	 * @param body Body of a STATS request
-	 * @param bodylen length of STATS request body
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param flow_stats_request body of a FLOW-STATS.request
+	 * @return transaction ID for this FLOW-STATS.request
 	 */
 	virtual uint32_t
 	send_flow_stats_request(
 		cofdpt *dpt,
-		uint16_t flags,
+		uint16_t stats_flags,
 		cofflow_stats_request const& flow_stats_request);
 
-	/** Send OF AGGR STATS.request to data path entity.
+
+
+	/**
+	 * @brief	Sends a AGGREGATE-STATS.request to a data path element.
 	 *
-	 * @param dpt cofswitch instance representing the data path to be addressed
-	 * @param type One of the OFPST_* constants
-	 * @param flags OFPSF_REQ_* flags
-	 * @param body Body of a STATS request
-	 * @param bodylen length of STATS request body
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param aggr_stats_request body of an AGGREGATE-STATS.request
+	 * @return transaction ID for this AGGREGATE-STATS.request
 	 */
 	virtual uint32_t
 	send_aggr_stats_request(
@@ -1214,23 +1649,15 @@ public:
 
 
 
-private:
-
-	/** Helper method for handling DESCription STATS.requests.
-	 * Only used within crofbase internally.
-	 */
-	void
-	send_stats_reply_local();
-
-public:
-
-	/** Send OF STATS.reply to controlling entity.
+	/**
+	 * @brief	Sends a STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
-	 * @param more flag if multiple STATS replies will be sent
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param stats_type one of the OFPST_* constants
+	 * @param body body of a STATS.reply
+	 * @param bodylen length of STATS.reply body
+	 * @param more flag if multiple STATS.reply messages will be sent
 	 */
 	virtual void
 	send_stats_reply(
@@ -1241,12 +1668,14 @@ public:
 		size_t bodylen = 0,
 		bool more = false);
 
-	/** Send OF DESC STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a DESC-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param desc_stats body of DESC-STATS.reply
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1256,12 +1685,14 @@ public:
 		cofdesc_stats_reply const& desc_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a TABLE-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param table_stats array of table_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1271,12 +1702,14 @@ public:
 		std::vector<coftable_stats_reply> const& table_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a PORT-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param port_stats array of port_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1286,12 +1719,14 @@ public:
 		std::vector<cofport_stats_reply> const& port_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a FLOW-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param flow_stats array of flow_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1301,12 +1736,14 @@ public:
 		std::vector<cofflow_stats_reply> const& flow_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends an AGGREGATE-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param aggr_stats aggr_stats body
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1316,12 +1753,14 @@ public:
 		cofaggr_stats_reply const& aggr_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a GROUP-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param group_stats array of group_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1331,12 +1770,14 @@ public:
 		std::vector<cofgroup_stats_reply> const& group_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a GROUP-DESC-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param group_desc_stats array of group_desc_stats bodies
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1346,12 +1787,14 @@ public:
 		std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
 		bool more = false);
 
-	/** Send OF TABLE STATS.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a GROUP-FEATURES-STATS.reply to a controller entity.
 	 *
-	 * @param xid transaction ID used in STATS request
-	 * @param stats_type One of the OFPST_* constants
-	 * @param body Body of a STATS reply
-	 * @param bodylen length of STATS reply body
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param group_features_stats group_features_stats body
 	 * @param more flag if multiple STATS replies will be sent
 	 */
 	virtual void
@@ -1361,21 +1804,21 @@ public:
 		cofgroup_features_stats_reply const& group_features_stats,
 		bool more = false);
 
-	// PACKET-OUT message
-	//
 
-	/** Send OF PACKET-OUT.message to data path entity.
+
+	/**
+	 * @brief	Sends a PACKET-OUT.message to a data path element.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
+	 * @param dpt pointer to cofdpt instance
 	 * @param buffer_id buffer ID assigned by datapath (-1 if none) in host byte order
-	 * @param in_port Packet’s input port (OFPP_NONE if none) in host byte order
-	 * @param acvec vector containing cofaction instances
-	 * @param data optional packet data to be sent out
-	 * @param datalen
+	 * @param in_port packet’s in-port (OFPP_NONE if none) in host byte order
+	 * @param aclist OpenFlow ActionList
+	 * @param data data packet to be sent out (optional)
+	 * @param datalen length of data packet (optional)
 	 */
 	virtual void
 	send_packet_out_message(
-		cofdpt *sw,
+		cofdpt *dpt,
 		uint32_t buffer_id,
 		uint32_t in_port,
 		cofaclist& aclist,
@@ -1383,17 +1826,20 @@ public:
 		size_t datalen = 0);
 
 
-	// PACKET-IN message
-	//
 
-	/** Send OF PACKET-IN.message to controlling entity.
+
+	/**
+	 * @brief	Sends a PACKET-IN.message to a controller entity.
 	 *
-	 * @param buffer_id buffer ID assigned by datapath in host byte order
+	 * @param buffer_id buffer ID assigned by data path
 	 * @param total_len Full length of frame
-	 * @param in_port Port on which frame was received
-	 * @param reason Reason packet is being sent (one of OFPR_*)
-	 * @param data Ethernet frame
-	 * @param datalen Ethernet frame length
+	 * @param reason reason packet is being sent (one of OFPR_* flags)
+	 * @param table_id ID of table that generated the PACKET-IN event
+	 * @param cookie cookie of FlowMod entry that generated the PACKET-IN event
+	 * @param in_port port on which frame was received
+	 * @param match match structure generated by data path element for data packet
+	 * @param data data packet
+	 * @param datalen length of data packet
 	 */
 	virtual void
 	send_packet_in_message(
@@ -1407,34 +1853,42 @@ public:
 		uint8_t *data,
 		size_t datalen) throw(eRofBaseNoCtrl);
 
-	// BARRIER request/reply
-	//
 
-	/** Send OF BARRIER.request to data path entity.
+
+	/**
+	 * @brief	Sends a BARRIER.request to a data path element.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
+	 * @param dpt pointer to cofdpt instance
+	 * @result transaction ID assigned to this request
 	 */
 	virtual uint32_t
 	send_barrier_request(
-		cofdpt *sw);
+		cofdpt *dpt);
 
-	/** Send OF BARRIER.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a BARRIER-reply to a controller entity.
 	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received BARRIER.request
 	 */
 	virtual void
 	send_barrier_reply(
 			cofctl *ctl,
 			uint32_t xid);
 
-	// ERROR message
-	//
 
-	/** Send OF ERROR.message to controlling entity.
+
+	/**
+	 * @brief	Sends an ERROR.message to a controller entity.
 	 *
-	 * @param type One of OFPET_*
-	 * @param code error code
-	 * @param data failed request
-	 * @param datalen length of failed request
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param type one of OpenFlow's OFPET_* flags
+	 * @param code one of OpenFlow's error codes
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
 	 */
 	virtual void
 	send_error_message(
@@ -1445,12 +1899,20 @@ public:
 		uint8_t* data = NULL,
 		size_t datalen = 0);
 
-	/** Send OF ERROR.message to datapath entity.
+
+
+	/**
+	 * @brief	Sends an ERROR.message to a data path element.
 	 *
-	 * @param type One of OFPET_*
-	 * @param code error code
-	 * @param data failed request
-	 * @param datalen length of failed request
+	 * These messages are used for failed HELLO negotiations and
+	 * experimental extensions.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param xid transaction ID of reply/notification that generated this error message
+	 * @param type one of OpenFlow's OFPET_* flags
+	 * @param code one of OpenFlow's error codes
+	 * @param data first (at least 64) bytes of failed reply/notification
+	 * @param datalen length of failed reply/notification appended to error message
 	 */
 	virtual void
 	send_error_message(
@@ -1461,29 +1923,34 @@ public:
 		uint8_t* data = NULL,
 		size_t datalen = 0);
 
-	// FLOW-MOD message
-	//
 
-	/** Send OF FLOW-MOD.message to data path entity.
+
+
+	/*
+	 * FIXME: to be removed and replaced by cflowentry
+	 */
+
+	/**
+	 * @brief 	Sends a FLOW-MOD.message to a data path element.
 	 *
-	 * All values in host byte order.
-	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
-	 * @param ofmatch An instance of class cofmatch holding the matching fields
-	 * @param cookie Opaque controller-issued identifier
-	 * @param command One of OFPFC_*
-	 * @param idle_timeout Idle time before discarding (seconds)
-	 * @param hard_timeout Max time before discarding (seconds)
-	 * @param priority Priority level of flow entry
-	 * @param buffer_id Buffered packet to apply to (or -1)
-	 * @param out_port For OFPFC_DELETE* commands, require matching entries to include this as an output port. A value of OFPP_NONE indicates no restriction
-	 * @param flags One of OFPFF_*
-	 * @param acvec Vector of cofaction instances
+	 * @param dpt pointer to cofdpt instance
+	 * @param match matching structure
+	 * @param cookie opaque controller-issued identifier
+	 * @param cookie_mask mask of bits to be overwritten/ignored when modifying FlowMod entries
+	 * @param table_id destination table ID of new FlowMod entry
+	 * @param command one of OpenFlow's command values: Add/Modify/Remove entry
+	 * @param idle_timeout idle timeout before discarding this FlowMod entry in seconds
+	 * @param hard_timeout hard timeout before discarding this FlowMod entry in seconds
+	 * @param priority priority level of flow entry
+	 * @param buffer_id buffer slot where to apply this FlowMod entry
+	 * @param out_port for OFPFC_DELETE* commands, require matching entries to include this as an output port. A value of OFPP_NONE indicates no restriction
+	 * @param flags one of OpenFlow's OFPFF_* flags
+	 * @param inlist InstructionList
 	 */
 	virtual void
 	send_flow_mod_message(
-		cofdpt *sw,
-		cofmatch& ofmatch,
+		cofdpt *dpt,
+		cofmatch& match,
 		uint64_t cookie,
 		uint64_t cookie_mask,
 		uint8_t table_id,
@@ -1497,108 +1964,92 @@ public:
 		uint16_t flags,
 		cofinlist& inlist);
 
+
+
+	/**
+	 * @brief 	Sends a FLOW-MOD.message to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param flowentry FlowMod entry
+	 */
 	virtual void
 	send_flow_mod_message(
-			cofdpt *sw,
+			cofdpt *dpt,
 			cflowentry& flowentry);
 
-	// GROUP-MOD message
-	//
 
-	/** Send OF GROUP-MOD.message to data path entity.
+
+
+	/**
+	 * @brief 	Sends a GROUP-MOD.message to a data path element.
 	 *
-	 * All values in host byte order.
-	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
-	 * @param ofmatch An instance of class cofmatch holding the matching fields
-	 * @param cookie Opaque controller-issued identifier
-	 * @param command One of OFPFC_*
-	 * @param idle_timeout Idle time before discarding (seconds)
-	 * @param hard_timeout Max time before discarding (seconds)
-	 * @param priority Priority level of flow entry
-	 * @param buffer_id Buffered packet to apply to (or -1)
-	 * @param out_port For OFPFC_DELETE* commands, require matching entries to include this as an output port. A value of OFPP_NONE indicates no restriction
-	 * @param flags One of OFPFF_*
-	 * @param acvec Vector of cofaction instances
+	 * @param dpt pointer to cofdpt instance
+	 * @param groupentry GroupMod entry
 	 */
-#if 0
-	void
-	send_group_mod_message(
-		cofdpt *sw,
-		uint16_t command,
-		uint8_t type,
-		uint32_t group_id,
-		std::vector<cofbucket*>& buckets);
-#endif
-
 	virtual void
 	send_group_mod_message(
-			cofdpt *sw,
+			cofdpt *dpt,
 			cgroupentry& groupentry);
 
-	// TABLE-MOD message
-	//
 
-	/** Send OF GROUP-MOD.message to data path entity.
+
+	/**
+	 * @brief	Sends a TABLE-MOD.message to a data path element.
 	 *
-	 * All values in host byte order.
-	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
-	 * @param table_id the table id according to OF1.1
-	 * @param config table configuration, see openflow.h for OFPTC_TABLE_*
+	 * @param dpt pointer to a cofdpt instance
+	 * @param table_id ID of table to be reconfigured
+	 * @param config new configuration for table
 	 */
 	virtual void
 	send_table_mod_message(
-		cofdpt *sw,
+		cofdpt *dpt,
 		uint8_t table_id,
 		uint32_t config);
 
-	// PORT-MOD message
-	//
 
-	/** Send OF PORT-MOD.message to data path entity.
+
+
+	/**
+	 * @brief	Sends a PORT-MOD.message to a data path element.
 	 *
-	 * All values in host byte order.
-	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
-	 * @param ofmatch An instance of class cofmatch holding the matching fields
-	 * @param port_no Number of port to modify
-	 * @param hw_addr Memory area containing the ports hardware address
-	 * @param hw_addr_len Length of memory area
-	 * @param config Bitmap of OFPPC_* flags
-	 * @param mask Bitmap of OFPPC_* flags to be changed
-	 * @param advertise Bitmap of "ofp_port_features"s. Zero all bits to prevent any action taking place.
+	 * @param dpt pointer to cofdpt instance
+	 * @param port_no number of port to be updated
+	 * @param hwaddr MAC address assigned to port
+	 * @param config OpenFlow config parameter
+	 * * @param mask OpenFlow mask parameter
+	 * * @param advertise OpenFlow advertise parameter
 	 */
 	virtual void
 	send_port_mod_message(
-		cofdpt *sw,
+		cofdpt *dpt,
 		uint32_t port_no,
 		cmacaddr const& hwaddr,
 		uint32_t config,
 		uint32_t mask,
 		uint32_t advertise);
 
-	// FLOW-REMOVED message
-	//
 
-	/** Send OF FLOW-REMOVED.message to controlling entity.
+
+	/**
+	 * @brief	Sends a FLOW-REMOVED.message to a controller entity.
 	 *
-	 * All values in host byte order.
-	 *
-	 * @param ofmatch An instance of class cofmatch holding the matching fields
-	 * @param cookie Opaque controller-issued identifier
-	 * @param priority Priority level of flow entry
-	 * @param reason One of OFPRR_*
-	 * @param duration_sec Time flow was alive in seconds
-	 * @param duration_nsec Time flow was alive in nanoseconds beyond duration_sec
-	 * @param idle_timeout Idle timeout from original flow mod
+	 * @param ctl pointer to cofctl instance
+	 * @param match match structure defined in FlowMod entry
+	 * @param cookie cookie defined in FlowMod entry
+	 * @param priority priority level defined in FlowMOd entry
+	 * @param reason one of OpenFlow's OFPRR_* constants
+	 * @param table_id ID of table from which the FlowMod entry was removed
+	 * @param duration_sec time flow was alive in seconds
+	 * @param duration_nsec time flow was alive in nanoseconds beyond duration_sec
+	 * @param idle_timeout idle timeout from original flow mod
+	 * @param idle_timeout hard timeout from original flow mod
 	 * @param packet_count number of packets handled by this flow mod
 	 * @param byte_count number of bytes handled by this flow mod
 	 */
 	virtual void
 	send_flow_removed_message(
 		cofctl *ctl,
-		cofmatch& ofmatch,
+		cofmatch& match,
 		uint64_t cookie,
 		uint16_t priority,
 		uint8_t reason,
@@ -1610,12 +2061,13 @@ public:
 		uint64_t packet_count,
 		uint64_t byte_count);
 
-	// PORT-STATUS message
-	//
 
-	/** Send OF PORT-STATUS.message to controlling entity.
+
+
+	/**
+	 * @brief	Sends a PORT-STATUS.message to a controller entity.
 	 *
-	 * @param reason One of OFPPR_*
+	 * @param reason one of OpenFlow's OFPPR_* constants
 	 * @param port cofport instance that changed its status
 	 */
 	virtual void
@@ -1623,36 +2075,43 @@ public:
 		uint8_t reason,
 		cofport const& port);
 
-	// SET-CONFIG message
-	//
 
-	/** Send OF SET-CONFIG.message to data path entity.
+
+	/**
+	 * @brief	Sends a SET-CONFIG.message to a data path element.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
-	 * @param flags OFPC_* flags
-	 * @param miss_send_len Max bytes of new flow that datapath should send to the controller
+	 * @param dpt pointer to cofdpt instance
+	 * @param flags field of OpenFlow's OFPC_* flags
+	 * @param miss_send_len OpenFlow' miss_send_len parameter
 	 */
 	virtual void
 	send_set_config_message(
-		cofdpt *sw,
+		cofdpt *dpt,
 		uint16_t flags,
 		uint16_t miss_send_len);
 
-	// QUEUE-GET-CONFIG request/reply
-	//
 
-	/** Send OF QUEUE-GET-CONFIG.request to data path entity.
+
+	/**
+	 * @brief	Sends a QUEUE-GET-CONFIG.request to a data path element.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
-	 * @param port Port to be queried. Should refer to a valid physical port (i.e. < OFPP_MAX)
+	 * @param dpt pointer to cofdpt instance
+	 * @param port port to be queried. Should refer to a valid physical port (i.e. < OFPP_MAX)
 	 */
 	virtual void
 	send_queue_get_config_request(
 		cofdpt *sw,
 		uint32_t port);
 
-	/** Send OF QUEUE-GET-CONFIG.reply to controlling entity.
+
+
+	// FIXME: add QUEUE-GET-CONFIG.reply body
+	/**
+	 * @brief	Sends a QUEUE-GET-CONFIG.reply to a controller entity.
 	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from QUEUE-GET-CONFIG.request
+	 * @param portno OpenFlow number assigned to port
 	 */
 	virtual void
 	send_queue_get_config_reply(
@@ -1660,44 +2119,70 @@ public:
 			uint32_t xid,
 			uint32_t portno);
 
-	/** Send OF experimenter message to data path
+
+
+
+	/**
+	 * @brief 	Sends an EXPERIMENTER.message to a data path element.
 	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param experimenter_id exp_id as assigned by ONF
+	 * @param exp_type exp_type as defined by the ONF member
+	 * @param body pointer to opaque experimenter message body (optional)
+	 * @param bodylen length of body (optional)
 	 */
 	virtual void
 	send_experimenter_message(
-			cofdpt *sw,
+			cofdpt *dpt,
 			uint32_t experimenter_id,
 			uint32_t exp_type,
 			uint8_t *body = NULL,
 			size_t bodylen = 0);
 
-	/** Send OF experimenter message to controller
+
+
+	/**
+	 * @brief 	Sends an EXPERIMENTER.message to a controller entity.
 	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param experimenter_id exp_id as assigned by ONF
+	 * @param exp_type exp_type as defined by the ONF member
+	 * @param body pointer to opaque experimenter message body (optional)
+	 * @param bodylen length of body (optional)
 	 */
 	virtual void
 	send_experimenter_message(
-			cofctl *ctrl,
+			cofctl *ctl,
 			uint32_t experimenter_id,
 			uint32_t exp_type,
 			uint8_t *body = NULL,
 			size_t bodylen = 0);
 
 
-	// ROLE request/reply
-	//
 
-	/** Send OF ROLE.request to data path entity.
+
+	/**
+	 * @brief	Sends a ROLE.request to a data path element.
 	 *
-	 * @param sw cofswitch instance representing the data path to be addressed
+	 * @param dpt pointer to cofdpt instance
+	 * @param role role as defined by OpenFlow
+	 * @param generation_id gen_id as defined by OpenFlow
 	 */
 	virtual void
 	send_role_request(
-		cofdpt *sw,
+		cofdpt *dpt,
 		uint32_t role,
 		uint64_t generation_id);
 
-	/** Send OF ROLE.reply to controlling entity.
+
+
+	/**
+	 * @brief	Sends a ROLE.reply to a controller entity.
 	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from associated ROLE.request
+	 * @param role defined role from data path
+	 * @param generation_id gen_id as defined by OpenFlow
 	 */
 	virtual void
 	send_role_reply(
@@ -1707,95 +2192,24 @@ public:
 			uint64_t generation_id);
 
 
+	/**@}*/
 
 
-public:
+private:
+
+	friend class csocket;
 
 
-	/**
-	 *
-	 */
-	virtual void
-	handle_accepted(
-			csocket *socket,
-			int newsd,
-			caddress const& ra);
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_connected(
-			csocket *socket,
-			int sd);
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_connect_refused(
-			csocket *socket,
-			int sd);
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_read(
-			csocket *socket,
-			int sd);
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_closed(
-			csocket *socket,
-			int sd);
-
-
-
-
-protected:
-
-	// allow class cofswitch access to these methods
-	friend class cofdpt;
-	// allow class cofctrl access to these methods
-	friend class cofctl;
-
-	/** for use by cofdpt
-	 *
+	/** Helper method for handling DESCription STATS.requests.
+	 * Only used within crofbase internally.
 	 */
 	void
-	handle_dpt_open(cofdpt *dpt);
+	send_stats_reply_local();
 
 
-	/** for use by cofdpt
-	 *
+	/*
+	 * transaction ID related methods
 	 */
-	void
-	handle_dpt_close(cofdpt *dpt);
-
-
-	/** for use by cofctl
-	 *
-	 */
-	void
-	handle_ctl_open(cofctl *ctl);
-
-
-	/** for use by cofctl
-	 *
-	 */
-	void
-	handle_ctl_close(cofctl *ctl);
-
-
-protected:
 
 
 	/** add pending request to transaction queue
@@ -1856,27 +2270,90 @@ protected:
 			uint32_t xid);
 
 
-private: // methods for attaching/detaching other cofbase instances
+	/*
+	 * methods overwritten from csocket_owner
+	 */
 
-	/** attach data path
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_accepted(
+			csocket *socket,
+			int newsd,
+			caddress const& ra);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_connected(
+			csocket *socket,
+			int sd);
+
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_connect_refused(
+			csocket *socket,
+			int sd);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_read(
+			csocket *socket,
+			int sd);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_closed(
+			csocket *socket,
+			int sd);
+
+
+
+
+	/*
+	 * methods to be called from cofdpt and cofctl
+	 */
+
+
+	/** for use by cofdpt
+	 *
 	 */
 	void
-	dpath_attach(cofbase* dp);
+	handle_dpt_open(cofdpt *dpt);
 
-	/** detach data path
+	/** for use by cofdpt
+	 *
 	 */
 	void
-	dpath_detach(cofbase* dp);
+	handle_dpt_close(cofdpt *dpt);
 
-	/** attach controlling entity
+	/** for use by cofctl
+	 *
 	 */
 	void
-	ctrl_attach(cofbase* dp) throw (eRofBaseFspSupportDisabled);
+	handle_ctl_open(cofctl *ctl);
 
-	/** detach controlling entity
+	/** for use by cofctl
+	 *
 	 */
 	void
-	ctrl_detach(cofbase* dp);
+	handle_ctl_close(cofctl *ctl);
+
+
 
 
 

@@ -126,20 +126,26 @@ class eIoSvcNotFound        : public eIoSvcBase {}; //< element not found
  * This class is a base class that adds IO event support to a derived class.
  * ciosrv provides a static method for running an infinite loop of select()/poll()
  * to handle file/socket descriptors. Each instance adds methods for adding/removing
- * file descriptors to/from the set of monitored descriptors. A derived class
- * may overwrite handler methods for receiving events:
- * - handle_revent() read events
- * - handle_wevent() write events
- * - handle_xevent() exceptions
+ * file descriptors to/from the set of monitored descriptors.
+ *
+ * A derived class may overwrite event handlers for receiving the following event types:
+ * - handle_revent() read events on file descriptors
+ * - handle_wevent() write events on file descriptors
+ * - handle_xevent() exceptions on file descriptors
  * - handle_timeout() timeout events
- * Methods for descriptor management are:
+ * - handle_event() events emitted from external threads via cevent
+ *
+ * Methods for file descriptor management:
  * - register_filedesc_r() register a descriptor for read IO
  * - deregister_filedesc_r() deregister a read descriptor
  * - register_filedesc_w() register a descriptor for write IO
- * - deregister_filedesc_w() deregister a write descriptoe
+ * - deregister_filedesc_w() deregister a write descriptor
+ *
+ * Methods for timer management:
  * - register_timer() register a timer
  * - reset_timer() reset a timer
  * - cancel_timer() cancel a timer
+ * - cancel_all_timer() cancel all timers
  *
  */
 class ciosrv : public virtual csyslog
@@ -159,7 +165,6 @@ class ciosrv : public virtual csyslog
 	        std::set<class ciosrv*> ciosrv_list;           //< list of all ciosrv instances
 	        std::set<class ciosrv*> ciosrv_deletion_list;  //< list of all ciosrv instances scheduled for deletion
 	        std::set<class ciosrv*> ciosrv_wakeup;         //< list of all cioctl commands rcvd
-
 	        int evlockinit; // = 0 => destroy mutex
 
 	public:
@@ -192,10 +197,11 @@ class ciosrv : public virtual csyslog
 
 protected:
 
+private: // static
+
+
 	static pthread_rwlock_t iothread_lock;
 	static std::map<pthread_t, ciothread*> threads; // fds and timers for thread tid
-
-private: // static
 
 	//Flag that allows to stop ciosrv
 	static bool keep_on;
@@ -226,230 +232,333 @@ private: // static
 
 public: // static
 
-	/** check for existence of ciosrv
+
+	/**
+	 * @brief 	Initializes thread-local variables for this thread.
 	 *
+	 * This method must be called once after creation of a new thread.
 	 */
-	static ciosrv* ciosrv_exists(ciosrv* iosrv) throw (eIoSvcNotFound);
-
-	/**
-	 * Run the main loop for an infinite time.
-	 * This static method provides the select call with an infinite loop.
-	 * This method should be called by a main()-routine. Not thread-safe (yet).
-	 * The select() call is blocking.
-	 */
-	static void run();
-
-	/**
-	* Stop the ciosrv 
-	*/
-	static void stop(){keep_on = false;};
-
-	/**
-	 * Init static variables before running this ciosrv instance.
-	 */
-	static void init();
+	static void
+	init();
 
 
 	/**
-	 * Destroy static variables before running this ciosrv instance.
+	 * @brief	Runs the infinite event loop.
 	 */
-	static void destroy();
+	static void
+	run();
+
+
+
+	/**
+	 * @brief	Leaves the infinite event loop.
+	 */
+	static void
+	stop() { keep_on = false; };
+
+
+
+	/**
+	 * @brief	Deallocates thread-local variables.
+	 *
+	 * This method must be called once before destroying the local thread.
+	 */
+	static void
+	destroy();
 
 
 
 public:
 
+
+
 	/**
-	 * Constructor.
+	 * @brief	Initializes all structures for this ciosrv object.
 	 */
 	ciosrv();
 
+
+
 	/**
-	 * Destructor.
+	 * @brief	Deallocates resources for this ciosrv object.
 	 */
 	virtual
 	~ciosrv();
 
-	/**
-	 * send notification to this ciosrv instance
-	 */
-	void
-	notify(cevent const& ioctl = cevent());
+
 
 	/**
+	 * @brief	Sends a notification to this ciosrv instance.
 	 *
+	 * Method notify() can be called from every thread within the
+	 * running application. The event management system wakes up
+	 * this thread when in sleeping condition in a poll/select loop and calls its
+	 * handle_event() method.
+	 *
+	 * @param ev the event to be sent to this instance
+	 */
+	void
+	notify(cevent const& ev = cevent());
+
+
+
+	/**
+	 * @brief	Returns a static c-string with information about this instance.
+	 *
+	 * @return a static c-string
 	 */
 	const char*
 	c_str();
 
-protected: // methods, to be overwritten by derived classes
 
-	//
-	// cioctl related methods
-	//
+
 
 	/**
-	 * Handle cioctl events received
-	 */
-	virtual void
-	handle_event(cevent const& ev)
-	{
-	};
-
-	//
-	// file descriptor related methods
-	//
-
-	/**
-	 * Handle read events on a specific file descriptor.
-	 * Called after return of select() call in the proper
-	 * ciosrv instance.
-	 * This method should be overwritten by a derived class
-	 * to actually receive read IO events for file descriptors.
-	 * @param fd The file descriptor that caused the read event
-	 */
-	virtual void
-	handle_revent(int fd)
-	{
-	};
-
-	/**
-	 * Handle write events on a specific file descriptor.
-	 * Called after return of select() call in the proper
-	 * ciosrv instance.
-	 * This method should be overwritten by a derived class
-	 * to actually receive write IO events for file descriptors.
-	 * @param fd The file descriptor that caused the write event
-	 */
-	virtual void
-	handle_wevent(int fd)
-	{
-	};
-
-	/**
-	 * Handle exception events on a specific file descriptor.
-	 * Called after return of select() call in the proper
-	 * ciosrv instance.
-	 * This method should be overwritten by a derived class
-	 * to actually receive exception IO events for file descriptors.
-	 * @param fd The file descriptor that caused the exception
-	 */
-	virtual void
-	handle_xevent(int fd)
-	{
-	};
-
-	/**
-	 * Register a file descriptor for reading.
+	 * @brief	Returns thread-id of local thread.
 	 *
-	 * This method may be called by a derived class for registering
-	 * a file or socket descriptor. The descriptor will be stored
-	 * in ciosrv::rfds and will be added in consecutive select() calls
-	 * until it is removed by calling deregister_filedesc_r().
-	 * @param fd The file descriptor to be observed for read IO events.
+	 * @return thread ID
 	 */
-	virtual void register_filedesc_r(int fd);
+	pthread_t
+	get_thread_id() const { return tid; };
+
+
+
+
+protected:
+
 
 	/**
-	 * Deregister a file descriptor for reading.
+	 * @name Event handlers
 	 *
-	 * This method may be called by a derived class for deregistering
-	 * a file or socket descriptor. The descriptor will be removed
-	 * from ciosrv::rfds.
-	 * @param fd The file descriptor to be removed.
+	 * These methods define handlers for file descriptor and cevent notifications.
+	 * Derived classes should overwwrite all relevant handlers.
 	 */
-	virtual void deregister_filedesc_r(int fd);
+
+	/**@{*/
+
 
 	/**
-	 * Register a file descriptor for writing.
-	 * This method may be called by a derived class for registering
-	 * a file or socket descriptor. The descriptor will be stored
-	 * in ciosrv::wfds and will be added in consecutive select() calls
-	 * until it is removed by calling deregister_filedesc_w().
-	 * @param fd The file descriptor to be observed for write IO events.
-	 */
-	virtual void register_filedesc_w(int fd);
-
-	/**
-	 * Deregister a file descriptor for writing.
-	 * This method may be called by a derived class for deregistering
-	 * a file or socket descriptor. The descriptor will be removed
-	 * from ciosrv::wfds.
-	 * @param fd The file descriptor to be removed.
-	 */
-	virtual void deregister_filedesc_w(int fd);
-
-	//
-	// timer related methods
-	//
-
-	/**
-	 * Handle timeout events.
-	 * This method is called once a timeout event happens for this
-	 * ciosrv instance.
-	 * @param opaque An opaque integer value freely selectable by the
-	 * derived class. ciosrv will take care to prevent any name clashes.
-	 * However, the user must not register the same opaque value twice,
-	 * as this will lead to an unpredictable behaviour. Calling handle_timeout()
-	 * may be delayed when there are other ciosrv instances requiring the processing
-	 * on the CPU. Precision of timers is in seconds.
-	 * @para, opaque An opaque integer handle to refer to an internal event.
+	 * @brief	Handler for event notifications using cevent instances.
+	 *
+	 * To be overwritten by derived class. Default behaviour: event is ignored.
+	 *
+	 * @see notify(cevent const& ev)
+	 *
+	 * @param ev cevent instance received
 	 */
 	virtual void
-	handle_timeout(int opaque)
-	{
-		throw eIoSvcUnhandledTimer();
-	};
+	handle_event(cevent const& ev) {};
+
+
 
 	/**
-	 * Register a new timer.
-	 * This method registers a new timer scheduled in 't' seconds. The opaque
-	 * handle may be selected freely by this instance, but must not be in use
-	 * already.
-	 * @param opaque An opaque integer handle freely selectable by this ciosrv instance.
-	 * @param t The timeout value this timer will expire.
+	 * @brief	Handler for read events on file descriptors.
+	 *
+	 * To be overwritten by derived class. Default behaviour: event is ignored.
+	 *
+	 * @param fd read event occured on file descriptor fd
 	 */
-	virtual void register_timer(int opaque, time_t t);
+	virtual void
+	handle_revent(int fd) {};
+
+
 
 	/**
-	 * Reset a timer of a specific type.
-	 * This method resets an existing timer handle with a new timeout
-	 * value, i.e. the old expiration date will be replaced with the new
-	 * timeout value.
-	 * @param opaque The timer handler to be reset.
-	 * @param t The new timeout value.
+	 * @brief	Handler for write events on file descriptors.
+	 *
+	 * To be overwritten by derived class. Default behaviour: event is ignored.
+	 *
+	 * @param fd write event occured on file descriptor fd
 	 */
-	virtual void reset_timer(int opaque, time_t);
+	virtual void
+	handle_wevent(int fd) {};
+
+
 
 	/**
-	 * Check for a pending timer handle.
-	 * This method returns a boolean value indicating whether a specific
-	 * opaque handle is registered active or not.
-	 * @param opaque The timer handle.
-	 * @return boolean value: true, timer handle is active, false otherwise
+	 * @brief	Handler for exceptions on file descriptors.
+	 *
+	 * To be overwritten by derived class. Default behaviour: event is ignored.
+	 *
+	 * @param fd exception occured on file descriptor fd
 	 */
-	virtual bool pending_timer(int opaque);
+	virtual void
+	handle_xevent(int fd) {};
+
+
 
 	/**
-	 * Cancel an existing timer handle.
-	 * This method cancels an opaque timer handle.
-	 * @param opaque The timer handle to be canceled.
+	 * @brief	Handler for timer events.
+	 *
+	 * To be overwritten by derived class. Default behaviour: event is ignored.
+	 *
+	 * @param opaque expired timer type
 	 */
-	virtual void cancel_timer(int opaque);
+	virtual void
+	handle_timeout(int opaque) {};
+
+
+	/**@}*/
+
+
+
+
+
+protected:
 
 	/**
-	 * Cancel all timers.
-	 * This method is called in ciosrv's destructor to cancel
-	 * all pending timers. It may also be called by a derived class
-	 * any time to cancel all timers :)
+	 * @name Management methods for file descriptors
 	 */
-	virtual void cancel_all_timer();
 
-protected: // data structures
+	/**@{*/
 
-	std::list<cevent*> events;
+
+	/**
+	 * @brief	Registers a file descriptor for read events.
+	 *
+	 * A read event will be indicated via calling handle_revent(fd).
+	 *
+	 * @param fd the file descriptor waiting for read events
+	 */
+	void
+	register_filedesc_r(int fd);
+
+
+
+	/**
+	 * @brief	Deregisters a file descriptor from read events.
+	 *
+	 * @param fd the file descriptor removed from the set of read events
+	 */
+	void
+	deregister_filedesc_r(int fd);
+
+
+
+
+	/**
+	 * @brief	Registers a file descriptor for write events.
+	 *
+	 * A write event will be indicated via calling handle_wevent(fd).
+	 *
+	 * @param fd the file descriptor waiting for write events
+	 */
+	void
+	register_filedesc_w(int fd);
+
+
+
+
+	/**
+	 * @brief	Deregisters a file descriptor from write events.
+	 *
+	 * @param fd the file descriptor removed from the set of write events
+	 */
+	void
+	deregister_filedesc_w(int fd);
+
+
+
+	/**@}*/
+
+
+
+protected:
+
+	/**
+	 * @name Management methods for timers
+	 */
+
+	/**@{*/
+
+
+	/**
+	 * @brief	Installs a new timer to fire in t seconds.
+	 *
+	 * @param opaque this timer type can be arbitrarily chosen
+	 * @param t timeout in seconds of this timer
+	 */
+	void
+	register_timer(int opaque, time_t t);
+
+
+
+	/**
+	 * @brief	Resets a running timer of type opaque.
+	 *
+	 * If no timer of type opaque exists, a new timer will be started.
+	 *
+	 * @param opaque this timer type can be arbitrarily chosen
+	 * @param t timeout in seconds of this timer
+	 */
+	void
+	reset_timer(int opaque, time_t t);
+
+
+
+	/**
+	 * @brief	Checks for a pending timer of type opaque.
+	 *
+	 * @param opaque timer type the caller is seeking for
+	 * @return true: timer of type opaque exists, false: no pending timer
+	 */
+	bool
+	pending_timer(int opaque);
+
+
+
+	/**
+	 * @brief	Cancels a pending timer.
+	 *
+	 * @param opaque timer type the caller is seeking for
+	 */
+	void
+	cancel_timer(int opaque);
+
+
+
+
+	/**
+	 * @brief	Cancels all pending timer of this instance.
+	 *
+	 */
+	void
+	cancel_all_timer();
+
+
+	/**@}*/
+
+
+
+
+
+private: // data structures
+
+	pthread_t tid; //< ID of this thread
+
+	pthread_mutex_t event_mutex; //< mutex for event list
+
+	pthread_mutex_t timer_mutex; //< mutex for timer_list
+
+	std::list<cevent*> events; //< list of pending events
+
+	struct timeval* tv; //< timeval structure for timeout for select()
+
+	std::map<time_t, std::list<int> > timers_list; //< map of all pending timers for this instance
+
+	cmemory tv_mem; //< memory for timeval structure
+
+	std::string info;
+
 
 private: // methods
+
+	/** check for existence of ciosrv
+	 *
+	 */
+	static ciosrv*
+	ciosrv_exists(ciosrv* iosrv) throw (eIoSvcNotFound);
+
 
 	/**
 	 * Prepare struct fd_set's for select().
@@ -544,25 +653,6 @@ private: // methods
 	void
 	__handle_timeout();
 
-public: // data structures
-
-	pthread_t tid; // thread-id
-
-protected: // data structures
-
-	pthread_mutex_t event_mutex; //< mutex for event list
-
-	pthread_mutex_t timer_mutex; //< mutex for timer_list
-
-private: // data structures
-
-	struct timeval* tv; //< timeval structure for timeout for select()
-
-	std::map<time_t, std::list<int> > timers_list;
-
-	cmemory tv_mem; //< memory for timeval structure
-
-	std::string info;
 
 };
 

@@ -5,7 +5,7 @@
 #include <inttypes.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../../../util/rofl_pipeline_utils.h"
+#include "rofl.h"
 #include "../../../common/ternary_fields.h"
 //#include "../../../common/datapacket.h"
 #include "of12_packet_matches.h"
@@ -108,7 +108,7 @@ typedef struct{
 */
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 //Phy
 of12_match_t* of12_init_port_in_match(of12_match_t* prev, of12_match_t* next, uint32_t value);
@@ -209,6 +209,6 @@ void of12_dump_matches(of12_match_t* matches);
 void of12_full_dump_matches(of12_match_t* matches);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //OF12_MATCH

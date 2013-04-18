@@ -1,8 +1,7 @@
 #include "of12_flow_table.h"
 
-#include <stdio.h>
-#include <stdio.h>
 #include "../openflow12.h" //FIXME: necessary for the OF12PAT_. Probably wise to redefine only them in of12_action.h
+#include "../../../util/logging.h"
 
 #include "of12_group_table.h"
 #include "of12_pipeline.h"
@@ -304,17 +303,17 @@ void of12_dump_table(of12_flow_table_t* table){
 	of12_flow_entry_t* entry;
 	int i;	
 
-	fprintf(stderr,"\nDumping table # %u (%p). Default action: %u. # of entries: %d\n", table->number, table, table->default_action,table->num_of_entries);	
+	ROFL_PIPELINE_INFO("\nDumping table # %u (%p). Default action: %u. # of entries: %d\n", table->number, table, table->default_action,table->num_of_entries);	
 	if(!table->entries){
-		fprintf(stderr,"\t[*] No entries\n");
+		ROFL_PIPELINE_INFO("\t[*] No entries\n");
 		return;	
 	}
 	for(entry=table->entries, i=0;entry!=NULL;entry=entry->next,i++){
-		fprintf(stderr,"\t[%d] ",i);
+		ROFL_PIPELINE_INFO("\t[%d] ",i);
 		of12_dump_flow_entry(entry);
 	}
 	
-	fprintf(stderr,"\t[*] No more entries...\n");
+	ROFL_PIPELINE_INFO("\t[*] No more entries...\n");
 	
 	if(table->maf.dump_hook)
 		table->maf.dump_hook(table);

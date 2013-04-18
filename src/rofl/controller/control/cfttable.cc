@@ -1092,7 +1092,7 @@ cftsearch::operator() (
 	uint16_t missed = 0;
 
 	//pack->calc_hits(fte->ofmatch, exact_hits, wildcard_hits, missed);
-	fte->ofmatch.is_matching(pack->match, exact_hits, wildcard_hits, missed);
+	fte->ofmatch.is_matching(pack->get_match(), exact_hits, wildcard_hits, missed);
 
 
 	// get sum of exact hits and wildcard hits

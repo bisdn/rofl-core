@@ -7,7 +7,7 @@
 #include "matching_algorithms/matching_algorithms_available.h"
 #include "../of12_switch.h"
 
-#include <stdio.h>
+#include "../../../util/logging.h"
 
 /* 
 * This file implements the abstraction of a pipeline
@@ -117,6 +117,8 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 	of12_init_packet_matches(pkt, &pkt_matches); 
 	of12_init_packet_write_actions(pkt, &write_actions); 
 		
+	ROFL_PIPELINE_DEBUG("Packet[%p] entering switch [%s] pipeline (1.2)\n",pkt,sw->name);	
+	
 	//FIXME: add metadata+write operations 
 	for(i=OF12_FIRST_FLOW_TABLE_INDEX; i < ((of12_switch_t*)sw)->pipeline->num_of_tables ; i++){
 		
@@ -127,7 +129,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 			
 			bool has_multiple_outputs;			
 
-			fprintf(stderr,"Matched at table: %u, entry: %p\n",i,match);
+			ROFL_PIPELINE_DEBUG("Packet[%p] matched at table: %u, entry: %p\n", pkt, i,match);
 
 			//Update table and entry statistics
 			of12_stats_table_matches_inc(&((of12_switch_t*)sw)->pipeline->tables[i]);
@@ -142,7 +144,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 	
 			if(table_to_go > i && table_to_go < OF12_MAX_FLOWTABLES){
 
-				fprintf(stderr,"Going to table %u->%u\n",i,table_to_go);
+				ROFL_PIPELINE_DEBUG("Packet[%p] Going to table %u->%u\n",pkt, i,table_to_go);
 				i = table_to_go-1;
 
 				//Unlock the entry so that it can eventually be modified/deleted
@@ -174,14 +176,13 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 			//Not matched, look for table_miss behaviour 
 			if(((of12_switch_t*)sw)->pipeline->tables[i].default_action == OF12_TABLE_MISS_DROP){
 
-				fprintf(stderr,"Table MISS_DROP %u\n",i);	
+				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_DROP %u\n",pkt, i);	
 				platform_packet_drop(pkt);
 				return;
 
 			}else if(((of12_switch_t*)sw)->pipeline->tables[i].default_action == OF12_TABLE_MISS_CONTROLLER){
 			
-				fprintf(stderr,"Table MISS_CONTROLLER %u\n",i);	
-				fprintf(stderr,"Packet at %p generated a PACKET_IN event to the controller\n",pkt);
+				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_CONTROLLER. It Will generate a PACKET_IN event to the controller\n",pkt);
 
 				platform_of12_packet_in((of12_switch_t*)sw, i, pkt, OF12_PKT_IN_NO_MATCH);
 				return;

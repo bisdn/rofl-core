@@ -7,7 +7,9 @@
 
 #include <inttypes.h>
 #include <sys/time.h>
+#include "rofl.h"
 #include "../../../platform/lock.h"
+
 #define OF12_STATS_NS_IN_A_SEC 1000000000
 
 /**
@@ -156,7 +158,7 @@ typedef struct of12_stats_group_msg{
 
 /** operations in statistics.c **/
 
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 void of12_init_flow_stats(struct of12_flow_entry * entry);
 void of12_destroy_flow_stats(struct of12_flow_entry * entry);
@@ -235,7 +237,7 @@ of12_stats_flow_msg_t* of12_get_flow_stats(struct of12_pipeline* pipeline, uint8
 */
 of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats(struct of12_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of12_match* matchs);
 
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif
 

@@ -3,13 +3,14 @@
 #include "../../../platform/memory.h"
 #include "../of12_async_events_hooks.h"
 
-#include <stdio.h>
 #include <assert.h>
 #include "../of12_switch.h"
 #include "of12_pipeline.h"
 #include "of12_flow_table.h"
 #include "of12_action.h"
 #include "of12_group_table.h"
+
+#include "../../../util/logging.h"
 
 /*
 * Intializer and destructor
@@ -287,13 +288,13 @@ bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_ent
 }
 
 void of12_dump_flow_entry(of12_flow_entry_t* entry){
-	fprintf(stderr,"Entry (%p), #hits %u prior. %u",entry,entry->num_of_matches, entry->priority);
+	ROFL_PIPELINE_INFO("Entry (%p), #hits %u prior. %u",entry,entry->num_of_matches, entry->priority);
 	//print matches(all)
-	fprintf(stderr," Matches:{");
+	ROFL_PIPELINE_INFO(" Matches:{");
 	of12_dump_matches(entry->matchs);
-	fprintf(stderr,"}\n\t\t");
+	ROFL_PIPELINE_INFO("}\n\t\t");
 	of12_dump_instructions(entry->inst_grp);
-	fprintf(stderr,"\n");
+	ROFL_PIPELINE_INFO("\n");
 }
 
 /**

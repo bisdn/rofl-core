@@ -7,7 +7,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "../util/rofl_pipeline_utils.h"
+#include "rofl.h"
 
 /**
 * @file memory.h
@@ -37,7 +37,7 @@
 */
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 /**
 * @brief Allocates a chunk of dynamic memory of size length
@@ -96,6 +96,6 @@ void* platform_memset( void* src, int c, size_t length );
 void* platform_memmove( void* dst, const void* src, size_t length );
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif /* PLATFORM_MEMORY_H_ */

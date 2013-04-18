@@ -8,7 +8,6 @@
 #include <inttypes.h> 
 #include <stdbool.h>
 #include "rofl.h"
-#include "../../../util/rofl_pipeline_utils.h"
 #include "of12_action.h"
 
 /**
@@ -105,7 +104,7 @@ struct of12_group_table;
 */
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 //Instruction group
 
@@ -149,6 +148,6 @@ rofl_result_t of12_validate_instructions(struct of12_group_table *gt, of12_instr
 void of12_dump_instructions(of12_instruction_group_t group);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //OF12_INSTRUCTION
