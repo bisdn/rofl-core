@@ -10,7 +10,6 @@
 #include <inttypes.h>
 #include <stdint.h>
 #include "rofl.h"
-#include "../../../util/rofl_pipeline_utils.h"
 #include "../../../platform/lock.h"
 #include "of12_flow_entry.h"
 #include "of12_timers.h"
@@ -144,7 +143,7 @@ typedef struct of12_flow_table{
 */
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 /*
 * Table init and destroy
@@ -246,6 +245,6 @@ of12_flow_entry_t* of12_find_best_match_table(of12_flow_table_t *const table, of
 void of12_dump_table(of12_flow_table_t* table);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //OF12_FLOW_TABLE

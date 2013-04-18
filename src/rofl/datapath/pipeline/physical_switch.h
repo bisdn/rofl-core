@@ -9,7 +9,6 @@
 #include <string.h> 
 #include "rofl.h"
 #include "platform/lock.h"
-#include "util/rofl_pipeline_utils.h"
 #include "openflow/of_switch.h"
 #include "switch_port.h"
 
@@ -172,7 +171,7 @@ typedef struct physical_switch{
 }physical_switch_t; 
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 //
 // Physical switch and logical switch management
@@ -327,6 +326,6 @@ rofl_result_t physical_switch_detach_port_from_logical_switch(switch_port_t* por
 rofl_result_t physical_switch_detach_all_ports_from_logical_switch(of_switch_t* sw);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //PHYSICAL_SWITCH

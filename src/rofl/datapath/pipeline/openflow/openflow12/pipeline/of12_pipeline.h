@@ -7,7 +7,6 @@
 
 #include <stdlib.h>
 #include "rofl.h" 
-#include "../../../util/rofl_pipeline_utils.h"
 #include "of12_flow_table.h"
 #include "of12_group_table.h"
 #include "../../../common/datapacket.h"
@@ -68,7 +67,7 @@ typedef struct of12_pipeline{
 }of12_pipeline_t;
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 /* Pipeline mgmt */
 of12_pipeline_t* of12_init_pipeline(struct of12_switch* sw, const unsigned int num_of_tables, enum matching_algorithm_available* list);
@@ -81,6 +80,6 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 void of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of12_action_group_t* apply_actions_group);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //OF12_PIPELINE

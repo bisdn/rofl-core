@@ -5,7 +5,7 @@
 #ifndef __PLATFORM_LOCK_H__
 #define __PLATFORM_LOCK_H__
 
-#include "../util/rofl_pipeline_utils.h"
+#include "rofl.h"
 
 /**
 * @file lock.h
@@ -30,7 +30,7 @@ typedef void platform_mutex_t;
 typedef void platform_rwlock_t;
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 /* MUTEX operations */
 
@@ -137,6 +137,6 @@ void platform_rwlock_wrlock(platform_rwlock_t* rwlock);
 void platform_rwlock_wrunlock(platform_rwlock_t* rwlock);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //PLATFORM_LOCK

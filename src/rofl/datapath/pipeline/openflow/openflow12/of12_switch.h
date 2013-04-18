@@ -11,7 +11,6 @@
 #include "../of_switch.h"
 #include "../of_switch.h"
 #include "pipeline/of12_pipeline.h"
-#include "../../util/rofl_pipeline_utils.h"
 #include "../../platform/lock.h"
 
 /**
@@ -52,7 +51,7 @@ typedef struct of12_switch{
 }of12_switch_t;
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 /* Initializer and destroyer */
 /**
@@ -87,6 +86,6 @@ void of12_dump_switch(of12_switch_t* sw);
 void of12_full_dump_switch(of12_switch_t* sw);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //OF12_SWITCH

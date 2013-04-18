@@ -8,7 +8,6 @@
 #include <inttypes.h> 
 #include "rofl.h"
 #include "../switch_port.h"
-#include "../util/rofl_pipeline_utils.h"
 #include "../common/datapacket.h"
 
 /**
@@ -68,7 +67,7 @@ typedef struct of_switch{
 typedef int of_packet_in_reason_t;
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 //Wrapping destroy
 /**
@@ -128,6 +127,6 @@ rofl_result_t of_detach_port_from_switch(of_switch_t* sw, switch_port_t* port);
 rofl_result_t of_detach_all_ports_from_switch(of_switch_t* sw);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //OF_SWITCH

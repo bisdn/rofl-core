@@ -9,7 +9,6 @@
 #include <string.h>
 
 #include "rofl.h"
-#include "../../../util/rofl_pipeline_utils.h"
 #include "../../../common/ternary_fields.h"
 #include "../../../platform/lock.h"
 #include "of12_match.h"
@@ -101,7 +100,7 @@ typedef struct of12_flow_entry{
 }of12_flow_entry_t;
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 /**
 * @brief Create an empty flow entry 
@@ -144,6 +143,6 @@ bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow
 void of12_dump_flow_entry(of12_flow_entry_t* entry);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //OF12_FLOW_ENTRY

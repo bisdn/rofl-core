@@ -7,7 +7,7 @@
 
 #include <inttypes.h> 
 #include <string.h> 
-#include "../../../util/rofl_pipeline_utils.h"
+#include "rofl.h"
 #include "../../../common/datapacket.h"
 
 /**
@@ -75,7 +75,7 @@ typedef struct{
 
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 //Init packet matches
 void of12_init_packet_matches(datapacket_t *const pkt, of12_packet_matches_t* pkt_matches);
@@ -86,6 +86,6 @@ void of12_update_packet_matches(datapacket_t *const pkt);
 
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //OF12_PACKET_MATCHES

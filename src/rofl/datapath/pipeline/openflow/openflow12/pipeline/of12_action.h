@@ -9,7 +9,6 @@
 #include <string.h> 
 #include <stdbool.h>
 #include "rofl.h"
-#include "../../../util/rofl_pipeline_utils.h"
 #include "../../../common/datapacket.h"
 
 /**
@@ -233,7 +232,7 @@ struct of12_switch;
 */
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 //Action
 /**
@@ -323,6 +322,6 @@ bool of12_validate_write_actions(of12_write_actions_t *wa);
 
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //OF12_ACTION

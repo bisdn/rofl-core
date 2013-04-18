@@ -34,7 +34,7 @@ enum of12_packet_in_reason {
 
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 /*
 * Configuration hooks
@@ -79,6 +79,6 @@ void platform_of12_notify_flow_removed(const of12_switch_t* sw,
 
 
 //Extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif /* ASYNC_EVENTS_HOOKS_OF12_H_ */

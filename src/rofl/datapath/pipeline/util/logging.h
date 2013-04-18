@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "rofl_pipeline_utils.h"
+#include "rofl.h"
 
 /**
 * @author Tobias Jungel<tobias.jungel (at) bisdn.de>, Marc Sune<marc.sune (at) bisdn.de>  
@@ -83,12 +83,12 @@ extern int (*rofl_pipeline_debug_print)(FILE *stream, const char *format, ...);
 #endif //ROFL_PIPELINE_NO_LOGGING
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 //API to capture logging events in the pipeline 
 void rofl_pipeline_set_logging_function(int (*logging_func)(FILE *stream, const char *format, ...));
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif /* ROFL_PIPELINE_LOG_H_ */

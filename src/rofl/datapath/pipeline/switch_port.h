@@ -193,7 +193,7 @@ typedef struct logical_switch_port{
 */
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 /**
 * @brief Init a switch_port structure
@@ -259,6 +259,6 @@ void switch_port_set_current_speed(switch_port_t* port, port_features_t speed);
 void switch_port_set_current_max_speed(switch_port_t* port, port_features_t speed);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //PHYSICAL_PORT

@@ -9,7 +9,6 @@
 #include <inttypes.h>
 #include <stdbool.h>
 #include "rofl.h"
-#include "../util/rofl_pipeline_utils.h"
 
 /**
 * @author Marc Sune<marc.sune (at) bisdn.de>
@@ -103,7 +102,7 @@ typedef struct{
 */
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 //Initializers
 utern_t* init_utern8(uint8_t value, uint8_t mask);
@@ -144,6 +143,6 @@ utern_t* utern64_get_alike(const utern64_t tern1, const utern64_t tern2);
 //bool utern_compare(const utern_t* tern, void* value);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //TERNARY_FIELDS

@@ -9,7 +9,6 @@
 #include <inttypes.h>
 #include <sys/time.h>
 #include "rofl.h" 
-#include "../../../util/rofl_pipeline_utils.h"
 
 /**
 * @file of12_timers.h
@@ -85,7 +84,7 @@ typedef struct of12_timer_group{
 }of12_timer_group_t;
 
 //C++ extern C
-ROFL_PIPELINE_BEGIN_DECLS
+ROFL_BEGIN_DECLS
 
 //Timer functions outside tu
 rofl_result_t of12_add_timer(struct of12_flow_table* const table, struct of12_flow_entry* const entry);
@@ -102,6 +101,6 @@ uint64_t of12_get_expiration_time_slotted (uint32_t timeout,struct timeval *now)
 inline uint64_t of12_get_time_ms(struct timeval *time);
 
 //C++ extern C
-ROFL_PIPELINE_END_DECLS
+ROFL_END_DECLS
 
 #endif //OF12_TIMERS
