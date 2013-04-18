@@ -6,16 +6,34 @@
 
 using namespace rofl;
 
-caddress::caddress(size_t size) :
-	cmemory(size),
-	salen(size)
+
+caddress::caddress(int af)
 {
+	switch (af) {
+	case AF_INET: {
+		salen = sizeof(struct sockaddr_in);
+	} break;
+	case AF_INET6: {
+		salen = sizeof(struct sockaddr_in6);
+	} break;
+	case AF_UNIX: {
+		salen = sizeof(struct sockaddr_un);
+	} break;
+	case AF_PACKET: {
+		salen = sizeof(struct sockaddr_ll);
+	} break;
+	default:
+		throw eNotImplemented();
+	}
+
+	resize(salen);
 	ca_saddr = (struct sockaddr*)somem();
+	ca_saddr->sa_family = af;
 }
 
 
+
 caddress::caddress(
-		int af,
 		u_int16_t protocol,
 		std::string devname,
 		u_int16_t hatype,
@@ -26,43 +44,35 @@ caddress::caddress(
 {
 	ca_saddr = (struct sockaddr*)somem();
 
-	switch (af) {
-	case PF_PACKET:
-	{
-		struct ifreq ifr;
-			int rc, sd;
-		if ((sd = socket(af, protocol, 0)) < 0) {
-			switch (errno) {
-				case EACCES:
-					throw eAddressSocketFailedNoPermission();
-					break;
-				default:
-					throw eAddressSocketFailed();
-					break;
-			}
+	struct ifreq ifr;
+		int rc, sd;
+	if ((sd = socket(AF_PACKET, protocol, 0)) < 0) {
+		switch (errno) {
+			case EACCES:
+				throw eAddressSocketFailedNoPermission();
+				break;
+			default:
+				throw eAddressSocketFailed();
+				break;
 		}
-		memset(&ifr, 0, sizeof(struct ifreq));
-		strncpy(ifr.ifr_name, devname.c_str(), IFNAMSIZ);
-		if ((rc = ioctl(sd, SIOCGIFINDEX, &ifr)) < 0)
-			throw eAddressIoctlFailed();
-		close(sd);
+	}
+	memset(&ifr, 0, sizeof(struct ifreq));
+	strncpy(ifr.ifr_name, devname.c_str(), IFNAMSIZ);
+	if ((rc = ioctl(sd, SIOCGIFINDEX, &ifr)) < 0)
+		throw eAddressIoctlFailed();
+	close(sd);
 
-		ca_sladdr->sll_family 		= af;
-		ca_sladdr->sll_protocol 	= htons(protocol);
-		ca_sladdr->sll_ifindex 	= ifr.ifr_ifindex;
-		ca_sladdr->sll_hatype 		= hatype;
-		ca_sladdr->sll_pkttype 	= pkttype;
-		ca_sladdr->sll_halen 		= halen;
-		{
-			int n = (halen < 8) ? halen : 8;
-			memcpy(&(ca_sladdr->sll_addr[0]), addr, n);
-		}
-		salen = sizeof(struct sockaddr_ll);
-		break;
+	ca_sladdr->sll_family 		= AF_PACKET;
+	ca_sladdr->sll_protocol 	= htons(protocol);
+	ca_sladdr->sll_ifindex 		= ifr.ifr_ifindex;
+	ca_sladdr->sll_hatype 		= hatype;
+	ca_sladdr->sll_pkttype 		= pkttype;
+	ca_sladdr->sll_halen 		= halen;
+	{
+		int n = (halen < 8) ? halen : 8;
+		memcpy(&(ca_sladdr->sll_addr[0]), addr, n);
 	}
-	default:
-		throw eAddressInval();
-	}
+	salen = sizeof(struct sockaddr_ll);
 }
 
 
@@ -86,7 +96,7 @@ caddress::caddress(
 	case AF_INET6:
 	{
 		pton(af, astr);
-		ca_s6addr->sin6_family = AF_INET6;
+		ca_s6addr->sin6_family 	= AF_INET6;
 		ca_s6addr->sin6_port 	= htons(port);
 		salen = sizeof(struct sockaddr_in6);
 		break;
@@ -353,7 +363,7 @@ caddress::is_af_packet() const
 void
 caddress::test()
 {
-	caddress a;
+	caddress a(AF_INET);
 	caddress b(AF_INET, "1.2.3.4");
 	caddress c(AF_UNIX, "/blub/blub/blub/blub/blub/blub");
 

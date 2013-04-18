@@ -437,7 +437,7 @@ ficmpv6frame::set_icmpv6_type(uint8_t type)
 caddress
 ficmpv6frame::get_icmpv6_neighbor_taddr() throw (eICMPv6FrameInvalType)
 {
-	caddress addr(sizeof(struct sockaddr_in6));
+	caddress addr(AF_INET6);
 	addr.ca_s6addr->sin6_family = AF_INET6;
 
 	try {

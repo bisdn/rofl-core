@@ -374,7 +374,7 @@ fipv6frame::set_ipv6_src(caddress const& src) throw (eIPv6FrameInval)
 caddress
 fipv6frame::get_ipv6_src()
 {
-	caddress src(sizeof(struct sockaddr_in6));
+	caddress src(AF_INET6);
 	src.ca_s6addr->sin6_family = AF_INET6;
 	src.ca_s6addr->sin6_port = 0;
 	src.ca_s6addr->sin6_flowinfo = 0;
@@ -420,7 +420,7 @@ fipv6frame::set_ipv6_dst(caddress const& dst) throw (eIPv6FrameInval)
 caddress
 fipv6frame::get_ipv6_dst()
 {
-	caddress dst(sizeof(struct sockaddr_in6));
+	caddress dst(AF_INET6);
 	dst.ca_s6addr->sin6_family = AF_INET6;
 	dst.ca_s6addr->sin6_port = 0;
 	dst.ca_s6addr->sin6_flowinfo = 0;

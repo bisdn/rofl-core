@@ -44,24 +44,32 @@ namespace rofl
 {
 
 /* error classes */
-class eAddress : public cerror {}; // base class caddress related errors
-class eAddressIoctlFailed : public eAddress {};
-class eAddressSocketFailed : public eAddress {};
-class eAddressSocketFailedNoPermission : public eAddressSocketFailed {};
-class eAddressInval : public eAddress {};
+class eAddress 							: public cerror {}; // base class caddress related errors
+class eAddressIoctlFailed 				: public eAddress {};
+class eAddressSocketFailed 				: public eAddress {};
+class eAddressSocketFailedNoPermission 	: public eAddressSocketFailed {};
+class eAddressInval 					: public eAddress {};
 
 
 /**
- * Auxiliary class for encapsulating address structs.
+ * @class	caddress
+ * @brief	Auxiliary class for managing sockaddr structures for various address families.
  *
- * This class encapsulates socket address structures. Currently
- * supports IPv4, IPv6, LinkLayer, Unix
+ * This class encapsulates Unix socket address structures. Currently, it
+ * supports IPv4, IPv6, LinkLayer, and Unix.
+ *
  */
 class caddress :
 	public cmemory
 {
 public:
 
+		/**
+		 * @union 	addr_addru
+		 * @brief	A union containing a pointer to the sockaddr structure.
+		 *
+		 * Supports various pointer types (generic, AF_INET, AF_INET6, AF_UNIX, AF_PACKET).
+		 */
 		union {
 			struct sockaddr*		addru_saddr;
 			struct sockaddr_in* 	addru_s4addr;
@@ -76,7 +84,7 @@ public:
 #define ca_suaddr		addr_addru.addru_suaddr		// sockaddr_un
 #define ca_sladdr		addr_addru.addru_sladdr		// sockaddr_ll
 
-		socklen_t salen; //< maximum length of allocated memory area hosting saddr
+		socklen_t salen; /**< actual length of struct sockaddr managed by this caddress instance */
 
 private:
 
@@ -84,17 +92,22 @@ private:
 
 public:
 
-	/**
-	 * Constructor.
-	 * Allocates sufficient space for hosting any struct sockaddr_XX.
-	 */
-	caddress(
-			size_t size = sizeof(struct sockaddr_un));
 
 	/**
-	 * Constructor for PF_PACKET struct sockaddr_ll.
+	 * @brief	Constructor. Allocates maximum memory required for any struct sockaddr (currently sockaddr_un).
+	 *
+	 * @param size size of memory area for storing struct sockaddr
+	 */
+	caddress(int af = AF_INET);
+
+
+
+	/**
+	 * @brief	Constructor for caddress instances for address family AF_PACKET.
+	 *
 	 * Allocates sufficient space for hosting a struct sockaddr_ll.
 	 * See the man page packet(7) for details.
+	 *
 	 * @param af Address family for this socket address (here: PF_PACKET)
 	 * @param protocol Protocol type in use (default: ETH_P_ALL)
 	 * @param devname Device name for this address (default "eth0")
@@ -104,7 +117,6 @@ public:
 	 * @param halen length of address memory area
 	 */
 	caddress(
-			int af,
 			u_int16_t protocol = ETH_P_ALL,
 			std::string devname = std::string("eth0"),
 			u_int16_t hatype = ARPHRD_ETHER,
@@ -112,9 +124,13 @@ public:
 			const char* addr = NULL,
 			size_t halen = 0) throw (eAddressInval);
 
+
+
 	/**
-	 * Constructor for PF_INET/PF_INET6.
+	 * @brief	Constructor for PF_INET/PF_INET6.
+	 *
 	 * Allocates sufficient space for hosting a struct sockaddr_in/sockaddr_in6.
+	 *
 	 * @param af Address family for this socket address (here: PF_INET, PF_INET6, PF_UNIX)
 	 * @param astr ASCII-encoded address string, e.g. "10.0.0.1" or a FQDN
 	 * @param port Port value for a transport address
