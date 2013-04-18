@@ -7,6 +7,7 @@
 using namespace rofl;
 
 
+
 caddress::caddress(int af)
 {
 	switch (af) {
@@ -39,7 +40,7 @@ caddress::caddress(
 		u_int16_t hatype,
 		u_int8_t pkttype,
 		const char* addr,
-		size_t halen) throw (eAddressInval) :
+		size_t halen) :
 	cmemory(sizeof(struct sockaddr_ll))
 {
 	ca_saddr = (struct sockaddr*)somem();
@@ -76,6 +77,7 @@ caddress::caddress(
 }
 
 
+
 caddress::caddress(
 		int af,
 		const char* astr,
@@ -85,30 +87,24 @@ caddress::caddress(
 	ca_saddr = (struct sockaddr*)somem();
 
 	switch (af) {
-	case AF_INET:
-	{
+	case AF_INET: {
 		pton(af, astr);
 		ca_s4addr->sin_family 	= AF_INET;
 		ca_s4addr->sin_port 	= htons(port);
 		salen = sizeof(struct sockaddr_in);
-		break;
-	}
-	case AF_INET6:
-	{
+	} break;
+	case AF_INET6: {
 		pton(af, astr);
 		ca_s6addr->sin6_family 	= AF_INET6;
 		ca_s6addr->sin6_port 	= htons(port);
 		salen = sizeof(struct sockaddr_in6);
-		break;
-	}
-	case AF_UNIX:
-	{
+	} break;
+	case AF_UNIX: {
 		ca_suaddr->sun_family 	= AF_UNIX;
 		int n = (strlen(astr) < 108) ? strlen(astr) : 108;
 		strncpy(&(ca_suaddr->sun_path[0]), astr, n);
 		salen = sizeof(struct sockaddr_un);
-		break;
-	}
+	} break;
 	default:
 		throw eAddressInval();
 	}
@@ -127,9 +123,11 @@ caddress::caddress(
 	}
 
 	ca_saddr = (struct sockaddr*)somem();
+	this->salen = sizeof(struct sockaddr_in);
 
 	memcpy((void*)ca_s4addr, (void*)sa, salen);
 }
+
 
 
 caddress::caddress(
@@ -143,15 +141,19 @@ caddress::caddress(
 	}
 
 	ca_s6addr = (struct sockaddr_in6*)somem();
+	this->salen = sizeof(struct sockaddr_in6);
 
 	memcpy((void*)ca_s6addr, (void*)sa, salen);
 }
+
 
 
 caddress::caddress(caddress const& ca)
 {
 	*this = ca;
 }
+
+
 
 caddress::~caddress()
 {
