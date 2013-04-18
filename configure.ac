@@ -232,6 +232,7 @@ AC_CONFIG_FILES([
 	src/rofl/common/openflow/messages/Makefile
 	src/rofl/common/openflow/extensions/Makefile
 	src/rofl/common/openflow/Makefile
+	src/rofl/common/utils/Makefile
 	src/rofl/common/Makefile
 	
 	src/rofl/platform/Makefile
