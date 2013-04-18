@@ -303,7 +303,9 @@ void of12_dump_table(of12_flow_table_t* table){
 	of12_flow_entry_t* entry;
 	int i;	
 
-	ROFL_PIPELINE_INFO("\nDumping table # %u (%p). Default action: %u. # of entries: %d\n", table->number, table, table->default_action,table->num_of_entries);	
+	ROFL_PIPELINE_INFO("\n"); //This is done in purpose 
+	ROFL_PIPELINE_INFO("Dumping table # %u (%p). Default action: %u. # of entries: %d\n", table->number, table, table->default_action,table->num_of_entries);
+	
 	if(!table->entries){
 		ROFL_PIPELINE_INFO("\t[*] No entries\n");
 		return;	
