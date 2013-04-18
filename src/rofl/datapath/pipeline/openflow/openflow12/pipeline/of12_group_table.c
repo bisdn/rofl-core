@@ -121,6 +121,13 @@ of12_group_mod_err_t of12_init_group(of12_group_table_t *gt, of12_group_type_t t
 	ge->rwlock = platform_rwlock_init(NULL);
 	of12_init_group_stats(&ge->stats);
 	
+	// Count the number of output actions existing inside the group. WARNING For select type groups the count depends on the bucket used!
+	ge->num_of_output_actions = 0;
+	of12_bucket_t *bc;
+	for( bc=buckets->head; bc !=NULL; bc=bc->next){
+		ge->num_of_output_actions += bc->actions->num_of_output_actions;
+	}
+	
 	//insert in the end
 	if (gt->head == NULL && gt->tail == NULL){
 		gt->head = ge;
@@ -352,7 +359,7 @@ of12_group_mod_err_t of12_validate_group(of12_action_group_t* actions){
 	}
 		
 	//verify apply actions
-	if(of12_validate_action_group(actions)==false)
+	if(of12_validate_action_group(actions, NULL)==false)
 		return OF12_GROUP_MOD_ERR_INVAL;
 	
 	return OF12_GROUP_MOD_ERR_OK;

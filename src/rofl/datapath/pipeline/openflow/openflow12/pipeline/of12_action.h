@@ -219,12 +219,14 @@ typedef struct{
 	of12_packet_action_t write_actions[OF12_AT_NUMBER];
 	
 	//Number of actions. Merely for dumping and to skip unnecessary loop iterations
-	unsigned int num_of_actions;	
+	unsigned int num_of_actions;
+	unsigned int num_of_output_actions;
 	
 }of12_write_actions_t;
 
 //Fwd declaration
 struct of12_switch;
+struct of12_group_table;
 
 /*
 *
@@ -318,8 +320,8 @@ void of12_dump_write_actions(of12_write_actions_t* write_actions_group);
 void of12_dump_action_group(of12_action_group_t* action_group);
 
 //validate actions
-bool of12_validate_action_group(of12_action_group_t *ag);
-bool of12_validate_write_actions(of12_write_actions_t *wa);
+bool of12_validate_action_group(of12_action_group_t *ag, struct of12_group_table *gt);
+bool of12_validate_write_actions(of12_write_actions_t *wa, struct of12_group_table *gt);
 
 
 //C++ extern C

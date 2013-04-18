@@ -96,6 +96,7 @@ typedef struct of12_instruction_group{
 //Fwd declaration
 struct of12_switch;
 struct of12_flow_entry;
+struct of12_group_table;
 
 /*
 *
@@ -141,6 +142,8 @@ void of12_copy_instruction_group(of12_instruction_group_t* origin, of12_instruct
 unsigned int of12_process_instructions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of12_instruction_group_t* instructions);
 
 bool of12_instruction_has(of12_instruction_group_t *inst_grp, of12_packet_action_type_t type, uint64_t value);
+
+rofl_result_t of12_validate_instructions(struct of12_group_table *gt, of12_instruction_group_t* inst_grp);
 
 //Dump
 void of12_dump_instructions(of12_instruction_group_t group);
