@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "rofl_pipeline_utils.h"
 
 /**
 * @author Tobias Jungel<tobias.jungel (at) bisdn.de>, Marc Sune<marc.sune (at) bisdn.de>  
@@ -17,7 +18,7 @@
 	#define ROFL_PIPELINE_LOGGING_ENABLED
 #endif
 
-//Define debug levesl
+//Define debug levels
 enum rofl_pipeline_debug_levels {
 	UNDEF_DEBUG_LEVEL = -1,		/* Undefined debug level */
 	//EMERGENCY,			/* system is unusable */
@@ -33,6 +34,7 @@ enum rofl_pipeline_debug_levels {
 	/* do not put anything beyond MAX_DEBUG_LEVEL! */
 };
 
+//Debug classes (not used currently)
 enum rofl_pipeline_debug_class {
 	UNDEF_DEBUG_CLASS = -1,		/* Undefined debug level */
 	DEFAULT = 0,			/* todo name it correct */
@@ -41,16 +43,15 @@ enum rofl_pipeline_debug_class {
 	/* do not put anything beyond MAX_DEBUG_CLASS! */
 };
 
+//Default value DBG
 #define ROFL_PIPELINE_DBG_DEFAULT { DBG } /* default for each class */
 
+//Fwd declarations
 extern enum rofl_pipeline_debug_levels rofl_pipeline_debug_level[MAX_DEBUG_CLASS];
 extern int (*rofl_pipeline_debug_print)(FILE *stream, const char *format, ...);
 
-//API to manage logging (Capturing)
-void rofl_pipeline_set_logging_function(int (*logging_func)(FILE *stream, const char *format, ...));
-
+//Define macros
 #ifdef ROFL_PIPELINE_LOGGING_ENABLED
-
 	#define ROFL_PIPELINE_DEBUG_CHECK(cn, level)  \
 	    ( rofl_pipeline_debug_level[cn] >= level )
 	#define ROFL_PIPELINE_DEBUG_PRINT(fd, cn, level, stuff, ...)  \
@@ -71,7 +72,6 @@ void rofl_pipeline_set_logging_function(int (*logging_func)(FILE *stream, const 
 
 	#define ROFL_PIPELINE_DEBUG(stuff, ...)        \
 		ROFL_PIPELINE_DEBUG_PRINT(stderr, DEFAULT, DBG, stuff, ##__VA_ARGS__)
-
 #else
 	//No logging
 	#define ROFL_PIPELINE_DEBUG_CHECK(stuff, ...) do{}while(0)
@@ -80,8 +80,15 @@ void rofl_pipeline_set_logging_function(int (*logging_func)(FILE *stream, const 
 	#define ROFL_PIPELINE_ERR(stuff, ...) do{}while(0)
 	#define ROFL_PIPELINE_INFO(stuff,...) do{}while(0)
 	#define ROFL_PIPELINE_DEBUG(stuff, ...) do{}while(0)
-
 #endif //ROFL_PIPELINE_NO_LOGGING
 
+//C++ extern C
+ROFL_PIPELINE_BEGIN_DECLS
+
+//API to capture logging events in the pipeline 
+void rofl_pipeline_set_logging_function(int (*logging_func)(FILE *stream, const char *format, ...));
+
+//C++ extern C
+ROFL_PIPELINE_END_DECLS
 
 #endif /* ROFL_PIPELINE_LOG_H_ */
