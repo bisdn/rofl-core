@@ -417,8 +417,9 @@ crofbase::handle_timeout(int opaque)
 		case TIMER_FE_DUMP_OFPACKETS: {
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::handle_timeout() "
 					"cofmsg statistics => %s", this, cofmsg::packet_info());
-			WRITELOG(CROFBASE, DBG, "crofbase(%p)::handle_timeout() "
-					"cpacket statistics => %s", this, cpacket::cpacket_info());
+// fixme
+//			WRITELOG(CROFBASE, DBG, "crofbase(%p)::handle_timeout() "
+//					"cpacket statistics => %s", this, cpacket::cpacket_info());
 			register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
 		} break;
 		case CROFBASE_TIMER_WAKEUP: {
