@@ -117,7 +117,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 	of12_init_packet_matches(pkt, &pkt_matches); 
 	of12_init_packet_write_actions(pkt, &write_actions); 
 		
-	ROFL_PIPELINE_DEBUG("Packet[%p] entering Openflow 1.2 pipeline\n",pkt);	
+	ROFL_PIPELINE_DEBUG("Packet[%p] entering switch [%s] pipeline (1.2)\n",pkt,sw->name);	
 	
 	//FIXME: add metadata+write operations 
 	for(i=OF12_FIRST_FLOW_TABLE_INDEX; i < ((of12_switch_t*)sw)->pipeline->num_of_tables ; i++){

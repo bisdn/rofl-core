@@ -12,9 +12,9 @@
 * @author Tobias Jungel<tobias.jungel (at) bisdn.de>, Marc Sune<marc.sune (at) bisdn.de>  
 */
 
-//If DEBUG is defined, set pipeline to NOT log
-#ifndef NDEBUG
-	#define ROFL_PIPELINE_NO_LOGGING
+//If DEBUG is not defined, set pipeline to NOT log
+#ifdef DEBUG
+	#define ROFL_PIPELINE_LOGGING_ENABLED
 #endif
 
 //Define debug levesl
@@ -43,30 +43,31 @@ enum rofl_pipeline_debug_class {
 
 #define ROFL_PIPELINE_DBG_DEFAULT { DBG } /* default for each class */
 
-extern int rofl_pipeline_debug_level[MAX_DEBUG_CLASS];
+extern enum rofl_pipeline_debug_levels rofl_pipeline_debug_level[MAX_DEBUG_CLASS];
 extern int (*rofl_pipeline_debug_print)(FILE *stream, const char *format, ...);
 
 //API to manage logging (Capturing)
 void rofl_pipeline_set_logging_function(int (*logging_func)(FILE *stream, const char *format, ...));
 
-#ifndef ROFL_PIPELINE_NO_LOGGING
+#ifdef ROFL_PIPELINE_LOGGING_ENABLED
 
 	#define ROFL_PIPELINE_DEBUG_CHECK(cn, level)  \
-	    ( rofl_pipeline_debug_level[cn] < level )
+	    !( rofl_pipeline_debug_level[cn] <= level )
 	#define ROFL_PIPELINE_DEBUG_PRINT(fd, cn, level, stuff, ...)  \
 	    do{\
-		    if (ROFL_PIPELINE_DEBUG_CHECK(cn, level) && *rofl_pipeline_debug_print != NULL) \
+		    if (ROFL_PIPELINE_DEBUG_CHECK(cn, level) && *rofl_pipeline_debug_print != NULL){ \
 			rofl_pipeline_debug_print(fd,stuff, ##__VA_ARGS__);\
+		    }\
 	    }while(0)
 
 	#define ROFL_PIPELINE_WARN(stuff,...) \
-		ROFL_PIPELINE_DEBUG_PRINT(stdout, DEFAULT, WARN, stuff, ##__VA_ARGS__)
+		ROFL_PIPELINE_DEBUG_PRINT(stderr, DEFAULT, WARN, stuff, ##__VA_ARGS__)
 
 	#define ROFL_PIPELINE_ERR(stuff, ...)          \
 		ROFL_PIPELINE_DEBUG_PRINT(stderr, DEFAULT, ERROR, stuff, ##__VA_ARGS__)
 
 	#define ROFL_PIPELINE_INFO(stuff,...) \
-		ROFL_PIPELINE_DEBUG_PRINT(stdout, DEFAULT, INFO, stuff, ##__VA_ARGS__)
+		ROFL_PIPELINE_DEBUG_PRINT(stderr, DEFAULT, INFO, stuff, ##__VA_ARGS__)
 
 	#define ROFL_PIPELINE_DEBUG(stuff, ...)        \
 		ROFL_PIPELINE_DEBUG_PRINT(stderr, DEFAULT, DBG, stuff, ##__VA_ARGS__)
