@@ -52,12 +52,12 @@ void rofl_pipeline_set_logging_function(int (*logging_func)(FILE *stream, const 
 #ifdef ROFL_PIPELINE_LOGGING_ENABLED
 
 	#define ROFL_PIPELINE_DEBUG_CHECK(cn, level)  \
-	    !( rofl_pipeline_debug_level[cn] <= level )
+	    ( rofl_pipeline_debug_level[cn] >= level )
 	#define ROFL_PIPELINE_DEBUG_PRINT(fd, cn, level, stuff, ...)  \
 	    do{\
-		    if (ROFL_PIPELINE_DEBUG_CHECK(cn, level) && *rofl_pipeline_debug_print != NULL){ \
+		if (ROFL_PIPELINE_DEBUG_CHECK(cn, level) && *rofl_pipeline_debug_print != NULL){ \
 			rofl_pipeline_debug_print(fd,stuff, ##__VA_ARGS__);\
-		    }\
+		}\
 	    }while(0)
 
 	#define ROFL_PIPELINE_WARN(stuff,...) \
