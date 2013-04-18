@@ -198,6 +198,25 @@ public:
 		time_t 				packet_receive_time;	// time this packet was received
 		uint32_t 			in_port;				// incoming port
 
+		/**
+		 * @brief	Set/Reset NO-PACKET-IN flag for this cpacket instance.
+		 *
+		 */
+		void
+		set_flag_no_packet_in(bool no_packet_in = true);
+
+
+
+		/**
+		 * @brief	Returns NO-PACKET-IN flag for this cpacket instance.
+		 *
+		 * @return true: NO-PACKET-IN is set, false otherwise
+		 */
+		bool
+		get_flag_no_packet_in();
+
+
+
 
 #if 0
 		// used by second generation adpd data path implementation for profiling
@@ -429,24 +448,6 @@ public:
 	 */
 
 	/**@{*/
-
-	/**
-	 * @brief	Set/Reset NO-PACKET-IN flag for this cpacket instance.
-	 *
-	 */
-	void
-	set_flag_no_packet_in(bool no_packet_in = true);
-
-
-
-	/**
-	 * @brief	Returns NO-PACKET-IN flag for this cpacket instance.
-	 *
-	 * @return true: NO-PACKET-IN is set, false otherwise
-	 */
-	bool
-	get_flag_no_packet_in();
-
 
 
 	/**
