@@ -18,15 +18,15 @@
 //Define debug levels
 enum rofl_debug_levels {
 	UNDEF_DEBUG_LEVEL = -1,		/* Undefined debug level */
-	//EMERGENCY,			/* system is unusable */
-	//ALERT,			/* action must be taken immediately */
-	//CRITICAL,			/* critical conditions */
-	ERROR,				/* error conditions */
-	WARN,				/* warning conditions */
-	//NOTICE,			/* normal but significant condition */
-	INFO,				/* informational */
-	DBG,				/* debug-level messages */
-	DBG_VERBOSE,			/* debug-level messages */
+	//EMERGENCY_LEVEL,			/* system is unusable */
+	//ALERT_LEVEL,			/* action must be taken immediately */
+	//CRITICAL_LEVEL,			/* critical conditions */
+	ERROR_LEVEL,				/* error conditions */
+	WARN_LEVEL,				/* warning conditions */
+	//NOTICE_LEVEL,			/* normal but significant condition */
+	INFO_LEVEL,				/* informational */
+	DBG_LEVEL,				/* debug-level messages */
+	DBG_VERBOSE_LEVEL,			/* debug-level messages */
 	MAX_DEBUG_LEVEL			/* DO NOT USE */
 
 	/* do not put anything beyond MAX_DEBUG_LEVEL! */
@@ -44,7 +44,7 @@ enum rofl_debug_class {
 //Todo if ever use groups/classes modify this
 #ifndef LOGGING_LEVEL
 	//If not defined default value DBG
-	#define ROFL_DEFAULT_LEVELS { DBG } /* default for each class */
+	#define ROFL_DEFAULT_LEVELS { DBG_LEVEL } /* default for each class */
 #else
 	#define ROFL_DEFAULT_LEVELS { LOGGING_LEVEL }
 #endif
@@ -64,21 +64,21 @@ extern int (*rofl_debug_print)(FILE *stream, const char *format, ...);
     }while(0)
 
 #define ROFL_WARN(stuff,...) \
-	ROFL_DEBUG_PRINT(stderr, DEFAULT, WARN, stuff, ##__VA_ARGS__)
+	ROFL_DEBUG_PRINT(stderr, DEFAULT, WARN_LEVEL, stuff, ##__VA_ARGS__)
 
 #define ROFL_ERR(stuff, ...)          \
-	ROFL_DEBUG_PRINT(stderr, DEFAULT, ERROR, stuff, ##__VA_ARGS__)
+	ROFL_DEBUG_PRINT(stderr, DEFAULT, ERROR_LEVEL, stuff, ##__VA_ARGS__)
 
 #define ROFL_INFO(stuff,...) \
-	ROFL_DEBUG_PRINT(stderr, DEFAULT, INFO, stuff, ##__VA_ARGS__)
+	ROFL_DEBUG_PRINT(stderr, DEFAULT, INFO_LEVEL, stuff, ##__VA_ARGS__)
 
 
 #ifdef DEBUG
 	#define ROFL_DEBUG(stuff, ...)        \
-		ROFL_DEBUG_PRINT(stderr, DEFAULT, DBG, stuff, ##__VA_ARGS__)
+		ROFL_DEBUG_PRINT(stderr, DEFAULT, DBG_LEVEL, stuff, ##__VA_ARGS__)
 
 	#define ROFL_DEBUG_VERBOSE(stuff, ...)        \
-		ROFL_DEBUG_PRINT(stderr, DEFAULT, DBG_VERBOSE, stuff, ##__VA_ARGS__)
+		ROFL_DEBUG_PRINT(stderr, DEFAULT, DBG_VERBOSE_LEVEL, stuff, ##__VA_ARGS__)
 #else
 	//No logging
 	//#define ROFL_DEBUG_CHECK(stuff, ...) do{}while(0)
