@@ -206,9 +206,7 @@ cofctl::handle_accepted(
 		caddress const& ra)
 {
 	caddress raddr(ra);
-#ifndef NDEBUG
-	fprintf(stderr, "A:ctl[%s] ", raddr.c_str());
-#endif
+	writelog(COFCTL, DBG, "A:ctl[%s] ", raddr.c_str());
 	writelog(COFCTL, WARN, "cofctl(%p)::handle_accepted() "
 			"local:%s remote: %s",
 			this, socket->laddr.c_str(), raddr.c_str());
@@ -223,9 +221,7 @@ cofctl::handle_connected(
 		csocket *socket,
 		int sd)
 {
-#ifndef NDEBUG
-	fprintf(stderr, "C:ctl[%s] ", socket->raddr.c_str());
-#endif
+	writelog(COFCTL, DBG, "C:ctl[%s] ", socket->raddr.c_str());
 	writelog(COFCTL, WARN, "cofctl(%p)::handle_connected() "
 			"local:%s remote: %s",
 			this, socket->laddr.c_str(), socket->raddr.c_str());
@@ -399,7 +395,7 @@ cofctl::handle_message(
 			return;
 		}
 
-		fprintf(stderr, "receive: %s\n", mem->c_str());
+		WRITELOG(COFCTL, DBG, "receive: %s\n", mem->c_str());
 
 		struct ofp_header* ofh_header = (struct ofp_header*)mem->somem();
 		xid = be32toh(ofh_header->xid);
@@ -2413,7 +2409,7 @@ cofctl::send_message_via_socket(
 
 	pack->pack(mem->somem(), mem->memlen());
 
-	fprintf(stderr, "send: %s\n", mem->c_str());
+	WRITELOG(COFCTL, DBG, "send: %s\n", mem->c_str());
 
 	WRITELOG(COFCTL, DBG, "cofctl(%p)::send_message_via_socket() new cmemory: %s",
 				this, mem->c_str());
