@@ -228,20 +228,12 @@ bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow
 	}
 
 	//Check out group actions
-	if( out_group != OF12_GROUP_ANY && ( 
-			!of12_write_actions_has(original->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_GROUP, out_group) &&
-			!of12_apply_actions_has(original->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_GROUP, out_group)
-			)
-	)
+	if( out_group != OF12_GROUP_ANY && !(of12_instruction_has(&subentry->inst_grp,OF12_AT_GROUP,out_group)) )
 		return false;
 
 
 	//Check out port actions
-	if( out_port != OF12_PORT_ANY && ( 
-			!of12_write_actions_has(original->inst_grp.instructions[OF12_IT_WRITE_ACTIONS].write_actions, OF12_AT_OUTPUT, out_port) &&
-			!of12_apply_actions_has(original->inst_grp.instructions[OF12_IT_APPLY_ACTIONS].apply_actions, OF12_AT_OUTPUT, out_port)
-			)
-	)
+	if( out_port != OF12_PORT_ANY && !(of12_instruction_has(&subentry->inst_grp,OF12_AT_OUTPUT,out_port)) )
 		return false;
 
 
@@ -309,45 +301,8 @@ void of12_dump_flow_entry(of12_flow_entry_t* entry){
  * check if the entry is valid for insertion
  */
 rofl_result_t of12_validate_flow_entry(of12_group_table_t *gt, of12_flow_entry_t* entry){
-	//TODO
-	int i, j;
-	of12_packet_action_t *pa_it;
-	of12_action_group_t *ac_it;
-	
-	//if there is a group action we should check that the group exists
-	for(i=0;i<OF12_IT_GOTO_TABLE;i++){
-		switch(entry->inst_grp.instructions[i].type){
-			case OF12_IT_NO_INSTRUCTION:
-				continue;
-				break;
-				
-			case OF12_IT_APPLY_ACTIONS:
-				of12_validate_action_group(entry->inst_grp.instructions[i].apply_actions);
-				ac_it = entry->inst_grp.instructions[i].apply_actions;
-				if(ac_it){
-					for(pa_it=ac_it->head; pa_it; pa_it=pa_it->next){
-						if(pa_it->type == OF12_AT_GROUP && (pa_it->group=of12_group_search(gt,pa_it->field))==NULL){
-								return ROFL_FAILURE;
-						}
-					}
-				}
-				break;
-				
-			case OF12_IT_WRITE_ACTIONS:
-				of12_validate_write_actions(entry->inst_grp.instructions[i].write_actions);
-				for(j=0;j<OF12_AT_NUMBER;j++){
-					pa_it = &(entry->inst_grp.instructions[i].write_actions->write_actions[j]);
-					if(pa_it && pa_it->type == OF12_AT_GROUP && (pa_it->group=of12_group_search(gt,pa_it->field))==NULL ){
-						return ROFL_FAILURE;
-					}
-				}
-				break;
-				
-			default:
-				continue;
-				break;
-		}
-	}
+	if(of12_validate_instructions(gt,&entry->inst_grp)!=ROFL_SUCCESS)
+		return ROFL_FAILURE;
 	
 	return ROFL_SUCCESS;
 }

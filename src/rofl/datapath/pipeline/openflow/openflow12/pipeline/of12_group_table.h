@@ -75,6 +75,8 @@ typedef struct of12_group{
 	
 	struct of12_group *next;
 	struct of12_group *prev;
+	
+	unsigned int num_of_output_actions;
 }of12_group_t;
 
 typedef struct of12_group_table{

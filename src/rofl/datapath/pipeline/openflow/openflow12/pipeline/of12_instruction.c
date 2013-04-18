@@ -1,5 +1,6 @@
 #include "of12_instruction.h"
 #include "of12_flow_entry.h"
+#include "of12_group_table.h"
 
 #include "../../../util/logging.h"
 
@@ -75,8 +76,8 @@ void of12_add_instruction_to_group(of12_instruction_group_t* group, of12_instruc
 	
 	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions && group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_OUTPUT].type != OF12_AT_NO_ACTION)
 		num_of_outputs++;
-	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions && group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_GROUP].type != OF12_AT_NO_ACTION)
-		num_of_outputs++;
+	//if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions && group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_GROUP].type != OF12_AT_NO_ACTION)
+		//num_of_outputs+=group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions->write_actions[OF12_AT_GROUP].group->num_of_output_actions;
 
 	//Assign flag
 	group->has_multiple_outputs =  (num_of_outputs > 1); 
@@ -232,4 +233,45 @@ void of12_dump_instructions(of12_instruction_group_t group){
 		ROFL_PIPELINE_INFO("\n\t\t\tWR.ACTIONs:");
 		of12_dump_write_actions(group.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions);
 	}	
+}
+
+bool of12_instruction_has(of12_instruction_group_t *inst_grp, of12_packet_action_type_t type, uint64_t value){
+	///returns true if the action type with the specific value is in the set of instructions.
+	
+	return ( of12_write_actions_has(inst_grp->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions, type, value) ||
+		of12_apply_actions_has(inst_grp->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions, type, value) );
+}
+
+rofl_result_t of12_validate_instructions(of12_group_table_t *gt, of12_instruction_group_t* inst_grp){
+	int i, num_of_output_actions=0;
+	
+	//if there is a group action we should check that the group exists
+	for(i=0;i<OF12_IT_GOTO_TABLE;i++){
+		switch(inst_grp->instructions[i].type){
+			case OF12_IT_NO_INSTRUCTION:
+				continue;
+				break;
+				
+			case OF12_IT_APPLY_ACTIONS:
+				if(of12_validate_action_group(inst_grp->instructions[i].apply_actions, gt)!=true)
+					return ROFL_FAILURE;
+				num_of_output_actions+=inst_grp->instructions[i].apply_actions->num_of_output_actions;
+				break;
+				
+			case OF12_IT_WRITE_ACTIONS:
+				if(of12_validate_write_actions(inst_grp->instructions[i].write_actions, gt)!=true)
+					return ROFL_FAILURE;
+				num_of_output_actions+=inst_grp->instructions[i].write_actions->num_of_output_actions;
+				break;
+				
+			default:
+				continue;
+				break;
+		}
+	}
+	
+	//update has multiple outputs flag
+	inst_grp->has_multiple_outputs =  ( num_of_output_actions > 1);
+	
+	return ROFL_SUCCESS;
 }

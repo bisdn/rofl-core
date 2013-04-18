@@ -26,7 +26,7 @@ extern switch_port_t* flood_meta_port;
 #define OF12_AT_3_BITS_MASK 0x00000000000FFFFF
 #define OF12_AT_2_BITS_MASK 0x00000000000FFFFF
 
-static void of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t* group);
+static void of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t* group, bool replicate_pkts);
 
 /* Actions init and destroyed */
 of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */of12_packet_action_type_t type, uint64_t field, of12_packet_action_t* prev, of12_packet_action_t* next){
@@ -145,7 +145,7 @@ of12_action_group_t* of12_init_action_group(of12_packet_action_t* actions){
 	
 		for(;actions;actions=actions->next, number_of_actions++){
 
-			if(actions->type == OF12_AT_OUTPUT || actions->type == OF12_AT_GROUP)
+			if(actions->type == OF12_AT_OUTPUT /*|| actions->type == OF12_AT_GROUP*/)
 				number_of_output_actions++;
 
 			if(!actions->next){
@@ -199,8 +199,11 @@ void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_ac
 	
 	group->num_of_actions++;
 
-	if(action->type == OF12_AT_OUTPUT || action->type == OF12_AT_GROUP)
+	if(action->type == OF12_AT_OUTPUT)
 		group->num_of_output_actions++;
+	
+	//if(action->type == OF12_AT_GROUP)
+		//group->num_of_output_actions+=action->group->num_of_output_actions;
 	
 }
 
@@ -227,7 +230,10 @@ void of12_destroy_write_actions(of12_write_actions_t* write_actions){
 
 void of12_set_packet_action_on_write_actions(of12_write_actions_t* write_actions, of12_packet_action_t* action){
 	if( write_actions && action )	
-		write_actions->write_actions[action->type] = *action;	
+		write_actions->write_actions[action->type] = *action;
+	
+	if (action->type == OF12_AT_OUTPUT)
+		write_actions->num_of_output_actions++;
 }
 
 //Update of write actions
@@ -497,7 +503,7 @@ static inline void of12_process_packet_action(const struct of12_switch* sw, cons
 			pkt_matches->ppp_proto = action->field;
 			break;
 
-		case OF12_AT_GROUP: of12_process_group_actions(sw, table_id, pkt, action->field, action->group);
+		case OF12_AT_GROUP: of12_process_group_actions(sw, table_id, pkt, action->field, action->group, replicate_pkts);
 			break;
 		case OF12_AT_EXPERIMENTER: //FIXME: implement
 			break;
@@ -611,7 +617,7 @@ rofl_result_t of12_update_write_actions(of12_write_actions_t** group, of12_write
 }
 
 static
-void of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t *group){
+void of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t *group, bool replicate_pkts){
 	of12_bucket_t *it_bk;
 	of12_packet_matches_t *matches = (of12_packet_matches_t *) pkt->matches;
 	
@@ -622,7 +628,7 @@ void of12_process_group_actions(const struct of12_switch* sw, const unsigned int
 			platform_rwlock_rdlock(group->rwlock);
 			for (it_bk = group->bc_list->head; it_bk!=NULL;it_bk = it_bk->next){
 				//process all actions in the bucket
-				of12_process_apply_actions(sw,table_id,pkt,it_bk->actions, it_bk->actions->num_of_output_actions > 1);
+				of12_process_apply_actions(sw,table_id,pkt,it_bk->actions, replicate_pkts);
 				of12_stats_bucket_update(&it_bk->stats, matches->pkt_size_bytes);
 			}
 			platform_rwlock_rdunlock(group->rwlock);
@@ -634,7 +640,7 @@ void of12_process_group_actions(const struct of12_switch* sw, const unsigned int
 		case OF12_GROUP_TYPE_INDIRECT:
 			//executes the "one bucket defined"
 			platform_rwlock_rdlock(group->rwlock);
-			of12_process_apply_actions(sw,table_id,pkt,group->bc_list->head->actions, group->bc_list->head->actions->num_of_output_actions > 1);
+			of12_process_apply_actions(sw,table_id,pkt,group->bc_list->head->actions, replicate_pkts);
 			of12_stats_bucket_update(&group->bc_list->head->stats, matches->pkt_size_bytes);
 			platform_rwlock_rdunlock(group->rwlock);
 			break;
@@ -890,12 +896,40 @@ void of12_dump_action_group(of12_action_group_t* action_group){
 	}
 }
 
-bool of12_validate_action_group(of12_action_group_t *ag){
-	//TODO we need to validate the actions here!
+bool of12_validate_action_group(of12_action_group_t *ag, of12_group_table_t *gt){
+	//TODO we need to validate ALL the actions here!
+	of12_packet_action_t *pa_it;
+
+	if(ag){
+		for(pa_it=ag->head; pa_it; pa_it=pa_it->next){
+			if(pa_it->type == OF12_AT_GROUP && gt){
+				if((pa_it->group=of12_group_search(gt,pa_it->field))==NULL)
+					return ROFL_FAILURE;
+				else{
+					ag->num_of_output_actions+=pa_it->group->num_of_output_actions;
+				}
+			}
+		}
+	}
+	
 	return true;
 }
 
-bool of12_validate_write_actions(of12_write_actions_t *wa){
-	//TODO we need to validate the actions here!
+bool of12_validate_write_actions(of12_write_actions_t *wa, of12_group_table_t *gt){
+	//TODO we need to ALL validate the actions here!
+	int i;
+	of12_packet_action_t *pa_it;
+	
+	for(i=0;i<OF12_AT_NUMBER;i++){
+		pa_it = &(wa->write_actions[i]);
+		if(gt && pa_it && pa_it->type == OF12_AT_GROUP){
+			if((pa_it->group=of12_group_search(gt,pa_it->field))==NULL )
+				return ROFL_FAILURE;
+			else{
+				wa->num_of_output_actions+=pa_it->group->num_of_output_actions;
+			}
+		}
+	}
+	
 	return true;
 }
