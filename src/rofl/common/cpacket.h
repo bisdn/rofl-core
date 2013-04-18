@@ -98,8 +98,46 @@ class ePacketTypeError 		: public ePacket {}; // specified frame type not found 
 
 
 /**
+ * @class	cpacket
+ * @brief	A class for storing, querying, and manipulating data packets.
  *
+ * cpacket is a container for storing data packets. It follows OpenFlow's convention
+ * of Ethernet frames, i.e. a packet's payload starts with an Ethernet frame always.
+ * A cpacket instance may contain full-size packets or shortened versions (e.g. used
+ * in OpenFlow PACKET-IN messages). cpacket's length() method always returns the
+ * actual size of the available amount of user data (probably shortened) stored in cpacket. Check the total_len
+ * parameter from cofmsg_packet_in to acquire the true length of the packet stored
+ * at the data path element. cpacket is used also in PACKET-OUT messages for
+ * sending arbitrarily formed Ethernet frames out towards a data path element.
  *
+ * @see cofmsg_packet_in
+ * @see cofmsg_packet_out
+ *
+ * cpacket contains a classifier for parsing a packet's content and creates a match
+ * structure during the parse process.
+ * Note, that this match structure may differ from the one seen in PACKET-IN
+ * messages and is locally created upon reception of the PACKET-IN from the control connection.
+ * Use the match structure from cofmsg_packet_in to get the view received from the data path element.
+ *
+ * @see cofmatch
+ *
+ * The parser also creates a set of helper classes to simplify access and manipulation of
+ * the packet's content. So-called protocol specific frame classes interpret parts of
+ * the packet and allow direct access to protocol header fields. Unrecognized payload is
+ * referred to by a protocol agnostic fframe instance.
+ *
+ * @see fframe
+ * @see fetherframe
+ * @see fvlanframe
+ * @see fmplsframe
+ * @see farpv4frame
+ * @see fipv4frame
+ * @see ficmpv4frame
+ * @see fipv6frame
+ * @see ficmpv6frame
+ * @see fudpframe
+ * @see ftcpframe
+ * @see fsctpframe
  *
  */
 class cpacket :
@@ -149,11 +187,20 @@ private:
 
 public:
 
+		/**
+		 * @name Deprecated
+		 *
+		 * These are deprecated variables and methods. To be removed in the next version.
+		 */
+
+		/**@{*/
+
 		time_t 				packet_receive_time;	// time this packet was received
 		uint32_t 			in_port;				// incoming port
 
 
-#if 1
+#if 0
+		// used by second generation adpd data path implementation for profiling
 		cclock 							time_cport_recv;
 		cclock 							time_cdpath_in;
 		cclock 							time_cfwdengine_in;
@@ -163,7 +210,7 @@ public:
 		cclock 							time_cport_send;
 #endif
 
-
+		/**@}*/
 
 
 public: // methods
@@ -268,7 +315,15 @@ public: // methods
 
 public:
 
+	/**
+	 * @name	Operators
+	 *
+	 * cpacket provides a number of operators for assignment of cpacket instances,
+	 * direct access to a packet's content, comparison with other packets, and concatenating
+	 * multiple packets.
+	 */
 
+	/**@{*/
 
 	/**
 	 * @brief	Assignment operator.
@@ -283,6 +338,10 @@ public:
 
 	/**
 	 * @brief	Index operator. Returns reference to byte at index.
+	 *
+	 * This method grants direct access to a packet's content.
+	 * (*this)[0] refers to the first byte of the Ethernet header,
+	 * (*this)[length()-1] refers to the last byte of the payload.
 	 *
 	 * @param index the index of byte to be retrieved from cpacket
 	 */
@@ -357,6 +416,8 @@ public:
 	void
 	operator+= (
 			fframe const& f);
+
+	/**@}*/
 
 
 public:
