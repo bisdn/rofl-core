@@ -7,10 +7,13 @@ lib_LTLIBRARIES = librofl_pipeline.la
 librofl_pipeline_ladir = $(includedir)/rofl/datapath/pipeline
 
 librofl_pipeline_la_HEADERS = physical_switch.h \
+	port_queue.h\
 	switch_port.h 
 
 librofl_pipeline_la_SOURCES = physical_switch.h \
 	physical_switch.c \
+	port_queue.h \
+	port_queue.c \
 	switch_port.c \
 	switch_port.h
 

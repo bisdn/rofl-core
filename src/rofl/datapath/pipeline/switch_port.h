@@ -24,7 +24,7 @@
 struct of_switch;
 
 #define SW_PORT_ETH_ALEN 6
-#define SWITCH_PORT_MAX_LEN_NAME 20
+#define SWITCH_PORT_MAX_LEN_NAME 32
 
 /**
 * @brief Port state 
