@@ -16,6 +16,7 @@ rofl_result_t port_queue_init(port_queue_t* queue, uint32_t id, char* name, uint
 	}
 
 	//Fill in values
+	queue->set = true;
 	queue->id = id;
 	queue->length = length;
 	strncpy(queue->name, name, PORT_QUEUE_MAX_LEN_NAME);

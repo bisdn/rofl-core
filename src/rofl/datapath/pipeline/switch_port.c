@@ -19,6 +19,9 @@ switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_stat
 
 	//Memset stats. Must be here!
 	memset(&port->stats,0,sizeof(port->stats));
+	
+	//Clear queues
+	memset(&port->queues,0,sizeof(port->queues));
 
 	//Init mutexes 
 	port->mutex = platform_mutex_init(NULL);
@@ -58,6 +61,14 @@ switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_stat
 }
 
 rofl_result_t switch_port_destroy(switch_port_t* port){
+
+	unsigned int i;
+
+	//Destroy queues
+	for(i=0;i<SWITCH_PORT_MAX_QUEUES;i++){
+		if(port->queues[i].set)
+			port_queue_destroy(&port->queues[i]);
+	}
 
 	//Destroy port stats mutex
 	platform_mutex_destroy(port->stats.mutex);
