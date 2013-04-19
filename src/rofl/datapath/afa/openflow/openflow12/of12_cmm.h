@@ -34,7 +34,7 @@ AFA_BEGIN_DECLS
  * @param reason one of the OFPR_ ... constants
  * @param in_port Incomming packet port 
  * @param buffer_id ID of the HW buffer
- * @param pkt_buffer Buffer containing the packet
+ * @param pkt_buffer Buffer containing the packet. Shall only be used for reading.
  * @param buf_len Buffer length (may be shorter than the packet stored in buffer)
  * @param total_len total length of buffer
  * @param matches OF1.2 packet matches
@@ -55,7 +55,8 @@ afa_result_t cmm_process_of12_packet_in(const of12_switch_t* sw,
  * @ingroup of12_cmm_async_event_processing
  *
  * @param sw Openflow 1.2 switch pointer that generated the FLOW_REMOVED
- * @param removed_flow_entry Pointer to the flow_entry that has been removed
+ * @param removed_flow_entry The entry shall ONLY be used for reading, and shall NEVER be
+ * removed (of12_remove_flow_entry). This is done by the fwd_module itself.
  */
 afa_result_t cmm_process_of12_flow_removed(const of12_switch_t* sw, 	
 					uint8_t reason, 

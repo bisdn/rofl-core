@@ -72,6 +72,9 @@ void platform_of12_packet_in(const of12_switch_t* sw, uint8_t table_id, datapack
 /**
 * @brief Flow removed event notification 
 * @ingroup async_events_hooks_of12 
+*
+* @param removed_flow_entry The entry shall ONLY be used for reading, and shall NEVER be removed (of12_remove_flow_entry).
+* This is done by the library itself
 */
 void platform_of12_notify_flow_removed(const of12_switch_t* sw, 	
 						of12_flow_remove_reason_t reason, 
