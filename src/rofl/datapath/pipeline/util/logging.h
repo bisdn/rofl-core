@@ -57,7 +57,7 @@ extern int (*rofl_pipeline_debug_print)(FILE *stream, const char *format, ...);
 	#define ROFL_PIPELINE_DEBUG_PRINT(fd, cn, level, stuff, ...)  \
 	    do{\
 		if (ROFL_PIPELINE_DEBUG_CHECK(cn, level) && *rofl_pipeline_debug_print != NULL){ \
-			rofl_pipeline_debug_print(fd,stuff, ##__VA_ARGS__);\
+			rofl_pipeline_debug_print(fd,"[rofl-pipeline] "stuff, ##__VA_ARGS__);\
 		}\
 	    }while(0)
 

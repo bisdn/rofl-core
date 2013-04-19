@@ -500,7 +500,7 @@ coxmatch::u32addr() const
 	} break;
 	}
 
-	caddress addr(sizeof(struct sockaddr_in));
+	caddress addr(AF_INET);
 	addr.ca_s4addr->sin_family = AF_INET;
 	if (get_oxm_hasmask()) {
 		addr.ca_s4addr->sin_addr.s_addr = (oxm_uint32t->dword & oxm_uint32t->mask);
@@ -566,11 +566,11 @@ coxmatch::u128addr() const
 	} break;
 	}
 
-	caddress addr(sizeof(struct sockaddr_in6));
+	caddress addr(AF_INET6);
 	addr.ca_s6addr->sin6_family = AF_INET6;
 	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxm_ipv6addr->addr, 16);
 	if (get_oxm_hasmask()) {
-		caddress mask(sizeof(struct sockaddr_in6));
+		caddress mask(AF_INET6);
 		mask.ca_s6addr->sin6_family = AF_INET6;
 		memcpy(mask.ca_s6addr->sin6_addr.s6_addr, oxm_ipv6addr->mask, 16);
 		return (addr & mask);

@@ -44,24 +44,32 @@ namespace rofl
 {
 
 /* error classes */
-class eAddress : public cerror {}; // base class caddress related errors
-class eAddressIoctlFailed : public eAddress {};
-class eAddressSocketFailed : public eAddress {};
-class eAddressSocketFailedNoPermission : public eAddressSocketFailed {};
-class eAddressInval : public eAddress {};
+class eAddress 							: public cerror {}; // base class caddress related errors
+class eAddressIoctlFailed 				: public eAddress {};
+class eAddressSocketFailed 				: public eAddress {};
+class eAddressSocketFailedNoPermission 	: public eAddressSocketFailed {};
+class eAddressInval 					: public eAddress {};
 
 
 /**
- * Auxiliary class for encapsulating address structs.
+ * @class	caddress
+ * @brief	Auxiliary class for managing sockaddr structures for various address families.
  *
- * This class encapsulates socket address structures. Currently
- * supports IPv4, IPv6, LinkLayer, Unix
+ * This class encapsulates Unix socket address structures. Currently, it
+ * supports IPv4, IPv6, LinkLayer, and Unix.
+ *
  */
 class caddress :
 	public cmemory
 {
 public:
 
+		/**
+		 * @union 	addr_addru
+		 * @brief	A union containing a pointer to the sockaddr structure.
+		 *
+		 * Supports various pointer types (generic, AF_INET, AF_INET6, AF_UNIX, AF_PACKET).
+		 */
 		union {
 			struct sockaddr*		addru_saddr;
 			struct sockaddr_in* 	addru_s4addr;
@@ -76,7 +84,7 @@ public:
 #define ca_suaddr		addr_addru.addru_suaddr		// sockaddr_un
 #define ca_sladdr		addr_addru.addru_sladdr		// sockaddr_ll
 
-		socklen_t salen; //< maximum length of allocated memory area hosting saddr
+		socklen_t salen; /**< actual length of struct sockaddr managed by this caddress instance */
 
 private:
 
@@ -84,17 +92,22 @@ private:
 
 public:
 
-	/**
-	 * Constructor.
-	 * Allocates sufficient space for hosting any struct sockaddr_XX.
-	 */
-	caddress(
-			size_t size = sizeof(struct sockaddr_un));
 
 	/**
-	 * Constructor for PF_PACKET struct sockaddr_ll.
-	 * Allocates sufficient space for hosting a struct sockaddr_ll.
+	 * @brief	Constructor for creating an empty address. Allocates maximum memory required for any struct sockaddr (currently sockaddr_un).
+	 *
+	 * @param size size of memory area for storing struct sockaddr
+	 */
+	caddress(int af = AF_INET);
+
+
+
+	/**
+	 * @brief	Constructor for caddress instances of address family AF_PACKET.
+	 *
+	 * Allocates sufficient space for hosting a struct sockaddr_ll and fills the structure.
 	 * See the man page packet(7) for details.
+	 *
 	 * @param af Address family for this socket address (here: PF_PACKET)
 	 * @param protocol Protocol type in use (default: ETH_P_ALL)
 	 * @param devname Device name for this address (default "eth0")
@@ -104,28 +117,39 @@ public:
 	 * @param halen length of address memory area
 	 */
 	caddress(
-			int af,
 			u_int16_t protocol = ETH_P_ALL,
 			std::string devname = std::string("eth0"),
 			u_int16_t hatype = ARPHRD_ETHER,
 			u_int8_t pkttype = PACKET_HOST,
 			const char* addr = NULL,
-			size_t halen = 0) throw (eAddressInval);
+			size_t halen = 0);
+
+
 
 	/**
-	 * Constructor for PF_INET/PF_INET6.
-	 * Allocates sufficient space for hosting a struct sockaddr_in/sockaddr_in6.
-	 * @param af Address family for this socket address (here: PF_INET, PF_INET6, PF_UNIX)
-	 * @param astr ASCII-encoded address string, e.g. "10.0.0.1" or a FQDN
-	 * @param port Port value for a transport address
+	 * @brief	Constructor for caddress instances of address family AF_INET, AF_INET6, and AF_UNIX.
+	 *
+	 * Allocates sufficient space for hosting a struct sockaddr_in/sockaddr_in6 and
+	 * fills the structure with the specified address in ASCII form "127.0.0.1".
+	 *
+	 * @param af Address family for this socket address (here: AF_INET, AF_INET6, AF_UNIX)
+	 * @param astr ASCII-encoded address string, e.g. "127.0.0.1" or a FQDN
+	 * @param port port value for a transport address
+	 * @exception eAddressInval is thrown, when an unsupported address family is specified
 	 */
 	caddress(
 			int af,
 			const char* astr,
 			u_int16_t port = 0) throw (eAddressInval);
 
+
+
+
 	/**
+	 * @brief	Creates a caddress instance from a struct sockaddr_in6.
 	 *
+	 * @param sa pointer to struct sockaddr_in6
+	 * @param salen length of buffer
 	 */
 	caddress(
 			struct sockaddr_in6 *sa,
@@ -133,93 +157,181 @@ public:
 
 
 	/**
+	 * @brief	Creates a caddress instance from a struct sockaddr_in.
 	 *
-	 */
+	 * @param sa pointer to struct sockaddr_in
+	 * @param salen length of buffer	 */
 	caddress(
 			struct sockaddr_in *sa,
 			size_t salen) throw (eAddressInval);
 
+
+
 	/**
-	 * Copy constructor.
-	 * @param ca Reference to the caddress instance to be copied.
+	 * @brief	Copy constructor.
+	 *
+	 * @param ca reference to the caddress instance to be copied.
 	 */
 	caddress(
 			caddress const& ca);
 
+
+
 	/**
-	 * Destructor.
-	 * Deallocates the allocated memory area during construction.
+	 * @brief	Destructor.
+	 *
 	 */
 	~caddress();
 
+
+
 	/**
-	 * Assignment operator.
-	 * @param ca Reference to the caddress instance to be assigned to *this
+	 * @brief	Returns a C-string with the address in ASCII representation ("AF_INET/127.0.0.1:6633").
+	 *
+	 * @return C-string
+	 */
+	const char*
+	c_str();
+
+
+
+	/**
+	 * @brief	Returns a C-string with the address in ASCII representation ("127.0.0.1").
+	 *
+	 * @return C-string
+	 */
+	const char*
+	addr_c_str();
+
+
+
+public:
+
+
+	/**
+	 * @name Operators
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief	Assignment operator.
+	 *
+	 * @param ca reference to caddress instance to be assigned to *this
 	 */
 	caddress&
 	operator=(
 			caddress const& ca);
 
+
+
 	/**
-	 * less operator.
-	 * @param ca Reference to the caddress instance to be compared against *this
+	 * @brief	Less than operator.
+	 *
+	 * This compares the two memory regions.
+	 *
+	 * @param ca reference to caddress instance for comparison
 	 */
 	bool
 	operator<(
 			caddress const& ca) const;
 
+
+
 	/**
-	 * greater operator.
-	 * @param ca Reference to the caddress instance to be compared against *this
+	 * @brief	Greater than operator.
+	 *
+	 * This compares the two memory regions.
+	 *
+	 * @param ca reference to caddress instance for comparison
 	 */
 	bool
 	operator>(
 			caddress const& ca) const;
 
+
+
 	/**
+	 * @brief	AND operator.
 	 *
+	 * @param mask reference to caddress instance to be used for ANDing with this caddress
 	 */
 	caddress
 	operator& (
 			caddress const& mask) const;
 
+
+
 	/**
+	 * @brief	Equals operator.
 	 *
+	 * @param ca reference to caddress instance for comparison
 	 */
 	bool
 	operator== (
 			caddress const& ca) const;
 
+
+
 	/**
+	 * @brief	Unequals operator.
 	 *
+	 * @param ca reference to caddress instance for comparison
 	 */
 	bool
 	operator!= (
 			caddress const& ca) const;
 
+	/**@}*/
+
+
+public:
+
 	/**
+	 * @name Helper methods
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief	Checks for an address family AF_INET.
 	 *
+	 * @return true: address family is AF_INET, false otherwise
 	 */
 	bool
 	is_af_inet() const;
 
+
+
 	/**
+	 * @brief	Checks for an address family AF_INET6.
 	 *
+	 * @return true: address family is AF_INET6, false otherwise
 	 */
 	bool
 	is_af_inet6() const;
 
+
+
 	/**
+	 * @brief	Checks for an address family AF_UNIX.
 	 *
+	 * @return true: address family is AF_UNIX, false otherwise
 	 */
 	bool
 	is_af_unix() const;
 
+
+
 	/**
+	 * @brief	Checks for an address family AF_PACKET.
 	 *
+	 * @return true: address family is AF_PACKET, false otherwise
 	 */
 	bool
 	is_af_packet() const;
+
+	/**@}*/
 
 #if 0
 	/**
@@ -257,18 +369,6 @@ public:
 		return os;
 	};
 #endif
-	/**
-	 * Return a description string.
-	 * Returns a description string for this caddress instance.
-	 */
-	const char*
-	c_str();
-
-	/**
-	 * Returns the address as string (e.g. "1.2.3.4")
-	 */
-	const char*
-	addr_c_str();
 
 
 protected:
