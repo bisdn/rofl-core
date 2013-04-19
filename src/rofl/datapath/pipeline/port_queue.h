@@ -49,7 +49,7 @@ typedef struct queue_stats {
 */
 typedef struct port_queue{
 
-	bool enabled; //Signal if queue is enabled (available or not)
+	bool set; //Signal if queue is set (running or used)
 	
 	/**
 	* Queue id

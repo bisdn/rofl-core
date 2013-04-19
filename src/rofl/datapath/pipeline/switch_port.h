@@ -17,6 +17,7 @@
 #include <inttypes.h>
 
 #include "rofl.h"
+#include "port_queue.h"
 #include "platform/lock.h"
 
 
@@ -25,6 +26,7 @@ struct of_switch;
 
 #define SW_PORT_ETH_ALEN 6
 #define SWITCH_PORT_MAX_LEN_NAME 32
+#define SWITCH_PORT_MAX_QUEUES 16
 
 /**
 * @brief Port state 
@@ -161,6 +163,9 @@ typedef struct switch_port{
 	//Current speeds
 	port_features_t curr_speed;
 	port_features_t curr_max_speed;
+
+	//Queues
+	port_queue_t queues[SWITCH_PORT_MAX_QUEUES];
 		
 	/* 
 	* OF related stuff
@@ -170,7 +175,10 @@ typedef struct switch_port{
 	unsigned int of_port_num; //XXX: 
 	//Pointer to current logical switch attached
 	struct of_switch* attached_sw;	
- 	
+ 
+	//Mutex for statistics
+	platform_mutex_t* mutex;
+	
 	/* Opaque platform port specific extra state */
 	platform_port_state_t* platform_port_state; 
 }switch_port_t;
@@ -206,6 +214,18 @@ switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_stat
 * @ingroup  mgmt
 */
 rofl_result_t switch_port_destroy(switch_port_t* port);
+
+/**
+* @brief Add queue to port 
+* @ingroup  mgmt
+*/
+rofl_result_t switch_port_add_queue(switch_port_t* port, uint32_t id, char* name, uint16_t length, uint16_t min_rate, uint16_t max_rate);
+
+/**
+* @brief Remove queue from port 
+* @ingroup  mgmt
+*/
+rofl_result_t switch_port_remove_queue(switch_port_t* port, uint32_t id);
 
 //Port Statistics
 

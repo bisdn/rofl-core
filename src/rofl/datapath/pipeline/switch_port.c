@@ -20,10 +20,16 @@ switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_stat
 	//Memset stats. Must be here!
 	memset(&port->stats,0,sizeof(port->stats));
 
-	//Init statistics mutex
-	port->stats.mutex = platform_mutex_init(NULL);
+	//Init mutexes 
+	port->mutex = platform_mutex_init(NULL);
+	if(!port->mutex){
+		platform_free_shared(port);
+		return NULL;
+	}
 
+	port->stats.mutex = platform_mutex_init(NULL);
 	if(!port->stats.mutex){
+		platform_mutex_destroy(port->mutex);
 		platform_free_shared(port);
 		return NULL;
 	}
@@ -53,14 +59,62 @@ switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_stat
 
 rofl_result_t switch_port_destroy(switch_port_t* port){
 
-	//Free mutex
+	//Destroy port stats mutex
 	platform_mutex_destroy(port->stats.mutex);
+	
+	//Destroy port mutex
+	platform_mutex_destroy(port->mutex);
 	
 	//Free shared port
 	platform_free_shared(port);
 	
 	return ROFL_SUCCESS;
 }
+
+
+/*
+*Add queue to port 
+*/
+rofl_result_t switch_port_add_queue(switch_port_t* port, uint32_t id, char* name, uint16_t length, uint16_t min_rate, uint16_t max_rate){
+	
+	platform_mutex_lock(port->mutex);
+
+	if(id >=SWITCH_PORT_MAX_QUEUES ||
+		port->queues[id].set ){
+		platform_mutex_unlock(port->mutex);
+		return ROFL_FAILURE;
+	}
+	
+	//Init switch queue
+	port_queue_init(&port->queues[id], id, name, length, min_rate, max_rate);
+
+	platform_mutex_unlock(port->mutex);
+	return ROFL_SUCCESS;
+	
+}
+
+/*
+*Remove queue from port 
+*/
+rofl_result_t switch_port_remove_queue(switch_port_t* port, uint32_t id){
+
+	platform_mutex_lock(port->mutex);
+
+	if(id >=SWITCH_PORT_MAX_QUEUES ||
+		!port->queues[id].set ){
+		platform_mutex_unlock(port->mutex);
+		return ROFL_FAILURE;
+	}
+	
+	//destroy queue
+	port_queue_destroy(&port->queues[id]);
+
+	platform_mutex_unlock(port->mutex);
+	return ROFL_SUCCESS;
+}
+
+
+
 
 /**
 * Increments atomically all the statistics of the port. Fill in with 0 the ones that should

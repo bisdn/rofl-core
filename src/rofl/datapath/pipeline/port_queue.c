@@ -18,6 +18,7 @@ rofl_result_t port_queue_init(port_queue_t* queue, uint32_t id, char* name, uint
 	//Fill in values
 	queue->id = id;
 	queue->length = length;
+	strncpy(queue->name, name, PORT_QUEUE_MAX_LEN_NAME);
 	queue->min_rate = min_rate;
 	queue->max_rate = max_rate;
 
@@ -29,7 +30,7 @@ rofl_result_t port_queue_init(port_queue_t* queue, uint32_t id, char* name, uint
 rofl_result_t port_queue_destroy(port_queue_t* queue){
 	//Destroy
 	platform_mutex_destroy(queue->stats.mutex);
-	
+	memset(queue,0,sizeof(port_queue_t));
 	return ROFL_SUCCESS;
 }
 
