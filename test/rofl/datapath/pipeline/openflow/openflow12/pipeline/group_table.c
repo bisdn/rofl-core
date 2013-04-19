@@ -14,7 +14,7 @@ typedef struct info_th{
 	}info_th_t;
 
 	
-int set_up(void){
+int gt_set_up(void){
 	tu.gt = of12_init_group_table();
 	if( tu.gt == NULL){
 		fprintf(stderr,"<%s:%d>Error\n",__func__,__LINE__);
@@ -23,6 +23,10 @@ int set_up(void){
 	
 	tu.type = OF12PGT_ALL;
 	tu.id = 12;
+	
+	//FIXME WARNING this test got old by no use
+	//NEED TO CREATE A BUCKET LIST -> tu.bu_list = malloc();
+	
 	tu.weight = 1;
 	tu.group = 1;
 	tu.port = 1;
@@ -30,14 +34,15 @@ int set_up(void){
 	return ROFL_SUCCESS;
 }
 
-int tear_down(){
+int gt_tear_down(){
+	//NEED TO DESTROY THE BUCKET LIST -> free(tu.bu_list)
 	of12_destroy_group_table(tu.gt);
 	return ROFL_SUCCESS;
 }
 
-void basic_test(){
+void gt_basic_test(){
 	
-	assert (of12_group_add(tu.gt, tu.type, tu.id, tu.weight, tu.group, tu.port, tu.actions)==ROFL_SUCCESS);
+	assert (of12_group_add(tu.gt, tu.type, tu.id, tu.bu_list)==ROFL_SUCCESS);
 	
 	assert(tu.gt->num_of_entries==1);
 	
@@ -54,7 +59,7 @@ void basic_test(){
 	fprintf(stderr,"<%s:%d>Test passed\n",__func__,__LINE__);
 }
 
-void expected_errors_test(){
+void gt_expected_errors_test(){
 	
 	assert(of12_group_delete(tu.gt,tu.id)==ROFL_SUCCESS); // no notification when trying to delete a non existing entry
 	
@@ -76,7 +81,7 @@ void expected_errors_test(){
 	
 }
 
-void add_and_delete_buckets_test(){
+void gt_add_and_delete_buckets_test(){
 	
 	of12_packet_action_t* pkt_action;
 	of12_switch_t sw;
@@ -97,7 +102,7 @@ void add_and_delete_buckets_test(){
 	of12_destroy_pipeline(sw.pipeline);
 }
 
-void concurrency_routine(void * param){
+void gt_concurrency_routine(void * param){
 	info_th_t* info = (info_th_t *)param;
 	int i=0;
 
@@ -115,7 +120,7 @@ void concurrency_routine(void * param){
 	assert(of12_group_delete(tu.gt,info->id)==ROFL_SUCCESS);
 }
 
-void concurrency_test(void){
+void gt_concurrency_test(void){
 	/*create some threads and thy crating ande deleting */
 	
 	pthread_t thread[NUM_THREADS];
@@ -133,7 +138,7 @@ void concurrency_test(void){
 	
 }
 
-void references_test(void){
+void gt_references_test(void){
 	of12_flow_entry_t entry, entry2;
 	assert (of12_group_add(tu.gt, tu.type, tu.id, tu.weight, tu.group, tu.port, tu.actions)==ROFL_SUCCESS);
 	assert(of12_add_reference_entry_in_group(tu.gt->head,&entry)==ROFL_SUCCESS);

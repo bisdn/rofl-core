@@ -3,6 +3,7 @@ MAINTAINERCLEANFILES = Makefile.in
 static_unit_test_CFLAGS= -DTIMERS_FAKE_TIME
 
 static_unit_test_SOURCES=../unit_test.c \
+	../output_actions.c \
 	../timers_hard_timeout.c \
 	../platform_empty_actions.c \
 	../platform_empty_packet_matches.c\
@@ -26,7 +27,8 @@ static_unit_test_SOURCES=../unit_test.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow12/pipeline/of12_pipeline.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow12/pipeline/of12_statistics.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow12/pipeline/of12_timers.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/common/ternary_fields.c
+	$(top_srcdir)/src/rofl/datapath/pipeline/common/ternary_fields.c \
+	$(top_srcdir)/src/rofl/datapath/pipeline/util/logging.c
 
 static_unit_test_LDADD= -lcunit -lpthread
 

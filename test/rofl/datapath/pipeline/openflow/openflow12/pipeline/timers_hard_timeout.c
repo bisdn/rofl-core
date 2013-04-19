@@ -119,7 +119,7 @@ void test_insert_and_extract_static(of12_pipeline_t * pipeline, uint32_t hard_ti
 		}
 		else
 		{
-			fprintf(stderr,"i %d entry %p hto %d ne %d \n", i, entry_list[i], hard_timeout, num_of_entries);
+			//fprintf(stderr,"i %d entry %p hto %d ne %d \n", i, entry_list[i], hard_timeout, num_of_entries);
 			CU_ASSERT(of12_destroy_timer_entries(entry_list[i])==EXIT_SUCCESS);
 		}
 		CU_ASSERT(table->timers[slot].list.num_of_timers==(num_of_entries-i-1));

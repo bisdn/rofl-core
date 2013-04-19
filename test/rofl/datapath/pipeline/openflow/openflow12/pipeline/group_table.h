@@ -16,14 +16,15 @@ struct test_utils{
 	uint32_t group;
 	uint32_t port;
 	of12_action_group_t *actions;
+	of12_bucket_list_t *bu_list;
 };
 
-int set_up(void);
-int tear_down(void);
-void basic_test(void);
-void expected_errors_test(void);
-void add_and_delete_buckets_test(void);
-void concurrency_test(void);
-void references_test(void);
+int gt_set_up(void);
+int gt_tear_down(void);
+void gt_basic_test(void);
+void gt_expected_errors_test(void);
+void gt_add_and_delete_buckets_test(void);
+void gt_concurrency_test(void);
+void gt_references_test(void);
 
 #endif //__GROUP_TABLE_H__
