@@ -1,7 +1,7 @@
 #include "physical_switch.h"
 
 #include <assert.h>
-#include <rofl/datapath/pipeline/util/logging.h>
+#include "util/logging.h"
 
 static physical_switch_t psw;
 
