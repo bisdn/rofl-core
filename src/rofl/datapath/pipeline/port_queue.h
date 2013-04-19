@@ -6,7 +6,7 @@
 * @file port_queue.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
-* @brief Switch queue abstraction
+* @brief Port queue abstraction
 */
 
 #ifndef __PORT_QUEUE_H__
@@ -35,7 +35,6 @@ typedef struct queue_stats {
 	//Mutex for statistics
 	platform_mutex_t* mutex;
 }queue_stats_t;
-
 
 
 /**
