@@ -99,6 +99,24 @@ switch_port_t* physical_switch_get_port_by_name(const char *name){
 	return NULL;
 }
 
+
+/* FIXME: this is dangerous. Better go for a copy of the ports */
+//Get the reference to the physical ports
+switch_port_t** physical_switch_get_physical_ports(unsigned int* num){
+	*num = PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;
+	return psw.physical_ports;
+}
+//Get the reference to the virtual ports
+switch_port_t** physical_switch_get_virtual_ports(unsigned int* num){
+	*num = PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS;
+	return psw.virtual_ports;
+}
+//Get the reference to the physical ports
+switch_port_t** physical_switch_get_tunnel_ports(unsigned int* num){
+	*num = PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS;
+	return psw.tunnel_ports;
+}
+
 /*
 * Get a port by port_num
 */
@@ -184,7 +202,6 @@ rofl_result_t physical_switch_add_port(switch_port_t* port){
 
 /*
 * Removes and destroys a port from the physical_switch pool referenced by its name
-* @ingroup  mgmt
 */
 rofl_result_t physical_switch_remove_port(const char* name){
 

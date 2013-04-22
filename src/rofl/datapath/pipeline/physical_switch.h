@@ -243,6 +243,23 @@ of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_po
 */
 switch_port_t* physical_switch_get_port_by_name(const char *name);
 
+/**
+* @brief Get the reference to the physical ports
+* @ingroup  mgmt
+*/
+switch_port_t** physical_switch_get_physical_ports(unsigned int* num);
+
+/**
+* @brief Get the reference to the virtual ports
+* @ingroup  mgmt
+*/
+switch_port_t** physical_switch_get_virtual_ports(unsigned int* num);
+
+/**
+* @brief Get the reference to the physical ports
+* @ingroup  mgmt
+*/
+switch_port_t** physical_switch_get_tunnel_ports(unsigned int* num);
 
 /**
 * @brief Adds a port to the physical_switch pool port
@@ -268,28 +285,6 @@ rofl_result_t physical_switch_add_port(switch_port_t* port);
 */
 rofl_result_t physical_switch_remove_port(const char* name);
 
-
-
-/*
-*
-* Physical switch port list
-*
-*/
-
-//FIXME this should not be done this way. This should be exporting a copy of the array.
-/**
-* @brief Retrieve the physical port list.
-* @ingroup  mgmt
-* @param ports  Pointer to the first switch_port_t. The boundaries of the array is num_of_ports.
-* 		The ports CANNOT be modified oustide the library (READ only) 
-* @param num_of_ports  Pointer to an int. Number of ports (array) will be filled by the lib.
-*/
-void physical_switch_get_physical_ports(switch_port_t* ports, unsigned int* num_of_ports);
-/*
-TODO: add create virtual link and add/remove tunnel.
-//void physical_switch_get_virtual_ports(switch_port_t* ports, unsigned int* num_of_ports);
-//void physical_switch_get_tunnel_ports(switch_port_t* ports, unsigned int* num_of_ports);
-*/
 
 
 /*
