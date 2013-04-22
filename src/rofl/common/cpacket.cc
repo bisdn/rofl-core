@@ -339,6 +339,12 @@ cpacket::operator+ (
 
 	memcpy(soframe() + len, f.soframe(), f.framelen());
 
+	uint32_t in_port = OFPP_CONTROLLER;
+	try {
+		in_port = match.get_in_port();
+	} catch (eOFmatchNotFound& e) {}
+	classify(in_port);
+
 	return *this;
 }
 
