@@ -204,6 +204,7 @@ void physical_switch_destroy(void);
 * @ingroup  mgmt
 *
 * @param max_switches Number of maximum switches in the array (array boundary)
+* @retval  Pointer to the of_switch_t* array. This array cannot be modified is READ-ONLY! 
 */
 of_switch_t** physical_switch_get_logical_switches(unsigned int* max_switches);
 
@@ -264,6 +265,7 @@ switch_port_t* physical_switch_get_port_by_name(const char *name);
 * @ingroup  mgmt
 *
 * @param max_ports Number of maximum ports in the array (array boundary)
+* @retval  Pointer to the switch_port_t* array. This array cannot be modified is READ-ONLY! 
 */
 switch_port_t** physical_switch_get_physical_ports(unsigned int* max_ports);
 
@@ -272,6 +274,7 @@ switch_port_t** physical_switch_get_physical_ports(unsigned int* max_ports);
 * @ingroup  mgmt
 *
 * @param max_ports Number of maximum ports in the array (array boundary)
+* @retval  Pointer to the switch_port_t* array. This array cannot be modified is READ-ONLY! 
 */
 switch_port_t** physical_switch_get_virtual_ports(unsigned int* max_ports);
 
@@ -280,6 +283,7 @@ switch_port_t** physical_switch_get_virtual_ports(unsigned int* max_ports);
 * @ingroup  mgmt
 *
 * @param max_ports Number of maximum ports in the array (array boundary)
+* @retval  Pointer to the switch_port_t* array. This array cannot be modified is READ-ONLY! 
 */
 switch_port_t** physical_switch_get_tunnel_ports(unsigned int* max_ports);
 

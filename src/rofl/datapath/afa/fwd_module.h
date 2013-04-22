@@ -91,7 +91,8 @@ switch_port_t* fwd_module_list_ports(void);
 * @brief   Retrieve the list of the physical ports of the switch
 * @ingroup port_management
 * @param   Number of ports in the array(boundary)
-* @retval  Pointer to the first port in the array of switch_port_t*. 
+* @retval  Pointer to the first port in the array of switch_port_t*. This array cannot
+*          be modified, is READ_ONLY!
 */
 switch_port_t** fwd_module_get_physical_ports(unsigned int* max_ports);
 
@@ -100,7 +101,8 @@ switch_port_t** fwd_module_get_physical_ports(unsigned int* max_ports);
 * @brief   Retrieve the list of virtual ports of the platform
 * @ingroup port_management
 * @param   Number of ports in the array(boundary)
-* @retval  Pointer to the first port in the array of switch_port_t*. 
+* @retval  Pointer to the first port in the array of switch_port_t*. This array cannot
+*          be modified, is READ_ONLY! 
 */
 switch_port_t** fwd_module_get_virtual_ports(unsigned int* max_ports);
 
@@ -109,7 +111,8 @@ switch_port_t** fwd_module_get_virtual_ports(unsigned int* max_ports);
 * @brief   Retrieve the list of tunnel ports of the platform
 * @ingroup port_management
 * @param   Number of ports in the array(boundary)
-* @retval  Pointer to the first port in the array of switch_port_t*. 
+* @retval  Pointer to the first port in the array of switch_port_t*. This array cannot
+*          be modified, is READ_ONLY!
 */
 switch_port_t** fwd_module_get_tunnel_ports(unsigned int* max_ports);
 
