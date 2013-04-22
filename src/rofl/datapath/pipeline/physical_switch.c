@@ -102,18 +102,18 @@ switch_port_t* physical_switch_get_port_by_name(const char *name){
 
 /* FIXME: this is dangerous. Better go for a copy of the ports */
 //Get the reference to the physical ports
-switch_port_t** physical_switch_get_physical_ports(unsigned int* num){
-	*num = PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;
+switch_port_t** physical_switch_get_physical_ports(unsigned int* max_ports){
+	*max_ports = PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;
 	return psw.physical_ports;
 }
 //Get the reference to the virtual ports
-switch_port_t** physical_switch_get_virtual_ports(unsigned int* num){
-	*num = PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS;
+switch_port_t** physical_switch_get_virtual_ports(unsigned int* max_ports){
+	*max_ports = PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS;
 	return psw.virtual_ports;
 }
 //Get the reference to the physical ports
-switch_port_t** physical_switch_get_tunnel_ports(unsigned int* num){
-	*num = PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS;
+switch_port_t** physical_switch_get_tunnel_ports(unsigned int* max_ports){
+	*max_ports = PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS;
 	return psw.tunnel_ports;
 }
 

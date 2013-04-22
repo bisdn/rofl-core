@@ -90,28 +90,28 @@ switch_port_t* fwd_module_list_ports(void);
 * @name    fwd_module_get_physical_ports_ports
 * @brief   Retrieve the list of the physical ports of the switch
 * @ingroup port_management
-* @param   Number of ports in the array
+* @param   Number of ports in the array(boundary)
 * @retval  Pointer to the first port in the array of switch_port_t*. 
 */
-switch_port_t** fwd_module_get_physical_ports(unsigned int* num_of_ports);
+switch_port_t** fwd_module_get_physical_ports(unsigned int* max_ports);
 
 /**
 * @name    fwd_module_get_virtual_ports
 * @brief   Retrieve the list of virtual ports of the platform
 * @ingroup port_management
-* @param   Number of ports in the array
+* @param   Number of ports in the array(boundary)
 * @retval  Pointer to the first port in the array of switch_port_t*. 
 */
-switch_port_t** fwd_module_get_virtual_ports(unsigned int* num_of_ports);
+switch_port_t** fwd_module_get_virtual_ports(unsigned int* max_ports);
 
 /**
 * @name    fwd_module_get_tunnel_ports
 * @brief   Retrieve the list of tunnel ports of the platform
 * @ingroup port_management
-* @param   Number of ports in the array
+* @param   Number of ports in the array(boundary)
 * @retval  Pointer to the first port in the array of switch_port_t*. 
 */
-switch_port_t** fwd_module_get_tunnel_ports(unsigned int* num_of_ports);
+switch_port_t** fwd_module_get_tunnel_ports(unsigned int* max_ports);
 
 
 //Attachment

@@ -247,19 +247,19 @@ switch_port_t* physical_switch_get_port_by_name(const char *name);
 * @brief Get the reference to the physical ports
 * @ingroup  mgmt
 */
-switch_port_t** physical_switch_get_physical_ports(unsigned int* num);
+switch_port_t** physical_switch_get_physical_ports(unsigned int* max_ports);
 
 /**
 * @brief Get the reference to the virtual ports
 * @ingroup  mgmt
 */
-switch_port_t** physical_switch_get_virtual_ports(unsigned int* num);
+switch_port_t** physical_switch_get_virtual_ports(unsigned int* max_ports);
 
 /**
 * @brief Get the reference to the physical ports
 * @ingroup  mgmt
 */
-switch_port_t** physical_switch_get_tunnel_ports(unsigned int* num);
+switch_port_t** physical_switch_get_tunnel_ports(unsigned int* max_ports);
 
 /**
 * @brief Adds a port to the physical_switch pool port
