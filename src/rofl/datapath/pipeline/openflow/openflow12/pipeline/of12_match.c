@@ -690,74 +690,74 @@ inline bool of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* it)
 //Dump packet matches
 void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
 
-	ROFL_PIPELINE_DEBUG("Packet matches [");	
+	ROFL_PIPELINE_DEBUG_NO_PREFIX("Packet matches [");	
 
 	if(!pkt){
-		ROFL_PIPELINE_DEBUG("]. No matches. Probably comming from a PACKET_OUT");	
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("]. No matches. Probably comming from a PACKET_OUT");	
 		return;
 	}
 	
 	//Ports
 	if(pkt->port_in)
-		ROFL_PIPELINE_DEBUG("PORT_IN:%u, ",pkt->port_in);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("PORT_IN:%u, ",pkt->port_in);
 	if(pkt->phy_port_in)
-		ROFL_PIPELINE_DEBUG("PHY_PORT_IN:%u, ",pkt->phy_port_in);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("PHY_PORT_IN:%u, ",pkt->phy_port_in);
 	//TODO:Metadata	
 	//if(pkt->metadata)
-	//	ROFL_PIPELINE_DEBUG("METADATA:%u, ",pkt->metadata);
+	//	ROFL_PIPELINE_DEBUG_NO_PREFIX("METADATA:%u, ",pkt->metadata);
 	//802	
 	if(pkt->eth_src)
-		ROFL_PIPELINE_DEBUG("ETH_SRC:0x%llx, ",(long long unsigned)pkt->eth_src);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ETH_SRC:0x%llx, ",(long long unsigned)pkt->eth_src);
 	if(pkt->eth_dst)
-		ROFL_PIPELINE_DEBUG("ETH_DST:0x%llx, ",(long long unsigned)pkt->eth_dst);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ETH_DST:0x%llx, ",(long long unsigned)pkt->eth_dst);
 	if(pkt->eth_type)
-		ROFL_PIPELINE_DEBUG("ETH_TYPE:0x%x, ",pkt->eth_type);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ETH_TYPE:0x%x, ",pkt->eth_type);
 	//802.1q
 	if(pkt->vlan_vid)
-		ROFL_PIPELINE_DEBUG("VLAN_VID:%u, ",pkt->vlan_vid);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("VLAN_VID:%u, ",pkt->vlan_vid);
 	if(pkt->vlan_pcp)
-		ROFL_PIPELINE_DEBUG("VLAN_PCP:%u, ",pkt->vlan_pcp);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("VLAN_PCP:%u, ",pkt->vlan_pcp);
 	//IP/IPv4
 	if(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 )
-		ROFL_PIPELINE_DEBUG("IP_PROTO:%u, ",pkt->ip_proto);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IP_PROTO:%u, ",pkt->ip_proto);
 
 	if(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 )
-		ROFL_PIPELINE_DEBUG("IP_ECN:0x%x, ",pkt->ip_ecn);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IP_ECN:0x%x, ",pkt->ip_ecn);
 	
 	if(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 )
-		ROFL_PIPELINE_DEBUG("IP_DSCP:0x%x, ",pkt->ip_dscp);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IP_DSCP:0x%x, ",pkt->ip_dscp);
 	
 	if(pkt->ipv4_src)
-		ROFL_PIPELINE_DEBUG("IPV4_SRC:0x%x, ",pkt->ipv4_src);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV4_SRC:0x%x, ",pkt->ipv4_src);
 	if(pkt->ipv4_dst)
-		ROFL_PIPELINE_DEBUG("IPV4_DST:0x%x, ",pkt->ipv4_dst);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV4_DST:0x%x, ",pkt->ipv4_dst);
 	//TCP
 	if(pkt->tcp_src)
-		ROFL_PIPELINE_DEBUG("TCP_SRC:%u, ",pkt->tcp_src);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("TCP_SRC:%u, ",pkt->tcp_src);
 	if(pkt->tcp_dst)
-		ROFL_PIPELINE_DEBUG("TCP_DST:%u, ",pkt->tcp_dst);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("TCP_DST:%u, ",pkt->tcp_dst);
 	//UDP
 	if(pkt->udp_src)
-		ROFL_PIPELINE_DEBUG("UDP_SRC:%u, ",pkt->udp_src);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("UDP_SRC:%u, ",pkt->udp_src);
 	if(pkt->udp_dst)
-		ROFL_PIPELINE_DEBUG("UDP_DST:%u, ",pkt->udp_dst);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("UDP_DST:%u, ",pkt->udp_dst);
 	//ICMPV4
 	if(pkt->ip_proto == OF12_IP_PROTO_ICMPV4)
-		ROFL_PIPELINE_DEBUG("ICMPV4_TYPE:%u, ICMPV4_CODE:%u, ",pkt->icmpv4_type,pkt->icmpv4_code);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ICMPV4_TYPE:%u, ICMPV4_CODE:%u, ",pkt->icmpv4_type,pkt->icmpv4_code);
 	//MPLS	
    	if(pkt->eth_type == OF12_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF12_ETH_TYPE_MPLS_MULTICAST )
-		ROFL_PIPELINE_DEBUG("MPLS_LABEL:0x%x, MPLS_TC:0x%x, ",pkt->mpls_label, pkt->mpls_tc);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("MPLS_LABEL:0x%x, MPLS_TC:0x%x, ",pkt->mpls_label, pkt->mpls_tc);
 	//PPPoE
 	if(pkt->eth_type == OF12_ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION ){
-		ROFL_PIPELINE_DEBUG("PPPOE_CODE:0x%x, PPPOE_TYPE:0x%x, PPPOE_SID:0x%x, ",pkt->pppoe_code, pkt->pppoe_type,pkt->pppoe_sid);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("PPPOE_CODE:0x%x, PPPOE_TYPE:0x%x, PPPOE_SID:0x%x, ",pkt->pppoe_code, pkt->pppoe_type,pkt->pppoe_sid);
 		//PPP
 		if(pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION)
-			ROFL_PIPELINE_DEBUG("PPP_PROTO:0x%x, ",pkt->ppp_proto);
+			ROFL_PIPELINE_DEBUG_NO_PREFIX("PPP_PROTO:0x%x, ",pkt->ppp_proto);
 				
 	}
 		 
 
-	ROFL_PIPELINE_DEBUG("]");	
+	ROFL_PIPELINE_DEBUG_NO_PREFIX("]");	
 	//Add more here...	
 }
 
@@ -766,70 +766,70 @@ void of12_dump_matches(of12_match_t* matches){
 	of12_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){
-			case OF12_MATCH_IN_PORT: ROFL_PIPELINE_DEBUG("[PORT_IN:%u], ",((utern32_t*)it->value)->value); 
+			case OF12_MATCH_IN_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PORT_IN:%u], ",((utern32_t*)it->value)->value); 
 				break;
-			case OF12_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG("[PHY_PORT_IN:%u], ",((utern32_t*)it->value)->value);
+			case OF12_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PHY_PORT_IN:%u], ",((utern32_t*)it->value)->value);
 				break; 
 
 			case OF12_MATCH_METADATA: //TODO FIXME
 						break;
 
-			case OF12_MATCH_ETH_DST: ROFL_PIPELINE_DEBUG("[ETH_DST:0x%llx|0x%llx],  ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
+			case OF12_MATCH_ETH_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_DST:0x%llx|0x%llx],  ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
 				break; 
-			case OF12_MATCH_ETH_SRC:  ROFL_PIPELINE_DEBUG("[ETH_SRC:0x%llx|0x%llx], ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
+			case OF12_MATCH_ETH_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_SRC:0x%llx|0x%llx], ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
 				break; 
-			case OF12_MATCH_ETH_TYPE:  ROFL_PIPELINE_DEBUG("[ETH_TYPE:0x%x], ",((utern16_t*)it->value)->value);
-				break; 
-
-			case OF12_MATCH_VLAN_VID:  ROFL_PIPELINE_DEBUG("[VLAN_ID:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
-				break; 
-			case OF12_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG("[VLAN_PCP:%u], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_ETH_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_TYPE:0x%x], ",((utern16_t*)it->value)->value);
 				break; 
 
-			case OF12_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG("[MPLS_LABEL:%u], ",((utern32_t*)it->value)->value);
+			case OF12_MATCH_VLAN_VID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_ID:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
-			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG("[MPLS_TC:0x%x], ",((utern8_t*)it->value)->value);
-				break; 
-
-			case OF12_MATCH_IP_PROTO:  ROFL_PIPELINE_DEBUG("[IP_PROTO:%u], ",((utern8_t*)it->value)->value);
-				break; 
-			case OF12_MATCH_IP_ECN:  ROFL_PIPELINE_DEBUG("[IP_ECN:0x%x], ",((utern8_t*)it->value)->value);
-				break; 
-			case OF12_MATCH_IP_DSCP:  ROFL_PIPELINE_DEBUG("[IP_DSCP:0x%x], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u], ",((utern8_t*)it->value)->value);
 				break; 
 
-			case OF12_MATCH_IPV4_SRC:  ROFL_PIPELINE_DEBUG("[IP4_SRC:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+			case OF12_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:%u], ",((utern32_t*)it->value)->value);
 				break; 
-			case OF12_MATCH_IPV4_DST:  ROFL_PIPELINE_DEBUG("[IP4_DST:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
-				break; 
-
-			case OF12_MATCH_TCP_SRC:  ROFL_PIPELINE_DEBUG("[TCP_SRC:%u], ",((utern16_t*)it->value)->value);
-				break; 
-			case OF12_MATCH_TCP_DST:  ROFL_PIPELINE_DEBUG("[TCP_DST:%u], ",((utern16_t*)it->value)->value);
+			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:0x%x], ",((utern8_t*)it->value)->value);
 				break; 
 
-			case OF12_MATCH_UDP_SRC:  ROFL_PIPELINE_DEBUG("[UDP_SRC:%u], ",((utern16_t*)it->value)->value);
+			case OF12_MATCH_IP_PROTO:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_PROTO:%u], ",((utern8_t*)it->value)->value);
 				break; 
-			case OF12_MATCH_UDP_DST:  ROFL_PIPELINE_DEBUG("[UDP_DST:%u], ",((utern16_t*)it->value)->value);
+			case OF12_MATCH_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_ECN:0x%x], ",((utern8_t*)it->value)->value);
+				break; 
+			case OF12_MATCH_IP_DSCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_DSCP:0x%x], ",((utern8_t*)it->value)->value);
 				break; 
 
-			case OF12_MATCH_ICMPV4_TYPE:  ROFL_PIPELINE_DEBUG("[ICMPV4_TYPE:%u], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_IPV4_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP4_SRC:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
 				break; 
-			case OF12_MATCH_ICMPV4_CODE:  ROFL_PIPELINE_DEBUG("[ICMPV4_CODE:%u], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_IPV4_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP4_DST:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+				break; 
+
+			case OF12_MATCH_TCP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_SRC:%u], ",((utern16_t*)it->value)->value);
+				break; 
+			case OF12_MATCH_TCP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_DST:%u], ",((utern16_t*)it->value)->value);
+				break; 
+
+			case OF12_MATCH_UDP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_SRC:%u], ",((utern16_t*)it->value)->value);
+				break; 
+			case OF12_MATCH_UDP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_DST:%u], ",((utern16_t*)it->value)->value);
+				break; 
+
+			case OF12_MATCH_ICMPV4_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_TYPE:%u], ",((utern8_t*)it->value)->value);
+				break; 
+			case OF12_MATCH_ICMPV4_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_CODE:%u], ",((utern8_t*)it->value)->value);
 				break; 
 			
 			/* PPP/PPPoE related extensions */
-			case OF12_MATCH_PPPOE_CODE:  ROFL_PIPELINE_DEBUG("[PPPOE_CODE:%u], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_PPPOE_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_CODE:%u], ",((utern8_t*)it->value)->value);
 				break; 
-			case OF12_MATCH_PPPOE_TYPE:  ROFL_PIPELINE_DEBUG("[PPPOE_TYPE:%u], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_PPPOE_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_TYPE:%u], ",((utern8_t*)it->value)->value);
 				break; 
-			case OF12_MATCH_PPPOE_SID:  ROFL_PIPELINE_DEBUG("[PPPOE_SID:%u], ",((utern16_t*)it->value)->value);
+			case OF12_MATCH_PPPOE_SID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_SID:%u], ",((utern16_t*)it->value)->value);
 				break; 
-			case OF12_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG("[PPP_PROT:%u] ",((utern16_t*)it->value)->value);
+			case OF12_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPP_PROT:%u] ",((utern16_t*)it->value)->value);
 				break; 
 			/* Add more here ...*/
 			default:
-				ROFL_PIPELINE_DEBUG("[UNKOWN!],");
+				ROFL_PIPELINE_DEBUG_NO_PREFIX("[UNKOWN!],");
 				//Should NEVER reach this point
 				
 		}
@@ -841,72 +841,72 @@ void of12_full_dump_matches(of12_match_t* matches){
 	of12_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){
-			case OF12_MATCH_IN_PORT: ROFL_PIPELINE_DEBUG("[PORT_IN:%u|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask); 
+			case OF12_MATCH_IN_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PORT_IN:%u|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask); 
 				break;
-			case OF12_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG("[PHY_PORT_IN:%u|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+			case OF12_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PHY_PORT_IN:%u|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
 				break; 
 
 			case OF12_MATCH_METADATA: //TODO FIXME
 						break;
 
-			case OF12_MATCH_ETH_DST: ROFL_PIPELINE_DEBUG("[ETH_DST:0x%llx|0x%llx],  ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
+			case OF12_MATCH_ETH_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_DST:0x%llx|0x%llx],  ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
 				break; 
-			case OF12_MATCH_ETH_SRC:  ROFL_PIPELINE_DEBUG("[ETH_SRC:0x%llx|0x%llx], ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
+			case OF12_MATCH_ETH_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_SRC:0x%llx|0x%llx], ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
 				break; 
-			case OF12_MATCH_ETH_TYPE:  ROFL_PIPELINE_DEBUG("[ETH_TYPE:0x%x|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
-				break; 
-
-			case OF12_MATCH_VLAN_VID:  ROFL_PIPELINE_DEBUG("[VLAN_ID:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
-				break; 
-			case OF12_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG("[VLAN_PCP:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+			case OF12_MATCH_ETH_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_TYPE:0x%x|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
 
-			case OF12_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG("[MPLS_LABEL:%u|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+			case OF12_MATCH_VLAN_VID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_ID:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
-			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG("[MPLS_TC:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
-				break; 
-
-			case OF12_MATCH_IP_ECN:  ROFL_PIPELINE_DEBUG("[IP_ECN:0x%x|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
-				break; 
-			case OF12_MATCH_IP_DSCP:  ROFL_PIPELINE_DEBUG("[IP_DSCP:0x%x|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
-				break; 
-			case OF12_MATCH_IP_PROTO:  ROFL_PIPELINE_DEBUG("[IP_PROTO:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+			case OF12_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
 				break; 
 
-			case OF12_MATCH_IPV4_SRC:  ROFL_PIPELINE_DEBUG("[IP4_SRC:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+			case OF12_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:%u|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
 				break; 
-			case OF12_MATCH_IPV4_DST:  ROFL_PIPELINE_DEBUG("[IP4_DST:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
-				break; 
-
-			case OF12_MATCH_TCP_SRC:  ROFL_PIPELINE_DEBUG("[TCP_SRC:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
-				break; 
-			case OF12_MATCH_TCP_DST:  ROFL_PIPELINE_DEBUG("[TCP_DST:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
 				break; 
 
-			case OF12_MATCH_UDP_SRC:  ROFL_PIPELINE_DEBUG("[UDP_SRC:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+			case OF12_MATCH_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_ECN:0x%x|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
 				break; 
-			case OF12_MATCH_UDP_DST:  ROFL_PIPELINE_DEBUG("[UDP_DST:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+			case OF12_MATCH_IP_DSCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_DSCP:0x%x|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+				break; 
+			case OF12_MATCH_IP_PROTO:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_PROTO:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
 				break; 
 
-			case OF12_MATCH_ICMPV4_TYPE:  ROFL_PIPELINE_DEBUG("[ICMPV4_TYPE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+			case OF12_MATCH_IPV4_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP4_SRC:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
 				break; 
-			case OF12_MATCH_ICMPV4_CODE:  ROFL_PIPELINE_DEBUG("[ICMPV4_CODE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+			case OF12_MATCH_IPV4_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP4_DST:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+				break; 
+
+			case OF12_MATCH_TCP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_SRC:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+				break; 
+			case OF12_MATCH_TCP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_DST:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+				break; 
+
+			case OF12_MATCH_UDP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_SRC:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+				break; 
+			case OF12_MATCH_UDP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_DST:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+				break; 
+
+			case OF12_MATCH_ICMPV4_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_TYPE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+				break; 
+			case OF12_MATCH_ICMPV4_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_CODE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
 				break; 
 			
 			/* PPP/PPPoE related extensions */
-			case OF12_MATCH_PPPOE_CODE:  ROFL_PIPELINE_DEBUG("[PPPOE_CODE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+			case OF12_MATCH_PPPOE_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_CODE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
 				break; 
-			case OF12_MATCH_PPPOE_TYPE:  ROFL_PIPELINE_DEBUG("[PPPOE_TYPE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+			case OF12_MATCH_PPPOE_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_TYPE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
 				break; 
-			case OF12_MATCH_PPPOE_SID:  ROFL_PIPELINE_DEBUG("[PPPOE_SID:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+			case OF12_MATCH_PPPOE_SID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_SID:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
 
-			case OF12_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG("[PPP_PROT:%u|0x%x] ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+			case OF12_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPP_PROT:%u|0x%x] ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
 
 			/* Add more here ...*/
 			default:
-				ROFL_PIPELINE_DEBUG("[UNKOWN!],");
+				ROFL_PIPELINE_DEBUG_NO_PREFIX("[UNKOWN!],");
 				//Should NEVER reach this point
 				
 		}

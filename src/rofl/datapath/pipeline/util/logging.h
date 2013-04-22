@@ -61,6 +61,14 @@ extern int (*rofl_pipeline_debug_print)(FILE *stream, const char *format, ...);
 		}\
 	    }while(0)
 
+	#define ROFL_PIPELINE_DEBUG_PRINT_NO_PREFIX(fd, cn, level, stuff, ...)  \
+	    do{\
+		if (ROFL_PIPELINE_DEBUG_CHECK(cn, level) && *rofl_pipeline_debug_print != NULL){ \
+			rofl_pipeline_debug_print(fd,stuff, ##__VA_ARGS__);\
+		}\
+	    }while(0)
+
+
 	#define ROFL_PIPELINE_WARN(stuff,...) \
 		ROFL_PIPELINE_DEBUG_PRINT(stderr, DEFAULT, WARN, stuff, ##__VA_ARGS__)
 
@@ -70,8 +78,14 @@ extern int (*rofl_pipeline_debug_print)(FILE *stream, const char *format, ...);
 	#define ROFL_PIPELINE_INFO(stuff,...) \
 		ROFL_PIPELINE_DEBUG_PRINT(stderr, DEFAULT, INFO, stuff, ##__VA_ARGS__)
 
+	#define ROFL_PIPELINE_INFO_NO_PREFIX(stuff,...) \
+		ROFL_PIPELINE_DEBUG_PRINT_NO_PREFIX(stderr, DEFAULT, INFO, stuff, ##__VA_ARGS__)
+
 	#define ROFL_PIPELINE_DEBUG(stuff, ...)        \
 		ROFL_PIPELINE_DEBUG_PRINT(stderr, DEFAULT, DBG, stuff, ##__VA_ARGS__)
+
+	#define ROFL_PIPELINE_DEBUG_NO_PREFIX(stuff, ...)        \
+		ROFL_PIPELINE_DEBUG_PRINT_NO_PREFIX(stderr, DEFAULT, DBG, stuff, ##__VA_ARGS__)
 #else
 	//No logging
 	#define ROFL_PIPELINE_DEBUG_CHECK(stuff, ...) do{}while(0)
@@ -79,7 +93,9 @@ extern int (*rofl_pipeline_debug_print)(FILE *stream, const char *format, ...);
 	#define ROFL_PIPELINE_WARN(stuff, ...) do{}while(0)
 	#define ROFL_PIPELINE_ERR(stuff, ...) do{}while(0)
 	#define ROFL_PIPELINE_INFO(stuff,...) do{}while(0)
+	#define ROFL_PIPELINE_INFO_NO_PREFIX(stuff,...) do{}while(0)
 	#define ROFL_PIPELINE_DEBUG(stuff, ...) do{}while(0)
+	#define ROFL_PIPELINE_DEBUG_NO_PREFIX(stuff, ...) do{}while(0)
 #endif //ROFL_PIPELINE_NO_LOGGING
 
 //C++ extern C

@@ -288,13 +288,13 @@ bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_ent
 }
 
 void of12_dump_flow_entry(of12_flow_entry_t* entry){
-	ROFL_PIPELINE_INFO("Entry (%p), #hits %u prior. %u",entry,entry->num_of_matches, entry->priority);
+	ROFL_PIPELINE_INFO_NO_PREFIX("Entry (%p), #hits %u prior. %u",entry,entry->num_of_matches, entry->priority);
 	//print matches(all)
-	ROFL_PIPELINE_INFO(" Matches:{");
+	ROFL_PIPELINE_INFO_NO_PREFIX(" Matches:{");
 	of12_dump_matches(entry->matchs);
-	ROFL_PIPELINE_INFO("}\n\t\t");
+	ROFL_PIPELINE_INFO_NO_PREFIX("}\n\t\t");
 	of12_dump_instructions(entry->inst_grp);
-	ROFL_PIPELINE_INFO("\n");
+	ROFL_PIPELINE_INFO_NO_PREFIX("\n");
 }
 
 /**
