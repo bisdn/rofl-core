@@ -170,11 +170,12 @@ typedef struct physical_switch{
 //C++ extern C
 ROFL_BEGIN_DECLS
 
-/*
-*
-* Physical switch and logical switch management
-*
-*/
+
+//
+//
+// Physical switch mgmt
+//
+//
 
 /**
 * @brief    Initializes the physical switch. This call must be done before anyone else. 
@@ -190,6 +191,21 @@ void physical_switch_init(void);
 * or any port switch previously placed in the physical switch port list.
 */
 void physical_switch_destroy(void);
+
+
+//
+//
+// Logical switch management
+//
+//
+
+/**
+* @brief    Retrieves the list of logical switches within the logical switch 
+* @ingroup  mgmt
+*
+* @param max_switches Number of maximum switches in the array (array boundary)
+*/
+of_switch_t** physical_switch_get_logical_switches(unsigned int* max_switches);
 
 /**
 * @brief    Add a logical switch to the pool. 
@@ -229,11 +245,11 @@ of_switch_t* physical_switch_get_logical_switch_by_dpid(const uint64_t dpid);
 of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_port_t port);
 
 
-/*
-*
-* Port management routines
-*
-*/
+//
+//
+// Port management routines
+//
+//
 
 /**
 * @brief Retrieve a physical switch port by name.
@@ -246,18 +262,24 @@ switch_port_t* physical_switch_get_port_by_name(const char *name);
 /**
 * @brief Get the reference to the physical ports
 * @ingroup  mgmt
+*
+* @param max_ports Number of maximum ports in the array (array boundary)
 */
 switch_port_t** physical_switch_get_physical_ports(unsigned int* max_ports);
 
 /**
 * @brief Get the reference to the virtual ports
 * @ingroup  mgmt
+*
+* @param max_ports Number of maximum ports in the array (array boundary)
 */
 switch_port_t** physical_switch_get_virtual_ports(unsigned int* max_ports);
 
 /**
 * @brief Get the reference to the physical ports
 * @ingroup  mgmt
+*
+* @param max_ports Number of maximum ports in the array (array boundary)
 */
 switch_port_t** physical_switch_get_tunnel_ports(unsigned int* max_ports);
 
@@ -287,11 +309,11 @@ rofl_result_t physical_switch_remove_port(const char* name);
 
 
 
-/*
-*
-* Logical switch port management
-*
-*/
+//
+//
+// Logical switches port management
+//
+//
 
 /**
 * @brief Retrieve a port attached to logical switch with dpid at port num.
@@ -305,7 +327,6 @@ rofl_result_t physical_switch_remove_port(const char* name);
 *
 */
 switch_port_t* physical_switch_get_port_by_num(const uint64_t dpid, unsigned int port_num);
-
 
 
 /**
@@ -355,6 +376,8 @@ rofl_result_t physical_switch_detach_port_from_logical_switch(switch_port_t* por
 * @ingroup  mgmt
 */
 rofl_result_t physical_switch_detach_all_ports_from_logical_switch(of_switch_t* sw);
+
+
 
 //C++ extern C
 ROFL_END_DECLS

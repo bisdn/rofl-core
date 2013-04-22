@@ -9,6 +9,10 @@ static physical_switch_t psw;
 #define META_PORT_FLOOD_INDEX 0
 switch_port_t* flood_meta_port = &psw.meta_ports[META_PORT_FLOOD_INDEX];
 
+//
+// Physical switch mgmt
+//
+
 //init&destroy
 void physical_switch_init(){
 
@@ -62,15 +66,11 @@ void physical_switch_destroy(){
 	platform_mutex_destroy(psw.mutex);
 }
 
-/*
-*
-* Physical switch port list
-*
-*/
+//
+// Port management routines
+//
 
-/*
- * Get the port by its name
- */
+//Get the port by its name
 switch_port_t* physical_switch_get_port_by_name(const char *name){
 
 	unsigned int i;
@@ -258,11 +258,20 @@ rofl_result_t physical_switch_remove_port(const char* name){
 
 
 
+//
+// Logical switch management
+//
+
 /*
-*
-* Logical switch port management
-*
+* Retrieves the list of logical switches within the logical switch 
 */
+of_switch_t** physical_switch_get_logical_switches(unsigned int* max_switches){
+
+	*max_switches = PHYSICAL_SWITCH_MAX_LS;
+	
+	return psw.logical_switches; 	
+}
+
 
 //Get logical switch
 of_switch_t* physical_switch_get_logical_switch_by_dpid(const uint64_t dpid){
@@ -348,6 +357,11 @@ rofl_result_t physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid)
 rofl_result_t physical_switch_remove_logical_switch(of_switch_t* sw){
 	return physical_switch_remove_logical_switch_by_dpid(sw->dpid);
 }
+
+//
+// Logical switches port management
+//
+
 
 //Getters
 of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_port_t port){
