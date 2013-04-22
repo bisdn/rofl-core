@@ -61,14 +61,11 @@
 * 
 * //Here the user MUST fill in the available ports
 * //E.g. interfaces
-* physical_switch_t* psw = get_physical_switch();
 *
 * for i in num of interfaces:
-*    switch_port_t* port = switch_port_init();
-*    //Fill in port struct...(e.g. port name, speed..)
-*    port->name = "eth0";
-*     psw->physical_ports[i] = port;
-*
+*    switch_port_t* port = switch_port_init("eth0", true, PORT_TYPE_PHYSICAL, LOGICAL_PORT_STATE_FREE);
+*    //Add it to the physical switch
+*    physical_switch_add_port(port);
 *
 * //Now we create one or more Logical switch instances
 * dpid = 0x100;
@@ -173,21 +170,17 @@ typedef struct physical_switch{
 //C++ extern C
 ROFL_BEGIN_DECLS
 
-//
-// Physical switch and logical switch management
-//
+/*
+*
+* Physical switch and logical switch management
+*
+*/
 
 /**
 * @brief    Initializes the physical switch. This call must be done before anyone else. 
 * @ingroup  mgmt
 */
 void physical_switch_init(void);
-
-/**
-* @brief    Returns a pointer to the physical switch. This seldomly needs to be used. 
-* @ingroup  mgmt
-*/
-physical_switch_t* get_physical_switch(void);
 
 /**
 * @brief    Destroys the physical switch state. 
@@ -236,18 +229,74 @@ of_switch_t* physical_switch_get_logical_switch_by_dpid(const uint64_t dpid);
 of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_port_t port);
 
 
-//
-// Port management routines
-//
+/*
+*
+* Port management routines
+*
+*/
 
 /**
 * @brief Retrieve a physical switch port by name.
 * @ingroup  mgmt
 * 
-* Attempts to retrieve a port previously added to the phyisical switch by its name.
-* The current call ONLY looks up in the physical ports
+* Attempts to retrieve a port previously added to the physical switch by its name.
 */
 switch_port_t* physical_switch_get_port_by_name(const char *name);
+
+
+/**
+* @brief Adds a port to the physical_switch pool port
+* @ingroup  mgmt
+* 
+* Attempts to add a port to the physical switch pool port
+*
+* @param port	switch_port_t instance previously created via switch_port_init(). The name
+* 		of the port MUST be unique. On success the instance of switch_port_t cannot
+*		be further modified or deleted externally (port will be destroyed by the 
+*		physical_switch itself)
+*/
+rofl_result_t physical_switch_add_port(switch_port_t* port);
+
+/**
+* @brief Removes and destroys a port from the physical_switch pool referenced by its name
+* @ingroup  mgmt
+* 
+* Attempts to remove AND destroy a port referenced by name. If multiple ports have the same
+* name, only the first one will be deleted. 
+*
+* @param name	Port name
+*/
+rofl_result_t physical_switch_remove_port(const char* name);
+
+
+
+/*
+*
+* Physical switch port list
+*
+*/
+
+//FIXME this should not be done this way. This should be exporting a copy of the array.
+/**
+* @brief Retrieve the physical port list.
+* @ingroup  mgmt
+* @param ports  Pointer to the first switch_port_t. The boundaries of the array is num_of_ports.
+* 		The ports CANNOT be modified oustide the library (READ only) 
+* @param num_of_ports  Pointer to an int. Number of ports (array) will be filled by the lib.
+*/
+void physical_switch_get_physical_ports(switch_port_t* ports, unsigned int* num_of_ports);
+/*
+TODO: add create virtual link and add/remove tunnel.
+//void physical_switch_get_virtual_ports(switch_port_t* ports, unsigned int* num_of_ports);
+//void physical_switch_get_tunnel_ports(switch_port_t* ports, unsigned int* num_of_ports);
+*/
+
+
+/*
+*
+* Logical switch port management
+*
+*/
 
 /**
 * @brief Retrieve a port attached to logical switch with dpid at port num.
@@ -263,20 +312,7 @@ switch_port_t* physical_switch_get_port_by_name(const char *name);
 switch_port_t* physical_switch_get_port_by_num(const uint64_t dpid, unsigned int port_num);
 
 
-//Physical switch list
-/**
-* @brief Retrieve the physical port list.
-* @ingroup  mgmt
-* @param num_of_ports    Pointer to an int. Number of ports will be filled by the lib.
-*/
-void physical_switch_get_physical_ports(switch_port_t* ports, unsigned int* num_of_ports);
-/*
-TODO: add create virtual link and add/remove tunnel.
-//void physical_switch_get_virtual_ports(switch_port_t* ports, unsigned int* num_of_ports);
-//void physical_switch_get_tunnel_ports(switch_port_t* ports, unsigned int* num_of_ports);
-*/
 
-//Logical switch port management
 /**
 * @brief Retrieve the physical port list.
 * @ingroup  mgmt

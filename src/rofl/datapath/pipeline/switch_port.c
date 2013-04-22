@@ -4,7 +4,7 @@
 #include "platform/memory.h"
 
 
-/**
+/*
 * Inits a port structure including statistics 
 */
 switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_state_t state){
@@ -127,7 +127,7 @@ rofl_result_t switch_port_remove_queue(switch_port_t* port, uint32_t id){
 
 
 
-/**
+/*
 * Increments atomically all the statistics of the port. Fill in with 0 the ones that should
 * be left untouched.
 */
