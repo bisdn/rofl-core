@@ -149,10 +149,10 @@ typedef struct physical_switch{
     switch_port_t* physical_ports[PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS];
 
     //tunnel ports
-    switch_port_t* tunnel_ports[PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS]; //Not used yet
+    switch_port_t* tunnel_ports[PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS]; //Not used yet
 
     //virtual ports (which are not tunnel)
-    switch_port_t* virtual_ports[PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS]; //Not used yet
+    switch_port_t* virtual_ports[PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS]; //Not used yet
 
     //meta ports (esoteric ports). This is NOT an array of pointers!
     switch_port_t meta_ports[PHYSICAL_SWITCH_MAX_NUM_META_PORTS]; 
