@@ -216,7 +216,8 @@ rofl_result_t physical_switch_remove_port(const char* name){
 
 	//Looking in the physical ports list 
 	for(i=0;i<PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;i++){
-		if( strncmp(psw.physical_ports[i]->name, name, SWITCH_PORT_MAX_LEN_NAME) == 0 ){
+		
+		if(  psw.physical_ports[i] != NULL && strncmp(psw.physical_ports[i]->name, name, SWITCH_PORT_MAX_LEN_NAME) == 0 ){
 			port = psw.physical_ports[i]; 
 			psw.physical_ports[i] = NULL;
 			platform_mutex_unlock(psw.mutex);
@@ -227,7 +228,7 @@ rofl_result_t physical_switch_remove_port(const char* name){
 	
 	//Looking in the virtual ports list 
 	for(i=0;i<PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS;i++){
-		if( strncmp(psw.virtual_ports[i]->name, name, SWITCH_PORT_MAX_LEN_NAME) == 0 ){
+		if(  psw.virtual_ports[i] != NULL && strncmp(psw.virtual_ports[i]->name, name, SWITCH_PORT_MAX_LEN_NAME) == 0 ){
 			port = psw.virtual_ports[i]; 
 			psw.virtual_ports[i] = NULL;
 			platform_mutex_unlock(psw.mutex);
@@ -238,7 +239,7 @@ rofl_result_t physical_switch_remove_port(const char* name){
 
 	//Looking in the tunnel ports list 
 	for(i=0;i<PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS;i++){
-		if( strncmp(psw.tunnel_ports[i]->name, name, SWITCH_PORT_MAX_LEN_NAME) == 0 ){
+		if(  psw.tunnel_ports[i] != NULL && strncmp(psw.tunnel_ports[i]->name, name, SWITCH_PORT_MAX_LEN_NAME) == 0 ){
 			port = psw.tunnel_ports[i]; 
 			psw.tunnel_ports[i] = NULL;
 			platform_mutex_unlock(psw.mutex);
