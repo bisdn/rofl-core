@@ -89,23 +89,23 @@ typedef struct of12_group_table{
 }of12_group_table_t;
 
 typedef enum{
-	OF12_GROUP_MOD_ERR_OK 			= 0,	/* No error  */
-	OF12_GROUP_MOD_ERR_EXISTS 		= 1,   	/* Group already exists */
-	OF12_GROUP_MOD_ERR_INVAL	 	= 2, 	/* Invalid group -wrong properties- */
-	OF12_GROUP_MOD_ERR_WEIGHT	 	= 3,	/* Weights not supported */
-	OF12_GROUP_MOD_ERR_OGRUPS 		= 4,	/* Out of groups  */
-	OF12_GROUP_MOD_ERR_OBUCKETS 	= 5,   	/* Out of buckets */
-	OF12_GROUP_MOD_ERR_CHAIN	 	= 6, 	/* Chaining not supported */
-	OF12_GROUP_MOD_ERR_WATCH	 	= 7,	/* Watch not supported */
-	OF12_GROUP_MOD_ERR_LOOP			= 8,	/* Loop in group  */
-	OF12_GROUP_MOD_ERR_UNKGRP 		= 9,   	/* Unkown group */
-	OF12_GROUP_MOD_ERR_CHNGRP	 	= 10, 	/* Chained group */
-	OF12_GROUP_MOD_ERR_BTYPE	 	= 11,	/* Bad type */
-	OF12_GROUP_MOD_ERR_BCOMMAND		= 12,	/* Bad command  */
-	OF12_GROUP_MOD_ERR_BBUCKET 		= 13,  	/* Bad bucket */
-	OF12_GROUP_MOD_ERR_BWATCH	 	= 14, 	/* Bad watch */
-	OF12_GROUP_MOD_ERR_EPERM	 	= 15,	/* Permissions error */
-}of12_group_mod_err_t;
+	ROFL_OF12_GM_OK 			= 0,	/* No error  */
+	ROFL_OF12_GM_EXISTS 		= 1,   	/* Group already exists */
+	ROFL_OF12_GM_INVAL	 	= 2, 	/* Invalid group -wrong properties- */
+	ROFL_OF12_GM_WEIGHT	 	= 3,	/* Weights not supported */
+	ROFL_OF12_GM_OGRUPS 		= 4,	/* Out of groups  */
+	ROFL_OF12_GM_OBUCKETS 	= 5,   	/* Out of buckets */
+	ROFL_OF12_GM_CHAIN	 	= 6, 	/* Chaining not supported */
+	ROFL_OF12_GM_WATCH	 	= 7,	/* Watch not supported */
+	ROFL_OF12_GM_LOOP			= 8,	/* Loop in group  */
+	ROFL_OF12_GM_UNKGRP 		= 9,   	/* Unkown group */
+	ROFL_OF12_GM_CHNGRP	 	= 10, 	/* Chained group */
+	ROFL_OF12_GM_BTYPE	 	= 11,	/* Bad type */
+	ROFL_OF12_GM_BCOMMAND		= 12,	/* Bad command  */
+	ROFL_OF12_GM_BBUCKET 		= 13,  	/* Bad bucket */
+	ROFL_OF12_GM_BWATCH	 	= 14, 	/* Bad watch */
+	ROFL_OF12_GM_EPERM	 	= 15,	/* Permissions error */
+}rofl_of12_gm_result_t;
 
 //fwd decls
 struct of12_pipeline;
@@ -116,10 +116,10 @@ ROFL_BEGIN_DECLS
 //function declarations
 of12_group_table_t* of12_init_group_table(void);
 void of12_destroy_group_table(of12_group_table_t* gt);
-of12_group_mod_err_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
-of12_group_mod_err_t of12_group_delete( struct of12_pipeline *pipeline, of12_group_table_t *gt, uint32_t id);
+rofl_of12_gm_result_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
+rofl_of12_gm_result_t of12_group_delete( struct of12_pipeline *pipeline, of12_group_table_t *gt, uint32_t id);
 of12_group_t *of12_group_search(of12_group_table_t *gt, uint32_t id);
-of12_group_mod_err_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
+rofl_of12_gm_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
 of12_bucket_list_t *of12_init_bucket_list(void);
 of12_bucket_t *of12_init_bucket(uint16_t weight, uint32_t port, uint32_t group, of12_action_group_t* actions);
 rofl_result_t of12_insert_bucket_in_list(of12_bucket_list_t *bu_list,of12_bucket_t *bucket);

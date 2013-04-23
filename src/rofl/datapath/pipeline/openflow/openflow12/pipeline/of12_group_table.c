@@ -16,7 +16,7 @@
 
 static void of12_destroy_bucket_list(of12_group_t *ge);
 static void of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge);
-static of12_group_mod_err_t of12_validate_group(of12_action_group_t* actions);
+static rofl_of12_gm_result_t of12_validate_group(of12_action_group_t* actions);
 bool of12_bucket_list_has_weights(of12_bucket_list_t *bl);
 
 of12_group_table_t* of12_init_group_table(){
@@ -69,49 +69,49 @@ of12_group_t *of12_group_search(of12_group_table_t *gt, uint32_t id){
 	return NULL;
 }
 
-of12_group_mod_err_t of12_check_group_parameters(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
+rofl_of12_gm_result_t of12_check_group_parameters(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
 	of12_bucket_t* bu_it;
-	of12_group_mod_err_t ret_val;
+	rofl_of12_gm_result_t ret_val;
 	//TODO check type
     
 	if(id == OF12_GROUP_ALL || id == OF12_GROUP_ANY || id > OF12_GROUP_MAX)
-		return OF12_GROUP_MOD_ERR_INVAL;
+		return ROFL_OF12_GM_INVAL;
     
 	//validate action set
 	for(bu_it=buckets->head;bu_it!=NULL;bu_it=bu_it->next){
-		if((ret_val=of12_validate_group(bu_it->actions))!=OF12_GROUP_MOD_ERR_OK)
+		if((ret_val=of12_validate_group(bu_it->actions))!=ROFL_OF12_GM_OK)
 			return ret_val;
 	}
 	
 	//FIXME group types not ssupported
 	if (type == OF12_GROUP_TYPE_SELECT || type == OF12_GROUP_TYPE_FF){
 		fprintf(stderr,"<%s:%d> GROUP TYPE NOT IMPLEMENTED\n",__func__,__LINE__);
-		return OF12_GROUP_MOD_ERR_INVAL;
+		return ROFL_OF12_GM_INVAL;
 	}
 	
 	
 	if(type == OF12_GROUP_TYPE_INDIRECT && buckets->num_of_buckets>1)
-		return OF12_GROUP_MOD_ERR_INVAL;
+		return ROFL_OF12_GM_INVAL;
 	if( (type == OF12_GROUP_TYPE_ALL || type == OF12_GROUP_TYPE_INDIRECT) && of12_bucket_list_has_weights(buckets))
-		return OF12_GROUP_MOD_ERR_INVAL;
+		return ROFL_OF12_GM_INVAL;
 	if (type == OF12_GROUP_TYPE_SELECT && of12_bucket_list_has_weights(buckets) == false)
-		return OF12_GROUP_MOD_ERR_INVAL;
+		return ROFL_OF12_GM_INVAL;
 	
-	return OF12_GROUP_MOD_ERR_OK;
+	return ROFL_OF12_GM_OK;
 }
 
 static
-of12_group_mod_err_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
+rofl_of12_gm_result_t of12_init_group(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
 							//uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t **actions){
-	of12_group_mod_err_t ret_val;
+	rofl_of12_gm_result_t ret_val;
 	of12_group_t* ge=NULL;
 	
 	ge = (of12_group_t *) platform_malloc_shared(sizeof(of12_group_t));
 	if (ge == NULL){
-		return OF12_GROUP_MOD_ERR_OGRUPS;
+		return ROFL_OF12_GM_OGRUPS;
 	}
 	
-	if((ret_val=of12_check_group_parameters(gt,type,id,buckets))!=OF12_GROUP_MOD_ERR_OK)
+	if((ret_val=of12_check_group_parameters(gt,type,id,buckets))!=ROFL_OF12_GM_OK)
         return ret_val;
 	
 	ge->bc_list = buckets;
@@ -141,28 +141,28 @@ of12_group_mod_err_t of12_init_group(of12_group_table_t *gt, of12_group_type_t t
 	gt->tail = ge;
 	gt->num_of_entries++;
 	
-	return OF12_GROUP_MOD_ERR_OK;
+	return ROFL_OF12_GM_OK;
 }
 
-of12_group_mod_err_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
+rofl_of12_gm_result_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
 							 //uint32_t weigth, uint32_t group, uint32_t port, of12_action_group_t **actions){
-	of12_group_mod_err_t ret_val;
+	rofl_of12_gm_result_t ret_val;
 	platform_rwlock_wrlock(gt->rwlock);
 	
 	//check wether onither entry with this ID already exists
 	if(of12_group_search(gt,id)!=NULL){
 		platform_rwlock_wrunlock(gt->rwlock);
-		return OF12_GROUP_MOD_ERR_EXISTS;
+		return ROFL_OF12_GM_EXISTS;
 	}
 	
 	ret_val=of12_init_group(gt,type,id, buckets);
-	if (ret_val!=OF12_GROUP_MOD_ERR_OK){
+	if (ret_val!=ROFL_OF12_GM_OK){
 		platform_rwlock_wrunlock(gt->rwlock);
 		return ret_val;
 	}
 	
 	platform_rwlock_wrunlock(gt->rwlock);
-	return OF12_GROUP_MOD_ERR_OK;
+	return ROFL_OF12_GM_OK;
 }
 
 static
@@ -211,7 +211,7 @@ rofl_result_t of12_extract_group(of12_group_table_t *gt, of12_group_t *ge){
 	return ROFL_SUCCESS;
 }
 
-of12_group_mod_err_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_table_t *gt, uint32_t id){
+rofl_of12_gm_result_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_table_t *gt, uint32_t id){
 	int i;
 	of12_flow_entry_t* entry;
 	of12_group_t *ge, *next;
@@ -222,7 +222,7 @@ of12_group_mod_err_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_tab
 			next = ge->next;
 			//extract the group without destroying it (only the first thread that comes gets it)
 			if(of12_extract_group(gt, ge)==ROFL_FAILURE)
-				return OF12_GROUP_MOD_ERR_OK; //if it is not found no need to throw an error
+				return ROFL_OF12_GM_OK; //if it is not found no need to throw an error
 			
 			//loop for all the tables and erase entries that point to the group
 			for(i=0; i<pipeline->num_of_tables; i++){
@@ -233,16 +233,16 @@ of12_group_mod_err_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_tab
 			//destroy the group
 			of12_destroy_group(gt,ge);
 		}
-		return OF12_GROUP_MOD_ERR_OK;
+		return ROFL_OF12_GM_OK;
 	}
 	
 	//search the table for the group
 	if((ge=of12_group_search(gt,id))==NULL);
-		return OF12_GROUP_MOD_ERR_OK; //if it is not found no need to throw an error
+		return ROFL_OF12_GM_OK; //if it is not found no need to throw an error
 	
 	//extract the group without destroying it (only the first thread that comes gets it)
 	if(of12_extract_group(gt, ge)==ROFL_FAILURE)
-		return OF12_GROUP_MOD_ERR_OK; //if it is not found no need to throw an error
+		return ROFL_OF12_GM_OK; //if it is not found no need to throw an error
 	
 	//loop for all the tables and erase entries that point to the group
 	for(i=0; i<pipeline->num_of_tables; i++){
@@ -254,7 +254,7 @@ of12_group_mod_err_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_tab
 	//destroy the group
 	of12_destroy_group(gt,ge);
 	
-	return OF12_GROUP_MOD_ERR_OK;
+	return ROFL_OF12_GM_OK;
 }
 
 /**
@@ -262,14 +262,14 @@ of12_group_mod_err_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_tab
  * and modifies the action buckets inside
  * @param actions is a null ended array with the action groups for each bucket
  */
-of12_group_mod_err_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
-	of12_group_mod_err_t ret_val;
+rofl_of12_gm_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
+	rofl_of12_gm_result_t ret_val;
 	of12_group_t *ge = of12_group_search(gt,id);
 	if (ge == NULL){
-		return OF12_GROUP_MOD_ERR_UNKGRP;
+		return ROFL_OF12_GM_UNKGRP;
 	}
 	
-	if((ret_val=of12_check_group_parameters(gt,type,id,buckets))!=OF12_GROUP_MOD_ERR_OK)
+	if((ret_val=of12_check_group_parameters(gt,type,id,buckets))!=ROFL_OF12_GM_OK)
 		return ret_val;
 	
 	platform_rwlock_wrlock(ge->rwlock);
@@ -345,7 +345,7 @@ void of12_destroy_bucket_list(of12_group_t *ge){
 	platform_free(ge->bc_list);
 }
 static
-of12_group_mod_err_t of12_validate_group(of12_action_group_t* actions){
+rofl_of12_gm_result_t of12_validate_group(of12_action_group_t* actions){
 
 	//we dont allow OF12_AT_GROUP
 	//and neither OF12_AT_OUTPUT in the case of OF12_PORT_TABLE
@@ -353,16 +353,16 @@ of12_group_mod_err_t of12_validate_group(of12_action_group_t* actions){
 	
 	for(it=actions->head; it; it=it->next){
 		if(it->type == OF12_AT_GROUP)
-			return OF12_GROUP_MOD_ERR_CHAIN;
+			return ROFL_OF12_GM_CHAIN;
 		if(it->type == OF12_AT_OUTPUT && it->field == OF12_PORT_TABLE)
-			return OF12_GROUP_MOD_ERR_INVAL;
+			return ROFL_OF12_GM_INVAL;
 	}
 		
 	//verify apply actions
 	if(of12_validate_action_group(actions, NULL)==false)
-		return OF12_GROUP_MOD_ERR_INVAL;
+		return ROFL_OF12_GM_INVAL;
 	
-	return OF12_GROUP_MOD_ERR_OK;
+	return ROFL_OF12_GM_OK;
 }
 
 bool of12_bucket_list_has_weights(of12_bucket_list_t *bl){
