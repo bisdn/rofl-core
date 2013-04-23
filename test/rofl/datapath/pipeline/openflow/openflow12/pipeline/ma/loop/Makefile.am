@@ -2,6 +2,8 @@ MAINTAINERCLEANFILES = Makefile.in
 
 SHARED_SRC= $(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/switch_port.c \
+	$(top_srcdir)/src/rofl/datapath/pipeline/port_queue.c \
+	$(top_srcdir)/src/rofl/datapath/pipeline/util/logging.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/common/ternary_fields.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/of_switch.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow12/of12_switch.c \
