@@ -222,7 +222,7 @@ of12_stats_flow_aggregate_msg_t* fwd_module_of12_get_flow_aggregate_stats(uint64
  *
  * @param dpid 		Datapath ID of the switch to install the GROUP
  */
-of12_group_mod_err_t fwd_module_of12_group_mod_add(uint64_t dpid, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
+rofl_of12_gm_result_t fwd_module_of12_group_mod_add(uint64_t dpid, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
 
 /**
  * @name    fwd_module_of12_group_mod_modify
@@ -231,7 +231,7 @@ of12_group_mod_err_t fwd_module_of12_group_mod_add(uint64_t dpid, of12_group_typ
  *
  * @param dpid 		Datapath ID of the switch to install the GROUP
  */
-of12_group_mod_err_t fwd_module_of12_group_mod_modify(uint64_t dpid, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
+rofl_of12_gm_result_t fwd_module_of12_group_mod_modify(uint64_t dpid, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
 
 /**
  * @name    fwd_module_of12_group_mod_del
@@ -240,7 +240,7 @@ of12_group_mod_err_t fwd_module_of12_group_mod_modify(uint64_t dpid, of12_group_
  *
  * @param dpid Datapath ID of the switch to install the GROUP
  */
-of12_group_mod_err_t fwd_module_of12_group_mod_delete(uint64_t dpid, uint32_t id);
+rofl_of12_gm_result_t fwd_module_of12_group_mod_delete(uint64_t dpid, uint32_t id);
 
 /**
  * @name    fwd_module_of12_get_group_stats
