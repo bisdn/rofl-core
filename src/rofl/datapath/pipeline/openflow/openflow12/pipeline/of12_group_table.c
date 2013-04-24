@@ -264,13 +264,14 @@ rofl_of12_gm_result_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_ta
  */
 rofl_of12_gm_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets){
 	rofl_of12_gm_result_t ret_val;
+	
+	if((ret_val=of12_check_group_parameters(gt,type,id,buckets))!=ROFL_OF12_GM_OK)
+		return ret_val;
+	
 	of12_group_t *ge = of12_group_search(gt,id);
 	if (ge == NULL){
 		return ROFL_OF12_GM_UNKGRP;
 	}
-	
-	if((ret_val=of12_check_group_parameters(gt,type,id,buckets))!=ROFL_OF12_GM_OK)
-		return ret_val;
 	
 	platform_rwlock_wrlock(ge->rwlock);
 	
