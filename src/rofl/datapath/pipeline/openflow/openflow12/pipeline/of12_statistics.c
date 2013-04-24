@@ -9,6 +9,7 @@
 #include "of12_group_table.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/atomic_operations.h"
+#include "../../../util/time.h"
 
 /**
  * Here the functions that initialize and update
@@ -192,7 +193,7 @@ void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec,
 
 	of12_gettimeofday(&now, NULL);
 	
-	timersub(&now, &entry->stats.initial_time, &diff);
+	TIMERSUB(&now, &entry->stats.initial_time, &diff);
 	*sec = diff.tv_sec;
 	
 	*nsec = ( (diff.tv_usec*1000)&0xFFFFFFFF00000000 )>>32;	

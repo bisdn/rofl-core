@@ -13,6 +13,8 @@ static_unit_test_SOURCES=../unit_test.c \
 	../pthread_lock.c \
 	../lib_random.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
+	$(top_srcdir)/src/rofl/datapath/pipeline/switch_port.c \
+	$(top_srcdir)/src/rofl/datapath/pipeline/port_queue.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/of_switch.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow12/pipeline/matching_algorithms/matching_algorithms.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow12/pipeline/matching_algorithms/loop/of12_loop_match.c \
