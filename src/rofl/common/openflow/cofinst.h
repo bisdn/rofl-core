@@ -128,14 +128,14 @@ public: // methods
 
 	/** copy struct ofp_action_header
 	 */
-	struct ofp_instruction*
+	virtual struct ofp_instruction*
 	pack(
 		struct ofp_instruction* inhdr,
 		size_t inlen) const throw (eInstructionInval);
 
 	/** unpack
 	 */
-	void
+	virtual void
 	unpack(
 			struct ofp_instruction *inhdr,
 			size_t inlen)
@@ -251,6 +251,34 @@ public:
 	 */
 	virtual
 	~cofinst_goto_table() {};
+#if 0
+	/**
+	 *
+	 */
+	virtual struct ofp_instruction*
+	pack(struct ofp_instruction* inst, size_t instlen) const;
+	/**
+	 *
+	 */
+	virtual void
+	unpack(struct ofp_instruction* inst, size_t instlen);
+#endif
+	/**
+	 *
+	 */
+	uint8_t
+	get_table_id() const
+	{
+		return oin_goto_table->table_id;
+	};
+	/**
+	 *
+	 */
+	void
+	set_table_id(uint8_t table_id)
+	{
+		oin_goto_table->table_id = table_id;
+	};
 };
 
 
