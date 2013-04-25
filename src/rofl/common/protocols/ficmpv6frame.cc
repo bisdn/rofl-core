@@ -648,7 +648,7 @@ ficmpv6opt::get_pfx_on_link_flag()
 	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
 		throw eICMPv6FrameTooShort();
 	}
-	return ((icmpv6_opt_pfx->flags & 0b10000000) >> 7);
+	return ((icmpv6_opt_pfx->flags & 0x80) >> 7);
 }
 
 
@@ -660,7 +660,7 @@ ficmpv6opt::set_pfx_on_link_flag(uint8_t flag)
 	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
 		throw eICMPv6FrameTooShort();
 	}
-	icmpv6_opt_pfx->flags = (icmpv6_opt_pfx->flags & 0b01111111) | ((flag & 0x01) << 7);
+	icmpv6_opt_pfx->flags = (icmpv6_opt_pfx->flags & 0x7F) | ((flag & 0x01) << 7);
 }
 
 
@@ -675,7 +675,7 @@ ficmpv6opt::get_pfx_aac_flag()
 	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
 		throw eICMPv6FrameTooShort();
 	}
-	return ((icmpv6_opt_pfx->flags & 0b01000000) >> 6);
+	return ((icmpv6_opt_pfx->flags & 0x40) >> 6);
 }
 
 
@@ -687,7 +687,7 @@ ficmpv6opt::set_pfx_aac_flag(uint8_t flag)
 	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
 		throw eICMPv6FrameTooShort();
 	}
-	icmpv6_opt_pfx->flags = (icmpv6_opt_pfx->flags & 0b10111111) | ((flag & 0x01) << 6);
+	icmpv6_opt_pfx->flags = (icmpv6_opt_pfx->flags & 0xBF) | ((flag & 0x01) << 6);
 }
 
 

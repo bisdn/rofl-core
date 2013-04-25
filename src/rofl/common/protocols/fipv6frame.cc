@@ -242,7 +242,7 @@ fipv6frame::ipv6_calc_checksum()
 void
 fipv6frame::set_version(uint8_t version)
 {
-	ipv6_hdr->bytes[0] = (ipv6_hdr->bytes[0] & 0b00001111) + ((version & 0b00001111) << 4);
+	ipv6_hdr->bytes[0] = (ipv6_hdr->bytes[0] & 0x0F) + ((version & 0x0F) << 4);
 }
 
 
@@ -250,7 +250,7 @@ fipv6frame::set_version(uint8_t version)
 uint8_t
 fipv6frame::get_version()
 {
-	return (uint8_t)((ipv6_hdr->bytes[0] & 0b11110000) >> 4);
+	return (uint8_t)((ipv6_hdr->bytes[0] & 0xF0) >> 4);
 }
 
 
@@ -258,8 +258,8 @@ fipv6frame::get_version()
 void
 fipv6frame::set_traffic_class(uint8_t tc)
 {
-	ipv6_hdr->bytes[0] = (ipv6_hdr->bytes[0] & 0b11110000) + ((tc & 0b11110000) >> 4);
-	ipv6_hdr->bytes[1] = (ipv6_hdr->bytes[1] & 0b00001111) + ((tc & 0b00001111) << 4);
+	ipv6_hdr->bytes[0] = (ipv6_hdr->bytes[0] & 0xF0) + ((tc & 0xF0) >> 4);
+	ipv6_hdr->bytes[1] = (ipv6_hdr->bytes[1] & 0x0F) + ((tc & 0x0F) << 4);
 }
 
 
@@ -267,7 +267,7 @@ fipv6frame::set_traffic_class(uint8_t tc)
 uint8_t
 fipv6frame::get_traffic_class()
 {
-	return (uint8_t)(((ipv6_hdr->bytes[0] & 0b00001111) << 4) + ((ipv6_hdr->bytes[1] & 0b11110000) >> 4));
+	return (uint8_t)(((ipv6_hdr->bytes[0] & 0x0F) << 4) + ((ipv6_hdr->bytes[1] & 0xF0) >> 4));
 }
 
 
@@ -275,7 +275,7 @@ fipv6frame::get_traffic_class()
 void
 fipv6frame::set_flow_label(uint32_t flabel)
 {
-	ipv6_hdr->bytes[1] = (ipv6_hdr->bytes[1] & 0b11110000) + ((flabel & 0x000f0000) >> 16);
+	ipv6_hdr->bytes[1] = (ipv6_hdr->bytes[1] & 0xF0) + ((flabel & 0x000f0000) >> 16);
 	ipv6_hdr->bytes[2] = (flabel & 0x0000ff00) >> 8;
 	ipv6_hdr->bytes[3] = (flabel & 0x000000ff) >> 0;
 }
@@ -285,7 +285,7 @@ fipv6frame::set_flow_label(uint32_t flabel)
 uint32_t
 fipv6frame::get_flow_label()
 {
-	return (uint32_t)(((ipv6_hdr->bytes[1] & 0b00001111) << 16) + (ipv6_hdr->bytes[2] << 8) + (ipv6_hdr->bytes[3] << 0));
+	return (uint32_t)(((ipv6_hdr->bytes[1] & 0x0F) << 16) + (ipv6_hdr->bytes[2] << 8) + (ipv6_hdr->bytes[3] << 0));
 }
 
 

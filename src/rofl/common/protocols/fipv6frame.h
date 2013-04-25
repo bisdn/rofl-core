@@ -250,7 +250,7 @@ public:
 	/**
 	 */
 	void
-	set_version(uint8_t version = 0b00000110);
+	set_version(uint8_t version = 0x06);
 
 	/**
 	 */

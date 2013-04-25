@@ -1,5 +1,10 @@
 #include "rofl/common/openflow/cofqueuestats.h"
 
+#ifndef htobe16
+#include "../endian_conversion.h"
+#endif
+
+
 using namespace rofl;
 
 
