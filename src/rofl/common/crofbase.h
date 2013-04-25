@@ -129,83 +129,16 @@ class crofbase :
 	public csocket_owner,
 	public cfsm
 {
-private:
+protected:
 
-	enum crofbase_flag_t {
-		NSP_ENABLED = 0x01,
-	};
-
-	std::bitset<32> 					fe_flags;
-	std::string 						info;			/**< info string */
-	pthread_rwlock_t					xidlock;		/**< rwlock variable for transaction ids
-															stored in ta_pending_reqs */
-
-	/*
-	 * data structures
-	 */
-
-	std::map<uint32_t, uint8_t> 		ta_pending_reqs; 	// list of pending requests
-	std::set<uint32_t>	 				xids_used;			// list of recently used xids
-	size_t 								xid_used_max; 		// reusing xids: max number of currently blocked xid entries stored
-	uint32_t 							xid_start; 			// start value xid
-#define CPCP_DEFAULT_XID_USED_MAX       16
-
-
-protected: // data structures
-
+	cfsptable 					fsptable; 		/**< flowspace registrations table */
 	std::set<cofctl*>			ofctl_set;		/**< set of active controller connections */
 	std::set<cofdpt*>			ofdpt_set;		/**< set of active data path connections */
-	cfsptable 					fsptable; 		/**< flowspace registrations table */
-
-	/** \enum crofbase::crofbase_event_t
-	 *
-	 * events defined by crofbase
-	 */
-	enum crofbase_event_t {
-		CROFBASE_EVENT_WAKEUP	= 1, /**< wakeup event used in method \see{ wakeup } */
-	};
-
-	/** \enum crofbase::crofbase_timer_t
-	 *
-	 * timers defined by crofbase
-	 */
-	enum crofbase_timer_t {
-		TIMER_FE_BASE = (0x0020 << 16),	/**< random number for base timer */
-		TIMER_FE_DUMP_OFPACKETS,		/**< dumps periodically all existing cofmsg instances */
-		CROFBASE_TIMER_WAKEUP,			/**< timer used for waking up via crofbase::wakeup() */
-	};
-
-	/** \enum crofbase::crofbase_rpc_t
-	 *
-	 * crofbase supports both controller and data path role and is
-	 * capable of hosting an arbitrary number of listening sockets
-	 * for ctl and dpt role.
-	 *
-	 * \see rpc
-	 */
-	enum crofbase_rpc_t { // for cofrpc *rpc[2]; (see below)
-		RPC_CTL = 0,	/**< index for std::set<csocket*> in \see{ rpc } for ctls */
-		RPC_DPT = 1,	/**< index for std::set<csocket*> in \see{ rpc } for dpts */
-	};
-
-	std::set<csocket*>			rpc[2];	/**< two sets of listening sockets for ctl and dpt */
-
-
 
 public:
 
-#if 0
-	// allow class cadaptor access to these methods
-	friend class chandler;
-
-	friend class bcm_port;
-	// allow class cgttable access to error method
-	friend class cgttable;
-#endif
-
-	friend class cport;
-
-	static std::set<crofbase*> rofbases; 		/**< set of all active crofbase instances */
+	//friend class cport;
+	static std::set<crofbase*> 	rofbases; 		/**< set of all active crofbase instances */
 
 public:
 
@@ -475,9 +408,6 @@ public:
 
 
 
-
-
-protected:
 
 protected:
 
@@ -2200,6 +2130,64 @@ protected:
 	/**@}*/
 
 
+
+private:
+
+	enum crofbase_flag_t {
+		NSP_ENABLED = 0x01,
+	};
+
+	std::bitset<32> 					fe_flags;
+	std::string 						info;			/**< info string */
+	pthread_rwlock_t					xidlock;		/**< rwlock variable for transaction ids
+															stored in ta_pending_reqs */
+
+	/*
+	 * data structures
+	 */
+
+	std::map<uint32_t, uint8_t> 		ta_pending_reqs; 	// list of pending requests
+	std::set<uint32_t>	 				xids_used;			// list of recently used xids
+	size_t 								xid_used_max; 		// reusing xids: max number of currently blocked xid entries stored
+	uint32_t 							xid_start; 			// start value xid
+#define CPCP_DEFAULT_XID_USED_MAX       16
+
+	/** \enum crofbase::crofbase_event_t
+	 *
+	 * events defined by crofbase
+	 */
+	enum crofbase_event_t {
+		CROFBASE_EVENT_WAKEUP	= 1, /**< wakeup event used in method \see{ wakeup } */
+	};
+
+	/** \enum crofbase::crofbase_timer_t
+	 *
+	 * timers defined by crofbase
+	 */
+	enum crofbase_timer_t {
+		TIMER_FE_BASE = (0x0020 << 16),	/**< random number for base timer */
+		TIMER_FE_DUMP_OFPACKETS,		/**< dumps periodically all existing cofmsg instances */
+		CROFBASE_TIMER_WAKEUP,			/**< timer used for waking up via crofbase::wakeup() */
+	};
+
+
+	/** \enum crofbase::crofbase_rpc_t
+	 *
+	 * crofbase supports both controller and data path role and is
+	 * capable of hosting an arbitrary number of listening sockets
+	 * for ctl and dpt role.
+	 *
+	 * \see rpc
+	 */
+	enum crofbase_rpc_t { // for cofrpc *rpc[2]; (see below)
+		RPC_CTL = 0,	/**< index for std::set<csocket*> in \see{ rpc } for ctls */
+		RPC_DPT = 1,	/**< index for std::set<csocket*> in \see{ rpc } for dpts */
+	};
+
+	std::set<csocket*>			rpc[2];	/**< two sets of listening sockets for ctl and dpt */
+
+
+
 private:
 
 	friend class csocket;
@@ -2357,8 +2345,6 @@ private:
 	 */
 	void
 	handle_ctl_close(cofctl *ctl);
-
-
 
 
 
