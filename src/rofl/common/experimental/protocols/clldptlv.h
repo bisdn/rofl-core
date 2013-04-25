@@ -5,10 +5,10 @@
 #ifndef CLLDPTLV_H
 #define CLLDPTLV_H 1
 
-#include "../cmemory.h"
-#include "../cerror.h"
-#include "../cvastring.h"
-#include "../coflist.h"
+#include "../../cmemory.h"
+#include "../../cerror.h"
+#include "../../cvastring.h"
+#include "../../coflist.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -82,7 +82,7 @@ class crofbase;
 
 
 /**
- * \class	A class for controlling a single attached data path element in class crofbase.
+ * \class	cofdpt
  *
  * This class stores state for an attached data path element
  * including its ports (@see cofport). It is tightly bound to
