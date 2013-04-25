@@ -1,4 +1,9 @@
 #include "rofl/common/openflow/cofgroupstats.h"
+ 
+#ifndef htobe16
+#include "../endian_conversion.h"
+#endif
+
 
 using namespace rofl;
 

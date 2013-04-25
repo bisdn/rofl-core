@@ -17,7 +17,7 @@ extern "C" {
 
 #include <endian.h>
 #ifndef htobe16
-#include "../endian_conversion.h"
+#include "../../endian_conversion.h"
 #endif
 
 #ifdef __cplusplus
