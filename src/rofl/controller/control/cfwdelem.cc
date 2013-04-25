@@ -148,7 +148,7 @@ cfwdelem::port_attach(
 	{
 		new cphyport(&phy_ports, port_no);
 
-		send_port_status_message(OFPPR_ADD, *phy_ports[port_no]);
+		send_port_status_message(NULL, OFPPR_ADD, *phy_ports[port_no]);
 	}
 }
 
@@ -160,7 +160,7 @@ cfwdelem::port_detach(
 {
 	if (phy_ports.find(port_no) != phy_ports.end())
 	{
-		send_port_status_message(OFPPR_DELETE, *phy_ports[port_no]);
+		send_port_status_message(NULL, OFPPR_DELETE, *phy_ports[port_no]);
 
 		delete phy_ports[port_no];
 	}

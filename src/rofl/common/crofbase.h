@@ -92,6 +92,7 @@ namespace rofl
 /* error classes */
 class eRofBase						: public cerror {};   // base error class crofbase
 class eRofBaseIsBusy 				: public eRofBase {}; // this FwdElem is already controlled
+class eRofBaseNotConnected			: public eRofBase {}; // this instance is not connected to the specified cofdpt/cofctl instance
 class eRofBaseNotImpl 				: public eRofBase {}; // this FwdElem's method is not implemented
 class eRofBaseNoCtrl 				: public eRofBase {}; // no controlling entity attached to this FwdElem
 class eRofBaseNotFound 				: public eRofBase {}; // internal entity not found
@@ -1831,6 +1832,7 @@ protected:
 	/**
 	 * @brief	Sends a PACKET-IN.message to a controller entity.
 	 *
+	 * @param ctl cofctl instance to send this message to. If NULL, send to all connected controllers.
 	 * @param buffer_id buffer ID assigned by data path
 	 * @param total_len Full length of frame
 	 * @param reason reason packet is being sent (one of OFPR_* flags)
@@ -1843,6 +1845,7 @@ protected:
 	 */
 	virtual void
 	send_packet_in_message(
+		cofctl *ctl,
 		uint32_t buffer_id,
 		uint16_t total_len,
 		uint8_t reason,
@@ -1851,7 +1854,7 @@ protected:
 		uint16_t in_port, // for OF1.0
 		cofmatch &match,
 		uint8_t *data,
-		size_t datalen) throw(eRofBaseNoCtrl);
+		size_t datalen);
 
 
 
@@ -2067,11 +2070,13 @@ protected:
 	/**
 	 * @brief	Sends a PORT-STATUS.message to a controller entity.
 	 *
+	 * @param ctl cofctl instance to send this message to. If NULL, send to all connected controllers.
 	 * @param reason one of OpenFlow's OFPPR_* constants
 	 * @param port cofport instance that changed its status
 	 */
 	virtual void
 	send_port_status_message(
+		cofctl *ctl,
 		uint8_t reason,
 		cofport const& port);
 
