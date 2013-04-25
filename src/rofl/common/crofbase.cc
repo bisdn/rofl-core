@@ -1161,7 +1161,7 @@ crofbase::send_packet_out_message(
 
 void
 crofbase::send_packet_in_message(
-		// TODO: add cofctl instance
+	cofctl *ctl,
 	uint32_t buffer_id,
 	uint16_t total_len,
 	uint8_t reason,
@@ -1170,7 +1170,7 @@ crofbase::send_packet_in_message(
 	uint16_t in_port, // for OF 1.0
 	cofmatch& match,
 	uint8_t* data,
-	size_t datalen) throw(eRofBaseNoCtrl)
+	size_t datalen)
 {
 	try {
 
@@ -1179,17 +1179,44 @@ crofbase::send_packet_in_message(
 
 		cpacket n_pack(data, datalen, match.get_in_port());
 
-		if (fe_flags.test(NSP_ENABLED))
-		{
+		if (0 != ctl) { // cofctl instance was specified
+
+			if (ofctl_set.find(ctl) == ofctl_set.end()) {
+				throw eRofBaseNotConnected();
+			}
+
+			cofmsg_packet_in *pack =
+					new cofmsg_packet_in(
+							ctl->get_version(),
+							ta_new_async_xid(),
+							buffer_id,
+							total_len,
+							reason,
+							table_id,
+							cookie,
+							in_port, /* in_port for OF1.0 */
+							match,
+							data,
+							datalen);
+
+			pack->pack();
+
+			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
+							"sending PACKET-IN for buffer_id:0x%x pack: %s",
+							this, buffer_id, pack->c_str());
+
+			ctl_find(ctl)->send_message(pack);
+
+		} else if (fe_flags.test(NSP_ENABLED)) { //cofctl was not specified and flowspace registration is enabled
+
 			std::set<cfspentry*> nse_list;
 
 			nse_list = fsptable.find_matching_entries(match.get_in_port(), total_len, n_pack);
 
 			WRITELOG(CROFBASE, DBG, "crofbase(%p) nse_list.size()=%d", this, nse_list.size());
 
-			if (nse_list.empty())
-			{
-				throw eRofBaseNoCtrl();
+			if (nse_list.empty()) {
+				throw eRofBaseNotConnected();
 			}
 
 			for (std::set<cfspentry*>::iterator
@@ -1202,6 +1229,11 @@ crofbase::send_packet_in_message(
 							"ofctrl:%p is SLAVE, ignoring", this, ctl);
 					continue;
 				}
+
+				if (not ctl->is_established()) {
+					continue;
+				}
+
 				cofmsg_packet_in *pack =
 						new cofmsg_packet_in(
 								ctl->get_version(),
@@ -1227,20 +1259,22 @@ crofbase::send_packet_in_message(
 			}
 
 			return;
-		}
-		else
-		{
-			if (ofctl_set.empty())
-			{
-				throw eRofBaseNoCtrl();
+
+		} else { // cofctl was not specified and there is no flowspace registration active
+
+			if (ofctl_set.empty()) {
+				throw eRofBaseNotConnected();
 			}
-			//cofctl *ofctrl = *(ofctl_set.begin());
 
 			for (std::set<cofctl*>::iterator it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
 
 				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 								"sending PACKET-IN for buffer_id:0x%x to controller %s",
 								this, buffer_id, ctl_find(*it)->c_str());
+
+				if (not (*it)->is_established()) {
+					continue;
+				}
 
 				cofmsg_packet_in *pack =
 						new cofmsg_packet_in(
@@ -1725,33 +1759,53 @@ crofbase::send_flow_removed_message(
 
 void
 crofbase::send_port_status_message(
+	cofctl *ctl,
 	uint8_t reason,
 	cofport const& port)
 {
 	cofport c_port(port); // FIXME: c_str should be const
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_port_status_message() %s", this, c_port.c_str());
-	//if (!ctrl)
-	//	throw eRofBaseNoCtrl();
 
-	std::map<cofbase*, cofctl*>::iterator it;
-	for (std::set<cofctl*>::iterator
-			it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
-	{
-		if (not (*it)->is_established()) {
-			continue;
+	if (0 != ctl) {
+
+		if (ofctl_set.find(ctl) == ofctl_set.end()) {
+			throw eRofBaseNotConnected();
 		}
 
 		WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_port_status_message() "
-				"to ctrl %s", this, (*it)->c_str());
+				"to ctrl %s", this, ctl->c_str());
 
 		cofmsg_port_status *pack =
 				new cofmsg_port_status(
-							(*it)->get_version(),
+							ctl->get_version(),
 							ta_new_async_xid(),
 							reason,
 							port);
 
-		(*it)->send_message(pack);
+		(ctl)->send_message(pack);
+
+	} else {
+
+		std::map<cofbase*, cofctl*>::iterator it;
+		for (std::set<cofctl*>::iterator
+				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
+		{
+			if (not (*it)->is_established()) {
+				continue;
+			}
+
+			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_port_status_message() "
+					"to ctrl %s", this, (*it)->c_str());
+
+			cofmsg_port_status *pack =
+					new cofmsg_port_status(
+								(*it)->get_version(),
+								ta_new_async_xid(),
+								reason,
+								port);
+
+			(*it)->send_message(pack);
+		}
 	}
 }
 
