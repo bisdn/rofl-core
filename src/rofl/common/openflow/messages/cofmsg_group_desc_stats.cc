@@ -185,7 +185,7 @@ cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 	case OFP12_VERSION: {
 		resize(sizeof(struct ofp12_stats_reply) + group_desc_stats.size() * sizeof(struct ofp12_group_desc_stats));
 		for (unsigned int i = 0; i < group_desc_stats.size(); i++) {
-			group_desc_stats[i].pack(soframe() + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_group_desc_stats));
+			group_desc_stats[i].pack(soframe() + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_group_desc_stats), sizeof(struct ofp12_group_desc_stats));
 		}
 	} break;
 	case OFP13_VERSION: {
