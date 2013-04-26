@@ -33,7 +33,7 @@ etherswitch::handle_timeout(int opaque)
 		request_flow_stats();
 	} break;
 	case ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL: {
-		flow_mod_delete_all();
+		//flow_mod_delete_all();
 	} break;
 	default:
 		crofbase::handle_timeout(opaque);
@@ -200,7 +200,7 @@ etherswitch::handle_packet_in(
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
 		fe.instructions.next() = cofinst_apply_actions();
 
-		fprintf(stderr, "etherswitch: calling FLOW-MOD with entry: %s\n",
+		fprintf(stderr, "etherswitch: installing FLOW-MOD with entry: %s\n",
 				fe.c_str());
 
 		send_flow_mod_message(
