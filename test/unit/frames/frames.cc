@@ -686,7 +686,7 @@ check_pbb()
 
 		a2 += pppoe;
 
-		a2.classify(OFPP_CONTROLLER);
+		//a2.classify(OFPP_CONTROLLER);
 
 		printf("a2 [4]: %s\n", a2.c_str());
 

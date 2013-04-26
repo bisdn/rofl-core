@@ -810,7 +810,7 @@ ctlbase::ctl_handle_port_status(
 				"ctlbase: %s", dpname.c_str(), (*it)->c_str());
 
 		try {
-			send_port_status_message(reason, *ofport);
+			send_port_status_message(NULL, reason, *ofport);
 		} catch (eRofBaseNoCtrl& e) {}
 	}
 }
@@ -856,7 +856,7 @@ ctlbase::ctl_handle_packet_in(
 				WRITELOG(CFWD, DBG, "ctlbase(%s)::ctl_handle_packet_in() "
 						"sending PACKET-IN to ctl: %s", dpname.c_str(), ctl->c_str());
 
-				send_packet_in_message(buffer_id, total_len, reason, table_id, /*cookie=*/0, /*in_port for OF1.0=*/0, match, pack.soframe(), pack.framelen());
+				send_packet_in_message(NULL, buffer_id, total_len, reason, table_id, /*cookie=*/0, /*in_port for OF1.0=*/0, match, pack.soframe(), pack.framelen());
 			} catch (eRofBaseNoCtrl& e) {}
 		}
 

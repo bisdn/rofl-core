@@ -106,19 +106,39 @@ else
 	AC_MSG_RESULT(no)
 fi
 
+#Check if C++ should not be compiled
+AC_MSG_CHECKING(whether to build C code only)
+AC_ARG_WITH([cplusplus],
+	AS_HELP_STRING([--without-cplusplus], [Do not compile C++ code (handy for compiling datapath C-only code) [default=no]]),
+without_cplusplus="yes", without_cplusplus="no")
+if test "$without_cplusplus" = "yes"; then
+	AM_CONDITIONAL(ONLY_C_CODE, [true])
+	AC_MSG_RESULT(yes)
+else
+	AM_CONDITIONAL(ONLY_C_CODE, [false])
+	AC_MSG_RESULT(no)
+fi
 
+#Pipeline support
+AC_MSG_CHECKING(whether to build pipeline library)
+AC_ARG_WITH([pipeline],
+	AS_HELP_STRING([--without-pipeline], [Disable pipeline library compilation [default=no]]),
+without_pipeline="yes", [])
 
+if test "$without_pipeline" = "yes"; then
+	if test "$without_cplusplus" = "yes"; then
+		#Compile nothing???
+		AC_MSG_ERROR(Invalid combination of flags --without-cplusplus and --without-pipeline)
+	fi
+	PIPELINE_SUPPORT="no"
+else
+	PIPELINE_SUPPORT="yes"
+	AC_DEFINE(PIPELINE_SUPPORT)
+fi
 
-AC_MSG_CHECKING(for pipeline support)
-PIPELINE_SUPPORT="yes"
-AC_ARG_ENABLE(pipeline,
-	AS_HELP_STRING([--enable-pipeline], [Enable pipeline support [default=yes]]),
-[ if test "$enableval" = "yes"; then
-    PIPELINE_SUPPORT="yes"
-    AC_DEFINE(PIPELINE_SUPPORT)
-  fi
-], [])
+#Fancy message
 AC_MSG_RESULT($PIPELINE_SUPPORT)
+
 AM_CONDITIONAL(PIPELINE_SUPPORT, test $PIPELINE_SUPPORT = yes)
 AM_COND_IF([PIPELINE_SUPPORT],[AC_CONFIG_FILES([
         src/rofl/datapath/pipeline/Makefile
@@ -142,6 +162,7 @@ AC_SUBST(MATCHING_ALGORITHMS_DIR)
 MATCHING_ALGORITHMS="loop"
 MATCHING_ALGORITHM_LIBS=""
 MATCHING_ALGORITHM_LIBADD=""
+
 # pipeline matching algorithms
 AC_ARG_ENABLE(matching-algorithms,
 	AS_HELP_STRING([--enable-matching-algorithms="list of matching algorithms"],
@@ -195,10 +216,12 @@ AC_SUBST(MATCHING_ALGORITHM_LIBS)
 AC_SUBST(MATCHING_ALGORITHMS)
 
 
-#Check libs used
-AC_CHECK_LIB(pthread, pthread_kill,,AC_MSG_ERROR([pthread library not found])) 
-AC_CHECK_LIB(rt,clock_gettime,,[AC_MSG_ERROR([rt library not found])]) 
-AC_CHECK_LIB(cli,cli_telnet_protocol,,[AC_MSG_ERROR([cli library not found])]) 
+#Check libs used (only in C++)
+if test "$without_cplusplus" = "no"; then
+	AC_CHECK_LIB(pthread, pthread_kill,,AC_MSG_ERROR([pthread library not found])) 
+	AC_CHECK_LIB(rt,clock_gettime,,[AC_MSG_ERROR([rt library not found])]) 
+	AC_CHECK_LIB(cli,cli_telnet_protocol,,[AC_MSG_ERROR([cli library not found])]) 
+fi
 
 #CHECK for doxygen
 AC_CHECK_PROGS([DOXYGEN], [doxygen],)

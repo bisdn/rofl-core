@@ -1,5 +1,7 @@
 MAINTAINERCLEANFILES = Makefile.in
 
+if !ONLY_C_CODE
+
 SUBDIRS = 
 
 sbin_PROGRAMS = etherswitch
@@ -13,3 +15,4 @@ etherswitch_LDADD = ../../src/rofl/librofl.la
 	-lrt 
 
 AM_LDFLAGS = -static
+endif

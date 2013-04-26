@@ -211,6 +211,9 @@ ccli::ccli(caddress addr) :
 
 ccli::~ccli()
 {
+	if (0 != (csocket*)socket) {
+		delete socket;
+	}
 	cli_done(cli);
 }
 

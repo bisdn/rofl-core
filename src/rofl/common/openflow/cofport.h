@@ -40,8 +40,7 @@ extern "C" {
 #define OFPP_UNSPECIFIED 0
 #endif
 
-// forward declarations
-class cofdpath;
+
 
 namespace rofl
 {

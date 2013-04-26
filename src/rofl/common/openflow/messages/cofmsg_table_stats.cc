@@ -291,7 +291,6 @@ cofmsg_table_stats_reply::resize(size_t len)
 size_t
 cofmsg_table_stats_reply::length() const
 {
-	fprintf(stderr, "cofmsg_table_stats_reply::length()\n");
 	switch (get_version()) {
 	case OFP10_VERSION: {
 		return (sizeof(struct ofp10_stats_reply) + table_stats.size() * sizeof(struct ofp10_table_stats));
@@ -314,7 +313,6 @@ cofmsg_table_stats_reply::length() const
 void
 cofmsg_table_stats_reply::pack(uint8_t *buf, size_t buflen)
 {
-	fprintf(stderr, "cofmsg_table_stats_reply::pack()\n");
 	cofmsg_stats::pack(buf, buflen); // copies common statistics header
 
 	if ((0 == buf) || (0 == buflen))
