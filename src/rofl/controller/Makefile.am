@@ -16,4 +16,4 @@ lib_LTLIBRARIES = librofl_controller.la
 librofl_controller_la_SOURCES = #rofl.h 
 librofl_controller_la_LIBADD =  control/librofl_control.la $(EXPERIMENTAL_LIBS)
 
-AM_LDFLAGS= -static
+#AM_LDFLAGS= -static

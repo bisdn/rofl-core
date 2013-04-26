@@ -15,4 +15,4 @@ lib_LTLIBRARIES = librofl.la
 librofl_la_SOURCES = #rofl.h 
 librofl_la_LIBADD = common/librofl_common.la controller/librofl_controller.la  platform/libplatform.la 
 
-AM_LDFLAGS= -static
+#AM_LDFLAGS= -static
