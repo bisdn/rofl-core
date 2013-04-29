@@ -21,6 +21,7 @@ switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_stat
 	memset(&port->stats,0,sizeof(port->stats));
 	
 	//Clear queues
+	port->max_queues = SWITCH_PORT_MAX_QUEUES;	
 	memset(&port->queues,0,sizeof(port->queues));
 
 	//Init mutexes 
