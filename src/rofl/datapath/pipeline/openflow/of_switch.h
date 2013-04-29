@@ -126,6 +126,8 @@ rofl_result_t of_detach_port_from_switch_by_port_num(of_switch_t* sw, unsigned i
 rofl_result_t of_detach_port_from_switch(of_switch_t* sw, switch_port_t* port);
 rofl_result_t of_detach_all_ports_from_switch(of_switch_t* sw);
 
+rofl_result_t of_get_switch_matching_algorithms(const char * const** name_list, int *count);
+
 //C++ extern C
 ROFL_END_DECLS
 

@@ -5,6 +5,9 @@
 #include "openflow12/pipeline/of12_pipeline.h"
 //Add more here...
 
+#include "openflow12/pipeline/matching_algorithms/matching_algorithms_available.h"
+
+
 //Wrapping destroy 
 rofl_result_t of_destroy_switch(const of_switch_t* sw){
 	
@@ -87,4 +90,14 @@ rofl_result_t of_detach_all_ports_from_switch(of_switch_t* sw){
 		default: 
 			return ROFL_FAILURE;
 	}
+}
+
+rofl_result_t
+of_get_switch_matching_algorithms(const char * const** name_list, int *count)
+{
+	static const char const * names[] = MATCHING_ALGORITHM_NAMES;
+
+	*count = matching_algorithm_count;
+	*name_list = names;
+	return ROFL_SUCCESS;
 }
