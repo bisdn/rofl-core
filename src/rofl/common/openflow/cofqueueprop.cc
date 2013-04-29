@@ -65,6 +65,14 @@ cofqueue_prop::operator =(
 
 
 
+size_t
+cofqueue_prop::length() const
+{
+	return memlen();
+}
+
+
+
 void
 cofqueue_prop::pack(uint8_t *buf, size_t buflen) const
 {

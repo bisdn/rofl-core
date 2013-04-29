@@ -73,6 +73,13 @@ public:
 	/**
 	 *
 	 */
+	virtual size_t
+	length() const;
+
+
+	/**
+	 *
+	 */
 	virtual void
 	pack(uint8_t *buf, size_t buflen) const;
 
