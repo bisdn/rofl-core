@@ -93,11 +93,18 @@ rofl_result_t of_detach_all_ports_from_switch(of_switch_t* sw){
 }
 
 rofl_result_t
-of_get_switch_matching_algorithms(const char * const** name_list, int *count)
+of_get_switch_matching_algorithms(of_version_t of_version, const char * const** name_list, int *count)
 {
-	static const char const * names[] = MATCHING_ALGORITHM_NAMES;
+	switch (of_version) {
+		case OF_VERSION_12:
+		{
+			static const char const * names[] = MATCHING_ALGORITHM_NAMES;
 
-	*count = matching_algorithm_count;
-	*name_list = names;
-	return ROFL_SUCCESS;
+			*count = matching_algorithm_count;
+			*name_list = names;
+			return ROFL_SUCCESS;
+		}
+		default:
+			return ROFL_FAILURE;
+	}
 }
