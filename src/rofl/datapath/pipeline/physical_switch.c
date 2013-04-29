@@ -370,14 +370,6 @@ of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_po
 }
 
 //Platform port mapping methods
-//TODO: take this from here
-rofl_result_t get_logical_switch_ports(of_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports){
-	if(!sw)
-		return ROFL_FAILURE;
-
-	return of_get_switch_ports(sw,ports,num_of_ports,logical_sw_max_ports);
-}
-
 #if 0
 rofl_result_t physical_switch_attach_physical_port_num_to_logical_switch(unsigned int port_num, of_switch_t* sw, unsigned int* logical_switch_port_num){
 	

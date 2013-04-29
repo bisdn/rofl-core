@@ -49,6 +49,7 @@ typedef struct of_switch{
 	of_version_t of_ver; 
 	uint64_t dpid;
 	char* name;
+	unsigned int max_ports;
 	unsigned int num_of_ports;
 	
 	//Switch logical ports 
@@ -119,7 +120,6 @@ rofl_result_t of_process_packet_pipeline(const of_switch_t* sw, datapacket_t *co
 void of_process_pipeline_tables_timeout_expirations(const of_switch_t* sw);
 
 //Wrapping port management
-rofl_result_t of_get_switch_ports(of_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports);
 rofl_result_t of_attach_port_to_switch_at_port_num(of_switch_t* sw, unsigned int port_num, switch_port_t* port);
 rofl_result_t of_attach_port_to_switch(of_switch_t* sw, switch_port_t* port, unsigned int* port_num);
 rofl_result_t of_detach_port_from_switch_by_port_num(of_switch_t* sw, unsigned int port_num);

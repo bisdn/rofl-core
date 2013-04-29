@@ -26,6 +26,7 @@ of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int nu
 	//Initialize logical_ports
 	memset(sw->logical_ports,0,sizeof(logical_switch_port_t)*LOGICAL_SWITCH_MAX_LOG_PORTS);
 	sw->num_of_ports=0;
+	sw->max_ports=LOGICAL_SWITCH_MAX_LOG_PORTS;
 	
 	//Initialize platform state to NULL
 	sw->platform_state=NULL;
@@ -80,13 +81,6 @@ rofl_result_t of12_destroy_switch(of12_switch_t* sw){
 }
 
 /* Port management */
-rofl_result_t of12_get_switch_ports(of12_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports){
-	*ports = sw->logical_ports;
-	*num_of_ports = sw->num_of_ports;
-	*logical_sw_max_ports = LOGICAL_SWITCH_MAX_LOG_PORTS;
-	return ROFL_SUCCESS;
-}
-
 rofl_result_t of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned int port_num, switch_port_t* port){
 
 	if(!port || !port_num || port_num >= LOGICAL_SWITCH_MAX_LOG_PORTS)

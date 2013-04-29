@@ -33,6 +33,7 @@ typedef struct of12_switch{
 	of_version_t of_ver; 
 	uint64_t dpid;
 	char* name;
+	unsigned int max_ports;
 	unsigned int num_of_ports;
 	
 	//Switch logical ports 
@@ -66,7 +67,6 @@ of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int nu
 rofl_result_t of12_destroy_switch(of12_switch_t* sw);
 
 /* Port management */
-rofl_result_t of12_get_switch_ports(of12_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports);
 rofl_result_t of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned int port_num, switch_port_t* port);
 rofl_result_t of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, unsigned int* port_num);
 rofl_result_t of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigned int port_num);
