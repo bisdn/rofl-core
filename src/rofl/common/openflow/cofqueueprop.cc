@@ -253,17 +253,18 @@ cofqueue_prop_min_rate::cofqueue_prop_min_rate(
 
 cofqueue_prop_min_rate&
 cofqueue_prop_min_rate::operator= (
-	cofqueue_prop_min_rate const& qp)
+		cofqueue_prop const& qp)
 {
 	if (this == &qp)
 		return *this;
 
-	cofqueue_prop::operator=(qp);
-	ofq_min_rate = somem();
+	if (OFPQT_MIN_RATE != qp.get_property())
+		throw eInval();
+
+	unpack(qp.somem(), qp.memlen());
 
 	return *this;
 }
-
 
 
 
@@ -402,17 +403,18 @@ cofqueue_prop_max_rate::cofqueue_prop_max_rate(
 
 cofqueue_prop_max_rate&
 cofqueue_prop_max_rate::operator= (
-	cofqueue_prop_max_rate const& qp)
+	cofqueue_prop const& qp)
 {
 	if (this == &qp)
 		return *this;
 
-	cofqueue_prop::operator=(qp);
-	ofq_max_rate = somem();
+	if (OFPQT_MAX_RATE != qp.get_property())
+		throw eInval();
+
+	unpack(qp.somem(), qp.memlen());
 
 	return *this;
 }
-
 
 
 
@@ -554,6 +556,22 @@ cofqueue_prop_expr::operator= (
 
 
 
+cofqueue_prop_expr&
+cofqueue_prop_expr::operator= (
+	cofqueue_prop const& qp)
+{
+	if (this == &qp)
+		return *this;
+
+	if (OFPQT_EXPERIMENTER != qp.get_property())
+		throw eInval();
+
+	unpack(qp.somem(), qp.memlen());
+
+	return *this;
+}
+
+
 size_t
 cofqueue_prop_expr::length() const
 {
@@ -583,6 +601,8 @@ cofqueue_prop_expr::pack(uint8_t *buf, size_t buflen) const
 	case OFP12_VERSION: {
 		memcpy(buf, somem(), memlen());
 		memcpy(buf + memlen(), body.somem(), body.memlen());
+		struct ofp12_queue_prop_header* qp = (struct ofp12_queue_prop_header*)buf;
+		qp->len = htobe16(length());
 	} break;
 	case OFP13_VERSION: {
 		throw eNotImplemented();

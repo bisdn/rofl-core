@@ -9,11 +9,16 @@
 #define COFQUEUEPROP_H_ 1
 
 #include "../cmemory.h"
+#include "../cerror.h"
 #include "openflow.h"
 #include "openflow_rofl_exceptions.h"
 
 namespace rofl
 {
+
+class eQueuePropBase : public cerror {};
+class eQueuePropNotFound : public eQueuePropBase {};
+
 
 class cofqueue_prop :
 		public cmemory
@@ -42,7 +47,7 @@ public:
 	 *
 	 */
 	cofqueue_prop(
-			uint8_t of_version);
+			uint8_t of_version = OFP12_VERSION);
 
 
 	/**
@@ -166,12 +171,13 @@ public:
 			cofqueue_prop_min_rate const& qp);
 
 
+
 	/**
 	 *
 	 */
 	cofqueue_prop_min_rate&
 	operator= (
-			cofqueue_prop_min_rate const& qp);
+			cofqueue_prop const& qp);
 
 
 public:
@@ -243,6 +249,7 @@ public:
 	~cofqueue_prop_max_rate();
 
 
+
 	/**
 	 *
 	 */
@@ -250,12 +257,14 @@ public:
 			cofqueue_prop_max_rate const& qp);
 
 
+
 	/**
 	 *
 	 */
 	cofqueue_prop_max_rate&
 	operator= (
-			cofqueue_prop_max_rate const& qp);
+			cofqueue_prop const& qp);
+
 
 
 public:
@@ -343,6 +352,15 @@ public:
 	cofqueue_prop_expr&
 	operator= (
 			cofqueue_prop_expr const& qp);
+
+
+	/**
+	 *
+	 */
+	cofqueue_prop_expr&
+	operator= (
+			cofqueue_prop const& qp);
+
 
 
 public:
