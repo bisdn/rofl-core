@@ -68,6 +68,8 @@ void
 cofqueueproplist::unpack(
 		uint8_t *buf, size_t buflen)
 {
+	coflist<cofqueue_prop>::clear();
+
 	switch (of_version) {
 	case OFP10_VERSION:
 	case OFP12_VERSION: {
