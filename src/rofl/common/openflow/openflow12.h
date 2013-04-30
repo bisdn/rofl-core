@@ -1465,12 +1465,13 @@ OFP_ASSERT(sizeof(struct ofp12_queue_prop_experimenter) == 16);
 
 /* Full description for a queue. */
 struct ofp12_packet_queue {
-    uint32_t queue_id;     /* id for the specific queue. */
-    uint16_t len;          /* Length in bytes of this queue desc. */
-    uint8_t pad[2];        /* 64-bit alignment. */
+    uint32_t queue_id;     	/* id for the specific queue. */
+    uint32_t port;			/* Port this queue is attached to. */
+    uint16_t len;          	/* Length in bytes of this queue desc. */
+    uint8_t pad[6];        	/* 64-bit alignment. */
     struct ofp12_queue_prop_header properties[0]; /* List of properties. */
 };
-OFP_ASSERT(sizeof(struct ofp12_packet_queue) == 8);
+OFP_ASSERT(sizeof(struct ofp12_packet_queue) == 16);
 
 /* Query for port queue configuration. */
 struct ofp12_queue_get_config_request {
