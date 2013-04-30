@@ -50,6 +50,7 @@ extern "C" {
 #include "openflow/cofinlist.h"
 #include "openflow/cofaction.h"
 #include "openflow/cofaclist.h"
+#include "openflow/cofpacketqueuelist.h"
 #include "openflow/cofmatch.h"
 #include "openflow/cflowentry.h"
 #include "openflow/cgroupentry.h"
@@ -2052,7 +2053,8 @@ protected:
 	send_queue_get_config_reply(
 			cofctl *ctl,
 			uint32_t xid,
-			uint32_t portno);
+			uint32_t portno,
+			cofpacket_queue_list const& pql);
 
 
 
