@@ -171,12 +171,13 @@ public:
 			cofqueue_prop_min_rate const& qp);
 
 
+
 	/**
 	 *
 	 */
 	cofqueue_prop_min_rate&
 	operator= (
-			cofqueue_prop_min_rate const& qp);
+			cofqueue_prop const& qp);
 
 
 public:
@@ -248,6 +249,7 @@ public:
 	~cofqueue_prop_max_rate();
 
 
+
 	/**
 	 *
 	 */
@@ -255,12 +257,14 @@ public:
 			cofqueue_prop_max_rate const& qp);
 
 
+
 	/**
 	 *
 	 */
 	cofqueue_prop_max_rate&
 	operator= (
-			cofqueue_prop_max_rate const& qp);
+			cofqueue_prop const& qp);
+
 
 
 public:
@@ -348,6 +352,15 @@ public:
 	cofqueue_prop_expr&
 	operator= (
 			cofqueue_prop_expr const& qp);
+
+
+	/**
+	 *
+	 */
+	cofqueue_prop_expr&
+	operator= (
+			cofqueue_prop const& qp);
+
 
 
 public:

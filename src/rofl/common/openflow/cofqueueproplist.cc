@@ -87,7 +87,6 @@ cofqueueproplist::unpack(
 			buflen -= be16toh(qp->len);
 			buf += be16toh(qp->len);
 		}
-
 	} break;
 	case OFP13_VERSION: {
 		throw eNotImplemented();
@@ -118,7 +117,6 @@ cofqueueproplist::pack(
 			(*it).pack(buf, (*it).length());
 			buf += (*it).length();
 		}
-
 	} break;
 	case OFP13_VERSION: {
 		throw eNotImplemented();
@@ -139,8 +137,9 @@ cofqueueproplist::find_queue_prop(
 			it = begin(); it != end(); ++it) {
 		if ((*it).get_property() == property) {
 			return (*it);
+			// use it like this: cofqueue_prop_min_rate min_rate(queue_prop_list.find_queue_prop(OFPQT_MIN_RATE));
+			// to get an instance of type cofqueue_prop_min_rate with the appropriate helper methods
 		}
-
 	}
 	throw eQueuePropNotFound();
 }
