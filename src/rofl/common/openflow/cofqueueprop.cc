@@ -583,6 +583,8 @@ cofqueue_prop_expr::pack(uint8_t *buf, size_t buflen) const
 	case OFP12_VERSION: {
 		memcpy(buf, somem(), memlen());
 		memcpy(buf + memlen(), body.somem(), body.memlen());
+		struct ofp12_queue_prop_header* qp = (struct ofp12_queue_prop_header*)buf;
+		qp->len = htobe16(length());
 	} break;
 	case OFP13_VERSION: {
 		throw eNotImplemented();

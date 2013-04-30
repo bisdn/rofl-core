@@ -61,6 +61,7 @@ public:
 class eInternalError 		: public cerror {}; //< some internal error occured
 class eDebug 				: public cerror {};
 class eInval				: public cerror {};
+class eTooShort				: public cerror {};
 
 }; // end of namespace
 

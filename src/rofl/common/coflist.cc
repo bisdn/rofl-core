@@ -172,6 +172,7 @@ coflist<T>::empty() const
 #include "openflow/coxmatch.h"
 #include "protocols/cpppoetlv.h"
 //#include "experimental/protocols/clldptlv.h"
+#include "openflow/cofqueueprop.h"
 
 #if 1 
 template class coflist<cofinst>;
@@ -183,5 +184,6 @@ template class coflist<int>;
 template class coflist<coflist<int> >;
 template class coflist<coxmatch>;
 //template class coflist<clldptlv>;
+template class coflist<cofqueue_prop>;
 #endif
 
