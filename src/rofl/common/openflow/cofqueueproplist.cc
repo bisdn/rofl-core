@@ -7,6 +7,7 @@
 
 #include "cofqueueproplist.h"
 
+
 using namespace rofl;
 
 
@@ -79,28 +80,9 @@ cofqueueproplist::unpack(
 			if (buflen < be16toh(qp->len))
 				throw eInval();
 
-			switch (be16toh(qp->property)) {
-			case OFPQT_MIN_RATE: {
-				cofqueue_prop_min_rate min_rate(of_version);
-				min_rate.unpack(buf, be16toh(qp->len));
-				next() = min_rate;
-			} break;
-			case OFPQT_MAX_RATE: {
-				cofqueue_prop_max_rate max_rate(of_version);
-				max_rate.unpack(buf, be16toh(qp->len));
-				next() = max_rate;
-			} break;
-			case OFPQT_EXPERIMENTER: {
-				cofqueue_prop_expr expr(of_version);
-				expr.unpack(buf, be16toh(qp->len));
-				next() = expr;
-			} break;
-			default: {
-				cofqueue_prop unknown(of_version);
-				unknown.unpack(buf, be16toh(qp->len));
-				next() = unknown;
-			} break;
-			}
+			cofqueue_prop queue_prop(of_version);
+			queue_prop.unpack(buf, be16toh(qp->len));
+			next() = queue_prop;
 
 			buflen -= be16toh(qp->len);
 			buf += be16toh(qp->len);
@@ -155,8 +137,10 @@ cofqueueproplist::find_queue_prop(
 {
 	for (coflist<cofqueue_prop>::iterator
 			it = begin(); it != end(); ++it) {
-		if ((*it).get_property() == property)
+		if ((*it).get_property() == property) {
 			return (*it);
+		}
+
 	}
 	throw eQueuePropNotFound();
 }
