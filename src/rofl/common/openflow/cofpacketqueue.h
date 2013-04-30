@@ -9,6 +9,7 @@
 #define COFPACKETQUEUE_H_ 1
 
 #include "../cmemory.h"
+#include "../cerror.h"
 #include "openflow.h"
 #include "openflow_rofl_exceptions.h"
 
@@ -17,13 +18,18 @@
 namespace rofl
 {
 
+
+class ePacketQueueBase : public cerror {};
+class ePacketQueueNotFound : public ePacketQueueBase {};
+
+
 class cofpacket_queue :
 		public cmemory
 {
 private:
 
 	uint8_t				of_version;
-	cofqueueproplist	qpl;	//< list of queue properties
+	cofqueue_prop_list	qpl;	//< list of queue properties
 
 	union {
 		uint8_t						*ofpu_pqueue;
@@ -128,7 +134,7 @@ public:
 	/**
 	 *
 	 */
-	cofqueueproplist&
+	cofqueue_prop_list&
 	get_queue_prop_list();
 };
 

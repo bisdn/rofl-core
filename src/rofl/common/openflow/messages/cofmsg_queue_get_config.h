@@ -9,6 +9,7 @@
 #define COFMSG_QUEUE_GET_CONFIG_H_ 1
 
 #include "cofmsg.h"
+#include "../cofpacketqueuelist.h"
 
 namespace rofl
 {

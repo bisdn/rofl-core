@@ -11,7 +11,7 @@
 using namespace rofl;
 
 
-cofqueueproplist::cofqueueproplist(
+cofqueue_prop_list::cofqueue_prop_list(
 		uint8_t of_version) :
 			of_version(of_version)
 {
@@ -20,15 +20,15 @@ cofqueueproplist::cofqueueproplist(
 
 
 
-cofqueueproplist::~cofqueueproplist()
+cofqueue_prop_list::~cofqueue_prop_list()
 {
 
 }
 
 
 
-cofqueueproplist::cofqueueproplist(
-		cofqueueproplist const& qpl) :
+cofqueue_prop_list::cofqueue_prop_list(
+		cofqueue_prop_list const& qpl) :
 			of_version(qpl.of_version)
 {
 	*this = qpl;
@@ -36,9 +36,9 @@ cofqueueproplist::cofqueueproplist(
 
 
 
-cofqueueproplist&
-cofqueueproplist::operator= (
-		cofqueueproplist const& qpl)
+cofqueue_prop_list&
+cofqueue_prop_list::operator= (
+		cofqueue_prop_list const& qpl)
 {
 	if (this == &qpl)
 		return *this;
@@ -52,7 +52,7 @@ cofqueueproplist::operator= (
 
 
 size_t
-cofqueueproplist::length() const
+cofqueue_prop_list::length() const
 {
 	size_t len = 0;
 	for (coflist<cofqueue_prop>::const_iterator
@@ -65,7 +65,7 @@ cofqueueproplist::length() const
 
 
 void
-cofqueueproplist::unpack(
+cofqueue_prop_list::unpack(
 		uint8_t *buf, size_t buflen)
 {
 	coflist<cofqueue_prop>::clear();
@@ -103,7 +103,7 @@ cofqueueproplist::unpack(
 
 
 void
-cofqueueproplist::pack(
+cofqueue_prop_list::pack(
 		uint8_t *buf,
 		size_t buflen) const
 {
@@ -132,7 +132,7 @@ cofqueueproplist::pack(
 
 
 cofqueue_prop&
-cofqueueproplist::find_queue_prop(
+cofqueue_prop_list::find_queue_prop(
 		uint16_t property)
 {
 	for (coflist<cofqueue_prop>::iterator

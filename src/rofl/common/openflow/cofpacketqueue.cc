@@ -266,7 +266,7 @@ cofpacket_queue::set_port(
 
 
 
-cofqueueproplist&
+cofqueue_prop_list&
 cofpacket_queue::get_queue_prop_list()
 {
 	return qpl;

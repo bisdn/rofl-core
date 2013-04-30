@@ -1,25 +1,21 @@
 /*
- * cofqueueproplist.h
+ * cofpacketqueuelist.h
  *
  *  Created on: 30.04.2013
  *      Author: andi
  */
 
-#ifndef COFQUEUEPROPLIST_H_
-#define COFQUEUEPROPLIST_H_ 1
+#ifndef COFPACKETQUEUELIST_H_
+#define COFPACKETQUEUELIST_H_ 1
 
-#include "../cvastring.h"
-#include "../cerror.h"
 #include "../coflist.h"
-#include "openflow.h"
-
-#include "cofqueueprop.h"
+#include "cofpacketqueue.h"
 
 namespace rofl
 {
 
-class cofqueue_prop_list :
-	public coflist<cofqueue_prop>
+class cofpacket_queue_list :
+		public coflist<cofpacket_queue>
 {
 private:
 
@@ -31,7 +27,7 @@ public:
 	/**
 	 *
 	 */
-	cofqueue_prop_list(
+	cofpacket_queue_list(
 		uint8_t of_version);
 
 
@@ -40,23 +36,23 @@ public:
 	 *
 	 */
 	virtual
-	~cofqueue_prop_list();
+	~cofpacket_queue_list();
 
 
 
 	/**
 	 *
 	 */
-	cofqueue_prop_list(
-		cofqueue_prop_list const& qpl);
+	cofpacket_queue_list(
+		cofpacket_queue_list const& qpl);
 
 
 
 	/**
 	 */
-	cofqueue_prop_list&
+	cofpacket_queue_list&
 	operator= (
-		cofqueue_prop_list const& qpl);
+		cofpacket_queue_list const& qpl);
 
 
 public:
@@ -94,12 +90,12 @@ public:
 	/**
 	 *
 	 */
-	cofqueue_prop&
-	find_queue_prop(
-		uint16_t property);
+	cofpacket_queue&
+	find_packet_queue(
+		uint32_t queue_id);
 
 };
 
 }
 
-#endif /* COFQUEUEPROPLIST_H_ */
+#endif /* COFPACKETQUEUELIST_H_ */
