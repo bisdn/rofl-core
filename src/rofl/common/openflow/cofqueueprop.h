@@ -13,6 +13,17 @@
 #include "openflow.h"
 #include "openflow_rofl_exceptions.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <endian.h>
+#ifndef htobe16
+#include "../endian_conversion.h"
+#endif
+#ifdef __cplusplus
+}
+#endif
+
 namespace rofl
 {
 
