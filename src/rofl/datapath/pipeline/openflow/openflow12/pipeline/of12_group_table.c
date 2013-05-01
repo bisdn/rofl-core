@@ -343,7 +343,7 @@ void of12_destroy_bucket_list(of12_group_t *ge){
 		of12_destroy_buckets_stats(&bk_it->stats);
 		platform_free_shared(bk_it);
 	}
-	platform_free(ge->bc_list);
+	platform_free_shared(ge->bc_list);
 }
 static
 rofl_of12_gm_result_t of12_validate_group(of12_action_group_t* actions){
