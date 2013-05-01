@@ -1839,7 +1839,8 @@ void
 crofbase::send_queue_get_config_reply(
 		cofctl *ctl,
 		uint32_t xid,
-		uint32_t portno)
+		uint32_t portno,
+		cofpacket_queue_list const& pql)
 {
 	WRITELOG(CROFBASE, DBG, "crofbase::send_queue_get_config_reply()");
 
@@ -1847,7 +1848,8 @@ crofbase::send_queue_get_config_reply(
 			new cofmsg_queue_get_config_reply(
 					ctl->get_version(),
 					xid,
-					portno);
+					portno,
+					pql);
 
 	ctl_find(ctl)->send_message(pack);
 }
