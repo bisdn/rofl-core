@@ -29,7 +29,7 @@ for ALG in "$@"; do
 done
 
 cat <<-EOF
-"}"
+}
 
 #endif /* MATCHING_ALGORITHMS_AVAILABLE_H_ */
 

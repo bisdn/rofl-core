@@ -9,6 +9,7 @@
 #define COFMSG_QUEUE_GET_CONFIG_H_ 1
 
 #include "cofmsg.h"
+#include "../cofpacketqueuelist.h"
 
 namespace rofl
 {
@@ -144,7 +145,8 @@ class cofmsg_queue_get_config_reply :
 private:
 
 	// TODO: cofqueuelist
-	cmemory				queues;
+	//cmemory				queues;
+	cofpacket_queue_list	pql;
 
 	union {
 		uint8_t*								ofhu_queue_get_config_reply;
@@ -168,9 +170,11 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint32_t port_no = 0,
+			cofpacket_queue_list const &pql = cofpacket_queue_list(OFP12_VERSION));
+#if 0
 			uint8_t *data = (uint8_t*)0,
 			size_t datalen = 0);
-
+#endif
 
 	/**
 	 *
@@ -259,9 +263,8 @@ public:
 	/**
 	 *
 	 */
-	cmemory&
+	cofpacket_queue_list&
 	get_queues();
-	// TODO: cofqueue and the corresponding method here
 };
 
 

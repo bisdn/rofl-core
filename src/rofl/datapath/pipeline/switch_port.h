@@ -165,6 +165,7 @@ typedef struct switch_port{
 	port_features_t curr_max_speed;
 
 	//Queues
+	unsigned int max_queues; //This must be <= SWITCH_PORT_MAX_QUEUES
 	port_queue_t queues[SWITCH_PORT_MAX_QUEUES];
 		
 	/* 

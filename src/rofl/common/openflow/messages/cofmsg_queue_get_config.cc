@@ -232,10 +232,9 @@ cofmsg_queue_get_config_reply::cofmsg_queue_get_config_reply(
 		uint8_t of_version,
 		uint32_t xid,
 		uint32_t port_no,
-		uint8_t *data,
-		size_t datalen) :
+		cofpacket_queue_list const& pql) :
 	cofmsg(sizeof(struct ofp_header)),
-	queues(data, datalen)
+	pql(pql)
 {
 	ofh_queue_get_config_reply = soframe();
 
@@ -265,15 +264,18 @@ cofmsg_queue_get_config_reply::cofmsg_queue_get_config_reply(
 
 cofmsg_queue_get_config_reply::cofmsg_queue_get_config_reply(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	pql(OFP12_VERSION)
 {
 	ofh_queue_get_config_reply = soframe();
+	pql = cofpacket_queue_list(get_version());
 }
 
 
 
 cofmsg_queue_get_config_reply::cofmsg_queue_get_config_reply(
-		cofmsg_queue_get_config_reply const& queue_get_config)
+		cofmsg_queue_get_config_reply const& queue_get_config) :
+	pql(OFP12_VERSION)
 {
 	*this = queue_get_config;
 }
@@ -288,6 +290,7 @@ cofmsg_queue_get_config_reply::operator= (
 		return *this;
 
 	cofmsg::operator =(queue_get_config);
+	pql = queue_get_config.pql;
 
 	ofh_queue_get_config_reply = soframe();
 
@@ -325,13 +328,13 @@ cofmsg_queue_get_config_reply::length() const
 {
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_queue_get_config_reply) + queues.memlen());
+		return (sizeof(struct ofp10_queue_get_config_reply) + pql.length());
 	} break;
 	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_queue_get_config_reply) + queues.memlen());
+		return (sizeof(struct ofp12_queue_get_config_reply) + pql.length());
 	} break;
 	case OFP13_VERSION: {
-		return (sizeof(struct ofp13_queue_get_config_reply) + queues.memlen());
+		return (sizeof(struct ofp13_queue_get_config_reply) + pql.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -354,22 +357,16 @@ cofmsg_queue_get_config_reply::pack(uint8_t *buf, size_t buflen)
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		if (buflen < (sizeof(struct ofp10_queue_get_config_reply) + queues.memlen()))
-			throw eInval();
 		memcpy(buf, soframe(), sizeof(struct ofp10_queue_get_config_reply));
-		memcpy(buf + sizeof(struct ofp10_queue_get_config_reply), queues.somem(), queues.memlen());
+		pql.pack(buf + sizeof(struct ofp10_queue_get_config_reply), pql.length());
 	} break;
 	case OFP12_VERSION: {
-		if (buflen < (sizeof(struct ofp12_queue_get_config_reply) + queues.memlen()))
-			throw eInval();
 		memcpy(buf, soframe(), sizeof(struct ofp12_queue_get_config_reply));
-		memcpy(buf + sizeof(struct ofp12_queue_get_config_reply), queues.somem(), queues.memlen());
+		pql.pack(buf + sizeof(struct ofp12_queue_get_config_reply), pql.length());
 	} break;
 	case OFP13_VERSION: {
-		if (buflen < (sizeof(struct ofp13_queue_get_config_reply) + queues.memlen()))
-			throw eInval();
 		memcpy(buf, soframe(), sizeof(struct ofp13_queue_get_config_reply));
-		memcpy(buf + sizeof(struct ofp13_queue_get_config_reply), queues.somem(), queues.memlen());
+		pql.pack(buf + sizeof(struct ofp13_queue_get_config_reply), pql.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -395,23 +392,23 @@ cofmsg_queue_get_config_reply::validate()
 
 	ofh_queue_get_config_reply = soframe();
 
-	queues.clear();
+	pql.clear();
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
 		if (get_length() < sizeof(struct ofp10_queue_get_config_reply))
 			throw eBadSyntaxTooShort();
-		queues.assign((uint8_t*)(ofh10_queue_get_config_reply->queues), get_length() - sizeof(struct ofp10_queue_get_config_reply));
+		pql.unpack((uint8_t*)(ofh10_queue_get_config_reply->queues), get_length() - sizeof(struct ofp10_queue_get_config_reply));
 	} break;
 	case OFP12_VERSION: {
 		if (get_length() < sizeof(struct ofp12_queue_get_config_reply))
 			throw eBadSyntaxTooShort();
-		queues.assign((uint8_t*)(ofh12_queue_get_config_reply->queues), get_length() - sizeof(struct ofp12_queue_get_config_reply));
+		pql.unpack((uint8_t*)(ofh12_queue_get_config_reply->queues), get_length() - sizeof(struct ofp12_queue_get_config_reply));
 	} break;
 	case OFP13_VERSION: {
 		if (get_length() < sizeof(struct ofp13_queue_get_config_reply))
 			throw eBadSyntaxTooShort();
-		queues.assign((uint8_t*)(ofh13_queue_get_config_reply->queues), get_length() - sizeof(struct ofp13_queue_get_config_reply));
+		pql.unpack((uint8_t*)(ofh13_queue_get_config_reply->queues), get_length() - sizeof(struct ofp13_queue_get_config_reply));
 	} break;
 	default:
 		throw eBadRequestBadVersion();
@@ -461,10 +458,10 @@ cofmsg_queue_get_config_reply::set_port_no(uint32_t port_no)
 
 
 
-cmemory&
+cofpacket_queue_list&
 cofmsg_queue_get_config_reply::get_queues()
 {
-	return queues;
+	return pql;
 }
 
 

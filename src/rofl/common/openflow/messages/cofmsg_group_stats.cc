@@ -207,10 +207,7 @@ cofmsg_group_stats_reply::cofmsg_group_stats_reply(
 {
 	switch (of_version) {
 	case OFP12_VERSION: {
-		resize(sizeof(struct ofp12_stats_reply) + group_stats.size() * sizeof(struct ofp12_group_stats));
-		for (unsigned int i = 0; i < group_stats.size(); i++) {
-			group_stats[i].pack(soframe() + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_group_stats));
-		}
+		resize(length());
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -283,7 +280,7 @@ cofmsg_group_stats_reply::reset()
 void
 cofmsg_group_stats_reply::resize(size_t len)
 {
-	cofmsg::resize(len);
+	cofmsg_stats::resize(len);
 	switch (get_version()) {
 	case OFP12_VERSION: {
 		ofh_group_stats = soframe() + sizeof(struct ofp12_stats_reply);
@@ -305,7 +302,12 @@ cofmsg_group_stats_reply::length() const
 {
 	switch (get_version()) {
 	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_stats_reply) + group_stats.size() * sizeof(struct ofp12_group_stats));
+		size_t len = sizeof(struct ofp12_stats_reply);
+		for (std::vector<cofgroup_stats_reply>::const_iterator
+				it = group_stats.begin(); it != group_stats.end(); ++it) {
+			len += (*it).length();
+		}
+		return len;
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -334,8 +336,10 @@ cofmsg_group_stats_reply::pack(uint8_t *buf, size_t buflen)
 	case OFP12_VERSION: {
 		if (buflen < length())
 			throw eInval();
+		size_t offset = 0;
 		for (unsigned int i = 0; i < group_stats.size(); i++) {
-			group_stats[i].pack(soframe() + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_group_stats), sizeof(struct ofp12_group_stats));
+			group_stats[i].pack(soframe() + sizeof(struct ofp12_stats_reply) + offset, group_stats[i].length());
+			offset += group_stats[i].length();
 		}
 	} break;
 	case OFP13_VERSION: {
@@ -370,9 +374,16 @@ cofmsg_group_stats_reply::validate()
 	case OFP12_VERSION: {
 		if (get_length() < (sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_group_stats)))
 			throw eBadSyntaxTooShort();
-		for (unsigned int i = 0; i < ((get_length() - sizeof(struct ofp12_stats_reply)) / sizeof(struct ofp12_group_stats)); i++) {
+
+		size_t residual = get_length() - sizeof(struct ofp12_stats_reply);
+
+		while (residual >= sizeof(struct ofp12_group_stats)) {
+
+			uint8_t* p_group_stats_reply = soframe() + get_length() - residual;
+			size_t length = be16toh(((struct ofp12_group_stats*)p_group_stats_reply)->length);
+
 			cofgroup_stats_reply group_stats_reply(OFP12_VERSION);
-			group_stats_reply.unpack(soframe() + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_group_stats), sizeof(struct ofp12_group_stats));
+			group_stats_reply.unpack(p_group_stats_reply, length);
 			group_stats.push_back(group_stats_reply);
 		}
 	} break;

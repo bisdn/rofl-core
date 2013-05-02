@@ -181,7 +181,7 @@ ROFL_BEGIN_DECLS
 * @brief    Initializes the physical switch. This call must be done before anyone else. 
 * @ingroup  mgmt
 */
-void physical_switch_init(void);
+rofl_result_t physical_switch_init(void);
 
 /**
 * @brief    Destroys the physical switch state. 

@@ -32,7 +32,7 @@ struct ofp13_packet_queue {
 	uint32_t port;		/* Port this queue is attached to. */
 	uint16_t len;		/* Length in bytes of this queue desc. */
 	uint8_t pad[6];		/* 64-bit alignment. */
-	struct ofp_queue_prop_header properties[0]; /* List of properties. */
+	struct ofp12_queue_prop_header properties[0]; /* List of properties. */
 };
 OFP_ASSERT(sizeof(struct ofp13_packet_queue) == 16);
 
@@ -40,15 +40,15 @@ OFP_ASSERT(sizeof(struct ofp13_packet_queue) == 16);
 enum ofp13_queue_properties {
 #if 0
 	OFPQT_MIN_RATE = 1,				/* Minimum datarate guaranteed. */
-#endif
 	OFPQT_MAX_RATE = 2,				/* Maximum datarate. */
 	OFPQT_EXPERIMENTER = 0xffff,	/* Experimenter defined property. */
+#endif
 };
 
 
 /* Min-Rate queue property description. */
 struct ofp13_queue_prop_min_rate {
-    struct ofp_queue_prop_header prop_header; /* prop: OFPQT_MIN, len: 16. */
+    struct ofp12_queue_prop_header prop_header; /* prop: OFPQT_MIN, len: 16. */
     uint16_t rate;        			/* In 1/10 of a percent; >1000 -> disabled. */
     uint8_t pad[6];       			/* 64-bit alignment */
 };
@@ -57,7 +57,7 @@ OFP_ASSERT(sizeof(struct ofp13_queue_prop_min_rate) == 16);
 
 /* Max-Rate queue property description. */
 struct ofp13_queue_prop_max_rate {
-	struct ofp_queue_prop_header prop_header; /* prop: OFPQT_MAX, len: 16. */
+	struct ofp12_queue_prop_header prop_header; /* prop: OFPQT_MAX, len: 16. */
 	uint16_t rate;					/* In 1/10 of a percent; >1000 -> disabled. */
 	uint8_t pad[6];					/* 64-bit alignment */
 };
@@ -66,7 +66,7 @@ OFP_ASSERT(sizeof(struct ofp13_queue_prop_max_rate) == 16);
 
 /* Experimenter queue property description. */
 struct ofp13_queue_prop_experimenter {
-	struct ofp_queue_prop_header prop_header; /* prop: OFPQT_EXPERIMENTER, len: 16. */
+	struct ofp12_queue_prop_header prop_header; /* prop: OFPQT_EXPERIMENTER, len: 16. */
 	uint32_t experimenter;			/* Experimenter ID which takes the same form as in struct ofp_experimenter_header. */
 	uint8_t pad[4];					/* 64-bit alignment */
 	uint8_t data[0];				/* Experimenter defined data. */
@@ -1053,7 +1053,7 @@ struct ofp13_queue_get_config_reply {
     struct ofp_header header;
     uint32_t port;
     uint8_t pad[4];
-    struct ofp_packet_queue queues[0]; /* List of configured queues. */
+    struct ofp12_packet_queue queues[0]; /* List of configured queues. */
 };
 OFP_ASSERT(sizeof(struct ofp13_queue_get_config_reply) == 16);
 
