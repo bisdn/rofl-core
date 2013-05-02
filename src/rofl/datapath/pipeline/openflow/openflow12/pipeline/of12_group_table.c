@@ -54,6 +54,18 @@ void of12_destroy_group_table(of12_group_table_t* gt){
 }
 
 /**
+ * Copies the structure of the group table.
+ */
+rofl_result_t of12_fetch_group_table(of12_pipeline_t *pipeline, of12_group_table_t* group_table){
+	platform_rwlock_rdlock(pipeline->groups->rwlock);
+	
+	*group_table = *(pipeline->groups);
+	
+	platform_rwlock_rdunlock(pipeline->groups->rwlock);
+	return ROFL_SUCCESS;
+}
+
+/**
  * Searches in the table for an entry with a specific id
  * returns pointer if found or NULL if not
  */

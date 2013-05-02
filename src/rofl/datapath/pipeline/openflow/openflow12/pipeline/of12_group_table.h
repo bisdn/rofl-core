@@ -116,6 +116,7 @@ ROFL_BEGIN_DECLS
 //function declarations
 of12_group_table_t* of12_init_group_table(void);
 void of12_destroy_group_table(of12_group_table_t* gt);
+rofl_result_t of12_fetch_group_table(struct of12_pipeline *pipeline, of12_group_table_t* group_table);
 rofl_of12_gm_result_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
 rofl_of12_gm_result_t of12_group_delete( struct of12_pipeline *pipeline, of12_group_table_t *gt, uint32_t id);
 of12_group_t *of12_group_search(of12_group_table_t *gt, uint32_t id);
