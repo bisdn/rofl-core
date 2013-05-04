@@ -273,6 +273,7 @@ AC_CONFIG_FILES([
 	
 	examples/Makefile
 	examples/etherswitch/Makefile
+	examples/queuetest/Makefile
 
 
 	test/Makefile

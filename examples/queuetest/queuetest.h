@@ -8,6 +8,48 @@
 #ifndef QUEUETEST_H_
 #define QUEUETEST_H_
 
+#include <rofl/common/crofbase.h>
+
+using namespace rofl;
+
+class queuetest :
+		public crofbase
+{
+	enum queuetest_timer_t {
+		QUEUETEST_TIMER_INTERVAL = (0xe431 << 16),
+	};
+
+	std::set<cofdpt*> 	dpaths;
+
+public:
+
+	queuetest();
+
+	virtual
+	~queuetest();
+
+public:
+
+	virtual void
+	handle_timeout(
+			int opaque);
+
+public:
+
+	virtual void
+	handle_dpath_open(
+			cofdpt *dpt);
+
+	virtual void
+	handle_dpath_close(
+			cofdpt *dpt);
+
+	virtual void
+	handle_queue_get_config_reply(
+			cofdpt *dpt,
+			cofmsg_queue_get_config_reply *msg);
+
+};
 
 
 

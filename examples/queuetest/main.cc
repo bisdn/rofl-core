@@ -1,5 +1,5 @@
 #include <rofl/platform/unix/cunixenv.h>
-#include "etherswitch.h"
+#include "queuetest.h"
 
 int
 main(int argc, char** argv)
@@ -17,10 +17,10 @@ main(int argc, char** argv)
 
 	rofl::ciosrv::init();
 
-	etherswitch ethswitch;
+	queuetest qtest;
 
-	ethswitch.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
-	ethswitch.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));
+	qtest.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
+	qtest.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));
 
 	rofl::ciosrv::run();
 
