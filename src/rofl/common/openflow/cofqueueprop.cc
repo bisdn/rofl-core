@@ -210,7 +210,8 @@ cofqueue_prop::set_length(uint16_t len)
 
 
 cofqueue_prop_min_rate::cofqueue_prop_min_rate(
-	uint8_t of_version) :
+	uint8_t of_version,
+	uint16_t min_rate) :
 		cofqueue_prop(of_version)
 {
 	switch (of_version) {
@@ -230,6 +231,7 @@ cofqueue_prop_min_rate::cofqueue_prop_min_rate(
 	ofq_min_rate = somem();
 	set_property(OFPQT_MIN_RATE);
 	set_length(memlen());
+	set_rate(min_rate);
 }
 
 
@@ -363,7 +365,8 @@ cofqueue_prop_min_rate::set_rate(uint16_t rate)
 
 
 cofqueue_prop_max_rate::cofqueue_prop_max_rate(
-	uint8_t of_version) :
+	uint8_t of_version,
+	uint16_t max_rate) :
 		cofqueue_prop(of_version)
 {
 	switch (of_version) {
@@ -380,6 +383,7 @@ cofqueue_prop_max_rate::cofqueue_prop_max_rate(
 	ofq_max_rate = somem();
 	set_property(OFPQT_MAX_RATE);
 	set_length(memlen());
+	set_rate(max_rate);
 }
 
 

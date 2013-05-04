@@ -165,7 +165,7 @@ public:
 	 *
 	 */
 	cofqueue_prop_min_rate(
-			uint8_t of_version);
+			uint8_t of_version, uint16_t rate = 0);
 
 
 	/**
@@ -250,7 +250,7 @@ public:
 	 *
 	 */
 	cofqueue_prop_max_rate(
-			uint8_t of_version);
+			uint8_t of_version, uint16_t rate = 0);
 
 
 	/**
