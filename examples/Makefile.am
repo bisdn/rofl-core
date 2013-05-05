@@ -1,4 +1,4 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = etherswitch 
+SUBDIRS = etherswitch queuetest
 

@@ -338,7 +338,7 @@ cofmsg_group_stats_reply::pack(uint8_t *buf, size_t buflen)
 			throw eInval();
 		size_t offset = 0;
 		for (unsigned int i = 0; i < group_stats.size(); i++) {
-			group_stats[i].pack(soframe() + sizeof(struct ofp12_stats_reply) + offset, group_stats[i].length());
+			group_stats[i].pack(buf + sizeof(struct ofp12_stats_reply) + offset, group_stats[i].length());
 			offset += group_stats[i].length();
 		}
 	} break;
