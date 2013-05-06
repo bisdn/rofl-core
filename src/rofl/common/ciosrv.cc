@@ -31,10 +31,10 @@ ciosrv::ciosrv() :
 		tv_mem(sizeof(struct timeval))
 {
 	if (threads.find(tid) == threads.end()) {
-		fprintf(stderr, "ciosrv: NEEDS INITIALIZATION, tid: 0x%x\n", (int)tid);
+		//fprintf(stderr, "ciosrv: NEEDS INITIALIZATION, tid: 0x%x\n", (int)tid);
 		ciosrv::init(); // initialize ciothread structure for this thread if necessary
 	} else {
-		fprintf(stderr, "ciosrv: ALREADY INITIALIZED, tid: 0x%x\n", (int)tid);
+		//fprintf(stderr, "ciosrv: ALREADY INITIALIZED, tid: 0x%x\n", (int)tid);
 	}
 
 	threads[tid]->ciosrv_elements.insert(this);
@@ -111,10 +111,10 @@ restart3:
 	threads[tid]->ciosrv_elements.erase(this);
 
 	if (threads[tid]->ciosrv_elements.empty()) {
-		fprintf(stderr, "ciosrv: NEEDS DESTRUCTION, tid: 0x%x\n", (int)tid);
+		//fprintf(stderr, "ciosrv: NEEDS DESTRUCTION, tid: 0x%x\n", (int)tid);
 		ciosrv::destroy();
 	} else {
-		fprintf(stderr, "ciosrv: ALREADY DESTROYED, tid: 0x%x\n", (int)tid);
+		//fprintf(stderr, "ciosrv: ALREADY DESTROYED, tid: 0x%x\n", (int)tid);
 	}
 
 	tid = 0;
