@@ -262,7 +262,7 @@ public:
 	 * @param len new length of allocated memory area after resize operation
 	 * @exception eMemAllocFailed is thrown when the C-function realloc() fails
 	 */
-	uint8_t*
+	virtual uint8_t*
 	resize(
 			size_t len);
 

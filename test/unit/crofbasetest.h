@@ -9,7 +9,9 @@ using namespace rofl;
 class crofbaseTest : public CppUnit::TestFixture {
 
 	CPPUNIT_TEST_SUITE( crofbaseTest );
+#if 1
 	CPPUNIT_TEST( testConnect );
+#endif
 	CPPUNIT_TEST_SUITE_END();
 
 private:

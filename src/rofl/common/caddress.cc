@@ -28,7 +28,6 @@ caddress::caddress(int af)
 	}
 
 	resize(salen);
-	ca_saddr = (struct sockaddr*)somem();
 	ca_saddr->sa_family = af;
 }
 
@@ -84,22 +83,23 @@ caddress::caddress(
 		u_int16_t port) throw (eAddressInval) :
 	cmemory(sizeof(struct sockaddr_un))
 {
-	ca_saddr = (struct sockaddr*)somem();
-
 	switch (af) {
 	case AF_INET: {
+		resize(sizeof(struct sockaddr_in));
 		pton(af, astr);
 		ca_s4addr->sin_family 	= AF_INET;
 		ca_s4addr->sin_port 	= htons(port);
 		salen = sizeof(struct sockaddr_in);
 	} break;
 	case AF_INET6: {
+		resize(sizeof(struct sockaddr_in6));
 		pton(af, astr);
 		ca_s6addr->sin6_family 	= AF_INET6;
 		ca_s6addr->sin6_port 	= htons(port);
 		salen = sizeof(struct sockaddr_in6);
 	} break;
 	case AF_UNIX: {
+		resize(sizeof(struct sockaddr_un));
 		ca_suaddr->sun_family 	= AF_UNIX;
 		int n = (strlen(astr) < 108) ? strlen(astr) : 108;
 		strncpy(&(ca_suaddr->sun_path[0]), astr, n);
@@ -157,6 +157,15 @@ caddress::caddress(caddress const& ca)
 
 caddress::~caddress()
 {
+}
+
+
+uint8_t*
+caddress::resize(size_t len)
+{
+	cmemory::resize(len);
+	ca_saddr = (struct sockaddr*)somem();
+	return somem();
 }
 
 
@@ -234,25 +243,22 @@ caddress::operator& (caddress const& mask) const
 bool
 caddress::operator== (caddress const& ca) const
 {
-	if (ca.ca_saddr->sa_family != ca_saddr->sa_family)
-	{
+	if (ca.ca_saddr->sa_family != ca_saddr->sa_family) {
 		return false;
 	}
 
 	switch (ca_saddr->sa_family) {
-	case AF_INET:
-		if (ca_s4addr->sin_addr.s_addr == ca.ca_s4addr->sin_addr.s_addr)
-		{
+	case AF_INET: {
+		if (ca_s4addr->sin_addr.s_addr == ca.ca_s4addr->sin_addr.s_addr) {
 			return true;
 		}
-		break;
-	case AF_INET6:
+	} break;
+	case AF_INET6: {
 		if (not memcmp(ca_s6addr->sin6_addr.s6_addr, ca.ca_s6addr->sin6_addr.s6_addr,
-				sizeof(struct sockaddr_in6)))
-		{
+				16)) {
 			return true;
 		}
-		break;
+	} break;
 	default:
 		throw eNotImplemented();
 	}

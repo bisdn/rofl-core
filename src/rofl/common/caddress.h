@@ -387,6 +387,14 @@ public: // static
 	static void
 	test();
 
+private:
+
+	/**
+	 *
+	 */
+	virtual uint8_t*
+	resize(size_t len);
+
 };
 
 }; // end of namespace

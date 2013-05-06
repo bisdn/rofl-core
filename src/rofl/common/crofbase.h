@@ -1582,6 +1582,34 @@ protected:
 
 
 	/**
+	 * @brief	Sends a GROUP-DESC-STATS.request to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this AGGREGATE-STATS.request
+	 */
+	virtual uint32_t
+	send_group_desc_stats_request(
+		cofdpt *dpt,
+		uint16_t flags);
+
+
+
+	/**
+	 * @brief	Sends a GROUP-FEATURES-STATS.request to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this AGGREGATE-STATS.request
+	 */
+	virtual uint32_t
+	send_group_features_stats_request(
+		cofdpt *dpt,
+		uint16_t flags);
+
+
+
+	/**
 	 * @brief	Sends a STATS.reply to a controller entity.
 	 *
 	 * @param ctl pointer to cofctl instance

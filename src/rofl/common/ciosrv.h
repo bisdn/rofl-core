@@ -154,6 +154,7 @@ class ciosrv : public virtual csyslog
 	public:
 		pthread_t               tid;		// thread id
 		cpipe                   *pipe;	        // wakeup pipe
+		std::set<ciosrv*>		ciosrv_elements;// all ciosrv objects within this thread
 		std::map<int, ciosrv*>  rfds; 	        // read fds
 		std::map<int, ciosrv*>  wfds;	        // write fds
 		std::list<ciosrv*>      ciosrv_timeouts;// set with all ciosrv instances with timeout in next round

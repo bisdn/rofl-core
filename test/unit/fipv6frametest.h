@@ -1,6 +1,7 @@
 #include "rofl/common/protocols/fipv6frame.h"
 #include "rofl/common/cmemory.h"
 #include "rofl/common/caddress.h"
+#include "rofl/common/ciosrv.h"
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
