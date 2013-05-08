@@ -260,6 +260,15 @@ afa_result_t fwd_module_of12_fetch_group_table(uint64_t dpid, of12_group_table_t
  */
 of12_stats_group_msg_t * fwd_module_of12_get_group_stats(uint64_t dpid, uint32_t id);
 
+/**
+ * @name    fwd_module_of12_get_group_all_stats
+ * @brief   Instructs driver to fetch the GROUP statistics from all the groups
+ * @ingroup of12_fwd_module_async_event_processing
+ *
+ * @param dpid 		Datapath ID of the switch where the GROUPS are
+ */
+of12_stats_group_msg_t * fwd_module_of12_get_group_all_stats(uint64_t dpid, uint32_t id);
+
 //Add more here..
 
 //C++ extern C
