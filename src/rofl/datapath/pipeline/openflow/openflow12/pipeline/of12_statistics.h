@@ -160,15 +160,15 @@ typedef struct of12_stats_group_msg{
 
 ROFL_BEGIN_DECLS
 
-void of12_init_flow_stats(struct of12_flow_entry * entry);
-void of12_destroy_flow_stats(struct of12_flow_entry * entry);
+void __of12_init_flow_stats(struct of12_flow_entry * entry);
+void __of12_destroy_flow_stats(struct of12_flow_entry * entry);
 
 //msgs
-void of12_push_single_flow_stats_to_msg(of12_stats_flow_msg_t* msg, of12_stats_single_flow_msg_t* sfs);
-of12_stats_single_flow_msg_t* of12_init_stats_single_flow_msg(struct of12_flow_entry* entry);
-void of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg);
+void __of12_push_single_flow_stats_to_msg(of12_stats_flow_msg_t* msg, of12_stats_single_flow_msg_t* sfs);
+of12_stats_single_flow_msg_t* __of12_init_stats_single_flow_msg(struct of12_flow_entry* entry);
+void __of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg);
 
-of12_stats_flow_msg_t* of12_init_stats_flow_msg(void);
+of12_stats_flow_msg_t* __of12_init_stats_flow_msg(void);
 /**
 * @ingroup core_of12 
 * Destroy a flow_stats message
@@ -178,47 +178,34 @@ void of12_destroy_stats_flow_msg(of12_stats_flow_msg_t* msg);
 //Push to msg
 
 //Aggregate messages
-of12_stats_flow_aggregate_msg_t* of12_init_stats_flow_aggregate_msg(void);
+of12_stats_flow_aggregate_msg_t* __of12_init_stats_flow_aggregate_msg(void);
 /**
 * @ingroup core_of12 
 * Destroy aggreagated flow_stats message
 */
 void of12_destroy_stats_flow_aggregate_msg(of12_stats_flow_aggregate_msg_t* msg);
 
-void of12_stats_flow_reset_counts(struct of12_flow_entry * entry);
-void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec);
-void of12_stats_flow_update_match(struct of12_flow_entry * entry,uint64_t bytes_rx);
-void of12_stats_flow_inc(struct of12_flow_entry * entry,uint64_t bytes_rx);
-void of12_stats_table_init(struct of12_flow_table * table);
-void of12_stats_table_destroy(struct of12_flow_table * table);
-void of12_stats_table_lookup_inc(struct of12_flow_table * table);
-void of12_stats_table_matches_inc(struct of12_flow_table * table);
+void __of12_stats_flow_reset_counts(struct of12_flow_entry * entry);
+void __of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec);
+void __of12_stats_flow_update_match(struct of12_flow_entry * entry,uint64_t bytes_rx);
+void __of12_stats_flow_inc(struct of12_flow_entry * entry,uint64_t bytes_rx);
+void __of12_stats_table_init(struct of12_flow_table * table);
+void __of12_stats_table_destroy(struct of12_flow_table * table);
+void __of12_stats_table_lookup_inc(struct of12_flow_table * table);
+void __of12_stats_table_matches_inc(struct of12_flow_table * table);
 
-void of12_init_group_stats(of12_stats_group_t *group_stats);
-void of12_destroy_group_stats(of12_stats_group_t* group_stats);
-void of12_stats_group_update(of12_stats_group_t *gr_stats, uint64_t bytes);
-void of12_stats_group_inc_reference(of12_stats_group_t *gr_stats);
-void of12_stats_group_dec_reference(of12_stats_group_t *gr_stats);
-of12_stats_group_msg_t *of12_get_group_stats(struct of12_pipeline* pipeline,uint32_t id);
-of12_stats_group_msg_t *of12_get_group_all_stats(struct of12_pipeline* pipeline,uint32_t id);
-void of12_destroy_stats_group_msg(of12_stats_group_msg_t *msg);
+void __of12_init_group_stats(of12_stats_group_t *group_stats);
+void __of12_destroy_group_stats(of12_stats_group_t* group_stats);
+void __of12_stats_group_update(of12_stats_group_t *gr_stats, uint64_t bytes);
+void __of12_stats_group_inc_reference(of12_stats_group_t *gr_stats);
+void __of12_stats_group_dec_reference(of12_stats_group_t *gr_stats);
+of12_stats_group_msg_t* __of12_get_group_stats(struct of12_pipeline* pipeline,uint32_t id);
+of12_stats_group_msg_t* __of12_get_group_all_stats(struct of12_pipeline* pipeline,uint32_t id);
+void __of12_destroy_stats_group_msg(of12_stats_group_msg_t *msg);
 
-void of12_init_bucket_stats(of12_stats_bucket_counter_t *bc_stats);
-void of12_destroy_buckets_stats(of12_stats_bucket_counter_t *bc_stats);
-void of12_stats_bucket_update(of12_stats_bucket_counter_t* bc_stats, uint64_t bytes);
-
-/*
-* FIXME TODO XXX Move it down to the port
-*/
-void of12_stats_port_init(of12_stats_port_t* port_stats);
-void of12_stats_port_destroy(of12_stats_port_t *port_stats);
-void of12_stats_queue_init(of12_stats_queue_t *queue_stats);
-void of12_stats_queue_destroy(of12_stats_queue_t *queue_stats);
-
-void of12_stats_port_tx_packet_inc(of12_stats_port_t *port_stats, uint64_t bytes_tx);
-void of12_stats_port_rx_packet_inc(of12_stats_port_t *port_stats, uint64_t bytes_rx);
-void of12_stats_queue_tx_packet_inc(of12_stats_queue_t *queue_stats, uint64_t bytes);
-void of12_stats_queue_tx_errors_inc(of12_stats_queue_t *queue_stats);
+void __of12_init_bucket_stats(of12_stats_bucket_counter_t *bc_stats);
+void __of12_destroy_buckets_stats(of12_stats_bucket_counter_t *bc_stats);
+void __of12_stats_bucket_update(of12_stats_bucket_counter_t* bc_stats, uint64_t bytes);
 
 /*
 * External interfaces

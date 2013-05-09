@@ -78,10 +78,10 @@ typedef struct{
 ROFL_BEGIN_DECLS
 
 //Init packet matches
-void of12_init_packet_matches(datapacket_t *const pkt, of12_packet_matches_t* pkt_matches);
+void __of12_init_packet_matches(datapacket_t *const pkt, of12_packet_matches_t* pkt_matches);
 
 //Update packet matches after applying actions 
-void of12_update_packet_matches(datapacket_t *const pkt);
+void __of12_update_packet_matches(datapacket_t *const pkt);
 
 
 

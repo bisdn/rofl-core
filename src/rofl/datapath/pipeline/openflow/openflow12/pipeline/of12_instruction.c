@@ -5,7 +5,7 @@
 #include "../../../util/logging.h"
 
 /* Instructions init and destroyers */ 
-static void of12_init_instruction(of12_instruction_t* inst, of12_instruction_type_t type, of12_action_group_t* apply_actions, of12_write_actions_t* write_actions, unsigned int go_to_table){
+static void __of12_init_instruction(of12_instruction_t* inst, of12_instruction_type_t type, of12_action_group_t* apply_actions, of12_write_actions_t* write_actions, unsigned int go_to_table){
 
 	if(!type)
 		return;
@@ -21,7 +21,7 @@ static void of12_init_instruction(of12_instruction_t* inst, of12_instruction_typ
 
 
 
-static void of12_destroy_instruction(of12_instruction_t* inst){
+static void __of12_destroy_instruction(of12_instruction_t* inst){
 	//Check if empty	
 	if(inst->type == OF12_IT_NO_INSTRUCTION)
 		return;
@@ -30,21 +30,21 @@ static void of12_destroy_instruction(of12_instruction_t* inst){
 		of12_destroy_action_group(inst->apply_actions);
 
 	if(inst->write_actions)
-		of12_destroy_write_actions(inst->write_actions);
+		__of12_destroy_write_actions(inst->write_actions);
 }
 
 /* Instruction groups init and destroy */
-void of12_init_instruction_group(of12_instruction_group_t* group){
+void __of12_init_instruction_group(of12_instruction_group_t* group){
 	
 	memset(group,0,sizeof(of12_instruction_group_t));	
 }
 
-void of12_destroy_instruction_group(of12_instruction_group_t* group){
+void __of12_destroy_instruction_group(of12_instruction_group_t* group){
 
 	unsigned int i;	
 
 	for(i=0;i<OF12_IT_GOTO_TABLE;i++)
-		of12_destroy_instruction(&group->instructions[i]);
+		__of12_destroy_instruction(&group->instructions[i]);
 	
 	group->num_of_instructions=0;
 } 
@@ -55,7 +55,7 @@ void of12_destroy_instruction_group(of12_instruction_group_t* group){
 //Removal of instruction from the group.
 void of12_remove_instruction_from_the_group(of12_instruction_group_t* group, of12_instruction_type_t type){
 	
-	of12_destroy_instruction(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(type)]);
+	__of12_destroy_instruction(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(type)]);
 	group->num_of_instructions--;
 }
 
@@ -67,7 +67,7 @@ void of12_add_instruction_to_group(of12_instruction_group_t* group, of12_instruc
 	if(group->instructions[OF12_SAFE_IT_TYPE_INDEX(type)].type != OF12_IT_NO_INSTRUCTION)
 		of12_remove_instruction_from_the_group(group,type);
 		
-	of12_init_instruction(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(type)], type, apply_actions, write_actions, go_to_table);
+	__of12_init_instruction(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(type)], type, apply_actions, write_actions, go_to_table);
 	group->num_of_instructions++;
 
 	//Set flag for lazy copying
@@ -85,18 +85,18 @@ void of12_add_instruction_to_group(of12_instruction_group_t* group, of12_instruc
 
 
 //Update instructions
-rofl_result_t of12_update_instructions(of12_instruction_group_t* group, of12_instruction_group_t* new_group){
+rofl_result_t __of12_update_instructions(of12_instruction_group_t* group, of12_instruction_group_t* new_group){
 	
 
 	//Apply Actions
-	if(of12_update_apply_actions(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions, new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions)!=ROFL_SUCCESS)
+	if(__of12_update_apply_actions(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions, new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;	
 
 	//Make sure apply actions inst is marked as NULL, so that is not released
 	memset(&new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)],0,sizeof(of12_instruction_t));
 
 	//Write actions	
-	if(of12_update_write_actions(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions, new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions) != ROFL_SUCCESS)
+	if(__of12_update_write_actions(&group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions, new_group->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions) != ROFL_SUCCESS)
 		return ROFL_FAILURE;	
 
 	//Make sure write actions inst is marked as NULL, so that is not freed 
@@ -119,14 +119,14 @@ rofl_result_t of12_update_instructions(of12_instruction_group_t* group, of12_ins
 }
 
 /* Check whether instructions contain group */
-bool of12_instructions_contain_group(of12_flow_entry_t *const entry, const unsigned int group_id){
+bool __of12_instructions_contain_group(of12_flow_entry_t *const entry, const unsigned int group_id){
 
-	return of12_write_actions_has(entry->inst_grp.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions,OF12_AT_GROUP,group_id)
-		|| of12_apply_actions_has(entry->inst_grp.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions,OF12_AT_GROUP,group_id);
+	return __of12_write_actions_has(entry->inst_grp.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions,OF12_AT_GROUP,group_id)
+		|| __of12_apply_actions_has(entry->inst_grp.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions,OF12_AT_GROUP,group_id);
 }
 
 /* Process instructions */
-unsigned int of12_process_instructions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of12_instruction_group_t* instructions){
+unsigned int __of12_process_instructions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of12_instruction_group_t* instructions){
 
 	unsigned int i;
 
@@ -134,11 +134,11 @@ unsigned int of12_process_instructions(const struct of12_switch* sw, const unsig
 	
 		//Check all instructions in order 
 		switch(instructions->instructions[i].type){
-			case OF12_IT_APPLY_ACTIONS: of12_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, instructions->has_multiple_outputs); 
+			case OF12_IT_APPLY_ACTIONS: __of12_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, instructions->has_multiple_outputs); 
 					break;
-    			case OF12_IT_CLEAR_ACTIONS: of12_clear_write_actions((of12_write_actions_t*)pkt->write_actions);
+    			case OF12_IT_CLEAR_ACTIONS: __of12_clear_write_actions((of12_write_actions_t*)pkt->write_actions);
 					break;
-			case OF12_IT_WRITE_ACTIONS: of12_update_packet_write_actions(pkt, instructions->instructions[i].write_actions);
+			case OF12_IT_WRITE_ACTIONS: __of12_update_packet_write_actions(pkt, instructions->instructions[i].write_actions);
 					break;
     			case OF12_IT_WRITE_METADATA: //TODO:
 					break;
@@ -156,7 +156,7 @@ unsigned int of12_process_instructions(const struct of12_switch* sw, const unsig
 }
 
 //Copy (clone) instructions: TODO evaluate if is necessary to check for errors
-void of12_copy_instruction_group(of12_instruction_group_t* origin, of12_instruction_group_t* dest){
+void __of12_copy_instruction_group(of12_instruction_group_t* origin, of12_instruction_group_t* dest){
 	
 	unsigned int i;
 	
@@ -174,11 +174,11 @@ void of12_copy_instruction_group(of12_instruction_group_t* origin, of12_instruct
 			
 			case OF12_IT_APPLY_ACTIONS:  
     					dest->instructions[i] = origin->instructions[i];	
-    					dest->instructions[i].apply_actions = of12_copy_action_group(origin->instructions[i].apply_actions);	
+    					dest->instructions[i].apply_actions = __of12_copy_action_group(origin->instructions[i].apply_actions);	
 					break;
 			case OF12_IT_WRITE_ACTIONS: 
     					dest->instructions[i] = origin->instructions[i];	
-    					dest->instructions[i].write_actions = of12_copy_write_actions(origin->instructions[i].write_actions);	
+    					dest->instructions[i].write_actions = __of12_copy_write_actions(origin->instructions[i].write_actions);	
 					break;
 			
 			default: //Empty instruction 
@@ -190,7 +190,7 @@ void of12_copy_instruction_group(of12_instruction_group_t* origin, of12_instruct
 
 
 
-void of12_dump_instructions(of12_instruction_group_t group){
+void __of12_dump_instructions(of12_instruction_group_t group){
 
 	unsigned int i,has_write_actions=0, has_apply_actions=0;
 
@@ -227,22 +227,22 @@ void of12_dump_instructions(of12_instruction_group_t group){
 	}
 	if( has_apply_actions ){
 		ROFL_PIPELINE_INFO_NO_PREFIX("\n\t\t\tAPP.ACTIONs:");
-		of12_dump_action_group(group.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions);
+		__of12_dump_action_group(group.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions);
 	}
 	if( has_write_actions ){
 		ROFL_PIPELINE_INFO_NO_PREFIX("\n\t\t\tWR.ACTIONs:");
-		of12_dump_write_actions(group.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions);
+		__of12_dump_write_actions(group.instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions);
 	}	
 }
 
-bool of12_instruction_has(of12_instruction_group_t *inst_grp, of12_packet_action_type_t type, uint64_t value){
+bool __of12_instruction_has(of12_instruction_group_t *inst_grp, of12_packet_action_type_t type, uint64_t value){
 	///returns true if the action type with the specific value is in the set of instructions.
 	
-	return ( of12_write_actions_has(inst_grp->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions, type, value) ||
-		of12_apply_actions_has(inst_grp->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions, type, value) );
+	return ( __of12_write_actions_has(inst_grp->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_WRITE_ACTIONS)].write_actions, type, value) ||
+		__of12_apply_actions_has(inst_grp->instructions[OF12_SAFE_IT_TYPE_INDEX(OF12_IT_APPLY_ACTIONS)].apply_actions, type, value) );
 }
 
-rofl_result_t of12_validate_instructions(of12_group_table_t *gt, of12_instruction_group_t* inst_grp){
+rofl_result_t __of12_validate_instructions(of12_group_table_t *gt, of12_instruction_group_t* inst_grp){
 	int i, num_of_output_actions=0;
 	
 	//if there is a group action we should check that the group exists
@@ -253,13 +253,13 @@ rofl_result_t of12_validate_instructions(of12_group_table_t *gt, of12_instructio
 				break;
 				
 			case OF12_IT_APPLY_ACTIONS:
-				if(of12_validate_action_group(inst_grp->instructions[i].apply_actions, gt)!=true)
+				if(__of12_validate_action_group(inst_grp->instructions[i].apply_actions, gt)!=true)
 					return ROFL_FAILURE;
 				num_of_output_actions+=inst_grp->instructions[i].apply_actions->num_of_output_actions;
 				break;
 				
 			case OF12_IT_WRITE_ACTIONS:
-				if(of12_validate_write_actions(inst_grp->instructions[i].write_actions, gt)!=true)
+				if(__of12_validate_write_actions(inst_grp->instructions[i].write_actions, gt)!=true)
 					return ROFL_FAILURE;
 				num_of_output_actions+=inst_grp->instructions[i].write_actions->num_of_output_actions;
 				break;

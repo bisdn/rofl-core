@@ -37,7 +37,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_overlapping(of12_flow_entry
 		return NULL;
 
 	for(it=start_entry; it != NULL; it=it->next){
-		if( of12_flow_entry_check_overlap(it, entry, true, check_cookie, out_port, out_group) )
+		if( __of12_flow_entry_check_overlap(it, entry, true, check_cookie, out_port, out_group) )
 			return it;
 	}	
 	return NULL;
@@ -55,7 +55,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_identical(of12_flow_entry_t
 		return NULL;
 
 	for(it=start_entry; it != NULL; it=it->next){
-		if( of12_flow_entry_check_equal(it, entry, out_port, out_group) )
+		if( __of12_flow_entry_check_equal(it, entry, out_port, out_group) )
 			return it;
 	}	
 	return NULL;
@@ -102,7 +102,7 @@ static rofl_result_t of12_remove_flow_entry_table_specific_imp(of12_flow_table_t
 	platform_rwlock_wrunlock(table->rwlock);
 
 	//Destroy entry
-	return of12_destroy_flow_entry_with_reason(specific_entry, reason);
+	return __of12_destroy_flow_entry_with_reason(specific_entry, reason);
 }
 
 /* 
@@ -246,7 +246,7 @@ static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_tab
 		
 		if( strict == STRICT ){
 			//Strict make sure they are equal
-			if( of12_flow_entry_check_equal(it, entry, out_port, out_group ) ){
+			if( __of12_flow_entry_check_equal(it, entry, out_port, out_group ) ){
 				
 				if(of12_remove_flow_entry_table_specific_imp(table, it, reason) != ROFL_SUCCESS){
 					assert(0); //This should never happen
@@ -256,7 +256,7 @@ static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_tab
 				break;
 			}
 		}else{
-			if( of12_flow_entry_check_contained(it, entry, strict, true, out_port, out_group) ){
+			if( __of12_flow_entry_check_contained(it, entry, strict, true, out_port, out_group) ){
 				
 				if(of12_remove_flow_entry_table_specific_imp(table, it, reason) != ROFL_SUCCESS){
 					assert(0); //This should never happen
@@ -331,15 +331,15 @@ rofl_result_t of12_modify_flow_entry_loop(of12_flow_table_t *const table, of12_f
 
 		if( strict == STRICT ){
 			//Strict make sure they are equal
-			if( of12_flow_entry_check_equal(it, entry, OF12_PORT_ANY, OF12_GROUP_ANY) ){
-				if(of12_update_flow_entry(it, entry, reset_counts) != ROFL_SUCCESS)
+			if( __of12_flow_entry_check_equal(it, entry, OF12_PORT_ANY, OF12_GROUP_ANY) ){
+				if(__of12_update_flow_entry(it, entry, reset_counts) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
 				moded++;
 				break;
 			}
 		}else{
-			if( of12_flow_entry_check_contained(it, entry, strict, true, OF12_PORT_ANY, OF12_GROUP_ANY) ){
-				if(of12_update_flow_entry(it, entry, reset_counts) != ROFL_SUCCESS)
+			if( __of12_flow_entry_check_contained(it, entry, strict, true, OF12_PORT_ANY, OF12_GROUP_ANY) ){
+				if(__of12_update_flow_entry(it, entry, reset_counts) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
 				moded++;
 			}
@@ -389,7 +389,7 @@ of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const table, of1
 		bool matched = true;
 		
 		for( it=entry->matchs ; it ; it=it->next ){
-			if(!of12_check_match(pkt_matches, it)){
+			if(!__of12_check_match(pkt_matches, it)){
 				matched = false;
 				break;
 			}
@@ -446,15 +446,15 @@ rofl_result_t of12_get_flow_stats_loop(struct of12_flow_table *const table,
 	for(entry = table->entries; entry!=NULL; entry = entry->next){
 	
 		//Check if is contained 
-		if(of12_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
+		if(__of12_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
 			//Create a new single flow entry and fillin 
-			flow_stats = of12_init_stats_single_flow_msg(entry);
+			flow_stats = __of12_init_stats_single_flow_msg(entry);
 			
 			if(!flow_stats)
 				return ROFL_FAILURE;	
 	
 			//Push this stat to the msg
-			of12_push_single_flow_stats_to_msg(msg, flow_stats);	
+			__of12_push_single_flow_stats_to_msg(msg, flow_stats);	
 		}
 	
 	}
@@ -491,7 +491,7 @@ rofl_result_t of12_get_flow_aggregate_stats_loop(struct of12_flow_table *const t
 	for(entry = table->entries; entry!=NULL; entry = entry->next){
 	
 		//Check if is contained 
-		if(of12_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
+		if(__of12_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
 			//Increment stats
 			msg->packet_count += entry->stats.packet_count;
 			msg->byte_count += entry->stats.byte_count;
@@ -521,7 +521,7 @@ of12_flow_entry_t* of12_find_entry_using_group_loop(of12_flow_table_t *const tab
 		bool has_group = false;	
 		
 		for( it=entry->matchs; it; it=it->next ){
-			if(of12_instructions_contain_group(entry, group_id)){
+			if(__of12_instructions_contain_group(entry, group_id)){
 				has_group = true;
 				break;
 			}
@@ -547,7 +547,7 @@ rofl_result_t of12_destroy_loop(struct of12_flow_table *const table){
 	//Destroy all entries
 	for(entry = table->entries; entry; entry = next){
 		next = entry->next;
-		of12_destroy_flow_entry_with_reason(entry, OF12_FLOW_REMOVE_NO_REASON);
+		__of12_destroy_flow_entry_with_reason(entry, OF12_FLOW_REMOVE_NO_REASON);
 	}
 
 	table->entries = NULL;

@@ -108,8 +108,8 @@ ROFL_BEGIN_DECLS
 
 //Instruction group
 
-void of12_init_instruction_group(of12_instruction_group_t* group);
-void of12_destroy_instruction_group(of12_instruction_group_t* group);
+void __of12_init_instruction_group(of12_instruction_group_t* group);
+void __of12_destroy_instruction_group(of12_instruction_group_t* group);
 
 //Add/remove instructions to/from group
 /**
@@ -130,22 +130,22 @@ void of12_add_instruction_to_group(of12_instruction_group_t* group, of12_instruc
 void of12_remove_instruction_from_the_group(of12_instruction_group_t* group, of12_instruction_type_t type);
 
 //Update instructions
-rofl_result_t of12_update_instructions(of12_instruction_group_t* group, of12_instruction_group_t* new_group);
+rofl_result_t __of12_update_instructions(of12_instruction_group_t* group, of12_instruction_group_t* new_group);
 
 //Check whether instructions contain group
-bool of12_instructions_contain_group(struct of12_flow_entry *const entry, const unsigned int group_id);
+bool __of12_instructions_contain_group(struct of12_flow_entry *const entry, const unsigned int group_id);
 
 //Copy (clone) instructions: TODO evaluate if is necessary to check for errors
-void of12_copy_instruction_group(of12_instruction_group_t* origin, of12_instruction_group_t* dest);
+void __of12_copy_instruction_group(of12_instruction_group_t* origin, of12_instruction_group_t* dest);
 
-unsigned int of12_process_instructions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of12_instruction_group_t* instructions);
+unsigned int __of12_process_instructions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *const pkt, const of12_instruction_group_t* instructions);
 
-bool of12_instruction_has(of12_instruction_group_t *inst_grp, of12_packet_action_type_t type, uint64_t value);
+bool __of12_instruction_has(of12_instruction_group_t *inst_grp, of12_packet_action_type_t type, uint64_t value);
 
-rofl_result_t of12_validate_instructions(struct of12_group_table *gt, of12_instruction_group_t* inst_grp);
+rofl_result_t __of12_validate_instructions(struct of12_group_table *gt, of12_instruction_group_t* inst_grp);
 
 //Dump
-void of12_dump_instructions(of12_instruction_group_t group);
+void __of12_dump_instructions(of12_instruction_group_t group);
 
 //C++ extern C
 ROFL_END_DECLS

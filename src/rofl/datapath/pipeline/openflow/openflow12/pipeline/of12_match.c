@@ -227,7 +227,7 @@ inline of12_match_t* of12_init_icmpv4_code_match(of12_match_t* prev, of12_match_
 //Add more here...
 
 
-
+#if 0
 /* Instruction groups init and destroy */
 of12_match_group_t* of12_new_match_group(){
 
@@ -240,18 +240,18 @@ of12_match_group_t* of12_new_match_group(){
 
 	return group;
 }
-
+#endif
 
 
 
 /* Instruction groups init and destroy */
-void of12_init_match_group(of12_match_group_t* group){
+void __of12_init_match_group(of12_match_group_t* group){
 
 	memset(group,0,sizeof(of12_match_group_t));
 }
 
 
-void of12_destroy_match_group(of12_match_group_t* group){
+void __of12_destroy_match_group(of12_match_group_t* group){
 	of12_match_t *match;
 
 	if (!group->head)
@@ -272,7 +272,7 @@ void of12_destroy_match_group(of12_match_group_t* group){
 
 
 
-void of12_match_group_push_back(of12_match_group_t* group, of12_match_t* match){
+void __of12_match_group_push_back(of12_match_group_t* group, of12_match_t* match){
 
 	if (!group)
 		return;
@@ -292,7 +292,7 @@ void of12_match_group_push_back(of12_match_group_t* group, of12_match_t* match){
 
 
 /* Push match at the end of the match */
-rofl_result_t of12_add_match(of12_match_t* root_match, of12_match_t* add_match){
+rofl_result_t __of12_add_match(of12_match_t* root_match, of12_match_t* add_match){
 	of12_match_t* it;
 	
 	it = root_match;
@@ -312,7 +312,7 @@ rofl_result_t of12_add_match(of12_match_t* root_match, of12_match_t* add_match){
 /*
 * Copy match to heap. Leaves next and prev pointers to NULL
 */
-inline of12_match_t* of12_copy_match(of12_match_t* match){
+inline of12_match_t* __of12_copy_match(of12_match_t* match){
 	switch(match->type){
 
 		case OF12_MATCH_IN_PORT: return of12_init_port_in_match(NULL, NULL, ((utern32_t*)match->value)->value);
@@ -363,7 +363,7 @@ inline of12_match_t* of12_copy_match(of12_match_t* match){
 /* 
 * Whole (linked list) Match copy -> this should be deprecated in favour of the match group
 */
-of12_match_t* of12_copy_matches(of12_match_t* matches){
+of12_match_t* __of12_copy_matches(of12_match_t* matches){
 
 	of12_match_t* prev, *curr, *it, *copy;
 	
@@ -372,7 +372,7 @@ of12_match_t* of12_copy_matches(of12_match_t* matches){
 	
 	for(prev=NULL,copy=NULL, it=matches; it; it = it->next){
 
-		curr = of12_copy_match(it);
+		curr = __of12_copy_match(it);
 
 		if(!curr){
 			//FIXME: attempt to delete previous
@@ -398,7 +398,7 @@ of12_match_t* of12_copy_matches(of12_match_t* matches){
 /*
 * Try to find the largest common value among match1 and match2, being ALWAYS match2 with a more strict mask 
 */
-inline of12_match_t* of12_get_alike_match(of12_match_t* match1, of12_match_t* match2){
+inline of12_match_t* __of12_get_alike_match(of12_match_t* match1, of12_match_t* match2){
 	utern_t* common_tern = NULL;	
 
 	if( match1->type != match2->type )
@@ -498,7 +498,7 @@ void of12_destroy_match(of12_match_t* match){
 */
 
 //Compare matches
-inline bool of12_equal_matches(of12_match_t* match1, of12_match_t* match2){
+inline bool __of12_equal_matches(of12_match_t* match1, of12_match_t* match2){
 
 	if( match1->type != match2->type )
 		return false; 
@@ -550,7 +550,7 @@ inline bool of12_equal_matches(of12_match_t* match1, of12_match_t* match2){
 }
 
 //Finds out if sub_match is a submatch of match
-inline bool of12_is_submatch(of12_match_t* sub_match, of12_match_t* match){
+inline bool __of12_is_submatch(of12_match_t* sub_match, of12_match_t* match){
 
 	if( match->type != sub_match->type )
 		return false; 
@@ -604,7 +604,7 @@ inline bool of12_is_submatch(of12_match_t* sub_match, of12_match_t* match){
 * CHECK fields against packet
 *
 */
-inline bool of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* it){
+inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* it){
 	if(!it)
 		return false;
 	
@@ -688,7 +688,7 @@ inline bool of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* it)
 */
 
 //Dump packet matches
-void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
+void __of12_dump_packet_matches(of12_packet_matches_t *const pkt){
 
 	ROFL_PIPELINE_DEBUG_NO_PREFIX("Packet matches [");	
 
@@ -762,7 +762,7 @@ void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
 }
 
 //Matches without mask (in matches that do not support)
-void of12_dump_matches(of12_match_t* matches){
+void __of12_dump_matches(of12_match_t* matches){
 	of12_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){
@@ -837,7 +837,7 @@ void of12_dump_matches(of12_match_t* matches){
 }
 
 //Matches with mask (including matches that do not support)
-void of12_full_dump_matches(of12_match_t* matches){
+void __of12_full_dump_matches(of12_match_t* matches){
 	of12_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){

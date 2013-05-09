@@ -24,7 +24,7 @@
  * of12_stats_flow_init
  * stores the time when the flow entry was created
  */
-void of12_init_flow_stats(of12_flow_entry_t * entry)
+void __of12_init_flow_stats(of12_flow_entry_t * entry)
 {
 	struct timeval now;
 	__of12_gettimeofday(&now, NULL);
@@ -42,7 +42,7 @@ void of12_init_flow_stats(of12_flow_entry_t * entry)
  * of12_stats_flow_destroy
  * basically destroys the mutex
  */
-void of12_destroy_flow_stats(of12_flow_entry_t* entry)
+void __of12_destroy_flow_stats(of12_flow_entry_t* entry)
 {
 	platform_mutex_destroy(entry->stats.mutex);
 }
@@ -51,7 +51,7 @@ void of12_destroy_flow_stats(of12_flow_entry_t* entry)
 /*
 * Msg aggregate flow stats
 */
-of12_stats_flow_aggregate_msg_t* of12_init_stats_flow_aggregate_msg(){
+of12_stats_flow_aggregate_msg_t* __of12_init_stats_flow_aggregate_msg(){
 
 	of12_stats_flow_aggregate_msg_t* msg = (of12_stats_flow_aggregate_msg_t*)platform_malloc_shared(sizeof(of12_stats_flow_aggregate_msg_t));
 
@@ -70,7 +70,7 @@ void of12_destroy_stats_flow_aggregate_msg(of12_stats_flow_aggregate_msg_t* msg)
 /*
 * Msg flow stats
 */
-of12_stats_single_flow_msg_t* of12_init_stats_single_flow_msg(of12_flow_entry_t* entry){
+of12_stats_single_flow_msg_t* __of12_init_stats_single_flow_msg(of12_flow_entry_t* entry){
 
 	of12_stats_single_flow_msg_t* msg;
 
@@ -100,14 +100,14 @@ of12_stats_single_flow_msg_t* of12_init_stats_single_flow_msg(of12_flow_entry_t*
 	msg->packet_count = entry->stats.packet_count;
 
 	//Get durations
-	of12_stats_flow_get_duration(entry, &msg->duration_sec, &msg->duration_nsec);
+	__of12_stats_flow_get_duration(entry, &msg->duration_sec, &msg->duration_nsec);
 
 	//Copy matches
 	//TODO: deprecate this in favour of group_matches
-	msg->matches = of12_copy_matches(entry->matchs);
+	msg->matches = __of12_copy_matches(entry->matchs);
 	
 	//Copy instructions
-	of12_copy_instruction_group(&entry->inst_grp,msg->inst_grp);
+	__of12_copy_instruction_group(&entry->inst_grp,msg->inst_grp);
 
 	return msg;
 }
@@ -127,14 +127,14 @@ void of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg){
 	}
 
 	//Destroy instructions
-	of12_destroy_instruction_group(msg->inst_grp);
+	__of12_destroy_instruction_group(msg->inst_grp);
 	
 	
 	platform_free_shared(msg->inst_grp);
 	platform_free_shared(msg);
 }
 
-of12_stats_flow_msg_t* of12_init_stats_flow_msg(){
+of12_stats_flow_msg_t* __of12_init_stats_flow_msg(){
 
 	of12_stats_flow_msg_t* msg = (of12_stats_flow_msg_t*)platform_malloc_shared(sizeof(of12_stats_flow_msg_t)); 
 
@@ -150,7 +150,7 @@ void of12_destroy_stats_flow_msg(of12_stats_flow_msg_t* msg){
 	
 	for(item=msg->flows_head; item; item = next_item){
 		next_item = item->next;
-		of12_destroy_stats_single_flow_msg(item);
+		__of12_destroy_stats_single_flow_msg(item);
 	}
 	
 	//If there are single flow messages delete them	
@@ -160,7 +160,7 @@ void of12_destroy_stats_flow_msg(of12_stats_flow_msg_t* msg){
 }
 
 //Push to stats_flow_msg
-void of12_push_single_flow_stats_to_msg(of12_stats_flow_msg_t* msg, of12_stats_single_flow_msg_t* sfs){
+void __of12_push_single_flow_stats_to_msg(of12_stats_flow_msg_t* msg, of12_stats_single_flow_msg_t* sfs){
 
 	if(!msg)
 		return;
@@ -178,8 +178,8 @@ void of12_push_single_flow_stats_to_msg(of12_stats_flow_msg_t* msg, of12_stats_s
 /**
  * of12_stats_flow_reset_counts
  */
-void of12_stats_flow_reset_counts(of12_flow_entry_t * entry)
-{
+void __of12_stats_flow_reset_counts(of12_flow_entry_t * entry){
+
 	platform_mutex_lock(entry->stats.mutex);
 	entry->stats.packet_count = entry->stats.byte_count =  0;
 	platform_mutex_unlock(entry->stats.mutex);
@@ -188,7 +188,8 @@ void of12_stats_flow_reset_counts(of12_flow_entry_t * entry)
 /**
  * of12_stats_flow_get_duration()
  */
-void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec){
+void __of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec){
+
 	struct timeval now, diff;
 
 	__of12_gettimeofday(&now, NULL);
@@ -203,7 +204,7 @@ void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec,
  * of12_stats_flow_update_match
  * input arguments: bytes_rx, flow_entry
  */
-void of12_stats_flow_update_match(of12_flow_entry_t * entry,uint64_t bytes_rx){
+void __of12_stats_flow_update_match(of12_flow_entry_t * entry,uint64_t bytes_rx){
 	platform_atomic_inc64(&entry->stats.packet_count,entry->stats.mutex);
 	platform_atomic_add64(&entry->stats.byte_count,&bytes_rx, entry->stats.mutex);
 }
@@ -212,8 +213,8 @@ void of12_stats_flow_update_match(of12_flow_entry_t * entry,uint64_t bytes_rx){
 /**
  * Initializes table statistics state
  */
-void of12_stats_table_init(of12_flow_table_t * table)
-{
+void __of12_stats_table_init(of12_flow_table_t * table){
+
 	table->stats.lookup_count = 0;
 	table->stats.matched_count = 0;
 
@@ -224,8 +225,8 @@ void of12_stats_table_init(of12_flow_table_t * table)
 /**
  * Destroys table statistics state
  */
-void of12_stats_table_destroy(of12_flow_table_t * table)
-{
+void __of12_stats_table_destroy(of12_flow_table_t * table){
+
 	platform_mutex_destroy(table->stats.mutex);
 }
 //NOTE this functions add too much overhead!
@@ -233,24 +234,23 @@ void of12_stats_table_destroy(of12_flow_table_t * table)
  * of12_stats_table_lookup_update
  * input arguments: flow_table ...?
  */
-void of12_stats_table_lookup_inc(of12_flow_table_t * table)
-{
+void __of12_stats_table_lookup_inc(of12_flow_table_t * table){
+
 	platform_atomic_inc64(&table->stats.lookup_count,table->stats.mutex);
 }
 /**
  * of12_stats_table_matched_update
  * input arguments: flow_table ...?
  */
-void of12_stats_table_matches_inc(of12_flow_table_t * table)
-{
+void __of12_stats_table_matches_inc(of12_flow_table_t * table){
+
 	platform_atomic_inc64(&table->stats.lookup_count,table->stats.mutex);
 	platform_atomic_inc64(&table->stats.matched_count,table->stats.mutex);
 }
 
-
+#if 0
 //Port & Queue functions
-void of12_stats_port_init(of12_stats_port_t *port_stats)
-{
+void __of12_stats_port_init(of12_stats_port_t *port_stats){
 	port_stats->rx_packets = 0;
 	port_stats->tx_packets = 0;
 	port_stats->rx_bytes = 0;
@@ -317,8 +317,9 @@ void of12_stats_queue_tx_errors_inc(of12_stats_queue_t *queue_stats)
 {
 	platform_atomic_inc64(&queue_stats->tx_errors, queue_stats->mutex);
 }
+#endif
 
-void of12_init_group_stats(of12_stats_group_t *group_stats){
+void __of12_init_group_stats(of12_stats_group_t *group_stats){
 	//NOTE bucket stats are initialized when the group is created, before being attached to the list
 	group_stats->mutex = platform_mutex_init(NULL);
 	group_stats->byte_count = 0;
@@ -326,24 +327,24 @@ void of12_init_group_stats(of12_stats_group_t *group_stats){
 	group_stats->ref_count = 0;
 }
 
-void of12_destroy_group_stats(of12_stats_group_t* group_stats){
+void __of12_destroy_group_stats(of12_stats_group_t* group_stats){
 	platform_mutex_destroy(group_stats->mutex);
 }
 
-void of12_stats_group_update(of12_stats_group_t *gr_stats, uint64_t bytes){
+void __of12_stats_group_update(of12_stats_group_t *gr_stats, uint64_t bytes){
 	platform_atomic_inc64(&gr_stats->packet_count, gr_stats->mutex);
 	platform_atomic_add64(&gr_stats->byte_count, &bytes, gr_stats->mutex);
 }
 
-void of12_stats_group_inc_reference(of12_stats_group_t *gr_stats){
+void __of12_stats_group_inc_reference(of12_stats_group_t *gr_stats){
 	platform_atomic_inc32(&gr_stats->ref_count, gr_stats->mutex);
 }
 
-void of12_stats_group_dec_reference(of12_stats_group_t *gr_stats){
+void __of12_stats_group_dec_reference(of12_stats_group_t *gr_stats){
 	platform_atomic_dec32(&gr_stats->ref_count, gr_stats->mutex);
 }
 
-of12_stats_group_msg_t *of12_init_stats_group_msg(unsigned int num_buckets){
+of12_stats_group_msg_t* __of12_init_stats_group_msg(unsigned int num_buckets){
 	
 	of12_stats_group_msg_t *msg = (of12_stats_group_msg_t *) platform_malloc_shared(sizeof(of12_stats_group_msg_t));
 	if(msg){
@@ -360,19 +361,19 @@ of12_stats_group_msg_t *of12_init_stats_group_msg(unsigned int num_buckets){
 		return NULL;
 }
 
-void of12_destroy_stats_group_msg(of12_stats_group_msg_t* msg){
+void __of12_destroy_stats_group_msg(of12_stats_group_msg_t* msg){
 	platform_free_shared(msg->bucket_stats);
 	platform_free_shared(msg);
 }
 
-of12_stats_group_msg_t *of12_get_group_stats(of12_pipeline_t* pipeline,uint32_t id){
+of12_stats_group_msg_t* __of12_get_group_stats(of12_pipeline_t* pipeline,uint32_t id){
 	of12_bucket_t *bu_it;
 	
 	//find the group
-	of12_group_t* group = of12_group_search(pipeline->groups, id);
+	of12_group_t* group = __of12_group_search(pipeline->groups, id);
 	if(group == NULL) return NULL;
 	
-	of12_stats_group_msg_t* msg=of12_init_stats_group_msg(group->bc_list->num_of_buckets);
+	of12_stats_group_msg_t* msg = __of12_init_stats_group_msg(group->bc_list->num_of_buckets);
 
 	msg->group_id = id;
 	msg->ref_count = group->stats.ref_count;
@@ -389,7 +390,7 @@ of12_stats_group_msg_t *of12_get_group_stats(of12_pipeline_t* pipeline,uint32_t 
 	return msg;
 }
 
-of12_stats_group_msg_t *of12_get_group_all_stats(of12_pipeline_t* pipeline,uint32_t id){
+of12_stats_group_msg_t* __of12_get_group_all_stats(of12_pipeline_t* pipeline,uint32_t id){
 	of12_group_t* group;
 	uint32_t total_buckets=0;
 	int i=0;
@@ -400,7 +401,7 @@ of12_stats_group_msg_t *of12_get_group_all_stats(of12_pipeline_t* pipeline,uint3
 		total_buckets += group->bc_list->num_of_buckets;
 	}
 	
-	of12_stats_group_msg_t* msg=of12_init_stats_group_msg(total_buckets);
+	of12_stats_group_msg_t* msg = __of12_init_stats_group_msg(total_buckets);
 	msg->byte_count= 0;
 	msg->packet_count = 0;
 	msg->ref_count = 0;
@@ -421,17 +422,17 @@ of12_stats_group_msg_t *of12_get_group_all_stats(of12_pipeline_t* pipeline,uint3
 	return msg;
 }
 
-void of12_init_bucket_stats(of12_stats_bucket_counter_t *bc_stats){
+void __of12_init_bucket_stats(of12_stats_bucket_counter_t *bc_stats){
 	bc_stats->mutex = platform_mutex_init(NULL);
 	bc_stats->byte_count = 0;
 	bc_stats->packet_count = 0;
 }
 
-void of12_destroy_buckets_stats(of12_stats_bucket_counter_t *bc_stats){
+void __of12_destroy_buckets_stats(of12_stats_bucket_counter_t *bc_stats){
 	platform_mutex_destroy(bc_stats->mutex);
 }
 
-void of12_stats_bucket_update(of12_stats_bucket_counter_t* bc_stats, uint64_t bytes){
+void __of12_stats_bucket_update(of12_stats_bucket_counter_t* bc_stats, uint64_t bytes){
 	platform_atomic_inc64(&bc_stats->packet_count, bc_stats->mutex);
 	platform_atomic_add64(&bc_stats->byte_count, &bytes, bc_stats->mutex);
 }
@@ -450,7 +451,7 @@ of12_stats_flow_msg_t* of12_get_flow_stats(struct of12_pipeline* pipeline, uint8
 		return NULL;
 
 	//Create the message 
-	msg = of12_init_stats_flow_msg();
+	msg = __of12_init_stats_flow_msg();
 	if(!msg)
 		return NULL;
 
@@ -482,7 +483,7 @@ of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats(struct of12_pipel
 		return NULL;
 
 	//Create the message 
-	msg = of12_init_stats_flow_aggregate_msg();
+	msg = __of12_init_stats_flow_aggregate_msg();
 
 	if(!msg)
 		return NULL;

@@ -274,21 +274,19 @@ void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_ac
 
 
 //Apply actions
-void of12_process_apply_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of12_action_group_t* apply_actions_group, bool replicate_pkts);
+void __of12_process_apply_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of12_action_group_t* apply_actions_group, bool replicate_pkts);
 
 //Write actions data structure management
-/**
-* @ingroup core_of12 
+/*
 * Init a write actions group
 */
-void of12_init_packet_write_actions(datapacket_t *const pkt, of12_write_actions_t* write_actions);
-of12_write_actions_t* of12_init_write_actions(void);
+void __of12_init_packet_write_actions(datapacket_t *const pkt, of12_write_actions_t* write_actions);
+of12_write_actions_t* __of12_init_write_actions(void);
 
-/**
-* @ingroup core_of12 
+/*
 * Destroy a write_actions instance. This also destroys actions contained
 */
-void of12_destroy_write_actions(of12_write_actions_t* write_actions);
+void __of12_destroy_write_actions(of12_write_actions_t* write_actions);
 
 /**
 * @ingroup core_of12 
@@ -297,30 +295,30 @@ void of12_destroy_write_actions(of12_write_actions_t* write_actions);
 */
 void of12_set_packet_action_on_write_actions(of12_write_actions_t* write_actions, of12_packet_action_t* action);
 
-void of12_update_packet_write_actions(datapacket_t* pkt, const of12_write_actions_t* entry_write_actions);
-void of12_clear_write_actions(of12_write_actions_t* write_actions);
-void of12_process_write_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts);
+void __of12_update_packet_write_actions(datapacket_t* pkt, const of12_write_actions_t* entry_write_actions);
+void __of12_clear_write_actions(of12_write_actions_t* write_actions);
+void __of12_process_write_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts);
 
 //Update apply/write
-rofl_result_t of12_update_apply_actions(of12_action_group_t** group, of12_action_group_t* new_group);
-rofl_result_t of12_update_write_actions(of12_write_actions_t** group, of12_write_actions_t* new_group);
+rofl_result_t __of12_update_apply_actions(of12_action_group_t** group, of12_action_group_t* new_group);
+rofl_result_t __of12_update_write_actions(of12_write_actions_t** group, of12_write_actions_t* new_group);
 
 
 //Checking functions
-bool of12_write_actions_has(of12_write_actions_t* write_actions, of12_packet_action_type_t type, uint64_t value);
-bool of12_apply_actions_has(const of12_action_group_t* apply_actions_group, of12_packet_action_type_t type, uint64_t value);
+bool __of12_write_actions_has(of12_write_actions_t* write_actions, of12_packet_action_type_t type, uint64_t value);
+bool __of12_apply_actions_has(const of12_action_group_t* apply_actions_group, of12_packet_action_type_t type, uint64_t value);
 
 //Copy (cloning) methods
-of12_action_group_t* of12_copy_action_group(of12_action_group_t* origin);
-of12_write_actions_t* of12_copy_write_actions(of12_write_actions_t* origin);
+of12_action_group_t* __of12_copy_action_group(of12_action_group_t* origin);
+of12_write_actions_t* __of12_copy_write_actions(of12_write_actions_t* origin);
 
 //Dump
-void of12_dump_write_actions(of12_write_actions_t* write_actions_group);
-void of12_dump_action_group(of12_action_group_t* action_group);
+void __of12_dump_write_actions(of12_write_actions_t* write_actions_group);
+void __of12_dump_action_group(of12_action_group_t* action_group);
 
 //validate actions
-bool of12_validate_action_group(of12_action_group_t *ag, struct of12_group_table *gt);
-bool of12_validate_write_actions(of12_write_actions_t *wa, struct of12_group_table *gt);
+bool __of12_validate_action_group(of12_action_group_t *ag, struct of12_group_table *gt);
+bool __of12_validate_write_actions(of12_write_actions_t *wa, struct of12_group_table *gt);
 
 
 //C++ extern C

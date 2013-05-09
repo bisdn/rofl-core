@@ -161,7 +161,7 @@ rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_
 	
 	
 	//Init stats
-	of12_stats_table_init(table);
+	__of12_stats_table_init(table);
 
 	//Allow matching algorithms to do stuff	
 	if(table->maf.init_hook)
@@ -184,7 +184,7 @@ rofl_result_t __of12_destroy_table(of12_flow_table_t* table){
 	platform_rwlock_destroy(table->rwlock);
 	
 	//Destroy stats
-	of12_stats_table_destroy(table);
+	__of12_stats_table_destroy(table);
 
 	//Do NOT free table, since it was allocated in a single buffer in pipeline.c	
 	return ROFL_SUCCESS;
@@ -211,7 +211,7 @@ inline rofl_of12_fm_result_t of12_add_flow_entry_table(of12_pipeline_t *const pi
 	platform_rwlock_rdlock(pipeline->groups->rwlock);
 
 	//Verify entry
-	if(of12_validate_flow_entry(pipeline->groups, entry) != ROFL_SUCCESS){
+	if(__of12_validate_flow_entry(pipeline->groups, entry) != ROFL_SUCCESS){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		return ROFL_OF12_FM_FAILURE;
@@ -252,7 +252,7 @@ inline rofl_result_t of12_modify_flow_entry_table(of12_pipeline_t *const pipelin
 	platform_rwlock_rdlock(pipeline->groups->rwlock);
 
 	//Verify entry
-	if(of12_validate_flow_entry(pipeline->groups,entry) != ROFL_SUCCESS){
+	if(__of12_validate_flow_entry(pipeline->groups,entry) != ROFL_SUCCESS){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		return ROFL_FAILURE;

@@ -109,7 +109,7 @@ ROFL_BEGIN_DECLS
 of12_flow_entry_t* of12_init_flow_entry(of12_flow_entry_t* prev, of12_flow_entry_t* next, bool notify_removal);
 
 //This should never be used from outside the library
-rofl_result_t of12_destroy_flow_entry_with_reason(of12_flow_entry_t* entry, of12_flow_remove_reason_t reason); 
+rofl_result_t __of12_destroy_flow_entry_with_reason(of12_flow_entry_t* entry, of12_flow_remove_reason_t reason); 
 
 /**
 * @brief Destroy the flow entry, including stats, instructions and actions 
@@ -125,15 +125,15 @@ rofl_result_t of12_destroy_flow_entry(of12_flow_entry_t* entry);
 rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* match);
 
 //Update entry
-rofl_result_t of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_flow_entry_t* mod, bool reset_counts);
+rofl_result_t __of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_flow_entry_t* mod, bool reset_counts);
 
 //check if the entry is valid for insertion
-rofl_result_t of12_validate_flow_entry(struct of12_group_table *gt, of12_flow_entry_t* entry);
+rofl_result_t __of12_validate_flow_entry(struct of12_group_table *gt, of12_flow_entry_t* entry);
 	
 //Flow comparison
-bool of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group);
-bool of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group);
-bool of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow_entry_t*const subentry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group);
+bool __of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group);
+bool __of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group);
+bool __of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow_entry_t*const subentry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group);
 
 //Dump flow
 /**
