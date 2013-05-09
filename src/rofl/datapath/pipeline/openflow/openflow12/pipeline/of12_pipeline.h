@@ -70,14 +70,14 @@ typedef struct of12_pipeline{
 ROFL_BEGIN_DECLS
 
 /* Pipeline mgmt */
-of12_pipeline_t* of12_init_pipeline(struct of12_switch* sw, const unsigned int num_of_tables, enum matching_algorithm_available* list);
-rofl_result_t of12_destroy_pipeline(of12_pipeline_t* pipeline);
+of12_pipeline_t* __of12_init_pipeline(struct of12_switch* sw, const unsigned int num_of_tables, enum matching_algorithm_available* list);
+rofl_result_t __of12_destroy_pipeline(of12_pipeline_t* pipeline);
 
 //Packet processing
-void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt);
+void __of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt);
 
 //Process the packet out
-void of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of12_action_group_t* apply_actions_group);
+void __of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of12_action_group_t* apply_actions_group);
 
 //C++ extern C
 ROFL_END_DECLS

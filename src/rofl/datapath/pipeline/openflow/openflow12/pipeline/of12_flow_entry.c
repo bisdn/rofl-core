@@ -57,7 +57,7 @@ rofl_result_t of12_destroy_flow_entry_with_reason(of12_flow_entry_t* entry, of12
 	platform_rwlock_wrlock(entry->rwlock);
 	
 	//destroying timers, if any
-	of12_destroy_timer_entries(entry);
+	__of12_destroy_timer_entries(entry);
 
 	//Notify flow removed
 	if(entry->notify_removal && (reason != OF12_FLOW_REMOVE_NO_REASON ) ){

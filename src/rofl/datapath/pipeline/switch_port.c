@@ -68,7 +68,7 @@ rofl_result_t switch_port_destroy(switch_port_t* port){
 	//Destroy queues
 	for(i=0;i<SWITCH_PORT_MAX_QUEUES;i++){
 		if(port->queues[i].set)
-			port_queue_destroy(&port->queues[i]);
+			__port_queue_destroy(&port->queues[i]);
 	}
 
 	//Destroy port stats mutex
@@ -98,7 +98,7 @@ rofl_result_t switch_port_add_queue(switch_port_t* port, uint32_t id, char* name
 	}
 	
 	//Init switch queue
-	port_queue_init(&port->queues[id], id, name, length, min_rate, max_rate);
+	__port_queue_init(&port->queues[id], id, name, length, min_rate, max_rate);
 
 	platform_mutex_unlock(port->mutex);
 	return ROFL_SUCCESS;
@@ -119,7 +119,7 @@ rofl_result_t switch_port_remove_queue(switch_port_t* port, uint32_t id){
 	}
 	
 	//destroy queue
-	port_queue_destroy(&port->queues[id]);
+	__port_queue_destroy(&port->queues[id]);
 
 	platform_mutex_unlock(port->mutex);
 	return ROFL_SUCCESS;

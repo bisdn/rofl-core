@@ -148,8 +148,8 @@ ROFL_BEGIN_DECLS
 /*
 * Table init and destroy
 */
-rofl_result_t of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const enum matching_algorithm_available algorithm);
-rofl_result_t of12_destroy_table(of12_flow_table_t* table);
+rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const enum matching_algorithm_available algorithm);
+rofl_result_t __of12_destroy_table(of12_flow_table_t* table);
 
 /*
 * Flow-mod installation, modify and removal
@@ -232,12 +232,12 @@ rofl_result_t of12_modify_flow_entry_table(struct of12_pipeline *const pipeline,
 rofl_result_t of12_remove_flow_entry_table(struct of12_pipeline *const pipeline, const unsigned int table_id, of12_flow_entry_t* entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group);
 
 //This API call is meant to ONLY be used internally within the pipeline library (timers)
-rofl_result_t of12_remove_specific_flow_entry_table(struct of12_pipeline *const pipeline, const unsigned int table_id, of12_flow_entry_t *const specific_entry, of12_flow_remove_reason_t reason, of12_mutex_acquisition_required_t mutex_acquired);
+rofl_result_t __of12_remove_specific_flow_entry_table(struct of12_pipeline *const pipeline, const unsigned int table_id, of12_flow_entry_t *const specific_entry, of12_flow_remove_reason_t reason, of12_mutex_acquisition_required_t mutex_acquired);
 
 /*
 * Entry lookup. This should never be used directly
 */ 
-of12_flow_entry_t* of12_find_best_match_table(of12_flow_table_t *const table, of12_packet_matches_t *const pkt); 
+of12_flow_entry_t* __of12_find_best_match_table(of12_flow_table_t *const table, of12_packet_matches_t *const pkt); 
 
 /*
 * Table dumping. This is not recommended to use directly

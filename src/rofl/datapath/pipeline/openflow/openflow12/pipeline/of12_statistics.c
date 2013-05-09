@@ -27,7 +27,7 @@
 void of12_init_flow_stats(of12_flow_entry_t * entry)
 {
 	struct timeval now;
-	of12_gettimeofday(&now, NULL);
+	__of12_gettimeofday(&now, NULL);
 	
 	entry->stats.initial_time = now;
 	entry->stats.packet_count = 0;
@@ -191,7 +191,7 @@ void of12_stats_flow_reset_counts(of12_flow_entry_t * entry)
 void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec){
 	struct timeval now, diff;
 
-	of12_gettimeofday(&now, NULL);
+	__of12_gettimeofday(&now, NULL);
 	
 	TIMERSUB(&now, &entry->stats.initial_time, &diff);
 	*sec = diff.tv_sec;

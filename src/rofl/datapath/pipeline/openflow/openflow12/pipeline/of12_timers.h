@@ -87,18 +87,20 @@ typedef struct of12_timer_group{
 ROFL_BEGIN_DECLS
 
 //Timer functions outside tu
-rofl_result_t of12_add_timer(struct of12_flow_table* const table, struct of12_flow_entry* const entry);
-void of12_process_pipeline_tables_timeout_expirations(struct of12_pipeline *const pipeline);
-rofl_result_t of12_destroy_timer_entries(struct of12_flow_entry * entry);
-void of12_dump_timers_structure(of12_timer_group_t * timer_group);
-void of12_timer_group_static_init(struct of12_flow_table* table);
-void of12_time_forward(uint64_t sec, uint64_t usec, struct timeval * time);
-void of12_timer_update_entry(struct of12_flow_entry * flow_entry);
-void of12_fill_new_timer_entry_info(struct of12_flow_entry * entry, uint32_t hard_timeout, uint32_t idle_timeout);
+rofl_result_t __of12_add_timer(struct of12_flow_table* const table, struct of12_flow_entry* const entry);
+rofl_result_t __of12_destroy_timer_entries(struct of12_flow_entry * entry);
+
+void __of12_process_pipeline_tables_timeout_expirations(struct of12_pipeline *const pipeline);
+
+void __of12_dump_timers_structure(of12_timer_group_t * timer_group);
+void __of12_timer_group_static_init(struct of12_flow_table* table);
+void __of12_time_forward(uint64_t sec, uint64_t usec, struct timeval * time);
+void __of12_timer_update_entry(struct of12_flow_entry * flow_entry);
+void __of12_fill_new_timer_entry_info(struct of12_flow_entry * entry, uint32_t hard_timeout, uint32_t idle_timeout);
 // public for testing
-int of12_gettimeofday(struct timeval * tval, struct timezone * tzone);
-uint64_t of12_get_expiration_time_slotted (uint32_t timeout,struct timeval *now);
-inline uint64_t of12_get_time_ms(struct timeval *time);
+int __of12_gettimeofday(struct timeval * tval, struct timezone * tzone);
+uint64_t __of12_get_expiration_time_slotted (uint32_t timeout,struct timeval *now);
+inline uint64_t __of12_get_time_ms(struct timeval *time);
 
 //C++ extern C
 ROFL_END_DECLS

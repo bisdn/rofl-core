@@ -105,42 +105,42 @@ typedef struct{
 ROFL_BEGIN_DECLS
 
 //Initializers
-utern_t* init_utern8(uint8_t value, uint8_t mask);
-utern_t* init_utern16(uint16_t value, uint16_t mask);
-utern_t* init_utern32(uint32_t value, uint32_t mask);
-utern_t* init_utern64(uint64_t value, uint64_t mask);
+utern_t* __init_utern8(uint8_t value, uint8_t mask);
+utern_t* __init_utern16(uint16_t value, uint16_t mask);
+utern_t* __init_utern32(uint32_t value, uint32_t mask);
+utern_t* __init_utern64(uint64_t value, uint64_t mask);
 
 //Destructor
-rofl_result_t destroy_utern(utern_t* utern );
+rofl_result_t __destroy_utern(utern_t* utern );
 
 //Comparison
-bool utern_compare8(const utern8_t* tern, const uint8_t value);
-bool utern_compare16(const utern16_t* tern, const uint16_t value);
-bool utern_compare32(const utern32_t* tern, const uint32_t value);
-bool utern_compare64(const utern64_t* tern, const uint64_t value);
-//bool utern_compare128(const utern128_t* tern, const uin128_t* value);
+bool __utern_compare8(const utern8_t* tern, const uint8_t value);
+bool __utern_compare16(const utern16_t* tern, const uint16_t value);
+bool __utern_compare32(const utern32_t* tern, const uint32_t value);
+bool __utern_compare64(const utern64_t* tern, const uint64_t value);
+//bool __utern_compare128(const utern128_t* tern, const uin128_t* value);
 
 //Check if two ternary values are equal
-bool utern_equals8(const utern8_t* tern1, const utern8_t* tern2);
-bool utern_equals16(const utern16_t* tern1, const utern16_t* tern2);
-bool utern_equals32(const utern32_t* tern1, const utern32_t* tern2);
-bool utern_equals64(const utern64_t* tern1, const utern64_t* tern2);
+bool __utern_equals8(const utern8_t* tern1, const utern8_t* tern2);
+bool __utern_equals16(const utern16_t* tern1, const utern16_t* tern2);
+bool __utern_equals32(const utern32_t* tern1, const utern32_t* tern2);
+bool __utern_equals64(const utern64_t* tern1, const utern64_t* tern2);
 
 //Check if a ternary value is a subset of another 
-bool utern_is_contained8(const utern8_t* extensive_tern, const utern8_t* tern);
-bool utern_is_contained16(const utern16_t* extensive_tern, const utern16_t* tern);
-bool utern_is_contained32(const utern32_t* extensive_tern, const utern32_t* tern);
-bool utern_is_contained64(const utern64_t* extensive_tern, const utern64_t* tern);
+bool __utern_is_contained8(const utern8_t* extensive_tern, const utern8_t* tern);
+bool __utern_is_contained16(const utern16_t* extensive_tern, const utern16_t* tern);
+bool __utern_is_contained32(const utern32_t* extensive_tern, const utern32_t* tern);
+bool __utern_is_contained64(const utern64_t* extensive_tern, const utern64_t* tern);
 
 
 //Ternary alike functions
-utern_t* utern8_get_alike(const utern8_t tern1, const utern8_t tern2);
-utern_t* utern16_get_alike(const utern16_t tern1, const utern16_t tern2);
-utern_t* utern32_get_alike(const utern32_t tern1, const utern32_t tern2);
-utern_t* utern64_get_alike(const utern64_t tern1, const utern64_t tern2);
+utern_t* __utern8_get_alike(const utern8_t tern1, const utern8_t tern2);
+utern_t* __utern16_get_alike(const utern16_t tern1, const utern16_t tern2);
+utern_t* __utern32_get_alike(const utern32_t tern1, const utern32_t tern2);
+utern_t* __utern64_get_alike(const utern64_t tern1, const utern64_t tern2);
 
 //Slow
-//bool utern_compare(const utern_t* tern, void* value);
+//bool __utern_compare(const utern_t* tern, void* value);
 
 //C++ extern C
 ROFL_END_DECLS

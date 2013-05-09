@@ -239,7 +239,7 @@ rofl_of12_gm_result_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_ta
 			//loop for all the tables and erase entries that point to the group
 			for(i=0; i<pipeline->num_of_tables; i++){
 				while((entry=pipeline->tables[i].maf.find_entry_using_group_hook(&pipeline->tables[i],ge->id))!=NULL){
-					of12_remove_specific_flow_entry_table(pipeline,i,entry, OF12_FLOW_REMOVE_GROUP_DELETE, MUTEX_NOT_ACQUIRED);
+					__of12_remove_specific_flow_entry_table(pipeline,i,entry, OF12_FLOW_REMOVE_GROUP_DELETE, MUTEX_NOT_ACQUIRED);
 				}
 			}
 			//destroy the group
@@ -259,7 +259,7 @@ rofl_of12_gm_result_t of12_group_delete(of12_pipeline_t *pipeline, of12_group_ta
 	//loop for all the tables and erase entries that point to the group
 	for(i=0; i<pipeline->num_of_tables; i++){
 		while((entry=pipeline->tables[i].maf.find_entry_using_group_hook(&pipeline->tables[i],ge->id))!=NULL){
-			of12_remove_specific_flow_entry_table(pipeline,i,entry, OF12_FLOW_REMOVE_GROUP_DELETE, MUTEX_NOT_ACQUIRED);
+			__of12_remove_specific_flow_entry_table(pipeline,i,entry, OF12_FLOW_REMOVE_GROUP_DELETE, MUTEX_NOT_ACQUIRED);
 		}
 	}
 	

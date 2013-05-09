@@ -104,17 +104,17 @@ void port_queue_stats_inc(port_queue_t* queue,
 				uint64_t overrun);
 
 
-/**
+/*
 * @brief Init a port_queue structure
 * @ingroup  mgmt
 */
-rofl_result_t port_queue_init(port_queue_t* queue, uint32_t id, char* name, uint16_t length, uint16_t min_rate, uint16_t max_rate);
+rofl_result_t __port_queue_init(port_queue_t* queue, uint32_t id, char* name, uint16_t length, uint16_t min_rate, uint16_t max_rate);
 
-/**
+/*
 * @brief Destroy a port_queue structure
 * @ingroup  mgmt
 */
-rofl_result_t port_queue_destroy(port_queue_t* queue);
+rofl_result_t __port_queue_destroy(port_queue_t* queue);
 
 //C++ extern C
 ROFL_END_DECLS

@@ -409,7 +409,7 @@ rofl_result_t physical_switch_attach_port_to_logical_switch(switch_port_t* port,
 	//Serialize
 	platform_mutex_lock(psw->mutex);
 
-	return_val = of_attach_port_to_switch(sw, port, port_num);
+	return_val = __of_attach_port_to_switch(sw, port, port_num);
 	
 	platform_mutex_unlock(psw->mutex);
 	return return_val;
@@ -426,7 +426,7 @@ rofl_result_t physical_switch_attach_port_to_logical_switch_at_port_num(switch_p
 	//Serialize
 	platform_mutex_lock(psw->mutex);
 
-	return_val = of_attach_port_to_switch_at_port_num(sw, port_num, port);
+	return_val = __of_attach_port_to_switch_at_port_num(sw, port_num, port);
 
 	platform_mutex_unlock(psw->mutex);
 	return return_val;
@@ -442,7 +442,7 @@ rofl_result_t physical_switch_detach_port_num_from_logical_switch(unsigned int p
 	//Serialize
 	platform_mutex_lock(psw->mutex);
 
-	return_val = of_detach_port_from_switch_by_port_num(sw, port_num);
+	return_val = __of_detach_port_from_switch_by_port_num(sw, port_num);
 	
 	platform_mutex_unlock(psw->mutex);
 	return return_val;
@@ -459,7 +459,7 @@ rofl_result_t physical_switch_detach_port_from_logical_switch(switch_port_t* por
 	//Serialize
 	platform_mutex_lock(psw->mutex);
 
-	return_val = of_detach_port_from_switch(sw, port);
+	return_val = __of_detach_port_from_switch(sw, port);
 	
 	platform_mutex_unlock(psw->mutex);
 	return return_val;
@@ -477,7 +477,7 @@ rofl_result_t physical_switch_detach_all_ports_from_logical_switch(of_switch_t* 
 	//Serialize
 	platform_mutex_lock(psw->mutex);
 
-	return_val = of_detach_all_ports_from_switch(sw);
+	return_val = __of_detach_all_ports_from_switch(sw);
 	
 	platform_mutex_unlock(psw->mutex);
 	return return_val;

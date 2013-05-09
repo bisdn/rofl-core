@@ -64,14 +64,15 @@ ROFL_BEGIN_DECLS
 * be used in each table (0..num_of_tables-1) 
 */
 of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* ma_list);
-rofl_result_t of12_destroy_switch(of12_switch_t* sw);
+
+rofl_result_t __of12_destroy_switch(of12_switch_t* sw);
 
 /* Port management */
-rofl_result_t of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned int port_num, switch_port_t* port);
-rofl_result_t of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, unsigned int* port_num);
-rofl_result_t of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigned int port_num);
-rofl_result_t of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* port);
-rofl_result_t of12_detach_all_ports_from_switch(of12_switch_t* sw);
+rofl_result_t __of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned int port_num, switch_port_t* port);
+rofl_result_t __of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, unsigned int* port_num);
+rofl_result_t __of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigned int port_num);
+rofl_result_t __of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* port);
+rofl_result_t __of12_detach_all_ports_from_switch(of12_switch_t* sw);
 
 /* Dump */
 /**

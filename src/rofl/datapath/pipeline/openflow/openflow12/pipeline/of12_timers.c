@@ -7,24 +7,25 @@
 
 #include "../../../util/logging.h"
 
-static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_t* tg, of12_pipeline_t *const pipeline, unsigned int id);
+static rofl_result_t __of12_destroy_all_entries_from_timer_group(of12_timer_group_t* tg, of12_pipeline_t *const pipeline, unsigned int id);
 #if ! OF12_TIMER_STATIC_ALLOCATION_SLOTS
-static of12_timer_group_t* of12_dynamic_slot_search(of12_flow_table_t* const table, uint64_t expiration_time);
+static of12_timer_group_t* __of12_dynamic_slot_search(of12_flow_table_t* const table, uint64_t expiration_time);
 #endif
 
 /**
  * of12_fill_new_timer_entry_info
  * initialize the values for a new the timer entry
  */
-void of12_fill_new_timer_entry_info(of12_flow_entry_t * entry, uint32_t hard_timeout, uint32_t idle_timeout)
-{
+void __of12_fill_new_timer_entry_info(of12_flow_entry_t * entry, uint32_t hard_timeout, uint32_t idle_timeout){
+
 	entry->timer_info.hard_timeout = hard_timeout;
 	entry->timer_info.idle_timeout = idle_timeout;
 	entry->timer_info.hard_timer_entry = NULL;
 	entry->timer_info.idle_timer_entry = NULL;
+
 }
 
-void of12_time_forward(uint64_t sec, uint64_t usec, struct timeval * time)
+void __of12_time_forward(uint64_t sec, uint64_t usec, struct timeval * time)
 {
 	static uint64_t abs_sec = 0, abs_usec = 0;
 	abs_sec+=sec;
@@ -45,8 +46,8 @@ void of12_time_forward(uint64_t sec, uint64_t usec, struct timeval * time)
 /**
  * of12_gettimeofday wrapper for the system time
  */
-int of12_gettimeofday(struct timeval * tval, struct timezone * tzone)
-{
+int __of12_gettimeofday(struct timeval * tval, struct timezone * tzone){
+
 #ifdef TIMERS_FAKE_TIME
 	of12_time_forward(0,0,tval);
 	//ROFL_PIPELINE_DEBUG("NOT usig real system time (%lu:%lu)\n", tval->tv_sec, tval->tv_usec);
@@ -57,6 +58,7 @@ int of12_gettimeofday(struct timeval * tval, struct timezone * tzone)
 	//return 0;
 	return gettimeofday(tval,tzone);
 #endif
+
 }
 
 /**
@@ -64,8 +66,8 @@ int of12_gettimeofday(struct timeval * tval, struct timezone * tzone)
  * this function is ment to show the timer groups existing
  * and the entries related
  */
-void of12_dump_timers_structure(of12_timer_group_t * timer_group)
-{
+void __of12_dump_timers_structure(of12_timer_group_t * timer_group){
+
 	of12_timer_group_t * tg = timer_group;
 	of12_entry_timer_t * et;
 	if(!tg)
@@ -101,16 +103,16 @@ void of12_dump_timers_structure(of12_timer_group_t * timer_group)
 /**
  * transforms the timeval to a single uint64_t unit time in miliseconds
  */
-inline uint64_t of12_get_time_ms(struct timeval *time)
-{
+inline uint64_t __of12_get_time_ms(struct timeval *time){
+
 	return time->tv_sec*1000+time->tv_usec/1000;
 }
 
 /**
  * of12_get_expiration_time_slotted
  */
-uint64_t of12_get_expiration_time_slotted (uint32_t timeout,struct timeval *now)
-{
+uint64_t __of12_get_expiration_time_slotted (uint32_t timeout,struct timeval *now){
+
 	uint64_t expiration_time_ms;
 	// exact expiration time calculation
 	//WARNING it could happen that the calculated value does not fit in a uint64_t
@@ -130,13 +132,13 @@ uint64_t of12_get_expiration_time_slotted (uint32_t timeout,struct timeval *now)
  * initializes the timeout values
  * initializes the values for the entry lists
  */
-void of12_timer_group_static_init(of12_flow_table_t* table)
-{
+void __of12_timer_group_static_init(of12_flow_table_t* table){
+
 	int i;
 	struct timeval now;
 	uint64_t time_next_slot;
-	of12_gettimeofday(&now,NULL);
-	time_next_slot = of12_get_expiration_time_slotted(0,&now);
+	__of12_gettimeofday(&now,NULL);
+	time_next_slot = __of12_get_expiration_time_slotted(0,&now);
 	for(i=0; i<OF12_TIMER_GROUPS_MAX;i++)
 	{
 		table->timers[i].timeout=time_next_slot+OF12_TIMER_SLOT_MS*i;
@@ -152,12 +154,12 @@ void of12_timer_group_static_init(of12_flow_table_t* table)
  * - we must set the new timeout
  * - we must update the pointer to the next timer group
  */
-static void of12_timer_group_rotate(of12_pipeline_t *const pipeline, of12_timer_group_t *tg , unsigned int id_table)
+static void __of12_timer_group_rotate(of12_pipeline_t *const pipeline, of12_timer_group_t *tg , unsigned int id_table)
 {
 	if(tg->list.head)
 	{
 		//erase_all_entries;
-		if(of12_destroy_all_entries_from_timer_group(tg, pipeline, id_table)!=ROFL_SUCCESS)
+		if(__of12_destroy_all_entries_from_timer_group(tg, pipeline, id_table)!=ROFL_SUCCESS)
 			ROFL_PIPELINE_DEBUG("ERROR in destroying timer group\n");
 	}
 	tg->timeout += OF12_TIMER_SLOT_MS*OF12_TIMER_GROUPS_MAX;
@@ -175,7 +177,7 @@ static void of12_timer_group_rotate(of12_pipeline_t *const pipeline, of12_timer_
  * between tg_next and tg_prev, ordered by timeout values.
  * This function is NOT thread safe, you must lock the timer before.
  */
-static of12_timer_group_t* of12_timer_group_init(uint64_t timeout, of12_timer_group_t* tg_next, of12_timer_group_t* tg_prev, of12_flow_table_t* table)
+static of12_timer_group_t* __of12_timer_group_init(uint64_t timeout, of12_timer_group_t* tg_next, of12_timer_group_t* tg_prev, of12_flow_table_t* table)
 {
 	// create the new timer_group
 	of12_timer_group_t* new_group;
@@ -227,7 +229,7 @@ static void of12_destroy_timer_group(of12_timer_group_t* tg, of12_flow_table_t* 
  * of12_entry_timer_init
  * adds a new entry in the list
  */
-static of12_entry_timer_t* of12_entry_timer_init(of12_timer_group_t* tg, of12_flow_entry_t* entry, of12_timer_timeout_type_t is_idle, struct timeval * last_update)
+static of12_entry_timer_t* __of12_entry_timer_init(of12_timer_group_t* tg, of12_flow_entry_t* entry, of12_timer_timeout_type_t is_idle, struct timeval * last_update)
 {
 	of12_entry_timer_t* new_entry;
 	new_entry = platform_malloc_shared(sizeof(of12_entry_timer_t));
@@ -288,7 +290,7 @@ static of12_entry_timer_t* of12_entry_timer_init(of12_timer_group_t* tg, of12_fl
  * This is ment to be used when a single entry is deleted.
  */
 //NOTE is this function responsible for the destruction of the flow entry? I guess not
-static rofl_result_t of12_destroy_single_timer_entry_clean(of12_entry_timer_t* entry, of12_flow_table_t * table)
+static rofl_result_t __of12_destroy_single_timer_entry_clean(of12_entry_timer_t* entry, of12_flow_table_t * table)
 {	
 	if(entry)
 	{
@@ -317,7 +319,7 @@ static rofl_result_t of12_destroy_single_timer_entry_clean(of12_entry_timer_t* e
 #if ! OF12_TIMER_STATIC_ALLOCATION_SLOTS
 		//we need to check if this entry was the last one and delete the timer group
 		if(entry->group->list.num_of_timers == 0)
-			of12_destroy_timer_group(entry->group,table);
+			__of12_destroy_timer_group(entry->group,table);
 #endif
 		platform_free_shared(entry);
 		entry = NULL;
@@ -337,7 +339,7 @@ static rofl_result_t of12_destroy_single_timer_entry_clean(of12_entry_timer_t* e
  * (this function will only be called from outside of the timers structure
  * and assumes that the mutex is already locked.)
  */
-rofl_result_t of12_destroy_timer_entries(of12_flow_entry_t * entry){
+rofl_result_t __of12_destroy_timer_entries(of12_flow_entry_t * entry){
 	// We need to erase both hard and idle timer_entries
 	// NOTE do I need to put the timeout value to zero
 	// or I just supose that the whole entry is going to be deleted?
@@ -346,19 +348,19 @@ rofl_result_t of12_destroy_timer_entries(of12_flow_entry_t * entry){
 		return ROFL_FAILURE;
 
 	if(entry->timer_info.hard_timeout){
-		if(of12_destroy_single_timer_entry_clean(entry->timer_info.hard_timer_entry, entry->table)!=ROFL_SUCCESS)
+		if(__of12_destroy_single_timer_entry_clean(entry->timer_info.hard_timer_entry, entry->table)!=ROFL_SUCCESS)
 			return ROFL_FAILURE;
 		entry->timer_info.hard_timer_entry = NULL;
 	}
 		
 	if(entry->timer_info.idle_timeout){
-		if(of12_destroy_single_timer_entry_clean(entry->timer_info.idle_timer_entry, entry->table)!=ROFL_SUCCESS)
+		if(__of12_destroy_single_timer_entry_clean(entry->timer_info.idle_timer_entry, entry->table)!=ROFL_SUCCESS)
 			return ROFL_FAILURE;
 		entry->timer_info.idle_timer_entry = NULL;
 	}
 		
 #if DEBUG_NO_REAL_PIPE
-	of12_fill_new_timer_entry_info(entry,0,0);
+	__of12_fill_new_timer_entry_info(entry,0,0);
 #endif
 		
 	return ROFL_SUCCESS;
@@ -368,13 +370,13 @@ rofl_result_t of12_destroy_timer_entries(of12_flow_entry_t * entry){
  * of12_reschedule_idle_timer
  * check if there is the need of re-scheduling an idle timer
  */
-static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer, of12_pipeline_t *const pipeline, unsigned int id_table)
+static rofl_result_t __of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer, of12_pipeline_t *const pipeline, unsigned int id_table)
 {
 	struct timeval system_time;
-	of12_gettimeofday(&system_time,NULL);
-	uint64_t now = of12_get_time_ms(&system_time);
+	__of12_gettimeofday(&system_time,NULL);
+	uint64_t now = __of12_get_time_ms(&system_time);
 	uint64_t expiration_time;
-	expiration_time = of12_get_expiration_time_slotted(entry_timer->entry->timer_info.idle_timeout, &(entry_timer->time_last_update));
+	expiration_time = __of12_get_expiration_time_slotted(entry_timer->entry->timer_info.idle_timeout, &(entry_timer->time_last_update));
 	of12_timer_timeout_type_t is_idle = IDLE_TO;
 	
 	
@@ -387,12 +389,12 @@ static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer
 	
 #ifdef DEBUG_NO_REAL_PIPE
 		ROFL_PIPELINE_DEBUG("NOT erasing real entries of table \n");
-		of12_fill_new_timer_entry_info(entry_timer->entry,0,0);
+		__of12_fill_new_timer_entry_info(entry_timer->entry,0,0);
 		//we need to destroy the entries
-		of12_destroy_timer_entries(entry_timer->entry);
+		__of12_destroy_timer_entries(entry_timer->entry);
 #else
 		//ROFL_PIPELINE_DEBUG("Erasing real entries of table \n"); //NOTE Delete
-		of12_remove_specific_flow_entry_table(pipeline, id_table, entry_timer->entry, OF12_FLOW_REMOVE_IDLE_TIMEOUT, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
+		__of12_remove_specific_flow_entry_table(pipeline, id_table, entry_timer->entry, OF12_FLOW_REMOVE_IDLE_TIMEOUT, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
 #endif
 		return ROFL_SUCCESS; // timeout expired so no need to reschedule !!! we have to delete the entry
 	}
@@ -401,20 +403,20 @@ static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer
 	
 	int slot_delta = expiration_time - pipeline->tables[id_table].timers[pipeline->tables[id_table].current_timer_group].timeout; //ms
 	int slot_position = (pipeline->tables[id_table].current_timer_group + slot_delta/OF12_TIMER_SLOT_MS) % OF12_TIMER_GROUPS_MAX;
-	if(of12_entry_timer_init(&(pipeline->tables[id_table].timers[slot_position]), entry_timer->entry, is_idle, &(entry_timer->time_last_update))==NULL)
+	if(__of12_entry_timer_init(&(pipeline->tables[id_table].timers[slot_position]), entry_timer->entry, is_idle, &(entry_timer->time_last_update))==NULL)
 		return ROFL_FAILURE;
 #else
 		
-	of12_timer_group_t * tg_iterator=of12_dynamic_slot_search(pipeline->tables[id_table], expiration_time);
+	of12_timer_group_t * tg_iterator = __of12_dynamic_slot_search(pipeline->tables[id_table], expiration_time);
 	if(tg_iterator==NULL)
 		return ROFL_FAILURE;
 	// add entry to this group. new_group.list->num_of_timers++; ...
-	if(of12_entry_timer_init(tg_iterator, entry_timer->entry, is_idle, &(entry_timer->time_last_update)) == NULL)
+	if(__of12_entry_timer_init(tg_iterator, entry_timer->entry, is_idle, &(entry_timer->time_last_update)) == NULL)
 		return ROFL_FAILURE;
 #endif
 		
 	//TODO delete timer_entry that has been rescheduled:
-	of12_destroy_single_timer_entry_clean(entry_timer, &pipeline->tables[id_table]);
+	__of12_destroy_single_timer_entry_clean(entry_timer, &pipeline->tables[id_table]);
 	
 	return ROFL_SUCCESS;
 }
@@ -425,7 +427,7 @@ static rofl_result_t of12_reschedule_idle_timer(of12_entry_timer_t * entry_timer
  * This is ment to be used when a timer expires and we want to delete
  * all the entries of the group and the group itself
  */
-static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_t* tg, of12_pipeline_t *const pipeline, unsigned int id_table)
+static rofl_result_t __of12_destroy_all_entries_from_timer_group(of12_timer_group_t* tg, of12_pipeline_t *const pipeline, unsigned int id_table)
 {
 	of12_entry_timer_t* entry_iterator, *next/*, *prev*/;
 	if(tg->list.num_of_timers>0 && tg->list.head)
@@ -437,7 +439,7 @@ static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_
 			
 			if(entry_iterator->type == IDLE_TO)
 			{
-				if(of12_reschedule_idle_timer(entry_iterator, pipeline, id_table)!=ROFL_SUCCESS) //WARNING return value for erasing the idle timeout
+				if(__of12_reschedule_idle_timer(entry_iterator, pipeline, id_table)!=ROFL_SUCCESS) //WARNING return value for erasing the idle timeout
 					return ROFL_FAILURE;
 			}
 			else
@@ -447,12 +449,12 @@ static rofl_result_t of12_destroy_all_entries_from_timer_group(of12_timer_group_
 					//of12_destroy_single_timer_entry_clean(entry_iterator->entry->timer_info.idle_timer_entry, table);
 #ifdef DEBUG_NO_REAL_PIPE
 				ROFL_PIPELINE_DEBUG("NOT erasing real entries of table \n");
-				of12_fill_new_timer_entry_info(entry_iterator->entry,0,0);
+				__of12_fill_new_timer_entry_info(entry_iterator->entry,0,0);
 				//we delete the enrty_timer form outside
-				of12_destroy_timer_entries(entry_iterator->entry);
+				__of12_destroy_timer_entries(entry_iterator->entry);
 #else
 				//ROFL_PIPELINE_DEBUG("Erasing real entries of table \n"); //NOTE DELETE
-				of12_remove_specific_flow_entry_table(pipeline, id_table,entry_iterator->entry, OF12_FLOW_REMOVE_HARD_TIMEOUT, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
+				__of12_remove_specific_flow_entry_table(pipeline, id_table,entry_iterator->entry, OF12_FLOW_REMOVE_HARD_TIMEOUT, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
 #endif
 			}
 			//if(entry_iterator) THIS IS DONE from outside
@@ -482,7 +484,7 @@ static of12_timer_group_t * of12_dynamic_slot_search(of12_flow_table_t* const ta
 	if(!tg_iterator)
 	{
 		//the list is empty, we sould create the first group
-		table->timers = of12_timer_group_init(expiration_time,NULL,NULL, table);
+		table->timers = __of12_timer_group_init(expiration_time,NULL,NULL, table);
 		if(table->timers == NULL)
 			return NULL;
 
@@ -491,14 +493,14 @@ static of12_timer_group_t * of12_dynamic_slot_search(of12_flow_table_t* const ta
 	else if(tg_iterator->timeout>expiration_time)
 	{
 		// Create new group and allocate it before the current group
-		tg_iterator = of12_timer_group_init(expiration_time,tg_iterator,tg_iterator->prev, table);
+		tg_iterator = __of12_timer_group_init(expiration_time,tg_iterator,tg_iterator->prev, table);
 		if(tg_iterator == NULL)
 			return NULL;
 	}
 	else if(tg_iterator->timeout < expiration_time && !tg_iterator->next)
 	{
 		// Create new group and allocate it after the current group
-		tg_iterator = of12_timer_group_init(expiration_time,NULL, tg_iterator, table);
+		tg_iterator = __of12_timer_group_init(expiration_time,NULL, tg_iterator, table);
 		if(tg_iterator == NULL)
 			return NULL;
 	}
@@ -522,22 +524,22 @@ static of12_timer_group_t * of12_dynamic_slot_search(of12_flow_table_t* const ta
  * update the time_last_update in order to
  * show that its not idle
  */
-void of12_timer_update_entry(of12_flow_entry_t * flow_entry)
+void __of12_timer_update_entry(of12_flow_entry_t * flow_entry)
 {
 	if(flow_entry->timer_info.idle_timeout == 0)
 		return; //no idle timeout => no need to update time
 	else
 	{
-		of12_gettimeofday(&(flow_entry->timer_info.idle_timer_entry->time_last_update), NULL);
+		__of12_gettimeofday(&(flow_entry->timer_info.idle_timer_entry->time_last_update), NULL);
 	}
 }
 
-static rofl_result_t of12_add_single_timer(of12_flow_table_t* const table, const uint32_t timeout, of12_flow_entry_t* entry, of12_timer_timeout_type_t is_idle)
+static rofl_result_t __of12_add_single_timer(of12_flow_table_t* const table, const uint32_t timeout, of12_flow_entry_t* entry, of12_timer_timeout_type_t is_idle)
 {
 	uint64_t expiration_time;
 	struct timeval now;
-    of12_gettimeofday(&now,NULL);
-	expiration_time = of12_get_expiration_time_slotted(timeout, &now);
+	__of12_gettimeofday(&now,NULL);
+	expiration_time = __of12_get_expiration_time_slotted(timeout, &now);
 #if OF12_TIMER_STATIC_ALLOCATION_SLOTS
 	// add entries to the position tc + hard_timeout_s
 	if(timeout > OF12_TIMER_GROUPS_MAX)
@@ -552,17 +554,17 @@ static rofl_result_t of12_add_single_timer(of12_flow_table_t* const table, const
 	//NOTE we allocate the timer in the next slot rounding up:
 	//so the actual expiration time will be a value in [hard_timeout,hard_timeout+OF12_TIMER_SLOT_MS)
 	int slot_position = (table->current_timer_group+(slot_delta/OF12_TIMER_SLOT_MS))%(OF12_TIMER_GROUPS_MAX);
-	if(of12_entry_timer_init(&(table->timers[slot_position]), entry, is_idle, NULL)==NULL)
+	if(__of12_entry_timer_init(&(table->timers[slot_position]), entry, is_idle, NULL)==NULL)
 		return ROFL_FAILURE;
 
 #else
 	
-	of12_timer_group_t* tg_iterator=of12_dynamic_slot_search(table, expiration_time);
+	of12_timer_group_t* tg_iterator = __of12_dynamic_slot_search(table, expiration_time);
 	if (tg_iterator==NULL)
 		return ROFL_FAILURE;
 	
 	// add entry to this group. new_group.list->num_of_timers++; ...
-	if(of12_entry_timer_init(tg_iterator, entry, is_idle, NULL) == NULL)
+	if(__of12_entry_timer_init(tg_iterator, entry, is_idle, NULL) == NULL)
 		return ROFL_FAILURE;
 	
 #endif
@@ -570,14 +572,14 @@ static rofl_result_t of12_add_single_timer(of12_flow_table_t* const table, const
 }
 
 //Add timer to a table
-rofl_result_t of12_add_timer(of12_flow_table_t* const table, of12_flow_entry_t* const entry){
+rofl_result_t __of12_add_timer(of12_flow_table_t* const table, of12_flow_entry_t* const entry){
 	rofl_result_t res;
 	//NOTE we don't use that lock because this is only called from of12_add_flow_entry...()
 	//platform_mutex_lock(table->mutex);
 	
 	if(entry->timer_info.idle_timeout)
 	{
-		res = of12_add_single_timer(table, entry->timer_info.idle_timeout, entry, IDLE_TO); //is_idle = 1
+		res = __of12_add_single_timer(table, entry->timer_info.idle_timeout, entry, IDLE_TO); //is_idle = 1
 		if(res == ROFL_FAILURE)
 		{
 			//platform_mutex_unlock(table->mutex);
@@ -586,7 +588,7 @@ rofl_result_t of12_add_timer(of12_flow_table_t* const table, of12_flow_entry_t* 
 	}
 	if(entry->timer_info.hard_timeout)
 	{
-		res = of12_add_single_timer(table, entry->timer_info.hard_timeout, entry, HARD_TO); //is_idle = 0
+		res = __of12_add_single_timer(table, entry->timer_info.hard_timeout, entry, HARD_TO); //is_idle = 0
 		if(res == ROFL_FAILURE)
 		{
 			//platform_mutex_unlock(table->mutex);
@@ -598,13 +600,13 @@ rofl_result_t of12_add_timer(of12_flow_table_t* const table, of12_flow_entry_t* 
 	return ROFL_SUCCESS;
 }
 
-void of12_process_pipeline_tables_timeout_expirations(of12_pipeline_t *const pipeline){
+void __of12_process_pipeline_tables_timeout_expirations(of12_pipeline_t *const pipeline){
 
 	unsigned int i;
 	
 	struct timeval system_time;
-	of12_gettimeofday(&system_time,NULL);
-	uint64_t now = of12_get_time_ms(&system_time);
+	__of12_gettimeofday(&system_time,NULL);
+	uint64_t now = __of12_get_time_ms(&system_time);
 	//ROFL_PIPELINE_DEBUG("<%s:%d> Now = %lu\n",__func__,__LINE__, now);
 
 	for(i=0;i<pipeline->num_of_tables;i++)
@@ -615,7 +617,7 @@ void of12_process_pipeline_tables_timeout_expirations(of12_pipeline_t *const pip
 		while(table->timers[table->current_timer_group].timeout<=now)
 		{
 			//rotate the timers
-			of12_timer_group_rotate(pipeline,&(table->timers[table->current_timer_group]),i);
+			__of12_timer_group_rotate(pipeline,&(table->timers[table->current_timer_group]),i);
 		}
 #else	
 		of12_timer_group_t* slot_it, *next;
@@ -624,7 +626,7 @@ void of12_process_pipeline_tables_timeout_expirations(of12_pipeline_t *const pip
 			if(now<slot_it->timeout) //Current slot time > time_now. We are done
 				break;
 			//remove all entries and the timer group.
-			if(of12_destroy_all_entries_from_timer_group(slot_it, table)!=ROFL_SUCCESS)
+			if(__of12_destroy_all_entries_from_timer_group(slot_it, table)!=ROFL_SUCCESS)
 			{
 				ROFL_PIPELINE_DEBUG("Error while destroying timer group\n");
 				platform_mutex_unlock(table->mutex);
@@ -632,7 +634,7 @@ void of12_process_pipeline_tables_timeout_expirations(of12_pipeline_t *const pip
 			}
 			next = slot_it->next;
 			if(slot_it)
-				of12_destroy_timer_group(slot_it, table);
+				__of12_destroy_timer_group(slot_it, table);
 		}		
 #endif
 		platform_mutex_unlock(table->mutex);

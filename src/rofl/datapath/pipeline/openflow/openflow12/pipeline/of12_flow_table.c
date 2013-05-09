@@ -20,7 +20,7 @@
 */ 
 
 /* Initalizer. Table struct has been allocated by pipeline initializer. */
-rofl_result_t of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const enum matching_algorithm_available algorithm){
+rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const enum matching_algorithm_available algorithm){
 
 	//Safety checks
 	if(!pipeline || !table)
@@ -51,7 +51,7 @@ rofl_result_t of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t*
 
 	//Initializing timers. NOTE does that need to be done here or somewhere else?
 #if OF12_TIMER_STATIC_ALLOCATION_SLOTS
-	of12_timer_group_static_init(table);
+	__of12_timer_group_static_init(table);
 #else
 	table->timers = NULL;
 #endif
@@ -171,7 +171,7 @@ rofl_result_t of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t*
 }
 
 /* Destructor. Table object is freed by pipeline destructor */
-rofl_result_t of12_destroy_table(of12_flow_table_t* table){
+rofl_result_t __of12_destroy_table(of12_flow_table_t* table){
 	
 	platform_mutex_lock(table->mutex);
 	platform_rwlock_wrlock(table->rwlock);
@@ -228,7 +228,7 @@ inline rofl_of12_fm_result_t of12_add_flow_entry_table(of12_pipeline_t *const pi
 	}
 	
 	//Add timer
-	of12_add_timer(table, entry);
+	__of12_add_timer(table, entry);
 
 	//Release rdlock
 	platform_rwlock_rdunlock(pipeline->groups->rwlock);
@@ -284,7 +284,7 @@ inline rofl_result_t of12_remove_flow_entry_table(of12_pipeline_t *const pipelin
 }
 
 //This API call should NOT be called from outside pipeline library
-rofl_result_t of12_remove_specific_flow_entry_table(of12_pipeline_t *const pipeline, const unsigned int table_id, of12_flow_entry_t *const specific_entry, of12_flow_remove_reason_t reason, of12_mutex_acquisition_required_t mutex_acquired){
+rofl_result_t __of12_remove_specific_flow_entry_table(of12_pipeline_t *const pipeline, const unsigned int table_id, of12_flow_entry_t *const specific_entry, of12_flow_remove_reason_t reason, of12_mutex_acquisition_required_t mutex_acquired){
 	//Verify table_id
 	if(table_id >= pipeline->num_of_tables)
 		return ROFL_FAILURE;
@@ -293,7 +293,7 @@ rofl_result_t of12_remove_specific_flow_entry_table(of12_pipeline_t *const pipel
 }
 
 /* Main process_packet_through */
-inline of12_flow_entry_t* of12_find_best_match_table(of12_flow_table_t *const table, of12_packet_matches_t *const pkt){
+inline of12_flow_entry_t* __of12_find_best_match_table(of12_flow_table_t *const table, of12_packet_matches_t *const pkt){
 	return table->maf.find_best_match_hook(table, pkt);
 }	
 

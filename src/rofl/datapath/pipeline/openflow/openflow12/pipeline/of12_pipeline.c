@@ -14,7 +14,7 @@
 */
 
 /* Management operations */
-of12_pipeline_t* of12_init_pipeline(struct of12_switch* sw, const unsigned int num_of_tables, enum matching_algorithm_available* list){
+of12_pipeline_t* __of12_init_pipeline(struct of12_switch* sw, const unsigned int num_of_tables, enum matching_algorithm_available* list){
 	int i;	
 	of12_pipeline_t* pipeline;
 
@@ -47,12 +47,12 @@ of12_pipeline_t* of12_init_pipeline(struct of12_switch* sw, const unsigned int n
 	for(i=0;i<num_of_tables;i++){
 		//TODO: if we would have tables with different config, table_config should be an array of table_config_t objects, one for each table
 		if( (list[i] >= matching_algorithm_count) ||
-		    (of12_init_table(pipeline, &pipeline->tables[i],i, list[i]) != ROFL_SUCCESS)
+		    (__of12_init_table(pipeline, &pipeline->tables[i],i, list[i]) != ROFL_SUCCESS)
 		){
 			ROFL_PIPELINE_ERR("Creation of table #%d has failed in logical switch %s. This might be due to an invalid Matching Algorithm or that the system has run out of memory. Aborting Logical Switch creation\n",i,sw->name);	
 			//Destroy already allocated tables
 			for(--i; i>=0; i--){
-				of12_destroy_table(&pipeline->tables[i]);
+				__of12_destroy_table(&pipeline->tables[i]);
 			}
 
 			platform_free_shared(pipeline->tables);
@@ -93,7 +93,7 @@ rofl_result_t of12_destroy_pipeline(of12_pipeline_t* pipeline){
 	
 	for(i=0;i<pipeline->num_of_tables;i++){
 		//We don't care about errors here, maybe add trace TODO
-		of12_destroy_table(&pipeline->tables[i]);
+		__of12_destroy_table(&pipeline->tables[i]);
 	}
 			
 	//Now release table resources (allocated as single block)
@@ -111,7 +111,7 @@ rofl_result_t of12_destroy_pipeline(of12_pipeline_t* pipeline){
 * Packet processing through pipeline
 *
 */
-void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt){
+void __of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt){
 
 	//Loop over tables
 	unsigned int i, table_to_go;
@@ -131,7 +131,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 	for(i=OF12_FIRST_FLOW_TABLE_INDEX; i < ((of12_switch_t*)sw)->pipeline->num_of_tables ; i++){
 		
 		//Perform lookup	
-		match = of12_find_best_match_table((of12_flow_table_t* const)&((of12_switch_t*)sw)->pipeline->tables[i],(of12_packet_matches_t *const)&pkt_matches);
+		match = __of12_find_best_match_table((of12_flow_table_t* const)&((of12_switch_t*)sw)->pipeline->tables[i],(of12_packet_matches_t *const)&pkt_matches);
 		
 		if(match){
 			
@@ -144,7 +144,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 			of12_stats_flow_update_match(match, pkt_matches.pkt_size_bytes);
 
 			//Update entry timers
-			of12_timer_update_entry(match);
+			__of12_timer_update_entry(match);
 
 			//Process instructions
 			table_to_go = of12_process_instructions((of12_switch_t*)sw, i, pkt, &match->inst_grp);
@@ -207,7 +207,7 @@ void of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt
 /*
 * Process the packet out 
 */
-void of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of12_action_group_t* apply_actions_group){
+void __of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of12_action_group_t* apply_actions_group){
 
 	//Temporal stack vars for matches and write actions
 	of12_packet_matches_t pkt_matches;

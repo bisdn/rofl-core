@@ -39,7 +39,7 @@ of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int nu
 	}
 	
 	//Setup pipeline	
-	sw->pipeline = of12_init_pipeline(sw, num_of_tables, list);
+	sw->pipeline = __of12_init_pipeline(sw, num_of_tables, list);
 	if(sw->pipeline == NULL){
 		platform_free_shared(sw->name);
 		platform_free_shared(sw);
@@ -48,7 +48,7 @@ of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int nu
 	
 	//Allow the platform to add specific configurations to the switch
 	if(platform_post_init_of12_switch(sw) != ROFL_SUCCESS){
-		of12_destroy_pipeline(sw->pipeline);	
+		__of12_destroy_pipeline(sw->pipeline);	
 		platform_free_shared(sw->name);
 		platform_free_shared(sw);
 		return NULL;
@@ -57,7 +57,7 @@ of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int nu
 	return sw;
 }
 
-rofl_result_t of12_destroy_switch(of12_switch_t* sw){
+rofl_result_t __of12_destroy_switch(of12_switch_t* sw){
 
 	rofl_result_t result;
 
@@ -65,7 +65,7 @@ rofl_result_t of12_destroy_switch(of12_switch_t* sw){
 	if(platform_pre_destroy_of12_switch(sw) != ROFL_SUCCESS)
 		return ROFL_FAILURE;
 		
-	result = of12_destroy_pipeline(sw->pipeline);
+	result = __of12_destroy_pipeline(sw->pipeline);
 
 	//TODO: trace if result != SUCCESS
 	(void)result;
@@ -81,7 +81,7 @@ rofl_result_t of12_destroy_switch(of12_switch_t* sw){
 }
 
 /* Port management */
-rofl_result_t of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned int port_num, switch_port_t* port){
+rofl_result_t __of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned int port_num, switch_port_t* port){
 
 	if(!port || !port_num || port_num >= LOGICAL_SWITCH_MAX_LOG_PORTS)
 		return ROFL_FAILURE;	
@@ -108,7 +108,7 @@ rofl_result_t of12_attach_port_to_switch_at_port_num(of12_switch_t* sw, unsigned
 	return ROFL_SUCCESS;
 }
 
-rofl_result_t of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, unsigned int* port_num){
+rofl_result_t __of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port, unsigned int* port_num){
 	unsigned int i;
 
 	if(!port || port->attached_sw) 
@@ -140,7 +140,7 @@ rofl_result_t of12_attach_port_to_switch(of12_switch_t* sw, switch_port_t* port,
 	return ROFL_FAILURE;
 }
 
-rofl_result_t of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigned int port_num){
+rofl_result_t __of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsigned int port_num){
 
 	if(!port_num)
 		return ROFL_FAILURE;
@@ -166,7 +166,7 @@ rofl_result_t of12_detach_port_from_switch_by_port_num(of12_switch_t* sw, unsign
 	return ROFL_SUCCESS;
 }
 
-rofl_result_t of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* port){
+rofl_result_t __of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* port){
 
 	unsigned int i;
 
@@ -198,7 +198,7 @@ rofl_result_t of12_detach_port_from_switch(of12_switch_t* sw, switch_port_t* por
 	return ROFL_FAILURE;
 }
 
-rofl_result_t of12_detach_all_ports_from_switch(of12_switch_t* sw){
+rofl_result_t __of12_detach_all_ports_from_switch(of12_switch_t* sw){
 
 	unsigned int i;
 

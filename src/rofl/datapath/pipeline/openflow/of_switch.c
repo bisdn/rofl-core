@@ -13,7 +13,7 @@ rofl_result_t of_destroy_switch(const of_switch_t* sw){
 	
 	switch(sw->of_ver){
 		case OF_VERSION_12: 
-			return of12_destroy_switch(((of12_switch_t*)sw));
+			return __of12_destroy_switch(((of12_switch_t*)sw));
 		default: 
 			return ROFL_FAILURE;
 	}
@@ -24,7 +24,7 @@ rofl_result_t of_process_packet_pipeline(const of_switch_t* sw, datapacket_t *co
 	
 	switch(sw->of_ver){
 		case OF_VERSION_12: 
-			of12_process_packet_pipeline(sw, pkt);
+			__of12_process_packet_pipeline(sw, pkt);
 			break;
 		default: 
 			return ROFL_FAILURE;
@@ -38,7 +38,7 @@ void of_process_pipeline_tables_timeout_expirations(const of_switch_t* sw){
 	
 	switch(sw->of_ver){
 		case OF_VERSION_12: 
-			of12_process_pipeline_tables_timeout_expirations(((of12_switch_t*)sw)->pipeline);
+			__of12_process_pipeline_tables_timeout_expirations(((of12_switch_t*)sw)->pipeline);
 			break;
 		default: 
 			//return ROFL_FAILURE;
@@ -47,54 +47,53 @@ void of_process_pipeline_tables_timeout_expirations(const of_switch_t* sw){
 }	
 
 
-rofl_result_t of_attach_port_to_switch_at_port_num(of_switch_t* sw, unsigned int port_num, switch_port_t* port){
+rofl_result_t __of_attach_port_to_switch_at_port_num(of_switch_t* sw, unsigned int port_num, switch_port_t* port){
 	switch(sw->of_ver){
 		case OF_VERSION_12: 
-			return of12_attach_port_to_switch_at_port_num((of12_switch_t*)sw, port_num, port); 
+			return __of12_attach_port_to_switch_at_port_num((of12_switch_t*)sw, port_num, port); 
 		default: 
 			return ROFL_FAILURE;
 	}
 }
 
-rofl_result_t of_attach_port_to_switch(of_switch_t* sw, switch_port_t* port, unsigned int* port_num){
+rofl_result_t __of_attach_port_to_switch(of_switch_t* sw, switch_port_t* port, unsigned int* port_num){
 	switch(sw->of_ver){
 		case OF_VERSION_12: 
-			return of12_attach_port_to_switch((of12_switch_t*)sw,port, port_num); 
+			return __of12_attach_port_to_switch((of12_switch_t*)sw,port, port_num); 
 		default: 
 			return ROFL_FAILURE;
 	}
 }
 
-rofl_result_t of_detach_port_from_switch_by_port_num(of_switch_t* sw, unsigned int port_num){
+rofl_result_t __of_detach_port_from_switch_by_port_num(of_switch_t* sw, unsigned int port_num){
 	switch(sw->of_ver){
 		case OF_VERSION_12: 
-			return of12_detach_port_from_switch_by_port_num((of12_switch_t*)sw, port_num); 
+			return __of12_detach_port_from_switch_by_port_num((of12_switch_t*)sw, port_num); 
 		default: 
 			return ROFL_FAILURE;
 	}
 }
 
-rofl_result_t of_detach_port_from_switch(of_switch_t* sw, switch_port_t* port){
+rofl_result_t __of_detach_port_from_switch(of_switch_t* sw, switch_port_t* port){
 	switch(sw->of_ver){
 		case OF_VERSION_12: 
-			return of12_detach_port_from_switch((of12_switch_t*)sw, port); 
+			return __of12_detach_port_from_switch((of12_switch_t*)sw, port); 
 		default: 
 			return ROFL_FAILURE;
 	}
 }
 
-rofl_result_t of_detach_all_ports_from_switch(of_switch_t* sw){
+rofl_result_t __of_detach_all_ports_from_switch(of_switch_t* sw){
 	switch(sw->of_ver){
 		case OF_VERSION_12: 
-			return of12_detach_all_ports_from_switch((of12_switch_t*)sw); 
+			return __of12_detach_all_ports_from_switch((of12_switch_t*)sw); 
 		default: 
 			return ROFL_FAILURE;
 	}
 }
 
-rofl_result_t
-of_get_switch_matching_algorithms(of_version_t of_version, const char * const** name_list, int *count)
-{
+rofl_result_t of_get_switch_matching_algorithms(of_version_t of_version, const char * const** name_list, int *count){
+
 	switch (of_version) {
 		case OF_VERSION_12:
 		{
