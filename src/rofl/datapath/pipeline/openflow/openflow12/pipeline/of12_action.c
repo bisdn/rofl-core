@@ -165,7 +165,7 @@ of12_action_group_t* of12_init_action_group(of12_packet_action_t* actions){
 	return action_group;
 }
 
-void __of12_destroy_action_group(of12_action_group_t* group){
+void of12_destroy_action_group(of12_action_group_t* group){
 
 	of12_packet_action_t* it,*next;
 
@@ -214,7 +214,7 @@ void __of12_init_packet_write_actions(datapacket_t *const pkt, of12_write_action
 	memset(write_actions, 0, sizeof(of12_write_actions_t));
 }
 
-of12_write_actions_t* __of12_init_write_actions(){
+of12_write_actions_t* of12_init_write_actions(){
 
 	of12_write_actions_t* write_actions = platform_malloc_shared(sizeof(of12_write_actions_t)); 
 
@@ -598,7 +598,7 @@ rofl_result_t __of12_update_apply_actions(of12_action_group_t** group, of12_acti
 
 	//Release if necessary
 	if(old_group)
-		__of12_destroy_action_group(old_group);	
+		of12_destroy_action_group(old_group);	
 
 	return ROFL_SUCCESS;
 }
@@ -720,7 +720,7 @@ of12_action_group_t* __of12_copy_action_group(of12_action_group_t* origin){
 		act = __of12_copy_packet_action(it);
 
 		if(!act){
-			__of12_destroy_action_group(copy);
+			of12_destroy_action_group(copy);
 			return NULL;
 		}	
 

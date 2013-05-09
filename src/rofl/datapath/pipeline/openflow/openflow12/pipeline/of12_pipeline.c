@@ -84,7 +84,7 @@ of12_pipeline_t* __of12_init_pipeline(struct of12_switch* sw, const unsigned int
 	return pipeline;
 }
 
-rofl_result_t of12_destroy_pipeline(of12_pipeline_t* pipeline){
+rofl_result_t __of12_destroy_pipeline(of12_pipeline_t* pipeline){
 
 	int i;
 	
@@ -207,7 +207,7 @@ void __of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 /*
 * Process the packet out 
 */
-void __of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of12_action_group_t* apply_actions_group){
+void of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of12_action_group_t* apply_actions_group){
 
 	//Temporal stack vars for matches and write actions
 	of12_packet_matches_t pkt_matches;

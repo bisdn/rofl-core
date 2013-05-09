@@ -56,7 +56,7 @@ void of12_destroy_group_table(of12_group_table_t* gt){
 /**
  * Copies the structure of the group table.
  */
-rofl_result_t __of12_fetch_group_table(of12_pipeline_t *pipeline, of12_group_table_t* group_table){
+rofl_result_t of12_fetch_group_table(of12_pipeline_t *pipeline, of12_group_table_t* group_table){
 	platform_rwlock_rdlock(pipeline->groups->rwlock);
 	
 	*group_table = *(pipeline->groups);
@@ -303,7 +303,7 @@ rofl_of12_gm_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_
 	return ROFL_SUCCESS;
 }
 
-of12_bucket_list_t* __of12_init_bucket_list(void){
+of12_bucket_list_t* of12_init_bucket_list(void){
 	of12_bucket_list_t *bl = platform_malloc_shared(sizeof(of12_bucket_list_t));
 	if (bl == NULL)
 		return NULL;
@@ -314,7 +314,7 @@ of12_bucket_list_t* __of12_init_bucket_list(void){
 	return bl;
 }
 
-rofl_result_t __of12_insert_bucket_in_list(of12_bucket_list_t *bu_list,of12_bucket_t *bucket){
+rofl_result_t of12_insert_bucket_in_list(of12_bucket_list_t *bu_list,of12_bucket_t *bucket){
 	
 	if(bu_list->head==NULL && bu_list->tail==NULL){
 		bu_list->head = bucket;
@@ -328,7 +328,7 @@ rofl_result_t __of12_insert_bucket_in_list(of12_bucket_list_t *bu_list,of12_buck
 	return ROFL_SUCCESS;
 }
 
-of12_bucket_t* __of12_init_bucket(uint16_t weight, uint32_t port, uint32_t group, of12_action_group_t* actions){
+of12_bucket_t* of12_init_bucket(uint16_t weight, uint32_t port, uint32_t group, of12_action_group_t* actions){
 	
 	of12_bucket_t *bk = platform_malloc_shared(sizeof(of12_bucket_t));
 	if (bk == NULL)

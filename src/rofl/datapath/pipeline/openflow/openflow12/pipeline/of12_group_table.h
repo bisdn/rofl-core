@@ -120,7 +120,8 @@ of12_group_table_t* of12_init_group_table(void);
 //FIXME: put documentation
 void of12_destroy_group_table(of12_group_table_t* gt);
 
-rofl_result_t __of12_fetch_group_table(struct of12_pipeline *pipeline, of12_group_table_t* group_table);
+//FIXME: put documentation <- Is this function and the subsequent AFA one really necessary?
+rofl_result_t of12_fetch_group_table(struct of12_pipeline *pipeline, of12_group_table_t* group_table);
 
 //FIXME: put documentation
 rofl_of12_gm_result_t of12_group_add(of12_group_table_t *gt, of12_group_type_t type, uint32_t id, of12_bucket_list_t *buckets);
@@ -131,11 +132,16 @@ rofl_of12_gm_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_
 //FIXME: put documentation
 rofl_of12_gm_result_t of12_group_delete( struct of12_pipeline *pipeline, of12_group_table_t *gt, uint32_t id);
 
+//FIXME: put documentation
+of12_bucket_list_t* of12_init_bucket_list(void);
+
+//FIXME: put documentation
+of12_bucket_t* of12_init_bucket(uint16_t weight, uint32_t port, uint32_t group, of12_action_group_t* actions);
+
+//FIXME: put documentation
+rofl_result_t of12_insert_bucket_in_list(of12_bucket_list_t *bu_list,of12_bucket_t *bucket);
 
 of12_group_t* __of12_group_search(of12_group_table_t *gt, uint32_t id);
-of12_bucket_list_t* __of12_init_bucket_list(void);
-of12_bucket_t* __of12_init_bucket(uint16_t weight, uint32_t port, uint32_t group, of12_action_group_t* actions);
-rofl_result_t __of12_insert_bucket_in_list(of12_bucket_list_t *bu_list,of12_bucket_t *bucket);
 
 //C++ extern C
 ROFL_END_DECLS

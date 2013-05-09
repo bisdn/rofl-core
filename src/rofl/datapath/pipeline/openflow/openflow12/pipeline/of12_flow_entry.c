@@ -291,7 +291,7 @@ void of12_dump_flow_entry(of12_flow_entry_t* entry){
 	ROFL_PIPELINE_INFO_NO_PREFIX("Entry (%p), #hits %u prior. %u",entry,entry->num_of_matches, entry->priority);
 	//print matches(all)
 	ROFL_PIPELINE_INFO_NO_PREFIX(" Matches:{");
-	__of12_dump_matches(entry->matchs);
+	of12_dump_matches(entry->matchs);
 	ROFL_PIPELINE_INFO_NO_PREFIX("}\n\t\t");
 	__of12_dump_instructions(entry->inst_grp);
 	ROFL_PIPELINE_INFO_NO_PREFIX("\n");

@@ -688,7 +688,7 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
 */
 
 //Dump packet matches
-void __of12_dump_packet_matches(of12_packet_matches_t *const pkt){
+void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
 
 	ROFL_PIPELINE_DEBUG_NO_PREFIX("Packet matches [");	
 
@@ -762,7 +762,7 @@ void __of12_dump_packet_matches(of12_packet_matches_t *const pkt){
 }
 
 //Matches without mask (in matches that do not support)
-void __of12_dump_matches(of12_match_t* matches){
+void of12_dump_matches(of12_match_t* matches){
 	of12_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){
@@ -837,7 +837,7 @@ void __of12_dump_matches(of12_match_t* matches){
 }
 
 //Matches with mask (including matches that do not support)
-void __of12_full_dump_matches(of12_match_t* matches){
+void of12_full_dump_matches(of12_match_t* matches){
 	of12_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){

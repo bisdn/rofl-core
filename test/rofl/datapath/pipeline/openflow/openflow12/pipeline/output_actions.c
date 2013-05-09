@@ -24,7 +24,7 @@ int oa_set_up(void){
 
 
 int oa_tear_down(void){
-	of12_destroy_switch(sw);
+	__of12_destroy_switch(sw);
 	fprintf(stderr,"<%s:%d>\n",__func__,__LINE__);
 	return ROFL_SUCCESS;
 }

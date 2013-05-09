@@ -100,7 +100,7 @@ of12_stats_single_flow_msg_t* __of12_init_stats_single_flow_msg(of12_flow_entry_
 	msg->packet_count = entry->stats.packet_count;
 
 	//Get durations
-	__of12_stats_flow_get_duration(entry, &msg->duration_sec, &msg->duration_nsec);
+	of12_stats_flow_get_duration(entry, &msg->duration_sec, &msg->duration_nsec);
 
 	//Copy matches
 	//TODO: deprecate this in favour of group_matches
@@ -111,7 +111,7 @@ of12_stats_single_flow_msg_t* __of12_init_stats_single_flow_msg(of12_flow_entry_
 
 	return msg;
 }
-void of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg){
+void __of12_destroy_stats_single_flow_msg(of12_stats_single_flow_msg_t* msg){
 
 	of12_match_t* match;
 
@@ -188,7 +188,7 @@ void __of12_stats_flow_reset_counts(of12_flow_entry_t * entry){
 /**
  * of12_stats_flow_get_duration()
  */
-void __of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec){
+void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec){
 
 	struct timeval now, diff;
 
@@ -361,12 +361,12 @@ of12_stats_group_msg_t* __of12_init_stats_group_msg(unsigned int num_buckets){
 		return NULL;
 }
 
-void __of12_destroy_stats_group_msg(of12_stats_group_msg_t* msg){
+void of12_destroy_stats_group_msg(of12_stats_group_msg_t* msg){
 	platform_free_shared(msg->bucket_stats);
 	platform_free_shared(msg);
 }
 
-of12_stats_group_msg_t* __of12_get_group_stats(of12_pipeline_t* pipeline,uint32_t id){
+of12_stats_group_msg_t* of12_get_group_stats(of12_pipeline_t* pipeline,uint32_t id){
 	of12_bucket_t *bu_it;
 	
 	//find the group
@@ -390,7 +390,7 @@ of12_stats_group_msg_t* __of12_get_group_stats(of12_pipeline_t* pipeline,uint32_
 	return msg;
 }
 
-of12_stats_group_msg_t* __of12_get_group_all_stats(of12_pipeline_t* pipeline,uint32_t id){
+of12_stats_group_msg_t* of12_get_group_all_stats(of12_pipeline_t* pipeline,uint32_t id){
 	of12_group_t* group;
 	uint32_t total_buckets=0;
 	int i=0;

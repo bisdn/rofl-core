@@ -185,8 +185,13 @@ of12_stats_flow_aggregate_msg_t* __of12_init_stats_flow_aggregate_msg(void);
 */
 void of12_destroy_stats_flow_aggregate_msg(of12_stats_flow_aggregate_msg_t* msg);
 
+/**
+* @ingroup core_of12 
+* Get the duration of the flow_entry 
+*/
+void of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec);
+
 void __of12_stats_flow_reset_counts(struct of12_flow_entry * entry);
-void __of12_stats_flow_get_duration(struct of12_flow_entry * entry, uint32_t* sec, uint32_t* nsec);
 void __of12_stats_flow_update_match(struct of12_flow_entry * entry,uint64_t bytes_rx);
 void __of12_stats_flow_inc(struct of12_flow_entry * entry,uint64_t bytes_rx);
 void __of12_stats_table_init(struct of12_flow_table * table);
@@ -199,9 +204,13 @@ void __of12_destroy_group_stats(of12_stats_group_t* group_stats);
 void __of12_stats_group_update(of12_stats_group_t *gr_stats, uint64_t bytes);
 void __of12_stats_group_inc_reference(of12_stats_group_t *gr_stats);
 void __of12_stats_group_dec_reference(of12_stats_group_t *gr_stats);
-of12_stats_group_msg_t* __of12_get_group_stats(struct of12_pipeline* pipeline,uint32_t id);
-of12_stats_group_msg_t* __of12_get_group_all_stats(struct of12_pipeline* pipeline,uint32_t id);
-void __of12_destroy_stats_group_msg(of12_stats_group_msg_t *msg);
+
+//FIXME: add documentation
+of12_stats_group_msg_t* of12_get_group_stats(struct of12_pipeline* pipeline,uint32_t id);
+//FIXME: add documentation
+of12_stats_group_msg_t* of12_get_group_all_stats(struct of12_pipeline* pipeline,uint32_t id);
+//FIXME: add documentation
+void of12_destroy_stats_group_msg(of12_stats_group_msg_t *msg);
 
 void __of12_init_bucket_stats(of12_stats_bucket_counter_t *bc_stats);
 void __of12_destroy_buckets_stats(of12_stats_bucket_counter_t *bc_stats);

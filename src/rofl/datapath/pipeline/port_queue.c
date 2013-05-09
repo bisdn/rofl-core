@@ -3,7 +3,7 @@
 #include <string.h>
 
 
-rofl_result_t port_queue_init(port_queue_t* queue, uint32_t id, char* name, uint16_t length, uint16_t min_rate, uint16_t max_rate){
+rofl_result_t __port_queue_init(port_queue_t* queue, uint32_t id, char* name, uint16_t length, uint16_t min_rate, uint16_t max_rate){
 
 	//Put 0 stats
 	memset(&queue->stats,0,sizeof(queue_stats_t));
@@ -28,7 +28,7 @@ rofl_result_t port_queue_init(port_queue_t* queue, uint32_t id, char* name, uint
 	return ROFL_SUCCESS;
 }
 
-rofl_result_t port_queue_destroy(port_queue_t* queue){
+rofl_result_t __port_queue_destroy(port_queue_t* queue){
 	//Destroy
 	platform_mutex_destroy(queue->stats.mutex);
 	memset(queue,0,sizeof(port_queue_t));

@@ -18,7 +18,7 @@ int set_up(){
 
 int tear_down(){
 	//Destroy the switch
-	if(of12_destroy_switch(sw) != ROFL_SUCCESS)
+	if(__of12_destroy_switch(sw) != ROFL_SUCCESS)
 		return EXIT_FAILURE;
 	
 	return EXIT_SUCCESS;

@@ -281,7 +281,12 @@ void __of12_process_apply_actions(const struct of12_switch* sw, const unsigned i
 * Init a write actions group
 */
 void __of12_init_packet_write_actions(datapacket_t *const pkt, of12_write_actions_t* write_actions);
-of12_write_actions_t* __of12_init_write_actions(void);
+
+/**
+* @ingroup core_of12 
+* Create a write actions group 
+*/
+of12_write_actions_t* of12_init_write_actions(void);
 
 /*
 * Destroy a write_actions instance. This also destroys actions contained

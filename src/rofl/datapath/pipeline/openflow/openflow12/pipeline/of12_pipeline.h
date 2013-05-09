@@ -77,7 +77,13 @@ rofl_result_t __of12_destroy_pipeline(of12_pipeline_t* pipeline);
 void __of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt);
 
 //Process the packet out
-void __of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of12_action_group_t* apply_actions_group);
+
+//Wrapping of processing
+/**
+* @brief Processes a packet-out through the Openflow pipeline.  
+* @ingroup sw_runtime 
+*/
+void of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of12_action_group_t* apply_actions_group);
 
 //C++ extern C
 ROFL_END_DECLS

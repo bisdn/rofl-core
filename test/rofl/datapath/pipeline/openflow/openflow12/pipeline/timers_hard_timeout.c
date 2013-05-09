@@ -34,10 +34,10 @@ void test_insert_and_expiration_static(of12_pipeline_t * pipeline, uint32_t hard
 {
 	of12_flow_table_t* table = pipeline->tables;
 	struct timeval now;
-	of12_time_forward(0,0,&now);
+	__of12_time_forward(0,0,&now);
 	of12_flow_entry_t *single_entry = of12_init_flow_entry(NULL,NULL,false);
 	CU_ASSERT(single_entry!=NULL);
-	of12_fill_new_timer_entry_info(single_entry,hard_timeout,0);
+	__of12_fill_new_timer_entry_info(single_entry,hard_timeout,0);
 	CU_ASSERT(single_entry->timer_info.hard_timeout==hard_timeout);
 	CU_ASSERT(of12_add_flow_entry_table(pipeline,0, single_entry, false, false)==ROFL_OF12_FM_SUCCESS);
 	
@@ -50,8 +50,8 @@ void test_insert_and_expiration_static(of12_pipeline_t * pipeline, uint32_t hard
 	CU_ASSERT(table->timers[slot].list.tail != NULL);
 	CU_ASSERT(table->timers[slot].list.head == table->timers[slot].list.tail);
 	
-	of12_time_forward(hard_timeout+1,0,&now); //we need to go to hard_timeout +1 because of possible rounding up.
-	of12_process_pipeline_tables_timeout_expirations(pipeline);
+	__of12_time_forward(hard_timeout+1,0,&now); //we need to go to hard_timeout +1 because of possible rounding up.
+	__of12_process_pipeline_tables_timeout_expirations(pipeline);
 	
 	//of12_dump_timers_structure(table->timers);
 	CU_ASSERT(table->timers[slot].list.num_of_timers==0);//this can improve with the actual addersses
@@ -66,7 +66,7 @@ void test_insert_and_extract_static(of12_pipeline_t * pipeline, uint32_t hard_ti
 	int i;
 	of12_flow_table_t* table = pipeline->tables;
 	struct timeval now;
-	of12_time_forward(0,0,&now);
+	__of12_time_forward(0,0,&now);
 	
 	of12_flow_entry_t** entry_list = malloc(num_of_entries*sizeof(of12_entry_timer_t*));
 	int slot = (now.tv_sec+hard_timeout)%OF12_TIMER_GROUPS_MAX; //WARNING needs to be mora accurate when MS per SLOT != 1000
@@ -75,7 +75,7 @@ void test_insert_and_extract_static(of12_pipeline_t * pipeline, uint32_t hard_ti
 	for(i=0; i< num_of_entries; i++)
 	{
 		entry_list[i] = of12_init_flow_entry(NULL,NULL,false);
-		of12_fill_new_timer_entry_info(entry_list[i],hard_timeout,0); 	//WARNING supposition: the entry is filled up alone
+		__of12_fill_new_timer_entry_info(entry_list[i],hard_timeout,0); 	//WARNING supposition: the entry is filled up alone
 		of12_add_match_to_entry(entry_list[i],of12_init_port_in_match(NULL,NULL,i));
 		of12_add_flow_entry_table(pipeline,0, entry_list[i], false, false);
 		
@@ -108,19 +108,19 @@ void test_insert_and_extract_static(of12_pipeline_t * pipeline, uint32_t hard_ti
 
 		if(i==num_of_entries-2)
 		{
-			CU_ASSERT(of12_destroy_timer_entries(entry_list[i])==EXIT_SUCCESS);
+			CU_ASSERT(__of12_destroy_timer_entries(entry_list[i])==EXIT_SUCCESS);
 			CU_ASSERT(table->timers[slot].list.head == table->timers[slot].list.tail);
 		}
 		else if(i==num_of_entries-1)
 		{
-			CU_ASSERT(of12_destroy_timer_entries(entry_list[i])==EXIT_SUCCESS);
+			CU_ASSERT(__of12_destroy_timer_entries(entry_list[i])==EXIT_SUCCESS);
 			CU_ASSERT(table->timers[slot].list.head == NULL);
 			CU_ASSERT(table->timers[slot].list.tail == NULL);
 		}
 		else
 		{
 			//fprintf(stderr,"i %d entry %p hto %d ne %d \n", i, entry_list[i], hard_timeout, num_of_entries);
-			CU_ASSERT(of12_destroy_timer_entries(entry_list[i])==EXIT_SUCCESS);
+			CU_ASSERT(__of12_destroy_timer_entries(entry_list[i])==EXIT_SUCCESS);
 		}
 		CU_ASSERT(table->timers[slot].list.num_of_timers==(num_of_entries-i-1));
 		platform_mutex_unlock(table->mutex);
@@ -142,35 +142,35 @@ void test_simple_idle_static(of12_pipeline_t * pipeline, uint32_t ito)
 	struct timeval now;
 	//WARNING not working for slots different than seconds (1000 ms)
 	int slot, i;
-	of12_fill_new_timer_entry_info(entry,0,ito);
+	__of12_fill_new_timer_entry_info(entry,0,ito);
 	
 	//insert to table?
 	of12_add_flow_entry_table(pipeline, 0,entry,false, false);
 	
 	//insert a timer
 	//CU_ASSERT(of12_add_timer(table, entry)==EXIT_SUCCESS);
-	of12_time_forward(0,0,&now);
+	__of12_time_forward(0,0,&now);
 	fprintf(stderr,"added idle TO (%p) at time %lu:%lu for %d seconds\n", entry, now.tv_sec, now.tv_usec, ito);
 	slot = (now.tv_sec+ito)%OF12_TIMER_GROUPS_MAX;
 	CU_ASSERT(table->timers[slot].list.head->entry == entry);
 	
 	//update the counter
-	of12_time_forward(ito-1,0,&now);
-	of12_timer_update_entry(entry);
-	of12_process_pipeline_tables_timeout_expirations(pipeline);
+	__of12_time_forward(ito-1,0,&now);
+	__of12_timer_update_entry(entry);
+	__of12_process_pipeline_tables_timeout_expirations(pipeline);
 	fprintf(stderr,"updated last used. TO (%p) at time %lu:%lu for %d seconds\n", entry, now.tv_sec, now.tv_usec, ito);
 	slot = (now.tv_sec+1)%OF12_TIMER_GROUPS_MAX;
 	CU_ASSERT(table->timers[slot].list.head->entry == entry);
 	
 	//check that it is not expired but rescheduled
-	of12_time_forward(1,0,&now);
-	of12_process_pipeline_tables_timeout_expirations(pipeline);
+	__of12_time_forward(1,0,&now);
+	__of12_process_pipeline_tables_timeout_expirations(pipeline);
 	slot = (now.tv_sec+ito-1)%OF12_TIMER_GROUPS_MAX;
 	CU_ASSERT(table->timers[slot].list.head->entry == entry);
 	
 	//check final expiration
-	of12_time_forward(ito,0,&now);
-	of12_process_pipeline_tables_timeout_expirations(pipeline);
+	__of12_time_forward(ito,0,&now);
+	__of12_process_pipeline_tables_timeout_expirations(pipeline);
 	for(i=0; i<OF12_TIMER_GROUPS_MAX; i++)
 			CU_ASSERT(table->timers[i].list.num_of_timers == 0);
 	
@@ -192,19 +192,19 @@ void test_insert_both_expires_one_check_the_other_static(of12_pipeline_t * pipel
 {
 	of12_flow_table_t * table = pipeline->tables;
 	struct timeval now;
-	of12_time_forward(0,0,&now);
+	__of12_time_forward(0,0,&now);
 	int slot, i;
 	
 	of12_flow_entry_t *single_entry = of12_init_flow_entry(NULL,NULL,false);
-	of12_fill_new_timer_entry_info(single_entry,hto,ito);
+	__of12_fill_new_timer_entry_info(single_entry,hto,ito);
 	of12_add_flow_entry_table(pipeline,0, single_entry, false, false);
 	
 	//CU_ASSERT(of12_add_timer(table, entry)==EXIT_SUCCESS,"error add timer");
 	
 	if(hto==ito)
 	{
-		of12_time_forward(ito,0,&now);
-		of12_process_pipeline_tables_timeout_expirations(pipeline);
+		__of12_time_forward(ito,0,&now);
+		__of12_process_pipeline_tables_timeout_expirations(pipeline);
 		for(i=0; i<OF12_TIMER_GROUPS_MAX; i++)
 			CU_ASSERT(table->timers[i].list.num_of_timers == 0);
 	}
@@ -221,8 +221,8 @@ void test_insert_both_expires_one_check_the_other_static(of12_pipeline_t * pipel
 		CU_ASSERT(table->timers[slot].timeout==(min+now.tv_sec)*1000+now.tv_usec/1000);
 		slot = (now.tv_sec+max)%OF12_TIMER_GROUPS_MAX;
 		CU_ASSERT(table->timers[slot].timeout==(max+now.tv_sec)*1000+now.tv_usec/1000);
-		of12_time_forward(min,0,&now);
-		of12_process_pipeline_tables_timeout_expirations(pipeline);
+		__of12_time_forward(min,0,&now);
+		__of12_process_pipeline_tables_timeout_expirations(pipeline);
 		for(i=0; i<OF12_TIMER_GROUPS_MAX; i++)
 			CU_ASSERT(table->timers[i].list.num_of_timers == 0);
 	}
@@ -448,7 +448,7 @@ static int setup_test(of12_switch_t** sw)
 static int clean_up(of12_switch_t * sw)
 {
 	//platform_mutex_destroy(table->mutex);
-	of12_destroy_switch(sw);
+	__of12_destroy_switch(sw);
 	
 	return EXIT_SUCCESS;
 }
