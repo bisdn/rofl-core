@@ -273,7 +273,10 @@ etherswitch::handle_packet_in(
 
 		fe.set_command(OFPFC_ADD);
 		fe.set_buffer_id(msg->get_buffer_id());
-		fe.set_idle_timeout(15);
+		// hard timeout = 0 (=> indefinite entry)
+		fe.set_hard_timeout(0);
+		// idle timeout = 0 (=> indefinite entry)
+		fe.set_idle_timeout(0);
 		fe.set_table_id(msg->get_table_id());
 
 		fe.match.set_eth_dst(eth_dst);

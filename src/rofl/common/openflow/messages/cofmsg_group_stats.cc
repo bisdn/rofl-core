@@ -141,7 +141,7 @@ cofmsg_group_stats_request::pack(uint8_t *buf, size_t buflen)
 	case OFP12_VERSION: {
 		if (buflen < length())
 			throw eInval();
-		group_stats.unpack(buf + sizeof(struct ofp12_stats_request), sizeof(struct ofp12_group_stats_request));
+		group_stats.pack(buf + sizeof(struct ofp12_stats_request), sizeof(struct ofp12_group_stats_request));
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -173,6 +173,7 @@ cofmsg_group_stats_request::validate()
 	case OFP12_VERSION: {
 		if (get_length() < (sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_group_stats_request)))
 			throw eBadSyntaxTooShort();
+		group_stats.set_version(OFP12_VERSION);
 		ofh_group_stats = soframe() + sizeof(struct ofp12_stats_request);
 		group_stats.unpack(soframe() + sizeof(struct ofp12_stats_request), sizeof(struct ofp12_group_stats_request));
 	} break;
