@@ -5,8 +5,6 @@
 #ifndef CMMAPPORT_H
 #define CMMAPPORT_H 1
 
-#ifndef HARDWARE
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,8 +38,12 @@ extern "C" {
 #include "rofl/common/caddress.h"
 #include "rofl/common/cerror.h"
 #include "rofl/common/csocket.h" // for csocket error types
-#include "clinuxport.h"
+#include <rofl/platform/unix/clinuxport.h>
 
+namespace rofl
+{
+
+#if 0
 class cmapport_helper : csyslog {
 public:
 	static cmapport_helper &
@@ -63,111 +65,128 @@ private:
 	cmapport_helper();
 	~cmapport_helper();
 };
+#endif
 
-class eMMapPort : public cerror {}; // base error class for cmmapport
-class eMMapPortSocketFailed : public eMMapPort {};
-class eMMapPortIfaceNotFound : public eMMapPort {};
-class eMMapPortBindFailed : public eMMapPort {};
-class eMMapFailed : public eMMapPort {};
 
-class cpktline2 :
+class eMMapPortBase 			: public cerror {}; // base error class for cmmapport
+class eMMapPortSocketFailed 	: public eMMapPortBase {};
+class eMMapPortIfaceNotFound 	: public eMMapPortBase {};
+class eMMapPortBindFailed 		: public eMMapPortBase {};
+class eMMapFailed 				: public eMMapPortBase {};
+
+
+
+class cmmapdev :
 	public ciosrv
 {
-public:
+private:
 
-		/**
-		 *
-		 */
-		cpktline2(
-				int ring_type,
-				std::string devname,
-				int block_size = 8,
-				int n_blocks = 8,
-				int frame_size = 2048);
-
-		/**
-		 *
-		 */
-		virtual
-		~cpktline2();
-
+	cmemory 			ringptrs; 	// memory for storing the (struct iovec*) pointers
 
 public:
 
-		int block_size;
-		int n_blocks;
-		int frame_size;
-		std::string devname; // device name e.g. "eth0"
-		int ring_type;
-		int sd; // socket descriptor
-		caddress ll_addr; // link layer sockaddr
-		struct tpacket_req req; // ring buffer
-		struct iovec *ring; // auxiliary pointers into the mmap'ed area
-		unsigned int rpos; // current position within ring buffer
+	int 				block_size;
+	int 				n_blocks;
+	int 				frame_size;
+	std::string 		devname; 	// device name e.g. "eth0"
+	int 				ring_type;
+	int 				sd; 		// socket descriptor
+	caddress 			ll_addr; 	// link layer sockaddr
+	struct tpacket_req 	req; 		// ring buffer
+	struct iovec 		*ring; 		// auxiliary pointers into the mmap'ed area
+	unsigned int 		rpos; 		// current position within ring buffer
 
-	void
-	initialize() throw (eMMapFailed);
+public:
+
+	/**
+	 *
+	 */
+	cmmapdev(
+			int ring_type,
+			std::string devname,
+			int block_size = 8,
+			int n_blocks = 8,
+			int frame_size = 2048);
+
+	/**
+	 *
+	 */
+	virtual
+	~cmmapdev();
+
 
 private:
 
-	cmemory ringptrs; // memory for storing the (struct iovec*) pointers
+
+	/**
+	 *
+	 */
+	void
+	initialize() throw (eMMapFailed);
 };
+
+
+
+
 
 
 
 class cmmapport :
 	public clinuxport
 {
+protected:
+
+	pthread_mutex_t			queuelock;
+	std::list<cpacket*> 	tx_queue;
+	cmmapdev 				txline;
+	cmmapdev 				rxline;
+	cmacaddr 				laddr; // our own mac address
+	uint64_t 				tx_pkts;
+	uint64_t 				rx_pkts;
+
+
 public:
 
-		/**
-		 *
-		 */
-		cmmapport(
-				std::string devname,
-				int port_no,
-				int block_size = 8,
-				int n_blocks = 8,
-				int frame_size = 2048);
+	/**
+	 *
+	 */
+	cmmapport(
+			cport_owner *owner,
+			std::string devname,
+			int port_no,
+			int block_size = 8,
+			int n_blocks = 8,
+			int frame_size = 2048);
 
-		/**
-		 *
-		 */
-		virtual
-		~cmmapport();
+	/**
+	 *
+	 */
+	virtual
+	~cmmapport();
 
-		/** attach this port to a cport_owner
-		 */
-		virtual void
-		attach(cport_owner *owner) throw (ePortIsAttached);
-
-		/** detach this port from its owner
-		 */
-		virtual void
-		detach() throw (ePortNotAttached);
 
 protected: // overloaded from ciosrv
 
-		/**
-		 *
-		 */
-		virtual void
-		handle_timeout(
-				int opaque);
+	/**
+	 *
+	 */
+	virtual void
+	handle_timeout(
+			int opaque);
 
-		/**
-		 *
-		 */
-		virtual void
-		handle_revent(
-				int fd);
+	/**
+	 *
+	 */
+	virtual void
+	handle_revent(
+			int fd);
 
-		/**
-		 *
-		 */
-		virtual void
-		handle_wevent(
-				int fd);
+	/**
+	 *
+	 */
+	virtual void
+	handle_wevent(
+			int fd);
 
 protected: // overloaded from cport
 
@@ -184,23 +203,9 @@ protected: // overloaded from ciosrv
 	 */
 	virtual void
 	handle_event(cevent const& ev);
-
-
-protected:
-
-		std::list<cpacket*> tx_queue;
-		cpktline2 txline;
-		cpktline2 rxline;
-		cmacaddr laddr; // our own mac address
-		uint64_t tx_pkts;
-		uint64_t rx_pkts;
-
-private:
-
-
 };
 
-#endif /* HARDWARE */
+}
 
 
 #endif

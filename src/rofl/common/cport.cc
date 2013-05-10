@@ -16,28 +16,15 @@ cport::cport(
 			owner(owner),
 			devname(devname),
 			devtype(devtype)
-#if 0
-			rx_packets(0),
-			tx_packets(0),
-			rx_bytes(0),
-			tx_bytes(0),
-			rx_dropped(0),
-			tx_dropped(0),
-			rx_errors(0),
-			tx_errors(0),
-			rx_frame_err(0xffffffff),
-			rx_over_err(0xffffffff),
-			rx_crc_err(0xffffffff),
-			collisions(0xffffffff)
-#endif
 {
 	cport::cport_list.insert(this);
 	WRITELOG(CPORT, DBG, "cport(%s)::cport() %s", devname.c_str(), c_str());
 
-	if (owner)
-	{
+#if 0
+	if (owner) {
 		owner->port_init(this);
 	}
+#endif
 }
 
 
@@ -48,12 +35,13 @@ cport::~cport()
 
 	cport::cport_list.erase(this);
 
-	if (owner)
-	{
+#if 0
+	if (owner) {
 		owner->port_destroy(this);
 
 		owner = NULL;
 	}
+#endif
 }
 
 
@@ -91,18 +79,24 @@ cport::find(
 
 
 void
+cport::drop_packets()
+{
+	while (pout_queue.size() >= max_out_queue_size) {
+		WRITELOG(CPORT, DBG, "cport(%s)::drop_packets() shrinking pout_queue: %lu",
+						devname.c_str(), pout_queue.size());
+		delete pout_queue.front(); pout_queue.pop_front();
+	}
+}
+
+
+
+void
 cport::enqueue(
 		cpacket* pkt)
 {
+	drop_packets();
+
 	pout_queue.push_back(pkt);
-
-	while (pout_queue.size() >= max_out_queue_size)
-	{
-		WRITELOG(CPORT, DBG, "cport(%s)::enqueue() shrinking pout_queue: %lu",
-						devname.c_str(), pout_queue.size());
-
-		delete pout_queue.front(); pout_queue.pop_front();
-	}
 
 	handle_out_queue(); // call derived cport class
 }
@@ -113,57 +107,21 @@ void
 cport::enqueue(
 		std::deque<cpacket*>& pktlist)
 {
-
 	WRITELOG(CPORT, DBG, "cport(%s:%p)::enqueue() ",
 			devname.c_str(), this);
 
+	drop_packets();
 
 	for (std::deque<cpacket*>::iterator
-			it = pktlist.begin(); it != pktlist.end(); ++it)
-	{
+			it = pktlist.begin(); it != pktlist.end(); ++it) {
 		pout_queue.push_back((*it));
 	}
 	pktlist.clear();
-
-	while (pout_queue.size() >= max_out_queue_size)
-	{
-		WRITELOG(CPORT, DBG, "cport(%s)::enqueue() shrinking pout_queue: %lu",
-						devname.c_str(), pout_queue.size());
-
-		delete pout_queue.front(); pout_queue.pop_front();
-	}
 
 	handle_out_queue();
 }
 
 
-#if 0
-struct ofp_port_stats*
-cport::get_port_stats(
-		struct ofp_port_stats* port_stats,
-		size_t port_stats_len)
-{
-	if (!port_stats || (port_stats_len < sizeof(struct ofp_port_stats)))
-	{
-		return NULL;
-	}
-
-	port_stats->rx_packets 	= rx_packets;
-	port_stats->tx_packets 	= tx_packets;
-	port_stats->rx_bytes 	= rx_bytes;
-	port_stats->tx_bytes 	= tx_bytes;
-	port_stats->rx_dropped 	= rx_dropped;
-	port_stats->tx_dropped 	= tx_dropped;
-	port_stats->rx_errors 	= rx_errors;
-	port_stats->tx_errors 	= tx_errors;
-	port_stats->rx_frame_err = rx_frame_err;
-	port_stats->rx_over_err = rx_over_err;
-	port_stats->rx_crc_err 	= rx_crc_err;
-	port_stats->collisions 	= collisions;
-
-	return port_stats;
-}
-#endif
 
 
 

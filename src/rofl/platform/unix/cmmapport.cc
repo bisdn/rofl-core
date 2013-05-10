@@ -4,6 +4,8 @@
 
 #include "cmmapport.h"
 
+using namespace rofl;
+
 #ifndef HARDWARE
 
 
@@ -19,6 +21,7 @@ my_print(const std::string &s) {
 }
 #endif
 
+#if 0
 cmapport_helper cmapport_helper::instance;
 
 cmapport_helper::cmapport_helper()
@@ -104,10 +107,14 @@ void cmapport_helper::autocreate_ports() {
 
 cmapport_helper::~cmapport_helper() {
 }
+#endif
 
 
 
-cpktline2::cpktline2(
+
+
+
+cmmapdev::cmmapdev(
 		int __type,
 		std::string __devname,
 		int __block_size,
@@ -119,19 +126,19 @@ cpktline2::cpktline2(
 		devname(__devname),
 		ring_type(__type),
 		sd(-1),
-		ll_addr(AF_PACKET, ETH_P_ALL, devname, 0, 0, NULL, 0),
+		ll_addr(ETH_P_ALL, devname, 0, 0, NULL, 0),
 		ring(NULL),
 		rpos(0)
 {
-	WRITELOG(CPORT, DBG, "cpktline(%p)::cpktline() %s\n",
+	WRITELOG(CPORT, DBG, "cmmapdev(%p)::cmmapdev() %s\n",
 			this, (ring_type == PACKET_TX_RING) ? "TX-RING" : "RX-RING");
 	// initialize();
 }
 
 
-cpktline2::~cpktline2()
+cmmapdev::~cmmapdev()
 {
-	WRITELOG(CPORT, DBG, "cpktline(%p)::~cpktline() %s\n",
+	WRITELOG(CPORT, DBG, "cmmapdev(%p)::~cmmapdev() %s\n",
 			this, (ring_type == PACKET_TX_RING) ? "TX-RING" : "RX-RING");
 	if (-1 != sd)
 	{
@@ -142,7 +149,7 @@ cpktline2::~cpktline2()
 
 
 void
-cpktline2::initialize() throw (eMMapFailed)
+cmmapdev::initialize() throw (eMMapFailed)
 {
 	int rc = 0;
 
@@ -209,10 +216,10 @@ cpktline2::initialize() throw (eMMapFailed)
 	}
 
 	// bind socket to device
-	ll_addr.sladdr->sll_ifindex = ifr.ifr_ifindex;
-	if ((rc = bind(sd, ll_addr.saddr, ll_addr.salen)))
+	ll_addr.ca_sladdr->sll_ifindex = ifr.ifr_ifindex;
+	if ((rc = bind(sd, ll_addr.ca_saddr, ll_addr.salen)))
 	{
-		switch (rc) {
+		switch (errno) {
 		case EADDRINUSE:
 			throw eSocketAddressInUse();
 		default:
@@ -228,7 +235,7 @@ cpktline2::initialize() throw (eMMapFailed)
 
 	//fprintf(stdout, "frame_nr:%d\n", req.tp_frame_nr);
 
-	WRITELOG(CPORT, DBG, "cpktline(%p)::initialize() block-size:%u block-nr:%u frame-size:%u frame-nr:%u",
+	WRITELOG(CPORT, DBG, "cmmapdev(%p)::initialize() block-size:%u block-nr:%u frame-size:%u frame-nr:%u",
 			this,
 			req.tp_block_size,
 			req.tp_block_nr,
@@ -239,7 +246,7 @@ cpktline2::initialize() throw (eMMapFailed)
 	if ((rc = setsockopt(sd, SOL_PACKET, ring_type,
 			(void *) &req, sizeof(req))) < 0)
 	{
-		WRITELOG(CPORT, DBG, "cpktline(%p)::initialize() setsockopt() sys-call failed "
+		WRITELOG(CPORT, DBG, "cmmapdev(%p)::initialize() setsockopt() sys-call failed "
 				"rc: %d errno: %d (%s)\n", this, rc, errno, strerror(errno));
 		throw eMMapPortSocketFailed();
 	}
@@ -252,7 +259,7 @@ cpktline2::initialize() throw (eMMapFailed)
 			PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED,
 			/*file descriptor*/sd, /*offset*/0)) == MAP_FAILED)
 	{
-		WRITELOG(CPORT, DBG, "cpktline(%p)::initialize() mmap() sys-call failed "
+		WRITELOG(CPORT, DBG, "cmmapdev(%p)::initialize() mmap() sys-call failed "
 				"rc: %d errno: %d (%s)\n", this, rc, errno, strerror(errno));
 		throw eMMapPortSocketFailed();
 	}
@@ -265,53 +272,54 @@ cpktline2::initialize() throw (eMMapFailed)
 	{
 		ring[i].iov_base = (void*)((uint8_t*)map + i * req.tp_frame_size);
 		ring[i].iov_len  = req.tp_frame_size;
-		WRITELOG(CPORT, DBG, "cpktline(%p)::initialize() ring[%d].iov_base: %p   ",
+		WRITELOG(CPORT, DBG, "cmmapdev(%p)::initialize() ring[%d].iov_base: %p   ",
 				this, i, ring[i].iov_base);
-		WRITELOG(CPORT, DBG, "cpktline(%p)::initialize() ring[%d].iov_len:  %lu",
+		WRITELOG(CPORT, DBG, "cmmapdev(%p)::initialize() ring[%d].iov_len:  %lu",
 				this, i, ring[i].iov_len);
 	}
 }
 
 
+
+
+
+
+
+
 cmmapport::cmmapport(
+		cport_owner *owner,
 		std::string devname,
 		int port_no,
 		int block_size,
 		int n_blocks,
 		int frame_size) :
-	clinuxport(devname, std::string("phy"), port_no),
-	txline(PACKET_TX_RING, devname, block_size, n_blocks, frame_size),
-	rxline(PACKET_RX_RING, devname, block_size, n_blocks, frame_size),
+	clinuxport(owner, devname, std::string("phy")),
+	txline(PACKET_TX_RING, devname, block_size, 1 * n_blocks, frame_size),
+	rxline(PACKET_RX_RING, devname, block_size, 2 * n_blocks, frame_size),
 	tx_pkts(0),
 	rx_pkts(0)
 {
 	WRITELOG(CPORT, WARN, "cmmapport(%s)::cmmapport()", devname.c_str());
+
+	pthread_mutex_init(&queuelock, NULL);
+
 	laddr = get_hw_addr();
+
+	// register RX line on ciosrv
+	register_filedesc_r(rxline.sd);
+	// register TX line on ciosrv
+	//register_filedesc_w(txline.sd);
 }
 
 
 cmmapport::~cmmapport()
 {
 	WRITELOG(CPORT, WARN, "cmmapport(%s)::~cmmapport()", devname.c_str());
+
+	pthread_mutex_destroy(&queuelock);
 }
 
-void
-cmmapport::attach(cport_owner* owner) throw (ePortIsAttached)
-{
-	// register RX line on ciosrv
-	register_filedesc_r(rxline.sd);
-	// register TX line on ciosrv
-	//register_filedesc_w(txline.sd);
 
-	cport::attach(owner);
-}
-
-void
-cmmapport::detach() throw (ePortNotAttached)
-{
-	// fixme deinit pktlines
-	cport::detach();
-}
 
 void
 cmmapport::handle_event(cevent const& ev)
@@ -440,7 +448,7 @@ cmmapport::handle_revent(
 
 		struct tpacket_hdr *hdr = (struct tpacket_hdr*)rxline.ring[i].iov_base;
 		struct sockaddr_ll *sll = (struct sockaddr_ll*)((uint8_t*)hdr + TPACKET_ALIGN(sizeof(struct tpacket_hdr)));
-		fetherframe ether(((uint8_t*)rxline.ring[i].iov_base + hdr->tp_mac), hdr->tp_len, hdr->tp_len);
+		fetherframe ether(((uint8_t*)rxline.ring[i].iov_base + hdr->tp_mac), hdr->tp_len);
 
 
 		switch (hdr->tp_status) {
@@ -475,13 +483,13 @@ cmmapport::handle_revent(
 
 			++pktcnt;
 
-			cpacket* pack = new cpacket(((uint8_t*)rxline.ring[i].iov_base + hdr->tp_mac), hdr->tp_len, port_no);
+			cpacket* pack = new cpacket(((uint8_t*)rxline.ring[i].iov_base + hdr->tp_mac), hdr->tp_len, 0);
 			//pack->stored_bytes(hdr->tp_len);
 
 			WRITELOG(CPORT, DBG, "cmmapport(%s)::handle_revent() frame rcvd in slot i:%d", devname.c_str(), i);
 
 			rx_pkts++; // this is not the counter used by cport !!!
-			port_owner()->store(this, pack);
+			owner->enqueue(this, pack);
 
 			rxline.rpos = (i == rxline.req.tp_frame_nr - 1) ? 0 : (i+1);;
 
@@ -498,8 +506,6 @@ cmmapport::handle_revent(
 
 	//fprintf(stdout, "frame-nr:%d pktall:%d pktcnt:%d\n", rxline.req.tp_frame_nr, pktall, pktcnt);
 	//register_timer(/*throw timer*/1, /*in*/3/*second*/);
-
-	port_owner()->enqueue(this);
 }
 
 
@@ -593,10 +599,9 @@ cmmapport::handle_out_queue()
 						"storing pack:%p in slot i:%d", devname.c_str(), pack, i);
 
 				//fprintf(stdout, "cmmapport(%s)::handle_out_queue() "
-				//		"storing pack:%p in slot i:%d\n", devname.c_str(), pack, i);
+				//		"storing pak:%p in slot i:%d\n", devname.c_str(), pack, i);
 
 				pack->pack(data, txline.req.tp_frame_size);
-				pack->time_cport_send.now();
 #if 0
 				memcpy(data, pack->soframe(), pack->framelen());
 #endif

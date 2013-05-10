@@ -104,6 +104,7 @@ public:
 	~cport_owner() {};
 
 
+#if 0
 	/**
 	 *
 	 */
@@ -134,6 +135,7 @@ public:
 	virtual void
 	port_destroy(
 			cport *port) = 0;
+#endif
 
 
 	/**
@@ -168,57 +170,36 @@ class cport :
 {
 private: // data structures
 
+
+	static std::set<cport*> 	cport_list; 	// static list of all basic cports
 	std::string 				info;
-	cofport_stats_reply			port_stats;
+
 
 protected: // data structures
 
+
 	enum cport_timer_t { // cport related timer types
-		CPORT_TIMER_BASE = (0x0032 << 16),
+		CPORT_TIMER_BASE 				= (0x0032 << 16),
 		CPORT_TIMER_POUT_QUEUE,
 	};
 
 	enum cport_event_t {
-		CPORT_EVENT_OUT_QUEUE = 0xfeedbacc,
+		CPORT_EVENT_OUT_QUEUE 			= 0xfeedbacc,
 	};
 
 	enum cport_flag_t {
-		CPORT_FLAG_POUT_QUEUE = (1 << 0),
-		PORT_IFF_UP = (1 << 1),	// logical IFF_UP flag is set on this port
-		PORT_DESTROY_UPON_DETACHING = (1 << 2),
+		CPORT_FLAG_POUT_QUEUE 			= (1 << 0),
+		PORT_IFF_UP 					= (1 << 1),	// logical IFF_UP flag is set on this port
+		PORT_DESTROY_UPON_DETACHING 	= (1 << 2),
 	};
 
 #define CPORT_DEFAULT_MAX_OUT_QUEUE_SIZE	100
 	unsigned int				max_out_queue_size;
-
-	cport_owner 				*owner;			// owner of this cport (the one who gets packets from us)
+	cport_owner 				*owner;				// owner of this cport (the one who gets packets from us)
 	std::deque<cpacket*>		pout_queue;
-
-public: // data structures
-
-	static std::set<cport*> 	cport_list; 	// static list of all basic cports
-
-	// values for struct ofp_phy_port
-	std::string 				devname;    // port name
-	std::string 				devtype; 	// port type ("phy", "bcm", "vport", rofl.)
-
-#if 0
-	// port statistics
-	uint64_t 					rx_packets;
-	uint64_t 					tx_packets;
-	uint64_t 					rx_bytes;
-	uint64_t 					tx_bytes;
-	uint64_t 					rx_dropped;
-	uint64_t 					tx_dropped;
-	uint64_t 					rx_errors;
-	uint64_t 					tx_errors;
-	uint64_t 					rx_frame_err;
-	uint64_t 					rx_over_err;
-	uint64_t 					rx_crc_err;
-	uint64_t 					collisions;
-#endif
-
-
+	cofport_stats_reply			port_stats;
+	std::string 				devname;    		// port name
+	std::string 				devtype; 			// port type ("phy", "bcm", "vport", rofl.)
 
 
 public: // class wide static methods and data structures
@@ -271,33 +252,27 @@ public:
 			std::deque<cpacket*>& pktlist);
 
 
+
 	/** enable interface (set IFF_UP flag)
 	 */
 	virtual void
-	enable_interface()
-		throw (ePortSocketCallFailed, ePortIoctlCallFailed) = 0;
+	enable_interface() = 0;
+
 
 
 	/** disable interface (clear IFF_UP flag)
 	 */
 	virtual void
-	disable_interface()
-		throw (ePortSocketCallFailed, ePortIoctlCallFailed) = 0;
+	disable_interface() = 0;
+
 
 
 	/** return c_str with cport info
 	 */
-	const char*
+	virtual const char*
 	c_str();
 
-#if 0
-	/** get port statistics
-	 */
-	struct ofp_port_stats*
-	get_port_stats(
-			struct ofp_port_stats* port_stats,
-			size_t port_stats_len);
-#endif
+
 
 	/**
 	 *
@@ -306,7 +281,9 @@ public:
 	get_port_stats();
 
 
+
 protected: // methods
+
 
 	/**
 	 * handle out queue
@@ -315,7 +292,22 @@ protected: // methods
 	handle_out_queue() = 0;
 
 
+
+private:
+
+
+
+	/**
+	 *
+	 */
+	void
+	drop_packets();
+
+
+
 public: // helper classes
+
+
 
 	/** helper class for finding cport in this->port_list
 	 * based on port name of this cport instance

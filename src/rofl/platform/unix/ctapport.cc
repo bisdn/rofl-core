@@ -172,10 +172,11 @@ ctapport::tap_open(std::string devname)
 
 	register_filedesc_r(fd);
 
-	if (0 != owner)
-	{
+#if 0
+	if (0 != owner) {
 		owner->port_open(this);
 	}
+#endif
 }
 
 
@@ -187,10 +188,11 @@ ctapport::tap_close()
 		deregister_filedesc_r(fd);
 		close(fd);
 
-		if (0 != owner)
-		{
+#if 0
+		if (0 != owner) {
 			owner->port_close(this);
 		}
+#endif
 	}
 }
 
