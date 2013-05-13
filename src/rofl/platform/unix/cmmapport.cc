@@ -6,8 +6,6 @@
 
 using namespace rofl;
 
-#ifndef HARDWARE
-
 
 /**
  *  fixme the cmmapport_helper should be a factory which is registered on creation
@@ -695,9 +693,7 @@ void
 cmmapport::handle_wevent(
 		int fd)
 {
-	// TODO: handle txline
 	deregister_filedesc_w(txline.sd);
 	handle_out_queue();
 }
 
-#endif /* HARDWARE */
