@@ -51,6 +51,12 @@ typedef enum of12_flow_remove_reason {
 }of12_flow_remove_reason_t;
 
 /**
+ * Platform dependent opaque state
+ * @ingroup core_of12
+ */
+typedef void of12_flow_entry_platform_state_t;
+
+/**
 * Openflow v1.2 flow entry structure
 * @ingroup core_of12 
 */
@@ -96,6 +102,9 @@ typedef struct of12_flow_entry{
 
 	//RWlock
 	platform_rwlock_t* rwlock;
+
+	//Platform agnostic pointer
+	of12_flow_entry_platform_state_t* platform_state;
 
 }of12_flow_entry_t;
 
