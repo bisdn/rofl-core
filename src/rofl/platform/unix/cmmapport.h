@@ -5,6 +5,8 @@
 #ifndef CMMAPPORT_H
 #define CMMAPPORT_H 1
 
+#ifndef HARDWARE
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -207,5 +209,7 @@ protected: // overloaded from ciosrv
 
 }
 
+#endif /* HARDWARE */
 
 #endif
+

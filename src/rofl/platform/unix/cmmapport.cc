@@ -4,10 +4,9 @@
 
 #include "cmmapport.h"
 
-using namespace rofl;
-
 #ifndef HARDWARE
 
+using namespace rofl;
 
 /**
  *  fixme the cmmapport_helper should be a factory which is registered on creation
