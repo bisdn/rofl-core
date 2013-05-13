@@ -4,7 +4,7 @@
 #include "platform/memory.h"
 #include "util/logging.h"
 
-static physical_switch_t* psw;
+static physical_switch_t* psw=NULL;
 
 //Meta port FLOOD shortcut
 #define META_PORT_FLOOD_INDEX 0
@@ -14,7 +14,7 @@ switch_port_t* flood_meta_port;
 // Physical switch mgmt
 //
 
-//init&destroy
+//Init
 rofl_result_t physical_switch_init(){
 
 	ROFL_PIPELINE_DEBUG("Initializing physical switch\n");
@@ -47,6 +47,15 @@ rofl_result_t physical_switch_init(){
 	return ROFL_SUCCESS;	
 }
 
+//Only used in multi-process deployments (with shared memory)
+physical_switch_t* __get_physical_switch(){
+	return psw;
+}
+void __set_physical_switch(physical_switch_t* sw){
+	psw = sw;
+}
+
+//Destroy
 void physical_switch_destroy(){
 	
 	unsigned int i;
