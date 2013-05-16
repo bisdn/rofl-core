@@ -8,6 +8,7 @@
 #include "../../of12_match.h"
 #include "../../of12_group_table.h"
 #include "../../of12_instruction.h"
+#include "../../../of12_async_events_hooks.h"
 #include "../../../../../platform/lock.h"
 
 #define LOOP_DESCRIPTION "The loop algorithm searches the list of entries by its priority order. On the worst case the performance is o(N) with the number of entries"
@@ -100,6 +101,9 @@ static rofl_result_t of12_remove_flow_entry_table_specific_imp(of12_flow_table_t
 	
 	//Green light to readers and other writers			
 	platform_rwlock_wrunlock(table->rwlock);
+
+	// let the platform do the necessary cleanup
+	platform_of12_remove_entry_hook(specific_entry);
 
 	//Destroy entry
 	return __of12_destroy_flow_entry_with_reason(specific_entry, reason);
@@ -215,10 +219,13 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 		prev->next = entry;
 	}
 	table->num_of_entries++;
-
 	
 	//Unlock mutexes
 	platform_rwlock_wrunlock(table->rwlock);
+
+	// let the platform do the necessary add operations
+	plaftorm_of12_add_entry_hook(entry);
+
 	return ROFL_OF12_FM_SUCCESS;
 }
 
