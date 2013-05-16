@@ -13,6 +13,7 @@ using namespace rofl;
  * the scanning of ports should be moved into a config class (which is also responsible
  * for the available OF-Port-Numbers)
  **/
+#if 0
 #ifndef NDEBUG
 static void
 my_print(const std::string &s) {
@@ -20,7 +21,6 @@ my_print(const std::string &s) {
 }
 #endif
 
-#if 0
 cmapport_helper cmapport_helper::instance;
 
 cmapport_helper::cmapport_helper()
