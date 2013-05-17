@@ -1582,6 +1582,34 @@ protected:
 		cofaggr_stats_request const& aggr_stats_request);
 
 
+	/**
+	 * @brief	Sends a TABLE-STATS.request to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this TABLE-STATS.request
+	 */
+	virtual uint32_t
+	send_table_stats_request(
+		cofdpt *dpt,
+		uint16_t stats_flags);
+
+
+	/**
+	 * @brief	Sends a FLOW-STATS.request to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param port_stats_request body of a PORT-STATS.request
+	 * @return transaction ID for this FLOW-STATS.request
+	 */
+	virtual uint32_t
+	send_port_stats_request(
+		cofdpt *dpt,
+		uint16_t stats_flags,
+		cofport_stats_request const& port_stats_request);
+
+
 
 	/**
 	 * @brief	Sends a GROUP-DESC-STATS.request to a data path element.
