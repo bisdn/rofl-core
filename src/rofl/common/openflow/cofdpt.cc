@@ -110,6 +110,14 @@ cofdpt::get_version()
 
 
 
+caddress
+cofdpt::get_peer_addr()
+{
+	return socket->raddr;
+}
+
+
+
 void
 cofdpt::handle_accepted(
 		csocket *socket,

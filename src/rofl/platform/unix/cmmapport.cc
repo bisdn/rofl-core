@@ -699,3 +699,4 @@ cmmapport::handle_wevent(
 	handle_out_queue();
 }
 
+#endif

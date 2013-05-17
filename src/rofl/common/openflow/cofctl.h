@@ -230,6 +230,14 @@ public: // methods
 			cofmsg *msg);
 
 
+	/**
+	 * @brief	Returns caddress of connected remote entity.
+	 *
+	 * @return caddress object obtained from this->socket
+	 */
+	caddress
+	get_peer_addr();
+
 
 private:
 

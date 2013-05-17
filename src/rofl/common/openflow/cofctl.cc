@@ -92,6 +92,14 @@ cofctl::get_version()
 
 
 
+caddress
+cofctl::get_peer_addr()
+{
+	return socket->raddr;
+}
+
+
+
 void
 cofctl::send_message(
 		cofmsg *pack)
