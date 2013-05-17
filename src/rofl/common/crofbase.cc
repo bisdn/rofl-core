@@ -834,6 +834,28 @@ crofbase::send_stats_request(
 
 
 uint32_t
+crofbase::send_desc_stats_request(
+		cofdpt *dpt,
+		uint16_t flags)
+{
+	cofmsg_desc_stats_request *msg =
+			new cofmsg_desc_stats_request(
+					dpt->get_version(),
+					ta_add_request(OFPT_STATS_REQUEST),
+					flags);
+
+	msg->pack();
+
+	uint32_t xid = msg->get_xid();
+
+	dpt_find(dpt)->send_message(msg);
+
+	return xid;
+}
+
+
+
+uint32_t
 crofbase::send_flow_stats_request(
 		cofdpt *dpt,
 		uint16_t flags,

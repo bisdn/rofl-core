@@ -1552,6 +1552,20 @@ protected:
 
 
 	/**
+	 * @brief	Sends a DESC-STATS.request to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this DESC-STATS.request
+	 */
+	virtual uint32_t
+	send_desc_stats_request(
+		cofdpt *dpt,
+		uint16_t stats_flags);
+
+
+
+	/**
 	 * @brief	Sends a FLOW-STATS.request to a data path element.
 	 *
 	 * @param dpt pointer to cofdpt instance
