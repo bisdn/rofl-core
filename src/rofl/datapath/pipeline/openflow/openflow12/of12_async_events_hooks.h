@@ -103,6 +103,13 @@ platform_of12_modify_entry_hook(of12_flow_entry_t* old_entry, of12_flow_entry_t*
 void
 platform_of12_remove_entry_hook(of12_flow_entry_t* entry);
 
+/**
+ * todo documentation
+ * @param entry			flow entry to update statistics from the platform
+ */
+void
+platform_of12_update_stats_hook(of12_flow_entry_t* entry);
+
 //Extern C
 ROFL_END_DECLS
 

@@ -462,6 +462,10 @@ rofl_result_t of12_get_flow_stats_loop(struct of12_flow_table *const table,
 	
 		//Check if is contained 
 		if(__of12_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
+
+			// update statistics from platform
+			platform_of12_update_stats_hook(entry);
+
 			//Create a new single flow entry and fillin 
 			flow_stats = __of12_init_stats_single_flow_msg(entry);
 			
