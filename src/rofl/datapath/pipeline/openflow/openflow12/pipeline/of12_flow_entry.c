@@ -139,6 +139,9 @@ rofl_result_t __of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_
 	//Unlock
 	platform_rwlock_wrunlock(entry_to_update->rwlock);
 
+	// let the platform do the necessary updates
+	platform_of12_modify_entry_hook(entry_to_update, mod, reset_counts);
+
 	//Destroy the mod entry
 	__of12_destroy_flow_entry_with_reason(mod, OF12_FLOW_REMOVE_NO_REASON);
 

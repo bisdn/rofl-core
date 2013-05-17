@@ -80,6 +80,28 @@ void platform_of12_notify_flow_removed(const of12_switch_t* sw,
 						of12_flow_remove_reason_t reason, 
 						of12_flow_entry_t* removed_flow_entry);
 
+/**
+ * todo documentation
+ * @param new_entry		flow entry to add
+ */
+void
+plaftorm_of12_add_entry_hook(of12_flow_entry_t* new_entry);
+
+/**
+ * todo documentation
+ * @param old_entry		the original entry
+ * @param mod			the modifications
+ * @param reset_count	if set reset statistic counters
+ */
+void
+platform_of12_modify_entry_hook(of12_flow_entry_t* old_entry, of12_flow_entry_t* mod, int reset_count);
+
+/**
+ * todo documentation
+ * @param entry			flow entry to remove
+ */
+void
+platform_of12_remove_entry_hook(of12_flow_entry_t* entry);
 
 //Extern C
 ROFL_END_DECLS

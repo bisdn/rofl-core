@@ -12,7 +12,7 @@ SUBDIRS = control $(EXPERIMENTAL_DIRS)
 #library_includedir=$(includedir)/rofl 
 #include_HEADERS=rofl.h
 
-lib_LTLIBRARIES = librofl_controller.la
+noinst_LTLIBRARIES = librofl_controller.la
 librofl_controller_la_SOURCES = #rofl.h 
 librofl_controller_la_LIBADD =  control/librofl_control.la $(EXPERIMENTAL_LIBS)
 
