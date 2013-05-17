@@ -129,6 +129,10 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 		entry->table = table;
 
 		table->num_of_entries++;
+
+		// let the platform do the necessary add operations
+		plaftorm_of12_add_entry_hook(entry);
+
 		return ROFL_OF12_FM_SUCCESS;
 	}
 
@@ -192,6 +196,10 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 
 			//Unlock mutexes
 			platform_rwlock_wrunlock(table->rwlock);
+
+			// let the platform do the necessary add operations
+			plaftorm_of12_add_entry_hook(entry);
+
 			return ROFL_OF12_FM_SUCCESS;
 		}
 	}
@@ -307,7 +315,7 @@ static inline rofl_result_t of12_remove_flow_entry_table_imp(of12_flow_table_t *
 }
 
 /* Conveniently wraps call with mutex.  */
- rofl_of12_fm_result_t of12_add_flow_entry_loop(of12_flow_table_t *const table, of12_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
+rofl_of12_fm_result_t of12_add_flow_entry_loop(of12_flow_table_t *const table, of12_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
 
 	rofl_of12_fm_result_t return_value;
 
