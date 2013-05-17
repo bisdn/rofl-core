@@ -231,6 +231,14 @@ public: // methods
 
 
 	/**
+	 *
+	 */
+	virtual void
+	handle_message(
+			cmemory *pack);
+
+
+	/**
 	 * @brief	Returns caddress of connected remote entity.
 	 *
 	 * @return caddress object obtained from this->socket
@@ -454,14 +462,6 @@ private:
 	 */
 	void
 	handle_echo_reply_timeout();
-
-
-	/**
-	 *
-	 */
-	void
-	handle_message(
-			cmemory *pack);
 
 
 	/**

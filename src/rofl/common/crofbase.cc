@@ -679,9 +679,11 @@ crofbase::send_echo_reply(
  * FEATURES request/reply
  */
 
-void
+uint32_t
 crofbase::send_features_request(cofdpt *dpt)
 {
+	uint32_t xid = 0;
+
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_features_request()", this);
 
 	cofmsg_features_request *msg =
@@ -689,7 +691,11 @@ crofbase::send_features_request(cofdpt *dpt)
 					dpt->get_version(),
 					ta_add_request(OFPT_FEATURES_REQUEST));
 
+	xid = msg->get_xid();
+
 	dpt_find(dpt)->send_message(msg);
+
+	return xid;
 }
 
 
@@ -744,16 +750,22 @@ crofbase::handle_features_reply_timeout(cofdpt *dpt)
 /*
  * GET-CONFIG request/reply
  */
-void
+uint32_t
 crofbase::send_get_config_request(
 		cofdpt *dpt)
 {
-	cofmsg_get_config_request *pack =
+	uint32_t xid = 0;
+
+	cofmsg_get_config_request *msg =
 			new cofmsg_get_config_request(
 					dpt->get_version(),
 					ta_add_request(OFPT_GET_CONFIG_REQUEST));
 
-	dpt_find(dpt)->send_message(pack);
+	xid = msg->get_xid();
+
+	dpt_find(dpt)->send_message(msg);
+
+	return xid;
 }
 
 
@@ -1864,18 +1876,24 @@ crofbase::send_port_status_message(
  * QUEUE-GET-CONFIG request/reply
  */
 
-void
+uint32_t
 crofbase::send_queue_get_config_request(
 	cofdpt *dpt,
 	uint32_t port)
 {
-	cofmsg_queue_get_config_request *pack =
+	uint32_t xid = 0;
+
+	cofmsg_queue_get_config_request *msg =
 			new cofmsg_queue_get_config_request(
 					dpt->get_version(),
 					ta_add_request(OFPT_QUEUE_GET_CONFIG_REQUEST),
 					port);
 
-	dpt_find(dpt)->send_message(pack);
+	xid = msg->get_xid();
+
+	dpt_find(dpt)->send_message(msg);
+
+	return xid;
 }
 
 
@@ -1909,7 +1927,7 @@ crofbase::send_queue_get_config_reply(
 
 
 
-void
+uint32_t
 crofbase::send_experimenter_message(
 		cofdpt *dpt,
 		uint32_t experimenter_id,
@@ -1917,7 +1935,9 @@ crofbase::send_experimenter_message(
 		uint8_t* body,
 		size_t bodylen)
 {
-	cofmsg_experimenter *pack =
+	uint32_t xid = 0;
+
+	cofmsg_experimenter *msg =
 			new cofmsg_experimenter(
 						dpt->get_version(),
 						ta_new_async_xid(),
@@ -1926,28 +1946,32 @@ crofbase::send_experimenter_message(
 						body,
 						bodylen);
 
-	pack->pack();
+	msg->pack();
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_experimenter_message() -down- %s", this, pack->c_str());
+	xid = msg->get_xid();
+
+	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_experimenter_message() -down- %s", this, msg->c_str());
 
 	if (NULL == dpt) // send to all attached data path entities
 	{
 		for (std::set<cofdpt*>::iterator
 				it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 		{
-			(*it)->send_message(new cofmsg(*pack));
+			(*it)->send_message(new cofmsg(*msg));
 		}
-		delete pack;
+		delete msg;
 	}
 	else
 	{
-		dpt_find(dpt)->send_message(pack);
+		dpt_find(dpt)->send_message(msg);
 	}
+
+	return xid;
 }
 
 
 
-void
+uint32_t
 crofbase::send_experimenter_message(
 		cofctl *ctl,
 		uint32_t experimenter_id,
@@ -1955,7 +1979,9 @@ crofbase::send_experimenter_message(
 		uint8_t* body,
 		size_t bodylen)
 {
-	cofmsg_experimenter *pack =
+	uint32_t xid = 0;
+
+	cofmsg_experimenter *msg =
 			new cofmsg_experimenter(
 						ctl->get_version(),
 						ta_new_async_xid(),
@@ -1964,9 +1990,11 @@ crofbase::send_experimenter_message(
 						body,
 						bodylen);
 
-	pack->pack();
+	msg->pack();
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_experimenter_message() -up- %s", this, pack->c_str());
+	xid = msg->get_xid();
+
+	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_experimenter_message() -up- %s", this, msg->c_str());
 
 	if ((cofctl*)0 == ctl) // send to all attached controller entities
 	{
@@ -1976,16 +2004,18 @@ crofbase::send_experimenter_message(
 			if (not (*it)->is_established()) {
 				continue;
 			}
-			(*it)->send_message(new cofmsg(*pack));
+			(*it)->send_message(new cofmsg(*msg));
 		}
 
-		delete pack;
+		delete msg;
 	}
 	else
 	{
 		// straight call to layer-(n+1) entity's fe_up_experimenter_message() method
-		ctl->send_message(pack);
+		ctl->send_message(msg);
 	}
+
+	return xid;
 }
 
 

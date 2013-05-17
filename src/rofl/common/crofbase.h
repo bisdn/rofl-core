@@ -1467,8 +1467,9 @@ protected:
 	 * @brief	Sends a FEATURES.request to a data path element.
 	 *
 	 * @param dpt pointer to cofdpt instance
+	 * @return transaction ID assigned to this request
 	 */
-	virtual void
+	virtual uint32_t
 	send_features_request(
 		cofdpt *dpt);
 
@@ -1504,8 +1505,9 @@ protected:
 	 * @brief	Sends a GET-CONFIG.request to a data path element.
 	 *
 	 * @param dpt pointer to cofdpt instance
+	 * @return transaction ID assigned to this request
 	 */
-	virtual void
+	virtual uint32_t
 	send_get_config_request(
 		cofdpt *dpt);
 
@@ -2061,8 +2063,9 @@ protected:
 	 *
 	 * @param dpt pointer to cofdpt instance
 	 * @param port port to be queried. Should refer to a valid physical port (i.e. < OFPP_MAX)
+	 * @result transaction ID assigned to this request
 	 */
-	virtual void
+	virtual uint32_t
 	send_queue_get_config_request(
 		cofdpt *sw,
 		uint32_t port);
@@ -2095,8 +2098,9 @@ protected:
 	 * @param exp_type exp_type as defined by the ONF member
 	 * @param body pointer to opaque experimenter message body (optional)
 	 * @param bodylen length of body (optional)
+	 * @result transaction ID assigned to this request
 	 */
-	virtual void
+	virtual uint32_t
 	send_experimenter_message(
 			cofdpt *dpt,
 			uint32_t experimenter_id,
@@ -2114,8 +2118,9 @@ protected:
 	 * @param exp_type exp_type as defined by the ONF member
 	 * @param body pointer to opaque experimenter message body (optional)
 	 * @param bodylen length of body (optional)
+	 * @result transaction ID assigned to this request
 	 */
-	virtual void
+	virtual uint32_t
 	send_experimenter_message(
 			cofctl *ctl,
 			uint32_t experimenter_id,
