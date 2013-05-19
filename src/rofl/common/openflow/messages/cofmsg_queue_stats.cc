@@ -178,6 +178,13 @@ cofmsg_queue_stats_request::validate()
 
 
 
+cofqueue_stats_request&
+cofmsg_queue_stats_request::get_queue_stats()
+{
+	return queue_stats;
+}
+
+
 
 
 

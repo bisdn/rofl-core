@@ -107,6 +107,16 @@ public:
 	 */
 	virtual void
 	validate();
+
+
+public:
+
+
+	/**
+	 *
+	 */
+	cofqueue_stats_request&
+	get_queue_stats();
 };
 
 
