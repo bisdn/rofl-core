@@ -30,6 +30,9 @@ cofmsg_experimenter_stats_request::cofmsg_experimenter_stats_request(
 	default:
 		throw eBadVersion();
 	}
+
+	set_exp_id(exp_id);
+	set_exp_type(exp_type);
 }
 
 
@@ -310,6 +313,9 @@ cofmsg_experimenter_stats_reply::cofmsg_experimenter_stats_reply(
 	default:
 		throw eBadVersion();
 	}
+
+	set_exp_id(exp_id);
+	set_exp_type(exp_type);
 }
 
 
