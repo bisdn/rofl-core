@@ -938,7 +938,7 @@ cofdpt::stats_reply_rcvd(
 		rofbase->handle_group_features_stats_reply(this, dynamic_cast<cofmsg_group_features_stats_reply*>( msg ));
 	} break;
 	case OFPST_EXPERIMENTER: {
-		rofbase->handle_experimenter_stats_reply(this, dynamic_cast<cofmsg_stats*>( msg ));
+		rofbase->handle_experimenter_stats_reply(this, dynamic_cast<cofmsg_experimenter_stats_reply*>( msg ));
 	} break;
 	default: {
 		WRITELOG(COFCTL, WARN, "cofctl(%p)::recv_stats_request() "

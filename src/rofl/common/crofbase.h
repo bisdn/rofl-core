@@ -850,7 +850,7 @@ protected:
 	 * @param msg Pointer to cofmsg_experimenter_stats_request message containing the received message
 	 */
 	virtual void
-	handle_experimenter_stats_request(cofctl *ctl, cofmsg_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_experimenter_stats_request(cofctl *ctl, cofmsg_experimenter_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -1007,7 +1007,7 @@ protected:
 	 * @param msg pointer to cofmsg_experimenter_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_experimenter_stats_reply(cofdpt *dpt, cofmsg_stats_reply *msg) { delete msg; };
+	handle_experimenter_stats_reply(cofdpt *dpt, cofmsg_experimenter_stats_reply *msg) { delete msg; };
 
 
 

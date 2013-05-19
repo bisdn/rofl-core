@@ -2000,7 +2000,7 @@ cofctl::stats_request_rcvd(cofmsg_stats *msg)
 		rofbase->handle_group_features_stats_request(this, dynamic_cast<cofmsg_group_features_stats_request*>( msg ));
 	} break;
 	case OFPST_EXPERIMENTER: {
-		rofbase->handle_experimenter_stats_request(this, dynamic_cast<cofmsg_stats*>( msg ));
+		rofbase->handle_experimenter_stats_request(this, dynamic_cast<cofmsg_experimenter_stats_request*>( msg ));
 	} break;
 	default: {
 		WRITELOG(COFCTL, WARN, "cofctl(%p)::recv_stats_request() "
