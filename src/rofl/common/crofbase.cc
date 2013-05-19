@@ -1619,7 +1619,7 @@ crofbase::send_barrier_reply(
  * ROLE.request/reply
  */
 
-void
+uint32_t
 crofbase::send_role_request(
 	cofdpt *dpt,
 	uint32_t role,
@@ -1635,7 +1635,11 @@ crofbase::send_role_request(
 					role,
 					generation_id);
 
+	uint32_t xid = msg->get_xid();
+
 	dpt_find(dpt)->send_message(msg);
+
+	return xid;
 }
 
 

@@ -2272,7 +2272,7 @@ protected:
 	 * @param role role as defined by OpenFlow
 	 * @param generation_id gen_id as defined by OpenFlow
 	 */
-	virtual void
+	virtual uint32_t
 	send_role_request(
 		cofdpt *dpt,
 		uint32_t role,
