@@ -10,7 +10,7 @@ cofmsg_group_features_stats_request::cofmsg_group_features_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags) :
-	cofmsg_stats(of_version, OFPT_STATS_REPLY, xid, OFPST_GROUP_FEATURES, flags)
+	cofmsg_stats(of_version, OFPT_STATS_REQUEST, xid, OFPST_GROUP_FEATURES, flags)
 {
 	switch (of_version) {
 	case OFP12_VERSION: {

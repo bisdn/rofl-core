@@ -329,6 +329,28 @@ cmemory::clear()
 
 
 void
+cmemory::pack(
+		uint8_t *buf,
+		size_t buflen)
+{
+	if (buflen < memlen())
+		throw eTooShort();
+	memcpy(buf, somem(), memlen());
+}
+
+
+
+void
+cmemory::unpack(
+		uint8_t *buf,
+		size_t buflen)
+{
+	assign(buf, buflen);
+}
+
+
+
+void
 cmemory::mallocate(
 		size_t len)
 		throw (eMemAllocFailed)

@@ -781,6 +781,14 @@ struct ofp10_port_stats {
 };
 OFP_ASSERT(sizeof(struct ofp10_port_stats) == 104);
 
+/* Body for ofp_stats_request/reply of type OFPST_EXPERIMENTER. */
+struct ofp10_vendor_stats_header {
+    uint32_t vendor;
+    /* Experimenter ID which takes the same form
+       as in struct ofp_vendor_header. */
+};
+OFP_ASSERT(sizeof(struct ofp10_vendor_stats_header) == 4);
+
 /* Vendor extension. */
 struct ofp10_vendor_header {
     struct ofp_header header;   /* Type OFP10T_VENDOR. */

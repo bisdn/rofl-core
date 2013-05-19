@@ -1041,6 +1041,34 @@ crofbase::send_group_features_stats_request(
 
 
 
+uint32_t
+crofbase::send_experimenter_stats_request(
+	cofdpt *dpt,
+	uint16_t flags,
+	uint32_t exp_id,
+	uint32_t exp_type,
+	cmemory const& body)
+{
+	cofmsg_experimenter_stats_request *msg =
+			new cofmsg_experimenter_stats_request(
+					dpt->get_version(),
+					ta_add_request(OFPT_STATS_REQUEST),
+					flags,
+					exp_id,
+					exp_type,
+					body);
+
+	msg->pack();
+
+	uint32_t xid = msg->get_xid();
+
+	dpt_find(dpt)->send_message(msg);
+
+	return xid;
+}
+
+
+
 void
 crofbase::send_stats_reply(
 		cofctl *ctl,
@@ -1292,6 +1320,36 @@ crofbase::send_group_features_stats_reply(
 
 	ctl_find(ctl)->send_message(msg);
 }
+
+
+
+void
+crofbase::send_experimenter_stats_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		uint32_t exp_id,
+		uint32_t exp_type,
+		cmemory const& body,
+		bool more)
+{
+	uint16_t flags = 0;
+
+	flags |= (more) ? OFPSF_REPLY_MORE : 0;
+
+	cofmsg_experimenter_stats_reply *msg =
+			new cofmsg_experimenter_stats_reply(
+					ctl->get_version(),
+					xid,
+					flags,
+					exp_id,
+					exp_type,
+					body);
+
+	msg->pack();
+
+	ctl_find(ctl)->send_message(msg);
+}
+
 
 
 

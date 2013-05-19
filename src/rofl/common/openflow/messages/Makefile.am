@@ -8,6 +8,7 @@ libopenflow_messages_la_SOURCES = \
 	cofmsg_desc_stats.h \
 	cofmsg_echo.h \
 	cofmsg_error.h \
+	cofmsg_experimenter_stats.h \
 	cofmsg_features.h \
 	cofmsg_flow_mod.h \
 	cofmsg_flow_removed.h \
@@ -37,6 +38,7 @@ libopenflow_messages_la_SOURCES = \
 	cofmsg_desc_stats.cc \
 	cofmsg_echo.cc \
 	cofmsg_error.cc \
+	cofmsg_experimenter_stats.cc \
 	cofmsg_features.cc \
 	cofmsg_flow_mod.cc \
 	cofmsg_flow_removed.cc \
@@ -67,6 +69,7 @@ library_include_HEADERS = \
 	cofmsg_desc_stats.h \
 	cofmsg_echo.h \
 	cofmsg_error.h \
+	cofmsg_experimenter_stats.h \
 	cofmsg_features.h \
 	cofmsg_flow_mod.h \
 	cofmsg_flow_removed.h \

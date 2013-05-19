@@ -81,6 +81,7 @@ extern "C" {
 #include "openflow/messages/cofmsg_group_stats.h"
 #include "openflow/messages/cofmsg_group_desc_stats.h"
 #include "openflow/messages/cofmsg_group_features_stats.h"
+#include "openflow/messages/cofmsg_experimenter_stats.h"
 #include "openflow/messages/cofmsg_barrier.h"
 #include "openflow/messages/cofmsg_queue_get_config.h"
 #include "openflow/messages/cofmsg_role.h"
@@ -1686,6 +1687,26 @@ protected:
 
 
 	/**
+	 * @brief	Sends an EXPERIMENTER-STATS.request to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param exp_id experimenter ID
+	 * @param exp_type user defined type
+	 * @param body user defined body
+	 * @return transaction ID for this EXPERIMENTER-STATS.request
+	 */
+	virtual uint32_t
+	send_experimenter_stats_request(
+		cofdpt *dpt,
+		uint16_t stats_flags,
+		uint32_t exp_id,
+		uint32_t exp_type,
+		cmemory const& body);
+
+
+
+	/**
 	 * @brief	Sends a STATS.reply to a controller entity.
 	 *
 	 * @param ctl pointer to cofctl instance
@@ -1856,6 +1877,28 @@ protected:
 		uint32_t xid,
 		cofgroup_features_stats_reply const& group_features_stats,
 		bool more = false);
+
+
+
+	/**
+	 * @brief	Sends an EXPERIMENTER-STATS.reply to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param exp_id experimenter ID
+	 * @param exp_type user defined type
+	 * @param body start of user defined body
+	 * @param bodylen length of user defined body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_experimenter_stats_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		uint32_t exp_id,
+		uint32_t exp_type,
+		cmemory const& body,
+		bool more);
 
 
 

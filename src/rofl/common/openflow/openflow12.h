@@ -1411,6 +1411,18 @@ enum ofp_group_capabilities {
 };
 
 
+/* Body for ofp_stats_request/reply of type OFPST_EXPERIMENTER. */
+struct ofp12_experimenter_stats_header {
+    uint32_t experimenter;
+    /* Experimenter ID which takes the same form
+       as in struct ofp_experimenter_header. */
+    uint32_t exp_type;
+    /* Experimenter defined. */
+    /* Experimenter-defined arbitrary additional data. */
+};
+OFP_ASSERT(sizeof(struct ofp12_experimenter_stats_header) == 8);
+
+
 /* Experimenter extension. */
 struct ofp12_experimenter_header {
     struct ofp_header header;   /* Type OFPT_EXPERIMENTER. */

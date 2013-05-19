@@ -346,6 +346,25 @@ public:
 
 
 
+	/**
+	 * @brief	Copies content of this cmemory instance to specified buffer.
+	 */
+	virtual void
+	pack(
+			uint8_t *buf,
+			size_t buflen);
+
+
+
+	/**
+	 * @brief	Copies content of specified buffer into this cmemory instance .
+	 */
+	virtual void
+	unpack(
+			uint8_t *buf,
+			size_t buflen);
+
+
 	/**@}*/
 
 
