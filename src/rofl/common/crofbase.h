@@ -1642,6 +1642,22 @@ protected:
 
 
 	/**
+	 * @brief	Sends a GROUP-STATS.request to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param queue_stats_request body of a GROUP-STATS.request
+	 * @return transaction ID for this GROUP-STATS.request
+	 */
+	virtual uint32_t
+	send_group_stats_request(
+		cofdpt *dpt,
+		uint16_t stats_flags,
+		cofgroup_stats_request const& group_stats_request);
+
+
+
+	/**
 	 * @brief	Sends a GROUP-DESC-STATS.request to a data path element.
 	 *
 	 * @param dpt pointer to cofdpt instance
