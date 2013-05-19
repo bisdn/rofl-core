@@ -19,9 +19,12 @@ cofmsg_experimenter_stats_request::cofmsg_experimenter_stats_request(
 	switch (of_version) {
 	case OFP10_VERSION: {
 		resize(sizeof(struct ofp10_stats_request) + sizeof(struct ofp10_vendor_stats_header) + body.memlen());
+		set_exp_id(exp_id);
 	} break;
 	case OFP12_VERSION: {
 		resize(sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_experimenter_stats_header) + body.memlen());
+		set_exp_id(exp_id);
+		set_exp_type(exp_type);
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -30,9 +33,6 @@ cofmsg_experimenter_stats_request::cofmsg_experimenter_stats_request(
 	default:
 		throw eBadVersion();
 	}
-
-	set_exp_id(exp_id);
-	set_exp_type(exp_type);
 }
 
 
@@ -302,9 +302,12 @@ cofmsg_experimenter_stats_reply::cofmsg_experimenter_stats_reply(
 	switch (of_version) {
 	case OFP10_VERSION: {
 		resize(sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_vendor_stats_header) + body.memlen());
+		set_exp_id(exp_id);
 	} break;
 	case OFP12_VERSION: {
 		resize(sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_experimenter_stats_header) + body.memlen());
+		set_exp_id(exp_id);
+		set_exp_type(exp_type);
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -313,9 +316,6 @@ cofmsg_experimenter_stats_reply::cofmsg_experimenter_stats_reply(
 	default:
 		throw eBadVersion();
 	}
-
-	set_exp_id(exp_id);
-	set_exp_type(exp_type);
 }
 
 
