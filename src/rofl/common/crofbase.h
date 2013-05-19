@@ -1626,6 +1626,22 @@ protected:
 
 
 	/**
+	 * @brief	Sends a QUEUE-STATS.request to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param queue_stats_request body of a QUEUE-STATS.request
+	 * @return transaction ID for this QUEUE-STATS.request
+	 */
+	virtual uint32_t
+	send_queue_stats_request(
+		cofdpt *dpt,
+		uint16_t stats_flags,
+		cofqueue_stats_request const& queue_stats_request);
+
+
+
+	/**
 	 * @brief	Sends a GROUP-DESC-STATS.request to a data path element.
 	 *
 	 * @param dpt pointer to cofdpt instance
@@ -1721,6 +1737,23 @@ protected:
 		cofctl *ctl,
 		uint32_t xid,
 		std::vector<cofport_stats_reply> const& port_stats,
+		bool more = false);
+
+
+
+	/**
+	 * @brief	Sends a QUEUE-STATS.reply to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from received STATS.request
+	 * @param port_stats array of port_stats bodies
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_queue_stats_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		std::vector<cofqueue_stats_reply> const& queue_stats,
 		bool more = false);
 
 

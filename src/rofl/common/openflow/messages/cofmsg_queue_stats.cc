@@ -8,15 +8,17 @@ using namespace rofl;
 cofmsg_queue_stats_request::cofmsg_queue_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
-		uint16_t flags) :
-	cofmsg_stats(of_version, OFPT_STATS_REQUEST, xid, OFPST_QUEUE, flags)
+		uint16_t flags,
+		cofqueue_stats_request const& queue_stats) :
+	cofmsg_stats(of_version, OFPT_STATS_REQUEST, xid, OFPST_QUEUE, flags),
+	queue_stats(queue_stats)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
-		resize(sizeof(struct ofp10_stats_request));
+		resize(length());
 	} break;
 	case OFP12_VERSION: {
-		resize(sizeof(struct ofp12_stats_request));
+		resize(length());
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -54,6 +56,7 @@ cofmsg_queue_stats_request::operator= (
 		return *this;
 
 	cofmsg_stats::operator =(stats);
+	queue_stats = stats.queue_stats;
 
 	return *this;
 }
@@ -88,10 +91,10 @@ cofmsg_queue_stats_request::length() const
 {
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_stats_request));
+		return (sizeof(struct ofp10_stats_request) + queue_stats.length());
 	} break;
 	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_stats_request));
+		return (sizeof(struct ofp12_stats_request) + queue_stats.length());
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -120,10 +123,12 @@ cofmsg_queue_stats_request::pack(uint8_t *buf, size_t buflen)
 	case OFP10_VERSION: {
 		if (buflen < length())
 			throw eInval();
+		queue_stats.pack(buf + sizeof(struct ofp10_stats_request), sizeof(struct ofp10_queue_stats_request));
 	} break;
 	case OFP12_VERSION: {
 		if (buflen < length())
 			throw eInval();
+		queue_stats.pack(buf + sizeof(struct ofp12_stats_request), sizeof(struct ofp12_queue_stats_request));
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -153,12 +158,14 @@ cofmsg_queue_stats_request::validate()
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		if (get_length() < sizeof(struct ofp10_stats_request))
+		if (get_length() < length())
 			throw eBadSyntaxTooShort();
+		queue_stats.unpack(soframe() + sizeof(struct ofp10_stats_request), sizeof(struct ofp10_queue_stats_request));
 	} break;
 	case OFP12_VERSION: {
-		if (get_length() < (sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_queue_stats)))
+		if (get_length() < length())
 			throw eBadSyntaxTooShort();
+		queue_stats.unpack(soframe() + sizeof(struct ofp12_stats_request), sizeof(struct ofp12_queue_stats_request));
 	} break;
 	case OFP13_VERSION: {
 		// TODO

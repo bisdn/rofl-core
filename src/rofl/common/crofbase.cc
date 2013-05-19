@@ -950,6 +950,30 @@ crofbase::send_port_stats_request(
 
 
 uint32_t
+crofbase::send_queue_stats_request(
+	cofdpt *dpt,
+	uint16_t flags,
+	cofqueue_stats_request const& queue_stats_request)
+{
+	cofmsg_queue_stats_request *msg =
+			new cofmsg_queue_stats_request(
+					dpt->get_version(),
+					ta_add_request(OFPT_STATS_REQUEST),
+					flags,
+					queue_stats_request);
+
+	msg->pack();
+
+	uint32_t xid = msg->get_xid();
+
+	dpt_find(dpt)->send_message(msg);
+
+	return xid;
+}
+
+
+
+uint32_t
 crofbase::send_group_desc_stats_request(
 		cofdpt *dpt,
 		uint16_t flags)
@@ -1089,6 +1113,31 @@ crofbase::send_port_stats_reply(
 					xid,
 					flags,
 					port_stats);
+
+	msg->pack();
+
+	ctl_find(ctl)->send_message(msg);
+}
+
+
+
+void
+crofbase::send_queue_stats_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		std::vector<cofqueue_stats_reply> const& queue_stats,
+		bool more)
+{
+	uint16_t flags = 0;
+
+	flags |= (more) ? OFPSF_REPLY_MORE : 0;
+
+	cofmsg_queue_stats_reply *msg =
+			new cofmsg_queue_stats_reply(
+					ctl->get_version(),
+					xid,
+					flags,
+					queue_stats);
 
 	msg->pack();
 
