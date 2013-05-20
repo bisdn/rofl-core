@@ -14,7 +14,8 @@ fipv4frame::fipv4frame(
 		ipv4data(0),
 		ipv4datalen(0)
 {
-	initialize();
+	if(data)
+		initialize();
 }
 
 

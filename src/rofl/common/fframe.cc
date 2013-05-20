@@ -70,6 +70,10 @@ fframe::reset(uint8_t *_data, size_t _datalen) //, uint16_t _total_len)
 //		total_len = _total_len;
 	}
 	//WRITELOG(FFRAME, DBG, "fframe(%p)::reset() data:%p datalen:%d", this, data, datalen);
+
+	//Call initialize
+	if(data)
+		initialize();
 }
 
 
