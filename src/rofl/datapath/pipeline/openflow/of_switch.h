@@ -30,7 +30,7 @@ typedef enum{
 }of_version_t;
 
 #ifndef LOGICAL_SWITCH_MAX_LOG_PORTS
-	#define LOGICAL_SWITCH_MAX_LOG_PORTS 129 //128, 0 slot NEVER used
+	#define LOGICAL_SWITCH_MAX_LOG_PORTS 129 // 128, 0 slot NEVER used (has to be less than OF12_PORT_MAX)
 #endif
 
 //Platform dependent opaque state

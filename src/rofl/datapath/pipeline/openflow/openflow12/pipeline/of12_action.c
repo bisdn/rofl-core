@@ -530,7 +530,7 @@ static inline void __of12_process_packet_action(const struct of12_switch* sw, co
 					pkt_to_send = pkt;
 
 				//Perform output
-				if(action->field <= sw->num_of_ports){
+				if(action->field < LOGICAL_SWITCH_MAX_LOG_PORTS && NULL != sw->logical_ports[action->field]){
 
 					//Single port output
 					platform_packet_output(pkt_to_send, sw->logical_ports[action->field].port);
