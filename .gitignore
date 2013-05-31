@@ -30,5 +30,6 @@ m4
 ar-lib
 
 /build-*
+/build/*
 
 !.gitignore
