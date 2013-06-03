@@ -15,6 +15,12 @@ switch_port_t* flood_meta_port;
 // Physical switch mgmt
 //
 
+//Generate the matching algorithm list for all Openflow versions	
+void __physical_switch_generate_matching_algorithm_list(){
+	__of12_generate_matching_algorithm_list();
+	//Add more versions here...
+}
+
 //Init
 rofl_result_t physical_switch_init(){
 
@@ -45,10 +51,9 @@ rofl_result_t physical_switch_init(){
 	//Set extern pointer
 	flood_meta_port = &psw->meta_ports[META_PORT_FLOOD_INDEX];
 
-	//Generate matching lists. 	
-	of12_generate_matching_algorithm_list();
-	//Add more versions here...
-	
+	//Generate matching algorithm lists
+	__physical_switch_generate_matching_algorithm_list();
+
 	return ROFL_SUCCESS;	
 }
 

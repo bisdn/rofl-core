@@ -34,7 +34,7 @@ of12_matching_algorithms_functions_t of12_matching_algorithms[of12_matching_algo
 
 
 /* Filling */
-void of12_generate_matching_algorithm_list(){
+void __of12_generate_matching_algorithm_list(){
 EOF
 
 counter=0
