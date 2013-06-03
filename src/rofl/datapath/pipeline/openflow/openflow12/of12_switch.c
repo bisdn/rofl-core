@@ -6,7 +6,7 @@
 #include "of12_async_events_hooks.h"
 
 /* Initializer and destructor */
-of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* list){
+of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum of12_matching_algorithm_available* list){
 
 	of12_switch_t* sw;
 	sw = (of12_switch_t*)platform_malloc_shared(sizeof(of12_switch_t));

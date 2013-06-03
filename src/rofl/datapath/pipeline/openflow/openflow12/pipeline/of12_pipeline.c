@@ -14,7 +14,7 @@
 */
 
 /* Management operations */
-of12_pipeline_t* __of12_init_pipeline(struct of12_switch* sw, const unsigned int num_of_tables, enum matching_algorithm_available* list){
+of12_pipeline_t* __of12_init_pipeline(struct of12_switch* sw, const unsigned int num_of_tables, enum of12_matching_algorithm_available* list){
 	int i;	
 	of12_pipeline_t* pipeline;
 
@@ -46,7 +46,7 @@ of12_pipeline_t* __of12_init_pipeline(struct of12_switch* sw, const unsigned int
 
 	for(i=0;i<num_of_tables;i++){
 		//TODO: if we would have tables with different config, table_config should be an array of table_config_t objects, one for each table
-		if( (list[i] >= matching_algorithm_count) ||
+		if( (list[i] >= of12_matching_algorithm_count) ||
 		    (__of12_init_table(pipeline, &pipeline->tables[i],i, list[i]) != ROFL_SUCCESS)
 		){
 			ROFL_PIPELINE_ERR("Creation of table #%d has failed in logical switch %s. This might be due to an invalid Matching Algorithm or that the system has run out of memory. Aborting Logical Switch creation\n",i,sw->name);	

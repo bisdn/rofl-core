@@ -9,18 +9,18 @@ cat <<-EOF
 #ifndef MATCHING_ALGORITHMS_AVAILABLE_H_
 #define MATCHING_ALGORITHMS_AVAILABLE_H_
 
-enum matching_algorithm_available {
+enum of12_matching_algorithm_available {
 EOF
 
 for ALG in "$@"; do
-	echo "	matching_algorithm_$ALG,"
+	echo "	of12_matching_algorithm_$ALG,"
 done
 
-echo "	matching_algorithm_count,"
+echo "	of12_matching_algorithm_count,"
 cat <<-EOF
 };
 
-#define MATCHING_ALGORITHM_NAMES \\
+#define OF12_MATCHING_ALGORITHM_NAMES \\
 { \\
 EOF
 

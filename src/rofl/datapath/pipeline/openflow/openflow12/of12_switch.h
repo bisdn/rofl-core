@@ -63,7 +63,7 @@ ROFL_BEGIN_DECLS
 * @param ma_list An array with num_of_tables, with the matching algorithm that should
 * be used in each table (0..num_of_tables-1) 
 */
-of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum matching_algorithm_available* ma_list);
+of12_switch_t* of12_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum of12_matching_algorithm_available* ma_list);
 
 rofl_result_t __of12_destroy_switch(of12_switch_t* sw);
 

@@ -16,7 +16,7 @@
 #include "of12_statistics.h"
 #include "of12_utils.h"
 #include "matching_algorithms/matching_algorithms.h"
-
+#include "matching_algorithms/matching_algorithms_available.h"
 
 /**
 * @file of12_flow_table.h
@@ -130,9 +130,9 @@ typedef struct of12_flow_table{
 	struct of12_pipeline* pipeline;
 
 	/* 
-	* Matching algorithm related function pointers. Matching algorithm should implement them. 
+	* Matching algorithm identifier 
 	*/
-	struct matching_algorithm_functions maf;
+	enum of12_matching_algorithm_available matching_algorithm;
 
 }of12_flow_table_t;
 
@@ -148,7 +148,8 @@ ROFL_BEGIN_DECLS
 /*
 * Table init and destroy
 */
-rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const enum matching_algorithm_available algorithm);
+rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const enum of12_matching_algorithm_available algorithm);
+
 rofl_result_t __of12_destroy_table(of12_flow_table_t* table);
 
 /*

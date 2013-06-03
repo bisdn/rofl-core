@@ -465,7 +465,7 @@ of12_stats_flow_msg_t* of12_get_flow_stats(struct of12_pipeline* pipeline, uint8
 	}
 
 	for(i=tid_start;i<tid_end;i++){
-		if(pipeline->tables[i].maf.get_flow_stats_hook(&pipeline->tables[i], cookie, cookie_mask, out_port, out_group, matchs, msg) != ROFL_SUCCESS){
+		if(of12_matching_algorithms[pipeline->tables[i].matching_algorithm].get_flow_stats_hook(&pipeline->tables[i], cookie, cookie_mask, out_port, out_group, matchs, msg) != ROFL_SUCCESS){
 			of12_destroy_stats_flow_msg(msg);
 			return NULL;
 		} 
@@ -498,7 +498,7 @@ of12_stats_flow_aggregate_msg_t* of12_get_flow_aggregate_stats(struct of12_pipel
 	}
 
 	for(i=tid_start;i<tid_end;i++){
-		if(pipeline->tables[i].maf.get_flow_aggregate_stats_hook(&pipeline->tables[i], cookie, cookie_mask, out_port, out_group, matchs, msg) != ROFL_SUCCESS){
+		if(of12_matching_algorithms[pipeline->tables[i].matching_algorithm].get_flow_aggregate_stats_hook(&pipeline->tables[i], cookie, cookie_mask, out_port, out_group, matchs, msg) != ROFL_SUCCESS){
 			of12_destroy_stats_flow_aggregate_msg(msg);
 			return NULL;
 		} 

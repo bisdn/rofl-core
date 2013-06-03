@@ -39,11 +39,18 @@ enum of12_mutex_acquisition_required;
 #define OF12_MATCHING_ALGORITHMS_MAX_DESCRIPTION_LENGTH 256
 
 /**
+* Registers a matching algorithm
+*/
+#define OF12_REGISTER_MATCHING_ALGORITHM(NAME)\
+		struct of12_matching_algorithm_functions of12_matching_algorithm_##NAME##_maf 
+
+
+/**
 * @brief Set of functions calls to be implemented in order to extend Matching algorithms for OF v1.2.
 * @ingroup core_ma_of12
 * Some calls are optional.
 */
-struct matching_algorithm_functions{
+typedef struct of12_matching_algorithm_functions{
 
 	/**
 	* @ingroup core_ma_of12
@@ -240,12 +247,16 @@ struct matching_algorithm_functions{
 	* matching algorith, including its strengths and weaknesses.
 	*/
 	char description[OF12_MATCHING_ALGORITHMS_MAX_DESCRIPTION_LENGTH];
-};
+}of12_matching_algorithms_functions_t;
 
 /**
-* @brief Load matching algorithm instructs the EMA subsytem to register the matching algorithm 
-* @ingroup core_ma_of12
+* Array containing all matching algorithms and the function pointers.
 */
-void load_matching_algorithm(enum matching_algorithm_available m, struct matching_algorithm_functions *f);
+extern of12_matching_algorithms_functions_t of12_matching_algorithms[];
+
+/**
+* Initializes all matching algorithms to be potentially used by the switches
+*/
+void of12_generate_matching_algorithm_list(void);
 
 #endif /* MATCHING_ALGORITHMS_H_ */

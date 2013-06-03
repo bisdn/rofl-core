@@ -10,6 +10,7 @@
 #include "../../of12_instruction.h"
 #include "../../../of12_async_events_hooks.h"
 #include "../../../../../platform/lock.h"
+#include "../matching_algorithms.h"
 
 #define LOOP_DESCRIPTION "The loop algorithm searches the list of entries by its priority order. On the worst case the performance is o(N) with the number of entries"
 
@@ -574,36 +575,33 @@ rofl_result_t of12_destroy_loop(struct of12_flow_table *const table){
 	return ROFL_SUCCESS;
 }
 
+//Define the matching algorithm struct
+OF12_REGISTER_MATCHING_ALGORITHM(loop) = {
+	//Init and destroy hooks
+	.init_hook = NULL,
+	.destroy_hook = of12_destroy_loop,
+
+	//Flow mods
+	.add_flow_entry_hook = of12_add_flow_entry_loop,
+	.modify_flow_entry_hook = of12_modify_flow_entry_loop,
+	.remove_flow_entry_hook = of12_remove_flow_entry_loop,
+
+	//Find best match
+	.find_best_match_hook = of12_find_best_match_loop,
+
+	//Stats
+	.get_flow_stats_hook = of12_get_flow_stats_loop,
+	.get_flow_aggregate_stats_hook = of12_get_flow_aggregate_stats_loop,
+
+	//Find group related entries	
+	.find_entry_using_group_hook = of12_find_entry_using_group_loop,
+
+	//Dumping	
+	.dump_hook = NULL,
+	.description = LOOP_DESCRIPTION,
+};
 
 
-void load_matching_algorithm_loop(struct matching_algorithm_functions *f){
-
-	if (NULL != f) {
-		//Init and destroy hooks
-		f->init_hook = NULL;
-		f->destroy_hook = of12_destroy_loop;
-	
-		//Flow mods
-		f->add_flow_entry_hook = of12_add_flow_entry_loop;
-		f->modify_flow_entry_hook = of12_modify_flow_entry_loop;
-		f->remove_flow_entry_hook = of12_remove_flow_entry_loop;
-	
-		//Find best match
-		f->find_best_match_hook = of12_find_best_match_loop;
-
-		//Stats
-		f->get_flow_stats_hook = of12_get_flow_stats_loop;
-		f->get_flow_aggregate_stats_hook = of12_get_flow_aggregate_stats_loop;
-
-		//Find group related entries	
-		f->find_entry_using_group_hook = of12_find_entry_using_group_loop;
-
-
-		//Dumping	
-		f->dump_hook = NULL;
-		strncpy(f->description, LOOP_DESCRIPTION, OF12_MATCHING_ALGORITHMS_MAX_DESCRIPTION_LENGTH);
-	}
-
-}
-
-
+//Register matching algorithm
+//WARNING! Name (first parameter) must be the folder name!!!
+//OF12_REGISTER_MATCHING_ALGORITHM(loop, of12_loop);

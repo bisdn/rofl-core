@@ -8,8 +8,8 @@
 //C++ extern C
 ROFL_BEGIN_DECLS
 
-void load_matching_algorithm_loop(struct matching_algorithm_functions *f);
-inline of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const table, of12_packet_matches_t *const pkt);
+//void load_matching_algorithm_loop(struct matching_algorithm_functions *f);
+//inline of12_flow_entry_t* of12_find_best_match_loop(of12_flow_table_t *const table, of12_packet_matches_t *const pkt);
 
 //C++ extern C
 ROFL_END_DECLS

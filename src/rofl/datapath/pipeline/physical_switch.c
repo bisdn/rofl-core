@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "platform/memory.h"
 #include "util/logging.h"
+#include "openflow/openflow12/pipeline/matching_algorithms/matching_algorithms.h"
 
 static physical_switch_t* psw=NULL;
 
@@ -43,7 +44,11 @@ rofl_result_t physical_switch_init(){
 
 	//Set extern pointer
 	flood_meta_port = &psw->meta_ports[META_PORT_FLOOD_INDEX];
-		
+
+	//Generate matching lists. 	
+	of12_generate_matching_algorithm_list();
+	//Add more versions here...
+	
 	return ROFL_SUCCESS;	
 }
 

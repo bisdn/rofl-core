@@ -20,7 +20,7 @@
 */ 
 
 /* Initalizer. Table struct has been allocated by pipeline initializer. */
-rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const enum matching_algorithm_available algorithm){
+rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_t* table, const unsigned int table_index, const enum of12_matching_algorithm_available algorithm){
 
 	//Safety checks
 	if(!pipeline || !table)
@@ -43,7 +43,11 @@ rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_
 	strncpy(table->name,"table",OF12_MAX_TABLE_NAME_LEN);
 	
 	//Setting up the matching algorithm	
-	load_matching_algorithm(algorithm, &table->maf);
+	if(! (algorithm < of12_matching_algorithm_count)){
+		platform_mutex_destroy(table->mutex);
+		platform_rwlock_destroy(table->rwlock);
+		return ROFL_FAILURE;
+	}
 
 	//Auxiliary matching algorithm structs 
 	table->matching_aux[0] = NULL; 
@@ -164,8 +168,8 @@ rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_
 	__of12_stats_table_init(table);
 
 	//Allow matching algorithms to do stuff	
-	if(table->maf.init_hook)
-		return table->maf.init_hook(table);
+	if(of12_matching_algorithms[table->matching_algorithm].init_hook)
+		return of12_matching_algorithms[table->matching_algorithm].init_hook(table);
 	
 	return ROFL_SUCCESS;
 }
@@ -177,8 +181,8 @@ rofl_result_t __of12_destroy_table(of12_flow_table_t* table){
 	platform_rwlock_wrlock(table->rwlock);
 
 	//Let the matching algorithm destroy its own state
-	if(table->maf.destroy_hook)
-		table->maf.destroy_hook(table);
+	if(of12_matching_algorithms[table->matching_algorithm].destroy_hook)
+		return of12_matching_algorithms[table->matching_algorithm].destroy_hook(table);
 
 	platform_mutex_destroy(table->mutex);
 	platform_rwlock_destroy(table->rwlock);
@@ -219,7 +223,7 @@ inline rofl_of12_fm_result_t of12_add_flow_entry_table(of12_pipeline_t *const pi
 
 
 	//Perform insertion
-	result = table->maf.add_flow_entry_hook(table, entry, check_overlap, reset_counts);
+	result = of12_matching_algorithms[table->matching_algorithm].add_flow_entry_hook(table, entry, check_overlap, reset_counts);
 
 	if(result != ROFL_OF12_FM_SUCCESS){
 		//Release rdlock
@@ -259,7 +263,7 @@ inline rofl_result_t of12_modify_flow_entry_table(of12_pipeline_t *const pipelin
 	}
 
 	//Perform insertion
-	result = table->maf.modify_flow_entry_hook(table, entry, strict, reset_counts);
+	result = of12_matching_algorithms[table->matching_algorithm].modify_flow_entry_hook(table, entry, strict, reset_counts);
 
 	if(result != ROFL_SUCCESS){
 		//Release rdlock
@@ -276,25 +280,35 @@ inline rofl_result_t of12_modify_flow_entry_table(of12_pipeline_t *const pipelin
 
 inline rofl_result_t of12_remove_flow_entry_table(of12_pipeline_t *const pipeline, const unsigned int table_id, of12_flow_entry_t* entry, const enum of12_flow_removal_strictness strict, uint32_t out_port, uint32_t out_group){
 	
+	of12_flow_table_t* table;
+	
 	//Verify table_id
 	if(table_id >= pipeline->num_of_tables)
 		return ROFL_FAILURE;
 
-	return  pipeline->tables[table_id].maf.remove_flow_entry_hook(&pipeline->tables[table_id], entry, NULL, strict,  out_port, out_group, OF12_FLOW_REMOVE_DELETE, MUTEX_NOT_ACQUIRED);
+	//Recover table pointer
+	table = &pipeline->tables[table_id];
+	
+	return of12_matching_algorithms[table->matching_algorithm].remove_flow_entry_hook(table, entry, NULL, strict,  out_port, out_group, OF12_FLOW_REMOVE_DELETE, MUTEX_NOT_ACQUIRED);
 }
 
 //This API call should NOT be called from outside pipeline library
 rofl_result_t __of12_remove_specific_flow_entry_table(of12_pipeline_t *const pipeline, const unsigned int table_id, of12_flow_entry_t *const specific_entry, of12_flow_remove_reason_t reason, of12_mutex_acquisition_required_t mutex_acquired){
+	of12_flow_table_t* table;
+	
 	//Verify table_id
 	if(table_id >= pipeline->num_of_tables)
 		return ROFL_FAILURE;
 
-	return pipeline->tables[table_id].maf.remove_flow_entry_hook(&pipeline->tables[table_id], NULL, specific_entry, STRICT, OF12_PORT_ANY, OF12_GROUP_ANY, reason, mutex_acquired);
+	//Recover table pointer
+	table = &pipeline->tables[table_id];
+	
+	return of12_matching_algorithms[table->matching_algorithm].remove_flow_entry_hook(table, NULL, specific_entry, STRICT, OF12_PORT_ANY, OF12_GROUP_ANY, reason, mutex_acquired);
 }
 
 /* Main process_packet_through */
 inline of12_flow_entry_t* __of12_find_best_match_table(of12_flow_table_t *const table, of12_packet_matches_t *const pkt){
-	return table->maf.find_best_match_hook(table, pkt);
+	return of12_matching_algorithms[table->matching_algorithm].find_best_match_hook(table, pkt);
 }	
 
 
@@ -317,6 +331,6 @@ void of12_dump_table(of12_flow_table_t* table){
 	
 	ROFL_PIPELINE_INFO("\t[*] No more entries...\n");
 	
-	if(table->maf.dump_hook)
-		table->maf.dump_hook(table);
+	if(of12_matching_algorithms[table->matching_algorithm].dump_hook)
+		of12_matching_algorithms[table->matching_algorithm].dump_hook(table);
 }
