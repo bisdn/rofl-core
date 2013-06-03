@@ -178,7 +178,7 @@ cofgroup_stats_reply::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
 	case OFP12_VERSION: {
-		if (buflen < (sizeof(struct ofp12_group_stats) + bucket_stats.memlen()))
+		if (buflen < length())
 			throw eInval();
 
 		struct ofp12_group_stats *stats = (struct ofp12_group_stats*)buf;
