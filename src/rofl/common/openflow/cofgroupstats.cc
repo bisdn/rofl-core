@@ -183,7 +183,7 @@ cofgroup_stats_reply::pack(uint8_t *buf, size_t buflen) const
 
 		struct ofp12_group_stats *stats = (struct ofp12_group_stats*)buf;
 
-		stats->length		= htobe16(sizeof(struct ofp12_group_stats) + bucket_stats.memlen());
+		stats->length		= htobe16(length());
 		stats->group_id		= htobe32(group_id);
 		stats->ref_count	= htobe32(ref_count);
 		stats->packet_count	= htobe64(packet_count);
