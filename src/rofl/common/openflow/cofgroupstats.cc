@@ -61,10 +61,10 @@ cofgroup_stats_request::pack(uint8_t *buf, size_t buflen) const
 	switch (of_version) {
 	// no OpenFLow 1.0 group stats
 	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_group_stats))
+		if (buflen < sizeof(struct ofp12_group_stats_request))
 			throw eInval();
 
-		struct ofp12_group_stats *stats = (struct ofp12_group_stats*)buf;
+		struct ofp12_group_stats_request *stats = (struct ofp12_group_stats_request*)buf;
 
 		stats->group_id		= htobe32(group_id);
 
@@ -82,10 +82,10 @@ cofgroup_stats_request::unpack(uint8_t *buf, size_t buflen)
 	switch (of_version) {
 	// no OpenFLow 1.0 group stats
 	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_group_stats))
+		if (buflen < sizeof(struct ofp12_group_stats_request))
 			throw eInval();
 
-		struct ofp12_group_stats *stats = (struct ofp12_group_stats*)buf;
+		struct ofp12_group_stats_request *stats = (struct ofp12_group_stats_request*)buf;
 
 		group_id		= be32toh(stats->group_id);
 
@@ -178,12 +178,12 @@ cofgroup_stats_reply::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
 	case OFP12_VERSION: {
-		if (buflen < (sizeof(struct ofp12_group_stats) + bucket_stats.memlen()))
+		if (buflen < length())
 			throw eInval();
 
 		struct ofp12_group_stats *stats = (struct ofp12_group_stats*)buf;
 
-		stats->length		= htobe16(sizeof(struct ofp12_group_stats) + bucket_stats.memlen());
+		stats->length		= htobe16(length());
 		stats->group_id		= htobe32(group_id);
 		stats->ref_count	= htobe32(ref_count);
 		stats->packet_count	= htobe64(packet_count);
