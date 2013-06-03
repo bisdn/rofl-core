@@ -1,6 +1,7 @@
 #ifndef __TIMERS_HARD_TIMEOUT_H__
 #define __TIMERS_HARD_TIMEOUT_H__
 
+#include "rofl/datapath/pipeline/physical_switch.h"
 #include "rofl/datapath/pipeline/openflow/openflow12/of12_switch.h"
 #include "rofl/datapath/pipeline/openflow/openflow12/pipeline/of12_pipeline.h"
 #include "rofl/datapath/pipeline/openflow/openflow12/pipeline/of12_flow_entry.h"

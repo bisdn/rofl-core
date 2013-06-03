@@ -11,7 +11,10 @@ of12_write_actions_t *write_actions = NULL;
 unsigned int grp_id=1;
 
 int oa_set_up(void){
-	enum matching_algorithm_available ma_list=matching_algorithm_loop;
+	
+	physical_switch_init();	
+
+	enum of12_matching_algorithm_available ma_list=of12_matching_algorithm_loop;
 	sw = of12_init_switch("Test switch",0x0101,1,&ma_list);
 	fprintf(stderr,"<%s:%d>sw %p\n",__func__,__LINE__,sw);
 	

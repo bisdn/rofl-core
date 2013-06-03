@@ -4,8 +4,10 @@ static of12_switch_t* sw=NULL;
 	
 int set_up(){
 
-	enum matching_algorithm_available ma_list[4]={matching_algorithm_loop, matching_algorithm_loop,
-	matching_algorithm_loop, matching_algorithm_loop};
+	physical_switch_init();
+
+	enum of12_matching_algorithm_available ma_list[4]={of12_matching_algorithm_loop, of12_matching_algorithm_loop,
+	of12_matching_algorithm_loop, of12_matching_algorithm_loop};
 
 	//Create instance	
 	sw = of12_init_switch("Test switch",0x0101,4,ma_list);
