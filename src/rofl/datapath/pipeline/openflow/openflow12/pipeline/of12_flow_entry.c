@@ -126,6 +126,9 @@ rofl_result_t of12_add_match_to_entry(of12_flow_entry_t* entry, of12_match_t* ma
 rofl_result_t __of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_flow_entry_t* mod, bool reset_counts){
 
 
+	// let the platform do the necessary updates
+	platform_of12_modify_entry_hook(entry_to_update, mod, reset_counts);
+
 	//Lock entry
 	platform_rwlock_wrlock(entry_to_update->rwlock);
 
@@ -138,9 +141,6 @@ rofl_result_t __of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_
 
 	//Unlock
 	platform_rwlock_wrunlock(entry_to_update->rwlock);
-
-	// let the platform do the necessary updates
-	platform_of12_modify_entry_hook(entry_to_update, mod, reset_counts);
 
 	//Destroy the mod entry
 	__of12_destroy_flow_entry_with_reason(mod, OF12_FLOW_REMOVE_NO_REASON);
