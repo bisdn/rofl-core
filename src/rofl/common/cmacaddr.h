@@ -87,6 +87,12 @@ public:
 	 */
 	cmacaddr(const char *s_addr);
 
+	/**
+	 * @brief Constructor from uint64_t (MAC is expected to be in host byte order and in the lower bytes)
+	 *
+	 * @param mac
+	 */
+	cmacaddr(const uint64_t mac);
 
 
 	/**
@@ -178,6 +184,13 @@ public:
 	const char*
 	c_str() const;
 
+	/**
+	 * @brief	Return the MAC address as a uint64_t value. The MAC address will be transformed to host byte order and resides in the lower bytes.
+	 *
+	 * @return uint64_t mac
+	 */
+	uint64_t
+	get_mac() const;
 
 private:
 

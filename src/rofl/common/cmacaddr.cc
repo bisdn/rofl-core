@@ -125,6 +125,29 @@ cmacaddr::cmacaddr(const char* s_addr) :
 			(*this)[5]));
 }
 
+cmacaddr::cmacaddr(const uint64_t mac) :
+		cmemory(OFP_ETH_ALEN)
+{
+	uint64_t _mac = htobe64(mac);
+
+	(*this)[0] = ((uint8_t*)&_mac)[2];
+	(*this)[1] = ((uint8_t*)&_mac)[3];
+	(*this)[2] = ((uint8_t*)&_mac)[4];
+	(*this)[3] = ((uint8_t*)&_mac)[5];
+	(*this)[4] = ((uint8_t*)&_mac)[6];
+	(*this)[5] = ((uint8_t*)&_mac)[7];
+
+	cvastring vas(32);
+
+	info.assign(vas("%02x:%02x:%02x:%02x:%02x:%02x",
+			(*this)[0],
+			(*this)[1],
+			(*this)[2],
+			(*this)[3],
+			(*this)[4],
+			(*this)[5]));
+}
+
 
 cmacaddr&
 cmacaddr::operator= (cmacaddr const& ma)
@@ -212,4 +235,17 @@ cmacaddr::c_str() const
 	return info.c_str();
 }
 
+uint64_t
+cmacaddr::get_mac() const
+{
+	uint64_t mac = 0;
 
+	((uint8_t*)&mac)[2] = (*this)[0];
+	((uint8_t*)&mac)[3] = (*this)[1];
+	((uint8_t*)&mac)[4] = (*this)[2];
+	((uint8_t*)&mac)[5] = (*this)[3];
+	((uint8_t*)&mac)[6] = (*this)[4];
+	((uint8_t*)&mac)[7] = (*this)[5];
+
+	return be64toh(mac);
+}
