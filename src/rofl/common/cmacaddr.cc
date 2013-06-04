@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "cmacaddr.h"
+#include "endian_conversion.h"
 
 using namespace rofl;
 
