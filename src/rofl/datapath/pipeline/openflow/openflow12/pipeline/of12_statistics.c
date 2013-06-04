@@ -362,8 +362,13 @@ of12_stats_group_msg_t* __of12_init_stats_group_msg(unsigned int num_buckets){
 }
 
 void of12_destroy_stats_group_msg(of12_stats_group_msg_t* msg){
-	platform_free_shared(msg->bucket_stats);
-	platform_free_shared(msg);
+	of12_stats_group_msg_t* next, *it;
+	
+	for(it=msg;it;it=next){
+		next=it->next;
+		platform_free_shared(it->bucket_stats);
+		platform_free_shared(it);
+	}
 }
 
 of12_stats_group_msg_t* of12_get_group_stats(of12_pipeline_t* pipeline,uint32_t id){
@@ -380,6 +385,7 @@ of12_stats_group_msg_t* of12_get_group_stats(of12_pipeline_t* pipeline,uint32_t 
 	msg->packet_count = group->stats.packet_count;
 	msg->byte_count = group->stats.packet_count;
 	msg->num_of_buckets = group->bc_list->num_of_buckets;
+	msg->next = NULL;
 	
 	//collect statistics from buckets
 	int i=0;
@@ -392,34 +398,19 @@ of12_stats_group_msg_t* of12_get_group_stats(of12_pipeline_t* pipeline,uint32_t 
 
 of12_stats_group_msg_t* of12_get_group_all_stats(of12_pipeline_t* pipeline,uint32_t id){
 	of12_group_t* group;
-	uint32_t total_buckets=0;
-	int i=0;
-	of12_bucket_t* bu_it;
+	of12_stats_group_msg_t *msg=NULL, *last=NULL, *head=NULL;
 	
-	//count Total num of buckets
 	for(group=pipeline->groups->head;group;group=group->next){
-		total_buckets += group->bc_list->num_of_buckets;
+		msg = of12_get_group_stats(pipeline,group->id);
+		if(last)
+			last->next = msg;
+		if(!head)
+			head=msg;
+		
+		last = msg;
 	}
-	
-	of12_stats_group_msg_t* msg = __of12_init_stats_group_msg(total_buckets);
-	msg->byte_count= 0;
-	msg->packet_count = 0;
-	msg->ref_count = 0;
-	msg->group_id = id;
-	msg->num_of_buckets = total_buckets;
-	
-	//get stats from all groups
-	for(group=pipeline->groups->head;group;group=group->next){
-		msg->ref_count += group->stats.ref_count;
-		msg->packet_count += group->stats.packet_count;
-		msg->byte_count += group->stats.packet_count;
-		for(bu_it=group->bc_list->head;bu_it;bu_it=bu_it->next,i++){
-			msg->bucket_stats[i].byte_count = bu_it->stats.byte_count;
-			msg->bucket_stats[i].packet_count = bu_it->stats.packet_count;
-		}
-	}
-	
-	return msg;
+
+	return head;
 }
 
 void __of12_init_bucket_stats(of12_stats_bucket_counter_t *bc_stats){

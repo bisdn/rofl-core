@@ -82,8 +82,9 @@ cofgroup_stats_request::unpack(uint8_t *buf, size_t buflen)
 	switch (of_version) {
 	// no OpenFLow 1.0 group stats
 	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_group_stats_request))
+		if (buflen < sizeof(struct ofp12_group_stats_request)){
 			throw eInval();
+		}
 
 		struct ofp12_group_stats_request *stats = (struct ofp12_group_stats_request*)buf;
 

@@ -154,6 +154,7 @@ typedef struct of12_stats_group_msg{
 		uint64_t byte_count;
 		int num_of_buckets;/*needed?*/
 		of12_stats_bucket_counter_t *bucket_stats;
+		struct of12_stats_group_msg *next;
 } of12_stats_group_msg_t;
 
 /** operations in statistics.c **/
