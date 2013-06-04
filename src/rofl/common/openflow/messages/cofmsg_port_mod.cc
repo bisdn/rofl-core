@@ -261,7 +261,6 @@ cofmsg_port_mod::get_hwaddr() const
 	default:
 		throw eBadVersion();
 	}
-	return 0;
 }
 
 
