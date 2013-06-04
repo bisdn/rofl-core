@@ -49,6 +49,9 @@ rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_
 		return ROFL_FAILURE;
 	}
 
+	//Set algorithm
+	table->matching_algorithm = algorithm;
+
 	//Auxiliary matching algorithm structs 
 	table->matching_aux[0] = NULL; 
 	table->matching_aux[1] = NULL;
