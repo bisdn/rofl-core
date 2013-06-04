@@ -4,7 +4,6 @@
 
 #include "../../../util/logging.h"
 
-
 /*
 * Initializers 
 */
@@ -34,7 +33,8 @@ inline of12_match_t* of12_init_port_in_phy_match(of12_match_t* prev, of12_match_
 inline of12_match_t* of12_init_eth_dst_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
 	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_ETH_DST; 
-	match->value = __init_utern64(value&0x0000FFFFFFFFFFFF,mask&0x0000FFFFFFFFFFFF); //Enforce mask bits are always 00 for the first bits 
+	match->value = __init_utern64(value&__UINT64_C(0x0000FFFFFFFFFFFF), mask&__UINT64_C(0x0000FFFFFFFFFFFF)); //Enforce mask bits are always 00 for the first bits
+
 	match->prev = prev;
 	match->next = next;
 	return match;
@@ -42,7 +42,7 @@ inline of12_match_t* of12_init_eth_dst_match(of12_match_t* prev, of12_match_t* n
 inline of12_match_t* of12_init_eth_src_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
 	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_ETH_SRC; 
-	match->value = __init_utern64(value&0x0000FFFFFFFFFFFF,mask&0x0000FFFFFFFFFFFF); //Enforce mask bits are always 00 for the first bits 
+	match->value = __init_utern64(value&__UINT64_C(0x0000FFFFFFFFFFFF), mask&__UINT64_C(0x0000FFFFFFFFFFFF)); //Enforce mask bits are always 00 for the first bits
 	match->prev = prev;
 	match->next = next;
 	return match;
