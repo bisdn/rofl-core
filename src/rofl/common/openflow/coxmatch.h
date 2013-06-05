@@ -17,7 +17,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "openflow12.h"
+#include "openflow.h"
 #include <endian.h>
 #include <pthread.h>
 #ifndef htobe16

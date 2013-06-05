@@ -28,7 +28,7 @@ extern "C" {
 #include <assert.h>
 
 
-#include "openflow/openflow12.h"
+#include "openflow/openflow.h"
 #ifdef __cplusplus
 }
 #endif

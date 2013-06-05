@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-#include "openflow/openflow12.h"
+#include "openflow/openflow.h"
 #include <pthread.h>
 #include <linux/if.h>
 #include <sys/ioctl.h>

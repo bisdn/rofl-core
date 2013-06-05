@@ -15,7 +15,7 @@ extern "C" {
 
 #include <sys/types.h>
 #include <inttypes.h>
-#include "../../common/openflow/openflow12.h"
+#include "../../common/openflow/openflow.h"
 
 #include <endian.h>
 #ifndef htobe16

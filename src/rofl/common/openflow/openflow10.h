@@ -33,8 +33,8 @@
 
 /* OpenFlow: protocol between controller and datapath. */
 
-#ifndef OPENFLOW_OPENFLOW10_H
-#define OPENFLOW_OPENFLOW10_H 1
+#ifndef _OPENFLOW_OPENFLOW10_H
+#define _OPENFLOW_OPENFLOW10_H 1
 
 #include "openflow_common.h"
 
@@ -886,4 +886,4 @@ struct ofp10_queue_stats {
 };
 OFP_ASSERT(sizeof(struct ofp10_queue_stats) == 32);
 
-#endif /* openflow/openflow.h */
+#endif /* _OPENFLOW_OPENFLOW10_H */

@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#include "openflow/openflow12.h"
+#include "openflow/openflow.h"
 
 #ifdef __cplusplus
 }

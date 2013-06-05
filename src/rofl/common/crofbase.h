@@ -18,7 +18,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "openflow/openflow12.h"
+#include "openflow/openflow.h"
 #include "openflow/openflow_rofl.h"
 #include <endian.h>
 #include <string.h>

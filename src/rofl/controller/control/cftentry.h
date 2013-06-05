@@ -16,7 +16,7 @@
 extern "C" {
 #endif
 
-#include "../../common/openflow/openflow12.h"
+#include "../../common/openflow/openflow.h"
 #include <inttypes.h>
 #include <sys/time.h>
 #include <pthread.h>

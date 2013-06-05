@@ -37,8 +37,8 @@
 
 /* OpenFlow: protocol between controller and datapath. */
 
-#ifndef OPENFLOW_OPENFLOW12_H
-#define OPENFLOW_OPENFLOW12_H 1
+#ifndef _OPENFLOW_OPENFLOW12_H
+#define _OPENFLOW_OPENFLOW12_H 1
 
 #include "openflow_common.h"
 
@@ -1546,4 +1546,4 @@ enum ofp_controller_role {
 };
 
 
-#endif /* openflow/openflow.h */
+#endif /* _OPENFLOW_OPENFLOW12_H */

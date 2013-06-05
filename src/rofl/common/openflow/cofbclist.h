@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#include "openflow12.h"
+#include "openflow.h"
 #include <endian.h>
 
 #ifndef htobe16

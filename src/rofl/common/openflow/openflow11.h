@@ -37,8 +37,8 @@
 
 /* OpenFlow: protocol between controller and datapath. */
 
-#ifndef OPENFLOW_OPENFLOW_H
-#define OPENFLOW_OPENFLOW_H 1
+#ifndef _OPENFLOW_OPENFLOW11_H
+#define _OPENFLOW_OPENFLOW11_H 1
 
 #ifdef __KERNEL__
 #include <linux/types.h>
@@ -1529,4 +1529,4 @@ struct ofp_queue_stats {
 };
 OFP_ASSERT(sizeof(struct ofp_queue_stats) == 32);
 
-#endif /* openflow/openflow.h */
+#endif /* _OPENFLOW_OPENFLOW11_H */ 

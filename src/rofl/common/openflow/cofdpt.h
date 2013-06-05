@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 #include <inttypes.h>
-#include "rofl/common/openflow/openflow.h"
+#include "openflow.h"
 #include <stdio.h>
 #include <strings.h>
 

@@ -15,7 +15,7 @@ extern "C" {
 #include "../../common/endian_conversion.h"
 #endif
 
-#include "../../common/openflow/openflow12.h"
+#include "../../common/openflow/openflow.h"
 #ifdef __cplusplus
 }
 #endif

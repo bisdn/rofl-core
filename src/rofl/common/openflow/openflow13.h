@@ -1,3 +1,7 @@
+
+#ifndef _OPENFLOW_OPENFLOW13_H
+#define _OPENFLOW_OPENFLOW13_H 1
+
 #include "openflow_common.h"
 
 #define OFP13_VERSION   0x04
@@ -1268,3 +1272,4 @@ OFP_ASSERT(sizeof(struct ofp13_hello) == 8);
 /* unaltered since OpenFlow 1.2 */
 
 
+#endif /* _OPENFLOW_OPENFLOW13_H */

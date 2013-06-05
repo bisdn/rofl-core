@@ -22,7 +22,7 @@ extern "C" {
 extern "C" {
 #endif
 
-#include "../openflow/openflow12.h"
+#include "../openflow/openflow.h"
 #include <endian.h>
 
 #ifndef be32toh
