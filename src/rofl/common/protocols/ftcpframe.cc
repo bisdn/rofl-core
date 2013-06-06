@@ -150,61 +150,50 @@ ftcpframe::tcp_calc_checksum(
 		uint8_t ip_proto,
 		uint16_t length)
 {
+	int wnum;
+	uint32_t sum = 0; //sum
+	uint16_t *word16;
+	uint16_t res16;
+	
 	initialize();
 
-	tcp_hdr->checksum = htobe16(0x0000);
+	//Set 0 to checksum
+	tcp_hdr->checksum = 0x0;
 
-	// part -I- (IPv4 pseudo header)
-	//
+	/*
+	* part -I- (IPv4 pseudo header)
+	*/
 
-	// create IPv4 pseudo header for UDP checksum calculation
-	struct ip_pseudo_hdr_t hdr;
-	bzero(&hdr, sizeof(hdr));
+	word16 = (uint16_t*)&ip_src.ca_s4addr->sin_addr.s_addr;
+	sum += be16toh(*(word16+1));
+	sum += be16toh(*(word16));
 
-	hdr.src 		= ip_src.ca_s4addr->sin_addr.s_addr;
-	hdr.dst 		= ip_dst.ca_s4addr->sin_addr.s_addr;
-	hdr.reserved 	= 0;
-	hdr.proto 		= ip_proto;
-	hdr.len 		= htobe16(length);//htobe16(datalen);
+	word16 = (uint16_t*)&ip_dst.ca_s4addr->sin_addr.s_addr;
+	sum += be16toh(*(word16+1));
+	sum += be16toh(*(word16));
+	sum += ip_proto;
+	
+	sum += length; 
 
-	// sum
-	uint32_t sum = 0;
-
+	/*
+	* part -II- (TCP header + payload)
+	*/
+	
 	// pointer on 16bit words
-	uint16_t *word16 = (uint16_t*)&hdr;
 	// number of 16bit words
-	int wnum = 6;
-
-	for (int i = 0; i < wnum; i++)
-	{
-		uint32_t tmp = (uint32_t)(be16toh(word16[i]));
-		sum += tmp;
-		//fprintf(stderr, "word16[%d]=0x%08x sum()=0x%08x\n", i, tmp, sum);
-	}
-	//fprintf(stderr, "   sum(1)=0x%x\n", sum);
-
-	// part -II- (TCP header + payload)
-	//
-
-	// pointer on 16bit words
 	word16 = (uint16_t*)tcp_hdr;
-	// number of 16bit words
 	wnum = (length/*datalen*/ / sizeof(uint16_t));
 
-	for (int i = 0; i < wnum; i++)
-	{
-		uint32_t tmp = (uint32_t)(be16toh(word16[i]));
-		sum += tmp;
-		//fprintf(stderr, "word16[%d]=0x%08x sum()=0x%08x\n", i, tmp, sum);
+	for (int i = 0; i < wnum; i++){
+		sum += (uint32_t)(be16toh(word16[i]));
 	}
 
-	uint16_t res16 = (sum & 0x0000ffff) + ((sum & 0xffff0000) >> 16);
+	res16 = (sum & 0x0000ffff) + ((sum & 0xffff0000) >> 16);
 
-	//fprintf(stderr, " res16(1)=0x%x\n", res16);
 
 	tcp_hdr->checksum = htobe16(~res16);
 
-	//fprintf(stderr, "~res16(1)=0x%x\n", be16toh(tcp_hdr->checksum));
+//	fprintf(stderr," %x \n", tcp_hdr->checksum);
 }
 
 
