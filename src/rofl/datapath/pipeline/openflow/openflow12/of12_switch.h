@@ -21,6 +21,8 @@
 *
 */
 
+#define OF12P_NO_BUFFER	0xffffffff
+
 /**
 * @ingroup core_of12 
 * Openflow-enabled v1.2 switch abstraction

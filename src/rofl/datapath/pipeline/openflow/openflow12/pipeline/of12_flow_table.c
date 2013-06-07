@@ -1,10 +1,50 @@
 #include "of12_flow_table.h"
 
-#include "../openflow12.h" //FIXME: necessary for the OF12PAT_. Probably wise to redefine only them in of12_action.h
 #include "../../../util/logging.h"
 
 #include "of12_group_table.h"
 #include "of12_pipeline.h"
+
+
+//Copied from Openflow1.2 header
+enum of12p_instruction_type {
+    OF12PIT_GOTO_TABLE = 1,       /* Setup the next table in the lookup
+                                   pipeline */
+    OF12PIT_WRITE_METADATA = 2,   /* Setup the metadata field for use later in
+                                   pipeline */
+    OF12PIT_WRITE_ACTIONS = 3,    /* Write the action(s) onto the datapath action
+                                   set */
+    OF12PIT_APPLY_ACTIONS = 4,    /* Applies the action(s) immediately */
+    OF12PIT_CLEAR_ACTIONS = 5,    /* Clears all actions from the datapath
+                                   action set */
+
+    OF12PIT_EXPERIMENTER = 0xFFFF  /* Experimenter instruction */
+};
+
+
+enum of12p_action_type {
+	OF12PAT_OUTPUT 		= 0, 	/* Output to switch port. */
+	OF12PAT_COPY_TTL_OUT 	= 11, 	/* Copy TTL "outwards" -- from next-to-outermost to outermost */
+	OF12PAT_COPY_TTL_IN 	= 12, 	/* Copy TTL "inwards" -- from outermost to next-to-outermost */
+	OF12PAT_SET_MPLS_TTL 	= 15, 	/* MPLS TTL */
+	OF12PAT_DEC_MPLS_TTL 	= 16, 	/* Decrement MPLS TTL */
+	OF12PAT_PUSH_VLAN 	= 17, 	/* Push a new VLAN tag */
+	OF12PAT_POP_VLAN 		= 18, 	/* Pop the outer VLAN tag */
+	OF12PAT_PUSH_MPLS 	= 19, 	/* Push a new MPLS tag */
+	OF12PAT_POP_MPLS 		= 20, 	/* Pop the outer MPLS tag */
+	OF12PAT_SET_QUEUE 	= 21, 	/* Set queue id when outputting to a port */
+	OF12PAT_GROUP 		= 22, 	/* Apply group. */
+	OF12PAT_SET_NW_TTL 	= 23, 	/* IP TTL. */
+	OF12PAT_DEC_NW_TTL 	= 24, 	/* Decrement IP TTL. */
+	OF12PAT_SET_FIELD 	= 25, 	/* Set a header field using OXM TLV format. */
+	OF12PAT_PUSH_PPPOE 	= 26,	/* Push a new PPPoE tag */
+	OF12PAT_POP_PPPOE 	= 27,	/* Pop the PPPoE tag */
+	OF12PAT_PUSH_PPP 		= 28,	/* Push a new PPP tag */
+	OF12PAT_POP_PPP 		= 29,	/* Pop the PPP tag */
+	OF12PAT_EXPERIMENTER	= 0xffff
+};
+
+
 
 /* 
 * Openflow table operations
