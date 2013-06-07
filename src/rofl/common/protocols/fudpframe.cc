@@ -150,75 +150,49 @@ fudpframe::udp_calc_checksum(
 		uint8_t ip_proto,
 		uint16_t length)
 {
+	int wnum;
+	uint32_t sum = 0; //sum
+	uint16_t *word16;
+	uint16_t res16;
+	
 	initialize();
 
-	caddress src(ip_src);
-	caddress dst(ip_dst);
+	//Set 0 to checksum
+	udp_hdr->checksum = 0x0;
 
-	WRITELOG(CPACKET, DBG, "udp(%p)::udp_calc_checksum() =>\n"
-			"\tip-src      : %s\n"
-			"\tip-dst      : %s\n"
-			"\tip-proto    : %d\n"
-			"\tudp-length  : %d\n",
-			this,
-			src.c_str(),
-			dst.c_str(),
-			ip_proto,
-			length);
+	/*
+	* part -I- (IPv4 pseudo header)
+	*/
 
-	udp_hdr->checksum = htobe16(0x0000);
+	word16 = (uint16_t*)&ip_src.ca_s4addr->sin_addr.s_addr;
+	sum += be16toh(*(word16+1));
+	sum += be16toh(*(word16));
 
-	// part -I- (IPv4 pseudo header)
-	//
+	word16 = (uint16_t*)&ip_dst.ca_s4addr->sin_addr.s_addr;
+	sum += be16toh(*(word16+1));
+	sum += be16toh(*(word16));
+	sum += ip_proto;
+	
+	sum += length; 
 
-	// create IPv4 pseudo header for UDP checksum calculation
-	struct ip_pseudo_hdr_t hdr;
-	bzero(&hdr, sizeof(hdr));
-
-	hdr.src 		= ip_src.ca_s4addr->sin_addr.s_addr;
-	hdr.dst 		= ip_dst.ca_s4addr->sin_addr.s_addr;
-	hdr.reserved 	= 0;
-	hdr.proto 		= ip_proto;
-	hdr.len 		= htobe16(length);
-
-	// sum
-	uint32_t sum = 0;
-
+	/*
+	* part -II- (UDP header + payload)
+	*/
+	
 	// pointer on 16bit words
-	uint16_t *word16 = (uint16_t*)&hdr;
 	// number of 16bit words
-	int wnum = 6;
-
-	for (int i = 0; i < wnum; i++)
-	{
-		uint32_t tmp = (uint32_t)(be16toh(word16[i]));
-		sum += tmp;
-		//fprintf(stderr, "word16[%d]=0x%08x sum()=0x%08x\n", i, tmp, sum);
-	}
-	//fprintf(stderr, "   sum(1)=0x%x\n", sum);
-
-	// part -II- (UDP header + payload)
-	//
-
-	// pointer on 16bit words
 	word16 = (uint16_t*)udp_hdr;
-	// number of 16bit words
 	wnum = (length/*datalen*/ / sizeof(uint16_t));
 
-	for (int i = 0; i < wnum; i++)
-	{
-		uint32_t tmp = (uint32_t)(be16toh(word16[i]));
-		sum += tmp;
-		//fprintf(stderr, "word16[%d]=0x%08x sum()=0x%08x\n", i, tmp, sum);
+	for (int i = 0; i < wnum; i++){
+		sum += (uint32_t)(be16toh(word16[i]));
 	}
 
-	uint16_t res16 = (sum & 0x0000ffff) + ((sum & 0xffff0000) >> 16);
-
-	//fprintf(stderr, " res16(1)=0x%x\n", res16);
+	res16 = (sum & 0x0000ffff) + ((sum & 0xffff0000) >> 16);
 
 	udp_hdr->checksum = htobe16(~res16);
 
-	//fprintf(stderr, "~res16(1)=0x%x\n", be16toh(udp_hdr->checksum));
+//	fprintf(stderr," %x \n", udp_hdr->checksum);
 }
 
 
