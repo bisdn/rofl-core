@@ -158,11 +158,13 @@ cofmsg_queue_stats_request::validate()
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
+		queue_stats.set_version(OFP10_VERSION);
 		if (get_length() < length())
 			throw eBadSyntaxTooShort();
 		queue_stats.unpack(soframe() + sizeof(struct ofp10_stats_request), sizeof(struct ofp10_queue_stats_request));
 	} break;
 	case OFP12_VERSION: {
+		queue_stats.set_version(OFP12_VERSION);
 		if (get_length() < length())
 			throw eBadSyntaxTooShort();
 		queue_stats.unpack(soframe() + sizeof(struct ofp12_stats_request), sizeof(struct ofp12_queue_stats_request));
@@ -198,16 +200,10 @@ cofmsg_queue_stats_reply::cofmsg_queue_stats_reply(
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
-		resize(sizeof(struct ofp10_stats_reply) + queue_stats.size() * sizeof(struct ofp10_queue_stats));
-		for (unsigned int i = 0; i < queue_stats.size(); i++) {
-			queue_stats[i].pack(soframe() + i * sizeof(struct ofp10_stats_reply), sizeof(struct ofp10_queue_stats));
-		}
+		resize(length());
 	} break;
 	case OFP12_VERSION: {
-		resize(sizeof(struct ofp12_stats_reply) + queue_stats.size() * sizeof(struct ofp12_queue_stats));
-		for (unsigned int i = 0; i < queue_stats.size(); i++) {
-			queue_stats[i].pack(soframe() + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_queue_stats));
-		}
+		resize(length());
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -340,15 +336,19 @@ cofmsg_queue_stats_reply::pack(uint8_t *buf, size_t buflen)
 	case OFP10_VERSION: {
 		if (buflen < length())
 			throw eInval();
+		size_t offset = 0;
 		for (unsigned int i = 0; i < queue_stats.size(); i++) {
-			queue_stats[i].pack(soframe() + i * sizeof(struct ofp10_stats_reply), sizeof(struct ofp10_queue_stats));
+			queue_stats[i].pack(buf + sizeof(struct ofp10_stats_reply) + offset, queue_stats[i].length());
+			offset += queue_stats[i].length();
 		}
 	} break;
 	case OFP12_VERSION: {
 		if (buflen < length())
 			throw eInval();
+		size_t offset = 0;
 		for (unsigned int i = 0; i < queue_stats.size(); i++) {
-			queue_stats[i].pack(soframe() + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_queue_stats));
+			queue_stats[i].pack(buf + sizeof(struct ofp12_stats_reply) + offset, queue_stats[i].length());
+			offset += queue_stats[i].length();
 		}
 	} break;
 	case OFP13_VERSION: {

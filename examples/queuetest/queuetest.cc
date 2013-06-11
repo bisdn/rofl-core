@@ -28,11 +28,26 @@ queuetest::handle_timeout(
 {
 	switch (opaque) {
 	case QUEUETEST_TIMER_GET_CONFIG_INTERVAL: {
+		register_timer(QUEUETEST_TIMER_GET_CONFIG_INTERVAL, 15);
+		fprintf(stderr, "C");
 		for (std::set<cofdpt*>::iterator
 				it = dpaths.begin(); it != dpaths.end(); ++it) {
 			send_queue_get_config_request((*it), OFPQ_ALL);
 		}
-		register_timer(QUEUETEST_TIMER_GET_CONFIG_INTERVAL, 15);
+	} break;
+	case QUEUETEST_TIMER_STATS_INTERVAL: {
+		fprintf(stderr, "S");
+		register_timer(QUEUETEST_TIMER_STATS_INTERVAL, 5);
+		for (std::set<cofdpt*>::iterator
+				it = dpaths.begin(); it != dpaths.end(); ++it) {
+			send_queue_stats_request(
+					(*it),
+					0,
+					cofqueue_stats_request(
+							(*it)->get_version(),
+							OFPP_ANY,
+							OFPQ_ALL));
+		}
 	} break;
 	default: {
 		crofbase::handle_timeout(opaque);
@@ -47,8 +62,8 @@ queuetest::handle_dpath_open(
 		cofdpt *dpt)
 {
 	if (dpaths.empty()) {
-		reset_timer(QUEUETEST_TIMER_GET_CONFIG_INTERVAL, 60);
-		reset_timer(QUEUETEST_TIMER_STATS_INTERVAL, 15);
+		reset_timer(QUEUETEST_TIMER_GET_CONFIG_INTERVAL, 1);
+		reset_timer(QUEUETEST_TIMER_STATS_INTERVAL, 10);
 	}
 	dpaths.insert(dpt);
 }
@@ -70,6 +85,18 @@ queuetest::handle_queue_get_config_reply(
 			cofmsg_queue_get_config_reply *msg)
 {
 	fprintf(stderr, "queue-get-config-reply: msg:%p\n", msg);
+
+	delete msg;
+}
+
+
+
+void
+queuetest::handle_queue_stats_reply(
+			cofdpt *dpt,
+			cofmsg_queue_stats_reply *msg)
+{
+	fprintf(stderr, "queue-stats-reply: msg:%p\n", msg);
 
 	delete msg;
 }

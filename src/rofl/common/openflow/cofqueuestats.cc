@@ -64,20 +64,20 @@ cofqueue_stats_request::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
-		if (buflen < sizeof(struct ofp10_queue_stats))
+		if (buflen < sizeof(struct ofp10_queue_stats_request))
 			throw eInval();
 
-		struct ofp10_queue_stats *stats = (struct ofp10_queue_stats*)buf;
+		struct ofp10_queue_stats_request *stats = (struct ofp10_queue_stats_request*)buf;
 
 		stats->port_no		= htobe16((uint16_t)(port_no & 0x0000ffff));
 		stats->queue_id		= htobe32(queue_id);
 
 	} break;
 	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_queue_stats))
+		if (buflen < sizeof(struct ofp12_queue_stats_request))
 			throw eInval();
 
-		struct ofp12_queue_stats *stats = (struct ofp12_queue_stats*)buf;
+		struct ofp12_queue_stats_request *stats = (struct ofp12_queue_stats_request*)buf;
 
 		stats->port_no		= htobe32(port_no);
 		stats->queue_id		= htobe32(queue_id);
@@ -95,20 +95,20 @@ cofqueue_stats_request::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
-		if (buflen < sizeof(struct ofp10_queue_stats))
+		if (buflen < sizeof(struct ofp10_queue_stats_request))
 			throw eInval();
 
-		struct ofp10_queue_stats *stats = (struct ofp10_queue_stats*)buf;
+		struct ofp10_queue_stats_request *stats = (struct ofp10_queue_stats_request*)buf;
 
 		port_no 		= (uint32_t)be16toh(stats->port_no);
 		queue_id		= be32toh(stats->queue_id);
 
 	} break;
 	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_queue_stats))
+		if (buflen < sizeof(struct ofp12_queue_stats_request))
 			throw eInval();
 
-		struct ofp12_queue_stats *stats = (struct ofp12_queue_stats*)buf;
+		struct ofp12_queue_stats_request *stats = (struct ofp12_queue_stats_request*)buf;
 
 		port_no 		= be32toh(stats->port_no);
 		queue_id		= be32toh(stats->queue_id);

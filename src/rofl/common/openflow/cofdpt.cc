@@ -1319,7 +1319,7 @@ void
 cofdpt::queue_get_config_reply_rcvd(
 		cofmsg_queue_get_config_reply *pack)
 {
-	// TODO
+	rofbase->handle_queue_get_config_reply(this, pack);
 }
 
 

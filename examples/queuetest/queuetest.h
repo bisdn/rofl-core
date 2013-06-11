@@ -50,6 +50,10 @@ public:
 			cofdpt *dpt,
 			cofmsg_queue_get_config_reply *msg);
 
+	virtual void
+	handle_queue_stats_reply(
+			cofdpt *dpt,
+			cofmsg_queue_stats_reply *msg);
 };
 
 
