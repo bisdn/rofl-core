@@ -8,6 +8,8 @@
 #ifndef COFMSG_QUEUE_GET_CONFIG_H_
 #define COFMSG_QUEUE_GET_CONFIG_H_ 1
 
+#include <ostream>
+
 #include "cofmsg.h"
 #include "../cofpacketqueuelist.h"
 
@@ -265,6 +267,19 @@ public:
 	 */
 	cofpacket_queue_list&
 	get_queues();
+
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_queue_get_config_reply const& msg)
+	{
+		os << "cofmsg_queue_get_config_reply[";
+		os << "portno: " << msg.get_port_no() << " ";
+		os << "queues: " << msg.pql << "]";
+		return os;
+	};
 };
 
 

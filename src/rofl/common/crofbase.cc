@@ -2117,6 +2117,8 @@ crofbase::send_queue_get_config_reply(
 					portno,
 					pql);
 
+	std::cerr << *pack << std::endl;
+
 	ctl_find(ctl)->send_message(pack);
 }
 

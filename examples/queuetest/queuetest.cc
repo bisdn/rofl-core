@@ -27,12 +27,12 @@ queuetest::handle_timeout(
 		int opaque)
 {
 	switch (opaque) {
-	case QUEUETEST_TIMER_INTERVAL: {
+	case QUEUETEST_TIMER_GET_CONFIG_INTERVAL: {
 		for (std::set<cofdpt*>::iterator
 				it = dpaths.begin(); it != dpaths.end(); ++it) {
 			send_queue_get_config_request((*it), OFPQ_ALL);
 		}
-		register_timer(QUEUETEST_TIMER_INTERVAL, 15);
+		register_timer(QUEUETEST_TIMER_GET_CONFIG_INTERVAL, 15);
 	} break;
 	default: {
 		crofbase::handle_timeout(opaque);
@@ -47,7 +47,8 @@ queuetest::handle_dpath_open(
 		cofdpt *dpt)
 {
 	if (dpaths.empty()) {
-		reset_timer(QUEUETEST_TIMER_INTERVAL, 1);
+		reset_timer(QUEUETEST_TIMER_GET_CONFIG_INTERVAL, 60);
+		reset_timer(QUEUETEST_TIMER_STATS_INTERVAL, 15);
 	}
 	dpaths.insert(dpt);
 }

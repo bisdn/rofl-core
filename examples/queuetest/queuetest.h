@@ -16,7 +16,8 @@ class queuetest :
 		public crofbase
 {
 	enum queuetest_timer_t {
-		QUEUETEST_TIMER_INTERVAL = (0xe431 << 16),
+		QUEUETEST_TIMER_GET_CONFIG_INTERVAL = (0xe431 << 16),
+		QUEUETEST_TIMER_STATS_INTERVAL,
 	};
 
 	std::set<cofdpt*> 	dpaths;
