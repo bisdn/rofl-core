@@ -8,6 +8,8 @@
 #ifndef COFPACKETQUEUELIST_H_
 #define COFPACKETQUEUELIST_H_ 1
 
+#include <ostream>
+
 #include "../coflist.h"
 #include "cofpacketqueue.h"
 
@@ -94,6 +96,20 @@ public:
 	find_packet_queue(
 		uint32_t queue_id);
 
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, cofpacket_queue_list const& pql)
+	{
+		os << "PacketQueueList: ";
+		for (cofpacket_queue_list::const_iterator
+				it = pql.begin(); it != pql.end(); ++it) {
+			os << (*it) << " ";
+		}
+		return os;
+	};
 };
 
 }

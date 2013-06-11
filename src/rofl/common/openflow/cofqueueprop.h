@@ -8,6 +8,8 @@
 #ifndef COFQUEUEPROP_H_
 #define COFQUEUEPROP_H_ 1
 
+#include <ostream>
+
 #include "../cmemory.h"
 #include "../cerror.h"
 #include "openflow.h"
@@ -138,6 +140,16 @@ public:
 	void
 	set_length(uint16_t len);
 
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, cofqueue_prop const& qp)
+	{
+		os << "QueueProperty[property: " << qp.get_property() << "]";
+		return os;
+	};
 };
 
 

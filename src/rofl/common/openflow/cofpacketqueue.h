@@ -8,6 +8,8 @@
 #ifndef COFPACKETQUEUE_H_
 #define COFPACKETQUEUE_H_ 1
 
+#include <ostream>
+
 #include "../cmemory.h"
 #include "../cerror.h"
 #include "openflow.h"
@@ -40,6 +42,21 @@ private:
 #define ofp_pqueue		ofp_ofpu.ofpu_pqueue
 #define ofp10_pqueue	ofp_ofpu.ofpu10_pqueue
 #define ofp12_pqueue	ofp_ofpu.ofpu12_pqueue
+
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, cofpacket_queue const& pq)
+	{
+		os 	<< "PacketQueue["
+				<< "port:" 			<< pq.get_port() << " "
+				<< "queueid: " 	<< pq.get_queue_id() << " "
+				<< "properties: " 	<< pq.qpl << "]";
+		return os;
+	};
+
 
 public:
 

@@ -209,6 +209,7 @@ cofqueue_prop::set_length(uint16_t len)
 
 
 
+
 cofqueue_prop_min_rate::cofqueue_prop_min_rate(
 	uint8_t of_version,
 	uint16_t min_rate) :

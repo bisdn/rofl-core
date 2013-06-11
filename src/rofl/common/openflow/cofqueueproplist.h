@@ -98,6 +98,20 @@ public:
 	find_queue_prop(
 		uint16_t property);
 
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, cofqueue_prop_list const& qpl)
+	{
+		os << "QueuePropertyList: ";
+		for (cofqueue_prop_list::const_iterator
+				it = qpl.begin(); it != qpl.end(); ++it) {
+			os << (*it) << " ";
+		}
+		return os;
+	};
 };
 
 }
