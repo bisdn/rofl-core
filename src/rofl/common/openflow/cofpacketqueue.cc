@@ -151,7 +151,7 @@ cofpacket_queue::unpack(
 		memcpy(somem(), buf, sizeof(struct ofp10_packet_queue));
 
 		if (be16toh(pq->len) > sizeof(struct ofp10_packet_queue))
-			qpl.unpack(buf + sizeof(struct ofp10_packet_queue), be16toh(pq->len));
+			qpl.unpack(buf + sizeof(struct ofp10_packet_queue), be16toh(pq->len) - sizeof(struct ofp10_packet_queue));
 
 	} break;
 	case OFP12_VERSION: {
@@ -170,7 +170,7 @@ cofpacket_queue::unpack(
 		memcpy(somem(), buf, sizeof(struct ofp12_packet_queue));
 
 		if (be16toh(pq->len) > sizeof(struct ofp12_packet_queue))
-			qpl.unpack(buf + sizeof(struct ofp12_packet_queue), be16toh(pq->len));
+			qpl.unpack(buf + sizeof(struct ofp12_packet_queue), be16toh(pq->len) - sizeof(struct ofp12_packet_queue));
 
 	} break;
 	case OFP13_VERSION: {
