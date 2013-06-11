@@ -275,6 +275,7 @@ AC_CONFIG_FILES([
 	examples/etherswitch/Makefile
 	examples/queuetest/Makefile
 	examples/rfc2889/Makefile
+	examples/ofperftest/Makefile
 
 
 	test/Makefile
