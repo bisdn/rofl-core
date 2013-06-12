@@ -4,15 +4,15 @@
 #include "match_eth_dst.h"
 
 void usage(int argc, char** argv);
+void parse_args(int argc, char** argv);
+
+std::string s_testcase;
+unsigned int n_entries = 0;
 
 int
 main(int argc, char** argv)
 {
-	if (argc < 2) {
-		usage(argc, argv);
-	}
-	std::string s_testcase(argv[1]);
-
+	parse_args(argc, argv);
 
 	/* update defaults */
 	rofl::csyslog::initlog(
@@ -29,7 +29,7 @@ main(int argc, char** argv)
 	ofperftest* perftest;
 
 	if (s_testcase == std::string("match_eth_dst")) {
-		perftest = new match_eth_dst();
+		perftest = new match_eth_dst(n_entries);
 	} else {
 		fprintf(stderr, "testcase %s not found, aborting\n", s_testcase.c_str());
 		exit(1);
@@ -52,4 +52,41 @@ usage(int argc, char** argv)
 	fprintf(stderr, "match_eth_dst\n");
 
 	exit(0);
+}
+
+
+void
+parse_args(int argc, char** argv)
+{
+
+	int option_index = 0;
+	static struct option long_options[] = {
+	    {"testcase", required_argument, 0, 0},
+	    {"entries", required_argument, 0, 0},
+	    {0, 0, 0, 0}
+	};
+
+
+
+	while (1) {
+		int c = getopt_long (argc, argv, "t:e:", long_options, &option_index);
+		if (c == -1)
+			break;
+
+		switch (c) {
+		case 't':
+			s_testcase.assign(optarg);
+			break;
+
+		case 'e':
+			n_entries = atoi(optarg);
+			break;
+
+		case '?':
+			break;
+
+		default:
+			usage(argc, argv);
+		}
+	}
 }

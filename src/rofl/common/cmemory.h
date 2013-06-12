@@ -141,6 +141,7 @@ public:
 			cmemory const& m);
 
 
+
 	/**
 	 * @brief	Index operator.
 	 *

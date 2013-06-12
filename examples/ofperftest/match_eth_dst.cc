@@ -2,7 +2,8 @@
 
 #include <inttypes.h>
 
-match_eth_dst::match_eth_dst() :
+match_eth_dst::match_eth_dst(unsigned int n_entries) :
+	n_entries(n_entries),
 	fib_check_timeout(5), // check for expired FIB entries every 5 seconds
 	fm_delete_all_timeout(30)
 {
@@ -68,18 +69,11 @@ match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 	it++;
 	portnums[1] = it->first;
 
+
 	crandom r;
 	uint64_t r_num = r.uint64();
 
-	cmacaddr r_mac("00:00:00:00:00:00");
-	r_mac[0] = ((uint8_t*)&r_num)[0];
-	r_mac[1] = ((uint8_t*)&r_num)[1];
-	r_mac[2] = ((uint8_t*)&r_num)[2];
-	r_mac[3] = ((uint8_t*)&r_num)[3];
-	r_mac[4] = ((uint8_t*)&r_num)[4];
-	r_mac[5] = ((uint8_t*)&r_num)[5];
-
-	r_mac[0] &= 0xf7;
+	fprintf(stderr, "installing %u fake FlowMod entries\n", n);
 
 	for (unsigned int i = 0; i < n; i++) {
 
@@ -91,9 +85,20 @@ match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 		fe.set_hard_timeout(0);
 		fe.set_table_id(1);
 
+		r_num += n;
+		cmacaddr r_mac("00:00:00:00:00:00");
+		r_mac[0] = ((uint8_t*)&r_num)[0];
+		r_mac[1] = ((uint8_t*)&r_num)[1];
+		r_mac[2] = ((uint8_t*)&r_num)[2];
+		r_mac[3] = ((uint8_t*)&r_num)[3];
+		r_mac[4] = ((uint8_t*)&r_num)[4];
+		r_mac[5] = ((uint8_t*)&r_num)[5];
+
+		r_mac[0] &= 0xf7;
+
 		fe.match.set_eth_dst(r_mac);
 		fe.instructions.next() = cofinst_write_actions();
-		fe.instructions[0].actions.next() = cofaction_output(portnums[0]);
+		fe.instructions.back().actions.next() = cofaction_output(portnums[0]);
 
 		fprintf(stderr, "match_eth_dst: calling FLOW-MOD with entry: %s\n",
 				fe.c_str());
@@ -136,6 +141,8 @@ match_eth_dst::handle_dpath_open(
 {
 	fib[dpt] = std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> >();
 	// do nothing here
+
+	install_flow_mods(dpt, n_entries);
 }
 
 
