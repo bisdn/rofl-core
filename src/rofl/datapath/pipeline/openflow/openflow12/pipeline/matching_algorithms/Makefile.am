@@ -1,5 +1,7 @@
 MAINTAINERCLEANFILES = Makefile.in
 
+.NOTPARALLEL:
+
 # build this before anything else
 BUILT_SOURCES = matching_algorithms_available.h matching_algorithms_available.c
 

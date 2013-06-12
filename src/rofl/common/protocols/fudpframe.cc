@@ -164,11 +164,11 @@ fudpframe::udp_calc_checksum(
 	* part -I- (IPv4 pseudo header)
 	*/
 
-	word16 = (uint16_t*)&ip_src.ca_s4addr->sin_addr.s_addr;
+	word16 = (uint16_t*)(void*)&ip_src.ca_s4addr->sin_addr.s_addr;
 	sum += be16toh(*(word16+1));
 	sum += be16toh(*(word16));
 
-	word16 = (uint16_t*)&ip_dst.ca_s4addr->sin_addr.s_addr;
+	word16 = (uint16_t*)(void*)&ip_dst.ca_s4addr->sin_addr.s_addr;
 	sum += be16toh(*(word16+1));
 	sum += be16toh(*(word16));
 	sum += ip_proto;
