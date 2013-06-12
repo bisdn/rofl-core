@@ -7,10 +7,12 @@
 #include "rofl/common/crofbase.h"
 #include "rofl/common/openflow/cofdpt.h"
 
+#include "ofperftest.h"
+
 using namespace rofl;
 
 class match_eth_dst :
-		public crofbase
+		public ofperftest
 {
 private:
 
@@ -23,14 +25,12 @@ private:
 	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > > fib;
 
 	unsigned int 		fib_check_timeout; 		// periodic timeout for removing expired FIB entries
-	unsigned int		flow_stats_timeout;		// periodic timeout for requesting flow stats
 	unsigned int		fm_delete_all_timeout;	// periodic purging of all FLOW-MODs
 
 	enum match_eth_dst_timer_t {
-		ETHSWITCH_TIMER_BASE 					= ((0x6271)),
-		ETHSWITCH_TIMER_FIB 					= ((ETHSWITCH_TIMER_BASE) + 1),
-		ETHSWITCH_TIMER_FLOW_STATS 				= ((ETHSWITCH_TIMER_BASE) + 2),
-		ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL 	= ((ETHSWITCH_TIMER_BASE) + 3),
+		ETHSWITCH_TIMER_BASE = ((0x6271)),
+		ETHSWITCH_TIMER_FIB,
+		ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL,
 	};
 
 public:
@@ -52,16 +52,13 @@ public:
 	virtual void
 	handle_packet_in(cofdpt *dpt, cofmsg_packet_in *msg);
 
-	virtual void
-	handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg);
-
 private:
 
 	void
-	drop_expired_fib_entries();
+	install_flow_mods(cofdpt *dpt, unsigned int n = 0);
 
 	void
-	request_flow_stats();
+	drop_expired_fib_entries();
 
 	void
 	flow_mod_delete_all();

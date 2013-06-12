@@ -4,12 +4,10 @@
 
 match_eth_dst::match_eth_dst() :
 	fib_check_timeout(5), // check for expired FIB entries every 5 seconds
-	flow_stats_timeout(10),
 	fm_delete_all_timeout(30)
 {
 	// ...
 	register_timer(ETHSWITCH_TIMER_FIB, fib_check_timeout);
-	register_timer(ETHSWITCH_TIMER_FLOW_STATS, flow_stats_timeout);
 	register_timer(ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL, fm_delete_all_timeout);
 }
 
@@ -17,7 +15,7 @@ match_eth_dst::match_eth_dst() :
 
 match_eth_dst::~match_eth_dst()
 {
-	// ...
+	flow_mod_delete_all();
 }
 
 
@@ -28,9 +26,6 @@ match_eth_dst::handle_timeout(int opaque)
 	switch (opaque) {
 	case ETHSWITCH_TIMER_FIB: {
 		drop_expired_fib_entries();
-	} break;
-	case ETHSWITCH_TIMER_FLOW_STATS: {
-		request_flow_stats();
 	} break;
 	case ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL: {
 		//flow_mod_delete_all();
@@ -53,76 +48,60 @@ match_eth_dst::drop_expired_fib_entries()
 
 
 void
-match_eth_dst::request_flow_stats()
+match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 {
-	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
-
-	for (it = fib.begin(); it != fib.end(); ++it) {
-		cofdpt *dpt = it->first;
-
-		cofflow_stats_request req;
-
-		switch (dpt->get_version()) {
-		case OFP10_VERSION: {
-			req.set_version(dpt->get_version());
-			req.set_table_id(OFPTT_ALL);
-			req.set_match(cofmatch(OFP10_VERSION));
-			req.set_out_port(OFPP_ANY);
-		} break;
-		case OFP12_VERSION: {
-			req.set_version(dpt->get_version());
-			req.set_table_id(OFPTT_ALL);
-			cofmatch match(OFP12_VERSION);
-			//match.set_eth_dst(cmacaddr("01:80:c2:00:00:00"));
-			req.set_match(match);
-			req.set_out_port(OFPP_ANY);
-			req.set_out_group(OFPG_ANY);
-			req.set_cookie(0);
-			req.set_cookie_mask(0);
-		} break;
-		default: {
-			// do nothing
-		} break;
-		}
-
-		fprintf(stderr, "match_eth_dst: calling FLOW-STATS-REQUEST for dpid: 0x%"PRIu64"\n",
-				dpt->get_dpid());
-
-		send_flow_stats_request(dpt, /*flags=*/0, req);
+	if (0 == dpt) {
+		fprintf(stderr, "error installing test FlowMod entries on data path: dpt is NULL");
+		return;
 	}
 
-	register_timer(ETHSWITCH_TIMER_FLOW_STATS, flow_stats_timeout);
-}
-
-
-
-void
-match_eth_dst::handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg)
-{
-	if (fib.find(dpt) == fib.end()) {
-		delete msg; return;
+	// sanity check: data path should have at least two ports :)
+	if (dpt->get_ports().size() < 2) {
+		fprintf(stderr, "error installing test FlowMod entries on data path: less than 2 ports");
+		return;
 	}
 
-	std::vector<cofflow_stats_reply>& replies = msg->get_flow_stats();
+	uint32_t portnums[2];
 
-	std::vector<cofflow_stats_reply>::iterator it;
-	for (it = replies.begin(); it != replies.end(); ++it) {
-		switch (it->get_version()) {
-		case OFP10_VERSION: {
-			fprintf(stderr, "FLOW-STATS-REPLY:\n  match: %s\n  actions: %s\n",
-					it->get_match().c_str(), it->get_actions().c_str());
-		} break;
-		case OFP12_VERSION: {
-			fprintf(stderr, "FLOW-STATS-REPLY:\n  match: %s\n  instructions: %s\n",
-					it->get_match().c_str(), it->get_instructions().c_str());
-		} break;
-		default: {
-			// do nothing
-		} break;
-		}
+	std::map<uint32_t, cofport*>::iterator it = dpt->get_ports().begin();
+	portnums[0] = it->first;
+	it++;
+	portnums[1] = it->first;
+
+	crandom r;
+	uint64_t r_num = r.uint64();
+
+	cmacaddr r_mac("00:00:00:00:00:00");
+	r_mac[0] = ((uint8_t*)&r_num)[0];
+	r_mac[1] = ((uint8_t*)&r_num)[1];
+	r_mac[2] = ((uint8_t*)&r_num)[2];
+	r_mac[3] = ((uint8_t*)&r_num)[3];
+	r_mac[4] = ((uint8_t*)&r_num)[4];
+	r_mac[5] = ((uint8_t*)&r_num)[5];
+
+	r_mac[0] &= 0xf7;
+
+	for (unsigned int i = 0; i < n; i++) {
+
+		cflowentry fe(dpt->get_version());
+
+		fe.set_command(OFPFC_ADD);
+		fe.set_buffer_id(OFP_NO_BUFFER);
+		fe.set_idle_timeout(0);
+		fe.set_hard_timeout(0);
+		fe.set_table_id(1);
+
+		fe.match.set_eth_dst(r_mac);
+		fe.instructions.next() = cofinst_write_actions();
+		fe.instructions[0].actions.next() = cofaction_output(portnums[0]);
+
+		fprintf(stderr, "match_eth_dst: calling FLOW-MOD with entry: %s\n",
+				fe.c_str());
+
+		send_flow_mod_message(
+				dpt,
+				fe);
 	}
-
-	delete msg;
 }
 
 
@@ -273,7 +252,7 @@ match_eth_dst::handle_packet_in(
 
 		fe.set_command(OFPFC_ADD);
 		fe.set_buffer_id(msg->get_buffer_id());
-		fe.set_idle_timeout(15);
+		fe.set_idle_timeout(0);
 		fe.set_table_id(msg->get_table_id());
 
 		fe.match.set_eth_dst(eth_dst);
