@@ -21,6 +21,7 @@ private:
 		time_t 			timeout;	// timeout event for this FIB entry
 	};
 
+	unsigned int 		n_entries;	// number of competing flowmods to be installed
 	// a very simple forwarding information base
 	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > > fib;
 
@@ -35,7 +36,7 @@ private:
 
 public:
 
-	match_eth_dst();
+	match_eth_dst(unsigned int n_entries = 0);
 
 	virtual
 	~match_eth_dst();
