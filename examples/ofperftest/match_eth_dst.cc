@@ -85,16 +85,16 @@ match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 		fe.set_hard_timeout(0);
 		fe.set_table_id(1);
 
-		r_num += n;
+		r_num += i;
 		cmacaddr r_mac("00:00:00:00:00:00");
-		r_mac[0] = ((uint8_t*)&r_num)[0];
-		r_mac[1] = ((uint8_t*)&r_num)[1];
-		r_mac[2] = ((uint8_t*)&r_num)[2];
-		r_mac[3] = ((uint8_t*)&r_num)[3];
-		r_mac[4] = ((uint8_t*)&r_num)[4];
-		r_mac[5] = ((uint8_t*)&r_num)[5];
+		r_mac[5] = ((uint8_t*)&r_num)[0];
+		r_mac[4] = ((uint8_t*)&r_num)[1];
+		r_mac[3] = ((uint8_t*)&r_num)[2];
+		r_mac[2] = ((uint8_t*)&r_num)[3];
+		r_mac[1] = ((uint8_t*)&r_num)[4];
+		r_mac[0] = ((uint8_t*)&r_num)[5];
 
-		r_mac[0] &= 0xf7;
+		r_mac[5] &= 0xf7;
 
 		fe.match.set_eth_dst(r_mac);
 		fe.instructions.next() = cofinst_write_actions();
