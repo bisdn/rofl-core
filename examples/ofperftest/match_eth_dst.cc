@@ -1,20 +1,21 @@
-#include "ofperftest.h"
+#include "match_eth_dst.h"
 
 #include <inttypes.h>
 
-ofperftest::ofperftest() :
+match_eth_dst::match_eth_dst() :
 	fib_check_timeout(5), // check for expired FIB entries every 5 seconds
 	flow_stats_timeout(10),
 	fm_delete_all_timeout(30)
 {
 	// ...
 	register_timer(ETHSWITCH_TIMER_FIB, fib_check_timeout);
+	register_timer(ETHSWITCH_TIMER_FLOW_STATS, flow_stats_timeout);
 	register_timer(ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL, fm_delete_all_timeout);
 }
 
 
 
-ofperftest::~ofperftest()
+match_eth_dst::~match_eth_dst()
 {
 	// ...
 }
@@ -22,11 +23,14 @@ ofperftest::~ofperftest()
 
 
 void
-ofperftest::handle_timeout(int opaque)
+match_eth_dst::handle_timeout(int opaque)
 {
 	switch (opaque) {
 	case ETHSWITCH_TIMER_FIB: {
 		drop_expired_fib_entries();
+	} break;
+	case ETHSWITCH_TIMER_FLOW_STATS: {
+		request_flow_stats();
 	} break;
 	case ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL: {
 		//flow_mod_delete_all();
@@ -39,7 +43,7 @@ ofperftest::handle_timeout(int opaque)
 
 
 void
-ofperftest::drop_expired_fib_entries()
+match_eth_dst::drop_expired_fib_entries()
 {
 	// iterate over all FIB entries and delete expired ones ...
 
@@ -48,11 +52,83 @@ ofperftest::drop_expired_fib_entries()
 
 
 
+void
+match_eth_dst::request_flow_stats()
+{
+	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
+
+	for (it = fib.begin(); it != fib.end(); ++it) {
+		cofdpt *dpt = it->first;
+
+		cofflow_stats_request req;
+
+		switch (dpt->get_version()) {
+		case OFP10_VERSION: {
+			req.set_version(dpt->get_version());
+			req.set_table_id(OFPTT_ALL);
+			req.set_match(cofmatch(OFP10_VERSION));
+			req.set_out_port(OFPP_ANY);
+		} break;
+		case OFP12_VERSION: {
+			req.set_version(dpt->get_version());
+			req.set_table_id(OFPTT_ALL);
+			cofmatch match(OFP12_VERSION);
+			//match.set_eth_dst(cmacaddr("01:80:c2:00:00:00"));
+			req.set_match(match);
+			req.set_out_port(OFPP_ANY);
+			req.set_out_group(OFPG_ANY);
+			req.set_cookie(0);
+			req.set_cookie_mask(0);
+		} break;
+		default: {
+			// do nothing
+		} break;
+		}
+
+		fprintf(stderr, "match_eth_dst: calling FLOW-STATS-REQUEST for dpid: 0x%"PRIu64"\n",
+				dpt->get_dpid());
+
+		send_flow_stats_request(dpt, /*flags=*/0, req);
+	}
+
+	register_timer(ETHSWITCH_TIMER_FLOW_STATS, flow_stats_timeout);
+}
 
 
 
 void
-ofperftest::flow_mod_delete_all()
+match_eth_dst::handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg)
+{
+	if (fib.find(dpt) == fib.end()) {
+		delete msg; return;
+	}
+
+	std::vector<cofflow_stats_reply>& replies = msg->get_flow_stats();
+
+	std::vector<cofflow_stats_reply>::iterator it;
+	for (it = replies.begin(); it != replies.end(); ++it) {
+		switch (it->get_version()) {
+		case OFP10_VERSION: {
+			fprintf(stderr, "FLOW-STATS-REPLY:\n  match: %s\n  actions: %s\n",
+					it->get_match().c_str(), it->get_actions().c_str());
+		} break;
+		case OFP12_VERSION: {
+			fprintf(stderr, "FLOW-STATS-REPLY:\n  match: %s\n  instructions: %s\n",
+					it->get_match().c_str(), it->get_instructions().c_str());
+		} break;
+		default: {
+			// do nothing
+		} break;
+		}
+	}
+
+	delete msg;
+}
+
+
+
+void
+match_eth_dst::flow_mod_delete_all()
 {
 	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
 
@@ -76,7 +152,7 @@ ofperftest::flow_mod_delete_all()
 
 
 void
-ofperftest::handle_dpath_open(
+match_eth_dst::handle_dpath_open(
 		cofdpt *dpt)
 {
 	fib[dpt] = std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> >();
@@ -86,7 +162,7 @@ ofperftest::handle_dpath_open(
 
 
 void
-ofperftest::handle_dpath_close(
+match_eth_dst::handle_dpath_close(
 		cofdpt *dpt)
 {
 	fib.erase(dpt);
@@ -95,7 +171,7 @@ ofperftest::handle_dpath_close(
 
 
 void
-ofperftest::handle_packet_in(
+match_eth_dst::handle_packet_in(
 		cofdpt *dpt,
 		cofmsg_packet_in *msg)
 {
@@ -124,7 +200,7 @@ ofperftest::handle_packet_in(
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
 		fe.instructions.next() = cofinst_apply_actions();
 
-		fprintf(stderr, "ofperftest: installing FLOW-MOD with entry: %s\n",
+		fprintf(stderr, "match_eth_dst: installing FLOW-MOD with entry: %s\n",
 				fe.c_str());
 
 		send_flow_mod_message(
@@ -134,7 +210,7 @@ ofperftest::handle_packet_in(
 		delete msg; return;
 	}
 
-	fprintf(stderr, "ofperftest: PACKET-IN from dpid:0x%"PRIu64" buffer-id:0x%x => from %s to %s type: 0x%x\n",
+	fprintf(stderr, "match_eth_dst: PACKET-IN from dpid:0x%"PRIu64" buffer-id:0x%x => from %s to %s type: 0x%x\n",
 			dpt->get_dpid(),
 			msg->get_buffer_id(),
 			msg->get_packet().ether()->get_dl_src().c_str(),
@@ -178,7 +254,7 @@ ofperftest::handle_packet_in(
 					actions);
 		}
 
-		fprintf(stderr, "ofperftest: calling PACKET-OUT with ActionList: %s\n",
+		fprintf(stderr, "match_eth_dst: calling PACKET-OUT with ActionList: %s\n",
 				actions.c_str());
 
 	}
@@ -204,7 +280,7 @@ ofperftest::handle_packet_in(
 		fe.instructions.next() = cofinst_write_actions();
 		fe.instructions[0].actions.next() = cofaction_output(out_port);
 
-		fprintf(stderr, "ofperftest: calling FLOW-MOD with entry: %s\n",
+		fprintf(stderr, "match_eth_dst: calling FLOW-MOD with entry: %s\n",
 				fe.c_str());
 
 		send_flow_mod_message(

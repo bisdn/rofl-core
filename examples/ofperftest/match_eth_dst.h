@@ -1,5 +1,5 @@
-#ifndef ofperftest_H
-#define ofperftest_H 1
+#ifndef MATCH_ETH_DST_H
+#define MATCH_ETH_DST_H 1
 
 #include <map>
 #include "rofl/common/cmacaddr.h"
@@ -9,7 +9,7 @@
 
 using namespace rofl;
 
-class ofperftest :
+class match_eth_dst :
 		public crofbase
 {
 private:
@@ -26,18 +26,19 @@ private:
 	unsigned int		flow_stats_timeout;		// periodic timeout for requesting flow stats
 	unsigned int		fm_delete_all_timeout;	// periodic purging of all FLOW-MODs
 
-	enum ofperftest_timer_t {
-		ETHSWITCH_TIMER_BASE = ((0x6271)),
-		ETHSWITCH_TIMER_FIB,
-		ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL,
+	enum match_eth_dst_timer_t {
+		ETHSWITCH_TIMER_BASE 					= ((0x6271)),
+		ETHSWITCH_TIMER_FIB 					= ((ETHSWITCH_TIMER_BASE) + 1),
+		ETHSWITCH_TIMER_FLOW_STATS 				= ((ETHSWITCH_TIMER_BASE) + 2),
+		ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL 	= ((ETHSWITCH_TIMER_BASE) + 3),
 	};
 
 public:
 
-	ofperftest();
+	match_eth_dst();
 
 	virtual
-	~ofperftest();
+	~match_eth_dst();
 
 	virtual void
 	handle_timeout(int opaque);
@@ -51,11 +52,16 @@ public:
 	virtual void
 	handle_packet_in(cofdpt *dpt, cofmsg_packet_in *msg);
 
+	virtual void
+	handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg);
 
 private:
 
 	void
 	drop_expired_fib_entries();
+
+	void
+	request_flow_stats();
 
 	void
 	flow_mod_delete_all();
