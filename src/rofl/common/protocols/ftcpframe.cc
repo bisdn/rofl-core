@@ -153,7 +153,6 @@ ftcpframe::tcp_calc_checksum(
 	int wnum;
 	uint32_t sum = 0; //sum
 	uint16_t *word16;
-	uint16_t res16;
 	
 	initialize();
 
@@ -187,11 +186,15 @@ ftcpframe::tcp_calc_checksum(
 	for (int i = 0; i < wnum; i++){
 		sum += (uint32_t)(be16toh(word16[i]));
 	}
+	
+	if(length & 0x1)
+		//Last byte
+		sum += (uint32_t)( be16toh( ((uint8_t*)(void*)tcp_hdr)[length-1]));
 
-	res16 = (sum & 0x0000ffff) + ((sum & 0xffff0000) >> 16);
+	//overflow
+	sum += (sum >> 16);
 
-
-	tcp_hdr->checksum = htobe16(~res16);
+	tcp_hdr->checksum = htobe16(~sum);
 
 //	fprintf(stderr," %x \n", tcp_hdr->checksum);
 }
