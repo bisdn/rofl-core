@@ -1,8 +1,12 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-frames_SOURCES= frames.cc 
-frames_LDADD= $(LIBROFL)
+CXXFLAGS = -std=gnu++11
+frames_SOURCES= frames.cc
+frames_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 
-check_PROGRAMS=frames #$(TEST_PROG)
+checksums_SOURCES= checksums.cc 
+checksums_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 
-TESTS=frames
+check_PROGRAMS=frames checksums#$(TEST_PROG)
+
+TESTS=frames checksums
