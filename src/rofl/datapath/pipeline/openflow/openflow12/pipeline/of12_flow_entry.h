@@ -140,7 +140,7 @@ rofl_result_t __of12_update_flow_entry(of12_flow_entry_t* entry_to_update, of12_
 rofl_result_t __of12_validate_flow_entry(struct of12_group_table *gt, of12_flow_entry_t* entry);
 	
 //Flow comparison
-bool __of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group);
+bool __of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group, bool check_cookie);
 bool __of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group);
 bool __of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_flow_entry_t*const subentry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group);
 

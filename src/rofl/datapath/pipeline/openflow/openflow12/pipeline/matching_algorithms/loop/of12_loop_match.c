@@ -48,7 +48,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_overlapping(of12_flow_entry
 /**
 * Looks for a previously added entry from the entry pointer by start_entry. This is an EXPENSIVE call
 */
-static of12_flow_entry_t* of12_flow_table_loop_check_identical(of12_flow_entry_t *const start_entry, of12_flow_entry_t* entry, uint32_t out_port, uint32_t out_group){
+static of12_flow_entry_t* of12_flow_table_loop_check_identical(of12_flow_entry_t *const start_entry, of12_flow_entry_t* entry, uint32_t out_port, uint32_t out_group, bool check_cookie){
 
 	of12_flow_entry_t* it; //Just for code clarity
 
@@ -57,7 +57,7 @@ static of12_flow_entry_t* of12_flow_table_loop_check_identical(of12_flow_entry_t
 		return NULL;
 
 	for(it=start_entry; it != NULL; it=it->next){
-		if( __of12_flow_entry_check_equal(it, entry, out_port, out_group) )
+		if( __of12_flow_entry_check_equal(it, entry, out_port, out_group, check_cookie) )
 			return it;
 	}	
 	return NULL;
@@ -143,7 +143,7 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 
 	//Look for existing entries (only if check_overlap is false)
 	if(!check_overlap)
-		existing = of12_flow_table_loop_check_identical(table->entries, entry, OF12_PORT_ANY, OF12_GROUP_ANY);
+		existing = of12_flow_table_loop_check_identical(table->entries, entry, OF12_PORT_ANY, OF12_GROUP_ANY, false); //According to spec do NOT check cookie
 
 	if(existing){
 		//There was already an entry. Update it..
@@ -262,7 +262,7 @@ static rofl_result_t of12_remove_flow_entry_table_non_specific_imp(of12_flow_tab
 		
 		if( strict == STRICT ){
 			//Strict make sure they are equal
-			if( __of12_flow_entry_check_equal(it, entry, out_port, out_group ) ){
+			if( __of12_flow_entry_check_equal(it, entry, out_port, out_group, true) ){
 				
 				if(of12_remove_flow_entry_table_specific_imp(table, it, reason) != ROFL_SUCCESS){
 					assert(0); //This should never happen
@@ -347,7 +347,7 @@ rofl_result_t of12_modify_flow_entry_loop(of12_flow_table_t *const table, of12_f
 
 		if( strict == STRICT ){
 			//Strict make sure they are equal
-			if( __of12_flow_entry_check_equal(it, entry, OF12_PORT_ANY, OF12_GROUP_ANY) ){
+			if( __of12_flow_entry_check_equal(it, entry, OF12_PORT_ANY, OF12_GROUP_ANY, true) ){
 				if(__of12_update_flow_entry(it, entry, reset_counts) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
 				moded++;

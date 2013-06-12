@@ -245,12 +245,12 @@ bool __of12_flow_entry_check_contained(of12_flow_entry_t*const original, of12_fl
 /**
 * Checks if entry is identical to another one
 */
-bool __of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group){
+bool __of12_flow_entry_check_equal(of12_flow_entry_t*const original, of12_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group, bool check_cookie){
 
 	of12_match_t* it_original, *it_entry;
 	
 	//Check cookie first
-	if(entry->cookie_mask){
+	if(check_cookie && entry->cookie_mask){
 		if( (entry->cookie&entry->cookie_mask) == (original->cookie&entry->cookie_mask) )
 			return false;
 	}
