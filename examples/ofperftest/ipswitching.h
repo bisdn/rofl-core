@@ -77,6 +77,9 @@ private:
 
 	void
 	update_fib_table(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src);
+
+	void
+	flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src);
 };
 
 #endif
