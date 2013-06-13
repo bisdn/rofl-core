@@ -152,7 +152,7 @@ ftcpframe::tcp_calc_checksum(
 {
 	int wnum;
 	uint32_t sum = 0; //sum
-	uint16_t *word16;
+	uint16_t* word16;
 	
 	initialize();
 
@@ -164,15 +164,15 @@ ftcpframe::tcp_calc_checksum(
 	*/
 	
 	word16 = (uint16_t*)(void*)&ip_src.ca_s4addr->sin_addr.s_addr;
-	sum += be16toh(*(word16+1));
-	sum += be16toh(*(word16));
+	sum += *(word16+1);
+	sum += *(word16);
 
 	word16 = (uint16_t*)(void*)&ip_dst.ca_s4addr->sin_addr.s_addr;
-	sum += be16toh(*(word16+1));
-	sum += be16toh(*(word16));
-	sum += ip_proto;
+	sum += *(word16+1);
+	sum += *(word16);
+	sum += htons(ip_proto);
 	
-	sum += length; 
+	sum += htons(length); 
 
 	/*
 	* part -II- (TCP header + payload)
@@ -181,20 +181,22 @@ ftcpframe::tcp_calc_checksum(
 	// pointer on 16bit words
 	// number of 16bit words
 	word16 = (uint16_t*)tcp_hdr;
-	wnum = (length/*datalen*/ / sizeof(uint16_t));
+	wnum = (length / sizeof(uint16_t));
 
 	for (int i = 0; i < wnum; i++){
-		sum += (uint32_t)(be16toh(word16[i]));
+		sum += (uint32_t)word16[i];
 	}
 	
 	if(length & 0x1)
 		//Last byte
-		sum += (uint32_t)( be16toh( ((uint8_t*)(void*)tcp_hdr)[length-1]));
+		sum += (uint32_t)( ((uint8_t*)(void*)tcp_hdr)[length-1]);
 
-	//overflow
-	sum += (sum >> 16);
+	//Fold it
+	while (sum >> 16) 
+		sum = (sum & 0xFFFF)+(sum >> 16);
+	//sum += (sum >> 16);
 
-	tcp_hdr->checksum = htobe16(~sum);
+	tcp_hdr->checksum =(uint16_t) ~sum;
 
 //	fprintf(stderr," %x \n", tcp_hdr->checksum);
 }
