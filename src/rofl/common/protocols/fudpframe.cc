@@ -154,8 +154,6 @@ fudpframe::udp_calc_checksum(
 	uint32_t sum = 0; //sum
 	uint16_t* word16;
 	
-	initialize();
-
 	//Set 0 to checksum
 	udp_hdr->checksum = 0x0;
 
@@ -171,7 +169,6 @@ fudpframe::udp_calc_checksum(
 	sum += *(word16+1);
 	sum += *(word16);
 	sum += htons(ip_proto);
-	
 	sum += htons(length); 
 
 	/*
@@ -185,6 +182,8 @@ fudpframe::udp_calc_checksum(
 
 	for (int i = 0; i < wnum; i++){
 		sum += (uint32_t)word16[i];
+		if (sum & 0x80000000)
+			sum = (sum & 0xFFFF) + (sum >> 16);
 	}
 	
 	if(length & 0x1)
@@ -196,7 +195,7 @@ fudpframe::udp_calc_checksum(
 		sum = (sum & 0xFFFF)+(sum >> 16);
 	//sum += (sum >> 16);
 
-	udp_hdr->checksum = (uint16_t)~sum;
+	udp_hdr->checksum =(uint16_t) ~sum;
 
 //	fprintf(stderr," %x \n", udp_hdr->checksum);
 }
