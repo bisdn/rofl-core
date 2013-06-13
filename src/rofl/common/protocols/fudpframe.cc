@@ -152,45 +152,50 @@ fudpframe::udp_calc_checksum(
 {
 	int wnum;
 	uint32_t sum = 0; //sum
-	uint16_t *word16;
-	uint16_t res16;
+	uint16_t* word16;
 	
-	initialize();
-
 	//Set 0 to checksum
 	udp_hdr->checksum = 0x0;
 
 	/*
 	* part -I- (IPv4 pseudo header)
 	*/
-
+	
 	word16 = (uint16_t*)(void*)&ip_src.ca_s4addr->sin_addr.s_addr;
-	sum += be16toh(*(word16+1));
-	sum += be16toh(*(word16));
+	sum += *(word16+1);
+	sum += *(word16);
 
 	word16 = (uint16_t*)(void*)&ip_dst.ca_s4addr->sin_addr.s_addr;
-	sum += be16toh(*(word16+1));
-	sum += be16toh(*(word16));
-	sum += ip_proto;
-	
-	sum += length; 
+	sum += *(word16+1);
+	sum += *(word16);
+	sum += htons(ip_proto);
+	sum += htons(length); 
 
 	/*
-	* part -II- (UDP header + payload)
+	* part -II- (TCP header + payload)
 	*/
 	
 	// pointer on 16bit words
 	// number of 16bit words
 	word16 = (uint16_t*)udp_hdr;
-	wnum = (length/*datalen*/ / sizeof(uint16_t));
+	wnum = (length / sizeof(uint16_t));
 
 	for (int i = 0; i < wnum; i++){
-		sum += (uint32_t)(be16toh(word16[i]));
+		sum += (uint32_t)word16[i];
+		if (sum & 0x80000000)
+			sum = (sum & 0xFFFF) + (sum >> 16);
 	}
+	
+	if(length & 0x1)
+		//Last byte
+		sum += (uint32_t)( ((uint8_t*)(void*)udp_hdr)[length-1]);
 
-	res16 = (sum & 0x0000ffff) + ((sum & 0xffff0000) >> 16);
+	//Fold it
+	while (sum >> 16) 
+		sum = (sum & 0xFFFF)+(sum >> 16);
+	//sum += (sum >> 16);
 
-	udp_hdr->checksum = htobe16(~res16);
+	udp_hdr->checksum =(uint16_t) ~sum;
 
 //	fprintf(stderr," %x \n", udp_hdr->checksum);
 }
