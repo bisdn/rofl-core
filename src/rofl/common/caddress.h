@@ -62,6 +62,8 @@ class eAddressInval 					: public eAddress {};
 class caddress :
 	public cmemory
 {
+#define AF_INET4_SIZE	4
+#define AF_INET6_SIZE	16
 public:
 
 		/**
@@ -282,6 +284,16 @@ public:
 	operator!= (
 			caddress const& ca) const;
 
+
+	/**
+	 * @brief	Index operator granting direct access to address bytes
+	 *
+	 * @param index index defines the byte to be returned as reference
+	 */
+	uint8_t&
+	operator[] (
+			unsigned int index);
+
 	/**@}*/
 
 
@@ -330,6 +342,21 @@ public:
 	 */
 	bool
 	is_af_packet() const;
+
+
+	/**
+	 * @brief	Checks for multicast address.
+	 */
+	bool
+	is_multicast() const;
+
+
+	/**
+	 * @brief	Checks for broadcast address.
+	 */
+	bool
+	is_broadcast() const;
+
 
 	/**@}*/
 

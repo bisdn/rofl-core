@@ -83,7 +83,7 @@ match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 		fe.set_buffer_id(OFP_NO_BUFFER);
 		fe.set_idle_timeout(0);
 		fe.set_hard_timeout(0);
-		fe.set_table_id(1);
+		fe.set_table_id(0);
 
 		r_num += i;
 		cmacaddr r_mac("00:00:00:00:00:00");
