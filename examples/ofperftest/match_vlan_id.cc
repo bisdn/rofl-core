@@ -1,8 +1,8 @@
-#include "match_eth_dst.h"
+#include "match_vlan_id.h"
 
 #include <inttypes.h>
 
-match_eth_dst::match_eth_dst(unsigned int n_entries) :
+match_vlan_id::match_vlan_id(unsigned int n_entries) :
 	n_entries(n_entries),
 	fib_check_timeout(5), // check for expired FIB entries every 5 seconds
 	fm_delete_all_timeout(30)
@@ -14,7 +14,7 @@ match_eth_dst::match_eth_dst(unsigned int n_entries) :
 
 
 
-match_eth_dst::~match_eth_dst()
+match_vlan_id::~match_vlan_id()
 {
 	flow_mod_delete_all();
 }
@@ -22,7 +22,7 @@ match_eth_dst::~match_eth_dst()
 
 
 void
-match_eth_dst::handle_timeout(int opaque)
+match_vlan_id::handle_timeout(int opaque)
 {
 	switch (opaque) {
 	case ETHSWITCH_TIMER_FIB: {
@@ -39,7 +39,7 @@ match_eth_dst::handle_timeout(int opaque)
 
 
 void
-match_eth_dst::drop_expired_fib_entries()
+match_vlan_id::drop_expired_fib_entries()
 {
 	// iterate over all FIB entries and delete expired ones ...
 
@@ -49,7 +49,7 @@ match_eth_dst::drop_expired_fib_entries()
 
 
 void
-match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
+match_vlan_id::install_flow_mods(cofdpt *dpt, unsigned int n)
 {
 	if (0 == dpt) {
 		fprintf(stderr, "error installing test FlowMod entries on data path: dpt is NULL");
@@ -62,18 +62,13 @@ match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 		return;
 	}
 
-	uint32_t portnums[2];
-
-	std::map<uint32_t, cofport*>::iterator it = dpt->get_ports().begin();
-	portnums[0] = it->first;
-	it++;
-	portnums[1] = it->first;
-
 
 	crandom r;
 	uint64_t r_num = r.uint64();
 
 	fprintf(stderr, "installing %u fake FlowMod entries\n", n);
+
+	int vid = 1;
 
 	for (unsigned int i = 0; i < n; i++) {
 
@@ -85,22 +80,25 @@ match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 		fe.set_hard_timeout(0);
 		fe.set_table_id(1);
 
-		r_num += i;
+		r_num += n;
 		cmacaddr r_mac("00:00:00:00:00:00");
-		r_mac[5] = ((uint8_t*)&r_num)[0];
-		r_mac[4] = ((uint8_t*)&r_num)[1];
-		r_mac[3] = ((uint8_t*)&r_num)[2];
-		r_mac[2] = ((uint8_t*)&r_num)[3];
-		r_mac[1] = ((uint8_t*)&r_num)[4];
-		r_mac[0] = ((uint8_t*)&r_num)[5];
+		r_mac[0] = ((uint8_t*)&r_num)[0];
+		r_mac[1] = ((uint8_t*)&r_num)[1];
+		r_mac[2] = ((uint8_t*)&r_num)[2];
+		r_mac[3] = ((uint8_t*)&r_num)[3];
+		r_mac[4] = ((uint8_t*)&r_num)[4];
+		r_mac[5] = ((uint8_t*)&r_num)[5];
 
-		r_mac[5] &= 0xf7;
+		r_mac[0] &= 0xf7;
 
 		fe.match.set_eth_dst(r_mac);
-		fe.instructions.next() = cofinst_write_actions();
-		fe.instructions.back().actions.next() = cofaction_output(portnums[0]);
+		fe.match.set_vlan_vid(vid);
+		++vid;
+		vid = (vid ==  100) ? 101 : vid; // skip VLAN id 100
+		vid = (vid == 4096) ?   1 : vid; // wrap around at 0xffff
+		fe.instructions.next() = cofinst_write_actions();	// do nothing, drop packet
 
-		fprintf(stderr, "match_eth_dst: calling FLOW-MOD with entry: %s\n",
+		fprintf(stderr, "match_vlan_id: calling FLOW-MOD with entry: %s\n",
 				fe.c_str());
 
 		send_flow_mod_message(
@@ -112,7 +110,7 @@ match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 
 
 void
-match_eth_dst::flow_mod_delete_all()
+match_vlan_id::flow_mod_delete_all()
 {
 	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
 
@@ -136,7 +134,7 @@ match_eth_dst::flow_mod_delete_all()
 
 
 void
-match_eth_dst::handle_dpath_open(
+match_vlan_id::handle_dpath_open(
 		cofdpt *dpt)
 {
 	fib[dpt] = std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> >();
@@ -148,7 +146,7 @@ match_eth_dst::handle_dpath_open(
 
 
 void
-match_eth_dst::handle_dpath_close(
+match_vlan_id::handle_dpath_close(
 		cofdpt *dpt)
 {
 	fib.erase(dpt);
@@ -157,7 +155,7 @@ match_eth_dst::handle_dpath_close(
 
 
 void
-match_eth_dst::handle_packet_in(
+match_vlan_id::handle_packet_in(
 		cofdpt *dpt,
 		cofmsg_packet_in *msg)
 {
@@ -186,7 +184,7 @@ match_eth_dst::handle_packet_in(
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
 		fe.instructions.next() = cofinst_apply_actions();
 
-		fprintf(stderr, "match_eth_dst: installing FLOW-MOD with entry: %s\n",
+		fprintf(stderr, "match_vlan_id: installing FLOW-MOD with entry: %s\n",
 				fe.c_str());
 
 		send_flow_mod_message(
@@ -196,7 +194,7 @@ match_eth_dst::handle_packet_in(
 		delete msg; return;
 	}
 
-	fprintf(stderr, "match_eth_dst: PACKET-IN from dpid:0x%"PRIu64" buffer-id:0x%x => from %s to %s type: 0x%x\n",
+	fprintf(stderr, "match_vlan_id: PACKET-IN from dpid:0x%"PRIu64" buffer-id:0x%x => from %s to %s type: 0x%x\n",
 			dpt->get_dpid(),
 			msg->get_buffer_id(),
 			msg->get_packet().ether()->get_dl_src().c_str(),
@@ -240,7 +238,7 @@ match_eth_dst::handle_packet_in(
 					actions);
 		}
 
-		fprintf(stderr, "match_eth_dst: calling PACKET-OUT with ActionList: %s\n",
+		fprintf(stderr, "match_vlan_id: calling PACKET-OUT with ActionList: %s\n",
 				actions.c_str());
 
 	}
@@ -263,10 +261,12 @@ match_eth_dst::handle_packet_in(
 		fe.set_table_id(msg->get_table_id());
 
 		fe.match.set_eth_dst(eth_dst);
+		if (vlan_id != 0xffff)
+			fe.match.set_vlan_vid(vlan_id);
 		fe.instructions.next() = cofinst_write_actions();
 		fe.instructions[0].actions.next() = cofaction_output(out_port);
 
-		fprintf(stderr, "match_eth_dst: calling FLOW-MOD with entry: %s\n",
+		fprintf(stderr, "match_vlan_id: calling FLOW-MOD with entry: %s\n",
 				fe.c_str());
 
 		send_flow_mod_message(
