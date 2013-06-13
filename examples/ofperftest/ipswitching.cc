@@ -1,20 +1,20 @@
-#include "match_ip_dst.h"
+#include "ipswitching.h"
 
 #include <inttypes.h>
 
-match_ip_dst::match_ip_dst(unsigned int n_entries) :
+ipswitching::ipswitching(unsigned int n_entries) :
 	n_entries(n_entries),
 	fib_check_timeout(5), // check for expired FIB entries every 5 seconds
 	fm_delete_all_timeout(30)
 {
 	// ...
-	register_timer(MATCH_IP_DST_TIMER_FIB, fib_check_timeout);
-	register_timer(MATCH_IP_DST_TIMER_FLOW_MOD_DELETE_ALL, fm_delete_all_timeout);
+	register_timer(IPSWITCHING_TIMER_FIB, fib_check_timeout);
+	register_timer(IPSWITCHING_TIMER_FLOW_MOD_DELETE_ALL, fm_delete_all_timeout);
 }
 
 
 
-match_ip_dst::~match_ip_dst()
+ipswitching::~ipswitching()
 {
 	flow_mod_delete_all();
 }
@@ -22,13 +22,13 @@ match_ip_dst::~match_ip_dst()
 
 
 void
-match_ip_dst::handle_timeout(int opaque)
+ipswitching::handle_timeout(int opaque)
 {
 	switch (opaque) {
-	case MATCH_IP_DST_TIMER_FIB: {
+	case IPSWITCHING_TIMER_FIB: {
 		drop_expired_fib_entries();
 	} break;
-	case MATCH_IP_DST_TIMER_FLOW_MOD_DELETE_ALL: {
+	case IPSWITCHING_TIMER_FLOW_MOD_DELETE_ALL: {
 		//flow_mod_delete_all();
 	} break;
 	default:
@@ -39,17 +39,17 @@ match_ip_dst::handle_timeout(int opaque)
 
 
 void
-match_ip_dst::drop_expired_fib_entries()
+ipswitching::drop_expired_fib_entries()
 {
 	// iterate over all FIB entries and delete expired ones ...
 
-	register_timer(MATCH_IP_DST_TIMER_FIB, fib_check_timeout);
+	register_timer(IPSWITCHING_TIMER_FIB, fib_check_timeout);
 }
 
 
 
 void
-match_ip_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
+ipswitching::install_flow_mods(cofdpt *dpt, unsigned int n)
 {
 	if (0 == dpt) {
 		fprintf(stderr, "error installing test FlowMod entries on data path: dpt is NULL");
@@ -93,7 +93,7 @@ match_ip_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 		fe.instructions.next() = cofinst_write_actions();
 		fe.instructions.back().actions.next() = cofaction_output(portnums[(i%2)]);
 
-		fprintf(stderr, "match_ip_dst: installing fake FLowMod entry #%d: %s\n",
+		fprintf(stderr, "ipswitching: installing fake FLowMod entry #%d: %s\n",
 				i, fe.c_str());
 
 		send_flow_mod_message(dpt, fe);
@@ -103,7 +103,7 @@ match_ip_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 
 
 void
-match_ip_dst::flow_mod_delete_all()
+ipswitching::flow_mod_delete_all()
 {
 	std::map<cofdpt*, std::map<caddress, struct fibentry_t> >::iterator it;
 
@@ -121,13 +121,13 @@ match_ip_dst::flow_mod_delete_all()
 		send_flow_mod_message(dpt, fe);
 	}
 
-	register_timer(MATCH_IP_DST_TIMER_FLOW_MOD_DELETE_ALL, fm_delete_all_timeout);
+	register_timer(IPSWITCHING_TIMER_FLOW_MOD_DELETE_ALL, fm_delete_all_timeout);
 }
 
 
 
 void
-match_ip_dst::handle_dpath_open(
+ipswitching::handle_dpath_open(
 		cofdpt *dpt)
 {
 	fib[dpt] = std::map<caddress, struct fibentry_t>();
@@ -139,7 +139,7 @@ match_ip_dst::handle_dpath_open(
 
 
 void
-match_ip_dst::handle_dpath_close(
+ipswitching::handle_dpath_close(
 		cofdpt *dpt)
 {
 	fib.erase(dpt);
@@ -148,7 +148,7 @@ match_ip_dst::handle_dpath_close(
 
 
 void
-match_ip_dst::handle_packet_in(
+ipswitching::handle_packet_in(
 		cofdpt *dpt,
 		cofmsg_packet_in *msg)
 {
@@ -168,7 +168,7 @@ match_ip_dst::handle_packet_in(
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
 		fe.instructions.next() = cofinst_apply_actions();
 
-		fprintf(stderr, "match_ip_dst: installing FLOW-MOD with entry: %s\n",
+		fprintf(stderr, "ipswitching: installing FLOW-MOD with entry: %s\n",
 				fe.c_str());
 
 		send_flow_mod_message(dpt, fe);
@@ -194,7 +194,7 @@ match_ip_dst::handle_packet_in(
 
 
 void
-match_ip_dst::handle_packet_in_arpv4(
+ipswitching::handle_packet_in_arpv4(
 		cofdpt *dpt,
 		cofmsg_packet_in *msg)
 {
@@ -218,7 +218,7 @@ match_ip_dst::handle_packet_in_arpv4(
 					actions);
 		}
 
-		fprintf(stderr, "match_ip_dst: forwarding ARP packet (FLOOD) with ActionList: %s\n",
+		fprintf(stderr, "ipswitching: forwarding ARP packet (FLOOD) with ActionList: %s\n",
 				actions.c_str());
 
 	} else {
@@ -240,7 +240,7 @@ match_ip_dst::handle_packet_in_arpv4(
 					actions);
 		}
 
-		fprintf(stderr, "match_ip_dst: forwarding ARP packet (portno: %d) with ActionList: %s\n",
+		fprintf(stderr, "ipswitching: forwarding ARP packet (portno: %d) with ActionList: %s\n",
 				fib[dpt][msg->get_packet().arpv4()->get_nw_dst()].port_no, actions.c_str());
 
 
@@ -258,7 +258,7 @@ match_ip_dst::handle_packet_in_arpv4(
 
 
 void
-match_ip_dst::handle_packet_in_ipv4(
+ipswitching::handle_packet_in_ipv4(
 		cofdpt *dpt,
 		cofmsg_packet_in *msg)
 {
@@ -288,8 +288,10 @@ match_ip_dst::handle_packet_in_ipv4(
 					actions);
 		}
 
-		fprintf(stderr, "match_ip_dst: forwarding IPv4 packet (FLOOD) with ActionList: %s\n",
+		fprintf(stderr, "ipswitching: forwarding IPv4 packet (FLOOD) with ActionList: %s\n",
 				actions.c_str());
+
+		// TODO: send to VLAN attached nodes as well
 	}
 
 	delete msg;
@@ -308,7 +310,7 @@ match_ip_dst::handle_packet_in_ipv4(
 
 
 
-	fprintf(stderr, "match_ip_dst: PACKET-IN from dpid:0x%"PRIu64" buffer-id:0x%x => from %s to %s type: 0x%x\n",
+	fprintf(stderr, "ipswitching: PACKET-IN from dpid:0x%"PRIu64" buffer-id:0x%x => from %s to %s type: 0x%x\n",
 			dpt->get_dpid(),
 			msg->get_buffer_id(),
 			msg->get_packet().ether()->get_dl_src().c_str(),
@@ -341,7 +343,7 @@ match_ip_dst::handle_packet_in_ipv4(
 					actions);
 		}
 
-		fprintf(stderr, "match_ip_dst: calling PACKET-OUT with ActionList: %s\n",
+		fprintf(stderr, "ipswitching: calling PACKET-OUT with ActionList: %s\n",
 				actions.c_str());
 
 	}
@@ -367,7 +369,7 @@ match_ip_dst::handle_packet_in_ipv4(
 		fe.instructions.next() = cofinst_write_actions();
 		fe.instructions[0].actions.next() = cofaction_output(out_port);
 
-		fprintf(stderr, "match_ip_dst: calling FLOW-MOD with entry: %s\n",
+		fprintf(stderr, "ipswitching: calling FLOW-MOD with entry: %s\n",
 				fe.c_str());
 
 		send_flow_mod_message(
@@ -392,16 +394,24 @@ match_ip_dst::handle_packet_in_ipv4(
 
 
 void
-match_ip_dst::update_fib_table(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
+ipswitching::update_fib_table(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 {
 	if (fib[dpt].find(ip_src) == fib[dpt].end()) {
 
 		fib[dpt][ip_src].port_no = msg->get_match().get_in_port(); // may throw eOFmatchNotFound
 		fib[dpt][ip_src].timeout = time(NULL) + fib_check_timeout;
 		fib[dpt][ip_src].addr = ip_src;
+		fib[dpt][ip_src].vid = 0xffff;
 
-		fprintf(stderr, "NEW IPV4 FIB-ENTRY: dpid=%s addr=%s portno=%d\n",
-				dpt->get_dpid_s().c_str(), ip_src.addr_c_str(), msg->get_match().get_in_port());
+		try {
+			fib[dpt][ip_src].vid = msg->get_packet().vlan()->get_dl_vlan_id();
+		} catch (ePacketNotFound& e) {}
+
+		fprintf(stderr, "NEW IPV4 FIB-ENTRY: dpid=%s addr=%s portno=%d vid=%d\n",
+				dpt->get_dpid_s().c_str(),
+				ip_src.addr_c_str(),
+				msg->get_match().get_in_port(),
+				msg->get_packet().vlan()->get_dl_vlan_id());
 
 
 		cflowentry fe(dpt->get_version());
@@ -414,18 +424,47 @@ match_ip_dst::update_fib_table(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_s
 
 		fe.match.set_ipv4_dst(ip_src);
 		fe.instructions.next() = cofinst_write_actions();
-		fe.instructions[0].actions.next() = cofaction_output(fib[dpt][ip_src].port_no);
+		if (fib[dpt][ip_src].vid != 0xffff) {
+			fe.instructions.back().actions.next() = cofaction_push_vlan(fib[dpt][ip_src].vid);
+		}
+		fe.instructions.back().actions.next() = cofaction_output(fib[dpt][ip_src].port_no);
 
-		fprintf(stderr, "match_ip_dst: calling FLOW-MOD with entry: %s\n",
+		fprintf(stderr, "ipswitching: calling FLOW-MOD with entry: %s\n",
 				fe.c_str());
 
 		send_flow_mod_message(dpt, fe);
 
+
+		fe.reset();
+
+		fe.set_command(OFPFC_ADD);
+		fe.set_buffer_id(OFP_NO_BUFFER);
+		fe.set_idle_timeout(0);
+		fe.set_hard_timeout(0);
+		fe.set_table_id(msg->get_table_id());
+
+		fe.match.set_ipv4_src(ip_src);
+		fe.instructions.next() = cofinst_write_actions();
+		if (fib[dpt][ip_src].vid != 0xffff) {
+			fe.instructions.back().actions.next() = cofaction_pop_vlan();
+		}
+		fe.instructions.back().actions.next() = cofaction_output(OFPP_TABLE);
+
+		fprintf(stderr, "ipswitching: calling FLOW-MOD with entry: %s\n",
+				fe.c_str());
+
+		send_flow_mod_message(dpt, fe);
+
+
+
 		fprintf(stderr, "== dpid: 0x%s =========================\n", dpt->get_dpid_s().c_str());
 		for (std::map<caddress, fibentry_t>::iterator
 				it = fib[dpt].begin(); it != fib[dpt].end(); ++it) {
-			fprintf(stderr, "dpid: 0x%s FIB table: addr=%s portno=%d\n",
-					dpt->get_dpid_s().c_str(), it->second.addr.addr_c_str(), it->second.port_no);
+			fprintf(stderr, "dpid: 0x%s FIB table: addr=%s portno=%d vid=%d\n",
+					dpt->get_dpid_s().c_str(),
+					it->second.addr.addr_c_str(),
+					it->second.port_no,
+					it->second.vid);
 		}
 	}
 }
