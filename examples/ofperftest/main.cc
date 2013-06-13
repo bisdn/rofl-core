@@ -3,6 +3,7 @@
 #include "ofperftest.h"
 #include "match_eth_dst.h"
 #include "match_vlan_id.h"
+#include "match_ip_dst.h"
 
 void usage(int argc, char** argv);
 void parse_args(int argc, char** argv);
@@ -33,6 +34,8 @@ main(int argc, char** argv)
 		perftest = new match_eth_dst(n_entries);
 	} else if (s_testcase == std::string("match_vlan_id")) {
 		perftest = new match_vlan_id(n_entries);
+	} else if (s_testcase == std::string("match_ip_dst")) {
+		perftest = new match_ip_dst(n_entries);
 	} else {
 		fprintf(stderr, "testcase %s not found, aborting\n", s_testcase.c_str());
 		exit(1);
@@ -54,6 +57,7 @@ usage(int argc, char** argv)
 	fprintf(stderr, "testcases for %s:\n", argv[0]);
 	fprintf(stderr, "  match_eth_dst\n");
 	fprintf(stderr, "  match_vlan_id\n");
+	fprintf(stderr, "  match_ip_dst\n");
 
 	exit(0);
 }

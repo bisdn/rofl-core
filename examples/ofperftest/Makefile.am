@@ -13,7 +13,9 @@ ofperftest_SOURCES = \
 	match_eth_dst.cc \
 	match_eth_dst.h \
 	match_vlan_id.cc \
-	match_vlan_id.h
+	match_vlan_id.h \
+	match_ip_dst.cc \
+	match_ip_dst.h
 ofperftest_LDADD = ../../src/rofl/librofl.la 
 	-lpthread \
 	-lrt 

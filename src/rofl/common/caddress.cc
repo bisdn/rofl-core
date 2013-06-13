@@ -273,6 +273,28 @@ caddress::operator!= (caddress const& ca) const
 }
 
 
+uint8_t&
+caddress::operator[] (
+		unsigned int index)
+{
+	switch (ca_saddr->sa_family) {
+	case AF_INET: {
+		if ((index >= AF_INET4_SIZE))
+			throw eInval();
+		return ((uint8_t*)&(ca_s4addr->sin_addr.s_addr))[index];
+	} break;
+	case AF_INET6: {
+		if ((index >= AF_INET6_SIZE))
+			throw eInval();
+		return ((uint8_t*)&(ca_s6addr->sin6_addr.s6_addr))[index];
+	} break;
+	default: {
+		throw eInval();
+	}
+	}
+}
+
+
 const char*
 caddress::c_str()
 {
@@ -365,6 +387,43 @@ bool
 caddress::is_af_packet() const
 {
 	return (AF_PACKET == ca_saddr->sa_family);
+}
+
+
+bool
+caddress::is_multicast() const
+{
+	switch (ca_saddr->sa_family) {
+	case AF_INET: {
+		caddress multicast(AF_INET, "224.0.0.0"); // [1110]0000 ...
+		return (((*this) & multicast) == multicast);
+	} break;
+	case AF_INET6: {
+		caddress multicast(AF_INET6, "ff00::");
+		return (((*this) & multicast) == multicast);
+	} break;
+	default:
+		throw eInval();
+	}
+}
+
+
+bool
+caddress::is_broadcast() const
+{
+	switch (ca_saddr->sa_family) {
+	case AF_INET: {
+		caddress broadcast(AF_INET, "225.255.255.255");
+		return (((*this) & broadcast) == broadcast);
+	} break;
+	case AF_INET6: {
+		caddress broadcast(AF_INET6, "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
+		return (((*this) & broadcast) == broadcast);
+	} break;
+	default:
+		throw eInval();
+	}
+
 }
 
 
