@@ -15,7 +15,9 @@ ofperftest_SOURCES = \
 	match_vlan_id.cc \
 	match_vlan_id.h \
 	ipswitching.cc \
-	ipswitching.h
+	ipswitching.h \
+	mmap_test.cc \
+	mmap_test.h
 ofperftest_LDADD = ../../src/rofl/librofl.la 
 	-lpthread \
 	-lrt 

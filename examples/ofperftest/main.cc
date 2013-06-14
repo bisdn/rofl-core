@@ -4,6 +4,7 @@
 #include "match_eth_dst.h"
 #include "match_vlan_id.h"
 #include "ipswitching.h"
+#include "mmap_test.h"
 
 void usage(int argc, char** argv);
 void parse_args(int argc, char** argv);
@@ -36,6 +37,8 @@ main(int argc, char** argv)
 		perftest = new match_vlan_id(n_entries);
 	} else if (s_testcase == std::string("ipswitching")) {
 		perftest = new ipswitching(n_entries);
+	} else if (s_testcase == std::string("mmap_test")) {
+		perftest = new mmap_test(n_entries);
 	} else {
 		fprintf(stderr, "testcase %s not found, aborting\n", s_testcase.c_str());
 		exit(1);
