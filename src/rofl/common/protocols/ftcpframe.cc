@@ -183,8 +183,8 @@ ftcpframe::tcp_calc_checksum(
 
 	for (int i = 0; i < wnum; i++){
 		sum += (uint32_t)word16[i];
-		if (sum & 0x80000000)
-			sum = (sum & 0xFFFF) + (sum >> 16);
+//		if (sum & 0x80000000)
+//			sum = (sum & 0xFFFF) + (sum >> 16);
 	}
 	
 	if(length & 0x1)
@@ -192,9 +192,9 @@ ftcpframe::tcp_calc_checksum(
 		sum += (uint32_t)( ((uint8_t*)(void*)tcp_hdr)[length-1]);
 
 	//Fold it
-	while (sum >> 16) 
-		sum = (sum & 0xFFFF)+(sum >> 16);
-	//sum += (sum >> 16);
+//	while (sum >> 16) 
+//		sum = (sum & 0xFFFF)+(sum >> 16);
+	sum += (sum >> 16);
 
 	tcp_hdr->checksum =(uint16_t) ~sum;
 
