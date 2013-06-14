@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-CXXFLAGS = -std=gnu++11
+AM_CXXFLAGS = -std=gnu++11
 frames_SOURCES= frames.cc
 frames_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 
