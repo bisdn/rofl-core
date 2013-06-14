@@ -23,7 +23,8 @@ class mmap_test :
 {
 private:
 
-#define MMAP_TEST_DEFAULT_PKT_INTERVAL 1
+#define MMAP_TEST_DEFAULT_BURST_INTERVAL 1
+#define MMAP_TEST_DEFAULT_PKT_INTERVAL 500000
 #define MMAP_TEST_DEFAULT_PKT_LEN 64
 
 	enum mmap_test_timer_t {
@@ -35,15 +36,18 @@ private:
 	caddress			 laddr; 			// local address
 
 	std::set<caddress>	 raddrs;			// set of remote addresses to send UDP packets to
-	unsigned int 		 pkt_interval;		// interval between sending packets
+	unsigned int 		 burst_interval;	// interval between bursts of packets
+	unsigned int		 pkt_interval;		// delay between packets within a single burst
 	size_t				 pkt_len;			// length of UDP payload in bytes
 	uint64_t			 seqno;				// sequence number of payload of UDP packets
+	uint16_t			 dport;
 
 public:
 
 	mmap_test(
 			caddress const& laddr = caddress(AF_INET, "0.0.0.0", 4444),
-			uint64_t pkt_interval = MMAP_TEST_DEFAULT_PKT_INTERVAL /* seconds */,
+			unsigned int burst_interval = MMAP_TEST_DEFAULT_BURST_INTERVAL,
+			unsigned int pkt_interval = MMAP_TEST_DEFAULT_PKT_INTERVAL,
 			size_t pkt_len = MMAP_TEST_DEFAULT_PKT_LEN /* bytes */);
 
 	virtual

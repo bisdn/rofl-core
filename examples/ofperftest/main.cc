@@ -13,6 +13,8 @@ std::string s_testcase;
 unsigned int n_entries = 0;
 std::string s_destip("127.0.0.1");
 uint16_t destport = 5555;
+unsigned int burst_interval = 10;
+unsigned int pkt_interval = 500000;
 
 int
 main(int argc, char** argv)
@@ -40,7 +42,7 @@ main(int argc, char** argv)
 	} else if (s_testcase == std::string("ipswitching")) {
 		perftest = new ipswitching(n_entries);
 	} else if (s_testcase == std::string("mmap_test")) {
-		mmap_test *mmaptest = new mmap_test();
+		mmap_test *mmaptest = new mmap_test(caddress(AF_INET, "0.0.0.0", 4444), burst_interval, pkt_interval);
 		mmaptest->udp_start_sending(caddress(AF_INET, s_destip.c_str(), destport));
 		perftest = mmaptest;
 	} else {
@@ -80,13 +82,15 @@ parse_args(int argc, char** argv)
 	    {"entries", required_argument, 0, 0},
 	    {"destip", required_argument, 0, 0},
 	    {"destport", required_argument, 0, 0},
+	    {"burstinterval", required_argument, 0, 0},
+	    {"pktinterval", required_argument, 0, 0},
 	    {0, 0, 0, 0}
 	};
 
 
 
 	while (1) {
-		int c = getopt_long (argc, argv, "t:e:i:p:", long_options, &option_index);
+		int c = getopt_long (argc, argv, "t:e:i:p:b:v:", long_options, &option_index);
 		if (c == -1)
 			break;
 
@@ -105,6 +109,14 @@ parse_args(int argc, char** argv)
 
 		case 'p':
 			destport = atoi(optarg);
+			break;
+
+		case 'b':
+			burst_interval = atoi(optarg);
+			break;
+
+		case 'v':
+			pkt_interval = atoi(optarg);
 			break;
 
 		case '?':
