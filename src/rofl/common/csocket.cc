@@ -467,6 +467,9 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 			int flags = MSG_NOSIGNAL;
 			if ((rc = sendto(sd, entry.mem->somem(), entry.mem->memlen(), flags, entry.dest.ca_saddr, entry.dest.salen)) < 0)
 			{
+				fprintf(stderr, "csocket(%p)::dequeue_packet() "
+						"errno=%d (%s) pack: %s\n",
+						this, errno, strerror(errno), entry.mem->c_str());
 				WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
 						"errno=%d (%s) pack: %s",
 						this, errno, strerror(errno), entry.mem->c_str());

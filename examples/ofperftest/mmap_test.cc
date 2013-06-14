@@ -65,7 +65,7 @@ mmap_test::udp_send()
 {
 	cmemory payload(pkt_len);
 
-	for (int j = 0; j < 1024; j++) {
+	for (int j = 0; j < 1; j++) {
 		for (unsigned int i = 0; i < (pkt_len / sizeof(uint64_t)); i++) {
 			payload[0+i*sizeof(uint64_t)] = ((uint8_t*)&seqno)[7];
 			payload[1+i*sizeof(uint64_t)] = ((uint8_t*)&seqno)[6];
@@ -88,19 +88,20 @@ mmap_test::udp_send()
 		for (std::set<caddress>::iterator
 				it = raddrs.begin(); it != raddrs.end(); ++it) {
 
-
+			caddress ra(*it);
 			caddress raddr(*it);
-			fprintf(stderr, "seqno: %lu dport: %d laddr: %s raddr:       %s\n", seqno, dport, laddr.c_str(), raddr.c_str());
 			raddr.ca_s4addr->sin_port += htobe16(dport);
-			fprintf(stderr, "seqno: %lu dport: %d laddr: %s raddr+dport: %s\n", seqno, dport, laddr.c_str(), raddr.c_str());
+			fprintf(stderr, "seqno: %lu dport: %d laddr: %s raddr(orig): %s raddr(dport): %s\n",
+					seqno, dport, laddr.c_str(), ra.c_str(), raddr.c_str());
 
 			sock->send_packet(new cmemory(payload), raddr);
 
-
+#if 1
 			struct timeval timeout;
 			timeout.tv_sec = 0;
 			timeout.tv_usec = pkt_interval; /* default: 100ms */
 			select(0, 0, 0, 0, &timeout);
+#endif
 		}
 	}
 
