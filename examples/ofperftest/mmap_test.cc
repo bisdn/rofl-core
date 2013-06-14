@@ -65,7 +65,6 @@ mmap_test::udp_send()
 {
 	cmemory payload(pkt_len);
 
-	for (int j = 0; j < 1024; j++) {
 		for (unsigned int i = 0; i < (pkt_len / sizeof(uint64_t)); i++) {
 			payload[0+i*sizeof(uint64_t)] = ((uint8_t*)&seqno)[7];
 			payload[1+i*sizeof(uint64_t)] = ((uint8_t*)&seqno)[6];
@@ -103,7 +102,6 @@ mmap_test::udp_send()
 			select(0, 0, 0, 0, &timeout);
 #endif
 		}
-	}
 
 	register_timer(MMAP_TEST_TIMER_PKT_INTERVAL, burst_interval);
 }
