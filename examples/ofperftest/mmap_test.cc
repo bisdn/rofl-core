@@ -89,7 +89,8 @@ mmap_test::udp_send()
 
 			caddress ra(*it);
 			caddress raddr(*it);
-			raddr.ca_s4addr->sin_port += htobe16(dport);
+			raddr.ca_s4addr->sin_port = htobe16(dport);
+
 			fprintf(stderr, "seqno: %lu dport: %d laddr: %s raddr(orig): %s raddr(dport): %s\n",
 					seqno, dport, laddr.c_str(), ra.c_str(), raddr.c_str());
 
