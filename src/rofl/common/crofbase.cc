@@ -1475,6 +1475,8 @@ crofbase::send_packet_in_message(
 				throw eRofBaseNotConnected();
 			}
 
+			bool no_active_ctl = true;
+
 			for (std::set<cfspentry*>::iterator
 					it = nse_list.begin(); it != nse_list.end(); ++it)
 			{
@@ -1489,6 +1491,8 @@ crofbase::send_packet_in_message(
 				if (not ctl->is_established()) {
 					continue;
 				}
+
+				no_active_ctl = false;
 
 				cofmsg_packet_in *pack =
 						new cofmsg_packet_in(
@@ -1514,6 +1518,10 @@ crofbase::send_packet_in_message(
 				ctl_find(ctl)->send_message(pack);
 			}
 
+			if (no_active_ctl) {
+				throw eRofBaseNotConnected();
+			}
+
 			return;
 
 		} else { // cofctl was not specified and there is no flowspace registration active
@@ -1521,6 +1529,8 @@ crofbase::send_packet_in_message(
 			if (ofctl_set.empty()) {
 				throw eRofBaseNotConnected();
 			}
+
+			bool no_active_ctl = true;
 
 			for (std::set<cofctl*>::iterator it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
 
@@ -1531,6 +1541,8 @@ crofbase::send_packet_in_message(
 				if (not (*it)->is_established()) {
 					continue;
 				}
+
+				no_active_ctl = false;
 
 				cofmsg_packet_in *pack =
 						new cofmsg_packet_in(
@@ -1554,6 +1566,10 @@ crofbase::send_packet_in_message(
 
 				// straight call to layer-(n+1) entity's fe_up_packet_in() method
 				ctl_find(*it)->send_message(pack);
+			}
+
+			if (no_active_ctl) {
+				throw eRofBaseNotConnected();
 			}
 		}
 
