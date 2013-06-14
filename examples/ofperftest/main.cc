@@ -11,6 +11,8 @@ void parse_args(int argc, char** argv);
 
 std::string s_testcase;
 unsigned int n_entries = 0;
+std::string s_destip("127.0.0.1");
+uint16_t destport = 5555;
 
 int
 main(int argc, char** argv)
@@ -38,7 +40,9 @@ main(int argc, char** argv)
 	} else if (s_testcase == std::string("ipswitching")) {
 		perftest = new ipswitching(n_entries);
 	} else if (s_testcase == std::string("mmap_test")) {
-		perftest = new mmap_test(n_entries);
+		mmap_test *mmaptest = new mmap_test();
+		mmaptest->udp_start_sending(caddress(AF_INET, s_destip.c_str(), destport));
+		perftest = mmaptest;
 	} else {
 		fprintf(stderr, "testcase %s not found, aborting\n", s_testcase.c_str());
 		exit(1);
@@ -74,13 +78,15 @@ parse_args(int argc, char** argv)
 	static struct option long_options[] = {
 	    {"testcase", required_argument, 0, 0},
 	    {"entries", required_argument, 0, 0},
+	    {"destip", required_argument, 0, 0},
+	    {"destport", required_argument, 0, 0},
 	    {0, 0, 0, 0}
 	};
 
 
 
 	while (1) {
-		int c = getopt_long (argc, argv, "t:e:", long_options, &option_index);
+		int c = getopt_long (argc, argv, "t:e:i:p:", long_options, &option_index);
 		if (c == -1)
 			break;
 
@@ -91,6 +97,14 @@ parse_args(int argc, char** argv)
 
 		case 'e':
 			n_entries = atoi(optarg);
+			break;
+
+		case 'i':
+			s_destip.assign(optarg);
+			break;
+
+		case 'p':
+			destport = atoi(optarg);
 			break;
 
 		case '?':

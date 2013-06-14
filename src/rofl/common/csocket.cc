@@ -421,8 +421,8 @@ csocket::cclose()
 
 	// purge pout_squeue
 	while (not pout_squeue.empty()) {
-		cmemory *mem = pout_squeue.front();
-		delete mem;
+		pout_entry_t entry = pout_squeue.front();
+		delete entry.mem;
 		pout_squeue.pop_front();
 	}
 
@@ -431,7 +431,7 @@ csocket::cclose()
 
 
 void
-csocket::send_packet(cmemory* pack)
+csocket::send_packet(cmemory* pack, caddress const& dest)
 {
 	WRITELOG(CSOCKET, DBG, "csocket(%p)::send_packet() pack: %s", this, pack->c_str());
 	if (not sockflags.test(CONNECTED) && not sockflags.test(RAW_SOCKET))
@@ -443,7 +443,7 @@ csocket::send_packet(cmemory* pack)
 
 	RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
 
-	pout_squeue.push_back(pack);
+	pout_squeue.push_back(pout_entry_t(pack, dest));
 	register_filedesc_w(sd);
 }
 
@@ -461,14 +461,15 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 
 		while (not pout_squeue.empty())
 		{
-			cmemory *pack = pout_squeue.front();
+			pout_entry_t entry = pout_squeue.front();
+			//cmemory *pack = pout_squeue.front();
 
 			int flags = MSG_NOSIGNAL;
-			if ((rc = sendto(sd, pack->somem(), pack->memlen(), flags, NULL, 0)) < 0)
+			if ((rc = sendto(sd, entry.mem->somem(), entry.mem->memlen(), flags, entry.dest.ca_saddr, entry.dest.salen)) < 0)
 			{
 				WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
 						"errno=%d (%s) pack: %s",
-						this, errno, strerror(errno), pack->c_str());
+						this, errno, strerror(errno), entry.mem->c_str());
 
 				switch (errno) {
 				case EAGAIN:
@@ -480,16 +481,16 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 				case EMSGSIZE:
 					WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
 							"dropping packet, errno=%d (%s) pack: %s",
-							this, errno, strerror(errno), pack->c_str());
+							this, errno, strerror(errno), entry.mem->c_str());
 					break;
 				default:
 					WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
 							"errno=%d (%s) pack: %s",
-							this, errno, strerror(errno), pack->c_str());
+							this, errno, strerror(errno), entry.mem->c_str());
 					throw eSocketSendFailed();
 				}
 			}
-			else if ((rc < (int)pack->memlen()))
+			else if ((rc < (int)entry.mem->memlen()))
 			{
 				throw eSocketShortSend();
 			}
@@ -499,7 +500,7 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 
 			pout_squeue.pop_front();
 
-			delete pack;
+			delete entry.mem;
 		}
 
 		if (pout_squeue.empty())

@@ -148,8 +148,26 @@ class csocket :
 {
 private:
 
+	struct pout_entry_t {
+		cmemory *mem;
+		caddress dest;
+		pout_entry_t(cmemory *mem = 0, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0)) :
+			mem(mem), dest(dest) {};
+		pout_entry_t(pout_entry_t const& e) :
+			mem(0), dest(caddress(AF_INET, "0.0.0.0", 0)) {
+			*this = e;
+		};
+		struct pout_entry_t&
+		operator= (pout_entry_t const& e) {
+			if (this == &e) return *this;
+			mem = e.mem;
+			dest = e.dest;
+			return *this;
+		};
+	};
+
 	pthread_rwlock_t			pout_squeue_lock;	/**< rwlock for access to pout_squeue */
-	std::list<cmemory*> 		pout_squeue; 		/**< queue of outgoing packets */
+	std::list<pout_entry_t> 	pout_squeue; 		/**< queue of outgoing packets */
 
 	static std::set<csocket*> 	csock_list; 		/**< list of all csocket instances */
 
@@ -315,7 +333,7 @@ public:
 	 * @param mem cmemory instance to be sent out
 	 */
 	virtual void
-	send_packet(cmemory *mem);
+	send_packet(cmemory *mem, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0));
 
 
 
