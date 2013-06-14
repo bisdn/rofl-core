@@ -48,8 +48,8 @@ main(int argc, char** argv)
 		exit(1);
 	}
 
-	perftest->rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
-	perftest->rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));
+	//perftest->rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
+	//perftest->rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));
 
 	perftest->run();
 
