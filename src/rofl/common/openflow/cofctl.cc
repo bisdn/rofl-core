@@ -188,7 +188,13 @@ cofctl::handle_timeout(
 		{
 			if (socket)
 			{
-				socket->cconnect(socket->raddr, caddress(AF_INET, "0.0.0.0"), socket->domain, socket->type, socket->protocol);
+				new_state(STATE_CTL_CONNECTING);
+
+				socket->cconnect(socket->raddr,
+						caddress(AF_INET, "0.0.0.0"),
+						socket->domain,
+						socket->type,
+						socket->protocol);
 			}
 		}
 		break;
@@ -376,6 +382,8 @@ cofctl::handle_closed(
 
 	cancel_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT);
 	cancel_timer(COFCTL_TIMER_SEND_ECHO_REQUEST);
+
+	new_state(STATE_CTL_DISCONNECTED);
 
 	if (flags.test(COFCTL_FLAG_ACTIVE_SOCKET))
 	{
