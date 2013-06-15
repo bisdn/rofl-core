@@ -86,6 +86,7 @@ extern "C" {
 #include "openflow/messages/cofmsg_queue_get_config.h"
 #include "openflow/messages/cofmsg_role.h"
 #include "openflow/messages/cofmsg_experimenter.h"
+#include "openflow/messages/cofmsg_async_config.h"
 
 namespace rofl
 {
@@ -1284,6 +1285,55 @@ protected:
 	virtual void
 	handle_role_reply_timeout(cofdpt *dpt) {};
 
+
+	/**
+	 * @brief	Called once a GET-ASYNC-CONFIG.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the GET-ASYNC-CONFIG.request was received
+	 * @param msg Pointer to cofmsg_get_async_config_request message containing the received message
+	 */
+	virtual void
+	handle_get_async_config_request(cofctl *ctl, cofmsg_get_async_config_request *msg) { delete msg; };
+
+
+
+	/**
+	 * @brief	Called once a GET-ASYNC-CONFIG.reply message was received from a data path element.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt Pointer to cofdpt instance from which the GET-ASYNC-CONFIG.reply was received
+	 * @param msg Pointer to cofmsg_get_async_config_reply message containing the received message
+	 */
+	virtual void
+	handle_get_async_config_reply(cofdpt *dpt, cofmsg_get_async_config_reply *msg) { delete msg; };
+
+
+	/**
+	 * @brief	Called once a timer expires for a GET-ASYNC-CONFIG.reply message.
+	 *
+	 * Default behaviour: deletes cofdpt instance, thus effectively closing the control connection.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 */
+	virtual void
+	handle_get_async_config_reply_timeout(cofdpt *dpt);
+
+
+	/**
+	 * @brief	Called once an SET-ASYNC-CONFIG.message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the SET-ASYNC-MESSAGE.message was received
+	 * @param msg Pointer to cofmsg_set_async_config message containing the received message
+	 */
+	virtual void
+	handle_set_async_config(cofctl *ctl, cofmsg_set_async_config *msg) { delete msg; };
+
+
 	/**@}*/
 
 
@@ -2295,6 +2345,64 @@ protected:
 			uint32_t role,
 			uint64_t generation_id);
 
+
+
+	/**
+	 * @brief	Sends a GET-ASYNC-CONFIG.request to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @return transaction ID assigned to this request
+	 */
+	virtual uint32_t
+	send_get_async_config_request(
+		cofdpt *dpt);
+
+
+
+	/**
+	 * @brief	Sends a GET-ASYNC-CONFIG.reply to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID from GET-CONFIG.request
+	 * @param packet_in_mask0 packet_in_mask[0]
+	 * @param packet_in_mask1 packet_in_mask[1]
+	 * @param port_status_mask0 port_status_mask[0]
+	 * @param port_status_mask1 port_status_mask[1]
+	 * @param flow_removed_mask0 flow_removed_mask[0]
+	 * @param flow_removed_mask1 flow_removed_mask[1]
+	 */
+	virtual void
+	send_get_async_config_reply(
+			cofctl *ctl,
+			uint32_t xid,
+			uint32_t packet_in_mask0,
+			uint32_t packet_in_mask1,
+			uint32_t port_status_mask0,
+			uint32_t port_status_mask1,
+			uint32_t flow_removed_mask0,
+			uint32_t flow_removed_mask1);
+
+
+	/**
+	 * @brief	Sends a SET-ASYNC-CONFIG.message to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param packet_in_mask0 packet_in_mask[0]
+	 * @param packet_in_mask1 packet_in_mask[1]
+	 * @param port_status_mask0 port_status_mask[0]
+	 * @param port_status_mask1 port_status_mask[1]
+	 * @param flow_removed_mask0 flow_removed_mask[0]
+	 * @param flow_removed_mask1 flow_removed_mask[1]
+	 */
+	virtual void
+	send_set_async_config_message(
+		cofdpt *dpt,
+		uint32_t packet_in_mask0,
+		uint32_t packet_in_mask1,
+		uint32_t port_status_mask0,
+		uint32_t port_status_mask1,
+		uint32_t flow_removed_mask0,
+		uint32_t flow_removed_mask1);
 
 	/**@}*/
 

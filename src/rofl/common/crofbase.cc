@@ -2242,6 +2242,105 @@ crofbase::send_experimenter_message(
 
 
 
+/*
+ * GET-ASYNC-CONFIG request/reply
+ */
+uint32_t
+crofbase::send_get_async_config_request(
+		cofdpt *dpt)
+{
+	uint32_t xid = 0;
+
+	cofmsg_get_async_config_request *msg =
+			new cofmsg_get_async_config_request(
+					dpt->get_version(),
+					ta_add_request(OFPT_GET_ASYNC_REQUEST));
+
+	xid = msg->get_xid();
+
+	dpt_find(dpt)->send_message(msg);
+
+	return xid;
+}
+
+
+
+void
+crofbase::send_get_async_config_reply(
+		cofctl *ctl,
+		uint32_t xid,
+		uint32_t packet_in_mask0,
+		uint32_t packet_in_mask1,
+		uint32_t port_status_mask0,
+		uint32_t port_status_mask1,
+		uint32_t flow_removed_mask0,
+		uint32_t flow_removed_mask1)
+{
+	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_get_async_config_reply()", this);
+
+	cofmsg_get_async_config_reply *msg =
+			new cofmsg_get_async_config_reply(
+					ctl->get_version(),
+					OFPT_GET_ASYNC_REPLY,
+					xid,
+					packet_in_mask0,
+					packet_in_mask1,
+					port_status_mask0,
+					port_status_mask1,
+					flow_removed_mask0,
+					flow_removed_mask1);
+
+	ctl_find(ctl)->send_message(msg);
+}
+
+
+
+void
+crofbase::handle_get_async_config_reply_timeout(cofdpt *dpt)
+{
+
+}
+
+
+
+/*
+ * SET-ASYNC-CONFIG message
+ */
+
+
+void
+crofbase::send_set_async_config_message(
+	cofdpt *dpt,
+	uint32_t packet_in_mask0,
+	uint32_t packet_in_mask1,
+	uint32_t port_status_mask0,
+	uint32_t port_status_mask1,
+	uint32_t flow_removed_mask0,
+	uint32_t flow_removed_mask1)
+{
+	cofmsg_set_async_config *msg =
+			new cofmsg_set_async_config(
+					dpt->get_version(),
+					OFPT_SET_ASYNC,
+					ta_new_async_xid(),
+					packet_in_mask0,
+					packet_in_mask1,
+					port_status_mask0,
+					port_status_mask1,
+					flow_removed_mask0,
+					flow_removed_mask1);
+
+	dpt_find(dpt)->send_message(msg);
+}
+
+
+
+
+
+
+
+
+
 
 
 uint32_t

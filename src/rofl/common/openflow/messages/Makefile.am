@@ -59,7 +59,8 @@ libopenflow_messages_la_SOURCES = \
 	cofmsg_stats.cc \
 	cofmsg_table_mod.cc \
 	cofmsg_table_stats.cc \
-	cofmsg_experimenter.cc
+	cofmsg_experimenter.cc \
+	cofmsg_async_config.cc
 
 library_includedir=$(includedir)/rofl/common/openflow/messages
 library_include_HEADERS = \
@@ -91,4 +92,5 @@ library_include_HEADERS = \
 	cofmsg_stats.h \
 	cofmsg_table_mod.h \
 	cofmsg_table_stats.h \
-	cofmsg_experimenter.h
+	cofmsg_experimenter.h \
+	cofmsg_async_config.h
