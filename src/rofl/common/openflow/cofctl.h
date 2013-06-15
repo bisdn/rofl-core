@@ -53,6 +53,7 @@ extern "C" {
 #include "../openflow/messages/cofmsg_queue_get_config.h"
 #include "../openflow/messages/cofmsg_role.h"
 #include "../openflow/messages/cofmsg_experimenter.h"
+#include "../openflow/messages/cofmsg_async_config.h"
 
 
 #include "cofmatch.h"
@@ -382,6 +383,22 @@ private:
 	 */
 	void
 	queue_get_config_reply_sent(cofmsg *pack);
+
+	/**
+	 */
+	void
+	get_async_config_request_rcvd(cofmsg_get_async_config_request *pack);
+
+	/**
+	 */
+	void
+	set_async_config_rcvd(cofmsg_set_async_config *pack);
+
+	/**
+	 *
+	 */
+	void
+	get_async_config_reply_sent(cofmsg *pack);
 
 //protected: // methods
 

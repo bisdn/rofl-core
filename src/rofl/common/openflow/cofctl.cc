@@ -153,6 +153,9 @@ cofctl::send_message(
     case OFPT_ROLE_REPLY: {
 		role_reply_sent(pack);
 	} break;
+    case OFPT_GET_ASYNC_REPLY: {
+    	get_async_config_reply_sent(pack);
+    } break;
     default: {
 		WRITELOG(COFCTL, WARN, "cofctl(%p)::send_message() "
 						"dropping invalid packet: %s", this, pack->c_str());
@@ -563,6 +566,16 @@ cofctl::handle_message(
 			msg->validate();
 			role_request_rcvd(dynamic_cast<cofmsg_role_request*>( msg ));
 		} break;
+	    case OFPT_GET_ASYNC_REQUEST: {
+	    	msg = new cofmsg_get_async_config_request(mem);
+	    	msg->validate();
+	    	get_async_config_request_rcvd(dynamic_cast<cofmsg_get_async_config_request*>( msg ));
+	    } break;
+	    case OFPT_SET_ASYNC: {
+	    	msg = new cofmsg_set_async_config(mem);
+	    	msg->validate();
+	    	set_async_config_rcvd(dynamic_cast<cofmsg_set_async_config*>( msg ));
+	    } break;
 		default: {
 			WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
 					"dropping unknown packet: %s", this, mem->c_str());
@@ -2327,6 +2340,50 @@ cofctl::handle_echo_reply_timeout()
 	}
 	rofbase->handle_ctl_close(this);
 }
+
+
+void
+cofctl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg)
+{
+	try {
+		xidstore.xid_add(this, msg->get_xid());
+
+	} catch (eXidStoreXidBusy& e) {
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::role_request_rcvd() retransmission xid:0x%x",
+				this, msg->get_xid());
+	}
+
+	// TODO: handle request
+}
+
+
+
+void
+cofctl::set_async_config_rcvd(cofmsg_set_async_config *msg)
+{
+	// TODO: handle request here in this cofctl instance
+	rofbase->handle_set_async_config(this, msg);
+}
+
+
+
+void
+cofctl::get_async_config_reply_sent(cofmsg *msg)
+{
+	uint32_t xid = msg->get_xid();
+	try {
+
+		xidstore.xid_find(xid);
+
+		xidstore.xid_rem(xid);
+
+	} catch (eXidStoreNotFound& e) {
+		WRITELOG(COFCTL, WARN, "cofctl(%p)::get_async_config_reply_sent() "
+				"xid:0x%x not found",
+				this, xid);
+	}
+}
+
 
 
 
