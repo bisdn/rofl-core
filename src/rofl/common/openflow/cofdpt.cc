@@ -31,7 +31,8 @@ cofdpt::cofdpt(
 				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
-				barrier_reply_timeout(DEFAULT_DB_BARRIER_REPLY_TIMEOUT)
+				barrier_reply_timeout(DEFAULT_DP_BARRIER_REPLY_TIMEOUT),
+				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT)
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::cofdpt() "
 			"dpid:%"PRIu64" ", this, dpid);
@@ -72,7 +73,8 @@ cofdpt::cofdpt(
 				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
-	barrier_reply_timeout(DEFAULT_DB_BARRIER_REPLY_TIMEOUT)
+				barrier_reply_timeout(DEFAULT_DP_BARRIER_REPLY_TIMEOUT),
+				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT)
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::cofdpt() "
 			"dpid:%"PRIu64" ",
@@ -444,6 +446,12 @@ cofdpt::handle_message(
 			msg->validate();
 			role_reply_rcvd(dynamic_cast<cofmsg_role_reply*>( msg ));
 		} break;
+		case OFPT_GET_ASYNC_REPLY: {
+			rofbase->ta_validate(be32toh(ofh_header->xid), OFPT_GET_ASYNC_REQUEST);
+			msg = new cofmsg_get_async_config_reply(mem);
+			msg->validate();
+			get_async_config_reply_rcvd(dynamic_cast<cofmsg_get_async_config_reply*>( msg ));
+		} break;
 		default: {
 			WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
 					"dropping packet: %s", this, mem->c_str());
@@ -504,7 +512,8 @@ cofdpt::send_message(
 	case OFPT_FLOW_MOD:
 	case OFPT_GROUP_MOD:
 	case OFPT_PORT_MOD:
-	case OFPT_TABLE_MOD: {
+	case OFPT_TABLE_MOD:
+	case OFPT_SET_ASYNC: {
 		// asynchronous messages, no transaction => do nothing here
 	} break;
 	case OFPT_FEATURES_REQUEST: {
@@ -525,6 +534,9 @@ cofdpt::send_message(
 	case OFPT_ROLE_REQUEST: {
 		role_request_sent(msg);
 	} break;
+	case OFPT_GET_ASYNC_REQUEST: {
+		get_async_config_request_sent(msg);
+	} break;
 	default: {
 		WRITELOG(COFDPT, WARN, "cofdpt(%p)::send_message() "
 				"dropping invalid packet: %s", this, msg->c_str());
@@ -541,69 +553,51 @@ void
 cofdpt::handle_timeout(int opaque)
 {
 	switch (opaque) {
-	case COFDPT_TIMER_SEND_HELLO:
-		{
-			rofbase->send_hello_message(this);
+	case COFDPT_TIMER_SEND_HELLO: {
+		rofbase->send_hello_message(this);
 
-			flags.set(COFDPT_FLAG_HELLO_SENT);
+		flags.set(COFDPT_FLAG_HELLO_SENT);
 
-			if (flags.test(COFDPT_FLAG_HELLO_RCVD))
-			{
-				rofbase->send_features_request(this);
+		if (flags.test(COFDPT_FLAG_HELLO_RCVD))
+		{
+			rofbase->send_features_request(this);
 
-				rofbase->send_echo_request(this);
-			}
-		}
-		break;
-	case COFDPT_TIMER_FEATURES_REQUEST:
-		{
-		    rofbase->send_features_request(this);
-		}
-		break;
-	case COFDPT_TIMER_FEATURES_REPLY:
-		{
-			handle_features_reply_timeout();
-		}
-		break;
-	case COFDPT_TIMER_GET_CONFIG_REPLY:
-		{
-			handle_get_config_reply_timeout();
-		}
-		break;
-	case COFDPT_TIMER_STATS_REPLY:
-		{
-			handle_stats_reply_timeout();
-		}
-		break;
-	case COFDPT_TIMER_BARRIER_REPLY:
-		{
-			handle_barrier_reply_timeout();
-		}
-		break;
-	case COFDPT_TIMER_RECONNECT:
-		{
-			if (socket)
-			{
-				socket->cconnect(socket->raddr, caddress(AF_INET, "0.0.0.0"), socket->domain, socket->type, socket->protocol);
-			}
-		}
-		break;
-	case COFDPT_TIMER_SEND_ECHO_REQUEST:
-		{
 			rofbase->send_echo_request(this);
 		}
-		break;
-	case COFDPT_TIMER_ECHO_REPLY:
-		{
-			handle_echo_reply_timeout();
+	} break;
+	case COFDPT_TIMER_FEATURES_REQUEST: {
+		rofbase->send_features_request(this);
+	} break;
+	case COFDPT_TIMER_FEATURES_REPLY: {
+		handle_features_reply_timeout();
+	} break;
+	case COFDPT_TIMER_GET_CONFIG_REPLY: {
+		handle_get_config_reply_timeout();
+	} break;
+	case COFDPT_TIMER_STATS_REPLY: {
+		handle_stats_reply_timeout();
+	} break;
+	case COFDPT_TIMER_BARRIER_REPLY: {
+		handle_barrier_reply_timeout();
+	} break;
+	case COFDPT_TIMER_RECONNECT: {
+		if (socket) {
+			socket->cconnect(socket->raddr, caddress(AF_INET, "0.0.0.0"), socket->domain, socket->type, socket->protocol);
 		}
-		break;
-	default:
-		{
-			WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_timeout() "
-					"unknown timer event %d", this, opaque);
-		}
-		break;
+	} break;
+	case COFDPT_TIMER_SEND_ECHO_REQUEST: {
+		rofbase->send_echo_request(this);
+	} break;
+	case COFDPT_TIMER_ECHO_REPLY: {
+		handle_echo_reply_timeout();
+	} break;
+	case COFDPT_TIMER_GET_ASYNC_CONFIG_REPLY: {
+		handle_get_async_config_reply_timeout();
+	} break;
+	default: {
+		WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_timeout() "
+				"unknown timer event %d", this, opaque);
+	} break;
 	}
 }
 
@@ -1320,6 +1314,43 @@ cofdpt::queue_get_config_reply_rcvd(
 		cofmsg_queue_get_config_reply *pack)
 {
 	rofbase->handle_queue_get_config_reply(this, pack);
+}
+
+
+void
+cofdpt::get_async_config_request_sent(
+		cofmsg *pack)
+{
+	register_timer(COFDPT_TIMER_GET_ASYNC_CONFIG_REPLY, get_async_config_reply_timeout);
+}
+
+
+
+void
+cofdpt::get_async_config_reply_rcvd(
+		cofmsg_get_async_config_reply *msg)
+{
+	cancel_timer(COFDPT_TIMER_GET_ASYNC_CONFIG_REPLY);
+
+	// TODO: store mask values into local variables?
+
+	WRITELOG(COFDPT, DBG, "cofdpt(%p)::get_async_config_reply_rcvd() "
+			"dpid:%"PRIu64" ",
+			this, dpid);
+
+	rofbase->handle_get_async_config_reply(this, msg);
+}
+
+
+
+void
+cofdpt::handle_get_async_config_reply_timeout()
+{
+	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_get_async_config_reply_timeout() "
+			"dpid:%"PRIu64" ",
+			this, dpid);
+
+	rofbase->handle_get_async_config_reply_timeout(this);
 }
 
 

@@ -63,6 +63,7 @@ extern "C" {
 #include "../openflow/messages/cofmsg_queue_get_config.h"
 #include "../openflow/messages/cofmsg_role.h"
 #include "../openflow/messages/cofmsg_experimenter.h"
+#include "../openflow/messages/cofmsg_async_config.h"
 
 
 namespace rofl
@@ -122,6 +123,8 @@ private: // data structures
 			COFDPT_TIMER_ECHO_REPLY	        = ((COFDPT_TIMER_BASE) << 16 | (0x0c << 8)),
 			COFDPT_TIMER_SEND_ECHO_REQUEST	= ((COFDPT_TIMER_BASE) << 16 | (0x0d << 8)),
 			COFDPT_TIMER_SEND_HELLO         = ((COFDPT_TIMER_BASE) << 16 | (0x0e << 8)),
+			COFDPT_TIMER_GET_ASYNC_CONFIG_REQUEST = ((COFDPT_TIMER_BASE) << 16 | (0x0f << 8)),
+			COFDPT_TIMER_GET_ASYNC_CONFIG_REPLY = ((COFDPT_TIMER_BASE) << 16 | (0x10 << 8)),
 		};
 
 		/* cofdpt state types */
@@ -141,10 +144,11 @@ private: // data structures
 			COFDPT_FLAG_HELLO_SENT			= (1 << 2),
 		};
 
-#define DEFAULT_DP_FEATURES_REPLY_TIMEOUT 		10
-#define DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT 	10
-#define DEFAULT_DP_STATS_REPLY_TIMEOUT 			10
-#define DEFAULT_DB_BARRIER_REPLY_TIMEOUT 		10
+#define DEFAULT_DP_FEATURES_REPLY_TIMEOUT 			10
+#define DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT 		10
+#define DEFAULT_DP_STATS_REPLY_TIMEOUT 				10
+#define DEFAULT_DP_BARRIER_REPLY_TIMEOUT 			10
+#define DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT	10
 
 		std::bitset<32>                 flags;
 
@@ -179,6 +183,8 @@ private: // data structures
 		int 							 get_config_reply_timeout;
 		int 							 stats_reply_timeout;
 		int 							 barrier_reply_timeout;
+		int 							 get_async_config_reply_timeout;
+
 
 public:
 
@@ -822,6 +828,32 @@ private:
 			cofmsg_queue_get_config_reply *msg);
 
 
+	/**
+	 * @name	get_async_config_request_sent
+	 * @brief	Called by crofbase when a GET-ASYNC-CONFIG-request was sent.
+	 *
+	 * Starts an internal timer for the expected GET-ASYNC-CONFIG-reply.
+	 */
+	void
+	get_async_config_request_sent(
+			cofmsg *msg);
+
+
+	/**
+	 * @name	get_async_config_reply_rcvd
+	 * @brief	Called by crofbase when a GET-ASYNC-CONFIG-reply was received.
+	 *
+	 * Cancels the internal timer waiting for GET-ASYNC-CONFIG-reply.
+	 * Stores parameters received in internal variables.
+	 * Starts timer for sending a TABLE-STATS-request.
+	 *
+	 * @param[in] pack The OpenFlow message received.
+	 */
+	void
+	get_async_config_reply_rcvd(
+			cofmsg_get_async_config_reply *msg);
+
+
 
 private:
 
@@ -853,6 +885,12 @@ private:
 	 */
 	void
 	handle_barrier_reply_timeout();
+
+
+	/** handle GET-ASYNC-CONFIG reply timeout
+	 */
+	void
+	handle_get_async_config_reply_timeout();
 
 
 private:
