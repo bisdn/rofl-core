@@ -240,11 +240,12 @@ public:
 	~cofmeter_band_drop();
 
 
+
 	/**
 	 *
 	 */
 	cofmeter_band_drop(
-			cofmeter_band_drop const& mb);
+			cofmeter_band const& mb);
 
 
 
@@ -320,7 +321,7 @@ public:
 	 *
 	 */
 	cofmeter_band_dscp_remark(
-			cofmeter_band_dscp_remark const& mb);
+			cofmeter_band const& mb);
 
 
 
@@ -416,7 +417,7 @@ public:
 	 *
 	 */
 	cofmeter_band_expr(
-			cofmeter_band_expr const& mb);
+			cofmeter_band const& mb);
 
 
 	/**

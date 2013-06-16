@@ -293,8 +293,8 @@ cofmeter_band_drop::~cofmeter_band_drop()
 
 
 cofmeter_band_drop::cofmeter_band_drop(
-	cofmeter_band_drop const& mb) :
-		cofmeter_band(mb.of_version)
+	cofmeter_band const& mb) :
+		cofmeter_band(mb.get_version())
 {
 	*this = mb;
 }
@@ -405,8 +405,8 @@ cofmeter_band_dscp_remark::~cofmeter_band_dscp_remark()
 
 
 cofmeter_band_dscp_remark::cofmeter_band_dscp_remark(
-	cofmeter_band_dscp_remark const& mb) :
-		cofmeter_band(mb.of_version)
+	cofmeter_band const& mb) :
+		cofmeter_band(mb.get_version())
 {
 	*this = mb;
 }
@@ -548,8 +548,8 @@ cofmeter_band_expr::~cofmeter_band_expr()
 
 
 cofmeter_band_expr::cofmeter_band_expr(
-	cofmeter_band_expr const& mb) :
-		cofmeter_band(mb.of_version),
+	cofmeter_band const& mb) :
+		cofmeter_band(mb.get_version()),
 		body(0)
 {
 	*this = mb;
