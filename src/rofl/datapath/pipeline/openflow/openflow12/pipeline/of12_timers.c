@@ -240,7 +240,8 @@ static of12_entry_timer_t* __of12_entry_timer_init(of12_timer_group_t* tg, of12_
 	}
 	new_entry->entry = entry;
 	new_entry->group = tg;
-	
+
+#if 0	
 	if(last_update)
 	{
 		new_entry->time_last_update.tv_sec = last_update->tv_sec;
@@ -250,6 +251,7 @@ static of12_entry_timer_t* __of12_entry_timer_init(of12_timer_group_t* tg, of12_
 	{
 		new_entry->time_last_update.tv_sec = new_entry->time_last_update.tv_usec = 0;
 	}	
+#endif
 	
 	// we add the new entries at the end
 	new_entry->next=NULL;
@@ -376,7 +378,7 @@ static rofl_result_t __of12_reschedule_idle_timer(of12_entry_timer_t * entry_tim
 	__of12_gettimeofday(&system_time,NULL);
 	uint64_t now = __of12_get_time_ms(&system_time);
 	uint64_t expiration_time;
-	expiration_time = __of12_get_expiration_time_slotted(entry_timer->entry->timer_info.idle_timeout, &(entry_timer->time_last_update));
+	expiration_time = __of12_get_expiration_time_slotted(entry_timer->entry->timer_info.idle_timeout, &(entry_timer->entry->timer_info.time_last_update));
 	of12_timer_timeout_type_t is_idle = IDLE_TO;
 	
 	
@@ -403,7 +405,7 @@ static rofl_result_t __of12_reschedule_idle_timer(of12_entry_timer_t * entry_tim
 	
 	int slot_delta = expiration_time - pipeline->tables[id_table].timers[pipeline->tables[id_table].current_timer_group].timeout; //ms
 	int slot_position = (pipeline->tables[id_table].current_timer_group + slot_delta/OF12_TIMER_SLOT_MS) % OF12_TIMER_GROUPS_MAX;
-	if(__of12_entry_timer_init(&(pipeline->tables[id_table].timers[slot_position]), entry_timer->entry, is_idle, &(entry_timer->time_last_update))==NULL)
+	if(__of12_entry_timer_init(&(pipeline->tables[id_table].timers[slot_position]), entry_timer->entry, is_idle, &(entry_timer->entry->timer_info.time_last_update))==NULL)
 		return ROFL_FAILURE;
 #else
 		
@@ -530,7 +532,7 @@ void __of12_timer_update_entry(of12_flow_entry_t * flow_entry)
 		return; //no idle timeout => no need to update time
 	else
 	{
-		__of12_gettimeofday(&(flow_entry->timer_info.idle_timer_entry->time_last_update), NULL);
+		__of12_gettimeofday(&(flow_entry->timer_info.time_last_update), NULL);
 	}
 }
 

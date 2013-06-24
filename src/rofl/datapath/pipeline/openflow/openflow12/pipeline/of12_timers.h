@@ -52,13 +52,16 @@ typedef struct of12_entry_timer{
 	//linked list	
 	struct of12_entry_timer* prev;
 	struct of12_entry_timer* next;
-	struct timeval time_last_update;		// time when the entry was last used (0 for hard timeouts)
 	of12_timer_timeout_type_t type;
 }of12_entry_timer_t;
 
 typedef struct of12_timers_info{
 	uint32_t hard_timeout;
 	uint32_t idle_timeout;
+
+	// time when the entry was last used (0 for hard timeouts)
+	struct timeval time_last_update;
+	
 	of12_entry_timer_t * idle_timer_entry;
 	of12_entry_timer_t * hard_timer_entry;
 
