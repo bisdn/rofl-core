@@ -161,12 +161,12 @@ class ciosrv : public virtual csyslog
 		std::bitset<32>         flags;          //< flags
 
 		pthread_rwlock_t wakeup_rwlock;  // rwlock for cevent lists
-	        pthread_mutex_t  ciosrv_list_mutex;     // mutex for cevent lists
-	        std::set<class ciosrv*> ciosrv_insertion_list; //< list of all ciosrv instances new inserted
-	        std::set<class ciosrv*> ciosrv_list;           //< list of all ciosrv instances
-	        std::set<class ciosrv*> ciosrv_deletion_list;  //< list of all ciosrv instances scheduled for deletion
-	        std::set<class ciosrv*> ciosrv_wakeup;         //< list of all cioctl commands rcvd
-	        int evlockinit; // = 0 => destroy mutex
+        pthread_mutex_t  ciosrv_list_mutex;     // mutex for cevent lists
+        std::set<class ciosrv*> ciosrv_insertion_list; //< list of all ciosrv instances new inserted
+        std::set<class ciosrv*> ciosrv_list;           //< list of all ciosrv instances
+        std::set<class ciosrv*> ciosrv_deletion_list;  //< list of all ciosrv instances scheduled for deletion
+        std::set<class ciosrv*> ciosrv_wakeup;         //< list of all cioctl commands rcvd
+        int evlockinit; // = 0 => destroy mutex
 
 	public:
 		/** constructor
@@ -285,6 +285,14 @@ public:
 	 */
 	virtual
 	~ciosrv();
+
+
+
+
+	/**
+	 * @brief	Initializes all structures for this ciosrv object.
+	 */
+	ciosrv(ciosrv const& iosrv);
 
 
 

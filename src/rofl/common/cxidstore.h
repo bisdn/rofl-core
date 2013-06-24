@@ -9,8 +9,8 @@
  *      Author: andreas
  */
 
-#ifndef CXIDSTORE_H
-#define CXIDSTORE_H 1
+#ifndef CXIDSTORE__H
+#define CXIDSTORE__H 1
 
 #include <map>
 
@@ -135,6 +135,13 @@ public:
  * methods
  */
 public:
+
+
+		/**
+		 *
+		 */
+		cxidstore() {};
+
 
 		/**
 		 *
