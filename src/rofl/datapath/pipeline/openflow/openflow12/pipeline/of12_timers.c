@@ -46,7 +46,7 @@ void __of12_time_forward(uint64_t sec, uint64_t usec, struct timeval * time)
 /**
  * of12_gettimeofday wrapper for the system time
  */
-int __of12_gettimeofday(struct timeval * tval, struct timezone * tzone){
+inline int __of12_gettimeofday(struct timeval * tval, struct timezone * tzone){
 
 #ifdef TIMERS_FAKE_TIME
 	__of12_time_forward(0,0,tval);
@@ -274,12 +274,12 @@ static of12_entry_timer_t* __of12_entry_timer_init(of12_timer_group_t* tg, of12_
 	// update the entries counter
 	tg->list.num_of_timers++;
 	
+	new_entry->type=is_idle;
+	
 	if(is_idle)
 		entry->timer_info.idle_timer_entry=new_entry;
 	else
 		entry->timer_info.hard_timer_entry=new_entry;
-	
-	new_entry->type=is_idle;
 	
 	return new_entry;
 }
