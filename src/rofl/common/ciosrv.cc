@@ -695,8 +695,8 @@ ciosrv::handle_rfds(
 {
 	pthread_t tid = pthread_self();
 
-	while (not rfds.empty()) {
 next_element:
+	while (not rfds.empty()) {
 		int fd = rfds.front(); rfds.pop_front();
 
 		if (threads[tid]->rfds.find(fd) == threads[tid]->rfds.end()) {
