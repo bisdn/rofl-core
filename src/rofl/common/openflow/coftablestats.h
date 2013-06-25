@@ -42,6 +42,26 @@ private: // data structures
 
 public: // data structures
 
+	friend std::ostream&
+	operator<< (std::ostream& os, coftable_stats_reply const& tsr) {
+		os << "tableID=" << tsr.table_id << " "
+				<< "name=" << tsr.name << " "
+				<< "match=" << tsr.match << " "
+				<< "wildcards" << tsr.wildcards << " "
+				<< "write-actions=" << tsr.write_actions << " "
+				<< "apply-actions=" << tsr.apply_actions << " "
+				<< "write-setfields=" << tsr.write_setfields << " "
+				<< "apply-setfields=" << tsr.apply_setfields << " "
+				<< "metadata-match=" << tsr.metadata_match << " "
+				<< "metadata-write=" << tsr.metadata_write << " "
+				<< "instructions=" << tsr.instructions << " "
+				<< "config=" << tsr.config << " "
+				<< "max_entries=" << tsr.max_entries << " "
+				<< "active-count=" << tsr.active_count << " "
+				<< "lookup-count=" << tsr.lookup_count << " "
+				<< "matched-count=" << tsr.matched_count << " ";
+		return os;
+	};
 
 public:
 	/**
