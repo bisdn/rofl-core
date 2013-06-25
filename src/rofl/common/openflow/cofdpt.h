@@ -159,7 +159,8 @@ private: // data structures
 		uint8_t 						n_tables;		// number of tables
 		uint32_t 						capabilities;	// capabilities flags
 
-		std::map<uint32_t, cofport*> 	ports;			// list of ports
+		std::map<uint8_t, coftable_stats_reply> tables;	// map of tables: table_id:coftable_stats_reply
+		std::map<uint32_t, cofport*> 	ports;			// map of ports
 		std::bitset<32> 				dptflags;		// 'fragmentation' flags
 		uint16_t						config;
 		uint16_t 						miss_send_len; 	// length of bytes sent to controller
@@ -408,6 +409,16 @@ public:
 	 */
 	std::map<uint32_t, cofport*>&
 	get_ports() { return ports; };
+
+
+	/**
+	 * @brief	Returns reference to the data path element's coftable_stats_reply list.
+	 *
+	 * @return tables
+	 */
+	std::map<uint8_t, coftable_stats_reply>&
+	get_tables() { return tables; };
+
 
 	/**@}*/
 
@@ -677,7 +688,7 @@ private:
 
 	/**
 	 * @name	stats_reply_rcvd
-	 * @brief	Called by cfwdekem when a STATS-reply was received.
+	 * @brief	Called by cfwdelem when a STATS-reply was received.
 	 *
 	 * Cancels the internal timer waiting for STATS-reply.
 	 * Stores parameters received in internal variables.
@@ -689,6 +700,19 @@ private:
 	stats_reply_rcvd(
 			cofmsg_stats *msg);
 
+
+	/**
+	 * @name	table_stats_reply_rcvd
+	 * @brief	Called by cofdpt when a TABLE-STATS-reply was received.
+	 *
+	 * Stores parameters received in internal variables.
+	 * Calls method fwdelem->handle_table_stats_reply().
+	 *
+	 * @param[in] pack The OpenFlow message received.
+	 */
+	void
+	table_stats_reply_rcvd(
+			cofmsg_table_stats_reply *msg);
 
 
 	/**

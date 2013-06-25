@@ -908,7 +908,7 @@ cofdpt::stats_reply_rcvd(
 		rofbase->handle_desc_stats_reply(this, dynamic_cast<cofmsg_desc_stats_reply*>( msg ));
 	} break;
 	case OFPST_TABLE: {
-		rofbase->handle_table_stats_reply(this, dynamic_cast<cofmsg_table_stats_reply*>( msg ));
+		table_stats_reply_rcvd(dynamic_cast<cofmsg_table_stats_reply*>( msg ));
 	} break;
 	case OFPST_PORT: {
 		rofbase->handle_port_stats_reply(this, dynamic_cast<cofmsg_port_stats_reply*>( msg ));
@@ -980,6 +980,24 @@ restart:
 	{
 		reset_timer(COFDPT_TIMER_STATS_REPLY, stats_reply_timeout);
 	}
+}
+
+
+
+void
+cofdpt::table_stats_reply_rcvd(
+		cofmsg_table_stats_reply *msg)
+{
+	// clear our old table map
+	tables.clear();
+	// iterate through all received table stats bodies and fill in our local tables map
+	for (std::vector<coftable_stats_reply>::iterator
+			it = msg->get_table_stats().begin(); it != msg->get_table_stats().end(); ++it) {
+		coftable_stats_reply& table = (*it);
+		tables[table.get_table_id()] = table;
+	}
+
+	rofbase->handle_table_stats_reply(this,  msg);
 }
 
 
