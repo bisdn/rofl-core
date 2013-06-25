@@ -44,10 +44,10 @@ public: // data structures
 
 	friend std::ostream&
 	operator<< (std::ostream& os, coftable_stats_reply const& tsr) {
-		os << "tableID=" << tsr.table_id << " "
+		os << "tableID=" << (int)(tsr.table_id) << " "
 				<< "name=" << tsr.name << " "
 				<< "match=" << tsr.match << " "
-				<< "wildcards" << tsr.wildcards << " "
+				<< "wildcards=" << tsr.wildcards << " "
 				<< "write-actions=" << tsr.write_actions << " "
 				<< "apply-actions=" << tsr.apply_actions << " "
 				<< "write-setfields=" << tsr.write_setfields << " "
