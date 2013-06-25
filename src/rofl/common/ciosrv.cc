@@ -50,14 +50,13 @@ ciosrv::ciosrv() :
 		ciosrv::threads[tid]->ciosrv_insertion_list.insert(this);
 	}
 
-	fprintf(stderr, "ciosrv::ciosrv() tid=0x%lx this=%p\n", tid, this);
+	//fprintf(stderr, "ciosrv::ciosrv() tid=0x%lx this=%p\n", tid, this);
 }
 
 
 ciosrv::~ciosrv()
 {
-	fprintf(stderr, "ciosrv::~ciosrv() tid=0x%lx this=%p\n", tid, this);
-	//cancel_all_timer(); // not really necessary
+	//fprintf(stderr, "ciosrv::~ciosrv() tid=0x%lx this=%p\n", tid, this);
 
 	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::~ciosrv()", this);
 
@@ -145,7 +144,7 @@ ciosrv::ciosrv(ciosrv const& iosrv) :
 		ciosrv::threads[tid]->ciosrv_insertion_list.insert(this);
 	}
 
-	fprintf(stderr, "ciosrv::ciosrv(ciosrv const&) tid=0x%lx this=%p\n", tid, this);
+	//fprintf(stderr, "ciosrv::ciosrv(ciosrv const&) tid=0x%lx this=%p\n", tid, this);
 }
 
 
@@ -1093,7 +1092,7 @@ ciosrv::init()
 
 	pthread_t tid = pthread_self();
 
-	fprintf(stderr, "ciosrv: NEEDS CONSTRUCTION, tid: 0x%x\n", (int)tid);
+	//fprintf(stderr, "ciosrv: NEEDS CONSTRUCTION, tid: 0x%x\n", (int)tid);
 
 	if (threads.find(tid) == threads.end())
 	{
@@ -1107,7 +1106,7 @@ void
 ciosrv::destroy()
 {
 	pthread_t tid = pthread_self();
-	fprintf(stderr, "ciosrv: NEEDS DESTRUCTION, tid: 0x%x\n", (int)tid);
+	//fprintf(stderr, "ciosrv: NEEDS DESTRUCTION, tid: 0x%x\n", (int)tid);
 
 	if (ciosrv::threads.find(tid) != ciosrv::threads.end())
 	{
@@ -1164,7 +1163,7 @@ ciosrv::run()
 		ciosrv::init();
 	}
 
-	fprintf(stderr, "ciosrv::run() START tid=0x%lx\n", tid);
+	//fprintf(stderr, "ciosrv::run() START tid=0x%lx\n", tid);
 
 	/*
 	 * the infinite loop ...
