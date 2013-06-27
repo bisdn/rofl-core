@@ -206,6 +206,19 @@ public:
 	addr_c_str();
 
 
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, caddress const& addr)
+	{
+		caddress t_addr(addr);
+		os << "caddress{"
+				<< "af=" << t_addr.c_str() << " "
+				<< "}";
+		return os;
+	};
+
 
 public:
 
