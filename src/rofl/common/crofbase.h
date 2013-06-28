@@ -1499,7 +1499,7 @@ private:
 
 
 
-protected:
+public:
 
 
 
