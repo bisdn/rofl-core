@@ -412,6 +412,21 @@ public:
 
 
 	/**
+	 * @brief	Returns reference to cofport instance assigned to portno.
+	 *
+	 * if portno is invalid, an exeception of type eOFdpathNotFound is thrown.
+	 *
+	 * @return reference to cofport instance assigned to specified portno
+	 */
+	cofport&
+	get_port(uint32_t portno) {
+		if (ports.find(portno) == ports.end())
+			throw eOFdpathNotFound();
+		return *(ports[portno]);
+	};
+
+
+	/**
 	 * @brief	Returns reference to the data path element's coftable_stats_reply list.
 	 *
 	 * @return tables
