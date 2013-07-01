@@ -2,7 +2,7 @@
 #define __GROUP_TABLE_H__
 
 #include "rofl.h"
-#include "rofl/datapath/pipeline/openflow/openflow12/openflow12.h"
+#include "rofl/common/openflow/openflow12.h"
 #include "rofl/datapath/pipeline/openflow/openflow12/pipeline/of12_group_table.h"
 #include "rofl/datapath/pipeline/openflow/of_switch.h"
 #include "rofl/datapath/pipeline/openflow/openflow12/of12_switch.h"
