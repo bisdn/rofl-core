@@ -84,7 +84,9 @@ queuetest::handle_queue_get_config_reply(
 			cofdpt *dpt,
 			cofmsg_queue_get_config_reply *msg)
 {
-	fprintf(stderr, "queue-get-config-reply: msg:%p\n", msg);
+	//fprintf(stderr, "queue-get-config-reply: msg:%p\n", msg);
+
+	std::cerr << "queue-get-config-reply => " << *msg << std::endl;
 
 	delete msg;
 }
@@ -96,7 +98,9 @@ queuetest::handle_queue_stats_reply(
 			cofdpt *dpt,
 			cofmsg_queue_stats_reply *msg)
 {
-	fprintf(stderr, "queue-stats-reply: msg:%p\n", msg);
+	//fprintf(stderr, "queue-stats-reply: msg:%p\n", msg);
+
+	std::cerr << "queue-stats-reply => " << *msg << std::endl;
 
 	delete msg;
 }

@@ -117,6 +117,20 @@ public:
 	 */
 	cofqueue_stats_request&
 	get_queue_stats();
+
+
+public:
+
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_queue_stats_request const& msg)
+	{
+		os << "cofmsg_queue_stats_request[" << msg.queue_stats << "]";
+		return os;
+	};
 };
 
 
@@ -234,6 +248,26 @@ public:
 	 */
 	std::vector<cofqueue_stats_reply>&
 	get_queue_stats();
+
+
+
+public:
+
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_queue_stats_reply const& msg)
+	{
+		os << "cofmsg_queue_stats_reply[";
+		for (std::vector<cofqueue_stats_reply>::const_iterator
+				it = msg.queue_stats.begin(); it != msg.queue_stats.end(); ++it) {
+			os << (*it) << " ";
+		}
+		os << "]";
+		return os;
+	};
 };
 
 } // end of namespace rofl

@@ -128,6 +128,25 @@ public:
 	 */
 	void
 	set_queue_id(uint32_t queue_id) { this->queue_id = queue_id; };
+
+
+public:
+
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, cofqueue_stats_request const& request)
+	{
+		os << "cofqueue_stats_request[";
+		os << std::hex;
+		os << "port-no=" << request.port_no << " ";
+		os << "queue-id=" << request.queue_id << " ";
+		os << std::dec;
+		os << "]";
+		return os;
+	};
 };
 
 
@@ -281,6 +300,28 @@ public:
 	 */
 	void
 	set_tx_errors(uint64_t tx_errors) { this->tx_errors = tx_errors; };
+
+
+public:
+
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, cofqueue_stats_reply const& reply)
+	{
+		os << "cofqueue_stats_request[";
+		os << std::hex;
+		os << "port-no=" << reply.port_no << " ";
+		os << "queue-id=" << reply.queue_id << " ";
+		os << std::dec;
+		os << "tx-bytes=" << reply.tx_bytes << " ";
+		os << "tx-packets=" << reply.tx_packets << " ";
+		os << "tx-errors=" << reply.tx_errors << " ";
+		os << "]";
+		return os;
+	};
 };
 
 }
