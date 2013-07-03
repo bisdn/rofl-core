@@ -122,8 +122,10 @@ rofl_of12_gm_result_t __of12_init_group(of12_group_table_t *gt, of12_group_type_
 		return ROFL_OF12_GM_OGRUPS;
 	}
 	
-	if((ret_val=__of12_check_group_parameters(gt,type,id,buckets))!=ROFL_OF12_GM_OK)
-        return ret_val;
+	if((ret_val=__of12_check_group_parameters(gt,type,id,buckets))!=ROFL_OF12_GM_OK){
+		platform_free_shared(ge);		
+	        return ret_val;
+	}
 	
 	ge->bc_list = buckets;
 	ge->id = id;
