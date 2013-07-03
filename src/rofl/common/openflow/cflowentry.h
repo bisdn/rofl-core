@@ -117,6 +117,10 @@ public: // setter methods for ofp_flow_mod structure
 	/**
 	 */
 	void
+	set_version(uint8_t of_version) { this->of_version = of_version; };
+	/**
+	 */
+	void
 	set_command(uint8_t command);
 	/**
 	 */
@@ -162,6 +166,10 @@ public: // setter methods for ofp_flow_mod structure
 
 public: // getter methods for ofp_flow_mod structure
 
+	/**
+	 */
+	uint8_t
+	get_version() const { return of_version; };
 	/**
 	 */
 	uint8_t

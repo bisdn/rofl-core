@@ -6,6 +6,7 @@
 #define CMACADDR_H 1
 
 #include <string>
+#include <ostream>
 
 #ifdef __cplusplus
 extern "C" {
@@ -191,6 +192,26 @@ public:
 	 */
 	uint64_t
 	get_mac() const;
+
+
+public:
+
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, cmacaddr const& maddr)
+	{
+		os << "cmacaddr[";
+			for (int i = 0; i < OFP_ETH_ALEN; i++) {
+				os << (std::hex) << maddr.somem()[i] << (std::dec);
+				if (i < (OFP_ETH_ALEN - 1)) os << ":";
+			}
+		os << "]";
+		return os;
+	};
+
 
 private:
 
