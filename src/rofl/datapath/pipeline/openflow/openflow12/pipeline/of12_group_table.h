@@ -136,6 +136,9 @@ rofl_of12_gm_result_t of12_group_delete( struct of12_pipeline *pipeline, of12_gr
 of12_bucket_list_t* of12_init_bucket_list(void);
 
 //FIXME: put documentation
+void of12_destroy_bucket_list(of12_bucket_list_t *bc_list);
+
+//FIXME: put documentation
 of12_bucket_t* of12_init_bucket(uint16_t weight, uint32_t port, uint32_t group, of12_action_group_t* actions);
 
 //FIXME: put documentation
