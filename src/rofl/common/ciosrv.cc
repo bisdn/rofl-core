@@ -110,7 +110,7 @@ restart3:
 	threads[tid]->ciosrv_elements.erase(this);
 
 	if (threads[tid]->ciosrv_elements.empty()) {
-		fprintf(stderr, "ciosrv: NEEDS DESTRUCTION, tid: 0x%x\n", (int)tid);
+		WRITELOG(CIOSRV, DBG, "ciosrv: destroying, tid: 0x%x\n", (int)tid);
 		ciosrv::destroy();
 	}
 
@@ -1229,8 +1229,7 @@ handle_packets:			// handle incoming events
 
 		}
 	}
-
-	fprintf(stderr, "ciosrv::run() STOP tid=0x%lx\n", tid);
+	WRITELOG(CIOSRV, DBG, "ciosrv::run() stopping tid=0x%lx\n", tid);
 }
 
 
