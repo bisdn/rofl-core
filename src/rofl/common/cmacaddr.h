@@ -205,7 +205,7 @@ public:
 	{
 		os << "cmacaddr[";
 			for (int i = 0; i < OFP_ETH_ALEN; i++) {
-				os << (std::hex) << maddr.somem()[i] << (std::dec);
+				os << (std::hex) << (int)(maddr.somem()[i]) << (std::dec);
 				if (i < (OFP_ETH_ALEN - 1)) os << ":";
 			}
 		os << "]";
