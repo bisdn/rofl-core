@@ -224,14 +224,14 @@ of_switch_t** physical_switch_get_logical_switches(unsigned int* max_switches);
 rofl_result_t physical_switch_add_logical_switch(of_switch_t* sw);
 
 /**
-* @brief Attemps to remove a previously added logical switch from the pool
+* @brief Attemps to remove AND destroy a previously added logical switch from the pool
 * by dpid. 
 * @ingroup  mgmt
 */
 rofl_result_t physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid);
 
 /**
-* @brief    Attemps to remove a previously added logical switch from the pool.
+* @brief    Attemps to remove AND destroy a previously added logical switch from the pool.
 * @ingroup  mgmt
 */
 rofl_result_t physical_switch_remove_logical_switch(of_switch_t* sw);
