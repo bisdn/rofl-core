@@ -225,7 +225,7 @@ rofl_result_t __of12_destroy_table(of12_flow_table_t* table){
 
 	//Let the matching algorithm destroy its own state
 	if(of12_matching_algorithms[table->matching_algorithm].destroy_hook)
-		return of12_matching_algorithms[table->matching_algorithm].destroy_hook(table);
+		of12_matching_algorithms[table->matching_algorithm].destroy_hook(table);
 
 	platform_mutex_destroy(table->mutex);
 	platform_rwlock_destroy(table->rwlock);
