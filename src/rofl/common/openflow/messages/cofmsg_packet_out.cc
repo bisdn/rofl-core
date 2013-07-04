@@ -22,7 +22,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 
 	switch (of_version) {
 	case OFP10_VERSION: {
-		cofmsg::resize(sizeof(struct ofp10_packet_out));
+		resize(sizeof(struct ofp10_packet_out));
 		set_length(length());
 
 		ofh10_packet_out->buffer_id		= htobe32(buffer_id);
@@ -31,7 +31,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 
 	} break;
 	case OFP12_VERSION: {
-		cofmsg::resize(sizeof(struct ofp12_packet_out));
+		resize(sizeof(struct ofp12_packet_out));
 		set_length(length());
 
 		ofh12_packet_out->buffer_id		= htobe32(buffer_id);
