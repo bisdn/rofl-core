@@ -27,7 +27,6 @@ cofqueue_prop::cofqueue_prop(
 		throw eBadVersion();
 	}
 	}
-	ofq_header = somem();
 	set_length(memlen());
 }
 
@@ -61,6 +60,15 @@ cofqueue_prop::operator =(
 	of_version = qp.of_version;
 
 	return *this;
+}
+
+
+
+uint8_t*
+cofqueue_prop::resize(size_t len)
+{
+	ofq_header = cmemory::resize(len);
+	return somem();
 }
 
 
@@ -229,7 +237,6 @@ cofqueue_prop_min_rate::cofqueue_prop_min_rate(
 		throw eBadVersion();
 	}
 	}
-	ofq_min_rate = somem();
 	set_property(OFPQT_MIN_RATE);
 	set_length(memlen());
 	set_rate(min_rate);
@@ -267,6 +274,15 @@ cofqueue_prop_min_rate::operator= (
 	unpack(qp.somem(), qp.memlen());
 
 	return *this;
+}
+
+
+
+uint8_t*
+cofqueue_prop_min_rate::resize(size_t len)
+{
+	ofq_min_rate = cofqueue_prop::resize(len);
+	return somem();
 }
 
 
@@ -419,6 +435,15 @@ cofqueue_prop_max_rate::operator= (
 	unpack(qp.somem(), qp.memlen());
 
 	return *this;
+}
+
+
+
+uint8_t*
+cofqueue_prop_max_rate::resize(size_t len)
+{
+	ofq_max_rate = cofqueue_prop::resize(len);
+	return somem();
 }
 
 

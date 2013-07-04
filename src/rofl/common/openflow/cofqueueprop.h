@@ -150,6 +150,16 @@ public:
 		os << "QueueProperty[property: " << qp.get_property() << "]";
 		return os;
 	};
+
+
+protected:
+
+
+	/**
+	 *
+	 */
+	virtual uint8_t*
+	resize(size_t len);
 };
 
 
@@ -236,6 +246,15 @@ public:
 	void
 	set_rate(uint16_t rate);
 
+
+private:
+
+
+	/**
+	 *
+	 */
+	virtual uint8_t*
+	resize(size_t len);
 };
 
 
@@ -323,6 +342,15 @@ public:
 	void
 	set_rate(uint16_t rate);
 
+
+private:
+
+
+	/**
+	 *
+	 */
+	virtual uint8_t*
+	resize(size_t len);
 };
 
 
