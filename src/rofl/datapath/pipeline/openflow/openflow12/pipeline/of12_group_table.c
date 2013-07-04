@@ -14,7 +14,6 @@
 #include "../../../platform/memory.h"
 #include <stdio.h>
 
-static void __of12_destroy_bucket_list(of12_group_t *ge);
 static void __of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge);
 static rofl_of12_gm_result_t __of12_validate_group(of12_action_group_t* actions);
 bool __of12_bucket_list_has_weights(of12_bucket_list_t *bl);
@@ -123,8 +122,10 @@ rofl_of12_gm_result_t __of12_init_group(of12_group_table_t *gt, of12_group_type_
 		return ROFL_OF12_GM_OGRUPS;
 	}
 	
-	if((ret_val=__of12_check_group_parameters(gt,type,id,buckets))!=ROFL_OF12_GM_OK)
-        return ret_val;
+	if((ret_val=__of12_check_group_parameters(gt,type,id,buckets))!=ROFL_OF12_GM_OK){
+		platform_free_shared(ge);		
+	        return ret_val;
+	}
 	
 	ge->bc_list = buckets;
 	ge->id = id;
@@ -183,7 +184,7 @@ void __of12_destroy_group(of12_group_table_t *gt, of12_group_t *ge){
 	platform_rwlock_wrlock(ge->rwlock);
 	
 	//destroy buckets & actions inside
-	__of12_destroy_bucket_list(ge);
+	of12_destroy_bucket_list(ge->bc_list);
 	
 	__of12_destroy_group_stats(&ge->stats);
 	
@@ -287,7 +288,7 @@ rofl_of12_gm_result_t of12_group_modify(of12_group_table_t *gt, of12_group_type_
 	
 	platform_rwlock_wrlock(ge->rwlock);
 	
-	__of12_destroy_bucket_list(ge);
+	of12_destroy_bucket_list(ge->bc_list);
 	ge->bc_list = buckets;
 	ge->id = id;
 	ge->type = type;
@@ -344,19 +345,19 @@ of12_bucket_t* of12_init_bucket(uint16_t weight, uint32_t port, uint32_t group, 
 	return bk;
 }
 
-static
-void __of12_destroy_bucket_list(of12_group_t *ge){
+void of12_destroy_bucket_list(of12_bucket_list_t *bc_list){
 	of12_bucket_t *bk_it, *next;
 	
-	for(bk_it=ge->bc_list->head;bk_it!=NULL;bk_it=next){
+	for(bk_it=bc_list->head;bk_it!=NULL;bk_it=next){
 		next = bk_it->next;
 		//NOTE were are the action groups created and deleted?
 		of12_destroy_action_group(bk_it->actions);
 		__of12_destroy_buckets_stats(&bk_it->stats);
 		platform_free_shared(bk_it);
 	}
-	platform_free_shared(ge->bc_list);
+	platform_free_shared(bc_list);
 }
+
 static
 rofl_of12_gm_result_t __of12_validate_group(of12_action_group_t* actions){
 
