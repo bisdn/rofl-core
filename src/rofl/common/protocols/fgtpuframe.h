@@ -8,6 +8,8 @@
 #ifndef FGTPUV1FRAME_H_
 #define FGTPUV1FRAME_H_ 1
 
+#include <string>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25,7 +27,10 @@ extern "C" {
 namespace rofl
 {
 
-class fgtpuv1frame :
+class eGTPuFrameBase 		: public eFrameBase {};
+class eGTPuFrameInval		: public eGTPuFrameBase, public eFrameInval {};
+
+class fgtpuframe :
 		public fframe
 {
 public:
@@ -34,31 +39,38 @@ public:
 		GTPU_VERS_1 = 1,
 	};
 
+	enum gtpu_flag_t {
+		GTPU_PT_FLAG = (1 << 4),
+		GTPU_E_FLAG  = (1 << 2),
+		GTPU_S_FLAG  = (1 << 1),
+		GTPU_PN_FLAG = (1 << 0),
+	};
+
 	// full GTP-Uv1 header with E, S, PN flags set to 1
-	struct gtpuv1_e_hdr_t {
+	struct gtpu_e_hdr_t {
 		uint8_t 	flags;		// version, PT, T, E, S, PN
 		uint8_t		msgtype;
 		uint16_t	len;
 		uint32_t	teid;
 		uint16_t	seqno;
-		uint8_t		n_pdu;		// N-PDU number
-		uint8_t		nxthdr;		// next extension header type
+		uint8_t		n_pdu_no;	// N-PDU number
+		uint8_t		exthdr;		// next extension header type
 		uint8_t		data[0];	// pointer to start of data
 	};
 
 	// shortened GTP-Uv1 header with S and PN flags set to 1 only
-	struct gtpuv1_pn_hdr_t {
+	struct gtpu_pn_hdr_t {
 		uint8_t 	flags;		// version, PT, T, E, S, PN
 		uint8_t		msgtype;
 		uint16_t	len;
 		uint32_t	teid;
 		uint16_t	seqno;
-		uint8_t		n_pdu;		// N-PDU number
+		uint8_t		n_pdu_no;	// N-PDU number
 		uint8_t		data[0];	// pointer to start of data
 	};
 
 	// shortened GTP-Uv1 header with S flag set to 1 only
-	struct gtpuv1_s_hdr_t {
+	struct gtpu_s_hdr_t {
 		uint8_t 	flags;		// version, PT, T, E, S, PN
 		uint8_t		msgtype;
 		uint16_t	len;
@@ -68,7 +80,7 @@ public:
 	};
 
 	// shortened GTP-Uv1 header with S, PN, E flags set to 0
-	struct gtpuv1_short_hdr_t {
+	struct gtpu_short_hdr_t {
 		uint8_t 	flags;		// version, PT, T, E, S, PN
 		uint8_t		msgtype;
 		uint16_t	len;
@@ -76,15 +88,31 @@ public:
 		uint8_t		data[0];	// pointer to start of data
 	};
 
-	// typedef the full header
-	typedef gtpuv1_e_hdr_t gtpuv1_hdr_t;
 
 	// GTP-Uv1 extension header
-	struct gtpuv1_ext_hdr_t {
+	struct gtpu_ext_hdr_t {
 		uint8_t		extlen;		// length of extension header in bytes
 		uint8_t		data[0];	// pointer to start of data
 					/* last byte contains next extension header type */
 	};
+
+private:
+
+	union {
+		uint8_t*					gtphu_gtpu_hdr;
+		struct gtpu_e_hdr_t* 		gtphu_gtpu_e_hdr;
+		struct gtpu_pn_hdr_t*		gtphu_gtpu_pn_hdr;
+		struct gtpu_s_hdr_t* 		gtphu_gtpu_s_hdr;
+		struct gtpu_short_hdr_t* 	gtphu_gtpu_short_hdr;
+	} gtphu;
+
+#define gtphu_hdr		gtphu.gtphu_gtpu_hdr
+#define gtphu_e_hdr		gtphu.gtphu_gtpu_e_hdr
+#define gtphu_pn_hdr	gtphu.gtphu_gtpu_pn_hdr
+#define gtphu_s_hdr		gtphu.gtphu_gtpu_s_hdr
+#define gtphu_short_hdr	gtphu.gtphu_gtpu_short_hdr
+
+	std::string	info;
 
 public:
 
@@ -92,7 +120,7 @@ public:
 	/**
 	 *
 	 */
-	fgtpuv1frame(
+	fgtpuframe(
 			uint8_t* data,
 			size_t datalen);
 
@@ -100,15 +128,15 @@ public:
 	/**
 	 *
 	 */
-	fgtpuv1frame(
-			size_t len = sizeof(gtpuv1_hdr_t));
+	fgtpuframe(
+			size_t len = sizeof(struct gtpu_e_hdr_t));
 
 
 	/**
 	 *
 	 */
 	virtual
-	~fgtpuv1frame();
+	~fgtpuframe();
 
 
 	/**
@@ -286,6 +314,67 @@ public:
 	void
 	set_ext_type(
 			uint8_t ext_type);
+
+
+public: // overloaded from fframe
+
+
+	/**
+	 *
+	 */
+	virtual bool
+	complete();
+
+
+	/**
+	 *
+	 */
+	virtual size_t
+	need_bytes();
+
+
+	/**
+	 *
+	 */
+	virtual void
+	validate(
+			uint16_t total_len = 0) throw (eFrameInvalidSyntax);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	initialize();
+
+
+	/**
+	 *
+	 */
+	virtual void
+	payload_insert(
+			uint8_t *data, size_t datalen) throw (eFrameOutOfRange);
+
+
+	/**
+	 *
+	 */
+	virtual uint8_t*
+	payload() const throw (eFrameNoPayload);
+
+
+	/**
+	 *
+	 */
+	virtual size_t
+	payloadlen() const throw (eFrameNoPayload);
+
+
+	/**
+	 *
+	 */
+	virtual const char*
+	c_str();
 };
 
 }; // end of namespace
