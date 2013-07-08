@@ -96,7 +96,7 @@ gtpuext::set_length(size_t len)
 
 
 uint8_t
-gtpuext::get_next_type() const
+gtpuext::get_next_hdr_type() const
 {
 	return (*this)[memlen()-1];
 }
@@ -104,7 +104,7 @@ gtpuext::get_next_type() const
 
 
 void
-gtpuext::set_next_type(uint8_t type)
+gtpuext::set_next_hdr_type(uint8_t type)
 {
 	(*this)[memlen()-1] = type;
 }
@@ -123,7 +123,7 @@ gtpuext_udp_port::gtpuext_udp_port(uint16_t udp_port) :
 	udp_port_exthdr = (struct gtpu_udp_port_ext_hdr_t*)somem();
 	set_length(sizeof(struct gtpu_udp_port_ext_hdr_t));
 	set_udp_port(udp_port);
-	set_next_type(0);
+	set_next_hdr_type(0);
 }
 
 
@@ -183,6 +183,87 @@ void
 gtpuext_udp_port::set_udp_port(uint16_t udp_port)
 {
 	udp_port_exthdr->udpport = htobe16(udp_port);
+}
+
+
+
+
+
+
+
+
+/*
+ * GTP extension: PDCP PDU number
+ */
+
+gtpuext_pdcp_pdu_number::gtpuext_pdcp_pdu_number(uint16_t pdcp_pdu_number) :
+		gtpuext(sizeof(struct gtpu_pdcp_pdu_number_ext_hdr_t)),
+		pdcp_pdu_number_exthdr(0)
+{
+	pdcp_pdu_number_exthdr = (struct gtpu_pdcp_pdu_number_ext_hdr_t*)somem();
+	set_length(sizeof(struct gtpu_pdcp_pdu_number_ext_hdr_t));
+	set_pdcp_pdu_number(pdcp_pdu_number);
+	set_next_hdr_type(0);
+}
+
+
+
+gtpuext_pdcp_pdu_number::~gtpuext_pdcp_pdu_number()
+{
+
+}
+
+
+
+gtpuext_pdcp_pdu_number::gtpuext_pdcp_pdu_number(
+			gtpuext const& ext) :
+		gtpuext(sizeof(struct gtpu_pdcp_pdu_number_ext_hdr_t)),
+		pdcp_pdu_number_exthdr(0)
+{
+	*this = ext;
+}
+
+
+
+gtpuext_pdcp_pdu_number&
+gtpuext_pdcp_pdu_number::operator= (
+			gtpuext const& ext)
+{
+	if (this == &ext)
+		return *this;
+
+	gtpuext::operator= (ext);
+
+	pdcp_pdu_number_exthdr = (struct gtpu_pdcp_pdu_number_ext_hdr_t*)somem();
+
+	return *this;
+}
+
+
+
+gtpuext_pdcp_pdu_number::gtpuext_pdcp_pdu_number(
+			uint8_t *buf, size_t buflen) :
+			gtpuext(buf, buflen),
+			pdcp_pdu_number_exthdr(0)
+{
+	pdcp_pdu_number_exthdr = (struct gtpu_pdcp_pdu_number_ext_hdr_t*)somem();
+}
+
+
+
+uint16_t
+gtpuext_pdcp_pdu_number::get_pdcp_pdu_number() const
+{
+	return be16toh(pdcp_pdu_number_exthdr->pdcp_pdu_number);
+}
+
+
+
+void
+gtpuext_pdcp_pdu_number::set_pdcp_pdu_number(uint16_t pdcp_pdu_number)
+{
+	pdcp_pdu_number &= 0x7fff;
+	pdcp_pdu_number_exthdr->pdcp_pdu_number = htobe16(pdcp_pdu_number);
 }
 
 

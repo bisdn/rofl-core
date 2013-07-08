@@ -29,6 +29,14 @@ class gtpuext :
 {
 public:
 
+	// GTP-Uv1 extension header types
+	enum gtpu_ext_type_t {
+		GTPU_EXT_NO_MORE_EXTS 			=   0,
+		GTPU_EXT_SVC_CLASS_INDICATOR 	=  32,
+		GTPU_EXT_UDP_PORT 				=  64,
+		GTPU_EXT_PDCP_PDU_NUMBER 		= 192,
+	};
+
 	// GTP-Uv1 extension header
 	struct gtpu_ext_hdr_t {
 		uint8_t		extlen;		// length of extension header in bytes
@@ -113,14 +121,15 @@ public:
 	 *
 	 */
 	virtual uint8_t
-	get_next_type() const;
+	get_next_hdr_type() const;
 
 
 	/**
 	 *
 	 */
 	virtual void
-	set_next_type(uint8_t type);
+	set_next_hdr_type(uint8_t type);
+
 
 
 public:
@@ -134,11 +143,14 @@ public:
 	{
 		os << "gtpuext{"
 				<< "length=" << (unsigned int)ext.get_length() << " "
-				<< "nexthdr=" << (unsigned int)ext.get_next_type() << " "
+				<< "nexthdr=" << (unsigned int)ext.get_next_hdr_type() << " "
 			<< "}";
 		return os;
 	};
 };
+
+
+
 
 
 
@@ -225,11 +237,107 @@ public:
 		os << "gtpuext_udp_port{"
 				<< "length=" << (unsigned int)ext.get_length() << " "
 				<< "udpport=" << (unsigned int)ext.get_udp_port() << " "
-				<< "nexthdr=" << (unsigned int)ext.get_next_type() << " "
+				<< "nexthdr=" << (unsigned int)ext.get_next_hdr_type() << " "
 			<< "}";
 		return os;
 	};
 };
+
+
+
+
+
+
+
+/**
+ * GTP extension: UDP port
+ */
+class gtpuext_pdcp_pdu_number :
+		public gtpuext
+{
+public:
+
+	struct gtpu_pdcp_pdu_number_ext_hdr_t {
+		uint8_t 	len;
+		uint16_t 	pdcp_pdu_number;
+		uint8_t 	nhtype;
+	};
+
+	struct gtpu_pdcp_pdu_number_ext_hdr_t 	*pdcp_pdu_number_exthdr;
+
+public:
+
+	/**
+	 *
+	 */
+	gtpuext_pdcp_pdu_number(
+			uint16_t pdcp_pdu_number = 0);
+
+
+	/**
+	 *
+	 */
+	virtual
+	~gtpuext_pdcp_pdu_number();
+
+
+	/**
+	 *
+	 */
+	gtpuext_pdcp_pdu_number(
+			gtpuext const& ext);
+
+
+	/**
+	 *
+	 */
+	gtpuext_pdcp_pdu_number&
+	operator= (
+			gtpuext const& ext);
+
+
+	/**
+	 *
+	 */
+	gtpuext_pdcp_pdu_number(
+			uint8_t *buf, size_t buflen);
+
+
+public:
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_pdcp_pdu_number() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_pdcp_pdu_number(uint16_t pdcp_pdu_number);
+
+
+public:
+
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, gtpuext_pdcp_pdu_number const& ext)
+	{
+		os << "gtpuext_udp_port{"
+				<< "length=" << (unsigned int)ext.get_length() << " "
+				<< "pdcppdunumber=" << (unsigned int)ext.get_pdcp_pdu_number() << " "
+				<< "nexthdr=" << (unsigned int)ext.get_next_hdr_type() << " "
+			<< "}";
+		return os;
+	};
+};
+
 
 
 }; // end of namespace
