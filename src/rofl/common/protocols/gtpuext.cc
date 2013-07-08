@@ -267,3 +267,83 @@ gtpuext_pdcp_pdu_number::set_pdcp_pdu_number(uint16_t pdcp_pdu_number)
 }
 
 
+
+
+
+
+
+/*
+ * GTP extension: service class indicator
+ */
+
+gtpuext_svc_class_ind::gtpuext_svc_class_ind(uint8_t svc_class_ind) :
+		gtpuext(sizeof(struct gtpu_svc_class_ind_ext_hdr_t)),
+		svc_class_ind_exthdr(0)
+{
+	svc_class_ind_exthdr = (struct gtpu_svc_class_ind_ext_hdr_t*)somem();
+	set_length(sizeof(struct gtpu_svc_class_ind_ext_hdr_t));
+	set_svc_class_ind(svc_class_ind);
+	set_next_hdr_type(0);
+}
+
+
+
+gtpuext_svc_class_ind::~gtpuext_svc_class_ind()
+{
+
+}
+
+
+
+gtpuext_svc_class_ind::gtpuext_svc_class_ind(
+			gtpuext const& ext) :
+		gtpuext(sizeof(struct gtpu_svc_class_ind_ext_hdr_t)),
+		svc_class_ind_exthdr(0)
+{
+	*this = ext;
+}
+
+
+
+gtpuext_svc_class_ind&
+gtpuext_svc_class_ind::operator= (
+			gtpuext const& ext)
+{
+	if (this == &ext)
+		return *this;
+
+	gtpuext::operator= (ext);
+
+	svc_class_ind_exthdr = (struct gtpu_svc_class_ind_ext_hdr_t*)somem();
+
+	return *this;
+}
+
+
+
+gtpuext_svc_class_ind::gtpuext_svc_class_ind(
+			uint8_t *buf, size_t buflen) :
+			gtpuext(buf, buflen),
+			svc_class_ind_exthdr(0)
+{
+	svc_class_ind_exthdr = (struct gtpu_svc_class_ind_ext_hdr_t*)somem();
+}
+
+
+
+uint8_t
+gtpuext_svc_class_ind::get_svc_class_ind() const
+{
+	return svc_class_ind_exthdr->svc_class_ind;
+}
+
+
+
+void
+gtpuext_svc_class_ind::set_svc_class_ind(uint8_t svc_class_ind)
+{
+	svc_class_ind_exthdr->svc_class_ind = svc_class_ind;
+}
+
+
+

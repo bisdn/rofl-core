@@ -329,9 +329,108 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, gtpuext_pdcp_pdu_number const& ext)
 	{
-		os << "gtpuext_udp_port{"
+		os << "gtpuext_pdcp_pdu_number{"
 				<< "length=" << (unsigned int)ext.get_length() << " "
 				<< "pdcppdunumber=" << (unsigned int)ext.get_pdcp_pdu_number() << " "
+				<< "nexthdr=" << (unsigned int)ext.get_next_hdr_type() << " "
+			<< "}";
+		return os;
+	};
+};
+
+
+
+
+
+
+
+
+
+
+/**
+ * GTP extension: service class indicator
+ */
+class gtpuext_svc_class_ind :
+		public gtpuext
+{
+public:
+
+	struct gtpu_svc_class_ind_ext_hdr_t {
+		uint8_t 	len;
+		uint8_t 	svc_class_ind;
+		uint8_t		pad;
+		uint8_t 	nhtype;
+	};
+
+	struct gtpu_svc_class_ind_ext_hdr_t 	*svc_class_ind_exthdr;
+
+public:
+
+	/**
+	 *
+	 */
+	gtpuext_svc_class_ind(
+			uint8_t svc_class_ind = 0);
+
+
+	/**
+	 *
+	 */
+	virtual
+	~gtpuext_svc_class_ind();
+
+
+	/**
+	 *
+	 */
+	gtpuext_svc_class_ind(
+			gtpuext const& ext);
+
+
+	/**
+	 *
+	 */
+	gtpuext_svc_class_ind&
+	operator= (
+			gtpuext const& ext);
+
+
+	/**
+	 *
+	 */
+	gtpuext_svc_class_ind(
+			uint8_t *buf, size_t buflen);
+
+
+public:
+
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_svc_class_ind() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_svc_class_ind(uint8_t svc_class_ind);
+
+
+public:
+
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, gtpuext_svc_class_ind const& ext)
+	{
+		os << "gtpuext_svc_class_indicator{"
+				<< "length=" << (unsigned int)ext.get_length() << " "
+				<< "svcclassind=" << (unsigned int)ext.get_svc_class_ind() << " "
 				<< "nexthdr=" << (unsigned int)ext.get_next_hdr_type() << " "
 			<< "}";
 		return os;
