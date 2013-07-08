@@ -796,19 +796,6 @@ public:
 
 
 	/**
-	 * @brief	Returns the i'th fgtpuframe instance found in packet. (0: first from left side, -1: first from right side)
-	 * @see fgtpuframe
-	 *
-	 * @param i index of fgtpuframe
-	 * @return pointer to fgtpuframe instance at index i
-	 * @exception ePacketNotFound is thrown when no fgtpuframe at index i could be found
-	 */
-	fgtpuframe*
-	gtpu(
-			int i = 0) throw (ePacketNotFound);
-
-
-	/**
 	 * @brief	Returns the last fframe instance in cpacket.
 	 * @see fframe
 	 *
@@ -1475,16 +1462,6 @@ private: // methods
 			uint8_t *data,
 			size_t datalen);
 
-
-
-
-	/**
-	 *
-	 */
-	void
-	parse_gtpu(
-			uint8_t *data,
-			size_t datalen);
 
 
 
