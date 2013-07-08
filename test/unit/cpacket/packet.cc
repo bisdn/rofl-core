@@ -575,10 +575,10 @@ check_push_pop_pppoe_and_ppp()
 		//a1.push_ppp(0x0021);
 
 		a1.push_pppoe(0x8864);
-		a1.set_field(coxmatch_ofb_ppp_prot(0x0021));
-		a1.set_field(coxmatch_ofb_pppoe_code(0x00));
-		a1.set_field(coxmatch_ofb_pppoe_type(0x01));
-		a1.set_field(coxmatch_ofb_pppoe_sid(0xfeed));
+		a1.set_field(coxmatch_ofx_ppp_prot(0x0021));
+		a1.set_field(coxmatch_ofx_pppoe_code(0x00));
+		a1.set_field(coxmatch_ofx_pppoe_type(0x01));
+		a1.set_field(coxmatch_ofx_pppoe_sid(0xfeed));
 
 		if (a1 != result1)
 		{

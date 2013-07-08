@@ -45,6 +45,8 @@ class coxmlist :
 private: // data structures
 
 		std::string 				info;
+		std::map<uint8_t, std::map<uint16_t, coxmatch>	matches;
+							// key1: OXM TLV class, key2: OXM TLV field, value: coxmatch instance
 		//std::vector<coxmatch*> 	oxmvec;
 		cmemory 					area;
 
@@ -52,7 +54,7 @@ private: // data structures
 public:
 
 
-		coxmatch** 					oxmvec;
+		coxmatch*** 					oxmvec;
 
 public: // methods
 

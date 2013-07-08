@@ -331,8 +331,6 @@ coxmatch::c_str()
 			case OFPXMT_OFB_SCTP_SRC:
 			case OFPXMT_OFB_SCTP_DST:
 			case OFPXMT_OFB_ARP_OP:
-			case OFPXMT_OFB_PPPOE_SID:
-			case OFPXMT_OFB_PPP_PROT:
 				{
 					info.assign(vas("OXM-TLV [%s:%s] => [0x%04x] hm:%d len:%d padded-len:%d",
 							class2desc(get_oxm_class()),
@@ -352,8 +350,6 @@ coxmatch::c_str()
 			case OFPXMT_OFB_ICMPV4_CODE:
 			case OFPXMT_OFB_ICMPV6_TYPE:
 			case OFPXMT_OFB_ICMPV6_CODE:
-			case OFPXMT_OFB_PPPOE_CODE:
-			case OFPXMT_OFB_PPPOE_TYPE:
 				{
 					info.assign(vas("OXM-TLV [%s:%s] => [0x%02x] hm:%d len:%d padded-len:%d",
 							class2desc(get_oxm_class()),
@@ -379,6 +375,51 @@ coxmatch::c_str()
 			}
 		}
 		break;
+
+	case OFPXMC_EXPERIMENTER:
+		{
+			switch (get_oxm_field()) {
+			case OFPXMT_OFX_PPPOE_SID:
+			case OFPXMT_OFX_PPP_PROT:
+				{
+					info.assign(vas("OXM-TLV [%s:%s] => [0x%04x] hm:%d len:%d padded-len:%d",
+							class2desc(get_oxm_class()),
+							type2desc(get_oxm_class(), get_oxm_field()),
+							uint16_value(),
+							get_oxm_hasmask(),
+							get_oxm_length(),
+							length()));
+				}
+				break;
+
+			case OFPXMT_OFX_PPPOE_CODE:
+			case OFPXMT_OFX_PPPOE_TYPE:
+				{
+					info.assign(vas("OXM-TLV [%s:%s] => [0x%02x] hm:%d len:%d padded-len:%d",
+							class2desc(get_oxm_class()),
+							type2desc(get_oxm_class(), get_oxm_field()),
+							uint8_value(),
+							get_oxm_hasmask(),
+							get_oxm_length(),
+							length()));
+				}
+				break;
+
+			default:
+				{
+					info.assign(vas("OXM-TLV [%s:%s] => [%s] hm:%d len:%d len:%d",
+							class2desc(get_oxm_class()),
+							type2desc(get_oxm_class(), get_oxm_field()),
+							cmemory::c_str(),
+							get_oxm_hasmask(),
+							get_oxm_length(),
+							length()));
+				}
+				break;
+			}
+		}
+		break;
+
 	}
 
 
@@ -597,8 +638,8 @@ coxmatch::uint8_value() const throw (eOxmInval)
 			case OFPXMT_OFB_ICMPV4_TYPE:
 			case OFPXMT_OFB_ICMPV4_CODE:
 			case OFPXMT_OFB_MPLS_TC:
-			case OFPXMT_OFB_PPPOE_CODE:
-			case OFPXMT_OFB_PPPOE_TYPE:
+			case OFPXMT_OFX_PPPOE_CODE:
+			case OFPXMT_OFX_PPPOE_TYPE:
 				return oxm_uint8t->byte;
 
 			default:
@@ -634,8 +675,8 @@ coxmatch::uint8_mask() const throw (eOxmInval)
 			case OFPXMT_OFB_ICMPV4_TYPE:
 			case OFPXMT_OFB_ICMPV4_CODE:
 			case OFPXMT_OFB_MPLS_TC:
-			case OFPXMT_OFB_PPPOE_CODE:
-			case OFPXMT_OFB_PPPOE_TYPE:
+			case OFPXMT_OFX_PPPOE_CODE:
+			case OFPXMT_OFX_PPPOE_TYPE:
 				return oxm_uint8t->mask;
 
 			default:
@@ -666,8 +707,8 @@ coxmatch::uint16_value() const throw (eOxmInval)
 			case OFPXMT_OFB_SCTP_SRC:
 			case OFPXMT_OFB_SCTP_DST:
 			case OFPXMT_OFB_ARP_OP:
-			case OFPXMT_OFB_PPPOE_SID:
-			case OFPXMT_OFB_PPP_PROT:
+			case OFPXMT_OFX_PPPOE_SID:
+			case OFPXMT_OFX_PPP_PROT:
 				return be16toh(oxm_uint16t->word);
 
 			default:
@@ -703,8 +744,8 @@ coxmatch::uint16_mask() const throw (eOxmInval)
 			case OFPXMT_OFB_SCTP_SRC:
 			case OFPXMT_OFB_SCTP_DST:
 			case OFPXMT_OFB_ARP_OP:
-			case OFPXMT_OFB_PPPOE_SID:
-			case OFPXMT_OFB_PPP_PROT:
+			case OFPXMT_OFX_PPPOE_SID:
+			case OFPXMT_OFX_PPP_PROT:
 				return be16toh(oxm_uint16t->mask);
 
 			default:
@@ -837,58 +878,15 @@ coxmatch::uint64_mask() const throw (eOxmInval)
 }
 
 
-#if 0
-coxmatch::oxm_typedesc_t oxm_typedesc[] = {
-	{ OFPXMT_OFB_IN_PORT, 		"OFPXMT_OFB_IN_PORT" },
-	{ OFPXMT_OFB_IN_PHY_PORT, 	"OFPXMT_OFB_IN_PHY_PORT" },
-	{ OFPXMT_OFB_METADATA, 		"OFPXMT_OFB_METADATA" },
-	{ OFPXMT_OFB_ETH_DST, 		"OFPXMT_OFB_ETH_DST" },
-	{ OFPXMT_OFB_ETH_SRC, 		"OFPXMT_OFB_ETH_SRC" },
-	{ OFPXMT_OFB_ETH_TYPE, 		"OFPXMT_OFB_ETH_TYPE" },
-	{ OFPXMT_OFB_VLAN_VID, 		"OFPXMT_OFB_VLAN_VID" },
-	{ OFPXMT_OFB_VLAN_PCP, 		"OFPXMT_OFB_VLAN_PCP" },
-	{ OFPXMT_OFB_IP_DSCP, 		"OFPXMT_OFB_IP_DSCP" },
-	{ OFPXMT_OFB_IP_ECN, 		"OFPXMT_OFB_IP_ECN" },
-	{ OFPXMT_OFB_IP_PROTO, 		"OFPXMT_OFB_IP_PROTO" },
-	{ OFPXMT_OFB_IPV4_SRC, 		"OFPXMT_OFB_IPV4_SRC" },
-	{ OFPXMT_OFB_IPV4_DST, 		"OFPXMT_OFB_IPV4_DST" },
-	{ OFPXMT_OFB_TCP_SRC, 		"OFPXMT_OFB_TCP_SRC" },
-	{ OFPXMT_OFB_TCP_DST, 		"OFPXM_OFB_TCP_DST" },
-	{ OFPXMT_OFB_UDP_SRC, 		"OFPXMT_OFB_UDP_SRC" },
-	{ OFPXMT_OFB_UDP_DST, 		"OFPXMT_OFB_UDP_DST" },
-	{ OFPXMT_OFB_SCTP_SRC, 		"OFPXMT_OFB_SCTP_SRC" },
-	{ OFPXMT_OFB_SCTP_DST, 		"OFPXMT_OFB_SCTP_DST" },
-	{ OFPXMT_OFB_ICMPV4_TYPE, 	"OFPXMT_OFB_ICMPV4_TYPE" },
-	{ OFPXMT_OFB_ICMPV4_CODE, 	"OFPXMT_OFB_ICMPV4_CODE" },
-	{ OFPXMT_OFB_ARP_OP, 		"OFPXMT_OFB_ARP_OP" },
-	{ OFPXMT_OFB_ARP_SPA, 		"OFPXMT_OFB_ARP_SPA" },
-	{ OFPXMT_OFB_ARP_TPA, 		"OFPXMT_OFB_ARP_TPA" },
-	{ OFPXMT_OFB_ARP_SHA, 		"OFPXMT_OFB_ARP_SHA" },
-	{ OFPXMT_OFB_ARP_THA, 		"OFPXMT_OFB_ARP_THA" },
-	{ OFPXMT_OFB_IPV6_SRC, 		"OFPXMT_OFB_IPV6_SRC" },
-	{ OFPXMT_OFB_IPV6_DST, 		"OFPXMT_OFB_IPV6_DST" },
-	{ OFPXMT_OFB_IPV6_FLABEL, 	"OFPXMT_OFB_IPV6_FLABEL" },
-	{ OFPXMT_OFB_ICMPV6_TYPE, 	"OFPXMT_OFB_ICMPV6_TYPE" },
-	{ OFPXMT_OFB_ICMPV6_CODE, 	"OFPXMT_OFB_ICMPV6_CODE" },
-	{ OFPXMT_OFB_IPV6_ND_TARGET, "OFPXMT_OFB_IPV6_ND_TARGET" },
-	{ OFPXMT_OFB_IPV6_ND_SLL, 	"OFPXMT_OFB_IPV6_ND_SLL" },
-	{ OFPXMT_OFB_IPV6_ND_TLL, 	"OFPXMT_OFB_IPV6_ND_TLL" },
-	{ OFPXMT_OFB_MPLS_LABEL, 	"OFPXMT_OFB_MPLS_LABEL" },
-	{ OFPXMT_OFB_MPLS_TC, 		"OFPXMT_OFB_MPLS_TC" },
-	{ OFPXMT_OFB_PPPOE_CODE, 	"OFPXMT_OFB_PPPOE_CODE" },
-	{ OFPXMT_OFB_PPPOE_TYPE, 	"OFPXMT_OFB_PPPOE_TYPE" },
-	{ OFPXMT_OFB_PPPOE_SID, 	"OFPXMT_OFB_PPPOE_SID" },
-	{ OFPXMT_OFB_PPP_PROT, 		"OFPXMT_OFB_PPP_PROT" }
-};
-#endif
 
 
 coxmatch::oxm_classdesc_t oxm_classdesc[] = {
-	{ OFPXMC_OPENFLOW_BASIC, 		"BASIC" }
+	{ OFPXMC_OPENFLOW_BASIC, 		"BASIC" },
+	{ OFPXMC_EXPERIMENTER, 			"EXPERIMENTER" }
 };
 
 
-coxmatch::oxm_typedesc_t oxm_typedesc[] = {
+coxmatch::oxm_typedesc_t oxm_basic_typedesc[] = {
 	{ OFPXMT_OFB_IN_PORT, 		"IN_PORT" },
 	{ OFPXMT_OFB_IN_PHY_PORT, 	"IN_PHY_PORT" },
 	{ OFPXMT_OFB_METADATA, 		"METADATA" },
@@ -925,10 +923,15 @@ coxmatch::oxm_typedesc_t oxm_typedesc[] = {
 	{ OFPXMT_OFB_IPV6_ND_TLL, 	"IPV6_ND_TLL" },
 	{ OFPXMT_OFB_MPLS_LABEL, 	"MPLS_LABEL" },
 	{ OFPXMT_OFB_MPLS_TC, 		"MPLS_TC" },
-	{ OFPXMT_OFB_PPPOE_CODE, 	"PPPOE_CODE" },
-	{ OFPXMT_OFB_PPPOE_TYPE, 	"PPPOE_TYPE" },
-	{ OFPXMT_OFB_PPPOE_SID, 	"PPPOE_SID" },
-	{ OFPXMT_OFB_PPP_PROT, 		"PPP_PROT" }
+};
+
+
+
+coxmatch::oxm_typedesc_t oxm_experimenter_typedesc[] = {
+	{ OFPXMT_OFX_PPPOE_CODE, 	"PPPOE_CODE" },
+	{ OFPXMT_OFX_PPPOE_TYPE, 	"PPPOE_TYPE" },
+	{ OFPXMT_OFX_PPPOE_SID, 	"PPPOE_SID" },
+	{ OFPXMT_OFX_PPP_PROT, 		"PPP_PROT" }
 };
 
 
@@ -952,10 +955,18 @@ coxmatch::type2desc(uint16_t oxm_class, uint16_t oxm_field)
 {
 	switch (oxm_class) {
 	case OFPXMC_OPENFLOW_BASIC:
-		for (int i = 0; i < (int)(sizeof(oxm_typedesc) / sizeof(oxm_typedesc_t)); i++)
+		for (int i = 0; i < (int)(sizeof(oxm_basic_typedesc) / sizeof(oxm_typedesc_t)); i++)
 		{
-			if (oxm_typedesc[i].type == oxm_field) {
-				return oxm_typedesc[i].desc;
+			if (oxm_basic_typedesc[i].type == oxm_field) {
+				return oxm_basic_typedesc[i].desc;
+			}
+		}
+		return 0;
+	case OFPXMC_EXPERIMENTER:
+		for (int i = 0; i < (int)(sizeof(oxm_experimenter_typedesc) / sizeof(oxm_typedesc_t)); i++)
+		{
+			if (oxm_experimenter_typedesc[i].type == oxm_field) {
+				return oxm_experimenter_typedesc[i].desc;
 			}
 		}
 		return 0;
@@ -963,8 +974,6 @@ coxmatch::type2desc(uint16_t oxm_class, uint16_t oxm_field)
 		return 0;
 	}
 }
-
-
 
 
 
@@ -1114,17 +1123,17 @@ coxmatch::test()
 	coxmatch_ofb_mpls_tc mpls_tc(7);
 	fprintf(stderr, "OFPXMT_OFB_MPLS_TC: %s\n", mpls_tc.c_str());
 
-	coxmatch_ofb_pppoe_code pppoe_code(0x65);
-	fprintf(stderr, "OFPXMT_OFB_PPPOE_CODE: %s\n", pppoe_code.c_str());
+	coxmatch_ofx_pppoe_code pppoe_code(0x65);
+	fprintf(stderr, "OFPXMT_OFX_PPPOE_CODE: %s\n", pppoe_code.c_str());
 
-	coxmatch_ofb_pppoe_type pppoe_type(0x1);
-	fprintf(stderr, "OFPXMT_OFB_PPPOE_TYPE: %s\n", pppoe_type.c_str());
+	coxmatch_ofx_pppoe_type pppoe_type(0x1);
+	fprintf(stderr, "OFPXMT_OFX_PPPOE_TYPE: %s\n", pppoe_type.c_str());
 
-	coxmatch_ofb_pppoe_sid pppoe_sid(0x2222);
-	fprintf(stderr, "OFPXMT_OFB_PPPOE_SID: %s\n", pppoe_sid.c_str());
+	coxmatch_ofx_pppoe_sid pppoe_sid(0x2222);
+	fprintf(stderr, "OFPXMT_OFX_PPPOE_SID: %s\n", pppoe_sid.c_str());
 
-	coxmatch_ofb_ppp_prot ppp_prot(0xc021);
-	fprintf(stderr, "OFPXMT_OFB_PPP_PROT: %s\n", ppp_prot.c_str());
+	coxmatch_ofx_ppp_prot ppp_prot(0xc021);
+	fprintf(stderr, "OFPXMT_OFX_PPP_PROT: %s\n", ppp_prot.c_str());
 #endif
 }
 
