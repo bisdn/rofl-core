@@ -14,11 +14,9 @@
 using namespace rofl;
 
 coxmatch::coxmatch(size_t size) :
-	cmemory(size),
-	oxm_len(size)
+	cmemory(size)
 {
-	//WRITELOG(COXMATCH, DBG, "coxmatch(%p)::coxmatch()", this);
-	pthread_rwlock_init(&oxmlock, NULL);
+	pthread_rwlock_init(&oxmlock, 0);
 	oxm_header = (struct ofp_oxm_hdr*)somem();
 }
 
@@ -26,31 +24,26 @@ coxmatch::coxmatch(size_t size) :
 coxmatch::coxmatch(
 		struct ofp_oxm_hdr* hdr,
 		size_t oxm_len) :
-		cmemory((uint8_t*)hdr, oxm_len),
-		oxm_len(oxm_len)
+		cmemory((uint8_t*)hdr, oxm_len)
 {
-	//WRITELOG(COXMATCH, DBG, "coxmatch(%p)::coxmatch()", this);
-	pthread_rwlock_init(&oxmlock, NULL);
+	pthread_rwlock_init(&oxmlock, 0);
 	oxm_header = (struct ofp_oxm_hdr*)somem();
 }
 
 
 coxmatch::coxmatch(
 		struct ofp_action_set_field *ach,
-		size_t achlen) throw (eOxmInval) :
-		oxm_len(achlen)
+		size_t achlen)
 {
-	if (achlen < sizeof(uint32_t))
-	{
+	if (achlen < sizeof(uint32_t)) {
 		throw eOxmInval();
 	}
-	//WRITELOG(COXMATCH, DBG, "coxmatch(%p)::coxmatch()", this);
-	pthread_rwlock_init(&oxmlock, NULL);
+
+	pthread_rwlock_init(&oxmlock, 0);
 	struct ofp_oxm_hdr *oxm_hdr = (struct ofp_oxm_hdr*)ach->field;
 	size_t oxm_len = achlen - sizeof(uint32_t);
 
-	if (oxm_len < sizeof(uint32_t))
-	{
+	if (oxm_len < sizeof(uint32_t)) {
 		throw eOxmInval();
 	}
 
@@ -58,34 +51,19 @@ coxmatch::coxmatch(
 	oxm_header = (struct ofp_oxm_hdr*)somem();
 
 	// TODO: check hasmask and remaining length
-#if 0
-	switch (oxm_header->oxm_class) {
-	case OFPXMC_OPENFLOW_BASIC:
-		{
-			switch (oxm_header->oxm_field) {
-			case ...
-			}
-		}
-		break;
-	default:
-		break;
-	}
-#endif
 }
 
 
 coxmatch::coxmatch(
 		const coxmatch& oxm)
 {
-	//WRITELOG(COXMATCH, DBG, "coxmatch(%p)::coxmatch()", this);
-	pthread_rwlock_init(&oxmlock, NULL);
+	pthread_rwlock_init(&oxmlock, 0);
 	*this = oxm;
 }
 
 
 coxmatch::~coxmatch()
 {
-	//WRITELOG(COXMATCH, DBG, "coxmatch(%p)::~coxmatch()", this);
 	pthread_rwlock_destroy(&oxmlock);
 }
 
@@ -98,13 +76,8 @@ coxmatch::operator= (
 		return *this;
 
 	cmemory::operator= (oxm);
-	oxm_len = oxm.oxm_len;
-	oxm_header = (struct ofp_oxm_hdr*)somem();
 
-#if 0
-	WRITELOG(COXMATCH, DBG, "coxmatch(%p)::operator=() oxm_mem:%s oxm_len:%d",
-			this, match.c_str(), oxm_len);
-#endif
+	oxm_header = (struct ofp_oxm_hdr*)somem();
 
 	return *this;
 }
@@ -163,47 +136,40 @@ coxmatch::sooxm() const
 size_t
 coxmatch::length() const
 {
-	return oxm_len;
+	return memlen();
 }
 
 
-struct ofp_oxm_hdr*
+
+void
 coxmatch::pack(
-		struct ofp_oxm_hdr* hdr,
-		size_t oxm_len)
-			throw (eOxmInval)
+		uint8_t* buf,
+		size_t buflen)
 {
-	if (oxm_len < length())
-	{
+	if (buflen < length()) {
 		throw eOxmInval();
 	}
 
-	memcpy(hdr, somem(), memlen());
-
-	return hdr;
+	memcpy(buf, somem(), memlen());
 }
+
 
 
 void
 coxmatch::unpack(
-		struct ofp_oxm_hdr* hdr,
-		size_t oxm_len)
+		uint8_t* buf,
+		size_t buflen)
 {
 	reset();
 
-	if (oxm_len > memlen())
-	{
-		oxm_header = (struct ofp_oxm_hdr*)resize(oxm_len);
+	if (buflen > memlen()) {
+		oxm_header = (struct ofp_oxm_hdr*)resize(buflen);
 	}
 
-	assign((uint8_t*)hdr, oxm_len);
+	assign(buf, buflen);
 	oxm_header = (struct ofp_oxm_hdr*)somem();
-
-#if 0
-	WRITELOG(COXMATCH, DBG, "coxmatch(%p)::unpack() oxm_header:%p oxm:%s",
-			this, oxm_header, match.c_str());
-#endif
 }
+
 
 
 const char*

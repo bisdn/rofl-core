@@ -14,26 +14,20 @@
 
 using namespace rofl;
 
-coxmlist::coxmlist() :
-	area(OFPXMT_OFB_MAX * sizeof(coxmatch*)),
-	oxmvec((coxmatch**)area.somem())
+coxmlist::coxmlist()
 {
-	clear();
-	//WRITELOG(COXMLIST, DBG, "coxmlist(%p)::coxmlist()", this);
+
 }
 
 
 coxmlist::~coxmlist()
 {
 	clear();
-	//WRITELOG(COXMLIST, DBG, "coxmlist(%p)::~coxmlist()", this);
 }
 
 
 coxmlist::coxmlist(
-		coxmlist const& oxmlist) :
-	area(OFPXMT_OFB_MAX * sizeof(coxmatch*)),
-	oxmvec((coxmatch**)area.somem())
+		coxmlist const& oxmlist)
 {
 	*this = oxmlist;
 }
@@ -48,13 +42,12 @@ coxmlist::operator= (
 
 	clear();
 
-	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
-	{
-             if ((coxmatch*)0 == oxmlist.oxmvec[i])
-             {
-                    continue;
-             }
-             oxmvec[i] = new coxmatch(*(oxmlist.oxmvec[i]));
+	for (std::map<uint16_t, std::map<uint8_t, coxmatch*> >::iterator
+			it = matches.begin(); it != matches.end(); ++it) {
+		for (std::map<uint8_t, coxmatch*>::iterator
+				jt = it->second.begin(); jt != it->second.end(); ++jt) {
+			matches[it->first][jt->first] = new coxmatch(jt->second);
+		}
 	}
 
 	return *this;
@@ -62,69 +55,20 @@ coxmlist::operator= (
 
 
 
-bool
-coxmlist::operator< (
-		coxmlist const& oxm) const
-{
-	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
-	{
-		if ((0 == oxmvec[i]) && (0 == oxm.oxmvec[i]))
-		{
-			continue;
-		}
-		else if ((0 != oxmvec[i]) && (0 != oxm.oxmvec[i]))
-		{
-			if (*(oxmvec[i]) == *(oxm.oxmvec[i]))
-			{
-				continue;
-			}
-			else
-			{
-				return (*(oxmvec[i]) < *(oxm.oxmvec[i]));
-			}
-		}
-		else if (0 != oxmvec[i])
-		{
-			return false;
-		}
-		else if (0 != oxm.oxmvec[i])
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-
 
 void
 coxmlist::clear()
 {
-	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; ++i)
-	{
-		if ((coxmatch*)0 != oxmvec[i])
-		{
-			delete oxmvec[i];
-			oxmvec[i] = (coxmatch*)0;
+	for (std::map<uint16_t, std::map<uint8_t, coxmatch*> >::iterator
+			it = matches.begin(); it != matches.end(); ++it) {
+		for (std::map<uint8_t, coxmatch*>::iterator
+				jt = it->second.begin(); jt != it->second.end(); ++jt) {
+			 delete jt->second;
 		}
 	}
+	matches.clear();
 }
 
-
-size_t
-coxmlist::size() const
-{
-	size_t cnt = 0;
-	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; ++i)
-	{
-		if ((coxmatch*)0 == oxmvec[i])
-		{
-			continue;
-		}
-		cnt++;
-	}
-	return cnt;
-}
 
 
 bool
@@ -134,109 +78,101 @@ coxmlist::operator== (coxmlist& oxmlist)
 }
 
 
-coxmatch&
-coxmlist::operator[] (
-		size_t index) throw (eOxmListOutOfRange)
-{
-	if (index >= OFPXMT_OFB_MAX)
-	{
-		throw eOxmListOutOfRange();
-	}
-
-	if ((coxmatch*)0 == oxmvec[index])
-	{
-		oxmvec[index] = new coxmatch();
-	}
-
-	return *oxmvec[index];
-}
 
 
 
 void
 coxmlist::unpack(
-		struct ofp_oxm_hdr* oxm_hdr,
-		size_t oxm_len)
+		uint8_t* buf,
+		size_t buflen)
 {
-	clear(); // clears oxmvec
+	clear();
 
 	// sanity check: oxm_len must be of size at least of ofp_oxm_hdr
-	if (oxm_len < (int)sizeof(struct ofp_oxm_hdr))
-	{
+	if (buflen < (int)sizeof(struct ofp_oxm_hdr)) {
 		throw eBadMatchBadLen();
 	}
 
 	// first instruction
-	struct ofp_oxm_hdr *hdr = oxm_hdr;
+	struct ofp_oxm_hdr *hdr = (struct ofp_oxm_hdr*)buf;
 
 
-	while (oxm_len > 0)
-	{
-		if ((oxm_len < sizeof(struct ofp_oxm_hdr)) || (0 == hdr->oxm_length))
-		{
+	while (buflen > 0) {
+		if ((buflen < sizeof(struct ofp_oxm_hdr)) || (0 == hdr->oxm_length)) {
 			return; // not enough bytes to parse an entire ofp_oxm_hdr, possibly padding bytes found
 		}
 
 		coxmatch oxm(hdr, sizeof(struct ofp_oxm_hdr) + hdr->oxm_length);
 
-		if (oxm.get_oxm_field() >= OFPXMT_OFB_MAX)
-		{
-			throw eBadMatchBadField();
+		switch (oxm.get_oxm_class()) {
+		case OFPXMC_OPENFLOW_BASIC: {
+			if (oxm.get_oxm_field() >= OFPXMT_OFB_MAX) {
+				throw eBadMatchBadField();
+			}
+		} break;
+		case OFPXMC_EXPERIMENTER: {
+			if (oxm.get_oxm_field() >= OFPXMT_OFX_MAX) {
+				throw eBadMatchBadField();
+			}
+		} break;
 		}
 
-		(*this)[oxm.get_oxm_field()] = oxm;
+		if (matches[oxm.get_oxm_class()].find(oxm.get_oxm_field()) != matches[oxm.get_oxm_class()].end()) {
+			delete matches[oxm.get_oxm_class()][oxm.get_oxm_field()];
+		}
 
-		oxm_len -= (sizeof(struct ofp_oxm_hdr) + hdr->oxm_length);
+		matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch(oxm);
+
+		buflen -= (sizeof(struct ofp_oxm_hdr) + hdr->oxm_length);
 		hdr = (struct ofp_oxm_hdr*)(((uint8_t*)hdr) + sizeof(struct ofp_oxm_hdr) + hdr->oxm_length);
 	}
 }
 
 
-struct ofp_oxm_hdr*
-coxmlist::pack(
-		struct ofp_oxm_hdr* oxm_hdr,
-		size_t oxm_len) const
-{
-	size_t needed_oxm_len = length();
 
-	if (oxm_len < needed_oxm_len)
-	{
+void
+coxmlist::pack(
+		uint8_t* buf,
+		size_t buflen)
+{
+	if (buflen < length()) {
 		throw eBadMatchBadLen();
 	}
 
-	struct ofp_oxm_hdr *hdr = oxm_hdr; // first oxm header
+	for (std::map<uint16_t, std::map<uint8_t, coxmatch*> >::iterator
+			it = matches.begin(); it != matches.end(); ++it) {
+		for (std::map<uint8_t, coxmatch*>::iterator
+				jt = it->second.begin(); jt != it->second.end(); ++jt) {
 
-	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
-	{
-		if ((coxmatch*)0 == oxmvec[i])
-		{
-			continue;
+			coxmatch& match = *(matches[it->first][jt->first]);
+
+			match.pack(buf, match.length());
+
+			buf += match.length();
 		}
-
-		coxmatch& match = *(oxmvec[i]);
-
-		hdr = (struct ofp_oxm_hdr*)
-					((uint8_t*)(match.pack(hdr, match.length())) + match.length());
 	}
-
-	return oxm_hdr;
 }
+
+
 
 
 size_t
 coxmlist::length() const
 {
-	size_t oxm_len = 0;
-	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
-	{
-		if ((coxmatch*)0 == oxmvec[i])
-		{
-			continue;
+	size_t len = 0;
+	for (std::map<uint16_t, std::map<uint8_t, coxmatch*> >::iterator
+			it = matches.begin(); it != matches.end(); ++it) {
+		for (std::map<uint8_t, coxmatch*>::iterator
+				jt = it->second.begin(); jt != it->second.end(); ++jt) {
+
+			coxmatch& match = *(matches[it->first][jt->first]);
+
+			len += match.length();
 		}
-		oxm_len += oxmvec[i]->length();
 	}
-	return oxm_len;
+	return len;
 }
+
 
 
 const char*
@@ -245,10 +181,8 @@ coxmlist::c_str()
 	cvastring vas(4096);
 	info.assign(vas("coxmlist(%p) length:%d => match(es): ",
 			this, length()));
-	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
-	{
-		if ((coxmatch*)0 == oxmvec[i])
-		{
+	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++) {
+		if ((coxmatch*)0 == oxmvec[i]) {
 			continue;
 		}
 		info.append(vas("\n  [%02d] %s ", oxmvec[i]->get_oxm_field(), oxmvec[i]->c_str()));
@@ -611,3 +545,81 @@ coxmlist::test()
 #endif
 }
 
+
+
+
+
+void
+coxmlist::is_matching(
+		coxmlist& other,
+		uint16_t& exact_hits,
+		uint16_t& wildcard_hits,
+		uint16_t& missed)
+{
+	std::map<uint16_t, coxmatch>& bmatches = oxmlist.get_matches(OFPXMC_OPENFLOW_BASIC);
+	for (std::map<uint16_t, coxmatch>::iterator
+			it = bmatches.begin(); it != bmatches.end(); ++it) {
+
+	}
+
+
+
+
+	coxmatch** left = this->oxmlist.oxmvec;
+	coxmatch** right = other.oxmlist.oxmvec;
+
+	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
+	{
+		if ((coxmatch*)0 == left[i])
+		{
+			// left side is null => wildcard match
+			wildcard_matches++;
+#if 0
+			WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_matching() "
+					"wildcard match => left is 0", this);
+#endif
+
+		}
+		else if (((coxmatch*)0 != left[i]) && ((coxmatch*)0 == right[i]))
+		{
+			// left side is non-null, but right side is null => miss
+			missed++;
+
+			WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_matching() "
+					"miss => left is %s != right is 0", this,
+					this->oxmlist[i].c_str());
+
+			return false;
+		}
+		else if (this->oxmlist[i] != other.oxmlist[i])
+		{
+			// left and right side are non-null and do not match => miss
+
+			WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_matching() "
+					"miss => %s != %s", this,
+					this->oxmlist[i].c_str(), other.oxmlist[i].c_str());
+
+			missed++;
+
+			return false;
+		}
+		else
+		{
+			// left and right side are non-null and match => exact match
+			exact_matches++;
+
+			WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_matching() "
+					"exact match => %s == %s", this,
+					this->oxmlist[i].c_str(), other.oxmlist[i].c_str());
+		}
+	}
+
+#if 0
+	for (unsigned int j = 0; j < OFPXMT_OFX_MAX; j++)
+	{
+
+	}
+#endif
+
+	return true;
+}

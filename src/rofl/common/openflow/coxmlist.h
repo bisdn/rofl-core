@@ -14,6 +14,7 @@
 
 #include <string>
 #include <deque>
+#include <map>
 
 #include <algorithm>
 
@@ -28,11 +29,11 @@
 namespace rofl
 {
 
-class eOxmListBase : public cerror {};
-class eOxmListInval : public eOxmListBase {}; // invalid parameter
-class eOxmListBadLen : public eOxmListBase {}; // bad length
-class eOxmListNotFound : public eOxmListBase {}; // element not found
-class eOxmListOutOfRange : public eOxmListBase {}; // out of range
+class eOxmListBase 			: public cerror {};
+class eOxmListInval 		: public eOxmListBase {}; // invalid parameter
+class eOxmListBadLen 		: public eOxmListBase {}; // bad length
+class eOxmListNotFound 		: public eOxmListBase {}; // element not found
+class eOxmListOutOfRange 	: public eOxmListBase {}; // out of range
 
 
 /** this class contains a list of Openflow eXtensible Matches (OXM)
@@ -44,17 +45,10 @@ class coxmlist :
 {
 private: // data structures
 
-		std::string 				info;
-		std::map<uint8_t, std::map<uint16_t, coxmatch>	matches;
-							// key1: OXM TLV class, key2: OXM TLV field, value: coxmatch instance
-		//std::vector<coxmatch*> 	oxmvec;
-		cmemory 					area;
+		std::string 										info;
+		std::map<uint16_t, std::map<uint8_t, coxmatch*> >	matches;
+							// key1: OXM TLV class, key2: OXM TLV field, value: ptr to coxmatch instance on heap
 
-
-public:
-
-
-		coxmatch*** 					oxmvec;
 
 public: // methods
 
@@ -82,30 +76,9 @@ public: // methods
 		/**
 		 *
 		 */
-		coxmlist& operator= (
+		coxmlist&
+		operator= (
 				coxmlist const& oxmlist);
-
-
-		/**
-		 *
-		 */
-		bool
-		operator< (
-				coxmlist const& oxm) const;
-
-
-		/**
-		 *
-		 */
-		void
-		clear();
-
-
-		/** returns number of coxmatch instances in oxmvec (excluding 0-pointers)
-		 *
-		 */
-		size_t
-		size() const;
 
 
 		/**
@@ -116,12 +89,13 @@ public: // methods
 				coxmlist& oxmlist);
 
 
+
 		/**
 		 *
 		 */
-		coxmatch&
-		operator[] (
-				size_t index) throw (eOxmListOutOfRange);
+		void
+		clear();
+
 
 
 		/** stores cofinst instances in this->invec from a packed array struct ofp_instruction (e.g. in struct ofp_flow_mod)
@@ -129,21 +103,21 @@ public: // methods
 		 */
 		void
 		unpack(
-				struct ofp_oxm_hdr *oxm_hdr,
-				size_t oxm_len);
+				uint8_t* buf,
+				size_t buflen);
 
 
 		/** builds an array of struct ofp_instruction from this->oxmvec
 		 *
 		 */
-		struct ofp_oxm_hdr*
+		void
 		pack(
-				struct ofp_oxm_hdr *oxm_hdr,
-				size_t oxm_len) const;
+				uint8_t* buf,
+				size_t buflen);
 
 
-		/** returns required length for array of struct ofp_instruction
-		 * for all instructions defined in this->invec including padding!
+		/**
+		 * @brief	Returns length of this coxmlist instance when begin packed.
 		 */
 		size_t
 		length() const;
@@ -155,34 +129,6 @@ public: // methods
 		c_str();
 
 
-		/** check for existence of specific OXM TLV
-		 *
-		 */
-		bool
-		exists(
-				uint16_t oxm_class,
-				uint8_t oxm_field) const;
-
-
-		/** find a specific OXM TLV and return a reference
-		 */
-		coxmatch&
-		oxm_find(
-				uint16_t oxm_class,
-				uint8_t oxm_field)
-					throw (eOxmListNotFound);
-
-
-		/** find a specific OXM TLV and return a copy
-		 *
-		 */
-		coxmatch const&
-		get_oxm(
-				uint16_t oxm_class,
-				uint8_t oxm_field)
-					const throw (eOxmListNotFound);
-
-
 		/** erase oxmlist
 		 *
 		 */
@@ -192,32 +138,37 @@ public: // methods
 				uint8_t oxm_field);
 
 
-		/** insert new or replace existing oxm of [class,field] with value
+		/** insert coxmatch instance
 		 *
 		 */
 		void
-		oxm_replace_or_insert(
-				uint16_t oxm_class,
-				uint8_t oxm_field,
-				uint32_t dword);
+		insert(
+				coxmatch const& oxm);
 
-		/** insert new or replace existing oxm of [class,field] with value
-		 *
-		 */
-		void
-		oxm_replace_or_insert(
-				uint16_t oxm_class,
-				uint8_t oxm_field,
-				uint16_t word);
 
-		/** insert new or replace existing oxm of [class,field] with value
+
+
+		/**
+		 *
+		 */
+		coxmatch&
+		get_match(
+				uint8_t ofm_class, uint16_t ofm_field);
+
+
+
+
+		/**
 		 *
 		 */
 		void
-		oxm_replace_or_insert(
-				uint16_t oxm_class,
-				uint8_t oxm_field,
-				uint8_t byte);
+		is_matching(
+				coxmlist& other,
+				uint16_t& exact_hits,
+				uint16_t& wildcard_hits,
+				uint16_t& missed);
+
+
 
 
 		/**
@@ -238,12 +189,6 @@ public: // methods
 				uint16_t& exact_hits,
 				uint16_t& wildcard_hits,
 				uint16_t& missed);
-
-		/**
-		 *
-		 */
-		static void
-		test();
 };
 
 }; // end of namespace

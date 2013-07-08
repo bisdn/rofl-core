@@ -169,63 +169,7 @@ cofmatch::is_matching(
 	wildcard_matches = 0;
 	missed = 0;
 
-	coxmatch*** left = this->oxmlist.oxmvec;
-	coxmatch*** right = other.oxmlist.oxmvec;
-
-	for (unsigned int i = 0; i < OFPXMT_OFB_MAX; i++)
-	{
-		if ((coxmatch*)0 == left[i])
-		{
-			// left side is null => wildcard match
-			wildcard_matches++;
-#if 0
-			WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_matching() "
-					"wildcard match => left is 0", this);
-#endif
-
-		}
-		else if (((coxmatch*)0 != left[i]) && ((coxmatch*)0 == right[i]))
-		{
-			// left side is non-null, but right side is null => miss
-			missed++;
-
-			WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_matching() "
-					"miss => left is %s != right is 0", this,
-					this->oxmlist[i].c_str());
-
-			return false;
-		}
-		else if (this->oxmlist[i] != other.oxmlist[i])
-		{
-			// left and right side are non-null and do not match => miss
-
-			WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_matching() "
-					"miss => %s != %s", this,
-					this->oxmlist[i].c_str(), other.oxmlist[i].c_str());
-
-			missed++;
-
-			return false;
-		}
-		else
-		{
-			// left and right side are non-null and match => exact match
-			exact_matches++;
-
-			WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_matching() "
-					"exact match => %s == %s", this,
-					this->oxmlist[i].c_str(), other.oxmlist[i].c_str());
-		}
-	}
-
-#if 0
-	for (unsigned int j = 0; j < OFPXMT_OFX_MAX; j++)
-	{
-
-	}
-#endif
-
-	return true;
+	return oxmlist.is_matching(other.oxmlist, exact_matches, wildcard_matches, missed);
 }
 
 
