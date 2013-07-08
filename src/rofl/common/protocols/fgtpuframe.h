@@ -23,12 +23,14 @@ extern "C" {
 #endif
 
 #include <rofl/common/fframe.h>
+#include "gtpuext.h"
 
 namespace rofl
 {
 
 class eGTPuFrameBase 		: public eFrameBase {};
 class eGTPuFrameInval		: public eGTPuFrameBase, public eFrameInval {};
+
 
 class fgtpuframe :
 		public fframe
@@ -37,6 +39,10 @@ public:
 
 	enum gtpu_version_t {
 		GTPU_VERS_1 = 1,
+	};
+
+	enum gtpu_udp_port_t {
+		GTPU_UDP_PORT = 2512,
 	};
 
 	enum gtpu_flag_t {
@@ -89,13 +95,6 @@ public:
 	};
 
 
-	// GTP-Uv1 extension header
-	struct gtpu_ext_hdr_t {
-		uint8_t		extlen;		// length of extension header in bytes
-		uint8_t		data[0];	// pointer to start of data
-					/* last byte contains next extension header type */
-	};
-
 private:
 
 	union {
@@ -146,6 +145,30 @@ public:
 	reset(
 			uint8_t* data,
 			size_t datalen);
+
+
+	/**
+	 * @brief	Returns pointer to begin of this PDU.
+	 *
+	 */
+	virtual uint8_t*
+	sopdu();
+
+
+	/**
+	 * @brief	Returns length of this PDU
+	 *
+	 */
+	virtual size_t
+	pdulen();
+
+
+	/**
+	 * @brief	Returns pointer to begin of SDU encapsulated in this PDU (if any).
+	 */
+	virtual uint8_t*
+	sosdu();
+
 
 
 public:

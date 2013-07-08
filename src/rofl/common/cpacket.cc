@@ -1252,6 +1252,7 @@ cpacket::udp(int i) throw (ePacketNotFound)
 }
 
 
+
 ftcpframe*
 cpacket::tcp(int i) throw (ePacketNotFound)
 {
@@ -1310,6 +1311,130 @@ cpacket::tcp(int i) throw (ePacketNotFound)
 
 	throw ePacketNotFound();
 }
+
+
+
+fsctpframe*
+cpacket::sctp(int i) throw (ePacketNotFound)
+{
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<fsctpframe*>( frame ))
+			{
+				return (dynamic_cast<fsctpframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<fsctpframe*>( frame ))
+			{
+				return (dynamic_cast<fsctpframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
+}
+
+
+
+fgtpuframe*
+cpacket::gtpu(int i) throw (ePacketNotFound)
+{
+	if ((0 == head) || (0 == tail))
+	{
+		throw ePacketNotFound();
+	}
+
+
+	if (i >= 0)
+	{
+		fframe *frame = (fframe*)head;
+
+		while (true)
+		{
+			if (dynamic_cast<fgtpuframe*>( frame ))
+			{
+				return (dynamic_cast<fgtpuframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->next)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->next;
+				}
+			}
+		}
+	}
+	else
+	{
+		fframe *frame = (fframe*)tail;
+
+		while (true)
+		{
+			if (dynamic_cast<fgtpuframe*>( frame ))
+			{
+				return (dynamic_cast<fgtpuframe*>( frame ));
+			}
+			else
+			{
+				if (0 == frame->prev)
+				{
+					throw ePacketNotFound();
+				}
+				else
+				{
+					frame = frame->prev;
+				}
+			}
+		}
+	}
+
+	throw ePacketNotFound();
+}
+
+
 
 
 
@@ -2792,12 +2917,18 @@ cpacket::parse_udp(
 	p_ptr += sizeof(struct fudpframe::udp_hdr_t);
 	p_len -= sizeof(struct fudpframe::udp_hdr_t);
 
+	switch (match.get_udp_dst()) {
+	case fgtpuframe::GTPU_UDP_PORT: {
+		parse_gtpu(p_ptr, p_len);
+	} break;
+	default: {
+		if (p_len > 0)
+		{
+			fframe *payload = new fframe(p_ptr, p_len);
 
-	if (p_len > 0)
-	{
-		fframe *payload = new fframe(p_ptr, p_len);
-
-		frame_append(payload);
+			frame_append(payload);
+		}
+	} break;
 	}
 }
 
@@ -2875,6 +3006,46 @@ cpacket::parse_sctp(
 		frame_append(payload);
 	}
 
+
+}
+
+
+
+void
+cpacket::parse_gtpu(
+		uint8_t *data,
+		size_t datalen)
+{
+	uint8_t 	*p_ptr 		= data;
+	size_t 		 p_len 		= datalen;
+
+	if (p_len < sizeof(struct fgtpuframe::gtpu_short_hdr_t))
+	{
+		return;
+	}
+
+	fgtpuframe *gtpu = new fgtpuframe(p_ptr, p_len);
+
+#if 0
+	match.set_tcp_dst(tcp->get_dport());
+	match.set_tcp_src(tcp->get_sport());
+#endif
+
+	frame_append(gtpu);
+
+	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_gtpu() "
+			"gtpu: %s\nmatch: %s", this, gtpu->c_str(), match.c_str());
+
+	p_ptr += sizeof(struct ftcpframe::tcp_hdr_t);
+	p_len -= sizeof(struct ftcpframe::tcp_hdr_t);
+
+
+	if (p_len > 0)
+	{
+		fframe *payload = new fframe(p_ptr, p_len);
+
+		frame_append(payload);
+	}
 
 }
 

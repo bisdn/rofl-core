@@ -31,7 +31,7 @@ fgtpuframe::fgtpuframe(
 
 fgtpuframe::~fgtpuframe()
 {
-
+	// do _NOT_ delete or deallocate (data,datalen) here!
 }
 
 
@@ -41,7 +41,41 @@ fgtpuframe::reset(
 			uint8_t* data,
 			size_t datalen)
 {
+	fframe::reset(data, datalen);
+	initialize();
+}
 
+
+
+uint8_t*
+fgtpuframe::sopdu()
+{
+	return soframe();
+}
+
+
+
+uint8_t*
+fgtpuframe::sosdu()
+{
+	size_t offset = (sizeof(struct gtpu_short_hdr_t));
+
+	if (get_s_flag())
+		offset += sizeof(uint16_t);
+	if (get_pn_flag())
+		offset += sizeof(uint8_t);
+	if (get_e_flag())
+		offset += sizeof(uint8_t);
+
+	return (soframe() + offset);
+}
+
+
+
+size_t
+fgtpuframe::pdulen()
+{
+	return (sizeof(struct gtpu_short_hdr_t) + get_length());
 }
 
 
@@ -260,6 +294,14 @@ fgtpuframe::set_ext_type(
 bool
 fgtpuframe::complete()
 {
+	// at least a short header must be available
+	if (framelen() < sizeof(struct gtpu_short_hdr_t))
+		return false;
+
+	// length field contains payload (seqno, n-pdu also count as payload)
+	if (framelen() < (sizeof(struct gtpu_short_hdr_t) + get_length()))
+		return false;
+
 	return true;
 }
 
@@ -268,6 +310,14 @@ fgtpuframe::complete()
 size_t
 fgtpuframe::need_bytes()
 {
+	// at least a short header must be available
+	if (framelen() < sizeof(struct gtpu_short_hdr_t))
+		return (sizeof(struct gtpu_short_hdr_t) + framelen());
+
+	// length field contains payload (seqno, n-pdu also count as payload)
+	if (framelen() < (sizeof(struct gtpu_short_hdr_t) + get_length()))
+		return ((sizeof(struct gtpu_short_hdr_t) + get_length()) - framelen());
+
 	return 0;
 }
 
@@ -277,7 +327,8 @@ void
 fgtpuframe::validate(
 		uint16_t total_len) throw (eFrameInvalidSyntax)
 {
-
+	if (not complete())
+		throw eFrameInvalidSyntax();
 }
 
 
@@ -285,7 +336,7 @@ fgtpuframe::validate(
 void
 fgtpuframe::initialize()
 {
-
+	gtphu_hdr = soframe(); // side effect: sets union gtphu and all pointers within this union
 }
 
 
@@ -294,7 +345,7 @@ void
 fgtpuframe::payload_insert(
 		uint8_t *data, size_t datalen) throw (eFrameOutOfRange)
 {
-
+	throw eNotImplemented();
 }
 
 
@@ -302,7 +353,16 @@ fgtpuframe::payload_insert(
 uint8_t*
 fgtpuframe::payload() const throw (eFrameNoPayload)
 {
-	return 0;
+	size_t offset = sizeof(struct gtpu_short_hdr_t);
+
+	if (get_s_flag())
+		offset += sizeof(uint16_t);
+	if (get_pn_flag())
+		offset += sizeof(uint8_t);
+	if (get_e_flag())
+		offset += sizeof(uint8_t);
+
+	return (soframe() + offset);
 }
 
 
@@ -310,7 +370,16 @@ fgtpuframe::payload() const throw (eFrameNoPayload)
 size_t
 fgtpuframe::payloadlen() const throw (eFrameNoPayload)
 {
-	return 0;
+	size_t offset = sizeof(struct gtpu_short_hdr_t);
+
+	if (get_s_flag())
+		offset += sizeof(uint16_t);
+	if (get_pn_flag())
+		offset += sizeof(uint8_t);
+	if (get_e_flag())
+		offset += sizeof(uint8_t);
+
+	return (get_length() - offset);
 }
 
 

@@ -110,6 +110,26 @@ public:
 	 */
 	fframe& operator= (const fframe& frame);
 
+	/**
+	 * @brief	Returns pointer to begin of this PDU.
+	 *
+	 */
+	virtual uint8_t*
+	sopdu() { return soframe(); };
+
+	/**
+	 * @brief	Returns length of this PDU
+	 *
+	 */
+	virtual size_t
+	pdulen() { return framelen(); };
+
+	/**
+	 * @brief	Returns pointer to begin of SDU encapsulated in this PDU (if any).
+	 */
+	virtual uint8_t*
+	sosdu() { return soframe(); };
+
 	/** index operator
 	 *
 	 */
