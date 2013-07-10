@@ -35,16 +35,16 @@ coxmlist::coxmlist(
 
 coxmlist&
 coxmlist::operator= (
-		coxmlist const& oxmlist)
+		coxmlist const& oxl)
 {
-	if (this == &oxmlist)
+	if (this == &oxl)
 		return *this;
 
 	clear();
 
-	for (std::map<uint16_t, std::map<uint8_t, coxmatch*> >::iterator
-			it = matches.begin(); it != matches.end(); ++it) {
-		for (std::map<uint8_t, coxmatch*>::iterator
+	for (std::map<uint16_t, std::map<uint8_t, coxmatch*> >::const_iterator
+			it = oxl.matches.begin(); it != oxl.matches.end(); ++it) {
+		for (std::map<uint8_t, coxmatch*>::const_iterator
 				jt = it->second.begin(); jt != it->second.end(); ++jt) {
 			matches[it->first][jt->first] = new coxmatch(*(jt->second));
 		}

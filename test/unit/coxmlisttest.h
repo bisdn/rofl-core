@@ -9,6 +9,8 @@ using namespace rofl;
 class coxmlistTest : public CppUnit::TestFixture {
 
 	CPPUNIT_TEST_SUITE( coxmlistTest );
+	CPPUNIT_TEST( testPack );
+	CPPUNIT_TEST( testAssignmentOperator );
 	CPPUNIT_TEST( testIsPartOf );
 	CPPUNIT_TEST( testContains );
 	CPPUNIT_TEST_SUITE_END();
@@ -28,6 +30,8 @@ public:
 	void setUp();
 	void tearDown();
 
+	void testPack();
+	void testAssignmentOperator();
 	void testIsPartOf();
 	void testContains();
 };

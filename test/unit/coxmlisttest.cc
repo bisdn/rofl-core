@@ -63,6 +63,40 @@ coxmlistTest::tearDown()
 
 
 void
+coxmlistTest::testPack()
+{
+	fprintf(stderr, "\n\n\n\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
+	std::cerr << "rule-nonstrict=" << std::endl << *rule_nonstrict << std::endl;
+	cmemory mem(rule_nonstrict->length());
+	rule_nonstrict->pack(mem.somem(), mem.memlen());
+	fprintf(stderr, "%s\n", mem.c_str());
+
+	coxmlist oxl;
+
+	std::cerr << std::endl << std::endl;
+	oxl.unpack(mem.somem(), mem.memlen());
+	std::cerr << "oxl=" << std::endl << oxl << std::endl;
+	CPPUNIT_ASSERT(*rule_nonstrict == oxl);
+}
+
+
+
+void
+coxmlistTest::testAssignmentOperator()
+{
+	coxmlist oxl;
+
+	fprintf(stderr, "\n\n\n\nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\n");
+	std::cerr << "rule-nonstrict=" << std::endl << *rule_nonstrict << std::endl;
+	oxl = *rule_nonstrict;
+	std::cerr << "oxl=" << std::endl << oxl << std::endl;
+
+	CPPUNIT_ASSERT(oxl == *rule_nonstrict);
+}
+
+
+
+void
 coxmlistTest::testIsPartOf()
 {
 	//fprintf(stderr, "testIsPartOf: packet.is_part_of(rule_nonstrict)\n");
