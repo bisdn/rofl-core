@@ -214,13 +214,6 @@ public:
 			size_t mlen);
 
 
-	/** check for an overlap between two ofp_match structures 
-	 * (strict and non-strict)
-	 */
-	bool 
-	overlaps(
-		cofmatch const& m,
-		bool strict = false);
 
 	
 	/** check for an identical match between two ofp_match structures

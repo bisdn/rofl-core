@@ -571,7 +571,7 @@ cftentry::overlaps(
 		cofmatch& match,
 		bool strict /* =false (default)*/)
 {
-	return this->ofmatch.overlaps(match, strict);
+	return this->ofmatch.contains(match, strict);
 }
 
 
@@ -725,7 +725,7 @@ cftentry::get_flow_stats(
 	/*
 	 * match must overlap
 	 */
-	if (not ofmatch.overlaps(m, false /*non-strict*/))
+	if (not ofmatch.contains(m, false /*non-strict*/))
 	{
 		return;
 	}
@@ -873,7 +873,7 @@ cftentry::get_aggregate_flow_stats(
 	/*
 	 * match must overlap
 	 */
-	if (not ofmatch.overlaps(m, false /*non-strict*/))
+	if (not ofmatch.contains(m, false /*non-strict*/))
 	{
 		cofmatch test(m);
 		WRITELOG(CFTTABLE, DBG, "cftentry::get_aggregate_flow_stats() "

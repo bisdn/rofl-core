@@ -937,7 +937,7 @@ cfttable::find_ft_entries(cofmatch const& match)
 	std::set<cftentry*>::iterator it;
 	for (it = flow_table.begin(); it != flow_table.end(); ++it)
 	{
-		if ((*it)->ofmatch.overlaps(match, true /* strict */))
+		if ((*it)->ofmatch.contains(match, true /* strict */))
 		{
 			replies.insert((*it));
 		}
