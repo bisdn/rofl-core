@@ -357,9 +357,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch const& oxm)
 	{
-		os << "coxmatch{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-		os << "}";
+		os << "<...>";
 		return os;
 	};
 
@@ -449,10 +449,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_in_port const& oxm)
 	{
-		os << "coxmatch_ofb_in_port{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<INPUT port: " << oxm.u32value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -485,10 +484,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_in_phy_port const& oxm)
 	{
-		os << "coxmatch_ofb_in_phy_port{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<INPUT phy-port: " << oxm.u32value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -538,10 +536,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_metadata const& oxm)
 	{
-		os << "coxmatch_ofb_metadata{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<METADATA metadata: " << oxm.u64value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -588,10 +585,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_eth_dst const& oxm)
 	{
-		os << "coxmatch_ofb_eth_dst{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<ETH-DST: " << oxm.u48addr().c_str() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -638,10 +634,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_eth_src const& oxm)
 	{
-		os << "coxmatch_ofb_eth_src{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<ETH-SRC: " << oxm.u48addr().c_str() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -674,10 +669,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_eth_type const& oxm)
 	{
-		os << "coxmatch_ofb_eth_type{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<ETH-TYPE: " << oxm.u16value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -724,10 +718,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_vlan_vid const& oxm)
 	{
-		os << "coxmatch_ofb_vlan_vid{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<VLAN-VID: " << oxm.u16value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -760,10 +753,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_vlan_pcp const& oxm)
 	{
-		os << "coxmatch_ofb_vlan_pcp{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<VLAN-PCP: " << oxm.u8value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -797,10 +789,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ip_dscp const& oxm)
 	{
-		os << "coxmatch_ofb_ip_dscp{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<IP-DSCP: " << oxm.u8value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -833,10 +824,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ip_ecn const& oxm)
 	{
-		os << "coxmatch_ofb_ip_ecn{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<IP-ECN: " << oxm.u8value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -869,10 +859,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ip_proto const& oxm)
 	{
-		os << "coxmatch_ofb_ip_proto{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<IP-PROTO: " << oxm.u8value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -952,10 +941,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv4_src const& oxm)
 	{
-		os << "coxmatch_ofb_ipv4_src{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<IPV4-SRC: " << oxm.u32addr().addr_c_str() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1035,10 +1023,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv4_dst const& oxm)
 	{
-		os << "coxmatch_ofb_ipv4_dst{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<IPV4-DST: " << oxm.u32addr().addr_c_str() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1122,10 +1109,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_src const& oxm)
 	{
-		os << "coxmatch_ofb_ipv6_src{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<IPV6-SRC: " << oxm.u128addr().addr_c_str() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1209,10 +1195,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_dst const& oxm)
 	{
-		os << "coxmatch_ofb_ipv6_dst{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<IPV6-DST: " << oxm.u128addr().addr_c_str() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1262,10 +1247,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_target const& oxm)
 	{
-		os << "coxmatch_ofb_ipv6_nd_target{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<ND-TARGET: " << oxm.u128addr().addr_c_str() << ">";
-		os << "}";
+			os << "<IPv6-ND-TARGET: " << oxm.u128addr().addr_c_str() << ">";
 		return os;
 	};
 };
@@ -1298,10 +1282,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_tcp_src const& oxm)
 	{
-		os << "coxmatch_ofb_tcp_src{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<TCP-SRC: " << (unsigned int)oxm.u16value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1334,10 +1317,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_tcp_dst const& oxm)
 	{
-		os << "coxmatch_ofb_tcp_dst{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<TCP-DST: " << (unsigned int)oxm.u16value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1370,10 +1352,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_udp_src const& oxm)
 	{
-		os << "coxmatch_ofb_udp_src{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<UDP-SRC: " << (unsigned int)oxm.u16value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1406,10 +1387,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_udp_dst const& oxm)
 	{
-		os << "coxmatch_ofb_udp_dst{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<UDP-DST: " << (unsigned int)oxm.u16value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1442,10 +1422,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_sctp_src const& oxm)
 	{
-		os << "coxmatch_ofb_sctp_src{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<SCTP-SRC: " << (unsigned int)oxm.u16value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1478,10 +1457,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_sctp_dst const& oxm)
 	{
-		os << "coxmatch_ofb_sctp_dst{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<SCTP-DST: " << (unsigned int)oxm.u16value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1514,10 +1492,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_icmpv4_type const& oxm)
 	{
-		os << "coxmatch_ofb_icmpv4_type{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<ICMPv4-TYPE: " << (unsigned int)oxm.u8value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1550,10 +1527,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_icmpv4_code const& oxm)
 	{
-		os << "coxmatch_ofb_icmpv4_code{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<ICMPv4-CODE: " << (unsigned int)oxm.u8value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1586,10 +1562,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_op const& oxm)
 	{
-		os << "coxmatch_ofb_arp_op{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<ARP-OP: " << (unsigned int)oxm.u16value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1670,10 +1645,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_spa const& oxm)
 	{
-		os << "coxmatch_ofb_arp_spa{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<ARP-SPA: " << (unsigned int)oxm.u32addr().addr_c_str() << ">";
-		os << "}";
+			os << "<ARP-SPA: " << oxm.u32addr() << ">";
 		return os;
 	};
 };
@@ -1754,10 +1728,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_tpa const& oxm)
 	{
-		os << "coxmatch_ofb_arp_tpa{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<ARP-TPA: " << (unsigned int)oxm.u32addr().addr_c_str() << ">";
-		os << "}";
+			os << "<ARP-TPA: " << oxm.u32addr() << ">";
 		return os;
 	};
 };
@@ -1804,10 +1777,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_sha const& oxm)
 	{
-		os << "coxmatch_ofb_arp_sha{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<ARP-SHA: " << (unsigned int)oxm.u48addr().c_str() << ">";
-		os << "}";
+			os << "<ARP-SHA: " << oxm.u48addr() << ">";
 		return os;
 	};
 };
@@ -1855,10 +1827,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_tha const& oxm)
 	{
-		os << "coxmatch_ofb_arp_tha{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<ARP-THA: " << (unsigned int)oxm.u48addr().c_str() << ">";
-		os << "}";
+			os << "<ARP-THA: " << oxm.u48addr() << ">";
 		return os;
 	};
 };
@@ -1908,10 +1879,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_flabel const& oxm)
 	{
-		os << "coxmatch_ofb_ipv6_flabel{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<IPv6-FLOWLABEL: " << (unsigned int)oxm.u32value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1944,10 +1914,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_icmpv6_type const& oxm)
 	{
-		os << "coxmatch_ofb_icmpv6_type{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<ICMPv6-TYPE: " << (unsigned int)oxm.u8value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -1980,10 +1949,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_icmpv6_code const& oxm)
 	{
-		os << "coxmatch_ofb_icmpv6_code{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
 			os << "<ICMPv6-CODE: " << (unsigned int)oxm.u8value() << ">";
-		os << "}";
 		return os;
 	};
 };
@@ -2017,10 +1985,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_sll const& oxm)
 	{
-		os << "coxmatch_ofb_icmpv6_code{";
+		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<ICMPv6-CODE: " << (unsigned int)oxm.u8value() << ">";
-		os << "}";
+			os << "<IPV6-ND-SLL: " << (unsigned int)oxm.u8value() << ">";
 		return os;
 	};
 };
@@ -2048,6 +2015,16 @@ public:
 	 */
 	virtual
 	~coxmatch_ofb_ipv6_nd_tll() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_tll const& oxm)
+	{
+		os << "OXM";
+			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
+			os << "<IPV6-ND-TLL: " << (unsigned int)oxm.u8value() << ">";
+		return os;
+	};
 };
 
 
@@ -2073,6 +2050,16 @@ public:
 	 */
 	virtual
 	~coxmatch_ofb_mpls_label() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofb_mpls_label const& oxm)
+	{
+		os << "OXM";
+			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
+			os << "<MPLS-LABEL: " << (unsigned int)oxm.u32value() << ">";
+		return os;
+	};
 };
 
 
@@ -2098,6 +2085,16 @@ public:
 	 */
 	virtual
 	~coxmatch_ofb_mpls_tc() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofb_mpls_tc const& oxm)
+	{
+		os << "OXM";
+			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
+			os << "<MPLS-TC: " << (unsigned int)oxm.u8value() << ">";
+		return os;
+	};
 };
 
 
@@ -2123,6 +2120,16 @@ public:
 	 */
 	virtual
 	~coxmatch_ofx_pppoe_code() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofx_pppoe_code const& oxm)
+	{
+		os << "OXM";
+			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
+			os << "<PPPOE-CODE: " << (unsigned int)oxm.u8value() << ">";
+		return os;
+	};
 };
 
 
@@ -2148,6 +2155,16 @@ public:
 	 */
 	virtual
 	~coxmatch_ofx_pppoe_type() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofx_pppoe_type const& oxm)
+	{
+		os << "OXM";
+			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
+			os << "<PPPOE-CODE: " << (unsigned int)oxm.u8value() << ">";
+		return os;
+	};
 };
 
 
@@ -2173,6 +2190,16 @@ public:
 	 */
 	virtual
 	~coxmatch_ofx_pppoe_sid() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofx_pppoe_sid const& oxm)
+	{
+		os << "OXM";
+			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
+			os << "<PPPOE-SID: " << (unsigned int)oxm.u16value() << ">";
+		return os;
+	};
 };
 
 
@@ -2198,6 +2225,16 @@ public:
 	 */
 	virtual
 	~coxmatch_ofx_ppp_prot() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofx_ppp_prot const& oxm)
+	{
+		os << "OXM";
+			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
+			os << "<PPP-PROT: " << (unsigned int)oxm.u16value() << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

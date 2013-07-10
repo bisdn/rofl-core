@@ -547,9 +547,46 @@ coxmlist::test()
 
 
 
+coxmatch&
+coxmlist::get_match(uint16_t ofm_class, uint8_t ofm_field)
+{
+	if (matches[ofm_class].find(ofm_field) == matches.end())
+		throw eOxmListNotFound();
+	return matches[ofm_class][ofm_field];
+}
+
+
+
+coxmatch const&
+coxmlist::get_const_match(
+		uint16_t ofm_class, uint8_t ofm_field) const
+{
+	for (std::map<uint16_t, std::map<uint8_t, coxmatch> >::const_iterator
+			it = matches.begin(); it != matches.end(); ++it) {
+		for (std::map<uint8_t, coxmatch>::const_iterator
+				jt = it->second.begin(); jt != it->second.end(); ++jt) {
+			if ((ofm_class == it->first) && (ofm_field == jt->first)) {
+				return jt->second;
+			}
+		}
+	}
+	throw eOxmListNotFound();
+}
+
 
 
 void
+coxmlist::insert(
+		coxmatch const& oxm)
+{
+	if (matches[oxm.get_oxm_class()].find(oxm.get_oxm_field()) != matches[oxm.get_oxm_class()].end()) {
+		*(matches[oxm.get_oxm_class()][oxm.get_oxm_field()]) = oxm;
+	}
+}
+
+
+
+bool
 coxmlist::is_matching(
 		coxmlist& other,
 		uint16_t& exact_hits,

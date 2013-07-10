@@ -921,16 +921,14 @@ coxmatch::type2desc(uint16_t oxm_class, uint16_t oxm_field)
 {
 	switch (oxm_class) {
 	case OFPXMC_OPENFLOW_BASIC:
-		for (int i = 0; i < (int)(sizeof(oxm_basic_typedesc) / sizeof(oxm_typedesc_t)); i++)
-		{
+		for (int i = 0; i < (int)(sizeof(oxm_basic_typedesc) / sizeof(oxm_typedesc_t)); i++) {
 			if (oxm_basic_typedesc[i].type == oxm_field) {
 				return oxm_basic_typedesc[i].desc;
 			}
 		}
 		return 0;
 	case OFPXMC_EXPERIMENTER:
-		for (int i = 0; i < (int)(sizeof(oxm_experimenter_typedesc) / sizeof(oxm_typedesc_t)); i++)
-		{
+		for (int i = 0; i < (int)(sizeof(oxm_experimenter_typedesc) / sizeof(oxm_typedesc_t)); i++) {
 			if (oxm_experimenter_typedesc[i].type == oxm_field) {
 				return oxm_experimenter_typedesc[i].desc;
 			}

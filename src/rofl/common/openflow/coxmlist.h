@@ -153,7 +153,7 @@ public: // methods
 		 */
 		coxmatch&
 		get_match(
-				uint8_t ofm_class, uint16_t ofm_field);
+				uint16_t ofm_class, uint8_t ofm_field);
 
 
 
@@ -161,7 +161,18 @@ public: // methods
 		/**
 		 *
 		 */
-		void
+		coxmatch const&
+		get_const_match(
+				uint16_t ofm_class, uint8_t ofm_field) const;
+
+
+
+
+
+		/**
+		 *
+		 */
+		bool
 		is_matching(
 				coxmlist& other,
 				uint16_t& exact_hits,
