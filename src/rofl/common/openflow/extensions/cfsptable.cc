@@ -114,7 +114,7 @@ cfsptable::find_matching_entries(
 		uint16_t __misses = 0;
 
 		//pack.calc_hits((*it)->ofmatch, __exact_hits, __wildcard_hits, __misses);
-		(*it)->ofmatch.is_matching(pack.get_match(), __exact_hits, __wildcard_hits, __misses);
+		(*it)->ofmatch.is_part_of(pack.get_match(), __exact_hits, __wildcard_hits, __misses);
 
 		if ((__exact_hits < exact_hits) || (__misses > 0))
 		{
@@ -195,7 +195,7 @@ cfsptable::find_matching_entries(
 		uint16_t __misses = 0;
 
 		//pack.calc_hits((*it)->ofmatch, __exact_hits, __wildcard_hits, __misses);
-		(*it)->ofmatch.is_matching(match, __exact_hits, __wildcard_hits, __misses);
+		(*it)->ofmatch.is_part_of(match, __exact_hits, __wildcard_hits, __misses);
 
 		if ((__exact_hits < exact_hits) || (__misses > 0))
 		{

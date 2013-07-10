@@ -220,7 +220,7 @@ cofaggr_stats_request::get_cookie_mask() const
 
 
 void
-cofaggr_stats_request::pack(uint8_t *buf, size_t buflen) const
+cofaggr_stats_request::pack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
@@ -362,7 +362,7 @@ cofaggr_stats_reply::operator= (
 
 
 void
-cofaggr_stats_reply::pack(uint8_t *buf, size_t buflen) const
+cofaggr_stats_reply::pack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {

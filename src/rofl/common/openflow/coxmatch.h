@@ -132,7 +132,7 @@ public: // methods
 	 */
 	coxmatch(
 			struct ofp_action_set_field *ach,
-			size_t achlen) throw (eOxmInval);
+			size_t achlen);
 
 
 	/** destructor

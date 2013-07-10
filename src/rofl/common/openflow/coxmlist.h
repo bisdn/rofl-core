@@ -12,6 +12,7 @@
 #ifndef COXMLIST_H_
 #define COXMLIST_H_
 
+#include <ostream>
 #include <string>
 #include <deque>
 #include <map>
@@ -86,16 +87,17 @@ public: // methods
 		 */
 		bool
 		operator== (
-				coxmlist& oxmlist);
-
+				coxmlist const& oxmlist);
 
 
 		/**
-		 *
+		 * @brief	Returns number of OXM TLVs stored in this coxmlist instance.
 		 */
-		void
-		clear();
+		unsigned int
+		get_n_matches() const;
 
+
+public:
 
 
 		/** stores cofinst instances in this->invec from a packed array struct ofp_instruction (e.g. in struct ofp_flow_mod)
@@ -122,11 +124,6 @@ public: // methods
 		size_t
 		length() const;
 
-
-		/** dump info string
-		 */
-		const char*
-		c_str();
 
 
 		/** erase oxmlist
@@ -172,12 +169,8 @@ public: // methods
 		/**
 		 *
 		 */
-		bool
-		is_matching(
-				coxmlist& other,
-				uint16_t& exact_hits,
-				uint16_t& wildcard_hits,
-				uint16_t& missed);
+		void
+		clear();
 
 
 
@@ -186,20 +179,41 @@ public: // methods
 		 *
 		 */
 		bool
-		overlap(
-				coxmlist const& oxm,
+		contains(
+				coxmlist const& oxmlist,
 				bool strict = false);
 
 
+
 		/**
 		 *
 		 */
-		void
-		calc_hits(
-				coxmlist& oxmlist,
+		bool
+		is_part_of(
+				coxmlist const& oxmlist,
 				uint16_t& exact_hits,
 				uint16_t& wildcard_hits,
 				uint16_t& missed);
+
+
+public:
+
+
+		/**
+		 *
+		 */
+		friend std::ostream&
+		operator<< (std::ostream& os, coxmlist const& oxl)
+		{
+			for (std::map<uint16_t, std::map<uint8_t, coxmatch*> >::const_iterator
+					it = oxl.matches.begin(); it != oxl.matches.end(); ++it) {
+				for (std::map<uint8_t, coxmatch*>::const_iterator
+						jt = it->second.begin(); jt != it->second.end(); ++jt) {
+						os << "\t" << *(jt->second) << " " << std::endl;
+				}
+			}
+			return os;
+		};
 };
 
 }; // end of namespace

@@ -241,8 +241,18 @@ public:
 	 *
 	 */
 	bool
-	is_matching(
-			cofmatch& other,
+	contains(
+			cofmatch const& ofm,
+			bool strict = false);
+
+
+
+	/**
+	 *
+	 */
+	bool
+	is_part_of(
+			cofmatch const& ofm,
 			uint16_t& exact_hits,
 			uint16_t& wildcard_hits,
 			uint16_t& missed);
