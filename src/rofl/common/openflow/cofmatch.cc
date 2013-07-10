@@ -188,11 +188,38 @@ cofmatch::is_part_of(
 
 
 void
+cofmatch::insert(
+		coxmatch const& oxm)
+{
+	oxmlist.insert(oxm);
+}
+
+
+
+void
 cofmatch::remove(
 		uint16_t oxm_class,
 		uint8_t oxm_field)
 {
 	oxmlist.erase(oxm_class, oxm_field);
+}
+
+
+
+coxmatch&
+cofmatch::get_match(
+		uint16_t ofm_class, uint8_t ofm_field)
+{
+	return oxmlist.get_match(ofm_class, ofm_field);
+}
+
+
+
+coxmatch const&
+cofmatch::get_const_match(
+		uint16_t ofm_class, uint8_t ofm_field) const
+{
+	return oxmlist.get_const_match(ofm_class, ofm_field);
 }
 
 

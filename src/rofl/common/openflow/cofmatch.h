@@ -255,9 +255,40 @@ public:
 	 *
 	 */
 	void
+	insert(
+			coxmatch const& oxm);
+
+
+
+	/**
+	 *
+	 */
+	void
 	remove(
 			uint16_t oxm_class,
 			uint8_t oxm_field);
+
+
+
+	/**
+	 *
+	 */
+	coxmatch&
+	get_match(
+			uint16_t ofm_class, uint8_t ofm_field);
+
+
+
+
+	/**
+	 *
+	 */
+	coxmatch const&
+	get_const_match(
+			uint16_t ofm_class, uint8_t ofm_field) const;
+
+
+public:
 
 
 	/**
