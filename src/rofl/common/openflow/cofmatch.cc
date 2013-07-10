@@ -745,12 +745,15 @@ cofmatch::c_str()
 	} break;
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
-		info.assign(vas("cofmatch(%p) hdr.type:%d hdr.length:%d stored:%lu oxmlist.length:%lu oxmlist:",
+		std::ostringstream os;
+		os << oxmlist;
+		info.assign(vas("cofmatch(%p) hdr.type:%d hdr.length:%d stored:%lu oxmlist.length:%lu oxmlist:%s",
 				this,
 				be16toh(ofh12_match->type),
 				be16toh(ofh12_match->length),
 				length(),
-				oxmlist.length()));
+				oxmlist.length(),
+				os.str().c_str()));
 	} break;
 	default:
 		throw eBadVersion();
