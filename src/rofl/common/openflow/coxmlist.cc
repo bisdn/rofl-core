@@ -221,6 +221,8 @@ coxmlist::insert(
 {
 	if (matches[oxm.get_oxm_class()].find(oxm.get_oxm_field()) != matches[oxm.get_oxm_class()].end()) {
 		*(matches[oxm.get_oxm_class()][oxm.get_oxm_field()]) = oxm;
+	} else {
+		matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch(oxm);
 	}
 }
 
@@ -280,7 +282,7 @@ coxmlist::contains(
 			}
 		} else  /* non-strict*/ {
 			// non-strict: # of elems for a class must be larger (or equal) the number of elements in oxl
-			if (lmap.size() < rmap.size()) {
+			if (lmap.size() > rmap.size()) {
 				return false;
 			}
 		}
@@ -289,7 +291,7 @@ coxmlist::contains(
 		for (std::map<uint8_t, coxmatch*>::const_iterator
 				jt = lmap.begin(); jt != lmap.end(); ++jt) {
 
-			coxmatch const& lmatch = *(jt->second);
+			coxmatch&       lmatch = *(jt->second);
 
 			// strict: all OXM TLVs must also exist in oxl
 			if (rmap.find(lmatch.get_oxm_field()) == rmap.end()) {

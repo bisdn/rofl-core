@@ -91,6 +91,16 @@ coxmatch::operator== (
 }
 
 
+
+bool
+coxmatch::operator!= (
+		coxmatch const& oxm)
+{
+	return cmemory::operator!= (oxm);
+}
+
+
+
 bool
 coxmatch::operator< (
 		coxmatch const& oxm)

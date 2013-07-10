@@ -20,6 +20,10 @@ private:
 	coxmlist*	rule_strict;
 	coxmlist*	rule_mismatch;
 
+	uint16_t	exact_hits;
+	uint16_t	wildcard_hits;
+	uint16_t	missed;
+
 public:
 	void setUp();
 	void tearDown();

@@ -157,6 +157,15 @@ public: // methods
 	operator== (
 			coxmatch const& oxm);
 
+
+	/** comparison operator
+	 *
+	 */
+	bool
+	operator!= (
+			coxmatch const& oxm);
+
+
 	/**
 	 *
 	 */
@@ -357,9 +366,11 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch const& oxm)
 	{
+		cmemory mem(oxm.somem(), oxm.memlen());
+		std::string m_str(mem.c_str());
 		os << "OXM";
-			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-		os << "<...>";
+			os << "[" << (unsigned int)oxm.get_oxm_class() << ":" << (unsigned int)oxm.get_oxm_field() << "]";
+		os << "<" << m_str << ">";
 		return os;
 	};
 
