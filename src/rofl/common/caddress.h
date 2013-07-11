@@ -95,12 +95,15 @@ private:
 public:
 
 
+	caddress();
+
+
 	/**
 	 * @brief	Constructor for creating an empty address. Allocates maximum memory required for any struct sockaddr (currently sockaddr_un).
 	 *
 	 * @param size size of memory area for storing struct sockaddr
 	 */
-	caddress(int af = AF_INET);
+	caddress(int af);
 
 
 

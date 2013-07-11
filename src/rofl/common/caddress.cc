@@ -8,6 +8,16 @@ using namespace rofl;
 
 
 
+caddress::caddress() :
+		cmemory(sizeof(struct sockaddr)),
+		salen(sizeof(struct sockaddr))
+{
+	ca_saddr = (struct sockaddr*)somem();
+	ca_saddr->sa_family = AF_UNSPEC;
+}
+
+
+
 caddress::caddress(int af)
 {
 	switch (af) {
