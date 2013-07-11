@@ -19,7 +19,7 @@ cflowentry::cflowentry(uint8_t of_version, uint16_t __type) throw (eFlowEntryOut
 		of12m_flow_mod->cookie_mask 	= htobe64(0xffffffffffffffffULL);
 		of12m_flow_mod->buffer_id 		= htobe32(OFP_NO_BUFFER);	// default: buffer_id = -1
 		of12m_flow_mod->priority 		= htobe16(0x0800);			// default: priority = 0x0800
-		of12m_flow_mod->idle_timeout 	= htobe16(5);				// default: idle_timeout = 5 secs
+		of12m_flow_mod->idle_timeout 	= htobe16(0);				// default: idle_timeout = 5 secs
 		of12m_flow_mod->hard_timeout 	= htobe16(0);				// default: hard_timeout = 0 secs (not used)
 		of12m_flow_mod->command 		= OFPFC_ADD;				// default: add flow-mod entry
 		of12m_flow_mod->out_port 		= htobe32(OFPP_ANY);
@@ -34,7 +34,7 @@ cflowentry::cflowentry(uint8_t of_version, uint16_t __type) throw (eFlowEntryOut
 		of13m_flow_mod->cookie_mask 	= htobe64(0xffffffffffffffffULL);
 		of13m_flow_mod->buffer_id 		= htobe32(OFP_NO_BUFFER);	// default: buffer_id = -1
 		of13m_flow_mod->priority 		= htobe16(0x0800);			// default: priority = 0x0800
-		of13m_flow_mod->idle_timeout 	= htobe16(5);				// default: idle_timeout = 5 secs
+		of13m_flow_mod->idle_timeout 	= htobe16(0);				// default: idle_timeout = 5 secs
 		of13m_flow_mod->hard_timeout 	= htobe16(0);				// default: hard_timeout = 0 secs (not used)
 		of13m_flow_mod->command 		= OFPFC_ADD;				// default: add flow-mod entry
 		of13m_flow_mod->out_port 		= htobe32(OFPP_ANY);
