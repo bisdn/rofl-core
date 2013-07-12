@@ -8,19 +8,13 @@ using namespace rofl;
 
 
 
-caddress::caddress() :
-		cmemory(sizeof(struct sockaddr)),
-		salen(sizeof(struct sockaddr))
-{
-	ca_saddr = (struct sockaddr*)somem();
-	ca_saddr->sa_family = AF_UNSPEC;
-}
-
-
 
 caddress::caddress(int af)
 {
 	switch (af) {
+	case AF_UNSPEC: {
+		salen = sizeof(struct sockaddr);
+	} break;
 	case AF_INET: {
 		salen = sizeof(struct sockaddr_in);
 	} break;

@@ -377,13 +377,16 @@ cofport::get_name() const
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
-		return std::string(ofh10_port->name, OFP_MAX_PORT_NAME_LEN);
+		//return std::string(ofh10_port->name, OFP_MAX_PORT_NAME_LEN);
+		return std::string(ofh10_port->name, strlen(ofh10_port->name));
 	} break;
 	case OFP12_VERSION: {
-		return std::string(ofh12_port->name, OFP_MAX_PORT_NAME_LEN);
+		//return std::string(ofh12_port->name, OFP_MAX_PORT_NAME_LEN);
+		return std::string(ofh12_port->name, strlen(ofh12_port->name));
 	} break;
 	case OFP13_VERSION: {
-		return std::string(ofh13_port->name, OFP_MAX_PORT_NAME_LEN);
+		//return std::string(ofh13_port->name, OFP_MAX_PORT_NAME_LEN);
+		return std::string(ofh13_port->name, strlen(ofh13_port->name));
 	} break;
 	default:
 		throw eBadVersion();
