@@ -776,6 +776,8 @@ cofdpt::features_reply_rcvd(
 
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() %s", this, this->c_str());
 
+
+
 		// dpid as std::string
 		cvastring vas;
 		s_dpid = std::string(vas("0x%llx", dpid));
@@ -788,6 +790,8 @@ cofdpt::features_reply_rcvd(
 		hwaddr[4] = (dpid & 0x000000000000ff00ULL) >>  8;
 		hwaddr[5] = (dpid & 0x00000000000000ffULL) >>  0;
 		hwaddr[0] &= 0xfc;
+
+		rofbase->handle_features_reply(this, msg);
 
 		if (COFDPT_STATE_WAIT_FEATURES == cur_state())
 		{
