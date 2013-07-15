@@ -79,12 +79,42 @@ void
 cfib::fib_timer_expired(cfibentry *entry)
 {
 	if (fibtable.find(entry->get_lladdr()) != fibtable.end()) {
+#if 0
+		entry->set_out_port_no(OFPP_FLOOD);
+#else
 		fibtable[entry->get_lladdr()]->flow_mod_delete();
 		fibtable.erase(entry->get_lladdr());
 		delete entry;
+#endif
 	}
 
 	std::cerr << "EXPIRED: " << *this << std::endl;
+}
+
+
+
+void
+cfib::fib_update(
+		rofl::crofbase *rofbase,
+		rofl::cofdpt *dpt,
+		rofl::cmacaddr const& src,
+		uint32_t in_port)
+{
+	std::cerr << "UPDATE: src: " << src << std::endl;
+
+	// update cfibentry for src/inport
+	if (fibtable.find(src) == fibtable.end()) {
+		fibtable[src] = new cfibentry(this, rofbase, dpt, src, in_port);
+		fibtable[src]->flow_mod_add();
+
+		std::cerr << "UPDATE[2.1]: " << *this << std::endl;
+
+	} else {
+		fibtable[src]->set_out_port_no(in_port);
+
+		std::cerr << "UPDATE[3.1]: " << *this << std::endl;
+
+	}
 }
 
 
@@ -97,28 +127,28 @@ cfib::fib_lookup(
 		rofl::cmacaddr const& src,
 		uint32_t in_port)
 {
+	std::cerr << "LOOKUP: dst: " << dst << " src: " << src << std::endl;
+
 	// sanity checks
 	if (src.is_multicast()) {
 		throw eFibInval();
 	}
+
+	fib_update(rofbase, dpt, src, in_port);
+
 	if (dst.is_multicast()) {
 		throw eFibInval();
 	}
 
-	// update cfibentry for src/inport
-	if (fibtable.find(src) == fibtable.end()) {
-		fibtable[src] = new cfibentry(this, rofbase, dpt, src, in_port);
-		fibtable[src]->flow_mod_add();
-	} else {
-		fibtable[src]->set_out_port_no(in_port);
-	}
-
-	std::cerr << "LOOKUP: " << *this << std::endl;
-
 	// find out-port for dst
 	if (fibtable.find(dst) == fibtable.end()) {
-		throw eFibNotFound();
+
+		fibtable[dst] = new cfibentry(this, rofbase, dpt, dst, OFPP_FLOOD);
+		fibtable[dst]->flow_mod_add();
+
+		std::cerr << "LOOKUP[1]: " << *this << std::endl;
 	}
+
 	return *(fibtable[dst]);
 }
 

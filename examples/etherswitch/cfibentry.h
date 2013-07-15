@@ -101,6 +101,12 @@ public:
 	void
 	flow_mod_delete();
 
+	/**
+	 *
+	 */
+	void
+	flow_mod_modify();
+
 private:
 
 	/**

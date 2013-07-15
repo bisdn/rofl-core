@@ -111,10 +111,17 @@ void
 ethswitch::handle_dpath_open(
 		cofdpt *dpt)
 {
-#if 0
-	fib[dpt] = std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> >();
-	// do nothing here
-#endif
+	rofl::cflowentry fe(dpt->get_version());
+
+	fe.set_command(OFPFC_ADD);
+	fe.set_table_id(0);
+
+	fe.instructions.next() = cofinst_apply_actions();
+	fe.instructions.back().actions.next() = cofaction_output(OFPP_CONTROLLER);
+
+	fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
+	send_flow_mod_message(dpt, fe);
+
 	cfib::get_fib(dpt->get_dpid()).dpt_bind(this, dpt);
 }
 
@@ -125,9 +132,6 @@ ethswitch::handle_dpath_close(
 		cofdpt *dpt)
 {
 	cfib::get_fib(dpt->get_dpid()).dpt_release(this, dpt);
-#if 0
-	fib.erase(dpt);
-#endif
 }
 
 
@@ -166,9 +170,7 @@ ethswitch::handle_packet_in(
 		fprintf(stderr, "etherswitch: installing FLOW-MOD with entry: %s\n",
 				fe.c_str());
 
-		send_flow_mod_message(
-				dpt,
-				fe);
+		send_flow_mod_message(dpt, fe);
 
 		delete msg; return;
 	}
@@ -183,30 +185,30 @@ ethswitch::handle_packet_in(
 
 	cofaclist actions;
 
+	cfib::get_fib(dpt->get_dpid()).fib_update(
+							this,
+							dpt,
+							msg->get_packet().ether()->get_dl_src(),
+							msg->get_match().get_in_port());
+
 	if (eth_dst.is_multicast()) {
 
 		actions.next() = cofaction_output(OFPP_FLOOD);
 
 	} else {
 
-		try {
-			cfibentry& entry = cfib::get_fib(dpt->get_dpid()).fib_lookup(
-						this,
-						dpt,
-						msg->get_packet().ether()->get_dl_dst(),
-						msg->get_packet().ether()->get_dl_src(),
-						msg->get_match().get_in_port());
+		cfibentry& entry = cfib::get_fib(dpt->get_dpid()).fib_lookup(
+					this,
+					dpt,
+					msg->get_packet().ether()->get_dl_dst(),
+					msg->get_packet().ether()->get_dl_src(),
+					msg->get_match().get_in_port());
 
-			if (msg->get_match().get_in_port() == entry.get_out_port_no()) {
-				delete msg; return;
-			}
-
-			actions.next() = cofaction_output(entry.get_out_port_no());
-
-		} catch (eFibNotFound& e) {
-
-			actions.next() = cofaction_output(OFPP_FLOOD);
+		if (msg->get_match().get_in_port() == entry.get_out_port_no()) {
+			delete msg; return;
 		}
+
+		actions.next() = cofaction_output(entry.get_out_port_no());
 	}
 
 

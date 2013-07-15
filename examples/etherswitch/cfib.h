@@ -80,6 +80,16 @@ public:
 	/**
 	 *
 	 */
+	void
+	fib_update(
+			rofl::crofbase *rofbase,
+			rofl::cofdpt *dpt,
+			rofl::cmacaddr const& src,
+			uint32_t in_port);
+
+	/**
+	 *
+	 */
 	cfibentry&
 	fib_lookup(
 			rofl::crofbase *rofbase,
