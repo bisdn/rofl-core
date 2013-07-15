@@ -789,6 +789,8 @@ cofdpt::features_reply_rcvd(
 		hwaddr[5] = (dpid & 0x00000000000000ffULL) >>  0;
 		hwaddr[0] &= 0xfc;
 
+		rofbase->handle_features_reply(this, msg);
+
 		if (COFDPT_STATE_WAIT_FEATURES == cur_state())
 		{
 			// next step: send GET-CONFIG request to datapath
