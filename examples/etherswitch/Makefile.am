@@ -9,7 +9,11 @@ sbin_PROGRAMS = etherswitch
 etherswitch_SOURCES = \
 	main.cc \
 	etherswitch.cc \
-	etherswitch.h
+	etherswitch.h \
+	cfib.cc \
+	cfib.h \
+	cfibentry.h \
+	cfibentry.cc
 etherswitch_LDADD = ../../src/rofl/librofl.la 
 	-lpthread \
 	-lrt 
