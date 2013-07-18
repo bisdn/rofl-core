@@ -1407,6 +1407,9 @@ cpacket::set_field(coxmatch const& oxm)
 	case OFPXMC_OPENFLOW_BASIC: {
 		set_field_basic_class(oxm);
 	} break;
+	case OFPXMC_EXPERIMENTER: {
+		set_field_experimenter_class(oxm);
+	} break;
 	default: {
 		WRITELOG(CPACKET, WARN, "cpacket(%p)::set_field() "
 				"don't know how to handle class:0x%x field:%d, ignoring",
@@ -1660,6 +1663,21 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 		}
 	} break;
 
+	default: {
+		WRITELOG(CPACKET, WARN, "cpacket(%p)::set_field() "
+				"unsupported OXM TLV class:0x%x, ignoring",
+				this, oxm.get_oxm_class());
+	} break;
+	}
+}
+
+
+
+
+void
+cpacket::set_field_experimenter_class(coxmatch const& oxm)
+{
+	switch (oxm.get_oxm_class()) {
 	case OFPXMC_EXPERIMENTER: {
 
 		switch (oxm.get_oxm_field()) {
@@ -1702,6 +1720,8 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 	} break;
 	}
 }
+
+
 
 
 

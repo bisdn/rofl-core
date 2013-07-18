@@ -1207,6 +1207,14 @@ private:
 
 
 	/**
+	 */
+	void
+	set_field_experimenter_class(
+			coxmatch const& oxm);
+
+
+
+	/**
 	 * @brief	Inserts a memory block of len bytes after the Ethernet header.
 	 *
 	 * The cpacket container assumes that each stored packet starts with an
