@@ -1049,6 +1049,36 @@ public:
 	static void
 	test();
 #endif
+
+public:
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmatch const& m)
+	{
+		os << "cofmatch<";
+			switch (m.of_version) {
+			case OFP10_VERSION: {
+				//ofh10_match->
+			} break;
+			case OFP12_VERSION: {
+				os << "type: " << m.ofh12_match->type << " ";
+				os << "length: " << m.ofh12_match->length << " ";
+			} break;
+			case OFP13_VERSION: {
+				os << "type: " << m.ofh13_match->type << " ";
+				os << "length: " << m.ofh13_match->length << " ";
+			} break;
+			default: {
+				os << "OF version " << m.of_version << " not supported " << std::endl;
+			}
+			}
+			os << "OXMlist: " << m.oxmlist << std::endl;
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace
