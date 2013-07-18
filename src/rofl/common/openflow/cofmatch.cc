@@ -1154,7 +1154,7 @@ uint8_t
 cofmatch::get_pppoe_type() const
 {
 	try {
-		return oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFX_PPPOE_TYPE).u8value();
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_PPPOE_TYPE).u8value();
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
@@ -1186,7 +1186,7 @@ uint8_t
 cofmatch::get_pppoe_code() const
 {
 	try {
-		return oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFX_PPPOE_CODE).u8value();
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_PPPOE_CODE).u8value();
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
@@ -1216,7 +1216,7 @@ uint16_t
 cofmatch::get_pppoe_sessid() const
 {
 	try {
-		return oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFX_PPPOE_SID).u16value();
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_PPPOE_SID).u16value();
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
@@ -1246,7 +1246,7 @@ uint16_t
 cofmatch::get_ppp_prot() const
 {
 	try {
-		return oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFX_PPP_PROT).u16value();
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_PPP_PROT).u16value();
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
