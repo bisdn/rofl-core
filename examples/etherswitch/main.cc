@@ -17,10 +17,10 @@ main(int argc, char** argv)
 
 	rofl::ciosrv::init();
 
-	etherswitch ethswitch;
+	etherswitch::ethswitch sw;
 
-	ethswitch.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
-	ethswitch.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));
+	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
+	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));
 
 	rofl::ciosrv::run();
 

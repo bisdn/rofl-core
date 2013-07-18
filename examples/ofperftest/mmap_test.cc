@@ -82,7 +82,7 @@ mmap_test::udp_send()
 
 		dport++;
 		dport = (dport <  1024) ? 1024 : dport;
-		dport = (dport > 65535) ? 1024 : dport;
+		//dport = (dport > 65535) ? 1024 : dport;
 
 		for (std::set<caddress>::iterator
 				it = raddrs.begin(); it != raddrs.end(); ++it) {

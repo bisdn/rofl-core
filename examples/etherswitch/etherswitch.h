@@ -7,13 +7,19 @@
 #include "rofl/common/crofbase.h"
 #include "rofl/common/openflow/cofdpt.h"
 
+#include <cfib.h>
+
 using namespace rofl;
 
-class etherswitch :
+namespace etherswitch
+{
+
+class ethswitch :
 		public crofbase
 {
 private:
 
+#if 0
 	struct fibentry_t {
 		uint32_t 		port_no;	// port where a certain is attached
 		time_t 			timeout;	// timeout event for this FIB entry
@@ -25,6 +31,7 @@ private:
 	unsigned int 		fib_check_timeout; 		// periodic timeout for removing expired FIB entries
 	unsigned int		flow_stats_timeout;		// periodic timeout for requesting flow stats
 	unsigned int		fm_delete_all_timeout;	// periodic purging of all FLOW-MODs
+#endif
 
 	enum etherswitch_timer_t {
 		ETHSWITCH_TIMER_BASE 					= ((0x6271)),
@@ -35,10 +42,10 @@ private:
 
 public:
 
-	etherswitch();
+	ethswitch();
 
 	virtual
-	~etherswitch();
+	~ethswitch();
 
 	virtual void
 	handle_timeout(int opaque);
@@ -58,13 +65,9 @@ public:
 private:
 
 	void
-	drop_expired_fib_entries();
-
-	void
 	request_flow_stats();
-
-	void
-	flow_mod_delete_all();
 };
+
+}; // end of namespace
 
 #endif
