@@ -28,51 +28,72 @@
 
 /* Defines possible matchings. This is EXPLICITELY copied from openflow.h, to simplify names, avoid collisions and add extensions */
 typedef enum{
-   OF12_MATCH_IN_PORT = 0,            /* Switch input port. */                // required
-   OF12_MATCH_IN_PHY_PORT = 1,        /* Switch physical input port. */
-   OF12_MATCH_METADATA = 2,        /* Metadata passed between tables. */
-   OF12_MATCH_ETH_DST = 3,            /* Ethernet destination address. */        // required
-   OF12_MATCH_ETH_SRC = 4,            /* Ethernet source address. */            // required
-   OF12_MATCH_ETH_TYPE = 5,        /* Ethernet frame type. */                // required
-   OF12_MATCH_VLAN_VID = 6,        /* VLAN id. */
-   OF12_MATCH_VLAN_PCP = 7,        /* VLAN priority. */
-   OF12_MATCH_IP_DSCP = 8,            /* IP DSCP (6 bits in ToS field). */
-   OF12_MATCH_IP_ECN = 9,            /* IP ECN (2 bits in ToS field). */
-   OF12_MATCH_IP_PROTO = 10,        /* IP protocol. */                        // required
-   OF12_MATCH_IPV4_SRC = 11,        /* IPv4 source address. */                // required
-   OF12_MATCH_IPV4_DST = 12,        /* IPv4 destination address. */            // required
-   OF12_MATCH_TCP_SRC = 13,        /* TCP source port. */                    // required
-   OF12_MATCH_TCP_DST = 14,        /* TCP destination port. */                // required
-   OF12_MATCH_UDP_SRC = 15,        /* UDP source port. */                    // required
-   OF12_MATCH_UDP_DST = 16,        /* UDP destination port. */                // required
-   OF12_MATCH_SCTP_SRC = 17,        /* SCTP source port. */
-   OF12_MATCH_SCTP_DST = 18,        /* SCTP destination port. */
-   OF12_MATCH_ICMPV4_TYPE = 19,    /* ICMP type. */
-   OF12_MATCH_ICMPV4_CODE = 20,    /* ICMP code. */
-   OF12_MATCH_ARP_OP = 21,            /* ARP opcode. */
-   OF12_MATCH_ARP_SPA = 22,        /* ARP source IPv4 address. */
-   OF12_MATCH_ARP_TPA = 23,        /* ARP target IPv4 address. */
-   OF12_MATCH_ARP_SHA = 24,        /* ARP source hardware address. */
-   OF12_MATCH_ARP_THA = 25,        /* ARP target hardware address. */
-   OF12_MATCH_IPV6_SRC = 26,        /* IPv6 source address. */                // required
-   OF12_MATCH_IPV6_DST = 27,        /* IPv6 destination address. */            // required
-   OF12_MATCH_IPV6_FLABEL = 28,    /* IPv6 Flow Label */
-   OF12_MATCH_ICMPV6_TYPE = 29,    /* ICMPv6 type. */
-   OF12_MATCH_ICMPV6_CODE = 30,    /* ICMPv6 code. */
-   OF12_MATCH_IPV6_ND_TARGET = 31,    /* Target address for ND. */
-   OF12_MATCH_IPV6_ND_SLL = 32,    /* Source link-layer for ND. */
-   OF12_MATCH_IPV6_ND_TLL = 33,    /* Target link-layer for ND. */
-   OF12_MATCH_MPLS_LABEL = 34,        /* MPLS label. */
-   OF12_MATCH_MPLS_TC = 35,        /* MPLS TC. */
- 
-  /* PPP/PPPoE related extensions */
-   OF12_MATCH_PPPOE_CODE = 36,        /* PPPoE code */
-   OF12_MATCH_PPPOE_TYPE = 37,        /* PPPoE type */
-   OF12_MATCH_PPPOE_SID = 38,        /* PPPoE session id */
-   OF12_MATCH_PPP_PROT = 39,        /* PPP protocol */
+	OF12_MATCH_IN_PORT = 0,            /* Switch input port. */                // required
+	OF12_MATCH_IN_PHY_PORT = 1,        /* Switch physical input port. */
+	OF12_MATCH_METADATA = 2,        /* Metadata passed between tables. */
 
-   /* max value */
-   OF12_MATCH_MAX,
+	/* mac */
+	OF12_MATCH_ETH_DST = 3,            /* Ethernet destination address. */        // required
+	OF12_MATCH_ETH_SRC = 4,            /* Ethernet source address. */            // required
+	OF12_MATCH_ETH_TYPE = 5,        /* Ethernet frame type. */                // required
+	OF12_MATCH_VLAN_VID = 6,        /* VLAN id. */
+	OF12_MATCH_VLAN_PCP = 7,        /* VLAN priority. */
+
+	/* ipv4 */
+	OF12_MATCH_IP_DSCP = 8,            /* IP DSCP (6 bits in ToS field). */
+	OF12_MATCH_IP_ECN = 9,            /* IP ECN (2 bits in ToS field). */
+	OF12_MATCH_IP_PROTO = 10,        /* IP protocol. */                        // required
+	OF12_MATCH_IPV4_SRC = 11,        /* IPv4 source address. */                // required
+	OF12_MATCH_IPV4_DST = 12,        /* IPv4 destination address. */            // required
+
+	/* transport */
+	OF12_MATCH_TCP_SRC = 13,        /* TCP source port. */                    // required
+	OF12_MATCH_TCP_DST = 14,        /* TCP destination port. */                // required
+	OF12_MATCH_UDP_SRC = 15,        /* UDP source port. */                    // required
+	OF12_MATCH_UDP_DST = 16,        /* UDP destination port. */                // required
+	OF12_MATCH_SCTP_SRC = 17,        /* SCTP source port. */
+	OF12_MATCH_SCTP_DST = 18,        /* SCTP destination port. */
+	OF12_MATCH_ICMPV4_TYPE = 19,    /* ICMP type. */
+	OF12_MATCH_ICMPV4_CODE = 20,    /* ICMP code. */
+
+	/* arp */
+	OF12_MATCH_ARP_OP = 21,            /* ARP opcode. */
+	OF12_MATCH_ARP_SPA = 22,        /* ARP source IPv4 address. */
+	OF12_MATCH_ARP_TPA = 23,        /* ARP target IPv4 address. */
+	OF12_MATCH_ARP_SHA = 24,        /* ARP source hardware address. */
+	OF12_MATCH_ARP_THA = 25,        /* ARP target hardware address. */
+
+	/* ipv6 */
+	OF12_MATCH_IPV6_SRC = 26,        /* IPv6 source address. */                // required
+	OF12_MATCH_IPV6_DST = 27,        /* IPv6 destination address. */            // required
+	OF12_MATCH_IPV6_FLABEL = 28,    /* IPv6 Flow Label */
+	OF12_MATCH_ICMPV6_TYPE = 29,    /* ICMPv6 type. */
+	OF12_MATCH_ICMPV6_CODE = 30,    /* ICMPv6 code. */
+	OF12_MATCH_IPV6_ND_TARGET = 31,    /* Target address for ND. */
+	OF12_MATCH_IPV6_ND_SLL = 32,    /* Source link-layer for ND. */
+	OF12_MATCH_IPV6_ND_TLL = 33,    /* Target link-layer for ND. */
+	OF12_MATCH_IPV6_EXTHDR = 34,
+
+	/* mpls */
+	OF12_MATCH_MPLS_LABEL = 35,        /* MPLS label. */
+	OF12_MATCH_MPLS_TC = 36,        /* MPLS TC. */
+	OF12_MATCH_MPLS_BOS = 37,
+
+	OF12_MATCH_PBB_ISID = 38,
+	OF12_MATCH_TUNNEL_ID = 39,
+
+
+	/********************************/
+	/**** Extensions out of spec ****/
+	/********************************/
+	/* PPP/PPPoE related extensions */
+	OF12_MATCH_PPPOE_CODE = 40,        /* PPPoE code */
+	OF12_MATCH_PPPOE_TYPE = 41,        /* PPPoE type */
+	OF12_MATCH_PPPOE_SID = 42,        /* PPPoE session id */
+	OF12_MATCH_PPP_PROT = 43,        /* PPP protocol */
+
+	/* max value */
+	OF12_MATCH_MAX,
 } of12_match_type_t;
 
 
@@ -255,7 +276,56 @@ of12_match_t* of12_init_icmpv4_type_match(of12_match_t* prev, of12_match_t* next
 */
 of12_match_t* of12_init_icmpv4_code_match(of12_match_t* prev, of12_match_t* next, uint8_t value);
 
-//IPv6 && ICMv6
+//IPv6
+/**
+ * @brief Create an IP6_SRC match
+ * @ingroup core_of12
+ */
+of12_match_t* of12_init_ip6_src_match(of12_match_t* prev, of12_match_t* next, uint64_t value[2], uint64_t mask[2]);
+/**
+ * @brief Create an IP6_DST match
+ * @ingroup core_of12
+ */
+of12_match_t* of12_init_ip6_dst_match(of12_match_t* prev, of12_match_t* next, uint64_t value[2], uint64_t mask[2]);
+/**
+ * @brief Create an IP6_FLABEL match
+ * @ingroup core_of12
+ */
+of12_match_t* of12_init_ip6_flabel_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+/**
+ * @brief Create an IP6_ND_TARGET match
+ * @ingroup core_of12
+ */
+of12_match_t* of12_init_ip6_nd_target_match(of12_match_t* prev, of12_match_t* next, uint64_t value[2], uint64_t mask[2]);
+/**
+ * @brief Create an IP6_ND_SLL match
+ * @ingroup core_of12
+ */
+of12_match_t* of12_init_ip6_nd_sll_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+/**
+ * @brief Create an IP6_ND_TLL match
+ * @ingroup core_of12
+ */
+of12_match_t* of12_init_ip6_nd_tll_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+/**
+ * @brief Create an IP6_EXTHDR match
+ * @ingroup core_of12
+ */
+of12_match_t* of12_init_ip6_exthdr_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+
+//ICMv6
+/**
+ * @brief Create an ICMPV6_TYPE match
+ * @ingroup core_of12
+ */
+of12_match_t* of12_init_icmpv6_type_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+/**
+ * @brief Create an ICMPV6_CODE match
+ * @ingroup core_of12
+ */
+of12_match_t* of12_init_icmpv6_code_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+
+
 //TODO
 //Add more here...
 

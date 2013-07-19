@@ -168,6 +168,81 @@ inline of12_match_t* of12_init_ip_ecn_match(of12_match_t* prev, of12_match_t* ne
 	return match;
 }
 
+//IPv6
+inline of12_match_t* of12_init_ip6_src_match(of12_match_t* prev, of12_match_t* next, uint64_t value[2], uint64_t mask[2]){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_IPV6_SRC;
+	match->value = __init_utern128(value,mask); 
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_ip6_dst_match(of12_match_t* prev, of12_match_t* next, uint64_t value[2], uint64_t mask[2]){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_IPV6_DST;
+	match->value = __init_utern128(value,mask); 
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_ip6_flabel_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_IPV6_FLABEL;
+	match->value = __init_utern64(value,mask); 
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_ip6_nd_target_match(of12_match_t* prev, of12_match_t* next, uint64_t value[2], uint64_t mask[2]){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_IPV6_ND_TARGET;
+	match->value = __init_utern128(value,mask); 
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_ip6_nd_sll_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_IPV6_ND_SLL;
+	match->value = __init_utern64(value,mask); 
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_ip6_nd_tll_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_IPV6_ND_TLL;
+	match->value = __init_utern64(value,mask); 
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_ip6_exthdr_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_IPV6_EXTHDR;
+	match->value = __init_utern64(value,mask); 
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+
+//ICMPV6
+inline of12_match_t* of12_init_icmpv6_type_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_ICMPV6_TYPE;
+	match->value = __init_utern64(value,mask); 
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_icmpv6_code_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_ICMPV6_CODE;
+	match->value = __init_utern64(value,mask); 
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
 
 //TCP
 inline of12_match_t* of12_init_tcp_src_match(of12_match_t* prev, of12_match_t* next, uint16_t value){
@@ -344,9 +419,20 @@ inline of12_match_t* __of12_copy_match(of12_match_t* match){
    		case OF12_MATCH_UDP_SRC: return of12_init_udp_src_match(NULL,NULL,((utern16_t*)match->value)->value); 
    		case OF12_MATCH_UDP_DST: return of12_init_udp_dst_match(NULL,NULL,((utern16_t*)match->value)->value); 
 
-    		case OF12_MATCH_ICMPV4_TYPE: return of12_init_icmpv4_type_match(NULL,NULL,((utern8_t*)match->value)->value); 
+    	case OF12_MATCH_ICMPV4_TYPE: return of12_init_icmpv4_type_match(NULL,NULL,((utern8_t*)match->value)->value); 
    		case OF12_MATCH_ICMPV4_CODE: return of12_init_icmpv4_code_match(NULL,NULL,((utern8_t*)match->value)->value); 
   		
+		case OF12_MATCH_IPV6_SRC: return of12_init_ip6_src_match(NULL,NULL,((utern128_t*)match->value)->value, ((utern128_t*)match->value)->mask);
+		case OF12_MATCH_IPV6_DST: return of12_init_ip6_dst_match(NULL,NULL,((utern128_t*)match->value)->value, ((utern128_t*)match->value)->mask);
+		case OF12_MATCH_IPV6_FLABEL: return of12_init_ip6_flabel_match(NULL,NULL,((utern64_t*)match->value)->value, ((utern64_t*)match->value)->mask);
+		case OF12_MATCH_IPV6_ND_TARGET: return of12_init_ip6_nd_target_match(NULL,NULL,((utern128_t*)match->value)->value, ((utern128_t*)match->value)->mask);
+		case OF12_MATCH_IPV6_ND_SLL: return of12_init_ip6_nd_sll_match(NULL,NULL,((utern64_t*)match->value)->value, ((utern64_t*)match->value)->mask);
+		case OF12_MATCH_IPV6_ND_TLL: return of12_init_ip6_nd_tll_match(NULL,NULL,((utern64_t*)match->value)->value, ((utern64_t*)match->value)->mask);
+		case OF12_MATCH_IPV6_EXTHDR: return of12_init_ip6_exthdr_match(NULL,NULL,((utern64_t*)match->value)->value, ((utern64_t*)match->value)->mask);
+		
+		case OF12_MATCH_ICMPV6_TYPE: return of12_init_icmpv6_type_match(NULL,NULL,((utern64_t*)match->value)->value, ((utern64_t*)match->value)->mask);
+		case OF12_MATCH_ICMPV6_CODE: return of12_init_icmpv6_code_match(NULL,NULL,((utern64_t*)match->value)->value, ((utern64_t*)match->value)->mask);
+		
 		/* PPP/PPPoE related extensions */
    		case OF12_MATCH_PPPOE_CODE: return of12_init_pppoe_code_match(NULL,NULL,((utern8_t*)match->value)->value); 
    		case OF12_MATCH_PPPOE_TYPE: return of12_init_pppoe_type_match(NULL,NULL,((utern8_t*)match->value)->value); 

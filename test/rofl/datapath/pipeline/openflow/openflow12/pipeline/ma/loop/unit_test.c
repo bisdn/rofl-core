@@ -3,12 +3,13 @@
 #include "CUnit/Basic.h"
 
 #include "matching_test.h"
+#include "test_ipv6.h"
 
 int main(int args, char** argv){
 
 	int return_code;
 	//main to call all the other tests written in the oder files in this folder
-	CU_pSuite pSuite = NULL;
+	CU_pSuite pSuite = NULL, ipv6_suite = NULL;
 
 	/* initialize the CUnit test registry */
 	if (CUE_SUCCESS != CU_initialize_registry())
@@ -35,6 +36,19 @@ int main(int args, char** argv){
 		return_code = CU_get_error();
 		CU_cleanup_registry();
 		return return_code;
+	}
+	
+	
+	if((ipv6_suite = CU_add_suite("suite for ipv6 compatibility", ipv6_set_up, ipv6_tear_down))==NULL){
+		CU_cleanup_registry();
+		return CU_get_error();
+	}
+	if ((CU_add_test(ipv6_suite,"basic test",ipv6_basic_test)==NULL) ||
+		(CU_add_test(ipv6_suite,"install flow mod",ipv6_install_flow_mod)==NULL) ||
+		(CU_add_test(ipv6_suite,"utern 128 bits",ipv6_utern_test)==NULL)	
+	){
+		CU_cleanup_registry();
+		return CU_get_error();
 	}
 
 	/* Run all tests using the CUnit Basic interface */
