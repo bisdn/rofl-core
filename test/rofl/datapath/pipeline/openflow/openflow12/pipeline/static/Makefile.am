@@ -2,6 +2,7 @@ MAINTAINERCLEANFILES = Makefile.in
 
 static_unit_test_CFLAGS= -DTIMERS_FAKE_TIME
 
+#FIXME add group table tests!
 static_unit_test_SOURCES=../unit_test.c \
 	../output_actions.c \
 	../timers_hard_timeout.c \

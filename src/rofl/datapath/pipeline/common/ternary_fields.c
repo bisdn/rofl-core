@@ -226,6 +226,9 @@ inline utern_t* __utern64_get_alike(const utern64_t tern1, const utern64_t tern2
 	for(new_mask=0xFFFFFFFFFFFFFFFF;new_mask;new_mask=new_mask<<1)
 		if((diff&new_mask) == new_mask) break; 
 	
+	//FIXME assert unlikely
+	//FIXME this condition happens also when two values are different in the non masked part.
+		//in this case we sould return the utern as it is now.
 	if(tern1.mask<new_mask || tern2.mask < new_mask )
 		return NULL;
 	
@@ -234,8 +237,42 @@ inline utern_t* __utern64_get_alike(const utern64_t tern1, const utern64_t tern2
 	
 	return NULL;
 }
+inline utern_t* __utern128_get_alike(utern128_t tern1, utern128_t tern2){
+	//TODO: there might be more efficient impl. maybe erasing 1s in diff... but dunno
+	uint64_t diff_l,diff_h,new_mask;
+	uint64_t complete_mask[2];
 
-
+	diff_l = ~(	(tern1.value[UTERN128_LOW] & tern1.mask[UTERN128_LOW])	^	(tern2.value[UTERN128_LOW] & tern2.mask[UTERN128_LOW])	);
+	diff_h = ~(	(tern1.value[UTERN128_HIGH] & tern1.mask[UTERN128_HIGH])	^	(tern2.value[UTERN128_HIGH] & tern2.mask[UTERN128_HIGH])	);
+	
+	//We first look for the common mask in the lower part
+	for(new_mask=0xFFFFFFFFFFFFFFFF;new_mask;new_mask=new_mask<<1)
+		if((diff_l&new_mask) == new_mask) break; 
+	
+	if( (tern1.mask[UTERN128_LOW]<new_mask || tern2.mask[UTERN128_LOW] < new_mask) && diff_h == 0xffffffffffffffff )
+		return NULL;
+		
+	if(new_mask && diff_h == 0xffffffffffffffff){
+		complete_mask[UTERN128_HIGH] = 0xffffffffffffffff;
+		complete_mask[UTERN128_LOW] = new_mask;
+		return __init_utern128(tern1.value,complete_mask);
+	}
+	
+	//Now we look for it in the higher part
+	for(new_mask=0xFFFFFFFFFFFFFFFF;new_mask;new_mask=new_mask<<1)
+		if((diff_h&new_mask) == new_mask) break;
+		
+	if(tern1.mask[UTERN128_HIGH]<new_mask || tern2.mask[UTERN128_HIGH] < new_mask )
+		return NULL;
+	
+	if(new_mask){
+		complete_mask[UTERN128_HIGH]=new_mask;
+		complete_mask[UTERN128_LOW]=0x0000000000000000;
+		return __init_utern128(tern1.value,complete_mask);
+	}
+	
+	return NULL;
+}
 
 #if 0
 //Not used yet

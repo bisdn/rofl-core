@@ -14,6 +14,8 @@ int ipv6_tear_down(void);
 void ipv6_basic_test(void);
 void ipv6_utern_test(void);
 void ipv6_install_flow_mod(void);
+void ipv6_alike_test_low(void);
+void ipv6_alike_test_high(void);
 
 
 #endif //__TEST_IPV6_H__

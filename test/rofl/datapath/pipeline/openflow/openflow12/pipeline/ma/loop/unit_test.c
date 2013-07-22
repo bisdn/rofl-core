@@ -33,6 +33,7 @@ int main(int args, char** argv){
 	
 		)
 	{
+		fprintf(stderr,"ERROR WHILE ADDING TEST\n");
 		return_code = CU_get_error();
 		CU_cleanup_registry();
 		return return_code;
@@ -45,8 +46,11 @@ int main(int args, char** argv){
 	}
 	if ((CU_add_test(ipv6_suite,"basic test",ipv6_basic_test)==NULL) ||
 		(CU_add_test(ipv6_suite,"install flow mod",ipv6_install_flow_mod)==NULL) ||
-		(CU_add_test(ipv6_suite,"utern 128 bits",ipv6_utern_test)==NULL)	
+		(CU_add_test(ipv6_suite,"utern 128 bits",ipv6_utern_test)==NULL)	||
+		(CU_add_test(ipv6_suite,"get_alike_low",ipv6_alike_test_low)==NULL)	||
+		(CU_add_test(ipv6_suite,"get_alike_high",ipv6_alike_test_high)==NULL)
 	){
+		fprintf(stderr,"ERROR WHILE ADDING TEST\n");
 		CU_cleanup_registry();
 		return CU_get_error();
 	}

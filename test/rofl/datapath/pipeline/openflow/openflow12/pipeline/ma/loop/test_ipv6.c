@@ -42,6 +42,7 @@ void ipv6_basic_test(void){
 void ipv6_utern_test(void){
 	bool res;
 	utern128_t *tern, *ex_tern, *ex_tern_fail;
+	//FIXME uint64_t has 8 bytes =>  0x0102030405060708 !!!
 	uint64_t value[2] = {0xffffffff,0xffff1234}, mask[2] = {0xffffffff,0xffff0000};
 	uint64_t ex_value[2] = {0xffffffff,0x0fff1234}, ex_mask[2] = {0xffffffff,0x00000000};
 	uint64_t ex_value_fail[2] = {0xfffffffc,0xffff1234}, ex_mask_fail[2] = {0xfffffffe,0x00000000};
@@ -66,6 +67,51 @@ void ipv6_utern_test(void){
 	__destroy_utern((utern_t*)tern);
 	__destroy_utern((utern_t*)ex_tern);
 	__destroy_utern((utern_t*)ex_tern_fail);
+}
+
+void ipv6_alike_test_low(void){
+	utern128_t * tern1,*tern2,*res;
+	//						{		LOW		,		HIGH		}
+	uint64_t mask[2] =   {0xffffffffffffffff,0xffffffffffffffff};
+	uint64_t value1[2] = {0x1111222233334444,0xaaaabbbbccccdddd};
+	uint64_t value2[2] = {0x1111222233335444,0xaaaabbbbccccdddd};
+	
+	tern1 = (utern128_t *)__init_utern128(value1,mask);
+	tern2 = (utern128_t *)__init_utern128(value2,mask);
+	res = (utern128_t *)__utern128_get_alike(*tern1,*tern2);
+	
+	CU_ASSERT(res!=NULL);
+	if(res){
+		printf("1- masks 0x%lx 0x%lx\n",res->mask[UTERN128_HIGH],res->mask[UTERN128_LOW]);
+		CU_ASSERT(res->mask[UTERN128_HIGH]==0xffffffffffffffff);
+		CU_ASSERT(res->mask[UTERN128_LOW] ==0xffffffffffffe000);
+	}
+	__destroy_utern((utern_t*)tern1);
+	__destroy_utern((utern_t*)tern2);
+	__destroy_utern((utern_t*)res);
+}
+	
+void ipv6_alike_test_high(void){
+	utern128_t * tern1,*tern2,*res;
+	// Second test: change of mask and add different bytes in higher part
+	//						{		LOW		,		HIGH		}
+	uint64_t mask[2] =   {0xfffffffffff00000,0xffffffffffffffff};
+	uint64_t value1[2] = {0x1111222233334444,0xaaaabbbbccccdddf};
+	uint64_t value2[2] = {0x1111222233335444,0xaaaabbbbccccdddd};
+	
+	tern1 = (utern128_t *)__init_utern128(value1,mask);
+	tern2 = (utern128_t *)__init_utern128(value2,mask);
+	res = (utern128_t *)__utern128_get_alike(*tern1,*tern2);
+	CU_ASSERT(res!=NULL);
+	if(res){
+		printf("2- masks 0x%lx 0x%lx\n",res->mask[UTERN128_HIGH],res->mask[UTERN128_LOW]);
+		CU_ASSERT(res->mask[UTERN128_HIGH]==0xfffffffffffffffc);
+		CU_ASSERT(res->mask[UTERN128_LOW] ==0x0000000000000000);
+	}
+	__destroy_utern((utern_t*)tern1);
+	__destroy_utern((utern_t*)tern2);
+	__destroy_utern((utern_t*)res);
+
 }
 
 void ipv6_install_flow_mod(void){

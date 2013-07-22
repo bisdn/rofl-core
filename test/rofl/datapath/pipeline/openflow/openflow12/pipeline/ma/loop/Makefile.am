@@ -27,6 +27,7 @@ SHARED_SRC= $(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
 	../../pthread_lock.c
 
 unit_test_SOURCES= $(SHARED_SRC)\
+			test_ipv6.c \
 		   	matching_test.c\
 			unit_test.c
 		
