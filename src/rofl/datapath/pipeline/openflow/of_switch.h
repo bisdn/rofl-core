@@ -8,7 +8,6 @@
 #include <inttypes.h> 
 #include "rofl.h"
 #include "../switch_port.h"
-#include "../common/datapacket.h"
 
 /**
 * @file of_switch.h
@@ -36,6 +35,9 @@ typedef enum{
 //Platform dependent opaque state
 typedef void of_switch_platform_state_t;
 
+//Fwd decl
+struct datapacket;
+
 /**
 * @ingroup core 
 * Openflow-enabled switch abstraction (version-indepedent part).
@@ -57,7 +59,7 @@ typedef struct of_switch{
  	
 	/**
 	* Platform agnostic state. This is often used to store platform
-	* handles for hw switches or the datapacket_t processing buffers in
+	* handles for hw switches or the struct datapacket processing buffers in
 	* the case of sw switches.
 	*/
 	of_switch_platform_state_t* platform_state;
@@ -97,11 +99,11 @@ rofl_result_t of_destroy_switch(const of_switch_t* sw);
 * accelerated packet matching machinery.
 *
 * @param sw The switch which has to process the packet 
-* @param pkt A datapacket_t instance. All the fields must be set to NULL
+* @param pkt A struct datapacket instance. All the fields must be set to NULL
 * except maybe platform_state 
 * 
 */
-rofl_result_t of_process_packet_pipeline(const of_switch_t* sw, datapacket_t *const pkt);
+rofl_result_t of_process_packet_pipeline(const of_switch_t* sw, struct datapacket *const pkt);
 
 //Wrapping timers
 /**

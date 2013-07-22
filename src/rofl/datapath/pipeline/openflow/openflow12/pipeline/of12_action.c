@@ -1,4 +1,5 @@
 #include "of12_action.h"
+#include "../../../common/datapacket.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -209,9 +210,8 @@ void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_ac
 }
 
 /* Write actions init */
-void __of12_init_packet_write_actions(datapacket_t *const pkt, of12_write_actions_t* write_actions){
-	pkt->write_actions = (of_write_actions_t*)write_actions; 
-	memset(write_actions, 0, sizeof(of12_write_actions_t));
+void __of12_init_packet_write_actions(datapacket_t *const pkt){
+       memset(&pkt->write_actions.of12, 0, sizeof(of12_write_actions_t));
 }
 
 of12_write_actions_t* of12_init_write_actions(){
@@ -244,7 +244,7 @@ void __of12_update_packet_write_actions(datapacket_t* pkt, const of12_write_acti
 	of12_write_actions_t* packet_write_actions;
 
 	//Recover write actions from datapacket
-	packet_write_actions = (of12_write_actions_t*)pkt->write_actions;
+	packet_write_actions = &pkt->write_actions.of12;
 	
 	if(!entry_write_actions)
 		return;
@@ -258,14 +258,14 @@ void __of12_update_packet_write_actions(datapacket_t* pkt, const of12_write_acti
 }
 
 //Clear actions
-void __of12_clear_write_actions(of12_write_actions_t* write_actions){
-	memset(write_actions, 0, sizeof(of12_write_actions_t));
+void __of12_clear_write_actions(datapacket_t* pkt){
+	memset(&pkt->write_actions.of12, 0, sizeof(of12_write_actions_t));
 }
 
 /* Contains switch with all the different action functions */
 static inline void __of12_process_packet_action(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, of12_packet_action_t* action, bool replicate_pkts){
 
-	of12_packet_matches_t* pkt_matches = (of12_packet_matches_t*)pkt->matches;
+	of12_packet_matches_t* pkt_matches = &pkt->matches.of12;
 
 	switch(action->type){
 		case OF12_AT_NO_ACTION: /*TODO: print some error traces? */
@@ -579,7 +579,7 @@ void __of12_process_write_actions(const struct of12_switch* sw, const unsigned i
 	of12_write_actions_t* packet_write_actions;
 
 	//Recover write actions from datapacket
-	packet_write_actions = (of12_write_actions_t*)pkt->write_actions;
+	packet_write_actions = &pkt->write_actions.of12;
 	
 	for(i=0;i<OF12_AT_NUMBER;i++){
 		if(packet_write_actions->write_actions[i].type){
@@ -620,7 +620,7 @@ rofl_result_t __of12_update_write_actions(of12_write_actions_t** group, of12_wri
 static
 void __of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t *group, bool replicate_pkts){
 	of12_bucket_t *it_bk;
-	of12_packet_matches_t *matches = (of12_packet_matches_t *) pkt->matches;
+	of12_packet_matches_t *matches = &pkt->matches.of12;
 	
 	//process the actions in the buckets depending on the type
 	switch(group->type){

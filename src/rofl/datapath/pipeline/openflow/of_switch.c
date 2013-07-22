@@ -1,4 +1,5 @@
 #include "of_switch.h"
+#include "../common/datapacket.h"
 
 //Openflow specific switch implementations 
 #include "openflow12/of12_switch.h"
