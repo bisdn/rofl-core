@@ -94,6 +94,9 @@ void physical_switch_destroy(){
 
 	//Destroy mutex
 	platform_mutex_destroy(psw->mutex);
+	
+	//destroy physical switch
+	platform_free_shared(psw);
 }
 
 //

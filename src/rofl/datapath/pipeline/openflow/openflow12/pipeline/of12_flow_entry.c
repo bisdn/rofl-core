@@ -156,7 +156,7 @@ bool __of12_flow_entry_check_overlap(of12_flow_entry_t*const original, of12_flow
 	of12_match_t* it_orig, *it_entry;
 	
 	//Check cookie first
-	if(check_cookie && entry->cookie){
+	if(check_cookie && entry->cookie_mask){
 		if( (entry->cookie&entry->cookie_mask) != (original->cookie&entry->cookie_mask) )
 			return false;
 	}
