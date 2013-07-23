@@ -613,14 +613,31 @@ inline bool __of12_equal_matches(of12_match_t* match1, of12_match_t* match2){
    		case OF12_MATCH_IPV4_SRC: return __utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
    		case OF12_MATCH_IPV4_DST: return __utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
 
+		//ipv6
+		case OF12_MATCH_IPV6_SRC: return __utern_equals128((utern128_t*)match1->value,(utern128_t*)match2->value);
+		case OF12_MATCH_IPV6_DST: return __utern_equals128((utern128_t*)match1->value,(utern128_t*)match2->value);
+		case OF12_MATCH_IPV6_FLABEL: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
+		case OF12_MATCH_IPV6_ND_TARGET: return __utern_equals128((utern128_t*)match1->value,(utern128_t*)match2->value);
+		case OF12_MATCH_IPV6_ND_SLL: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
+		case OF12_MATCH_IPV6_ND_TLL: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
+		case OF12_MATCH_IPV6_EXTHDR: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
+		
+		//icmpv6
+		case OF12_MATCH_ICMPV6_TYPE: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
+		case OF12_MATCH_ICMPV6_CODE: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
+		
+		//tcp
    		case OF12_MATCH_TCP_SRC: return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
    		case OF12_MATCH_TCP_DST: return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
-
+		
+		//udp
    		case OF12_MATCH_UDP_SRC: return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
    		case OF12_MATCH_UDP_DST: return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
 
-    		case OF12_MATCH_ICMPV4_TYPE: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
+    	case OF12_MATCH_ICMPV4_TYPE: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
    		case OF12_MATCH_ICMPV4_CODE: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
+		
+		//TODO case OF12_MATCH_ARP_?:
   		
 		/* PPP/PPPoE related extensions */
    		case OF12_MATCH_PPPOE_CODE: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
