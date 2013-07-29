@@ -49,17 +49,15 @@ inline utern_t* __init_utern64(uint64_t value, uint64_t mask){
 	tern->mask = mask;
 	return (utern_t*)tern;
 }
-inline utern_t* __init_utern128(uint64_t value[2], uint64_t mask[2]){ //uint128_t funny!
+inline utern_t* __init_utern128(double64_t value, double64_t mask){ //uint128_t funny!
 	utern128_t* tern = (utern128_t*)platform_malloc_shared(sizeof(utern128_t));
 	
 	if(!tern)
 		return NULL;
 	
 	tern->type = UTERN128_T;
-	tern->value[UTERN128_LOW] = value[UTERN128_LOW];
-	tern->value[UTERN128_HIGH] = value[UTERN128_HIGH];
-	tern->mask[UTERN128_LOW] = mask[UTERN128_LOW];
-	tern->mask[UTERN128_HIGH] = mask[UTERN128_HIGH];
+	tern->value = value;
+	tern->mask = mask;
 	return (utern_t*)tern;
 }
 
@@ -91,9 +89,9 @@ inline bool __utern_compare64(const utern64_t* tern, const uint64_t value){
 	return (tern->value & tern->mask) == (value & tern->mask); 
 }
 
-inline bool __utern_compare128(const utern128_t* tern, const uint64_t value[2]){
-	return ( (tern->value[UTERN128_LOW] & tern->mask[UTERN128_LOW]) == (value[UTERN128_LOW] & tern->mask[UTERN128_LOW]) ) &&
-		( (tern->value[UTERN128_HIGH] & tern->mask[UTERN128_HIGH]) == (value[UTERN128_HIGH] & tern->mask[UTERN128_HIGH]) ); 
+inline bool __utern_compare128(const utern128_t* tern, const double64_t value){
+	return ( (tern->value.low & tern->mask.low) == (value.low & tern->mask.low) ) &&
+		( (tern->value.high & tern->mask.high) == (value.high & tern->mask.high) ); 
 }
 
 /*
@@ -121,11 +119,11 @@ inline bool __utern_is_contained64(const utern64_t* extensive_tern, const utern6
 	return (extensive_tern->value & extensive_tern->mask) == (tern->value & extensive_tern->mask);
 }
 inline bool __utern_is_contained128(const utern128_t* extensive_tern, const utern128_t* tern){
-	if((((extensive_tern->mask[UTERN128_LOW] ^ tern->mask[UTERN128_LOW]) & extensive_tern->mask[UTERN128_LOW]) > 0 ) || 
-		(((extensive_tern->mask[UTERN128_HIGH] ^ tern->mask[UTERN128_HIGH]) & extensive_tern->mask[UTERN128_HIGH]) > 0 ) )
+	if((((extensive_tern->mask.low ^ tern->mask.low) & extensive_tern->mask.low) > 0 ) || 
+		(((extensive_tern->mask.high ^ tern->mask.high) & extensive_tern->mask.high) > 0 ) )
 		return false;
-	return ( (extensive_tern->value[UTERN128_LOW] & extensive_tern->mask[UTERN128_LOW]) == (tern->value[UTERN128_LOW] & extensive_tern->mask[UTERN128_LOW]) &&
-		(extensive_tern->value[UTERN128_HIGH] & extensive_tern->mask[UTERN128_HIGH]) == (tern->value[UTERN128_HIGH] & extensive_tern->mask[UTERN128_HIGH])	);
+	return ( (extensive_tern->value.low & extensive_tern->mask.low) == (tern->value.low & extensive_tern->mask.low) &&
+		(extensive_tern->value.high & extensive_tern->mask.high) == (tern->value.high & extensive_tern->mask.high)	);
 }
 /*
 * Check if two ternary values are equal
@@ -143,8 +141,8 @@ inline bool __utern_equals64(const utern64_t* tern1, const utern64_t* tern2){
 	return (tern1->value == tern2->value) && (tern1->mask == tern2->mask);
 }
 inline bool __utern_equals128(const utern128_t* tern1, const utern128_t* tern2){
-	return (tern1->value[UTERN128_LOW] == tern2->value[UTERN128_LOW]) && (tern1->mask[UTERN128_LOW] == tern2->mask[UTERN128_LOW]) &&
-			(tern1->value[UTERN128_HIGH] == tern2->value[UTERN128_HIGH]) && (tern1->mask[UTERN128_HIGH] == tern2->mask[UTERN128_HIGH]);
+	return (tern1->value.low == tern2->value.low) && (tern1->mask.low == tern2->mask.low) &&
+			(tern1->value.high == tern2->value.high) && (tern1->mask.high == tern2->mask.high);
 }
 
 //Ternary alike functions. Tern2 MUST always have more restrictive mask
@@ -240,21 +238,21 @@ inline utern_t* __utern64_get_alike(const utern64_t tern1, const utern64_t tern2
 inline utern_t* __utern128_get_alike(utern128_t tern1, utern128_t tern2){
 	//TODO: there might be more efficient impl. maybe erasing 1s in diff... but dunno
 	uint64_t diff_l,diff_h,new_mask;
-	uint64_t complete_mask[2];
+	double64_t complete_mask;
 
-	diff_l = ~(	(tern1.value[UTERN128_LOW] & tern1.mask[UTERN128_LOW])	^	(tern2.value[UTERN128_LOW] & tern2.mask[UTERN128_LOW])	);
-	diff_h = ~(	(tern1.value[UTERN128_HIGH] & tern1.mask[UTERN128_HIGH])	^	(tern2.value[UTERN128_HIGH] & tern2.mask[UTERN128_HIGH])	);
+	diff_l = ~(	(tern1.value.low & tern1.mask.low)	^	(tern2.value.low & tern2.mask.low)	);
+	diff_h = ~(	(tern1.value.high & tern1.mask.high)	^	(tern2.value.high & tern2.mask.high)	);
 	
 	//We first look for the common mask in the lower part
 	for(new_mask=0xFFFFFFFFFFFFFFFF;new_mask;new_mask=new_mask<<1)
 		if((diff_l&new_mask) == new_mask) break; 
 	
-	if( (tern1.mask[UTERN128_LOW]<new_mask || tern2.mask[UTERN128_LOW] < new_mask) && diff_h == 0xffffffffffffffff )
+	if( (tern1.mask.low<new_mask || tern2.mask.low < new_mask) && diff_h == 0xffffffffffffffff )
 		return NULL;
 		
 	if(new_mask && diff_h == 0xffffffffffffffff){
-		complete_mask[UTERN128_HIGH] = 0xffffffffffffffff;
-		complete_mask[UTERN128_LOW] = new_mask;
+		complete_mask.high = 0xffffffffffffffff;
+		complete_mask.low = new_mask;
 		return __init_utern128(tern1.value,complete_mask);
 	}
 	
@@ -262,12 +260,12 @@ inline utern_t* __utern128_get_alike(utern128_t tern1, utern128_t tern2){
 	for(new_mask=0xFFFFFFFFFFFFFFFF;new_mask;new_mask=new_mask<<1)
 		if((diff_h&new_mask) == new_mask) break;
 		
-	if(tern1.mask[UTERN128_HIGH]<new_mask || tern2.mask[UTERN128_HIGH] < new_mask )
+	if(tern1.mask.high<new_mask || tern2.mask.high < new_mask )
 		return NULL;
 	
 	if(new_mask){
-		complete_mask[UTERN128_HIGH]=new_mask;
-		complete_mask[UTERN128_LOW]=0x0000000000000000;
+		complete_mask.high=new_mask;
+		complete_mask.low=0x0000000000000000;
 		return __init_utern128(tern1.value,complete_mask);
 	}
 	

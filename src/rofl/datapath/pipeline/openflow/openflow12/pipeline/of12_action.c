@@ -21,16 +21,19 @@ extern switch_port_t* flood_meta_port;
 
 //Non-multiple of byte masks
 #define OF12_AT_20_BITS_MASK 0x00000000000FFFFF
+#define OF12_AT_9_BITS_MASK 0x00000000000FFFFF
 #define OF12_AT_13_BITS_MASK 0x00000000000FFFFF
 #define OF12_AT_6_BITS_MASK 0x00000000000FFFFF
 #define OF12_AT_3_BITS_MASK 0x00000000000FFFFF
 #define OF12_AT_2_BITS_MASK 0x00000000000FFFFF
 
+#define OF12_AT_8_BYTE_MASK 0xFFFFFFFFFFFFFFFF
+
 //fwd declarations
 static void __of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t* group, bool replicate_pkts);
 
 /* Actions init and destroyed */
-of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */of12_packet_action_type_t type, uint64_t field, of12_packet_action_t* prev, of12_packet_action_t* next){
+of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */of12_packet_action_type_t type, of_uint128_t field, of12_packet_action_t* prev, of12_packet_action_t* next){
 
 	of12_packet_action_t* action;
 
@@ -50,20 +53,23 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 	switch(type){
 		//8 byte values (TODO: METADATA)
 		//6 byte values
+		case OF12_AT_SET_FIELD_IPV6_ND_SLL:
+		case OF12_AT_SET_FIELD_IPV6_ND_TLL:
 		case OF12_AT_SET_FIELD_ETH_DST:
 		case OF12_AT_SET_FIELD_ETH_SRC:
-			action->field = field&OF12_AT_6_BYTE_MASK;
+			action->field.u64 = field.u64&OF12_AT_6_BYTE_MASK;
 			break;
 	
 		//4 byte values
 		case OF12_AT_SET_FIELD_IPV4_DST:
 		case OF12_AT_SET_FIELD_IPV4_SRC:
 		case OF12_AT_OUTPUT:
-			action->field = field&OF12_AT_4_BYTE_MASK;	// TODO: max_len when port_no == OFPP_CONTROLLER
+			action->field.u64 = field.u64&OF12_AT_4_BYTE_MASK;	// TODO: max_len when port_no == OFPP_CONTROLLER
 			break;
 		//20 bit values
+		case OF12_AT_SET_FIELD_IPV6_FLABEL:
 		case OF12_AT_SET_FIELD_MPLS_LABEL:
-			action->field = field&OF12_AT_20_BITS_MASK;
+			action->field.u64 = field.u64&OF12_AT_20_BITS_MASK;
 			break;
 		//2 byte values
 		case OF12_AT_SET_FIELD_ETH_TYPE:
@@ -79,13 +85,19 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 		case OF12_AT_PUSH_PPPOE:
 		case OF12_AT_PUSH_MPLS: 
 		case OF12_AT_PUSH_VLAN: 
-			action->field = field&OF12_AT_2_BYTE_MASK;
+			action->field.u64 = field.u64&OF12_AT_2_BYTE_MASK;
+			break;
+		//9 bit value
+		case OF12_AT_SET_FIELD_IPV6_EXTHDR:
+			action->field.u64 = field.u64&OF12_AT_9_BITS_MASK;
 			break;
 		//13 bit values
 		case OF12_AT_SET_FIELD_VLAN_VID:
-			action->field = field&OF12_AT_13_BITS_MASK;
+			action->field.u64 = field.u64&OF12_AT_13_BITS_MASK;
 			break;
 		//1 byte values
+		case OF12_AT_SET_FIELD_ICMPV6_TYPE:
+		case OF12_AT_SET_FIELD_ICMPV6_CODE:
 		case OF12_AT_SET_FIELD_PPPOE_CODE:
 		case OF12_AT_SET_FIELD_PPPOE_TYPE:
 		case OF12_AT_SET_MPLS_TTL:
@@ -93,28 +105,35 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 		case OF12_AT_SET_FIELD_IP_PROTO:
 		case OF12_AT_SET_FIELD_ICMPV4_TYPE:
 		case OF12_AT_SET_FIELD_ICMPV4_CODE:
-			action->field = field&OF12_AT_1_BYTE_MASK;
+			action->field.u64 = field.u64&OF12_AT_1_BYTE_MASK;
 			break;
 		//6 bit values
 		case OF12_AT_SET_FIELD_IP_DSCP:
-			action->field = field&OF12_AT_6_BITS_MASK;
+			action->field.u64 = field.u64&OF12_AT_6_BITS_MASK;
 			break;
 		//3 bit values
 		case OF12_AT_SET_FIELD_VLAN_PCP:
 		case OF12_AT_SET_FIELD_MPLS_TC:
-			action->field = field&OF12_AT_3_BITS_MASK;
+			action->field.u64 = field.u64&OF12_AT_3_BITS_MASK;
 			break;
 		//2 bit values
 		case OF12_AT_SET_FIELD_IP_ECN:
-			action->field = field&OF12_AT_2_BITS_MASK;
+			action->field.u64 = field.u64&OF12_AT_2_BITS_MASK;
 			break;
 		case OF12_AT_GROUP:
-			action->field =  field&OF12_AT_4_BYTE_MASK; //id of the group
+			action->field.u64 =  field.u64&OF12_AT_4_BYTE_MASK; //id of the group
 			//action->group = of12_group_search(sw->pipeline->groups, action->field); // pointer to the group //FIXME evaluate if this can be done here or not
+			break;
+		case OF12_AT_SET_FIELD_IPV6_ND_TARGET:
+		case OF12_AT_SET_FIELD_IPV6_SRC:
+		case OF12_AT_SET_FIELD_IPV6_DST:
+			action->field.u128.high = field.u128.high&OF12_AT_8_BYTE_MASK;
+			action->field.u128.low = field.u128.low&OF12_AT_8_BYTE_MASK;
 			break;
 		//case OF12_AT_SET_QUEUE: TODO
 		default:
-			field = 0;
+			field.u128.high = 0;
+			field.u128.low = 0;
 			break;
 	}
 	
@@ -284,14 +303,14 @@ static inline void __of12_process_packet_action(const struct of12_switch* sw, co
 			break;
 		case OF12_AT_POP_MPLS: 
 			//Call platform
-			platform_packet_pop_mpls(pkt, action->field);
+			platform_packet_pop_mpls(pkt, action->field.u64);
 			//Update match
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 		case OF12_AT_POP_PPPOE: 
 			//Call platform
-			platform_packet_pop_pppoe(pkt, action->field);
+			platform_packet_pop_pppoe(pkt, action->field.u64);
 			//Update match
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
@@ -300,21 +319,21 @@ static inline void __of12_process_packet_action(const struct of12_switch* sw, co
 		//PUSH
 		case OF12_AT_PUSH_PPPOE:
 			//Call platform
-			platform_packet_push_pppoe(pkt, action->field);
+			platform_packet_push_pppoe(pkt, action->field.u64);
 			//Update match
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 		case OF12_AT_PUSH_MPLS:
 			//Call platform
-			platform_packet_push_mpls(pkt, action->field);
+			platform_packet_push_mpls(pkt, action->field.u64);
 			//Update match
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 		case OF12_AT_PUSH_VLAN:
 			//Call platform
-			platform_packet_push_vlan(pkt, action->field);
+			platform_packet_push_vlan(pkt, action->field.u64);
 			//Update match
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
@@ -335,17 +354,17 @@ static inline void __of12_process_packet_action(const struct of12_switch* sw, co
 			break;
 		case OF12_AT_SET_MPLS_TTL:
 			//Call platform
-			platform_packet_set_mpls_ttl(pkt, action->field);
+			platform_packet_set_mpls_ttl(pkt, action->field.u64);
 			break;
 		case OF12_AT_SET_NW_TTL:
 			//Call platform
-			platform_packet_set_nw_ttl(pkt, action->field);
+			platform_packet_set_nw_ttl(pkt, action->field.u64);
 			break;
 
 		//QUEUE
 		case OF12_AT_SET_QUEUE:
 			//Call platform
-			platform_packet_set_queue(pkt, action->field);
+			platform_packet_set_queue(pkt, action->field.u64);
 			break;
 
 		//TODO 
@@ -355,166 +374,227 @@ static inline void __of12_process_packet_action(const struct of12_switch* sw, co
 		//802
 		case OF12_AT_SET_FIELD_ETH_DST: 
 			//Call platform
-			platform_packet_set_eth_dst(pkt, action->field);
+			platform_packet_set_eth_dst(pkt, action->field.u64);
 			//Update match
-			pkt_matches->eth_dst = action->field; 
+			pkt_matches->eth_dst = action->field.u64; 
 			break;
 		case OF12_AT_SET_FIELD_ETH_SRC: 
 			//Call platform
-			platform_packet_set_eth_src(pkt, action->field); 
+			platform_packet_set_eth_src(pkt, action->field.u64); 
 			//Update match
-			pkt_matches->eth_src = action->field; 
+			pkt_matches->eth_src = action->field.u64; 
 			break;
 		case OF12_AT_SET_FIELD_ETH_TYPE: 
 			//Call platform
-			platform_packet_set_eth_type(pkt, action->field);
+			platform_packet_set_eth_type(pkt, action->field.u64);
 			//Update match
-			pkt_matches->eth_type = action->field;
+			pkt_matches->eth_type = action->field.u64;
 			break;
 
 		//802.1q
 		case OF12_AT_SET_FIELD_VLAN_VID: 
 			//Call platform
-			platform_packet_set_vlan_vid(pkt, action->field);
+			platform_packet_set_vlan_vid(pkt, action->field.u64);
 			//Update match
-			pkt_matches->vlan_vid = action->field;
+			pkt_matches->vlan_vid = action->field.u64;
 			break;
 		case OF12_AT_SET_FIELD_VLAN_PCP: 
 			//Call platform
-			platform_packet_set_vlan_pcp(pkt, action->field);
+			platform_packet_set_vlan_pcp(pkt, action->field.u64);
 			//Update match
-			pkt_matches->vlan_pcp = action->field;
+			pkt_matches->vlan_pcp = action->field.u64;
 			break;
 
 		//IP
 		case OF12_AT_SET_FIELD_IP_DSCP:
 			//Call platform
-			platform_packet_set_ip_dscp(pkt, action->field);
+			platform_packet_set_ip_dscp(pkt, action->field.u64);
 			//Update match
-			pkt_matches->ip_dscp = action->field;
+			pkt_matches->ip_dscp = action->field.u64;
 			break;
 		case OF12_AT_SET_FIELD_IP_ECN:
 			//Call platform
-			platform_packet_set_ip_ecn(pkt, action->field);
+			platform_packet_set_ip_ecn(pkt, action->field.u64);
 			//Update match
-			pkt_matches->ip_ecn = action->field;
+			pkt_matches->ip_ecn = action->field.u64;
 			break;
 		case OF12_AT_SET_FIELD_IP_PROTO:
 			//Call platform
-			platform_packet_set_ip_proto(pkt, action->field);
+			platform_packet_set_ip_proto(pkt, action->field.u64);
 			//Update match
-			pkt_matches->ip_proto = action->field;
+			pkt_matches->ip_proto = action->field.u64;
 			break;
 
 		//IPv4
 		case OF12_AT_SET_FIELD_IPV4_SRC:
 			//Call platform
-			platform_packet_set_ipv4_src(pkt, action->field);
+			platform_packet_set_ipv4_src(pkt, action->field.u64);
 			//Update match
-			pkt_matches->ipv4_src = action->field;
+			pkt_matches->ipv4_src = action->field.u64;
 			break;
 		case OF12_AT_SET_FIELD_IPV4_DST:
 			//Call platform
-			platform_packet_set_ipv4_dst(pkt, action->field);
+			platform_packet_set_ipv4_dst(pkt, action->field.u64);
 			//Update match
-			pkt_matches->ipv4_dst = action->field;
+			pkt_matches->ipv4_dst = action->field.u64;
 			break;
 	
 		//TCP
 		case OF12_AT_SET_FIELD_TCP_SRC:  
 			//Call platform
-			platform_packet_set_tcp_src(pkt, action->field);
+			platform_packet_set_tcp_src(pkt, action->field.u64);
 			//Update match
-			pkt_matches->tcp_src = action->field;
+			pkt_matches->tcp_src = action->field.u64;
 			break;
 		case OF12_AT_SET_FIELD_TCP_DST:
 			//Call platform
-			platform_packet_set_tcp_dst(pkt, action->field);
+			platform_packet_set_tcp_dst(pkt, action->field.u64);
 			//Update match
-			pkt_matches->tcp_dst = action->field;
+			pkt_matches->tcp_dst = action->field.u64;
 			break;
 
 		//UDP
 		case OF12_AT_SET_FIELD_UDP_SRC:
 			//Call platform
-			platform_packet_set_udp_src(pkt, action->field);
+			platform_packet_set_udp_src(pkt, action->field.u64);
 			//Update match
-			pkt_matches->udp_src = action->field;
+			pkt_matches->udp_src = action->field.u64;
 			break;
 		case OF12_AT_SET_FIELD_UDP_DST:
 			//Call platform
-			platform_packet_set_udp_dst(pkt, action->field);
+			platform_packet_set_udp_dst(pkt, action->field.u64);
 			//Update match
-			pkt_matches->udp_dst = action->field;
+			pkt_matches->udp_dst = action->field.u64;
 			break;
 
 		//ICMPv4
 		case OF12_AT_SET_FIELD_ICMPV4_TYPE:
 			//Call platform
-			platform_packet_set_icmpv4_type(pkt, action->field);
+			platform_packet_set_icmpv4_type(pkt, action->field.u64);
 			//Update match
-			pkt_matches->icmpv4_type = action->field;
+			pkt_matches->icmpv4_type = action->field.u64;
 			break;
 		case OF12_AT_SET_FIELD_ICMPV4_CODE:
 			//Call platform
-			platform_packet_set_icmpv4_code(pkt, action->field);
+			platform_packet_set_icmpv4_code(pkt, action->field.u64);
 			//Update match
-			pkt_matches->icmpv4_code = action->field;
+			pkt_matches->icmpv4_code = action->field.u64;
 			break;
 
 		//MPLS
 		case OF12_AT_SET_FIELD_MPLS_LABEL:
 			//Call platform
-			platform_packet_set_mpls_label(pkt, action->field);
+			platform_packet_set_mpls_label(pkt, action->field.u64);
 			//Update match
-			pkt_matches->mpls_label = action->field;
+			pkt_matches->mpls_label = action->field.u64;
 			break;
 		case OF12_AT_SET_FIELD_MPLS_TC:
 			//Call platform
-			platform_packet_set_mpls_tc(pkt, action->field);
+			platform_packet_set_mpls_tc(pkt, action->field.u64);
 			//Update match
-			pkt_matches->mpls_tc = action->field;
+			pkt_matches->mpls_tc = action->field.u64;
 			break;
 
 		//PPPoE
 		case OF12_AT_SET_FIELD_PPPOE_CODE:
 			//Call platform
-			platform_packet_set_pppoe_code(pkt, action->field);
+			platform_packet_set_pppoe_code(pkt, action->field.u64);
 			//Update match
-			pkt_matches->pppoe_code = action->field;
+			pkt_matches->pppoe_code = action->field.u64;
 			break;
 		case OF12_AT_SET_FIELD_PPPOE_TYPE:
 			//Call platform
-			platform_packet_set_pppoe_type(pkt, action->field);
+			platform_packet_set_pppoe_type(pkt, action->field.u64);
 			//Update match
-			pkt_matches->pppoe_type = action->field;
+			pkt_matches->pppoe_type = action->field.u64;
 			break;
 		case OF12_AT_SET_FIELD_PPPOE_SID:
 			//Call platform
-			platform_packet_set_pppoe_sid(pkt, action->field);
+			platform_packet_set_pppoe_sid(pkt, action->field.u64);
 			//Update match
-			pkt_matches->pppoe_sid = action->field;
+			pkt_matches->pppoe_sid = action->field.u64;
 			break;
 
 		//PPP
 		case OF12_AT_SET_FIELD_PPP_PROT:
 			//Call platform
-			platform_packet_set_ppp_proto(pkt, action->field);
+			platform_packet_set_ppp_proto(pkt, action->field.u64);
 			//Update match
-			pkt_matches->ppp_proto = action->field;
+			pkt_matches->ppp_proto = action->field.u64;
+			break;
+			
+		//IPv6
+		case OF12_AT_SET_FIELD_IPV6_SRC:
+			//Call platform
+			platform_packet_set_ipv6_src(pkt, action->field.u128);
+			//Update match
+			pkt_matches->ipv6_src.low = action->field.u128.low;
+			pkt_matches->ipv6_src.high = action->field.u128.high;
+			break;
+		case OF12_AT_SET_FIELD_IPV6_DST:
+			//Call platform
+			platform_packet_set_ipv6_dst(pkt, action->field.u128);
+			//Update match
+			pkt_matches->ipv6_dst.low = action->field.u128.low;
+			pkt_matches->ipv6_dst.high = action->field.u128.high;
+			break;
+		case OF12_AT_SET_FIELD_IPV6_FLABEL:
+			//Call platform
+			platform_packet_set_ipv6_flabel(pkt, action->field.u64);
+			//Update match
+			pkt_matches->ipv6_flabel = action->field.u64;
+			break;
+		case OF12_AT_SET_FIELD_IPV6_ND_TARGET:
+			//Call platform
+			platform_packet_set_ipv6_nd_target(pkt, action->field.u128);
+			//Update match
+			pkt_matches->ipv6_nd_target.low = action->field.u128.low;
+			pkt_matches->ipv6_nd_target.high = action->field.u128.high;
+			break;
+		case OF12_AT_SET_FIELD_IPV6_ND_SLL:
+			//Call platform
+			platform_packet_set_ipv6_nd_sll(pkt, action->field.u64);
+			//Update match
+			pkt_matches->ipv6_nd_sll = action->field.u64;
+			break;
+		case OF12_AT_SET_FIELD_IPV6_ND_TLL:
+			//Call platform
+			platform_packet_set_ipv6_nd_tll(pkt, action->field.u64);
+			//Update match
+			pkt_matches->ipv6_nd_tll = action->field.u64;
+			break;
+		case OF12_AT_SET_FIELD_IPV6_EXTHDR:
+			//Call platform
+			platform_packet_set_ipv6_exthdr(pkt, action->field.u64);
+			//Update match
+			pkt_matches->ipv6_exthdr = action->field.u64;
+			break;
+		//ICMPv6
+		case OF12_AT_SET_FIELD_ICMPV6_TYPE:
+			//Call platform
+			platform_packet_set_icmpv6_type(pkt, action->field.u64);
+			//Update match
+			pkt_matches->icmpv6_type = action->field.u64;
+			break;
+			
+		case OF12_AT_SET_FIELD_ICMPV6_CODE:
+			//Call platform
+			platform_packet_set_icmpv6_code(pkt, action->field.u64);
+			//Update match
+			pkt_matches->icmpv6_code = action->field.u64;
 			break;
 
-		case OF12_AT_GROUP: __of12_process_group_actions(sw, table_id, pkt, action->field, action->group, replicate_pkts);
+		case OF12_AT_GROUP: __of12_process_group_actions(sw, table_id, pkt, action->field.u64, action->group, replicate_pkts);
 			break;
 		case OF12_AT_EXPERIMENTER: //FIXME: implement
 			break;
 		case OF12_AT_OUTPUT: 
 			
-			if(action->field < OF12_PORT_MAX || 
-				 action->field == OF12_PORT_ALL || 
-				 action->field == OF12_PORT_FLOOD || 
-				 action->field == OF12_PORT_NORMAL || 
-				 action->field == OF12_PORT_CONTROLLER){ 
+			if(action->field.u64 < OF12_PORT_MAX || 
+				 action->field.u64 == OF12_PORT_ALL || 
+				 action->field.u64 == OF12_PORT_FLOOD || 
+				 action->field.u64 == OF12_PORT_NORMAL || 
+				 action->field.u64 == OF12_PORT_CONTROLLER){ 
 
 				//Pointer for the packet to be sent
 				datapacket_t* pkt_to_send;			
@@ -530,19 +610,19 @@ static inline void __of12_process_packet_action(const struct of12_switch* sw, co
 					pkt_to_send = pkt;
 
 				//Perform output
-				if( action->field < LOGICAL_SWITCH_MAX_LOG_PORTS && NULL != sw->logical_ports[action->field].port ){
+				if( action->field.u64 < LOGICAL_SWITCH_MAX_LOG_PORTS && NULL != sw->logical_ports[action->field.u64].port ){
 
 					//Single port output
-					platform_packet_output(pkt_to_send, sw->logical_ports[action->field].port);
+					platform_packet_output(pkt_to_send, sw->logical_ports[action->field.u64].port);
 
-				}else if(action->field == OF12_PORT_FLOOD || 
-					action->field == OF12_PORT_ALL){
+				}else if(action->field.u64 == OF12_PORT_FLOOD || 
+					action->field.u64 == OF12_PORT_ALL){
 
 					//Flood
 					platform_packet_output(pkt_to_send, flood_meta_port);
 
-				}else if(action->field == OF12_PORT_CONTROLLER ||
-					action->field == OF12_PORT_NORMAL){
+				}else if(action->field.u64 == OF12_PORT_CONTROLLER ||
+					action->field.u64 == OF12_PORT_NORMAL){
 
 					//Controller
 					platform_of12_packet_in(sw, table_id, pkt_to_send, OF12_PKT_IN_ACTION);
@@ -656,15 +736,16 @@ void __of12_process_group_actions(const struct of12_switch* sw, const unsigned i
 	
 }
 //Checking functions
+/*TODO specific funcions for 128 bits*/
 bool __of12_write_actions_has(of12_write_actions_t* write_actions, of12_packet_action_type_t type, uint64_t value){
 	if(!write_actions)
 		return false;	
 	
 	of12_packet_action_t action = write_actions->write_actions[type];
 
-	return (action.type != OF12_AT_NO_ACTION) && (value != 0x0 && action.field == value ); 
+	return (action.type != OF12_AT_NO_ACTION) && (value != 0x0 && action.field.u64 == value ); 
 }
-
+/*TODO specific funcions for 128 bits*/
 bool __of12_apply_actions_has(const of12_action_group_t* apply_actions_group, of12_packet_action_type_t type, uint64_t value){
 
 	of12_packet_action_t *it;
@@ -674,7 +755,7 @@ bool __of12_apply_actions_has(const of12_action_group_t* apply_actions_group, of
 
 
 	for(it=apply_actions_group->head; it; it=it->next){
-		if( (it->type == type) && (value != 0x0 && it->field == value) )
+		if( (it->type == type) && (value != 0x0 && it->field.u64 == value) )
 			return true;
 	}
 	return false;	
@@ -793,72 +874,93 @@ static void __of12_dump_packet_action(of12_packet_action_t action){
 		case OF12_AT_DEC_MPLS_TTL:ROFL_PIPELINE_DEBUG_NO_PREFIX("DEC_MPLS_TTL");
 			break;
 
-		case OF12_AT_SET_MPLS_TTL:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_MPLS_TTL: %u",action.field);
+		case OF12_AT_SET_MPLS_TTL:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_MPLS_TTL: %u",action.field.u64);
 			break;
-		case OF12_AT_SET_NW_TTL:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_NW_TTL: %u",action.field);
+		case OF12_AT_SET_NW_TTL:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_NW_TTL: %u",action.field.u64);
 			break;
 
-		case OF12_AT_SET_QUEUE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_QUEUE: %u",action.field);
+		case OF12_AT_SET_QUEUE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_QUEUE: %u",action.field.u64);
 			break;
 
 		//TODO 
 		//case OF12_AT_SET_FIELD_METADATA:
 		//	break;
 
-		case OF12_AT_SET_FIELD_ETH_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ETH_DST: 0x%"PRIx64,action.field); 
+		case OF12_AT_SET_FIELD_ETH_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ETH_DST: 0x%"PRIx64,action.field.u64); 
 			break;
-		case OF12_AT_SET_FIELD_ETH_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ETH_SRC: 0x%"PRIx64,action.field);
+		case OF12_AT_SET_FIELD_ETH_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ETH_SRC: 0x%"PRIx64,action.field.u64);
 			break;
-		case OF12_AT_SET_FIELD_ETH_TYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ETH_TYPE: 0x%x",action.field);
-			break;
-
-		case OF12_AT_SET_FIELD_VLAN_VID:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_VLAN_VID: 0x%x",action.field);
-			break;
-		case OF12_AT_SET_FIELD_VLAN_PCP:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_VLAN_PCP: 0x%x",action.field);
+		case OF12_AT_SET_FIELD_ETH_TYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ETH_TYPE: 0x%x",action.field.u64);
 			break;
 
-		case OF12_AT_SET_FIELD_IP_DSCP: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IP_DSCP: 0x%x",action.field);
+		case OF12_AT_SET_FIELD_VLAN_VID:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_VLAN_VID: 0x%x",action.field.u64);
 			break;
-		case OF12_AT_SET_FIELD_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IP_ECN: 0x%x",action.field);
-			break;
-
-		case OF12_AT_SET_FIELD_IP_PROTO:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IP_PROTO: 0x%x",action.field);
+		case OF12_AT_SET_FIELD_VLAN_PCP:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_VLAN_PCP: 0x%x",action.field.u64);
 			break;
 
-		case OF12_AT_SET_FIELD_IPV4_SRC:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV4_SRC: 0x%x",action.field);
+		case OF12_AT_SET_FIELD_IP_DSCP: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IP_DSCP: 0x%x",action.field.u64);
 			break;
-		case OF12_AT_SET_FIELD_IPV4_DST:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV4_DST: 0x%x",action.field);
-			break;
-
-		case OF12_AT_SET_FIELD_TCP_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TCP_SRC: %u",action.field);
-			break;
-		case OF12_AT_SET_FIELD_TCP_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TCP_DST: %u",action.field);
+		case OF12_AT_SET_FIELD_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IP_ECN: 0x%x",action.field.u64);
 			break;
 
-		case OF12_AT_SET_FIELD_UDP_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_UDP_SRC: %u",action.field);
-			break;
-		case OF12_AT_SET_FIELD_UDP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_UDP_DST: %u",action.field);
+		case OF12_AT_SET_FIELD_IP_PROTO:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IP_PROTO: 0x%x",action.field.u64);
 			break;
 
-		case OF12_AT_SET_FIELD_ICMPV4_TYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ICMPV4_TYPE: 0x%x",action.field);
+		case OF12_AT_SET_FIELD_IPV4_SRC:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV4_SRC: 0x%x",action.field.u64);
 			break;
-		case OF12_AT_SET_FIELD_ICMPV4_CODE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ICMPV4_CODE: 0x%x",action.field);
-			break;
-
-		case OF12_AT_SET_FIELD_MPLS_LABEL:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_MPLS_LABEL: 0x%x",action.field);
-			break;
-		case OF12_AT_SET_FIELD_MPLS_TC:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_MPLS_TC: 0x%x",action.field);
+		case OF12_AT_SET_FIELD_IPV4_DST:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV4_DST: 0x%x",action.field.u64);
 			break;
 
-		case OF12_AT_SET_FIELD_PPPOE_CODE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_PPPOE_CODE: 0x%x",action.field);
+		case OF12_AT_SET_FIELD_TCP_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TCP_SRC: %u",action.field.u64);
 			break;
-		case OF12_AT_SET_FIELD_PPPOE_TYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_PPPOE_TYPE: 0x%x",action.field);
-			break;
-		case OF12_AT_SET_FIELD_PPPOE_SID:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_PPPOE_SID: 0x%x",action.field);
+		case OF12_AT_SET_FIELD_TCP_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TCP_DST: %u",action.field.u64);
 			break;
 
-		case OF12_AT_SET_FIELD_PPP_PROT:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_PPP_PROT: 0x%x",action.field);
+		case OF12_AT_SET_FIELD_UDP_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_UDP_SRC: %u",action.field.u64);
 			break;
+		case OF12_AT_SET_FIELD_UDP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_UDP_DST: %u",action.field.u64);
+			break;
+
+		case OF12_AT_SET_FIELD_ICMPV4_TYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ICMPV4_TYPE: 0x%x",action.field.u64);
+			break;
+		case OF12_AT_SET_FIELD_ICMPV4_CODE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ICMPV4_CODE: 0x%x",action.field.u64);
+			break;
+
+		case OF12_AT_SET_FIELD_MPLS_LABEL:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_MPLS_LABEL: 0x%x",action.field.u64);
+			break;
+		case OF12_AT_SET_FIELD_MPLS_TC:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_MPLS_TC: 0x%x",action.field.u64);
+			break;
+
+		case OF12_AT_SET_FIELD_PPPOE_CODE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_PPPOE_CODE: 0x%x",action.field.u64);
+			break;
+		case OF12_AT_SET_FIELD_PPPOE_TYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_PPPOE_TYPE: 0x%x",action.field.u64);
+			break;
+		case OF12_AT_SET_FIELD_PPPOE_SID:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_PPPOE_SID: 0x%x",action.field.u64);
+			break;
+
+		case OF12_AT_SET_FIELD_PPP_PROT:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_PPP_PROT: 0x%x",action.field.u64);
+			break;
+			
+		case OF12_AT_SET_FIELD_IPV6_SRC:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_SRC: 0x%x %x",action.field.u128.high,action.field.u128.low);
+			break;
+		case OF12_AT_SET_FIELD_IPV6_DST:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_DST: 0x%x %x",action.field.u128.high,action.field.u128.low);
+			break;
+		case OF12_AT_SET_FIELD_IPV6_FLABEL:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_FLABEL: 0x%u",action.field.u64);
+			break;
+		case OF12_AT_SET_FIELD_IPV6_ND_TARGET:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_ND_TARGET: 0x%x %x",action.field.u128.high,action.field.u128.low);
+			break;
+		case OF12_AT_SET_FIELD_IPV6_ND_SLL:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_ND_SLL: 0x%x",action.field.u64);
+			break;
+		case OF12_AT_SET_FIELD_IPV6_ND_TLL:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_ND_TLL: 0x%x",action.field.u64);
+			break;
+		case OF12_AT_SET_FIELD_IPV6_EXTHDR:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_EXTHDR: 0x%x",action.field.u64);
+			break;
+			
+		case OF12_AT_SET_FIELD_ICMPV6_TYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ICMPV6_TYPE: 0x%u",action.field.u64);
+			break;
+		case OF12_AT_SET_FIELD_ICMPV6_CODE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ICMPV6_CODE: 0x%u",action.field.u64);
+			break;
+		
 
 		case OF12_AT_GROUP:ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP");
 			break;
@@ -866,7 +968,7 @@ static void __of12_dump_packet_action(of12_packet_action_t action){
 		case OF12_AT_EXPERIMENTER:ROFL_PIPELINE_DEBUG_NO_PREFIX("EXPERIMENTER");
 			break;
 
-		case OF12_AT_OUTPUT:ROFL_PIPELINE_DEBUG_NO_PREFIX("OUTPUT port: %u",action.field);
+		case OF12_AT_OUTPUT:ROFL_PIPELINE_DEBUG_NO_PREFIX("OUTPUT port: %u",action.field.u64);
 			break;
 	}
 	ROFL_PIPELINE_DEBUG_NO_PREFIX(">,");
@@ -904,7 +1006,7 @@ bool __of12_validate_action_group(of12_action_group_t *ag, of12_group_table_t *g
 	if(ag){
 		for(pa_it=ag->head; pa_it; pa_it=pa_it->next){
 			if(pa_it->type == OF12_AT_GROUP && gt){
-				if((pa_it->group=__of12_group_search(gt,pa_it->field))==NULL)
+				if((pa_it->group=__of12_group_search(gt,pa_it->field.u64))==NULL)
 					return ROFL_FAILURE;
 				else{
 					ag->num_of_output_actions+=pa_it->group->num_of_output_actions;
@@ -924,7 +1026,7 @@ bool __of12_validate_write_actions(of12_write_actions_t *wa, of12_group_table_t 
 	for(i=0;i<OF12_AT_NUMBER;i++){
 		pa_it = &(wa->write_actions[i]);
 		if(gt && pa_it && pa_it->type == OF12_AT_GROUP){
-			if((pa_it->group=__of12_group_search(gt,pa_it->field))==NULL )
+			if((pa_it->group=__of12_group_search(gt,pa_it->field.u64))==NULL )
 				return ROFL_FAILURE;
 			else{
 				wa->num_of_output_actions+=pa_it->group->num_of_output_actions;

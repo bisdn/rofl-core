@@ -366,7 +366,7 @@ void test_flow_modify(){
 	//Add one action
 	group1 = of12_init_action_group(NULL);
 	CU_ASSERT(group1 != NULL);
-	of12_push_packet_action_to_group(group1,of12_init_packet_action(OF12_AT_OUTPUT,1,NULL,NULL));
+	of12_push_packet_action_to_group(group1,of12_init_packet_action(OF12_AT_OUTPUT,1,0,NULL,NULL));
 	
 	of12_add_instruction_to_group(&entry1->inst_grp, OF12_IT_APPLY_ACTIONS, group1, NULL,0);
 	
@@ -384,7 +384,7 @@ void test_flow_modify(){
 	//Add a different action
 	group2 = of12_init_action_group(NULL);
 	CU_ASSERT(group2 != NULL);
-	of12_push_packet_action_to_group(group2, of12_init_packet_action(OF12_AT_SET_FIELD_IP_DSCP, 1, NULL,NULL));
+	of12_push_packet_action_to_group(group2, of12_init_packet_action(OF12_AT_SET_FIELD_IP_DSCP, 1,0, NULL,NULL));
 	
 	of12_add_instruction_to_group(&entry2->inst_grp, OF12_IT_APPLY_ACTIONS, group2, NULL,0);
 

@@ -90,9 +90,9 @@ void gt_add_and_delete_buckets_test(){
 	
 	tu.actions = of12_init_action_group(NULL);
 	
-	pkt_action = of12_init_packet_action(&sw,OF12_AT_COPY_TTL_IN,1,NULL,NULL);
+	pkt_action = of12_init_packet_action(&sw,OF12_AT_COPY_TTL_IN,1,0,NULL,NULL);
 	of12_push_packet_action_to_group(tu.actions,pkt_action);
-	pkt_action = of12_init_packet_action(&sw,OF12_AT_GROUP,1,NULL,NULL);
+	pkt_action = of12_init_packet_action(&sw,OF12_AT_GROUP,1,0,NULL,NULL);
 	of12_push_packet_action_to_group(tu.actions,pkt_action);
 	
 	of12_group_add(tu.gt,tu.type,tu.id, tu.weight, tu.group, tu.port, tu.actions);

@@ -42,7 +42,7 @@ void oa_basic_test(void){
 	oa_set_up();
 	
 	//"map_flow_entry_actions"
-	of12_packet_action_t* action = of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),NULL,NULL);
+	of12_packet_action_t* action = of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),0,NULL,NULL);
 	of12_push_packet_action_to_group(apply_actions,action);
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_APPLY_ACTIONS,apply_actions,NULL,0);
 	
@@ -71,12 +71,12 @@ void oa_only_apply(void){
 	oa_set_up();
 	
 	//"map_flow_entry_actions"
-	of12_packet_action_t* action = of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),NULL,NULL);
+	of12_packet_action_t* action = of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),0,NULL,NULL);
 	of12_push_packet_action_to_group(apply_actions,action);
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_APPLY_ACTIONS,apply_actions,NULL,0);
 	
 	//"map_flow_entry_actions"
-	action = of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),NULL,NULL);
+	action = of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),0,NULL,NULL);
 	of12_set_packet_action_on_write_actions(write_actions,action);
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_WRITE_ACTIONS,NULL,write_actions,0);
 	
@@ -99,12 +99,12 @@ void oa_only_write(void){
 	oa_set_up();
 	
 	//"map_flow_entry_actions"
-	of12_packet_action_t* action = of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),NULL,NULL);
+	of12_packet_action_t* action = of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),0,NULL,NULL);
 	of12_push_packet_action_to_group(apply_actions,action);
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_APPLY_ACTIONS,apply_actions,NULL,0);
 	
 	//"map_flow_entry_actions"
-	action = of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),NULL,NULL);
+	action = of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),0,NULL,NULL);
 	of12_set_packet_action_on_write_actions(write_actions,action);
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_WRITE_ACTIONS,NULL,write_actions,0);
 	
@@ -123,7 +123,7 @@ void oa_no_output(){
 	
 	oa_set_up();
 	
-	of12_packet_action_t* action = of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),NULL,NULL);
+	of12_packet_action_t* action = of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),0,NULL,NULL);
 	of12_push_packet_action_to_group(apply_actions,action);
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_APPLY_ACTIONS,apply_actions,NULL,0);
 	
@@ -151,15 +151,15 @@ void oa_test_with_groups(void){
 	of12_action_group_t *ag=of12_init_action_group(0);
 	of12_action_group_t *ag2=of12_init_action_group(0);
 	of12_bucket_list_t *buckets=of12_init_bucket_list();
-	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),NULL,NULL));
-	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),NULL,NULL));
-	of12_push_packet_action_to_group(ag2,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),NULL,NULL));
+	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),0,NULL,NULL));
+	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),0,NULL,NULL));
+	of12_push_packet_action_to_group(ag2,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),0,NULL,NULL));
 	of12_insert_bucket_in_list(buckets,of12_init_bucket(0,1,0,ag));
 	of12_insert_bucket_in_list(buckets,of12_init_bucket(0,1,0,ag2));
 	of12_group_add(sw->pipeline->groups,OF12_GROUP_TYPE_ALL,grp_id,buckets);
 	
-	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_GROUP,grp_id,NULL,NULL));
-	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),NULL,NULL));
+	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_GROUP,grp_id,0,NULL,NULL));
+	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),0,NULL,NULL));
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_APPLY_ACTIONS,apply_actions,NULL,0);
 	
 	//"map_flow_entry_actions"
@@ -180,13 +180,13 @@ void oa_test_with_groups(void){
 void oa_two_outputs_apply(void){
 	oa_set_up();
 	
-	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_GROUP,grp_id,NULL,NULL));
-	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),NULL,NULL));
-	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port+1),NULL,NULL));
+	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_GROUP,grp_id,0,NULL,NULL));
+	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),0,NULL,NULL));
+	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port+1),0,NULL,NULL));
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_APPLY_ACTIONS,apply_actions,NULL,0);
 	
 	//"map_flow_entry_actions"
-	of12_set_packet_action_on_write_actions(write_actions,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),NULL,NULL));
+	of12_set_packet_action_on_write_actions(write_actions,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),0,NULL,NULL));
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_WRITE_ACTIONS,NULL,write_actions,0);
 	
 	//insert flow entry
@@ -208,20 +208,20 @@ void oa_two_outputs_write(void){
 	of12_action_group_t *ag=of12_init_action_group(0);
 	of12_action_group_t *ag2=of12_init_action_group(0);
 	of12_bucket_list_t *buckets=of12_init_bucket_list();
-	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),NULL,NULL));
-	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),NULL,NULL));
-	of12_push_packet_action_to_group(ag2,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),NULL,NULL));
+	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),0,NULL,NULL));
+	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),0,NULL,NULL));
+	of12_push_packet_action_to_group(ag2,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),0,NULL,NULL));
 	of12_insert_bucket_in_list(buckets,of12_init_bucket(0,1,0,ag));
 	of12_insert_bucket_in_list(buckets,of12_init_bucket(0,1,0,ag2));
 	of12_group_add(sw->pipeline->groups,OF12_GROUP_TYPE_ALL,grp_id,buckets);
 	
 	//of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_GROUP,grp_id,NULL,NULL));
-	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),NULL,NULL));
+	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),0,NULL,NULL));
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_APPLY_ACTIONS,apply_actions,NULL,0);
 	
 	//"map_flow_entry_actions"
-	of12_set_packet_action_on_write_actions(write_actions,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),NULL,NULL));
-	of12_set_packet_action_on_write_actions(write_actions,of12_init_packet_action(OF12_AT_GROUP,grp_id,NULL,NULL));
+	of12_set_packet_action_on_write_actions(write_actions,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),0,NULL,NULL));
+	of12_set_packet_action_on_write_actions(write_actions,of12_init_packet_action(OF12_AT_GROUP,grp_id,0,NULL,NULL));
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_WRITE_ACTIONS,NULL,write_actions,0);
 	
 	//insert flow entry
@@ -241,18 +241,18 @@ void oa_write_and_group(void){
 
 	of12_action_group_t *ag=of12_init_action_group(0);
 	of12_bucket_list_t *buckets=of12_init_bucket_list();
-	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),NULL,NULL));
-	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),NULL,NULL));
+	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),0,NULL,NULL));
+	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),0,NULL,NULL));
 	of12_insert_bucket_in_list(buckets,of12_init_bucket(0,1,0,ag));
 	of12_group_add(sw->pipeline->groups,OF12_GROUP_TYPE_ALL,grp_id,buckets);
 	
 	//of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_GROUP,grp_id,NULL,NULL));
-	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),NULL,NULL));
+	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),0,NULL,NULL));
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_APPLY_ACTIONS,apply_actions,NULL,0);
 	
 	//"map_flow_entry_actions"
-	of12_set_packet_action_on_write_actions(write_actions,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),NULL,NULL));
-	of12_set_packet_action_on_write_actions(write_actions,of12_init_packet_action(OF12_AT_GROUP,grp_id,NULL,NULL));
+	of12_set_packet_action_on_write_actions(write_actions,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),0,NULL,NULL));
+	of12_set_packet_action_on_write_actions(write_actions,of12_init_packet_action(OF12_AT_GROUP,grp_id,0,NULL,NULL));
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_WRITE_ACTIONS,NULL,write_actions,0);
 	
 	//insert flow entry
@@ -272,17 +272,17 @@ void oa_apply_and_group(void){
 
 	of12_action_group_t *ag=of12_init_action_group(0);
 	of12_bucket_list_t *buckets=of12_init_bucket_list();
-	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),NULL,NULL));
-	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),NULL,NULL));
+	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),0,NULL,NULL));
+	of12_push_packet_action_to_group(ag,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),0,NULL,NULL));
 	of12_insert_bucket_in_list(buckets,of12_init_bucket(0,1,0,ag));
 	of12_group_add(sw->pipeline->groups,OF12_GROUP_TYPE_ALL,grp_id,buckets);
 	
-	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_GROUP,grp_id,NULL,NULL));
-	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),NULL,NULL));
+	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_GROUP,grp_id,0,NULL,NULL));
+	of12_push_packet_action_to_group(apply_actions,of12_init_packet_action(OF12_AT_OUTPUT,be32toh(port),0,NULL,NULL));
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_APPLY_ACTIONS,apply_actions,NULL,0);
 	
 	//"map_flow_entry_actions"
-	of12_set_packet_action_on_write_actions(write_actions,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),NULL,NULL));
+	of12_set_packet_action_on_write_actions(write_actions,of12_init_packet_action(OF12_AT_DEC_NW_TTL,be32toh(port),0,NULL,NULL));
 	of12_add_instruction_to_group(&entry->inst_grp,OF12_IT_WRITE_ACTIONS,NULL,write_actions,0);
 	
 	//insert flow entry

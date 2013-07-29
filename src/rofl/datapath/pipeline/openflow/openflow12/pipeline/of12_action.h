@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include "rofl.h"
 #include "../../../common/datapacket.h"
+#include "../../../common/ternary_fields.h"
 
 /**
 * @file of12_action.h
@@ -124,6 +125,17 @@ typedef enum{
 	OF12_AT_SET_FIELD_PPPOE_TYPE,		/* PPPoE type */
 	OF12_AT_SET_FIELD_PPPOE_SID, 	   	/* PPPoE session id */
 	OF12_AT_SET_FIELD_PPP_PROT,  	   	/* PPP protocol */
+    
+    OF12_AT_SET_FIELD_IPV6_SRC,		/* IPv6 source address*/
+	OF12_AT_SET_FIELD_IPV6_DST,			/* IPv6 destination address*/
+	OF12_AT_SET_FIELD_IPV6_FLABEL,		/* IPv6 flow label*/
+	OF12_AT_SET_FIELD_IPV6_ND_TARGET,	/* IPv6 Neighbour Discovery target*/
+	OF12_AT_SET_FIELD_IPV6_ND_SLL,		/* IPv6 ND source link level*/
+	OF12_AT_SET_FIELD_IPV6_ND_TLL,		/* IPv6 ND target link level*/
+	OF12_AT_SET_FIELD_IPV6_EXTHDR,		/* IPv6 Extendion pseudo Header*/
+	
+	OF12_AT_SET_FIELD_ICMPV6_TYPE,		/* ICMPv6 type*/
+	OF12_AT_SET_FIELD_ICMPV6_CODE,		/* ICMPv6 code*/
 
 	/* Add more set fields here... */
 
@@ -181,7 +193,7 @@ typedef struct of12_packet_action{
 	of12_packet_action_type_t type;
 
 	/** @TODO substitute for a 128 value for IPv6 support */
-	uint64_t field;
+	of_uint128_t field;
 
 	//group
 	struct of12_group* group;
@@ -243,7 +255,7 @@ ROFL_BEGIN_DECLS
 *
 * Each field set consitutes an action per-se. 
 */
-of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw,*/of12_packet_action_type_t type, uint64_t field, of12_packet_action_t* prev, of12_packet_action_t* next);
+of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw,*/of12_packet_action_type_t type, of_uint128_t field, of12_packet_action_t* prev, of12_packet_action_t* next);
 
 /**
 * @ingroup core_of12 

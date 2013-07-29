@@ -129,7 +129,16 @@ rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_
 				   (1UL << OF12_MATCH_SCTP_SRC) |
 				   (1UL << OF12_MATCH_SCTP_DST) |
 				   (1UL << OF12_MATCH_ICMPV4_TYPE) |
-				   (1UL << OF12_MATCH_ICMPV4_CODE) |
+				   (1UL << OF12_MATCH_ICMPV4_CODE) |				   
+				   (1UL << OF12_MATCH_IPV6_SRC) |
+				   (1UL << OF12_MATCH_IPV6_DST) |
+				   (1UL << OF12_MATCH_IPV6_FLABEL) |
+				   (1UL << OF12_MATCH_IPV6_ND_TARGET) |
+				   (1UL << OF12_MATCH_IPV6_ND_SLL) |
+				   (1UL << OF12_MATCH_IPV6_ND_TLL) |
+				   (1UL << OF12_MATCH_IPV6_EXTHDR) |
+				   (1UL << OF12_MATCH_ICMPV6_CODE) |
+				   (1UL << OF12_MATCH_ICMPV6_TYPE) |
 				   (UINT64_C(1) << OF12_MATCH_MPLS_LABEL) |
 				   (UINT64_C(1) << OF12_MATCH_MPLS_TC) |
 				   (UINT64_C(1) << OF12_MATCH_PPPOE_CODE) |
@@ -146,6 +155,9 @@ rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_
 				   (1UL << OF12_MATCH_IPV4_DST) |
 				   (1UL << OF12_MATCH_ICMPV4_TYPE) |
 				   (1UL << OF12_MATCH_ICMPV4_CODE) |
+				   (1UL << OF12_MATCH_IPV6_SRC) |
+				   (1UL << OF12_MATCH_IPV6_DST) |
+				   (1UL << OF12_MATCH_IPV6_EXTHDR) |
 				   (UINT64_C(1) << OF12_MATCH_MPLS_LABEL);
 
 	//Write actions and apply actions

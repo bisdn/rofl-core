@@ -15,8 +15,6 @@
 */
 
 /* select between the lower and higher parts of the 128 bits value*/
-#define UTERN128_LOW 0
-#define	UTERN128_HIGH 1
 
 enum utern_type_t {
 	UTERN8_T = 0,  //8 bit
@@ -90,11 +88,22 @@ typedef struct{
 	utern_t* next; //Next field
 }utern64_t;
 
+typedef struct double64{
+	uint64_t high;
+	uint64_t low;
+}double64_t;
+
+/*Union to hold both 64 bit (and smaller) types and 128 bit types */
+typedef union of_uint182{
+	uint64_t u64;
+	double64_t u128;
+}of_uint128_t;
+
 //128 bit type
 typedef struct{
 	enum utern_type_t type;
-	uint64_t value[2];	
-	uint64_t mask[2];
+	double64_t value;	
+	double64_t mask;
 	utern_t* next; //Next field
 }utern128_t;
 
@@ -110,7 +119,7 @@ utern_t* __init_utern8(uint8_t value, uint8_t mask);
 utern_t* __init_utern16(uint16_t value, uint16_t mask);
 utern_t* __init_utern32(uint32_t value, uint32_t mask);
 utern_t* __init_utern64(uint64_t value, uint64_t mask);
-utern_t* __init_utern128(uint64_t value[2], uint64_t mask[2]);
+utern_t* __init_utern128(double64_t value, double64_t mask);
 
 //Destructor
 rofl_result_t __destroy_utern(utern_t* utern );
@@ -120,7 +129,7 @@ bool __utern_compare8(const utern8_t* tern, const uint8_t value);
 bool __utern_compare16(const utern16_t* tern, const uint16_t value);
 bool __utern_compare32(const utern32_t* tern, const uint32_t value);
 bool __utern_compare64(const utern64_t* tern, const uint64_t value);
-bool __utern_compare128(const utern128_t* tern, const uint64_t value[2]);
+bool __utern_compare128(const utern128_t* tern, const double64_t value);
 
 //Check if two ternary values are equal
 bool __utern_equals8(const utern8_t* tern1, const utern8_t* tern2);

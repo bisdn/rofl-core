@@ -22,9 +22,11 @@
 #define OF12_IP_PROTO_TCP 6
 #define OF12_IP_PROTO_UDP 17
 #define OF12_IP_PROTO_ICMPV4 1
+#define OF12_IP_PROTO_ICMPV6 58
 
 //PPP PROTO values
 #define OF12_PPP_PROTO_IP4 0x0021 
+#define OF12_PPP_PROTO_IP6 0x0057
 
 /* Defines possible matchings. This is EXPLICITELY copied from openflow.h, to simplify names, avoid collisions and add extensions */
 typedef enum{
@@ -281,32 +283,32 @@ of12_match_t* of12_init_icmpv4_code_match(of12_match_t* prev, of12_match_t* next
  * @brief Create an IP6_SRC match
  * @ingroup core_of12
  */
-of12_match_t* of12_init_ip6_src_match(of12_match_t* prev, of12_match_t* next, uint64_t value[2], uint64_t mask[2]);
+of12_match_t* of12_init_ip6_src_match(of12_match_t* prev, of12_match_t* next, double64_t value, double64_t mask);
 /**
  * @brief Create an IP6_DST match
  * @ingroup core_of12
  */
-of12_match_t* of12_init_ip6_dst_match(of12_match_t* prev, of12_match_t* next, uint64_t value[2], uint64_t mask[2]);
+of12_match_t* of12_init_ip6_dst_match(of12_match_t* prev, of12_match_t* next, double64_t value, double64_t mask);
 /**
  * @brief Create an IP6_FLABEL match
  * @ingroup core_of12
  */
-of12_match_t* of12_init_ip6_flabel_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+of12_match_t* of12_init_ip6_flabel_match(of12_match_t* prev, of12_match_t* next, uint64_t value);
 /**
  * @brief Create an IP6_ND_TARGET match
  * @ingroup core_of12
  */
-of12_match_t* of12_init_ip6_nd_target_match(of12_match_t* prev, of12_match_t* next, uint64_t value[2], uint64_t mask[2]);
+of12_match_t* of12_init_ip6_nd_target_match(of12_match_t* prev, of12_match_t* next, double64_t value);
 /**
  * @brief Create an IP6_ND_SLL match
  * @ingroup core_of12
  */
-of12_match_t* of12_init_ip6_nd_sll_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+of12_match_t* of12_init_ip6_nd_sll_match(of12_match_t* prev, of12_match_t* next, uint64_t value);
 /**
  * @brief Create an IP6_ND_TLL match
  * @ingroup core_of12
  */
-of12_match_t* of12_init_ip6_nd_tll_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+of12_match_t* of12_init_ip6_nd_tll_match(of12_match_t* prev, of12_match_t* next, uint64_t value);
 /**
  * @brief Create an IP6_EXTHDR match
  * @ingroup core_of12
@@ -318,12 +320,12 @@ of12_match_t* of12_init_ip6_exthdr_match(of12_match_t* prev, of12_match_t* next,
  * @brief Create an ICMPV6_TYPE match
  * @ingroup core_of12
  */
-of12_match_t* of12_init_icmpv6_type_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+of12_match_t* of12_init_icmpv6_type_match(of12_match_t* prev, of12_match_t* next, uint64_t value);
 /**
  * @brief Create an ICMPV6_CODE match
  * @ingroup core_of12
  */
-of12_match_t* of12_init_icmpv6_code_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+of12_match_t* of12_init_icmpv6_code_match(of12_match_t* prev, of12_match_t* next, uint64_t value);
 
 
 //TODO

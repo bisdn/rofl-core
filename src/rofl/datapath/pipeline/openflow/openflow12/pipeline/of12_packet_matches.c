@@ -59,6 +59,20 @@ void __of12_update_packet_matches(datapacket_t *const pkt){
 
 	//PPP related extensions
 	matches->ppp_proto = platform_packet_get_ppp_proto(pkt);
+    
+    //IPv6 related extensions
+    matches->ipv6_src = platform_packet_get_ipv6_src(pkt);
+    matches->ipv6_dst = platform_packet_get_ipv6_dst(pkt);
+    matches->ipv6_flabel = platform_packet_get_ipv6_flabel(pkt);
+    matches->ipv6_nd_target = platform_packet_get_ipv6_nd_target(pkt);
+    matches->ipv6_nd_sll = platform_packet_get_ipv6_nd_sll(pkt);
+    matches->ipv6_nd_tll = platform_packet_get_ipv6_nd_tll(pkt);
+    matches->ipv6_exthdr = platform_packet_get_ipv6_exthdr(pkt);
+    
+    //ICMPv6
+    matches->icmpv6_type = platform_packet_get_icmpv6_type(pkt);
+    matches->icmpv6_code = platform_packet_get_icmpv6_code(pkt);
+    
 
 }
 

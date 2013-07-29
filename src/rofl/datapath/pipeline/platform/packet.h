@@ -9,6 +9,7 @@
 
 #include "rofl.h"
 #include "../common/datapacket.h"
+#include "../common/ternary_fields.h"
 #include "../switch_port.h"
 
 /**
@@ -121,6 +122,20 @@ void platform_packet_set_pppoe_sid(datapacket_t* pkt, uint16_t sid);
 //PPP
 void platform_packet_set_ppp_proto(datapacket_t* pkt, uint16_t proto);
 
+//IPv6
+void platform_packet_set_ipv6_src(datapacket_t*pkt, double64_t ipv6_src);
+void platform_packet_set_ipv6_dst(datapacket_t*pkt, double64_t ipv6_dst);
+void platform_packet_set_ipv6_flabel(datapacket_t*pkt, uint64_t ipv6_flabel);
+void platform_packet_set_ipv6_nd_target(datapacket_t*pkt, double64_t ipv6_nd_target);
+void platform_packet_set_ipv6_nd_sll(datapacket_t*pkt, uint64_t ipv6_nd_sll);
+void platform_packet_set_ipv6_nd_tll(datapacket_t*pkt, uint64_t ipv6_nd_tll);
+void platform_packet_set_ipv6_exthdr(datapacket_t*pkt, uint64_t ipv6_exthdr);
+
+//ICMPv6
+void platform_packet_set_icmpv6_type(datapacket_t*pkt, uint64_t icmpv6_type);
+void platform_packet_set_icmpv6_code(datapacket_t*pkt, uint64_t icmpv6_code);
+
+
 /**
 * @ingroup platform_packet
 * Output packet to the port(s)
@@ -201,6 +216,19 @@ uint16_t platform_packet_get_pppoe_sid(datapacket_t *const pkt);
 
 //PPP related extensions
 uint16_t platform_packet_get_ppp_proto(datapacket_t *const pkt);
+
+//IPv6
+double64_t platform_packet_get_ipv6_src(datapacket_t *const pkt);
+double64_t platform_packet_get_ipv6_dst(datapacket_t *const pkt);
+uint64_t platform_packet_get_ipv6_flabel(datapacket_t *const pkt);
+double64_t platform_packet_get_ipv6_nd_target(datapacket_t *const pkt);
+uint64_t platform_packet_get_ipv6_nd_sll(datapacket_t *const pkt);
+uint64_t platform_packet_get_ipv6_nd_tll(datapacket_t *const pkt);
+uint64_t platform_packet_get_ipv6_exthdr(datapacket_t *const pkt);
+
+//ICMPv6
+uint64_t platform_packet_get_icmpv6_type(datapacket_t *const pkt);
+uint64_t platform_packet_get_icmpv6_code(datapacket_t *const pkt);
 
 ROFL_END_DECLS
 

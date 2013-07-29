@@ -368,7 +368,7 @@ rofl_of12_gm_result_t __of12_validate_group(of12_action_group_t* actions){
 	for(it=actions->head; it; it=it->next){
 		if(it->type == OF12_AT_GROUP)
 			return ROFL_OF12_GM_CHAIN;
-		if(it->type == OF12_AT_OUTPUT && it->field == OF12_PORT_TABLE)
+		if(it->type == OF12_AT_OUTPUT && it->field.u64 == OF12_PORT_TABLE)
 			return ROFL_OF12_GM_INVAL;
 	}
 		
