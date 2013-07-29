@@ -18,7 +18,7 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 		cofaclist const& actions,
 		cofmatch const& match) :
 	cofmsg(sizeof(struct ofp_header)),
-	instructions(instructions),
+	instructions(),
 	match(match)
 {
 	ofh_flow_mod = soframe();
@@ -60,10 +60,10 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 		uint32_t out_port,
 		uint32_t out_group,
 		uint16_t flags,
-		cofinlist const& instructions,
+		cofinlist const& _instructions,
 		cofmatch const& match) :
 	cofmsg(sizeof(struct ofp_header)),
-	instructions(instructions),
+	instructions(_instructions),
 	match(match)
 {
 	ofh_flow_mod = soframe();
