@@ -64,6 +64,7 @@ extern "C" {
 #include "protocols/ftcpframe.h"
 #include "protocols/fsctpframe.h"
 #include "protocols/fetherframe.h"
+#include "protocols/fgtpuframe.h"
 
 namespace rofl
 {
@@ -84,6 +85,7 @@ class fsctpframe;
 class fetherframe;
 class fipv6frame;
 class ficmpv6frame;
+class fgtpuframe;
 
 
 
@@ -1200,6 +1202,14 @@ private:
 	 */
 	void
 	set_field_basic_class(
+			coxmatch const& oxm);
+
+
+
+	/**
+	 */
+	void
+	set_field_experimenter_class(
 			coxmatch const& oxm);
 
 

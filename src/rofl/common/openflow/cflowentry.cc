@@ -92,6 +92,7 @@ cflowentry::operator= (const cflowentry& fe)
 }
 
 
+#if 0
 bool
 cflowentry::operator< (cflowentry const& fe) const
 {
@@ -126,6 +127,7 @@ cflowentry::operator< (cflowentry const& fe) const
 #endif
 	return false;
 }
+#endif
 
 
 void

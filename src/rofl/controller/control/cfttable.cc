@@ -47,11 +47,14 @@ uint64_t cfttable::all_matches =
 		((uint64_t)1 << OFPXMT_OFB_IPV6_ND_TLL) |
 #endif
 		((uint64_t)1 << OFPXMT_OFB_MPLS_LABEL) |
-		((uint64_t)1 << OFPXMT_OFB_MPLS_TC	) |
+		((uint64_t)1 << OFPXMT_OFB_MPLS_TC	) //|
+#if 0
 		((uint64_t)1 << OFPXMT_OFB_PPPOE_CODE) |
 		((uint64_t)1 << OFPXMT_OFB_PPPOE_TYPE) |
 		((uint64_t)1 << OFPXMT_OFB_PPPOE_SID) |
-		((uint64_t)1 << OFPXMT_OFB_PPP_PROT);
+		((uint64_t)1 << OFPXMT_OFB_PPP_PROT)
+#endif
+		;
 
 uint32_t cfttable::all_instructions =
 		(1 << OFPIT_GOTO_TABLE) 	|
@@ -934,7 +937,7 @@ cfttable::find_ft_entries(cofmatch const& match)
 	std::set<cftentry*>::iterator it;
 	for (it = flow_table.begin(); it != flow_table.end(); ++it)
 	{
-		if ((*it)->ofmatch.overlaps(match, true /* strict */))
+		if ((*it)->ofmatch.contains(match, true /* strict */))
 		{
 			replies.insert((*it));
 		}
@@ -1092,7 +1095,7 @@ cftsearch::operator() (
 	uint16_t missed = 0;
 
 	//pack->calc_hits(fte->ofmatch, exact_hits, wildcard_hits, missed);
-	fte->ofmatch.is_matching(pack->get_match(), exact_hits, wildcard_hits, missed);
+	fte->ofmatch.is_part_of(pack->get_match(), exact_hits, wildcard_hits, missed);
 
 
 	// get sum of exact hits and wildcard hits

@@ -88,11 +88,13 @@ public: // methods
 	 */
 	cflowentry& operator= (const cflowentry& fe);
 
+#if 0
 	/**
 	 *
 	 */
 	bool
 	operator< (cflowentry const& fe) const;
+#endif
 
 	/** reset flowentry
 	 *

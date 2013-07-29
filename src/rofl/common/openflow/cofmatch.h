@@ -119,11 +119,13 @@ public: // methods
 	operator= (const cofmatch& m);
 	
 
+#if 0
 	/** less operator
 	 *
 	 */
 	bool
 	operator< (cofmatch const& m) const;
+#endif
 
 
 	/** dump cofmatch instance
@@ -162,7 +164,7 @@ public:
 	struct ofp10_match*
 	pack(
 			struct ofp10_match* m,
-			size_t mlen) const throw (eOFmatchInval);
+			size_t mlen);
 
 
 	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match
@@ -181,7 +183,7 @@ public:
 	struct ofp12_match*
 	pack(
 			struct ofp12_match* m,
-			size_t mlen) const throw (eOFmatchInval);
+			size_t mlen);
 
 
 	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match
@@ -200,7 +202,7 @@ public:
 	struct ofp13_match*
 	pack(
 			struct ofp13_match* m,
-			size_t mlen) const throw (eOFmatchInval);
+			size_t mlen);
 
 
 	/** copy ofp_match structure pointed to by 'm' into internal struct ofp_match
@@ -212,13 +214,6 @@ public:
 			size_t mlen);
 
 
-	/** check for an overlap between two ofp_match structures 
-	 * (strict and non-strict)
-	 */
-	bool 
-	overlaps(
-		cofmatch const& m,
-		bool strict = false);
 
 	
 	/** check for an identical match between two ofp_match structures
@@ -239,8 +234,18 @@ public:
 	 *
 	 */
 	bool
-	is_matching(
-			cofmatch& other,
+	contains(
+			cofmatch const& ofm,
+			bool strict = false);
+
+
+
+	/**
+	 *
+	 */
+	bool
+	is_part_of(
+			cofmatch const& ofm,
 			uint16_t& exact_hits,
 			uint16_t& wildcard_hits,
 			uint16_t& missed);
@@ -250,9 +255,40 @@ public:
 	 *
 	 */
 	void
+	insert(
+			coxmatch const& oxm);
+
+
+
+	/**
+	 *
+	 */
+	void
 	remove(
 			uint16_t oxm_class,
 			uint8_t oxm_field);
+
+
+
+	/**
+	 *
+	 */
+	coxmatch&
+	get_match(
+			uint16_t ofm_class, uint8_t ofm_field);
+
+
+
+
+	/**
+	 *
+	 */
+	coxmatch const&
+	get_const_match(
+			uint16_t ofm_class, uint8_t ofm_field) const;
+
+
+public:
 
 
 	/**
@@ -266,8 +302,7 @@ public:
 	 *
 	 */
 	uint32_t
-	get_in_port() const
-		throw (eOFmatchNotFound);
+	get_in_port() const;
 
 
 	/**
@@ -282,8 +317,7 @@ public:
 	 *
 	 */
 	uint32_t
-	get_in_phy_port() const
-		throw (eOFmatchNotFound);
+	get_in_phy_port() const;
 
 
 	/**
@@ -298,8 +332,7 @@ public:
 	 *
 	 */
 	uint64_t
-	get_metadata() const
-		throw (eOFmatchNotFound);
+	get_metadata() const;
 
 
 	/**
@@ -313,24 +346,21 @@ public:
 	 *
 	 */
 	cmacaddr
-	get_eth_dst() const
-		throw (eOFmatchNotFound);
+	get_eth_dst() const;
 
 
 	/**
 	 *
 	 */
 	cmacaddr
-	get_eth_dst_addr() const
-		throw (eOFmatchNotFound);
+	get_eth_dst_addr() const;
 
 
 	/**
 	 *
 	 */
 	cmacaddr
-	get_eth_dst_mask() const
-		throw (eOFmatchNotFound);
+	get_eth_dst_mask() const;
 
 
 	/**
@@ -346,24 +376,21 @@ public:
 	 *
 	 */
 	cmacaddr
-	get_eth_src() const
-		throw (eOFmatchNotFound);
+	get_eth_src() const;
 
 
 	/**
 	 *
 	 */
 	cmacaddr
-	get_eth_src_addr() const
-		throw (eOFmatchNotFound);
+	get_eth_src_addr() const;
 
 
 	/**
 	 *
 	 */
 	cmacaddr
-	get_eth_src_mask() const
-		throw (eOFmatchNotFound);
+	get_eth_src_mask() const;
 
 
 	/**
@@ -379,8 +406,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_eth_type() const
-		throw (eOFmatchNotFound);
+	get_eth_type() const;
 
 
 	/**
@@ -395,24 +421,21 @@ public:
 	 *
 	 */
 	uint16_t
-	get_vlan_vid() const
-		throw (eOFmatchNotFound);
+	get_vlan_vid() const;
 
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_vlan_vid_value() const
-		throw (eOFmatchNotFound);
+	get_vlan_vid_value() const;
 
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_vlan_vid_mask() const
-		throw (eOFmatchNotFound);
+	get_vlan_vid_mask() const;
 
 
 	/**
@@ -427,8 +450,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_vlan_pcp() const
-		throw (eOFmatchNotFound);
+	get_vlan_pcp() const;
 
 
 	/**
@@ -443,8 +465,7 @@ public:
 	 *
 	 */
 	uint32_t
-	get_mpls_label() const
-		throw (eOFmatchNotFound);
+	get_mpls_label() const;
 
 
 	/**
@@ -459,8 +480,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_mpls_tc() const
-		throw (eOFmatchNotFound);
+	get_mpls_tc() const;
 
 
 	/**
@@ -475,8 +495,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_pppoe_type() const
-		throw (eOFmatchNotFound);
+	get_pppoe_type() const;
 
 
 	/**
@@ -491,8 +510,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_pppoe_code() const
-		throw (eOFmatchNotFound);
+	get_pppoe_code() const;
 
 
 	/**
@@ -507,8 +525,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_pppoe_sessid() const
-		throw (eOFmatchNotFound);
+	get_pppoe_sessid() const;
 
 
 	/**
@@ -523,8 +540,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_ppp_prot() const
-		throw (eOFmatchNotFound);
+	get_ppp_prot() const;
 
 
 	/**
@@ -539,24 +555,21 @@ public:
 	 *
 	 */
 	caddress
-	get_ipv4_src() const
-		throw (eOFmatchNotFound);
+	get_ipv4_src() const;
 
 
 	/**
 	 *
 	 */
 	caddress
-	get_ipv4_src_value() const
-		throw (eOFmatchNotFound);
+	get_ipv4_src_value() const;
 
 
 	/**
 	 *
 	 */
 	caddress
-	get_ipv4_src_mask() const
-		throw (eOFmatchNotFound);
+	get_ipv4_src_mask() const;
 
 
 	/**
@@ -580,24 +593,21 @@ public:
 	 *
 	 */
 	caddress
-	get_ipv4_dst() const
-		throw (eOFmatchNotFound);
+	get_ipv4_dst() const;
 
 
 	/**
 	 *
 	 */
 	caddress
-	get_ipv4_dst_value() const
-		throw (eOFmatchNotFound);
+	get_ipv4_dst_value() const;
 
 
 	/**
 	 *
 	 */
 	caddress
-	get_ipv4_dst_mask() const
-		throw (eOFmatchNotFound);
+	get_ipv4_dst_mask() const;
 
 
 	/**
@@ -621,8 +631,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_arp_opcode() const
-		throw (eOFmatchNotFound);
+	get_arp_opcode() const;
 
 
 	/**
@@ -637,8 +646,7 @@ public:
 	 *
 	 */
 	cmacaddr
-	get_arp_sha() const
-		throw (eOFmatchNotFound);
+	get_arp_sha() const;
 
 
 	/**
@@ -653,8 +661,7 @@ public:
 	 *
 	 */
 	cmacaddr
-	get_arp_tha() const
-		throw (eOFmatchNotFound);
+	get_arp_tha() const;
 
 
 	/**
@@ -669,8 +676,7 @@ public:
 	 *
 	 */
 	caddress
-	get_arp_spa() const
-		throw (eOFmatchNotFound);
+	get_arp_spa() const;
 
 
 	/**
@@ -686,8 +692,7 @@ public:
 	 *
 	 */
 	caddress
-	get_arp_tpa() const
-		throw (eOFmatchNotFound);
+	get_arp_tpa() const;
 
 
 	/**
@@ -702,8 +707,7 @@ public:
 	 *
 	 */
 	caddress
-	get_ipv6_src() const
-		throw (eOFmatchNotFound);
+	get_ipv6_src() const;
 
 
 	/**
@@ -727,8 +731,7 @@ public:
 	 *
 	 */
 	caddress
-	get_ipv6_dst() const
-		throw (eOFmatchNotFound);
+	get_ipv6_dst() const;
 
 
 	/**
@@ -752,8 +755,7 @@ public:
 	 *
 	 */
 	caddress
-	get_ipv6_nd_target() const
-		throw (eOFmatchNotFound);
+	get_ipv6_nd_target() const;
 
 
 	/**
@@ -769,8 +771,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_ip_proto() const
-		throw (eOFmatchNotFound);
+	get_ip_proto() const;
 
 
 	/**
@@ -785,8 +786,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_ip_dscp() const
-		throw (eOFmatchNotFound);
+	get_ip_dscp() const;
 
 
 	/**
@@ -801,8 +801,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_ip_ecn() const
-		throw (eOFmatchNotFound);
+	get_ip_ecn() const;
 
 
 	/**
@@ -818,8 +817,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_icmpv4_type() const
-		throw (eOFmatchNotFound);
+	get_icmpv4_type() const;
 
 
 
@@ -835,8 +833,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_icmpv4_code() const
-		throw (eOFmatchNotFound);
+	get_icmpv4_code() const;
 
 
 
@@ -853,8 +850,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_icmpv6_type() const
-		throw (eOFmatchNotFound);
+	get_icmpv6_type() const;
 
 
 
@@ -870,8 +866,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_icmpv6_code() const
-		throw (eOFmatchNotFound);
+	get_icmpv6_code() const;
 
 
 
@@ -887,8 +882,7 @@ public:
 	 *
 	 */
 	uint32_t
-	get_ipv6_flabel() const
-		throw (eOFmatchNotFound);
+	get_ipv6_flabel() const;
 
 
 	/**
@@ -912,8 +906,7 @@ public:
 	 *
 	 */
 	cmacaddr
-	get_icmpv6_neighbor_source_lladdr() const
-		throw (eOFmatchNotFound);
+	get_icmpv6_neighbor_source_lladdr() const;
 
 
 	/**
@@ -928,8 +921,7 @@ public:
 	 *
 	 */
 	cmacaddr
-	get_icmpv6_neighbor_target_lladdr() const
-		throw (eOFmatchNotFound);
+	get_icmpv6_neighbor_target_lladdr() const;
 
 
 	/**
@@ -944,8 +936,7 @@ public:
 	 *
 	 */
 	caddress
-	get_icmpv6_neighbor_taddr() const
-		throw (eOFmatchNotFound);
+	get_icmpv6_neighbor_taddr() const;
 
 
 	/**
@@ -960,8 +951,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_udp_src() const
-		throw (eOFmatchNotFound);
+	get_udp_src() const;
 
 
 
@@ -977,8 +967,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_udp_dst() const
-		throw (eOFmatchNotFound);
+	get_udp_dst() const;
 
 
 	/**
@@ -994,8 +983,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_tcp_src() const
-		throw (eOFmatchNotFound);
+	get_tcp_src() const;
 
 
 
@@ -1011,8 +999,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_tcp_dst() const
-		throw (eOFmatchNotFound);
+	get_tcp_dst() const;
 
 
 	/**
@@ -1027,8 +1014,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_sctp_src() const
-		throw (eOFmatchNotFound);
+	get_sctp_src() const;
 
 
 
@@ -1044,8 +1030,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_sctp_dst() const
-		throw (eOFmatchNotFound);
+	get_sctp_dst() const;
 
 
 	/**
@@ -1064,6 +1049,36 @@ public:
 	static void
 	test();
 #endif
+
+public:
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmatch const& m)
+	{
+		os << "cofmatch<";
+			switch (m.of_version) {
+			case OFP10_VERSION: {
+				//ofh10_match->
+			} break;
+			case OFP12_VERSION: {
+				os << "type: " << m.ofh12_match->type << " ";
+				os << "length: " << m.ofh12_match->length << " ";
+			} break;
+			case OFP13_VERSION: {
+				os << "type: " << m.ofh13_match->type << " ";
+				os << "length: " << m.ofh13_match->length << " ";
+			} break;
+			default: {
+				os << "OF version " << m.of_version << " not supported " << std::endl;
+			}
+			}
+			os << "OXMlist: " << m.oxmlist << std::endl;
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

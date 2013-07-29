@@ -100,7 +100,7 @@ public:
 	 *
 	 * @param size size of memory area for storing struct sockaddr
 	 */
-	caddress(int af = AF_INET);
+	caddress(int af = AF_UNSPEC);
 
 
 
@@ -119,8 +119,8 @@ public:
 	 * @param halen length of address memory area
 	 */
 	caddress(
-			u_int16_t protocol = ETH_P_ALL,
-			std::string devname = std::string("eth0"),
+			u_int16_t protocol /*= ETH_P_ALL*/,
+			std::string devname /*= std::string("eth0")*/,
 			u_int16_t hatype = ARPHRD_ETHER,
 			u_int8_t pkttype = PACKET_HOST,
 			const char* addr = NULL,

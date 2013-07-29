@@ -436,15 +436,23 @@ enum oxm_ofb_match_fields {
 	OFPXMT_OFB_IPV6_ND_TLL = 33,	/* Target link-layer for ND. */
 	OFPXMT_OFB_MPLS_LABEL = 34,		/* MPLS label. */
 	OFPXMT_OFB_MPLS_TC = 35,		/* MPLS TC. */
-	/* PPP/PPPoE related extensions */
-	OFPXMT_OFB_PPPOE_CODE = 40,		/* PPPoE code */
-	OFPXMT_OFB_PPPOE_TYPE = 41,		/* PPPoE type */
-	OFPXMT_OFB_PPPOE_SID = 42,		/* PPPoE session id */
-	OFPXMT_OFB_PPP_PROT = 43,		/* PPP protocol */
 	/* max value */
 	OFPXMT_OFB_MAX,
 };
 
+/* OXM Flow match field types for OpenFlow basic class. */
+enum oxm_ofx_match_fields {
+	/* PPP/PPPoE related extensions */
+	OFPXMT_OFX_PPPOE_CODE 	= 0,	/* PPPoE code */
+	OFPXMT_OFX_PPPOE_TYPE 	= 1,	/* PPPoE type */
+	OFPXMT_OFX_PPPOE_SID 	= 2,	/* PPPoE session id */
+	OFPXMT_OFX_PPP_PROT 	= 3,	/* PPP protocol */
+	/* GTP related extensions */
+	OFPXMT_OFX_GTP_MSG_TYPE = 4,	/* GTP message type */
+	OFPXMT_OFX_GTP_TEID		= 5,	/* GTP tunnel endpoint identifier */
+	/* max value */
+	OFPXMT_OFX_MAX,
+};
 
 /* Header for OXM experimenter match fields. */
 struct ofp_oxm_experimenter_header {

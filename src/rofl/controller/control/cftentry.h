@@ -487,7 +487,7 @@ public:
 		ftentry_find_overlap(cofmatch const& m, bool s) :
 			ofmatch(m), strict(s) { };
 		bool operator() (cftentry* fte) {
-			return (fte->ofmatch.overlaps(ofmatch, strict /* strict */) &&
+			return (fte->ofmatch.contains(ofmatch, strict /* strict */) &&
 						(not fte->flags.test(CFTENTRY_EVENT_IDLE_FOR_DELETION)));
 		}
 		cofmatch ofmatch;

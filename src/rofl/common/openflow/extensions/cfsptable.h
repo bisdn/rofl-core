@@ -149,7 +149,7 @@ public:
 	void
 	operator() (cfspentry *nse)
 	{
-		if (this->ofmatch.overlaps(nse->ofmatch, strict))
+		if (this->ofmatch.contains(nse->ofmatch, strict))
 		{
 			fsp_list.insert(nse);
 		}

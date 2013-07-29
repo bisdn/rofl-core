@@ -226,7 +226,7 @@ cofflow_stats_request::get_cookie_mask() const
 
 
 void
-cofflow_stats_request::pack(uint8_t *buf, size_t buflen) const
+cofflow_stats_request::pack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
@@ -428,7 +428,7 @@ cofflow_stats_reply::operator= (
 
 
 void
-cofflow_stats_reply::pack(uint8_t *buf, size_t buflen) const
+cofflow_stats_reply::pack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {

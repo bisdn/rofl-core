@@ -776,6 +776,8 @@ cofdpt::features_reply_rcvd(
 
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() %s", this, this->c_str());
 
+
+
 		// dpid as std::string
 		cvastring vas;
 		s_dpid = std::string(vas("0x%llx", dpid));

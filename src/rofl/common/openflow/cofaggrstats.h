@@ -100,7 +100,7 @@ public:
 	 *
 	 */
 	void
-	pack(uint8_t *buf, size_t buflen) const;
+	pack(uint8_t *buf, size_t buflen);
 
 
 	/**
@@ -268,7 +268,7 @@ public:
 	 *
 	 */
 	void
-	pack(uint8_t *buf, size_t buflen) const;
+	pack(uint8_t *buf, size_t buflen);
 
 
 	/**
