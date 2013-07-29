@@ -126,6 +126,10 @@ void __of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	__of12_init_packet_write_actions(pkt, &write_actions); 
 		
 	ROFL_PIPELINE_DEBUG("Packet[%p] entering switch [%s] pipeline (1.2)\n",pkt,sw->name);	
+
+#ifdef DEBUG
+	of12_dump_packet_matches(&pkt_matches);
+#endif
 	
 	//FIXME: add metadata+write operations 
 	for(i=OF12_FIRST_FLOW_TABLE_INDEX; i < ((of12_switch_t*)sw)->pipeline->num_of_tables ; i++){

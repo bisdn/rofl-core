@@ -786,7 +786,7 @@ void of12_dump_matches(of12_match_t* matches){
 			case OF12_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u], ",((utern8_t*)it->value)->value);
 				break; 
 
-			case OF12_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:%u], ",((utern32_t*)it->value)->value);
+			case OF12_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:0x%x], ",((utern32_t*)it->value)->value);
 				break; 
 			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:0x%x], ",((utern8_t*)it->value)->value);
 				break; 
