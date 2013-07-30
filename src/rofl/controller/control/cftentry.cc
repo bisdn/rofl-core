@@ -122,9 +122,9 @@ cftentry::cftentry(
 cftentry::cftentry(
 		cftentry const& fte) :
 				usage_cnt(0),
-				owner(),
+				owner(NULL),
 				flow_table(0),
-				ctl(),
+				ctl(NULL),
 				uid(0),
 				removal_reason(OFPRR_DELETE),
 				rx_packets(0),
