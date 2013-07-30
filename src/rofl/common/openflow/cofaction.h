@@ -576,6 +576,29 @@ public:
 };
 
 
+/** OFPAT_EXPERIMENTER
+ *
+ */
+class cofaction_experimenter : public cofaction {
+public:
+	/** constructor
+	 */
+	cofaction_experimenter(
+			uint32_t exp_id,
+			size_t datalen = COFACTION_DEFAULT_SIZE) :
+				cofaction(datalen)
+	{
+		oac_experimenter_header->type = htobe16(OFPAT_EXPERIMENTER);
+		oac_experimenter_header->len = htobe16(datalen);
+		oac_experimenter_header->experimenter = exp_id;
+	};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_experimenter() {};
+};
+
 }; // end of namespace
 
 #endif // COFACTION_H
