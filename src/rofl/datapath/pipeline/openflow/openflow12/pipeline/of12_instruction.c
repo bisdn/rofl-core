@@ -136,7 +136,7 @@ unsigned int __of12_process_instructions(const struct of12_switch* sw, const uns
 		switch(instructions->instructions[i].type){
 			case OF12_IT_APPLY_ACTIONS: __of12_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, instructions->has_multiple_outputs); 
 					break;
-    			case OF12_IT_CLEAR_ACTIONS: __of12_clear_write_actions((of12_write_actions_t*)pkt->write_actions);
+    			case OF12_IT_CLEAR_ACTIONS: __of12_clear_write_actions(pkt);
 					break;
 			case OF12_IT_WRITE_ACTIONS: __of12_update_packet_write_actions(pkt, instructions->instructions[i].write_actions);
 					break;

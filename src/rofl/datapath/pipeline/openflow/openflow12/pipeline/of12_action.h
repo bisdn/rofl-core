@@ -9,7 +9,6 @@
 #include <string.h> 
 #include <stdbool.h>
 #include "rofl.h"
-#include "../../../common/datapacket.h"
 
 /**
 * @file of12_action.h
@@ -56,6 +55,8 @@
 *
 */
 
+//Fwd decl
+struct datapacket;
 
 /**
 * @ingroup core_of12 
@@ -274,19 +275,21 @@ void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_ac
 
 
 //Apply actions
-void __of12_process_apply_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, const of12_action_group_t* apply_actions_group, bool replicate_pkts);
+void __of12_process_apply_actions(const struct of12_switch* sw, const unsigned int table_id, struct datapacket* pkt, const of12_action_group_t* apply_actions_group, bool replicate_pkts);
 
 //Write actions data structure management
 /*
 * Init a write actions group
 */
-void __of12_init_packet_write_actions(datapacket_t *const pkt, of12_write_actions_t* write_actions);
+void __of12_init_packet_write_actions(struct datapacket *const pkt);
+
 
 /**
 * @ingroup core_of12 
 * Create a write actions group 
 */
 of12_write_actions_t* of12_init_write_actions(void);
+
 
 /*
 * Destroy a write_actions instance. This also destroys actions contained
@@ -300,9 +303,9 @@ void __of12_destroy_write_actions(of12_write_actions_t* write_actions);
 */
 void of12_set_packet_action_on_write_actions(of12_write_actions_t* write_actions, of12_packet_action_t* action);
 
-void __of12_update_packet_write_actions(datapacket_t* pkt, const of12_write_actions_t* entry_write_actions);
-void __of12_clear_write_actions(of12_write_actions_t* write_actions);
-void __of12_process_write_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, bool replicate_pkts);
+void __of12_update_packet_write_actions(struct datapacket* pkt, const of12_write_actions_t* entry_write_actions);
+void __of12_clear_write_actions(struct datapacket* pkt);
+void __of12_process_write_actions(const struct of12_switch* sw, const unsigned int table_id, struct datapacket* pkt, bool replicate_pkts);
 
 //Update apply/write
 rofl_result_t __of12_update_apply_actions(of12_action_group_t** group, of12_action_group_t* new_group);

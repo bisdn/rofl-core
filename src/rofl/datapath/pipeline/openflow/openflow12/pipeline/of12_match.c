@@ -1,7 +1,7 @@
 #include "of12_match.h"
 
+#include "../../../common/datapacket.h"
 #include "../../../platform/memory.h"
-
 #include "../../../util/logging.h"
 
 /*
@@ -688,7 +688,9 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
 */
 
 //Dump packet matches
-void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
+void of12_dump_packet_matches(of_packet_matches_t *const pkt_matches){
+
+	of12_packet_matches_t *const pkt = &pkt_matches->of12;
 
 	ROFL_PIPELINE_DEBUG_NO_PREFIX("Packet matches [");	
 
