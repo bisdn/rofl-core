@@ -191,8 +191,6 @@ enum ofp13_action_type {
 #endif
 	OFPAT_PUSH_PBB = 26, 			/* Push a new PBB service tag (I-TAG) */
 	OFPAT_POP_PBB = 27, 			/* Pop the outer PBB service tag (I-TAG) */
-	OFPAT_PUSH_PPPOE = 30,			/* Push a new PPPoE tag */
-	OFPAT_POP_PPPOE = 31,			/* Pop the PPPoE tag */
 #if 0
 	OFPAT_EXPERIMENTER = 0xffff,
 #endif

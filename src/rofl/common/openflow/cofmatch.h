@@ -34,6 +34,9 @@ extern "C" {
 #include "rofl/platform/unix/csyslog.h"
 #include "coxmlist.h"
 
+#include <rofl/common/openflow/experimental/matches/gtp_matches.h>
+#include <rofl/common/openflow/experimental/matches/pppoe_matches.h>
+
 namespace rofl
 {
 
@@ -489,66 +492,6 @@ public:
 	void
 	set_mpls_tc(
 			uint8_t tc);
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_pppoe_type() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_pppoe_type(
-			uint8_t type);
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_pppoe_code() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_pppoe_code(
-			uint8_t code);
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_pppoe_sessid() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_pppoe_sessid(
-			uint16_t sid);
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_ppp_prot() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_ppp_prot(
-			uint16_t prot);
 
 
 	/**

@@ -36,6 +36,8 @@ extern "C" {
 #define ORAN 1
 #endif
 
+#define ROFL_EXPERIMENTER_ID	0x555501dd
+
 
 namespace rofl
 {
@@ -67,7 +69,6 @@ public: // data structures
 		struct ofp_action_nw_ttl 				*oacu_nw_ttl;
 		struct ofp_action_experimenter_header 	*oacu_experimenter_header;
 		struct ofp_action_set_queue 			*oacu_set_queue;
-		struct ofp_action_pop_pppoe 			*oacu_pop_pppoe;
 		struct ofp_action_set_field 			*oacu_set_field;
 	} oac_oacu;
 
@@ -85,8 +86,6 @@ public: // data structures
 #define oac_header oac_oacu.oacu_header			// action: header
 #define oac_set_queue oac_oacu.oacu_set_queue	// action: set_queue
 
-#define oac_push_pppoe oac_oacu.oacu_push		// action: push pppoe
-#define oac_pop_pppoe oac_oacu.oacu_pop_pppoe	// action: pop_pppoe
 #define oac_set_field oac_oacu.oacu_set_field	// action: set field
 
 protected: // data structures
@@ -530,50 +529,48 @@ public:
 };
 
 
-/** OFPAT_PUSH_VLAN
+
+
+/** OFPAT_EXPERIMENTER
  *
  */
-class cofaction_push_pppoe : public cofaction {
+class cofaction_experimenter : public cofaction {
 public:
 	/** constructor
 	 */
-	cofaction_push_pppoe(
-			uint16_t ethertype) :
-				cofaction(sizeof(struct ofp_action_push))
+	cofaction_experimenter(
+			uint32_t exp_id,
+			size_t datalen = COFACTION_DEFAULT_SIZE) :
+				cofaction(sizeof(struct ofp_action_experimenter_header) + datalen)
 	{
-		oac_push->type = htobe16(OFPAT_PUSH_PPPOE);
-		oac_push->len = htobe16(sizeof(struct ofp_action_push));
-		oac_push->ethertype = htobe16(ethertype);
+		oac_experimenter_header->type = htobe16(OFPAT_EXPERIMENTER);
+		oac_experimenter_header->len = htobe16(datalen);
+		oac_experimenter_header->experimenter = exp_id;
+	};
+
+	/**
+	 * constructor
+	 */
+	cofaction_experimenter(cofaction const& action) :
+		cofaction(action)
+	{
+		if (OFPAT_EXPERIMENTER != action.get_type())
+			throw eActionInvalType();
 	};
 
 	/** destructor
 	 */
 	virtual
-	~cofaction_push_pppoe() {};
+	~cofaction_experimenter() {};
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_exp_id() const { return oac_experimenter_header->experimenter; };
 };
 
 
-/** OFPAT_POP_PPPOE
- *
- */
-class cofaction_pop_pppoe : public cofaction {
-public:
-	/** constructor
-	 */
-	cofaction_pop_pppoe(
-			uint16_t ethertype) :
-				cofaction(sizeof(struct ofp_action_pop_pppoe))
-	{
-		oac_pop_pppoe->type = htobe16(OFPAT_POP_PPPOE);
-		oac_pop_pppoe->len = htobe16(sizeof(struct ofp_action_pop_pppoe));
-		oac_pop_pppoe->ethertype = htobe16(ethertype);
-	};
-
-	/** destructor
-	 */
-	virtual
-	~cofaction_pop_pppoe() {};
-};
 
 
 }; // end of namespace
