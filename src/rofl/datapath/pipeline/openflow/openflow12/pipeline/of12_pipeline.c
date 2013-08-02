@@ -128,7 +128,7 @@ void __of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	ROFL_PIPELINE_DEBUG("Packet[%p] entering switch [%s] pipeline (1.2)\n",pkt,sw->name);	
 
 #ifdef DEBUG
-	of12_dump_packet_matches(&pkt_matches);
+	of12_dump_packet_matches(&pkt->matches);
 #endif
 	
 	//FIXME: add metadata+write operations 
