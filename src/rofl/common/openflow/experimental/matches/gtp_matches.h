@@ -16,65 +16,36 @@ public:
 	/** constructor
 	 */
 	coxmatch_ofx_gtp_teid(
-			uint32_t teid) :
-				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint32_t))
-	{
-		set_oxm_class(OFPXMC_EXPERIMENTER);
-		set_oxm_field(OFPXMT_OFX_GTP_TEID);
-		set_oxm_length(sizeof(uint32_t));
-		set_teid(teid);
-	};
+			uint32_t teid);
 	/** constructor
 	 */
 	coxmatch_ofx_gtp_teid(
 			uint32_t teid,
-			uint32_t mask) :
-				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint32_t))
-	{
-		set_oxm_class(OFPXMC_EXPERIMENTER);
-		set_oxm_field(OFPXMT_OFX_GTP_TEID);
-		set_oxm_hasmask(true);
-		set_oxm_length(2 * sizeof(uint32_t));
-		set_teid(teid, mask);
-	};
+			uint32_t mask);
 	/**
 	 */
 	coxmatch_ofx_gtp_teid(
-			coxmatch const& oxm) :
-				coxmatch(oxm) {};
+			coxmatch const& oxm);
 	/** destructor
 	 */
 	virtual
-	~coxmatch_ofx_gtp_teid() {};
+	~coxmatch_ofx_gtp_teid();
 	/**
 	 */
 	uint32_t
-	get_teid() const {
-		return u32value();
-	};
+	get_teid() const;
 	/**
 	 */
 	uint32_t
-	get_teid_value() const {
-		return uint32_value();
-	};
+	get_teid_value() const;
 	/**
 	 */
 	uint32_t
-	get_teid_mask() const {
-		return uint32_mask();
-	};
+	get_teid_mask() const;
 	/**
 	 */
 	void
-	set_teid(uint32_t teid, uint32_t mask = 0xffffffff) {
-		oxm_uint32t->dword = htobe32(teid);
-		if (mask != 0xffffffff) {
-			if (not get_oxm_hasmask())
-				throw eOxmInval();
-			oxm_uint32t->mask = htobe32(mask);
-		}
-	};
+	set_teid(uint32_t teid, uint32_t mask = 0xffffffff);
 	/**
 	 */
 	friend std::ostream&
@@ -102,35 +73,23 @@ public:
 	/** constructor
 	 */
 	coxmatch_ofx_gtp_msg_type(
-			uint8_t msg_type) :
-				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint8_t))
-	{
-		set_oxm_class(OFPXMC_EXPERIMENTER);
-		set_oxm_field(OFPXMT_OFX_GTP_MSG_TYPE);
-		set_oxm_length(sizeof(uint8_t));
-		set_msg_type(msg_type);
-	};
+			uint8_t msg_type);
 	/**
 	 */
 	coxmatch_ofx_gtp_msg_type(
-			coxmatch const& oxm) :
-				coxmatch(oxm) {};
+			coxmatch const& oxm);
 	/** destructor
 	 */
 	virtual
-	~coxmatch_ofx_gtp_msg_type() {};
+	~coxmatch_ofx_gtp_msg_type();
 	/**
 	 */
 	uint8_t
-	get_msg_type() const {
-		return u8value();
-	};
+	get_msg_type() const;
 	/**
 	 */
 	void
-	set_msg_type(uint8_t msg_type) {
-		oxm_uint8t->byte = msg_type;
-	};
+	set_msg_type(uint8_t msg_type);
 	/**
 	 */
 	friend std::ostream&
