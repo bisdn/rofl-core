@@ -13,7 +13,9 @@ class cofaction_push_pppoe : public cofaction_experimenter {
 
 public:
 
-#define OFXAT_PUSH_PPPOE						1
+	enum cofaction_push_pppoe_action_type {
+		OFXAT_PUSH_PPPOE = 1,
+	};
 
 	union {
 		uint8_t									*oacu_action;
@@ -66,8 +68,9 @@ public:
 	};
 	OFP_ASSERT(sizeof(struct ofx_action_pop_pppoe) == 8);
 
-
-#define OFXAT_POP_PPPOE							2
+	enum cofaction_pop_pppoe_action_type {
+		OFXAT_POP_PPPOE = 2,
+	};
 
 	union {
 		uint8_t									*oacu_action;

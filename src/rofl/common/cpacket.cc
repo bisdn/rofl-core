@@ -723,126 +723,6 @@ cpacket::vlan(int i) throw (ePacketNotFound)
 
 
 
-fpppoeframe*
-cpacket::pppoe(int i) throw (ePacketNotFound)
-{
-	if ((0 == head) || (0 == tail))
-	{
-		throw ePacketNotFound();
-	}
-
-
-	if (i >= 0)
-	{
-		fframe *frame = (fframe*)head;
-
-		while (true)
-		{
-			if (dynamic_cast<fpppoeframe*>( frame ))
-			{
-				return (dynamic_cast<fpppoeframe*>( frame ));
-			}
-			else
-			{
-				if (0 == frame->next)
-				{
-					throw ePacketNotFound();
-				}
-				else
-				{
-					frame = frame->next;
-				}
-			}
-		}
-	}
-	else
-	{
-		fframe *frame = (fframe*)tail;
-
-		while (true)
-		{
-			if (dynamic_cast<fpppoeframe*>( frame ))
-			{
-				return (dynamic_cast<fpppoeframe*>( frame ));
-			}
-			else
-			{
-				if (0 == frame->prev)
-				{
-					throw ePacketNotFound();
-				}
-				else
-				{
-					frame = frame->prev;
-				}
-			}
-		}
-	}
-
-	throw ePacketNotFound();
-}
-
-
-
-fpppframe*
-cpacket::ppp(int i) throw (ePacketNotFound)
-{
-	if ((0 == head) || (0 == tail))
-	{
-		throw ePacketNotFound();
-	}
-
-
-	if (i >= 0)
-	{
-		fframe *frame = (fframe*)head;
-
-		while (true)
-		{
-			if (dynamic_cast<fpppframe*>( frame ))
-			{
-				return (dynamic_cast<fpppframe*>( frame ));
-			}
-			else
-			{
-				if (0 == frame->next)
-				{
-					throw ePacketNotFound();
-				}
-				else
-				{
-					frame = frame->next;
-				}
-			}
-		}
-	}
-	else
-	{
-		fframe *frame = (fframe*)tail;
-
-		while (true)
-		{
-			if (dynamic_cast<fpppframe*>( frame ))
-			{
-				return (dynamic_cast<fpppframe*>( frame ));
-			}
-			else
-			{
-				if (0 == frame->prev)
-				{
-					throw ePacketNotFound();
-				}
-				else
-				{
-					frame = frame->prev;
-				}
-			}
-		}
-	}
-
-	throw ePacketNotFound();
-}
-
 
 
 fmplsframe*
@@ -1681,29 +1561,6 @@ cpacket::set_field_experimenter_class(coxmatch const& oxm)
 	case OFPXMC_EXPERIMENTER: {
 
 		switch (oxm.get_oxm_field()) {
-		/*
-		 * PPP/PPPoE related extensions
-		 */
-		case OFPXMT_OFX_PPPOE_CODE: {
-			uint8_t code = oxm.u8value();
-			pppoe()->set_pppoe_code(code);
-			match.set_pppoe_code(code);
-		} break;
-		case OFPXMT_OFX_PPPOE_TYPE: {
-			uint8_t type = oxm.u8value();
-			pppoe()->set_pppoe_type(type);
-			match.set_pppoe_type(type);
-		} break;
-		case OFPXMT_OFX_PPPOE_SID: {
-			uint16_t sid = oxm.u16value();
-			pppoe()->set_pppoe_sessid(sid);
-			match.set_pppoe_sessid(sid);
-		} break;
-		case OFPXMT_OFX_PPP_PROT: {
-			uint16_t prot = oxm.u16value();
-			ppp()->set_ppp_prot(prot);
-			match.set_ppp_prot(prot);
-		} break;
 		default: {
 			WRITELOG(CPACKET, WARN, "cpacket(%p)::set_field() "
 					"don't know how to handle class:0x%x field:%d, ignoring",
@@ -2122,12 +1979,6 @@ cpacket::parse_ether(
 			parse_mpls(p_ptr, p_len);
 		}
 		break;
-	case fpppoeframe::PPPOE_ETHER_DISCOVERY:
-	case fpppoeframe::PPPOE_ETHER_SESSION:
-		{
-			parse_pppoe(p_ptr, p_len);
-		}
-		break;
 	case farpv4frame::ARPV4_ETHER:
 		{
 			parse_arpv4(p_ptr, p_len);
@@ -2205,12 +2056,6 @@ cpacket::parse_vlan(
 	case fmplsframe::MPLS_ETHER_UPSTREAM:
 		{
 			parse_mpls(p_ptr, p_len);
-		}
-		break;
-	case fpppoeframe::PPPOE_ETHER_DISCOVERY:
-	case fpppoeframe::PPPOE_ETHER_SESSION:
-		{
-			parse_pppoe(p_ptr, p_len);
 		}
 		break;
 	case farpv4frame::ARPV4_ETHER:
@@ -2293,128 +2138,6 @@ cpacket::parse_mpls(
 
 
 
-void
-cpacket::parse_pppoe(
-		uint8_t *data,
-		size_t datalen)
-{
-	uint8_t 	*p_ptr 		= data;
-	size_t 		 p_len 		= datalen;
-
-	if (p_len < sizeof(struct fpppoeframe::pppoe_hdr_t))
-	{
-		return;
-	}
-
-	fpppoeframe *pppoe = new fpppoeframe(p_ptr, sizeof(struct fpppoeframe::pppoe_hdr_t));
-
-	match.set_pppoe_code(pppoe->get_pppoe_code());
-	match.set_pppoe_type(pppoe->get_pppoe_type());
-	match.set_pppoe_sessid(pppoe->get_pppoe_sessid());
-
-	frame_append(pppoe);
-
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_pppoe() "
-			"pppoe: %s\nmatch: %s", this, pppoe->c_str(), match.c_str());
-
-
-
-
-
-	switch (match.get_eth_type()) {
-	case fpppoeframe::PPPOE_ETHER_DISCOVERY:
-		{
-			p_len -= sizeof(struct fpppoeframe::pppoe_hdr_t);
-
-			uint16_t pppoe_len = pppoe->get_hdr_length() > p_len ? p_len : pppoe->get_hdr_length();
-
-			/*
-			 * parse any pppoe service tags
-			 */
-			pppoe->unpack(
-					p_ptr,
-					sizeof(struct fpppoeframe::pppoe_hdr_t) + pppoe_len);
-
-
-			/*
-			 * any remaining bytes after the pppoe tags => padding?
-			 */
-			if (p_len > pppoe->tags.length())
-			{
-				fframe *payload = new fframe(p_ptr, p_len - pppoe->tags.length());
-
-				frame_append(payload);
-			}
-		}
-		break;
-	case fpppoeframe::PPPOE_ETHER_SESSION:
-		{
-			p_ptr += sizeof(struct fpppoeframe::pppoe_hdr_t);
-			p_len -= sizeof(struct fpppoeframe::pppoe_hdr_t);
-
-			parse_ppp(p_ptr, p_len);
-		}
-		break;
-	default:
-		{
-			throw eInternalError();
-		}
-		break;
-	}
-
-
-}
-
-
-
-void
-cpacket::parse_ppp(
-		uint8_t *data,
-		size_t datalen)
-{
-	uint8_t 	*p_ptr 		= data;
-	size_t 		 p_len 		= datalen;
-
-	if (p_len < sizeof(struct fpppframe::ppp_hdr_t))
-	{
-		return;
-	}
-
-	fpppframe *ppp = new fpppframe(p_ptr, sizeof(struct fpppframe::ppp_hdr_t));
-
-	match.set_ppp_prot(ppp->get_ppp_prot());
-
-	frame_append(ppp);
-
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_ppp() "
-			"ppp: %s\nmatch: %s", this, ppp->c_str(), match.c_str());
-
-
-
-	switch (match.get_ppp_prot()) {
-	case fpppframe::PPP_PROT_IPV4:
-		{
-			p_ptr += sizeof(struct fpppframe::ppp_hdr_t);
-			p_len -= sizeof(struct fpppframe::ppp_hdr_t);
-
-			parse_ipv4(p_ptr, p_len);
-		}
-		break;
-	case fpppframe::PPP_PROT_IPV6:
-		{
-			p_ptr += sizeof(struct fpppframe::ppp_hdr_t);
-			p_len -= sizeof(struct fpppframe::ppp_hdr_t);
-
-			parse_ipv6(p_ptr, p_len);
-		}
-		break;
-	default:
-		{
-			ppp->unpack(p_ptr, p_len);
-		}
-		break;
-	}
-}
 
 
 
@@ -2853,11 +2576,6 @@ cpacket::calc_checksums()
 	{
 		icmpv4()->icmpv4_calc_checksum(get_payload_len(
             icmpv4()));
-	}
-
-	if (flags.test(FLAG_PPPOE_LENGTH))
-	{
-		pppoe()->pppoe_calc_length();
 	}
 }
 

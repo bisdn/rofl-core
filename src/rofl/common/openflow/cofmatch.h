@@ -497,66 +497,6 @@ public:
 	/**
 	 *
 	 */
-	uint8_t
-	get_pppoe_type() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_pppoe_type(
-			uint8_t type);
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_pppoe_code() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_pppoe_code(
-			uint8_t code);
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_pppoe_sessid() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_pppoe_sessid(
-			uint16_t sid);
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_ppp_prot() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_ppp_prot(
-			uint16_t prot);
-
-
-	/**
-	 *
-	 */
 	caddress
 	get_ipv4_src() const;
 

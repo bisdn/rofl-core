@@ -53,8 +53,6 @@ extern "C" {
 #include "protocols/fetherframe.h"
 #include "protocols/fvlanframe.h"
 #include "protocols/fmplsframe.h"
-#include "protocols/fpppoeframe.h"
-#include "protocols/fpppframe.h"
 #include "protocols/fipv4frame.h"
 #include "protocols/ficmpv4frame.h"
 #include "protocols/fipv6frame.h"
@@ -74,8 +72,6 @@ namespace rofl
 class fetherframe;
 class fvlanframe;
 class fmplsframe;
-class fpppoeframe;
-class fpppframe;
 class fipv4frame;
 class ficmpv4frame;
 class farpv4frame;
@@ -159,7 +155,6 @@ private:
 		uint16_t						total_len;		// total_len of packet (for shortened frames in Packet-In)
 
 		enum cpacket_flag_t {
-			FLAG_PPPOE_LENGTH   		= 1,
 			FLAG_IPV4_CHECKSUM  		= 2,
 			FLAG_ICMPV4_CHECKSUM  		= 3,
 			FLAG_UDP_CHECKSUM   		= 4,
@@ -640,32 +635,6 @@ public:
 			int i = 0) throw (ePacketNotFound);
 
 
-
-	/**
-	 * @brief	Returns the i'th fpppoeframe instance found in packet. (0: first from left side, -1: first from right side)
-	 * @see fpppoeframe
-	 *
-	 * @param i index of fpppoeframe
-	 * @return pointer to fpppoeframe instance at index i
-	 * @exception ePacketNotFound is thrown when no fpppoeframe at index i could be found
-	 */
-	fpppoeframe*
-	pppoe(
-			int i = 0) throw (ePacketNotFound);
-
-
-
-	/**
-	 * @brief	Returns the i'th fpppframe instance found in packet. (0: first from left side, -1: first from right side)
-	 * @see fpppframe
-	 *
-	 * @param i index of fpppframe
-	 * @return pointer to fpppframe instance at index i
-	 * @exception ePacketNotFound is thrown when no fpppframe at index i could be found
-	 */
-	fpppframe*
-	ppp(
-			int i = 0) throw (ePacketNotFound);
 
 
 
@@ -1293,23 +1262,6 @@ private: // methods
 			uint8_t *data,
 			size_t datalen);
 
-
-	/**
-	 *
-	 */
-	void
-	parse_pppoe(
-			uint8_t *data,
-			size_t datalen);
-
-
-	/**
-	 *
-	 */
-	void
-	parse_ppp(
-			uint8_t *data,
-			size_t datalen);
 
 
 	/**
