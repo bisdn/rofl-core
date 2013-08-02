@@ -7,8 +7,10 @@
 #include <stdbool.h>
 #include "rofl.h"
 #include "../../../common/ternary_fields.h"
-//#include "../../../common/datapacket.h"
 #include "of12_packet_matches.h"
+
+//Fwd declarations
+union of_packet_matches;
 
 //Useful ETH_TYPE values
 #define OF12_ETH_TYPE_MPLS_UNICAST 0x8847
@@ -312,7 +314,7 @@ bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* it);
 /*
 * Dumping
 */
-void of12_dump_packet_matches(of12_packet_matches_t *const pkt);
+void of12_dump_packet_matches(union of_packet_matches *const pkt_matches);
 
 void of12_dump_matches(of12_match_t* matches);
 void of12_full_dump_matches(of12_match_t* matches);

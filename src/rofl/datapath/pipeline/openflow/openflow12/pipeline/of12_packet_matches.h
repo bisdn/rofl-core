@@ -8,11 +8,13 @@
 #include <inttypes.h> 
 #include <string.h> 
 #include "rofl.h"
-#include "../../../common/datapacket.h"
 
 /**
 * @author Marc Sune<marc.sune (at) bisdn.de>
 */
+
+//Fwd decl
+struct datapacket;
 
 /* 
 * Packet OF12 matching values. Matching structure expected by the pipeline for Openflow 1.2
@@ -78,10 +80,10 @@ typedef struct{
 ROFL_BEGIN_DECLS
 
 //Init packet matches
-void __of12_init_packet_matches(datapacket_t *const pkt, of12_packet_matches_t* pkt_matches);
+void __of12_init_packet_matches(struct datapacket *const pkt);
 
 //Update packet matches after applying actions 
-void __of12_update_packet_matches(datapacket_t *const pkt);
+void __of12_update_packet_matches(struct datapacket *const pkt);
 
 
 

@@ -7,7 +7,7 @@
 */
 void __of12_update_packet_matches(datapacket_t *const pkt){
 		
-	of12_packet_matches_t* matches = (of12_packet_matches_t*)pkt->matches;
+	of12_packet_matches_t* matches = &pkt->matches.of12;
 
 	//Pkt size
 	matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt);
@@ -65,8 +65,6 @@ void __of12_update_packet_matches(datapacket_t *const pkt){
 /*
 * Sets up pkt->matches and call update to initialize packet matches
 */
-void __of12_init_packet_matches(datapacket_t *const pkt, of12_packet_matches_t* pkt_matches){
-	
-	pkt->matches = (of_packet_matches_t*)pkt_matches; 
+void __of12_init_packet_matches(datapacket_t *const pkt){
 	__of12_update_packet_matches(pkt);
 }
