@@ -34,6 +34,9 @@ extern "C" {
 #include "rofl/platform/unix/csyslog.h"
 #include "coxmlist.h"
 
+#include <rofl/common/openflow/experimental/matches/gtp_matches.h>
+#include <rofl/common/openflow/experimental/matches/pppoe_matches.h>
+
 namespace rofl
 {
 

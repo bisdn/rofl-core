@@ -967,48 +967,6 @@ public: // action related methods
 
 
 
-	/**
-	 * @brief	Apply a PUSH-PPPOE action.
-	 *
-	 * @param action cofaction instance to be applied
-	 */
-	void
-	action_push_pppoe(
-		cofaction& action);
-
-
-
-
-	/**
-	 * @brief	Apply a POP-PPPOE action.
-	 *
-	 * @param action cofaction instance to be applied
-	 */
-	void
-	action_pop_pppoe(
-		cofaction& action);
-
-
-
-
-#if 0
-	/**
-	 * action: push ppp
-	 */
-	void action_push_ppp(
-		cofaction& action);
-#endif
-
-
-	/**
-	 * @brief	Apply a POP-PPP action.
-	 *
-	 * @param action cofaction instance to be applied
-	 */
-	void
-	action_pop_ppp(
-		cofaction& action);
-
 
 	/**@}*/
 
@@ -1142,51 +1100,6 @@ public:
 	void
 	dec_nw_ttl();
 
-
-
-	/**
-	 * @brief	ActionPushPPPoE
-	 *
-	 * Pushes a new outermost PPPoE tag onto the packet.
-	 *
-	 * @param ethertype new ethernet type value set in Ethernet header
-	 */
-	void
-	push_pppoe(
-			uint16_t ethertype);
-
-
-
-	/**
-	 * @brief	ActionPopPPPoE.
-	 *
-	 * Removes the outermost PPPoE tag from a packet.
-	 *
-	 * @param ethertype new ethernet type value set in Ethernet header
-	 */
-	void
-	pop_pppoe(
-			uint16_t ethertype);
-
-
-
-#if 0
-	/** push ppp
-	 */
-	void
-	push_ppp(
-			uint16_t code);
-#endif
-
-
-
-	/**
-	 * @brief	ActionPopPPP.
-	 *
-	 * Removes the outermost PPP tag from a packet.
-	 */
-	void
-	pop_ppp();
 
 
 	/**@}*/

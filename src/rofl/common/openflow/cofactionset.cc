@@ -35,21 +35,19 @@ cofactionset::init_action_indices()
 	if (cofactionset::action_indices.empty())
 	{
 		cofactionset::action_indices[OFPAT_COPY_TTL_IN] 	= 0;
-		cofactionset::action_indices[OFPAT_POP_PPPOE]   	= 1;
-		cofactionset::action_indices[OFPAT_POP_MPLS] 		= 2;
-		cofactionset::action_indices[OFPAT_POP_VLAN] 		= 3;
-		cofactionset::action_indices[OFPAT_PUSH_PPPOE]  	= 4;
-		cofactionset::action_indices[OFPAT_PUSH_MPLS] 		= 5;
-		cofactionset::action_indices[OFPAT_PUSH_VLAN] 		= 6;
-		cofactionset::action_indices[OFPAT_COPY_TTL_OUT] 	= 7;
-		cofactionset::action_indices[OFPAT_DEC_MPLS_TTL] 	= 8;
-		cofactionset::action_indices[OFPAT_DEC_NW_TTL] 	 	= 9;
-		cofactionset::action_indices[OFPAT_SET_MPLS_TTL] 	= 10;
-		cofactionset::action_indices[OFPAT_SET_NW_TTL] 		= 11;
-		cofactionset::action_indices[OFPAT_SET_FIELD]		= 12;
-		cofactionset::action_indices[OFPAT_SET_QUEUE] 		= 13;
-		cofactionset::action_indices[OFPAT_GROUP] 		= 14;
-		cofactionset::action_indices[OFPAT_OUTPUT] 		= 15;
+		cofactionset::action_indices[OFPAT_POP_MPLS] 		= 1;
+		cofactionset::action_indices[OFPAT_POP_VLAN] 		= 2;
+		cofactionset::action_indices[OFPAT_PUSH_MPLS]	  	= 3;
+		cofactionset::action_indices[OFPAT_PUSH_VLAN] 		= 4;
+		cofactionset::action_indices[OFPAT_COPY_TTL_OUT] 	= 5;
+		cofactionset::action_indices[OFPAT_DEC_MPLS_TTL] 	= 6;
+		cofactionset::action_indices[OFPAT_DEC_NW_TTL] 	 	= 7;
+		cofactionset::action_indices[OFPAT_SET_MPLS_TTL] 	= 8;
+		cofactionset::action_indices[OFPAT_SET_NW_TTL] 		= 9;
+		cofactionset::action_indices[OFPAT_SET_FIELD]		= 10;
+		cofactionset::action_indices[OFPAT_SET_QUEUE] 		= 11;
+		cofactionset::action_indices[OFPAT_GROUP] 		= 12;
+		cofactionset::action_indices[OFPAT_OUTPUT] 		= 13;
 	}
 }
 

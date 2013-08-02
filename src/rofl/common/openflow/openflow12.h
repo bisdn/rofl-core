@@ -520,8 +520,6 @@ enum ofp_action_type {
 	OFPAT_SET_NW_TTL 	= 23, 	/* IP TTL. */
 	OFPAT_DEC_NW_TTL 	= 24, 	/* Decrement IP TTL. */
 	OFPAT_SET_FIELD 	= 25, 	/* Set a header field using OXM TLV format. */
-	//OFPAT_PUSH_PPPOE 	= 26,	/* Push a new PPPoE tag */
-	//OFPAT_POP_PPPOE 	= 27,	/* Pop the PPPoE tag */
 	OFPAT_EXPERIMENTER	= 0xffff
 };
 
@@ -589,14 +587,6 @@ struct ofp_action_pop_mpls {
 OFP_ASSERT(sizeof(struct ofp_action_pop_mpls) == 8);
 
 
-/* Action structure for OFPAT_POP_PPPOE. */
-struct ofp_action_pop_pppoe {
-    uint16_t type;                  /* OFPAT_POP_PPPOE. */
-    uint16_t len;                   /* Length is 8. */
-    uint16_t ethertype;             /* Ethertype */
-    uint8_t pad[2];
-};
-OFP_ASSERT(sizeof(struct ofp_action_pop_pppoe) == 8);
 
 
 
@@ -625,6 +615,7 @@ struct ofp_action_experimenter_header {
     uint32_t experimenter;          /* Experimenter ID which takes the same
                                        form as in struct
                                        ofp_experimenter_header. */
+    uint8_t data[0];
 };
 OFP_ASSERT(sizeof(struct ofp_action_experimenter_header) == 8);
 
