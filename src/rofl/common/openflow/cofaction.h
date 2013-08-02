@@ -562,6 +562,12 @@ public:
 	 */
 	virtual
 	~cofaction_experimenter() {};
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_exp_id() const { return oac_experimenter_header->experimenter; };
 };
 
 
