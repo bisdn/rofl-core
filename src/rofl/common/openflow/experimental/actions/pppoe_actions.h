@@ -6,7 +6,7 @@
 namespace rofl
 {
 
-/** OFXAT_PUSH_VLAN
+/** OFXAT_PUSH_PPPOE
  *
  */
 class cofaction_push_pppoe : public cofaction_experimenter {
