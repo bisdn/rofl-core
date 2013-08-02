@@ -43,7 +43,8 @@ namespace rofl
 class eOxmBase : public cerror {}; // error base class for class cofinstruction
 class eOxmInval : public eOxmBase {}; // invalid parameter
 class eOxmBadLen : public eOxmBase {}; // bad length
-class eOxmInvalType : public eOxmBase {}; // invalid instruction type
+class eOxmInvalType : public eOxmBase {}; // invalid OXM TLV field value
+class eOxmInvalClass : public eOxmBase {}; // invalid OXM TLV class value
 class eOxmHeaderInval : public eOxmBase {}; // invalid instruction header
 class eOxmActionNotFound : public eOxmBase {}; // action not found in instruction
 class eOxmBadExperimenter : public eOxmBase {}; // unknown experimenter instruction

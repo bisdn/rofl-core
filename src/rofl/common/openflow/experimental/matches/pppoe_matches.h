@@ -17,10 +17,18 @@ public:
 	 */
 	coxmatch_ofx_pppoe_code(
 			uint8_t code);
+	/**
+	 */
+	coxmatch_ofx_pppoe_code(
+			coxmatch const& oxm);
 	/** destructor
 	 */
 	virtual
 	~coxmatch_ofx_pppoe_code();
+	/**
+	 */
+	uint8_t
+	get_pppoe_code() const;
 	/**
 	 */
 	friend std::ostream&
@@ -45,10 +53,18 @@ public:
 	 */
 	coxmatch_ofx_pppoe_type(
 			uint8_t type);
+	/**
+	 */
+	coxmatch_ofx_pppoe_type(
+			coxmatch const& oxm);
 	/** destructor
 	 */
 	virtual
 	~coxmatch_ofx_pppoe_type();
+	/**
+	 */
+	uint8_t
+	get_pppoe_type() const;
 	/**
 	 */
 	friend std::ostream&
@@ -73,10 +89,18 @@ public:
 	 */
 	coxmatch_ofx_pppoe_sid(
 			uint16_t sessid);
+	/**
+	 */
+	coxmatch_ofx_pppoe_sid(
+			coxmatch const& oxm);
 	/** destructor
 	 */
 	virtual
 	~coxmatch_ofx_pppoe_sid();
+	/**
+	 */
+	uint16_t
+	get_pppoe_sid() const;
 	/**
 	 */
 	friend std::ostream&
@@ -101,10 +125,18 @@ public:
 	 */
 	coxmatch_ofx_ppp_prot(
 			uint16_t prot);
+	/**
+	 */
+	coxmatch_ofx_ppp_prot(
+			coxmatch const& oxm);
 	/** destructor
 	 */
 	virtual
 	~coxmatch_ofx_ppp_prot();
+	/**
+	 */
+	uint16_t
+	get_ppp_prot() const;
 	/**
 	 */
 	friend std::ostream&
