@@ -50,7 +50,8 @@ int main(int args, char** argv){
 		(CU_add_test(ipv6_suite,"icmpv6",icmpv6_install_flow_mod_complete)==NULL) ||
 		(CU_add_test(ipv6_suite,"utern 128 bits",ipv6_utern_test)==NULL)	||
 		(CU_add_test(ipv6_suite,"get_alike_low",ipv6_alike_test_low)==NULL)	||
-		(CU_add_test(ipv6_suite,"get_alike_high",ipv6_alike_test_high)==NULL)
+		(CU_add_test(ipv6_suite,"get_alike_high",ipv6_alike_test_high)==NULL) ||
+		(CU_add_test(ipv6_suite,"get_alike_wrong",ipv6_alike_test_wrong)==NULL)
 	){
 		fprintf(stderr,"ERROR WHILE ADDING TEST\n");
 		CU_cleanup_registry();

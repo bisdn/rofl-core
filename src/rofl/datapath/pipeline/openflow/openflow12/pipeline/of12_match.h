@@ -283,12 +283,12 @@ of12_match_t* of12_init_icmpv4_code_match(of12_match_t* prev, of12_match_t* next
  * @brief Create an IP6_SRC match
  * @ingroup core_of12
  */
-of12_match_t* of12_init_ip6_src_match(of12_match_t* prev, of12_match_t* next, double64_t value, double64_t mask);
+of12_match_t* of12_init_ip6_src_match(of12_match_t* prev, of12_match_t* next, uint128__t value, uint128__t mask);
 /**
  * @brief Create an IP6_DST match
  * @ingroup core_of12
  */
-of12_match_t* of12_init_ip6_dst_match(of12_match_t* prev, of12_match_t* next, double64_t value, double64_t mask);
+of12_match_t* of12_init_ip6_dst_match(of12_match_t* prev, of12_match_t* next, uint128__t value, uint128__t mask);
 /**
  * @brief Create an IP6_FLABEL match
  * @ingroup core_of12
@@ -298,7 +298,7 @@ of12_match_t* of12_init_ip6_flabel_match(of12_match_t* prev, of12_match_t* next,
  * @brief Create an IP6_ND_TARGET match
  * @ingroup core_of12
  */
-of12_match_t* of12_init_ip6_nd_target_match(of12_match_t* prev, of12_match_t* next, double64_t value);
+of12_match_t* of12_init_ip6_nd_target_match(of12_match_t* prev, of12_match_t* next, uint128__t value);
 /**
  * @brief Create an IP6_ND_SLL match
  * @ingroup core_of12

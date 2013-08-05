@@ -193,7 +193,7 @@ typedef struct of12_packet_action{
 	of12_packet_action_type_t type;
 
 	/** @TODO substitute for a 128 value for IPv6 support */
-	of_uint128_t field;
+	wrap_uint_t field;
 
 	//group
 	struct of12_group* group;
@@ -255,7 +255,7 @@ ROFL_BEGIN_DECLS
 *
 * Each field set consitutes an action per-se. 
 */
-of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw,*/of12_packet_action_type_t type, of_uint128_t field, of12_packet_action_t* prev, of12_packet_action_t* next);
+of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw,*/of12_packet_action_type_t type, wrap_uint_t field, of12_packet_action_t* prev, of12_packet_action_t* next);
 
 /**
 * @ingroup core_of12 

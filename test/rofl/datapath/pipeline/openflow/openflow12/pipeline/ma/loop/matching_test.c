@@ -352,6 +352,7 @@ void test_flow_modify(){
 
 	of12_flow_entry_t* entry1, *entry2;
 	of12_action_group_t* group1, *group2;
+	wrap_uint_t field;
 /*
 *  
 * Simple modify test with STRICT and NOT-STRICT 
@@ -366,7 +367,8 @@ void test_flow_modify(){
 	//Add one action
 	group1 = of12_init_action_group(NULL);
 	CU_ASSERT(group1 != NULL);
-	of12_push_packet_action_to_group(group1,of12_init_packet_action(OF12_AT_OUTPUT,1,0,NULL,NULL));
+	field.u16 = 1;
+	of12_push_packet_action_to_group(group1,of12_init_packet_action(OF12_AT_OUTPUT,field,NULL,NULL));
 	
 	of12_add_instruction_to_group(&entry1->inst_grp, OF12_IT_APPLY_ACTIONS, group1, NULL,0);
 	
@@ -384,7 +386,7 @@ void test_flow_modify(){
 	//Add a different action
 	group2 = of12_init_action_group(NULL);
 	CU_ASSERT(group2 != NULL);
-	of12_push_packet_action_to_group(group2, of12_init_packet_action(OF12_AT_SET_FIELD_IP_DSCP, 1,0, NULL,NULL));
+	of12_push_packet_action_to_group(group2, of12_init_packet_action(OF12_AT_SET_FIELD_IP_DSCP, field, NULL,NULL));
 	
 	of12_add_instruction_to_group(&entry2->inst_grp, OF12_IT_APPLY_ACTIONS, group2, NULL,0);
 

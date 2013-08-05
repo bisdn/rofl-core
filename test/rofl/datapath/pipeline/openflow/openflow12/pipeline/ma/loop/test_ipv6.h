@@ -16,6 +16,7 @@ void ipv6_utern_test(void);
 void ipv6_install_flow_mod(void);
 void ipv6_alike_test_low(void);
 void ipv6_alike_test_high(void);
+void ipv6_alike_test_wrong(void);
 void ipv6_install_flow_mod_complete(void);
 void icmpv6_install_flow_mod_complete(void);
 

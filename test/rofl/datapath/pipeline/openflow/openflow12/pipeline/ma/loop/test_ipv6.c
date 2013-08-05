@@ -3,6 +3,9 @@
 #include "CUnit/Basic.h"
 #include "test_ipv6.h"
 
+#define HI(x) *(uint64_t*)&x.val[0]
+#define LO(x) *(uint64_t*)&x.val[8]
+
 static of12_switch_t* sw=NULL;
 
 int ipv6_set_up(void){
@@ -41,15 +44,17 @@ void ipv6_basic_test(void){
 
 void ipv6_utern_test(void){
 	bool res;
-	utern128_t *tern, *ex_tern, *ex_tern_fail;
-	//FIXME uint64_t has 8 bytes =>  0x0102030405060708 !!!
-	uint64_t value[2] = 			{0x12345678ffffffff,0x12345678ffff1234}, mask[2] = 			{0xffffffffffffffff,0xffffffffffff0000};
-	uint64_t ex_value[2] = 			{0x12345678ffffffff,0x12345678fff01234}, ex_mask[2] = 			{0xffffffffffffffff,0xffffffff00000000};
-	uint64_t ex_value_2[2] = 		{0x1234567affffffff,0x12345678ffff1234},
-			ex_value_3[2] = 		{0x12345678ffffffff,0x12345678ffff123f};
-	uint64_t ex_value_fail[2] = 	{0x12345678fffffffc,0x12345678ffff1234}, ex_mask_fail[2] = 	{0xfffffffffffffffe,0xffffffff00000000};
+	utern_t *tern, *ex_tern, *ex_tern_fail;
+	uint128__t value = 				{{0x12,0x34,0x56,0x78,0xff,0xff,0xff,0xff,0x12,0x34,0x56,0x78,0xff,0xff,0x12,0x34}};
+	uint128__t mask = 				{{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x00,0x00}};
+	uint128__t ex_value = 			{{0x12,0x34,0x56,0x78,0xff,0xff,0xff,0xff,0x12,0x34,0x56,0x78,0xff,0xf0,0x12,0x34}};
+	uint128__t ex_mask = 			{{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00}};
+	uint128__t ex_value_2 = 		{{0x12,0x34,0x56,0x7a,0xff,0xff,0xff,0xff,0x12,0x34,0x56,0x78,0xff,0xff,0x12,0x34}};
+	uint128__t ex_value_3 = 		{{0x12,0x34,0x56,0x78,0xff,0xff,0xff,0xff,0x12,0x34,0x56,0x78,0xff,0xff,0x12,0x3f}};
+	uint128__t ex_value_fail = 		{{0x12,0x34,0x56,0x78,0xff,0xff,0xff,0xfc,0x12,0x34,0x56,0x78,0xff,0xff,0x12,0x34}};
+	uint128__t ex_mask_fail = 		{{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xfe,0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x00}};
 	
-	tern = (utern128_t *)__init_utern128(value,mask);
+	tern = __init_utern128(value,mask);
 	CU_ASSERT(tern != NULL);
 	
 	res = __utern_compare128(tern,value);
@@ -64,12 +69,12 @@ void ipv6_utern_test(void){
 	res = __utern_compare128(tern,ex_value_3);
 	CU_ASSERT(res==true);
 	
-	ex_tern = (utern128_t *)__init_utern128(ex_value,ex_mask);
-	res = __utern_is_contained128(ex_tern,tern);
+	ex_tern = __init_utern128(ex_value,ex_mask);
+	res = __utern_is_contained(ex_tern,tern);
 	CU_ASSERT(res==true);
 	
-	ex_tern_fail = (utern128_t *)__init_utern128(ex_value_fail,ex_mask_fail);
-	res = __utern_is_contained128(ex_tern_fail,tern);
+	ex_tern_fail = __init_utern128(ex_value_fail,ex_mask_fail);
+	res = __utern_is_contained(ex_tern_fail,tern);
 	CU_ASSERT(res==false);
 	
 	__destroy_utern((utern_t*)tern);
@@ -78,21 +83,21 @@ void ipv6_utern_test(void){
 }
 
 void ipv6_alike_test_low(void){
-	utern128_t * tern1,*tern2,*res;
-	//						{		LOW		,		HIGH		}
-	uint64_t mask[2] =   {0xffffffffffffffff,0xffffffffffffffff};
-	uint64_t value1[2] = {0x1111222233334444,0xaaaabbbbccccdddd};
-	uint64_t value2[2] = {0x1111222233335444,0xaaaabbbbccccdddd};
+	utern_t * tern1,*tern2,*res;
+	//WARNING!!!						{		HIGH		,		LOW		}
+	uint128__t mask; HI(mask) =  0xffffffffffffffff; LO(mask) = 0xffffffffffffffff;
+	uint128__t value1; HI(value1) = 0xaaaabbbbccccdddd; LO(value1) =0x1111222233334444;
+	uint128__t value2; HI(value2) = 0xaaaabbbbccccdddd; LO(value2) =0x1111222233335444;
 	
-	tern1 = (utern128_t *)__init_utern128(value1,mask);
-	tern2 = (utern128_t *)__init_utern128(value2,mask);
-	res = (utern128_t *)__utern128_get_alike(*tern1,*tern2);
+	tern1 = __init_utern128(value1,mask);
+	tern2 = __init_utern128(value2,mask);
+	res = __utern_get_alike(*tern1,*tern2);
 	
 	CU_ASSERT(res!=NULL);
 	if(res){
-		printf("1- masks 0x%lx 0x%lx\n",res->mask[UTERN128_HIGH],res->mask[UTERN128_LOW]);
-		CU_ASSERT(res->mask[UTERN128_HIGH]==0xffffffffffffffff);
-		CU_ASSERT(res->mask[UTERN128_LOW] ==0xffffffffffffe000);
+		printf("1- masks 0x%lx 0x%lx\n",HI(res->mask.u128),LO(res->mask.u128));
+		CU_ASSERT(HI(res->mask.u128)==0xffffffffffffffff);
+		CU_ASSERT(LO(res->mask.u128) ==0xffffffffffffe000);
 	}
 	__destroy_utern((utern_t*)tern1);
 	__destroy_utern((utern_t*)tern2);
@@ -100,31 +105,66 @@ void ipv6_alike_test_low(void){
 }
 	
 void ipv6_alike_test_high(void){
-	utern128_t * tern1,*tern2,*res;
+	utern_t * tern1,*tern2,*res;
 	// Second test: change of mask and add different bytes in higher part
-	//						{		LOW		,		HIGH		}
-	uint64_t mask[2] =   {0xfffffffffff00000,0xffffffffffffffff};
-	uint64_t value1[2] = {0x1111222233334444,0xaaaabbbbccccdddf};
-	uint64_t value2[2] = {0x1111222233335444,0xaaaabbbbccccdddd};
+	uint128__t mask;   HI(mask) = 0xffffffffffffffff; LO(mask) = 0xfffffffffff00000;
+	uint128__t value1; HI(value1) = 0xaaaabbbbccccdddf; LO(value1) = 0x1111222233334444;
+	uint128__t value2; HI(value2) = 0xaaaabbbbccccdddd; LO(value2) = 0x1111222233335444; 
 	
-	tern1 = (utern128_t *)__init_utern128(value1,mask);
-	tern2 = (utern128_t *)__init_utern128(value2,mask);
-	res = (utern128_t *)__utern128_get_alike(*tern1,*tern2);
+	tern1 = __init_utern128(value1,mask);
+	tern2 = __init_utern128(value2,mask);
+	res = __utern_get_alike(*tern1,*tern2);
 	CU_ASSERT(res!=NULL);
 	if(res){
-		printf("2- masks 0x%lx 0x%lx\n",res->mask[UTERN128_HIGH],res->mask[UTERN128_LOW]);
-		CU_ASSERT(res->mask[UTERN128_HIGH]==0xfffffffffffffffc);
-		CU_ASSERT(res->mask[UTERN128_LOW] ==0x0000000000000000);
+		printf("2- masks 0x%lx 0x%lx\n",HI(res->mask.u128),LO(res->mask.u128));
+		CU_ASSERT(HI(res->mask.u128)==0xfffffffffffffffc);
+		CU_ASSERT(LO(res->mask.u128)==0x0000000000000000);
 	}
 	__destroy_utern((utern_t*)tern1);
 	__destroy_utern((utern_t*)tern2);
 	__destroy_utern((utern_t*)res);
-
 }
+
+void ipv6_alike_test_wrong(void){
+	utern_t * tern1,*tern2,*res;
+	// masks have nothing in common
+	uint128__t value1; HI(value1) = 0xaaaaaaaaffffffff; LO(value1) = 0x1111222233334444;
+	uint128__t mask1;  HI(mask1)  = 0xffffffffffffffff; LO(mask1)  = 0x0000000000000000;
+	uint128__t value2; HI(value2) = 0xaaaabbbbccccdddd; LO(value2) = 0x1111222233335444; 
+	uint128__t mask2;  HI(mask2)  = 0x0000000000000000; LO(mask2)  = 0xffffffffffffffff;
+	
+	tern1 = __init_utern128(value1,mask1);
+	tern2 = __init_utern128(value2,mask2);
+	res = __utern_get_alike(*tern1,*tern2);
+	CU_ASSERT(res==NULL);
+	
+	__destroy_utern((utern_t*)tern1);
+	__destroy_utern((utern_t*)tern2);
+	__destroy_utern((utern_t*)res);
+	
+	// masks have something in commom but they are not continuous
+	HI(value1) = 0xaaaaaaaaffffffff; LO(value1) = 0x1111222233334444;
+	HI(mask1)  = 0x0000000000000000; LO(mask1)  = 0xffffffff00000000;
+	HI(value2) = 0xaaaaaaaaffffffff; LO(value2) = 0x1111222233334444; 
+	HI(mask2)  = 0x0000000000000000; LO(mask2)  = 0x00ffffffffffffff;
+	
+	tern1 = __init_utern128(value1,mask1);
+	tern2 = __init_utern128(value2,mask2);
+	res = __utern_get_alike(*tern1,*tern2);
+	CU_ASSERT(res==NULL);
+	
+	__destroy_utern((utern_t*)tern1);
+	__destroy_utern((utern_t*)tern2);
+	__destroy_utern((utern_t*)res);
+	
+}
+
+/*TODO do tests using masks that doesn't make sense (not continuous ones) to check for failure*/
 
 void ipv6_install_flow_mod(void){
 	printf("ipv6 test flow mod\n");
-	uint64_t value[2] = {0xffffffffffffffff,0xffffffffffff1234}, mask[2] = {0xffffffffffffffff,0xffffffffffff0000};
+	uint128__t value; HI(value) = 0xffffffffffffffff; LO(value) = 0xffffffffffff1234;
+	uint128__t mask;  HI(value) = 0xffffffffffffffff; LO(value) = 0xffffffffffff0000;
 	
 	//Create a simple flow_mod
 	of12_flow_entry_t* entry = of12_init_flow_entry(NULL, NULL, false); 
@@ -153,7 +193,8 @@ void ipv6_install_flow_mod(void){
 
 void ipv6_install_flow_mod_complete(void){
 	printf("ipv6 test flow mod\n");
-	uint64_t value128[2] = {0xffffffffffffffff,0xffffffffffff1234}, mask128[2] = {0xffffffffffffffff,0xffffffffffff0000};
+	uint128__t value128; HI(value128) = 0xffffffffffffffff; LO(value128) = 0xffffffffffff1234;
+	uint128__t mask128; HI(mask128) = 0xffffffffffffffff; LO(mask128) = 0xffffffffffff0000;
 	uint64_t value64 = 0xffffffffffff1234, mask64 = 0xffffffffffff0000;
 	
 	//Create a simple flow_mod
@@ -166,10 +207,10 @@ void ipv6_install_flow_mod_complete(void){
 	//add IPv6 match
 	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip6_src_match(NULL,NULL,value128,mask128)) == ROFL_SUCCESS);
 	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip6_dst_match(NULL,NULL,value128,mask128)) == ROFL_SUCCESS);
-	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip6_flabel_match(NULL,NULL,value64,mask64)) == ROFL_SUCCESS);
-	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip6_nd_target_match(NULL,NULL,value128,mask128)) == ROFL_SUCCESS);
-	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip6_nd_sll_match(NULL,NULL,value64,mask64)) == ROFL_SUCCESS);
-	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip6_nd_tll_match(NULL,NULL,value64,mask64)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip6_flabel_match(NULL,NULL,value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip6_nd_target_match(NULL,NULL,value128)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip6_nd_sll_match(NULL,NULL,value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip6_nd_tll_match(NULL,NULL,value64)) == ROFL_SUCCESS);
 	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_ip6_exthdr_match(NULL,NULL,value64,mask64)) == ROFL_SUCCESS);
 	
 	//Install
@@ -189,7 +230,7 @@ void ipv6_install_flow_mod_complete(void){
 
 void icmpv6_install_flow_mod_complete(void){
 	printf("ipv6 test flow mod\n");
-	uint64_t value64 = 0xffffffffffff1234, mask64 = 0xffffffffffff0000;
+	uint64_t value64 = 0xffffffffffff1234;
 	
 	//Create a simple flow_mod
 	of12_flow_entry_t* entry = of12_init_flow_entry(NULL, NULL, false); 
@@ -199,8 +240,8 @@ void icmpv6_install_flow_mod_complete(void){
 	entry->cookie_mask = 0x1;
 	
 	//add IPv6 match
-	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_icmpv6_type_match(NULL,NULL,value64,mask64)) == ROFL_SUCCESS);
-	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_icmpv6_code_match(NULL,NULL,value64,mask64)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_icmpv6_type_match(NULL,NULL,value64)) == ROFL_SUCCESS);
+	CU_ASSERT(of12_add_match_to_entry(entry,of12_init_icmpv6_code_match(NULL,NULL,value64)) == ROFL_SUCCESS);
 	
 	//Install
 	CU_ASSERT(of12_add_flow_entry_table(sw->pipeline, 0, entry, false,false) == ROFL_OF12_FM_SUCCESS);
@@ -213,4 +254,10 @@ void icmpv6_install_flow_mod_complete(void){
 	
 	//Check real size of the table
 	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
+}
+
+void ipv6_process_packet(void){
+	/*Create test to process a packet with ipv6 matches*/
+	
+	
 }

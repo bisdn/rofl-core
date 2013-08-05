@@ -1,5 +1,6 @@
 #include <inttypes.h>
 #include <rofl/datapath/pipeline/common/datapacket.h>
+#include <rofl/datapath/pipeline/common/ternary_fields.h>
 
 uint32_t
 platform_packet_get_size_bytes(datapacket_t * const pkt){
@@ -75,6 +76,36 @@ uint16_t platform_packet_get_pppoe_sid(datapacket_t *const pkt){
 	return 0;
 }
 uint16_t platform_packet_get_ppp_proto(datapacket_t *const pkt){
+	return 0;
+}
+uint128__t platform_packet_get_ipv6_src(datapacket_t *const pkt){
+	uint128__t ret;
+	return ret;
+}
+uint128__t platform_packet_get_ipv6_dst(datapacket_t *const pkt){
+	uint128__t ret;
+	return ret;
+}
+uint64_t platform_packet_get_ipv6_flabel(datapacket_t *const pkt){
+	return 0;
+}
+uint128__t platform_packet_get_ipv6_nd_target(datapacket_t *const pkt){
+	uint128__t ret;
+	return ret;
+}
+uint64_t platform_packet_get_ipv6_nd_sll(datapacket_t *const pkt){
+	return 0;
+}
+uint64_t platform_packet_get_ipv6_nd_tll(datapacket_t *const pkt){
+	return 0;
+}
+uint64_t platform_packet_get_ipv6_exthdr(datapacket_t *const pkt){
+	return 0;
+}
+uint64_t platform_packet_get_icmpv6_type(datapacket_t *const pkt){
+	return 0;
+}
+uint64_t platform_packet_get_icmpv6_code(datapacket_t *const pkt){
 	return 0;
 }
 

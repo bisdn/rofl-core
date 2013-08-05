@@ -73,10 +73,10 @@ typedef struct{
 	uint16_t ppp_proto;		/* PPPoE session id */
 	
 	//IPv6
-	double64_t ipv6_src; /* IPv6 source address */
-	double64_t ipv6_dst; /* IPv6 source address */
+	uint128__t ipv6_src; /* IPv6 source address */
+	uint128__t ipv6_dst; /* IPv6 source address */
 	uint64_t ipv6_flabel; /* IPv6 flow label */
-	double64_t ipv6_nd_target; /* IPv6 Neighbor discovery protocol target */
+	uint128__t ipv6_nd_target; /* IPv6 Neighbor discovery protocol target */
 	uint64_t ipv6_nd_sll; /* IPv6 Neighbor discovery protocol source link level */
 	uint64_t ipv6_nd_tll; /* IPv6 Neighbor discovery protocol target link level */
 	uint64_t ipv6_exthdr; /* IPv6 extension pseudo header */

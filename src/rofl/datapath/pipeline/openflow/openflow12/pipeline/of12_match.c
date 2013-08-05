@@ -170,7 +170,7 @@ inline of12_match_t* of12_init_ip_ecn_match(of12_match_t* prev, of12_match_t* ne
 }
 
 //IPv6
-inline of12_match_t* of12_init_ip6_src_match(of12_match_t* prev, of12_match_t* next, double64_t value, double64_t mask){
+inline of12_match_t* of12_init_ip6_src_match(of12_match_t* prev, of12_match_t* next, uint128__t value, uint128__t mask){
 	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_IPV6_SRC;
 	match->value = __init_utern128(value,mask); 
@@ -178,7 +178,7 @@ inline of12_match_t* of12_init_ip6_src_match(of12_match_t* prev, of12_match_t* n
 	match->next = next;
 	return match;
 }
-inline of12_match_t* of12_init_ip6_dst_match(of12_match_t* prev, of12_match_t* next, double64_t value, double64_t mask){
+inline of12_match_t* of12_init_ip6_dst_match(of12_match_t* prev, of12_match_t* next, uint128__t value, uint128__t mask){
 	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 	match->type = OF12_MATCH_IPV6_DST;
 	match->value = __init_utern128(value,mask); 
@@ -194,10 +194,10 @@ inline of12_match_t* of12_init_ip6_flabel_match(of12_match_t* prev, of12_match_t
 	match->next = next;
 	return match;
 }
-inline of12_match_t* of12_init_ip6_nd_target_match(of12_match_t* prev, of12_match_t* next, double64_t value){
+inline of12_match_t* of12_init_ip6_nd_target_match(of12_match_t* prev, of12_match_t* next, uint128__t value){
 	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
-    double64_t mask;
-	mask.high = mask.low = 0xffffffffffffffff;
+    uint128__t mask = {{0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,
+						0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff}};
 	match->type = OF12_MATCH_IPV6_ND_TARGET;
 	match->value = __init_utern128(value,mask); //No wildcard
 	match->prev = prev;
@@ -393,57 +393,58 @@ rofl_result_t __of12_add_match(of12_match_t* root_match, of12_match_t* add_match
 inline of12_match_t* __of12_copy_match(of12_match_t* match){
 	switch(match->type){
 
-		case OF12_MATCH_IN_PORT: return of12_init_port_in_match(NULL, NULL, ((utern32_t*)match->value)->value);
-		case OF12_MATCH_IN_PHY_PORT: return of12_init_port_in_phy_match(NULL, NULL, ((utern32_t*)match->value)->value);
+		case OF12_MATCH_IN_PORT: return of12_init_port_in_match(NULL, NULL, match->value->value.u32);
+		case OF12_MATCH_IN_PHY_PORT: return of12_init_port_in_phy_match(NULL, NULL, match->value->value.u32);
 
 	  	case OF12_MATCH_METADATA: //TODO FIXME
 					return NULL; 
    
-		case OF12_MATCH_ETH_DST:  return of12_init_eth_dst_match(NULL,NULL,((utern64_t*)match->value)->value,((utern64_t*)match->value)->mask); 
-   		case OF12_MATCH_ETH_SRC:  return  of12_init_eth_src_match(NULL,NULL,((utern64_t*)match->value)->value,((utern64_t*)match->value)->mask);
-   		case OF12_MATCH_ETH_TYPE: return of12_init_eth_type_match(NULL,NULL,((utern16_t*)match->value)->value);
+		case OF12_MATCH_ETH_DST:  return of12_init_eth_dst_match(NULL,NULL,match->value->value.u64,match->value->mask.u64); 
+   		case OF12_MATCH_ETH_SRC:  return  of12_init_eth_src_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);
+   		case OF12_MATCH_ETH_TYPE: return of12_init_eth_type_match(NULL,NULL,match->value->value.u16);
 
-   		case OF12_MATCH_VLAN_VID: return of12_init_vlan_vid_match(NULL,NULL,((utern16_t*)match->value)->value,((utern16_t*)match->value)->mask); 
-   		case OF12_MATCH_VLAN_PCP: return of12_init_vlan_pcp_match(NULL,NULL,((utern8_t*)match->value)->value); 
+   		case OF12_MATCH_VLAN_VID: return of12_init_vlan_vid_match(NULL,NULL,match->value->value.u16,match->value->mask.u16); 
+   		case OF12_MATCH_VLAN_PCP: return of12_init_vlan_pcp_match(NULL,NULL,match->value->value.u8); 
 
-   		case OF12_MATCH_MPLS_LABEL: return of12_init_mpls_label_match(NULL,NULL,((utern32_t*)match->value)->value); 
-   		case OF12_MATCH_MPLS_TC: return of12_init_mpls_tc_match(NULL,NULL,((utern8_t*)match->value)->value); 
+   		case OF12_MATCH_MPLS_LABEL: return of12_init_mpls_label_match(NULL,NULL,match->value->value.u32); 
+   		case OF12_MATCH_MPLS_TC: return of12_init_mpls_tc_match(NULL,NULL,match->value->value.u8); 
 
-   		case OF12_MATCH_IP_PROTO: return of12_init_ip_proto_match(NULL,NULL,((utern8_t*)match->value)->value); 
-   		case OF12_MATCH_IP_ECN: return of12_init_ip_ecn_match(NULL,NULL,((utern8_t*)match->value)->value); 
-   		case OF12_MATCH_IP_DSCP: return of12_init_ip_dscp_match(NULL,NULL,((utern8_t*)match->value)->value);
+   		case OF12_MATCH_IP_PROTO: return of12_init_ip_proto_match(NULL,NULL,match->value->value.u8); 
+   		case OF12_MATCH_IP_ECN: return of12_init_ip_ecn_match(NULL,NULL,match->value->value.u8); 
+   		case OF12_MATCH_IP_DSCP: return of12_init_ip_dscp_match(NULL,NULL,match->value->value.u8);
 
-   		case OF12_MATCH_IPV4_SRC: return of12_init_ip4_src_match(NULL,NULL,((utern32_t*)match->value)->value,((utern32_t*)match->value)->mask); 
-   		case OF12_MATCH_IPV4_DST: return of12_init_ip4_dst_match(NULL,NULL,((utern32_t*)match->value)->value,((utern32_t*)match->value)->mask); 
+   		case OF12_MATCH_IPV4_SRC: return of12_init_ip4_src_match(NULL,NULL,match->value->value.u32,match->value->mask.u32); 
+   		case OF12_MATCH_IPV4_DST: return of12_init_ip4_dst_match(NULL,NULL,match->value->value.u32,match->value->mask.u32); 
 
-   		case OF12_MATCH_TCP_SRC: return of12_init_tcp_src_match(NULL,NULL,((utern16_t*)match->value)->value); 
-   		case OF12_MATCH_TCP_DST: return of12_init_tcp_dst_match(NULL,NULL,((utern16_t*)match->value)->value); 
+   		case OF12_MATCH_TCP_SRC: return of12_init_tcp_src_match(NULL,NULL,match->value->value.u16); 
+   		case OF12_MATCH_TCP_DST: return of12_init_tcp_dst_match(NULL,NULL,match->value->value.u16); 
 
-   		case OF12_MATCH_UDP_SRC: return of12_init_udp_src_match(NULL,NULL,((utern16_t*)match->value)->value); 
-   		case OF12_MATCH_UDP_DST: return of12_init_udp_dst_match(NULL,NULL,((utern16_t*)match->value)->value); 
+   		case OF12_MATCH_UDP_SRC: return of12_init_udp_src_match(NULL,NULL,match->value->value.u16); 
+   		case OF12_MATCH_UDP_DST: return of12_init_udp_dst_match(NULL,NULL,match->value->value.u16); 
 
-    	case OF12_MATCH_ICMPV4_TYPE: return of12_init_icmpv4_type_match(NULL,NULL,((utern8_t*)match->value)->value); 
-   		case OF12_MATCH_ICMPV4_CODE: return of12_init_icmpv4_code_match(NULL,NULL,((utern8_t*)match->value)->value); 
+    	case OF12_MATCH_ICMPV4_TYPE: return of12_init_icmpv4_type_match(NULL,NULL,match->value->value.u8); 
+   		case OF12_MATCH_ICMPV4_CODE: return of12_init_icmpv4_code_match(NULL,NULL,match->value->value.u8); 
   		
-		case OF12_MATCH_IPV6_SRC: return of12_init_ip6_src_match(NULL,NULL,((utern128_t*)match->value)->value, ((utern128_t*)match->value)->mask);
-		case OF12_MATCH_IPV6_DST: return of12_init_ip6_dst_match(NULL,NULL,((utern128_t*)match->value)->value, ((utern128_t*)match->value)->mask);
-		case OF12_MATCH_IPV6_FLABEL: return of12_init_ip6_flabel_match(NULL,NULL,((utern64_t*)match->value)->value);
-		case OF12_MATCH_IPV6_ND_TARGET: return of12_init_ip6_nd_target_match(NULL,NULL,((utern128_t*)match->value)->value);
-		case OF12_MATCH_IPV6_ND_SLL: return of12_init_ip6_nd_sll_match(NULL,NULL,((utern64_t*)match->value)->value);
-		case OF12_MATCH_IPV6_ND_TLL: return of12_init_ip6_nd_tll_match(NULL,NULL,((utern64_t*)match->value)->value);
-		case OF12_MATCH_IPV6_EXTHDR: return of12_init_ip6_exthdr_match(NULL,NULL,((utern64_t*)match->value)->value, ((utern64_t*)match->value)->mask);
+		case OF12_MATCH_IPV6_SRC: return of12_init_ip6_src_match(NULL,NULL,match->value->value.u128, match->value->mask.u128);
+		case OF12_MATCH_IPV6_DST: return of12_init_ip6_dst_match(NULL,NULL,match->value->value.u128, match->value->mask.u128);
+		case OF12_MATCH_IPV6_FLABEL: return of12_init_ip6_flabel_match(NULL,NULL,match->value->value.u64);
+		case OF12_MATCH_IPV6_ND_TARGET: return of12_init_ip6_nd_target_match(NULL,NULL,match->value->value.u128);
+		case OF12_MATCH_IPV6_ND_SLL: return of12_init_ip6_nd_sll_match(NULL,NULL,match->value->value.u64);
+		case OF12_MATCH_IPV6_ND_TLL: return of12_init_ip6_nd_tll_match(NULL,NULL,match->value->value.u64);
+		case OF12_MATCH_IPV6_EXTHDR: return of12_init_ip6_exthdr_match(NULL,NULL,match->value->value.u64, match->value->mask.u64);
 		
-		case OF12_MATCH_ICMPV6_TYPE: return of12_init_icmpv6_type_match(NULL,NULL,((utern64_t*)match->value)->value);
-		case OF12_MATCH_ICMPV6_CODE: return of12_init_icmpv6_code_match(NULL,NULL,((utern64_t*)match->value)->value);
+		case OF12_MATCH_ICMPV6_TYPE: return of12_init_icmpv6_type_match(NULL,NULL,match->value->value.u64);
+		case OF12_MATCH_ICMPV6_CODE: return of12_init_icmpv6_code_match(NULL,NULL,match->value->value.u64);
 		
 		/* PPP/PPPoE related extensions */
-   		case OF12_MATCH_PPPOE_CODE: return of12_init_pppoe_code_match(NULL,NULL,((utern8_t*)match->value)->value); 
-   		case OF12_MATCH_PPPOE_TYPE: return of12_init_pppoe_type_match(NULL,NULL,((utern8_t*)match->value)->value); 
-   		case OF12_MATCH_PPPOE_SID: return of12_init_pppoe_session_match(NULL,NULL,((utern16_t*)match->value)->value); 
-   		case OF12_MATCH_PPP_PROT: return of12_init_ppp_prot_match(NULL,NULL,((utern16_t*)match->value)->value); 
+   		case OF12_MATCH_PPPOE_CODE: return of12_init_pppoe_code_match(NULL,NULL,match->value->value.u8); 
+   		case OF12_MATCH_PPPOE_TYPE: return of12_init_pppoe_type_match(NULL,NULL,match->value->value.u8); 
+   		case OF12_MATCH_PPPOE_SID: return of12_init_pppoe_session_match(NULL,NULL,match->value->value.u16); 
+   		case OF12_MATCH_PPP_PROT: return of12_init_ppp_prot_match(NULL,NULL,match->value->value.u16); 
 		/* Add more here ...*/
 		default:
 			//Should NEVER reach this point
+			assert(0);
 			return NULL; 
 	}	
 	
@@ -493,7 +494,8 @@ inline of12_match_t* __of12_get_alike_match(of12_match_t* match1, of12_match_t* 
 	if( match1->type != match2->type )
 		return NULL;	
 
-
+	common_tern = __utern_get_alike(*match1->value,*match2->value);
+#if 0
 	switch(match1->type){
 		case OF12_MATCH_IN_PORT: common_tern = __utern32_get_alike(*(utern32_t*)match1->value,*(utern32_t*)match2->value);
 					break;
@@ -581,8 +583,10 @@ inline of12_match_t* __of12_get_alike_match(of12_match_t* match1, of12_match_t* 
 		/* Add more here ...*/
 		default:
 			//Should NEVER reach this point
+			assert(0);
 			return NULL; 
-	}	
+	}
+#endif
 	if(common_tern){
 		of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 		match->value = common_tern;
@@ -613,6 +617,8 @@ inline bool __of12_equal_matches(of12_match_t* match1, of12_match_t* match2){
 	if( match1->type != match2->type )
 		return false; 
 
+	return __utern_equals(match1->value,match2->value);
+#if 0
 	switch(match1->type){
 		case OF12_MATCH_IN_PORT: return __utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
 		case OF12_MATCH_IN_PHY_PORT: return __utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
@@ -672,8 +678,10 @@ inline bool __of12_equal_matches(of12_match_t* match1, of12_match_t* match2){
 		/* Add more here ...*/
 		default:
 			//Should NEVER reach this point
+			assert(0);
 			return false; 
-	}	
+	}
+#endif
 }
 
 //Finds out if sub_match is a submatch of match
@@ -681,7 +689,9 @@ inline bool __of12_is_submatch(of12_match_t* sub_match, of12_match_t* match){
 
 	if( match->type != sub_match->type )
 		return false; 
-
+	
+	return __utern_is_contained(sub_match->value,match->value);
+#if 0
 	switch(match->type){
 		case OF12_MATCH_IN_PORT: return __utern_is_contained32((utern32_t*)sub_match->value,(utern32_t*)match->value);
 		case OF12_MATCH_IN_PHY_PORT: return __utern_is_contained32((utern32_t*)sub_match->value,(utern32_t*)match->value);
@@ -734,8 +744,10 @@ inline bool __of12_is_submatch(of12_match_t* sub_match, of12_match_t* match){
 		/* Add more here ...*/
 		default:
 			//Should NEVER reach this point
+			assert(0);
 			return false;
-	}	
+	}
+#endif
 }
 /*
 *
@@ -748,95 +760,97 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
 	
 	switch(it->type){
 		//Phy
-		case OF12_MATCH_IN_PORT: return __utern_compare32((utern32_t*)it->value,pkt->port_in);
+		case OF12_MATCH_IN_PORT: return __utern_compare32(it->value,pkt->port_in);
 		case OF12_MATCH_IN_PHY_PORT: if(!pkt->port_in) return false; //According to spec
-					return __utern_compare32((utern32_t*)it->value,pkt->phy_port_in);
+					return __utern_compare32(it->value,pkt->phy_port_in);
 		//Metadata
 	  	case OF12_MATCH_METADATA: //TODO FIXME
 					return false;
 		//802
-   		case OF12_MATCH_ETH_DST:  return __utern_compare64((utern64_t*)it->value,pkt->eth_dst);
-   		case OF12_MATCH_ETH_SRC:  return __utern_compare64((utern64_t*)it->value,pkt->eth_src);
-   		case OF12_MATCH_ETH_TYPE: return __utern_compare16((utern16_t*)it->value,pkt->eth_type);
+   		case OF12_MATCH_ETH_DST:  return __utern_compare64(it->value,pkt->eth_dst);
+   		case OF12_MATCH_ETH_SRC:  return __utern_compare64(it->value,pkt->eth_src);
+   		case OF12_MATCH_ETH_TYPE: return __utern_compare16(it->value,pkt->eth_type);
 		
 		//802.1q
-   		case OF12_MATCH_VLAN_VID: return __utern_compare16((utern16_t*)it->value,pkt->vlan_vid);
+   		case OF12_MATCH_VLAN_VID: return __utern_compare16(it->value,pkt->vlan_vid);
    		case OF12_MATCH_VLAN_PCP: if(!pkt->vlan_vid) return false;
-					return __utern_compare8((utern8_t*)it->value,pkt->vlan_pcp);
+					return __utern_compare8(it->value,pkt->vlan_pcp);
 		//MPLS
    		case OF12_MATCH_MPLS_LABEL: if(!(pkt->eth_type == OF12_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF12_ETH_TYPE_MPLS_MULTICAST )) return false;
-					return __utern_compare32((utern32_t*)it->value,pkt->mpls_label);
+					return __utern_compare32(it->value,pkt->mpls_label);
    		case OF12_MATCH_MPLS_TC: if(!(pkt->eth_type == OF12_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF12_ETH_TYPE_MPLS_MULTICAST )) return false; 
-					return __utern_compare8((utern8_t*)it->value,pkt->mpls_tc);
+					return __utern_compare8(it->value,pkt->mpls_tc);
 		//IP
    		case OF12_MATCH_IP_PROTO: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && (pkt->ppp_proto == OF12_PPP_PROTO_IP4 || pkt->ppp_proto == OF12_PPP_PROTO_IP6) ))) return false; 
-					return __utern_compare8((utern8_t*)it->value,pkt->ip_proto);
+					return __utern_compare8(it->value,pkt->ip_proto);
 		case OF12_MATCH_IP_ECN: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return false; 
-					return __utern_compare8((utern8_t*)it->value,pkt->ip_ecn);
+					return __utern_compare8(it->value,pkt->ip_ecn);
 	
 		case OF12_MATCH_IP_DSCP: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return false; 
-					return __utern_compare8((utern8_t*)it->value,pkt->ip_dscp);
+					return __utern_compare8(it->value,pkt->ip_dscp);
 		
 		//IPv4
    		case OF12_MATCH_IPV4_SRC: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return false; 
-					return __utern_compare32((utern32_t*)it->value, pkt->ipv4_src);
+					return __utern_compare32(it->value, pkt->ipv4_src);
    		case OF12_MATCH_IPV4_DST:if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 ||(pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return false;  
-					return __utern_compare32((utern32_t*)it->value, pkt->ipv4_dst);
+					return __utern_compare32(it->value, pkt->ipv4_dst);
 	
 		//TCP
    		case OF12_MATCH_TCP_SRC: if(!(pkt->ip_proto == OF12_IP_PROTO_TCP)) return false; 
-					return __utern_compare16((utern16_t*)it->value,pkt->tcp_src);
+					return __utern_compare16(it->value,pkt->tcp_src);
    		case OF12_MATCH_TCP_DST: if(!(pkt->ip_proto == OF12_IP_PROTO_TCP)) return false; 
-					return __utern_compare16((utern16_t*)it->value,pkt->tcp_dst);
+					return __utern_compare16(it->value,pkt->tcp_dst);
 	
 		//UDP
    		case OF12_MATCH_UDP_SRC: if(!(pkt->ip_proto == OF12_IP_PROTO_UDP)) return false; 	
-					return __utern_compare16((utern16_t*)it->value,pkt->udp_src);
+					return __utern_compare16(it->value,pkt->udp_src);
    		case OF12_MATCH_UDP_DST: if(!(pkt->ip_proto == OF12_IP_PROTO_UDP)) return false; 
-					return __utern_compare16((utern16_t*)it->value,pkt->udp_dst);
+					return __utern_compare16(it->value,pkt->udp_dst);
 		
 		//ICMPv4
 		case OF12_MATCH_ICMPV4_TYPE: if(!(pkt->ip_proto == OF12_IP_PROTO_ICMPV4)) return false; 
-					return __utern_compare8((utern8_t*)it->value,pkt->icmpv4_type);
+					return __utern_compare8(it->value,pkt->icmpv4_type);
    		case OF12_MATCH_ICMPV4_CODE: if(!(pkt->ip_proto == OF12_IP_PROTO_ICMPV4)) return false; 
-					return __utern_compare8((utern8_t*)it->value,pkt->icmpv4_code);
+					return __utern_compare8(it->value,pkt->icmpv4_code);
   		
 		//IPv6
 		case OF12_MATCH_IPV6_SRC: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP6 ))) return false; 
-					return __utern_compare128((utern128_t*)it->value, pkt->ipv6_dst);
+					return __utern_compare128(it->value, pkt->ipv6_dst);
 		case OF12_MATCH_IPV6_DST: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP6 ))) return false; 
-					return __utern_compare128((utern128_t*)it->value, pkt->ipv6_dst);
+					return __utern_compare128(it->value, pkt->ipv6_dst);
 		case OF12_MATCH_IPV6_FLABEL: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP6 ))) return false; 
-					return __utern_compare64((utern64_t*)it->value, pkt->ipv6_flabel);
-		/*TODO IPV6 other fields: */
+					return __utern_compare64(it->value, pkt->ipv6_flabel);
+		/*TODO IPV6 other fields: Prerequisites?*/
 		case OF12_MATCH_IPV6_ND_TARGET:
 		case OF12_MATCH_IPV6_ND_SLL:
 		case OF12_MATCH_IPV6_ND_TLL:
 		case OF12_MATCH_IPV6_EXTHDR:
 			assert(0);
+			return false;
 			break;
 					
 		//ICMPv6
 		case OF12_MATCH_ICMPV6_TYPE: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP6 ))) return false; 
-					return __utern_compare64((utern64_t*)it->value, pkt->icmpv6_type);
+					return __utern_compare64(it->value, pkt->icmpv6_type);
 		case OF12_MATCH_ICMPV6_CODE: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP6 ))) return false; 
-					return __utern_compare64((utern64_t*)it->value, pkt->icmpv6_code);
+					return __utern_compare64(it->value, pkt->icmpv6_code);
 			
 		//PPPoE related extensions
    		case OF12_MATCH_PPPOE_CODE: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return false;  
-						return __utern_compare8((utern8_t*)it->value,pkt->pppoe_code);
+						return __utern_compare8(it->value,pkt->pppoe_code);
    		case OF12_MATCH_PPPOE_TYPE: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return false; 
-						return __utern_compare8((utern8_t*)it->value,pkt->pppoe_type);
+						return __utern_compare8(it->value,pkt->pppoe_type);
    		case OF12_MATCH_PPPOE_SID: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return false; 
-						return __utern_compare16((utern16_t*)it->value,pkt->pppoe_sid);
+						return __utern_compare16(it->value,pkt->pppoe_sid);
 
 		//PPP 
    		case OF12_MATCH_PPP_PROT: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return false; 
-						return __utern_compare16((utern16_t*)it->value,pkt->ppp_proto);
+						return __utern_compare16(it->value,pkt->ppp_proto);
 
 		// Add more here ...
 		default:
 			//Should NEVER reach this point; TODO, add trace for debugging?
+			assert(0);
 			return false;
 	}
 }
@@ -845,6 +859,8 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
 /* 
 * DEBUG/INFO dumping routines 
 */
+#define HI(x) *(uint64_t*)&x.val[0]
+#define LO(x) *(uint64_t*)&x.val[8]
 
 //Dump packet matches
 void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
@@ -905,10 +921,10 @@ void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("ICMPV4_TYPE:%u, ICMPV4_CODE:%u, ",pkt->icmpv4_type,pkt->icmpv4_code);
 	
 	//IPv6
-	if(pkt->ipv6_src.low || pkt->ipv6_src.high)
-		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_SRC:0x%lx:%lx, ",pkt->ipv6_src.high,pkt->ipv6_src.low);
-	if(pkt->ipv6_dst.low || pkt->ipv6_dst.high)
-		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_DST:0x%lx:%lx, ",pkt->ipv6_dst.high,pkt->ipv6_dst.low);
+	if( LO(pkt->ipv6_src) || HI(pkt->ipv6_src) )
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_SRC:0x%lx:%lx, ",HI(pkt->ipv6_src),LO(pkt->ipv6_src));
+	if( LO(pkt->ipv6_dst) || HI(pkt->ipv6_dst) )
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_DST:0x%lx:%lx, ",HI(pkt->ipv6_dst),LO(pkt->ipv6_dst));
 	if(pkt->eth_type == OF12_ETH_TYPE_IPV6)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_FLABEL:0x%lu, ",pkt->ipv6_flabel);
 	/*TODO IPV6 add the other fields*/
@@ -940,86 +956,86 @@ void of12_dump_matches(of12_match_t* matches){
 	of12_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){
-			case OF12_MATCH_IN_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PORT_IN:%u], ",((utern32_t*)it->value)->value); 
+			case OF12_MATCH_IN_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PORT_IN:%u], ",it->value->value.u32); 
 				break;
-			case OF12_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PHY_PORT_IN:%u], ",((utern32_t*)it->value)->value);
+			case OF12_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PHY_PORT_IN:%u], ",it->value->value.u32);
 				break; 
 
 			case OF12_MATCH_METADATA: //TODO FIXME
 						break;
 
-			case OF12_MATCH_ETH_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_DST:0x%llx|0x%llx],  ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
+			case OF12_MATCH_ETH_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_DST:0x%llx|0x%llx],  ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
 				break; 
-			case OF12_MATCH_ETH_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_SRC:0x%llx|0x%llx], ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
+			case OF12_MATCH_ETH_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_SRC:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
 				break; 
-			case OF12_MATCH_ETH_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_TYPE:0x%x], ",((utern16_t*)it->value)->value);
-				break; 
-
-			case OF12_MATCH_VLAN_VID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_ID:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
-				break; 
-			case OF12_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_ETH_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_TYPE:0x%x], ",it->value->value.u16);
 				break; 
 
-			case OF12_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:%u], ",((utern32_t*)it->value)->value);
+			case OF12_MATCH_VLAN_VID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_ID:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
 				break; 
-			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:0x%x], ",((utern8_t*)it->value)->value);
-				break; 
-
-			case OF12_MATCH_IP_PROTO:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_PROTO:%u], ",((utern8_t*)it->value)->value);
-				break; 
-			case OF12_MATCH_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_ECN:0x%x], ",((utern8_t*)it->value)->value);
-				break; 
-			case OF12_MATCH_IP_DSCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_DSCP:0x%x], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u], ",it->value->value.u8);
 				break; 
 
-			case OF12_MATCH_IPV4_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP4_SRC:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+			case OF12_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:%u], ",it->value->value.u32);
 				break; 
-			case OF12_MATCH_IPV4_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP4_DST:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
-				break; 
-
-			case OF12_MATCH_TCP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_SRC:%u], ",((utern16_t*)it->value)->value);
-				break; 
-			case OF12_MATCH_TCP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_DST:%u], ",((utern16_t*)it->value)->value);
+			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:0x%x], ",it->value->value.u8);
 				break; 
 
-			case OF12_MATCH_UDP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_SRC:%u], ",((utern16_t*)it->value)->value);
+			case OF12_MATCH_IP_PROTO:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_PROTO:%u], ",it->value->value.u8);
 				break; 
-			case OF12_MATCH_UDP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_DST:%u], ",((utern16_t*)it->value)->value);
+			case OF12_MATCH_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_ECN:0x%x], ",it->value->value.u8);
+				break; 
+			case OF12_MATCH_IP_DSCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_DSCP:0x%x], ",it->value->value.u8);
 				break; 
 
-			case OF12_MATCH_ICMPV4_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_TYPE:%u], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_IPV4_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP4_SRC:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break; 
-			case OF12_MATCH_ICMPV4_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_CODE:%u], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_IPV4_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP4_DST:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
+				break; 
+
+			case OF12_MATCH_TCP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_SRC:%u], ",it->value->value.u16);
+				break; 
+			case OF12_MATCH_TCP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_DST:%u], ",it->value->value.u16);
+				break; 
+
+			case OF12_MATCH_UDP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_SRC:%u], ",it->value->value.u16);
+				break; 
+			case OF12_MATCH_UDP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_DST:%u], ",it->value->value.u16);
+				break; 
+
+			case OF12_MATCH_ICMPV4_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_TYPE:%u], ",it->value->value.u8);
+				break; 
+			case OF12_MATCH_ICMPV4_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_CODE:%u], ",it->value->value.u8);
 				break; 
 			//IPv6
-			case OF12_MATCH_IPV6_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_SRC:%u], ",((utern128_t*)it->value)->value);
+			case OF12_MATCH_IPV6_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_SRC:%lu %lu], ",HI(it->value->value.u128),LO(it->value->value.u128));
 				break;
-			case OF12_MATCH_IPV6_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_DST:%u], ",((utern128_t*)it->value)->value);
+			case OF12_MATCH_IPV6_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_DST:%u], ",HI(it->value->value.u128),LO(it->value->value.u128));
 				break;
-			case OF12_MATCH_IPV6_FLABEL: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_FLABEL:%u], ",((utern64_t*)it->value)->value);
+			case OF12_MATCH_IPV6_FLABEL: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_FLABEL:%u], ",it->value->value.u64);
 				break;
-			case OF12_MATCH_IPV6_ND_TARGET: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TARGET:%u], ",((utern128_t*)it->value)->value);
+			case OF12_MATCH_IPV6_ND_TARGET: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TARGET:%lu %lu], ",HI(it->value->value.u128),LO(it->value->value.u128));
 				break;
-			case OF12_MATCH_IPV6_ND_SLL: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_SLL:%u], ",((utern64_t*)it->value)->value);
+			case OF12_MATCH_IPV6_ND_SLL: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_SLL:%u], ",it->value->value.u64);
 				break;
-			case OF12_MATCH_IPV6_ND_TLL: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TLL:%u], ",((utern64_t*)it->value)->value);
+			case OF12_MATCH_IPV6_ND_TLL: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TLL:%u], ",it->value->value.u64);
 				break;
-			case OF12_MATCH_IPV6_EXTHDR: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_EXTHDR:%u], ",((utern64_t*)it->value)->value);
+			case OF12_MATCH_IPV6_EXTHDR: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_EXTHDR:%u], ",it->value->value.u64);
 				break;
 			//ICMPv6
-			case OF12_MATCH_ICMPV6_TYPE: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_TYPE:%u], ",((utern64_t*)it->value)->value);
+			case OF12_MATCH_ICMPV6_TYPE: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_TYPE:%u], ",it->value->value.u64);
 				break;
-			case OF12_MATCH_ICMPV6_CODE: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_CODE:%u], ",((utern64_t*)it->value)->value);
+			case OF12_MATCH_ICMPV6_CODE: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_CODE:%u], ",it->value->value.u64);
 				break;
 			
 			/* PPP/PPPoE related extensions */
-			case OF12_MATCH_PPPOE_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_CODE:%u], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_PPPOE_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_CODE:%u], ",it->value->value.u8);
 				break; 
-			case OF12_MATCH_PPPOE_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_TYPE:%u], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_PPPOE_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_TYPE:%u], ",it->value->value.u8);
 				break; 
-			case OF12_MATCH_PPPOE_SID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_SID:%u], ",((utern16_t*)it->value)->value);
+			case OF12_MATCH_PPPOE_SID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_SID:%u], ",it->value->value.u16);
 				break; 
-			case OF12_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPP_PROT:%u] ",((utern16_t*)it->value)->value);
+			case OF12_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPP_PROT:%u] ",it->value->value.u16);
 				break; 
 			/* Add more here ...*/
 			default:
@@ -1035,88 +1051,88 @@ void of12_full_dump_matches(of12_match_t* matches){
 	of12_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){
-			case OF12_MATCH_IN_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PORT_IN:%u|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask); 
+			case OF12_MATCH_IN_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PORT_IN:%u|0x%x], ",it->value->value.u32,it->value->mask.u32); 
 				break;
-			case OF12_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PHY_PORT_IN:%u|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+			case OF12_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PHY_PORT_IN:%u|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break; 
 
 			case OF12_MATCH_METADATA: //TODO FIXME
 						break;
 
-			case OF12_MATCH_ETH_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_DST:0x%llx|0x%llx],  ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
+			case OF12_MATCH_ETH_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_DST:0x%llx|0x%llx],  ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
 				break; 
-			case OF12_MATCH_ETH_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_SRC:0x%llx|0x%llx], ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
+			case OF12_MATCH_ETH_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_SRC:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
 				break; 
-			case OF12_MATCH_ETH_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_TYPE:0x%x|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
-				break; 
-
-			case OF12_MATCH_VLAN_VID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_ID:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
-				break; 
-			case OF12_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+			case OF12_MATCH_ETH_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_TYPE:0x%x|0x%x], ",it->value->value.u16,it->value->mask.u16);
 				break; 
 
-			case OF12_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:%u|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+			case OF12_MATCH_VLAN_VID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_ID:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
 				break; 
-			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
-				break; 
-
-			case OF12_MATCH_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_ECN:0x%x|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
-				break; 
-			case OF12_MATCH_IP_DSCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_DSCP:0x%x|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
-				break; 
-			case OF12_MATCH_IP_PROTO:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_PROTO:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+			case OF12_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u|0x%x], ",it->value->mask.u8,it->value->mask.u8);
 				break; 
 
-			case OF12_MATCH_IPV4_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP4_SRC:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+			case OF12_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:%u|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break; 
-			case OF12_MATCH_IPV4_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP4_DST:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
-				break; 
-
-			case OF12_MATCH_TCP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_SRC:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
-				break; 
-			case OF12_MATCH_TCP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_DST:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
 				break; 
 
-			case OF12_MATCH_UDP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_SRC:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+			case OF12_MATCH_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_ECN:0x%x|0x%x], ",it->value->value.u8,it->value->mask.u8);
 				break; 
-			case OF12_MATCH_UDP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_DST:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+			case OF12_MATCH_IP_DSCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_DSCP:0x%x|0x%x], ",it->value->value.u8,it->value->mask.u8);
+				break; 
+			case OF12_MATCH_IP_PROTO:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_PROTO:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
 				break; 
 
-			case OF12_MATCH_ICMPV4_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_TYPE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+			case OF12_MATCH_IPV4_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP4_SRC:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break; 
-			case OF12_MATCH_ICMPV4_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_CODE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+			case OF12_MATCH_IPV4_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP4_DST:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
+				break; 
+
+			case OF12_MATCH_TCP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_SRC:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
+				break; 
+			case OF12_MATCH_TCP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_DST:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
+				break; 
+
+			case OF12_MATCH_UDP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_SRC:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
+				break; 
+			case OF12_MATCH_UDP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_DST:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
+				break; 
+
+			case OF12_MATCH_ICMPV4_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_TYPE:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
+				break; 
+			case OF12_MATCH_ICMPV4_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_CODE:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
 				break; 
 			
 			//IPv6
-			case OF12_MATCH_IPV6_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_SRC:0x%lx:%lx|0x%lx:%lx], ",((utern128_t*)it->value)->value.high,((utern128_t*)it->value)->value.low,((utern128_t*)it->value)->mask.high,((utern128_t*)it->value)->mask.low);
+			case OF12_MATCH_IPV6_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_SRC:0x%lx:%lx|0x%lx:%lx], ",HI(it->value->value.u128),LO(it->value->value.u128),HI(it->value->mask.u128),LO(it->value->mask.u128));
 				break;
-			case OF12_MATCH_IPV6_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_DST:0x%lx:%lx|0x%lx:%lx], ",((utern128_t*)it->value)->value.high,((utern128_t*)it->value)->value.low,((utern128_t*)it->value)->mask.high,((utern128_t*)it->value)->mask.low);
+			case OF12_MATCH_IPV6_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_DST:0x%lx:%lx|0x%lx:%lx], ",HI(it->value->value.u128),LO(it->value->value.u128),HI(it->value->mask.u128),LO(it->value->mask.u128));
 				break;
-			case OF12_MATCH_IPV6_FLABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_FLABEL:%lu|0x%lx], ",((utern64_t*)it->value)->value,((utern64_t*)it->value)->mask);
+			case OF12_MATCH_IPV6_FLABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_FLABEL:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
 				break; 
-			case OF12_MATCH_IPV6_ND_TARGET: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TARGET:0x%lx:%lx|0x%lx:%lx], ",((utern128_t*)it->value)->value.high,((utern128_t*)it->value)->value.low,((utern128_t*)it->value)->mask.high,((utern128_t*)it->value)->mask.low);
+			case OF12_MATCH_IPV6_ND_TARGET: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TARGET:0x%lx:%lx|0x%lx:%lx], ",HI(it->value->value.u128),LO(it->value->value.u128),HI(it->value->mask.u128),LO(it->value->mask.u128));
 				break;
-			case OF12_MATCH_IPV6_ND_SLL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_SLL:%lu|0x%lx], ",((utern64_t*)it->value)->value,((utern64_t*)it->value)->mask);
+			case OF12_MATCH_IPV6_ND_SLL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_SLL:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
 				break; 
-			case OF12_MATCH_IPV6_ND_TLL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TLL:%lu|0x%lx], ",((utern64_t*)it->value)->value,((utern64_t*)it->value)->mask);
+			case OF12_MATCH_IPV6_ND_TLL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TLL:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
 				break; 
-			case OF12_MATCH_IPV6_EXTHDR:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_EXTHDR:%lu|0x%lx], ",((utern64_t*)it->value)->value,((utern64_t*)it->value)->mask);
+			case OF12_MATCH_IPV6_EXTHDR:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_EXTHDR:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
 				break; 
 			//ICMPv6
-			case OF12_MATCH_ICMPV6_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_TYPE:%lu|0x%lx], ",((utern64_t*)it->value)->value,((utern64_t*)it->value)->mask);
+			case OF12_MATCH_ICMPV6_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_TYPE:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
 				break; 
-			case OF12_MATCH_ICMPV6_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_CODE:%lu|0x%lx], ",((utern64_t*)it->value)->value,((utern64_t*)it->value)->mask);
+			case OF12_MATCH_ICMPV6_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_CODE:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
 				break; 
 				
 			/* PPP/PPPoE related extensions */
-			case OF12_MATCH_PPPOE_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_CODE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+			case OF12_MATCH_PPPOE_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_CODE:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
 				break; 
-			case OF12_MATCH_PPPOE_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_TYPE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+			case OF12_MATCH_PPPOE_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_TYPE:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
 				break; 
-			case OF12_MATCH_PPPOE_SID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_SID:%u|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+			case OF12_MATCH_PPPOE_SID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_SID:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
 				break; 
 
-			case OF12_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPP_PROT:%u|0x%x] ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+			case OF12_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPP_PROT:%u|0x%x] ",it->value->value.u16,it->value->mask.u16);
 				break; 
 
 			/* Add more here ...*/

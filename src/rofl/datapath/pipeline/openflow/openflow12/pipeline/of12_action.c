@@ -26,14 +26,14 @@ extern switch_port_t* flood_meta_port;
 #define OF12_AT_6_BITS_MASK 0x00000000000FFFFF
 #define OF12_AT_3_BITS_MASK 0x00000000000FFFFF
 #define OF12_AT_2_BITS_MASK 0x00000000000FFFFF
-
-#define OF12_AT_8_BYTE_MASK 0xFFFFFFFFFFFFFFFF
+//NOTE Needed?
+#define OF12_AT_8_BYTE_MASK 0xFFFFFFFFFFFFFFFF 
 
 //fwd declarations
 static void __of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t* group, bool replicate_pkts);
 
 /* Actions init and destroyed */
-of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */of12_packet_action_type_t type, of_uint128_t field, of12_packet_action_t* prev, of12_packet_action_t* next){
+of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */of12_packet_action_type_t type, wrap_uint_t field, of12_packet_action_t* prev, of12_packet_action_t* next){
 
 	of12_packet_action_t* action;
 
@@ -127,13 +127,11 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 		case OF12_AT_SET_FIELD_IPV6_ND_TARGET:
 		case OF12_AT_SET_FIELD_IPV6_SRC:
 		case OF12_AT_SET_FIELD_IPV6_DST:
-			action->field.u128.high = field.u128.high&OF12_AT_8_BYTE_MASK;
-			action->field.u128.low = field.u128.low&OF12_AT_8_BYTE_MASK;
+			action->field.u128 = field.u128;
 			break;
 		//case OF12_AT_SET_QUEUE: TODO
 		default:
-			field.u128.high = 0;
-			field.u128.low = 0;
+			memset(&field.u128,0,sizeof(uint128__t));
 			break;
 	}
 	
@@ -528,15 +526,13 @@ static inline void __of12_process_packet_action(const struct of12_switch* sw, co
 			//Call platform
 			platform_packet_set_ipv6_src(pkt, action->field.u128);
 			//Update match
-			pkt_matches->ipv6_src.low = action->field.u128.low;
-			pkt_matches->ipv6_src.high = action->field.u128.high;
+			pkt_matches->ipv6_src = action->field.u128;
 			break;
 		case OF12_AT_SET_FIELD_IPV6_DST:
 			//Call platform
 			platform_packet_set_ipv6_dst(pkt, action->field.u128);
 			//Update match
-			pkt_matches->ipv6_dst.low = action->field.u128.low;
-			pkt_matches->ipv6_dst.high = action->field.u128.high;
+			pkt_matches->ipv6_dst = action->field.u128;
 			break;
 		case OF12_AT_SET_FIELD_IPV6_FLABEL:
 			//Call platform
@@ -548,8 +544,7 @@ static inline void __of12_process_packet_action(const struct of12_switch* sw, co
 			//Call platform
 			platform_packet_set_ipv6_nd_target(pkt, action->field.u128);
 			//Update match
-			pkt_matches->ipv6_nd_target.low = action->field.u128.low;
-			pkt_matches->ipv6_nd_target.high = action->field.u128.high;
+			pkt_matches->ipv6_nd_target = action->field.u128;
 			break;
 		case OF12_AT_SET_FIELD_IPV6_ND_SLL:
 			//Call platform
@@ -839,7 +834,8 @@ of12_write_actions_t* __of12_copy_write_actions(of12_write_actions_t* origin){
 	return copy;
 }
 
-
+#define HI(x) *(uint64_t*)&x.val[0]
+#define LO(x) *(uint64_t*)&x.val[8]
 
 /* Dumping */
 static void __of12_dump_packet_action(of12_packet_action_t action){
@@ -941,13 +937,13 @@ static void __of12_dump_packet_action(of12_packet_action_t action){
 		case OF12_AT_SET_FIELD_PPP_PROT:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_PPP_PROT: 0x%x",action.field.u64);
 			break;
 			
-		case OF12_AT_SET_FIELD_IPV6_SRC:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_SRC: 0x%x %x",action.field.u128.high,action.field.u128.low);
+		case OF12_AT_SET_FIELD_IPV6_SRC:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_SRC: 0x%lx %lx",HI(action.field.u128),LO(action.field.u128));
 			break;
-		case OF12_AT_SET_FIELD_IPV6_DST:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_DST: 0x%x %x",action.field.u128.high,action.field.u128.low);
+		case OF12_AT_SET_FIELD_IPV6_DST:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_DST: 0x%lx %lx",HI(action.field.u128),LO(action.field.u128));
 			break;
 		case OF12_AT_SET_FIELD_IPV6_FLABEL:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_FLABEL: 0x%u",action.field.u64);
 			break;
-		case OF12_AT_SET_FIELD_IPV6_ND_TARGET:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_ND_TARGET: 0x%x %x",action.field.u128.high,action.field.u128.low);
+		case OF12_AT_SET_FIELD_IPV6_ND_TARGET:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_ND_TARGET: 0x%lx %lx",HI(action.field.u128),LO(action.field.u128));
 			break;
 		case OF12_AT_SET_FIELD_IPV6_ND_SLL:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV6_ND_SLL: 0x%x",action.field.u64);
 			break;
