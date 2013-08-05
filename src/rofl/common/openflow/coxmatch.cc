@@ -1096,18 +1096,6 @@ coxmatch::test()
 
 	coxmatch_ofb_mpls_tc mpls_tc(7);
 	fprintf(stderr, "OFPXMT_OFB_MPLS_TC: %s\n", mpls_tc.c_str());
-
-	coxmatch_ofx_pppoe_code pppoe_code(0x65);
-	fprintf(stderr, "OFPXMT_OFX_PPPOE_CODE: %s\n", pppoe_code.c_str());
-
-	coxmatch_ofx_pppoe_type pppoe_type(0x1);
-	fprintf(stderr, "OFPXMT_OFX_PPPOE_TYPE: %s\n", pppoe_type.c_str());
-
-	coxmatch_ofx_pppoe_sid pppoe_sid(0x2222);
-	fprintf(stderr, "OFPXMT_OFX_PPPOE_SID: %s\n", pppoe_sid.c_str());
-
-	coxmatch_ofx_ppp_prot ppp_prot(0xc021);
-	fprintf(stderr, "OFPXMT_OFX_PPP_PROT: %s\n", ppp_prot.c_str());
 #endif
 }
 
