@@ -121,6 +121,10 @@ void platform_packet_set_pppoe_sid(datapacket_t* pkt, uint16_t sid);
 //PPP
 void platform_packet_set_ppp_proto(datapacket_t* pkt, uint16_t proto);
 
+//GTP
+void platform_packet_set_gtp_msg_type(datapacket_t* pkt, uint8_t msg_type);
+void platform_packet_set_gtp_teid(datapacket_t* pkt, uint32_t teid);
+
 /**
 * @ingroup platform_packet
 * Output packet to the port(s)
@@ -201,6 +205,10 @@ uint16_t platform_packet_get_pppoe_sid(datapacket_t *const pkt);
 
 //PPP related extensions
 uint16_t platform_packet_get_ppp_proto(datapacket_t *const pkt);
+
+//GTP related extensions
+uint8_t platform_packet_get_gtp_msg_type(datapacket_t *const pkt);
+uint32_t platform_packet_get_gtp_teid(datapacket_t *const pkt);
 
 ROFL_END_DECLS
 

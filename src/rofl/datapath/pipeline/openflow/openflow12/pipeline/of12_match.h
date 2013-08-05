@@ -28,6 +28,10 @@ union of_packet_matches;
 //PPP PROTO values
 #define OF12_PPP_PROTO_IP4 0x0021 
 
+//Useful UDP destination port values
+#define OF12_UDP_DST_PORT_GTPC 2123
+#define OF12_UDP_DST_PORT_GTPU 2152
+
 /* Defines possible matchings. This is EXPLICITELY copied from openflow.h, to simplify names, avoid collisions and add extensions */
 typedef enum{
    OF12_MATCH_IN_PORT = 0,            /* Switch input port. */                // required
@@ -72,6 +76,10 @@ typedef enum{
    OF12_MATCH_PPPOE_TYPE = 37,        /* PPPoE type */
    OF12_MATCH_PPPOE_SID = 38,        /* PPPoE session id */
    OF12_MATCH_PPP_PROT = 39,        /* PPP protocol */
+
+   /* GTP related extensions */
+   OF12_MATCH_GTP_MSG_TYPE = 40,	/* GTP message type */
+   OF12_MATCH_GTP_TEID = 41,		/* GTP teid */
 
    /* max value */
    OF12_MATCH_MAX,
@@ -190,6 +198,18 @@ of12_match_t* of12_init_pppoe_session_match(of12_match_t* prev, of12_match_t* ne
 * @ingroup core_of12 
 */
 of12_match_t* of12_init_ppp_prot_match(of12_match_t* prev, of12_match_t* next, uint16_t value);
+
+//GTP
+/**
+* @brief Create an PPP_PROTO match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_gtp_msg_type_match(of12_match_t* prev, of12_match_t* next, uint8_t value);
+/**
+* @brief Create an PPP_PROTO match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_gtp_teid_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask);
 
 
 //IP

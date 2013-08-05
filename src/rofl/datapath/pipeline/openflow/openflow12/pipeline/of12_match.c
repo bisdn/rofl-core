@@ -224,8 +224,25 @@ inline of12_match_t* of12_init_icmpv4_code_match(of12_match_t* prev, of12_match_
 //IPv6 && ICMv6
 //TODO
 
-//Add more here...
+//GTP
+inline of12_match_t* of12_init_gtp_msg_type_match(of12_match_t* prev, of12_match_t* next, uint8_t value){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_GTP_MSG_TYPE;
+	match->value = __init_utern8(value,0xFF); //no wildcard
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_gtp_teid_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_GTP_TEID;
+	match->value = __init_utern32(value, mask);
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
 
+//Add more here...
 
 #if 0
 /* Instruction groups init and destroy */
@@ -351,7 +368,12 @@ inline of12_match_t* __of12_copy_match(of12_match_t* match){
    		case OF12_MATCH_PPPOE_CODE: return of12_init_pppoe_code_match(NULL,NULL,((utern8_t*)match->value)->value); 
    		case OF12_MATCH_PPPOE_TYPE: return of12_init_pppoe_type_match(NULL,NULL,((utern8_t*)match->value)->value); 
    		case OF12_MATCH_PPPOE_SID: return of12_init_pppoe_session_match(NULL,NULL,((utern16_t*)match->value)->value); 
-   		case OF12_MATCH_PPP_PROT: return of12_init_ppp_prot_match(NULL,NULL,((utern16_t*)match->value)->value); 
+   		case OF12_MATCH_PPP_PROT: return of12_init_ppp_prot_match(NULL,NULL,((utern16_t*)match->value)->value);
+
+   		/* GTP related extensions */
+   		case OF12_MATCH_GTP_MSG_TYPE: return of12_init_gtp_msg_type_match(NULL,NULL,((utern8_t*)match->value)->value);
+   		case OF12_MATCH_GTP_TEID: return of12_init_gtp_teid_match(NULL,NULL,((utern32_t*)match->value)->value, ((utern32_t*)match->value)->mask);
+
 		/* Add more here ...*/
 		default:
 			//Should NEVER reach this point
@@ -468,6 +490,13 @@ inline of12_match_t* __of12_get_alike_match(of12_match_t* match1, of12_match_t* 
 
    		case OF12_MATCH_PPP_PROT: common_tern = __utern16_get_alike(*(utern16_t*)match1->value,*(utern16_t*)match2->value);
 					break;
+
+		/* GTP related extensions */
+   		case OF12_MATCH_GTP_MSG_TYPE: common_tern = __utern8_get_alike(*(utern8_t*)match1->value,*(utern8_t*)match2->value);
+   					break;
+   		case OF12_MATCH_GTP_TEID: common_tern = __utern32_get_alike(*(utern32_t*)match1->value,*(utern32_t*)match2->value);
+   					break;
+
 		/* Add more here ...*/
 		default:
 			//Should NEVER reach this point
@@ -542,6 +571,11 @@ inline bool __of12_equal_matches(of12_match_t* match1, of12_match_t* match2){
    		case OF12_MATCH_PPPOE_SID: return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
 
    		case OF12_MATCH_PPP_PROT:  return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
+
+   		/* GTP related extensions */
+   		case OF12_MATCH_GTP_MSG_TYPE: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
+   		case OF12_MATCH_GTP_TEID: return __utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
+
 		/* Add more here ...*/
 		default:
 			//Should NEVER reach this point
@@ -593,6 +627,11 @@ inline bool __of12_is_submatch(of12_match_t* sub_match, of12_match_t* match){
    		case OF12_MATCH_PPPOE_SID: return __utern_is_contained16((utern16_t*)sub_match->value,(utern16_t*)match->value);
 
    		case OF12_MATCH_PPP_PROT:  return __utern_is_contained16((utern16_t*)sub_match->value,(utern16_t*)match->value);
+
+   		/* GTP related extensions */
+   		case OF12_MATCH_GTP_MSG_TYPE: return __utern_is_contained8((utern8_t*)sub_match->value,(utern8_t*)match->value);
+   		case OF12_MATCH_GTP_TEID: return __utern_is_contained32((utern32_t*)sub_match->value,(utern32_t*)match->value);
+
 		/* Add more here ...*/
 		default:
 			//Should NEVER reach this point
@@ -674,6 +713,12 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
 		//PPP 
    		case OF12_MATCH_PPP_PROT: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return false; 
 						return __utern_compare16((utern16_t*)it->value,pkt->ppp_proto);
+
+		//GTP
+   		case OF12_MATCH_GTP_MSG_TYPE: if (!(pkt->ip_proto == OF12_IP_PROTO_UDP || pkt->udp_dst == OF12_UDP_DST_PORT_GTPU)) return false;
+   						return __utern_compare8((utern8_t*)it->value,pkt->gtp_msg_type);
+   		case OF12_MATCH_GTP_TEID: if (!(pkt->ip_proto == OF12_IP_PROTO_UDP || pkt->udp_dst == OF12_UDP_DST_PORT_GTPU)) return false;
+   						return __utern_compare32((utern32_t*)it->value,pkt->gtp_teid);
 
 		// Add more here ...
 		default:
@@ -757,7 +802,10 @@ void of12_dump_packet_matches(of_packet_matches_t *const pkt_matches){
 			ROFL_PIPELINE_DEBUG_NO_PREFIX("PPP_PROTO:0x%x, ",pkt->ppp_proto);
 				
 	}
-		 
+	//GTP
+	if(pkt->ip_proto == OF12_IP_PROTO_UDP && pkt->udp_dst == OF12_UDP_DST_PORT_GTPU){
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("GTP_MSG_TYPE:%u, GTP_TEID:0x%x, ",pkt->gtp_msg_type, pkt->gtp_teid);
+	}
 
 	ROFL_PIPELINE_DEBUG_NO_PREFIX("]");	
 	//Add more here...	
@@ -829,6 +877,13 @@ void of12_dump_matches(of12_match_t* matches){
 				break; 
 			case OF12_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPP_PROT:%u] ",((utern16_t*)it->value)->value);
 				break; 
+
+			/* GTP related extensions */
+			case OF12_MATCH_GTP_MSG_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_MSG_TYPE:%u], ",((utern8_t*)it->value)->value);
+				break;
+			case OF12_MATCH_GTP_TEID: ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_TEID:0x%x], ",((utern32_t*)it->value)->value);
+				break;
+
 			/* Add more here ...*/
 			default:
 				ROFL_PIPELINE_DEBUG_NO_PREFIX("[UNKOWN!],");
@@ -905,6 +960,12 @@ void of12_full_dump_matches(of12_match_t* matches){
 
 			case OF12_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPP_PROT:%u|0x%x] ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
 				break; 
+
+			/* GTP related extensions */
+			case OF12_MATCH_GTP_MSG_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_MSG_TYPE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+				break;
+			case OF12_MATCH_GTP_TEID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_TEID:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+				break;
 
 			/* Add more here ...*/
 			default:

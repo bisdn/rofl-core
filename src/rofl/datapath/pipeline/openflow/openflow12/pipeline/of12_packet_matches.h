@@ -73,6 +73,10 @@ typedef struct{
 	//PPP related extensions
 	uint16_t ppp_proto;		/* PPPoE session id */
 
+	//GTP related extensions
+	uint8_t gtp_msg_type;	/* GTP message type */
+	uint32_t gtp_teid;		/* GTP teid */
+
 }of12_packet_matches_t;
 
 

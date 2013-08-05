@@ -135,7 +135,9 @@ rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_
 				   (UINT64_C(1) << OF12_MATCH_PPPOE_CODE) |
 				   (UINT64_C(1) << OF12_MATCH_PPPOE_TYPE) |
 				   (UINT64_C(1) << OF12_MATCH_PPPOE_SID) |
-				   (UINT64_C(1) << OF12_MATCH_PPP_PROT);
+				   (UINT64_C(1) << OF12_MATCH_PPP_PROT) |
+				   (UINT64_C(1) << OF12_MATCH_GTP_MSG_TYPE) |
+				   (UINT64_C(1) << OF12_MATCH_GTP_TEID);
 
 	//Wildcards
 	table->config.wildcards =  (1UL << OF12_MATCH_ETH_DST) |
@@ -146,7 +148,8 @@ rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_
 				   (1UL << OF12_MATCH_IPV4_DST) |
 				   (1UL << OF12_MATCH_ICMPV4_TYPE) |
 				   (1UL << OF12_MATCH_ICMPV4_CODE) |
-				   (UINT64_C(1) << OF12_MATCH_MPLS_LABEL);
+				   (UINT64_C(1) << OF12_MATCH_MPLS_LABEL) |
+				   (UINT64_C(1) << OF12_MATCH_GTP_TEID);
 
 	//Write actions and apply actions
 	table->config.apply_actions =   ( 1 << OF12PAT_OUTPUT ) |

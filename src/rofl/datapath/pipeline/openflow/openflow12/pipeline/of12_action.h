@@ -126,6 +126,9 @@ typedef enum{
 	OF12_AT_SET_FIELD_PPPOE_SID, 	   	/* PPPoE session id */
 	OF12_AT_SET_FIELD_PPP_PROT,  	   	/* PPP protocol */
 
+	OF12_AT_SET_FIELD_GTP_MSG_TYPE,		/* GTP message type */
+	OF12_AT_SET_FIELD_GTP_TEID,			/* GTP TEID */
+
 	/* Add more set fields here... */
 
 	//Groups		

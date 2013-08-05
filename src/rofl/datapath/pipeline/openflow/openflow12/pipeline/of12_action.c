@@ -22,10 +22,10 @@ extern switch_port_t* flood_meta_port;
 
 //Non-multiple of byte masks
 #define OF12_AT_20_BITS_MASK 0x00000000000FFFFF
-#define OF12_AT_13_BITS_MASK 0x00000000000FFFFF
-#define OF12_AT_6_BITS_MASK 0x00000000000FFFFF
-#define OF12_AT_3_BITS_MASK 0x00000000000FFFFF
-#define OF12_AT_2_BITS_MASK 0x00000000000FFFFF
+#define OF12_AT_13_BITS_MASK 0x0000000000001FFF
+#define OF12_AT_6_BITS_MASK 0x000000000000003F
+#define OF12_AT_3_BITS_MASK 0x0000000000000007
+#define OF12_AT_2_BITS_MASK 0x0000000000000003
 
 //fwd declarations
 static void __of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t* group, bool replicate_pkts);
@@ -60,6 +60,7 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 		case OF12_AT_SET_FIELD_IPV4_DST:
 		case OF12_AT_SET_FIELD_IPV4_SRC:
 		case OF12_AT_OUTPUT:
+		case OF12_AT_SET_FIELD_GTP_TEID:
 			action->field = field&OF12_AT_4_BYTE_MASK;	// TODO: max_len when port_no == OFPP_CONTROLLER
 			break;
 		//20 bit values
@@ -94,6 +95,7 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 		case OF12_AT_SET_FIELD_IP_PROTO:
 		case OF12_AT_SET_FIELD_ICMPV4_TYPE:
 		case OF12_AT_SET_FIELD_ICMPV4_CODE:
+		case OF12_AT_SET_FIELD_GTP_MSG_TYPE:
 			action->field = field&OF12_AT_1_BYTE_MASK;
 			break;
 		//6 bit values
@@ -504,6 +506,20 @@ static inline void __of12_process_packet_action(const struct of12_switch* sw, co
 			pkt_matches->ppp_proto = action->field;
 			break;
 
+		//GTP
+		case OF12_AT_SET_FIELD_GTP_MSG_TYPE:
+			//Call platform
+			platform_packet_set_gtp_msg_type(pkt, action->field);
+			//Update match
+			pkt_matches->gtp_msg_type = action->field;
+			break;
+		case OF12_AT_SET_FIELD_GTP_TEID:
+			//Call platform
+			platform_packet_set_gtp_teid(pkt, action->field);
+			//Update match
+			pkt_matches->gtp_teid = action->field;
+			break;
+
 		case OF12_AT_GROUP: __of12_process_group_actions(sw, table_id, pkt, action->field, action->group, replicate_pkts);
 			break;
 		case OF12_AT_EXPERIMENTER: //FIXME: implement
@@ -858,6 +874,11 @@ static void __of12_dump_packet_action(of12_packet_action_t action){
 			break;
 
 		case OF12_AT_SET_FIELD_PPP_PROT:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_PPP_PROT: 0x%x",action.field);
+			break;
+
+		case OF12_AT_SET_FIELD_GTP_MSG_TYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_GTP_MSG_TYPE: 0x%x",action.field);
+			break;
+		case OF12_AT_SET_FIELD_GTP_TEID:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_GTP_TEID: 0x%x",action.field);
 			break;
 
 		case OF12_AT_GROUP:ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP");
