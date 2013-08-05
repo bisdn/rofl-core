@@ -79,6 +79,10 @@ void platform_packet_set_pppoe_sid(datapacket_t* pkt, uint16_t sid){
 }
 void platform_packet_set_ppp_proto(datapacket_t* pkt, uint16_t proto){
 }
+void platform_packet_set_gtp_msg_type(datapacket_t* pkt, uint8_t msg_type){
+}
+void platform_packet_set_gtp_teid(datapacket_t* pkt, uint32_t teid){
+}
 void platform_packet_output(datapacket_t* pkt, uint32_t port_num){
 }
 void platform_packet_replicate(datapacket_t* pkt){

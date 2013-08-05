@@ -77,4 +77,9 @@ uint16_t platform_packet_get_pppoe_sid(datapacket_t *const pkt){
 uint16_t platform_packet_get_ppp_proto(datapacket_t *const pkt){
 	return 0;
 }
-
+uint8_t platform_packet_get_gtp_msg_type(datapacket_t *const pkt){
+	return 0;
+}
+uint32_t platform_packet_get_gtp_teid(datapacket_t *const pkt){
+	return 0;
+}
