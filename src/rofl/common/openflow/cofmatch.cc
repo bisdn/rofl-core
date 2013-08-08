@@ -1364,12 +1364,14 @@ cofmatch::get_arp_sha() const
 
 void
 cofmatch::set_arp_sha(
-		cmacaddr const& sha)
+		cmacaddr const& sha,
+		cmacaddr const& mask)
 {
-	oxmlist.insert(coxmatch_ofb_arp_sha(sha));
-#if 0
-	oxmlist[OFPXMT_OFB_ARP_SHA] = coxmatch_ofb_arp_sha(sha);
-#endif
+	if (cmacaddr("ff:ff:ff:ff:ff:ff") == mask) {
+		oxmlist.insert(coxmatch_ofb_arp_sha(sha));
+	} else {
+		oxmlist.insert(coxmatch_ofb_arp_sha(sha, mask));
+	}
 }
 
 
@@ -1395,12 +1397,14 @@ cofmatch::get_arp_tha() const
 
 void
 cofmatch::set_arp_tha(
-		cmacaddr const& tha)
+		cmacaddr const& tha,
+		cmacaddr const& mask)
 {
-	oxmlist.insert(coxmatch_ofb_arp_tha(tha));
-#if 0
-	oxmlist[OFPXMT_OFB_ARP_THA] = coxmatch_ofb_arp_tha(tha);
-#endif
+	if (cmacaddr("ff:ff:ff:ff:ff:ff") == mask) {
+		oxmlist.insert(coxmatch_ofb_arp_tha(tha));
+	} else {
+		oxmlist.insert(coxmatch_ofb_arp_tha(tha, mask));
+	}
 }
 
 

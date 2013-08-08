@@ -597,7 +597,8 @@ public:
 	 */
 	void
 	set_arp_sha(
-			cmacaddr const& sha);
+			cmacaddr const& sha,
+			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
 
 
 	/**
@@ -612,7 +613,8 @@ public:
 	 */
 	void
 	set_arp_tha(
-			cmacaddr const& tha);
+			cmacaddr const& tha,
+			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
 
 
 	/**
