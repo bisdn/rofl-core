@@ -117,6 +117,11 @@ rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_
 				   (1UL << OF12_MATCH_ETH_TYPE) |
 				   (1UL << OF12_MATCH_VLAN_VID) |
 				   (1UL << OF12_MATCH_VLAN_PCP) |
+				   (1UL << OF12_MATCH_ARP_OP) |
+				   (1UL << OF12_MATCH_ARP_SHA) |
+				   (1UL << OF12_MATCH_ARP_SPA) |
+				   (1UL << OF12_MATCH_ARP_THA) |
+				   (1UL << OF12_MATCH_ARP_TPA) |
 				   (1UL << OF12_MATCH_IP_DSCP) |
 				   (1UL << OF12_MATCH_IP_ECN) |
 				   (1UL << OF12_MATCH_IP_PROTO) |
@@ -143,6 +148,11 @@ rofl_result_t __of12_init_table(struct of12_pipeline* pipeline, of12_flow_table_
 	table->config.wildcards =  (1UL << OF12_MATCH_ETH_DST) |
 				   (1UL << OF12_MATCH_ETH_SRC) |
 				   (1UL << OF12_MATCH_VLAN_VID) |
+				   (1UL << OF12_MATCH_ARP_OP) |
+				   (1UL << OF12_MATCH_ARP_SHA) |
+				   (1UL << OF12_MATCH_ARP_SPA) |
+				   (1UL << OF12_MATCH_ARP_THA) |
+				   (1UL << OF12_MATCH_ARP_TPA) |
 				   (1UL << OF12_MATCH_IP_DSCP) |
 				   (1UL << OF12_MATCH_IPV4_SRC) |
 				   (1UL << OF12_MATCH_IPV4_DST) |

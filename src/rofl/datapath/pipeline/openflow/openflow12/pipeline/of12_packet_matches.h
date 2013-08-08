@@ -40,6 +40,13 @@ typedef struct{
 	uint16_t vlan_vid;		/* VLAN id. */
 	uint8_t vlan_pcp;		/* VLAN PCP. */
 
+	//ARP
+	uint16_t arp_opcode;	/* ARP opcode */
+	uint64_t arp_sha;		/* ARP source hardware address */
+	uint32_t arp_spa;		/* ARP source protocol address */
+	uint64_t arp_tha;		/* ARP target hardware address */
+	uint32_t arp_tpa;		/* ARP target protocol address */
+
 	//IP
 	uint8_t ip_proto;		/* IP protocol. */
 	uint8_t ip_dscp;		/* IP DSCP (6 bits in ToS field). */

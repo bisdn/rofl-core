@@ -19,6 +19,7 @@ union of_packet_matches;
 #define OF12_ETH_TYPE_IPV6 0x86DD
 #define OF12_ETH_TYPE_PPPOE_DISCOVERY 0x8863
 #define OF12_ETH_TYPE_PPPOE_SESSION 0x8864
+#define OF12_ETH_TYPE_ARP 0x0806
 
 //Useful IP_PROTO values
 #define OF12_IP_PROTO_TCP 6
@@ -174,6 +175,33 @@ of12_match_t* of12_init_mpls_label_match(of12_match_t* prev, of12_match_t* next,
 * @ingroup core_of12 
 */
 of12_match_t* of12_init_mpls_tc_match(of12_match_t* prev, of12_match_t* next, uint8_t value);
+
+//ARP
+/**
+* @brief Create an ARP_OPCODE match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_arp_opcode_match(of12_match_t* prev, of12_match_t* next, uint16_t value);
+/**
+* @brief Create an ARP_THA match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_arp_tha_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+/**
+* @brief Create an ARP_SHA match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_arp_sha_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+/**
+* @brief Create an ARP_TPA match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_arp_tpa_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask);
+/**
+* @brief Create an ARP_SPA match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_arp_spa_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask);
 
 //PPPoE
 /**

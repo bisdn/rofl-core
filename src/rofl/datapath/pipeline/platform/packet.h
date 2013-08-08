@@ -89,6 +89,13 @@ void platform_packet_set_eth_type(datapacket_t* pkt, uint16_t eth_type);
 void platform_packet_set_vlan_vid(datapacket_t* pkt, uint16_t vlan_vid);
 void platform_packet_set_vlan_pcp(datapacket_t* pkt, uint8_t vlan_pcp);
 
+//ARP
+void platform_packet_set_arp_opcode(datapacket_t* pkt, uint16_t arp_opcode);
+void platform_packet_set_arp_sha(datapacket_t* pkt, uint64_t arp_sha);
+void platform_packet_set_arp_spa(datapacket_t* pkt, uint32_t arp_spa);
+void platform_packet_set_arp_tha(datapacket_t* pkt, uint64_t arp_tha);
+void platform_packet_set_arp_tpa(datapacket_t* pkt, uint32_t arp_tpa);
+
 //IP, IPv4
 void platform_packet_set_ip_dscp(datapacket_t* pkt, uint8_t ip_dscp);
 void platform_packet_set_ip_ecn(datapacket_t* pkt, uint8_t ip_ecn);
@@ -174,6 +181,13 @@ uint16_t platform_packet_get_eth_type(datapacket_t *const pkt);
 //802.1q VLAN outermost tag
 uint16_t platform_packet_get_vlan_vid(datapacket_t *const pkt);
 uint8_t platform_packet_get_vlan_pcp(datapacket_t *const pkt);
+
+//ARP
+uint16_t platform_packet_get_arp_opcode(datapacket_t *const pkt);
+uint64_t platform_packet_get_arp_sha(datapacket_t *const pkt);
+uint32_t platform_packet_get_arp_spa(datapacket_t *const pkt);
+uint64_t platform_packet_get_arp_tha(datapacket_t *const pkt);
+uint32_t platform_packet_get_arp_tpa(datapacket_t *const pkt);
 
 //IPv4
 uint8_t platform_packet_get_ip_proto(datapacket_t *const pkt);

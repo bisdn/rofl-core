@@ -91,6 +91,50 @@ inline of12_match_t* of12_init_mpls_tc_match(of12_match_t* prev, of12_match_t* n
 	match->next = next;
 	return match;
 }
+
+//ARP
+inline of12_match_t* of12_init_arp_opcode_match(of12_match_t* prev, of12_match_t* next, uint16_t value){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_ARP_OP;
+	match->value = __init_utern16(value,0xFFFF); //No wildcard
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_arp_tha_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_ARP_THA;
+	match->value = __init_utern64(value&UINT64_C(0x0000FFFFFFFFFFFF), mask&UINT64_C(0x0000FFFFFFFFFFFF)); //Enforce mask bits are always 00 for the first bits
+
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_arp_sha_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_ARP_SHA;
+	match->value = __init_utern64(value&UINT64_C(0x0000FFFFFFFFFFFF), mask&UINT64_C(0x0000FFFFFFFFFFFF)); //Enforce mask bits are always 00 for the first bits
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_arp_tpa_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_ARP_TPA;
+	match->value = __init_utern32(value,mask);
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_arp_spa_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_ARP_SPA;
+	match->value = __init_utern32(value,mask);
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+
 //PPPoE
 inline of12_match_t* of12_init_pppoe_code_match(of12_match_t* prev, of12_match_t* next, uint8_t value){
 	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
@@ -348,6 +392,12 @@ inline of12_match_t* __of12_copy_match(of12_match_t* match){
    		case OF12_MATCH_MPLS_LABEL: return of12_init_mpls_label_match(NULL,NULL,((utern32_t*)match->value)->value); 
    		case OF12_MATCH_MPLS_TC: return of12_init_mpls_tc_match(NULL,NULL,((utern8_t*)match->value)->value); 
 
+   		case OF12_MATCH_ARP_OP: return of12_init_arp_opcode_match(NULL,NULL,((utern16_t*)match->value)->value);
+   		case OF12_MATCH_ARP_SHA: return of12_init_arp_sha_match(NULL,NULL,((utern64_t*)match->value)->value,((utern64_t*)match->value)->mask);
+   		case OF12_MATCH_ARP_SPA: return of12_init_arp_spa_match(NULL,NULL,((utern32_t*)match->value)->value,((utern32_t*)match->value)->mask);
+   		case OF12_MATCH_ARP_THA: return of12_init_arp_tha_match(NULL,NULL,((utern64_t*)match->value)->value,((utern64_t*)match->value)->mask);
+   		case OF12_MATCH_ARP_TPA: return of12_init_arp_tpa_match(NULL,NULL,((utern32_t*)match->value)->value,((utern32_t*)match->value)->mask);
+
    		case OF12_MATCH_IP_PROTO: return of12_init_ip_proto_match(NULL,NULL,((utern8_t*)match->value)->value); 
    		case OF12_MATCH_IP_ECN: return of12_init_ip_ecn_match(NULL,NULL,((utern8_t*)match->value)->value); 
    		case OF12_MATCH_IP_DSCP: return of12_init_ip_dscp_match(NULL,NULL,((utern8_t*)match->value)->value);
@@ -453,6 +503,17 @@ inline of12_match_t* __of12_get_alike_match(of12_match_t* match1, of12_match_t* 
    		case OF12_MATCH_MPLS_TC: common_tern = __utern8_get_alike(*(utern8_t*)match1->value,*(utern8_t*)match2->value);
 					break;
 
+   		case OF12_MATCH_ARP_OP: common_tern = __utern16_get_alike(*(utern16_t*)match1->value,*(utern16_t*)match2->value);
+					break;
+   		case OF12_MATCH_ARP_SHA: common_tern = __utern64_get_alike(*(utern64_t*)match1->value,*(utern64_t*)match2->value);
+   					break;
+   		case OF12_MATCH_ARP_SPA: common_tern = __utern32_get_alike(*(utern32_t*)match1->value,*(utern32_t*)match2->value);
+   					break;
+   		case OF12_MATCH_ARP_THA: common_tern = __utern64_get_alike(*(utern64_t*)match1->value,*(utern64_t*)match2->value);
+   					break;
+   		case OF12_MATCH_ARP_TPA: common_tern = __utern32_get_alike(*(utern32_t*)match1->value,*(utern32_t*)match2->value);
+   					break;
+
    		case OF12_MATCH_IP_PROTO: common_tern = __utern8_get_alike(*(utern8_t*)match1->value,*(utern8_t*)match2->value);
 					break;
 		case OF12_MATCH_IP_ECN: common_tern = __utern8_get_alike(*(utern8_t*)match1->value,*(utern8_t*)match2->value);
@@ -549,6 +610,12 @@ inline bool __of12_equal_matches(of12_match_t* match1, of12_match_t* match2){
    		case OF12_MATCH_MPLS_LABEL: return __utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
    		case OF12_MATCH_MPLS_TC: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
 
+   		case OF12_MATCH_ARP_OP: return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
+   		case OF12_MATCH_ARP_SHA: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
+   		case OF12_MATCH_ARP_SPA: return __utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
+   		case OF12_MATCH_ARP_THA: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
+   		case OF12_MATCH_ARP_TPA: return __utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
+
    		case OF12_MATCH_IP_PROTO: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
    		case OF12_MATCH_IP_ECN: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
    		case OF12_MATCH_IP_DSCP: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
@@ -604,6 +671,12 @@ inline bool __of12_is_submatch(of12_match_t* sub_match, of12_match_t* match){
 
    		case OF12_MATCH_MPLS_LABEL: return __utern_is_contained32((utern32_t*)sub_match->value,(utern32_t*)match->value);
    		case OF12_MATCH_MPLS_TC: return __utern_is_contained8((utern8_t*)sub_match->value,(utern8_t*)match->value);
+
+   		case OF12_MATCH_ARP_OP: return __utern_is_contained16((utern16_t*)sub_match->value,(utern16_t*)match->value);
+   		case OF12_MATCH_ARP_SHA: return __utern_is_contained64((utern64_t*)sub_match->value,(utern64_t*)match->value);
+   		case OF12_MATCH_ARP_SPA: return __utern_is_contained32((utern32_t*)sub_match->value,(utern32_t*)match->value);
+   		case OF12_MATCH_ARP_THA: return __utern_is_contained64((utern64_t*)sub_match->value,(utern64_t*)match->value);
+   		case OF12_MATCH_ARP_TPA: return __utern_is_contained32((utern32_t*)sub_match->value,(utern32_t*)match->value);
 
    		case OF12_MATCH_IP_PROTO: return __utern_is_contained8((utern8_t*)sub_match->value,(utern8_t*)match->value);
    		case OF12_MATCH_IP_ECN: return __utern_is_contained8((utern8_t*)sub_match->value,(utern8_t*)match->value);
@@ -664,6 +737,19 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
    		case OF12_MATCH_VLAN_VID: return __utern_compare16((utern16_t*)it->value,pkt->vlan_vid);
    		case OF12_MATCH_VLAN_PCP: if(!pkt->vlan_vid) return false;
 					return __utern_compare8((utern8_t*)it->value,pkt->vlan_pcp);
+
+		//ARP
+   		case OF12_MATCH_ARP_OP: if(!(pkt->eth_type == OF12_ETH_TYPE_ARP)) return false;
+   					return __utern_compare16((utern16_t*)it->value,pkt->arp_opcode);
+   		case OF12_MATCH_ARP_SHA: if(!(pkt->eth_type == OF12_ETH_TYPE_ARP)) return false;
+   					return __utern_compare64((utern64_t*)it->value,pkt->arp_sha);
+   		case OF12_MATCH_ARP_SPA: if(!(pkt->eth_type == OF12_ETH_TYPE_ARP)) return false;
+					return __utern_compare32((utern32_t*)it->value, pkt->arp_spa);
+   		case OF12_MATCH_ARP_THA: if(!(pkt->eth_type == OF12_ETH_TYPE_ARP)) return false;
+   					return __utern_compare64((utern64_t*)it->value,pkt->arp_tha);
+   		case OF12_MATCH_ARP_TPA: if(!(pkt->eth_type == OF12_ETH_TYPE_ARP)) return false;
+					return __utern_compare32((utern32_t*)it->value, pkt->arp_tpa);
+
 		//MPLS
    		case OF12_MATCH_MPLS_LABEL: if(!(pkt->eth_type == OF12_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF12_ETH_TYPE_MPLS_MULTICAST )) return false;
 					return __utern_compare32((utern32_t*)it->value,pkt->mpls_label);
@@ -764,6 +850,17 @@ void of12_dump_packet_matches(of_packet_matches_t *const pkt_matches){
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("VLAN_VID:%u, ",pkt->vlan_vid);
 	if(pkt->vlan_pcp)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("VLAN_PCP:%u, ",pkt->vlan_pcp);
+	//ARP
+	if(pkt->eth_type == OF12_ETH_TYPE_ARP)
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_OPCODE:0x%x, ",pkt->arp_opcode);
+	if(pkt->eth_type == OF12_ETH_TYPE_ARP)
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_SHA:0x%llx, ",(long long unsigned)pkt->arp_sha);
+	if(pkt->eth_type == OF12_ETH_TYPE_ARP)
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_SPA:0x%x, ",pkt->arp_spa);
+	if(pkt->eth_type == OF12_ETH_TYPE_ARP)
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_THA:0x%llx, ",(long long unsigned)pkt->arp_tha);
+	if(pkt->eth_type == OF12_ETH_TYPE_ARP)
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_TPA:0x%x, ",pkt->arp_tpa);
 	//IP/IPv4
 	if(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 )
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("IP_PROTO:%u, ",pkt->ip_proto);
@@ -840,6 +937,17 @@ void of12_dump_matches(of12_match_t* matches){
 				break; 
 			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:0x%x], ",((utern8_t*)it->value)->value);
 				break; 
+
+			case OF12_MATCH_ARP_OP: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_OPCODE:0x%x], ",((utern16_t*)it->value)->value);
+				break;
+			case OF12_MATCH_ARP_SHA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_SHA:0x%llx|0x%llx],  ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
+				break;
+			case OF12_MATCH_ARP_SPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_SPA:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+				break;
+			case OF12_MATCH_ARP_THA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_THA:0x%llx|0x%llx],  ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
+				break;
+			case OF12_MATCH_ARP_TPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_TPA:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+				break;
 
 			case OF12_MATCH_IP_PROTO:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_PROTO:%u], ",((utern8_t*)it->value)->value);
 				break; 
@@ -922,6 +1030,17 @@ void of12_full_dump_matches(of12_match_t* matches){
 				break; 
 			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
 				break; 
+
+			case OF12_MATCH_ARP_OP: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_OPCODE:0x%x|0x%x], ",((utern16_t*)it->value)->value,((utern16_t*)it->value)->mask);
+				break;
+			case OF12_MATCH_ARP_SHA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_SHA:0x%llx|0x%llx], ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
+				break;
+			case OF12_MATCH_ARP_SPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_SPA:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+				break;
+			case OF12_MATCH_ARP_THA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_THA:0x%llx|0x%llx], ",(long long unsigned)((utern64_t*)it->value)->value,(long long unsigned)((utern64_t*)it->value)->mask);
+				break;
+			case OF12_MATCH_ARP_TPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_TPA:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+				break;
 
 			case OF12_MATCH_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_ECN:0x%x|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
 				break; 

@@ -107,6 +107,11 @@ typedef enum{
 	OF12_AT_SET_FIELD_ETH_TYPE,  		/* Ethernet frame type. */
 	OF12_AT_SET_FIELD_VLAN_VID,  		/* VLAN id. */
 	OF12_AT_SET_FIELD_VLAN_PCP,  		/* VLAN priority. */
+	OF12_AT_SET_FIELD_ARP_OPCODE,		/* ARP opcode */
+	OF12_AT_SET_FIELD_ARP_SHA,			/* ARP source hardware address */
+	OF12_AT_SET_FIELD_ARP_SPA,			/* ARP source protocol address */
+	OF12_AT_SET_FIELD_ARP_THA,			/* ARP target hardware address */
+	OF12_AT_SET_FIELD_ARP_TPA,			/* ARP target protocol address */
 	OF12_AT_SET_FIELD_IP_DSCP,   		/* IP DSCP (6 bits in ToS field). */
 	OF12_AT_SET_FIELD_IP_ECN,    		/* IP ECN (2 bits in ToS field). */
 	OF12_AT_SET_FIELD_IP_PROTO,  		/* IP protocol. */
@@ -319,7 +324,7 @@ rofl_result_t __of12_update_write_actions(of12_write_actions_t** group, of12_wri
 bool __of12_write_actions_has(of12_write_actions_t* write_actions, of12_packet_action_type_t type, uint64_t value);
 bool __of12_apply_actions_has(const of12_action_group_t* apply_actions_group, of12_packet_action_type_t type, uint64_t value);
 
-//Copy (cloning) methods
+//Copy (cloning) methodssource
 of12_action_group_t* __of12_copy_action_group(of12_action_group_t* origin);
 of12_write_actions_t* __of12_copy_write_actions(of12_write_actions_t* origin);
 

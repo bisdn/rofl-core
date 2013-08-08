@@ -45,6 +45,16 @@ void platform_packet_set_vlan_vid(datapacket_t* pkt, uint16_t vlan_vid){
 }
 void platform_packet_set_vlan_pcp(datapacket_t* pkt, uint8_t vlan_pcp){
 }
+void platform_packet_set_arp_opcode(datapacket_t* pkt, uint16_t arp_opcode){
+}
+void platform_packet_set_arp_sha(datapacket_t* pkt, uint64_t arp_sha){
+}
+void platform_packet_set_arp_spa(datapacket_t* pkt, uint32_t arp_spa){
+}
+void platform_packet_set_arp_tha(datapacket_t* pkt, uint64_t arp_tha){
+}
+void platform_packet_set_arp_tpa(datapacket_t* pkt, uint32_t arp_tpa){
+}
 void platform_packet_set_ip_dscp(datapacket_t* pkt, uint8_t ip_dscp){
 }
 void platform_packet_set_ip_ecn(datapacket_t* pkt, uint8_t ip_ecn){

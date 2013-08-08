@@ -32,6 +32,13 @@ void __of12_update_packet_matches(datapacket_t *const pkt){
 	matches->ip_ecn = platform_packet_get_ip_ecn(pkt);
 	matches->ip_dscp = platform_packet_get_ip_dscp(pkt);
 	
+	//ARP
+	matches->arp_opcode = platform_packet_get_arp_opcode(pkt);
+	matches->arp_sha = platform_packet_get_arp_sha(pkt);
+	matches->arp_spa = platform_packet_get_arp_spa(pkt);
+	matches->arp_tha = platform_packet_get_arp_tha(pkt);
+	matches->arp_tpa = platform_packet_get_arp_tpa(pkt);
+
 	//IPv4
 	matches->ipv4_src = platform_packet_get_ipv4_src(pkt);
 	matches->ipv4_dst = platform_packet_get_ipv4_dst(pkt);
@@ -60,6 +67,9 @@ void __of12_update_packet_matches(datapacket_t *const pkt){
 	//PPP related extensions
 	matches->ppp_proto = platform_packet_get_ppp_proto(pkt);
 
+	//GTP related extensions
+	matches->gtp_msg_type = platform_packet_get_gtp_msg_type(pkt);
+	matches->gtp_teid = platform_packet_get_gtp_teid(pkt);
 }
 
 /*

@@ -53,12 +53,16 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 		//6 byte values
 		case OF12_AT_SET_FIELD_ETH_DST:
 		case OF12_AT_SET_FIELD_ETH_SRC:
+		case OF12_AT_SET_FIELD_ARP_SHA:
+		case OF12_AT_SET_FIELD_ARP_THA:
 			action->field = field&OF12_AT_6_BYTE_MASK;
 			break;
 	
 		//4 byte values
 		case OF12_AT_SET_FIELD_IPV4_DST:
 		case OF12_AT_SET_FIELD_IPV4_SRC:
+		case OF12_AT_SET_FIELD_ARP_SPA:
+		case OF12_AT_SET_FIELD_ARP_TPA:
 		case OF12_AT_OUTPUT:
 		case OF12_AT_SET_FIELD_GTP_TEID:
 			action->field = field&OF12_AT_4_BYTE_MASK;	// TODO: max_len when port_no == OFPP_CONTROLLER
@@ -69,6 +73,7 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 			break;
 		//2 byte values
 		case OF12_AT_SET_FIELD_ETH_TYPE:
+		case OF12_AT_SET_FIELD_ARP_OPCODE:
 		case OF12_AT_SET_FIELD_TCP_SRC:
 		case OF12_AT_SET_FIELD_TCP_DST:
 		case OF12_AT_SET_FIELD_UDP_SRC:
@@ -386,6 +391,38 @@ static inline void __of12_process_packet_action(const struct of12_switch* sw, co
 			platform_packet_set_vlan_pcp(pkt, action->field);
 			//Update match
 			pkt_matches->vlan_pcp = action->field;
+			break;
+
+		//ARP
+		case OF12_AT_SET_FIELD_ARP_OPCODE:
+			//Call plattform
+			platform_packet_set_arp_opcode(pkt, action->field);
+			//Update match
+			pkt_matches->arp_opcode = action->field;
+			break;
+		case OF12_AT_SET_FIELD_ARP_SHA:
+			//Call platform
+			platform_packet_set_arp_sha(pkt, action->field);
+			//Update match
+			pkt_matches->arp_sha = action->field;
+			break;
+		case OF12_AT_SET_FIELD_ARP_SPA:
+			//Call platform
+			platform_packet_set_arp_spa(pkt, action->field);
+			//Update match
+			pkt_matches->arp_spa = action->field;
+			break;
+		case OF12_AT_SET_FIELD_ARP_THA:
+			//Call platform
+			platform_packet_set_arp_tha(pkt, action->field);
+			//Update match
+			pkt_matches->arp_tha = action->field;
+			break;
+		case OF12_AT_SET_FIELD_ARP_TPA:
+			//Call platform
+			platform_packet_set_arp_tpa(pkt, action->field);
+			//Update match
+			pkt_matches->arp_tpa = action->field;
 			break;
 
 		//IP
@@ -831,6 +868,17 @@ static void __of12_dump_packet_action(of12_packet_action_t action){
 		case OF12_AT_SET_FIELD_VLAN_VID:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_VLAN_VID: 0x%x",action.field);
 			break;
 		case OF12_AT_SET_FIELD_VLAN_PCP:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_VLAN_PCP: 0x%x",action.field);
+			break;
+
+		case OF12_AT_SET_FIELD_ARP_OPCODE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ARP_OPCODE: 0x%x",action.field);
+			break;
+		case OF12_AT_SET_FIELD_ARP_SHA: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ARP_SHA: 0x%"PRIx64,action.field);
+			break;
+		case OF12_AT_SET_FIELD_ARP_SPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ARP_SPA: 0x%x",action.field);
+			break;
+		case OF12_AT_SET_FIELD_ARP_THA: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ARP_THA: 0x%"PRIx64,action.field);
+			break;
+		case OF12_AT_SET_FIELD_ARP_TPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ARP_TPA: 0x%x",action.field);
 			break;
 
 		case OF12_AT_SET_FIELD_IP_DSCP: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IP_DSCP: 0x%x",action.field);
