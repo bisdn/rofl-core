@@ -1079,7 +1079,7 @@ coxmatch::test()
 	coxmatch_ofb_icmpv4_code icmpv4_code(1);
 	fprintf(stderr, "OFPXMT_OFB_ICMPV4_CODE: %s\n", icmpv4_code.c_str());
 
-	coxmatch_ofb_arp_op arp_op(1);
+	coxmatch_ofb_arp_opcode arp_op(1);
 	fprintf(stderr, "OFPXMT_OFB_ARP_OP: %s\n", arp_op.c_str());
 
 	coxmatch_ofb_arp_spa arp_spa(0x01010101);

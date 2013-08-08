@@ -1550,13 +1550,13 @@ public:
 /** OXM_OF_ARP_OP
  *
  */
-class coxmatch_ofb_arp_op :
+class coxmatch_ofb_arp_opcode :
 	public coxmatch
 {
 public:
 	/** constructor
 	 */
-	coxmatch_ofb_arp_op(
+	coxmatch_ofb_arp_opcode(
 			uint16_t opcode) :
 				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint16_t))
 	{
@@ -1568,11 +1568,11 @@ public:
 	/** destructor
 	 */
 	virtual
-	~coxmatch_ofb_arp_op() {};
+	~coxmatch_ofb_arp_opcode() {};
 	/**
 	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, coxmatch_ofb_arp_op const& oxm)
+	operator<< (std::ostream& os, coxmatch_ofb_arp_opcode const& oxm)
 	{
 		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";

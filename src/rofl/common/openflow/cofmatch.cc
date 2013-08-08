@@ -1335,9 +1335,9 @@ void
 cofmatch::set_arp_opcode(
 		uint16_t opcode)
 {
-	oxmlist.insert(coxmatch_ofb_arp_op(opcode));
+	oxmlist.insert(coxmatch_ofb_arp_opcode(opcode));
 #if 0
-	oxmlist[OFPXMT_OFB_ARP_OP] = coxmatch_ofb_arp_op(opcode);
+	oxmlist[OFPXMT_OFB_ARP_OP] = coxmatch_ofb_arp_opcode(opcode);
 #endif
 }
 
