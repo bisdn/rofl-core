@@ -1024,7 +1024,6 @@ cofmatch::set_vlan_pcp(
 }
 
 
-
 uint32_t
 cofmatch::get_mpls_label() const
 {
@@ -1320,13 +1319,6 @@ cofmatch::get_arp_opcode() const
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
-#if 0
-	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_OP))
-	{
-		throw eOFmatchNotFound();
-	}
-	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_OP).u16value();
-#endif
 }
 
 
@@ -1336,9 +1328,6 @@ cofmatch::set_arp_opcode(
 		uint16_t opcode)
 {
 	oxmlist.insert(coxmatch_ofb_arp_opcode(opcode));
-#if 0
-	oxmlist[OFPXMT_OFB_ARP_OP] = coxmatch_ofb_arp_opcode(opcode);
-#endif
 }
 
 
@@ -1351,13 +1340,33 @@ cofmatch::get_arp_sha() const
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
-#if 0
-	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_SHA))
-	{
+}
+
+
+
+cmacaddr
+cofmatch::get_arp_sha_addr() const
+{
+	try {
+		return cmacaddr(oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_SHA).oxm_maddr->addr, OFP_ETH_ALEN);
+	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
-	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_SHA).u48addr();
-#endif
+}
+
+
+
+cmacaddr
+cofmatch::get_arp_sha_mask() const
+{
+	try {
+		if (!oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_SHA).get_oxm_hasmask()) {
+			return cmacaddr("ff:ff:ff:ff:ff:ff");
+		}
+		return cmacaddr(oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_SHA).oxm_maddr->mask, OFP_ETH_ALEN);
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
 }
 
 
@@ -1384,13 +1393,33 @@ cofmatch::get_arp_tha() const
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
-#if 0
-	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_THA))
-	{
+}
+
+
+
+cmacaddr
+cofmatch::get_arp_tha_addr() const
+{
+	try {
+		return cmacaddr(oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_THA).oxm_maddr->addr, OFP_ETH_ALEN);
+	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
-	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_THA).u48addr();
-#endif
+}
+
+
+
+cmacaddr
+cofmatch::get_arp_tha_mask() const
+{
+	try {
+		if (!oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_THA).get_oxm_hasmask()) {
+			return cmacaddr("ff:ff:ff:ff:ff:ff");
+		}
+		return cmacaddr(oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_THA).oxm_maddr->mask, OFP_ETH_ALEN);
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
 }
 
 
@@ -1417,13 +1446,36 @@ cofmatch::get_arp_spa() const
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
-#if 0
-	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_SPA))
-	{
+}
+
+
+
+caddress
+cofmatch::get_arp_spa_value() const
+{
+	try {
+		caddress addr(AF_INET, "0.0.0.0");
+		addr.ca_s4addr->sin_addr.s_addr =
+				htobe32(oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_SPA).uint32_value());
+		return addr;
+	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
-	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_SPA).u32addr();
-#endif
+}
+
+
+
+caddress
+cofmatch::get_arp_spa_mask() const
+{
+	try {
+		caddress mask(AF_INET, "0.0.0.0");
+		mask.ca_s4addr->sin_addr.s_addr =
+				htobe32(oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_SPA).uint32_mask());
+		return mask;
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
 }
 
 
@@ -1433,9 +1485,6 @@ cofmatch::set_arp_spa(
 		caddress const& spa)
 {
 	oxmlist.insert(coxmatch_ofb_arp_spa(spa));
-#if 0
-	oxmlist[OFPXMT_OFB_ARP_SPA] = coxmatch_ofb_arp_spa(spa);
-#endif
 }
 
 
@@ -1448,13 +1497,36 @@ cofmatch::get_arp_tpa() const
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
-#if 0
-	if (not oxmlist.exists(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_TPA))
-	{
+}
+
+
+
+caddress
+cofmatch::get_arp_tpa_value() const
+{
+	try {
+		caddress addr(AF_INET, "0.0.0.0");
+		addr.ca_s4addr->sin_addr.s_addr =
+				htobe32(oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_TPA).uint32_value());
+		return addr;
+	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
-	return oxmlist.get_oxm(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_TPA).u32addr();
-#endif
+}
+
+
+
+caddress
+cofmatch::get_arp_tpa_mask() const
+{
+	try {
+		caddress mask(AF_INET, "0.0.0.0");
+		mask.ca_s4addr->sin_addr.s_addr =
+				htobe32(oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ARP_TPA).uint32_mask());
+		return mask;
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
 }
 
 
@@ -1464,9 +1536,6 @@ cofmatch::set_arp_tpa(
 		caddress const& tpa)
 {
 	oxmlist.insert(coxmatch_ofb_arp_tpa(tpa));
-#if 0
-	oxmlist[OFPXMT_OFB_ARP_TPA] = coxmatch_ofb_arp_tpa(tpa);
-#endif
 }
 
 

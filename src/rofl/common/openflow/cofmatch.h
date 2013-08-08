@@ -595,6 +595,20 @@ public:
 	/**
 	 *
 	 */
+	cmacaddr
+	get_arp_sha_addr() const;
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_arp_sha_mask() const;
+
+
+	/**
+	 *
+	 */
 	void
 	set_arp_sha(
 			cmacaddr const& sha,
@@ -606,6 +620,20 @@ public:
 	 */
 	cmacaddr
 	get_arp_tha() const;
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_arp_tha_addr() const;
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_arp_tha_mask() const;
 
 
 	/**
@@ -627,6 +655,20 @@ public:
 	/**
 	 *
 	 */
+	caddress
+	get_arp_spa_value() const;
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_arp_spa_mask() const;
+
+
+	/**
+	 *
+	 */
 	void
 	set_arp_spa(
 			caddress const& spa);
@@ -638,6 +680,20 @@ public:
 	 */
 	caddress
 	get_arp_tpa() const;
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_arp_tpa_value() const;
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_arp_tpa_mask() const;
 
 
 	/**
