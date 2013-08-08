@@ -299,12 +299,10 @@ inline of12_match_t* of12_init_icmpv4_code_match(of12_match_t* prev, of12_match_
 	return match;
 }
 
-//IPv6 && ICMv6
-//TODO
-
 //Add more here...
 
 
+//TODO
 #if 0
 /* Instruction groups init and destroy */
 of12_match_group_t* of12_new_match_group(){
@@ -495,98 +493,7 @@ inline of12_match_t* __of12_get_alike_match(of12_match_t* match1, of12_match_t* 
 		return NULL;	
 
 	common_tern = __utern_get_alike(*match1->value,*match2->value);
-#if 0
-	switch(match1->type){
-		case OF12_MATCH_IN_PORT: common_tern = __utern32_get_alike(*(utern32_t*)match1->value,*(utern32_t*)match2->value);
-					break;
-		case OF12_MATCH_IN_PHY_PORT: common_tern = __utern32_get_alike(*(utern32_t*)match1->value,*(utern32_t*)match2->value);
-					break;
-	
-	  	case OF12_MATCH_METADATA: //TODO FIXME
-					return NULL; 
 
-   		case OF12_MATCH_ETH_DST:  common_tern = __utern64_get_alike(*(utern64_t*)match1->value,*(utern64_t*)match2->value);
-					break;
-   		case OF12_MATCH_ETH_SRC:  common_tern = __utern64_get_alike(*(utern64_t*)match1->value,*(utern64_t*)match2->value);
-					break;
-   		case OF12_MATCH_ETH_TYPE: common_tern = __utern16_get_alike(*(utern16_t*)match1->value,*(utern16_t*)match2->value);
-					break;
-
-   		case OF12_MATCH_VLAN_VID: common_tern = __utern16_get_alike(*(utern16_t*)match1->value,*(utern16_t*)match2->value);
-					break;
-   		case OF12_MATCH_VLAN_PCP: common_tern = __utern8_get_alike(*(utern8_t*)match1->value,*(utern8_t*)match2->value);
-					break;
-
-   		case OF12_MATCH_MPLS_LABEL: common_tern = __utern32_get_alike(*(utern32_t*)match1->value,*(utern32_t*)match2->value);
-					break;
-   		case OF12_MATCH_MPLS_TC: common_tern = __utern8_get_alike(*(utern8_t*)match1->value,*(utern8_t*)match2->value);
-					break;
-
-   		case OF12_MATCH_IP_PROTO: common_tern = __utern8_get_alike(*(utern8_t*)match1->value,*(utern8_t*)match2->value);
-					break;
-		case OF12_MATCH_IP_ECN: common_tern = __utern8_get_alike(*(utern8_t*)match1->value,*(utern8_t*)match2->value);
-					break;
-		case OF12_MATCH_IP_DSCP: common_tern = __utern8_get_alike(*(utern8_t*)match1->value,*(utern8_t*)match2->value);
-					break;
-
-   		case OF12_MATCH_IPV4_SRC: common_tern = __utern32_get_alike(*(utern32_t*)match1->value,*(utern32_t*)match2->value);
-					break;
-   		case OF12_MATCH_IPV4_DST: common_tern = __utern32_get_alike(*(utern32_t*)match1->value,*(utern32_t*)match2->value);
-					break;
-
-   		case OF12_MATCH_TCP_SRC: common_tern = __utern16_get_alike(*(utern16_t*)match1->value,*(utern16_t*)match2->value);
-					break;
-   		case OF12_MATCH_TCP_DST: common_tern = __utern16_get_alike(*(utern16_t*)match1->value,*(utern16_t*)match2->value);
-					break;
-
-   		case OF12_MATCH_UDP_SRC: common_tern = __utern16_get_alike(*(utern16_t*)match1->value,*(utern16_t*)match2->value);
-					break;
-   		case OF12_MATCH_UDP_DST: common_tern = __utern16_get_alike(*(utern16_t*)match1->value,*(utern16_t*)match2->value);
-					break;
-
-    	case OF12_MATCH_ICMPV4_TYPE: common_tern = __utern8_get_alike(*(utern8_t*)match1->value,*(utern8_t*)match2->value);
-					break;
-   		case OF12_MATCH_ICMPV4_CODE: common_tern = __utern8_get_alike(*(utern8_t*)match1->value,*(utern8_t*)match2->value);
-					break;
-		
-		//IPv6
-		case OF12_MATCH_IPV6_SRC:common_tern = __utern128_get_alike(*(utern128_t*)match1->value,*(utern128_t*)match2->value);
-					break;
-		case OF12_MATCH_IPV6_DST:common_tern = __utern128_get_alike(*(utern128_t*)match1->value,*(utern128_t*)match2->value);
-					break;
-		case OF12_MATCH_IPV6_FLABEL:common_tern = __utern64_get_alike(*(utern64_t*)match1->value,*(utern64_t*)match2->value);
-					break;
-		case OF12_MATCH_IPV6_ND_TARGET:common_tern = __utern128_get_alike(*(utern128_t*)match1->value,*(utern128_t*)match2->value);
-					break;
-		case OF12_MATCH_IPV6_ND_SLL:common_tern = __utern64_get_alike(*(utern64_t*)match1->value,*(utern64_t*)match2->value);
-					break;
-		case OF12_MATCH_IPV6_ND_TLL:common_tern = __utern64_get_alike(*(utern64_t*)match1->value,*(utern64_t*)match2->value);
-					break;
-		case OF12_MATCH_IPV6_EXTHDR:common_tern = __utern64_get_alike(*(utern64_t*)match1->value,*(utern64_t*)match2->value);
-					break;
-		//ICMPv6
-		case OF12_MATCH_ICMPV6_TYPE:common_tern = __utern64_get_alike(*(utern64_t*)match1->value,*(utern64_t*)match2->value);
-					break;
-		case OF12_MATCH_ICMPV6_CODE:common_tern = __utern64_get_alike(*(utern64_t*)match1->value,*(utern64_t*)match2->value);
-					break;
-  		
-		/* PPP/PPPoE related extensions */
-   		case OF12_MATCH_PPPOE_CODE: common_tern = __utern8_get_alike(*(utern8_t*)match1->value,*(utern8_t*)match2->value);
-					break;
-   		case OF12_MATCH_PPPOE_TYPE: common_tern = __utern8_get_alike(*(utern8_t*)match1->value,*(utern8_t*)match2->value);
-					break;
-   		case OF12_MATCH_PPPOE_SID: common_tern = __utern16_get_alike(*(utern16_t*)match1->value,*(utern16_t*)match2->value);
-					break;
-
-   		case OF12_MATCH_PPP_PROT: common_tern = __utern16_get_alike(*(utern16_t*)match1->value,*(utern16_t*)match2->value);
-					break;
-		/* Add more here ...*/
-		default:
-			//Should NEVER reach this point
-			assert(0);
-			return NULL; 
-	}
-#endif
 	if(common_tern){
 		of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
 		match->value = common_tern;
@@ -618,70 +525,6 @@ inline bool __of12_equal_matches(of12_match_t* match1, of12_match_t* match2){
 		return false; 
 
 	return __utern_equals(match1->value,match2->value);
-#if 0
-	switch(match1->type){
-		case OF12_MATCH_IN_PORT: return __utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
-		case OF12_MATCH_IN_PHY_PORT: return __utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
-
-	  	case OF12_MATCH_METADATA: //TODO FIXME
-					return false;
-
-   		case OF12_MATCH_ETH_DST: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
-   		case OF12_MATCH_ETH_SRC: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
-   		case OF12_MATCH_ETH_TYPE: return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
-
-   		case OF12_MATCH_VLAN_VID: return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
-   		case OF12_MATCH_VLAN_PCP: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
-
-   		case OF12_MATCH_MPLS_LABEL: return __utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
-   		case OF12_MATCH_MPLS_TC: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
-
-   		case OF12_MATCH_IP_PROTO: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
-   		case OF12_MATCH_IP_ECN: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
-   		case OF12_MATCH_IP_DSCP: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
-
-   		case OF12_MATCH_IPV4_SRC: return __utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
-   		case OF12_MATCH_IPV4_DST: return __utern_equals32((utern32_t*)match1->value,(utern32_t*)match2->value);
-
-		//ipv6
-		case OF12_MATCH_IPV6_SRC: return __utern_equals128((utern128_t*)match1->value,(utern128_t*)match2->value);
-		case OF12_MATCH_IPV6_DST: return __utern_equals128((utern128_t*)match1->value,(utern128_t*)match2->value);
-		case OF12_MATCH_IPV6_FLABEL: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
-		case OF12_MATCH_IPV6_ND_TARGET: return __utern_equals128((utern128_t*)match1->value,(utern128_t*)match2->value);
-		case OF12_MATCH_IPV6_ND_SLL: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
-		case OF12_MATCH_IPV6_ND_TLL: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
-		case OF12_MATCH_IPV6_EXTHDR: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
-		
-		//icmpv6
-		case OF12_MATCH_ICMPV6_TYPE: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
-		case OF12_MATCH_ICMPV6_CODE: return __utern_equals64((utern64_t*)match1->value,(utern64_t*)match2->value);
-		
-		//tcp
-   		case OF12_MATCH_TCP_SRC: return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
-   		case OF12_MATCH_TCP_DST: return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
-		
-		//udp
-   		case OF12_MATCH_UDP_SRC: return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
-   		case OF12_MATCH_UDP_DST: return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
-
-    	case OF12_MATCH_ICMPV4_TYPE: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
-   		case OF12_MATCH_ICMPV4_CODE: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
-		
-		//TODO case OF12_MATCH_ARP_?:
-  		
-		/* PPP/PPPoE related extensions */
-   		case OF12_MATCH_PPPOE_CODE: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
-   		case OF12_MATCH_PPPOE_TYPE: return __utern_equals8((utern8_t*)match1->value,(utern8_t*)match2->value);
-   		case OF12_MATCH_PPPOE_SID: return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
-
-   		case OF12_MATCH_PPP_PROT:  return __utern_equals16((utern16_t*)match1->value,(utern16_t*)match2->value);
-		/* Add more here ...*/
-		default:
-			//Should NEVER reach this point
-			assert(0);
-			return false; 
-	}
-#endif
 }
 
 //Finds out if sub_match is a submatch of match
@@ -691,63 +534,6 @@ inline bool __of12_is_submatch(of12_match_t* sub_match, of12_match_t* match){
 		return false; 
 	
 	return __utern_is_contained(sub_match->value,match->value);
-#if 0
-	switch(match->type){
-		case OF12_MATCH_IN_PORT: return __utern_is_contained32((utern32_t*)sub_match->value,(utern32_t*)match->value);
-		case OF12_MATCH_IN_PHY_PORT: return __utern_is_contained32((utern32_t*)sub_match->value,(utern32_t*)match->value);
-
-	  	case OF12_MATCH_METADATA: //TODO FIXME
-					return false;
-   		case OF12_MATCH_ETH_DST: return __utern_is_contained64((utern64_t*)sub_match->value,(utern64_t*)match->value);
-   		case OF12_MATCH_ETH_SRC: return __utern_is_contained64((utern64_t*)sub_match->value,(utern64_t*)match->value);
-   		case OF12_MATCH_ETH_TYPE: return __utern_is_contained16((utern16_t*)sub_match->value,(utern16_t*)match->value);
-
-   		case OF12_MATCH_VLAN_VID: return __utern_is_contained16((utern16_t*)sub_match->value,(utern16_t*)match->value);
-   		case OF12_MATCH_VLAN_PCP: return __utern_is_contained8((utern8_t*)sub_match->value,(utern8_t*)match->value);
-
-   		case OF12_MATCH_MPLS_LABEL: return __utern_is_contained32((utern32_t*)sub_match->value,(utern32_t*)match->value);
-   		case OF12_MATCH_MPLS_TC: return __utern_is_contained8((utern8_t*)sub_match->value,(utern8_t*)match->value);
-
-   		case OF12_MATCH_IP_PROTO: return __utern_is_contained8((utern8_t*)sub_match->value,(utern8_t*)match->value);
-   		case OF12_MATCH_IP_ECN: return __utern_is_contained8((utern8_t*)sub_match->value,(utern8_t*)match->value);
-   		case OF12_MATCH_IP_DSCP: return __utern_is_contained8((utern8_t*)sub_match->value,(utern8_t*)match->value);
-
-   		case OF12_MATCH_IPV4_SRC: return __utern_is_contained32((utern32_t*)sub_match->value,(utern32_t*)match->value);
-   		case OF12_MATCH_IPV4_DST: return __utern_is_contained32((utern32_t*)sub_match->value,(utern32_t*)match->value);
-
-   		case OF12_MATCH_TCP_SRC: return __utern_is_contained16((utern16_t*)sub_match->value,(utern16_t*)match->value);
-   		case OF12_MATCH_TCP_DST: return __utern_is_contained16((utern16_t*)sub_match->value,(utern16_t*)match->value);
-
-   		case OF12_MATCH_UDP_SRC: return __utern_is_contained16((utern16_t*)sub_match->value,(utern16_t*)match->value);
-   		case OF12_MATCH_UDP_DST: return __utern_is_contained16((utern16_t*)sub_match->value,(utern16_t*)match->value);
-
-		case OF12_MATCH_ICMPV4_TYPE: return __utern_is_contained8((utern8_t*)sub_match->value,(utern8_t*)match->value);
-   		case OF12_MATCH_ICMPV4_CODE: return __utern_is_contained8((utern8_t*)sub_match->value,(utern8_t*)match->value);
-  		
-		case OF12_MATCH_IPV6_SRC:return __utern_is_contained128((utern128_t*)sub_match->value,(utern128_t*)match->value);
-		case OF12_MATCH_IPV6_DST:return __utern_is_contained128((utern128_t*)sub_match->value,(utern128_t*)match->value);
-		case OF12_MATCH_IPV6_FLABEL: return __utern_is_contained64((utern64_t*)sub_match->value,(utern64_t*)match->value);
-		case OF12_MATCH_IPV6_ND_TARGET:return __utern_is_contained128((utern128_t*)sub_match->value,(utern128_t*)match->value);
-		case OF12_MATCH_IPV6_ND_SLL: return __utern_is_contained64((utern64_t*)sub_match->value,(utern64_t*)match->value);
-		case OF12_MATCH_IPV6_ND_TLL: return __utern_is_contained64((utern64_t*)sub_match->value,(utern64_t*)match->value);
-		case OF12_MATCH_IPV6_EXTHDR: return __utern_is_contained64((utern64_t*)sub_match->value,(utern64_t*)match->value);
-		
-		case OF12_MATCH_ICMPV6_TYPE: return __utern_is_contained64((utern64_t*)sub_match->value,(utern64_t*)match->value);
-		case OF12_MATCH_ICMPV6_CODE: return __utern_is_contained64((utern64_t*)sub_match->value,(utern64_t*)match->value);
-		
-		/* PPP/PPPoE related extensions */
-   		case OF12_MATCH_PPPOE_CODE: return __utern_is_contained8((utern8_t*)sub_match->value,(utern8_t*)match->value);
-   		case OF12_MATCH_PPPOE_TYPE: return __utern_is_contained8((utern8_t*)sub_match->value,(utern8_t*)match->value);
-   		case OF12_MATCH_PPPOE_SID: return __utern_is_contained16((utern16_t*)sub_match->value,(utern16_t*)match->value);
-
-   		case OF12_MATCH_PPP_PROT:  return __utern_is_contained16((utern16_t*)sub_match->value,(utern16_t*)match->value);
-		/* Add more here ...*/
-		default:
-			//Should NEVER reach this point
-			assert(0);
-			return false;
-	}
-#endif
 }
 /*
 *
@@ -859,8 +645,6 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
 /* 
 * DEBUG/INFO dumping routines 
 */
-#define HI(x) *(uint64_t*)&x.val[0]
-#define LO(x) *(uint64_t*)&x.val[8]
 
 //Dump packet matches
 void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
@@ -921,10 +705,10 @@ void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("ICMPV4_TYPE:%u, ICMPV4_CODE:%u, ",pkt->icmpv4_type,pkt->icmpv4_code);
 	
 	//IPv6
-	if( LO(pkt->ipv6_src) || HI(pkt->ipv6_src) )
-		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_SRC:0x%lx:%lx, ",HI(pkt->ipv6_src),LO(pkt->ipv6_src));
-	if( LO(pkt->ipv6_dst) || HI(pkt->ipv6_dst) )
-		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_DST:0x%lx:%lx, ",HI(pkt->ipv6_dst),LO(pkt->ipv6_dst));
+	if( UINT128__T_LO(pkt->ipv6_src) || UINT128__T_HI(pkt->ipv6_src) )
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_SRC:0x%lx:%lx, ",UINT128__T_HI(pkt->ipv6_src),UINT128__T_LO(pkt->ipv6_src));
+	if( UINT128__T_LO(pkt->ipv6_dst) || UINT128__T_HI(pkt->ipv6_dst) )
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_DST:0x%lx:%lx, ",UINT128__T_HI(pkt->ipv6_dst),UINT128__T_LO(pkt->ipv6_dst));
 	if(pkt->eth_type == OF12_ETH_TYPE_IPV6)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_FLABEL:0x%lu, ",pkt->ipv6_flabel);
 	/*TODO IPV6 add the other fields*/
@@ -1008,13 +792,13 @@ void of12_dump_matches(of12_match_t* matches){
 			case OF12_MATCH_ICMPV4_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_CODE:%u], ",it->value->value.u8);
 				break; 
 			//IPv6
-			case OF12_MATCH_IPV6_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_SRC:%lu %lu], ",HI(it->value->value.u128),LO(it->value->value.u128));
+			case OF12_MATCH_IPV6_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_SRC:%lu %lu], ",UINT128__T_HI(it->value->value.u128),UINT128__T_LO(it->value->value.u128));
 				break;
-			case OF12_MATCH_IPV6_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_DST:%u], ",HI(it->value->value.u128),LO(it->value->value.u128));
+			case OF12_MATCH_IPV6_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_DST:%u], ",UINT128__T_HI(it->value->value.u128),UINT128__T_LO(it->value->value.u128));
 				break;
 			case OF12_MATCH_IPV6_FLABEL: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_FLABEL:%u], ",it->value->value.u64);
 				break;
-			case OF12_MATCH_IPV6_ND_TARGET: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TARGET:%lu %lu], ",HI(it->value->value.u128),LO(it->value->value.u128));
+			case OF12_MATCH_IPV6_ND_TARGET: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TARGET:%lu %lu], ",UINT128__T_HI(it->value->value.u128),UINT128__T_LO(it->value->value.u128));
 				break;
 			case OF12_MATCH_IPV6_ND_SLL: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_SLL:%u], ",it->value->value.u64);
 				break;
@@ -1104,13 +888,13 @@ void of12_full_dump_matches(of12_match_t* matches){
 				break; 
 			
 			//IPv6
-			case OF12_MATCH_IPV6_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_SRC:0x%lx:%lx|0x%lx:%lx], ",HI(it->value->value.u128),LO(it->value->value.u128),HI(it->value->mask.u128),LO(it->value->mask.u128));
+			case OF12_MATCH_IPV6_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_SRC:0x%lx:%lx|0x%lx:%lx], ",UINT128__T_HI(it->value->value.u128),UINT128__T_LO(it->value->value.u128),UINT128__T_HI(it->value->mask.u128),UINT128__T_LO(it->value->mask.u128));
 				break;
-			case OF12_MATCH_IPV6_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_DST:0x%lx:%lx|0x%lx:%lx], ",HI(it->value->value.u128),LO(it->value->value.u128),HI(it->value->mask.u128),LO(it->value->mask.u128));
+			case OF12_MATCH_IPV6_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_DST:0x%lx:%lx|0x%lx:%lx], ",UINT128__T_HI(it->value->value.u128),UINT128__T_LO(it->value->value.u128),UINT128__T_HI(it->value->mask.u128),UINT128__T_LO(it->value->mask.u128));
 				break;
 			case OF12_MATCH_IPV6_FLABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_FLABEL:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
 				break; 
-			case OF12_MATCH_IPV6_ND_TARGET: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TARGET:0x%lx:%lx|0x%lx:%lx], ",HI(it->value->value.u128),LO(it->value->value.u128),HI(it->value->mask.u128),LO(it->value->mask.u128));
+			case OF12_MATCH_IPV6_ND_TARGET: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TARGET:0x%lx:%lx|0x%lx:%lx], ",UINT128__T_HI(it->value->value.u128),UINT128__T_LO(it->value->value.u128),UINT128__T_HI(it->value->mask.u128),UINT128__T_LO(it->value->mask.u128));
 				break;
 			case OF12_MATCH_IPV6_ND_SLL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_SLL:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
 				break; 

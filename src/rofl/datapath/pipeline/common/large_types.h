@@ -14,6 +14,14 @@ typedef struct uint128_{
 	uint8_t val[16];
 }uint128__t;
 
+//This is a wrapper that helps accessing uin128__t types 
+typedef struct wrap_u128{
+	uint64_t hi;
+	uint64_t lo;
+}w128_t;
+
+#define UINT128__T_HI(x) ((w128_t*)&x)->hi
+#define UINT128__T_LO(x) ((w128_t*)&x)->lo
 
 
 #endif //__LARGE_TYPES_H__
