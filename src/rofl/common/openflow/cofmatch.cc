@@ -40,42 +40,6 @@ cofmatch::cofmatch(
 
 
 
-template<class T>
-cofmatch::cofmatch(
-		uint8_t of_version,
-		T* match,
-		size_t matchlen) :
-			of_version(of_version)
-{
-	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [2]", this);
-
-	switch (of_version) {
-	case OFP10_VERSION: {
-		if (OFP10_MATCH_STATIC_LEN != matchlen) {
-			throw eBadVersion();
-		}
-		unpack(match, matchlen);
-	} break;
-	case OFP12_VERSION: {
-		if (OFP12_MATCH_STATIC_LEN != matchlen) {
-			throw eBadVersion();
-		}
-		unpack(match, matchlen);
-	} break;
-	case OFP13_VERSION: {
-		if (OFP13_MATCH_STATIC_LEN != matchlen) {
-			throw eBadVersion();
-		}
-		unpack(match, matchlen);
-	} break;
-	default:
-		throw eBadVersion();
-	}
-
-	validate();
-}
-
-
 
 cofmatch::~cofmatch()
 {
