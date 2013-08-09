@@ -8,7 +8,8 @@ librofl_pipeline_common_la_HEADERS = \
 	datapacket.h \
 	ternary_fields.h \
 	wrap_types.h \
-	large_types.h
+	large_types.h \
+	ipv6_exthdr.h
 
 librofl_pipeline_common_la_SOURCES = \
 	datapacket.h \

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "caddress.h"
+#include <rofl/datapath/pipeline/common/large_types.h>
 
 using namespace rofl;
 
@@ -449,4 +450,63 @@ caddress::test()
 	fprintf(stderr, "[3] a: %s c: %s\n", a.c_str(), c.c_str());
 }
 
+/**
+ * This function takes the address from the sin_addr structure and puts it into a uint32_t
+ * in HOST BYTE ORDER
+ */
+uint32_t
+caddress::get_ipv4_addr(){
+	
+	switch (ca_saddr->sa_family){
+		case AF_INET: {
+			return be32toh(this->ca_s4addr->sin_addr.s_addr);
+		}break;
+		default:
+			throw eInval();
+	}
+}
 
+void
+caddress::set_ipv4_addr(uint32_t addr){
+	this->ca_s4addr->sin_addr.s_addr = htobe32(addr);
+}
+
+/**
+ * This function takes the address from the sin6_addr structure and puts it into a uint128__t
+ * in HOST BYTE ORDER
+ */
+uint128__t
+caddress::get_ipv6_addr(){
+	uint128__t addr;
+	
+	switch (ca_saddr->sa_family){
+		case AF_INET6:{
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+			uint64_t high, low;
+			high = be64toh(*(uint64_t*)&this->ca_s6addr->sin6_addr.__in6_u.__u6_addr32[2]);
+			*(uint64_t*)&addr.val[0] = high;
+			low = be64toh(*(uint64_t*)&this->ca_s6addr->sin6_addr.__in6_u.__u6_addr32[0]);
+			*(uint64_t*)&addr.val[8] = low;
+#else
+			memccpy(&addr.val,this->ca_s6addr->sin6_addr.__in6_u.__u6_addr8,sizeof(addr));
+#endif
+		}break;
+		default:
+			throw eInval();
+	}
+	
+	return addr;
+}
+
+void
+caddress::set_ipv6_addr(uint128__t addr){
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+	uint64_t high, low;
+	high = *(uint64_t*)&addr.val[0];
+	*(uint64_t*)&this->ca_s6addr->sin6_addr.__in6_u.__u6_addr32[2] = htobe64(high);
+	low = *(uint64_t*)&addr.val[8];
+	*(uint64_t*)&this->ca_s6addr->sin6_addr.__in6_u.__u6_addr32[0] = htobe64(low);
+#else
+	memccpy(this->ca_s6addr->sin6_addr.__in6_u.__u6_addr8,&addr.val,sizeof(addr));
+#endif
+}

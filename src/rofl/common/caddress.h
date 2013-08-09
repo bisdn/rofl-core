@@ -39,6 +39,7 @@ extern "C" {
 #include "cerror.h"
 #include "cmemory.h"
 #include "rofl/platform/unix/csyslog.h"
+#include <rofl/datapath/pipeline/common/large_types.h>
 
 namespace rofl
 {
@@ -426,6 +427,18 @@ public: // static
 
 	static void
 	test();
+	
+	uint32_t
+	get_ipv4_addr();
+	
+	void
+	set_ipv4_addr(uint32_t addr);
+	
+	uint128__t
+	get_ipv6_addr();
+	
+	void
+	set_ipv6_addr(uint128__t addr);
 
 private:
 
