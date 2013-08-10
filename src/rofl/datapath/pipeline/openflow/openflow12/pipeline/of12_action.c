@@ -413,33 +413,33 @@ static inline void __of12_process_packet_action(const struct of12_switch* sw, co
 		//ARP
 		case OF12_AT_SET_FIELD_ARP_OPCODE:
 			//Call plattform
-			platform_packet_set_arp_opcode(pkt, action->field);
+			platform_packet_set_arp_opcode(pkt, action->field.u16);
 			//Update match
-			pkt_matches->arp_opcode = action->field;
+			pkt_matches->arp_opcode = action->field.u16;
 			break;
 		case OF12_AT_SET_FIELD_ARP_SHA:
 			//Call platform
-			platform_packet_set_arp_sha(pkt, action->field);
+			platform_packet_set_arp_sha(pkt, action->field.u64);
 			//Update match
-			pkt_matches->arp_sha = action->field;
+			pkt_matches->arp_sha = action->field.u64;
 			break;
 		case OF12_AT_SET_FIELD_ARP_SPA:
 			//Call platform
-			platform_packet_set_arp_spa(pkt, action->field);
+			platform_packet_set_arp_spa(pkt, action->field.u32);
 			//Update match
-			pkt_matches->arp_spa = action->field;
+			pkt_matches->arp_spa = action->field.u32;
 			break;
 		case OF12_AT_SET_FIELD_ARP_THA:
 			//Call platform
-			platform_packet_set_arp_tha(pkt, action->field);
+			platform_packet_set_arp_tha(pkt, action->field.u64);
 			//Update match
-			pkt_matches->arp_tha = action->field;
+			pkt_matches->arp_tha = action->field.u64;
 			break;
 		case OF12_AT_SET_FIELD_ARP_TPA:
 			//Call platform
-			platform_packet_set_arp_tpa(pkt, action->field);
+			platform_packet_set_arp_tpa(pkt, action->field.u32);
 			//Update match
-			pkt_matches->arp_tpa = action->field;
+			pkt_matches->arp_tpa = action->field.u32;
 			break;
 
 		//IP

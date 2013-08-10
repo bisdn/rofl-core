@@ -718,9 +718,9 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
 
 		//GTP
    		case OF12_MATCH_GTP_MSG_TYPE: if (!(pkt->ip_proto == OF12_IP_PROTO_UDP || pkt->udp_dst == OF12_UDP_DST_PORT_GTPU)) return false;
-   						return __utern_compare8((utern8_t*)it->value,pkt->gtp_msg_type);
+   						return __utern_compare8(it->value,pkt->gtp_msg_type);
    		case OF12_MATCH_GTP_TEID: if (!(pkt->ip_proto == OF12_IP_PROTO_UDP || pkt->udp_dst == OF12_UDP_DST_PORT_GTPU)) return false;
-   						return __utern_compare32((utern32_t*)it->value,pkt->gtp_teid);
+   						return __utern_compare32(it->value,pkt->gtp_teid);
 
 		// Add more here ...
 		default:
@@ -939,9 +939,9 @@ void of12_dump_matches(of12_match_t* matches){
 				break; 
 
 			/* GTP related extensions */
-			case OF12_MATCH_GTP_MSG_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_MSG_TYPE:%u], ",((utern8_t*)it->value)->value);
+			case OF12_MATCH_GTP_MSG_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_MSG_TYPE:%u], ",it->value->value);
 				break;
-			case OF12_MATCH_GTP_TEID: ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_TEID:0x%x], ",((utern32_t*)it->value)->value);
+			case OF12_MATCH_GTP_TEID: ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_TEID:0x%x], ",it->value->value);
 				break;
 
 			/* Add more here ...*/
@@ -983,7 +983,7 @@ void of12_full_dump_matches(of12_match_t* matches){
 			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
 				break; 
 
-			case OF12_MATCH_ARP_OP: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_OPCODE:0x%x|0x%x], ",(it->value->value.u16,it->value->mask.u16);
+			case OF12_MATCH_ARP_OP: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_OPCODE:0x%x|0x%x], ",it->value->value.u16,it->value->mask.u16);
 				break;
 			case OF12_MATCH_ARP_SHA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_SHA:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
 				break;
@@ -1054,9 +1054,9 @@ void of12_full_dump_matches(of12_match_t* matches){
 				break; 
 
 			/* GTP related extensions */
-			case OF12_MATCH_GTP_MSG_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_MSG_TYPE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+			case OF12_MATCH_GTP_MSG_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_MSG_TYPE:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
 				break;
-			case OF12_MATCH_GTP_TEID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_TEID:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+			case OF12_MATCH_GTP_TEID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_TEID:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break;
 
 			/* Add more here ...*/
