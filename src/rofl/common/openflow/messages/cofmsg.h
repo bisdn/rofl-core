@@ -8,20 +8,11 @@
 #include <set>
 #include <string>
 #include <vector>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <strings.h>
 #include <arpa/inet.h>
-
 #include <endian.h>
 #ifndef htobe16
-#include "../../endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
+	#include "../../endian_conversion.h"
 #endif
 
 #include "rofl/common/cerror.h"

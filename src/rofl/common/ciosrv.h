@@ -12,10 +12,6 @@
 #include <map>
 #include <algorithm>
 #include <vector>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -26,10 +22,6 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
-
-#ifdef __cplusplus
-}
-#endif
 
 #include "cpacket.h"
 #include "cmemory.h"

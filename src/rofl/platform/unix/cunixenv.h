@@ -5,9 +5,6 @@
 #ifndef CUNIXENV_H
 #define CUNIXENV_H 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string.h>
@@ -16,10 +13,6 @@ extern "C" {
 #include <getopt.h>
 #include <execinfo.h>
 #include <errno.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <iostream>
 #include <string>
 #include <stdexcept>

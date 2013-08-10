@@ -7,14 +7,7 @@
 
 #include <set>
 #include <string>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
 
 #include "../../common/ciosrv.h"
 #include "../../common/cvastring.h"

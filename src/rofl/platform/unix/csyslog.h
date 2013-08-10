@@ -9,13 +9,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-
 #include <stdexcept>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <syslog.h>
 #include <stdarg.h>
 #include <stdarg.h>
@@ -27,9 +21,6 @@ extern "C" {
 
 #include <inttypes.h>
 
-#ifdef __cplusplus
-}
-#endif
 
 namespace rofl
 {

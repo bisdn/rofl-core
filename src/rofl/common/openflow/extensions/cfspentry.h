@@ -7,14 +7,7 @@
 
 #include <string>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include "../openflow.h"
-#ifdef __cplusplus
-}
-#endif
-
 #include "../cofmatch.h"
 #include "../../cvastring.h"
 

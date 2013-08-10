@@ -12,16 +12,8 @@
 #ifndef CLINUXPORT_H_
 #define CLINUXPORT_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 //#include <linux/if.h>
 #include <sys/ioctl.h>
-
-#ifdef __cplusplus
-}
-#endif
 
 #include "rofl/common/cport.h"
 

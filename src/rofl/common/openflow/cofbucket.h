@@ -8,19 +8,12 @@
 #include <string>
 #include <vector>
 #include <list>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "openflow.h"
 #include <endian.h>
 #ifndef htobe16
-#include "../endian_conversion.h"
-#endif
-#ifdef __cplusplus
-}
+	#include "../endian_conversion.h"
 #endif
 
+#include "openflow.h"
 #include "../cerror.h"
 #include "../cmemory.h"
 #include "../cvastring.h"

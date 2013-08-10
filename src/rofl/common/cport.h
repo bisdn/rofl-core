@@ -10,6 +10,13 @@
 #include <bitset>
 #include <set>
 #include <map>
+#include <pthread.h>
+#include <sys/socket.h>
+#include <linux/if.h>
+#include <sys/ioctl.h>
+#include <string.h>
+#include <stdio.h>
+#include <endian.h>
 
 #include "ciosrv.h"
 #include "cpacket.h"
@@ -18,23 +25,7 @@
 #include "thread_helper.h"
 #include "cvastring.h"
 #include "openflow/cofportstats.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "openflow/openflow.h"
-#include <pthread.h>
-#include <linux/if.h>
-#include <sys/ioctl.h>
-#include <string.h>
-#include <stdio.h>
-#include <endian.h>
-
-#ifdef __cplusplus
-}
-#endif
-
 #include "rofl/platform/unix/crandom.h"
 
 namespace rofl

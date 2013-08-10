@@ -9,11 +9,6 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-
-#ifdef __cplusplus
-
-extern "C" {
-#endif
 #include <netinet/in.h>
 #include <sys/un.h>
 #include <sys/types.h>
@@ -26,13 +21,8 @@ extern "C" {
 #include <sys/ioctl.h>
 #include <linux/sockios.h>
 #include <endian.h>
-
 #ifndef htobe16
-#include "endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
+	#include "endian_conversion.h"
 #endif
 
 #include "cvastring.h"

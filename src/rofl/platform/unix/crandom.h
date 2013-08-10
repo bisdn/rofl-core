@@ -5,9 +5,6 @@
 #ifndef CRANDOM_H
 #define CRANDOM_H 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -16,10 +13,6 @@ extern "C" {
 #include <stdlib.h>
 #include <unistd.h>
 #include <assert.h>
-
-#ifdef __cplusplus
-}
-#endif
 
 #include "rofl/common/cerror.h"
 #include "rofl/common/cmemory.h"

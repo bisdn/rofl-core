@@ -8,14 +8,7 @@
 #include <map>
 #include <string>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include "openflow.h"
-#ifdef __cplusplus
-}
-#endif
-
 #include "../cerror.h"
 #include "../ciosrv.h"
 #include "../cmemory.h"
@@ -54,7 +47,6 @@ extern "C" {
 #include "../openflow/messages/cofmsg_role.h"
 #include "../openflow/messages/cofmsg_experimenter.h"
 #include "../openflow/messages/cofmsg_async_config.h"
-
 
 #include "cofmatch.h"
 #include "extensions/cfspentry.h"

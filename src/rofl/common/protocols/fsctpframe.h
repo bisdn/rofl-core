@@ -13,24 +13,13 @@
 #ifndef FSCTPFRAME_H
 #define FSCTPFRAME_H 1
 
+#include <endian.h>
+#ifndef htobe16
+	#include "../endian_conversion.h"
+#endif
 
 #include "../fframe.h"
 #include "../caddress.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <endian.h>
-
-#ifndef htobe16
-#include "../endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
 #include "../cvastring.h"
 
 namespace rofl

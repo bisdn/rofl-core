@@ -9,17 +9,9 @@
 #define GTPUEXT_H_ 1
 
 #include <ostream>
-
-#include <rofl/common/cmemory.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
 
+#include "../cmemory.h"
 
 namespace rofl
 {

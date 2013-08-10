@@ -6,20 +6,12 @@
 #define CFWDENTRY_H
 
 #include <string>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <endian.h>
 #ifndef htobe16
-#include "../../common/endian_conversion.h"
+	#include "../../common/endian_conversion.h"
 #endif
 
 #include "../../common/openflow/openflow.h"
-#ifdef __cplusplus
-}
-#endif
-
 #include "../../common/ciosrv.h"
 #include "../../common/cmacaddr.h"
 #include "../../common/cvastring.h"

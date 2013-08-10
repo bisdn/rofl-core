@@ -6,15 +6,7 @@
 #define FFRAME_H 1
 
 #include <bitset>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <string>
 
 #include "cerror.h"

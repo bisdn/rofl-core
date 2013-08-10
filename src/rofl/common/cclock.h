@@ -12,18 +12,9 @@
 #define CCLOCK_H_ 
 
 #include <string>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <errno.h>
 #include <string.h>
 #include <time.h>
-
-#ifdef __cplusplus
-}
-#endif
 
 #include "cvastring.h"
 #include "rofl/platform/unix/csyslog.h"

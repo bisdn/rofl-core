@@ -8,25 +8,14 @@
 #include <map>
 #include <set>
 #include <algorithm>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <sys/types.h>
 #include <inttypes.h>
-#include "../../common/openflow/openflow.h"
-
 #include <endian.h>
 #ifndef htobe16
-#include "../../common/endian_conversion.h"
-
+	#include "../../common/endian_conversion.h"
 #endif
 
-#ifdef __cplusplus
-}
-#endif
-
+#include "../../common/openflow/openflow.h"
 #include "../../common/cmacaddr.h"
 #include "../../common/cerror.h"
 #include "cfwdtable.h"

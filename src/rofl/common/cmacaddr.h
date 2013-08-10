@@ -8,16 +8,7 @@
 #include <string>
 #include <ostream>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "openflow/openflow.h"
-
-#ifdef __cplusplus
-}
-#endif
-
 #include "cvastring.h"
 #include "cmemory.h"
 

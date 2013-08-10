@@ -14,22 +14,11 @@
 #include <vector>
 #include <bitset>
 #include <algorithm>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "openflow/openflow.h"
-#include "openflow/openflow_rofl.h"
 #include <endian.h>
 #include <string.h>
 #include <time.h>
-
 #ifndef htobe16
-#include "endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
+	#include "endian_conversion.h"
 #endif
 
 #include "ciosrv.h"
@@ -39,6 +28,9 @@ extern "C" {
 #include "cphyport.h"
 #include "csocket.h"
 #include "thread_helper.h"
+
+#include "openflow/openflow.h"
+#include "openflow/openflow_rofl.h"
 
 //#include "rofl/experimental/crib.h"
 #include "rofl/platform/unix/crandom.h"

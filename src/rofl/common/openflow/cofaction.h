@@ -8,28 +8,19 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "openflow.h"
 #include <endian.h>
 #ifndef htobe16
-#include "../endian_conversion.h"
-#endif
-#ifdef __cplusplus
-}
+	#include "../endian_conversion.h"
 #endif
 
+#include "openflow.h"
 #include "../cerror.h"
 #include "../cmemory.h"
 #include "../cmacaddr.h"
 #include "../cvastring.h"
 #include "../coflist.h"
 #include "openflow_rofl_exceptions.h"
-
 #include "rofl/platform/unix/csyslog.h"
-
 #include "coxmatch.h"
 
 #ifndef ORAN

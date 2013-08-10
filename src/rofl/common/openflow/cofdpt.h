@@ -8,19 +8,9 @@
 #include <map>
 #include <set>
 #include <algorithm>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <inttypes.h>
-#include "openflow.h"
 #include <stdio.h>
 #include <strings.h>
-
-#ifdef __cplusplus
-}
-#endif
 
 #include "rofl/common/ciosrv.h"
 #include "rofl/common/cmemory.h"
@@ -40,6 +30,7 @@ extern "C" {
 #include "openflow/messages/cfttable.h"
 #include "openflow/messages/cgttable.h"
 #endif
+#include "openflow.h"
 #include "../openflow/messages/cofmsg.h"
 #include "../openflow/messages/cofmsg_hello.h"
 #include "../openflow/messages/cofmsg_echo.h"

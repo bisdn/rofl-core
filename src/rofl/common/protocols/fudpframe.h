@@ -5,17 +5,10 @@
 #ifndef FUDPFRAME_H
 #define FUDPFRAME_H 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <endian.h>
 #ifndef htobe16
-#include "../endian_conversion.h"
+	#include "../endian_conversion.h"
 
-#endif
-#ifdef __cplusplus
-}
 #endif
 
 #include "../fframe.h"
