@@ -1,8 +1,8 @@
 #include <assert.h>
 #include "of12_match.h"
 
+#include "../../../common/datapacket.h"
 #include "../../../platform/memory.h"
-
 #include "../../../util/logging.h"
 
 /*
@@ -92,6 +92,50 @@ inline of12_match_t* of12_init_mpls_tc_match(of12_match_t* prev, of12_match_t* n
 	match->next = next;
 	return match;
 }
+
+//ARP
+inline of12_match_t* of12_init_arp_opcode_match(of12_match_t* prev, of12_match_t* next, uint16_t value){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_ARP_OP;
+	match->value = __init_utern16(value,0xFFFF); //No wildcard
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_arp_tha_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_ARP_THA;
+	match->value = __init_utern64(value&UINT64_C(0x0000FFFFFFFFFFFF), mask&UINT64_C(0x0000FFFFFFFFFFFF)); //Enforce mask bits are always 00 for the first bits
+
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_arp_sha_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_ARP_SHA;
+	match->value = __init_utern64(value&UINT64_C(0x0000FFFFFFFFFFFF), mask&UINT64_C(0x0000FFFFFFFFFFFF)); //Enforce mask bits are always 00 for the first bits
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_arp_tpa_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_ARP_TPA;
+	match->value = __init_utern32(value,mask);
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_arp_spa_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_ARP_SPA;
+	match->value = __init_utern32(value,mask);
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+
 //PPPoE
 inline of12_match_t* of12_init_pppoe_code_match(of12_match_t* prev, of12_match_t* next, uint8_t value){
 	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
@@ -299,8 +343,25 @@ inline of12_match_t* of12_init_icmpv4_code_match(of12_match_t* prev, of12_match_
 	return match;
 }
 
-//Add more here...
+//GTP
+inline of12_match_t* of12_init_gtp_msg_type_match(of12_match_t* prev, of12_match_t* next, uint8_t value){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_GTP_MSG_TYPE;
+	match->value = __init_utern8(value,0xFF); //no wildcard
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
+inline of12_match_t* of12_init_gtp_teid_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask){
+	of12_match_t* match = (of12_match_t*)platform_malloc_shared(sizeof(of12_match_t));
+	match->type = OF12_MATCH_GTP_TEID;
+	match->value = __init_utern32(value, mask);
+	match->prev = prev;
+	match->next = next;
+	return match;
+}
 
+//Add more here...
 
 //TODO
 #if 0
@@ -407,7 +468,13 @@ inline of12_match_t* __of12_copy_match(of12_match_t* match){
    		case OF12_MATCH_MPLS_LABEL: return of12_init_mpls_label_match(NULL,NULL,match->value->value.u32); 
    		case OF12_MATCH_MPLS_TC: return of12_init_mpls_tc_match(NULL,NULL,match->value->value.u8); 
 
-   		case OF12_MATCH_IP_PROTO: return of12_init_ip_proto_match(NULL,NULL,match->value->value.u8); 
+   		case OF12_MATCH_ARP_OP: return of12_init_arp_opcode_match(NULL,NULL,match->value->value.u16);
+   		case OF12_MATCH_ARP_SHA: return of12_init_arp_sha_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);
+   		case OF12_MATCH_ARP_SPA: return of12_init_arp_spa_match(NULL,NULL,match->value->value.u32,match->value->mask.u32);
+   		case OF12_MATCH_ARP_THA: return of12_init_arp_tha_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);
+   		case OF12_MATCH_ARP_TPA: return of12_init_arp_tpa_match(NULL,NULL,match->value->value.u32,match->value->mask.u32);
+
+		case OF12_MATCH_IP_PROTO: return of12_init_ip_proto_match(NULL,NULL,match->value->value.u8); 
    		case OF12_MATCH_IP_ECN: return of12_init_ip_ecn_match(NULL,NULL,match->value->value.u8); 
    		case OF12_MATCH_IP_DSCP: return of12_init_ip_dscp_match(NULL,NULL,match->value->value.u8);
 
@@ -439,6 +506,11 @@ inline of12_match_t* __of12_copy_match(of12_match_t* match){
    		case OF12_MATCH_PPPOE_TYPE: return of12_init_pppoe_type_match(NULL,NULL,match->value->value.u8); 
    		case OF12_MATCH_PPPOE_SID: return of12_init_pppoe_session_match(NULL,NULL,match->value->value.u16); 
    		case OF12_MATCH_PPP_PROT: return of12_init_ppp_prot_match(NULL,NULL,match->value->value.u16); 
+
+   		/* GTP related extensions */
+   		case OF12_MATCH_GTP_MSG_TYPE: return of12_init_gtp_msg_type_match(NULL,NULL,match->value->value.u8);
+   		case OF12_MATCH_GTP_TEID: return of12_init_gtp_teid_match(NULL,NULL,match->value->value.u32,match->value->mask.u32);
+
 		/* Add more here ...*/
 		default:
 			//Should NEVER reach this point
@@ -561,6 +633,17 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
    		case OF12_MATCH_VLAN_VID: return __utern_compare16(it->value,pkt->vlan_vid);
    		case OF12_MATCH_VLAN_PCP: if(!pkt->vlan_vid) return false;
 					return __utern_compare8(it->value,pkt->vlan_pcp);
+		//ARP
+   		case OF12_MATCH_ARP_OP: if(!(pkt->eth_type == OF12_ETH_TYPE_ARP)) return false;
+   					return __utern_compare16(it->value,pkt->arp_opcode);
+   		case OF12_MATCH_ARP_SHA: if(!(pkt->eth_type == OF12_ETH_TYPE_ARP)) return false;
+   					return __utern_compare64(it->value,pkt->arp_sha);
+   		case OF12_MATCH_ARP_SPA: if(!(pkt->eth_type == OF12_ETH_TYPE_ARP)) return false;
+					return __utern_compare32(it->value, pkt->arp_spa);
+   		case OF12_MATCH_ARP_THA: if(!(pkt->eth_type == OF12_ETH_TYPE_ARP)) return false;
+   					return __utern_compare64(it->value,pkt->arp_tha);
+   		case OF12_MATCH_ARP_TPA: if(!(pkt->eth_type == OF12_ETH_TYPE_ARP)) return false;
+					return __utern_compare32(it->value, pkt->arp_tpa);
 		//MPLS
    		case OF12_MATCH_MPLS_LABEL: if(!(pkt->eth_type == OF12_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF12_ETH_TYPE_MPLS_MULTICAST )) return false;
 					return __utern_compare32(it->value,pkt->mpls_label);
@@ -633,6 +716,12 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
    		case OF12_MATCH_PPP_PROT: if(!(pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION )) return false; 
 						return __utern_compare16(it->value,pkt->ppp_proto);
 
+		//GTP
+   		case OF12_MATCH_GTP_MSG_TYPE: if (!(pkt->ip_proto == OF12_IP_PROTO_UDP || pkt->udp_dst == OF12_UDP_DST_PORT_GTPU)) return false;
+   						return __utern_compare8((utern8_t*)it->value,pkt->gtp_msg_type);
+   		case OF12_MATCH_GTP_TEID: if (!(pkt->ip_proto == OF12_IP_PROTO_UDP || pkt->udp_dst == OF12_UDP_DST_PORT_GTPU)) return false;
+   						return __utern_compare32((utern32_t*)it->value,pkt->gtp_teid);
+
 		// Add more here ...
 		default:
 			//Should NEVER reach this point; TODO, add trace for debugging?
@@ -647,7 +736,9 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
 */
 
 //Dump packet matches
-void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
+void of12_dump_packet_matches(of_packet_matches_t *const pkt_matches){
+
+	of12_packet_matches_t *const pkt = &pkt_matches->of12;
 
 	ROFL_PIPELINE_DEBUG_NO_PREFIX("Packet matches [");	
 
@@ -676,6 +767,17 @@ void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("VLAN_VID:%u, ",pkt->vlan_vid);
 	if(pkt->vlan_pcp)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("VLAN_PCP:%u, ",pkt->vlan_pcp);
+	//ARP
+	if(pkt->eth_type == OF12_ETH_TYPE_ARP)
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_OPCODE:0x%x, ",pkt->arp_opcode);
+	if(pkt->eth_type == OF12_ETH_TYPE_ARP)
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_SHA:0x%llx, ",(long long unsigned)pkt->arp_sha);
+	if(pkt->eth_type == OF12_ETH_TYPE_ARP)
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_SPA:0x%x, ",pkt->arp_spa);
+	if(pkt->eth_type == OF12_ETH_TYPE_ARP)
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_THA:0x%llx, ",(long long unsigned)pkt->arp_tha);
+	if(pkt->eth_type == OF12_ETH_TYPE_ARP)
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_TPA:0x%x, ",pkt->arp_tpa);
 	//IP/IPv4
 	if(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 )
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("IP_PROTO:%u, ",pkt->ip_proto);
@@ -729,7 +831,10 @@ void of12_dump_packet_matches(of12_packet_matches_t *const pkt){
 			ROFL_PIPELINE_DEBUG_NO_PREFIX("PPP_PROTO:0x%x, ",pkt->ppp_proto);
 				
 	}
-		 
+	//GTP
+	if(pkt->ip_proto == OF12_IP_PROTO_UDP && pkt->udp_dst == OF12_UDP_DST_PORT_GTPU){
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("GTP_MSG_TYPE:%u, GTP_TEID:0x%x, ",pkt->gtp_msg_type, pkt->gtp_teid);
+	}
 
 	ROFL_PIPELINE_DEBUG_NO_PREFIX("]");	
 	//Add more here...	
@@ -760,10 +865,21 @@ void of12_dump_matches(of12_match_t* matches){
 			case OF12_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u], ",it->value->value.u8);
 				break; 
 
-			case OF12_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:%u], ",it->value->value.u32);
+			case OF12_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:0x%x], ",it->value->value.u32);
 				break; 
 			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:0x%x], ",it->value->value.u8);
 				break; 
+
+			case OF12_MATCH_ARP_OP: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_OPCODE:0x%x], ",it->value->value.u16);
+				break;
+			case OF12_MATCH_ARP_SHA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_SHA:0x%llx|0x%llx],  ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
+				break;
+			case OF12_MATCH_ARP_SPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_SPA:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
+				break;
+			case OF12_MATCH_ARP_THA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_THA:0x%llx|0x%llx],  ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
+				break;
+			case OF12_MATCH_ARP_TPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_TPA:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
+				break;
 
 			case OF12_MATCH_IP_PROTO:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_PROTO:%u], ",it->value->value.u8);
 				break; 
@@ -821,6 +937,13 @@ void of12_dump_matches(of12_match_t* matches){
 				break; 
 			case OF12_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPP_PROT:%u] ",it->value->value.u16);
 				break; 
+
+			/* GTP related extensions */
+			case OF12_MATCH_GTP_MSG_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_MSG_TYPE:%u], ",((utern8_t*)it->value)->value);
+				break;
+			case OF12_MATCH_GTP_TEID: ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_TEID:0x%x], ",((utern32_t*)it->value)->value);
+				break;
+
 			/* Add more here ...*/
 			default:
 				ROFL_PIPELINE_DEBUG_NO_PREFIX("[UNKOWN!],");
@@ -859,6 +982,17 @@ void of12_full_dump_matches(of12_match_t* matches){
 				break; 
 			case OF12_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
 				break; 
+
+			case OF12_MATCH_ARP_OP: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_OPCODE:0x%x|0x%x], ",(it->value->value.u16,it->value->mask.u16);
+				break;
+			case OF12_MATCH_ARP_SHA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_SHA:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
+				break;
+			case OF12_MATCH_ARP_SPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_SPA:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
+				break;
+			case OF12_MATCH_ARP_THA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_THA:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
+				break;
+			case OF12_MATCH_ARP_TPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_TPA:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
+				break;
 
 			case OF12_MATCH_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_ECN:0x%x|0x%x], ",it->value->value.u8,it->value->mask.u8);
 				break; 
@@ -918,6 +1052,12 @@ void of12_full_dump_matches(of12_match_t* matches){
 
 			case OF12_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPP_PROT:%u|0x%x] ",it->value->value.u16,it->value->mask.u16);
 				break; 
+
+			/* GTP related extensions */
+			case OF12_MATCH_GTP_MSG_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_MSG_TYPE:%u|0x%x], ",((utern8_t*)it->value)->value,((utern8_t*)it->value)->mask);
+				break;
+			case OF12_MATCH_GTP_TEID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_TEID:0x%x|0x%x], ",((utern32_t*)it->value)->value,((utern32_t*)it->value)->mask);
+				break;
 
 			/* Add more here ...*/
 			default:

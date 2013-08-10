@@ -7,7 +7,7 @@
 */
 void __of12_update_packet_matches(datapacket_t *const pkt){
 		
-	of12_packet_matches_t* matches = (of12_packet_matches_t*)pkt->matches;
+	of12_packet_matches_t* matches = &pkt->matches.of12;
 
 	//Pkt size
 	matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt);
@@ -32,6 +32,13 @@ void __of12_update_packet_matches(datapacket_t *const pkt){
 	matches->ip_ecn = platform_packet_get_ip_ecn(pkt);
 	matches->ip_dscp = platform_packet_get_ip_dscp(pkt);
 	
+	//ARP
+	matches->arp_opcode = platform_packet_get_arp_opcode(pkt);
+	matches->arp_sha = platform_packet_get_arp_sha(pkt);
+	matches->arp_spa = platform_packet_get_arp_spa(pkt);
+	matches->arp_tha = platform_packet_get_arp_tha(pkt);
+	matches->arp_tpa = platform_packet_get_arp_tpa(pkt);
+
 	//IPv4
 	matches->ipv4_src = platform_packet_get_ipv4_src(pkt);
 	matches->ipv4_dst = platform_packet_get_ipv4_dst(pkt);
@@ -74,13 +81,14 @@ void __of12_update_packet_matches(datapacket_t *const pkt){
 	matches->icmpv6_code = platform_packet_get_icmpv6_code(pkt);
     
 
+	//GTP related extensions
+	matches->gtp_msg_type = platform_packet_get_gtp_msg_type(pkt);
+	matches->gtp_teid = platform_packet_get_gtp_teid(pkt);
 }
 
 /*
 * Sets up pkt->matches and call update to initialize packet matches
 */
-void __of12_init_packet_matches(datapacket_t *const pkt, of12_packet_matches_t* pkt_matches){
-	
-	pkt->matches = (of_packet_matches_t*)pkt_matches; 
+void __of12_init_packet_matches(datapacket_t *const pkt){
 	__of12_update_packet_matches(pkt);
 }

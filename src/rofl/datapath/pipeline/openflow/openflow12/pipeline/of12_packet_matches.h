@@ -8,12 +8,14 @@
 #include <inttypes.h> 
 #include <string.h> 
 #include "rofl.h"
-#include "../../../common/datapacket.h"
 #include "../../../common/ternary_fields.h"
 
 /**
 * @author Marc Sune<marc.sune (at) bisdn.de>
 */
+
+//Fwd decl
+struct datapacket;
 
 /* 
 * Packet OF12 matching values. Matching structure expected by the pipeline for Openflow 1.2
@@ -38,6 +40,13 @@ typedef struct{
 	//802.1q VLAN outermost tag
 	uint16_t vlan_vid;		/* VLAN id. */
 	uint8_t vlan_pcp;		/* VLAN PCP. */
+
+	//ARP
+	uint16_t arp_opcode;	/* ARP opcode */
+	uint64_t arp_sha;		/* ARP source hardware address */
+	uint32_t arp_spa;		/* ARP source protocol address */
+	uint64_t arp_tha;		/* ARP target hardware address */
+	uint32_t arp_tpa;		/* ARP target protocol address */
 
 	//IP
 	uint8_t ip_proto;		/* IP protocol. */
@@ -85,6 +94,10 @@ typedef struct{
 	uint64_t icmpv6_code; /* ICMPv6 type */
 	uint64_t icmpv6_type; /* ICMPv6 code */
 
+	//GTP related extensions
+	uint8_t gtp_msg_type;	/* GTP message type */
+	uint32_t gtp_teid;		/* GTP teid */
+
 }of12_packet_matches_t;
 
 
@@ -92,10 +105,10 @@ typedef struct{
 ROFL_BEGIN_DECLS
 
 //Init packet matches
-void __of12_init_packet_matches(datapacket_t *const pkt, of12_packet_matches_t* pkt_matches);
+void __of12_init_packet_matches(struct datapacket *const pkt);
 
 //Update packet matches after applying actions 
-void __of12_update_packet_matches(datapacket_t *const pkt);
+void __of12_update_packet_matches(struct datapacket *const pkt);
 
 
 

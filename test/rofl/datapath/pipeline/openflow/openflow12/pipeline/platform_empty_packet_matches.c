@@ -27,6 +27,21 @@ uint16_t platform_packet_get_vlan_vid(datapacket_t *const pkt){
 uint8_t platform_packet_get_vlan_pcp(datapacket_t *const pkt){
 	return 0;
 }
+uint16_t platform_packet_get_arp_opcode(datapacket_t *const pkt){
+	return 0;
+}
+uint64_t platform_packet_get_arp_sha(datapacket_t *const pkt){
+	return 0;
+}
+uint32_t platform_packet_get_arp_spa(datapacket_t *const pkt){
+	return 0;
+}
+uint64_t platform_packet_get_arp_tha(datapacket_t *const pkt){
+	return 0;
+}
+uint32_t platform_packet_get_arp_tpa(datapacket_t *const pkt){
+	return 0;
+}
 uint8_t platform_packet_get_ip_proto(datapacket_t *const pkt){
 	return 0;
 }
@@ -108,4 +123,9 @@ uint64_t platform_packet_get_icmpv6_type(datapacket_t *const pkt){
 uint64_t platform_packet_get_icmpv6_code(datapacket_t *const pkt){
 	return 0;
 }
-
+uint8_t platform_packet_get_gtp_msg_type(datapacket_t *const pkt){
+	return 0;
+}
+uint32_t platform_packet_get_gtp_teid(datapacket_t *const pkt){
+	return 0;
+}

@@ -116,22 +116,26 @@ void __of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	//Loop over tables
 	unsigned int i, table_to_go;
 	of12_flow_entry_t* match;
-	
-	//Temporal stack vars for matches and write actions (faster than dyn. mem)
-	of12_packet_matches_t pkt_matches;
-	of12_write_actions_t write_actions;
+	of12_packet_matches_t* pkt_matches;
 	
 	//Initialize packet for OF1.2 pipeline processing 
-	__of12_init_packet_matches(pkt, &pkt_matches); 
-	__of12_init_packet_write_actions(pkt, &write_actions); 
-		
+	__of12_init_packet_matches(pkt); 
+	__of12_init_packet_write_actions(pkt); 
+
+	//Matches aux
+	pkt_matches = &pkt->matches.of12;
+
 	ROFL_PIPELINE_DEBUG("Packet[%p] entering switch [%s] pipeline (1.2)\n",pkt,sw->name);	
+
+#ifdef DEBUG
+	of12_dump_packet_matches(&pkt->matches);
+#endif
 	
 	//FIXME: add metadata+write operations 
 	for(i=OF12_FIRST_FLOW_TABLE_INDEX; i < ((of12_switch_t*)sw)->pipeline->num_of_tables ; i++){
 		
 		//Perform lookup	
-		match = __of12_find_best_match_table((of12_flow_table_t* const)&((of12_switch_t*)sw)->pipeline->tables[i],(of12_packet_matches_t *const)&pkt_matches);
+		match = __of12_find_best_match_table((of12_flow_table_t* const)&((of12_switch_t*)sw)->pipeline->tables[i], pkt_matches);
 		
 		if(match){
 			
@@ -141,7 +145,7 @@ void __of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 
 			//Update table and entry statistics
 			__of12_stats_table_matches_inc(&((of12_switch_t*)sw)->pipeline->tables[i]);
-			__of12_stats_flow_update_match(match, pkt_matches.pkt_size_bytes);
+			__of12_stats_flow_update_match(match, pkt_matches->pkt_size_bytes);
 
 			//Update entry timers
 			__of12_timer_update_entry(match);
@@ -209,13 +213,9 @@ void __of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 */
 void of12_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of12_action_group_t* apply_actions_group){
 
-	//Temporal stack vars for matches and write actions
-	of12_packet_matches_t pkt_matches;
-	of12_write_actions_t write_actions;
-	
 	//Initialize packet for OF1.2 pipeline processing 
-	__of12_init_packet_matches(pkt, &pkt_matches); 
-	__of12_init_packet_write_actions(pkt, &write_actions); 
+	__of12_init_packet_matches(pkt); 
+	__of12_init_packet_write_actions(pkt); 
 
 	//Just process the action group
 	__of12_process_apply_actions((of12_switch_t*)sw, 0, pkt, apply_actions_group, apply_actions_group->num_of_output_actions > 1 );

@@ -34,6 +34,9 @@ extern "C" {
 #include "rofl/platform/unix/csyslog.h"
 #include "coxmlist.h"
 
+#include <rofl/common/openflow/experimental/matches/gtp_matches.h>
+#include <rofl/common/openflow/experimental/matches/pppoe_matches.h>
+
 namespace rofl
 {
 
@@ -494,66 +497,6 @@ public:
 	/**
 	 *
 	 */
-	uint8_t
-	get_pppoe_type() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_pppoe_type(
-			uint8_t type);
-
-
-	/**
-	 *
-	 */
-	uint8_t
-	get_pppoe_code() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_pppoe_code(
-			uint8_t code);
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_pppoe_sessid() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_pppoe_sessid(
-			uint16_t sid);
-
-
-	/**
-	 *
-	 */
-	uint16_t
-	get_ppp_prot() const;
-
-
-	/**
-	 *
-	 */
-	void
-	set_ppp_prot(
-			uint16_t prot);
-
-
-	/**
-	 *
-	 */
 	caddress
 	get_ipv4_src() const;
 
@@ -652,9 +595,24 @@ public:
 	/**
 	 *
 	 */
+	cmacaddr
+	get_arp_sha_addr() const;
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_arp_sha_mask() const;
+
+
+	/**
+	 *
+	 */
 	void
 	set_arp_sha(
-			cmacaddr const& sha);
+			cmacaddr const& sha,
+			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
 
 
 	/**
@@ -667,9 +625,24 @@ public:
 	/**
 	 *
 	 */
+	cmacaddr
+	get_arp_tha_addr() const;
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_arp_tha_mask() const;
+
+
+	/**
+	 *
+	 */
 	void
 	set_arp_tha(
-			cmacaddr const& tha);
+			cmacaddr const& tha,
+			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
 
 
 	/**
@@ -677,6 +650,20 @@ public:
 	 */
 	caddress
 	get_arp_spa() const;
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_arp_spa_value() const;
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_arp_spa_mask() const;
 
 
 	/**
@@ -693,6 +680,20 @@ public:
 	 */
 	caddress
 	get_arp_tpa() const;
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_arp_tpa_value() const;
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_arp_tpa_mask() const;
 
 
 	/**
@@ -1080,6 +1081,42 @@ public:
 		return os;
 	};
 };
+
+
+template<class T>
+cofmatch::cofmatch(
+		uint8_t of_version,
+		T* match,
+		size_t matchlen) :
+			of_version(of_version)
+{
+	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [2]", this);
+
+	switch (of_version) {
+	case OFP10_VERSION: {
+		if (OFP10_MATCH_STATIC_LEN != matchlen) {
+			throw eBadVersion();
+		}
+		unpack(match, matchlen);
+	} break;
+	case OFP12_VERSION: {
+		if (OFP12_MATCH_STATIC_LEN != matchlen) {
+			throw eBadVersion();
+		}
+		unpack(match, matchlen);
+	} break;
+	case OFP13_VERSION: {
+		if (OFP13_MATCH_STATIC_LEN != matchlen) {
+			throw eBadVersion();
+		}
+		unpack(match, matchlen);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
+	validate();
+}
 
 }; // end of namespace
 

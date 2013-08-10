@@ -231,6 +231,15 @@ public:
 	/**@{*/
 
 	/**
+	 * @brief	Returns address family of this instance.
+	 *
+	 * @return AF_INET, AF_INET6, AF_UNSPEC, ...
+	 */
+	int
+	get_family() const;
+
+
+	/**
 	 * @brief	Assignment operator.
 	 *
 	 * @param ca reference to caddress instance to be assigned to *this

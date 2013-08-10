@@ -53,8 +53,6 @@ extern "C" {
 #include "protocols/fetherframe.h"
 #include "protocols/fvlanframe.h"
 #include "protocols/fmplsframe.h"
-#include "protocols/fpppoeframe.h"
-#include "protocols/fpppframe.h"
 #include "protocols/fipv4frame.h"
 #include "protocols/ficmpv4frame.h"
 #include "protocols/fipv6frame.h"
@@ -74,8 +72,6 @@ namespace rofl
 class fetherframe;
 class fvlanframe;
 class fmplsframe;
-class fpppoeframe;
-class fpppframe;
 class fipv4frame;
 class ficmpv4frame;
 class farpv4frame;
@@ -159,7 +155,6 @@ private:
 		uint16_t						total_len;		// total_len of packet (for shortened frames in Packet-In)
 
 		enum cpacket_flag_t {
-			FLAG_PPPOE_LENGTH   		= 1,
 			FLAG_IPV4_CHECKSUM  		= 2,
 			FLAG_ICMPV4_CHECKSUM  		= 3,
 			FLAG_UDP_CHECKSUM   		= 4,
@@ -641,32 +636,6 @@ public:
 
 
 
-	/**
-	 * @brief	Returns the i'th fpppoeframe instance found in packet. (0: first from left side, -1: first from right side)
-	 * @see fpppoeframe
-	 *
-	 * @param i index of fpppoeframe
-	 * @return pointer to fpppoeframe instance at index i
-	 * @exception ePacketNotFound is thrown when no fpppoeframe at index i could be found
-	 */
-	fpppoeframe*
-	pppoe(
-			int i = 0) throw (ePacketNotFound);
-
-
-
-	/**
-	 * @brief	Returns the i'th fpppframe instance found in packet. (0: first from left side, -1: first from right side)
-	 * @see fpppframe
-	 *
-	 * @param i index of fpppframe
-	 * @return pointer to fpppframe instance at index i
-	 * @exception ePacketNotFound is thrown when no fpppframe at index i could be found
-	 */
-	fpppframe*
-	ppp(
-			int i = 0) throw (ePacketNotFound);
-
 
 
 	/**
@@ -967,48 +936,6 @@ public: // action related methods
 
 
 
-	/**
-	 * @brief	Apply a PUSH-PPPOE action.
-	 *
-	 * @param action cofaction instance to be applied
-	 */
-	void
-	action_push_pppoe(
-		cofaction& action);
-
-
-
-
-	/**
-	 * @brief	Apply a POP-PPPOE action.
-	 *
-	 * @param action cofaction instance to be applied
-	 */
-	void
-	action_pop_pppoe(
-		cofaction& action);
-
-
-
-
-#if 0
-	/**
-	 * action: push ppp
-	 */
-	void action_push_ppp(
-		cofaction& action);
-#endif
-
-
-	/**
-	 * @brief	Apply a POP-PPP action.
-	 *
-	 * @param action cofaction instance to be applied
-	 */
-	void
-	action_pop_ppp(
-		cofaction& action);
-
 
 	/**@}*/
 
@@ -1142,51 +1069,6 @@ public:
 	void
 	dec_nw_ttl();
 
-
-
-	/**
-	 * @brief	ActionPushPPPoE
-	 *
-	 * Pushes a new outermost PPPoE tag onto the packet.
-	 *
-	 * @param ethertype new ethernet type value set in Ethernet header
-	 */
-	void
-	push_pppoe(
-			uint16_t ethertype);
-
-
-
-	/**
-	 * @brief	ActionPopPPPoE.
-	 *
-	 * Removes the outermost PPPoE tag from a packet.
-	 *
-	 * @param ethertype new ethernet type value set in Ethernet header
-	 */
-	void
-	pop_pppoe(
-			uint16_t ethertype);
-
-
-
-#if 0
-	/** push ppp
-	 */
-	void
-	push_ppp(
-			uint16_t code);
-#endif
-
-
-
-	/**
-	 * @brief	ActionPopPPP.
-	 *
-	 * Removes the outermost PPP tag from a packet.
-	 */
-	void
-	pop_ppp();
 
 
 	/**@}*/
@@ -1380,23 +1262,6 @@ private: // methods
 			uint8_t *data,
 			size_t datalen);
 
-
-	/**
-	 *
-	 */
-	void
-	parse_pppoe(
-			uint8_t *data,
-			size_t datalen);
-
-
-	/**
-	 *
-	 */
-	void
-	parse_ppp(
-			uint8_t *data,
-			size_t datalen);
 
 
 	/**

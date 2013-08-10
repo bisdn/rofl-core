@@ -1,4 +1,5 @@
 #include "of12_action.h"
+#include "../../../common/datapacket.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -21,13 +22,13 @@ extern switch_port_t* flood_meta_port;
 
 //Non-multiple of byte masks
 #define OF12_AT_20_BITS_MASK 0x00000000000FFFFF
-#define OF12_AT_9_BITS_MASK 0x00000000000FFFFF
-#define OF12_AT_13_BITS_MASK 0x00000000000FFFFF
-#define OF12_AT_6_BITS_MASK 0x00000000000FFFFF
-#define OF12_AT_3_BITS_MASK 0x00000000000FFFFF
-#define OF12_AT_2_BITS_MASK 0x00000000000FFFFF
+#define OF12_AT_9_BITS_MASK 0x00000000000001FF
 //NOTE Needed?
 #define OF12_AT_8_BYTE_MASK 0xFFFFFFFFFFFFFFFF 
+#define OF12_AT_13_BITS_MASK 0x0000000000001FFF
+#define OF12_AT_6_BITS_MASK 0x000000000000003F
+#define OF12_AT_3_BITS_MASK 0x0000000000000007
+#define OF12_AT_2_BITS_MASK 0x0000000000000003
 
 //fwd declarations
 static void __of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t* group, bool replicate_pkts);
@@ -57,13 +58,18 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 		case OF12_AT_SET_FIELD_IPV6_ND_TLL:
 		case OF12_AT_SET_FIELD_ETH_DST:
 		case OF12_AT_SET_FIELD_ETH_SRC:
+		case OF12_AT_SET_FIELD_ARP_SHA:
+		case OF12_AT_SET_FIELD_ARP_THA:
 			action->field.u64 = field.u64&OF12_AT_6_BYTE_MASK;
 			break;
 	
 		//4 byte values
 		case OF12_AT_SET_FIELD_IPV4_DST:
 		case OF12_AT_SET_FIELD_IPV4_SRC:
+		case OF12_AT_SET_FIELD_ARP_SPA:
+		case OF12_AT_SET_FIELD_ARP_TPA:
 		case OF12_AT_OUTPUT:
+		case OF12_AT_SET_FIELD_GTP_TEID:
 			action->field.u64 = field.u64&OF12_AT_4_BYTE_MASK;	// TODO: max_len when port_no == OFPP_CONTROLLER
 			break;
 		//20 bit values
@@ -73,6 +79,7 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 			break;
 		//2 byte values
 		case OF12_AT_SET_FIELD_ETH_TYPE:
+		case OF12_AT_SET_FIELD_ARP_OPCODE:
 		case OF12_AT_SET_FIELD_TCP_SRC:
 		case OF12_AT_SET_FIELD_TCP_DST:
 		case OF12_AT_SET_FIELD_UDP_SRC:
@@ -105,6 +112,7 @@ of12_packet_action_t* of12_init_packet_action(/*const struct of12_switch* sw, */
 		case OF12_AT_SET_FIELD_IP_PROTO:
 		case OF12_AT_SET_FIELD_ICMPV4_TYPE:
 		case OF12_AT_SET_FIELD_ICMPV4_CODE:
+		case OF12_AT_SET_FIELD_GTP_MSG_TYPE:
 			action->field.u64 = field.u64&OF12_AT_1_BYTE_MASK;
 			break;
 		//6 bit values
@@ -226,9 +234,8 @@ void of12_push_packet_action_to_group(of12_action_group_t* group, of12_packet_ac
 }
 
 /* Write actions init */
-void __of12_init_packet_write_actions(datapacket_t *const pkt, of12_write_actions_t* write_actions){
-	pkt->write_actions = (of_write_actions_t*)write_actions; 
-	memset(write_actions, 0, sizeof(of12_write_actions_t));
+void __of12_init_packet_write_actions(datapacket_t *const pkt){
+       memset(&pkt->write_actions.of12, 0, sizeof(of12_write_actions_t));
 }
 
 of12_write_actions_t* of12_init_write_actions(){
@@ -261,7 +268,7 @@ void __of12_update_packet_write_actions(datapacket_t* pkt, const of12_write_acti
 	of12_write_actions_t* packet_write_actions;
 
 	//Recover write actions from datapacket
-	packet_write_actions = (of12_write_actions_t*)pkt->write_actions;
+	packet_write_actions = &pkt->write_actions.of12;
 	
 	if(!entry_write_actions)
 		return;
@@ -275,14 +282,14 @@ void __of12_update_packet_write_actions(datapacket_t* pkt, const of12_write_acti
 }
 
 //Clear actions
-void __of12_clear_write_actions(of12_write_actions_t* write_actions){
-	memset(write_actions, 0, sizeof(of12_write_actions_t));
+void __of12_clear_write_actions(datapacket_t* pkt){
+	memset(&pkt->write_actions.of12, 0, sizeof(of12_write_actions_t));
 }
 
 /* Contains switch with all the different action functions */
 static inline void __of12_process_packet_action(const struct of12_switch* sw, const unsigned int table_id, datapacket_t* pkt, of12_packet_action_t* action, bool replicate_pkts){
 
-	of12_packet_matches_t* pkt_matches = (of12_packet_matches_t*)pkt->matches;
+	of12_packet_matches_t* pkt_matches = &pkt->matches.of12;
 
 	switch(action->type){
 		case OF12_AT_NO_ACTION: /*TODO: print some error traces? */
@@ -401,6 +408,38 @@ static inline void __of12_process_packet_action(const struct of12_switch* sw, co
 			platform_packet_set_vlan_pcp(pkt, action->field.u64);
 			//Update match
 			pkt_matches->vlan_pcp = action->field.u64;
+			break;
+
+		//ARP
+		case OF12_AT_SET_FIELD_ARP_OPCODE:
+			//Call plattform
+			platform_packet_set_arp_opcode(pkt, action->field);
+			//Update match
+			pkt_matches->arp_opcode = action->field;
+			break;
+		case OF12_AT_SET_FIELD_ARP_SHA:
+			//Call platform
+			platform_packet_set_arp_sha(pkt, action->field);
+			//Update match
+			pkt_matches->arp_sha = action->field;
+			break;
+		case OF12_AT_SET_FIELD_ARP_SPA:
+			//Call platform
+			platform_packet_set_arp_spa(pkt, action->field);
+			//Update match
+			pkt_matches->arp_spa = action->field;
+			break;
+		case OF12_AT_SET_FIELD_ARP_THA:
+			//Call platform
+			platform_packet_set_arp_tha(pkt, action->field);
+			//Update match
+			pkt_matches->arp_tha = action->field;
+			break;
+		case OF12_AT_SET_FIELD_ARP_TPA:
+			//Call platform
+			platform_packet_set_arp_tpa(pkt, action->field);
+			//Update match
+			pkt_matches->arp_tpa = action->field;
 			break;
 
 		//IP
@@ -579,6 +618,20 @@ static inline void __of12_process_packet_action(const struct of12_switch* sw, co
 			pkt_matches->icmpv6_code = action->field.u64;
 			break;
 
+		//GTP
+		case OF12_AT_SET_FIELD_GTP_MSG_TYPE:
+			//Call platform
+			platform_packet_set_gtp_msg_type(pkt, action->field.u64);
+			//Update match
+			pkt_matches->gtp_msg_type = action->field.u64;
+			break;
+		case OF12_AT_SET_FIELD_GTP_TEID:
+			//Call platform
+			platform_packet_set_gtp_teid(pkt, action->field.u64);
+			//Update match
+			pkt_matches->gtp_teid = action->field.u64;
+			break;
+
 		case OF12_AT_GROUP: __of12_process_group_actions(sw, table_id, pkt, action->field.u64, action->group, replicate_pkts);
 			break;
 		case OF12_AT_EXPERIMENTER: //FIXME: implement
@@ -654,7 +707,7 @@ void __of12_process_write_actions(const struct of12_switch* sw, const unsigned i
 	of12_write_actions_t* packet_write_actions;
 
 	//Recover write actions from datapacket
-	packet_write_actions = (of12_write_actions_t*)pkt->write_actions;
+	packet_write_actions = &pkt->write_actions.of12;
 	
 	for(i=0;i<OF12_AT_NUMBER;i++){
 		if(packet_write_actions->write_actions[i].type){
@@ -695,7 +748,7 @@ rofl_result_t __of12_update_write_actions(of12_write_actions_t** group, of12_wri
 static
 void __of12_process_group_actions(const struct of12_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of12_group_t *group, bool replicate_pkts){
 	of12_bucket_t *it_bk;
-	of12_packet_matches_t *matches = (of12_packet_matches_t *) pkt->matches;
+	of12_packet_matches_t *matches = &pkt->matches.of12;
 	
 	//process the actions in the buckets depending on the type
 	switch(group->type){
@@ -894,6 +947,17 @@ static void __of12_dump_packet_action(of12_packet_action_t action){
 		case OF12_AT_SET_FIELD_VLAN_PCP:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_VLAN_PCP: 0x%x",action.field.u64);
 			break;
 
+		case OF12_AT_SET_FIELD_ARP_OPCODE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ARP_OPCODE: 0x%x",action.field.u64);
+			break;
+		case OF12_AT_SET_FIELD_ARP_SHA: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ARP_SHA: 0x%"PRIx64,action.field.u64);
+			break;
+		case OF12_AT_SET_FIELD_ARP_SPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ARP_SPA: 0x%x",action.field.u64);
+			break;
+		case OF12_AT_SET_FIELD_ARP_THA: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ARP_THA: 0x%"PRIx64,action.field.u64);
+			break;
+		case OF12_AT_SET_FIELD_ARP_TPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ARP_TPA: 0x%x",action.field.u64);
+			break;
+
 		case OF12_AT_SET_FIELD_IP_DSCP: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IP_DSCP: 0x%x",action.field.u64);
 			break;
 		case OF12_AT_SET_FIELD_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IP_ECN: 0x%x",action.field.u64);
@@ -957,6 +1021,11 @@ static void __of12_dump_packet_action(of12_packet_action_t action){
 		case OF12_AT_SET_FIELD_ICMPV6_CODE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ICMPV6_CODE: 0x%u",action.field.u64);
 			break;
 		
+
+		case OF12_AT_SET_FIELD_GTP_MSG_TYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_GTP_MSG_TYPE: 0x%x",action.field);
+			break;
+		case OF12_AT_SET_FIELD_GTP_TEID:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_GTP_TEID: 0x%x",action.field);
+			break;
 
 		case OF12_AT_GROUP:ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP");
 			break;

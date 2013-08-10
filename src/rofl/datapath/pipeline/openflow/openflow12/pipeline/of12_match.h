@@ -7,8 +7,10 @@
 #include <stdbool.h>
 #include "rofl.h"
 #include "../../../common/ternary_fields.h"
-//#include "../../../common/datapacket.h"
 #include "of12_packet_matches.h"
+
+//Fwd declarations
+union of_packet_matches;
 
 //Useful ETH_TYPE values
 #define OF12_ETH_TYPE_MPLS_UNICAST 0x8847
@@ -17,6 +19,7 @@
 #define OF12_ETH_TYPE_IPV6 0x86DD
 #define OF12_ETH_TYPE_PPPOE_DISCOVERY 0x8863
 #define OF12_ETH_TYPE_PPPOE_SESSION 0x8864
+#define OF12_ETH_TYPE_ARP 0x0806
 
 //Useful IP_PROTO values
 #define OF12_IP_PROTO_TCP 6
@@ -27,6 +30,10 @@
 //PPP PROTO values
 #define OF12_PPP_PROTO_IP4 0x0021 
 #define OF12_PPP_PROTO_IP6 0x0057
+
+//Useful UDP destination port values
+#define OF12_UDP_DST_PORT_GTPC 2123
+#define OF12_UDP_DST_PORT_GTPU 2152
 
 /* Defines possible matchings. This is EXPLICITELY copied from openflow.h, to simplify names, avoid collisions and add extensions */
 typedef enum{
@@ -79,20 +86,23 @@ typedef enum{
 	/* mpls */
 	OF12_MATCH_MPLS_LABEL = 35,        /* MPLS label. */
 	OF12_MATCH_MPLS_TC = 36,        /* MPLS TC. */
-	OF12_MATCH_MPLS_BOS = 37,
 
-	OF12_MATCH_PBB_ISID = 38,
-	OF12_MATCH_TUNNEL_ID = 39,
+	OF12_MATCH_PBB_ISID = 37,
+	OF12_MATCH_TUNNEL_ID = 38,
 
 
 	/********************************/
 	/**** Extensions out of spec ****/
 	/********************************/
 	/* PPP/PPPoE related extensions */
-	OF12_MATCH_PPPOE_CODE = 40,        /* PPPoE code */
-	OF12_MATCH_PPPOE_TYPE = 41,        /* PPPoE type */
-	OF12_MATCH_PPPOE_SID = 42,        /* PPPoE session id */
-	OF12_MATCH_PPP_PROT = 43,        /* PPP protocol */
+	OF12_MATCH_PPPOE_CODE = 39,        /* PPPoE code */
+	OF12_MATCH_PPPOE_TYPE = 40,        /* PPPoE type */
+	OF12_MATCH_PPPOE_SID = 41,        /* PPPoE session id */
+	OF12_MATCH_PPP_PROT = 42,        /* PPP protocol */
+	
+	/* GTP related extensions */
+	OF12_MATCH_GTP_MSG_TYPE = 43,	/* GTP message type */
+	OF12_MATCH_GTP_TEID = 44,		/* GTP teid */
 
 	/* max value */
 	OF12_MATCH_MAX,
@@ -188,6 +198,33 @@ of12_match_t* of12_init_mpls_label_match(of12_match_t* prev, of12_match_t* next,
 */
 of12_match_t* of12_init_mpls_tc_match(of12_match_t* prev, of12_match_t* next, uint8_t value);
 
+//ARP
+/**
+* @brief Create an ARP_OPCODE match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_arp_opcode_match(of12_match_t* prev, of12_match_t* next, uint16_t value);
+/**
+* @brief Create an ARP_THA match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_arp_tha_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+/**
+* @brief Create an ARP_SHA match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_arp_sha_match(of12_match_t* prev, of12_match_t* next, uint64_t value, uint64_t mask);
+/**
+* @brief Create an ARP_TPA match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_arp_tpa_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask);
+/**
+* @brief Create an ARP_SPA match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_arp_spa_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask);
+
 //PPPoE
 /**
 * @brief Create an PPPOE_CODE match 
@@ -211,6 +248,18 @@ of12_match_t* of12_init_pppoe_session_match(of12_match_t* prev, of12_match_t* ne
 * @ingroup core_of12 
 */
 of12_match_t* of12_init_ppp_prot_match(of12_match_t* prev, of12_match_t* next, uint16_t value);
+
+//GTP
+/**
+* @brief Create an PPP_PROTO match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_gtp_msg_type_match(of12_match_t* prev, of12_match_t* next, uint8_t value);
+/**
+* @brief Create an PPP_PROTO match
+* @ingroup core_of12
+*/
+of12_match_t* of12_init_gtp_teid_match(of12_match_t* prev, of12_match_t* next, uint32_t value, uint32_t mask);
 
 
 //IP
@@ -384,7 +433,7 @@ bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* it);
 /*
 * Dumping
 */
-void of12_dump_packet_matches(of12_packet_matches_t *const pkt);
+void of12_dump_packet_matches(union of_packet_matches *const pkt_matches);
 
 void of12_dump_matches(of12_match_t* matches);
 void of12_full_dump_matches(of12_match_t* matches);

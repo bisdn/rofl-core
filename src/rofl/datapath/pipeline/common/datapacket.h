@@ -6,6 +6,12 @@
 #define __DATAPACKET_H__
 
 #include <stdbool.h>
+#include "../openflow/of_switch.h"
+
+//OF1.2
+#include "../openflow/openflow12/pipeline/of12_action.h"
+#include "../openflow/openflow12/pipeline/of12_packet_matches.h"
+//Add more here...
 
 /**
 * @file datapacket.h
@@ -20,9 +26,22 @@
 *
 */
 
+
+/* Write actions */
+typedef union of_packet_matches{
+	//OF1.2
+	of12_packet_matches_t of12;
+	//Add more here...	
+}of_packet_matches_t;
+
+/* Write actions */
+typedef union of_write_actions{
+	//OF1.2
+	of12_write_actions_t of12;
+	//Add more here...	
+}of_write_actions_t;
+
 //Typedef to void. This is dependant to the version of the pipeline
-typedef void of_packet_matches_t;
-typedef void of_write_actions_t;
 typedef void platform_datapacket_state_t; 
 
 /**
@@ -35,11 +54,11 @@ typedef void platform_datapacket_state_t;
 * while transversing the pipeline, which the packet mangling APIs may
 * use afterwards.
 */
-typedef struct{
+typedef struct datapacket{
 
-	//Generic parts of an Openflow (version agnostic)
-	of_packet_matches_t* matches;
-	of_write_actions_t* write_actions;
+	//Generic Openflow matches and write actions 
+	of_packet_matches_t matches;
+	of_write_actions_t write_actions;
 
 	/**
 	* Flag indicating if it is a replica of the original packet

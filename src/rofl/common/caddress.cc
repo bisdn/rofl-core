@@ -188,6 +188,15 @@ caddress::pton(int af, const char* astr)
 }
 
 
+
+int
+caddress::get_family() const
+{
+	return ca_saddr->sa_family;
+}
+
+
+
 caddress&
 caddress::operator=(const caddress& ca)
 {

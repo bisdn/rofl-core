@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include "rofl.h"
 #include "of12_action.h"
+#include "../../../common/datapacket.h"
 
 /**
 * @file of12_instruction.h
