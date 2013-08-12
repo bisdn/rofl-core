@@ -14,7 +14,8 @@ fipv6frame::fipv6frame(
 		ipv6data(0),
 		ipv6datalen(0)
 {
-	initialize();
+	if(data)
+		initialize();
 }
 
 
