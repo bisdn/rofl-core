@@ -6,15 +6,8 @@
 #define CFSM_H 1
 
 #include <string>
-
-#ifndef __cplusplus
-extern "C" {
-#endif
 #include <stdio.h>
 #include <strings.h>
-#ifndef __cplusplus
-}
-#endif
 
 namespace rofl
 {

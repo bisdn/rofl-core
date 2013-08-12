@@ -11,24 +11,15 @@
 #include <vector>
 #include <bitset>
 #include <algorithm>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "../../common/openflow/openflow.h"
-#include "../../common/openflow/openflow_rofl.h"
 #include <endian.h>
 #include <string.h>
 #include <time.h>
-
 #ifndef htobe16
-#include "../../common/endian_conversion.h"
+	#include "../../common/endian_conversion.h"
 #endif
 
-#ifdef __cplusplus
-}
-#endif
-
+#include "../../common/openflow/openflow.h"
+#include "../../common/openflow/openflow_rofl.h"
 #include "../../common/ciosrv.h"
 #include "../../common/cerror.h"
 #include "cfwdtable.h"

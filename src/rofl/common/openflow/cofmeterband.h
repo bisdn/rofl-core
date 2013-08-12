@@ -9,22 +9,15 @@
 #define COFMETERBAND_H_ 1
 
 #include <ostream>
+#include <endian.h>
+#ifndef htobe16
+	#include "../endian_conversion.h"
+#endif
 
 #include "../cmemory.h"
 #include "../cerror.h"
 #include "openflow.h"
 #include "openflow_rofl_exceptions.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include <endian.h>
-#ifndef htobe16
-#include "../endian_conversion.h"
-#endif
-#ifdef __cplusplus
-}
-#endif
 
 namespace rofl
 {

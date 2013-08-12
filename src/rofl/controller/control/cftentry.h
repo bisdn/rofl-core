@@ -11,21 +11,12 @@
 #include <vector>
 #include <bitset>
 #include <algorithm>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "../../common/openflow/openflow.h"
 #include <inttypes.h>
 #include <sys/time.h>
 #include <pthread.h>
 #include <time.h>
 
-#ifdef __cplusplus
-}
-#endif
-
+#include "../../common/openflow/openflow.h"
 #include "../../common/cclock.h"
 #include "../../common/cmemory.h"
 #include "../../common/cerror.h"

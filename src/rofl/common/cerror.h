@@ -11,16 +11,9 @@
 
 #include <string.h>
 #include <errno.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <stdio.h>
 #include <strings.h>
 #include <stdarg.h>
-#ifdef __cplusplus
-}
-#endif
 
 namespace rofl
 {

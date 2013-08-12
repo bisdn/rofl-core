@@ -7,20 +7,10 @@
 
 #include <map>
 #include <string>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-
 #ifndef htobe16
-#include "../../common/endian_conversion.h"
+	#include "../../common/endian_conversion.h"
 #endif
-
-#ifdef __cplusplus
-}
-#endif
-
 
 #include "../../common/ciosrv.h"
 #include "../../common/cerror.h"

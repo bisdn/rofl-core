@@ -13,11 +13,6 @@
 #include <set>
 #include <algorithm>
 #include <typeinfo>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <stdlib.h>
@@ -27,20 +22,15 @@ extern "C" {
 #include <sys/uio.h>
 #include <assert.h>
 
-
-#include "openflow/openflow.h"
-#ifdef __cplusplus
-}
-#endif
-
 #include "cerror.h"
 #include "cclock.h"
 #include "fframe.h"
-
 #include "cmacaddr.h"
 #include "cmemory.h"
 #include "cvastring.h"
 #include "thread_helper.h"
+
+#include "openflow/openflow.h"
 
 /* Platform dependant */
 #include "rofl/platform/unix/csyslog.h"

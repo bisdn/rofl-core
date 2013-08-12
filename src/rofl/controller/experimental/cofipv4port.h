@@ -7,23 +7,13 @@
 
 #include <string>
 #include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <arpa/inet.h>
 #include <endian.h>
-#include "rofl/common/openflow/openflow_rofl.h"
-
 #ifndef be32toh
-#include "rofl/common/endian_conversion.h"
+	#include "rofl/common/endian_conversion.h"
 #endif
 
-#ifdef __cplusplus
-}
-#endif
-
+#include "rofl/common/openflow/openflow_rofl.h"
 #include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/caddress.h"
 #include "rofl/common/cvastring.h"

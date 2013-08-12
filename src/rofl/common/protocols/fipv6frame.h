@@ -6,19 +6,10 @@
 #define FIPV6FRAME_H 1
 
 #include <map>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <inttypes.h>
 #include <endian.h>
 #ifndef htobe16
-#include "../endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
+	#include "../endian_conversion.h"
 #endif
 
 #include "../fframe.h"

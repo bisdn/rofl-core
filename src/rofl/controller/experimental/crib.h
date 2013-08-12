@@ -7,15 +7,7 @@
 
 #include <string>
 #include <algorithm>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
 
 #include "rofl/common/cerror.h"
 #include "rofl/common/ciosrv.h"

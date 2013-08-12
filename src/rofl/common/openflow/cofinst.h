@@ -8,20 +8,13 @@
 #include <set>
 #include <vector>
 #include <algorithm>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "openflow.h"
 #include <endian.h>
 #include <pthread.h>
 #ifndef htobe16
-#include "../endian_conversion.h"
-#endif
-#ifdef __cplusplus
-}
+	#include "../endian_conversion.h"
 #endif
 
+#include "openflow.h"
 #include "../cmemory.h"
 #include "../cerror.h"
 #include "../cvastring.h"

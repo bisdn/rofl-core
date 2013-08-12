@@ -7,22 +7,12 @@
 
 #include <string>
 #include <vector>
-
-#ifdef __cplusplus
-extern "C" {
+#include <endian.h>
+#ifndef htobe16
+	#include "../endian_conversion.h"
 #endif
 
 #include "openflow.h"
-#include <endian.h>
-
-#ifndef htobe16
-#include "../endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
 #include "../coflist.h"
 #include "../cvastring.h"
 #include "cofbucket.h"

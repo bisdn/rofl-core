@@ -5,15 +5,8 @@
 #ifndef OPENFLOW_ROFL_H
 #define OPENFLOW_ROFL_H 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-	#include "openflow.h"
-	#include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
+#include <inttypes.h>
+#include "openflow.h"
 
 // ROFL vendor extension identifier
 #define VENDOR_EXT_ROFL 0x551bcccc	// shamelessly taken

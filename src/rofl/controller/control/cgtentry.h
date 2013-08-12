@@ -9,17 +9,10 @@
 #include <map>
 #include <list>
 #include <vector>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "../../common/openflow/openflow.h"
 #include <inttypes.h>
 #include <sys/time.h>
-#ifdef __cplusplus
-}
-#endif
 
+#include "../../common/openflow/openflow.h"
 #include "../../common/ciosrv.h"
 #include "../../common/cmemory.h"
 #include "../../common/cvastring.h"

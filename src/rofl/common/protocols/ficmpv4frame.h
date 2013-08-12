@@ -5,18 +5,9 @@
 #ifndef FICMPV4FRAME_H
 #define FICMPV4FRAME_H 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <endian.h>
-
 #ifndef htobe16
-#include "../endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
+	#include "../endian_conversion.h"
 #endif
 
 #include "../fframe.h"

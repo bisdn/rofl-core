@@ -10,14 +10,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
 
 #include "rofl/common/cvastring.h"
 #include "rofl/common/cerror.h"

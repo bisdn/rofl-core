@@ -9,20 +9,13 @@
 #define FGTPUV1FRAME_H_ 1
 
 #include <string>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "../openflow/openflow.h"
 #include <endian.h>
 #ifndef htobe16
-#include "../endian_conversion.h"
-#endif
-#ifdef __cplusplus
-}
+	#include "../endian_conversion.h"
 #endif
 
-#include <rofl/common/fframe.h>
+#include "../openflow/openflow.h"
+#include "../fframe.h"
 #include "gtpuext.h"
 
 namespace rofl

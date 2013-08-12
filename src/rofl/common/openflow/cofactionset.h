@@ -12,20 +12,12 @@
 #ifndef COFACTIONSET_H_
 #define COFACTIONSET_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <map>
 #include <string>
+
 #include "../cvastring.h"
-
 #include "rofl/platform/unix/csyslog.h"
-
 #include "cofaction.h"
 #include "cofinst.h"
 

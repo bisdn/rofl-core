@@ -8,18 +8,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <endian.h>
 #include <strings.h>
-
-#ifdef __cplusplus
-}
-#endif
-
 
 #include "../cerror.h"
 #include "../cmemory.h"

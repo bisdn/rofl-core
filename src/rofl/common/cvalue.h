@@ -13,19 +13,10 @@
 #define CVALUE_H 1
 
 #include <string>
+#include <inttypes.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-	#include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
-
-
-#include <rofl/common/cmemory.h>
-#include <rofl/common/cerror.h>
+#include "cmemory.h"
+#include "cerror.h"
 
 namespace rofl
 {
