@@ -369,21 +369,21 @@ fipv4frame::set_ipv4_length(uint16_t length)
 bool
 fipv4frame::has_DF_bit_set()
 {
-	return (bool)((ipv4_hdr->offset_flags >> 13) & bit_dont_fragment);
+	return (bool)((be16toh(ipv4_hdr->offset_flags) >> 13)  & bit_dont_fragment);
 }
 
 
 void
 fipv4frame::set_DF_bit()
 {
-	ipv4_hdr->offset_flags |= (bit_dont_fragment << 13);
+	ipv4_hdr->offset_flags = htobe16( be16toh(ipv4_hdr->offset_flags) | (bit_dont_fragment << 13) );
 }
 
 
 void
 fipv4frame::clear_DF_bit()
 {
-	ipv4_hdr->offset_flags &= ~(bit_dont_fragment << 13);
+	ipv4_hdr->offset_flags = htobe16( be16toh(ipv4_hdr->offset_flags) & ~(bit_dont_fragment << 13) );
 }
 
 
