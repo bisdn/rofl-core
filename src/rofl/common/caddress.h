@@ -203,7 +203,7 @@ public:
 	operator<< (std::ostream& os, caddress const& addr)
 	{
 		caddress t_addr(addr);
-		os << std::string(t_addr.c_str());
+		os << std::string(t_addr.addr_c_str());
 #if 0
 		caddress t_addr(addr);
 		os << "caddress{"

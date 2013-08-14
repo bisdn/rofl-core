@@ -194,12 +194,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cmacaddr const& maddr)
 	{
-		os << "cmacaddr[";
-			for (int i = 0; i < OFP_ETH_ALEN; i++) {
-				os << (std::hex) << (int)(maddr.somem()[i]) << (std::dec);
-				if (i < (OFP_ETH_ALEN - 1)) os << ":";
-			}
-		os << "]";
+		for (int i = 0; i < OFP_ETH_ALEN; i++) {
+			os << (std::hex) << (int)(maddr.somem()[i]) << (std::dec);
+			if (i < (OFP_ETH_ALEN - 1)) os << ":";
+		}
 		return os;
 	};
 
