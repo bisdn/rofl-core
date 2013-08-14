@@ -1568,7 +1568,39 @@ cofmatch::get_ipv6_src() const
 #endif
 }
 
+caddress
+cofmatch::get_ipv6_src_value() const
+{
+	uint128__t value;
+	try {
+		caddress addr(AF_INET6, "0:0:0:0:0:0:0:0:0");
+		value = oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_SRC).uint128_value();
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+		SWAP_U128(value);
+#endif
+		memcpy(&addr.ca_s6addr->sin6_addr.__in6_u.__u6_addr8, &value.val, sizeof(uint128__t));
+		return addr;
+	}catch(eOxmListNotFound& e){
+		throw eOFmatchNotFound();
+	}
+}
 
+caddress
+cofmatch::get_ipv6_src_mask() const
+{
+	uint128__t t_mask;
+	try {
+		caddress mask(AF_INET6, "0:0:0:0:0:0:0:0");
+		t_mask = oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_SRC).uint128_mask();
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+		SWAP_U128(t_mask);
+#endif
+		memcpy(&mask.ca_s6addr->sin6_addr.__in6_u.__u6_addr8,&t_mask.val,sizeof(uint128__t));
+		return mask;
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
 
 void
 cofmatch::set_ipv6_src(
@@ -1630,7 +1662,39 @@ cofmatch::get_ipv6_dst() const
 #endif
 }
 
+caddress
+cofmatch::get_ipv6_dst_value() const
+{
+	uint128__t value;
+	try {
+		caddress addr(AF_INET6, "0:0:0:0:0:0:0:0:0");
+		value = oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_DST).uint128_value();
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+		SWAP_U128(value);
+#endif
+		memcpy(&addr.ca_s6addr->sin6_addr.__in6_u.__u6_addr8,&value.val,sizeof(uint128__t));
+		return addr;
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
 
+caddress
+cofmatch::get_ipv6_dst_mask() const
+{
+	uint128__t t_mask;
+	try {
+		caddress mask(AF_INET6, "0:0:0:0:0:0:0:0");
+		t_mask = oxmlist.get_const_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IPV6_DST).uint128_mask();
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+		SWAP_U128(t_mask);
+#endif
+		memcpy(&mask.ca_s6addr->sin6_addr.__in6_u.__u6_addr8,&t_mask.val,sizeof(uint128__t));
+		return mask;
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
 
 void
 cofmatch::set_ipv6_dst(

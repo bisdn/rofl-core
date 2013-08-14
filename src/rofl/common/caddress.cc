@@ -490,32 +490,21 @@ caddress::get_ipv6_addr(){
 	
 	switch (ca_saddr->sa_family){
 		case AF_INET6:{
+			memcpy(&addr.val,this->ca_s6addr->sin6_addr.__in6_u.__u6_addr8,sizeof(addr));
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-			uint64_t high, low;
-			high = be64toh(*(uint64_t*)&this->ca_s6addr->sin6_addr.__in6_u.__u6_addr32[2]);
-			*(uint64_t*)&addr.val[0] = high;
-			low = be64toh(*(uint64_t*)&this->ca_s6addr->sin6_addr.__in6_u.__u6_addr32[0]);
-			*(uint64_t*)&addr.val[8] = low;
-#else
-			memccpy(&addr.val,this->ca_s6addr->sin6_addr.__in6_u.__u6_addr8,sizeof(addr));
+			SWAP_U128(addr);
 #endif
 		}break;
 		default:
 			throw eInval();
 	}
-	
 	return addr;
 }
 
 void
 caddress::set_ipv6_addr(uint128__t addr){
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-	uint64_t high, low;
-	high = *(uint64_t*)&addr.val[0];
-	*(uint64_t*)&this->ca_s6addr->sin6_addr.__in6_u.__u6_addr32[2] = htobe64(high);
-	low = *(uint64_t*)&addr.val[8];
-	*(uint64_t*)&this->ca_s6addr->sin6_addr.__in6_u.__u6_addr32[0] = htobe64(low);
-#else
-	memccpy(this->ca_s6addr->sin6_addr.__in6_u.__u6_addr8,&addr.val,sizeof(addr));
+	SWAP_U128(addr);
 #endif
+	memcpy(this->ca_s6addr->sin6_addr.__in6_u.__u6_addr8,&addr.val,sizeof(addr));
 }

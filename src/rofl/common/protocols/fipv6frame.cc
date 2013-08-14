@@ -346,6 +346,9 @@ fipv6frame::set_ipv6_src(uint8_t *somem, size_t memlen) throw (eIPv6FrameInval)
 		throw eIPv6FrameInval();
 	}
 	memcpy(ipv6_hdr->src, somem, IPV6_ADDR_LEN);
+#if __BYTE_ORDER == __LITTLE_ENDIAN //htobe128
+	SWAP_U128(ipv6_hdr->src);
+#endif
 }
 
 
@@ -357,6 +360,9 @@ fipv6frame::set_ipv6_src(cmemory const& src) throw (eIPv6FrameInval)
 		throw eIPv6FrameInval();
 	}
 	memcpy(ipv6_hdr->src, src.somem(), IPV6_ADDR_LEN);
+#if __BYTE_ORDER == __LITTLE_ENDIAN //htobe128
+	SWAP_U128(ipv6_hdr->src);
+#endif
 }
 
 
@@ -392,6 +398,9 @@ fipv6frame::set_ipv6_dst(uint8_t *somem, size_t memlen) throw (eIPv6FrameInval)
 		throw eIPv6FrameInval();
 	}
 	memcpy(ipv6_hdr->dst, somem, IPV6_ADDR_LEN);
+#if __BYTE_ORDER == __LITTLE_ENDIAN //htobe128
+	SWAP_U128(ipv6_hdr->dst);
+#endif
 }
 
 
@@ -403,6 +412,9 @@ fipv6frame::set_ipv6_dst(cmemory const& dst) throw (eIPv6FrameInval)
 		throw eIPv6FrameInval();
 	}
 	memcpy(ipv6_hdr->dst, dst.somem(), IPV6_ADDR_LEN);
+#if __BYTE_ORDER == __LITTLE_ENDIAN //htobe128
+	SWAP_U128(ipv6_hdr->dst);
+#endif
 }
 
 

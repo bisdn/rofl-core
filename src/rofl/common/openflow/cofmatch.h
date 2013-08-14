@@ -710,6 +710,17 @@ public:
 	caddress
 	get_ipv6_src() const;
 
+	/**
+	 * 
+	 */
+	caddress
+	get_ipv6_src_value() const;
+	
+	/**
+	 * 
+	 */
+	caddress
+	get_ipv6_src_mask() const;
 
 	/**
 	 *
@@ -734,6 +745,17 @@ public:
 	caddress
 	get_ipv6_dst() const;
 
+	/**
+	 * 
+	 */
+	caddress
+	get_ipv6_dst_value() const;
+	
+	/**
+	 * 
+	 */
+	caddress
+	get_ipv6_dst_mask() const;
 
 	/**
 	 *

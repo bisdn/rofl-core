@@ -892,8 +892,88 @@ coxmatch::uint64_mask() const throw (eOxmInval)
 	throw eOxmInval();
 }
 
+uint128__t
+coxmatch::uint128_value() const throw (eOxmInval)
+{
+	uint128__t value;
+	
+	switch (get_oxm_class()) {
+	case OFPXMC_OPENFLOW_BASIC: {
+		switch (get_oxm_field()) {
+		case OFPXMT_OFB_IPV6_SRC:
+		case OFPXMT_OFB_IPV6_DST:
+		case OFPXMT_OFB_IPV6_ND_TARGET:
+		case OFPXMT_OFB_METADATA:
+			memcpy(&value, oxm_ipv6addr->addr, sizeof(uint128__t));
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+			SWAP_U128(value);
+#endif
+			return value;
 
+		default:
+			break;
+		}
+	} break;
+	case OFPXMC_EXPERIMENTER: {
+		switch (get_oxm_field()) {
+		default:
+			memcpy(&value, oxm_ipv6addr->addr, sizeof(uint128__t));
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+			SWAP_U128(value);
+#endif
+			return value;
+		}
+	} break;
+	default:
+		break;
+	}
+	throw eOxmInval();
+}
 
+uint128__t
+coxmatch::uint128_mask() const throw (eOxmInval)
+{
+	uint128__t mask;
+	//TODO translate to 128 bits
+	if (not get_oxm_hasmask())
+	{
+		UINT128__T_HI(mask) = 0xffffffffffffffff;
+		UINT128__T_LO(mask) = 0xffffffffffffffff;
+		return mask;
+	}
+
+	switch (get_oxm_class()) {
+	case OFPXMC_OPENFLOW_BASIC: {
+		switch (get_oxm_field()) {
+		case OFPXMT_OFB_IPV6_SRC:
+		case OFPXMT_OFB_IPV6_DST:
+		case OFPXMT_OFB_IPV6_ND_TARGET:
+		case OFPXMT_OFB_METADATA:
+			memcpy(&mask, oxm_ipv6addr->mask, sizeof(uint128__t));
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+			SWAP_U128(mask);
+#endif
+			return mask;
+
+		default:
+			break;
+		}
+	} break;
+	case OFPXMC_EXPERIMENTER: {
+		switch (get_oxm_field()) {
+		default:
+			memcpy(&mask, oxm_ipv6addr->mask, sizeof(uint128__t));
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+			SWAP_U128(mask);
+#endif
+			return mask;
+		}
+	} break;
+	default:
+		break;
+	}
+	throw eOxmInval();
+}
 
 coxmatch::oxm_classdesc_t oxm_classdesc[] = {
 	{ OFPXMC_OPENFLOW_BASIC, 		"BASIC" },

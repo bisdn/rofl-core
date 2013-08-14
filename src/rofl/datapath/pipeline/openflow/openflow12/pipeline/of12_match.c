@@ -684,12 +684,12 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
   		
 		//IPv6
 		case OF12_MATCH_IPV6_SRC: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP6 ))) return false; 
-					return __utern_compare128(it->value, pkt->ipv6_dst);
+					return __utern_compare128(it->value, pkt->ipv6_src);
 		case OF12_MATCH_IPV6_DST: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP6 ))) return false; 
 					return __utern_compare128(it->value, pkt->ipv6_dst);
 		case OF12_MATCH_IPV6_FLABEL: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP6 ))) return false; 
 					return __utern_compare64(it->value, pkt->ipv6_flabel);
-		/*TODO IPV6 other fields: Prerequisites?*/
+		/*TODO IPV6 other fields: Prerequisites? ICMPV6, ...*/
 		case OF12_MATCH_IPV6_ND_TARGET:
 		case OF12_MATCH_IPV6_ND_SLL:
 		case OF12_MATCH_IPV6_ND_TLL:

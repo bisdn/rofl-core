@@ -350,7 +350,18 @@ public: // methods
 	uint64_t
 	uint64_mask() const throw (eOxmInval);
 
+	/**
+	 * 
+	 */
+	uint128__t
+	uint128_value() const throw (eOxmInval);
 
+	/**
+	 * 
+	 */
+	uint128__t
+	uint128_mask() const throw (eOxmInval);
+	
 	/**
 	 *
 	 */
