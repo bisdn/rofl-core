@@ -35,7 +35,7 @@ public:
 	};
 
 	enum gtpu_udp_port_t {
-		GTPU_UDP_PORT = 2512,
+		GTPU_UDP_PORT = 2157,
 	};
 
 	enum gtpu_flag_t {
