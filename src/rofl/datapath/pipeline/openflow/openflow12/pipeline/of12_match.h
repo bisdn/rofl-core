@@ -31,7 +31,7 @@ union of_packet_matches;
 
 //Useful UDP destination port values
 #define OF12_UDP_DST_PORT_GTPC 2123
-#define OF12_UDP_DST_PORT_GTPU 2157
+#define OF12_UDP_DST_PORT_GTPU 2152
 
 /* Defines possible matchings. This is EXPLICITELY copied from openflow.h, to simplify names, avoid collisions and add extensions */
 typedef enum{
