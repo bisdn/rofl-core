@@ -53,11 +53,14 @@ ficmpv6frame::get_option(ficmpv6opt::icmpv6_option_type_t type) throw (eICMPv6Fr
 void
 ficmpv6frame::initialize()
 {
+	
 	try {
 		if (framelen() < sizeof(struct icmpv6_hdr_t)) {
 			return;
 		}
 
+		icmpv6_hdr = (struct icmpv6_hdr_t*)soframe();
+		
 		switch (get_icmpv6_type()) {
 		case ICMPV6_TYPE_DESTINATION_UNREACHABLE: {
 			parse_icmpv6_dest_unreach();
