@@ -99,7 +99,7 @@ ROFL_BEGIN_DECLS
 * @ingroup  mgmt
 */
 
-inline void port_queue_stats_inc_lockless(port_queue_t* queue, 
+void port_queue_stats_inc_lockless(port_queue_t* queue, 
 				uint64_t tx_packets,
 				uint64_t tx_bytes,
 				uint64_t overrun);
@@ -109,7 +109,7 @@ inline void port_queue_stats_inc_lockless(port_queue_t* queue,
 * be left untouched.
 * @ingroup  mgmt
 */
-inline void port_queue_stats_inc(port_queue_t* queue, 
+void port_queue_stats_inc(port_queue_t* queue, 
 				uint64_t tx_packets,
 				uint64_t tx_bytes,
 				uint64_t overrun);

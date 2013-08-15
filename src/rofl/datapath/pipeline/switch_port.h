@@ -236,7 +236,7 @@ rofl_result_t switch_port_remove_queue(switch_port_t* port, uint32_t id);
 * be left untouched.
 * @ingroup  mgmt
 */
-inline void switch_port_stats_inc_lockless(switch_port_t* port,
+void switch_port_stats_inc_lockless(switch_port_t* port,
 				uint64_t rx_packets,
 				uint64_t tx_packets,
 				uint64_t rx_bytes,
@@ -257,7 +257,7 @@ inline void switch_port_stats_inc_lockless(switch_port_t* port,
 * be left untouched.
 * @ingroup  mgmt
 */
-inline void switch_port_stats_inc(switch_port_t* port,
+void switch_port_stats_inc(switch_port_t* port,
 				uint64_t rx_packets,
 				uint64_t tx_packets,
 				uint64_t rx_bytes,
