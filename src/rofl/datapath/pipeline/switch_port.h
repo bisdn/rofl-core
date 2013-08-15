@@ -231,12 +231,12 @@ rofl_result_t switch_port_remove_queue(switch_port_t* port, uint32_t id);
 //Port Statistics
 
 /**
-* @brief Increments atomically all the statistics of the port; shall be used by ports on TX/RX. 
+* @brief Increments NON atomically all the statistics of the port; shall be used by ports on TX/RX. 
 * Fill in with 0 the ones that should
 * be left untouched.
 * @ingroup  mgmt
 */
-void switch_port_stats_inc(switch_port_t* port,
+inline void switch_port_stats_inc_lockless(switch_port_t* port,
 				uint64_t rx_packets,
 				uint64_t tx_packets,
 				uint64_t rx_bytes,
@@ -250,6 +250,26 @@ void switch_port_stats_inc(switch_port_t* port,
 				uint64_t rx_crc_err,
 				uint64_t collisions*/);
 
+
+/**
+* @brief Increments atomically all the statistics of the port; shall be used by ports on TX/RX. 
+* Fill in with 0 the ones that should
+* be left untouched.
+* @ingroup  mgmt
+*/
+inline void switch_port_stats_inc(switch_port_t* port,
+				uint64_t rx_packets,
+				uint64_t tx_packets,
+				uint64_t rx_bytes,
+				uint64_t tx_bytes,
+				uint64_t rx_dropped,
+				uint64_t tx_dropped
+				/*uint64_t rx_errors,
+				uint64_t tx_errors,
+				uint64_t rx_frame_err,
+				uint64_t rx_over_err,
+				uint64_t rx_crc_err,
+				uint64_t collisions*/);
 
 /*
 * Conveninent wrappers just to avoid messing up with the bitmaps

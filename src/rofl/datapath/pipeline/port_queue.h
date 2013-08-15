@@ -93,16 +93,26 @@ typedef struct port_queue{
 ROFL_BEGIN_DECLS
 
 /**
+* @brief Increments NON atomically all the statistics of the queue; shall be used by queues on TX. 
+* Fill in with 0 the ones that should
+* be left untouched.
+* @ingroup  mgmt
+*/
+
+inline void port_queue_stats_inc_lockless(port_queue_t* queue, 
+				uint64_t tx_packets,
+				uint64_t tx_bytes,
+				uint64_t overrun);
+/**
 * @brief Increments atomically all the statistics of the queue; shall be used by queues on TX. 
 * Fill in with 0 the ones that should
 * be left untouched.
 * @ingroup  mgmt
 */
-void port_queue_stats_inc(port_queue_t* queue, 
+inline void port_queue_stats_inc(port_queue_t* queue, 
 				uint64_t tx_packets,
 				uint64_t tx_bytes,
 				uint64_t overrun);
-
 
 /*
 * @brief Init a port_queue structure
