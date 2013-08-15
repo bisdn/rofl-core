@@ -59,9 +59,9 @@ public: // static
 	} __attribute__((packed));
 
 	enum ipv4_flag_t {
-		bit_reserved 		= (1 >> 0),
-		bit_dont_fragment 	= (1 >> 1),
-		bit_more_fragments	= (1 >> 2),
+		bit_reserved 		= (1 << 0),
+		bit_dont_fragment 	= (1 << 1),
+		bit_more_fragments	= (1 << 2),
 	};
 
 #if 0
