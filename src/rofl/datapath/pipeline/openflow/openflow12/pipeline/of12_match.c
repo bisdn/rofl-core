@@ -487,7 +487,7 @@ inline of12_match_t* __of12_copy_match(of12_match_t* match){
    		case OF12_MATCH_UDP_SRC: return of12_init_udp_src_match(NULL,NULL,match->value->value.u16); 
    		case OF12_MATCH_UDP_DST: return of12_init_udp_dst_match(NULL,NULL,match->value->value.u16); 
 
-    	case OF12_MATCH_ICMPV4_TYPE: return of12_init_icmpv4_type_match(NULL,NULL,match->value->value.u8); 
+		case OF12_MATCH_ICMPV4_TYPE: return of12_init_icmpv4_type_match(NULL,NULL,match->value->value.u8); 
    		case OF12_MATCH_ICMPV4_CODE: return of12_init_icmpv4_code_match(NULL,NULL,match->value->value.u8); 
   		
 		case OF12_MATCH_IPV6_SRC: return of12_init_ip6_src_match(NULL,NULL,match->value->value.u128, match->value->mask.u128);
@@ -652,10 +652,10 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
 		//IP
    		case OF12_MATCH_IP_PROTO: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && (pkt->ppp_proto == OF12_PPP_PROTO_IP4 || pkt->ppp_proto == OF12_PPP_PROTO_IP6) ))) return false; 
 					return __utern_compare8(it->value,pkt->ip_proto);
-		case OF12_MATCH_IP_ECN: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return false; 
+		case OF12_MATCH_IP_ECN: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return false; //NOTE OF12_PPP_PROTO_IP6
 					return __utern_compare8(it->value,pkt->ip_ecn);
 	
-		case OF12_MATCH_IP_DSCP: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return false; 
+		case OF12_MATCH_IP_DSCP: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV4 || pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP4 ))) return false; //NOTE OF12_PPP_PROTO_IP6
 					return __utern_compare8(it->value,pkt->ip_dscp);
 		
 		//IPv4
@@ -689,19 +689,20 @@ inline bool __of12_check_match(const of12_packet_matches_t* pkt, of12_match_t* i
 					return __utern_compare128(it->value, pkt->ipv6_dst);
 		case OF12_MATCH_IPV6_FLABEL: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP6 ))) return false; 
 					return __utern_compare64(it->value, pkt->ipv6_flabel);
-		/*TODO IPV6 other fields: Prerequisites? ICMPV6, ...*/
-		case OF12_MATCH_IPV6_ND_TARGET:
-		case OF12_MATCH_IPV6_ND_SLL:
-		case OF12_MATCH_IPV6_ND_TLL:
-		case OF12_MATCH_IPV6_EXTHDR:
-			assert(0);
+		case OF12_MATCH_IPV6_ND_TARGET: if(!(pkt->ip_proto == OF12_IP_PROTO_ICMPV6)) return false; 
+					return __utern_compare128(it->value,pkt->ipv6_nd_target);
+		case OF12_MATCH_IPV6_ND_SLL: if(!(pkt->ip_proto == OF12_IP_PROTO_ICMPV6 && pkt->ipv6_nd_sll)) return false; //NOTE OPTION SLL active
+					return __utern_compare64(it->value, pkt->ipv6_nd_sll);
+		case OF12_MATCH_IPV6_ND_TLL: if(!(pkt->ip_proto == OF12_IP_PROTO_ICMPV6 && pkt->ipv6_nd_tll)) return false; //NOTE OPTION TLL active
+					return __utern_compare64(it->value, pkt->ipv6_nd_tll);
+		case OF12_MATCH_IPV6_EXTHDR: //TODO not yet implemented.
 			return false;
 			break;
 					
 		//ICMPv6
-		case OF12_MATCH_ICMPV6_TYPE: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP6 ))) return false; 
+		case OF12_MATCH_ICMPV6_TYPE: if(!(pkt->ip_proto == OF12_IP_PROTO_ICMPV6)) return false; 
 					return __utern_compare64(it->value, pkt->icmpv6_type);
-		case OF12_MATCH_ICMPV6_CODE: if(!(pkt->eth_type == OF12_ETH_TYPE_IPV6 || (pkt->eth_type == OF12_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF12_PPP_PROTO_IP6 ))) return false; 
+		case OF12_MATCH_ICMPV6_CODE: if(!(pkt->ip_proto == OF12_IP_PROTO_ICMPV6 )) return false; 
 					return __utern_compare64(it->value, pkt->icmpv6_code);
 			
 		//PPPoE related extensions
@@ -813,7 +814,13 @@ void of12_dump_packet_matches(of_packet_matches_t *const pkt_matches){
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_DST:0x%lx:%lx, ",UINT128__T_HI(pkt->ipv6_dst),UINT128__T_LO(pkt->ipv6_dst));
 	if(pkt->eth_type == OF12_ETH_TYPE_IPV6)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_FLABEL:0x%lu, ",pkt->ipv6_flabel);
-	/*TODO IPV6 add the other fields*/
+	if(pkt->ip_proto == OF12_IP_PROTO_ICMPV6)
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_ND_TARGET:0x%lx:%lx, ",UINT128__T_HI(pkt->ipv6_nd_target),UINT128__T_LO(pkt->ipv6_nd_target));
+	if(pkt->ip_proto == OF12_IP_PROTO_ICMPV6) //NOTE && pkt->icmpv6_type ==?
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_ND_SLL:0x%llx, ",pkt->ipv6_nd_sll);
+	if(pkt->ip_proto == OF12_IP_PROTO_ICMPV6) //NOTE && pkt->icmpv6_type ==?
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_ND_TLL:0x%llx, ",pkt->ipv6_nd_tll);
+	/*TODO IPV6 exthdr*/
 	/*nd_target nd_sll nd_tll exthdr*/
 	
 	//ICMPv6
