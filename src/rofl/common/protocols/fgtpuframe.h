@@ -79,7 +79,7 @@ public:
 	};
 
 	// shortened GTP-Uv1 header with S, PN, E flags set to 0
-	struct gtpu_short_hdr_t {
+	struct gtpu_base_hdr_t {
 		uint8_t 	flags;		// version, PT, T, E, S, PN
 		uint8_t		msgtype;
 		uint16_t	len;
@@ -95,7 +95,7 @@ private:
 		struct gtpu_e_hdr_t* 		gtphu_gtpu_e_hdr;
 		struct gtpu_pn_hdr_t*		gtphu_gtpu_pn_hdr;
 		struct gtpu_s_hdr_t* 		gtphu_gtpu_s_hdr;
-		struct gtpu_short_hdr_t* 	gtphu_gtpu_short_hdr;
+		struct gtpu_base_hdr_t* 	gtphu_gtpu_short_hdr;
 	} gtphu;
 
 #define gtphu_hdr		gtphu.gtphu_gtpu_hdr
@@ -330,6 +330,13 @@ public:
 	void
 	set_ext_type(
 			uint8_t ext_type);
+
+
+	/**
+	 *
+	 */
+	size_t
+	get_hdr_length() const;
 
 
 public: // overloaded from fframe
