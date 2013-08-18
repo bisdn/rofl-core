@@ -35,21 +35,37 @@ rofl_result_t __port_queue_destroy(port_queue_t* queue){
 	return ROFL_SUCCESS;
 }
 
+/*
+* @brief Increments NON atomically all the statistics of the queue; shall be used by queues on TX. 
+* Fill in with 0 the ones that should
+* be left untouched.
+* @ingroup  mgmt
+*/
+
+void port_queue_stats_inc_lockless(port_queue_t* queue, 
+				uint64_t tx_packets,
+				uint64_t tx_bytes,
+				uint64_t overrun){
+	//Increment
+	queue->stats.tx_packets += tx_packets;
+	queue->stats.tx_bytes += tx_bytes;
+	queue->stats.overrun += overrun;
+}
+
+/*
+* @brief Increments atomically all the statistics of the queue; shall be used by queues on TX. 
+* Fill in with 0 the ones that should
+* be left untouched.
+* @ingroup  mgmt
+*/
 void port_queue_stats_inc(port_queue_t* queue, 
 				uint64_t tx_packets,
 				uint64_t tx_bytes,
 				uint64_t overrun){
 
 	//TODO: evaluate to use lock-less strategies (single threaded I/O subsystems)
-	//or target platform specific atomic_incs
+	//or use platform specific atomic_incs
 	platform_mutex_lock(queue->stats.mutex);
-	
-	//Do all the stuff
-	queue->stats.tx_packets += tx_packets;
-	queue->stats.tx_bytes += tx_bytes;
-	queue->stats.overrun += overrun;
-
+	port_queue_stats_inc_lockless(queue, tx_packets, tx_bytes, overrun);
 	platform_mutex_unlock(queue->stats.mutex);
 }
-
-

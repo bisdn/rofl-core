@@ -190,13 +190,14 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 				prev->next = entry;
 				
 			}
+			//Unlock mutexes
+			platform_rwlock_wrunlock(table->rwlock);
+
+			//Increment the number of entries in the table (safe since we have the mutex acquired)
 			table->num_of_entries++;
 	
 			//Point entry table to us
 			entry->table = table;
-
-			//Unlock mutexes
-			platform_rwlock_wrunlock(table->rwlock);
 
 			// let the platform do the necessary add operations
 			plaftorm_of12_add_entry_hook(entry);
@@ -227,10 +228,12 @@ static rofl_of12_fm_result_t of12_add_flow_entry_table_imp(of12_flow_table_t *co
 		//Last
 		prev->next = entry;
 	}
-	table->num_of_entries++;
 	
 	//Unlock mutexes
 	platform_rwlock_wrunlock(table->rwlock);
+	
+	//Increment the number of entries in the table (safe since we have the mutex acquired)
+	table->num_of_entries++;
 
 	// let the platform do the necessary add operations
 	plaftorm_of12_add_entry_hook(entry);

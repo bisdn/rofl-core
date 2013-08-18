@@ -126,11 +126,50 @@ rofl_result_t switch_port_remove_queue(switch_port_t* port, uint32_t id){
 }
 
 
+/*
+* @brief Increments NON atomically all the statistics of the port; shall be used by ports on TX/RX. 
+* Fill in with 0 the ones that should
+* be left untouched.
+* @ingroup  mgmt
+*/
+void switch_port_stats_inc_lockless(switch_port_t* port,
+				uint64_t rx_packets,
+				uint64_t tx_packets,
+				uint64_t rx_bytes,
+				uint64_t tx_bytes,
+				uint64_t rx_dropped,
+				uint64_t tx_dropped
+				/*uint64_t rx_errors,
+				uint64_t tx_errors,
+				uint64_t rx_frame_err,
+				uint64_t rx_over_err,
+				uint64_t rx_crc_err,
+				uint64_t collisions*/){
+	
+	//Do all the stuff
+	port->stats.rx_packets += rx_packets;
+	port->stats.tx_packets += tx_packets;
+	port->stats.rx_bytes += rx_bytes;
+	port->stats.tx_bytes += tx_bytes;
+	port->stats.rx_dropped += rx_dropped;
+	port->stats.tx_dropped += tx_dropped;
+
+/*
+	port->stats.rx_errors += rx_errors;
+	port->stats.tx_errors += tx_errors;
+	port->stats.rx_frame_err += rx_frame_err;
+	port->stats.rx_over_err += rx_over_err;
+	port->stats.rx_crc_err += rx_crc_err;
+	port->stats.collisions += collisions;
+*/
+}
 
 
 /*
-* Increments atomically all the statistics of the port. Fill in with 0 the ones that should
+* @brief Increments atomically all the statistics of the port; shall be used by ports on TX/RX. 
+* Fill in with 0 the ones that should
 * be left untouched.
+* @ingroup  mgmt
 */
 void switch_port_stats_inc(switch_port_t* port,
 				uint64_t rx_packets,
@@ -149,25 +188,24 @@ void switch_port_stats_inc(switch_port_t* port,
 	//TODO: evaluate to use lock-less strategies (single threaded I/O subsystems)
 	//or target platform specific atomic_incs
 	platform_mutex_lock(port->stats.mutex);
-	
-	//Do all the stuff
-	port->stats.rx_packets += rx_packets;
-	port->stats.tx_packets += tx_packets;
-	port->stats.rx_bytes += rx_bytes;
-	port->stats.tx_bytes += tx_bytes;
-	port->stats.rx_dropped += rx_dropped;
-	port->stats.tx_dropped += tx_dropped;
 
-/*
-	port->stats.rx_errors += rx_errors;
-	port->stats.tx_errors += tx_errors;
-	port->stats.rx_frame_err += rx_frame_err;
-	port->stats.rx_over_err += rx_over_err;
-	port->stats.rx_crc_err += rx_crc_err;
-	port->stats.collisions += collisions;
-*/
+	switch_port_stats_inc_lockless(port,
+				rx_packets,
+				tx_packets,
+				rx_bytes,
+				tx_bytes,
+				rx_dropped,
+				tx_dropped
+				/*uint64_t rx_errors,
+				uint64_t tx_errors,
+				uint64_t rx_frame_err,
+				uint64_t rx_over_err,
+				uint64_t rx_crc_err,
+				uint64_t collisions*/);
 	platform_mutex_unlock(port->stats.mutex);
 }
+
+
 
 /*
 * Conveninent wrappers just to avoid messing up with the bitmaps
