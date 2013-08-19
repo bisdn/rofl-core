@@ -21,3 +21,4 @@ librofl_la_SOURCES = #rofl.h
 librofl_la_LIBADD = $(LIBS_ROFL) 
 
 #AM_LDFLAGS= -static
+AM_CPPFLAGS= -fPIC
