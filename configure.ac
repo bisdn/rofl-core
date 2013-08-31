@@ -280,6 +280,9 @@ AC_CONFIG_FILES([
 	examples/rfc2889/Makefile
 	examples/ofperftest/Makefile
 
+	tools/Makefile
+	tools/spray/Makefile
+
 
 	test/Makefile
 	test/unit/Makefile
