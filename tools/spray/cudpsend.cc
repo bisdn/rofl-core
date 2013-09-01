@@ -131,6 +131,12 @@ cudpsend::send_udp_msgs()
 		return;
 	}
 
+	int sndbuf = 5120000;
+	if ((rc = setsockopt(sd, SOL_SOCKET, SO_SNDBUFFORCE, &sndbuf, sizeof(sndbuf))) < 0) {
+		fprintf(stderr, "error on setsockopt() call: %d (%s)\n", errno, strerror(errno));
+		return;
+	}
+
 	if ((rc = bind(sd, local.ca_saddr, local.salen)) < 0) {
 		fprintf(stderr, "error on bind() call: %d (%s)\n", errno, strerror(errno));
 		return;

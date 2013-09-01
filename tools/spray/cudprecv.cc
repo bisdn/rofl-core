@@ -127,6 +127,12 @@ cudprecv::recv_udp_msgs()
 		return;
 	}
 
+	int rcvbuf = 5120000;
+	if ((rc = setsockopt(sd, SOL_SOCKET, SO_RCVBUFFORCE, &rcvbuf, sizeof(rcvbuf))) < 0) {
+		fprintf(stderr, "error on setsockopt() call: %d (%s)\n", errno, strerror(errno));
+		return;
+	}
+
 	if ((rc = bind(sd, local.ca_saddr, local.salen)) < 0) {
 		std::cerr << "local: " << local.addr_c_str() << std::endl;
 		fprintf(stderr, "error on bind() call: %d (%s)\n", errno, strerror(errno));
