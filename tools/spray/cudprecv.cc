@@ -198,6 +198,8 @@ cudprecv::recv_udp_msgs()
 					endseqno = rxseqno = udpmsg.get_seqno();
 					rxbytes += rc + 42;
 
+					keep_going = false;
+
 				} break;
 				case cudpmsg::UMT_DATA: {
 
