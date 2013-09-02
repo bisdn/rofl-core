@@ -153,7 +153,7 @@ cudpsend::send_udp_msgs()
 		return;
 	}
 
-	starttime = time(0);
+	starttime = stoptime = time(0);
 
 	udpmsg.set_seqno(seqno++);
 	udpmsg.set_type(cudpmsg::UMT_START);
@@ -226,7 +226,7 @@ cudpsend::send_udp_msgs()
 void
 cudpsend::print_statistics()
 {
-	double bitrate = (double)(8 * txbytes) / (time(0) - starttime) / 1000000;
+	double bitrate = (double)(8 * txbytes) / (stoptime - starttime) / 1000000;
 	fprintf(stderr, "txbytes: %lu npkts: %lu bitrate: %.6lfMbps\n", txbytes, npkts, bitrate);
 
 	if (keep_going)

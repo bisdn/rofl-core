@@ -185,7 +185,7 @@ cudprecv::recv_udp_msgs()
 
 				switch (udpmsg.get_type()) {
 				case cudpmsg::UMT_START: {
-					starttime = time(0);
+					starttime = stoptime = time(0);
 
 					startseqno = rxseqno = udpmsg.get_seqno();
 					rxbytes = rc + 42;
@@ -202,6 +202,7 @@ cudprecv::recv_udp_msgs()
 
 				} break;
 				case cudpmsg::UMT_DATA: {
+					stoptime = time(0);
 
 					if (udpmsg.get_seqno() != (rxseqno + 1)) {
 
@@ -249,7 +250,7 @@ cudprecv::print_statistics()
 	npkts = rxseqno - startseqno;
 	uint64_t rxrcvd = npkts - rxlost;
 	double loss = 100 * ((double)rxlost / npkts);
-	double bitrate = (double)(8 * rxbytes) / (time(0) - starttime) / 1000000;
+	double bitrate = (double)(8 * rxbytes) / (stoptime - starttime) / 1000000;
 
 	fprintf(stdout, "rxseqno: %lu rxbytes: %lu rxlost: %lu npkts: %lu rxrcvd: %lu loss: %lf%% bitrate: %.6lfMbps\n",
 			rxseqno, rxbytes, rxlost, rxseqno - startseqno, rxrcvd, loss, bitrate);
