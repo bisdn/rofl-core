@@ -127,7 +127,8 @@ cudprecv::recv_udp_msgs()
 		return;
 	}
 
-	int rcvbuf = 5120000;
+	//int rcvbuf = 5120000;
+	int rcvbuf = 212992;
 	if ((rc = setsockopt(sd, SOL_SOCKET, SO_RCVBUFFORCE, &rcvbuf, sizeof(rcvbuf))) < 0) {
 		fprintf(stderr, "error on setsockopt() call: %d (%s)\n", errno, strerror(errno));
 		return;

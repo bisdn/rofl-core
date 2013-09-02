@@ -17,5 +17,5 @@ spray_SOURCES= spray.cc \
 			ctimeval.cc
 			
 			
-spray_LDADD=-lrofl
+spray_LDADD=$(top_builddir)/src/rofl/librofl.la
 

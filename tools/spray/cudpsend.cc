@@ -131,7 +131,8 @@ cudpsend::send_udp_msgs()
 		return;
 	}
 
-	int sndbuf = 5120000;
+	//int sndbuf = 5120000;
+	int sndbuf = 212992;
 	if ((rc = setsockopt(sd, SOL_SOCKET, SO_SNDBUFFORCE, &sndbuf, sizeof(sndbuf))) < 0) {
 		fprintf(stderr, "error on setsockopt() call: %d (%s)\n", errno, strerror(errno));
 		return;
