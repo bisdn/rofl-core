@@ -2,11 +2,15 @@
 #include "cudpsend.h"
 #include "cudprecv.h"
 
+void
+usage();
+
 int
 main(int argc, char** argv)
 {
 	unixenv::cgetopt& getopt = unixenv::cgetopt::get_instance();
 
+	getopt.add_long_option("help",	 	getopt.NO_ARG);
 	getopt.add_long_option("sender", 	getopt.NO_ARG);
 	getopt.add_long_option("receiver", 	getopt.NO_ARG);
 	getopt.add_long_option("local", 	getopt.REQUIRED_ARG);
@@ -15,6 +19,10 @@ main(int argc, char** argv)
 	getopt.add_long_option("size",		getopt.REQUIRED_ARG);
 
 	getopt.parse(argc, argv);
+
+	if (getopt.has_opt("help")) {
+		usage();
+	}
 
 	rofl::caddress local(AF_INET, "0.0.0.0", 5001);
 	if (getopt.has_opt("local")) {
@@ -44,6 +52,8 @@ main(int argc, char** argv)
 		msglen = atoi(getopt.get_opt("size").c_str());
 	}
 	(void)msglen;
+	msglen = (msglen < 22) ? 22 : msglen;
+	msglen = (msglen > 1472) ? 1472 : msglen;
 
 	if (getopt.has_opt("sender")) {
 
@@ -75,4 +85,14 @@ main(int argc, char** argv)
 	}
 
 	return 0;
+}
+
+
+void
+usage()
+{
+	fprintf(stderr, "spray [--sender|--receiver]\n"
+			"\t[--local <ipaddr:port>] [--remote <ipaddr:port>]\n"
+			"\t[--duration <of mesaurement in seconds>] [--size <of UDP messages in bytes]");
+	exit(0);
 }
