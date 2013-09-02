@@ -33,7 +33,7 @@ main(int argc, char** argv)
 	std::cerr << "local: " << local.c_str() << std::endl;
 	std::cerr << "remote: " << remote.c_str() << std::endl;
 
-	int duration = 10;
+	int duration = 30;
 	if (getopt.has_opt("duration")) {
 		duration = atoi(getopt.get_opt("duration").c_str());
 	}
@@ -49,7 +49,7 @@ main(int argc, char** argv)
 
 		spray::cudpsend udpsend(remote, local, msglen);
 
-		udpsend.start_sending();
+		udpsend.start_sending(duration);
 
 		//sleep(duration);
 

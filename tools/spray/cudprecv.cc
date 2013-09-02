@@ -252,7 +252,8 @@ cudprecv::print_statistics()
 	fprintf(stdout, "rxseqno: %lu rxbytes: %lu rxlost: %lu npkts: %lu rxrcvd: %lu loss: %lf%% bitrate: %.6lfMbps\n",
 			rxseqno, rxbytes, rxlost, rxseqno - startseqno, rxrcvd, loss, bitrate);
 
-	register_timer(CUDPRECV_TIMER_PRINT_STATS, stats_interval);
+	if (keep_going)
+		register_timer(CUDPRECV_TIMER_PRINT_STATS, stats_interval);
 }
 
 

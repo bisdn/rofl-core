@@ -43,7 +43,7 @@ private:
 #define DEFAULT_UDP_NODE_MSGLEN 1472 /* bytes */
 
 	pthread_t			tid;
-	int					interval;
+	int					duration;
 	rofl::caddress		remote;
 	rofl::caddress		local;
 	int					stats_interval;
@@ -55,7 +55,8 @@ private:
 	uint64_t			npkts;
 
 	enum cudpsend_timer_t {
-		CUDPSEND_TIMER_PRINT_STATS = 1,
+		CUDPSEND_TIMER_STOP_SENDING = 1,
+		CUDPSEND_TIMER_PRINT_STATS = 2,
 	};
 
 public:

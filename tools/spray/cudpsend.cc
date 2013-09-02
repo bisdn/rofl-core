@@ -31,7 +31,7 @@ cudpsend::cudpsend(
 		rofl::caddress const& local,
 		unsigned int msglen) :
 				tid(0),
-				interval(DEFAULT_UDP_NODE_INTERVAL),
+				duration(DEFAULT_UDP_NODE_INTERVAL),
 				remote(peer),
 				local(local),
 				stats_interval(5),
@@ -57,7 +57,9 @@ cudpsend::~cudpsend()
 void
 cudpsend::start_sending(int ival)
 {
-	interval = ival;
+	duration = ival;
+
+	register_timer(CUDPSEND_TIMER_STOP_SENDING, duration);
 
 	keep_going = true;
 
@@ -77,8 +79,6 @@ void
 cudpsend::stop_sending()
 {
 	keep_going = false;
-
-	cancel_timer(CUDPSEND_TIMER_PRINT_STATS);
 }
 
 
@@ -87,6 +87,9 @@ void
 cudpsend::handle_timeout(int opaque)
 {
 	switch (opaque) {
+	case CUDPSEND_TIMER_STOP_SENDING: {
+		stop_sending();
+	} break;
 	case CUDPSEND_TIMER_PRINT_STATS: {
 		print_statistics();
 	} break;
@@ -225,7 +228,9 @@ cudpsend::print_statistics()
 {
 	double bitrate = (double)(8 * txbytes) / (time(0) - starttime) / 1000000;
 	fprintf(stderr, "txbytes: %lu npkts: %lu bitrate: %.6lfMbps\n", txbytes, npkts, bitrate);
-	register_timer(CUDPSEND_TIMER_PRINT_STATS, stats_interval);
+
+	if (keep_going)
+		register_timer(CUDPSEND_TIMER_PRINT_STATS, stats_interval);
 }
 
 
