@@ -146,6 +146,8 @@ cudprecv::recv_udp_msgs()
 		return;
 	}
 
+	pktcnt = 0;
+
 	while (keep_going) {
 
 		fd_set rfds;
@@ -166,6 +168,12 @@ cudprecv::recv_udp_msgs()
 			if ((rc = recvfrom(sd, udpmsg.somem(), udpmsg.memlen(), 0, NULL, 0)) < 0) {
 				fprintf(stderr, "error on recv() call: %d (%s)\n", errno, strerror(errno));
 			}
+
+			if (0 == pktcnt) {
+				starttime = time(0);
+			}
+
+			pktcnt++;
 
 #if 0
 			fprintf(stdout, "msglen: %d type: %d seqno: %u udpmsg.memlen(): %u\n",

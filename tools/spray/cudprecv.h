@@ -51,6 +51,7 @@ class cudprecv :
 	uint64_t			rxseqno;
 	uint64_t			rxlost;
 	uint64_t			rxbytes;
+	int					pktcnt;
 
 	enum cudprecv_timer_t {
 		CUDPRECV_TIMER_PRINT_STATS = 1,
