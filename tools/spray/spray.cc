@@ -91,8 +91,11 @@ main(int argc, char** argv)
 void
 usage()
 {
-	fprintf(stderr, "spray [--sender|--receiver]\n"
-			"\t[--local <ipaddr:port>] [--remote <ipaddr:port>]\n"
-			"\t[--duration <of mesaurement in seconds>] [--size <of UDP messages in bytes]");
+	fprintf(stderr, "spray\n"
+			"\t[--sender|--receiver]\n"
+			"\t[--local <ipaddr:port>]\n"
+			"\t[--remote <ipaddr:port>]\n"
+			"\t[--duration <of mesaurement in seconds>]\n"
+			"\t[--size <of UDP messages in bytes>]\n");
 	exit(0);
 }
