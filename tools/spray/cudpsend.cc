@@ -175,6 +175,8 @@ cudpsend::send_udp_msgs()
 
 	while (keep_going) {
 
+		stoptime = time(0);
+
 		udpmsg.set_seqno(seqno++);
 
 		if ((rc = send(sd, udpmsg.somem(), udpmsg.memlen(), 0)) < 0) {
@@ -197,6 +199,8 @@ cudpsend::send_udp_msgs()
 		select(0, NULL, NULL, NULL, &tv);
 #endif
 	}
+
+	stoptime = time(0);
 
 	udpmsg.set_seqno(seqno++);
 	udpmsg.set_type(cudpmsg::UMT_STOP);
