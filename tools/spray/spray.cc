@@ -12,6 +12,7 @@ main(int argc, char** argv)
 	getopt.add_long_option("local", 	getopt.REQUIRED_ARG);
 	getopt.add_long_option("remote",  	getopt.REQUIRED_ARG);
 	getopt.add_long_option("duration",	getopt.REQUIRED_ARG);
+	getopt.add_long_option("size",		getopt.REQUIRED_ARG);
 
 	getopt.parse(argc, argv);
 
@@ -38,9 +39,15 @@ main(int argc, char** argv)
 	}
 	(void)duration;
 
+	unsigned int msglen = 1472;
+	if (getopt.has_opt("size")) {
+		msglen = atoi(getopt.get_opt("size").c_str());
+	}
+	(void)msglen;
+
 	if (getopt.has_opt("sender")) {
 
-		spray::cudpsend udpsend(remote, local);
+		spray::cudpsend udpsend(remote, local, msglen);
 
 		udpsend.start_sending();
 

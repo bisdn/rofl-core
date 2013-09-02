@@ -40,7 +40,7 @@ class cudpsend :
 private:
 
 #define DEFAULT_UDP_NODE_INTERVAL 1 /* usec */
-#define DEFAULT_UDP_NODE_MSGLEN 22 /* bytes */
+#define DEFAULT_UDP_NODE_MSGLEN 1472 /* bytes */
 
 	pthread_t			tid;
 	int					interval;

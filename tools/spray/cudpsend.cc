@@ -35,6 +35,8 @@ cudpsend::cudpsend(
 				remote(peer),
 				local(local),
 				stats_interval(5),
+				starttime(0),
+				stoptime(0),
 				keep_going(false),
 				msglen(msglen),
 				txbytes(0),
