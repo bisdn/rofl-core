@@ -169,7 +169,7 @@ private: // data structures
 		int 							 reconnect_in_seconds; 	// reconnect in x seconds
 		int 							 reconnect_counter;
 		int 							 rpc_echo_interval;		// default ECHO time interval
-		uint8_t							 version;		// OpenFlow version negotiated
+		uint8_t							 ofp_version;	// OpenFlow version negotiated
 
 		int 							 features_reply_timeout;
 		int 							 get_config_reply_timeout;
