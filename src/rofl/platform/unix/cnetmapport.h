@@ -7,10 +7,6 @@
 #ifndef CNETMAPPORT_H
 #define CNETMAPPORT_H 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <inttypes.h>
 #include <net/netmap.h>
 #include <net/netmap_user.h>
@@ -22,10 +18,6 @@ extern "C" {
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
-
-#ifdef __cplusplus
-}
-#endif
 
 #include "rofl/common/cvastring.h"
 #include "rofl/common/ciosrv.h"

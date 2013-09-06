@@ -5,18 +5,10 @@
 #ifndef CPIPE_H
 #define CPIPE_H 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <pthread.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <inttypes.h>
-
-#ifdef __cplusplus
-}
-#endif
 
 #include "rofl/common/cerror.h"
 #include "csyslog.h"

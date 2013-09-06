@@ -26,7 +26,7 @@ cofctl::cofctl(
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
 				echo_reply_timeout(DEFAULT_ECHO_TIMEOUT),
-				version(OFP12_VERSION)
+				ofp_version(OFP12_VERSION)
 {
 	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
 
@@ -54,7 +54,7 @@ cofctl::cofctl(
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
 				echo_reply_timeout(DEFAULT_ECHO_TIMEOUT),
-				version(OFP12_VERSION)
+				ofp_version(OFP12_VERSION)
 {
 	WRITELOG(COFCTL, DBG, "cofctl(%p)::cofctl() TCP connect", this);
 
@@ -87,7 +87,7 @@ cofctl::is_established() const
 uint8_t
 cofctl::get_version()
 {
-	return version;
+	return ofp_version;
 }
 
 
@@ -1166,8 +1166,8 @@ cofctl::hello_rcvd(cofmsg_hello *msg)
 	try {
 		WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() hello: %s", this, msg->c_str());
 
-		// OpenFlow versions do not match, send error, close connection
-		if (msg->get_version() != OFP12_VERSION)
+		// OpenFlow versions not supported on our side, send error, close connection
+		if (not rofbase->is_ofp_version_supported(msg->get_version()))
 		{
 			new_state(STATE_CTL_DISCONNECTED);
 
@@ -1183,14 +1183,14 @@ cofctl::hello_rcvd(cofmsg_hello *msg)
 		else
 		{
 			// TODO: determine properly version from hello elements in OpenFlow 1.3
-			version = msg->get_version();
+			ofp_version = msg->get_version();
 
 			flags.set(COFCTL_FLAG_HELLO_RCVD);
 
 			new_state(STATE_CTL_ESTABLISHED);
 
 			WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() "
-				"HELLO exchanged with peer entity, attaching ...", this);
+				"HELLO exchanged with peer entity and ofp version %d, attaching ...", this, ofp_version);
 
 			if (flags.test(COFCTL_FLAG_HELLO_SENT))
 			{

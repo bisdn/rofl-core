@@ -7,10 +7,6 @@
 
 #ifndef HARDWARE
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <linux/if_packet.h>
 #include <unistd.h>
 #include <string.h>
@@ -24,10 +20,6 @@ extern "C" {
 #include <sys/socket.h>
 
 //#include <linux/uio.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <sys/socket.h>
 #include <ifaddrs.h>
 #include <stdio.h>

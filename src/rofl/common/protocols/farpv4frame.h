@@ -5,33 +5,16 @@
 #ifndef FARPV4FRAME_H
 #define FARPV4FRAME_H 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <inttypes.h>
-#ifdef __cplusplus
-}
+#include <endian.h>
+#ifndef be32toh
+	#include "../endian_conversion.h"
 #endif
 
 #include "../fframe.h"
 #include "../caddress.h"
 #include "../cmacaddr.h"
 #include "../cvastring.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "../openflow/openflow.h"
-#include <endian.h>
-
-#ifndef be32toh
-#include "../endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
-#endif
 
 namespace rofl
 {

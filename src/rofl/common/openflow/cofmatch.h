@@ -6,24 +6,15 @@
 #define COFMATCH_H 1
 
 #include <string>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <endian.h>
 #include <stdio.h>
 #include <string.h>
-#include "openflow.h"
 #include <endian.h>
 #ifndef be32toh
-#include "../endian_conversion.h"
+	#include "../endian_conversion.h"
 #endif
 
-#ifdef __cplusplus
-}
-#endif
-
+#include "openflow.h"
 #include "../cmemory.h"
 #include "../caddress.h"
 #include "../cerror.h"

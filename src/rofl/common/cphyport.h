@@ -14,16 +14,7 @@
 #define CPHYPORT_H 1
 
 #include <map>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <inttypes.h>
-
-#ifdef __cplusplus
-}
-#endif
 
 #include <rofl/platform/unix/csyslog.h>
 #include <rofl/common/openflow/cofport.h>

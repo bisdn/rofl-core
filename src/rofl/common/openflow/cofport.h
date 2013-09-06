@@ -8,23 +8,14 @@
 #include <map>
 #include <limits>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "openflow.h"
 #include <string.h>
 #include <endian.h>
 #include <inttypes.h>
-
 #ifndef htobe16
-#include "../endian_conversion.h"
+	#include "../endian_conversion.h"
 #endif
 
-#ifdef __cplusplus
-}
-#endif
-
+#include "openflow.h"
 #include "../cvastring.h"
 #include "../cmemory.h"
 #include "../cerror.h"

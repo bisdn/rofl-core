@@ -5,24 +5,15 @@
 #ifndef CLLDPTLV_H
 #define CLLDPTLV_H 1
 
+#include <endian.h>
+#ifndef htobe16
+	#include "../endian_conversion.h"
+#endif
+
 #include "../../cmemory.h"
 #include "../../cerror.h"
 #include "../../cvastring.h"
 #include "../../coflist.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <endian.h>
-
-#ifndef htobe16
-#include "../endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
-#endif
 
 namespace rofl
 {

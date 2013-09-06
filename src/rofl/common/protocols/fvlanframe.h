@@ -5,19 +5,9 @@
 #ifndef FVLANFRAME_H
 #define FVLANFRAME_H 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "../openflow/openflow.h"
 #include <endian.h>
-
 #ifndef htobe16
-#include "../endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
+	#include "../endian_conversion.h"
 #endif
 
 #include "../fframe.h"

@@ -9,16 +9,6 @@
 #include <bitset>
 #include <stdio.h>
 
-#include "cerror.h"
-#include "ciosrv.h"
-#include "caddress.h"
-#include "cmemory.h"
-#include "thread_helper.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <netinet/in.h>
 #include <sys/un.h>
 #include <fcntl.h>
@@ -27,9 +17,11 @@ extern "C" {
 #include <sys/uio.h>
 #include <pthread.h>
 
-#ifdef __cplusplus
-}
-#endif
+#include "cerror.h"
+#include "ciosrv.h"
+#include "caddress.h"
+#include "cmemory.h"
+#include "thread_helper.h"
 
 namespace rofl
 {

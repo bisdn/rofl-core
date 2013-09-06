@@ -27,7 +27,7 @@ cofdpt::cofdpt(
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
-				version(OFP12_VERSION),
+				ofp_version(OFP12_VERSION),
 				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
@@ -69,7 +69,7 @@ cofdpt::cofdpt(
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
-				version(OFP12_VERSION),
+				ofp_version(OFP12_VERSION),
 				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
@@ -107,7 +107,7 @@ cofdpt::~cofdpt()
 uint8_t
 cofdpt::get_version()
 {
-	return version;
+	return ofp_version;
 }
 
 
@@ -610,7 +610,7 @@ cofdpt::hello_rcvd(cofmsg_hello *msg)
 		WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() pack: %s", this, msg->c_str());
 
 		// OpenFlow versions do not match, send error, close connection
-		if (OFP12_VERSION != msg->get_version())
+		if (not rofbase->is_ofp_version_supported(msg->get_version()))
 		{
 			new_state(COFDPT_STATE_DISCONNECTED);
 
@@ -634,8 +634,10 @@ cofdpt::hello_rcvd(cofmsg_hello *msg)
 		}
 		else
 		{
+			ofp_version = msg->get_version();
+
 			WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() "
-					"HELLO exchanged with peer entity, attaching ...", this);
+					"HELLO exchanged with peer entity and ofp version %d, attaching ...", this, ofp_version);
 
 			flags.set(COFDPT_FLAG_HELLO_RCVD);
 
@@ -756,18 +758,28 @@ cofdpt::features_reply_rcvd(
 		n_buffers 		= msg->get_n_buffers();
 		n_tables 		= msg->get_n_tables();
 		capabilities 	= msg->get_capabilities();
-		cofportlist& portlist = msg->get_ports();
 
-		for (std::map<uint32_t, cofport*>::iterator it = ports.begin();
-				it != ports.end(); ++it) {
-			delete it->second;
-		}
-		ports.clear();
+		switch (ofp_version) {
+		case OFP10_VERSION:
+		case OFP12_VERSION: {
+			cofportlist& portlist = msg->get_ports();
 
-		for (cofportlist::iterator it = portlist.begin();
-				it != portlist.end(); ++it) {
-			cofport& port = (*it);
-			ports[port.get_port_no()] = new cofport(port, &ports, port.get_port_no());
+			for (std::map<uint32_t, cofport*>::iterator it = ports.begin();
+					it != ports.end(); ++it) {
+				delete it->second;
+			}
+			ports.clear();
+
+			for (cofportlist::iterator it = portlist.begin();
+					it != portlist.end(); ++it) {
+				cofport& port = (*it);
+				ports[port.get_port_no()] = new cofport(port, &ports, port.get_port_no());
+			}
+
+		} break;
+		case OFP13_VERSION: {
+			// no ports in OpenFlow 1.3 in FeaturesRequest
+		} break;
 		}
 
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() "
@@ -853,10 +865,23 @@ cofdpt::get_config_reply_rcvd(
 
 	if (COFDPT_STATE_WAIT_GET_CONFIG == cur_state())
 	{
-		// send stats request during initialization
-		rofbase->send_stats_request(this, OFPST_TABLE, 0);
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			new_state(COFDPT_STATE_CONNECTED);
 
-		new_state(COFDPT_STATE_WAIT_TABLE_STATS);
+			rofbase->handle_dpt_open(this);
+
+		} break;
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			// send stats request during initialization
+			rofbase->send_stats_request(this, OFPST_TABLE, 0);
+
+			new_state(COFDPT_STATE_WAIT_TABLE_STATS);
+
+		} break;
+		}
+
 	}
 }
 
@@ -1094,7 +1119,7 @@ cofdpt::flow_rmvd_rcvd(
 void
 cofdpt::flow_mod_reset()
 {
-	cflowentry fe(version);
+	cflowentry fe(ofp_version);
 	fe.set_command(OFPFC_DELETE);
 	fe.set_table_id(OFPTT_ALL /*all tables*/);
 

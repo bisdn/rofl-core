@@ -6,19 +6,10 @@
 #define FIPV4FRAME_H 1
 
 #include <map>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <inttypes.h>
 #include <endian.h>
 #ifndef htobe16
-#include "../endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
+	#include "../endian_conversion.h"
 #endif
 
 #include "../fframe.h"
@@ -68,9 +59,9 @@ public: // static
 	} __attribute__((packed));
 
 	enum ipv4_flag_t {
-		bit_reserved 		= (1 >> 0),
-		bit_dont_fragment 	= (1 >> 1),
-		bit_more_fragments	= (1 >> 2),
+		bit_reserved 		= (1 << 0),
+		bit_dont_fragment 	= (1 << 1),
+		bit_more_fragments	= (1 << 2),
 	};
 
 #if 0

@@ -2288,7 +2288,8 @@ cpacket::parse_icmpv4(
 		return;
 	}
 
-	ficmpv4frame *icmp = new ficmpv4frame(p_ptr, sizeof(struct ficmpv4frame::icmpv4_hdr_t));
+	//ficmpv4frame *icmp = new ficmpv4frame(p_ptr, sizeof(struct ficmpv4frame::icmpv4_hdr_t));
+	ficmpv4frame *icmp = new ficmpv4frame(p_ptr, p_len);
 
 	match.set_icmpv4_type(icmp->get_icmp_type());
 	match.set_icmpv4_code(icmp->get_icmp_code());
@@ -2298,6 +2299,7 @@ cpacket::parse_icmpv4(
 	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_icmpv4() "
 			"icmp: %s\nmatch: %s", this, icmp->c_str(), match.c_str());
 
+#if 0
 	p_ptr += sizeof(struct ficmpv4frame::icmpv4_hdr_t);
 	p_len -= sizeof(struct ficmpv4frame::icmpv4_hdr_t);
 
@@ -2308,6 +2310,7 @@ cpacket::parse_icmpv4(
 
 		frame_append(payload);
 	}
+#endif
 }
 
 

@@ -8,19 +8,9 @@
 #include <map>
 #include <set>
 #include <algorithm>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <inttypes.h>
-#include "openflow.h"
 #include <stdio.h>
 #include <strings.h>
-
-#ifdef __cplusplus
-}
-#endif
 
 #include "rofl/common/ciosrv.h"
 #include "rofl/common/cmemory.h"
@@ -40,6 +30,7 @@ extern "C" {
 #include "openflow/messages/cfttable.h"
 #include "openflow/messages/cgttable.h"
 #endif
+#include "openflow.h"
 #include "../openflow/messages/cofmsg.h"
 #include "../openflow/messages/cofmsg_hello.h"
 #include "../openflow/messages/cofmsg_echo.h"
@@ -178,7 +169,7 @@ private: // data structures
 		int 							 reconnect_in_seconds; 	// reconnect in x seconds
 		int 							 reconnect_counter;
 		int 							 rpc_echo_interval;		// default ECHO time interval
-		uint8_t							 version;		// OpenFlow version negotiated
+		uint8_t							 ofp_version;	// OpenFlow version negotiated
 
 		int 							 features_reply_timeout;
 		int 							 get_config_reply_timeout;

@@ -14,22 +14,11 @@
 #include <vector>
 #include <bitset>
 #include <algorithm>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "openflow/openflow.h"
-#include "openflow/openflow_rofl.h"
 #include <endian.h>
 #include <string.h>
 #include <time.h>
-
 #ifndef htobe16
-#include "endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
+	#include "endian_conversion.h"
 #endif
 
 #include "ciosrv.h"
@@ -39,6 +28,9 @@ extern "C" {
 #include "cphyport.h"
 #include "csocket.h"
 #include "thread_helper.h"
+
+#include "openflow/openflow.h"
+#include "openflow/openflow_rofl.h"
 
 //#include "rofl/experimental/crib.h"
 #include "rofl/platform/unix/crandom.h"
@@ -134,6 +126,7 @@ class crofbase :
 {
 protected:
 
+	uint32_t					supported_ofp_versions;	/**< bitfield of supported ofp versions */
 	cfsptable 					fsptable; 		/**< flowspace registrations table */
 	std::set<cofctl*>			ofctl_set;		/**< set of active controller connections */
 	std::set<cofdpt*>			ofdpt_set;		/**< set of active data path connections */
@@ -149,6 +142,7 @@ public:
 	/**
 	 * @fn		crofbase
 	 * @brief	Constructor for crofbase
+	 * @param 	supported_ofp_versions: bitfield of ofp versions to support ((1 << OFP10_VERSION) | (1 << ...))
 	 *
 	 * Initializes structures for transaction identifiers. xidlock is the rwlock
 	 * for manipulating the transaction id maps. xid_start defines the first
@@ -158,7 +152,7 @@ public:
 	 * \see xidlock
 	 * \see xid_start
 	 */
-	crofbase();
+	crofbase(uint32_t supported_ofp_versions = /*(1 << OFP10_VERSION) |*/ (1 << OFP12_VERSION));
 
 
 	/**
@@ -2623,8 +2617,17 @@ private:
 	void
 	handle_ctl_close(cofctl *ctl);
 
+	/** get highest support OF protocol version
+	 *
+	 */
+	uint8_t
+	get_highest_supported_ofp_version();
 
-
+	/** check whether a specific ofp version is supported
+	 *
+	 */
+	bool
+	is_ofp_version_supported(uint8_t ofp_version);
 
 };
 

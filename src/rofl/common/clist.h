@@ -9,16 +9,10 @@
 #define CLIST_H_ 1
 
 #include <list>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <stdlib.h>
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-#include <rofl/common/cerror.h>
+
+#include "cerror.h"
 
 
 namespace rofl

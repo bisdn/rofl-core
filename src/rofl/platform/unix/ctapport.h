@@ -5,19 +5,12 @@
 #ifndef CTAPPORT_H
 #define CTAPPORT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <sys/types.h>
 #include <linux/if_tun.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <errno.h>
-#ifdef __cplusplus
-}
-#endif
-
 #include <vector>
 #include <algorithm>
 #include <string>

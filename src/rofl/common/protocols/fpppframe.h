@@ -7,22 +7,11 @@
 
 #include <map>
 #include <string>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <assert.h>
 #include <endian.h>
-
 #ifndef htobe16
-#include "../endian_conversion.h"
+	#include "../endian_conversion.h"
 #endif
-
-#ifdef __cplusplus
-}
-#endif
-
 
 #include "../fframe.h"
 #include "../cvastring.h"

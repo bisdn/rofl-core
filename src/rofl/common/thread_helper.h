@@ -12,18 +12,10 @@
 #ifndef THREAD_HELPER_H_
 #define THREAD_HELPER_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <pthread.h>
 #include <inttypes.h>
-#ifdef __cplusplus
-}
-#endif
-
 
 #include "cerror.h"
-
 #include "rofl/platform/unix/csyslog.h"
 
 namespace rofl

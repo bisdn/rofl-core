@@ -7,17 +7,8 @@
 
 #include <string>
 #include <algorithm>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <pthread.h>
 #include <inttypes.h>
-
-#ifdef __cplusplus
-}
-#endif
 
 #include "../../common/ciosrv.h"
 #include "../../common/cerror.h"

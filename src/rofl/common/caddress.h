@@ -9,11 +9,6 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-
-#ifdef __cplusplus
-
-extern "C" {
-#endif
 #include <netinet/in.h>
 #include <sys/un.h>
 #include <sys/types.h>
@@ -26,13 +21,8 @@ extern "C" {
 #include <sys/ioctl.h>
 #include <linux/sockios.h>
 #include <endian.h>
-
 #ifndef htobe16
-#include "endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
+	#include "endian_conversion.h"
 #endif
 
 #include "cvastring.h"
@@ -214,9 +204,13 @@ public:
 	operator<< (std::ostream& os, caddress const& addr)
 	{
 		caddress t_addr(addr);
+		os << std::string(t_addr.addr_c_str());
+#if 0
+		caddress t_addr(addr);
 		os << "caddress{"
 				<< "af=" << t_addr.c_str() << " "
 				<< "}";
+#endif
 		return os;
 	};
 

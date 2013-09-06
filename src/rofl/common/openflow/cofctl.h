@@ -8,14 +8,7 @@
 #include <map>
 #include <string>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include "openflow.h"
-#ifdef __cplusplus
-}
-#endif
-
 #include "../cerror.h"
 #include "../ciosrv.h"
 #include "../cmemory.h"
@@ -54,7 +47,6 @@ extern "C" {
 #include "../openflow/messages/cofmsg_role.h"
 #include "../openflow/messages/cofmsg_experimenter.h"
 #include "../openflow/messages/cofmsg_async_config.h"
-
 
 #include "cofmatch.h"
 #include "extensions/cfspentry.h"
@@ -96,7 +88,7 @@ private: // data structures
 	int 							reconnect_counter;
 	int 							rpc_echo_interval;		// default ECHO time interval
 	unsigned int 					echo_reply_timeout;		// timeout value for missing ECHO.replies
-	uint8_t							version;				// OpenFlow version negotiated for this session
+	uint8_t							ofp_version;			// OpenFlow version negotiated for this session
 
 	enum cofctl_flag_t {
 		COFCTL_FLAG_HELLO_RCVD 			= (1 << 0),

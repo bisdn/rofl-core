@@ -8,22 +8,12 @@
 #include <set>
 #include <string>
 #include <sstream>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <inttypes.h>
 #include <pthread.h>
 #include <stdlib.h>
 
-#ifdef __cplusplus
-}
-#endif
-
-#include "rofl/platform/unix/csyslog.h"
+#include "../platform/unix/csyslog.h"
 #include "cvastring.h"
-
 #include "cerror.h"
 
 namespace rofl

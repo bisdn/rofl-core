@@ -9,20 +9,13 @@
 #define FGTPUV1FRAME_H_ 1
 
 #include <string>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "../openflow/openflow.h"
 #include <endian.h>
 #ifndef htobe16
-#include "../endian_conversion.h"
-#endif
-#ifdef __cplusplus
-}
+	#include "../endian_conversion.h"
 #endif
 
-#include <rofl/common/fframe.h>
+#include "../openflow/openflow.h"
+#include "../fframe.h"
 #include "gtpuext.h"
 
 namespace rofl
@@ -42,7 +35,7 @@ public:
 	};
 
 	enum gtpu_udp_port_t {
-		GTPU_UDP_PORT = 2512,
+		GTPU_UDP_PORT = 2152,
 	};
 
 	enum gtpu_flag_t {
@@ -86,7 +79,7 @@ public:
 	};
 
 	// shortened GTP-Uv1 header with S, PN, E flags set to 0
-	struct gtpu_short_hdr_t {
+	struct gtpu_base_hdr_t {
 		uint8_t 	flags;		// version, PT, T, E, S, PN
 		uint8_t		msgtype;
 		uint16_t	len;
@@ -102,7 +95,7 @@ private:
 		struct gtpu_e_hdr_t* 		gtphu_gtpu_e_hdr;
 		struct gtpu_pn_hdr_t*		gtphu_gtpu_pn_hdr;
 		struct gtpu_s_hdr_t* 		gtphu_gtpu_s_hdr;
-		struct gtpu_short_hdr_t* 	gtphu_gtpu_short_hdr;
+		struct gtpu_base_hdr_t* 	gtphu_gtpu_short_hdr;
 	} gtphu;
 
 #define gtphu_hdr		gtphu.gtphu_gtpu_hdr
@@ -337,6 +330,13 @@ public:
 	void
 	set_ext_type(
 			uint8_t ext_type);
+
+
+	/**
+	 *
+	 */
+	size_t
+	get_hdr_length() const;
 
 
 public: // overloaded from fframe

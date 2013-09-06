@@ -6,18 +6,11 @@
 #define CVASTRING_H 1
 
 #include <string>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <stdio.h>
 #include <stdarg.h>
 #include <strings.h>
 #include <stdlib.h>
 //#include <pthread.h>
-#ifdef __cplusplus
-}
-#endif
 
 class cvastring {
 public:

@@ -6,21 +6,11 @@
 #define CROFLEXP_H 1
 
 #include <string>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <sys/types.h>
 #include <inttypes.h>
-
 #include <endian.h>
 #ifndef be32toh
-#include "endian_conversion.h"
-#endif
-
-#ifdef __cplusplus
-}
+	#include "endian_conversion.h"
 #endif
 
 #include "cmemory.h"

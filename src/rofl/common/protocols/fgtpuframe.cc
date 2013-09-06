@@ -58,7 +58,7 @@ fgtpuframe::sopdu()
 uint8_t*
 fgtpuframe::sosdu()
 {
-	size_t offset = (sizeof(struct gtpu_short_hdr_t));
+	size_t offset = (sizeof(struct gtpu_base_hdr_t));
 
 	if (get_s_flag())
 		offset += sizeof(uint16_t);
@@ -75,7 +75,7 @@ fgtpuframe::sosdu()
 size_t
 fgtpuframe::pdulen()
 {
-	return (sizeof(struct gtpu_short_hdr_t) + get_length());
+	return (sizeof(struct gtpu_base_hdr_t) + get_length());
 }
 
 
@@ -206,7 +206,7 @@ void
 fgtpuframe::set_length(
 		uint16_t len)
 {
-	gtphu_short_hdr->msgtype = htobe16(len);
+	gtphu_short_hdr->len = htobe16(len);
 }
 
 
@@ -291,15 +291,27 @@ fgtpuframe::set_ext_type(
 
 
 
+size_t
+fgtpuframe::get_hdr_length() const
+{
+	size_t hdr_len = sizeof(struct gtpu_base_hdr_t);
+	hdr_len += (get_s_flag())  ? sizeof(uint16_t) : 0;
+	hdr_len += (get_pn_flag()) ? sizeof(uint8_t)  : 0;
+	hdr_len += (get_e_flag())  ? sizeof(uint8_t)  : 0;
+	return hdr_len;
+}
+
+
+
 bool
 fgtpuframe::complete()
 {
 	// at least a short header must be available
-	if (framelen() < sizeof(struct gtpu_short_hdr_t))
+	if (framelen() < sizeof(struct gtpu_base_hdr_t))
 		return false;
 
 	// length field contains payload (seqno, n-pdu also count as payload)
-	if (framelen() < (sizeof(struct gtpu_short_hdr_t) + get_length()))
+	if (framelen() < (sizeof(struct gtpu_base_hdr_t) + get_length()))
 		return false;
 
 	return true;
@@ -311,12 +323,12 @@ size_t
 fgtpuframe::need_bytes()
 {
 	// at least a short header must be available
-	if (framelen() < sizeof(struct gtpu_short_hdr_t))
-		return (sizeof(struct gtpu_short_hdr_t) + framelen());
+	if (framelen() < sizeof(struct gtpu_base_hdr_t))
+		return (sizeof(struct gtpu_base_hdr_t) + framelen());
 
 	// length field contains payload (seqno, n-pdu also count as payload)
-	if (framelen() < (sizeof(struct gtpu_short_hdr_t) + get_length()))
-		return ((sizeof(struct gtpu_short_hdr_t) + get_length()) - framelen());
+	if (framelen() < (sizeof(struct gtpu_base_hdr_t) + get_length()))
+		return ((sizeof(struct gtpu_base_hdr_t) + get_length()) - framelen());
 
 	return 0;
 }
@@ -353,7 +365,7 @@ fgtpuframe::payload_insert(
 uint8_t*
 fgtpuframe::payload() const throw (eFrameNoPayload)
 {
-	size_t offset = sizeof(struct gtpu_short_hdr_t);
+	size_t offset = sizeof(struct gtpu_base_hdr_t);
 
 	if (get_s_flag())
 		offset += sizeof(uint16_t);
@@ -370,7 +382,7 @@ fgtpuframe::payload() const throw (eFrameNoPayload)
 size_t
 fgtpuframe::payloadlen() const throw (eFrameNoPayload)
 {
-	size_t offset = sizeof(struct gtpu_short_hdr_t);
+	size_t offset = sizeof(struct gtpu_base_hdr_t);
 
 	if (get_s_flag())
 		offset += sizeof(uint16_t);
