@@ -782,7 +782,15 @@ cofmsg_flow_mod::get_actions()
 cofinlist&
 cofmsg_flow_mod::get_instructions()
 {
-	return instructions;
+	switch (get_version()) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return instructions;
+	} break;
+	case OFP10_VERSION:
+	default:
+		throw eBadVersion();
+	}
 }
 
 

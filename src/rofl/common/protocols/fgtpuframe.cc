@@ -206,7 +206,7 @@ void
 fgtpuframe::set_length(
 		uint16_t len)
 {
-	gtphu_short_hdr->msgtype = htobe16(len);
+	gtphu_short_hdr->len = htobe16(len);
 }
 
 
