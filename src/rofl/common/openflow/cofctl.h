@@ -88,7 +88,7 @@ private: // data structures
 	int 							reconnect_counter;
 	int 							rpc_echo_interval;		// default ECHO time interval
 	unsigned int 					echo_reply_timeout;		// timeout value for missing ECHO.replies
-	uint8_t							version;				// OpenFlow version negotiated for this session
+	uint8_t							ofp_version;			// OpenFlow version negotiated for this session
 
 	enum cofctl_flag_t {
 		COFCTL_FLAG_HELLO_RCVD 			= (1 << 0),
