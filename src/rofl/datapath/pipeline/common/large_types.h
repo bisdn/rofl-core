@@ -18,15 +18,15 @@ typedef struct uint128_{
 typedef struct wrap_u128{
 	uint64_t hi;
 	uint64_t lo;
-}w128_t;
+} __attribute__ ((__may_alias__)) w128_t;
 
 #define UINT128__T_HI(x) ((w128_t*)&x)->hi
 #define UINT128__T_LO(x) ((w128_t*)&x)->lo
 
 #define SWAP_U128(x) do{ \
-	uint64_t *tmp = &((w128_t*)&x)->hi; \
+	uint64_t tmp = ((w128_t*)&x)->hi; \
 	((w128_t*)&x)->hi = __bswap_64 (((w128_t*)&x)->lo); \
-	((w128_t*)&x)->lo = __bswap_64 (*tmp); \
+	((w128_t*)&x)->lo = __bswap_64 (tmp); \
 }while(0)
 
 
