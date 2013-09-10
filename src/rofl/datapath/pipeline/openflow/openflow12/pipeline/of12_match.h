@@ -37,8 +37,8 @@ union of_packet_matches;
 
 /* Defines possible matchings. This is EXPLICITELY copied from openflow.h, to simplify names, avoid collisions and add extensions */
 typedef enum{
-	OF12_MATCH_IN_PORT = 0,            /* Switch input port. */                // required
-	OF12_MATCH_IN_PHY_PORT = 1,        /* Switch physical input port. */
+	OF12_MATCH_IN_PORT = 0,          /* Switch input port. */                // required
+	OF12_MATCH_IN_PHY_PORT = 1,     /* Switch physical input port. */
 	OF12_MATCH_METADATA = 2,        /* Metadata passed between tables. */
 
 	/* mac */

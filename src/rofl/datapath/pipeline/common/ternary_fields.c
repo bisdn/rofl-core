@@ -93,22 +93,6 @@ inline bool __utern_compare64(const utern_t* tern, const uint64_t value){
 }
 
 inline bool __utern_compare128(const utern_t* tern, const uint128__t value){
-#if 0
-	return ( (tern->value.low & tern->mask.low) == (value.low & tern->mask.low) ) &&
-		( (tern->value.high & tern->mask.high) == (value.high & tern->mask.high) ); 
-		
-	return ( ( *(uint64_t*)&tern->value.u128.val[0] & *(uint64_t*)&tern->mask.u128.val[0]) == (*(uint64_t*)&value.val[0] & *(uint64_t*)&tern->mask.u128.val[0]) ) &&
-		( (*(uint64_t*)&tern->value.u128.val[8] & *(uint64_t*)&tern->mask.u128.val[8]) == (*(uint64_t*)&value.val[8] & *(uint64_t*)&tern->mask.u128.val[8]) ); 
-			
-	w128_t *tern_val, *tern_mask, *val;
-	tern_val = (w128_t *)&tern->value.u128;
-	tern_mask = (w128_t *)&tern->mask.u128;
-	val = (w128_t *)&value;
-			
-	return ( (tern_val->lo & tern_mask->lo) == (val->lo & tern_mask->lo) &&
-				(tern_val->hi & tern_mask->hi) == (val->hi & tern_mask->hi) );
-#endif
-	
 	return ( (UINT128__T_HI(tern->value.u128) & UINT128__T_HI(tern->mask.u128)) == (UINT128__T_HI(value) & UINT128__T_HI(tern->mask.u128)) )&&
 			( (UINT128__T_LO(tern->value.u128) & UINT128__T_LO(tern->mask.u128)) == (UINT128__T_LO(value) & UINT128__T_LO(tern->mask.u128)) );
 	
@@ -325,45 +309,3 @@ inline utern_t* __utern_get_alike(const utern_t tern1, const utern_t tern2){
 	}
 	return NULL;
 }
-
-#if 0
-//Not used yet
-inline bool __utern_compare128(const utern_t* tern, const void* value){
-	utern128_t* tmp = (utern128_t*)tern;
-	uint64_t* tmp_tern1 = (uint64_t*)tmp->value;
-	uint64_t* tmp_tern2 = (uint64_t*)(tmp->value+64);
-	uint64_t* tmp_mask1 = (uint64_t*)tmp->mask;
-	uint64_t* tmp_mask2 = (uint64_t*)(tmp->mask+64);
-
-	uint64_t* tmp_value1 = (uint64_t*)value;
-	uint64_t* tmp_value2 = (uint64_t*)(value+64);
-	
-	return ((*tmp_tern1&*tmp_mask1) == (*tmp_value1&*tmp_mask1))
-		&&
-		((*tmp_tern2&*tmp_mask2) == (*tmp_value2&*tmp_mask2));
-}
-#endif
-
-#if 0
-///SLOW
-
-/* Exported method utern_compare */ 
-inline bool __utern_compare(const utern_t* tern, void* value){
-	
-	//TODO: tweak order for performance
-	
-	//Order is in purpose, not using switch too ;)
-	if(tern->type == UTERN16_T){
-		return utern_compare16(tern,value); 
-	}else if(tern->type == UTERN32_T){
-		return utern_compare32(tern,value); 
-	}else if(tern->type == UTERN64_T){
-		return utern_compare64(tern,value); 
-	}else if(tern->type == UTERN8_T){
-		return utern_compare8(tern,value); 
-	}else if(tern->type == UTERN128_T){
-		return utern_compare128(tern,value); 
-	}else 
-		return false;
-}*/
-#endif

@@ -109,10 +109,10 @@ typedef enum{
 	OF12_AT_SET_FIELD_VLAN_VID,  		/* VLAN id. */
 	OF12_AT_SET_FIELD_VLAN_PCP,  		/* VLAN priority. */
 	OF12_AT_SET_FIELD_ARP_OPCODE,		/* ARP opcode */
-	OF12_AT_SET_FIELD_ARP_SHA,			/* ARP source hardware address */
-	OF12_AT_SET_FIELD_ARP_SPA,			/* ARP source protocol address */
-	OF12_AT_SET_FIELD_ARP_THA,			/* ARP target hardware address */
-	OF12_AT_SET_FIELD_ARP_TPA,			/* ARP target protocol address */
+	OF12_AT_SET_FIELD_ARP_SHA,		/* ARP source hardware address */
+	OF12_AT_SET_FIELD_ARP_SPA,		/* ARP source protocol address */
+	OF12_AT_SET_FIELD_ARP_THA,		/* ARP target hardware address */
+	OF12_AT_SET_FIELD_ARP_TPA,		/* ARP target protocol address */
 	OF12_AT_SET_FIELD_IP_DSCP,   		/* IP DSCP (6 bits in ToS field). */
 	OF12_AT_SET_FIELD_IP_ECN,    		/* IP ECN (2 bits in ToS field). */
 	OF12_AT_SET_FIELD_IP_PROTO,  		/* IP protocol. */
@@ -132,8 +132,8 @@ typedef enum{
 	OF12_AT_SET_FIELD_PPPOE_SID, 	   	/* PPPoE session id */
 	OF12_AT_SET_FIELD_PPP_PROT,  	   	/* PPP protocol */
     
-    OF12_AT_SET_FIELD_IPV6_SRC,		/* IPv6 source address*/
-	OF12_AT_SET_FIELD_IPV6_DST,			/* IPv6 destination address*/
+	OF12_AT_SET_FIELD_IPV6_SRC,		/* IPv6 source address*/
+	OF12_AT_SET_FIELD_IPV6_DST,		/* IPv6 destination address*/
 	OF12_AT_SET_FIELD_IPV6_FLABEL,		/* IPv6 flow label*/
 	OF12_AT_SET_FIELD_IPV6_ND_TARGET,	/* IPv6 Neighbour Discovery target*/
 	OF12_AT_SET_FIELD_IPV6_ND_SLL,		/* IPv6 ND source link level*/
@@ -144,7 +144,7 @@ typedef enum{
 	OF12_AT_SET_FIELD_ICMPV6_CODE,		/* ICMPv6 code*/
 
 	OF12_AT_SET_FIELD_GTP_MSG_TYPE,		/* GTP message type */
-	OF12_AT_SET_FIELD_GTP_TEID,			/* GTP TEID */
+	OF12_AT_SET_FIELD_GTP_TEID,		/* GTP TEID */
 
 	/* Add more set fields here... */
 
