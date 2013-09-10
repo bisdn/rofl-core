@@ -102,6 +102,9 @@ coxmlist::unpack(
 			return; // not enough bytes to parse an entire ofp_oxm_hdr, possibly padding bytes found
 		}
 
+		if (hdr->oxm_length > (sizeof(struct ofp_oxm_hdr) + buflen))
+			throw eBadMatchBadLen();
+
 		coxmatch oxm(hdr, sizeof(struct ofp_oxm_hdr) + hdr->oxm_length);
 
 		switch (oxm.get_oxm_class()) {
