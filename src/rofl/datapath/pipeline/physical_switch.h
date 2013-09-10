@@ -43,7 +43,7 @@
 *
 *       Logical switches are of type of_switch, and may be created using
 *       the version specific init/destroy functions provided by the library.
-*       (e.g. of12_init_switch). Immediately after, they must be added to
+*       (e.g. of1x_init_switch). Immediately after, they must be added to
 *       the physical switch. Note that instances not added to the physical
 *       switch are completely meaningless(*).
 *
@@ -69,7 +69,7 @@
 *
 * //Now we create one or more Logical switch instances
 * dpid = 0x100;
-* of_switch = of12_init_switch(dpid,...);
+* of_switch = of1x_init_switch(dpid,...);
 *
 * //Note from this point on if any port is attached
 * //The switch will start to process packets so 

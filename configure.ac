@@ -145,19 +145,19 @@ AM_COND_IF([PIPELINE_SUPPORT],[AC_CONFIG_FILES([
         src/rofl/datapath/pipeline/common/Makefile
         src/rofl/datapath/pipeline/platform/Makefile
         src/rofl/datapath/pipeline/openflow/Makefile
-        src/rofl/datapath/pipeline/openflow/openflow12/Makefile
-        src/rofl/datapath/pipeline/openflow/openflow12/pipeline/Makefile
-        src/rofl/datapath/pipeline/openflow/openflow12/pipeline/matching_algorithms/Makefile
+        src/rofl/datapath/pipeline/openflow/openflow1x/Makefile
+        src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/Makefile
+        src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/Makefile
         src/rofl/datapath/pipeline/util/Makefile
 
-	test/rofl/datapath/pipeline/openflow/openflow12/pipeline/Makefile
-	test/rofl/datapath/pipeline/openflow/openflow12/pipeline/ma/loop/Makefile
-	test/rofl/datapath/pipeline/openflow/openflow12/pipeline/dynamic/Makefile
-	test/rofl/datapath/pipeline/openflow/openflow12/pipeline/static/Makefile
+	test/rofl/datapath/pipeline/openflow/openflow1x/pipeline/Makefile
+	test/rofl/datapath/pipeline/openflow/openflow1x/pipeline/ma/loop/Makefile
+	test/rofl/datapath/pipeline/openflow/openflow1x/pipeline/dynamic/Makefile
+	test/rofl/datapath/pipeline/openflow/openflow1x/pipeline/static/Makefile
 ])])
 
 ## pipeline
-MATCHING_ALGORITHMS_DIR="src/rofl/datapath/pipeline/openflow/openflow12/pipeline/matching_algorithms"
+MATCHING_ALGORITHMS_DIR="src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms"
 AC_SUBST(MATCHING_ALGORITHMS_DIR)
 MATCHING_ALGORITHMS="loop"
 MATCHING_ALGORITHM_LIBS=""
@@ -195,11 +195,11 @@ if test -n "$MATCHING_ALGORITHMS"; then
             AC_MSG_NOTICE([Removing duplicate $algorithm from matching algorithms])
         elif test -d "$srcdir/$MATCHING_ALGORITHMS_DIR/$algorithm"; then
             MATCHING_ALGORITHMS="$MATCHING_ALGORITHMS $algorithm"
-            MATCHING_ALGORITHM_LIBADD="$MATCHING_ALGORITHM_LIBADD librofl_pipeline_openflow12_pipeline_matching_algorithms_$algorithm.la"
+            MATCHING_ALGORITHM_LIBADD="$MATCHING_ALGORITHM_LIBADD librofl_pipeline_openflow1x_pipeline_matching_algorithms_$algorithm.la"
         else
             MATCHING_ALGORITHMS="$MATCHING_ALGORITHMS $algorithm"
         	MATCHING_ALGORITHM_AS_LIBS="$MATCHING_ALGORITHM_AS_LIBS $algorithm"
-            MATCHING_ALGORITHM_LIBS="MATCHING_ALGORITHM_LIBS -lrofl_pipeline_openflow12_pipeline_matching_algorithms_$algorithm"
+            MATCHING_ALGORITHM_LIBS="MATCHING_ALGORITHM_LIBS -lrofl_pipeline_openflow1x_pipeline_matching_algorithms_$algorithm"
         fi
     done
     AC_MSG_NOTICE([Matching algorithms built: $MATCHING_ALGORITHMS])
@@ -272,7 +272,7 @@ AC_CONFIG_FILES([
 	src/rofl/Makefile
 
         src/rofl/datapath/afa/Makefile
-        src/rofl/datapath/afa/openflow/openflow12/Makefile
+        src/rofl/datapath/afa/openflow/openflow1x/Makefile
 	
 	examples/Makefile
 	examples/etherswitch/Makefile

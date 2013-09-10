@@ -41,7 +41,7 @@ afa_result_t cmm_notify_port_status_changed(switch_port_t* port);
 AFA_END_DECLS
 
 /* Openflow related events */
-#include "openflow/openflow12/of12_cmm.h"
+#include "openflow/openflow1x/of1x_cmm.h"
 //TODO: Add more versions here...
 
 #endif /** CMM__H */

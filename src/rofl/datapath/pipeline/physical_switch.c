@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "platform/memory.h"
 #include "util/logging.h"
-#include "openflow/openflow12/pipeline/matching_algorithms/matching_algorithms.h"
+#include "openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms.h"
 
 static physical_switch_t* psw=NULL;
 
@@ -17,7 +17,7 @@ switch_port_t* flood_meta_port;
 
 //Generate the matching algorithm list for all Openflow versions	
 void __physical_switch_generate_matching_algorithm_list(){
-	__of12_generate_matching_algorithm_list();
+	__of1x_generate_matching_algorithm_list();
 	//Add more versions here...
 }
 

@@ -7,7 +7,7 @@
 
 #include <rofl/datapath/pipeline/switch_port.h>
 #include <rofl/datapath/pipeline/openflow/of_switch.h>
-#include <rofl/datapath/pipeline/openflow/openflow12/pipeline/matching_algorithms/matching_algorithms.h>
+#include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms.h>
 
 #include "afa.h"
 #include "afa_utils.h"
@@ -206,7 +206,7 @@ afa_result_t fwd_module_list_matching_algorithms(of_version_t of_version, const 
 AFA_END_DECLS
 
 /* Openflow related events */
-#include "openflow/openflow12/of12_fwd_module.h"
+#include "openflow/openflow1x/of1x_fwd_module.h"
 //TODO: Add more versions here...
 
 #endif /* AFA_DRIVER_H */

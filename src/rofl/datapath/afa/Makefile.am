@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = openflow/openflow12
+SUBDIRS = openflow/openflow1x
 
 libafa_ladir=$(includedir)/rofl/datapath/afa/
 libafa_la_HEADERS=afa.h cmm.h fwd_module.h afa_utils.h
