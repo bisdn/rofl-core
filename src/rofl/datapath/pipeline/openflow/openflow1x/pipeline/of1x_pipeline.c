@@ -70,10 +70,12 @@ of1x_pipeline_t* __of1x_init_pipeline(struct of1x_switch* sw, const unsigned int
 	pipeline->capabilities = 	OF1X_CAP_FLOW_STATS |
 					OF1X_CAP_TABLE_STATS |
 					OF1X_CAP_PORT_STATS |
-					//OF1X_CAP_GROUP_STATS | //FIXME: add when groups are implemented
+					OF1X_CAP_GROUP_STATS | 
 					//OF1X_CAP_IP_REASM |
 					OF1X_CAP_QUEUE_STATS;
 					//OF1X_CAP_ARP_MATCH_IP;
+
+	//TODO: Evaluate if OF1X_CAP_PORT_BLOCKED should be added by default 
 
 	//Set MISS-SEND length to default 
 	pipeline->miss_send_len = OF1X_DEFAULT_MISS_SEND_LEN;

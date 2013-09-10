@@ -24,16 +24,20 @@
 */
 
 /**
-* Capabilities supported by the datapath pipeline. -> Direct mapping to  
+* Capabilities supported by the datapath pipeline. WARNING: This is not a direct mapping of OFPC_XXX. 
 */
 enum of1x_capabilities {
-    OF1X_CAP_FLOW_STATS     = 1 << 0,  /* Flow statistics. */
-    OF1X_CAP_TABLE_STATS    = 1 << 1,  /* Table statistics. */
-    OF1X_CAP_PORT_STATS     = 1 << 2,  /* Port statistics. */
-    OF1X_CAP_GROUP_STATS    = 1 << 3,  /* Group statistics. */
-    OF1X_CAP_IP_REASM       = 1 << 5,  /* Can reassemble IP fragments. */
-    OF1X_CAP_QUEUE_STATS    = 1 << 6,  /* Queue statistics. */
-    OF1X_CAP_ARP_MATCH_IP   = 1 << 7   /* Match IP addresses in ARP pkts. */
+	OF1X_CAP_FLOW_STATS     = 1 << 0,  /* Flow statistics. */
+	OF1X_CAP_TABLE_STATS    = 1 << 1,  /* Table statistics. */
+	OF1X_CAP_PORT_STATS     = 1 << 2,  /* Port statistics. */
+	OF1X_CAP_GROUP_STATS    = 1 << 3,  /* Group statistics. Added in OF1.1 (caution OF wire protocol collides with STP) */
+	OF1X_CAP_IP_REASM       = 1 << 5,  /* Can reassemble IP fragments. */
+	OF1X_CAP_QUEUE_STATS    = 1 << 6,  /* Queue statistics. */
+	OF1X_CAP_ARP_MATCH_IP   = 1 << 7,  /* Match IP addresses in ARP pkts. Invalid for OF13 */
+	OF1X_CAP_PORT_BLOCKED   = 1 << 8,  /* Match IP addresses in ARP pkts. Added in OF1.3 */
+
+	//Deprecated (OF1.0)
+	OF1X_CAP_STP   		= 1 << 31  /* STP capable switch (OF1.0 ONLY) */ 
 };
 
 //Fwd declaration
