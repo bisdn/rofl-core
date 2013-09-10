@@ -51,7 +51,16 @@ public: // data structures
 	union { // for OpenFlow 1.1
 		struct ofp_action_header				*oacu_header;
 		struct ofp_action_output				*oacu_output;
-		struct ofp_action_vendor_header			*oacu_vendor;
+		// OF1.0 actions
+		struct ofp10_action_enqueue				*oacu_10enqueue;
+		struct ofp10_action_vlan_vid			*oacu_10vlanvid;
+		struct ofp10_action_vlan_pcp			*oacu_10vlanpcp;
+		struct ofp10_action_dl_addr				*oacu_10dladdr;
+		struct ofp10_action_nw_addr				*oacu_10nwaddr;
+		struct ofp10_action_nw_tos				*oacu_10nwtos;
+		struct ofp10_action_tp_port				*oacu_10tpport;
+		struct ofp10_action_vendor_header		*oacu_10vendor;
+		// OF1.0 actions -done-
 
 		struct ofp_action_mpls_ttl				*oacu_mpls_ttl;
 		struct ofp_action_push 					*oacu_push;
@@ -65,8 +74,14 @@ public: // data structures
 
 #define oac_header oac_oacu.oacu_header			// action: plain header
 #define oac_output oac_oacu.oacu_output			// action: output
-#define oac_enqueue oac_oacu.oacu_enqueue		// action: enqueue
-#define oac_vendor oac_oacu.oacu_vendor			// action: vendor
+#define oac_enqueue oac_oacu.oacu_10enqueue		// action: enqueue
+#define oac_vlanvid oac_oacu.oacu_10vlanvid		// action: vlan_vid
+#define oac_vlanpcp oac_oacu.oacu_10vlanpcp		// action: vlan_pcp
+#define oac_dladdr oac_oacu.oacu_10dladdr		// action: dl_addr
+#define oac_nwaddr oac_oacu.oacu_10nwaddr		// action: nw_addr
+#define oac_nwtos oac_oacu.oacu_10nwtos			// action: nw_tos
+#define oac_tpport oac_oacu.oacu_10tpport		// action: tp_port
+#define oac_vendor oac_oacu.oacu_10vendor		// action: vendor
 
 #define oac_mpls_ttl oac_oacu.oacu_mpls_ttl		// action: mpls_ttl
 #define oac_push oac_oacu.oacu_push				// action: push
@@ -215,6 +230,257 @@ public:
 	get_max_len() const throw (eActionInvalType);
 };
 
+
+/*
+ * old OF1.0 actions
+ */
+
+/** OFPAT_SET_VLAN_VID
+ *
+ */
+class cofaction_set_vlan_vid : public cofaction {
+public:
+	/** constructor
+	 */
+	cofaction_set_vlan_vid(
+			uint16_t vlan_vid) :
+				cofaction(sizeof(struct ofp10_action_vlan_vid))
+	{
+		oac_vlanvid->type = htobe16(OFP10AT_SET_VLAN_VID);
+		oac_vlanvid->len = htobe16(sizeof(struct ofp10_action_vlan_vid));
+		oac_vlanvid->vlan_vid = vlan_vid;
+	};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_set_vlan_vid() {};
+};
+
+/** OFPAT_SET_VLAN_PCP
+ *
+ */
+class cofaction_set_vlan_pcp : public cofaction {
+public:
+	/** constructor
+	 */
+	cofaction_set_vlan_pcp(
+			uint8_t vlan_pcp) :
+				cofaction(sizeof(struct ofp10_action_vlan_pcp))
+	{
+		oac_vlanpcp->type = htobe16(OFP10AT_SET_VLAN_PCP);
+		oac_vlanpcp->len = htobe16(sizeof(struct ofp10_action_vlan_vid));
+		oac_vlanpcp->vlan_pcp = vlan_pcp;
+	};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_set_vlan_pcp() {};
+};
+
+/** OFPAT_STRIP_VLAN
+ *
+ */
+class cofaction_strip_vlan : public cofaction {
+public:
+	/** constructor
+	 */
+	cofaction_strip_vlan() :
+				cofaction(sizeof(struct ofp_action_header))
+	{
+		oac_header->type = htobe16(OFP10AT_STRIP_VLAN);
+		oac_header->len = htobe16(sizeof(struct ofp_action_header));
+	};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_strip_vlan() {};
+};
+
+/** OFPAT_SET_DL_SRC
+ *
+ */
+class cofaction_set_dl_src : public cofaction {
+public:
+	/** constructor
+	 */
+	cofaction_set_dl_src(
+			rofl::cmacaddr const& maddr) :
+				cofaction(sizeof(struct ofp10_action_dl_addr))
+	{
+		oac_dladdr->type = htobe16(OFP10AT_SET_DL_SRC);
+		oac_dladdr->len = htobe16(sizeof(struct ofp10_action_dl_addr));
+		memcpy(oac_dladdr->dl_addr, maddr.somem(), OFP_ETH_ALEN);
+	};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_set_dl_src() {};
+};
+
+/** OFPAT_SET_DL_DST
+ *
+ */
+class cofaction_set_dl_dst : public cofaction {
+public:
+	/** constructor
+	 */
+	cofaction_set_dl_dst(
+			rofl::cmacaddr const& maddr) :
+				cofaction(sizeof(struct ofp10_action_dl_addr))
+	{
+		oac_dladdr->type = htobe16(OFP10AT_SET_DL_DST);
+		oac_dladdr->len = htobe16(sizeof(struct ofp10_action_dl_addr));
+		memcpy(oac_dladdr->dl_addr, maddr.somem(), OFP_ETH_ALEN);
+	};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_set_dl_dst() {};
+};
+
+/** OFPAT_SET_NW_SRC
+ *
+ */
+class cofaction_set_nw_src : public cofaction {
+public:
+	/** constructor
+	 */
+	cofaction_set_nw_src(
+			rofl::caddress const& addr) :
+				cofaction(sizeof(struct ofp10_action_nw_addr))
+	{
+		oac_nwaddr->type = htobe16(OFP10AT_SET_NW_SRC);
+		oac_nwaddr->len = htobe16(sizeof(struct ofp10_action_nw_addr));
+		oac_nwaddr->nw_addr = addr.ca_s4addr->sin_addr.s_addr;
+	};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_set_nw_src() {};
+};
+
+/** OFPAT_SET_NW_DST
+ *
+ */
+class cofaction_set_nw_dst : public cofaction {
+public:
+	/** constructor
+	 */
+	cofaction_set_nw_dst(
+			rofl::caddress const& addr) :
+				cofaction(sizeof(struct ofp10_action_nw_addr))
+	{
+		oac_nwaddr->type = htobe16(OFP10AT_SET_NW_DST);
+		oac_nwaddr->len = htobe16(sizeof(struct ofp10_action_nw_addr));
+		oac_nwaddr->nw_addr = addr.ca_s4addr->sin_addr.s_addr;
+	};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_set_nw_dst() {};
+};
+
+/** OFPAT_SET_NW_TOS
+ *
+ */
+class cofaction_set_nw_tos : public cofaction {
+public:
+	/** constructor
+	 */
+	cofaction_set_nw_tos(
+			uint8_t nw_tos) :
+				cofaction(sizeof(struct ofp10_action_nw_tos))
+	{
+		oac_nwtos->type = htobe16(OFP10AT_SET_NW_TOS);
+		oac_nwtos->len = htobe16(sizeof(struct ofp10_action_nw_tos));
+		oac_nwtos->nw_tos = nw_tos;
+	};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_set_nw_tos() {};
+};
+
+/** OFPAT_SET_TP_SRC
+ *
+ */
+class cofaction_set_tp_src : public cofaction {
+public:
+	/** constructor
+	 */
+	cofaction_set_tp_src(
+			uint16_t tp_src) :
+				cofaction(sizeof(struct ofp10_action_tp_port))
+	{
+		oac_tpport->type = htobe16(OFP10AT_SET_TP_SRC);
+		oac_tpport->len = htobe16(sizeof(struct ofp10_action_tp_port));
+		oac_tpport->tp_port = tp_src;
+	};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_set_tp_src() {};
+};
+
+/** OFPAT_SET_TP_DST
+ *
+ */
+class cofaction_set_tp_dst : public cofaction {
+public:
+	/** constructor
+	 */
+	cofaction_set_tp_dst(
+			uint16_t tp_dst) :
+				cofaction(sizeof(struct ofp10_action_tp_port))
+	{
+		oac_tpport->type = htobe16(OFP10AT_SET_TP_DST);
+		oac_tpport->len = htobe16(sizeof(struct ofp10_action_tp_port));
+		oac_tpport->tp_port = tp_dst;
+	};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_set_tp_dst() {};
+};
+
+/** OFPAT_ENQUEUE
+ *
+ */
+class cofaction_enqueue : public cofaction {
+public:
+	/** constructor
+	 */
+	cofaction_enqueue(
+			uint16_t port, uint32_t queue_id) :
+				cofaction(sizeof(struct ofp10_action_enqueue))
+	{
+		oac_enqueue->type = htobe16(OFP10AT_ENQUEUE);
+		oac_enqueue->len = htobe16(sizeof(struct ofp10_action_tp_port));
+		oac_enqueue->port = htobe16(port);
+		oac_enqueue->queue_id = htobe32(queue_id);
+	};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_enqueue() {};
+};
+
+
+
+/*
+ * new OF1.2 actions
+ */
 
 /** OFPAT_SET_MPLS_TTL
  *

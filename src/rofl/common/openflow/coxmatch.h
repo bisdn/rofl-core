@@ -1989,7 +1989,7 @@ public:
 	{
 		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
 		set_oxm_field(OFPXMT_OFB_IPV6_ND_SLL);
-		set_oxm_length(16);
+		set_oxm_length(OFP_ETH_ALEN);
 		memcpy(oxm_maddr->addr, addr.somem(), OFP_ETH_ALEN);
 	};
 	/** destructor
@@ -2024,7 +2024,7 @@ public:
 	{
 		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
 		set_oxm_field(OFPXMT_OFB_IPV6_ND_TLL);
-		set_oxm_length(16);
+		set_oxm_length(OFP_ETH_ALEN);
 		memcpy(oxm_maddr->addr, addr.somem(), OFP_ETH_ALEN);
 	};
 	/** destructor

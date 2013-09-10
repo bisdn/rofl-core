@@ -399,6 +399,31 @@ fgtpuframe::payloadlen() const throw (eFrameNoPayload)
 const char*
 fgtpuframe::c_str()
 {
+	std::stringstream ss;
+	if (this->get_pn_flag())
+		ss << "fPN: 1 ";
+	else
+		ss << "fPN: 0 ";
+	if (this->get_s_flag())
+		ss << " fS: 1 ";
+	else
+		ss << " fS: 0 ";
+	if ( this->get_e_flag())
+		ss << " fE: 1 ";
+	else
+		ss << " fE: 0 ";
+	if (this->get_pt_flag())
+		ss << "fPT: 1 ";
+	else
+		ss << "fPT: 0 ";
+	//fprintf(stderr,"VERSION %x ",this->get_version());
+	ss << " VER: " << (int) this->get_version();
+	//fprintf(stderr,"MSGTYP %x ",this->get_msg_type());
+	ss << " MSGTYP: " << (int) this->get_msg_type();
+	ss << " LEN: " << this->get_length();
+	ss << " TEID: " << this->get_teid();
+	info = ss.str();
+	printf("ss:%s", ss.str().c_str());
 	return info.c_str();
 }
 
