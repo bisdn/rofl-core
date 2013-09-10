@@ -4,21 +4,17 @@
 
 #include "of1x_group_table.h"
 #include "of1x_pipeline.h"
+#include "../of1x_switch.h"
 
 
 //Copied from Openflow1.2 header
 enum of1xp_instruction_type {
-    OF1XPIT_GOTO_TABLE = 1,       /* Setup the next table in the lookup
-                                   pipeline */
-    OF1XPIT_WRITE_METADATA = 2,   /* Setup the metadata field for use later in
-                                   pipeline */
-    OF1XPIT_WRITE_ACTIONS = 3,    /* Write the action(s) onto the datapath action
-                                   set */
-    OF1XPIT_APPLY_ACTIONS = 4,    /* Applies the action(s) immediately */
-    OF1XPIT_CLEAR_ACTIONS = 5,    /* Clears all actions from the datapath
-                                   action set */
-
-    OF1XPIT_EXPERIMENTER = 0xFFFF  /* Experimenter instruction */
+    OF1XPIT_GOTO_TABLE 		= 1,	 /* Setup the next table in the lookup pipeline */
+    OF1XPIT_WRITE_METADATA 	= 2,	 /* Setup the metadata field for use later in pipeline */
+    OF1XPIT_WRITE_ACTIONS 	= 3,	 /* Write the action(s) onto the datapath action set */
+    OF1XPIT_APPLY_ACTIONS 	= 4,	 /* Applies the action(s) immediately */
+    OF1XPIT_CLEAR_ACTIONS 	= 5,	 /* Clears all actions from the datapath action set */
+    OF1XPIT_EXPERIMENTER 	= 0xFFFF /* Experimenter instruction */
 };
 
 
@@ -29,9 +25,9 @@ enum of1xp_action_type {
 	OF1XPAT_SET_MPLS_TTL 	= 15, 	/* MPLS TTL */
 	OF1XPAT_DEC_MPLS_TTL 	= 16, 	/* Decrement MPLS TTL */
 	OF1XPAT_PUSH_VLAN 	= 17, 	/* Push a new VLAN tag */
-	OF1XPAT_POP_VLAN 		= 18, 	/* Pop the outer VLAN tag */
+	OF1XPAT_POP_VLAN 	= 18, 	/* Pop the outer VLAN tag */
 	OF1XPAT_PUSH_MPLS 	= 19, 	/* Push a new MPLS tag */
-	OF1XPAT_POP_MPLS 		= 20, 	/* Pop the outer MPLS tag */
+	OF1XPAT_POP_MPLS 	= 20, 	/* Pop the outer MPLS tag */
 	OF1XPAT_SET_QUEUE 	= 21, 	/* Set queue id when outputting to a port */
 	OF1XPAT_GROUP 		= 22, 	/* Apply group. */
 	OF1XPAT_SET_NW_TTL 	= 23, 	/* IP TTL. */
@@ -39,8 +35,8 @@ enum of1xp_action_type {
 	OF1XPAT_SET_FIELD 	= 25, 	/* Set a header field using OXM TLV format. */
 	OF1XPAT_PUSH_PPPOE 	= 26,	/* Push a new PPPoE tag */
 	OF1XPAT_POP_PPPOE 	= 27,	/* Pop the PPPoE tag */
-	OF1XPAT_PUSH_PPP 		= 28,	/* Push a new PPP tag */
-	OF1XPAT_POP_PPP 		= 29,	/* Pop the PPP tag */
+	OF1XPAT_PUSH_PPP 	= 28,	/* Push a new PPP tag */
+	OF1XPAT_POP_PPP 	= 29,	/* Pop the PPP tag */
 	OF1XPAT_EXPERIMENTER	= 0xffff
 };
 
@@ -59,49 +55,12 @@ enum of1xp_action_type {
 * Table mgmt 
 */ 
 
-/* Initalizer. Table struct has been allocated by pipeline initializer. */
-rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_t* table, const unsigned int table_index, const enum of1x_matching_algorithm_available algorithm){
+static void __of10_set_table_defaults(of1x_flow_table_t* table){
 
-	//Safety checks
-	if(!pipeline || !table)
-		return ROFL_FAILURE;	
+	//FIXME: add defaults!!
+}
 
-	//Initializing mutexes
-	if(NULL == (table->mutex = platform_mutex_init(NULL)))
-		return ROFL_FAILURE;
-	if(NULL == (table->rwlock = platform_rwlock_init(NULL)))
-		return ROFL_FAILURE;
-	
-	table->pipeline = pipeline;
-	table->number = table_index;
-	table->entries = NULL;
-	table->num_of_entries = 0;
-	table->max_entries = OF1X_MAX_NUMBER_OF_TABLE_ENTRIES;
-	table->default_action = OF1X_TABLE_MISS_CONTROLLER;
-
-	//Set name FIXME: put proper name (table0, table1...)
-	strncpy(table->name,"table",OF1X_MAX_TABLE_NAME_LEN);
-	
-	//Setting up the matching algorithm	
-	if(! (algorithm < of1x_matching_algorithm_count)){
-		platform_mutex_destroy(table->mutex);
-		platform_rwlock_destroy(table->rwlock);
-		return ROFL_FAILURE;
-	}
-
-	//Set algorithm
-	table->matching_algorithm = algorithm;
-
-	//Auxiliary matching algorithm structs 
-	table->matching_aux[0] = NULL; 
-	table->matching_aux[1] = NULL;
-
-	//Initializing timers. NOTE does that need to be done here or somewhere else?
-#if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
-	__of1x_timer_group_static_init(table);
-#else
-	table->timers = NULL;
-#endif
+static void __of12_set_table_defaults(of1x_flow_table_t* table){
 
 	//Set default behaviour MISS Controller	
 	table->default_action = OF1X_TABLE_MISS_CONTROLLER;
@@ -232,6 +191,78 @@ rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_
 					(1 << OF1XPIT_CLEAR_ACTIONS);   
 	
 	
+}
+
+static void __of13_set_table_defaults(of1x_flow_table_t* table){
+	
+	//Being lazy...
+	__of12_set_table_defaults(table);
+
+	//Setting the default behaviour to continue to the next table.
+	table->default_action = OF1X_TABLE_MISS_CONTINUE; 
+	table->config.table_miss_config = 0x0;
+}
+
+
+/* Initalizer. Table struct has been allocated by pipeline initializer. */
+rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_t* table, const unsigned int table_index, const enum of1x_matching_algorithm_available algorithm){
+
+	//Safety checks
+	if(!pipeline || !table)
+		return ROFL_FAILURE;	
+
+	//Initializing mutexes
+	if(NULL == (table->mutex = platform_mutex_init(NULL)))
+		return ROFL_FAILURE;
+	if(NULL == (table->rwlock = platform_rwlock_init(NULL)))
+		return ROFL_FAILURE;
+	
+	table->pipeline = pipeline;
+	table->number = table_index;
+	table->entries = NULL;
+	table->num_of_entries = 0;
+	table->max_entries = OF1X_MAX_NUMBER_OF_TABLE_ENTRIES;
+
+	//Set name
+	snprintf(table->name, OF1X_MAX_TABLE_NAME_LEN, "table%u", table_index);
+	
+	//Setting up the matching algorithm	
+	if(! (algorithm < of1x_matching_algorithm_count)){
+		platform_mutex_destroy(table->mutex);
+		platform_rwlock_destroy(table->rwlock);
+		return ROFL_FAILURE;
+	}
+
+	//Set algorithm
+	table->matching_algorithm = algorithm;
+
+	//Auxiliary matching algorithm structs 
+	table->matching_aux[0] = NULL; 
+	table->matching_aux[1] = NULL;
+
+	//Initializing timers. NOTE does that need to be done here or somewhere else?
+#if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
+	__of1x_timer_group_static_init(table);
+#else
+	table->timers = NULL;
+#endif
+
+	switch(pipeline->sw->of_ver){
+		case OF_VERSION_10:
+			__of10_set_table_defaults(table);
+			break; 
+		case OF_VERSION_12:
+			__of12_set_table_defaults(table);
+			break; 
+		case OF_VERSION_13:
+			__of13_set_table_defaults(table);
+			break; 
+		default:
+			platform_mutex_destroy(table->mutex);
+			platform_rwlock_destroy(table->rwlock);
+			return ROFL_FAILURE;
+	}
+
 	//Init stats
 	__of1x_stats_table_init(table);
 

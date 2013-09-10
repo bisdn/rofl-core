@@ -6,7 +6,7 @@
 #include "of1x_async_events_hooks.h"
 
 /* Initializer and destructor */
-of1x_switch_t* of1x_init_switch(const char* name, uint64_t dpid, unsigned int num_of_tables, enum of1x_matching_algorithm_available* list){
+of1x_switch_t* of1x_init_switch(const char* name, of_version_t version, uint64_t dpid, unsigned int num_of_tables, enum of1x_matching_algorithm_available* list){
 
 	of1x_switch_t* sw;
 	sw = (of1x_switch_t*)platform_malloc_shared(sizeof(of1x_switch_t));
@@ -14,7 +14,7 @@ of1x_switch_t* of1x_init_switch(const char* name, uint64_t dpid, unsigned int nu
 		return NULL;
 
 	//Filling in values
-	sw->of_ver = OF_VERSION_12;	
+	sw->of_ver = version;
 	sw->dpid = dpid;
 	sw->name = (char*)platform_malloc_shared(strlen(name)+1);
 	if(sw->name == NULL){

@@ -25,6 +25,7 @@ typedef enum{
 	OF_VERSION_10 = 0x01,
 	OF_VERSION_11 = 0x02,
 	OF_VERSION_12 = 0x03,
+	OF_VERSION_13 = 0x04,
 	//Add more here...
 }of_version_t;
 
