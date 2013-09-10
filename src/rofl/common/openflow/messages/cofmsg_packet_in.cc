@@ -251,6 +251,11 @@ cofmsg_packet_in::validate()
 			in_port = 0;
 		}
 
+		fprintf(stderr, "cofmsg_packet_in::validate() match:%s\n", match.c_str());
+
+		if (offset > framelen())
+			throw eBadSyntaxTooShort();
+
 		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset));
 
 	} break;
@@ -285,6 +290,9 @@ cofmsg_packet_in::validate()
 		} catch (eOFmatchNotFound& e) {
 			in_port = 0;
 		}
+
+		if (offset > framelen())
+			throw eBadSyntaxTooShort();
 
 		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset)); // +2: magic :)
 
