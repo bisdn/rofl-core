@@ -51,7 +51,9 @@
 
 /**
 * @ingroup core_of1x 
-* Instruction type. From OF12: enum ofp_12_instruction_type 
+* Instruction type. From OF12: enum ofp_12_instruction_type.
+* 
+* @warning values are MODIFIED from OF specification and are reorder!
 */
 typedef enum {
     OF1X_IT_NO_INSTRUCTION	= 0,		/* Setup the metadata field for use later in pipeline */

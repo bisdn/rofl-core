@@ -23,5 +23,6 @@ int tear_down(void);
 	
 /* Test cases */
 void test_purge(void);
+void test_reconfigure(void);
 
 #endif

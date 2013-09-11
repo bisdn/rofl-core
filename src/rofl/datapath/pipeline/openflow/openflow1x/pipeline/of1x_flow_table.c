@@ -4,41 +4,10 @@
 
 #include "of1x_group_table.h"
 #include "of1x_pipeline.h"
+#include "of1x_action.h"
+#include "of1x_match.h"
 #include "../of1x_switch.h"
 
-
-//Copied from Openflow1.2 header
-enum of1xp_instruction_type {
-    OF1XPIT_GOTO_TABLE 		= 1,	 /* Setup the next table in the lookup pipeline */
-    OF1XPIT_WRITE_METADATA 	= 2,	 /* Setup the metadata field for use later in pipeline */
-    OF1XPIT_WRITE_ACTIONS 	= 3,	 /* Write the action(s) onto the datapath action set */
-    OF1XPIT_APPLY_ACTIONS 	= 4,	 /* Applies the action(s) immediately */
-    OF1XPIT_CLEAR_ACTIONS 	= 5,	 /* Clears all actions from the datapath action set */
-    OF1XPIT_EXPERIMENTER 	= 0xFFFF /* Experimenter instruction */
-};
-
-
-enum of1xp_action_type {
-	OF1XPAT_OUTPUT 		= 0, 	/* Output to switch port. */
-	OF1XPAT_COPY_TTL_OUT 	= 11, 	/* Copy TTL "outwards" -- from next-to-outermost to outermost */
-	OF1XPAT_COPY_TTL_IN 	= 12, 	/* Copy TTL "inwards" -- from outermost to next-to-outermost */
-	OF1XPAT_SET_MPLS_TTL 	= 15, 	/* MPLS TTL */
-	OF1XPAT_DEC_MPLS_TTL 	= 16, 	/* Decrement MPLS TTL */
-	OF1XPAT_PUSH_VLAN 	= 17, 	/* Push a new VLAN tag */
-	OF1XPAT_POP_VLAN 	= 18, 	/* Pop the outer VLAN tag */
-	OF1XPAT_PUSH_MPLS 	= 19, 	/* Push a new MPLS tag */
-	OF1XPAT_POP_MPLS 	= 20, 	/* Pop the outer MPLS tag */
-	OF1XPAT_SET_QUEUE 	= 21, 	/* Set queue id when outputting to a port */
-	OF1XPAT_GROUP 		= 22, 	/* Apply group. */
-	OF1XPAT_SET_NW_TTL 	= 23, 	/* IP TTL. */
-	OF1XPAT_DEC_NW_TTL 	= 24, 	/* Decrement IP TTL. */
-	OF1XPAT_SET_FIELD 	= 25, 	/* Set a header field using OXM TLV format. */
-	OF1XPAT_PUSH_PPPOE 	= 26,	/* Push a new PPPoE tag */
-	OF1XPAT_POP_PPPOE 	= 27,	/* Pop the PPPoE tag */
-	OF1XPAT_PUSH_PPP 	= 28,	/* Push a new PPP tag */
-	OF1XPAT_POP_PPP 	= 29,	/* Pop the PPP tag */
-	OF1XPAT_EXPERIMENTER	= 0xffff
-};
 
 
 
@@ -57,7 +26,66 @@ enum of1xp_action_type {
 
 void __of10_set_table_defaults(of1x_flow_table_t* table){
 
-	//FIXME: add defaults!!
+	//Set default behaviour MISS Controller	
+	//XXX: Original of10 was not not handling more than one table, why does
+	//the spec now have it? 
+	table->default_action = OF1X_TABLE_MISS_CONTROLLER;
+	
+	/* Setting up basic characteristics of the table */
+	table->config.table_miss_config = 0x0; //No meaning in OF1.0
+
+	//Match
+	table->config.match = 	(1UL << OF1X_MATCH_IN_PORT) |
+				(1UL << OF1X_MATCH_ETH_DST) |
+				(1UL << OF1X_MATCH_ETH_SRC) |
+				(1UL << OF1X_MATCH_ETH_TYPE) |
+				(1UL << OF1X_MATCH_VLAN_VID) |
+				(1UL << OF1X_MATCH_VLAN_PCP) |
+				(1UL << OF1X_MATCH_IP_DSCP) |
+				(1UL << OF1X_MATCH_IP_PROTO) |
+				(1UL << OF1X_MATCH_IPV4_SRC) |
+				(1UL << OF1X_MATCH_IPV4_DST) |
+				(1UL << OF1X_MATCH_TP_SRC) | //Only for OF10
+				(1UL << OF1X_MATCH_TP_DST) | //Only for OF10
+				(UINT64_C(1) << OF1X_MATCH_PPPOE_CODE) |
+				(UINT64_C(1) << OF1X_MATCH_PPPOE_TYPE) |
+				(UINT64_C(1) << OF1X_MATCH_PPPOE_SID) |
+				(UINT64_C(1) << OF1X_MATCH_PPP_PROT) |
+				(UINT64_C(1) << OF1X_MATCH_GTP_MSG_TYPE) |
+				(UINT64_C(1) << OF1X_MATCH_GTP_TEID);
+
+	//Wildcards
+	table->config.wildcards =  (1UL << OF1X_MATCH_ETH_DST) |
+				   (1UL << OF1X_MATCH_ETH_SRC) |
+				   (1UL << OF1X_MATCH_IPV4_SRC) |
+				   (1UL << OF1X_MATCH_IPV4_DST) |
+				   (UINT64_C(1) << OF1X_MATCH_MPLS_LABEL) |
+				   (UINT64_C(1) << OF1X_MATCH_GTP_TEID);
+
+	//Write actions and apply actions
+	table->config.apply_actions =   ( 1 << OF12PAT_OUTPUT ) |
+					( 1 << OF12PAT_PUSH_VLAN ) |
+					( 1 << OF12PAT_POP_VLAN ) |
+					( 1 << OF12PAT_PUSH_MPLS ) |
+					( 1 << OF12PAT_POP_MPLS ) |
+					( 1 << OF12PAT_SET_QUEUE ) |
+					( 1 << OF12PAT_SET_FIELD ) |
+					( 1 << OF12PAT_PUSH_PPPOE ) |
+					( 1 << OF12PAT_POP_PPPOE );
+	
+	table->config.write_actions = 0x0; //Not supported in OF10 
+
+	//Write actions and apply actions set fields
+	table->config.write_setfields = 0x0; //Not supported in OF10 
+	table->config.apply_setfields = table->config.match; 
+
+	//Set fields
+	table->config.metadata_match = 0x0; //Not supported in OF10
+	table->config.metadata_write = 0x0; //Not supported in OF10
+
+	//Instructions
+	table->config.instructions = 0x0; //Not supported in OF10 
+
 }
 
 void __of12_set_table_defaults(of1x_flow_table_t* table){
@@ -133,46 +161,22 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 				   (UINT64_C(1) << OF1X_MATCH_GTP_TEID);
 
 	//Write actions and apply actions
-	table->config.apply_actions =   ( 1 << OF1XPAT_OUTPUT ) |
-					( 1 << OF1XPAT_COPY_TTL_OUT ) |
-					( 1 << OF1XPAT_COPY_TTL_IN ) |
-					( 1 << OF1XPAT_SET_MPLS_TTL ) |
-					( 1 << OF1XPAT_DEC_MPLS_TTL ) |
-					( 1 << OF1XPAT_PUSH_VLAN ) |
-					( 1 << OF1XPAT_POP_VLAN ) |
-					( 1 << OF1XPAT_PUSH_MPLS ) |
-					( 1 << OF1XPAT_POP_MPLS ) |
-					( 1 << OF1XPAT_SET_QUEUE ) |
-					//( 1 << OF1XPAT_GROUP ) | //FIXME: add when groups are implemented 
-					( 1 << OF1XPAT_SET_NW_TTL ) |
-					( 1 << OF1XPAT_DEC_NW_TTL ) |
-					( 1 << OF1XPAT_SET_FIELD ) |
-					( 1 << OF1XPAT_PUSH_PPPOE ) |
-					( 1 << OF1XPAT_POP_PPPOE );
-						
-	/*
-	//This is the translation to internal OF1X_AT of above's statement
-	
-	table->config.apply_actions = (1U << OF1X_AT_OUTPUT) |
-					(1U << OF1X_AT_COPY_TTL_OUT) |
-					(1U << OF1X_AT_COPY_TTL_IN ) |
-					(1U << OF1X_AT_SET_MPLS_TTL ) |
-					(1U << OF1X_AT_DEC_MPLS_TTL ) |
-					(1U << OF1X_AT_PUSH_VLAN ) |
-					(1U << OF1X_AT_POP_VLAN ) | 
-					(1U << OF1X_AT_PUSH_MPLS ) |
-					(1U << OF1X_AT_POP_MPLS ) |
-					(1U << OF1X_AT_SET_QUEUE ) |
-					(1U << OF1X_AT_GROUP ) |
-					(1U << OF1X_AT_SET_NW_TTL ) |
-					(1U << OF1X_AT_DEC_NW_TTL ) |
-					(1U << OF1X_AT_SET_FIELD ) | 
-					(1U << OF1X_AT_PUSH_PPPOE ) |
-					(1U << OF1X_AT_POP_PPPOE );
-					//(1U << OF1X_AT_EXPERIMENTER );
-	*/
-
-
+	table->config.apply_actions =   ( 1 << OF12PAT_OUTPUT ) |
+					( 1 << OF12PAT_COPY_TTL_OUT ) |
+					( 1 << OF12PAT_COPY_TTL_IN ) |
+					( 1 << OF12PAT_SET_MPLS_TTL ) |
+					( 1 << OF12PAT_DEC_MPLS_TTL ) |
+					( 1 << OF12PAT_PUSH_VLAN ) |
+					( 1 << OF12PAT_POP_VLAN ) |
+					( 1 << OF12PAT_PUSH_MPLS ) |
+					( 1 << OF12PAT_POP_MPLS ) |
+					( 1 << OF12PAT_SET_QUEUE ) |
+					( 1 << OF12PAT_GROUP ) |
+					( 1 << OF12PAT_SET_NW_TTL ) |
+					( 1 << OF12PAT_DEC_NW_TTL ) |
+					( 1 << OF12PAT_SET_FIELD ) |
+					( 1 << OF12PAT_PUSH_PPPOE ) |
+					( 1 << OF12PAT_POP_PPPOE );										
 	table->config.write_actions = table->config.apply_actions;
 
 	//Write actions and apply actions set fields
@@ -184,11 +188,11 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	table->config.metadata_write = 0x0; //FIXME: implement METADATA
 
 	//Instructions
-	table->config.instructions = (1 << OF1XPIT_GOTO_TABLE) |
-					(1 << OF1XPIT_WRITE_METADATA) |
-					(1 << OF1XPIT_WRITE_ACTIONS) |
-					(1 << OF1XPIT_APPLY_ACTIONS) |
-					(1 << OF1XPIT_CLEAR_ACTIONS);   
+	table->config.instructions = (1 << OF1X_IT_GOTO_TABLE) |
+					(1 << OF1X_IT_WRITE_METADATA) |
+					(1 << OF1X_IT_WRITE_ACTIONS) |
+					(1 << OF1X_IT_APPLY_ACTIONS) |
+					(1 << OF1X_IT_CLEAR_ACTIONS);   
 	
 	
 }

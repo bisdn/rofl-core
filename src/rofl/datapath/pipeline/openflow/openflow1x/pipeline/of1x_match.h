@@ -37,72 +37,78 @@ union of_packet_matches;
 
 /* Defines possible matchings. This is EXPLICITELY copied from openflow.h, to simplify names, avoid collisions and add extensions */
 typedef enum{
-	OF1X_MATCH_IN_PORT = 0,          /* Switch input port. */                // required
-	OF1X_MATCH_IN_PHY_PORT = 1,     /* Switch physical input port. */
-	OF1X_MATCH_METADATA = 2,        /* Metadata passed between tables. */
+	/* phy */
+	OF1X_MATCH_IN_PORT,		/* Switch input port. */		//required
+	OF1X_MATCH_IN_PHY_PORT,		/* Switch physical input port. */
+	
+	/* metadata */
+	OF1X_MATCH_METADATA,		/* Metadata passed between tables. */
 
-	/* mac */
-	OF1X_MATCH_ETH_DST = 3,            /* Ethernet destination address. */        // required
-	OF1X_MATCH_ETH_SRC = 4,            /* Ethernet source address. */            // required
-	OF1X_MATCH_ETH_TYPE = 5,        /* Ethernet frame type. */                // required
-	OF1X_MATCH_VLAN_VID = 6,        /* VLAN id. */
-	OF1X_MATCH_VLAN_PCP = 7,        /* VLAN priority. */
-
-	/* ipv4 */
-	OF1X_MATCH_IP_DSCP = 8,            /* IP DSCP (6 bits in ToS field). */
-	OF1X_MATCH_IP_ECN = 9,            /* IP ECN (2 bits in ToS field). */
-	OF1X_MATCH_IP_PROTO = 10,        /* IP protocol. */                        // required
-	OF1X_MATCH_IPV4_SRC = 11,        /* IPv4 source address. */                // required
-	OF1X_MATCH_IPV4_DST = 12,        /* IPv4 destination address. */            // required
-
-	/* transport */
-	OF1X_MATCH_TCP_SRC = 13,        /* TCP source port. */                    // required
-	OF1X_MATCH_TCP_DST = 14,        /* TCP destination port. */                // required
-	OF1X_MATCH_UDP_SRC = 15,        /* UDP source port. */                    // required
-	OF1X_MATCH_UDP_DST = 16,        /* UDP destination port. */                // required
-	OF1X_MATCH_SCTP_SRC = 17,        /* SCTP source port. */
-	OF1X_MATCH_SCTP_DST = 18,        /* SCTP destination port. */
-	OF1X_MATCH_ICMPV4_TYPE = 19,    /* ICMP type. */
-	OF1X_MATCH_ICMPV4_CODE = 20,    /* ICMP code. */
-
-	/* arp */
-	OF1X_MATCH_ARP_OP = 21,            /* ARP opcode. */
-	OF1X_MATCH_ARP_SPA = 22,        /* ARP source IPv4 address. */
-	OF1X_MATCH_ARP_TPA = 23,        /* ARP target IPv4 address. */
-	OF1X_MATCH_ARP_SHA = 24,        /* ARP source hardware address. */
-	OF1X_MATCH_ARP_THA = 25,        /* ARP target hardware address. */
-
-	/* ipv6 */
-	OF1X_MATCH_IPV6_SRC = 26,        /* IPv6 source address. */                // required
-	OF1X_MATCH_IPV6_DST = 27,        /* IPv6 destination address. */            // required
-	OF1X_MATCH_IPV6_FLABEL = 28,    /* IPv6 Flow Label */
-	OF1X_MATCH_ICMPV6_TYPE = 29,    /* ICMPv6 type. */
-	OF1X_MATCH_ICMPV6_CODE = 30,    /* ICMPv6 code. */
-	OF1X_MATCH_IPV6_ND_TARGET = 31,    /* Target address for ND. */
-	OF1X_MATCH_IPV6_ND_SLL = 32,    /* Source link-layer for ND. */
-	OF1X_MATCH_IPV6_ND_TLL = 33,    /* Target link-layer for ND. */
-	OF1X_MATCH_IPV6_EXTHDR = 34,
+	/* eth */
+	OF1X_MATCH_ETH_DST,		/* Ethernet destination address. */	//required
+	OF1X_MATCH_ETH_SRC,		/* Ethernet source address. */		//required
+	OF1X_MATCH_ETH_TYPE,		/* Ethernet frame type. */		//required
+	OF1X_MATCH_VLAN_VID,		/* VLAN id. */
+	OF1X_MATCH_VLAN_PCP,		/* VLAN priority. */
 
 	/* mpls */
-	OF1X_MATCH_MPLS_LABEL = 35,        /* MPLS label. */
-	OF1X_MATCH_MPLS_TC = 36,        /* MPLS TC. */
+	OF1X_MATCH_MPLS_LABEL,		/* MPLS label. */
+	OF1X_MATCH_MPLS_TC,		/* MPLS TC. */
 
-	OF1X_MATCH_PBB_ISID = 37,
-	OF1X_MATCH_TUNNEL_ID = 38,
+	/* arp */
+	OF1X_MATCH_ARP_OP,		/* ARP opcode. */
+	OF1X_MATCH_ARP_SPA,		/* ARP source IPv4 address. */
+	OF1X_MATCH_ARP_TPA,		/* ARP target IPv4 address. */
+	OF1X_MATCH_ARP_SHA,		/* ARP source hardware address. */
+	OF1X_MATCH_ARP_THA,		/* ARP target hardware address. */
 
+	/* ipv4 */
+	OF1X_MATCH_IP_DSCP,		/* IP DSCP (6 bits in ToS field). */
+	OF1X_MATCH_IP_ECN,		/* IP ECN (2 bits in ToS field). */
+	OF1X_MATCH_IP_PROTO,		/* IP protocol. */			//required
+	OF1X_MATCH_IPV4_SRC,		/* IPv4 source address. */		//required
+	OF1X_MATCH_IPV4_DST,		/* IPv4 destination address. */		//required
+
+	/* ipv6 */
+	OF1X_MATCH_IPV6_SRC,		/* IPv6 source address. */		//required
+	OF1X_MATCH_IPV6_DST,		/* IPv6 destination address. */		//required
+	OF1X_MATCH_IPV6_FLABEL,		/* IPv6 Flow Label */
+	OF1X_MATCH_ICMPV6_TYPE,		/* ICMPv6 type. */
+	OF1X_MATCH_ICMPV6_CODE,		/* ICMPv6 code. */
+	OF1X_MATCH_IPV6_ND_TARGET,	/* Target address for ND. */
+	OF1X_MATCH_IPV6_ND_SLL,		/* Source link-layer for ND. */
+	OF1X_MATCH_IPV6_ND_TLL,		/* Target link-layer for ND. */
+	OF1X_MATCH_IPV6_EXTHDR,		/* Extension header */
+
+	/* transport */
+	OF1X_MATCH_TP_SRC,		/* TCP/UDP source port. OF10 ONLY */	// required
+	OF1X_MATCH_TP_DST,		/* TCP/UDP dest port. OF10 ONLY */	// required
+	OF1X_MATCH_TCP_SRC,		/* TCP source port. */			// required
+	OF1X_MATCH_TCP_DST,		/* TCP destination port. */		// required
+	OF1X_MATCH_UDP_SRC,	        /* UDP source port. */			// required
+	OF1X_MATCH_UDP_DST,		/* UDP destination port. */		// required
+	OF1X_MATCH_SCTP_SRC,		/* SCTP source port. */
+	OF1X_MATCH_SCTP_DST,		/* SCTP destination port. */
+	OF1X_MATCH_ICMPV4_TYPE,		/* ICMP type. */
+	OF1X_MATCH_ICMPV4_CODE,		/* ICMP code. */
+
+	/* other */
+	OF1X_MATCH_PBB_ISID,
+	OF1X_MATCH_TUNNEL_ID,
 
 	/********************************/
 	/**** Extensions out of spec ****/
 	/********************************/
+
 	/* PPP/PPPoE related extensions */
-	OF1X_MATCH_PPPOE_CODE = 39,        /* PPPoE code */
-	OF1X_MATCH_PPPOE_TYPE = 40,        /* PPPoE type */
-	OF1X_MATCH_PPPOE_SID = 41,        /* PPPoE session id */
-	OF1X_MATCH_PPP_PROT = 42,        /* PPP protocol */
+	OF1X_MATCH_PPPOE_CODE,		/* PPPoE code */
+	OF1X_MATCH_PPPOE_TYPE,		/* PPPoE type */
+	OF1X_MATCH_PPPOE_SID,		/* PPPoE session id */
+	OF1X_MATCH_PPP_PROT,		/* PPP protocol */
 	
 	/* GTP related extensions */
-	OF1X_MATCH_GTP_MSG_TYPE = 43,	/* GTP message type */
-	OF1X_MATCH_GTP_TEID = 44,		/* GTP teid */
+	OF1X_MATCH_GTP_MSG_TYPE,	/* GTP message type */
+	OF1X_MATCH_GTP_TEID,		/* GTP teid */
 
 	/* max value */
 	OF1X_MATCH_MAX,

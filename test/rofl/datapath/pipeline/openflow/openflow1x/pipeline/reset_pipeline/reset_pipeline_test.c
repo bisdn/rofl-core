@@ -5,12 +5,12 @@ static of1x_switch_t* sw12=NULL;
 static of1x_switch_t* sw13=NULL;
 static of1x_switch_t* sw=NULL;
 	
+static enum of1x_matching_algorithm_available ma_list[4]={of1x_matching_algorithm_loop, of1x_matching_algorithm_loop, of1x_matching_algorithm_loop, of1x_matching_algorithm_loop};
+
+
 int set_up(){
 
 	physical_switch_init();
-
-	enum of1x_matching_algorithm_available ma_list[4]={of1x_matching_algorithm_loop, of1x_matching_algorithm_loop,
-	of1x_matching_algorithm_loop, of1x_matching_algorithm_loop};
 
 	//Create instances	
 	sw = of1x_init_switch("Test switch", OF_VERSION_12, 0x0101,4,ma_list);
@@ -66,4 +66,63 @@ void test_purge(){
 	CU_ASSERT(sw->pipeline->tables[1].num_of_entries == 0);
 	CU_ASSERT(sw->pipeline->tables[2].num_of_entries == 0);
 	CU_ASSERT(sw->pipeline->tables[3].num_of_entries == 0);
+}
+
+static void reset_sw(of_version_t version){
+	CU_ASSERT(__of1x_destroy_switch(sw) == ROFL_SUCCESS);
+	sw = of1x_init_switch("Test switch", version, 0x0101,4,ma_list);
+	CU_ASSERT(sw != NULL);
+}
+
+static int compare(of1x_switch_t* sw1, of1x_switch_t* sw2){
+	if(memcmp(&sw1->pipeline->tables[0].config, &sw2->pipeline->tables[0].config, sizeof(sw1->pipeline->tables[0].config)) != 0)
+		return 1;
+	if(memcmp(&sw1->pipeline->tables[0].default_action, &sw2->pipeline->tables[0].default_action, sizeof(sw1->pipeline->tables[0].default_action)) != 0)
+		return 1;
+
+	return 0;
+}
+
+void test_reconfigure(){
+
+	/*
+	* initially OF12
+	*/
+	//OF12->OF10
+	reset_sw(OF_VERSION_12);
+	CU_ASSERT(of_reconfigure_switch((of_switch_t*)sw, OF_VERSION_10) == ROFL_SUCCESS);
+	CU_ASSERT(compare(sw, sw10) == 0);
+
+	//OF12->OF13
+	reset_sw(OF_VERSION_12);
+	CU_ASSERT(of_reconfigure_switch((of_switch_t*)sw, OF_VERSION_13) == ROFL_SUCCESS);
+	CU_ASSERT(compare(sw, sw13) == 0);
+
+	/*
+	* initially OF10
+	*/
+	//OF10->OF12
+	reset_sw(OF_VERSION_10);
+	CU_ASSERT(of_reconfigure_switch((of_switch_t*)sw, OF_VERSION_12) == ROFL_SUCCESS);
+	CU_ASSERT(compare(sw, sw12) == 0);
+
+	//OF10->OF13
+	reset_sw(OF_VERSION_10);
+	CU_ASSERT(of_reconfigure_switch((of_switch_t*)sw, OF_VERSION_13) == ROFL_SUCCESS);
+	CU_ASSERT(compare(sw, sw13) == 0);
+
+
+
+	/*
+	* initially OF13
+	*/
+	//OF13->OF10
+	reset_sw(OF_VERSION_13);
+	CU_ASSERT(of_reconfigure_switch((of_switch_t*)sw, OF_VERSION_10) == ROFL_SUCCESS);
+	CU_ASSERT(compare(sw, sw10) == 0);
+
+	//OF13->OF12
+	reset_sw(OF_VERSION_13);
+	CU_ASSERT(of_reconfigure_switch((of_switch_t*)sw, OF_VERSION_12) == ROFL_SUCCESS);
+	CU_ASSERT(compare(sw, sw12) == 0);
 }
