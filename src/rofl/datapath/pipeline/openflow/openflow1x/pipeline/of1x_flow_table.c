@@ -55,12 +55,12 @@ enum of1xp_action_type {
 * Table mgmt 
 */ 
 
-static void __of10_set_table_defaults(of1x_flow_table_t* table){
+void __of10_set_table_defaults(of1x_flow_table_t* table){
 
 	//FIXME: add defaults!!
 }
 
-static void __of12_set_table_defaults(of1x_flow_table_t* table){
+void __of12_set_table_defaults(of1x_flow_table_t* table){
 
 	//Set default behaviour MISS Controller	
 	table->default_action = OF1X_TABLE_MISS_CONTROLLER;
@@ -193,7 +193,7 @@ static void __of12_set_table_defaults(of1x_flow_table_t* table){
 	
 }
 
-static void __of13_set_table_defaults(of1x_flow_table_t* table){
+void __of13_set_table_defaults(of1x_flow_table_t* table){
 	
 	//Being lazy...
 	__of12_set_table_defaults(table);

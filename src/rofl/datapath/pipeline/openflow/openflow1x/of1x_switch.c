@@ -80,6 +80,28 @@ rofl_result_t __of1x_destroy_switch(of1x_switch_t* sw){
 	return ROFL_SUCCESS;
 }
 
+//Reconfiguration of the pipeline
+rofl_result_t __of1x_reconfigure_switch(of1x_switch_t* sw, of_version_t version){
+
+	if(sw->of_ver == version)
+		return ROFL_SUCCESS;
+
+	if(version == OF_VERSION_11)
+		return ROFL_FAILURE; //Early return OF11 NOT supported
+
+	//Purge all entries(flow&groups) in the pipeline
+	if(__of1x_purge_pipeline_entries(sw->pipeline) != ROFL_SUCCESS)
+		return ROFL_FAILURE;
+
+	//Set the default tables(flow and group tables) configuration according to the new version
+	if(__of1x_set_pipeline_tables_defaults(sw->pipeline, version) != ROFL_SUCCESS)
+		return ROFL_FAILURE;
+
+	//Set switch to the new version and return
+	sw->of_ver = version;
+	return ROFL_SUCCESS; 
+}
+
 /* Port management */
 rofl_result_t __of1x_attach_port_to_switch_at_port_num(of1x_switch_t* sw, unsigned int port_num, switch_port_t* port){
 

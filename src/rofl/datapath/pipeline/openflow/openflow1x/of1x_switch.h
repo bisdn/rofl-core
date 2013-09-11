@@ -57,15 +57,20 @@ typedef struct of1x_switch{
 ROFL_BEGIN_DECLS
 
 /* Initializer and destroyer */
+
 /**
 * @brief Creates an Openflow v1.2 forwarding instance.  
 * @ingroup core_of1x 
+* @param version OF version 
 * @param num_of_tables Number of tables that the v1.2 pipeline should have. This is immutable 
 * during the lifetime of the switch.
 * @param ma_list An array with num_of_tables, with the matching algorithm that should
 * be used in each table (0..num_of_tables-1) 
 */
 of1x_switch_t* of1x_init_switch(const char* name, of_version_t version, uint64_t dpid, unsigned int num_of_tables, enum of1x_matching_algorithm_available* ma_list);
+
+/* Reconfigures the pipeline to behave as an OF specific version pipeline. Warning: this function may DELETE all the entries in the tables, timers and group entries of the switch */
+rofl_result_t __of1x_reconfigure_switch(of1x_switch_t* sw, of_version_t version);
 
 rofl_result_t __of1x_destroy_switch(of1x_switch_t* sw);
 

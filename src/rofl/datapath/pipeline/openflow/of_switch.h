@@ -91,6 +91,15 @@ ROFL_BEGIN_DECLS
 */
 rofl_result_t of_destroy_switch(const of_switch_t* sw);
 
+
+/**
+* @brief Reconfigures the pipeline to behave as an OF specific version pipeline. Warning: this function may DELETE all the entries in the tables, timers and group entries of the switch
+* @ingroup core
+* @param version OF version 
+*/
+rofl_result_t of_reconfigure_switch(of_switch_t* sw, of_version_t version);
+
+
 //Wrapping of processing
 /**
 * @brief Processes a packet through the Openflow pipeline.  

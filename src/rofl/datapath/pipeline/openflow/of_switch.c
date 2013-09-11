@@ -20,6 +20,18 @@ rofl_result_t of_destroy_switch(const of_switch_t* sw){
 	}
 }	
 
+rofl_result_t of_reconfigure_switch(of_switch_t* sw, of_version_t version){
+
+	if(version == OF_VERSION_10 || version == OF_VERSION_12 || version == OF_VERSION_13){
+		return __of1x_reconfigure_switch((of1x_switch_t*)sw, version);
+	}else{
+		//Add other pipeline versions here..
+	}
+
+	return ROFL_FAILURE;
+}
+
+
 //Wrapping of processing
 rofl_result_t of_process_packet_pipeline(const of_switch_t* sw, datapacket_t *const pkt){
 	

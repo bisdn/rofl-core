@@ -150,6 +150,11 @@ ROFL_BEGIN_DECLS
 */
 rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_t* table, const unsigned int table_index, const enum of1x_matching_algorithm_available algorithm);
 
+//Set defaults for OF1.0, 1.2 and 1.3
+void __of10_set_table_defaults(of1x_flow_table_t* table);
+void __of12_set_table_defaults(of1x_flow_table_t* table);
+void __of13_set_table_defaults(of1x_flow_table_t* table);
+
 rofl_result_t __of1x_destroy_table(of1x_flow_table_t* table);
 
 /*

@@ -1,5 +1,7 @@
 #include "of1x_pipeline.h"
 #include "of1x_instruction.h"
+#include "of1x_flow_table.h"
+#include "of1x_group_table.h"
 #include "../../../platform/lock.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/packet.h"
@@ -105,6 +107,74 @@ rofl_result_t __of1x_destroy_pipeline(of1x_pipeline_t* pipeline){
 
 	return ROFL_SUCCESS;
 
+}
+
+//Purge of all entries in the pipeline (reset)	
+rofl_result_t __of1x_purge_pipeline_entries(of1x_pipeline_t* pipeline){
+
+	unsigned int i;
+	rofl_result_t result = ROFL_SUCCESS;
+	of1x_flow_entry_t* flow_entry;
+	of1x_group_table_t* group_entry;
+
+	//Create empty entries
+	flow_entry = of1x_init_flow_entry(NULL,NULL,false);
+	group_entry = of1x_init_group_table(); 
+	
+	if(!flow_entry)
+		return ROFL_FAILURE;
+	if(!group_entry){
+		of1x_destroy_flow_entry(flow_entry);
+		return ROFL_FAILURE;
+	}
+
+	//Purge flow_mods	
+	for(i=OF1X_FIRST_FLOW_TABLE_INDEX; i < pipeline->num_of_tables ; i++){
+		//Purge flow_mods
+		if(of1x_remove_flow_entry_table(pipeline, i, flow_entry, NOT_STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) != ROFL_SUCCESS){
+			
+			result = ROFL_FAILURE;	
+			break;
+		}
+	}
+
+	//Purge group mods
+	if(result == ROFL_SUCCESS){
+		if(of1x_group_delete(pipeline, group_entry, OF1X_GROUP_ANY) != ROFL_OF1X_GM_OK)
+			result = ROFL_FAILURE;
+	}
+	
+	//Destroy entries
+	of1x_destroy_flow_entry(flow_entry);
+	of1x_destroy_group_table(group_entry);
+
+	return result;
+}
+
+//Set the default tables(flow and group tables) configuration according to the new version
+rofl_result_t __of1x_set_pipeline_tables_defaults(of1x_pipeline_t* pipeline, of_version_t version){
+
+	unsigned int i;
+
+	//Reset table defaults according to specific version
+	for(i=OF1X_FIRST_FLOW_TABLE_INDEX; i < pipeline->num_of_tables ; i++){
+		switch(version){
+			case OF_VERSION_10:
+				__of10_set_table_defaults(&pipeline->tables[i]);
+				break; 
+			case OF_VERSION_12:
+				__of12_set_table_defaults(&pipeline->tables[i]);
+				break; 
+			case OF_VERSION_13:
+				__of13_set_table_defaults(&pipeline->tables[i]);
+				break; 
+			default:
+				return ROFL_FAILURE;			
+
+		}
+	}
+
+	return ROFL_SUCCESS;
 }
 
 
