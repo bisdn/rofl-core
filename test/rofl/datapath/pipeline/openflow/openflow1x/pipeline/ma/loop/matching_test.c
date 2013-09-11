@@ -10,7 +10,7 @@ int set_up(){
 	of1x_matching_algorithm_loop, of1x_matching_algorithm_loop};
 
 	//Create instance	
-	sw = of1x_init_switch("Test switch",0x0101,4,ma_list);
+	sw = of1x_init_switch("Test switch", OF_VERSION_12, 0x0101,4,ma_list);
 	
 	if(!sw)
 		return EXIT_FAILURE;

@@ -432,7 +432,7 @@ static int setup_test(of1x_switch_t** sw)
 	physical_switch_init();	
 
 	enum of1x_matching_algorithm_available ma_list= of1x_matching_algorithm_loop;
-	(*sw) = of1x_init_switch("Test switch",0x0101,1,&ma_list);
+	(*sw) = of1x_init_switch("Test switch",OF_VERSION_12, 0x0101,1,&ma_list);
 	CU_ASSERT(sw!=NULL);
 /*	
 	table->mutex = platform_mutex_init(NULL);

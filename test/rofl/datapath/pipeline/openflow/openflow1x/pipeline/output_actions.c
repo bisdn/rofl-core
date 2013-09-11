@@ -15,7 +15,7 @@ int oa_set_up(void){
 	physical_switch_init();	
 
 	enum of1x_matching_algorithm_available ma_list=of1x_matching_algorithm_loop;
-	sw = of1x_init_switch("Test switch",0x0101,1,&ma_list);
+	sw = of1x_init_switch("Test switch", OF_VERSION_12, 0x0101,1,&ma_list);
 	fprintf(stderr,"<%s:%d>sw %p\n",__func__,__LINE__,sw);
 	
 	entry = of1x_init_flow_entry(NULL,NULL,false);
