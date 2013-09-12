@@ -136,11 +136,11 @@ void platform_packet_set_ipv6_flabel(datapacket_t*pkt, uint64_t ipv6_flabel);
 void platform_packet_set_ipv6_nd_target(datapacket_t*pkt, uint128__t ipv6_nd_target);
 void platform_packet_set_ipv6_nd_sll(datapacket_t*pkt, uint64_t ipv6_nd_sll);
 void platform_packet_set_ipv6_nd_tll(datapacket_t*pkt, uint64_t ipv6_nd_tll);
-void platform_packet_set_ipv6_exthdr(datapacket_t*pkt, uint64_t ipv6_exthdr);
+void platform_packet_set_ipv6_exthdr(datapacket_t*pkt, uint16_t ipv6_exthdr);
 
 //ICMPv6
-void platform_packet_set_icmpv6_type(datapacket_t*pkt, uint64_t icmpv6_type);
-void platform_packet_set_icmpv6_code(datapacket_t*pkt, uint64_t icmpv6_code);
+void platform_packet_set_icmpv6_type(datapacket_t*pkt, uint8_t icmpv6_type);
+void platform_packet_set_icmpv6_code(datapacket_t*pkt, uint8_t icmpv6_code);
 
 //GTP
 void platform_packet_set_gtp_msg_type(datapacket_t* pkt, uint8_t msg_type);
@@ -245,11 +245,11 @@ uint64_t platform_packet_get_ipv6_flabel(datapacket_t *const pkt);
 uint128__t platform_packet_get_ipv6_nd_target(datapacket_t *const pkt);
 uint64_t platform_packet_get_ipv6_nd_sll(datapacket_t *const pkt);
 uint64_t platform_packet_get_ipv6_nd_tll(datapacket_t *const pkt);
-uint64_t platform_packet_get_ipv6_exthdr(datapacket_t *const pkt);
+uint16_t platform_packet_get_ipv6_exthdr(datapacket_t *const pkt);
 
 //ICMPv6
-uint64_t platform_packet_get_icmpv6_type(datapacket_t *const pkt);
-uint64_t platform_packet_get_icmpv6_code(datapacket_t *const pkt);
+uint8_t platform_packet_get_icmpv6_type(datapacket_t *const pkt);
+uint8_t platform_packet_get_icmpv6_code(datapacket_t *const pkt);
 
 
 //PBB ISID

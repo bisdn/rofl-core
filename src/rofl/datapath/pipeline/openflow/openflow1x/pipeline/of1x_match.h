@@ -389,7 +389,7 @@ of1x_match_t* of1x_init_ip6_nd_tll_match(of1x_match_t* prev, of1x_match_t* next,
  */
 of1x_match_t* of1x_init_ip6_exthdr_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask);
 
-//ICMv6
+//ICMPv6
 /**
  * @brief Create an ICMPV6_TYPE match
  * @ingroup core_of1x

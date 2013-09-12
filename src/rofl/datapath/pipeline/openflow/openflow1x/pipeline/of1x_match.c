@@ -1224,7 +1224,7 @@ void __of1x_dump_matches(of1x_match_t* matches){
 				break;
 			case OF1X_MATCH_IPV6_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_DST:0x%lx:%lx|0x%lx:%lx], ",UINT128__T_HI(it->value->value.u128),UINT128__T_LO(it->value->value.u128),UINT128__T_HI(it->value->mask.u128),UINT128__T_LO(it->value->mask.u128));
 				break;
-			case OF1X_MATCH_IPV6_FLABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_FLABEL:%llu], ",it->value->value.u64);
+			case OF1X_MATCH_IPV6_FLABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_FLABEL:%lu], ",it->value->value.u64);
 				break; 
 			case OF1X_MATCH_IPV6_ND_TARGET: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TARGET:0x%lx:%lx], ",UINT128__T_HI(it->value->value.u128),UINT128__T_LO(it->value->value.u128));
 				break;
@@ -1232,12 +1232,12 @@ void __of1x_dump_matches(of1x_match_t* matches){
 				break; 
 			case OF1X_MATCH_IPV6_ND_TLL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TLL:%lu], ",it->value->value.u64);
 				break; 
-			case OF1X_MATCH_IPV6_EXTHDR:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_EXTHDR:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
+			case OF1X_MATCH_IPV6_EXTHDR:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_EXTHDR:%lu|0x%lx], ",it->value->value.u16,it->value->mask.u16);
 				break; 
 			//ICMPv6
-			case OF1X_MATCH_ICMPV6_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_TYPE:%lu], ",it->value->value.u64);
+			case OF1X_MATCH_ICMPV6_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_TYPE:%lu], ",it->value->value.u8);
 				break; 
-			case OF1X_MATCH_ICMPV6_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_CODE:%lu], ",it->value->value.u64);
+			case OF1X_MATCH_ICMPV6_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_CODE:%lu], ",it->value->value.u8);
 				break; 
 					
 			//PBB	
@@ -1248,7 +1248,7 @@ void __of1x_dump_matches(of1x_match_t* matches){
 				break;
 
 			/* PPP/PPPoE related extensions */
-			case OF1X_MATCH_PPPOE_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_CODE:%u], ",it->value->value.u8,it->value->mask.u8);
+			case OF1X_MATCH_PPPOE_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_CODE:%u], ",it->value->value.u8);
 				break; 
 			case OF1X_MATCH_PPPOE_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_TYPE:%u], ",it->value->value.u8);
 				break; 

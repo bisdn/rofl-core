@@ -87,12 +87,11 @@ typedef struct{
 	uint128__t ipv6_nd_target;	/* IPv6 Neighbor discovery protocol target */
 	uint64_t ipv6_nd_sll;		/* IPv6 Neighbor discovery protocol source link level */
 	uint64_t ipv6_nd_tll;		/* IPv6 Neighbor discovery protocol target link level */
-	uint64_t ipv6_exthdr;		/* IPv6 extension pseudo header */
+	uint16_t ipv6_exthdr;		/* IPv6 extension pseudo header */
 	
 	//ICMPv6 
-	uint64_t icmpv6_code;		/* ICMPv6 type */
-	uint64_t icmpv6_type;		/* ICMPv6 code */
-
+	uint8_t icmpv6_code;		/* ICMPv6 type */
+	uint8_t icmpv6_type;		/* ICMPv6 code */
 
 	//PBB
 	uint32_t pbb_isid;		/* PBB_ISID code */
