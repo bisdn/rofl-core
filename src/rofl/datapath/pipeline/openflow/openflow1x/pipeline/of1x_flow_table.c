@@ -318,7 +318,7 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 	platform_rwlock_rdlock(pipeline->groups->rwlock);
 
 	//Verify entry
-	if(__of1x_validate_flow_entry(pipeline->groups, entry) != ROFL_SUCCESS){
+	if(__of1x_validate_flow_entry(entry, pipeline) != ROFL_SUCCESS){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		return ROFL_OF1X_FM_FAILURE;
@@ -359,7 +359,7 @@ inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipelin
 	platform_rwlock_rdlock(pipeline->groups->rwlock);
 
 	//Verify entry
-	if(__of1x_validate_flow_entry(pipeline->groups,entry) != ROFL_SUCCESS){
+	if(__of1x_validate_flow_entry(entry, pipeline) != ROFL_SUCCESS){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		return ROFL_FAILURE;
@@ -388,6 +388,11 @@ inline rofl_result_t of1x_remove_flow_entry_table(of1x_pipeline_t *const pipelin
 	//Verify table_id
 	if(table_id >= pipeline->num_of_tables)
 		return ROFL_FAILURE;
+
+	//Verify entry
+	if(__of1x_validate_flow_entry(entry, pipeline) != ROFL_SUCCESS){
+		return ROFL_FAILURE;
+	}
 
 	//Recover table pointer
 	table = &pipeline->tables[table_id];

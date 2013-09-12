@@ -6,6 +6,7 @@
 #define __OF1X_UTILS_H__
 
 #include <inttypes.h>
+#include "../../of_switch.h" 
 
 /**
 * @file of1x_utils.h
@@ -36,8 +37,8 @@ typedef enum of1x_mutex_acquisition_required{
 * Required pipeline version
 */
 typedef struct of1x_ver_req_t{
-	uint8_t min_ver;	//Bitmap of_version_t
-	uint8_t max_ver;	//Bitmap of_version_t
+	of_version_t min_ver;	//of_version_t
+	of_version_t max_ver;	//of_version_t
 }of1x_ver_req_t;
 
 /*

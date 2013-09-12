@@ -12,6 +12,7 @@
 
 #include "../../../util/logging.h"
 
+
 /*
 * Intializer and destructor
 */
@@ -34,7 +35,11 @@ of1x_flow_entry_t* of1x_init_flow_entry(of1x_flow_entry_t* prev, of1x_flow_entry
 	//Init linked list
 	entry->prev = prev;
 	entry->next = next;
+
+	//Init matches
+	__of1x_init_match_group(&entry->matches);
 	
+	//Init instructions	
 	__of1x_init_instruction_group(&entry->inst_grp);
 
 	//init stats
@@ -299,9 +304,24 @@ void of1x_dump_flow_entry(of1x_flow_entry_t* entry){
 }
 
 /**
- * check if the entry is valid for insertion
+ * Check if the entry(matches, actions and instructions is valid for insertion) 
  */
-rofl_result_t __of1x_validate_flow_entry(of1x_group_table_t *gt, of1x_flow_entry_t* entry){
+rofl_result_t __of1x_validate_flow_entry( of1x_flow_entry_t* entry, of1x_pipeline_t* pipeline){
+
+	of1x_group_table_t *gt = pipeline->groups;
+	of_version_t version = pipeline->sw->of_ver;
+
+	//Validate matches
+	if( entry->matches.head)
+		if( (version < entry->matches.ver_req.min_ver) ||
+		(version > entry->matches.ver_req.max_ver) )
+			return ROFL_FAILURE;
+		
+	//Validate actions
+	//FIXME	
+	//Validate instructions
+	//FIXME
+	
 	if(__of1x_validate_instructions(gt,&entry->inst_grp)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;
 	

@@ -9,6 +9,9 @@
 * Initializers 
 */
 
+#define OF1X_MIN_VERSION OF_VERSION_10
+#define OF1X_MAX_VERSION OF_VERSION_13
+
 //Phy
 inline of1x_match_t* of1x_init_port_in_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
@@ -19,7 +22,7 @@ inline of1x_match_t* of1x_init_port_in_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -34,7 +37,7 @@ inline of1x_match_t* of1x_init_port_in_phy_match(of1x_match_t* prev, of1x_match_
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -53,7 +56,7 @@ inline of1x_match_t* of1x_init_eth_dst_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( (mask&OF1X_48_BITS_MASK) != OF1X_48_BITS_MASK)
 		match->has_wildcard = true;		//Not accepting wildcards
 	else
@@ -70,7 +73,7 @@ inline of1x_match_t* of1x_init_eth_src_match(of1x_match_t* prev, of1x_match_t* n
 	
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( (mask&OF1X_48_BITS_MASK) != OF1X_48_BITS_MASK )
 		match->has_wildcard = true;
 	else
@@ -87,7 +90,7 @@ inline of1x_match_t* of1x_init_eth_type_match(of1x_match_t* prev, of1x_match_t* 
 	
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 	
 	return match;
@@ -103,7 +106,7 @@ inline of1x_match_t* of1x_init_vlan_vid_match(of1x_match_t* prev, of1x_match_t* 
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( (mask&OF1X_13_BITS_MASK) != OF1X_13_BITS_MASK)
 		match->has_wildcard = true;
 	else
@@ -120,7 +123,7 @@ inline of1x_match_t* of1x_init_vlan_pcp_match(of1x_match_t* prev, of1x_match_t* 
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 	
 	return match;
@@ -136,7 +139,7 @@ inline of1x_match_t* of1x_init_mpls_label_match(of1x_match_t* prev, of1x_match_t
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 	
 	return match;
@@ -150,7 +153,7 @@ inline of1x_match_t* of1x_init_mpls_tc_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 	
 	return match;
@@ -167,7 +170,7 @@ inline of1x_match_t* of1x_init_arp_opcode_match(of1x_match_t* prev, of1x_match_t
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -182,7 +185,7 @@ inline of1x_match_t* of1x_init_arp_tha_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( (mask&OF1X_48_BITS_MASK) != OF1X_48_BITS_MASK)
 		match->has_wildcard = true;
 	else
@@ -199,7 +202,7 @@ inline of1x_match_t* of1x_init_arp_sha_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( (mask&OF1X_48_BITS_MASK) != OF1X_48_BITS_MASK)
 		match->has_wildcard = true;
 	else
@@ -216,7 +219,7 @@ inline of1x_match_t* of1x_init_arp_tpa_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( mask != OF1X_4_BYTE_MASK )
 		match->has_wildcard = true;
 	else
@@ -233,7 +236,7 @@ inline of1x_match_t* of1x_init_arp_spa_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( mask != OF1X_4_BYTE_MASK )
 		match->has_wildcard = true;
 	else
@@ -253,7 +256,7 @@ inline of1x_match_t* of1x_init_ip4_src_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( (mask&OF1X_4_BYTE_MASK) != OF1X_4_BYTE_MASK)
 		match->has_wildcard = true;
 	else
@@ -270,7 +273,7 @@ inline of1x_match_t* of1x_init_ip4_dst_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( (mask&OF1X_4_BYTE_MASK) != OF1X_4_BYTE_MASK)
 		match->has_wildcard = true;
 	else
@@ -287,7 +290,7 @@ inline of1x_match_t* of1x_init_ip_proto_match(of1x_match_t* prev, of1x_match_t* 
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -301,7 +304,7 @@ inline of1x_match_t* of1x_init_ip_dscp_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (ToS)
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -316,7 +319,7 @@ inline of1x_match_t* of1x_init_ip_ecn_match(of1x_match_t* prev, of1x_match_t* ne
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -333,7 +336,7 @@ inline of1x_match_t* of1x_init_ip6_src_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if(memcmp(&fixed_mask,&mask, sizeof(mask)) != 0)
 		match->has_wildcard = true;
 	else
@@ -351,7 +354,7 @@ inline of1x_match_t* of1x_init_ip6_dst_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if(memcmp(&fixed_mask,&mask, sizeof(mask)) != 0)
 		match->has_wildcard = true;
 	else
@@ -368,7 +371,7 @@ inline of1x_match_t* of1x_init_ip6_flabel_match(of1x_match_t* prev, of1x_match_t
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -385,7 +388,7 @@ inline of1x_match_t* of1x_init_ip6_nd_target_match(of1x_match_t* prev, of1x_matc
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -399,7 +402,7 @@ inline of1x_match_t* of1x_init_ip6_nd_sll_match(of1x_match_t* prev, of1x_match_t
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -413,7 +416,7 @@ inline of1x_match_t* of1x_init_ip6_nd_tll_match(of1x_match_t* prev, of1x_match_t
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -427,7 +430,7 @@ inline of1x_match_t* of1x_init_ip6_exthdr_match(of1x_match_t* prev, of1x_match_t
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( (mask&OF1X_9_BITS_MASK) != OF1X_9_BITS_MASK)
 		match->has_wildcard = true;
 	else
@@ -446,7 +449,7 @@ inline of1x_match_t* of1x_init_icmpv6_type_match(of1x_match_t* prev, of1x_match_
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -460,7 +463,7 @@ inline of1x_match_t* of1x_init_icmpv6_code_match(of1x_match_t* prev, of1x_match_
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -476,7 +479,7 @@ inline of1x_match_t* of1x_init_tcp_src_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 
@@ -491,7 +494,7 @@ inline of1x_match_t* of1x_init_tcp_dst_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -506,7 +509,7 @@ inline of1x_match_t* of1x_init_udp_src_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -520,7 +523,7 @@ inline of1x_match_t* of1x_init_udp_dst_match(of1x_match_t* prev, of1x_match_t* n
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -536,7 +539,7 @@ inline of1x_match_t* of1x_init_sctp_src_match(of1x_match_t* prev, of1x_match_t* 
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 
@@ -551,7 +554,7 @@ inline of1x_match_t* of1x_init_sctp_dst_match(of1x_match_t* prev, of1x_match_t* 
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -596,7 +599,7 @@ inline of1x_match_t* of1x_init_icmpv4_type_match(of1x_match_t* prev, of1x_match_
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -610,7 +613,7 @@ inline of1x_match_t* of1x_init_icmpv4_code_match(of1x_match_t* prev, of1x_match_
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -626,7 +629,7 @@ inline of1x_match_t* of1x_init_pbb_isid_match(of1x_match_t* prev, of1x_match_t* 
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_13;	//First supported in OF1.3
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( (mask&OF1X_3_BYTE_MASK) == OF1X_3_BYTE_MASK)
 		match->has_wildcard = false;
 	else
@@ -645,7 +648,7 @@ inline of1x_match_t* of1x_init_tunnel_id_match(of1x_match_t* prev, of1x_match_t*
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_13;	//First supported in OF1.3
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if(mask == OF1X_8_BYTE_MASK)
 		match->has_wildcard = false;
 	else
@@ -668,7 +671,7 @@ inline of1x_match_t* of1x_init_pppoe_code_match(of1x_match_t* prev, of1x_match_t
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -682,7 +685,7 @@ inline of1x_match_t* of1x_init_pppoe_type_match(of1x_match_t* prev, of1x_match_t
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -696,7 +699,7 @@ inline of1x_match_t* of1x_init_pppoe_session_match(of1x_match_t* prev, of1x_matc
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting w
 	return match;
 }
@@ -711,7 +714,7 @@ inline of1x_match_t* of1x_init_ppp_prot_match(of1x_match_t* prev, of1x_match_t* 
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -726,7 +729,7 @@ inline of1x_match_t* of1x_init_gtp_msg_type_match(of1x_match_t* prev, of1x_match
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
 	return match;
@@ -740,7 +743,7 @@ inline of1x_match_t* of1x_init_gtp_teid_match(of1x_match_t* prev, of1x_match_t* 
 
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
-	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( mask != OF1X_4_BYTE_MASK )
 		match->has_wildcard = true;
 	else
@@ -755,7 +758,10 @@ inline of1x_match_t* of1x_init_gtp_teid_match(of1x_match_t* prev, of1x_match_t* 
 void __of1x_init_match_group(of1x_match_group_t* group){
 
 	memset(group,0,sizeof(of1x_match_group_t));
-
+	
+	//Set min max 
+	group->ver_req.min_ver = OF1X_MIN_VERSION;
+	group->ver_req.max_ver = OF1X_MAX_VERSION;
 }
 
 void __of1x_destroy_match_group(of1x_match_group_t* group){
@@ -795,8 +801,10 @@ void __of1x_match_group_push_back(of1x_match_group_t* group, of1x_match_t* match
 	//Deduce new tail and update validation flags and num of elements
 	do{
 		//Update fast validation flags (required versions)
-		group->ver_req.min_ver |= match->ver_req.min_ver;
-		group->ver_req.max_ver |= match->ver_req.max_ver;
+		if(group->ver_req.min_ver < match->ver_req.min_ver)
+			group->ver_req.min_ver = match->ver_req.min_ver;
+		if(group->ver_req.max_ver > match->ver_req.max_ver)
+			group->ver_req.max_ver = match->ver_req.max_ver;
 
 		if(match->has_wildcard)
 			group->has_wildcard = true;

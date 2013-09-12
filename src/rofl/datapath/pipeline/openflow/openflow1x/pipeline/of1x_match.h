@@ -126,7 +126,7 @@ typedef struct{
 	unsigned int num_elements;
 
 	/* Fast validation flags */
-	//Bitmap of required OF versions
+	//Required OF versions
 	of1x_ver_req_t ver_req;
  
 	//OF1.0 only
