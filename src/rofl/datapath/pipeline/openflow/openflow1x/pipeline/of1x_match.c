@@ -242,64 +242,7 @@ inline of1x_match_t* of1x_init_arp_spa_match(of1x_match_t* prev, of1x_match_t* n
 	return match;
 }
 
-//PPPoE
-inline of1x_match_t* of1x_init_pppoe_code_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
-	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
-	match->type = OF1X_MATCH_PPPOE_CODE; 
-	match->value = __init_utern8(value&OF1X_1_BYTE_MASK,OF1X_1_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
 
-	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
-	match->ver_req.max_ver = 0x0;		//No limitation on max
-	match->has_wildcard = false;		//Not accepting wildcards
-
-	return match;
-}
-inline of1x_match_t* of1x_init_pppoe_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
-	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
-	match->type = OF1X_MATCH_PPPOE_TYPE; 
-	match->value = __init_utern8(value&OF1X_4_BITS_MASK,OF1X_4_BITS_MASK); //Ensure only 4 bit value, no wildcard 
-	match->prev = prev;
-	match->next = next;
-
-	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
-	match->ver_req.max_ver = 0x0;		//No limitation on max
-	match->has_wildcard = false;		//Not accepting wildcards
-
-	return match;
-}
-inline of1x_match_t* of1x_init_pppoe_session_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
-	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
-	match->type = OF1X_MATCH_PPPOE_SID; 
-	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
-
-	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
-	match->ver_req.max_ver = 0x0;		//No limitation on max
-	match->has_wildcard = false;		//Not accepting w
-	return match;
-}
-//PPP
-inline of1x_match_t* of1x_init_ppp_prot_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
-
-	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
-	match->type = OF1X_MATCH_PPP_PROT; 
-	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
-	match->prev = prev;
-	match->next = next;
-
-	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
-	match->ver_req.max_ver = 0x0;		//No limitation on max
-	match->has_wildcard = false;		//Not accepting wildcards
-
-	return match;
-}
 //IPv4
 inline of1x_match_t* of1x_init_ip4_src_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
@@ -711,6 +654,68 @@ inline of1x_match_t* of1x_init_tunnel_id_match(of1x_match_t* prev, of1x_match_t*
 	return match;
 }
 
+//Add more here...
+
+/* Extensions */
+
+//PPPoE
+inline of1x_match_t* of1x_init_pppoe_code_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_PPPOE_CODE; 
+	match->value = __init_utern8(value&OF1X_1_BYTE_MASK,OF1X_1_BYTE_MASK); //no wildcard 
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
+	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->has_wildcard = false;		//Not accepting wildcards
+
+	return match;
+}
+inline of1x_match_t* of1x_init_pppoe_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_PPPOE_TYPE; 
+	match->value = __init_utern8(value&OF1X_4_BITS_MASK,OF1X_4_BITS_MASK); //Ensure only 4 bit value, no wildcard 
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
+	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->has_wildcard = false;		//Not accepting wildcards
+
+	return match;
+}
+inline of1x_match_t* of1x_init_pppoe_session_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_PPPOE_SID; 
+	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
+	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->has_wildcard = false;		//Not accepting w
+	return match;
+}
+//PPP
+inline of1x_match_t* of1x_init_ppp_prot_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
+
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_PPP_PROT; 
+	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
+	match->ver_req.max_ver = 0x0;		//No limitation on max
+	match->has_wildcard = false;		//Not accepting wildcards
+
+	return match;
+}
 //GTP
 inline of1x_match_t* of1x_init_gtp_msg_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
@@ -1139,9 +1144,9 @@ void __of1x_dump_matches(of1x_match_t* matches){
 	of1x_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){
-			case OF1X_MATCH_IN_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PORT_IN:%u|0x%x], ",it->value->value.u32,it->value->mask.u32); 
+			case OF1X_MATCH_IN_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PORT_IN:%u], ",it->value->value.u32); 
 				break;
-			case OF1X_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PHY_PORT_IN:%u|0x%x], ",it->value->value.u32,it->value->mask.u32);
+			case OF1X_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PHY_PORT_IN:%u], ",it->value->value.u32);
 				break; 
 
 			case OF1X_MATCH_METADATA: //TODO FIXME
@@ -1151,20 +1156,20 @@ void __of1x_dump_matches(of1x_match_t* matches){
 				break; 
 			case OF1X_MATCH_ETH_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_SRC:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
 				break; 
-			case OF1X_MATCH_ETH_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_TYPE:0x%x|0x%x], ",it->value->value.u16,it->value->mask.u16);
+			case OF1X_MATCH_ETH_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_TYPE:0x%x], ",it->value->value.u16);
 				break; 
 
 			case OF1X_MATCH_VLAN_VID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_ID:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
 				break; 
-			case OF1X_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u|0x%x], ",it->value->mask.u8,it->value->mask.u8);
+			case OF1X_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u], ",it->value->mask.u8);
 				break; 
 
-			case OF1X_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:%u|0x%x], ",it->value->value.u32,it->value->mask.u32);
+			case OF1X_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:%u], ",it->value->value.u32);
 				break; 
-			case OF1X_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
+			case OF1X_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:%u], ",it->value->value.u8);
 				break; 
 
-			case OF1X_MATCH_ARP_OP: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_OPCODE:0x%x|0x%x], ",it->value->value.u16,it->value->mask.u16);
+			case OF1X_MATCH_ARP_OP: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_OPCODE:0x%x], ",it->value->value.u16);
 				break;
 			case OF1X_MATCH_ARP_SHA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_SHA:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
 				break;
@@ -1175,9 +1180,9 @@ void __of1x_dump_matches(of1x_match_t* matches){
 			case OF1X_MATCH_ARP_TPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_TPA:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break;
 
-			case OF1X_MATCH_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_ECN:0x%x|0x%x], ",it->value->value.u8,it->value->mask.u8);
+			case OF1X_MATCH_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_ECN:0x%x], ",it->value->value.u8);
 				break; 
-			case OF1X_MATCH_IP_DSCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_DSCP:0x%x|0x%x], ",it->value->value.u8,it->value->mask.u8);
+			case OF1X_MATCH_IP_DSCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_DSCP:0x%x], ",it->value->value.u8);
 				break; 
 			case OF1X_MATCH_IP_PROTO:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP_PROTO:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
 				break; 
@@ -1187,14 +1192,14 @@ void __of1x_dump_matches(of1x_match_t* matches){
 			case OF1X_MATCH_IPV4_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IP4_DST:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break; 
 
-			case OF1X_MATCH_TCP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_SRC:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
+			case OF1X_MATCH_TCP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_SRC:%u], ",it->value->value.u16);
 				break; 
-			case OF1X_MATCH_TCP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_DST:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
+			case OF1X_MATCH_TCP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[TCP_DST:%u], ",it->value->value.u16);
 				break; 
 
-			case OF1X_MATCH_UDP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_SRC:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
+			case OF1X_MATCH_UDP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_SRC:%u], ",it->value->value.u16);
 				break; 
-			case OF1X_MATCH_UDP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_DST:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
+			case OF1X_MATCH_UDP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[UDP_DST:%u], ",it->value->value.u16);
 				break; 
 
 			case OF1X_MATCH_SCTP_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[SCTP_SRC:%u], ",it->value->value.u16);
@@ -1209,9 +1214,9 @@ void __of1x_dump_matches(of1x_match_t* matches){
 				break; 
 
 
-			case OF1X_MATCH_ICMPV4_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_TYPE:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
+			case OF1X_MATCH_ICMPV4_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_TYPE:%u], ",it->value->value.u8);
 				break; 
-			case OF1X_MATCH_ICMPV4_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_CODE:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
+			case OF1X_MATCH_ICMPV4_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV4_CODE:%u], ",it->value->value.u8);
 				break; 
 			
 			//IPv6
@@ -1219,20 +1224,20 @@ void __of1x_dump_matches(of1x_match_t* matches){
 				break;
 			case OF1X_MATCH_IPV6_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_DST:0x%lx:%lx|0x%lx:%lx], ",UINT128__T_HI(it->value->value.u128),UINT128__T_LO(it->value->value.u128),UINT128__T_HI(it->value->mask.u128),UINT128__T_LO(it->value->mask.u128));
 				break;
-			case OF1X_MATCH_IPV6_FLABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_FLABEL:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
+			case OF1X_MATCH_IPV6_FLABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_FLABEL:%llu], ",it->value->value.u64);
 				break; 
-			case OF1X_MATCH_IPV6_ND_TARGET: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TARGET:0x%lx:%lx|0x%lx:%lx], ",UINT128__T_HI(it->value->value.u128),UINT128__T_LO(it->value->value.u128),UINT128__T_HI(it->value->mask.u128),UINT128__T_LO(it->value->mask.u128));
+			case OF1X_MATCH_IPV6_ND_TARGET: ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TARGET:0x%lx:%lx], ",UINT128__T_HI(it->value->value.u128),UINT128__T_LO(it->value->value.u128));
 				break;
-			case OF1X_MATCH_IPV6_ND_SLL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_SLL:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
+			case OF1X_MATCH_IPV6_ND_SLL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_SLL:%lu], ",it->value->value.u64);
 				break; 
-			case OF1X_MATCH_IPV6_ND_TLL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TLL:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
+			case OF1X_MATCH_IPV6_ND_TLL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_ND_TLL:%lu], ",it->value->value.u64);
 				break; 
 			case OF1X_MATCH_IPV6_EXTHDR:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IPV6_EXTHDR:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
 				break; 
 			//ICMPv6
-			case OF1X_MATCH_ICMPV6_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_TYPE:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
+			case OF1X_MATCH_ICMPV6_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_TYPE:%lu], ",it->value->value.u64);
 				break; 
-			case OF1X_MATCH_ICMPV6_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_CODE:%lu|0x%lx], ",it->value->value.u64,it->value->mask.u64);
+			case OF1X_MATCH_ICMPV6_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ICMPV6_CODE:%lu], ",it->value->value.u64);
 				break; 
 					
 			//PBB	
@@ -1243,18 +1248,18 @@ void __of1x_dump_matches(of1x_match_t* matches){
 				break;
 
 			/* PPP/PPPoE related extensions */
-			case OF1X_MATCH_PPPOE_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_CODE:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
+			case OF1X_MATCH_PPPOE_CODE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_CODE:%u], ",it->value->value.u8,it->value->mask.u8);
 				break; 
-			case OF1X_MATCH_PPPOE_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_TYPE:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
+			case OF1X_MATCH_PPPOE_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_TYPE:%u], ",it->value->value.u8);
 				break; 
-			case OF1X_MATCH_PPPOE_SID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_SID:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
+			case OF1X_MATCH_PPPOE_SID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPPOE_SID:%u], ",it->value->value.u16);
 				break; 
 
-			case OF1X_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPP_PROT:%u|0x%x] ",it->value->value.u16,it->value->mask.u16);
+			case OF1X_MATCH_PPP_PROT:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[PPP_PROT:%u] ",it->value->value.u16);
 				break; 
 
 			/* GTP related extensions */
-			case OF1X_MATCH_GTP_MSG_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_MSG_TYPE:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
+			case OF1X_MATCH_GTP_MSG_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_MSG_TYPE:%u], ",it->value->value.u8);
 				break;
 			case OF1X_MATCH_GTP_TEID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_TEID:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break;
