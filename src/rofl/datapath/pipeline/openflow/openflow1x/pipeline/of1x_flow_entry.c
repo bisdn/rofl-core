@@ -292,7 +292,7 @@ void of1x_dump_flow_entry(of1x_flow_entry_t* entry){
 	ROFL_PIPELINE_INFO_NO_PREFIX("Entry (%p), prior. %u #hits %u ",entry, entry->priority, entry->matches.num_elements);
 	//print matches(all)
 	ROFL_PIPELINE_INFO_NO_PREFIX(" Matches:{");
-	__of1x_full_dump_matches(entry->matches.head);
+	__of1x_dump_matches(entry->matches.head);
 	ROFL_PIPELINE_INFO_NO_PREFIX("}\n\t\t");
 	__of1x_dump_instructions(entry->inst_grp);
 	ROFL_PIPELINE_INFO_NO_PREFIX("\n");

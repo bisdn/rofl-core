@@ -1135,7 +1135,7 @@ inline bool __of1x_check_match(const of1x_packet_matches_t* pkt, of1x_match_t* i
 }
 
 //Matches with mask (including matches that do not support)
-void of1x_full_dump_matches(of1x_match_t* matches){
+void __of1x_dump_matches(of1x_match_t* matches){
 	of1x_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){

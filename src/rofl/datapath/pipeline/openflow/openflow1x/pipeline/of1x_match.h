@@ -458,7 +458,7 @@ bool __of1x_check_match(const of1x_packet_matches_t* pkt, of1x_match_t* it);
 /*
 * Dumping
 */
-void __of1x_full_dump_matches(of1x_match_t* matches);
+void __of1x_dump_matches(of1x_match_t* matches);
 
 //C++ extern C
 ROFL_END_DECLS
