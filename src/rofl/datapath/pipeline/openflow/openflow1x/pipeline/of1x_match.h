@@ -8,6 +8,7 @@
 #include "rofl.h"
 #include "../../../common/ternary_fields.h"
 #include "of1x_packet_matches.h"
+#include "of1x_utils.h"
 
 //Fwd declarations
 union of_packet_matches;
@@ -81,12 +82,12 @@ typedef enum{
 	OF1X_MATCH_IPV6_EXTHDR,		/* Extension header */
 
 	/* transport */
-	OF1X_MATCH_TP_SRC,		/* TCP/UDP source port. OF10 ONLY */	// required
-	OF1X_MATCH_TP_DST,		/* TCP/UDP dest port. OF10 ONLY */	// required
-	OF1X_MATCH_TCP_SRC,		/* TCP source port. */			// required
-	OF1X_MATCH_TCP_DST,		/* TCP destination port. */		// required
-	OF1X_MATCH_UDP_SRC,	        /* UDP source port. */			// required
-	OF1X_MATCH_UDP_DST,		/* UDP destination port. */		// required
+	OF1X_MATCH_TP_SRC,		/* TCP/UDP source port. OF10 ONLY */	//required
+	OF1X_MATCH_TP_DST,		/* TCP/UDP dest port. OF10 ONLY */	//required
+	OF1X_MATCH_TCP_SRC,		/* TCP source port. */			//required
+	OF1X_MATCH_TCP_DST,		/* TCP destination port. */		//required
+	OF1X_MATCH_UDP_SRC,	        /* UDP source port. */			//required
+	OF1X_MATCH_UDP_DST,		/* UDP destination port. */		//required
 	OF1X_MATCH_SCTP_SRC,		/* SCTP source port. */
 	OF1X_MATCH_SCTP_DST,		/* SCTP destination port. */
 	OF1X_MATCH_ICMPV4_TYPE,		/* ICMP type. */
@@ -112,10 +113,9 @@ typedef enum{
 
 	/* max value */
 	OF1X_MATCH_MAX,
-} of1x_match_type_t;
+}of1x_match_type_t;
 
-
-struct of1x_match{
+typedef struct of1x_match{
 	
 	//Type
 	of1x_match_type_t type;
@@ -127,9 +127,8 @@ struct of1x_match{
 	struct of1x_match* prev;
 	
 	//Next entry
-	struct of1x_match* next;
-};
-typedef struct of1x_match of1x_match_t;
+	struct of1x_match* next;	
+}of1x_match_t;
 
 
 /* Match group, using a double-linked-list */
@@ -137,6 +136,13 @@ typedef struct{
 	//Double linked list
 	of1x_match_t* head;
 	of1x_match_t* tail;
+
+	//Num of matches
+	unsigned int num_elements;
+
+	//Bitmap of required OF versions
+	//for fast validation
+	of1x_ver_req_t ver_req; 
 }of1x_match_group_t;
 
 

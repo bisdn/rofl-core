@@ -363,30 +363,12 @@ inline of1x_match_t* of1x_init_gtp_teid_match(of1x_match_t* prev, of1x_match_t* 
 
 //Add more here...
 
-//TODO
-#if 0
-/* Instruction groups init and destroy */
-of1x_match_group_t* of1x_new_match_group(){
-
-	of1x_match_group_t *group = (of1x_match_group_t*)platform_malloc_shared(sizeof(of1x_match_group_t));
-
-	if(!group)
-		return NULL; 
-
-	of1x_init_match_group(group);
-
-	return group;
-}
-#endif
-
-
-
 /* Instruction groups init and destroy */
 void __of1x_init_match_group(of1x_match_group_t* group){
 
 	memset(group,0,sizeof(of1x_match_group_t));
-}
 
+}
 
 void __of1x_destroy_match_group(of1x_match_group_t* group){
 	of1x_match_t *match;
@@ -396,8 +378,7 @@ void __of1x_destroy_match_group(of1x_match_group_t* group){
 
 	match = group->head;
 
-	while (match)
-	{
+	while (match){
 		of1x_match_t *next = match->next;
 		of1x_destroy_match(match);
 		match = next;
@@ -411,23 +392,37 @@ void __of1x_destroy_match_group(of1x_match_group_t* group){
 
 void __of1x_match_group_push_back(of1x_match_group_t* group, of1x_match_t* match){
 
-	if (!group)
+	if (!group || !match)
 		return;
 
 	match->next = match->prev = NULL; 
 
 	if(!group->head){
-		group->head = group->tail = match;
-	}
-	else{
+		group->head = match;
+	}else{
 		match->prev = group->tail;
 		group->tail->next = match;
-		group->tail = match;
 	}
+
+	//Deduce new tail and update validation flags and num of elements
+	do{
+		//Update fast validation flags (required versions)
+		//FIXME
+
+		group->num_elements++;
+
+		if(match->next == NULL)
+			break;
+		else	
+			match = match->next;
+	}while(1);
+	
+	//Add new tail
+	group->tail = match;
 }
 
 
-
+#if 0
 /* Push match at the end of the match */
 rofl_result_t __of1x_add_match(of1x_match_t* root_match, of1x_match_t* add_match){
 	of1x_match_t* it;
@@ -443,9 +438,11 @@ rofl_result_t __of1x_add_match(of1x_match_t* root_match, of1x_match_t* add_match
 	//Last match in the list
 	it->next = add_match;
 	add_match->prev = it; 
-	
+
 	return ROFL_SUCCESS;
 }
+#endif
+
 /*
 * Copy match to heap. Leaves next and prev pointers to NULL
 */

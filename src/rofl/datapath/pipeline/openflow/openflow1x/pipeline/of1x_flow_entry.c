@@ -51,8 +51,6 @@ of1x_flow_entry_t* of1x_init_flow_entry(of1x_flow_entry_t* prev, of1x_flow_entry
 //This function is meant to only be used internally
 rofl_result_t __of1x_destroy_flow_entry_with_reason(of1x_flow_entry_t* entry, of1x_flow_remove_reason_t reason){
 	
-	of1x_match_t* match = entry->matchs;
-
 	//wait for any thread which is still using the entry (processing a packet)
 	platform_rwlock_wrlock(entry->rwlock);
 	
@@ -70,13 +68,8 @@ rofl_result_t __of1x_destroy_flow_entry_with_reason(of1x_flow_entry_t* entry, of
 	//destroy stats
 	__of1x_destroy_flow_stats(entry);
 
-	//Destroy matches recursively
-	while(match){
-		of1x_match_t* next = match->next;
-		//TODO: maybe check result of destroy and print traces...
-		of1x_destroy_match(match);
-		match = next; 
-	}
+	//Destroy matches group 
+	__of1x_destroy_match_group(&entry->matches);
 
 	//Destroy instructions
 	__of1x_destroy_instruction_group(&entry->inst_grp);
@@ -98,6 +91,10 @@ rofl_result_t of1x_destroy_flow_entry(of1x_flow_entry_t* entry){
 //Adds one or more to the entry
 rofl_result_t of1x_add_match_to_entry(of1x_flow_entry_t* entry, of1x_match_t* match){
 
+	__of1x_match_group_push_back(&entry->matches, match);
+	
+	return ROFL_SUCCESS;
+#if 0
 	unsigned int new_matches;
 
 	if(!match)
@@ -121,6 +118,7 @@ rofl_result_t of1x_add_match_to_entry(of1x_flow_entry_t* entry, of1x_match_t* ma
 	entry->num_of_matches+=new_matches;
 
 	return ROFL_SUCCESS;
+#endif
 }
 
 rofl_result_t __of1x_update_flow_entry(of1x_flow_entry_t* entry_to_update, of1x_flow_entry_t* mod, bool reset_counts){
@@ -165,9 +163,9 @@ bool __of1x_flow_entry_check_overlap(of1x_flow_entry_t*const original, of1x_flow
 	if(check_priority && (entry->priority != original->priority))
 		return false;
 
-	//Check if matchs are contained. This is expensive.. //FIXME: move this to of1x_match
-	for( it_entry = entry->matchs; it_entry; it_entry = it_entry->next ){
-		for( it_orig = original->matchs; it_orig; it_orig = it_orig->next ){
+	//Check if matches are contained. This is expensive.. //FIXME: move this to of1x_match
+	for( it_entry = entry->matches.head; it_entry; it_entry = it_entry->next ){
+		for( it_orig = original->matches.head; it_orig; it_orig = it_orig->next ){
 
 			//Skip if different types
 			if( it_entry->type != it_orig->type)
@@ -217,9 +215,9 @@ bool __of1x_flow_entry_check_contained(of1x_flow_entry_t*const original, of1x_fl
 	if(check_priority && (original->priority != subentry->priority))
 		return false;
 
-	//Check if matchs are contained. This is expensive.. //FIXME: move this to of1x_match
-	for( it_subentry = subentry->matchs; it_subentry; it_subentry = it_subentry->next ){
-		for( it_orig = original->matchs; it_orig; it_orig = it_orig->next ){
+	//Check if matches are contained. This is expensive.. //FIXME: move this to of1x_match
+	for( it_subentry = subentry->matches.head; it_subentry; it_subentry = it_subentry->next ){
+		for( it_orig = original->matches.head; it_orig; it_orig = it_orig->next ){
 	
 			//Skip if different types
 			if( it_subentry->type != it_orig->type)
@@ -259,12 +257,12 @@ bool __of1x_flow_entry_check_equal(of1x_flow_entry_t*const original, of1x_flow_e
 	if(entry->priority != original->priority)
 		return false;
 
-	//Fast Check #matchs
-	if(original->num_of_matches != entry->num_of_matches) 
+	//Fast Check #matches
+	if(original->matches.num_elements != entry->matches.num_elements) 
 		return false;
 
 	//Matches in-depth check //FIXME: move this to of1x_match
-	for(it_original = original->matchs, it_entry = entry->matchs; it_entry != NULL; it_original = it_original->next, it_entry = it_entry->next){	
+	for(it_original = original->matches.head, it_entry = entry->matches.head; it_entry != NULL; it_original = it_original->next, it_entry = it_entry->next){	
 		if(!__of1x_equal_matches(it_original,it_entry))
 			return false;
 	}
@@ -291,10 +289,10 @@ bool __of1x_flow_entry_check_equal(of1x_flow_entry_t*const original, of1x_flow_e
 }
 
 void of1x_dump_flow_entry(of1x_flow_entry_t* entry){
-	ROFL_PIPELINE_INFO_NO_PREFIX("Entry (%p), #hits %u prior. %u",entry,entry->num_of_matches, entry->priority);
+	ROFL_PIPELINE_INFO_NO_PREFIX("Entry (%p), prior. %u #hits %u ",entry, entry->priority, entry->matches.num_elements);
 	//print matches(all)
 	ROFL_PIPELINE_INFO_NO_PREFIX(" Matches:{");
-	of1x_dump_matches(entry->matchs);
+	of1x_dump_matches(entry->matches.head);
 	ROFL_PIPELINE_INFO_NO_PREFIX("}\n\t\t");
 	__of1x_dump_instructions(entry->inst_grp);
 	ROFL_PIPELINE_INFO_NO_PREFIX("\n");

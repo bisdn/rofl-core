@@ -15,6 +15,7 @@
 #include "of1x_instruction.h"
 #include "of1x_timers.h"
 #include "of1x_statistics.h"
+#include "of1x_utils.h"
 
 /**
 * @file of1x_flow_entry.h
@@ -65,16 +66,6 @@ typedef struct of1x_flow_entry{
 	//Entry priority	
 	uint16_t priority;
 	
-	//Array of matches
-	/**
-	* Pointer to the first match of the linked list
-	* @TODO: deprecate this in favour of match_group
-	*/
-	of1x_match_t* matchs;
-	
-	//Number of necessary matches (hits)
-	uint8_t num_of_matches;
-
 	//Previous entry
 	struct of1x_flow_entry* prev;
 	
@@ -83,6 +74,9 @@ typedef struct of1x_flow_entry{
 
 	//Table in which rule is inserted (for fast safety checkings)
 	struct of1x_flow_table* table;
+	
+	//Matches
+	of1x_match_group_t matches;
 	
 	//Instructions
 	of1x_instruction_group_t inst_grp;
@@ -105,7 +99,6 @@ typedef struct of1x_flow_entry{
 
 	//Platform agnostic pointer
 	of1x_flow_entry_platform_state_t* platform_state;
-
 }of1x_flow_entry_t;
 
 //C++ extern C

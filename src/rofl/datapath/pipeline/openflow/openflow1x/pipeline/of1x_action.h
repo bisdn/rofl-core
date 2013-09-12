@@ -148,6 +148,10 @@ typedef enum{
 
 	/* Add more set fields here... */
 
+	/* OF10 only */
+	OF1X_AT_SET_FIELD_TP_SRC,		/* Trans. protocol (TCP/UDP) src port */
+	OF1X_AT_SET_FIELD_TP_DST,		/* Trans. protocol (TCP/UDP) dst port */
+
 	//Groups		
 	OF1X_AT_GROUP,				/* Apply group. */
 

@@ -5,6 +5,8 @@
 #ifndef __OF1X_UTILS_H__
 #define __OF1X_UTILS_H__
 
+#include <inttypes.h>
+
 /**
 * @file of1x_utils.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
@@ -29,5 +31,13 @@ typedef enum of1x_mutex_acquisition_required{
 	MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION,	/*mutex was taken when checking for expirations. We shouldn't call the timers functions*/
 	MUTEX_ALREADY_ACQUIRED_NON_STRICT_SEARCH	/*mutex was taken when looking for entries with a non strict definition*/
 }of1x_mutex_acquisition_required_t;
+
+/*
+* Required pipeline version
+*/
+typedef struct of1x_ver_req_t{
+	uint8_t min_ver;	//Bitmap of_version_t
+	uint8_t max_ver;	//Bitmap of_version_t
+}of1x_ver_req_t;
 
 #endif //OF1X_UTILS

@@ -162,7 +162,8 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 	
 	//Look for appropiate position in the table
 	for(it=table->entries,prev=NULL; it!=NULL;prev=it,it=it->next){
-		if(it->num_of_matches<= entry->num_of_matches || ( it->num_of_matches<= entry->num_of_matches && it->priority<entry->priority ) ){
+//		if(it->num_of_matches<= entry->num_of_matches || ( it->num_of_matches<= entry->num_of_matches && it->priority<entry->priority ) ){ //HITS|PRIORITY
+		if(it->priority < entry->priority || (it->priority == entry->priority && it->matches.num_elements <= entry->matches.num_elements) ){ //PRIORITY|HITS
 			//Insert
 			if(prev == NULL){
 				//Set current entry
@@ -407,7 +408,7 @@ of1x_flow_entry_t* of1x_find_best_match_loop(of1x_flow_table_t *const table, of1
 	for(entry = table->entries;entry!=NULL;entry = entry->next){
 		bool matched = true;
 		
-		for( it=entry->matchs ; it ; it=it->next ){
+		for( it=entry->matches.head ; it ; it=it->next ){
 			if(!__of1x_check_match(pkt_matches, it)){
 				matched = false;
 				break;
@@ -441,7 +442,7 @@ rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 		uint64_t cookie_mask,
 		uint32_t out_port, 
 		uint32_t out_group,
-		of1x_match_t *const matchs,
+		of1x_match_t *const matches,
 		of1x_stats_flow_msg_t* msg){
 
 	of1x_flow_entry_t* entry, flow_stats_entry;
@@ -452,7 +453,7 @@ rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 
 	//Create a flow_stats_entry
 	memset(&flow_stats_entry,0,sizeof(of1x_flow_entry_t));
-	flow_stats_entry.matchs = matchs;
+	__of1x_match_group_push_back(&flow_stats_entry.matches, matches);
 	flow_stats_entry.cookie = cookie;
 	flow_stats_entry.cookie_mask = cookie_mask;
 
@@ -493,7 +494,7 @@ rofl_result_t of1x_get_flow_aggregate_stats_loop(struct of1x_flow_table *const t
 		uint64_t cookie_mask,
 		uint32_t out_port, 
 		uint32_t out_group,
-		of1x_match_t *const matchs,
+		of1x_match_t *const matches,
 		of1x_stats_flow_aggregate_msg_t* msg){
 
 	of1x_flow_entry_t* entry, flow_stats_entry;
@@ -503,7 +504,7 @@ rofl_result_t of1x_get_flow_aggregate_stats_loop(struct of1x_flow_table *const t
 
 	//Flow stats entry for easy comparison
 	memset(&flow_stats_entry,0,sizeof(of1x_flow_entry_t));
-	flow_stats_entry.matchs = matchs;
+	__of1x_match_group_push_back(&flow_stats_entry.matches, matches);
 	flow_stats_entry.cookie = cookie;
 	flow_stats_entry.cookie_mask = cookie_mask;
 
@@ -543,7 +544,7 @@ of1x_flow_entry_t* of1x_find_entry_using_group_loop(of1x_flow_table_t *const tab
 		
 		bool has_group = false;	
 		
-		for( it=entry->matchs; it; it=it->next ){
+		for( it=entry->matches.head; it; it=it->next ){
 			if(__of1x_instructions_contain_group(entry, group_id)){
 				has_group = true;
 				break;

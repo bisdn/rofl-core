@@ -104,7 +104,7 @@ of1x_stats_single_flow_msg_t* __of1x_init_stats_single_flow_msg(of1x_flow_entry_
 
 	//Copy matches
 	//TODO: deprecate this in favour of group_matches
-	msg->matches = __of1x_copy_matches(entry->matchs);
+	msg->matches = __of1x_copy_matches(entry->matches.head);
 	
 	//Copy instructions
 	__of1x_copy_instruction_group(&entry->inst_grp,msg->inst_grp);
@@ -432,7 +432,7 @@ void __of1x_stats_bucket_update(of1x_stats_bucket_counter_t* bc_stats, uint64_t 
 * External interfaces
 */
 
-of1x_stats_flow_msg_t* of1x_get_flow_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match* matchs){
+of1x_stats_flow_msg_t* of1x_get_flow_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match* matches){
 
 	uint32_t i,tid_start, tid_end;	
 	of1x_stats_flow_msg_t* msg;
@@ -456,7 +456,7 @@ of1x_stats_flow_msg_t* of1x_get_flow_stats(struct of1x_pipeline* pipeline, uint8
 	}
 
 	for(i=tid_start;i<tid_end;i++){
-		if(of1x_matching_algorithms[pipeline->tables[i].matching_algorithm].get_flow_stats_hook(&pipeline->tables[i], cookie, cookie_mask, out_port, out_group, matchs, msg) != ROFL_SUCCESS){
+		if(of1x_matching_algorithms[pipeline->tables[i].matching_algorithm].get_flow_stats_hook(&pipeline->tables[i], cookie, cookie_mask, out_port, out_group, matches, msg) != ROFL_SUCCESS){
 			of1x_destroy_stats_flow_msg(msg);
 			return NULL;
 		} 
@@ -464,7 +464,7 @@ of1x_stats_flow_msg_t* of1x_get_flow_stats(struct of1x_pipeline* pipeline, uint8
 	
 	return msg;
 }
-of1x_stats_flow_aggregate_msg_t* of1x_get_flow_aggregate_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match* matchs){
+of1x_stats_flow_aggregate_msg_t* of1x_get_flow_aggregate_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match* matches){
 	
 	uint32_t i, tid_start, tid_end;	
 	of1x_stats_flow_aggregate_msg_t* msg;
@@ -489,7 +489,7 @@ of1x_stats_flow_aggregate_msg_t* of1x_get_flow_aggregate_stats(struct of1x_pipel
 	}
 
 	for(i=tid_start;i<tid_end;i++){
-		if(of1x_matching_algorithms[pipeline->tables[i].matching_algorithm].get_flow_aggregate_stats_hook(&pipeline->tables[i], cookie, cookie_mask, out_port, out_group, matchs, msg) != ROFL_SUCCESS){
+		if(of1x_matching_algorithms[pipeline->tables[i].matching_algorithm].get_flow_aggregate_stats_hook(&pipeline->tables[i], cookie, cookie_mask, out_port, out_group, matches, msg) != ROFL_SUCCESS){
 			of1x_destroy_stats_flow_aggregate_msg(msg);
 			return NULL;
 		} 

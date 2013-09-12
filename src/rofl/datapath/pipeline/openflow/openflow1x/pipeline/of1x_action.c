@@ -80,6 +80,8 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 		//2 byte values
 		case OF1X_AT_SET_FIELD_ETH_TYPE:
 		case OF1X_AT_SET_FIELD_ARP_OPCODE:
+		case OF1X_AT_SET_FIELD_TP_SRC:
+		case OF1X_AT_SET_FIELD_TP_DST:
 		case OF1X_AT_SET_FIELD_TCP_SRC:
 		case OF1X_AT_SET_FIELD_TCP_DST:
 		case OF1X_AT_SET_FIELD_UDP_SRC:
@@ -475,7 +477,15 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Update match
 			pkt_matches->ipv4_dst = action->field.u64;
 			break;
-	
+
+		//TP
+		case OF1X_AT_SET_FIELD_TP_SRC:  
+			//FIXME
+			break;
+		case OF1X_AT_SET_FIELD_TP_DST:
+			//FIXME
+			break;
+
 		//TCP
 		case OF1X_AT_SET_FIELD_TCP_SRC:  
 			//Call platform
@@ -971,6 +981,12 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 		case OF1X_AT_SET_FIELD_IPV4_DST:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV4_DST: 0x%x",action.field.u64);
 			break;
 
+		case OF1X_AT_SET_FIELD_TP_SRC:  
+			//FIXME
+			break;
+		case OF1X_AT_SET_FIELD_TP_DST:
+			//FIXME
+			break;
 		case OF1X_AT_SET_FIELD_TCP_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TCP_SRC: %u",action.field.u64);
 			break;
 		case OF1X_AT_SET_FIELD_TCP_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TCP_DST: %u",action.field.u64);
