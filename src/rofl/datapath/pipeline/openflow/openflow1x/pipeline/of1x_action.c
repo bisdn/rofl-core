@@ -10,25 +10,10 @@
 #include "../../../util/logging.h"
 #include "../../../platform/memory.h"
 #include "../of1x_async_events_hooks.h"
+#include "of1x_utils.h"
 
 //Flood port
 extern switch_port_t* flood_meta_port;
-
-//Byte masks
-#define OF1X_AT_6_BYTE_MASK 0x0000FFFFFFFFFFFF
-#define OF1X_AT_4_BYTE_MASK 0x00000000FFFFFFFF
-#define OF1X_AT_2_BYTE_MASK 0x000000000000FFFF
-#define OF1X_AT_1_BYTE_MASK 0x00000000000000FF
-
-//Non-multiple of byte masks
-#define OF1X_AT_20_BITS_MASK 0x00000000000FFFFF
-#define OF1X_AT_9_BITS_MASK 0x00000000000001FF
-//NOTE Needed?
-#define OF1X_AT_8_BYTE_MASK 0xFFFFFFFFFFFFFFFF 
-#define OF1X_AT_13_BITS_MASK 0x0000000000001FFF
-#define OF1X_AT_6_BITS_MASK 0x000000000000003F
-#define OF1X_AT_3_BITS_MASK 0x0000000000000007
-#define OF1X_AT_2_BITS_MASK 0x0000000000000003
 
 //fwd declarations
 static void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t* group, bool replicate_pkts);
@@ -60,7 +45,7 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 		case OF1X_AT_SET_FIELD_ETH_SRC:
 		case OF1X_AT_SET_FIELD_ARP_SHA:
 		case OF1X_AT_SET_FIELD_ARP_THA:
-			action->field.u64 = field.u64&OF1X_AT_6_BYTE_MASK;
+			action->field.u64 = field.u64&OF1X_6_BYTE_MASK;
 			break;
 	
 		//4 byte values
@@ -70,12 +55,12 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 		case OF1X_AT_SET_FIELD_ARP_TPA:
 		case OF1X_AT_OUTPUT:
 		case OF1X_AT_SET_FIELD_GTP_TEID:
-			action->field.u64 = field.u64&OF1X_AT_4_BYTE_MASK;	// TODO: max_len when port_no == OFPP_CONTROLLER
+			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;	// TODO: max_len when port_no == OFPP_CONTROLLER
 			break;
 		//20 bit values
 		case OF1X_AT_SET_FIELD_IPV6_FLABEL:
 		case OF1X_AT_SET_FIELD_MPLS_LABEL:
-			action->field.u64 = field.u64&OF1X_AT_20_BITS_MASK;
+			action->field.u64 = field.u64&OF1X_20_BITS_MASK;
 			break;
 		//2 byte values
 		case OF1X_AT_SET_FIELD_ETH_TYPE:
@@ -94,15 +79,15 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 		case OF1X_AT_PUSH_PPPOE:
 		case OF1X_AT_PUSH_MPLS: 
 		case OF1X_AT_PUSH_VLAN: 
-			action->field.u64 = field.u64&OF1X_AT_2_BYTE_MASK;
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
 			break;
 		//9 bit value
 		case OF1X_AT_SET_FIELD_IPV6_EXTHDR:
-			action->field.u64 = field.u64&OF1X_AT_9_BITS_MASK;
+			action->field.u64 = field.u64&OF1X_9_BITS_MASK;
 			break;
 		//13 bit values
 		case OF1X_AT_SET_FIELD_VLAN_VID:
-			action->field.u64 = field.u64&OF1X_AT_13_BITS_MASK;
+			action->field.u64 = field.u64&OF1X_13_BITS_MASK;
 			break;
 		//1 byte values
 		case OF1X_AT_SET_FIELD_ICMPV6_TYPE:
@@ -115,23 +100,23 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:
 		case OF1X_AT_SET_FIELD_ICMPV4_CODE:
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
-			action->field.u64 = field.u64&OF1X_AT_1_BYTE_MASK;
+			action->field.u64 = field.u64&OF1X_1_BYTE_MASK;
 			break;
 		//6 bit values
 		case OF1X_AT_SET_FIELD_IP_DSCP:
-			action->field.u64 = field.u64&OF1X_AT_6_BITS_MASK;
+			action->field.u64 = field.u64&OF1X_6_BITS_MASK;
 			break;
 		//3 bit values
 		case OF1X_AT_SET_FIELD_VLAN_PCP:
 		case OF1X_AT_SET_FIELD_MPLS_TC:
-			action->field.u64 = field.u64&OF1X_AT_3_BITS_MASK;
+			action->field.u64 = field.u64&OF1X_3_BITS_MASK;
 			break;
 		//2 bit values
 		case OF1X_AT_SET_FIELD_IP_ECN:
-			action->field.u64 = field.u64&OF1X_AT_2_BITS_MASK;
+			action->field.u64 = field.u64&OF1X_2_BITS_MASK;
 			break;
 		case OF1X_AT_GROUP:
-			action->field.u64 =  field.u64&OF1X_AT_4_BYTE_MASK; //id of the group
+			action->field.u64 =  field.u64&OF1X_4_BYTE_MASK; //id of the group
 			//action->group = of1x_group_search(sw->pipeline->groups, action->field); // pointer to the group //FIXME evaluate if this can be done here or not
 			break;
 		case OF1X_AT_SET_FIELD_IPV6_ND_TARGET:

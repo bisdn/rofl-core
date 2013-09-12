@@ -218,6 +218,10 @@ uint16_t platform_packet_get_tcp_src(datapacket_t *const pkt);
 uint16_t platform_packet_get_udp_dst(datapacket_t *const pkt);
 uint16_t platform_packet_get_udp_src(datapacket_t *const pkt);
 
+//SCTP
+uint16_t platform_packet_get_sctp_dst(datapacket_t *const pkt);
+uint16_t platform_packet_get_sctp_src(datapacket_t *const pkt);
+
 //ICMPv4
 uint8_t platform_packet_get_icmpv4_type(datapacket_t *const pkt);
 uint8_t platform_packet_get_icmpv4_code(datapacket_t *const pkt);
@@ -246,6 +250,14 @@ uint64_t platform_packet_get_ipv6_exthdr(datapacket_t *const pkt);
 //ICMPv6
 uint64_t platform_packet_get_icmpv6_type(datapacket_t *const pkt);
 uint64_t platform_packet_get_icmpv6_code(datapacket_t *const pkt);
+
+
+//PBB ISID
+uint32_t platform_packet_get_pbb_isid(datapacket_t *const pkt);
+
+//Tunnel id
+uint64_t platform_packet_get_tunnel_id(datapacket_t *const pkt);
+
 
 //GTP related extensions
 uint8_t platform_packet_get_gtp_msg_type(datapacket_t *const pkt);

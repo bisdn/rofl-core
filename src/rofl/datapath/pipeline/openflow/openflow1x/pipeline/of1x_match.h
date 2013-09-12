@@ -13,28 +13,6 @@
 //Fwd declarations
 union of_packet_matches;
 
-//Useful ETH_TYPE values
-#define OF1X_ETH_TYPE_MPLS_UNICAST 0x8847
-#define OF1X_ETH_TYPE_MPLS_MULTICAST 0x8848
-#define OF1X_ETH_TYPE_IPV4 0x0800
-#define OF1X_ETH_TYPE_IPV6 0x86DD
-#define OF1X_ETH_TYPE_PPPOE_DISCOVERY 0x8863
-#define OF1X_ETH_TYPE_PPPOE_SESSION 0x8864
-#define OF1X_ETH_TYPE_ARP 0x0806
-
-//Useful IP_PROTO values
-#define OF1X_IP_PROTO_TCP 6
-#define OF1X_IP_PROTO_UDP 17
-#define OF1X_IP_PROTO_ICMPV4 1
-#define OF1X_IP_PROTO_ICMPV6 58
-
-//PPP PROTO values
-#define OF1X_PPP_PROTO_IP4 0x0021 
-#define OF1X_PPP_PROTO_IP6 0x0057
-
-//Useful UDP destination port values
-#define OF1X_UDP_DST_PORT_GTPC 2123
-#define OF1X_UDP_DST_PORT_GTPU 2152
 
 /* Defines possible matchings. This is EXPLICITELY copied from openflow.h, to simplify names, avoid collisions and add extensions */
 typedef enum{
@@ -127,7 +105,14 @@ typedef struct of1x_match{
 	struct of1x_match* prev;
 	
 	//Next entry
-	struct of1x_match* next;	
+	struct of1x_match* next;
+	
+	/* Fast validation flags */
+	//Bitmap of required OF versions
+	of1x_ver_req_t ver_req; 
+	
+	//OF1.0 only
+	bool has_wildcard;
 }of1x_match_t;
 
 
@@ -140,9 +125,12 @@ typedef struct{
 	//Num of matches
 	unsigned int num_elements;
 
+	/* Fast validation flags */
 	//Bitmap of required OF versions
-	//for fast validation
-	of1x_ver_req_t ver_req; 
+	of1x_ver_req_t ver_req;
+ 
+	//OF1.0 only
+	bool has_wildcard;
 }of1x_match_group_t;
 
 
@@ -327,6 +315,31 @@ of1x_match_t* of1x_init_udp_src_match(of1x_match_t* prev, of1x_match_t* next, ui
 */
 of1x_match_t* of1x_init_udp_dst_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value);
 
+//SCTP
+/**
+* @brief Create an SCTP_SRC match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_sctp_src_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value);
+/**
+* @brief Create an SCTP_DST match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_sctp_dst_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value);
+
+//TP
+/**
+* @brief Create an TP_SRC match (TCP/UDP), OF1.0 ONLY! 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_tp_src_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value);
+/**
+* @brief Create an TP_DST match (TCP/UDP), OF1.0 ONLY! 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_tp_dst_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value);
+
+
 //ICMPv4
 /**
 * @brief Create an ICMPv4_TYPE match 
@@ -374,20 +387,31 @@ of1x_match_t* of1x_init_ip6_nd_tll_match(of1x_match_t* prev, of1x_match_t* next,
  * @brief Create an IP6_EXTHDR match
  * @ingroup core_of1x
  */
-of1x_match_t* of1x_init_ip6_exthdr_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask);
+of1x_match_t* of1x_init_ip6_exthdr_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask);
 
 //ICMv6
 /**
  * @brief Create an ICMPV6_TYPE match
  * @ingroup core_of1x
  */
-of1x_match_t* of1x_init_icmpv6_type_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value);
+of1x_match_t* of1x_init_icmpv6_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value);
 /**
  * @brief Create an ICMPV6_CODE match
  * @ingroup core_of1x
  */
-of1x_match_t* of1x_init_icmpv6_code_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value);
+of1x_match_t* of1x_init_icmpv6_code_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value);
 
+/*
+ * @brief Create an PBB_ISD match
+ * @ingroup core_of1x
+ */
+of1x_match_t* of1x_init_pbb_isid_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask);
+
+/**
+ * @brief Create an TUNNEL_ID match
+ * @ingroup core_of1x
+ */
+of1x_match_t* of1x_init_tunnel_id_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask);
 
 //TODO
 //Add more here...
@@ -397,17 +421,6 @@ of1x_match_t* of1x_init_icmpv6_code_match(of1x_match_t* prev, of1x_match_t* next
 * @ingroup core_of1x 
 */
 void of1x_destroy_match(of1x_match_t* match);
-
-
-
-
-
-#if 0
-/* match group */
-void of1x_init_match_group(of1x_match_group_t* group);
-void of1x_destroy_match_group(of1x_match_group_t* group);
-void of1x_match_group_push_match(of1x_match_group_t* group, of1x_match_t* match);
-#endif
 
 /* match group */
 void __of1x_init_match_group(of1x_match_group_t* group);
@@ -445,10 +458,7 @@ bool __of1x_check_match(const of1x_packet_matches_t* pkt, of1x_match_t* it);
 /*
 * Dumping
 */
-void of1x_dump_packet_matches(union of_packet_matches *const pkt_matches);
-
-void of1x_dump_matches(of1x_match_t* matches);
-void of1x_full_dump_matches(of1x_match_t* matches);
+void __of1x_full_dump_matches(of1x_match_t* matches);
 
 //C++ extern C
 ROFL_END_DECLS
