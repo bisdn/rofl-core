@@ -155,13 +155,13 @@ void of1x_dump_packet_matches(of_packet_matches_t *const pkt_matches){
 	if(pkt->eth_type == OF1X_ETH_TYPE_ARP)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_TPA:0x%x, ",pkt->arp_tpa);
 	//IP/IPv4
-	if(pkt->eth_type == OF1X_ETH_TYPE_IPV4 || pkt->eth_type == OF1X_ETH_TYPE_IPV6 )
+	if((pkt->eth_type == OF1X_ETH_TYPE_IPV4 || pkt->eth_type == OF1X_ETH_TYPE_IPV6) && pkt->ip_proto)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("IP_PROTO:%u, ",pkt->ip_proto);
 
-	if(pkt->eth_type == OF1X_ETH_TYPE_IPV4 || pkt->eth_type == OF1X_ETH_TYPE_IPV6 )
+	if((pkt->eth_type == OF1X_ETH_TYPE_IPV4 || pkt->eth_type == OF1X_ETH_TYPE_IPV6) && pkt->ip_ecn)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("IP_ECN:0x%x, ",pkt->ip_ecn);
 	
-	if(pkt->eth_type == OF1X_ETH_TYPE_IPV4 || pkt->eth_type == OF1X_ETH_TYPE_IPV6 )
+	if((pkt->eth_type == OF1X_ETH_TYPE_IPV4 || pkt->eth_type == OF1X_ETH_TYPE_IPV6) && pkt->ip_dscp)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("IP_DSCP:0x%x, ",pkt->ip_dscp);
 	
 	if(pkt->ipv4_src)
