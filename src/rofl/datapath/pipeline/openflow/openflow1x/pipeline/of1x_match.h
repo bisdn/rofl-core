@@ -33,6 +33,7 @@ typedef enum{
 	/* mpls */
 	OF1X_MATCH_MPLS_LABEL,		/* MPLS label. */
 	OF1X_MATCH_MPLS_TC,		/* MPLS TC. */
+	OF1X_MATCH_MPLS_BOS,		/* MPLS BoS flag. */
 
 	/* arp */
 	OF1X_MATCH_ARP_OP,		/* ARP opcode. */
@@ -197,6 +198,11 @@ of1x_match_t* of1x_init_mpls_label_match(of1x_match_t* prev, of1x_match_t* next,
 * @ingroup core_of1x 
 */
 of1x_match_t* of1x_init_mpls_tc_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value);
+/**
+* @brief Create an MPLS_BOS match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_mpls_bos_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value);
 
 //ARP
 /**

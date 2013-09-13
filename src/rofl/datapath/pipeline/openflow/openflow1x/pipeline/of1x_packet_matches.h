@@ -78,6 +78,7 @@ typedef struct{
 	//MPLS-outermost label 
 	uint32_t mpls_label;		/* MPLS label. */
 	uint8_t mpls_tc;		/* MPLS TC. */
+	bool mpls_bos;			/* MPLS BoS. */
 
 
 	//IPv6

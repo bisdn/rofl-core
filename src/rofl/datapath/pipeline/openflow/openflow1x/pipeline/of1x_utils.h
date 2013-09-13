@@ -41,6 +41,9 @@ typedef struct of1x_ver_req_t{
 	of_version_t max_ver;	//of_version_t
 }of1x_ver_req_t;
 
+#define OF1X_MIN_VERSION OF_VERSION_10
+#define OF1X_MAX_VERSION OF_VERSION_13
+
 /*
 * Useful masks
 */
@@ -61,6 +64,7 @@ typedef struct of1x_ver_req_t{
 #define OF1X_4_BITS_MASK 0x000000000000000F
 #define OF1X_3_BITS_MASK 0x0000000000000007
 #define OF1X_2_BITS_MASK 0x0000000000000003
+#define OF1X_1_BIT_MASK 0x0000000000000001
 
 /*
 * Protocol related constants 

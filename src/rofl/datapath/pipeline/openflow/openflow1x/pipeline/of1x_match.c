@@ -158,6 +158,20 @@ inline of1x_match_t* of1x_init_mpls_tc_match(of1x_match_t* prev, of1x_match_t* n
 	
 	return match;
 }
+inline of1x_match_t* of1x_init_mpls_bos_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_MPLS_BOS; 
+	match->value = __init_utern8(value&OF1X_1_BIT_MASK,OF1X_1_BIT_MASK); //Ensure only 1 bit value, no wildcard 
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_13;	//First supported in OF1.3
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	match->has_wildcard = false;		//Not accepting wildcards
+	
+	return match;
+}
 
 //ARP
 inline of1x_match_t* of1x_init_arp_opcode_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
@@ -429,7 +443,7 @@ inline of1x_match_t* of1x_init_ip6_exthdr_match(of1x_match_t* prev, of1x_match_t
 	match->next = next;
 
 	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
+	match->ver_req.min_ver = OF_VERSION_13;	//First supported in OF1.2
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( (mask&OF1X_9_BITS_MASK) != OF1X_9_BITS_MASK)
 		match->has_wildcard = true;
@@ -670,7 +684,7 @@ inline of1x_match_t* of1x_init_pppoe_code_match(of1x_match_t* prev, of1x_match_t
 	match->next = next;
 
 	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
@@ -684,7 +698,7 @@ inline of1x_match_t* of1x_init_pppoe_type_match(of1x_match_t* prev, of1x_match_t
 	match->next = next;
 
 	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
@@ -698,7 +712,7 @@ inline of1x_match_t* of1x_init_pppoe_session_match(of1x_match_t* prev, of1x_matc
 	match->next = next;
 
 	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting w
 	return match;
@@ -713,7 +727,7 @@ inline of1x_match_t* of1x_init_ppp_prot_match(of1x_match_t* prev, of1x_match_t* 
 	match->next = next;
 
 	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
@@ -728,7 +742,7 @@ inline of1x_match_t* of1x_init_gtp_msg_type_match(of1x_match_t* prev, of1x_match
 	match->next = next;
 
 	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
@@ -742,7 +756,7 @@ inline of1x_match_t* of1x_init_gtp_teid_match(of1x_match_t* prev, of1x_match_t* 
 	match->next = next;
 
 	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (extensions)
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( mask != OF1X_4_BYTE_MASK )
 		match->has_wildcard = true;
@@ -842,6 +856,7 @@ inline of1x_match_t* __of1x_copy_match(of1x_match_t* match){
 
    		case OF1X_MATCH_MPLS_LABEL: return of1x_init_mpls_label_match(NULL,NULL,match->value->value.u32); 
    		case OF1X_MATCH_MPLS_TC: return of1x_init_mpls_tc_match(NULL,NULL,match->value->value.u8); 
+   		case OF1X_MATCH_MPLS_BOS: return of1x_init_mpls_bos_match(NULL,NULL,match->value->value.u8); 
 
    		case OF1X_MATCH_ARP_OP: return of1x_init_arp_opcode_match(NULL,NULL,match->value->value.u16);
    		case OF1X_MATCH_ARP_SHA: return of1x_init_arp_sha_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);
@@ -1024,6 +1039,15 @@ inline bool __of1x_check_match(const of1x_packet_matches_t* pkt, of1x_match_t* i
    		case OF1X_MATCH_VLAN_VID: return __utern_compare16(it->value,pkt->vlan_vid);
    		case OF1X_MATCH_VLAN_PCP: if(!pkt->vlan_vid) return false;
 					return __utern_compare8(it->value,pkt->vlan_pcp);
+
+		//MPLS
+   		case OF1X_MATCH_MPLS_LABEL: if(!(pkt->eth_type == OF1X_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF1X_ETH_TYPE_MPLS_MULTICAST )) return false;
+					return __utern_compare32(it->value,pkt->mpls_label);
+   		case OF1X_MATCH_MPLS_TC: if(!(pkt->eth_type == OF1X_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF1X_ETH_TYPE_MPLS_MULTICAST )) return false; 
+					return __utern_compare8(it->value,pkt->mpls_tc);
+   		case OF1X_MATCH_MPLS_BOS: if(!(pkt->eth_type == OF1X_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF1X_ETH_TYPE_MPLS_MULTICAST )) return false; 
+					return __utern_compare8(it->value,pkt->mpls_bos);
+	
 		//ARP
    		case OF1X_MATCH_ARP_OP: if(!(pkt->eth_type == OF1X_ETH_TYPE_ARP)) return false;
    					return __utern_compare16(it->value,pkt->arp_opcode);
@@ -1035,11 +1059,6 @@ inline bool __of1x_check_match(const of1x_packet_matches_t* pkt, of1x_match_t* i
    					return __utern_compare64(it->value,pkt->arp_tha);
    		case OF1X_MATCH_ARP_TPA: if(!(pkt->eth_type == OF1X_ETH_TYPE_ARP)) return false;
 					return __utern_compare32(it->value, pkt->arp_tpa);
-		//MPLS
-   		case OF1X_MATCH_MPLS_LABEL: if(!(pkt->eth_type == OF1X_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF1X_ETH_TYPE_MPLS_MULTICAST )) return false;
-					return __utern_compare32(it->value,pkt->mpls_label);
-   		case OF1X_MATCH_MPLS_TC: if(!(pkt->eth_type == OF1X_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF1X_ETH_TYPE_MPLS_MULTICAST )) return false; 
-					return __utern_compare8(it->value,pkt->mpls_tc);
 		//IP
    		case OF1X_MATCH_IP_PROTO: if(!(pkt->eth_type == OF1X_ETH_TYPE_IPV4 || pkt->eth_type == OF1X_ETH_TYPE_IPV6 || (pkt->eth_type == OF1X_ETH_TYPE_PPPOE_SESSION && (pkt->ppp_proto == OF1X_PPP_PROTO_IP4 || pkt->ppp_proto == OF1X_PPP_PROTO_IP6) ))) return false; 
 					return __utern_compare8(it->value,pkt->ip_proto);
@@ -1176,6 +1195,8 @@ void __of1x_dump_matches(of1x_match_t* matches){
 				break; 
 			case OF1X_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:%u], ",it->value->value.u8);
 				break; 
+			case OF1X_MATCH_MPLS_BOS:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_BOS:0x%x], ",it->value->value.u8);
+				break;
 
 			case OF1X_MATCH_ARP_OP: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_OPCODE:0x%x], ",it->value->value.u16);
 				break;

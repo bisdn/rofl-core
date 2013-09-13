@@ -9,6 +9,7 @@
 #include <string.h> 
 #include <stdbool.h>
 #include "rofl.h"
+#include "of1x_utils.h"
 #include "../../../common/ternary_fields.h"
 
 /**
@@ -69,22 +70,26 @@ struct datapacket;
 */
 typedef enum{
 	//No action. This MUST always exist and the value MUST be 0	
-	OF1X_AT_NO_ACTION		= 0, 	/* NO action/EMPTY action. */
+	OF1X_AT_NO_ACTION= 0,			/* NO action/EMPTY action. */
 
 	//Copy TTL inwards
 	OF1X_AT_COPY_TTL_IN,			/* Copy TTL "inwards" -- from outermost to next-to-outermost */
 
 	/*
-	*Pop: first VLAN, MPLS, PPPoE, PPP
+	* Pop: first VLAN, MPLS, PPPoE, PPP, PBB
 	*/
 	OF1X_AT_POP_VLAN,			/* Pop the outer VLAN tag */
 	OF1X_AT_POP_MPLS,			/* Pop the outer MPLS tag */
-	OF1X_AT_POP_PPPOE,			/* Pop the PPPoE tag */
+	OF1X_AT_POP_GTP,			/* Pop the GTP header */
+	OF1X_AT_POP_PPPOE,			/* Pop the PPPoE header */
+	OF1X_AT_POP_PBB,			/* Pop the PBB header */
 
 	/*
-	*Push: first PPP, PPPoE, MPLS, VLAN
+	* Push: first PBB, PPP, PPPoE, MPLS, VLAN
 	*/
-	OF1X_AT_PUSH_PPPOE,			/* Push a new PPPoE tag */
+	OF1X_AT_PUSH_PBB,			/* Push a new PBB header */
+	OF1X_AT_PUSH_PPPOE,			/* Push a new PPPoE header */
+	OF1X_AT_PUSH_GTP,			/* Push a new GTP header */
 	OF1X_AT_PUSH_MPLS,			/* Push a new MPLS tag */
 	OF1X_AT_PUSH_VLAN,			/* Push a new VLAN tag */
 
@@ -106,51 +111,71 @@ typedef enum{
 	OF1X_AT_SET_FIELD_ETH_DST,   		/* Ethernet destination address. */
 	OF1X_AT_SET_FIELD_ETH_SRC,   		/* Ethernet source address. */
 	OF1X_AT_SET_FIELD_ETH_TYPE,  		/* Ethernet frame type. */
+		
+	OF1X_AT_SET_FIELD_MPLS_LABEL,		/* MPLS label. */
+	OF1X_AT_SET_FIELD_MPLS_TC,   	   	/* MPLS TC. */
+	OF1X_AT_SET_FIELD_MPLS_BOS,   	   	/* MPLS BoS flag */
+
 	OF1X_AT_SET_FIELD_VLAN_VID,  		/* VLAN id. */
 	OF1X_AT_SET_FIELD_VLAN_PCP,  		/* VLAN priority. */
 	OF1X_AT_SET_FIELD_ARP_OPCODE,		/* ARP opcode */
+	
 	OF1X_AT_SET_FIELD_ARP_SHA,		/* ARP source hardware address */
 	OF1X_AT_SET_FIELD_ARP_SPA,		/* ARP source protocol address */
 	OF1X_AT_SET_FIELD_ARP_THA,		/* ARP target hardware address */
 	OF1X_AT_SET_FIELD_ARP_TPA,		/* ARP target protocol address */
+	
 	OF1X_AT_SET_FIELD_IP_DSCP,   		/* IP DSCP (6 bits in ToS field). */
 	OF1X_AT_SET_FIELD_IP_ECN,    		/* IP ECN (2 bits in ToS field). */
 	OF1X_AT_SET_FIELD_IP_PROTO,  		/* IP protocol. */
+	
 	OF1X_AT_SET_FIELD_IPV4_SRC,  		/* IPv4 source address. */
 	OF1X_AT_SET_FIELD_IPV4_DST,  		/* IPv4 destination address. */
-	OF1X_AT_SET_FIELD_IPV6_SRC,		/* IPv6 source address*/
-	OF1X_AT_SET_FIELD_IPV6_DST,		/* IPv6 destination address*/
-	OF1X_AT_SET_FIELD_IPV6_FLABEL,		/* IPv6 flow label*/
-	OF1X_AT_SET_FIELD_IPV6_ND_TARGET,	/* IPv6 Neighbour Discovery target*/
-	OF1X_AT_SET_FIELD_IPV6_ND_SLL,		/* IPv6 ND source link level*/
-	OF1X_AT_SET_FIELD_IPV6_ND_TLL,		/* IPv6 ND target link level*/
-	OF1X_AT_SET_FIELD_IPV6_EXTHDR,		/* IPv6 Extendion pseudo Header*/
+	OF1X_AT_SET_FIELD_IPV6_SRC,		/* IPv6 source address */
+	
+	OF1X_AT_SET_FIELD_IPV6_DST,		/* IPv6 destination address */
+	OF1X_AT_SET_FIELD_IPV6_FLABEL,		/* IPv6 flow label */
+	OF1X_AT_SET_FIELD_IPV6_ND_TARGET,	/* IPv6 Neighbour Discovery target */
+	OF1X_AT_SET_FIELD_IPV6_ND_SLL,		/* IPv6 ND source link level */
+	OF1X_AT_SET_FIELD_IPV6_ND_TLL,		/* IPv6 ND target link level */
+	OF1X_AT_SET_FIELD_IPV6_EXTHDR,		/* IPv6 Extension pseudo header */
+	
 	OF1X_AT_SET_FIELD_TCP_SRC,   		/* TCP source port. */
 	OF1X_AT_SET_FIELD_TCP_DST,   		/* TCP destination port. */
+	
 	OF1X_AT_SET_FIELD_UDP_SRC,   		/* UDP source port. */
 	OF1X_AT_SET_FIELD_UDP_DST,   		/* UDP destination port. */
+	
+	OF1X_AT_SET_FIELD_SCTP_SRC,   		/* SCTP source port. */
+	OF1X_AT_SET_FIELD_SCTP_DST,   		/* SCTP destination port. */
+	
+	/* OF10 only */
+	OF1X_AT_SET_FIELD_TP_SRC,		/* Trans. protocol (TCP/UDP) src port */
+	OF1X_AT_SET_FIELD_TP_DST,		/* Trans. protocol (TCP/UDP) dst port */
+	/* End of OF10 only */
+
 	OF1X_AT_SET_FIELD_ICMPV4_TYPE,		/* ICMP type. */
 	OF1X_AT_SET_FIELD_ICMPV4_CODE,		/* ICMP code. */
-	OF1X_AT_SET_FIELD_ICMPV6_TYPE,		/* ICMPv6 type*/
-	OF1X_AT_SET_FIELD_ICMPV6_CODE,		/* ICMPv6 code*/
 	
-	OF1X_AT_SET_FIELD_MPLS_LABEL,		/* MPLS label. */
-	OF1X_AT_SET_FIELD_MPLS_TC,   	   	/* MPLS TC. */
+	OF1X_AT_SET_FIELD_ICMPV6_TYPE,		/* ICMPv6 type */
+	OF1X_AT_SET_FIELD_ICMPV6_CODE,		/* ICMPv6 code */
+	
+	OF1X_AT_SET_FIELD_PBB_ISID,		/* PBB ISID field */
+	OF1X_AT_SET_FIELD_TUNNEL_ID,		/* Tunnel id */
+	
+	/*
+	* Extensions
+	*/
 
 	OF1X_AT_SET_FIELD_PPPOE_CODE,		/* PPPoE code */
 	OF1X_AT_SET_FIELD_PPPOE_TYPE,		/* PPPoE type */
 	OF1X_AT_SET_FIELD_PPPOE_SID, 	   	/* PPPoE session id */
 	OF1X_AT_SET_FIELD_PPP_PROT,  	   	/* PPP protocol */
     
-
 	OF1X_AT_SET_FIELD_GTP_MSG_TYPE,		/* GTP message type */
 	OF1X_AT_SET_FIELD_GTP_TEID,		/* GTP TEID */
 
 	/* Add more set fields here... */
-
-	/* OF10 only */
-	OF1X_AT_SET_FIELD_TP_SRC,		/* Trans. protocol (TCP/UDP) src port */
-	OF1X_AT_SET_FIELD_TP_DST,		/* Trans. protocol (TCP/UDP) dst port */
 
 	//Groups		
 	OF1X_AT_GROUP,				/* Apply group. */
@@ -158,12 +183,14 @@ typedef enum{
 	//Experimenter
 	OF1X_AT_EXPERIMENTER,	
 
-	OF1X_AT_OUTPUT			 	/* Output to switch port. */
+	OF1X_AT_OUTPUT,			 	/* Output to switch port. */
 }of1x_packet_action_type_t;
+
+#define OF1X_AT_NUMBER OF1X_AT_OUTPUT+1 
 
 /**
 * @ingroup core_of1x 
-* Actions enumeration for bitmap usage, in the order defined in OF12. This is ONLY
+* Actions enumeration for bitmap usage, in the order defined in OF12 and OF13, plus extensions. This is ONLY
 * used in the table capabilities bitmap to prevent overflow of the bitmap 
 */
 enum of12p_action_type {
@@ -181,15 +208,17 @@ enum of12p_action_type {
 	OF12PAT_SET_NW_TTL 	= 23, 	/* IP TTL. */
 	OF12PAT_DEC_NW_TTL 	= 24, 	/* Decrement IP TTL. */
 	OF12PAT_SET_FIELD 	= 25, 	/* Set a header field using OXM TLV format. */
-	OF12PAT_PUSH_PPPOE 	= 26,	/* Push a new PPPoE tag */
-	OF12PAT_POP_PPPOE 	= 27,	/* Pop the PPPoE tag */
-	OF12PAT_PUSH_PPP 	= 28,	/* Push a new PPP tag */
-	OF12PAT_POP_PPP 	= 29,	/* Pop the PPP tag */
-	OF12PAT_EXPERIMENTER	= 0xffff
+	OF12PAT_PUSH_PBB 	= 26, 	/* Push PBB service tag (I-TAG) */
+	OF12PAT_POP_PBB 	= 27, 	/* Pop PBB service tag (I-TAG) */
+
+	/* Extensions */
+	OF12PAT_PUSH_PPPOE,		/* Push a new PPPoE tag */
+	OF12PAT_POP_PPPOE,		/* Pop the PPPoE tag */
+	OF12PAT_PUSH_PPP,		/* Push a new PPP tag */
+	OF12PAT_POP_PPP,		/* Pop the PPP tag */
+	OF12PAT_EXPERIMENTER	= 0xFFFF
 };
 
-
-#define OF1X_AT_NUMBER OF1X_AT_OUTPUT+1 
 
 /**
 * @ingroup core_of1x 
@@ -233,7 +262,7 @@ typedef struct of1x_packet_action{
 	//Type and value(for set fields and push)
 	of1x_packet_action_type_t type;
 
-	/** @TODO substitute for a 128 value for IPv6 support */
+	//Field (set field)
 	wrap_uint_t field;
 
 	//group
@@ -242,6 +271,10 @@ typedef struct of1x_packet_action{
 	//DLL
 	struct of1x_packet_action* prev;
 	struct of1x_packet_action* next;
+
+	/* Fast validation flags */
+	//Bitmap of required OF versions
+	of1x_ver_req_t ver_req; 
 }of1x_packet_action_t;
 
 /**
@@ -260,6 +293,9 @@ typedef struct{
 	//Number of outputs in the action list
 	unsigned int num_of_output_actions;
 	
+	/* Fast validation flags */
+	//Bitmap of required OF versions
+	of1x_ver_req_t ver_req; 
 }of1x_action_group_t;
 
 /**
@@ -274,6 +310,9 @@ typedef struct{
 	unsigned int num_of_actions;
 	unsigned int num_of_output_actions;
 	
+	/* Fast validation flags */
+	//Bitmap of required OF versions
+	of1x_ver_req_t ver_req; 
 }of1x_write_actions_t;
 
 //Fwd declaration

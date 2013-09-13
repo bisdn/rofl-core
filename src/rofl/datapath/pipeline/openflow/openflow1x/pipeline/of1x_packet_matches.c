@@ -66,6 +66,7 @@ void __of1x_update_packet_matches(datapacket_t *const pkt){
 	//MPLS-outermost label 
 	matches->mpls_label = platform_packet_get_mpls_label(pkt);
 	matches->mpls_tc = platform_packet_get_mpls_tc(pkt);
+	matches->mpls_tc = platform_packet_get_mpls_bos(pkt);
 
 	//PPPoE related extensions
 	matches->pppoe_code = platform_packet_get_pppoe_code(pkt);
@@ -211,7 +212,7 @@ void of1x_dump_packet_matches(of_packet_matches_t *const pkt_matches){
 	
 	//MPLS	
    	if(pkt->eth_type == OF1X_ETH_TYPE_MPLS_UNICAST || pkt->eth_type == OF1X_ETH_TYPE_MPLS_MULTICAST )
-		ROFL_PIPELINE_DEBUG_NO_PREFIX("MPLS_LABEL:0x%x, MPLS_TC:0x%x, ",pkt->mpls_label, pkt->mpls_tc);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("MPLS_LABEL:0x%x, MPLS_TC:0x%x, MPLS_BOS:%u",pkt->mpls_label, pkt->mpls_tc, pkt->mpls_bos);
 	//PPPoE
 	if(pkt->eth_type == OF1X_ETH_TYPE_PPPOE_DISCOVERY || pkt->eth_type == OF1X_ETH_TYPE_PPPOE_SESSION ){
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("PPPOE_CODE:0x%x, PPPOE_TYPE:0x%x, PPPOE_SID:0x%x, ",pkt->pppoe_code, pkt->pppoe_type,pkt->pppoe_sid);

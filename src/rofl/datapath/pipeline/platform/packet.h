@@ -61,8 +61,14 @@ void platform_packet_pop_mpls(datapacket_t* pkt, uint16_t ether_type);
 */
 void platform_packet_pop_pppoe(datapacket_t* pkt, uint16_t ether_type);
 
+void platform_packet_pop_pbb(datapacket_t* pkt, uint16_t ether_type);
+void platform_packet_pop_gtp(datapacket_t* pkt);
+
 /* PUSH */
+void platform_packet_push_gtp(datapacket_t* pkt);
 void platform_packet_push_pppoe(datapacket_t* pkt, uint16_t ether_type);
+void platform_packet_push_pppoe(datapacket_t* pkt, uint16_t ether_type);
+void platform_packet_push_pbb(datapacket_t* pkt, uint16_t ether_type);
 void platform_packet_push_mpls(datapacket_t* pkt, uint16_t ether_type);
 void platform_packet_push_vlan(datapacket_t* pkt, uint16_t ether_type);
 
@@ -112,6 +118,11 @@ void platform_packet_set_tcp_dst(datapacket_t* pkt, uint16_t tcp_dst);
 void platform_packet_set_udp_src(datapacket_t* pkt, uint16_t udp_src);
 void platform_packet_set_udp_dst(datapacket_t* pkt, uint16_t udp_dst);
 
+//SCTP
+void platform_packet_set_sctp_src(datapacket_t* pkt, uint16_t sctp_src);
+void platform_packet_set_sctp_dst(datapacket_t* pkt, uint16_t sctp_dst);
+
+
 
 //ICMPV4
 void platform_packet_set_icmpv4_type(datapacket_t* pkt, uint8_t type);
@@ -120,14 +131,7 @@ void platform_packet_set_icmpv4_code(datapacket_t* pkt, uint8_t code);
 //MPLS
 void platform_packet_set_mpls_label(datapacket_t* pkt, uint32_t label);
 void platform_packet_set_mpls_tc(datapacket_t* pkt, uint8_t tc);
-
-//PPPOE
-void platform_packet_set_pppoe_type(datapacket_t* pkt, uint8_t type);
-void platform_packet_set_pppoe_code(datapacket_t* pkt, uint8_t code);
-void platform_packet_set_pppoe_sid(datapacket_t* pkt, uint16_t sid);
-
-//PPP
-void platform_packet_set_ppp_proto(datapacket_t* pkt, uint16_t proto);
+void platform_packet_set_mpls_bos(datapacket_t* pkt, bool bos);
 
 //IPv6
 void platform_packet_set_ipv6_src(datapacket_t*pkt, uint128__t ipv6_src);
@@ -142,8 +146,27 @@ void platform_packet_set_ipv6_exthdr(datapacket_t*pkt, uint16_t ipv6_exthdr);
 void platform_packet_set_icmpv6_type(datapacket_t*pkt, uint8_t icmpv6_type);
 void platform_packet_set_icmpv6_code(datapacket_t*pkt, uint8_t icmpv6_code);
 
+//PBB
+void platform_packet_set_pbb_isid(datapacket_t*pkt, uint32_t pbb_isid);
+
+//Tunnel id
+void platform_packet_set_tunnel_id(datapacket_t*pkt, uint64_t tunnel_id);
+
+/*
+* Extensions
+*/
+
+//PPPOE
+void platform_packet_set_pppoe_type(datapacket_t* pkt, uint8_t type);
+void platform_packet_set_pppoe_code(datapacket_t* pkt, uint8_t code);
+void platform_packet_set_pppoe_sid(datapacket_t* pkt, uint16_t sid);
+
+//PPP
+void platform_packet_set_ppp_proto(datapacket_t* pkt, uint16_t proto);
+
 //GTP
 void platform_packet_set_gtp_msg_type(datapacket_t* pkt, uint8_t msg_type);
+void platform_packet_set_gtp_teid(datapacket_t* pkt, uint32_t teid);
 void platform_packet_set_gtp_teid(datapacket_t* pkt, uint32_t teid);
 
 /**
@@ -229,6 +252,7 @@ uint8_t platform_packet_get_icmpv4_code(datapacket_t *const pkt);
 //MPLS-outermost label 
 uint32_t platform_packet_get_mpls_label(datapacket_t *const pkt);
 uint8_t platform_packet_get_mpls_tc(datapacket_t *const pkt);
+bool platform_packet_get_mpls_bos(datapacket_t *const pkt);
 
 //PPPoE related extensions
 uint8_t platform_packet_get_pppoe_code(datapacket_t *const pkt);

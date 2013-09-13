@@ -25,6 +25,7 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 
 	if(!type)
 		return NULL;
+
 	action = platform_malloc_shared(sizeof(of1x_packet_action_t));
 
 	if(!action)
@@ -33,62 +34,186 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 	//Set type
 	action->type = type;
 
+	//Set min max 
+	action->ver_req.min_ver = OF1X_MIN_VERSION;
+	action->ver_req.max_ver = OF1X_MAX_VERSION;
+
 	/*
-	* Set field
+	* Setting the field (for set_field actions) and fast validation flags
 	*/
 	switch(type){
+		//16 byte
+		case OF1X_AT_SET_FIELD_IPV6_ND_TARGET:
+		case OF1X_AT_SET_FIELD_IPV6_SRC:
+		case OF1X_AT_SET_FIELD_IPV6_DST:
+			action->field.u128 = field.u128;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+
 		//8 byte values (TODO: METADATA)
+		case OF1X_AT_SET_FIELD_TUNNEL_ID:
+			action->field.u64 = field.u64&OF1X_8_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_13;
+			break;
+
 		//6 byte values
 		case OF1X_AT_SET_FIELD_IPV6_ND_SLL:
+			action->field.u64 = field.u64&OF1X_6_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
 		case OF1X_AT_SET_FIELD_IPV6_ND_TLL:
+			action->field.u64 = field.u64&OF1X_6_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
 		case OF1X_AT_SET_FIELD_ETH_DST:
+			action->field.u64 = field.u64&OF1X_6_BYTE_MASK;
+			break;
 		case OF1X_AT_SET_FIELD_ETH_SRC:
+			action->field.u64 = field.u64&OF1X_6_BYTE_MASK;
+			break;
 		case OF1X_AT_SET_FIELD_ARP_SHA:
+			action->field.u64 = field.u64&OF1X_6_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
 		case OF1X_AT_SET_FIELD_ARP_THA:
 			action->field.u64 = field.u64&OF1X_6_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 	
 		//4 byte values
 		case OF1X_AT_SET_FIELD_IPV4_DST:
+			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
+			break;
 		case OF1X_AT_SET_FIELD_IPV4_SRC:
+			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
+			break;
 		case OF1X_AT_SET_FIELD_ARP_SPA:
+			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
 		case OF1X_AT_SET_FIELD_ARP_TPA:
+			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
 		case OF1X_AT_OUTPUT:
-		case OF1X_AT_SET_FIELD_GTP_TEID:
 			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;	// TODO: max_len when port_no == OFPP_CONTROLLER
 			break;
+		case OF1X_AT_SET_FIELD_GTP_TEID:
+			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+
+		//3 byte
+		case OF1X_AT_SET_FIELD_PBB_ISID:
+			action->field.u64 = field.u64&OF1X_3_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_13;
+			break;
+	
 		//20 bit values
 		case OF1X_AT_SET_FIELD_IPV6_FLABEL:
+			action->field.u64 = field.u64&OF1X_20_BITS_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
 		case OF1X_AT_SET_FIELD_MPLS_LABEL:
 			action->field.u64 = field.u64&OF1X_20_BITS_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
 			break;
+
 		//2 byte values
 		case OF1X_AT_SET_FIELD_ETH_TYPE:
-		case OF1X_AT_SET_FIELD_ARP_OPCODE:
-		case OF1X_AT_SET_FIELD_TP_SRC:
-		case OF1X_AT_SET_FIELD_TP_DST:
-		case OF1X_AT_SET_FIELD_TCP_SRC:
-		case OF1X_AT_SET_FIELD_TCP_DST:
-		case OF1X_AT_SET_FIELD_UDP_SRC:
-		case OF1X_AT_SET_FIELD_UDP_DST:
-		case OF1X_AT_SET_FIELD_PPPOE_SID:
-		case OF1X_AT_SET_FIELD_PPP_PROT:
-		/*case OF1X_AT_POP_VLAN: TODO: CHECK THIS*/
-		case OF1X_AT_POP_MPLS: 
-		case OF1X_AT_POP_PPPOE: 
-		case OF1X_AT_PUSH_PPPOE:
-		case OF1X_AT_PUSH_MPLS: 
-		case OF1X_AT_PUSH_VLAN: 
 			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
 			break;
-		//9 bit value
-		case OF1X_AT_SET_FIELD_IPV6_EXTHDR:
-			action->field.u64 = field.u64&OF1X_9_BITS_MASK;
+		case OF1X_AT_SET_FIELD_ARP_OPCODE:
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
 			break;
+		case OF1X_AT_SET_FIELD_TP_SRC:
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_10;
+			action->ver_req.max_ver = OF_VERSION_10;
+			break;
+		case OF1X_AT_SET_FIELD_TP_DST:
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_10;
+			action->ver_req.max_ver = OF_VERSION_10;
+			break;
+		case OF1X_AT_SET_FIELD_TCP_SRC:
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_SET_FIELD_TCP_DST:
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_SET_FIELD_UDP_SRC:
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_SET_FIELD_UDP_DST:
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_SET_FIELD_SCTP_SRC:
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_SET_FIELD_SCTP_DST:
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_SET_FIELD_PPPOE_SID:
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_SET_FIELD_PPP_PROT:
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		/*case OF1X_AT_POP_VLAN: TODO: CHECK THIS*/
+		case OF1X_AT_POP_MPLS: 
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_POP_PPPOE: 
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_POP_PBB: 
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_13;
+			break;
+
+		case OF1X_AT_PUSH_PPPOE:
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_PUSH_MPLS: 
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_PUSH_VLAN: 
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		case OF1X_AT_PUSH_PBB: 
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_13;
+			break;
+
+
 		//13 bit values
 		case OF1X_AT_SET_FIELD_VLAN_VID:
 			action->field.u64 = field.u64&OF1X_13_BITS_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
 			break;
+
+
+		//9 bit value
+		case OF1X_AT_SET_FIELD_IPV6_EXTHDR:
+			action->field.u64 = field.u64&OF1X_9_BITS_MASK;
+			action->ver_req.min_ver = OF_VERSION_13;
+			break;
+
 		//1 byte values
 		case OF1X_AT_SET_FIELD_ICMPV6_TYPE:
 		case OF1X_AT_SET_FIELD_ICMPV6_CODE:
@@ -100,33 +225,57 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:
 		case OF1X_AT_SET_FIELD_ICMPV4_CODE:
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
+		case OF1X_AT_SET_QUEUE:
 			action->field.u64 = field.u64&OF1X_1_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
 			break;
+
 		//6 bit values
 		case OF1X_AT_SET_FIELD_IP_DSCP:
 			action->field.u64 = field.u64&OF1X_6_BITS_MASK;
 			break;
+
 		//3 bit values
 		case OF1X_AT_SET_FIELD_VLAN_PCP:
 		case OF1X_AT_SET_FIELD_MPLS_TC:
 			action->field.u64 = field.u64&OF1X_3_BITS_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
 			break;
+
 		//2 bit values
 		case OF1X_AT_SET_FIELD_IP_ECN:
 			action->field.u64 = field.u64&OF1X_2_BITS_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_GROUP:
 			action->field.u64 =  field.u64&OF1X_4_BYTE_MASK; //id of the group
+			action->ver_req.min_ver = OF_VERSION_12;
 			//action->group = of1x_group_search(sw->pipeline->groups, action->field); // pointer to the group //FIXME evaluate if this can be done here or not
 			break;
-		case OF1X_AT_SET_FIELD_IPV6_ND_TARGET:
-		case OF1X_AT_SET_FIELD_IPV6_SRC:
-		case OF1X_AT_SET_FIELD_IPV6_DST:
-			action->field.u128 = field.u128;
+
+		//1 bit values
+		case OF1X_AT_SET_FIELD_MPLS_BOS:
+			action->field.u64 =  field.u64&OF1X_1_BIT_MASK; //id of the group
+			action->ver_req.min_ver = OF_VERSION_13;
 			break;
-		//case OF1X_AT_SET_QUEUE: TODO
-		default:
-			memset(&field.u128,0,sizeof(uint128__t));
+
+		//No value
+		case OF1X_AT_COPY_TTL_IN:
+		case OF1X_AT_COPY_TTL_OUT:
+		case OF1X_AT_DEC_NW_TTL:
+		case OF1X_AT_DEC_MPLS_TTL:
+		case OF1X_AT_POP_VLAN:
+		case OF1X_AT_POP_GTP:
+		case OF1X_AT_PUSH_GTP:
+		case OF1X_AT_EXPERIMENTER:
+			action->field.u64 = 0x0;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+		
+		//Shall never happen
+		case OF1X_AT_NO_ACTION: 
+			assert(0);
+			action->field.u64 = 0x0;
 			break;
 	}
 	
@@ -279,7 +428,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 	of1x_packet_matches_t* pkt_matches = &pkt->matches.of1x;
 
 	switch(action->type){
-		case OF1X_AT_NO_ACTION: /*TODO: print some error traces? */
+		case OF1X_AT_NO_ACTION: assert(0);
 			break;
 
 		case OF1X_AT_COPY_TTL_IN: platform_packet_copy_ttl_in(pkt);
@@ -311,21 +460,21 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 		//PUSH
 		case OF1X_AT_PUSH_PPPOE:
 			//Call platform
-			platform_packet_push_pppoe(pkt, action->field.u64);
+			platform_packet_push_pppoe(pkt, action->field.u16);
 			//Update match
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 		case OF1X_AT_PUSH_MPLS:
 			//Call platform
-			platform_packet_push_mpls(pkt, action->field.u64);
+			platform_packet_push_mpls(pkt, action->field.u16);
 			//Update match
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 		case OF1X_AT_PUSH_VLAN:
 			//Call platform
-			platform_packet_push_vlan(pkt, action->field.u64);
+			platform_packet_push_vlan(pkt, action->field.u16);
 			//Update match
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
@@ -465,10 +614,30 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 
 		//TP
 		case OF1X_AT_SET_FIELD_TP_SRC:  
-			//FIXME
+			if((pkt_matches->ip_proto == OF1X_IP_PROTO_TCP)){
+				//Call platform
+				platform_packet_set_tcp_src(pkt, action->field.u64);
+				//Update match
+				pkt_matches->tcp_src = action->field.u64;
+			}else if((pkt_matches->ip_proto == OF1X_IP_PROTO_UDP)){
+				//Call platform
+				platform_packet_set_udp_src(pkt, action->field.u64);
+				//Update match
+				pkt_matches->udp_src = action->field.u64;
+			}
 			break;
 		case OF1X_AT_SET_FIELD_TP_DST:
-			//FIXME
+			if((pkt_matches->ip_proto == OF1X_IP_PROTO_TCP)){
+				//Call platform
+				platform_packet_set_tcp_dst(pkt, action->field.u64);
+				//Update match
+				pkt_matches->tcp_dst = action->field.u64;
+			}else if((pkt_matches->ip_proto == OF1X_IP_PROTO_UDP)){
+				//Call platform
+				platform_packet_set_udp_dst(pkt, action->field.u64);
+				//Update match
+				pkt_matches->udp_dst = action->field.u64;
+			}
 			break;
 
 		//TCP
@@ -498,6 +667,20 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Update match
 			pkt_matches->udp_dst = action->field.u64;
 			break;
+		//SCTP
+		case OF1X_AT_SET_FIELD_SCTP_SRC:
+			//Call platform
+			platform_packet_set_sctp_src(pkt, action->field.u64);
+			//Update match
+			pkt_matches->sctp_src = action->field.u64;
+			break;
+		case OF1X_AT_SET_FIELD_SCTP_DST:
+			//Call platform
+			platform_packet_set_sctp_dst(pkt, action->field.u64);
+			//Update match
+			pkt_matches->sctp_dst = action->field.u64;
+			break;
+
 
 		//ICMPv4
 		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:
@@ -526,6 +709,13 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Update match
 			pkt_matches->mpls_tc = action->field.u64;
 			break;
+		case OF1X_AT_SET_FIELD_MPLS_BOS:
+			//Call platform
+			platform_packet_set_mpls_bos(pkt, action->field.u64);
+			//Update match
+			pkt_matches->mpls_bos = action->field.u64;
+			break;
+
 
 		//PPPoE
 		case OF1X_AT_SET_FIELD_PPPOE_CODE:
@@ -612,7 +802,6 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Update match
 			pkt_matches->icmpv6_code = action->field.u64;
 			break;
-
 		//GTP
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
 			//Call platform
@@ -626,11 +815,55 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Update match
 			pkt_matches->gtp_teid = action->field.u64;
 			break;
+		case OF1X_AT_POP_GTP: 
+			//Call platform
+			platform_packet_pop_gtp(pkt);
+			//Update match
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			break;
+		case OF1X_AT_PUSH_GTP: 
+			//Call platform
+			platform_packet_push_gtp(pkt);
+			//Update match
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			break;
+
+		//PBB
+		case OF1X_AT_SET_FIELD_PBB_ISID:
+			//Call platform
+			platform_packet_set_pbb_isid(pkt, action->field.u32);
+			//Update match
+			pkt_matches->pbb_isid = action->field.u32;
+			break;
+		case OF1X_AT_POP_PBB: 
+			//Call platform
+			platform_packet_pop_pbb(pkt, action->field.u16);
+			//Update match
+			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			break;
+		case OF1X_AT_PUSH_PBB: 
+			//Call platform
+			platform_packet_push_pbb(pkt, action->field.u16);
+			//Update match
+			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			break;
+
+		//TUNNEL ID
+		case OF1X_AT_SET_FIELD_TUNNEL_ID:
+			//Call platform
+			platform_packet_set_tunnel_id(pkt, action->field.u64);
+			//Update match
+			pkt_matches->tunnel_id = action->field.u64;
+			break;
 
 		case OF1X_AT_GROUP: __of1x_process_group_actions(sw, table_id, pkt, action->field.u64, action->group, replicate_pkts);
 			break;
+
 		case OF1X_AT_EXPERIMENTER: //FIXME: implement
 			break;
+
 		case OF1X_AT_OUTPUT: 
 			
 			if(action->field.u64 < OF1X_PORT_MAX || 
@@ -966,11 +1199,9 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 		case OF1X_AT_SET_FIELD_IPV4_DST:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV4_DST: 0x%x",action.field.u64);
 			break;
 
-		case OF1X_AT_SET_FIELD_TP_SRC:  
-			//FIXME
+		case OF1X_AT_SET_FIELD_TP_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TP_SRC: %u",action.field.u64);
 			break;
-		case OF1X_AT_SET_FIELD_TP_DST:
-			//FIXME
+		case OF1X_AT_SET_FIELD_TP_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TP_DST: %u",action.field.u64);
 			break;
 		case OF1X_AT_SET_FIELD_TCP_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TCP_SRC: %u",action.field.u64);
 			break;
@@ -981,6 +1212,10 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 			break;
 		case OF1X_AT_SET_FIELD_UDP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_UDP_DST: %u",action.field.u64);
 			break;
+		case OF1X_AT_SET_FIELD_SCTP_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_SCTP_SRC: %u",action.field.u64);
+			break;
+		case OF1X_AT_SET_FIELD_SCTP_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_SCTP_DST: %u",action.field.u64);
+			break;
 
 		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ICMPV4_TYPE: 0x%x",action.field.u64);
 			break;
@@ -990,6 +1225,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 		case OF1X_AT_SET_FIELD_MPLS_LABEL:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_MPLS_LABEL: 0x%x",action.field.u64);
 			break;
 		case OF1X_AT_SET_FIELD_MPLS_TC:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_MPLS_TC: 0x%x",action.field.u64);
+		case OF1X_AT_SET_FIELD_MPLS_BOS:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_MPLS_BOS: 0x%x",action.field.u64);
 			break;
 
 		case OF1X_AT_SET_FIELD_PPPOE_CODE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_PPPOE_CODE: 0x%x",action.field.u64);
@@ -1020,6 +1256,14 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 		case OF1X_AT_SET_FIELD_ICMPV6_TYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ICMPV6_TYPE: 0x%u",action.field.u64);
 			break;
 		case OF1X_AT_SET_FIELD_ICMPV6_CODE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ICMPV6_CODE: 0x%u",action.field.u64);
+		
+		case OF1X_AT_POP_PBB:ROFL_PIPELINE_DEBUG_NO_PREFIX("POP_PBB");
+			break;
+		case OF1X_AT_PUSH_PBB:ROFL_PIPELINE_DEBUG_NO_PREFIX("PUSH_PBB");
+			break;
+		case OF1X_AT_SET_FIELD_PBB_ISID:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_PBB_ISID: 0x%u",action.field.u64);
+			break;
+		case OF1X_AT_SET_FIELD_TUNNEL_ID:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TUNNEL_ID: 0x%u",action.field.u64);
 			break;
 		
 
@@ -1027,6 +1271,11 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 			break;
 		case OF1X_AT_SET_FIELD_GTP_TEID:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_GTP_TEID: 0x%x",action.field);
 			break;
+		case OF1X_AT_POP_GTP:ROFL_PIPELINE_DEBUG_NO_PREFIX("POP_GTP");
+			break;
+		case OF1X_AT_PUSH_GTP:ROFL_PIPELINE_DEBUG_NO_PREFIX("PUSH_GTP");
+			break;
+
 
 		case OF1X_AT_GROUP:ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP");
 			break;
