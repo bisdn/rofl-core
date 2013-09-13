@@ -308,7 +308,6 @@ void of1x_dump_flow_entry(of1x_flow_entry_t* entry){
  */
 rofl_result_t __of1x_validate_flow_entry( of1x_flow_entry_t* entry, of1x_pipeline_t* pipeline){
 
-	of1x_group_table_t *gt = pipeline->groups;
 	of_version_t version = pipeline->sw->of_ver;
 
 	//Validate matches
@@ -317,12 +316,8 @@ rofl_result_t __of1x_validate_flow_entry( of1x_flow_entry_t* entry, of1x_pipelin
 		(version > entry->matches.ver_req.max_ver) )
 			return ROFL_FAILURE;
 		
-	//Validate actions
-	//FIXME	
-	//Validate instructions
-	//FIXME
-	
-	if(__of1x_validate_instructions(gt,&entry->inst_grp)!=ROFL_SUCCESS)
+	//Validate instructions (and actions)
+	if(__of1x_validate_instructions(&entry->inst_grp, pipeline)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;
 	
 	return ROFL_SUCCESS;

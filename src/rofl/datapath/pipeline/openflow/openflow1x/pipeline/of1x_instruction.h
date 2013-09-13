@@ -64,6 +64,7 @@ typedef enum {
 
     OF1X_IT_EXPERIMENTER	= 5,		/* Experimenter instruction */
     OF1X_IT_GOTO_TABLE		= 6,		/* Setup the next table in the lookup pipeline */
+    OF1X_IT_METER		= 7,		/* Meters */
 }of1x_instruction_type_t;
 
 /* Instruction abstraction data structure */
@@ -86,7 +87,7 @@ typedef struct of1x_instruction_group{
 	//Number of actions in the list
 	unsigned int num_of_instructions;
 
-	of1x_instruction_t instructions[OF1X_IT_GOTO_TABLE]; //Latest must ALWAYS be go to table
+	of1x_instruction_t instructions[OF1X_IT_METER]; //Latest must ALWAYS be METER 
 	
 	//Flag indicating that there are multiple 
 	//outputs in several instructions/in an apply 
@@ -97,6 +98,7 @@ typedef struct of1x_instruction_group{
 
 //Fwd declaration
 struct of1x_switch;
+struct of1x_pipeline;
 struct of1x_flow_entry;
 struct of1x_group_table;
 
@@ -145,7 +147,7 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 
 bool __of1x_instruction_has(of1x_instruction_group_t *inst_grp, of1x_packet_action_type_t type, uint64_t value);
 
-rofl_result_t __of1x_validate_instructions(struct of1x_group_table *gt, of1x_instruction_group_t* inst_grp);
+rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, struct of1x_pipeline* pipeline);
 
 //Dump
 void __of1x_dump_instructions(of1x_instruction_group_t group);

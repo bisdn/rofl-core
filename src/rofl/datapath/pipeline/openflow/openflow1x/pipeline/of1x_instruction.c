@@ -1,7 +1,10 @@
 #include "of1x_instruction.h"
+#include "of1x_pipeline.h"
+#include "../of1x_switch.h"
 #include "of1x_flow_entry.h"
 #include "of1x_group_table.h"
 
+#include <assert.h> 
 #include "../../../util/logging.h"
 
 /* Instructions init and destroyers */ 
@@ -74,10 +77,10 @@ void of1x_add_instruction_to_group(of1x_instruction_group_t* group, of1x_instruc
 	if(group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)].apply_actions)
 		num_of_outputs += group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)].apply_actions->num_of_output_actions;
 	
-	if(group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions && group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions->write_actions[OF1X_AT_OUTPUT].type != OF1X_AT_NO_ACTION)
-		num_of_outputs++;
-	//if(group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions && group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions->write_actions[OF1X_AT_GROUP].type != OF1X_AT_NO_ACTION)
-		//num_of_outputs+=group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions->write_actions[OF1X_AT_GROUP].group->num_of_output_actions;
+	//if(group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions && group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions->write_actions[OF1X_AT_OUTPUT].type != OF1X_AT_NO_ACTION)
+	//	num_of_outputs++;
+	if(group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions && group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions->write_actions[OF1X_AT_GROUP].type != OF1X_AT_NO_ACTION)
+		num_of_outputs+=group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions->write_actions[OF1X_AT_GROUP].group->num_of_output_actions;
 
 	//Assign flag
 	group->has_multiple_outputs =  (num_of_outputs > 1); 
@@ -220,8 +223,12 @@ void __of1x_dump_instructions(of1x_instruction_group_t group){
     			case OF1X_IT_GOTO_TABLE:  
 					ROFL_PIPELINE_INFO_NO_PREFIX(" GOTO(%u), ",group.instructions[i].go_to_table);
 					break;
+    			
+			case OF1X_IT_METER:  //TODO implement
+				assert(0);
+				break;
 				
-			default: //Empty instruction 
+			case OF1X_IT_NO_INSTRUCTION: //Empty instruction
 				break;
 		}
 	}
@@ -242,8 +249,10 @@ bool __of1x_instruction_has(of1x_instruction_group_t *inst_grp, of1x_packet_acti
 		__of1x_apply_actions_has(inst_grp->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)].apply_actions, type, value) );
 }
 
-rofl_result_t __of1x_validate_instructions(of1x_group_table_t *gt, of1x_instruction_group_t* inst_grp){
+rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, of1x_pipeline_t* pipeline){
 	int i, num_of_output_actions=0;
+	of1x_group_table_t *gt = pipeline->groups;
+	of_version_t version = pipeline->sw->of_ver;
 	
 	//if there is a group action we should check that the group exists
 	for(i=0;i<OF1X_IT_GOTO_TABLE;i++){
@@ -256,17 +265,42 @@ rofl_result_t __of1x_validate_instructions(of1x_group_table_t *gt, of1x_instruct
 				if(__of1x_validate_action_group(inst_grp->instructions[i].apply_actions, gt)!=true)
 					return ROFL_FAILURE;
 				num_of_output_actions+=inst_grp->instructions[i].apply_actions->num_of_output_actions;
+				if( (version < inst_grp->instructions[i].apply_actions->ver_req.min_ver) ||
+			        	(version > inst_grp->instructions[i].apply_actions->ver_req.max_ver) )
+					return ROFL_FAILURE;
+	
 				break;
 				
 			case OF1X_IT_WRITE_ACTIONS:
+				//Fast check WRITE actions supported from 1.2
+				if( (version < OF_VERSION_12))	
+					return ROFL_FAILURE;
+
 				if(__of1x_validate_write_actions(inst_grp->instructions[i].write_actions, gt)!=true)
 					return ROFL_FAILURE;
 				num_of_output_actions+=inst_grp->instructions[i].write_actions->num_of_output_actions;
+				if( (version < inst_grp->instructions[i].write_actions->ver_req.min_ver) ||
+			        	(version > inst_grp->instructions[i].write_actions->ver_req.max_ver) )
+					return ROFL_FAILURE;
+	
+				break;
+			
+			case OF1X_IT_WRITE_METADATA:
+			case OF1X_IT_GOTO_TABLE:
+			case OF1X_IT_CLEAR_ACTIONS:
+			case OF1X_IT_EXPERIMENTER:
+				//Fast check WRITE actions supported from 1.2
+				if( (version < OF_VERSION_12))	
+					return ROFL_FAILURE;
+
+				break;
+			case OF1X_IT_METER:
+				//Fast check WRITE actions supported from 1.3
+				if( (version < OF_VERSION_13))	
+					return ROFL_FAILURE;
+
 				break;
 				
-			default:
-				continue;
-				break;
 		}
 	}
 	

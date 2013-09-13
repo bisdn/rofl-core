@@ -364,9 +364,15 @@ void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_ac
 	if(action->type == OF1X_AT_OUTPUT)
 		group->num_of_output_actions++;
 	
-	//if(action->type == OF1X_AT_GROUP)
-		//group->num_of_output_actions+=action->group->num_of_output_actions;
-	
+	if(action->type == OF1X_AT_GROUP)
+		group->num_of_output_actions+=action->group->num_of_output_actions;
+
+	//Update fast validation flags (required versions)
+	if(group->ver_req.min_ver < action->ver_req.min_ver)
+		group->ver_req.min_ver = action->ver_req.min_ver;
+	if(group->ver_req.max_ver > action->ver_req.max_ver)
+		group->ver_req.max_ver = action->ver_req.max_ver;
+
 }
 
 /* Write actions init */
@@ -395,6 +401,17 @@ void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions
 	
 	if (action->type == OF1X_AT_OUTPUT)
 		write_actions->num_of_output_actions++;
+
+	if(action->type == OF1X_AT_GROUP)
+		write_actions->num_of_output_actions+=action->group->num_of_output_actions;
+	
+	//Update fast validation flags (required versions)
+	if(write_actions->ver_req.min_ver < action->ver_req.min_ver)
+		write_actions->ver_req.min_ver = action->ver_req.min_ver;
+	if(write_actions->ver_req.max_ver > action->ver_req.max_ver)
+		write_actions->ver_req.max_ver = action->ver_req.max_ver;
+
+
 }
 
 //Update of write actions
