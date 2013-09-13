@@ -46,7 +46,7 @@ void __of1x_destroy_instruction_group(of1x_instruction_group_t* group){
 
 	unsigned int i;	
 
-	for(i=0;i<OF1X_IT_GOTO_TABLE;i++)
+	for(i=0;i<OF1X_IT_MAX;i++)
 		__of1x_destroy_instruction(&group->instructions[i]);
 	
 	group->num_of_instructions=0;
@@ -133,7 +133,7 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 
 	unsigned int i;
 
-	for(i=0;i<OF1X_IT_GOTO_TABLE;i++){
+	for(i=0;i<OF1X_IT_MAX;i++){
 	
 		//Check all instructions in order 
 		switch(instructions->instructions[i].type){
@@ -163,7 +163,7 @@ void __of1x_copy_instruction_group(of1x_instruction_group_t* origin, of1x_instru
 	
 	unsigned int i;
 	
-	for(i=0;i<OF1X_IT_GOTO_TABLE;i++){
+	for(i=0;i<OF1X_IT_MAX;i++){
 		
 		//Check all instructions in order 
 		switch(origin->instructions[i].type){
@@ -199,7 +199,7 @@ void __of1x_dump_instructions(of1x_instruction_group_t group){
 
 	ROFL_PIPELINE_INFO_NO_PREFIX("Inst->> ");
 
-	for(i=0;i<OF1X_IT_GOTO_TABLE;i++){
+	for(i=0;i<OF1X_IT_MAX;i++){
 
 		//Check all instructions in order 
 		switch(group.instructions[i].type){
@@ -255,7 +255,7 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 	of_version_t version = pipeline->sw->of_ver;
 	
 	//if there is a group action we should check that the group exists
-	for(i=0;i<OF1X_IT_GOTO_TABLE;i++){
+	for(i=0;i<OF1X_IT_MAX;i++){
 		switch(inst_grp->instructions[i].type){
 			case OF1X_IT_NO_INSTRUCTION:
 				continue;

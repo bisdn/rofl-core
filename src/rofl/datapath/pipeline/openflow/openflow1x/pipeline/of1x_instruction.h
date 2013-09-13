@@ -67,6 +67,8 @@ typedef enum {
     OF1X_IT_METER		= 7,		/* Meters */
 }of1x_instruction_type_t;
 
+#define OF1X_IT_MAX OF1X_IT_METER
+
 /* Instruction abstraction data structure */
 typedef struct of1x_instruction{
 	//Type and value(for set fields and push)
@@ -87,7 +89,7 @@ typedef struct of1x_instruction_group{
 	//Number of actions in the list
 	unsigned int num_of_instructions;
 
-	of1x_instruction_t instructions[OF1X_IT_METER]; //Latest must ALWAYS be METER 
+	of1x_instruction_t instructions[OF1X_IT_MAX]; //Latest must ALWAYS be MAX
 	
 	//Flag indicating that there are multiple 
 	//outputs in several instructions/in an apply 

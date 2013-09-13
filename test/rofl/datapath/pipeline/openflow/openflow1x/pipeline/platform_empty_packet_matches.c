@@ -69,6 +69,12 @@ uint16_t platform_packet_get_udp_dst(datapacket_t *const pkt){
 uint16_t platform_packet_get_udp_src(datapacket_t *const pkt){
 	return 0;
 }
+uint16_t platform_packet_get_sctp_dst(datapacket_t *const pkt){
+	return 0;
+}
+uint16_t platform_packet_get_sctp_src(datapacket_t *const pkt){
+	return 0;
+}
 uint8_t platform_packet_get_icmpv4_type(datapacket_t *const pkt){
 	return 0;
 }
@@ -79,6 +85,9 @@ uint32_t platform_packet_get_mpls_label(datapacket_t *const pkt){
 	return 0;
 }
 uint8_t platform_packet_get_mpls_tc(datapacket_t *const pkt){
+	return 0;
+}
+uint8_t platform_packet_get_mpls_bos(datapacket_t *const pkt){
 	return 0;
 }
 uint8_t platform_packet_get_pppoe_code(datapacket_t *const pkt){
@@ -121,6 +130,12 @@ uint64_t platform_packet_get_icmpv6_type(datapacket_t *const pkt){
 	return 0;
 }
 uint64_t platform_packet_get_icmpv6_code(datapacket_t *const pkt){
+	return 0;
+}
+uint32_t platform_packet_get_pbb_isid(datapacket_t *const pkt){
+	return 0;
+}
+uint64_t platform_packet_get_tunnel_id(datapacket_t *const pkt){
 	return 0;
 }
 uint8_t platform_packet_get_gtp_msg_type(datapacket_t *const pkt){

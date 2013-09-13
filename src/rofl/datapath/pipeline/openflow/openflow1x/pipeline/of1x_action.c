@@ -323,6 +323,10 @@ of1x_action_group_t* of1x_init_action_group(of1x_packet_action_t* actions){
 	action_group->num_of_actions = number_of_actions;
 	action_group->num_of_output_actions = number_of_output_actions;
 
+	//Fast validation, set min max 
+	action_group->ver_req.min_ver = OF1X_MIN_VERSION;
+	action_group->ver_req.max_ver = OF1X_MAX_VERSION;
+
 	return action_group;
 }
 
@@ -388,6 +392,11 @@ of1x_write_actions_t* of1x_init_write_actions(){
 		return NULL;
 
 	memset(write_actions, 0, sizeof(of1x_write_actions_t));
+
+	//Fast validation, set min max 
+	write_actions->ver_req.min_ver = OF1X_MIN_VERSION;
+	write_actions->ver_req.max_ver = OF1X_MAX_VERSION;
+
 	return write_actions;
 }
 
