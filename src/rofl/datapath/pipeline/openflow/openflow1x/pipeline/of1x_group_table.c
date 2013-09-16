@@ -373,7 +373,7 @@ rofl_of1x_gm_result_t __of1x_validate_group(of1x_action_group_t* actions){
 	}
 		
 	//verify apply actions
-	if(__of1x_validate_action_group(actions, NULL)==false)
+	if(__of1x_validate_action_group(actions, NULL) != ROFL_SUCCESS)
 		return ROFL_OF1X_GM_INVAL;
 	
 	return ROFL_OF1X_GM_OK;

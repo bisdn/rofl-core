@@ -65,25 +65,16 @@ void of1x_remove_instruction_from_the_group(of1x_instruction_group_t* group, of1
 //Addition of instruction to group
 void of1x_add_instruction_to_group(of1x_instruction_group_t* group, of1x_instruction_type_t type, of1x_action_group_t* apply_actions, of1x_write_actions_t* write_actions, unsigned int go_to_table){
 
-	unsigned int num_of_outputs=0;
-	
 	if(group->instructions[OF1X_SAFE_IT_TYPE_INDEX(type)].type != OF1X_IT_NO_INSTRUCTION)
 		of1x_remove_instruction_from_the_group(group,type);
 		
 	__of1x_init_instruction(&group->instructions[OF1X_SAFE_IT_TYPE_INDEX(type)], type, apply_actions, write_actions, go_to_table);
 	group->num_of_instructions++;
 
-	//Set flag for lazy copying
-	if(group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)].apply_actions)
-		num_of_outputs += group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_APPLY_ACTIONS)].apply_actions->num_of_output_actions;
-	
-	//if(group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions && group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions->write_actions[OF1X_AT_OUTPUT].type != OF1X_AT_NO_ACTION)
-	//	num_of_outputs++;
-	if(group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions && group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions->write_actions[OF1X_AT_GROUP].type != OF1X_AT_NO_ACTION)
-		num_of_outputs+=group->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_WRITE_ACTIONS)].write_actions->write_actions[OF1X_AT_GROUP].group->num_of_output_actions;
 
-	//Assign flag
-	group->has_multiple_outputs =  (num_of_outputs > 1); 
+	//Note: Num of actions and has_multiple_outputs are calculated during validation of the flow, since
+	//they depend on GROUPS which may not exist at this point and we don't know in which LSI will the
+	//flow be installed/modified/deleted
 }
 
 
@@ -262,7 +253,7 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 				break;
 				
 			case OF1X_IT_APPLY_ACTIONS:
-				if(__of1x_validate_action_group(inst_grp->instructions[i].apply_actions, gt)!=true)
+				if(__of1x_validate_action_group(inst_grp->instructions[i].apply_actions, gt) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
 				num_of_output_actions+=inst_grp->instructions[i].apply_actions->num_of_output_actions;
 				if( (version < inst_grp->instructions[i].apply_actions->ver_req.min_ver) ||
@@ -276,8 +267,9 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 				if( (version < OF_VERSION_12))	
 					return ROFL_FAILURE;
 
-				if(__of1x_validate_write_actions(inst_grp->instructions[i].write_actions, gt)!=true)
+				if(__of1x_validate_write_actions(inst_grp->instructions[i].write_actions, gt) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
+		
 				num_of_output_actions+=inst_grp->instructions[i].write_actions->num_of_output_actions;
 				if( (version < inst_grp->instructions[i].write_actions->ver_req.min_ver) ||
 			        	(version > inst_grp->instructions[i].write_actions->ver_req.max_ver) )

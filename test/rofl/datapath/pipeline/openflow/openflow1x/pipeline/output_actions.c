@@ -188,9 +188,9 @@ void oa_two_outputs_apply(void){
 	oa_set_up();
 	wrap_uint_t field; field.u32 = be32toh(port);
 	wrap_uint_t field2; field2.u32 = be32toh(port+1);
-	wrap_uint_t field_grp; field_grp.u16 = grp_id;
+	//wrap_uint_t field_grp; field_grp.u16 = grp_id;
 	
-	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,NULL,NULL));
+	//of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,NULL,NULL));
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field2,NULL,NULL));
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,0);

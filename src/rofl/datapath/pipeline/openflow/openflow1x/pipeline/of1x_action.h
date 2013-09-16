@@ -416,8 +416,8 @@ void __of1x_dump_write_actions(of1x_write_actions_t* write_actions_group);
 void __of1x_dump_action_group(of1x_action_group_t* action_group);
 
 //validate actions
-bool __of1x_validate_action_group(of1x_action_group_t *ag, struct of1x_group_table *gt);
-bool __of1x_validate_write_actions(of1x_write_actions_t *wa, struct of1x_group_table *gt);
+rofl_result_t __of1x_validate_action_group(of1x_action_group_t *ag, struct of1x_group_table *gt);
+rofl_result_t __of1x_validate_write_actions(of1x_write_actions_t *wa, struct of1x_group_table *gt);
 
 
 //C++ extern C

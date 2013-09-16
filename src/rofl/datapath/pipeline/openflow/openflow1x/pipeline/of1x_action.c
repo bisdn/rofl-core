@@ -365,11 +365,13 @@ void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_ac
 	
 	group->num_of_actions++;
 
-	if(action->type == OF1X_AT_OUTPUT)
-		group->num_of_output_actions++;
+	//This cannot be done here, because the group might NOT exist yet; the sum will happen 
+	//during insertion validation (for both action and WRITE_ACTIONS instruction
+	//if(action->type == OF1X_AT_OUTPUT)
+	//	group->num_of_output_actions++;
 	
-	if(action->type == OF1X_AT_GROUP)
-		group->num_of_output_actions+=action->group->num_of_output_actions;
+	//if(action->type == OF1X_AT_GROUP)
+	//	group->num_of_output_actions+=action->group->num_of_output_actions;
 
 	//Update fast validation flags (required versions)
 	if(group->ver_req.min_ver < action->ver_req.min_ver)
@@ -408,11 +410,12 @@ void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions
 	if( write_actions && action )	
 		write_actions->write_actions[action->type] = *action;
 	
-	if (action->type == OF1X_AT_OUTPUT)
-		write_actions->num_of_output_actions++;
-
-	if(action->type == OF1X_AT_GROUP)
-		write_actions->num_of_output_actions+=action->group->num_of_output_actions;
+	//This cannot be done here, because the group might NOT exist yet; the sum will happen 
+	//during insertion validation (for both action and WRITE_ACTIONS instruction
+	//if (action->type == OF1X_AT_OUTPUT)
+	//	write_actions->num_of_output_actions++;
+	//if(action->type == OF1X_AT_GROUP)
+	//	write_actions->num_of_output_actions+=action->group->num_of_output_actions;
 	
 	//Update fast validation flags (required versions)
 	if(write_actions->ver_req.min_ver < action->ver_req.min_ver)
@@ -1340,13 +1343,15 @@ void __of1x_dump_action_group(of1x_action_group_t* action_group){
 	}
 }
 
-bool __of1x_validate_action_group(of1x_action_group_t *ag, of1x_group_table_t *gt){
+rofl_result_t __of1x_validate_action_group(of1x_action_group_t *ag, of1x_group_table_t *gt){
 	//TODO we need to validate ALL the actions here!
 	of1x_packet_action_t *pa_it;
 
 	if(ag){
 		for(pa_it=ag->head; pa_it; pa_it=pa_it->next){
-			if(pa_it->type == OF1X_AT_GROUP && gt){
+			if(pa_it->type == OF1X_AT_OUTPUT)
+				ag->num_of_output_actions++;
+			else if(pa_it->type == OF1X_AT_GROUP && gt){
 				if((pa_it->group=__of1x_group_search(gt,pa_it->field.u64))==NULL)
 					return ROFL_FAILURE;
 				else{
@@ -1356,17 +1361,20 @@ bool __of1x_validate_action_group(of1x_action_group_t *ag, of1x_group_table_t *g
 		}
 	}
 	
-	return true;
+	return ROFL_SUCCESS;
 }
 
-bool __of1x_validate_write_actions(of1x_write_actions_t *wa, of1x_group_table_t *gt){
+rofl_result_t __of1x_validate_write_actions(of1x_write_actions_t *wa, of1x_group_table_t *gt){
 	//TODO we need to ALL validate the actions here!
 	int i;
 	of1x_packet_action_t *pa_it;
 	
 	for(i=0;i<OF1X_AT_NUMBER;i++){
 		pa_it = &(wa->write_actions[i]);
-		if(gt && pa_it && pa_it->type == OF1X_AT_GROUP){
+
+		if(pa_it->type == OF1X_AT_OUTPUT)
+				wa->num_of_output_actions++;
+		else if(gt && pa_it && pa_it->type == OF1X_AT_GROUP){
 			if((pa_it->group=__of1x_group_search(gt,pa_it->field.u64))==NULL )
 				return ROFL_FAILURE;
 			else{
@@ -1375,5 +1383,5 @@ bool __of1x_validate_write_actions(of1x_write_actions_t *wa, of1x_group_table_t 
 		}
 	}
 	
-	return true;
+	return ROFL_SUCCESS;
 }
