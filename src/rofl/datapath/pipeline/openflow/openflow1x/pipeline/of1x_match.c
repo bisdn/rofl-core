@@ -1191,9 +1191,9 @@ void __of1x_dump_matches(of1x_match_t* matches){
 			case OF1X_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u], ",it->value->mask.u8);
 				break; 
 
-			case OF1X_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:%u], ",it->value->value.u32);
+			case OF1X_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:0x%x], ",it->value->value.u32);
 				break; 
-			case OF1X_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:%u], ",it->value->value.u8);
+			case OF1X_MATCH_MPLS_TC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_TC:0x%x], ",it->value->value.u8);
 				break; 
 			case OF1X_MATCH_MPLS_BOS:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_BOS:0x%x], ",it->value->value.u8);
 				break;
