@@ -663,8 +663,8 @@ inline of1x_match_t* of1x_init_tunnel_id_match(of1x_match_t* prev, of1x_match_t*
 	//Set fast validation flags	
 	match->ver_req.min_ver = OF_VERSION_13;	//First supported in OF1.3
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
-	if(mask == OF1X_8_BYTE_MASK)
-		match->has_wildcard = false;
+	if(mask != OF1X_8_BYTE_MASK)
+		match->has_wildcard = true;
 	else
 		match->has_wildcard = false;
 

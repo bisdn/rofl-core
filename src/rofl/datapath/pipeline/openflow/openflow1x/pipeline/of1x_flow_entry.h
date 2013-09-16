@@ -59,14 +59,18 @@ typedef enum of1x_flow_remove_reason {
  */
 typedef void of1x_flow_entry_platform_state_t;
 
+//Used to pre-append priority, to emulate OF1.0 behaviour ONLY
+#define OF10_NON_WILDCARDED_PRIORITY_FLAG 0x10000
+
 /**
 * Openflow v1.2 flow entry structure
 * @ingroup core_of1x 
 */
 typedef struct of1x_flow_entry{
 	
-	//Entry priority	
-	uint16_t priority;
+	//Entry priority(lowest 16 bit is the OF priority)
+	//17th bit is only set to 1/0 
+	uint32_t priority;
 	
 	//Previous entry
 	struct of1x_flow_entry* prev;

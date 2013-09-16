@@ -319,7 +319,9 @@ rofl_result_t __of1x_validate_flow_entry( of1x_flow_entry_t* entry, of1x_pipelin
 	//Validate instructions (and actions)
 	if(__of1x_validate_instructions(&entry->inst_grp, pipeline)!=ROFL_SUCCESS)
 		return ROFL_FAILURE;
-	
+
+	if(version == OF_VERSION_10 && !entry->matches.has_wildcard)
+		entry->priority |= OF10_NON_WILDCARDED_PRIORITY_FLAG;
 	return ROFL_SUCCESS;
 }
 
