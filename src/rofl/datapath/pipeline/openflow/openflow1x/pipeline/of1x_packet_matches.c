@@ -66,7 +66,7 @@ void __of1x_update_packet_matches(datapacket_t *const pkt){
 	//MPLS-outermost label 
 	matches->mpls_label = platform_packet_get_mpls_label(pkt);
 	matches->mpls_tc = platform_packet_get_mpls_tc(pkt);
-	matches->mpls_tc = platform_packet_get_mpls_bos(pkt);
+	matches->mpls_bos = platform_packet_get_mpls_bos(pkt);
 
 	//PPPoE related extensions
 	matches->pppoe_code = platform_packet_get_pppoe_code(pkt);
