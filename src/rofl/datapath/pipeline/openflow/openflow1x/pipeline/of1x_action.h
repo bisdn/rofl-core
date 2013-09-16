@@ -105,9 +105,6 @@ typedef enum{
 	OF1X_AT_SET_NW_TTL,			/* IP TTL. */
 	OF1X_AT_SET_QUEUE,			/* Set queue id when outputting to a port */
 
-	//TODO 
-	//OF1X_AT_SET_FIELD_METADATA,		/* Metadata. */
-	
 	OF1X_AT_SET_FIELD_ETH_DST,   		/* Ethernet destination address. */
 	OF1X_AT_SET_FIELD_ETH_SRC,   		/* Ethernet source address. */
 	OF1X_AT_SET_FIELD_ETH_TYPE,  		/* Ethernet frame type. */

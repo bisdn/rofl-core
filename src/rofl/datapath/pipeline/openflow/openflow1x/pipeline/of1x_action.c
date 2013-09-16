@@ -50,7 +50,7 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 
-		//8 byte values (TODO: METADATA)
+		//8 byte
 		case OF1X_AT_SET_FIELD_TUNNEL_ID:
 			action->field.u64 = field.u64&OF1X_8_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
@@ -536,10 +536,6 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_set_queue(pkt, action->field.u64);
 			break;
-
-		//TODO 
-		//case OF1X_AT_SET_FIELD_METADATA: platform_packet_set_metadata(pkt, action->field);
-		//	break;
 
 		//802
 		case OF1X_AT_SET_FIELD_ETH_DST: 
@@ -1187,10 +1183,6 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 
 		case OF1X_AT_SET_QUEUE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_QUEUE: %u",action.field.u64);
 			break;
-
-		//TODO 
-		//case OF1X_AT_SET_FIELD_METADATA:
-		//	break;
 
 		case OF1X_AT_SET_FIELD_ETH_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ETH_DST: 0x%"PRIx64,action.field.u64); 
 			break;

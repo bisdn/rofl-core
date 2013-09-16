@@ -69,6 +69,13 @@ typedef enum {
 
 #define OF1X_IT_MAX OF1X_IT_METER
 
+//Write metadata instruction
+typedef struct of1x_write_metadata{
+	uint64_t metadata;
+	uint64_t metadata_mask;
+}of1x_write_metadata_t;
+
+
 /* Instruction abstraction data structure */
 typedef struct of1x_instruction{
 	//Type and value(for set fields and push)
@@ -79,6 +86,9 @@ typedef struct of1x_instruction{
 
 	//WRITE_ACTIONS type only actions 	
 	of1x_write_actions_t* write_actions;
+ 
+	//WRITE_METADATA type only metadata
+	of1x_write_metadata_t write_metadata;
 
 	//GO-TO-TABLE
 	unsigned int go_to_table;	
@@ -127,7 +137,7 @@ void __of1x_destroy_instruction_group(of1x_instruction_group_t* group);
 * @param apply_actions (For OF1X_IT_WRITE_ACTIONS only) Write_actions group, with actions PREVIOUSLY filled. The group instance cannot be further accessed or freed from outside the library.
 * @param go_to_table (For OF1X_IT_GO_TO_TABLE only) Index of the table to go. 
 */
-void of1x_add_instruction_to_group(of1x_instruction_group_t* group, of1x_instruction_type_t type, of1x_action_group_t* apply_actions, of1x_write_actions_t* write_actions, unsigned int go_to_table);
+void of1x_add_instruction_to_group(of1x_instruction_group_t* group, of1x_instruction_type_t type, of1x_action_group_t* apply_actions, of1x_write_actions_t* write_actions, of1x_write_metadata_t* write_metadata, unsigned int go_to_table);
 /**
 * @brief Remove an instruction of the group 
 * @ingroup core_of1x 

@@ -31,7 +31,7 @@ typedef struct{
 	uint32_t phy_port_in;		/* Switch physical input port. */
 	
 	//Associated metadata
-	uint64_t metadata;		//TODO: what to do /* Metadata passed between tables. */
+	uint64_t metadata;		/* Metadata passed between tables. */
  
 	//802
 	uint64_t eth_dst;		/* Ethernet destination address. */

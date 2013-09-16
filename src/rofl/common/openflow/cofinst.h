@@ -296,6 +296,26 @@ public:
 	 */
 	virtual
 	~cofinst_write_metadata() {};
+
+
+	/**
+	 *
+	 */
+	uint64_t
+	get_metadata() const
+	{
+		return oin_write_metadata->metadata;
+	};
+
+	/**
+	 *
+	 */
+	uint64_t
+	get_metadata_mask() const
+	{
+		return oin_write_metadata->metadata_mask;
+	};
+
 };
 
 }; // end of namespace

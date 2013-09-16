@@ -156,7 +156,13 @@ of1x_match_t* of1x_init_port_in_match(of1x_match_t* prev, of1x_match_t* next, ui
 */
 of1x_match_t* of1x_init_port_in_phy_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value);
 
-/* TODO: add metadata */
+
+//METADATA
+/**
+* @brief Create an METADATA match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_metadata_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask);
 
 //ETHERNET
 /**

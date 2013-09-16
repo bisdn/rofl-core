@@ -8,7 +8,7 @@
 #include "../../../util/logging.h"
 
 /* Instructions init and destroyers */ 
-static void __of1x_init_instruction(of1x_instruction_t* inst, of1x_instruction_type_t type, of1x_action_group_t* apply_actions, of1x_write_actions_t* write_actions, unsigned int go_to_table){
+static void __of1x_init_instruction(of1x_instruction_t* inst, of1x_instruction_type_t type, of1x_action_group_t* apply_actions, of1x_write_actions_t* write_actions, of1x_write_metadata_t* write_metadata, unsigned int go_to_table){
 
 	if(!type)
 		return;
@@ -16,6 +16,7 @@ static void __of1x_init_instruction(of1x_instruction_t* inst, of1x_instruction_t
 	inst->type = type;
 	inst->apply_actions = apply_actions;
 	inst->write_actions = write_actions;
+	inst->write_metadata = *write_metadata;
 
 	if(type == OF1X_IT_GOTO_TABLE)
 		inst->go_to_table = go_to_table;
@@ -63,12 +64,12 @@ void of1x_remove_instruction_from_the_group(of1x_instruction_group_t* group, of1
 }
 
 //Addition of instruction to group
-void of1x_add_instruction_to_group(of1x_instruction_group_t* group, of1x_instruction_type_t type, of1x_action_group_t* apply_actions, of1x_write_actions_t* write_actions, unsigned int go_to_table){
+void of1x_add_instruction_to_group(of1x_instruction_group_t* group, of1x_instruction_type_t type, of1x_action_group_t* apply_actions, of1x_write_actions_t* write_actions, of1x_write_metadata_t* write_metadata,  unsigned int go_to_table){
 
 	if(group->instructions[OF1X_SAFE_IT_TYPE_INDEX(type)].type != OF1X_IT_NO_INSTRUCTION)
 		of1x_remove_instruction_from_the_group(group,type);
 		
-	__of1x_init_instruction(&group->instructions[OF1X_SAFE_IT_TYPE_INDEX(type)], type, apply_actions, write_actions, go_to_table);
+	__of1x_init_instruction(&group->instructions[OF1X_SAFE_IT_TYPE_INDEX(type)], type, apply_actions, write_actions, write_metadata, go_to_table);
 	group->num_of_instructions++;
 
 
@@ -134,7 +135,12 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 					break;
 			case OF1X_IT_WRITE_ACTIONS: __of1x_update_packet_write_actions(pkt, instructions->instructions[i].write_actions);
 					break;
-    			case OF1X_IT_WRITE_METADATA: //TODO:
+    			case OF1X_IT_WRITE_METADATA:
+				{
+					of1x_packet_matches_t* matches = (of1x_packet_matches_t *)&pkt->matches;
+					matches->metadata = 	(matches->metadata | ~instructions->instructions[i].write_metadata.metadata_mask) &
+								(instructions->instructions[i].write_metadata.metadata & instructions->instructions[i].write_metadata.metadata_mask);
+				}
 					break;
 			case OF1X_IT_EXPERIMENTER: //TODO:
 					break;
@@ -205,8 +211,8 @@ void __of1x_dump_instructions(of1x_instruction_group_t group){
 					ROFL_PIPELINE_INFO_NO_PREFIX(" WRITE, ");
 					has_write_actions++;
 					break;
-    			case OF1X_IT_WRITE_METADATA: //TODO:
-					ROFL_PIPELINE_INFO_NO_PREFIX(" WRITE-META, ");
+    			case OF1X_IT_WRITE_METADATA:
+					ROFL_PIPELINE_INFO_NO_PREFIX(" WRITE-META(0x"PRIu64":0x"PRIu64"), ", group.instructions[i].write_metadata.metadata, group.instructions[i].write_metadata.metadata_mask);
 					break;
 			case OF1X_IT_EXPERIMENTER: //TODO:
 					ROFL_PIPELINE_INFO_NO_PREFIX(" EXP, ");

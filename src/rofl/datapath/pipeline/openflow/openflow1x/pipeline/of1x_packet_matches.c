@@ -19,9 +19,7 @@ void __of1x_update_packet_matches(datapacket_t *const pkt){
 	matches->port_in = platform_packet_get_port_in(pkt);
 	matches->phy_port_in = platform_packet_get_phy_port_in(pkt);	
 
-	//Associated metadata TODO
-	//matches->metadata = platform_packet_get_metadata(pkt);
- 
+	
 	//802
 	matches->eth_dst = platform_packet_get_eth_dst(pkt);
 	matches->eth_src = platform_packet_get_eth_src(pkt);
@@ -104,6 +102,12 @@ void __of1x_update_packet_matches(datapacket_t *const pkt){
 * Sets up pkt->matches and call update to initialize packet matches
 */
 void __of1x_init_packet_matches(datapacket_t *const pkt){
+	
+	of1x_packet_matches_t* matches = &pkt->matches.of1x;
+
+	//Associated metadata
+	matches->metadata = 0x0; 
+ 
 	__of1x_update_packet_matches(pkt);
 }
 
@@ -129,9 +133,11 @@ void of1x_dump_packet_matches(of_packet_matches_t *const pkt_matches){
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("PORT_IN:%u, ",pkt->port_in);
 	if(pkt->phy_port_in)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("PHY_PORT_IN:%u, ",pkt->phy_port_in);
-	//TODO:Metadata	
-	//if(pkt->metadata)
-	//	ROFL_PIPELINE_DEBUG_NO_PREFIX("METADATA:%u, ",pkt->metadata);
+	
+	//Metadata
+	if(pkt->metadata)
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("METADATA:" PRIu64 ", ",pkt->metadata);
+	
 	//802	
 	if(pkt->eth_src)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("ETH_SRC:0x%llx, ",(long long unsigned)pkt->eth_src);

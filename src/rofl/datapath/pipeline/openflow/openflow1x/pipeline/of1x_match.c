@@ -43,7 +43,24 @@ inline of1x_match_t* of1x_init_port_in_phy_match(of1x_match_t* prev, of1x_match_
 	return match;
 }
 
-/* TODO: add metadata */
+//METADATA
+inline of1x_match_t* of1x_init_metadata_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_METADATA; 
+	match->value = __init_utern64(value, mask);
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( (mask&OF1X_8_BYTE_MASK) != OF1X_8_BYTE_MASK)
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	return match;
+}
 
 //ETHERNET
 inline of1x_match_t* of1x_init_eth_dst_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
@@ -58,9 +75,9 @@ inline of1x_match_t* of1x_init_eth_dst_match(of1x_match_t* prev, of1x_match_t* n
 	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( (mask&OF1X_48_BITS_MASK) != OF1X_48_BITS_MASK)
-		match->has_wildcard = true;		//Not accepting wildcards
+		match->has_wildcard = true;
 	else
-		match->has_wildcard = false;		//Not accepting wildcards
+		match->has_wildcard = false;
 
 	return match;
 }
@@ -844,8 +861,7 @@ inline of1x_match_t* __of1x_copy_match(of1x_match_t* match){
 		case OF1X_MATCH_IN_PORT: return of1x_init_port_in_match(NULL, NULL, match->value->value.u32);
 		case OF1X_MATCH_IN_PHY_PORT: return of1x_init_port_in_phy_match(NULL, NULL, match->value->value.u32);
 
-	  	case OF1X_MATCH_METADATA: //TODO FIXME
-					return NULL; 
+	  	case OF1X_MATCH_METADATA: return of1x_init_metadata_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);	
    
 		case OF1X_MATCH_ETH_DST:  return of1x_init_eth_dst_match(NULL,NULL,match->value->value.u64,match->value->mask.u64); 
    		case OF1X_MATCH_ETH_SRC:  return  of1x_init_eth_src_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);
@@ -1028,8 +1044,8 @@ inline bool __of1x_check_match(const of1x_packet_matches_t* pkt, of1x_match_t* i
 		case OF1X_MATCH_IN_PHY_PORT: if(!pkt->port_in) return false; //According to spec
 					return __utern_compare32(it->value,pkt->phy_port_in);
 		//Metadata
-	  	case OF1X_MATCH_METADATA: //TODO FIXME
-					return false;
+	  	case OF1X_MATCH_METADATA: return __utern_compare64(it->value,pkt->metadata); 
+		
 		//802
    		case OF1X_MATCH_ETH_DST:  return __utern_compare64(it->value,pkt->eth_dst);
    		case OF1X_MATCH_ETH_SRC:  return __utern_compare64(it->value,pkt->eth_src);
@@ -1176,8 +1192,8 @@ void __of1x_dump_matches(of1x_match_t* matches){
 			case OF1X_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PHY_PORT_IN:%u], ",it->value->value.u32);
 				break; 
 
-			case OF1X_MATCH_METADATA: //TODO FIXME
-						break;
+			case OF1X_MATCH_METADATA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[METADATA:0x%llx|0x%llx],  ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64); 
+				break;
 
 			case OF1X_MATCH_ETH_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_DST:0x%llx|0x%llx],  ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
 				break; 
