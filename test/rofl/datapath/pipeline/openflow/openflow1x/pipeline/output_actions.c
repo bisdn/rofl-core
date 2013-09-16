@@ -46,12 +46,12 @@ void oa_basic_test(void){
 	//"map_flow_entry_actions"
 	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL);
 	of1x_push_packet_action_to_group(apply_actions,action);
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL, 0);
 	
 	//"map_flow_entry_actions"
 	//of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,be32toh(port),NULL,NULL);
 	of1x_set_packet_action_on_write_actions(write_actions,action);
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL, 0);
 	
 	//insert flow entry
 	of1x_add_flow_entry_table(sw->pipeline, 0, entry, false, false);
@@ -76,12 +76,12 @@ void oa_only_apply(void){
 	//"map_flow_entry_actions"
 	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL);
 	of1x_push_packet_action_to_group(apply_actions,action);
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
 	action = of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,NULL,NULL);
 	of1x_set_packet_action_on_write_actions(write_actions,action);
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
 	of1x_add_flow_entry_table(sw->pipeline, 0, entry, false, false);
@@ -105,12 +105,12 @@ void oa_only_write(void){
 	//"map_flow_entry_actions"
 	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,NULL,NULL);
 	of1x_push_packet_action_to_group(apply_actions,action);
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
 	action = of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL);
 	of1x_set_packet_action_on_write_actions(write_actions,action);
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
 	of1x_add_flow_entry_table(sw->pipeline, 0, entry, false, false);
@@ -130,12 +130,12 @@ void oa_no_output(){
 	
 	of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,NULL,NULL);
 	of1x_push_packet_action_to_group(apply_actions,action);
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
 	//of1x_packet_action_t* action = of1x_init_packet_action(OF1X_AT_OUTPUT,be32toh(port),NULL,NULL);
 	of1x_set_packet_action_on_write_actions(write_actions,action);
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
 	of1x_add_flow_entry_table(sw->pipeline, 0, entry, false, false);
@@ -167,11 +167,11 @@ void oa_test_with_groups(void){
 	
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,NULL,NULL));
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
 	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,NULL,NULL));
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
 	of1x_add_flow_entry_table(sw->pipeline, 0, entry, false, false);
@@ -193,11 +193,11 @@ void oa_two_outputs_apply(void){
 	//of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,NULL,NULL));
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field2,NULL,NULL));
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
 	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,NULL,NULL));
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
 	of1x_add_flow_entry_table(sw->pipeline, 0, entry, false, false);
@@ -231,12 +231,12 @@ void oa_two_outputs_write(void){
 	
 	//of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,grp_id,NULL,NULL));
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,NULL,NULL));
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
 	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,NULL,NULL));
 	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,NULL,NULL));
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
 	of1x_add_flow_entry_table(sw->pipeline, 0, entry, false, false);
@@ -264,12 +264,12 @@ void oa_write_and_group(void){
 	
 	//of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,grp_id,NULL,NULL));
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,NULL,NULL));
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
 	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,NULL,NULL));
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
 	of1x_add_flow_entry_table(sw->pipeline, 0, entry, false, false);
@@ -297,11 +297,11 @@ void oa_apply_and_group(void){
 	
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,NULL,NULL));
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_APPLY_ACTIONS,apply_actions,NULL,NULL,0);
 	
 	//"map_flow_entry_actions"
 	of1x_set_packet_action_on_write_actions(write_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,NULL,NULL));
-	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,0);
+	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
 	of1x_add_flow_entry_table(sw->pipeline, 0, entry, false, false);

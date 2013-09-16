@@ -370,7 +370,7 @@ void test_flow_modify(){
 	field.u16 = 1;
 	of1x_push_packet_action_to_group(group1,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	
-	of1x_add_instruction_to_group(&entry1->inst_grp, OF1X_IT_APPLY_ACTIONS, group1, NULL,0);
+	of1x_add_instruction_to_group(&entry1->inst_grp, OF1X_IT_APPLY_ACTIONS, group1, NULL, NULL, 0);
 	
 	//Insert in the table	
 	CU_ASSERT(of1x_add_flow_entry_table(sw->pipeline, 0, entry1, true,false) == ROFL_OF1X_FM_SUCCESS);
@@ -388,7 +388,7 @@ void test_flow_modify(){
 	CU_ASSERT(group2 != NULL);
 	of1x_push_packet_action_to_group(group2, of1x_init_packet_action(OF1X_AT_SET_FIELD_IP_DSCP, field, NULL,NULL));
 	
-	of1x_add_instruction_to_group(&entry2->inst_grp, OF1X_IT_APPLY_ACTIONS, group2, NULL,0);
+	of1x_add_instruction_to_group(&entry2->inst_grp, OF1X_IT_APPLY_ACTIONS, group2, NULL, NULL, 0);
 
 	//MODIFY strict
 	CU_ASSERT(of1x_modify_flow_entry_table(sw->pipeline, 0, entry2, STRICT, true) == ROFL_SUCCESS);

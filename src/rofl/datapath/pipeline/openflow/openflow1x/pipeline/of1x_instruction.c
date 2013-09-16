@@ -16,7 +16,8 @@ static void __of1x_init_instruction(of1x_instruction_t* inst, of1x_instruction_t
 	inst->type = type;
 	inst->apply_actions = apply_actions;
 	inst->write_actions = write_actions;
-	inst->write_metadata = *write_metadata;
+	if(write_metadata)
+		inst->write_metadata = *write_metadata;
 
 	if(type == OF1X_IT_GOTO_TABLE)
 		inst->go_to_table = go_to_table;
