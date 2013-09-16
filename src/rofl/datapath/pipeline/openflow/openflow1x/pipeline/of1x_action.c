@@ -1254,6 +1254,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 		case OF1X_AT_SET_FIELD_MPLS_LABEL:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_MPLS_LABEL: 0x%x",action.field.u64);
 			break;
 		case OF1X_AT_SET_FIELD_MPLS_TC:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_MPLS_TC: 0x%x",action.field.u64);
+			break;
 		case OF1X_AT_SET_FIELD_MPLS_BOS:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_MPLS_BOS: 0x%x",action.field.u64);
 			break;
 
