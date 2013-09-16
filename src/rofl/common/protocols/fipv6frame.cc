@@ -265,7 +265,7 @@ fipv6frame::set_traffic_class(uint8_t tc)
 
 
 uint8_t
-fipv6frame::get_traffic_class()
+fipv6frame::get_traffic_class() const
 {
 	return (uint8_t)(((ipv6_hdr->bytes[0] & 0x0F) << 4) + ((ipv6_hdr->bytes[1] & 0xF0) >> 4));
 }
@@ -283,7 +283,7 @@ fipv6frame::set_flow_label(uint32_t flabel)
 
 
 uint32_t
-fipv6frame::get_flow_label()
+fipv6frame::get_flow_label() const
 {
 	return (uint32_t)(((ipv6_hdr->bytes[1] & 0x0F) << 16) + (ipv6_hdr->bytes[2] << 8) + (ipv6_hdr->bytes[3] << 0));
 }
@@ -372,7 +372,7 @@ fipv6frame::set_ipv6_src(caddress const& src) throw (eIPv6FrameInval)
 
 
 caddress
-fipv6frame::get_ipv6_src()
+fipv6frame::get_ipv6_src() const
 {
 	caddress src(AF_INET6);
 	src.ca_s6addr->sin6_family = AF_INET6;
@@ -418,7 +418,7 @@ fipv6frame::set_ipv6_dst(caddress const& dst) throw (eIPv6FrameInval)
 
 
 caddress
-fipv6frame::get_ipv6_dst()
+fipv6frame::get_ipv6_dst() const
 {
 	caddress dst(AF_INET6);
 	dst.ca_s6addr->sin6_family = AF_INET6;
