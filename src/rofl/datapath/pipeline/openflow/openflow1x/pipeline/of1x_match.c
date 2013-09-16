@@ -200,7 +200,7 @@ inline of1x_match_t* of1x_init_arp_opcode_match(of1x_match_t* prev, of1x_match_t
 	match->next = next;
 
 	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
+	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0 (1.0: lower 8bits of opcode)
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	match->has_wildcard = false;		//Not accepting wildcards
 
@@ -249,7 +249,7 @@ inline of1x_match_t* of1x_init_arp_tpa_match(of1x_match_t* prev, of1x_match_t* n
 	match->next = next;
 
 	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
+	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( mask != OF1X_4_BYTE_MASK )
 		match->has_wildcard = true;
@@ -266,7 +266,7 @@ inline of1x_match_t* of1x_init_arp_spa_match(of1x_match_t* prev, of1x_match_t* n
 	match->next = next;
 
 	//Set fast validation flags	
-	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2
+	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
 	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
 	if( mask != OF1X_4_BYTE_MASK )
 		match->has_wildcard = true;

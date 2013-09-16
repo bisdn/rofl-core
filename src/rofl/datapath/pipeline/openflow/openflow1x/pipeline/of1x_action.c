@@ -89,11 +89,11 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			break;
 		case OF1X_AT_SET_FIELD_ARP_SPA:
 			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
-			action->ver_req.min_ver = OF_VERSION_12;
+			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_TPA:
 			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
-			action->ver_req.min_ver = OF_VERSION_12;
+			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_OUTPUT:
 			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;	// TODO: max_len when port_no == OFPP_CONTROLLER
@@ -124,8 +124,8 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_OPCODE:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
-			action->ver_req.min_ver = OF_VERSION_12;
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK; // TODO: lower 8bits of opcode only?
+			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_SET_FIELD_TP_SRC:
 			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
@@ -204,7 +204,6 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 		//13 bit values
 		case OF1X_AT_SET_FIELD_VLAN_VID:
 			action->field.u64 = field.u64&OF1X_13_BITS_MASK;
-			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 
 
@@ -237,6 +236,9 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 
 		//3 bit values
 		case OF1X_AT_SET_FIELD_VLAN_PCP:
+			action->field.u64 = field.u64&OF1X_3_BITS_MASK;
+			break;
+
 		case OF1X_AT_SET_FIELD_MPLS_TC:
 			action->field.u64 = field.u64&OF1X_3_BITS_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
@@ -260,11 +262,14 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			break;
 
 		//No value
+		case OF1X_AT_POP_VLAN:
+			action->field.u64 = 0x0; // action strip vlan
+			break;
+
 		case OF1X_AT_COPY_TTL_IN:
 		case OF1X_AT_COPY_TTL_OUT:
 		case OF1X_AT_DEC_NW_TTL:
 		case OF1X_AT_DEC_MPLS_TTL:
-		case OF1X_AT_POP_VLAN:
 		case OF1X_AT_POP_GTP:
 		case OF1X_AT_PUSH_GTP:
 		case OF1X_AT_EXPERIMENTER:
