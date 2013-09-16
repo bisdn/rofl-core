@@ -118,8 +118,8 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 				   (1UL << OF1X_MATCH_TCP_DST) |
 				   (1UL << OF1X_MATCH_UDP_SRC) |
 				   (1UL << OF1X_MATCH_UDP_DST) |
-				   (1UL << OF1X_MATCH_SCTP_SRC) |
-				   (1UL << OF1X_MATCH_SCTP_DST) |
+				  // (1UL << OF1X_MATCH_SCTP_SRC) |
+				  // (1UL << OF1X_MATCH_SCTP_DST) |
 				   (1UL << OF1X_MATCH_ICMPV4_TYPE) |
 				   (1UL << OF1X_MATCH_ICMPV4_CODE) |				   
 				   (1UL << OF1X_MATCH_IPV6_SRC) |
@@ -204,6 +204,12 @@ void __of13_set_table_defaults(of1x_flow_table_t* table){
 
 	//Setting the default behaviour to continue to the next table.
 	table->default_action = OF1X_TABLE_MISS_CONTINUE; 
+	
+	//Adding OF1.3 only matches
+	table->config.match |= (UINT64_C(1) << OF1X_MATCH_MPLS_BOS); 
+
+	//TODO: add METER instruction when implemented
+	
 	table->config.table_miss_config = 0x0;
 }
 
