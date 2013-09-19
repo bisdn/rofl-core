@@ -122,6 +122,9 @@ void __of12_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	__of12_init_packet_matches(pkt); 
 	__of12_init_packet_write_actions(pkt); 
 
+	//Mark packet as being processed by this sw
+	pkt->sw = sw;
+
 	//Matches aux
 	pkt_matches = &pkt->matches.of12;
 
