@@ -254,6 +254,7 @@ public:
 	 *
 	 * \see{ handle_ctrl_open() }
 	 *
+	 * @param ofp_version OpenFlow version to use for connecting to controller
 	 * @param ra Address to connect to
 	 * @param domain Socket domain (default: PF_INET)
 	 * @param type Socket type (default: SOCK_STREAM)
@@ -261,6 +262,7 @@ public:
 	 */
 	void
 	rpc_connect_to_ctl(
+			uint8_t ofp_version,
 			caddress const& ra,
 			int domain = PF_INET,
 			int type = SOCK_STREAM,
@@ -291,6 +293,7 @@ public:
 	 *
 	 * \see{ handle_dpath_open() }
 	 *
+	 * @param ofp_version OpenFlow version to use for connecting to data path element
 	 * @param ra Address to connect to
 	 * @param domain Socket domain (default: PF_INET)
 	 * @param type Socket type (default: SOCK_STREAM)
@@ -298,6 +301,7 @@ public:
 	 */
 	void
 	rpc_connect_to_dpt(
+			uint8_t ofp_version,
 			caddress const& ra,
 			int domain = PF_INET,
 			int type = SOCK_STREAM,
@@ -453,6 +457,7 @@ protected:
 	 * crofbase::handle_ctrl_open() will be called.
 	 *
 	 * @param owner Pointer to this crofbase instance for callbacks used by the cofctl instance
+	 * @param ofp_version OpenFlow version to use for connecting to controller
 	 * @param ra Remote address to connect to
 	 * @param domain socket domain (see man 2 socket for details)
 	 * @param type socket type (see man 2 socket for details)
@@ -462,6 +467,7 @@ protected:
 	virtual cofctl*
 	cofctl_factory(
 			crofbase* owner,
+			uint8_t ofp_version,
 			caddress const& ra,
 			int domain,
 			int type,
@@ -506,6 +512,7 @@ protected:
 	 * TABLE-STATS.request/reply), method crofbase::handle_dpath_open() will be called.
 	 *
 	 * @param owner Pointer to this crofbase instance for callbacks used by the cofdpt instance
+	 * @param ofp_version OpenFlow version to use for connecting to data path element
 	 * @param ra Remote address to connect to
 	 * @param domain socket domain (see man 2 socket for details)
 	 * @param type socket type (see man 2 socket for details)
@@ -515,6 +522,7 @@ protected:
 	virtual cofdpt*
 	cofdpt_factory(
 			crofbase* owner,
+			uint8_t ofp_version,
 			caddress const& ra,
 			int domain,
 			int type,

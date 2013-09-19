@@ -37,6 +37,7 @@ cofctl::cofctl(
 
 cofctl::cofctl(
 		crofbase *rofbase,
+		uint8_t ofp_version,
 		caddress const& ra,
 		int domain,
 		int type,
@@ -54,7 +55,7 @@ cofctl::cofctl(
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
 				echo_reply_timeout(DEFAULT_ECHO_TIMEOUT),
-				ofp_version(OFP12_VERSION)
+				ofp_version(ofp_version)
 {
 	WRITELOG(COFCTL, DBG, "cofctl(%p)::cofctl() TCP connect", this);
 

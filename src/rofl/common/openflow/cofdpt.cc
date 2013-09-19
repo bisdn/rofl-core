@@ -51,6 +51,7 @@ cofdpt::cofdpt(
 
 cofdpt::cofdpt(
 		crofbase *rofbase,
+		uint8_t ofp_version,
 		caddress const& ra,
 		int domain,
 		int type,
@@ -69,7 +70,7 @@ cofdpt::cofdpt(
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
-				ofp_version(OFP12_VERSION),
+				ofp_version(ofp_version),
 				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),

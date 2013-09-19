@@ -204,6 +204,7 @@ public:
 	 * @brief 	Constructor for creating a new cofdpt instance and actively connecting to a data path element.
 	 *
 	 * @param rofbase pointer to crofbase instance
+	 * @param ofp_version OpenFlow version to use
 	 * @param ra peer address of control connection
 	 * @param domain socket domain
 	 * @param type socket type
@@ -211,6 +212,7 @@ public:
 	 */
 	cofdpt(
 			crofbase *rofbase,
+			uint8_t ofp_version,
 			caddress const& ra,
 			int domain,
 			int type,

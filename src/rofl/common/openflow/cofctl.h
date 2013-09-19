@@ -153,6 +153,7 @@ public: // methods
 	 * @brief	Constructor for creating new cofctl instance for connecting socket.
 	 *
 	 * @param rofbase pointer to crofbase instance
+	 * @param ofp_version OpenFlow version to use
 	 * @param ra peer remote address
 	 * @param domain socket domain
 	 * @param type socket type
@@ -161,6 +162,7 @@ public: // methods
 	 */
 	cofctl(
 			crofbase *rofbase,
+			uint8_t ofp_version,
 			caddress const& ra,
 			int domain,
 			int type,
