@@ -302,12 +302,12 @@ cgttable::loop_check(
 		{
 			cofaction& action = (*at);
 
-			if (OFPAT_GROUP != action.get_type())
+			if (OFP12AT_GROUP != action.get_type())
 			{
 				continue;
 			}
 
-			uint32_t group_id = be32toh(action.oac_group->group_id);
+			uint32_t group_id = be32toh(action.oac_12group->group_id);
 
 			if (group_id == loop_group_id)
 			{

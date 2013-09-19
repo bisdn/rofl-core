@@ -448,7 +448,7 @@ cofflow_stats_reply::pack(uint8_t *buf, size_t buflen)
 		fs->cookie			= htobe64(cookie);
 		fs->packet_count	= htobe64(packet_count);
 		fs->byte_count		= htobe64(byte_count);
-		actions.pack(fs->actions, buflen - sizeof(struct ofp10_flow_stats));
+		actions.pack(OFP10_VERSION, fs->actions, buflen - sizeof(struct ofp10_flow_stats));
 
 	} break;
 	case OFP12_VERSION: {
@@ -468,7 +468,7 @@ cofflow_stats_reply::pack(uint8_t *buf, size_t buflen)
 		fs->packet_count	= htobe64(packet_count);
 		fs->byte_count		= htobe64(byte_count);
 		match.pack(&(fs->match), match.length());
-		instructions.pack((struct ofp_instruction*)(((uint8_t*)&(fs->match)) + match.length()), instructions.length());
+		instructions.pack(OFP12_VERSION, (struct ofp_instruction*)(((uint8_t*)&(fs->match)) + match.length()), instructions.length());
 
 	} break;
 	default:
@@ -499,7 +499,7 @@ cofflow_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		byte_count		= be64toh(fs->byte_count);
 
 		match.unpack(&(fs->match), sizeof(struct ofp10_match));
-		actions.unpack(fs->actions, buflen - sizeof(struct ofp10_flow_stats));
+		actions.unpack(OFP10_VERSION, fs->actions, buflen - sizeof(struct ofp10_flow_stats));
 
 	} break;
 	case OFP12_VERSION: {
@@ -531,7 +531,7 @@ cofflow_stats_reply::unpack(uint8_t *buf, size_t buflen)
 			throw eInval();
 
 		match.unpack(&(fs->match), matchlen);
-		instructions.unpack((struct ofp_instruction*)(buf + sizeof(struct ofp12_flow_stats) - 4 + matchlen),
+		instructions.unpack(OFP12_VERSION, (struct ofp_instruction*)(buf + sizeof(struct ofp12_flow_stats) - 4 + matchlen),
 									buflen - sizeof(struct ofp12_flow_stats) + 4 - matchlen);
 
 	} break;

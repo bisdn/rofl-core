@@ -7,17 +7,20 @@
 
 using namespace rofl;
 
-cofaclist::cofaclist()
+cofaclist::cofaclist(uint8_t ofp_version) :
+		ofp_version(ofp_version)
 {
 
 }
 
 
 cofaclist::cofaclist(
+		uint8_t ofp_version,
 		struct ofp_action_header *achdr,
-		size_t aclen)
+		size_t aclen) :
+				ofp_version(ofp_version)
 {
-	unpack(achdr, aclen);
+	unpack(ofp_version, achdr, aclen);
 }
 
 
@@ -57,10 +60,13 @@ cofaclist::find_action(enum ofp_action_type type,
 
 std::vector<cofaction>&
 cofaclist::unpack(
+		uint8_t ofp_version,
 		struct ofp_action_header *achdr,
 		size_t aclen)
 throw (eBadActionBadLen, eBadActionBadOutPort)
 {
+	this->ofp_version = ofp_version;
+
 	clear(); // clears elems
 
 	WRITELOG(COFACTION, DBG, "cofaclist(%p)::unpack() aclen:%d", this, aclen);
@@ -75,7 +81,7 @@ throw (eBadActionBadLen, eBadActionBadOutPort)
 		if (be16toh(achdr->len) < sizeof(struct ofp_action_header))
 			throw eBadActionBadLen();
 
-		next() = cofaction(achdr, be16toh(achdr->len) );
+		next() = cofaction(ofp_version, achdr, be16toh(achdr->len) );
 
 		WRITELOG(COFACTION, DBG, "cofaclist(%p)::unpack() new action: %s", this, back().c_str());
 
@@ -89,9 +95,13 @@ throw (eBadActionBadLen, eBadActionBadOutPort)
 
 struct ofp_action_header*
 cofaclist::pack(
-	struct ofp_action_header *achdr,
-	size_t aclen) const throw (eAcListInval)
+		uint8_t ofp_version,
+		struct ofp_action_header *achdr,
+		size_t aclen) const throw (eAcListInval)
 {
+	if (this->ofp_version != ofp_version)
+		throw eAcListInval();
+
 	if (aclen < length())
 		throw eAcListInval();
 
@@ -99,7 +109,7 @@ cofaclist::pack(
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		achdr = (struct ofp_action_header*)
-				((uint8_t*)((*it).pack(achdr, (*it).length())) + (*it).length());
+				((uint8_t*)((*it).pack(ofp_version, achdr, (*it).length())) + (*it).length());
 	}
 	return achdr;
 }
@@ -154,12 +164,30 @@ cofaclist::count_action_output(
 	{
 		cofaction action(*it);
 
-		if (OFPAT_OUTPUT != action.get_type())
-		{
-			continue;
-		}
 
-		uint32_t out_port = be32toh(action.oac_output->port);
+		uint32_t out_port = 0;
+
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+
+			if (OFP10AT_OUTPUT != action.get_type()) {
+				continue;
+			}
+			out_port = be16toh(action.oac_10output->port);
+
+		} break;
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+
+			if (OFP12AT_OUTPUT != action.get_type()) {
+				continue;
+			}
+			out_port = be32toh(action.oac_12output->port);
+
+		} break;
+		default:
+			throw eBadVersion();
+		}
 
 		if ((0 == port_no) || (out_port == port_no))
 		{
@@ -179,11 +207,27 @@ cofaclist::actions_output_ports()
 	for (cofaclist::iterator
 			it = elems.begin(); it != elems.end(); ++it)
 	{
-		if ((*it).get_type() != OFPAT_OUTPUT)
-		{
-			continue;
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+
+			if ((*it).get_type() != OFP10AT_OUTPUT) {
+				continue;
+			}
+			outports.push_back(be16toh((*it).oac_10output->port));
+
+		} break;
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+
+			if ((*it).get_type() != OFP12AT_OUTPUT) {
+				continue;
+			}
+			outports.push_back(be32toh((*it).oac_12output->port));
+
+		} break;
+		default:
+			throw eBadVersion();
 		}
-		outports.push_back(be32toh((*it).oac_output->port));
 	}
 	return outports;
 }

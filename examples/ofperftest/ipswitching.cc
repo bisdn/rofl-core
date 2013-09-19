@@ -91,7 +91,7 @@ ipswitching::install_flow_mods(cofdpt *dpt, unsigned int n)
 
 		fe.match.set_ipv4_dst(addr);
 		fe.instructions.next() = cofinst_write_actions();
-		fe.instructions.back().actions.next() = cofaction_output(portnums[(i%2)]);
+		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), portnums[(i%2)]);
 
 		fprintf(stderr, "ipswitching: installing fake FLowMod entry #%d: %s\n",
 				i, fe.c_str());
@@ -267,23 +267,23 @@ ipswitching::handle_packet_in_arpv4(
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			actions.next() = cofaction_set_field(coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
+			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
 		}
 		// src uses vlan, dst is untagged => pop vlan tag
 		else if ((fib[dpt][ip_dst].vid == 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			actions.next() = cofaction_pop_vlan();
+			actions.next() = cofaction_pop_vlan(dpt->get_version());
 		}
 		// src is untagged, dst uses vlan => push vlan tag
 		else if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid == 0xffff)) {
-			actions.next() = cofaction_push_vlan(fvlanframe::VLAN_CTAG_ETHER);
-			actions.next() = cofaction_set_field(coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
+			actions.next() = cofaction_push_vlan(dpt->get_version(), fvlanframe::VLAN_CTAG_ETHER);
+			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
 		}
 		// src and dst are untagged => do nothing
 		else {
 			// do nothing
 		}
 
-		actions.next() = cofaction_output(fib[dpt][ip_dst].port_no);
+		actions.next() = cofaction_output(dpt->get_version(), fib[dpt][ip_dst].port_no);
 		if (OFP_NO_BUFFER == msg->get_buffer_id()) {
 			fprintf(stderr, "NOEEEETTTTT!!!!!\n");
 			send_packet_out_message(
@@ -350,24 +350,24 @@ ipswitching::handle_packet_in_ipv4(
 		// both use vlan => just reset the vid
 		if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
 			fe.match.set_vlan_vid(fib[dpt][ip_src].vid);
-			fe.instructions.back().actions.next() = cofaction_set_field(coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
+			fe.instructions.back().actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
 		}
 		// src uses vlan, dst is untagged => pop vlan tag
 		else if ((fib[dpt][ip_dst].vid == 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
 			fe.match.set_vlan_vid(fib[dpt][ip_src].vid);
-			fe.instructions.back().actions.next() = cofaction_pop_vlan();
+			fe.instructions.back().actions.next() = cofaction_pop_vlan(dpt->get_version());
 		}
 		// src is untagged, dst uses vlan => push vlan tag
 		else if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid == 0xffff)) {
-			fe.instructions.back().actions.next() = cofaction_push_vlan(fvlanframe::VLAN_CTAG_ETHER);
-			fe.instructions.back().actions.next() = cofaction_set_field(coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
+			fe.instructions.back().actions.next() = cofaction_push_vlan(dpt->get_version(), fvlanframe::VLAN_CTAG_ETHER);
+			fe.instructions.back().actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
 		}
 		// src and dst are untagged => do nothing
 		else {
 			// do nothing
 		}
 
-		fe.instructions.back().actions.next() = cofaction_output(fib[dpt][ip_dst].port_no);
+		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), fib[dpt][ip_dst].port_no);
 
 		fprintf(stderr, "ipswitching::handle_packet_in_ipv4() setting FlowMod entry: %s\n",
 				fe.c_str());
@@ -435,23 +435,23 @@ ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][it->second.addr].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			actions.next() = cofaction_set_field(coxmatch_ofb_vlan_vid(fib[dpt][it->second.addr].vid));
+			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][it->second.addr].vid));
 		}
 		// src uses vlan, dst is untagged => pop vlan tag
 		else if ((fib[dpt][it->second.addr].vid == 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			actions.next() = cofaction_pop_vlan();
+			actions.next() = cofaction_pop_vlan(dpt->get_version());
 		}
 		// src is untagged, dst uses vlan => push vlan tag
 		else if ((fib[dpt][it->second.addr].vid != 0xffff) && (fib[dpt][ip_src].vid == 0xffff)) {
-			actions.next() = cofaction_push_vlan(fvlanframe::VLAN_CTAG_ETHER);
-			actions.next() = cofaction_set_field(coxmatch_ofb_vlan_vid(fib[dpt][it->second.addr].vid));
+			actions.next() = cofaction_push_vlan(dpt->get_version(), fvlanframe::VLAN_CTAG_ETHER);
+			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][it->second.addr].vid));
 		}
 		// src and dst are untagged => do nothing
 		else {
 			// do nothing
 		}
 
-		actions.next() = cofaction_output(it->second.port_no);
+		actions.next() = cofaction_output(dpt->get_version(), it->second.port_no);
 
 #if 1
 		fprintf(stderr, "ipswitching::flood_vlans() %s => %s with actions: %s\n",
@@ -482,9 +482,9 @@ ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 
 	cofaclist actions;
 	if (fib[dpt][ip_src].vid != 0xffff) {
-		actions.next() = cofaction_pop_vlan();
+		actions.next() = cofaction_pop_vlan(dpt->get_version());
 	}
-	actions.next() = cofaction_output(OFPP_FLOOD);
+	actions.next() = cofaction_output(dpt->get_version(), OFPP_FLOOD);
 	if (OFP_NO_BUFFER == msg->get_buffer_id()) {
 		fprintf(stderr, "NOEEEETTTTT!!!!! (2.2)\n");
 		send_packet_out_message(

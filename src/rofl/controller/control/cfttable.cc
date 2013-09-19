@@ -64,20 +64,20 @@ uint32_t cfttable::all_instructions =
 		(1 << OFPIT_CLEAR_ACTIONS)	;
 
 uint32_t cfttable::all_actions =
-		(1 << OFPAT_OUTPUT) 		|
-		(1 << OFPAT_COPY_TTL_OUT) 	|
-		(1 << OFPAT_COPY_TTL_IN) 	|
-		(1 << OFPAT_SET_MPLS_TTL) 	|
-		(1 << OFPAT_DEC_MPLS_TTL) 	|
-		(1 << OFPAT_PUSH_VLAN) 		|
-		(1 << OFPAT_POP_VLAN) 		|
-		(1 << OFPAT_PUSH_MPLS) 		|
-		(1 << OFPAT_POP_MPLS) 		|
-		(1 << OFPAT_SET_QUEUE) 		|
-		(1 << OFPAT_GROUP) 			|
-		(1 << OFPAT_SET_NW_TTL) 	|
-		(1 << OFPAT_DEC_NW_TTL)		|
-		(1 << OFPAT_SET_FIELD);
+		(1 << OFP12AT_OUTPUT) 		|
+		(1 << OFP12AT_COPY_TTL_OUT) 	|
+		(1 << OFP12AT_COPY_TTL_IN) 	|
+		(1 << OFP12AT_SET_MPLS_TTL) 	|
+		(1 << OFP12AT_DEC_MPLS_TTL) 	|
+		(1 << OFP12AT_PUSH_VLAN) 		|
+		(1 << OFP12AT_POP_VLAN) 		|
+		(1 << OFP12AT_PUSH_MPLS) 		|
+		(1 << OFP12AT_POP_MPLS) 		|
+		(1 << OFP12AT_SET_QUEUE) 		|
+		(1 << OFP12AT_GROUP) 			|
+		(1 << OFP12AT_SET_NW_TTL) 	|
+		(1 << OFP12AT_DEC_NW_TTL)		|
+		(1 << OFP12AT_SET_FIELD);
 
 
 cfttable::cfttable(
@@ -835,8 +835,8 @@ cfttable::rem_ft_entry(
 				for (at = actions.begin(); at != actions.end(); ++at) {
 					cofaction& action = (*at);
 
-					if (be16toh(action.oac_header->type) == OFPAT_OUTPUT) {
-						if (be32toh(action.oac_output->port) == out_port) {
+					if (be16toh(action.oac_header->type) == OFP12AT_OUTPUT) {
+						if (be32toh(action.oac_12output->port) == out_port) {
 							entry->disable_entry();
 							delete_table.insert(entry);
 						}
@@ -850,7 +850,7 @@ cfttable::rem_ft_entry(
 				// ... in OFPIT_WRITE_ACTIONS (we're lucky here: only a single OFPAT_OUTPUT can exist here!)
 				if (be32toh(
 						entry->find_inst(OFPIT_WRITE_ACTIONS).
-								find_action(OFPAT_OUTPUT).oac_output->port) == out_port) {
+								find_action(OFP12AT_OUTPUT).oac_12output->port) == out_port) {
 					entry->disable_entry();
 					delete_table.insert(entry);
 				}
@@ -866,8 +866,8 @@ cfttable::rem_ft_entry(
 				cofaclist::iterator at;
 				for (at = actions.begin(); at != actions.end(); ++at) {
 					cofaction& action = (*at);
-					if (be16toh(action.oac_header->type) == OFPAT_GROUP) {
-						if (be32toh(action.oac_group->group_id) == out_group) {
+					if (be16toh(action.oac_header->type) == OFP12AT_GROUP) {
+						if (be32toh(action.oac_12group->group_id) == out_group) {
 							entry->disable_entry();
 							delete_table.insert(entry);
 						}
@@ -880,7 +880,7 @@ cfttable::rem_ft_entry(
 			try {
 				// ... in OFPIT_WRITE_ACTIONS (we're lucky here: only a single OFPAT_OUTPUT can exist here!)
 				if (be32toh((*it)->find_inst(OFPIT_WRITE_ACTIONS).
-						find_action(OFPAT_GROUP).oac_group->group_id) == out_group) {
+						find_action(OFP12AT_GROUP).oac_12group->group_id) == out_group) {
 					entry->disable_entry();
 					delete_table.insert(entry);
 				}
@@ -962,13 +962,13 @@ cfttable::update_group_ref_counts(
 				it = inst.actions.begin(); it != inst.actions.end(); ++it)
 		{
 			cofaction& action = (*it);
-			if (OFPAT_GROUP != action.get_type())
+			if (OFP12AT_GROUP != action.get_type())
 			{
 				continue;
 			}
 
 
-			uint32_t group_id = be32toh(action.oac_group->group_id);
+			uint32_t group_id = be32toh(action.oac_12group->group_id);
 			if (inc)
 			{
 				owner->inc_group_reference_count(group_id, fte);
@@ -995,12 +995,12 @@ cfttable::update_group_ref_counts(
 				it = inst.actions.begin(); it != inst.actions.end(); ++it)
 		{
 			cofaction& action = (*it);
-			if (OFPAT_GROUP != action.get_type())
+			if (OFP12AT_GROUP != action.get_type())
 			{
 				continue;
 			}
 
-			uint32_t group_id = be32toh(action.oac_group->group_id);
+			uint32_t group_id = be32toh(action.oac_12group->group_id);
 			if (inc)
 			{
 				owner->inc_group_reference_count(group_id, fte);

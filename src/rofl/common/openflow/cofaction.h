@@ -50,8 +50,9 @@ public: // data structures
 
 	union { // for OpenFlow 1.1
 		struct ofp_action_header				*oacu_header;
-		struct ofp_action_output				*oacu_output;
+
 		// OF1.0 actions
+		struct ofp10_action_output				*oacu_10output;
 		struct ofp10_action_enqueue				*oacu_10enqueue;
 		struct ofp10_action_vlan_vid			*oacu_10vlanvid;
 		struct ofp10_action_vlan_pcp			*oacu_10vlanpcp;
@@ -60,42 +61,44 @@ public: // data structures
 		struct ofp10_action_nw_tos				*oacu_10nwtos;
 		struct ofp10_action_tp_port				*oacu_10tpport;
 		struct ofp10_action_vendor_header		*oacu_10vendor;
-		// OF1.0 actions -done-
 
-		struct ofp_action_mpls_ttl				*oacu_mpls_ttl;
-		struct ofp_action_push 					*oacu_push;
-		struct ofp_action_pop_mpls 				*oacu_pop_mpls;
-		struct ofp_action_group 				*oacu_group;
-		struct ofp_action_nw_ttl 				*oacu_nw_ttl;
-		struct ofp_action_experimenter_header 	*oacu_experimenter_header;
-		struct ofp_action_set_queue 			*oacu_set_queue;
-		struct ofp_action_set_field 			*oacu_set_field;
+		// OF1.2 actions
+		struct ofp12_action_output				*oacu_12output;
+		struct ofp12_action_mpls_ttl			*oacu_12mpls_ttl;
+		struct ofp12_action_push 				*oacu_12push;
+		struct ofp12_action_pop_mpls 			*oacu_12pop_mpls;
+		struct ofp12_action_group 				*oacu_12group;
+		struct ofp12_action_nw_ttl 				*oacu_12nw_ttl;
+		struct ofp12_action_experimenter_header *oacu_12experimenter;
+		struct ofp12_action_set_queue 			*oacu_12set_queue;
+		struct ofp12_action_set_field 			*oacu_12set_field;
 	} oac_oacu;
 
-#define oac_header oac_oacu.oacu_header			// action: plain header
-#define oac_output oac_oacu.oacu_output			// action: output
-#define oac_enqueue oac_oacu.oacu_10enqueue		// action: enqueue
-#define oac_vlanvid oac_oacu.oacu_10vlanvid		// action: vlan_vid
-#define oac_vlanpcp oac_oacu.oacu_10vlanpcp		// action: vlan_pcp
-#define oac_dladdr oac_oacu.oacu_10dladdr		// action: dl_addr
-#define oac_nwaddr oac_oacu.oacu_10nwaddr		// action: nw_addr
-#define oac_nwtos oac_oacu.oacu_10nwtos			// action: nw_tos
-#define oac_tpport oac_oacu.oacu_10tpport		// action: tp_port
-#define oac_vendor oac_oacu.oacu_10vendor		// action: vendor
+#define oac_header oac_oacu.oacu_header				// action: plain header
 
-#define oac_mpls_ttl oac_oacu.oacu_mpls_ttl		// action: mpls_ttl
-#define oac_push oac_oacu.oacu_push				// action: push
-#define oac_pop_mpls oac_oacu.oacu_pop_mpls		// action: pop_mpls
-#define oac_group oac_oacu.oacu_group			// action: group
-#define oac_nw_ttl oac_oacu.oacu_nw_ttl			// action: nw_ttl
-#define oac_experimenter_header oac_oacu.oacu_experimenter_header	// action: experimenter_header
-#define oac_header oac_oacu.oacu_header			// action: header
-#define oac_set_queue oac_oacu.oacu_set_queue	// action: set_queue
+#define oac_10output 	oac_oacu.oacu_10output		// action: output OF1.0
+#define oac_10enqueue 	oac_oacu.oacu_10enqueue		// action: enqueue
+#define oac_10vlanvid 	oac_oacu.oacu_10vlanvid		// action: vlan_vid
+#define oac_10vlanpcp 	oac_oacu.oacu_10vlanpcp		// action: vlan_pcp
+#define oac_10dladdr 	oac_oacu.oacu_10dladdr		// action: dl_addr
+#define oac_10nwaddr 	oac_oacu.oacu_10nwaddr		// action: nw_addr
+#define oac_10nwtos 	oac_oacu.oacu_10nwtos		// action: nw_tos
+#define oac_10tpport 	oac_oacu.oacu_10tpport		// action: tp_port
+#define oac_10vendor 	oac_oacu.oacu_10vendor		// action: vendor
 
-#define oac_set_field oac_oacu.oacu_set_field	// action: set field
+#define oac_12output 	oac_oacu.oacu_12output		// action: output OF1.2/OF1.3
+#define oac_12mpls_ttl 	oac_oacu.oacu_12mpls_ttl	// action: mpls_ttl
+#define oac_12push 		oac_oacu.oacu_12push		// action: push
+#define oac_12pop_mpls 	oac_oacu.oacu_12pop_mpls	// action: pop_mpls
+#define oac_12group 	oac_oacu.oacu_12group		// action: group
+#define oac_12nw_ttl 	oac_oacu.oacu_12nw_ttl		// action: nw_ttl
+#define oac_12experimenter oac_oacu.oacu_12experimenter	// action: experimenter_header
+#define oac_12set_queue oac_oacu.oacu_12set_queue	// action: set_queue
+#define oac_12set_field oac_oacu.oacu_12set_field	// action: set field
 
 protected: // data structures
 
+	uint8_t ofp_version;
 	cmemory action;
 	std::string info;
 
@@ -103,13 +106,16 @@ public: // methods
 
 	/** constructor
 	 */
-	cofaction(size_t datalen = COFACTION_DEFAULT_SIZE);
+	cofaction(
+			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
+			size_t datalen = COFACTION_DEFAULT_SIZE);
 
 	/** constructor
 	 */
 	cofaction(
-		struct ofp_action_header* action, 
-		size_t aclen) throw (eBadActionBadLen, eBadActionBadOutPort);
+			uint8_t ofp_version,
+			struct ofp_action_header* action,
+			size_t aclen) throw (eBadActionBadLen, eBadActionBadOutPort);
 
 	/** copy constructor
 	 */
@@ -145,28 +151,24 @@ public: // methods
 	 */
 	struct ofp_action_header*
 	pack(
-		struct ofp_action_header* achdr,
-		size_t aclen) const throw (eActionInval);
+			uint8_t ofp_version,
+			struct ofp_action_header* achdr,
+			size_t aclen) const throw (eActionInval);
 
 	/** unpack
 	 */
 	void
 	unpack(
-		struct ofp_action_header *achdr,
-		size_t aclen)
-		throw (eBadActionBadLen, eBadActionBadOutPort, eBadActionBadType);
+			uint8_t ofp_version,
+			struct ofp_action_header *achdr,
+			size_t aclen)
+			throw (eBadActionBadLen, eBadActionBadOutPort, eBadActionBadType);
 
 	/**
 	 *
 	 */
 	uint16_t
 	get_type() const;
-
-	/**
-	 *
-	 */
-	uint32_t
-	get_port() throw (eActionInvalType);
 
 	/** return oxm for OFPAT_SET_FIELD
 	 *
@@ -176,12 +178,37 @@ public: // methods
 
 protected: // methods
 
+	/**
+	 *
+	 */
+	void
+	resize(size_t size);
+
 	/** create info string
 	 */
 	void
 	__make_info();
 
+private:
 
+	/** unpack OF1.0
+	 */
+	void
+	unpack(
+			struct ofp10_action_header *achdr, size_t aclen);
+
+	/** unpack OF1.2
+	 */
+	void
+	unpack(
+			struct ofp12_action_header *achdr, size_t aclen);
+
+
+	/** unpack OF1.3
+	 */
+	void
+	unpack(
+			struct ofp13_action_header *achdr, size_t aclen);
 };
 
 
@@ -208,20 +235,43 @@ public:
 	/** constructor
 	 */
 	cofaction_output(
+			uint8_t ofp_version,
 			uint32_t port,
 			uint16_t max_len = 128) :
-				cofaction(sizeof(struct ofp_action_output))
+				cofaction(ofp_version, sizeof(struct ofp10_action_output))
 	{
-		oac_output->type = htobe16(OFPAT_OUTPUT);
-		oac_output->len = htobe16(sizeof(struct ofp_action_output));
-		oac_output->port = htobe32(port);
-		oac_output->max_len = htobe16(max_len);
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			cofaction::resize(sizeof(struct ofp10_action_output));
+			oac_10output->type 		= htobe16(OFP10AT_OUTPUT);
+			oac_10output->len 		= htobe16(sizeof(struct ofp10_action_output));
+			oac_10output->port 		= htobe16(port);
+			oac_10output->max_len 	= htobe16(max_len);
+		} break;
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_output));
+			oac_12output->type 		= htobe16(OFP12AT_OUTPUT);
+			oac_12output->len 		= htobe16(sizeof(struct ofp12_action_output));
+			oac_12output->port 		= htobe32(port);
+			oac_12output->max_len 	= htobe16(max_len);
+		} break;
+		default: {
+			throw eBadVersion();
+		}
+		}
 	};
 
 	/** destructor
 	 */
 	virtual
 	~cofaction_output() {};
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_port() throw (eActionInvalType);
 
 	/**
 	 *
@@ -243,12 +293,20 @@ public:
 	/** constructor
 	 */
 	cofaction_set_vlan_vid(
+			uint8_t ofp_version,
 			uint16_t vlan_vid) :
-				cofaction(sizeof(struct ofp10_action_vlan_vid))
+				cofaction(ofp_version, sizeof(struct ofp10_action_vlan_vid))
 	{
-		oac_vlanvid->type = htobe16(OFP10AT_SET_VLAN_VID);
-		oac_vlanvid->len = htobe16(sizeof(struct ofp10_action_vlan_vid));
-		oac_vlanvid->vlan_vid = vlan_vid;
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			cofaction::resize(sizeof(struct ofp10_action_vlan_vid));
+			oac_10vlanvid->type 	= htobe16(OFP10AT_SET_VLAN_VID);
+			oac_10vlanvid->len 		= htobe16(sizeof(struct ofp10_action_vlan_vid));
+			oac_10vlanvid->vlan_vid = vlan_vid;
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -265,12 +323,20 @@ public:
 	/** constructor
 	 */
 	cofaction_set_vlan_pcp(
+			uint8_t ofp_version,
 			uint8_t vlan_pcp) :
-				cofaction(sizeof(struct ofp10_action_vlan_pcp))
+				cofaction(ofp_version, sizeof(struct ofp10_action_vlan_pcp))
 	{
-		oac_vlanpcp->type = htobe16(OFP10AT_SET_VLAN_PCP);
-		oac_vlanpcp->len = htobe16(sizeof(struct ofp10_action_vlan_vid));
-		oac_vlanpcp->vlan_pcp = vlan_pcp;
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			cofaction::resize(sizeof(struct ofp10_action_vlan_pcp));
+			oac_10vlanpcp->type 	= htobe16(OFP10AT_SET_VLAN_PCP);
+			oac_10vlanpcp->len 		= htobe16(sizeof(struct ofp10_action_vlan_pcp));
+			oac_10vlanpcp->vlan_pcp = vlan_pcp;
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -286,11 +352,18 @@ class cofaction_strip_vlan : public cofaction {
 public:
 	/** constructor
 	 */
-	cofaction_strip_vlan() :
-				cofaction(sizeof(struct ofp_action_header))
+	cofaction_strip_vlan(uint8_t ofp_version) :
+				cofaction(ofp_version, sizeof(struct ofp10_action_header))
 	{
-		oac_header->type = htobe16(OFP10AT_STRIP_VLAN);
-		oac_header->len = htobe16(sizeof(struct ofp_action_header));
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			cofaction::resize(sizeof(struct ofp10_action_header));
+			oac_header->type 	= htobe16(OFP10AT_STRIP_VLAN);
+			oac_header->len 	= htobe16(sizeof(struct ofp10_action_header));
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -307,12 +380,20 @@ public:
 	/** constructor
 	 */
 	cofaction_set_dl_src(
+			uint8_t ofp_version,
 			rofl::cmacaddr const& maddr) :
-				cofaction(sizeof(struct ofp10_action_dl_addr))
+				cofaction(ofp_version, sizeof(struct ofp10_action_dl_addr))
 	{
-		oac_dladdr->type = htobe16(OFP10AT_SET_DL_SRC);
-		oac_dladdr->len = htobe16(sizeof(struct ofp10_action_dl_addr));
-		memcpy(oac_dladdr->dl_addr, maddr.somem(), OFP_ETH_ALEN);
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			cofaction::resize(sizeof(struct ofp10_action_dl_addr));
+			oac_10dladdr->type 	= htobe16(OFP10AT_SET_DL_SRC);
+			oac_10dladdr->len 	= htobe16(sizeof(struct ofp10_action_dl_addr));
+			memcpy(oac_10dladdr->dl_addr, maddr.somem(), OFP_ETH_ALEN);
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -329,12 +410,20 @@ public:
 	/** constructor
 	 */
 	cofaction_set_dl_dst(
+			uint8_t ofp_version,
 			rofl::cmacaddr const& maddr) :
-				cofaction(sizeof(struct ofp10_action_dl_addr))
+				cofaction(ofp_version, sizeof(struct ofp10_action_dl_addr))
 	{
-		oac_dladdr->type = htobe16(OFP10AT_SET_DL_DST);
-		oac_dladdr->len = htobe16(sizeof(struct ofp10_action_dl_addr));
-		memcpy(oac_dladdr->dl_addr, maddr.somem(), OFP_ETH_ALEN);
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			cofaction::resize(sizeof(struct ofp10_action_dl_addr));
+			oac_10dladdr->type 	= htobe16(OFP10AT_SET_DL_DST);
+			oac_10dladdr->len 	= htobe16(sizeof(struct ofp10_action_dl_addr));
+			memcpy(oac_10dladdr->dl_addr, maddr.somem(), OFP_ETH_ALEN);
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -351,12 +440,20 @@ public:
 	/** constructor
 	 */
 	cofaction_set_nw_src(
+			uint8_t ofp_version,
 			rofl::caddress const& addr) :
-				cofaction(sizeof(struct ofp10_action_nw_addr))
+				cofaction(ofp_version, sizeof(struct ofp10_action_nw_addr))
 	{
-		oac_nwaddr->type = htobe16(OFP10AT_SET_NW_SRC);
-		oac_nwaddr->len = htobe16(sizeof(struct ofp10_action_nw_addr));
-		oac_nwaddr->nw_addr = addr.ca_s4addr->sin_addr.s_addr;
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			cofaction::resize(sizeof(struct ofp10_action_nw_addr));
+			oac_10nwaddr->type 		= htobe16(OFP10AT_SET_NW_SRC);
+			oac_10nwaddr->len 		= htobe16(sizeof(struct ofp10_action_nw_addr));
+			oac_10nwaddr->nw_addr 	= addr.ca_s4addr->sin_addr.s_addr;
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -373,12 +470,20 @@ public:
 	/** constructor
 	 */
 	cofaction_set_nw_dst(
+			uint8_t ofp_version,
 			rofl::caddress const& addr) :
-				cofaction(sizeof(struct ofp10_action_nw_addr))
+				cofaction(ofp_version, sizeof(struct ofp10_action_nw_addr))
 	{
-		oac_nwaddr->type = htobe16(OFP10AT_SET_NW_DST);
-		oac_nwaddr->len = htobe16(sizeof(struct ofp10_action_nw_addr));
-		oac_nwaddr->nw_addr = addr.ca_s4addr->sin_addr.s_addr;
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			cofaction::resize(sizeof(struct ofp10_action_nw_addr));
+			oac_10nwaddr->type 		= htobe16(OFP10AT_SET_NW_DST);
+			oac_10nwaddr->len 		= htobe16(sizeof(struct ofp10_action_nw_addr));
+			oac_10nwaddr->nw_addr 	= addr.ca_s4addr->sin_addr.s_addr;
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -395,12 +500,20 @@ public:
 	/** constructor
 	 */
 	cofaction_set_nw_tos(
+			uint8_t ofp_version,
 			uint8_t nw_tos) :
-				cofaction(sizeof(struct ofp10_action_nw_tos))
+				cofaction(ofp_version, sizeof(struct ofp10_action_nw_tos))
 	{
-		oac_nwtos->type = htobe16(OFP10AT_SET_NW_TOS);
-		oac_nwtos->len = htobe16(sizeof(struct ofp10_action_nw_tos));
-		oac_nwtos->nw_tos = nw_tos;
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			cofaction::resize(sizeof(struct ofp10_action_nw_tos));
+			oac_10nwtos->type 	= htobe16(OFP10AT_SET_NW_TOS);
+			oac_10nwtos->len 	= htobe16(sizeof(struct ofp10_action_nw_tos));
+			oac_10nwtos->nw_tos = nw_tos;
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -417,12 +530,20 @@ public:
 	/** constructor
 	 */
 	cofaction_set_tp_src(
+			uint8_t ofp_version,
 			uint16_t tp_src) :
-				cofaction(sizeof(struct ofp10_action_tp_port))
+				cofaction(ofp_version, sizeof(struct ofp10_action_tp_port))
 	{
-		oac_tpport->type = htobe16(OFP10AT_SET_TP_SRC);
-		oac_tpport->len = htobe16(sizeof(struct ofp10_action_tp_port));
-		oac_tpport->tp_port = tp_src;
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			cofaction::resize(sizeof(struct ofp10_action_tp_port));
+			oac_10tpport->type 		= htobe16(OFP10AT_SET_TP_SRC);
+			oac_10tpport->len 		= htobe16(sizeof(struct ofp10_action_tp_port));
+			oac_10tpport->tp_port 	= tp_src;
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -439,12 +560,20 @@ public:
 	/** constructor
 	 */
 	cofaction_set_tp_dst(
+			uint8_t ofp_version,
 			uint16_t tp_dst) :
-				cofaction(sizeof(struct ofp10_action_tp_port))
+				cofaction(ofp_version, sizeof(struct ofp10_action_tp_port))
 	{
-		oac_tpport->type = htobe16(OFP10AT_SET_TP_DST);
-		oac_tpport->len = htobe16(sizeof(struct ofp10_action_tp_port));
-		oac_tpport->tp_port = tp_dst;
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			cofaction::resize(sizeof(struct ofp10_action_tp_port));
+			oac_10tpport->type 		= htobe16(OFP10AT_SET_TP_DST);
+			oac_10tpport->len 		= htobe16(sizeof(struct ofp10_action_tp_port));
+			oac_10tpport->tp_port 	= tp_dst;
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -461,19 +590,80 @@ public:
 	/** constructor
 	 */
 	cofaction_enqueue(
+			uint8_t ofp_version,
 			uint16_t port, uint32_t queue_id) :
-				cofaction(sizeof(struct ofp10_action_enqueue))
+				cofaction(ofp_version, sizeof(struct ofp10_action_enqueue))
 	{
-		oac_enqueue->type = htobe16(OFP10AT_ENQUEUE);
-		oac_enqueue->len = htobe16(sizeof(struct ofp10_action_tp_port));
-		oac_enqueue->port = htobe16(port);
-		oac_enqueue->queue_id = htobe32(queue_id);
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			cofaction::resize(sizeof(struct ofp10_action_enqueue));
+			oac_10enqueue->type 	= htobe16(OFP10AT_ENQUEUE);
+			oac_10enqueue->len 		= htobe16(sizeof(struct ofp10_action_enqueue));
+			oac_10enqueue->port 	= htobe16(port);
+			oac_10enqueue->queue_id = htobe32(queue_id);
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
 	 */
 	virtual
 	~cofaction_enqueue() {};
+};
+
+
+
+/** OFPAT_VENDOR
+ *
+ */
+class cofaction_vendor : public cofaction {
+public:
+	/** constructor
+	 */
+	cofaction_vendor(
+			uint8_t ofp_version,
+			uint32_t vendor,
+			uint8_t *data = (uint8_t*)0, size_t datalen = 0) :
+				cofaction(ofp_version, sizeof(struct ofp10_action_vendor_header) + datalen)
+	{
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			cofaction::resize(sizeof(struct ofp10_action_vendor_header) + datalen);
+			oac_10vendor->type 		= htobe16(OFP10AT_VENDOR);
+			oac_10vendor->len 		= htobe16(sizeof(struct ofp10_action_vendor_header) + datalen);
+			oac_10vendor->vendor 	= htobe32(vendor);
+
+			if (data && datalen) {
+				memcpy(oac_10vendor->data, data, datalen);
+			}
+		} break;
+		default:
+			throw eBadVersion();
+		}
+	};
+
+	/**
+	 * constructor
+	 */
+	cofaction_vendor(cofaction const& action) :
+		cofaction(action)
+	{
+		if (OFP10AT_VENDOR != action.get_type())
+			throw eActionInvalType();
+	};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_vendor() {};
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_vendor() const { return be32toh(oac_10vendor->vendor); };
 };
 
 
@@ -490,12 +680,21 @@ public:
 	/** constructor
 	 */
 	cofaction_set_mpls_ttl(
+			uint8_t ofp_version,
 			uint8_t mpls_ttl) :
-				cofaction(sizeof(struct ofp_action_mpls_ttl))
+				cofaction(ofp_version, sizeof(struct ofp12_action_mpls_ttl))
 	{
-		oac_mpls_ttl->type = htobe16(OFPAT_SET_MPLS_TTL);
-		oac_mpls_ttl->len = htobe16(sizeof(struct ofp_action_mpls_ttl));
-		oac_mpls_ttl->mpls_ttl = mpls_ttl;
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_mpls_ttl));
+			oac_12mpls_ttl->type 		= htobe16(OFP12AT_SET_MPLS_TTL);
+			oac_12mpls_ttl->len 		= htobe16(sizeof(struct ofp12_action_mpls_ttl));
+			oac_12mpls_ttl->mpls_ttl 	= mpls_ttl;
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -512,11 +711,19 @@ class cofaction_dec_mpls_ttl : public cofaction {
 public:
 	/** constructor
 	 */
-	cofaction_dec_mpls_ttl() :
-				cofaction(sizeof(struct ofp_action_header))
+	cofaction_dec_mpls_ttl(uint8_t ofp_version) :
+				cofaction(ofp_version, sizeof(struct ofp12_action_header))
 	{
-		oac_header->type = htobe16(OFPAT_DEC_MPLS_TTL);
-		oac_header->len = htobe16(sizeof(struct ofp_action_mpls_ttl));
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_header));
+			oac_header->type 	= htobe16(OFP12AT_DEC_MPLS_TTL);
+			oac_header->len 	= htobe16(sizeof(struct ofp12_action_header));
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -534,12 +741,21 @@ public:
 	/** constructor
 	 */
 	cofaction_push_vlan(
+			uint8_t ofp_version,
 			uint16_t ethertype) :
-				cofaction(sizeof(struct ofp_action_push))
+				cofaction(ofp_version, sizeof(struct ofp12_action_push))
 	{
-		oac_push->type = htobe16(OFPAT_PUSH_VLAN);
-		oac_push->len = htobe16(sizeof(struct ofp_action_push));
-		oac_push->ethertype = htobe16(ethertype);
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_push));
+			oac_12push->type 		= htobe16(OFP12AT_PUSH_VLAN);
+			oac_12push->len 		= htobe16(sizeof(struct ofp12_action_push));
+			oac_12push->ethertype 	= htobe16(ethertype);
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -557,12 +773,21 @@ public:
 	/** constructor
 	 */
 	cofaction_push_mpls(
+			uint8_t ofp_version,
 			uint16_t ethertype) :
-				cofaction(sizeof(struct ofp_action_push))
+				cofaction(ofp_version, sizeof(struct ofp12_action_push))
 	{
-		oac_push->type = htobe16(OFPAT_PUSH_MPLS);
-		oac_push->len = htobe16(sizeof(struct ofp_action_push));
-		oac_push->ethertype = htobe16(ethertype);
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_push));
+			oac_12push->type 		= htobe16(OFP12AT_PUSH_MPLS);
+			oac_12push->len 		= htobe16(sizeof(struct ofp12_action_push));
+			oac_12push->ethertype 	= htobe16(ethertype);
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -579,11 +804,19 @@ class cofaction_pop_vlan : public cofaction {
 public:
 	/** constructor
 	 */
-	cofaction_pop_vlan() :
-				cofaction(sizeof(struct ofp_action_header))
+	cofaction_pop_vlan(uint8_t ofp_version) :
+				cofaction(ofp_version, sizeof(struct ofp12_action_header))
 	{
-		oac_header->type = htobe16(OFPAT_POP_VLAN);
-		oac_header->len = htobe16(sizeof(struct ofp_action_header));
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_header));
+			oac_header->type 	= htobe16(OFP12AT_POP_VLAN);
+			oac_header->len 	= htobe16(sizeof(struct ofp12_action_header));
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -601,12 +834,21 @@ public:
 	/** constructor
 	 */
 	cofaction_pop_mpls(
+			uint8_t ofp_version,
 			uint16_t ethertype) :
-				cofaction(sizeof(struct ofp_action_pop_mpls))
+				cofaction(ofp_version, sizeof(struct ofp12_action_pop_mpls))
 	{
-		oac_pop_mpls->type = htobe16(OFPAT_POP_MPLS);
-		oac_pop_mpls->len = htobe16(sizeof(struct ofp_action_pop_mpls));
-		oac_pop_mpls->ethertype = htobe16(ethertype);
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_pop_mpls));
+			oac_12pop_mpls->type 		= htobe16(OFP12AT_POP_MPLS);
+			oac_12pop_mpls->len 		= htobe16(sizeof(struct ofp12_action_pop_mpls));
+			oac_12pop_mpls->ethertype 	= htobe16(ethertype);
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -625,12 +867,21 @@ public:
 	/** constructor
 	 */
 	cofaction_group(
+			uint8_t ofp_version,
 			uint32_t group_id) :
-				cofaction(sizeof(struct ofp_action_group))
+				cofaction(ofp_version, sizeof(struct ofp12_action_group))
 	{
-		oac_group->type = htobe16(OFPAT_GROUP);
-		oac_group->len = htobe16(sizeof(struct ofp_action_group));
-		oac_group->group_id = htobe32(group_id);
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_group));
+			oac_12group->type 		= htobe16(OFP12AT_GROUP);
+			oac_12group->len 		= htobe16(sizeof(struct ofp12_action_group));
+			oac_12group->group_id 	= htobe32(group_id);
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -648,12 +899,22 @@ public:
 	/** constructor
 	 */
 	cofaction_set_nw_ttl(
+			uint8_t ofp_version,
 			uint8_t nw_ttl) :
-				cofaction(sizeof(struct ofp_action_nw_ttl))
+				cofaction(ofp_version, sizeof(struct ofp12_action_nw_ttl))
 	{
-		oac_nw_ttl->type = htobe16(OFPAT_SET_NW_TTL);
-		oac_nw_ttl->len = htobe16(sizeof(struct ofp_action_nw_ttl));
-		oac_nw_ttl->nw_ttl = nw_ttl;
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_nw_ttl));
+			oac_12nw_ttl->type 		= htobe16(OFP12AT_SET_NW_TTL);
+			oac_12nw_ttl->len 		= htobe16(sizeof(struct ofp12_action_nw_ttl));
+			oac_12nw_ttl->nw_ttl 	= nw_ttl;
+		} break;
+		default:
+			throw eBadVersion();
+		}
+
 	};
 
 	/** destructor
@@ -670,11 +931,19 @@ class cofaction_dec_nw_ttl : public cofaction {
 public:
 	/** constructor
 	 */
-	cofaction_dec_nw_ttl() :
-				cofaction(sizeof(struct ofp_action_header))
+	cofaction_dec_nw_ttl(uint8_t ofp_version) :
+				cofaction(ofp_version, sizeof(struct ofp12_action_header))
 	{
-		oac_header->type = htobe16(OFPAT_DEC_NW_TTL);
-		oac_header->len = htobe16(sizeof(struct ofp_action_header));
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_header));
+			oac_header->type 	= htobe16(OFP12AT_DEC_NW_TTL);
+			oac_header->len 	= htobe16(sizeof(struct ofp12_action_header));
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -691,11 +960,19 @@ class cofaction_copy_ttl_out : public cofaction {
 public:
 	/** constructor
 	 */
-	cofaction_copy_ttl_out() :
-				cofaction(sizeof(struct ofp_action_header))
+	cofaction_copy_ttl_out(uint8_t ofp_version) :
+				cofaction(ofp_version, sizeof(struct ofp12_action_header))
 	{
-		oac_header->type = htobe16(OFPAT_COPY_TTL_OUT);
-		oac_header->len = htobe16(sizeof(struct ofp_action_header));
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_header));
+			oac_header->type 	= htobe16(OFP12AT_COPY_TTL_OUT);
+			oac_header->len 	= htobe16(sizeof(struct ofp12_action_header));
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -712,11 +989,20 @@ class cofaction_copy_ttl_in : public cofaction {
 public:
 	/** constructor
 	 */
-	cofaction_copy_ttl_in() :
-				cofaction(sizeof(struct ofp_action_header))
+	cofaction_copy_ttl_in(uint8_t ofp_version) :
+				cofaction(ofp_version, sizeof(struct ofp12_action_header))
 	{
-		oac_header->type = htobe16(OFPAT_COPY_TTL_IN);
-		oac_header->len = htobe16(sizeof(struct ofp_action_header));
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_header));
+			oac_header->type	= htobe16(OFP12AT_COPY_TTL_IN);
+			oac_header->len 	= htobe16(sizeof(struct ofp12_action_header));
+		} break;
+		default:
+			throw eBadVersion();
+		}
+
 	};
 
 	/** destructor
@@ -735,12 +1021,21 @@ public:
 	/** constructor
 	 */
 	cofaction_set_queue(
+			uint8_t ofp_version,
 			uint8_t queue_id) :
-				cofaction(sizeof(struct ofp_action_set_queue))
+				cofaction(ofp_version, sizeof(struct ofp12_action_set_queue))
 	{
-		oac_set_queue->type = htobe16(OFPAT_SET_QUEUE);
-		oac_set_queue->len = htobe16(sizeof(struct ofp_action_nw_ttl));
-		oac_set_queue->queue_id = queue_id;
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_set_queue));
+			oac_12set_queue->type 		= htobe16(OFP12AT_SET_QUEUE);
+			oac_12set_queue->len 		= htobe16(sizeof(struct ofp12_action_set_queue));
+			oac_12set_queue->queue_id 	= htobe32(queue_id);
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/** destructor
@@ -759,25 +1054,33 @@ public:
 	 *
 	 */
 	cofaction_set_field(
+			uint8_t ofp_version,
 			coxmatch const& oxm) :
-				cofaction(0)
+				cofaction(ofp_version, 0)
 	{
-		size_t total_length = 2 * sizeof(uint16_t) + oxm.length();
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			size_t total_length = 2 * sizeof(uint16_t) + oxm.length();
 
-		size_t pad = (0x7 & total_length);
+			size_t pad = (0x7 & total_length);
 
-		/* append padding if not a multiple of 8 */
-		if (pad) {
-			total_length += 8 - pad;
+			/* append padding if not a multiple of 8 */
+			if (pad) {
+				total_length += 8 - pad;
+			}
+
+			action.resize(total_length);
+
+			oac_12set_field 		= (struct ofp12_action_set_field*)action.somem();
+			oac_12set_field->type 	= htobe16(OFP12AT_SET_FIELD);
+			oac_12set_field->len 	= htobe16(total_length);
+
+			memcpy(oac_12set_field->field, (void*)oxm.sooxm(), oxm.length());
+		} break;
+		default:
+			throw eBadVersion();
 		}
-
-		action.resize(total_length);
-
-		oac_set_field = (struct ofp_action_set_field*)action.somem();
-		oac_set_field->type = htobe16(OFPAT_SET_FIELD);
-		oac_set_field->len = htobe16(total_length);
-
-		memcpy(oac_set_field->field, (void*)oxm.sooxm(), oxm.length());
 	};
 	/** destructor
 	 */
@@ -796,13 +1099,51 @@ public:
 	/** constructor
 	 */
 	cofaction_experimenter(
+			uint8_t ofp_version,
 			uint32_t exp_id,
-			size_t datalen = COFACTION_DEFAULT_SIZE) :
-				cofaction(sizeof(struct ofp_action_experimenter_header) + datalen)
+			uint32_t exp_type,
+			size_t datalen) :
+				cofaction(ofp_version, sizeof(struct ofp12_action_experimenter_header) + datalen)
 	{
-		oac_experimenter_header->type = htobe16(OFPAT_EXPERIMENTER);
-		oac_experimenter_header->len = htobe16(datalen);
-		oac_experimenter_header->experimenter = exp_id;
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_experimenter_header) + datalen);
+			oac_12experimenter->type 			= htobe16(OFP12AT_EXPERIMENTER);
+			oac_12experimenter->len 			= htobe16(sizeof(struct ofp12_action_experimenter_header) + datalen);
+			oac_12experimenter->experimenter 	= htobe32(exp_id);
+			oac_12experimenter->type			= htobe32(exp_type);
+		} break;
+		default:
+			throw eBadVersion();
+		}
+	};
+
+	/** constructor
+	 */
+	cofaction_experimenter(
+			uint8_t ofp_version,
+			uint32_t exp_id,
+			uint32_t exp_type,
+			uint8_t *data = (uint8_t*)0, size_t datalen = 0) :
+				cofaction(ofp_version, sizeof(struct ofp12_action_experimenter_header) + datalen)
+	{
+		switch (ofp_version) {
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct ofp12_action_experimenter_header) + datalen);
+			oac_12experimenter->type 			= htobe16(OFP12AT_EXPERIMENTER);
+			oac_12experimenter->len 			= htobe16(sizeof(struct ofp12_action_experimenter_header) + datalen);
+			oac_12experimenter->experimenter 	= htobe32(exp_id);
+			oac_12experimenter->exp_type		= htobe32(exp_type);
+
+			if (data && datalen) {
+				memcpy(oac_12experimenter->data, data, datalen);
+			}
+		} break;
+		default:
+			throw eBadVersion();
+		}
 	};
 
 	/**
@@ -811,7 +1152,7 @@ public:
 	cofaction_experimenter(cofaction const& action) :
 		cofaction(action)
 	{
-		if (OFPAT_EXPERIMENTER != action.get_type())
+		if (OFP12AT_EXPERIMENTER != action.get_type())
 			throw eActionInvalType();
 	};
 
@@ -824,7 +1165,7 @@ public:
 	 *
 	 */
 	uint32_t
-	get_exp_id() const { return oac_experimenter_header->experimenter; };
+	get_exp_id() const { return be32toh(oac_12experimenter->experimenter); };
 };
 
 

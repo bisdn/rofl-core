@@ -101,7 +101,7 @@ throw (eBucketBadLen)
 
 	size_t aclen = bclen - sizeof(struct ofp12_bucket);
 
-	actions.pack(bucket->actions, aclen);
+	actions.pack(OFP12_VERSION, bucket->actions, aclen);
 
 	return bucket;
 }
@@ -124,7 +124,7 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 
 	if (aclen >= sizeof(struct ofp_action_header))
 	{
-		actions.unpack(bucket->actions, aclen);
+		actions.unpack(OFP12_VERSION, bucket->actions, aclen);
 	}
 }
 
@@ -149,7 +149,7 @@ throw (eBucketBadLen)
 
 	size_t aclen = bclen - sizeof(struct ofp13_bucket);
 
-	actions.pack(bucket->actions, aclen);
+	actions.pack(OFP13_VERSION, bucket->actions, aclen);
 
 	return bucket;
 }
@@ -172,7 +172,7 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 
 	if (aclen >= sizeof(struct ofp_action_header))
 	{
-		actions.unpack(bucket->actions, aclen);
+		actions.unpack(OFP13_VERSION, bucket->actions, aclen);
 	}
 }
 

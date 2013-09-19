@@ -1264,9 +1264,9 @@ ctlbase::dpt_filter_action(
 			"action: %s", dpname.c_str(), action.c_str());
 
 	switch (action.get_type()) {
-	case OFPAT_OUTPUT:
+	case OFP12AT_OUTPUT:
 		{
-			actions.next() = cofaction_output(port_no);
+			actions.next() = cofaction_output(OFP12_VERSION, port_no);
 		}
 		break;
 	}
@@ -1524,9 +1524,9 @@ ctlbase::send_flow_mod_message(
 						cofaction action(*it);
 
 						switch (action.get_type()) {
-						case OFPAT_OUTPUT:
+						case OFP12AT_OUTPUT:
 							{
-								uint32_t out_port = be32toh(action.oac_output->port);
+								uint32_t out_port = be32toh(action.oac_12output->port);
 
 								if (out_port > OFPP_MAX)
 								{
@@ -1660,15 +1660,15 @@ ctlbase::send_packet_out_message(
 				cofaction action(*jt);
 
 				switch (action.get_type()) {
-				case OFPAT_OUTPUT:
+				case OFP12AT_OUTPUT:
 					{
-						uint32_t out_port = be32toh(action.oac_output->port);
+						uint32_t out_port = be32toh(action.oac_12output->port);
 
 						switch (out_port) {
 						case OFPP_ALL:
 						case OFPP_FLOOD:
 							{
-								accopy.next() = cofaction_output(it->first);
+								accopy.next() = cofaction_output(OFP12_VERSION, it->first);
 							}
 							break;
 						default:
@@ -1731,9 +1731,9 @@ ctlbase::send_packet_out_message(
 		cofaction action(*it);
 
 		switch (action.get_type()) {
-		case OFPAT_OUTPUT:
+		case OFP12AT_OUTPUT:
 			{
-				uint32_t out_port = be32toh(action.oac_output->port);
+				uint32_t out_port = be32toh(action.oac_12output->port);
 
 				if (out_port > OFPP_MAX)
 				{
@@ -2001,9 +2001,9 @@ ctlbase::send_group_mod_message(
 			cofaction action(*it);
 
 			switch (action.get_type()) {
-			case OFPAT_OUTPUT:
+			case OFP12AT_OUTPUT:
 				{
-					uint32_t out_port = be32toh(action.oac_output->port);
+					uint32_t out_port = be32toh(action.oac_12output->port);
 
 					if (out_port > OFPP_MAX)
 					{

@@ -9,8 +9,11 @@ using namespace rofl;
 std::set<cofinst*> cofinst::cofinst_set;
 
 cofinst::cofinst(
-	size_t size) :
-		instruction(size)
+		uint8_t ofp_version,
+		size_t size) :
+				ofp_version(ofp_version),
+				actions(ofp_version),
+				instruction(size)
 {
 	WRITELOG(COFINST, DBG, "cofinst(%p)::cofinst() [1]", this);
 	oin_header = (struct ofp_instruction*)instruction.somem();
@@ -20,13 +23,15 @@ cofinst::cofinst(
 
 
 cofinst::cofinst(
-	struct ofp_instruction* inhdr,
-	size_t inlen) :
-		instruction(inlen)
+		uint8_t ofp_version,
+		struct ofp_instruction* inhdr,
+		size_t inlen) :
+				actions(ofp_version),
+				instruction(inlen)
 {
 	WRITELOG(COFINST, DBG, "cofinst(%p)::cofinst() [2]", this);
 	pthread_mutex_init(&inmutex, NULL);
-	unpack(inhdr, inlen);
+	unpack(ofp_version, inhdr, inlen);
 	//cofinst_set.insert(this);
 }
 
@@ -72,9 +77,13 @@ cofinst::reset()
 
 struct ofp_instruction*
 cofinst::pack(
-	struct ofp_instruction* inhdr,
-	size_t inlen) const throw (eInstructionInval)
+		uint8_t ofp_version,
+		struct ofp_instruction* inhdr,
+		size_t inlen) const throw (eInstructionInval)
 {
+	if (this->ofp_version != ofp_version)
+		throw eInstructionInval();
+
 	//Lock lock(&inmutex);
 
 	if (inlen < this->length())
@@ -93,7 +102,7 @@ cofinst::pack(
 		{
 			size_t aclen = this->length() - sizeof(struct ofp_instruction);
 
-			actions.pack(((struct ofp_instruction_actions*)inhdr)->actions, aclen);
+			actions.pack(ofp_version, ((struct ofp_instruction_actions*)inhdr)->actions, aclen);
 		}
 		break;
 
@@ -130,10 +139,12 @@ cofinst::pack(
 
 void
 cofinst::unpack(
+		uint8_t ofp_version,
 		struct ofp_instruction *inhdr,
-		size_t inlen)
-throw (eInstructionBadLen, eInstructionBadExperimenter)
+		size_t inlen) throw (eInstructionBadLen, eInstructionBadExperimenter)
 {
+	this->ofp_version = ofp_version;
+
 	reset();
 
 	//Lock lock(&inmutex);
@@ -163,7 +174,7 @@ throw (eInstructionBadLen, eInstructionBadExperimenter)
 
 		if (aclen >= sizeof(struct ofp_action_header))
 		{
-			actions.unpack(oin_actions->actions, aclen);
+			actions.unpack(ofp_version, oin_actions->actions, aclen);
 		}
 		break;
 	}

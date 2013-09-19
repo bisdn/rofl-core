@@ -98,7 +98,7 @@ match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 
 		fe.match.set_eth_dst(r_mac);
 		fe.instructions.next() = cofinst_write_actions();
-		fe.instructions.back().actions.next() = cofaction_output(portnums[0]);
+		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), portnums[0]);
 
 		fprintf(stderr, "match_eth_dst: calling FLOW-MOD with entry: %s\n",
 				fe.c_str());
@@ -223,7 +223,7 @@ match_eth_dst::handle_packet_in(
 			(fib[dpt][vlan_id].find(eth_dst) == fib[dpt][vlan_id].end()))
 	{
 		cofaclist actions;
-		actions.next() = cofaction_output(OFPP_FLOOD);
+		actions.next() = cofaction_output(dpt->get_version(), OFPP_FLOOD);
 
 		if (OFP_NO_BUFFER == msg->get_buffer_id()) {
 			send_packet_out_message(
@@ -264,7 +264,7 @@ match_eth_dst::handle_packet_in(
 
 		fe.match.set_eth_dst(eth_dst);
 		fe.instructions.next() = cofinst_write_actions();
-		fe.instructions[0].actions.next() = cofaction_output(out_port);
+		fe.instructions[0].actions.next() = cofaction_output(dpt->get_version(), out_port);
 
 		fprintf(stderr, "match_eth_dst: calling FLOW-MOD with entry: %s\n",
 				fe.c_str());

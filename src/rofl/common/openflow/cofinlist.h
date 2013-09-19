@@ -62,17 +62,19 @@ public: // methods
 	 */
 	std::vector<cofinst>&			// returns reference to this->invec
 	unpack(
-		struct ofp_instruction *instructions, // parses memory area buckets and creates cofinst instance in this->invec
-		size_t inlen)					// length of memory area to be parsed
-	throw (eInstructionBadLen);
+			uint8_t ofp_version,
+			struct ofp_instruction *instructions, // parses memory area buckets and creates cofinst instance in this->invec
+			size_t inlen)					// length of memory area to be parsed
+				throw (eInstructionBadLen);
 
 	/** builds an array of struct ofp_instruction from this->invec
 	 */
 	struct ofp_instruction*			// returns parameter "struct ofp_instruction *instructions"
 	pack(
-		struct ofp_instruction *instructions, // pointer to memory area for storing this->invec
-		size_t inlen) 					// length of memory area
-	const throw (eInListInval);
+			uint8_t ofp_version,
+			struct ofp_instruction *instructions, // pointer to memory area for storing this->invec
+			size_t inlen) 					// length of memory area
+				const throw (eInListInval);
 
 	/** returns required length for array of struct ofp_instruction
 	 * for all instructions defined in this->invec

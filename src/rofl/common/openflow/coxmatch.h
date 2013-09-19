@@ -125,7 +125,7 @@ public: // methods
 	 *
 	 */
 	coxmatch(
-			struct ofp_action_set_field *ach,
+			struct ofp12_action_set_field *ach,
 			size_t achlen);
 
 

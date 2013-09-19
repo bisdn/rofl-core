@@ -20,6 +20,7 @@ cofinlist::~cofinlist()
 
 std::vector<cofinst>&
 cofinlist::unpack(
+		uint8_t ofp_version,
 		struct ofp_instruction *instructions,
 		size_t inlen)
 throw (eInstructionBadLen)
@@ -39,7 +40,7 @@ throw (eInstructionBadLen)
 		if (be16toh(inhdr->len) < sizeof(struct ofp_instruction))
 			throw eInstructionBadLen();
 
-		next() = cofinst(inhdr, be16toh(inhdr->len) );
+		next() = cofinst(ofp_version, inhdr, be16toh(inhdr->len) );
 
 		inlen -= be16toh(inhdr->len);
 		inhdr = (struct ofp_instruction*)(((uint8_t*)inhdr) + be16toh(inhdr->len));
@@ -51,8 +52,9 @@ throw (eInstructionBadLen)
 
 struct ofp_instruction*
 cofinlist::pack(
-	struct ofp_instruction *instructions,
-	size_t inlen) const throw (eInListInval)
+		uint8_t ofp_version,
+		struct ofp_instruction *instructions,
+		size_t inlen) const throw (eInListInval)
 {
 	size_t needed_inlen = length();
 
@@ -67,7 +69,7 @@ cofinlist::pack(
 		cofinst const& inst = (*it);
 
 		inhdr = (struct ofp_instruction*)
-				((uint8_t*)(inst.pack(inhdr, inst.length())) + inst.length());
+				((uint8_t*)(inst.pack(ofp_version, inhdr, inst.length())) + inst.length());
 	}
 
 	return instructions;
@@ -130,7 +132,7 @@ cofinlist::test()
 	cofinlist inlist;
 
 	inlist[0] = cofinst_write_actions();
-	inlist[0].actions[0] = cofaction_set_field(coxmatch_ofb_mpls_label(111111));
+	inlist[0].actions[0] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_mpls_label(111111));
 
 	fprintf(stderr, "XXX => %s\n", inlist.c_str());
 
@@ -139,11 +141,11 @@ cofinlist::test()
 	cofinlist inlist2;
 
 	inlist2[0] = cofinst_apply_actions();
-	inlist2[0].actions[0] = cofaction_output(1);
+	inlist2[0].actions[0] = cofaction_output(OFP12_VERSION, 1);
 	inlist2[1] = cofinst_clear_actions();
 	inlist2[2] = cofinst_write_actions();
-	inlist2[2].actions[0] = cofaction_set_field(coxmatch_ofb_vlan_vid(1111));
-	inlist2[2].actions[1] = cofaction_set_field(coxmatch_ofb_mpls_tc(7));
+	inlist2[2].actions[0] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_vlan_vid(1111));
+	inlist2[2].actions[1] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_mpls_tc(7));
 
 	fprintf(stderr, "YYY => %s\n", inlist2.c_str());
 

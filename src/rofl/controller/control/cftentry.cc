@@ -522,22 +522,22 @@ cftentry::__update()
 				this, inst.c_str());
 
 		// if multiple output actions, mark packet for copy-on-write
-		if (inst.actions.count_action_type(OFPAT_OUTPUT) > 1)
+		if (inst.actions.count_action_type(OFP12AT_OUTPUT) > 1)
 		{
 			this->flags |= CFTENTRY_FLAG_COPY_ON_WRITE;
 		}
 		// is last action is neither OUTPUT nor ENQUEUE, mark packet for copy-on-write
 		if ((not inst.actions.empty()) &&
-				(be16toh(inst.actions.back().oac_header->type) != OFPAT_OUTPUT))
+				(be16toh(inst.actions.back().oac_header->type) != OFP12AT_OUTPUT))
 		{
 			this->flags |= CFTENTRY_FLAG_COPY_ON_WRITE;
 		}
 
 		cofaclist::reverse_iterator cofActionIter =
 				find_if(inst.actions.rbegin(), inst.actions.rend(),
-				cofaction_find_type(OFPAT_OUTPUT));
+				cofaction_find_type(OFP12AT_OUTPUT));
 		if (not (inst.actions.rend() == cofActionIter)) {
-			out_port = be32toh((*cofActionIter).oac_oacu.oacu_output->port);
+			out_port = be32toh((*cofActionIter).oac_oacu.oacu_12output->port);
 		}
 	}
 }
@@ -743,8 +743,8 @@ cftentry::get_flow_stats(
 				cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
 
 				try {
-					cofaction& action = inst.find_action(OFPAT_OUTPUT);
-					if (be32toh(action.oac_output->port) == out_port)
+					cofaction& action = inst.find_action(OFP12AT_OUTPUT);
+					if (be32toh(action.oac_12output->port) == out_port)
 					{
 						found = true;
 					}
@@ -756,8 +756,8 @@ cftentry::get_flow_stats(
 				cofinst& inst = instructions.find_inst(OFPIT_WRITE_ACTIONS);
 
 				try {
-					cofaction& action = inst.find_action(OFPAT_OUTPUT);
-					if (be32toh(action.oac_output->port) == out_port)
+					cofaction& action = inst.find_action(OFP12AT_OUTPUT);
+					if (be32toh(action.oac_12output->port) == out_port)
 					{
 						found = true;
 					}
@@ -775,9 +775,9 @@ cftentry::get_flow_stats(
 				cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
 
 				try {
-					cofaction& action = inst.find_action(OFPAT_GROUP);
+					cofaction& action = inst.find_action(OFP12AT_GROUP);
 
-					if (be32toh(action.oac_group->group_id) == out_group)
+					if (be32toh(action.oac_12group->group_id) == out_group)
 					{
 						found = true;
 					}
@@ -789,9 +789,9 @@ cftentry::get_flow_stats(
 				cofinst& inst = instructions.find_inst(OFPIT_WRITE_ACTIONS);
 
 				try {
-					cofaction& action = inst.find_action(OFPAT_GROUP);
+					cofaction& action = inst.find_action(OFP12AT_GROUP);
 
-					if (be32toh(action.oac_group->group_id) == out_group)
+					if (be32toh(action.oac_12group->group_id) == out_group)
 					{
 						found = true;
 					}
@@ -895,8 +895,8 @@ cftentry::get_aggregate_flow_stats(
 				cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
 
 				try {
-					cofaction& action = inst.find_action(OFPAT_OUTPUT);
-					if (be32toh(action.oac_output->port) == out_port)
+					cofaction& action = inst.find_action(OFP12AT_OUTPUT);
+					if (be32toh(action.oac_12output->port) == out_port)
 					{
 						goto found;
 					}
@@ -908,8 +908,8 @@ cftentry::get_aggregate_flow_stats(
 				cofinst& inst = instructions.find_inst(OFPIT_WRITE_ACTIONS);
 
 				try {
-					cofaction& action = inst.find_action(OFPAT_OUTPUT);
-					if (be32toh(action.oac_output->port) == out_port)
+					cofaction& action = inst.find_action(OFP12AT_OUTPUT);
+					if (be32toh(action.oac_12output->port) == out_port)
 					{
 						goto found;
 					}
@@ -927,9 +927,9 @@ cftentry::get_aggregate_flow_stats(
 				cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
 
 				try {
-					cofaction& action = inst.find_action(OFPAT_GROUP);
+					cofaction& action = inst.find_action(OFP12AT_GROUP);
 
-					if (be32toh(action.oac_group->group_id) == out_group)
+					if (be32toh(action.oac_12group->group_id) == out_group)
 					{
 						goto found;
 					}
@@ -941,9 +941,9 @@ cftentry::get_aggregate_flow_stats(
 				cofinst& inst = instructions.find_inst(OFPIT_WRITE_ACTIONS);
 
 				try {
-					cofaction& action = inst.find_action(OFPAT_GROUP);
+					cofaction& action = inst.find_action(OFP12AT_GROUP);
 
-					if (be32toh(action.oac_group->group_id) == out_group)
+					if (be32toh(action.oac_12group->group_id) == out_group)
 					{
 						goto found;
 					}
@@ -1180,9 +1180,9 @@ cftentry::test()
 	fprintf(stderr, "UUUUUU fe.inlist    => %s\n", fe.instructions.c_str());
 
 	instructions[0] = cofinst_apply_actions();
-	instructions[0].actions[0] = cofaction_output(1);
-	instructions[0].actions[1] = cofaction_push_vlan(0x8100);
-	instructions[0].actions[2] = cofaction_set_field(coxmatch_ofb_vlan_vid(4444));
+	instructions[0].actions[0] = cofaction_output(OFP12_VERSION, 1);
+	instructions[0].actions[1] = cofaction_push_vlan(OFP12_VERSION, 0x8100);
+	instructions[0].actions[2] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_vlan_vid(4444));
 
 	fprintf(stderr, "UUUUUU fe.inlist    => %s\n", fe.instructions.c_str());
 

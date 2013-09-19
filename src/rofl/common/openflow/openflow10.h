@@ -271,6 +271,22 @@ enum ofp10_action_type {
     OFP10AT_VENDOR = 0xffff
 };
 
+
+
+/* Action header that is common to all actions.  The length includes the
+ * header and any padding used to make the action 64-bit aligned.
+ * NB: The length of an action *must* always be a multiple of eight. */
+struct ofp10_action_header {
+    uint16_t type;                  /* One of OFPAT_*. */
+    uint16_t len;                   /* Length of action, including this
+                                       header.  This is the length of action,
+                                       including any padding to make it
+                                       64-bit aligned. */
+    uint8_t pad[4];
+};
+OFP_ASSERT(sizeof(struct ofp10_action_header) == 8);
+
+
 /* Action structure for OFP10AT_OUTPUT, which sends packets out 'port'.
  * When the 'port' is the OFP10P_CONTROLLER, 'max_len' indicates the max
  * number of bytes to send.  A 'max_len' of zero means no bytes of the
@@ -347,6 +363,7 @@ struct ofp10_action_vendor_header {
     uint16_t len;                   /* Length is a multiple of 8. */
     uint32_t vendor;                /* Vendor ID, which takes the same form
                                        as in "struct ofp10_vendor_header". */
+    uint8_t data[0];
 };
 OFP_ASSERT(sizeof(struct ofp10_action_vendor_header) == 8);
 

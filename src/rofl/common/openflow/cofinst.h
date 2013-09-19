@@ -41,6 +41,8 @@ class eInstructionBadExperimenter : public eInstructionBase {}; // unknown exper
 class cofinst :
 	public csyslog
 {
+	uint8_t 		ofp_version;
+
 public: // static stuff, enums, constants
 
 	#define COFINST_DEFAULT_LEN	128
@@ -72,11 +74,13 @@ public: // methods
 	/** constructor
 	 */
 	cofinst(
+			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
 			size_t size = COFINST_DEFAULT_LEN);
 
 	/** constructor
 	 */
 	cofinst(
+			uint8_t ofp_version,
 			struct ofp_instruction *instruction,
 			size_t inlen);
 
@@ -123,16 +127,17 @@ public: // methods
 	 */
 	virtual struct ofp_instruction*
 	pack(
-		struct ofp_instruction* inhdr,
-		size_t inlen) const throw (eInstructionInval);
+			uint8_t ofp_version,
+			struct ofp_instruction* inhdr,
+			size_t inlen) const throw (eInstructionInval);
 
 	/** unpack
 	 */
 	virtual void
 	unpack(
+			uint8_t ofp_version,
 			struct ofp_instruction *inhdr,
-			size_t inlen)
-		throw (eInstructionBadLen, eInstructionBadExperimenter);
+			size_t inlen) throw (eInstructionBadLen, eInstructionBadExperimenter);
 
 
 	/**

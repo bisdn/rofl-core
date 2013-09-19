@@ -202,14 +202,14 @@ cgroupentry::test()
 	ge.buckets[0].watch_group = 1;
 	ge.buckets[0].watch_port = 8;
 	ge.buckets[0].weight = 0x0800;
-	ge.buckets[0].actions[0] = cofaction_output(6);
-	ge.buckets[1].actions[0] = cofaction_pop_vlan();
-	ge.buckets[1].actions[1] = cofaction_push_vlan(600);
-	ge.buckets[1].actions[2] = cofaction_dec_nw_ttl();
-	ge.buckets[1].actions[3] = cofaction_set_queue(3);
-	ge.buckets[1].actions[4] = cofaction_copy_ttl_out();
-	ge.buckets[1].actions[5] = cofaction_copy_ttl_in();
-	ge.buckets[1].actions[6] = cofaction_output(16);
+	ge.buckets[0].actions[0] = cofaction_output(OFP12_VERSION, 6);
+	ge.buckets[1].actions[0] = cofaction_pop_vlan(OFP12_VERSION);
+	ge.buckets[1].actions[1] = cofaction_push_vlan(OFP12_VERSION, 600);
+	ge.buckets[1].actions[2] = cofaction_dec_nw_ttl(OFP12_VERSION);
+	ge.buckets[1].actions[3] = cofaction_set_queue(OFP12_VERSION, 3);
+	ge.buckets[1].actions[4] = cofaction_copy_ttl_out(OFP12_VERSION);
+	ge.buckets[1].actions[5] = cofaction_copy_ttl_in(OFP12_VERSION);
+	ge.buckets[1].actions[6] = cofaction_output(OFP12_VERSION, 16);
 
 
 	fprintf(stderr, "XXXXX ==>: %s\n", ge.c_str());

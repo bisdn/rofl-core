@@ -221,7 +221,7 @@ match_vlan_id::handle_packet_in(
 			(fib[dpt][vlan_id].find(eth_dst) == fib[dpt][vlan_id].end()))
 	{
 		cofaclist actions;
-		actions.next() = cofaction_output(OFPP_FLOOD);
+		actions.next() = cofaction_output(dpt->get_version(), OFPP_FLOOD);
 
 		if (OFP_NO_BUFFER == msg->get_buffer_id()) {
 			send_packet_out_message(
@@ -264,7 +264,7 @@ match_vlan_id::handle_packet_in(
 		if (vlan_id != 0xffff)
 			fe.match.set_vlan_vid(vlan_id);
 		fe.instructions.next() = cofinst_write_actions();
-		fe.instructions[0].actions.next() = cofaction_output(out_port);
+		fe.instructions[0].actions.next() = cofaction_output(dpt->get_version(), out_port);
 
 		fprintf(stderr, "match_vlan_id: calling FLOW-MOD with entry: %s\n",
 				fe.c_str());

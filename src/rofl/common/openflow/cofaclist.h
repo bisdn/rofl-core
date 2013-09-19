@@ -5,6 +5,14 @@
 #ifndef COFACLIST_H
 #define COFACLIST_H 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <inttypes.h>
+#ifdef __cplusplus
+}
+#endif
+
 #include <vector>
 #include <algorithm>
 
@@ -24,6 +32,9 @@ class eAcListOutOfRange : public eAcListBase {}; // index out of range in operat
 
 
 class cofaclist : public coflist<cofaction> {
+
+	uint8_t 		ofp_version;
+
 public: // static structures and methods
 
 
@@ -32,11 +43,12 @@ public: // methods
 
 	/** constructor
 	 */
-	cofaclist();
+	cofaclist(uint8_t ofp_version = OFP_VERSION_UNKNOWN);
 
 	/** constructor
 	 */
 	cofaclist(
+			uint8_t ofp_version,
 			struct ofp_action_header *achdr,
 			size_t aclen);
 
@@ -53,6 +65,7 @@ public: // methods
 	{
 		if (this == &aclist)
 			return *this;
+		ofp_version = aclist.ofp_version;
 		coflist<cofaction>::operator= (aclist);
 		return *this;
 	};
@@ -77,6 +90,7 @@ public: // methods
 	 */
 	std::vector<cofaction>&
 	unpack(
+			uint8_t ofp_version,
 			struct ofp_action_header *actions,
 			size_t aclen)
 		throw (eBadActionBadLen, eBadActionBadOutPort);
@@ -86,6 +100,7 @@ public: // methods
 	 */
 	struct ofp_action_header*
 	pack(
+			uint8_t ofp_version,
 			struct ofp_action_header *actions,
 			size_t aclen)
 		const throw (eAcListInval);
