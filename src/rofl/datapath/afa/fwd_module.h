@@ -131,6 +131,19 @@ switch_port_t** fwd_module_get_tunnel_ports(unsigned int* max_ports);
 afa_result_t fwd_module_attach_port_to_switch(uint64_t dpid, const char* name, unsigned int* of_port_num);
 
 /**
+* @name    fwd_module_connect_switches
+* @brief   Attemps to connect two logical switches via a virtual port. Forwarding module may or may not support this functionality. On success, the two ports must be functional and process packets. 
+* @ingroup management
+*
+* @param dpid_lsi1 Datapath ID of the LSI1
+* @param port1 A pointer to the virtual port attached to the LS1
+* @param dpid_lsi2 Datapath ID of the LSI2
+* @param port1 A pointer to the virtual port attached to the LS2
+*/
+afa_result_t fwd_module_connect_switches(uint64_t dpid_lsi1, switch_port_t** port1, uint64_t dpid_lsi2, switch_port_t** port2);
+
+
+/**
 * @name    fwd_module_detach_port_from_switch
 * @brief   Detaches a port from the switch 
 * @ingroup port_management
