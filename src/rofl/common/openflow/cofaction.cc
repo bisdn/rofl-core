@@ -99,20 +99,66 @@ throw (eBadActionBadLen, eBadActionBadOutPort, eBadActionBadType)
 
 
 	switch (be16toh(oac_header->type)) {
-	case OFPAT_OUTPUT:
-		{
-			oac_output = (struct ofp_action_output*)oac_header;
-			if (action.memlen() < sizeof(struct ofp_action_output))
-			{
-				throw eBadActionBadLen();
-			}
-			uint32_t port_no = be32toh(oac_output->port);
-			if ((OFPP_ANY == port_no) || (0 == port_no))
-			{
-				throw eBadActionBadOutPort();
-			}
+	case OFPAT_OUTPUT: {
+		oac_output = (struct ofp_action_output*)oac_header;
+		if (action.memlen() < sizeof(struct ofp_action_output)) {
+			throw eBadActionBadLen();
 		}
-		break;
+		uint32_t port_no = be32toh(oac_output->port);
+		if ((OFPP_ANY == port_no) || (0 == port_no)) {
+			throw eBadActionBadOutPort();
+		}
+	} break;
+	/*
+	 * OpenFlow 1.0
+	 */
+	case OFP10AT_SET_VLAN_VID: {
+		oac_vlanvid = (struct ofp10_action_vlan_vid*)oac_header;
+		if (action.memlen() < sizeof(struct ofp10_action_vlan_vid)) {
+			throw eBadActionBadLen();
+		}
+	} break;
+	case OFP10AT_SET_VLAN_PCP: {
+		oac_vlanpcp = (struct ofp10_action_vlan_pcp*)oac_header;
+		if (action.memlen() < sizeof(struct ofp10_action_vlan_pcp)) {
+			throw eBadActionBadLen();
+		}
+	} break;
+	case OFP10AT_STRIP_VLAN: {
+		if (action.memlen() < sizeof(struct ofp_action_header)) {
+			throw eBadActionBadLen();
+		}
+	} break;
+	case OFP10AT_SET_DL_SRC:
+	case OFP10AT_SET_DL_DST: {
+		oac_dladdr = (struct ofp10_action_dl_addr*)oac_header;
+		if (action.memlen() < sizeof(struct ofp10_action_dl_addr)) {
+			throw eBadActionBadLen();
+		}
+	} break;
+	case OFP10AT_SET_NW_SRC:
+	case OFP10AT_SET_NW_DST: {
+		oac_nwaddr = (struct ofp10_action_nw_addr*)oac_header;
+		if (action.memlen() < sizeof(struct ofp10_action_nw_addr)) {
+			throw eBadActionBadLen();
+		}
+	} break;
+	case OFP10AT_SET_NW_TOS: {
+		oac_nwtos = (struct ofp10_action_nw_tos*)oac_header;
+		if (action.memlen() < sizeof(struct ofp10_action_nw_tos)) {
+			throw eBadActionBadLen();
+		}
+	} break;
+	case OFP10AT_SET_TP_SRC:
+	case OFP10AT_SET_TP_DST: {
+		oac_tpport = (struct ofp10_action_tp_port*)oac_header;
+		if (action.memlen() < sizeof(struct ofp10_action_tp_port)) {
+			throw eBadActionBadLen();
+		}
+	} break;
+	/*
+	 * OpenFlow 1.2
+	 */
 	case OFPAT_SET_FIELD:
 		oac_set_field = (struct ofp_action_set_field*)oac_header;
 		if (action.memlen() < sizeof(struct ofp_action_set_field))
@@ -120,6 +166,7 @@ throw (eBadActionBadLen, eBadActionBadOutPort, eBadActionBadType)
 			throw eBadActionBadLen();
 		}
 		break;
+	//case OFP10AT_ENQUEUE:	// TODO: handle enqueue
 	case OFPAT_COPY_TTL_OUT:
 		// only generic oac_header is used
 		if (action.memlen() < sizeof(struct ofp_action_header))
