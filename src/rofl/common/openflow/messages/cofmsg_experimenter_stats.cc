@@ -13,15 +13,17 @@ cofmsg_experimenter_stats_request::cofmsg_experimenter_stats_request(
 		uint32_t exp_id,
 		uint32_t exp_type,
 		cmemory const& body) :
-	cofmsg_stats(of_version, OFPT_STATS_REQUEST, xid, OFPST_EXPERIMENTER, flags),
+	cofmsg_stats(of_version, xid, OFPST_EXPERIMENTER, flags),
 	body(body)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_STATS_REQUEST);
 		resize(sizeof(struct ofp10_stats_request) + sizeof(struct ofp10_vendor_stats_header) + body.memlen());
 		set_exp_id(exp_id);
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REQUEST);
 		resize(sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_experimenter_stats_header) + body.memlen());
 		set_exp_id(exp_id);
 		set_exp_type(exp_type);
@@ -296,15 +298,17 @@ cofmsg_experimenter_stats_reply::cofmsg_experimenter_stats_reply(
 		uint32_t exp_id,
 		uint32_t exp_type,
 		cmemory const& body) :
-	cofmsg_stats(of_version, OFPT_STATS_REPLY, xid, OFPST_EXPERIMENTER, flags),
+	cofmsg_stats(of_version, xid, OFPST_EXPERIMENTER, flags),
 	body(body)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_STATS_REPLY);
 		resize(sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_vendor_stats_header) + body.memlen());
 		set_exp_id(exp_id);
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REPLY);
 		resize(sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_experimenter_stats_header) + body.memlen());
 		set_exp_id(exp_id);
 		set_exp_type(exp_type);

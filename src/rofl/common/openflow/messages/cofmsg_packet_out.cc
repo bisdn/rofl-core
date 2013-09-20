@@ -17,11 +17,11 @@ cofmsg_packet_out::cofmsg_packet_out(
 	ofh_packet_out = soframe();
 
 	set_version(of_version);
-	set_type(OFPT_PACKET_OUT);
 	set_xid(xid);
 
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_PACKET_OUT);
 		resize(sizeof(struct ofp10_packet_out));
 		set_length(length());
 
@@ -31,6 +31,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_PACKET_OUT);
 		resize(sizeof(struct ofp12_packet_out));
 		set_length(length());
 
@@ -40,6 +41,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 
 	} break;
 	case OFP13_VERSION: {
+		set_type(OFPT13_PACKET_OUT);
 		cofmsg::resize(sizeof(struct ofp12_packet_out));
 		set_length(length());
 

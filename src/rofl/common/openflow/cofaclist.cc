@@ -72,14 +72,52 @@ throw (eBadActionBadLen, eBadActionBadOutPort)
 	WRITELOG(COFACTION, DBG, "cofaclist(%p)::unpack() aclen:%d", this, aclen);
 
 	// sanity check: aclen must be of size at least of ofp_action_header
-	if (aclen < (int)sizeof(struct ofp_action_header))
-		return elems;
+	switch (ofp_version) {
+	case OFP10_VERSION: {
+		if (aclen < (int)sizeof(struct ofp10_action_header))
+			return elems;
+
+	} break;
+	case OFP12_VERSION: {
+		if (aclen < (int)sizeof(struct ofp12_action_header))
+			return elems;
+
+	} break;
+	case OFP13_VERSION: {
+		if (aclen < (int)sizeof(struct ofp13_action_header))
+			return elems;
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
 
 	while (aclen > 0)
 	{
-		if (be16toh(achdr->len) < sizeof(struct ofp_action_header))
+		switch (ofp_version) {
+		case OFP10_VERSION: {
+			if (be16toh(achdr->len) < sizeof(struct ofp10_action_header))
+				throw eBadActionBadLen();
+
+		} break;
+		case OFP12_VERSION: {
+			if (be16toh(achdr->len) < sizeof(struct ofp12_action_header))
+				throw eBadActionBadLen();
+
+		} break;
+		case OFP13_VERSION: {
+			if (be16toh(achdr->len) < sizeof(struct ofp13_action_header))
+				throw eBadActionBadLen();
+
+		} break;
+		default:
+			throw eBadVersion();
+		}
+
+		if (0 == be16toh(achdr->len)) {
 			throw eBadActionBadLen();
+		}
 
 		next() = cofaction(ofp_version, achdr, be16toh(achdr->len) );
 

@@ -9,13 +9,11 @@ cofmsg_group_desc_stats_request::cofmsg_group_desc_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags) :
-	cofmsg_stats(of_version, OFPT_STATS_REQUEST, xid, OFPST_GROUP_DESC, flags)
+	cofmsg_stats(of_version, xid, OFPST_GROUP_DESC, flags)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		resize(sizeof(struct ofp10_stats_request));
-	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REQUEST);
 		resize(sizeof(struct ofp12_stats_request));
 	} break;
 	case OFP13_VERSION: {
@@ -87,11 +85,8 @@ size_t
 cofmsg_group_desc_stats_request::length() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_stats_request));
-	} break;
 	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_stats_request));
+		return (sizeof(struct ofp12_group_stats_request));
 	} break;
 	case OFP13_VERSION: {
 		// TODO
@@ -117,10 +112,6 @@ cofmsg_group_desc_stats_request::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (buflen < length())
-			throw eInval();
-	} break;
 	case OFP12_VERSION: {
 		if (buflen < length())
 			throw eInval();
@@ -152,10 +143,6 @@ cofmsg_group_desc_stats_request::validate()
 	cofmsg_stats::validate(); // check generic statistics header
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (get_length() < sizeof(struct ofp10_stats_request))
-			throw eBadSyntaxTooShort();
-	} break;
 	case OFP12_VERSION: {
 		if (get_length() < (sizeof(struct ofp12_stats_request)))//NOTE group_desc_stats_request has no body //+ sizeof(struct ofp12_group_desc_stats)))
 			throw eBadSyntaxTooShort();
@@ -178,11 +165,12 @@ cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		std::vector<cofgroup_desc_stats_reply> const& group_desc_stats) :
-	cofmsg_stats(of_version, OFPT_STATS_REPLY, xid, OFPST_GROUP_DESC, flags),
+	cofmsg_stats(of_version, xid, OFPST_GROUP_DESC, flags),
 	group_desc_stats(group_desc_stats)
 {
 	switch (of_version) {
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REPLY);
 		resize(length());
 		size_t offset = 0;
 		for (unsigned int i = 0; i < group_desc_stats.size(); i++) {

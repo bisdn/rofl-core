@@ -57,8 +57,8 @@ cofaction::operator= (const cofaction& ac)
 	if (this == &ac)
 		return *this;
 
-	this->action = ac.action;
-
+	this->ofp_version 	= ac.ofp_version;
+	this->action 		= ac.action;
 	this->oac_header = (struct ofp_action_header*)this->action.somem();
 
 	return *this;

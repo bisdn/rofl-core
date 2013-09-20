@@ -47,6 +47,45 @@
  */
 #define OFP10_VERSION   0x01
 
+enum ofp10_type {
+	/* Immutable messages. */
+    OFPT10_HELLO 					= 0,    /* Symmetric message */
+    OFPT10_ERROR 					= 1,	/* Symmetric message */
+    OFPT10_ECHO_REQUEST 			= 2,	/* Symmetric message */
+    OFPT10_ECHO_REPLY				= 3,    /* Symmetric message */
+    OFPT10_VENDOR					= 4,    /* Symmetric message */
+
+    /* Switch configuration messages. */
+    OFPT10_FEATURES_REQUEST			= 5,    /* Controller/switch message */
+    OFPT10_FEATURES_REPLY			= 6,    /* Controller/switch message */
+    OFPT10_GET_CONFIG_REQUEST		= 7,    /* Controller/switch message */
+    OFPT10_GET_CONFIG_REPLY			= 8,    /* Controller/switch message */
+    OFPT10_SET_CONFIG				= 9,    /* Controller/switch message */
+
+    /* Asynchronous messages. */
+    OFPT10_PACKET_IN				= 10,   /* Async message */
+    OFPT10_FLOW_REMOVED				= 11,   /* Async message */
+    OFPT10_PORT_STATUS				= 12,   /* Async message */
+
+    /* Controller command messages. */
+    OFPT10_PACKET_OUT				= 13,   /* Controller/switch message */
+    OFPT10_FLOW_MOD					= 14,   /* Controller/switch message */
+    OFPT10_PORT_MOD					= 15,   /* Controller/switch message */
+
+    /* Statistics messages (up to and including OF1.2) */
+    OFPT10_STATS_REQUEST			= 16,	/* Controller/switch message */
+    OFPT10_STATS_REPLY				= 17,	/* Controller/switch message */
+
+    /* Barrier messages. */
+    OFPT10_BARRIER_REQUEST			= 18,   /* Controller/switch message */
+    OFPT10_BARRIER_REPLY			= 19,   /* Controller/switch message */
+
+    /* Queue Configuration messages. */
+    OFPT10_QUEUE_GET_CONFIG_REQUEST	= 20,  /* Controller/switch message */
+    OFPT10_QUEUE_GET_CONFIG_REPLY	= 21,  /* Controller/switch message */
+};
+
+
 
 /* Port numbering.  Physical ports are numbered starting from 1. */
 enum ofp10_virt_port {

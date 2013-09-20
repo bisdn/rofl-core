@@ -13,19 +13,21 @@ cofmsg_queue_get_config_request::cofmsg_queue_get_config_request(
 	ofh_queue_get_config_request = soframe();
 
 	set_version(of_version);
-	set_type(OFPT_QUEUE_GET_CONFIG_REQUEST);
 	set_xid(xid);
 
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_QUEUE_GET_CONFIG_REQUEST);
 		resize(sizeof(struct ofp10_queue_get_config_request));
 		ofh10_queue_get_config_request->port	= htobe16((uint16_t)(port_no & 0x0000ffff));
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_QUEUE_GET_CONFIG_REQUEST);
 		resize(sizeof(struct ofp12_queue_get_config_request));
 		ofh12_queue_get_config_request->port	= htobe32(port_no);
 	} break;
 	case OFP13_VERSION: {
+		set_type(OFPT13_QUEUE_GET_CONFIG_REQUEST);
 		resize(sizeof(struct ofp13_queue_get_config_request));
 		ofh13_queue_get_config_request->port	= htobe32(port_no);
 	} break;
@@ -239,19 +241,21 @@ cofmsg_queue_get_config_reply::cofmsg_queue_get_config_reply(
 	ofh_queue_get_config_reply = soframe();
 
 	set_version(of_version);
-	set_type(OFPT_QUEUE_GET_CONFIG_REPLY);
 	set_xid(xid);
 
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_QUEUE_GET_CONFIG_REPLY);
 		resize(sizeof(struct ofp10_queue_get_config_reply));
 		ofh10_queue_get_config_reply->port	= htobe16((uint16_t)(port_no & 0x0000ffff));
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_QUEUE_GET_CONFIG_REPLY);
 		resize(sizeof(struct ofp12_queue_get_config_reply));
 		ofh12_queue_get_config_reply->port	= htobe32(port_no);
 	} break;
 	case OFP13_VERSION: {
+		set_type(OFPT13_QUEUE_GET_CONFIG_REPLY);
 		resize(sizeof(struct ofp13_queue_get_config_reply));
 		ofh13_queue_get_config_reply->port	= htobe32(port_no);
 	} break;

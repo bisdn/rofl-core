@@ -444,14 +444,6 @@ crofbase::handle_timeout(int opaque)
 {
 	try {
 		switch (opaque) {
-		case TIMER_FE_DUMP_OFPACKETS: {
-			WRITELOG(CROFBASE, DBG, "crofbase(%p)::handle_timeout() "
-					"cofmsg statistics => %s", this, cofmsg::packet_info());
-// fixme
-//			WRITELOG(CROFBASE, DBG, "crofbase(%p)::handle_timeout() "
-//					"cpacket statistics => %s", this, cpacket::cpacket_info());
-			register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
-		} break;
 		case CROFBASE_TIMER_WAKEUP: {
 			// do nothing, just re-schedule via ciosrv::run()::pselect()
 		} break;
@@ -624,11 +616,20 @@ crofbase::send_echo_request(
 		cofdpt *dpt,
 		uint8_t *body, size_t bodylen)
 {
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: msg_type = OFPT10_ECHO_REQUEST; break;
+	case OFP12_VERSION: msg_type = OFPT12_ECHO_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_ECHO_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_echo_request *msg =
 			new cofmsg_echo_request(
 					dpt->get_version(),
-					OFPT_ECHO_REQUEST,
-					ta_add_request(OFPT_ECHO_REQUEST),
+					ta_add_request(msg_type),
 					body,
 					bodylen);
 
@@ -646,10 +647,9 @@ crofbase::send_echo_reply(
 		uint32_t xid,
 		uint8_t *body, size_t bodylen)
 {
-	cofmsg_echo_request *msg =
-			new cofmsg_echo_request(
+	cofmsg_echo_reply *msg =
+			new cofmsg_echo_reply(
 					dpt->get_version(),
-					OFPT_ECHO_REPLY,
 					xid,
 					body,
 					bodylen);
@@ -667,11 +667,20 @@ crofbase::send_echo_request(
 		cofctl *ctl,
 		uint8_t *body, size_t bodylen)
 {
+	uint8_t msg_type = 0;
+
+	switch (ctl->get_version()) {
+	case OFP10_VERSION: msg_type = OFPT10_ECHO_REQUEST; break;
+	case OFP12_VERSION: msg_type = OFPT12_ECHO_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_ECHO_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_echo_request *msg =
 			new cofmsg_echo_request(
 					ctl->get_version(),
-					OFPT_ECHO_REQUEST,
-					ta_add_request(OFPT_ECHO_REQUEST),
+					ta_add_request(msg_type),
 					body,
 					bodylen);
 
@@ -692,7 +701,6 @@ crofbase::send_echo_reply(
 	cofmsg_echo_request *msg =
 			new cofmsg_echo_request(
 					ctl->get_version(),
-					OFPT_ECHO_REPLY,
 					xid,
 					body,
 					bodylen);
@@ -712,6 +720,16 @@ crofbase::send_echo_reply(
 uint32_t
 crofbase::send_features_request(cofdpt *dpt)
 {
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: msg_type = OFPT10_FEATURES_REQUEST; break;
+	case OFP12_VERSION: msg_type = OFPT12_FEATURES_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_FEATURES_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	uint32_t xid = 0;
 
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_features_request()", this);
@@ -719,7 +737,7 @@ crofbase::send_features_request(cofdpt *dpt)
 	cofmsg_features_request *msg =
 			new cofmsg_features_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_FEATURES_REQUEST));
+					ta_add_request(msg_type));
 
 	xid = msg->get_xid();
 
@@ -786,10 +804,27 @@ crofbase::send_get_config_request(
 {
 	uint32_t xid = 0;
 
-	cofmsg_get_config_request *msg =
-			new cofmsg_get_config_request(
+	cofmsg_get_config_request *msg = (cofmsg_get_config_request*)0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: {
+		msg = new cofmsg_get_config_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_GET_CONFIG_REQUEST));
+					ta_add_request(OFPT10_GET_CONFIG_REQUEST));
+	} break;
+	case OFP12_VERSION: {
+		msg = new cofmsg_get_config_request(
+					dpt->get_version(),
+					ta_add_request(OFPT12_GET_CONFIG_REQUEST));
+	} break;
+	case OFP13_VERSION: {
+		msg = new cofmsg_get_config_request(
+					dpt->get_version(),
+					ta_add_request(OFPT13_GET_CONFIG_REQUEST));
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
 	xid = msg->get_xid();
 
@@ -805,10 +840,9 @@ crofbase::send_get_config_reply(cofctl *ctl, uint32_t xid, uint16_t flags, uint1
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_get_config_reply()", this);
 
-	cofmsg_config *msg =
-			new cofmsg_config(
+	cofmsg_get_config_reply *msg =
+			new cofmsg_get_config_reply(
 					ctl->get_version(),
-					OFPT_GET_CONFIG_REPLY,
 					xid,
 					flags,
 					miss_send_len);
@@ -842,11 +876,20 @@ crofbase::send_stats_request(
 	uint8_t* body,
 	size_t bodylen)
 {
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: msg_type = OFPT10_STATS_REQUEST; break;
+	case OFP12_VERSION: msg_type = OFPT12_STATS_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_STATS_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_stats *msg =
 			new cofmsg_stats(
 					dpt->get_version(),
-					OFPT_STATS_REQUEST,
-					ta_add_request(OFPT_STATS_REQUEST),
+					ta_add_request(msg_type),
 					stats_type,
 					stats_flags,
 					body,
@@ -868,10 +911,20 @@ crofbase::send_desc_stats_request(
 		cofdpt *dpt,
 		uint16_t flags)
 {
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: msg_type = OFPT10_STATS_REQUEST; break;
+	case OFP12_VERSION: msg_type = OFPT12_STATS_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_STATS_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_desc_stats_request *msg =
 			new cofmsg_desc_stats_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_STATS_REQUEST),
+					ta_add_request(msg_type),
 					flags);
 
 	msg->pack();
@@ -891,10 +944,20 @@ crofbase::send_flow_stats_request(
 		uint16_t flags,
 		cofflow_stats_request const& flow_stats_request)
 {
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: msg_type = OFPT10_STATS_REQUEST; break;
+	case OFP12_VERSION: msg_type = OFPT12_STATS_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_STATS_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_flow_stats_request *msg =
 			new cofmsg_flow_stats_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_STATS_REQUEST),
+					ta_add_request(msg_type),
 					flags,
 					flow_stats_request);
 
@@ -915,10 +978,20 @@ crofbase::send_aggr_stats_request(
 		uint16_t flags,
 		cofaggr_stats_request const& aggr_stats_request)
 {
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: msg_type = OFPT10_STATS_REQUEST; break;
+	case OFP12_VERSION: msg_type = OFPT12_STATS_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_STATS_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_aggr_stats_request *msg =
 			new cofmsg_aggr_stats_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_STATS_REQUEST),
+					ta_add_request(msg_type),
 					flags,
 					aggr_stats_request);
 
@@ -938,10 +1011,20 @@ crofbase::send_table_stats_request(
 		cofdpt *dpt,
 		uint16_t flags)
 {
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: msg_type = OFPT10_STATS_REQUEST; break;
+	case OFP12_VERSION: msg_type = OFPT12_STATS_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_STATS_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_table_stats_request *msg =
 			new cofmsg_table_stats_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_STATS_REQUEST),
+					ta_add_request(msg_type),
 					flags);
 
 	msg->pack();
@@ -961,10 +1044,20 @@ crofbase::send_port_stats_request(
 		uint16_t flags,
 		cofport_stats_request const& port_stats_request)
 {
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: msg_type = OFPT10_STATS_REQUEST; break;
+	case OFP12_VERSION: msg_type = OFPT12_STATS_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_STATS_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_port_stats_request *msg =
 			new cofmsg_port_stats_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_STATS_REQUEST),
+					ta_add_request(msg_type),
 					flags,
 					port_stats_request);
 
@@ -985,10 +1078,20 @@ crofbase::send_queue_stats_request(
 	uint16_t flags,
 	cofqueue_stats_request const& queue_stats_request)
 {
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: msg_type = OFPT10_STATS_REQUEST; break;
+	case OFP12_VERSION: msg_type = OFPT12_STATS_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_STATS_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_queue_stats_request *msg =
 			new cofmsg_queue_stats_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_STATS_REQUEST),
+					ta_add_request(msg_type),
 					flags,
 					queue_stats_request);
 
@@ -1009,10 +1112,19 @@ crofbase::send_group_stats_request(
 	uint16_t flags,
 	cofgroup_stats_request const& group_stats_request)
 {
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP12_VERSION: msg_type = OFPT12_STATS_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_STATS_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_group_stats_request *msg =
 			new cofmsg_group_stats_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_STATS_REQUEST),
+					ta_add_request(msg_type),
 					flags,
 					group_stats_request);
 
@@ -1032,10 +1144,19 @@ crofbase::send_group_desc_stats_request(
 		cofdpt *dpt,
 		uint16_t flags)
 {
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP12_VERSION: msg_type = OFPT12_STATS_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_STATS_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_group_desc_stats_request *msg =
 			new cofmsg_group_desc_stats_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_STATS_REQUEST),
+					ta_add_request(msg_type),
 					flags);
 
 	msg->pack();
@@ -1054,10 +1175,19 @@ crofbase::send_group_features_stats_request(
 		cofdpt *dpt,
 		uint16_t flags)
 {
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP12_VERSION: msg_type = OFPT12_STATS_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_STATS_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_group_features_stats_request *msg =
 			new cofmsg_group_features_stats_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_STATS_REQUEST),
+					ta_add_request(msg_type),
 					flags);
 
 	msg->pack();
@@ -1079,10 +1209,20 @@ crofbase::send_experimenter_stats_request(
 	uint32_t exp_type,
 	cmemory const& body)
 {
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: msg_type = OFPT10_STATS_REQUEST; break;
+	case OFP12_VERSION: msg_type = OFPT12_STATS_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_STATS_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_experimenter_stats_request *msg =
 			new cofmsg_experimenter_stats_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_STATS_REQUEST),
+					ta_add_request(msg_type),
 					flags,
 					exp_id,
 					exp_type,
@@ -1114,7 +1254,6 @@ crofbase::send_stats_reply(
 	cofmsg_stats *msg =
 			new cofmsg_stats(
 					ctl->get_version(),
-					OFPT_STATS_REPLY,
 					xid,
 					stats_type,
 					flags,
@@ -1394,10 +1533,9 @@ crofbase::send_set_config_message(
 	uint16_t flags,
 	uint16_t miss_send_len)
 {
-	cofmsg_config *msg =
-			new cofmsg_config(
+	cofmsg_set_config *msg =
+			new cofmsg_set_config(
 					dpt->get_version(),
-					OFPT_SET_CONFIG,
 					ta_new_async_xid(),
 					flags,
 					miss_send_len);
@@ -1626,11 +1764,30 @@ crofbase::send_packet_in_message(
 uint32_t
 crofbase::send_barrier_request(cofdpt *dpt)
 {
-	cofmsg_barrier_request *msg =
-			new cofmsg_barrier_request(
-					dpt->get_version(),
-					OFPT_BARRIER_REQUEST,
-					ta_add_request(OFPT_BARRIER_REQUEST));
+	cofmsg_barrier_request *msg = (cofmsg_barrier_request*)0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: {
+		msg = new cofmsg_barrier_request(
+						dpt->get_version(),
+						ta_add_request(OFPT10_BARRIER_REQUEST));
+
+	} break;
+	case OFP12_VERSION: {
+		msg = new cofmsg_barrier_request(
+						dpt->get_version(),
+						ta_add_request(OFPT12_BARRIER_REQUEST));
+
+	} break;
+	case OFP13_VERSION: {
+		msg = new cofmsg_barrier_request(
+						dpt->get_version(),
+						ta_add_request(OFPT13_BARRIER_REQUEST));
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
 	uint32_t xid = msg->get_xid();
 
@@ -1648,11 +1805,27 @@ crofbase::send_barrier_reply(
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_barrier_reply()", this);
 
-	cofmsg_barrier_reply *msg =
-			new cofmsg_barrier_reply(
-					ctl->get_version(),
-					OFPT_BARRIER_REPLY,
-					xid);
+	cofmsg_barrier_reply *msg = (cofmsg_barrier_reply*)0;
+
+	switch (ctl->get_version()) {
+	case OFP10_VERSION: {
+		msg = new cofmsg_barrier_reply(
+				ctl->get_version(),
+				xid);
+	} break;
+	case OFP12_VERSION: {
+		msg = new cofmsg_barrier_reply(
+				ctl->get_version(),
+				xid);
+	} break;
+	case OFP13_VERSION: {
+		msg = new cofmsg_barrier_reply(
+				ctl->get_version(),
+				xid);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
 	ctl_find(ctl)->send_message(msg);
 }
@@ -1673,11 +1846,19 @@ crofbase::send_role_request(
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_role_request()", this);
 
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP12_VERSION: msg_type = OFPT12_ROLE_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_ROLE_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_role_request *msg =
 			new cofmsg_role_request(
 					dpt->get_version(),
-					OFPT_ROLE_REQUEST,
-					ta_add_request(OFPT_ROLE_REQUEST),
+					ta_add_request(msg_type),
 					role,
 					generation_id);
 
@@ -1702,7 +1883,6 @@ crofbase::send_role_reply(
 	cofmsg_role_reply *msg =
 			new cofmsg_role_reply(
 					ctl->get_version(),
-					OFPT_ROLE_REPLY,
 					xid,
 					role,
 					generation_id);
@@ -2132,10 +2312,20 @@ crofbase::send_queue_get_config_request(
 {
 	uint32_t xid = 0;
 
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: msg_type = OFPT10_QUEUE_GET_CONFIG_REQUEST; break;
+	case OFP12_VERSION: msg_type = OFPT12_QUEUE_GET_CONFIG_REQUEST; break;
+	case OFP13_VERSION: msg_type = OFPT13_QUEUE_GET_CONFIG_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_queue_get_config_request *msg =
 			new cofmsg_queue_get_config_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_QUEUE_GET_CONFIG_REQUEST),
+					ta_add_request(msg_type),
 					port);
 
 	xid = msg->get_xid();
@@ -2281,10 +2471,18 @@ crofbase::send_get_async_config_request(
 {
 	uint32_t xid = 0;
 
+	uint8_t msg_type = 0;
+
+	switch (dpt->get_version()) {
+	case OFP13_VERSION: msg_type = OFPT13_GET_ASYNC_REQUEST; break;
+	default:
+		throw eBadVersion();
+	}
+
 	cofmsg_get_async_config_request *msg =
 			new cofmsg_get_async_config_request(
 					dpt->get_version(),
-					ta_add_request(OFPT_GET_ASYNC_REQUEST));
+					ta_add_request(msg_type));
 
 	xid = msg->get_xid();
 
@@ -2311,7 +2509,6 @@ crofbase::send_get_async_config_reply(
 	cofmsg_get_async_config_reply *msg =
 			new cofmsg_get_async_config_reply(
 					ctl->get_version(),
-					OFPT_GET_ASYNC_REPLY,
 					xid,
 					packet_in_mask0,
 					packet_in_mask1,
@@ -2351,7 +2548,6 @@ crofbase::send_set_async_config_message(
 	cofmsg_set_async_config *msg =
 			new cofmsg_set_async_config(
 					dpt->get_version(),
-					OFPT_SET_ASYNC,
 					ta_new_async_xid(),
 					packet_in_mask0,
 					packet_in_mask1,

@@ -10,15 +10,17 @@ cofmsg_aggr_stats_request::cofmsg_aggr_stats_request(
 		uint32_t xid,
 		uint16_t flags,
 		cofaggr_stats_request const& aggr_stats) :
-	cofmsg_stats(of_version, OFPT_STATS_REQUEST, xid, OFPST_AGGREGATE, flags),
+	cofmsg_stats(of_version, xid, OFPST_AGGREGATE, flags),
 	aggr_stats(aggr_stats)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_STATS_REQUEST);
 		resize(sizeof(struct ofp10_stats_request) + sizeof(struct ofp10_aggregate_stats_request));
 		this->aggr_stats.pack(soframe() + sizeof(struct ofp10_stats_request), sizeof(struct ofp10_aggregate_stats_request));
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REQUEST);
 		resize(sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_aggregate_stats_request));
 		this->aggr_stats.pack(soframe() + sizeof(struct ofp12_stats_request), sizeof(struct ofp12_aggregate_stats_request));
 	} break;
@@ -230,15 +232,17 @@ cofmsg_aggr_stats_reply::cofmsg_aggr_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		cofaggr_stats_reply const& aggr_stats) :
-	cofmsg_stats(of_version, OFPT_STATS_REPLY, xid, OFPST_AGGREGATE, flags),
+	cofmsg_stats(of_version, xid, OFPST_AGGREGATE, flags),
 	aggr_stats(aggr_stats)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_STATS_REPLY);
 		resize(sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_aggregate_stats_reply));
 		this->aggr_stats.pack(soframe() + sizeof(struct ofp10_stats_reply), sizeof(struct ofp10_aggregate_stats_reply));
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REPLY);
 		resize(sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_aggregate_stats_reply));
 		this->aggr_stats.pack(soframe() + sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_aggregate_stats_reply));
 	} break;

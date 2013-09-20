@@ -9,13 +9,15 @@ cofmsg_table_stats_request::cofmsg_table_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags) :
-	cofmsg_stats(of_version, OFPT_STATS_REQUEST, xid, OFPST_TABLE, flags)
+	cofmsg_stats(of_version, xid, OFPST_TABLE, flags)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_STATS_REQUEST);
 		resize(sizeof(struct ofp10_stats_request));
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REQUEST);
 		resize(sizeof(struct ofp12_stats_request));
 	} break;
 	case OFP13_VERSION: {
@@ -178,17 +180,19 @@ cofmsg_table_stats_reply::cofmsg_table_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		std::vector<coftable_stats_reply> const& table_stats) :
-	cofmsg_stats(of_version, OFPT_STATS_REPLY, xid, OFPST_TABLE, flags),
+	cofmsg_stats(of_version, xid, OFPST_TABLE, flags),
 	table_stats(table_stats)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_STATS_REPLY);
 		resize(sizeof(struct ofp10_stats_reply) + table_stats.size() * sizeof(struct ofp10_table_stats));
 		for (unsigned int i = 0; i < table_stats.size(); i++) {
 			table_stats[i].pack(soframe() + sizeof(struct ofp10_stats_reply) + i * sizeof(struct ofp10_stats_reply), sizeof(struct ofp10_table_stats));
 		}
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REPLY);
 		resize(sizeof(struct ofp12_stats_reply) + table_stats.size() * sizeof(struct ofp12_table_stats));
 		for (unsigned int i = 0; i < table_stats.size(); i++) {
 			table_stats[i].pack(soframe() + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_table_stats));

@@ -22,11 +22,11 @@ cofmsg_flow_removed::cofmsg_flow_removed(
 	ofh_flow_removed = soframe();
 
 	set_version(of_version);
-	set_type(OFPT_FLOW_REMOVED);
 	set_xid(xid);
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_FLOW_REMOVED);
 		resize(OFP10_FLOW_REMOVED_STATIC_HDR_LEN);
 		set_length(OFP10_FLOW_REMOVED_STATIC_HDR_LEN);
 
@@ -40,6 +40,7 @@ cofmsg_flow_removed::cofmsg_flow_removed(
 		ofh10_flow_removed->byte_count			= htobe64(byte_count);
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_FLOW_REMOVED);
 		resize(OFP12_FLOW_REMOVED_STATIC_HDR_LEN);
 		set_length(OFP12_FLOW_REMOVED_STATIC_HDR_LEN);
 
@@ -55,6 +56,7 @@ cofmsg_flow_removed::cofmsg_flow_removed(
 		ofh12_flow_removed->byte_count			= htobe64(byte_count);
 	} break;
 	case OFP13_VERSION: {
+		set_type(OFPT13_FLOW_REMOVED);
 		resize(OFP13_FLOW_REMOVED_STATIC_HDR_LEN);
 		set_length(OFP13_FLOW_REMOVED_STATIC_HDR_LEN);
 

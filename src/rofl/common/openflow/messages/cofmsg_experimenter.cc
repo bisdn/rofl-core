@@ -19,15 +19,16 @@ cofmsg_experimenter::cofmsg_experimenter(
 	ofh_experimenter = soframe();
 
 	set_version(of_version);
-	set_type(OFPT_EXPERIMENTER);
 	set_xid(xid);
 
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_VENDOR);
 		resize(sizeof(struct ofp10_vendor_header) + body.memlen());
 		ofh10_vendor->vendor				= htobe32(experimenter_id);
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_EXPERIMENTER);
 		resize(sizeof(struct ofp12_experimenter_header) + body.memlen());
 		ofh12_experimenter->experimenter	= htobe32(experimenter_id);
 		ofh12_experimenter->exp_type		= htobe32(experimenter_type);

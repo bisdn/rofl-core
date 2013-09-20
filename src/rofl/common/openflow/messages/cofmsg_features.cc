@@ -9,8 +9,19 @@ cofmsg_features_request::cofmsg_features_request(
 {
 	set_version(of_version);
 	set_length(sizeof(struct ofp_header));
-	set_type(OFPT_FEATURES_REQUEST);
 	set_xid(xid);
+
+	switch (of_version) {
+	case OFP10_VERSION: {
+		set_type(OFPT10_FEATURES_REQUEST);
+	} break;
+	case OFP12_VERSION: {
+		set_type(OFPT12_FEATURES_REQUEST);
+	} break;
+	case OFP13_VERSION: {
+		set_type(OFPT13_FEATURES_REQUEST);
+	} break;
+	}
 }
 
 
@@ -140,11 +151,11 @@ cofmsg_features_reply::cofmsg_features_reply(
 	ofh_switch_features = soframe();
 
 	set_version(of_version);
-	set_type(OFPT_FEATURES_REPLY);
 	set_xid(xid);
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_FEATURES_REPLY);
 		resize(sizeof(struct ofp10_switch_features));
 		set_length(sizeof(struct ofp10_switch_features));
 
@@ -155,6 +166,7 @@ cofmsg_features_reply::cofmsg_features_reply(
 		ofh10_switch_features->actions			= htobe32(of10_actions_bitmap);
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_FEATURES_REPLY);
 		resize(sizeof(struct ofp12_switch_features));
 		set_length(sizeof(struct ofp12_switch_features));
 
@@ -164,6 +176,7 @@ cofmsg_features_reply::cofmsg_features_reply(
 		ofh12_switch_features->capabilities 	= htobe32(capabilities);
 	} break;
 	case OFP13_VERSION: {
+		set_type(OFPT13_FEATURES_REPLY);
 		resize(sizeof(struct ofp13_switch_features));
 		set_length(sizeof(struct ofp13_switch_features));
 

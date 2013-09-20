@@ -10,10 +10,11 @@ cofmsg_group_features_stats_request::cofmsg_group_features_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags) :
-	cofmsg_stats(of_version, OFPT_STATS_REQUEST, xid, OFPST_GROUP_FEATURES, flags)
+	cofmsg_stats(of_version, xid, OFPST_GROUP_FEATURES, flags)
 {
 	switch (of_version) {
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REQUEST);
 		resize(sizeof(struct ofp12_stats_request));
 	} break;
 	case OFP13_VERSION: {
@@ -165,11 +166,12 @@ cofmsg_group_features_stats_reply::cofmsg_group_features_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		cofgroup_features_stats_reply const& group_features_stats) :
-	cofmsg_stats(of_version, OFPT_STATS_REPLY, xid, OFPST_GROUP_FEATURES, flags),
+	cofmsg_stats(of_version, xid, OFPST_GROUP_FEATURES, flags),
 	group_features_stats(group_features_stats)
 {
 	switch (of_version) {
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REPLY);
 		resize(sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_group_features_stats));
 		group_features_stats.pack(soframe() + sizeof(struct ofp12_stats_reply), sizeof(struct ofp12_group_features_stats));
 	} break;

@@ -1062,7 +1062,7 @@ protected:
 	 * @param msg pointer to cofmsg_barrier_reply message containing the received message
 	 */
 	virtual void
-	handle_barrier_reply(cofdpt *dpt, cofmsg_barrier_request *msg) { delete msg; };
+	handle_barrier_reply(cofdpt *dpt, cofmsg_barrier_reply *msg) { delete msg; };
 
 
 
@@ -2445,7 +2445,6 @@ private:
 	 */
 	enum crofbase_timer_t {
 		TIMER_FE_BASE = (0x0020 << 16),	/**< random number for base timer */
-		TIMER_FE_DUMP_OFPACKETS,		/**< dumps periodically all existing cofmsg instances */
 		CROFBASE_TIMER_WAKEUP,			/**< timer used for waking up via crofbase::wakeup() */
 	};
 

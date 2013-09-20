@@ -14,8 +14,21 @@ cofmsg_hello::cofmsg_hello(
 
 	set_version(of_version);
 	set_length(sizeof(struct ofp_header));
-	set_type(OFPT_HELLO);
 	set_xid(xid);
+
+	switch (of_version) {
+	case OFP10_VERSION: {
+		set_type(OFPT10_HELLO);
+	} break;
+	case OFP12_VERSION: {
+		set_type(OFPT12_HELLO);
+	} break;
+	case OFP13_VERSION: {
+		set_type(OFPT13_HELLO);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 

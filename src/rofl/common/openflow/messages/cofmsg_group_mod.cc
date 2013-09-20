@@ -16,11 +16,11 @@ cofmsg_group_mod::cofmsg_group_mod(
 	ofh_group_mod = soframe();
 
 	set_version(of_version);
-	set_type(OFPT_GROUP_MOD);
 	set_xid(xid);
 
 	switch (of_version) {
 	case OFP12_VERSION: {
+		set_type(OFPT12_GROUP_MOD);
 		resize(sizeof(struct ofp12_group_mod));
 
 		ofh12_group_mod->command		= htobe16(command);
@@ -28,6 +28,7 @@ cofmsg_group_mod::cofmsg_group_mod(
 		ofh12_group_mod->group_id		= htobe32(group_id);
 	} break;
 	case OFP13_VERSION: {
+		set_type(OFPT13_GROUP_MOD);
 		resize(sizeof(struct ofp13_group_mod));
 
 		ofh13_group_mod->command		= htobe16(command);

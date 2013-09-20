@@ -20,8 +20,19 @@ cofmsg_error::cofmsg_error(
 
 	set_version(of_version);
 	set_length(sizeof(struct ofp_error_msg) + datalen);
-	set_type(OFPT_ERROR);
 	set_xid(xid);
+
+	switch (of_version) {
+	case OFP10_VERSION: {
+		set_type(OFPT10_ERROR);
+	} break;
+	case OFP12_VERSION: {
+		set_type(OFPT12_ERROR);
+	} break;
+	case OFP13_VERSION: {
+		set_type(OFPT13_ERROR);
+	} break;
+	}
 
 	set_err_type(err_type);
 	set_err_code(err_code);

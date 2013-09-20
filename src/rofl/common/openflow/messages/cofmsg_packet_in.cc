@@ -21,11 +21,11 @@ cofmsg_packet_in::cofmsg_packet_in(
 	ofh_packet_in = soframe();
 
 	set_version(of_version);
-	set_type(OFPT_PACKET_IN);
 	set_xid(xid);
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_PACKET_IN);
 		resize(OFP10_PACKET_IN_STATIC_HDR_LEN);
 		set_length(OFP10_PACKET_IN_STATIC_HDR_LEN);
 
@@ -35,6 +35,7 @@ cofmsg_packet_in::cofmsg_packet_in(
 		ofh10_packet_in->in_port				= htobe16(in_port);
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_PACKET_IN);
 		resize(OFP12_PACKET_IN_STATIC_HDR_LEN);
 		set_length(OFP12_PACKET_IN_STATIC_HDR_LEN);
 
@@ -44,6 +45,7 @@ cofmsg_packet_in::cofmsg_packet_in(
 		ofh12_packet_in->table_id				= table_id;
 	} break;
 	case OFP13_VERSION: {
+		set_type(OFPT13_PACKET_IN);
 		resize(OFP13_PACKET_IN_STATIC_HDR_LEN);
 		set_length(OFP13_PACKET_IN_STATIC_HDR_LEN);
 

@@ -10,14 +10,16 @@ cofmsg_queue_stats_request::cofmsg_queue_stats_request(
 		uint32_t xid,
 		uint16_t flags,
 		cofqueue_stats_request const& queue_stats) :
-	cofmsg_stats(of_version, OFPT_STATS_REQUEST, xid, OFPST_QUEUE, flags),
+	cofmsg_stats(of_version, xid, OFPST_QUEUE, flags),
 	queue_stats(queue_stats)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_STATS_REQUEST);
 		resize(length());
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REQUEST);
 		resize(length());
 	} break;
 	case OFP13_VERSION: {
@@ -195,14 +197,16 @@ cofmsg_queue_stats_reply::cofmsg_queue_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		std::vector<cofqueue_stats_reply> const& queue_stats) :
-	cofmsg_stats(of_version, OFPT_STATS_REPLY, xid, OFPST_QUEUE, flags),
+	cofmsg_stats(of_version, xid, OFPST_QUEUE, flags),
 	queue_stats(queue_stats)
 {
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_STATS_REPLY);
 		resize(length());
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REPLY);
 		resize(length());
 	} break;
 	case OFP13_VERSION: {

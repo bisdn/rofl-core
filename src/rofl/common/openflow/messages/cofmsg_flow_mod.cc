@@ -24,11 +24,11 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 	ofh_flow_mod = soframe();
 
 	set_version(of_version);
-	set_type(OFPT_FLOW_MOD);
 	set_xid(xid);
 
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_FLOW_MOD);
 		resize(OFP10_FLOW_MOD_STATIC_HDR_LEN);
 
 		ofh10_flow_mod->cookie			= htobe64(cookie);
@@ -69,11 +69,11 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 	ofh_flow_mod = soframe();
 
 	set_version(of_version);
-	set_type(OFPT_FLOW_MOD);
 	set_xid(xid);
 
 	switch (of_version) {
 	case OFP12_VERSION: {
+		set_type(OFPT12_FLOW_MOD);
 		resize(OFP12_FLOW_MOD_STATIC_HDR_LEN);
 
 		ofh12_flow_mod->cookie			= htobe64(cookie);
@@ -89,6 +89,7 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 		ofh12_flow_mod->flags			= htobe16(flags);
 	} break;
 	case OFP13_VERSION: {
+		set_type(OFPT13_FLOW_MOD);
 		resize(OFP13_FLOW_MOD_STATIC_HDR_LEN);
 
 		ofh13_flow_mod->cookie			= htobe64(cookie);

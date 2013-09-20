@@ -43,7 +43,6 @@ public:
 	 */
 	cofmsg_stats(
 			uint8_t of_version = 0,
-			uint8_t  type = OFPT_STATS_REQUEST,
 			uint32_t xid = 0,
 			uint32_t stats_type = 0,
 			uint32_t stats_flags = 0,

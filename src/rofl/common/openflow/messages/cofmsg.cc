@@ -8,40 +8,73 @@ using namespace rofl;
 
 
 
-cofmsg::typedesc_t typedesc[] = {
-	{ OFPT_HELLO, "HELLO" },
-	{ OFPT_ERROR, "ERROR" },
-	{ OFPT_ECHO_REQUEST, "ECHO-REQUEST" },
-	{ OFPT_ECHO_REPLY, "ECHO-REPLY" },
-	{ OFPT_EXPERIMENTER, "EXPERIMENTER" },
+cofmsg::typedesc_t typedesc_of10[] = {
+	{ OFPT10_HELLO, 					"HELLO" },
+	{ OFPT10_ERROR, 					"ERROR" },
+	{ OFPT10_ECHO_REQUEST, 				"ECHO-REQUEST" },
+	{ OFPT10_ECHO_REPLY, 				"ECHO-REPLY" },
+	{ OFPT10_VENDOR, 					"VENDOR" },
 
-	{ OFPT_FEATURES_REQUEST, "FEATURES-REQUEST" },
-	{ OFPT_FEATURES_REPLY, "FEATURES-REPLY" },
-	{ OFPT_GET_CONFIG_REQUEST, "GET-CONFIG-REQUEST" },
-	{ OFPT_GET_CONFIG_REPLY, "GET-CONFIG-REPLY" },
-	{ OFPT_SET_CONFIG, "SET-CONFIG" },
+	{ OFPT10_FEATURES_REQUEST, 			"FEATURES-REQUEST" },
+	{ OFPT10_FEATURES_REPLY, 			"FEATURES-REPLY" },
+	{ OFPT10_GET_CONFIG_REQUEST,	 	"GET-CONFIG-REQUEST" },
+	{ OFPT10_GET_CONFIG_REPLY, 			"GET-CONFIG-REPLY" },
+	{ OFPT10_SET_CONFIG, 				"SET-CONFIG" },
 
-	{ OFPT_PACKET_IN, "PACKET-IN" },
-	{ OFPT_FLOW_REMOVED, "FLOW-REMOVED" },
-	{ OFPT_PORT_STATUS, "PORT-STATUS" },
+	{ OFPT10_PACKET_IN, 				"PACKET-IN" },
+	{ OFPT10_FLOW_REMOVED, 				"FLOW-REMOVED" },
+	{ OFPT10_PORT_STATUS, 				"PORT-STATUS" },
 
-	{ OFPT_PACKET_OUT, "PACKET-OUT" },
-	{ OFPT_FLOW_MOD, "FLOW-MOD" },
-	{ OFPT_GROUP_MOD, "GROUP-MOD" },
-	{ OFPT_PORT_MOD, "PORT-MOD" },
-	{ OFPT_TABLE_MOD, "TABLE-MOD" },
+	{ OFPT10_PACKET_OUT, 				"PACKET-OUT" },
+	{ OFPT10_FLOW_MOD, 					"FLOW-MOD" },
+	{ OFPT10_PORT_MOD, 					"PORT-MOD" },
 
-	{ OFPT_STATS_REQUEST, "STATS-REQUEST" },
-	{ OFPT_STATS_REPLY, "STATS-REPLY" },
+	{ OFPT10_STATS_REQUEST, 			"STATS-REQUEST" },
+	{ OFPT10_STATS_REPLY, 				"STATS-REPLY" },
 
-	{ OFPT_BARRIER_REQUEST, "BARRIER-REQUEST" },
-	{ OFPT_BARRIER_REPLY, "BARRIER-REPLY" },
+	{ OFPT10_BARRIER_REQUEST, 			"BARRIER-REQUEST" },
+	{ OFPT10_BARRIER_REPLY, 			"BARRIER-REPLY" },
 
-	{ OFPT_QUEUE_GET_CONFIG_REQUEST, "QUEUE-GET-CONFIG-REQUEST" },
-	{ OFPT_QUEUE_GET_CONFIG_REPLY, "QUEUE-GET-CONFIG-REPLY" },
+	{ OFPT10_QUEUE_GET_CONFIG_REQUEST, 	"QUEUE-GET-CONFIG-REQUEST" },
+	{ OFPT10_QUEUE_GET_CONFIG_REPLY, 	"QUEUE-GET-CONFIG-REPLY" },
+};
 
-	{ OFPT_ROLE_REQUEST, "ROLE-REQUEST" },
-	{ OFPT_ROLE_REPLY, "ROLE-REPLY" },
+
+
+cofmsg::typedesc_t typedesc_of12[] = {
+	{ OFPT12_HELLO, 					"HELLO" },
+	{ OFPT12_ERROR, 					"ERROR" },
+	{ OFPT12_ECHO_REQUEST, 				"ECHO-REQUEST" },
+	{ OFPT12_ECHO_REPLY, 				"ECHO-REPLY" },
+	{ OFPT12_EXPERIMENTER, 				"EXPERIMENTER" },
+
+	{ OFPT12_FEATURES_REQUEST, 			"FEATURES-REQUEST" },
+	{ OFPT12_FEATURES_REPLY, 			"FEATURES-REPLY" },
+	{ OFPT12_GET_CONFIG_REQUEST, 		"GET-CONFIG-REQUEST" },
+	{ OFPT12_GET_CONFIG_REPLY, 			"GET-CONFIG-REPLY" },
+	{ OFPT12_SET_CONFIG, 				"SET-CONFIG" },
+
+	{ OFPT12_PACKET_IN, 				"PACKET-IN" },
+	{ OFPT12_FLOW_REMOVED, 				"FLOW-REMOVED" },
+	{ OFPT12_PORT_STATUS, 				"PORT-STATUS" },
+
+	{ OFPT12_PACKET_OUT, 				"PACKET-OUT" },
+	{ OFPT12_FLOW_MOD, 					"FLOW-MOD" },
+	{ OFPT12_GROUP_MOD, 				"GROUP-MOD" },
+	{ OFPT12_PORT_MOD, 					"PORT-MOD" },
+	{ OFPT12_TABLE_MOD, 				"TABLE-MOD" },
+
+	{ OFPT12_STATS_REQUEST, 			"STATS-REQUEST" },
+	{ OFPT12_STATS_REPLY, 				"STATS-REPLY" },
+
+	{ OFPT12_BARRIER_REQUEST, 			"BARRIER-REQUEST" },
+	{ OFPT12_BARRIER_REPLY, 			"BARRIER-REPLY" },
+
+	{ OFPT12_QUEUE_GET_CONFIG_REQUEST, 	"QUEUE-GET-CONFIG-REQUEST" },
+	{ OFPT12_QUEUE_GET_CONFIG_REPLY, 	"QUEUE-GET-CONFIG-REPLY" },
+
+	{ OFPT12_ROLE_REQUEST, 				"ROLE-REQUEST" },
+	{ OFPT12_ROLE_REPLY, 				"ROLE-REPLY" },
 };
 
 
@@ -49,7 +82,7 @@ cofmsg::typedesc_t typedesc[] = {
 /*static*/std::string cofmsg::pinfo;
 
 /*static*/const char*
-cofmsg::packet_info()
+cofmsg::packet_info(uint8_t ofp_version)
 {
 	cvastring vas;
 	pinfo.assign(vas("cofpackets allocated: %d\n", cofmsg::cofpacket_list.size()));
@@ -74,7 +107,7 @@ cofmsg::packet_info()
 			it = counter.begin(); it != counter.end(); ++it)
 	{
 		pinfo.append(vas("  %s => %lu",
-						cofmsg::type2desc((enum ofp_type)it->first),
+						cofmsg::type2desc(ofp_version, it->first),
 						it->second));
 	}
 
@@ -84,15 +117,29 @@ cofmsg::packet_info()
 
 
 const char*
-cofmsg::type2desc(ofp_type ptype)
+cofmsg::type2desc(uint8_t ofp_version, uint8_t ptype)
 {
-        for (int i = 0; i < (int)(sizeof(typedesc) / sizeof(cofmsg::typedesc_t)); i++)
-        {
-                if (typedesc[i].type == ptype) {
-                        return typedesc[i].desc;
-                }
+	switch (ofp_version) {
+	case OFP10_VERSION: {
+        for (int i = 0; i < (int)(sizeof(typedesc_of10) / sizeof(cofmsg::typedesc_t)); i++) {
+			if (typedesc_of10[i].type == ptype) {
+				return typedesc_of10[i].desc;
+			}
         }
-        return NULL;
+	} break;
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+        for (int i = 0; i < (int)(sizeof(typedesc_of12) / sizeof(cofmsg::typedesc_t)); i++) {
+			if (typedesc_of12[i].type == ptype) {
+				return typedesc_of12[i].desc;
+			}
+        }
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
+	return NULL;
 }
 
 

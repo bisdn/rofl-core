@@ -11,7 +11,7 @@ cofmsg_get_async_config_request::cofmsg_get_async_config_request(
 	case OFP13_VERSION: {
 		set_version(of_version);
 		set_length(sizeof(struct ofp_header));
-		set_type(OFPT_GET_ASYNC_REQUEST);
+		set_type(OFPT13_GET_ASYNC_REQUEST);
 		set_xid(xid);
 	} break;
 	default:
@@ -130,9 +130,8 @@ cofmsg_get_async_config_request::validate()
 
 
 
-cofmsg_async_config::cofmsg_async_config(
+cofmsg_get_async_config_reply::cofmsg_get_async_config_reply(
 		uint8_t of_version,
-		uint8_t type,
 		uint32_t xid,
 		uint32_t packet_in_mask0,
 		uint32_t packet_in_mask1,
@@ -145,11 +144,11 @@ cofmsg_async_config::cofmsg_async_config(
 	ofh_async_config = soframe();
 
 	set_version(of_version);
-	set_type(type);
 	set_xid(xid);
 
 	switch (get_version()) {
 	case OFP13_VERSION: {
+		set_type(OFPT13_GET_ASYNC_REPLY);
 		resize(sizeof(struct ofp13_async_config));
 		set_length(sizeof(struct ofp13_async_config));
 
@@ -167,7 +166,7 @@ cofmsg_async_config::cofmsg_async_config(
 
 
 
-cofmsg_async_config::cofmsg_async_config(
+cofmsg_get_async_config_reply::cofmsg_get_async_config_reply(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
@@ -176,17 +175,17 @@ cofmsg_async_config::cofmsg_async_config(
 
 
 
-cofmsg_async_config::cofmsg_async_config(
-		cofmsg_async_config const& config)
+cofmsg_get_async_config_reply::cofmsg_get_async_config_reply(
+		cofmsg_get_async_config_reply const& config)
 {
 	*this = config;
 }
 
 
 
-cofmsg_async_config&
-cofmsg_async_config::operator= (
-		cofmsg_async_config const& config)
+cofmsg_get_async_config_reply&
+cofmsg_get_async_config_reply::operator= (
+		cofmsg_get_async_config_reply const& config)
 {
 	if (this == &config)
 		return *this;
@@ -200,7 +199,7 @@ cofmsg_async_config::operator= (
 
 
 
-cofmsg_async_config::~cofmsg_async_config()
+cofmsg_get_async_config_reply::~cofmsg_get_async_config_reply()
 {
 
 }
@@ -208,7 +207,7 @@ cofmsg_async_config::~cofmsg_async_config()
 
 
 void
-cofmsg_async_config::reset()
+cofmsg_get_async_config_reply::reset()
 {
 	cofmsg::reset();
 }
@@ -216,7 +215,7 @@ cofmsg_async_config::reset()
 
 
 void
-cofmsg_async_config::resize(size_t len)
+cofmsg_get_async_config_reply::resize(size_t len)
 {
 	cofmsg::resize(len);
 	ofh_async_config = soframe();
@@ -225,7 +224,7 @@ cofmsg_async_config::resize(size_t len)
 
 
 size_t
-cofmsg_async_config::length() const
+cofmsg_get_async_config_reply::length() const
 {
 	switch (ofh_header->version) {
 	case OFP13_VERSION: {
@@ -240,7 +239,7 @@ cofmsg_async_config::length() const
 
 
 void
-cofmsg_async_config::pack(uint8_t *buf, size_t buflen)
+cofmsg_get_async_config_reply::pack(uint8_t *buf, size_t buflen)
 {
 	set_length(length());
 
@@ -262,7 +261,7 @@ cofmsg_async_config::pack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_async_config::unpack(uint8_t *buf, size_t buflen)
+cofmsg_get_async_config_reply::unpack(uint8_t *buf, size_t buflen)
 {
 	cofmsg::unpack(buf, buflen);
 
@@ -272,7 +271,7 @@ cofmsg_async_config::unpack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_async_config::validate()
+cofmsg_get_async_config_reply::validate()
 {
 	cofmsg::validate(); // check generic OpenFlow header
 
@@ -292,7 +291,7 @@ cofmsg_async_config::validate()
 
 
 uint32_t
-cofmsg_async_config::get_packet_in_mask(unsigned int index) const
+cofmsg_get_async_config_reply::get_packet_in_mask(unsigned int index) const
 {
 	switch (get_version()) {
 	case OFP13_VERSION: {
@@ -309,7 +308,7 @@ cofmsg_async_config::get_packet_in_mask(unsigned int index) const
 
 
 void
-cofmsg_async_config::set_packet_in_mask(unsigned int index, uint32_t mask)
+cofmsg_get_async_config_reply::set_packet_in_mask(unsigned int index, uint32_t mask)
 {
 	switch (get_version()) {
 	case OFP13_VERSION: {
@@ -325,7 +324,7 @@ cofmsg_async_config::set_packet_in_mask(unsigned int index, uint32_t mask)
 
 
 uint32_t
-cofmsg_async_config::get_port_status_mask(unsigned int index) const
+cofmsg_get_async_config_reply::get_port_status_mask(unsigned int index) const
 {
 	switch (get_version()) {
 	case OFP13_VERSION: {
@@ -342,7 +341,7 @@ cofmsg_async_config::get_port_status_mask(unsigned int index) const
 
 
 void
-cofmsg_async_config::set_port_status_mask(unsigned int index, uint32_t mask)
+cofmsg_get_async_config_reply::set_port_status_mask(unsigned int index, uint32_t mask)
 {
 	switch (get_version()) {
 	case OFP13_VERSION: {
@@ -358,7 +357,7 @@ cofmsg_async_config::set_port_status_mask(unsigned int index, uint32_t mask)
 
 
 uint32_t
-cofmsg_async_config::get_flow_removed_mask(unsigned int index) const
+cofmsg_get_async_config_reply::get_flow_removed_mask(unsigned int index) const
 {
 	switch (get_version()) {
 	case OFP13_VERSION: {
@@ -375,7 +374,7 @@ cofmsg_async_config::get_flow_removed_mask(unsigned int index) const
 
 
 void
-cofmsg_async_config::set_flow_removed_mask(unsigned int index, uint32_t mask)
+cofmsg_get_async_config_reply::set_flow_removed_mask(unsigned int index, uint32_t mask)
 {
 	switch (get_version()) {
 	case OFP13_VERSION: {
@@ -387,5 +386,290 @@ cofmsg_async_config::set_flow_removed_mask(unsigned int index, uint32_t mask)
 		throw eBadVersion();
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cofmsg_set_async_config::cofmsg_set_async_config(
+		uint8_t of_version,
+		uint32_t xid,
+		uint32_t packet_in_mask0,
+		uint32_t packet_in_mask1,
+		uint32_t port_status_mask0,
+		uint32_t port_status_mask1,
+		uint32_t flow_removed_mask0,
+		uint32_t flow_removed_mask1) :
+	cofmsg(sizeof(struct ofp_header))
+{
+	ofh_async_config = soframe();
+
+	set_version(of_version);
+	set_xid(xid);
+
+	switch (get_version()) {
+	case OFP13_VERSION: {
+		set_type(OFPT13_SET_ASYNC);
+		resize(sizeof(struct ofp13_async_config));
+		set_length(sizeof(struct ofp13_async_config));
+
+		ofh13_async_config->packet_in_mask[0]  		= htobe32(packet_in_mask0);
+		ofh13_async_config->packet_in_mask[1]  		= htobe32(packet_in_mask1);
+		ofh13_async_config->port_status_mask[0] 	= htobe32(port_status_mask0);
+		ofh13_async_config->port_status_mask[1] 	= htobe32(port_status_mask1);
+		ofh13_async_config->flow_removed_mask[0] 	= htobe32(flow_removed_mask0);
+		ofh13_async_config->flow_removed_mask[1] 	= htobe32(flow_removed_mask1);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+cofmsg_set_async_config::cofmsg_set_async_config(
+		cmemory *memarea) :
+	cofmsg(memarea)
+{
+	ofh_async_config = soframe();
+}
+
+
+
+cofmsg_set_async_config::cofmsg_set_async_config(
+		cofmsg_set_async_config const& config)
+{
+	*this = config;
+}
+
+
+
+cofmsg_set_async_config&
+cofmsg_set_async_config::operator= (
+		cofmsg_set_async_config const& config)
+{
+	if (this == &config)
+		return *this;
+
+	cofmsg::operator =(config);
+
+	ofh_async_config = soframe();
+
+	return *this;
+}
+
+
+
+cofmsg_set_async_config::~cofmsg_set_async_config()
+{
+
+}
+
+
+
+void
+cofmsg_set_async_config::reset()
+{
+	cofmsg::reset();
+}
+
+
+
+void
+cofmsg_set_async_config::resize(size_t len)
+{
+	cofmsg::resize(len);
+	ofh_async_config = soframe();
+}
+
+
+
+size_t
+cofmsg_set_async_config::length() const
+{
+	switch (ofh_header->version) {
+	case OFP13_VERSION: {
+		return (sizeof(struct ofp13_async_config));
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+void
+cofmsg_set_async_config::pack(uint8_t *buf, size_t buflen)
+{
+	set_length(length());
+
+	if ((0 == buf) || (0 == buflen))
+		return;
+
+	if (buflen < length())
+		throw eInval();
+
+	switch (get_version()) {
+	case OFP13_VERSION: {
+		memcpy(buf, soframe(), framelen());
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofmsg_set_async_config::unpack(uint8_t *buf, size_t buflen)
+{
+	cofmsg::unpack(buf, buflen);
+
+	validate();
+}
+
+
+
+void
+cofmsg_set_async_config::validate()
+{
+	cofmsg::validate(); // check generic OpenFlow header
+
+	ofh_async_config = soframe();
+
+	switch (get_version()) {
+	case OFP13_VERSION: {
+		if (get_length() < sizeof(struct ofp13_async_config))
+			throw eBadSyntaxTooShort();
+	} break;
+	default:
+		throw eBadRequestBadVersion();
+	}
+}
+
+
+
+
+uint32_t
+cofmsg_set_async_config::get_packet_in_mask(unsigned int index) const
+{
+	switch (get_version()) {
+	case OFP13_VERSION: {
+		if (index > 1)
+			throw eInval();
+		return be32toh(ofh13_async_config->packet_in_mask[index]);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+void
+cofmsg_set_async_config::set_packet_in_mask(unsigned int index, uint32_t mask)
+{
+	switch (get_version()) {
+	case OFP13_VERSION: {
+		if (index > 1)
+			throw eInval();
+		ofh13_async_config->packet_in_mask[index] = htobe32(mask);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+uint32_t
+cofmsg_set_async_config::get_port_status_mask(unsigned int index) const
+{
+	switch (get_version()) {
+	case OFP13_VERSION: {
+		if (index > 1)
+			throw eInval();
+		return be32toh(ofh13_async_config->port_status_mask[index]);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+void
+cofmsg_set_async_config::set_port_status_mask(unsigned int index, uint32_t mask)
+{
+	switch (get_version()) {
+	case OFP13_VERSION: {
+		if (index > 1)
+			throw eInval();
+		ofh13_async_config->port_status_mask[index] = htobe32(mask);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+uint32_t
+cofmsg_set_async_config::get_flow_removed_mask(unsigned int index) const
+{
+	switch (get_version()) {
+	case OFP13_VERSION: {
+		if (index > 1)
+			throw eInval();
+		return be32toh(ofh13_async_config->flow_removed_mask[index]);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+	return 0;
+}
+
+
+
+void
+cofmsg_set_async_config::set_flow_removed_mask(unsigned int index, uint32_t mask)
+{
+	switch (get_version()) {
+	case OFP13_VERSION: {
+		if (index > 1)
+			throw eInval();
+		ofh13_async_config->flow_removed_mask[index] = htobe32(mask);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
 
 

@@ -6,6 +6,65 @@
 
 #define OFP13_VERSION   0x04
 
+
+
+enum ofp13_type {
+	/* Immutable messages. */
+    OFPT13_HELLO 					= 0,    /* Symmetric message */
+    OFPT13_ERROR 					= 1,	/* Symmetric message */
+    OFPT13_ECHO_REQUEST 			= 2,	/* Symmetric message */
+    OFPT13_ECHO_REPLY				= 3,    /* Symmetric message */
+    OFPT13_EXPERIMENTER				= 4,    /* Symmetric message */
+
+    /* Switch configuration messages. */
+    OFPT13_FEATURES_REQUEST			= 5,    /* Controller/switch message */
+    OFPT13_FEATURES_REPLY			= 6,    /* Controller/switch message */
+    OFPT13_GET_CONFIG_REQUEST		= 7,    /* Controller/switch message */
+    OFPT13_GET_CONFIG_REPLY			= 8,    /* Controller/switch message */
+    OFPT13_SET_CONFIG				= 9,    /* Controller/switch message */
+
+    /* Asynchronous messages. */
+    OFPT13_PACKET_IN				= 10,   /* Async message */
+    OFPT13_FLOW_REMOVED				= 11,   /* Async message */
+    OFPT13_PORT_STATUS				= 13,   /* Async message */
+
+    /* Controller command messages. */
+    OFPT13_PACKET_OUT				= 13,   /* Controller/switch message */
+    OFPT13_FLOW_MOD					= 14,   /* Controller/switch message */
+    OFPT13_GROUP_MOD				= 15,   /* Controller/switch message */
+    OFPT13_PORT_MOD					= 16,   /* Controller/switch message */
+    OFPT13_TABLE_MOD				= 17,   /* Controller/switch message */
+
+    /* Multipart messages. */
+    OFPT13_MULTIPART_REQUEST		= 18,   /* Controller/switch message */
+    OFPT13_MULTIPART_REPLY			= 19,   /* Controller/switch message */
+
+    /* Statistics messages (up to and including OF1.2) */
+    OFPT13_STATS_REQUEST			= 18,	/* Controller/switch message */
+    OFPT13_STATS_REPLY				= 19,	/* Controller/switch message */
+
+    /* Barrier messages. */
+    OFPT13_BARRIER_REQUEST			= 20,   /* Controller/switch message */
+    OFPT13_BARRIER_REPLY			= 21,   /* Controller/switch message */
+
+    /* Queue Configuration messages. */
+    OFPT13_QUEUE_GET_CONFIG_REQUEST	= 22,  /* Controller/switch message */
+    OFPT13_QUEUE_GET_CONFIG_REPLY	= 23,  /* Controller/switch message */
+
+    /* Controller role change request messages. */
+    OFPT13_ROLE_REQUEST    			= 24, /* Controller/switch message */
+    OFPT13_ROLE_REPLY				= 25, /* Controller/switch message */
+
+    /* Asynchronous message configuration. */
+   	OFPT13_GET_ASYNC_REQUEST		= 26, /* Controller/switch message */
+    OFPT13_GET_ASYNC_REPLY			= 27, /* Controller/switch message */
+    OFPT13_SET_ASYNC				= 28, /* Controller/switch message */
+
+    /* Meters and rate limiters configuration messages. */
+    OFPT13_METER_MOD				= 29, /* Controller/switch message */
+};
+
+
 /* Fields to match against flows */
 struct ofp13_match {
 	uint16_t type;			/* One of OFPMT_* */

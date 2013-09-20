@@ -13,11 +13,11 @@ cofmsg_port_status::cofmsg_port_status(
 	ofh_port_status = soframe();
 
 	set_version(of_version);
-	set_type(OFPT_PORT_STATUS);
 	set_xid(xid);
 
 	switch (get_version()) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_PORT_STATUS);
 		resize(sizeof(struct ofp10_port_status));
 		set_length(sizeof(struct ofp10_port_status));
 
@@ -25,6 +25,7 @@ cofmsg_port_status::cofmsg_port_status(
 		port.pack(&(ofh10_port_status->desc), sizeof(struct ofp10_port));
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_PORT_STATUS);
 		resize(sizeof(struct ofp12_port_status));
 		set_length(sizeof(struct ofp12_port_status));
 
@@ -32,6 +33,7 @@ cofmsg_port_status::cofmsg_port_status(
 		port.pack(&(ofh12_port_status->desc), sizeof(struct ofp12_port));
 	} break;
 	case OFP13_VERSION: {
+		set_type(OFPT13_PORT_STATUS);
 		resize(sizeof(struct ofp13_port_status));
 		set_length(sizeof(struct ofp13_port_status));
 

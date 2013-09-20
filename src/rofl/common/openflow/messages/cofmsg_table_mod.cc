@@ -14,17 +14,18 @@ cofmsg_table_mod::cofmsg_table_mod(
 	ofh_table_mod = soframe();
 
 	set_version(of_version);
-	set_type(OFPT_TABLE_MOD);
 	set_xid(xid);
 
 	switch (of_version) {
 	case OFP12_VERSION: {
+		set_type(OFPT12_TABLE_MOD);
 		resize(sizeof(struct ofp12_table_mod));
 
 		ofh12_table_mod->table_id		= table_id;
 		ofh12_table_mod->config			= htobe32(config);
 	} break;
 	case OFP13_VERSION: {
+		set_type(OFPT13_TABLE_MOD);
 		resize(sizeof(struct ofp13_table_mod));
 
 		ofh13_table_mod->table_id		= table_id;

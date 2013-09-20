@@ -17,11 +17,11 @@ cofmsg_port_mod::cofmsg_port_mod(
 	ofh_port_mod = soframe();
 
 	set_version(of_version);
-	set_type(OFPT_PORT_MOD);
 	set_xid(xid);
 
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_PORT_MOD);
 		cofmsg::resize(sizeof(struct ofp10_port_mod));
 
 		ofh10_port_mod->port_no			= htobe16((uint16_t)(port_no & 0x0000ffff));
@@ -31,6 +31,7 @@ cofmsg_port_mod::cofmsg_port_mod(
 		memcpy(ofh10_port_mod->hw_addr, hwaddr.somem(), OFP_ETH_ALEN);
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_PORT_MOD);
 		cofmsg::resize(sizeof(struct ofp12_port_mod));
 
 		ofh12_port_mod->port_no			= htobe32(port_no);
@@ -40,6 +41,7 @@ cofmsg_port_mod::cofmsg_port_mod(
 		memcpy(ofh12_port_mod->hw_addr, hwaddr.somem(), OFP_ETH_ALEN);
 	} break;
 	case OFP13_VERSION: {
+		set_type(OFPT13_PORT_MOD);
 		cofmsg::resize(sizeof(struct ofp13_port_mod));
 
 		ofh13_port_mod->port_no			= htobe32(port_no);

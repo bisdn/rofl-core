@@ -74,15 +74,15 @@ public:
 	 */
 	static
 	const char*
-	packet_info();
+	packet_info(uint8_t ofp_version);
 
     /** return description for ofp_type
      */
     static const char*
-    type2desc(ofp_type type);
+    type2desc(uint8_t ofp_version, uint8_t type);
 
 	typedef struct {
-		ofp_type type;
+		uint8_t type;
 		char desc[64];
 	} typedesc_t;
 

@@ -10,11 +10,12 @@ cofmsg_group_stats_request::cofmsg_group_stats_request(
 		uint32_t xid,
 		uint16_t flags,
 		cofgroup_stats_request const& group_stats) :
-	cofmsg_stats(of_version, OFPT_STATS_REQUEST, xid, OFPST_GROUP, flags),
+	cofmsg_stats(of_version, xid, OFPST_GROUP, flags),
 	group_stats(group_stats)
 {
 	switch (of_version) {
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REQUEST);
 		resize(sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_group_stats_request));
 	} break;
 	case OFP13_VERSION: {
@@ -203,11 +204,12 @@ cofmsg_group_stats_reply::cofmsg_group_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		std::vector<cofgroup_stats_reply> const& group_stats) :
-	cofmsg_stats(of_version, OFPT_STATS_REPLY, xid, OFPST_GROUP, flags),
+	cofmsg_stats(of_version, xid, OFPST_GROUP, flags),
 	group_stats(group_stats)
 {
 	switch (of_version) {
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REPLY);
 		resize(length());
 	} break;
 	case OFP13_VERSION: {

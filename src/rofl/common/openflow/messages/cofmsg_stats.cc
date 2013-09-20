@@ -6,7 +6,6 @@ using namespace rofl;
 
 cofmsg_stats::cofmsg_stats(
 		uint8_t of_version,
-		uint8_t  type,
 		uint32_t xid,
 		uint32_t stats_type,
 		uint32_t stats_flags,
@@ -20,7 +19,6 @@ cofmsg_stats::cofmsg_stats(
 	ofh_stats_request = soframe();
 
 	set_version(of_version);
-	set_type(type);
 	set_xid(xid);
 
 	switch (of_version) {
