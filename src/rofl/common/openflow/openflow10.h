@@ -47,6 +47,22 @@
  */
 #define OFP10_VERSION   0x01
 
+/* Port numbering. Ports are numbered starting from 1. */
+enum ofp10_port_no {
+    /* Maximum number of physical switch ports. */
+    OFPP10_MAX      	= 0xff00,
+    OFPP10_IN_PORT		= 0xfff8,
+    OFPP10_TABLE		= 0xfff9,
+    OFPP10_NORMAL		= 0xfffa,
+    OFPP10_FLOOD		= 0xfffb,
+    OFPP10_ALL			= 0xfffc,
+    OFPP10_CONTROLLER	= 0xfffd,
+    OFPP10_LOCAL		= 0xfffe,
+    OFPP10_NONE			= 0xffff,
+};
+
+
+
 enum ofp10_type {
 	/* Immutable messages. */
     OFPT10_HELLO 					= 0,    /* Symmetric message */

@@ -698,8 +698,8 @@ crofbase::send_echo_reply(
 		uint32_t xid,
 		uint8_t *body, size_t bodylen)
 {
-	cofmsg_echo_request *msg =
-			new cofmsg_echo_request(
+	cofmsg_echo_reply *msg =
+			new cofmsg_echo_reply(
 					ctl->get_version(),
 					xid,
 					body,

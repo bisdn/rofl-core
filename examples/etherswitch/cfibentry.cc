@@ -62,7 +62,7 @@ cfibentry::set_out_port_no(uint32_t out_port_no)
 void
 cfibentry::flow_mod_add()
 {
-	if (OFPP_FLOOD != out_port_no) {
+	if (OFPP12_FLOOD != out_port_no) {
 		rofl::cflowentry fe(dpt->get_version());
 
 		fe.set_command(OFPFC_ADD);
@@ -85,7 +85,7 @@ cfibentry::flow_mod_add()
 		fe.match.set_eth_src(dst);
 
 		fe.instructions.next() = rofl::cofinst_apply_actions();
-		fe.instructions.back().actions.next() = rofl::cofaction_output(dpt->get_version(), OFPP_CONTROLLER);
+		fe.instructions.back().actions.next() = rofl::cofaction_output(dpt->get_version(), OFPP12_CONTROLLER);
 
 		rofbase->send_flow_mod_message(dpt, fe);
 
@@ -115,7 +115,7 @@ cfibentry::flow_mod_modify()
 void
 cfibentry::flow_mod_delete()
 {
-	if (OFPP_FLOOD != out_port_no) {
+	if (OFPP12_FLOOD != out_port_no) {
 
 		rofl::cflowentry fe(dpt->get_version());
 

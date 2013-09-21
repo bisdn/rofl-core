@@ -102,8 +102,8 @@ cpacket::cpacket(
 
 	pthread_rwlock_init(&ac_rwlock, NULL);
 
-	match.set_in_port(OFPP_CONTROLLER);
-	match.set_in_phy_port(OFPP_CONTROLLER);
+	match.set_in_port(OFPP12_CONTROLLER); 		// FIXME: OpenFlow version dependencies !!!
+	match.set_in_phy_port(OFPP12_CONTROLLER);
 
 	if (do_classify)
 	{
@@ -139,8 +139,8 @@ cpacket::cpacket(
 
 
 
-	match.set_in_port(OFPP_CONTROLLER);
-	match.set_in_phy_port(OFPP_CONTROLLER);
+	match.set_in_port(OFPP12_CONTROLLER);
+	match.set_in_phy_port(OFPP12_CONTROLLER);
 
 	if (do_classify)
 	{
@@ -339,7 +339,7 @@ cpacket::operator+ (
 
 	memcpy(soframe() + len, f.soframe(), f.framelen());
 
-	uint32_t in_port = OFPP_CONTROLLER;
+	uint32_t in_port = OFPP12_CONTROLLER;
 	try {
 		in_port = match.get_in_port();
 	} catch (eOFmatchNotFound& e) {}

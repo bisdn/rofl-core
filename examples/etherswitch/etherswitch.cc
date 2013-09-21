@@ -117,7 +117,7 @@ ethswitch::handle_dpath_open(
 	fe.set_table_id(0);
 
 	fe.instructions.next() = cofinst_apply_actions();
-	fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), OFPP_CONTROLLER);
+	fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), OFPP12_CONTROLLER);
 
 	fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
 	send_flow_mod_message(dpt, fe);
@@ -193,7 +193,7 @@ ethswitch::handle_packet_in(
 
 	if (eth_dst.is_multicast()) {
 
-		actions.next() = cofaction_output(dpt->get_version(), OFPP_FLOOD);
+		actions.next() = cofaction_output(dpt->get_version(), OFPP12_FLOOD);
 
 	} else {
 

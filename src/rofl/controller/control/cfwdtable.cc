@@ -132,7 +132,7 @@ throw(eFwdTableNotFound)
 	// broadcast address is OFPP_FLOOD
 	if (pack.ether()->get_dl_dst().is_broadcast())
 	{
-		return OFPP_FLOOD;
+		return OFPP12_FLOOD;
 	}
 
 	// multicast destinations are "NotFound"
@@ -177,7 +177,7 @@ throw (eFwdTableNotFound)
 	// broadcast address is OFPP_FLOOD
 	if (pack.ether()->get_dl_dst().is_broadcast())
 	{
-		return OFPP_FLOOD;
+		return OFPP12_FLOOD;
 	}
 
 	// multicast destinations are "NotFound"

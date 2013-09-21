@@ -138,7 +138,7 @@ cofaction::unpack(
 			throw eBadActionBadLen();
 		}
 		uint16_t port_no = be16toh(oac_10output->port);
-		if ((OFPP_ANY == port_no) || (0 == port_no)) {
+		if (0 == port_no) {
 			throw eBadActionBadOutPort();
 		}
 	} break;
@@ -220,7 +220,7 @@ cofaction::unpack(
 			throw eBadActionBadLen();
 		}
 		uint32_t port_no = be32toh(oac_12output->port);
-		if ((OFPP_ANY == port_no) || (0 == port_no)) {
+		if ((OFPP12_ANY == port_no) || (0 == port_no)) {
 			throw eBadActionBadOutPort();
 		}
 	} break;

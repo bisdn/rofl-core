@@ -1449,7 +1449,7 @@ cofdpt::group_mod_reset()
 {
 	cgroupentry ge;
 	ge.set_command(OFPGC_DELETE);
-	ge.set_group_id(OFPG_ALL);
+	ge.set_group_id(OFPG12_ALL);
 
 	rofbase->send_group_mod_message(this, ge); // calls this->group_mod_sent() implicitly
 }

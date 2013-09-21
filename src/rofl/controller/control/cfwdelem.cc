@@ -425,7 +425,7 @@ cfwdelem::handle_port_stats_request(cofctl *ctl, cofmsg_port_stats_request *msg)
 	cmemory body(0);
 
 	try {
-		if (OFPP_ANY == port_no)
+		if (OFPP12_ANY == port_no)
 		{
 			for (std::map<uint32_t, cofport*>::iterator
 					it = phy_ports.begin(); it != phy_ports.end(); ++it)
@@ -653,7 +653,7 @@ cfwdelem::handle_group_stats_request(cofctl *ctl, cofmsg_group_stats_request *ms
 
 	cmemory body(0);
 
-	if (OFPG_ALL == group_id)
+	if (OFPG12_ALL == group_id)
 	{
 		group_table.get_group_stats(body);
 	}

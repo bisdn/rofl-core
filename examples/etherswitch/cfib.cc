@@ -80,7 +80,7 @@ cfib::fib_timer_expired(cfibentry *entry)
 {
 	if (fibtable.find(entry->get_lladdr()) != fibtable.end()) {
 #if 0
-		entry->set_out_port_no(OFPP_FLOOD);
+		entry->set_out_port_no(OFPP12_FLOOD);
 #else
 		fibtable[entry->get_lladdr()]->flow_mod_delete();
 		fibtable.erase(entry->get_lladdr());
@@ -143,7 +143,7 @@ cfib::fib_lookup(
 	// find out-port for dst
 	if (fibtable.find(dst) == fibtable.end()) {
 
-		fibtable[dst] = new cfibentry(this, rofbase, dpt, dst, OFPP_FLOOD);
+		fibtable[dst] = new cfibentry(this, rofbase, dpt, dst, OFPP12_FLOOD);
 		fibtable[dst]->flow_mod_add();
 
 		std::cerr << "LOOKUP[1]: " << *this << std::endl;

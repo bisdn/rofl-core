@@ -113,8 +113,8 @@ ipswitching::flow_mod_delete_all()
 		cflowentry fe(dpt->get_version());
 		fe.set_command(OFPFC_DELETE);
 		fe.set_table_id(OFPTT_ALL);
-		fe.set_out_port(OFPP_ANY);
-		fe.set_out_group(OFPG_ANY);
+		fe.set_out_port(OFPP12_ANY);
+		fe.set_out_group(OFPG12_ANY);
 
 		fprintf(stderr, "FLOW-MOD: delete all: %s\n", fe.c_str());
 
@@ -422,7 +422,7 @@ void
 ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 {
 	/*
-	 * this is a workaround, as OFPP_TABLE is not implemented yet in xdpd
+	 * this is a workaround, as OFPP12_TABLE is not implemented yet in xdpd
 	 */
 	for (std::map<caddress, fibentry_t>::iterator
 			it = fib[dpt].begin(); it != fib[dpt].end(); ++it) {
@@ -484,7 +484,7 @@ ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 	if (fib[dpt][ip_src].vid != 0xffff) {
 		actions.next() = cofaction_pop_vlan(dpt->get_version());
 	}
-	actions.next() = cofaction_output(dpt->get_version(), OFPP_FLOOD);
+	actions.next() = cofaction_output(dpt->get_version(), OFPP12_FLOOD);
 	if (OFP_NO_BUFFER == msg->get_buffer_id()) {
 		fprintf(stderr, "NOEEEETTTTT!!!!! (2.2)\n");
 		send_packet_out_message(

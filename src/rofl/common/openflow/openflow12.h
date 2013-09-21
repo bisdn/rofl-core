@@ -51,6 +51,31 @@
  */
 #define OFP12_VERSION   0x03
 
+/* Port numbering. Ports are numbered starting from 1. */
+enum ofp12_port_no {
+    /* Maximum number of physical switch ports. */
+    OFPP12_MAX        = 0xffffff00,
+
+    /* Fake output "ports". */
+    OFPP12_IN_PORT    = 0xfffffff8,  /* Send the packet out the input port.  This
+                                      virtual port must be explicitly used
+                                      in order to send back out of the input
+                                      port. */
+    OFPP12_TABLE      = 0xfffffff9,  /* Submit the packet to the first flow table
+                                      NB: This destination port can only be
+                                      used in packet-out messages. */
+    OFPP12_NORMAL     = 0xfffffffa,  /* Process with normal L2/L3 switching. */
+    OFPP12_FLOOD      = 0xfffffffb,  /* All physical ports in VLAN, except input
+                                      port and those blocked or link down. */
+    OFPP12_ALL        = 0xfffffffc,  /* All physical ports except input port. */
+    OFPP12_CONTROLLER = 0xfffffffd,  /* Send to controller. */
+    OFPP12_LOCAL      = 0xfffffffe,  /* Local openflow "port". */
+    OFPP12_ANY        = 0xffffffff   /* Wildcard port used only for flow mod
+                                      (delete) and flow stats requests. Selects
+                                      all flows regardless of output port
+                                      (including flows with no output port). */
+};
+
 
 enum ofp12_type {
 	/* Immutable messages. */
@@ -891,14 +916,14 @@ struct ofp12_flow_mod {
 OFP_ASSERT(sizeof(struct ofp12_flow_mod) == 56);
 
 /* Group numbering. Groups can use any number up to OFPG_MAX. */
-enum ofp_group {
+enum ofp12_group {
     /* Last usable group number. */
-    OFPG_MAX        = 0xffffff00,
+    OFPG12_MAX        = 0xffffff00,
 
     /* Fake groups. */
-    OFPG_ALL        = 0xfffffffc,  /* Represents all groups for group delete
+    OFPG12_ALL        = 0xfffffffc,  /* Represents all groups for group delete
                                       commands. */
-    OFPG_ANY        = 0xffffffff   /* Wildcard group used only for flow stats
+    OFPG12_ANY        = 0xffffffff   /* Wildcard group used only for flow stats
                                       requests. Selects all flows regardless of
                                       group (including flows with no group).
                                       */

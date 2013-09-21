@@ -1466,7 +1466,7 @@ ctlbase::send_flow_mod_message(
 #if 0
 		uint32_t in_port = match.get_in_port();
 
-		if ((OFPP_CONTROLLER != in_port) && (n_ports.find(in_port) == n_ports.end()))
+		if ((OFPP12_CONTROLLER != in_port) && (n_ports.find(in_port) == n_ports.end()))
 		{
 			throw eCtlBaseInval();
 		}
@@ -1528,7 +1528,7 @@ ctlbase::send_flow_mod_message(
 							{
 								uint32_t out_port = be32toh(action.oac_12output->port);
 
-								if (out_port > OFPP_MAX)
+								if (out_port > OFPP12_MAX)
 								{
 									actions.next() = action;
 									continue;
@@ -1635,11 +1635,11 @@ ctlbase::send_packet_out_message(
 	}
 
 	/*
-	 * if there are specific ports > OFPP_MAX (e.g. OFPP_FLOOD, OFPP_ALL),
+	 * if there are specific ports > OFPP12_MAX (e.g. OFPP12_FLOOD, OFPP12_ALL),
 	 * we are generating multiple packet-outs, each per port, as adaptation
 	 * might be different for each port.
 	 */
-	if (aclist.count_action_output(OFPP_ALL) || aclist.count_action_output(OFPP_FLOOD))
+	if (aclist.count_action_output(OFPP12_ALL) || aclist.count_action_output(OFPP12_FLOOD))
 	{
 		for (std::map<uint32_t, cadapt*>::iterator
 				it = n_ports.begin(); it != n_ports.end(); ++it)
@@ -1665,8 +1665,8 @@ ctlbase::send_packet_out_message(
 						uint32_t out_port = be32toh(action.oac_12output->port);
 
 						switch (out_port) {
-						case OFPP_ALL:
-						case OFPP_FLOOD:
+						case OFPP12_ALL:
+						case OFPP12_FLOOD:
 							{
 								accopy.next() = cofaction_output(OFP12_VERSION, it->first);
 							}
@@ -1735,9 +1735,9 @@ ctlbase::send_packet_out_message(
 			{
 				uint32_t out_port = be32toh(action.oac_12output->port);
 
-				if (out_port > OFPP_MAX)
+				if (out_port > OFPP12_MAX)
 				{
-					actions.next() = action; // e.g. OFPP_ALL, OFPP_FLOOD, etc.
+					actions.next() = action; // e.g. OFPP12_ALL, OFPP12_FLOOD, etc.
 					continue;
 				}
 
@@ -1908,7 +1908,7 @@ ctlbase::send_stats_request(
 
 			// out_port
 			uint32_t out_port = be32toh(aggr.ofs_aggr_stats_request->out_port);
-			if (OFPP_ANY != out_port)
+			if (OFPP12_ANY != out_port)
 			{
 				if (n_ports.find(out_port) == n_ports.end())
 				{
@@ -2005,7 +2005,7 @@ ctlbase::send_group_mod_message(
 				{
 					uint32_t out_port = be32toh(action.oac_12output->port);
 
-					if (out_port > OFPP_MAX)
+					if (out_port > OFPP12_MAX)
 					{
 						actions.next() = action;
 						continue;

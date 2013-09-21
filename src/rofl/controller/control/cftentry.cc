@@ -21,8 +21,8 @@ cftentry::cftentry(
 				removal_reason(OFPRR_DELETE),
 				rx_packets(0),
 				rx_bytes(0),
-				out_port(OFPP_ANY),
-				out_group(OFPG_ANY)
+				out_port(OFPP12_ANY),
+				out_group(OFPG12_ANY)
 {
 	of12m_flow_mod = (struct ofp12_flow_mod*)0;
 
@@ -129,8 +129,8 @@ cftentry::cftentry(
 				removal_reason(OFPRR_DELETE),
 				rx_packets(0),
 				rx_bytes(0),
-				out_port(OFPP_ANY),
-				out_group(OFPG_ANY)
+				out_port(OFPP12_ANY),
+				out_group(OFPG12_ANY)
 {
 	cftentry::cftentry_set.insert(this);
 
@@ -735,9 +735,9 @@ cftentry::get_flow_stats(
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		/*
-		 * out_port must match, if not OFPP_ANY
+		 * out_port must match, if not OFPP12_ANY
 		 */
-		if (OFPP_ANY != out_port)
+		if (OFPP12_ANY != out_port)
 		{
 			try {
 				cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
@@ -767,9 +767,9 @@ cftentry::get_flow_stats(
 		}
 
 		/*
-		 * out_group must match, if not OFPG_ANY
+		 * out_group must match, if not OFPG12_ANY
 		 */
-		if (OFPG_ANY != out_group)
+		if (OFPG12_ANY != out_group)
 		{
 			try {
 				cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
@@ -800,7 +800,7 @@ cftentry::get_flow_stats(
 			} catch (eInListNotFound& e) {}
 		}
 
-		if (not ((OFPP_ANY == out_port) && (OFPG_ANY == out_group)))
+		if (not ((OFPP12_ANY == out_port) && (OFPG12_ANY == out_group)))
 		{
 			if (not found)
 			{
@@ -887,9 +887,9 @@ cftentry::get_aggregate_flow_stats(
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		/*
-		 * out_port must match, if not OFPP_ANY
+		 * out_port must match, if not OFPP12_ANY
 		 */
-		if (OFPP_ANY != out_port)
+		if (OFPP12_ANY != out_port)
 		{
 			try {
 				cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
@@ -919,9 +919,9 @@ cftentry::get_aggregate_flow_stats(
 		}
 
 		/*
-		 * out_group must match, if not OFPG_ANY
+		 * out_group must match, if not OFPG12_ANY
 		 */
-		if (OFPG_ANY != out_group)
+		if (OFPG12_ANY != out_group)
 		{
 			try {
 				cofinst& inst = instructions.find_inst(OFPIT_APPLY_ACTIONS);
@@ -955,7 +955,7 @@ cftentry::get_aggregate_flow_stats(
 		//fprintf(stderr, "\n\n[R]\n\n\n");
 
 
-		if (not ((OFPP_ANY == out_port) && (OFPG_ANY == out_group)))
+		if (not ((OFPP12_ANY == out_port) && (OFPG12_ANY == out_group)))
 		{
 			//fprintf(stderr, "\n\n[S]\n\n\n");
 

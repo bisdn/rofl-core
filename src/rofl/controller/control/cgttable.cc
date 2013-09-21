@@ -116,7 +116,7 @@ throw (eGroupModExists,
 			"", this);
 
 
-	if (OFPG_MAX < grp_mod->get_group_id())
+	if (OFPG12_MAX < grp_mod->get_group_id())
 	{
 		throw eGroupModInvalGroup();
 	}
@@ -149,7 +149,7 @@ throw (
 		eGroupModUnknownGroup,
 		eGroupModLoop)
 {
-	if (OFPG_MAX < grp_mod->get_group_id())
+	if (OFPG12_MAX < grp_mod->get_group_id())
 	{
 		throw eGroupModInvalGroup();
 	}
@@ -189,7 +189,7 @@ cgttable::rem_gt_entry(
 throw (
 		eGroupModInvalGroup)
 {
-	if (OFPG_ALL == grp_mod->get_group_id())
+	if (OFPG12_ALL == grp_mod->get_group_id())
 	{
 		WRITELOG(CGTTABLE, WARN, "cgttable(%p)::rem_gt_entry() "
 				"removing all groups", this);
@@ -207,7 +207,7 @@ throw (
 		WRITELOG(CGTTABLE, WARN, "cgttable(%p)::rem_gt_entry() "
 				"removing group-id:0x%x", this, grp_mod->get_group_id());
 
-		if (OFPG_MAX < grp_mod->get_group_id())
+		if (OFPG12_MAX < grp_mod->get_group_id())
 		{
 			throw eGroupModInvalGroup();
 		}

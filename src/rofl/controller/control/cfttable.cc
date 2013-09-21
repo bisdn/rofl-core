@@ -680,7 +680,7 @@ cfttable::rem_ft_entry(
 				this, (*it)->c_str());
 
 		// ok, both out_port and out_group are *_ANY, i.e. remove the cftentry instance
-		if ((be32toh(pack->ofh_flow_mod->out_port) == OFPP_ANY) &&
+		if ((be32toh(pack->ofh_flow_mod->out_port) == OFPP12_ANY) &&
 				(be32toh(pack->ofh_flow_mod->out_group) == OFPG_ANY))
 		{
 			// remove the instance pointed to by (*it) (see below)
@@ -734,7 +734,7 @@ cfttable::rem_ft_entry(
 
 
 		}
-		else if (be32toh(pack->ofh_flow_mod->out_port) == OFPP_ANY)
+		else if (be32toh(pack->ofh_flow_mod->out_port) == OFPP12_ANY)
 		{
 			// find all OFPAT_GROUP actions ...
 
@@ -821,10 +821,10 @@ cfttable::rem_ft_entry(
 			continue;
 		}
 
-		if ((OFPP_ANY == out_port) && (OFPG_ANY == out_group)) {
+		if ((OFPP12_ANY == out_port) && (OFPG12_ANY == out_group)) {
 			entry->disable_entry();
 			delete_table.insert(entry);
-		} else if (OFPG_ANY == out_group) {
+		} else if (OFPG12_ANY == out_group) {
 			// find all OFPAT_OUTPUT actions ...
 
 			// ... in OFPIT_APPLY_ACTIONS
@@ -857,7 +857,7 @@ cfttable::rem_ft_entry(
 			} catch (eFteInstNotFound& e) {
 			} catch (eInstructionActionNotFound& e) {
 			}
-		} else if (OFPP_ANY == out_port) {
+		} else if (OFPP12_ANY == out_port) {
 			// find all OFPAT_GROUP actions ...
 
 			// ... in OFPIT_APPLY_ACTIONS

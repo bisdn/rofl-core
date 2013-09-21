@@ -67,7 +67,7 @@ etherswitch::request_flow_stats()
 			req.set_version(dpt->get_version());
 			req.set_table_id(OFPTT_ALL);
 			req.set_match(cofmatch(OFP10_VERSION));
-			req.set_out_port(OFPP_ANY);
+			req.set_out_port(OFPP12_ANY);
 		} break;
 		case OFP12_VERSION: {
 			req.set_version(dpt->get_version());
@@ -75,8 +75,8 @@ etherswitch::request_flow_stats()
 			cofmatch match(OFP12_VERSION);
 			//match.set_eth_dst(cmacaddr("01:80:c2:00:00:00"));
 			req.set_match(match);
-			req.set_out_port(OFPP_ANY);
-			req.set_out_group(OFPG_ANY);
+			req.set_out_port(OFPP12_ANY);
+			req.set_out_group(OFPG12_ANY);
 			req.set_cookie(0);
 			req.set_cookie_mask(0);
 		} break;
@@ -138,8 +138,8 @@ etherswitch::flow_mod_delete_all()
 		cflowentry fe(dpt->get_version());
 		fe.set_command(OFPFC_DELETE);
 		fe.set_table_id(OFPTT_ALL);
-		fe.set_out_port(OFPP_ANY);
-		fe.set_out_group(OFPG_ANY);
+		fe.set_out_port(OFPP12_ANY);
+		fe.set_out_group(OFPG12_ANY);
 
 		fprintf(stderr, "FLOW-MOD: delete all: %s\n", fe.c_str());
 
@@ -237,7 +237,7 @@ etherswitch::handle_packet_in(
 			(fib[dpt][vlan_id].find(eth_dst) == fib[dpt][vlan_id].end()))
 	{
 		cofaclist actions;
-		actions.next() = cofaction_output(dpt->get_version(), OFPP_FLOOD);
+		actions.next() = cofaction_output(dpt->get_version(), OFPP12_FLOOD);
 
 		if (OFP_NO_BUFFER == msg->get_buffer_id()) {
 			send_packet_out_message(

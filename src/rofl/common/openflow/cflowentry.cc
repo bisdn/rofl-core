@@ -22,8 +22,8 @@ cflowentry::cflowentry(uint8_t of_version, uint16_t __type) throw (eFlowEntryOut
 		of12m_flow_mod->idle_timeout 	= htobe16(0);				// default: idle_timeout = 5 secs
 		of12m_flow_mod->hard_timeout 	= htobe16(0);				// default: hard_timeout = 0 secs (not used)
 		of12m_flow_mod->command 		= OFPFC_ADD;				// default: add flow-mod entry
-		of12m_flow_mod->out_port 		= htobe32(OFPP_ANY);
-		of12m_flow_mod->out_group 		= htobe32(OFPG_ANY);
+		of12m_flow_mod->out_port 		= htobe32(OFPP12_ANY);
+		of12m_flow_mod->out_group 		= htobe32(OFPG12_ANY);
 
 	} break;
 	case OFP13_VERSION: {
@@ -37,8 +37,8 @@ cflowentry::cflowentry(uint8_t of_version, uint16_t __type) throw (eFlowEntryOut
 		of13m_flow_mod->idle_timeout 	= htobe16(0);				// default: idle_timeout = 5 secs
 		of13m_flow_mod->hard_timeout 	= htobe16(0);				// default: hard_timeout = 0 secs (not used)
 		of13m_flow_mod->command 		= OFPFC_ADD;				// default: add flow-mod entry
-		of13m_flow_mod->out_port 		= htobe32(OFPP_ANY);
-		of13m_flow_mod->out_group 		= htobe32(OFPG_ANY);
+		of13m_flow_mod->out_port 		= htobe32(OFPP13_ANY);
+		of13m_flow_mod->out_group 		= htobe32(OFPG13_ANY);
 
 	} break;
 	default: {
@@ -152,8 +152,8 @@ cflowentry::reset()
 		of12m_flow_mod->idle_timeout 	= htobe16(5);				// default: idle_timeout = 5 secs
 		of12m_flow_mod->hard_timeout 	= htobe16(0);				// default: hard_timeout = 0 secs (not used)
 		of12m_flow_mod->command 		= OFPFC_ADD;				// default: add flow-mod entry
-		of12m_flow_mod->out_port 		= htobe32(OFPP_ANY);
-		of12m_flow_mod->out_group 		= htobe32(OFPG_ANY);
+		of12m_flow_mod->out_port 		= htobe32(OFPP12_ANY);
+		of12m_flow_mod->out_group 		= htobe32(OFPG12_ANY);
 
 	} break;
 	case OFP13_VERSION: {
@@ -166,8 +166,8 @@ cflowentry::reset()
 		of13m_flow_mod->idle_timeout 	= htobe16(5);				// default: idle_timeout = 5 secs
 		of13m_flow_mod->hard_timeout 	= htobe16(0);				// default: hard_timeout = 0 secs (not used)
 		of13m_flow_mod->command 		= OFPFC_ADD;				// default: add flow-mod entry
-		of13m_flow_mod->out_port 		= htobe32(OFPP_ANY);
-		of13m_flow_mod->out_group 		= htobe32(OFPG_ANY);
+		of13m_flow_mod->out_port 		= htobe32(OFPP13_ANY);
+		of13m_flow_mod->out_group 		= htobe32(OFPG13_ANY);
 
 	} break;
 	default: {

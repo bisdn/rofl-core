@@ -32,7 +32,7 @@ queuetest::handle_timeout(
 		fprintf(stderr, "C");
 		for (std::set<cofdpt*>::iterator
 				it = dpaths.begin(); it != dpaths.end(); ++it) {
-			send_queue_get_config_request((*it), OFPP_ALL);
+			send_queue_get_config_request((*it), OFPP12_ALL);
 		}
 	} break;
 	case QUEUETEST_TIMER_STATS_INTERVAL: {
@@ -45,7 +45,7 @@ queuetest::handle_timeout(
 					0,
 					cofqueue_stats_request(
 							(*it)->get_version(),
-							OFPP_ALL,
+							OFPP12_ALL,
 							OFPQ_ALL));
 		}
 	} break;

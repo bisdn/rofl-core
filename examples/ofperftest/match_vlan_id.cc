@@ -120,8 +120,8 @@ match_vlan_id::flow_mod_delete_all()
 		cflowentry fe(dpt->get_version());
 		fe.set_command(OFPFC_DELETE);
 		fe.set_table_id(OFPTT_ALL);
-		fe.set_out_port(OFPP_ANY);
-		fe.set_out_group(OFPG_ANY);
+		fe.set_out_port(OFPP12_ANY);
+		fe.set_out_group(OFPG12_ANY);
 
 		fprintf(stderr, "FLOW-MOD: delete all: %s\n", fe.c_str());
 
@@ -221,7 +221,7 @@ match_vlan_id::handle_packet_in(
 			(fib[dpt][vlan_id].find(eth_dst) == fib[dpt][vlan_id].end()))
 	{
 		cofaclist actions;
-		actions.next() = cofaction_output(dpt->get_version(), OFPP_FLOOD);
+		actions.next() = cofaction_output(dpt->get_version(), OFPP12_FLOOD);
 
 		if (OFP_NO_BUFFER == msg->get_buffer_id()) {
 			send_packet_out_message(
