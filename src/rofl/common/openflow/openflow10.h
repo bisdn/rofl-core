@@ -47,20 +47,27 @@
  */
 #define OFP10_VERSION   0x01
 
-/* Port numbering. Ports are numbered starting from 1. */
+/* Port numbering.  Physical ports are numbered starting from 1. */
 enum ofp10_port_no {
     /* Maximum number of physical switch ports. */
-    OFPP10_MAX      	= 0xff00,
-    OFPP10_IN_PORT		= 0xfff8,
-    OFPP10_TABLE		= 0xfff9,
-    OFPP10_NORMAL		= 0xfffa,
-    OFPP10_FLOOD		= 0xfffb,
-    OFPP10_ALL			= 0xfffc,
-    OFPP10_CONTROLLER	= 0xfffd,
-    OFPP10_LOCAL		= 0xfffe,
-    OFPP10_NONE			= 0xffff,
-};
+    OFPP10_MAX = 0xff00,
 
+    /* Fake output "ports". */
+    OFPP10_IN_PORT    = 0xfff8,  /* Send the packet out the input port.  This
+                                  virtual port must be explicitly used
+                                  in order to send back out of the input
+                                  port. */
+    OFPP10_TABLE      = 0xfff9,  /* Perform actions in flow table.
+                                  NB: This can only be the destination
+                                  port for packet-out messages. */
+    OFPP10_NORMAL     = 0xfffa,  /* Process with normal L2/L3 switching. */
+    OFPP10_FLOOD      = 0xfffb,  /* All physical ports except input port and
+                                  those disabled by STP. */
+    OFPP10_ALL        = 0xfffc,  /* All physical ports except input port. */
+    OFPP10_CONTROLLER = 0xfffd,  /* Send to controller. */
+    OFPP10_LOCAL      = 0xfffe,  /* Local openflow "port". */
+    OFPP10_NONE       = 0xffff   /* Not associated with a physical port. */
+};
 
 
 enum ofp10_type {
@@ -103,27 +110,6 @@ enum ofp10_type {
 
 
 
-/* Port numbering.  Physical ports are numbered starting from 1. */
-enum ofp10_virt_port {
-    /* Maximum number of physical switch ports. */
-    OFP10P_MAX = 0xff00,
-
-    /* Fake output "ports". */
-    OFP10P_IN_PORT    = 0xfff8,  /* Send the packet out the input port.  This
-                                  virtual port must be explicitly used
-                                  in order to send back out of the input
-                                  port. */
-    OFP10P_TABLE      = 0xfff9,  /* Perform actions in flow table.
-                                  NB: This can only be the destination
-                                  port for packet-out messages. */
-    OFP10P_NORMAL     = 0xfffa,  /* Process with normal L2/L3 switching. */
-    OFP10P_FLOOD      = 0xfffb,  /* All physical ports except input port and
-                                  those disabled by STP. */
-    OFP10P_ALL        = 0xfffc,  /* All physical ports except input port. */
-    OFP10P_CONTROLLER = 0xfffd,  /* Send to controller. */
-    OFP10P_LOCAL      = 0xfffe,  /* Local openflow "port". */
-    OFP10P_NONE       = 0xffff   /* Not associated with a physical port. */
-};
 
 /* OFP10T_HELLO.  This message has an empty body, but implementations must
  * ignore any data included in the body, to allow for future extensions. */
@@ -167,15 +153,15 @@ enum ofp10_capabilities {
  * used in the ofp10_port_mod message to configure the port's behavior.
  */
 enum ofp10_port_config {
-    OFP10PC_PORT_DOWN    = 1 << 0,  /* Port is administratively down. */
+    OFPPC10_PORT_DOWN    = 1 << 0,  /* Port is administratively down. */
 
-    OFP10PC_NO_STP       = 1 << 1,  /* Disable 802.1D spanning tree on port. */
-    OFP10PC_NO_RECV      = 1 << 2,  /* Drop all packets except 802.1D spanning
+    OFPPC10_NO_STP       = 1 << 1,  /* Disable 802.1D spanning tree on port. */
+    OFPPC10_NO_RECV      = 1 << 2,  /* Drop all packets except 802.1D spanning
                                      tree packets. */
-    OFP10PC_NO_RECV_STP  = 1 << 3,  /* Drop received 802.1D STP packets. */
-    OFP10PC_NO_FLOOD     = 1 << 4,  /* Do not include this port when flooding. */
-    OFP10PC_NO_FWD       = 1 << 5,  /* Drop packets forwarded to port. */
-    OFP10PC_NO_PACKET_IN = 1 << 6   /* Do not send packet-in msgs for port. */
+    OFPPC10_NO_RECV_STP  = 1 << 3,  /* Drop received 802.1D STP packets. */
+    OFPPC10_NO_FLOOD     = 1 << 4,  /* Do not include this port when flooding. */
+    OFPPC10_NO_FWD       = 1 << 5,  /* Drop packets forwarded to port. */
+    OFPPC10_NO_PACKET_IN = 1 << 6   /* Do not send packet-in msgs for port. */
 };
 
 /* Current state of the physical port.  These are not configurable from

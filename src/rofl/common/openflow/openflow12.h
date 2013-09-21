@@ -210,12 +210,12 @@ enum ofp_capabilities {
  * used in ofp_port to describe the current configuration.  They are
  * used in the ofp_port_mod message to configure the port's behavior.
  */
-enum ofp_port_config {
-    OFPPC_PORT_DOWN    = 1 << 0,  /* Port is administratively down. */
+enum ofp12_port_config {
+    OFPPC12_PORT_DOWN    = 1 << 0,  /* Port is administratively down. */
 
-    OFPPC_NO_RECV      = 1 << 2,  /* Drop all packets received by port. */
-    OFPPC_NO_FWD       = 1 << 5,  /* Drop packets forwarded to port. */
-    OFPPC_NO_PACKET_IN = 1 << 6   /* Do not send packet-in msgs for port. */
+    OFPPC12_NO_RECV      = 1 << 2,  /* Drop all packets received by port. */
+    OFPPC12_NO_FWD       = 1 << 5,  /* Drop packets forwarded to port. */
+    OFPPC12_NO_PACKET_IN = 1 << 6   /* Do not send packet-in msgs for port. */
 };
 
 /* Current state of the physical port.  These are not configurable from

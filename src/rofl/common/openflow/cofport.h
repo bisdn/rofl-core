@@ -534,6 +534,37 @@ public:
 			uint32_t mask,
 			uint32_t advertise);
 
+private:
+
+	/**
+	 *
+	 */
+	virtual void
+	recv_port_mod_of10(
+			uint32_t config,
+			uint32_t mask,
+			uint32_t advertise);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	recv_port_mod_of12(
+			uint32_t config,
+			uint32_t mask,
+			uint32_t advertise);
+
+
+	/**
+	 *
+	 */
+	virtual void
+	recv_port_mod_of13(
+			uint32_t config,
+			uint32_t mask,
+			uint32_t advertise);
+
 
 
 

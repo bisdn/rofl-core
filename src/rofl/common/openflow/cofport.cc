@@ -737,41 +737,89 @@ cofport::set_max_speed(uint32_t max_speed)
 
 
 
+
 void
 cofport::recv_port_mod(
 		uint32_t config,
 		uint32_t mask,
 		uint32_t advertise)
 {
-	if (mask & OFPPC_PORT_DOWN) {
-		if (config & OFPPC_PORT_DOWN) {
-			set_config(get_config() |  OFPPC_PORT_DOWN);
+	switch (of_version) {
+	case OFP10_VERSION: {
+		recv_port_mod_of10(config, mask, advertise);
+	} break;
+	case OFP12_VERSION: {
+		recv_port_mod_of12(config, mask, advertise);
+	} break;
+	case OFP13_VERSION: {
+		recv_port_mod_of13(config, mask, advertise);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofport::recv_port_mod_of10(
+		uint32_t config,
+		uint32_t mask,
+		uint32_t advertise)
+{
+	if (mask & OFPPC10_PORT_DOWN) {
+		if (config & OFPPC10_PORT_DOWN) {
+			set_config(get_config() |  OFPPC10_PORT_DOWN);
 		} else {
-			set_config(get_config() & ~OFPPC_PORT_DOWN);
+			set_config(get_config() & ~OFPPC10_PORT_DOWN);
 		}
 	}
 
-	if (mask & OFPPC_NO_RECV) {
-		if (config & OFPPC_NO_RECV) {
-			set_config(get_config() |  OFPPC_NO_RECV);
+	if (mask & OFPPC10_NO_STP) {
+		if (config & OFPPC10_NO_STP) {
+			set_config(get_config() |  OFPPC10_NO_STP);
 		} else {
-			set_config(get_config() & ~OFPPC_NO_RECV);
+			set_config(get_config() & ~OFPPC10_NO_STP);
 		}
 	}
 
-	if (mask & OFPPC_NO_PACKET_IN) {
-		if (config & OFPPC_NO_PACKET_IN) {
-			set_config(get_config() |  OFPPC_NO_PACKET_IN);
+	if (mask & OFPPC10_NO_RECV) {
+		if (config & OFPPC10_NO_RECV) {
+			set_config(get_config() |  OFPPC10_NO_RECV);
 		} else {
-			set_config(get_config() & ~OFPPC_NO_PACKET_IN);
+			set_config(get_config() & ~OFPPC10_NO_RECV);
 		}
 	}
 
-	if (mask & OFPPC_NO_FWD) {
-		if (config & OFPPC_NO_FWD) {
-			set_config(get_config() |  OFPPC_NO_FWD);
+	if (mask & OFPPC10_NO_RECV_STP) {
+		if (config & OFPPC10_NO_RECV_STP) {
+			set_config(get_config() |  OFPPC10_NO_RECV_STP);
 		} else {
-			set_config(get_config() & ~OFPPC_NO_FWD);
+			set_config(get_config() & ~OFPPC10_NO_RECV_STP);
+		}
+	}
+
+	if (mask & OFPPC10_NO_FLOOD) {
+		if (config & OFPPC10_NO_FLOOD) {
+			set_config(get_config() |  OFPPC10_NO_FLOOD);
+		} else {
+			set_config(get_config() & ~OFPPC10_NO_FLOOD);
+		}
+	}
+
+	if (mask & OFPPC10_NO_PACKET_IN) {
+		if (config & OFPPC10_NO_PACKET_IN) {
+			set_config(get_config() |  OFPPC10_NO_PACKET_IN);
+		} else {
+			set_config(get_config() & ~OFPPC10_NO_PACKET_IN);
+		}
+	}
+
+	if (mask & OFPPC10_NO_FWD) {
+		if (config & OFPPC10_NO_FWD) {
+			set_config(get_config() |  OFPPC10_NO_FWD);
+		} else {
+			set_config(get_config() & ~OFPPC10_NO_FWD);
 		}
 	}
 
@@ -781,6 +829,65 @@ cofport::recv_port_mod(
 
 	WRITELOG(CPORT, DBG, "cofport(%s:%d)::recv_port_mod() config:0x%x advertise:0x%x",
 			get_name().c_str(), get_port_no(), get_config(), get_advertised());
+}
+
+
+
+void
+cofport::recv_port_mod_of12(
+		uint32_t config,
+		uint32_t mask,
+		uint32_t advertise)
+{
+	if (mask & OFPPC12_PORT_DOWN) {
+		if (config & OFPPC12_PORT_DOWN) {
+			set_config(get_config() |  OFPPC12_PORT_DOWN);
+		} else {
+			set_config(get_config() & ~OFPPC12_PORT_DOWN);
+		}
+	}
+
+	if (mask & OFPPC12_NO_RECV) {
+		if (config & OFPPC12_NO_RECV) {
+			set_config(get_config() |  OFPPC12_NO_RECV);
+		} else {
+			set_config(get_config() & ~OFPPC12_NO_RECV);
+		}
+	}
+
+	if (mask & OFPPC12_NO_PACKET_IN) {
+		if (config & OFPPC12_NO_PACKET_IN) {
+			set_config(get_config() |  OFPPC12_NO_PACKET_IN);
+		} else {
+			set_config(get_config() & ~OFPPC12_NO_PACKET_IN);
+		}
+	}
+
+	if (mask & OFPPC12_NO_FWD) {
+		if (config & OFPPC12_NO_FWD) {
+			set_config(get_config() |  OFPPC12_NO_FWD);
+		} else {
+			set_config(get_config() & ~OFPPC12_NO_FWD);
+		}
+	}
+
+	if (0 != advertise) {
+		set_advertised(advertise);
+	}
+
+	WRITELOG(CPORT, DBG, "cofport(%s:%d)::recv_port_mod() config:0x%x advertise:0x%x",
+			get_name().c_str(), get_port_no(), get_config(), get_advertised());
+}
+
+
+
+void
+cofport::recv_port_mod_of13(
+		uint32_t config,
+		uint32_t mask,
+		uint32_t advertise)
+{
+	recv_port_mod_of12(config, mask, advertise);
 }
 
 
