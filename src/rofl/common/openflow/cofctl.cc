@@ -648,8 +648,10 @@ cofctl::handle_message(
 			default: {
 				WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
 						"dropping unknown packet: %s", this, mem->c_str());
-				delete mem;
-			} return;
+				msg = new cofmsg(mem);
+				msg->validate();
+				throw eBadRequestBadType();
+			} break;
 			}
 
 
@@ -804,8 +806,10 @@ cofctl::handle_message(
 			default: {
 				WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
 						"dropping unknown packet: %s", this, mem->c_str());
-				delete mem;
-			} return;
+				msg = new cofmsg(mem);
+				msg->validate();
+				throw eBadRequestBadType();
+			} break;;
 			}
 
 
@@ -821,7 +825,9 @@ cofctl::handle_message(
 			default: {
 				WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
 						"dropping unknown packet: %s", this, mem->c_str());
-				delete mem;
+				msg = new cofmsg(mem);
+				msg->validate();
+				throw eBadRequestBadType();
 			} return;
 			}
 
