@@ -12,6 +12,8 @@
 	#include "../endian_conversion.h"
 #endif
 
+#include <iostream>
+
 #include "../fframe.h"
 #include "../caddress.h"
 #include "../cvastring.h"
@@ -256,7 +258,7 @@ public:
 	/**
 	 */
 	uint8_t
-	get_traffic_class();
+	get_traffic_class() const;
 
 	/**
 	 */
@@ -266,7 +268,7 @@ public:
 	/**
 	 */
 	uint32_t
-	get_flow_label();
+	get_flow_label() const;
 
 	/**
 	 */
@@ -316,7 +318,7 @@ public:
 	/**
 	 */
 	caddress
-	get_ipv6_src();
+	get_ipv6_src() const;
 
 	/** dst in network-byte-order
 	 */
@@ -336,13 +338,27 @@ public:
 	/**
 	 */
 	caddress
-	get_ipv6_dst();
+	get_ipv6_dst() const;
 
 
 
 private: // methods
 
 
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, fipv6frame const& ipv6) {
+
+		os << "<fipv6frame: ";
+			os << "dst:" << ipv6.get_ipv6_dst() << " ";
+			os << "src:" << ipv6.get_ipv6_src() << " ";
+			os << "tc:"  << (unsigned int)ipv6.get_traffic_class() << " ";
+			os << "flowlabel:" << (unsigned int)ipv6.get_flow_label() << " ";
+			os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace
