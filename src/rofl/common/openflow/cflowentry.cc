@@ -656,8 +656,8 @@ cflowentry::pack()
 
 		WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [2] flow_mod_area: %s", this, flow_mod_area.c_str());
 
-		struct ofp_instruction *insts = (struct ofp_instruction*)(flow_mod_area.somem() + fm_len + ofmatch_len);
-		instructions.pack(of_version, insts, instslen);
+		uint8_t* insts = (flow_mod_area.somem() + fm_len + ofmatch_len);
+		instructions.pack(insts, instslen);
 
 		WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [3] flow_mod_area: %s", this, flow_mod_area.c_str());
 

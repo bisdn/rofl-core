@@ -34,6 +34,9 @@ class eBucketBadLen : public eBucketBase {}; // invalid length
 
 
 class cofbucket : public csyslog {
+
+	uint8_t ofp_version;
+
 public: // static methods and data structures
 
 
@@ -52,6 +55,7 @@ public: // per instance methods
 	/** constructor
 	 */
 	cofbucket(
+			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
 			uint16_t weigth = 0,
 			uint32_t watch_port = 0,
 			uint32_t watch_group = 0);
@@ -59,15 +63,10 @@ public: // per instance methods
 	/** constructor
 	 */
 	cofbucket(
-			struct ofp12_bucket *bucket,
+			uint8_t ofp_version,
+			uint8_t *bucket,
 			size_t bclen);
 
-
-	/** constructor
-	 */
-	cofbucket(
-			struct ofp13_bucket *bucket,
-			size_t bclen);
 
 
 	/** destructor
@@ -83,6 +82,34 @@ public: // per instance methods
 	 */
 	const char*
 	c_str();
+
+	/** pack bucket
+	 */
+	uint8_t*
+	pack(uint8_t* bucket, size_t bclen) const
+		throw (eBucketBadLen);
+
+	/** unpack bucket
+	 */
+	void
+	unpack(uint8_t* bucket, size_t bclen)
+		throw (eBucketBadLen, eBadActionBadOutPort);
+
+	/** bucket length
+	 */
+	size_t
+	length() const;
+
+
+	/**
+	 *
+	 */
+	void
+	get_bucket_stats(
+			cmemory& body);
+
+
+private:
 
 	/** pack bucket
 	 */
@@ -108,21 +135,6 @@ public: // per instance methods
 	unpack(struct ofp13_bucket* bucket, size_t bclen)
 		throw (eBucketBadLen, eBadActionBadOutPort);
 
-	/** bucket length
-	 */
-	size_t
-	length() const;
-
-
-	/**
-	 *
-	 */
-	void
-	get_bucket_stats(
-			cmemory& body);
-
-
-private:
 
 	std::string info; // info string
 

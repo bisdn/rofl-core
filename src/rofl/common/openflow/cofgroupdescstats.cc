@@ -71,7 +71,7 @@ cofgroup_desc_stats_reply::pack(uint8_t *buf, size_t buflen) const
 		stats->type			= type;
 		stats->group_id		= htobe32(group_id);
 
-		buckets.pack(stats->buckets, buckets.length());
+		buckets.pack((uint8_t*)stats->buckets, buckets.length());
 
 	} break;
 	default:
@@ -97,7 +97,7 @@ cofgroup_desc_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		group_id		= be32toh(stats->group_id);
 		type			= stats->type;
 
-		buckets.unpack(stats->buckets, buflen - sizeof(struct ofp12_group_desc_stats));
+		buckets.unpack((uint8_t*)stats->buckets, buflen - sizeof(struct ofp12_group_desc_stats));
 
 	} break;
 	default:

@@ -7,45 +7,39 @@
 using namespace rofl;
 
 cofbucket::cofbucket(
+		uint8_t ofp_version,
 		uint16_t weight,
 		uint32_t watch_port,
 		uint32_t watch_group) :
-	packet_count(0),
-	byte_count(0),
-	weight(weight),
-	watch_port(watch_port),
-	watch_group(watch_group)
+				ofp_version(ofp_version),
+				packet_count(0),
+				byte_count(0),
+				weight(weight),
+				watch_port(watch_port),
+				watch_group(watch_group),
+				actions(ofp_version)
 {
 	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::cofbucket()", this);
 }
 
 
 cofbucket::cofbucket(
-		struct ofp12_bucket *bucket,
+		uint8_t ofp_version,
+		uint8_t* bucket,
 		size_t bclen) :
-	packet_count(0),
-	byte_count(0),
-	weight(0),
-	watch_port(0),
-	watch_group(0)
+				ofp_version(ofp_version),
+				packet_count(0),
+				byte_count(0),
+				weight(0),
+				watch_port(0),
+				watch_group(0),
+				actions(ofp_version)
 {
 	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::cofbucket()", this);
 	unpack(bucket, bclen);
 }
 
 
-cofbucket::cofbucket(
-		struct ofp13_bucket *bucket,
-		size_t bclen) :
-	packet_count(0),
-	byte_count(0),
-	weight(0),
-	watch_port(0),
-	watch_group(0)
-{
-	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::cofbucket()", this);
-	unpack(bucket, bclen);
-}
 
 
 cofbucket::~cofbucket()
@@ -60,12 +54,13 @@ cofbucket::operator= (const cofbucket& b)
 	if (this == &b)
 		return *this;
 
-	this->actions = b.actions;
-	this->packet_count = b.packet_count;
-	this->byte_count = b.byte_count;
-	this->weight = b.weight;
-	this->watch_group = b.watch_group;
-	this->watch_port = b.watch_port;
+	this->ofp_version	= b.ofp_version;
+	this->actions 		= b.actions;
+	this->packet_count 	= b.packet_count;
+	this->byte_count 	= b.byte_count;
+	this->weight 		= b.weight;
+	this->watch_group 	= b.watch_group;
+	this->watch_port 	= b.watch_port;
 
 	return *this;
 };
@@ -79,6 +74,50 @@ cofbucket::c_str()
 			this, weight, watch_group, watch_port, length(), actions.c_str()));
 	return info.c_str();
 }
+
+
+
+
+
+uint8_t*
+cofbucket::pack(
+		uint8_t* bucket,
+		size_t bclen) const
+throw (eBucketBadLen)
+{
+	switch (ofp_version) {
+	case OFP12_VERSION: {
+		return (uint8_t*)pack((struct ofp12_bucket*)bucket, bclen);
+	} break;
+	case OFP13_VERSION: {
+		return (uint8_t*)pack((struct ofp13_bucket*)bucket, bclen);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofbucket::unpack(
+		uint8_t* bucket,
+		size_t bclen)
+throw (eBucketBadLen, eBadActionBadOutPort)
+{
+	switch (ofp_version) {
+	case OFP12_VERSION: {
+		unpack((struct ofp12_bucket*)bucket, bclen);
+	} return;
+	case OFP13_VERSION: {
+		unpack((struct ofp13_bucket*)bucket, bclen);
+	} return;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
 
 
 struct ofp12_bucket*
@@ -101,7 +140,7 @@ throw (eBucketBadLen)
 
 	size_t aclen = bclen - sizeof(struct ofp12_bucket);
 
-	actions.pack(OFP12_VERSION, bucket->actions, aclen);
+	actions.pack(bucket->actions, aclen);
 
 	return bucket;
 }
@@ -122,9 +161,8 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 
 	size_t aclen = bclen - sizeof(struct ofp12_bucket);
 
-	if (aclen >= sizeof(struct ofp_action_header))
-	{
-		actions.unpack(OFP12_VERSION, bucket->actions, aclen);
+	if (aclen >= sizeof(struct ofp_action_header)) {
+		actions.unpack(bucket->actions, aclen);
 	}
 }
 
@@ -149,7 +187,7 @@ throw (eBucketBadLen)
 
 	size_t aclen = bclen - sizeof(struct ofp13_bucket);
 
-	actions.pack(OFP13_VERSION, bucket->actions, aclen);
+	actions.pack(bucket->actions, aclen);
 
 	return bucket;
 }
@@ -170,9 +208,8 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 
 	size_t aclen = bclen - sizeof(struct ofp13_bucket);
 
-	if (aclen >= sizeof(struct ofp_action_header))
-	{
-		actions.unpack(OFP13_VERSION, bucket->actions, aclen);
+	if (aclen >= sizeof(struct ofp_action_header)) {
+		actions.unpack(bucket->actions, aclen);
 	}
 }
 

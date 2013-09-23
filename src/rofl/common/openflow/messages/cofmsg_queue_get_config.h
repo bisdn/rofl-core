@@ -24,8 +24,6 @@ class cofmsg_queue_get_config_request :
 {
 private:
 
-	cofbclist			buckets;
-
 	union {
 		uint8_t*								ofhu_queue_get_config_request;
 		struct ofp10_queue_get_config_request*	ofhu10_queue_get_config_request;

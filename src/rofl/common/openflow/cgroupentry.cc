@@ -135,7 +135,7 @@ cgroupentry::pack()
 
 	//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [1] flow_mod_area: %s", this, flow_mod_area.c_str());
 
-	buckets.pack(group_mod->buckets, bclen); // pack our bucket list into the memory area group_mod->buckets
+	buckets.pack((uint8_t*)group_mod->buckets, bclen); // pack our bucket list into the memory area group_mod->buckets
 
 	//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [2] flow_mod_area: %s", this, flow_mod_area.c_str());
 

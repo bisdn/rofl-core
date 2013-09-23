@@ -28,12 +28,11 @@ cofaction::cofaction(
 	WRITELOG(COFACTION, DBG, "cofaction(%p)::cofaction()", this);
 	oac_header = (struct ofp_action_header*)action.somem();
 
-	if (be16toh(oac_header->len) > aclen)
-	{
+	if (be16toh(oac_header->len) > aclen) {
 		throw eBadActionBadLen();
 	}
 
-	unpack(ofp_version, achdr, aclen);
+	unpack(achdr, aclen);
 
 	__make_info();
 }
@@ -67,13 +66,9 @@ cofaction::operator= (const cofaction& ac)
 
 struct ofp_action_header*
 cofaction::pack(
-		uint8_t ofp_version,
 		struct ofp_action_header* achdr,
 		size_t aclen) const throw (eActionInval)
 {
-	if (this->ofp_version != ofp_version)
-		throw eActionInval();
-
 	if (aclen < this->length())
 		throw eActionInval();
 
@@ -88,14 +83,10 @@ cofaction::pack(
 
 void
 cofaction::unpack(
-		uint8_t ofp_version,
 		struct ofp_action_header *achdr,
 		size_t aclen) throw (eBadActionBadLen, eBadActionBadOutPort, eBadActionBadType)
 {
-	this->ofp_version = ofp_version;
-
-	if (action.memlen() < aclen)
-	{
+	if (action.memlen() < aclen) {
 		oac_header = (struct ofp_action_header*)action.resize(aclen);;
 	}
 
@@ -104,8 +95,9 @@ cofaction::unpack(
 	WRITELOG(COFACTION, DBG, "cofaction(%p)::unpack() oac_header: %p action: %s",
 			this, oac_header, action.c_str());
 
-	if (be16toh(oac_header->len) < sizeof(struct ofp_action_header))
+	if (be16toh(oac_header->len) < sizeof(struct ofp_action_header)) {
 		throw eBadActionBadLen();
+	}
 
 
 	switch (ofp_version) {
@@ -215,7 +207,6 @@ cofaction::unpack(
 	 */
 	switch (be16toh(oac_header->type)) {
 	case OFP12AT_OUTPUT: {
-		//oac_output = (struct ofp_action_output*)oac_header;
 		if (action.memlen() < sizeof(struct ofp12_action_output)) {
 			throw eBadActionBadLen();
 		}
@@ -225,100 +216,72 @@ cofaction::unpack(
 		}
 	} break;
 	case OFP12AT_SET_FIELD:
-		//oac_set_field = (struct ofp12_action_set_field*)oac_header;
-		if (action.memlen() < sizeof(struct ofp12_action_set_field))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_set_field)) {
 			throw eBadActionBadLen();
 		}
 		break;
 	case OFP12AT_COPY_TTL_OUT:
-		// only generic oac_header is used
-		if (action.memlen() < sizeof(struct ofp12_action_header))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_header)) {
 			throw eBadActionBadLen();
 		}
 		break;
 	case OFP12AT_COPY_TTL_IN:
-		// only generic oac_header is used
-		if (action.memlen() < sizeof(struct ofp12_action_header))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_header)) {
 			throw eBadActionBadLen();
 		}
 		break;
 	case OFP12AT_SET_MPLS_TTL:
-		//oac_mpls_ttl = (struct ofp_action_mpls_ttl*)oac_header;
-		if (action.memlen() < sizeof(struct ofp12_action_mpls_ttl))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_mpls_ttl)) {
 			throw eBadActionBadLen();
 		}
 		break;
 	case OFP12AT_DEC_MPLS_TTL:
-		//oac_push = (struct ofp_action_push*)oac_header;
-		if (action.memlen() < sizeof(struct ofp12_action_push))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_push)) {
 			throw eBadActionBadLen();
 		}
 		break;
 	case OFP12AT_PUSH_VLAN:
-		//oac_push = (struct ofp_action_push*)oac_header;
-		if (action.memlen() < sizeof(struct ofp12_action_push))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_push)) {
 			throw eBadActionBadLen();
 		}
 		break;
 	case OFP12AT_POP_VLAN:
-		// only generic oac_header is used
-		if (action.memlen() < sizeof(struct ofp12_action_header))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_header)) {
 			throw eBadActionBadLen();
 		}
 		break;
 	case OFP12AT_PUSH_MPLS:
-		//oac_push = (struct ofp12_action_push*)oac_header;
-		if (action.memlen() < sizeof(struct ofp12_action_push))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_push)) {
 			throw eBadActionBadLen();
 		}
 		break;
 	case OFP12AT_POP_MPLS:
-		//oac_pop_mpls = (struct ofp12_action_pop_mpls*)oac_header;
-		if (action.memlen() < sizeof(struct ofp12_action_pop_mpls))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_pop_mpls)) {
 			throw eBadActionBadLen();
 		}
 		break;
 	case OFP12AT_SET_QUEUE:
-		//oac_set_queue = (struct ofp12_action_set_queue*)oac_header;
-		if (action.memlen() < sizeof(struct ofp12_action_set_queue))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_set_queue)) {
 			throw eBadActionBadLen();
 		}
 		break;
 	case OFP12AT_GROUP:
-		//oac_group = (struct ofp12_action_group*)oac_header;
-		if (action.memlen() < sizeof(struct ofp12_action_group))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_group)) {
 			throw eBadActionBadLen();
 		}
 		break;
 	case OFP12AT_SET_NW_TTL:
-		//oac_nw_ttl = (struct ofp12_action_nw_ttl*)oac_header;
-		if (action.memlen() < sizeof(struct ofp12_action_nw_ttl))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_nw_ttl)) {
 			throw eBadActionBadLen();
 		}
 		break;
 	case OFP12AT_DEC_NW_TTL:
-		// only generic oac_header is used
-		if (action.memlen() < sizeof(struct ofp12_action_header))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_header)) {
 			throw eBadActionBadLen();
 		}
 		break;
 	case OFP12AT_EXPERIMENTER:
-		//oac_experimenter_header = (struct ofp12_action_experimenter_header*)oac_header;
-		if (action.memlen() < sizeof(struct ofp12_action_experimenter_header))
-		{
+		if (action.memlen() < sizeof(struct ofp12_action_experimenter_header)) {
 			throw eBadActionBadLen();
 		}
 		break;

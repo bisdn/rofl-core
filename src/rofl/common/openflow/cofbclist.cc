@@ -6,13 +6,24 @@
 
 using namespace rofl;
 
-cofbclist::cofbclist(int bcnum)
+cofbclist::cofbclist(
+		uint8_t ofp_version,
+		int bcnum) :
+				ofp_version(ofp_version)
 {
-	for (int i = 0; i < bcnum; ++i)
-	{
-		elems[i] = cofbucket();
+	switch (ofp_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION:
+		break;
+	default:
+		throw eBadVersion();
+	}
+
+	for (int i = 0; i < bcnum; ++i) {
+		elems[i] = cofbucket(ofp_version);
 	}
 }
+
 
 
 cofbclist::~cofbclist()
@@ -21,16 +32,69 @@ cofbclist::~cofbclist()
 }
 
 
+
+cofbclist::cofbclist(cofbclist const& bclist)
+{
+	*this = bclist;
+}
+
+
+
 cofbclist&
 cofbclist::operator= (cofbclist const& bclist)
 {
 	if (this == &bclist)
 		return *this;
 
+	this->ofp_version = bclist.ofp_version;
 	coflist<cofbucket>::operator= (bclist);
 
 	return *this;
 }
+
+
+
+std::vector<cofbucket>&
+cofbclist::unpack(
+	uint8_t* buckets,
+	size_t bclen)
+throw (eBucketBadLen, eBadActionBadOutPort)
+{
+	switch (ofp_version) {
+	case OFP12_VERSION: {
+		return unpack((struct ofp12_bucket*)buckets, bclen);
+	} break;
+	case OFP13_VERSION: {
+		return unpack((struct ofp13_bucket*)buckets, bclen);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+
+uint8_t*
+cofbclist::pack(
+	uint8_t* buckets,
+	size_t bclen) const
+throw (eBcListInval)
+{
+	switch (ofp_version) {
+	case OFP12_VERSION: {
+		return (uint8_t*)pack((struct ofp12_bucket*)buckets, bclen);
+	} break;
+	case OFP13_VERSION: {
+		return (uint8_t*)pack((struct ofp13_bucket*)buckets, bclen);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
 
 
 const char*
@@ -70,11 +134,11 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 		if (be16toh(bchdr->len) < sizeof(struct ofp12_bucket))
 			throw eBucketBadLen();
 
-		cofbucket bucket(bchdr, be16toh(bchdr->len));
+		cofbucket bucket(ofp_version, (uint8_t*)bchdr, be16toh(bchdr->len));
 
 		WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() new bucket[1]: %s", this, bucket.c_str());
 
-		next() = cofbucket(bchdr, be16toh(bchdr->len) );
+		next() = cofbucket(ofp_version, (uint8_t*)bchdr, be16toh(bchdr->len) );
 
 		WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() new bucket: %s", this, back().c_str());
 
@@ -106,7 +170,7 @@ cofbclist::pack(
 		cofbucket const& bucket = (*it);
 
 		bchdr = (struct ofp12_bucket*)
-				((uint8_t*)(bucket.pack(bchdr, bucket.length())) + bucket.length());
+				((uint8_t*)(bucket.pack((uint8_t*)bchdr, bucket.length())) + bucket.length());
 	}
 
 	return buckets;
@@ -137,11 +201,11 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 		if (be16toh(bchdr->len) < sizeof(struct ofp13_bucket))
 			throw eBucketBadLen();
 
-		cofbucket bucket(bchdr, be16toh(bchdr->len));
+		cofbucket bucket(ofp_version, (uint8_t*)bchdr, be16toh(bchdr->len));
 
 		WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() new bucket[1]: %s", this, bucket.c_str());
 
-		next() = cofbucket(bchdr, be16toh(bchdr->len) );
+		next() = cofbucket(ofp_version, (uint8_t*)bchdr, be16toh(bchdr->len) );
 
 		WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() new bucket: %s", this, back().c_str());
 
@@ -173,7 +237,7 @@ cofbclist::pack(
 		cofbucket const& bucket = (*it);
 
 		bchdr = (struct ofp13_bucket*)
-				((uint8_t*)(bucket.pack(bchdr, bucket.length())) + bucket.length());
+				((uint8_t*)(bucket.pack((uint8_t*)bchdr, bucket.length())) + bucket.length());
 	}
 
 	return buckets;

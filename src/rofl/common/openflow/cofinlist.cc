@@ -6,10 +6,35 @@
 
 using namespace rofl;
 
-cofinlist::cofinlist()
+cofinlist::cofinlist(
+		uint8_t ofp_version) :
+				ofp_version(ofp_version)
 {
 	WRITELOG(COFINST, DBG, "cofinlist(%p)::cofinlist()", this);
 }
+
+
+
+cofinlist::cofinlist(cofinlist const& inlist)
+{
+	*this = inlist;
+}
+
+
+
+cofinlist&
+cofinlist::operator= (
+		cofinlist const& inlist)
+{
+	if (this == &inlist)
+		return *this;
+
+	this->ofp_version = inlist.ofp_version;
+	coflist<cofinst>::operator= (inlist);
+
+	return *this;
+}
+
 
 
 cofinlist::~cofinlist()
@@ -20,8 +45,7 @@ cofinlist::~cofinlist()
 
 std::vector<cofinst>&
 cofinlist::unpack(
-		uint8_t ofp_version,
-		struct ofp_instruction *instructions,
+		uint8_t *instructions,
 		size_t inlen)
 throw (eInstructionBadLen)
 {
@@ -32,7 +56,7 @@ throw (eInstructionBadLen)
 		return elems;
 
 	// first instruction
-	struct ofp_instruction *inhdr = instructions;
+	struct ofp_instruction *inhdr = (struct ofp_instruction*)instructions;
 
 
 	while (inlen > 0)
@@ -50,10 +74,9 @@ throw (eInstructionBadLen)
 }
 
 
-struct ofp_instruction*
+uint8_t*
 cofinlist::pack(
-		uint8_t ofp_version,
-		struct ofp_instruction *instructions,
+		uint8_t *instructions,
 		size_t inlen) const throw (eInListInval)
 {
 	size_t needed_inlen = length();
@@ -61,7 +84,7 @@ cofinlist::pack(
 	if (inlen < needed_inlen)
 		throw eInListInval();
 
-	struct ofp_instruction *inhdr = instructions; // first instruction header
+	struct ofp_instruction *inhdr = (struct ofp_instruction*)instructions; // first instruction header
 
 	cofinlist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)

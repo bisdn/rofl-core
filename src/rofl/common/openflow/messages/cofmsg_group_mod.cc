@@ -11,7 +11,8 @@ cofmsg_group_mod::cofmsg_group_mod(
 		uint8_t  group_type,
 		uint32_t group_id,
 		cofbclist const& buckets) :
-	cofmsg(sizeof(struct ofp_header))
+	cofmsg(sizeof(struct ofp_header)),
+	buckets(buckets)
 {
 	ofh_group_mod = soframe();
 
@@ -44,7 +45,8 @@ cofmsg_group_mod::cofmsg_group_mod(
 
 cofmsg_group_mod::cofmsg_group_mod(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	buckets(get_version())
 {
 	ofh_group_mod = soframe();
 }
@@ -133,13 +135,13 @@ cofmsg_group_mod::pack(uint8_t *buf, size_t buflen)
 		if (buflen < (sizeof(struct ofp12_group_mod) + buckets.length()))
 			throw eInval();
 		memcpy(buf, soframe(), sizeof(struct ofp12_group_mod));
-		buckets.pack((struct ofp12_bucket*)(buf + sizeof(struct ofp12_group_mod)), buckets.length());
+		buckets.pack(buf + sizeof(struct ofp12_group_mod), buckets.length());
 	} break;
 	case OFP13_VERSION: {
 		if (buflen < (sizeof(struct ofp13_group_mod) + buckets.length()))
 			throw eInval();
 		memcpy(buf, soframe(), sizeof(struct ofp13_group_mod));
-		buckets.pack((struct ofp13_bucket*)(buf + sizeof(struct ofp13_group_mod)), buckets.length());
+		buckets.pack(buf + sizeof(struct ofp13_group_mod), buckets.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -169,12 +171,12 @@ cofmsg_group_mod::validate()
 	case OFP12_VERSION: {
 		if (get_length() < sizeof(struct ofp12_group_mod))
 			throw eBadSyntaxTooShort();
-		buckets.unpack(ofh12_group_mod->buckets, get_length() - sizeof(struct ofp12_group_mod));
+		buckets.unpack((uint8_t*)(ofh12_group_mod->buckets), get_length() - sizeof(struct ofp12_group_mod));
 	} break;
 	case OFP13_VERSION: {
 		if (get_length() < sizeof(struct ofp13_group_mod))
 			throw eBadSyntaxTooShort();
-		buckets.unpack(ofh13_group_mod->buckets, get_length() - sizeof(struct ofp13_group_mod));
+		buckets.unpack((uint8_t*)(ofh13_group_mod->buckets), get_length() - sizeof(struct ofp13_group_mod));
 	} break;
 	default:
 		throw eBadRequestBadVersion();

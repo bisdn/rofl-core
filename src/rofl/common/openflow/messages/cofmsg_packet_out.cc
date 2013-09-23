@@ -60,6 +60,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 cofmsg_packet_out::cofmsg_packet_out(
 		cmemory *memarea) :
 	cofmsg(memarea),
+	actions(get_version()),
 	packet((size_t)0)
 {
 	ofh_packet_out = soframe();
@@ -169,17 +170,17 @@ cofmsg_packet_out::pack(uint8_t *buf, size_t buflen)
 	switch (get_version()) {
 	case OFP10_VERSION: {
 		memcpy(buf, soframe(), sizeof(struct ofp10_packet_out));
-		actions.pack(OFP10_VERSION, (struct ofp_action_header*)(buf + sizeof(struct ofp10_packet_out)), actions.length());
+		actions.pack((struct ofp_action_header*)(buf + sizeof(struct ofp10_packet_out)), actions.length());
 		memcpy(buf + sizeof(struct ofp10_packet_out) + actions.length(), packet.soframe(), packet.framelen());
 	} break;
 	case OFP12_VERSION: {
 		memcpy(buf, soframe(), sizeof(struct ofp12_packet_out));
-		actions.pack(OFP10_VERSION, (struct ofp_action_header*)(buf + sizeof(struct ofp12_packet_out)), actions.length());
+		actions.pack((struct ofp_action_header*)(buf + sizeof(struct ofp12_packet_out)), actions.length());
 		memcpy(buf + sizeof(struct ofp12_packet_out) + actions.length(), packet.soframe(), packet.framelen());
 	} break;
 	case OFP13_VERSION: {
 		memcpy(buf, soframe(), sizeof(struct ofp13_packet_out));
-		actions.pack(OFP10_VERSION, (struct ofp_action_header*)(buf + sizeof(struct ofp13_packet_out)), actions.length());
+		actions.pack((struct ofp_action_header*)(buf + sizeof(struct ofp13_packet_out)), actions.length());
 		memcpy(buf + sizeof(struct ofp13_packet_out) + actions.length(), packet.soframe(), packet.framelen());
 	} break;
 	default:
@@ -217,7 +218,7 @@ cofmsg_packet_out::validate()
 		if (get_length() < (sizeof(struct ofp10_packet_out) + be16toh(ofh10_packet_out->actions_len)))
 			throw eBadSyntaxTooShort();
 
-		actions.unpack(OFP10_VERSION, ofh10_packet_out->actions,
+		actions.unpack(ofh10_packet_out->actions,
 						be16toh(ofh10_packet_out->actions_len));
 
 		if (OFP_NO_BUFFER == get_buffer_id()) {
@@ -237,7 +238,7 @@ cofmsg_packet_out::validate()
 		if (get_length() < (sizeof(struct ofp12_packet_out) + be16toh(ofh12_packet_out->actions_len)))
 			throw eBadSyntaxTooShort();
 
-		actions.unpack(OFP12_VERSION, ofh12_packet_out->actions,
+		actions.unpack(ofh12_packet_out->actions,
 						be16toh(ofh12_packet_out->actions_len));
 
 		if (OFP_NO_BUFFER == get_buffer_id()) {
@@ -256,7 +257,7 @@ cofmsg_packet_out::validate()
 		if (get_length() < (sizeof(struct ofp13_packet_out) + be16toh(ofh13_packet_out->actions_len)))
 			throw eBadSyntaxTooShort();
 
-		actions.unpack(OFP13_VERSION, ofh13_packet_out->actions,
+		actions.unpack(ofh13_packet_out->actions,
 						be16toh(ofh13_packet_out->actions_len));
 
 		if (OFP_NO_BUFFER != get_buffer_id()) {

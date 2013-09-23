@@ -18,7 +18,7 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 		cofaclist const& actions,
 		cofmatch const& match) :
 	cofmsg(sizeof(struct ofp_header)),
-	instructions(),
+	actions(actions),
 	match(match)
 {
 	ofh_flow_mod = soframe();
@@ -60,10 +60,10 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 		uint32_t out_port,
 		uint32_t out_group,
 		uint16_t flags,
-		cofinlist const& _instructions,
+		cofinlist const& instructions,
 		cofmatch const& match) :
 	cofmsg(sizeof(struct ofp_header)),
-	instructions(_instructions),
+	instructions(instructions),
 	match(match)
 {
 	ofh_flow_mod = soframe();
@@ -113,7 +113,10 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 
 cofmsg_flow_mod::cofmsg_flow_mod(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	actions(get_version()),
+	instructions(get_version()),
+	match(get_version())
 {
 	ofh_flow_mod = soframe();
 }
@@ -213,22 +216,20 @@ cofmsg_flow_mod::pack(uint8_t *buf, size_t buflen)
 		match.pack((struct ofp10_match*)
 				(struct ofp10_match*)(buf + sizeof(struct ofp_header)),
 												sizeof(struct ofp10_match));
-		actions.pack(OFP10_VERSION, (struct ofp_action_header*)
+		actions.pack((struct ofp_action_header*)
 				(buf + OFP10_FLOW_MOD_STATIC_HDR_LEN), actions.length());
 	} break;
 	case OFP12_VERSION: {
 		memcpy(buf, soframe(), OFP12_FLOW_MOD_STATIC_HDR_LEN);
 		match.pack((struct ofp12_match*)
 				(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN), match.length());
-		instructions.pack(OFP12_VERSION, (struct ofp_instruction*)
-				(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length()), instructions.length());
+		instructions.pack(buf + OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length(), instructions.length());
 	} break;
 	case OFP13_VERSION: {
 		memcpy(buf, soframe(), OFP13_FLOW_MOD_STATIC_HDR_LEN);
 		match.pack((struct ofp13_match*)
 				(buf + OFP13_FLOW_MOD_STATIC_HDR_LEN), match.length());
-		instructions.pack(OFP13_VERSION, (struct ofp_instruction*)
-				(buf + OFP13_FLOW_MOD_STATIC_HDR_LEN + match.length()), instructions.length());
+		instructions.pack(buf + OFP13_FLOW_MOD_STATIC_HDR_LEN + match.length(), instructions.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -264,7 +265,7 @@ cofmsg_flow_mod::validate()
 		if (get_length() < sizeof(struct ofp10_flow_mod))
 			throw eBadSyntaxTooShort();
 		match.unpack(&(ofh10_flow_mod->match), sizeof(struct ofp10_match));
-		actions.unpack(OFP10_VERSION, ofh10_flow_mod->actions, get_length() - sizeof(struct ofp10_flow_mod));
+		actions.unpack(ofh10_flow_mod->actions, get_length() - sizeof(struct ofp10_flow_mod));
 	} break;
 	case OFP12_VERSION: {
 		// struct ofp12_flow_mod includes static part of struct ofp12_match (i.e. type and length) !!
@@ -294,9 +295,9 @@ cofmsg_flow_mod::validate()
 		/*
 		 * unpack instructions list
 		 */
-		struct ofp_instruction *insts = (struct ofp_instruction*)((uint8_t*)&(ofh12_flow_mod->match) + match.length());
+		//struct ofp_instruction *insts = (struct ofp_instruction*)((uint8_t*)&(ofh12_flow_mod->match) + match.length());
 		size_t instslen = get_length() - (OFP12_FLOW_MOD_STATIC_HDR_LEN + match.length());
-		instructions.unpack(OFP12_VERSION, insts, instslen);
+		instructions.unpack((uint8_t*)&(ofh12_flow_mod->match) + match.length(), instslen);
 
 	} break;
 	case OFP13_VERSION: {
@@ -327,9 +328,9 @@ cofmsg_flow_mod::validate()
 		/*
 		 * unpack instructions list
 		 */
-		struct ofp_instruction *insts = (struct ofp_instruction*)((uint8_t*)&(ofh13_flow_mod->match) + match.length());
+		//struct ofp_instruction *insts = (struct ofp_instruction*)((uint8_t*)&(ofh13_flow_mod->match) + match.length());
 		size_t instslen = get_length() - (OFP13_FLOW_MOD_STATIC_HDR_LEN + match.length());
-		instructions.unpack(OFP13_VERSION, insts, instslen);
+		instructions.unpack((uint8_t*)&(ofh13_flow_mod->match) + match.length(), instslen);
 
 	} break;
 	default:

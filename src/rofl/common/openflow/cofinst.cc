@@ -103,7 +103,7 @@ cofinst::pack(
 		{
 			size_t aclen = this->length() - sizeof(struct ofp_instruction);
 
-			actions.pack(ofp_version, ((struct ofp_instruction_actions*)inhdr)->actions, aclen);
+			actions.pack(((struct ofp_instruction_actions*)inhdr)->actions, aclen);
 		}
 		break;
 
@@ -175,7 +175,7 @@ cofinst::unpack(
 
 		if (aclen >= sizeof(struct ofp_action_header))
 		{
-			actions.unpack(ofp_version, oin_actions->actions, aclen);
+			actions.unpack(oin_actions->actions, aclen);
 		}
 		break;
 	}

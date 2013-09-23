@@ -26,6 +26,9 @@ class eBcListOutOfRange : public eBcListBase {};
 
 
 class cofbclist : public coflist<cofbucket> {
+
+	uint8_t ofp_version;
+
 public: // static methods
 
 
@@ -33,7 +36,9 @@ public: // methods
 
 	/** constructor
 	 */
-	cofbclist(int bcnum = 0);
+	cofbclist(
+			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
+			int bcnum = 0);
 
 	/** destructor
 	 */
@@ -42,14 +47,58 @@ public: // methods
 
 	/**
 	 */
-	cofbclist(cofbclist const& bclist)
-	{
-		*this = bclist;
-	};
+	cofbclist(
+			cofbclist const& bclist);
 
 	/**
 	 */
-	cofbclist& operator= (cofbclist const& bclist);
+	cofbclist&
+	operator= (
+			cofbclist const& bclist);
+
+
+
+	/**
+	 *
+	 * @param buckets
+	 * @param bclen
+	 * @return
+	 */
+	std::vector<cofbucket>&		// returns reference to this->bcvec
+	unpack(
+		uint8_t* buckets,
+		size_t bclen)
+	throw (eBucketBadLen, eBadActionBadOutPort);
+
+
+	/**
+	 *
+	 * @param buckets
+	 * @param bclen
+	 * @return
+	 */
+	uint8_t*				// returns parameter "struct ofp_bucket *buckets"
+	pack(
+		uint8_t* buckets,
+		size_t bclen) const
+	throw (eBcListInval);
+
+
+
+	/** returns required length for array of struct ofp_bucket
+	 * for all buckets defined in this->bcvec
+	 */
+	size_t
+	length() const;
+
+
+	/** dump info string
+	 */
+	const char*
+	c_str();
+
+
+private:
 
 	/** stores cofbucket instances in this->bcvec from a packed array struct ofp_bucket (e.g. in struct ofp_group_mod)
 	 */
@@ -83,19 +132,6 @@ public: // methods
 		size_t bclen) const			// length of memory area
 	throw (eBcListInval);
 
-	/** returns required length for array of struct ofp_bucket
-	 * for all buckets defined in this->bcvec
-	 */
-	size_t
-	length() const;
-
-	/** dump info string
-	 */
-	const char*
-	c_str();
-
-
-private:
 
 	std::string info; // info string
 

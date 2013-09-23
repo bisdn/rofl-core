@@ -151,7 +151,6 @@ public: // methods
 	 */
 	struct ofp_action_header*
 	pack(
-			uint8_t ofp_version,
 			struct ofp_action_header* achdr,
 			size_t aclen) const throw (eActionInval);
 
@@ -159,7 +158,6 @@ public: // methods
 	 */
 	void
 	unpack(
-			uint8_t ofp_version,
 			struct ofp_action_header *achdr,
 			size_t aclen)
 			throw (eBadActionBadLen, eBadActionBadOutPort, eBadActionBadType);

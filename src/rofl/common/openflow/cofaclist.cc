@@ -7,8 +7,9 @@
 
 using namespace rofl;
 
-cofaclist::cofaclist(uint8_t ofp_version) :
-		ofp_version(ofp_version)
+cofaclist::cofaclist(
+		uint8_t ofp_version) :
+				ofp_version(ofp_version)
 {
 
 }
@@ -20,8 +21,32 @@ cofaclist::cofaclist(
 		size_t aclen) :
 				ofp_version(ofp_version)
 {
-	unpack(ofp_version, achdr, aclen);
+	unpack(achdr, aclen);
 }
+
+
+
+cofaclist::cofaclist(
+		cofaclist const& aclist)
+{
+	*this = aclist;
+}
+
+
+
+cofaclist&
+cofaclist::operator= (
+		cofaclist const& aclist)
+{
+	if (this == &aclist)
+		return *this;
+
+	this->ofp_version = aclist.ofp_version;
+	coflist<cofaction>::operator= (aclist);
+
+	return *this;
+}
+
 
 
 cofaclist::~cofaclist()
@@ -60,13 +85,10 @@ cofaclist::find_action(enum ofp_action_type type,
 
 std::vector<cofaction>&
 cofaclist::unpack(
-		uint8_t ofp_version,
 		struct ofp_action_header *achdr,
 		size_t aclen)
 throw (eBadActionBadLen, eBadActionBadOutPort)
 {
-	this->ofp_version = ofp_version;
-
 	clear(); // clears elems
 
 	WRITELOG(COFACTION, DBG, "cofaclist(%p)::unpack() aclen:%d", this, aclen);
@@ -133,13 +155,9 @@ throw (eBadActionBadLen, eBadActionBadOutPort)
 
 struct ofp_action_header*
 cofaclist::pack(
-		uint8_t ofp_version,
 		struct ofp_action_header *achdr,
 		size_t aclen) const throw (eAcListInval)
 {
-	if (this->ofp_version != ofp_version)
-		throw eAcListInval();
-
 	if (aclen < length())
 		throw eAcListInval();
 
@@ -147,7 +165,7 @@ cofaclist::pack(
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		achdr = (struct ofp_action_header*)
-				((uint8_t*)((*it).pack(ofp_version, achdr, (*it).length())) + (*it).length());
+				((uint8_t*)((*it).pack(achdr, (*it).length())) + (*it).length());
 	}
 	return achdr;
 }
