@@ -59,6 +59,7 @@ cofinst::operator= (const cofinst& inst)
 
 	WRITELOG(COFINST, DBG, "cofinst(%p)::operator=() inst: %p", this, &inst);
 
+	this->ofp_version = inst.ofp_version;
 	this->actions = inst.actions;
 	this->instruction = inst.instruction;
 	this->oin_header = (struct ofp_instruction*)(this->instruction.somem());
