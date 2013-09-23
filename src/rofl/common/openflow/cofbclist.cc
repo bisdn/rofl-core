@@ -11,14 +11,6 @@ cofbclist::cofbclist(
 		int bcnum) :
 				ofp_version(ofp_version)
 {
-	switch (ofp_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION:
-		break;
-	default:
-		throw eBadVersion();
-	}
-
 	for (int i = 0; i < bcnum; ++i) {
 		elems[i] = cofbucket(ofp_version);
 	}
