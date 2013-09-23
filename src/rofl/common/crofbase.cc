@@ -1728,6 +1728,8 @@ crofbase::send_packet_in_message(
 
 				pack->pack();
 
+				std::cerr << pack->c_str() << std::endl;
+
 				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 								"sending PACKET-IN for buffer_id:0x%x pack: %s",
 								this, buffer_id, pack->c_str());

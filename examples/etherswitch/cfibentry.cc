@@ -70,7 +70,7 @@ cfibentry::flow_mod_add()
 		fe.set_hard_timeout(entry_timeout);
 		fe.match.set_eth_dst(dst);
 
-		fe.instructions.next() = rofl::cofinst_apply_actions();
+		fe.instructions.next() = rofl::cofinst_apply_actions(dpt->get_version());
 		fe.instructions.back().actions.next() = rofl::cofaction_output(dpt->get_version(), out_port_no);
 
 		rofbase->send_flow_mod_message(dpt, fe);
@@ -84,7 +84,7 @@ cfibentry::flow_mod_add()
 		fe.set_hard_timeout(entry_timeout);
 		fe.match.set_eth_src(dst);
 
-		fe.instructions.next() = rofl::cofinst_apply_actions();
+		fe.instructions.next() = rofl::cofinst_apply_actions(dpt->get_version());
 		fe.instructions.back().actions.next() = rofl::cofaction_output(dpt->get_version(), OFPP12_CONTROLLER);
 
 		rofbase->send_flow_mod_message(dpt, fe);
@@ -104,7 +104,7 @@ cfibentry::flow_mod_modify()
 	fe.set_hard_timeout(entry_timeout);
 	fe.match.set_eth_dst(dst);
 
-	fe.instructions.next() = rofl::cofinst_apply_actions();
+	fe.instructions.next() = rofl::cofinst_apply_actions(dpt->get_version());
 	fe.instructions.back().actions.next() = rofl::cofaction_output(dpt->get_version(), out_port_no);
 
 	rofbase->send_flow_mod_message(dpt, fe);

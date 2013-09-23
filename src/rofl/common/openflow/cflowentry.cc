@@ -689,9 +689,9 @@ cflowentry::test()
 	fe.match.set_eth_src(dl_src);
 	fe.match.set_eth_dst(dl_dst);
 
-	fe.instructions[0] = cofinst_clear_actions();
+	fe.instructions[0] = cofinst_clear_actions(OFP12_VERSION);
 
-	fe.instructions[1] = cofinst_apply_actions();
+	fe.instructions[1] = cofinst_apply_actions(OFP12_VERSION);
 	fe.instructions[1].actions[0] = cofaction_output(OFP12_VERSION, 2);
 	fe.instructions[1].actions[1] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_vlan_vid(3));
 	fe.instructions[1].actions[2] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_ip_dscp(4));
@@ -699,13 +699,13 @@ cflowentry::test()
 	fe.instructions[1].actions[4] = cofaction_push_mpls(OFP12_VERSION, 100);
 	fe.instructions[1].actions[5] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_tcp_dst(8080));
 
-	fe.instructions[2] = cofinst_write_actions();
+	fe.instructions[2] = cofinst_write_actions(OFP12_VERSION);
 	fe.instructions[2].actions[0] = cofaction_pop_mpls(OFP12_VERSION, 1000);
 	fe.instructions[2].actions[1] = cofaction_group(OFP12_VERSION, 32);
 
-	fe.instructions[3] = cofinst_goto_table(5);
+	fe.instructions[3] = cofinst_goto_table(OFP12_VERSION, 5);
 
-	fe.instructions[4] = cofinst_write_metadata(1, 2);
+	fe.instructions[4] = cofinst_write_metadata(OFP12_VERSION, 1, 2);
 
 	//fe.reset();
 

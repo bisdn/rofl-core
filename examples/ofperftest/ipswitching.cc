@@ -90,7 +90,7 @@ ipswitching::install_flow_mods(cofdpt *dpt, unsigned int n)
 		addr[3] += i;
 
 		fe.match.set_ipv4_dst(addr);
-		fe.instructions.next() = cofinst_write_actions();
+		fe.instructions.next() = cofinst_write_actions(dpt->get_version());
 		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), portnums[(i%2)]);
 
 		fprintf(stderr, "ipswitching: installing fake FLowMod entry #%d: %s\n",
@@ -166,7 +166,7 @@ ipswitching::handle_packet_in(
 
 		fe.match.set_in_port(msg->get_match().get_in_port());
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
-		fe.instructions.next() = cofinst_apply_actions();
+		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
 
 		fprintf(stderr, "ipswitching: installing FLOW-MOD with entry: %s\n",
 				fe.c_str());
@@ -345,7 +345,7 @@ ipswitching::handle_packet_in_ipv4(
 		fe.match.set_ipv4_src(ip_src);
 		fe.match.set_ipv4_dst(ip_dst);
 
-		fe.instructions.next() = cofinst_write_actions();
+		fe.instructions.next() = cofinst_write_actions(dpt->get_version());
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {

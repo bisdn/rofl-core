@@ -180,7 +180,7 @@ class cofinst_apply_actions : public cofinst {
 public:
 	/** constructor
 	 */
-	cofinst_apply_actions()
+	cofinst_apply_actions(uint8_t ofp_version) : cofinst(ofp_version)
 	{
 		oin_header->type = htobe16(OFPIT_APPLY_ACTIONS);
 		oin_header->len = htobe16(0); // fill this when calling method pack()
@@ -199,7 +199,7 @@ class cofinst_write_actions : public cofinst {
 public:
 	/** constructor
 	 */
-	cofinst_write_actions()
+	cofinst_write_actions(uint8_t ofp_version) : cofinst(ofp_version)
 	{
 		oin_header->type = htobe16(OFPIT_WRITE_ACTIONS);
 		oin_header->len = htobe16(0); // fill this when calling method pack()
@@ -218,7 +218,7 @@ class cofinst_clear_actions : public cofinst {
 public:
 	/** constructor
 	 */
-	cofinst_clear_actions()
+	cofinst_clear_actions(uint8_t ofp_version) : cofinst(ofp_version)
 	{
 		oin_header->type = htobe16(OFPIT_CLEAR_ACTIONS);
 		oin_header->len = htobe16(0); // fill this when calling method pack()
@@ -238,8 +238,9 @@ public:
 	/** constructor
 	 */
 	cofinst_goto_table(
+			uint8_t ofp_version,
 			uint8_t table_id) :
-				cofinst(sizeof(struct ofp_instruction_goto_table))
+				cofinst(ofp_version, sizeof(struct ofp_instruction_goto_table))
 	{
 		oin_goto_table->type = htobe16(OFPIT_GOTO_TABLE);
 		oin_goto_table->len = htobe16(sizeof(struct ofp_instruction_goto_table));
@@ -288,9 +289,10 @@ public:
 	/** constructor
 	 */
 	cofinst_write_metadata(
+			uint8_t ofp_version,
 			uint64_t metadata,
 			uint64_t metadata_mask) :
-				cofinst(sizeof(struct ofp_instruction_write_metadata))
+				cofinst(ofp_version, sizeof(struct ofp_instruction_write_metadata))
 	{
 		oin_write_metadata->type = htobe16(OFPIT_WRITE_METADATA);
 		oin_write_metadata->len = htobe16(sizeof(struct ofp_instruction_write_metadata));

@@ -131,7 +131,7 @@ cofinlist::test()
 {
 	cofinlist inlist;
 
-	inlist[0] = cofinst_write_actions();
+	inlist[0] = cofinst_write_actions(OFP12_VERSION);
 	inlist[0].actions[0] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_mpls_label(111111));
 
 	fprintf(stderr, "XXX => %s\n", inlist.c_str());
@@ -140,10 +140,10 @@ cofinlist::test()
 
 	cofinlist inlist2;
 
-	inlist2[0] = cofinst_apply_actions();
+	inlist2[0] = cofinst_apply_actions(OFP12_VERSION);
 	inlist2[0].actions[0] = cofaction_output(OFP12_VERSION, 1);
-	inlist2[1] = cofinst_clear_actions();
-	inlist2[2] = cofinst_write_actions();
+	inlist2[1] = cofinst_clear_actions(OFP12_VERSION);
+	inlist2[2] = cofinst_write_actions(OFP12_VERSION);
 	inlist2[2].actions[0] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_vlan_vid(1111));
 	inlist2[2].actions[1] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_mpls_tc(7));
 

@@ -1179,7 +1179,7 @@ cftentry::test()
 
 	fprintf(stderr, "UUUUUU fe.inlist    => %s\n", fe.instructions.c_str());
 
-	instructions[0] = cofinst_apply_actions();
+	instructions[0] = cofinst_apply_actions(OFP12_VERSION);
 	instructions[0].actions[0] = cofaction_output(OFP12_VERSION, 1);
 	instructions[0].actions[1] = cofaction_push_vlan(OFP12_VERSION, 0x8100);
 	instructions[0].actions[2] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_vlan_vid(4444));

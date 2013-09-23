@@ -116,7 +116,7 @@ ethswitch::handle_dpath_open(
 	fe.set_command(OFPFC_ADD);
 	fe.set_table_id(0);
 
-	fe.instructions.next() = cofinst_apply_actions();
+	fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
 	fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), OFPP12_CONTROLLER);
 
 	fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
@@ -165,7 +165,7 @@ ethswitch::handle_packet_in(
 
 		fe.match.set_in_port(msg->get_match().get_in_port());
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
-		fe.instructions.next() = cofinst_apply_actions();
+		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
 
 		fprintf(stderr, "etherswitch: installing FLOW-MOD with entry: %s\n",
 				fe.c_str());

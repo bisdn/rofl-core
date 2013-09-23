@@ -96,7 +96,7 @@ match_vlan_id::install_flow_mods(cofdpt *dpt, unsigned int n)
 		++vid;
 		vid = (vid ==  100) ? 101 : vid; // skip VLAN id 100
 		vid = (vid == 4096) ?   1 : vid; // wrap around at 0xffff
-		fe.instructions.next() = cofinst_write_actions();	// do nothing, drop packet
+		fe.instructions.next() = cofinst_write_actions(dpt->get_version());	// do nothing, drop packet
 
 		fprintf(stderr, "match_vlan_id: calling FLOW-MOD with entry: %s\n",
 				fe.c_str());
@@ -182,7 +182,7 @@ match_vlan_id::handle_packet_in(
 
 		fe.match.set_in_port(msg->get_match().get_in_port());
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
-		fe.instructions.next() = cofinst_apply_actions();
+		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
 
 		fprintf(stderr, "match_vlan_id: installing FLOW-MOD with entry: %s\n",
 				fe.c_str());
@@ -263,7 +263,7 @@ match_vlan_id::handle_packet_in(
 		fe.match.set_eth_dst(eth_dst);
 		if (vlan_id != 0xffff)
 			fe.match.set_vlan_vid(vlan_id);
-		fe.instructions.next() = cofinst_write_actions();
+		fe.instructions.next() = cofinst_write_actions(dpt->get_version());
 		fe.instructions[0].actions.next() = cofaction_output(dpt->get_version(), out_port);
 
 		fprintf(stderr, "match_vlan_id: calling FLOW-MOD with entry: %s\n",
