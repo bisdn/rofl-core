@@ -17,7 +17,7 @@ cofctl::cofctl(
 				flags(0),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
 				role_initialized(false),
-				role(OFPCR_ROLE_EQUAL),
+				role(OFP12CR_ROLE_EQUAL),
 				cached_generation_id(0),
 				socket(new csocket(this, newsd, ra, domain, type, protocol)),
 				fragment(0),
@@ -46,7 +46,7 @@ cofctl::cofctl(
 				flags(COFCTL_FLAG_ACTIVE_SOCKET),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
 				role_initialized(false),
-				role(OFPCR_ROLE_EQUAL),
+				role(OFP12CR_ROLE_EQUAL),
 				cached_generation_id(0),
 				socket(new csocket(this, domain, type, protocol)),
 				fragment(0),
@@ -81,6 +81,14 @@ bool
 cofctl::is_established() const
 {
 	return (STATE_CTL_ESTABLISHED == cur_state());
+}
+
+
+
+bool
+cofctl::is_slave() const
+{
+	return (OFP12CR_ROLE_SLAVE == role);
 }
 
 
@@ -1564,7 +1572,7 @@ cofctl::features_reply_sent(cofmsg *msg)
 void
 cofctl::get_config_request_rcvd(cofmsg_get_config_request *msg)
 {
-	if (OFPCR_ROLE_SLAVE == role) {
+	if (OFP12CR_ROLE_SLAVE == role) {
 		send_error_is_slave(msg); return;
 	}
 
@@ -1596,7 +1604,7 @@ void
 cofctl::set_config_rcvd(cofmsg_set_config *msg)
 {
 	try {
-		if (OFPCR_ROLE_SLAVE == role) {
+		if (OFP12CR_ROLE_SLAVE == role) {
 			send_error_is_slave(msg); return;
 		}
 
@@ -1642,7 +1650,7 @@ cofctl::set_config_rcvd(cofmsg_set_config *msg)
 void
 cofctl::packet_out_rcvd(cofmsg_packet_out *msg)
 {
-	if (OFPCR_ROLE_SLAVE == role) {
+	if (OFP12CR_ROLE_SLAVE == role) {
 		send_error_is_slave(msg); return;
 	}
 
@@ -1657,7 +1665,7 @@ cofctl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 	WRITELOG(COFCTL, DBG, "cofctl(%p)::flow_mod_rcvd() pack: %s", this, msg->c_str());
 
 	try {
-		if (OFPCR_ROLE_SLAVE == role) {
+		if (OFP12CR_ROLE_SLAVE == role) {
 			send_error_is_slave(msg); return;
 		}
 
@@ -1887,7 +1895,7 @@ cofctl::group_mod_rcvd(cofmsg_group_mod *msg)
 {
 	try {
 
-		if (OFPCR_ROLE_SLAVE == role) {
+		if (OFP12CR_ROLE_SLAVE == role) {
 			send_error_is_slave(msg); return;
 		}
 
@@ -2118,7 +2126,7 @@ void
 cofctl::port_mod_rcvd(cofmsg_port_mod *msg)
 {
 	try {
-		if (OFPCR_ROLE_SLAVE == role) {
+		if (OFP12CR_ROLE_SLAVE == role) {
 			send_error_is_slave(msg); return;
 		}
 
@@ -2190,7 +2198,7 @@ void
 cofctl::table_mod_rcvd(cofmsg_table_mod *pack)
 {
 	try {
-		if (OFPCR_ROLE_SLAVE == role) {
+		if (OFP12CR_ROLE_SLAVE == role) {
 			send_error_is_slave(pack); return;
 		}
 
@@ -2318,8 +2326,8 @@ cofctl::role_request_rcvd(cofmsg_role_request *msg)
 		}
 
 		switch (msg->get_role()) {
-		case OFPCR_ROLE_MASTER:
-		case OFPCR_ROLE_SLAVE:
+		case OFP12CR_ROLE_MASTER:
+		case OFP12CR_ROLE_SLAVE:
 			if (role_initialized)
 			{
 				uint64_t gen_id = msg->get_generation_id();
@@ -2327,8 +2335,7 @@ cofctl::role_request_rcvd(cofmsg_role_request *msg)
 						(gen_id - cached_generation_id) % std::numeric_limits<uint64_t>::max() :
 						(gen_id + std::numeric_limits<uint64_t>::max() + cached_generation_id) % std::numeric_limits<uint64_t>::max();
 
-				if (dist >= (std::numeric_limits<uint64_t>::max() / 2))
-				{
+				if (dist >= (std::numeric_limits<uint64_t>::max() / 2)) {
 					throw eRoleRequestStale();
 				}
 			}
@@ -2355,14 +2362,16 @@ cofctl::role_request_rcvd(cofmsg_role_request *msg)
 				continue;
 			}
 
-			if (OFPCR_ROLE_MASTER == ofctrl->role)
+			if (OFP12CR_ROLE_MASTER == ofctrl->role)
 			{
-				ofctrl->role = OFPCR_ROLE_SLAVE;
+				ofctrl->role = OFP12CR_ROLE_SLAVE;
 			}
 		}
 #endif
 
 		//pack->ofh_role_request->generation_id;
+
+		rofbase->role_request_rcvd(this, role);
 
 		rofbase->handle_role_request(this, msg);
 

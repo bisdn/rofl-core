@@ -599,6 +599,13 @@ protected:
 	/**@}*/
 
 
+	/**
+	 * @brief	called once a cofctl instance has received a role request
+	 *
+	 *
+	 */
+	virtual void
+	role_request_rcvd(cofctl *ctl, uint32_t role);
 
 
 protected:

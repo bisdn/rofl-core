@@ -1635,11 +1635,11 @@ struct ofp12_role_request {
 OFP_ASSERT(sizeof(struct ofp12_role_request) == 24);
 
 /* Controller roles. */
-enum ofp_controller_role {
-	OFPCR_ROLE_NOCHANGE = 0,	/* Don’t change current role. */
-	OFPCR_ROLE_EQUAL = 1,		/* Default role, full access. */
-	OFPCR_ROLE_MASTER = 2,		/* Full access, at most one master. */
-	OFPCR_ROLE_SLAVE = 3,		/* Read-only access. */
+enum ofp12_controller_role {
+	OFP12CR_ROLE_NOCHANGE = 0,	/* Don’t change current role. */
+	OFP12CR_ROLE_EQUAL = 1,		/* Default role, full access. */
+	OFP12CR_ROLE_MASTER = 2,	/* Full access, at most one master. */
+	OFP12CR_ROLE_SLAVE = 3,		/* Read-only access. */
 };
 
 

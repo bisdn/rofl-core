@@ -77,7 +77,7 @@ private: // data structures
 	uint16_t 						miss_send_len;			// config: miss_send_len
 	std::set<cofmatch*> 			nspaces;				// list of cofmatch structures depicting controlled namespace
 	bool 							role_initialized;		// true, when role values have been initialized properly
-	uint16_t 						role;					// role of this controller instance
+	uint32_t 						role;					// role of this controller instance
 	uint64_t 						cached_generation_id;	// generation-id used by role requests
 	csocket							*socket;				// TCP socket towards controller
 	cxidstore						xidstore;
@@ -197,6 +197,14 @@ public: // methods
 
 
 	/**
+	 * @brief	Returns true, when control entity assume role SLAVE
+	 */
+	bool
+	is_slave() const;
+
+
+
+	/**
 	 * @brief	Returns OpenFlow version negotiated for control connection.
 	 */
 	uint8_t
@@ -243,6 +251,20 @@ public: // methods
 
 
 private:
+
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_role() const { return role; };
+
+
+	/**
+	 *
+	 */
+	void
+	set_role(uint32_t role) { this->role = role; };
 
 
 	/**

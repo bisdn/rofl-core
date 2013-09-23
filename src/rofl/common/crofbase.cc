@@ -438,6 +438,40 @@ crofbase::cofdpt_factory(
 
 
 
+void
+crofbase::role_request_rcvd(
+		cofctl *ctl,
+		uint32_t role)
+{
+	// FIXME: check and add if required support for other versions
+	switch (role) {
+	case OFP12CR_ROLE_NOCHANGE: {
+	} break;
+	case OFP12CR_ROLE_EQUAL: {
+
+	} break;
+	case OFP12CR_ROLE_MASTER: {
+		for (std::set<cofctl*>::iterator
+				it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
+			cofctl *tctl = (*it);
+
+			if (tctl == ctl)
+				continue;
+
+			if (OFP12CR_ROLE_MASTER == tctl->get_role())
+				tctl->set_role(OFP12CR_ROLE_SLAVE);
+		}
+	} break;
+	case OFP12CR_ROLE_SLAVE: {
+
+	} break;
+	default: {
+
+	} break;
+	}
+}
+
+
 
 void
 crofbase::handle_timeout(int opaque)
@@ -1649,7 +1683,7 @@ crofbase::send_packet_in_message(
 					it = nse_list.begin(); it != nse_list.end(); ++it)
 			{
 				cofctl *ctl = dynamic_cast<cofctl*>( (*nse_list.begin())->fspowner );
-				if (OFPCR_ROLE_SLAVE == ctl->role)
+				if (OFP12CR_ROLE_SLAVE == ctl->role)
 				{
 					WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 							"ofctrl:%p is SLAVE, ignoring", this, ctl);
@@ -1707,6 +1741,10 @@ crofbase::send_packet_in_message(
 								this, buffer_id, ctl_find(*it)->c_str());
 
 				if (not (*it)->is_established()) {
+					continue;
+				}
+
+				if ((*it)->is_slave()) {
 					continue;
 				}
 
@@ -2198,7 +2236,7 @@ crofbase::send_flow_removed_message(
 			}
 			cofctl *ofctrl = (*it);
 
-			if (OFPCR_ROLE_SLAVE == ofctrl->role)
+			if (ofctrl->is_slave())
 			{
 				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_removed_message() ofctrl:%p is SLAVE", this, ofctrl);
 				continue;
