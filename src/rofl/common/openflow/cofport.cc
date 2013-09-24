@@ -737,6 +737,208 @@ cofport::set_max_speed(uint32_t max_speed)
 
 
 
+void
+cofport::link_state_set_blocked()
+{
+	switch (of_version) {
+	// non-existing for OF 1.0
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		set_state(get_state() | OFP12PS_BLOCKED);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofport::link_state_clr_blocked()
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		set_state(get_state() & ~OFP12PS_BLOCKED);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+bool
+cofport::link_state_is_blocked()
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return (get_state() & OFP12PS_BLOCKED);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofport::link_state_set_live()
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		set_state(get_state() | OFP12PS_LIVE);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofport::link_state_clr_live()
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		set_state(get_state() & ~OFP12PS_LIVE);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+bool
+cofport::link_state_is_live()
+{
+	switch (of_version) {
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return (get_state() & OFP12PS_LIVE);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofport::link_state_set_link_down()
+{
+	switch (of_version) {
+	case OFP10_VERSION:
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		set_state(get_state() | OFP10PS_LINK_DOWN);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofport::link_state_clr_link_down()
+{
+	switch (of_version) {
+	case OFP10_VERSION:
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		set_state(get_state() & ~OFP10PS_LINK_DOWN);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+bool
+cofport::link_state_is_link_down()
+{
+	switch (of_version) {
+	case OFP10_VERSION:
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return (get_state() & OFP10PS_LINK_DOWN);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofport::link_state_phy_down()
+{
+	switch (of_version) {
+	case OFP10_VERSION:
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		set_state(get_state() | OFP10PS_LINK_DOWN);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+void
+cofport::link_state_phy_up()
+{
+	switch (of_version) {
+	case OFP10_VERSION:
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		set_state(get_state() & ~OFP10PS_LINK_DOWN);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+bool
+cofport::link_state_phy_is_up()
+{
+	switch (of_version) {
+	case OFP10_VERSION:
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return (0 == (get_state() & OFP10PS_LINK_DOWN));
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+bool
+cofport::config_is_port_down()
+{
+	switch (of_version) {
+	case OFP10_VERSION:
+	case OFP12_VERSION:
+	case OFP13_VERSION: {
+		return (0 == (get_config() & OFP10PS_LINK_DOWN));
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
 
 void
 cofport::recv_port_mod(
@@ -767,59 +969,59 @@ cofport::recv_port_mod_of10(
 		uint32_t mask,
 		uint32_t advertise)
 {
-	if (mask & OFPPC10_PORT_DOWN) {
-		if (config & OFPPC10_PORT_DOWN) {
-			set_config(get_config() |  OFPPC10_PORT_DOWN);
+	if (mask & OFP10PC_PORT_DOWN) {
+		if (config & OFP10PC_PORT_DOWN) {
+			set_config(get_config() |  OFP10PC_PORT_DOWN);
 		} else {
-			set_config(get_config() & ~OFPPC10_PORT_DOWN);
+			set_config(get_config() & ~OFP10PC_PORT_DOWN);
 		}
 	}
 
-	if (mask & OFPPC10_NO_STP) {
-		if (config & OFPPC10_NO_STP) {
-			set_config(get_config() |  OFPPC10_NO_STP);
+	if (mask & OFP10PC_NO_STP) {
+		if (config & OFP10PC_NO_STP) {
+			set_config(get_config() |  OFP10PC_NO_STP);
 		} else {
-			set_config(get_config() & ~OFPPC10_NO_STP);
+			set_config(get_config() & ~OFP10PC_NO_STP);
 		}
 	}
 
-	if (mask & OFPPC10_NO_RECV) {
-		if (config & OFPPC10_NO_RECV) {
-			set_config(get_config() |  OFPPC10_NO_RECV);
+	if (mask & OFP10PC_NO_RECV) {
+		if (config & OFP10PC_NO_RECV) {
+			set_config(get_config() |  OFP10PC_NO_RECV);
 		} else {
-			set_config(get_config() & ~OFPPC10_NO_RECV);
+			set_config(get_config() & ~OFP10PC_NO_RECV);
 		}
 	}
 
-	if (mask & OFPPC10_NO_RECV_STP) {
-		if (config & OFPPC10_NO_RECV_STP) {
-			set_config(get_config() |  OFPPC10_NO_RECV_STP);
+	if (mask & OFP10PC_NO_RECV_STP) {
+		if (config & OFP10PC_NO_RECV_STP) {
+			set_config(get_config() |  OFP10PC_NO_RECV_STP);
 		} else {
-			set_config(get_config() & ~OFPPC10_NO_RECV_STP);
+			set_config(get_config() & ~OFP10PC_NO_RECV_STP);
 		}
 	}
 
-	if (mask & OFPPC10_NO_FLOOD) {
-		if (config & OFPPC10_NO_FLOOD) {
-			set_config(get_config() |  OFPPC10_NO_FLOOD);
+	if (mask & OFP10PC_NO_FLOOD) {
+		if (config & OFP10PC_NO_FLOOD) {
+			set_config(get_config() |  OFP10PC_NO_FLOOD);
 		} else {
-			set_config(get_config() & ~OFPPC10_NO_FLOOD);
+			set_config(get_config() & ~OFP10PC_NO_FLOOD);
 		}
 	}
 
-	if (mask & OFPPC10_NO_PACKET_IN) {
-		if (config & OFPPC10_NO_PACKET_IN) {
-			set_config(get_config() |  OFPPC10_NO_PACKET_IN);
+	if (mask & OFP10PC_NO_PACKET_IN) {
+		if (config & OFP10PC_NO_PACKET_IN) {
+			set_config(get_config() |  OFP10PC_NO_PACKET_IN);
 		} else {
-			set_config(get_config() & ~OFPPC10_NO_PACKET_IN);
+			set_config(get_config() & ~OFP10PC_NO_PACKET_IN);
 		}
 	}
 
-	if (mask & OFPPC10_NO_FWD) {
-		if (config & OFPPC10_NO_FWD) {
-			set_config(get_config() |  OFPPC10_NO_FWD);
+	if (mask & OFP10PC_NO_FWD) {
+		if (config & OFP10PC_NO_FWD) {
+			set_config(get_config() |  OFP10PC_NO_FWD);
 		} else {
-			set_config(get_config() & ~OFPPC10_NO_FWD);
+			set_config(get_config() & ~OFP10PC_NO_FWD);
 		}
 	}
 
@@ -839,35 +1041,35 @@ cofport::recv_port_mod_of12(
 		uint32_t mask,
 		uint32_t advertise)
 {
-	if (mask & OFPPC12_PORT_DOWN) {
-		if (config & OFPPC12_PORT_DOWN) {
-			set_config(get_config() |  OFPPC12_PORT_DOWN);
+	if (mask & OFP12PC_PORT_DOWN) {
+		if (config & OFP12PC_PORT_DOWN) {
+			set_config(get_config() |  OFP12PC_PORT_DOWN);
 		} else {
-			set_config(get_config() & ~OFPPC12_PORT_DOWN);
+			set_config(get_config() & ~OFP12PC_PORT_DOWN);
 		}
 	}
 
-	if (mask & OFPPC12_NO_RECV) {
-		if (config & OFPPC12_NO_RECV) {
-			set_config(get_config() |  OFPPC12_NO_RECV);
+	if (mask & OFP12PC_NO_RECV) {
+		if (config & OFP12PC_NO_RECV) {
+			set_config(get_config() |  OFP12PC_NO_RECV);
 		} else {
-			set_config(get_config() & ~OFPPC12_NO_RECV);
+			set_config(get_config() & ~OFP12PC_NO_RECV);
 		}
 	}
 
-	if (mask & OFPPC12_NO_PACKET_IN) {
-		if (config & OFPPC12_NO_PACKET_IN) {
-			set_config(get_config() |  OFPPC12_NO_PACKET_IN);
+	if (mask & OFP12PC_NO_PACKET_IN) {
+		if (config & OFP12PC_NO_PACKET_IN) {
+			set_config(get_config() |  OFP12PC_NO_PACKET_IN);
 		} else {
-			set_config(get_config() & ~OFPPC12_NO_PACKET_IN);
+			set_config(get_config() & ~OFP12PC_NO_PACKET_IN);
 		}
 	}
 
-	if (mask & OFPPC12_NO_FWD) {
-		if (config & OFPPC12_NO_FWD) {
-			set_config(get_config() |  OFPPC12_NO_FWD);
+	if (mask & OFP12PC_NO_FWD) {
+		if (config & OFP12PC_NO_FWD) {
+			set_config(get_config() |  OFP12PC_NO_FWD);
 		} else {
-			set_config(get_config() & ~OFPPC12_NO_FWD);
+			set_config(get_config() & ~OFP12PC_NO_FWD);
 		}
 	}
 

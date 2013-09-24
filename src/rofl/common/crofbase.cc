@@ -304,12 +304,13 @@ crofbase::rpc_listen_for_ctls(
 void
 crofbase::rpc_connect_to_ctl(
 		uint8_t ofp_version,
+		int reconnect_start_timeout,
 		caddress const& ra,
 		int domain,
 		int type,
 		int protocol)
 {
-	ofctl_set.insert(cofctl_factory(this, ofp_version, ra, domain, type, protocol));
+	ofctl_set.insert(cofctl_factory(this, ofp_version, reconnect_start_timeout, ra, domain, type, protocol));
 }
 
 
@@ -336,12 +337,13 @@ crofbase::rpc_disconnect_from_ctl(
 void
 crofbase::rpc_connect_to_dpt(
 		uint8_t ofp_version,
+		int reconnect_start_timeout,
 		caddress const& ra,
 		int domain,
 		int type,
 		int protocol)
 {
-	ofdpt_set.insert(cofdpt_factory(this, ofp_version, ra, domain, type, protocol));
+	ofdpt_set.insert(cofdpt_factory(this, ofp_version, reconnect_start_timeout, ra, domain, type, protocol));
 }
 
 
@@ -388,12 +390,13 @@ cofctl*
 crofbase::cofctl_factory(
 		crofbase* owner,
 		uint8_t ofp_version,
+		int reconnect_start_timeout,
 		caddress const& ra,
 		int domain,
 		int type,
 		int protocol)
 {
-	cofctl *ctl = new cofctl(owner, ofp_version, ra, domain, type, protocol);
+	cofctl *ctl = new cofctl(owner, ofp_version, reconnect_start_timeout, ra, domain, type, protocol);
 
 	ofctl_set.insert(ctl);
 
@@ -424,12 +427,13 @@ cofdpt*
 crofbase::cofdpt_factory(
 		crofbase* owner,
 		uint8_t ofp_version,
+		int reconnect_start_timeout,
 		caddress const& ra,
 		int domain,
 		int type,
 		int protocol)
 {
-	cofdpt *dpt = new cofdpt(owner, ofp_version, ra, domain, type, protocol);
+	cofdpt *dpt = new cofdpt(owner, ofp_version, reconnect_start_timeout, ra, domain, type, protocol);
 
 	ofdpt_set.insert(dpt);
 

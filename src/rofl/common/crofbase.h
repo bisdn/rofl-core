@@ -263,6 +263,7 @@ public:
 	void
 	rpc_connect_to_ctl(
 			uint8_t ofp_version,
+			int reconnect_start_timeout,
 			caddress const& ra,
 			int domain = PF_INET,
 			int type = SOCK_STREAM,
@@ -302,6 +303,7 @@ public:
 	void
 	rpc_connect_to_dpt(
 			uint8_t ofp_version,
+			int reconnect_start_timeout,
 			caddress const& ra,
 			int domain = PF_INET,
 			int type = SOCK_STREAM,
@@ -468,6 +470,7 @@ protected:
 	cofctl_factory(
 			crofbase* owner,
 			uint8_t ofp_version,
+			int reconnect_start_timeout,
 			caddress const& ra,
 			int domain,
 			int type,
@@ -523,6 +526,7 @@ protected:
 	cofdpt_factory(
 			crofbase* owner,
 			uint8_t ofp_version,
+			int reconnect_start_timeout,
 			caddress const& ra,
 			int domain,
 			int type,

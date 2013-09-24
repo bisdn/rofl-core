@@ -410,119 +410,91 @@ public:
 	 */
 	virtual void
 	link_state_set_blocked()
-	{
-		set_state(get_state() | OFPPS_BLOCKED);
-	};
+;
 
 
 	/**
 	 *
 	 */
 	virtual void
-	link_state_clr_blocked()
-	{
-		set_state(get_state() & ~OFPPS_BLOCKED);
-	};
+	link_state_clr_blocked();
 
 
 	/**
 	 *
 	 */
 	virtual bool
-	link_state_is_blocked()
-	{
-		return (get_state() & OFPPS_BLOCKED);
-	};
+	link_state_is_blocked();
 
 
 	/**
 	 *
 	 */
 	virtual void
-	link_state_set_live()
-	{
-		set_state(get_state() | OFPPS_LIVE);
-	};
+	link_state_set_live();
 
 
 	/**
 	 *
 	 */
 	virtual void
-	link_state_clr_live()
-	{
-		set_state(get_state() & ~OFPPS_LIVE);
-	};
+	link_state_clr_live();
 
 
 	/**
 	 *
 	 */
 	virtual bool
-	link_state_is_live()
-	{
-		return (get_state() & OFPPS_LIVE);
-	};
+	link_state_is_live();
 
 
 	/**
 	 *
 	 */
 	virtual void
-	link_state_set_link_down()
-	{
-		set_state(get_state() | OFPPS_LINK_DOWN);
-	};
+	link_state_set_link_down();
 
 
 	/**
 	 *
 	 */
 	virtual void
-	link_state_clr_link_down()
-	{
-		set_state(get_state() & ~OFPPS_LINK_DOWN);
-	};
+	link_state_clr_link_down();
 
 
 	/**
 	 *
 	 */
 	virtual bool
-	link_state_is_link_down()
-	{
-		return (get_state() & OFPPS_LINK_DOWN);
-	};
+	link_state_is_link_down();
 
 
 	/**
 	 *
 	 */
 	virtual void
-	link_state_phy_down()
-	{
-		set_state(get_state() | OFPPS_LINK_DOWN);
-	};
+	link_state_phy_down();
 
 
 	/**
 	 *
 	 */
 	virtual void
-	link_state_phy_up()
-	{
-		set_state(get_state() & ~OFPPS_LINK_DOWN);
-	};
+	link_state_phy_up();
 
 
 	/**
 	 *
 	 */
 	bool
-	link_state_phy_is_up()
-	{
-		return (0 == (get_state() & OFPPS_LINK_DOWN));
-	};
+	link_state_phy_is_up();
+
+
+	/**
+	 *
+	 */
+	bool
+	config_is_port_down();
 
 
 	/**

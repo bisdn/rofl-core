@@ -166,6 +166,7 @@ private: // data structures
 		std::string 					 info;			// info string
 		cmemory							*fragment;		// fragment of OF packet rcvd on fragment during last call(s)
 		size_t							 msg_bytes_read; // bytes already read for current message
+		int								 reconnect_start_timeout;
 		int 							 reconnect_in_seconds; 	// reconnect in x seconds
 		int 							 reconnect_counter;
 		int 							 rpc_echo_interval;		// default ECHO time interval
@@ -213,6 +214,7 @@ public:
 	cofdpt(
 			crofbase *rofbase,
 			uint8_t ofp_version,
+			int reconnect_start_timeout,
 			caddress const& ra,
 			int domain,
 			int type,
