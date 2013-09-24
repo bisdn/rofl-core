@@ -70,8 +70,15 @@ class cunixenv
 {
 public:
 
-	static cunixenv&
-	getInstance();
+	/**
+	 * Constructor
+	 */
+	cunixenv();
+	
+	/**
+	 * Destructor
+	 */
+	~cunixenv();
 
 	/*
 	* Add argument to current list of arguments to parse 
@@ -120,15 +127,6 @@ private:
 	 */
 	void detach(void);
 
-	/**
-	 * Constructor
-	 */
-	cunixenv();
-	
-	/**
-	 * Destructor
-	 */
-	~cunixenv();
 };
 
 }; // end of namespace

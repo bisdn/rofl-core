@@ -41,13 +41,6 @@ std::string coption::parse_argument(char* optarg){
 	return this->current_value;	
 }
 
-cunixenv&
-cunixenv::getInstance()
-{
-	static cunixenv instance;
-	return instance;
-}
-
 /*
 *
 * cunixenv
