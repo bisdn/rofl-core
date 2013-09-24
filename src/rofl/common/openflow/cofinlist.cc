@@ -92,7 +92,7 @@ cofinlist::pack(
 		cofinst const& inst = (*it);
 
 		inhdr = (struct ofp_instruction*)
-				((uint8_t*)(inst.pack(ofp_version, inhdr, inst.length())) + inst.length());
+				((uint8_t*)(inst.pack(inhdr, inst.length())) + inst.length());
 	}
 
 	return instructions;
