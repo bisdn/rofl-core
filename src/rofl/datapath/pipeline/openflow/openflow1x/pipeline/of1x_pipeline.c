@@ -194,6 +194,9 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	__of1x_init_packet_matches(pkt); 
 	__of1x_init_packet_write_actions(pkt); 
 
+	//Mark packet as being processed by this sw
+	pkt->sw = sw;
+	
 	//Matches aux
 	pkt_matches = &pkt->matches.of1x;
 

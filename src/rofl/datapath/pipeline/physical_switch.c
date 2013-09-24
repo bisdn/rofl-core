@@ -366,7 +366,7 @@ rofl_result_t physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid)
 	}
 	
 	for(i=0;i<PHYSICAL_SWITCH_MAX_LS;i++){
-		if(psw->logical_switches[i]->dpid == dpid){
+		if(psw->logical_switches[i] && psw->logical_switches[i]->dpid == dpid){
 
 			sw = psw->logical_switches[i];
 
