@@ -253,8 +253,6 @@ cofmsg_packet_in::validate()
 			in_port = 0;
 		}
 
-		fprintf(stderr, "cofmsg_packet_in::validate() match:%s\n", match.c_str());
-
 		if (offset > framelen())
 			throw eBadSyntaxTooShort();
 
