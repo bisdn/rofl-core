@@ -378,13 +378,6 @@ crofbase::cofctl_factory(
 		int protocol)
 {
 	return new cofctlImpl(owner, newsd, ra, domain, type, protocol);
-#if 0
-	cofctl *ctl = new cofctl(owner, newsd, ra, domain, type, protocol);
-
-	ofctl_set.insert(ctl);
-
-	return ctl;
-#endif
 }
 
 
@@ -398,13 +391,6 @@ crofbase::cofctl_factory(
 		int protocol)
 {
 	return new cofctlImpl(owner, ra, domain, type, protocol);
-#if 0
-	cofctl *ctl = new cofctl(owner, ra, domain, type, protocol);
-
-	ofctl_set.insert(ctl);
-
-	return ctl;
-#endif
 }
 
 
@@ -419,13 +405,6 @@ crofbase::cofdpt_factory(
 		int protocol)
 {
 	return new cofdptImpl(owner, newsd, ra, domain, type, protocol);
-#if 0
-	cofdpt *dpt = new cofdptImpl(owner, newsd, ra, domain, type, protocol);
-
-	ofdpt_set.insert(dpt);
-
-	return dpt;
-#endif
 }
 
 
@@ -439,13 +418,6 @@ crofbase::cofdpt_factory(
 		int protocol)
 {
 	return new cofdptImpl(owner, ra, domain, type, protocol);
-#if 0
-	cofdpt *dpt = new cofdptImpl(owner, ra, domain, type, protocol);
-
-	ofdpt_set.insert(dpt);
-
-	return dpt;
-#endif
 }
 
 
