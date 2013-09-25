@@ -2,26 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "cofctl.h"
+#include "cofctlImpl.h"
 
 using namespace rofl;
 
-cofctl::cofctl(
-		crofbase *rofbase,
-		int newsd,
-		caddress const& ra,
-		int domain,
-		int type,
-		int protocol) :
+
+cofctlImpl::cofctlImpl(
+		crofbase *rofbase) :
+				cofctl(rofbase),
 				rofbase(rofbase),
 				flags(0),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
 				role_initialized(false),
 				role(OFPCR_ROLE_EQUAL),
 				cached_generation_id(0),
-				socket(new csocket(this, newsd, ra, domain, type, protocol)),
+				socket(0),
 				fragment(0),
 				msg_bytes_read(0),
+				reconnect_start_timeout(RECONNECT_START_TIMEOUT),
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
@@ -35,12 +33,44 @@ cofctl::cofctl(
 
 
 
-cofctl::cofctl(
+cofctlImpl::cofctlImpl(
+		crofbase *rofbase,
+		int newsd,
+		caddress const& ra,
+		int domain,
+		int type,
+		int protocol) :
+				cofctl(rofbase),
+				rofbase(rofbase),
+				flags(0),
+				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
+				role_initialized(false),
+				role(OFPCR_ROLE_EQUAL),
+				cached_generation_id(0),
+				socket(new csocket(this, newsd, ra, domain, type, protocol)),
+				fragment(0),
+				msg_bytes_read(0),
+				reconnect_start_timeout(RECONNECT_START_TIMEOUT),
+				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
+				reconnect_counter(0),
+				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
+				echo_reply_timeout(DEFAULT_ECHO_TIMEOUT),
+				ofp_version(OFP12_VERSION)
+{
+	WRITELOG(CFWD, DBG, "cofctl(%p)::cofctl() TCP accept", this);
+
+	register_timer(COFCTL_TIMER_SEND_HELLO, 0);
+}
+
+
+
+cofctlImpl::cofctlImpl(
 		crofbase *rofbase,
 		caddress const& ra,
 		int domain,
 		int type,
 		int protocol) :
+				cofctl(rofbase),
 				rofbase(rofbase),
 				flags(COFCTL_FLAG_ACTIVE_SOCKET),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
@@ -50,6 +80,7 @@ cofctl::cofctl(
 				socket(new csocket(this, domain, type, protocol)),
 				fragment(0),
 				msg_bytes_read(0),
+				reconnect_start_timeout(RECONNECT_START_TIMEOUT),
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
@@ -65,7 +96,7 @@ cofctl::cofctl(
 
 
 
-cofctl::~cofctl()
+cofctlImpl::~cofctlImpl()
 {
 	WRITELOG(COFCTL, DBG, "cofctl(%p)::~cofctl()", this);
 
@@ -77,7 +108,7 @@ cofctl::~cofctl()
 
 
 bool
-cofctl::is_established() const
+cofctlImpl::is_established() const
 {
 	return (STATE_CTL_ESTABLISHED == cur_state());
 }
@@ -85,7 +116,7 @@ cofctl::is_established() const
 
 
 uint8_t
-cofctl::get_version()
+cofctlImpl::get_version()
 {
 	return ofp_version;
 }
@@ -93,15 +124,23 @@ cofctl::get_version()
 
 
 caddress
-cofctl::get_peer_addr()
+cofctlImpl::get_peer_addr()
 {
 	return socket->raddr;
 }
 
 
 
+uint32_t
+cofctlImpl::get_role() const
+{
+	return role;
+}
+
+
+
 void
-cofctl::send_message(
+cofctlImpl::send_message(
 		cofmsg *pack)
 {
     if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (pack->get_type() != OFPT_HELLO))
@@ -169,7 +208,7 @@ cofctl::send_message(
 
 
 void
-cofctl::handle_timeout(
+cofctlImpl::handle_timeout(
 		int opaque)
 {
 	switch (opaque) {
@@ -217,7 +256,7 @@ cofctl::handle_timeout(
 
 
 void
-cofctl::handle_accepted(
+cofctlImpl::handle_accepted(
 		csocket *socket,
 		int newsd,
 		caddress const& ra)
@@ -234,7 +273,7 @@ cofctl::handle_accepted(
 
 
 void
-cofctl::handle_connected(
+cofctlImpl::handle_connected(
 		csocket *socket,
 		int sd)
 {
@@ -249,7 +288,7 @@ cofctl::handle_connected(
 
 
 void
-cofctl::handle_connect_refused(
+cofctlImpl::handle_connect_refused(
 		csocket *socket,
 		int sd)
 {
@@ -267,7 +306,7 @@ cofctl::handle_connect_refused(
 
 
 void
-cofctl::handle_read(
+cofctlImpl::handle_read(
 		csocket *socket,
 		int sd)
 {
@@ -373,7 +412,7 @@ cofctl::handle_read(
 
 
 void
-cofctl::handle_closed(
+cofctlImpl::handle_closed(
 		csocket *socket,
 		int sd)
 {
@@ -401,7 +440,7 @@ cofctl::handle_closed(
 
 
 void
-cofctl::handle_message(
+cofctlImpl::handle_message(
 		cmemory *mem)
 {
 	cofmsg *msg = (cofmsg*)0;
@@ -1161,7 +1200,7 @@ cofctl::handle_message(
 
 
 void
-cofctl::hello_rcvd(cofmsg_hello *msg)
+cofctlImpl::hello_rcvd(cofmsg_hello *msg)
 {
 	try {
 		WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() hello: %s", this, msg->c_str());
@@ -1242,7 +1281,7 @@ cofctl::hello_rcvd(cofmsg_hello *msg)
 
 
 void
-cofctl::echo_request_sent(cofmsg *pack)
+cofctlImpl::echo_request_sent(cofmsg *pack)
 {
 	reset_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT, echo_reply_timeout); // TODO: multiple concurrent echo-requests?
 }
@@ -1250,7 +1289,7 @@ cofctl::echo_request_sent(cofmsg *pack)
 
 
 void
-cofctl::echo_request_rcvd(cofmsg_echo_request *msg)
+cofctlImpl::echo_request_rcvd(cofmsg_echo_request *msg)
 {
 	// send echo reply back including any appended data
 	rofbase->send_echo_reply(this, msg->get_xid(), msg->get_body().somem(), msg->get_body().memlen());
@@ -1265,7 +1304,7 @@ cofctl::echo_request_rcvd(cofmsg_echo_request *msg)
 
 
 void
-cofctl::echo_reply_rcvd(cofmsg_echo_reply *msg)
+cofctlImpl::echo_reply_rcvd(cofmsg_echo_reply *msg)
 {
 	cancel_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT);
 	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
@@ -1276,7 +1315,7 @@ cofctl::echo_reply_rcvd(cofmsg_echo_reply *msg)
 
 
 void
-cofctl::features_request_rcvd(cofmsg_features_request *msg)
+cofctlImpl::features_request_rcvd(cofmsg_features_request *msg)
 {
 	try {
 		xidstore.xid_add(this, msg->get_xid(), 0);
@@ -1291,7 +1330,7 @@ cofctl::features_request_rcvd(cofmsg_features_request *msg)
 
 
 void
-cofctl::features_reply_sent(cofmsg *msg)
+cofctlImpl::features_reply_sent(cofmsg *msg)
 {
 	uint32_t xid = msg->get_xid();
 	try {
@@ -1310,7 +1349,7 @@ cofctl::features_reply_sent(cofmsg *msg)
 
 
 void
-cofctl::get_config_request_rcvd(cofmsg_get_config_request *msg)
+cofctlImpl::get_config_request_rcvd(cofmsg_get_config_request *msg)
 {
 	if (OFPCR_ROLE_SLAVE == role) {
 		send_error_is_slave(msg); return;
@@ -1322,7 +1361,7 @@ cofctl::get_config_request_rcvd(cofmsg_get_config_request *msg)
 
 
 void
-cofctl::get_config_reply_sent(cofmsg *msg)
+cofctlImpl::get_config_reply_sent(cofmsg *msg)
 {
 	uint32_t xid = msg->get_xid();
 	try {
@@ -1341,7 +1380,7 @@ cofctl::get_config_reply_sent(cofmsg *msg)
 
 
 void
-cofctl::set_config_rcvd(cofmsg_set_config *msg)
+cofctlImpl::set_config_rcvd(cofmsg_set_config *msg)
 {
 	try {
 		if (OFPCR_ROLE_SLAVE == role) {
@@ -1388,7 +1427,7 @@ cofctl::set_config_rcvd(cofmsg_set_config *msg)
 
 
 void
-cofctl::packet_out_rcvd(cofmsg_packet_out *msg)
+cofctlImpl::packet_out_rcvd(cofmsg_packet_out *msg)
 {
 	if (OFPCR_ROLE_SLAVE == role) {
 		send_error_is_slave(msg); return;
@@ -1400,7 +1439,7 @@ cofctl::packet_out_rcvd(cofmsg_packet_out *msg)
 
 
 void
-cofctl::flow_mod_rcvd(cofmsg_flow_mod *msg)
+cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 {
 	WRITELOG(COFCTL, DBG, "cofctl(%p)::flow_mod_rcvd() pack: %s", this, msg->c_str());
 
@@ -1631,7 +1670,7 @@ cofctl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 
 
 void
-cofctl::group_mod_rcvd(cofmsg_group_mod *msg)
+cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 {
 	try {
 
@@ -1863,7 +1902,7 @@ cofctl::group_mod_rcvd(cofmsg_group_mod *msg)
 
 
 void
-cofctl::port_mod_rcvd(cofmsg_port_mod *msg)
+cofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg)
 {
 	try {
 		if (OFPCR_ROLE_SLAVE == role) {
@@ -1935,7 +1974,7 @@ cofctl::port_mod_rcvd(cofmsg_port_mod *msg)
 
 
 void
-cofctl::table_mod_rcvd(cofmsg_table_mod *pack)
+cofctlImpl::table_mod_rcvd(cofmsg_table_mod *pack)
 {
 	try {
 		if (OFPCR_ROLE_SLAVE == role) {
@@ -1982,7 +2021,7 @@ cofctl::table_mod_rcvd(cofmsg_table_mod *pack)
 
 
 void
-cofctl::stats_request_rcvd(cofmsg_stats *msg)
+cofctlImpl::stats_request_rcvd(cofmsg_stats *msg)
 {
 	try {
 		xidstore.xid_add(this, msg->get_xid());
@@ -2035,7 +2074,7 @@ cofctl::stats_request_rcvd(cofmsg_stats *msg)
 
 
 void
-cofctl::stats_reply_sent(cofmsg *msg)
+cofctlImpl::stats_reply_sent(cofmsg *msg)
 {
 	uint32_t xid = msg->get_xid();
 	try {
@@ -2054,7 +2093,7 @@ cofctl::stats_reply_sent(cofmsg *msg)
 
 
 void
-cofctl::role_request_rcvd(cofmsg_role_request *msg)
+cofctlImpl::role_request_rcvd(cofmsg_role_request *msg)
 {
 	try {
 		try {
@@ -2165,7 +2204,7 @@ cofctl::role_request_rcvd(cofmsg_role_request *msg)
 
 
 void
-cofctl::role_reply_sent(cofmsg *msg)
+cofctlImpl::role_reply_sent(cofmsg *msg)
 {
 	uint32_t xid = msg->get_xid();
 	try {
@@ -2184,7 +2223,7 @@ cofctl::role_reply_sent(cofmsg *msg)
 
 
 void
-cofctl::barrier_request_rcvd(cofmsg_barrier_request *msg)
+cofctlImpl::barrier_request_rcvd(cofmsg_barrier_request *msg)
 {
 	try {
 		xidstore.xid_add(this, msg->get_xid());
@@ -2200,7 +2239,7 @@ cofctl::barrier_request_rcvd(cofmsg_barrier_request *msg)
 
 
 void
-cofctl::barrier_reply_sent(cofmsg *msg)
+cofctlImpl::barrier_reply_sent(cofmsg *msg)
 {
 	uint32_t xid = msg->get_xid();
 	try {
@@ -2219,7 +2258,7 @@ cofctl::barrier_reply_sent(cofmsg *msg)
 
 
 void
-cofctl::queue_get_config_request_rcvd(cofmsg_queue_get_config_request *msg)
+cofctlImpl::queue_get_config_request_rcvd(cofmsg_queue_get_config_request *msg)
 {
 	try {
 		xidstore.xid_add(this, msg->get_xid());
@@ -2235,7 +2274,7 @@ cofctl::queue_get_config_request_rcvd(cofmsg_queue_get_config_request *msg)
 
 
 void
-cofctl::queue_get_config_reply_sent(cofmsg *msg)
+cofctlImpl::queue_get_config_reply_sent(cofmsg *msg)
 {
 	uint32_t xid = msg->get_xid();
 	try {
@@ -2254,7 +2293,7 @@ cofctl::queue_get_config_reply_sent(cofmsg *msg)
 
 
 void
-cofctl::experimenter_rcvd(cofmsg_experimenter *msg)
+cofctlImpl::experimenter_rcvd(cofmsg_experimenter *msg)
 {
 	switch (msg->get_experimenter_id()) {
 	case OFPEXPID_ROFL:
@@ -2326,7 +2365,7 @@ cofctl::experimenter_rcvd(cofmsg_experimenter *msg)
 
 
 void
-cofctl::handle_echo_reply_timeout()
+cofctlImpl::handle_echo_reply_timeout()
 {
 	WRITELOG(COFDPT, DBG, "cofctl(%p)::handle_echo_reply_timeout() ", this);
 
@@ -2343,7 +2382,7 @@ cofctl::handle_echo_reply_timeout()
 
 
 void
-cofctl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg)
+cofctlImpl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg)
 {
 	try {
 		xidstore.xid_add(this, msg->get_xid());
@@ -2359,7 +2398,7 @@ cofctl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg)
 
 
 void
-cofctl::set_async_config_rcvd(cofmsg_set_async_config *msg)
+cofctlImpl::set_async_config_rcvd(cofmsg_set_async_config *msg)
 {
 	// TODO: handle request here in this cofctl instance
 	rofbase->handle_set_async_config(this, msg);
@@ -2368,7 +2407,7 @@ cofctl::set_async_config_rcvd(cofmsg_set_async_config *msg)
 
 
 void
-cofctl::get_async_config_reply_sent(cofmsg *msg)
+cofctlImpl::get_async_config_reply_sent(cofmsg *msg)
 {
 	uint32_t xid = msg->get_xid();
 	try {
@@ -2388,7 +2427,7 @@ cofctl::get_async_config_reply_sent(cofmsg *msg)
 
 
 const char*
-cofctl::c_str()
+cofctlImpl::c_str()
 {
 #if 0
 	std::string t_str;
@@ -2417,7 +2456,7 @@ cofctl::c_str()
 
 
 cxidtrans&
-cofctl::transaction(uint32_t xid)
+cofctlImpl::transaction(uint32_t xid)
 {
 	return xidstore.xid_find(xid);
 }
@@ -2425,7 +2464,7 @@ cofctl::transaction(uint32_t xid)
 
 
 void
-cofctl::send_error_is_slave(cofmsg *pack)
+cofctlImpl::send_error_is_slave(cofmsg *pack)
 {
 	size_t len = (pack->length() > 64) ? 64 : pack->length();
 	rofbase->send_error_message(this,
@@ -2439,7 +2478,7 @@ cofctl::send_error_is_slave(cofmsg *pack)
 
 
 void
-cofctl::try_to_connect(bool reset_timeout)
+cofctlImpl::try_to_connect(bool reset_timeout)
 {
 	if (pending_timer(COFCTL_TIMER_RECONNECT))
 	{
@@ -2470,7 +2509,7 @@ cofctl::try_to_connect(bool reset_timeout)
 
 
 void
-cofctl::send_message_via_socket(
+cofctlImpl::send_message_via_socket(
 		cofmsg *pack)
 {
 	if (0 == socket)

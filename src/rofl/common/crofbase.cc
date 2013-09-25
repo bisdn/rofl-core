@@ -377,7 +377,7 @@ crofbase::cofctl_factory(
 		int type,
 		int protocol)
 {
-	return new cofctl(owner, newsd, ra, domain, type, protocol);
+	return new cofctlImpl(owner, newsd, ra, domain, type, protocol);
 #if 0
 	cofctl *ctl = new cofctl(owner, newsd, ra, domain, type, protocol);
 
@@ -397,7 +397,7 @@ crofbase::cofctl_factory(
 		int type,
 		int protocol)
 {
-	return new cofctl(owner, ra, domain, type, protocol);
+	return new cofctlImpl(owner, ra, domain, type, protocol);
 #if 0
 	cofctl *ctl = new cofctl(owner, ra, domain, type, protocol);
 
@@ -1523,7 +1523,7 @@ crofbase::send_packet_in_message(
 					it = nse_list.begin(); it != nse_list.end(); ++it)
 			{
 				cofctl *ctl = dynamic_cast<cofctl*>( (*nse_list.begin())->fspowner );
-				if (OFPCR_ROLE_SLAVE == ctl->role)
+				if (OFPCR_ROLE_SLAVE == ctl->get_role())
 				{
 					WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 							"ofctrl:%p is SLAVE, ignoring", this, ctl);
@@ -2028,7 +2028,7 @@ crofbase::send_flow_removed_message(
 			}
 			cofctl *ofctrl = (*it);
 
-			if (OFPCR_ROLE_SLAVE == ofctrl->role)
+			if (OFPCR_ROLE_SLAVE == ofctrl->get_role())
 			{
 				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_removed_message() ofctrl:%p is SLAVE", this, ofctrl);
 				continue;
