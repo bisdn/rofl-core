@@ -344,6 +344,9 @@ uint8_t
 cofmsg_flow_mod::get_table_id() const
 {
 	switch (get_version()) {
+	case OFP10_VERSION: {
+		return 0;
+	} break;
 	case OFP12_VERSION: {
 		return ofh12_flow_mod->table_id;
 	} break;
