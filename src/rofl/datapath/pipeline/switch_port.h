@@ -141,6 +141,9 @@ typedef struct switch_port{
 
 	//Drop incomming packets
 	bool drop_received;
+	
+	//don't forward flood packets (OF1.0 only)
+	bool no_flood;
 
 	//Is virtual/tun
 	port_type_t type;

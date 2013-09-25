@@ -49,6 +49,7 @@ switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_stat
 	//Set to initial values the rest
 	port->forward_packets = true;	
 	port->drop_received = false; 
+	port->no_flood = false;
 	port->curr = port->advertised = port->supported = port->peer = 0x0;	
 	port->curr_speed = port->curr_max_speed = 0;
 	port->of_port_num = 0;

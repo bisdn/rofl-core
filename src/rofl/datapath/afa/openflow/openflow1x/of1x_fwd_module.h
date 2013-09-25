@@ -36,6 +36,17 @@ AFA_BEGIN_DECLS
 afa_result_t fwd_module_of1x_set_port_drop_received_config(uint64_t dpid, unsigned int port_num, bool drop_received);
 
 /**
+ * @name    fwd_module_of1x_set_port_no_flood_config
+ * @brief   Instructs driver to modify port config state. When this flag is set the port will not forward flood packets
+ * @ingroup of1x_fwd_module_async_event_processing
+ *
+ * @param dpid 			Datapath ID of the switch 
+ * @param port_num		Port number 	
+ * @param no_flood		No flood allowed in port
+ */
+afa_result_t fwd_module_of1x_set_port_no_flood_config(uint64_t dpid, unsigned int port_num, bool no_flood);
+
+/**
  * @name    fwd_module_of1x_set_port_forward_config
  * @brief   Instructs forward module to modify port config state 
  * @ingroup of1x_fwd_module_async_event_processing
