@@ -37,6 +37,7 @@
 
 #include "openflow/cofport.h"
 #include "openflow/cofdpt.h"
+#include "openflow/cofdptImpl.h"
 #include "openflow/cofctl.h"
 #include "openflow/cofinst.h"
 #include "openflow/cofinlist.h"
@@ -1378,7 +1379,7 @@ protected:
 
 private:
 
-	friend class cofdpt;
+	friend class cofdptImpl;
 
 	friend class cofctl;
 
