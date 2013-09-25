@@ -162,7 +162,7 @@ cofmsg_packet_in::pack(uint8_t *buf, size_t buflen)
 	switch (get_version()) {
 	case OFP10_VERSION: {
 		memcpy(buf, soframe(), OFP10_PACKET_IN_STATIC_HDR_LEN);
-		memcpy(buf + OFP10_PACKET_IN_STATIC_HDR_LEN + 2, packet.soframe(), packet.framelen());
+		memcpy(buf + OFP10_PACKET_IN_STATIC_HDR_LEN - 2, packet.soframe(), packet.framelen());
 	} break;
 	case OFP12_VERSION: {
 		memcpy(buf, soframe(), OFP12_PACKET_IN_STATIC_HDR_LEN);
