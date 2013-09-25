@@ -36,9 +36,9 @@
 #include "rofl/platform/unix/crandom.h"
 
 #include "openflow/cofport.h"
-//#include "openflow/cofdpt.h"
+#include "openflow/cofdpt.h"
 #include "openflow/cofdptImpl.h"
-//#include "openflow/cofctl.h"
+#include "openflow/cofctl.h"
 #include "openflow/cofctlImpl.h"
 #include "openflow/cofinst.h"
 #include "openflow/cofinlist.h"
