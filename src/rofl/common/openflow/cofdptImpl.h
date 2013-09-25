@@ -15,6 +15,38 @@
 #include <stdio.h>
 #include <strings.h>
 
+#include "rofl/common/ciosrv.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/common/cfsm.h"
+#include "rofl/common/protocols/fetherframe.h"
+#include "rofl/common/csocket.h"
+
+#include "../openflow/messages/cofmsg.h"
+#include "../openflow/messages/cofmsg_hello.h"
+#include "../openflow/messages/cofmsg_echo.h"
+#include "../openflow/messages/cofmsg_error.h"
+#include "../openflow/messages/cofmsg_features.h"
+#include "../openflow/messages/cofmsg_config.h"
+#include "../openflow/messages/cofmsg_packet_in.h"
+#include "../openflow/messages/cofmsg_flow_removed.h"
+#include "../openflow/messages/cofmsg_port_status.h"
+#include "../openflow/messages/cofmsg_stats.h"
+#include "../openflow/messages/cofmsg_desc_stats.h"
+#include "../openflow/messages/cofmsg_flow_stats.h"
+#include "../openflow/messages/cofmsg_aggr_stats.h"
+#include "../openflow/messages/cofmsg_table_stats.h"
+#include "../openflow/messages/cofmsg_port_stats.h"
+#include "../openflow/messages/cofmsg_queue_stats.h"
+#include "../openflow/messages/cofmsg_group_stats.h"
+#include "../openflow/messages/cofmsg_group_desc_stats.h"
+#include "../openflow/messages/cofmsg_group_features_stats.h"
+#include "../openflow/messages/cofmsg_barrier.h"
+#include "../openflow/messages/cofmsg_queue_get_config.h"
+#include "../openflow/messages/cofmsg_role.h"
+#include "../openflow/messages/cofmsg_experimenter.h"
+#include "../openflow/messages/cofmsg_async_config.h"
+
 #include "rofl/common/openflow/cofdpt.h"
 
 namespace rofl
@@ -34,7 +66,10 @@ namespace rofl
  *
  */
 class cofdptImpl :
-	public cofdpt
+	public cofdpt,
+	public csocket_owner,
+	public ciosrv,
+	public cfsm
 {
 
 private: // data structures
