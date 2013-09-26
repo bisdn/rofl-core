@@ -560,7 +560,7 @@ void platform_packet_set_tcp_dst(datapacket_t* pkt, uint16_t tcp_dst);
 uint16_t platform_packet_get_udp_src(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
-* Get the UDP src port 
+* Get the UDP dst port 
 * @return value if existing, 0x0 otherwise.
 */
 uint16_t platform_packet_get_udp_dst(datapacket_t *const pkt);

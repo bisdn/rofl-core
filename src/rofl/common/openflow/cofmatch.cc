@@ -485,7 +485,7 @@ cofmatch::unpack(struct ofp10_match* m, size_t mlen)
 
 	// in_port
 	if (!(wildcards & OFP10FW_IN_PORT)) {
-		set_in_port(be32toh(m->in_port));
+		set_in_port(be16toh(m->in_port));
 	}
 
 	// dl_src
@@ -499,12 +499,12 @@ cofmatch::unpack(struct ofp10_match* m, size_t mlen)
 	}
 
 	// dl_vlan
-	if (!(wildcards & OFP10FW_DL_VLAN)) {
+	if (!(wildcards & OFP10FW_DL_VLAN) && m->dl_vlan != 0xffff) { //0xFFFF value is used to indicate that no VLAN id eas set.
 		set_vlan_vid(be16toh(m->dl_vlan));
 	}
 
 	// dl_vlan_pcp
-	if (!(wildcards & OFP10FW_DL_VLAN_PCP)) {
+	if (!(wildcards & OFP10FW_DL_VLAN_PCP) && m->dl_vlan != 0xffff) { //0xFFFF value is used to indicate that no VLAN id eas set.
 		set_vlan_pcp(m->dl_vlan_pcp);
 	}
 

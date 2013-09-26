@@ -1112,12 +1112,16 @@ inline bool __of1x_check_match(const of1x_packet_matches_t* pkt, of1x_match_t* i
 						return __utern_compare16(it->value,pkt->tcp_src);
    					if((pkt->ip_proto == OF1X_IP_PROTO_UDP))
 						return __utern_compare16(it->value,pkt->udp_src);
+					if((pkt->ip_proto == OF1X_IP_PROTO_ICMPV4))
+						return __utern_compare16(it->value,pkt->icmpv4_type);
 					return false;
 
    		case OF1X_MATCH_TP_DST: if((pkt->ip_proto == OF1X_IP_PROTO_TCP))
 						return __utern_compare16(it->value,pkt->tcp_dst);
    					if((pkt->ip_proto == OF1X_IP_PROTO_UDP))
 						return __utern_compare16(it->value,pkt->udp_dst);
+					if((pkt->ip_proto == OF1X_IP_PROTO_ICMPV4))
+						return __utern_compare16(it->value,pkt->icmpv4_code);
 					return false;
 		
 		//ICMPv4
@@ -1204,7 +1208,7 @@ void __of1x_dump_matches(of1x_match_t* matches){
 
 			case OF1X_MATCH_VLAN_VID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_ID:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
 				break; 
-			case OF1X_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u], ",it->value->mask.u8);
+			case OF1X_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u], ",it->value->value.u8);
 				break; 
 
 			case OF1X_MATCH_MPLS_LABEL:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[MPLS_LABEL:0x%x], ",it->value->value.u32);
