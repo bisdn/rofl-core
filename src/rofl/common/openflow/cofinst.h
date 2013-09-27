@@ -127,7 +127,6 @@ public: // methods
 	 */
 	virtual struct ofp_instruction*
 	pack(
-			uint8_t ofp_version,
 			struct ofp_instruction* inhdr,
 			size_t inlen) const throw (eInstructionInval);
 
@@ -135,7 +134,6 @@ public: // methods
 	 */
 	virtual void
 	unpack(
-			uint8_t ofp_version,
 			struct ofp_instruction *inhdr,
 			size_t inlen) throw (eInstructionBadLen, eInstructionBadExperimenter);
 

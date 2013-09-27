@@ -150,9 +150,9 @@ clinuxport::get_state() throw (ePortSocketCallFailed,
 	if ((rc = ioctl(sd, SIOCGIFFLAGS, &ifr)) < 0)
 		throw ePortIoctlCallFailed();
 	if (ifr.ifr_flags & IFF_UP)
-		state &= ~OFPPS_LINK_DOWN;
+		state &= ~OFP12PS_LINK_DOWN;
 	else if (!(ifr.ifr_flags & IFF_UP))
-		state |= OFPPS_LINK_DOWN;
+		state |= OFP12PS_LINK_DOWN;
 	close(sd);
 
 	return state;

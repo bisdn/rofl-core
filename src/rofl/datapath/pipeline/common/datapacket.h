@@ -56,6 +56,9 @@ typedef void platform_datapacket_state_t;
 */
 typedef struct datapacket{
 
+	//Pointer to the switch which is processing the packet
+	of_switch_t const* sw;
+
 	//Generic Openflow matches and write actions 
 	of_packet_matches_t matches;
 	of_write_actions_t write_actions;

@@ -153,15 +153,15 @@ enum ofp10_capabilities {
  * used in the ofp10_port_mod message to configure the port's behavior.
  */
 enum ofp10_port_config {
-    OFPPC10_PORT_DOWN    = 1 << 0,  /* Port is administratively down. */
+    OFP10PC_PORT_DOWN    = 1 << 0,  /* Port is administratively down. */
 
-    OFPPC10_NO_STP       = 1 << 1,  /* Disable 802.1D spanning tree on port. */
-    OFPPC10_NO_RECV      = 1 << 2,  /* Drop all packets except 802.1D spanning
+    OFP10PC_NO_STP       = 1 << 1,  /* Disable 802.1D spanning tree on port. */
+    OFP10PC_NO_RECV      = 1 << 2,  /* Drop all packets except 802.1D spanning
                                      tree packets. */
-    OFPPC10_NO_RECV_STP  = 1 << 3,  /* Drop received 802.1D STP packets. */
-    OFPPC10_NO_FLOOD     = 1 << 4,  /* Do not include this port when flooding. */
-    OFPPC10_NO_FWD       = 1 << 5,  /* Drop packets forwarded to port. */
-    OFPPC10_NO_PACKET_IN = 1 << 6   /* Do not send packet-in msgs for port. */
+    OFP10PC_NO_RECV_STP  = 1 << 3,  /* Drop received 802.1D STP packets. */
+    OFP10PC_NO_FLOOD     = 1 << 4,  /* Do not include this port when flooding. */
+    OFP10PC_NO_FWD       = 1 << 5,  /* Drop packets forwarded to port. */
+    OFP10PC_NO_PACKET_IN = 1 << 6   /* Do not send packet-in msgs for port. */
 };
 
 /* Current state of the physical port.  These are not configurable from

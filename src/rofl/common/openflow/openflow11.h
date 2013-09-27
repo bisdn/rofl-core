@@ -234,9 +234,9 @@ enum ofp_port_config {
  * the controller.
  */
 enum ofp_port_state {
-    OFPPS_LINK_DOWN    = 1 << 0,  /* No physical link present. */
-    OFPPS_BLOCKED      = 1 << 1,  /* Port is blocked */
-    OFPPS_LIVE         = 1 << 2,  /* Live for Fast Failover Group. */
+    OFP12PS_LINK_DOWN    = 1 << 0,  /* No physical link present. */
+    OFP12PS_BLOCKED      = 1 << 1,  /* Port is blocked */
+    OFP12PS_LIVE         = 1 << 2,  /* Live for Fast Failover Group. */
 };
 
 /* Features of ports available in a datapath. */

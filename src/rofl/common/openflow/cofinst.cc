@@ -26,12 +26,13 @@ cofinst::cofinst(
 		uint8_t ofp_version,
 		struct ofp_instruction* inhdr,
 		size_t inlen) :
+				ofp_version(ofp_version),
 				actions(ofp_version),
 				instruction(inlen)
 {
 	WRITELOG(COFINST, DBG, "cofinst(%p)::cofinst() [2]", this);
 	pthread_mutex_init(&inmutex, NULL);
-	unpack(ofp_version, inhdr, inlen);
+	unpack(inhdr, inlen);
 	//cofinst_set.insert(this);
 }
 
@@ -78,13 +79,9 @@ cofinst::reset()
 
 struct ofp_instruction*
 cofinst::pack(
-		uint8_t ofp_version,
 		struct ofp_instruction* inhdr,
 		size_t inlen) const throw (eInstructionInval)
 {
-	if (this->ofp_version != ofp_version)
-		throw eInstructionInval();
-
 	//Lock lock(&inmutex);
 
 	if (inlen < this->length())
@@ -140,12 +137,9 @@ cofinst::pack(
 
 void
 cofinst::unpack(
-		uint8_t ofp_version,
 		struct ofp_instruction *inhdr,
 		size_t inlen) throw (eInstructionBadLen, eInstructionBadExperimenter)
 {
-	this->ofp_version = ofp_version;
-
 	reset();
 
 	//Lock lock(&inmutex);

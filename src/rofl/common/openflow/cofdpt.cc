@@ -24,7 +24,8 @@ cofdpt::cofdpt(
 				rofbase(rofbase),
 				fragment(0),
 				msg_bytes_read(0),
-				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
+				reconnect_start_timeout(0),
+				reconnect_in_seconds(0),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
 				ofp_version(OFP12_VERSION),
@@ -52,6 +53,7 @@ cofdpt::cofdpt(
 cofdpt::cofdpt(
 		crofbase *rofbase,
 		uint8_t ofp_version,
+		int reconnect_start_timeout,
 		caddress const& ra,
 		int domain,
 		int type,
@@ -67,7 +69,8 @@ cofdpt::cofdpt(
 				rofbase(rofbase),
 				fragment(0),
 				msg_bytes_read(0),
-				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
+				reconnect_start_timeout(reconnect_start_timeout),
+				reconnect_in_seconds(reconnect_start_timeout),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
 				ofp_version(ofp_version),
@@ -1772,8 +1775,7 @@ cofdpt::find_cofport(
 void
 cofdpt::try_to_connect(bool reset_timeout)
 {
-	if (pending_timer(COFDPT_TIMER_RECONNECT))
-	{
+	if (pending_timer(COFDPT_TIMER_RECONNECT)) {
 		return;
 	}
 
@@ -1781,16 +1783,18 @@ cofdpt::try_to_connect(bool reset_timeout)
 			"reconnect in %d seconds (reconnect_counter:%d)",
 			this, reconnect_in_seconds, reconnect_counter);
 
-	if ((reset_timeout) || (4 == reconnect_counter))
-	{
-		reconnect_in_seconds = RECONNECT_START_TIMEOUT;
+	int max_backoff = 16 * reconnect_start_timeout;
 
+	if (reset_timeout) {
+		reconnect_in_seconds = reconnect_start_timeout;
 		reconnect_counter = 0;
+	} else {
+		reconnect_in_seconds *= 2;
 	}
 
-	if (reconnect_counter > 3)
-	{
-		reconnect_in_seconds = RECONNECT_MAX_TIMEOUT;
+
+	if (reconnect_in_seconds > max_backoff) {
+		reconnect_in_seconds = max_backoff;
 	}
 
 	reset_timer(COFDPT_TIMER_RECONNECT, reconnect_in_seconds);

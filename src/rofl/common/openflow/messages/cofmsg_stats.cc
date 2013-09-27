@@ -23,16 +23,19 @@ cofmsg_stats::cofmsg_stats(
 
 	switch (of_version) {
 	case OFP10_VERSION: {
+		set_type(OFPT10_STATS_REQUEST);
 		resize(sizeof(struct ofp10_stats_request) + body.memlen());
 		ofh12_stats_request->type			= htobe16(stats_type);
 		ofh12_stats_request->flags			= htobe16(stats_flags);
 	} break;
 	case OFP12_VERSION: {
+		set_type(OFPT12_STATS_REQUEST);
 		resize(sizeof(struct ofp12_stats_request) + body.memlen());
 		ofh12_stats_request->type			= htobe16(stats_type);
 		ofh12_stats_request->flags			= htobe16(stats_flags);
 	} break;
 	case OFP13_VERSION: {
+		set_type(OFPT13_STATS_REQUEST);
 		resize(sizeof(struct ofp13_multipart_request) + body.memlen());
 		ofh13_multipart_request->type		= htobe16(stats_type);
 		ofh13_multipart_request->flags		= htobe16(stats_flags);

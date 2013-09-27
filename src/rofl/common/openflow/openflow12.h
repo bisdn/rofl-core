@@ -211,20 +211,20 @@ enum ofp_capabilities {
  * used in the ofp_port_mod message to configure the port's behavior.
  */
 enum ofp12_port_config {
-    OFPPC12_PORT_DOWN    = 1 << 0,  /* Port is administratively down. */
+    OFP12PC_PORT_DOWN    = 1 << 0,  /* Port is administratively down. */
 
-    OFPPC12_NO_RECV      = 1 << 2,  /* Drop all packets received by port. */
-    OFPPC12_NO_FWD       = 1 << 5,  /* Drop packets forwarded to port. */
-    OFPPC12_NO_PACKET_IN = 1 << 6   /* Do not send packet-in msgs for port. */
+    OFP12PC_NO_RECV      = 1 << 2,  /* Drop all packets received by port. */
+    OFP12PC_NO_FWD       = 1 << 5,  /* Drop packets forwarded to port. */
+    OFP12PC_NO_PACKET_IN = 1 << 6   /* Do not send packet-in msgs for port. */
 };
 
 /* Current state of the physical port.  These are not configurable from
  * the controller.
  */
-enum ofp_port_state {
-    OFPPS_LINK_DOWN    = 1 << 0,  /* No physical link present. */
-    OFPPS_BLOCKED      = 1 << 1,  /* Port is blocked */
-    OFPPS_LIVE         = 1 << 2,  /* Live for Fast Failover Group. */
+enum ofp12_port_state {
+    OFP12PS_LINK_DOWN    = 1 << 0,  /* No physical link present. */
+    OFP12PS_BLOCKED      = 1 << 1,  /* Port is blocked */
+    OFP12PS_LIVE         = 1 << 2,  /* Live for Fast Failover Group. */
 };
 
 /* Features of ports available in a datapath. */

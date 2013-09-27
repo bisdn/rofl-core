@@ -33,6 +33,7 @@ struct of_switch;
 * @ingroup core 
 */
 typedef enum{
+    PORT_STATE_NONE		= 0 << 0, 
     PORT_STATE_LINK_DOWN	= 1 << 0, 
     PORT_STATE_BLOCKED 		= 1 << 1, //We are not hybrid we might not need this
     PORT_STATE_LIVE 		= 1 << 2,
