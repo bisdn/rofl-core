@@ -37,7 +37,7 @@ public: // methods
 	 * @param rofbase pointer to crofbase instance
 	 */
 	cofctl(
-			crofbase *rofbase) {};
+			crofbase *rofbase = (crofbase*)0) {};
 
 
 

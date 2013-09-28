@@ -65,7 +65,7 @@ public:
 	 * @param rofbase pointer to crofbase instance
 	 */
 	cofdpt(
-			crofbase *rofbase) {};
+			crofbase *rofbase = (crofbase*)0) {};
 
 
 
