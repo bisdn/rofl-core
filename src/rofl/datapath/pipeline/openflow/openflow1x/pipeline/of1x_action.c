@@ -907,6 +907,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 		case OF1X_AT_OUTPUT: 
 			
 			if(action->field.u64 < OF1X_PORT_MAX || 
+				action->field.u64 == OF1X_PORT_IN_PORT || 
 				 action->field.u64 == OF1X_PORT_ALL || 
 				 action->field.u64 == OF1X_PORT_FLOOD || 
 				 action->field.u64 == OF1X_PORT_NORMAL || 
