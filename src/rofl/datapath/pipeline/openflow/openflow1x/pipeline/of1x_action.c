@@ -654,6 +654,11 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				platform_packet_set_udp_src(pkt, action->field.u64);
 				//Update match
 				pkt_matches->udp_src = action->field.u64;
+			}else if((pkt_matches->ip_proto == OF1X_IP_PROTO_ICMPV4)){
+				//Call platform
+				platform_packet_set_icmpv4_type(pkt, action->field.u64);
+				//Update match
+				pkt_matches->icmpv4_type = action->field.u64;
 			}
 			break;
 		case OF1X_AT_SET_FIELD_TP_DST:
@@ -667,6 +672,11 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				platform_packet_set_udp_dst(pkt, action->field.u64);
 				//Update match
 				pkt_matches->udp_dst = action->field.u64;
+			}else if((pkt_matches->ip_proto == OF1X_IP_PROTO_ICMPV4)){
+				//Call platform
+				platform_packet_set_icmpv4_code(pkt, action->field.u64);
+				//Update match
+				pkt_matches->icmpv4_code = action->field.u64;
 			}
 			break;
 
