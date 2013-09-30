@@ -201,12 +201,12 @@ afa_result_t fwd_module_of1x_process_flow_mod_delete(uint64_t dpid, uint8_t tabl
  * @param cookie_mask	Mask for the cookie
  * @param out_port 	Out port that entry must include
  * @param out_group 	Out group that entry must include	
- * @param matchs	Matches
+ * @param matches	Matches
  * 
  * @return A pointer to an of1x_flow_msg_t struct or NULL on error. This pointer can be safely accessed and
  * modified, and MUST be destroyed via of1x_destroy_stats_flow_msg() once used.
  */
-of1x_stats_flow_msg_t* fwd_module_of1x_get_flow_stats(uint64_t dpid, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, of1x_match_t* matchs);
+of1x_stats_flow_msg_t* fwd_module_of1x_get_flow_stats(uint64_t dpid, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, of1x_match_group_t *const matches);
  
 /**
  * @name    fwd_module_of1x_get_flow_aggregate_stats
@@ -219,12 +219,12 @@ of1x_stats_flow_msg_t* fwd_module_of1x_get_flow_stats(uint64_t dpid, uint8_t tab
  * @param cookie_mask	Mask for the cookie
  * @param out_port 	Out port that entry must include
  * @param out_group 	Out group that entry must include	
- * @param matchs	Matches
+ * @param matches	Matches
  *	
  * @return A pointer to an of1x_flow_aggregate_msg_t struct or NULL on error. This pointer can be 
  * safely accessed and modified, and MUST be destroyed via of1x_destroy_stats_flow_aggregate_msg() once used.
  */
-of1x_stats_flow_aggregate_msg_t* fwd_module_of1x_get_flow_aggregate_stats(uint64_t dpid, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, of1x_match_t* matchs);
+of1x_stats_flow_aggregate_msg_t* fwd_module_of1x_get_flow_aggregate_stats(uint64_t dpid, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, of1x_match_group_t *const matches);
 
 /**
  * @name    fwd_module_of1x_group_mod_add

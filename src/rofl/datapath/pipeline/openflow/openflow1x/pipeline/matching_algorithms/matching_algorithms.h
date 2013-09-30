@@ -194,7 +194,7 @@ typedef struct of1x_matching_algorithm_functions{
 			uint64_t cookie_mask,
 			uint32_t out_port, 
 			uint32_t out_group,
-			of1x_match_t *const matchs,
+			of1x_match_group_t *const matches,
 			of1x_stats_flow_msg_t* msg);
 
 
@@ -210,7 +210,7 @@ typedef struct of1x_matching_algorithm_functions{
 			uint64_t cookie_mask,
 			uint32_t out_port, 
 			uint32_t out_group,
-			of1x_match_t *const matchs,
+			of1x_match_group_t *const matches,
 			of1x_stats_flow_aggregate_msg_t* msg);
 
 

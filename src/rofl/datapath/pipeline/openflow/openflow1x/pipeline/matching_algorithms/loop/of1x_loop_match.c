@@ -442,7 +442,7 @@ rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 		uint64_t cookie_mask,
 		uint32_t out_port, 
 		uint32_t out_group,
-		of1x_match_t *const matches,
+		of1x_match_group_t *const matches,
 		of1x_stats_flow_msg_t* msg){
 
 	of1x_flow_entry_t* entry, flow_stats_entry;
@@ -453,7 +453,7 @@ rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 
 	//Create a flow_stats_entry
 	memset(&flow_stats_entry,0,sizeof(of1x_flow_entry_t));
-	__of1x_match_group_push_back(&flow_stats_entry.matches, matches);
+	flow_stats_entry.matches = *matches;
 	flow_stats_entry.cookie = cookie;
 	flow_stats_entry.cookie_mask = cookie_mask;
 
@@ -494,7 +494,7 @@ rofl_result_t of1x_get_flow_aggregate_stats_loop(struct of1x_flow_table *const t
 		uint64_t cookie_mask,
 		uint32_t out_port, 
 		uint32_t out_group,
-		of1x_match_t *const matches,
+		of1x_match_group_t *const matches,
 		of1x_stats_flow_aggregate_msg_t* msg){
 
 	of1x_flow_entry_t* entry, flow_stats_entry;
@@ -504,7 +504,7 @@ rofl_result_t of1x_get_flow_aggregate_stats_loop(struct of1x_flow_table *const t
 
 	//Flow stats entry for easy comparison
 	memset(&flow_stats_entry,0,sizeof(of1x_flow_entry_t));
-	__of1x_match_group_push_back(&flow_stats_entry.matches, matches);
+	flow_stats_entry.matches = *matches;
 	flow_stats_entry.cookie = cookie;
 	flow_stats_entry.cookie_mask = cookie_mask;
 

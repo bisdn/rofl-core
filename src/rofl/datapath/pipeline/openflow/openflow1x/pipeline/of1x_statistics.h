@@ -32,6 +32,7 @@ struct of1x_instruction_group;
 struct of1x_flow_entry;
 struct of1x_flow_table;
 struct of1x_match;
+struct of1x_match_group;
 struct of1x_pipeline;
 
 
@@ -225,14 +226,14 @@ void __of1x_stats_bucket_update(of1x_stats_bucket_counter_t* bc_stats, uint64_t 
 * Retrieves individual flow stats 
 * @return of1x_stats_flow_msg_t instance that must be destroyed using of1x_destroy_stats_flow_msg() 
 */
-of1x_stats_flow_msg_t* of1x_get_flow_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match* matchs);
+of1x_stats_flow_msg_t* of1x_get_flow_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match_group* matchs);
 
 /**
 * @ingroup core_of1x 
 * Retrieves aggregated flow stats 
 * @return of1x_stats_flow_aggregate_msg_t instance that must be destroyed using of1x_destroy_stats_flow_aggregate_msg() 
 */
-of1x_stats_flow_aggregate_msg_t* of1x_get_flow_aggregate_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match* matchs);
+of1x_stats_flow_aggregate_msg_t* of1x_get_flow_aggregate_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match_group* matchs);
 
 ROFL_END_DECLS
 

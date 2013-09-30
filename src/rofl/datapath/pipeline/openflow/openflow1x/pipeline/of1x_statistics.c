@@ -432,7 +432,7 @@ void __of1x_stats_bucket_update(of1x_stats_bucket_counter_t* bc_stats, uint64_t 
 * External interfaces
 */
 
-of1x_stats_flow_msg_t* of1x_get_flow_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match* matches){
+of1x_stats_flow_msg_t* of1x_get_flow_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match_group *const matches){
 
 	uint32_t i,tid_start, tid_end;	
 	of1x_stats_flow_msg_t* msg;
@@ -464,7 +464,7 @@ of1x_stats_flow_msg_t* of1x_get_flow_stats(struct of1x_pipeline* pipeline, uint8
 	
 	return msg;
 }
-of1x_stats_flow_aggregate_msg_t* of1x_get_flow_aggregate_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match* matches){
+of1x_stats_flow_aggregate_msg_t* of1x_get_flow_aggregate_stats(struct of1x_pipeline* pipeline, uint8_t table_id, uint32_t cookie, uint32_t cookie_mask, uint32_t out_port, uint32_t out_group, struct of1x_match_group *const matches){
 	
 	uint32_t i, tid_start, tid_end;	
 	of1x_stats_flow_aggregate_msg_t* msg;

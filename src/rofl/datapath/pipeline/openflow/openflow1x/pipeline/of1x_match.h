@@ -118,7 +118,7 @@ typedef struct of1x_match{
 
 
 /* Match group, using a double-linked-list */
-typedef struct{
+typedef struct of1x_match_group{
 	//Double linked list
 	of1x_match_t* head;
 	of1x_match_t* tail;
