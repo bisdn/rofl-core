@@ -13,7 +13,9 @@
 rofl_result_t of_destroy_switch(const of_switch_t* sw){
 	
 	switch(sw->of_ver){
+		case OF_VERSION_10: 
 		case OF_VERSION_12: 
+		case OF_VERSION_13: 
 			return __of1x_destroy_switch(((of1x_switch_t*)sw));
 		default: 
 			return ROFL_FAILURE;

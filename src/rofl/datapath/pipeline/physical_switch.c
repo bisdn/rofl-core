@@ -89,6 +89,12 @@ void physical_switch_destroy(){
 	//Serialize
 	platform_mutex_lock(psw->mutex);
 
+	//Destroy logical switches
+	for(i=0;i<PHYSICAL_SWITCH_MAX_LS;i++){
+		if(psw->logical_switches[i])
+			of_destroy_switch(psw->logical_switches[i]);	
+	}
+
 	//Destroying ports
 	for(i=0;i<PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;i++){
 		if( psw->physical_ports[i] != NULL ){ 
