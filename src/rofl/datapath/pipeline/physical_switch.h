@@ -130,6 +130,22 @@
 //Currently unused
 typedef void platform_physical_switch_state_t;
 
+
+/**
+* Special meta port: FLOOD
+*/
+extern switch_port_t* flood_meta_port;
+
+/**
+* Special meta port: IN_PORT
+*/
+extern switch_port_t* in_port_meta_port;
+
+/**
+* Special meta port: ALL
+*/
+extern switch_port_t* all_meta_port;
+
 /**
 * Keeps the state of the physical switch (device), including ports
 * and logical switch instances

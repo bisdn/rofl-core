@@ -7,9 +7,15 @@
 
 static physical_switch_t* psw=NULL;
 
-//Meta port FLOOD shortcut
+//Meta port shortcuts
 #define META_PORT_FLOOD_INDEX 0
-switch_port_t* flood_meta_port;
+#define META_PORT_IN_PORT_INDEX 1
+#define META_PORT_ALL_INDEX 2
+
+switch_port_t* flood_meta_port=NULL;
+switch_port_t* in_port_meta_port=NULL;
+switch_port_t* all_meta_port=NULL;
+
 
 //
 // Physical switch mgmt
@@ -47,9 +53,17 @@ rofl_result_t physical_switch_init(){
 	//Flood
 	psw->meta_ports[META_PORT_FLOOD_INDEX].type = PORT_TYPE_META_FLOOD;
 	strncpy(psw->meta_ports[META_PORT_FLOOD_INDEX].name, "Flood meta port", SWITCH_PORT_MAX_LEN_NAME);
+	//In port
+	psw->meta_ports[META_PORT_IN_PORT_INDEX].type = PORT_TYPE_META_IN_PORT;
+	strncpy(psw->meta_ports[META_PORT_IN_PORT_INDEX].name, "In port meta port", SWITCH_PORT_MAX_LEN_NAME);
+	//All
+	psw->meta_ports[META_PORT_ALL_INDEX].type = PORT_TYPE_META_ALL;
+	strncpy(psw->meta_ports[META_PORT_ALL_INDEX].name, "All meta port", SWITCH_PORT_MAX_LEN_NAME);
 
 	//Set extern pointer
 	flood_meta_port = &psw->meta_ports[META_PORT_FLOOD_INDEX];
+	in_port_meta_port = &psw->meta_ports[META_PORT_IN_PORT_INDEX];
+	all_meta_port = &psw->meta_ports[META_PORT_ALL_INDEX];
 
 	//Generate matching algorithm lists
 	__physical_switch_generate_matching_algorithm_list();

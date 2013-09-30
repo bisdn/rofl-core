@@ -931,18 +931,19 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 					//Single port output
 					platform_packet_output(pkt_to_send, sw->logical_ports[action->field.u64].port);
 
-				}else if(action->field.u64 == OF1X_PORT_FLOOD || 
-					action->field.u64 == OF1X_PORT_ALL){
-
+				}else if(action->field.u64 == OF1X_PORT_FLOOD){
 					//Flood
 					platform_packet_output(pkt_to_send, flood_meta_port);
-
 				}else if(action->field.u64 == OF1X_PORT_CONTROLLER ||
 					action->field.u64 == OF1X_PORT_NORMAL){
-
 					//Controller
 					platform_of1x_packet_in(sw, table_id, pkt_to_send, OF1X_PKT_IN_ACTION);
-
+				}else if(action->field.u64 == OF1X_PORT_ALL){ 
+					//Flood
+					platform_packet_output(pkt_to_send, all_meta_port);
+				}else if(action->field.u64 == OF1X_PORT_IN_PORT){ 
+					//in port
+					platform_packet_output(pkt_to_send, in_port_meta_port);
 				}else{
 
 					//This condition can never happen, unless port number has been somehow corrupted??

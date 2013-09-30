@@ -110,7 +110,9 @@ typedef enum port_type{
 
 	//Special META(fake) ports
 	//PORT_TYPE_META		= 4, 
-	PORT_TYPE_META_FLOOD		= 5
+	PORT_TYPE_META_FLOOD		= 5,
+	PORT_TYPE_META_IN_PORT		= 6,
+	PORT_TYPE_META_ALL		= 7
 }port_type_t;
 
 
