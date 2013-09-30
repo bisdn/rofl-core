@@ -808,8 +808,8 @@ crofbase::send_features_reply(
 					n_buffers,
 					n_tables,
 					capabilities,
-					of13_auxiliary_id,
 					of10_actions_bitmap,
+					of13_auxiliary_id,
 					portlist);
 
 	reply->pack(); // adjust fields, e.g. length in ofp_header
