@@ -2,17 +2,48 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "cofdpt.h"
+#include "cofdptImpl.h"
 
 using namespace rofl;
 
-cofdpt::cofdpt(
+
+cofdptImpl::cofdptImpl(
+		crofbase *rofbase) :
+				cofdpt(rofbase),
+				dpid(0),
+				hwaddr(cmacaddr("00:00:00:00:00:00")),
+				n_buffers(0),
+				n_tables(0),
+				capabilities(0),
+				config(0),
+				miss_send_len(0),
+				socket(0),
+				rofbase(rofbase),
+				fragment(0),
+				msg_bytes_read(0),
+				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
+				reconnect_counter(0),
+				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
+				ofp_version(OFP12_VERSION),
+				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
+				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
+				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
+				barrier_reply_timeout(DEFAULT_DP_BARRIER_REPLY_TIMEOUT),
+				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT)
+{
+
+}
+
+
+
+cofdptImpl::cofdptImpl(
 		crofbase *rofbase,
 		int newsd,
 		caddress const& ra,
 		int domain,
 		int type,
 		int protocol) :
+				cofdpt(rofbase),
 				dpid(0),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
@@ -50,7 +81,7 @@ cofdpt::cofdpt(
 
 
 
-cofdpt::cofdpt(
+cofdptImpl::cofdptImpl(
 		crofbase *rofbase,
 		uint8_t ofp_version,
 		int reconnect_start_timeout,
@@ -58,6 +89,7 @@ cofdpt::cofdpt(
 		int domain,
 		int type,
 		int protocol) :
+				cofdpt(rofbase),
 				dpid(0),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
@@ -93,7 +125,7 @@ cofdpt::cofdpt(
 
 
 
-cofdpt::~cofdpt()
+cofdptImpl::~cofdptImpl()
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::~cofdpt() "
 			"dpid:%"PRIu64"  %s",
@@ -109,7 +141,7 @@ cofdpt::~cofdpt()
 
 
 uint8_t
-cofdpt::get_version()
+cofdptImpl::get_version()
 {
 	return ofp_version;
 }
@@ -117,7 +149,7 @@ cofdpt::get_version()
 
 
 caddress
-cofdpt::get_peer_addr()
+cofdptImpl::get_peer_addr()
 {
 	return socket->raddr;
 }
@@ -125,7 +157,7 @@ cofdpt::get_peer_addr()
 
 
 void
-cofdpt::handle_accepted(
+cofdptImpl::handle_accepted(
 		csocket *socket,
 		int newsd,
 		caddress const& ra)
@@ -139,7 +171,7 @@ cofdpt::handle_accepted(
 
 
 void
-cofdpt::handle_connected(
+cofdptImpl::handle_connected(
 		csocket *socket,
 		int sd)
 {
@@ -152,7 +184,7 @@ cofdpt::handle_connected(
 
 
 void
-cofdpt::handle_connect_refused(
+cofdptImpl::handle_connect_refused(
 		csocket *socket,
 		int sd)
 {
@@ -166,7 +198,7 @@ cofdpt::handle_connect_refused(
 
 
 void
-cofdpt::handle_read(
+cofdptImpl::handle_read(
 		csocket *socket,
 		int sd)
 {
@@ -276,7 +308,7 @@ cofdpt::handle_read(
 
 
 void
-cofdpt::handle_closed(
+cofdptImpl::handle_closed(
 		csocket *socket,
 		int sd)
 {
@@ -298,7 +330,7 @@ cofdpt::handle_closed(
 
 
 void
-cofdpt::handle_message(
+cofdptImpl::handle_message(
 		cmemory *mem)
 {
 	cofmsg *msg = (cofmsg*)0;
@@ -629,7 +661,7 @@ cofdpt::handle_message(
 
 
 void
-cofdpt::send_message(
+cofdptImpl::send_message(
 		cofmsg *msg)
 {
 	const uint8_t OFPT_HELLO = 0;
@@ -795,7 +827,7 @@ cofdpt::send_message(
 
 
 void
-cofdpt::handle_timeout(int opaque)
+cofdptImpl::handle_timeout(int opaque)
 {
 	switch (opaque) {
 	case COFDPT_TIMER_SEND_HELLO: {
@@ -849,7 +881,7 @@ cofdpt::handle_timeout(int opaque)
 
 
 void
-cofdpt::hello_rcvd(cofmsg_hello *msg)
+cofdptImpl::hello_rcvd(cofmsg_hello *msg)
 {
 	try {
 		WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() pack: %s", this, msg->c_str());
@@ -932,7 +964,7 @@ cofdpt::hello_rcvd(cofmsg_hello *msg)
 
 
 void
-cofdpt::echo_request_sent(cofmsg *pack)
+cofdptImpl::echo_request_sent(cofmsg *pack)
 {
 	reset_timer(COFDPT_TIMER_ECHO_REPLY, 5); // TODO: multiple concurrent echo-requests?
 }
@@ -940,7 +972,7 @@ cofdpt::echo_request_sent(cofmsg *pack)
 
 
 void
-cofdpt::echo_request_rcvd(cofmsg_echo_request *msg)
+cofdptImpl::echo_request_rcvd(cofmsg_echo_request *msg)
 {
 	// send echo reply back including any appended data
 	rofbase->send_echo_reply(this, msg->get_xid(), msg->get_body().somem(), msg->get_body().memlen());
@@ -955,7 +987,7 @@ cofdpt::echo_request_rcvd(cofmsg_echo_request *msg)
 
 
 void
-cofdpt::echo_reply_rcvd(cofmsg_echo_reply *msg)
+cofdptImpl::echo_reply_rcvd(cofmsg_echo_reply *msg)
 {
 	cancel_timer(COFDPT_TIMER_ECHO_REPLY);
 	register_timer(COFDPT_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
@@ -966,7 +998,7 @@ cofdpt::echo_reply_rcvd(cofmsg_echo_reply *msg)
 
 
 void
-cofdpt::handle_echo_reply_timeout()
+cofdptImpl::handle_echo_reply_timeout()
 {
         WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_echo_reply_timeout() ", this);
 
@@ -984,7 +1016,7 @@ cofdpt::handle_echo_reply_timeout()
 
 
 void
-cofdpt::features_request_sent(
+cofdptImpl::features_request_sent(
 		cofmsg *pack)
 {
 	register_timer(COFDPT_TIMER_FEATURES_REPLY, features_reply_timeout /* seconds */);
@@ -993,7 +1025,7 @@ cofdpt::features_request_sent(
 
 
 void
-cofdpt::features_reply_rcvd(
+cofdptImpl::features_reply_rcvd(
 		cofmsg_features_reply *msg)
 {
 	try {
@@ -1075,7 +1107,7 @@ cofdpt::features_reply_rcvd(
 
 
 void
-cofdpt::handle_features_reply_timeout()
+cofdptImpl::handle_features_reply_timeout()
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_features_reply_timeout() ", this);
 
@@ -1085,7 +1117,7 @@ cofdpt::handle_features_reply_timeout()
 
 
 void
-cofdpt::get_config_request_sent(
+cofdptImpl::get_config_request_sent(
 		cofmsg *pack)
 {
 	register_timer(COFDPT_TIMER_GET_CONFIG_REPLY, get_config_reply_timeout);
@@ -1094,7 +1126,7 @@ cofdpt::get_config_request_sent(
 
 
 void
-cofdpt::get_config_reply_rcvd(
+cofdptImpl::get_config_reply_rcvd(
 		cofmsg_get_config_reply *msg)
 {
 	cancel_timer(COFDPT_TIMER_GET_CONFIG_REPLY);
@@ -1133,7 +1165,7 @@ cofdpt::get_config_reply_rcvd(
 
 
 void
-cofdpt::handle_get_config_reply_timeout()
+cofdptImpl::handle_get_config_reply_timeout()
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_get_config_reply_timeout() "
 			"dpid:%"PRIu64" ",
@@ -1145,7 +1177,7 @@ cofdpt::handle_get_config_reply_timeout()
 
 
 void
-cofdpt::stats_request_sent(
+cofdptImpl::stats_request_sent(
 		cofmsg *pack)
 {
 	try {
@@ -1177,7 +1209,7 @@ cofdpt::stats_request_sent(
 
 
 void
-cofdpt::stats_reply_rcvd(
+cofdptImpl::stats_reply_rcvd(
 		cofmsg_stats_reply *msg)
 {
 	cancel_timer(COFDPT_TIMER_STATS_REPLY);
@@ -1251,7 +1283,7 @@ cofdpt::stats_reply_rcvd(
 
 
 void
-cofdpt::handle_stats_reply_timeout()
+cofdptImpl::handle_stats_reply_timeout()
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_stats_reply_timeout() "
 			"dpid:%"PRIu64" ",
@@ -1294,7 +1326,7 @@ restart:
 
 
 void
-cofdpt::table_stats_reply_rcvd(
+cofdptImpl::table_stats_reply_rcvd(
 		cofmsg_table_stats_reply *msg)
 {
 	// clear our old table map
@@ -1312,7 +1344,7 @@ cofdpt::table_stats_reply_rcvd(
 
 
 void
-cofdpt::barrier_request_sent(
+cofdptImpl::barrier_request_sent(
 		cofmsg *pack)
 {
 	try {
@@ -1342,7 +1374,7 @@ cofdpt::barrier_request_sent(
 
 
 void
-cofdpt::barrier_reply_rcvd(cofmsg_barrier_reply *msg)
+cofdptImpl::barrier_reply_rcvd(cofmsg_barrier_reply *msg)
 {
 	cancel_timer(COFDPT_TIMER_BARRIER_REPLY);
 
@@ -1364,7 +1396,7 @@ cofdpt::barrier_reply_rcvd(cofmsg_barrier_reply *msg)
 
 
 void
-cofdpt::handle_barrier_reply_timeout()
+cofdptImpl::handle_barrier_reply_timeout()
 {
 	uint8_t msg_type = 0;
 
@@ -1402,7 +1434,7 @@ restart:
 
 
 void
-cofdpt::flow_mod_sent(
+cofdptImpl::flow_mod_sent(
 		cofmsg *msg)
 {
 	try {
@@ -1418,7 +1450,7 @@ cofdpt::flow_mod_sent(
 
 
 void
-cofdpt::flow_rmvd_rcvd(
+cofdptImpl::flow_rmvd_rcvd(
 		cofmsg_flow_removed *msg)
 {
 	rofbase->handle_flow_removed(this, msg);
@@ -1427,7 +1459,7 @@ cofdpt::flow_rmvd_rcvd(
 
 
 void
-cofdpt::flow_mod_reset()
+cofdptImpl::flow_mod_reset()
 {
 	cflowentry fe(ofp_version);
 	fe.set_command(OFPFC_DELETE);
@@ -1439,7 +1471,7 @@ cofdpt::flow_mod_reset()
 
 
 void
-cofdpt::group_mod_sent(
+cofdptImpl::group_mod_sent(
 		cofmsg *pack)
 {
 
@@ -1448,7 +1480,7 @@ cofdpt::group_mod_sent(
 
 
 void
-cofdpt::group_mod_reset()
+cofdptImpl::group_mod_reset()
 {
 	cgroupentry ge;
 	ge.set_command(OFPGC_DELETE);
@@ -1460,7 +1492,7 @@ cofdpt::group_mod_reset()
 
 
 void
-cofdpt::table_mod_sent(cofmsg *pack)
+cofdptImpl::table_mod_sent(cofmsg *pack)
 {
 	cofmsg_table_mod *table_mod = dynamic_cast<cofmsg_table_mod*>( pack );
 
@@ -1473,7 +1505,7 @@ cofdpt::table_mod_sent(cofmsg *pack)
 
 
 void
-cofdpt::port_mod_sent(cofmsg *pack)
+cofdptImpl::port_mod_sent(cofmsg *pack)
 {
 	cofmsg_port_mod *port_mod = dynamic_cast<cofmsg_port_mod*>( pack );
 
@@ -1495,7 +1527,7 @@ cofdpt::port_mod_sent(cofmsg *pack)
 
 
 void
-cofdpt::packet_in_rcvd(cofmsg_packet_in *msg)
+cofdptImpl::packet_in_rcvd(cofmsg_packet_in *msg)
 {
 	try {
 		WRITELOG(COFDPT, DBG, "cofdpt(%p)::packet_in_rcvd() %s", this, msg->c_str());
@@ -1537,7 +1569,7 @@ cofdpt::packet_in_rcvd(cofmsg_packet_in *msg)
 
 
 void
-cofdpt::port_status_rcvd(cofmsg_port_status *msg)
+cofdptImpl::port_status_rcvd(cofmsg_port_status *msg)
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(0x%016llx)::port_status_rcvd() %s",
 			dpid, msg->c_str());
@@ -1587,7 +1619,7 @@ cofdpt::port_status_rcvd(cofmsg_port_status *msg)
 
 
 void
-cofdpt::fsp_open(cofmatch const& ofmatch)
+cofdptImpl::fsp_open(cofmatch const& ofmatch)
 {
 	cofmatch m(ofmatch);
 	croflexp_flowspace rexp(croflexp::OFPRET_FSP_ADD, m);
@@ -1607,7 +1639,7 @@ cofdpt::fsp_open(cofmatch const& ofmatch)
 
 
 void
-cofdpt::fsp_close(cofmatch const& ofmatch)
+cofdptImpl::fsp_close(cofmatch const& ofmatch)
 {
 	cofmatch m(ofmatch);
 	croflexp_flowspace rexp(croflexp::OFPRET_FSP_DELETE, m);
@@ -1628,7 +1660,7 @@ cofdpt::fsp_close(cofmatch const& ofmatch)
 
 
 void
-cofdpt::experimenter_rcvd(cofmsg_experimenter *msg)
+cofdptImpl::experimenter_rcvd(cofmsg_experimenter *msg)
 {
 	switch (msg->get_experimenter_id()) {
 	default:
@@ -1642,7 +1674,7 @@ cofdpt::experimenter_rcvd(cofmsg_experimenter *msg)
 
 
 void
-cofdpt::role_request_sent(
+cofdptImpl::role_request_sent(
 		cofmsg *pack)
 {
 
@@ -1651,14 +1683,14 @@ cofdpt::role_request_sent(
 
 
 void
-cofdpt::role_reply_rcvd(cofmsg_role_reply *pack)
+cofdptImpl::role_reply_rcvd(cofmsg_role_reply *pack)
 {
 	rofbase->handle_role_reply(this, pack);
 }
 
 
 void
-cofdpt::queue_get_config_request_sent(
+cofdptImpl::queue_get_config_request_sent(
 		cofmsg *pack)
 {
 	// TODO
@@ -1667,7 +1699,7 @@ cofdpt::queue_get_config_request_sent(
 
 
 void
-cofdpt::queue_get_config_reply_rcvd(
+cofdptImpl::queue_get_config_reply_rcvd(
 		cofmsg_queue_get_config_reply *pack)
 {
 	rofbase->handle_queue_get_config_reply(this, pack);
@@ -1675,7 +1707,7 @@ cofdpt::queue_get_config_reply_rcvd(
 
 
 void
-cofdpt::get_async_config_request_sent(
+cofdptImpl::get_async_config_request_sent(
 		cofmsg *pack)
 {
 	register_timer(COFDPT_TIMER_GET_ASYNC_CONFIG_REPLY, get_async_config_reply_timeout);
@@ -1684,7 +1716,7 @@ cofdpt::get_async_config_request_sent(
 
 
 void
-cofdpt::get_async_config_reply_rcvd(
+cofdptImpl::get_async_config_reply_rcvd(
 		cofmsg_get_async_config_reply *msg)
 {
 	cancel_timer(COFDPT_TIMER_GET_ASYNC_CONFIG_REPLY);
@@ -1701,7 +1733,7 @@ cofdpt::get_async_config_reply_rcvd(
 
 
 void
-cofdpt::handle_get_async_config_reply_timeout()
+cofdptImpl::handle_get_async_config_reply_timeout()
 {
 	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_get_async_config_reply_timeout() "
 			"dpid:%"PRIu64" ",
@@ -1713,7 +1745,7 @@ cofdpt::handle_get_async_config_reply_timeout()
 
 
 const char*
-cofdpt::c_str()
+cofdptImpl::c_str()
 {
 	cvastring vas;
 	info.assign(vas("cofdpt(%p) dpid:0x%llx buffers: %d tables: %d capabilities: 0x%x =>",
@@ -1731,7 +1763,7 @@ cofdpt::c_str()
 
 
 cofport*
-cofdpt::find_cofport(
+cofdptImpl::find_cofport(
 	uint32_t port_no) throw (eOFdpathNotFound)
 {
 	std::map<uint32_t, cofport*>::iterator it;
@@ -1744,7 +1776,7 @@ cofdpt::find_cofport(
 
 
 cofport*
-cofdpt::find_cofport(
+cofdptImpl::find_cofport(
 	std::string port_name) throw (eOFdpathNotFound)
 {
 	std::map<uint32_t, cofport*>::iterator it;
@@ -1758,7 +1790,7 @@ cofdpt::find_cofport(
 
 
 cofport*
-cofdpt::find_cofport(
+cofdptImpl::find_cofport(
 	cmacaddr const& maddr) throw (eOFdpathNotFound)
 {
 	std::map<uint32_t, cofport*>::iterator it;
@@ -1773,7 +1805,7 @@ cofdpt::find_cofport(
 
 
 void
-cofdpt::try_to_connect(bool reset_timeout)
+cofdptImpl::try_to_connect(bool reset_timeout)
 {
 	if (pending_timer(COFDPT_TIMER_RECONNECT)) {
 		return;
@@ -1805,7 +1837,7 @@ cofdpt::try_to_connect(bool reset_timeout)
 
 
 void
-cofdpt::send_message_via_socket(
+cofdptImpl::send_message_via_socket(
 		cofmsg *pack)
 {
 	if (0 == socket)

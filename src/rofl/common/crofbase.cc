@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+extern "C" {
+// autoconf AC_CHECK_LIB helper function as C-declaration
+void librofl_is_present(void) {};
+}
 
 #include "crofbase.h"
 
@@ -377,11 +381,7 @@ crofbase::cofctl_factory(
 		int type,
 		int protocol)
 {
-	cofctl *ctl = new cofctl(owner, newsd, ra, domain, type, protocol);
-
-	ofctl_set.insert(ctl);
-
-	return ctl;
+	return new cofctlImpl(owner, newsd, ra, domain, type, protocol);
 }
 
 
@@ -396,11 +396,7 @@ crofbase::cofctl_factory(
 		int type,
 		int protocol)
 {
-	cofctl *ctl = new cofctl(owner, ofp_version, reconnect_start_timeout, ra, domain, type, protocol);
-
-	ofctl_set.insert(ctl);
-
-	return ctl;
+	return new cofctlImpl(owner, ofp_version, reconnect_start_timeout, ra, domain, type, protocol);
 }
 
 
@@ -414,11 +410,7 @@ crofbase::cofdpt_factory(
 		int type,
 		int protocol)
 {
-	cofdpt *dpt = new cofdpt(owner, newsd, ra, domain, type, protocol);
-
-	ofdpt_set.insert(dpt);
-
-	return dpt;
+	return new cofdptImpl(owner, newsd, ra, domain, type, protocol);
 }
 
 
@@ -433,11 +425,7 @@ crofbase::cofdpt_factory(
 		int type,
 		int protocol)
 {
-	cofdpt *dpt = new cofdpt(owner, ofp_version, reconnect_start_timeout, ra, domain, type, protocol);
-
-	ofdpt_set.insert(dpt);
-
-	return dpt;
+	return new cofdptImpl(owner, ofp_version, reconnect_start_timeout, ra, domain, type, protocol);
 }
 
 
@@ -1687,7 +1675,7 @@ crofbase::send_packet_in_message(
 					it = nse_list.begin(); it != nse_list.end(); ++it)
 			{
 				cofctl *ctl = dynamic_cast<cofctl*>( (*nse_list.begin())->fspowner );
-				if (OFP12CR_ROLE_SLAVE == ctl->role)
+				if (OFP12CR_ROLE_SLAVE == ctl->get_role())
 				{
 					WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 							"ofctrl:%p is SLAVE, ignoring", this, ctl);
