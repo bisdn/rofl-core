@@ -284,6 +284,20 @@ public:
 
 
 	/**
+	 * @fn		rpc_disconnect_from_ctl
+	 * @brief 	Closes a connection to a controller entity with a proper shutdown.
+	 *
+	 * \see{ handle_ctrl_close() }
+	 *
+	 * @param ctl cofctl instance to be disconnected
+	 */
+	void
+	rpc_disconnect_from_ctl(
+			caddress const& ra);
+
+
+
+	/**
 	 * @fn	 	rpc_connect_to_dpt
 	 * @brief	Connects to a remote data path in controller role.
 	 *
@@ -317,6 +331,21 @@ public:
 	void
 	rpc_disconnect_from_dpt(
 			cofdpt *dpath);
+
+
+
+	/**
+	 * @fn		rpc_disconnect_from_dpt
+	 * @brief 	Closes a connection to a data path entity with a proper shutdown.
+	 *
+	 * \see{ handle_dpath_close() }
+	 *
+	 * @param dpt cofdpt instance to be disconnected
+	 */
+	void
+	rpc_disconnect_from_dpt(
+			caddress const& ra);
+
 
 
 	/**
