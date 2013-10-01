@@ -37,7 +37,9 @@
 
 #include "openflow/cofport.h"
 #include "openflow/cofdpt.h"
+#include "openflow/cofdptImpl.h"
 #include "openflow/cofctl.h"
+#include "openflow/cofctlImpl.h"
 #include "openflow/cofinst.h"
 #include "openflow/cofinlist.h"
 #include "openflow/cofaction.h"
@@ -1397,9 +1399,9 @@ protected:
 
 private:
 
-	friend class cofdpt;
+	friend class cofdptImpl;
 
-	friend class cofctl;
+	friend class cofctlImpl;
 
 	/**
 	 * @name	Methods for sending OpenFlow messages used solely by cofctl and cofdpt instances
