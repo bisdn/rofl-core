@@ -240,7 +240,7 @@ void of1x_dump_packet_matches(of_packet_matches_t *const pkt_matches){
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("GTP_MSG_TYPE:%u, GTP_TEID:0x%x, ",pkt->gtp_msg_type, pkt->gtp_teid);
 	}
 
-	ROFL_PIPELINE_DEBUG_NO_PREFIX("]");	
+	ROFL_PIPELINE_DEBUG_NO_PREFIX("]\n");	
 
 	//Add more here...	
 }
