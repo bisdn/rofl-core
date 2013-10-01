@@ -220,6 +220,11 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			break;
 
 		//1 byte values
+		case OF1X_AT_SET_FIELD_NW_PROTO:
+			action->ver_req.min_ver = OF_VERSION_10;
+			action->ver_req.max_ver = OF_VERSION_10;
+			action->field.u64 = field.u64&OF1X_1_BYTE_MASK;
+			break;
 		case OF1X_AT_SET_FIELD_ICMPV6_TYPE:
 		case OF1X_AT_SET_FIELD_ICMPV6_CODE:
 		case OF1X_AT_SET_FIELD_PPPOE_CODE:
@@ -615,6 +620,20 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 
 		//NW
+		case OF1X_AT_SET_FIELD_NW_PROTO:
+			if((pkt_matches->eth_type == OF1X_ETH_TYPE_IPV4)){
+				//Call platform
+				platform_packet_set_ip_proto(pkt, action->field.u8);
+				//Update match
+				pkt_matches->ip_proto = action->field.u64;
+			}else if((pkt_matches->eth_type == OF1X_ETH_TYPE_ARP)){
+				//Call plattform
+				platform_packet_set_arp_opcode(pkt, action->field.u8);
+				//Update match
+				pkt_matches->arp_opcode = action->field.u8;
+			}
+
+			break;
 		case OF1X_AT_SET_FIELD_NW_SRC:
 			if((pkt_matches->eth_type == OF1X_ETH_TYPE_IPV4)){
 				//Call platform
@@ -1259,6 +1278,8 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 			break;
 
 		/* OF1.0 only */
+		case OF1X_AT_SET_FIELD_NW_PROTO:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_NW_PROTO: 0x%x",action.field.u64);
+			break;
 		case OF1X_AT_SET_FIELD_NW_SRC:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_NW_SRC: 0x%x",action.field.u64);
 			break;
 		case OF1X_AT_SET_FIELD_NW_DST:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_NW_DST: 0x%x",action.field.u64);

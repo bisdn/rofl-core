@@ -123,6 +123,7 @@ typedef enum{
 	OF1X_AT_SET_FIELD_ARP_TPA,		/* ARP target protocol address */
 	
 	/* OF10 only */
+	OF1X_AT_SET_FIELD_NW_PROTO,		/* Network layer proto/arp code */
 	OF1X_AT_SET_FIELD_NW_SRC,		/* Source network address */
 	OF1X_AT_SET_FIELD_NW_DST,		/* Destination network address */
 	/* End of OF10 only */

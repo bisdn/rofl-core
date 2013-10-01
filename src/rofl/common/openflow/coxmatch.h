@@ -882,6 +882,40 @@ public:
 	};
 };
 
+/** OXM_OF_NW_PROTO (OF1.0 backwards compatibility)
+ *
+ */
+class coxmatch_ofx_nw_proto :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofx_nw_proto(
+			uint8_t proto) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint8_t))
+	{
+		set_oxm_class(OFPXMC_EXPERIMENTER);
+		set_oxm_field(OFPXMT_OFX_NW_PROTO);
+		set_oxm_length(sizeof(uint8_t));
+		oxm_uint8t->byte = proto;
+	};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofx_nw_proto() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofx_nw_proto const& oxm)
+	{
+		os << "OXM";
+			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
+			os << "<NW-PROTO: " << oxm.u8value() << ">";
+		return os;
+	};
+};
+
 /** OXM_OF_NW_SRC (OF1.0 backwards compatibility)
  *
  */

@@ -325,7 +325,7 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 
 	// nw_proto
 	try {
-		m->nw_tos = oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_PROTO).u8value();
+		m->nw_tos = oxmlist.get_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_NW_PROTO).u8value();
 	} catch (eOxmListNotFound& e) {
 		wildcards |= OFP10FW_NW_PROTO;
 	}
@@ -427,7 +427,7 @@ cofmatch::unpack(struct ofp10_match* m, size_t mlen)
 
 	// nw_proto
 	if (!(wildcards & OFP10FW_NW_PROTO)) {
-		set_ip_proto(m->nw_proto);
+		set_nw_proto(m->nw_proto);
 	}
 
 	// nw_src
@@ -1007,6 +1007,25 @@ cofmatch::get_mpls_tc() const
 }
 
 //////// OF1.0 only
+
+uint8_t
+cofmatch::get_nw_proto() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_NW_PROTO).u8value();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+
+
+void
+cofmatch::set_nw_proto(
+		uint8_t proto)
+{
+	oxmlist.insert(coxmatch_ofx_nw_proto(proto));
+}
 
 caddress
 cofmatch::get_nw_src() const

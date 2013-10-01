@@ -44,8 +44,9 @@ enum oxm_ofx_match_fields {
 	//OF1.0 backwards compatibility
 	OFPXMT_OFX_NW_SRC	= 0,	/* network layer source address */ 
 	OFPXMT_OFX_NW_DST	= 1,	/* network layer destination address */
-	OFPXMT_OFX_TP_SRC	= 2,	/* transport protocol source port */
-	OFPXMT_OFX_TP_DST	= 3,	/* transport protocol destination port */
+	OFPXMT_OFX_NW_PROTO	= 2,	/* network layer proto/arp code... */
+	OFPXMT_OFX_TP_SRC	= 3,	/* transport protocol source port */
+	OFPXMT_OFX_TP_DST	= 4,	/* transport protocol destination port */
 
 	/* Reserved (until 20) */
 

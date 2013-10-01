@@ -526,6 +526,21 @@ public:
 	/**
 	 *
 	 */
+	/**
+	 *
+	 */
+	uint8_t
+	get_nw_proto() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_nw_proto(
+			uint8_t proto);
+
+
 	caddress
 	get_nw_dst() const;
 

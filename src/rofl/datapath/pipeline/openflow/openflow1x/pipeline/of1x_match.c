@@ -277,6 +277,20 @@ inline of1x_match_t* of1x_init_arp_spa_match(of1x_match_t* prev, of1x_match_t* n
 }
 
 //NW
+inline of1x_match_t* of1x_init_nw_proto_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_NW_PROTO; 
+	match->value = __init_utern8(value,OF1X_1_BYTE_MASK); //no wildcard 
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_10;	//First supported in OF1.0
+	match->ver_req.max_ver = OF_VERSION_10; //Last supported in OF1.0
+	match->has_wildcard = false;		//Not accepting wildcards
+
+	return match;
+}
 inline of1x_match_t* of1x_init_nw_src_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 	match->type = OF1X_MATCH_NW_SRC;
@@ -915,6 +929,7 @@ inline of1x_match_t* __of1x_copy_match(of1x_match_t* match){
    		case OF1X_MATCH_ARP_THA: return of1x_init_arp_tha_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);
    		case OF1X_MATCH_ARP_TPA: return of1x_init_arp_tpa_match(NULL,NULL,match->value->value.u32,match->value->mask.u32);
 
+		case OF1X_MATCH_NW_PROTO: return of1x_init_nw_proto_match(NULL,NULL,match->value->value.u8); 
    		case OF1X_MATCH_NW_SRC: return of1x_init_nw_src_match(NULL,NULL,match->value->value.u32,match->value->mask.u32); 
    		case OF1X_MATCH_NW_DST: return of1x_init_nw_dst_match(NULL,NULL,match->value->value.u32,match->value->mask.u32); 
 
@@ -1115,6 +1130,12 @@ inline bool __of1x_check_match(const of1x_packet_matches_t* pkt, of1x_match_t* i
 					return __utern_compare32(it->value, pkt->arp_tpa);
 
 		//NW (OF1.0 only)
+   		case OF1X_MATCH_NW_PROTO: if(!(pkt->eth_type == OF1X_ETH_TYPE_IPV4 || pkt->eth_type == OF1X_ETH_TYPE_IPV6 || pkt->eth_type == OF1X_ETH_TYPE_ARP || (pkt->eth_type == OF1X_ETH_TYPE_PPPOE_SESSION && (pkt->ppp_proto == OF1X_PPP_PROTO_IP4 || pkt->ppp_proto == OF1X_PPP_PROTO_IP6) ))) return false;
+					if(pkt->eth_type == OF1X_ETH_TYPE_ARP)
+						return __utern_compare8(it->value,pkt->arp_opcode);
+					else 
+						return __utern_compare8(it->value,pkt->ip_proto);
+	
    		case OF1X_MATCH_NW_SRC:	if((pkt->eth_type == OF1X_ETH_TYPE_IPV4 || (pkt->eth_type == OF1X_ETH_TYPE_PPPOE_SESSION && pkt->ppp_proto == OF1X_PPP_PROTO_IP4 ))) 
 						return __utern_compare32(it->value, pkt->ipv4_src); 
 					if(pkt->eth_type == OF1X_ETH_TYPE_ARP)
@@ -1279,6 +1300,8 @@ void __of1x_dump_matches(of1x_match_t* matches){
 			case OF1X_MATCH_ARP_TPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_TPA:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break;
 
+			case OF1X_MATCH_NW_PROTO:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[NW_PROTO:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
+				break; 
 			case OF1X_MATCH_NW_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[NW_SRC:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break; 
 			case OF1X_MATCH_NW_DST:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[NW_DST:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
