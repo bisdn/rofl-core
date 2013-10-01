@@ -21,6 +21,7 @@ cofdptImpl::cofdptImpl(
 				rofbase(rofbase),
 				fragment(0),
 				msg_bytes_read(0),
+				reconnect_start_timeout(0),
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
