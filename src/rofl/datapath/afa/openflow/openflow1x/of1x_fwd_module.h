@@ -108,7 +108,7 @@ afa_result_t fwd_module_of1x_set_table_config(uint64_t dpid, unsigned int table_
  * @ingroup of1x_fwd_module_async_event_processing
  * 
  * @param dpid 		Datapath ID of the switch to process PACKET_OUT
- * @param buffer_id	Buffer ID
+ * @param buffer_id	Buffer ID. 0 or OF1XP_NO_BUFFER and implies no buffer
  * @param in_port 	Port IN
  * @param action_group 	Action group to apply
  * @param buffer	Pointer to the buffer
@@ -138,7 +138,7 @@ afa_result_t fwd_module_of1x_process_packet_out(uint64_t dpid, uint32_t buffer_i
  * @param dpid 		Datapath ID of the switch to install the FLOW_MOD
  * @param table_id 	Table id to install the flowmod
  * @param flow_entry	Flow entry to be installed
- * @param buffer_id	Buffer ID
+ * @param buffer_id	Buffer ID. 0 or OF1XP_NO_BUFFER and implies no buffer
  * @param check_overlap	Check OVERLAP flag
  * @param check_counts	Check RESET_COUNTS flag
  */
@@ -183,7 +183,7 @@ afa_result_t fwd_module_of1x_process_flow_mod_modify(uint64_t dpid, uint8_t tabl
  * @param dpid 		Datapath ID of the switch to install the FLOW_MOD
  * @param table_id 	Table id from which to remove the flowmod
  * @param flow_entry	Flow entry
- * @param buffer_id	Buffer ID
+ * @param buffer_id	Buffer ID. 0 or OF1XP_NO_BUFFER and implies no buffer
  * @param out_port 	Out port that entry must include
  * @param out_group 	Out group that entry must include	
  * @param strictness 	Strictness (STRICT NON-STRICT)
