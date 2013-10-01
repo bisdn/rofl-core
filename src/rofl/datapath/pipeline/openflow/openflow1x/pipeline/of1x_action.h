@@ -122,6 +122,12 @@ typedef enum{
 	OF1X_AT_SET_FIELD_ARP_THA,		/* ARP target hardware address */
 	OF1X_AT_SET_FIELD_ARP_TPA,		/* ARP target protocol address */
 	
+	/* OF10 only */
+	OF1X_AT_SET_FIELD_NW_SRC,		/* Source network address */
+	OF1X_AT_SET_FIELD_NW_DST,		/* Destination network address */
+	/* End of OF10 only */
+
+
 	OF1X_AT_SET_FIELD_IP_DSCP,   		/* IP DSCP (6 bits in ToS field). */
 	OF1X_AT_SET_FIELD_IP_ECN,    		/* IP ECN (2 bits in ToS field). */
 	OF1X_AT_SET_FIELD_IP_PROTO,  		/* IP protocol. */

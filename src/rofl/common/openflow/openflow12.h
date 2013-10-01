@@ -520,20 +520,6 @@ enum oxm_ofb_match_fields {
 	OFPXMT_OFB_MAX,
 };
 
-/* OXM Flow match field types for OpenFlow basic class. */
-enum oxm_ofx_match_fields {
-	/* PPP/PPPoE related extensions */
-	OFPXMT_OFX_PPPOE_CODE 	= 0,	/* PPPoE code */
-	OFPXMT_OFX_PPPOE_TYPE 	= 1,	/* PPPoE type */
-	OFPXMT_OFX_PPPOE_SID 	= 2,	/* PPPoE session id */
-	OFPXMT_OFX_PPP_PROT 	= 3,	/* PPP protocol */
-	/* GTP related extensions */
-	OFPXMT_OFX_GTP_MSG_TYPE = 4,	/* GTP message type */
-	OFPXMT_OFX_GTP_TEID		= 5,	/* GTP tunnel endpoint identifier */
-	/* max value */
-	OFPXMT_OFX_MAX,
-};
-
 /* Header for OXM experimenter match fields. */
 struct ofp_oxm_experimenter_header {
 	uint32_t oxm_header;			/* oxm_class = OFPXMC_EXPERIMENTER */

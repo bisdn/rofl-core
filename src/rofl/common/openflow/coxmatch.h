@@ -882,6 +882,168 @@ public:
 	};
 };
 
+/** OXM_OF_NW_SRC (OF1.0 backwards compatibility)
+ *
+ */
+class coxmatch_ofx_nw_src :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofx_nw_src(
+			uint32_t src) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint32_t))
+	{
+		set_oxm_class(OFPXMC_EXPERIMENTER);
+		set_oxm_field(OFPXMT_OFX_NW_SRC);
+		set_oxm_length(sizeof(uint32_t));
+		oxm_uint32t->dword = htobe32(src);
+	};
+	/** constructor
+	 */
+	coxmatch_ofx_nw_src(
+			uint32_t src,
+			uint32_t mask) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint32_t))
+	{
+		set_oxm_class(OFPXMC_EXPERIMENTER);
+		set_oxm_field(OFPXMT_OFX_NW_SRC);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * sizeof(uint32_t));
+		oxm_uint32t->dword = htobe32(src);
+		oxm_uint32t->mask  = htobe32(mask);
+	};
+	/** constructor
+	 */
+	coxmatch_ofx_nw_src(
+			caddress const& src) throw (eOxmInval) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint32_t))
+	{
+		if (src.ca_saddr->sa_family != AF_INET)
+		{
+			throw eOxmInval();
+		}
+		set_oxm_class(OFPXMC_EXPERIMENTER);
+		set_oxm_field(OFPXMT_OFX_NW_SRC);
+		set_oxm_length(sizeof(uint32_t));
+		oxm_uint32t->dword = src.ca_s4addr->sin_addr.s_addr;
+	};
+	/** constructor
+	 */
+	coxmatch_ofx_nw_src(
+			caddress const& src,
+			caddress const& mask) throw (eOxmInval) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint32_t))
+	{
+		if ((src.ca_saddr->sa_family != AF_INET) || (mask.ca_saddr->sa_family != AF_INET))
+		{
+			throw eOxmInval();
+		}
+		set_oxm_class(OFPXMC_EXPERIMENTER);
+		set_oxm_field(OFPXMT_OFX_NW_SRC);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * sizeof(uint32_t));
+		oxm_uint32t->dword = src.ca_s4addr->sin_addr.s_addr;
+		oxm_uint32t->mask  = mask.ca_s4addr->sin_addr.s_addr;
+	};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofx_nw_src() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofx_nw_src const& oxm)
+	{
+		os << "OXM";
+			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
+			os << "<NW-SRC: " << oxm.u32addr().addr_c_str() << ">";
+		return os;
+	};
+};
+
+
+/** OXM_OF_IPV4_DST (OF1.0 backwards compatibility)
+ *
+ */
+class coxmatch_ofx_nw_dst :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofx_nw_dst(
+			uint32_t dst) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint32_t))
+	{
+		set_oxm_class(OFPXMC_EXPERIMENTER);
+		set_oxm_field(OFPXMT_OFX_NW_DST);
+		set_oxm_length(sizeof(uint32_t));
+		oxm_uint32t->dword = htobe32(dst);
+	};
+	/** constructor
+	 */
+	coxmatch_ofx_nw_dst(
+			uint32_t dst,
+			uint32_t mask) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint32_t))
+	{
+		set_oxm_class(OFPXMC_EXPERIMENTER);
+		set_oxm_field(OFPXMT_OFX_NW_DST);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * sizeof(uint32_t));
+		oxm_uint32t->dword = htobe32(dst);
+		oxm_uint32t->mask  = htobe32(mask);
+	};
+	/** constructor
+	 */
+	coxmatch_ofx_nw_dst(
+			caddress const& dst) throw (eOxmInval) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint32_t))
+	{
+		if (dst.ca_saddr->sa_family != AF_INET)
+		{
+			throw eOxmInval();
+		}
+		set_oxm_class(OFPXMC_EXPERIMENTER);
+		set_oxm_field(OFPXMT_OFX_NW_DST);
+		set_oxm_length(sizeof(uint32_t));
+		oxm_uint32t->dword = dst.ca_s4addr->sin_addr.s_addr;
+	};
+	/** constructor
+	 */
+	coxmatch_ofx_nw_dst(
+			caddress const& dst,
+			caddress const& mask) throw (eOxmInval) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint32_t))
+	{
+		if ((dst.ca_saddr->sa_family != AF_INET) || (mask.ca_saddr->sa_family != AF_INET))
+		{
+			throw eOxmInval();
+		}
+		set_oxm_class(OFPXMC_EXPERIMENTER);
+		set_oxm_field(OFPXMT_OFX_NW_DST);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * sizeof(uint32_t));
+		oxm_uint32t->dword = dst.ca_s4addr->sin_addr.s_addr;
+		oxm_uint32t->mask  = mask.ca_s4addr->sin_addr.s_addr;
+	};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofx_nw_dst() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofx_nw_dst const& oxm)
+	{
+		os << "OXM";
+			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
+			os << "<NW-DST: " << oxm.u32addr().addr_c_str() << ">";
+		return os;
+	};
+};
 
 /** OXM_OF_IPV4_SRC
  *
@@ -1269,6 +1431,76 @@ public:
 		return os;
 	};
 };
+
+/** OXM_OF_TP_SRC (OF1.0 only)
+ *
+ */
+class coxmatch_ofx_tp_src :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofx_tp_src(
+			uint16_t src) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint16_t))
+	{
+		set_oxm_class(OFPXMC_EXPERIMENTER);
+		set_oxm_field(OFPXMT_OFX_TP_SRC);
+		set_oxm_length(sizeof(uint16_t));
+		oxm_uint16t->word = htobe16(src);
+	};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofx_tp_src() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofx_tp_src const& oxm)
+	{
+		os << "OXM";
+			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
+			os << "<TP-SRC: " << (unsigned int)oxm.u16value() << ">";
+		return os;
+	};
+};
+
+
+/** OXM_OF_TP_DST (OF1.0 only)
+ *
+ */
+class coxmatch_ofx_tp_dst :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofx_tp_dst(
+			uint16_t dst) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint16_t))
+	{
+		set_oxm_class(OFPXMC_EXPERIMENTER);
+		set_oxm_field(OFPXMT_OFX_TP_DST);
+		set_oxm_length(sizeof(uint16_t));
+		oxm_uint16t->word = htobe16(dst);
+	};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofx_tp_dst() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofx_tp_dst const& oxm)
+	{
+		os << "OXM";
+			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
+			os << "<TP-DST: " << (unsigned int)oxm.u16value() << ">";
+		return os;
+	};
+};
+
 
 
 /** OXM_OF_TCP_SRC

@@ -484,6 +484,84 @@ public:
 	set_mpls_tc(
 			uint8_t tc);
 
+	/**
+	 *
+	 */
+	caddress
+	get_nw_src() const;
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_nw_src_value() const;
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_nw_src_mask() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_nw_src(
+			caddress const& src);
+
+
+	/**
+	 *
+	 */
+	void
+	set_nw_src(
+			caddress const& src,
+			caddress const& mask);
+
+
+	//OF1.0 only
+	/**
+	 *
+	 */
+	caddress
+	get_nw_dst() const;
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_nw_dst_value() const;
+
+
+	/**
+	 *
+	 */
+	caddress
+	get_nw_dst_mask() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_nw_dst(
+			caddress const& dst);
+
+
+	/**
+	 *
+	 */
+	void
+	set_nw_dst(
+			caddress const& dst,
+			caddress const& mask);
+	
+
+	//End of OF1.0 only
 
 	/**
 	 *
@@ -959,6 +1037,41 @@ public:
 	void
 	set_icmpv6_neighbor_taddr(
 			caddress const& addr);
+
+
+	//OF1.0 only
+	/**
+	 *
+	 */
+	uint16_t
+	get_tp_src() const;
+
+
+
+	/**
+	 *
+	 */
+	void
+	set_tp_src(
+			uint16_t src_port);
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_tp_dst() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_tp_dst(
+			uint16_t dst_port);
+
+	//End of OF1.0 only
+
 
 
 	/**

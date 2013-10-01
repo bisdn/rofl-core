@@ -81,9 +81,15 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			break;
 	
 		//4 byte values
+		case OF1X_AT_SET_FIELD_NW_DST:
+			action->ver_req.min_ver = OF_VERSION_10;
+			action->ver_req.max_ver = OF_VERSION_10;
 		case OF1X_AT_SET_FIELD_IPV4_DST:
 			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
 			break;
+		case OF1X_AT_SET_FIELD_NW_SRC:
+			action->ver_req.min_ver = OF_VERSION_10;
+			action->ver_req.max_ver = OF_VERSION_10;
 		case OF1X_AT_SET_FIELD_IPV4_SRC:
 			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
 			break;
@@ -606,6 +612,34 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			platform_packet_set_arp_tpa(pkt, action->field.u32);
 			//Update match
 			pkt_matches->arp_tpa = action->field.u32;
+			break;
+
+		//NW
+		case OF1X_AT_SET_FIELD_NW_SRC:
+			if((pkt_matches->eth_type == OF1X_ETH_TYPE_IPV4)){
+				//Call platform
+				platform_packet_set_ipv4_src(pkt, action->field.u64);
+				//Update match
+				pkt_matches->ipv4_src = action->field.u64;
+			}else if((pkt_matches->eth_type == OF1X_ETH_TYPE_ARP)){
+				//Call platform
+				platform_packet_set_arp_spa(pkt, action->field.u64);
+				//Update match
+				pkt_matches->arp_spa = action->field.u64;
+			}
+			break;
+		case OF1X_AT_SET_FIELD_NW_DST:
+			if((pkt_matches->eth_type == OF1X_ETH_TYPE_IPV4)){
+				//Call platform
+				platform_packet_set_ipv4_dst(pkt, action->field.u64);
+				//Update match
+				pkt_matches->ipv4_dst = action->field.u64;
+			}else if((pkt_matches->eth_type == OF1X_ETH_TYPE_ARP)){
+				//Call platform
+				platform_packet_set_arp_tpa(pkt, action->field.u64);
+				//Update match
+				pkt_matches->arp_tpa = action->field.u64;
+			}
 			break;
 
 		//IP
@@ -1224,6 +1258,13 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 		case OF1X_AT_SET_FIELD_ARP_TPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ARP_TPA: 0x%x",action.field.u64);
 			break;
 
+		/* OF1.0 only */
+		case OF1X_AT_SET_FIELD_NW_SRC:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_NW_SRC: 0x%x",action.field.u64);
+			break;
+		case OF1X_AT_SET_FIELD_NW_DST:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_NW_DST: 0x%x",action.field.u64);
+			break;
+		/* OF1.0 only */
+
 		case OF1X_AT_SET_FIELD_IP_DSCP: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IP_DSCP: 0x%x",action.field.u64);
 			break;
 		case OF1X_AT_SET_FIELD_IP_ECN:  ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IP_ECN: 0x%x",action.field.u64);
@@ -1237,10 +1278,12 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 		case OF1X_AT_SET_FIELD_IPV4_DST:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IPV4_DST: 0x%x",action.field.u64);
 			break;
 
+		/* OF1.0 only */
 		case OF1X_AT_SET_FIELD_TP_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TP_SRC: %u",action.field.u64);
 			break;
 		case OF1X_AT_SET_FIELD_TP_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TP_DST: %u",action.field.u64);
 			break;
+		/* OF1.0 only */
 		case OF1X_AT_SET_FIELD_TCP_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TCP_SRC: %u",action.field.u64);
 			break;
 		case OF1X_AT_SET_FIELD_TCP_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_TCP_DST: %u",action.field.u64);

@@ -42,6 +42,10 @@ typedef enum{
 	OF1X_MATCH_ARP_SHA,		/* ARP source hardware address. */
 	OF1X_MATCH_ARP_THA,		/* ARP target hardware address. */
 
+	/* network layer */
+	OF1X_MATCH_NW_SRC,		/* Network layer source address. OF10 ONLY */		//required
+	OF1X_MATCH_NW_DST,		/* Network layer destination address. OF10 ONLY */	//required
+	
 	/* ipv4 */
 	OF1X_MATCH_IP_DSCP,		/* IP DSCP (6 bits in ToS field). */
 	OF1X_MATCH_IP_ECN,		/* IP ECN (2 bits in ToS field). */
@@ -273,6 +277,17 @@ of1x_match_t* of1x_init_gtp_msg_type_match(of1x_match_t* prev, of1x_match_t* nex
 */
 of1x_match_t* of1x_init_gtp_teid_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask);
 
+//NW
+/**
+* @brief Create an NW_SRC match (IP/ARP), OF1.0 ONLY! 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_nw_src_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask);
+/**
+* @brief Create an NW_DST match (IP/ARP), OF1.0 ONLY! 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_nw_dst_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask);
 
 //IP
 /**
