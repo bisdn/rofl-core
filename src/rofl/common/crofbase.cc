@@ -339,6 +339,22 @@ crofbase::rpc_disconnect_from_ctl(
 
 
 void
+crofbase::rpc_disconnect_from_ctl(
+		caddress const& ra)
+{
+	for (std::set<cofctl*>::iterator
+			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
+		cofctl *ctl = (*it);
+		if (ctl->get_peer_addr() == ra) {
+			rpc_disconnect_from_ctl(ctl);
+			return;
+		}
+	}
+}
+
+
+
+void
 crofbase::rpc_connect_to_dpt(
 		uint8_t ofp_version,
 		int reconnect_start_timeout,
@@ -368,6 +384,22 @@ crofbase::rpc_disconnect_from_dpt(
 	delete dpt;
 
 	ofdpt_set.erase(dpt);
+}
+
+
+
+void
+crofbase::rpc_disconnect_from_dpt(
+		caddress const& ra)
+{
+	for (std::set<cofdpt*>::iterator
+			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it) {
+		cofdpt *dpt = (*it);
+		if (dpt->get_peer_addr() == ra) {
+			rpc_disconnect_from_dpt(dpt);
+			return;
+		}
+	}
 }
 
 
