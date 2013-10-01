@@ -432,12 +432,12 @@ cofmatch::unpack(struct ofp10_match* m, size_t mlen)
 
 	// nw_src
 	{
-		uint32_t num_of_bits = (wildcards & OFP10FW_NW_SRC_MASK) >> OFP10FW_NW_SRC_SHIFT;
-		uint32_t u_mask = ~((1 << num_of_bits) - 1);
+		uint64_t num_of_bits = ((wildcards & OFP10FW_NW_SRC_MASK) >> OFP10FW_NW_SRC_SHIFT)&0x20;
+		uint64_t u_mask = ~((1 << num_of_bits) - 1);
 		caddress addr(AF_INET, "0.0.0.0");
 		caddress mask(AF_INET, "0.0.0.0");
 		addr.ca_s4addr->sin_addr.s_addr = m->nw_src;
-		mask.ca_s4addr->sin_addr.s_addr = htobe32(u_mask);
+		mask.ca_s4addr->sin_addr.s_addr = htobe32((uint32_t)u_mask);
 		if (num_of_bits > 0) {
 			set_nw_src(addr, mask);
 		} else {
@@ -447,12 +447,12 @@ cofmatch::unpack(struct ofp10_match* m, size_t mlen)
 
 	// nw_dst
 	{
-		uint32_t num_of_bits = (wildcards & OFP10FW_NW_DST_MASK) >> OFP10FW_NW_DST_SHIFT;
-		uint32_t u_mask = ~((1 << num_of_bits) - 1);
+		uint64_t num_of_bits = ((wildcards & OFP10FW_NW_DST_MASK) >> OFP10FW_NW_DST_SHIFT)&0x20;
+		uint64_t u_mask = ~((1 << num_of_bits) - 1);
 		caddress addr(AF_INET, "0.0.0.0");
 		caddress mask(AF_INET, "0.0.0.0");
 		addr.ca_s4addr->sin_addr.s_addr = m->nw_dst;
-		mask.ca_s4addr->sin_addr.s_addr = htobe32(u_mask);
+		mask.ca_s4addr->sin_addr.s_addr = htobe32((uint32_t)u_mask);
 		if (num_of_bits > 0) {
 			set_nw_dst(addr, mask);
 		} else {
