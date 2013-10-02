@@ -318,6 +318,9 @@ cofdptImpl::handle_closed(
 	cancel_timer(COFDPT_TIMER_ECHO_REPLY);
 	cancel_timer(COFDPT_TIMER_SEND_ECHO_REQUEST);
 
+	flags.reset(COFDPT_FLAG_HELLO_SENT);
+	flags.reset(COFDPT_FLAG_HELLO_RCVD);
+
 	if (dptflags.test(COFDPT_FLAG_ACTIVE_SOCKET))
 	{
 		try_to_connect();

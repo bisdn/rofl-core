@@ -555,6 +555,9 @@ cofctlImpl::handle_closed(
 
 	new_state(STATE_CTL_DISCONNECTED);
 
+	flags.reset(COFCTL_FLAG_HELLO_RCVD);
+	flags.reset(COFCTL_FLAG_HELLO_SENT);
+
 	if (flags.test(COFCTL_FLAG_ACTIVE_SOCKET))
 	{
 		try_to_connect();
