@@ -377,14 +377,14 @@ cofmsg_port_stats_reply::pack(uint8_t *buf, size_t buflen)
 		if (buflen < length())
 			throw eInval();
 		for (unsigned int i = 0; i < port_stats.size(); i++) {
-			port_stats[i].pack(soframe() + sizeof(struct ofp10_stats_reply) + i * sizeof(struct ofp10_port_stats), sizeof(struct ofp10_port_stats));
+			port_stats[i].pack(buf + sizeof(struct ofp10_stats_reply) + i * sizeof(struct ofp10_port_stats), sizeof(struct ofp10_port_stats));
 		}
 	} break;
 	case OFP12_VERSION: {
 		if (buflen < length())
 			throw eInval();
 		for (unsigned int i = 0; i < port_stats.size(); i++) {
-			port_stats[i].pack(soframe() + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_port_stats), sizeof(struct ofp12_port_stats));
+			port_stats[i].pack(buf + sizeof(struct ofp12_stats_reply) + i * sizeof(struct ofp12_port_stats), sizeof(struct ofp12_port_stats));
 		}
 	} break;
 	case OFP13_VERSION: {

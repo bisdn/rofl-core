@@ -191,19 +191,19 @@ cofport_stats_reply::cofport_stats_reply(
 		uint64_t rx_crc_err,
 		uint64_t collisions) :
 				of_version(of_version),
-				port_no(0),
-				rx_packets(0),
-				tx_packets(0),
-				rx_bytes(0),
-				tx_bytes(0),
-				rx_dropped(0),
-				tx_dropped(0),
-				rx_errors(0),
-				tx_errors(0),
-				rx_frame_err(0),
-				rx_over_err(0),
-				rx_crc_err(0),
-				collisions(0)
+				port_no(port_no),
+				rx_packets(rx_packets),
+				tx_packets(tx_packets),
+				rx_bytes(rx_bytes),
+				tx_bytes(tx_bytes),
+				rx_dropped(rx_dropped),
+				tx_dropped(tx_dropped),
+				rx_errors(rx_errors),
+				tx_errors(tx_errors),
+				rx_frame_err(rx_frame_err),
+				rx_over_err(rx_over_err),
+				rx_crc_err(rx_crc_err),
+				collisions(collisions)
 {}
 
 
