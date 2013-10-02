@@ -237,7 +237,7 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
 		case OF1X_AT_SET_QUEUE:
 			action->field.u64 = field.u64&OF1X_1_BYTE_MASK;
-			action->ver_req.min_ver = OF_VERSION_12;
+			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 
 		//6 bit values
