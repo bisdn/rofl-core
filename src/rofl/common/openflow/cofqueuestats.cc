@@ -212,9 +212,9 @@ cofqueue_stats_reply::pack(uint8_t *buf, size_t buflen) const
 
 		stats->port_no		= htobe16((uint16_t)(port_no & 0x0000ffff));
 		stats->queue_id		= htobe32(queue_id);
-		stats->tx_bytes		= htobe32(tx_bytes);
-		stats->tx_packets	= htobe32(tx_packets);
-		stats->tx_errors	= htobe32(tx_errors);
+		stats->tx_bytes		= htobe64(tx_bytes);
+		stats->tx_packets	= htobe64(tx_packets);
+		stats->tx_errors	= htobe64(tx_errors);
 
 	} break;
 	case OFP12_VERSION: {
@@ -225,9 +225,9 @@ cofqueue_stats_reply::pack(uint8_t *buf, size_t buflen) const
 
 		stats->port_no		= htobe32(port_no);
 		stats->queue_id		= htobe32(queue_id);
-		stats->tx_bytes		= htobe32(tx_bytes);
-		stats->tx_packets	= htobe32(tx_packets);
-		stats->tx_errors	= htobe32(tx_errors);
+		stats->tx_bytes		= htobe64(tx_bytes);
+		stats->tx_packets	= htobe64(tx_packets);
+		stats->tx_errors	= htobe64(tx_errors);
 
 	} break;
 	default:
@@ -249,9 +249,9 @@ cofqueue_stats_reply::unpack(uint8_t *buf, size_t buflen)
 
 		port_no 		= (uint32_t)be16toh(stats->port_no);
 		queue_id		= be32toh(stats->queue_id);
-		tx_bytes		= be32toh(stats->tx_bytes);
-		tx_packets		= be32toh(stats->tx_packets);
-		tx_errors		= be32toh(stats->tx_errors);
+		tx_bytes		= be64toh(stats->tx_bytes);
+		tx_packets		= be64toh(stats->tx_packets);
+		tx_errors		= be64toh(stats->tx_errors);
 
 	} break;
 	case OFP12_VERSION: {
@@ -262,9 +262,9 @@ cofqueue_stats_reply::unpack(uint8_t *buf, size_t buflen)
 
 		port_no 		= be32toh(stats->port_no);
 		queue_id		= be32toh(stats->queue_id);
-		tx_bytes		= be32toh(stats->tx_bytes);
-		tx_packets		= be32toh(stats->tx_packets);
-		tx_errors		= be32toh(stats->tx_errors);
+		tx_bytes		= be64toh(stats->tx_bytes);
+		tx_packets		= be64toh(stats->tx_packets);
+		tx_errors		= be64toh(stats->tx_errors);
 
 	} break;
 	default:
