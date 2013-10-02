@@ -117,7 +117,9 @@ inline of1x_match_t* of1x_init_eth_type_match(of1x_match_t* prev, of1x_match_t* 
 inline of1x_match_t* of1x_init_vlan_vid_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
 	match->type = OF1X_MATCH_VLAN_VID; 
-	match->value = __init_utern16(value&OF1X_13_BITS_MASK,mask&OF1X_13_BITS_MASK); //Ensure only 13 bit value
+	//Setting values; note that value includes the flag HAS_VLAN in the 13th bit
+	//The mask is set to be strictly 12 bits, so only matching the VLAN ID itself
+	match->value = __init_utern16(value&OF1X_13_BITS_MASK,mask&OF1X_VLAN_ID_MASK);
 	match->prev = prev;
 	match->next = next;
 
@@ -1105,8 +1107,13 @@ inline bool __of1x_check_match(const of1x_packet_matches_t* pkt, of1x_match_t* i
    		case OF1X_MATCH_ETH_TYPE: return __utern_compare16(it->value,pkt->eth_type);
 		
 		//802.1q
-   		case OF1X_MATCH_VLAN_VID: return __utern_compare16(it->value,pkt->vlan_vid);
-   		case OF1X_MATCH_VLAN_PCP: if(!pkt->vlan_vid) return false;
+   		case OF1X_MATCH_VLAN_VID: 
+					if( (it->value->value.u16&OF1X_VLAN_PRESENT_MASK) && (!pkt->has_vlan) )
+						return false;
+					if( (!(it->value->value.u16&OF1X_VLAN_PRESENT_MASK)) && (pkt->has_vlan) )
+						return false;
+					return __utern_compare16(it->value,pkt->vlan_vid);
+   		case OF1X_MATCH_VLAN_PCP: if(!pkt->has_vlan) return false;
 					return __utern_compare8(it->value,pkt->vlan_pcp);
 
 		//MPLS
@@ -1277,7 +1284,10 @@ void __of1x_dump_matches(of1x_match_t* matches){
 			case OF1X_MATCH_ETH_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_TYPE:0x%x], ",it->value->value.u16);
 				break; 
 
-			case OF1X_MATCH_VLAN_VID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_ID:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
+			case OF1X_MATCH_VLAN_VID:  	if(!(it->value->value.u16&OF1X_VLAN_PRESENT_MASK))
+								ROFL_PIPELINE_DEBUG_NO_PREFIX("[NO_VLAN], ");
+							else
+								ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_ID:%u|0x%x], ",it->value->value.u16&OF1X_VLAN_ID_MASK,it->value->mask.u16);
 				break; 
 			case OF1X_MATCH_VLAN_PCP:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[VLAN_PCP:%u], ",it->value->value.u8);
 				break; 

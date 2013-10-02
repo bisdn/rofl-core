@@ -153,6 +153,11 @@ void platform_packet_set_eth_type(datapacket_t* pkt, uint16_t eth_type);
 ////////////////
 /**
 * @ingroup platform_packet
+* Retrieves boolean if the packet contains a 802.1q VLAN tag
+*/
+bool platform_packet_has_vlan(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
 * Retrieves the VLAN id of the outer-most 802.1q VLAN tag
 * @return id if existing, 0x0 otherwise.
 */

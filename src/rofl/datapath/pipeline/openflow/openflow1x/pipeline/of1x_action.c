@@ -207,9 +207,9 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			break;
 
 
-		//13 bit values
+		//12 bit values
 		case OF1X_AT_SET_FIELD_VLAN_VID:
-			action->field.u64 = field.u64&OF1X_13_BITS_MASK;
+			action->field.u64 = field.u64&OF1X_12_BITS_MASK;
 			break;
 
 
@@ -484,6 +484,13 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_pop_vlan(pkt);
 			//Update match
+			pkt_matches->has_vlan = platform_packet_has_vlan(pkt); 
+			if(pkt_matches->has_vlan){
+				pkt_matches->vlan_vid = platform_packet_get_vlan_vid(pkt);
+				pkt_matches->vlan_pcp = platform_packet_get_vlan_pcp(pkt);
+			}else{
+				pkt_matches->vlan_vid = pkt_matches->vlan_pcp = 0x0;
+			}
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
@@ -521,6 +528,9 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			//Call platform
 			platform_packet_push_vlan(pkt, action->field.u16);
 			//Update match
+			pkt_matches->has_vlan = true;
+			pkt_matches->vlan_vid = platform_packet_get_vlan_vid(pkt);
+			pkt_matches->vlan_pcp = platform_packet_get_vlan_pcp(pkt);
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
@@ -575,6 +585,18 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 
 		//802.1q
 		case OF1X_AT_SET_FIELD_VLAN_VID: 
+			//For 1.0 we must first push it if we don't have. wtf...
+			if(sw->of_ver == OF_VERSION_10 && !pkt_matches->has_vlan){
+				//Push VLAN
+				platform_packet_push_vlan(pkt, action->field.u16);
+				platform_packet_set_eth_type(pkt, OF1X_ETH_TYPE_8021Q);
+				//Update match
+				pkt_matches->has_vlan = true;
+				pkt_matches->vlan_vid = platform_packet_get_vlan_vid(pkt);
+				pkt_matches->vlan_pcp = platform_packet_get_vlan_pcp(pkt);
+				pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
+				pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			}
 			//Call platform
 			platform_packet_set_vlan_vid(pkt, action->field.u64);
 			//Update match

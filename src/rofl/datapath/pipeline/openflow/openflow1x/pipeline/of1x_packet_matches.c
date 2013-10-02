@@ -26,8 +26,13 @@ void __of1x_update_packet_matches(datapacket_t *const pkt){
 	matches->eth_type = platform_packet_get_eth_type(pkt);
 	
 	//802.1q VLAN outermost tag
-	matches->vlan_vid = platform_packet_get_vlan_vid(pkt);
-	matches->vlan_pcp = platform_packet_get_vlan_pcp(pkt);
+	matches->has_vlan = platform_packet_has_vlan(pkt);
+	if(matches->has_vlan){
+		matches->vlan_vid = platform_packet_get_vlan_vid(pkt);
+		matches->vlan_pcp = platform_packet_get_vlan_pcp(pkt);
+	}else{
+		matches->vlan_vid = matches->vlan_pcp = 0x0;
+	}
 
 	matches->ip_proto = platform_packet_get_ip_proto(pkt);
 	matches->ip_ecn = platform_packet_get_ip_ecn(pkt);
@@ -146,9 +151,9 @@ void of1x_dump_packet_matches(of_packet_matches_t *const pkt_matches){
 	if(pkt->eth_type)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("ETH_TYPE:0x%x, ",pkt->eth_type);
 	//802.1q
-	if(pkt->vlan_vid)
+	if(pkt->has_vlan)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("VLAN_VID:%u, ",pkt->vlan_vid);
-	if(pkt->vlan_pcp)
+	if(pkt->has_vlan)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("VLAN_PCP:%u, ",pkt->vlan_pcp);
 	//ARP
 	if(pkt->eth_type == OF1X_ETH_TYPE_ARP)

@@ -13,6 +13,8 @@
 //Fwd declarations
 union of_packet_matches;
 
+#define OF1X_VLAN_PRESENT_MASK 0x1000
+#define OF1X_VLAN_ID_MASK 0x0FFF
 
 /* Defines possible matchings. This is EXPLICITELY copied from openflow.h, to simplify names, avoid collisions and add extensions */
 typedef enum{
@@ -188,7 +190,7 @@ of1x_match_t* of1x_init_eth_type_match(of1x_match_t* prev, of1x_match_t* next, u
 
 //8021.q
 /**
-* @brief Create an VLAN_VID match 
+* @brief Create an VLAN_VID match according to 1.2 semantics (13th bit is a flag) 
 * @ingroup core_of1x 
 */
 of1x_match_t* of1x_init_vlan_vid_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask);

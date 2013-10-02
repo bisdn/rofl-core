@@ -39,6 +39,7 @@ typedef struct{
 	uint16_t eth_type;		/* Ethernet frame type (WARNING: inner payload). */
 	
 	//802.1q VLAN outermost tag
+	bool has_vlan;			/* VLAN flag */
 	uint16_t vlan_vid;		/* VLAN id. */
 	uint8_t vlan_pcp;		/* VLAN PCP. */
 
