@@ -237,7 +237,7 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
 		case OF1X_AT_SET_QUEUE:
 			action->field.u64 = field.u64&OF1X_1_BYTE_MASK;
-			action->ver_req.min_ver = OF_VERSION_12;
+			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 
 		//6 bit values
@@ -590,11 +590,11 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				//Push VLAN
 				platform_packet_push_vlan(pkt, action->field.u16);
 				platform_packet_set_eth_type(pkt, OF1X_ETH_TYPE_8021Q);
+				platform_packet_set_vlan_pcp(pkt, 0x0);
 				//Update match
 				pkt_matches->has_vlan = true;
-				pkt_matches->vlan_vid = platform_packet_get_vlan_vid(pkt);
-				pkt_matches->vlan_pcp = platform_packet_get_vlan_pcp(pkt);
-				pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
+				pkt_matches->vlan_pcp = 0; 
+				pkt_matches->eth_type= OF1X_ETH_TYPE_8021Q; 
 				pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			}
 			//Call platform
@@ -603,6 +603,18 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			pkt_matches->vlan_vid = action->field.u64;
 			break;
 		case OF1X_AT_SET_FIELD_VLAN_PCP: 
+			//For 1.0 we must first push it if we don't have. wtf...
+			if(sw->of_ver == OF_VERSION_10 && !pkt_matches->has_vlan){
+				//Push VLAN
+				platform_packet_push_vlan(pkt, action->field.u16);
+				platform_packet_set_eth_type(pkt, OF1X_ETH_TYPE_8021Q);
+				platform_packet_set_vlan_vid(pkt, 0x0);
+				//Update match
+				pkt_matches->has_vlan = true;
+				pkt_matches->vlan_vid = 0x0; 
+				pkt_matches->eth_type= OF1X_ETH_TYPE_8021Q; 
+				pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			}
 			//Call platform
 			platform_packet_set_vlan_pcp(pkt, action->field.u64);
 			//Update match
