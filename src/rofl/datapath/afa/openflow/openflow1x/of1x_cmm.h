@@ -33,7 +33,7 @@ AFA_BEGIN_DECLS
  * @param table_id ID of the table that produced PACKET_IN
  * @param reason one of the OFPR_ ... constants
  * @param in_port Incomming packet port 
- * @param buffer_id ID of the HW buffer
+ * @param buffer_id  Buffer ID. Must be different from 0 or OF1XP_NO_BUFFER
  * @param pkt_buffer Buffer containing the packet. Shall only be used for reading.
  * @param buf_len Buffer length (may be shorter than the packet stored in buffer)
  * @param total_len total length of buffer

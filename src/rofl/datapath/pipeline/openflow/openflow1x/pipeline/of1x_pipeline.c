@@ -286,11 +286,16 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 /*
 * Process the packet out 
 */
-void of1x_process_packet_out_pipeline(const of_switch_t *sw, datapacket_t *const pkt, const of1x_action_group_t* apply_actions_group){
+void of1x_process_packet_out_pipeline(const of1x_switch_t *sw, datapacket_t *const pkt, const of1x_action_group_t* apply_actions_group){
+	
+	of1x_group_table_t *gt = sw->pipeline->groups;
 
 	//Initialize packet for OF1.2 pipeline processing 
 	__of1x_init_packet_matches(pkt); 
 	__of1x_init_packet_write_actions(pkt); 
+
+	//Validate apply_actions_group
+	__of1x_validate_action_group((of1x_action_group_t*)apply_actions_group, gt);
 
 	//Just process the action group
 	__of1x_process_apply_actions((of1x_switch_t*)sw, 0, pkt, apply_actions_group, apply_actions_group->num_of_output_actions > 1 );
