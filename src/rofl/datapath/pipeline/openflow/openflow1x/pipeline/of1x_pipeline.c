@@ -200,7 +200,7 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	//Matches aux
 	pkt_matches = &pkt->matches.of1x;
 
-	ROFL_PIPELINE_DEBUG("Packet[%p] entering switch [%s] pipeline (1.2)\n",pkt,sw->name);	
+	ROFL_PIPELINE_DEBUG("Packet[%p] entering switch [%s] pipeline (1.X)\n",pkt,sw->name);	
 
 #ifdef DEBUG
 	of1x_dump_packet_matches(&pkt->matches);
