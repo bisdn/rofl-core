@@ -184,8 +184,8 @@ bool __of1x_flow_entry_check_overlap(of1x_flow_entry_t*const original, of1x_flow
 
 	//Check out group actions
 	if( out_group != OF1X_GROUP_ANY && ( 
-			!__of1x_write_actions_has(entry->inst_grp.instructions[OF1X_IT_WRITE_ACTIONS].write_actions, OF1X_AT_GROUP, out_group) &&
-			!__of1x_apply_actions_has(entry->inst_grp.instructions[OF1X_IT_APPLY_ACTIONS].apply_actions, OF1X_AT_GROUP, out_group)
+			!__of1x_write_actions_has(original->inst_grp.instructions[OF1X_IT_WRITE_ACTIONS].write_actions, OF1X_AT_GROUP, out_group) &&
+			!__of1x_apply_actions_has(original->inst_grp.instructions[OF1X_IT_APPLY_ACTIONS].apply_actions, OF1X_AT_GROUP, out_group)
 			)
 	)
 		return false;
@@ -193,8 +193,8 @@ bool __of1x_flow_entry_check_overlap(of1x_flow_entry_t*const original, of1x_flow
 
 	//Check out port actions
 	if( out_port != OF1X_PORT_ANY && ( 
-			!__of1x_write_actions_has(entry->inst_grp.instructions[OF1X_IT_WRITE_ACTIONS].write_actions, OF1X_AT_OUTPUT, out_port) &&
-			!__of1x_apply_actions_has(entry->inst_grp.instructions[OF1X_IT_APPLY_ACTIONS].apply_actions, OF1X_AT_OUTPUT, out_port)
+			!__of1x_write_actions_has(original->inst_grp.instructions[OF1X_IT_WRITE_ACTIONS].write_actions, OF1X_AT_OUTPUT, out_port) &&
+			!__of1x_apply_actions_has(original->inst_grp.instructions[OF1X_IT_APPLY_ACTIONS].apply_actions, OF1X_AT_OUTPUT, out_port)
 			)
 	)
 		return false;
