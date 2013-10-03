@@ -447,6 +447,7 @@ rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 
 	of1x_flow_entry_t* entry, flow_stats_entry;
 	of1x_stats_single_flow_msg_t* flow_stats;
+	bool check_cookie = (table->pipeline->sw->of_ver != OF_VERSION_10);
 
 	if(!msg || !table)
 		return ROFL_FAILURE;
@@ -466,7 +467,7 @@ rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 	for(entry = table->entries; entry!=NULL; entry = entry->next){
 	
 		//Check if is contained 
-		if(__of1x_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
+		if(__of1x_flow_entry_check_contained(&flow_stats_entry, entry, false, check_cookie, out_port, out_group)){
 
 			// update statistics from platform
 			platform_of1x_update_stats_hook(entry);
