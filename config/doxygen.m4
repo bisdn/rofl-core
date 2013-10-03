@@ -1,10 +1,12 @@
 #CHECK for doxygen
 AC_CHECK_PROGS([DOXYGEN], [doxygen],)
 AC_MSG_CHECKING(whether to compile documentation)
+
 doc="no"
 AC_ARG_WITH([doc],
 	AS_HELP_STRING([--with-doc], [compile documentation if doxygen is available [default=no]])
 		, doc="yes", )
+
 if test -z "$DOXYGEN";then
 	if test "$doc" == "yes"; then
 		AC_MSG_ERROR([Unable to compile documentation. DOXYGEN not found!])
