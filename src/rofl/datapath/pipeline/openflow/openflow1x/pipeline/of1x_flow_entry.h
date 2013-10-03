@@ -141,7 +141,7 @@ rofl_result_t __of1x_validate_flow_entry(of1x_flow_entry_t* entry, struct of1x_p
 //Flow comparison
 bool __of1x_flow_entry_check_equal(of1x_flow_entry_t*const original, of1x_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group, bool check_cookie);
 bool __of1x_flow_entry_check_overlap(of1x_flow_entry_t*const original, of1x_flow_entry_t*const entry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group);
-bool __of1x_flow_entry_check_contained(of1x_flow_entry_t*const original, of1x_flow_entry_t*const subentry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group);
+bool __of1x_flow_entry_check_contained(of1x_flow_entry_t*const original, of1x_flow_entry_t*const subentry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group, bool reverse_out_check);
 
 //Dump flow
 /**

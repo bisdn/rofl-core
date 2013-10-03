@@ -153,6 +153,7 @@ rofl_result_t __of1x_update_flow_entry(of1x_flow_entry_t* entry_to_update, of1x_
 /**
 * Checks whether two entries overlap overlapping. This is potentially an expensive call.
 * Try to avoid using it, if the matching algorithm can guess via other (more efficient) ways...
+* out_port and out_grouap are ALWAYS checked against original flow_entry
 */
 bool __of1x_flow_entry_check_overlap(of1x_flow_entry_t*const original, of1x_flow_entry_t*const entry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group){
 
@@ -206,7 +207,7 @@ bool __of1x_flow_entry_check_overlap(of1x_flow_entry_t*const original, of1x_flow
 * Checks whether an entry is contained in the other. This is potentially an expensive call.
 * Try to avoid using it, if the matching algorithm can guess via other (more efficient) ways...
 */
-bool __of1x_flow_entry_check_contained(of1x_flow_entry_t*const original, of1x_flow_entry_t*const subentry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group){
+bool __of1x_flow_entry_check_contained(of1x_flow_entry_t*const original, of1x_flow_entry_t*const subentry, bool check_priority, bool check_cookie, uint32_t out_port, uint32_t out_group, bool reverse_out_check){
 
 	of1x_match_t* it_orig, *it_subentry;
 	
@@ -234,19 +235,27 @@ bool __of1x_flow_entry_check_contained(of1x_flow_entry_t*const original, of1x_fl
 	}
 
 	//Check out group actions
-	if( out_group != OF1X_GROUP_ANY && !(__of1x_instruction_has(&subentry->inst_grp,OF1X_AT_GROUP,out_group)) )
-		return false;
-
+	if( out_group != OF1X_GROUP_ANY){
+		if(!reverse_out_check && !(__of1x_instruction_has(&original->inst_grp,OF1X_AT_GROUP,out_group)) )
+			return false;
+		else if(reverse_out_check && !(__of1x_instruction_has(&subentry->inst_grp,OF1X_AT_GROUP,out_group)) )
+			return false;
+	}
 
 	//Check out port actions
-	if( out_port != OF1X_PORT_ANY && !(__of1x_instruction_has(&subentry->inst_grp,OF1X_AT_OUTPUT,out_port)) )
-		return false;
+	if( out_port != OF1X_PORT_ANY){
+		if(!reverse_out_check && !(__of1x_instruction_has(&original->inst_grp,OF1X_AT_OUTPUT,out_port)) )
+			return false;
+		else if(reverse_out_check && !(__of1x_instruction_has(&subentry->inst_grp,OF1X_AT_OUTPUT,out_port)) )
+			return false;
+	}
 
 
 	return true;
 }
 /**
 * Checks if entry is identical to another one
+* out_port and out_grouap are ALWAYS checked against original flow_entry
 */
 bool __of1x_flow_entry_check_equal(of1x_flow_entry_t*const original, of1x_flow_entry_t*const entry, uint32_t out_port, uint32_t out_group, bool check_cookie){
 
