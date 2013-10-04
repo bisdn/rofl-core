@@ -606,7 +606,25 @@ cofaction_output::get_port() throw (eActionInvalType)
 	}
 }
 
-
+void
+cofaction_output::set_max_len(uint16_t max_len) const throw (eActionInvalType)
+{
+	switch (ofp_version) {
+		case OFP10_VERSION: {
+			if (OFP10AT_OUTPUT != get_type())
+				throw eActionInvalType();
+			oac_10output->max_len = htobe16(max_len);
+		} break;
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			if (OFP12AT_OUTPUT != get_type())
+				throw eActionInvalType();
+			oac_12output->max_len = htobe16(max_len);
+		} break;
+		default:
+			throw eActionInvalType();
+	}
+}
 uint16_t
 cofaction_output::get_max_len() const throw (eActionInvalType)
 {
