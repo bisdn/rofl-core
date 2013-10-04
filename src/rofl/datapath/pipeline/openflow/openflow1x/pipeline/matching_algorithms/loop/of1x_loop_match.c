@@ -276,7 +276,7 @@ static rofl_result_t of1x_remove_flow_entry_table_non_specific_imp(of1x_flow_tab
 				break;
 			}
 		}else{
-			if( __of1x_flow_entry_check_contained(it, entry, strict, true, out_port, out_group) ){
+			if( __of1x_flow_entry_check_contained(it, entry, strict, true, out_port, out_group,false) ){
 				
 				if(of1x_remove_flow_entry_table_specific_imp(table, it, reason) != ROFL_SUCCESS){
 					assert(0); //This should never happen
@@ -358,7 +358,7 @@ rofl_result_t of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x_f
 				break;
 			}
 		}else{
-			if( __of1x_flow_entry_check_contained(it, entry, strict, true, OF1X_PORT_ANY, OF1X_GROUP_ANY) ){
+			if( __of1x_flow_entry_check_contained(it, entry, strict, true, OF1X_PORT_ANY, OF1X_GROUP_ANY,false) ){
 				if(__of1x_update_flow_entry(it, entry, reset_counts) != ROFL_SUCCESS)
 					return ROFL_FAILURE;
 				moded++;
@@ -467,7 +467,7 @@ rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 	for(entry = table->entries; entry!=NULL; entry = entry->next){
 	
 		//Check if is contained 
-		if(__of1x_flow_entry_check_contained(&flow_stats_entry, entry, false, check_cookie, out_port, out_group)){
+		if(__of1x_flow_entry_check_contained(&flow_stats_entry, entry, false, check_cookie, out_port, out_group, true)){
 
 			// update statistics from platform
 			platform_of1x_update_stats_hook(entry);
@@ -516,7 +516,7 @@ rofl_result_t of1x_get_flow_aggregate_stats_loop(struct of1x_flow_table *const t
 	for(entry = table->entries; entry!=NULL; entry = entry->next){
 	
 		//Check if is contained 
-		if(__of1x_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group)){
+		if(__of1x_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group,true)){
 			//Increment stats
 			msg->packet_count += entry->stats.packet_count;
 			msg->byte_count += entry->stats.byte_count;

@@ -144,3 +144,6 @@ uint8_t platform_packet_get_gtp_msg_type(datapacket_t *const pkt){
 uint32_t platform_packet_get_gtp_teid(datapacket_t *const pkt){
 	return 0;
 }
+bool platform_packet_has_vlan(datapacket_t *const pkt){
+       return false;
+}
