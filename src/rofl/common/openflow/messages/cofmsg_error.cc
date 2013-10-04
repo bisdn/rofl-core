@@ -162,7 +162,44 @@ cofmsg_error::get_err_type() const
 void
 cofmsg_error::set_err_type(uint16_t type)
 {
-	err_msg->type = htobe16(type);
+	//FIXME XXX: internally 1.2 types and codes are used
+	//this should be properly abstracted to make always an appropiate translation (version agnostic codes)
+	//or always use the same identifiers otherwise it can confuse the user
+	switch (get_version()) {
+		case OFP10_VERSION:
+			//Translating it... this is crap
+			switch(type){
+				case OFPET_HELLO_FAILED:
+					err_msg->type=htobe16(OFP10ET_HELLO_FAILED);
+					break;
+				case OFPET_BAD_REQUEST:
+					err_msg->type=htobe16(OFP10ET_BAD_REQUEST);
+					break;
+				case OFPET_BAD_ACTION:
+					err_msg->type=htobe16(OFP10ET_BAD_ACTION); 
+					break;
+				case OFPET_FLOW_MOD_FAILED:
+					err_msg->type=htobe16(OFP10ET_FLOW_MOD_FAILED); 
+					break;
+				case OFPET_PORT_MOD_FAILED:
+					err_msg->type=htobe16(OFP10ET_PORT_MOD_FAILED); 
+					break;
+				case OFPET_QUEUE_OP_FAILED:
+					err_msg->type=htobe16(OFP10ET_QUEUE_OP_FAILED); 
+					break;
+				default: 
+					err_msg->type=htobe16(OFP10ET_BAD_REQUEST); 
+					break;
+			}
+			break;
+		case OFP12_VERSION:
+		case OFP13_VERSION: 
+			err_msg->type = htobe16(type);
+			break;
+		
+		default: //TODO: what to do...
+			break;		
+	}
 }
 
 
@@ -178,7 +215,49 @@ cofmsg_error::get_err_code() const
 void
 cofmsg_error::set_err_code(uint16_t code)
 {
-	err_msg->code = htobe16(code);
+	//FIXME XXX: internally 1.2 types and codes are used
+	//this should be properly abstracted to make always an appropiate translation (version agnostic codes)
+	//or always use the same identifiers otherwise it can confuse the user
+	
+	switch (get_version()) {
+			case OFP10_VERSION:
+				//Translating it... this is crap
+				//only the ones which differ
+				switch(code){
+					case OFPFMFC_UNKNOWN:
+						err_msg->code = htobe16(OFP10FMFC_BAD_COMMAND);
+						break;
+					case OFPFMFC_TABLE_FULL:
+						err_msg->code = htobe16(OFP10FMFC_ALL_TABLES_FULL);
+						break;
+					case OFPFMFC_BAD_TABLE_ID:
+						err_msg->code = htobe16(OFP10FMFC_BAD_COMMAND);
+						break;
+					case OFPFMFC_OVERLAP:
+						err_msg->code = htobe16(OFP10FMFC_OVERLAP);
+						break;
+					case OFPFMFC_EPERM:
+						err_msg->code = htobe16(OFP10FMFC_EPERM);
+						break;
+					case OFPFMFC_BAD_TIMEOUT:
+						err_msg->code = htobe16(OFP10FMFC_UNSUPPORTED);
+						break;
+					case OFPFMFC_BAD_COMMAND:
+						err_msg->code = htobe16(OFP10FMFC_BAD_COMMAND);
+						break;
+					default: 
+						err_msg->code = htobe16(code);
+						break;
+				}
+				break;
+			case OFP12_VERSION:
+			case OFP13_VERSION: 
+				err_msg->code = htobe16(code);
+				break;
+			
+			default: //TODO: what to do...
+				break;		
+	}
 }
 
 
