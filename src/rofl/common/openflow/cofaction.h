@@ -274,6 +274,12 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_max_len(uint16_t max_len) const throw (eActionInvalType);
+
+	/**
+	 *
+	 */
 	uint16_t
 	get_max_len() const throw (eActionInvalType);
 };
