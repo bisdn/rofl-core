@@ -304,7 +304,8 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 
 	// dl_vlan_pcp
 	try {
-		m->dl_vlan_pcp = oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP).u8value();
+		if(oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).u16value() != OFP10_VLAN_NONE)
+			m->dl_vlan_pcp = oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP).u8value();
 	} catch (eOxmListNotFound& e) {
 		wildcards |= OFP10FW_DL_VLAN_PCP;
 	}
@@ -325,7 +326,7 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 
 	// nw_proto
 	try {
-		m->nw_tos = oxmlist.get_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_NW_PROTO).u8value();
+		m->nw_proto = oxmlist.get_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_NW_PROTO).u8value();
 	} catch (eOxmListNotFound& e) {
 		wildcards |= OFP10FW_NW_PROTO;
 	}
