@@ -306,7 +306,7 @@ public:
 			cofaction::resize(sizeof(struct ofp10_action_vlan_vid));
 			oac_10vlanvid->type 	= htobe16(OFP10AT_SET_VLAN_VID);
 			oac_10vlanvid->len 		= htobe16(sizeof(struct ofp10_action_vlan_vid));
-			oac_10vlanvid->vlan_vid = vlan_vid;
+			oac_10vlanvid->vlan_vid = htobe16(vlan_vid);
 		} break;
 		default:
 			throw eBadVersion();
@@ -543,7 +543,7 @@ public:
 			cofaction::resize(sizeof(struct ofp10_action_tp_port));
 			oac_10tpport->type 		= htobe16(OFP10AT_SET_TP_SRC);
 			oac_10tpport->len 		= htobe16(sizeof(struct ofp10_action_tp_port));
-			oac_10tpport->tp_port 	= tp_src;
+			oac_10tpport->tp_port 	= htobe16(tp_src);
 		} break;
 		default:
 			throw eBadVersion();
@@ -573,7 +573,7 @@ public:
 			cofaction::resize(sizeof(struct ofp10_action_tp_port));
 			oac_10tpport->type 		= htobe16(OFP10AT_SET_TP_DST);
 			oac_10tpport->len 		= htobe16(sizeof(struct ofp10_action_tp_port));
-			oac_10tpport->tp_port 	= tp_dst;
+			oac_10tpport->tp_port 	= htobe16(tp_dst);
 		} break;
 		default:
 			throw eBadVersion();
@@ -908,8 +908,8 @@ public:
 				cofaction(ofp_version, sizeof(struct ofp12_action_nw_ttl))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case OFP10_VERSION:
+		{
 			cofaction::resize(sizeof(struct ofp12_action_nw_ttl));
 			oac_12nw_ttl->type 		= htobe16(OFP12AT_SET_NW_TTL);
 			oac_12nw_ttl->len 		= htobe16(sizeof(struct ofp12_action_nw_ttl));
@@ -939,8 +939,8 @@ public:
 				cofaction(ofp_version, sizeof(struct ofp12_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case OFP10_VERSION:
+		{
 			cofaction::resize(sizeof(struct ofp12_action_header));
 			oac_header->type 	= htobe16(OFP12AT_DEC_NW_TTL);
 			oac_header->len 	= htobe16(sizeof(struct ofp12_action_header));
