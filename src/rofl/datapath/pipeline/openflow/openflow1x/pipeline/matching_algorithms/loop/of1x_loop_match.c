@@ -445,6 +445,7 @@ rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 		of1x_match_group_t *const matches,
 		of1x_stats_flow_msg_t* msg){
 
+	bool check_cookie;
 	of1x_flow_entry_t* entry, flow_stats_entry;
 	of1x_stats_single_flow_msg_t* flow_stats;
 	bool check_cookie = (table->pipeline->sw->of_ver != OF_VERSION_10);
@@ -457,7 +458,7 @@ rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 	flow_stats_entry.matches = *matches;
 	flow_stats_entry.cookie = cookie;
 	flow_stats_entry.cookie_mask = cookie_mask;
-
+	check_cookie = ( table->pipeline->sw->of_ver != OF_VERSION_10 ); //Ignore cookie in OF1.0
 	
 	//Mark table as being read
 	platform_rwlock_rdlock(table->rwlock);
@@ -498,6 +499,7 @@ rofl_result_t of1x_get_flow_aggregate_stats_loop(struct of1x_flow_table *const t
 		of1x_match_group_t *const matches,
 		of1x_stats_flow_aggregate_msg_t* msg){
 
+	bool check_cookie;
 	of1x_flow_entry_t* entry, flow_stats_entry;
 
 	if(!msg || !table)
@@ -508,6 +510,7 @@ rofl_result_t of1x_get_flow_aggregate_stats_loop(struct of1x_flow_table *const t
 	flow_stats_entry.matches = *matches;
 	flow_stats_entry.cookie = cookie;
 	flow_stats_entry.cookie_mask = cookie_mask;
+	check_cookie = ( table->pipeline->sw->of_ver != OF_VERSION_10 ); //Ignore cookie in OF1.0
 
 	//Mark table as being read
 	platform_rwlock_rdlock(table->rwlock);
@@ -516,7 +519,7 @@ rofl_result_t of1x_get_flow_aggregate_stats_loop(struct of1x_flow_table *const t
 	for(entry = table->entries; entry!=NULL; entry = entry->next){
 	
 		//Check if is contained 
-		if(__of1x_flow_entry_check_contained(&flow_stats_entry, entry, false, true, out_port, out_group,true)){
+		if(__of1x_flow_entry_check_contained(&flow_stats_entry, entry, false, check_cookie, out_port, out_group,true)){
 			//Increment stats
 			msg->packet_count += entry->stats.packet_count;
 			msg->byte_count += entry->stats.byte_count;
