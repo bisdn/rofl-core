@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = config openflow protocols utils 
+SUBDIRS = openflow protocols utils 
 
 noinst_LTLIBRARIES = librofl_common.la
 
