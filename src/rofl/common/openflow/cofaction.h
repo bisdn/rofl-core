@@ -812,11 +812,13 @@ public:
 				cofaction(ofp_version, sizeof(struct ofp12_action_header))
 	{
 		switch (ofp_version) {
+#if 0
 		case OFP10_VERSION: {
 			cofaction::resize(sizeof(struct ofp10_action_header));
 			oac_10tpport->type = htobe16(OFP10AT_STRIP_VLAN);
 			oac_10tpport->len = htobe16(sizeof(struct ofp10_action_header));
 		} break;
+#endif
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
 			cofaction::resize(sizeof(struct ofp12_action_header));
