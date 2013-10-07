@@ -53,7 +53,6 @@ AC_CONFIG_FILES([
 
 	Makefile
 	src/Makefile
-	src/rofl/common/config/Makefile
 	src/rofl/common/protocols/Makefile
 	src/rofl/common/openflow/messages/Makefile
 	src/rofl/common/openflow/extensions/Makefile
