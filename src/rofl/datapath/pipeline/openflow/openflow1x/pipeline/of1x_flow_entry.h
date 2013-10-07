@@ -69,7 +69,7 @@ typedef void of1x_flow_entry_platform_state_t;
 typedef struct of1x_flow_entry{
 	
 	//Entry priority(lowest 16 bit is the OF priority)
-	//17th bit is only set to 1/0 
+	//17th bit is only set to 1/0 for OF1.0 (is wildcarded or not) 
 	uint32_t priority;
 	
 	//Previous entry

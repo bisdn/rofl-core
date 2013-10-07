@@ -166,7 +166,7 @@ bool __of1x_flow_entry_check_overlap(of1x_flow_entry_t*const original, of1x_flow
 	}
 
 	//Check priority
-	if(check_priority && (entry->priority != original->priority))
+	if(check_priority && ((entry->priority&OF1X_2_BYTE_MASK) != (original->priority&OF1X_2_BYTE_MASK))) //In OF1.0 overlapping ignore wildcard flag 
 		return false;
 
 	//Check if matches are contained. This is expensive.. //FIXME: move this to of1x_match
