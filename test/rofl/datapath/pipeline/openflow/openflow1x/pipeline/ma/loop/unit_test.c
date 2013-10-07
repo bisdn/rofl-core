@@ -29,6 +29,7 @@ int main(int args, char** argv){
 	(NULL == CU_add_test(pSuite, "test uninstall all", test_install_overlapping_specific)) ||
 	(NULL == CU_add_test(pSuite, "test uninstall wildcard", test_uninstall_wildcard)) || 
 	(NULL == CU_add_test(pSuite, "test check overlap addition", test_overlap)) || 
+	(NULL == CU_add_test(pSuite, "test check overlap addition2", test_overlap2)) || 
 	(NULL == CU_add_test(pSuite, "test flow modify", test_flow_modify)) 
 	
 		)

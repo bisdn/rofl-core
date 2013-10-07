@@ -348,6 +348,56 @@ void test_overlap(){
 
 }
 
+void test_overlap2(){
+
+	//Create instance	
+	enum of1x_matching_algorithm_available ma_list2[1]={of1x_matching_algorithm_loop};
+	of1x_switch_t* sw10 = of1x_init_switch("Test switch2", OF_VERSION_10, 0x0102,1,ma_list2);
+	
+	of1x_flow_entry_t* entry;
+
+	/*
+	*  
+	* Regression test (matches 1.0 bug) 
+	*
+	*/
+
+	//Entry	
+	entry = of1x_init_flow_entry(NULL, NULL, false); 
+	entry->priority = 0xEFF5;
+	entry->cookie = 0x1;
+
+	//Add match
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(NULL,NULL,2)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_eth_dst_match(NULL,NULL,0x2aea33b376fa, 0xffffffffffff)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_eth_src_match(NULL,NULL,0x4012534e57aa, 0xffffffffffff)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_vlan_vid_match(NULL,NULL,1620|OF1X_VLAN_PRESENT_MASK,0x1fff)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_vlan_pcp_match(NULL,NULL,7)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(sw10->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_SUCCESS);
+	
+	//Add second entry
+	entry = of1x_init_flow_entry(NULL, NULL, false); 
+	entry->priority = 0xEFF5;
+	entry->cookie = 0x2;
+
+	//Add match
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(NULL,NULL,2)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_eth_dst_match(NULL,NULL,0x2aea33b376fa, 0xffffffffffff)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_eth_src_match(NULL,NULL,0x4012534e57aa, 0xffffffffffff)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_eth_type_match(NULL,NULL,0x800)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_vlan_vid_match(NULL,NULL,1620|OF1X_VLAN_PRESENT_MASK, 0x1fff)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_vlan_pcp_match(NULL,NULL,7)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip_dscp_match(NULL,NULL,0xf)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_nw_src_match(NULL,NULL,0x991ff310,0xfffffffe)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_nw_dst_match(NULL,NULL,0x91920029,0xffffffff)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_tp_src_match(NULL,NULL,205)) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_tp_dst_match(NULL,NULL,88)) == ROFL_SUCCESS);
+
+	CU_ASSERT(of1x_add_flow_entry_table(sw10->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_OVERLAP); //Check overlap == 1 => MUST FAIL
+	
+	of_destroy_switch((of_switch_t*)sw10);
+}
+
 void test_flow_modify(){
 
 	of1x_flow_entry_t* entry1, *entry2;
