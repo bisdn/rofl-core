@@ -445,7 +445,6 @@ rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 		of1x_match_group_t *const matches,
 		of1x_stats_flow_msg_t* msg){
 
-	bool check_cookie;
 	of1x_flow_entry_t* entry, flow_stats_entry;
 	of1x_stats_single_flow_msg_t* flow_stats;
 	bool check_cookie = (table->pipeline->sw->of_ver != OF_VERSION_10);

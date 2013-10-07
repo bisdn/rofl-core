@@ -129,7 +129,7 @@ cofmsg_packet_in::length() const
 {
 	switch (get_version()) {
 	case OFP10_VERSION: {
-		return (OFP10_PACKET_IN_STATIC_HDR_LEN + 2 + packet.framelen());
+		return (OFP10_PACKET_IN_STATIC_HDR_LEN - 2 + packet.framelen());
 	} break;
 	case OFP12_VERSION: {
 		return (sizeof(struct ofp12_packet_in) - sizeof(struct ofp12_match) + match.length() + 2 + packet.framelen());
