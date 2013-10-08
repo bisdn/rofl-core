@@ -63,10 +63,6 @@ AC_CONFIG_FILES([
 	src/rofl/platform/Makefile
 	src/rofl/platform/unix/Makefile
 	
-	src/rofl/controller/experimental/Makefile
-	src/rofl/controller/control/Makefile
-	src/rofl/controller/Makefile
-
 	src/rofl/Makefile
 
         src/rofl/datapath/afa/Makefile
