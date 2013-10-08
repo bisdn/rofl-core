@@ -351,14 +351,17 @@ fipv6frame::set_hop_limit(uint8_t hops)
 }
 
 
-
 uint8_t
 fipv6frame::get_hop_limit()
 {
 	return ipv6_hdr->hoplimit;
 }
 
-
+void
+fipv6frame::dec_hop_limit()
+{
+	ipv6_hdr->hoplimit--;
+}
 
 void
 fipv6frame::set_ipv6_src(uint8_t *somem, size_t memlen) throw (eIPv6FrameInval)

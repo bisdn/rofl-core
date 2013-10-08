@@ -319,6 +319,11 @@ public:
 	 */
 	uint8_t
 	get_hop_limit();
+	
+	/**
+	 */
+	void
+	dec_hop_limit();
 
 	/** src in network-byte-order
 	 */
