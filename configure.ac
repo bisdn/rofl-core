@@ -45,9 +45,6 @@ m4_include([config/pipeline.m4])
 # Checking libs
 #m4_include([config/libs.m4])
 
-# Doxygen 
-m4_include([config/doxygen.m4])
-
 # Output files
 AC_CONFIG_FILES([
 
@@ -93,8 +90,10 @@ AC_CONFIG_FILES([
 	test/unit/cpacket/Makefile
 	test/unit/croflexp/Makefile
 	test/unit/frames/Makefile
-
-	doc/Makefile
 	])
+
+# Doxygen (here to be the last Makefile) 
+m4_include([config/doxygen.m4])
+
 AC_OUTPUT
 
