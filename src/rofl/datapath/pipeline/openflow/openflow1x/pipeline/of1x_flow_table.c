@@ -97,8 +97,9 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	table->config.table_miss_config = (1 << OF1X_TABLE_MISS_CONTROLLER) | (1 << OF1X_TABLE_MISS_CONTINUE) | (1 << OF1X_TABLE_MISS_DROP);
 
 	//Match
-	table->config.match = 	 (1UL << OF1X_MATCH_IN_PHY_PORT) |
-				   //(1UL << OF1X_MATCH_METADATA) |
+	table->config.match = 	 (1UL << OF1X_MATCH_IN_PORT) |
+					(1UL << OF1X_MATCH_IN_PHY_PORT) |
+				   (1UL << OF1X_MATCH_METADATA) |
 				   (1UL << OF1X_MATCH_ETH_DST) |
 				   (1UL << OF1X_MATCH_ETH_SRC) |
 				   (1UL << OF1X_MATCH_ETH_TYPE) |
@@ -118,8 +119,8 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 				   (1UL << OF1X_MATCH_TCP_DST) |
 				   (1UL << OF1X_MATCH_UDP_SRC) |
 				   (1UL << OF1X_MATCH_UDP_DST) |
-				  // (1UL << OF1X_MATCH_SCTP_SRC) |
-				  // (1UL << OF1X_MATCH_SCTP_DST) |
+				   (1UL << OF1X_MATCH_SCTP_SRC) |
+				   (1UL << OF1X_MATCH_SCTP_DST) |
 				   (1UL << OF1X_MATCH_ICMPV4_TYPE) |
 				   (1UL << OF1X_MATCH_ICMPV4_CODE) |				   
 				   (1UL << OF1X_MATCH_IPV6_SRC) |
@@ -133,6 +134,9 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 				   (1UL << OF1X_MATCH_ICMPV6_TYPE) |
 				   (UINT64_C(1) << OF1X_MATCH_MPLS_LABEL) |
 				   (UINT64_C(1) << OF1X_MATCH_MPLS_TC) |
+				   (UINT64_C(1) << OF1X_MATCH_MPLS_BOS) |
+				   //(UINT64_C(1) << OF1X_MATCH_PBB_ISID) |
+				   //(UINT64_C(1) << OF1X_MATCH_TUNNEL_ID) |
 				   (UINT64_C(1) << OF1X_MATCH_PPPOE_CODE) |
 				   (UINT64_C(1) << OF1X_MATCH_PPPOE_TYPE) |
 				   (UINT64_C(1) << OF1X_MATCH_PPPOE_SID) |
@@ -141,23 +145,22 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 				   (UINT64_C(1) << OF1X_MATCH_GTP_TEID);
 
 	//Wildcards
-	table->config.wildcards =  (1UL << OF1X_MATCH_ETH_DST) |
+	table->config.wildcards =  (1UL << OF1X_MATCH_METADATA) |
+					(1UL << OF1X_MATCH_ETH_DST) |
 				   (1UL << OF1X_MATCH_ETH_SRC) |
 				   (1UL << OF1X_MATCH_VLAN_VID) |
-				   (1UL << OF1X_MATCH_ARP_OP) |
 				   (1UL << OF1X_MATCH_ARP_SHA) |
 				   (1UL << OF1X_MATCH_ARP_SPA) |
 				   (1UL << OF1X_MATCH_ARP_THA) |
 				   (1UL << OF1X_MATCH_ARP_TPA) |
-				   (1UL << OF1X_MATCH_IP_DSCP) |
 				   (1UL << OF1X_MATCH_IPV4_SRC) |
 				   (1UL << OF1X_MATCH_IPV4_DST) |
-				   (1UL << OF1X_MATCH_ICMPV4_TYPE) |
-				   (1UL << OF1X_MATCH_ICMPV4_CODE) |
 				   (1UL << OF1X_MATCH_IPV6_SRC) |
 				   (1UL << OF1X_MATCH_IPV6_DST) |
+				   (1UL << OF1X_MATCH_IPV6_FLABEL) |
 				   (UINT64_C(1) << OF1X_MATCH_IPV6_EXTHDR) |
-				   (UINT64_C(1) << OF1X_MATCH_MPLS_LABEL) |
+				   //(UINT64_C(1) << OF1X_MATCH_PBB_ISID) |
+				   //(UINT64_C(1) << OF1X_MATCH_TUNNEL_ID) |
 				   (UINT64_C(1) << OF1X_MATCH_GTP_TEID);
 
 	//Write actions and apply actions
@@ -175,6 +178,8 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 					( 1 << OF12PAT_SET_NW_TTL ) |
 					( 1 << OF12PAT_DEC_NW_TTL ) |
 					( 1 << OF12PAT_SET_FIELD ) |
+					//TODO PUSH_PBB
+					//TODO POP_PBB
 					( 1 << OF12PAT_PUSH_PPPOE ) |
 					( 1 << OF12PAT_POP_PPPOE );										
 	table->config.write_actions = table->config.apply_actions;
@@ -188,13 +193,11 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 	table->config.metadata_write = 0x0; //FIXME: implement METADATA
 
 	//Instructions
-	table->config.instructions = (1 << OF1X_IT_GOTO_TABLE) |
-					(1 << OF1X_IT_WRITE_METADATA) |
+	table->config.instructions = (1 << OF1X_IT_APPLY_ACTIONS) |
+					(1 << OF1X_IT_CLEAR_ACTIONS) |
 					(1 << OF1X_IT_WRITE_ACTIONS) |
-					(1 << OF1X_IT_APPLY_ACTIONS) |
-					(1 << OF1X_IT_CLEAR_ACTIONS);   
-	
-	
+					(1 << OF1X_IT_WRITE_METADATA) |
+					(1 << OF1X_IT_GOTO_TABLE);
 }
 
 void __of13_set_table_defaults(of1x_flow_table_t* table){
