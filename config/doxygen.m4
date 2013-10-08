@@ -16,7 +16,7 @@ if test -z "$DOXYGEN";then
 else
 	if test "$doc" = "yes"; then
 		AM_CONDITIONAL(doc, [true])
-		AC_CONFIG_FILES([doc/doxyfile.conf])	
+		AC_CONFIG_FILES([doc/doxyfile-common.conf])	
 		AC_CONFIG_FILES([doc/doxyfile-pipeline.conf])
 		AC_CONFIG_FILES([doc/doxyfile-afa.conf])
 		AC_MSG_RESULT(yes)
@@ -25,3 +25,8 @@ else
 		AM_CONDITIONAL(doc, [false])
 	fi
 fi
+
+#Always add doc Makefile
+AC_CONFIG_FILES([
+	doc/Makefile
+])
