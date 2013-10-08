@@ -18,7 +18,7 @@ endif
 
 lib_LTLIBRARIES = librofl.la
 librofl_la_SOURCES = #rofl.h 
-librofl_la_LIBADD = $(LIBS_ROFL) 
+librofl_la_LIBADD = $(LIBS_ROFL) -lpthread
 
 #AM_LDFLAGS= -static
 AM_CPPFLAGS= -fPIC

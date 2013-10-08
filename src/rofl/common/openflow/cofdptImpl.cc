@@ -121,6 +121,8 @@ cofdptImpl::cofdptImpl(
 
 	dptflags.set(COFDPT_FLAG_ACTIVE_SOCKET);
 
+	this->reconnect_in_seconds = this->reconnect_start_timeout = (reconnect_start_timeout == 0) ? 1 : reconnect_start_timeout;
+
 	socket->cconnect(ra, caddress(AF_INET, "0.0.0.0"), domain, type, protocol);
 }
 
@@ -323,7 +325,7 @@ cofdptImpl::handle_closed(
 
 	if (dptflags.test(COFDPT_FLAG_ACTIVE_SOCKET))
 	{
-		try_to_connect();
+		try_to_connect(true);
 	}
 	else
 	{
