@@ -9,8 +9,8 @@ endif
 if ONLY_C_CODE
 SUBDIRS = datapath/afa $(PIPELINE_DIRS)
 else
-SUBDIRS = common controller datapath/afa $(PIPELINE_DIRS) platform
-LIBS_ROFL=common/librofl_common.la controller/librofl_controller.la  platform/libplatform.la
+SUBDIRS = common datapath/afa $(PIPELINE_DIRS) platform
+LIBS_ROFL=common/librofl_common.la platform/libplatform.la
 endif
 
 #library_includedir=$(includedir)/rofl 
