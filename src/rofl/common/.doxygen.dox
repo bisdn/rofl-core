@@ -1,5 +1,139 @@
 /**
 *
+* @mainpage ROFL-common
+*
+* @section doc Documentation
+* @subsection doc_intro Introduction
+*
+* @subsubsection doc_intro_what_is_it What is it?
+*
+* It helps you adding "OpenFlow":http://www.opennetworking.org support to your software to build 
+* control applications, controller frameworks, or data path elements. ROFL has served within a 
+* number of research projects around SDN/OpenFlow to study its applicability to carrier networks. 
+* Check out "OFELIA's":http://www.fp7-ofelia.eu website or the available information from project 
+* "SPARC":http://www.fp7-sparc.eu to read about some of the results and insights. Beyond producing 
+* papers and powerpoints, we made our hands dirty by developing a set of libraries and a tool box 
+* to build OpenFlow enabled software.
+*
+* _*Common*_ provides basic support for the OpenFlow protocol (protocol parsers, message mangling, 
+* etc.) and maps the protocol's wire representation to a set of C++ classes. It hides the nasty 
+* details of the protocol and provides a (hopefully) clean and easy to use API to software developers. 
+* We aim towards multi-version support under a common hood: currently, the core library supports 
+* OpenFlow 1.0 and "OpenFlow 1.2":https://www.opennetworking.org/images/stories/downloads/sdn-resources/onf-specifications/openflow/openflow-spec-v1.2.pdf. C
+* heck the "features list":https://www.codebasin.net/redmine/projects/rofl-core/wiki/Wiki#Features to see the implementation status of various features. 
+*
+* _*Datapath*_ contains building blocks for creating data path elements, most notably an OpenFlow pipeline for integration into hardware platforms, network processors, etc.
+*
+* @subsection doc_features Features
+*
+* - OpenFlow protocol library written in C++-98 (requires STL support)
+* - Seeking for supporting all features defined by "OpenFlow 1.2":https://www.opennetworking.org/images/stories/downloads/sdn-resources/onf-specifications/openflow/openflow-spec-v1.2.pdf 
+* - Supports management of multiple controller and data path entities in parallel
+* - OpenFlow session negotiation 
+* - Multi-version support (OpenFlow 1.0 and OpenFlow 1.2, OpenFlow 1.3 just around the corner ...)
+* - Ready-to-run I/O framework and event loop
+* - Full mapping of all OpenFlow's C structures into C++ classes
+* - Supports controller and data path role or may act in proxy mode
+* - Supports flowspace registration (experimental feature from project "SPARC":http://www.fp7-sparc.eu)
+* - OpenFlow 1.x compliant pipeline targeting ANSI-C as a nucleus for data path elements
+*
+* @subsection doc_license License
+*
+* All ROFL ingredients have been released under "Mozilla Public License 2.0":http://www.mozilla.org/MPL/2.0/.
+*
+* @subsection doc_how_to_use_it How to use it, Documentation and Support
+*
+* The best source of information is this doxygen documentation you are currently reading.
+*
+* There is work on a small *[[tutorial]]* ongoing to highlight some of the core concepts and that 
+* shows you how to build a simple controller application in a few minutes.
+* 
+*
+* If you find yourself with a bunch of unanswered questions after reading all available information here, 
+* feel free to send an e-mail to _rofl_ _(at)_ _bisdn.de_. We will try to help you and we have a huge number 
+* of the usual excuses (too busy, lots of projects running, too much administrative stuff to do, etc.) before 
+* generating an answer, so please be a little patient.
+*
+* We would love to get a note from you if you intend to use ROFL in your project or if you need some help with 
+* implementing a new feature. Maybe it is already on our roadmap as well. Having said that, ROFL has been quite 
+* useful in a number of projects already, but we consider it still *alpha* software, i.e. there is a non-null 
+* probability to stumble across bugs. If you think you have found one (of course, this is impossible, but who 
+* knows), please send us a bug report to _rofl_ _(at)_ _bisdn.de_. 
+* 
+* Many thanks!
+*
+* @subsection doc_build How to get it and Build Instructions
+*
+* You need one of the usual fairly modern Linux distributions. It works under Fedora and Debian, but should 
+* compile on other systems as well. You need a GNU build system ("autoconf":http://www.gnu.org/software/autoconf/, 
+* "automake":http://www.gnu.org/software/automake/, "libtool":http://www.gnu.org/software/libtool/, ...) for 
+* compiling the code. There is some support for a (rudimentary) command line available, which is based on 
+* "libCLI":https://github.com/dparrish/libcli, so you have to install its development files as well. 
+*
+* WARNING! The libcli package included in most distributions (Debian based, RedHat based...) is outdated. 
+* Please download and install the library from here: "libCLI":https://github.com/dparrish/libcli
+* 
+* @subsubsection doc_build_step1 Step 1: Grab a copy of the source code.
+* 
+* @code
+sh# git clone git://codebasin.net/rofl-core.git
+* @endcode
+*
+* @subsubsection doc_build_step2 Step 2: Enter the rofl-core directory and call the autogen.sh script
+*
+* @code
+sh# sh autogen.sh
+* @endcode
+*
+* @subsubsection doc_build_step3 Step 3: Enter the build directory and call configure
+*
+* @code
+sh# cd build/
+sh# ../configure
+* @endcode
+*
+* @subsubsection doc_build_step4 Step 4: Call make and make install
+*
+* Default installation directory is _/usr/local_, so you might need rights to add files there or change the installation prefix when executing the _configure_ script.
+*
+* @code 
+sh# make 
+sh# make check #Optional
+sh# sudo make install
+* @endcode
+*
+* @subsubsection doc_build_optional_params Some optional parameters for @../configure@
+*
+* @code
+--enable-debug: Compile with debug symbols (@-g@) and debug output (warning, it may affect performance).
+--disable-silent-rules: Enable verbose compilation mode (@AM_SILENT_RULES@ disabled)
+--enable-doc: Generate documentation along with compilation (for @ROFL@, @ROFL-pipeline@ and @ROFL-afa@). Make sure Doxygen and other dependencies are installed.
+* @endcode
+*
+* @subsection doc_xdpd Extensible Data Path Daemon
+*
+* We have created a data path implementation on top of ROFL: the "extensible Data Path Daemon":https://www.codebasin.net/redmine/projects/xdpd.
+* 
+* xdpd is a modular framework for building your own data path seeking to help you in supporting various hardware platforms. 
+* 
+* More information can be found on the "xdpd project site":https://www.codebasin.net/redmine/projects/xdpd.
+*
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+*
 * @mainpage ROFL-PIPELINE library
 *
 * @section doc Documentation 
