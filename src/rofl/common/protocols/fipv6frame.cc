@@ -263,7 +263,18 @@ fipv6frame::set_traffic_class(uint8_t tc)
 	ipv6_hdr->bytes[1] = (ipv6_hdr->bytes[1] & 0x0F) + ((tc & 0x0F) << 4);
 }
 
+void
+fipv6frame::set_dscp(uint8_t dscp)
+{
+	ipv6_hdr->bytes[0] = (ipv6_hdr->bytes[0] & 0xF0) + ((dscp & 0x3C) >> 2);
+	ipv6_hdr->bytes[1] = (ipv6_hdr->bytes[1] & 0x3F) + ((dscp & 0x03) << 6);
+}
 
+void
+fipv6frame::set_ecn(uint8_t ecn)
+{
+	ipv6_hdr->bytes[1] = (ipv6_hdr->bytes[1] & 0xCF) + ((ecn & 0x03) << 4);
+}
 
 uint8_t
 fipv6frame::get_traffic_class() const
@@ -271,7 +282,17 @@ fipv6frame::get_traffic_class() const
 	return (uint8_t)(((ipv6_hdr->bytes[0] & 0x0F) << 4) + ((ipv6_hdr->bytes[1] & 0xF0) >> 4));
 }
 
+uint8_t
+fipv6frame::get_dscp() const
+{
+	return (uint8_t)(((ipv6_hdr->bytes[0] & 0x0F) << 2) + ((ipv6_hdr->bytes[1] & 0xC0) >> 6));
+}
 
+uint8_t
+fipv6frame::get_ecn() const
+{
+	return (uint8_t)((ipv6_hdr->bytes[1] & 0x30) >> 4);
+}
 
 void
 fipv6frame::set_flow_label(uint32_t flabel)
