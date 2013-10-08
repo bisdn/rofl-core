@@ -257,9 +257,29 @@ public:
 
 	/**
 	 */
+	void
+	set_dscp(uint8_t dscp);
+	
+	/**
+	 */
+	void
+	set_ecn(uint8_t ecn);
+	
+	/**
+	 */
 	uint8_t
 	get_traffic_class() const;
 
+	/**
+	 */
+	uint8_t
+	get_dscp() const;
+	
+	/**
+	 */
+	uint8_t
+	get_ecn() const;
+	
 	/**
 	 */
 	void
