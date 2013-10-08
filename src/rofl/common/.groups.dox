@@ -2,100 +2,97 @@
 // Doxygen group definition
 //
 
-//Core
+
+// common
 /**
 *
-* @defgroup core Core APIs and data structures
-* @brief The core APIs and data structures are the ones used both internally and for data exchanging with 
-* the library user.
+* @defgroup common_main The Three Main Classes in ROFL
+* @brief This contains the main classes required for managing an OpenFlow protocol endpoint within ROFL.
 *
-* The core APIs expose the initiliazers/destructors and the data structures used by the core library and by the other APIs (exposed and consumed). Only the documented structures and APIs should be used by the user library.
-*
-* @defgroup core_of12 Openflow v1.2 core APIs and data structures
-* @brief The core Openflow v1.2 APIs and data structures are the ones used both internally and for data exchanging with 
-* the library user.
-* @ingroup core 
+* This includes class crofbase as main entry point and classes cofctl and cofdpt defining 
+* an abstraction for an attached controller or data path entity, respectively.
+* crofbase offers a number of helper methods for making sending OpenFlow messages an easy and intuitive task.
+* cofctl and cofdpt store all relevant information for a single control association.
 *
 */
 
-//Matching algorithms
-/**
-* @defgroup core_ma Extensible Openflow software matching algorithm APIs 
-* @brief APIs to extend ROFL-pipeline with new (software/hybrid) Openflow table matching algorithms. 
-* @ingroup core
-*
-* @defgroup core_ma_of12 Extensible Openflow v1.2 software matching algorithm API 
-* @brief API to extend ROFL-pipeline with new (software/hybrid) Openflow v1.2 table matching algorithms. 
-* @ingroup core_ma
-* Defines the set of APIs or interfaces to extend core library with new software/hybrid matching algorithms for Openflow version 1.2 within the table matching process.
-*
-*/
-
-//Switch runtime
+// common (base)
 /**
 *
-* @defgroup sw_runtime Switch Runtime APIs
-* @brief APIs used by software and hybrid switches, which have to process packets and/or entry expirations. 
-*
-* Only the documented structures and APIs should be used by the user library.
-*/
-
-
-//Mgmt
-/**
-*
-* @defgroup mgmt Managment API
-* @brief Mananagement of the system's/device state (physical switch), including logical switches and ports. 
-*
-* Exposes the api for managing so-called physical switch (the platform), including logical switches and platform ports.
-*
-*
-* This is roughly:
-*  - Device ports (network interface)
-*    - Port statistics
-*  - Logical switch creation and destruction
-*  - Attachement of ports to logical switches
-*
-*/
-
-//Openflow APIs
-
-/**
-* @defgroup async_events_hooks Openflow asynchronous events and hooks APIs 
-* @brief APIs that library consumes to communicate asynchronous events (as well as some other hooks) to the endpoint or an intermediate layer; must be implemented by the library users.
-*
-*
-* @defgroup async_events_hooks_of12 Openflow v1.2 events and hooks APIs
-* @brief Openflow version 1.2 asynchronous events and hooks APIs
-* @ingroup async_events_hooks
-*
-*/
-
-//Platform APIs
-
-/**
-* @defgroup platform Platform APIs 
-* @brief Platform APIs is a group of APIs which are used by the library but its implementation is platform specific. 
+* @defgroup common_base Helper Classes for Addresses, MAC-Addresses, etc.
+* @brief A number of inevitable base classes for making common things like a struct sockaddr easily managable.
 * 
-* Platform APIs is the group of APIs that are used internally in the library, but its implementation is
-* platform specific. Examples are memory management and locking. The user of the library MUST implement all the
-* platform APIs.
-* 
-* @defgroup platform_lock Locking API
-* @brief Locking (mutex, rwlock) API definition, that must be implemented by the library users
-* @ingroup platform 
-*
-* @defgroup platform_atomic Atomic Operations API
-* @brief Atomic operations (atomic add, inc...) API definition, that must be implemented by the library users
-* @ingroup platform 
-*
-*
-* @defgroup platform_memory Memory API
-* @brief Memory management API definition (malloc, free..), that must be implemented by the library users.
-* @ingroup platform
-*
-* @defgroup platform_packet Packet Mangling API
-* @brief Packet Mangling API is in charge of packet manipulation and must be implemented by the library users
-* @ingroup platform
+* Here, we gather a number of helper classes for hiding UN*X API complexity behind an easy to use interface,
+* e.g. for manging memory access via class cmemory. This also contains the main I/O service defined in ROFL
+* that distributes events throughout an OpenFlow protocol endpoint.
+* @ingroup common_main
 *
 */
+
+// common/openflow
+/**
+* @defgroup common_openflow C++ mapped OpenFlow data structures
+* @brief C++ class representations of (almost all) C structures defined within the OpenFlow specification with getter/setter methods.
+*
+* In order to make the binary C data structures defined in OpenFlow easily managable, ROFL defines a C++ class representation for 
+* each of these structures including actions, matches, buckets, specific statistics, list of the beforementioned entities and so on. 
+* These classes provide an interface for manipulating the C structures in an OF version agnostic manner, i.e. ROFL aims to help 
+* in getting the right parameter for the right OF version.
+* @ingroup common_main
+*
+*/
+
+
+// common/openflow/extensions
+/**
+* @defgroup common_openflow_extensions OpenFlow Protocol Extensions
+* @brief ROFL contains a number of extensions to the base OpenFlow protocol, namely the flowspace registration as defined in EU FP7 project SPARC.
+*
+* This groups useful extensions to the base OpenFlow protocol. However, things may be added or removed, based on the experience made by using them.
+* Stay tuned for changes here.
+* @ingroup common_openflow
+*
+*/
+
+
+// common/openflow/messages
+/**
+* @defgroup common_openflow_messages OpenFlow Protocol Messages
+* @brief Here you find C++ abstractions for all protocol messages defined by OpenFlow.
+*
+* ROFL provides C++ abstractions for all protocol messages defined in OpenFlow, offering
+* access to the messages' parameters. Class crofbase defines a complete set of default handler
+* methods for receiving OpenFlow messages. Derived classes may overwrite any of these 
+* handler methods for getting direct access to the received message. Please note that 
+* ROFL creates all messages on the application's heap, i.e. you must destroy the message
+* once you are done with it.
+* @ingroup common_openflow
+*
+*/
+
+
+// common/openflow/experimental
+/**
+* @defgroup common_openflow_experimental OpenFlow Experimental Matches and Actions
+* @brief OpenFlow allows definition of experimental matches (and actions, well, more or less). 
+*
+* Based on its history in various research projects, ROFL contains a number of experimental matches 
+* and actions, namely for PPPoE/PPP and GTP.
+* @ingroup common_openflow
+*
+*/
+
+
+// common/protocols
+/**
+* @defgroup common_protocols Helper Classes for Various Network Protocols
+* @brief ROFL provides a set of helper classes for interpreting PDUs of various network protocols like Ethernet, VLAN, MPLS, IPv6/v6, etc.
+*
+* These helper classes are called frames in ROFL, as they are capable of interpreting any arbitrary memory section 
+* as the intended protocol frame. In that sense they behave like C structs, while extending the C struct with 
+* a convenient interface for accessing the protocol frame's fields in a safe way.
+* @ingroup common_base
+*
+*/
+
+
