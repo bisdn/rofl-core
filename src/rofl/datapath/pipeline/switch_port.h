@@ -127,7 +127,7 @@ typedef enum port_type{
 *  - PORT_TYPE_TUNNEL: a tunnel endpoint termination.
 *  - PORT_TYPE_VIRTUAL: anything that does not fall to previous cat.
 *  - PORT_TYPE_META: meta type should NEVER be used by the user. This 
-*    has nothing to do with Openflow METADATA. 
+*    has nothing to do with OpenFlow METADATA. 
 *
 */
 typedef struct switch_port{

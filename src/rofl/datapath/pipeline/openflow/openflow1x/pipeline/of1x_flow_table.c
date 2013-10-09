@@ -12,7 +12,7 @@
 
 
 /* 
-* Openflow table operations
+* OpenFlow table operations
 *
 * Assumptions:
 * - A Table MUST always have entries ordered by Nº of OF hits first, and for the priority field in second place

@@ -20,7 +20,7 @@
 * @file of1x_pipeline.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
-* @brief Openflow v1.2 pipeline abstraction
+* @brief OpenFlow v1.2 pipeline abstraction
 */
 
 /**
@@ -44,7 +44,7 @@ enum of1x_capabilities {
 struct of1x_switch;
 
 /** 
-* Openflow v1.2 pipeline abstraction data structure
+* OpenFlow v1.2 pipeline abstraction data structure
 */
 typedef struct of1x_pipeline{
 	
@@ -91,7 +91,7 @@ rofl_result_t __of1x_set_pipeline_tables_defaults(of1x_pipeline_t* pipeline, of_
 
 //Wrapping of processing
 /**
-* @brief Processes a packet-out through the Openflow pipeline.  
+* @brief Processes a packet-out through the OpenFlow pipeline.  
 * @ingroup sw_runtime 
 */
 void of1x_process_packet_out_pipeline(const struct of1x_switch *sw, datapacket_t *const pkt, const of1x_action_group_t* apply_actions_group);

@@ -18,7 +18,7 @@
 /**
 * @file of1x_group_table.h
 * @author Victor Alvarez<victor.alvarez (at) bisdn.de>, Marc Sune<marc.sune (at) bisdn.de>
-* @brief Openflow v1.2 group table subsystem 
+* @brief OpenFlow v1.2 group table subsystem 
 */
 
 /**

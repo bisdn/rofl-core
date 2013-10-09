@@ -218,7 +218,7 @@ afa_result_t fwd_module_list_matching_algorithms(of_version_t of_version, const 
 //C++ extern C
 AFA_END_DECLS
 
-/* Openflow related events */
+/* OpenFlow related events */
 #include "openflow/openflow1x/of1x_fwd_module.h"
 //TODO: Add more versions here...
 

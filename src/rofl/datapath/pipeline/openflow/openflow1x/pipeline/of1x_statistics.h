@@ -15,11 +15,11 @@
 /**
 * @file of1x_statistics.h
 * @author Victor Alvarez<victor.alvarez (at) bisdn.de>, Marc Sune<marc.sune (at) bisdn.de>
-* @brief Openflow v1.2 statistics subsystem 
+* @brief OpenFlow v1.2 statistics subsystem 
 */
 
 
-/*From openflow 1.2 specification, page 50*/
+/*From OpenFlow 1.2 specification, page 50*/
 /*
  * Types of statistics:
  * DESC, FLOW, AGGREGATE, TABLE, PORT, QUEUE, GROUP, GROUP_DESC, GROUP_FEATURES, EXPERIMENTER

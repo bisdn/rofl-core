@@ -48,7 +48,7 @@ typedef void platform_datapacket_state_t;
 * @brief Data packet abstraction
 *
 * Abstraction that represents a data packet that may transverse
-* one Logical Switch Openflow Pipeline. This abstraction is Openflow 
+* one Logical Switch OpenFlow Pipeline. This abstraction is OpenFlow 
 * version agnostic. It contains a (void*) reference, platform_state
 * to allow the user of the library to keep platform specific state 
 * while transversing the pipeline, which the packet mangling APIs may
@@ -59,7 +59,7 @@ typedef struct datapacket{
 	//Pointer to the switch which is processing the packet
 	of_switch_t const* sw;
 
-	//Generic Openflow matches and write actions 
+	//Generic OpenFlow matches and write actions 
 	of_packet_matches_t matches;
 	of_write_actions_t write_actions;
 

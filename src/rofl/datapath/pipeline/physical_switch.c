@@ -21,7 +21,7 @@ switch_port_t* all_meta_port=NULL;
 // Physical switch mgmt
 //
 
-//Generate the matching algorithm list for all Openflow versions	
+//Generate the matching algorithm list for all OpenFlow versions	
 void __physical_switch_generate_matching_algorithm_list(){
 	__of1x_generate_matching_algorithm_list();
 	//Add more versions here...

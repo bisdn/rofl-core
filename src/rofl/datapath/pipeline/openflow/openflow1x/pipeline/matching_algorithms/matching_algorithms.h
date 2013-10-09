@@ -10,7 +10,7 @@
 * @file matching_algorithm.h
 * @author Tobias Jungel<tobias.jungel (at) bisdn.de>, Marc Sune<marc.sune (at) bisdn.de>
 *
-* @brief Openflow v1.2 Extendable Matching Algorithm API
+* @brief OpenFlow v1.2 Extendable Matching Algorithm API
 *
 * The Extendable Matching Algorithm API (EMAA) is the set of interfaces that allow to extend
 * the lookup of flow entries within a pipeline flow table. The API covers the lookup as well
@@ -94,7 +94,7 @@ typedef struct of1x_matching_algorithm_functions{
 	* The matching algorithm does NOT need to care about statistics or timers. 
 	*
 	* Remember that the matching algorithm is in charge of mantaining table entry state.
-	* The addition MUST comply with the behaviour defined in the Openflow v1.2 specification
+	* The addition MUST comply with the behaviour defined in the OpenFlow v1.2 specification
 	* 
 	*/
 	rofl_of1x_fm_result_t
@@ -121,7 +121,7 @@ typedef struct of1x_matching_algorithm_functions{
 	* The matching algorithm does NOT need to care about statistics or timers. 
 	*
 	* Remember that the matching algorithm is in charge of mantaining table entry state.
-	* The modify operation MUST comply with the behaviour defined in the Openflow v1.2
+	* The modify operation MUST comply with the behaviour defined in the OpenFlow v1.2
 	* specification
 	* 
 	*/
@@ -149,7 +149,7 @@ typedef struct of1x_matching_algorithm_functions{
 	* The matching algorithm does NOT need to care about statistics or timers. 
 	*
 	* Remember that the matching algorithm is in charge of mantaining table entry state.
-	* The remove operation MUST comply with the behaviour defined in the Openflow v1.2
+	* The remove operation MUST comply with the behaviour defined in the OpenFlow v1.2
 	* specification
 	* 
 	*/
@@ -173,7 +173,7 @@ typedef struct of1x_matching_algorithm_functions{
 	* The lookup of the best match may use the algorithm internal representation
 	* to speedup the process.
 	*
-	* In any case, the lookup MUST comply with the behaviour defined in the Openflow
+	* In any case, the lookup MUST comply with the behaviour defined in the OpenFlow
 	* v1.2 specification
 	*/
 	of1x_flow_entry_t*
@@ -186,7 +186,7 @@ typedef struct of1x_matching_algorithm_functions{
 	/**
 	* @ingroup core_ma_of1x 
 	* Retrieves flow stats according to spec 
-	* The operation MUST comply with the behaviour defined in the Openflow v1.2 specification
+	* The operation MUST comply with the behaviour defined in the OpenFlow v1.2 specification
 	*/
 	rofl_result_t
 	(*get_flow_stats_hook)(struct of1x_flow_table *const table,
@@ -202,7 +202,7 @@ typedef struct of1x_matching_algorithm_functions{
 	/**
 	* @ingroup core_ma_of1x 
 	* Retrieves aggregate flow stats according to spec 
-	* The operation MUST comply with the behaviour defined in the Openflow v1.2 specification
+	* The operation MUST comply with the behaviour defined in the OpenFlow v1.2 specification
 	*/
 	rofl_result_t	
 	(*get_flow_aggregate_stats_hook)(struct of1x_flow_table *const table,

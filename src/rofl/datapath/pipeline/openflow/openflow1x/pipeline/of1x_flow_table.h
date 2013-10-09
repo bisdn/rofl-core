@@ -22,7 +22,7 @@
 * @file of1x_flow_table.h
 * @author Marc Sune<marc.sune (at) bisdn.de>, Tobias Jungel<tobias.jungel (at) bisdn.de>  
 *
-* @brief Openflow v1.2 flow table abstraction
+* @brief OpenFlow v1.2 flow table abstraction
 *
 * The of1x_flow_table structure contains the main abstraction of the
 * a flow entry table (or a flowmod table).
@@ -82,7 +82,7 @@ typedef struct{
 
 
 /**
- * Openflow v1.2 flow table abstraction
+ * OpenFlow v1.2 flow table abstraction
  */
 typedef struct of1x_flow_table{
 

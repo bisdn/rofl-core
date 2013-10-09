@@ -40,7 +40,7 @@ afa_result_t cmm_notify_port_status_changed(switch_port_t* port);
 //C++ extern C
 AFA_END_DECLS
 
-/* Openflow related events */
+/* OpenFlow related events */
 #include "openflow/openflow1x/of1x_cmm.h"
 //TODO: Add more versions here...
 

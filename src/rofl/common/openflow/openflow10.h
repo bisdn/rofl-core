@@ -65,7 +65,7 @@ enum ofp10_port_no {
                                   those disabled by STP. */
     OFPP10_ALL        = 0xfffc,  /* All physical ports except input port. */
     OFPP10_CONTROLLER = 0xfffd,  /* Send to controller. */
-    OFPP10_LOCAL      = 0xfffe,  /* Local openflow "port". */
+    OFPP10_LOCAL      = 0xfffe,  /* Local OpenFlow "port". */
     OFPP10_NONE       = 0xffff   /* Not associated with a physical port. */
 };
 

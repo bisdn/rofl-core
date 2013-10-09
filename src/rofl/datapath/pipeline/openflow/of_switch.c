@@ -1,7 +1,7 @@
 #include "of_switch.h"
 #include "../common/datapacket.h"
 
-//Openflow specific switch implementations 
+//OpenFlow specific switch implementations 
 #include "openflow1x/of1x_switch.h"
 #include "openflow1x/pipeline/of1x_pipeline.h"
 //Add more here...

@@ -69,7 +69,7 @@ enum ofp12_port_no {
                                       port and those blocked or link down. */
     OFPP12_ALL        = 0xfffffffc,  /* All physical ports except input port. */
     OFPP12_CONTROLLER = 0xfffffffd,  /* Send to controller. */
-    OFPP12_LOCAL      = 0xfffffffe,  /* Local openflow "port". */
+    OFPP12_LOCAL      = 0xfffffffe,  /* Local OpenFlow "port". */
     OFPP12_ANY        = 0xffffffff   /* Wildcard port used only for flow mod
                                       (delete) and flow stats requests. Selects
                                       all flows regardless of output port

@@ -15,7 +15,7 @@
 * @file of1x_instruction.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
-* @brief Openflow v1.X instructions 
+* @brief OpenFlow v1.X instructions 
 *
 * Instructions should never be used directly. Instructions
 * are arleady part of the of1x_flow_entry.

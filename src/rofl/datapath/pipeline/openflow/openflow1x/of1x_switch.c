@@ -245,11 +245,11 @@ rofl_result_t __of1x_detach_all_ports_from_switch(of1x_switch_t* sw){
 
 /* Dumping */
 void of1x_dump_switch(of1x_switch_t* sw){
-	ROFL_PIPELINE_INFO("Openflow switch instance (%p)\n",sw);
+	ROFL_PIPELINE_INFO("OpenFlow switch instance (%p)\n",sw);
 	ROFL_PIPELINE_INFO("========================\n");
 	ROFL_PIPELINE_INFO("Name: %s\n",sw->name);
-	ROFL_PIPELINE_INFO("Openflow version: %d\n",sw->of_ver);
-	ROFL_PIPELINE_INFO("Openflow datapathid: %" PRIu64 "\n",sw->dpid);
+	ROFL_PIPELINE_INFO("OpenFlow version: %d\n",sw->of_ver);
+	ROFL_PIPELINE_INFO("OpenFlow datapathid: %" PRIu64 "\n",sw->dpid);
 }
 
 void of1x_full_dump_switch(of1x_switch_t* sw){

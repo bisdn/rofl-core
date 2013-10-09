@@ -29,7 +29,7 @@ AFA_BEGIN_DECLS
  * @brief   Instructs the CMM to process a PACKET_IN event comming from the DP
  * @ingroup of1x_cmm_async_event_processing
  *
- * @param sw Openflow 1.2 switch pointer that generated the PACKET_IN
+ * @param sw OpenFlow 1.2 switch pointer that generated the PACKET_IN
  * @param table_id ID of the table that produced PACKET_IN
  * @param reason one of the OFPR_ ... constants
  * @param in_port Incomming packet port 
@@ -54,7 +54,7 @@ afa_result_t cmm_process_of1x_packet_in(const of1x_switch_t* sw,
  * @brief   Instructs the CMM to process a FLOW_REMOVED event comming from the DP
  * @ingroup of1x_cmm_async_event_processing
  *
- * @param sw Openflow 1.2 switch pointer that generated the FLOW_REMOVED
+ * @param sw OpenFlow 1.2 switch pointer that generated the FLOW_REMOVED
  * @param removed_flow_entry The entry shall ONLY be used for reading, and shall NEVER be
  * removed (of1x_remove_flow_entry). This is done by the fwd_module itself.
  */

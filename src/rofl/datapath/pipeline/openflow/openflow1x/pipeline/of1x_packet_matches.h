@@ -19,7 +19,7 @@ struct datapacket;
 union of_packet_matches;
 
 /* 
-* Packet OF12 matching values. Matching structure expected by the pipeline for Openflow 1.2
+* Packet OF12 matching values. Matching structure expected by the pipeline for OpenFlow 1.2
 */
 typedef struct{
 

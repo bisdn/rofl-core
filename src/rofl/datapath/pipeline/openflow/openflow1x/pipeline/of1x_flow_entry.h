@@ -21,7 +21,7 @@
 * @file of1x_flow_entry.h
 * @author Marc Sune<marc.sune (at) bisdn.de>, Tobias Jungel<tobias.jungel (at) bisdn.de>  
 *
-* @brief Openflow v1.2 flow entry abstraction
+* @brief OpenFlow v1.2 flow entry abstraction
 *
 */
 
@@ -63,7 +63,7 @@ typedef void of1x_flow_entry_platform_state_t;
 #define OF10_NON_WILDCARDED_PRIORITY_FLAG 0x10000
 
 /**
-* Openflow v1.2 flow entry structure
+* OpenFlow v1.2 flow entry structure
 * @ingroup core_of1x 
 */
 typedef struct of1x_flow_entry{

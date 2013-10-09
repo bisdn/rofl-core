@@ -16,7 +16,7 @@
 * @file of1x_action.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
-* @brief Openflow v1.2 actions 
+* @brief OpenFlow v1.2 actions 
 *
 * Actions are a part of a of1x_flow_entry. The typical
 * workflow for creation of actions is:
@@ -247,7 +247,7 @@ enum of1x_port_numbers {
 						port and those blocked or link down. */
 	OF1X_PORT_ALL        = 0xfffffffc,	/* All physical ports except input port. */
 	OF1X_PORT_CONTROLLER = 0xfffffffd,  	/* Send to controller. */
-	OF1X_PORT_LOCAL      = 0xfffffffe,  	/* Local openflow "port". */
+	OF1X_PORT_LOCAL      = 0xfffffffe,  	/* Local OpenFlow "port". */
 	OF1X_PORT_ANY        = 0xffffffff	/* Wildcard port used only for flow mod
 						(delete) and flow stats requests. Selects
 						all flows regardless of output port

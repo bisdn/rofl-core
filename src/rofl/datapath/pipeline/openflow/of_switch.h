@@ -13,9 +13,9 @@
 * @file of_switch.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
-* @brief Openflow logical switch meta-abstraction
+* @brief OpenFlow logical switch meta-abstraction
 *
-* The of_switch type contains the commonalities of an Openflow-enabled
+* The of_switch type contains the commonalities of an OpenFlow-enabled
 * switch. of_switch structure is the version agnostic of
 * any ofXX_switch type. Any version specific of_switch struct MUST
 * share the same initial memory layout. 
@@ -41,7 +41,7 @@ struct datapacket;
 
 /**
 * @ingroup core 
-* Openflow-enabled switch abstraction (version-indepedent part).
+* OpenFlow-enabled switch abstraction (version-indepedent part).
 */
 typedef struct of_switch{
 
@@ -75,10 +75,10 @@ ROFL_BEGIN_DECLS
 
 //Wrapping destroy
 /**
-* @brief  Destroys an Openflow logical switch.
+* @brief  Destroys an OpenFlow logical switch.
 * @ingroup core 
 *
-* of_destroy_switch() an Openflow logical switch. The switch MUST have
+* of_destroy_switch() an OpenFlow logical switch. The switch MUST have
 * been already removed from the physical switch pool via 
 * physical_switch_remove_logical_switch_by_dpid() or physical_switch_remove_logical_switch()
 *
@@ -102,7 +102,7 @@ rofl_result_t of_reconfigure_switch(of_switch_t* sw, of_version_t version);
 
 //Wrapping of processing
 /**
-* @brief Processes a packet through the Openflow pipeline.  
+* @brief Processes a packet through the OpenFlow pipeline.  
 * @ingroup sw_runtime 
 *
 * This call may only be used if the platform does not have a hardware

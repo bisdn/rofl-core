@@ -15,7 +15,7 @@
 * @file of1x_async_events_hooks_hooks.h
 * @author Marc Sune<marc.sune (at) bisdn.de>, Tobias Jungel<tobias.jungel (at) bisdn.de>  
 *
-* @brief Openflow v1.2 switch(fwd module) -> asynchronous event notification and hooks) 
+* @brief OpenFlow v1.2 switch(fwd module) -> asynchronous event notification and hooks) 
 *
 * This file contains event notifications, and other related hooks that the library expects to be
 * implemented by the library user, in order to be called appropiately from the pipeline library.
