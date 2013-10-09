@@ -17,7 +17,7 @@
 * @file of1x_switch.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
-* @brief OpenFlow v1.2 logical switch abstraction
+* @brief OpenFlow v1.0, 1.2 and 1.3.2 logical switch abstraction
 *
 */
 
@@ -25,7 +25,7 @@
 
 /**
 * @ingroup core_of1x 
-* OpenFlow-enabled v1.2 switch abstraction
+* OpenFlow-enabled v1.0, 1.2 and 1.3.2 switch abstraction
 */
 typedef struct of1x_switch{
 	
@@ -59,10 +59,10 @@ ROFL_BEGIN_DECLS
 /* Initializer and destroyer */
 
 /**
-* @brief Creates an OpenFlow v1.2 forwarding instance.  
+* @brief Creates an OpenFlow v1.0, 1.2 and 1.3.2 forwarding instance.  
 * @ingroup core_of1x 
 * @param version OF version 
-* @param num_of_tables Number of tables that the v1.2 pipeline should have. This is immutable 
+* @param num_of_tables Number of tables that the v1.2 and 1.3 pipeline should have. This is immutable 
 * during the lifetime of the switch.
 * @param ma_list An array with num_of_tables, with the matching algorithm that should
 * be used in each table (0..num_of_tables-1) 
@@ -83,12 +83,12 @@ rofl_result_t __of1x_detach_all_ports_from_switch(of1x_switch_t* sw);
 
 /* Dump */
 /**
-* @brief Dumps the OpenFlow v1.2 forwarding instance, for debugging purposes.  
+* @brief Dumps the OpenFlow v1.0, 1.2 and 1.3.2 forwarding instance, for debugging purposes.  
 * @ingroup core_of1x 
 */
 void of1x_dump_switch(of1x_switch_t* sw);
 /**
-* @brief Dumps the OpenFlow v1.2 forwarding instance, for debugging purposes.  
+* @brief Dumps the OpenFlow v1.0, 1.2 and 1.3.2 forwarding instance, for debugging purposes.  
 * @ingroup core_of1x 
 */
 void of1x_full_dump_switch(of1x_switch_t* sw);

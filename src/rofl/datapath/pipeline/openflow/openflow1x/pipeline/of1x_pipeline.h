@@ -20,7 +20,7 @@
 * @file of1x_pipeline.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
-* @brief OpenFlow v1.2 pipeline abstraction
+* @brief OpenFlow v1.0, 1.2 and 1.3.2 pipeline abstraction
 */
 
 /**
@@ -44,7 +44,7 @@ enum of1x_capabilities {
 struct of1x_switch;
 
 /** 
-* OpenFlow v1.2 pipeline abstraction data structure
+* OpenFlow v1.0, 1.2 and 1.3.2 pipeline abstraction data structure
 */
 typedef struct of1x_pipeline{
 	

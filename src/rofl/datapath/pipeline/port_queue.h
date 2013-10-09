@@ -38,7 +38,7 @@ typedef struct queue_stats {
 
 
 /**
-* @brief Switch queue abstraction 
+* @brief Switch queue abstraction.
 * @ingroup core
 *
 * The library does not supose any special meanining over the queue id
@@ -115,7 +115,7 @@ void port_queue_stats_inc(port_queue_t* queue,
 				uint64_t overrun);
 
 /*
-* @brief Init a port_queue structure
+* @brief Init a port_queue structure.
 * @ingroup  mgmt
 */
 rofl_result_t __port_queue_init(port_queue_t* queue, uint32_t id, char* name, uint16_t length, uint16_t min_rate, uint16_t max_rate);

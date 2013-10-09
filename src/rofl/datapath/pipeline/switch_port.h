@@ -6,7 +6,7 @@
 * @file switch_port.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
-* @brief Port abstraction and API 
+* @brief Port abstraction and API.
 */
 
 
@@ -29,7 +29,7 @@ struct of_switch;
 #define SWITCH_PORT_MAX_QUEUES 16
 
 /**
-* @brief Port state 
+* @brief Port state. 
 * @ingroup core 
 */
 typedef enum{
@@ -95,7 +95,7 @@ typedef struct port_stats {
 }port_stats_t;
 
 /**
-* @brief Port type enumeration 
+* @brief Port type enumeration.
 * @ingroup core
 *
 * META ports are fake ports. META distinction is "group" of 
@@ -117,7 +117,7 @@ typedef enum port_type{
 
 
 /**
-* @brief Port abstraction
+* @brief Port abstraction.
 * @ingroup core
 *
 * The switch_port implements the switch port abstraction.

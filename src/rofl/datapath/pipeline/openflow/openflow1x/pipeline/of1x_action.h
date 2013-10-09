@@ -16,7 +16,7 @@
 * @file of1x_action.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 *
-* @brief OpenFlow v1.2 actions 
+* @brief OpenFlow v1.0, 1.2 and 1.3.2 actions 
 *
 * Actions are a part of a of1x_flow_entry. The typical
 * workflow for creation of actions is:

@@ -15,7 +15,7 @@
 /**
 * @file of1x_statistics.h
 * @author Victor Alvarez<victor.alvarez (at) bisdn.de>, Marc Sune<marc.sune (at) bisdn.de>
-* @brief OpenFlow v1.2 statistics subsystem 
+* @brief OpenFlow v1.0, 1.2 and 1.3.2 statistics subsystem 
 */
 
 

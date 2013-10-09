@@ -13,7 +13,7 @@
 /**
 * @file of1x_timers.h
 * @author Victor Alvarez<victor.alvarez (at) bisdn.de>
-* @brief OpenFlow v1.2 timers subsystem
+* @brief OpenFlow v1.0, 1.2 and 1.3.2 timers subsystem
 *
 * @warning This is an internal subsystem and should never be used
 * outside the pipeline
