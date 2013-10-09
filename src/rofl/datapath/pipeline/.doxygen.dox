@@ -5,7 +5,7 @@
 * @section doc Documentation 
 * @subsection intro_sec Concept
 *
-* The ROFL-pipeline library is a platform-independent OpenFlow forwarding backend engine. The intention was to create a unified common OpenFlow forwarding backend for several platforms supported by our eXtensible DataPath (xDP <b><-link</b>) in <a href="https://www.bisdn.de">BISDN</a>, like the UNIX, Network procesors or Broadcom family boards.
+* The ROFL-pipeline library is a platform-independent OpenFlow forwarding backend engine. The intention was to create a unified common OpenFlow forwarding backend for several platforms supported by our eXtensible DataPath (<a href="https://www.codebasin.net/redmine/projects/xdpd">xDPd</a>) in <a href="https://www.bisdn.de">BISDN</a>, like the UNIX, Network procesors or Broadcom family boards.
 * 
 * Features:
 *  - Complete OpenFlow processing pipeline, including abstractions of switch (forwarding only), pipeline, table, entry, matches, actions... as well as the subsystems of timers and stats.
