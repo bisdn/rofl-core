@@ -60,7 +60,7 @@ rofl_result_t platform_post_init_of1x_switch(of1x_switch_t* sw);
 rofl_result_t platform_pre_destroy_of1x_switch(of1x_switch_t* sw);
 
 /**
-* @brief Packet in event notification 
+* @brief Packet in event notification. 
 * @ingroup async_events_hooks_of1x
 *
 * The implementation of packet_in must either store the buffer (pkt) for later reference

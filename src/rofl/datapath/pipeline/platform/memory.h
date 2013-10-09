@@ -40,7 +40,7 @@
 ROFL_BEGIN_DECLS
 
 /**
-* @brief Allocates a chunk of dynamic memory of size length
+* @brief Allocates a chunk of dynamic memory of size length.
 * @ingroup platform_memory
 *
 * This in LIBC compatible platforms is equivalent to malloc()

@@ -593,7 +593,7 @@ void platform_packet_set_udp_dst(datapacket_t* pkt, uint16_t udp_dst);
 uint16_t platform_packet_get_sctp_src(datapacket_t *const pkt);
 /**
 * @ingroup platform_packet
-* Get the SCTP src port 
+* Get the SCTP dst port 
 * @return value if existing, 0x0 otherwise.
 */
 uint16_t platform_packet_get_sctp_dst(datapacket_t *const pkt);
