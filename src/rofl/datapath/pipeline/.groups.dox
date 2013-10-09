@@ -11,8 +11,8 @@
 *
 * The core APIs expose the initiliazers/destructors and the data structures used by the core library and by the other APIs (exposed and consumed). Only the documented structures and APIs should be used by the user library.
 *
-* @defgroup core_of12 Openflow v1.2 core APIs and data structures
-* @brief The core Openflow v1.2 APIs and data structures are the ones used both internally and for data exchanging with 
+* @defgroup core_of12 OpenFlow v1.2 core APIs and data structures
+* @brief The core OpenFlow v1.2 APIs and data structures are the ones used both internally and for data exchanging with 
 * the library user.
 * @ingroup core 
 *
@@ -20,14 +20,14 @@
 
 //Matching algorithms
 /**
-* @defgroup core_ma Extensible Openflow software matching algorithm APIs 
-* @brief APIs to extend ROFL-pipeline with new (software/hybrid) Openflow table matching algorithms. 
+* @defgroup core_ma Extensible OpenFlow software matching algorithm APIs 
+* @brief APIs to extend ROFL-pipeline with new (software/hybrid) OpenFlow table matching algorithms. 
 * @ingroup core
 *
-* @defgroup core_ma_of12 Extensible Openflow v1.2 software matching algorithm API 
-* @brief API to extend ROFL-pipeline with new (software/hybrid) Openflow v1.2 table matching algorithms. 
+* @defgroup core_ma_of12 Extensible OpenFlow v1.2 software matching algorithm API 
+* @brief API to extend ROFL-pipeline with new (software/hybrid) OpenFlow v1.2 table matching algorithms. 
 * @ingroup core_ma
-* Defines the set of APIs or interfaces to extend core library with new software/hybrid matching algorithms for Openflow version 1.2 within the table matching process.
+* Defines the set of APIs or interfaces to extend core library with new software/hybrid matching algorithms for OpenFlow version 1.2 within the table matching process.
 *
 */
 
@@ -58,15 +58,15 @@
 *
 */
 
-//Openflow APIs
+//OpenFlow APIs
 
 /**
-* @defgroup async_events_hooks Openflow asynchronous events and hooks APIs 
+* @defgroup async_events_hooks OpenFlow asynchronous events and hooks APIs 
 * @brief APIs that library consumes to communicate asynchronous events (as well as some other hooks) to the endpoint or an intermediate layer; must be implemented by the library users.
 *
 *
-* @defgroup async_events_hooks_of12 Openflow v1.2 events and hooks APIs
-* @brief Openflow version 1.2 asynchronous events and hooks APIs
+* @defgroup async_events_hooks_of12 OpenFlow v1.2 events and hooks APIs
+* @brief OpenFlow version 1.2 asynchronous events and hooks APIs
 * @ingroup async_events_hooks
 *
 */
