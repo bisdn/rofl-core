@@ -7,6 +7,7 @@
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_pipeline.h"
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_flow_entry.h"
 #include "rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_instruction.h"
+#include "rofl/datapath/pipeline/common/large_types.h"
 
 
 int ipv6_set_up(void);

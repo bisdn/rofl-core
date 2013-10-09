@@ -3,9 +3,6 @@
 #include "CUnit/Basic.h"
 #include "test_ipv6.h"
 
-#define HI(x) *(uint64_t*)&x.val[0]
-#define LO(x) *(uint64_t*)&x.val[8]
-
 static of1x_switch_t* sw=NULL;
 
 int ipv6_set_up(void){
@@ -85,9 +82,9 @@ void ipv6_utern_test(void){
 void ipv6_alike_test_low(void){
 	utern_t * tern1,*tern2,*res;
 	//WARNING!!!						{		HIGH		,		LOW		}
-	uint128__t mask; HI(mask) =  0xffffffffffffffff; LO(mask) = 0xffffffffffffffff;
-	uint128__t value1; HI(value1) = 0xaaaabbbbccccdddd; LO(value1) =0x1111222233334444;
-	uint128__t value2; HI(value2) = 0xaaaabbbbccccdddd; LO(value2) =0x1111222233335444;
+	uint128__t mask; UINT128__T_HI(mask) =  0xffffffffffffffff; UINT128__T_LO(mask) = 0xffffffffffffffff;
+	uint128__t value1; UINT128__T_HI(value1) = 0xaaaabbbbccccdddd; UINT128__T_LO(value1) =0x1111222233334444;
+	uint128__t value2; UINT128__T_HI(value2) = 0xaaaabbbbccccdddd; UINT128__T_LO(value2) =0x1111222233335444;
 	
 	tern1 = __init_utern128(value1,mask);
 	tern2 = __init_utern128(value2,mask);
@@ -95,9 +92,9 @@ void ipv6_alike_test_low(void){
 	
 	CU_ASSERT(res!=NULL);
 	if(res){
-		printf("1- masks 0x%lx 0x%lx\n",HI(res->mask.u128),LO(res->mask.u128));
-		CU_ASSERT(HI(res->mask.u128)==0xffffffffffffffff);
-		CU_ASSERT(LO(res->mask.u128) ==0xffffffffffffe000);
+		printf("1- masks 0x%lx 0x%lx\n",UINT128__T_HI(res->mask.u128),UINT128__T_LO(res->mask.u128));
+		CU_ASSERT(UINT128__T_HI(res->mask.u128)==0xffffffffffffffff);
+		CU_ASSERT(UINT128__T_LO(res->mask.u128) ==0xffffffffffffe000);
 	}
 	__destroy_utern((utern_t*)tern1);
 	__destroy_utern((utern_t*)tern2);
@@ -107,18 +104,18 @@ void ipv6_alike_test_low(void){
 void ipv6_alike_test_high(void){
 	utern_t * tern1,*tern2,*res;
 	// Second test: change of mask and add different bytes in higher part
-	uint128__t mask;   HI(mask) = 0xffffffffffffffff; LO(mask) = 0xfffffffffff00000;
-	uint128__t value1; HI(value1) = 0xaaaabbbbccccdddf; LO(value1) = 0x1111222233334444;
-	uint128__t value2; HI(value2) = 0xaaaabbbbccccdddd; LO(value2) = 0x1111222233335444; 
+	uint128__t mask;   UINT128__T_HI(mask) = 0xffffffffffffffff; UINT128__T_LO(mask) = 0xfffffffffff00000;
+	uint128__t value1; UINT128__T_HI(value1) = 0xaaaabbbbccccdddf; UINT128__T_LO(value1) = 0x1111222233334444;
+	uint128__t value2; UINT128__T_HI(value2) = 0xaaaabbbbccccdddd; UINT128__T_LO(value2) = 0x1111222233335444; 
 	
 	tern1 = __init_utern128(value1,mask);
 	tern2 = __init_utern128(value2,mask);
 	res = __utern_get_alike(*tern1,*tern2);
 	CU_ASSERT(res!=NULL);
 	if(res){
-		printf("2- masks 0x%lx 0x%lx\n",HI(res->mask.u128),LO(res->mask.u128));
-		CU_ASSERT(HI(res->mask.u128)==0xfffffffffffffffc);
-		CU_ASSERT(LO(res->mask.u128)==0x0000000000000000);
+		printf("2- masks 0x%lx 0x%lx\n",UINT128__T_HI(res->mask.u128),UINT128__T_LO(res->mask.u128));
+		CU_ASSERT(UINT128__T_HI(res->mask.u128)==0xfffffffffffffffc);
+		CU_ASSERT(UINT128__T_LO(res->mask.u128)==0x0000000000000000);
 	}
 	__destroy_utern((utern_t*)tern1);
 	__destroy_utern((utern_t*)tern2);
@@ -128,10 +125,10 @@ void ipv6_alike_test_high(void){
 void ipv6_alike_test_wrong(void){
 	utern_t * tern1,*tern2,*res;
 	// masks have nothing in common
-	uint128__t value1; HI(value1) = 0xaaaaaaaaffffffff; LO(value1) = 0x1111222233334444;
-	uint128__t mask1;  HI(mask1)  = 0xffffffffffffffff; LO(mask1)  = 0x0000000000000000;
-	uint128__t value2; HI(value2) = 0xaaaabbbbccccdddd; LO(value2) = 0x1111222233335444; 
-	uint128__t mask2;  HI(mask2)  = 0x0000000000000000; LO(mask2)  = 0xffffffffffffffff;
+	uint128__t value1; UINT128__T_HI(value1) = 0xaaaaaaaaffffffff; UINT128__T_LO(value1) = 0x1111222233334444;
+	uint128__t mask1;  UINT128__T_HI(mask1)  = 0xffffffffffffffff; UINT128__T_LO(mask1)  = 0x0000000000000000;
+	uint128__t value2; UINT128__T_HI(value2) = 0xaaaabbbbccccdddd; UINT128__T_LO(value2) = 0x1111222233335444; 
+	uint128__t mask2;  UINT128__T_HI(mask2)  = 0x0000000000000000; UINT128__T_LO(mask2)  = 0xffffffffffffffff;
 	
 	tern1 = __init_utern128(value1,mask1);
 	tern2 = __init_utern128(value2,mask2);
@@ -143,10 +140,10 @@ void ipv6_alike_test_wrong(void){
 	__destroy_utern((utern_t*)res);
 	
 	// masks have something in commom but they are not continuous
-	HI(value1) = 0xaaaaaaaaffffffff; LO(value1) = 0x1111222233334444;
-	HI(mask1)  = 0x0000000000000000; LO(mask1)  = 0xffffffff00000000;
-	HI(value2) = 0xaaaaaaaaffffffff; LO(value2) = 0x1111222233334444; 
-	HI(mask2)  = 0x0000000000000000; LO(mask2)  = 0x00ffffffffffffff;
+	UINT128__T_HI(value1) = 0xaaaaaaaaffffffff; UINT128__T_LO(value1) = 0x1111222233334444;
+	UINT128__T_HI(mask1)  = 0x0000000000000000; UINT128__T_LO(mask1)  = 0xffffffff00000000;
+	UINT128__T_HI(value2) = 0xaaaaaaaaffffffff; UINT128__T_LO(value2) = 0x1111222233334444; 
+	UINT128__T_HI(mask2)  = 0x0000000000000000; UINT128__T_LO(mask2)  = 0x00ffffffffffffff;
 	
 	tern1 = __init_utern128(value1,mask1);
 	tern2 = __init_utern128(value2,mask2);
@@ -163,8 +160,8 @@ void ipv6_alike_test_wrong(void){
 
 void ipv6_install_flow_mod(void){
 	printf("ipv6 test flow mod\n");
-	uint128__t value; HI(value) = 0xffffffffffffffff; LO(value) = 0xffffffffffff1234;
-	uint128__t mask;  HI(value) = 0xffffffffffffffff; LO(value) = 0xffffffffffff0000;
+	uint128__t value; UINT128__T_HI(value) = 0xffffffffffffffff; UINT128__T_LO(value) = 0xffffffffffff1234;
+	uint128__t mask;  UINT128__T_HI(value) = 0xffffffffffffffff; UINT128__T_LO(value) = 0xffffffffffff0000;
 	
 	//Create a simple flow_mod
 	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
@@ -193,8 +190,8 @@ void ipv6_install_flow_mod(void){
 
 void ipv6_install_flow_mod_complete(void){
 	printf("ipv6 test flow mod\n");
-	uint128__t value128; HI(value128) = 0xffffffffffffffff; LO(value128) = 0xffffffffffff1234;
-	uint128__t mask128; HI(mask128) = 0xffffffffffffffff; LO(mask128) = 0xffffffffffff0000;
+	uint128__t value128; UINT128__T_HI(value128) = 0xffffffffffffffff; UINT128__T_LO(value128) = 0xffffffffffff1234;
+	uint128__t mask128; UINT128__T_HI(mask128) = 0xffffffffffffffff; UINT128__T_LO(mask128) = 0xffffffffffff0000;
 	uint64_t value64 = 0xffffffffffff1234, mask64 = 0xffffffffffff0000;
 	
 	//Create a simple flow_mod
