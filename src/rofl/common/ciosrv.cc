@@ -1223,7 +1223,7 @@ handle_packets:			// handle incoming events
 				ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
 			} catch (cerror& e) {
 				//fprintf(stderr, "exception\n");
-				//throw;
+				throw;
 			}
 #endif
 
