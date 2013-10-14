@@ -7,6 +7,7 @@
 using namespace rofl;
 
 extern char* optarg;
+extern int opterr;
 
 /* static */const std::string daemon_dir("/var/tmp");
 
@@ -136,10 +137,11 @@ cunixenv::parse_args(
 	}
 
 	bool do_detach = false;
+	opterr = 0; //Disable message "invalid option"
 
 	//fprintf(stderr,"Using the following format-> %s \n",format.c_str());	
 	while(true){
-	
+			
 		c = getopt_long(argc, argv, format.c_str(), long_options, &option_index);
 		if (c == -1)
 			break;
