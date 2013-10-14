@@ -13,3 +13,5 @@ library_includedir=$(includedir)/rofl/common
 library_include_HEADERS= caddress.h      cmacaddr.h  cpacket.h    croflexp.h    endian_conversion.h  rofcommon.h crofbase.h cvalue.h \
 		cclock.h    cerror.h    cfsm.h        ciosrv.h     cmemory.h   coflist.h   cphyport.h  cport.h    csocket.h   cvastring.h  fframe.h             thread_helper.h  cxidstore.h clist.h
 
+
+AM_CPPFLAGS=-fPIC
