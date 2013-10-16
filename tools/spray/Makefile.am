@@ -1,5 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
+if !ONLY_C_CODE
 SUBDIRS = 
 
 bin_PROGRAMS=spray
@@ -18,4 +19,4 @@ spray_SOURCES= spray.cc \
 			
 			
 spray_LDADD=$(top_builddir)/src/rofl/librofl.la
-
+endif
