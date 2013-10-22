@@ -160,10 +160,11 @@ afa_result_t fwd_module_of1x_process_flow_mod_add(uint64_t dpid, uint8_t table_i
  * @param dpid 		Datapath ID of the switch to install the FLOW_MOD
  * @param table_id 	Table id from which to modify the flowmod
  * @param flow_entry	Flow entry 
+ * @param buffer_id	Buffer ID. 0 or OF1XP_NO_BUFFER and implies no buffer
  * @param strictness 	Strictness (STRICT NON-STRICT)
  * @param check_counts	Check RESET_COUNTS flag
  */
-afa_result_t fwd_module_of1x_process_flow_mod_modify(uint64_t dpid, uint8_t table_id, of1x_flow_entry_t* flow_entry, of1x_flow_removal_strictness_t strictness, bool reset_counts); 
+afa_result_t fwd_module_of1x_process_flow_mod_modify(uint64_t dpid, uint8_t table_id, of1x_flow_entry_t* flow_entry, uint32_t buffer_id, of1x_flow_removal_strictness_t strictness, bool reset_counts); 
 
 
 /**
@@ -183,12 +184,11 @@ afa_result_t fwd_module_of1x_process_flow_mod_modify(uint64_t dpid, uint8_t tabl
  * @param dpid 		Datapath ID of the switch to install the FLOW_MOD
  * @param table_id 	Table id from which to remove the flowmod
  * @param flow_entry	Flow entry
- * @param buffer_id	Buffer ID. 0 or OF1XP_NO_BUFFER and implies no buffer
  * @param out_port 	Out port that entry must include
  * @param out_group 	Out group that entry must include	
  * @param strictness 	Strictness (STRICT NON-STRICT)
  */
-afa_result_t fwd_module_of1x_process_flow_mod_delete(uint64_t dpid, uint8_t table_id, of1x_flow_entry_t* flow_entry, uint32_t buffer_id, uint32_t out_port, uint32_t out_group, of1x_flow_removal_strictness_t strictness); 
+afa_result_t fwd_module_of1x_process_flow_mod_delete(uint64_t dpid, uint8_t table_id, of1x_flow_entry_t* flow_entry, uint32_t out_port, uint32_t out_group, of1x_flow_removal_strictness_t strictness); 
 
 /**
  * @name    fwd_module_of1x_get_flow_stats
