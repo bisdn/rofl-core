@@ -153,10 +153,6 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 			entry->stats.initial_time = existing->stats.initial_time; 
 		}
 		
-		//Delete old entry
-		if(of1x_remove_flow_entry_table_specific_imp(table,existing, OF1X_FLOW_REMOVE_NO_REASON) != ROFL_SUCCESS)
-			return ROFL_OF1X_FM_FAILURE;
-
 		//Let it add normally...
 	}
 	
@@ -200,6 +196,13 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 			//Point entry table to us
 			entry->table = table;
 
+			//Delete old entry
+			if(existing){
+				if(of1x_remove_flow_entry_table_specific_imp(table,existing, OF1X_FLOW_REMOVE_NO_REASON) != ROFL_SUCCESS){
+					assert(0);
+				}
+			}
+
 			// let the platform do the necessary add operations
 			plaftorm_of1x_add_entry_hook(entry);
 
@@ -235,6 +238,13 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 	
 	//Increment the number of entries in the table (safe since we have the mutex acquired)
 	table->num_of_entries++;
+
+	//Delete old entry
+	if(existing){
+		if(of1x_remove_flow_entry_table_specific_imp(table,existing, OF1X_FLOW_REMOVE_NO_REASON) != ROFL_SUCCESS){
+			assert(0);
+		}
+	}
 
 	// let the platform do the necessary add operations
 	plaftorm_of1x_add_entry_hook(entry);
