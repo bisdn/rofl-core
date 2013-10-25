@@ -91,7 +91,7 @@ mmap_test::udp_send()
 			caddress raddr(*it);
 			raddr.ca_s4addr->sin_port = htobe16(dport);
 
-			fprintf(stderr, "seqno: %lu dport: %d laddr: %s raddr(orig): %s raddr(dport): %s\n",
+			fprintf(stderr, "seqno: %"PRIu64" dport: %d laddr: %s raddr(orig): %s raddr(dport): %s\n",
 					seqno, dport, laddr.c_str(), ra.c_str(), raddr.c_str());
 
 			sock->send_packet(new cmemory(payload), raddr);

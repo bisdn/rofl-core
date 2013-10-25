@@ -231,7 +231,7 @@ void
 cudpsend::print_statistics()
 {
 	double bitrate = (double)(8 * txbytes) / (stoptime - starttime) / 1000000;
-	fprintf(stderr, "txbytes: %lu npkts: %lu bitrate: %.6lfMbps\n", txbytes, npkts, bitrate);
+	fprintf(stderr, "txbytes: %"PRIu64" npkts: %"PRIu64" bitrate: %.6lfMbps\n", txbytes, npkts, bitrate);
 
 	if (keep_going)
 		register_timer(CUDPSEND_TIMER_PRINT_STATS, stats_interval);

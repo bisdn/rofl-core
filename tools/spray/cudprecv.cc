@@ -260,7 +260,7 @@ cudprecv::print_statistics()
 	double loss = 100 * ((double)rxlost / npkts);
 	double bitrate = (double)(8 * rxbytes) / (stoptime - starttime) / 1000000;
 
-	fprintf(stdout, "rxseqno: %lu rxbytes: %lu rxlost: %lu npkts: %lu rxrcvd: %lu loss: %lf%% bitrate: %.6lfMbps\n",
+	fprintf(stdout, "rxseqno: %"PRIu64" rxbytes: %"PRIu64" rxlost: %"PRIu64" npkts: %"PRIu64" rxrcvd: %"PRIu64" loss: %lf%% bitrate: %.6lfMbps\n",
 			rxseqno, rxbytes, rxlost, rxseqno - startseqno, rxrcvd, loss, bitrate);
 
 	if (keep_going)
