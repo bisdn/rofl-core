@@ -3,7 +3,6 @@
 #include <assert.h>
 
 #include "../platform/memory.h"
-#include <rofl/datapath/pipeline/common/ternary_fields.h>
 
 /*
 * Initializers

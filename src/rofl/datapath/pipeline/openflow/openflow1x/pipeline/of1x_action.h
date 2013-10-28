@@ -83,7 +83,9 @@ typedef enum{
 	OF1X_AT_POP_GTP,			/* Pop the GTP header */
 	OF1X_AT_POP_PPPOE,			/* Pop the PPPoE header */
 	OF1X_AT_POP_PBB,			/* Pop the PBB header */
-
+	OF1X_AT_POP_CAPWAP,			/* Pop the CAPWAP Header */
+	OF1X_AT_POP_IEEE80211,			/* Pop the IEEE80211 Header */
+ 
 	/*
 	* Push: first PBB, PPP, PPPoE, MPLS, VLAN
 	*/
@@ -92,7 +94,9 @@ typedef enum{
 	OF1X_AT_PUSH_GTP,			/* Push a new GTP header */
 	OF1X_AT_PUSH_MPLS,			/* Push a new MPLS tag */
 	OF1X_AT_PUSH_VLAN,			/* Push a new VLAN tag */
-
+	OF1X_AT_PUSH_CAPWAP,			/* Push a new CAPWAP Header */
+	OF1X_AT_PUSH_IEEE80211,			/* Push a new IEEE80211 Header */
+ 
 	//Copy ttl outwards
 	OF1X_AT_COPY_TTL_OUT, 			/* Copy TTL "outwards" -- from next-to-outermost to outermost */
 
@@ -178,6 +182,18 @@ typedef enum{
     
 	OF1X_AT_SET_FIELD_GTP_MSG_TYPE,		/* GTP message type */
 	OF1X_AT_SET_FIELD_GTP_TEID,		/* GTP TEID */
+
+	OF1X_AT_SET_FIELD_CAPWAP_RID,
+	OF1X_AT_SET_FIELD_CAPWAP_FLAGS,
+	OF1X_AT_SET_FIELD_CAPWAP_WBID,
+
+	OF1X_AT_SET_FIELD_IEEE80211_FC,
+	OF1X_AT_SET_FIELD_IEEE80211_TYPE,
+	OF1X_AT_SET_FIELD_IEEE80211_SUBTYPE,
+	OF1X_AT_SET_FIELD_IEEE80211_DIRECTION,
+	OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_1,
+	OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_2,
+	OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_3,
 
 	/* Add more set fields here... */
 

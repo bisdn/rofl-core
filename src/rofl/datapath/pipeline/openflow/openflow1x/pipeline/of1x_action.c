@@ -57,29 +57,21 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			break;
 
 		//6 byte values
-		case OF1X_AT_SET_FIELD_IPV6_ND_SLL:
-			action->field.u64 = field.u64&OF1X_6_BYTE_MASK;
-			action->ver_req.min_ver = OF_VERSION_12;
-			break;
-		case OF1X_AT_SET_FIELD_IPV6_ND_TLL:
-			action->field.u64 = field.u64&OF1X_6_BYTE_MASK;
-			action->ver_req.min_ver = OF_VERSION_12;
-			break;
 		case OF1X_AT_SET_FIELD_ETH_DST:
-			action->field.u64 = field.u64&OF1X_6_BYTE_MASK;
-			break;
 		case OF1X_AT_SET_FIELD_ETH_SRC:
 			action->field.u64 = field.u64&OF1X_6_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_SHA:
-			action->field.u64 = field.u64&OF1X_6_BYTE_MASK;
-			action->ver_req.min_ver = OF_VERSION_12;
-			break;
 		case OF1X_AT_SET_FIELD_ARP_THA:
+		case OF1X_AT_SET_FIELD_IPV6_ND_SLL:
+		case OF1X_AT_SET_FIELD_IPV6_ND_TLL:
+		case OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_1:
+		case OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_2:
+		case OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_3:
 			action->field.u64 = field.u64&OF1X_6_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
-	
+
 		//4 byte values
 		case OF1X_AT_SET_FIELD_NW_DST:
 			action->ver_req.min_ver = OF_VERSION_10;
@@ -205,15 +197,21 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
-
+		case OF1X_AT_SET_FIELD_IEEE80211_FC:
+			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
 
 		//12 bit values
 		case OF1X_AT_SET_FIELD_VLAN_VID:
 			action->field.u64 = field.u64&OF1X_12_BITS_MASK;
 			break;
 
-
 		//9 bit value
+		case OF1X_AT_SET_FIELD_CAPWAP_FLAGS:
+			action->field.u64 = field.u64&OF1X_9_BITS_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
 		case OF1X_AT_SET_FIELD_IPV6_EXTHDR:
 			action->field.u64 = field.u64&OF1X_9_BITS_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
@@ -245,6 +243,19 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			action->field.u64 = field.u64&OF1X_6_BITS_MASK;
 			break;
 
+		//5 bit values
+		case OF1X_AT_SET_FIELD_CAPWAP_RID:
+		case OF1X_AT_SET_FIELD_CAPWAP_WBID:
+			action->field.u64 = field.u64&OF1X_5_BITS_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+
+		//4 bit values
+		case OF1X_AT_SET_FIELD_IEEE80211_SUBTYPE:
+			action->field.u64 = field.u64&OF1X_4_BITS_MASK;
+			action->ver_req.min_ver = OF_VERSION_12;
+			break;
+
 		//3 bit values
 		case OF1X_AT_SET_FIELD_VLAN_PCP:
 			action->field.u64 = field.u64&OF1X_3_BITS_MASK;
@@ -256,6 +267,8 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			break;
 
 		//2 bit values
+		case OF1X_AT_SET_FIELD_IEEE80211_TYPE:
+		case OF1X_AT_SET_FIELD_IEEE80211_DIRECTION:
 		case OF1X_AT_SET_FIELD_IP_ECN:
 			action->field.u64 = field.u64&OF1X_2_BITS_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
@@ -281,8 +294,12 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 		case OF1X_AT_COPY_TTL_OUT:
 		case OF1X_AT_DEC_NW_TTL:
 		case OF1X_AT_DEC_MPLS_TTL:
+		case OF1X_AT_POP_CAPWAP:
+		case OF1X_AT_PUSH_CAPWAP:
 		case OF1X_AT_POP_GTP:
 		case OF1X_AT_PUSH_GTP:
+		case OF1X_AT_POP_IEEE80211:
+		case OF1X_AT_PUSH_IEEE80211:
 		case OF1X_AT_EXPERIMENTER:
 			action->field.u64 = 0x0;
 			action->ver_req.min_ver = OF_VERSION_12;
@@ -508,7 +525,21 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
-	
+		case OF1X_AT_POP_CAPWAP:
+			//Call platform
+			platform_packet_pop_capwap(pkt);
+			//Update match
+			pkt_matches->eth_type= platform_packet_get_eth_type(pkt);
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt);
+			break;
+		case OF1X_AT_POP_IEEE80211:
+			//Call platform
+			platform_packet_pop_ieee80211(pkt);
+			//Update match
+			pkt_matches->eth_type= platform_packet_get_eth_type(pkt);
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt);
+			break;
+
 		//PUSH
 		case OF1X_AT_PUSH_PPPOE:
 			//Call platform
@@ -533,6 +564,20 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			pkt_matches->vlan_pcp = platform_packet_get_vlan_pcp(pkt);
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
+			break;
+		case OF1X_AT_PUSH_IEEE80211:
+			//Call platform
+			platform_packet_push_ieee80211(pkt);
+			//Update match
+			pkt_matches->eth_type= platform_packet_get_eth_type(pkt);
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt);
+			break;
+		case OF1X_AT_PUSH_CAPWAP:
+			//Call platform
+			platform_packet_push_capwap(pkt);
+			//Update match
+			pkt_matches->eth_type= platform_packet_get_eth_type(pkt);
+			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt);
 			break;
 
 		//TTL
@@ -985,6 +1030,70 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			pkt_matches->tunnel_id = action->field.u64;
 			break;
 
+		//CAPWAP
+		case OF1X_AT_SET_FIELD_CAPWAP_RID:
+			//Call platform
+			platform_packet_set_capwap_rid(pkt, action->field);
+			//Update match
+			pkt_matches->capwap_rid = action->field;
+			break;
+		case OF1X_AT_SET_FIELD_CAPWAP_FLAGS:
+			//Call platform
+			platform_packet_set_capwap_flags(pkt, action->field);
+			//Update match
+			pkt_matches->capwap_flags = action->field;
+			break;
+		case OF1X_AT_SET_FIELD_CAPWAP_WBID:
+			//Call platform
+			platform_packet_set_capwap_wbid(pkt, action->field);
+			//Update match
+			pkt_matches->capwap_wbid = action->field;
+			break;
+
+		// IEEE 802.11
+		case OF1X_AT_SET_FIELD_IEEE80211_FC:
+			//Call platform
+			platform_packet_set_ieee80211_fc(pkt, action->field);
+			//Update match
+			pkt_matches->ieee80211_fc = action->field;
+			break;
+		case OF1X_AT_SET_FIELD_IEEE80211_TYPE:
+			//Call platform
+			platform_packet_set_ieee80211_type(pkt, action->field);
+			//Update match
+			pkt_matches->ieee80211_type = action->field;
+			break;
+		case OF1X_AT_SET_FIELD_IEEE80211_SUBTYPE:
+			//Call platform
+			platform_packet_set_ieee80211_subtype(pkt, action->field);
+			//Update match
+			pkt_matches->ieee80211_subtype = action->field;
+			break;
+		case OF1X_AT_SET_FIELD_IEEE80211_DIRECTION:
+			//Call platform
+			platform_packet_set_ieee80211_direction(pkt, action->field);
+			//Update match
+			pkt_matches->ieee80211_direction = action->field;
+			break;
+		case OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_1:
+			//Call platform
+			platform_packet_set_ieee80211_address_1(pkt, action->field);
+			//Update match
+			pkt_matches->ieee80211_address_1 = action->field;
+			break;
+		case OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_2:
+			//Call platform
+			platform_packet_set_ieee80211_address_2(pkt, action->field);
+			//Update match
+			pkt_matches->ieee80211_address_2 = action->field;
+			break;
+		case OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_3:
+			//Call platform
+			platform_packet_set_ieee80211_address_3(pkt, action->field);
+			//Update match
+			pkt_matches->ieee80211_address_3 = action->field;
+			break;
+
 		case OF1X_AT_GROUP: __of1x_process_group_actions(sw, table_id, pkt, action->field.u64, action->group, replicate_pkts);
 			break;
 
@@ -1264,13 +1373,26 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 			break;
 		case OF1X_AT_POP_PPPOE:ROFL_PIPELINE_DEBUG_NO_PREFIX("POP_PPPOE");
 			break;
-
+		case OF1X_AT_POP_CAPWAP:ROFL_PIPELINE_DEBUG_NO_PREFIX("POP_CAPWAP");
+			break;
+		case OF1X_AT_POP_IEEE80211:ROFL_PIPELINE_DEBUG_NO_PREFIX("POP_IEEE80211");
+			break;
+		case OF1X_AT_POP_GTP:ROFL_PIPELINE_DEBUG_NO_PREFIX("POP_GTP");
+			break;
+	
 		case OF1X_AT_PUSH_PPPOE:ROFL_PIPELINE_DEBUG_NO_PREFIX("PUSH_PPPOE");
 			break;
 		case OF1X_AT_PUSH_MPLS:ROFL_PIPELINE_DEBUG_NO_PREFIX("PUSH_MPLS");
 			break;
 		case OF1X_AT_PUSH_VLAN:ROFL_PIPELINE_DEBUG_NO_PREFIX("PUSH_VLAN");
 			break;
+		case OF1X_AT_PUSH_CAPWAP:ROFL_PIPELINE_DEBUG_NO_PREFIX("PUSH_CAPWAP");
+			break;
+		case OF1X_AT_PUSH_IEEE80211:ROFL_PIPELINE_DEBUG_NO_PREFIX("PUSH_IEEE80211");
+ 
+		case OF1X_AT_PUSH_GTP:ROFL_PIPELINE_DEBUG_NO_PREFIX("PUSH_GTP");
+			break;
+
 
 		case OF1X_AT_COPY_TTL_OUT:ROFL_PIPELINE_DEBUG_NO_PREFIX("COPY_TTL_OUT");
 			break;
@@ -1408,11 +1530,28 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 			break;
 		case OF1X_AT_SET_FIELD_GTP_TEID:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_GTP_TEID: 0x%x",action.field);
 			break;
-		case OF1X_AT_POP_GTP:ROFL_PIPELINE_DEBUG_NO_PREFIX("POP_GTP");
+
+		case OF1X_AT_SET_FIELD_CAPWAP_RID:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_CAPWAP_RID: 0x%"PRIx64,action.field);
 			break;
-		case OF1X_AT_PUSH_GTP:ROFL_PIPELINE_DEBUG_NO_PREFIX("PUSH_GTP");
+		case OF1X_AT_SET_FIELD_CAPWAP_FLAGS:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_CAPWAP_FLAGS: 0x%"PRIx64,action.field);
+			break;
+		case OF1X_AT_SET_FIELD_CAPWAP_WBID:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_CAPWAP_WBID: 0x%"PRIx64,action.field);
 			break;
 
+		case OF1X_AT_SET_FIELD_IEEE80211_FC:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IEEE80211_FC: 0x%"PRIx64,action.field);
+			break;
+		case OF1X_AT_SET_FIELD_IEEE80211_TYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IEEE80211_TYPE: 0x%"PRIx64,action.field);
+			break;
+		case OF1X_AT_SET_FIELD_IEEE80211_SUBTYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IEEE80211_SUBTYPE: 0x%"PRIx64,action.field);
+			break;
+		case OF1X_AT_SET_FIELD_IEEE80211_DIRECTION:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IEEE80211_DIRECTION: 0x%"PRIx64,action.field);
+			break;
+		case OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_1:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IEEE80211_ADDRESS_1: 0x%"PRIx64,action.field);
+			break;
+		case OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_2:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IEEE80211_ADDRESS_2: 0x%"PRIx64,action.field);
+			break;
+		case OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_3:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_IEEE80211_ADDRESS_3: 0x%"PRIx64,action.field);
+			break;
 
 		case OF1X_AT_GROUP:ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP");
 			break;
