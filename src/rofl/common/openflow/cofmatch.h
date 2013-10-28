@@ -25,8 +25,11 @@
 #include "rofl/platform/unix/csyslog.h"
 #include "coxmlist.h"
 
-#include <rofl/common/openflow/experimental/matches/gtp_matches.h>
-#include <rofl/common/openflow/experimental/matches/pppoe_matches.h>
+//Experimental stuff
+#include "experimental/matches/capwap_matches.h"
+#include "experimental/matches/gtp_matches.h"
+#include "experimental/matches/ieee80211_matches.h"
+#include "experimental/matches/pppoe_matches.h"
 
 namespace rofl
 {
@@ -476,6 +479,220 @@ public:
 	uint8_t
 	get_mpls_tc() const;
 
+	/**
+	 *
+	 */	
+	uint8_t
+	get_capwap_rid() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_capwap_rid(
+			uint8_t rid);
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_capwap_flags() const;
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_capwap_flags_mask() const;
+
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_capwap_flags_value() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_capwap_flags(
+			uint16_t flags);
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_capwap_wbid() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_capwap_wbid(
+			uint8_t wbid);
+
+	/**
+	 *
+	 */
+	void
+	set_ieee80211_fc(uint16_t fc);
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_ieee80211_fc() const;
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_ieee80211_fc_value() const;
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_ieee80211_fc_mask() const;
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_ieee80211_type() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_ieee80211_type(
+			uint8_t type);
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_ieee80211_subtype() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_ieee80211_subtype(
+			uint8_t subtype);
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_ieee80211_direction() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_ieee80211_direction(
+			uint8_t direction);
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_ieee80211_address_1() const;
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_ieee80211_address_1_addr() const;
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_ieee80211_address_1_mask() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_ieee80211_address_1(
+			cmacaddr const& maddr,
+			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_ieee80211_address_2() const;
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_ieee80211_address_2_addr() const;
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_ieee80211_address_2_mask() const;
+
+
+	/**
+	 *
+	 */
+	void
+	set_ieee80211_address_2(
+			cmacaddr const& maddr,
+			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_ieee80211_address_3() const;
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_ieee80211_address_3_addr() const;
+
+
+	/**
+	 *
+	 */
+	cmacaddr
+	get_ieee80211_address_3_mask() const;
+
+
+
+	/**
+	 *
+	 */
+	void
+	set_ieee80211_address_3(
+			cmacaddr const& maddr,
+			cmacaddr const& mmask = cmacaddr("ff:ff:ff:ff:ff:ff"));
+
+
+	/**
+	 *
+	 */
 
 	/**
 	 *

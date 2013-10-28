@@ -59,10 +59,48 @@ enum oxm_ofx_match_fields {
 	/* GTP related extensions */
 	OFPXMT_OFX_GTP_MSG_TYPE = 25,	/* GTP message type */
 	OFPXMT_OFX_GTP_TEID	= 26,	/* GTP tunnel endpoint identifier */
+
+	/* CAPWAP */
 	
+	/* CAPWAP related extensions */
+	OFPXMT_OFX_CAPWAP_WBID	= 27,
+	OFPXMT_OFX_CAPWAP_RID	= 28,
+	OFPXMT_OFX_CAPWAP_FLAGS	= 29,
+
+	/* IEEE 802.11 related extensions */
+	OFPXMT_OFX_IEEE80211_FC		= 30,
+	OFPXMT_OFX_IEEE80211_TYPE	= 31,
+	OFPXMT_OFX_IEEE80211_SUBTYPE	= 32,
+	OFPXMT_OFX_IEEE80211_DIRECTION	= 33,
+	OFPXMT_OFX_IEEE80211_ADDRESS_1	= 34,
+	OFPXMT_OFX_IEEE80211_ADDRESS_2	= 35,
+	OFPXMT_OFX_IEEE80211_ADDRESS_3	= 36,
+
 	/* max value */
 	OFPXMT_OFX_MAX,
 };
 
+/* OpenFlow experimental action codes */
+enum ofx_action_type {
+
+	/* PPPoE */
+	OFXAT_PUSH_PPPOE	= 0,
+	OFXAT_POP_PPPOE		= 1,
+	
+	/* PPP */
+	OFXAT_PUSH_PPP		= 2,
+	OFXAT_POP_PPP		= 3,
+	
+	/* CAPWAP */
+	OFXAT_PUSH_CAPWAP       = 4,
+	OFXAT_POP_CAPWAP        = 5,
+	
+	/* IEEE 802.11 related extensions */
+	OFXAT_PUSH_IEEE80211    = 6,
+	OFXAT_POP_IEEE80211     = 7,
+
+ 	/* max value */
+ 	OFXAT_MAX,
+};
 
 #endif /* _OPENFLOW_EXPERIMENTAL_H */

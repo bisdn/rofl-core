@@ -1,7 +1,7 @@
 #ifndef GTP_MATCHES_H
-#define GTP_MATCHES_H 1
+#define GTP_MATCHES_H 
 
-#include <rofl/common/openflow/coxmatch.h>
+#include "../../coxmatch.h"
 
 namespace rofl
 {

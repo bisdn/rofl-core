@@ -1,7 +1,7 @@
 #ifndef PPPOE_ACTIONS_H
-#define PPPOE_ACTIONS_H 1
+#define PPPOE_ACTIONS_H 
 
-#include <rofl/common/openflow/cofaction.h>
+#include "../../cofaction.h"
 
 namespace rofl
 {
@@ -21,10 +21,6 @@ public:
 	    uint8_t pad[2];
 	};
 	OFP_ASSERT(sizeof(struct ofx_action_push_pppoe_header) == 8);
-
-	enum cofaction_push_pppoe_action_type {
-		OFXAT_PUSH_PPPOE = 1,
-	};
 
 	struct ofx_action_push_pppoe {
 		struct ofp12_experimenter_header 	exphdr;
@@ -82,10 +78,6 @@ public:
 	    uint8_t pad[2];
 	};
 	OFP_ASSERT(sizeof(struct ofx_action_pop_pppoe_header) == 8);
-
-	enum cofaction_pop_pppoe_action_type {
-		OFXAT_POP_PPPOE = 2,
-	};
 
 	struct ofx_action_pop_pppoe {
 		struct ofp12_experimenter_header 	exphdr;

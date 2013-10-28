@@ -1172,7 +1172,296 @@ cofmatch::set_mpls_tc(
 #endif
 }
 
+ 
+uint8_t
+cofmatch::get_capwap_rid() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_CAPWAP_RID).u8value();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
 
+
+void
+cofmatch::set_capwap_rid(
+		uint8_t rid)
+{
+	oxmlist.insert(coxmatch_ofx_capwap_rid(rid));
+}
+
+uint16_t
+cofmatch::get_capwap_flags() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_CAPWAP_FLAGS).u16value();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+uint16_t
+cofmatch::get_capwap_flags_value() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_CAPWAP_FLAGS).uint16_value();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+uint16_t
+cofmatch::get_capwap_flags_mask() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_CAPWAP_FLAGS).uint16_mask();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+void
+cofmatch::set_capwap_flags(
+		uint16_t flags)
+{
+	oxmlist.insert(coxmatch_ofx_capwap_flags(flags));
+}
+
+uint8_t
+cofmatch::get_capwap_wbid() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_CAPWAP_WBID).u8value();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+
+void
+cofmatch::set_capwap_wbid(
+		uint8_t wbid)
+{
+	oxmlist.insert(coxmatch_ofx_capwap_wbid(wbid));
+}
+
+void
+cofmatch::set_ieee80211_fc(
+		uint16_t fc)
+{
+	oxmlist.insert(coxmatch_ofx_ieee80211_fc(fc));
+}
+
+uint16_t
+cofmatch::get_ieee80211_fc() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_FC).u16value();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+uint16_t
+cofmatch::get_ieee80211_fc_value() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_FC).uint16_value();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+uint16_t
+cofmatch::get_ieee80211_fc_mask() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_FC).uint16_mask();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+uint8_t
+cofmatch::get_ieee80211_type() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_TYPE).u8value();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+void
+cofmatch::set_ieee80211_type(
+		uint8_t type)
+{
+	oxmlist.insert(coxmatch_ofx_ieee80211_type(type));
+}
+
+uint8_t
+cofmatch::get_ieee80211_subtype() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_SUBTYPE).u8value();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+void
+cofmatch::set_ieee80211_subtype(
+		uint8_t subtype)
+{
+	oxmlist.insert(coxmatch_ofx_ieee80211_subtype(subtype));
+}
+
+uint8_t
+cofmatch::get_ieee80211_direction() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_DIRECTION).u8value();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+void
+cofmatch::set_ieee80211_direction(
+		uint8_t direction)
+{
+	oxmlist.insert(coxmatch_ofx_ieee80211_direction(direction));
+}
+
+cmacaddr
+cofmatch::get_ieee80211_address_1() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_ADDRESS_1).u48addr();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+cmacaddr
+cofmatch::get_ieee80211_address_1_addr() const
+{
+	try {
+		return cmacaddr(oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_ADDRESS_1).oxm_maddr->addr, OFP_ETH_ALEN);
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+cmacaddr
+cofmatch::get_ieee80211_address_1_mask() const
+{
+	try {
+		if (!oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_ADDRESS_1).get_oxm_hasmask()) {
+			return cmacaddr("ff:ff:ff:ff:ff:ff");
+		}
+		return cmacaddr(oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_ADDRESS_1).oxm_maddr->mask, OFP_ETH_ALEN);
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+void
+cofmatch::set_ieee80211_address_1(cmacaddr const& maddr, cmacaddr const& mmask)
+{
+	if (cmacaddr("ff:ff:ff:ff:ff:ff") == mmask) {
+		oxmlist.insert(coxmatch_ofx_ieee80211_address_1(maddr));
+	} else {
+		oxmlist.insert(coxmatch_ofx_ieee80211_address_1(maddr, mmask));
+	}
+}
+
+cmacaddr
+cofmatch::get_ieee80211_address_2() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_ADDRESS_2).u48addr();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+cmacaddr
+cofmatch::get_ieee80211_address_2_addr() const
+{
+	try {
+		return cmacaddr(oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_ADDRESS_2).oxm_maddr->addr, OFP_ETH_ALEN);
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+cmacaddr
+cofmatch::get_ieee80211_address_2_mask() const
+{
+	try {
+		if (!oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_ADDRESS_2).get_oxm_hasmask()) {
+			return cmacaddr("ff:ff:ff:ff:ff:ff");
+		}
+		return cmacaddr(oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_ADDRESS_2).oxm_maddr->mask, OFP_ETH_ALEN);
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+void
+cofmatch::set_ieee80211_address_2(cmacaddr const& maddr, cmacaddr const& mmask)
+{
+	if (cmacaddr("ff:ff:ff:ff:ff:ff") == mmask) {
+		oxmlist.insert(coxmatch_ofx_ieee80211_address_2(maddr));
+	} else {
+		oxmlist.insert(coxmatch_ofx_ieee80211_address_2(maddr, mmask));
+	}
+}
+
+cmacaddr
+cofmatch::get_ieee80211_address_3() const
+{
+	try {
+		return oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_ADDRESS_3).u48addr();
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+cmacaddr
+cofmatch::get_ieee80211_address_3_addr() const
+{
+	try {
+		return cmacaddr(oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_ADDRESS_3).oxm_maddr->addr, OFP_ETH_ALEN);
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+cmacaddr
+cofmatch::get_ieee80211_address_3_mask() const
+{
+	try {
+		if (!oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_ADDRESS_3).get_oxm_hasmask()) {
+			return cmacaddr("ff:ff:ff:ff:ff:ff");
+		}
+		return cmacaddr(oxmlist.get_const_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_IEEE80211_ADDRESS_3).oxm_maddr->mask, OFP_ETH_ALEN);
+	} catch (eOxmListNotFound& e) {
+		throw eOFmatchNotFound();
+	}
+}
+
+void
+cofmatch::set_ieee80211_address_3(cmacaddr const& maddr, cmacaddr const& mmask)
+{
+	if (cmacaddr("ff:ff:ff:ff:ff:ff") == mmask) {
+		oxmlist.insert(coxmatch_ofx_ieee80211_address_3(maddr));
+	} else {
+		oxmlist.insert(coxmatch_ofx_ieee80211_address_3(maddr, mmask));
+	}
+}
 
 caddress
 cofmatch::get_ipv4_src() const

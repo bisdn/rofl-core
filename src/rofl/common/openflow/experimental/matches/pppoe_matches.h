@@ -1,7 +1,7 @@
 #ifndef PPPOE_MATCHES
-#define PPPOE_MATCHES 1
+#define PPPOE_MATCHES 
 
-#include <rofl/common/openflow/coxmatch.h>
+#include "../../coxmatch.h"
 
 namespace rofl
 {

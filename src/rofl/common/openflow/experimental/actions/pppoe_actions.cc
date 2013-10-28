@@ -1,4 +1,4 @@
-#include <rofl/common/openflow/experimental/actions/pppoe_actions.h>
+#include "pppoe_actions.h"
 
 using namespace rofl;
 
