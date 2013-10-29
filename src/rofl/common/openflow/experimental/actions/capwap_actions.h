@@ -1,5 +1,5 @@
-#ifndef CAPWAP_MATCHES_H
-#define CAPWAP_MATCHES_H 
+#ifndef CAPWAP_ACTIONS_H
+#define CAPWAP_ACTIONS_H 
 
 #include "../../cofaction.h"
 
