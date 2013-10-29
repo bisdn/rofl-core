@@ -49,8 +49,12 @@ std::string coption::parse_argument(char* optarg){
 */
 
 /* Constructor */ 
-cunixenv::cunixenv()
+cunixenv::cunixenv(int argc, char** argv)
 {
+	for (int i = 0; i < argc; i++) {
+		cargs.push_back(std::string(argv[i]));
+	}
+
 	/*Push default arguments */
 	arguments.push_back(coption(true,REQUIRED_ARGUMENT,'d',"debug","debug level",std::string(""+(int)csyslog::EMERGENCY)));
 	arguments.push_back(coption(true,REQUIRED_ARGUMENT,'l',"logfile","log file",std::string(LOGFILE_DEFAULT)));
@@ -111,9 +115,7 @@ cunixenv::update_default_option(const std::string &option_name, const std::strin
 }
 
 void
-cunixenv::parse_args(
-		int argc,
-		char** argv)
+cunixenv::parse_args()
 {
 	int c;
 	int option_index;
@@ -134,6 +136,13 @@ cunixenv::parse_args(
 		tmp->name = it->full_name.c_str();
 		tmp->val = it->shortcut;
 	
+	}
+
+	// recreate argc/argv, as it might get altered by getopt
+	int argc = cargs.size();
+	char** argv = (char**)calloc(1, sizeof(char*) * cargs.size()+1);
+	for (int i = 0; i < argc; i++) {
+		argv[i] = (char*)cargs[i].c_str();
 	}
 
 	bool do_detach = false;
