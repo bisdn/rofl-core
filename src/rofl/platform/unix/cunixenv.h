@@ -73,7 +73,7 @@ public:
 	/**
 	 * Constructor
 	 */
-	cunixenv(int argc, char** argv);
+	cunixenv(int argc = 0, char** argv = NULL);
 	
 	/**
 	 * Destructor
