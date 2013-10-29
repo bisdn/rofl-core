@@ -168,6 +168,7 @@ cunixenv::parse_args()
 	}
 	
 	//free calloc
+	free(argv);
 	free(long_options);	
 	parsed = true;
 
