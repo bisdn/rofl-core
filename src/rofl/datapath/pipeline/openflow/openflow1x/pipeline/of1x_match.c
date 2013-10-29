@@ -834,6 +834,165 @@ inline of1x_match_t* of1x_init_gtp_teid_match(of1x_match_t* prev, of1x_match_t* 
 	return match;
 }
 
+//CAPWAP
+inline of1x_match_t* of1x_init_capwap_rid_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_CAPWAP_RID; 
+	match->value = __init_utern8(value,OF1X_1_BYTE_MASK); //no wildcard 
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	match->has_wildcard = false;
+
+	return match;
+}
+inline of1x_match_t* of1x_init_capwap_flags_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_CAPWAP_FLAGS;
+	match->value = __init_utern16(value,mask);
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( mask != OF1X_2_BYTE_MASK )
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+
+	return match;
+}
+inline of1x_match_t* of1x_init_capwap_wbid_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_CAPWAP_WBID; 
+	match->value = __init_utern8(value,OF1X_1_BYTE_MASK); //no wildcard 
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	match->has_wildcard = false;
+
+	return match;
+}
+//IEEE80211
+inline of1x_match_t* of1x_init_ieee80211_fc_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_IEEE80211_FC; 
+	match->value = __init_utern16(value,mask);
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( mask != OF1X_2_BYTE_MASK )
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	return match;
+}
+inline of1x_match_t* of1x_init_ieee80211_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_IEEE80211_TYPE; 
+	match->value = __init_utern8(value&OF1X_3_BITS_MASK,OF1X_3_BITS_MASK); //no wildcard 
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	match->has_wildcard = false;
+
+	return match;
+}
+inline of1x_match_t* of1x_init_ieee80211_subtype_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_IEEE80211_SUBTYPE; 
+	match->value = __init_utern8(value&OF1X_4_BITS_MASK,OF1X_4_BITS_MASK); //no wildcard 
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	match->has_wildcard = false;
+
+	return match;
+}
+inline of1x_match_t* of1x_init_ieee80211_direction_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_IEEE80211_DIRECTION; 
+	match->value = __init_utern8(value&OF1X_3_BITS_MASK,OF1X_3_BITS_MASK); //no wildcard 
+	match->prev = prev;
+	match->next = next;
+
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	match->has_wildcard = false;
+
+	return match;
+}
+inline of1x_match_t* of1x_init_ieee80211_address_1_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_IEEE80211_ADDRESS_1; 
+	match->value = __init_utern64(value&OF1X_48_BITS_MASK,mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits 
+	match->prev = prev;
+	match->next = next;
+	
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( (mask&OF1X_48_BITS_MASK) != OF1X_48_BITS_MASK )
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	return match;
+}
+inline of1x_match_t* of1x_init_ieee80211_address_2_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_IEEE80211_ADDRESS_2; 
+	match->value = __init_utern64(value&OF1X_48_BITS_MASK,mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits 
+	match->prev = prev;
+	match->next = next;
+	
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( (mask&OF1X_48_BITS_MASK) != OF1X_48_BITS_MASK )
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	return match;
+}
+inline of1x_match_t* of1x_init_ieee80211_address_3_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
+	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	match->type = OF1X_MATCH_IEEE80211_ADDRESS_3; 
+	match->value = __init_utern64(value&OF1X_48_BITS_MASK,mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits 
+	match->prev = prev;
+	match->next = next;
+	
+	//Set fast validation flags	
+	match->ver_req.min_ver = OF_VERSION_12;	//First supported in OF1.2 (extensions)
+	match->ver_req.max_ver = OF1X_MAX_VERSION;		//No limitation on max
+	if( (mask&OF1X_48_BITS_MASK) != OF1X_48_BITS_MASK )
+		match->has_wildcard = true;
+	else
+		match->has_wildcard = false;
+
+	return match;
+}
+
 //Add more here...
 
 /* Instruction groups init and destroy */
@@ -983,7 +1142,20 @@ inline of1x_match_t* __of1x_copy_match(of1x_match_t* match){
    		/* GTP related extensions */
    		case OF1X_MATCH_GTP_MSG_TYPE: return of1x_init_gtp_msg_type_match(NULL,NULL,match->value->value.u8);
    		case OF1X_MATCH_GTP_TEID: return of1x_init_gtp_teid_match(NULL,NULL,match->value->value.u32,match->value->mask.u32);
-   		
+
+		/* CAPWAP related extensions */
+		case OF1X_MATCH_CAPWAP_RID: return of1x_init_capwap_rid_match(NULL,NULL,match->value->value.u8);
+		case OF1X_MATCH_CAPWAP_FLAGS: return of1x_init_capwap_flags_match(NULL,NULL,match->value->value.u16,match->value->mask.u16);
+		case OF1X_MATCH_CAPWAP_WBID: return of1x_init_capwap_wbid_match(NULL,NULL,match->value->value.u8);
+		/* IEEE 802.11 related extensions */
+		case OF1X_MATCH_IEEE80211_FC: return of1x_init_ieee80211_fc_match(NULL,NULL,match->value->value.u16,match->value->mask.u16);
+		case OF1X_MATCH_IEEE80211_TYPE: return of1x_init_ieee80211_type_match(NULL,NULL,match->value->value.u8);
+		case OF1X_MATCH_IEEE80211_SUBTYPE: return of1x_init_ieee80211_subtype_match(NULL,NULL,match->value->value.u8);
+		case OF1X_MATCH_IEEE80211_DIRECTION: return of1x_init_ieee80211_direction_match(NULL,NULL,match->value->value.u8);
+		case OF1X_MATCH_IEEE80211_ADDRESS_1: return  of1x_init_ieee80211_address_1_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);
+		case OF1X_MATCH_IEEE80211_ADDRESS_2: return  of1x_init_ieee80211_address_2_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);
+		case OF1X_MATCH_IEEE80211_ADDRESS_3: return  of1x_init_ieee80211_address_3_match(NULL,NULL,match->value->value.u64,match->value->mask.u64);
+
 		case OF1X_MATCH_MAX:
 				break;
 		
@@ -1254,6 +1426,31 @@ inline bool __of1x_check_match(const of1x_packet_matches_t* pkt, of1x_match_t* i
    						return __utern_compare8(it->value,pkt->gtp_msg_type);
    		case OF1X_MATCH_GTP_TEID: if (!(pkt->ip_proto == OF1X_IP_PROTO_UDP || pkt->udp_dst == OF1X_UDP_DST_PORT_GTPU)) return false;
    						return __utern_compare32(it->value,pkt->gtp_teid);
+
+		//CAPWAP
+   		case OF1X_MATCH_CAPWAP_RID: if(!(pkt->ip_proto == OF1X_IP_PROTO_UDP)) return false;
+					return __utern_compare8(it->value,pkt->capwap_rid);
+   		case OF1X_MATCH_CAPWAP_FLAGS: if(!(pkt->ip_proto == OF1X_IP_PROTO_UDP)) return false;
+					return __utern_compare16(it->value,pkt->capwap_flags);
+   		case OF1X_MATCH_CAPWAP_WBID: if(!(pkt->ip_proto == OF1X_IP_PROTO_UDP)) return false;
+					return __utern_compare8(it->value,pkt->capwap_wbid);
+
+		// IEEE80211
+   		case OF1X_MATCH_IEEE80211_FC: if(!(pkt->ip_proto == OF1X_IP_PROTO_UDP)) return false;
+					return __utern_compare16(it->value,pkt->ieee80211_fc);
+   		case OF1X_MATCH_IEEE80211_TYPE: if(!(pkt->ip_proto == OF1X_IP_PROTO_UDP)) return false;
+					return __utern_compare8(it->value,pkt->ieee80211_type);
+   		case OF1X_MATCH_IEEE80211_SUBTYPE: if(!(pkt->ip_proto == OF1X_IP_PROTO_UDP)) return false;
+					return __utern_compare8(it->value,pkt->ieee80211_subtype);
+   		case OF1X_MATCH_IEEE80211_DIRECTION: if(!(pkt->ip_proto == OF1X_IP_PROTO_UDP)) return false;
+					return __utern_compare8(it->value,pkt->ieee80211_direction);
+   		case OF1X_MATCH_IEEE80211_ADDRESS_1: if(!(pkt->ip_proto == OF1X_IP_PROTO_UDP)) return false;
+					return __utern_compare64(it->value,pkt->ieee80211_address_1);
+   		case OF1X_MATCH_IEEE80211_ADDRESS_2: if(!(pkt->ip_proto == OF1X_IP_PROTO_UDP)) return false;
+					return __utern_compare64(it->value,pkt->ieee80211_address_2);
+   		case OF1X_MATCH_IEEE80211_ADDRESS_3: if(!(pkt->ip_proto == OF1X_IP_PROTO_UDP)) return false;
+					return __utern_compare64(it->value,pkt->ieee80211_address_3);
+ 
 		case OF1X_MATCH_MAX:
 				break;
 		//Add more here ...
@@ -1400,6 +1597,31 @@ void __of1x_dump_matches(of1x_match_t* matches){
 				break;
 			case OF1X_MATCH_GTP_TEID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[GTP_TEID:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break;
+
+			/* CAPWAP related extensions */
+			case OF1X_MATCH_CAPWAP_RID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[CAPWAP_RID:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
+				break; 
+			case OF1X_MATCH_CAPWAP_FLAGS:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[CAPWAP_FLAGS:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
+				break; 
+			case OF1X_MATCH_CAPWAP_WBID:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[CAPWAP_WBID:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
+				break; 
+
+			/* IEEE80211 related extensions */
+			case OF1X_MATCH_IEEE80211_FC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IEEE80211_FC:%u|0x%x], ",it->value->value.u16,it->value->mask.u16);
+				break; 
+			case OF1X_MATCH_IEEE80211_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IEEE80211_TYPE:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
+				break; 
+			case OF1X_MATCH_IEEE80211_SUBTYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IEEE80211_SUBTYPE:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
+				break; 
+			case OF1X_MATCH_IEEE80211_DIRECTION:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IEEE80211_DIRECTION:%u|0x%x], ",it->value->value.u8,it->value->mask.u8);
+				break; 
+			case OF1X_MATCH_IEEE80211_ADDRESS_1:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IEEE80211_ADDRESS_1:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
+				break; 
+			case OF1X_MATCH_IEEE80211_ADDRESS_2:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IEEE80211_ADDRESS_2:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
+				break; 
+			case OF1X_MATCH_IEEE80211_ADDRESS_3:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[IEEE80211_ADDRESS_3:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
+				break; 
+
 
 			case OF1X_MATCH_MAX: assert(0);
 				break;

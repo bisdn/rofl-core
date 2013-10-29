@@ -768,10 +768,145 @@ void platform_packet_set_gtp_teid(datapacket_t* pkt, uint32_t teid);
 */
 void platform_packet_pop_gtp(datapacket_t* pkt);
 /**
+* @ingroup platform_packet
 * Push a new GTP frame 
 */
 void platform_packet_push_gtp(datapacket_t* pkt);
 
+/////////////
+// CAPWAP //
+///////////
+/**
+* @ingroup platform_packet
+* Get the CAPWAP RID 
+* @return value if existing, 0x0 otherwise.
+*/
+uint8_t platform_packet_get_capwap_rid(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get CAPWAP flags 
+* @return value if existing, 0x0 otherwise.
+*/
+uint16_t platform_packet_get_capwap_flags(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get CAPWAP WBID 
+* @return value if existing, 0x0 otherwise.
+*/
+uint8_t platform_packet_get_capwap_wbid(datapacket_t *const pkt);
+
+/**
+* @ingroup platform_packet
+* Set a new value for the CAPWAP RID
+*/
+void platform_packet_set_capwap_rid(datapacket_t* pkt, uint8_t rid);
+/**
+* @ingroup platform_packet
+* Set a new value for the CAPWAP FLAGS
+*/
+void platform_packet_set_capwap_flags(datapacket_t* pkt, uint16_t flags);
+/**
+* @ingroup platform_packet
+* Set a new value for the CAPWAP WBID
+*/
+void platform_packet_set_capwap_wbid(datapacket_t* pkt, uint8_t wbid);
+
+/**
+* @ingroup platform_packet
+* Pop CAPWAP header
+*/
+void platform_packet_pop_capwap(datapacket_t* pkt);
+/**
+* @ingroup platform_packet
+* Push CAPWAP header
+*/
+void platform_packet_push_capwap(datapacket_t* pkt);
+
+/////////////////
+// IEEE802.11 //
+///////////////
+/**
+* @ingroup platform_packet
+* Get IEEE802.11 fc field
+*/
+uint16_t platform_packet_get_ieee80211_fc(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get IEEE802.11 type field
+*/
+uint8_t platform_packet_get_ieee80211_type(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get IEEE802.11 subtype field
+*/
+uint8_t platform_packet_get_ieee80211_subtype(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get IEEE802.11 direction field
+*/
+uint8_t platform_packet_get_ieee80211_direction(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get IEEE802.11 address 1 field
+*/
+uint64_t platform_packet_get_ieee80211_address_1(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get IEEE802.11 address 2 field
+*/
+uint64_t platform_packet_get_ieee80211_address_2(datapacket_t *const pkt);
+/**
+* @ingroup platform_packet
+* Get IEEE802.11 address 3 field
+*/
+uint64_t platform_packet_get_ieee80211_address_3(datapacket_t *const pkt);
+
+/**
+* @ingroup platform_packet
+* Set a new value for the IEEE802.11 fc 
+*/
+void platform_packet_set_ieee80211_fc(datapacket_t* pkt, uint16_t fc);
+/**
+* @ingroup platform_packet
+* Set a new value for the IEEE802.11 type
+*/
+void platform_packet_set_ieee80211_type(datapacket_t* pkt, uint8_t type);
+/**
+* @ingroup platform_packet
+* Set a new value for the IEEE802.11 subtype
+*/
+void platform_packet_set_ieee80211_subtype(datapacket_t* pkt, uint8_t subtype);
+/**
+* @ingroup platform_packet
+* Set a new value for the IEEE802.11 direction
+*/
+void platform_packet_set_ieee80211_direction(datapacket_t* pkt, uint8_t direction);
+/**
+* @ingroup platform_packet
+* Set a new value for the IEEE802.11 address 1
+*/
+void platform_packet_set_ieee80211_address_1(datapacket_t* pkt, uint64_t address_1);
+/**
+* @ingroup platform_packet
+* Set a new value for the IEEE802.11 address 2
+*/
+void platform_packet_set_ieee80211_address_2(datapacket_t* pkt, uint64_t address_2);
+/**
+* @ingroup platform_packet
+* Set a new value for the IEEE802.11 address 3 
+*/
+void platform_packet_set_ieee80211_address_3(datapacket_t* pkt, uint64_t address_3);
+
+/**
+* @ingroup platform_packet
+* Pop IEEE802.11 header
+*/
+void platform_packet_pop_ieee80211(datapacket_t* pkt);
+/**
+* @ingroup platform_packet
+* Push IEEE802.11 header
+*/
+void platform_packet_push_ieee80211(datapacket_t* pkt);
 
 //C++ extern C
 ROFL_END_DECLS

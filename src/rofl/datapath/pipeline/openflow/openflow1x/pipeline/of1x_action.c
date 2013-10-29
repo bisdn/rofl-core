@@ -1033,65 +1033,65 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 		//CAPWAP
 		case OF1X_AT_SET_FIELD_CAPWAP_RID:
 			//Call platform
-			platform_packet_set_capwap_rid(pkt, action->field);
+			platform_packet_set_capwap_rid(pkt, action->field.u8);
 			//Update match
-			pkt_matches->capwap_rid = action->field;
+			pkt_matches->capwap_rid = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_CAPWAP_FLAGS:
 			//Call platform
-			platform_packet_set_capwap_flags(pkt, action->field);
+			platform_packet_set_capwap_flags(pkt, action->field.u16);
 			//Update match
-			pkt_matches->capwap_flags = action->field;
+			pkt_matches->capwap_flags = action->field.u16;
 			break;
 		case OF1X_AT_SET_FIELD_CAPWAP_WBID:
 			//Call platform
-			platform_packet_set_capwap_wbid(pkt, action->field);
+			platform_packet_set_capwap_wbid(pkt, action->field.u8);
 			//Update match
-			pkt_matches->capwap_wbid = action->field;
+			pkt_matches->capwap_wbid = action->field.u8;
 			break;
 
 		// IEEE 802.11
 		case OF1X_AT_SET_FIELD_IEEE80211_FC:
 			//Call platform
-			platform_packet_set_ieee80211_fc(pkt, action->field);
+			platform_packet_set_ieee80211_fc(pkt, action->field.u16);
 			//Update match
-			pkt_matches->ieee80211_fc = action->field;
+			pkt_matches->ieee80211_fc = action->field.u16;
 			break;
 		case OF1X_AT_SET_FIELD_IEEE80211_TYPE:
 			//Call platform
-			platform_packet_set_ieee80211_type(pkt, action->field);
+			platform_packet_set_ieee80211_type(pkt, action->field.u8);
 			//Update match
-			pkt_matches->ieee80211_type = action->field;
+			pkt_matches->ieee80211_type = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_IEEE80211_SUBTYPE:
 			//Call platform
-			platform_packet_set_ieee80211_subtype(pkt, action->field);
+			platform_packet_set_ieee80211_subtype(pkt, action->field.u8);
 			//Update match
-			pkt_matches->ieee80211_subtype = action->field;
+			pkt_matches->ieee80211_subtype = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_IEEE80211_DIRECTION:
 			//Call platform
-			platform_packet_set_ieee80211_direction(pkt, action->field);
+			platform_packet_set_ieee80211_direction(pkt, action->field.u8);
 			//Update match
-			pkt_matches->ieee80211_direction = action->field;
+			pkt_matches->ieee80211_direction = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_1:
 			//Call platform
-			platform_packet_set_ieee80211_address_1(pkt, action->field);
+			platform_packet_set_ieee80211_address_1(pkt, action->field.u64);
 			//Update match
-			pkt_matches->ieee80211_address_1 = action->field;
+			pkt_matches->ieee80211_address_1 = action->field.u64;
 			break;
 		case OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_2:
 			//Call platform
-			platform_packet_set_ieee80211_address_2(pkt, action->field);
+			platform_packet_set_ieee80211_address_2(pkt, action->field.u64);
 			//Update match
-			pkt_matches->ieee80211_address_2 = action->field;
+			pkt_matches->ieee80211_address_2 = action->field.u64;
 			break;
 		case OF1X_AT_SET_FIELD_IEEE80211_ADDRESS_3:
 			//Call platform
-			platform_packet_set_ieee80211_address_3(pkt, action->field);
+			platform_packet_set_ieee80211_address_3(pkt, action->field.u64);
 			//Update match
-			pkt_matches->ieee80211_address_3 = action->field;
+			pkt_matches->ieee80211_address_3 = action->field.u64;
 			break;
 
 		case OF1X_AT_GROUP: __of1x_process_group_actions(sw, table_id, pkt, action->field.u64, action->group, replicate_pkts);

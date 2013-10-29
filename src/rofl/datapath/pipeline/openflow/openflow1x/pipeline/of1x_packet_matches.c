@@ -101,6 +101,20 @@ void __of1x_update_packet_matches(datapacket_t *const pkt){
 	//GTP related extensions
 	matches->gtp_msg_type = platform_packet_get_gtp_msg_type(pkt);
 	matches->gtp_teid = platform_packet_get_gtp_teid(pkt);
+
+	//CAPWAP related extensions
+	matches->capwap_rid = platform_packet_get_capwap_rid(pkt);
+	matches->capwap_flags = platform_packet_get_capwap_flags(pkt);
+	matches->capwap_wbid = platform_packet_get_capwap_wbid(pkt);
+
+	//IEEE80211 related extensions
+	matches->ieee80211_fc = platform_packet_get_ieee80211_fc(pkt);
+	matches->ieee80211_type = platform_packet_get_ieee80211_type(pkt);
+	matches->ieee80211_subtype = platform_packet_get_ieee80211_subtype(pkt);
+	matches->ieee80211_direction = platform_packet_get_ieee80211_direction(pkt);
+	matches->ieee80211_address_1 = platform_packet_get_ieee80211_address_1(pkt);
+	matches->ieee80211_address_2 = platform_packet_get_ieee80211_address_2(pkt);
+	matches->ieee80211_address_3 = platform_packet_get_ieee80211_address_3(pkt);
 }
 
 /*

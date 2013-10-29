@@ -117,6 +117,19 @@ typedef struct{
 	uint8_t gtp_msg_type;		/* GTP message type */
 	uint32_t gtp_teid;		/* GTP teid */
 
+	//CAPWAP related extensions
+	uint8_t capwap_rid;		/* CAPWAP RID */
+	uint16_t capwap_flags;		/* CAPWAP Flags */
+	uint8_t capwap_wbid;		/* CAPWAP WBID */
+
+	//IEEE80211 related extensions
+	uint16_t ieee80211_fc;		/* IEEE802.11 FC */
+	uint8_t ieee80211_type;		/* IEEE802.11 type */
+	uint8_t ieee80211_subtype;	/* IEEE802.11 subtype */
+	uint8_t ieee80211_direction;	/* IEEE802.11 direction */
+	uint64_t ieee80211_address_1;	/* IEEE802.11 address 1 */
+	uint64_t ieee80211_address_2;	/* IEEE802.11 address 2 */
+	uint64_t ieee80211_address_3;	/* IEEE802.11 address 3 */
 }of1x_packet_matches_t;
 
 

@@ -80,8 +80,8 @@ typedef enum{
 	OF1X_MATCH_ICMPV4_CODE,		/* ICMP code. */
 
 	/* other */
-	OF1X_MATCH_PBB_ISID,
-	OF1X_MATCH_TUNNEL_ID,
+	OF1X_MATCH_PBB_ISID,		/* PBB ISID */
+	OF1X_MATCH_TUNNEL_ID,		/* Tunnel ID */
 
 	/********************************/
 	/**** Extensions out of spec ****/
@@ -96,6 +96,20 @@ typedef enum{
 	/* GTP related extensions */
 	OF1X_MATCH_GTP_MSG_TYPE,	/* GTP message type */
 	OF1X_MATCH_GTP_TEID,		/* GTP teid */
+
+	/* CAPWAP related extension */
+	OF1X_MATCH_CAPWAP_RID,		/* CAPWAP RID */
+	OF1X_MATCH_CAPWAP_FLAGS,	/* CAPWAP FLAGS */
+	OF1X_MATCH_CAPWAP_WBID,		/* CAPWAP WBID */
+
+	/* IEEE80211 related extension */
+	OF1X_MATCH_IEEE80211_FC,	/* IEEE80211 FC */
+	OF1X_MATCH_IEEE80211_TYPE,	/* IEEE80211 TYPE */
+	OF1X_MATCH_IEEE80211_SUBTYPE,	/* IEEE80211 SUBTYPE */
+	OF1X_MATCH_IEEE80211_DIRECTION,	/* IEEE80211 DIRECTION */
+	OF1X_MATCH_IEEE80211_ADDRESS_1,	/* IEEE80211 ADDRESS 1 */
+	OF1X_MATCH_IEEE80211_ADDRESS_2,	/* IEEE80211 ADDRESS 2 */
+	OF1X_MATCH_IEEE80211_ADDRESS_3,	/* IEEE80211 ADDRESS 3 */
 
 	/* max value */
 	OF1X_MATCH_MAX,
@@ -448,7 +462,61 @@ of1x_match_t* of1x_init_pbb_isid_match(of1x_match_t* prev, of1x_match_t* next, u
  */
 of1x_match_t* of1x_init_tunnel_id_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask);
 
-//TODO
+//CAPWAP
+/**
+* @brief Create an CAPWAP_RID match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_capwap_rid_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value);
+/**
+* @brief Create an CAPWAP_FLAGS match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_capwap_flags_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask);
+/**
+* @brief Create an CAPWAP_WBID match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_capwap_wbid_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value);
+
+//IEEE80211
+/**
+* @brief Create an IEEE80211_FC match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_ieee80211_fc_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask);
+/**
+* @brief Create an IEEE80211_TYPE match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_ieee80211_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value);
+/**
+* @brief Create an IEEE80211_SUBTYPE match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_ieee80211_subtype_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value);
+/**
+* @brief Create an IEEE80211_DIRECTION match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_ieee80211_direction_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value);
+/**
+* @brief Create an IEEE80211_Address 1 match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_ieee80211_address_1_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask);
+/**
+* @brief Create an IEEE80211_Address 2 match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_ieee80211_address_2_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask);
+/**
+* @brief Create an IEEE80211_Address 3 match 
+* @ingroup core_of1x 
+*/
+of1x_match_t* of1x_init_ieee80211_address_3_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask);
+ 
+
 //Add more here...
 
 /** 
