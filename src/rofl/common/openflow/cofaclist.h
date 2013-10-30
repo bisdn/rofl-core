@@ -31,11 +31,11 @@ class eAcListNotFound : public eAcListBase {}; // element not found
 class eAcListOutOfRange : public eAcListBase {}; // index out of range in operator[]
 
 
-class cofaclist : public coflist<cofaction> {
+class cofaclist : public coflist<cofaction>
+{
+public:
 
 	uint8_t 		ofp_version;
-
-public: // methods
 
 	/** constructor
 	 */

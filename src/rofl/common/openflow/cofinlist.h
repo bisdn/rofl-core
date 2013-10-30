@@ -23,11 +23,11 @@ class eInListOutOfRange : public eInListBase {}; // out of range
 
 
 
-class cofinlist : public coflist<cofinst> {
+class cofinlist : public coflist<cofinst>
+{
+public:
 
 	uint8_t ofp_version;
-
-public: // static methods
 
 	/**
 	 */
