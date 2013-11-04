@@ -45,8 +45,8 @@ void __of10_set_table_defaults(of1x_flow_table_t* table){
 				(1UL << OF1X_MATCH_IP_PROTO) |
 				(1UL << OF1X_MATCH_IPV4_SRC) |
 				(1UL << OF1X_MATCH_IPV4_DST) |
-				(1UL << OF1X_MATCH_TP_SRC) | //Only for OF10
-				(1UL << OF1X_MATCH_TP_DST) | //Only for OF10
+				(UINT64_C(1) << OF1X_MATCH_TP_SRC) | //Only for OF10
+				(UINT64_C(1) << OF1X_MATCH_TP_DST) | //Only for OF10
 				(UINT64_C(1) << OF1X_MATCH_PPPOE_CODE) |
 				(UINT64_C(1) << OF1X_MATCH_PPPOE_TYPE) |
 				(UINT64_C(1) << OF1X_MATCH_PPPOE_SID) |
@@ -115,14 +115,14 @@ void __of12_set_table_defaults(of1x_flow_table_t* table){
 				   (1UL << OF1X_MATCH_IP_PROTO) |
 				   (1UL << OF1X_MATCH_IPV4_SRC) |
 				   (1UL << OF1X_MATCH_IPV4_DST) |
-				   (1UL << OF1X_MATCH_TCP_SRC) |
-				   (1UL << OF1X_MATCH_TCP_DST) |
-				   (1UL << OF1X_MATCH_UDP_SRC) |
-				   (1UL << OF1X_MATCH_UDP_DST) |
-				   (1UL << OF1X_MATCH_SCTP_SRC) |
-				   (1UL << OF1X_MATCH_SCTP_DST) |
-				   (1UL << OF1X_MATCH_ICMPV4_TYPE) |
-				   (1UL << OF1X_MATCH_ICMPV4_CODE) |				   
+				   (UINT64_C(1) << OF1X_MATCH_TCP_SRC) |
+				   (UINT64_C(1) << OF1X_MATCH_TCP_DST) |
+				   (UINT64_C(1) << OF1X_MATCH_UDP_SRC) |
+				   (UINT64_C(1) << OF1X_MATCH_UDP_DST) |
+				   (UINT64_C(1) << OF1X_MATCH_SCTP_SRC) |
+				   (UINT64_C(1) << OF1X_MATCH_SCTP_DST) |
+				   (UINT64_C(1) << OF1X_MATCH_ICMPV4_TYPE) |
+				   (UINT64_C(1) << OF1X_MATCH_ICMPV4_CODE) |
 				   (1UL << OF1X_MATCH_IPV6_SRC) |
 				   (1UL << OF1X_MATCH_IPV6_DST) |
 				   (1UL << OF1X_MATCH_IPV6_FLABEL) |

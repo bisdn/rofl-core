@@ -73,7 +73,7 @@ public:
 	/**
 	 * Constructor
 	 */
-	cunixenv();
+	cunixenv(int argc = 0, char** argv = NULL);
 	
 	/**
 	 * Destructor
@@ -88,7 +88,7 @@ public:
 	/**
 	 * Parse arguments using getopt
 	 */
-	void parse_args(int argc, char** argv);
+	void parse_args();
 
 	/*
 	 * Get value methods
@@ -116,6 +116,9 @@ private:
 	std::vector<coption> arguments;
 
 	bool parsed;
+
+	// copy of values obtained from (int argc, char** argv)
+	std::vector<std::string> cargs;
 
 	/**
 	 * Usage method

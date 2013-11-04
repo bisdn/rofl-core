@@ -85,27 +85,27 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 			action->ver_req.min_ver = OF_VERSION_10;
 			action->ver_req.max_ver = OF_VERSION_10;
 		case OF1X_AT_SET_FIELD_IPV4_DST:
-			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
+			action->field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_NW_SRC:
 			action->ver_req.min_ver = OF_VERSION_10;
 			action->ver_req.max_ver = OF_VERSION_10;
 		case OF1X_AT_SET_FIELD_IPV4_SRC:
-			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
+			action->field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_SPA:
-			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
+			action->field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_TPA:
-			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
+			action->field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_OUTPUT:
-			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;	// TODO: max_len when port_no == OFPP_CONTROLLER
+			action->field.u32 = field.u32&OF1X_4_BYTE_MASK;	// TODO: max_len when port_no == OFPP_CONTROLLER
 			break;
 		case OF1X_AT_SET_FIELD_GTP_TEID:
-			action->field.u64 = field.u64&OF1X_4_BYTE_MASK;
+			action->field.u32 = field.u32&OF1X_4_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 
@@ -117,105 +117,105 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 	
 		//20 bit values
 		case OF1X_AT_SET_FIELD_IPV6_FLABEL:
-			action->field.u64 = field.u64&OF1X_20_BITS_MASK;
+			action->field.u32 = field.u32&OF1X_20_BITS_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_MPLS_LABEL:
-			action->field.u64 = field.u64&OF1X_20_BITS_MASK;
+			action->field.u32 = field.u32&OF1X_20_BITS_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 
 		//2 byte values
 		case OF1X_AT_SET_FIELD_ETH_TYPE:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_ARP_OPCODE:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK; // TODO: lower 8bits of opcode only?
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK; // TODO: lower 8bits of opcode only?
 			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_SET_FIELD_TP_SRC:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_10;
 			action->ver_req.max_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_SET_FIELD_TP_DST:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_10;
 			action->ver_req.max_ver = OF_VERSION_10;
 			break;
 		case OF1X_AT_SET_FIELD_TCP_SRC:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_TCP_DST:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_UDP_SRC:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_UDP_DST:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_SCTP_SRC:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_SCTP_DST:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_PPPOE_SID:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_SET_FIELD_PPP_PROT:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		/*case OF1X_AT_POP_VLAN: TODO: CHECK THIS*/
 		case OF1X_AT_POP_MPLS: 
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_POP_PPPOE: 
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_POP_PBB: 
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
 
 		case OF1X_AT_PUSH_PPPOE:
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_PUSH_MPLS: 
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_PUSH_VLAN: 
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_PUSH_PBB: 
-			action->field.u64 = field.u64&OF1X_2_BYTE_MASK;
+			action->field.u16 = field.u16&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
 
 
 		//12 bit values
 		case OF1X_AT_SET_FIELD_VLAN_VID:
-			action->field.u64 = field.u64&OF1X_12_BITS_MASK;
+			action->field.u16 = field.u16&OF1X_12_BITS_MASK;
 			break;
 
 
 		//9 bit value
 		case OF1X_AT_SET_FIELD_IPV6_EXTHDR:
-			action->field.u64 = field.u64&OF1X_9_BITS_MASK;
+			action->field.u16 = field.u16&OF1X_9_BITS_MASK;
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
 
@@ -223,7 +223,7 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 		case OF1X_AT_SET_FIELD_NW_PROTO:
 			action->ver_req.min_ver = OF_VERSION_10;
 			action->ver_req.max_ver = OF_VERSION_10;
-			action->field.u64 = field.u64&OF1X_1_BYTE_MASK;
+			action->field.u8 = field.u8&OF1X_2_BYTE_MASK;
 			break;
 		case OF1X_AT_SET_FIELD_ICMPV6_TYPE:
 		case OF1X_AT_SET_FIELD_ICMPV6_CODE:
@@ -236,39 +236,39 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 		case OF1X_AT_SET_FIELD_ICMPV4_CODE:
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
 		case OF1X_AT_SET_QUEUE:
-			action->field.u64 = field.u64&OF1X_1_BYTE_MASK;
+			action->field.u8 = field.u8&OF1X_2_BYTE_MASK;
 			action->ver_req.min_ver = OF_VERSION_10;
 			break;
 
 		//6 bit values
 		case OF1X_AT_SET_FIELD_IP_DSCP:
-			action->field.u64 = field.u64&OF1X_6_BITS_MASK;
+			action->field.u8 = field.u8&OF1X_6_BITS_MASK;
 			break;
 
 		//3 bit values
 		case OF1X_AT_SET_FIELD_VLAN_PCP:
-			action->field.u64 = field.u64&OF1X_3_BITS_MASK;
+			action->field.u8 = field.u8&OF1X_3_BITS_MASK;
 			break;
 
 		case OF1X_AT_SET_FIELD_MPLS_TC:
-			action->field.u64 = field.u64&OF1X_3_BITS_MASK;
+			action->field.u8 = field.u8&OF1X_3_BITS_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 
 		//2 bit values
 		case OF1X_AT_SET_FIELD_IP_ECN:
-			action->field.u64 = field.u64&OF1X_2_BITS_MASK;
+			action->field.u8 = field.u8&OF1X_2_BITS_MASK;
 			action->ver_req.min_ver = OF_VERSION_12;
 			break;
 		case OF1X_AT_GROUP:
-			action->field.u64 =  field.u64&OF1X_4_BYTE_MASK; //id of the group
+			action->field.u32 =  field.u32&OF1X_4_BYTE_MASK; //id of the group
 			action->ver_req.min_ver = OF_VERSION_12;
 			//action->group = of1x_group_search(sw->pipeline->groups, action->field); // pointer to the group //FIXME evaluate if this can be done here or not
 			break;
 
 		//1 bit values
 		case OF1X_AT_SET_FIELD_MPLS_BOS:
-			action->field.u64 =  field.u64&OF1X_1_BIT_MASK; //id of the group
+			action->field.u8 =  field.u8&OF1X_1_BIT_MASK; //id of the group
 			action->ver_req.min_ver = OF_VERSION_13;
 			break;
 
@@ -496,14 +496,14 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 		case OF1X_AT_POP_MPLS: 
 			//Call platform
-			platform_packet_pop_mpls(pkt, action->field.u64);
+			platform_packet_pop_mpls(pkt, action->field.u16);
 			//Update match
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			break;
 		case OF1X_AT_POP_PPPOE: 
 			//Call platform
-			platform_packet_pop_pppoe(pkt, action->field.u64);
+			platform_packet_pop_pppoe(pkt, action->field.u16);
 			//Update match
 			pkt_matches->eth_type= platform_packet_get_eth_type(pkt); 
 			pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
@@ -550,17 +550,17 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 		case OF1X_AT_SET_MPLS_TTL:
 			//Call platform
-			platform_packet_set_mpls_ttl(pkt, action->field.u64);
+			platform_packet_set_mpls_ttl(pkt, action->field.u8);
 			break;
 		case OF1X_AT_SET_NW_TTL:
 			//Call platform
-			platform_packet_set_nw_ttl(pkt, action->field.u64);
+			platform_packet_set_nw_ttl(pkt, action->field.u8);
 			break;
 
 		//QUEUE
 		case OF1X_AT_SET_QUEUE:
 			//Call platform
-			platform_packet_set_queue(pkt, action->field.u64);
+			platform_packet_set_queue(pkt, action->field.u32);
 			break;
 
 		//802
@@ -578,9 +578,9 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 		case OF1X_AT_SET_FIELD_ETH_TYPE: 
 			//Call platform
-			platform_packet_set_eth_type(pkt, action->field.u64);
+			platform_packet_set_eth_type(pkt, action->field.u16);
 			//Update match
-			pkt_matches->eth_type = action->field.u64;
+			pkt_matches->eth_type = action->field.u16;
 			break;
 
 		//802.1q
@@ -598,9 +598,9 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			}
 			//Call platform
-			platform_packet_set_vlan_vid(pkt, action->field.u64);
+			platform_packet_set_vlan_vid(pkt, action->field.u16);
 			//Update match
-			pkt_matches->vlan_vid = action->field.u64;
+			pkt_matches->vlan_vid = action->field.u16;
 			break;
 		case OF1X_AT_SET_FIELD_VLAN_PCP: 
 			//For 1.0 we must first push it if we don't have. wtf...
@@ -616,9 +616,9 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				pkt_matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt); 
 			}
 			//Call platform
-			platform_packet_set_vlan_pcp(pkt, action->field.u64);
+			platform_packet_set_vlan_pcp(pkt, action->field.u8);
 			//Update match
-			pkt_matches->vlan_pcp = action->field.u64;
+			pkt_matches->vlan_pcp = action->field.u8;
 			break;
 
 		//ARP
@@ -659,7 +659,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				//Call platform
 				platform_packet_set_ip_proto(pkt, action->field.u8);
 				//Update match
-				pkt_matches->ip_proto = action->field.u64;
+				pkt_matches->ip_proto = action->field.u8;
 			}else if((pkt_matches->eth_type == OF1X_ETH_TYPE_ARP)){
 				//Call plattform
 				platform_packet_set_arp_opcode(pkt, action->field.u8);
@@ -671,205 +671,205 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 		case OF1X_AT_SET_FIELD_NW_SRC:
 			if((pkt_matches->eth_type == OF1X_ETH_TYPE_IPV4)){
 				//Call platform
-				platform_packet_set_ipv4_src(pkt, action->field.u64);
+				platform_packet_set_ipv4_src(pkt, action->field.u32);
 				//Update match
-				pkt_matches->ipv4_src = action->field.u64;
+				pkt_matches->ipv4_src = action->field.u32;
 			}else if((pkt_matches->eth_type == OF1X_ETH_TYPE_ARP)){
 				//Call platform
-				platform_packet_set_arp_spa(pkt, action->field.u64);
+				platform_packet_set_arp_spa(pkt, action->field.u32);
 				//Update match
-				pkt_matches->arp_spa = action->field.u64;
+				pkt_matches->arp_spa = action->field.u32;
 			}
 			break;
 		case OF1X_AT_SET_FIELD_NW_DST:
 			if((pkt_matches->eth_type == OF1X_ETH_TYPE_IPV4)){
 				//Call platform
-				platform_packet_set_ipv4_dst(pkt, action->field.u64);
+				platform_packet_set_ipv4_dst(pkt, action->field.u32);
 				//Update match
-				pkt_matches->ipv4_dst = action->field.u64;
+				pkt_matches->ipv4_dst = action->field.u32;
 			}else if((pkt_matches->eth_type == OF1X_ETH_TYPE_ARP)){
 				//Call platform
-				platform_packet_set_arp_tpa(pkt, action->field.u64);
+				platform_packet_set_arp_tpa(pkt, action->field.u32);
 				//Update match
-				pkt_matches->arp_tpa = action->field.u64;
+				pkt_matches->arp_tpa = action->field.u32;
 			}
 			break;
 
 		//IP
 		case OF1X_AT_SET_FIELD_IP_DSCP:
 			//Call platform
-			platform_packet_set_ip_dscp(pkt, action->field.u64);
+			platform_packet_set_ip_dscp(pkt, action->field.u8);
 			//Update match
-			pkt_matches->ip_dscp = action->field.u64;
+			pkt_matches->ip_dscp = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_IP_ECN:
 			//Call platform
-			platform_packet_set_ip_ecn(pkt, action->field.u64);
+			platform_packet_set_ip_ecn(pkt, action->field.u8);
 			//Update match
-			pkt_matches->ip_ecn = action->field.u64;
+			pkt_matches->ip_ecn = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_IP_PROTO:
 			//Call platform
-			platform_packet_set_ip_proto(pkt, action->field.u64);
+			platform_packet_set_ip_proto(pkt, action->field.u8);
 			//Update match
-			pkt_matches->ip_proto = action->field.u64;
+			pkt_matches->ip_proto = action->field.u8;
 			break;
 
 		//IPv4
 		case OF1X_AT_SET_FIELD_IPV4_SRC:
 			//Call platform
-			platform_packet_set_ipv4_src(pkt, action->field.u64);
+			platform_packet_set_ipv4_src(pkt, action->field.u32);
 			//Update match
-			pkt_matches->ipv4_src = action->field.u64;
+			pkt_matches->ipv4_src = action->field.u32;
 			break;
 		case OF1X_AT_SET_FIELD_IPV4_DST:
 			//Call platform
-			platform_packet_set_ipv4_dst(pkt, action->field.u64);
+			platform_packet_set_ipv4_dst(pkt, action->field.u32);
 			//Update match
-			pkt_matches->ipv4_dst = action->field.u64;
+			pkt_matches->ipv4_dst = action->field.u32;
 			break;
 
 		//TP
 		case OF1X_AT_SET_FIELD_TP_SRC:  
 			if((pkt_matches->ip_proto == OF1X_IP_PROTO_TCP)){
 				//Call platform
-				platform_packet_set_tcp_src(pkt, action->field.u64);
+				platform_packet_set_tcp_src(pkt, action->field.u16);
 				//Update match
-				pkt_matches->tcp_src = action->field.u64;
+				pkt_matches->tcp_src = action->field.u16;
 			}else if((pkt_matches->ip_proto == OF1X_IP_PROTO_UDP)){
 				//Call platform
-				platform_packet_set_udp_src(pkt, action->field.u64);
+				platform_packet_set_udp_src(pkt, action->field.u16);
 				//Update match
-				pkt_matches->udp_src = action->field.u64;
+				pkt_matches->udp_src = action->field.u16;
 			}else if((pkt_matches->ip_proto == OF1X_IP_PROTO_ICMPV4)){
 				//Call platform
-				platform_packet_set_icmpv4_type(pkt, action->field.u64);
+				platform_packet_set_icmpv4_type(pkt, action->field.u8);
 				//Update match
-				pkt_matches->icmpv4_type = action->field.u64;
+				pkt_matches->icmpv4_type = action->field.u8;
 			}
 			break;
 		case OF1X_AT_SET_FIELD_TP_DST:
 			if((pkt_matches->ip_proto == OF1X_IP_PROTO_TCP)){
 				//Call platform
-				platform_packet_set_tcp_dst(pkt, action->field.u64);
+				platform_packet_set_tcp_dst(pkt, action->field.u16);
 				//Update match
-				pkt_matches->tcp_dst = action->field.u64;
+				pkt_matches->tcp_dst = action->field.u16;
 			}else if((pkt_matches->ip_proto == OF1X_IP_PROTO_UDP)){
 				//Call platform
-				platform_packet_set_udp_dst(pkt, action->field.u64);
+				platform_packet_set_udp_dst(pkt, action->field.u16);
 				//Update match
-				pkt_matches->udp_dst = action->field.u64;
+				pkt_matches->udp_dst = action->field.u16;
 			}else if((pkt_matches->ip_proto == OF1X_IP_PROTO_ICMPV4)){
 				//Call platform
-				platform_packet_set_icmpv4_code(pkt, action->field.u64);
+				platform_packet_set_icmpv4_code(pkt, action->field.u8);
 				//Update match
-				pkt_matches->icmpv4_code = action->field.u64;
+				pkt_matches->icmpv4_code = action->field.u8;
 			}
 			break;
 
 		//TCP
 		case OF1X_AT_SET_FIELD_TCP_SRC:  
 			//Call platform
-			platform_packet_set_tcp_src(pkt, action->field.u64);
+			platform_packet_set_tcp_src(pkt, action->field.u16);
 			//Update match
-			pkt_matches->tcp_src = action->field.u64;
+			pkt_matches->tcp_src = action->field.u16;
 			break;
 		case OF1X_AT_SET_FIELD_TCP_DST:
 			//Call platform
-			platform_packet_set_tcp_dst(pkt, action->field.u64);
+			platform_packet_set_tcp_dst(pkt, action->field.u16);
 			//Update match
-			pkt_matches->tcp_dst = action->field.u64;
+			pkt_matches->tcp_dst = action->field.u16;
 			break;
 
 		//UDP
 		case OF1X_AT_SET_FIELD_UDP_SRC:
 			//Call platform
-			platform_packet_set_udp_src(pkt, action->field.u64);
+			platform_packet_set_udp_src(pkt, action->field.u16);
 			//Update match
-			pkt_matches->udp_src = action->field.u64;
+			pkt_matches->udp_src = action->field.u16;
 			break;
 		case OF1X_AT_SET_FIELD_UDP_DST:
 			//Call platform
-			platform_packet_set_udp_dst(pkt, action->field.u64);
+			platform_packet_set_udp_dst(pkt, action->field.u16);
 			//Update match
-			pkt_matches->udp_dst = action->field.u64;
+			pkt_matches->udp_dst = action->field.u16;
 			break;
 		//SCTP
 		case OF1X_AT_SET_FIELD_SCTP_SRC:
 			//Call platform
-			platform_packet_set_sctp_src(pkt, action->field.u64);
+			platform_packet_set_sctp_src(pkt, action->field.u16);
 			//Update match
-			pkt_matches->sctp_src = action->field.u64;
+			pkt_matches->sctp_src = action->field.u16;
 			break;
 		case OF1X_AT_SET_FIELD_SCTP_DST:
 			//Call platform
-			platform_packet_set_sctp_dst(pkt, action->field.u64);
+			platform_packet_set_sctp_dst(pkt, action->field.u16);
 			//Update match
-			pkt_matches->sctp_dst = action->field.u64;
+			pkt_matches->sctp_dst = action->field.u16;
 			break;
 
 
 		//ICMPv4
 		case OF1X_AT_SET_FIELD_ICMPV4_TYPE:
 			//Call platform
-			platform_packet_set_icmpv4_type(pkt, action->field.u64);
+			platform_packet_set_icmpv4_type(pkt, action->field.u8);
 			//Update match
-			pkt_matches->icmpv4_type = action->field.u64;
+			pkt_matches->icmpv4_type = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_ICMPV4_CODE:
 			//Call platform
-			platform_packet_set_icmpv4_code(pkt, action->field.u64);
+			platform_packet_set_icmpv4_code(pkt, action->field.u8);
 			//Update match
-			pkt_matches->icmpv4_code = action->field.u64;
+			pkt_matches->icmpv4_code = action->field.u8;
 			break;
 
 		//MPLS
 		case OF1X_AT_SET_FIELD_MPLS_LABEL:
 			//Call platform
-			platform_packet_set_mpls_label(pkt, action->field.u64);
+			platform_packet_set_mpls_label(pkt, action->field.u32);
 			//Update match
-			pkt_matches->mpls_label = action->field.u64;
+			pkt_matches->mpls_label = action->field.u32;
 			break;
 		case OF1X_AT_SET_FIELD_MPLS_TC:
 			//Call platform
-			platform_packet_set_mpls_tc(pkt, action->field.u64);
+			platform_packet_set_mpls_tc(pkt, action->field.u8);
 			//Update match
-			pkt_matches->mpls_tc = action->field.u64;
+			pkt_matches->mpls_tc = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_MPLS_BOS:
 			//Call platform
-			platform_packet_set_mpls_bos(pkt, action->field.u64);
+			platform_packet_set_mpls_bos(pkt, action->field.u8);
 			//Update match
-			pkt_matches->mpls_bos = action->field.u64;
+			pkt_matches->mpls_bos = action->field.u8;
 			break;
 
 
 		//PPPoE
 		case OF1X_AT_SET_FIELD_PPPOE_CODE:
 			//Call platform
-			platform_packet_set_pppoe_code(pkt, action->field.u64);
+			platform_packet_set_pppoe_code(pkt, action->field.u8);
 			//Update match
-			pkt_matches->pppoe_code = action->field.u64;
+			pkt_matches->pppoe_code = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_PPPOE_TYPE:
 			//Call platform
-			platform_packet_set_pppoe_type(pkt, action->field.u64);
+			platform_packet_set_pppoe_type(pkt, action->field.u8);
 			//Update match
-			pkt_matches->pppoe_type = action->field.u64;
+			pkt_matches->pppoe_type = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_PPPOE_SID:
 			//Call platform
-			platform_packet_set_pppoe_sid(pkt, action->field.u64);
+			platform_packet_set_pppoe_sid(pkt, action->field.u16);
 			//Update match
-			pkt_matches->pppoe_sid = action->field.u64;
+			pkt_matches->pppoe_sid = action->field.u16;
 			break;
 
 		//PPP
 		case OF1X_AT_SET_FIELD_PPP_PROT:
 			//Call platform
-			platform_packet_set_ppp_proto(pkt, action->field.u64);
+			platform_packet_set_ppp_proto(pkt, action->field.u16);
 			//Update match
-			pkt_matches->ppp_proto = action->field.u64;
+			pkt_matches->ppp_proto = action->field.u16;
 			break;
 			
 		//IPv6
@@ -932,15 +932,15 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 		//GTP
 		case OF1X_AT_SET_FIELD_GTP_MSG_TYPE:
 			//Call platform
-			platform_packet_set_gtp_msg_type(pkt, action->field.u64);
+			platform_packet_set_gtp_msg_type(pkt, action->field.u8);
 			//Update match
-			pkt_matches->gtp_msg_type = action->field.u64;
+			pkt_matches->gtp_msg_type = action->field.u8;
 			break;
 		case OF1X_AT_SET_FIELD_GTP_TEID:
 			//Call platform
-			platform_packet_set_gtp_teid(pkt, action->field.u64);
+			platform_packet_set_gtp_teid(pkt, action->field.u32);
 			//Update match
-			pkt_matches->gtp_teid = action->field.u64;
+			pkt_matches->gtp_teid = action->field.u32;
 			break;
 		case OF1X_AT_POP_GTP: 
 			//Call platform
@@ -985,7 +985,8 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			pkt_matches->tunnel_id = action->field.u64;
 			break;
 
-		case OF1X_AT_GROUP: __of1x_process_group_actions(sw, table_id, pkt, action->field.u64, action->group, replicate_pkts);
+		case OF1X_AT_GROUP:
+			__of1x_process_group_actions(sw, table_id, pkt, action->field.u64, action->group, replicate_pkts);
 			break;
 
 		case OF1X_AT_EXPERIMENTER: //FIXME: implement
@@ -993,12 +994,12 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 
 		case OF1X_AT_OUTPUT: 
 			
-			if(action->field.u64 < OF1X_PORT_MAX || 
-				action->field.u64 == OF1X_PORT_IN_PORT || 
-				 action->field.u64 == OF1X_PORT_ALL || 
-				 action->field.u64 == OF1X_PORT_FLOOD || 
-				 action->field.u64 == OF1X_PORT_NORMAL || 
-				 action->field.u64 == OF1X_PORT_CONTROLLER){ 
+			if(action->field.u32 < OF1X_PORT_MAX ||
+				action->field.u32 == OF1X_PORT_IN_PORT ||
+				 action->field.u32 == OF1X_PORT_ALL ||
+				 action->field.u32 == OF1X_PORT_FLOOD ||
+				 action->field.u32 == OF1X_PORT_NORMAL ||
+				 action->field.u32 == OF1X_PORT_CONTROLLER){
 
 				//Pointer for the packet to be sent
 				datapacket_t* pkt_to_send;			
@@ -1014,22 +1015,22 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 					pkt_to_send = pkt;
 
 				//Perform output
-				if( action->field.u64 < LOGICAL_SWITCH_MAX_LOG_PORTS && NULL != sw->logical_ports[action->field.u64].port ){
+				if( action->field.u32 < LOGICAL_SWITCH_MAX_LOG_PORTS && NULL != sw->logical_ports[action->field.u32].port ){
 
 					//Single port output
-					platform_packet_output(pkt_to_send, sw->logical_ports[action->field.u64].port);
+					platform_packet_output(pkt_to_send, sw->logical_ports[action->field.u32].port);
 
-				}else if(action->field.u64 == OF1X_PORT_FLOOD){
+				}else if(action->field.u32 == OF1X_PORT_FLOOD){
 					//Flood
 					platform_packet_output(pkt_to_send, flood_meta_port);
-				}else if(action->field.u64 == OF1X_PORT_CONTROLLER ||
-					action->field.u64 == OF1X_PORT_NORMAL){
+				}else if(action->field.u32 == OF1X_PORT_CONTROLLER ||
+					action->field.u32 == OF1X_PORT_NORMAL){
 					//Controller
 					platform_of1x_packet_in(sw, table_id, pkt_to_send, OF1X_PKT_IN_ACTION);
-				}else if(action->field.u64 == OF1X_PORT_ALL){ 
+				}else if(action->field.u32 == OF1X_PORT_ALL){
 					//Flood
 					platform_packet_output(pkt_to_send, all_meta_port);
-				}else if(action->field.u64 == OF1X_PORT_IN_PORT){ 
+				}else if(action->field.u32 == OF1X_PORT_IN_PORT){
 					//in port
 					platform_packet_output(pkt_to_send, in_port_meta_port);
 				}else{
@@ -1393,7 +1394,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 		case OF1X_AT_SET_FIELD_ICMPV6_TYPE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ICMPV6_TYPE: 0x%u",action.field.u64);
 			break;
 		case OF1X_AT_SET_FIELD_ICMPV6_CODE:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_ICMPV6_CODE: 0x%u",action.field.u64);
-		
+			break;
 		case OF1X_AT_POP_PBB:ROFL_PIPELINE_DEBUG_NO_PREFIX("POP_PBB");
 			break;
 		case OF1X_AT_PUSH_PBB:ROFL_PIPELINE_DEBUG_NO_PREFIX("PUSH_PBB");

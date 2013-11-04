@@ -531,8 +531,8 @@ cofflow_stats_reply::unpack(uint8_t *buf, size_t buflen)
 			throw eInval();
 
 		match.unpack(&(fs->match), matchlen);
-		instructions.unpack((buf + sizeof(struct ofp12_flow_stats) - 4 + matchlen),
-									buflen - sizeof(struct ofp12_flow_stats) + 4 - matchlen);
+		instructions.unpack((buf + sizeof(struct ofp12_flow_stats) - sizeof(struct ofp12_match) + matchlen),
+									buflen - sizeof(struct ofp12_flow_stats) + sizeof(struct ofp12_match) - matchlen);
 
 	} break;
 	default:
@@ -563,6 +563,8 @@ cofflow_stats_reply::length() const
 void
 cofflow_stats_reply::set_version(uint8_t of_version)
 {
+	this->actions.ofp_version = of_version;
+	this->instructions.ofp_version = of_version;
 	this->of_version = of_version;
 }
 
