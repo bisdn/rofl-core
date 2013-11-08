@@ -1226,7 +1226,6 @@ handle_packets:			// handle incoming events
 				throw;
 			}
 #endif
-
 		}
 	}
 	WRITELOG(CIOSRV, DBG, "ciosrv::run() stopping tid=0x%lx\n", tid);
