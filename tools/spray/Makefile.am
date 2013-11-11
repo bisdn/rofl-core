@@ -18,5 +18,5 @@ spray_SOURCES= spray.cc \
 			ctimeval.cc
 			
 			
-spray_LDADD=$(top_builddir)/src/rofl/librofl.la
+spray_LDADD=$(top_builddir)/src/rofl/librofl.la -lpthread
 endif

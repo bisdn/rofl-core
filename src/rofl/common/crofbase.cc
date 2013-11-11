@@ -2635,9 +2635,9 @@ uint32_t
 crofbase::ta_add_request(
 		uint8_t type)
 {
-	RwLock lock(&xidlock, RwLock::RWLOCK_WRITE);
-
 	uint32_t xid = ta_new_async_xid();
+
+	RwLock lock(&xidlock, RwLock::RWLOCK_WRITE);
 
 	// add pair(type, xid) to transaction list
 	//ta_pending_reqs.insert(std::make_pair<uint32_t, uint8_t>(xid, type));
@@ -2727,6 +2727,8 @@ crofbase::ta_new_async_xid()
 
 	return r.uint32();
 #endif
+
+	RwLock lock(&xidlock, RwLock::RWLOCK_WRITE);
 
 	if (xids_used.size() > xid_used_max) {
 		xids_used.clear();
