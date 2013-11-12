@@ -63,7 +63,7 @@ AC_CONFIG_FILES([
 	src/rofl/platform/Makefile
 	src/rofl/platform/unix/Makefile
 	
-	src/rofl/Makefile
+	src/rofl/Makefile src/rofl/rofl.pc
 
         src/rofl/datapath/afa/Makefile
         src/rofl/datapath/afa/openflow/openflow1x/Makefile
