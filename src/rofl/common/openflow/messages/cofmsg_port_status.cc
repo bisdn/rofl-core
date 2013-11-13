@@ -249,5 +249,11 @@ cofmsg_port_status::get_port()
 }
 
 
+cofport const&
+cofmsg_port_status::get_port_const() const
+{
+	return port;
+}
+
 
 

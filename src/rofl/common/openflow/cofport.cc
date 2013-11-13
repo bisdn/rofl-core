@@ -769,7 +769,7 @@ cofport::link_state_clr_blocked()
 
 
 bool
-cofport::link_state_is_blocked()
+cofport::link_state_is_blocked() const
 {
 	switch (of_version) {
 	case OFP12_VERSION:
@@ -814,7 +814,7 @@ cofport::link_state_clr_live()
 
 
 bool
-cofport::link_state_is_live()
+cofport::link_state_is_live() const
 {
 	switch (of_version) {
 	case OFP12_VERSION:
@@ -861,7 +861,7 @@ cofport::link_state_clr_link_down()
 
 
 bool
-cofport::link_state_is_link_down()
+cofport::link_state_is_link_down() const
 {
 	switch (of_version) {
 	case OFP10_VERSION:
@@ -909,7 +909,7 @@ cofport::link_state_phy_up()
 
 
 bool
-cofport::link_state_phy_is_up()
+cofport::link_state_phy_is_up() const
 {
 	switch (of_version) {
 	case OFP10_VERSION:
@@ -925,7 +925,7 @@ cofport::link_state_phy_is_up()
 
 
 bool
-cofport::config_is_port_down()
+cofport::config_is_port_down() const
 {
 	switch (of_version) {
 	case OFP10_VERSION:

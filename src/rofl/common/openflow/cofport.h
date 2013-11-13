@@ -409,8 +409,7 @@ public:
 	 *
 	 */
 	virtual void
-	link_state_set_blocked()
-;
+	link_state_set_blocked();
 
 
 	/**
@@ -424,7 +423,7 @@ public:
 	 *
 	 */
 	virtual bool
-	link_state_is_blocked();
+	link_state_is_blocked() const;
 
 
 	/**
@@ -445,7 +444,7 @@ public:
 	 *
 	 */
 	virtual bool
-	link_state_is_live();
+	link_state_is_live() const;
 
 
 	/**
@@ -466,7 +465,7 @@ public:
 	 *
 	 */
 	virtual bool
-	link_state_is_link_down();
+	link_state_is_link_down() const;
 
 
 	/**
@@ -487,14 +486,14 @@ public:
 	 *
 	 */
 	bool
-	link_state_phy_is_up();
+	link_state_phy_is_up() const;
 
 
 	/**
 	 *
 	 */
 	bool
-	config_is_port_down();
+	config_is_port_down() const;
 
 
 	/**
@@ -586,6 +585,31 @@ public: // static
 		std::map<uint32_t, cofport*> *port_list) throw (eOFportNotFound);
 #endif
 
+public:
+
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofport const& port) {
+		os << "<cofport ";
+			os << "portno:" << (int)port.get_port_no() << " ";
+			os << "hwaddr:" << port.get_hwaddr() << " ";
+			os << "name:" << port.get_name() << " ";
+			os << "config:" << (int)port.get_config() << " ";
+			os << "state:" << (int)port.get_state() << " ";
+			os << "curr:" << (int)port.get_curr() << " ";
+			os << "advertised:" << (int)port.get_advertised() << " ";
+			os << "supported:" << (int)port.get_supported() << " ";
+			os << "peer:" << (int)port.get_peer() << " ";
+			os << "curr-speed:" << (int)port.get_curr_speed() << " ";
+			os << "max-speed:" << (int)port.get_max_speed() << " ";
+			os << "is-blocked:" << (int)port.link_state_is_blocked() << " ";
+			os << "is-live:" << (int)port.link_state_is_live() << " ";
+			os << "is-link-down:" << (int)port.link_state_is_link_down() << " ";
+			os << "is-phy-up:" << (int)port.link_state_phy_is_up() << " ";
+			os << "is-port-down:" << (int)port.config_is_port_down() << " ";
+		os << ">";
+		return os;
+	};
 };
 
 

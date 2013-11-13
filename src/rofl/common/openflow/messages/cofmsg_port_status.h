@@ -138,6 +138,32 @@ public:
 	 */
 	cofport&
 	get_port();
+
+	/**
+	 *
+	 */
+	cofport const&
+	get_port_const() const;
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_port_status const& msg) {
+		os << "<cofmsg_port_status " << dynamic_cast<cofmsg const&>( msg ) << " ";
+		switch (msg.get_version()) {
+		case OFP10_VERSION:
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			os << "reason:" << (int)msg.get_reason() << " ";
+			os << "port:" << msg.get_port_const() << " ";
+		} break;
+		default: {
+			os << "unsupported OF version:" << (int)msg.get_version() << " ";
+		} break;
+		}
+		os << ">";
+		return os;
+	};
 };
 
 } // end of namespace rofl
