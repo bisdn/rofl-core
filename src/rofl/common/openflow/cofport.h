@@ -602,11 +602,10 @@ public:
 			os << "peer:" << (int)port.get_peer() << " ";
 			os << "curr-speed:" << (int)port.get_curr_speed() << " ";
 			os << "max-speed:" << (int)port.get_max_speed() << " ";
-			os << "is-blocked:" << (int)port.link_state_is_blocked() << " ";
-			os << "is-live:" << (int)port.link_state_is_live() << " ";
-			os << "is-link-down:" << (int)port.link_state_is_link_down() << " ";
-			os << "is-phy-up:" << (int)port.link_state_phy_is_up() << " ";
-			os << "is-port-down:" << (int)port.config_is_port_down() << " ";
+			os << "state-blocked:" << (int)port.link_state_is_blocked() << " ";
+			os << "state-live:" << (int)port.link_state_is_live() << " ";
+			os << "state-link-down:" << (int)port.link_state_is_link_down() << " ";
+			os << "config-port-down:" << (int)port.config_is_port_down() << " ";
 		os << ">";
 		return os;
 	};
