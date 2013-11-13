@@ -864,11 +864,9 @@ bool
 cofport::link_state_is_link_down() const
 {
 	switch (of_version) {
-	case OFP10_VERSION:
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
-		return (get_state() & OFP10PS_LINK_DOWN);
-	} break;
+	case OFP10_VERSION: return (get_state() & OFP10PS_LINK_DOWN); break;
+	case OFP12_VERSION: return (get_state() & OFP12PS_LINK_DOWN); break;
+	case OFP13_VERSION: return (get_state() & OFP12PS_LINK_DOWN); break; // FIXME: OFP13PS_LINK_DOWN, once it's been defined
 	default:
 		throw eBadVersion();
 	}
@@ -915,7 +913,7 @@ cofport::link_state_phy_is_up() const
 	case OFP10_VERSION:
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
-		return (0 == (get_state() & OFP10PS_LINK_DOWN));
+		return not (get_state() & OFP10PS_LINK_DOWN);
 	} break;
 	default:
 		throw eBadVersion();
@@ -931,7 +929,7 @@ cofport::config_is_port_down() const
 	case OFP10_VERSION:
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
-		return (0 == (get_config() & OFP10PS_LINK_DOWN));
+		return (get_config() & OFP10PS_LINK_DOWN);
 	} break;
 	default:
 		throw eBadVersion();
