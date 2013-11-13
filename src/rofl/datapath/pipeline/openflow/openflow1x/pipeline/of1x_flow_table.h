@@ -10,6 +10,7 @@
 #include <inttypes.h>
 #include <stdint.h>
 #include "rofl.h"
+#include "../../../common/bitmap.h"
 #include "../../../platform/lock.h"
 #include "of1x_flow_entry.h"
 #include "of1x_timers.h"
@@ -68,16 +69,16 @@ typedef enum{
 */
 typedef struct{
 	//Configuration stuff
-	uint64_t match;		 	/* Bitmap of (1 << OF1X_MATCH_*) that indicate the	fields the table can match on. */
-	uint64_t wildcards;      	/* Bitmap of (1 << OF1X_MATCH_*) wildcards that are supported by the table. */
-	uint32_t write_actions;  	/* Bitmap of OFPAT_* that are supported by the table with OFPIT_WRITE_ACTIONS. */
-	uint32_t apply_actions;  	/* Bitmap of OFPAT_* that are supported by the table with OFPIT_APPLY_ACTIONS. */
-	uint64_t write_setfields;	/* Bitmap of (1 << OF1X_MATCH_*) header fields that can be set with OFPIT_WRITE_ACTIONS. */
-	uint64_t apply_setfields;	/* Bitmap of (1 << OF1X_MATCH_*) header fields that can be set with OFPIT_APPLY_ACTIONS. */
-	uint64_t metadata_match; 	/* Bits of metadata table can match. */
-	uint64_t metadata_write; 	/* Bits of metadata table can write. */
-	uint32_t instructions;	 	/* Bitmap of OF1X_IT_* values supported. */
-	uint32_t table_miss_config;	/* Bitmap of OF1X_TABLE_MISS_* values */
+	bitmap64_t match;		 	/* Bitmap of (1 << OF1X_MATCH_*) that indicate the	fields the table can match on. */
+	bitmap64_t wildcards;      	/* Bitmap of (1 << OF1X_MATCH_*) wildcards that are supported by the table. */
+	bitmap32_t write_actions;  	/* Bitmap of OFPAT_* that are supported by the table with OFPIT_WRITE_ACTIONS. */
+	bitmap32_t apply_actions;  	/* Bitmap of OFPAT_* that are supported by the table with OFPIT_APPLY_ACTIONS. */
+	bitmap64_t write_setfields;	/* Bitmap of (1 << OF1X_MATCH_*) header fields that can be set with OFPIT_WRITE_ACTIONS. */
+	bitmap64_t apply_setfields;	/* Bitmap of (1 << OF1X_MATCH_*) header fields that can be set with OFPIT_APPLY_ACTIONS. */
+	bitmap64_t metadata_match; 	/* Bits of metadata table can match. */
+	bitmap64_t metadata_write; 	/* Bits of metadata table can write. */
+	bitmap32_t instructions;	 	/* Bitmap of OF1X_IT_* values supported. */
+	bitmap32_t table_miss_config;	/* Bitmap of OF1X_TABLE_MISS_* values */
 }of1x_flow_table_config_t;
 
 

@@ -1,9 +1,14 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#ifndef __WRAP_TYPES_H__
+#define __WRAP_TYPES_H__
+
 /*
  * This header file defines a union used to pass values of any size
  * from 8 bits to 128
  */
-#ifndef __WRAP_TYPES_H__
-#define __WRAP_TYPES_H__
 
 #include "large_types.h"
 

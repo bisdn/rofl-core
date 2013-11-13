@@ -9,6 +9,7 @@
 #include "rofl.h" 
 #include "of1x_flow_table.h"
 #include "of1x_group_table.h"
+#include "../../../common/bitmap.h"
 #include "../../../common/datapacket.h"
 #include "../../of_switch.h"
 
@@ -55,7 +56,7 @@ typedef struct of1x_pipeline{
 	unsigned int num_of_buffers;
 
 	//Capabilities bitmap (OF1X_CAP_FLOW_STATS, OF1X_CAP_TABLE_STATS, ...)
-	unsigned int capabilities;
+	bitmap32_t capabilities;
 
 	//Miss send length
 	uint16_t miss_send_len;

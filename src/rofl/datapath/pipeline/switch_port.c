@@ -211,10 +211,10 @@ void switch_port_stats_inc(switch_port_t* port,
 /*
 * Conveninent wrappers just to avoid messing up with the bitmaps
 */
-void switch_port_add_capabilities(port_features_t* bitmap, port_features_t features){
+void switch_port_add_capabilities(bitmap32_t* bitmap, bitmap32_t features){
 	*bitmap |= features;
 }
-void switch_port_remove_capabilities(port_features_t* bitmap, port_features_t features){
+void switch_port_remove_capabilities(bitmap32_t* bitmap, bitmap32_t features){
 	*bitmap &= (~features);
 }
 void switch_port_set_current_speed(switch_port_t* port, port_features_t speed){

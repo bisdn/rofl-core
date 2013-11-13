@@ -1,13 +1,16 @@
-/*
- * This header file defines a structure for a type of 128 bits
- * It is meant to be shared between Rofl-core, pipeline and xDPd
- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 #ifndef __LARGE_TYPES_H__
 #define __LARGE_TYPES_H__
 
 #include <stdint.h>
 
-
+/*
+ * This header file defines a structure for a type of 128 bits
+ * It is meant to be shared between Rofl-core, pipeline and xDPd
+ */
 
 // This is defined as a 16 vector so the pipeline doesn't has to deal with byte order at all (e.g. upper and lower u64, etc)
 typedef struct uint128_{

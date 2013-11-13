@@ -19,6 +19,7 @@
 #include "rofl.h"
 #include "port_queue.h"
 #include "platform/lock.h"
+#include "common/bitmap.h"
 
 
 //fwd decl
@@ -154,17 +155,17 @@ typedef struct switch_port{
 	//Port name
 	char name[SWITCH_PORT_MAX_LEN_NAME];
 
-	//Port state
-	port_state_t state;
+	//Port state (port_state_t bitmap)
+	bitmap32_t state;
 	
 	// Port statistics
 	port_stats_t stats;
 
-	//Port capabilities; bitmaps!
-	port_features_t curr;          /* Current features. */
-	port_features_t advertised;    /* Features being advertised by the port. */
-	port_features_t supported;     /* Features supported by the port. */
-	port_features_t peer;          /* Features advertised by peer. */ 
+	//Port capabilities; port_features_t bitmaps!
+	bitmap32_t curr;          /* Current features. */
+	bitmap32_t advertised;    /* Features being advertised by the port. */
+	bitmap32_t supported;     /* Features supported by the port. */
+	bitmap32_t peer;          /* Features advertised by peer. */ 
 
 	//Current speeds
 	port_features_t curr_speed;
@@ -285,13 +286,13 @@ void switch_port_stats_inc(switch_port_t* port,
 * @brief Adds capabilities to the port
 * @ingroup  mgmt
 */
-void switch_port_add_capabilities(port_features_t* bitmap, port_features_t features);
+void switch_port_add_capabilities(bitmap32_t* bitmap,  bitmap32_t features);
 
 /**
 * @brief Removes capabilities to the port
 * @ingroup  mgmt
 */
-void switch_port_remove_capabilities(port_features_t* bitmap, port_features_t features);
+void switch_port_remove_capabilities(bitmap32_t* bitmap, bitmap32_t features);
 
 /**
 * @brief Sets current speed
