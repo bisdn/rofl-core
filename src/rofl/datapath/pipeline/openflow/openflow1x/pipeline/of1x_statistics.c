@@ -197,7 +197,7 @@ void of1x_stats_flow_get_duration(struct of1x_flow_entry * entry, uint32_t* sec,
 	TIMERSUB(&now, &entry->stats.initial_time, &diff);
 	*sec = diff.tv_sec;
 	
-	*nsec = ( (diff.tv_usec*1000)&0xFFFFFFFF00000000 )>>32;	
+	*nsec = ( (diff.tv_usec*1000)&0xFFFFFFFF00000000ULL )>>32;
 }
 	
 /**
