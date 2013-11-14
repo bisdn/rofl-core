@@ -254,7 +254,7 @@ inline utern_t* __utern_get_alike(const utern_t tern1, const utern_t tern2){
 					(tern2.value.u64 & tern2.mask.u64)
 					);
 			//erase right 1.
-			for(new_mask.u64=0xFFFFFFFFFFFFFFFF;new_mask.u64;new_mask.u64=new_mask.u64<<1)
+			for(new_mask.u64=0xFFFFFFFFFFFFFFFFULL;new_mask.u64;new_mask.u64=new_mask.u64<<1)
 				if((diff.u64&new_mask.u64) == new_mask.u64) break; 
 			
 			//FIXME assert unlikely
@@ -276,19 +276,19 @@ inline utern_t* __utern_get_alike(const utern_t tern1, const utern_t tern2){
 			UINT128__T_HI(diff.u128) = ~(	(UINT128__T_HI(tern1.value.u128) & UINT128__T_HI(tern1.mask.u128))	^	(UINT128__T_HI(tern2.value.u128) & UINT128__T_HI(tern2.mask.u128))	);
 			
 			//We first look for the common mask in the lower part
-			for(UINT128__T_LO(new_mask.u128)=0xFFFFFFFFFFFFFFFF;UINT128__T_LO(new_mask.u128);UINT128__T_LO(new_mask.u128)=UINT128__T_LO(new_mask.u128)<<1)
+			for(UINT128__T_LO(new_mask.u128)=0xFFFFFFFFFFFFFFFFULL;UINT128__T_LO(new_mask.u128);UINT128__T_LO(new_mask.u128)=UINT128__T_LO(new_mask.u128)<<1)
 				if((UINT128__T_LO(diff.u128)&UINT128__T_LO(new_mask.u128)) == UINT128__T_LO(new_mask.u128)) break; 
 			
-			if( (UINT128__T_LO(tern1.mask.u128) < UINT128__T_LO(new_mask.u128) || UINT128__T_LO(tern2.mask.u128) < UINT128__T_LO(new_mask.u128)) && UINT128__T_HI(diff.u128) == 0xffffffffffffffff )
+			if( (UINT128__T_LO(tern1.mask.u128) < UINT128__T_LO(new_mask.u128) || UINT128__T_LO(tern2.mask.u128) < UINT128__T_LO(new_mask.u128)) && UINT128__T_HI(diff.u128) == 0xffffffffffffffffULL )
 				return NULL;
 				
-			if( UINT128__T_LO(new_mask.u128) && UINT128__T_HI(diff.u128) == 0xffffffffffffffff ){
-				UINT128__T_HI(new_mask.u128) = 0xffffffffffffffff;
+			if( UINT128__T_LO(new_mask.u128) && UINT128__T_HI(diff.u128) == 0xffffffffffffffffULL ){
+				UINT128__T_HI(new_mask.u128) = 0xffffffffffffffffULL;
 				return __init_utern128(tern1.value.u128,new_mask.u128);
 			}
 			
 			//Now we look for it in the higher part
-			for(UINT128__T_HI(new_mask.u128)=0xFFFFFFFFFFFFFFFF;UINT128__T_HI(new_mask.u128);UINT128__T_HI(new_mask.u128)=UINT128__T_HI(new_mask.u128)<<1)
+			for(UINT128__T_HI(new_mask.u128)=0xFFFFFFFFFFFFFFFFULL;UINT128__T_HI(new_mask.u128);UINT128__T_HI(new_mask.u128)=UINT128__T_HI(new_mask.u128)<<1)
 				if((UINT128__T_HI(diff.u128)&UINT128__T_HI(new_mask.u128)) == UINT128__T_HI(new_mask.u128)) break;
 				
 			if(UINT128__T_HI(tern1.mask.u128)<UINT128__T_HI(new_mask.u128) || UINT128__T_HI(tern2.mask.u128) < UINT128__T_HI(new_mask.u128) )
