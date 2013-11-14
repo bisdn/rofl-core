@@ -491,7 +491,7 @@ coxmatch::u32value() const
 uint64_t
 coxmatch::u64value() const
 {
-	return (uint64_value() & (get_oxm_hasmask() ? uint64_mask() : 0xffffffffffffffff));
+	return (uint64_value() & (get_oxm_hasmask() ? uint64_mask() : 0xffffffffffffffffULL));
 }
 
 
@@ -863,7 +863,7 @@ coxmatch::uint64_mask() const throw (eOxmInval)
 {
 	if (not get_oxm_hasmask())
 	{
-		return 0xffffffffffffffff;
+		return 0xffffffffffffffffULL;
 	}
 
 	uint64_t mask;
@@ -937,8 +937,8 @@ coxmatch::uint128_mask() const throw (eOxmInval)
 	//TODO translate to 128 bits
 	if (not get_oxm_hasmask())
 	{
-		UINT128__T_HI(mask) = 0xffffffffffffffff;
-		UINT128__T_LO(mask) = 0xffffffffffffffff;
+		UINT128__T_HI(mask) = 0xffffffffffffffffULL;
+		UINT128__T_LO(mask) = 0xffffffffffffffffULL;
 		return mask;
 	}
 
@@ -1084,10 +1084,10 @@ coxmatch::test()
 	coxmatch_ofb_in_phy_port in_phy_port(48);
 	fprintf(stderr, "OFPXMT_OFB_IN_PHY_PORT: %s\n", in_phy_port.c_str());
 
-	coxmatch_ofb_metadata metadata(0xffeeffeeaabbaabb);
+	coxmatch_ofb_metadata metadata(0xffeeffeeaabbaabbULL);
 	fprintf(stderr, "OFPXMT_OFB_METADATA: %s\n", metadata.c_str());
 
-	coxmatch_ofb_metadata metadata_mask(0xffeeffeeaabbaabb, 0x1122334444332211);
+	coxmatch_ofb_metadata metadata_mask(0xffeeffeeaabbaabbULL, 0x1122334444332211ULL);
 	fprintf(stderr, "OFPXMT_OFB_METADATA: %s\n", metadata_mask.c_str());
 
 	coxmatch_ofb_eth_dst eth_dst(cmacaddr("11:11:11:11:11:11"));
