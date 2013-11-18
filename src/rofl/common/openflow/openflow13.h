@@ -32,6 +32,7 @@ enum ofp13_port_no {
                                       (including flows with no output port). */
 };
 
+#define OFP13_NO_BUFFER	0xffffffff
 
 
 /* Group numbering. Groups can use any number up to OFPG_MAX. */
