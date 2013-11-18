@@ -151,6 +151,28 @@ public:
 	 */
 	cmemory&
 	get_body();
+
+
+public:
+
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_stats const& msg) {
+		os << "<cofmsg_stats " << dynamic_cast<cofmsg const&>( msg ) << " ";
+			switch (msg.get_version()) {
+			case OFP10_VERSION:
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				os << "stats-type:" << (int)msg.get_stats_type() << " ";
+				os << "stats-flags:" << (int)msg.get_stats_flags() << " ";
+			} break;
+			default: {
+				os << "unsupported OF version:" << (int)msg.get_version() << " ";
+			} break;
+			}
+		os << ">";
+		return os;
+	};
 };
 
 
