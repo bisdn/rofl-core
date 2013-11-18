@@ -38,6 +38,9 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 	action->ver_req.min_ver = OF1X_MIN_VERSION;
 	action->ver_req.max_ver = OF1X_MAX_VERSION;
 
+	//Make valgrind happy
+	UINT128__T_HI(action->field.u128) = UINT128__T_LO(action->field.u128) = 0x0;
+	
 	/*
 	* Setting the field (for set_field actions) and fast validation flags
 	*/
@@ -1037,7 +1040,7 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 
 					//This condition can never happen, unless port number has been somehow corrupted??
 					assert(0);
-					if(pkt != pkt_to_send)
+					if(pkt != pkt_to_send) //Drop replica, if any
 						platform_packet_drop(pkt_to_send);
 				}
 			}
@@ -1103,8 +1106,8 @@ rofl_result_t __of1x_update_write_actions(of1x_write_actions_t** group, of1x_wri
 	return ROFL_SUCCESS;
 }
 
-static
-void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t *group, bool replicate_pkts){
+static void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t *group, bool replicate_pkts){
+	datapacket_t* pkt_replica;
 	of1x_bucket_t *it_bk;
 	of1x_packet_matches_t *matches = &pkt->matches.of1x;
 	
@@ -1114,15 +1117,28 @@ void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned i
 			//executes all buckets
 			platform_rwlock_rdlock(group->rwlock);
 			for (it_bk = group->bc_list->head; it_bk!=NULL;it_bk = it_bk->next){
-				//process all actions in the bucket
-				__of1x_process_apply_actions(sw,table_id,pkt,it_bk->actions, replicate_pkts);
+
+				//If there are no output actions, skip bucket 
+				if(it_bk->actions->num_of_output_actions == 0)
+					continue;
+
+				//Clone the packet according to spec before applying the bucket
+				//action list
+				pkt_replica = platform_packet_replicate(pkt);
+				if(!pkt_replica){
+					assert(0);
+					break;
+				} 
+				
+				//Process all actions in the bucket
+				__of1x_process_apply_actions(sw,table_id, pkt_replica, it_bk->actions, false); //No replica
 				__of1x_stats_bucket_update(&it_bk->stats, matches->pkt_size_bytes);
 			}
 			platform_rwlock_rdunlock(group->rwlock);
 			break;
 		case OF1X_GROUP_TYPE_SELECT:
-			//optional
-			//ROFL_PIPELINE_DEBUG("<%s:%d> Group type not implemented",__func__,__LINE__);
+			//NOT SUPPORTED	
+			assert(0);  //Should NEVER be installed
 			break;
 		case OF1X_GROUP_TYPE_INDIRECT:
 			//executes the "one bucket defined"
@@ -1132,17 +1148,18 @@ void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned i
 			platform_rwlock_rdunlock(group->rwlock);
 			break;
 		case OF1X_GROUP_TYPE_FF:
-			//optional
-			//ROFL_PIPELINE_DEBUG("<%s:%d> Group type not implemented",__func__,__LINE__);
+			//NOT SUPPORTED
+			assert(0);  //Should NEVER be installed
 			break;
 		default:
+			assert(0);  //Should NEVER be reached 
 			break;
 	}
 	__of1x_stats_group_update(&group->stats, matches->pkt_size_bytes);
 	
 }
 //Checking functions
-/*TODO specific funcions for 128 bits*/
+/*TODO specific funcions for 128 bits. So far only used for OUTPUT and GROUP actions, so not really necessary*/
 bool __of1x_write_actions_has(of1x_write_actions_t* write_actions, of1x_packet_action_type_t type, uint64_t value){
 	if(!write_actions)
 		return false;	
@@ -1151,7 +1168,7 @@ bool __of1x_write_actions_has(of1x_write_actions_t* write_actions, of1x_packet_a
 
 	return (action.type != OF1X_AT_NO_ACTION) && (value != 0x0 && action.field.u64 == value ); 
 }
-/*TODO specific funcions for 128 bits*/
+/*TODO specific funcions for 128 bits. So far only used for OUTPUT and GROUP actions, so not really necessary*/
 bool __of1x_apply_actions_has(const of1x_action_group_t* apply_actions_group, of1x_packet_action_type_t type, uint64_t value){
 
 	of1x_packet_action_t *it;
@@ -1313,11 +1330,11 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 			break;
 
 		/* OF1.0 only */
-		case OF1X_AT_SET_FIELD_NW_PROTO:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_NW_PROTO: 0x%x",action.field.u64);
+		case OF1X_AT_SET_FIELD_NW_PROTO: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_NW_PROTO: 0x%x",action.field.u64);
 			break;
-		case OF1X_AT_SET_FIELD_NW_SRC:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_NW_SRC: 0x%x",action.field.u64);
+		case OF1X_AT_SET_FIELD_NW_SRC: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_NW_SRC: 0x%x",action.field.u64);
 			break;
-		case OF1X_AT_SET_FIELD_NW_DST:ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_NW_DST: 0x%x",action.field.u64);
+		case OF1X_AT_SET_FIELD_NW_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("SET_NW_DST: 0x%x",action.field.u64);
 			break;
 		/* OF1.0 only */
 
@@ -1421,7 +1438,29 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 		case OF1X_AT_EXPERIMENTER:ROFL_PIPELINE_DEBUG_NO_PREFIX("EXPERIMENTER");
 			break;
 
-		case OF1X_AT_OUTPUT:ROFL_PIPELINE_DEBUG_NO_PREFIX("OUTPUT port: %u",action.field.u64);
+		case OF1X_AT_OUTPUT:
+				ROFL_PIPELINE_DEBUG_NO_PREFIX("OUTPUT port: ");
+				switch(action.field.u64){
+	
+					case OF1X_PORT_FLOOD:
+						ROFL_PIPELINE_DEBUG_NO_PREFIX("FLOOD");
+						break;
+					case OF1X_PORT_NORMAL:
+						ROFL_PIPELINE_DEBUG_NO_PREFIX("NORMAL");
+						break;	
+					case OF1X_PORT_CONTROLLER:
+						ROFL_PIPELINE_DEBUG_NO_PREFIX("CONTROLLER");
+						break;	
+					case OF1X_PORT_ALL:
+						ROFL_PIPELINE_DEBUG_NO_PREFIX("ALL");
+						break;	
+					case OF1X_PORT_IN_PORT:
+						ROFL_PIPELINE_DEBUG_NO_PREFIX("IN-PORT");
+						break;	
+					default:
+						ROFL_PIPELINE_DEBUG_NO_PREFIX("%u",action.field.u64);
+						break;
+				}
 			break;
 	}
 	ROFL_PIPELINE_DEBUG_NO_PREFIX(">,");
@@ -1444,7 +1483,6 @@ void __of1x_dump_action_group(of1x_action_group_t* action_group){
 
 	of1x_packet_action_t* action;
 
-
 	if(!action_group)
 		return;
 	for(action=action_group->head;action;action=action->next){
@@ -1453,7 +1491,6 @@ void __of1x_dump_action_group(of1x_action_group_t* action_group){
 }
 
 rofl_result_t __of1x_validate_action_group(of1x_action_group_t *ag, of1x_group_table_t *gt){
-	//TODO we need to validate ALL the actions here!
 	of1x_packet_action_t *pa_it;
 
 	if(ag){
@@ -1463,8 +1500,10 @@ rofl_result_t __of1x_validate_action_group(of1x_action_group_t *ag, of1x_group_t
 			else if(pa_it->type == OF1X_AT_GROUP && gt){
 				if((pa_it->group=__of1x_group_search(gt,pa_it->field.u64))==NULL)
 					return ROFL_FAILURE;
-				else{
-					ag->num_of_output_actions+=pa_it->group->num_of_output_actions;
+				else{	
+					//If there is a group, FORCE cloning of the packet; state between
+					//group num of actions and entry "num_of_output_actions cache"
+					ag->num_of_output_actions+=2;
 				}
 			}
 		}
@@ -1474,7 +1513,6 @@ rofl_result_t __of1x_validate_action_group(of1x_action_group_t *ag, of1x_group_t
 }
 
 rofl_result_t __of1x_validate_write_actions(of1x_write_actions_t *wa, of1x_group_table_t *gt){
-	//TODO we need to ALL validate the actions here!
 	int i;
 	of1x_packet_action_t *pa_it;
 	
@@ -1487,7 +1525,9 @@ rofl_result_t __of1x_validate_write_actions(of1x_write_actions_t *wa, of1x_group
 			if((pa_it->group=__of1x_group_search(gt,pa_it->field.u64))==NULL )
 				return ROFL_FAILURE;
 			else{
-				wa->num_of_output_actions+=pa_it->group->num_of_output_actions;
+				//If there is a group, FORCE cloning of the packet; state between
+				//group num of actions and entry "num_of_output_actions cache"
+				wa->num_of_output_actions+=2;
 			}
 		}
 	}

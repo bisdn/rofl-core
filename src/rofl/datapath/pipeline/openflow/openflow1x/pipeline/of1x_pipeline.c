@@ -35,7 +35,7 @@ of1x_pipeline_t* __of1x_init_pipeline(struct of1x_switch* sw, const unsigned int
 	//Fill in
 	pipeline->sw = sw;
 	pipeline->num_of_tables = num_of_tables;
-	pipeline->num_of_buffers = 2048; //FIXME: call platform to get this information 
+	pipeline->num_of_buffers = 0; //Should be filled in the post_init hook
 
 
 	//Allocate tables and initialize	
@@ -189,6 +189,7 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	unsigned int i, table_to_go;
 	of1x_flow_entry_t* match;
 	of1x_packet_matches_t* pkt_matches;
+	bool has_multiple_outputs=false;
 	
 	//Initialize packet for OF1.2 pipeline processing 
 	__of1x_init_packet_matches(pkt); 
@@ -214,7 +215,6 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 		
 		if(match){
 			
-			bool has_multiple_outputs;			
 
 			ROFL_PIPELINE_DEBUG("Packet[%p] matched at table: %u, entry: %p\n", pkt, i,match);
 
@@ -228,7 +228,8 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			//Process instructions
 			table_to_go = __of1x_process_instructions((of1x_switch_t*)sw, i, pkt, &match->inst_grp);
 
-	
+			has_multiple_outputs |= match->inst_grp.has_multiple_outputs;
+
 			if(table_to_go > i && table_to_go < OF1X_MAX_FLOWTABLES){
 
 				ROFL_PIPELINE_DEBUG("Packet[%p] Going to table %u->%u\n",pkt, i,table_to_go);
@@ -243,9 +244,6 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			//Process WRITE actions
 			__of1x_process_write_actions((of1x_switch_t*)sw, i, pkt, match->inst_grp.has_multiple_outputs);
 
-			//Copy flag to avoid race condition and release the entry asap 
-			has_multiple_outputs = match->inst_grp.has_multiple_outputs;
-
 			//Unlock the entry so that it can eventually be modified/deleted
 			platform_rwlock_rdunlock(match->rwlock);
 
@@ -254,7 +252,6 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			if(has_multiple_outputs)
 				platform_packet_drop(pkt);
 							
-
 			return;	
 		}else{
 			//Update table statistics

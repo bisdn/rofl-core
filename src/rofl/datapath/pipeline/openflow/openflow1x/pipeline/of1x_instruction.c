@@ -252,6 +252,8 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 	of1x_group_table_t *gt = pipeline->groups;
 	of_version_t version = pipeline->sw->of_ver;
 	
+	inst_grp->has_multiple_outputs = false;
+	
 	//if there is a group action we should check that the group exists
 	for(i=0;i<OF1X_IT_MAX;i++){
 		switch(inst_grp->instructions[i].type){
@@ -284,8 +286,10 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 	
 				break;
 			
-			case OF1X_IT_WRITE_METADATA:
 			case OF1X_IT_GOTO_TABLE:
+				inst_grp->has_multiple_outputs = true;
+				break;
+			case OF1X_IT_WRITE_METADATA:
 			case OF1X_IT_CLEAR_ACTIONS:
 			case OF1X_IT_EXPERIMENTER:
 				//Fast check WRITE actions supported from 1.2
@@ -304,7 +308,7 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 	}
 	
 	//update has multiple outputs flag
-	inst_grp->has_multiple_outputs =  ( num_of_output_actions > 1);
+	inst_grp->has_multiple_outputs |=  ( num_of_output_actions > 1);
 	
 	return ROFL_SUCCESS;
 }

@@ -89,15 +89,15 @@ typedef struct of1x_group_table{
 }of1x_group_table_t;
 
 typedef enum{
-	ROFL_OF1X_GM_OK 			= 0,	/* No error  */
+	ROFL_OF1X_GM_OK 		= 0,	/* No error  */
 	ROFL_OF1X_GM_EXISTS 		= 1,   	/* Group already exists */
 	ROFL_OF1X_GM_INVAL	 	= 2, 	/* Invalid group -wrong properties- */
 	ROFL_OF1X_GM_WEIGHT	 	= 3,	/* Weights not supported */
 	ROFL_OF1X_GM_OGRUPS 		= 4,	/* Out of groups  */
-	ROFL_OF1X_GM_OBUCKETS 	= 5,   	/* Out of buckets */
+	ROFL_OF1X_GM_OBUCKETS		= 5,   	/* Out of buckets */
 	ROFL_OF1X_GM_CHAIN	 	= 6, 	/* Chaining not supported */
 	ROFL_OF1X_GM_WATCH	 	= 7,	/* Watch not supported */
-	ROFL_OF1X_GM_LOOP			= 8,	/* Loop in group  */
+	ROFL_OF1X_GM_LOOP		= 8,	/* Loop in group  */
 	ROFL_OF1X_GM_UNKGRP 		= 9,   	/* Unkown group */
 	ROFL_OF1X_GM_CHNGRP	 	= 10, 	/* Chained group */
 	ROFL_OF1X_GM_BTYPE	 	= 11,	/* Bad type */
