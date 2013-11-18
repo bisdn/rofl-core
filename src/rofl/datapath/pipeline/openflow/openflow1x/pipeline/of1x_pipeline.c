@@ -285,6 +285,7 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 */
 void of1x_process_packet_out_pipeline(const of1x_switch_t *sw, datapacket_t *const pkt, const of1x_action_group_t* apply_actions_group){
 	
+	bool has_multiple_outputs=false;
 	of1x_group_table_t *gt = sw->pipeline->groups;
 
 	//Initialize packet for OF1.2 pipeline processing 
@@ -294,8 +295,19 @@ void of1x_process_packet_out_pipeline(const of1x_switch_t *sw, datapacket_t *con
 	//Validate apply_actions_group
 	__of1x_validate_action_group((of1x_action_group_t*)apply_actions_group, gt);
 
+	if(apply_actions_group->num_of_output_actions == 0){
+		//No output actions or groups; drop and return	
+		platform_packet_drop(pkt);
+		return;
+	}
+	
+	has_multiple_outputs = (apply_actions_group->num_of_output_actions > 1);
+
 	//Just process the action group
-	__of1x_process_apply_actions((of1x_switch_t*)sw, 0, pkt, apply_actions_group, apply_actions_group->num_of_output_actions > 1 );
-	
+	__of1x_process_apply_actions((of1x_switch_t*)sw, 0, pkt, apply_actions_group, has_multiple_outputs);
+		
+	if(has_multiple_outputs){
+		//Packet was replicated. Drop original packet
+		platform_packet_drop(pkt);
+	}
 }
-	
