@@ -39,7 +39,7 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 	action->ver_req.max_ver = OF1X_MAX_VERSION;
 
 	//Make valgrind happy
-	UINT128__T_HI(action->field.u128) = UINT128__T_LO(action->field.u128) = 0x0;
+	UINT128__T_HI(action->field.u128) = UINT128__T_LO(action->field.u128) = 0x0ULL;
 	
 	/*
 	* Setting the field (for set_field actions) and fast validation flags
