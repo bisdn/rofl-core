@@ -69,6 +69,7 @@ enum ofp10_port_no {
     OFPP10_NONE       = 0xffff   /* Not associated with a physical port. */
 };
 
+#define OFP10_NO_BUFFER	0xffff
 
 enum ofp10_type {
 	/* Immutable messages. */

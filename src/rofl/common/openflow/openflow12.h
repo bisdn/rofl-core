@@ -570,6 +570,7 @@ struct ofp12_packet_in {
 OFP_ASSERT(sizeof(struct ofp12_packet_in) == 24);
 
 #define OFP_NO_BUFFER	0xffffffff
+#define OFP12_NO_BUFFER	0xffffffff
 
 enum ofp_action_type {
 	OFP12AT_OUTPUT 			= 0, 	/* Output to switch port. */
