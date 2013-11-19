@@ -1014,6 +1014,9 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				}else
 					pkt_to_send = pkt;
 
+				// mark packet to be consumed by different sub-system than the pipeline
+				pkt_to_send->pkt_was_sent_out = true;
+
 				//Perform output
 				if( action->field.u32 < LOGICAL_SWITCH_MAX_LOG_PORTS && NULL != sw->logical_ports[action->field.u32].port ){
 

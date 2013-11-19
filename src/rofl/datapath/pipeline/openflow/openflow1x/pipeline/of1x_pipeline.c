@@ -251,7 +251,7 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 
 			//Drop packet Only if there has been copy(cloning of the packet) due to 
 			//multiple output actions
-			if(has_multiple_outputs)
+			if(has_multiple_outputs || !pkt->pkt_was_sent_out)
 				platform_packet_drop(pkt);
 							
 

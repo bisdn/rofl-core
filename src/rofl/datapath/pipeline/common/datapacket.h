@@ -85,6 +85,12 @@ typedef struct datapacket{
 	 */
 	unsigned int origin;
 
+	/**
+	 * Flag indicating that this packet was handed over to the I/O subsystem
+	 * and should not be handled by the pipeline any more
+	 */
+	bool pkt_was_sent_out;
+
 }datapacket_t;
 
 #endif //DATAPACKET
