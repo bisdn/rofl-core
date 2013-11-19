@@ -190,6 +190,8 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	of1x_flow_entry_t* match;
 	of1x_packet_matches_t* pkt_matches;
 	
+	pkt->pkt_was_sent_out = false;
+
 	//Initialize packet for OF1.2 pipeline processing 
 	__of1x_init_packet_matches(pkt); 
 	__of1x_init_packet_write_actions(pkt); 
