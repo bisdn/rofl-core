@@ -1,6 +1,7 @@
 MAINTAINERCLEANFILES = Makefile.in
 
 dynamic_unit_test_CFLAGS= -DTIMERS_FAKE_TIME  -DOF1X_TIMER_DYNAMIC_ALLOCATION_SLOTS
+dynamic_unit_test_CPPFLAGS= -I$(top_srcdir)/src/
 
 #FIXME add output actions test
 dynamic_unit_test_SOURCES=../unit_test.c \

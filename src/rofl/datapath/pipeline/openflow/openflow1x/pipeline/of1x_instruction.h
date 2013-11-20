@@ -103,8 +103,10 @@ typedef struct of1x_instruction_group{
 	
 	//Flag indicating that there are multiple 
 	//outputs in several instructions/in an apply 
-	//actions group
-	bool has_multiple_outputs;
+	//actions group.
+	//Note: this does NOT reflect the exact number of output 
+	//actions when groups are used
+	unsigned int num_of_outputs;
 	
 }of1x_instruction_group_t;
 

@@ -189,7 +189,6 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	unsigned int i, table_to_go;
 	of1x_flow_entry_t* match;
 	of1x_packet_matches_t* pkt_matches;
-	bool has_multiple_outputs=false;
 	
 	//Initialize packet for OF1.2 pipeline processing 
 	__of1x_init_packet_matches(pkt); 
@@ -228,8 +227,6 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			//Process instructions
 			table_to_go = __of1x_process_instructions((of1x_switch_t*)sw, i, pkt, &match->inst_grp);
 
-			has_multiple_outputs = match->inst_grp.has_multiple_outputs;
-
 			if(table_to_go > i && table_to_go < OF1X_MAX_FLOWTABLES){
 
 				ROFL_PIPELINE_DEBUG("Packet[%p] Going to table %u->%u\n",pkt, i,table_to_go);
@@ -242,14 +239,14 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			}
 
 			//Process WRITE actions
-			__of1x_process_write_actions((of1x_switch_t*)sw, i, pkt, match->inst_grp.has_multiple_outputs);
+			__of1x_process_write_actions((of1x_switch_t*)sw, i, pkt, match->inst_grp.num_of_outputs > 1);
 
 			//Unlock the entry so that it can eventually be modified/deleted
 			platform_rwlock_rdunlock(match->rwlock);
 
 			//Drop packet Only if there has been copy(cloning of the packet) due to 
 			//multiple output actions
-			if(has_multiple_outputs)
+			if(match->inst_grp.num_of_outputs != 1)
 				platform_packet_drop(pkt);
 							
 			return;	

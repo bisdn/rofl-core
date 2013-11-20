@@ -1131,8 +1131,11 @@ static void __of1x_process_group_actions(const struct of1x_switch* sw, const uns
 				} 
 				
 				//Process all actions in the bucket
-				__of1x_process_apply_actions(sw,table_id, pkt_replica, it_bk->actions, false); //No replica
+				__of1x_process_apply_actions(sw,table_id, pkt_replica, it_bk->actions, it_bk->actions->num_of_output_actions > 1); //No replica
 				__of1x_stats_bucket_update(&it_bk->stats, matches->pkt_size_bytes);
+				
+				if(it_bk->actions->num_of_output_actions > 1)
+					platform_packet_drop(pkt_replica);
 			}
 			platform_rwlock_rdunlock(group->rwlock);
 			break;

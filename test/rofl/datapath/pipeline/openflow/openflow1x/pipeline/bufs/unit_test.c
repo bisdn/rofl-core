@@ -20,8 +20,15 @@ int main(int args, char** argv){
 		return CU_get_error();
 	}
 	if ((CU_add_test(bufs_suite,"No output action (drop)",bufs_no_output_action)==NULL) ||
-/*		(CU_add_test(bufs_suite,"install flow mod",)==NULL) ||*/
-		(CU_add_test(bufs_suite,"Single output apply action",bufs_apply_output_action)==NULL)
+		(CU_add_test(bufs_suite,"Single output apply action",bufs_apply_output_action)==NULL) ||
+		(CU_add_test(bufs_suite,"Single output write action",bufs_write_output_action)==NULL) ||
+		(CU_add_test(bufs_suite,"Multiple output apply actions",bufs_multiple_apply_output_actions)==NULL) ||
+		(CU_add_test(bufs_suite,"Multiple output apply and write actions",bufs_multiple_apply_write_output_actions)==NULL) ||
+		(CU_add_test(bufs_suite,"Single output in a group in apply_actions (indirect)",bufs_single_output_action_group_apply)==NULL) ||
+		(CU_add_test(bufs_suite,"Single output in a group in write_actions (indirect)",bufs_single_output_action_group_write)==NULL) ||
+		(CU_add_test(bufs_suite,"Apply and group(indirect) single output",bufs_apply_and_group_output_actions)==NULL) ||
+		(CU_add_test(bufs_suite,"Write and group(indirect) single output",bufs_write_and_group_output_actions)==NULL) ||
+		(CU_add_test(bufs_suite,"Multiple outputs in a group(type ALL)", bufs_multiple_output_actions_group)==NULL)
 	){
 		fprintf(stderr,"ERROR WHILE ADDING TEST\n");
 		CU_cleanup_registry();

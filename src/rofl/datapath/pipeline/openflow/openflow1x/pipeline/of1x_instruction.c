@@ -109,7 +109,6 @@ rofl_result_t __of1x_update_instructions(of1x_instruction_group_t* group, of1x_i
 
 	//Static stuff
 	group->num_of_instructions = new_group->num_of_instructions;
-	group->has_multiple_outputs = new_group->has_multiple_outputs;
 	
 	return ROFL_SUCCESS;
 }
@@ -130,7 +129,7 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 	
 		//Check all instructions in order 
 		switch(instructions->instructions[i].type){
-			case OF1X_IT_APPLY_ACTIONS: __of1x_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, instructions->has_multiple_outputs); 
+			case OF1X_IT_APPLY_ACTIONS: __of1x_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, instructions->num_of_outputs > 1); 
 					break;
     			case OF1X_IT_CLEAR_ACTIONS: __of1x_clear_write_actions(pkt);
 					break;
@@ -252,8 +251,6 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 	of1x_group_table_t *gt = pipeline->groups;
 	of_version_t version = pipeline->sw->of_ver;
 	
-	inst_grp->has_multiple_outputs = false;
-	
 	//if there is a group action we should check that the group exists
 	for(i=0;i<OF1X_IT_MAX;i++){
 		switch(inst_grp->instructions[i].type){
@@ -287,7 +284,6 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 				break;
 			
 			case OF1X_IT_GOTO_TABLE:
-				inst_grp->has_multiple_outputs = true;
 				break;
 			case OF1X_IT_WRITE_METADATA:
 			case OF1X_IT_CLEAR_ACTIONS:
@@ -308,7 +304,7 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 	}
 	
 	//update has multiple outputs flag
-	inst_grp->has_multiple_outputs |=  ( num_of_output_actions > 1);
+	inst_grp->num_of_outputs = num_of_output_actions;
 	
 	return ROFL_SUCCESS;
 }

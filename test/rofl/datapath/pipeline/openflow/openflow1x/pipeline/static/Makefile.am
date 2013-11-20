@@ -1,6 +1,7 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-static_unit_test_CFLAGS= -DTIMERS_FAKE_TIME
+static_unit_test_CFLAGS= -DTIMERS_FAKE_TIME 
+static_unit_test_CPPFLAGS= -I$(top_srcdir)/src/
 
 #FIXME add group table tests!
 static_unit_test_SOURCES=../unit_test.c \

@@ -14,6 +14,13 @@ int bufs_set_up(void);
 int bufs_tear_down(void);
 void bufs_no_output_action(void);
 void bufs_apply_output_action(void);
-
+void bufs_write_output_action(void);
+void bufs_multiple_apply_output_actions(void);
+void bufs_multiple_apply_write_output_actions(void);
+void bufs_single_output_action_group_apply(void);
+void bufs_single_output_action_group_write(void);
+void bufs_apply_and_group_output_actions(void);
+void bufs_write_and_group_output_actions(void);
+void bufs_multiple_output_actions_group(void);
 
 #endif //__TEST_BUFS_H__

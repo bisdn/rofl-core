@@ -57,6 +57,7 @@ datapacket_t* allocate_buffer(){
 		if(pool_state[i] == false){
 			pool_state[i] = true;
 			allocated++;
+			fprintf(stderr,"[pool] allocated %p\n", pool[i]);
 			return pool[i];
 		}
 	}
@@ -76,6 +77,7 @@ void release_buffer(datapacket_t* pkt){
 			CU_ASSERT(pool_state[i] == true);
 			pool_state[i] = false;
 			released++;
+			fprintf(stderr,"[pool] released %p\n", pkt);
 			return;
 		}
 	}
@@ -136,17 +138,20 @@ void platform_packet_set_ppp_proto(datapacket_t* pkt, uint16_t proto){}
 void platform_packet_set_gtp_msg_type(datapacket_t* pkt, uint8_t msg_type){}
 void platform_packet_set_gtp_teid(datapacket_t* pkt, uint32_t teid){}
 void platform_packet_output(datapacket_t* pkt, switch_port_t* port){
+	fprintf(stderr,"Output packet %p\n", pkt);
 	release_buffer(pkt);
 	outputs++;
 }
 datapacket_t* platform_packet_replicate(datapacket_t* pkt){
 	datapacket_t* replica = allocate_buffer(); 
-	if(!replica){
+	if(replica){
 		replicas++;
 	}
+	fprintf(stderr,"Pkt: %p cloned into %p\n", pkt, replica);
 	return replica;
 }
 void platform_packet_drop(datapacket_t* pkt){
+	fprintf(stderr,"Drop packet %p\n", pkt);
 	release_buffer(pkt);
 	drops++;
 }
