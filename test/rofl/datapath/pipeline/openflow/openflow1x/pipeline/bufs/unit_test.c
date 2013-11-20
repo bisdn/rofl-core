@@ -28,7 +28,10 @@ int main(int args, char** argv){
 		(CU_add_test(bufs_suite,"Single output in a group in write_actions (indirect)",bufs_single_output_action_group_write)==NULL) ||
 		(CU_add_test(bufs_suite,"Apply and group(indirect) single output",bufs_apply_and_group_output_actions)==NULL) ||
 		(CU_add_test(bufs_suite,"Write and group(indirect) single output",bufs_write_and_group_output_actions)==NULL) ||
-		(CU_add_test(bufs_suite,"Multiple outputs in a group(type ALL)", bufs_multiple_output_actions_group)==NULL)
+		(CU_add_test(bufs_suite,"Multiple outputs in a group(type ALL)", bufs_multiple_output_actions_group)==NULL) ||
+		(CU_add_test(bufs_suite,"No output action with goto", bufs_no_output_action_goto)==NULL) ||
+		(CU_add_test(bufs_suite,"Output action(apply) with goto in the second table", bufs_apply_output_action_last_table_goto)==NULL) ||
+		(CU_add_test(bufs_suite,"Output action on both tables", bufs_apply_output_action_both_tables_goto)==NULL)
 	){
 		fprintf(stderr,"ERROR WHILE ADDING TEST\n");
 		CU_cleanup_registry();
