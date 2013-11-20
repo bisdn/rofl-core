@@ -215,8 +215,63 @@ public:
 	/**
 	 *
 	 */
+	cofmatch const&
+	get_match_const() const { return match; };
+
+	/**
+	 *
+	 */
 	cpacket&
 	get_packet();
+
+	/**
+	 *
+	 */
+	cpacket const&
+	get_packet_const() const { return packet; };
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_packet_in const& msg) {
+		os << "<cofmsg_packet_in " << dynamic_cast<cofmsg const&>( msg ) << " ";
+		switch (msg.get_version()) {
+		case OFP10_VERSION: {
+			os << "in-port:" << (int)msg.get_in_port() << " ";
+			os << "buffer-id:" << (int)msg.get_buffer_id() << " ";
+			os << "total-len:" << (int)msg.get_total_len() << " ";
+			os << "reason:" << (int)msg.get_reason() << " ";
+			os << "table-id:" << (int)msg.get_table_id() << " ";
+			os << "match:" << msg.get_match_const() << " ";
+			os << "packet:" << msg.get_packet_const() << " ";
+
+		} break;
+		case OFP12_VERSION: {
+			os << "buffer-id:" << (int)msg.get_buffer_id() << " ";
+			os << "total-len:" << (int)msg.get_total_len() << " ";
+			os << "reason:" << (int)msg.get_reason() << " ";
+			os << "table-id:" << (int)msg.get_table_id() << " ";
+			os << "match:" << msg.get_match_const() << " ";
+			os << "packet:" << msg.get_packet_const() << " ";
+
+		} break;
+		case OFP13_VERSION: {
+			os << "buffer-id:" << (int)msg.get_buffer_id() << " ";
+			os << "total-len:" << (int)msg.get_total_len() << " ";
+			os << "reason:" << (int)msg.get_reason() << " ";
+			os << "table-id:" << (int)msg.get_table_id() << " ";
+			os << "cookie:" << (int)msg.get_cookie() << " ";
+			os << "match:" << msg.get_match_const() << " ";
+			os << "packet:" << msg.get_packet_const() << " ";
+
+		} break;
+		default: {
+			os << "unsupported OF version:" << (int)msg.get_version() << " ";
+		} break;
+		}
+		os << ">";
+		return os;
+	};
 };
 
 } // end of namespace rofl
