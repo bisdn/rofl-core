@@ -79,12 +79,6 @@ typedef struct datapacket{
 	*/
 	platform_datapacket_state_t* platform_state;
 
-	/**
-	 * Hint where the associated bufferpool::get_free_buffer() was called
-	 * for this packet
-	 */
-	unsigned int origin;
-
 }datapacket_t;
 
 #endif //DATAPACKET
