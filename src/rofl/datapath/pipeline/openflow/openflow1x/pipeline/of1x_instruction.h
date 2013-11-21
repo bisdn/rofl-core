@@ -63,7 +63,7 @@ typedef enum {
 	OF1X_IT_WRITE_METADATA	= 4,		/* Setup the metadata field for use later in pipeline */
 
 	OF1X_IT_EXPERIMENTER	= 5,		/* Experimenter instruction */
-	OF1X_IT_GOTO_TABLE		= 6,		/* Setup the next table in the lookup pipeline */
+	OF1X_IT_GOTO_TABLE	= 6,		/* Setup the next table in the lookup pipeline */
 	OF1X_IT_METER		= 7,		/* Meters */
 }of1x_instruction_type_t;
 
@@ -116,6 +116,10 @@ struct of1x_pipeline;
 struct of1x_flow_entry;
 struct of1x_group_table;
 
+//Helper macro
+#define OF1X_SAFE_IT_TYPE_INDEX(m)\
+	m-1
+
 /*
 *
 * Function prototypes
@@ -162,6 +166,15 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 bool __of1x_instruction_has(of1x_instruction_group_t *inst_grp, of1x_packet_action_type_t type, uint64_t value);
 
 rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, struct of1x_pipeline* pipeline);
+
+static inline bool  __of1x_process_instructions_must_replicate(const of1x_instruction_group_t* inst_grp){
+
+	bool has_goto = inst_grp->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_GOTO_TABLE)].type == OF1X_IT_GOTO_TABLE;
+	unsigned int n_out = inst_grp->num_of_outputs; 
+
+	return  ( (n_out == 1) && (has_goto) ) ||
+		( n_out > 1); 
+}
 
 //Dump
 void __of1x_dump_instructions(of1x_instruction_group_t group);

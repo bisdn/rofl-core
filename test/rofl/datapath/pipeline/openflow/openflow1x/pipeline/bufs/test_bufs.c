@@ -823,15 +823,285 @@ void bufs_apply_output_action_both_tables_goto(void){
 	of_process_packet_pipeline((of_switch_t*)sw,pkt);
 
 	//Checkings	
-	CU_ASSERT(allocated == 3);
-	CU_ASSERT(released == 3);	
-	CU_ASSERT(drops == 1);	
+	CU_ASSERT(allocated == 2);
+	CU_ASSERT(released == 2);	
+	CU_ASSERT(drops == 0);	
 	CU_ASSERT(outputs == 2);	
-	CU_ASSERT(replicas == 2);	
+	CU_ASSERT(replicas == 1);	
 
 }
 
-//No action output in the first table, group output action in the second
+//two outputs in first table, one in the second
+void bufs_apply_output_action_both_tables_bis_goto(void){
+	
+	wrap_uint_t field;
+	field.u32 = 1;
+	reset_io_state();
+	
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_action_group_t *apply_actions = of1x_init_action_group(NULL);
+	of1x_action_group_t *apply_actions2 = of1x_init_action_group(NULL);
+	of1x_packet_action_t* action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, NULL, NULL);
+	of1x_packet_action_t* action2 = of1x_init_packet_action( OF1X_AT_OUTPUT, field, NULL, NULL);
+	
+	CU_ASSERT(entry != NULL);	
+	CU_ASSERT(entry2 != NULL);	
+	CU_ASSERT(apply_actions != NULL);	
+	CU_ASSERT(action != NULL);	
 
+	of1x_push_packet_action_to_group(apply_actions, action);
+	action = of1x_init_packet_action( OF1X_AT_OUTPUT, field, NULL, NULL);
+	of1x_push_packet_action_to_group(apply_actions, action);
+	of1x_push_packet_action_to_group(apply_actions2, action2);
+
+	of1x_add_instruction_to_group(
+			&(entry->inst_grp),
+			OF1X_IT_GOTO_TABLE,
+			NULL,	
+			NULL,
+			NULL,
+			/*go_to_table*/1);
+
+	of1x_add_instruction_to_group(
+			&(entry->inst_grp),
+			OF1X_IT_APPLY_ACTIONS,
+			(of1x_action_group_t*)apply_actions,
+			NULL,
+			NULL,
+			/*go_to_table*/0);
+
+
+	of1x_add_instruction_to_group(
+			&(entry2->inst_grp),
+			OF1X_IT_APPLY_ACTIONS,
+			(of1x_action_group_t*)apply_actions2,
+			NULL,
+			NULL,
+			/*go_to_table*/0);
+
+	//Install
+	CU_ASSERT(of1x_add_flow_entry_table(sw->pipeline, 0, entry, false,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(sw->pipeline, 1, entry2, false,false) == ROFL_OF1X_FM_SUCCESS);
+	
+	//Check real size of the table
+	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 1);
+	CU_ASSERT(sw->pipeline->tables[1].num_of_entries == 1);
+	
+	//Process packet through pipeline
+	pkt = allocate_buffer();	
+	
+	CU_ASSERT(pkt != NULL);	
+	
+	if(!pkt)
+		return;
+
+	//Dump pipeline
+	of1x_full_dump_switch(sw);
+
+	//Process through pipeline. Packet should be dropped
+	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+
+	//Checkings	
+	CU_ASSERT(allocated == 3);
+	CU_ASSERT(released == 3);	
+	CU_ASSERT(drops == 0);	
+	CU_ASSERT(outputs == 3);	
+	CU_ASSERT(replicas == 2);	
+
+}
 //No action output in the first table, group output action in the second
+void bufs_output_first_table_output_on_group_second_table(void){
+	
+	wrap_uint_t field, field_grp;
+	field.u32 = 1;
+	unsigned int grp_id = 12; 
+	field_grp.u16 = grp_id;
+	reset_io_state();
+	
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_action_group_t *apply_actions2 = of1x_init_action_group(NULL);
+	of1x_packet_action_t* action2 = of1x_init_packet_action( OF1X_AT_OUTPUT, field, NULL, NULL);
+		
+	of1x_action_group_t* ag=of1x_init_action_group(NULL);
+	of1x_bucket_list_t* buckets=of1x_init_bucket_list();
+	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
+	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
+	of1x_group_add(sw->pipeline->groups,OF1X_GROUP_TYPE_INDIRECT,grp_id,buckets);
+	
+
+	CU_ASSERT(entry != NULL);	
+	CU_ASSERT(buckets != NULL);	
+
+	of1x_action_group_t *apply_actions = of1x_init_action_group(NULL);
+	CU_ASSERT(apply_actions != NULL);	
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,NULL,NULL));
+	
+	of1x_add_instruction_to_group(
+			&(entry->inst_grp),
+			OF1X_IT_APPLY_ACTIONS,
+			(of1x_action_group_t*)apply_actions,
+			NULL,
+			NULL,
+			/*go_to_table*/0);
+
+
+	CU_ASSERT(entry != NULL);	
+	CU_ASSERT(entry2 != NULL);	
+	CU_ASSERT(apply_actions != NULL);	
+
+	of1x_push_packet_action_to_group(apply_actions2, action2);
+
+	of1x_add_instruction_to_group(
+			&(entry->inst_grp),
+			OF1X_IT_GOTO_TABLE,
+			NULL,	
+			NULL,
+			NULL,
+			/*go_to_table*/1);
+
+	of1x_add_instruction_to_group(
+			&(entry2->inst_grp),
+			OF1X_IT_APPLY_ACTIONS,
+			(of1x_action_group_t*)apply_actions2,
+			NULL,
+			NULL,
+			/*go_to_table*/0);
+
+	//Install
+	CU_ASSERT(of1x_add_flow_entry_table(sw->pipeline, 0, entry, false,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(sw->pipeline, 1, entry2, false,false) == ROFL_OF1X_FM_SUCCESS);
+	
+	//Check real size of the table
+	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 1);
+	CU_ASSERT(sw->pipeline->tables[1].num_of_entries == 1);
+	
+	//Process packet through pipeline
+	pkt = allocate_buffer();	
+	
+	CU_ASSERT(pkt != NULL);	
+	
+	if(!pkt)
+		return;
+
+	//Dump pipeline
+	of1x_full_dump_switch(sw);
+
+	//Process through pipeline. Packet should be dropped
+	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+
+	//Checkings	
+	CU_ASSERT(allocated == 2);
+	CU_ASSERT(released == 2);	
+	CU_ASSERT(drops == 0);	
+	CU_ASSERT(outputs == 2);	
+	CU_ASSERT(replicas == 1);	
+
+}
+//Output on apply and group on first table, output on apply, group and write actions(output and group again) on the second table (write set on the first table)
+void bufs_output_all(void){
+	
+	wrap_uint_t field, field_grp;
+	field.u32 = 1;
+	unsigned int grp_id = 13; 
+	field_grp.u16 = grp_id;
+	reset_io_state();
+
+	//Group	
+	of1x_action_group_t* ag=of1x_init_action_group(NULL);
+	of1x_bucket_list_t* buckets=of1x_init_bucket_list();
+	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
+	of1x_push_packet_action_to_group(ag, of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
+	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
+	of1x_group_add(sw->pipeline->groups,OF1X_GROUP_TYPE_ALL,grp_id,buckets);
+	
+	//
+	//entry 1
+	//
+	
+	//Apply
+	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_action_group_t* apply_actions = of1x_init_action_group(NULL);
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,NULL,NULL));
+	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
+	of1x_add_instruction_to_group(
+			&(entry->inst_grp),
+			OF1X_IT_APPLY_ACTIONS,
+			(of1x_action_group_t*)apply_actions,
+			NULL,
+			NULL,
+			/*go_to_table*/0);
+
+	//Write
+	of1x_write_actions_t *write_actions = of1x_init_write_actions();
+	of1x_set_packet_action_on_write_actions(write_actions, of1x_init_packet_action(OF1X_AT_GROUP,field_grp,NULL,NULL));
+	of1x_set_packet_action_on_write_actions(write_actions, of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
+	of1x_add_instruction_to_group(
+				&(entry->inst_grp),
+				OF1X_IT_WRITE_ACTIONS,
+				NULL,
+				(of1x_write_actions_t*)write_actions,
+				NULL,
+				/*go_to_table*/0);
+
+
+	//Goto
+	of1x_add_instruction_to_group(
+			&(entry->inst_grp),
+			OF1X_IT_GOTO_TABLE,
+			NULL,	
+			NULL,
+			NULL,
+			/*go_to_table*/1);
+	//
+	//entry 2
+	//
+	of1x_flow_entry_t* entry2 = of1x_init_flow_entry(NULL, NULL, false); 
+	of1x_action_group_t *apply_actions2 = of1x_init_action_group(NULL);
+	of1x_push_packet_action_to_group(apply_actions2, of1x_init_packet_action( OF1X_AT_OUTPUT, field, NULL, NULL));
+	of1x_push_packet_action_to_group(apply_actions2,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,NULL,NULL));
+
+	
+
+
+	of1x_add_instruction_to_group(
+			&(entry2->inst_grp),
+			OF1X_IT_APPLY_ACTIONS,
+			(of1x_action_group_t*)apply_actions2,
+			NULL,
+			NULL,
+			/*go_to_table*/0);
+
+	//Install
+	CU_ASSERT(of1x_add_flow_entry_table(sw->pipeline, 0, entry, false,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(sw->pipeline, 1, entry2, false,false) == ROFL_OF1X_FM_SUCCESS);
+	
+	//Check real size of the table
+	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 1);
+	CU_ASSERT(sw->pipeline->tables[1].num_of_entries == 1);
+	
+	//Process packet through pipeline
+	pkt = allocate_buffer();	
+	
+	CU_ASSERT(pkt != NULL);	
+	
+	if(!pkt)
+		return;
+
+	//Dump pipeline
+	of1x_full_dump_switch(sw);
+
+	//Process through pipeline. Packet should be dropped
+	of_process_packet_pipeline((of_switch_t*)sw,pkt);
+
+	CU_ASSERT(outputs == 9);
+	//Checkings	
+	CU_ASSERT(allocated == 13);
+	CU_ASSERT(released == 13);	
+	CU_ASSERT(drops == 4);	
+	CU_ASSERT((drops+outputs) == released);	
+	CU_ASSERT(replicas == 12)
+}
+
 

@@ -239,7 +239,7 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			}
 
 			//Process WRITE actions
-			__of1x_process_write_actions((of1x_switch_t*)sw, i, pkt, match->inst_grp.num_of_outputs > 1);
+			__of1x_process_write_actions((of1x_switch_t*)sw, i, pkt, __of1x_process_instructions_must_replicate(&match->inst_grp));
 
 			//Unlock the entry so that it can eventually be modified/deleted
 			platform_rwlock_rdunlock(match->rwlock);

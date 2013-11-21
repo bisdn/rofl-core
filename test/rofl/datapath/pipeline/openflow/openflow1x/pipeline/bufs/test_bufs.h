@@ -25,5 +25,8 @@ void bufs_multiple_output_actions_group(void);
 void bufs_no_output_action_goto(void);
 void bufs_apply_output_action_last_table_goto(void);
 void bufs_apply_output_action_both_tables_goto(void);
+void bufs_apply_output_action_both_tables_bis_goto(void);
+void bufs_output_first_table_output_on_group_second_table(void);
+void bufs_output_all(void);
 
 #endif //__TEST_BUFS_H__

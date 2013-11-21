@@ -54,9 +54,6 @@ void __of1x_destroy_instruction_group(of1x_instruction_group_t* group){
 	group->num_of_instructions=0;
 } 
 
-#define OF1X_SAFE_IT_TYPE_INDEX(m)\
-	m-1
-
 //Removal of instruction from the group.
 void of1x_remove_instruction_from_the_group(of1x_instruction_group_t* group, of1x_instruction_type_t type){
 	
@@ -129,7 +126,7 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 	
 		//Check all instructions in order 
 		switch(instructions->instructions[i].type){
-			case OF1X_IT_APPLY_ACTIONS: __of1x_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, instructions->num_of_outputs > 1); 
+			case OF1X_IT_APPLY_ACTIONS: __of1x_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, __of1x_process_instructions_must_replicate(instructions) ); 
 					break;
     			case OF1X_IT_CLEAR_ACTIONS: __of1x_clear_write_actions(pkt);
 					break;
