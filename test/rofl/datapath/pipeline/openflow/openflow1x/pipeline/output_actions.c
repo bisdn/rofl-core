@@ -59,7 +59,7 @@ void oa_basic_test(void){
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==1);
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[2].write_actions->num_of_output_actions==1);
-	assert(sw->pipeline->tables[0].entries->inst_grp.has_multiple_outputs==true);
+	assert(sw->pipeline->tables[0].entries->inst_grp.num_of_outputs==2);
 	
 	oa_tear_down();
 	
@@ -89,7 +89,7 @@ void oa_only_apply(void){
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==1);
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[2].write_actions->num_of_output_actions==0);
-	assert(sw->pipeline->tables[0].entries->inst_grp.has_multiple_outputs==false);
+	assert(sw->pipeline->tables[0].entries->inst_grp.num_of_outputs==1);
 	
 	oa_tear_down();
 }
@@ -118,7 +118,7 @@ void oa_only_write(void){
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==0);
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[2].write_actions->num_of_output_actions==1);
-	assert(sw->pipeline->tables[0].entries->inst_grp.has_multiple_outputs==false);
+	assert(sw->pipeline->tables[0].entries->inst_grp.num_of_outputs==1);
 	
 	oa_tear_down();
 }
@@ -143,7 +143,7 @@ void oa_no_output(){
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==0);
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[2].write_actions->num_of_output_actions==0);
-	assert(sw->pipeline->tables[0].entries->inst_grp.has_multiple_outputs==false);
+	assert(sw->pipeline->tables[0].entries->inst_grp.num_of_outputs==0);
 	
 	oa_tear_down();
 }
@@ -177,9 +177,9 @@ void oa_test_with_groups(void){
 	of1x_add_flow_entry_table(sw->pipeline, 0, entry, false, false);
 	
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
-	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==3);
+	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==3); //Due to groups
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[2].write_actions->num_of_output_actions==0);
-	assert(sw->pipeline->tables[0].entries->inst_grp.has_multiple_outputs==true);
+	assert(sw->pipeline->tables[0].entries->inst_grp.num_of_outputs==3);
 	
 	oa_tear_down();
 }
@@ -205,7 +205,7 @@ void oa_two_outputs_apply(void){
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==2);
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[2].write_actions->num_of_output_actions==0);
-	assert(sw->pipeline->tables[0].entries->inst_grp.has_multiple_outputs==true);
+	assert(sw->pipeline->tables[0].entries->inst_grp.num_of_outputs==2);
 	
 	oa_tear_down();
 	
@@ -244,7 +244,7 @@ void oa_two_outputs_write(void){
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==0);
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[2].write_actions->num_of_output_actions==2);
-	assert(sw->pipeline->tables[0].entries->inst_grp.has_multiple_outputs==true);
+	assert(sw->pipeline->tables[0].entries->inst_grp.num_of_outputs==2);
 	
 	oa_tear_down();
 }
@@ -276,8 +276,8 @@ void oa_write_and_group(void){
 	
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==0);
-	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[2].write_actions->num_of_output_actions==2);
-	assert(sw->pipeline->tables[0].entries->inst_grp.has_multiple_outputs==true);
+	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[2].write_actions->num_of_output_actions==3); //3 because of the group
+	assert(sw->pipeline->tables[0].entries->inst_grp.num_of_outputs==3); //3 because of the group
 	
 	oa_tear_down();
 }
@@ -307,9 +307,9 @@ void oa_apply_and_group(void){
 	of1x_add_flow_entry_table(sw->pipeline, 0, entry, false, false);
 	
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
-	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==2);
+	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==3); //3 due to groups
 	assert(sw->pipeline->tables[0].entries->inst_grp.instructions[2].write_actions->num_of_output_actions==0);
-	assert(sw->pipeline->tables[0].entries->inst_grp.has_multiple_outputs==true);
+	assert(sw->pipeline->tables[0].entries->inst_grp.num_of_outputs==3);
 	
 	oa_tear_down();
 }

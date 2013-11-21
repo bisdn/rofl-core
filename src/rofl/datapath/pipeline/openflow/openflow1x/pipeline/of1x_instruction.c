@@ -54,9 +54,6 @@ void __of1x_destroy_instruction_group(of1x_instruction_group_t* group){
 	group->num_of_instructions=0;
 } 
 
-#define OF1X_SAFE_IT_TYPE_INDEX(m)\
-	m-1
-
 //Removal of instruction from the group.
 void of1x_remove_instruction_from_the_group(of1x_instruction_group_t* group, of1x_instruction_type_t type){
 	
@@ -109,7 +106,6 @@ rofl_result_t __of1x_update_instructions(of1x_instruction_group_t* group, of1x_i
 
 	//Static stuff
 	group->num_of_instructions = new_group->num_of_instructions;
-	group->has_multiple_outputs = new_group->has_multiple_outputs;
 	
 	return ROFL_SUCCESS;
 }
@@ -130,7 +126,7 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 	
 		//Check all instructions in order 
 		switch(instructions->instructions[i].type){
-			case OF1X_IT_APPLY_ACTIONS: __of1x_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, instructions->has_multiple_outputs); 
+			case OF1X_IT_APPLY_ACTIONS: __of1x_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, __of1x_process_instructions_must_replicate(instructions) ); 
 					break;
     			case OF1X_IT_CLEAR_ACTIONS: __of1x_clear_write_actions(pkt);
 					break;
@@ -284,8 +280,9 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 	
 				break;
 			
-			case OF1X_IT_WRITE_METADATA:
 			case OF1X_IT_GOTO_TABLE:
+				break;
+			case OF1X_IT_WRITE_METADATA:
 			case OF1X_IT_CLEAR_ACTIONS:
 			case OF1X_IT_EXPERIMENTER:
 				//Fast check WRITE actions supported from 1.2
@@ -304,7 +301,7 @@ rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, o
 	}
 	
 	//update has multiple outputs flag
-	inst_grp->has_multiple_outputs =  ( num_of_output_actions > 1);
+	inst_grp->num_of_outputs = num_of_output_actions;
 	
 	return ROFL_SUCCESS;
 }

@@ -29,6 +29,7 @@ AM_COND_IF([PIPELINE_SUPPORT],[AC_CONFIG_FILES([
         src/rofl/datapath/pipeline/util/Makefile
 
 	test/rofl/datapath/pipeline/openflow/openflow1x/pipeline/Makefile
+	test/rofl/datapath/pipeline/openflow/openflow1x/pipeline/bufs/Makefile
 	test/rofl/datapath/pipeline/openflow/openflow1x/pipeline/ma/loop/Makefile
 	test/rofl/datapath/pipeline/openflow/openflow1x/pipeline/dynamic/Makefile
 	test/rofl/datapath/pipeline/openflow/openflow1x/pipeline/static/Makefile

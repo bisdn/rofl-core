@@ -56,15 +56,15 @@
 * @warning values are MODIFIED from OF specification and are reorder!
 */
 typedef enum {
-    OF1X_IT_NO_INSTRUCTION	= 0,		/* Setup the metadata field for use later in pipeline */
-    OF1X_IT_APPLY_ACTIONS	= 1,		/* Applies the action(s) immediately */
-    OF1X_IT_CLEAR_ACTIONS	= 2,		/* Clears all actions from the datapath action set */
-    OF1X_IT_WRITE_ACTIONS	= 3,		/* Write the action(s) onto the datapath action set */
-    OF1X_IT_WRITE_METADATA	= 4,		/* Setup the metadata field for use later in pipeline */
+	OF1X_IT_NO_INSTRUCTION	= 0,		/* Setup the metadata field for use later in pipeline */
+	OF1X_IT_APPLY_ACTIONS	= 1,		/* Applies the action(s) immediately */
+	OF1X_IT_CLEAR_ACTIONS	= 2,		/* Clears all actions from the datapath action set */
+	OF1X_IT_WRITE_ACTIONS	= 3,		/* Write the action(s) onto the datapath action set */
+	OF1X_IT_WRITE_METADATA	= 4,		/* Setup the metadata field for use later in pipeline */
 
-    OF1X_IT_EXPERIMENTER	= 5,		/* Experimenter instruction */
-    OF1X_IT_GOTO_TABLE		= 6,		/* Setup the next table in the lookup pipeline */
-    OF1X_IT_METER		= 7,		/* Meters */
+	OF1X_IT_EXPERIMENTER	= 5,		/* Experimenter instruction */
+	OF1X_IT_GOTO_TABLE	= 6,		/* Setup the next table in the lookup pipeline */
+	OF1X_IT_METER		= 7,		/* Meters */
 }of1x_instruction_type_t;
 
 #define OF1X_IT_MAX OF1X_IT_METER
@@ -103,8 +103,10 @@ typedef struct of1x_instruction_group{
 	
 	//Flag indicating that there are multiple 
 	//outputs in several instructions/in an apply 
-	//actions group
-	bool has_multiple_outputs;
+	//actions group.
+	//Note: this does NOT reflect the exact number of output 
+	//actions when groups are used
+	unsigned int num_of_outputs;
 	
 }of1x_instruction_group_t;
 
@@ -113,6 +115,10 @@ struct of1x_switch;
 struct of1x_pipeline;
 struct of1x_flow_entry;
 struct of1x_group_table;
+
+//Helper macro
+#define OF1X_SAFE_IT_TYPE_INDEX(m)\
+	m-1
 
 /*
 *
@@ -160,6 +166,15 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 bool __of1x_instruction_has(of1x_instruction_group_t *inst_grp, of1x_packet_action_type_t type, uint64_t value);
 
 rofl_result_t __of1x_validate_instructions(of1x_instruction_group_t* inst_grp, struct of1x_pipeline* pipeline);
+
+static inline bool  __of1x_process_instructions_must_replicate(const of1x_instruction_group_t* inst_grp){
+
+	bool has_goto = inst_grp->instructions[OF1X_SAFE_IT_TYPE_INDEX(OF1X_IT_GOTO_TABLE)].type == OF1X_IT_GOTO_TABLE;
+	unsigned int n_out = inst_grp->num_of_outputs; 
+
+	return  ( (n_out == 1) && (has_goto) ) ||
+		( n_out > 1); 
+}
 
 //Dump
 void __of1x_dump_instructions(of1x_instruction_group_t group);
