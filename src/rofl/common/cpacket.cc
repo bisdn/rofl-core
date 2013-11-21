@@ -1324,8 +1324,16 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 		} break;
 		case OFPXMT_OFB_VLAN_VID: {
 			uint16_t vid = oxm.u16value();
-			vlan()->set_dl_vlan_id(vid);
-			match.set_vlan_vid(vid);
+			if (vid & OFPVID_PRESENT) {
+				vlan()->set_dl_vlan_id(vid);
+				match.set_vlan_vid(vid);
+				// FIXME
+			} else if (vid == OFPVID_NONE) {
+				// does not make sense, throw exception?
+			} else {
+				vlan()->set_dl_vlan_id(vid);
+				match.set_vlan_vid(vid);
+			}
 		} break;
 		case OFPXMT_OFB_VLAN_PCP: {
 			uint8_t pcp = oxm.u8value();
