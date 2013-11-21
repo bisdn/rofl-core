@@ -132,18 +132,18 @@ public:
 	/** returns boolean value indicating completeness of the packet
 	 */
 	virtual bool
-	complete() { return true; };
+	complete() const { return true; };
 
 	/** returns the number of bytes this packet expects from the socket next
 	 */
 	virtual size_t
-	need_bytes() { return 0; };
+	need_bytes() const { return 0; };
 
 	/** validate (frame structure)
 	 *
 	 */
 	virtual void
-	validate(uint16_t total_len = 0) throw (eFrameInvalidSyntax) {};
+	validate(uint16_t total_len = 0) const {};
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *
