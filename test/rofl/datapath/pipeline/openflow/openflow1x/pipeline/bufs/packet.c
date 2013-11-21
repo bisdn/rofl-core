@@ -277,10 +277,12 @@ uint16_t platform_packet_get_ppp_proto(datapacket_t *const pkt){
 }
 uint128__t platform_packet_get_ipv6_src(datapacket_t *const pkt){
 	uint128__t ret;
+	memset(&ret, 0, sizeof(ret));
 	return ret;
 }
 uint128__t platform_packet_get_ipv6_dst(datapacket_t *const pkt){
 	uint128__t ret;
+	memset(&ret, 0, sizeof(ret));
 	return ret;
 }
 uint64_t platform_packet_get_ipv6_flabel(datapacket_t *const pkt){
@@ -288,6 +290,7 @@ uint64_t platform_packet_get_ipv6_flabel(datapacket_t *const pkt){
 }
 uint128__t platform_packet_get_ipv6_nd_target(datapacket_t *const pkt){
 	uint128__t ret;
+	memset(&ret, 0, sizeof(ret));
 	return ret;
 }
 uint64_t platform_packet_get_ipv6_nd_sll(datapacket_t *const pkt){

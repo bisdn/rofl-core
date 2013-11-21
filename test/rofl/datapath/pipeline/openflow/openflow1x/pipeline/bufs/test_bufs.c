@@ -319,7 +319,7 @@ void bufs_multiple_apply_write_output_actions(void){
 void bufs_single_output_action_group_apply(void){
 	wrap_uint_t field, field_grp;
 	unsigned int grp_id = 10; 
-	field_grp.u16 = grp_id;
+	field_grp.u32 = grp_id;
 	field.u32 = 1;
 	reset_io_state();
 	
@@ -379,7 +379,7 @@ void bufs_single_output_action_group_apply(void){
 void bufs_single_output_action_group_write(void){
 	wrap_uint_t field, field_grp;
 	unsigned int grp_id = 10; 
-	field_grp.u16 = grp_id;
+	field_grp.u32 = grp_id;
 	field.u32 = 1;
 	reset_io_state();
 	
@@ -444,7 +444,7 @@ void bufs_single_output_action_group_write(void){
 void bufs_apply_and_group_output_actions(void){
 	wrap_uint_t field, field_grp;
 	unsigned int grp_id = 10; 
-	field_grp.u16 = grp_id;
+	field_grp.u32 = grp_id;
 	field.u32 = 1;
 	reset_io_state();
 	
@@ -505,7 +505,7 @@ void bufs_apply_and_group_output_actions(void){
 void bufs_write_and_group_output_actions(void){
 	wrap_uint_t field, field_grp;
 	unsigned int grp_id = 10; 
-	field_grp.u16 = grp_id;
+	field_grp.u32 = grp_id;
 	field.u32 = 1;
 	reset_io_state();
 	
@@ -578,7 +578,7 @@ void bufs_multiple_output_actions_group(void){
 
 	wrap_uint_t field, field_grp;
 	unsigned int grp_id = 11; 
-	field_grp.u16 = grp_id;
+	field_grp.u32 = grp_id;
 	field.u32 = 1;
 	reset_io_state();
 	
@@ -916,7 +916,7 @@ void bufs_output_first_table_output_on_group_second_table(void){
 	wrap_uint_t field, field_grp;
 	field.u32 = 1;
 	unsigned int grp_id = 12; 
-	field_grp.u16 = grp_id;
+	field_grp.u32 = grp_id;
 	reset_io_state();
 	
 	of1x_flow_entry_t* entry = of1x_init_flow_entry(NULL, NULL, false); 
@@ -1005,7 +1005,7 @@ void bufs_output_all(void){
 	wrap_uint_t field, field_grp;
 	field.u32 = 1;
 	unsigned int grp_id = 13; 
-	field_grp.u16 = grp_id;
+	field_grp.u32 = grp_id;
 	reset_io_state();
 
 	//Group	
