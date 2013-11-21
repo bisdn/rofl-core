@@ -1435,7 +1435,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 			break;
 
 
-		case OF1X_AT_GROUP:ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP");
+		case OF1X_AT_GROUP:ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP:%u", action.field.u32);
 			break;
 
 		case OF1X_AT_EXPERIMENTER:ROFL_PIPELINE_DEBUG_NO_PREFIX("EXPERIMENTER");
@@ -1461,7 +1461,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 						ROFL_PIPELINE_DEBUG_NO_PREFIX("IN-PORT");
 						break;	
 					default:
-						ROFL_PIPELINE_DEBUG_NO_PREFIX("%u",action.field.u64);
+						ROFL_PIPELINE_DEBUG_NO_PREFIX("%u",action.field.u32);
 						break;
 				}
 			break;
