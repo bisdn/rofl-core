@@ -20,14 +20,14 @@ SHARED_SRC= $(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/loop/of1x_loop_match.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms_available.c \
 	../memory.c \
-	../empty_packet.c\
 	../platform_empty_hooks_of12.cc\
 	../pthread_atomic_operations.c\
 	../pthread_lock.c
 
 unit_test_SOURCES= $(SHARED_SRC)\
-			unit_test.c\
-			reset_pipeline_test.c
+			packet.c\
+			test_bufs.c \
+			unit_test.c
 		
 
 unit_test_LDADD=$(top_builddir)/src/rofl/librofl.la -lcunit -lpthread

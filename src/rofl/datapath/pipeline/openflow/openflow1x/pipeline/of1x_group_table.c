@@ -12,6 +12,7 @@
 #include "of1x_group_table.h"
 #include "of1x_pipeline.h"
 #include "../../../platform/memory.h"
+#include "../../../util/logging.h"
 #include <stdio.h>
 
 static void __of1x_destroy_group(of1x_group_table_t *gt, of1x_group_t *ge);
@@ -83,20 +84,19 @@ of1x_group_t* __of1x_group_search(of1x_group_table_t *gt, uint32_t id){
 rofl_of1x_gm_result_t __of1x_check_group_parameters(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t *buckets){
 	of1x_bucket_t* bu_it;
 	rofl_of1x_gm_result_t ret_val;
-	//TODO check type
     
 	if(id == OF1X_GROUP_ALL || id == OF1X_GROUP_ANY || id > OF1X_GROUP_MAX)
 		return ROFL_OF1X_GM_INVAL;
     
-	//validate action set
+	//Validate action set
 	for(bu_it=buckets->head;bu_it!=NULL;bu_it=bu_it->next){
 		if((ret_val=__of1x_validate_group(bu_it->actions))!=ROFL_OF1X_GM_OK)
 			return ret_val;
 	}
 	
-	//FIXME group types not ssupported
+	//Group types not supported
 	if (type == OF1X_GROUP_TYPE_SELECT || type == OF1X_GROUP_TYPE_FF){
-		fprintf(stderr,"<%s:%d> GROUP TYPE NOT IMPLEMENTED\n",__func__,__LINE__);
+		ROFL_PIPELINE_DEBUG("Warning; group type %u NOT supported\n", type);
 		return ROFL_OF1X_GM_INVAL;
 	}
 	

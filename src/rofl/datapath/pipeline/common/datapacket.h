@@ -79,18 +79,6 @@ typedef struct datapacket{
 	*/
 	platform_datapacket_state_t* platform_state;
 
-	/**
-	 * Hint where the associated bufferpool::get_free_buffer() was called
-	 * for this packet
-	 */
-	unsigned int origin;
-
-	/**
-	 * Flag indicating that this packet was handed over to the I/O subsystem
-	 * and should not be handled by the pipeline any more
-	 */
-	bool pkt_was_sent_out;
-
 }datapacket_t;
 
 #endif //DATAPACKET
