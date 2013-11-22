@@ -142,10 +142,12 @@ public: // methods
 	size_t
 	length() const;
 
+#if 0
 	/** dump info string for this action
 	 */
 	const char*
 	c_str();
+#endif
 
 	/** copy struct ofp_action_header
 	 */
@@ -182,10 +184,12 @@ protected: // methods
 	void
 	resize(size_t size);
 
+#if 0
 	/** create info string
 	 */
 	void
 	__make_info();
+#endif
 
 private:
 
@@ -207,6 +211,17 @@ private:
 	void
 	unpack(
 			struct ofp13_action_header *achdr, size_t aclen);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction const& action) {
+		os << "<cofaction ";
+			os << "ofp-version:" << (int)action.ofp_version << " ";
+			os << "buffer:" << std::endl << action.action << " ";
+		os << ">";
+		return os;
+	};
 };
 
 

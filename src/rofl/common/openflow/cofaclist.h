@@ -127,16 +127,21 @@ public:
 	actions_output_ports();
 
 
-	/** dump info string
-	 */
-	const char*
-	c_str();
-
-
 
 private:
 
 	std::string info; // info string
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaclist const& actions) {
+		os << "<cofaclist ";
+			os << "ofp-version:" << (int)actions.ofp_version << " ";
+			os << dynamic_cast<coflist const&>( actions ) << " ";
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

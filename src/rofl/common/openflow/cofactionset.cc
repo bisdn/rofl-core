@@ -128,28 +128,3 @@ cofactionset::actionset_write_metadata(cofinst & inst)
 }
 
 
-const char*
-cofactionset::c_str()
-{
-	cvastring vas;
-
-	info.assign(vas("cofactionset(%p) =>", this));
-
-	std::map<int, cofaction>::iterator it;
-	for (it = acset.begin(); it != acset.end(); ++it)
-	{
-		info.append(vas("\n  %8d -> %s", it->first, it->second.c_str()));
-	}
-	info.append(vas("\nacfields => "));
-	for (std::map<uint16_t, std::map<uint8_t, cofaction> >::iterator
-			it = acfields.begin(); it != acfields.end(); ++it)
-	{
-		for (std::map<uint8_t, cofaction>::iterator
-				jt = it->second.begin(); jt != it->second.end(); ++jt)
-		{
-			info.append(vas("\n  set.field: class:0x%x field:%d -> %s",
-					it->first, jt->first, jt->second.c_str()));
-		}
-	}
-	return info.c_str();
-}

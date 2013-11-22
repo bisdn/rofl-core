@@ -27,11 +27,13 @@ class ePortListOutOfRange : public ePortListBase {}; // out of range
 class cofportlist :
 	public coflist<cofport>
 {
+#if 0
 public: // static methods
 
 	/**
 	 */
 	static void test();
+#endif
 
 public: // methods
 
@@ -154,10 +156,15 @@ public: // methods
 	throw (ePortListNotFound);
 
 
-private:
+public:
 
-	std::string info; // info string
-
+	friend std::ostream&
+	operator<< (std::ostream& os, cofportlist const& ofportlist) {
+		os << "<cofportlist ";
+			os << dynamic_cast<coflist const&>( ofportlist ) << " ";
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

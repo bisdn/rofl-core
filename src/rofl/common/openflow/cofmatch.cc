@@ -2612,16 +2612,16 @@ cofmatch::test()
 	cmemory mem(m.length());
 
 	m.pack((struct ofp12_match*)mem.somem(), mem.memlen());
-	fprintf(stderr, "match: %s\nmem:%s\n\n", m.c_str(), mem.c_str());
+	//fprintf(stderr, "match: %s\nmem:%s\n\n", m.c_str(), mem.c_str());
 
 	cofmatch tm(m);
 
-	fprintf(stderr, "tm: %s\n\n", tm.c_str());
+	//fprintf(stderr, "tm: %s\n\n", tm.c_str());
 
 	cofmatch cm;
 
 	cm.unpack((struct ofp12_match*)mem.somem(), mem.memlen());
-	fprintf(stderr, "unpack: %s\n\n", cm.c_str());
+	//fprintf(stderr, "unpack: %s\n\n", cm.c_str());
 
 	{
 		cofmatch m;
@@ -2631,7 +2631,7 @@ cofmatch::test()
 		m.set_eth_dst(cmacaddr("11:11:11:11:11:11"));
 		m.set_eth_src(cmacaddr("22:22:22:22:22:22"));
 
-		fprintf(stderr, "cofmatch: %s\n\n", m.c_str());
+		//fprintf(stderr, "cofmatch: %s\n\n", m.c_str());
 	}
 }
 #endif

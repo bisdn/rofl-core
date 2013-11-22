@@ -214,6 +214,14 @@ private: // data structures
 
 	std::string info;				// info string
 	cmemory flow_mod_area;			// flow mod memory area
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cflowentry const& fe) {
+		// TODO
+		return os;
+	};
 };
 
 }; // end of namespace

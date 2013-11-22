@@ -181,7 +181,7 @@ coxmatch::unpack(
 }
 
 
-
+#if 0
 const char*
 coxmatch::c_str()
 {
@@ -401,6 +401,7 @@ coxmatch::c_str()
 
 	return info.c_str();
 }
+#endif
 
 
 void
@@ -1070,7 +1071,7 @@ coxmatch::type2desc(uint16_t oxm_class, uint16_t oxm_field)
 
 
 
-
+#if 0
 void
 coxmatch::test()
 {
@@ -1217,6 +1218,7 @@ coxmatch::test()
 	fprintf(stderr, "OFPXMT_OFB_MPLS_TC: %s\n", mpls_tc.c_str());
 #endif
 }
+#endif
 
 
 template class coflist<coxmatch>;

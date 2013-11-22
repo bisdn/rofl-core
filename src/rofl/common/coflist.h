@@ -113,6 +113,20 @@ public: // methods
 	 */
 	bool
 	empty() const;
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, coflist<T> const& oflist) {
+		os << "<coflist " << std::endl;
+			for (coflist<T>::const_iterator
+					it = oflist.begin(); it != oflist.end(); ++it) {
+				os << (*it);
+				os << std::endl;
+			}
+		os << ">";
+		return os;
+	};
 };
 
 

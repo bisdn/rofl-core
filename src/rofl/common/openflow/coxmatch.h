@@ -90,11 +90,6 @@ public: // data structures
 #define oxm_ipv6addr	 oxm_oxmu.oxmu_ipv6addr			// oxm: uint8_t[16] field
 
 
-private: // data structures
-
-
-	std::string info;
-
 
 public: // methods
 
@@ -208,13 +203,6 @@ public: // methods
 			uint8_t* buf,
 			size_t buflen);
 
-
-
-	/** dump info string for this action
-	 *
-	 */
-	const char*
-	c_str();
 
 
 	/**
@@ -355,11 +343,13 @@ public: // methods
 	uint128__t
 	uint128_mask() const throw (eOxmInval);
 	
+#if 0
 	/**
 	 *
 	 */
 	static void
 	test();
+#endif
 
 
 public:
@@ -369,13 +359,13 @@ public:
 	 *
 	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, coxmatch const& oxm)
-	{
-		cmemory mem(oxm.somem(), oxm.memlen());
-		std::string m_str(mem.c_str());
-		os << "OXM";
-			os << "[" << (unsigned int)oxm.get_oxm_class() << ":" << (unsigned int)oxm.get_oxm_field() << "]";
-		os << "<" << m_str << ">";
+	operator<< (std::ostream& os, coxmatch const& oxm) {
+		os << "<coxmatch ";
+			os << "class:" << (unsigned int)oxm.get_oxm_class() << " ";
+			os << "field:" << (unsigned int)oxm.get_oxm_field() << " ";
+			os << "hasmask:" << (oxm.get_oxm_hasmask() == true ? "yes" : "no") << " ";
+			os << dynamic_cast<cmemory const&>( oxm ) << " ";
+		os << ">";
 		return os;
 	};
 

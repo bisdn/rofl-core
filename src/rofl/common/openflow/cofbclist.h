@@ -92,12 +92,6 @@ public: // methods
 	length() const;
 
 
-	/** dump info string
-	 */
-	const char*
-	c_str();
-
-
 private:
 
 	/** stores cofbucket instances in this->bcvec from a packed array struct ofp_bucket (e.g. in struct ofp_group_mod)
@@ -132,9 +126,15 @@ private:
 		size_t bclen) const			// length of memory area
 	throw (eBcListInval);
 
+public:
 
-	std::string info; // info string
-
+	friend std::ostream&
+	operator<< (std::ostream& os, cofbclist const& buckets) {
+		os << "<cofbclist ";
+			os << dynamic_cast<coflist const&>( buckets ) << " ";
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

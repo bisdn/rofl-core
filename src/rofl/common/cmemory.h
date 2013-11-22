@@ -52,7 +52,9 @@ private:
 	static int 						memlockcnt;
 
 	std::pair<uint8_t*, size_t> 	data;		//< memory area including head- and tail-space
+#if 0
 	std::string 					info; 		//< info string
+#endif
 	size_t 							occupied; 	//< amount of bytes used in memory area
 
 #define CMEMORY_DEFAULT_SIZE 		1024
@@ -102,7 +104,7 @@ public:
 	~cmemory();
 
 
-
+#if 0
 	/**
 	 * @brief	Returns a C-string containing an ASCII representation of the memory area.
 	 *
@@ -110,7 +112,7 @@ public:
 	 */
 	const char*
 	c_str();
-
+#endif
 
 
 public:
@@ -376,7 +378,26 @@ private: // methods
 	 */
 	void mfree();
 
+public:
 
+	friend std::ostream&
+	operator<< (std::ostream& os, cmemory const& mem) {
+		os << "<cmemory: ";
+			os << "data:" << (void*)mem.data.first << " ";
+			os << "datalen:" << (int)mem.data.second << " ";
+			os << "buffer:" << std::endl;
+			for (unsigned int i=0; i < mem.data.second; i++) {
+				if (0 == (i % 64))
+					os << (std::dec) << (i/64) << ": ";
+				os << (std::hex) << (int)(*(mem.somem() + i)) << " ";
+				if (0 == ((i+1) % 8))
+					os << "  ";
+				if (0 == ((i+1) % 64))
+					os << std::endl;
+			}
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

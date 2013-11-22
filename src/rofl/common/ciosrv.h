@@ -74,23 +74,11 @@ public:
 		opaque = ioctl.opaque;
 		return *this;
 	};
-	/**
-	 *
-	 */
-	const char*
-	c_str()
-	{
-		cvastring vas;
-		info.assign(vas("cevent(%p): cmd: 0x%x opaque: %s", this, cmd, opaque.c_str()));
-		//info.assign(vas("cevent(%p): cmd: 0x%x", this, cmd));
-		return info.c_str();
-	};
 
 public: // data structures
 
 	int cmd; // command
 	cmemory opaque; // additional data
-	std::string info; // info string :P
 
 public: // auxiliary classes
 
@@ -102,6 +90,15 @@ public: // auxiliary classes
 		bool operator() (cevent const* ev) {
 			return (ev->cmd == cmd);
 		};
+	};
+public:
+	friend std::ostream&
+	operator<< (std::ostream& os, cevent const& event) {
+		os << "<cevent ";
+			os << "cmd:" << event.cmd << " ";
+			os << "memory:" << event.opaque << " ";
+		os << ">";
+		return os;
 	};
 };
 

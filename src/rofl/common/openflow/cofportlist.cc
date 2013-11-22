@@ -245,7 +245,7 @@ throw (ePortListNotFound)
 }
 
 
-
+#if 0
 void
 cofportlist::test()
 {
@@ -312,3 +312,4 @@ cofportlist::test()
 	fprintf(stderr, "--------------------------\n");
 #endif
 }
+#endif

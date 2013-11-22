@@ -9,6 +9,7 @@
 #include <vector>
 #include <list>
 #include <endian.h>
+#include <ostream>
 #ifndef htobe16
 	#include "../endian_conversion.h"
 #endif
@@ -78,11 +79,6 @@ public: // per instance methods
 	 */
 	cofbucket& operator= (const cofbucket& b);
 
-	/** dump info string
-	 */
-	const char*
-	c_str();
-
 	/** pack bucket
 	 */
 	uint8_t*
@@ -136,8 +132,22 @@ private:
 		throw (eBucketBadLen, eBadActionBadOutPort);
 
 
-	std::string info; // info string
+public:
 
+	friend std::ostream&
+	operator<< (std::ostream& os, cofbucket const& bucket) {
+		os << "<cofbucket ";
+			os << "ofp-version:" 	<< (int)bucket.ofp_version 	<< " ";
+			os << "weight:" 		<< (int)bucket.weight 		<< " ";
+			os << "watch-group:" 	<< (int)bucket.watch_group 	<< " ";
+			os << "watch-port:" 	<< (int)bucket.watch_port 	<< " ";
+			os << "packet-count:" 	<< (int)bucket.packet_count << " ";
+			os << "byte-count:" 	<< (int)bucket.byte_count 	<< " ";
+			os << "action-list:"	<< std::endl;
+			os << bucket.actions;
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

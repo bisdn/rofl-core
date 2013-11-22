@@ -34,7 +34,9 @@ cofaction::cofaction(
 
 	unpack(achdr, aclen);
 
+#if 0
 	__make_info();
+#endif
 }
 
 
@@ -92,13 +94,9 @@ cofaction::unpack(
 
 	memcpy((uint8_t*)oac_header, (uint8_t*)achdr, aclen);
 
-	WRITELOG(COFACTION, DBG, "cofaction(%p)::unpack() oac_header: %p action: %s",
-			this, oac_header, action.c_str());
-
 	if (be16toh(oac_header->len) < sizeof(struct ofp_action_header)) {
 		throw eBadActionBadLen();
 	}
-
 
 	switch (ofp_version) {
 	case OFP10_VERSION: {
@@ -190,7 +188,6 @@ cofaction::unpack(
 		}
 	} break;
 	default: {
-		WRITELOG(COFACTION, DBG, "cofaction(%p)::__parse_action() invalid action type %d => %s", this, be16toh(oac_header->type), action.c_str());
 		throw eBadActionBadType();
 	} break;
 	}
@@ -286,7 +283,6 @@ cofaction::unpack(
 		}
 		break;
 	default:
-		WRITELOG(COFACTION, DBG, "cofaction(%p)::__parse_action() invalid action type %d => %s", this, be16toh(oac_header->type), action.c_str());
 		throw eBadActionBadType();
 		//throw eActionInvalType();
 		break;
@@ -417,6 +413,7 @@ cofaction::length() const
 }
 
 
+#if 0
 const char*
 cofaction::c_str()
 {
@@ -566,7 +563,7 @@ cofaction::__make_info()
 	}
 
 }
-
+#endif
 
 
 uint16_t

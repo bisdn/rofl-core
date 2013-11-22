@@ -87,22 +87,6 @@ throw (eBcListInval)
 
 
 
-
-
-const char*
-cofbclist::c_str()
-{
-	cvastring vas(4096);
-	info.assign(vas("cofbclist(%p) length:%d => %d bucket(s): ", this, length(), elems.size()));
-	cofbclist::iterator it;
-	for (it = elems.begin(); it != elems.end(); ++it)
-	{
-		info.append(vas("\n  %s ", (*it).c_str()));
-	}
-	return info.c_str();
-}
-
-
 std::vector<cofbucket>&
 cofbclist::unpack(
 		struct ofp12_bucket *buckets,

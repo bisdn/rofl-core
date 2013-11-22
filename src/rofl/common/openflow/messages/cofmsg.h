@@ -87,10 +87,6 @@ public:
 	} typedesc_t;
 
 
-private: // data structures
-
-	std::string 	 	 info;				// info string for method c_str()
-
 protected: // data structures
 
 	cmemory 			*memarea;			// OpenFlow packet received from socket
@@ -132,13 +128,6 @@ public:
 	cofmsg&
 	operator=(
 			cofmsg const& p);
-
-
-	/** dump packet content
-	 *
-	 */
-	virtual const char*
-	c_str();
 
 
 	/** reset packet content
@@ -273,11 +262,13 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg const& msg) {
-		os << "<cofmsg => ";
+		os << "<cofmsg ";
 			os << "version:" 				<< (int)msg.get_version() 			<< " ";
 			os << "type:" 					<< (int)msg.get_type() 				<< " ";
 			os << "length:" 				<< (int)msg.get_length() 			<< " ";
 			os << "xid:" 		<< std::hex << (int)msg.get_xid() << std::dec 	<< " ";
+			os << "buffer:" 	<< std::endl;
+			os << *(msg.memarea) << std::endl;
 		os << ">";
 		return os;
 	};

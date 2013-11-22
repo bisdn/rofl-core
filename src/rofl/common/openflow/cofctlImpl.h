@@ -524,6 +524,16 @@ private:
 	void
 	send_message_via_socket(
 			cofmsg *pack);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofctlImpl const& ctl) {
+		os << "<cofctlImpl ";
+			// TODO
+		os << ">";
+		return os;
+	};
 };
 
 

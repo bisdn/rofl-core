@@ -143,8 +143,6 @@ throw (eBadActionBadLen, eBadActionBadOutPort)
 
 		next() = cofaction(ofp_version, achdr, be16toh(achdr->len) );
 
-		WRITELOG(COFACTION, DBG, "cofaclist(%p)::unpack() new action: %s", this, back().c_str());
-
 		aclen -= be16toh(achdr->len);
 		achdr = (struct ofp_action_header*)(((uint8_t*)achdr) + be16toh(achdr->len));
 	}
@@ -288,17 +286,4 @@ cofaclist::actions_output_ports()
 	return outports;
 }
 
-
-const char*
-cofaclist::c_str()
-{
-	cvastring vas(4096);
-	info.assign(vas("cofaclist(%p) %d action(s):", this, elems.size()));
-	cofaclist::iterator it;
-	for (it = elems.begin(); it != elems.end(); ++it)
-	{
-		info.append(vas("\n  %s", (*it).c_str()));
-	}
-	return info.c_str();
-}
 

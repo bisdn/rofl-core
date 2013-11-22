@@ -8,6 +8,7 @@
 #include <bitset>
 #include <inttypes.h>
 #include <string>
+#include <iostream>
 
 #include "cerror.h"
 #include "cmemory.h"
@@ -42,10 +43,12 @@ private:
 		};
 
 		cmemory 				 mem; 			// frame container, if none was specified in constructor => this is used for creating new frames from scratch		uint8_t 				*data; 			// data area
-		uint8_t                                 *data;                  // data area
+		uint8_t                 *data;          // data area
 		size_t 					 datalen; 		// data area length
 //		uint16_t 				 total_len; 	// real length of packet
+#if 0
 		std::string 			 info; 			// info string
+#endif
 		std::bitset<32> 		 flags;
 
 
@@ -156,14 +159,14 @@ public:
 	 */
 	virtual void
 	payload_insert(
-			uint8_t *data, size_t datalen) throw (eFrameOutOfRange) {};
+			uint8_t *data, size_t datalen) {};
 
 
 	/** get payload
 	 *
 	 */
 	virtual uint8_t*
-	payload() const throw (eFrameNoPayload)
+	payload() const
 	{
 		return soframe();
 	};
@@ -173,7 +176,7 @@ public:
 	 *
 	 */
 	virtual size_t
-	payloadlen() const throw (eFrameNoPayload)
+	payloadlen() const
 	{
 		return framelen();
 	};
@@ -189,13 +192,13 @@ public:
 	};
 #endif
 
-
+#if 0
 	/** dump info
 	 *
 	 */
 	virtual const char*
 	c_str();
-
+#endif
 
 	/** get start of data area
 	 *
@@ -256,6 +259,22 @@ public:
 	shift_right(size_t bytes)
 	{
 	  data += bytes;
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, fframe const& frame) {
+		os << "<fframe: ";
+			os << "data:" << (void*)frame.soframe() << " ";
+			os << "datalen:" << frame.framelen() << " ";
+			os << "self-contained-mem:" << (frame.flags.test(FFRAME_FLAG_MEM) ? "yes" : "no") << " ";
+			os << "next:" << (void*)frame.next << " ";
+			os << "prev:" << (void*)frame.prev << " ";
+		os << ">";
+		os << std::endl;
+		os << frame.mem << " ";
+		return os;
 	};
 };
 

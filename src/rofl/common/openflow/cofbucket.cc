@@ -66,18 +66,6 @@ cofbucket::operator= (const cofbucket& b)
 };
 
 
-const char*
-cofbucket::c_str()
-{
-	cvastring vas(4096);
-	info.assign(vas("cofbucket(%p) weight:%d watch-group:%d watch-port:%d length:%d actions: %s",
-			this, weight, watch_group, watch_port, length(), actions.c_str()));
-	return info.c_str();
-}
-
-
-
-
 
 uint8_t*
 cofbucket::pack(

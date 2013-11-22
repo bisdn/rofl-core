@@ -152,8 +152,6 @@ cofinst::unpack(
 	memcpy(instruction.somem(), (uint8_t*)inhdr, inlen);
 	oin_header = (struct ofp_instruction*)instruction.somem();
 
-	WRITELOG(COFINST, DBG, "cofinst(%p)::unpack() oin_header: %p instruction: %s",
-			this, oin_header, instruction.c_str());
 
 	switch (be16toh(oin_header->type)) {
 	case OFPIT_APPLY_ACTIONS:
@@ -163,9 +161,6 @@ cofinst::unpack(
 		oin_actions = (struct ofp_instruction_actions*)oin_header;
 
 		size_t aclen = inlen - sizeof(struct ofp_instruction);
-
-		WRITELOG(COFINST, DBG, "cofinst(%p)::unpack() oin_header: %p instruction: %s aclen: %d/%d",
-				this, oin_header, instruction.c_str(), aclen, sizeof(struct ofp_action_header));
 
 		if (aclen >= sizeof(struct ofp_action_header))
 		{
@@ -193,9 +188,6 @@ cofinst::unpack(
 		WRITELOG(COFINST, DBG, "cofinst(%p)::__parse_inst() unknown instruction type %d", this, be16toh(oin_header->type));
 		throw eInstructionInvalType();
 	}
-
-	WRITELOG(COFINST, DBG, "cofinst(%p)::unpack() actions: %s",
-			this, oin_header, actions.c_str());
 }
 
 

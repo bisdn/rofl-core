@@ -118,11 +118,6 @@ public: // methods
 	cofaction&
 	find_action(enum ofp_action_type type);
 
-	/** dump info string for this action
-	 */
-	const char*
-	c_str();
-
 	/** copy struct ofp_action_header
 	 */
 	virtual struct ofp_instruction*
@@ -142,7 +137,7 @@ public: // methods
 	 *
 	 */
 	uint16_t
-	get_type()
+	get_type() const
 	{
 		return be16toh(oin_header->type);
 	};
@@ -152,7 +147,24 @@ protected: // data structures
 
 	cmemory instruction; // memory area with original packes instruction
 
-	std::string info; // info string
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofinst const& inst) {
+		os << "<cofinst ";
+		switch (inst.get_type()) {
+		case OFPIT_APPLY_ACTIONS:	os << "OFIT-APPLY-ACTIONS" 	<< " "; break;
+		case OFPIT_WRITE_ACTIONS:	os << "OFIT-WRITE-ACTIONS" 	<< " "; break;
+		case OFPIT_CLEAR_ACTIONS:	os << "OFIT-CLEAR-ACTIONS" 	<< " ";	break;
+		case OFPIT_WRITE_METADATA:	os << "OFIT-WRITE-METADATA" << " ";	break;
+		case OFPIT_GOTO_TABLE:		os << "OFIT-GOTO-TABLE"	    << " "; break;
+		default:					os << "OFIT-UNKNOWN"		<< " "; break;
+		}
+		os << "actions:" << std::endl;
+		os << inst.actions << " ";
+		os << ">";
+		return os;
+	};
 };
 
 /** predicate for finding cofaction instances of
