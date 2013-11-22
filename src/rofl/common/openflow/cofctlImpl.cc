@@ -215,7 +215,7 @@ cofctlImpl::send_message(
     		queue_get_config_reply_sent(pack);
     	} break;
         default: {
-        	std::cerr << "dropping invalid packet " << *pack << " " << *this << std::endl;
+        	logging::error() << "dropping invalid packet " << *pack << " " << *this << std::endl;
     		delete pack;
     	} return;
         }
@@ -265,7 +265,7 @@ cofctlImpl::send_message(
     		role_reply_sent(pack);
     	} break;
         default: {
-        	std::cerr << "dropping invalid packet " << *pack << " " << *this << std::endl;
+        	logging::error() << "dropping invalid packet " << *pack << " " << *this << std::endl;
         	delete pack;
     	} return;
         }
@@ -319,14 +319,14 @@ cofctlImpl::send_message(
         	get_async_config_reply_sent(pack);
         } break;
         default: {
-        	std::cerr << "dropping invalid packet " << *pack << " " << *this << std::endl;
+        	logging::error() << "dropping invalid packet " << *pack << " " << *this << std::endl;
         	delete pack;
     	} return;
         }
 
     } break;
     default:
-    	std::cerr << "dropping packet due to bad version " << *pack << std::endl;
+    	logging::error() << "dropping packet due to bad version " << *pack << std::endl;
     	throw eBadVersion();
     }
 
@@ -586,7 +586,7 @@ cofctlImpl::handle_message(
 		const uint8_t OFPT_HELLO = 0; // == OFPT10_HELLO == OFPT12_HELLO == OFPT13_HELLO
 
 		if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (OFPT_HELLO != ofh_header->type)) {
-			std::cerr << "dropping packet, no HELLO received from peer so far " << *mem << std::endl;
+			logging::error() << "dropping packet, no HELLO received from peer so far " << *mem << std::endl;
 			delete mem; return;
 		}
 
@@ -874,7 +874,7 @@ cofctlImpl::handle_message(
 				hello_rcvd(dynamic_cast<cofmsg_hello*>( msg ));
 			} break;
 			default: {
-				std::cerr << "dropping unknown packet " << *mem << std::endl;
+				logging::error() << "dropping unknown packet " << *mem << std::endl;
 				msg = new cofmsg(mem);
 				msg->validate();
 				throw eBadRequestBadType();
@@ -888,7 +888,7 @@ cofctlImpl::handle_message(
 
 	} catch (eBadSyntaxTooShort& e) {
 
-		std::cerr << "eBadSyntaxTooShort " << *mem << std::endl;
+		logging::error() << "eBadSyntaxTooShort " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -900,7 +900,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadVersion& e) {
 
-		std::cerr << "eBadVersion " << *mem << std::endl;
+		logging::error() << "eBadVersion " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -912,7 +912,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadVersion& e) {
 
-		std::cerr << "eBadRequestBadVersion " << *mem << std::endl;
+		logging::error() << "eBadRequestBadVersion " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -924,7 +924,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadType& e) {
 
-		std::cerr << "eBadRequestBadType " << *mem << std::endl;
+		logging::error() << "eBadRequestBadType " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -936,7 +936,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadStat& e) {
 
-		std::cerr << "eBadRequestBadStat " << *mem << std::endl;
+		logging::error() << "eBadRequestBadStat " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -948,7 +948,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadExperimenter& e) {
 
-		std::cerr << "eBadRequestBadExperimenter " << *mem << std::endl;
+		logging::error() << "eBadRequestBadExperimenter " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -960,7 +960,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadExpType& e) {
 
-		std::cerr << "eBadRequestBadExpType " << *mem << std::endl;
+		logging::error() << "eBadRequestBadExpType " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -972,7 +972,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestEperm& e) {
 
-		std::cerr << "eBadRequestEperm " << *mem << std::endl;
+		logging::error() << "eBadRequestEperm " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -984,7 +984,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadLen& e) {
 
-		std::cerr << "eBadRequestBadLen " << *mem << std::endl;
+		logging::error() << "eBadRequestBadLen " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -996,7 +996,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBufferEmpty& e) {
 
-		std::cerr << "eBadRequestBufferEmpty " << *mem << std::endl;
+		logging::error() << "eBadRequestBufferEmpty " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1008,7 +1008,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBufferUnknown& e) {
 
-		std::cerr << "eBadRequestBufferUnknown " << *mem << std::endl;
+		logging::error() << "eBadRequestBufferUnknown " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1020,7 +1020,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadTableId& e) {
 
-		std::cerr << "eBadRequestBadTableId " << *mem << std::endl;
+		logging::error() << "eBadRequestBadTableId " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1032,7 +1032,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestIsSlave& e) {
 
-		std::cerr << "eBadRequestIsSlave " << *mem << std::endl;
+		logging::error() << "eBadRequestIsSlave " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1044,7 +1044,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadPort& e) {
 
-		std::cerr << "eBadRequestBadPort " << *mem << std::endl;
+		logging::error() << "eBadRequestBadPort " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1056,7 +1056,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadPacket& e) {
 
-		std::cerr << "eBadRequestBadPacket " << *mem << std::endl;
+		logging::error() << "eBadRequestBadPacket " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1068,12 +1068,12 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBase& e) {
 
-		std::cerr << "eBadRequestBase " << *mem << std::endl;
+		logging::error() << "eBadRequestBase " << *mem << std::endl;
 
 		delete msg;
 	} catch (eBadActionBadType& e) {
 
-		std::cerr << "eBadActionBadType " << *mem << std::endl;
+		logging::error() << "eBadActionBadType " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1085,7 +1085,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadLen& e) {
 
-		std::cerr << "eBadActionBadLen " << *mem << std::endl;
+		logging::error() << "eBadActionBadLen " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1097,7 +1097,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadExperimenter& e) {
 
-		std::cerr << "eBadActionBadExperimenter " << *mem << std::endl;
+		logging::error() << "eBadActionBadExperimenter " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1109,7 +1109,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadExperimenterType& e) {
 
-		std::cerr << "eBadActionBadExperimenterType " << *mem << std::endl;
+		logging::error() << "eBadActionBadExperimenterType " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1147,7 +1147,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionEperm& e) {
 
-		std::cerr << "eBadActionEperm " << *mem << std::endl;
+		logging::error() << "eBadActionEperm " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1159,7 +1159,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionTooMany& e) {
 
-		std::cerr << "eBadActionTooMany " << *mem << std::endl;
+		logging::error() << "eBadActionTooMany " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1171,7 +1171,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadQueue& e) {
 
-		std::cerr << "eBadActionBadQueue " << *mem << std::endl;
+		logging::error() << "eBadActionBadQueue " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1183,7 +1183,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadOutGroup& e) {
 
-		std::cerr << "eBadActionBadOutGroup " << *mem << std::endl;
+		logging::error() << "eBadActionBadOutGroup " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1195,7 +1195,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionMatchInconsistent& e) {
 
-		std::cerr << "eBadActionMatchInconsistent " << *mem << std::endl;
+		logging::error() << "eBadActionMatchInconsistent " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1207,7 +1207,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionUnsupportedOrder& e) {
 
-		std::cerr << "eBadActionUnsuportedOrder " << *mem << std::endl;
+		logging::error() << "eBadActionUnsuportedOrder " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1219,7 +1219,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadTag& e) {
 
-		std::cerr << "eBadActionBadTag " << *mem << std::endl;
+		logging::error() << "eBadActionBadTag " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1231,12 +1231,12 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBase& e) {
 
-		std::cerr << "eBadActionBase " << *mem << std::endl;
+		logging::error() << "eBadActionBase " << *mem << std::endl;
 
 		delete msg;
 	} catch (eBadInstUnknownInst& e) {
 
-		std::cerr << "eBadInstUnknownInst " << *mem << std::endl;
+		logging::error() << "eBadInstUnknownInst " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1248,7 +1248,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadInstUnsupInst& e) {
 
-		std::cerr << "eBadInstUnsupInst " << *mem << std::endl;
+		logging::error() << "eBadInstUnsupInst " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1260,7 +1260,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadInstBadTableId& e) {
 
-		std::cerr << "eBadInstBadTableId " << *mem << std::endl;
+		logging::error() << "eBadInstBadTableId " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1272,7 +1272,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadInstUnsupMetadata& e) {
 
-		std::cerr << "eBadInstUnsupMetadata " << *mem << std::endl;
+		logging::error() << "eBadInstUnsupMetadata " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1284,7 +1284,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadInstUnsupMetadataMask& e) {
 
-		std::cerr << "eBadInstUnsupMetadataMask " << *mem << std::endl;
+		logging::error() << "eBadInstUnsupMetadataMask " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1296,7 +1296,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadInstUnsupExpInst& e) {
 
-		std::cerr << "eBadInstUnsupExpInst " << *mem << std::endl;
+		logging::error() << "eBadInstUnsupExpInst " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1308,12 +1308,12 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadInstBase& e) {
 
-		std::cerr << "eBadInstBase " << *mem << std::endl;
+		logging::error() << "eBadInstBase " << *mem << std::endl;
 
 		delete msg;
 	} catch (eBadMatchBadType& e) {
 
-		std::cerr << "eBadMatchBadType " << *mem << std::endl;
+		logging::error() << "eBadMatchBadType " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1325,7 +1325,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadLen& e) {
 
-		std::cerr << "eBadMatchBadLen " << *mem << std::endl;
+		logging::error() << "eBadMatchBadLen " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1337,7 +1337,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadTag& e) {
 
-		std::cerr << "eBadMatchBadTag " << *mem << std::endl;
+		logging::error() << "eBadMatchBadTag " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1349,7 +1349,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadDlAddrMask& e) {
 
-		std::cerr << "eBadMatchBadDlAddrMask " << *mem << std::endl;
+		logging::error() << "eBadMatchBadDlAddrMask " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1361,7 +1361,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadNwAddrMask& e) {
 
-		std::cerr << "eBadMatchBadNwAddrMask " << *mem << std::endl;
+		logging::error() << "eBadMatchBadNwAddrMask " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1373,7 +1373,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadWildcards& e) {
 
-		std::cerr << "eBadMatchBadWildcards " << *mem << std::endl;
+		logging::error() << "eBadMatchBadWildcards " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1385,7 +1385,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadField& e) {
 
-		std::cerr << "eBadMatchBadField " << *mem << std::endl;
+		logging::error() << "eBadMatchBadField " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1397,7 +1397,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadValue& e) {
 
-		std::cerr << "eBadMatchBadValue " << *mem << std::endl;
+		logging::error() << "eBadMatchBadValue " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1409,7 +1409,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBase& e) {
 
-		std::cerr << "eBadMatchBase " << *mem << std::endl;
+		logging::error() << "eBadMatchBase " << *mem << std::endl;
 
 		delete msg;
 	}
