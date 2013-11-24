@@ -1326,13 +1326,12 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 			uint16_t vid = oxm.u16value();
 			if (vid & OFPVID_PRESENT) {
 				vlan()->set_dl_vlan_id(vid);
-				match.set_vlan_vid(vid);
-				// FIXME
+				match.set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, vid);
 			} else if (vid == OFPVID_NONE) {
-				// does not make sense, throw exception?
+				match.set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_UNTAGGED, vid);
 			} else {
 				vlan()->set_dl_vlan_id(vid);
-				match.set_vlan_vid(vid);
+				match.set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, vid);
 			}
 		} break;
 		case OFPXMT_OFB_VLAN_PCP: {
@@ -1674,7 +1673,7 @@ cpacket::push_vlan(uint16_t ethertype)
 
 #if 1
 		//match.set_eth_type(vlan_eth_type); // do not do this here! we might be on top of a long stack of tags
-		match.set_vlan_vid(outer_vid);
+		match.set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, outer_vid);
 		match.set_vlan_pcp(outer_pcp);
 #endif
 
@@ -2034,7 +2033,7 @@ cpacket::parse_vlan(
 
 	if (not flags.test(FLAG_VLAN_PRESENT))
 	{
-		match.set_vlan_vid(vlan->get_dl_vlan_id());
+		match.set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, vlan->get_dl_vlan_id());
 		match.set_vlan_pcp(vlan->get_dl_vlan_pcp());
 
 		flags.set(FLAG_VLAN_PRESENT);
