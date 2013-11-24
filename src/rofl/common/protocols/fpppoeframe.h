@@ -216,11 +216,6 @@ public: // overloaded from fframe
 	virtual size_t
 	payloadlen() const throw (eFrameNoPayload);
 
-	/** dump info
-	 *
-	 */
-	virtual const char*
-	c_str();
 
 
 public:
@@ -238,7 +233,7 @@ public:
 	/**
 	 */
 	uint8_t
-	get_pppoe_vers();
+	get_pppoe_vers() const;
 
 	/**
 	 */
@@ -248,7 +243,7 @@ public:
 	/**
 	 */
 	uint8_t
-	get_pppoe_type();
+	get_pppoe_type() const;
 
 	/**
 	 */
@@ -258,7 +253,7 @@ public:
 	/**
 	 */
 	uint8_t
-	get_pppoe_code();
+	get_pppoe_code() const;
 
 	/**
 	 */
@@ -268,7 +263,7 @@ public:
 	/**
 	 */
 	uint16_t
-	get_pppoe_sessid();
+	get_pppoe_sessid() const;
 
 	/**
 	 */
@@ -317,16 +312,24 @@ private: // methods
 	validate_pppoe_discovery_pado() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
 	void
 	validate_pppoe_discovery_padr() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
-        void
-        validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
-        void
-        validate_pppoe_discovery_padt() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
+	void
+	validate_pppoe_discovery_pads() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
+	void
+	validate_pppoe_discovery_padt() throw (ePPPoEFrameInvalSid, ePPPoEBadLen, ePPPoElistNotFound);
 
+public:
 
-private: // data structures
-
-	//< info string
-	std::string info;
+        friend std::ostream&
+        operator<< (std::ostream& os, fpppoeframe const& frame) {
+        	os << "<fpppoeframe ";
+        		os << "version:" 	<< (int)frame.get_pppoe_vers() 		<< " ";
+        		os << "code:" 		<< (int)frame.get_pppoe_code() 		<< " ";
+        		os << "type:" 		<< (int)frame.get_pppoe_type() 		<< " ";
+        		os << "session-id:" << (int)frame.get_pppoe_sessid() 	<< " ";
+        		os << std::endl << dynamic_cast<fframe const&>( frame ) << std::endl;
+        	os << ">";
+        	return os;
+        };
 };
 
 }; // end of namespace

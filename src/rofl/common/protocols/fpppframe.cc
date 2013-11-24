@@ -772,11 +772,10 @@ fpppframe::c_str()
 		break;
 	}
 
-	info.assign(vas("[fpppframe(%p) PPP-%s-%s %s]",
+	info.assign(vas("[fpppframe(%p) PPP-%s-%s]",
 			this,
 			protstr.c_str(),
-			codestr.c_str(),
-			fframe::c_str()));
+			codestr.c_str()));
 
 	return info.c_str();
 }

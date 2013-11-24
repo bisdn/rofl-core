@@ -100,9 +100,6 @@ cfsptable::find_matching_entries(
 {
 	std::set<cfspentry*> nse_list;
 
-	WRITELOG(CNAMESPACE, DBG, "cfsptable(%p)::find_matching_entries() \n"
-			"  pack: %s\n  fsptable: %s", this, pack.c_str(), c_str());
-
 	uint16_t exact_hits = 0;
 	uint16_t wildcard_hits = 0;
 
@@ -302,30 +299,14 @@ cfsptable::flow_mod_allowed(
 		throw eFspNotAllowed();
 	}
 
+#if 0
 #ifndef NDEBUG
 	cofmatch match(m);
 	WRITELOG(CNAMESPACE, DBG, "cfsptable(%p)::flow_mod_allowed() nse_list.size()=%d %p => %s <= %s",
 			this, fspsearch.fsp_list.size(), fspowner, (*fspsearch.fsp_list.begin())->c_str(), match.c_str());
 #endif
+#endif
 }
 
-
-const char*
-cfsptable::c_str()
-{
-	cvastring vas(2048);
-
-	info.assign(vas("cfsptable(%p): \n", this));
-
-	std::set<cfspentry*>::iterator it;
-	for (it = fsp_table.begin(); it != fsp_table.end(); ++it)
-	{
-		info.append("\t");
-		info.append((*it)->c_str());
-		info.append(std::string("\n"));
-	}
-
-	return info.c_str();
-}
 
 

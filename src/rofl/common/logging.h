@@ -13,38 +13,44 @@
 #define LOGGING_H_ 1
 
 #include <iostream>
+#include <fstream>
 
 namespace rofl
 {
 
 class logging
 {
-	static std::ostream *os_emerg;
-	static std::ostream *os_alert;
-	static std::ostream *os_crit;
-	static std::ostream *os_error;
-	static std::ostream *os_warn;
-	static std::ostream *os_notice;
-	static std::ostream *os_info;
-	static std::ostream *os_debug;
+public:
+
+	static std::ostream emerg;
+	static std::ostream alert;
+	static std::ostream crit;
+	static std::ostream error;
+	static std::ostream warn;
+	static std::ostream notice;
+	static std::ostream info;
+	static std::ostream debug;
 
 public:
 
-	static std::ostream& emerg() 	{ return *os_emerg; }
+	enum logging_level {
+		LOGGING_EMERG = 1,
+		LOGGING_ALERT,
+		LOGGING_CRIT,
+		LOGGING_ERROR,
+		LOGGING_WARN,
+		LOGGING_NOTICE,
+		LOGGING_INFO,
+		LOGGING_DEBUG,
+	};
 
-	static std::ostream& alert() 	{ return *os_error; };
-
-	static std::ostream& crit() 	{ return *os_crit; };
-
-	static std::ostream& error() 	{ return *os_error; };
-
-	static std::ostream& warn()		{ return *os_warn; };
-
-	static std::ostream& notice()	{ return *os_notice; };
-
-	static std::ostream& info()		{ return *os_info; };
-
-	static std::ostream& debug()	{ return *os_debug; };
+	/**
+	 *
+	 */
+	static void
+	set_logfile(
+			enum logging_level level,
+			std::string const& filename);
 };
 
 }; // end of namespace

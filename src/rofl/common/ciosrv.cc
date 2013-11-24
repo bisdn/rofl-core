@@ -192,12 +192,14 @@ ciosrv::c_str()
 		}
 	}
 
+#if 0
 	info.append(" events: ");
 	Lock lock_e(&event_mutex);
 	for (std::list<cevent*>::iterator it = events.begin(); it != events.end(); ++it)
 	{
 		info.append(vas("[event:0x%x => %s]", *it, (*it)->c_str()));
 	}
+#endif
 
 	return info.c_str();
 }
@@ -288,9 +290,11 @@ ciosrv::notify(cevent const& ev)
 
 
 	} catch (eLockWouldBlock& e) {
+#if 0
 		WRITELOG(CIOSRV, DBG, "ciosrv(%p)::notify() from thread: 0x%x "
 				"to thread: 0x%x, ignoring event: %s",
 				this, pthread_self(), tid, cevent(ev).c_str());
+#endif
 
 #if 0
 	} catch (eIoSvcNotFound& e) {
@@ -1035,7 +1039,7 @@ ciosrv::handle_events(int rc,
 		{
 			cevent* evt = (*et);
 
-			WRITELOG(CIOSRV, DBG, "ciosrv()::handle_events() ciosrv:0x%x event: %s", *it, evt->c_str());
+			//WRITELOG(CIOSRV, DBG, "ciosrv()::handle_events() ciosrv:0x%x event: %s", *it, evt->c_str());
 
 			cio->handle_event(*evt);
 

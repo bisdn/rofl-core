@@ -117,23 +117,6 @@ fmplsframe::validate(uint16_t total_len) throw (eMplsFrameTooShort)
 }
 
 
-const char*
-fmplsframe::c_str()
-{
-	cvastring vas;
-
-	info.assign(vas("[fmplsframe(%p) label:0x%x tc:%d s:%d ttl:%d  fframe: %s]",
-			this,
-			get_mpls_label(),
-			get_mpls_tc(),
-			get_mpls_bos(),
-			get_mpls_ttl(),
-			fframe::c_str()));
-
-	return info.c_str();
-}
-
-
 void
 fmplsframe::set_mpls_label(uint32_t label)
 {
@@ -144,7 +127,7 @@ fmplsframe::set_mpls_label(uint32_t label)
 
 
 uint32_t
-fmplsframe::get_mpls_label()
+fmplsframe::get_mpls_label() const
 {
 	uint32_t label =
 			(mpls_hdr->label[0] << 12) +
@@ -162,7 +145,7 @@ fmplsframe::set_mpls_tc(uint8_t tc)
 
 
 uint8_t
-fmplsframe::get_mpls_tc()
+fmplsframe::get_mpls_tc() const
 {
 	return ((mpls_hdr->label[2] & 0x0e) >> 1);
 }
@@ -183,7 +166,7 @@ fmplsframe::set_mpls_ttl(uint8_t ttl)
 
 
 uint8_t
-fmplsframe::get_mpls_ttl()
+fmplsframe::get_mpls_ttl() const
 {
 	return mpls_hdr->ttl;
 }
@@ -200,7 +183,7 @@ fmplsframe::set_mpls_bos(bool flag)
 
 
 bool
-fmplsframe::get_mpls_bos()
+fmplsframe::get_mpls_bos() const
 {
 	return ((mpls_hdr->label[2] & 0x01) ? true : false);
 }

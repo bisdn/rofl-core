@@ -130,10 +130,6 @@ cofdptImpl::cofdptImpl(
 
 cofdptImpl::~cofdptImpl()
 {
-	WRITELOG(COFDPT, DBG, "cofdpt(%p)::~cofdpt() "
-			"dpid:%"PRIu64"  %s",
-			this, dpid, this->c_str());
-
 	// remove all cofport instances
 	while (not ports.empty())
 	{
@@ -298,9 +294,7 @@ cofdptImpl::handle_read(
 
 	} catch (eOFpacketInval& e) {
 
-		WRITELOG(COFDPT, ERROR, "cofctl(%p)::handle_read() "
-				"invalid packet received, dropping. Closing socket. Packet: %s",
-				this, mem->c_str());
+		logging::warn << "dropping invalid packet " << *mem << std::endl;
 		if (mem) {
 			delete mem; fragment = (cmemory*)0;
 		}
@@ -353,9 +347,8 @@ cofdptImpl::handle_message(
 		const uint8_t OFPT_HELLO = 0;
 
 		if (not flags.test(COFDPT_FLAG_HELLO_RCVD) && (OFPT_HELLO != ofh_header->type)) {
-			writelog(COFDPT, WARN, "cofdpt(%p)::handle_message() "
-				"no HELLO rcvd yet, dropping message, msg: %s", this, mem->c_str());
-			delete mem; return;
+	    	logging::error << "dropping message (missing HELLO from peer) " << *mem << " " << *this << std::endl;
+	    	delete mem; return;
 		}
 
 		switch (ofp_version) {
@@ -479,8 +472,7 @@ cofdptImpl::handle_message(
 				queue_get_config_reply_rcvd(dynamic_cast<cofmsg_queue_get_config_reply*>( msg ));
 			} break;
 			default: {
-				WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
-						"dropping packet: %s", this, mem->c_str());
+				logging::warn << "dropping unknown message " << *mem << std::endl;
 				delete mem;
 			} return;
 			}
@@ -629,8 +621,7 @@ cofdptImpl::handle_message(
 				get_async_config_reply_rcvd(dynamic_cast<cofmsg_get_async_config_reply*>( msg ));
 			} break;
 			default: {
-				WRITELOG(COFDPT, WARN, "cofdpt(%p)::handle_message() "
-						"dropping packet: %s", this, mem->c_str());
+				logging::warn << "dropping unknown message " << *mem << std::endl;
 				delete mem;
 			} return;
 			}
@@ -640,25 +631,19 @@ cofdptImpl::handle_message(
 			throw eBadVersion();
 		}
 
-
-
-
 	} catch (eBadSyntaxTooShort& e) {
 
-		writelog(COFCTL, WARN, "cofdpt(%p)::handle_message() "
-				"invalid length value for reply received, msg: %s", this, mem->c_str());
+		logging::warn << "eBadSyntaxTooShort " << *mem << std::endl;
 
 		delete msg;
 	} catch (eBadVersion& e) {
 
-		writelog(COFCTL, WARN, "cofdpt(%p)::handle_message() "
-				"ofp_header.version not supported, pack: %s", this, mem->c_str());
+		logging::warn << "eBadVersion " << *mem << std::endl;
 
 		delete msg;
 	} catch (eRofBaseXidInval& e) {
 
-		writelog(COFDPT, ERROR, "cofdpt(%p)::handle_message() "
-				"message with invalid transaction id received, message: %s", this, mem->c_str());
+		logging::warn << "eRofBaseXidInval " << *mem << std::endl;
 
 		delete msg;
 	}
@@ -674,10 +659,8 @@ cofdptImpl::send_message(
 
     if (not flags.test(COFDPT_FLAG_HELLO_RCVD) && (msg->get_type() != OFPT_HELLO))
     {
-        WRITELOG(CFWD, DBG, "cofdpt(%p)::send_message() "
-            "dropping message, as no HELLO rcvd from peer yet => pack: %s",
-            this, msg->c_str());
-        delete msg; return;
+    	logging::error << "dropping message (missing HELLO from peer) " << *msg << " " << *this << std::endl;
+    	delete msg; return;
     }
 
     switch (msg->get_version()) {
@@ -717,8 +700,7 @@ cofdptImpl::send_message(
     		queue_get_config_request_sent(msg);
     	} break;
     	default: {
-    		WRITELOG(COFDPT, WARN, "cofdpt(%p)::send_message() "
-    				"dropping invalid packet: %s", this, msg->c_str());
+        	logging::error << "dropping invalid packet " << *msg << " " << *this << std::endl;
     		delete msg;
     	} return;
     	}
@@ -765,9 +747,7 @@ cofdptImpl::send_message(
     		role_request_sent(msg);
     	} break;
     	default: {
-    		WRITELOG(COFDPT, WARN, "cofdpt(%p)::send_message() "
-    				"dropping invalid packet: %s", this, msg->c_str());
-    		delete msg;
+        	logging::error << "dropping invalid packet " << *msg << " " << *this << std::endl;    		delete msg;
     	} return;
     	}
 
@@ -817,9 +797,7 @@ cofdptImpl::send_message(
     		get_async_config_request_sent(msg);
     	} break;
     	default: {
-    		WRITELOG(COFDPT, WARN, "cofdpt(%p)::send_message() "
-    				"dropping invalid packet: %s", this, msg->c_str());
-    		delete msg;
+        	logging::error << "dropping invalid packet " << *msg << " " << *this << std::endl;    		delete msg;
     	} return;
     	}
 
@@ -890,8 +868,6 @@ void
 cofdptImpl::hello_rcvd(cofmsg_hello *msg)
 {
 	try {
-		WRITELOG(COFRPC, DBG, "cofdpt(%p)::hello_rcvd() pack: %s", this, msg->c_str());
-
 		// OpenFlow versions do not match, send error, close connection
 		if (not rofbase->is_ofp_version_supported(msg->get_version()))
 		{
@@ -938,8 +914,7 @@ cofdptImpl::hello_rcvd(cofmsg_hello *msg)
 
 	} catch (eHelloIncompatible& e) {
 
-		writelog(CROFBASE, ERROR, "cofctl(%p)::hello_rcvd() "
-				"No compatible version, pack: %s", this, msg->c_str());
+		logging::error << "eHelloIncompatible " << *msg << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -952,8 +927,7 @@ cofdptImpl::hello_rcvd(cofmsg_hello *msg)
 		handle_closed(socket, socket->sd);
 	} catch (eHelloEperm& e) {
 
-		writelog(CROFBASE, ERROR, "cofctl(%p)::hello_rcvd() "
-				"Permissions error, pack: %s", this, msg->c_str());
+		logging::error << "eHelloEperm " << *msg << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1065,12 +1039,6 @@ cofdptImpl::features_reply_rcvd(
 		} break;
 		}
 
-		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() "
-				"dpid:%"PRIu64" pack:%s",
-				this, dpid, msg->c_str());
-
-		WRITELOG(COFDPT, DBG, "cofdpt(%p)::features_reply_rcvd() %s", this, this->c_str());
-
 
 
 		// dpid as std::string
@@ -1099,7 +1067,7 @@ cofdptImpl::features_reply_rcvd(
 
 	} catch (eOFportMalformed& e) {
 
-		WRITELOG(COFDPT, DBG, "exception: malformed FEATURES reply received");
+		logging::error << "eOFportMalformed " << *msg << std::endl;
 
 		socket->cclose();
 
@@ -1536,8 +1504,6 @@ void
 cofdptImpl::packet_in_rcvd(cofmsg_packet_in *msg)
 {
 	try {
-		WRITELOG(COFDPT, DBG, "cofdpt(%p)::packet_in_rcvd() %s", this, msg->c_str());
-
 #if 0
 		// update forwarding table
 		uint32_t in_port = msg->match.get_in_port();
@@ -1567,8 +1533,7 @@ cofdptImpl::packet_in_rcvd(cofmsg_packet_in *msg)
 		}
 	} catch (eOFmatchNotFound& e) {
 
-		WRITELOG(COFDPT, DBG, "cofdpt(0x%llx)::packet_in_rcvd() "
-				"no in-port specified in Packet-In message", dpid);
+		logging::error << "eOFmatchNotFound " << *msg << std::endl;
 	}
 }
 
@@ -1577,9 +1542,6 @@ cofdptImpl::packet_in_rcvd(cofmsg_packet_in *msg)
 void
 cofdptImpl::port_status_rcvd(cofmsg_port_status *msg)
 {
-	WRITELOG(COFDPT, DBG, "cofdpt(0x%016llx)::port_status_rcvd() %s",
-			dpid, msg->c_str());
-
 	std::map<uint32_t, cofport*>::iterator it;
 	switch (msg->get_reason()) {
 	case OFPPR_ADD: {
@@ -1750,22 +1712,6 @@ cofdptImpl::handle_get_async_config_reply_timeout()
 
 
 
-const char*
-cofdptImpl::c_str()
-{
-	cvastring vas;
-	info.assign(vas("cofdpt(%p) dpid:0x%llx buffers: %d tables: %d capabilities: 0x%x =>",
-			this, dpid, n_buffers, n_tables, capabilities));
-
-	std::map<uint32_t, cofport*>::iterator it;
-	for (it = ports.begin(); it != ports.end(); ++it)
-	{
-		info.append(vas("\n  %s", it->second->c_str()));
-	}
-
-	return info.c_str();
-}
-
 
 
 cofport*
@@ -1854,9 +1800,6 @@ cofdptImpl::send_message_via_socket(
 	cmemory *mem = new cmemory(pack->length());
 
 	pack->pack(mem->somem(), mem->memlen());
-
-	WRITELOG(COFDPT, DBG, "cofdpt(%p): new cmemory: %s",
-				this, mem->c_str());
 
 	delete pack;
 

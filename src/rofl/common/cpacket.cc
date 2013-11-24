@@ -13,20 +13,6 @@ std::set<cpacket*> 	cpacket::cpacket_list;
 
 
 
-const char*
-cpacket::cpacket_info()
-{
-	RwLock lock(&cpacket::cpacket_lock, RwLock::RWLOCK_READ);
-	cvastring vas(2048);
-	s_cpacket_info.assign(vas("cpackets: #%lu ", cpacket::cpacket_list.size()));
-	for (std::set<cpacket*>::iterator
-			it = cpacket::cpacket_list.begin();
-				it != cpacket::cpacket_list.end(); ++it)
-	{
-		s_cpacket_info.append(vas("  %s", (*it)->c_str()));
-	}
-	return s_cpacket_info.c_str();
-}
 
 
 void
@@ -467,65 +453,6 @@ cpacket::tag_remove(
 	ether()->reset(data.first, sizeof(struct fetherframe::eth_hdr_t));
 }
 
-
-
-const char*
-cpacket::c_str()
-{
-	cvastring vas(4096);
-
-	info.assign(vas("cpacket(%p) \n", this));
-
-	info.append(vas("  match: %s\n", match.c_str()));
-
-	info.append(vas("  head: %p  tail: %p\n", head, tail));
-
-	for (fframe* curr = head; curr != 0; curr = curr->next)
-	{
-		info.append(vas("  %s\n", curr->c_str()));
-	}
-
-	info.append(vas("  soframe(): %p framelen(): %lu\n", soframe(), framelen()));
-
-	info.append(data_c_str());
-
-
-
-	return info.c_str();
-}
-
-
-
-const char*
-cpacket::data_c_str()
-{
-	d_info.clear();
-
-	cvastring vas;
-
-	d_info.assign(vas("data:\n%p : ", data.first));
-
-	for (int i = 0; i < (int)data.second; ++i)
-	{
-		char t[8];
-		memset(t, 0, sizeof(t));
-
-		snprintf(t, sizeof(t)-1, "%02x ", (data.first[i]));
-		d_info.append(t);
-		if ((0 == ((i+1) % 16)))
-		{
-			char ptr[32]; memset(ptr, 0x00, sizeof(ptr));
-			snprintf(ptr, sizeof(ptr)-1, "\n%p : ", data.first + (i+1));
-			d_info.append(ptr);
-		}
-		else if ((0 == ((i+1) % 4)))
-		{
-			d_info.append("  ");
-		}
-	}
-
-	return d_info.c_str();
-}
 
 
 
@@ -1670,8 +1597,8 @@ cpacket::push_vlan(uint16_t ethertype)
 		match.set_vlan_pcp(outer_pcp);
 #endif
 
-		WRITELOG(CPACKET, DBG, "cpacket(%p)::push_vlan() "
-				"mem: %s", this, mem.c_str());
+		//WRITELOG(CPACKET, DBG, "cpacket(%p)::push_vlan() "
+		//		"mem: %s", this, mem.c_str());
 
 	} catch (eMemAllocFailed& e) {
 
@@ -1709,12 +1636,12 @@ cpacket::pop_vlan()
 
 	} catch (ePacketNotFound& e) {
 
-		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_vlan() "
-				"no vlan tag found, mem: %s", this, mem.c_str());
+		//WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_vlan() "
+		//		"no vlan tag found, mem: %s", this, mem.c_str());
 	} catch (ePacketInval& e) {
 
-		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_vlan() "
-				"vlan tag is not outer tag, ignoring pop command, mem: %s", this, mem.c_str());
+		//WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_vlan() "
+		//		"vlan tag is not outer tag, ignoring pop command, mem: %s", this, mem.c_str());
 	}
 }
 
@@ -1763,8 +1690,8 @@ cpacket::push_mpls(uint16_t ethertype)
 		match.set_mpls_label(outer_label);
 		match.set_mpls_tc(outer_tc);
 
-		WRITELOG(CPACKET, DBG, "cpacket(%p)::push_mpls() "
-				"mem: %s", this, mem.c_str());
+		//WRITELOG(CPACKET, DBG, "cpacket(%p)::push_mpls() "
+		//		"mem: %s", this, mem.c_str());
 
 
 	} catch (eMemAllocFailed& e) {
@@ -1809,12 +1736,12 @@ cpacket::pop_mpls(uint16_t ethertype)
 
 	} catch (ePacketNotFound& e) {
 
-		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_mpls() "
-				"no mpls tag found, mem: %s", this, mem.c_str());
+		//WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_mpls() "
+		//		"no mpls tag found, mem: %s", this, mem.c_str());
 	} catch (ePacketInval& e) {
 
-		WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_mpls() "
-				"mpls tag is not outer tag, ignoring pop command, mem: %s", this, mem.c_str());
+		//WRITELOG(CPACKET, DBG, "cpacket(%p)::pop_mpls() "
+		//		"mpls tag is not outer tag, ignoring pop command, mem: %s", this, mem.c_str());
 	}
 }
 
@@ -1956,8 +1883,8 @@ cpacket::parse_ether(
 	match.set_eth_src(ether->get_dl_src());
 	match.set_eth_type(ether->get_dl_type());
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_ether() "
-			"ether: %s\nmatch: %s", this, ether->c_str(), match.c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_ether() "
+	//		"ether: %s\nmatch: %s", this, ether->c_str(), match.c_str());
 
 	frame_append(ether);
 
@@ -2035,8 +1962,8 @@ cpacket::parse_vlan(
 	// set ethernet type based on innermost vlan tag
 	match.set_eth_type(vlan->get_dl_type());
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_vlan() "
-			"vlan: %s\nmatch: %s", this, vlan->c_str(), match.c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_vlan() "
+	//		"vlan: %s\nmatch: %s", this, vlan->c_str(), match.c_str());
 
 	frame_append(vlan);
 
@@ -2112,8 +2039,8 @@ cpacket::parse_mpls(
 		flags.set(FLAG_MPLS_PRESENT);
 	}
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_mpls() "
-			"mpls: %s\nmatch: %s", this, mpls->c_str(), match.c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_mpls() "
+	//		"mpls: %s\nmatch: %s", this, mpls->c_str(), match.c_str());
 
 	frame_append(mpls);
 
@@ -2164,8 +2091,8 @@ cpacket::parse_arpv4(
 
 	frame_append(arp);
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_arpv4() "
-			"arp: %s\nmatch: %s", this, arp->c_str(), match.c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_arpv4() "
+	//		"arp: %s\nmatch: %s", this, arp->c_str(), match.c_str());
 
 	p_ptr += sizeof(struct farpv4frame::arpv4_hdr_t);
 	p_len -= sizeof(struct farpv4frame::arpv4_hdr_t);
@@ -2296,8 +2223,8 @@ cpacket::parse_icmpv4(
 
 	frame_append(icmp);
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_icmpv4() "
-			"icmp: %s\nmatch: %s", this, icmp->c_str(), match.c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_icmpv4() "
+	//		"icmp: %s\nmatch: %s", this, icmp->c_str(), match.c_str());
 
 #if 0
 	p_ptr += sizeof(struct ficmpv4frame::icmpv4_hdr_t);
@@ -2338,8 +2265,8 @@ cpacket::parse_ipv6(
 
 	frame_append(ip);
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_ipv6() "
-			"ip: %s\nmatch: %s", this, ip->c_str(), match.c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_ipv6() "
+	//		"ip: %s\nmatch: %s", this, ip->c_str(), match.c_str());
 
 	p_ptr += sizeof(struct fipv6frame::ipv6_hdr_t);
 	p_len -= sizeof(struct fipv6frame::ipv6_hdr_t);
@@ -2410,8 +2337,8 @@ cpacket::parse_icmpv6(
 
 	frame_append(icmp);
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_icmpv6() "
-			"icmp: %s\nmatch: %s", this, icmp->c_str(), match.c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_icmpv6() "
+	//		"icmp: %s\nmatch: %s", this, icmp->c_str(), match.c_str());
 
 	p_ptr += sizeof(struct ficmpv6frame::icmpv6_hdr_t);
 	p_len -= sizeof(struct ficmpv6frame::icmpv6_hdr_t);
@@ -2447,8 +2374,8 @@ cpacket::parse_udp(
 
 	frame_append(udp);
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_udp() "
-			"udp: %s\nmatch: %s", this, udp->c_str(), match.c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_udp() "
+	//		"udp: %s\nmatch: %s", this, udp->c_str(), match.c_str());
 
 	p_ptr += sizeof(struct fudpframe::udp_hdr_t);
 	p_len -= sizeof(struct fudpframe::udp_hdr_t);
@@ -2487,8 +2414,8 @@ cpacket::parse_tcp(
 
 	frame_append(tcp);
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_tcp() "
-			"tcp: %s\nmatch: %s", this, tcp->c_str(), match.c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_tcp() "
+	//		"tcp: %s\nmatch: %s", this, tcp->c_str(), match.c_str());
 
 	p_ptr += sizeof(struct ftcpframe::tcp_hdr_t);
 	p_len -= sizeof(struct ftcpframe::tcp_hdr_t);
@@ -2525,8 +2452,8 @@ cpacket::parse_sctp(
 
 	frame_append(sctp);
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_sctp() "
-			"sctp: %s\nmatch: %s", this, sctp->c_str(), match.c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::parse_sctp() "
+	//		"sctp: %s\nmatch: %s", this, sctp->c_str(), match.c_str());
 
 	p_ptr += sizeof(struct fsctpframe::sctp_hdr_t);
 	p_len -= sizeof(struct fsctpframe::sctp_hdr_t);
@@ -2720,15 +2647,15 @@ void
 cpacket::action_set_field(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_field() [1] pack: %s",
-				this,
-				c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_field() [1] pack: %s",
+	//			this,
+	//			c_str());
 
 	set_field(action.get_oxm());
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_field() [2] pack: %s",
-				this,
-				c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_field() [2] pack: %s",
+	//			this,
+	//			c_str());
 }
 
 
@@ -2756,13 +2683,13 @@ void
 cpacket::action_set_mpls_ttl(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_mpls_ttl() "
-			"set to mpls ttl [%d] [1] pack: %s", this, action.oac_12mpls_ttl->mpls_ttl, c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_mpls_ttl() "
+	//		"set to mpls ttl [%d] [1] pack: %s", this, action.oac_12mpls_ttl->mpls_ttl, c_str());
 
 	set_mpls_ttl(action.oac_12mpls_ttl->mpls_ttl);
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_mpls_ttl() "
-			"set to mpls ttl [%d] [2] pack: %s", this, action.oac_12mpls_ttl->mpls_ttl, c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_mpls_ttl() "
+	//		"set to mpls ttl [%d] [2] pack: %s", this, action.oac_12mpls_ttl->mpls_ttl, c_str());
 }
 
 
@@ -2770,13 +2697,13 @@ void
 cpacket::action_dec_mpls_ttl(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_dec_mpls_ttl() [1] pack: %s",
-				this, c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_dec_mpls_ttl() [1] pack: %s",
+	//			this, c_str());
 
 	dec_mpls_ttl();
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_dec_mpls_ttl() [2] pack: %s",
-				this, c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_dec_mpls_ttl() [2] pack: %s",
+	//			this, c_str());
 }
 
 
@@ -2784,13 +2711,13 @@ void
 cpacket::action_push_vlan(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_vlan() "
-				 "set to vlan [%d] [1] pack: %s", this, be16toh(action.oac_12push->ethertype), c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_vlan() "
+	//			 "set to vlan [%d] [1] pack: %s", this, be16toh(action.oac_12push->ethertype), c_str());
 
 	push_vlan(be16toh(action.oac_12push->ethertype));
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_vlan() "
-			 	 "set to vlan [%d] [2] pack: %s", this, be16toh(action.oac_12push->ethertype), c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_vlan() "
+	//		 	 "set to vlan [%d] [2] pack: %s", this, be16toh(action.oac_12push->ethertype), c_str());
 }
 
 
@@ -2798,11 +2725,11 @@ void
 cpacket::action_pop_vlan(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_vlan() [1] pack: %s", this, c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_vlan() [1] pack: %s", this, c_str());
 
 	pop_vlan();
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_vlan() [2] pack: %s", this, c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_vlan() [2] pack: %s", this, c_str());
 }
 
 
@@ -2810,13 +2737,13 @@ void
 cpacket::action_push_mpls(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_mpls() "
-			"set to mpls [%d] [1] pack: %s", this, be16toh(action.oac_12push->ethertype), c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_mpls() "
+	//		"set to mpls [%d] [1] pack: %s", this, be16toh(action.oac_12push->ethertype), c_str());
 
 	push_mpls(be16toh(action.oac_12push->ethertype));
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_mpls() "
-			"set to mpls [%d] [2] pack: %s", this, be16toh(action.oac_12push->ethertype), c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_mpls() "
+	//		"set to mpls [%d] [2] pack: %s", this, be16toh(action.oac_12push->ethertype), c_str());
 }
 
 
@@ -2824,11 +2751,11 @@ void
 cpacket::action_pop_mpls(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_mpls() [1] pack: %s", this, c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_mpls() [1] pack: %s", this, c_str());
 
 	pop_mpls(be16toh(action.oac_12pop_mpls->ethertype));
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_mpls() [2] pack: %s", this, c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_mpls() [2] pack: %s", this, c_str());
 }
 
 
@@ -2836,13 +2763,13 @@ void
 cpacket::action_set_nw_ttl(
 		cofaction& action)
 {
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_nw_ttl() [1] "
-				 "set nw-ttl [%d] pack: %s", this, action.oac_12nw_ttl->nw_ttl, c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_nw_ttl() [1] "
+	//			 "set nw-ttl [%d] pack: %s", this, action.oac_12nw_ttl->nw_ttl, c_str());
 
 	set_nw_ttl(action.oac_12nw_ttl->nw_ttl);
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_nw_ttl() [2] "
-			 	 "set tnw-ttl [%d] pack: %s", this, action.oac_12nw_ttl->nw_ttl, c_str());
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_nw_ttl() [2] "
+	//		 	 "set tnw-ttl [%d] pack: %s", this, action.oac_12nw_ttl->nw_ttl, c_str());
 }
 
 
@@ -2852,7 +2779,7 @@ cpacket::action_dec_nw_ttl(
 {
 	dec_nw_ttl();
 
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_dec_nw_ttl() ", this);
+	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_dec_nw_ttl() ", this);
 }
 
 

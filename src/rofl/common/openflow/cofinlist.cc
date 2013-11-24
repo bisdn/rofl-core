@@ -10,7 +10,6 @@ cofinlist::cofinlist(
 		uint8_t ofp_version) :
 				ofp_version(ofp_version)
 {
-	WRITELOG(COFINST, DBG, "cofinlist(%p)::cofinlist()", this);
 }
 
 
@@ -39,7 +38,6 @@ cofinlist::operator= (
 
 cofinlist::~cofinlist()
 {
-	WRITELOG(COFINST, DBG, "cofinlist(%p)::~cofinlist()", this);
 }
 
 
@@ -112,19 +110,6 @@ cofinlist::length() const
 }
 
 
-const char*
-cofinlist::c_str()
-{
-	cvastring vas(4096);
-	info.assign(vas("cofinlist(%p) %d instruction(s): ", this, elems.size()));
-	cofinlist::iterator it;
-	for (it = elems.begin(); it != elems.end(); ++it)
-	{
-		info.append(vas("\n  %s ", (*it).c_str()));
-	}
-
-	return info.c_str();
-}
 
 
 cofinst&
@@ -133,15 +118,8 @@ cofinlist::find_inst(
 throw (eInListNotFound)
 {
 	cofinlist::iterator it;
-	for (it = elems.begin(); it != elems.end(); ++it)
-	{
-		WRITELOG(COFINST, DBG, "cofinlist(%p)::find_inst() %d => %s",
-				this, elems.size(), (*it).c_str());
-	}
-
 	if ((it = find_if(elems.begin(), elems.end(),
-			cofinst_find_type((uint16_t)type))) == elems.end())
-	{
+			cofinst_find_type((uint16_t)type))) == elems.end()) {
 		throw eInListNotFound();
 	}
 	return (*it);
@@ -157,7 +135,7 @@ cofinlist::test()
 	inlist[0] = cofinst_write_actions(OFP12_VERSION);
 	inlist[0].actions[0] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_mpls_label(111111));
 
-	fprintf(stderr, "XXX => %s\n", inlist.c_str());
+	std::cerr << "XXX => " << inlist << std::endl;
 
 	fprintf(stderr, "--------------------------\n");
 
@@ -170,13 +148,13 @@ cofinlist::test()
 	inlist2[2].actions[0] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_vlan_vid(1111));
 	inlist2[2].actions[1] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_mpls_tc(7));
 
-	fprintf(stderr, "YYY => %s\n", inlist2.c_str());
+	std::cerr << "YYY => " << inlist2 << std::endl;
 
 	fprintf(stderr, "--------------------------\n");
 
 	inlist2 = inlist;
 
-	fprintf(stderr, "ZZZ => %s\n", inlist2.c_str());
+	std::cerr << "ZZZ => " << inlist2 << std::endl;
 
 	fprintf(stderr, "--------------------------\n");
 }

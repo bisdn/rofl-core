@@ -167,8 +167,8 @@ ethswitch::handle_packet_in(
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
 		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
 
-		fprintf(stderr, "etherswitch: installing FLOW-MOD with entry: %s\n",
-				fe.c_str());
+		fprintf(stderr, "etherswitch: installing FLOW-MOD with entry: ");
+		std::cerr << fe << std::endl;
 
 		send_flow_mod_message(dpt, fe);
 

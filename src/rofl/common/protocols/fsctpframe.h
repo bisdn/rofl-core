@@ -132,16 +132,12 @@ public: // overloaded from fframe
 	virtual size_t
 	payloadlen() const throw (eFrameNoPayload);
 
-	/** dump info
-	 *
-	 */
-	virtual const char*
-	c_str();
+public:
 
 	/**
 	 */
 	uint16_t
-	get_sport();
+	get_sport() const;
 
 	/**
 	 */
@@ -151,7 +147,7 @@ public: // overloaded from fframe
 	/**
 	 */
 	uint16_t
-	get_dport();
+	get_dport() const;
 
 	/**
 	 */
@@ -169,13 +165,17 @@ public: // data structures
 	// udp payload length
 	size_t datalen;
 
-private: // data structures
+public:
 
-	//< info string
-	std::string info;
-
-private: // methods
-
+	friend std::ostream&
+	operator<< (std::ostream& os, fsctpframe const& frame) {
+		os << "<fsctpframe ";
+			os << "dport:" << (int)frame.get_dport() << " ";
+			os << "sport:" << (int)frame.get_sport() << " ";
+			os << std::endl << dynamic_cast<fframe const&>( frame ) << std::endl;
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

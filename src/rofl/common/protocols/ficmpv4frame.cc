@@ -125,22 +125,6 @@ ficmpv4frame::validate(uint16_t total_len) throw (eICMPv4FrameTooShort)
 }
 
 
-const char*
-ficmpv4frame::c_str()
-{
-	cvastring vas;
-
-	info.assign(vas("[ficmpv4frame(%p) type[%d] code[%d] checksum[0x%x] %s]",
-			this,
-			be16toh(icmp_hdr->type),
-			be16toh(icmp_hdr->code),
-			be16toh(icmp_hdr->checksum),
-			fframe::c_str() ));
-
-	return info.c_str();
-}
-
-
 
 void
 ficmpv4frame::icmpv4_calc_checksum(uint16_t length)
@@ -182,7 +166,7 @@ ficmpv4frame::icmpv4_calc_checksum(uint16_t length)
 
 
 uint8_t
-ficmpv4frame::get_icmp_code()
+ficmpv4frame::get_icmp_code() const
 {
 	return icmp_hdr->code;
 }
@@ -196,7 +180,7 @@ ficmpv4frame::set_icmp_code(uint8_t code)
 
 
 uint8_t
-ficmpv4frame::get_icmp_type()
+ficmpv4frame::get_icmp_type() const
 {
 	return icmp_hdr->type;
 }

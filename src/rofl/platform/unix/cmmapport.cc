@@ -324,8 +324,6 @@ cmmapport::~cmmapport()
 void
 cmmapport::handle_event(cevent const& ev)
 {
-	WRITELOG(CPORT, DBG, "cmmapport(%s:%p)::handle_event() event:%s",
-			devname.c_str(), this, cevent(ev).c_str());
 	switch (ev.cmd) {
 	default:
 		clinuxport::handle_event(ev);

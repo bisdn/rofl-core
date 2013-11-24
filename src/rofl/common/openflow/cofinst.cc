@@ -229,57 +229,6 @@ cofinst::length() const throw (eInstructionInvalType)
 
 
 
-const char*
-cofinst::c_str()
-{
-	Lock lock(&inmutex);
-
-	cvastring vas(4096);
-
-	switch (be16toh(oin_header->type)) {
-	case OFPIT_APPLY_ACTIONS:
-		{
-			info.assign(vas("cofinst(%p) OFPIT_APPLY_ACTIONS length: %03d \n%s",
-					this, length(), actions.c_str()));
-		}
-		break;
-	case OFPIT_WRITE_ACTIONS:
-		{
-			info.assign(vas("cofinst(%p) OFPIT_WRITE_ACTIONS length: %03d \n%s",
-					this, length(), actions.c_str()));
-		}
-		break;
-	case OFPIT_CLEAR_ACTIONS:
-		{
-			info.assign(vas("cofinst(%p) OFPIT_CLEAR_ACTIONS length: %03d \n%s",
-					this, length(), actions.c_str()));
-		}
-		break;
-	case OFPIT_WRITE_METADATA:
-		{
-			info.assign(vas("cofinst(%p) OFPIT_WRITE_METADATA length: %03d metadata[%lu] mask[%lu]",
-					this,
-					length(),
-					be64toh(oin_write_metadata->metadata),
-					be64toh(oin_write_metadata->metadata_mask)));
-		}
-		break;
-	case OFPIT_GOTO_TABLE:
-		{
-			info.assign(vas("cofinst(%p) OFPIT_GOTO_TABLE length: %03d table_id[%d]",
-					this,
-					length(),
-					oin_goto_table->table_id));
-		}
-		break;
-	default:
-		//throw eInstructionInvalType();
-		info.assign(vas("cofinst(%p) UNKNOWN INSTRUCTION", this));
-		break;
-	}
-	return info.c_str();
-}
-
 
 cofaction&
 cofinst::find_action(enum ofp_action_type type)

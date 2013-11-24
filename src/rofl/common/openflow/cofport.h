@@ -51,7 +51,6 @@ private: // data structures
 
 	uint8_t								 of_version;	// OpenFlow version of port stored (OFP10_VERSION, OFP12_VERSION, ...)
 	std::map<uint32_t, cofport*> 		*port_list; 	// port_list this port belongs to
-	std::string 						 info; 			// info string
 	cmemory 							 memarea;		// ofpXX_port structure
 	cofport_stats_reply					 port_stats;
 
@@ -236,12 +235,6 @@ public:
 			struct ofp13_port *port,
 			size_t portlen) throw (eOFportInval);
 
-
-
-	/** dump internals
-	 */
-	const char*
-	c_str();
 
 
 	/**

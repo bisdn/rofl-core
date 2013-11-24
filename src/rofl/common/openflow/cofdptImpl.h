@@ -5,8 +5,8 @@
  *      Author: andreas
  */
 
-#ifndef COFDPTIMPL_H_
-#define COFDPTIMPL_H_
+#ifndef COFDPTIMPL_H
+#define COFDPTIMPL_H 1
 
 #include <map>
 #include <set>
@@ -21,6 +21,7 @@
 #include "rofl/common/cfsm.h"
 #include "rofl/common/protocols/fetherframe.h"
 #include "rofl/common/csocket.h"
+#include "rofl/common/logging.h"
 
 #include "../openflow/messages/cofmsg.h"
 #include "../openflow/messages/cofmsg_hello.h"
@@ -239,15 +240,6 @@ public:
 	send_message(
 			cofmsg *msg);
 
-
-
-	/**
-	 * @brief	Returns a C-string with a description of this cofdpt instance.
-	 *
-	 * @return C-string
-	 */
-	virtual const char*
-	c_str();
 
 
 	/**
@@ -938,6 +930,33 @@ private:
 	void
 	send_message_via_socket(
 			cofmsg *msg);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofdptImpl const& dpt) {
+		os << "<cofdptImpl ";
+			// TODO
+#if 0
+		const char*
+		cofdptImpl::c_str()
+		{
+			cvastring vas;
+			info.assign(vas("cofdpt(%p) dpid:0x%llx buffers: %d tables: %d capabilities: 0x%x =>",
+					this, dpid, n_buffers, n_tables, capabilities));
+
+			std::map<uint32_t, cofport*>::iterator it;
+			for (it = ports.begin(); it != ports.end(); ++it)
+			{
+				info.append(vas("\n  %s", it->second->c_str()));
+			}
+
+			return info.c_str();
+		}
+#endif
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

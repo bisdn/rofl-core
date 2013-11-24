@@ -130,22 +130,16 @@ fpppoeframe::validate(uint16_t total_len)
 
           if (!complete())
           {
-                  WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
-                                                          "invalid PPPoE frame rcvd: incomplete => %s", this, c_str());
                   throw ePPPoEFrameTooShort();
           }
 
           if (PPPOE_TYPE != get_pppoe_type())
           {
-                  WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
-                                                          "invalid PPPoE frame rcvd: type => %s", this, c_str());
                   throw ePPPoEFrameInvalType();
           }
 
           if (PPPOE_VERSION != get_pppoe_vers())
           {
-                  WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
-                                                          "invalid PPPoE frame rcvd: version => %s", this, c_str());
                   throw ePPPoEFrameInvalVersion();
           }
 
@@ -365,7 +359,7 @@ fpppoeframe::validate_pppoe_session()
 }
 
 uint8_t
-fpppoeframe::get_pppoe_vers()
+fpppoeframe::get_pppoe_vers() const
 {
 	return ((pppoe_hdr->verstype & 0xf0) >> 4);
 }
@@ -377,7 +371,7 @@ fpppoeframe::set_pppoe_vers(uint8_t version)
 }
 
 uint8_t
-fpppoeframe::get_pppoe_type()
+fpppoeframe::get_pppoe_type() const
 {
 	return (pppoe_hdr->verstype & 0x0f);
 }
@@ -389,7 +383,7 @@ fpppoeframe::set_pppoe_type(uint8_t type)
 }
 
 uint8_t
-fpppoeframe::get_pppoe_code()
+fpppoeframe::get_pppoe_code() const
 {
 	return pppoe_hdr->code;
 }
@@ -401,7 +395,7 @@ fpppoeframe::set_pppoe_code(uint8_t code)
 }
 
 uint16_t
-fpppoeframe::get_pppoe_sessid()
+fpppoeframe::get_pppoe_sessid() const
 {
 	return be16toh(pppoe_hdr->sessid);
 }
@@ -526,23 +520,6 @@ fpppoeframe::unpack(uint8_t *frame, size_t framelen) throw (ePPPoEInval, eFrameI
 }
 
 
-
-
-const char*
-fpppoeframe::c_str()
-{
-	cvastring vas(1024);
-
-	info.assign(vas("[fpppoeframe(%p) code:0x%02x type:0x%02x length:%d sess:0x%04x [tags:%s] ]",
-			this,
-			get_pppoe_code(),
-			get_pppoe_type(),
-			get_hdr_length(),
-			get_pppoe_sessid(),
-			tags.c_str() ));
-
-	return info.c_str();
-}
 
 
 /*static*/ void

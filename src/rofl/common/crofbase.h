@@ -28,6 +28,7 @@
 #include "cphyport.h"
 #include "csocket.h"
 #include "thread_helper.h"
+#include "logging.h"
 
 #include "openflow/openflow.h"
 #include "openflow/openflow_rofl.h"
@@ -177,14 +178,6 @@ public:
 	wakeup();
 
 
-
-	/**
-	 * @brief	returns a static c-string with information about this crofbase instance
-	 *
-	 * @result static c-string
-	 */
-	virtual const char*
-	c_str();
 
 
 	/**
@@ -2678,6 +2671,22 @@ private:
 	bool
 	is_ofp_version_supported(uint8_t ofp_version);
 
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, crofbase const& rofbase) {
+		os << "<crofbase ";
+		for (std::set<cofctl*>::const_iterator
+				it = rofbase.ofctl_set.begin(); it != rofbase.ofctl_set.end(); ++it) {
+			os << "    " << (*it) << std::endl;
+		}
+		for (std::set<cofdpt*>::const_iterator
+				it = rofbase.ofdpt_set.begin(); it != rofbase.ofdpt_set.end(); ++it) {
+			os << "    " << (*it) << std::endl;
+		}
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

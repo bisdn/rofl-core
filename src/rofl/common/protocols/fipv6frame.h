@@ -231,13 +231,6 @@ public: // overloaded from fframe
 	virtual size_t
 	payloadlen() const throw (eFrameNoPayload);
 
-
-	/** dump info
-	 *
-	 */
-	virtual const char*
-	c_str();
-
 public:
 
 	/**

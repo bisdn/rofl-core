@@ -22,6 +22,7 @@
 #include "caddress.h"
 #include "cmemory.h"
 #include "thread_helper.h"
+#include "logging.h"
 
 namespace rofl
 {

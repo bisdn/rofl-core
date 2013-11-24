@@ -118,26 +118,3 @@ fframe::operator[] (size_t idx) throw (eFrameOutOfRange)
 }
 
 
-const char*
-fframe::c_str()
-{
-	info.clear();
-	//return info.c_str(); // performance improvement :D
-
-	char _info[512];
-	bzero(_info, sizeof(_info));
-	snprintf(_info, sizeof(_info)-1, "[fframe(%p) next:%p prev:%p data:%p datalen:%d [",
-			this, next, prev, data, (int)datalen);
-	info.assign(_info);
-	for (int i = 0; i < (int)datalen; ++i)
-	{
-		char t[32];
-		memset(t, 0, sizeof(t));
-		snprintf(t, sizeof(t)-1, "%02x ", data[i]);
-		info.append(t);
-	}
-	info.append("] ]");
-
-	return info.c_str();
-}
-

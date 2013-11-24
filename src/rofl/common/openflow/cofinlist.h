@@ -78,11 +78,6 @@ public: // methods
 	size_t
 	length() const;
 
-	/** dump info string
-	 */
-	const char*
-	c_str();
-
 	/** find a specific instruction
 	 */
 	cofinst&
@@ -90,10 +85,20 @@ public: // methods
 			enum ofp_instruction_type type)
 	throw (eInListNotFound);
 
-private:
+public:
 
-	std::string info; // info string
-
+	friend std::ostream&
+	operator<< (std::ostream& os, cofinlist const& inlist) {
+		os << "<cofinlist ";
+			os << "ofp-version:" << (int)inlist.ofp_version << " ";
+			os << std::endl;
+			for (cofinlist::const_iterator
+					it = inlist.elems.begin(); it != inlist.elems.end(); ++it) {
+				os << (*it) << std::endl;
+			}
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

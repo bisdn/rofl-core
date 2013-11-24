@@ -142,11 +142,6 @@ public: // methods
 	length() const;
 
 
-	/** dump info string
-	 */
-	const char*
-	c_str();
-
 
 	/** find a specific ofport
 	 */

@@ -22,6 +22,7 @@ extern "C" {
 #include "../csocket.h"
 #include "../cvastring.h"
 #include "../thread_helper.h"
+#include "../logging.h"
 #include "cofmatch.h"
 #include "extensions/cfspentry.h"
 #include "../openflow/messages/cofmsg.h"
@@ -81,7 +82,6 @@ private: // data structures
 	uint64_t 						cached_generation_id;	// generation-id used by role requests
 	csocket							*socket;				// TCP socket towards controller
 	cxidstore						xidstore;
-	std::string 					info;					// info string
 	cmemory							*fragment;				// fragment of OF packet rcvd on fragment during last call(s)
 	size_t							msg_bytes_read; 		// bytes already read for current message
 	int								reconnect_start_timeout;
@@ -188,17 +188,6 @@ public: // methods
 	 */
 	virtual
 	~cofctlImpl();
-
-
-
-	/**
-	 * @brief	Returns a c-string with information about this instance.
-	 *
-	 * @return c-string
-	 */
-	virtual const char*
-	c_str();
-
 
 
 	/**

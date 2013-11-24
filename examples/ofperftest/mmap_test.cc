@@ -76,7 +76,7 @@ mmap_test::udp_send()
 			payload[7+i*sizeof(uint64_t)] = ((uint8_t*)&seqno)[0];
 		}
 
-		fprintf(stderr, "payload: %s\n", payload.c_str());
+		std::cerr << "payload: " << payload << std::endl;
 
 		seqno++;
 

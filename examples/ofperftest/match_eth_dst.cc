@@ -100,8 +100,7 @@ match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 		fe.instructions.next() = cofinst_write_actions(dpt->get_version());
 		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), portnums[0]);
 
-		fprintf(stderr, "match_eth_dst: calling FLOW-MOD with entry: %s\n",
-				fe.c_str());
+		std::cerr << "match_eth_dst: calling FLOW-MOD with entry: " << fe << std::endl;
 
 		send_flow_mod_message(
 				dpt,
@@ -125,7 +124,7 @@ match_eth_dst::flow_mod_delete_all()
 		fe.set_out_port(OFPP12_ANY);
 		fe.set_out_group(OFPG12_ANY);
 
-		fprintf(stderr, "FLOW-MOD: delete all: %s\n", fe.c_str());
+		std::cerr << "FLOW-MOD: delete all: " << fe << std::endl;
 
 		send_flow_mod_message(dpt, fe);
 	}
@@ -186,8 +185,7 @@ match_eth_dst::handle_packet_in(
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
 		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
 
-		fprintf(stderr, "match_eth_dst: installing FLOW-MOD with entry: %s\n",
-				fe.c_str());
+		std::cerr << "match_eth_dst: installing FLOW-MOD with entry: " << fe << std::endl;
 
 		send_flow_mod_message(
 				dpt,
@@ -240,8 +238,7 @@ match_eth_dst::handle_packet_in(
 					actions);
 		}
 
-		fprintf(stderr, "match_eth_dst: calling PACKET-OUT with ActionList: %s\n",
-				actions.c_str());
+		std::cerr << "match_eth_dst: calling PACKET-OUT with ActionList: " << actions << std::endl;
 
 	}
 	/*
@@ -266,8 +263,7 @@ match_eth_dst::handle_packet_in(
 		fe.instructions.next() = cofinst_write_actions(dpt->get_version());
 		fe.instructions[0].actions.next() = cofaction_output(dpt->get_version(), out_port);
 
-		fprintf(stderr, "match_eth_dst: calling FLOW-MOD with entry: %s\n",
-				fe.c_str());
+		std::cerr << "match_eth_dst: calling FLOW-MOD with entry: " << fe << std::endl;
 
 		send_flow_mod_message(
 				dpt,

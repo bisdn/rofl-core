@@ -154,27 +154,24 @@ public: // overloaded from fframe
 	payloadlen() const throw (eFrameNoPayload);
 
 
-	/** dump info
-	 *
-	 */
-	virtual const char*
-	c_str();
-
-
 
 public: // data structures
 
 	// pointer to ethernet header
 	struct eth_hdr_t *eth_hdr;
 
-private: // methods
+public:
 
-
-
-private: // data structures
-
-	std::string info;
-
+	friend std::ostream&
+	operator<< (std::ostream& os, fetherframe const& frame) {
+		os << "<fetherframe ";
+			os << "dl-dst:" << frame.get_dl_dst() << " ";
+			os << "dl-src:" << frame.get_dl_src() << " ";
+			os << "dl-type:" << (int)frame.get_dl_type() << " ";
+			os << std::endl << dynamic_cast<fframe const&>( frame ) << std::endl;
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

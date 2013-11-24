@@ -167,8 +167,6 @@ cofport::cofport(
 	if (0 != port_list) {
 		(*port_list)[portno] = this;
 	}
-
-	WRITELOG(CPORT, DBG, "cofport(%p)::cofport() port_list:%p %s", this, port_list, c_str());
 }
 
 
@@ -194,8 +192,6 @@ cofport::cofport(
 	if (0 != port_list) {
 		(*port_list)[portno] = this;
 	}
-
-	WRITELOG(CPORT, DBG, "cofport(%p)::cofport() port_list:%p %s", this, port_list, c_str());
 }
 
 
@@ -221,19 +217,13 @@ cofport::cofport(
 	if (0 != port_list) {
 		(*port_list)[portno] = this;
 	}
-
-	WRITELOG(CPORT, DBG, "cofport(%p)::cofport() port_list:%p %s", this, port_list, c_str());
 }
 
 
 
 cofport::~cofport()
 {
-	WRITELOG(CPORT, DBG, "cofport(%p)::~cofport() %s", this, c_str());
-
 	if ((std::map<uint32_t, cofport*>*)0 != port_list) {
-
-		WRITELOG(CPORT, DBG, "cofport(%p)::~cofport() port_list: 0x%x ", this, port_list);
 
 		port_list->erase(get_port_no());
 	}
@@ -1106,55 +1096,6 @@ cofport::length() const
 
 
 
-const char*
-cofport::c_str()
-{
-	cvastring vas;
-
-	switch (of_version) {
-	case OFP10_VERSION: {
-		info.assign(vas("cofport(%p): port_no:%d hwaddr:%s name:%s "
-				"config:0x%x state:0x%x curr:0x%x advertised:0x%x "
-				"supported:0x%x peer:0x%x",
-				this,
-				get_port_no(),
-				get_hwaddr().c_str(),
-				get_name().c_str(),
-				get_config(),
-				get_state(),
-				get_curr(),
-				get_advertised(),
-				get_supported(),
-				get_peer()));
-
-	} break;
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
-		info.assign(vas("cofport(%p): port_no:%d hwaddr:%s name:%s "
-				"config:0x%x state:0x%x curr:0x%x advertised:0x%x "
-				"supported:0x%x peer:0x%x curr_speed:0x%x max_speed:0x%x",
-				this,
-				get_port_no(),
-				get_hwaddr().c_str(),
-				get_name().c_str(),
-				get_config(),
-				get_state(),
-				get_curr(),
-				get_advertised(),
-				get_supported(),
-				get_peer(),
-				get_curr_speed(),
-				get_max_speed()));
-
-	} break;
-	default:
-		throw eBadVersion();
-	}
-
-	return info.c_str();
-}
-
-
 
 template<class T>
 T*
@@ -1392,19 +1333,19 @@ cofport::test()
 	p1.set_curr_speed(0xdeadbeef);
 	p1.set_max_speed(0xdeafdeaf);
 
-	fprintf(stderr, "p1 => %s\n", p1.c_str());
+	std::cerr << "p1 => " << p1 << std::endl;
 
 	cmemory mem(sizeof(struct ofp10_port));
 
 	p1.pack((struct ofp10_port*)mem.somem(), mem.memlen());
 
-	fprintf(stderr, "p1.packed => %s\n", mem.c_str());
+	std::cerr << "p1.packed => " << mem << std::endl;
 
 	cofport p2;
 
 	p2.unpack((struct ofp10_port*)mem.somem(), mem.memlen());
 
-	fprintf(stderr, "p1.unpacked => %s\n", p2.c_str());
+	std::cerr << "p1.unpacked => " << p2 << std::endl;
 }
 
 template class coflist<cofport>;

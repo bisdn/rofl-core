@@ -491,60 +491,6 @@ cmemory::find_first_of(
 }
 
 
-const char*
-cmemory::c_str()
-{
-#ifdef NDEBUG
-
-	info.clear();
-	return info.c_str();
-
-#if 0
-	std::stringstream sstr;
-	sstr << "cmemory(" << (std::hex) << this << (std::dec) << ") len[" << (int)memlen() << "]";
-	return sstr.str().c_str();
-#endif
-#else
-
-	info.clear();
-	char _info[256];
-
-	bzero(_info, sizeof(_info));
-
-	snprintf(_info,
-			sizeof(_info) - 1,
-			"cmemory(%p) somem()[%p] len[%d] data.first: %p data.second: %zu  data\n%p : ",
-			(void*) this,
-			(void*) somem(),
-			(int) memlen(),
-			(void*) data.first,
-			data.second,
-			(void*) data.first);
-
-	info.assign(_info);
-
-	for (int i = 0; i < (int)data.second; ++i)
-	{
-		char t[8];
-		memset(t, 0, sizeof(t));
-
-		snprintf(t, sizeof(t)-1, "%02x ", (data.first[i]));
-		info.append(t);
-		if ((0 == ((i+1) % 16)))
-		{
-			char ptr[32]; memset(ptr, 0x00, sizeof(ptr));
-			snprintf(ptr, sizeof(ptr)-1, "\n%p : ", data.first + (i+1));
-			info.append(ptr);
-		}
-		else if ((0 == ((i+1) % 4)))
-		{
-			info.append("  ");
-		}
-	}
-	//info.append("");
-	return info.c_str();
-#endif
-}
 
 
 

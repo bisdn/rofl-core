@@ -178,96 +178,6 @@ cflowentry::reset()
 
 
 
-
-const char*
-cflowentry::c_str()
-{
-	std::string s_cmd;
-
-	switch (of_version) {
-	case OFP12_VERSION: {
-		switch (of12m_flow_mod->command) {
-		case OFPFC_ADD:
-			s_cmd.assign("OFPFC_ADD");
-			break;
-		case OFPFC_DELETE:
-			s_cmd.assign("OFPFC_DELETE");
-			break;
-		case OFPFC_DELETE_STRICT:
-			s_cmd.assign("OFPFC_DELETE_STRICT");
-			break;
-		case OFPFC_MODIFY:
-			s_cmd.assign("OFPFC_MODIFY");
-			break;
-		case OFPFC_MODIFY_STRICT:
-			s_cmd.assign("OFPFC_MODIFY_STRICT");
-			break;
-		default:
-			s_cmd.assign("OFPFC_UNKNOWN");
-			break;
-		}
-
-		cvastring vas(2048);
-		info.assign(vas("[cflowentry(%p) "
-				"%s table-id[%d] buffer-id[0x%x] idle_timeout[%d] hard_timeout[%d] priority[%d] "
-				"\n%s\n%s]",
-				this,
-				s_cmd.c_str(),
-				of12m_flow_mod->table_id,
-				be32toh(of12m_flow_mod->buffer_id),
-				be16toh(of12m_flow_mod->idle_timeout),
-				be16toh(of12m_flow_mod->hard_timeout),
-				be16toh(of12m_flow_mod->priority),
-				match.c_str(),
-				instructions.c_str()));
-
-	} break;
-	case OFP13_VERSION: {
-		switch (of13m_flow_mod->command) {
-		case OFPFC_ADD:
-			s_cmd.assign("OFPFC_ADD");
-			break;
-		case OFPFC_DELETE:
-			s_cmd.assign("OFPFC_DELETE");
-			break;
-		case OFPFC_DELETE_STRICT:
-			s_cmd.assign("OFPFC_DELETE_STRICT");
-			break;
-		case OFPFC_MODIFY:
-			s_cmd.assign("OFPFC_MODIFY");
-			break;
-		case OFPFC_MODIFY_STRICT:
-			s_cmd.assign("OFPFC_MODIFY_STRICT");
-			break;
-		default:
-			s_cmd.assign("OFPFC_UNKNOWN");
-			break;
-		}
-
-		cvastring vas(2048);
-		info.assign(vas("[cflowentry(%p) "
-				"%s table-id[%d] buffer-id[0x%x] idle_timeout[%d] hard_timeout[%d] priority[%d] "
-				"\n%s\n%s]",
-				this,
-				s_cmd.c_str(),
-				of13m_flow_mod->table_id,
-				be32toh(of13m_flow_mod->buffer_id),
-				be16toh(of13m_flow_mod->idle_timeout),
-				be16toh(of13m_flow_mod->hard_timeout),
-				be16toh(of13m_flow_mod->priority),
-				match.c_str(),
-				instructions.c_str()));
-
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-
-	return info.c_str();
-}
-
-
 void
 cflowentry::set_table_id(uint8_t table_id)
 {
@@ -709,6 +619,6 @@ cflowentry::test()
 
 	//fe.reset();
 
-	fprintf(stderr, "XXXXX ==>: %s\n", fe.c_str());
+	std::cerr << "XXXXX => " << fe << std::endl;
 }
 

@@ -13,6 +13,7 @@
 #include "rofl/common/caddress.h"
 #include "rofl/common/protocols/fetherframe.h"
 #include "rofl/common/thread_helper.h"
+#include "rofl/common/logging.h"
 
 #include "clinuxport.h"
 

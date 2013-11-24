@@ -93,16 +93,6 @@ public: // methods
 
 
 	/**
-	 * @brief	Returns a c-string with information about this instance.
-	 *
-	 * @return c-string
-	 */
-	virtual const char*
-	c_str() = 0;
-
-
-
-	/**
 	 * @brief	Returns true, when the control handshake (HELLO) has been completed.
 	 */
 	virtual bool

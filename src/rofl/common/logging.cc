@@ -14,11 +14,31 @@
 
 using namespace rofl;
 
-std::ostream* logging::os_emerg 	= &(std::cerr);
-std::ostream* logging::os_alert 	= &(std::cerr);
-std::ostream* logging::os_crit 		= &(std::cerr);
-std::ostream* logging::os_error 	= &(std::cerr);
-std::ostream* logging::os_warn	 	= &(std::cerr);
-std::ostream* logging::os_notice 	= &(std::cerr);
-std::ostream* logging::os_info	 	= &(std::cerr);
-std::ostream* logging::os_debug 	= &(std::cerr);
+std::ostream logging::emerg	(std::cerr.rdbuf());
+std::ostream logging::alert	(std::cerr.rdbuf());
+std::ostream logging::crit	(std::cerr.rdbuf());
+std::ostream logging::error	(std::clog.rdbuf());
+std::ostream logging::warn	(std::clog.rdbuf());
+std::ostream logging::notice(std::cout.rdbuf());
+std::ostream logging::info	(std::cout.rdbuf());
+std::ostream logging::debug	(std::cout.rdbuf());
+
+
+
+void
+logging::set_logfile(
+			enum logging_level level,
+			std::string const& filename)
+{
+	switch (level) {
+	case LOGGING_EMERG:		logging::emerg .rdbuf((new std::filebuf())->open(filename.c_str(), std::ios::out)); break;
+	case LOGGING_ALERT:		logging::alert .rdbuf((new std::filebuf())->open(filename.c_str(), std::ios::out)); break;
+	case LOGGING_CRIT:		logging::crit  .rdbuf((new std::filebuf())->open(filename.c_str(), std::ios::out)); break;
+	case LOGGING_ERROR:		logging::error .rdbuf((new std::filebuf())->open(filename.c_str(), std::ios::out)); break;
+	case LOGGING_WARN:		logging::warn  .rdbuf((new std::filebuf())->open(filename.c_str(), std::ios::out)); break;
+	case LOGGING_NOTICE:	logging::notice.rdbuf((new std::filebuf())->open(filename.c_str(), std::ios::out)); break;
+	case LOGGING_INFO:		logging::info  .rdbuf((new std::filebuf())->open(filename.c_str(), std::ios::out)); break;
+	case LOGGING_DEBUG:		logging::debug .rdbuf((new std::filebuf())->open(filename.c_str(), std::ios::out)); break;
+	}
+}
+

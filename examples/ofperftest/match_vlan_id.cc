@@ -98,8 +98,7 @@ match_vlan_id::install_flow_mods(cofdpt *dpt, unsigned int n)
 		vid = (vid == 4096) ?   1 : vid; // wrap around at 0xffff
 		fe.instructions.next() = cofinst_write_actions(dpt->get_version());	// do nothing, drop packet
 
-		fprintf(stderr, "match_vlan_id: calling FLOW-MOD with entry: %s\n",
-				fe.c_str());
+		std::cerr << "match_vlan_id: calling FLOW-MOD with entry: " << fe << std::cerr;
 
 		send_flow_mod_message(
 				dpt,
@@ -123,7 +122,7 @@ match_vlan_id::flow_mod_delete_all()
 		fe.set_out_port(OFPP12_ANY);
 		fe.set_out_group(OFPG12_ANY);
 
-		fprintf(stderr, "FLOW-MOD: delete all: %s\n", fe.c_str());
+		std::cerr << "FLOW-MOD: delete all: " << fe << std::endl;
 
 		send_flow_mod_message(dpt, fe);
 	}
@@ -184,8 +183,7 @@ match_vlan_id::handle_packet_in(
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
 		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
 
-		fprintf(stderr, "match_vlan_id: installing FLOW-MOD with entry: %s\n",
-				fe.c_str());
+		std::cerr << "match_vlan_id: installing FLOW-MOD with entry: " << fe << std::endl;
 
 		send_flow_mod_message(
 				dpt,
@@ -238,8 +236,7 @@ match_vlan_id::handle_packet_in(
 					actions);
 		}
 
-		fprintf(stderr, "match_vlan_id: calling PACKET-OUT with ActionList: %s\n",
-				actions.c_str());
+		std::cerr << "match_vlan_id: calling PACKET-OUT with ActionList: " << actions << std::endl;
 
 	}
 	/*
@@ -266,8 +263,7 @@ match_vlan_id::handle_packet_in(
 		fe.instructions.next() = cofinst_write_actions(dpt->get_version());
 		fe.instructions[0].actions.next() = cofaction_output(dpt->get_version(), out_port);
 
-		fprintf(stderr, "match_vlan_id: calling FLOW-MOD with entry: %s\n",
-				fe.c_str());
+		std::cerr << "match_vlan_id: calling FLOW-MOD with entry: " << fe << std::endl;
 
 		send_flow_mod_message(
 				dpt,

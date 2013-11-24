@@ -82,10 +82,6 @@ public: // data structures
 #define rext_header						reh_rehu.rehu_header
 #define rext_fsp						reh_rehu.rehu_flowspace
 
-private: // data structures
-
-	std::string info;
-
 
 public:
 
@@ -133,13 +129,6 @@ public:
 	/**
 	 *
 	 */
-	virtual const char*
-	c_str();
-
-
-	/**
-	 *
-	 */
 	virtual size_t
 	length();
 
@@ -162,6 +151,16 @@ private:
 	validate_flowspace()
 			throw (eRoflExpInval);
 
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, croflexp const& roflexp) {
+		os << "<croflexp ";
+			os << std::endl << "match:" << roflexp.match << std::endl;
+			os << std::endl << "mem:" << roflexp.mem << std::endl;
+		os << ">";
+		return os;
+	};
 };
 
 

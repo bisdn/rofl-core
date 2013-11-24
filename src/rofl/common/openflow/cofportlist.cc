@@ -209,19 +209,6 @@ cofportlist::length() const
 }
 
 
-const char*
-cofportlist::c_str()
-{
-	cvastring vas(1024);
-	info.assign(vas("cofportlist(%p) %d port(s): ", this, elems.size()));
-	cofportlist::iterator it;
-	for (it = elems.begin(); it != elems.end(); ++it)
-	{
-		info.append(vas("\n  %s ", (*it).c_str()));
-	}
-
-	return info.c_str();
-}
 
 
 cofport&
@@ -230,12 +217,6 @@ cofportlist::find_port(
 throw (ePortListNotFound)
 {
 	cofportlist::iterator it;
-
-	for (it = elems.begin(); it != elems.end(); ++it)
-	{
-		WRITELOG(COFINST, DBG, "cofportlist(%p)::find_port() %d => %s", this, elems.size(), (*it).c_str());
-	}
-
 	if ((it = find_if(elems.begin(), elems.end(),
 			cofport_find_port_no(port_no))) == elems.end())
 	{

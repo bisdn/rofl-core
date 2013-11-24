@@ -74,14 +74,7 @@ cethport::handle_read(int fd)
 				delete pack; return;
 			}
 
-
-			WRITELOG(CPORT, DBG, "cethport(%p)::handle_revent() [%s] rc=%d "
-							 "pack[%p] %s",
-							 this,
-							 devname.c_str(),
-							 rc,
-							 pack,
-							 pack->c_str());
+			logging::debug << "cethport[" << devname << "] received packet " << *pack << std::endl;
 
 			owner->enqueue(this, pack);
 
@@ -112,13 +105,12 @@ cethport::handle_out_queue()
 	{							// sends per round to 128
 		cpacket *pack = pout_queue.front();
 
-		WRITELOG(CPORT, DBG, "cethport(%p)::handle_out_queue() %s",
-				this, pack->c_str());
-
 		// mem will be deleted by csocket base class
 		cmemory *mem = new cmemory(pack->length());
 
 		pack->pack(mem->somem(), mem->memlen());
+
+		logging::debug << "cethport[" << devname << "] sending packet " << *pack << std::endl;
 
 		csocket::send_packet(mem);
 

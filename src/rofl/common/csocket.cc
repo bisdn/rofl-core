@@ -433,12 +433,9 @@ csocket::cclose()
 void
 csocket::send_packet(cmemory* pack, caddress const& dest)
 {
-	WRITELOG(CSOCKET, DBG, "csocket(%p)::send_packet() pack: %s", this, pack->c_str());
-	if (not sockflags.test(CONNECTED) && not sockflags.test(RAW_SOCKET))
-	{
-		WRITELOG(UNKNOWN, WARN, "csocket(%p)::send_packet() not connected, dropping packet", this);
-		delete pack;
-		return;
+	if (not sockflags.test(CONNECTED) && not sockflags.test(RAW_SOCKET)) {
+		logging::warn << "socket not connected, dropping packet " << *pack << std::endl;
+		delete pack; return;
 	}
 
 	RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
@@ -465,12 +462,8 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 			//cmemory *pack = pout_squeue.front();
 
 			int flags = MSG_NOSIGNAL;
-			if ((rc = sendto(sd, entry.mem->somem(), entry.mem->memlen(), flags, entry.dest.ca_saddr, entry.dest.salen)) < 0)
-			{
-				WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
-						"errno=%d (%s) pack: %s",
-						this, errno, strerror(errno), entry.mem->c_str());
-
+			if ((rc = sendto(sd, entry.mem->somem(), entry.mem->memlen(), flags,
+									entry.dest.ca_saddr, entry.dest.salen)) < 0) {
 				switch (errno) {
 				case EAGAIN:
 					break;
@@ -479,19 +472,14 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 					goto out;
 					return;
 				case EMSGSIZE:
-					WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
-							"dropping packet, errno=%d (%s) pack: %s",
-							this, errno, strerror(errno), entry.mem->c_str());
+					logging::warn << "csocket::dequeue_packet() dropping packet (EMSGSIZE) " << *(entry.mem) << std::endl;
 					break;
 				default:
-					WRITELOG(CSOCKET, DBG, "csocket(%p)::dequeue_packet() "
-							"errno=%d (%s) pack: %s",
-							this, errno, strerror(errno), entry.mem->c_str());
+					logging::warn << "csocket::dequeue_packet() dropping packet " << *(entry.mem) << std::endl;
 					throw eSocketSendFailed();
 				}
 			}
-			else if ((rc < (int)entry.mem->memlen()))
-			{
+			else if ((rc < (int)entry.mem->memlen())) {
 				throw eSocketShortSend();
 			}
 

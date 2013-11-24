@@ -105,11 +105,6 @@ ctapport::handle_wevent(int fd)
 		class cpacket * pack = pout_queue.front();
 
 		WRITELOG(CPORT, DBG, "ctapport(%p)::handle_wevent() pout_queue.size()=%d", this, (int)pout_queue.size());
-		WRITELOG(CPORT, DBG, "ctapport(%p)::handle_wevent() pout_queue.size()=%d %s", this, (int)pout_queue.size(), pack->c_str());
-
-		WRITELOG(CPORT, DBG, "ctapport(%p)::handle_wevent() "
-				 "pack[%p]:%s",
-				 this, pack, pack->c_str());
 
 		if (pack)
 		{

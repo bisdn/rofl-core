@@ -167,9 +167,7 @@ cofctlImpl::send_message(
 
     if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (pack->get_type() != OFPT_HELLO))
     {
-        WRITELOG(COFCTL, TRACE, "cofctrl(%p)::send_message() "
-            "dropping message, as no HELLO rcvd from peer yet, pack: %s",
-            this, pack->c_str());
+    	logging::error << "dropping message (missing HELLO from peer) " << *pack << " " << *this << std::endl;
         delete pack; return;
     }
 
@@ -215,7 +213,7 @@ cofctlImpl::send_message(
     		queue_get_config_reply_sent(pack);
     	} break;
         default: {
-        	logging::error() << "dropping invalid packet " << *pack << " " << *this << std::endl;
+        	logging::error << "dropping invalid packet " << *pack << " " << *this << std::endl;
     		delete pack;
     	} return;
         }
@@ -265,7 +263,7 @@ cofctlImpl::send_message(
     		role_reply_sent(pack);
     	} break;
         default: {
-        	logging::error() << "dropping invalid packet " << *pack << " " << *this << std::endl;
+        	logging::error << "dropping invalid packet " << *pack << " " << *this << std::endl;
         	delete pack;
     	} return;
         }
@@ -319,14 +317,14 @@ cofctlImpl::send_message(
         	get_async_config_reply_sent(pack);
         } break;
         default: {
-        	logging::error() << "dropping invalid packet " << *pack << " " << *this << std::endl;
+        	logging::error << "dropping invalid packet " << *pack << " " << *this << std::endl;
         	delete pack;
     	} return;
         }
 
     } break;
     default:
-    	logging::error() << "dropping packet due to bad version " << *pack << std::endl;
+    	logging::error << "dropping packet due to bad version " << *pack << std::endl;
     	throw eBadVersion();
     }
 
@@ -526,9 +524,8 @@ cofctlImpl::handle_read(
 
 	} catch (eOFpacketInval& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::handle_read() "
-				"invalid packet received, dropping. Closing socket. Packet: %s",
-				this, mem->c_str());
+		logging::warn << "dropping invalid message " << *mem << std::endl;
+
 		if (mem) {
 			delete mem; fragment = (cmemory*)0;
 		}
@@ -586,7 +583,7 @@ cofctlImpl::handle_message(
 		const uint8_t OFPT_HELLO = 0; // == OFPT10_HELLO == OFPT12_HELLO == OFPT13_HELLO
 
 		if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (OFPT_HELLO != ofh_header->type)) {
-			logging::error() << "dropping packet, no HELLO received from peer so far " << *mem << std::endl;
+			logging::error << "dropping packet, no HELLO received from peer so far " << *mem << std::endl;
 			delete mem; return;
 		}
 
@@ -697,8 +694,7 @@ cofctlImpl::handle_message(
 				queue_get_config_request_rcvd(dynamic_cast<cofmsg_queue_get_config_request*>( msg ));
 			} break;
 			default: {
-				WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
-						"dropping unknown packet: %s", this, mem->c_str());
+				logging::warn << "dropping unknown message " << *mem << std::endl;
 				msg = new cofmsg(mem);
 				msg->validate();
 				throw eBadRequestBadType();
@@ -855,8 +851,7 @@ cofctlImpl::handle_message(
 		    	set_async_config_rcvd(dynamic_cast<cofmsg_set_async_config*>( msg ));
 		    } break;
 			default: {
-				WRITELOG(COFCTL, ERROR, "cofctl(%p)::handle_message() "
-						"dropping unknown packet: %s", this, mem->c_str());
+				logging::warn << "dropping unknown message " << *mem << std::endl;
 				msg = new cofmsg(mem);
 				msg->validate();
 				throw eBadRequestBadType();
@@ -874,7 +869,7 @@ cofctlImpl::handle_message(
 				hello_rcvd(dynamic_cast<cofmsg_hello*>( msg ));
 			} break;
 			default: {
-				logging::error() << "dropping unknown packet " << *mem << std::endl;
+				logging::error << "dropping unknown packet " << *mem << std::endl;
 				msg = new cofmsg(mem);
 				msg->validate();
 				throw eBadRequestBadType();
@@ -888,7 +883,7 @@ cofctlImpl::handle_message(
 
 	} catch (eBadSyntaxTooShort& e) {
 
-		logging::error() << "eBadSyntaxTooShort " << *mem << std::endl;
+		logging::error << "eBadSyntaxTooShort " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -900,7 +895,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadVersion& e) {
 
-		logging::error() << "eBadVersion " << *mem << std::endl;
+		logging::error << "eBadVersion " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -912,7 +907,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadVersion& e) {
 
-		logging::error() << "eBadRequestBadVersion " << *mem << std::endl;
+		logging::error << "eBadRequestBadVersion " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -924,7 +919,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadType& e) {
 
-		logging::error() << "eBadRequestBadType " << *mem << std::endl;
+		logging::error << "eBadRequestBadType " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -936,7 +931,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadStat& e) {
 
-		logging::error() << "eBadRequestBadStat " << *mem << std::endl;
+		logging::error << "eBadRequestBadStat " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -948,7 +943,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadExperimenter& e) {
 
-		logging::error() << "eBadRequestBadExperimenter " << *mem << std::endl;
+		logging::error << "eBadRequestBadExperimenter " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -960,7 +955,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadExpType& e) {
 
-		logging::error() << "eBadRequestBadExpType " << *mem << std::endl;
+		logging::error << "eBadRequestBadExpType " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -972,7 +967,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestEperm& e) {
 
-		logging::error() << "eBadRequestEperm " << *mem << std::endl;
+		logging::error << "eBadRequestEperm " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -984,7 +979,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadLen& e) {
 
-		logging::error() << "eBadRequestBadLen " << *mem << std::endl;
+		logging::error << "eBadRequestBadLen " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -996,7 +991,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBufferEmpty& e) {
 
-		logging::error() << "eBadRequestBufferEmpty " << *mem << std::endl;
+		logging::error << "eBadRequestBufferEmpty " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1008,7 +1003,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBufferUnknown& e) {
 
-		logging::error() << "eBadRequestBufferUnknown " << *mem << std::endl;
+		logging::error << "eBadRequestBufferUnknown " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1020,7 +1015,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadTableId& e) {
 
-		logging::error() << "eBadRequestBadTableId " << *mem << std::endl;
+		logging::error << "eBadRequestBadTableId " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1032,7 +1027,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestIsSlave& e) {
 
-		logging::error() << "eBadRequestIsSlave " << *mem << std::endl;
+		logging::error << "eBadRequestIsSlave " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1044,7 +1039,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadPort& e) {
 
-		logging::error() << "eBadRequestBadPort " << *mem << std::endl;
+		logging::error << "eBadRequestBadPort " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1056,7 +1051,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBadPacket& e) {
 
-		logging::error() << "eBadRequestBadPacket " << *mem << std::endl;
+		logging::error << "eBadRequestBadPacket " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1068,12 +1063,12 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadRequestBase& e) {
 
-		logging::error() << "eBadRequestBase " << *mem << std::endl;
+		logging::error << "eBadRequestBase " << *mem << std::endl;
 
 		delete msg;
 	} catch (eBadActionBadType& e) {
 
-		logging::error() << "eBadActionBadType " << *mem << std::endl;
+		logging::error << "eBadActionBadType " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1085,7 +1080,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadLen& e) {
 
-		logging::error() << "eBadActionBadLen " << *mem << std::endl;
+		logging::error << "eBadActionBadLen " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1097,7 +1092,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadExperimenter& e) {
 
-		logging::error() << "eBadActionBadExperimenter " << *mem << std::endl;
+		logging::error << "eBadActionBadExperimenter " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1109,7 +1104,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadExperimenterType& e) {
 
-		logging::error() << "eBadActionBadExperimenterType " << *mem << std::endl;
+		logging::error << "eBadActionBadExperimenterType " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1121,8 +1116,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadOutPort& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Problem validating output port, pack: %s", this, mem->c_str());
+		logging::error << "eBadActionBadOutPort " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1134,8 +1128,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadArgument& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::handle_message() "
-				"Bad action argument, pack: %s", this, mem->c_str());
+		logging::error << "eBadActionBadArgument " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1147,7 +1140,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionEperm& e) {
 
-		logging::error() << "eBadActionEperm " << *mem << std::endl;
+		logging::error << "eBadActionEperm " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1159,7 +1152,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionTooMany& e) {
 
-		logging::error() << "eBadActionTooMany " << *mem << std::endl;
+		logging::error << "eBadActionTooMany " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1171,7 +1164,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadQueue& e) {
 
-		logging::error() << "eBadActionBadQueue " << *mem << std::endl;
+		logging::error << "eBadActionBadQueue " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1183,7 +1176,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadOutGroup& e) {
 
-		logging::error() << "eBadActionBadOutGroup " << *mem << std::endl;
+		logging::error << "eBadActionBadOutGroup " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1195,7 +1188,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionMatchInconsistent& e) {
 
-		logging::error() << "eBadActionMatchInconsistent " << *mem << std::endl;
+		logging::error << "eBadActionMatchInconsistent " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1207,7 +1200,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionUnsupportedOrder& e) {
 
-		logging::error() << "eBadActionUnsuportedOrder " << *mem << std::endl;
+		logging::error << "eBadActionUnsuportedOrder " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1219,7 +1212,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBadTag& e) {
 
-		logging::error() << "eBadActionBadTag " << *mem << std::endl;
+		logging::error << "eBadActionBadTag " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1231,12 +1224,12 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadActionBase& e) {
 
-		logging::error() << "eBadActionBase " << *mem << std::endl;
+		logging::error << "eBadActionBase " << *mem << std::endl;
 
 		delete msg;
 	} catch (eBadInstUnknownInst& e) {
 
-		logging::error() << "eBadInstUnknownInst " << *mem << std::endl;
+		logging::error << "eBadInstUnknownInst " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1248,7 +1241,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadInstUnsupInst& e) {
 
-		logging::error() << "eBadInstUnsupInst " << *mem << std::endl;
+		logging::error << "eBadInstUnsupInst " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1260,7 +1253,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadInstBadTableId& e) {
 
-		logging::error() << "eBadInstBadTableId " << *mem << std::endl;
+		logging::error << "eBadInstBadTableId " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1272,7 +1265,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadInstUnsupMetadata& e) {
 
-		logging::error() << "eBadInstUnsupMetadata " << *mem << std::endl;
+		logging::error << "eBadInstUnsupMetadata " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1284,7 +1277,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadInstUnsupMetadataMask& e) {
 
-		logging::error() << "eBadInstUnsupMetadataMask " << *mem << std::endl;
+		logging::error << "eBadInstUnsupMetadataMask " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1296,7 +1289,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadInstUnsupExpInst& e) {
 
-		logging::error() << "eBadInstUnsupExpInst " << *mem << std::endl;
+		logging::error << "eBadInstUnsupExpInst " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1308,12 +1301,12 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadInstBase& e) {
 
-		logging::error() << "eBadInstBase " << *mem << std::endl;
+		logging::error << "eBadInstBase " << *mem << std::endl;
 
 		delete msg;
 	} catch (eBadMatchBadType& e) {
 
-		logging::error() << "eBadMatchBadType " << *mem << std::endl;
+		logging::error << "eBadMatchBadType " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1325,7 +1318,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadLen& e) {
 
-		logging::error() << "eBadMatchBadLen " << *mem << std::endl;
+		logging::error << "eBadMatchBadLen " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1337,7 +1330,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadTag& e) {
 
-		logging::error() << "eBadMatchBadTag " << *mem << std::endl;
+		logging::error << "eBadMatchBadTag " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1349,7 +1342,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadDlAddrMask& e) {
 
-		logging::error() << "eBadMatchBadDlAddrMask " << *mem << std::endl;
+		logging::error << "eBadMatchBadDlAddrMask " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1361,7 +1354,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadNwAddrMask& e) {
 
-		logging::error() << "eBadMatchBadNwAddrMask " << *mem << std::endl;
+		logging::error << "eBadMatchBadNwAddrMask " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1373,7 +1366,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadWildcards& e) {
 
-		logging::error() << "eBadMatchBadWildcards " << *mem << std::endl;
+		logging::error << "eBadMatchBadWildcards " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1385,7 +1378,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadField& e) {
 
-		logging::error() << "eBadMatchBadField " << *mem << std::endl;
+		logging::error << "eBadMatchBadField " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1397,7 +1390,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBadValue& e) {
 
-		logging::error() << "eBadMatchBadValue " << *mem << std::endl;
+		logging::error << "eBadMatchBadValue " << *mem << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1409,7 +1402,7 @@ cofctlImpl::handle_message(
 		delete msg;
 	} catch (eBadMatchBase& e) {
 
-		logging::error() << "eBadMatchBase " << *mem << std::endl;
+		logging::error << "eBadMatchBase " << *mem << std::endl;
 
 		delete msg;
 	}
@@ -1422,7 +1415,7 @@ void
 cofctlImpl::hello_rcvd(cofmsg_hello *msg)
 {
 	try {
-		WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() hello: %s", this, msg->c_str());
+		logging::debug << "HELLO message received " << *msg << std::endl;
 
 		// OpenFlow versions not supported on our side, send error, close connection
 		if (not rofbase->is_ofp_version_supported(msg->get_version()))
@@ -1447,8 +1440,7 @@ cofctlImpl::hello_rcvd(cofmsg_hello *msg)
 
 			new_state(STATE_CTL_ESTABLISHED);
 
-			WRITELOG(COFRPC, DBG, "cofctl(%p)::hello_rcvd() "
-				"HELLO exchanged with peer entity and ofp version %d, attaching ...", this, ofp_version);
+			logging::info << "HELLO exchanged with peer entity, attaching..." << *this << std::endl;
 
 			if (flags.test(COFCTL_FLAG_HELLO_SENT))
 			{
@@ -1462,8 +1454,7 @@ cofctlImpl::hello_rcvd(cofmsg_hello *msg)
 
 	} catch (eHelloIncompatible& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::hello_rcvd() "
-				"No compatible version, pack: %s", this, msg->c_str());
+		logging::warn << "eHelloIncompatible " << *msg << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1476,8 +1467,7 @@ cofctlImpl::hello_rcvd(cofmsg_hello *msg)
 		handle_closed(socket, socket->sd);
 	} catch (eHelloEperm& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::hello_rcvd() "
-				"Permissions error, pack: %s", this, msg->c_str());
+		logging::warn << "eHelloEperm " << *msg << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1490,8 +1480,7 @@ cofctlImpl::hello_rcvd(cofmsg_hello *msg)
 		handle_closed(socket, socket->sd);
 	} catch (eHelloBase& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::hello_rcvd() "
-				"base class of exception eHelloBase caught, pack: %s", this, msg->c_str());
+		logging::warn << "eHelloBase " << *msg << std::endl;
 
 		delete msg;
 	}
@@ -1540,7 +1529,7 @@ cofctlImpl::features_request_rcvd(cofmsg_features_request *msg)
 		xidstore.xid_add(this, msg->get_xid(), 0);
 
 	} catch (eXidStoreXidBusy& e) {
-		WRITELOG(COFCTL, ERROR, "cofctl(%p)::features_request_rcvd() retransmission", this);
+		logging::debug << "retransmitted Features-Request " << *msg << std::endl;
 	}
 
 	rofbase->handle_features_request(this, msg);
@@ -1559,9 +1548,7 @@ cofctlImpl::features_reply_sent(cofmsg *msg)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTL, ERROR, "cofctl(%p)::features_reply_sent() "
-				"xid:0x%x not found",
-				this, xid);
+		logging::error << "spurious xid in reply to Features-Request " << *msg << std::endl;
 	}
 }
 
@@ -1590,9 +1577,7 @@ cofctlImpl::get_config_reply_sent(cofmsg *msg)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTL, ERROR, "cofctl(%p)::get_config_reply_sent() "
-				"xid:0x%x not found",
-				this, xid);
+		logging::error << "spurious xid in reply to Get-Config-Request " << *msg << std::endl;
 	}
 }
 
@@ -1610,8 +1595,7 @@ cofctlImpl::set_config_rcvd(cofmsg_set_config *msg)
 
 	} catch (eSwitchConfigBadFlags& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::set_config_rcvd() "
-				"Specified flags is invalid, pack: %s", this, msg->c_str());
+		logging::warn << "eSwitchConfigBadFlags " << *msg << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1623,8 +1607,7 @@ cofctlImpl::set_config_rcvd(cofmsg_set_config *msg)
 		delete msg;
 	} catch (eSwitchConfigBadLen& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::set_config_rcvd() "
-				"Specified len is invalid, pack: %s", this, msg->c_str());
+		logging::warn << "eSwitchConfigBadLen " << *msg << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1636,8 +1619,7 @@ cofctlImpl::set_config_rcvd(cofmsg_set_config *msg)
 		delete msg;
 	} catch (eSwitchConfigBase& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::set_config_rcvd() "
-				"base class of exception eSwitchConfigBase caught, pack: %s", this, msg->c_str());
+		logging::warn << "eSwitchConfigBase " << *msg << std::endl;
 
 		delete msg;
 	}
@@ -1660,8 +1642,6 @@ cofctlImpl::packet_out_rcvd(cofmsg_packet_out *msg)
 void
 cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 {
-	WRITELOG(COFCTL, DBG, "cofctl(%p)::flow_mod_rcvd() pack: %s", this, msg->c_str());
-
 	try {
 		if (OFP12CR_ROLE_SLAVE == role) {
 			send_error_is_slave(msg); return;
@@ -1693,8 +1673,7 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 
 	} catch (eFlowModUnknown& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"unspecified error, pack: %s", this, msg->c_str());
+		logging::warn << "eFlowModUnknown " << *msg << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1706,8 +1685,7 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		delete msg;
 	} catch (eFlowModTableFull& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"table full, pack: %s", this, msg->c_str());
+		logging::warn << "eFlowModTableFull " << *msg << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1719,8 +1697,7 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		delete msg;
 	} catch (eFlowModBadTableId& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"bad table-id, pack: %s", this, msg->c_str());
+		logging::warn << "eFlowModBadTableId " << *msg << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1732,8 +1709,7 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		delete msg;
 	} catch (eFlowModOverlap& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"flow-mod overlaps while CHECK_OVERLAP flag is set, pack: %s", this, msg->c_str());
+		logging::warn << "eFlowModOverlap " << *msg << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1745,8 +1721,7 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		delete msg;
 	} catch (eFlowModEperm& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"permissions error, pack: %s", this, msg->c_str());
+		logging::warn << "eFlowModEperm " << *msg << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1758,8 +1733,7 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		delete msg;
 	} catch (eFlowModBadTimeout&e ) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"bad timeout value, pack: %s", this, msg->c_str());
+		logging::warn << "eFlowModBadTimeout " << *msg << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1771,8 +1745,7 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		delete msg;
 	} catch (eFlowModBadCommand& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"bad command value, pack: %s", this, msg->c_str());
+		logging::warn << "eFlowModBadCommand " << *msg << std::endl;
 
 		rofbase->send_error_message(
 					this,
@@ -1784,17 +1757,12 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		delete msg;
 	} catch (eFlowModBase& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::flow_mod_rcvd() "
-				"base class of exception eFlowModBase caught, pack: %s",
-				this, msg->c_str());
+		logging::warn << "eFlowModBase " << *msg << std::endl;
 
 		delete msg;
 	} catch (eFspNotAllowed& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"-FLOW-MOD- blocked due to mismatch in flowspace "
-				"registration, match: %s\nflowspace-table: %s",
-				this, msg->get_match().c_str(), rofbase->fsptable.c_str());
+		logging::warn << "eFspNotAllowed " << *msg << " fsptable:" << rofbase->fsptable << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1806,9 +1774,7 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		delete msg;
 	} catch (eRofBaseTableNotFound& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"invalid table-id %d specified",
-				this, msg->get_table_id());
+		logging::warn << "eRofBaseTableNotFound " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1820,8 +1786,7 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		delete msg;
 	} catch (eInstructionInvalType& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"unknown instruction found", this);
+		logging::warn << "eInstructionInvalType " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1833,8 +1798,7 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		delete msg;
 	} catch (eRofBaseGotoTableNotFound& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"GOTO-TABLE instruction with invalid table-id", this);
+		logging::warn << "eRofBaseGotoTableNotFound " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1846,8 +1810,7 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		delete msg;
 	} catch (eInstructionBadExperimenter& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"unknown OFPIT_EXPERIMENTER extension received", this);
+		logging::warn << "eInstructionBadExperimenter " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1859,8 +1822,7 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		delete msg;
 	} catch (eOFmatchInvalBadValue& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"bad value in match structure", this);
+		logging::warn << "eOFmatchInvalBadValue " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1872,8 +1834,7 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 		delete msg;
 	} catch (cerror &e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::flow_mod_rcvd() "
-				"default catch for cerror exception", this);
+		logging::warn << "cerror " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1901,8 +1862,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 
 	} catch (eGroupModExists& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"group-id already exists, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModExists " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1915,8 +1875,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModInvalGroup& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"group specified is invalid, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModInvalGroup " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1929,8 +1888,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModWeightUnsupported& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"group weight unsupported, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModWeightUnsupported " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1943,8 +1901,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModOutOfGroups& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"out of groups, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModOutOfGroups " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1957,8 +1914,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModOutOfBuckets& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"out of buckets, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModOutOfBuckets " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1971,8 +1927,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModChainingUnsupported& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"chaining unsupported, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModChainingUnsupported " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1985,8 +1940,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModWatchUnsupported& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"group watch unsupported, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModWatchUnsupported " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -1999,8 +1953,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModLoop& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"group would cause a loop, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModLoop " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2013,8 +1966,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModUnknownGroup& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"group-modify for non-existing group attempted, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModUnknownGroup " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2027,8 +1979,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModChainedGroup& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"group not deleted, as another group is forwarding to it, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModChainedGroup " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2041,8 +1992,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModBadType& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"unsupported or unknown group type, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModBadType " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2055,8 +2005,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModBadCommand& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"unsupported or unknown command, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModBadCommand " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2069,8 +2018,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModBadBucket& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"error in bucket, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModBadBucket " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2083,8 +2031,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModBadWatch& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"error in watch port/group, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModBadWatch " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2097,8 +2044,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModEperm& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"permissions error, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModEperm " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2111,8 +2057,7 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 		delete msg;
 	} catch (eGroupModBase& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::group_mod_rcvd() "
-				"base class of exception eGroupModBase caught, pack: %s", this, msg->c_str());
+		logging::warn << "eGroupModBase " << *msg << std::endl;
 
 		delete msg;
 	}
@@ -2132,8 +2077,7 @@ cofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg)
 
 	} catch (ePortModBadPort& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::port_mod_rcvd() "
-				"Specified port number does not exist, pack: %s", this, msg->c_str());
+		logging::warn << "ePortModBadPort " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2145,8 +2089,7 @@ cofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg)
 		delete msg;
 	} catch (ePortModBadHwAddr& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::port_mod_rcvd() "
-				"Specified hardware address does not match the port number, pack: %s", this, msg->c_str());
+		logging::warn << "ePortModBadHwAddr " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2158,8 +2101,7 @@ cofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg)
 		delete msg;
 	} catch (ePortModBadConfig& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::port_mod_rcvd() "
-				"Specified config is invalid, pack: %s", this, msg->c_str());
+		logging::warn << "ePortModBadConfig " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2171,8 +2113,7 @@ cofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg)
 		delete msg;
 	} catch (ePortModBadAdvertise& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::port_mod_rcvd() "
-				"Specified advertise is invalid, pack: %s", this, msg->c_str());
+		logging::warn << "ePortModBadAdvertise " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2184,8 +2125,7 @@ cofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg)
 		delete msg;
 	} catch (ePortModBase& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::port_mod_rcvd() "
-				"base class of exception ePortModBase caught, pack: %s", this, msg->c_str());
+		logging::warn << "ePortModBase " << *msg << std::endl;
 
 		delete msg;
 	}
@@ -2193,47 +2133,44 @@ cofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg)
 
 
 void
-cofctlImpl::table_mod_rcvd(cofmsg_table_mod *pack)
+cofctlImpl::table_mod_rcvd(cofmsg_table_mod *msg)
 {
 	try {
 		if (OFP12CR_ROLE_SLAVE == role) {
-			send_error_is_slave(pack); return;
+			send_error_is_slave(msg); return;
 		}
 
-		rofbase->handle_table_mod(this, pack);
+		rofbase->handle_table_mod(this, msg);
 
 	} catch (eTableModBadTable& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::table_mod_rcvd() "
-				"Specified table does not exist, pack: %s", this, pack->c_str());
+		logging::warn << "eTableModBadTable " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
-				pack->get_xid(),
+				msg->get_xid(),
 				OFPET_TABLE_MOD_FAILED,
 				OFPTMFC_BAD_TABLE,
-				(uint8_t*)pack->soframe(), pack->framelen());
+				(uint8_t*)msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eTableModBadConfig& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::table_mod_rcvd() "
-				"Specified config is invalid, pack: %s", this, pack->c_str());
+		logging::warn << "eTableModBadConfig " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
-				pack->get_xid(),
+				msg->get_xid(),
 				OFPET_TABLE_MOD_FAILED,
 				OFPTMFC_BAD_CONFIG,
-				(uint8_t*)pack->soframe(), pack->framelen());
+				(uint8_t*)msg->soframe(), msg->framelen());
 
-		delete pack;
+		delete msg;
 	} catch (eTableModBase& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::table_mod_rcvd() "
-				"base class of exception eTableModBase caught, pack: %s", this, pack->c_str());
+		logging::warn << "eTableModBase " << *msg << std::endl;
 
-		delete pack;
+		delete msg;
 	}
 }
 
@@ -2246,8 +2183,7 @@ cofctlImpl::stats_request_rcvd(cofmsg_stats *msg)
 		xidstore.xid_add(this, msg->get_xid());
 
 	} catch (eXidStoreXidBusy& e) {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::stats_request_rcvd() "
-				"retransmission xid:0x%x", this, msg->get_xid());
+		logging::warn << "retransmitted Stats-Request " << *msg << std::endl;
 	}
 
 	switch (msg->get_stats_type()) {
@@ -2303,9 +2239,7 @@ cofctlImpl::stats_reply_sent(cofmsg *msg)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::stats_reply_sent() "
-				"xid:0x%x not found",
-				this, xid);
+		logging::warn << "spurious xid in reply to Stats-Request " << *msg << std::endl;
 	}
 }
 
@@ -2319,8 +2253,7 @@ cofctlImpl::role_request_rcvd(cofmsg_role_request *msg)
 			xidstore.xid_add(this, msg->get_xid());
 
 		} catch (eXidStoreXidBusy& e) {
-			WRITELOG(COFCTL, WARN, "cofctl(%p)::role_request_rcvd() retransmission xid:0x%x",
-					this, msg->get_xid());
+			logging::warn << "retransmitted Role-Request " << *msg << std::endl;
 		}
 
 		switch (msg->get_role()) {
@@ -2375,8 +2308,7 @@ cofctlImpl::role_request_rcvd(cofmsg_role_request *msg)
 
 	} catch (eRoleRequestStale& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::role_request_rcvd() "
-				"Stale Message: old generation_id, pack: %s", this, msg->c_str());
+		logging::warn << "eRoleRequestStale " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2388,8 +2320,7 @@ cofctlImpl::role_request_rcvd(cofmsg_role_request *msg)
 		delete msg;
 	} catch (eRoleRequestUnsupported& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::role_request_rcvd() "
-				"Controller role change unsupported, pack: %s", this, msg->c_str());
+		logging::warn << "eRoleRequestUnsupported " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2401,8 +2332,7 @@ cofctlImpl::role_request_rcvd(cofmsg_role_request *msg)
 		delete msg;
 	} catch (eRoleRequestBadRole& e) {
 
-		writelog(COFCTL, ERROR, "cofctl(%p)::role_request_rcvd() "
-				"Invalid role, pack: %s", this, msg->c_str());
+		logging::warn << "eRoleRequestBadRole " << *msg << std::endl;
 
 		rofbase->send_error_message(
 				this,
@@ -2414,8 +2344,7 @@ cofctlImpl::role_request_rcvd(cofmsg_role_request *msg)
 		delete msg;
 	} catch (eRoleRequestBase& e) {
 
-		writelog(COFCTL, WARN, "cofctl(%p)::role_request_rcvd() "
-				"base class of exception eRoleRequestBase caught, pack: %s", this, msg->c_str());
+		logging::warn << "eRoleRequestBase " << *msg << std::endl;
 
 		delete msg;
 	}
@@ -2434,9 +2363,7 @@ cofctlImpl::role_reply_sent(cofmsg *msg)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::role_reply_sent() "
-				"xid:0x%x not found",
-				this, xid);
+		logging::warn << "spurious xid in reply to Role-Request " << *msg << std::endl;
 	}
 }
 
@@ -2449,8 +2376,7 @@ cofctlImpl::barrier_request_rcvd(cofmsg_barrier_request *msg)
 		xidstore.xid_add(this, msg->get_xid());
 
 	} catch (eXidStoreXidBusy& e) {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::barrier_request_rcvd() retransmission xid:0x%x",
-				this, msg->get_xid());
+		logging::warn << "retransmitted Barrier-Request " << *msg << std::endl;
 	}
 
 	rofbase->handle_barrier_request(this, msg);
@@ -2469,9 +2395,7 @@ cofctlImpl::barrier_reply_sent(cofmsg *msg)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::barrier_reply_sent() "
-				"xid:0x%x not found",
-				this, xid);
+		logging::warn << "spurious xid in reply to Barrier-Request " << *msg << std::endl;
 	}
 }
 
@@ -2484,8 +2408,7 @@ cofctlImpl::queue_get_config_request_rcvd(cofmsg_queue_get_config_request *msg)
 		xidstore.xid_add(this, msg->get_xid());
 
 	} catch (eXidStoreXidBusy& e) {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::queue_get_config_request_rcvd() retransmission xid:0x%x",
-				this, msg->get_xid());
+		logging::warn << "retransmitted Queue-Get-Config-Request " << *msg << std::endl;
 	}
 
 	rofbase->handle_queue_get_config_request(this, msg);
@@ -2504,9 +2427,7 @@ cofctlImpl::queue_get_config_reply_sent(cofmsg *msg)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::queue_get_config_reply_sent() "
-				"xid:0x%x not found",
-				this, xid);
+		logging::warn << "spurious xid in reply to Queue-Get-Config-Request " << *msg << std::endl;
 	}
 }
 
@@ -2608,8 +2529,7 @@ cofctlImpl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg)
 		xidstore.xid_add(this, msg->get_xid());
 
 	} catch (eXidStoreXidBusy& e) {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::role_request_rcvd() retransmission xid:0x%x",
-				this, msg->get_xid());
+		logging::warn << "retransmitted Get-Async-Config-Request " << *msg << std::endl;
 	}
 
 	// TODO: handle request
@@ -2637,42 +2557,12 @@ cofctlImpl::get_async_config_reply_sent(cofmsg *msg)
 		xidstore.xid_rem(xid);
 
 	} catch (eXidStoreNotFound& e) {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::get_async_config_reply_sent() "
-				"xid:0x%x not found",
-				this, xid);
+		logging::warn << "spurious xid in reply to Get-Async-Config-Request " << *msg << std::endl;
 	}
 }
 
 
 
-
-const char*
-cofctlImpl::c_str()
-{
-#if 0
-	std::string t_str;
-
-	std::map<cofbase*, cofctl*>::iterator it;
-	for (it = ofctrl_list->begin(); it != ofctrl_list->end(); ++it)
-	{
-		std::set<cofmatch*>::iterator nit;
-		for (nit = it->second->nspaces.begin(); nit != it->second->nspaces.end(); ++nit)
-		{
-			t_str.append("\n");
-			t_str.append(it->second->ctrl->c_str());
-			t_str.append(" => ");
-			t_str.append((*nit)->c_str());
-			t_str.append("\n");
-		}
-	}
-#endif
-
-	cvastring vas;
-
-	info.assign(vas("cofctl(%p) ", this));
-
-	return info.c_str();
-}
 
 
 cxidtrans&
@@ -2742,10 +2632,7 @@ cofctlImpl::send_message_via_socket(
 
 	pack->pack(mem->somem(), mem->memlen());
 
-	WRITELOG(COFCTL, DBG, "send: %s\n", mem->c_str());
-
-	WRITELOG(COFCTL, DBG, "cofctl(%p)::send_message_via_socket() new cmemory: %s",
-				this, mem->c_str());
+	logging::debug << "sending message " << *pack << std::endl;
 
 	delete pack;
 

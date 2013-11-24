@@ -53,9 +53,6 @@ public:
 	/** return length of random number
 	 */
 	size_t randlen();
-	/** dump random number as hex string
-	 */
-	const char* c_str();
 	/** convenience method: return uint8_t
 	 */
 	uint8_t uint8();
@@ -68,6 +65,17 @@ public:
 	/** convenience method: return uint64_t
 	 */
 	uint64_t uint64();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, crandom const& rand) {
+		os << "<crandom ";
+			os << dynamic_cast<cmemory const&>( rand );
+		os << ">";
+		return os;
+	};
+
 };
 
 }; // end of namespace

@@ -146,15 +146,6 @@ public:
 
 
 	/**
-	 * @brief	Returns a C-string with a description of this cofdpt instance.
-	 *
-	 * @return C-string
-	 */
-	virtual const char*
-	c_str() = 0;
-
-
-	/**
 	 * @brief	Returns caddress of connected remote entity.
 	 *
 	 * @return caddress object obtained from this->socket

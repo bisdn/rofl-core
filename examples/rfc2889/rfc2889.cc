@@ -109,12 +109,14 @@ etherswitch::handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg)
 	for (it = replies.begin(); it != replies.end(); ++it) {
 		switch (it->get_version()) {
 		case OFP10_VERSION: {
-			fprintf(stderr, "FLOW-STATS-REPLY:\n  match: %s\n  actions: %s\n",
-					it->get_match().c_str(), it->get_actions().c_str());
+			std::cerr << "FLOW-STATS-REPLY: " << std::endl;
+			std::cerr << "match: " << it->get_match() << std::endl;
+			std::cerr << "actions: " << it->get_actions() << std::endl;
 		} break;
 		case OFP12_VERSION: {
-			fprintf(stderr, "FLOW-STATS-REPLY:\n  match: %s\n  instructions: %s\n",
-					it->get_match().c_str(), it->get_instructions().c_str());
+			std::cerr << "FLOW-STATS-REPLY: " << std::endl;
+			std::cerr << "match: " << it->get_match() << std::endl;
+			std::cerr << "instructions: " << it->get_instructions() << std::endl;
 		} break;
 		default: {
 			// do nothing
@@ -141,7 +143,7 @@ etherswitch::flow_mod_delete_all()
 		fe.set_out_port(OFPP12_ANY);
 		fe.set_out_group(OFPG12_ANY);
 
-		fprintf(stderr, "FLOW-MOD: delete all: %s\n", fe.c_str());
+		std::cerr << "FLOW-MOD: delete all: " << fe << std::endl;
 
 		send_flow_mod_message(dpt, fe);
 	}
@@ -200,8 +202,7 @@ etherswitch::handle_packet_in(
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
 		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
 
-		fprintf(stderr, "etherswitch: installing FLOW-MOD with entry: %s\n",
-				fe.c_str());
+		std::cerr << "etherswitch: installing FLOW-MOD with entry: " << fe << std::endl;
 
 		send_flow_mod_message(
 				dpt,
@@ -254,8 +255,7 @@ etherswitch::handle_packet_in(
 					actions);
 		}
 
-		fprintf(stderr, "etherswitch: calling PACKET-OUT with ActionList: %s\n",
-				actions.c_str());
+		std::cerr << "etherswitch: calling PACKET-OUT with ActionList: " << actions << std::endl;
 
 	}
 	/*
@@ -283,8 +283,7 @@ etherswitch::handle_packet_in(
 		fe.instructions.next() = cofinst_write_actions(dpt->get_version());
 		fe.instructions[0].actions.next() = cofaction_output(dpt->get_version(), out_port);
 
-		fprintf(stderr, "etherswitch: calling FLOW-MOD with entry: %s\n",
-				fe.c_str());
+		std::cerr << "etherswitch: calling FLOW-MOD with entry: " << fe << std::endl;
 
 		send_flow_mod_message(
 				dpt,

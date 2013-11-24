@@ -340,30 +340,6 @@ ficmpv6frame::validate(uint16_t total_len) throw (eICMPv6FrameTooShort)
 }
 
 
-const char*
-ficmpv6frame::c_str()
-{
-	cvastring vas;
-
-	std::string s_opts;
-	for (std::map<ficmpv6opt::icmpv6_option_type_t, ficmpv6opt>::iterator it = icmpv6opts.begin();
-			it != icmpv6opts.end(); ++it) {
-		s_opts.append(vas("%s ", it->second.c_str()));
-	}
-
-	info.assign(vas("[ficmpv6frame(%p) type[%d] code[%d] checksum[0x%x] icmpv6opts(%d):%s fframe:%s]",
-			this,
-			icmpv6_hdr->type,
-			icmpv6_hdr->code,
-			be16toh(icmpv6_hdr->checksum),
-			icmpv6opts.size(),
-			s_opts.c_str(),
-			fframe::c_str() ));
-
-	return info.c_str();
-}
-
-
 
 void
 ficmpv6frame::icmpv6_calc_checksum()
@@ -408,7 +384,7 @@ ficmpv6frame::icmpv6_calc_checksum()
 
 
 uint8_t
-ficmpv6frame::get_icmpv6_code()
+ficmpv6frame::get_icmpv6_code() const
 {
 	return icmpv6_hdr->code;
 }
@@ -422,7 +398,7 @@ ficmpv6frame::set_icmpv6_code(uint8_t code)
 
 
 uint8_t
-ficmpv6frame::get_icmpv6_type()
+ficmpv6frame::get_icmpv6_type() const
 {
 	return icmpv6_hdr->type;
 }
@@ -438,7 +414,7 @@ ficmpv6frame::set_icmpv6_type(uint8_t type)
 
 
 caddress
-ficmpv6frame::get_icmpv6_neighbor_taddr() throw (eICMPv6FrameInvalType)
+ficmpv6frame::get_icmpv6_neighbor_taddr() const
 {
 	caddress addr(AF_INET6);
 	addr.ca_s6addr->sin6_family = AF_INET6;
@@ -471,7 +447,7 @@ ficmpv6frame::get_icmpv6_neighbor_taddr() throw (eICMPv6FrameInvalType)
 
 
 void
-ficmpv6frame::set_icmpv6_neighbor_taddr(caddress const& addr) throw (eICMPv6FrameInvalType)
+ficmpv6frame::set_icmpv6_neighbor_taddr(caddress const& addr)
 {
 	try {
 		if (not addr.is_af_inet6()) {
@@ -559,20 +535,9 @@ ficmpv6opt::operator= (ficmpv6opt const& opt)
 
 
 
-const char*
-ficmpv6opt::c_str()
-{
-	cvastring vas;
-
-	info.assign(vas("[ficmpv6opt(%p) %s]", this, fframe::c_str()));
-
-	return info.c_str();
-}
-
-
 
 uint8_t
-ficmpv6opt::get_opt_type()
+ficmpv6opt::get_opt_type() const
 {
 	return icmpv6_opt->type;
 }
@@ -588,8 +553,7 @@ ficmpv6opt::set_opt_type(uint8_t type)
 
 
 cmacaddr
-ficmpv6opt::get_ll_taddr()
-		throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort)
+ficmpv6opt::get_ll_taddr() const
 {
 	if (ICMPV6_OPT_LLADDR_TARGET != icmpv6_opt->type) {
 		throw eICMPv6FrameInvalType();
@@ -604,7 +568,6 @@ ficmpv6opt::get_ll_taddr()
 
 void
 ficmpv6opt::set_ll_taddr(cmacaddr const& addr)
-		throw (eICMPv6FrameTooShort)
 {
 	if (framelen() < sizeof(struct icmpv6_lla_option_t)) {
 		throw eICMPv6FrameTooShort();
@@ -615,8 +578,7 @@ ficmpv6opt::set_ll_taddr(cmacaddr const& addr)
 
 
 cmacaddr
-ficmpv6opt::get_ll_saddr()
-		throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort)
+ficmpv6opt::get_ll_saddr() const
 {
 	if (ICMPV6_OPT_LLADDR_SOURCE != icmpv6_opt->type) {
 		throw eICMPv6FrameInvalType();
@@ -631,7 +593,6 @@ ficmpv6opt::get_ll_saddr()
 
 void
 ficmpv6opt::set_ll_saddr(cmacaddr const& addr)
-		throw (eICMPv6FrameTooShort)
 {
 	if (framelen() < sizeof(struct icmpv6_lla_option_t)) {
 		throw eICMPv6FrameTooShort();
@@ -642,8 +603,7 @@ ficmpv6opt::set_ll_saddr(cmacaddr const& addr)
 
 
 uint8_t
-ficmpv6opt::get_pfx_on_link_flag()
-		throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort)
+ficmpv6opt::get_pfx_on_link_flag() const
 {
 	if (ICMPV6_OPT_PREFIX_INFO != icmpv6_opt->type) {
 		throw eICMPv6FrameInvalType();
@@ -658,7 +618,6 @@ ficmpv6opt::get_pfx_on_link_flag()
 
 void
 ficmpv6opt::set_pfx_on_link_flag(uint8_t flag)
-		throw (eICMPv6FrameTooShort)
 {
 	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
 		throw eICMPv6FrameTooShort();
@@ -669,8 +628,7 @@ ficmpv6opt::set_pfx_on_link_flag(uint8_t flag)
 
 
 uint8_t
-ficmpv6opt::get_pfx_aac_flag()
-		throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort)
+ficmpv6opt::get_pfx_aac_flag() const
 {
 	if (ICMPV6_OPT_PREFIX_INFO != icmpv6_opt->type) {
 		throw eICMPv6FrameInvalType();
@@ -685,7 +643,6 @@ ficmpv6opt::get_pfx_aac_flag()
 
 void
 ficmpv6opt::set_pfx_aac_flag(uint8_t flag)
-		throw (eICMPv6FrameTooShort)
 {
 	if (framelen() < sizeof(struct icmpv6_prefix_info_t)) {
 		throw eICMPv6FrameTooShort();

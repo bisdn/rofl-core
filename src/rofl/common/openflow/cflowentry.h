@@ -92,11 +92,6 @@ public: // methods
 	void
 	reset();
 
-	/** dump flow entry info
-	 */
-	const char*
-	c_str();
-
 	/** pack flowentry, i.e. add actions to flow_mod structure ready for transmission
 	 * @return length of flow_mod structure including actions
 	 */
@@ -212,14 +207,55 @@ public: // getter methods for ofp_flow_mod structure
 
 private: // data structures
 
-	std::string info;				// info string
 	cmemory flow_mod_area;			// flow mod memory area
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cflowentry const& fe) {
-		// TODO
+		os << "<cflowentry ";
+		switch (fe.of_version) {
+		case OFP12_VERSION: {
+			switch (fe.get_command()) {
+			case OFPFC_ADD: 			os << "OFPFC-ADD "; 			break;
+			case OFPFC_DELETE:			os << "OFPFC-DELETE "; 			break;
+			case OFPFC_DELETE_STRICT:	os << "OFPFC-DELETE-STRICT "; 	break;
+			case OFPFC_MODIFY:			os << "OFPFC-MODIFY "; 			break;
+			case OFPFC_MODIFY_STRICT:	os << "OFPFC-MODIFY-STRICT ";	break;
+			default:					os << "UNKNOWN ";				break;
+			}
+			os << "table-id:" 		<< (int)fe.get_table_id() << " ";
+			os << "buffer-id:" 		<< (int)fe.get_buffer_id() << " ";
+			os << "idle-timeout:" 	<< (int)fe.get_idle_timeout() << " ";
+			os << "hard-timeout:" 	<< (int)fe.get_hard_timeout() << " ";
+			os << "priority:" 		<< (int)fe.get_priority() << " ";
+			os << std::endl;
+			os << "match:" 			<< fe.match << std::endl;
+			os << "instructions:" 	<< fe.instructions << std::endl;
+		} break;
+		case OFP13_VERSION: {
+			switch (fe.get_command()) {
+			case OFPFC_ADD: 			os << "OFPFC-ADD "; 			break;
+			case OFPFC_DELETE:			os << "OFPFC-DELETE "; 			break;
+			case OFPFC_DELETE_STRICT:	os << "OFPFC-DELETE-STRICT "; 	break;
+			case OFPFC_MODIFY:			os << "OFPFC-MODIFY "; 			break;
+			case OFPFC_MODIFY_STRICT:	os << "OFPFC-MODIFY-STRICT ";	break;
+			default:					os << "UNKNOWN ";				break;
+			}
+			os << "table-id:" 		<< (int)fe.get_table_id() << " ";
+			os << "buffer-id:" 		<< (int)fe.get_buffer_id() << " ";
+			os << "idle-timeout:" 	<< (int)fe.get_idle_timeout() << " ";
+			os << "hard-timeout:" 	<< (int)fe.get_hard_timeout() << " ";
+			os << "priority:" 		<< (int)fe.get_priority() << " ";
+			os << std::endl;
+			os << "match:" 			<< fe.match << std::endl;
+			os << "instructions:" 	<< fe.instructions << std::endl;
+		} break;
+		default: {
+			os << "unknown";
+		} break;
+		}
+		os << ">";
 		return os;
 	};
 };

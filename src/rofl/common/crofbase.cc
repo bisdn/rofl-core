@@ -75,31 +75,6 @@ crofbase::rpc_close_all()
 
 
 
-const char*
-crofbase::c_str()
-{
-	cvastring vas(1024);
-
-	info.assign(vas("crofbase(%p): ", this));
-
-	// cofctrl instances
-	info.append(vas("\nlist of registered cofctl instances: =>"));
-	for (std::set<cofctl*>::iterator
-			it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
-	{
-		info.append(vas("\n  %s", (*it)->c_str()));
-	}
-
-	// cofswitch instances
-	info.append(vas("\nlist of registered cofdpt instances: =>"));
-	for (std::set<cofdpt*>::iterator
-			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
-	{
-		info.append(vas("\n  %s", (*it)->c_str()));
-	}
-
-	return info.c_str();
-}
 
 
 
@@ -630,16 +605,13 @@ crofbase::send_hello_message(
 		cofctl *ctl,
 		uint8_t *body, size_t bodylen)
 {
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_hello_message()", this);
-
 	cofmsg_hello *pack =
 			new cofmsg_hello(
 					ctl->get_version(),
 					ta_new_async_xid(),
 					(uint8_t*)body, bodylen);
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_hello_message() new %s", this,
-			pack->c_str());
+	logging::debug << "sending HELLO message " << std::endl << *pack << std::endl;
 
 	ctl_find(ctl)->send_message(pack);
 }
@@ -651,8 +623,6 @@ crofbase::send_hello_message(
 		cofdpt *dpt,
 		uint8_t *body, size_t bodylen)
 {
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_hello_message()", this);
-
 	cofmsg_hello *pack =
 			new cofmsg_hello(
 					dpt->get_version(),
@@ -660,8 +630,7 @@ crofbase::send_hello_message(
 					body,
 					bodylen);
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_hello_message() new %s", this,
-			pack->c_str());
+	logging::debug << "sending HELLO message " << std::endl << *pack << std::endl;
 
 	dpt_find(dpt)->send_message(pack);
 }
@@ -691,8 +660,7 @@ crofbase::send_echo_request(
 					body,
 					bodylen);
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_request() %s",
-			this, msg->c_str());
+	logging::debug << "sending Echo-Request message " << std::endl << *msg << std::endl;
 
 	dpt_find(dpt)->send_message(msg);
 }
@@ -712,8 +680,7 @@ crofbase::send_echo_reply(
 					body,
 					bodylen);
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_reply() %s",
-				this, msg->c_str());
+	logging::debug << "sending Echo-Reply message " << std::endl << *msg << std::endl;
 
 	dpt_find(dpt)->send_message(msg);
 }
@@ -742,8 +709,7 @@ crofbase::send_echo_request(
 					body,
 					bodylen);
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_request() %s",
-				this, msg->c_str());
+	logging::debug << "sending Echo-Request message " << std::endl << *msg << std::endl;
 
 	ctl_find(ctl)->send_message(msg);
 }
@@ -763,8 +729,7 @@ crofbase::send_echo_reply(
 					body,
 					bodylen);
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_echo_reply() %s",
-				this, msg->c_str());
+	logging::debug << "sending Echo-Reply message " << std::endl << *msg << std::endl;
 
 	ctl_find(ctl)->send_message(msg);
 }
@@ -1681,11 +1646,9 @@ crofbase::send_packet_in_message(
 							data,
 							datalen);
 
-			pack->pack();
+			logging::debug << "sending Packet-In message " << std::endl << *pack << std::endl;
 
-			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
-							"sending PACKET-IN for buffer_id:0x%x pack: %s",
-							this, buffer_id, pack->c_str());
+			pack->pack();
 
 			ctl_find(ctl)->send_message(pack);
 
@@ -1734,11 +1697,9 @@ crofbase::send_packet_in_message(
 								data,
 								datalen);
 
-				pack->pack();
+				logging::debug << "sending Packet-In message " << std::endl << *pack << std::endl;
 
-				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
-								"sending PACKET-IN for buffer_id:0x%x to controller %s, pack: %s",
-								this, buffer_id, ctl->c_str(), pack->c_str());
+				pack->pack();
 
 				// straight call to layer-(n+1) entity's fe_up_packet_in() method
 				ctl_find(ctl)->send_message(pack);
@@ -1759,10 +1720,6 @@ crofbase::send_packet_in_message(
 			bool no_active_ctl = true;
 
 			for (std::set<cofctl*>::iterator it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
-
-				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
-								"sending PACKET-IN for buffer_id:0x%x to controller %s",
-								this, buffer_id, ctl_find(*it)->c_str());
 
 				if (not (*it)->is_established()) {
 					continue;
@@ -1788,11 +1745,9 @@ crofbase::send_packet_in_message(
 								data,
 								datalen);
 
-				pack->pack();
+				logging::debug << "sending Packet-In message " << std::endl << *pack << std::endl;
 
-				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
-								"sending PACKET-IN for buffer_id:0x%x pack: %s",
-								this, buffer_id, pack->c_str());
+				pack->pack();
 
 				// straight call to layer-(n+1) entity's fe_up_packet_in() method
 				ctl_find(*it)->send_message(pack);
@@ -1806,12 +1761,14 @@ crofbase::send_packet_in_message(
 	} catch (eFspNoMatch& e) {
 
 		cpacket pack(data, datalen);
-		WRITELOG(CROFBASE, ERROR, "crofbase(%p)::send_packet_in_message() no ctrl found for packet: %s", this, pack.c_str());
+
+		logging::warn << "no ctl found for Packet-In" << std::endl << pack << std::endl;
 
 	} catch (eRofBaseNotFound& e) {
 
 		cpacket pack(data, datalen);
-		WRITELOG(CROFBASE, ERROR, "crofbase(%p)::send_packet_in_message() no ctrl found for packet: %s", this, pack.c_str());
+
+		logging::warn << "no ctl found for Packet-In" << std::endl << pack << std::endl;
 
 	}
 }
@@ -1948,6 +1905,8 @@ crofbase::send_role_reply(
 					xid,
 					role,
 					generation_id);
+
+	msg->pack();
 
 	ctl_find(ctl)->send_message(msg);
 }
@@ -2100,8 +2059,7 @@ crofbase::send_flow_mod_message(
 
 	pack->pack();
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_mod_message() "
-			"pack: %s", this, pack->c_str());
+	logging::debug << "send Flow-Mod message" << std::endl << pack << std::endl;
 
 	dpt_find(dpt)->send_message(pack);
 }
@@ -2133,8 +2091,7 @@ crofbase::send_flow_mod_message(
 
 	pack->pack();
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_mod_message() pack: %s",
-			this, pack->c_str());
+	logging::debug << "sending Flow-Mod message" << std::endl << pack << std::endl;
 
 	dpt_find(dpt)->send_message(pack);
 }
@@ -2162,7 +2119,7 @@ crofbase::send_group_mod_message(
 
 	pack->pack();
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_group_mod_message() %s", this, pack->c_str());
+	logging::debug << "sending Group-Mod message" << std::endl << pack << std::endl;
 
 	dpt_find(dpt)->send_message(pack);
 }
@@ -2193,6 +2150,10 @@ crofbase::send_port_mod_message(
 					mask,
 					advertise);
 
+	pack->pack();
+
+	logging::debug << "sending Port-Mod message" << std::endl << pack << std::endl;
+
 	dpt_find(dpt)->send_message(pack);
 }
 
@@ -2217,7 +2178,9 @@ crofbase::send_table_mod_message(
 						table_id,
 						config);
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_table_mod_message() %s", this, pack->c_str());
+	pack->pack();
+
+	logging::debug << "sending Table-Mod message" << std::endl << pack << std::endl;
 
 	dpt_find(dpt)->send_message(pack);
 }
@@ -2283,7 +2246,7 @@ crofbase::send_flow_removed_message(
 
 			pack->pack();
 
-			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_removed_message() to controller %s", this, ofctrl->c_str());
+			logging::debug << "send Flow-Removed message" << std::endl << pack << std::endl;
 
 			// straight call to layer-(n+1) entity's fe_up_packet_in() method
 			ctl_find(ofctrl)->send_message(pack);
@@ -2311,17 +2274,11 @@ crofbase::send_port_status_message(
 	uint8_t reason,
 	cofport const& port)
 {
-	cofport c_port(port); // FIXME: c_str should be const
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_port_status_message() %s", this, c_port.c_str());
-
 	if (0 != ctl) {
 
 		if (ofctl_set.find(ctl) == ofctl_set.end()) {
 			throw eRofBaseNotConnected();
 		}
-
-		WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_port_status_message() "
-				"to ctrl %s", this, ctl->c_str());
 
 		cofmsg_port_status *pack =
 				new cofmsg_port_status(
@@ -2329,6 +2286,10 @@ crofbase::send_port_status_message(
 							ta_new_async_xid(),
 							reason,
 							port);
+
+		pack->pack();
+
+		logging::debug << "sending PortStatus message" << std::endl << pack << std::endl;
 
 		(ctl)->send_message(pack);
 
@@ -2342,15 +2303,16 @@ crofbase::send_port_status_message(
 				continue;
 			}
 
-			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_port_status_message() "
-					"to ctrl %s", this, (*it)->c_str());
-
 			cofmsg_port_status *pack =
 					new cofmsg_port_status(
 								(*it)->get_version(),
 								ta_new_async_xid(),
 								reason,
 								port);
+
+			pack->pack();
+
+			logging::debug << "sending PortStatus message" << std::endl << pack << std::endl;
 
 			(*it)->send_message(pack);
 		}
@@ -2451,9 +2413,9 @@ crofbase::send_experimenter_message(
 
 	msg->pack();
 
-	xid = msg->get_xid();
+	logging::debug << "sending Experimenter message" << std::endl << *msg << std::endl;
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_experimenter_message() -down- %s", this, msg->c_str());
+	xid = msg->get_xid();
 
 	if (NULL == dpt) // send to all attached data path entities
 	{
@@ -2497,7 +2459,7 @@ crofbase::send_experimenter_message(
 
 	xid = msg->get_xid();
 
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_experimenter_message() -up- %s", this, msg->c_str());
+	logging::debug << "sending Experimenter message" << std::endl << *msg << std::endl;
 
 	if ((cofctl*)0 == ctl) // send to all attached controller entities
 	{

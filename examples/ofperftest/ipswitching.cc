@@ -93,8 +93,7 @@ ipswitching::install_flow_mods(cofdpt *dpt, unsigned int n)
 		fe.instructions.next() = cofinst_write_actions(dpt->get_version());
 		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), portnums[(i%2)]);
 
-		fprintf(stderr, "ipswitching: installing fake FLowMod entry #%d: %s\n",
-				i, fe.c_str());
+		std::cerr << "ipswitching: installing fake FLowMod entry #" << i << ": " << fe << std::endl;
 
 		send_flow_mod_message(dpt, fe);
 	}
@@ -116,7 +115,7 @@ ipswitching::flow_mod_delete_all()
 		fe.set_out_port(OFPP12_ANY);
 		fe.set_out_group(OFPG12_ANY);
 
-		fprintf(stderr, "FLOW-MOD: delete all: %s\n", fe.c_str());
+		std::cerr << "FLOW-MOD: delete all: " << fe << std::endl;
 
 		send_flow_mod_message(dpt, fe);
 	}
@@ -168,8 +167,7 @@ ipswitching::handle_packet_in(
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
 		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
 
-		fprintf(stderr, "ipswitching: installing FLOW-MOD with entry: %s\n",
-				fe.c_str());
+		std::cerr << "ipswitching: installing FLOW-MOD with entry: " << fe << std::endl;
 
 		send_flow_mod_message(dpt, fe);
 
@@ -369,8 +367,7 @@ ipswitching::handle_packet_in_ipv4(
 
 		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), fib[dpt][ip_dst].port_no);
 
-		fprintf(stderr, "ipswitching::handle_packet_in_ipv4() setting FlowMod entry: %s\n",
-				fe.c_str());
+		std::cerr << "ipswitching::handle_packet_in_ipv4() setting FlowMod entry: " << fe << std::endl;
 
 		send_flow_mod_message(dpt, fe);
 	}
@@ -454,8 +451,7 @@ ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 		actions.next() = cofaction_output(dpt->get_version(), it->second.port_no);
 
 #if 1
-		fprintf(stderr, "ipswitching::flood_vlans() %s => %s with actions: %s\n",
-				ip_src.addr_c_str(), it->second.addr.addr_c_str(), actions.c_str());
+		std::cerr << "ipswitching::flood_vlans() " << ip_src << " => " << it->second.addr << " with actions: " << actions << std::endl;
 #endif
 
 		if (OFP_NO_BUFFER == msg->get_buffer_id()) {
@@ -501,6 +497,5 @@ ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 				actions);
 	}
 
-	fprintf(stderr, "ipswitching: forwarding ARP packet (FLOOD) with ActionList: %s\n",
-			actions.c_str());
+	std::cerr << "ipswitching: forwarding ARP packet (FLOOD) with ActionList: " << actions << std::endl;
 }

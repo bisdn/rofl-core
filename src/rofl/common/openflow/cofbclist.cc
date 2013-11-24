@@ -95,8 +95,6 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 {
 	clear(); // clears elems
 
-	WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() bclen:%d", this, bclen);
-
 	// sanity check: bclen must be of size at least of ofp_bucket
 	if (bclen < (int)sizeof(struct ofp12_bucket))
 		return elems;
@@ -112,11 +110,7 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 
 		cofbucket bucket(ofp_version, (uint8_t*)bchdr, be16toh(bchdr->len));
 
-		WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() new bucket[1]: %s", this, bucket.c_str());
-
 		next() = cofbucket(ofp_version, (uint8_t*)bchdr, be16toh(bchdr->len) );
-
-		WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() new bucket: %s", this, back().c_str());
 
 		bclen -= be16toh(bchdr->len);
 		bchdr = (struct ofp12_bucket*)(((uint8_t*)bchdr) + be16toh(bchdr->len));
@@ -137,8 +131,6 @@ cofbclist::pack(
 		throw eBcListInval();
 
 	struct ofp12_bucket *bchdr = buckets; // first bucket header
-
-	WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::pack()", this);
 
 	cofbclist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
@@ -162,8 +154,6 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 {
 	clear(); // clears elems
 
-	WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() bclen:%d", this, bclen);
-
 	// sanity check: bclen must be of size at least of ofp_bucket
 	if (bclen < (int)sizeof(struct ofp13_bucket))
 		return elems;
@@ -179,11 +169,7 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 
 		cofbucket bucket(ofp_version, (uint8_t*)bchdr, be16toh(bchdr->len));
 
-		WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() new bucket[1]: %s", this, bucket.c_str());
-
 		next() = cofbucket(ofp_version, (uint8_t*)bchdr, be16toh(bchdr->len) );
-
-		WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::unpack() new bucket: %s", this, back().c_str());
 
 		bclen -= be16toh(bchdr->len);
 		bchdr = (struct ofp13_bucket*)(((uint8_t*)bchdr) + be16toh(bchdr->len));
@@ -204,8 +190,6 @@ cofbclist::pack(
 		throw eBcListInval();
 
 	struct ofp13_bucket *bchdr = buckets; // first bucket header
-
-	WRITELOG(COFBUCKET, DBG, "cofbclist(%p)::pack()", this);
 
 	cofbclist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)

@@ -32,16 +32,6 @@ croflexp::~croflexp()
 }
 
 
-const char*
-croflexp::c_str()
-{
-	cvastring vas;
-
-	info.assign(vas("croflexp(%p) %s", this, mem.c_str()));
-
-	return info.c_str();
-}
-
 
 void
 croflexp::pack(uint8_t *__body, size_t __bodylen) throw (eRoflExpInval)

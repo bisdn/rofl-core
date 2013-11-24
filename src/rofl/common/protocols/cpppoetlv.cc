@@ -137,19 +137,6 @@ cpppoetlv::unpack(struct pppoe_tag_hdr_t *tlv, size_t tlvlen) throw (ePPPoEInval
 
 
 
-const char*
-cpppoetlv::c_str()
-{
-	cvastring vas;
-	info.assign(vas("cpppoetlv(%p) type:%d length:%d mem:%s",
-			this,
-			get_hdr_type(),
-			get_hdr_length(),
-			tlvmem.c_str()));
-	return info.c_str();
-}
-
-
 
 void
 cpppoetlv::set_hdr_type(uint16_t type)

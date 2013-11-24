@@ -135,12 +135,6 @@ public: // methods
 	/**
 	 *
 	 */
-	virtual const char*
-	c_str();
-
-	/**
-	 *
-	 */
 	void
 	set_hdr_type(uint16_t type);
 
@@ -162,10 +156,17 @@ public: // methods
 	uint16_t
 	get_hdr_length() const;
 
-protected: // data structures
+public:
 
-	std::string info;
-
+	friend std::ostream&
+	operator<< (std::ostream& os, cpppoetlv const& tlv) {
+		os << "<cpppoetlv ";
+			os << "hdr-type:" << (int)tlv.get_hdr_type() << " ";
+			os << "hdr-len:" << (int)tlv.get_hdr_length() << " ";
+			os << "mem:" << tlv.tlvmem << " ";
+		os << ">";
+		return os;
+	};
 };
 
 
@@ -216,12 +217,12 @@ public:
 	};
 	cpppoetlv_end(cpppoetlv const& tlv) :
 		cpppoetlv(tlv) {};
-	virtual const char*
-	c_str()
-	{
-		cvastring vas;
-		info.append(vas("cpppoetlv(%p) PPPoE -END-OF-LIST- TLV", this));
-		return info.c_str();
+	friend std::ostream&
+	operator<< (std::ostream& os, cpppoetlv_end const& end) {
+		os << "<cpppoetlv_end ";
+			os << dynamic_cast<cpppoetlv const&>( end ) << " ";
+		os << ">";
+		return os;
 	};
 };
 
@@ -233,17 +234,17 @@ public:
 	cpppoetlv_service_name(cpppoetlv const& tlv) :
 		cpppoetlv(tlv) {};
 	std::string
-	get_svc_name()
-	{
+	get_svc_name() const {
 		std::string svcname((const char*)tlv_hdr->data, get_hdr_length());
 		return svcname;
 	};
-	virtual const char*
-	c_str()
-	{
-		cvastring vas;
-		info.append(vas("cpppoetlv_service_name(%p) PPPoE -Service-Name- TLV [%s]", this, get_svc_name().c_str()));
-		return info.c_str();
+	friend std::ostream&
+	operator<< (std::ostream& os, cpppoetlv_service_name const& svc_name) {
+		os << "<cpppoetlv_service_name ";
+			os << "svc-name:" << svc_name.get_svc_name() << " ";
+			os << dynamic_cast<cpppoetlv const&>( svc_name ) << " ";
+		os << ">";
+		return os;
 	};
 };
 
@@ -254,13 +255,12 @@ public:
 		cpppoetlv(PPPOE_TAG_AC_NAME, acname) {};
 	cpppoetlv_ac_name(cpppoetlv const& tlv) :
 		cpppoetlv(tlv) {};
-	virtual const char*
-	c_str()
-	{
-		cvastring vas;
-		std::string acname((const char*)tlv_hdr->data, get_hdr_length());
-		info.append(vas("cpppoetlv_ac_name(%p) PPPoE -AC-Name- TLV [%s]", this, acname.c_str()));
-		return info.c_str();
+	friend std::ostream&
+	operator<< (std::ostream& os, cpppoetlv_ac_name const& ac_name) {
+		os << "<cpppoetlv_ac_name ";
+			os << dynamic_cast<cpppoetlv const&>( ac_name ) << " ";
+		os << ">";
+		return os;
 	};
 };
 
@@ -272,18 +272,17 @@ public:
 	cpppoetlv_host_uniq(cpppoetlv const& tlv) :
 		cpppoetlv(tlv) {};
 	cmemory
-	get_host_uniq()
-	{
+	get_host_uniq() const {
 		cmemory hostuniq((uint8_t*)tlv_hdr->data, get_hdr_length());
 		return hostuniq;
 	};
-	virtual const char*
-	c_str()
-	{
-		cvastring vas;
-		cmemory opaque(tlv_hdr->data, get_hdr_length());
-		info.append(vas("cpppoetlv_host_uniq(%p) PPPoE -Host-Uniq- TLV [%s]", this, opaque.c_str()));
-		return info.c_str();
+	friend std::ostream&
+	operator<< (std::ostream& os, cpppoetlv_host_uniq const& host_uniq) {
+		os << "<cpppoetlv_host_uniq ";
+			os << "host-uniq:" << host_uniq.get_host_uniq() << " ";
+			os << dynamic_cast<cpppoetlv const&>( host_uniq ) << " ";
+		os << ">";
+		return os;
 	};
 };
 
@@ -294,13 +293,12 @@ public:
 		cpppoetlv(PPPOE_TAG_AC_COOKIE, opaque) {};
 	cpppoetlv_ac_cookie(cpppoetlv const& tlv) :
 		cpppoetlv(tlv) {};
-	virtual const char*
-	c_str()
-	{
-		cvastring vas;
-		cmemory opaque(tlv_hdr->data, get_hdr_length());
-		info.append(vas("cpppoetlv_ac_cookie(%p) PPPoE -AC-Cookie- TLV [%s]", this, opaque.c_str()));
-		return info.c_str();
+	friend std::ostream&
+	operator<< (std::ostream& os, cpppoetlv_ac_cookie const& ac_cookie) {
+		os << "<cpppoetlv_ac_cookie ";
+			os << dynamic_cast<cpppoetlv const&>( ac_cookie ) << " ";
+		os << ">";
+		return os;
 	};
 };
 
@@ -314,13 +312,12 @@ public:
 		cpppoetlv(PPPOE_TAG_RELAY_SESSION_ID, opaque) {};
 	cpppoetlv_relay_session_id(cpppoetlv const& tlv) :
 		cpppoetlv(tlv) {};
-	virtual const char*
-	c_str()
-	{
-		cvastring vas;
-		cmemory opaque(tlv_hdr->data, get_hdr_length());
-		info.append(vas("cpppoetlv_relay_session_id(%p) PPPoE -Relay-Session-ID- TLV [%s]", this, opaque.c_str()));
-		return info.c_str();
+	friend std::ostream&
+	operator<< (std::ostream& os, cpppoetlv_relay_session_id const& relay_sid) {
+		os << "<cpppoetlv_relay_session_id ";
+			os << dynamic_cast<cpppoetlv const&>( relay_sid ) << " ";
+		os << ">";
+		return os;
 	};
 };
 
@@ -331,13 +328,12 @@ public:
 		cpppoetlv(PPPOE_TAG_SERVICE_NAME_ERROR, s_err) {};
 	cpppoetlv_service_name_error(cpppoetlv const& tlv) :
 		cpppoetlv(tlv) {};
-	virtual const char*
-	c_str()
-	{
-		cvastring vas;
-		std::string value((const char*)tlv_hdr->data, get_hdr_length());
-		info.append(vas("cpppoetlv_service_name_error(%p) PPPoE -Service-Name-Error- TLV [%s]", this, value.c_str()));
-		return info.c_str();
+	friend std::ostream&
+	operator<< (std::ostream& os, cpppoetlv_service_name_error const& svc_name_error) {
+		os << "<cpppoetlv_service_name_error ";
+			os << dynamic_cast<cpppoetlv const&>( svc_name_error ) << " ";
+		os << ">";
+		return os;
 	};
 };
 
@@ -348,13 +344,12 @@ public:
 		cpppoetlv(PPPOE_TAG_AC_SYSTEM_ERROR, s_err) {};
 	cpppoetlv_ac_system_error(cpppoetlv const& tlv) :
 		cpppoetlv(tlv) {};
-	virtual const char*
-	c_str()
-	{
-		cvastring vas;
-		std::string value((const char*)tlv_hdr->data, get_hdr_length());
-		info.append(vas("cpppoetlv_ac_system_error(%p) PPPoE -AC-System-Error- TLV [%s]", this, value.c_str()));
-		return info.c_str();
+	friend std::ostream&
+	operator<< (std::ostream& os, cpppoetlv_ac_system_error const& ac_system_error) {
+		os << "<cpppoetlv_ac_system_error ";
+			os << dynamic_cast<cpppoetlv const&>( ac_system_error ) << " ";
+		os << ">";
+		return os;
 	};
 };
 
@@ -365,13 +360,12 @@ public:
 		cpppoetlv(PPPOE_TAG_GENERIC_ERROR, s_err) {};
 	cpppoetlv_generic_error(cpppoetlv const& tlv) :
 		cpppoetlv(tlv) {};
-	virtual const char*
-	c_str()
-	{
-		cvastring vas;
-		std::string value((const char*)tlv_hdr->data, get_hdr_length());
-		info.append(vas("cpppoetlv_generic_error(%p) PPPoE -Generic-Error- TLV [%s]", this, value.c_str()));
-		return info.c_str();
+	friend std::ostream&
+	operator<< (std::ostream& os, cpppoetlv_generic_error const& generic_error) {
+		os << "<cpppoetlv_generic_error ";
+			os << dynamic_cast<cpppoetlv const&>( generic_error ) << " ";
+		os << ">";
+		return os;
 	};
 };
 
@@ -401,7 +395,9 @@ public:
 		set_hdr_vend_id(PPPOE_TAG_VENDORID_BBF_IANA);
 	};
 	cpppoetlv_access_loop_id(cpppoetlv const& tlv) :
-		cpppoetlv(tlv) {};
+		cpppoetlv(tlv) {
+		this->tlv = (struct pppoe_tag_vendor_hdr_t*)tlvmem.memlen();
+	};
 	/**
 	 *
 	 */
@@ -411,6 +407,13 @@ public:
 		tlv = (struct pppoe_tag_vendor_hdr_t*)tlvmem.somem();
 
 		tlv->vendor_id = htobe32(vend_id);
+	};
+	friend std::ostream&
+	operator<< (std::ostream& os, cpppoetlv_access_loop_id const& access_loop_id) {
+		os << "<cpppoetlv_access_loop_id ";
+			os << dynamic_cast<cpppoetlv const&>( access_loop_id ) << " ";
+		os << ">";
+		return os;
 	};
 };
 

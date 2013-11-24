@@ -48,11 +48,6 @@ crandom::randlen()
 }
 
 
-const char*
-crandom::c_str()
-{
-	return cmemory::c_str();
-}
 
 uint8_t
 crandom::uint8()

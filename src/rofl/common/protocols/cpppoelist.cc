@@ -122,88 +122,6 @@ cpppoelist::length()
 }
 
 
-const char*
-cpppoelist::c_str()
-{
-	cvastring vas(1024);
-	info.assign(vas("cpppoelist(%p) %d lldp tlv(s): ", this, elems.size()));
-	cpppoelist::iterator it;
-	for (it = elems.begin(); it != elems.end(); ++it)
-	{
-		switch ((*it).get_hdr_type()) {
-		case cpppoetlv::PPPOE_TAG_END_OF_LIST:
-		{
-			cpppoetlv_end tlv((*it));
-			info.append(vas("\n  %s", tlv.c_str()));
-			break;
-		}
-		case cpppoetlv::PPPOE_TAG_SERVICE_NAME:
-		{
-			cpppoetlv_service_name tlv((*it));
-			info.append(vas("\n  %s", tlv.c_str()));
-			break;
-		}
-		case cpppoetlv::PPPOE_TAG_AC_NAME:
-		{
-			cpppoetlv_ac_name tlv((*it));
-			info.append(vas("\n  %s", tlv.c_str()));
-			break;
-		}
-		case cpppoetlv::PPPOE_TAG_HOST_UNIQ:
-		{
-			cpppoetlv_host_uniq tlv((*it));
-			info.append(vas("\n  %s", tlv.c_str()));
-			break;
-		}
-		case cpppoetlv::PPPOE_TAG_AC_COOKIE:
-		{
-			cpppoetlv_ac_cookie tlv((*it));
-			info.append(vas("\n  %s", tlv.c_str()));
-			break;
-		}
-		case cpppoetlv::PPPOE_TAG_VENDOR_SPECIFIC:
-		{
-			cpppoetlv tlv((*it));
-			info.append(vas("\n  %s", tlv.c_str()));
-			break;
-		}
-		case cpppoetlv::PPPOE_TAG_RELAY_SESSION_ID:
-		{
-			cpppoetlv_relay_session_id tlv((*it));
-			info.append(vas("\n  %s", tlv.c_str()));
-			break;
-		}
-		case cpppoetlv::PPPOE_TAG_SERVICE_NAME_ERROR:
-		{
-			cpppoetlv_service_name_error tlv((*it));
-			info.append(vas("\n  %s", tlv.c_str()));
-			break;
-		}
-		case cpppoetlv::PPPOE_TAG_AC_SYSTEM_ERROR:
-		{
-			cpppoetlv_ac_system_error tlv((*it));
-			info.append(vas("\n  %s", tlv.c_str()));
-			break;
-		}
-		case cpppoetlv::PPPOE_TAG_GENERIC_ERROR:
-		{
-			cpppoetlv_generic_error tlv((*it));
-			info.append(vas("\n  %s", tlv.c_str()));
-			break;
-		}
-
-		}
-
-#if 0
-		cmemory lmem((*it).length());
-		(*it).pack((struct cpppoetlv::pppoe_tag_hdr_t*)lmem.somem(), lmem.memlen());
-		info.append(vas(" %s", lmem.c_str()));
-#endif
-	}
-
-	return info.c_str();
-}
-
 
 cpppoetlv&
 cpppoelist::find_pppoe_tlv(int type)
@@ -230,16 +148,16 @@ cpppoelist::test()
 	l1[1] = cpppoetlv_ac_name(std::string("ac name"));
 	l1.next() = cpppoetlv_end();
 
-	fprintf(stderr, "l1: %s\n", l1.c_str());
+	std::cerr << "l1: " << l1 << std::endl;
 
 	cmemory lmem(l1.length());
 	l1.pack(lmem.somem(), lmem.memlen());
 
-	fprintf(stderr, "lmem: %s\n", lmem.c_str());
+	std::cerr << "lmem: " << lmem << std::endl;
 
 	cpppoelist l2;
 
 	l2.unpack(lmem.somem(), lmem.memlen());
 
-	fprintf(stderr, "l2: %s\n", l2.c_str());
+	std::cerr << "l2: " << l2 << std::endl;
 }

@@ -7,6 +7,7 @@
 
 #include <list>
 #include <string>
+#include <iostream>
 #include <algorithm>
 
 #include "../../cerror.h"
@@ -107,21 +108,19 @@ public: // per instance
 			cfspentry_owner* fspowner,
 			cofmatch const& m) throw (eFspNotAllowed);
 
-	/** dump namespace table
-	 *
-	 */
-	const char*
-	c_str();
-
-
 
 protected: // data structures
 
 	// table of namespace entries
 	std::set<cfspentry*> fsp_table;
-	// info string
-	std::string info;
 
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cfsptable const& fsptable) {
+
+		return os;
+	};
 };
 
 
@@ -131,18 +130,9 @@ public:
 	 */
 	cfspsearch(cofmatch const& m, bool strict) :
 		ofmatch(m),
-		strict(strict)
-	{
-#ifndef NDEBUG
-		make_info();
-#endif
-		WRITELOG(UNKNOWN, DBG, "cfspsearch(%p)::cfspsearch %s", this, c_str());
-	};
+		strict(strict) {};
 
-	~cfspsearch()
-	{
-		WRITELOG(UNKNOWN, DBG, "cfspsearch(%p)::~cfspsearch %s", this, c_str());
-	};
+	~cfspsearch() {};
 
 	/** call-operator
 	 */
@@ -155,35 +145,9 @@ public:
 		}
 	};
 
-	/** dump classification
-	 */
-	const char*
-	c_str()
-	{
-		make_info();
-		return c_info;
-	};
-
-	/** make info string
-	 */
-	void
-	make_info()
-	{
-		bzero(c_info, sizeof(c_info));
-		snprintf(c_info, sizeof(c_info)-1, "cfspsearch(%p) #entries %d strict=%d %s",
-				this, (int)fsp_list.size(), strict, ofmatch.c_str());
-	};
-
-	// set of overlapping cofmatch instances
-	std::set<cfspentry*> fsp_list;
-	// cofmatch instance from nsp request
-	cofmatch ofmatch;
-	// strict or non-strict search
-	bool strict;
-
-private:
-
-	char c_info[512];             // info string (verbose)
+	std::set<cfspentry*> fsp_list;		// set of overlapping cofmatch instances
+	cofmatch ofmatch;					// cofmatch instance from nsp request
+	bool strict;						// strict or non-strict search
 };
 
 }; // end of namespace
