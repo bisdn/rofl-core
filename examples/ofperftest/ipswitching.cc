@@ -265,7 +265,7 @@ ipswitching::handle_packet_in_arpv4(
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
+			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][ip_dst].vid));
 		}
 		// src uses vlan, dst is untagged => pop vlan tag
 		else if ((fib[dpt][ip_dst].vid == 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
@@ -274,7 +274,7 @@ ipswitching::handle_packet_in_arpv4(
 		// src is untagged, dst uses vlan => push vlan tag
 		else if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid == 0xffff)) {
 			actions.next() = cofaction_push_vlan(dpt->get_version(), fvlanframe::VLAN_CTAG_ETHER);
-			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
+			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][ip_dst].vid));
 		}
 		// src and dst are untagged => do nothing
 		else {
@@ -347,18 +347,18 @@ ipswitching::handle_packet_in_ipv4(
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			fe.match.set_vlan_vid(fib[dpt][ip_src].vid);
-			fe.instructions.back().actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
+			fe.match.set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][ip_src].vid);
+			fe.instructions.back().actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][ip_dst].vid));
 		}
 		// src uses vlan, dst is untagged => pop vlan tag
 		else if ((fib[dpt][ip_dst].vid == 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			fe.match.set_vlan_vid(fib[dpt][ip_src].vid);
+			fe.match.set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][ip_src].vid);
 			fe.instructions.back().actions.next() = cofaction_pop_vlan(dpt->get_version());
 		}
 		// src is untagged, dst uses vlan => push vlan tag
 		else if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid == 0xffff)) {
 			fe.instructions.back().actions.next() = cofaction_push_vlan(dpt->get_version(), fvlanframe::VLAN_CTAG_ETHER);
-			fe.instructions.back().actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
+			fe.instructions.back().actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][ip_dst].vid));
 		}
 		// src and dst are untagged => do nothing
 		else {
@@ -432,7 +432,7 @@ ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][it->second.addr].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][it->second.addr].vid));
+			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][it->second.addr].vid));
 		}
 		// src uses vlan, dst is untagged => pop vlan tag
 		else if ((fib[dpt][it->second.addr].vid == 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
@@ -441,7 +441,7 @@ ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 		// src is untagged, dst uses vlan => push vlan tag
 		else if ((fib[dpt][it->second.addr].vid != 0xffff) && (fib[dpt][ip_src].vid == 0xffff)) {
 			actions.next() = cofaction_push_vlan(dpt->get_version(), fvlanframe::VLAN_CTAG_ETHER);
-			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][it->second.addr].vid));
+			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][it->second.addr].vid));
 		}
 		// src and dst are untagged => do nothing
 		else {

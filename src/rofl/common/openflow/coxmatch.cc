@@ -1106,10 +1106,10 @@ coxmatch::test()
 	coxmatch_ofb_eth_type eth_type(0x8863);
 	fprintf(stderr, "OFPXMT_OFB_ETH_TYPE: %s\n", eth_type.c_str());
 
-	coxmatch_ofb_vlan_vid vlan_vid(4095);
+	coxmatch_ofb_vlan_vid vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 4095);
 	fprintf(stderr, "OFPXMT_OFB_VLAN_VID: %s\n", vlan_vid.c_str());
 
-	coxmatch_ofb_vlan_vid vlan_vid_mask(4095, 0x0600);
+	coxmatch_ofb_vlan_vid vlan_vid_mask(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 4095, 0x0600);
 	fprintf(stderr, "OFPXMT_OFB_VLAN_VID: %s\n", vlan_vid_mask.c_str());
 
 	coxmatch_ofb_vlan_pcp vlan_pcp(3);

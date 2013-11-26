@@ -690,30 +690,87 @@ class coxmatch_ofb_vlan_vid :
 	public coxmatch
 {
 public:
-	/** constructor
-	 */
-	coxmatch_ofb_vlan_vid(
-			uint16_t vid) :
-				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint16_t))
-	{
-		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
-		set_oxm_field(OFPXMT_OFB_VLAN_VID);
-		set_oxm_length(sizeof(uint16_t));
-		oxm_uint16t->word = htobe16(vid);
+	enum vlan_tag_mode_t {
+		VLAN_TAG_MODE_UNTAGGED = 1,
+		VLAN_TAG_MODE_NORMAL = 2,
+		VLAN_TAG_MODE_ANY_TAG = 3,
 	};
+private:
+	enum vlan_tag_mode_t tag_mode;
+public:
 	/** constructor
 	 */
 	coxmatch_ofb_vlan_vid(
-			uint16_t vid,
-			uint16_t mask) :
-				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint16_t))
+			enum vlan_tag_mode_t tag_mode) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint16_t)),
+				tag_mode(tag_mode)
 	{
 		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
 		set_oxm_field(OFPXMT_OFB_VLAN_VID);
 		set_oxm_hasmask(true);
 		set_oxm_length(2 * sizeof(uint16_t));
-		oxm_uint16t->word = htobe16(vid);
-		oxm_uint16t->mask = htobe16(mask);
+		switch (tag_mode) {
+		case VLAN_TAG_MODE_UNTAGGED: {
+			throw eOxmInval();
+		} break;
+		case VLAN_TAG_MODE_NORMAL: {
+			throw eOxmInval();
+		} break;
+		case VLAN_TAG_MODE_ANY_TAG: {
+			oxm_uint16t->word = htobe16(OFPVID_PRESENT);
+			oxm_uint16t->mask = htobe16(OFPVID_PRESENT);
+		} break;
+		}
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_vlan_vid(
+			enum vlan_tag_mode_t tag_mode,
+			uint16_t vid) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint16_t)),
+				tag_mode(tag_mode)
+	{
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_VLAN_VID);
+		set_oxm_length(sizeof(uint16_t));
+		switch (tag_mode) {
+		case VLAN_TAG_MODE_UNTAGGED: {
+			oxm_uint16t->word = htobe16(vid & ~OFPVID_PRESENT);
+			//oxm_uint16t->word = htobe16(0);
+		} break;
+		case VLAN_TAG_MODE_NORMAL: {
+			oxm_uint16t->word = htobe16(vid | OFPVID_PRESENT);
+		} break;
+		case VLAN_TAG_MODE_ANY_TAG: {
+			throw eOxmInval();
+		} break;
+		}
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_vlan_vid(
+			enum vlan_tag_mode_t tag_mode,
+			uint16_t vid,
+			uint16_t mask) :
+				coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint16_t)),
+				tag_mode(tag_mode)
+	{
+		set_oxm_class(OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(OFPXMT_OFB_VLAN_VID);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * sizeof(uint16_t));
+		switch (tag_mode) {
+		case VLAN_TAG_MODE_UNTAGGED: {
+			throw eOxmInval();
+		} break;
+		case VLAN_TAG_MODE_NORMAL: {
+			oxm_uint16t->word = htobe16(vid | OFPVID_PRESENT);
+			oxm_uint16t->mask = htobe16(mask);
+		} break;
+		case VLAN_TAG_MODE_ANY_TAG: {
+			throw eOxmInval();
+		} break;
+		}
 	};
 	/** destructor
 	 */
@@ -726,7 +783,10 @@ public:
 	{
 		os << "OXM";
 			os << "[" << oxm.get_oxm_class() << ":" << oxm.get_oxm_field() << "]";
-			os << "<VLAN-VID: " << oxm.u16value() << ">";
+			os << "<";
+			os << "VLAN-MODE:" << oxm.tag_mode << " ";
+			os << "VLAN-VID: " << oxm.u16value() << " ";
+			os << ">";
 		return os;
 	};
 };

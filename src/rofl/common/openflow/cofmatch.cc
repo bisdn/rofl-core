@@ -408,7 +408,7 @@ cofmatch::unpack(struct ofp10_match* m, size_t mlen)
 
 	// dl_vlan
 	if (!(wildcards & OFP10FW_DL_VLAN) && m->dl_vlan != 0xffff) { //0xFFFF value is used to indicate that no VLAN id eas set.
-		set_vlan_vid(be16toh(m->dl_vlan));
+		set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, be16toh(m->dl_vlan));
 	}
 
 	// dl_vlan_pcp
@@ -909,9 +909,10 @@ cofmatch::get_vlan_vid_mask() const
 
 void
 cofmatch::set_vlan_vid(
+		coxmatch_ofb_vlan_vid::vlan_tag_mode_t tag_mode,
 		uint16_t vid)
 {
-	oxmlist.insert(coxmatch_ofb_vlan_vid(vid));
+	oxmlist.insert(coxmatch_ofb_vlan_vid(tag_mode, vid));
 }
 
 
@@ -2606,7 +2607,7 @@ cofmatch::test()
 	cofmatch m;
 
 	m.set_eth_src(cmacaddr("11:11:11:11:11:11"), cmacaddr("33:33:33:33:33:33"));
-	m.set_vlan_vid(1000);
+	m.set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 1000);
 	m.set_ip_dscp(6);
 
 	cmemory mem(m.length());

@@ -603,7 +603,7 @@ cflowentry::test()
 
 	fe.instructions[1] = cofinst_apply_actions(OFP12_VERSION);
 	fe.instructions[1].actions[0] = cofaction_output(OFP12_VERSION, 2);
-	fe.instructions[1].actions[1] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_vlan_vid(3));
+	fe.instructions[1].actions[1] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 3));
 	fe.instructions[1].actions[2] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_ip_dscp(4));
 	fe.instructions[1].actions[3] = cofaction_push_mpls(OFP12_VERSION, 50);
 	fe.instructions[1].actions[4] = cofaction_push_mpls(OFP12_VERSION, 100);

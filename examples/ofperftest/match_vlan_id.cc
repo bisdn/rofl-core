@@ -92,7 +92,7 @@ match_vlan_id::install_flow_mods(cofdpt *dpt, unsigned int n)
 		r_mac[0] &= 0xf7;
 
 		fe.match.set_eth_dst(r_mac);
-		fe.match.set_vlan_vid(vid);
+		fe.match.set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, vid);
 		++vid;
 		vid = (vid ==  100) ? 101 : vid; // skip VLAN id 100
 		vid = (vid == 4096) ?   1 : vid; // wrap around at 0xffff
@@ -259,7 +259,7 @@ match_vlan_id::handle_packet_in(
 
 		fe.match.set_eth_dst(eth_dst);
 		if (vlan_id != 0xffff)
-			fe.match.set_vlan_vid(vlan_id);
+			fe.match.set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, vlan_id);
 		fe.instructions.next() = cofinst_write_actions(dpt->get_version());
 		fe.instructions[0].actions.next() = cofaction_output(dpt->get_version(), out_port);
 
