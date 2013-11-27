@@ -56,7 +56,7 @@ cofaclist::~cofaclist()
 
 
 std::vector<cofaction>*
-cofaclist::find_action(enum ofp_action_type type,
+cofaclist::find_action(uint8_t type,
 		std::vector<cofaction> *result) throw (eAcListNotFound)
 {
 	result->clear();
@@ -183,7 +183,7 @@ cofaclist::length() const
 
 
 cofaction&
-cofaclist::find_action(enum ofp_action_type type) throw (eAcListNotFound)
+cofaclist::find_action(uint8_t type) throw (eAcListNotFound)
 {
 	cofaclist::iterator it;
 	if ((it = find_if(elems.begin(), elems.end(),

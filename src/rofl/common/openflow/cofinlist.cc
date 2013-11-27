@@ -114,7 +114,7 @@ cofinlist::length() const
 
 cofinst&
 cofinlist::find_inst(
-		enum ofp_instruction_type type)
+		uint8_t type)
 throw (eInListNotFound)
 {
 	cofinlist::iterator it;

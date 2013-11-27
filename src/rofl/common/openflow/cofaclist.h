@@ -75,11 +75,11 @@ public:
 	 *  result must be defined by the calling function and its content will be overwritten
 	 */
 	std::vector<cofaction>*
-	find_action(enum ofp_action_type type,
+	find_action(uint8_t type,
 			std::vector<cofaction> *result) throw (eAcListNotFound);
 
 	cofaction&
-	find_action(enum ofp_action_type type) throw (eAcListNotFound);
+	find_action(uint8_t type) throw (eAcListNotFound);
 
 
 	/** create a std::list<cofaction*> from a struct ofp_flow_mod

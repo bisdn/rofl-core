@@ -29,13 +29,13 @@ namespace rofl
 {
 
 /* error classes */
-class eInstructionBase : public cerror {}; // error base class for class cofinstruction
-class eInstructionInval : public eInstructionBase {}; // invalid parameter
-class eInstructionBadLen : public eInstructionBase {}; // bad length
-class eInstructionInvalType : public eInstructionBase {}; // invalid instruction type
-class eInstructionHeaderInval : public eInstructionBase {}; // invalid instruction header
-class eInstructionActionNotFound : public eInstructionBase {}; // action not found in instruction
-class eInstructionBadExperimenter : public eInstructionBase {}; // unknown experimenter instruction
+class eInstructionBase 				: public cerror {}; // error base class for class cofinstruction
+class eInstructionInval 			: public eInstructionBase {}; // invalid parameter
+class eInstructionBadLen 			: public eInstructionBase {}; // bad length
+class eInstructionInvalType 		: public eInstructionBase {}; // invalid instruction type
+class eInstructionHeaderInval 		: public eInstructionBase {}; // invalid instruction header
+class eInstructionActionNotFound 	: public eInstructionBase {}; // action not found in instruction
+class eInstructionBadExperimenter 	: public eInstructionBase {}; // unknown experimenter instruction
 
 
 class cofinst :
@@ -53,19 +53,30 @@ public: // data structures
 	pthread_mutex_t inmutex; // mutex for this cofinst instance
 	cofaclist actions;	// vector of cofaction instances
 
-	union { // for OpenFlow 1.1
-		struct ofp_instruction* oinu_header;
-		struct ofp_instruction_goto_table* oinu_goto_table;
-		struct ofp_instruction_actions* oinu_actions;
-		struct ofp_instruction_experimenter* oinu_experimenter;
-		struct ofp_instruction_write_metadata* oinu_write_metadata;
+	union {
+		// OpenFlow 1.2
+		struct openflow12::ofp_instruction  				*oinu12_header;
+		struct openflow12::ofp_instruction_goto_table		*oinu12_goto_table;
+		struct openflow12::ofp_instruction_actions			*oinu12_actions;
+		struct openflow12::ofp_instruction_experimenter		*oinu12_experimenter;
+		struct openflow12::ofp_instruction_write_metadata	*oinu12_write_metadata;
+
+		// OpenFlow 1.3
+		struct openflow13::ofp_instruction  				*oinu13_header;
+		struct openflow13::ofp_instruction_goto_table		*oinu13_goto_table;
+		struct openflow13::ofp_instruction_actions			*oinu13_actions;
+		struct openflow13::ofp_instruction_experimenter		*oinu13_experimenter;
+		struct openflow13::ofp_instruction_write_metadata	*oinu13_write_metadata;
+		struct openflow13::ofp_instruction_meter			*oinu13_meter;
+
 	} oin_oinu;
 
-#define oin_header oin_oinu.oinu_header					// instruction: plain header
-#define oin_goto_table oin_oinu.oinu_goto_table			// instruction: goto table
-#define oin_actions oin_oinu.oinu_actions				// instruction: actions
-#define oin_experimenter oin_oinu.oinu_experimenter		// instruction: experimenter
-#define oin_write_metadata oin_oinu.oinu_write_metadata	// instruction: write metadata
+#define oin_header 			oin_oinu.oinu12_header			// instruction: plain header
+#define oin_goto_table 		oin_oinu.oinu12_goto_table		// instruction: goto table
+#define oin_actions 		oin_oinu.oinu12_actions			// instruction: actions
+#define oin_experimenter 	oin_oinu.oinu12_experimenter	// instruction: experimenter
+#define oin_write_metadata 	oin_oinu.oinu12_write_metadata	// instruction: write metadata
+#define oin_meter 			oin_oinu.oinu13_meter			// instruction: meter
 
 
 
@@ -116,7 +127,7 @@ public: // methods
 	/** find specific action
 	 */
 	cofaction&
-	find_action(enum ofp_action_type type);
+	find_action(uint8_t type);
 
 	/** copy struct ofp_action_header
 	 */
@@ -136,29 +147,90 @@ public: // methods
 	/**
 	 *
 	 */
+	uint8_t
+	get_version() const
+	{
+		return ofp_version;
+	};
+
+	/**
+	 *
+	 */
 	uint16_t
 	get_type() const
 	{
 		return be16toh(oin_header->type);
 	};
 
+	/**
+	 *
+	 */
+	void
+	set_type(uint16_t version)
+	{
+		oin_header->type = htobe16(version);
+	};
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_length() const
+	{
+		return be16toh(oin_header->len);
+	};
+
+	/**
+	 *
+	 */
+	void
+	set_length(uint16_t len)
+	{
+		oin_header->len = htobe16(len);
+	};
 
 protected: // data structures
 
 	cmemory instruction; // memory area with original packes instruction
+
+protected:
+
+	/**
+	 *
+	 */
+	void
+	resize(size_t size);
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofinst const& inst) {
 		os << "<cofinst ";
-		switch (inst.get_type()) {
-		case OFPIT_APPLY_ACTIONS:	os << "OFIT-APPLY-ACTIONS" 	<< " "; break;
-		case OFPIT_WRITE_ACTIONS:	os << "OFIT-WRITE-ACTIONS" 	<< " "; break;
-		case OFPIT_CLEAR_ACTIONS:	os << "OFIT-CLEAR-ACTIONS" 	<< " ";	break;
-		case OFPIT_WRITE_METADATA:	os << "OFIT-WRITE-METADATA" << " ";	break;
-		case OFPIT_GOTO_TABLE:		os << "OFIT-GOTO-TABLE"	    << " "; break;
-		default:					os << "OFIT-UNKNOWN"		<< " "; break;
+		switch (inst.get_version()) {
+		case openflow12::OFP_VERSION: {
+			switch (inst.get_type()) {
+			case openflow12::OFPIT_APPLY_ACTIONS:	os << "OFIT-APPLY-ACTIONS" 	<< " "; break;
+			case openflow12::OFPIT_WRITE_ACTIONS:	os << "OFIT-WRITE-ACTIONS" 	<< " "; break;
+			case openflow12::OFPIT_CLEAR_ACTIONS:	os << "OFIT-CLEAR-ACTIONS" 	<< " ";	break;
+			case openflow12::OFPIT_WRITE_METADATA:	os << "OFIT-WRITE-METADATA" << " ";	break;
+			case openflow12::OFPIT_GOTO_TABLE:		os << "OFIT-GOTO-TABLE"	    << " "; break;
+			default:								os << "OFIT-UNKNOWN"		<< " "; break;
+			}
+		} break;
+		case openflow13::OFP_VERSION: {
+			switch (inst.get_type()) {
+			case openflow13::OFPIT_APPLY_ACTIONS:	os << "OFIT-APPLY-ACTIONS" 	<< " "; break;
+			case openflow13::OFPIT_WRITE_ACTIONS:	os << "OFIT-WRITE-ACTIONS" 	<< " "; break;
+			case openflow13::OFPIT_CLEAR_ACTIONS:	os << "OFIT-CLEAR-ACTIONS" 	<< " ";	break;
+			case openflow13::OFPIT_WRITE_METADATA:	os << "OFIT-WRITE-METADATA" << " ";	break;
+			case openflow13::OFPIT_GOTO_TABLE:		os << "OFIT-GOTO-TABLE"	    << " "; break;
+			case openflow13::OFPIT_METER:			os << "OFIT-METER"	   		<< " "; break;
+			default:								os << "OFIT-UNKNOWN"		<< " "; break;
+			}
+		} break;
+		default: {
+			// do nothing
+		} break;
 		}
 		os << "actions:" << std::endl;
 		os << inst.actions << " ";
@@ -192,8 +264,19 @@ public:
 	 */
 	cofinst_apply_actions(uint8_t ofp_version) : cofinst(ofp_version)
 	{
-		oin_header->type = htobe16(OFPIT_APPLY_ACTIONS);
-		oin_header->len = htobe16(0); // fill this when calling method pack()
+		switch (get_version()) {
+		case openflow12::OFP_VERSION: {
+			set_type(openflow12::OFPIT_APPLY_ACTIONS);
+			set_length(0); // fill this when calling method pack()
+		} break;
+		case openflow13::OFP_VERSION: {
+			set_type(openflow13::OFPIT_APPLY_ACTIONS);
+			set_length(0); // fill this when calling method pack()
+		} break;
+		default:
+			logging::warn << "cofinst_apply_actions: OFP version not supported" << std::endl;
+			throw eBadVersion();
+		}
 	};
 	/** destructor
 	 */
@@ -211,8 +294,19 @@ public:
 	 */
 	cofinst_write_actions(uint8_t ofp_version) : cofinst(ofp_version)
 	{
-		oin_header->type = htobe16(OFPIT_WRITE_ACTIONS);
-		oin_header->len = htobe16(0); // fill this when calling method pack()
+		switch (get_version()) {
+		case openflow12::OFP_VERSION: {
+			set_type(openflow12::OFPIT_WRITE_ACTIONS);
+			set_length(0); // fill this when calling method pack()
+		} break;
+		case openflow13::OFP_VERSION: {
+			set_type(openflow13::OFPIT_WRITE_ACTIONS);
+			set_length(0); // fill this when calling method pack()
+		} break;
+		default:
+			logging::warn << "cofinst_write_actions: OFP version not supported" << std::endl;
+			throw eBadVersion();
+		}
 	};
 	/** destructor
 	 */
@@ -230,8 +324,19 @@ public:
 	 */
 	cofinst_clear_actions(uint8_t ofp_version) : cofinst(ofp_version)
 	{
-		oin_header->type = htobe16(OFPIT_CLEAR_ACTIONS);
-		oin_header->len = htobe16(0); // fill this when calling method pack()
+		switch (get_version()) {
+		case openflow12::OFP_VERSION: {
+			set_type(openflow12::OFPIT_CLEAR_ACTIONS);
+			set_length(0); // fill this when calling method pack()
+		} break;
+		case openflow13::OFP_VERSION: {
+			set_type(openflow13::OFPIT_CLEAR_ACTIONS);
+			set_length(0); // fill this when calling method pack()
+		} break;
+		default:
+			logging::warn << "cofinst_clear_actions: OFP version not supported" << std::endl;
+			throw eBadVersion();
+		}
 	};
 	/** destructor
 	 */
@@ -250,28 +355,30 @@ public:
 	cofinst_goto_table(
 			uint8_t ofp_version,
 			uint8_t table_id) :
-				cofinst(ofp_version, sizeof(struct ofp_instruction_goto_table))
+				cofinst(ofp_version, sizeof(struct openflow::ofp_instruction))
 	{
-		oin_goto_table->type = htobe16(OFPIT_GOTO_TABLE);
-		oin_goto_table->len = htobe16(sizeof(struct ofp_instruction_goto_table));
-		oin_goto_table->table_id = table_id;
+		switch (get_version()) {
+		case openflow12::OFP_VERSION: {
+			cofinst::resize(sizeof(struct openflow12::ofp_instruction_goto_table));
+			set_type(openflow12::OFPIT_GOTO_TABLE);
+			set_length(sizeof(struct openflow12::ofp_instruction_goto_table));
+			set_table_id(table_id);
+		} break;
+		case openflow13::OFP_VERSION: {
+			cofinst::resize(sizeof(struct openflow13::ofp_instruction_goto_table));
+			set_type(openflow13::OFPIT_GOTO_TABLE);
+			set_length(sizeof(struct openflow13::ofp_instruction_goto_table));
+			set_table_id(table_id);
+		} break;
+		default:
+			logging::warn << "cofinst_goto_table: OFP version not supported" << std::endl;
+			throw eBadVersion();
+		}
 	};
 	/** destructor
 	 */
 	virtual
 	~cofinst_goto_table() {};
-#if 0
-	/**
-	 *
-	 */
-	virtual struct ofp_instruction*
-	pack(struct ofp_instruction* inst, size_t instlen) const;
-	/**
-	 *
-	 */
-	virtual void
-	unpack(struct ofp_instruction* inst, size_t instlen);
-#endif
 	/**
 	 *
 	 */
@@ -302,12 +409,27 @@ public:
 			uint8_t ofp_version,
 			uint64_t metadata,
 			uint64_t metadata_mask) :
-				cofinst(ofp_version, sizeof(struct ofp_instruction_write_metadata))
+				cofinst(ofp_version, sizeof(struct openflow::ofp_instruction))
 	{
-		oin_write_metadata->type = htobe16(OFPIT_WRITE_METADATA);
-		oin_write_metadata->len = htobe16(sizeof(struct ofp_instruction_write_metadata));
-		oin_write_metadata->metadata = htobe64(metadata);
-		oin_write_metadata->metadata_mask = htobe64(metadata_mask);
+		switch (get_version()) {
+		case openflow12::OFP_VERSION: {
+			cofinst::resize(sizeof(struct openflow12::ofp_instruction_write_metadata));
+			set_type(openflow12::OFPIT_WRITE_METADATA);
+			set_length(sizeof(struct openflow12::ofp_instruction_write_metadata));
+			set_metadata(metadata);
+			set_metadata_mask(metadata_mask);
+		} break;
+		case openflow13::OFP_VERSION: {
+			cofinst::resize(sizeof(struct openflow13::ofp_instruction_write_metadata));
+			set_type(openflow13::OFPIT_WRITE_METADATA);
+			set_length(sizeof(struct openflow13::ofp_instruction_write_metadata));
+			set_metadata(metadata);
+			set_metadata_mask(metadata_mask);
+		} break;
+		default:
+			logging::warn << "cofinst_write_metadata: OFP version not supported" << std::endl;
+			throw eBadVersion();
+		}
 	};
 	/** destructor
 	 */
@@ -323,7 +445,14 @@ public:
 	{
 		return oin_write_metadata->metadata;
 	};
-
+	/**
+	 *
+	 */
+	void
+	set_metadata(uint64_t metadata)
+	{
+		oin_write_metadata->metadata = htobe64(metadata);
+	};
 	/**
 	 *
 	 */
@@ -332,10 +461,20 @@ public:
 	{
 		return oin_write_metadata->metadata_mask;
 	};
-
+	/**
+	 *
+	 */
+	void
+	set_metadata_mask(uint64_t metadata_mask)
+	{
+		oin_write_metadata->metadata_mask = htobe64(metadata_mask);
+	};
 };
 
 }; // end of namespace
 
 
 #endif
+
+
+

@@ -77,6 +77,14 @@ cofinst::reset()
 }
 
 
+void
+cofinst::resize(size_t len)
+{
+	instruction.resize(len);
+	oin_header = (struct openflow::ofp_instruction*)instruction.somem();
+}
+
+
 struct ofp_instruction*
 cofinst::pack(
 		struct ofp_instruction* inhdr,
@@ -231,7 +239,7 @@ cofinst::length() const throw (eInstructionInvalType)
 
 
 cofaction&
-cofinst::find_action(enum ofp_action_type type)
+cofinst::find_action(uint8_t type)
 {
 	return actions.find_action(type);
 }
