@@ -1488,7 +1488,7 @@ cofdptImpl::group_mod_sent(
 void
 cofdptImpl::group_mod_reset()
 {
-	cgroupentry ge;
+	cgroupentry ge(get_version());
 	ge.set_command(OFPGC_DELETE);
 	ge.set_group_id(OFPG12_ALL);
 

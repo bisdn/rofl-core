@@ -27,6 +27,10 @@ class eGroupEntryOutOfMem : public eGroupEntryBase {}; // out of memory
 
 
 class cgroupentry : public ciosrv {
+private:
+
+	uint8_t ofp_version;
+
 public: // static methods
 
 	static void test();
@@ -40,7 +44,7 @@ public: // methods
 
 	/** constructor
 	 */
-	cgroupentry();
+	cgroupentry(uint8_t ofp_version);
 
 	/** destructor
 	 */
