@@ -38,31 +38,38 @@
 
 #include "openflow_common.h"
 
-/* OXM Flow match field types for OpenFlow Experimental */ 
-enum oxm_ofx_match_fields {
-
-	//OF1.0 backwards compatibility
-	OFPXMT_OFX_NW_SRC	= 0,	/* network layer source address */ 
-	OFPXMT_OFX_NW_DST	= 1,	/* network layer destination address */
-	OFPXMT_OFX_NW_PROTO	= 2,	/* network layer proto/arp code... */
-	OFPXMT_OFX_TP_SRC	= 3,	/* transport protocol source port */
-	OFPXMT_OFX_TP_DST	= 4,	/* transport protocol destination port */
-
-	/* Reserved (until 20) */
-
-	/* PPP/PPPoE related extensions */
-	OFPXMT_OFX_PPPOE_CODE 	= 21,	/* PPPoE code */
-	OFPXMT_OFX_PPPOE_TYPE 	= 22,	/* PPPoE type */
-	OFPXMT_OFX_PPPOE_SID 	= 23,	/* PPPoE session id */
-	OFPXMT_OFX_PPP_PROT 	= 24,	/* PPP protocol */
-
-	/* GTP related extensions */
-	OFPXMT_OFX_GTP_MSG_TYPE = 25,	/* GTP message type */
-	OFPXMT_OFX_GTP_TEID	= 26,	/* GTP tunnel endpoint identifier */
+namespace rofl {
+namespace openflow {
+namespace experimental {
 	
-	/* max value */
-	OFPXMT_OFX_MAX,
-};
+	/* OXM Flow match field types for OpenFlow Experimental */
+	enum oxm_ofx_match_fields {
 
+		//OF1.0 backwards compatibility
+		OFPXMT_OFX_NW_SRC	= 0,	/* network layer source address */
+		OFPXMT_OFX_NW_DST	= 1,	/* network layer destination address */
+		OFPXMT_OFX_NW_PROTO	= 2,	/* network layer proto/arp code... */
+		OFPXMT_OFX_TP_SRC	= 3,	/* transport protocol source port */
+		OFPXMT_OFX_TP_DST	= 4,	/* transport protocol destination port */
+
+		/* Reserved (until 20) */
+
+		/* PPP/PPPoE related extensions */
+		OFPXMT_OFX_PPPOE_CODE 	= 21,	/* PPPoE code */
+		OFPXMT_OFX_PPPOE_TYPE 	= 22,	/* PPPoE type */
+		OFPXMT_OFX_PPPOE_SID 	= 23,	/* PPPoE session id */
+		OFPXMT_OFX_PPP_PROT 	= 24,	/* PPP protocol */
+
+		/* GTP related extensions */
+		OFPXMT_OFX_GTP_MSG_TYPE = 25,	/* GTP message type */
+		OFPXMT_OFX_GTP_TEID	= 26,	/* GTP tunnel endpoint identifier */
+
+		/* max value */
+		OFPXMT_OFX_MAX,
+	};
+
+}; // end of namespace experimental
+}; // end of namespace openflow
+}; // end of namespace rofl
 
 #endif /* _OPENFLOW_EXPERIMENTAL_H */

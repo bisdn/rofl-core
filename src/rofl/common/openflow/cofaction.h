@@ -22,6 +22,7 @@
 #include "openflow_rofl_exceptions.h"
 #include "rofl/platform/unix/csyslog.h"
 #include "coxmatch.h"
+#include "../logging.h"
 
 #ifndef ORAN
 #define ORAN 1
@@ -49,29 +50,40 @@ public: // static methods
 public: // data structures
 
 	union { // for OpenFlow 1.1
-		struct ofp_action_header				*oacu_header;
+		struct openflow::ofp_action_header				*oacu_header;
 
 		// OF1.0 actions
-		struct ofp10_action_output				*oacu_10output;
-		struct ofp10_action_enqueue				*oacu_10enqueue;
-		struct ofp10_action_vlan_vid			*oacu_10vlanvid;
-		struct ofp10_action_vlan_pcp			*oacu_10vlanpcp;
-		struct ofp10_action_dl_addr				*oacu_10dladdr;
-		struct ofp10_action_nw_addr				*oacu_10nwaddr;
-		struct ofp10_action_nw_tos				*oacu_10nwtos;
-		struct ofp10_action_tp_port				*oacu_10tpport;
-		struct ofp10_action_vendor_header		*oacu_10vendor;
+		struct openflow10::ofp_action_output			*oacu_10output;
+		struct openflow10::ofp_action_enqueue			*oacu_10enqueue;
+		struct openflow10::ofp_action_vlan_vid			*oacu_10vlanvid;
+		struct openflow10::ofp_action_vlan_pcp			*oacu_10vlanpcp;
+		struct openflow10::ofp_action_dl_addr			*oacu_10dladdr;
+		struct openflow10::ofp_action_nw_addr			*oacu_10nwaddr;
+		struct openflow10::ofp_action_nw_tos			*oacu_10nwtos;
+		struct openflow10::ofp_action_tp_port			*oacu_10tpport;
+		struct openflow10::ofp_action_vendor_header		*oacu_10vendor;
 
 		// OF1.2 actions
-		struct ofp12_action_output				*oacu_12output;
-		struct ofp12_action_mpls_ttl			*oacu_12mpls_ttl;
-		struct ofp12_action_push 				*oacu_12push;
-		struct ofp12_action_pop_mpls 			*oacu_12pop_mpls;
-		struct ofp12_action_group 				*oacu_12group;
-		struct ofp12_action_nw_ttl 				*oacu_12nw_ttl;
-		struct ofp12_action_experimenter_header *oacu_12experimenter;
-		struct ofp12_action_set_queue 			*oacu_12set_queue;
-		struct ofp12_action_set_field 			*oacu_12set_field;
+		struct openflow12::ofp_action_output			*oacu_12output;
+		struct openflow12::ofp_action_mpls_ttl			*oacu_12mpls_ttl;
+		struct openflow12::ofp_action_push 				*oacu_12push;
+		struct openflow12::ofp_action_pop_mpls 			*oacu_12pop_mpls;
+		struct openflow12::ofp_action_group 			*oacu_12group;
+		struct openflow12::ofp_action_nw_ttl 			*oacu_12nw_ttl;
+		struct openflow12::ofp_action_experimenter_header *oacu_12experimenter;
+		struct openflow12::ofp_action_set_queue 		*oacu_12set_queue;
+		struct openflow12::ofp_action_set_field 		*oacu_12set_field;
+
+		// OF1.3 actions
+		struct openflow13::ofp_action_output			*oacu_13output;
+		struct openflow13::ofp_action_mpls_ttl			*oacu_13mpls_ttl;
+		struct openflow13::ofp_action_push 				*oacu_13push;
+		struct openflow13::ofp_action_pop_mpls 			*oacu_13pop_mpls;
+		struct openflow13::ofp_action_group 			*oacu_13group;
+		struct openflow13::ofp_action_nw_ttl 			*oacu_13nw_ttl;
+		struct openflow13::ofp_action_experimenter_header *oacu_13experimenter;
+		struct openflow13::ofp_action_set_queue 		*oacu_13set_queue;
+		struct openflow13::ofp_action_set_field 		*oacu_13set_field;
 	} oac_oacu;
 
 #define oac_header oac_oacu.oacu_header				// action: plain header
@@ -96,6 +108,16 @@ public: // data structures
 #define oac_12set_queue oac_oacu.oacu_12set_queue	// action: set_queue
 #define oac_12set_field oac_oacu.oacu_12set_field	// action: set field
 
+#define oac_13output 	oac_oacu.oacu_13output		// action: output OF1.2/OF1.3
+#define oac_13mpls_ttl 	oac_oacu.oacu_13mpls_ttl	// action: mpls_ttl
+#define oac_13push 		oac_oacu.oacu_13push		// action: push
+#define oac_13pop_mpls 	oac_oacu.oacu_13pop_mpls	// action: pop_mpls
+#define oac_13group 	oac_oacu.oacu_13group		// action: group
+#define oac_13nw_ttl 	oac_oacu.oacu_13nw_ttl		// action: nw_ttl
+#define oac_13experimenter oac_oacu.oacu_13experimenter	// action: experimenter_header
+#define oac_13set_queue oac_oacu.oacu_13set_queue	// action: set_queue
+#define oac_13set_field oac_oacu.oacu_13set_field	// action: set field
+
 protected: // data structures
 
 	uint8_t ofp_version;
@@ -114,7 +136,7 @@ public: // methods
 	 */
 	cofaction(
 			uint8_t ofp_version,
-			struct ofp_action_header* action,
+			struct openflow::ofp_action_header* action,
 			size_t aclen) throw (eBadActionBadLen, eBadActionBadOutPort);
 
 	/** copy constructor
@@ -134,7 +156,7 @@ public: // methods
 
 	/** return pointer to ofp_action_header start
 	 */
-	struct ofp_action_header* 
+	struct openflow::ofp_action_header*
 	soaction() const;
 
 	/** return length of action in bytes
@@ -149,20 +171,26 @@ public: // methods
 	c_str();
 #endif
 
-	/** copy struct ofp_action_header
+	/** copy struct openflow::ofp_action_header
 	 */
-	struct ofp_action_header*
+	struct openflow::ofp_action_header*
 	pack(
-			struct ofp_action_header* achdr,
+			struct openflow::ofp_action_header* achdr,
 			size_t aclen) const throw (eActionInval);
 
 	/** unpack
 	 */
 	void
 	unpack(
-			struct ofp_action_header *achdr,
+			struct openflow::ofp_action_header *achdr,
 			size_t aclen)
 			throw (eBadActionBadLen, eBadActionBadOutPort, eBadActionBadType);
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const;
 
 	/**
 	 *
@@ -251,23 +279,29 @@ public:
 			uint8_t ofp_version,
 			uint32_t port,
 			uint16_t max_len = 128) :
-				cofaction(ofp_version, sizeof(struct ofp10_action_output))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_output));
-			oac_10output->type 		= htobe16(OFP10AT_OUTPUT);
-			oac_10output->len 		= htobe16(sizeof(struct ofp10_action_output));
+			cofaction::resize(sizeof(struct openflow10::ofp_action_output));
+			oac_10output->type 		= htobe16(openflow10::OFPAT_OUTPUT);
+			oac_10output->len 		= htobe16(sizeof(struct openflow10::ofp_action_output));
 			oac_10output->port 		= htobe16(port);
 			oac_10output->max_len 	= htobe16(max_len);
 		} break;
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
-			cofaction::resize(sizeof(struct ofp12_action_output));
-			oac_12output->type 		= htobe16(OFP12AT_OUTPUT);
-			oac_12output->len 		= htobe16(sizeof(struct ofp12_action_output));
+		case OFP12_VERSION: {
+			cofaction::resize(sizeof(struct openflow12::ofp_action_output));
+			oac_12output->type 		= htobe16(openflow12::OFPAT_OUTPUT);
+			oac_12output->len 		= htobe16(sizeof(struct openflow12::ofp_action_output));
 			oac_12output->port 		= htobe32(port);
 			oac_12output->max_len 	= htobe16(max_len);
+		} break;
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct openflow13::ofp_action_output));
+			oac_13output->type 		= htobe16(openflow13::OFPAT_OUTPUT);
+			oac_13output->len 		= htobe16(sizeof(struct openflow13::ofp_action_output));
+			oac_13output->port 		= htobe32(port);
+			oac_13output->max_len 	= htobe16(max_len);
 		} break;
 		default: {
 			throw eBadVersion();
@@ -314,16 +348,17 @@ public:
 	cofaction_set_vlan_vid(
 			uint8_t ofp_version,
 			uint16_t vlan_vid) :
-				cofaction(ofp_version, sizeof(struct ofp10_action_vlan_vid))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_vlan_vid));
-			oac_10vlanvid->type 	= htobe16(OFP10AT_SET_VLAN_VID);
-			oac_10vlanvid->len 		= htobe16(sizeof(struct ofp10_action_vlan_vid));
+			cofaction::resize(sizeof(struct openflow10::ofp_action_vlan_vid));
+			oac_10vlanvid->type 	= htobe16(openflow10::OFPAT_SET_VLAN_VID);
+			oac_10vlanvid->len 		= htobe16(sizeof(struct openflow10::ofp_action_vlan_vid));
 			oac_10vlanvid->vlan_vid = htobe16(vlan_vid);
 		} break;
 		default:
+			logging::warn << "cofaction_set_vlan_vid: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -344,16 +379,17 @@ public:
 	cofaction_set_vlan_pcp(
 			uint8_t ofp_version,
 			uint8_t vlan_pcp) :
-				cofaction(ofp_version, sizeof(struct ofp10_action_vlan_pcp))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_vlan_pcp));
-			oac_10vlanpcp->type 	= htobe16(OFP10AT_SET_VLAN_PCP);
-			oac_10vlanpcp->len 		= htobe16(sizeof(struct ofp10_action_vlan_pcp));
+			cofaction::resize(sizeof(struct openflow10::ofp_action_vlan_pcp));
+			oac_10vlanpcp->type 	= htobe16(openflow10::OFPAT_SET_VLAN_PCP);
+			oac_10vlanpcp->len 		= htobe16(sizeof(struct openflow10::ofp_action_vlan_pcp));
 			oac_10vlanpcp->vlan_pcp = vlan_pcp;
 		} break;
 		default:
+			logging::warn << "cofaction_set_vlan_pcp: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -372,15 +408,16 @@ public:
 	/** constructor
 	 */
 	cofaction_strip_vlan(uint8_t ofp_version) :
-				cofaction(ofp_version, sizeof(struct ofp10_action_header))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_header));
-			oac_header->type 	= htobe16(OFP10AT_STRIP_VLAN);
-			oac_header->len 	= htobe16(sizeof(struct ofp10_action_header));
+			cofaction::resize(sizeof(struct openflow10::ofp_action_header));
+			oac_header->type 	= htobe16(openflow10::OFPAT_STRIP_VLAN);
+			oac_header->len 	= htobe16(sizeof(struct openflow10::ofp_action_header));
 		} break;
 		default:
+			logging::warn << "cofaction_set_strip_vlan: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -401,16 +438,17 @@ public:
 	cofaction_set_dl_src(
 			uint8_t ofp_version,
 			rofl::cmacaddr const& maddr) :
-				cofaction(ofp_version, sizeof(struct ofp10_action_dl_addr))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_dl_addr));
-			oac_10dladdr->type 	= htobe16(OFP10AT_SET_DL_SRC);
-			oac_10dladdr->len 	= htobe16(sizeof(struct ofp10_action_dl_addr));
+			cofaction::resize(sizeof(struct openflow10::ofp_action_dl_addr));
+			oac_10dladdr->type 	= htobe16(openflow10::OFPAT_SET_DL_SRC);
+			oac_10dladdr->len 	= htobe16(sizeof(struct openflow10::ofp_action_dl_addr));
 			memcpy(oac_10dladdr->dl_addr, maddr.somem(), OFP_ETH_ALEN);
 		} break;
 		default:
+			logging::warn << "cofaction_set_dl_src: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -431,16 +469,17 @@ public:
 	cofaction_set_dl_dst(
 			uint8_t ofp_version,
 			rofl::cmacaddr const& maddr) :
-				cofaction(ofp_version, sizeof(struct ofp10_action_dl_addr))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_dl_addr));
-			oac_10dladdr->type 	= htobe16(OFP10AT_SET_DL_DST);
-			oac_10dladdr->len 	= htobe16(sizeof(struct ofp10_action_dl_addr));
+			cofaction::resize(sizeof(struct openflow10::ofp_action_dl_addr));
+			oac_10dladdr->type 	= htobe16(openflow10::OFPAT_SET_DL_DST);
+			oac_10dladdr->len 	= htobe16(sizeof(struct openflow10::ofp_action_dl_addr));
 			memcpy(oac_10dladdr->dl_addr, maddr.somem(), OFP_ETH_ALEN);
 		} break;
 		default:
+			logging::warn << "cofaction_set_dl_dst: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -461,16 +500,17 @@ public:
 	cofaction_set_nw_src(
 			uint8_t ofp_version,
 			rofl::caddress const& addr) :
-				cofaction(ofp_version, sizeof(struct ofp10_action_nw_addr))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_nw_addr));
-			oac_10nwaddr->type 		= htobe16(OFP10AT_SET_NW_SRC);
-			oac_10nwaddr->len 		= htobe16(sizeof(struct ofp10_action_nw_addr));
+			cofaction::resize(sizeof(struct openflow10::ofp_action_nw_addr));
+			oac_10nwaddr->type 		= htobe16(openflow10::OFPAT_SET_NW_SRC);
+			oac_10nwaddr->len 		= htobe16(sizeof(struct openflow10::ofp_action_nw_addr));
 			oac_10nwaddr->nw_addr 	= addr.ca_s4addr->sin_addr.s_addr;
 		} break;
 		default:
+			logging::warn << "cofaction_set_nw_src: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -491,16 +531,17 @@ public:
 	cofaction_set_nw_dst(
 			uint8_t ofp_version,
 			rofl::caddress const& addr) :
-				cofaction(ofp_version, sizeof(struct ofp10_action_nw_addr))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_nw_addr));
-			oac_10nwaddr->type 		= htobe16(OFP10AT_SET_NW_DST);
-			oac_10nwaddr->len 		= htobe16(sizeof(struct ofp10_action_nw_addr));
+			cofaction::resize(sizeof(struct openflow10::ofp_action_nw_addr));
+			oac_10nwaddr->type 		= htobe16(openflow10::OFPAT_SET_NW_DST);
+			oac_10nwaddr->len 		= htobe16(sizeof(struct openflow10::ofp_action_nw_addr));
 			oac_10nwaddr->nw_addr 	= addr.ca_s4addr->sin_addr.s_addr;
 		} break;
 		default:
+			logging::warn << "cofaction_set_nw_dst: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -521,16 +562,17 @@ public:
 	cofaction_set_nw_tos(
 			uint8_t ofp_version,
 			uint8_t nw_tos) :
-				cofaction(ofp_version, sizeof(struct ofp10_action_nw_tos))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_nw_tos));
-			oac_10nwtos->type 	= htobe16(OFP10AT_SET_NW_TOS);
-			oac_10nwtos->len 	= htobe16(sizeof(struct ofp10_action_nw_tos));
+			cofaction::resize(sizeof(struct openflow10::ofp_action_nw_tos));
+			oac_10nwtos->type 	= htobe16(openflow10::OFPAT_SET_NW_TOS);
+			oac_10nwtos->len 	= htobe16(sizeof(struct openflow10::ofp_action_nw_tos));
 			oac_10nwtos->nw_tos = nw_tos;
 		} break;
 		default:
+			logging::warn << "cofaction_set_nw_tos: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -551,16 +593,17 @@ public:
 	cofaction_set_tp_src(
 			uint8_t ofp_version,
 			uint16_t tp_src) :
-				cofaction(ofp_version, sizeof(struct ofp10_action_tp_port))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_tp_port));
-			oac_10tpport->type 		= htobe16(OFP10AT_SET_TP_SRC);
-			oac_10tpport->len 		= htobe16(sizeof(struct ofp10_action_tp_port));
+			cofaction::resize(sizeof(struct openflow10::ofp_action_tp_port));
+			oac_10tpport->type 		= htobe16(openflow10::OFPAT_SET_TP_SRC);
+			oac_10tpport->len 		= htobe16(sizeof(struct openflow10::ofp_action_tp_port));
 			oac_10tpport->tp_port 	= htobe16(tp_src);
 		} break;
 		default:
+			logging::warn << "cofaction_set_tp_src: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -581,16 +624,17 @@ public:
 	cofaction_set_tp_dst(
 			uint8_t ofp_version,
 			uint16_t tp_dst) :
-				cofaction(ofp_version, sizeof(struct ofp10_action_tp_port))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_tp_port));
-			oac_10tpport->type 		= htobe16(OFP10AT_SET_TP_DST);
-			oac_10tpport->len 		= htobe16(sizeof(struct ofp10_action_tp_port));
+			cofaction::resize(sizeof(struct openflow10::ofp_action_tp_port));
+			oac_10tpport->type 		= htobe16(openflow10::OFPAT_SET_TP_DST);
+			oac_10tpport->len 		= htobe16(sizeof(struct openflow10::ofp_action_tp_port));
 			oac_10tpport->tp_port 	= htobe16(tp_dst);
 		} break;
 		default:
+			logging::warn << "cofaction_set_tp_dst: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -611,17 +655,18 @@ public:
 	cofaction_enqueue(
 			uint8_t ofp_version,
 			uint16_t port, uint32_t queue_id) :
-				cofaction(ofp_version, sizeof(struct ofp10_action_enqueue))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_enqueue));
-			oac_10enqueue->type 	= htobe16(OFP10AT_ENQUEUE);
-			oac_10enqueue->len 		= htobe16(sizeof(struct ofp10_action_enqueue));
+			cofaction::resize(sizeof(struct openflow10::ofp_action_enqueue));
+			oac_10enqueue->type 	= htobe16(openflow10::OFPAT_ENQUEUE);
+			oac_10enqueue->len 		= htobe16(sizeof(struct openflow10::ofp_action_enqueue));
 			oac_10enqueue->port 	= htobe16(port);
 			oac_10enqueue->queue_id = htobe32(queue_id);
 		} break;
 		default:
+			logging::warn << "cofaction_enqueue: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -645,13 +690,13 @@ public:
 			uint8_t ofp_version,
 			uint32_t vendor,
 			uint8_t *data = (uint8_t*)0, size_t datalen = 0) :
-				cofaction(ofp_version, sizeof(struct ofp10_action_vendor_header) + datalen)
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_vendor_header) + datalen);
-			oac_10vendor->type 		= htobe16(OFP10AT_VENDOR);
-			oac_10vendor->len 		= htobe16(sizeof(struct ofp10_action_vendor_header) + datalen);
+			cofaction::resize(sizeof(struct openflow10::ofp_action_vendor_header) + datalen);
+			oac_10vendor->type 		= htobe16(openflow10::OFPAT_VENDOR);
+			oac_10vendor->len 		= htobe16(sizeof(struct openflow10::ofp_action_vendor_header) + datalen);
 			oac_10vendor->vendor 	= htobe32(vendor);
 
 			if (data && datalen) {
@@ -659,6 +704,7 @@ public:
 			}
 		} break;
 		default:
+			logging::warn << "cofaction_vendor: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -669,7 +715,7 @@ public:
 	cofaction_vendor(cofaction const& action) :
 		cofaction(action)
 	{
-		if (OFP10AT_VENDOR != action.get_type())
+		if (openflow10::OFPAT_VENDOR != action.get_type())
 			throw eActionInvalType();
 	};
 
@@ -701,17 +747,23 @@ public:
 	cofaction_set_mpls_ttl(
 			uint8_t ofp_version,
 			uint8_t mpls_ttl) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_mpls_ttl))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
+		case OFP12_VERSION: {
+			cofaction::resize(sizeof(struct openflow12::ofp_action_mpls_ttl));
+			oac_12mpls_ttl->type 		= htobe16(openflow12::OFPAT_SET_MPLS_TTL);
+			oac_12mpls_ttl->len 		= htobe16(sizeof(struct openflow12::ofp_action_mpls_ttl));
+			oac_12mpls_ttl->mpls_ttl 	= mpls_ttl;
+		} break;
 		case OFP13_VERSION: {
-			cofaction::resize(sizeof(struct ofp12_action_mpls_ttl));
-			oac_12mpls_ttl->type 		= htobe16(OFP12AT_SET_MPLS_TTL);
-			oac_12mpls_ttl->len 		= htobe16(sizeof(struct ofp12_action_mpls_ttl));
+			cofaction::resize(sizeof(struct openflow13::ofp_action_mpls_ttl));
+			oac_12mpls_ttl->type 		= htobe16(openflow13::OFPAT_SET_MPLS_TTL);
+			oac_12mpls_ttl->len 		= htobe16(sizeof(struct openflow13::ofp_action_mpls_ttl));
 			oac_12mpls_ttl->mpls_ttl 	= mpls_ttl;
 		} break;
 		default:
+			logging::warn << "cofaction_set_mpls_ttl: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -731,16 +783,21 @@ public:
 	/** constructor
 	 */
 	cofaction_dec_mpls_ttl(uint8_t ofp_version) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_header))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
+		case OFP12_VERSION: {
+			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
+			oac_header->type 	= htobe16(openflow12::OFPAT_DEC_MPLS_TTL);
+			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
+		} break;
 		case OFP13_VERSION: {
-			cofaction::resize(sizeof(struct ofp12_action_header));
-			oac_header->type 	= htobe16(OFP12AT_DEC_MPLS_TTL);
-			oac_header->len 	= htobe16(sizeof(struct ofp12_action_header));
+			cofaction::resize(sizeof(struct openflow13::ofp_action_header));
+			oac_header->type 	= htobe16(openflow13::OFPAT_DEC_MPLS_TTL);
+			oac_header->len 	= htobe16(sizeof(struct openflow13::ofp_action_header));
 		} break;
 		default:
+			logging::warn << "cofaction_dec_mpls_ttl: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -762,17 +819,18 @@ public:
 	cofaction_push_vlan(
 			uint8_t ofp_version,
 			uint16_t ethertype) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_push))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
-			cofaction::resize(sizeof(struct ofp12_action_push));
-			oac_12push->type 		= htobe16(OFP12AT_PUSH_VLAN);
-			oac_12push->len 		= htobe16(sizeof(struct ofp12_action_push));
+			cofaction::resize(sizeof(struct openflow12::ofp_action_push));
+			oac_12push->type 		= htobe16(openflow12::OFPAT_PUSH_VLAN);
+			oac_12push->len 		= htobe16(sizeof(struct openflow12::ofp_action_push));
 			oac_12push->ethertype 	= htobe16(ethertype);
 		} break;
 		default:
+			logging::warn << "cofaction_push_vlan: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -794,17 +852,18 @@ public:
 	cofaction_push_mpls(
 			uint8_t ofp_version,
 			uint16_t ethertype) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_push))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
-			cofaction::resize(sizeof(struct ofp12_action_push));
-			oac_12push->type 		= htobe16(OFP12AT_PUSH_MPLS);
-			oac_12push->len 		= htobe16(sizeof(struct ofp12_action_push));
+			cofaction::resize(sizeof(struct openflow12::ofp_action_push));
+			oac_12push->type 		= htobe16(openflow12::OFPAT_PUSH_MPLS);
+			oac_12push->len 		= htobe16(sizeof(struct openflow12::ofp_action_push));
 			oac_12push->ethertype 	= htobe16(ethertype);
 		} break;
 		default:
+			logging::warn << "cofaction_push_mpls: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -824,23 +883,17 @@ public:
 	/** constructor
 	 */
 	cofaction_pop_vlan(uint8_t ofp_version) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_header))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-#if 0
-		case OFP10_VERSION: {
-			cofaction::resize(sizeof(struct ofp10_action_header));
-			oac_10tpport->type = htobe16(OFP10AT_STRIP_VLAN);
-			oac_10tpport->len = htobe16(sizeof(struct ofp10_action_header));
-		} break;
-#endif
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
-			cofaction::resize(sizeof(struct ofp12_action_header));
-			oac_header->type 	= htobe16(OFP12AT_POP_VLAN);
-			oac_header->len 	= htobe16(sizeof(struct ofp12_action_header));
+			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
+			oac_header->type 	= htobe16(openflow12::OFPAT_POP_VLAN);
+			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
 		} break;
 		default:
+			logging::warn << "cofaction_pop_vlan: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -862,17 +915,18 @@ public:
 	cofaction_pop_mpls(
 			uint8_t ofp_version,
 			uint16_t ethertype) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_pop_mpls))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
-			cofaction::resize(sizeof(struct ofp12_action_pop_mpls));
-			oac_12pop_mpls->type 		= htobe16(OFP12AT_POP_MPLS);
-			oac_12pop_mpls->len 		= htobe16(sizeof(struct ofp12_action_pop_mpls));
+			cofaction::resize(sizeof(struct openflow12::ofp_action_pop_mpls));
+			oac_12pop_mpls->type 		= htobe16(openflow12::OFPAT_POP_MPLS);
+			oac_12pop_mpls->len 		= htobe16(sizeof(struct openflow12::ofp_action_pop_mpls));
 			oac_12pop_mpls->ethertype 	= htobe16(ethertype);
 		} break;
 		default:
+			logging::warn << "cofaction_pop_mpls: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -895,17 +949,18 @@ public:
 	cofaction_group(
 			uint8_t ofp_version,
 			uint32_t group_id) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_group))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
-			cofaction::resize(sizeof(struct ofp12_action_group));
-			oac_12group->type 		= htobe16(OFP12AT_GROUP);
-			oac_12group->len 		= htobe16(sizeof(struct ofp12_action_group));
+			cofaction::resize(sizeof(struct openflow12::ofp_action_group));
+			oac_12group->type 		= htobe16(openflow12::OFPAT_GROUP);
+			oac_12group->len 		= htobe16(sizeof(struct openflow12::ofp_action_group));
 			oac_12group->group_id 	= htobe32(group_id);
 		} break;
 		default:
+			logging::warn << "cofaction_group: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -927,17 +982,18 @@ public:
 	cofaction_set_nw_ttl(
 			uint8_t ofp_version,
 			uint8_t nw_ttl) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_nw_ttl))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION:
-		{
-			cofaction::resize(sizeof(struct ofp12_action_nw_ttl));
-			oac_12nw_ttl->type 		= htobe16(OFP12AT_SET_NW_TTL);
-			oac_12nw_ttl->len 		= htobe16(sizeof(struct ofp12_action_nw_ttl));
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct openflow12::ofp_action_nw_ttl));
+			oac_12nw_ttl->type 		= htobe16(openflow12::OFPAT_SET_NW_TTL);
+			oac_12nw_ttl->len 		= htobe16(sizeof(struct openflow12::ofp_action_nw_ttl));
 			oac_12nw_ttl->nw_ttl 	= nw_ttl;
 		} break;
 		default:
+			logging::warn << "cofaction_set_nw_ttl: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 
@@ -958,16 +1014,17 @@ public:
 	/** constructor
 	 */
 	cofaction_dec_nw_ttl(uint8_t ofp_version) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_header))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION:
-		{
-			cofaction::resize(sizeof(struct ofp12_action_header));
-			oac_header->type 	= htobe16(OFP12AT_DEC_NW_TTL);
-			oac_header->len 	= htobe16(sizeof(struct ofp12_action_header));
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
+			oac_header->type 	= htobe16(openflow12::OFPAT_DEC_NW_TTL);
+			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
 		} break;
 		default:
+			logging::warn << "cofaction_dec_nw_ttl: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -987,16 +1044,17 @@ public:
 	/** constructor
 	 */
 	cofaction_copy_ttl_out(uint8_t ofp_version) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_header))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
-			cofaction::resize(sizeof(struct ofp12_action_header));
-			oac_header->type 	= htobe16(OFP12AT_COPY_TTL_OUT);
-			oac_header->len 	= htobe16(sizeof(struct ofp12_action_header));
+			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
+			oac_header->type 	= htobe16(openflow12::OFPAT_COPY_TTL_OUT);
+			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
 		} break;
 		default:
+			logging::warn << "cofaction_copy_ttl_out: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -1016,16 +1074,17 @@ public:
 	/** constructor
 	 */
 	cofaction_copy_ttl_in(uint8_t ofp_version) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_header))
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
-			cofaction::resize(sizeof(struct ofp12_action_header));
-			oac_header->type	= htobe16(OFP12AT_COPY_TTL_IN);
-			oac_header->len 	= htobe16(sizeof(struct ofp12_action_header));
+			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
+			oac_header->type	= htobe16(openflow12::OFPAT_COPY_TTL_IN);
+			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
 		} break;
 		default:
+			logging::warn << "cofaction_copy_ttl_in: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 
@@ -1049,17 +1108,18 @@ public:
 	cofaction_set_queue(
 			uint8_t ofp_version,
 			uint8_t queue_id) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_set_queue))
+				cofaction(ofp_version, sizeof(struct openflow12::ofp_action_set_queue))
 	{
 		switch (ofp_version) {
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
-			cofaction::resize(sizeof(struct ofp12_action_set_queue));
-			oac_12set_queue->type 		= htobe16(OFP12AT_SET_QUEUE);
-			oac_12set_queue->len 		= htobe16(sizeof(struct ofp12_action_set_queue));
+			cofaction::resize(sizeof(struct openflow12::ofp_action_set_queue));
+			oac_12set_queue->type 		= htobe16(openflow12::OFPAT_SET_QUEUE);
+			oac_12set_queue->len 		= htobe16(sizeof(struct openflow12::ofp_action_set_queue));
 			oac_12set_queue->queue_id 	= htobe32(queue_id);
 		} break;
 		default:
+			logging::warn << "cofaction_set_queue: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -1098,13 +1158,14 @@ public:
 
 			action.resize(total_length);
 
-			oac_12set_field 		= (struct ofp12_action_set_field*)action.somem();
-			oac_12set_field->type 	= htobe16(OFP12AT_SET_FIELD);
+			oac_12set_field 		= (struct openflow12::ofp_action_set_field*)action.somem();
+			oac_12set_field->type 	= htobe16(openflow12::OFPAT_SET_FIELD);
 			oac_12set_field->len 	= htobe16(total_length);
 
 			memcpy(oac_12set_field->field, (void*)oxm.sooxm(), oxm.length());
 		} break;
 		default:
+			logging::warn << "cofaction_set_field: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -1129,18 +1190,19 @@ public:
 			uint32_t exp_id,
 			uint32_t exp_type,
 			size_t datalen) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_experimenter_header) + datalen)
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
-			cofaction::resize(sizeof(struct ofp12_action_experimenter_header) + datalen);
-			oac_12experimenter->type 			= htobe16(OFP12AT_EXPERIMENTER);
-			oac_12experimenter->len 			= htobe16(sizeof(struct ofp12_action_experimenter_header) + datalen);
+			cofaction::resize(sizeof(struct openflow12::ofp_action_experimenter_header) + datalen);
+			oac_12experimenter->type 			= htobe16(openflow12::OFPAT_EXPERIMENTER);
+			oac_12experimenter->len 			= htobe16(sizeof(struct openflow12::ofp_action_experimenter_header) + datalen);
 			oac_12experimenter->experimenter 	= htobe32(exp_id);
 			oac_12experimenter->type			= htobe32(exp_type);
 		} break;
 		default:
+			logging::warn << "cofaction_experimenter: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -1152,14 +1214,14 @@ public:
 			uint32_t exp_id,
 			uint32_t exp_type,
 			uint8_t *data = (uint8_t*)0, size_t datalen = 0) :
-				cofaction(ofp_version, sizeof(struct ofp12_action_experimenter_header) + datalen)
+				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
-			cofaction::resize(sizeof(struct ofp12_action_experimenter_header) + datalen);
-			oac_12experimenter->type 			= htobe16(OFP12AT_EXPERIMENTER);
-			oac_12experimenter->len 			= htobe16(sizeof(struct ofp12_action_experimenter_header) + datalen);
+			cofaction::resize(sizeof(struct openflow12::ofp_action_experimenter_header) + datalen);
+			oac_12experimenter->type 			= htobe16(openflow12::OFPAT_EXPERIMENTER);
+			oac_12experimenter->len 			= htobe16(sizeof(struct openflow12::ofp_action_experimenter_header) + datalen);
 			oac_12experimenter->experimenter 	= htobe32(exp_id);
 			oac_12experimenter->exp_type		= htobe32(exp_type);
 
@@ -1168,6 +1230,7 @@ public:
 			}
 		} break;
 		default:
+			logging::warn << "cofaction_experimenter: constructor called for invalid OFP version" << std::endl;
 			throw eBadVersion();
 		}
 	};
@@ -1178,8 +1241,20 @@ public:
 	cofaction_experimenter(cofaction const& action) :
 		cofaction(action)
 	{
-		if (OFP12AT_EXPERIMENTER != action.get_type())
-			throw eActionInvalType();
+		switch (action.get_version()) {
+		case OFP12_VERSION: {
+			if (openflow12::OFPAT_EXPERIMENTER != action.get_type())
+				throw eActionInvalType();
+		} break;
+		case OFP13_VERSION: {
+			if (openflow13::OFPAT_EXPERIMENTER != action.get_type())
+				throw eActionInvalType();
+		} break;
+		default:
+			logging::warn << "cofaction_experimenter: 'copy' constructor called for invalid OFP version" << std::endl;
+			throw eBadVersion();
+		}
+
 	};
 
 	/** destructor

@@ -566,6 +566,13 @@ cofaction::__make_info()
 #endif
 
 
+uint8_t
+cofaction::get_version() const
+{
+	return ofp_version;
+}
+
+
 uint16_t
 cofaction::get_type() const
 {

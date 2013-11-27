@@ -51,17 +51,17 @@ private: // data structures
 	coxmlist 		oxmlist;		// list of all oxms
 	cmemory 		memarea;
 
-#define OFP10_MATCH_STATIC_LEN	(sizeof(struct ofp10_match))
+#define OFP10_MATCH_STATIC_LEN	(sizeof(struct openflow10::ofp_match))
 #define OFP12_MATCH_STATIC_LEN  (2*sizeof(uint16_t))
 #define OFP13_MATCH_STATIC_LEN  (2*sizeof(uint16_t))
 
 public: // data structures
 
 	union {
-		uint8_t*				ofpu_match;
-		struct ofp10_match*		ofp10u_match;
-		struct ofp12_match*		ofp12u_match;
-		struct ofp13_match*		ofp13u_match;
+		uint8_t*							ofpu_match;
+		struct openflow10::ofp_match*		ofp10u_match;
+		struct openflow12::ofp_match*		ofp12u_match;
+		struct openflow13::ofp_match*		ofp13u_match;
 	} ofpu;
 
 #define ofh_match  	ofpu.ofpu_match
@@ -78,7 +78,7 @@ public: // methods
 	 */
 	cofmatch(
 			uint8_t of_version = OFP12_VERSION,
-			uint16_t type = OFPMT_OXM);
+			uint16_t type = openflow::OFPMT_OXM);
 
 
 	/** constructor
