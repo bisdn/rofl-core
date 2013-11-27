@@ -5,8 +5,8 @@
  *      Author: andi
  */
 
-#ifndef COFMSG_AGGR_STATS_H_
-#define COFMSG_AGGR_STATS_H_ 1
+#ifndef COFMSG_AGGR_STATS_H
+#define COFMSG_AGGR_STATS_H 1
 
 #include "cofmsg_stats.h"
 #include "rofl/common/openflow/cofaggrstats.h"
@@ -25,9 +25,9 @@ private:
 	cofaggr_stats_request 		aggr_stats;
 
 	union {
-		uint8_t*								ofhu_aggr_stats;
-		struct ofp10_aggregate_stats_request*	ofhu10_aggr_stats;
-		struct ofp12_aggregate_stats_request*	ofhu12_aggr_stats;
+		uint8_t											*ofhu_aggr_stats;
+		struct openflow10::ofp_aggregate_stats_request 	*ofhu10_aggr_stats;
+		struct openflow12::ofp_aggregate_stats_request	*ofhu12_aggr_stats;
 		// TODO: OF1.3
 	} ofhu;
 

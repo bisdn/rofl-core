@@ -43,10 +43,10 @@ class cofbase;
 namespace rofl
 {
 
-class eOFpacketBase : public cerror {};
-class eOFpacketInval : public eOFpacketBase {};
-class eOFpacketNoData : public eOFpacketBase {};
-class eOFpacketHeaderInval : public eOFpacketBase {}; // invalid header
+class eOFpacketBase 		: public cerror {};
+class eOFpacketInval 		: public eOFpacketBase {};
+class eOFpacketNoData 		: public eOFpacketBase {};
+class eOFpacketHeaderInval 	: public eOFpacketBase {}; // invalid header
 
 
 /** cofpacket
@@ -89,8 +89,8 @@ public:
 
 protected: // data structures
 
-	cmemory 			*memarea;			// OpenFlow packet received from socket
-	struct ofp_header	*ofh_header;		// generic OpenFlow header
+	cmemory 					*memarea;			// OpenFlow packet received from socket
+	struct openflow::ofp_header	*ofh_header;		// generic OpenFlow header
 
 public:
 
@@ -98,7 +98,7 @@ public:
 	 *
 	 */
 	cofmsg(
-			size_t size = sizeof(struct ofp_header));
+			size_t size = sizeof(struct openflow::ofp_header));
 
 
 	/**
@@ -188,14 +188,14 @@ public:
 	 *
 	 */
 	uint8_t*
-	sobody() const { return (soframe() + sizeof(struct ofp_header)); };
+	sobody() const { return (soframe() + sizeof(struct openflow::ofp_header)); };
 
 
 	/** frame length
 	 *
 	 */
 	size_t
-	bodylen() const { return (framelen() - sizeof(struct ofp_header)); };
+	bodylen() const { return (framelen() - sizeof(struct openflow::ofp_header)); };
 
 
 public:

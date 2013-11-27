@@ -104,9 +104,9 @@ private:
 
 	union {
 		uint8_t*					ofhu_switch_config;
-		struct ofp10_switch_config*	ofhu10_switch_config;
-		struct ofp12_switch_config*	ofhu12_switch_config;
-		struct ofp13_switch_config*	ofhu13_switch_config;
+		struct openflow10::ofp_switch_config*	ofhu10_switch_config;
+		struct openflow12::ofp_switch_config*	ofhu12_switch_config;
+		struct openflow13::ofp_switch_config*	ofhu13_switch_config;
 	} ofhu;
 
 #define ofh_switch_config   ofhu.ofhu_switch_config
@@ -235,10 +235,10 @@ class cofmsg_set_config :
 private:
 
 	union {
-		uint8_t*					ofhu_switch_config;
-		struct ofp10_switch_config*	ofhu10_switch_config;
-		struct ofp12_switch_config*	ofhu12_switch_config;
-		struct ofp13_switch_config*	ofhu13_switch_config;
+		uint8_t*								ofhu_switch_config;
+		struct openflow10::ofp_switch_config*	ofhu10_switch_config;
+		struct openflow12::ofp_switch_config*	ofhu12_switch_config;
+		struct openflow13::ofp_switch_config*	ofhu13_switch_config;
 	} ofhu;
 
 #define ofh_switch_config   ofhu.ofhu_switch_config

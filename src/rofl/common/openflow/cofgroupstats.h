@@ -223,14 +223,14 @@ public:
 	get_byte_count() const { return byte_count; };
 
 	/**
-	 *
+	 * FIXME: version dependency
 	 */
-	struct ofp12_bucket_counter&
+	struct openflow12::ofp_bucket_counter&
 	get_bucket_counter(size_t i) {
-		if (i > (bucket_stats.memlen() / sizeof(struct ofp12_bucket_counter))) {
+		if (i > (bucket_stats.memlen() / sizeof(struct openflow12::ofp_bucket_counter))) {
 			throw eInval();
 		}
-		return ((struct ofp12_bucket_counter*)bucket_stats.somem())[i];
+		return ((struct openflow12::ofp_bucket_counter*)bucket_stats.somem())[i];
 	};
 
 	/**

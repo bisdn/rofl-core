@@ -118,9 +118,9 @@ private:
 	cofdesc_stats_reply 		desc_stats;
 
 	union {
-		uint8_t*						ofhu_desc_stats;
-		struct ofp10_desc_stats*		ofhu10_desc_stats;
-		struct ofp12_desc_stats*		ofhu12_desc_stats;
+		uint8_t*								ofhu_desc_stats;
+		struct openflow10::ofp_desc_stats*		ofhu10_desc_stats;
+		struct openflow12::ofp_desc_stats*		ofhu12_desc_stats;
 		// TODO: OF1.3
 	} ofhu;
 
