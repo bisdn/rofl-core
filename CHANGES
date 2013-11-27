@@ -6,4 +6,4 @@
   for levels emerg, alert, crit, error, warn, info, notice, debug whose
   destinations can be freely configured
 
-
+* Fixed a bug in handling of OXM TLVs of type VLAN_VID
