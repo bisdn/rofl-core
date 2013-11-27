@@ -82,27 +82,27 @@ cofportlist::pack(
 
 std::vector<cofport>&
 cofportlist::unpack(
-		struct ofp10_port *ports,
+		struct openflow10::ofp_port *ports,
 		size_t portlen)
 throw (ePortListInval)
 {
 	clear(); // clears bcvec
 
 	// sanity check: bclen must be of size at least of ofp_bucket
-	if (portlen < (int)sizeof(struct ofp10_port))
+	if (portlen < (int)sizeof(struct openflow10::ofp_port))
 		return elems;
 
 	// first port
-	struct ofp10_port *porthdr = ports;
+	struct openflow10::ofp_port *porthdr = ports;
 
 	while (portlen > 0) {
 
-		if (portlen < sizeof(struct ofp10_port))
+		if (portlen < sizeof(struct openflow10::ofp_port))
 			throw ePortListInval();
 
-		next() = cofport(porthdr, sizeof(struct ofp10_port) );
+		next() = cofport(porthdr, sizeof(struct openflow10::ofp_port) );
 
-		portlen -= sizeof(struct ofp10_port);
+		portlen -= sizeof(struct openflow10::ofp_port);
 		porthdr++;
 	}
 
@@ -112,9 +112,9 @@ throw (ePortListInval)
 
 
 
-struct ofp10_port*
+struct openflow10::ofp_port*
 cofportlist::pack(
-	struct ofp10_port *ports,
+	struct openflow10::ofp_port *ports,
 	size_t portlen) const throw (ePortListInval)
 {
 	size_t needed_inlen = length();
@@ -122,14 +122,14 @@ cofportlist::pack(
 	if (portlen < needed_inlen)
 		throw ePortListInval();
 
-	struct ofp10_port *porthdr = ports; // first ofp_port header
+	struct openflow10::ofp_port *porthdr = ports; // first ofp_port header
 
 	cofportlist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		cofport const& port = (*it);
 
-		porthdr = (struct ofp10_port*)
+		porthdr = (struct openflow10::ofp_port*)
 				((uint8_t*)(port.pack(porthdr, port.length())) + port.length());
 	}
 
@@ -140,27 +140,27 @@ cofportlist::pack(
 
 std::vector<cofport>&
 cofportlist::unpack(
-		struct ofp12_port *ports,
+		struct openflow12::ofp_port *ports,
 		size_t portlen)
 throw (ePortListInval)
 {
 	clear(); // clears bcvec
 
 	// sanity check: bclen must be of size at least of ofp_bucket
-	if (portlen < (int)sizeof(struct ofp12_port))
+	if (portlen < (int)sizeof(struct openflow12::ofp_port))
 		return elems;
 
 	// first port
-	struct ofp12_port *porthdr = ports;
+	struct openflow12::ofp_port *porthdr = ports;
 
 	while (portlen > 0) {
 
-		if (portlen < sizeof(struct ofp12_port))
+		if (portlen < sizeof(struct openflow12::ofp_port))
 			throw ePortListInval();
 
-		next() = cofport(porthdr, sizeof(struct ofp12_port) );
+		next() = cofport(porthdr, sizeof(struct openflow12::ofp_port) );
 
-		portlen -= sizeof(struct ofp12_port);
+		portlen -= sizeof(struct openflow12::ofp_port);
 		porthdr++;
 	}
 
@@ -170,9 +170,9 @@ throw (ePortListInval)
 
 
 
-struct ofp12_port*
+struct openflow12::ofp_port*
 cofportlist::pack(
-	struct ofp12_port *ports,
+	struct openflow12::ofp_port *ports,
 	size_t portlen) const throw (ePortListInval)
 {
 	size_t needed_inlen = length();
@@ -180,14 +180,14 @@ cofportlist::pack(
 	if (portlen < needed_inlen)
 		throw ePortListInval();
 
-	struct ofp12_port *porthdr = ports; // first ofp_port header
+	struct openflow12::ofp_port *porthdr = ports; // first ofp_port header
 
 	cofportlist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		cofport const& port = (*it);
 
-		porthdr = (struct ofp12_port*)
+		porthdr = (struct openflow12::ofp_port*)
 				((uint8_t*)(port.pack(porthdr, port.length())) + port.length());
 	}
 
@@ -255,13 +255,13 @@ cofportlist::test()
 
 	cmemory mem(pl1.length());
 
-	pl1.pack((struct ofp10_port*)mem.somem(), mem.memlen());
+	pl1.pack((struct openflow10::ofp_port*)mem.somem(), mem.memlen());
 
 	fprintf(stderr, "portlist.packed => %s\n", mem.c_str());
 
 	cofportlist pl2;
 
-	pl2.unpack((struct ofp10_port*)mem.somem(), mem.memlen());
+	pl2.unpack((struct openflow10::ofp_port*)mem.somem(), mem.memlen());
 
 	fprintf(stderr, "portlist.unpacked => %s\n", pl2.c_str());
 

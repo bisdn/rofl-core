@@ -142,8 +142,8 @@ private:
 
 	union {
 		uint8_t*								ofhu_aggr_stats;
-		struct ofp10_aggregate_stats_reply*		ofhu10_aggr_stats;
-		struct ofp12_aggregate_stats_reply*		ofhu12_aggr_stats;
+		struct openflow10::ofp_aggregate_stats_reply*		ofhu10_aggr_stats;
+		struct openflow12::ofp_aggregate_stats_reply*		ofhu12_aggr_stats;
 		// TODO: OF1.3
 	} ofhu;
 

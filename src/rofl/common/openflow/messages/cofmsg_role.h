@@ -23,8 +23,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_role_request;
-		struct ofp12_role_request*		ofhu12_role_request;
-		struct ofp13_role_request*		ofhu13_role_request;
+		struct openflow12::ofp_role_request*		ofhu12_role_request;
+		struct openflow13::ofp_role_request*		ofhu13_role_request;
 	} ofhu;
 
 #define ofh_role_request	ofhu.ofhu_role_request
@@ -154,8 +154,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_role_reply;
-		struct ofp12_role_request*		ofhu12_role_reply;
-		struct ofp13_role_request*		ofhu13_role_reply;
+		struct openflow12::ofp_role_request*		ofhu12_role_reply;
+		struct openflow13::ofp_role_request*		ofhu13_role_reply;
 	} ofhu;
 
 #define ofh_role_reply		ofhu.ofhu_role_reply

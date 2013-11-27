@@ -225,20 +225,20 @@ private:
 	 */
 	void
 	unpack(
-			struct ofp10_action_header *achdr, size_t aclen);
+			struct openflow10::ofp_action_header *achdr, size_t aclen);
 
 	/** unpack OF1.2
 	 */
 	void
 	unpack(
-			struct ofp12_action_header *achdr, size_t aclen);
+			struct openflow12::ofp_action_header *achdr, size_t aclen);
 
 
 	/** unpack OF1.3
 	 */
 	void
 	unpack(
-			struct ofp13_action_header *achdr, size_t aclen);
+			struct openflow13::ofp_action_header *achdr, size_t aclen);
 
 public:
 
@@ -282,21 +282,21 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow10::ofp_action_output));
 			oac_10output->type 		= htobe16(openflow10::OFPAT_OUTPUT);
 			oac_10output->len 		= htobe16(sizeof(struct openflow10::ofp_action_output));
 			oac_10output->port 		= htobe16(port);
 			oac_10output->max_len 	= htobe16(max_len);
 		} break;
-		case OFP12_VERSION: {
+		case openflow12::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_output));
 			oac_12output->type 		= htobe16(openflow12::OFPAT_OUTPUT);
 			oac_12output->len 		= htobe16(sizeof(struct openflow12::ofp_action_output));
 			oac_12output->port 		= htobe32(port);
 			oac_12output->max_len 	= htobe16(max_len);
 		} break;
-		case OFP13_VERSION: {
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow13::ofp_action_output));
 			oac_13output->type 		= htobe16(openflow13::OFPAT_OUTPUT);
 			oac_13output->len 		= htobe16(sizeof(struct openflow13::ofp_action_output));
@@ -351,7 +351,7 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow10::ofp_action_vlan_vid));
 			oac_10vlanvid->type 	= htobe16(openflow10::OFPAT_SET_VLAN_VID);
 			oac_10vlanvid->len 		= htobe16(sizeof(struct openflow10::ofp_action_vlan_vid));
@@ -382,7 +382,7 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow10::ofp_action_vlan_pcp));
 			oac_10vlanpcp->type 	= htobe16(openflow10::OFPAT_SET_VLAN_PCP);
 			oac_10vlanpcp->len 		= htobe16(sizeof(struct openflow10::ofp_action_vlan_pcp));
@@ -411,7 +411,7 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow10::ofp_action_header));
 			oac_header->type 	= htobe16(openflow10::OFPAT_STRIP_VLAN);
 			oac_header->len 	= htobe16(sizeof(struct openflow10::ofp_action_header));
@@ -441,7 +441,7 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow10::ofp_action_dl_addr));
 			oac_10dladdr->type 	= htobe16(openflow10::OFPAT_SET_DL_SRC);
 			oac_10dladdr->len 	= htobe16(sizeof(struct openflow10::ofp_action_dl_addr));
@@ -472,7 +472,7 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow10::ofp_action_dl_addr));
 			oac_10dladdr->type 	= htobe16(openflow10::OFPAT_SET_DL_DST);
 			oac_10dladdr->len 	= htobe16(sizeof(struct openflow10::ofp_action_dl_addr));
@@ -503,7 +503,7 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow10::ofp_action_nw_addr));
 			oac_10nwaddr->type 		= htobe16(openflow10::OFPAT_SET_NW_SRC);
 			oac_10nwaddr->len 		= htobe16(sizeof(struct openflow10::ofp_action_nw_addr));
@@ -534,7 +534,7 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow10::ofp_action_nw_addr));
 			oac_10nwaddr->type 		= htobe16(openflow10::OFPAT_SET_NW_DST);
 			oac_10nwaddr->len 		= htobe16(sizeof(struct openflow10::ofp_action_nw_addr));
@@ -565,7 +565,7 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow10::ofp_action_nw_tos));
 			oac_10nwtos->type 	= htobe16(openflow10::OFPAT_SET_NW_TOS);
 			oac_10nwtos->len 	= htobe16(sizeof(struct openflow10::ofp_action_nw_tos));
@@ -596,7 +596,7 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow10::ofp_action_tp_port));
 			oac_10tpport->type 		= htobe16(openflow10::OFPAT_SET_TP_SRC);
 			oac_10tpport->len 		= htobe16(sizeof(struct openflow10::ofp_action_tp_port));
@@ -627,7 +627,7 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow10::ofp_action_tp_port));
 			oac_10tpport->type 		= htobe16(openflow10::OFPAT_SET_TP_DST);
 			oac_10tpport->len 		= htobe16(sizeof(struct openflow10::ofp_action_tp_port));
@@ -658,7 +658,7 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow10::ofp_action_enqueue));
 			oac_10enqueue->type 	= htobe16(openflow10::OFPAT_ENQUEUE);
 			oac_10enqueue->len 		= htobe16(sizeof(struct openflow10::ofp_action_enqueue));
@@ -693,7 +693,7 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow10::ofp_action_vendor_header) + datalen);
 			oac_10vendor->type 		= htobe16(openflow10::OFPAT_VENDOR);
 			oac_10vendor->len 		= htobe16(sizeof(struct openflow10::ofp_action_vendor_header) + datalen);
@@ -750,13 +750,13 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION: {
+		case openflow12::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_mpls_ttl));
 			oac_12mpls_ttl->type 		= htobe16(openflow12::OFPAT_SET_MPLS_TTL);
 			oac_12mpls_ttl->len 		= htobe16(sizeof(struct openflow12::ofp_action_mpls_ttl));
 			oac_12mpls_ttl->mpls_ttl 	= mpls_ttl;
 		} break;
-		case OFP13_VERSION: {
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow13::ofp_action_mpls_ttl));
 			oac_12mpls_ttl->type 		= htobe16(openflow13::OFPAT_SET_MPLS_TTL);
 			oac_12mpls_ttl->len 		= htobe16(sizeof(struct openflow13::ofp_action_mpls_ttl));
@@ -786,12 +786,12 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION: {
+		case openflow12::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
 			oac_header->type 	= htobe16(openflow12::OFPAT_DEC_MPLS_TTL);
 			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
 		} break;
-		case OFP13_VERSION: {
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow13::ofp_action_header));
 			oac_header->type 	= htobe16(openflow13::OFPAT_DEC_MPLS_TTL);
 			oac_header->len 	= htobe16(sizeof(struct openflow13::ofp_action_header));
@@ -822,8 +822,8 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_push));
 			oac_12push->type 		= htobe16(openflow12::OFPAT_PUSH_VLAN);
 			oac_12push->len 		= htobe16(sizeof(struct openflow12::ofp_action_push));
@@ -855,8 +855,8 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_push));
 			oac_12push->type 		= htobe16(openflow12::OFPAT_PUSH_MPLS);
 			oac_12push->len 		= htobe16(sizeof(struct openflow12::ofp_action_push));
@@ -886,8 +886,8 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
 			oac_header->type 	= htobe16(openflow12::OFPAT_POP_VLAN);
 			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
@@ -918,8 +918,8 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_pop_mpls));
 			oac_12pop_mpls->type 		= htobe16(openflow12::OFPAT_POP_MPLS);
 			oac_12pop_mpls->len 		= htobe16(sizeof(struct openflow12::ofp_action_pop_mpls));
@@ -952,8 +952,8 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_group));
 			oac_12group->type 		= htobe16(openflow12::OFPAT_GROUP);
 			oac_12group->len 		= htobe16(sizeof(struct openflow12::ofp_action_group));
@@ -985,8 +985,8 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_nw_ttl));
 			oac_12nw_ttl->type 		= htobe16(openflow12::OFPAT_SET_NW_TTL);
 			oac_12nw_ttl->len 		= htobe16(sizeof(struct openflow12::ofp_action_nw_ttl));
@@ -1017,8 +1017,8 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
 			oac_header->type 	= htobe16(openflow12::OFPAT_DEC_NW_TTL);
 			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
@@ -1047,8 +1047,8 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
 			oac_header->type 	= htobe16(openflow12::OFPAT_COPY_TTL_OUT);
 			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
@@ -1077,8 +1077,8 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_header));
 			oac_header->type	= htobe16(openflow12::OFPAT_COPY_TTL_IN);
 			oac_header->len 	= htobe16(sizeof(struct openflow12::ofp_action_header));
@@ -1111,8 +1111,8 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow12::ofp_action_set_queue))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_set_queue));
 			oac_12set_queue->type 		= htobe16(openflow12::OFPAT_SET_QUEUE);
 			oac_12set_queue->len 		= htobe16(sizeof(struct openflow12::ofp_action_set_queue));
@@ -1145,8 +1145,8 @@ public:
 				cofaction(ofp_version, 0)
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			size_t total_length = 2 * sizeof(uint16_t) + oxm.length();
 
 			size_t pad = (0x7 & total_length);
@@ -1193,8 +1193,8 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_experimenter_header) + datalen);
 			oac_12experimenter->type 			= htobe16(openflow12::OFPAT_EXPERIMENTER);
 			oac_12experimenter->len 			= htobe16(sizeof(struct openflow12::ofp_action_experimenter_header) + datalen);
@@ -1217,8 +1217,8 @@ public:
 				cofaction(ofp_version, sizeof(struct openflow::ofp_action_header))
 	{
 		switch (ofp_version) {
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			cofaction::resize(sizeof(struct openflow12::ofp_action_experimenter_header) + datalen);
 			oac_12experimenter->type 			= htobe16(openflow12::OFPAT_EXPERIMENTER);
 			oac_12experimenter->len 			= htobe16(sizeof(struct openflow12::ofp_action_experimenter_header) + datalen);
@@ -1242,11 +1242,11 @@ public:
 		cofaction(action)
 	{
 		switch (action.get_version()) {
-		case OFP12_VERSION: {
+		case openflow12::OFP_VERSION: {
 			if (openflow12::OFPAT_EXPERIMENTER != action.get_type())
 				throw eActionInvalType();
 		} break;
-		case OFP13_VERSION: {
+		case openflow13::OFP_VERSION: {
 			if (openflow13::OFPAT_EXPERIMENTER != action.get_type())
 				throw eActionInvalType();
 		} break;

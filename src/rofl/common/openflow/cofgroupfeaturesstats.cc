@@ -74,11 +74,11 @@ void
 cofgroup_features_stats_reply::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		if (buflen < length())
 			throw eInval();
-		struct ofp12_group_features_stats *fs = (struct ofp12_group_features_stats*)buf;
+		struct openflow12::ofp_group_features_stats *fs = (struct openflow12::ofp_group_features_stats*)buf;
 		fs->types				= htobe32(types);
 		fs->capabilities		= htobe32(capabilities);
 		for (unsigned int i = 0; i < 4; i++) {
@@ -97,12 +97,12 @@ void
 cofgroup_features_stats_reply::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
-		if (buflen < sizeof(struct ofp12_group_features_stats))
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_group_features_stats))
 			throw eInval();
 
-		struct ofp12_group_features_stats* fs = (struct ofp12_group_features_stats*)buf;
+		struct openflow12::ofp_group_features_stats* fs = (struct openflow12::ofp_group_features_stats*)buf;
 		types				= be32toh(fs->types);
 		capabilities		= be32toh(fs->capabilities);
 		for (unsigned int i = 0; i < 4; i++) {
@@ -121,9 +121,9 @@ size_t
 cofgroup_features_stats_reply::length() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
-		return (sizeof(struct ofp12_group_features_stats));
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_group_features_stats));
 	} break;
 	default:
 		throw eBadVersion();

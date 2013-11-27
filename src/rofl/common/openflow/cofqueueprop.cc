@@ -14,13 +14,13 @@ cofqueue_prop::cofqueue_prop(
 				of_version(of_version)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		resize(sizeof(struct ofp10_queue_prop_header));
+	case openflow10::OFP_VERSION: {
+		resize(sizeof(struct openflow10::ofp_queue_prop_header));
 	} break;
-	case OFP12_VERSION: {
-		resize(sizeof(struct ofp12_queue_prop_header));
+	case openflow12::OFP_VERSION: {
+		resize(sizeof(struct openflow12::ofp_queue_prop_header));
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -88,13 +88,13 @@ cofqueue_prop::pack(uint8_t *buf, size_t buflen) const
 		throw eInval();
 
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		memcpy(buf, somem(),memlen());
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		memcpy(buf, somem(),memlen());
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -112,13 +112,13 @@ cofqueue_prop::unpack(uint8_t *buf, size_t buflen)
 		resize(buflen);
 
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		memcpy(somem(), buf, buflen);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		memcpy(somem(), buf, buflen);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -135,13 +135,13 @@ uint16_t
 cofqueue_prop::get_property() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be16toh(ofq10_header->property);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be16toh(ofq12_header->property);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -156,13 +156,13 @@ void
 cofqueue_prop::set_property(uint16_t property)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofq10_header->property = htobe16(property);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofq12_header->property = htobe16(property);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -177,13 +177,13 @@ uint16_t
 cofqueue_prop::get_length() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be16toh(ofq10_header->len);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be16toh(ofq12_header->len);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -199,13 +199,13 @@ void
 cofqueue_prop::set_length(uint16_t len)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofq10_header->len = htobe16(len);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofq12_header->len = htobe16(len);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -224,13 +224,13 @@ cofqueue_prop_min_rate::cofqueue_prop_min_rate(
 		cofqueue_prop(of_version)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		resize(sizeof(struct ofp10_queue_prop_min_rate));
+	case openflow10::OFP_VERSION: {
+		resize(sizeof(struct openflow10::ofp_queue_prop_min_rate));
 	} break;
-	case OFP12_VERSION: {
-		resize(sizeof(struct ofp12_queue_prop_min_rate));
+	case openflow12::OFP_VERSION: {
+		resize(sizeof(struct openflow12::ofp_queue_prop_min_rate));
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -291,15 +291,15 @@ void
 cofqueue_prop_min_rate::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		if (buflen < sizeof(struct ofp10_queue_prop_min_rate))
+	case openflow10::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow10::ofp_queue_prop_min_rate))
 			throw eInval();
 	} break;
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_queue_prop_min_rate))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_queue_prop_min_rate))
 			throw eInval();
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -316,15 +316,15 @@ void
 cofqueue_prop_min_rate::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		if (buflen < sizeof(struct ofp10_queue_prop_min_rate))
+	case openflow10::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow10::ofp_queue_prop_min_rate))
 			throw eInval();
 	} break;
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_queue_prop_min_rate))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_queue_prop_min_rate))
 			throw eInval();
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -342,13 +342,13 @@ uint16_t
 cofqueue_prop_min_rate::get_rate() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be16toh(ofq10_min_rate->rate);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be16toh(ofq12_min_rate->rate);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -364,13 +364,13 @@ void
 cofqueue_prop_min_rate::set_rate(uint16_t rate)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofq10_min_rate->rate = htobe16(rate);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofq12_min_rate->rate = htobe16(rate);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -387,10 +387,10 @@ cofqueue_prop_max_rate::cofqueue_prop_max_rate(
 		cofqueue_prop(of_version)
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
-		resize(sizeof(struct ofp12_queue_prop_min_rate));
+	case openflow12::OFP_VERSION: {
+		resize(sizeof(struct openflow12::ofp_queue_prop_min_rate));
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -452,11 +452,11 @@ void
 cofqueue_prop_max_rate::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_queue_prop_min_rate))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_queue_prop_min_rate))
 			throw eInval();
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -473,11 +473,11 @@ void
 cofqueue_prop_max_rate::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_queue_prop_min_rate))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_queue_prop_min_rate))
 			throw eInval();
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -495,10 +495,10 @@ uint16_t
 cofqueue_prop_max_rate::get_rate() const
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be16toh(ofq12_max_rate->rate);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -514,10 +514,10 @@ void
 cofqueue_prop_max_rate::set_rate(uint16_t rate)
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofq12_max_rate->rate = htobe16(rate);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -535,10 +535,10 @@ cofqueue_prop_expr::cofqueue_prop_expr(
 		body(0)
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
-		resize(sizeof(struct ofp12_queue_prop_experimenter));
+	case openflow12::OFP_VERSION: {
+		resize(sizeof(struct openflow12::ofp_queue_prop_experimenter));
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -606,10 +606,10 @@ size_t
 cofqueue_prop_expr::length() const
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_queue_prop_experimenter) + body.memlen());
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_queue_prop_experimenter) + body.memlen());
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -628,13 +628,13 @@ cofqueue_prop_expr::pack(uint8_t *buf, size_t buflen) const
 		throw eInval();
 
 	switch (of_version) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		memcpy(buf, somem(), memlen());
 		memcpy(buf + memlen(), body.somem(), body.memlen());
-		struct ofp12_queue_prop_header* qp = (struct ofp12_queue_prop_header*)buf;
+		struct openflow12::ofp_queue_prop_header* qp = (struct openflow12::ofp_queue_prop_header*)buf;
 		qp->len = htobe16(length());
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -649,19 +649,19 @@ void
 cofqueue_prop_expr::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_queue_prop_experimenter))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_queue_prop_experimenter))
 			throw eInval();
-		cofqueue_prop::resize(sizeof(struct ofp12_queue_prop_experimenter));
+		cofqueue_prop::resize(sizeof(struct openflow12::ofp_queue_prop_experimenter));
 		ofq_expr = somem();
-		memcpy(somem(), buf, sizeof(struct ofp12_queue_prop_experimenter));
-		if (buflen > sizeof(struct ofp12_queue_prop_experimenter)) {
-			body.resize(buflen - sizeof(struct ofp12_queue_prop_experimenter));
-			memcpy(body.somem(), buf + sizeof(struct ofp12_queue_prop_experimenter),
+		memcpy(somem(), buf, sizeof(struct openflow12::ofp_queue_prop_experimenter));
+		if (buflen > sizeof(struct openflow12::ofp_queue_prop_experimenter)) {
+			body.resize(buflen - sizeof(struct openflow12::ofp_queue_prop_experimenter));
+			memcpy(body.somem(), buf + sizeof(struct openflow12::ofp_queue_prop_experimenter),
 					body.memlen());
 		}
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -679,10 +679,10 @@ uint32_t
 cofqueue_prop_expr::get_expr() const
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be32toh(ofq12_expr->experimenter);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -698,10 +698,10 @@ void
 cofqueue_prop_expr::set_expr(uint32_t expr)
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofq12_expr->experimenter = htobe32(expr);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {

@@ -60,11 +60,11 @@ cofgroup_stats_request::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
 	// no OpenFLow 1.0 group stats
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_group_stats_request))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_group_stats_request))
 			throw eInval();
 
-		struct ofp12_group_stats_request *stats = (struct ofp12_group_stats_request*)buf;
+		struct openflow12::ofp_group_stats_request *stats = (struct openflow12::ofp_group_stats_request*)buf;
 
 		stats->group_id		= htobe32(group_id);
 
@@ -81,12 +81,12 @@ cofgroup_stats_request::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
 	// no OpenFLow 1.0 group stats
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_group_stats_request)){
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_group_stats_request)){
 			throw eInval();
 		}
 
-		struct ofp12_group_stats_request *stats = (struct ofp12_group_stats_request*)buf;
+		struct openflow12::ofp_group_stats_request *stats = (struct openflow12::ofp_group_stats_request*)buf;
 
 		group_id		= be32toh(stats->group_id);
 
@@ -103,8 +103,8 @@ cofgroup_stats_request::length() const
 {
 	switch (of_version) {
 	// no OpenFLow 1.0 group stats
-	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_group_stats_request));
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_group_stats_request));
 	} break;
 	default:
 		throw eBadVersion();
@@ -137,7 +137,7 @@ cofgroup_stats_reply::cofgroup_stats_reply(
 				ref_count(ref_count),
 				packet_count(packet_count),
 				byte_count(byte_count),
-				bucket_stats(num_of_bucket_stats * sizeof(struct ofp12_bucket_counter))
+				bucket_stats(num_of_bucket_stats * sizeof(struct openflow12::ofp_bucket_counter))
 {}
 
 
@@ -178,11 +178,11 @@ void
 cofgroup_stats_reply::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		if (buflen < length())
 			throw eInval();
 
-		struct ofp12_group_stats *stats = (struct ofp12_group_stats*)buf;
+		struct openflow12::ofp_group_stats *stats = (struct openflow12::ofp_group_stats*)buf;
 
 		stats->length		= htobe16(length());
 		stats->group_id		= htobe32(group_id);
@@ -190,9 +190,9 @@ cofgroup_stats_reply::pack(uint8_t *buf, size_t buflen) const
 		stats->packet_count	= htobe64(packet_count);
 		stats->byte_count	= htobe64(byte_count);
 
-		for (unsigned int i = 0; i < (bucket_stats.memlen() / sizeof(struct ofp12_bucket_counter)); i++) {
-			stats->bucket_stats[i].packet_count = htobe64(((struct ofp12_bucket_counter*)bucket_stats.somem())[i].packet_count);
-			stats->bucket_stats[i].byte_count   = htobe64(((struct ofp12_bucket_counter*)bucket_stats.somem())[i].byte_count);
+		for (unsigned int i = 0; i < (bucket_stats.memlen() / sizeof(struct openflow12::ofp_bucket_counter)); i++) {
+			stats->bucket_stats[i].packet_count = htobe64(((struct openflow12::ofp_bucket_counter*)bucket_stats.somem())[i].packet_count);
+			stats->bucket_stats[i].byte_count   = htobe64(((struct openflow12::ofp_bucket_counter*)bucket_stats.somem())[i].byte_count);
 		}
 
 	} break;
@@ -207,11 +207,11 @@ void
 cofgroup_stats_reply::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_group_stats))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_group_stats))
 			throw eInval();
 
-		struct ofp12_group_stats *stats = (struct ofp12_group_stats*)buf;
+		struct openflow12::ofp_group_stats *stats = (struct openflow12::ofp_group_stats*)buf;
 
 		if (be16toh(stats->length) > buflen)
 			throw eInval();
@@ -221,11 +221,11 @@ cofgroup_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		packet_count	= be64toh(stats->packet_count);
 		byte_count		= be64toh(stats->byte_count);
 
-		bucket_stats.resize(be16toh(stats->length) - sizeof(struct ofp12_group_stats));
+		bucket_stats.resize(be16toh(stats->length) - sizeof(struct openflow12::ofp_group_stats));
 		bucket_stats.clear();
-		for (unsigned int i = 0; i < ((be16toh(stats->length) - sizeof(struct ofp12_group_stats)) / sizeof(struct ofp12_bucket_counter)); i++) {
-			((struct ofp12_bucket_counter*)bucket_stats.somem())[0].packet_count = be32toh(stats->bucket_stats[i].packet_count);
-			((struct ofp12_bucket_counter*)bucket_stats.somem())[0].byte_count   = be32toh(stats->bucket_stats[i].byte_count);
+		for (unsigned int i = 0; i < ((be16toh(stats->length) - sizeof(struct openflow12::ofp_group_stats)) / sizeof(struct openflow12::ofp_bucket_counter)); i++) {
+			((struct openflow12::ofp_bucket_counter*)bucket_stats.somem())[0].packet_count = be32toh(stats->bucket_stats[i].packet_count);
+			((struct openflow12::ofp_bucket_counter*)bucket_stats.somem())[0].byte_count   = be32toh(stats->bucket_stats[i].byte_count);
 		}
 
 	} break;
@@ -240,8 +240,8 @@ size_t
 cofgroup_stats_reply::length() const
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_group_stats) + bucket_stats.memlen());
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_group_stats) + bucket_stats.memlen());
 	} break;
 	default:
 		throw eBadVersion();

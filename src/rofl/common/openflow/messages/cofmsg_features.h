@@ -106,9 +106,9 @@ private:
 
 	union {
 		uint8_t*						ofhu_switch_features;
-		struct ofp10_switch_features*	ofhu10_switch_features;
-		struct ofp12_switch_features*	ofhu12_switch_features;
-		struct ofp13_switch_features*	ofhu13_switch_features;
+		struct openflow10::ofp_switch_features*	ofhu10_switch_features;
+		struct openflow12::ofp_switch_features*	ofhu12_switch_features;
+		struct openflow13::ofp_switch_features*	ofhu13_switch_features;
 	} ofhu;
 
 #define ofh_switch_features   ofhu.ofhu_switch_features

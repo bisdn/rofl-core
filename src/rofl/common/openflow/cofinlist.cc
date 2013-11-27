@@ -132,8 +132,8 @@ cofinlist::test()
 {
 	cofinlist inlist;
 
-	inlist[0] = cofinst_write_actions(OFP12_VERSION);
-	inlist[0].actions[0] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_mpls_label(111111));
+	inlist[0] = cofinst_write_actions(openflow12::OFP_VERSION);
+	inlist[0].actions[0] = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_mpls_label(111111));
 
 	std::cerr << "XXX => " << inlist << std::endl;
 
@@ -141,12 +141,12 @@ cofinlist::test()
 
 	cofinlist inlist2;
 
-	inlist2[0] = cofinst_apply_actions(OFP12_VERSION);
-	inlist2[0].actions[0] = cofaction_output(OFP12_VERSION, 1);
-	inlist2[1] = cofinst_clear_actions(OFP12_VERSION);
-	inlist2[2] = cofinst_write_actions(OFP12_VERSION);
-	inlist2[2].actions[0] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 1111));
-	inlist2[2].actions[1] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_mpls_tc(7));
+	inlist2[0] = cofinst_apply_actions(openflow12::OFP_VERSION);
+	inlist2[0].actions[0] = cofaction_output(openflow12::OFP_VERSION, 1);
+	inlist2[1] = cofinst_clear_actions(openflow12::OFP_VERSION);
+	inlist2[2] = cofinst_write_actions(openflow12::OFP_VERSION);
+	inlist2[2].actions[0] = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 1111));
+	inlist2[2].actions[1] = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_mpls_tc(7));
 
 	std::cerr << "YYY => " << inlist2 << std::endl;
 

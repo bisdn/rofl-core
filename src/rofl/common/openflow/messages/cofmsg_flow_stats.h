@@ -33,8 +33,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_flow_stats;
-		struct ofp10_flow_stats*		ofhu10_flow_stats;
-		struct ofp12_flow_stats*		ofhu12_flow_stats;
+		struct openflow10::ofp_flow_stats*		ofhu10_flow_stats;
+		struct openflow12::ofp_flow_stats*		ofhu12_flow_stats;
 		// TODO: OF1.3
 	} ofhu;
 
@@ -149,8 +149,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_flow_stats;
-		struct ofp10_flow_stats*		ofhu10_flow_stats;
-		struct ofp12_flow_stats*		ofhu12_flow_stats;
+		struct openflow10::ofp_flow_stats*		ofhu10_flow_stats;
+		struct openflow12::ofp_flow_stats*		ofhu12_flow_stats;
 		// TODO: OF1.3
 	} ofhu;
 

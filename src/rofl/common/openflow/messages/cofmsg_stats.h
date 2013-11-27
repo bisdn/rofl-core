@@ -25,9 +25,9 @@ private:
 
 	union {
 		uint8_t*						ofhu_stats_request;
-		struct ofp10_stats_request*		ofhu10_stats_request;
-		struct ofp12_stats_request*		ofhu12_stats_request;
-		struct ofp13_multipart_request*	ofhu13_multipart_request;
+		struct openflow10::ofp_stats_request*		ofhu10_stats_request;
+		struct openflow12::ofp_stats_request*		ofhu12_stats_request;
+		struct openflow13::ofp_multipart_request*	ofhu13_multipart_request;
 	} ofhu;
 
 #define ofh_stats_request   			ofhu.ofhu_stats_request
@@ -160,9 +160,9 @@ public:
 	operator<< (std::ostream& os, cofmsg_stats const& msg) {
 		os << "<cofmsg_stats " << dynamic_cast<cofmsg const&>( msg ) << " ";
 			switch (msg.get_version()) {
-			case OFP10_VERSION:
-			case OFP12_VERSION:
-			case OFP13_VERSION: {
+			case openflow10::OFP_VERSION:
+			case openflow12::OFP_VERSION:
+			case openflow13::OFP_VERSION: {
 				os << "stats-type:" << (int)msg.get_stats_type() << " ";
 				os << "stats-flags:" << (int)msg.get_stats_flags() << " ";
 			} break;

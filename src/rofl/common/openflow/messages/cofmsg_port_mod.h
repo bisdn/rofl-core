@@ -23,9 +23,9 @@ private:
 
 	union {
 		uint8_t*					ofhu_port_mod;
-		struct ofp10_port_mod*		ofhu10_port_mod;
-		struct ofp12_port_mod*		ofhu12_port_mod;
-		struct ofp13_port_mod*		ofhu13_port_mod;
+		struct openflow10::ofp_port_mod*		ofhu10_port_mod;
+		struct openflow12::ofp_port_mod*		ofhu12_port_mod;
+		struct openflow13::ofp_port_mod*		ofhu13_port_mod;
 	} ofhu;
 
 #define ofh_port_mod   ofhu.ofhu_port_mod

@@ -28,9 +28,9 @@ private:
 
 	union {
 		uint8_t*						ofhu_packet_in;
-		struct ofp10_packet_in*			ofhu10_packet_in;
-		struct ofp12_packet_in*			ofhu12_packet_in;
-		struct ofp13_packet_in*			ofhu13_packet_in;
+		struct openflow10::ofp_packet_in*			ofhu10_packet_in;
+		struct openflow12::ofp_packet_in*			ofhu12_packet_in;
+		struct openflow13::ofp_packet_in*			ofhu13_packet_in;
 	} ofhu;
 
 #define ofh_packet_in   ofhu.ofhu_packet_in
@@ -38,9 +38,9 @@ private:
 #define ofh12_packet_in ofhu.ofhu12_packet_in
 #define ofh13_packet_in ofhu.ofhu13_packet_in
 
-#define OFP10_PACKET_IN_STATIC_HDR_LEN				(sizeof(struct ofp10_packet_in))
-#define OFP12_PACKET_IN_STATIC_HDR_LEN				(sizeof(struct ofp12_packet_in) - sizeof(struct ofp12_match))	// length without struct ofp12_match
-#define OFP13_PACKET_IN_STATIC_HDR_LEN				(sizeof(struct ofp13_packet_in) - sizeof(struct ofp13_match))	// length without struct ofp13_match
+#define openflow10::OFP_PACKET_IN_STATIC_HDR_LEN				(sizeof(struct openflow10::ofp_packet_in))
+#define openflow12::OFP_PACKET_IN_STATIC_HDR_LEN				(sizeof(struct openflow12::ofp_packet_in) - sizeof(struct openflow12::ofp_match))	// length without struct openflow12::ofp_match
+#define openflow13::OFP_PACKET_IN_STATIC_HDR_LEN				(sizeof(struct openflow13::ofp_packet_in) - sizeof(struct openflow13::ofp_match))	// length without struct openflow13::ofp_match
 
 public:
 
@@ -236,7 +236,7 @@ public:
 	operator<< (std::ostream& os, cofmsg_packet_in const& msg) {
 		os << "<cofmsg_packet_in " << dynamic_cast<cofmsg const&>( msg ) << " ";
 		switch (msg.get_version()) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			os << "in-port:" << (int)msg.get_in_port() << " ";
 			os << "buffer-id:" << (int)msg.get_buffer_id() << " ";
 			os << "total-len:" << (int)msg.get_total_len() << " ";
@@ -246,7 +246,7 @@ public:
 			os << "packet:" << msg.get_packet_const() << " ";
 
 		} break;
-		case OFP12_VERSION: {
+		case openflow12::OFP_VERSION: {
 			os << "buffer-id:" << (int)msg.get_buffer_id() << " ";
 			os << "total-len:" << (int)msg.get_total_len() << " ";
 			os << "reason:" << (int)msg.get_reason() << " ";
@@ -255,7 +255,7 @@ public:
 			os << "packet:" << msg.get_packet_const() << " ";
 
 		} break;
-		case OFP13_VERSION: {
+		case openflow13::OFP_VERSION: {
 			os << "buffer-id:" << (int)msg.get_buffer_id() << " ";
 			os << "total-len:" << (int)msg.get_total_len() << " ";
 			os << "reason:" << (int)msg.get_reason() << " ";

@@ -148,8 +148,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_queue_stats;
-		struct ofp10_queue_stats*		ofhu10_queue_stats;
-		struct ofp12_queue_stats*		ofhu12_queue_stats;
+		struct openflow10::ofp_queue_stats*		ofhu10_queue_stats;
+		struct openflow12::ofp_queue_stats*		ofhu12_queue_stats;
 		// TODO: OF1.3
 	} ofhu;
 

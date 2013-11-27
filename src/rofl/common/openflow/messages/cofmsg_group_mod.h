@@ -26,8 +26,8 @@ private:
 
 	union {
 		uint8_t*					ofhu_group_mod;
-		struct ofp12_group_mod*		ofhu12_group_mod;
-		struct ofp13_group_mod*		ofhu13_group_mod;
+		struct openflow12::ofp_group_mod*		ofhu12_group_mod;
+		struct openflow13::ofp_group_mod*		ofhu13_group_mod;
 	} ofhu;
 
 #define ofh_group_mod   ofhu.ofhu_group_mod

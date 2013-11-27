@@ -53,11 +53,11 @@ cofbclist::unpack(
 throw (eBucketBadLen, eBadActionBadOutPort)
 {
 	switch (ofp_version) {
-	case OFP12_VERSION: {
-		return unpack((struct ofp12_bucket*)buckets, bclen);
+	case openflow12::OFP_VERSION: {
+		return unpack((struct openflow12::ofp_bucket*)buckets, bclen);
 	} break;
-	case OFP13_VERSION: {
-		return unpack((struct ofp13_bucket*)buckets, bclen);
+	case openflow13::OFP_VERSION: {
+		return unpack((struct openflow13::ofp_bucket*)buckets, bclen);
 	} break;
 	default:
 		throw eBadVersion();
@@ -74,11 +74,11 @@ cofbclist::pack(
 throw (eBcListInval)
 {
 	switch (ofp_version) {
-	case OFP12_VERSION: {
-		return (uint8_t*)pack((struct ofp12_bucket*)buckets, bclen);
+	case openflow12::OFP_VERSION: {
+		return (uint8_t*)pack((struct openflow12::ofp_bucket*)buckets, bclen);
 	} break;
-	case OFP13_VERSION: {
-		return (uint8_t*)pack((struct ofp13_bucket*)buckets, bclen);
+	case openflow13::OFP_VERSION: {
+		return (uint8_t*)pack((struct openflow13::ofp_bucket*)buckets, bclen);
 	} break;
 	default:
 		throw eBadVersion();
@@ -89,23 +89,23 @@ throw (eBcListInval)
 
 std::vector<cofbucket>&
 cofbclist::unpack(
-		struct ofp12_bucket *buckets,
+		struct openflow12::ofp_bucket *buckets,
 		size_t bclen)
 throw (eBucketBadLen, eBadActionBadOutPort)
 {
 	clear(); // clears elems
 
 	// sanity check: bclen must be of size at least of ofp_bucket
-	if (bclen < (int)sizeof(struct ofp12_bucket))
+	if (bclen < (int)sizeof(struct openflow12::ofp_bucket))
 		return elems;
 
 	// first bucket
-	struct ofp12_bucket *bchdr = buckets;
+	struct openflow12::ofp_bucket *bchdr = buckets;
 
 
 	while (bclen > 0)
 	{
-		if (be16toh(bchdr->len) < sizeof(struct ofp12_bucket))
+		if (be16toh(bchdr->len) < sizeof(struct openflow12::ofp_bucket))
 			throw eBucketBadLen();
 
 		cofbucket bucket(ofp_version, (uint8_t*)bchdr, be16toh(bchdr->len));
@@ -113,16 +113,16 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 		next() = cofbucket(ofp_version, (uint8_t*)bchdr, be16toh(bchdr->len) );
 
 		bclen -= be16toh(bchdr->len);
-		bchdr = (struct ofp12_bucket*)(((uint8_t*)bchdr) + be16toh(bchdr->len));
+		bchdr = (struct openflow12::ofp_bucket*)(((uint8_t*)bchdr) + be16toh(bchdr->len));
 	}
 
 	return elems;
 }
 
 
-struct ofp12_bucket*
+struct openflow12::ofp_bucket*
 cofbclist::pack(
-	struct ofp12_bucket *buckets,
+	struct openflow12::ofp_bucket *buckets,
 	size_t bclen) const throw (eBcListInval)
 {
 	size_t needed_bclen = length();
@@ -130,14 +130,14 @@ cofbclist::pack(
 	if (bclen < needed_bclen)
 		throw eBcListInval();
 
-	struct ofp12_bucket *bchdr = buckets; // first bucket header
+	struct openflow12::ofp_bucket *bchdr = buckets; // first bucket header
 
 	cofbclist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		cofbucket const& bucket = (*it);
 
-		bchdr = (struct ofp12_bucket*)
+		bchdr = (struct openflow12::ofp_bucket*)
 				((uint8_t*)(bucket.pack((uint8_t*)bchdr, bucket.length())) + bucket.length());
 	}
 
@@ -148,23 +148,23 @@ cofbclist::pack(
 
 std::vector<cofbucket>&
 cofbclist::unpack(
-		struct ofp13_bucket *buckets,
+		struct openflow13::ofp_bucket *buckets,
 		size_t bclen)
 throw (eBucketBadLen, eBadActionBadOutPort)
 {
 	clear(); // clears elems
 
 	// sanity check: bclen must be of size at least of ofp_bucket
-	if (bclen < (int)sizeof(struct ofp13_bucket))
+	if (bclen < (int)sizeof(struct openflow13::ofp_bucket))
 		return elems;
 
 	// first bucket
-	struct ofp13_bucket *bchdr = buckets;
+	struct openflow13::ofp_bucket *bchdr = buckets;
 
 
 	while (bclen > 0)
 	{
-		if (be16toh(bchdr->len) < sizeof(struct ofp13_bucket))
+		if (be16toh(bchdr->len) < sizeof(struct openflow13::ofp_bucket))
 			throw eBucketBadLen();
 
 		cofbucket bucket(ofp_version, (uint8_t*)bchdr, be16toh(bchdr->len));
@@ -172,16 +172,16 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 		next() = cofbucket(ofp_version, (uint8_t*)bchdr, be16toh(bchdr->len) );
 
 		bclen -= be16toh(bchdr->len);
-		bchdr = (struct ofp13_bucket*)(((uint8_t*)bchdr) + be16toh(bchdr->len));
+		bchdr = (struct openflow13::ofp_bucket*)(((uint8_t*)bchdr) + be16toh(bchdr->len));
 	}
 
 	return elems;
 }
 
 
-struct ofp13_bucket*
+struct openflow13::ofp_bucket*
 cofbclist::pack(
-	struct ofp13_bucket *buckets,
+	struct openflow13::ofp_bucket *buckets,
 	size_t bclen) const throw (eBcListInval)
 {
 	size_t needed_bclen = length();
@@ -189,14 +189,14 @@ cofbclist::pack(
 	if (bclen < needed_bclen)
 		throw eBcListInval();
 
-	struct ofp13_bucket *bchdr = buckets; // first bucket header
+	struct openflow13::ofp_bucket *bchdr = buckets; // first bucket header
 
 	cofbclist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		cofbucket const& bucket = (*it);
 
-		bchdr = (struct ofp13_bucket*)
+		bchdr = (struct openflow13::ofp_bucket*)
 				((uint8_t*)(bucket.pack((uint8_t*)bchdr, bucket.length())) + bucket.length());
 	}
 

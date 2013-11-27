@@ -766,6 +766,10 @@ namespace openflow12 {
 								   priority. */
 	};
 
+	enum flow_mod_header_len {
+		OFP_FLOW_MOD_STATIC_HDR_LEN = 48,
+	};
+
 	/* Group commands */
 	enum ofp_group_mod_command {
 		OFPGC_ADD,              /* New group. */

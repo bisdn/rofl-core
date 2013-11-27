@@ -17,10 +17,10 @@
 namespace rofl
 {
 
-class ePortListBase : public cerror {}; // base error class cofinlist
-class ePortListInval : public ePortListBase {}; // invalid parameter
-class ePortListNotFound : public ePortListBase {}; // element not found
-class ePortListOutOfRange : public ePortListBase {}; // out of range
+class ePortListBase 		: public cerror {}; // base error class cofinlist
+class ePortListInval 		: public ePortListBase {}; // invalid parameter
+class ePortListNotFound 	: public ePortListBase {}; // element not found
+class ePortListOutOfRange 	: public ePortListBase {}; // out of range
 
 
 
@@ -82,7 +82,7 @@ public: // methods
 	 */
 	std::vector<cofport>&			// returns reference to this->invec
 	unpack(
-		struct ofp10_port *ports, // parses memory area buckets and creates cofinst instance in this->invec
+		struct openflow10::ofp_port *ports, // parses memory area buckets and creates cofinst instance in this->invec
 		size_t portlen)					// length of memory area to be parsed
 	throw (ePortListInval);
 
@@ -91,7 +91,7 @@ public: // methods
 	 */
 	std::vector<cofport>&			// returns reference to this->invec
 	unpack(
-		struct ofp12_port *ports, // parses memory area buckets and creates cofinst instance in this->invec
+		struct openflow12::ofp_port *ports, // parses memory area buckets and creates cofinst instance in this->invec
 		size_t portlen)					// length of memory area to be parsed
 	throw (ePortListInval);
 
@@ -109,27 +109,27 @@ public: // methods
 
 	/** builds an array of struct ofp_instruction from this->invec
 	 */
-	struct ofp10_port*			// returns parameter "struct ofp_instruction *instructions"
+	struct openflow10::ofp_port*			// returns parameter "struct ofp_instruction *instructions"
 	pack(
-		struct ofp10_port *ports, // pointer to memory area for storing this->invec
+		struct openflow10::ofp_port *ports, // pointer to memory area for storing this->invec
 		size_t portlen) const					// length of memory area
 	throw (ePortListInval);
 
 
 	/** builds an array of struct ofp_instruction from this->invec
 	 */
-	struct ofp12_port*			// returns parameter "struct ofp_instruction *instructions"
+	struct openflow12::ofp_port*			// returns parameter "struct ofp_instruction *instructions"
 	pack(
-		struct ofp12_port *ports, // pointer to memory area for storing this->invec
+		struct openflow12::ofp_port *ports, // pointer to memory area for storing this->invec
 		size_t portlen) const					// length of memory area
 	throw (ePortListInval);
 
 #if 0
 	/** builds an array of struct ofp_instruction from this->invec
 	 */
-	struct ofp13_port*			// returns parameter "struct ofp_instruction *instructions"
+	struct openflow13::ofp_port*			// returns parameter "struct ofp_instruction *instructions"
 	pack(
-		struct ofp13_port *ports, // pointer to memory area for storing this->invec
+		struct openflow13::ofp_port *ports, // pointer to memory area for storing this->invec
 		size_t portlen) 					// length of memory area
 	throw (ePortListInval);
 #endif

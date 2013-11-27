@@ -26,9 +26,9 @@ private:
 
 	union {
 		uint8_t*								ofhu_queue_get_config_request;
-		struct ofp10_queue_get_config_request*	ofhu10_queue_get_config_request;
-		struct ofp12_queue_get_config_request*	ofhu12_queue_get_config_request;
-		struct ofp13_queue_get_config_request*	ofhu13_queue_get_config_request;
+		struct openflow10::ofp_queue_get_config_request*	ofhu10_queue_get_config_request;
+		struct openflow12::ofp_queue_get_config_request*	ofhu12_queue_get_config_request;
+		struct openflow13::ofp_queue_get_config_request*	ofhu13_queue_get_config_request;
 	} ofhu;
 
 #define ofh_queue_get_config_request   ofhu.ofhu_queue_get_config_request
@@ -150,9 +150,9 @@ private:
 
 	union {
 		uint8_t*								ofhu_queue_get_config_reply;
-		struct ofp10_queue_get_config_reply*	ofhu10_queue_get_config_reply;
-		struct ofp12_queue_get_config_reply*	ofhu12_queue_get_config_reply;
-		struct ofp13_queue_get_config_reply*	ofhu13_queue_get_config_reply;
+		struct openflow10::ofp_queue_get_config_reply*	ofhu10_queue_get_config_reply;
+		struct openflow12::ofp_queue_get_config_reply*	ofhu12_queue_get_config_reply;
+		struct openflow13::ofp_queue_get_config_reply*	ofhu13_queue_get_config_reply;
 	} ofhu;
 
 #define ofh_queue_get_config_reply   ofhu.ofhu_queue_get_config_reply
@@ -170,7 +170,7 @@ public:
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
 			uint32_t port_no = 0,
-			cofpacket_queue_list const &pql = cofpacket_queue_list(OFP12_VERSION));
+			cofpacket_queue_list const &pql = cofpacket_queue_list(openflow12::OFP_VERSION));
 #if 0
 			uint8_t *data = (uint8_t*)0,
 			size_t datalen = 0);

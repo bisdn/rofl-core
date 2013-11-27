@@ -7,7 +7,7 @@
 using namespace rofl;
 
 cgroupentry::cgroupentry() :
-	group_mod_area(sizeof(struct ofp12_group_mod) + 128/*space for actions, will be extended in method pack() if necessary*/),
+	group_mod_area(sizeof(struct openflow12::ofp_group_mod) + 128/*space for actions, will be extended in method pack() if necessary*/),
 	group_mod(NULL)
 {
 	reset();
@@ -29,7 +29,7 @@ cgroupentry::operator= (const cgroupentry& ge)
 	this->buckets = ge.buckets;
 	this->group_mod_area = ge.group_mod_area;
 
-	this->group_mod = (struct ofp12_group_mod*)this->group_mod_area.somem();
+	this->group_mod = (struct openflow12::ofp_group_mod*)this->group_mod_area.somem();
 
 	return *this;
 }
@@ -39,7 +39,7 @@ void
 cgroupentry::reset()
 {
 	bzero(group_mod_area.somem(), group_mod_area.memlen());
-	group_mod = (struct ofp12_group_mod*)group_mod_area.somem();
+	group_mod = (struct openflow12::ofp_group_mod*)group_mod_area.somem();
 
 	group_mod->command = htobe16(OFPGC_ADD);			// default: add flow-mod entry
 	group_mod->type = OFPGT_ALL;
@@ -94,15 +94,15 @@ cgroupentry::pack()
 {
 	size_t bclen = buckets.length(); // length required for packing buckets in binary array of "struct ofp_bucket"
 
-	if ((sizeof(struct ofp12_group_mod) + bclen) > group_mod_area.memlen()) // not enough space? => resize memory area for group_mod
+	if ((sizeof(struct openflow12::ofp_group_mod) + bclen) > group_mod_area.memlen()) // not enough space? => resize memory area for group_mod
 	{
-		group_mod_area.resize(sizeof(struct ofp12_group_mod) + bclen);
-		group_mod = (struct ofp12_group_mod*)group_mod_area.somem();
+		group_mod_area.resize(sizeof(struct openflow12::ofp_group_mod) + bclen);
+		group_mod = (struct openflow12::ofp_group_mod*)group_mod_area.somem();
 	}
 
 	buckets.pack((uint8_t*)group_mod->buckets, bclen); // pack our bucket list into the memory area group_mod->buckets
 
-	return (sizeof(struct ofp12_group_mod) + bclen); // return size of struct ofp12_group_mod including appended buckets
+	return (sizeof(struct openflow12::ofp_group_mod) + bclen); // return size of struct openflow12::ofp_group_mod including appended buckets
 }
 
 
@@ -123,14 +123,14 @@ cgroupentry::test()
 	ge.buckets[0].watch_group = 1;
 	ge.buckets[0].watch_port = 8;
 	ge.buckets[0].weight = 0x0800;
-	ge.buckets[0].actions[0] = cofaction_output(OFP12_VERSION, 6);
-	ge.buckets[1].actions[0] = cofaction_pop_vlan(OFP12_VERSION);
-	ge.buckets[1].actions[1] = cofaction_push_vlan(OFP12_VERSION, 600);
-	ge.buckets[1].actions[2] = cofaction_dec_nw_ttl(OFP12_VERSION);
-	ge.buckets[1].actions[3] = cofaction_set_queue(OFP12_VERSION, 3);
-	ge.buckets[1].actions[4] = cofaction_copy_ttl_out(OFP12_VERSION);
-	ge.buckets[1].actions[5] = cofaction_copy_ttl_in(OFP12_VERSION);
-	ge.buckets[1].actions[6] = cofaction_output(OFP12_VERSION, 16);
+	ge.buckets[0].actions[0] = cofaction_output(openflow12::OFP_VERSION, 6);
+	ge.buckets[1].actions[0] = cofaction_pop_vlan(openflow12::OFP_VERSION);
+	ge.buckets[1].actions[1] = cofaction_push_vlan(openflow12::OFP_VERSION, 600);
+	ge.buckets[1].actions[2] = cofaction_dec_nw_ttl(openflow12::OFP_VERSION);
+	ge.buckets[1].actions[3] = cofaction_set_queue(openflow12::OFP_VERSION, 3);
+	ge.buckets[1].actions[4] = cofaction_copy_ttl_out(openflow12::OFP_VERSION);
+	ge.buckets[1].actions[5] = cofaction_copy_ttl_in(openflow12::OFP_VERSION);
+	ge.buckets[1].actions[6] = cofaction_output(openflow12::OFP_VERSION, 16);
 
 	std::cerr << "XXXXXX => " << ge << std::endl;
 }

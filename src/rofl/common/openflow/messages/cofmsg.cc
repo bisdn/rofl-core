@@ -120,15 +120,15 @@ const char*
 cofmsg::type2desc(uint8_t ofp_version, uint8_t ptype)
 {
 	switch (ofp_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
         for (int i = 0; i < (int)(sizeof(typedesc_of10) / sizeof(cofmsg::typedesc_t)); i++) {
 			if (typedesc_of10[i].type == ptype) {
 				return typedesc_of10[i].desc;
 			}
         }
 	} break;
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
         for (int i = 0; i < (int)(sizeof(typedesc_of12) / sizeof(cofmsg::typedesc_t)); i++) {
 			if (typedesc_of12[i].type == ptype) {
 				return typedesc_of12[i].desc;

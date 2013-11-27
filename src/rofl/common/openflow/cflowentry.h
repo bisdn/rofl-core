@@ -45,8 +45,8 @@ public: // data structures
 	cofinlist 		instructions; 	// list of instructions
 
 	union {
-		struct ofp12_flow_mod 		*ofmu12_flow_mod;
-		struct ofp13_flow_mod		*ofmu13_flow_mod;
+		struct openflow12::ofp_flow_mod 		*ofmu12_flow_mod;
+		struct openflow13::ofp_flow_mod		*ofmu13_flow_mod;
 	} ofm_ofmu;
 
 #define of12m_flow_mod		ofm_ofmu.ofmu12_flow_mod
@@ -215,7 +215,7 @@ public:
 	operator<< (std::ostream& os, cflowentry const& fe) {
 		os << "<cflowentry ";
 		switch (fe.of_version) {
-		case OFP12_VERSION: {
+		case openflow12::OFP_VERSION: {
 			switch (fe.get_command()) {
 			case OFPFC_ADD: 			os << "OFPFC-ADD "; 			break;
 			case OFPFC_DELETE:			os << "OFPFC-DELETE "; 			break;
@@ -233,7 +233,7 @@ public:
 			os << "match:" 			<< fe.match << std::endl;
 			os << "instructions:" 	<< fe.instructions << std::endl;
 		} break;
-		case OFP13_VERSION: {
+		case openflow13::OFP_VERSION: {
 			switch (fe.get_command()) {
 			case OFPFC_ADD: 			os << "OFPFC-ADD "; 			break;
 			case OFPFC_DELETE:			os << "OFPFC-DELETE "; 			break;

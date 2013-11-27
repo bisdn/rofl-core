@@ -22,8 +22,19 @@ class cofmsg_error :
 {
 private:
 
-	cmemory				 	 body;
-	struct ofp_error_msg	*err_msg;
+	cmemory body;
+
+	union {
+		uint8_t									*emu_error_msg;
+		struct openflow10::ofp_error_msg		*emu10_error_msg;
+		struct openflow12::ofp_error_msg		*emu12_error_msg;
+		struct openflow13::ofp_error_msg		*emu13_error_msg;
+	} emu;
+
+#define err_msg		emu.emu_error_msg
+#define err10_msg 	emu.emu10_error_msg
+#define err12_msg 	emu.emu12_error_msg
+#define err13_msg 	emu.emu13_error_msg
 
 public:
 
@@ -73,6 +84,13 @@ public:
 	 */
 	virtual void
 	reset();
+
+
+	/**
+	 *
+	 */
+	virtual void
+	resize(size_t len);
 
 
 	/** returns length of packet in packed state

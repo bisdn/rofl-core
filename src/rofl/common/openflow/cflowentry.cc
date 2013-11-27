@@ -11,9 +11,9 @@ cflowentry::cflowentry(uint8_t of_version, uint16_t __type) throw (eFlowEntryOut
 		match(of_version, __type)
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
-		flow_mod_area.resize(sizeof(struct ofp12_flow_mod));
-		of12m_flow_mod = (struct ofp12_flow_mod*)flow_mod_area.somem();
+	case openflow12::OFP_VERSION: {
+		flow_mod_area.resize(sizeof(struct openflow12::ofp_flow_mod));
+		of12m_flow_mod = (struct openflow12::ofp_flow_mod*)flow_mod_area.somem();
 
 		of12m_flow_mod->table_id 		= 0;
 		of12m_flow_mod->cookie_mask 	= htobe64(0xffffffffffffffffULL);
@@ -26,9 +26,9 @@ cflowentry::cflowentry(uint8_t of_version, uint16_t __type) throw (eFlowEntryOut
 		of12m_flow_mod->out_group 		= htobe32(OFPG12_ANY);
 
 	} break;
-	case OFP13_VERSION: {
-		flow_mod_area.resize(sizeof(struct ofp13_flow_mod));
-		of13m_flow_mod = (struct ofp13_flow_mod*)flow_mod_area.somem();
+	case openflow13::OFP_VERSION: {
+		flow_mod_area.resize(sizeof(struct openflow13::ofp_flow_mod));
+		of13m_flow_mod = (struct openflow13::ofp_flow_mod*)flow_mod_area.somem();
 
 		of13m_flow_mod->table_id 		= 0;
 		of13m_flow_mod->cookie_mask 	= htobe64(0xffffffffffffffffULL);
@@ -77,11 +77,11 @@ cflowentry::operator= (const cflowentry& fe)
 	this->of_version	= fe.of_version;
 
 	switch (of_version) {
-	case OFP12_VERSION: {
-		of12m_flow_mod = (struct ofp12_flow_mod*)(flow_mod_area.somem());
+	case openflow12::OFP_VERSION: {
+		of12m_flow_mod = (struct openflow12::ofp_flow_mod*)(flow_mod_area.somem());
 	} break;
-	case OFP13_VERSION: {
-		of13m_flow_mod = (struct ofp13_flow_mod*)(flow_mod_area.somem());
+	case openflow13::OFP_VERSION: {
+		of13m_flow_mod = (struct openflow13::ofp_flow_mod*)(flow_mod_area.somem());
 	} break;
 	default: {
 		// do nothing
@@ -142,8 +142,8 @@ cflowentry::reset()
 	flow_mod_area.clear();
 
 	switch (of_version) {
-	case OFP12_VERSION: {
-		of12m_flow_mod = (struct ofp12_flow_mod*)(flow_mod_area.somem());
+	case openflow12::OFP_VERSION: {
+		of12m_flow_mod = (struct openflow12::ofp_flow_mod*)(flow_mod_area.somem());
 
 		of12m_flow_mod->table_id 		= 0;
 		of12m_flow_mod->cookie_mask 	= htobe64(0xffffffffffffffffULL);
@@ -156,8 +156,8 @@ cflowentry::reset()
 		of12m_flow_mod->out_group 		= htobe32(OFPG12_ANY);
 
 	} break;
-	case OFP13_VERSION: {
-		of13m_flow_mod = (struct ofp13_flow_mod*)(flow_mod_area.somem());
+	case openflow13::OFP_VERSION: {
+		of13m_flow_mod = (struct openflow13::ofp_flow_mod*)(flow_mod_area.somem());
 
 		of13m_flow_mod->table_id 		= 0;
 		of13m_flow_mod->cookie_mask 	= htobe64(0xffffffffffffffffULL);
@@ -182,8 +182,8 @@ void
 cflowentry::set_table_id(uint8_t table_id)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		of13m_flow_mod->table_id = table_id;
 	} break;
 	default: {
@@ -197,8 +197,8 @@ void
 cflowentry::set_command(uint8_t command)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		of13m_flow_mod->command = command;
 	} break;
 	default: {
@@ -212,8 +212,8 @@ void
 cflowentry::set_idle_timeout(const uint16_t& idle_timeout)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		of13m_flow_mod->idle_timeout = htobe16(idle_timeout);
 	} break;
 	default: {
@@ -227,8 +227,8 @@ void
 cflowentry::set_hard_timeout(const uint16_t& hard_timeout)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		of13m_flow_mod->hard_timeout = htobe16(hard_timeout);
 	} break;
 	default: {
@@ -242,8 +242,8 @@ void
 cflowentry::set_cookie(const uint64_t& cookie)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		of13m_flow_mod->cookie = htobe64(cookie);
 	} break;
 	default: {
@@ -257,8 +257,8 @@ void
 cflowentry::set_cookie_mask(const uint64_t& cookie_mask)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		of13m_flow_mod->cookie_mask = htobe64(cookie_mask);
 	} break;
 	default: {
@@ -272,8 +272,8 @@ void
 cflowentry::set_priority(const uint16_t& priority)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		of13m_flow_mod->priority = htobe16(priority);
 	} break;
 	default: {
@@ -287,8 +287,8 @@ void
 cflowentry::set_buffer_id(const uint32_t& buffer_id)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		of13m_flow_mod->buffer_id = htobe32(buffer_id);
 	} break;
 	default: {
@@ -302,8 +302,8 @@ void
 cflowentry::set_out_port(const uint32_t& out_port)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		of13m_flow_mod->out_port = htobe32(out_port);
 	} break;
 	default: {
@@ -317,8 +317,8 @@ void
 cflowentry::set_out_group(const uint32_t& out_group)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		of13m_flow_mod->out_group = htobe32(out_group);
 	} break;
 	default: {
@@ -332,8 +332,8 @@ void
 cflowentry::set_flags(const uint16_t& flags)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		of13m_flow_mod->flags = htobe16(flags);
 	} break;
 	default: {
@@ -347,8 +347,8 @@ uint8_t
 cflowentry::get_command() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		return of13m_flow_mod->command;
 	} break;
 	default: {
@@ -363,8 +363,8 @@ uint8_t
 cflowentry::get_table_id() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		return of13m_flow_mod->table_id;
 	} break;
 	default: {
@@ -379,8 +379,8 @@ uint16_t
 cflowentry::get_idle_timeout() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		return be16toh(of13m_flow_mod->idle_timeout);
 	} break;
 	default: {
@@ -395,8 +395,8 @@ uint16_t
 cflowentry::get_hard_timeout() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		return be16toh(of13m_flow_mod->hard_timeout);
 	} break;
 	default: {
@@ -411,8 +411,8 @@ uint64_t
 cflowentry::get_cookie() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		return be64toh(of13m_flow_mod->cookie);
 	} break;
 	default: {
@@ -427,8 +427,8 @@ uint64_t
 cflowentry::get_cookie_mask() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		return be64toh(of13m_flow_mod->cookie_mask);
 	} break;
 	default: {
@@ -443,8 +443,8 @@ uint16_t
 cflowentry::get_priority() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		return be16toh(of13m_flow_mod->priority);
 	} break;
 	default: {
@@ -459,8 +459,8 @@ uint32_t
 cflowentry::get_buffer_id() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		return be32toh(of13m_flow_mod->buffer_id);
 	} break;
 	default: {
@@ -475,8 +475,8 @@ uint32_t
 cflowentry::get_out_port() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		return be32toh(of13m_flow_mod->out_port);
 	} break;
 	default: {
@@ -491,8 +491,8 @@ uint32_t
 cflowentry::get_out_group() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		return be32toh(of13m_flow_mod->out_group);
 	} break;
 	default: {
@@ -507,8 +507,8 @@ uint16_t
 cflowentry::get_flags() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		return be16toh(of13m_flow_mod->flags);
 	} break;
 	default: {
@@ -528,12 +528,12 @@ cflowentry::pack()
 	size_t packlen = 0;
 
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		instslen = instructions.length();
 		ofmatch_len = match.length();
 		// length of generic ofp_flow_mod header without ofp_match
-		fm_len = sizeof(struct ofp12_flow_mod) - sizeof(ofp12_match);
+		fm_len = sizeof(struct openflow12::ofp_flow_mod) - sizeof(openflow12::ofp_match);
 
 		packlen = fm_len + ofmatch_len + instslen;
 
@@ -561,7 +561,7 @@ cflowentry::pack()
 
 		//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [1] flow_mod_area: %s", this, flow_mod_area.c_str());
 
-		struct ofp12_match* m = (struct ofp12_match*)(flow_mod_area.somem() + fm_len);
+		struct openflow12::ofp_match* m = (struct openflow12::ofp_match*)(flow_mod_area.somem() + fm_len);
 		match.pack(m, ofmatch_len);
 
 		//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [2] flow_mod_area: %s", this, flow_mod_area.c_str());
@@ -588,7 +588,7 @@ cflowentry::test()
 	cmacaddr dl_src("00:01:01:01:01:01");
 	cmacaddr dl_dst("00:02:02:02:02:02");
 
-	cflowentry fe(OFP12_VERSION);
+	cflowentry fe(openflow12::OFP_VERSION);
 
 	fe.set_command((uint16_t)OFPFC_ADD);
 	fe.set_idle_timeout(5);
@@ -599,23 +599,23 @@ cflowentry::test()
 	fe.match.set_eth_src(dl_src);
 	fe.match.set_eth_dst(dl_dst);
 
-	fe.instructions[0] = cofinst_clear_actions(OFP12_VERSION);
+	fe.instructions[0] = cofinst_clear_actions(openflow12::OFP_VERSION);
 
-	fe.instructions[1] = cofinst_apply_actions(OFP12_VERSION);
-	fe.instructions[1].actions[0] = cofaction_output(OFP12_VERSION, 2);
-	fe.instructions[1].actions[1] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 3));
-	fe.instructions[1].actions[2] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_ip_dscp(4));
-	fe.instructions[1].actions[3] = cofaction_push_mpls(OFP12_VERSION, 50);
-	fe.instructions[1].actions[4] = cofaction_push_mpls(OFP12_VERSION, 100);
-	fe.instructions[1].actions[5] = cofaction_set_field(OFP12_VERSION, coxmatch_ofb_tcp_dst(8080));
+	fe.instructions[1] = cofinst_apply_actions(openflow12::OFP_VERSION);
+	fe.instructions[1].actions[0] = cofaction_output(openflow12::OFP_VERSION, 2);
+	fe.instructions[1].actions[1] = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 3));
+	fe.instructions[1].actions[2] = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_ip_dscp(4));
+	fe.instructions[1].actions[3] = cofaction_push_mpls(openflow12::OFP_VERSION, 50);
+	fe.instructions[1].actions[4] = cofaction_push_mpls(openflow12::OFP_VERSION, 100);
+	fe.instructions[1].actions[5] = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_tcp_dst(8080));
 
-	fe.instructions[2] = cofinst_write_actions(OFP12_VERSION);
-	fe.instructions[2].actions[0] = cofaction_pop_mpls(OFP12_VERSION, 1000);
-	fe.instructions[2].actions[1] = cofaction_group(OFP12_VERSION, 32);
+	fe.instructions[2] = cofinst_write_actions(openflow12::OFP_VERSION);
+	fe.instructions[2].actions[0] = cofaction_pop_mpls(openflow12::OFP_VERSION, 1000);
+	fe.instructions[2].actions[1] = cofaction_group(openflow12::OFP_VERSION, 32);
 
-	fe.instructions[3] = cofinst_goto_table(OFP12_VERSION, 5);
+	fe.instructions[3] = cofinst_goto_table(openflow12::OFP_VERSION, 5);
 
-	fe.instructions[4] = cofinst_write_metadata(OFP12_VERSION, 1, 2);
+	fe.instructions[4] = cofinst_write_metadata(openflow12::OFP_VERSION, 1, 2);
 
 	//fe.reset();
 

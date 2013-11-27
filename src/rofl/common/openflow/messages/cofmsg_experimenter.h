@@ -25,8 +25,8 @@ private:
 
 	union {
 		uint8_t*							ofhu_experimenter;
-		struct ofp10_vendor_header*			ofhu10_vendor;
-		struct ofp12_experimenter_header*	ofhu12_experimenter;
+		struct openflow10::ofp_vendor_header*			ofhu10_vendor;
+		struct openflow12::ofp_experimenter_header*	ofhu12_experimenter;
 		// TODO: OF1.3
 	} ofhu;
 

@@ -21,7 +21,7 @@ class cofmeter_band_set {
 private:
 
 	uint8_t		of_version;
-	std::map<enum ofp13_meter_band_type, rofl::cofmeter_band*> 	mbset;
+	std::map<enum openflow13::ofp_meter_band_type, rofl::cofmeter_band*> 	mbset;
 
 public:
 
@@ -30,7 +30,7 @@ public:
 	 *
 	 */
 	cofmeter_band_set(
-			uint8_t of_version = OFP13_VERSION);
+			uint8_t of_version = openflow13::OFP_VERSION);
 
 
 	/**
@@ -93,7 +93,7 @@ public:
 	 *
 	 */
 	void
-	clear_meter_band(enum ofp13_meter_band_type mbt);
+	clear_meter_band(enum openflow13::ofp_meter_band_type mbt);
 
 
 public:

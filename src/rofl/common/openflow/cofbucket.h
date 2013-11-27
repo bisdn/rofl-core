@@ -109,26 +109,26 @@ private:
 
 	/** pack bucket
 	 */
-	struct ofp12_bucket*
-	pack(struct ofp12_bucket* bucket, size_t bclen) const
+	struct openflow12::ofp_bucket*
+	pack(struct openflow12::ofp_bucket* bucket, size_t bclen) const
 		throw (eBucketBadLen);
 
 	/** unpack bucket
 	 */
 	void
-	unpack(struct ofp12_bucket* bucket, size_t bclen)
+	unpack(struct openflow12::ofp_bucket* bucket, size_t bclen)
 		throw (eBucketBadLen, eBadActionBadOutPort);
 
 	/** pack bucket
 	 */
-	struct ofp13_bucket*
-	pack(struct ofp13_bucket* bucket, size_t bclen) const
+	struct openflow13::ofp_bucket*
+	pack(struct openflow13::ofp_bucket* bucket, size_t bclen) const
 		throw (eBucketBadLen);
 
 	/** unpack bucket
 	 */
 	void
-	unpack(struct ofp13_bucket* bucket, size_t bclen)
+	unpack(struct openflow13::ofp_bucket* bucket, size_t bclen)
 		throw (eBucketBadLen, eBadActionBadOutPort);
 
 

@@ -121,7 +121,7 @@ private:
 
 	union {
 		uint8_t*						ofhu_group_desc_stats;
-		struct ofp12_group_desc_stats*	ofhu12_group_desc_stats;
+		struct openflow12::ofp_group_desc_stats*	ofhu12_group_desc_stats;
 		// TODO: OF1.3
 	} ofhu;
 

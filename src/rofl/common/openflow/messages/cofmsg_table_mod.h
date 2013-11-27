@@ -23,8 +23,8 @@ private:
 
 	union {
 		uint8_t*					ofhu_table_mod;
-		struct ofp12_table_mod*		ofhu12_table_mod;
-		struct ofp13_table_mod*		ofhu13_table_mod;
+		struct openflow12::ofp_table_mod*		ofhu12_table_mod;
+		struct openflow13::ofp_table_mod*		ofhu13_table_mod;
 	} ofhu;
 
 #define ofh_table_mod   ofhu.ofhu_table_mod

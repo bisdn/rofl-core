@@ -120,8 +120,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_table_stats;
-		struct ofp10_table_stats*		ofhu10_table_stats;
-		struct ofp12_table_stats*		ofhu12_table_stats;
+		struct openflow10::ofp_table_stats*		ofhu10_table_stats;
+		struct openflow12::ofp_table_stats*		ofhu12_table_stats;
 		// TODO: OF1.3
 	} ofhu;
 

@@ -482,6 +482,10 @@ namespace openflow10 {
 		OFPFC_DELETE_STRICT    /* Strictly match wildcards and priority. */
 	};
 
+	enum flow_mod_header_len {
+		OFP_FLOW_MOD_STATIC_HDR_LEN = 72,
+	};
+
 	/* Flow wildcards. */
 	enum ofp_flow_wildcards {
 		OFPFW_IN_PORT  = 1 << 0,  /* Switch input port. */

@@ -18,13 +18,13 @@ cofpacket_queue::cofpacket_queue(
 		qpl(of_version)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		cmemory::resize(sizeof(struct ofp10_packet_queue));
+	case openflow10::OFP_VERSION: {
+		cmemory::resize(sizeof(struct openflow10::ofp_packet_queue));
 	} break;
-	case OFP12_VERSION: {
-		cmemory::resize(sizeof(struct ofp12_packet_queue));
+	case openflow12::OFP_VERSION: {
+		cmemory::resize(sizeof(struct openflow12::ofp_packet_queue));
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -75,13 +75,13 @@ size_t
 cofpacket_queue::length() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_packet_queue) + qpl.length());
+	case openflow10::OFP_VERSION: {
+		return (sizeof(struct openflow10::ofp_packet_queue) + qpl.length());
 	} break;
-	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_packet_queue) + qpl.length());
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_packet_queue) + qpl.length());
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -101,25 +101,25 @@ cofpacket_queue::pack(
 		throw eInval();
 
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 
-		memcpy(buf, somem(), sizeof(struct ofp10_packet_queue));
-		struct ofp10_packet_queue *pq = (struct ofp10_packet_queue*)buf;
+		memcpy(buf, somem(), sizeof(struct openflow10::ofp_packet_queue));
+		struct openflow10::ofp_packet_queue *pq = (struct openflow10::ofp_packet_queue*)buf;
 		pq->len = htobe16(length());
 
-		qpl.pack(buf + sizeof(struct ofp10_packet_queue), buflen - sizeof(struct ofp10_packet_queue));
+		qpl.pack(buf + sizeof(struct openflow10::ofp_packet_queue), buflen - sizeof(struct openflow10::ofp_packet_queue));
 
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 
-		memcpy(buf, somem(), sizeof(struct ofp12_packet_queue));
-		struct ofp12_packet_queue *pq = (struct ofp12_packet_queue*)buf;
+		memcpy(buf, somem(), sizeof(struct openflow12::ofp_packet_queue));
+		struct openflow12::ofp_packet_queue *pq = (struct openflow12::ofp_packet_queue*)buf;
 		pq->len = htobe16(length());
 
-		qpl.pack(buf + sizeof(struct ofp12_packet_queue), buflen - sizeof(struct ofp12_packet_queue));
+		qpl.pack(buf + sizeof(struct openflow12::ofp_packet_queue), buflen - sizeof(struct openflow12::ofp_packet_queue));
 
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -135,45 +135,45 @@ cofpacket_queue::unpack(
 			uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 
-		if (buflen < sizeof(struct ofp10_packet_queue))
+		if (buflen < sizeof(struct openflow10::ofp_packet_queue))
 			throw eInval();
 
-		struct ofp10_packet_queue *pq = (struct ofp10_packet_queue*)buf;
+		struct openflow10::ofp_packet_queue *pq = (struct openflow10::ofp_packet_queue*)buf;
 
 		if (buflen < be16toh(pq->len))
 			throw eInval();
 
-		cmemory::resize(sizeof(struct ofp10_packet_queue));
+		cmemory::resize(sizeof(struct openflow10::ofp_packet_queue));
 		ofp_pqueue = somem();
 
-		memcpy(somem(), buf, sizeof(struct ofp10_packet_queue));
+		memcpy(somem(), buf, sizeof(struct openflow10::ofp_packet_queue));
 
-		if (be16toh(pq->len) > sizeof(struct ofp10_packet_queue))
-			qpl.unpack(buf + sizeof(struct ofp10_packet_queue), be16toh(pq->len) - sizeof(struct ofp10_packet_queue));
+		if (be16toh(pq->len) > sizeof(struct openflow10::ofp_packet_queue))
+			qpl.unpack(buf + sizeof(struct openflow10::ofp_packet_queue), be16toh(pq->len) - sizeof(struct openflow10::ofp_packet_queue));
 
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 
-		if (buflen < sizeof(struct ofp12_packet_queue))
+		if (buflen < sizeof(struct openflow12::ofp_packet_queue))
 			throw eInval();
 
-		struct ofp12_packet_queue *pq = (struct ofp12_packet_queue*)buf;
+		struct openflow12::ofp_packet_queue *pq = (struct openflow12::ofp_packet_queue*)buf;
 
 		if (buflen < be16toh(pq->len))
 			throw eInval();
 
-		cmemory::resize(sizeof(struct ofp12_packet_queue));
+		cmemory::resize(sizeof(struct openflow12::ofp_packet_queue));
 		ofp_pqueue = somem();
 
-		memcpy(somem(), buf, sizeof(struct ofp12_packet_queue));
+		memcpy(somem(), buf, sizeof(struct openflow12::ofp_packet_queue));
 
-		if (be16toh(pq->len) > sizeof(struct ofp12_packet_queue))
-			qpl.unpack(buf + sizeof(struct ofp12_packet_queue), be16toh(pq->len) - sizeof(struct ofp12_packet_queue));
+		if (be16toh(pq->len) > sizeof(struct openflow12::ofp_packet_queue))
+			qpl.unpack(buf + sizeof(struct openflow12::ofp_packet_queue), be16toh(pq->len) - sizeof(struct openflow12::ofp_packet_queue));
 
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -188,13 +188,13 @@ uint32_t
 cofpacket_queue::get_queue_id() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		return be32toh(ofp10_pqueue->queue_id);
+	case openflow10::OFP_VERSION: {
+		return be32toh(openflow10::ofp_pqueue->queue_id);
 	} break;
-	case OFP12_VERSION: {
-		return be32toh(ofp12_pqueue->queue_id);
+	case openflow12::OFP_VERSION: {
+		return be32toh(openflow12::ofp_pqueue->queue_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -211,13 +211,13 @@ cofpacket_queue::set_queue_id(
 			uint32_t queue_id)
 {
 	switch(of_version) {
-	case OFP10_VERSION: {
-		ofp10_pqueue->queue_id = htobe32(queue_id);
+	case openflow10::OFP_VERSION: {
+		openflow10::ofp_pqueue->queue_id = htobe32(queue_id);
 	} break;
-	case OFP12_VERSION: {
-		ofp12_pqueue->queue_id = htobe32(queue_id);
+	case openflow12::OFP_VERSION: {
+		openflow12::ofp_pqueue->queue_id = htobe32(queue_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -232,10 +232,10 @@ uint32_t
 cofpacket_queue::get_port() const
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
-		return be32toh(ofp12_pqueue->port);
+	case openflow12::OFP_VERSION: {
+		return be32toh(openflow12::ofp_pqueue->port);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -252,10 +252,10 @@ cofpacket_queue::set_port(
 			uint32_t port_no)
 {
 	switch(of_version) {
-	case OFP12_VERSION: {
-		ofp12_pqueue->port = htobe32(port_no);
+	case openflow12::OFP_VERSION: {
+		openflow12::ofp_pqueue->port = htobe32(port_no);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {

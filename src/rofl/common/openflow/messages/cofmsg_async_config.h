@@ -103,7 +103,7 @@ private:
 
 	union {
 		uint8_t*					ofhu_async_config;
-		struct ofp13_async_config*	ofhu13_async_config;
+		struct openflow13::ofp_async_config*	ofhu13_async_config;
 	} ofhu;
 
 #define ofh_async_config   ofhu.ofhu_async_config
@@ -245,7 +245,7 @@ private:
 
 	union {
 		uint8_t*					ofhu_async_config;
-		struct ofp13_async_config*	ofhu13_async_config;
+		struct openflow13::ofp_async_config*	ofhu13_async_config;
 	} ofhu;
 
 #define ofh_async_config   ofhu.ofhu_async_config

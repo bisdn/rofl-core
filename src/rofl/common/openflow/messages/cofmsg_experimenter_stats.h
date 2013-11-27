@@ -28,8 +28,8 @@ private:
 
 	union {
 		uint8_t*									ofhu_exp_stats;
-		struct ofp10_vendor_stats_header*			ofhu10_exp_stats;
-		struct ofp12_experimenter_stats_header*		ofhu12_exp_stats;
+		struct openflow10::ofp_vendor_stats_header*			ofhu10_exp_stats;
+		struct openflow12::ofp_experimenter_stats_header*		ofhu12_exp_stats;
 		// TODO: OF1.3
 	} ofhu;
 
@@ -178,8 +178,8 @@ private:
 
 	union {
 		uint8_t*									ofhu_exp_stats;
-		struct ofp10_vendor_stats_header*			ofhu10_exp_stats;
-		struct ofp12_experimenter_stats_header*		ofhu12_exp_stats;
+		struct openflow10::ofp_vendor_stats_header*			ofhu10_exp_stats;
+		struct openflow12::ofp_experimenter_stats_header*		ofhu12_exp_stats;
 		// TODO: OF1.3
 	} ofhu;
 

@@ -14,7 +14,7 @@ cofmsg_packet_in::cofmsg_packet_in(
 		cofmatch const& match,
 		uint8_t *data,
 		size_t datalen) :
-	cofmsg(sizeof(struct ofp_header)),
+	cofmsg(sizeof(struct openflow::ofp_header)),
 	match(match),
 	packet(data, datalen, match.get_in_port())
 {
@@ -24,30 +24,30 @@ cofmsg_packet_in::cofmsg_packet_in(
 	set_xid(xid);
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		set_type(OFPT10_PACKET_IN);
-		resize(OFP10_PACKET_IN_STATIC_HDR_LEN);
-		set_length(OFP10_PACKET_IN_STATIC_HDR_LEN);
+	case openflow10::OFP_VERSION: {
+		set_type(openflow10::OFPT_PACKET_IN);
+		resize(openflow10::OFP_PACKET_IN_STATIC_HDR_LEN);
+		set_length(openflow10::OFP_PACKET_IN_STATIC_HDR_LEN);
 
 		ofh10_packet_in->buffer_id				= htobe32(buffer_id);
 		ofh10_packet_in->total_len				= htobe16(total_len);
 		ofh10_packet_in->reason					= reason;
 		ofh10_packet_in->in_port				= htobe16(in_port);
 	} break;
-	case OFP12_VERSION: {
-		set_type(OFPT12_PACKET_IN);
-		resize(OFP12_PACKET_IN_STATIC_HDR_LEN);
-		set_length(OFP12_PACKET_IN_STATIC_HDR_LEN);
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_PACKET_IN);
+		resize(openflow12::OFP_PACKET_IN_STATIC_HDR_LEN);
+		set_length(openflow12::OFP_PACKET_IN_STATIC_HDR_LEN);
 
 		ofh12_packet_in->buffer_id				= htobe32(buffer_id);
 		ofh12_packet_in->total_len				= htobe16(total_len);
 		ofh12_packet_in->reason					= reason;
 		ofh12_packet_in->table_id				= table_id;
 	} break;
-	case OFP13_VERSION: {
-		set_type(OFPT13_PACKET_IN);
-		resize(OFP13_PACKET_IN_STATIC_HDR_LEN);
-		set_length(OFP13_PACKET_IN_STATIC_HDR_LEN);
+	case openflow13::OFP_VERSION: {
+		set_type(openflow13::OFPT_PACKET_IN);
+		resize(openflow13::OFP_PACKET_IN_STATIC_HDR_LEN);
+		set_length(openflow13::OFP_PACKET_IN_STATIC_HDR_LEN);
 
 		ofh13_packet_in->buffer_id				= htobe32(buffer_id);
 		ofh13_packet_in->total_len				= htobe16(total_len);
@@ -128,14 +128,14 @@ size_t
 cofmsg_packet_in::length() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		return (OFP10_PACKET_IN_STATIC_HDR_LEN - 2 + packet.framelen());
+	case openflow10::OFP_VERSION: {
+		return (openflow10::OFP_PACKET_IN_STATIC_HDR_LEN - 2 + packet.framelen());
 	} break;
-	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_packet_in) - sizeof(struct ofp12_match) + match.length() + 2 + packet.framelen());
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_packet_in) - sizeof(struct openflow12::ofp_match) + match.length() + 2 + packet.framelen());
 	} break;
-	case OFP13_VERSION: {
-		return (OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());
+	case openflow13::OFP_VERSION: {
+		return (openflow13::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());
 	} break;
 	default:
 		throw eBadVersion();
@@ -160,21 +160,21 @@ cofmsg_packet_in::pack(uint8_t *buf, size_t buflen)
 	 * Please note: +2 magic => provides proper alignment of IPv4 addresses in pin_data as defined by OF spec
 	 */
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		memcpy(buf, soframe(), OFP10_PACKET_IN_STATIC_HDR_LEN);
-		memcpy(buf + OFP10_PACKET_IN_STATIC_HDR_LEN - 2, packet.soframe(), packet.framelen());
+	case openflow10::OFP_VERSION: {
+		memcpy(buf, soframe(), openflow10::OFP_PACKET_IN_STATIC_HDR_LEN);
+		memcpy(buf + openflow10::OFP_PACKET_IN_STATIC_HDR_LEN - 2, packet.soframe(), packet.framelen());
 	} break;
-	case OFP12_VERSION: {
-		memcpy(buf, soframe(), OFP12_PACKET_IN_STATIC_HDR_LEN);
-		match.pack((struct ofp12_match*)
-				(buf + OFP12_PACKET_IN_STATIC_HDR_LEN), match.length());
-		memcpy(buf + OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
+	case openflow12::OFP_VERSION: {
+		memcpy(buf, soframe(), openflow12::OFP_PACKET_IN_STATIC_HDR_LEN);
+		match.pack((struct openflow12::ofp_match*)
+				(buf + openflow12::OFP_PACKET_IN_STATIC_HDR_LEN), match.length());
+		memcpy(buf + openflow12::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
 	} break;
-	case OFP13_VERSION: {
-		memcpy(buf, soframe(), OFP13_PACKET_IN_STATIC_HDR_LEN);
-		match.pack((struct ofp13_match*)
-				(buf + OFP13_PACKET_IN_STATIC_HDR_LEN), match.length());
-		memcpy(buf + OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
+	case openflow13::OFP_VERSION: {
+		memcpy(buf, soframe(), openflow13::OFP_PACKET_IN_STATIC_HDR_LEN);
+		match.pack((struct openflow13::ofp_match*)
+				(buf + openflow13::OFP_PACKET_IN_STATIC_HDR_LEN), match.length());
+		memcpy(buf + openflow13::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
 	} break;
 	default:
 		throw eBadVersion();
@@ -204,28 +204,28 @@ cofmsg_packet_in::validate()
 	packet.clear();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		/*
 		 * static part of struct ofp_packet_in also contains static fields from struct ofp_match (i.e. type and length)
 		 */
-		if (get_length() < OFP10_PACKET_IN_STATIC_HDR_LEN)
+		if (get_length() < openflow10::OFP_PACKET_IN_STATIC_HDR_LEN)
 			throw eBadSyntaxTooShort();
 
 		/*
 		 * set data and datalen variables
 		 */
-		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN + 2;
+		uint16_t offset = openflow10::OFP_PACKET_IN_STATIC_HDR_LEN + 2;
 
 		uint16_t in_port = be16toh(ofh10_packet_in->in_port);
 
 		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset)); // +2: magic :)
 
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		/*
 		 * static part of struct ofp_packet_in also contains static fields from struct ofp_match (i.e. type and length)
 		 */
-		if (get_length() < sizeof(struct ofp12_packet_in)) // struct ofp12_packet_in also contains an empty ofp12_match (8bytes)
+		if (get_length() < sizeof(struct openflow12::ofp_packet_in)) // struct openflow12::ofp_packet_in also contains an empty openflow12::ofp_match (8bytes)
 			throw eBadSyntaxTooShort();
 
 		/*
@@ -235,7 +235,7 @@ cofmsg_packet_in::validate()
 			throw eBadSyntax();
 
 		/* fixed part outside of struct ofp_match is 16bytes */
-		if (be16toh(ofh12_packet_in->match.length) > (framelen() - OFP12_PACKET_IN_STATIC_HDR_LEN))
+		if (be16toh(ofh12_packet_in->match.length) > (framelen() - openflow12::OFP_PACKET_IN_STATIC_HDR_LEN))
 			throw eBadSyntaxTooShort();
 
 		match.unpack(&(ofh12_packet_in->match), be16toh(ofh12_packet_in->match.length));
@@ -243,7 +243,7 @@ cofmsg_packet_in::validate()
 		/*
 		 * set data and datalen variables
 		 */
-		uint16_t offset = OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2; // +2: magic :)
+		uint16_t offset = openflow12::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2; // +2: magic :)
 
 		uint32_t in_port = 0;
 
@@ -259,11 +259,11 @@ cofmsg_packet_in::validate()
 		packet.unpack(in_port, (uint8_t*)(soframe() + offset), framelen() - (offset));
 
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		/*
 		 * static part of struct ofp_packet_in also contains static fields from struct ofp_match (i.e. type and length)
 		 */
-		if (get_length() < (OFP13_PACKET_IN_STATIC_HDR_LEN + sizeof(struct ofp13_match)))
+		if (get_length() < (openflow13::OFP_PACKET_IN_STATIC_HDR_LEN + sizeof(struct openflow13::ofp_match)))
 			throw eBadSyntaxTooShort();
 
 		/*
@@ -273,7 +273,7 @@ cofmsg_packet_in::validate()
 			throw eBadSyntax();
 
 		/* fixed part outside of struct ofp_match is 16bytes */
-		if (be16toh(ofh13_packet_in->match.length) > (framelen() - OFP13_PACKET_IN_STATIC_HDR_LEN))
+		if (be16toh(ofh13_packet_in->match.length) > (framelen() - openflow13::OFP_PACKET_IN_STATIC_HDR_LEN))
 			throw eBadSyntaxTooShort();
 
 		match.unpack(&(ofh13_packet_in->match), be16toh(ofh13_packet_in->match.length));
@@ -281,7 +281,7 @@ cofmsg_packet_in::validate()
 		/*
 		 * set data and datalen variables
 		 */
-		uint16_t offset = OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2;
+		uint16_t offset = openflow13::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2;
 
 		uint32_t in_port = 0;
 
@@ -309,13 +309,13 @@ uint32_t
 cofmsg_packet_in::get_buffer_id() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be32toh(ofh10_packet_in->buffer_id);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be32toh(ofh12_packet_in->buffer_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be32toh(ofh13_packet_in->buffer_id);
 	} break;
 	default:
@@ -330,13 +330,13 @@ void
 cofmsg_packet_in::set_buffer_id(uint32_t buffer_id)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_packet_in->buffer_id = htobe32(buffer_id);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_packet_in->buffer_id = htobe32(buffer_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_packet_in->buffer_id = htobe32(buffer_id);
 	} break;
 	default:
@@ -350,13 +350,13 @@ uint16_t
 cofmsg_packet_in::get_total_len() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be16toh(ofh10_packet_in->total_len);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be16toh(ofh12_packet_in->total_len);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be16toh(ofh13_packet_in->total_len);
 	} break;
 	default:
@@ -371,13 +371,13 @@ void
 cofmsg_packet_in::set_total_len(uint16_t total_len)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_packet_in->total_len = htobe16(total_len);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_packet_in->total_len = htobe16(total_len);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_packet_in->total_len = htobe16(total_len);
 	} break;
 	default:
@@ -391,13 +391,13 @@ uint8_t
 cofmsg_packet_in::get_reason() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return (ofh10_packet_in->reason);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return (ofh12_packet_in->reason);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return (ofh13_packet_in->reason);
 	} break;
 	default:
@@ -412,13 +412,13 @@ void
 cofmsg_packet_in::set_reason(uint8_t reason)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_packet_in->reason = (reason);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_packet_in->reason = (reason);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_packet_in->reason = (reason);
 	} break;
 	default:
@@ -432,10 +432,10 @@ uint8_t
 cofmsg_packet_in::get_table_id() const
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return (ofh12_packet_in->table_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return (ofh13_packet_in->table_id);
 	} break;
 	default:
@@ -450,10 +450,10 @@ void
 cofmsg_packet_in::set_table_id(uint8_t table_id)
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_packet_in->table_id = (table_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_packet_in->table_id = (table_id);
 	} break;
 	default:
@@ -467,7 +467,7 @@ uint16_t
 cofmsg_packet_in::get_in_port() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be16toh(ofh10_packet_in->in_port);
 	} break;
 	default:
@@ -482,7 +482,7 @@ void
 cofmsg_packet_in::set_in_port(uint16_t port_no)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_packet_in->in_port = htobe16(port_no);
 	} break;
 	default:
@@ -496,7 +496,7 @@ uint64_t
 cofmsg_packet_in::get_cookie() const
 {
 	switch (get_version()) {
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be64toh(ofh13_packet_in->cookie);
 	} break;
 	default:
@@ -511,7 +511,7 @@ void
 cofmsg_packet_in::set_cookie(uint64_t cookie)
 {
 	switch (get_version()) {
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_packet_in->cookie = htobe64(cookie);
 	} break;
 	default:

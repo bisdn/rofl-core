@@ -51,23 +51,23 @@ private: // data structures
 	coxmlist 		oxmlist;		// list of all oxms
 	cmemory 		memarea;
 
-#define OFP10_MATCH_STATIC_LEN	(sizeof(struct openflow10::ofp_match))
-#define OFP12_MATCH_STATIC_LEN  (2*sizeof(uint16_t))
-#define OFP13_MATCH_STATIC_LEN  (2*sizeof(uint16_t))
+#define OFP10_MATCH_STATIC_LEN		(sizeof(struct openflow10::ofp_match))
+#define OFP12_MATCH_STATIC_LEN  	(2*sizeof(uint16_t))
+#define OFP13_MATCH_STATIC_LEN  	(2*sizeof(uint16_t))
 
 public: // data structures
 
 	union {
 		uint8_t*							ofpu_match;
-		struct openflow10::ofp_match*		ofp10u_match;
-		struct openflow12::ofp_match*		ofp12u_match;
-		struct openflow13::ofp_match*		ofp13u_match;
+		struct openflow10::ofp_match*		ofpu10_match;
+		struct openflow12::ofp_match*		ofpu12_match;
+		struct openflow13::ofp_match*		ofpu13_match;
 	} ofpu;
 
 #define ofh_match  	ofpu.ofpu_match
-#define ofh10_match ofpu.ofp10u_match
-#define ofh12_match ofpu.ofp12u_match
-#define ofh13_match ofpu.ofp13u_match
+#define ofh10_match ofpu.ofpu10_match
+#define ofh12_match ofpu.ofpu12_match
+#define ofh13_match ofpu.ofpu13_match
 
 
 
@@ -77,7 +77,7 @@ public: // methods
 	 *
 	 */
 	cofmatch(
-			uint8_t of_version = OFP12_VERSION,
+			uint8_t of_version = openflow12::OFP_VERSION,
 			uint16_t type = openflow::OFPMT_OXM);
 
 
@@ -150,14 +150,17 @@ private:
 
 public:
 
+	/*
+	 * TODO: introduce a template
+	 */
 
 	/** copy internal struct ofp_match into specified ofp_match ptr 'm'
 	 * @return pointer 'm'
 	 *
 	 */
-	struct ofp10_match*
+	struct openflow10::ofp_match*
 	pack(
-			struct ofp10_match* m,
+			struct openflow10::ofp_match* m,
 			size_t mlen);
 
 
@@ -166,7 +169,7 @@ public:
 	 */
 	void
 	unpack(
-			struct ofp10_match* m,
+			struct openflow10::ofp_match* m,
 			size_t mlen);
 
 
@@ -174,9 +177,9 @@ public:
 	 * @return pointer 'm'
 	 *
 	 */
-	struct ofp12_match*
+	struct openflow12::ofp_match*
 	pack(
-			struct ofp12_match* m,
+			struct openflow12::ofp_match* m,
 			size_t mlen);
 
 
@@ -185,7 +188,7 @@ public:
 	 */
 	void
 	unpack(
-			struct ofp12_match* m,
+			struct openflow12::ofp_match* m,
 			size_t mlen);
 
 
@@ -193,9 +196,9 @@ public:
 	 * @return pointer 'm'
 	 *
 	 */
-	struct ofp13_match*
+	struct openflow13::ofp_match*
 	pack(
-			struct ofp13_match* m,
+			struct openflow13::ofp_match* m,
 			size_t mlen);
 
 
@@ -204,7 +207,7 @@ public:
 	 */
 	void
 	unpack(
-			struct ofp13_match* m,
+			struct openflow13::ofp_match* m,
 			size_t mlen);
 
 
@@ -1203,14 +1206,14 @@ public:
 	{
 		os << "cofmatch<";
 			switch (m.of_version) {
-			case OFP10_VERSION: {
+			case openflow10::OFP_VERSION: {
 				//ofh10_match->
 			} break;
-			case OFP12_VERSION: {
+			case openflow12::OFP_VERSION: {
 				os << "type: " << m.ofh12_match->type << " ";
 				os << "length: " << m.ofh12_match->length << " ";
 			} break;
-			case OFP13_VERSION: {
+			case openflow13::OFP_VERSION: {
 				os << "type: " << m.ofh13_match->type << " ";
 				os << "length: " << m.ofh13_match->length << " ";
 			} break;
@@ -1235,19 +1238,19 @@ cofmatch::cofmatch(
 	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [2]", this);
 
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		if (OFP10_MATCH_STATIC_LEN != matchlen) {
 			throw eBadVersion();
 		}
 		unpack(match, matchlen);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		if (OFP12_MATCH_STATIC_LEN != matchlen) {
 			throw eBadVersion();
 		}
 		unpack(match, matchlen);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		if (OFP13_MATCH_STATIC_LEN != matchlen) {
 			throw eBadVersion();
 		}

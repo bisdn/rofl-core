@@ -85,7 +85,7 @@ cofaclist::find_action(uint8_t type,
 
 std::vector<cofaction>&
 cofaclist::unpack(
-		struct ofp_action_header *achdr,
+		struct openflow::ofp_action_header *achdr,
 		size_t aclen)
 throw (eBadActionBadLen, eBadActionBadOutPort)
 {
@@ -95,18 +95,18 @@ throw (eBadActionBadLen, eBadActionBadOutPort)
 
 	// sanity check: aclen must be of size at least of ofp_action_header
 	switch (ofp_version) {
-	case OFP10_VERSION: {
-		if (aclen < (int)sizeof(struct ofp10_action_header))
+	case openflow10::OFP_VERSION: {
+		if (aclen < (int)sizeof(struct openflow10::ofp_action_header))
 			return elems;
 
 	} break;
-	case OFP12_VERSION: {
-		if (aclen < (int)sizeof(struct ofp12_action_header))
+	case openflow12::OFP_VERSION: {
+		if (aclen < (int)sizeof(struct openflow12::ofp_action_header))
 			return elems;
 
 	} break;
-	case OFP13_VERSION: {
-		if (aclen < (int)sizeof(struct ofp13_action_header))
+	case openflow13::OFP_VERSION: {
+		if (aclen < (int)sizeof(struct openflow13::ofp_action_header))
 			return elems;
 
 	} break;
@@ -118,18 +118,18 @@ throw (eBadActionBadLen, eBadActionBadOutPort)
 	while (aclen > 0)
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
-			if (be16toh(achdr->len) < sizeof(struct ofp10_action_header))
+		case openflow10::OFP_VERSION: {
+			if (be16toh(achdr->len) < sizeof(struct openflow10::ofp_action_header))
 				throw eBadActionBadLen();
 
 		} break;
-		case OFP12_VERSION: {
-			if (be16toh(achdr->len) < sizeof(struct ofp12_action_header))
+		case openflow12::OFP_VERSION: {
+			if (be16toh(achdr->len) < sizeof(struct openflow12::ofp_action_header))
 				throw eBadActionBadLen();
 
 		} break;
-		case OFP13_VERSION: {
-			if (be16toh(achdr->len) < sizeof(struct ofp13_action_header))
+		case openflow13::OFP_VERSION: {
+			if (be16toh(achdr->len) < sizeof(struct openflow13::ofp_action_header))
 				throw eBadActionBadLen();
 
 		} break;
@@ -222,18 +222,18 @@ cofaclist::count_action_output(
 		uint32_t out_port = 0;
 
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 
-			if (OFP10AT_OUTPUT != action.get_type()) {
+			if (openflow10::OFPAT_OUTPUT != action.get_type()) {
 				continue;
 			}
 			out_port = be16toh(action.oac_10output->port);
 
 		} break;
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 
-			if (OFP12AT_OUTPUT != action.get_type()) {
+			if (openflow12::OFPAT_OUTPUT != action.get_type()) {
 				continue;
 			}
 			out_port = be32toh(action.oac_12output->port);
@@ -262,18 +262,18 @@ cofaclist::actions_output_ports()
 			it = elems.begin(); it != elems.end(); ++it)
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 
-			if ((*it).get_type() != OFP10AT_OUTPUT) {
+			if ((*it).get_type() != openflow10::OFPAT_OUTPUT) {
 				continue;
 			}
 			outports.push_back(be16toh((*it).oac_10output->port));
 
 		} break;
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 
-			if ((*it).get_type() != OFP12AT_OUTPUT) {
+			if ((*it).get_type() != openflow12::OFPAT_OUTPUT) {
 				continue;
 			}
 			outports.push_back(be32toh((*it).oac_12output->port));

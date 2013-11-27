@@ -35,13 +35,13 @@ private:
 
 	union {
 		uint8_t						*ofpu_pqueue;
-		struct ofp10_packet_queue	*ofpu10_pqueue;
-		struct ofp12_packet_queue	*ofpu12_pqueue;
+		struct openflow10::ofp_packet_queue	*ofpu10_pqueue;
+		struct openflow12::ofp_packet_queue	*ofpu12_pqueue;
 	} ofp_ofpu;
 
 #define ofp_pqueue		ofp_ofpu.ofpu_pqueue
-#define ofp10_pqueue	ofp_ofpu.ofpu10_pqueue
-#define ofp12_pqueue	ofp_ofpu.ofpu12_pqueue
+#define openflow10::ofp_pqueue	ofp_ofpu.ofpu10_pqueue
+#define openflow12::ofp_pqueue	ofp_ofpu.ofpu12_pqueue
 
 
 	/**
@@ -64,7 +64,7 @@ public:
 	 *
 	 */
 	cofpacket_queue(
-			uint8_t of_version = OFP12_VERSION);
+			uint8_t of_version = openflow12::OFP_VERSION);
 
 
 	/**

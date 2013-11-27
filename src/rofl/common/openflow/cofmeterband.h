@@ -33,7 +33,7 @@ private:
 
 	union {
 		uint8_t							*ofmu_hdr;
-		struct ofp13_meter_band_header	*ofmu13_hdr;
+		struct openflow13::ofp_meter_band_header	*ofmu13_hdr;
 	} ofm_ofmu;
 
 #define ofm_header ofm_ofmu.ofmu_hdr
@@ -57,7 +57,7 @@ public:
 	 *
 	 */
 	cofmeter_band(
-			uint8_t of_version = OFP13_VERSION);
+			uint8_t of_version = openflow13::OFP_VERSION);
 
 
 	/**
@@ -211,7 +211,7 @@ private:
 
 	union {
 		uint8_t							*ofmu_drop;
-		struct ofp13_meter_band_drop	*ofmu13_drop;
+		struct openflow13::ofp_meter_band_drop	*ofmu13_drop;
 	} ofm_ofmu;
 
 #define ofm_drop ofm_ofmu.ofmu_drop
@@ -287,7 +287,7 @@ private:
 
 	union {
 		uint8_t								*ofmu_dscp_remark;
-		struct ofp13_meter_band_dscp_remark	*ofmu13_dscp_remark;
+		struct openflow13::ofp_meter_band_dscp_remark	*ofmu13_dscp_remark;
 	} ofm_ofmu;
 
 #define ofm_dscp_remark ofm_ofmu.ofmu_dscp_remark
@@ -380,7 +380,7 @@ private:
 
 	union {
 		uint8_t									*ofmu_expr;
-		struct ofp13_meter_band_experimenter	*ofmu13_expr;
+		struct openflow13::ofp_meter_band_experimenter	*ofmu13_expr;
 	} ofm_ofmu;
 
 #define ofm_expr ofm_ofmu.ofmu_expr

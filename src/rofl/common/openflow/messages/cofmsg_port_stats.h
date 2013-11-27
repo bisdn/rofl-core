@@ -31,8 +31,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_port_stats;
-		struct ofp10_port_stats*		ofhu10_port_stats;
-		struct ofp12_port_stats*		ofhu12_port_stats;
+		struct openflow10::ofp_port_stats*		ofhu10_port_stats;
+		struct openflow12::ofp_port_stats*		ofhu12_port_stats;
 		// TODO: OF1.3
 	} ofhu;
 
@@ -147,8 +147,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_port_stats;
-		struct ofp10_port_stats*		ofhu10_port_stats;
-		struct ofp12_port_stats*		ofhu12_port_stats;
+		struct openflow10::ofp_port_stats*		ofhu10_port_stats;
+		struct openflow12::ofp_port_stats*		ofhu12_port_stats;
 		// TODO: OF1.3
 	} ofhu;
 

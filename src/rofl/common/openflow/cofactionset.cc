@@ -34,20 +34,20 @@ cofactionset::init_action_indices()
 {
 	if (cofactionset::action_indices.empty())
 	{
-		cofactionset::action_indices[OFP12AT_COPY_TTL_IN] 	= 0;
-		cofactionset::action_indices[OFP12AT_POP_MPLS] 		= 1;
-		cofactionset::action_indices[OFP12AT_POP_VLAN] 		= 2;
-		cofactionset::action_indices[OFP12AT_PUSH_MPLS]	  	= 3;
-		cofactionset::action_indices[OFP12AT_PUSH_VLAN] 	= 4;
-		cofactionset::action_indices[OFP12AT_COPY_TTL_OUT] 	= 5;
-		cofactionset::action_indices[OFP12AT_DEC_MPLS_TTL] 	= 6;
-		cofactionset::action_indices[OFP12AT_DEC_NW_TTL] 	= 7;
-		cofactionset::action_indices[OFP12AT_SET_MPLS_TTL] 	= 8;
-		cofactionset::action_indices[OFP12AT_SET_NW_TTL]	= 9;
-		cofactionset::action_indices[OFP12AT_SET_FIELD]		= 10;
-		cofactionset::action_indices[OFP12AT_SET_QUEUE] 	= 11;
-		cofactionset::action_indices[OFP12AT_GROUP] 		= 12;
-		cofactionset::action_indices[OFP12AT_OUTPUT] 		= 13;
+		cofactionset::action_indices[openflow12::OFPAT_COPY_TTL_IN] 	= 0;
+		cofactionset::action_indices[openflow12::OFPAT_POP_MPLS] 		= 1;
+		cofactionset::action_indices[openflow12::OFPAT_POP_VLAN] 		= 2;
+		cofactionset::action_indices[openflow12::OFPAT_PUSH_MPLS]	  	= 3;
+		cofactionset::action_indices[openflow12::OFPAT_PUSH_VLAN] 	= 4;
+		cofactionset::action_indices[openflow12::OFPAT_COPY_TTL_OUT] 	= 5;
+		cofactionset::action_indices[openflow12::OFPAT_DEC_MPLS_TTL] 	= 6;
+		cofactionset::action_indices[openflow12::OFPAT_DEC_NW_TTL] 	= 7;
+		cofactionset::action_indices[openflow12::OFPAT_SET_MPLS_TTL] 	= 8;
+		cofactionset::action_indices[openflow12::OFPAT_SET_NW_TTL]	= 9;
+		cofactionset::action_indices[openflow12::OFPAT_SET_FIELD]		= 10;
+		cofactionset::action_indices[openflow12::OFPAT_SET_QUEUE] 	= 11;
+		cofactionset::action_indices[openflow12::OFPAT_GROUP] 		= 12;
+		cofactionset::action_indices[openflow12::OFPAT_OUTPUT] 		= 13;
 	}
 }
 
@@ -70,7 +70,7 @@ cofactionset::actionset_clear(cofinst& inst)
 		cofaction& action = (*at);
 
 		switch (be16toh(action.oac_header->type)) {
-		case OFP12AT_SET_FIELD: {
+		case openflow12::OFPAT_SET_FIELD: {
 			coxmatch oxm(
 					(struct ofp_oxm_hdr*)action.oac_12set_field->field,
 					be16toh(action.oac_12set_field->len));
@@ -104,7 +104,7 @@ cofactionset::actionset_write_actions(cofinst& inst)
 				cofactionset::action_indices[be16toh(action.oac_header->type)]);
 
 		switch (be16toh(action.oac_header->type)) {
-		case OFP12AT_SET_FIELD: {
+		case openflow12::OFPAT_SET_FIELD: {
 			coxmatch oxm(
 					(struct ofp_oxm_hdr*)action.oac_12set_field->field,
 					be16toh(action.oac_12set_field->len));

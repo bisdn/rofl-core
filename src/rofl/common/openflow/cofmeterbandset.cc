@@ -43,7 +43,7 @@ cofmeter_band_set::operator= (
 
 	clean_up();
 
-	for (std::map<enum ofp13_meter_band_type, cofmeter_band*>::const_iterator
+	for (std::map<enum openflow13::ofp_meter_band_type, cofmeter_band*>::const_iterator
 			it = mbs.mbset.begin(); it != mbs.mbset.end(); ++it) {
 		switch (it->first) {
 		case OFPMBT_DROP: {
@@ -69,7 +69,7 @@ cofmeter_band_set::operator= (
 void
 cofmeter_band_set::clean_up()
 {
-	for (std::map<enum ofp13_meter_band_type, cofmeter_band*>::iterator
+	for (std::map<enum openflow13::ofp_meter_band_type, cofmeter_band*>::iterator
 			it = mbset.begin(); it != mbset.end(); ++it) {
 		delete (it->second);
 	}
@@ -82,7 +82,7 @@ cofmeter_band_drop&
 cofmeter_band_set::get_meter_band_drop()
 {
 	switch (of_version) {
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		if (mbset.find(OFPMBT_DROP) == mbset.end())
 			throw eOFMeterBandSetNotFound();
 		return *(dynamic_cast<cofmeter_band_drop*>( mbset[OFPMBT_DROP] ));
@@ -98,7 +98,7 @@ cofmeter_band_dscp_remark&
 cofmeter_band_set::get_meter_band_dscp_remark()
 {
 	switch (of_version) {
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		if (mbset.find(OFPMBT_DSCP_REMARK) == mbset.end())
 			throw eOFMeterBandSetNotFound();
 		return *(dynamic_cast<cofmeter_band_dscp_remark*>( mbset[OFPMBT_DSCP_REMARK] ));
@@ -114,7 +114,7 @@ cofmeter_band_expr&
 cofmeter_band_set::get_meter_band_expr()
 {
 	switch (of_version) {
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		if (mbset.find(OFPMBT_EXPERIMENTER) == mbset.end())
 			throw eOFMeterBandSetNotFound();
 		return *(dynamic_cast<cofmeter_band_expr*>( mbset[OFPMBT_EXPERIMENTER] ));
@@ -130,7 +130,7 @@ void
 cofmeter_band_set::set_meter_band(
 		cofmeter_band const& mb)
 {
-	if (mbset.find((enum ofp13_meter_band_type)(mb.get_type())) == mbset.end()) {
+	if (mbset.find((enum openflow13::ofp_meter_band_type)(mb.get_type())) == mbset.end()) {
 		switch (mb.get_type()) {
 		case OFPMBT_DROP: {
 			mbset[OFPMBT_DROP] = new cofmeter_band_drop(mb);
@@ -167,7 +167,7 @@ cofmeter_band_set::set_meter_band(
 
 void
 cofmeter_band_set::clear_meter_band(
-		enum ofp13_meter_band_type mbt)
+		enum openflow13::ofp_meter_band_type mbt)
 {
 	if (mbset.find(mbt) == mbset.end())
 		return;
@@ -181,9 +181,9 @@ size_t
 cofmeter_band_set::length() const
 {
 	switch (of_version) {
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		size_t len = 0;
-		for (std::map<enum ofp13_meter_band_type, cofmeter_band*>::const_iterator
+		for (std::map<enum openflow13::ofp_meter_band_type, cofmeter_band*>::const_iterator
 				it = mbset.begin(); it != mbset.end(); ++it) {
 			len += (it->second)->length();
 		}
@@ -209,8 +209,8 @@ cofmeter_band_set::pack(
 	unsigned int offset = 0;
 
 	switch (of_version) {
-	case OFP13_VERSION: {
-		for (std::map<enum ofp13_meter_band_type, cofmeter_band*>::iterator
+	case openflow13::OFP_VERSION: {
+		for (std::map<enum openflow13::ofp_meter_band_type, cofmeter_band*>::iterator
 				it = mbset.begin(); it != mbset.end(); ++it) {
 			cofmeter_band& mb = *(it->second);
 			mb.pack(buf + offset, mb.length());
@@ -234,13 +234,13 @@ cofmeter_band_set::unpack(
 	clean_up();
 
 	switch (of_version) {
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 
 		unsigned int offset = 0;
 		while (offset < buflen) {
-			struct ofp13_meter_band_header *hdr = (struct ofp13_meter_band_header*)(buf + offset);
-			if (((buflen - offset) < sizeof(struct ofp13_meter_band_header)) ||
-					(be16toh(hdr->len) < sizeof(struct ofp13_meter_band_header)))
+			struct openflow13::ofp_meter_band_header *hdr = (struct openflow13::ofp_meter_band_header*)(buf + offset);
+			if (((buflen - offset) < sizeof(struct openflow13::ofp_meter_band_header)) ||
+					(be16toh(hdr->len) < sizeof(struct openflow13::ofp_meter_band_header)))
 				throw eInval();
 			switch (be16toh(hdr->type)) {
 			case OFPMBT_DROP: {

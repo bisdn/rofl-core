@@ -25,7 +25,7 @@ cofdptImpl::cofdptImpl(
 				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
-				ofp_version(OFP12_VERSION),
+				ofp_version(openflow12::OFP_VERSION),
 				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
@@ -60,7 +60,7 @@ cofdptImpl::cofdptImpl(
 				reconnect_in_seconds(0),
 				reconnect_counter(0),
 				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
-				ofp_version(OFP12_VERSION),
+				ofp_version(openflow12::OFP_VERSION),
 				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
@@ -207,7 +207,7 @@ cofdptImpl::handle_read(
 	try {
 
 		if (0 == fragment) {
-			mem = new cmemory(sizeof(struct ofp_header));
+			mem = new cmemory(sizeof(struct openflow::ofp_header));
 			msg_bytes_read = 0;
 		} else {
 			mem = fragment;
@@ -218,10 +218,10 @@ cofdptImpl::handle_read(
 			uint16_t msg_len = 0;
 
 			// how many bytes do we have to read?
-			if (msg_bytes_read < sizeof(struct ofp_header)) {
-				msg_len = sizeof(struct ofp_header);
+			if (msg_bytes_read < sizeof(struct openflow::ofp_header)) {
+				msg_len = sizeof(struct openflow::ofp_header);
 			} else {
-				struct ofp_header *ofh_header = (struct ofp_header*)mem->somem();
+				struct openflow::ofp_header *ofh_header = (struct openflow::ofp_header*)mem->somem();
 				msg_len = be16toh(ofh_header->length);
 			}
 			//fprintf(stderr, "how many? msg_len=%d mem: %s\n", msg_len, mem->c_str());
@@ -278,8 +278,8 @@ cofdptImpl::handle_read(
 				msg_bytes_read += rc;
 
 				// minimum message length received, check completeness of message
-				if (mem->memlen() >= sizeof(struct ofp_header)) {
-					struct ofp_header *ofh_header = (struct ofp_header*)mem->somem();
+				if (mem->memlen() >= sizeof(struct openflow::ofp_header)) {
+					struct openflow::ofp_header *ofh_header = (struct openflow::ofp_header*)mem->somem();
 					uint16_t msg_len = be16toh(ofh_header->length);
 
 					// ok, message was received completely
@@ -342,7 +342,7 @@ cofdptImpl::handle_message(
 			return;
 		}
 
-		struct ofp_header* ofh_header = (struct ofp_header*)mem->somem();
+		struct openflow::ofp_header* ofh_header = (struct openflow::ofp_header*)mem->somem();
 
 		const uint8_t OFPT_HELLO = 0;
 
@@ -352,80 +352,80 @@ cofdptImpl::handle_message(
 		}
 
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 
 			switch (ofh_header->type) {
-			case OFPT10_HELLO: {
+			case openflow10::OFPT_HELLO: {
 				msg = new cofmsg_hello(mem);
 				msg->validate();
 				hello_rcvd(dynamic_cast<cofmsg_hello*>( msg ));
 			} break;
-			case OFPT10_ECHO_REQUEST: {
+			case openflow10::OFPT_ECHO_REQUEST: {
 				msg = new cofmsg_echo_request(mem);
 				msg->validate();
 				echo_request_rcvd(dynamic_cast<cofmsg_echo_request*>( msg ));
 			} break;
-			case OFPT10_ECHO_REPLY: {
+			case openflow10::OFPT_ECHO_REPLY: {
 				msg = new cofmsg_echo_reply(mem);
 				msg->validate();
 				echo_reply_rcvd(dynamic_cast<cofmsg_echo_reply*>( msg ));
 			} break;
-			case OFPT10_VENDOR:	{
+			case openflow10::OFPT_VENDOR:	{
 				msg = new cofmsg_experimenter(mem);
 				msg->validate();
 				experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ));
 			} break;
-			case OFPT10_FEATURES_REPLY: {
-				rofbase->ta_validate(be32toh(ofh_header->xid), OFPT10_FEATURES_REQUEST);
+			case openflow10::OFPT_FEATURES_REPLY: {
+				rofbase->ta_validate(be32toh(ofh_header->xid), openflow10::OFPT_FEATURES_REQUEST);
 				msg = new cofmsg_features_reply(mem);
 				msg->validate();
 				features_reply_rcvd(dynamic_cast<cofmsg_features_reply*>( msg ));
 			} break;
-			case OFPT10_GET_CONFIG_REPLY: {
-				rofbase->ta_validate(be32toh(ofh_header->xid), OFPT10_GET_CONFIG_REQUEST);
+			case openflow10::OFPT_GET_CONFIG_REPLY: {
+				rofbase->ta_validate(be32toh(ofh_header->xid), openflow10::OFPT_GET_CONFIG_REQUEST);
 				msg = new cofmsg_get_config_reply(mem);
 				msg->validate();
 				get_config_reply_rcvd(dynamic_cast<cofmsg_get_config_reply*>( msg ));
 			} break;
-			case OFPT10_PACKET_IN: {
+			case openflow10::OFPT_PACKET_IN: {
 				msg = new cofmsg_packet_in(mem);
 				msg->validate();
 				packet_in_rcvd(dynamic_cast<cofmsg_packet_in*>( msg ));
 			} break;
-			case OFPT10_FLOW_REMOVED: {
+			case openflow10::OFPT_FLOW_REMOVED: {
 				msg = new cofmsg_flow_removed(mem);
 				msg->validate();
 				flow_rmvd_rcvd(dynamic_cast<cofmsg_flow_removed*>( msg ));
 			} break;
-			case OFPT10_PORT_STATUS: {
+			case openflow10::OFPT_PORT_STATUS: {
 				msg = new cofmsg_port_status(mem);
 				msg->validate();
 				port_status_rcvd(dynamic_cast<cofmsg_port_status*>( msg ));
 			} break;
-			case OFPT10_STATS_REPLY: {
-				rofbase->ta_validate(be32toh(ofh_header->xid), OFPT10_STATS_REQUEST);
+			case openflow10::OFPT_STATS_REPLY: {
+				rofbase->ta_validate(be32toh(ofh_header->xid), openflow10::OFPT_STATS_REQUEST);
 				uint16_t stats_type = 0;
 				switch (ofh_header->version) {
-				case OFP10_VERSION: {
-					if (mem->memlen() < sizeof(struct ofp10_stats_reply)) {
+				case openflow10::OFP_VERSION: {
+					if (mem->memlen() < sizeof(struct openflow10::ofp_stats_reply)) {
 						msg = new cofmsg(mem);
 						throw eBadSyntaxTooShort();
 					}
-					stats_type = be16toh(((struct ofp10_stats_reply*)mem->somem())->type);
+					stats_type = be16toh(((struct openflow10::ofp_stats_reply*)mem->somem())->type);
 				} break;
-				case OFP12_VERSION: {
-					if (mem->memlen() < sizeof(struct ofp12_stats_reply)) {
+				case openflow12::OFP_VERSION: {
+					if (mem->memlen() < sizeof(struct openflow12::ofp_stats_reply)) {
 						msg = new cofmsg(mem);
 						throw eBadSyntaxTooShort();
 					}
-					stats_type = be16toh(((struct ofp12_stats_reply*)mem->somem())->type);
+					stats_type = be16toh(((struct openflow12::ofp_stats_reply*)mem->somem())->type);
 				} break;
-				case OFP13_VERSION: {
-					if (mem->memlen() < sizeof(struct ofp13_multipart_reply)) {
+				case openflow13::OFP_VERSION: {
+					if (mem->memlen() < sizeof(struct openflow13::ofp_multipart_reply)) {
 						msg = new cofmsg(mem);
 						throw eBadSyntaxTooShort();
 					}
-					stats_type = be16toh(((struct ofp13_multipart_reply*)mem->somem())->type);
+					stats_type = be16toh(((struct openflow13::ofp_multipart_reply*)mem->somem())->type);
 				} break;
 				default:
 					throw eBadVersion();
@@ -459,14 +459,14 @@ cofdptImpl::handle_message(
 				msg->validate();
 				stats_reply_rcvd(dynamic_cast<cofmsg_stats_reply*>( msg ));
 			} break;
-			case OFPT10_BARRIER_REPLY: {
-				rofbase->ta_validate(be32toh(ofh_header->xid), OFPT10_BARRIER_REQUEST);
+			case openflow10::OFPT_BARRIER_REPLY: {
+				rofbase->ta_validate(be32toh(ofh_header->xid), openflow10::OFPT_BARRIER_REQUEST);
 				msg = new cofmsg_barrier_reply(mem);
 				msg->validate();
 				barrier_reply_rcvd(dynamic_cast<cofmsg_barrier_reply*>( msg ));
 			} break;
-			case OFPT10_QUEUE_GET_CONFIG_REPLY: {
-				rofbase->ta_validate(be32toh(ofh_header->xid), OFPT10_QUEUE_GET_CONFIG_REQUEST);
+			case openflow10::OFPT_QUEUE_GET_CONFIG_REPLY: {
+				rofbase->ta_validate(be32toh(ofh_header->xid), openflow10::OFPT_QUEUE_GET_CONFIG_REQUEST);
 				msg = new cofmsg_queue_get_config_reply(mem);
 				msg->validate();
 				queue_get_config_reply_rcvd(dynamic_cast<cofmsg_queue_get_config_reply*>( msg ));
@@ -478,82 +478,82 @@ cofdptImpl::handle_message(
 			}
 
 		} break;
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 
 
 			switch (ofh_header->type) {
-			case OFPT12_HELLO: {
+			case openflow12::OFPT_HELLO: {
 				msg = new cofmsg_hello(mem);
 				msg->validate();
 				hello_rcvd(dynamic_cast<cofmsg_hello*>( msg ));
 			} break;
-			case OFPT12_ECHO_REQUEST: {
+			case openflow12::OFPT_ECHO_REQUEST: {
 				msg = new cofmsg_echo_request(mem);
 				msg->validate();
 				echo_request_rcvd(dynamic_cast<cofmsg_echo_request*>( msg ));
 			} break;
-			case OFPT12_ECHO_REPLY: {
+			case openflow12::OFPT_ECHO_REPLY: {
 				msg = new cofmsg_echo_reply(mem);
 				msg->validate();
 				echo_reply_rcvd(dynamic_cast<cofmsg_echo_reply*>( msg ));
 			} break;
-			case OFPT12_EXPERIMENTER:	{
+			case openflow12::OFPT_EXPERIMENTER:	{
 				msg = new cofmsg_experimenter(mem);
 				msg->validate();
 				experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ));
 			} break;
-			case OFPT12_FEATURES_REPLY: {
-				rofbase->ta_validate(be32toh(ofh_header->xid), OFPT12_FEATURES_REQUEST);
+			case openflow12::OFPT_FEATURES_REPLY: {
+				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_FEATURES_REQUEST);
 				msg = new cofmsg_features_reply(mem);
 				msg->validate();
 				features_reply_rcvd(dynamic_cast<cofmsg_features_reply*>( msg ));
 			} break;
-			case OFPT12_GET_CONFIG_REPLY: {
-				rofbase->ta_validate(be32toh(ofh_header->xid), OFPT12_GET_CONFIG_REQUEST);
+			case openflow12::OFPT_GET_CONFIG_REPLY: {
+				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_GET_CONFIG_REQUEST);
 				msg = new cofmsg_get_config_reply(mem);
 				msg->validate();
 				get_config_reply_rcvd(dynamic_cast<cofmsg_get_config_reply*>( msg ));
 			} break;
-			case OFPT12_PACKET_IN: {
+			case openflow12::OFPT_PACKET_IN: {
 				msg = new cofmsg_packet_in(mem);
 				msg->validate();
 				packet_in_rcvd(dynamic_cast<cofmsg_packet_in*>( msg ));
 			} break;
-			case OFPT12_FLOW_REMOVED: {
+			case openflow12::OFPT_FLOW_REMOVED: {
 				msg = new cofmsg_flow_removed(mem);
 				msg->validate();
 				flow_rmvd_rcvd(dynamic_cast<cofmsg_flow_removed*>( msg ));
 			} break;
-			case OFPT12_PORT_STATUS: {
+			case openflow12::OFPT_PORT_STATUS: {
 				msg = new cofmsg_port_status(mem);
 				msg->validate();
 				port_status_rcvd(dynamic_cast<cofmsg_port_status*>( msg ));
 			} break;
-			case OFPT12_STATS_REPLY: {
-				rofbase->ta_validate(be32toh(ofh_header->xid), OFPT12_STATS_REQUEST);
+			case openflow12::OFPT_STATS_REPLY: {
+				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_STATS_REQUEST);
 				uint16_t stats_type = 0;
 				switch (ofh_header->version) {
-				case OFP10_VERSION: {
-					if (mem->memlen() < sizeof(struct ofp10_stats_reply)) {
+				case openflow10::OFP_VERSION: {
+					if (mem->memlen() < sizeof(struct openflow10::ofp_stats_reply)) {
 						msg = new cofmsg(mem);
 						throw eBadSyntaxTooShort();
 					}
-					stats_type = be16toh(((struct ofp10_stats_reply*)mem->somem())->type);
+					stats_type = be16toh(((struct openflow10::ofp_stats_reply*)mem->somem())->type);
 				} break;
-				case OFP12_VERSION: {
-					if (mem->memlen() < sizeof(struct ofp12_stats_reply)) {
+				case openflow12::OFP_VERSION: {
+					if (mem->memlen() < sizeof(struct openflow12::ofp_stats_reply)) {
 						msg = new cofmsg(mem);
 						throw eBadSyntaxTooShort();
 					}
-					stats_type = be16toh(((struct ofp12_stats_reply*)mem->somem())->type);
+					stats_type = be16toh(((struct openflow12::ofp_stats_reply*)mem->somem())->type);
 				} break;
-				case OFP13_VERSION: {
-					if (mem->memlen() < sizeof(struct ofp13_multipart_reply)) {
+				case openflow13::OFP_VERSION: {
+					if (mem->memlen() < sizeof(struct openflow13::ofp_multipart_reply)) {
 						msg = new cofmsg(mem);
 						throw eBadSyntaxTooShort();
 					}
-					stats_type = be16toh(((struct ofp13_multipart_reply*)mem->somem())->type);
+					stats_type = be16toh(((struct openflow13::ofp_multipart_reply*)mem->somem())->type);
 				} break;
 				default:
 					throw eBadVersion();
@@ -596,26 +596,26 @@ cofdptImpl::handle_message(
 				msg->validate();
 				stats_reply_rcvd(dynamic_cast<cofmsg_stats_reply*>( msg ));
 			} break;
-			case OFPT12_BARRIER_REPLY: {
-				rofbase->ta_validate(be32toh(ofh_header->xid), OFPT12_BARRIER_REQUEST);
+			case openflow12::OFPT_BARRIER_REPLY: {
+				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_BARRIER_REQUEST);
 				msg = new cofmsg_barrier_reply(mem);
 				msg->validate();
 				barrier_reply_rcvd(dynamic_cast<cofmsg_barrier_reply*>( msg ));
 			} break;
-			case OFPT12_QUEUE_GET_CONFIG_REPLY: {
-				rofbase->ta_validate(be32toh(ofh_header->xid), OFPT12_QUEUE_GET_CONFIG_REQUEST);
+			case openflow12::OFPT_QUEUE_GET_CONFIG_REPLY: {
+				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_QUEUE_GET_CONFIG_REQUEST);
 				msg = new cofmsg_queue_get_config_reply(mem);
 				msg->validate();
 				queue_get_config_reply_rcvd(dynamic_cast<cofmsg_queue_get_config_reply*>( msg ));
 			} break;
-			case OFPT12_ROLE_REPLY: {
-				rofbase->ta_validate(be32toh(ofh_header->xid), OFPT12_ROLE_REQUEST);
+			case openflow12::OFPT_ROLE_REPLY: {
+				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_ROLE_REQUEST);
 				msg = new cofmsg_role_reply(mem);
 				msg->validate();
 				role_reply_rcvd(dynamic_cast<cofmsg_role_reply*>( msg ));
 			} break;
-			case OFPT12_GET_ASYNC_REPLY: {
-				rofbase->ta_validate(be32toh(ofh_header->xid), OFPT12_GET_ASYNC_REQUEST);
+			case openflow12::OFPT_GET_ASYNC_REPLY: {
+				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_GET_ASYNC_REQUEST);
 				msg = new cofmsg_get_async_config_reply(mem);
 				msg->validate();
 				get_async_config_reply_rcvd(dynamic_cast<cofmsg_get_async_config_reply*>( msg ));
@@ -664,39 +664,39 @@ cofdptImpl::send_message(
     }
 
     switch (msg->get_version()) {
-    case OFP10_VERSION: {
+    case openflow10::OFP_VERSION: {
 
     	switch (msg->get_type()) {
-    	case OFPT10_HELLO: {
+    	case openflow10::OFPT_HELLO: {
     		// do nothing here
     	} break;
-    	case OFPT10_ECHO_REQUEST: {
+    	case openflow10::OFPT_ECHO_REQUEST: {
     		echo_request_sent(msg);
     	} break;
-    	case OFPT10_ECHO_REPLY: {
+    	case openflow10::OFPT_ECHO_REPLY: {
     		// do nothing here
     	} break;
-    	case OFPT10_ERROR:
-    	case OFPT10_VENDOR:
-    	case OFPT10_SET_CONFIG:
-    	case OFPT10_PACKET_OUT:
-    	case OFPT10_FLOW_MOD:
-    	case OFPT10_PORT_MOD: {
+    	case openflow10::OFPT_ERROR:
+    	case openflow10::OFPT_VENDOR:
+    	case openflow10::OFPT_SET_CONFIG:
+    	case openflow10::OFPT_PACKET_OUT:
+    	case openflow10::OFPT_FLOW_MOD:
+    	case openflow10::OFPT_PORT_MOD: {
     		// asynchronous messages, no transaction => do nothing here
     	} break;
-    	case OFPT10_FEATURES_REQUEST: {
+    	case openflow10::OFPT_FEATURES_REQUEST: {
     		features_request_sent(msg);
     	} break;
-    	case OFPT10_GET_CONFIG_REQUEST: {
+    	case openflow10::OFPT_GET_CONFIG_REQUEST: {
     		get_config_request_sent(msg);
     	} break;
-    	case OFPT10_STATS_REQUEST: {
+    	case openflow10::OFPT_STATS_REQUEST: {
     		stats_request_sent(msg);
     	} break;
-    	case OFPT10_BARRIER_REQUEST: {
+    	case openflow10::OFPT_BARRIER_REQUEST: {
     		barrier_request_sent(msg);
     	} break;
-    	case OFPT10_QUEUE_GET_CONFIG_REQUEST: {
+    	case openflow10::OFPT_QUEUE_GET_CONFIG_REQUEST: {
     		queue_get_config_request_sent(msg);
     	} break;
     	default: {
@@ -706,44 +706,44 @@ cofdptImpl::send_message(
     	}
 
     } break;
-    case OFP12_VERSION: {
+    case openflow12::OFP_VERSION: {
 
     	switch (msg->get_type()) {
-    	case OFPT12_HELLO: {
+    	case openflow12::OFPT_HELLO: {
     		// do nothing here
     	} break;
-    	case OFPT12_ECHO_REQUEST: {
+    	case openflow12::OFPT_ECHO_REQUEST: {
     		echo_request_sent(msg);
     	} break;
-    	case OFPT12_ECHO_REPLY: {
+    	case openflow12::OFPT_ECHO_REPLY: {
     		// do nothing here
     	} break;
-    	case OFPT12_ERROR:
-    	case OFPT12_EXPERIMENTER:
-    	case OFPT12_SET_CONFIG:
-    	case OFPT12_PACKET_OUT:
-    	case OFPT12_FLOW_MOD:
-    	case OFPT12_GROUP_MOD:
-    	case OFPT12_PORT_MOD:
-    	case OFPT12_TABLE_MOD: {
+    	case openflow12::OFPT_ERROR:
+    	case openflow12::OFPT_EXPERIMENTER:
+    	case openflow12::OFPT_SET_CONFIG:
+    	case openflow12::OFPT_PACKET_OUT:
+    	case openflow12::OFPT_FLOW_MOD:
+    	case openflow12::OFPT_GROUP_MOD:
+    	case openflow12::OFPT_PORT_MOD:
+    	case openflow12::OFPT_TABLE_MOD: {
     		// asynchronous messages, no transaction => do nothing here
     	} break;
-    	case OFPT12_FEATURES_REQUEST: {
+    	case openflow12::OFPT_FEATURES_REQUEST: {
     		features_request_sent(msg);
     	} break;
-    	case OFPT12_GET_CONFIG_REQUEST: {
+    	case openflow12::OFPT_GET_CONFIG_REQUEST: {
     		get_config_request_sent(msg);
     	} break;
-    	case OFPT12_STATS_REQUEST: {
+    	case openflow12::OFPT_STATS_REQUEST: {
     		stats_request_sent(msg);
     	} break;
-    	case OFPT12_BARRIER_REQUEST: {
+    	case openflow12::OFPT_BARRIER_REQUEST: {
     		barrier_request_sent(msg);
     	} break;
-    	case OFPT12_QUEUE_GET_CONFIG_REQUEST: {
+    	case openflow12::OFPT_QUEUE_GET_CONFIG_REQUEST: {
     		queue_get_config_request_sent(msg);
     	} break;
-    	case OFPT12_ROLE_REQUEST: {
+    	case openflow12::OFPT_ROLE_REQUEST: {
     		role_request_sent(msg);
     	} break;
     	default: {
@@ -752,48 +752,48 @@ cofdptImpl::send_message(
     	}
 
     } break;
-    case OFP13_VERSION: {
+    case openflow13::OFP_VERSION: {
 
     	switch (msg->get_type()) {
-    	case OFPT13_HELLO: {
+    	case openflow13::OFPT_HELLO: {
     		// do nothing here
     	} break;
-    	case OFPT13_ECHO_REQUEST: {
+    	case openflow13::OFPT_ECHO_REQUEST: {
     		echo_request_sent(msg);
     	} break;
-    	case OFPT13_ECHO_REPLY: {
+    	case openflow13::OFPT_ECHO_REPLY: {
     		// do nothing here
     	} break;
-    	case OFPT13_ERROR:
-    	case OFPT13_EXPERIMENTER:
-    	case OFPT13_SET_CONFIG:
-    	case OFPT13_PACKET_OUT:
-    	case OFPT13_FLOW_MOD:
-    	case OFPT13_GROUP_MOD:
-    	case OFPT13_PORT_MOD:
-    	case OFPT13_TABLE_MOD:
-    	case OFPT13_SET_ASYNC: {
+    	case openflow13::OFPT_ERROR:
+    	case openflow13::OFPT_EXPERIMENTER:
+    	case openflow13::OFPT_SET_CONFIG:
+    	case openflow13::OFPT_PACKET_OUT:
+    	case openflow13::OFPT_FLOW_MOD:
+    	case openflow13::OFPT_GROUP_MOD:
+    	case openflow13::OFPT_PORT_MOD:
+    	case openflow13::OFPT_TABLE_MOD:
+    	case openflow13::OFPT_SET_ASYNC: {
     		// asynchronous messages, no transaction => do nothing here
     	} break;
-    	case OFPT13_FEATURES_REQUEST: {
+    	case openflow13::OFPT_FEATURES_REQUEST: {
     		features_request_sent(msg);
     	} break;
-    	case OFPT13_GET_CONFIG_REQUEST: {
+    	case openflow13::OFPT_GET_CONFIG_REQUEST: {
     		get_config_request_sent(msg);
     	} break;
-    	case OFPT13_STATS_REQUEST: {
+    	case openflow13::OFPT_STATS_REQUEST: {
     		stats_request_sent(msg);
     	} break;
-    	case OFPT13_BARRIER_REQUEST: {
+    	case openflow13::OFPT_BARRIER_REQUEST: {
     		barrier_request_sent(msg);
     	} break;
-    	case OFPT13_QUEUE_GET_CONFIG_REQUEST: {
+    	case openflow13::OFPT_QUEUE_GET_CONFIG_REQUEST: {
     		queue_get_config_request_sent(msg);
     	} break;
-    	case OFPT13_ROLE_REQUEST: {
+    	case openflow13::OFPT_ROLE_REQUEST: {
     		role_request_sent(msg);
     	} break;
-    	case OFPT13_GET_ASYNC_REQUEST: {
+    	case openflow13::OFPT_GET_ASYNC_REQUEST: {
     		get_async_config_request_sent(msg);
     	} break;
     	default: {
@@ -878,10 +878,10 @@ cofdptImpl::hello_rcvd(cofmsg_hello *msg)
 			bzero(explanation, sizeof(explanation));
 			snprintf(explanation, sizeof(explanation) - 1,
 					"unsupported OF version (%d), supported version is (%d)",
-					msg->get_version(), OFP12_VERSION);
+					msg->get_version(), openflow12::OFP_VERSION);
 
 			cofmsg_error *reply = new cofmsg_error(
-								OFP12_VERSION,
+								openflow12::OFP_VERSION,
 								msg->get_xid(),
 								OFPET_HELLO_FAILED,
 								OFPHFC_INCOMPATIBLE,
@@ -1017,8 +1017,8 @@ cofdptImpl::features_reply_rcvd(
 		capabilities 	= msg->get_capabilities();
 
 		switch (ofp_version) {
-		case OFP10_VERSION:
-		case OFP12_VERSION: {
+		case openflow10::OFP_VERSION:
+		case openflow12::OFP_VERSION: {
 			cofportlist& portlist = msg->get_ports();
 
 			for (std::map<uint32_t, cofport*>::iterator it = ports.begin();
@@ -1034,7 +1034,7 @@ cofdptImpl::features_reply_rcvd(
 			}
 
 		} break;
-		case OFP13_VERSION: {
+		case openflow13::OFP_VERSION: {
 			// no ports in OpenFlow 1.3 in FeaturesRequest
 		} break;
 		}
@@ -1117,14 +1117,14 @@ cofdptImpl::get_config_reply_rcvd(
 	if (COFDPT_STATE_WAIT_GET_CONFIG == cur_state())
 	{
 		switch (ofp_version) {
-		case OFP10_VERSION: {
+		case openflow10::OFP_VERSION: {
 			new_state(COFDPT_STATE_CONNECTED);
 
 			rofbase->handle_dpt_open(this);
 
 		} break;
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
+		case openflow12::OFP_VERSION:
+		case openflow13::OFP_VERSION: {
 			// send stats request during initialization
 			rofbase->send_stats_request(this, OFPST_TABLE, 0);
 
@@ -1156,13 +1156,13 @@ cofdptImpl::stats_request_sent(
 {
 	try {
 		switch (ofp_version) {
-		case OFP10_VERSION: {
-			xidstore[OFPT10_STATS_REQUEST].xid_add(this, pack->get_xid(), stats_reply_timeout);
+		case openflow10::OFP_VERSION: {
+			xidstore[openflow10::OFPT_STATS_REQUEST].xid_add(this, pack->get_xid(), stats_reply_timeout);
 		} break;
-		case OFP12_VERSION: {
-			xidstore[OFPT12_STATS_REQUEST].xid_add(this, pack->get_xid(), stats_reply_timeout);
+		case openflow12::OFP_VERSION: {
+			xidstore[openflow12::OFPT_STATS_REQUEST].xid_add(this, pack->get_xid(), stats_reply_timeout);
 		} break;
-		case OFP13_VERSION: {
+		case openflow13::OFP_VERSION: {
 			throw eNotImplemented(); // yet
 		} break;
 		default:
@@ -1189,13 +1189,13 @@ cofdptImpl::stats_reply_rcvd(
 	cancel_timer(COFDPT_TIMER_STATS_REPLY);
 
 	switch (ofp_version) {
-	case OFP10_VERSION: {
-		xidstore[OFPT10_STATS_REQUEST].xid_rem(msg->get_xid());
+	case openflow10::OFP_VERSION: {
+		xidstore[openflow10::OFPT_STATS_REQUEST].xid_rem(msg->get_xid());
 	} break;
-	case OFP12_VERSION: {
-		xidstore[OFPT12_STATS_REQUEST].xid_rem(msg->get_xid());
+	case openflow12::OFP_VERSION: {
+		xidstore[openflow12::OFPT_STATS_REQUEST].xid_rem(msg->get_xid());
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented(); // yet
 	} break;
 	default:
@@ -1266,9 +1266,9 @@ cofdptImpl::handle_stats_reply_timeout()
 	uint8_t msg_type = 0;
 
 	switch (ofp_version) {
-	case OFP10_VERSION: msg_type = OFPT10_STATS_REQUEST; break;
-	case OFP12_VERSION: msg_type = OFPT12_STATS_REQUEST; break;
-	case OFP13_VERSION: msg_type = OFPT13_STATS_REQUEST; break;
+	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
+	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_STATS_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1325,9 +1325,9 @@ cofdptImpl::barrier_request_sent(
 		uint8_t msg_type = 0;
 
 		switch (ofp_version) {
-		case OFP10_VERSION: msg_type = OFPT10_BARRIER_REQUEST; break;
-		case OFP12_VERSION: msg_type = OFPT12_BARRIER_REQUEST; break;
-		case OFP13_VERSION: msg_type = OFPT13_BARRIER_REQUEST; break;
+		case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_BARRIER_REQUEST; break;
+		case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_BARRIER_REQUEST; break;
+		case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_BARRIER_REQUEST; break;
 		default:
 			throw eBadVersion();
 		}
@@ -1355,9 +1355,9 @@ cofdptImpl::barrier_reply_rcvd(cofmsg_barrier_reply *msg)
 	uint8_t msg_type = 0;
 
 	switch (ofp_version) {
-	case OFP10_VERSION: msg_type = OFPT10_BARRIER_REQUEST; break;
-	case OFP12_VERSION: msg_type = OFPT12_BARRIER_REQUEST; break;
-	case OFP13_VERSION: msg_type = OFPT13_BARRIER_REQUEST; break;
+	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_BARRIER_REQUEST; break;
+	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_BARRIER_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_BARRIER_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1375,9 +1375,9 @@ cofdptImpl::handle_barrier_reply_timeout()
 	uint8_t msg_type = 0;
 
 	switch (ofp_version) {
-	case OFP10_VERSION: msg_type = OFPT10_BARRIER_REQUEST; break;
-	case OFP12_VERSION: msg_type = OFPT12_BARRIER_REQUEST; break;
-	case OFP13_VERSION: msg_type = OFPT13_BARRIER_REQUEST; break;
+	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_BARRIER_REQUEST; break;
+	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_BARRIER_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_BARRIER_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}

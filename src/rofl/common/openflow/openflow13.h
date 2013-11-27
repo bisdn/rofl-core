@@ -1401,6 +1401,19 @@ namespace openflow13 {
 	};
 	OFP_ASSERT(sizeof(struct ofp_packet_out) == 24);
 
+	enum ofp_flow_mod_command {
+		OFPFC_ADD,              /* New flow. */
+		OFPFC_MODIFY,           /* Modify all matching flows. */
+		OFPFC_MODIFY_STRICT,    /* Modify entry strictly matching wildcards and
+								   priority. */
+		OFPFC_DELETE,           /* Delete all matching flows. */
+		OFPFC_DELETE_STRICT     /* Delete entry strictly matching wildcards and
+								   priority. */
+	};
+
+	enum flow_mod_header_len {
+		OFP_FLOW_MOD_STATIC_HDR_LEN = 48,
+	};
 
 	// A3.8 Barrier Message
 

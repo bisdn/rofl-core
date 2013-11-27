@@ -29,10 +29,10 @@ private:
 	cofmatch			match;
 
 	union {
-		uint8_t*					ofhu_flow_mod;
-		struct ofp10_flow_mod*		ofhu10_flow_mod;
-		struct ofp12_flow_mod*		ofhu12_flow_mod;
-		struct ofp13_flow_mod*		ofhu13_flow_mod;
+		uint8_t*								ofhu_flow_mod;
+		struct openflow10::ofp_flow_mod*		ofhu10_flow_mod;
+		struct openflow12::ofp_flow_mod*		ofhu12_flow_mod;
+		struct openflow13::ofp_flow_mod*		ofhu13_flow_mod;
 	} ofhu;
 
 #define ofh_flow_mod   ofhu.ofhu_flow_mod
@@ -40,9 +40,6 @@ private:
 #define ofh12_flow_mod ofhu.ofhu12_flow_mod
 #define ofh13_flow_mod ofhu.ofhu13_flow_mod
 
-#define OFP10_FLOW_MOD_STATIC_HDR_LEN				72
-#define OFP12_FLOW_MOD_STATIC_HDR_LEN				48
-#define OFP13_FLOW_MOD_STATIC_HDR_LEN				48
 
 public:
 
@@ -51,7 +48,7 @@ public:
 	 *
 	 */
 	cofmsg_flow_mod(
-			uint8_t of_version = 0, // must be OFP10_VERSION
+			uint8_t of_version = 0, // must be openflow10::OFP_VERSION
 			uint32_t xid = 0,
 			uint64_t cookie = 0,
 			uint8_t  command = 0,
@@ -62,14 +59,14 @@ public:
 			uint16_t out_port = 0,
 			uint16_t flags = 0,
 			cofaclist const& actions = cofaclist(),
-			cofmatch const& match = cofmatch(OFP10_VERSION));
+			cofmatch const& match = cofmatch(openflow10::OFP_VERSION));
 
 
 	/** constructor
 	 *
 	 */
 	cofmsg_flow_mod(
-			uint8_t of_version = 0,  // OFP12_VERSION, OFP13_VERSION, and beyond
+			uint8_t of_version = 0,  // openflow12::OFP_VERSION, openflow13::OFP_VERSION, and beyond
 			uint32_t xid = 0,
 			uint64_t cookie = 0,
 			uint64_t cookie_mask = 0,
@@ -83,7 +80,7 @@ public:
 			uint32_t out_group = 0,
 			uint16_t flags = 0,
 			cofinlist const& instructions = cofinlist(),
-			cofmatch const& match = cofmatch(OFP12_VERSION));
+			cofmatch const& match = cofmatch(openflow12::OFP_VERSION));
 
 
 	/**

@@ -26,9 +26,9 @@ private:
 
 	union {
 		uint8_t*						ofhu_flow_removed;
-		struct ofp10_flow_removed*		ofhu10_flow_removed;
-		struct ofp12_flow_removed*		ofhu12_flow_removed;
-		struct ofp13_flow_removed*		ofhu13_flow_removed;
+		struct openflow10::ofp_flow_removed*		ofhu10_flow_removed;
+		struct openflow12::ofp_flow_removed*		ofhu12_flow_removed;
+		struct openflow13::ofp_flow_removed*		ofhu13_flow_removed;
 	} ofhu;
 
 #define ofh_flow_removed   ofhu.ofhu_flow_removed
@@ -36,9 +36,9 @@ private:
 #define ofh12_flow_removed ofhu.ofhu12_flow_removed
 #define ofh13_flow_removed ofhu.ofhu13_flow_removed
 
-#define OFP10_FLOW_REMOVED_STATIC_HDR_LEN	88
-#define OFP12_FLOW_REMOVED_STATIC_HDR_LEN	48	// length without struct ofp12_match
-#define OFP13_FLOW_REMOVED_STATIC_HDR_LEN	48	// length without struct ofp13_match
+#define openflow10::OFP_FLOW_REMOVED_STATIC_HDR_LEN	88
+#define openflow12::OFP_FLOW_REMOVED_STATIC_HDR_LEN	48	// length without struct openflow12::ofp_match
+#define openflow13::OFP_FLOW_REMOVED_STATIC_HDR_LEN	48	// length without struct openflow13::ofp_match
 
 public:
 

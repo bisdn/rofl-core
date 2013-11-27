@@ -74,11 +74,11 @@ cofbucket::pack(
 throw (eBucketBadLen)
 {
 	switch (ofp_version) {
-	case OFP12_VERSION: {
-		return (uint8_t*)pack((struct ofp12_bucket*)bucket, bclen);
+	case openflow12::OFP_VERSION: {
+		return (uint8_t*)pack((struct openflow12::ofp_bucket*)bucket, bclen);
 	} break;
-	case OFP13_VERSION: {
-		return (uint8_t*)pack((struct ofp13_bucket*)bucket, bclen);
+	case openflow13::OFP_VERSION: {
+		return (uint8_t*)pack((struct openflow13::ofp_bucket*)bucket, bclen);
 	} break;
 	default:
 		throw eBadVersion();
@@ -94,11 +94,11 @@ cofbucket::unpack(
 throw (eBucketBadLen, eBadActionBadOutPort)
 {
 	switch (ofp_version) {
-	case OFP12_VERSION: {
-		unpack((struct ofp12_bucket*)bucket, bclen);
+	case openflow12::OFP_VERSION: {
+		unpack((struct openflow12::ofp_bucket*)bucket, bclen);
 	} return;
-	case OFP13_VERSION: {
-		unpack((struct ofp13_bucket*)bucket, bclen);
+	case openflow13::OFP_VERSION: {
+		unpack((struct openflow13::ofp_bucket*)bucket, bclen);
 	} return;
 	default:
 		throw eBadVersion();
@@ -108,13 +108,13 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 
 
 
-struct ofp12_bucket*
+struct openflow12::ofp_bucket*
 cofbucket::pack(
-		struct ofp12_bucket* bucket,
+		struct openflow12::ofp_bucket* bucket,
 		size_t bclen) const
 throw (eBucketBadLen)
 {
-	size_t __bclen = sizeof(struct ofp12_bucket) + actions.length();
+	size_t __bclen = sizeof(struct openflow12::ofp_bucket) + actions.length();
 
 	if (bclen < __bclen)
 		throw eBucketBadLen();
@@ -126,7 +126,7 @@ throw (eBucketBadLen)
 	bucket->watch_port = htobe32(watch_port);
 	bucket->watch_group = htobe32(watch_group);
 
-	size_t aclen = bclen - sizeof(struct ofp12_bucket);
+	size_t aclen = bclen - sizeof(struct openflow12::ofp_bucket);
 
 	actions.pack(bucket->actions, aclen);
 
@@ -136,18 +136,18 @@ throw (eBucketBadLen)
 
 void
 cofbucket::unpack(
-		struct ofp12_bucket* bucket,
+		struct openflow12::ofp_bucket* bucket,
 		size_t bclen)
 throw (eBucketBadLen, eBadActionBadOutPort)
 {
-	if (bclen < sizeof(struct ofp12_bucket))
+	if (bclen < sizeof(struct openflow12::ofp_bucket))
 		throw eBucketBadLen();
 
 	weight = be16toh(bucket->weight);
 	watch_port = be32toh(bucket->watch_port);
 	watch_group = be32toh(bucket->watch_group);
 
-	size_t aclen = bclen - sizeof(struct ofp12_bucket);
+	size_t aclen = bclen - sizeof(struct openflow12::ofp_bucket);
 
 	if (aclen >= sizeof(struct ofp_action_header)) {
 		actions.unpack(bucket->actions, aclen);
@@ -155,13 +155,13 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 }
 
 
-struct ofp13_bucket*
+struct openflow13::ofp_bucket*
 cofbucket::pack(
-		struct ofp13_bucket* bucket,
+		struct openflow13::ofp_bucket* bucket,
 		size_t bclen) const
 throw (eBucketBadLen)
 {
-	size_t __bclen = sizeof(struct ofp13_bucket) + actions.length();
+	size_t __bclen = sizeof(struct openflow13::ofp_bucket) + actions.length();
 
 	if (bclen < __bclen)
 		throw eBucketBadLen();
@@ -173,7 +173,7 @@ throw (eBucketBadLen)
 	bucket->watch_port = htobe32(watch_port);
 	bucket->watch_group = htobe32(watch_group);
 
-	size_t aclen = bclen - sizeof(struct ofp13_bucket);
+	size_t aclen = bclen - sizeof(struct openflow13::ofp_bucket);
 
 	actions.pack(bucket->actions, aclen);
 
@@ -183,18 +183,18 @@ throw (eBucketBadLen)
 
 void
 cofbucket::unpack(
-		struct ofp13_bucket* bucket,
+		struct openflow13::ofp_bucket* bucket,
 		size_t bclen)
 throw (eBucketBadLen, eBadActionBadOutPort)
 {
-	if (bclen < sizeof(struct ofp13_bucket))
+	if (bclen < sizeof(struct openflow13::ofp_bucket))
 		throw eBucketBadLen();
 
 	weight = be16toh(bucket->weight);
 	watch_port = be32toh(bucket->watch_port);
 	watch_group = be32toh(bucket->watch_group);
 
-	size_t aclen = bclen - sizeof(struct ofp13_bucket);
+	size_t aclen = bclen - sizeof(struct openflow13::ofp_bucket);
 
 	if (aclen >= sizeof(struct ofp_action_header)) {
 		actions.unpack(bucket->actions, aclen);
@@ -222,8 +222,8 @@ void
 cofbucket::get_bucket_stats(
 		cmemory& body)
 {
-	cmemory bstats(sizeof(struct ofp12_bucket_counter));
-	struct ofp12_bucket_counter* bucket_counter = (struct ofp12_bucket_counter*)bstats.somem();
+	cmemory bstats(sizeof(struct openflow12::ofp_bucket_counter));
+	struct openflow12::ofp_bucket_counter* bucket_counter = (struct openflow12::ofp_bucket_counter*)bstats.somem();
 
 	bucket_counter->packet_count 	= htobe64(packet_count);
 	bucket_counter->byte_count		= htobe64(byte_count);

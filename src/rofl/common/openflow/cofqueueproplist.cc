@@ -71,13 +71,13 @@ cofqueue_prop_list::unpack(
 	coflist<cofqueue_prop>::clear();
 
 	switch (of_version) {
-	case OFP10_VERSION:
-	case OFP12_VERSION: {
+	case openflow10::OFP_VERSION:
+	case openflow12::OFP_VERSION: {
 
-		// both OFP10 and OFP12 use the same generic queue property header
-		while (buflen > sizeof(struct ofp12_queue_prop_header)) {
+		// both openflow10::OFP and openflow12::OFP use the same generic queue property header
+		while (buflen > sizeof(struct openflow12::ofp_queue_prop_header)) {
 
-			struct ofp12_queue_prop_header *qp = (struct ofp12_queue_prop_header*)buf;
+			struct openflow12::ofp_queue_prop_header *qp = (struct openflow12::ofp_queue_prop_header*)buf;
 
 			if (buflen < be16toh(qp->len))
 				throw eInval();
@@ -90,7 +90,7 @@ cofqueue_prop_list::unpack(
 			buf += be16toh(qp->len);
 		}
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -111,8 +111,8 @@ cofqueue_prop_list::pack(
 		throw eInval();
 
 	switch (of_version) {
-	case OFP10_VERSION:
-	case OFP12_VERSION: {
+	case openflow10::OFP_VERSION:
+	case openflow12::OFP_VERSION: {
 
 		for (coflist<cofqueue_prop>::const_iterator
 				it = begin(); it != end(); ++it) {
@@ -120,7 +120,7 @@ cofqueue_prop_list::pack(
 			buf += (*it).length();
 		}
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {

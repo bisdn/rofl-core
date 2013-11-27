@@ -120,7 +120,7 @@ public: // methods
 	 *
 	 */
 	coxmatch(
-			struct ofp12_action_set_field *ach,
+			struct openflow12::ofp_action_set_field *ach,
 			size_t achlen);
 
 

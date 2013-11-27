@@ -20,14 +20,15 @@ extern "C" {
 #include "../cvastring.h"
 
 #include "../coflist.h"
+#include "openflow.h"
 #include "cofaction.h"
 
 namespace rofl
 {
 
-class eAcListBase : public cerror {}; // base error class for cofaclist
-class eAcListInval : public eAcListBase {}; // parameter is invalid
-class eAcListNotFound : public eAcListBase {}; // element not found
+class eAcListBase 		: public cerror {}; // base error class for cofaclist
+class eAcListInval 		: public eAcListBase {}; // parameter is invalid
+class eAcListNotFound 	: public eAcListBase {}; // element not found
 class eAcListOutOfRange : public eAcListBase {}; // index out of range in operator[]
 
 
@@ -86,16 +87,16 @@ public:
 	 */
 	std::vector<cofaction>&
 	unpack(
-			struct ofp_action_header *actions,
+			struct openflow::ofp_action_header *actions,
 			size_t aclen)
 		throw (eBadActionBadLen, eBadActionBadOutPort);
 
 	/** builds an array of struct ofp_instructions
 	 * from a std::vector<cofinst*>
 	 */
-	struct ofp_action_header*
+	struct openflow::ofp_action_header*
 	pack(
-			struct ofp_action_header *actions,
+			struct openflow::ofp_action_header *actions,
 			size_t aclen)
 		const throw (eAcListInval);
 

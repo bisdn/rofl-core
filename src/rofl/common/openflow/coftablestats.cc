@@ -372,11 +372,11 @@ void
 coftable_stats_reply::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		if (buflen < sizeof(struct ofp10_table_stats))
+	case openflow10::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow10::ofp_table_stats))
 			throw eInval();
 
-		struct ofp10_table_stats *table_stats = (struct ofp10_table_stats*)buf;
+		struct openflow10::ofp_table_stats *table_stats = (struct openflow10::ofp_table_stats*)buf;
 
 		table_stats->table_id			= table_id;
 		snprintf(table_stats->name, OFP_MAX_TABLE_NAME_LEN, name.c_str(), name.length());
@@ -387,11 +387,11 @@ coftable_stats_reply::pack(uint8_t *buf, size_t buflen) const
 		table_stats->matched_count 		= htobe64(matched_count);
 
 	} break;
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_table_stats))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_table_stats))
 			throw eInval();
 
-		struct ofp12_table_stats *table_stats = (struct ofp12_table_stats*)buf;
+		struct openflow12::ofp_table_stats *table_stats = (struct openflow12::ofp_table_stats*)buf;
 
 		table_stats->table_id			= table_id;
 		snprintf(table_stats->name, OFP_MAX_TABLE_NAME_LEN, name.c_str(), name.length());
@@ -422,11 +422,11 @@ void
 coftable_stats_reply::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		if (buflen < sizeof(struct ofp10_table_stats))
+	case openflow10::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow10::ofp_table_stats))
 			throw eInval();
 
-		struct ofp10_table_stats *table_stats = (struct ofp10_table_stats*)buf;
+		struct openflow10::ofp_table_stats *table_stats = (struct openflow10::ofp_table_stats*)buf;
 
 		table_id 		= table_stats->table_id;
 		name			= std::string(table_stats->name, OFP_MAX_TABLE_NAME_LEN);
@@ -437,11 +437,11 @@ coftable_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		matched_count	= be64toh(table_stats->matched_count);
 
 	} break;
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_table_stats))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_table_stats))
 			throw eInval();
 
-		struct ofp12_table_stats *table_stats = (struct ofp12_table_stats*)buf;
+		struct openflow12::ofp_table_stats *table_stats = (struct openflow12::ofp_table_stats*)buf;
 
 		table_id 		= table_stats->table_id;
 		name			= std::string(table_stats->name, OFP_MAX_TABLE_NAME_LEN);
@@ -471,11 +471,11 @@ size_t
 coftable_stats_reply::length() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_table_stats));
+	case openflow10::OFP_VERSION: {
+		return (sizeof(struct openflow10::ofp_table_stats));
 	} break;
-	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_table_stats));
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_table_stats));
 	} break;
 	default:
 		throw eBadVersion();

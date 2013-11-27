@@ -12,19 +12,19 @@ cofmatch::cofmatch(
 				of_version(of_version)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		memarea.resize(OFP10_MATCH_STATIC_LEN);
-		ofh10_match = (struct ofp10_match*)memarea.somem();
+	case openflow10::OFP_VERSION: {
+		memarea.resize(openflow10::OFP_MATCH_STATIC_LEN);
+		ofh10_match = (struct openflow10::ofp_match*)memarea.somem();
 	} break;
-	case OFP12_VERSION: {
-		memarea.resize(OFP12_MATCH_STATIC_LEN);
-		ofh12_match = (struct ofp12_match*)memarea.somem();
+	case openflow12::OFP_VERSION: {
+		memarea.resize(openflow12::OFP_MATCH_STATIC_LEN);
+		ofh12_match = (struct openflow12::ofp_match*)memarea.somem();
 		ofh12_match->type 	= htobe16(type);
 		ofh12_match->length = htobe16(length());
 	} break;
-	case OFP13_VERSION: {
-		memarea.resize(OFP13_MATCH_STATIC_LEN);
-		ofh13_match = (struct ofp13_match*)memarea.somem();
+	case openflow13::OFP_VERSION: {
+		memarea.resize(openflow13::OFP_MATCH_STATIC_LEN);
+		ofh13_match = (struct openflow13::ofp_match*)memarea.somem();
 		ofh13_match->type 	= htobe16(type);
 		ofh13_match->length = htobe16(length());
 	} break;
@@ -86,9 +86,9 @@ cofmatch::operator< (
 	}
 
 	switch (of_version) {
-	case OFP10_VERSION: return (memcmp(memarea.somem(), m.memarea.somem(), memarea.memlen()));
-	case OFP12_VERSION: return (oxmlist < m.oxmlist);
-	case OFP13_VERSION: return (oxmlist < m.oxmlist);
+	case openflow10::OFP_VERSION: return (memcmp(memarea.somem(), m.memarea.somem(), memarea.memlen()));
+	case openflow12::OFP_VERSION: return (oxmlist < m.oxmlist);
+	case openflow13::OFP_VERSION: return (oxmlist < m.oxmlist);
 	default: throw eBadVersion();
 	}
 	return true;
@@ -103,14 +103,14 @@ cofmatch::clear()
 	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::reset()", this);
 
 	switch (of_version) {
-	case OFP10_VERSION: {
-		memset(ofh10_match, 0, OFP10_MATCH_STATIC_LEN);
+	case openflow10::OFP_VERSION: {
+		memset(ofh10_match, 0, openflow10::OFP_MATCH_STATIC_LEN);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		oxmlist.clear();
 		ofh12_match->length = htobe16(length());
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		oxmlist.clear();
 		ofh13_match->length = htobe16(length());
 	} break;
@@ -208,11 +208,11 @@ size_t
 cofmatch::length_internal()
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		return OFP10_MATCH_STATIC_LEN;
+	case openflow10::OFP_VERSION: {
+		return openflow10::OFP_MATCH_STATIC_LEN;
 	} break;
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		/*
 		 * returns length of struct ofp_match including padding
 		 */
@@ -238,11 +238,11 @@ size_t
 cofmatch::length() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		return OFP10_MATCH_STATIC_LEN;
+	case openflow10::OFP_VERSION: {
+		return openflow10::OFP_MATCH_STATIC_LEN;
 	} break;
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		size_t total_length = 2*sizeof(uint16_t) + oxmlist.length(); // type + length + list
 
 		size_t pad = (0x7 & total_length);
@@ -260,8 +260,8 @@ cofmatch::length() const
 
 
 
-struct ofp10_match*
-cofmatch::pack(struct ofp10_match* m, size_t mlen)
+struct openflow10::ofp_match*
+cofmatch::pack(struct openflow10::ofp_match* m, size_t mlen)
 {
 	if (mlen < length()) {
 		throw eOFmatchInval();
@@ -278,57 +278,57 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 	try {
 		m->in_port = htobe16((uint16_t)(oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IN_PORT).u32value() && 0x0000ffff));
 	} catch (eOxmListNotFound& e) {
-		wildcards |= OFP10FW_IN_PORT;
+		wildcards |= openflow10::OFPFW_IN_PORT;
 	}
 
 	// dl_src
 	try {
 		memcpy(m->dl_src, oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_SRC).u48addr().somem(), OFP_ETH_ALEN);
 	} catch (eOxmListNotFound& e) {
-		wildcards |= OFP10FW_DL_SRC;
+		wildcards |= openflow10::OFPFW_DL_SRC;
 	}
 
 	// dl_dst
 	try {
 		memcpy(m->dl_dst, oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_DST).u48addr().somem(), OFP_ETH_ALEN);
 	} catch (eOxmListNotFound& e) {
-		wildcards |= OFP10FW_DL_DST;
+		wildcards |= openflow10::OFPFW_DL_DST;
 	}
 
 	// dl_vlan
 	try {
 		m->dl_vlan = htobe16(oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).u16value());
 	} catch (eOxmListNotFound& e) {
-		wildcards |= OFP10FW_DL_VLAN;
+		wildcards |= openflow10::OFPFW_DL_VLAN;
 	}
 
 	// dl_vlan_pcp
 	try {
-		if(oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).u16value() != OFP10_VLAN_NONE)
+		if(oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_VID).u16value() != openflow10::OFP_VLAN_NONE)
 			m->dl_vlan_pcp = oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_VLAN_PCP).u8value();
 	} catch (eOxmListNotFound& e) {
-		wildcards |= OFP10FW_DL_VLAN_PCP;
+		wildcards |= openflow10::OFPFW_DL_VLAN_PCP;
 	}
 
 	// dl_type
 	try {
 		m->dl_type = htobe16(oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_ETH_TYPE).u16value());
 	} catch (eOxmListNotFound& e) {
-		wildcards |= OFP10FW_DL_TYPE;
+		wildcards |= openflow10::OFPFW_DL_TYPE;
 	}
 
 	// nw_tos
 	try {
 		m->nw_tos = oxmlist.get_match(OFPXMC_OPENFLOW_BASIC, OFPXMT_OFB_IP_DSCP).u8value();
 	} catch (eOxmListNotFound& e) {
-		wildcards |= OFP10FW_NW_TOS;
+		wildcards |= openflow10::OFPFW_NW_TOS;
 	}
 
 	// nw_proto
 	try {
 		m->nw_proto = oxmlist.get_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_NW_PROTO).u8value();
 	} catch (eOxmListNotFound& e) {
-		wildcards |= OFP10FW_NW_PROTO;
+		wildcards |= openflow10::OFPFW_NW_PROTO;
 	}
 
 	// nw_src
@@ -337,10 +337,10 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 		m->nw_src = htobe32(oxm.u32value());
 		if (oxm.get_oxm_hasmask()) {
 			std::bitset<32> mask(oxm.uint32_mask());
-			wildcards |= ((32 - mask.count()) << OFP10FW_NW_SRC_SHIFT) & OFP10FW_NW_SRC_MASK;
+			wildcards |= ((32 - mask.count()) << openflow10::OFPFW_NW_SRC_SHIFT) & openflow10::OFPFW_NW_SRC_MASK;
 		}
 	} catch (eOxmListNotFound& e) {
-		wildcards |= OFP10FW_NW_SRC_ALL;
+		wildcards |= openflow10::OFPFW_NW_SRC_ALL;
 	}
 
 
@@ -350,24 +350,24 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 		m->nw_dst = htobe32(oxm.uint32_value());
 		if (oxm.get_oxm_hasmask()) {
 			std::bitset<32> mask(oxm.uint32_mask());
-			wildcards |= ((32 - mask.count()) << OFP10FW_NW_DST_SHIFT) & OFP10FW_NW_DST_MASK;
+			wildcards |= ((32 - mask.count()) << openflow10::OFPFW_NW_DST_SHIFT) & openflow10::OFPFW_NW_DST_MASK;
 		}
 	} catch (eOxmListNotFound& e) {
-		wildcards |= OFP10FW_NW_DST_ALL;
+		wildcards |= openflow10::OFPFW_NW_DST_ALL;
 	}
 
 	// tp_src
 	try {
 		m->tp_src = htobe16(oxmlist.get_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_TP_SRC).u16value());
 	} catch (eOxmListNotFound& e) {
-		wildcards |= OFP10FW_TP_SRC;
+		wildcards |= openflow10::OFPFW_TP_SRC;
 	}
 
 	// tp_dst
 	try {
 		m->tp_dst = htobe16(oxmlist.get_match(OFPXMC_EXPERIMENTER, OFPXMT_OFX_TP_DST).u16value());
 	} catch (eOxmListNotFound& e) {
-		wildcards |= OFP10FW_TP_DST;
+		wildcards |= openflow10::OFPFW_TP_DST;
 	}
 
 	m->wildcards = htobe32(wildcards);
@@ -378,62 +378,62 @@ cofmatch::pack(struct ofp10_match* m, size_t mlen)
 
 
 void
-cofmatch::unpack(struct ofp10_match* m, size_t mlen)
+cofmatch::unpack(struct openflow10::ofp_match* m, size_t mlen)
 {
-	of_version = OFP10_VERSION;
+	of_version = openflow10::OFP_VERSION;
 	oxmlist.clear();
-	memarea.resize(OFP10_MATCH_STATIC_LEN);
-	ofh10_match = (struct ofp10_match*)memarea.somem();
+	memarea.resize(openflow10::OFP_MATCH_STATIC_LEN);
+	ofh10_match = (struct openflow10::ofp_match*)memarea.somem();
 
-	if (mlen < OFP10_MATCH_STATIC_LEN) {
+	if (mlen < openflow10::OFP_MATCH_STATIC_LEN) {
 		throw eOFmatchInval();
 	}
 
 	uint32_t wildcards = be32toh(m->wildcards);
 
 	// in_port
-	if (!(wildcards & OFP10FW_IN_PORT)) {
+	if (!(wildcards & openflow10::OFPFW_IN_PORT)) {
 		set_in_port(be16toh(m->in_port));
 	}
 
 	// dl_src
-	if (!(wildcards & OFP10FW_DL_SRC)) {
+	if (!(wildcards & openflow10::OFPFW_DL_SRC)) {
 		set_eth_src(cmacaddr(m->dl_src, OFP_ETH_ALEN));
 	}
 
 	// dl_dst
-	if (!(wildcards & OFP10FW_DL_DST)) {
+	if (!(wildcards & openflow10::OFPFW_DL_DST)) {
 		set_eth_dst(cmacaddr(m->dl_dst, OFP_ETH_ALEN));
 	}
 
 	// dl_vlan
-	if (!(wildcards & OFP10FW_DL_VLAN) && m->dl_vlan != 0xffff) { //0xFFFF value is used to indicate that no VLAN id eas set.
+	if (!(wildcards & openflow10::OFPFW_DL_VLAN) && m->dl_vlan != 0xffff) { //0xFFFF value is used to indicate that no VLAN id eas set.
 		set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, be16toh(m->dl_vlan));
 	}
 
 	// dl_vlan_pcp
-	if (!(wildcards & OFP10FW_DL_VLAN_PCP) && m->dl_vlan != 0xffff) { //0xFFFF value is used to indicate that no VLAN id eas set.
+	if (!(wildcards & openflow10::OFPFW_DL_VLAN_PCP) && m->dl_vlan != 0xffff) { //0xFFFF value is used to indicate that no VLAN id eas set.
 		set_vlan_pcp(m->dl_vlan_pcp);
 	}
 
 	// dl_type
-	if (!(wildcards & OFP10FW_DL_TYPE)) {
+	if (!(wildcards & openflow10::OFPFW_DL_TYPE)) {
 		set_eth_type(be16toh(m->dl_type));
 	}
 
 	// nw_tos
-	if (!(wildcards & OFP10FW_NW_TOS)) {
+	if (!(wildcards & openflow10::OFPFW_NW_TOS)) {
 		set_ip_dscp(m->nw_tos);
 	}
 
 	// nw_proto
-	if (!(wildcards & OFP10FW_NW_PROTO)) {
+	if (!(wildcards & openflow10::OFPFW_NW_PROTO)) {
 		set_nw_proto(m->nw_proto);
 	}
 
 	// nw_src
 	{
-		uint64_t num_of_bits = (wildcards & OFP10FW_NW_SRC_MASK) >> OFP10FW_NW_SRC_SHIFT;
+		uint64_t num_of_bits = (wildcards & openflow10::OFPFW_NW_SRC_MASK) >> openflow10::OFPFW_NW_SRC_SHIFT;
 		if(num_of_bits > 32)
 			num_of_bits = 32;
 		uint64_t u_mask = ~((1UL << num_of_bits) - 1UL);
@@ -450,7 +450,7 @@ cofmatch::unpack(struct ofp10_match* m, size_t mlen)
 
 	// nw_dst
 	{
-		uint64_t num_of_bits = (wildcards & OFP10FW_NW_DST_MASK) >> OFP10FW_NW_DST_SHIFT;
+		uint64_t num_of_bits = (wildcards & openflow10::OFPFW_NW_DST_MASK) >> openflow10::OFPFW_NW_DST_SHIFT;
 		if(num_of_bits > 32)
 			num_of_bits = 32;
 		uint64_t u_mask = ~((1UL << num_of_bits) - 1UL);
@@ -466,12 +466,12 @@ cofmatch::unpack(struct ofp10_match* m, size_t mlen)
 	}
 
 	// tp_src
-	if (!(wildcards & OFP10FW_TP_SRC)) {
+	if (!(wildcards & openflow10::OFPFW_TP_SRC)) {
 		set_tp_src(be16toh(m->tp_src));
 	}
 
 	// tp_dst
-	if (!(wildcards & OFP10FW_TP_DST)) {
+	if (!(wildcards & openflow10::OFPFW_TP_DST)) {
 		set_tp_dst(be16toh(m->tp_dst));
 	}
 
@@ -480,8 +480,8 @@ cofmatch::unpack(struct ofp10_match* m, size_t mlen)
 
 
 
-struct ofp12_match*
-cofmatch::pack(struct ofp12_match* m, size_t mlen)
+struct openflow12::ofp_match*
+cofmatch::pack(struct openflow12::ofp_match* m, size_t mlen)
 {
 	if (mlen < length()) {
 		throw eOFmatchInval();
@@ -503,12 +503,12 @@ cofmatch::pack(struct ofp12_match* m, size_t mlen)
 
 
 void
-cofmatch::unpack(struct ofp12_match* m, size_t mlen)
+cofmatch::unpack(struct openflow12::ofp_match* m, size_t mlen)
 {
-	of_version = OFP12_VERSION;
+	of_version = openflow12::OFP_VERSION;
 	oxmlist.clear();
-	memarea.resize(OFP12_MATCH_STATIC_LEN);
-	ofh12_match = (struct ofp12_match*)memarea.somem();
+	memarea.resize(openflow12::OFP_MATCH_STATIC_LEN);
+	ofh12_match = (struct openflow12::ofp_match*)memarea.somem();
 	ofh12_match->type 	= htobe16(OFPMT_OXM);
 	ofh12_match->length = htobe16(length());
 
@@ -535,8 +535,8 @@ cofmatch::unpack(struct ofp12_match* m, size_t mlen)
 
 
 
-struct ofp13_match*
-cofmatch::pack(struct ofp13_match* m, size_t mlen)
+struct openflow13::ofp_match*
+cofmatch::pack(struct openflow13::ofp_match* m, size_t mlen)
 {
 	if (mlen < length()) {
 		throw eOFmatchInval();
@@ -558,12 +558,12 @@ cofmatch::pack(struct ofp13_match* m, size_t mlen)
 
 
 void
-cofmatch::unpack(struct ofp13_match* m, size_t mlen)
+cofmatch::unpack(struct openflow13::ofp_match* m, size_t mlen)
 {
-	of_version = OFP13_VERSION;
+	of_version = openflow13::OFP_VERSION;
 	oxmlist.clear();
-	memarea.resize(OFP12_MATCH_STATIC_LEN);
-	ofh13_match = (struct ofp13_match*)memarea.somem();
+	memarea.resize(openflow12::OFP_MATCH_STATIC_LEN);
+	ofh13_match = (struct openflow13::ofp_match*)memarea.somem();
 	ofh13_match->type 	= htobe16(OFPMT_OXM);
 	ofh13_match->length = htobe16(length());
 
@@ -598,11 +598,11 @@ cofmatch::operator== (
 		return false;
 	}
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return (oxmlist == m.oxmlist);
 	} break;
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		if (ofh12_match->type != m.ofh12_match->type) {
 			return false;
 		}
@@ -621,14 +621,14 @@ cofmatch::c_str()
 	cvastring vas(3172);
 
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		info.assign(vas("cofmatch(%p) oxmlist.length:%lu oxmlist:",
 				this,
 				oxmlist.length()));
 
 	} break;
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		std::ostringstream os;
 		os << oxmlist;
 		info.assign(vas("cofmatch(%p) hdr.type:%d hdr.length:%d stored:%lu oxmlist.length:%lu oxmlist:%s",
@@ -651,8 +651,8 @@ void
 cofmatch::set_type(uint16_t type)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		ofh12_match->type = htobe16(type);
 	} break;
 	default:
@@ -683,8 +683,8 @@ uint32_t
 cofmatch::get_in_phy_port() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -703,8 +703,8 @@ void
 cofmatch::set_in_phy_port(uint32_t in_phy_port)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -719,8 +719,8 @@ uint64_t
 cofmatch::get_metadata() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -739,8 +739,8 @@ void
 cofmatch::set_metadata(uint64_t metadata)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -941,8 +941,8 @@ uint32_t
 cofmatch::get_mpls_label() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -970,8 +970,8 @@ cofmatch::set_mpls_label(
 		uint32_t label)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -989,8 +989,8 @@ uint8_t
 cofmatch::get_mpls_tc() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -1159,8 +1159,8 @@ cofmatch::set_mpls_tc(
 		uint8_t tc)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -1599,8 +1599,8 @@ caddress
 cofmatch::get_ipv6_src() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -1661,8 +1661,8 @@ cofmatch::set_ipv6_src(
 		caddress const& addr)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -1683,8 +1683,8 @@ cofmatch::set_ipv6_src(
 		caddress const& mask)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -1755,8 +1755,8 @@ cofmatch::set_ipv6_dst(
 		caddress const& addr)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -1777,8 +1777,8 @@ cofmatch::set_ipv6_dst(
 		caddress const& mask)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -1797,8 +1797,8 @@ caddress
 cofmatch::get_ipv6_nd_target() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -1826,8 +1826,8 @@ cofmatch::set_ipv6_nd_target(
 		caddress const& addr)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -1910,8 +1910,8 @@ uint8_t
 cofmatch::get_ip_ecn() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -1940,8 +1940,8 @@ cofmatch::set_ip_ecn(
 		uint8_t ecn)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2024,8 +2024,8 @@ uint8_t
 cofmatch::get_icmpv6_type() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2054,8 +2054,8 @@ cofmatch::set_icmpv6_type(
 		uint8_t type)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2074,8 +2074,8 @@ uint8_t
 cofmatch::get_icmpv6_code() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2104,8 +2104,8 @@ cofmatch::set_icmpv6_code(
 		uint8_t code)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2124,8 +2124,8 @@ uint32_t
 cofmatch::get_ipv6_flabel() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2154,8 +2154,8 @@ cofmatch::set_ipv6_flabel(
 		uint32_t flabel)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2176,8 +2176,8 @@ cofmatch::set_ipv6_flabel(
 		uint32_t mask)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2196,8 +2196,8 @@ cmacaddr
 cofmatch::get_icmpv6_neighbor_source_lladdr() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2225,8 +2225,8 @@ cofmatch::set_icmpv6_neighbor_source_lladdr(
 		cmacaddr const& maddr)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2245,8 +2245,8 @@ cmacaddr
 cofmatch::get_icmpv6_neighbor_target_lladdr() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2274,8 +2274,8 @@ cofmatch::set_icmpv6_neighbor_target_lladdr(
 		cmacaddr const& maddr)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2294,8 +2294,8 @@ caddress
 cofmatch::get_icmpv6_neighbor_taddr() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2323,8 +2323,8 @@ cofmatch::set_icmpv6_neighbor_taddr(
 		caddress const& addr)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2507,8 +2507,8 @@ uint16_t
 cofmatch::get_sctp_src() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2536,8 +2536,8 @@ cofmatch::set_sctp_src(
 		uint16_t src_port)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2556,8 +2556,8 @@ uint16_t
 cofmatch::get_sctp_dst() const
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2585,8 +2585,8 @@ cofmatch::set_sctp_dst(
 		uint16_t dst_port)
 {
 	switch (of_version) {
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
 		// do nothing
 	} break;
 	default:
@@ -2612,7 +2612,7 @@ cofmatch::test()
 
 	cmemory mem(m.length());
 
-	m.pack((struct ofp12_match*)mem.somem(), mem.memlen());
+	m.pack((struct openflow12::ofp_match*)mem.somem(), mem.memlen());
 	//fprintf(stderr, "match: %s\nmem:%s\n\n", m.c_str(), mem.c_str());
 
 	cofmatch tm(m);
@@ -2621,7 +2621,7 @@ cofmatch::test()
 
 	cofmatch cm;
 
-	cm.unpack((struct ofp12_match*)mem.somem(), mem.memlen());
+	cm.unpack((struct openflow12::ofp_match*)mem.somem(), mem.memlen());
 	//fprintf(stderr, "unpack: %s\n\n", cm.c_str());
 
 	{

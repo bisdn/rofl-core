@@ -28,9 +28,9 @@ private:
 
 	union {
 		uint8_t*						ofhu_packet_out;
-		struct ofp10_packet_out*		ofhu10_packet_out;
-		struct ofp12_packet_out*		ofhu12_packet_out;
-		struct ofp13_packet_out*		ofhu13_packet_out;
+		struct openflow10::ofp_packet_out*		ofhu10_packet_out;
+		struct openflow12::ofp_packet_out*		ofhu12_packet_out;
+		struct openflow13::ofp_packet_out*		ofhu13_packet_out;
 	} ofhu;
 
 #define ofh_packet_out   ofhu.ofhu_packet_out

@@ -5,21 +5,21 @@ using namespace rofl;
 cofmsg_features_request::cofmsg_features_request(
 		uint8_t of_version,
 		uint32_t xid) :
-	cofmsg(sizeof(struct ofp_header))
+	cofmsg(sizeof(struct openflow::ofp_header))
 {
 	set_version(of_version);
-	set_length(sizeof(struct ofp_header));
+	set_length(sizeof(struct openflow::ofp_header));
 	set_xid(xid);
 
 	switch (of_version) {
-	case OFP10_VERSION: {
-		set_type(OFPT10_FEATURES_REQUEST);
+	case openflow10::OFP_VERSION: {
+		set_type(openflow10::OFPT_FEATURES_REQUEST);
 	} break;
-	case OFP12_VERSION: {
-		set_type(OFPT12_FEATURES_REQUEST);
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_FEATURES_REQUEST);
 	} break;
-	case OFP13_VERSION: {
-		set_type(OFPT13_FEATURES_REQUEST);
+	case openflow13::OFP_VERSION: {
+		set_type(openflow13::OFPT_FEATURES_REQUEST);
 	} break;
 	}
 }
@@ -75,7 +75,7 @@ cofmsg_features_request::reset()
 size_t
 cofmsg_features_request::length()
 {
-	return (sizeof(struct ofp_header));
+	return (sizeof(struct openflow::ofp_header));
 }
 
 
@@ -112,13 +112,13 @@ cofmsg_features_request::validate()
 	cofmsg::validate(); // check generic OpenFlow header
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 
 	} break;
 	default:
@@ -145,7 +145,7 @@ cofmsg_features_reply::cofmsg_features_reply(
 		uint32_t of10_actions_bitmap,
 		uint8_t  of13_auxiliary_id,
 		cofportlist const& ports) :
-	cofmsg(sizeof(struct ofp_header)),
+	cofmsg(sizeof(struct openflow::ofp_header)),
 	ports(ports)
 {
 	ofh_switch_features = soframe();
@@ -154,10 +154,10 @@ cofmsg_features_reply::cofmsg_features_reply(
 	set_xid(xid);
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		set_type(OFPT10_FEATURES_REPLY);
-		resize(sizeof(struct ofp10_switch_features));
-		set_length(sizeof(struct ofp10_switch_features));
+	case openflow10::OFP_VERSION: {
+		set_type(openflow10::OFPT_FEATURES_REPLY);
+		resize(sizeof(struct openflow10::ofp_switch_features));
+		set_length(sizeof(struct openflow10::ofp_switch_features));
 
 		ofh10_switch_features->datapath_id 		= htobe64(dpid);
 		ofh10_switch_features->n_buffers 		= htobe32(n_buffers);
@@ -165,20 +165,20 @@ cofmsg_features_reply::cofmsg_features_reply(
 		ofh10_switch_features->capabilities 	= htobe32(capabilities);
 		ofh10_switch_features->actions			= htobe32(of10_actions_bitmap);
 	} break;
-	case OFP12_VERSION: {
-		set_type(OFPT12_FEATURES_REPLY);
-		resize(sizeof(struct ofp12_switch_features));
-		set_length(sizeof(struct ofp12_switch_features));
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_FEATURES_REPLY);
+		resize(sizeof(struct openflow12::ofp_switch_features));
+		set_length(sizeof(struct openflow12::ofp_switch_features));
 
 		ofh12_switch_features->datapath_id 		= htobe64(dpid);
 		ofh12_switch_features->n_buffers 		= htobe32(n_buffers);
 		ofh12_switch_features->n_tables 		= n_tables;
 		ofh12_switch_features->capabilities 	= htobe32(capabilities);
 	} break;
-	case OFP13_VERSION: {
-		set_type(OFPT13_FEATURES_REPLY);
-		resize(sizeof(struct ofp13_switch_features));
-		set_length(sizeof(struct ofp13_switch_features));
+	case openflow13::OFP_VERSION: {
+		set_type(openflow13::OFPT_FEATURES_REPLY);
+		resize(sizeof(struct openflow13::ofp_switch_features));
+		set_length(sizeof(struct openflow13::ofp_switch_features));
 
 		ofh13_switch_features->datapath_id 		= htobe64(dpid);
 		ofh13_switch_features->n_buffers 		= htobe32(n_buffers);
@@ -257,14 +257,14 @@ size_t
 cofmsg_features_reply::length() const
 {
 	switch (ofh_header->version) {
-	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_switch_features) + ports.length());
+	case openflow10::OFP_VERSION: {
+		return (sizeof(struct openflow10::ofp_switch_features) + ports.length());
 	} break;
-	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_switch_features) + ports.length());
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_switch_features) + ports.length());
 	} break;
-	case OFP13_VERSION: {
-		return (sizeof(struct ofp13_switch_features));
+	case openflow13::OFP_VERSION: {
+		return (sizeof(struct openflow13::ofp_switch_features));
 	} break;
 	default:
 		throw eBadVersion();
@@ -286,15 +286,15 @@ cofmsg_features_reply::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		memcpy(buf, soframe(), framelen());
-		ports.pack((struct ofp10_port*)(buf + sizeof(struct ofp10_switch_features)), ports.length());
+		ports.pack((struct openflow10::ofp_port*)(buf + sizeof(struct openflow10::ofp_switch_features)), ports.length());
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		memcpy(buf, soframe(), framelen());
-		ports.pack((struct ofp12_port*)(buf + sizeof(struct ofp12_switch_features)), ports.length());
+		ports.pack((struct openflow12::ofp_port*)(buf + sizeof(struct openflow12::ofp_switch_features)), ports.length());
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		memcpy(buf, soframe(), framelen());
 	} break;
 	default:
@@ -324,22 +324,22 @@ cofmsg_features_reply::validate()
 	ports.clear();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (get_length() < sizeof(struct ofp10_switch_features))
+	case openflow10::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow10::ofp_switch_features))
 			throw eBadSyntaxTooShort();
-		if (get_length() > sizeof(struct ofp10_switch_features)) {
-			ports.unpack(ofh10_switch_features->ports, get_length() - sizeof(struct ofp10_switch_features));
+		if (get_length() > sizeof(struct openflow10::ofp_switch_features)) {
+			ports.unpack(ofh10_switch_features->ports, get_length() - sizeof(struct openflow10::ofp_switch_features));
 		}
 	} break;
-	case OFP12_VERSION: {
-		if (get_length() < sizeof(struct ofp12_switch_features))
+	case openflow12::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow12::ofp_switch_features))
 			throw eBadSyntaxTooShort();
-		if (get_length() > sizeof(struct ofp12_switch_features)) {
-			ports.unpack(ofh12_switch_features->ports, get_length() - sizeof(struct ofp12_switch_features));
+		if (get_length() > sizeof(struct openflow12::ofp_switch_features)) {
+			ports.unpack(ofh12_switch_features->ports, get_length() - sizeof(struct openflow12::ofp_switch_features));
 		}
 	} break;
-	case OFP13_VERSION: {
-		if (get_length() < sizeof(struct ofp13_switch_features))
+	case openflow13::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow13::ofp_switch_features))
 			throw eBadSyntaxTooShort();
 	} break;
 	default:
@@ -354,13 +354,13 @@ uint64_t
 cofmsg_features_reply::get_dpid() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be64toh(ofh10_switch_features->datapath_id);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be64toh(ofh12_switch_features->datapath_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be64toh(ofh13_switch_features->datapath_id);
 	} break;
 	default:
@@ -375,13 +375,13 @@ void
 cofmsg_features_reply::set_dpid(uint64_t dpid)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_switch_features->datapath_id = htobe64(dpid);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_switch_features->datapath_id = htobe64(dpid);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_switch_features->datapath_id = htobe64(dpid);
 	} break;
 	default:
@@ -395,13 +395,13 @@ uint32_t
 cofmsg_features_reply::get_n_buffers() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be32toh(ofh10_switch_features->n_buffers);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be32toh(ofh12_switch_features->n_buffers);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be32toh(ofh13_switch_features->n_buffers);
 	} break;
 	default:
@@ -416,13 +416,13 @@ void
 cofmsg_features_reply::set_n_buffers(uint32_t n_buffers)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_switch_features->n_buffers = htobe32(n_buffers);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_switch_features->n_buffers = htobe32(n_buffers);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_switch_features->n_buffers = htobe32(n_buffers);
 	} break;
 	default:
@@ -436,13 +436,13 @@ uint8_t
 cofmsg_features_reply::get_n_tables() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return (ofh10_switch_features->n_tables);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return (ofh12_switch_features->n_tables);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return (ofh13_switch_features->n_tables);
 	} break;
 	default:
@@ -457,13 +457,13 @@ void
 cofmsg_features_reply::set_n_tables(uint8_t n_tables)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_switch_features->n_tables = n_tables;
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_switch_features->n_tables = n_tables;
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_switch_features->n_tables = n_tables;
 	} break;
 	default:
@@ -477,7 +477,7 @@ uint8_t
 cofmsg_features_reply::get_auxiliary_id() const
 {
 	switch (get_version()) {
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return ofh13_switch_features->auxiliary_id;
 	} break;
 	default:
@@ -492,7 +492,7 @@ void
 cofmsg_features_reply::set_auxiliary_id(uint8_t auxiliary_id)
 {
 	switch (get_version()) {
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_switch_features->auxiliary_id = auxiliary_id;
 	} break;
 	default:
@@ -506,13 +506,13 @@ uint32_t
 cofmsg_features_reply::get_capabilities() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be32toh(ofh10_switch_features->capabilities);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be32toh(ofh12_switch_features->capabilities);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be32toh(ofh13_switch_features->capabilities);
 	} break;
 	default:
@@ -527,13 +527,13 @@ void
 cofmsg_features_reply::set_capabilities(uint32_t capabilities)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_switch_features->capabilities = htobe32(capabilities);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_switch_features->capabilities = htobe32(capabilities);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_switch_features->capabilities = htobe32(capabilities);
 	} break;
 	default:
@@ -547,7 +547,7 @@ uint32_t
 cofmsg_features_reply::get_actions_bitmap() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be32toh(ofh10_switch_features->actions);
 	} break;
 	default:
@@ -562,7 +562,7 @@ void
 cofmsg_features_reply::set_actions_bitmap(uint32_t actions_bitmap)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_switch_features->actions = htobe32(actions_bitmap);
 	} break;
 	default:
