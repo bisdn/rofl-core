@@ -740,8 +740,9 @@ ciosrv::handle_wfds(
 {
 	pthread_t tid = pthread_self();
 
-	while (not wfds.empty()) {
 next_element:
+	while (not wfds.empty()) {
+
 		int fd = wfds.front(); wfds.pop_front();
 
 		if (threads[tid]->wfds.find(fd) == threads[tid]->wfds.end()) {
