@@ -145,7 +145,9 @@ class ciosrv : public virtual csyslog
 		cpipe                   *pipe;	        // wakeup pipe
 		std::set<ciosrv*>		ciosrv_elements;// all ciosrv objects within this thread
 		std::map<int, ciosrv*>  rfds; 	        // read fds
+		pthread_rwlock_t		rfds_rwlock;
 		std::map<int, ciosrv*>  wfds;	        // write fds
+		pthread_rwlock_t		wfds_rwlock;
 		std::list<ciosrv*>      ciosrv_timeouts;// set with all ciosrv instances with timeout in next round
 		std::bitset<32>         flags;          //< flags
 
@@ -168,6 +170,8 @@ class ciosrv : public virtual csyslog
 			pipe = new cpipe();
 			pthread_rwlock_init(&(wakeup_rwlock), NULL);
 			pthread_mutex_init(&(ciosrv_list_mutex), NULL);
+			pthread_rwlock_init(&(rfds_rwlock), NULL);
+			pthread_rwlock_init(&(wfds_rwlock), NULL);
 		};
 		~ciothread()
 		{
@@ -178,8 +182,10 @@ class ciosrv : public virtual csyslog
                             delete (*it);
                         }
 #endif
-                        pthread_mutex_destroy(&(ciosrv_list_mutex));
-	                pthread_rwlock_destroy(&(wakeup_rwlock));
+            pthread_rwlock_destroy(&wfds_rwlock);
+            pthread_rwlock_destroy(&rfds_rwlock);
+            pthread_mutex_destroy(&(ciosrv_list_mutex));
+	        pthread_rwlock_destroy(&(wakeup_rwlock));
 			delete pipe;
 		};
 	};

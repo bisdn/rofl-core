@@ -26,9 +26,16 @@ class eGroupEntryOutOfMem : public eGroupEntryBase {}; // out of memory
 
 
 
+
 class cgroupentry :
 		public ciosrv
 {
+	uint8_t ofp_version;
+
+public:
+
+	struct openflow12::ofp_group_mod *group_mod; 	// pointer to group_mod_area (see below)
+
 private: // data structures
 
 	cmemory group_mod_area;				// group mod memory area
@@ -40,13 +47,13 @@ public: // static methods
 public: // data structures
 
 	cofbclist buckets; 					// bucket list
-	struct openflow12::ofp_group_mod *group_mod; 	// pointer to group_mod_area (see below)
+
 
 public: // methods
 
 	/** constructor
 	 */
-	cgroupentry();
+	cgroupentry(uint8_t ofp_version);
 
 	/** destructor
 	 */

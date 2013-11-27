@@ -6,9 +6,11 @@
 
 using namespace rofl;
 
-cgroupentry::cgroupentry() :
-	group_mod_area(sizeof(struct openflow12::ofp_group_mod) + 128/*space for actions, will be extended in method pack() if necessary*/),
-	group_mod(NULL)
+
+cgroupentry::cgroupentry(uint8_t ofp_version) :
+		ofp_version(ofp_version),
+		group_mod(NULL),
+		group_mod_area(sizeof(struct openflow12::ofp_group_mod) + 128/*space for actions, will be extended in method pack() if necessary*/)
 {
 	reset();
 }
@@ -26,8 +28,9 @@ cgroupentry::operator= (const cgroupentry& ge)
 	if (this == &ge)
 		return *this;
 
-	this->buckets = ge.buckets;
-	this->group_mod_area = ge.group_mod_area;
+	this->ofp_version 		= ge.ofp_version;
+	this->buckets 			= ge.buckets;
+	this->group_mod_area 	= ge.group_mod_area;
 
 	this->group_mod = (struct openflow12::ofp_group_mod*)this->group_mod_area.somem();
 
@@ -114,7 +117,7 @@ cgroupentry::pack()
 void
 cgroupentry::test()
 {
-	cgroupentry ge;
+	cgroupentry ge(OFP12_VERSION);
 
 	ge.set_command((uint16_t)OFPGC_ADD);
 	ge.set_group_id(32);
