@@ -115,33 +115,84 @@ ROFL_BEGIN_DECLS
 
 //function declarations
 
-//FIXME: put documentation
+/**
+ * @brief Initializes the group table.
+ * @ingroup core_of1x
+ * 
+ * This is done during the  initialization of the pipeline
+ */
 of1x_group_table_t* of1x_init_group_table(void);
-//FIXME: put documentation
+
+/**
+ * @brief Destroys the group table.
+ * @ingroup core_of1x
+ * 
+ * This is done during the reset of the pipeline
+ */
 void of1x_destroy_group_table(of1x_group_table_t* gt);
 
-//FIXME: put documentation <- Is this function and the subsequent AFA one really necessary?
+/**
+ * @brief Copies the structure of the group table.
+ * @ingroup core_of1x
+ * 
+ * Used for the group description statistics
+ */
+//NOTE Is this function and the subsequent AFA one really necessary?
 rofl_result_t of1x_fetch_group_table(struct of1x_pipeline *pipeline, of1x_group_table_t* group_table);
 
-//FIXME: put documentation
+/**
+ * @brief Adds a group to the table.
+ * @ingroup core_of1x
+ * 
+ * If a group with the ID already exists returns error
+ */
 rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t *buckets);
 
-//FIXME: put documentation
+/**
+ * @brief Modifies a group on the table.
+ * @ingroup core_of1x
+ * 
+ * Searches the group with the defined ID and modifies the bucket list and the type
+ */
 rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t *buckets);
 
-//FIXME: put documentation
+/**
+ * @brief Deletes a group of the table.
+ * @ingroup core_of1x
+ * 
+ * Deletes the group structure. If id == OF1X_GROUP_ALL, all groups are deleted. If the group id is not found no error is send.
+ */
 rofl_of1x_gm_result_t of1x_group_delete( struct of1x_pipeline *pipeline, of1x_group_table_t *gt, uint32_t id);
 
-//FIXME: put documentation
+/**
+ * @brief Initializes a list of buckets.
+ * @ingroup core_of1x
+ * 
+ * Allocates memory for a bucket list
+ */
 of1x_bucket_list_t* of1x_init_bucket_list(void);
 
-//FIXME: put documentation
+/**
+ * @brief Destroys the bucket list.
+ * @ingroup core_of1x
+ * 
+ * Frees memory of a bucket list
+ */
 void of1x_destroy_bucket_list(of1x_bucket_list_t *bc_list);
 
-//FIXME: put documentation
+/**
+ * @brief Initializes a bucket.
+ * @ingroup core_of1x
+ * 
+ * Allocates memory and sets the values for a bucket
+ */
 of1x_bucket_t* of1x_init_bucket(uint16_t weight, uint32_t port, uint32_t group, of1x_action_group_t* actions);
 
-//FIXME: put documentation
+/**
+ * @brief Inserts an initialized bucket in the list of buckets.
+ * @ingroup core_of1x
+ * 
+ */
 rofl_result_t of1x_insert_bucket_in_list(of1x_bucket_list_t *bu_list,of1x_bucket_t *bucket);
 
 of1x_group_t* __of1x_group_search(of1x_group_table_t *gt, uint32_t id);

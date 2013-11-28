@@ -293,12 +293,7 @@ rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_
 	ge->id = id;
 	ge->type = type;
 	ge->group_table = gt;
-	/*for(i=0;buckets[i]!=NULL;i++){
-		if(of1x_init_group_bucket(ge,buckets[i])==ROFL_FAILURE){
-			platform_rwlock_wrunlock(ge->rwlock);
-			return ROFL_FAILURE;
-		}
-	}*/
+	
 	platform_rwlock_wrunlock(ge->rwlock);
 	
 	return ROFL_SUCCESS;
