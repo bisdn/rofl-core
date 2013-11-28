@@ -9,11 +9,12 @@ cofmsg_group_desc_stats_request::cofmsg_group_desc_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags) :
-	cofmsg_stats(of_version, xid, OFPST_GROUP_DESC, flags)
+	cofmsg_stats(of_version, xid, 0, flags)
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION: {
 		set_type(openflow12::OFPT_STATS_REQUEST);
+		set_stats_type(openflow12::OFPST_GROUP_DESC);
 		resize(sizeof(struct openflow12::ofp_stats_request));
 	} break;
 	case openflow13::OFP_VERSION: {
@@ -165,12 +166,13 @@ cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		std::vector<cofgroup_desc_stats_reply> const& group_desc_stats) :
-	cofmsg_stats(of_version, xid, OFPST_GROUP_DESC, flags),
+	cofmsg_stats(of_version, xid, 0, flags),
 	group_desc_stats(group_desc_stats)
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION: {
 		set_type(openflow12::OFPT_STATS_REPLY);
+		set_stats_type(openflow12::OFPST_GROUP_DESC);
 		resize(length());
 		size_t offset = 0;
 		for (unsigned int i = 0; i < group_desc_stats.size(); i++) {

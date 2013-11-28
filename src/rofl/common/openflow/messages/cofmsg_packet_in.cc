@@ -26,8 +26,8 @@ cofmsg_packet_in::cofmsg_packet_in(
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {
 		set_type(openflow10::OFPT_PACKET_IN);
-		resize(openflow10::OFP_PACKET_IN_STATIC_HDR_LEN);
-		set_length(openflow10::OFP_PACKET_IN_STATIC_HDR_LEN);
+		resize(OFP10_PACKET_IN_STATIC_HDR_LEN);
+		set_length(OFP10_PACKET_IN_STATIC_HDR_LEN);
 
 		ofh10_packet_in->buffer_id				= htobe32(buffer_id);
 		ofh10_packet_in->total_len				= htobe16(total_len);
@@ -36,8 +36,8 @@ cofmsg_packet_in::cofmsg_packet_in(
 	} break;
 	case openflow12::OFP_VERSION: {
 		set_type(openflow12::OFPT_PACKET_IN);
-		resize(openflow12::OFP_PACKET_IN_STATIC_HDR_LEN);
-		set_length(openflow12::OFP_PACKET_IN_STATIC_HDR_LEN);
+		resize(OFP12_PACKET_IN_STATIC_HDR_LEN);
+		set_length(OFP12_PACKET_IN_STATIC_HDR_LEN);
 
 		ofh12_packet_in->buffer_id				= htobe32(buffer_id);
 		ofh12_packet_in->total_len				= htobe16(total_len);
@@ -46,8 +46,8 @@ cofmsg_packet_in::cofmsg_packet_in(
 	} break;
 	case openflow13::OFP_VERSION: {
 		set_type(openflow13::OFPT_PACKET_IN);
-		resize(openflow13::OFP_PACKET_IN_STATIC_HDR_LEN);
-		set_length(openflow13::OFP_PACKET_IN_STATIC_HDR_LEN);
+		resize(OFP13_PACKET_IN_STATIC_HDR_LEN);
+		set_length(OFP13_PACKET_IN_STATIC_HDR_LEN);
 
 		ofh13_packet_in->buffer_id				= htobe32(buffer_id);
 		ofh13_packet_in->total_len				= htobe16(total_len);
@@ -129,13 +129,13 @@ cofmsg_packet_in::length() const
 {
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {
-		return (openflow10::OFP_PACKET_IN_STATIC_HDR_LEN - 2 + packet.framelen());
+		return (OFP10_PACKET_IN_STATIC_HDR_LEN - 2 + packet.framelen());
 	} break;
 	case openflow12::OFP_VERSION: {
 		return (sizeof(struct openflow12::ofp_packet_in) - sizeof(struct openflow12::ofp_match) + match.length() + 2 + packet.framelen());
 	} break;
 	case openflow13::OFP_VERSION: {
-		return (openflow13::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());
+		return (OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2 + packet.framelen());
 	} break;
 	default:
 		throw eBadVersion();
@@ -161,20 +161,20 @@ cofmsg_packet_in::pack(uint8_t *buf, size_t buflen)
 	 */
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {
-		memcpy(buf, soframe(), openflow10::OFP_PACKET_IN_STATIC_HDR_LEN);
-		memcpy(buf + openflow10::OFP_PACKET_IN_STATIC_HDR_LEN - 2, packet.soframe(), packet.framelen());
+		memcpy(buf, soframe(), OFP10_PACKET_IN_STATIC_HDR_LEN);
+		memcpy(buf + OFP10_PACKET_IN_STATIC_HDR_LEN - 2, packet.soframe(), packet.framelen());
 	} break;
 	case openflow12::OFP_VERSION: {
-		memcpy(buf, soframe(), openflow12::OFP_PACKET_IN_STATIC_HDR_LEN);
+		memcpy(buf, soframe(), OFP12_PACKET_IN_STATIC_HDR_LEN);
 		match.pack((struct openflow12::ofp_match*)
-				(buf + openflow12::OFP_PACKET_IN_STATIC_HDR_LEN), match.length());
-		memcpy(buf + openflow12::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
+				(buf + OFP12_PACKET_IN_STATIC_HDR_LEN), match.length());
+		memcpy(buf + OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
 	} break;
 	case openflow13::OFP_VERSION: {
-		memcpy(buf, soframe(), openflow13::OFP_PACKET_IN_STATIC_HDR_LEN);
+		memcpy(buf, soframe(), OFP13_PACKET_IN_STATIC_HDR_LEN);
 		match.pack((struct openflow13::ofp_match*)
-				(buf + openflow13::OFP_PACKET_IN_STATIC_HDR_LEN), match.length());
-		memcpy(buf + openflow13::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
+				(buf + OFP13_PACKET_IN_STATIC_HDR_LEN), match.length());
+		memcpy(buf + OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
 	} break;
 	default:
 		throw eBadVersion();
@@ -208,13 +208,13 @@ cofmsg_packet_in::validate()
 		/*
 		 * static part of struct ofp_packet_in also contains static fields from struct ofp_match (i.e. type and length)
 		 */
-		if (get_length() < openflow10::OFP_PACKET_IN_STATIC_HDR_LEN)
+		if (get_length() < OFP10_PACKET_IN_STATIC_HDR_LEN)
 			throw eBadSyntaxTooShort();
 
 		/*
 		 * set data and datalen variables
 		 */
-		uint16_t offset = openflow10::OFP_PACKET_IN_STATIC_HDR_LEN + 2;
+		uint16_t offset = OFP10_PACKET_IN_STATIC_HDR_LEN + 2;
 
 		uint16_t in_port = be16toh(ofh10_packet_in->in_port);
 
@@ -231,11 +231,11 @@ cofmsg_packet_in::validate()
 		/*
 		 * get variable length struct ofp_match
 		 */
-		if (be16toh(ofh12_packet_in->match.type) != OFPMT_OXM) // must be extensible match
+		if (be16toh(ofh12_packet_in->match.type) != openflow12::OFPMT_OXM) // must be extensible match
 			throw eBadSyntax();
 
 		/* fixed part outside of struct ofp_match is 16bytes */
-		if (be16toh(ofh12_packet_in->match.length) > (framelen() - openflow12::OFP_PACKET_IN_STATIC_HDR_LEN))
+		if (be16toh(ofh12_packet_in->match.length) > (framelen() - OFP12_PACKET_IN_STATIC_HDR_LEN))
 			throw eBadSyntaxTooShort();
 
 		match.unpack(&(ofh12_packet_in->match), be16toh(ofh12_packet_in->match.length));
@@ -243,7 +243,7 @@ cofmsg_packet_in::validate()
 		/*
 		 * set data and datalen variables
 		 */
-		uint16_t offset = openflow12::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2; // +2: magic :)
+		uint16_t offset = OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2; // +2: magic :)
 
 		uint32_t in_port = 0;
 
@@ -263,17 +263,17 @@ cofmsg_packet_in::validate()
 		/*
 		 * static part of struct ofp_packet_in also contains static fields from struct ofp_match (i.e. type and length)
 		 */
-		if (get_length() < (openflow13::OFP_PACKET_IN_STATIC_HDR_LEN + sizeof(struct openflow13::ofp_match)))
+		if (get_length() < (OFP13_PACKET_IN_STATIC_HDR_LEN + sizeof(struct openflow13::ofp_match)))
 			throw eBadSyntaxTooShort();
 
 		/*
 		 * get variable length struct ofp_match
 		 */
-		if (be16toh(ofh13_packet_in->match.type) != OFPMT_OXM) // must be extensible match
+		if (be16toh(ofh13_packet_in->match.type) != openflow13::OFPMT_OXM) // must be extensible match
 			throw eBadSyntax();
 
 		/* fixed part outside of struct ofp_match is 16bytes */
-		if (be16toh(ofh13_packet_in->match.length) > (framelen() - openflow13::OFP_PACKET_IN_STATIC_HDR_LEN))
+		if (be16toh(ofh13_packet_in->match.length) > (framelen() - OFP13_PACKET_IN_STATIC_HDR_LEN))
 			throw eBadSyntaxTooShort();
 
 		match.unpack(&(ofh13_packet_in->match), be16toh(ofh13_packet_in->match.length));
@@ -281,7 +281,7 @@ cofmsg_packet_in::validate()
 		/*
 		 * set data and datalen variables
 		 */
-		uint16_t offset = openflow13::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2;
+		uint16_t offset = OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2;
 
 		uint32_t in_port = 0;
 

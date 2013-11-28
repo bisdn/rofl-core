@@ -36,9 +36,9 @@ private:
 #define ofh12_flow_removed ofhu.ofhu12_flow_removed
 #define ofh13_flow_removed ofhu.ofhu13_flow_removed
 
-#define openflow10::OFP_FLOW_REMOVED_STATIC_HDR_LEN	88
-#define openflow12::OFP_FLOW_REMOVED_STATIC_HDR_LEN	48	// length without struct openflow12::ofp_match
-#define openflow13::OFP_FLOW_REMOVED_STATIC_HDR_LEN	48	// length without struct openflow13::ofp_match
+#define OFP10_FLOW_REMOVED_STATIC_HDR_LEN	88
+#define OFP12_FLOW_REMOVED_STATIC_HDR_LEN	48	// length without struct openflow12::ofp_match
+#define OFP13_FLOW_REMOVED_STATIC_HDR_LEN	48	// length without struct openflow13::ofp_match
 
 public:
 

@@ -27,8 +27,8 @@ cofmsg_flow_removed::cofmsg_flow_removed(
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {
 		set_type(openflow10::OFPT_FLOW_REMOVED);
-		resize(openflow10::OFP_FLOW_REMOVED_STATIC_HDR_LEN);
-		set_length(openflow10::OFP_FLOW_REMOVED_STATIC_HDR_LEN);
+		resize(OFP10_FLOW_REMOVED_STATIC_HDR_LEN);
+		set_length(OFP10_FLOW_REMOVED_STATIC_HDR_LEN);
 
 		ofh10_flow_removed->cookie				= htobe64(cookie);
 		ofh10_flow_removed->priority			= htobe16(priority);
@@ -41,8 +41,8 @@ cofmsg_flow_removed::cofmsg_flow_removed(
 	} break;
 	case openflow12::OFP_VERSION: {
 		set_type(openflow12::OFPT_FLOW_REMOVED);
-		resize(openflow12::OFP_FLOW_REMOVED_STATIC_HDR_LEN);
-		set_length(openflow12::OFP_FLOW_REMOVED_STATIC_HDR_LEN);
+		resize(OFP12_FLOW_REMOVED_STATIC_HDR_LEN);
+		set_length(OFP12_FLOW_REMOVED_STATIC_HDR_LEN);
 
 		ofh12_flow_removed->cookie				= htobe64(cookie);
 		ofh12_flow_removed->priority			= htobe16(priority);
@@ -57,8 +57,8 @@ cofmsg_flow_removed::cofmsg_flow_removed(
 	} break;
 	case openflow13::OFP_VERSION: {
 		set_type(openflow13::OFPT_FLOW_REMOVED);
-		resize(openflow13::OFP_FLOW_REMOVED_STATIC_HDR_LEN);
-		set_length(openflow13::OFP_FLOW_REMOVED_STATIC_HDR_LEN);
+		resize(OFP13_FLOW_REMOVED_STATIC_HDR_LEN);
+		set_length(OFP13_FLOW_REMOVED_STATIC_HDR_LEN);
 
 		ofh13_flow_removed->cookie				= htobe64(cookie);
 		ofh13_flow_removed->priority			= htobe16(priority);
@@ -72,6 +72,7 @@ cofmsg_flow_removed::cofmsg_flow_removed(
 		ofh13_flow_removed->byte_count			= htobe64(byte_count);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::cofmsg_flow_removed() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -143,15 +144,16 @@ cofmsg_flow_removed::length() const
 {
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {
-		return openflow10::OFP_FLOW_REMOVED_STATIC_HDR_LEN;
+		return OFP10_FLOW_REMOVED_STATIC_HDR_LEN;
 	} break;
 	case openflow12::OFP_VERSION: {
-		return (openflow12::OFP_FLOW_REMOVED_STATIC_HDR_LEN + match.length());
+		return (OFP12_FLOW_REMOVED_STATIC_HDR_LEN + match.length());
 	} break;
 	case openflow13::OFP_VERSION: {
-		return (openflow13::OFP_FLOW_REMOVED_STATIC_HDR_LEN + match.length());
+		return (OFP13_FLOW_REMOVED_STATIC_HDR_LEN + match.length());
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::length() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 	return 0;
@@ -172,24 +174,25 @@ cofmsg_flow_removed::pack(uint8_t *buf, size_t buflen)
 
 	switch (ofh_header->version) {
 	case openflow10::OFP_VERSION: {
-		memcpy(buf, soframe(), openflow10::OFP_FLOW_REMOVED_STATIC_HDR_LEN);
+		memcpy(buf, soframe(), OFP10_FLOW_REMOVED_STATIC_HDR_LEN);
 
 		match.pack((struct openflow10::ofp_match*)
 				(buf + sizeof(struct openflow::ofp_header)), sizeof(struct openflow10::ofp_match));
 	} break;
 	case openflow12::OFP_VERSION: {
-		memcpy(buf, soframe(), openflow12::OFP_FLOW_REMOVED_STATIC_HDR_LEN);
+		memcpy(buf, soframe(), OFP12_FLOW_REMOVED_STATIC_HDR_LEN);
 
 		match.pack((struct openflow12::ofp_match*)
-				(buf + openflow12::OFP_FLOW_REMOVED_STATIC_HDR_LEN), match.length());
+				(buf + OFP12_FLOW_REMOVED_STATIC_HDR_LEN), match.length());
 	} break;
 	case openflow13::OFP_VERSION: {
-		memcpy(buf, soframe(), openflow13::OFP_FLOW_REMOVED_STATIC_HDR_LEN);
+		memcpy(buf, soframe(), OFP13_FLOW_REMOVED_STATIC_HDR_LEN);
 
 		match.pack((struct openflow13::ofp_match*)
-				(buf + openflow13::OFP_FLOW_REMOVED_STATIC_HDR_LEN), match.length());
+				(buf + OFP13_FLOW_REMOVED_STATIC_HDR_LEN), match.length());
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::pack() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -258,6 +261,7 @@ cofmsg_flow_removed::validate()
 
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::validate() OFP version not supported" << std::endl;
 		throw eBadRequestBadVersion();
 	}
 }
@@ -278,6 +282,7 @@ cofmsg_flow_removed::get_cookie() const
 		return be64toh(ofh13_flow_removed->cookie);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::get_cookie() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 	return 0;
@@ -299,6 +304,7 @@ cofmsg_flow_removed::set_cookie(uint64_t cookie)
 		ofh13_flow_removed->cookie = htobe64(cookie);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::set_cookie() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -319,6 +325,7 @@ cofmsg_flow_removed::get_priority() const
 		return be16toh(ofh13_flow_removed->priority);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::get_priority() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 	return 0;
@@ -340,6 +347,7 @@ cofmsg_flow_removed::set_priority(uint64_t priority)
 		ofh13_flow_removed->priority = htobe16(priority);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::set_priority() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -360,6 +368,7 @@ cofmsg_flow_removed::get_reason() const
 		return ofh13_flow_removed->reason;
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::get_reason() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 	return 0;
@@ -381,6 +390,7 @@ cofmsg_flow_removed::set_reason(uint8_t reason)
 		ofh13_flow_removed->reason = (reason);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::set_reason() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -398,6 +408,7 @@ cofmsg_flow_removed::get_table_id() const
 		return ofh13_flow_removed->table_id;
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::get_table_id() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 	return 0;
@@ -416,6 +427,7 @@ cofmsg_flow_removed::set_table_id(uint8_t table_id)
 		ofh13_flow_removed->table_id = (table_id);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::set_table_id() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -436,6 +448,7 @@ cofmsg_flow_removed::get_duration_sec() const
 		return be32toh(ofh13_flow_removed->duration_sec);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::get_duration_sec() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 	return 0;
@@ -457,6 +470,7 @@ cofmsg_flow_removed::set_duration_sec(uint32_t duration_sec)
 		ofh13_flow_removed->duration_sec = htobe32(duration_sec);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::set_duration_sec() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -477,6 +491,7 @@ cofmsg_flow_removed::get_duration_nsec() const
 		return be32toh(ofh13_flow_removed->duration_nsec);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::get_duration_nsec() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 	return 0;
@@ -498,6 +513,7 @@ cofmsg_flow_removed::set_duration_nsec(uint32_t duration_nsec)
 		ofh13_flow_removed->duration_nsec = htobe32(duration_nsec);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::set_duration_nsec() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -518,6 +534,7 @@ cofmsg_flow_removed::get_idle_timeout() const
 		return be16toh(ofh13_flow_removed->idle_timeout);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::get_idle_timeout() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 	return 0;
@@ -539,6 +556,7 @@ cofmsg_flow_removed::set_idle_timeout(uint16_t idle_timeout)
 		ofh13_flow_removed->idle_timeout = htobe16(idle_timeout);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::set_idle_timeout() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -556,6 +574,7 @@ cofmsg_flow_removed::get_hard_timeout() const
 		return be16toh(ofh13_flow_removed->hard_timeout);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::get_hard_timeout() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 	return 0;
@@ -574,6 +593,7 @@ cofmsg_flow_removed::set_hard_timeout(uint16_t hard_timeout)
 		ofh13_flow_removed->hard_timeout = htobe16(hard_timeout);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::set_hard_timeout() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -594,6 +614,7 @@ cofmsg_flow_removed::get_packet_count() const
 		return be64toh(ofh13_flow_removed->packet_count);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::get_packet_count() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 	return 0;
@@ -615,6 +636,7 @@ cofmsg_flow_removed::set_packet_count(uint64_t packet_count)
 		ofh13_flow_removed->packet_count = htobe64(packet_count);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::set_packet_count() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 }
@@ -635,6 +657,7 @@ cofmsg_flow_removed::get_byte_count() const
 		return be64toh(ofh13_flow_removed->byte_count);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::get_byte_count() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 	return 0;
@@ -656,6 +679,7 @@ cofmsg_flow_removed::set_byte_count(uint64_t byte_count)
 		ofh13_flow_removed->byte_count = htobe64(byte_count);
 	} break;
 	default:
+		logging::warn << "cofmsg_flow_removed::set_byte_count() OFP version not supported" << std::endl;
 		throw eBadVersion();
 	}
 }

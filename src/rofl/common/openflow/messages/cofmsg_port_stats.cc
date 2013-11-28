@@ -11,17 +11,19 @@ cofmsg_port_stats_request::cofmsg_port_stats_request(
 		uint32_t xid,
 		uint16_t flags,
 		cofport_stats_request const& port_stats) :
-	cofmsg_stats(of_version, xid, OFPST_PORT, flags),
+	cofmsg_stats(of_version, xid, 0, flags),
 	port_stats(port_stats)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
 		set_type(openflow10::OFPT_STATS_REQUEST);
+		set_stats_type(openflow10::OFPST_PORT);
 		resize(sizeof(struct openflow10::ofp_stats_request) + sizeof(struct openflow10::ofp_port_stats_request));
 		port_stats.pack(soframe(), sizeof(struct openflow10::ofp_port_stats_request));
 	} break;
 	case openflow12::OFP_VERSION: {
 		set_type(openflow12::OFPT_STATS_REQUEST);
+		set_stats_type(openflow12::OFPST_PORT);
 		resize(sizeof(struct openflow12::ofp_stats_request) + sizeof(struct openflow12::ofp_port_stats_request));
 		port_stats.pack(soframe(), sizeof(struct openflow12::ofp_port_stats_request));
 	} break;
@@ -227,12 +229,13 @@ cofmsg_port_stats_reply::cofmsg_port_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		std::vector<cofport_stats_reply> const& port_stats) :
-	cofmsg_stats(of_version, xid, OFPST_PORT, flags),
+	cofmsg_stats(of_version, xid, 0, flags),
 	port_stats(port_stats)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
 		set_type(openflow10::OFPT_STATS_REPLY);
+		set_stats_type(openflow10::OFPST_PORT);
 		resize(sizeof(struct openflow10::ofp_stats_reply) + port_stats.size() * sizeof(struct openflow10::ofp_port_stats));
 		for (unsigned int i = 0; i < port_stats.size(); i++) {
 			port_stats[i].pack(soframe() + sizeof(struct openflow10::ofp_stats_reply) + i * sizeof(struct openflow10::ofp_port_stats), sizeof(struct openflow10::ofp_port_stats));
@@ -240,6 +243,7 @@ cofmsg_port_stats_reply::cofmsg_port_stats_reply(
 	} break;
 	case openflow12::OFP_VERSION: {
 		set_type(openflow12::OFPT_STATS_REPLY);
+		set_stats_type(openflow12::OFPST_PORT);
 		resize(sizeof(struct openflow12::ofp_stats_reply) + port_stats.size() * sizeof(struct openflow12::ofp_port_stats));
 		for (unsigned int i = 0; i < port_stats.size(); i++) {
 			port_stats[i].pack(soframe() + sizeof(struct openflow12::ofp_stats_reply) + i * sizeof(struct openflow12::ofp_port_stats), sizeof(struct openflow12::ofp_port_stats));

@@ -11,17 +11,19 @@ cofmsg_flow_stats_request::cofmsg_flow_stats_request(
 		uint32_t xid,
 		uint16_t flags,
 		cofflow_stats_request const& flow_stats) :
-	cofmsg_stats(of_version, xid, OFPST_FLOW, flags),
+	cofmsg_stats(of_version, xid, 0, flags),
 	flow_stats(flow_stats)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
 		set_type(openflow10::OFPT_STATS_REQUEST);
+		set_stats_type(openflow10::OFPST_FLOW);
 		resize(length());
 		pack(soframe(), framelen());
 	} break;
 	case openflow12::OFP_VERSION: {
 		set_type(openflow12::OFPT_STATS_REQUEST);
+		set_stats_type(openflow12::OFPST_FLOW);
 		resize(length());
 		pack(soframe(), framelen());
 	} break;
@@ -218,16 +220,18 @@ cofmsg_flow_stats_reply::cofmsg_flow_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		std::vector<cofflow_stats_reply> const& flow_stats) :
-	cofmsg_stats(of_version, xid, OFPST_FLOW, flags),
+	cofmsg_stats(of_version, xid, 0, flags),
 	flow_stats(flow_stats)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
 		set_type(openflow10::OFPT_STATS_REPLY);
+		set_stats_type(openflow10::OFPST_FLOW);
 		resize(length());
 	} break;
 	case openflow12::OFP_VERSION: {
 		set_type(openflow12::OFPT_STATS_REPLY);
+		set_stats_type(openflow12::OFPST_FLOW);
 		resize(length());
 	} break;
 	case openflow13::OFP_VERSION: {
