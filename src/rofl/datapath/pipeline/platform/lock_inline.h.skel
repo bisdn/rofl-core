@@ -9,7 +9,7 @@
 #include "../platform/memory.h"
 
 /**
-* @file lock_platform.h
+* @file lock_inline.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
 * @author Victor Alvarez<victor.alvarez (at) bisdn.de>
 *

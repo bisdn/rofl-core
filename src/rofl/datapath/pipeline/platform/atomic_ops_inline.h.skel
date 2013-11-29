@@ -6,7 +6,7 @@
 #define __PLATFORM_ATOMIC_OPERATIONS_INLINE_H__
 
 /**
-* @file atomic_operations.h
+* @file atomic_ops_inline.h
 * @author Victor Alvarez<victor.alvarez (at) bisdn.de>
 *
 * @brief Defines the atomic operations API, mostly atomic increments and 

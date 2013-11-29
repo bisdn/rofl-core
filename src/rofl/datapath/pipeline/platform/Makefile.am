@@ -16,18 +16,29 @@ else
 ATOMIC_OPS_INL_HDR=
 endif
 
+if LIKELY_CUSTOM 
+LIKELY_CSTM_HDR=likely_custom.h
+else 
+LIKELY_CSTM_HDR=
+endif
+
+
 librofl_pipeline_platform_la_HEADERS = \
 	atomic_operations.h \
 	lock.h \
+	likely.h \
 	$(LOCK_INL_HDR) \
 	$(ATOMIC_OPS_INL_HDR) \
+	$(LIKELY_CSTM_HDR) \
 	memory.h \
 	packet.h
 
 librofl_pipeline_platform_la_SOURCES = \
 	atomic_operations.h \
 	lock.h \
+	likely.h \
 	$(LOCK_INL_HDR) \
 	$(ATOMIC_OPS_INL_HDR) \
+	$(LIKELY_CSTM_HDR) \
 	memory.h \
 	packet.h

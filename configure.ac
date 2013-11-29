@@ -42,8 +42,8 @@ m4_include([config/no_cpp.m4])
 # Pipeline support
 m4_include([config/pipeline.m4])
 
-# Pipeline inline
-m4_include([config/inline.m4])
+# Pipeline custom functions
+m4_include([config/pipeline_custom_funcs.m4])
 
 # Checking libs
 #m4_include([config/libs.m4])
