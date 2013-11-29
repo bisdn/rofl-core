@@ -305,7 +305,7 @@ ciosrv::notify(cevent const& ev)
 void
 ciosrv::register_filedesc_r(int fd)
 {
-	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
+	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_WRITE);
 
 	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::register_filedesc_r() fd=%d", this, fd);
 	threads[tid]->rfds[fd] = this;
@@ -314,7 +314,7 @@ ciosrv::register_filedesc_r(int fd)
 void
 ciosrv::deregister_filedesc_r(int fd)
 {
-	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
+	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_WRITE);
 
 	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::deregister_filedesc_r() fd=%d", this, fd);
 	threads[tid]->rfds.erase(fd);
@@ -323,7 +323,7 @@ ciosrv::deregister_filedesc_r(int fd)
 void
 ciosrv::register_filedesc_w(int fd)
 {
-	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
+	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_WRITE);
 
 	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::register_filedesc_w() fd=%d", this, fd);
 	threads[tid]->wfds[fd] = this;
@@ -332,7 +332,7 @@ ciosrv::register_filedesc_w(int fd)
 void
 ciosrv::deregister_filedesc_w(int fd)
 {
-	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
+	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_WRITE);
 
 	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::deregister_filedesc_w() fd=%d", this, fd);
 	threads[tid]->wfds.erase(fd);
