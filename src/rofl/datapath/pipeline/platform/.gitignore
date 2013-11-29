@@ -1,2 +1,3 @@
 /platform_lock.h
 lock_inline.h
+atomic_ops_inline.h

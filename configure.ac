@@ -42,16 +42,11 @@ m4_include([config/no_cpp.m4])
 # Pipeline support
 m4_include([config/pipeline.m4])
 
+# Pipeline inline
+m4_include([config/inline.m4])
+
 # Checking libs
 #m4_include([config/libs.m4])
-
-# Inline lock functions
-lock_inline_file=0
-AC_CHECK_FILE([$srcdir/src/rofl/datapath/pipeline/platform/lock_inline.h], [lock_inline_file=1], [])
-AM_CONDITIONAL(LOCK_INLINE, test $lock_inline_file -eq 1)
-if test $lock_inline_file -eq 1 ; then
-	AC_DEFINE(LOCK_INLINE_HDR)
-fi
 
 # Output files
 AC_CONFIG_FILES([
