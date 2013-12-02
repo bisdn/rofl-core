@@ -2091,7 +2091,7 @@ crofbase::send_flow_mod_message(
 
 	pack->pack();
 
-	logging::debug << "sending Flow-Mod message" << std::endl << pack << std::endl;
+	logging::debug << "sending Flow-Mod message" << std::endl << *pack << std::endl;
 
 	dpt_find(dpt)->send_message(pack);
 }
@@ -2119,7 +2119,7 @@ crofbase::send_group_mod_message(
 
 	pack->pack();
 
-	logging::debug << "sending Group-Mod message" << std::endl << pack << std::endl;
+	logging::debug << "sending Group-Mod message" << std::endl << *pack << std::endl;
 
 	dpt_find(dpt)->send_message(pack);
 }

@@ -264,7 +264,7 @@ public:
 	operator<< (std::ostream& os, cofmsg const& msg) {
 		os << "<cofmsg ";
 			os << "version:" 				<< (int)msg.get_version() 			<< " ";
-			os << "type:" 					<< (int)msg.get_type() 				<< " ";
+			os << "type:" 					<< std::dec << (int)msg.get_type() 	<< " ";
 			os << "length:" 				<< (int)msg.get_length() 			<< " ";
 			os << "xid:" 		<< std::hex << (int)msg.get_xid() << std::dec 	<< " ";
 			os << "buffer:" 	<< std::endl;
