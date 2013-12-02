@@ -8,6 +8,7 @@
 #include "../../../physical_switch.h"
 #include "../../../platform/packet.h"
 #include "../../../util/logging.h"
+#include "../../../platform/likely.h"
 #include "../../../platform/memory.h"
 #include "../of1x_async_events_hooks.h"
 #include "of1x_utils.h"
@@ -23,12 +24,12 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 
 	of1x_packet_action_t* action;
 
-	if(!type)
+	if( unlikely(type==0) )
 		return NULL;
 
 	action = platform_malloc_shared(sizeof(of1x_packet_action_t));
 
-	if(!action)
+	if( unlikely(action==NULL) )
 		return NULL;
 	
 	//Set type
@@ -318,7 +319,7 @@ of1x_action_group_t* of1x_init_action_group(of1x_packet_action_t* actions){
 	
 	action_group = platform_malloc_shared(sizeof(of1x_action_group_t));
 
-	if(!action_group)
+	if( unlikely(action_group==NULL) )
 		return NULL;
 	
 	if(actions){
@@ -353,7 +354,7 @@ void of1x_destroy_action_group(of1x_action_group_t* group){
 
 	of1x_packet_action_t* it,*next;
 
-	if(!group)
+	if( unlikely(group==NULL) )
 		return;
 
 	for(it=group->head;it;it=next){
@@ -366,7 +367,7 @@ void of1x_destroy_action_group(of1x_action_group_t* group){
 /* Addition of an action to an action group */
 void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_action_t* action){
 
-	if(!action){
+	if( unlikely(action==NULL) ){
 		assert(0);
 		return;
 	}
@@ -409,7 +410,7 @@ of1x_write_actions_t* of1x_init_write_actions(){
 
 	of1x_write_actions_t* write_actions = platform_malloc_shared(sizeof(of1x_write_actions_t)); 
 
-	if(!write_actions)
+	if( unlikely(write_actions==NULL) )
 		return NULL;
 
 	memset(write_actions, 0, sizeof(of1x_write_actions_t));
@@ -454,7 +455,7 @@ void __of1x_update_packet_write_actions(datapacket_t* pkt, const of1x_write_acti
 	//Recover write actions from datapacket
 	packet_write_actions = &pkt->write_actions.of1x;
 	
-	if(!entry_write_actions)
+	if( unlikely(entry_write_actions==NULL) )
 		return;
 
 	//Loop over entry write actions and update packet_write_actions
@@ -1164,7 +1165,7 @@ static void __of1x_process_group_actions(const struct of1x_switch* sw, const uns
 //Checking functions
 /*TODO specific funcions for 128 bits. So far only used for OUTPUT and GROUP actions, so not really necessary*/
 bool __of1x_write_actions_has(of1x_write_actions_t* write_actions, of1x_packet_action_type_t type, uint64_t value){
-	if(!write_actions)
+	if( unlikely(write_actions==NULL) )
 		return false;	
 	
 	of1x_packet_action_t action = write_actions->write_actions[type];
@@ -1176,7 +1177,7 @@ bool __of1x_apply_actions_has(const of1x_action_group_t* apply_actions_group, of
 
 	of1x_packet_action_t *it;
 
-	if(!apply_actions_group)
+	if( unlikely(apply_actions_group==NULL) )
 		return false;	
 
 
@@ -1194,7 +1195,7 @@ of1x_packet_action_t* __of1x_copy_packet_action(of1x_packet_action_t* action){
 
 	copy = platform_malloc_shared(sizeof(of1x_packet_action_t));
 
-	if(!copy)
+	if( unlikely(copy==NULL) )
 		return NULL;
 
 	*copy = *action;
@@ -1207,13 +1208,13 @@ of1x_action_group_t* __of1x_copy_action_group(of1x_action_group_t* origin){
 	of1x_action_group_t* copy;
 	of1x_packet_action_t* it;	
 
-	if(!origin)
+	if( unlikely(origin==NULL) )
 		return NULL;
 
 	copy = platform_malloc_shared(sizeof(of1x_action_group_t));
 
 
-	if(!copy)
+	if( unlikely(copy==NULL) )
 		return NULL;
 
 	copy->head = copy->tail = NULL;
@@ -1251,12 +1252,12 @@ of1x_write_actions_t* __of1x_copy_write_actions(of1x_write_actions_t* origin){
 	
 	of1x_write_actions_t* copy; 
 
-	if(!origin)
+	if( unlikely(origin==NULL) )
 		return NULL;
 
 	copy = platform_malloc_shared(sizeof(of1x_write_actions_t)); 
 
-	if(!copy)
+	if( unlikely(copy==NULL) )
 		return NULL;
 	
 	//Copy Values
@@ -1473,7 +1474,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 void __of1x_dump_write_actions(of1x_write_actions_t* write_actions_group){
 	unsigned int i=0;
 	
-	if(!write_actions_group)
+	if( unlikely(write_actions_group==NULL) )
 		return;
 
 	for(i=0;i<OF1X_AT_NUMBER;i++){
@@ -1486,7 +1487,7 @@ void __of1x_dump_action_group(of1x_action_group_t* action_group){
 
 	of1x_packet_action_t* action;
 
-	if(!action_group)
+	if( unlikely(action_group==NULL) )
 		return;
 	for(action=action_group->head;action;action=action->next){
 		__of1x_dump_packet_action(*action);
