@@ -17,7 +17,7 @@ cofaclist::cofaclist(
 
 cofaclist::cofaclist(
 		uint8_t ofp_version,
-		struct ofp_action_header *achdr,
+		struct openflow::ofp_action_header *achdr,
 		size_t aclen) :
 				ofp_version(ofp_version)
 {
@@ -144,16 +144,16 @@ throw (eBadActionBadLen, eBadActionBadOutPort)
 		next() = cofaction(ofp_version, achdr, be16toh(achdr->len) );
 
 		aclen -= be16toh(achdr->len);
-		achdr = (struct ofp_action_header*)(((uint8_t*)achdr) + be16toh(achdr->len));
+		achdr = (struct openflow::ofp_action_header*)(((uint8_t*)achdr) + be16toh(achdr->len));
 	}
 
 	return elems;
 }
 
 
-struct ofp_action_header*
+struct openflow::ofp_action_header*
 cofaclist::pack(
-		struct ofp_action_header *achdr,
+		struct openflow::ofp_action_header *achdr,
 		size_t aclen) const throw (eAcListInval)
 {
 	if (aclen < length())
@@ -162,7 +162,7 @@ cofaclist::pack(
 	cofaclist::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
-		achdr = (struct ofp_action_header*)
+		achdr = (struct openflow::ofp_action_header*)
 				((uint8_t*)((*it).pack(achdr, (*it).length())) + (*it).length());
 	}
 	return achdr;

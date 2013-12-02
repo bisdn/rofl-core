@@ -63,7 +63,7 @@ public: // methods
 
 	/** constructor
 	 */
-	cflowentry(uint8_t of_version, uint16_t type = OFPMT_OXM) throw (eFlowEntryOutOfMem);
+	cflowentry(uint8_t of_version, uint16_t type = openflow::OFPMT_OXM);
 
 	/** destructor
 	 */
@@ -217,11 +217,11 @@ public:
 		switch (fe.of_version) {
 		case openflow12::OFP_VERSION: {
 			switch (fe.get_command()) {
-			case OFPFC_ADD: 			os << "OFPFC-ADD "; 			break;
-			case OFPFC_DELETE:			os << "OFPFC-DELETE "; 			break;
-			case OFPFC_DELETE_STRICT:	os << "OFPFC-DELETE-STRICT "; 	break;
-			case OFPFC_MODIFY:			os << "OFPFC-MODIFY "; 			break;
-			case OFPFC_MODIFY_STRICT:	os << "OFPFC-MODIFY-STRICT ";	break;
+			case openflow12::OFPFC_ADD: 			os << "OFPFC-ADD "; 			break;
+			case openflow12::OFPFC_DELETE:			os << "OFPFC-DELETE "; 			break;
+			case openflow12::OFPFC_DELETE_STRICT:	os << "OFPFC-DELETE-STRICT "; 	break;
+			case openflow12::OFPFC_MODIFY:			os << "OFPFC-MODIFY "; 			break;
+			case openflow12::OFPFC_MODIFY_STRICT:	os << "OFPFC-MODIFY-STRICT ";	break;
 			default:					os << "UNKNOWN ";				break;
 			}
 			os << "table-id:" 		<< (int)fe.get_table_id() << " ";
@@ -235,11 +235,11 @@ public:
 		} break;
 		case openflow13::OFP_VERSION: {
 			switch (fe.get_command()) {
-			case OFPFC_ADD: 			os << "OFPFC-ADD "; 			break;
-			case OFPFC_DELETE:			os << "OFPFC-DELETE "; 			break;
-			case OFPFC_DELETE_STRICT:	os << "OFPFC-DELETE-STRICT "; 	break;
-			case OFPFC_MODIFY:			os << "OFPFC-MODIFY "; 			break;
-			case OFPFC_MODIFY_STRICT:	os << "OFPFC-MODIFY-STRICT ";	break;
+			case openflow13::OFPFC_ADD: 			os << "OFPFC-ADD "; 			break;
+			case openflow13::OFPFC_DELETE:			os << "OFPFC-DELETE "; 			break;
+			case openflow13::OFPFC_DELETE_STRICT:	os << "OFPFC-DELETE-STRICT "; 	break;
+			case openflow13::OFPFC_MODIFY:			os << "OFPFC-MODIFY "; 			break;
+			case openflow13::OFPFC_MODIFY_STRICT:	os << "OFPFC-MODIFY-STRICT ";	break;
 			default:					os << "UNKNOWN ";				break;
 			}
 			os << "table-id:" 		<< (int)fe.get_table_id() << " ";

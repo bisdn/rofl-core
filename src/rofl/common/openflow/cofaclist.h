@@ -48,7 +48,7 @@ public:
 	 */
 	cofaclist(
 			uint8_t ofp_version,
-			struct ofp_action_header *achdr,
+			struct openflow::ofp_action_header *achdr,
 			size_t aclen);
 
 

@@ -61,23 +61,23 @@ namespace openflow13 {
 	/* Port numbering. Ports are numbered starting from 1. */
 	enum ofp_port_no {
 		/* Maximum number of physical switch ports. */
-		OFPP13_MAX        = 0xffffff00,
+		OFPP_MAX        = 0xffffff00,
 
 		/* Fake output "ports". */
-		OFPP13_IN_PORT    = 0xfffffff8,  /* Send the packet out the input port.  This
+		OFPP_IN_PORT    = 0xfffffff8,  /* Send the packet out the input port.  This
 										  virtual port must be explicitly used
 										  in order to send back out of the input
 										  port. */
-		OFPP13_TABLE      = 0xfffffff9,  /* Submit the packet to the first flow table
+		OFPP_TABLE      = 0xfffffff9,  /* Submit the packet to the first flow table
 										  NB: This destination port can only be
 										  used in packet-out messages. */
-		OFPP13_NORMAL     = 0xfffffffa,  /* Process with normal L2/L3 switching. */
-		OFPP13_FLOOD      = 0xfffffffb,  /* All physical ports in VLAN, except input
+		OFPP_NORMAL     = 0xfffffffa,  /* Process with normal L2/L3 switching. */
+		OFPP_FLOOD      = 0xfffffffb,  /* All physical ports in VLAN, except input
 										  port and those blocked or link down. */
-		OFPP13_ALL        = 0xfffffffc,  /* All physical ports except input port. */
-		OFPP13_CONTROLLER = 0xfffffffd,  /* Send to controller. */
-		OFPP13_LOCAL      = 0xfffffffe,  /* Local openflow "port". */
-		OFPP13_ANY        = 0xffffffff   /* Wildcard port used only for flow mod
+		OFPP_ALL        = 0xfffffffc,  /* All physical ports except input port. */
+		OFPP_CONTROLLER = 0xfffffffd,  /* Send to controller. */
+		OFPP_LOCAL      = 0xfffffffe,  /* Local openflow "port". */
+		OFPP_ANY        = 0xffffffff   /* Wildcard port used only for flow mod
 										  (delete) and flow stats requests. Selects
 										  all flows regardless of output port
 										  (including flows with no output port). */
