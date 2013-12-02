@@ -197,6 +197,8 @@ rofl_result_t of1x_insert_bucket_in_list(of1x_bucket_list_t *bu_list,of1x_bucket
 
 of1x_group_t* __of1x_group_search(of1x_group_table_t *gt, uint32_t id);
 
+void of1x_dump_group_table(of1x_group_table_t *gt);
+
 //C++ extern C
 ROFL_END_DECLS
 
