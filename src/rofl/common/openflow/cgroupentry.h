@@ -15,7 +15,7 @@
 #include "../cvastring.h"
 
 #include "cofmatch.h"
-#include "cofbclist.h"
+#include "cofbuckets.h"
 #include "cofinst.h"
 
 namespace rofl
@@ -46,7 +46,7 @@ public: // static methods
 
 public: // data structures
 
-	cofbclist buckets; 					// bucket list
+	cofbuckets buckets; 					// bucket list
 
 
 public: // methods
@@ -131,19 +131,40 @@ public:
 	operator<< (std::ostream& os, cgroupentry const& ge) {
 		os << "<cgroupentry ";
 			os << "cmd:";
-			switch (ge.get_command()) {
-			case OFPGC_ADD: 	os << "ADD "; 			break;
-			case OFPGC_MODIFY:	os << "MODIFY ";	 	break;
-			case OFPGC_DELETE:	os << "DELETE ";		break;
-			default:			os << "UNKNOWN ";		break;
+			switch (ge.ofp_version) {
+			case openflow12::OFP_VERSION: {
+				switch (ge.get_command()) {
+				case openflow12::OFPGC_ADD: 	os << "ADD "; 			break;
+				case openflow12::OFPGC_MODIFY:	os << "MODIFY ";	 	break;
+				case openflow12::OFPGC_DELETE:	os << "DELETE ";		break;
+				default:						os << "UNKNOWN ";		break;
+				}
+				os << "type:";
+				switch (ge.get_type()) {
+				case openflow12::OFPGT_ALL:		os << "ALL ";			break;
+				case openflow12::OFPGT_SELECT:	os << "SELECT "; 		break;
+				case openflow12::OFPGT_INDIRECT:os << "INDIRECT ";		break;
+				case openflow12::OFPGT_FF:		os << "FAST-FAILOVER"; 	break;
+				default:						os << "UNKNOWN";		break;
 			}
-			os << "type:";
-			switch (ge.get_type()) {
-			case OFPGT_ALL:		os << "ALL ";			break;
-			case OFPGT_SELECT:	os << "SELECT "; 		break;
-			case OFPGT_INDIRECT:os << "INDIRECT ";		break;
-			case OFPGT_FF:		os << "FAST-FAILOVER"; 	break;
-			default:			os << "UNKNOWN";		break;
+			} break;
+			case openflow13::OFP_VERSION: {
+				switch (ge.get_command()) {
+				case openflow13::OFPGC_ADD: 	os << "ADD "; 			break;
+				case openflow13::OFPGC_MODIFY:	os << "MODIFY ";	 	break;
+				case openflow13::OFPGC_DELETE:	os << "DELETE ";		break;
+				default:						os << "UNKNOWN ";		break;
+				}
+				os << "type:";
+				switch (ge.get_type()) {
+				case openflow13::OFPGT_ALL:		os << "ALL ";			break;
+				case openflow13::OFPGT_SELECT:	os << "SELECT "; 		break;
+				case openflow13::OFPGT_INDIRECT:os << "INDIRECT ";		break;
+				case openflow13::OFPGT_FF:		os << "FAST-FAILOVER"; 	break;
+				default:						os << "UNKNOWN";		break;
+			} break;
+			default:
+				throw eBadVersion();
 			}
 			os << "group-id:" << (int)ge.get_group_id() << " ";
 			os << "buckets:" << std::endl;

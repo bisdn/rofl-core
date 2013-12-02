@@ -60,7 +60,7 @@ public:
 			struct ofp_rofl_ext_header		header;
 			uint8_t 						command;
 			uint8_t							pad[3];
-			struct ofp12_match				match[0];		// start of match structure
+			struct openflow::ofp_match		match[0];		// start of match structure
 		};
 
 		enum ofp_rofl_ext_fsp_cmds {
@@ -214,7 +214,7 @@ public:
 
 
 			memcpy(body, (uint8_t*)rext_fsp, sizeof(struct ofp_rofl_ext_flowspace));
-			match.pack((struct ofp12_match*)(body + sizeof(struct ofp_rofl_ext_flowspace)),
+			match.pack((struct openflow12::ofp_match*)(body + sizeof(struct ofp_rofl_ext_flowspace)),
 					bodylen - sizeof(struct ofp_rofl_ext_flowspace));
 		};
 		/**

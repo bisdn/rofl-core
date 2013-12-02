@@ -11,7 +11,7 @@ namespace openflow13 {
 		OFP_VERSION = 4,
 	};
 
-	#define OFP13_VERSION   (rofl::openflow13::OFP_VERSION)
+	#define OFP13_VERSION   4
 
 
 	/* Header on all OpenFlow packets. */
@@ -864,6 +864,16 @@ namespace openflow13 {
 	};
 	OFP_ASSERT(sizeof(struct ofp_group_mod) == 16);
 
+
+	/* Group types.  Values in the range [128, 255] are reserved for experimental
+	 * use. */
+	enum ofp_group_type {
+		OFPGT_ALL 		= 0,	/* All (multicast/broadcast) group.  */
+		OFPGT_SELECT 	= 1,   	/* Select group. */
+		OFPGT_INDIRECT 	= 2, 	/* Indirect group. */
+		OFPGT_FF 		= 3,	/* Fast failover group. */
+	};
+
 	// A3.4.3 Port Modification Message
 
 	/* unaltered since OpenFlow 1.2 */
@@ -1589,6 +1599,14 @@ namespace openflow13 {
 
 	enum flow_mod_header_len {
 		OFP_FLOW_MOD_STATIC_HDR_LEN = 48,
+	};
+
+
+	/* Group commands */
+	enum ofp_group_mod_command {
+		OFPGC_ADD,              /* New group. */
+		OFPGC_MODIFY,           /* Modify all matching groups. */
+		OFPGC_DELETE,           /* Delete all matching groups. */
 	};
 
 	// A3.8 Barrier Message

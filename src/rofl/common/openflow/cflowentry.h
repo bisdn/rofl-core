@@ -20,7 +20,7 @@
 #include "cofmatch.h"
 #include "cofaction.h"
 #include "cofinst.h"
-#include "cofinlist.h"
+#include "cofinstructions.h"
 #include "coxmatch.h"
 
 namespace rofl
@@ -42,7 +42,7 @@ public: // data structures
 
 	cofmatch 		match; 			// cofmatch class containing ofp_match structure
 
-	cofinlist 		instructions; 	// list of instructions
+	cofinstructions 		instructions; 	// list of instructions
 
 	union {
 		struct openflow12::ofp_flow_mod 		*ofmu12_flow_mod;

@@ -57,7 +57,7 @@ namespace openflow12 {
 		OFP_VERSION = 3,
 	};
 
-	#define OFP12_VERSION   (rofl::openflow12::OFP_VERSION)
+	#define OFP12_VERSION   3
 
 
 	/* Header on all OpenFlow packets. */

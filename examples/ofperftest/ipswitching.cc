@@ -261,7 +261,7 @@ ipswitching::handle_packet_in_arpv4(
 
 		fprintf(stderr, "ipswitching::handle_packet_in_arpv4() Pt.1.2\n");
 
-		cofaclist actions;
+		cofactions actions;
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
@@ -428,7 +428,7 @@ ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 		if (ip_src == it->second.addr)
 			continue;
 
-		cofaclist actions;
+		cofactions actions;
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][it->second.addr].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
@@ -476,7 +476,7 @@ ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 	 *
 	 */
 
-	cofaclist actions;
+	cofactions actions;
 	if (fib[dpt][ip_src].vid != 0xffff) {
 		actions.next() = cofaction_pop_vlan(dpt->get_version());
 	}

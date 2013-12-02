@@ -15,7 +15,7 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 		uint32_t buffer_id,
 		uint16_t out_port,
 		uint16_t flags,
-		cofaclist const& actions,
+		cofactions const& actions,
 		cofmatch const& match) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
 	actions(actions),
@@ -60,7 +60,7 @@ cofmsg_flow_mod::cofmsg_flow_mod(
 		uint32_t out_port,
 		uint32_t out_group,
 		uint16_t flags,
-		cofinlist const& instructions,
+		cofinstructions const& instructions,
 		cofmatch const& match) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
 	instructions(instructions),
@@ -776,7 +776,7 @@ cofmsg_flow_mod::set_flags(uint16_t flags)
 
 
 
-cofaclist&
+cofactions&
 cofmsg_flow_mod::get_actions()
 {
 	return actions;
@@ -784,7 +784,7 @@ cofmsg_flow_mod::get_actions()
 
 
 
-cofinlist&
+cofinstructions&
 cofmsg_flow_mod::get_instructions()
 {
 	switch (get_version()) {

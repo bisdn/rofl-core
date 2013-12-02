@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-#include "cofaclist.h"
+#include "cofactions.h"
 
 using namespace rofl;
 
-cofaclist::cofaclist(
+cofactions::cofactions(
 		uint8_t ofp_version) :
 				ofp_version(ofp_version)
 {
@@ -15,7 +15,7 @@ cofaclist::cofaclist(
 }
 
 
-cofaclist::cofaclist(
+cofactions::cofactions(
 		uint8_t ofp_version,
 		struct openflow::ofp_action_header *achdr,
 		size_t aclen) :
@@ -26,17 +26,17 @@ cofaclist::cofaclist(
 
 
 
-cofaclist::cofaclist(
-		cofaclist const& aclist)
+cofactions::cofactions(
+		cofactions const& aclist)
 {
 	*this = aclist;
 }
 
 
 
-cofaclist&
-cofaclist::operator= (
-		cofaclist const& aclist)
+cofactions&
+cofactions::operator= (
+		cofactions const& aclist)
 {
 	if (this == &aclist)
 		return *this;
@@ -49,20 +49,20 @@ cofaclist::operator= (
 
 
 
-cofaclist::~cofaclist()
+cofactions::~cofactions()
 {
 
 }
 
 
 std::vector<cofaction>*
-cofaclist::find_action(uint8_t type,
-		std::vector<cofaction> *result) throw (eAcListNotFound)
+cofactions::find_action(uint8_t type,
+		std::vector<cofaction> *result)
 {
 	result->clear();
 
 	// ah, C++ 0x with copy_if(), let us use it ...
-	cofaclist::iterator it;
+	cofactions::iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		cofaction& action = (*it);
@@ -84,14 +84,11 @@ cofaclist::find_action(uint8_t type,
 
 
 std::vector<cofaction>&
-cofaclist::unpack(
+cofactions::unpack(
 		struct openflow::ofp_action_header *achdr,
 		size_t aclen)
-throw (eBadActionBadLen, eBadActionBadOutPort)
 {
 	clear(); // clears elems
-
-	WRITELOG(COFACTION, DBG, "cofaclist(%p)::unpack() aclen:%d", this, aclen);
 
 	// sanity check: aclen must be of size at least of ofp_action_header
 	switch (ofp_version) {
@@ -134,6 +131,7 @@ throw (eBadActionBadLen, eBadActionBadOutPort)
 
 		} break;
 		default:
+			logging::warn << "[cofactions] method unpack() failed, bad ofp version" << std::endl;
 			throw eBadVersion();
 		}
 
@@ -152,16 +150,15 @@ throw (eBadActionBadLen, eBadActionBadOutPort)
 
 
 struct openflow::ofp_action_header*
-cofaclist::pack(
+cofactions::pack(
 		struct openflow::ofp_action_header *achdr,
-		size_t aclen) const throw (eAcListInval)
+		size_t aclen) const
 {
 	if (aclen < length())
 		throw eAcListInval();
 
-	cofaclist::const_iterator it;
-	for (it = elems.begin(); it != elems.end(); ++it)
-	{
+	cofactions::const_iterator it;
+	for (it = elems.begin(); it != elems.end(); ++it) {
 		achdr = (struct openflow::ofp_action_header*)
 				((uint8_t*)((*it).pack(achdr, (*it).length())) + (*it).length());
 	}
@@ -170,12 +167,11 @@ cofaclist::pack(
 
 
 size_t
-cofaclist::length() const
+cofactions::length() const
 {
 	size_t len = 0;
-	cofaclist::const_iterator it;
-	for (it = elems.begin(); it != elems.end(); ++it)
-	{
+	cofactions::const_iterator it;
+	for (it = elems.begin(); it != elems.end(); ++it) {
 		len += (*it).length();
 	}
 	return len;
@@ -183,12 +179,11 @@ cofaclist::length() const
 
 
 cofaction&
-cofaclist::find_action(uint8_t type) throw (eAcListNotFound)
+cofactions::find_action(uint8_t type)
 {
-	cofaclist::iterator it;
+	cofactions::iterator it;
 	if ((it = find_if(elems.begin(), elems.end(),
-			cofaction_find_type((uint16_t)type))) == elems.end())
-	{
+			cofaction_find_type((uint16_t)type))) == elems.end()) {
 		throw eAcListNotFound();
 	}
 	return ((*it));
@@ -196,7 +191,7 @@ cofaclist::find_action(uint8_t type) throw (eAcListNotFound)
 
 
 int
-cofaclist::count_action_type(
+cofactions::count_action_type(
 		uint16_t type)
 {
 	int action_cnt = count_if(elems.begin(), elems.end(), cofaction_find_type(type));
@@ -208,12 +203,12 @@ cofaclist::count_action_type(
 
 
 int
-cofaclist::count_action_output(
+cofactions::count_action_output(
 		uint32_t port_no) const
 {
 	int action_cnt = 0;
 
-	for (cofaclist::const_iterator
+	for (cofactions::const_iterator
 			it = elems.begin(); it != elems.end(); ++it)
 	{
 		cofaction action(*it);
@@ -254,11 +249,11 @@ cofaclist::count_action_output(
 
 
 std::list<uint32_t>
-cofaclist::actions_output_ports()
+cofactions::actions_output_ports()
 {
 	std::list<uint32_t> outports;
 
-	for (cofaclist::iterator
+	for (cofactions::iterator
 			it = elems.begin(); it != elems.end(); ++it)
 	{
 		switch (ofp_version) {

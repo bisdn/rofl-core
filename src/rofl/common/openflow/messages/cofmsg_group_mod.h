@@ -9,7 +9,7 @@
 #define COFMSG_GROUP_MOD_H_ 1
 
 #include "cofmsg.h"
-#include "rofl/common/openflow/cofbclist.h"
+#include "rofl/common/openflow/cofbuckets.h"
 
 namespace rofl
 {
@@ -22,7 +22,7 @@ class cofmsg_group_mod :
 {
 private:
 
-	cofbclist			buckets;
+	cofbuckets			buckets;
 
 	union {
 		uint8_t*					ofhu_group_mod;
@@ -46,7 +46,7 @@ public:
 			uint16_t command = 0,
 			uint8_t  group_type = 0,
 			uint32_t group_id = 0,
-			cofbclist const& buckets = cofbclist());
+			cofbuckets const& buckets = cofbuckets());
 
 
 	/**
@@ -160,7 +160,7 @@ public:
 	/**
 	 *
 	 */
-	cofbclist&
+	cofbuckets&
 	get_buckets();
 };
 

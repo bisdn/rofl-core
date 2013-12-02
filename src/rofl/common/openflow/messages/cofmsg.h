@@ -23,9 +23,9 @@
 
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/cofmatch.h"
-#include "rofl/common/openflow/cofinlist.h"
-#include "rofl/common/openflow/cofaclist.h"
-#include "rofl/common/openflow/cofbclist.h"
+#include "rofl/common/openflow/cofinstructions.h"
+#include "rofl/common/openflow/cofactions.h"
+#include "rofl/common/openflow/cofbuckets.h"
 #include "rofl/common/openflow/cofportlist.h"
 #include "rofl/common/openflow/cofport.h"
 #include "rofl/common/openflow/cofdescstats.h"

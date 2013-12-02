@@ -10,8 +10,8 @@
 
 #include "../cmemory.h"
 #include "cofmatch.h"
-#include "cofaclist.h"
-#include "cofinlist.h"
+#include "cofactions.h"
+#include "cofinstructions.h"
 #include "../../platform/unix/csyslog.h"
 #include "openflow.h"
 #include "openflow_rofl_exceptions.h"

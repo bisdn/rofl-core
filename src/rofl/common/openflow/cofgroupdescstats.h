@@ -12,7 +12,7 @@
 #include "../../platform/unix/csyslog.h"
 #include "openflow.h"
 #include "openflow_rofl_exceptions.h"
-#include "cofbclist.h"
+#include "cofbuckets.h"
 
 namespace rofl
 {
@@ -26,7 +26,7 @@ private: // data structures
 	uint8_t 		of_version;
 	uint8_t			type;
 	uint32_t		group_id;
-	cofbclist		buckets;
+	cofbuckets		buckets;
 
 public: // data structures
 
@@ -45,7 +45,7 @@ public:
 			uint8_t of_version,
 			uint8_t type,
 			uint32_t group_id,
-			cofbclist const& buckets);
+			cofbuckets const& buckets);
 
 	/**
 	 *
@@ -111,7 +111,7 @@ public:
 	/**
 	 *
 	 */
-	cofbclist&
+	cofbuckets&
 	get_buckets() { return buckets; };
 
 	/**
@@ -136,7 +136,7 @@ public:
 	 *
 	 */
 	void
-	set_buckets(cofbclist const& buckets) { this->buckets = buckets; };
+	set_buckets(cofbuckets const& buckets) { this->buckets = buckets; };
 };
 
 }

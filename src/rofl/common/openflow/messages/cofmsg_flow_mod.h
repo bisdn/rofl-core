@@ -9,8 +9,8 @@
 #define COFMSG_FLOW_MOD_H_ 1
 
 #include "cofmsg.h"
-#include "rofl/common/openflow/cofaclist.h"
-#include "rofl/common/openflow/cofinlist.h"
+#include "rofl/common/openflow/cofactions.h"
+#include "rofl/common/openflow/cofinstructions.h"
 #include "rofl/common/openflow/cofmatch.h"
 
 namespace rofl
@@ -24,8 +24,8 @@ class cofmsg_flow_mod :
 {
 private:
 
-	cofaclist			actions; 		// for OF1.0
-	cofinlist			instructions; 	// since OF1.1
+	cofactions			actions; 		// for OF1.0
+	cofinstructions			instructions; 	// since OF1.1
 	cofmatch			match;
 
 	union {
@@ -58,7 +58,7 @@ public:
 			uint32_t buffer_id = 0,
 			uint16_t out_port = 0,
 			uint16_t flags = 0,
-			cofaclist const& actions = cofaclist(),
+			cofactions const& actions = cofactions(),
 			cofmatch const& match = cofmatch(openflow10::OFP_VERSION));
 
 
@@ -79,7 +79,7 @@ public:
 			uint32_t out_port = 0,
 			uint32_t out_group = 0,
 			uint16_t flags = 0,
-			cofinlist const& instructions = cofinlist(),
+			cofinstructions const& instructions = cofinstructions(),
 			cofmatch const& match = cofmatch(openflow12::OFP_VERSION));
 
 
@@ -290,13 +290,13 @@ public:
 	/**
 	 *
 	 */
-	cofaclist&
+	cofactions&
 	get_actions();
 
 	/**
 	 *
 	 */
-	cofinlist&
+	cofinstructions&
 	get_instructions();
 
 	/**

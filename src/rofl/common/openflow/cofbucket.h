@@ -22,7 +22,7 @@
 
 #include "rofl/platform/unix/csyslog.h"
 
-#include "cofaclist.h"
+#include "cofactions.h"
 
 namespace rofl
 {
@@ -49,7 +49,7 @@ public: // data structures
     uint32_t watch_port;
     uint32_t watch_group;
 
-	cofaclist actions; // list of OpenFlow actions
+	cofactions actions; // list of OpenFlow actions
 
 public: // per instance methods
 

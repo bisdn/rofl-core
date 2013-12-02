@@ -9,7 +9,7 @@
 #define COFMSG_PACKET_OUT_H_ 1
 
 #include "cofmsg.h"
-#include "rofl/common/openflow/cofaclist.h"
+#include "rofl/common/openflow/cofactions.h"
 #include "rofl/common/cpacket.h"
 
 namespace rofl
@@ -23,7 +23,7 @@ class cofmsg_packet_out :
 {
 private:
 
-	cofaclist			actions;
+	cofactions			actions;
 	cpacket				packet;
 
 	union {
@@ -49,7 +49,7 @@ public:
 			uint32_t xid = 0,
 			uint32_t buffer_id = 0,
 			uint32_t in_port = 0,
-			cofaclist const& actions = cofaclist(),
+			cofactions const& actions = cofactions(),
 			uint8_t *data = (uint8_t*)0,
 			size_t datalen = 0);
 
@@ -153,7 +153,7 @@ public:
 	/**
 	 *
 	 */
-	cofaclist&
+	cofactions&
 	get_actions();
 
 	/**

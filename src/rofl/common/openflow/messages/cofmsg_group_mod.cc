@@ -10,7 +10,7 @@ cofmsg_group_mod::cofmsg_group_mod(
 		uint16_t command,
 		uint8_t  group_type,
 		uint32_t group_id,
-		cofbclist const& buckets) :
+		cofbuckets const& buckets) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
 	buckets(buckets)
 {
@@ -293,7 +293,7 @@ cofmsg_group_mod::set_group_id(uint32_t group_id)
 
 
 
-cofbclist&
+cofbuckets&
 cofmsg_group_mod::get_buckets()
 {
 	return buckets;

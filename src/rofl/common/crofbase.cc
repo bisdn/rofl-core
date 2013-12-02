@@ -1580,7 +1580,7 @@ crofbase::send_packet_out_message(
 	cofdpt *dpt,
 	uint32_t buffer_id,
 	uint32_t in_port,
-	cofaclist& aclist,
+	cofactions& aclist,
 	uint8_t *data,
 	size_t datalen)
 {
@@ -2037,7 +2037,7 @@ crofbase::send_flow_mod_message(
 	uint32_t out_port,
 	uint32_t out_group,
 	uint16_t flags,
-	cofinlist& inlist)
+	cofinstructions& inlist)
 {
 	cofmsg_flow_mod *pack =
 			new cofmsg_flow_mod(

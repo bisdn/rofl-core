@@ -7,7 +7,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 		uint32_t xid,
 		uint32_t buffer_id,
 		uint32_t in_port,
-		cofaclist const& actions,
+		cofactions const& actions,
 		uint8_t *data,
 		size_t datalen) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
@@ -359,7 +359,7 @@ cofmsg_packet_out::set_in_port(uint32_t in_port)
 
 
 
-cofaclist&
+cofactions&
 cofmsg_packet_out::get_actions()
 {
 	return actions;

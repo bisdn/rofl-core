@@ -25,7 +25,7 @@ class eBcListInval : public eBcListBase {};
 class eBcListOutOfRange : public eBcListBase {};
 
 
-class cofbclist : public coflist<cofbucket> {
+class cofbuckets : public coflist<cofbucket> {
 
 	uint8_t ofp_version;
 
@@ -36,25 +36,25 @@ public: // methods
 
 	/** constructor
 	 */
-	cofbclist(
+	cofbuckets(
 			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
 			int bcnum = 0);
 
 	/** destructor
 	 */
 	virtual
-	~cofbclist();
+	~cofbuckets();
 
 	/**
 	 */
-	cofbclist(
-			cofbclist const& bclist);
+	cofbuckets(
+			cofbuckets const& bclist);
 
 	/**
 	 */
-	cofbclist&
+	cofbuckets&
 	operator= (
-			cofbclist const& bclist);
+			cofbuckets const& bclist);
 
 
 
@@ -129,7 +129,7 @@ private:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofbclist const& buckets) {
+	operator<< (std::ostream& os, cofbuckets const& buckets) {
 		os << "<cofbclist ";
 			os << dynamic_cast<coflist const&>( buckets ) << " ";
 		os << ">";

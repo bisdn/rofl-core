@@ -10,8 +10,8 @@
 
 #include "../cmemory.h"
 #include "cofmatch.h"
-#include "cofaclist.h"
-#include "cofinlist.h"
+#include "cofactions.h"
+#include "cofinstructions.h"
 #include "../../platform/unix/csyslog.h"
 #include "openflow.h"
 #include "openflow_rofl_exceptions.h"
@@ -210,8 +210,8 @@ private: // data structures
 	uint64_t 	packet_count;
 	uint64_t	byte_count;
 	cofmatch 	match;
-	cofaclist	actions;		// for OF1.0
-	cofinlist	instructions;	// for OF1.2
+	cofactions	actions;		// for OF1.0
+	cofinstructions	instructions;	// for OF1.2
 
 #define OFP12_FLOW_STATS_REPLY_STATIC_HDR_LEN 		48 // bytes
 
@@ -243,7 +243,7 @@ public:
 			uint64_t packet_count,
 			uint64_t byte_count,
 			cofmatch const& match,
-			cofaclist const& actions);
+			cofactions const& actions);
 
 
 	/**
@@ -261,7 +261,7 @@ public:
 			uint64_t packet_count,
 			uint64_t byte_count,
 			cofmatch const& match,
-			cofinlist const& instructions);
+			cofinstructions const& instructions);
 
 
 
@@ -384,13 +384,13 @@ public:
 	/**
 	 *
 	 */
-	cofaclist&
+	cofactions&
 	get_actions();
 
 	/**
 	 *
 	 */
-	cofinlist&
+	cofinstructions&
 	get_instructions();
 };
 

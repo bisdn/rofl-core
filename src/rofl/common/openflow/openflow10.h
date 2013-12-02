@@ -54,7 +54,7 @@ namespace openflow10 {
 	/* The most significant bit being set in the version field indicates an
 	 * experimental OpenFlow version.
 	 */
-	#define OFP10_VERSION   (rofl::openflow10::OFP_VERSION)
+	#define OFP10_VERSION   1
 
 
 	/* Header on all OpenFlow packets. */

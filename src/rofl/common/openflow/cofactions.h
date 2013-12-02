@@ -26,13 +26,13 @@ extern "C" {
 namespace rofl
 {
 
-class eAcListBase 		: public cerror {}; // base error class for cofaclist
+class eAcListBase 		: public cerror {}; // base error class for cofactions
 class eAcListInval 		: public eAcListBase {}; // parameter is invalid
 class eAcListNotFound 	: public eAcListBase {}; // element not found
 class eAcListOutOfRange : public eAcListBase {}; // index out of range in operator[]
 
 
-class cofaclist : public coflist<cofaction>
+class cofactions : public coflist<cofaction>
 {
 public:
 
@@ -40,13 +40,13 @@ public:
 
 	/** constructor
 	 */
-	cofaclist(
+	cofactions(
 			uint8_t ofp_version = OFP_VERSION_UNKNOWN);
 
 
 	/** constructor
 	 */
-	cofaclist(
+	cofactions(
 			uint8_t ofp_version,
 			struct openflow::ofp_action_header *achdr,
 			size_t aclen);
@@ -54,21 +54,21 @@ public:
 
 	/**
 	 */
-	cofaclist(
-			cofaclist const& aclist);
+	cofactions(
+			cofactions const& aclist);
 
 
 	/**
 	 */
-	cofaclist&
+	cofactions&
 	operator= (
-			cofaclist const& aclist);
+			cofactions const& aclist);
 
 
 	/** destructor
 	 */
 	virtual
-	~cofaclist();
+	~cofactions();
 
 
 
@@ -77,10 +77,10 @@ public:
 	 */
 	std::vector<cofaction>*
 	find_action(uint8_t type,
-			std::vector<cofaction> *result) throw (eAcListNotFound);
+			std::vector<cofaction> *result);
 
 	cofaction&
-	find_action(uint8_t type) throw (eAcListNotFound);
+	find_action(uint8_t type);
 
 
 	/** create a std::list<cofaction*> from a struct ofp_flow_mod
@@ -88,8 +88,7 @@ public:
 	std::vector<cofaction>&
 	unpack(
 			struct openflow::ofp_action_header *actions,
-			size_t aclen)
-		throw (eBadActionBadLen, eBadActionBadOutPort);
+			size_t aclen);
 
 	/** builds an array of struct ofp_instructions
 	 * from a std::vector<cofinst*>
@@ -98,7 +97,7 @@ public:
 	pack(
 			struct openflow::ofp_action_header *actions,
 			size_t aclen)
-		const throw (eAcListInval);
+		const;
 
 	/** returns required length for array of struct ofp_action_headers
 	 * for all actions defined in std::vector<cofaction*>
@@ -136,8 +135,8 @@ private:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaclist const& actions) {
-		os << "<cofaclist ";
+	operator<< (std::ostream& os, cofactions const& actions) {
+		os << "<cofactions ";
 			os << "ofp-version:" << (int)actions.ofp_version << " ";
 			os << dynamic_cast<coflist const&>( actions ) << " ";
 		os << ">";

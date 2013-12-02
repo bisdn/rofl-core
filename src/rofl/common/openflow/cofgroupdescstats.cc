@@ -18,7 +18,7 @@ cofgroup_desc_stats_reply::cofgroup_desc_stats_reply(
 		uint8_t of_version,
 		uint8_t type,
 		uint32_t group_id,
-		cofbclist const& buckets) :
+		cofbuckets const& buckets) :
 				of_version(of_version),
 				type(type),
 				group_id(group_id),

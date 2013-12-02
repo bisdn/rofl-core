@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "cofinlist.h"
+#include "cofinstructions.h"
 
 using namespace rofl;
 
-cofinlist::cofinlist(
+cofinstructions::cofinstructions(
 		uint8_t ofp_version) :
 				ofp_version(ofp_version)
 {
@@ -14,16 +14,16 @@ cofinlist::cofinlist(
 
 
 
-cofinlist::cofinlist(cofinlist const& inlist)
+cofinstructions::cofinstructions(cofinstructions const& inlist)
 {
 	*this = inlist;
 }
 
 
 
-cofinlist&
-cofinlist::operator= (
-		cofinlist const& inlist)
+cofinstructions&
+cofinstructions::operator= (
+		cofinstructions const& inlist)
 {
 	if (this == &inlist)
 		return *this;
@@ -36,13 +36,13 @@ cofinlist::operator= (
 
 
 
-cofinlist::~cofinlist()
+cofinstructions::~cofinstructions()
 {
 }
 
 
 std::vector<cofinst>&
-cofinlist::unpack(
+cofinstructions::unpack(
 		uint8_t *instructions,
 		size_t inlen)
 throw (eInstructionBadLen)
@@ -73,7 +73,7 @@ throw (eInstructionBadLen)
 
 
 uint8_t*
-cofinlist::pack(
+cofinstructions::pack(
 		uint8_t *instructions,
 		size_t inlen) const throw (eInListInval)
 {
@@ -84,7 +84,7 @@ cofinlist::pack(
 
 	struct ofp_instruction *inhdr = (struct ofp_instruction*)instructions; // first instruction header
 
-	cofinlist::const_iterator it;
+	cofinstructions::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		cofinst const& inst = (*it);
@@ -98,10 +98,10 @@ cofinlist::pack(
 
 
 size_t
-cofinlist::length() const
+cofinstructions::length() const
 {
 	size_t inlen = 0;
-	cofinlist::const_iterator it;
+	cofinstructions::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		inlen += (*it).length();
@@ -113,11 +113,11 @@ cofinlist::length() const
 
 
 cofinst&
-cofinlist::find_inst(
+cofinstructions::find_inst(
 		uint8_t type)
 throw (eInListNotFound)
 {
-	cofinlist::iterator it;
+	cofinstructions::iterator it;
 	if ((it = find_if(elems.begin(), elems.end(),
 			cofinst_find_type((uint16_t)type))) == elems.end()) {
 		throw eInListNotFound();
@@ -128,9 +128,9 @@ throw (eInListNotFound)
 
 
 void
-cofinlist::test()
+cofinstructions::test()
 {
-	cofinlist inlist;
+	cofinstructions inlist;
 
 	inlist[0] = cofinst_write_actions(openflow12::OFP_VERSION);
 	inlist[0].actions[0] = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_mpls_label(111111));
@@ -139,7 +139,7 @@ cofinlist::test()
 
 	fprintf(stderr, "--------------------------\n");
 
-	cofinlist inlist2;
+	cofinstructions inlist2;
 
 	inlist2[0] = cofinst_apply_actions(openflow12::OFP_VERSION);
 	inlist2[0].actions[0] = cofaction_output(openflow12::OFP_VERSION, 1);

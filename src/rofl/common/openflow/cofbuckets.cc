@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "cofbclist.h"
+#include "cofbuckets.h"
 
 using namespace rofl;
 
-cofbclist::cofbclist(
+cofbuckets::cofbuckets(
 		uint8_t ofp_version,
 		int bcnum) :
 				ofp_version(ofp_version)
@@ -18,22 +18,22 @@ cofbclist::cofbclist(
 
 
 
-cofbclist::~cofbclist()
+cofbuckets::~cofbuckets()
 {
 
 }
 
 
 
-cofbclist::cofbclist(cofbclist const& bclist)
+cofbuckets::cofbuckets(cofbuckets const& bclist)
 {
 	*this = bclist;
 }
 
 
 
-cofbclist&
-cofbclist::operator= (cofbclist const& bclist)
+cofbuckets&
+cofbuckets::operator= (cofbuckets const& bclist)
 {
 	if (this == &bclist)
 		return *this;
@@ -47,7 +47,7 @@ cofbclist::operator= (cofbclist const& bclist)
 
 
 std::vector<cofbucket>&
-cofbclist::unpack(
+cofbuckets::unpack(
 	uint8_t* buckets,
 	size_t bclen)
 throw (eBucketBadLen, eBadActionBadOutPort)
@@ -68,7 +68,7 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 
 
 uint8_t*
-cofbclist::pack(
+cofbuckets::pack(
 	uint8_t* buckets,
 	size_t bclen) const
 throw (eBcListInval)
@@ -88,7 +88,7 @@ throw (eBcListInval)
 
 
 std::vector<cofbucket>&
-cofbclist::unpack(
+cofbuckets::unpack(
 		struct openflow12::ofp_bucket *buckets,
 		size_t bclen)
 throw (eBucketBadLen, eBadActionBadOutPort)
@@ -121,7 +121,7 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 
 
 struct openflow12::ofp_bucket*
-cofbclist::pack(
+cofbuckets::pack(
 	struct openflow12::ofp_bucket *buckets,
 	size_t bclen) const throw (eBcListInval)
 {
@@ -132,7 +132,7 @@ cofbclist::pack(
 
 	struct openflow12::ofp_bucket *bchdr = buckets; // first bucket header
 
-	cofbclist::const_iterator it;
+	cofbuckets::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		cofbucket const& bucket = (*it);
@@ -147,7 +147,7 @@ cofbclist::pack(
 
 
 std::vector<cofbucket>&
-cofbclist::unpack(
+cofbuckets::unpack(
 		struct openflow13::ofp_bucket *buckets,
 		size_t bclen)
 throw (eBucketBadLen, eBadActionBadOutPort)
@@ -180,7 +180,7 @@ throw (eBucketBadLen, eBadActionBadOutPort)
 
 
 struct openflow13::ofp_bucket*
-cofbclist::pack(
+cofbuckets::pack(
 	struct openflow13::ofp_bucket *buckets,
 	size_t bclen) const throw (eBcListInval)
 {
@@ -191,7 +191,7 @@ cofbclist::pack(
 
 	struct openflow13::ofp_bucket *bchdr = buckets; // first bucket header
 
-	cofbclist::const_iterator it;
+	cofbuckets::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		cofbucket const& bucket = (*it);
@@ -206,10 +206,10 @@ cofbclist::pack(
 
 
 size_t
-cofbclist::length() const
+cofbuckets::length() const
 {
 	size_t len = 0;
-	cofbclist::const_iterator it;
+	cofbuckets::const_iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it)
 	{
 		len += (*it).length();

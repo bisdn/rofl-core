@@ -19,7 +19,7 @@
 #include "../cerror.h"
 #include "../cvastring.h"
 #include "../thread_helper.h"
-#include "cofaclist.h"
+#include "cofactions.h"
 
 #include "rofl/platform/unix/csyslog.h"
 
@@ -51,7 +51,7 @@ public: // static stuff, enums, constants
 public: // data structures
 
 	pthread_mutex_t inmutex; // mutex for this cofinst instance
-	cofaclist actions;	// vector of cofaction instances
+	cofactions actions;	// vector of cofaction instances
 
 	union {
 		// OpenFlow 1.2

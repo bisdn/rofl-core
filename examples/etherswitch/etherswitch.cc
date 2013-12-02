@@ -183,7 +183,7 @@ ethswitch::handle_packet_in(
 			msg->get_packet().ether()->get_dl_type());
 
 
-	cofaclist actions;
+	cofactions actions;
 
 	cfib::get_fib(dpt->get_dpid()).fib_update(
 							this,

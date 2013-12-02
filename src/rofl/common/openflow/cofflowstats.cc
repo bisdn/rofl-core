@@ -342,7 +342,7 @@ cofflow_stats_reply::cofflow_stats_reply(
 		uint64_t packet_count,
 		uint64_t byte_count,
 		cofmatch const& match,
-		cofaclist const& actions) :
+		cofactions const& actions) :
 				of_version(of_version),
 				table_id(table_id),
 				duration_sec(duration_sec),
@@ -371,7 +371,7 @@ cofflow_stats_reply::cofflow_stats_reply(
 		uint64_t packet_count,
 		uint64_t byte_count,
 		cofmatch const& match,
-		cofinlist const& instructions) :
+		cofinstructions const& instructions) :
 				of_version(of_version),
 				table_id(table_id),
 				duration_sec(duration_sec),
@@ -658,7 +658,7 @@ cofflow_stats_reply::get_match()
 
 
 
-cofaclist&
+cofactions&
 cofflow_stats_reply::get_actions()
 {
 	return actions;
@@ -666,7 +666,7 @@ cofflow_stats_reply::get_actions()
 
 
 
-cofinlist&
+cofinstructions&
 cofflow_stats_reply::get_instructions()
 {
 	return instructions;

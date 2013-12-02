@@ -23,7 +23,7 @@ class eInListOutOfRange : public eInListBase {}; // out of range
 
 
 
-class cofinlist : public coflist<cofinst>
+class cofinstructions : public coflist<cofinst>
 {
 public:
 
@@ -37,24 +37,24 @@ public: // methods
 
 	/** constructor
 	 */
-	cofinlist(
+	cofinstructions(
 			uint8_t ofp_version = OFP_VERSION_UNKNOWN);
 
 	/** destructor
 	 */
 	virtual
-	~cofinlist();
+	~cofinstructions();
 
 	/**
 	 */
-	cofinlist(
-			cofinlist const& inlist);
+	cofinstructions(
+			cofinstructions const& inlist);
 
 	/**
 	 */
-	cofinlist&
+	cofinstructions&
 	operator= (
-			cofinlist const& inlist);
+			cofinstructions const& inlist);
 
 	/** stores cofinst instances in this->invec from a packed array struct ofp_instruction (e.g. in struct ofp_flow_mod)
 	 */
@@ -88,11 +88,11 @@ public: // methods
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofinlist const& inlist) {
+	operator<< (std::ostream& os, cofinstructions const& inlist) {
 		os << "<cofinlist ";
 			os << "ofp-version:" << (int)inlist.ofp_version << " ";
 			os << std::endl;
-			for (cofinlist::const_iterator
+			for (cofinstructions::const_iterator
 					it = inlist.elems.begin(); it != inlist.elems.end(); ++it) {
 				os << (*it) << std::endl;
 			}

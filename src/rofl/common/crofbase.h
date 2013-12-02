@@ -25,13 +25,11 @@
 #include "cerror.h"
 #include "cvastring.h"
 #include "croflexp.h"
-#include "cphyport.h"
 #include "csocket.h"
 #include "thread_helper.h"
 #include "logging.h"
 
 #include "openflow/openflow.h"
-#include "openflow/openflow_rofl.h"
 
 //#include "rofl/experimental/crib.h"
 #include "rofl/platform/unix/crandom.h"
@@ -42,9 +40,9 @@
 #include "openflow/cofctl.h"
 #include "openflow/cofctlImpl.h"
 #include "openflow/cofinst.h"
-#include "openflow/cofinlist.h"
+#include "openflow/cofinstructions.h"
 #include "openflow/cofaction.h"
-#include "openflow/cofaclist.h"
+#include "openflow/cofactions.h"
 #include "openflow/cofpacketqueuelist.h"
 #include "openflow/cofmatch.h"
 #include "openflow/cflowentry.h"
@@ -2004,7 +2002,7 @@ public:
 		cofdpt *dpt,
 		uint32_t buffer_id,
 		uint32_t in_port,
-		cofaclist& aclist,
+		cofactions& aclist,
 		uint8_t *data = NULL,
 		size_t datalen = 0);
 
@@ -2147,7 +2145,7 @@ public:
 		uint32_t out_port,
 		uint32_t out_group,
 		uint16_t flags,
-		cofinlist& inlist);
+		cofinstructions& inlist);
 
 
 
