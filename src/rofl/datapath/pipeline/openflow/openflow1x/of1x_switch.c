@@ -259,6 +259,9 @@ void of1x_full_dump_switch(of1x_switch_t* sw){
 	/* Dumping tables */		
 	for(i=0;i<sw->pipeline->num_of_tables;i++)
 		of1x_dump_table(&sw->pipeline->tables[i]);
-	ROFL_PIPELINE_INFO("--End of pipeline tables--\n\n");
+	ROFL_PIPELINE_INFO("--End of pipeline tables--\n");
+	
+	of1x_dump_group_table(sw->pipeline->groups);
+	ROFL_PIPELINE_DEBUG("--End of group table--\n\n");
 }
 
