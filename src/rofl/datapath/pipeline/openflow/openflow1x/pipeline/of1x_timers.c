@@ -4,6 +4,7 @@
 #include "of1x_flow_entry.h"
 
 #include "../../../platform/memory.h"
+#include "../../../platform/likely.h"
 
 #include "../../../util/logging.h"
 
@@ -182,7 +183,7 @@ static of1x_timer_group_t* __of1x_timer_group_init(uint64_t timeout, of1x_timer_
 	// create the new timer_group
 	of1x_timer_group_t* new_group;
 	new_group = platform_malloc_shared(sizeof(of1x_timer_group_t));
-	if(new_group == NULL)
+	if(unlikely(new_group == NULL))
 	{
 		ROFL_PIPELINE_DEBUG("<%s:%d> Error allocating memory\n",__func__,__LINE__);
 		return NULL;
@@ -233,25 +234,13 @@ static of1x_entry_timer_t* __of1x_entry_timer_init(of1x_timer_group_t* tg, of1x_
 {
 	of1x_entry_timer_t* new_entry;
 	new_entry = platform_malloc_shared(sizeof(of1x_entry_timer_t));
-	if(new_entry==NULL)
+	if(unlikely(new_entry==NULL))
 	{
 		ROFL_PIPELINE_DEBUG("<%s:%d> Error allocating memory\n",__func__,__LINE__);
 		return NULL;
 	}
 	new_entry->entry = entry;
 	new_entry->group = tg;
-
-#if 0	
-	if(last_update)
-	{
-		new_entry->time_last_update.tv_sec = last_update->tv_sec;
-		new_entry->time_last_update.tv_usec = last_update->tv_usec;
-	}
-	else
-	{
-		new_entry->time_last_update.tv_sec = new_entry->time_last_update.tv_usec = 0;
-	}	
-#endif
 	
 	// we add the new entries at the end
 	new_entry->next=NULL;
@@ -294,7 +283,7 @@ static of1x_entry_timer_t* __of1x_entry_timer_init(of1x_timer_group_t* tg, of1x_
 //NOTE is this function responsible for the destruction of the flow entry? I guess not
 static rofl_result_t __of1x_destroy_single_timer_entry_clean(of1x_entry_timer_t* entry, of1x_flow_table_t * table)
 {	
-	if(entry)
+	if(likely(entry!=NULL))
 	{
 		if(!entry->next && !entry->prev) // this is the only entry
 		{
@@ -346,7 +335,7 @@ rofl_result_t __of1x_destroy_timer_entries(of1x_flow_entry_t * entry){
 	// NOTE do I need to put the timeout value to zero
 	// or I just supose that the whole entry is going to be deleted?
 
-	if(!entry->table)
+	if(unlikely(entry->table==NULL))
 		return ROFL_FAILURE;
 
 	if(entry->timer_info.hard_timeout){
