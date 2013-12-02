@@ -10,15 +10,17 @@ cofmsg_queue_stats_request::cofmsg_queue_stats_request(
 		uint32_t xid,
 		uint16_t flags,
 		cofqueue_stats_request const& queue_stats) :
-	cofmsg_stats(of_version, xid, OFPST_QUEUE, flags),
+	cofmsg_stats(of_version, xid, 0, flags),
 	queue_stats(queue_stats)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
+		set_stats_type(openflow10::OFPST_QUEUE);
 		set_type(openflow10::OFPT_STATS_REQUEST);
 		resize(length());
 	} break;
 	case openflow12::OFP_VERSION: {
+		set_stats_type(openflow12::OFPST_QUEUE);
 		set_type(openflow12::OFPT_STATS_REQUEST);
 		resize(length());
 	} break;
@@ -197,15 +199,17 @@ cofmsg_queue_stats_reply::cofmsg_queue_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		std::vector<cofqueue_stats_reply> const& queue_stats) :
-	cofmsg_stats(of_version, xid, OFPST_QUEUE, flags),
+	cofmsg_stats(of_version, xid, 0, flags),
 	queue_stats(queue_stats)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
+		set_stats_type(openflow10::OFPST_QUEUE);
 		set_type(openflow10::OFPT_STATS_REPLY);
 		resize(length());
 	} break;
 	case openflow12::OFP_VERSION: {
+		set_stats_type(openflow12::OFPST_QUEUE);
 		set_type(openflow12::OFPT_STATS_REPLY);
 		resize(length());
 	} break;

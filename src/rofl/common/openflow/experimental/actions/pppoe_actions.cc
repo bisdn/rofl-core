@@ -6,7 +6,7 @@ using namespace rofl;
 cofaction_push_pppoe::cofaction_push_pppoe(
 		uint8_t ofp_version,
 		uint16_t ethertype) :
-				cofaction_experimenter(ofp_version, ROFL_EXPERIMENTER_ID, OFXAT_PUSH_PPPOE, sizeof(struct ofp12_action_push))
+				cofaction_experimenter(ofp_version, ROFL_EXPERIMENTER_ID, OFXAT_PUSH_PPPOE, sizeof(struct openflow12::ofp_action_push))
 {
 	switch (ofp_version) {
 	case OFP12_VERSION:
@@ -14,7 +14,7 @@ cofaction_push_pppoe::cofaction_push_pppoe(
 		eoac_header = cofaction_experimenter::soaction();
 
 		eoac_push_pppoe->expbody.type		= htobe16(OFXAT_PUSH_PPPOE);
-		eoac_push_pppoe->expbody.len		= htobe16(sizeof(struct ofp12_action_push));
+		eoac_push_pppoe->expbody.len		= htobe16(sizeof(struct openflow12::ofp_action_push));
 		eoac_push_pppoe->expbody.ethertype 	= htobe16(ethertype);
 	} break;
 	}
@@ -25,7 +25,7 @@ cofaction_push_pppoe::cofaction_push_pppoe(
 cofaction_push_pppoe::cofaction_push_pppoe(cofaction const& action) :
 		cofaction_experimenter(action)
 {
-	if ((sizeof(struct ofp12_action_experimenter_header) + sizeof(struct ofp12_action_push)) <
+	if ((sizeof(struct openflow12::ofp_action_experimenter_header) + sizeof(struct openflow12::ofp_action_push)) <
 			be16toh(action.oac_header->len))
 		throw eBadActionBadLen();
 
@@ -77,7 +77,7 @@ cofaction_pop_pppoe::cofaction_pop_pppoe(
 cofaction_pop_pppoe::cofaction_pop_pppoe(cofaction const& action) :
 	cofaction_experimenter(action)
 {
-	if ((sizeof(struct ofp12_action_experimenter_header) + sizeof(struct ofx_action_pop_pppoe)) <
+	if ((sizeof(struct openflow12::ofp_action_experimenter_header) + sizeof(struct ofx_action_pop_pppoe)) <
 			be16toh(action.oac_header->len))
 		throw eBadActionBadLen();
 

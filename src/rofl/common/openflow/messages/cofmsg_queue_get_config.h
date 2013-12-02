@@ -25,7 +25,7 @@ class cofmsg_queue_get_config_request :
 private:
 
 	union {
-		uint8_t*								ofhu_queue_get_config_request;
+		uint8_t*											ofhu_queue_get_config_request;
 		struct openflow10::ofp_queue_get_config_request*	ofhu10_queue_get_config_request;
 		struct openflow12::ofp_queue_get_config_request*	ofhu12_queue_get_config_request;
 		struct openflow13::ofp_queue_get_config_request*	ofhu13_queue_get_config_request;

@@ -27,13 +27,13 @@ public:
 	};
 
 	struct ofx_action_push_pppoe {
-		struct ofp12_experimenter_header 	exphdr;
+		struct openflow12::ofp_experimenter_header 	exphdr;
 		struct ofx_action_push_pppoe_header	expbody;
 	};
 
 	union {
 		uint8_t									*oacu_action;
-		struct ofp_action_header				*oacu_header;
+		struct openflow::ofp_action_header		*oacu_header;
 		struct ofx_action_push_pppoe 			*oacu_push_pppoe;
 	} eoac_oacu;
 
@@ -88,13 +88,13 @@ public:
 	};
 
 	struct ofx_action_pop_pppoe {
-		struct ofp12_experimenter_header 	exphdr;
+		struct openflow12::ofp_experimenter_header 	exphdr;
 		struct ofx_action_pop_pppoe_header 	expbody;
 	};
 
 	union {
 		uint8_t									*oacu_action;
-		struct ofp_action_header				*oacu_header;
+		struct openflow::ofp_action_header		*oacu_header;
 		struct ofx_action_pop_pppoe 			*oacu_pop_pppoe;
 	} eoac_oacu;
 

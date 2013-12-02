@@ -34,14 +34,14 @@ private:
 	cofqueue_prop_list	qpl;	//< list of queue properties
 
 	union {
-		uint8_t						*ofpu_pqueue;
+		uint8_t								*ofpu_pqueue;
 		struct openflow10::ofp_packet_queue	*ofpu10_pqueue;
 		struct openflow12::ofp_packet_queue	*ofpu12_pqueue;
 	} ofp_ofpu;
 
 #define ofp_pqueue		ofp_ofpu.ofpu_pqueue
-#define openflow10::ofp_pqueue	ofp_ofpu.ofpu10_pqueue
-#define openflow12::ofp_pqueue	ofp_ofpu.ofpu12_pqueue
+#define ofp10_pqueue	ofp_ofpu.ofpu10_pqueue
+#define ofp12_pqueue	ofp_ofpu.ofpu12_pqueue
 
 
 	/**
@@ -50,10 +50,11 @@ private:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofpacket_queue const& pq)
 	{
-		os 	<< "PacketQueue["
+		os 	<< "<PacketQueue "
 				<< "port:" 			<< pq.get_port() << " "
 				<< "queueid: " 	<< pq.get_queue_id() << " "
-				<< "properties: " 	<< pq.qpl << "]";
+				<< "properties: " 	<< pq.qpl << " ";
+		os << ">";
 		return os;
 	};
 

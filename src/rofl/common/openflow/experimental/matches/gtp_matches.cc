@@ -5,10 +5,10 @@ using namespace rofl;
 
 coxmatch_ofx_gtp_teid::coxmatch_ofx_gtp_teid(
 		uint32_t teid) :
-			coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint32_t))
+			coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + sizeof(uint32_t))
 {
-	set_oxm_class(OFPXMC_EXPERIMENTER);
-	set_oxm_field(OFPXMT_OFX_GTP_TEID);
+	set_oxm_class(openflow::OFPXMC_EXPERIMENTER);
+	set_oxm_field(openflow::experimental::OFPXMT_OFX_GTP_TEID);
 	set_oxm_length(sizeof(uint32_t));
 	set_teid(teid);
 }
@@ -18,10 +18,10 @@ coxmatch_ofx_gtp_teid::coxmatch_ofx_gtp_teid(
 coxmatch_ofx_gtp_teid::coxmatch_ofx_gtp_teid(
 		uint32_t teid,
 		uint32_t mask) :
-			coxmatch(sizeof(struct ofp_oxm_hdr) + 2 * sizeof(uint32_t))
+			coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + 2 * sizeof(uint32_t))
 {
-	set_oxm_class(OFPXMC_EXPERIMENTER);
-	set_oxm_field(OFPXMT_OFX_GTP_TEID);
+	set_oxm_class(openflow::OFPXMC_EXPERIMENTER);
+	set_oxm_field(openflow::experimental::OFPXMT_OFX_GTP_TEID);
 	set_oxm_hasmask(true);
 	set_oxm_length(2 * sizeof(uint32_t));
 	set_teid(teid, mask);
@@ -88,10 +88,10 @@ coxmatch_ofx_gtp_teid::set_teid(uint32_t teid, uint32_t mask)
 
 coxmatch_ofx_gtp_msg_type::coxmatch_ofx_gtp_msg_type(
 		uint8_t msg_type) :
-			coxmatch(sizeof(struct ofp_oxm_hdr) + sizeof(uint8_t))
+			coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + sizeof(uint8_t))
 {
-	set_oxm_class(OFPXMC_EXPERIMENTER);
-	set_oxm_field(OFPXMT_OFX_GTP_MSG_TYPE);
+	set_oxm_class(openflow::OFPXMC_EXPERIMENTER);
+	set_oxm_field(openflow::experimental::OFPXMT_OFX_GTP_MSG_TYPE);
 	set_oxm_length(sizeof(uint8_t));
 	set_msg_type(msg_type);
 }

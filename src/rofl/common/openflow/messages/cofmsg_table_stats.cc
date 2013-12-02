@@ -9,14 +9,16 @@ cofmsg_table_stats_request::cofmsg_table_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags) :
-	cofmsg_stats(of_version, xid, OFPST_TABLE, flags)
+	cofmsg_stats(of_version, xid, 0, flags)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
+		set_stats_type(openflow10::OFPST_TABLE);
 		set_type(openflow10::OFPT_STATS_REQUEST);
 		resize(sizeof(struct openflow10::ofp_stats_request));
 	} break;
 	case openflow12::OFP_VERSION: {
+		set_stats_type(openflow12::OFPST_TABLE);
 		set_type(openflow12::OFPT_STATS_REQUEST);
 		resize(sizeof(struct openflow12::ofp_stats_request));
 	} break;
@@ -180,11 +182,12 @@ cofmsg_table_stats_reply::cofmsg_table_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		std::vector<coftable_stats_reply> const& table_stats) :
-	cofmsg_stats(of_version, xid, OFPST_TABLE, flags),
+	cofmsg_stats(of_version, xid, 0, flags),
 	table_stats(table_stats)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
+		set_stats_type(openflow10::OFPST_TABLE);
 		set_type(openflow10::OFPT_STATS_REPLY);
 		resize(sizeof(struct openflow10::ofp_stats_reply) + table_stats.size() * sizeof(struct openflow10::ofp_table_stats));
 		for (unsigned int i = 0; i < table_stats.size(); i++) {
@@ -192,6 +195,7 @@ cofmsg_table_stats_reply::cofmsg_table_stats_reply(
 		}
 	} break;
 	case openflow12::OFP_VERSION: {
+		set_stats_type(openflow12::OFPST_TABLE);
 		set_type(openflow12::OFPT_STATS_REPLY);
 		resize(sizeof(struct openflow12::ofp_stats_reply) + table_stats.size() * sizeof(struct openflow12::ofp_table_stats));
 		for (unsigned int i = 0; i < table_stats.size(); i++) {
