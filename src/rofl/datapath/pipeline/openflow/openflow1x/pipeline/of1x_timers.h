@@ -101,7 +101,6 @@ void __of1x_time_forward(uint64_t sec, uint64_t usec, struct timeval * time);
 void __of1x_timer_update_entry(struct of1x_flow_entry * flow_entry, struct timeval ts);
 void __of1x_fill_new_timer_entry_info(struct of1x_flow_entry * entry, uint32_t hard_timeout, uint32_t idle_timeout);
 // public for testing
-int __of1x_gettimeofday(struct timeval * tval, struct timezone * tzone);
 uint64_t __of1x_get_expiration_time_slotted (uint32_t timeout,struct timeval *now);
 inline uint64_t __of1x_get_time_ms(struct timeval *time);
 

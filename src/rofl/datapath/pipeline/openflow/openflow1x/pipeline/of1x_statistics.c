@@ -9,6 +9,7 @@
 #include "of1x_group_table.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/likely.h"
+#include "../../../platform/timing.h"
 #include "../../../platform/atomic_operations.h"
 #include "../../../util/time.h"
 
@@ -28,7 +29,7 @@
 void __of1x_init_flow_stats(of1x_flow_entry_t * entry)
 {
 	struct timeval now;
-	__of1x_gettimeofday(&now, NULL);
+	platform_gettimeofday(&now);
 	
 	entry->stats.initial_time = now;
 	entry->stats.packet_count = 0;
@@ -193,7 +194,7 @@ void of1x_stats_flow_get_duration(struct of1x_flow_entry * entry, uint32_t* sec,
 
 	struct timeval now, diff;
 
-	__of1x_gettimeofday(&now, NULL);
+	platform_gettimeofday(&now);
 	
 	TIMERSUB(&now, &entry->stats.initial_time, &diff);
 	*sec = diff.tv_sec;
