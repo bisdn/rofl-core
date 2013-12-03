@@ -10,6 +10,7 @@
 #include "../../of1x_instruction.h"
 #include "../../../of1x_async_events_hooks.h"
 #include "../../../../../platform/lock.h"
+#include "../../../../../platform/likely.h"
 #include "../matching_algorithms.h"
 
 #define LOOP_DESCRIPTION "The loop algorithm searches the list of entries by its priority order. On the worst case the performance is o(N) with the number of entries"
@@ -35,7 +36,7 @@ static of1x_flow_entry_t* of1x_flow_table_loop_check_overlapping(of1x_flow_entry
 	of1x_flow_entry_t* it; //Just for code clarity
 
 	//Empty table
-	if(!start_entry)
+	if( !start_entry )
 		return NULL;
 
 	for(it=start_entry; it != NULL; it=it->next){
@@ -73,7 +74,7 @@ static of1x_flow_entry_t* of1x_flow_table_loop_check_identical(of1x_flow_entry_t
 */
 static rofl_result_t of1x_remove_flow_entry_table_specific_imp(of1x_flow_table_t *const table, of1x_flow_entry_t *const specific_entry, of1x_flow_remove_reason_t reason){
 	
-	if(table->num_of_entries == 0) 
+	if( unlikely(table->num_of_entries == 0) ) 
 		return ROFL_FAILURE; 
 
 	//Safety checks
@@ -320,7 +321,7 @@ static rofl_result_t of1x_remove_flow_entry_table_non_specific_imp(of1x_flow_tab
 
 static inline rofl_result_t of1x_remove_flow_entry_table_imp(of1x_flow_table_t *const table, of1x_flow_entry_t *const entry, of1x_flow_entry_t *const specific_entry, uint32_t out_port, uint32_t out_group, of1x_flow_remove_reason_t reason, const enum of1x_flow_removal_strictness strict){
 
-	if( (entry&&specific_entry) || ( !entry && !specific_entry) )
+	if( unlikely( (entry&&specific_entry) ) || unlikely( (!entry && !specific_entry) ) )
 		return ROFL_FAILURE;
  
 	if(entry)
@@ -459,7 +460,7 @@ rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 	of1x_stats_single_flow_msg_t* flow_stats;
 	bool check_cookie = (table->pipeline->sw->of_ver != OF_VERSION_10);
 
-	if(!msg || !table)
+	if( unlikely(msg==NULL) || unlikely(table==NULL) )
 		return ROFL_FAILURE;
 
 	//Create a flow_stats_entry
@@ -511,7 +512,7 @@ rofl_result_t of1x_get_flow_aggregate_stats_loop(struct of1x_flow_table *const t
 	bool check_cookie;
 	of1x_flow_entry_t* entry, flow_stats_entry;
 
-	if(!msg || !table)
+	if( unlikely(msg==NULL) || unlikely(table==NULL) )
 		return ROFL_FAILURE;
 
 	//Flow stats entry for easy comparison

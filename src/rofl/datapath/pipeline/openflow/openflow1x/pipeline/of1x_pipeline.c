@@ -3,6 +3,7 @@
 #include "of1x_flow_table.h"
 #include "of1x_group_table.h"
 #include "../../../platform/lock.h"
+#include "../../../platform/likely.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/packet.h"
 #include "../of1x_async_events_hooks.h"
@@ -20,7 +21,7 @@ of1x_pipeline_t* __of1x_init_pipeline(struct of1x_switch* sw, const unsigned int
 	int i;	
 	of1x_pipeline_t* pipeline;
 
-	if(!sw)
+	if( unlikely(sw==NULL) )
 		return NULL;
 
 	//Verify params
@@ -29,7 +30,7 @@ of1x_pipeline_t* __of1x_init_pipeline(struct of1x_switch* sw, const unsigned int
 	
 	pipeline = (of1x_pipeline_t*)platform_malloc_shared(sizeof(of1x_pipeline_t));
 
-	if(!pipeline)
+	if( unlikely(pipeline==NULL) )
 		return NULL;
 	
 	//Fill in
@@ -41,7 +42,7 @@ of1x_pipeline_t* __of1x_init_pipeline(struct of1x_switch* sw, const unsigned int
 	//Allocate tables and initialize	
 	pipeline->tables = (of1x_flow_table_t*)platform_malloc_shared(sizeof(of1x_flow_table_t)*num_of_tables);
 	
-	if(!pipeline->tables){
+	if( unlikely(pipeline->tables==NULL) ){
 		platform_free_shared(pipeline);
 		return NULL;
 	}
@@ -95,7 +96,7 @@ rofl_result_t __of1x_destroy_pipeline(of1x_pipeline_t* pipeline){
 	//destrouy groups
 	of1x_destroy_group_table(pipeline->groups);
 	
-	for(i=0;i<pipeline->num_of_tables;i++){
+	for(i=0; i<pipeline->num_of_tables; i++){
 		//We don't care about errors here, maybe add trace TODO
 		__of1x_destroy_table(&pipeline->tables[i]);
 	}
@@ -121,9 +122,9 @@ rofl_result_t __of1x_purge_pipeline_entries(of1x_pipeline_t* pipeline){
 	flow_entry = of1x_init_flow_entry(NULL,NULL,false);
 	group_entry = of1x_init_group_table(); 
 	
-	if(!flow_entry)
+	if( unlikely(flow_entry==NULL) )
 		return ROFL_FAILURE;
-	if(!group_entry){
+	if( unlikely(group_entry==NULL) ){
 		of1x_destroy_flow_entry(flow_entry);
 		return ROFL_FAILURE;
 	}

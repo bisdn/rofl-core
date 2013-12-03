@@ -3,6 +3,7 @@
 
 #include "../../../common/datapacket.h"
 #include "../../../platform/memory.h"
+#include "../../../platform/likely.h"
 #include "../../../util/logging.h"
 
 /*
@@ -849,7 +850,7 @@ void __of1x_init_match_group(of1x_match_group_t* group){
 void __of1x_destroy_match_group(of1x_match_group_t* group){
 	of1x_match_t *match;
 
-	if (!group->head)
+	if ( unlikely(group->head==NULL) )
 		return;
 
 	match = group->head;
@@ -868,7 +869,7 @@ void __of1x_destroy_match_group(of1x_match_group_t* group){
 
 void __of1x_match_group_push_back(of1x_match_group_t* group, of1x_match_t* match){
 
-	if (!group || !match)
+	if ( unlikely(group==NULL) || unlikely(match==NULL) )
 		return;
 
 	match->next = match->prev = NULL; 
@@ -1004,7 +1005,7 @@ of1x_match_t* __of1x_copy_matches(of1x_match_t* matches){
 
 	of1x_match_t* prev, *curr, *it, *copy;
 	
-	if(!matches)
+	if( unlikely(matches==NULL) )
 		return NULL;
 	
 	for(prev=NULL,copy=NULL, it=matches; it; it = it->next){
@@ -1038,7 +1039,7 @@ of1x_match_t* __of1x_copy_matches(of1x_match_t* matches){
 inline of1x_match_t* __of1x_get_alike_match(of1x_match_t* match1, of1x_match_t* match2){
 	utern_t* common_tern = NULL;	
 
-	if( match1->type != match2->type )
+	if( unlikely( match1->type != match2->type ) )
 		return NULL;	
 
 	common_tern = __utern_get_alike(*match1->value,*match2->value);
@@ -1070,7 +1071,7 @@ void of1x_destroy_match(of1x_match_t* match){
 //Compare matches
 inline bool __of1x_equal_matches(of1x_match_t* match1, of1x_match_t* match2){
 
-	if( match1->type != match2->type )
+	if( unlikely( match1->type != match2->type ) )
 		return false; 
 
 	return __utern_equals(match1->value,match2->value);
@@ -1079,7 +1080,7 @@ inline bool __of1x_equal_matches(of1x_match_t* match1, of1x_match_t* match2){
 //Finds out if sub_match is a submatch of match
 inline bool __of1x_is_submatch(of1x_match_t* sub_match, of1x_match_t* match){
 
-	if( match->type != sub_match->type )
+	if( unlikely( match->type != sub_match->type ) )
 		return false; 
 	
 	return __utern_is_contained(sub_match->value,match->value);
@@ -1090,7 +1091,7 @@ inline bool __of1x_is_submatch(of1x_match_t* sub_match, of1x_match_t* match){
 *
 */
 inline bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it){
-	if(!it)
+	if( unlikely(it==NULL ) )
 		return false;
 	
 	switch(it->type){

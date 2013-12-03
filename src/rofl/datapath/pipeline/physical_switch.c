@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include "platform/memory.h"
+#include "platform/likely.h"
 #include "util/logging.h"
 #include "openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms.h"
 
@@ -35,7 +36,7 @@ rofl_result_t physical_switch_init(){
 	//Allocate memory for the physical switch structure
 	psw = platform_malloc_shared(sizeof(physical_switch_t));
 	
-	if(!psw)
+	if( unlikely(psw==NULL) )
 		return ROFL_FAILURE;	
 	
 	//FIXME: check error
@@ -179,7 +180,7 @@ switch_port_t* physical_switch_get_port_by_num(const uint64_t dpid, unsigned int
 
 	lsw = physical_switch_get_logical_switch_by_dpid(dpid);
 
-	if(!lsw)
+	if( unlikely(lsw==NULL) )
 		return NULL;	
 
 	//Check port range
@@ -201,7 +202,7 @@ rofl_result_t physical_switch_add_port(switch_port_t* port){
 	switch_port_t** array = NULL;
 
 
-	if(!port)
+	if( unlikely(port==NULL) )
 		return ROFL_FAILURE;	
 
 	ROFL_PIPELINE_DEBUG("Trying to add port(%p) named %s to the physical switch\n", port, port->name);
@@ -261,7 +262,7 @@ rofl_result_t physical_switch_remove_port(const char* name){
 	unsigned int i;
 	switch_port_t* port;
 
-	if(!name)
+	if( unlikely(name==NULL) )
 		return ROFL_FAILURE;
 	
 	//Serialize
@@ -445,7 +446,7 @@ rofl_result_t physical_switch_attach_port_to_logical_switch(switch_port_t* port,
 
 	rofl_result_t return_val;
 
-	if( !sw || !port || port->attached_sw )
+	if( unlikely(sw==NULL) || unlikely(port==NULL) || unlikely(port->attached_sw!=NULL) )
 		return ROFL_FAILURE;
 	
 	//Serialize
@@ -462,7 +463,7 @@ rofl_result_t physical_switch_attach_port_to_logical_switch_at_port_num(switch_p
 
 	rofl_result_t return_val;
 
-	if( !sw || !port || port->attached_sw )
+	if( unlikely(sw==NULL) || unlikely(port==NULL) || unlikely(port->attached_sw!=NULL) )
 		return ROFL_FAILURE;
 
 	//Serialize
@@ -478,7 +479,7 @@ rofl_result_t physical_switch_attach_port_to_logical_switch_at_port_num(switch_p
 rofl_result_t physical_switch_detach_port_num_from_logical_switch(unsigned int port_num, of_switch_t* sw){
 	rofl_result_t return_val;
 
-	if( !sw )
+	if( unlikely(sw==NULL) )
 		return ROFL_FAILURE;
 
 	//Serialize
@@ -495,7 +496,7 @@ rofl_result_t physical_switch_detach_port_from_logical_switch(switch_port_t* por
 
 	rofl_result_t return_val;
 
-	if( !sw || !port )
+	if( unlikely(sw==NULL) || unlikely(port==NULL) )
 		return ROFL_FAILURE;
 
 	//Serialize
@@ -513,7 +514,7 @@ rofl_result_t physical_switch_detach_all_ports_from_logical_switch(of_switch_t* 
 
 	rofl_result_t return_val;
 
-	if( !sw )
+	if( unlikely(sw==NULL) )
 		return ROFL_FAILURE;
 
 	//Serialize
