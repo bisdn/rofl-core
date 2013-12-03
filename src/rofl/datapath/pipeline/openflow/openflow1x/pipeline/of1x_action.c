@@ -475,6 +475,7 @@ void __of1x_clear_write_actions(datapacket_t* pkt){
 static inline void __of1x_process_packet_action(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, of1x_packet_action_t* action, bool replicate_pkts){
 
 	packet_matches_t* pkt_matches = &pkt->matches;
+	uint32_t port_id;
 
 	switch(action->type){
 		case OF1X_AT_NO_ACTION: assert(0);
@@ -997,13 +998,16 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 
 		case OF1X_AT_OUTPUT: 
-			
-			if(action->field.u32 < OF1X_PORT_MAX ||
-				action->field.u32 == OF1X_PORT_IN_PORT ||
-				 action->field.u32 == OF1X_PORT_ALL ||
-				 action->field.u32 == OF1X_PORT_FLOOD ||
-				 action->field.u32 == OF1X_PORT_NORMAL ||
-				 action->field.u32 == OF1X_PORT_CONTROLLER){
+
+			//Store in automatic
+			port_id = action->field.u32;
+	
+			if( port_id < OF1X_PORT_MAX ||
+				port_id == OF1X_PORT_IN_PORT ||
+				port_id == OF1X_PORT_ALL ||
+				port_id == OF1X_PORT_FLOOD ||
+				port_id == OF1X_PORT_NORMAL ||
+				port_id == OF1X_PORT_CONTROLLER){
 
 				//Pointer for the packet to be sent
 				datapacket_t* pkt_to_send;			
@@ -1019,28 +1023,28 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 					pkt_to_send = pkt;
 
 				//Perform output
-				if( action->field.u32 < LOGICAL_SWITCH_MAX_LOG_PORTS && NULL != sw->logical_ports[action->field.u32].port ){
+				if( port_id < LOGICAL_SWITCH_MAX_LOG_PORTS && unlikely(NULL != sw->logical_ports[port_id].port) ){
 
 					//Single port output
 					//According to the spec a packet cannot be sent to the incomming port
 					//unless IN_PORT meta port is used
-					if(action->field.u32 == pkt->matches.of1x.port_in){
+					if(unlikely(port_id == pkt->matches.port_in)){
 						platform_packet_drop(pkt_to_send);
 					}else{
-						platform_packet_output(pkt_to_send, sw->logical_ports[action->field.u32].port);
+						platform_packet_output(pkt_to_send, sw->logical_ports[port_id].port);
 					}
 
-				}else if(action->field.u32 == OF1X_PORT_FLOOD){
+				}else if(port_id == OF1X_PORT_FLOOD){
 					//Flood
 					platform_packet_output(pkt_to_send, flood_meta_port);
-				}else if(action->field.u32 == OF1X_PORT_CONTROLLER ||
-					action->field.u32 == OF1X_PORT_NORMAL){
+				}else if(port_id == OF1X_PORT_CONTROLLER ||
+					port_id == OF1X_PORT_NORMAL){
 					//Controller
 					platform_of1x_packet_in(sw, table_id, pkt_to_send, OF1X_PKT_IN_ACTION);
-				}else if(action->field.u32 == OF1X_PORT_ALL){
+				}else if(port_id == OF1X_PORT_ALL){
 					//Flood
 					platform_packet_output(pkt_to_send, all_meta_port);
-				}else if(action->field.u32 == OF1X_PORT_IN_PORT){
+				}else if(port_id == OF1X_PORT_IN_PORT){
 					//in port
 					platform_packet_output(pkt_to_send, in_port_meta_port);
 				}else{
