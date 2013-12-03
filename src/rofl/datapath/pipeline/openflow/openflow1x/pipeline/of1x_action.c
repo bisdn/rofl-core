@@ -1136,7 +1136,7 @@ static void __of1x_process_group_actions(const struct of1x_switch* sw, const uns
 				//Clone the packet according to spec before applying the bucket
 				//action list
 				pkt_replica = platform_packet_replicate(pkt);
-				if(!pkt_replica){
+				if(unlikely(pkt_replica == NULL)){
 					assert(0);
 					break;
 				} 
@@ -1237,7 +1237,7 @@ of1x_action_group_t* __of1x_copy_action_group(of1x_action_group_t* origin){
 		
 		act = __of1x_copy_packet_action(it);
 
-		if(!act){
+		if(unlikely(act == NULL)){
 			of1x_destroy_action_group(copy);
 			return NULL;
 		}	
@@ -1507,18 +1507,19 @@ void __of1x_dump_action_group(of1x_action_group_t* action_group){
 rofl_result_t __of1x_validate_action_group(of1x_action_group_t *ag, of1x_group_table_t *gt){
 	of1x_packet_action_t *pa_it;
 
-	if(ag){
-		for(pa_it=ag->head; pa_it; pa_it=pa_it->next){
-			if(pa_it->type == OF1X_AT_OUTPUT)
-				ag->num_of_output_actions++;
-			else if(pa_it->type == OF1X_AT_GROUP && gt){
-				if((pa_it->group=__of1x_group_search(gt,pa_it->field.u64))==NULL)
-					return ROFL_FAILURE;
-				else{	
-					//If there is a group, FORCE cloning of the packet; state between
-					//group num of actions and entry "num_of_output_actions cache"
-					ag->num_of_output_actions+=2;
-				}
+	if(unlikely(ag == NULL))
+		return ROFL_FAILURE;
+
+	for(pa_it=ag->head; pa_it; pa_it=pa_it->next){
+		if(pa_it->type == OF1X_AT_OUTPUT)
+			ag->num_of_output_actions++;
+		else if(pa_it->type == OF1X_AT_GROUP && gt){
+			if((pa_it->group=__of1x_group_search(gt,pa_it->field.u64))==NULL)
+				return ROFL_FAILURE;
+			else{	
+				//If there is a group, FORCE cloning of the packet; state between
+				//group num of actions and entry "num_of_output_actions cache"
+				ag->num_of_output_actions+=2;
 			}
 		}
 	}
@@ -1530,6 +1531,9 @@ rofl_result_t __of1x_validate_write_actions(of1x_write_actions_t *wa, of1x_group
 	int i;
 	of1x_packet_action_t *pa_it;
 	
+	if(unlikely(wa == NULL))
+		return ROFL_FAILURE;
+
 	for(i=0;i<OF1X_AT_NUMBER;i++){
 		pa_it = &(wa->write_actions[i]);
 
