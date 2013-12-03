@@ -8,9 +8,9 @@
 #include <stdbool.h>
 #include "../openflow/of_switch.h"
 
+#include "packet_matches.h"
 //OF1.X
 #include "../openflow/openflow1x/pipeline/of1x_action.h"
-#include "../openflow/openflow1x/pipeline/of1x_packet_matches.h"
 //Add more here...
 
 /**
@@ -25,14 +25,6 @@
 * reference to the packet buffer in the platform). 
 *
 */
-
-
-/* Write actions */
-typedef union of_packet_matches{
-	//OF1.X
-	of1x_packet_matches_t of1x;
-	//Add more here...	
-}of_packet_matches_t;
 
 /* Write actions */
 typedef union of_write_actions{
@@ -60,7 +52,7 @@ typedef struct datapacket{
 	of_switch_t const* sw;
 
 	//Generic OpenFlow matches and write actions 
-	of_packet_matches_t matches;
+	packet_matches_t matches;
 	of_write_actions_t write_actions;
 
 	/**

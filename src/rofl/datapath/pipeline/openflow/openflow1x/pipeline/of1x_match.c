@@ -1089,7 +1089,7 @@ inline bool __of1x_is_submatch(of1x_match_t* sub_match, of1x_match_t* match){
 * CHECK fields against packet
 *
 */
-inline bool __of1x_check_match(const of1x_packet_matches_t* pkt, of1x_match_t* it){
+inline bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it){
 	if(!it)
 		return false;
 	

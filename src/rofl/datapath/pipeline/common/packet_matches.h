@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __OF1X_PACKET_MATCHES_H__
-#define __OF1X_PACKET_MATCHES_H__
+#ifndef __PACKET_MATCHES_H__
+#define __PACKET_MATCHES_H__
 
 #include <inttypes.h> 
 #include <string.h> 
 #include "rofl.h"
-#include "../../../common/ternary_fields.h"
+#include "ternary_fields.h"
 
 /**
 * @author Marc Sune<marc.sune (at) bisdn.de>
@@ -16,12 +16,11 @@
 
 //Fwd decl
 struct datapacket;
-union of_packet_matches;
 
 /* 
 * Packet OF12 matching values. Matching structure expected by the pipeline for OpenFlow 1.2
 */
-typedef struct{
+typedef struct packet_matches{
 
 	//Packet size
 	uint32_t pkt_size_bytes;	/* Packet size in bytes */
@@ -117,27 +116,27 @@ typedef struct{
 	uint8_t gtp_msg_type;		/* GTP message type */
 	uint32_t gtp_teid;		/* GTP teid */
 
-}of1x_packet_matches_t;
+}packet_matches_t;
 
 
 //C++ extern C
 ROFL_BEGIN_DECLS
 
 //Init packet matches
-void __of1x_init_packet_matches(struct datapacket *const pkt);
+void __init_packet_matches(struct datapacket *const pkt);
 
 //Update packet matches after applying actions 
-void __of1x_update_packet_matches(struct datapacket *const pkt);
+void __update_packet_matches(struct datapacket *const pkt);
 
 /**
  * @brief Dump the values of packet (header values)  
  * @ingroup core_of1x
  */
-void of1x_dump_packet_matches(union of_packet_matches *const pkt_matches);
+void dump_packet_matches(packet_matches_t *const pkt_matches);
 
 
 
 //C++ extern C
 ROFL_END_DECLS
 
-#endif //OF1X_PACKET_MATCHES
+#endif //PACKET_MATCHES

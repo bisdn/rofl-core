@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "of1x_packet_matches.h" //TODO: evaluate if this is the best approach to update of1x_matches after actions
+#include "../../../common/packet_matches.h" //TODO: evaluate if this is the best approach to update of1x_matches after actions
 #include "../../../physical_switch.h"
 #include "../../../platform/packet.h"
 #include "../../../util/logging.h"
@@ -473,7 +473,7 @@ void __of1x_clear_write_actions(datapacket_t* pkt){
 /* Contains switch with all the different action functions */
 static inline void __of1x_process_packet_action(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, of1x_packet_action_t* action, bool replicate_pkts){
 
-	of1x_packet_matches_t* pkt_matches = &pkt->matches.of1x;
+	packet_matches_t* pkt_matches = &pkt->matches;
 
 	switch(action->type){
 		case OF1X_AT_NO_ACTION: assert(0);
@@ -1109,7 +1109,7 @@ rofl_result_t __of1x_update_write_actions(of1x_write_actions_t** group, of1x_wri
 static void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t *group, bool replicate_pkts){
 	datapacket_t* pkt_replica;
 	of1x_bucket_t *it_bk;
-	of1x_packet_matches_t *matches = &pkt->matches.of1x;
+	packet_matches_t *matches = &pkt->matches;
 	
 	//process the actions in the buckets depending on the type
 	switch(group->type){

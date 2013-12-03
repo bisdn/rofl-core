@@ -188,22 +188,21 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	//Loop over tables
 	unsigned int i, table_to_go;
 	of1x_flow_entry_t* match;
-	of1x_packet_matches_t* pkt_matches;
+	packet_matches_t* pkt_matches;
 	
 	//Initialize packet for OF1.2 pipeline processing 
-	__of1x_init_packet_matches(pkt); 
 	__of1x_init_packet_write_actions(pkt); 
 
 	//Mark packet as being processed by this sw
 	pkt->sw = sw;
 	
 	//Matches aux
-	pkt_matches = &pkt->matches.of1x;
+	pkt_matches = &pkt->matches;
 
 	ROFL_PIPELINE_DEBUG("Packet[%p] entering switch [%s] pipeline (1.X)\n",pkt,sw->name);	
 
 #ifdef DEBUG
-	of1x_dump_packet_matches(&pkt->matches);
+	dump_packet_matches(&pkt->matches);
 #endif
 	
 	//FIXME: add metadata+write operations 
@@ -286,7 +285,6 @@ void of1x_process_packet_out_pipeline(const of1x_switch_t *sw, datapacket_t *con
 	of1x_group_table_t *gt = sw->pipeline->groups;
 
 	//Initialize packet for OF1.2 pipeline processing 
-	__of1x_init_packet_matches(pkt); 
 	__of1x_init_packet_write_actions(pkt); 
 
 	//Validate apply_actions_group

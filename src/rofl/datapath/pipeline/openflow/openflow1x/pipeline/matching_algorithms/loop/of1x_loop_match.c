@@ -406,7 +406,7 @@ rofl_result_t of1x_remove_flow_entry_loop(of1x_flow_table_t *const table , of1x_
 
 	
 /* FLOW entry lookup entry point */ 
-of1x_flow_entry_t* of1x_find_best_match_loop(of1x_flow_table_t *const table, of1x_packet_matches_t *const pkt_matches){
+of1x_flow_entry_t* of1x_find_best_match_loop(of1x_flow_table_t *const table, packet_matches_t *const pkt_matches){
 	
 	of1x_match_t* it;
 	of1x_flow_entry_t *entry;
