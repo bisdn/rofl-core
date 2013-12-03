@@ -6,6 +6,7 @@
 #define __DATAPACKET_H__
 
 #include <stdbool.h>
+#include <sys/time.h>
 #include "../openflow/of_switch.h"
 
 //OF1.X
@@ -63,6 +64,9 @@ typedef struct datapacket{
 	of_packet_matches_t matches;
 	of_write_actions_t write_actions;
 
+	//Timestamp of the packet
+	struct timeval ts;
+	
 	/**
 	* Flag indicating if it is a replica of the original packet
 	* (used for multi-output matches)

@@ -5,7 +5,7 @@
 
 #include "../../../platform/memory.h"
 #include "../../../platform/likely.h"
-
+#include "../../../platform/timing.h"
 #include "../../../util/logging.h"
 
 static rofl_result_t __of1x_destroy_all_entries_from_timer_group(of1x_timer_group_t* tg, of1x_pipeline_t *const pipeline, unsigned int id);
@@ -45,6 +45,24 @@ void __of1x_time_forward(uint64_t sec, uint64_t usec, struct timeval * time)
 }
 
 /**
+ * Returns true if timeval a is later than timeval b
+ */
+bool __of1x_time_is_later(struct timeval *a, struct timeval *b){
+	if(a->tv_sec > b->tv_sec){
+		return true;
+	}
+	
+	if (a->tv_sec == b->tv_sec){
+		if(a->tv_usec > b->tv_usec){
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+#if 0
+/**
  * of1x_gettimeofday wrapper for the system time
  */
 inline int __of1x_gettimeofday(struct timeval * tval, struct timezone * tzone){
@@ -61,6 +79,7 @@ inline int __of1x_gettimeofday(struct timeval * tval, struct timezone * tzone){
 #endif
 
 }
+#endif
 
 /**
  * of1x_dump_timers_structure
@@ -138,7 +157,7 @@ void __of1x_timer_group_static_init(of1x_flow_table_t* table){
 	int i;
 	struct timeval now;
 	uint64_t time_next_slot;
-	__of1x_gettimeofday(&now,NULL);
+	platform_gettimeofday(&now);
 	time_next_slot = __of1x_get_expiration_time_slotted(0,&now);
 	for(i=0; i<OF1X_TIMER_GROUPS_MAX;i++)
 	{
@@ -364,7 +383,7 @@ rofl_result_t __of1x_destroy_timer_entries(of1x_flow_entry_t * entry){
 static rofl_result_t __of1x_reschedule_idle_timer(of1x_entry_timer_t * entry_timer, of1x_pipeline_t *const pipeline, unsigned int id_table)
 {
 	struct timeval system_time;
-	__of1x_gettimeofday(&system_time,NULL);
+	platform_gettimeofday(&system_time);
 	uint64_t now = __of1x_get_time_ms(&system_time);
 	uint64_t expiration_time;
 	expiration_time = __of1x_get_expiration_time_slotted(entry_timer->entry->timer_info.idle_timeout, &(entry_timer->entry->timer_info.time_last_update));
@@ -515,13 +534,15 @@ static of1x_timer_group_t * of1x_dynamic_slot_search(of1x_flow_table_t* const ta
  * update the time_last_update in order to
  * show that its not idle
  */
-void __of1x_timer_update_entry(of1x_flow_entry_t * flow_entry)
+void __of1x_timer_update_entry(of1x_flow_entry_t * flow_entry, struct timeval ts)
 {
 	if(flow_entry->timer_info.idle_timeout == 0)
 		return; //no idle timeout => no need to update time
 	else
 	{
-		__of1x_gettimeofday(&(flow_entry->timer_info.time_last_update), NULL);
+		if( likely(__of1x_time_is_later(&ts, &(flow_entry->timer_info.time_last_update))==true) ){
+			flow_entry->timer_info.time_last_update = ts;
+		}
 	}
 }
 
@@ -529,7 +550,7 @@ static rofl_result_t __of1x_add_single_timer(of1x_flow_table_t* const table, con
 {
 	uint64_t expiration_time;
 	struct timeval now;
-	__of1x_gettimeofday(&now,NULL);
+	platform_gettimeofday(&now);
 	expiration_time = __of1x_get_expiration_time_slotted(timeout, &now);
 #if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
 	// add entries to the position tc + hard_timeout_s
@@ -596,7 +617,7 @@ void __of1x_process_pipeline_tables_timeout_expirations(of1x_pipeline_t *const p
 	unsigned int i;
 	
 	struct timeval system_time;
-	__of1x_gettimeofday(&system_time,NULL);
+	platform_gettimeofday(&system_time);
 	uint64_t now = __of1x_get_time_ms(&system_time);
 	//ROFL_PIPELINE_DEBUG("<%s:%d> Now = %lu\n",__func__,__LINE__, now);
 
