@@ -190,6 +190,8 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	unsigned int i, table_to_go;
 	of1x_flow_entry_t* match;
 	packet_matches_t* pkt_matches;
+	of1x_pipeline_t* pipeline;
+
 	
 	//Initialize packet for OF1.2 pipeline processing 
 	__of1x_init_packet_write_actions(pkt); 
@@ -206,19 +208,21 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	dump_packet_matches(&pkt->matches);
 #endif
 	
-	//FIXME: add metadata+write operations 
-	for(i=OF1X_FIRST_FLOW_TABLE_INDEX; i < ((of1x_switch_t*)sw)->pipeline->num_of_tables ; i++){
+
+	//Pipeline pointer
+	pipeline = ((of1x_switch_t*)sw)->pipeline;
+
+	for(i=OF1X_FIRST_FLOW_TABLE_INDEX; i < pipeline->num_of_tables ; i++){
 		
 		//Perform lookup	
-		match = __of1x_find_best_match_table((of1x_flow_table_t* const)&((of1x_switch_t*)sw)->pipeline->tables[i], pkt_matches);
+		match = __of1x_find_best_match_table(&pipeline->tables[i], pkt_matches);
 		
-		if(match){
+		if(likely(match != NULL)){
 			
-
 			ROFL_PIPELINE_DEBUG("Packet[%p] matched at table: %u, entry: %p\n", pkt, i,match);
 
 			//Update table and entry statistics
-			__of1x_stats_table_matches_inc(&((of1x_switch_t*)sw)->pipeline->tables[i]);
+			__of1x_stats_table_matches_inc(&pipeline->tables[i]);
 			__of1x_stats_flow_update_match(match, pkt_matches->pkt_size_bytes);
 
 			//Update entry timers
@@ -252,16 +256,16 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			return;	
 		}else{
 			//Update table statistics
-			__of1x_stats_table_lookup_inc(&((of1x_switch_t*)sw)->pipeline->tables[i]);
+			__of1x_stats_table_lookup_inc(&pipeline->tables[i]);
 
 			//Not matched, look for table_miss behaviour 
-			if(((of1x_switch_t*)sw)->pipeline->tables[i].default_action == OF1X_TABLE_MISS_DROP){
+			if(pipeline->tables[i].default_action == OF1X_TABLE_MISS_DROP){
 
 				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_DROP %u\n",pkt, i);	
 				platform_packet_drop(pkt);
 				return;
 
-			}else if(((of1x_switch_t*)sw)->pipeline->tables[i].default_action == OF1X_TABLE_MISS_CONTROLLER){
+			}else if(pipeline->tables[i].default_action == OF1X_TABLE_MISS_CONTROLLER){
 			
 				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_CONTROLLER. It Will generate a PACKET_IN event to the controller\n",pkt);
 

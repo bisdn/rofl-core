@@ -78,11 +78,11 @@ static rofl_result_t of1x_remove_flow_entry_table_specific_imp(of1x_flow_table_t
 		return ROFL_FAILURE; 
 
 	//Safety checks
-	if(specific_entry->table != table)
+	if(unlikely(specific_entry->table != table))
 		return ROFL_FAILURE; 
-	if(specific_entry->prev && specific_entry->prev->next != specific_entry)
+	if(specific_entry->prev && unlikely(specific_entry->prev->next != specific_entry))
 		return ROFL_FAILURE; 
-	if(specific_entry->next && specific_entry->next->prev != specific_entry)
+	if(specific_entry->next && unlikely(specific_entry->next->prev != specific_entry))
 		return ROFL_FAILURE; 
 
 	//Prevent readers to jump in
@@ -118,7 +118,7 @@ static rofl_result_t of1x_remove_flow_entry_table_specific_imp(of1x_flow_table_t
 static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *const table, of1x_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
 	of1x_flow_entry_t *it, *prev, *existing=NULL;
 	
-	if(table->num_of_entries == OF1X_MAX_NUMBER_OF_TABLE_ENTRIES){
+	if(unlikely(table->num_of_entries == OF1X_MAX_NUMBER_OF_TABLE_ENTRIES)){
 		return ROFL_OF1X_FM_FAILURE; 
 	}
 
@@ -242,7 +242,7 @@ static rofl_of1x_fm_result_t of1x_add_flow_entry_table_imp(of1x_flow_table_t *co
 
 	//Delete old entry
 	if(existing){
-		if(of1x_remove_flow_entry_table_specific_imp(table,existing, OF1X_FLOW_REMOVE_NO_REASON) != ROFL_SUCCESS){
+		if(unlikely(of1x_remove_flow_entry_table_specific_imp(table,existing, OF1X_FLOW_REMOVE_NO_REASON) != ROFL_SUCCESS)){
 			assert(0);
 		}
 	}
