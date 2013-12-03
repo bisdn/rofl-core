@@ -1022,7 +1022,13 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 				if( action->field.u32 < LOGICAL_SWITCH_MAX_LOG_PORTS && NULL != sw->logical_ports[action->field.u32].port ){
 
 					//Single port output
-					platform_packet_output(pkt_to_send, sw->logical_ports[action->field.u32].port);
+					//According to the spec a packet cannot be sent to the incomming port
+					//unless IN_PORT meta port is used
+					if(action->field.u32 == pkt->matches.of1x.port_in){
+						platform_packet_drop(pkt_to_send);
+					}else{
+						platform_packet_output(pkt_to_send, sw->logical_ports[action->field.u32].port);
+					}
 
 				}else if(action->field.u32 == OF1X_PORT_FLOOD){
 					//Flood
