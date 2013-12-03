@@ -12,7 +12,6 @@ librofl_pipeline_openflow1x_pipeline_la_HEADERS = of1x_action.h \
 	of1x_group_table.h \
 	of1x_instruction.h \
 	of1x_match.h \
-	of1x_packet_matches.h \
 	of1x_pipeline.h \
 	of1x_timers.h \
 	of1x_statistics.h\
@@ -24,7 +23,6 @@ librofl_pipeline_openflow1x_pipeline_la_SOURCES = of1x_action.h \
 	of1x_group_table.h \
 	of1x_instruction.h \
 	of1x_match.h \
-	of1x_packet_matches.h \
 	of1x_pipeline.h \
 	of1x_timers.h \
 	of1x_action.c \
@@ -33,7 +31,6 @@ librofl_pipeline_openflow1x_pipeline_la_SOURCES = of1x_action.h \
 	of1x_group_table.c \
 	of1x_instruction.c \
 	of1x_match.c \
-	of1x_packet_matches.c \
 	of1x_pipeline.c \
 	of1x_timers.c \
 	of1x_statistics.c

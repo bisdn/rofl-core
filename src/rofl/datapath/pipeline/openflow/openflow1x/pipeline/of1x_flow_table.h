@@ -244,7 +244,7 @@ rofl_result_t __of1x_remove_specific_flow_entry_table(struct of1x_pipeline *cons
 /*
 * Entry lookup. This should never be used directly
 */ 
-of1x_flow_entry_t* __of1x_find_best_match_table(of1x_flow_table_t *const table, of1x_packet_matches_t *const pkt); 
+of1x_flow_entry_t* __of1x_find_best_match_table(of1x_flow_table_t *const table, packet_matches_t *const pkt); 
 
 /*
 * Table dumping. This is not recommended to use directly

@@ -307,6 +307,35 @@ public:
 	 */
 	cofmatch&
 	get_match();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_flow_mod const& msg) {
+		os << "cofmsg_flow_mod ";
+			os << dynamic_cast<cofmsg const&>( msg ) << std::endl;
+			os << "command:" << (int)msg.get_command() << " ";
+			os << "cookie:" << (unsigned long long)msg.get_cookie() << " ";
+			os << "cookie-mask:" << (unsigned long long)msg.get_cookie_mask() << " " << std::endl;
+			os << "table-id:" << (int)msg.get_table_id() << " ";
+			os << "idle-timeout:" << (int)msg.get_idle_timeout() << " ";
+			os << "hard-timeout:" << (int)msg.get_hard_timeout() << " " << std::endl;
+			os << "priority:" << (int)msg.get_priority() << " ";
+			os << "buffer-id:" << (int)msg.get_buffer_id() << " ";
+			os << "flags:" << (int)msg.get_flags() << " " << std::endl;
+			os << "match:" << msg.match << std::endl;
+			switch (msg.get_version()) {
+			case OFP10_VERSION: {
+				os << "actions:" << msg.actions << " ";
+			} break;
+			case OFP12_VERSION:
+			case OFP13_VERSION: {
+				os << "instructions:" << msg.instructions << " ";
+			} break;
+			}
+		os << ">";
+		return os;
+	};
 };
 
 } // end of namespace rofl

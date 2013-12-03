@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "of1x_packet_matches.h" //TODO: evaluate if this is the best approach to update of1x_matches after actions
+#include "../../../common/packet_matches.h" //TODO: evaluate if this is the best approach to update of1x_matches after actions
 #include "../../../physical_switch.h"
 #include "../../../platform/packet.h"
 #include "../../../util/logging.h"
@@ -474,7 +474,8 @@ void __of1x_clear_write_actions(datapacket_t* pkt){
 /* Contains switch with all the different action functions */
 static inline void __of1x_process_packet_action(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, of1x_packet_action_t* action, bool replicate_pkts){
 
-	of1x_packet_matches_t* pkt_matches = &pkt->matches.of1x;
+	packet_matches_t* pkt_matches = &pkt->matches;
+	uint32_t port_id;
 
 	switch(action->type){
 		case OF1X_AT_NO_ACTION: assert(0);
@@ -997,13 +998,16 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 			break;
 
 		case OF1X_AT_OUTPUT: 
-			
-			if(action->field.u32 < OF1X_PORT_MAX ||
-				action->field.u32 == OF1X_PORT_IN_PORT ||
-				 action->field.u32 == OF1X_PORT_ALL ||
-				 action->field.u32 == OF1X_PORT_FLOOD ||
-				 action->field.u32 == OF1X_PORT_NORMAL ||
-				 action->field.u32 == OF1X_PORT_CONTROLLER){
+
+			//Store in automatic
+			port_id = action->field.u32;
+	
+			if( port_id < OF1X_PORT_MAX ||
+				port_id == OF1X_PORT_IN_PORT ||
+				port_id == OF1X_PORT_ALL ||
+				port_id == OF1X_PORT_FLOOD ||
+				port_id == OF1X_PORT_NORMAL ||
+				port_id == OF1X_PORT_CONTROLLER){
 
 				//Pointer for the packet to be sent
 				datapacket_t* pkt_to_send;			
@@ -1019,22 +1023,28 @@ static inline void __of1x_process_packet_action(const struct of1x_switch* sw, co
 					pkt_to_send = pkt;
 
 				//Perform output
-				if( action->field.u32 < LOGICAL_SWITCH_MAX_LOG_PORTS && NULL != sw->logical_ports[action->field.u32].port ){
+				if( port_id < LOGICAL_SWITCH_MAX_LOG_PORTS && unlikely(NULL != sw->logical_ports[port_id].port) ){
 
 					//Single port output
-					platform_packet_output(pkt_to_send, sw->logical_ports[action->field.u32].port);
+					//According to the spec a packet cannot be sent to the incomming port
+					//unless IN_PORT meta port is used
+					if(unlikely(port_id == pkt->matches.port_in)){
+						platform_packet_drop(pkt_to_send);
+					}else{
+						platform_packet_output(pkt_to_send, sw->logical_ports[port_id].port);
+					}
 
-				}else if(action->field.u32 == OF1X_PORT_FLOOD){
+				}else if(port_id == OF1X_PORT_FLOOD){
 					//Flood
 					platform_packet_output(pkt_to_send, flood_meta_port);
-				}else if(action->field.u32 == OF1X_PORT_CONTROLLER ||
-					action->field.u32 == OF1X_PORT_NORMAL){
+				}else if(port_id == OF1X_PORT_CONTROLLER ||
+					port_id == OF1X_PORT_NORMAL){
 					//Controller
 					platform_of1x_packet_in(sw, table_id, pkt_to_send, OF1X_PKT_IN_ACTION);
-				}else if(action->field.u32 == OF1X_PORT_ALL){
+				}else if(port_id == OF1X_PORT_ALL){
 					//Flood
 					platform_packet_output(pkt_to_send, all_meta_port);
-				}else if(action->field.u32 == OF1X_PORT_IN_PORT){
+				}else if(port_id == OF1X_PORT_IN_PORT){
 					//in port
 					platform_packet_output(pkt_to_send, in_port_meta_port);
 				}else{
@@ -1110,7 +1120,7 @@ rofl_result_t __of1x_update_write_actions(of1x_write_actions_t** group, of1x_wri
 static void __of1x_process_group_actions(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t *pkt,uint64_t field, of1x_group_t *group, bool replicate_pkts){
 	datapacket_t* pkt_replica;
 	of1x_bucket_t *it_bk;
-	of1x_packet_matches_t *matches = &pkt->matches.of1x;
+	packet_matches_t *matches = &pkt->matches;
 	
 	//process the actions in the buckets depending on the type
 	switch(group->type){
@@ -1126,7 +1136,7 @@ static void __of1x_process_group_actions(const struct of1x_switch* sw, const uns
 				//Clone the packet according to spec before applying the bucket
 				//action list
 				pkt_replica = platform_packet_replicate(pkt);
-				if(!pkt_replica){
+				if(unlikely(pkt_replica == NULL)){
 					assert(0);
 					break;
 				} 
@@ -1227,7 +1237,7 @@ of1x_action_group_t* __of1x_copy_action_group(of1x_action_group_t* origin){
 		
 		act = __of1x_copy_packet_action(it);
 
-		if(!act){
+		if(unlikely(act == NULL)){
 			of1x_destroy_action_group(copy);
 			return NULL;
 		}	
@@ -1497,18 +1507,19 @@ void __of1x_dump_action_group(of1x_action_group_t* action_group){
 rofl_result_t __of1x_validate_action_group(of1x_action_group_t *ag, of1x_group_table_t *gt){
 	of1x_packet_action_t *pa_it;
 
-	if(ag){
-		for(pa_it=ag->head; pa_it; pa_it=pa_it->next){
-			if(pa_it->type == OF1X_AT_OUTPUT)
-				ag->num_of_output_actions++;
-			else if(pa_it->type == OF1X_AT_GROUP && gt){
-				if((pa_it->group=__of1x_group_search(gt,pa_it->field.u64))==NULL)
-					return ROFL_FAILURE;
-				else{	
-					//If there is a group, FORCE cloning of the packet; state between
-					//group num of actions and entry "num_of_output_actions cache"
-					ag->num_of_output_actions+=2;
-				}
+	if(unlikely(ag == NULL))
+		return ROFL_FAILURE;
+
+	for(pa_it=ag->head; pa_it; pa_it=pa_it->next){
+		if(pa_it->type == OF1X_AT_OUTPUT)
+			ag->num_of_output_actions++;
+		else if(pa_it->type == OF1X_AT_GROUP && gt){
+			if((pa_it->group=__of1x_group_search(gt,pa_it->field.u64))==NULL)
+				return ROFL_FAILURE;
+			else{	
+				//If there is a group, FORCE cloning of the packet; state between
+				//group num of actions and entry "num_of_output_actions cache"
+				ag->num_of_output_actions+=2;
 			}
 		}
 	}
@@ -1520,6 +1531,9 @@ rofl_result_t __of1x_validate_write_actions(of1x_write_actions_t *wa, of1x_group
 	int i;
 	of1x_packet_action_t *pa_it;
 	
+	if(unlikely(wa == NULL))
+		return ROFL_FAILURE;
+
 	for(i=0;i<OF1X_AT_NUMBER;i++){
 		pa_it = &(wa->write_actions[i]);
 

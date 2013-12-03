@@ -427,7 +427,7 @@ rofl_result_t __of1x_remove_specific_flow_entry_table(of1x_pipeline_t *const pip
 }
 
 /* Main process_packet_through */
-inline of1x_flow_entry_t* __of1x_find_best_match_table(of1x_flow_table_t *const table, of1x_packet_matches_t *const pkt){
+inline of1x_flow_entry_t* __of1x_find_best_match_table(of1x_flow_table_t *const table, packet_matches_t *const pkt){
 	return of1x_matching_algorithms[table->matching_algorithm].find_best_match_hook(table, pkt);
 }	
 

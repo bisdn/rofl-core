@@ -135,7 +135,7 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 					break;
     			case OF1X_IT_WRITE_METADATA:
 				{
-					of1x_packet_matches_t* matches = (of1x_packet_matches_t *)&pkt->matches;
+					packet_matches_t* matches = &pkt->matches;
 					matches->metadata = 	(matches->metadata | ~instructions->instructions[i].write_metadata.metadata_mask) &
 								(instructions->instructions[i].write_metadata.metadata & instructions->instructions[i].write_metadata.metadata_mask);
 				}
