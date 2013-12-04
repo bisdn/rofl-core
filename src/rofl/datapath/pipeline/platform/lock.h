@@ -7,7 +7,7 @@
 
 #include "rofl.h"
 
-#ifdef LOCK_INLINE_HDR
+#if defined(LOCK_INLINE_HDR) && !defined(ROFL_TEST)
 
 #include "lock_inline.h"
 

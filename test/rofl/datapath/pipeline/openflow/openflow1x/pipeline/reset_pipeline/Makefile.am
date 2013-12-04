@@ -23,7 +23,8 @@ SHARED_SRC= $(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
 	../empty_packet.c\
 	../platform_empty_hooks_of12.cc\
 	../pthread_atomic_operations.c\
-	../pthread_lock.c
+	../pthread_lock.c \
+	../timing.c
 
 unit_test_SOURCES= $(SHARED_SRC)\
 			unit_test.c\

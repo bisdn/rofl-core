@@ -26,7 +26,24 @@
  * ...
  */
 
-//#define OF1X_TIMER_STATIC_ALLOCATION_SLOTS 0
+void time_forward(uint64_t sec, uint64_t usec, struct timeval * time)
+{
+	static uint64_t abs_sec = 0, abs_usec = 0;
+	abs_sec+=sec;
+	abs_usec+=usec;
+	if(abs_usec > 1000000)
+	{
+		abs_usec-=1000000;
+		abs_sec++;
+	}
+	if(time)
+	{
+		time->tv_sec=abs_sec;
+		time->tv_usec=abs_usec;
+	}
+	return;
+}
+
 
 #if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
 
@@ -34,7 +51,7 @@ void test_insert_and_expiration_static(of1x_pipeline_t * pipeline, uint32_t hard
 {
 	of1x_flow_table_t* table = pipeline->tables;
 	struct timeval now;
-	__of1x_time_forward(0,0,&now);
+	time_forward(0,0,&now);
 	of1x_flow_entry_t *single_entry = of1x_init_flow_entry(NULL,NULL,false);
 	CU_ASSERT(single_entry!=NULL);
 	__of1x_fill_new_timer_entry_info(single_entry,hard_timeout,0);
@@ -50,7 +67,7 @@ void test_insert_and_expiration_static(of1x_pipeline_t * pipeline, uint32_t hard
 	CU_ASSERT(table->timers[slot].list.tail != NULL);
 	CU_ASSERT(table->timers[slot].list.head == table->timers[slot].list.tail);
 	
-	__of1x_time_forward(hard_timeout+1,0,&now); //we need to go to hard_timeout +1 because of possible rounding up.
+	time_forward(hard_timeout+1,0,&now); //we need to go to hard_timeout +1 because of possible rounding up.
 	__of1x_process_pipeline_tables_timeout_expirations(pipeline);
 	
 	//of1x_dump_timers_structure(table->timers);
@@ -66,7 +83,7 @@ void test_insert_and_extract_static(of1x_pipeline_t * pipeline, uint32_t hard_ti
 	int i;
 	of1x_flow_table_t* table = pipeline->tables;
 	struct timeval now;
-	__of1x_time_forward(0,0,&now);
+	time_forward(0,0,&now);
 	
 	of1x_flow_entry_t** entry_list = malloc(num_of_entries*sizeof(of1x_entry_timer_t*));
 	int slot = (now.tv_sec+hard_timeout)%OF1X_TIMER_GROUPS_MAX; //WARNING needs to be mora accurate when MS per SLOT != 1000
@@ -149,27 +166,27 @@ void test_simple_idle_static(of1x_pipeline_t * pipeline, uint32_t ito)
 	
 	//insert a timer
 	//CU_ASSERT(of1x_add_timer(table, entry)==EXIT_SUCCESS);
-	__of1x_time_forward(0,0,&now);
+	time_forward(0,0,&now);
 	fprintf(stderr,"added idle TO (%p) at time %lu:%lu for %d seconds\n", entry, now.tv_sec, now.tv_usec, ito);
 	slot = (now.tv_sec+ito)%OF1X_TIMER_GROUPS_MAX;
 	CU_ASSERT(table->timers[slot].list.head->entry == entry);
 	
 	//update the counter
-	__of1x_time_forward(ito-1,0,&now);
-	__of1x_timer_update_entry(entry);
+	time_forward(ito-1,0,&now);
+	__of1x_timer_update_entry(entry,now);
 	__of1x_process_pipeline_tables_timeout_expirations(pipeline);
 	fprintf(stderr,"updated last used. TO (%p) at time %lu:%lu for %d seconds\n", entry, now.tv_sec, now.tv_usec, ito);
 	slot = (now.tv_sec+1)%OF1X_TIMER_GROUPS_MAX;
 	CU_ASSERT(table->timers[slot].list.head->entry == entry);
 	
 	//check that it is not expired but rescheduled
-	__of1x_time_forward(1,0,&now);
+	time_forward(1,0,&now);
 	__of1x_process_pipeline_tables_timeout_expirations(pipeline);
 	slot = (now.tv_sec+ito-1)%OF1X_TIMER_GROUPS_MAX;
 	CU_ASSERT(table->timers[slot].list.head->entry == entry);
 	
 	//check final expiration
-	__of1x_time_forward(ito,0,&now);
+	time_forward(ito,0,&now);
 	__of1x_process_pipeline_tables_timeout_expirations(pipeline);
 	for(i=0; i<OF1X_TIMER_GROUPS_MAX; i++)
 			CU_ASSERT(table->timers[i].list.num_of_timers == 0);
@@ -192,7 +209,7 @@ void test_insert_both_expires_one_check_the_other_static(of1x_pipeline_t * pipel
 {
 	of1x_flow_table_t * table = pipeline->tables;
 	struct timeval now;
-	__of1x_time_forward(0,0,&now);
+	time_forward(0,0,&now);
 	int slot, i;
 	
 	of1x_flow_entry_t *single_entry = of1x_init_flow_entry(NULL,NULL,false);
@@ -203,7 +220,7 @@ void test_insert_both_expires_one_check_the_other_static(of1x_pipeline_t * pipel
 	
 	if(hto==ito)
 	{
-		__of1x_time_forward(ito,0,&now);
+		time_forward(ito,0,&now);
 		__of1x_process_pipeline_tables_timeout_expirations(pipeline);
 		for(i=0; i<OF1X_TIMER_GROUPS_MAX; i++)
 			CU_ASSERT(table->timers[i].list.num_of_timers == 0);
@@ -221,7 +238,7 @@ void test_insert_both_expires_one_check_the_other_static(of1x_pipeline_t * pipel
 		CU_ASSERT(table->timers[slot].timeout==(min+now.tv_sec)*1000+now.tv_usec/1000);
 		slot = (now.tv_sec+max)%OF1X_TIMER_GROUPS_MAX;
 		CU_ASSERT(table->timers[slot].timeout==(max+now.tv_sec)*1000+now.tv_usec/1000);
-		__of1x_time_forward(min,0,&now);
+		time_forward(min,0,&now);
 		__of1x_process_pipeline_tables_timeout_expirations(pipeline);
 		for(i=0; i<OF1X_TIMER_GROUPS_MAX; i++)
 			CU_ASSERT(table->timers[i].list.num_of_timers == 0);

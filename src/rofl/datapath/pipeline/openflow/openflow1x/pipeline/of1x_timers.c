@@ -26,24 +26,6 @@ void __of1x_fill_new_timer_entry_info(of1x_flow_entry_t * entry, uint32_t hard_t
 
 }
 
-void __of1x_time_forward(uint64_t sec, uint64_t usec, struct timeval * time)
-{
-	static uint64_t abs_sec = 0, abs_usec = 0;
-	abs_sec+=sec;
-	abs_usec+=usec;
-	if(abs_usec > 1000000)
-	{
-		abs_usec-=1000000;
-		abs_sec++;
-	}
-	if(time)
-	{
-		time->tv_sec=abs_sec;
-		time->tv_usec=abs_usec;
-	}
-	return;
-}
-
 /**
  * Returns true if timeval a is later than timeval b
  */

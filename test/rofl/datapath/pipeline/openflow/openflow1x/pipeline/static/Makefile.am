@@ -1,7 +1,7 @@
 MAINTAINERCLEANFILES = Makefile.in
 
 static_unit_test_CFLAGS= -DTIMERS_FAKE_TIME 
-static_unit_test_CPPFLAGS= -I$(top_srcdir)/src/
+static_unit_test_CPPFLAGS= -I$(top_srcdir)/src/ -DROFL_TEST=1
 
 #FIXME add group table tests!
 static_unit_test_SOURCES=../unit_test.c \
@@ -12,6 +12,7 @@ static_unit_test_SOURCES=../unit_test.c \
 	../memory.c \
 	../pthread_atomic_operations.c \
 	../pthread_lock.c \
+	../timing.c \
 	../lib_random.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/switch_port.c \

@@ -8,7 +8,7 @@
 #include <inttypes.h>
 #include "lock.h"
 
-#ifdef ATOMIC_OPS_INLINE_HDR
+#if defined(ATOMIC_OPS_INLINE_HDR) && !defined(ROFL_TEST)
 
 #include "atomic_ops_inline.h"
 
