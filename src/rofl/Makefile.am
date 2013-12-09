@@ -17,7 +17,7 @@ endif
 #include_HEADERS=rofl.h
 
 lib_LTLIBRARIES = librofl.la
-librofl_la_SOURCES = #rofl.h 
+librofl_la_SOURCES = ../rofl.c
 librofl_la_LIBADD = $(LIBS_ROFL) -lpthread
 
 ROFL_LIBRARY_VERSION = 1:1:1
