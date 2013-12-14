@@ -89,7 +89,7 @@ coxmlist::unpack(
 	clear();
 
 	// sanity check: oxm_len must be of size at least of ofp_oxm_hdr
-	if (buflen < (int)sizeof(struct ofp_oxm_hdr)) {
+	if (buflen < (int)sizeof(struct rofl::openflow::ofp_oxm_hdr)) {
 		throw eBadMatchBadLen();
 	}
 

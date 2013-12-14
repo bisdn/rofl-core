@@ -45,6 +45,9 @@ m4_include([config/pipeline.m4])
 # Checking libs
 #m4_include([config/libs.m4])
 
+# Checking libs
+m4_include([config/versioning.m4])
+
 # Output files
 AC_CONFIG_FILES([
 

@@ -10,7 +10,8 @@ using namespace rofl;
 cgroupentry::cgroupentry(uint8_t ofp_version) :
 		ofp_version(ofp_version),
 		group_mod(NULL),
-		group_mod_area(sizeof(struct openflow12::ofp_group_mod) + 128/*space for actions, will be extended in method pack() if necessary*/)
+		group_mod_area(sizeof(struct openflow12::ofp_group_mod) + 128/*space for actions, will be extended in method pack() if necessary*/),
+		buckets(ofp_version)
 {
 	reset();
 }

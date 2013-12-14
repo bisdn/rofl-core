@@ -17,17 +17,17 @@ coxmatch::coxmatch(size_t size) :
 	cmemory(size)
 {
 	pthread_rwlock_init(&oxmlock, 0);
-	oxm_header = (struct ofp_oxm_hdr*)somem();
+	oxm_header = (struct rofl::openflow::ofp_oxm_hdr*)somem();
 }
 
 
 coxmatch::coxmatch(
-		struct ofp_oxm_hdr* hdr,
+		struct rofl::openflow::ofp_oxm_hdr* hdr,
 		size_t oxm_len) :
 		cmemory((uint8_t*)hdr, oxm_len)
 {
 	pthread_rwlock_init(&oxmlock, 0);
-	oxm_header = (struct ofp_oxm_hdr*)somem();
+	oxm_header = (struct rofl::openflow::ofp_oxm_hdr*)somem();
 }
 
 
@@ -48,7 +48,7 @@ coxmatch::coxmatch(
 	}
 
 	assign((uint8_t*)oxm_hdr, oxm_len);
-	oxm_header = (struct ofp_oxm_hdr*)somem();
+	oxm_header = (struct rofl::openflow::ofp_oxm_hdr*)somem();
 
 	// TODO: check hasmask and remaining length
 }

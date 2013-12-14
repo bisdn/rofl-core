@@ -2109,6 +2109,812 @@ public:
 
 
 
+	/**
+	 * @brief	Sends a BadRequest/BadLen ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_bad_len(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+	/**
+	 * @brief	Sends a BadRequest/BadVersion ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_bad_version(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+	/**
+	 * @brief	Sends a BadRequest/BadType ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_bad_type(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+	/**
+	 * @brief	Sends a BadRequest/BadStat ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_bad_stat(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+	/**
+	 * @brief	Sends a BadRequest/BadExperimenter ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_bad_experimenter(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+	/**
+	 * @brief	Sends a BadRequest/BadExpType ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_bad_exp_type(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+	/**
+	 * @brief	Sends a BadRequest/EPerm ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_eperm(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+	/**
+	 * @brief	Sends a BadRequest/BufferEmpty ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_buffer_empty(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+	/**
+	 * @brief	Sends a BadRequest/BufferUnknown ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_buffer_unknown(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+	/**
+	 * @brief	Sends a BadRequest/BadTableId ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_bad_table_id(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+
+	/**
+	 * @brief	Sends a BadRequest/IsSlave ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_is_slave(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+	/**
+	 * @brief	Sends a BadRequest/BadPort ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_bad_port(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+	/**
+	 * @brief	Sends a BadRequest/BadPacket ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_bad_packet(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+
+	/**
+	 * @brief	Sends a BadAction/BadType ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_bad_type(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+	/**
+	 * @brief	Sends a BadAction/BadLen ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_bad_len(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+	/**
+	 * @brief	Sends a BadAction/BadExperimenter ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_bad_experimenter(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+	/**
+	 * @brief	Sends a BadAction/BadExperimenterType ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_bad_experimenter_type(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadAction/BadOutPort ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_bad_out_port(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadAction/BadArgument ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_bad_argument(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadAction/EPerm ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_eperm(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadAction/TooMany ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_too_many(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadAction/BadQueue ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_bad_queue(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadAction/BadOutGroup ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_bad_out_group(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadAction/MatchInconsistent ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_match_inconsistent(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadAction/UnsupportedOrder ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_unsupported_order(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadAction/BadTag ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_bad_tag(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadInst/UnknownInst ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_inst_unknown_inst(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadInst/UnsupInst ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_inst_unsup_inst(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadInst/BadTableId ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_inst_bad_table_id(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadInst/UnsupMetadata ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_inst_unsup_metadata(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadInst/UnsupMetadataMask ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_inst_unsup_metadata_mask(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadInst/UnsupExpInst ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_inst_unsup_exp_inst(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadMatch/BadType ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_match_bad_type(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadMatch/BadLen ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_match_bad_len(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadMatch/BadTag ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_match_bad_tag(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadMatch/BadDlAddrMask ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_match_bad_dladdr_mask(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadMatch/BadNwAddrMask ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_match_bad_nwaddr_mask(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadMatch/BadWildcards ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_match_bad_wildcards(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadMatch/BadField ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_match_bad_field(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadMatch/BadValue ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_match_bad_value(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a HelloFailed/Incompatible ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_hello_failed_incompatible(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a HelloFailed/EPerm ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_hello_failed_eperm(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a SwitchConfigFailed/BadFlags ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_switch_config_failed_bad_flags(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a SwitchConfigFailed/BadLen ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_switch_config_failed_bad_len(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a FlowModFailed/Unknown ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_flow_mod_failed_unknown(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a FlowModFailed/TableFull ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_flow_mod_failed_table_full(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a FlowModFailed/BadTableId ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_flow_mod_failed_bad_table_id(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a FlowModFailed/Overlap ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_flow_mod_failed_overlap(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a FlowModFailed/EPerm ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_flow_mod_failed_eperm(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a FlowModFailed/BadTimeout ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_flow_mod_failed_bad_timeout(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a FlowModFailed/BadCommand ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_flow_mod_failed_bad_command(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+
+
+
+
+
+
+
+
+
 	/*
 	 * FIXME: to be removed and replaced by cflowentry
 	 */

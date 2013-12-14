@@ -293,12 +293,7 @@ rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_
 	ge->id = id;
 	ge->type = type;
 	ge->group_table = gt;
-	/*for(i=0;buckets[i]!=NULL;i++){
-		if(of1x_init_group_bucket(ge,buckets[i])==ROFL_FAILURE){
-			platform_rwlock_wrunlock(ge->rwlock);
-			return ROFL_FAILURE;
-		}
-	}*/
+	
 	platform_rwlock_wrunlock(ge->rwlock);
 	
 	return ROFL_SUCCESS;
@@ -386,4 +381,64 @@ bool __of1x_bucket_list_has_weights(of1x_bucket_list_t *bl){
 			return true;
 	}
 	return false;
+}
+
+void of1x_dump_bucket(of1x_bucket_t *bc){
+	ROFL_PIPELINE_DEBUG_NO_PREFIX("Weight %u, port %u, actions: ", bc->weight, bc->port);
+	
+	//NOTE stats?
+	
+	__of1x_dump_action_group(bc->actions);
+	ROFL_PIPELINE_DEBUG_NO_PREFIX("\n");
+}
+
+void of1x_dump_group(of1x_group_t* group){
+	of1x_bucket_t *bc_it;
+	unsigned int i;
+	
+	ROFL_PIPELINE_DEBUG_NO_PREFIX("Id %u, ", group->id);
+	switch(group->type){
+		case OF1X_GROUP_TYPE_ALL:
+			ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP_TYPE_ALL, ");
+			break;
+		case OF1X_GROUP_TYPE_SELECT:
+			ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP_TYPE_SELECT, ");
+			break;
+		case OF1X_GROUP_TYPE_INDIRECT:
+			ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP_TYPE_INDIRECT, ");
+			break;
+		case OF1X_GROUP_TYPE_FF:
+			ROFL_PIPELINE_DEBUG_NO_PREFIX("GROUP_TYPE_FF, ");
+			break;
+		default:
+			ROFL_PIPELINE_DEBUG_NO_PREFIX("UNEXPECTED GROUP_TYPE (%u), ", group->type);
+			break;
+	}
+	ROFL_PIPELINE_DEBUG_NO_PREFIX("# of buckets %u\n", group->bc_list->num_of_buckets);
+	
+	//NOTE stats
+	
+
+	for(bc_it=group->bc_list->head, i=0; bc_it; bc_it=bc_it->next, i++){
+		ROFL_PIPELINE_DEBUG("\t\t[%u] Bucket (%p). ", i, bc_it);
+		of1x_dump_bucket(bc_it);
+	}
+	ROFL_PIPELINE_DEBUG("\n");
+}
+
+void of1x_dump_group_table(of1x_group_table_t *gt){
+	of1x_group_t* it;
+	unsigned int i;
+	
+	ROFL_PIPELINE_DEBUG("Dumping group table. # of group entries: %u. \n",gt->num_of_entries);
+	if (gt->num_of_entries > 0){
+		for(it=gt->head, i=0; it; it=it->next, i++){
+			ROFL_PIPELINE_DEBUG("\t[%u] Group (%p). ", i, it);
+			of1x_dump_group(it);
+		}
+	}
+	else{
+		ROFL_PIPELINE_DEBUG("\t[*] No entries\n");
+		ROFL_PIPELINE_DEBUG("\n");
+	}
 }

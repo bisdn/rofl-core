@@ -1627,6 +1627,14 @@ namespace openflow13 {
 	};
 	OFP_ASSERT(sizeof(struct ofp_role_request) == 24);
 
+	/* Controller roles. */
+	enum ofp_controller_role {
+		OFPCR_ROLE_NOCHANGE = 0,	/* Don’t change current role. */
+		OFPCR_ROLE_EQUAL = 1,		/* Default role, full access. */
+		OFPCR_ROLE_MASTER = 2,	/* Full access, at most one master. */
+		OFPCR_ROLE_SLAVE = 3,		/* Read-only access. */
+	};
+
 	// A3.10 Set Asynchronous Configuration Message
 
 	/* Asynchronous message configuration. */
@@ -1689,6 +1697,192 @@ namespace openflow13 {
 	OFP_ASSERT(sizeof(struct ofp_flow_removed) == 56);
 
 
+	/* Values for ’type’ in ofp_error_message. These values are immutable: they
+	* will not change in future versions of the protocol (although new values may
+	* be added). */
+	enum ofp_error_type {
+		OFPET_HELLO_FAILED = 0, /* Hello protocol failed. */
+		OFPET_BAD_REQUEST = 1, /* Request was not understood. */
+		OFPET_BAD_ACTION = 2, /* Error in action description. */
+		OFPET_BAD_INSTRUCTION = 3, /* Error in instruction list. */
+		OFPET_BAD_MATCH = 4, /* Error in match. */
+		OFPET_FLOW_MOD_FAILED = 5, /* Problem modifying flow entry. */
+		OFPET_GROUP_MOD_FAILED = 6, /* Problem modifying group entry. */
+		OFPET_PORT_MOD_FAILED = 7, /* Port mod request failed. */
+		OFPET_TABLE_MOD_FAILED = 8, /* Table mod request failed. */
+		OFPET_QUEUE_OP_FAILED = 9, /* Queue operation failed. */
+		OFPET_SWITCH_CONFIG_FAILED = 10, /* Switch config request failed. */
+		OFPET_ROLE_REQUEST_FAILED = 11, /* Controller Role request failed. */
+		OFPET_EXPERIMENTER = 0xffff /* Experimenter error messages. */
+	};
+
+	/* ofp_error_msg 'code' values for OFPET_HELLO_FAILED.  'data' contains an
+	 * ASCII text string that may give failure details. */
+	enum ofp_hello_failed_code {
+		OFPHFC_INCOMPATIBLE,        /* No compatible version. */
+		OFPHFC_EPERM                /* Permissions error. */
+	};
+
+	/* ofp_error_msg ’code’ values for OFPET_BAD_REQUEST. ’data’ contains at least
+	* the first 64 bytes of the failed request. */
+	enum ofp_bad_request_code {
+		OFPBRC_BAD_VERSION = 0, /* ofp_header.version not supported. */
+		OFPBRC_BAD_TYPE = 1, /* ofp_header.type not supported. */
+		OFPBRC_BAD_STAT = 2, /* ofp_stats_request.type not supported. */
+		OFPBRC_BAD_EXPERIMENTER = 3, /* Experimenter id not supported
+									 * (in ofp_experimenter_header or
+									 * ofp_stats_request or ofp_stats_reply). */
+		OFPBRC_BAD_EXP_TYPE = 4, /* Experimenter type not supported. */
+		OFPBRC_EPERM = 5, /* Permissions error. */
+		OFPBRC_BAD_LEN = 6, /* Wrong request length for type. */
+		OFPBRC_BUFFER_EMPTY = 7, /* Specified buffer has already been used. */
+		OFPBRC_BUFFER_UNKNOWN = 8, /* Specified buffer does not exist. */
+		OFPBRC_BAD_TABLE_ID = 9, /* Specified table-id invalid or does not
+								  * exist. */
+		OFPBRC_IS_SLAVE = 10, /* Denied because controller is slave. */
+		OFPBRC_BAD_PORT = 11, /* Invalid port. */
+		OFPBRC_BAD_PACKET = 12, /* Invalid packet in packet-out. */
+	};
+
+
+	/* ofp_error_msg 'code' values for OFPET_BAD_ACTION.  'data' contains at least
+	 * the first 64 bytes of the failed request. */
+	enum ofp_bad_action_code {
+		OFPBAC_BAD_TYPE,           /* Unknown action type. */
+		OFPBAC_BAD_LEN,            /* Length problem in actions. */
+		OFPBAC_BAD_EXPERIMENTER,   /* Unknown experimenter id specified. */
+		OFPBAC_BAD_EXPERIMENTER_TYPE, /* Unknown action type for experimenter id. */
+		OFPBAC_BAD_OUT_PORT,       /* Problem validating output port. */
+		OFPBAC_BAD_ARGUMENT,       /* Bad action argument. */
+		OFPBAC_EPERM,              /* Permissions error. */
+		OFPBAC_TOO_MANY,           /* Can't handle this many actions. */
+		OFPBAC_BAD_QUEUE,          /* Problem validating output queue. */
+		OFPBAC_BAD_OUT_GROUP,      /* Invalid group id in forward action. */
+		OFPBAC_MATCH_INCONSISTENT, /* Action can't apply for this match. */
+		OFPBAC_UNSUPPORTED_ORDER,  /* Action order is unsupported for the action
+					  list in an Apply-Actions instruction */
+		OFPBAC_BAD_TAG,            /* Actions uses an unsupported
+									  tag/encap. */
+	};
+
+	/* ofp_error_msg 'code' values for OFPET_BAD_INSTRUCTION.  'data' contains at least
+	 * the first 64 bytes of the failed request. */
+	enum ofp_bad_instruction_code {
+		OFPBIC_UNKNOWN_INST,       /* Unknown instruction. */
+		OFPBIC_UNSUP_INST,         /* Switch or table does not support the
+									  instruction. */
+		OFPBIC_BAD_TABLE_ID,       /* Invalid Table-ID specified. */
+		OFPBIC_UNSUP_METADATA,     /* Metadata value unsupported by datapath. */
+		OFPBIC_UNSUP_METADATA_MASK,/* Metadata mask value unsupported by
+									  datapath. */
+		OFPBIC_UNSUP_EXP_INST,     /* Specific experimenter instruction
+									  unsupported. */
+	};
+
+	/* ofp_error_msg 'code' values for OFPET_BAD_MATCH.  'data' contains at least
+	 * the first 64 bytes of the failed request. */
+	enum ofp_bad_match_code {
+		OFPBMC_BAD_TYPE,            /* Unsupported match type specified by the
+									   match */
+		OFPBMC_BAD_LEN,             /* Length problem in match. */
+		OFPBMC_BAD_TAG,             /* Match uses an unsupported tag/encap. */
+		OFPBMC_BAD_DL_ADDR_MASK,    /* Unsupported datalink addr mask - switch does
+									   not support arbitrary datalink address
+									   mask. */
+		OFPBMC_BAD_NW_ADDR_MASK,    /* Unsupported network addr mask - switch does
+									   not support arbitrary network address
+									   mask. */
+		OFPBMC_BAD_WILDCARDS,       /* Unsupported wildcard specified in the
+									   match. */
+		OFPBMC_BAD_FIELD,		/* Unsupported field in the match. */
+		OFPBMC_BAD_VALUE,		/* Unsupported value in a match field. */
+	};
+
+	/* ofp_error_msg 'code' values for OFPET_FLOW_MOD_FAILED.  'data' contains
+	 * at least the first 64 bytes of the failed request. */
+	enum ofp_flow_mod_failed_code {
+		OFPFMFC_UNKNOWN,            /* Unspecified error. */
+		OFPFMFC_TABLE_FULL,         /* Flow not added because table was full. */
+		OFPFMFC_BAD_TABLE_ID,       /* Table does not exist */
+		OFPFMFC_OVERLAP,            /* Attempted to add overlapping flow with
+									   CHECK_OVERLAP flag set. */
+		OFPFMFC_EPERM,              /* Permissions error. */
+		OFPFMFC_BAD_TIMEOUT,        /* Flow not added because of unsupported
+									   idle/hard timeout. */
+		OFPFMFC_BAD_COMMAND,        /* Unsupported or unknown command. */
+	};
+
+	/* ofp_error_msg 'code' values for OFPET_GROUP_MOD_FAILED.  'data' contains
+	 * at least the first 64 bytes of the failed request. */
+	enum ofp_group_mod_failed_code {
+		OFPGMFC_GROUP_EXISTS 			= 0,   	/* Group not added because a group ADD
+												 * attempted to replace an
+												 * already-present group. */
+		OFPGMFC_INVALID_GROUP         	= 1,   	/* Group not added because Group specified
+												 * is invalid. */
+		OFPGMFC_WEIGHT_UNSUPPORTED		= 2,    /* Switch does not support unequal load
+												 * sharing with select groups. */
+		OFPGMFC_OUT_OF_GROUPS			= 3,    /* The group table is full. */
+		OFPGMFC_OUT_OF_BUCKETS			= 4,    /* The maximum number of action buckets
+												 * for a group has been exceeded. */
+		OFPGMFC_CHAINING_UNSUPPORTED	= 5,    /* Switch does not support groups that
+												 * forward to groups. */
+		OFPGMFC_WATCH_UNSUPPORTED		= 6,    /* This group cannot watch the
+												   watch_port or watch_group specified. */
+		OFPGMFC_LOOP					= 7,    /* Group entry would cause a loop. */
+		OFPGMFC_UNKNOWN_GROUP			= 8,    /* Group not modified because a group
+												   MODIFY attempted to modify a
+												   non-existent group. */
+		OFPGMFC_CHAINED_GROUP 			= 9,	/* Group not deleted because another
+												   group is forwarding to it. */
+		OFPGMFC_BAD_TYPE				= 10,	/* Unsupported or unknown group type. */
+		OFPGMFC_BAD_COMMAND				= 11,	/* Unsupported or unknown command. */
+		OFPGMFC_BAD_BUCKET				= 12,	/* Error in bucket. */
+		OFPGMFC_BAD_WATCH				= 13,	/* Error in watch port/group. */
+		OFPGMFC_EPERM					= 14,	/* Permissions error. */
+	};
+
+	/* ofp_error_msg 'code' values for OFPET_PORT_MOD_FAILED.  'data' contains
+	 * at least the first 64 bytes of the failed request. */
+	enum ofp_port_mod_failed_code {
+		OFPPMFC_BAD_PORT,            /* Specified port number does not exist. */
+		OFPPMFC_BAD_HW_ADDR,         /* Specified hardware address does not
+									  * match the port number. */
+		OFPPMFC_BAD_CONFIG,          /* Specified config is invalid. */
+		OFPPMFC_BAD_ADVERTISE        /* Specified advertise is invalid. */
+	};
+
+	/* ofp_error_msg 'code' values for OFPET_TABLE_MOD_FAILED.  'data' contains
+	 * at least the first 64 bytes of the failed request. */
+	enum ofp_table_mod_failed_code {
+		OFPTMFC_BAD_TABLE,           /* Specified table does not exist. */
+		OFPTMFC_BAD_CONFIG           /* Specified config is invalid. */
+	};
+
+	/* ofp_error msg 'code' values for OFPET_QUEUE_OP_FAILED. 'data' contains
+	 * at least the first 64 bytes of the failed request */
+	enum ofp_queue_op_failed_code {
+		OFPQOFC_BAD_PORT,           /* Invalid port (or port does not exist). */
+		OFPQOFC_BAD_QUEUE,          /* Queue does not exist. */
+		OFPQOFC_EPERM               /* Permissions error. */
+	};
+
+	/* ofp_error_msg 'code' values for OFPET_SWITCH_CONFIG_FAILED. 'data' contains
+	 * at least the first 64 bytes of the failed request. */
+	enum ofp_switch_config_failed_code {
+		OFPSCFC_BAD_FLAGS,           /* Specified flags is invalid. */
+		OFPSCFC_BAD_LEN              /* Specified len is invalid. */
+	};
+
+	/* ofp_error_msg ’code’ values for OFPET_ROLE_REQUEST_FAILED. ’data’ contains
+	* at least the first 64 bytes of the failed request. */
+	enum ofp_role_request_failed_code {
+		OFPRRFC_STALE = 0, /* Stale Message: old generation_id. */
+		OFPRRFC_UNSUP = 1, /* Controller role change unsupported. */
+		OFPRRFC_BAD_ROLE = 2, /* Invalid role. */
+	};
+
+
 	// A4.3 Port Status Message
 
 	/* unaltered since OpenFlow 1.2 */
@@ -1703,42 +1897,6 @@ namespace openflow13 {
 	OFP_ASSERT(sizeof(struct ofp_port_status) == 80);
 
 	// A4.4 Error Message
-
-	/* unaltered since OpenFlow 1.2, new error types */
-
-	/* Values for ’type’ in ofp_error_message. These values are immutable: they
-	* will not change in future versions of the protocol (although new values may
-	* be added). */
-	enum ofp_error_type {
-	#if 0
-		OFPET_HELLO_FAILED			= 0, 	/* Hello protocol failed. */
-		OFPET_BAD_REQUEST			= 1, 	/* Request was not understood. */
-		OFPET_BAD_ACTION			= 2, 	/* Error in action description. */
-		OFPET_BAD_INSTRUCTION		= 3, 	/* Error in instruction list. */
-		OFPET_BAD_MATCH				= 4, 	/* Error in match. */
-		OFPET_FLOW_MOD_FAILED		= 5, 	/* Problem modifying flow entry. */
-		OFPET_GROUP_MOD_FAILED		= 6, 	/* Problem modifying group entry. */
-		OFPET_PORT_MOD_FAILED		= 7, 	/* Port mod request failed. */
-		OFPET_TABLE_MOD_FAILED		= 8, 	/* Table mod request failed. */
-		OFPET_QUEUE_OP_FAILED		= 9, 	/* Queue operation failed. */
-		OFPET_SWITCH_CONFIG_FAILED 	= 10, 	/* Switch config request failed. */
-		OFPET_ROLE_REQUEST_FAILED 	= 11, 	/* Controller Role request failed. */
-	#endif
-		OFPET_METER_MOD_FAILED		= 12, 	/* Error in meter. */
-		OFPET_TABLE_FEATURES_FAILED = 13, 	/* Setting table features failed. */
-	#if 0
-		OFPET_EXPERIMENTER 			= 0xffff/* Experimenter error messages. */
-	#endif
-	};
-
-	/* ofp_error_msg ’code’ values for OFPET_HELLO_FAILED. ’data’ contains an
-	 * ASCII text string that may give failure details. */
-	enum ofp_hello_failed_code {
-	#if 0
-		OFPHFC_INCOMPATIBLE 		= 0,	/* No compatible version. */
-		OFPHFC_EPERM 				= 1,  	/* Permissions error. */
-	#endif
-	};
 
 
 

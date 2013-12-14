@@ -279,7 +279,7 @@ cofmeter_band_drop::cofmeter_band_drop(
 	}
 	}
 	ofm_drop = somem();
-	set_type(OFPMBT_DROP);
+	set_type(rofl::openflow13::OFPMBT_DROP);
 }
 
 

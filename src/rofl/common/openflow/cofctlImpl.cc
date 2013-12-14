@@ -656,22 +656,22 @@ cofctlImpl::handle_message(
 				}
 
 				switch (stats_type) {
-				case OFPST_DESC: {
+				case openflow10::OFPST_DESC: {
 					msg = new cofmsg_desc_stats_request(mem);
 				} break;
-				case OFPST_FLOW: {
+				case openflow10::OFPST_FLOW: {
 					msg = new cofmsg_flow_stats_request(mem);
 				} break;
-				case OFPST_AGGREGATE: {
+				case openflow10::OFPST_AGGREGATE: {
 					msg = new cofmsg_aggr_stats_request(mem);
 				} break;
-				case OFPST_TABLE: {
+				case openflow10::OFPST_TABLE: {
 					msg = new cofmsg_table_stats_request(mem);
 				} break;
-				case OFPST_PORT: {
+				case openflow10::OFPST_PORT: {
 					msg = new cofmsg_port_stats_request(mem);
 				} break;
-				case OFPST_QUEUE: {
+				case openflow10::OFPST_QUEUE: {
 					msg = new cofmsg_queue_stats_request(mem);
 				} break;
 				// TODO: experimenter statistics
@@ -789,31 +789,31 @@ cofctlImpl::handle_message(
 				}
 
 				switch (stats_type) {
-				case OFPST_DESC: {
+				case openflow12::OFPST_DESC: {
 					msg = new cofmsg_desc_stats_request(mem);
 				} break;
-				case OFPST_FLOW: {
+				case openflow12::OFPST_FLOW: {
 					msg = new cofmsg_flow_stats_request(mem);
 				} break;
-				case OFPST_AGGREGATE: {
+				case openflow12::OFPST_AGGREGATE: {
 					msg = new cofmsg_aggr_stats_request(mem);
 				} break;
-				case OFPST_TABLE: {
+				case openflow12::OFPST_TABLE: {
 					msg = new cofmsg_table_stats_request(mem);
 				} break;
-				case OFPST_PORT: {
+				case openflow12::OFPST_PORT: {
 					msg = new cofmsg_port_stats_request(mem);
 				} break;
-				case OFPST_QUEUE: {
+				case openflow12::OFPST_QUEUE: {
 					msg = new cofmsg_queue_stats_request(mem);
 				} break;
-				case OFPST_GROUP: {
+				case openflow12::OFPST_GROUP: {
 					msg = new cofmsg_group_stats_request(mem);
 				} break;
-				case OFPST_GROUP_DESC: {
+				case openflow12::OFPST_GROUP_DESC: {
 					msg = new cofmsg_group_desc_stats_request(mem);
 				} break;
-				case OFPST_GROUP_FEATURES: {
+				case openflow12::OFPST_GROUP_FEATURES: {
 					msg = new cofmsg_group_features_stats_request(mem);
 				} break;
 				// TODO: experimenter statistics
@@ -884,522 +884,270 @@ cofctlImpl::handle_message(
 	} catch (eBadSyntaxTooShort& e) {
 
 		logging::error << "eBadSyntaxTooShort " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_BAD_LEN,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_bad_len(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadVersion& e) {
 
 		logging::error << "eBadVersion " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_BAD_VERSION,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_bad_version(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestBadVersion& e) {
 
 		logging::error << "eBadRequestBadVersion " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_BAD_VERSION,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_bad_version(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestBadType& e) {
 
 		logging::error << "eBadRequestBadType " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_BAD_TYPE,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_bad_type(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestBadStat& e) {
 
 		logging::error << "eBadRequestBadStat " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_BAD_STAT,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_bad_stat(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestBadExperimenter& e) {
 
 		logging::error << "eBadRequestBadExperimenter " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_BAD_EXPERIMENTER,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_bad_experimenter(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestBadExpType& e) {
 
 		logging::error << "eBadRequestBadExpType " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_BAD_EXP_TYPE,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_bad_exp_type(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestEperm& e) {
 
 		logging::error << "eBadRequestEperm " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_EPERM,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_eperm(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestBadLen& e) {
 
 		logging::error << "eBadRequestBadLen " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_BAD_LEN,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_bad_len(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestBufferEmpty& e) {
 
 		logging::error << "eBadRequestBufferEmpty " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_BUFFER_EMPTY,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_buffer_empty(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestBufferUnknown& e) {
 
 		logging::error << "eBadRequestBufferUnknown " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_BUFFER_UNKNOWN,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_buffer_unknown(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestBadTableId& e) {
 
 		logging::error << "eBadRequestBadTableId " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_BAD_TABLE_ID,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_bad_table_id(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestIsSlave& e) {
 
 		logging::error << "eBadRequestIsSlave " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_IS_SLAVE,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_is_slave(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestBadPort& e) {
 
 		logging::error << "eBadRequestBadPort " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_BAD_PORT,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_bad_port(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestBadPacket& e) {
 
 		logging::error << "eBadRequestBadPacket " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_REQUEST,
-					OFPBRC_BAD_PACKET,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_request_bad_packet(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadRequestBase& e) {
 
 		logging::error << "eBadRequestBase " << *mem << std::endl;
-
 		delete msg;
+
 	} catch (eBadActionBadType& e) {
 
 		logging::error << "eBadActionBadType " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_ACTION,
-					OFPBAC_BAD_TYPE,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_action_bad_type(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadActionBadLen& e) {
 
 		logging::error << "eBadActionBadLen " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_ACTION,
-					OFPBAC_BAD_LEN,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_action_bad_len(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadActionBadExperimenter& e) {
 
 		logging::error << "eBadActionBadExperimenter " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_ACTION,
-					OFPBAC_BAD_EXPERIMENTER,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_action_bad_experimenter(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadActionBadExperimenterType& e) {
 
 		logging::error << "eBadActionBadExperimenterType " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_ACTION,
-					OFPBAC_BAD_EXPERIMENTER_TYPE,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_action_bad_experimenter_type(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadActionBadOutPort& e) {
 
 		logging::error << "eBadActionBadOutPort " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_ACTION,
-					OFPBAC_BAD_OUT_PORT,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_action_bad_out_port(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadActionBadArgument& e) {
 
 		logging::error << "eBadActionBadArgument " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_ACTION,
-					OFPBAC_BAD_ARGUMENT,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_action_bad_argument(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadActionEperm& e) {
 
 		logging::error << "eBadActionEperm " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_ACTION,
-					OFPBAC_EPERM,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_action_eperm(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadActionTooMany& e) {
 
 		logging::error << "eBadActionTooMany " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_ACTION,
-					OFPBAC_TOO_MANY,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_action_too_many(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadActionBadQueue& e) {
 
 		logging::error << "eBadActionBadQueue " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_ACTION,
-					OFPBAC_BAD_QUEUE,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_action_bad_queue(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadActionBadOutGroup& e) {
 
 		logging::error << "eBadActionBadOutGroup " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_ACTION,
-					OFPBAC_BAD_OUT_GROUP,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_action_bad_out_group(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadActionMatchInconsistent& e) {
 
 		logging::error << "eBadActionMatchInconsistent " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_ACTION,
-					OFPBAC_MATCH_INCONSISTENT,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_action_match_inconsistent(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadActionUnsupportedOrder& e) {
 
 		logging::error << "eBadActionUnsuportedOrder " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_ACTION,
-					OFPBAC_UNSUPPORTED_ORDER,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_action_unsupported_order(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadActionBadTag& e) {
 
 		logging::error << "eBadActionBadTag " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_ACTION,
-					OFPBAC_BAD_TAG,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_action_bad_tag(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadActionBase& e) {
 
 		logging::error << "eBadActionBase " << *mem << std::endl;
-
 		delete msg;
+
 	} catch (eBadInstUnknownInst& e) {
 
 		logging::error << "eBadInstUnknownInst " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_INSTRUCTION,
-					OFPBIC_UNKNOWN_INST,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_inst_unknown_inst(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadInstUnsupInst& e) {
 
 		logging::error << "eBadInstUnsupInst " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_INSTRUCTION,
-					OFPBIC_UNSUP_INST,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_inst_unsup_inst(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadInstBadTableId& e) {
 
 		logging::error << "eBadInstBadTableId " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_INSTRUCTION,
-					OFPBIC_BAD_TABLE_ID,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_inst_bad_table_id(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadInstUnsupMetadata& e) {
 
 		logging::error << "eBadInstUnsupMetadata " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_INSTRUCTION,
-					OFPBIC_UNSUP_METADATA,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_inst_unsup_metadata(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadInstUnsupMetadataMask& e) {
 
 		logging::error << "eBadInstUnsupMetadataMask " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_INSTRUCTION,
-					OFPBIC_UNSUP_METADATA_MASK,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_inst_unsup_metadata_mask(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadInstUnsupExpInst& e) {
 
 		logging::error << "eBadInstUnsupExpInst " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_INSTRUCTION,
-					OFPBIC_UNSUP_EXP_INST,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_inst_unsup_exp_inst(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadInstBase& e) {
 
 		logging::error << "eBadInstBase " << *mem << std::endl;
-
 		delete msg;
+
 	} catch (eBadMatchBadType& e) {
 
 		logging::error << "eBadMatchBadType " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_MATCH,
-					OFPBMC_BAD_TYPE,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_match_bad_type(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadMatchBadLen& e) {
 
 		logging::error << "eBadMatchBadLen " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_MATCH,
-					OFPBMC_BAD_LEN,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_match_bad_len(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadMatchBadTag& e) {
 
 		logging::error << "eBadMatchBadTag " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_MATCH,
-					OFPBMC_BAD_TAG,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_match_bad_tag(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadMatchBadDlAddrMask& e) {
 
 		logging::error << "eBadMatchBadDlAddrMask " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_MATCH,
-					OFPBMC_BAD_DL_ADDR_MASK,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_match_bad_dladdr_mask(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadMatchBadNwAddrMask& e) {
 
 		logging::error << "eBadMatchBadNwAddrMask " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_MATCH,
-					OFPBMC_BAD_NW_ADDR_MASK,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_match_bad_nwaddr_mask(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadMatchBadWildcards& e) {
 
 		logging::error << "eBadMatchBadWildcards " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_MATCH,
-					OFPBMC_BAD_WILDCARDS,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_match_bad_wildcards(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadMatchBadField& e) {
 
 		logging::error << "eBadMatchBadField " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_MATCH,
-					OFPBMC_BAD_FIELD,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_match_bad_field(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadMatchBadValue& e) {
 
 		logging::error << "eBadMatchBadValue " << *mem << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					xid,
-					OFPET_BAD_MATCH,
-					OFPBMC_BAD_VALUE,
-					mem->somem(), mem->memlen());
-
+		rofbase->send_error_bad_match_bad_value(this, xid, mem->somem(), mem->memlen());
 		delete msg;
+
 	} catch (eBadMatchBase& e) {
 
 		logging::error << "eBadMatchBase " << *mem << std::endl;
@@ -1455,33 +1203,20 @@ cofctlImpl::hello_rcvd(cofmsg_hello *msg)
 	} catch (eHelloIncompatible& e) {
 
 		logging::warn << "eHelloIncompatible " << *msg << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					msg->get_xid(),
-					OFPET_HELLO_FAILED,
-					OFPHFC_INCOMPATIBLE,
-					msg->soframe(), msg->framelen());
-
+		rofbase->send_error_hello_failed_incompatible(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
 		handle_closed(socket, socket->sd);
+
 	} catch (eHelloEperm& e) {
 
 		logging::warn << "eHelloEperm " << *msg << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					msg->get_xid(),
-					OFPET_HELLO_FAILED,
-					OFPHFC_EPERM,
-					msg->soframe(), msg->framelen());
-
+		rofbase->send_error_hello_failed_eperm(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
 		handle_closed(socket, socket->sd);
+
 	} catch (eHelloBase& e) {
 
 		logging::warn << "eHelloBase " << *msg << std::endl;
-
 		delete msg;
 	}
 }
@@ -1596,31 +1331,18 @@ cofctlImpl::set_config_rcvd(cofmsg_set_config *msg)
 	} catch (eSwitchConfigBadFlags& e) {
 
 		logging::warn << "eSwitchConfigBadFlags " << *msg << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					msg->get_xid(),
-					OFPET_SWITCH_CONFIG_FAILED,
-					OFPSCFC_BAD_FLAGS,
-					msg->soframe(), msg->framelen());
-
+		rofbase->send_error_switch_config_failed_bad_flags(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eSwitchConfigBadLen& e) {
 
 		logging::warn << "eSwitchConfigBadLen " << *msg << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					msg->get_xid(),
-					OFPET_SWITCH_CONFIG_FAILED,
-					OFPSCFC_BAD_LEN,
-					msg->soframe(), msg->framelen());
-
+		rofbase->send_error_switch_config_failed_bad_len(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eSwitchConfigBase& e) {
 
 		logging::warn << "eSwitchConfigBase " << *msg << std::endl;
-
 		delete msg;
 	}
 }
@@ -1643,206 +1365,156 @@ void
 cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 {
 	try {
-		if (openflow12::OFPCR_ROLE_SLAVE == role) {
+		if ((openflow12::OFP_VERSION == get_version()) && (openflow12::OFPCR_ROLE_SLAVE == role)) {
+			send_error_is_slave(msg); return;
+		}
+		if ((openflow13::OFP_VERSION == get_version()) && (openflow13::OFPCR_ROLE_SLAVE == role)) {
 			send_error_is_slave(msg); return;
 		}
 
 		// check, whether the controlling pack->entity is allowed to install this flow-mod
-		if (rofbase->fe_flags.test(crofbase::NSP_ENABLED))
-		{
-			switch (msg->get_command()) {
-			case OFPFC_ADD:
-			case OFPFC_MODIFY:
-			case OFPFC_MODIFY_STRICT:
-				/*
-				 * deactivated for Darmstadt demonstration, needs exact fix
-				 */
+		if (rofbase->fe_flags.test(crofbase::NSP_ENABLED)) {
+			switch (get_version()) {
+			case openflow10::OFP_VERSION: {
+				switch (msg->get_command()) {
+				case openflow10::OFPFC_ADD:
+				case openflow10::OFPFC_MODIFY:
+				case openflow10::OFPFC_MODIFY_STRICT: {
 #if 0
-				rofbase->fsptable.flow_mod_allowed(this, msg->match);
+					/* deactivated for Darmstadt demonstration, needs exact fix */
+					rofbase->fsptable.flow_mod_allowed(this, msg->match);
 #endif
-				break;
+				} break;
 				/*
 				 * this allows generic DELETE commands to be applied
 				 * FIXME: does this affect somehow entries from other controllers?
 				 */
+				}
+			} break;
+			case openflow12::OFP_VERSION: {
+				switch (msg->get_command()) {
+				case openflow12::OFPFC_ADD:
+				case openflow12::OFPFC_MODIFY:
+				case openflow12::OFPFC_MODIFY_STRICT: {
+#if 0
+					/* deactivated for Darmstadt demonstration, needs exact fix */
+					rofbase->fsptable.flow_mod_allowed(this, msg->match);
+#endif
+				} break;
+				/*
+				 * this allows generic DELETE commands to be applied
+				 * FIXME: does this affect somehow entries from other controllers?
+				 */
+				}
+			} break;
+			case openflow13::OFP_VERSION: {
+				switch (msg->get_command()) {
+				case openflow13::OFPFC_ADD:
+				case openflow13::OFPFC_MODIFY:
+				case openflow13::OFPFC_MODIFY_STRICT: {
+#if 0
+					/* deactivated for Darmstadt demonstration, needs exact fix */
+					rofbase->fs<ptable.flow_mod_allowed(this, msg->match);
+#endif
+				} break;
+				/*
+				 * this allows generic DELETE commands to be applied
+				 * FIXME: does this affect somehow entries from other controllers?
+				 */
+				}
+			} break;
 			}
 		}
-
 
 		rofbase->handle_flow_mod(this, msg);
 
 	} catch (eFlowModUnknown& e) {
 
 		logging::warn << "eFlowModUnknown " << *msg << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					msg->get_xid(),
-					OFPET_FLOW_MOD_FAILED,
-					OFPFMFC_UNKNOWN,
-					msg->soframe(), msg->framelen());
-
+		rofbase->send_error_flow_mod_failed_unknown(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eFlowModTableFull& e) {
 
 		logging::warn << "eFlowModTableFull " << *msg << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					msg->get_xid(),
-					OFPET_FLOW_MOD_FAILED,
-					OFPFMFC_TABLE_FULL,
-					msg->soframe(), msg->framelen());
-
+		rofbase->send_error_flow_mod_failed_table_full(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eFlowModBadTableId& e) {
 
 		logging::warn << "eFlowModBadTableId " << *msg << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					msg->get_xid(),
-					OFPET_FLOW_MOD_FAILED,
-					OFPFMFC_BAD_TABLE_ID,
-					msg->soframe(), msg->framelen());
-
+		rofbase->send_error_flow_mod_failed_bad_table_id(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eFlowModOverlap& e) {
 
 		logging::warn << "eFlowModOverlap " << *msg << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					msg->get_xid(),
-					OFPET_FLOW_MOD_FAILED,
-					OFPFMFC_OVERLAP,
-					msg->soframe(), msg->framelen());
-
+		rofbase->send_error_flow_mod_failed_overlap(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eFlowModEperm& e) {
 
 		logging::warn << "eFlowModEperm " << *msg << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					msg->get_xid(),
-					OFPET_FLOW_MOD_FAILED,
-					OFPFMFC_EPERM,
-					msg->soframe(), msg->framelen());
-
+		rofbase->send_error_flow_mod_failed_eperm(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eFlowModBadTimeout&e ) {
 
 		logging::warn << "eFlowModBadTimeout " << *msg << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					msg->get_xid(),
-					OFPET_FLOW_MOD_FAILED,
-					OFPFMFC_BAD_TIMEOUT,
-					msg->soframe(), msg->framelen());
-
+		rofbase->send_error_flow_mod_failed_bad_timeout(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eFlowModBadCommand& e) {
 
 		logging::warn << "eFlowModBadCommand " << *msg << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					msg->get_xid(),
-					OFPET_FLOW_MOD_FAILED,
-					OFPFMFC_BAD_COMMAND,
-					msg->soframe(), msg->framelen());
-
+		rofbase->send_error_flow_mod_failed_bad_command(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eFlowModBase& e) {
 
 		logging::warn << "eFlowModBase " << *msg << std::endl;
-
 		delete msg;
+
 	} catch (eFspNotAllowed& e) {
 
 		logging::warn << "eFspNotAllowed " << *msg << " fsptable:" << rofbase->fsptable << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_FLOW_MOD_FAILED,
-				OFPFMFC_EPERM,
-				msg->soframe(), msg->framelen());
-
+		rofbase->send_error_flow_mod_failed_eperm(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eRofBaseTableNotFound& e) {
 
 		logging::warn << "eRofBaseTableNotFound " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_FLOW_MOD_FAILED,
-				OFPFMFC_BAD_TABLE_ID,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_flow_mod_failed_bad_table_id(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eInstructionInvalType& e) {
 
 		logging::warn << "eInstructionInvalType " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_BAD_INSTRUCTION,
-				OFPBIC_UNKNOWN_INST,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_bad_inst_unknown_inst(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eRofBaseGotoTableNotFound& e) {
 
 		logging::warn << "eRofBaseGotoTableNotFound " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_BAD_INSTRUCTION,
-				OFPBIC_BAD_TABLE_ID,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_bad_inst_bad_table_id(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eInstructionBadExperimenter& e) {
 
 		logging::warn << "eInstructionBadExperimenter " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_BAD_INSTRUCTION,
-				OFPBIC_UNSUP_EXP_INST,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_bad_inst_unsup_exp_inst(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eOFmatchInvalBadValue& e) {
 
 		logging::warn << "eOFmatchInvalBadValue " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_BAD_MATCH,
-				OFPBMC_BAD_VALUE,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_bad_match_bad_value(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
-	} catch (cerror &e) {
+
+	} catch (cerror& e) {
 
 		logging::warn << "cerror " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_FLOW_MOD_FAILED,
-				OFPFMFC_UNKNOWN,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_flow_mod_failed_unknown(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
 	}
 }

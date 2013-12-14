@@ -237,7 +237,7 @@ cofqueue_prop_min_rate::cofqueue_prop_min_rate(
 		throw eBadVersion();
 	}
 	}
-	set_property(OFPQT_MIN_RATE);
+	set_property(rofl::openflow13::OFPQT_MIN_RATE);
 	set_length(memlen());
 	set_rate(min_rate);
 }
@@ -268,7 +268,7 @@ cofqueue_prop_min_rate::operator= (
 	if (this == &qp)
 		return *this;
 
-	if (OFPQT_MIN_RATE != qp.get_property())
+	if (rofl::openflow13::OFPQT_MIN_RATE != qp.get_property())
 		throw eInval();
 
 	unpack(qp.somem(), qp.memlen());
@@ -398,7 +398,7 @@ cofqueue_prop_max_rate::cofqueue_prop_max_rate(
 	}
 	}
 	ofq_max_rate = somem();
-	set_property(OFPQT_MAX_RATE);
+	set_property(rofl::openflow13::OFPQT_MAX_RATE);
 	set_length(memlen());
 	set_rate(max_rate);
 }
