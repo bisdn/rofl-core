@@ -213,22 +213,19 @@ cofmsg_flow_mod::pack(uint8_t *buf, size_t buflen)
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {
 		memcpy(buf, soframe(), openflow10::OFP_FLOW_MOD_STATIC_HDR_LEN);
-		match.pack((struct openflow10::ofp_match*)
-				(struct openflow10::ofp_match*)(buf + sizeof(struct openflow::ofp_header)),
+		match.pack((buf + sizeof(struct openflow::ofp_header)),
 												sizeof(struct openflow10::ofp_match));
 		actions.pack((struct openflow::ofp_action_header*)
 				(buf + openflow10::OFP_FLOW_MOD_STATIC_HDR_LEN), actions.length());
 	} break;
 	case openflow12::OFP_VERSION: {
 		memcpy(buf, soframe(), openflow12::OFP_FLOW_MOD_STATIC_HDR_LEN);
-		match.pack((struct openflow12::ofp_match*)
-				(buf + openflow12::OFP_FLOW_MOD_STATIC_HDR_LEN), match.length());
+		match.pack((buf + openflow12::OFP_FLOW_MOD_STATIC_HDR_LEN), match.length());
 		instructions.pack(buf + openflow12::OFP_FLOW_MOD_STATIC_HDR_LEN + match.length(), instructions.length());
 	} break;
 	case openflow13::OFP_VERSION: {
 		memcpy(buf, soframe(), openflow13::OFP_FLOW_MOD_STATIC_HDR_LEN);
-		match.pack((struct openflow13::ofp_match*)
-				(buf + openflow13::OFP_FLOW_MOD_STATIC_HDR_LEN), match.length());
+		match.pack((buf + openflow13::OFP_FLOW_MOD_STATIC_HDR_LEN), match.length());
 		instructions.pack(buf + openflow13::OFP_FLOW_MOD_STATIC_HDR_LEN + match.length(), instructions.length());
 	} break;
 	default:
@@ -264,7 +261,7 @@ cofmsg_flow_mod::validate()
 	case openflow10::OFP_VERSION: {
 		if (get_length() < sizeof(struct openflow10::ofp_flow_mod))
 			throw eBadSyntaxTooShort();
-		match.unpack(&(ofh10_flow_mod->match), sizeof(struct openflow10::ofp_match));
+		match.unpack((uint8_t*)&(ofh10_flow_mod->match), sizeof(struct openflow10::ofp_match));
 		actions.unpack((struct openflow::ofp_action_header*)ofh10_flow_mod->actions, get_length() - sizeof(struct openflow10::ofp_flow_mod));
 	} break;
 	case openflow12::OFP_VERSION: {
@@ -285,7 +282,7 @@ cofmsg_flow_mod::validate()
 		/*
 		 * unpack ofp_match structure
 		 */
-		match.unpack(&(ofh12_flow_mod->match), be16toh(ofh12_flow_mod->match.length));
+		match.unpack((uint8_t*)&(ofh12_flow_mod->match), be16toh(ofh12_flow_mod->match.length));
 
 
 		// match.length() returns length of struct openflow12::ofp_match including padding
@@ -318,7 +315,7 @@ cofmsg_flow_mod::validate()
 		/*
 		 * unpack ofp_match structure
 		 */
-		match.unpack(&(ofh13_flow_mod->match), be16toh(ofh13_flow_mod->match.length));
+		match.unpack((uint8_t*)&(ofh13_flow_mod->match), be16toh(ofh13_flow_mod->match.length));
 
 
 		// match.length() returns length of struct openflow13::ofp_match including padding

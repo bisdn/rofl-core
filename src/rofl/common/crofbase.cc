@@ -3411,6 +3411,633 @@ crofbase::send_error_flow_mod_failed_bad_command(
 
 
 
+void
+crofbase::send_error_group_mod_failed_group_exists(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_GROUP_EXISTS;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_GROUP_EXISTS;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/GroupExists for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_inval_group(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_INVALID_GROUP;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_INVALID_GROUP;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/InvalGroup for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_weight_unsupported(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_WEIGHT_UNSUPPORTED;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_WEIGHT_UNSUPPORTED;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/WeightUnsupported for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_out_of_groups(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_OUT_OF_GROUPS;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_OUT_OF_GROUPS;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/OutOfGroups for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_out_of_buckets(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_OUT_OF_BUCKETS;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_OUT_OF_BUCKETS;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/OutOfBuckets for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_chaining_unsupported(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_CHAINING_UNSUPPORTED;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_CHAINING_UNSUPPORTED;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/ChainingUnsupported for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_watch_unsupported(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_WATCH_UNSUPPORTED;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_WATCH_UNSUPPORTED;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/WatchUnsupported for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_loop(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_LOOP;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_LOOP;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/Loop for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_unknown_group(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_UNKNOWN_GROUP;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_UNKNOWN_GROUP;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/UnknownGroup for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_chained_group(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_CHAINED_GROUP;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_CHAINED_GROUP;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/ChainedGroup for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_bad_type(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_BAD_TYPE;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_BAD_TYPE;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/BadType for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_bad_command(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_BAD_COMMAND;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_BAD_COMMAND;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/BadCommand for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_bad_bucket(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_BAD_BUCKET;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_BAD_BUCKET;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/BadBucket for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_bad_watch(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_BAD_WATCH;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_BAD_WATCH;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/BadWatch for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_group_mod_failed_eperm(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_EPERM;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_EPERM;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/EPerm for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_port_mod_failed_bad_port(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_PORT_MOD_FAILED; code = openflow12::OFPPMFC_BAD_PORT;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_PORT_MOD_FAILED; code = openflow13::OFPPMFC_BAD_PORT;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send PortModFailed/BadPort for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_port_mod_failed_bad_hw_addr(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_PORT_MOD_FAILED; code = openflow12::OFPPMFC_BAD_HW_ADDR;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_PORT_MOD_FAILED; code = openflow13::OFPPMFC_BAD_HW_ADDR;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send PortModFailed/BadHwAddr for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_port_mod_failed_bad_config(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_PORT_MOD_FAILED; code = openflow12::OFPPMFC_BAD_CONFIG;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_PORT_MOD_FAILED; code = openflow13::OFPPMFC_BAD_CONFIG;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send PortModFailed/BadConfig for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_port_mod_failed_bad_advertise(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_PORT_MOD_FAILED; code = openflow12::OFPPMFC_BAD_ADVERTISE;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_PORT_MOD_FAILED; code = openflow13::OFPPMFC_BAD_ADVERTISE;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send PortModFailed/BadAdvertise for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_table_mod_failed_bad_table(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_TABLE_MOD_FAILED; code = openflow12::OFPTMFC_BAD_TABLE;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_TABLE_MOD_FAILED; code = openflow13::OFPTMFC_BAD_TABLE;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send TableModFailed/BadTable for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_table_mod_failed_bad_config(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_TABLE_MOD_FAILED; code = openflow12::OFPTMFC_BAD_CONFIG;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_TABLE_MOD_FAILED; code = openflow13::OFPTMFC_BAD_CONFIG;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send TableModFailed/BadConfig for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_role_request_failed_stale(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_ROLE_REQUEST_FAILED; code = openflow12::OFPRRFC_STALE;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_ROLE_REQUEST_FAILED; code = openflow13::OFPRRFC_STALE;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send RoleRequestFailed/Stale for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_role_request_failed_unsupported(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_ROLE_REQUEST_FAILED; code = openflow12::OFPRRFC_UNSUP;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_ROLE_REQUEST_FAILED; code = openflow13::OFPRRFC_UNSUP;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send RoleRequestFailed/Unsupported for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_role_request_failed_bad_role(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_ROLE_REQUEST_FAILED; code = openflow12::OFPRRFC_BAD_ROLE;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_ROLE_REQUEST_FAILED; code = openflow13::OFPRRFC_BAD_ROLE;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send RoleRequestFailed/BadRole for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+
+
+
 
 /*
  * FLOW-MOD message

@@ -24,7 +24,7 @@ cofinst::cofinst(
 
 cofinst::cofinst(
 		uint8_t ofp_version,
-		struct ofp_instruction* inhdr,
+		struct openflow::ofp_instruction* inhdr,
 		size_t inlen) :
 				ofp_version(ofp_version),
 				actions(ofp_version),
@@ -85,9 +85,9 @@ cofinst::resize(size_t len)
 }
 
 
-struct ofp_instruction*
+struct openflow::ofp_instruction*
 cofinst::pack(
-		struct ofp_instruction* inhdr,
+		struct openflow::ofp_instruction* inhdr,
 		size_t inlen) const throw (eInstructionInval)
 {
 	//Lock lock(&inmutex);
@@ -145,7 +145,7 @@ cofinst::pack(
 
 void
 cofinst::unpack(
-		struct ofp_instruction *inhdr,
+		struct openflow::ofp_instruction *inhdr,
 		size_t inlen) throw (eInstructionBadLen, eInstructionBadExperimenter)
 {
 	reset();

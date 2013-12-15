@@ -392,6 +392,7 @@ namespace openflow12 {
 	};
 	OFP_ASSERT(sizeof(struct ofp_match) == 8);
 
+	static int const OFP_MATCH_STATIC_LEN = 2 * sizeof(uint16_t);
 
 	/* The match type indicates the match structure (set of fields that compose the
 	* match) in use. The match type is placed in the type field at the beginning
@@ -604,6 +605,8 @@ namespace openflow12 {
 		//uint8_t data[0];			/* Ethernet frame */
 	};
 	OFP_ASSERT(sizeof(struct ofp_packet_in) == 24);
+
+	static int const OFP_PACKET_IN_STATIC_HDR_LEN = sizeof(struct ofp_packet_in) - sizeof(struct ofp_match);
 
 	enum ofp_buffer_t {
 		OFP_NO_BUFFER = 0xffffffff,

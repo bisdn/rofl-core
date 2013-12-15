@@ -2905,6 +2905,366 @@ public:
 		uint8_t* data = NULL,
 		size_t datalen = 0);
 
+	/**
+	 * @brief	Sends a GroupModFailed/GroupExists ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_group_exists(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/InvalGroup ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_inval_group(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/WeightUnsupported ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_weight_unsupported(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/OutOfGroups ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_out_of_groups(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/OutOfBuckets ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_out_of_buckets(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/ChainingUnsupported ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_chaining_unsupported(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/WatchUnsupported ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_watch_unsupported(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/Loop ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_loop(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/UnknownGroup ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_unknown_group(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/ChainedGroup ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_chained_group(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/BadType ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_bad_type(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/BadCommand ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_bad_command(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/BadBucket ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_bad_bucket(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/BadWatch ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_bad_watch(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a GroupModFailed/EPerm ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_group_mod_failed_eperm(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a PortModFailed/BadPort ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_port_mod_failed_bad_port(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a PortModFailed/BadHwAddr ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_port_mod_failed_bad_hw_addr(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a PortModFailed/BadConfig ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_port_mod_failed_bad_config(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a PortModFailed/BadAdvertise ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_port_mod_failed_bad_advertise(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a TableModFailed/BadTable ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_table_mod_failed_bad_table(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a TableModFailed/BadConfig ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_table_mod_failed_bad_config(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a RoleRequestFailed/Stale ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_role_request_failed_stale(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a RoleRequestFailed/Unsupported ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_role_request_failed_unsupported(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a RoleRequestFailed/BadRole ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_role_request_failed_bad_role(
+		cofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
 
 
 

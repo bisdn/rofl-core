@@ -141,7 +141,7 @@ public: // methods
 	 *
 	 */
 	virtual void
-	handle_message(
+	parse_message(
 			cmemory *pack) = 0;
 
 

@@ -239,8 +239,9 @@ public: // methods
 	 *
 	 */
 	virtual void
-	handle_message(
-			cmemory *pack);
+	parse_message(
+			cmemory *mem);
+
 
 
 	/**
@@ -267,6 +268,19 @@ public: // methods
 
 
 private:
+
+
+	void
+	parse_of10_message(
+			cmemory *mem, cofmsg **pmsg);
+
+	void
+	parse_of12_message(
+			cmemory *mem, cofmsg **pmsg);
+
+	void
+	parse_of13_message(
+			cmemory *mem, cofmsg **pmsg);
 
 
 	/**
@@ -362,6 +376,27 @@ private:
 	void
 	stats_request_rcvd(cofmsg_stats *pack);
 
+	void
+	desc_stats_request_rcvd(cofmsg_desc_stats_request* msg);
+	void
+	table_stats_request_rcvd(cofmsg_table_stats_request* msg);
+	void
+	port_stats_request_rcvd(cofmsg_port_stats_request* msg);
+	void
+	flow_stats_request_rcvd(cofmsg_flow_stats_request* msg);
+	void
+	aggregate_stats_request_rcvd(cofmsg_aggr_stats_request* msg);
+	void
+	queue_stats_request_rcvd(cofmsg_queue_stats_request* msg);
+	void
+	group_stats_request_rcvd(cofmsg_group_stats_request* msg);
+	void
+	group_desc_stats_request_rcvd(cofmsg_group_desc_stats_request* msg);
+	void
+	group_features_stats_request_rcvd(cofmsg_group_features_stats_request* msg);
+	void
+	experimenter_stats_request_rcvd(cofmsg_experimenter_stats_request* msg);
+
 	/**
 	 *
 	 */
@@ -418,17 +453,12 @@ private:
 	void
 	get_async_config_reply_sent(cofmsg *pack);
 
-//protected: // methods
-
 
 	/**
 	 *
 	 */
 	void
 	send_error_is_slave(cofmsg *pack);
-
-
-//protected:
 
 
 	/**

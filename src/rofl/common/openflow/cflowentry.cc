@@ -562,7 +562,7 @@ cflowentry::pack()
 		//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [1] flow_mod_area: %s", this, flow_mod_area.c_str());
 
 		struct openflow12::ofp_match* m = (struct openflow12::ofp_match*)(flow_mod_area.somem() + fm_len);
-		match.pack(m, ofmatch_len);
+		match.pack((uint8_t*)m, ofmatch_len);
 
 		//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [2] flow_mod_area: %s", this, flow_mod_area.c_str());
 

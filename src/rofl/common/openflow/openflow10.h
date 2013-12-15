@@ -338,6 +338,8 @@ namespace openflow10 {
 	};
 	OFP_ASSERT(sizeof(struct ofp_packet_in) == 20);
 
+	static int const OFP_PACKET_IN_STATIC_HDR_LEN = sizeof(struct ofp_packet_in);
+
 	enum ofp_action_type {
 		OFPAT_OUTPUT,           /* Output to switch port. */
 		OFPAT_SET_VLAN_VID,     /* Set the 802.1q VLAN id. */
@@ -385,7 +387,7 @@ namespace openflow10 {
 	/* The VLAN id is 12 bits, so we can use the entire 16 bits to indicate
 	 * special conditions.  All ones is used to match that no VLAN id was
 	 * set. */
-	#define OFP_VLAN_NONE      0xffff
+	static int const OFP_VLAN_NONE =    0xffff;
 
 	/* Action structure for OFPAT_SET_VLAN_VID. */
 	struct ofp_action_vlan_vid {
@@ -560,6 +562,8 @@ namespace openflow10 {
 		uint16_t tp_dst;           /* TCP/UDP destination port. */
 	};
 	OFP_ASSERT(sizeof(struct ofp_match) == 40);
+
+	static int const OFP_MATCH_STATIC_LEN = sizeof(struct ofp_match);
 
 	/* The match fields for ICMP type and code use the transport source and
 	 * destination port fields, respectively. */

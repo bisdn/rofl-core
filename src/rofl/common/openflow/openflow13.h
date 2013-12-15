@@ -524,6 +524,7 @@ namespace openflow13 {
 	};
 	OFP_ASSERT(sizeof(struct ofp_match) == 8);
 
+	static int const OFP_MATCH_STATIC_LEN = 2 * sizeof(uint16_t);
 
 	/* The match type indicates the match structure (set of fields that compose the
 	* match) in use. The match type is placed in the type field at the beginning
@@ -1184,8 +1185,10 @@ namespace openflow13 {
 	OFP_ASSERT(sizeof(struct ofp_aggregate_stats_reply) == 24);
 
 
-	// A3.5.4 Table Statistics
 
+
+	// A3.5.4 Table Statistics
+#if 0
 	/* Body of reply to OFPMP_TABLE request. */
 	struct ofp_table_stats {
 		uint8_t table_id;			/* Identifier of table. Lower numbered tables are consulted first. */
@@ -1195,7 +1198,7 @@ namespace openflow13 {
 		uint64_t matched_count; 	/* Number of packets that hit table. */
 	};
 	OFP_ASSERT(sizeof(struct ofp_table_stats) == 24);
-
+#endif
 	// A3.5.5 Table Features
 
 
@@ -1464,15 +1467,6 @@ namespace openflow13 {
 	};
 	OFP_ASSERT(sizeof(struct ofp_group_features) == 40);
 
-	/* Group configuration flags */
-	enum ofp_group_capabilities {
-	#if 0
-		OFPGFC_SELECT_WEIGHT 		= 1 << 0, 	/* Support weight for select groups */
-		OFPGFC_SELECT_LIVENESS 		= 1 << 1, 	/* Support liveness for select groups */
-		OFPGFC_CHAINING 			= 1 << 2, 	/* Support chaining groups */
-		OFPGFC_CHAINING_CHECKS 		= 1 << 3, 	/* Check chaining for loops and delete */
-	#endif
-	};
 
 	// A3.5.12 Meter Statistics
 
@@ -1505,6 +1499,194 @@ namespace openflow13 {
 		struct ofp_meter_band_stats band_stats[0]; /* The band_stats length is inferred from the length field. */
 	};
 	OFP_ASSERT(sizeof(struct ofp_meter_stats) == 40);
+
+
+#if 1
+
+
+	enum ofp_stats_types {
+		/* Description of this OpenFlow switch.
+		 * The request body is empty.
+		 * The reply body is struct ofp_desc_stats. */
+		OFPST_DESC = 0,
+
+		/* Individual flow statistics.
+		 * The request body is struct ofp_flow_stats_request.
+		 * The reply body is an array of struct ofp_flow_stats. */
+		OFPST_FLOW = 1,
+
+		/* Aggregate flow statistics.
+		 * The request body is struct ofp_aggregate_stats_request.
+		 * The reply body is struct ofp_aggregate_stats_reply. */
+		OFPST_AGGREGATE = 2,
+
+		/* Flow table statistics.
+		 * The request body is empty.
+		 * The reply body is an array of struct ofp_table_stats. */
+		OFPST_TABLE = 3,
+
+		/* Port statistics.
+		 * The request body is struct ofp_port_stats_request.
+		 * The reply body is an array of struct ofp_port_stats. */
+		OFPST_PORT = 4,
+
+		/* Queue statistics for a port
+		 * The request body defines the port
+		 * The reply body is an array of struct ofp_queue_stats */
+		OFPST_QUEUE = 5,
+
+		/* Group counter statistics.
+		 * The request body is empty.
+		 * The reply is struct ofp_group_stats. */
+		OFPST_GROUP = 6,
+
+		/* Group description statistics.
+		 * The request body is empty.
+		 * The reply body is struct ofp_group_desc_stats. */
+		OFPST_GROUP_DESC = 7,
+
+		/* Group features.
+		* The request body is empty.
+		* The reply body is struct ofp_group_features_stats. */
+		OFPST_GROUP_FEATURES = 8,
+
+		/* Experimenter extension.
+		 * The request and reply bodies begin with a 32-bit experimenter ID,
+		 * which takes the same form as in "struct ofp_experimenter_header".
+		 * The request and reply bodies are otherwise experimenter-defined. */
+		OFPST_EXPERIMENTER = 0xffff
+	};
+
+	struct ofp_stats_request {
+		struct ofp_header header;
+		uint16_t type;              /* One of the OFPST_* constants. */
+		uint16_t flags;             /* OFPSF_REQ_* flags (none yet defined). */
+		uint8_t pad[4];
+		uint8_t body[0];            /* Body of the request. */
+	};
+	OFP_ASSERT(sizeof(struct ofp_stats_request) == 16);
+
+	enum ofp_stats_reply_flags {
+		OFPSF_REPLY_MORE  = 1 << 0  /* More replies to follow. */
+	};
+
+	struct ofp_stats_reply {
+		struct ofp_header header;
+		uint16_t type;              /* One of the OFPST_* constants. */
+		uint16_t flags;             /* OFPSF_REPLY_* flags. */
+		uint8_t pad[4];
+		uint8_t body[0];            /* Body of the reply. */
+	};
+	OFP_ASSERT(sizeof(struct ofp_stats_reply) == 16);
+
+	#define DESC_STR_LEN   256
+	#define SERIAL_NUM_LEN 32
+	/* Body of reply to OFPST_DESC request.  Each entry is a NULL-terminated
+	 * ASCII string. */
+	struct ofp_desc_stats {
+		char mfr_desc[DESC_STR_LEN];       /* Manufacturer description. */
+		char hw_desc[DESC_STR_LEN];        /* Hardware description. */
+		char sw_desc[DESC_STR_LEN];        /* Software description. */
+		char serial_num[SERIAL_NUM_LEN];   /* Serial number. */
+		char dp_desc[DESC_STR_LEN];        /* Human readable description of datapath. */
+	};
+	OFP_ASSERT(sizeof(struct ofp_desc_stats) == 1056);
+
+
+	/* Flow match fields. */
+	enum ofp_flow_match_fields {
+		OFPFMF_IN_PORT     = 1 << 0,  /* Switch input port. */
+		OFPFMF_DL_VLAN     = 1 << 1,  /* VLAN id. */
+		OFPFMF_DL_VLAN_PCP = 1 << 2,  /* VLAN priority. */
+		OFPFMF_DL_TYPE     = 1 << 3,  /* Ethernet frame type. */
+		OFPFMF_NW_TOS      = 1 << 4,  /* IP ToS (DSCP field, 6 bits). */
+		OFPFMF_NW_PROTO    = 1 << 5,  /* IP protocol. */
+		OFPFMF_TP_SRC      = 1 << 6,  /* TCP/UDP/SCTP source port. */
+		OFPFMF_TP_DST      = 1 << 7,  /* TCP/UDP/SCTP destination port. */
+		OFPFMF_MPLS_LABEL  = 1 << 8,  /* MPLS label. */
+		OFPFMF_MPLS_TC     = 1 << 9,  /* MPLS TC. */
+		OFPFMF_TYPE        = 1 << 10, /* Match type. */
+		OFPFMF_DL_SRC      = 1 << 11, /* Ethernet source address. */
+		OFPFMF_DL_DST      = 1 << 12, /* Ethernet destination address. */
+		OFPFMF_NW_SRC      = 1 << 13, /* IP source address. */
+		OFPFMF_NW_DST      = 1 << 14, /* IP destination address. */
+		OFPFMF_METADATA    = 1 << 15, /* Metadata passed between tables. */
+	#ifdef ORAN
+		OFPFMF_PPPOE_CODE  = 1 << 16, /* PPPoE code */
+		OFPFMF_PPPOE_TYPE  = 1 << 17, /* PPPoE type */
+		OFPFMF_PPPOE_SESS  = 1 << 18, /* PPPoE session */
+		OFPFMF_PPP_PROT	   = 1 << 19, /* PPP code */
+	#endif
+	};
+
+	/* Body of reply to OFPST_TABLE request. */
+	struct ofp_table_stats {
+		uint8_t table_id;        /* Identifier of table.  Lower numbered tables
+									are consulted first. */
+		uint8_t pad[7];          /* Align to 64-bits. */
+		char name[OFP_MAX_TABLE_NAME_LEN];
+		uint64_t match;			 /* Bitmap of (1 << OFPXMT_*) that indicate the
+									fields the table can match on. */
+		uint64_t wildcards;      /* Bitmap of (1 << OFPXMT_*) wildcards that are
+									supported by the table. */
+		uint32_t write_actions;  /* Bitmap of OFPAT_* that are supported
+									by the table with OFPIT_WRITE_ACTIONS. */
+		uint32_t apply_actions;  /* Bitmap of OFPAT_* that are supported
+									by the table with OFPIT_APPLY_ACTIONS. */
+		uint64_t write_setfields;/* Bitmap of (1 << OFPXMT_*) header fields that
+									can be set with OFPIT_WRITE_ACTIONS. */
+		uint64_t apply_setfields;/* Bitmap of (1 << OFPXMT_*) header fields that
+									can be set with OFPIT_APPLY_ACTIONS. */
+		uint64_t metadata_match; /* Bits of metadata table can match. */
+		uint64_t metadata_write; /* Bits of metadata table can write. */
+		uint32_t instructions;	 /* Bitmap of OFPIT_* values supported. */
+		uint32_t config;         /* Bitmap of OFPTC_* values */
+		uint32_t max_entries;    /* Max number of entries supported. */
+		uint32_t active_count;   /* Number of active entries. */
+		uint64_t lookup_count;   /* Number of packets looked up in table. */
+		uint64_t matched_count;  /* Number of packets that hit table. */
+	};
+	OFP_ASSERT(sizeof(struct ofp_table_stats) == 128);
+
+
+	/* Body of reply to OFPST_GROUP_FEATURES request. Group features. */
+	struct ofp_group_features_stats {
+		uint32_t types;				/* Bitmap of OFPGT_* values supported. */
+		uint32_t capabilities;		/* Bitmap of OFPGFC_* capability supported. */
+		uint32_t max_groups[4];		/* Maximum number of groups for each type. */
+		uint32_t actions[4];		/* Bitmaps of OFPAT_* that are supported. */
+	};
+	OFP_ASSERT(sizeof(struct ofp_group_features_stats) == 40);
+
+	/* Group configuration flags */
+	enum ofp_group_capabilities {
+		OFPGFC_SELECT_WEIGHT 	= 1 << 0,	/* Support weight for select groups */
+		OFPGFC_SELECT_LIVENESS 	= 1 << 1,	/* Support liveness for select groups */
+		OFPGFC_CHAINING 		= 1 << 2,	/* Support chaining groups */
+		OFPGFC_CHAINING_CHECKS 	= 1 << 3,	/* Check chaining for loops and delete */
+	};
+
+
+	/* Body for ofp_stats_request/reply of type OFPST_EXPERIMENTER. */
+	struct ofp_experimenter_stats_header {
+		uint32_t experimenter;
+		/* Experimenter ID which takes the same form
+		   as in struct ofp_experimenter_header. */
+		uint32_t exp_type;
+		/* Experimenter defined. */
+		/* Experimenter-defined arbitrary additional data. */
+	};
+	OFP_ASSERT(sizeof(struct ofp_experimenter_stats_header) == 8);
+
+
+
+
+#endif
+
+
+
+
+
 
 
 	// A3.5.13 Meter Configuration Statistics
@@ -1670,6 +1852,7 @@ namespace openflow13 {
 	};
 	OFP_ASSERT(sizeof(struct ofp_packet_in) == 32);
 
+	static int const OFP_PACKET_IN_STATIC_HDR_LEN = sizeof(struct ofp_packet_in) - sizeof(struct ofp_match);
 
 
 	// A4.2 Flow Removed Message
@@ -1881,6 +2064,9 @@ namespace openflow13 {
 		OFPRRFC_UNSUP = 1, /* Controller role change unsupported. */
 		OFPRRFC_BAD_ROLE = 2, /* Invalid role. */
 	};
+
+
+
 
 
 	// A4.3 Port Status Message

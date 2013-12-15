@@ -161,20 +161,18 @@ cofmsg_packet_in::pack(uint8_t *buf, size_t buflen)
 	 */
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {
-		memcpy(buf, soframe(), OFP10_PACKET_IN_STATIC_HDR_LEN);
-		memcpy(buf + OFP10_PACKET_IN_STATIC_HDR_LEN - 2, packet.soframe(), packet.framelen());
+		memcpy(buf, soframe(), openflow10::OFP_PACKET_IN_STATIC_HDR_LEN);
+		memcpy(buf + openflow10::OFP_PACKET_IN_STATIC_HDR_LEN - 2, packet.soframe(), packet.framelen());
 	} break;
 	case openflow12::OFP_VERSION: {
-		memcpy(buf, soframe(), OFP12_PACKET_IN_STATIC_HDR_LEN);
-		match.pack((struct openflow12::ofp_match*)
-				(buf + OFP12_PACKET_IN_STATIC_HDR_LEN), match.length());
-		memcpy(buf + OFP12_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
+		memcpy(buf, soframe(), openflow12::OFP_PACKET_IN_STATIC_HDR_LEN);
+		match.pack((buf + openflow12::OFP_PACKET_IN_STATIC_HDR_LEN), match.length());
+		memcpy(buf + openflow12::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
 	} break;
 	case openflow13::OFP_VERSION: {
-		memcpy(buf, soframe(), OFP13_PACKET_IN_STATIC_HDR_LEN);
-		match.pack((struct openflow13::ofp_match*)
-				(buf + OFP13_PACKET_IN_STATIC_HDR_LEN), match.length());
-		memcpy(buf + OFP13_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
+		memcpy(buf, soframe(), openflow13::OFP_PACKET_IN_STATIC_HDR_LEN);
+		match.pack((buf + openflow13::OFP_PACKET_IN_STATIC_HDR_LEN), match.length());
+		memcpy(buf + openflow13::OFP_PACKET_IN_STATIC_HDR_LEN + match.length() + 2, packet.soframe(), packet.framelen());
 	} break;
 	default:
 		throw eBadVersion();
@@ -238,7 +236,7 @@ cofmsg_packet_in::validate()
 		if (be16toh(ofh12_packet_in->match.length) > (framelen() - OFP12_PACKET_IN_STATIC_HDR_LEN))
 			throw eBadSyntaxTooShort();
 
-		match.unpack(&(ofh12_packet_in->match), be16toh(ofh12_packet_in->match.length));
+		match.unpack((uint8_t*)&(ofh12_packet_in->match), be16toh(ofh12_packet_in->match.length));
 
 		/*
 		 * set data and datalen variables
@@ -276,7 +274,7 @@ cofmsg_packet_in::validate()
 		if (be16toh(ofh13_packet_in->match.length) > (framelen() - OFP13_PACKET_IN_STATIC_HDR_LEN))
 			throw eBadSyntaxTooShort();
 
-		match.unpack(&(ofh13_packet_in->match), be16toh(ofh13_packet_in->match.length));
+		match.unpack((uint8_t*)&(ofh13_packet_in->match), be16toh(ofh13_packet_in->match.length));
 
 		/*
 		 * set data and datalen variables

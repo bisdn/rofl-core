@@ -515,7 +515,7 @@ cofctlImpl::handle_read(
 					// ok, message was received completely
 					if (msg_len == msg_bytes_read) {
 						fragment = (cmemory*)0;
-						handle_message(mem);
+						parse_message(mem);
 						return;
 					}
 				}
@@ -568,7 +568,7 @@ cofctlImpl::handle_closed(
 
 
 void
-cofctlImpl::handle_message(
+cofctlImpl::parse_message(
 		cmemory *mem)
 {
 	cofmsg *msg = (cofmsg*)0;
@@ -588,278 +588,9 @@ cofctlImpl::handle_message(
 		}
 
 		switch (ofp_version) {
-		case openflow10::OFP_VERSION: {
-
-			switch (ofh_header->type) {
-			case openflow10::OFPT_HELLO: {
-				msg = new cofmsg_hello(mem);
-				msg->validate();
-				hello_rcvd(dynamic_cast<cofmsg_hello*>( msg ));
-			} break;
-			case openflow10::OFPT_ECHO_REQUEST: {
-				msg = new cofmsg_echo_request(mem);
-				msg->validate();
-				echo_request_rcvd(dynamic_cast<cofmsg_echo_request*>( msg ));
-			} break;
-			case openflow10::OFPT_ECHO_REPLY: {
-				msg = new cofmsg_echo_reply(mem);
-				msg->validate();
-				echo_reply_rcvd(dynamic_cast<cofmsg_echo_reply*>( msg ));
-			} break;
-			case openflow10::OFPT_VENDOR:	{
-				msg = new cofmsg_experimenter(mem);
-				msg->validate();
-				experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ));
-			} break;
-			case openflow10::OFPT_FEATURES_REQUEST:	{
-				msg = new cofmsg_features_request(mem);
-				msg->validate();
-				features_request_rcvd(dynamic_cast<cofmsg_features_request*>( msg ));
-			} break;
-			case openflow10::OFPT_GET_CONFIG_REQUEST: {
-				msg = new cofmsg_get_config_request(mem);
-				msg->validate();
-				get_config_request_rcvd(dynamic_cast<cofmsg_get_config_request*>( msg ));
-			} break;
-			case openflow10::OFPT_SET_CONFIG: {
-				msg = new cofmsg_set_config(mem);
-				msg->validate();
-				set_config_rcvd(dynamic_cast<cofmsg_set_config*>( msg ));
-			} break;
-			case openflow10::OFPT_PACKET_OUT: {
-				msg = new cofmsg_packet_out(mem);
-				msg->validate();
-				packet_out_rcvd(dynamic_cast<cofmsg_packet_out*>( msg ));
-			} break;
-			case openflow10::OFPT_FLOW_MOD: {
-				msg = new cofmsg_flow_mod(mem);
-				msg->validate();
-				flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( msg ));
-			} break;
-			case openflow10::OFPT_PORT_MOD: {
-				msg = new cofmsg_port_mod(mem);
-				msg->validate();
-				port_mod_rcvd(dynamic_cast<cofmsg_port_mod*>( msg ));
-			} break;
-			case openflow10::OFPT_STATS_REQUEST: {
-				uint16_t stats_type = 0;
-				switch (ofh_header->version) {
-				case openflow10::OFP_VERSION: {
-					if (mem->memlen() < sizeof(struct openflow10::ofp_stats_request)) {
-						msg = new cofmsg(mem);
-						throw eBadSyntaxTooShort();
-					}
-					stats_type = be16toh(((struct openflow10::ofp_stats_request*)mem->somem())->type);
-				} break;
-				default:
-					throw eBadVersion();
-				}
-
-				switch (stats_type) {
-				case openflow10::OFPST_DESC: {
-					msg = new cofmsg_desc_stats_request(mem);
-				} break;
-				case openflow10::OFPST_FLOW: {
-					msg = new cofmsg_flow_stats_request(mem);
-				} break;
-				case openflow10::OFPST_AGGREGATE: {
-					msg = new cofmsg_aggr_stats_request(mem);
-				} break;
-				case openflow10::OFPST_TABLE: {
-					msg = new cofmsg_table_stats_request(mem);
-				} break;
-				case openflow10::OFPST_PORT: {
-					msg = new cofmsg_port_stats_request(mem);
-				} break;
-				case openflow10::OFPST_QUEUE: {
-					msg = new cofmsg_queue_stats_request(mem);
-				} break;
-				// TODO: experimenter statistics
-				default: {
-					msg = new cofmsg_stats_request(mem);
-				} break;
-				}
-
-				msg->validate();
-				stats_request_rcvd(dynamic_cast<cofmsg_stats_request*>( msg ));
-			} break;
-			case openflow10::OFPT_BARRIER_REQUEST: {
-				msg = new cofmsg_barrier_request(mem);
-				msg->validate();
-				barrier_request_rcvd(dynamic_cast<cofmsg_barrier_request*>( msg ));
-			} break;
-			case openflow10::OFPT_QUEUE_GET_CONFIG_REQUEST: {
-				msg = new cofmsg_queue_get_config_request(mem);
-				msg->validate();
-				queue_get_config_request_rcvd(dynamic_cast<cofmsg_queue_get_config_request*>( msg ));
-			} break;
-			default: {
-				logging::warn << "dropping unknown message " << *mem << std::endl;
-				msg = new cofmsg(mem);
-				msg->validate();
-				throw eBadRequestBadType();
-			} break;
-			}
-
-
-		} break;
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-
-			switch (ofh_header->type) {
-			case openflow12::OFPT_HELLO: {
-				msg = new cofmsg_hello(mem);
-				msg->validate();
-				hello_rcvd(dynamic_cast<cofmsg_hello*>( msg ));
-			} break;
-			case openflow12::OFPT_ECHO_REQUEST: {
-				msg = new cofmsg_echo_request(mem);
-				msg->validate();
-				echo_request_rcvd(dynamic_cast<cofmsg_echo_request*>( msg ));
-			} break;
-			case openflow12::OFPT_ECHO_REPLY: {
-				msg = new cofmsg_echo_reply(mem);
-				msg->validate();
-				echo_reply_rcvd(dynamic_cast<cofmsg_echo_reply*>( msg ));
-			} break;
-			case openflow12::OFPT_EXPERIMENTER:	{
-				msg = new cofmsg_experimenter(mem);
-				msg->validate();
-				experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ));
-			} break;
-			case openflow12::OFPT_FEATURES_REQUEST:	{
-				msg = new cofmsg_features_request(mem);
-				msg->validate();
-				features_request_rcvd(dynamic_cast<cofmsg_features_request*>( msg ));
-			} break;
-			case openflow12::OFPT_GET_CONFIG_REQUEST: {
-				msg = new cofmsg_get_config_request(mem);
-				msg->validate();
-				get_config_request_rcvd(dynamic_cast<cofmsg_get_config_request*>( msg ));
-			} break;
-			case openflow12::OFPT_SET_CONFIG: {
-				msg = new cofmsg_set_config(mem);
-				msg->validate();
-				set_config_rcvd(dynamic_cast<cofmsg_set_config*>( msg ));
-			} break;
-			case openflow12::OFPT_PACKET_OUT: {
-				msg = new cofmsg_packet_out(mem);
-				msg->validate();
-				packet_out_rcvd(dynamic_cast<cofmsg_packet_out*>( msg ));
-			} break;
-			case openflow12::OFPT_FLOW_MOD: {
-				msg = new cofmsg_flow_mod(mem);
-				msg->validate();
-				flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( msg ));
-			} break;
-			case openflow12::OFPT_GROUP_MOD: {
-				msg = new cofmsg_group_mod(mem);
-				msg->validate();
-				group_mod_rcvd(dynamic_cast<cofmsg_group_mod*>( msg ));
-			} break;
-			case openflow12::OFPT_PORT_MOD: {
-				msg = new cofmsg_port_mod(mem);
-				msg->validate();
-				port_mod_rcvd(dynamic_cast<cofmsg_port_mod*>( msg ));
-			} break;
-			case openflow12::OFPT_TABLE_MOD: {
-				msg = new cofmsg_table_mod(mem);
-				msg->validate();
-				table_mod_rcvd(dynamic_cast<cofmsg_table_mod*>( msg ));
-			} break;
-			case openflow12::OFPT_STATS_REQUEST: {
-				uint16_t stats_type = 0;
-				switch (ofh_header->version) {
-				case openflow12::OFP_VERSION: {
-					if (mem->memlen() < sizeof(struct openflow12::ofp_stats_request)) {
-						msg = new cofmsg(mem);
-						throw eBadSyntaxTooShort();
-					}
-					stats_type = be16toh(((struct openflow12::ofp_stats_request*)mem->somem())->type);
-				} break;
-				case openflow13::OFP_VERSION: {
-					if (mem->memlen() < sizeof(struct openflow13::ofp_multipart_request)) {
-						msg = new cofmsg(mem);
-						throw eBadSyntaxTooShort();
-					}
-					stats_type = be16toh(((struct openflow13::ofp_multipart_request*)mem->somem())->type);
-				} break;
-				default:
-					throw eBadVersion();
-				}
-
-				switch (stats_type) {
-				case openflow12::OFPST_DESC: {
-					msg = new cofmsg_desc_stats_request(mem);
-				} break;
-				case openflow12::OFPST_FLOW: {
-					msg = new cofmsg_flow_stats_request(mem);
-				} break;
-				case openflow12::OFPST_AGGREGATE: {
-					msg = new cofmsg_aggr_stats_request(mem);
-				} break;
-				case openflow12::OFPST_TABLE: {
-					msg = new cofmsg_table_stats_request(mem);
-				} break;
-				case openflow12::OFPST_PORT: {
-					msg = new cofmsg_port_stats_request(mem);
-				} break;
-				case openflow12::OFPST_QUEUE: {
-					msg = new cofmsg_queue_stats_request(mem);
-				} break;
-				case openflow12::OFPST_GROUP: {
-					msg = new cofmsg_group_stats_request(mem);
-				} break;
-				case openflow12::OFPST_GROUP_DESC: {
-					msg = new cofmsg_group_desc_stats_request(mem);
-				} break;
-				case openflow12::OFPST_GROUP_FEATURES: {
-					msg = new cofmsg_group_features_stats_request(mem);
-				} break;
-				// TODO: experimenter statistics
-				default: {
-					msg = new cofmsg_stats_request(mem);
-				} break;
-				}
-
-				msg->validate();
-				stats_request_rcvd(dynamic_cast<cofmsg_stats_request*>( msg ));
-			} break;
-			case openflow12::OFPT_BARRIER_REQUEST: {
-				msg = new cofmsg_barrier_request(mem);
-				msg->validate();
-				barrier_request_rcvd(dynamic_cast<cofmsg_barrier_request*>( msg ));
-			} break;
-			case openflow12::OFPT_QUEUE_GET_CONFIG_REQUEST: {
-				msg = new cofmsg_queue_get_config_request(mem);
-				msg->validate();
-				queue_get_config_request_rcvd(dynamic_cast<cofmsg_queue_get_config_request*>( msg ));
-			} break;
-			case openflow12::OFPT_ROLE_REQUEST: {
-				msg = new cofmsg_role_request(mem);
-				msg->validate();
-				role_request_rcvd(dynamic_cast<cofmsg_role_request*>( msg ));
-			} break;
-		    case openflow12::OFPT_GET_ASYNC_REQUEST: {
-		    	msg = new cofmsg_get_async_config_request(mem);
-		    	msg->validate();
-		    	get_async_config_request_rcvd(dynamic_cast<cofmsg_get_async_config_request*>( msg ));
-		    } break;
-		    case openflow12::OFPT_SET_ASYNC: {
-		    	msg = new cofmsg_set_async_config(mem);
-		    	msg->validate();
-		    	set_async_config_rcvd(dynamic_cast<cofmsg_set_async_config*>( msg ));
-		    } break;
-			default: {
-				logging::warn << "dropping unknown message " << *mem << std::endl;
-				msg = new cofmsg(mem);
-				msg->validate();
-				throw eBadRequestBadType();
-			} break;;
-			}
-
-
-		} break;
+		case openflow10::OFP_VERSION: parse_of10_message(mem, &msg); break;
+		case openflow12::OFP_VERSION: parse_of12_message(mem, &msg); break;
+		case openflow13::OFP_VERSION: parse_of13_message(mem, &msg); break;
 		default: {
 
 			switch (ofh_header->type) {
@@ -1151,11 +882,387 @@ cofctlImpl::handle_message(
 	} catch (eBadMatchBase& e) {
 
 		logging::error << "eBadMatchBase " << *mem << std::endl;
-
 		delete msg;
 	}
 }
 
+
+
+void
+cofctlImpl::parse_of10_message(cmemory *mem, cofmsg **pmsg)
+{
+	struct openflow::ofp_header* ofh_header = (struct openflow::ofp_header*)mem->somem();
+
+	switch (ofh_header->type) {
+	case openflow10::OFPT_HELLO: {
+		(*pmsg = new cofmsg_hello(mem))->validate();
+		hello_rcvd(dynamic_cast<cofmsg_hello*>( *pmsg ));
+	} break;
+	case openflow10::OFPT_ECHO_REQUEST: {
+		(*pmsg = new cofmsg_echo_request(mem))->validate();
+		echo_request_rcvd(dynamic_cast<cofmsg_echo_request*>( *pmsg ));
+	} break;
+	case openflow10::OFPT_ECHO_REPLY: {
+		(*pmsg = new cofmsg_echo_reply(mem))->validate();
+		echo_reply_rcvd(dynamic_cast<cofmsg_echo_reply*>( *pmsg ));
+	} break;
+	case openflow10::OFPT_VENDOR: {
+		(*pmsg = new cofmsg_experimenter(mem))->validate();
+		experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( *pmsg ));
+	} break;
+	case openflow10::OFPT_FEATURES_REQUEST:	{
+		(*pmsg = new cofmsg_features_request(mem))->validate();
+		features_request_rcvd(dynamic_cast<cofmsg_features_request*>( *pmsg ));
+	} break;
+	case openflow10::OFPT_GET_CONFIG_REQUEST: {
+		(*pmsg = new cofmsg_get_config_request(mem))->validate();
+		get_config_request_rcvd(dynamic_cast<cofmsg_get_config_request*>( *pmsg ));
+	} break;
+	case openflow10::OFPT_SET_CONFIG: {
+		(*pmsg = new cofmsg_set_config(mem))->validate();
+		set_config_rcvd(dynamic_cast<cofmsg_set_config*>( *pmsg ));
+	} break;
+	case openflow10::OFPT_PACKET_OUT: {
+		(*pmsg = new cofmsg_packet_out(mem))->validate();
+		packet_out_rcvd(dynamic_cast<cofmsg_packet_out*>( *pmsg ));
+	} break;
+	case openflow10::OFPT_FLOW_MOD: {
+		(*pmsg = new cofmsg_flow_mod(mem))->validate();
+		flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( *pmsg ));
+	} break;
+	case openflow10::OFPT_PORT_MOD: {
+		(*pmsg = new cofmsg_port_mod(mem))->validate();
+		port_mod_rcvd(dynamic_cast<cofmsg_port_mod*>( *pmsg ));
+	} break;
+	case openflow10::OFPT_STATS_REQUEST: {
+		if (mem->memlen() < sizeof(struct openflow10::ofp_stats_request)) {
+			*pmsg = new cofmsg(mem);
+			throw eBadSyntaxTooShort();
+		}
+		uint16_t stats_type = be16toh(((struct openflow10::ofp_stats_request*)mem->somem())->type);
+
+		switch (stats_type) {
+		case openflow10::OFPST_DESC: {
+			(*pmsg = new cofmsg_desc_stats_request(mem))->validate();
+			desc_stats_request_rcvd(dynamic_cast<cofmsg_desc_stats_request*>( *pmsg ));
+		} break;
+		case openflow10::OFPST_FLOW: {
+			(*pmsg = new cofmsg_flow_stats_request(mem))->validate();
+			flow_stats_request_rcvd(dynamic_cast<cofmsg_flow_stats_request*>( *pmsg ));
+		} break;
+		case openflow10::OFPST_AGGREGATE: {
+			(*pmsg = new cofmsg_aggr_stats_request(mem))->validate();
+			aggregate_stats_request_rcvd(dynamic_cast<cofmsg_aggr_stats_request*>( *pmsg ));
+		} break;
+		case openflow10::OFPST_TABLE: {
+			(*pmsg = new cofmsg_table_stats_request(mem))->validate();
+			table_stats_request_rcvd(dynamic_cast<cofmsg_table_stats_request*>( *pmsg ));
+		} break;
+		case openflow10::OFPST_PORT: {
+			(*pmsg = new cofmsg_port_stats_request(mem))->validate();
+			port_stats_request_rcvd(dynamic_cast<cofmsg_port_stats_request*>( *pmsg ));
+		} break;
+		case openflow10::OFPST_QUEUE: {
+			(*pmsg = new cofmsg_queue_stats_request(mem))->validate();
+			queue_stats_request_rcvd(dynamic_cast<cofmsg_queue_stats_request*>( *pmsg ));
+		} break;
+		// TODO: experimenter statistics
+		default: {
+			(*pmsg = new cofmsg_stats_request(mem))->validate();
+			stats_request_rcvd(dynamic_cast<cofmsg_stats_request*>( *pmsg ));
+		} break;
+		}
+
+	} break;
+	case openflow10::OFPT_BARRIER_REQUEST: {
+		(*pmsg = new cofmsg_barrier_request(mem))->validate();
+		barrier_request_rcvd(dynamic_cast<cofmsg_barrier_request*>( *pmsg ));
+	} break;
+	case openflow10::OFPT_QUEUE_GET_CONFIG_REQUEST: {
+		(*pmsg = new cofmsg_queue_get_config_request(mem))->validate();
+		queue_get_config_request_rcvd(dynamic_cast<cofmsg_queue_get_config_request*>( *pmsg ));
+	} break;
+	default: {
+		logging::warn << "dropping unknown message " << *mem << std::endl;
+		(*pmsg = new cofmsg(mem))->validate();
+		throw eBadRequestBadType();
+	} break;
+	}
+}
+
+
+
+void
+cofctlImpl::parse_of12_message(cmemory *mem, cofmsg **pmsg)
+{
+	struct openflow::ofp_header* ofh_header = (struct openflow::ofp_header*)mem->somem();
+
+	switch (ofh_header->type) {
+	case openflow12::OFPT_HELLO: {
+		(*pmsg = new cofmsg_hello(mem))->validate();
+		hello_rcvd(dynamic_cast<cofmsg_hello*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_ECHO_REQUEST: {
+		(*pmsg = new cofmsg_echo_request(mem))->validate();
+		echo_request_rcvd(dynamic_cast<cofmsg_echo_request*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_ECHO_REPLY: {
+		(*pmsg = new cofmsg_echo_reply(mem))->validate();
+		echo_reply_rcvd(dynamic_cast<cofmsg_echo_reply*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_EXPERIMENTER:	{
+		(*pmsg = new cofmsg_experimenter(mem))->validate();
+		experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_FEATURES_REQUEST:	{
+		(*pmsg = new cofmsg_features_request(mem))->validate();
+		features_request_rcvd(dynamic_cast<cofmsg_features_request*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_GET_CONFIG_REQUEST: {
+		(*pmsg = new cofmsg_get_config_request(mem))->validate();
+		get_config_request_rcvd(dynamic_cast<cofmsg_get_config_request*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_SET_CONFIG: {
+		(*pmsg = new cofmsg_set_config(mem))->validate();
+		set_config_rcvd(dynamic_cast<cofmsg_set_config*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_PACKET_OUT: {
+		(*pmsg = new cofmsg_packet_out(mem))->validate();
+		packet_out_rcvd(dynamic_cast<cofmsg_packet_out*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_FLOW_MOD: {
+		(*pmsg = new cofmsg_flow_mod(mem))->validate();
+		flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_GROUP_MOD: {
+		(*pmsg = new cofmsg_group_mod(mem))->validate();
+		group_mod_rcvd(dynamic_cast<cofmsg_group_mod*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_PORT_MOD: {
+		(*pmsg = new cofmsg_port_mod(mem))->validate();
+		port_mod_rcvd(dynamic_cast<cofmsg_port_mod*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_TABLE_MOD: {
+		(*pmsg = new cofmsg_table_mod(mem))->validate();
+		table_mod_rcvd(dynamic_cast<cofmsg_table_mod*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_STATS_REQUEST: {
+
+		if (mem->memlen() < sizeof(struct openflow12::ofp_stats_request)) {
+			*pmsg = new cofmsg(mem);
+			throw eBadSyntaxTooShort();
+		}
+		uint16_t stats_type = be16toh(((struct openflow12::ofp_stats_request*)mem->somem())->type);
+
+		switch (stats_type) {
+		case openflow12::OFPST_DESC: {
+			(*pmsg = new cofmsg_desc_stats_request(mem))->validate();
+			desc_stats_request_rcvd(dynamic_cast<cofmsg_desc_stats_request*>( *pmsg ));
+		} break;
+		case openflow12::OFPST_FLOW: {
+			(*pmsg = new cofmsg_flow_stats_request(mem))->validate();
+			flow_stats_request_rcvd(dynamic_cast<cofmsg_flow_stats_request*>( *pmsg ));
+		} break;
+		case openflow12::OFPST_AGGREGATE: {
+			(*pmsg = new cofmsg_aggr_stats_request(mem))->validate();
+			aggregate_stats_request_rcvd(dynamic_cast<cofmsg_aggr_stats_request*>( *pmsg ));
+		} break;
+		case openflow12::OFPST_TABLE: {
+			(*pmsg = new cofmsg_table_stats_request(mem))->validate();
+			table_stats_request_rcvd(dynamic_cast<cofmsg_table_stats_request*>( *pmsg ));
+		} break;
+		case openflow12::OFPST_PORT: {
+			(*pmsg = new cofmsg_port_stats_request(mem))->validate();
+			port_stats_request_rcvd(dynamic_cast<cofmsg_port_stats_request*>( *pmsg ));
+		} break;
+		case openflow12::OFPST_QUEUE: {
+			(*pmsg = new cofmsg_queue_stats_request(mem))->validate();
+			queue_stats_request_rcvd(dynamic_cast<cofmsg_queue_stats_request*>( *pmsg ));
+		} break;
+		case openflow12::OFPST_GROUP: {
+			(*pmsg = new cofmsg_group_stats_request(mem))->validate();
+			group_stats_request_rcvd(dynamic_cast<cofmsg_group_stats_request*>( *pmsg ));
+		} break;
+		case openflow12::OFPST_GROUP_DESC: {
+			(*pmsg = new cofmsg_group_desc_stats_request(mem))->validate();
+			group_desc_stats_request_rcvd(dynamic_cast<cofmsg_group_desc_stats_request*>( *pmsg ));
+		} break;
+		case openflow12::OFPST_GROUP_FEATURES: {
+			(*pmsg = new cofmsg_group_features_stats_request(mem))->validate();
+			group_features_stats_request_rcvd(dynamic_cast<cofmsg_group_features_stats_request*>( *pmsg ));
+		} break;
+		// TODO: experimenter statistics
+		default: {
+			(*pmsg = new cofmsg_stats_request(mem))->validate();
+			stats_request_rcvd(dynamic_cast<cofmsg_stats_request*>( *pmsg ));
+		} break;
+		}
+
+	} break;
+	case openflow12::OFPT_BARRIER_REQUEST: {
+		(*pmsg = new cofmsg_barrier_request(mem))->validate();
+		barrier_request_rcvd(dynamic_cast<cofmsg_barrier_request*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_QUEUE_GET_CONFIG_REQUEST: {
+		(*pmsg = new cofmsg_queue_get_config_request(mem))->validate();
+		queue_get_config_request_rcvd(dynamic_cast<cofmsg_queue_get_config_request*>( *pmsg ));
+	} break;
+	case openflow12::OFPT_ROLE_REQUEST: {
+		(*pmsg = new cofmsg_role_request(mem))->validate();
+		role_request_rcvd(dynamic_cast<cofmsg_role_request*>( *pmsg ));
+	} break;
+    case openflow12::OFPT_GET_ASYNC_REQUEST: {
+    	(*pmsg = new cofmsg_get_async_config_request(mem))->validate();
+    	get_async_config_request_rcvd(dynamic_cast<cofmsg_get_async_config_request*>( *pmsg ));
+    } break;
+    case openflow12::OFPT_SET_ASYNC: {
+    	(*pmsg = new cofmsg_set_async_config(mem))->validate();
+    	set_async_config_rcvd(dynamic_cast<cofmsg_set_async_config*>( *pmsg ));
+    } break;
+	default: {
+		logging::warn << "dropping unknown message " << *mem << std::endl;
+		(*pmsg = new cofmsg(mem))->validate();
+		throw eBadRequestBadType();
+	} break;;
+	}
+}
+
+
+
+void
+cofctlImpl::parse_of13_message(cmemory *mem, cofmsg **pmsg)
+{
+	struct openflow::ofp_header* ofh_header = (struct openflow::ofp_header*)mem->somem();
+
+	switch (ofh_header->type) {
+	case openflow13::OFPT_HELLO: {
+		(*pmsg = new cofmsg_hello(mem))->validate();
+		hello_rcvd(dynamic_cast<cofmsg_hello*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_ECHO_REQUEST: {
+		(*pmsg = new cofmsg_echo_request(mem))->validate();
+		echo_request_rcvd(dynamic_cast<cofmsg_echo_request*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_ECHO_REPLY: {
+		(*pmsg = new cofmsg_echo_reply(mem))->validate();
+		echo_reply_rcvd(dynamic_cast<cofmsg_echo_reply*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_EXPERIMENTER:	{
+		(*pmsg = new cofmsg_experimenter(mem))->validate();
+		experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_FEATURES_REQUEST:	{
+		(*pmsg = new cofmsg_features_request(mem))->validate();
+		features_request_rcvd(dynamic_cast<cofmsg_features_request*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_GET_CONFIG_REQUEST: {
+		(*pmsg = new cofmsg_get_config_request(mem))->validate();
+		get_config_request_rcvd(dynamic_cast<cofmsg_get_config_request*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_SET_CONFIG: {
+		(*pmsg = new cofmsg_set_config(mem))->validate();
+		set_config_rcvd(dynamic_cast<cofmsg_set_config*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_PACKET_OUT: {
+		(*pmsg = new cofmsg_packet_out(mem))->validate();
+		packet_out_rcvd(dynamic_cast<cofmsg_packet_out*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_FLOW_MOD: {
+		(*pmsg = new cofmsg_flow_mod(mem))->validate();
+		flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_GROUP_MOD: {
+		(*pmsg = new cofmsg_group_mod(mem))->validate();
+		group_mod_rcvd(dynamic_cast<cofmsg_group_mod*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_PORT_MOD: {
+		(*pmsg = new cofmsg_port_mod(mem))->validate();
+		port_mod_rcvd(dynamic_cast<cofmsg_port_mod*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_TABLE_MOD: {
+		(*pmsg = new cofmsg_table_mod(mem))->validate();
+		table_mod_rcvd(dynamic_cast<cofmsg_table_mod*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_STATS_REQUEST: {
+
+		if (mem->memlen() < sizeof(struct openflow13::ofp_multipart_request)) {
+			*pmsg = new cofmsg(mem);
+			throw eBadSyntaxTooShort();
+		}
+		uint16_t stats_type = be16toh(((struct openflow13::ofp_multipart_request*)mem->somem())->type);
+
+		switch (stats_type) {
+		case openflow13::OFPST_DESC: {
+			(*pmsg = new cofmsg_desc_stats_request(mem))->validate();
+			desc_stats_request_rcvd(dynamic_cast<cofmsg_desc_stats_request*>( *pmsg ));
+		} break;
+		case openflow13::OFPST_FLOW: {
+			(*pmsg = new cofmsg_flow_stats_request(mem))->validate();
+			flow_stats_request_rcvd(dynamic_cast<cofmsg_flow_stats_request*>( *pmsg ));
+		} break;
+		case openflow13::OFPST_AGGREGATE: {
+			(*pmsg = new cofmsg_aggr_stats_request(mem))->validate();
+			aggregate_stats_request_rcvd(dynamic_cast<cofmsg_aggr_stats_request*>( *pmsg ));
+		} break;
+		case openflow13::OFPST_TABLE: {
+			(*pmsg = new cofmsg_table_stats_request(mem))->validate();
+			table_stats_request_rcvd(dynamic_cast<cofmsg_table_stats_request*>( *pmsg ));
+		} break;
+		case openflow13::OFPST_PORT: {
+			(*pmsg = new cofmsg_port_stats_request(mem))->validate();
+			port_stats_request_rcvd(dynamic_cast<cofmsg_port_stats_request*>( *pmsg ));
+		} break;
+		case openflow13::OFPST_QUEUE: {
+			(*pmsg = new cofmsg_queue_stats_request(mem))->validate();
+			queue_stats_request_rcvd(dynamic_cast<cofmsg_queue_stats_request*>( *pmsg ));
+		} break;
+		case openflow13::OFPST_GROUP: {
+			(*pmsg = new cofmsg_group_stats_request(mem))->validate();
+			group_stats_request_rcvd(dynamic_cast<cofmsg_group_stats_request*>( *pmsg ));
+		} break;
+		case openflow13::OFPST_GROUP_DESC: {
+			(*pmsg = new cofmsg_group_desc_stats_request(mem))->validate();
+			group_desc_stats_request_rcvd(dynamic_cast<cofmsg_group_desc_stats_request*>( *pmsg ));
+		} break;
+		case openflow13::OFPST_GROUP_FEATURES: {
+			(*pmsg = new cofmsg_group_features_stats_request(mem))->validate();
+			group_features_stats_request_rcvd(dynamic_cast<cofmsg_group_features_stats_request*>( *pmsg ));
+		} break;
+		// TODO: experimenter statistics
+		default: {
+			(*pmsg = new cofmsg_stats_request(mem))->validate();
+			stats_request_rcvd(dynamic_cast<cofmsg_stats_request*>( *pmsg ));
+		} break;
+		}
+
+	} break;
+	case openflow13::OFPT_BARRIER_REQUEST: {
+		(*pmsg = new cofmsg_barrier_request(mem))->validate();
+		barrier_request_rcvd(dynamic_cast<cofmsg_barrier_request*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_QUEUE_GET_CONFIG_REQUEST: {
+		(*pmsg = new cofmsg_queue_get_config_request(mem))->validate();
+		queue_get_config_request_rcvd(dynamic_cast<cofmsg_queue_get_config_request*>( *pmsg ));
+	} break;
+	case openflow13::OFPT_ROLE_REQUEST: {
+		(*pmsg = new cofmsg_role_request(mem))->validate();
+		role_request_rcvd(dynamic_cast<cofmsg_role_request*>( *pmsg ));
+	} break;
+    case openflow13::OFPT_GET_ASYNC_REQUEST: {
+    	(*pmsg = new cofmsg_get_async_config_request(mem))->validate();
+    	get_async_config_request_rcvd(dynamic_cast<cofmsg_get_async_config_request*>( *pmsg ));
+    } break;
+    case openflow13::OFPT_SET_ASYNC: {
+    	(*pmsg = new cofmsg_set_async_config(mem))->validate();
+    	set_async_config_rcvd(dynamic_cast<cofmsg_set_async_config*>( *pmsg ));
+    } break;
+	default: {
+		logging::warn << "dropping unknown message " << *mem << std::endl;
+		(*pmsg = new cofmsg(mem))->validate();
+		throw eBadRequestBadType();
+	} break;;
+	}
+}
 
 
 
@@ -1365,11 +1472,15 @@ void
 cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 {
 	try {
-		if ((openflow12::OFP_VERSION == get_version()) && (openflow12::OFPCR_ROLE_SLAVE == role)) {
-			send_error_is_slave(msg); return;
-		}
-		if ((openflow13::OFP_VERSION == get_version()) && (openflow13::OFPCR_ROLE_SLAVE == role)) {
-			send_error_is_slave(msg); return;
+		switch (get_version()) {
+		case openflow12::OFP_VERSION: {
+			if (openflow12::OFPCR_ROLE_SLAVE == role)
+				rofbase->send_error_bad_request_is_slave(this, msg->get_xid(), msg->soframe(), msg->framelen()); return;
+		} break;
+		case openflow13::OFP_VERSION: {
+			if (openflow13::OFPCR_ROLE_SLAVE == role)
+				rofbase->send_error_bad_request_is_slave(this, msg->get_xid(), msg->soframe(), msg->framelen()); return;
+		} break;
 		}
 
 		// check, whether the controlling pack->entity is allowed to install this flow-mod
@@ -1525,9 +1636,18 @@ void
 cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 {
 	try {
-
-		if (openflow12::OFPCR_ROLE_SLAVE == role) {
-			send_error_is_slave(msg); return;
+		switch (get_version()) {
+		case openflow12::OFP_VERSION: {
+			if (openflow12::OFPCR_ROLE_SLAVE == role)
+				rofbase->send_error_bad_request_is_slave(this, msg->get_xid(), msg->soframe(), msg->framelen()); return;
+		} break;
+		case openflow13::OFP_VERSION: {
+			if (openflow13::OFPCR_ROLE_SLAVE == role)
+				rofbase->send_error_bad_request_is_slave(this, msg->get_xid(), msg->soframe(), msg->framelen()); return;
+		} break;
+		default: {
+			rofbase->send_error_bad_request_bad_type(this, msg->get_xid(), msg->soframe(), msg->framelen()); return;
+		} return;
 		}
 
 		rofbase->handle_group_mod(this, msg);
@@ -1535,202 +1655,96 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 	} catch (eGroupModExists& e) {
 
 		logging::warn << "eGroupModExists " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_GROUP_EXISTS,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_group_exists(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModInvalGroup& e) {
 
 		logging::warn << "eGroupModInvalGroup " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_INVALID_GROUP,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_inval_group(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModWeightUnsupported& e) {
 
 		logging::warn << "eGroupModWeightUnsupported " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_WEIGHT_UNSUPPORTED,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_weight_unsupported(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModOutOfGroups& e) {
 
 		logging::warn << "eGroupModOutOfGroups " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_OUT_OF_GROUPS,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_out_of_groups(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModOutOfBuckets& e) {
 
 		logging::warn << "eGroupModOutOfBuckets " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_OUT_OF_BUCKETS,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_out_of_buckets(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModChainingUnsupported& e) {
 
 		logging::warn << "eGroupModChainingUnsupported " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_CHAINING_UNSUPPORTED,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_chaining_unsupported(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModWatchUnsupported& e) {
 
 		logging::warn << "eGroupModWatchUnsupported " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_WATCH_UNSUPPORTED,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_watch_unsupported(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModLoop& e) {
 
 		logging::warn << "eGroupModLoop " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_LOOP,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_loop(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModUnknownGroup& e) {
 
 		logging::warn << "eGroupModUnknownGroup " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_UNKNOWN_GROUP,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_unknown_group(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModChainedGroup& e) {
 
 		logging::warn << "eGroupModChainedGroup " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_CHAINED_GROUP,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_chained_group(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModBadType& e) {
 
 		logging::warn << "eGroupModBadType " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_BAD_TYPE,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_bad_type(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModBadCommand& e) {
 
 		logging::warn << "eGroupModBadCommand " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_BAD_COMMAND,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_bad_command(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModBadBucket& e) {
 
 		logging::warn << "eGroupModBadBucket " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_BAD_BUCKET,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_bad_bucket(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModBadWatch& e) {
 
 		logging::warn << "eGroupModBadWatch " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_BAD_WATCH,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_bad_watch(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModEperm& e) {
 
 		logging::warn << "eGroupModEperm " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_GROUP_MOD_FAILED,
-				OFPGMFC_EPERM,
-				msg->soframe(),
-				msg->framelen());
-
+		rofbase->send_error_group_mod_failed_eperm(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eGroupModBase& e) {
 
 		logging::warn << "eGroupModBase " << *msg << std::endl;
-
 		delete msg;
 	}
 }
@@ -1741,8 +1755,18 @@ void
 cofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg)
 {
 	try {
-		if (openflow12::OFPCR_ROLE_SLAVE == role) {
-			send_error_is_slave(msg); return;
+		switch (get_version()) {
+		case openflow12::OFP_VERSION: {
+			if (openflow12::OFPCR_ROLE_SLAVE == role)
+				rofbase->send_error_bad_request_is_slave(this, msg->get_xid(), msg->soframe(), msg->framelen()); return;
+		} break;
+		case openflow13::OFP_VERSION: {
+			if (openflow13::OFPCR_ROLE_SLAVE == role)
+				rofbase->send_error_bad_request_is_slave(this, msg->get_xid(), msg->soframe(), msg->framelen()); return;
+		} break;
+		default: {
+			rofbase->send_error_bad_request_bad_type(this, msg->get_xid(), msg->soframe(), msg->framelen()); return;
+		} return;
 		}
 
 		rofbase->handle_port_mod(this, msg);
@@ -1750,66 +1774,52 @@ cofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg)
 	} catch (ePortModBadPort& e) {
 
 		logging::warn << "ePortModBadPort " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_PORT_MOD_FAILED,
-				OFPPMFC_BAD_PORT,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_port_mod_failed_bad_port(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (ePortModBadHwAddr& e) {
 
 		logging::warn << "ePortModBadHwAddr " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_PORT_MOD_FAILED,
-				OFPPMFC_BAD_HW_ADDR,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_port_mod_failed_bad_hw_addr(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (ePortModBadConfig& e) {
 
 		logging::warn << "ePortModBadConfig " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_PORT_MOD_FAILED,
-				OFPPMFC_BAD_CONFIG,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_port_mod_failed_bad_config(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (ePortModBadAdvertise& e) {
 
 		logging::warn << "ePortModBadAdvertise " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_PORT_MOD_FAILED,
-				OFPPMFC_BAD_ADVERTISE,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_port_mod_failed_bad_advertise(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (ePortModBase& e) {
 
 		logging::warn << "ePortModBase " << *msg << std::endl;
-
 		delete msg;
 	}
 }
+
 
 
 void
 cofctlImpl::table_mod_rcvd(cofmsg_table_mod *msg)
 {
 	try {
-		if (openflow12::OFPCR_ROLE_SLAVE == role) {
-			send_error_is_slave(msg); return;
+		switch (get_version()) {
+		case openflow12::OFP_VERSION: {
+			if (openflow12::OFPCR_ROLE_SLAVE == role)
+				rofbase->send_error_bad_request_is_slave(this, msg->get_xid(), msg->soframe(), msg->framelen()); return;
+		} break;
+		case openflow13::OFP_VERSION: {
+			if (openflow13::OFPCR_ROLE_SLAVE == role)
+				rofbase->send_error_bad_request_is_slave(this, msg->get_xid(), msg->soframe(), msg->framelen()); return;
+		} break;
+		default: {
+			rofbase->send_error_bad_request_bad_type(this, msg->get_xid(), msg->soframe(), msg->framelen()); return;
+		} return;
 		}
 
 		rofbase->handle_table_mod(this, msg);
@@ -1817,31 +1827,18 @@ cofctlImpl::table_mod_rcvd(cofmsg_table_mod *msg)
 	} catch (eTableModBadTable& e) {
 
 		logging::warn << "eTableModBadTable " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_TABLE_MOD_FAILED,
-				OFPTMFC_BAD_TABLE,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_table_mod_failed_bad_table(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eTableModBadConfig& e) {
 
 		logging::warn << "eTableModBadConfig " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_TABLE_MOD_FAILED,
-				OFPTMFC_BAD_CONFIG,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_table_mod_failed_bad_config(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eTableModBase& e) {
 
 		logging::warn << "eTableModBase " << *msg << std::endl;
-
 		delete msg;
 	}
 }
@@ -1858,44 +1855,157 @@ cofctlImpl::stats_request_rcvd(cofmsg_stats *msg)
 		logging::warn << "retransmitted Stats-Request " << *msg << std::endl;
 	}
 
-	switch (msg->get_stats_type()) {
-	case OFPST_DESC: {
-		rofbase->handle_desc_stats_request(this, dynamic_cast<cofmsg_desc_stats_request*>( msg ));
-	} break;
-	case OFPST_TABLE: {
-		rofbase->handle_table_stats_request(this, dynamic_cast<cofmsg_table_stats_request*>( msg ));
-	} break;
-	case OFPST_PORT: {
-		rofbase->handle_port_stats_request(this, dynamic_cast<cofmsg_port_stats_request*>( msg ));
-	} break;
-	case OFPST_FLOW: {
-		rofbase->handle_flow_stats_request(this, dynamic_cast<cofmsg_flow_stats_request*>( msg ));
-	} break;
-	case OFPST_AGGREGATE: {
-		rofbase->handle_aggregate_stats_request(this, dynamic_cast<cofmsg_aggr_stats_request*>( msg ));
-	} break;
-	case OFPST_QUEUE: {
-		rofbase->handle_queue_stats_request(this, dynamic_cast<cofmsg_queue_stats_request*>( msg ));
-	} break;
-	case OFPST_GROUP: {
-		rofbase->handle_group_stats_request(this, dynamic_cast<cofmsg_group_stats_request*>( msg ));
-	} break;
-	case OFPST_GROUP_DESC: {
-		rofbase->handle_group_desc_stats_request(this, dynamic_cast<cofmsg_group_desc_stats_request*>( msg ));
-	} break;
-	case OFPST_GROUP_FEATURES: {
-		rofbase->handle_group_features_stats_request(this, dynamic_cast<cofmsg_group_features_stats_request*>( msg ));
-	} break;
-	case OFPST_EXPERIMENTER: {
-		rofbase->handle_experimenter_stats_request(this, dynamic_cast<cofmsg_experimenter_stats_request*>( msg ));
-	} break;
-	default: {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::recv_stats_request() "
-				"unknown stats request type (%d)",
-				this, msg->get_type());
-		rofbase->handle_stats_request(this, dynamic_cast<cofmsg_stats*>( msg ));
-	} break;
+	rofbase->handle_stats_request(this, msg);
+}
+
+
+
+void
+cofctlImpl::desc_stats_request_rcvd(cofmsg_desc_stats_request *msg)
+{
+	try {
+		xidstore.xid_add(this, msg->get_xid());
+
+	} catch (eXidStoreXidBusy& e) {
+		logging::warn << "retransmitted Desc-Stats-Request " << *msg << std::endl;
 	}
+
+	rofbase->handle_desc_stats_request(this, msg);
+}
+
+
+
+void
+cofctlImpl::table_stats_request_rcvd(cofmsg_table_stats_request* msg)
+{
+	try {
+		xidstore.xid_add(this, msg->get_xid());
+
+	} catch (eXidStoreXidBusy& e) {
+		logging::warn << "retransmitted Table-Stats-Request " << *msg << std::endl;
+	}
+
+	rofbase->handle_table_stats_request(this, msg);
+}
+
+
+
+void
+cofctlImpl::port_stats_request_rcvd(cofmsg_port_stats_request* msg)
+{
+	try {
+		xidstore.xid_add(this, msg->get_xid());
+
+	} catch (eXidStoreXidBusy& e) {
+		logging::warn << "retransmitted Port-Stats-Request " << *msg << std::endl;
+	}
+
+	rofbase->handle_port_stats_request(this, msg);
+}
+
+
+
+void
+cofctlImpl::flow_stats_request_rcvd(cofmsg_flow_stats_request* msg)
+{
+	try {
+		xidstore.xid_add(this, msg->get_xid());
+
+	} catch (eXidStoreXidBusy& e) {
+		logging::warn << "retransmitted Flow-Stats-Request " << *msg << std::endl;
+	}
+
+	rofbase->handle_flow_stats_request(this, msg);
+}
+
+
+
+void
+cofctlImpl::aggregate_stats_request_rcvd(cofmsg_aggr_stats_request* msg)
+{
+	try {
+		xidstore.xid_add(this, msg->get_xid());
+
+	} catch (eXidStoreXidBusy& e) {
+		logging::warn << "retransmitted Aggregate-Stats-Request " << *msg << std::endl;
+	}
+
+	rofbase->handle_aggregate_stats_request(this, msg);
+}
+
+
+
+void
+cofctlImpl::queue_stats_request_rcvd(cofmsg_queue_stats_request* msg)
+{
+	try {
+		xidstore.xid_add(this, msg->get_xid());
+
+	} catch (eXidStoreXidBusy& e) {
+		logging::warn << "retransmitted Queue-Stats-Request " << *msg << std::endl;
+	}
+
+	rofbase->handle_queue_stats_request(this, msg);
+}
+
+
+
+void
+cofctlImpl::group_stats_request_rcvd(cofmsg_group_stats_request* msg)
+{
+	try {
+		xidstore.xid_add(this, msg->get_xid());
+
+	} catch (eXidStoreXidBusy& e) {
+		logging::warn << "retransmitted Group-Stats-Request " << *msg << std::endl;
+	}
+
+	rofbase->handle_group_stats_request(this, msg);
+}
+
+
+
+void
+cofctlImpl::group_desc_stats_request_rcvd(cofmsg_group_desc_stats_request* msg)
+{
+	try {
+		xidstore.xid_add(this, msg->get_xid());
+
+	} catch (eXidStoreXidBusy& e) {
+		logging::warn << "retransmitted Group-Desc-Stats-Request " << *msg << std::endl;
+	}
+
+	rofbase->handle_group_desc_stats_request(this, msg);
+}
+
+
+
+void
+cofctlImpl::group_features_stats_request_rcvd(cofmsg_group_features_stats_request* msg)
+{
+	try {
+		xidstore.xid_add(this, msg->get_xid());
+
+	} catch (eXidStoreXidBusy& e) {
+		logging::warn << "retransmitted Group-Features-Stats-Request " << *msg << std::endl;
+	}
+
+	rofbase->handle_group_features_stats_request(this, msg);
+}
+
+
+
+void
+cofctlImpl::experimenter_stats_request_rcvd(cofmsg_experimenter_stats_request* msg)
+{
+	try {
+		xidstore.xid_add(this, msg->get_xid());
+
+	} catch (eXidStoreXidBusy& e) {
+		logging::warn << "retransmitted Experimenter-Stats-Request " << *msg << std::endl;
+	}
+
+	rofbase->handle_experimenter_stats_request(this, msg);
 }
 
 
@@ -1981,43 +2091,24 @@ cofctlImpl::role_request_rcvd(cofmsg_role_request *msg)
 	} catch (eRoleRequestStale& e) {
 
 		logging::warn << "eRoleRequestStale " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_ROLE_REQUEST_FAILED,
-				OFPRRFC_STALE,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_role_request_failed_stale(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eRoleRequestUnsupported& e) {
 
 		logging::warn << "eRoleRequestUnsupported " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_ROLE_REQUEST_FAILED,
-				OFPRRFC_UNSUP,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_role_request_failed_unsupported(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eRoleRequestBadRole& e) {
 
 		logging::warn << "eRoleRequestBadRole " << *msg << std::endl;
-
-		rofbase->send_error_message(
-				this,
-				msg->get_xid(),
-				OFPET_ROLE_REQUEST_FAILED,
-				OFPRRFC_BAD_ROLE,
-				(uint8_t*)msg->soframe(), msg->framelen());
-
+		rofbase->send_error_role_request_failed_bad_role(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
+
 	} catch (eRoleRequestBase& e) {
 
 		logging::warn << "eRoleRequestBase " << *msg << std::endl;
-
 		delete msg;
 	}
 }
@@ -2109,16 +2200,13 @@ void
 cofctlImpl::experimenter_rcvd(cofmsg_experimenter *msg)
 {
 	switch (msg->get_experimenter_id()) {
-	case OFPEXPID_ROFL:
-	{
+	case OFPEXPID_ROFL: {
 		switch (msg->get_experimenter_type()) {
-		case croflexp::OFPRET_FLOWSPACE:
-		{
+		case croflexp::OFPRET_FLOWSPACE: {
 			croflexp rexp(msg->get_body().somem(), msg->get_body().memlen());
 
 			switch (rexp.rext_fsp->command) {
 			case croflexp::OFPRET_FSP_ADD:
-			{
 				try {
 
 					rofbase->fsptable.insert_fsp_entry(this, rexp.match);
@@ -2133,12 +2221,8 @@ cofctlImpl::experimenter_rcvd(cofmsg_experimenter *msg)
 							"OFPRET_FLOWSPACE => OFPRET_FSP_ADD => -REJECTED- (overlap)",
 							this);
 
-				}
-
-				break;
-			}
+				} break;
 			case croflexp::OFPRET_FSP_DELETE:
-			{
 				try {
 
 					rofbase->fsptable.delete_fsp_entry(this, rexp.match, true /*strict*/);
@@ -2153,10 +2237,9 @@ cofctlImpl::experimenter_rcvd(cofmsg_experimenter *msg)
 							"OFPRET_FLOWSPACE => OFPRET_FSP_DELETE => -NOT-FOUND-",
 							this);
 
-				}
-
+				} break;
+			default:
 				break;
-			}
 			}
 
 			break;
@@ -2192,6 +2275,7 @@ cofctlImpl::handle_echo_reply_timeout()
 	}
 	rofbase->handle_ctl_close(this);
 }
+
 
 
 void
@@ -2235,8 +2319,6 @@ cofctlImpl::get_async_config_reply_sent(cofmsg *msg)
 
 
 
-
-
 cxidtrans&
 cofctlImpl::transaction(uint32_t xid)
 {
@@ -2249,12 +2331,7 @@ void
 cofctlImpl::send_error_is_slave(cofmsg *pack)
 {
 	size_t len = (pack->length() > 64) ? 64 : pack->length();
-	rofbase->send_error_message(this,
-			pack->get_xid(),
-			OFPET_BAD_REQUEST,
-			OFPBRC_IS_SLAVE,
-			pack->soframe(),
-			len);
+	rofbase->send_error_bad_request_is_slave(this, pack->get_xid(), pack->soframe(), len);
 }
 
 
@@ -2295,8 +2372,7 @@ void
 cofctlImpl::send_message_via_socket(
 		cofmsg *pack)
 {
-	if (0 == socket)
-	{
+	if (0 == socket) {
 		delete pack; return;
 	}
 

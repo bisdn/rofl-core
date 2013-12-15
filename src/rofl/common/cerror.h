@@ -19,29 +19,33 @@ namespace rofl
 {
 
 // base class for entire error class hierarchy
-class cerror
-{
+class cerror {
 public:
 
-
-	int 				n_errno;
 	std::string 		desc;
 
-
 public:
-	cerror() :
-		n_errno(0)
-	{
-		n_errno = errno;
-		desc = std::string(strerror(errno));
-	};
-	cerror(std::string const& desc) :
-		n_errno(0),
+	cerror(std::string const& desc = std::string("")) :
 		desc(desc)
 	{};
-	friend std::ostream& operator<< (std::ostream& os, cerror& e)
-	{
-		os << "exception errno:" << e.n_errno << " (" << strerror(e.n_errno) << ")";
+	friend std::ostream& operator<< (std::ostream& os, cerror& e) {
+		os << "<ROFL exception " << e.desc << ">";
+		return os;
+	};
+};
+
+class eSysCall : public cerror {
+public:
+	int			n_err;
+	std::string	s_err;
+public:
+	eSysCall() :
+		n_err(errno),
+		s_err(strerror(errno))
+	{};
+public:
+	friend std::ostream& operator<< (std::ostream& os, eSysCall const& e) {
+		os << "<eSysCall errno: " << e.n_err << " (" << e.s_err << ") >";
 		return os;
 	};
 };

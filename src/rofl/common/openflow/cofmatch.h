@@ -154,13 +154,19 @@ public:
 	 * TODO: introduce a template
 	 */
 
+	uint8_t*
+	pack(uint8_t* m, size_t mlen);
+
+	void
+	unpack(uint8_t* m, size_t mlen);
+
 	/** copy internal struct ofp_match into specified ofp_match ptr 'm'
 	 * @return pointer 'm'
 	 *
 	 */
-	struct openflow10::ofp_match*
-	pack(
-			struct openflow10::ofp_match* m,
+	uint8_t*
+	pack_of10(
+			uint8_t* m,
 			size_t mlen);
 
 
@@ -168,8 +174,8 @@ public:
 	 *
 	 */
 	void
-	unpack(
-			struct openflow10::ofp_match* m,
+	unpack_of10(
+			uint8_t* m,
 			size_t mlen);
 
 
@@ -177,9 +183,9 @@ public:
 	 * @return pointer 'm'
 	 *
 	 */
-	struct openflow12::ofp_match*
-	pack(
-			struct openflow12::ofp_match* m,
+	uint8_t*
+	pack_of12(
+			uint8_t* m,
 			size_t mlen);
 
 
@@ -187,8 +193,8 @@ public:
 	 *
 	 */
 	void
-	unpack(
-			struct openflow12::ofp_match* m,
+	unpack_of12(
+			uint8_t* m,
 			size_t mlen);
 
 
@@ -196,9 +202,9 @@ public:
 	 * @return pointer 'm'
 	 *
 	 */
-	struct openflow13::ofp_match*
-	pack(
-			struct openflow13::ofp_match* m,
+	uint8_t*
+	pack_of13(
+			uint8_t* m,
 			size_t mlen);
 
 
@@ -206,8 +212,8 @@ public:
 	 *
 	 */
 	void
-	unpack(
-			struct openflow13::ofp_match* m,
+	unpack_of13(
+			uint8_t* m,
 			size_t mlen);
 
 

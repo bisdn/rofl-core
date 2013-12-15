@@ -260,8 +260,34 @@ cofmatch::length() const
 
 
 
-struct openflow10::ofp_match*
-cofmatch::pack(struct openflow10::ofp_match* m, size_t mlen)
+uint8_t*
+cofmatch::pack(uint8_t* m, size_t mlen)
+{
+	switch (of_version) {
+	case openflow10::OFP_VERSION: return pack_of10(m, mlen); break;
+	case openflow12::OFP_VERSION: return pack_of12(m, mlen); break;
+	case openflow13::OFP_VERSION: return pack_of13(m, mlen); break;
+	default: throw eBadVersion();
+	}
+}
+
+
+
+void
+cofmatch::unpack(uint8_t *m, size_t mlen)
+{
+	switch (of_version) {
+	case openflow10::OFP_VERSION: unpack_of10(m, mlen); break;
+	case openflow12::OFP_VERSION: unpack_of12(m, mlen); break;
+	case openflow13::OFP_VERSION: unpack_of13(m, mlen); break;
+	default: throw eBadVersion();
+	}
+}
+
+
+
+uint8_t*
+cofmatch::pack(uint8_t* m, size_t mlen)
 {
 	if (mlen < length()) {
 		throw eOFmatchInval();

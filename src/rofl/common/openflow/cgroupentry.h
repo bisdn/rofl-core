@@ -146,7 +146,7 @@ public:
 				case openflow12::OFPGT_INDIRECT:os << "INDIRECT ";		break;
 				case openflow12::OFPGT_FF:		os << "FAST-FAILOVER"; 	break;
 				default:						os << "UNKNOWN";		break;
-			}
+				}
 			} break;
 			case openflow13::OFP_VERSION: {
 				switch (ge.get_command()) {
@@ -162,6 +162,7 @@ public:
 				case openflow13::OFPGT_INDIRECT:os << "INDIRECT ";		break;
 				case openflow13::OFPGT_FF:		os << "FAST-FAILOVER"; 	break;
 				default:						os << "UNKNOWN";		break;
+				}
 			} break;
 			default:
 				throw eBadVersion();

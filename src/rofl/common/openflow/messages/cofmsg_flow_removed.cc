@@ -176,20 +176,17 @@ cofmsg_flow_removed::pack(uint8_t *buf, size_t buflen)
 	case openflow10::OFP_VERSION: {
 		memcpy(buf, soframe(), OFP10_FLOW_REMOVED_STATIC_HDR_LEN);
 
-		match.pack((struct openflow10::ofp_match*)
-				(buf + sizeof(struct openflow::ofp_header)), sizeof(struct openflow10::ofp_match));
+		match.pack((buf + sizeof(struct openflow::ofp_header)), sizeof(struct openflow10::ofp_match));
 	} break;
 	case openflow12::OFP_VERSION: {
 		memcpy(buf, soframe(), OFP12_FLOW_REMOVED_STATIC_HDR_LEN);
 
-		match.pack((struct openflow12::ofp_match*)
-				(buf + OFP12_FLOW_REMOVED_STATIC_HDR_LEN), match.length());
+		match.pack((buf + OFP12_FLOW_REMOVED_STATIC_HDR_LEN), match.length());
 	} break;
 	case openflow13::OFP_VERSION: {
 		memcpy(buf, soframe(), OFP13_FLOW_REMOVED_STATIC_HDR_LEN);
 
-		match.pack((struct openflow13::ofp_match*)
-				(buf + OFP13_FLOW_REMOVED_STATIC_HDR_LEN), match.length());
+		match.pack((buf + OFP13_FLOW_REMOVED_STATIC_HDR_LEN), match.length());
 	} break;
 	default:
 		logging::warn << "cofmsg_flow_removed::pack() OFP version not supported" << std::endl;
@@ -224,7 +221,7 @@ cofmsg_flow_removed::validate()
 			throw eBadSyntaxTooShort();
 
 		try {
-			match.unpack(&(ofh10_flow_removed->match), sizeof(struct openflow10::ofp_match));
+			match.unpack((uint8_t*)&(ofh10_flow_removed->match), sizeof(struct openflow10::ofp_match));
 		} catch (eOFmatchInval& e) {
 			throw eBadSyntax();
 		}
@@ -239,7 +236,7 @@ cofmsg_flow_removed::validate()
 		size_t matchlen = be16toh(ofh12_flow_removed->header.length);
 
 		try  {
-			match.unpack(&(ofh12_flow_removed->match), matchlen);
+			match.unpack((uint8_t*)&(ofh12_flow_removed->match), matchlen);
 		} catch (eOFmatchInval& e) {
 			throw eBadSyntax();
 		}
@@ -254,7 +251,7 @@ cofmsg_flow_removed::validate()
 		size_t matchlen = be16toh(ofh13_flow_removed->header.length);
 
 		try  {
-			match.unpack(&(ofh13_flow_removed->match), matchlen);
+			match.unpack((uint8_t*)&(ofh13_flow_removed->match), matchlen);
 		} catch (eOFmatchInval& e) {
 			throw eBadSyntax();
 		}

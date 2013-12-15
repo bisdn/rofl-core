@@ -92,7 +92,7 @@ public: // methods
 	 */
 	cofinst(
 			uint8_t ofp_version,
-			struct ofp_instruction *instruction,
+			struct openflow::ofp_instruction *instruction,
 			size_t inlen);
 
 	/** copy constructor
@@ -131,16 +131,16 @@ public: // methods
 
 	/** copy struct ofp_action_header
 	 */
-	virtual struct ofp_instruction*
+	virtual struct openflow::ofp_instruction*
 	pack(
-			struct ofp_instruction* inhdr,
+			struct openflow::ofp_instruction* inhdr,
 			size_t inlen) const throw (eInstructionInval);
 
 	/** unpack
 	 */
 	virtual void
 	unpack(
-			struct ofp_instruction *inhdr,
+			struct openflow::ofp_instruction *inhdr,
 			size_t inlen) throw (eInstructionBadLen, eInstructionBadExperimenter);
 
 
