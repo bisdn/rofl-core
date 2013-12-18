@@ -4035,6 +4035,61 @@ crofbase::send_error_role_request_failed_bad_role(
 
 
 
+void
+crofbase::send_error_hello_failed_incompatible(
+		cofdpt *dpt,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (dpt->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_HELLO_FAILED; code = openflow12::OFPHFC_INCOMPATIBLE;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_HELLO_FAILED; code = openflow13::OFPHFC_INCOMPATIBLE;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send HelloFailed/Incompatible for ofp-version:" << (int)dpt->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(dpt, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_hello_failed_eperm(
+		cofdpt *dpt,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (dpt->get_version()) {
+	case openflow12::OFP_VERSION: {
+		type = openflow12::OFPET_HELLO_FAILED; code = openflow12::OFPHFC_EPERM;
+	} break;
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_HELLO_FAILED; code = openflow13::OFPHFC_EPERM;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send HelloFailed/EPerm for ofp-version:" << (int)dpt->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(dpt, xid, type, code, data, datalen);
+}
+
+
+
+
+
+
 
 
 

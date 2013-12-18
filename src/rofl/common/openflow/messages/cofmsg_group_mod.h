@@ -162,6 +162,19 @@ public:
 	 */
 	cofbuckets&
 	get_buckets();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_group_mod const& msg) {
+		os << indent(0) << "<cofmsg_group_mod ";
+		os << "command:" 	<< (int)msg.get_command() 		<< " ";
+		os << "group-type:" << (int)msg.get_group_type() 	<< " ";
+		os << "group-id:" 	<< (int)msg.get_group_id() 		<< " ";
+		os << ">";
+		os << indent(2) << dynamic_cast<cofbuckets const&>( msg.buckets );
+		return os;
+	};
 };
 
 } // end of namespace rofl

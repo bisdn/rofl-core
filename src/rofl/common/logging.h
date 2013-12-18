@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 namespace rofl
 {
@@ -53,6 +54,27 @@ public:
 			enum logging_level level,
 			std::string const& filename);
 };
+
+
+class indent
+{
+	static unsigned int width;
+	unsigned int my_width;
+public:
+	indent(unsigned int my_width = 0) :
+		my_width(my_width) {
+		indent::width += my_width;
+	};
+	virtual ~indent() {
+		indent::width = (indent::width >= my_width) ? (indent::width - my_width) : 0;
+	};
+	friend std::ostream&
+	operator<< (std::ostream& os, indent const& i) {
+		os << std::setw(indent::width) << " " << std::setw(0);
+		return os;
+	};
+};
+
 
 }; // end of namespace
 

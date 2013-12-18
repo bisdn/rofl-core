@@ -129,10 +129,10 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofactions const& actions) {
-		os << "<cofactions ofp-version:" << (int)actions.ofp_version << ">";
+		os << indent(0) << "<cofactions ofp-version:" << (int)actions.ofp_version << ">";
 		for (coflist<cofaction>::const_iterator
 				it = actions.elems.begin(); it != actions.elems.end(); ++it) {
-			os << "  " << (*it) << std::endl;
+			os << indent(2) << (*it) << std::endl;
 		}
 		os << ">";
 		return os;

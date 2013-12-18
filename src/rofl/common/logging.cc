@@ -23,7 +23,7 @@ std::ostream logging::notice(std::cout.rdbuf());
 std::ostream logging::info	(std::cout.rdbuf());
 std::ostream logging::debug	(std::cout.rdbuf());
 std::streamsize logging::width(70);
-
+unsigned int indent::width(0);
 
 
 void

@@ -432,22 +432,22 @@ cofdptImpl::handle_message(
 				}
 
 				switch (stats_type) {
-				case OFPST_DESC: {
+				case openflow10::OFPST_DESC: {
 					msg = new cofmsg_desc_stats_reply(mem);
 				} break;
-				case OFPST_FLOW: {
+				case openflow10::OFPST_FLOW: {
 					msg = new cofmsg_flow_stats_reply(mem);
 				} break;
-				case OFPST_AGGREGATE: {
+				case openflow10::OFPST_AGGREGATE: {
 					msg = new cofmsg_aggr_stats_reply(mem);
 				} break;
-				case OFPST_TABLE: {
+				case openflow10::OFPST_TABLE: {
 					msg = new cofmsg_table_stats_reply(mem);
 				} break;
-				case OFPST_PORT: {
+				case openflow10::OFPST_PORT: {
 					msg = new cofmsg_port_stats_reply(mem);
 				} break;
-				case OFPST_QUEUE: {
+				case openflow10::OFPST_QUEUE: {
 					msg = new cofmsg_queue_stats_reply(mem);
 				} break;
 				// TODO: experimenter statistics
@@ -560,31 +560,31 @@ cofdptImpl::handle_message(
 				}
 
 				switch (stats_type) {
-				case OFPST_DESC: {
+				case openflow12::OFPST_DESC: {
 					msg = new cofmsg_desc_stats_reply(mem);
 				} break;
-				case OFPST_FLOW: {
+				case openflow12::OFPST_FLOW: {
 					msg = new cofmsg_flow_stats_reply(mem);
 				} break;
-				case OFPST_AGGREGATE: {
+				case openflow12::OFPST_AGGREGATE: {
 					msg = new cofmsg_aggr_stats_reply(mem);
 				} break;
-				case OFPST_TABLE: {
+				case openflow12::OFPST_TABLE: {
 					msg = new cofmsg_table_stats_reply(mem);
 				} break;
-				case OFPST_PORT: {
+				case openflow12::OFPST_PORT: {
 					msg = new cofmsg_port_stats_reply(mem);
 				} break;
-				case OFPST_QUEUE: {
+				case openflow12::OFPST_QUEUE: {
 					msg = new cofmsg_queue_stats_reply(mem);
 				} break;
-				case OFPST_GROUP: {
+				case openflow12::OFPST_GROUP: {
 					msg = new cofmsg_group_stats_reply(mem);
 				} break;
-				case OFPST_GROUP_DESC: {
+				case openflow12::OFPST_GROUP_DESC: {
 					msg = new cofmsg_group_desc_stats_reply(mem);
 				} break;
-				case OFPST_GROUP_FEATURES: {
+				case openflow12::OFPST_GROUP_FEATURES: {
 					msg = new cofmsg_group_features_stats_reply(mem);
 				} break;
 				// TODO: experimenter statistics
@@ -880,16 +880,7 @@ cofdptImpl::hello_rcvd(cofmsg_hello *msg)
 					"unsupported OF version (%d), supported version is (%d)",
 					msg->get_version(), openflow12::OFP_VERSION);
 
-			cofmsg_error *reply = new cofmsg_error(
-								openflow12::OFP_VERSION,
-								msg->get_xid(),
-								OFPET_HELLO_FAILED,
-								OFPHFC_INCOMPATIBLE,
-								(uint8_t*) explanation, strlen(explanation));
-
-			send_message_via_socket(reply); // circumvent ::send_message, as COFDPT_FLAG_HELLO_RCVD is not set
-
-			handle_closed(socket, socket->sd);
+			throw eHelloIncompatible();
 		}
 		else
 		{
@@ -914,30 +905,22 @@ cofdptImpl::hello_rcvd(cofmsg_hello *msg)
 
 	} catch (eHelloIncompatible& e) {
 
-		logging::error << "eHelloIncompatible " << *msg << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					msg->get_xid(),
-					OFPET_HELLO_FAILED,
-					OFPHFC_INCOMPATIBLE,
-					msg->soframe(), msg->framelen());
-
+		logging::warn << "eHelloIncompatible " << *msg << std::endl;
+		rofbase->send_error_hello_failed_incompatible(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
 		handle_closed(socket, socket->sd);
+
 	} catch (eHelloEperm& e) {
 
-		logging::error << "eHelloEperm " << *msg << std::endl;
-
-		rofbase->send_error_message(
-					this,
-					msg->get_xid(),
-					OFPET_HELLO_FAILED,
-					OFPHFC_EPERM,
-					msg->soframe(), msg->framelen());
-
+		logging::warn << "eHelloEperm " << *msg << std::endl;
+		rofbase->send_error_hello_failed_eperm(this, msg->get_xid(), msg->soframe(), msg->framelen());
 		delete msg;
 		handle_closed(socket, socket->sd);
+
+	} catch (eHelloBase& e) {
+
+		logging::warn << "eHelloBase " << *msg << std::endl;
+		delete msg;
 	}
 }
 

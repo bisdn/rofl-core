@@ -112,10 +112,10 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofbuckets const& buckets) {
-		os << "<cofbuckets ofp-version:" << (int)buckets.ofp_version << ">";
+		os << indent(0) << "<cofbuckets ofp-version:" << (int)buckets.ofp_version << ">";
 		for (coflist<cofbucket>::const_iterator
 				it = buckets.elems.begin(); it != buckets.elems.end(); ++it) {
-			os << "  " << (*it) << std::endl;
+			os << indent(2) << (*it) << std::endl;
 		}
 		return os;
 	};
