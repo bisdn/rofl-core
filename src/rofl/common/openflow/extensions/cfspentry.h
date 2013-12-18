@@ -59,23 +59,25 @@ public: // per instance
 	cfspentry&
 	operator= (cfspentry& fspentry);
 
-	/** dump info
-	 *
-	 */
-	const char*
-	c_str();
 
 public: // data structures
 
-	// set this instance is stored in
-	std::set<cfspentry*> *fsp_list;
-	// ofmatch for this namespace entry
-	cofmatch ofmatch;
-	// cofctrl instance who has registered this namespace
-	cfspentry_owner *fspowner;
-	// info string
-	std::string info;
 
+	std::set<cfspentry*> 		*fsp_list; 		// set this instance is stored in
+	cofmatch					 ofmatch; 		// ofmatch for this namespace entry
+	cfspentry_owner 			*fspowner;		// cofctrl instance who has registered this namespace
+	std::string 				 info;			// info string
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cfspentry const& e) {
+		os << "<cfspentry ";
+			os << "fsp-owner:" << e.fspowner << " ";
+			os << "match:" << e.ofmatch << " ";
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

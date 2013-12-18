@@ -215,8 +215,7 @@ cofmsg_flow_mod::pack(uint8_t *buf, size_t buflen)
 		memcpy(buf, soframe(), openflow10::OFP_FLOW_MOD_STATIC_HDR_LEN);
 		match.pack((buf + sizeof(struct openflow::ofp_header)),
 												sizeof(struct openflow10::ofp_match));
-		actions.pack((struct openflow::ofp_action_header*)
-				(buf + openflow10::OFP_FLOW_MOD_STATIC_HDR_LEN), actions.length());
+		actions.pack(buf + openflow10::OFP_FLOW_MOD_STATIC_HDR_LEN, actions.length());
 	} break;
 	case openflow12::OFP_VERSION: {
 		memcpy(buf, soframe(), openflow12::OFP_FLOW_MOD_STATIC_HDR_LEN);
@@ -262,7 +261,7 @@ cofmsg_flow_mod::validate()
 		if (get_length() < sizeof(struct openflow10::ofp_flow_mod))
 			throw eBadSyntaxTooShort();
 		match.unpack((uint8_t*)&(ofh10_flow_mod->match), sizeof(struct openflow10::ofp_match));
-		actions.unpack((struct openflow::ofp_action_header*)ofh10_flow_mod->actions, get_length() - sizeof(struct openflow10::ofp_flow_mod));
+		actions.unpack((uint8_t*)ofh10_flow_mod->actions, get_length() - sizeof(struct openflow10::ofp_flow_mod));
 	} break;
 	case openflow12::OFP_VERSION: {
 		// struct openflow12::ofp_flow_mod includes static part of struct openflow12::ofp_match (i.e. type and length) !!

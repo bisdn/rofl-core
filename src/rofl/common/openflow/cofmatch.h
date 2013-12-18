@@ -121,12 +121,12 @@ public: // methods
 	operator< (cofmatch const& m) const;
 #endif
 
-
+#if 0
 	/** dump cofmatch instance
 	 */
 	const char*
 	c_str();
-
+#endif
 
 	/** validate match structure
 	 *

@@ -47,9 +47,7 @@ public:
 	/** constructor
 	 */
 	cofactions(
-			uint8_t ofp_version,
-			struct openflow::ofp_action_header *achdr,
-			size_t aclen);
+			uint8_t ofp_version, uint8_t *achdr, size_t aclen);
 
 
 	/**
@@ -86,18 +84,13 @@ public:
 	/** create a std::list<cofaction*> from a struct ofp_flow_mod
 	 */
 	std::vector<cofaction>&
-	unpack(
-			struct openflow::ofp_action_header *actions,
-			size_t aclen);
+	unpack(uint8_t *buf, size_t buflen);
 
 	/** builds an array of struct ofp_instructions
 	 * from a std::vector<cofinst*>
 	 */
-	struct openflow::ofp_action_header*
-	pack(
-			struct openflow::ofp_action_header *actions,
-			size_t aclen)
-		const;
+	uint8_t*
+	pack(uint8_t* actions, size_t aclen);
 
 	/** returns required length for array of struct ofp_action_headers
 	 * for all actions defined in std::vector<cofaction*>
@@ -136,9 +129,11 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofactions const& actions) {
-		os << "<cofactions ";
-			os << "ofp-version:" << (int)actions.ofp_version << " ";
-			os << dynamic_cast<coflist const&>( actions ) << " ";
+		os << "<cofactions ofp-version:" << (int)actions.ofp_version << ">";
+		for (coflist<cofaction>::const_iterator
+				it = actions.elems.begin(); it != actions.elems.end(); ++it) {
+			os << "  " << (*it) << std::endl;
+		}
 		os << ">";
 		return os;
 	};

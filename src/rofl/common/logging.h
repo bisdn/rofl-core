@@ -30,6 +30,7 @@ public:
 	static std::ostream notice;
 	static std::ostream info;
 	static std::ostream debug;
+	static std::streamsize width;
 
 public:
 

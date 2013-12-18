@@ -45,8 +45,17 @@ cgroupentry::reset()
 	bzero(group_mod_area.somem(), group_mod_area.memlen());
 	group_mod = (struct openflow12::ofp_group_mod*)group_mod_area.somem();
 
-	group_mod->command = htobe16(OFPGC_ADD);			// default: add flow-mod entry
-	group_mod->type = OFPGT_ALL;
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION: {
+		group_mod->command = htobe16(openflow12::OFPGC_ADD);			// default: add flow-mod entry
+		group_mod->type = openflow12::OFPGT_ALL;
+	} break;
+	case openflow13::OFP_VERSION: {
+		group_mod->command = htobe16(openflow13::OFPGC_ADD);			// default: add flow-mod entry
+		group_mod->type = openflow13::OFPGT_ALL;
+	} break;
+	}
+
 	group_mod->group_id = htobe32(0);
 }
 
@@ -120,9 +129,9 @@ cgroupentry::test()
 {
 	cgroupentry ge(OFP12_VERSION);
 
-	ge.set_command((uint16_t)OFPGC_ADD);
+	ge.set_command((uint16_t)openflow12::OFPGC_ADD);
 	ge.set_group_id(32);
-	ge.set_type(OFPGT_ALL);
+	ge.set_type(openflow12::OFPGT_ALL);
 
 	ge.buckets[0].watch_group = 1;
 	ge.buckets[0].watch_port = 8;

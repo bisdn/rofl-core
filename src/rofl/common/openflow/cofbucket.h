@@ -82,14 +82,12 @@ public: // per instance methods
 	/** pack bucket
 	 */
 	uint8_t*
-	pack(uint8_t* bucket, size_t bclen) const
-		throw (eBucketBadLen);
+	pack(uint8_t* bucket, size_t bclen);
 
 	/** unpack bucket
 	 */
 	void
-	unpack(uint8_t* bucket, size_t bclen)
-		throw (eBucketBadLen, eBadActionBadOutPort);
+	unpack(uint8_t* bucket, size_t bclen);
 
 	/** bucket length
 	 */
@@ -109,28 +107,23 @@ private:
 
 	/** pack bucket
 	 */
-	struct openflow12::ofp_bucket*
-	pack(struct openflow12::ofp_bucket* bucket, size_t bclen) const
-		throw (eBucketBadLen);
+	uint8_t*
+	pack_of12(uint8_t* buf, size_t buflen);
 
 	/** unpack bucket
 	 */
 	void
-	unpack(struct openflow12::ofp_bucket* bucket, size_t bclen)
-		throw (eBucketBadLen, eBadActionBadOutPort);
+	unpack_of12(uint8_t *buf, size_t buflen);
 
 	/** pack bucket
 	 */
-	struct openflow13::ofp_bucket*
-	pack(struct openflow13::ofp_bucket* bucket, size_t bclen) const
-		throw (eBucketBadLen);
+	uint8_t*
+	pack_of13(uint8_t* buf, size_t buflen);
 
 	/** unpack bucket
 	 */
 	void
-	unpack(struct openflow13::ofp_bucket* bucket, size_t bclen)
-		throw (eBucketBadLen, eBadActionBadOutPort);
-
+	unpack_of13(uint8_t *buf, size_t buflen);
 
 public:
 

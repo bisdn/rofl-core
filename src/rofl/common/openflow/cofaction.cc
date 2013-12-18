@@ -7,42 +7,31 @@
 
 using namespace rofl;
 
-cofaction::cofaction(
-		uint8_t ofp_version,
-		size_t datalen) :
+cofaction::cofaction(uint8_t ofp_version, size_t datalen) :
 			ofp_version(ofp_version),
 			action(datalen)
 {
-	WRITELOG(COFACTION, DBG, "cofaction(%p)::cofaction()", this);
-	oac_header = (struct ofp_action_header*)action.somem();
+	oac_header = (struct openflow::ofp_action_header*)action.somem();
 }
 
 
-cofaction::cofaction(
-		uint8_t ofp_version,
-		struct ofp_action_header* achdr,
-		size_t aclen) throw (eBadActionBadLen, eBadActionBadOutPort) :
-				ofp_version(ofp_version),
-				action(aclen)
+cofaction::cofaction(uint8_t ofp_version, struct openflow::ofp_action_header* achdr, size_t aclen) :
+			ofp_version(ofp_version),
+			action(aclen)
 {
-	WRITELOG(COFACTION, DBG, "cofaction(%p)::cofaction()", this);
-	oac_header = (struct ofp_action_header*)action.somem();
+	oac_header = (struct openflow::ofp_action_header*)action.somem();
 
 	if (be16toh(oac_header->len) > aclen) {
 		throw eBadActionBadLen();
 	}
 
-	unpack(achdr, aclen);
-
-#if 0
-	__make_info();
-#endif
+	unpack((uint8_t*)achdr, aclen);
 }
 
 
 cofaction::~cofaction()
 {
-	WRITELOG(COFACTION, DBG, "cofaction(%p)::~cofaction()", this);
+
 }
 
 
@@ -60,53 +49,50 @@ cofaction::operator= (const cofaction& ac)
 
 	this->ofp_version 	= ac.ofp_version;
 	this->action 		= ac.action;
-	this->oac_header = (struct ofp_action_header*)this->action.somem();
+	this->oac_generic 	= this->action.somem();
 
 	return *this;
 }
 
 
-struct ofp_action_header*
+uint8_t*
 cofaction::pack(
-		struct ofp_action_header* achdr,
-		size_t aclen) const throw (eActionInval)
+		uint8_t* achdr,
+		size_t aclen)
 {
 	if (aclen < this->length())
 		throw eActionInval();
 
-	//WRITELOG(CSYSLOG_ACTION, "soaction()=%p actionlen()=%d", soaction(), actionlen());
-
 	oac_header->len = htobe16(length());
 
 	memcpy((uint8_t*)achdr, (uint8_t*)soaction(), length());
+
 	return achdr;
 }
 
 
 void
-cofaction::unpack(
-		struct ofp_action_header *achdr,
-		size_t aclen) throw (eBadActionBadLen, eBadActionBadOutPort, eBadActionBadType)
+cofaction::unpack(uint8_t* achdr, size_t aclen)
 {
 	if (action.memlen() < aclen) {
-		oac_header = (struct ofp_action_header*)action.resize(aclen);;
+		oac_generic = action.resize(aclen);;
 	}
 
-	memcpy((uint8_t*)oac_header, (uint8_t*)achdr, aclen);
+	memcpy(oac_generic, achdr, aclen);
 
-	if (be16toh(oac_header->len) < sizeof(struct ofp_action_header)) {
+	if (be16toh(oac_header->len) < sizeof(struct openflow::ofp_action_header)) {
 		throw eBadActionBadLen();
 	}
 
 	switch (ofp_version) {
 	case openflow10::OFP_VERSION: {
-		unpack((struct openflow10::ofp_action_header*)achdr, aclen);
+		unpack_of10(achdr, aclen);
 	} break;
 	case openflow12::OFP_VERSION: {
-		unpack((struct openflow12::ofp_action_header*)achdr, aclen);
+		unpack_of12(achdr, aclen);
 	} break;
 	case openflow13::OFP_VERSION: {
-		unpack((struct openflow13::ofp_action_header*)achdr, aclen);
+		unpack_of13(achdr, aclen);
 	} break;
 	}
 }
@@ -114,8 +100,7 @@ cofaction::unpack(
 
 
 void
-cofaction::unpack(
-		struct openflow10::ofp_action_header *achdr, size_t aclen)
+cofaction::unpack_of10(uint8_t* buf, size_t buflen)
 {
 	/*
 	 * OpenFlow 1.0
@@ -145,7 +130,7 @@ cofaction::unpack(
 		}
 	} break;
 	case openflow10::OFPAT_STRIP_VLAN: {
-		if (action.memlen() < sizeof(struct ofp_action_header)) {
+		if (action.memlen() < sizeof(struct openflow::ofp_action_header)) {
 			throw eBadActionBadLen();
 		}
 	} break;
@@ -196,8 +181,7 @@ cofaction::unpack(
 
 
 void
-cofaction::unpack(
-		struct openflow12::ofp_action_header *achdr, size_t aclen)
+cofaction::unpack_of12(uint8_t *buf, size_t buflen)
 {
 	/*
 	 * OpenFlow 1.2
@@ -208,7 +192,7 @@ cofaction::unpack(
 			throw eBadActionBadLen();
 		}
 		uint32_t port_no = be32toh(oac_12output->port);
-		if ((OFPP12_ANY == port_no) || (0 == port_no)) {
+		if ((openflow12::OFPP_ANY == port_no) || (0 == port_no)) {
 			throw eBadActionBadOutPort();
 		}
 	} break;
@@ -284,7 +268,6 @@ cofaction::unpack(
 		break;
 	default:
 		throw eBadActionBadType();
-		//throw eActionInvalType();
 		break;
 	}
 }
@@ -292,22 +275,21 @@ cofaction::unpack(
 
 
 void
-cofaction::unpack(
-		struct openflow13::ofp_action_header *achdr, size_t aclen)
+cofaction::unpack_of13(uint8_t *buf, size_t buflen)
 {
 	/*
 	 * OpenFlow 1.2
 	 */
-	unpack((struct openflow12::ofp_action_header*)achdr, aclen);
+	unpack_of12(buf, buflen);
 }
 
 
 
 
-struct ofp_action_header*
+struct openflow::ofp_action_header*
 cofaction::soaction() const
 {
-	return (struct ofp_action_header*)(action.somem());
+	return (struct openflow::ofp_action_header*)(action.somem());
 }	
 
 
@@ -413,158 +395,6 @@ cofaction::length() const
 }
 
 
-#if 0
-const char*
-cofaction::c_str()
-{
-	__make_info();
-#if 0
-	cvastring vas;
-	info.assign(vas("cofaction(%p)", this));
-#endif
-	return info.c_str();
-}
-
-
-void
-cofaction::__make_info()
-{
-	cvastring vas(4096);
-
-	switch (ofp_version) {
-	case openflow10::OFP_VERSION: {
-
-		switch (be16toh(oac_header->type)) {
-		case openflow10::OFPAT_OUTPUT: {
-			info.assign(vas("cofaction(%p) openflow10::OFPAT_OUTPUT length[%zu] port[0x%x] max_len[%d]",
-					 this,
-					 length(),
-					 be16toh(oac_10output->port),
-					 be16toh(oac_10output->max_len)));
-		} break;
-		// TODO: remaining OF1.0 actions
-		default: {
-			info.assign(vas("cofaction(%p) unknown action ", this));
-		} break;
-		}
-
-	} break;
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-
-		switch (be16toh(oac_header->type)) {
-		case openflow12::OFPAT_OUTPUT: {
-			info.assign(vas("cofaction(%p) openflow12::OFPAT_OUTPUT length[%zu] port[0x%x] max_len[%d]",
-					 this,
-					 length(),
-					 be32toh(oac_12output->port),
-					 be16toh(oac_12output->max_len)));
-		} break;
-		case openflow12::OFPAT_COPY_TTL_OUT: {
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_COPY_TTL_OUT length[%zu] ",
-					 this,
-					 length()));
-		} break;
-		case openflow12::OFPAT_COPY_TTL_IN: {
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_COPY_TTL_IN length[%zu] ",
-					this,
-					length()));
-		} break;
-		case openflow12::OFPAT_SET_MPLS_TTL: {
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_SET_MPLS_TTL length[%zu] mpls_ttl[%d]",
-					 this,
-					 length(),
-					 oac_12mpls_ttl->mpls_ttl));
-		} break;
-		case openflow12::OFPAT_DEC_MPLS_TTL: {
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_DEC_MPLS_TTL length[%zu] ",
-					 this, length()));
-		} break;
-		case openflow12::OFPAT_PUSH_VLAN: {
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_PUSH_VLAN length[%zu] ethertype[0x%04x]",
-					 this,
-					 length(),
-					 be16toh(oac_12push->ethertype)));
-		} break;
-		case openflow12::OFPAT_POP_VLAN: {
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_POP_VLAN length[%zu] ",
-					 this, length()));
-		} break;
-		case openflow12::OFPAT_PUSH_MPLS: {
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_PUSH_MPLS length[%zu] ethertype[0x%x]",
-					 this,
-					 length(),
-					 be16toh(oac_12push->ethertype)));
-		} break;
-		case openflow12::OFPAT_POP_MPLS: {
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_POP_MPLS length[%zu] ethertype[0x%x]",
-					 this,
-					 length(),
-					 be16toh(oac_12pop_mpls->ethertype)));
-		} break;
-		case openflow12::OFPAT_SET_QUEUE: {
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_SET_QUEUE length[%zu] queue_id[%d]",
-					 this,
-					 length(),
-					 be32toh(oac_12set_queue->queue_id)));
-		} break;
-		case openflow12::OFPAT_GROUP: {
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_GROUP length[%zu] group_id[%d]",
-					 this,
-					 length(),
-					 be32toh(oac_12group->group_id)));
-		} break;
-		case openflow12::OFPAT_SET_NW_TTL: {
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_SET_NW_TTL length[%zu] nw_ttl[%d]",
-					 this,
-					 length(),
-					 oac_12nw_ttl->nw_ttl));
-		} break;
-		case openflow12::OFPAT_DEC_NW_TTL: {
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_DEC_NW_TTL length[%zu] ",
-					 this, length()));
-		} break;
-		case openflow12::OFPAT_EXPERIMENTER: {
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_EXPERIMENTER length[%zu] experimenter[%d]",
-					 this,
-					 length(),
-					 be32toh(oac_12experimenter->experimenter)));
-		} break;
-		case openflow12::OFPAT_SET_FIELD: {
-			coxmatch oxm((struct ofp_oxm_hdr*)oac_12set_field->field,
-					be16toh(oac_12set_field->len) - 2 * sizeof(uint16_t));
-			info.assign(vas(
-					 "cofaction(%p) openflow12::OFPAT_SET_FIELD length[%zu] [%s]",
-					 this,
-					 length(),
-					 oxm.c_str()));
-		} break;
-		default: {
-			info.assign(vas("cofaction(%p) unknown action ", this));
-		} break;
-		}
-
-	} break;
-	default:
-		throw eBadVersion();
-	}
-
-}
-#endif
-
 
 uint8_t
 cofaction::get_version() const
@@ -585,7 +415,7 @@ void
 cofaction::resize(size_t len)
 {
 	action.resize(len);
-	oac_header = (struct ofp_action_header*)action.somem();
+	oac_generic = action.somem();
 }
 
 
@@ -658,7 +488,7 @@ cofaction::get_oxm() throw (eActionInvalType)
 		throw eActionInvalType();
 	}
 
-	struct ofp_oxm_hdr* oxm_hdr = (struct ofp_oxm_hdr*)oac_12set_field->field;
+	struct openflow::ofp_oxm_hdr* oxm_hdr = (struct openflow::ofp_oxm_hdr*)oac_12set_field->field;
 	size_t oxm_len = be16toh(oac_12set_field->len) - 2 * sizeof(uint16_t); // without action header
 
 	coxmatch oxm(oxm_hdr, oxm_len);

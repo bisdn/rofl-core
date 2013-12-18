@@ -19,20 +19,15 @@
 namespace rofl
 {
 
-class eFspTable : public cerror {}; 			// base class cnstable errors
-class eFspNoMatch : public eFspTable {};		// no matching entry found
-class eFspEntryOverlap : public eFspTable {}; 	// new namespace entry overlaps
-class eFspEntryNotFound : public eFspTable {};  // namespace entry not found
-class eFspNotAllowed : public eFspTable {}; 	// ofmatch not inserted in registered namespace
+class eFspTable 			: public cerror {}; 	// base class cnstable errors
+class eFspNoMatch 			: public eFspTable {};	// no matching entry found
+class eFspEntryOverlap 		: public eFspTable {}; 	// new namespace entry overlaps
+class eFspEntryNotFound 	: public eFspTable {};  // namespace entry not found
+class eFspNotAllowed 		: public eFspTable {}; 	// ofmatch not inserted in registered namespace
 
 
 
 class cfsptable : public ciosrv {
-public: // static
-
-
-
-
 public: // per instance
 
 	/** constructor
@@ -118,7 +113,10 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cfsptable const& fsptable) {
-
+		for (std::set<cfspentry*>::const_iterator
+				it = fsptable.fsp_table.begin(); it != fsptable.fsp_table.end(); ++it) {
+			os << "  " << *(*it) << std::endl;
+		}
 		return os;
 	};
 };

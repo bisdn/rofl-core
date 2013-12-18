@@ -170,17 +170,17 @@ cofmsg_packet_out::pack(uint8_t *buf, size_t buflen)
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {
 		memcpy(buf, soframe(), sizeof(struct openflow10::ofp_packet_out));
-		actions.pack((struct openflow::ofp_action_header*)(buf + sizeof(struct openflow10::ofp_packet_out)), actions.length());
+		actions.pack(buf + sizeof(struct openflow10::ofp_packet_out), actions.length());
 		memcpy(buf + sizeof(struct openflow10::ofp_packet_out) + actions.length(), packet.soframe(), packet.framelen());
 	} break;
 	case openflow12::OFP_VERSION: {
 		memcpy(buf, soframe(), sizeof(struct openflow12::ofp_packet_out));
-		actions.pack((struct openflow::ofp_action_header*)(buf + sizeof(struct openflow12::ofp_packet_out)), actions.length());
+		actions.pack(buf + sizeof(struct openflow12::ofp_packet_out), actions.length());
 		memcpy(buf + sizeof(struct openflow12::ofp_packet_out) + actions.length(), packet.soframe(), packet.framelen());
 	} break;
 	case openflow13::OFP_VERSION: {
 		memcpy(buf, soframe(), sizeof(struct openflow13::ofp_packet_out));
-		actions.pack((struct openflow::ofp_action_header*)(buf + sizeof(struct openflow13::ofp_packet_out)), actions.length());
+		actions.pack(buf + sizeof(struct openflow13::ofp_packet_out), actions.length());
 		memcpy(buf + sizeof(struct openflow13::ofp_packet_out) + actions.length(), packet.soframe(), packet.framelen());
 	} break;
 	default:
@@ -218,7 +218,7 @@ cofmsg_packet_out::validate()
 		if (get_length() < (sizeof(struct openflow10::ofp_packet_out) + be16toh(ofh10_packet_out->actions_len)))
 			throw eBadSyntaxTooShort();
 
-		actions.unpack((struct openflow::ofp_action_header*)ofh10_packet_out->actions,
+		actions.unpack((uint8_t*)ofh10_packet_out->actions,
 						be16toh(ofh10_packet_out->actions_len));
 
 		if (openflow10::OFP_NO_BUFFER == get_buffer_id()) {
@@ -238,7 +238,7 @@ cofmsg_packet_out::validate()
 		if (get_length() < (sizeof(struct openflow12::ofp_packet_out) + be16toh(ofh12_packet_out->actions_len)))
 			throw eBadSyntaxTooShort();
 
-		actions.unpack((struct openflow::ofp_action_header*)ofh12_packet_out->actions,
+		actions.unpack((uint8_t*)ofh12_packet_out->actions,
 						be16toh(ofh12_packet_out->actions_len));
 
 		if (openflow12::OFP_NO_BUFFER == get_buffer_id()) {
@@ -257,7 +257,7 @@ cofmsg_packet_out::validate()
 		if (get_length() < (sizeof(struct openflow13::ofp_packet_out) + be16toh(ofh13_packet_out->actions_len)))
 			throw eBadSyntaxTooShort();
 
-		actions.unpack((struct openflow::ofp_action_header*)ofh13_packet_out->actions,
+		actions.unpack((uint8_t*)ofh13_packet_out->actions,
 						be16toh(ofh13_packet_out->actions_len));
 
 		if (openflow13::OFP_NO_BUFFER != get_buffer_id()) {

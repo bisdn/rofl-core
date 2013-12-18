@@ -50,6 +50,7 @@ public: // static methods
 public: // data structures
 
 	union { // for OpenFlow 1.1
+		uint8_t											*oacu_generic;
 		struct openflow::ofp_action_header				*oacu_header;
 
 		// OF1.0 actions
@@ -86,7 +87,8 @@ public: // data structures
 		struct openflow13::ofp_action_set_field 		*oacu_13set_field;
 	} oac_oacu;
 
-#define oac_header oac_oacu.oacu_header				// action: plain header
+#define oac_generic 	oac_oacu.oacu_generic		// action: generic pointer
+#define oac_header 		oac_oacu.oacu_header		// action: plain header
 
 #define oac_10output 	oac_oacu.oacu_10output		// action: output OF1.0
 #define oac_10enqueue 	oac_oacu.oacu_10enqueue		// action: enqueue
@@ -137,7 +139,7 @@ public: // methods
 	cofaction(
 			uint8_t ofp_version,
 			struct openflow::ofp_action_header* action,
-			size_t aclen) throw (eBadActionBadLen, eBadActionBadOutPort);
+			size_t aclen);
 
 	/** copy constructor
 	 */
@@ -164,27 +166,15 @@ public: // methods
 	size_t
 	length() const;
 
-#if 0
-	/** dump info string for this action
-	 */
-	const char*
-	c_str();
-#endif
-
 	/** copy struct openflow::ofp_action_header
 	 */
-	struct openflow::ofp_action_header*
-	pack(
-			struct openflow::ofp_action_header* achdr,
-			size_t aclen) const throw (eActionInval);
+	uint8_t*
+	pack(uint8_t* achdr, size_t aclen);
 
 	/** unpack
 	 */
 	void
-	unpack(
-			struct openflow::ofp_action_header *achdr,
-			size_t aclen)
-			throw (eBadActionBadLen, eBadActionBadOutPort, eBadActionBadType);
+	unpack(uint8_t* achdr, size_t aclen);
 
 	/**
 	 *
@@ -212,33 +202,26 @@ protected: // methods
 	void
 	resize(size_t size);
 
-#if 0
-	/** create info string
-	 */
-	void
-	__make_info();
-#endif
-
 private:
 
 	/** unpack OF1.0
 	 */
 	void
-	unpack(
-			struct openflow10::ofp_action_header *achdr, size_t aclen);
+	unpack_of10(
+			uint8_t* achdr, size_t aclen);
 
 	/** unpack OF1.2
 	 */
 	void
-	unpack(
-			struct openflow12::ofp_action_header *achdr, size_t aclen);
+	unpack_of12(
+			uint8_t* achdr, size_t aclen);
 
 
 	/** unpack OF1.3
 	 */
 	void
-	unpack(
-			struct openflow13::ofp_action_header *achdr, size_t aclen);
+	unpack_of13(
+			uint8_t* achdr, size_t aclen);
 
 public:
 

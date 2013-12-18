@@ -194,7 +194,7 @@ public:
 		{
 			packed.resize(length());
 			memcpy(packed.somem(), body.somem(), body.memlen());
-			match.pack((struct openflow12::ofp_match*)(packed.somem() + body.memlen()), match.length());
+			match.pack(packed.somem() + body.memlen(), match.length());
 			return packed;
 		};
 };
@@ -264,7 +264,7 @@ public:
 		{
 			packed.resize(length());
 			memcpy(packed.somem(), body.somem(), body.memlen());
-			match.pack((struct openflow12::ofp_match*)(packed.somem() + body.memlen()), match.length());
+			match.pack(packed.somem() + body.memlen(), match.length());
 			return packed;
 		};
 		/**
@@ -280,7 +280,7 @@ public:
 			body.assign(buf, OFS_AGGR_STATS_STATIC_HDR_LEN);
 			ofs_aggr_stats_request = (struct openflow12::ofp_aggregate_stats_request*)body.somem();
 			match.clear();
-			match.unpack((struct openflow12::ofp_match*)(buf + OFS_AGGR_STATS_STATIC_HDR_LEN),
+			match.unpack(buf + OFS_AGGR_STATS_STATIC_HDR_LEN,
 					buflen - OFS_AGGR_STATS_STATIC_HDR_LEN);
 		};
 		/**
@@ -298,7 +298,7 @@ public:
 					be32toh(ofs_aggr_stats_request->out_group),
 					be64toh(ofs_aggr_stats_request->cookie),
 					be64toh(ofs_aggr_stats_request->cookie_mask)));
-			info.append(match.c_str());
+			//info.append(match.c_str());
 			return info.c_str();
 		};
 };

@@ -49,15 +49,3 @@ cfspentry::operator= (cfspentry& entry)
 }
 
 
-const char*
-cfspentry::c_str()
-{
-	cvastring vas(1024);
-
-	info.assign(vas("cfspentry(%p) fspowner:%p ofmatch:%s",
-			this,
-			fspowner,
-			ofmatch.c_str()));
-
-	return info.c_str();
-}

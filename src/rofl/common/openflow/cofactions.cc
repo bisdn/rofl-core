@@ -16,9 +16,7 @@ cofactions::cofactions(
 
 
 cofactions::cofactions(
-		uint8_t ofp_version,
-		struct openflow::ofp_action_header *achdr,
-		size_t aclen) :
+		uint8_t ofp_version, uint8_t *achdr, size_t aclen) :
 				ofp_version(ofp_version)
 {
 	unpack(achdr, aclen);
@@ -84,10 +82,10 @@ cofactions::find_action(uint8_t type,
 
 
 std::vector<cofaction>&
-cofactions::unpack(
-		struct openflow::ofp_action_header *achdr,
-		size_t aclen)
+cofactions::unpack(uint8_t* buf, size_t aclen)
 {
+	struct openflow::ofp_action_header *achdr = (struct openflow::ofp_action_header*)buf;
+
 	clear(); // clears elems
 
 	// sanity check: aclen must be of size at least of ofp_action_header
@@ -149,18 +147,15 @@ cofactions::unpack(
 }
 
 
-struct openflow::ofp_action_header*
-cofactions::pack(
-		struct openflow::ofp_action_header *achdr,
-		size_t aclen) const
+uint8_t*
+cofactions::pack(uint8_t* achdr, size_t aclen)
 {
 	if (aclen < length())
 		throw eAcListInval();
 
-	cofactions::const_iterator it;
+	cofactions::iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it) {
-		achdr = (struct openflow::ofp_action_header*)
-				((uint8_t*)((*it).pack(achdr, (*it).length())) + (*it).length());
+		achdr = ((uint8_t*)((*it).pack((uint8_t*)achdr, (*it).length())) + (*it).length());
 	}
 	return achdr;
 }

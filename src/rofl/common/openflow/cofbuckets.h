@@ -64,11 +64,8 @@ public: // methods
 	 * @param bclen
 	 * @return
 	 */
-	std::vector<cofbucket>&		// returns reference to this->bcvec
-	unpack(
-		uint8_t* buckets,
-		size_t bclen)
-	throw (eBucketBadLen, eBadActionBadOutPort);
+	std::vector<cofbucket>&
+	unpack(uint8_t* buckets, size_t bclen);
 
 
 	/**
@@ -77,11 +74,8 @@ public: // methods
 	 * @param bclen
 	 * @return
 	 */
-	uint8_t*				// returns parameter "struct ofp_bucket *buckets"
-	pack(
-		uint8_t* buckets,
-		size_t bclen) const
-	throw (eBcListInval);
+	uint8_t*
+	pack(uint8_t* buckets, size_t bclen);
 
 
 
@@ -94,45 +88,35 @@ public: // methods
 
 private:
 
-	/** stores cofbucket instances in this->bcvec from a packed array struct ofp_bucket (e.g. in struct ofp_group_mod)
+	/**
 	 */
-	std::vector<cofbucket>&		// returns reference to this->bcvec
-	unpack(
-		struct openflow12::ofp_bucket *buckets, // parses memory area buckets and creates cofbucket instance in this->bcvec
-		size_t bclen) 					// length of memory area to be parsed
-	throw (eBucketBadLen, eBadActionBadOutPort);
+	std::vector<cofbucket>&
+	unpack_of12(uint8_t* buf, size_t buflen);
 
-	/** builds an array of struct ofp_buckets from this->bcvec
+	/**
 	 */
-	struct openflow12::ofp_bucket*				// returns parameter "struct ofp_bucket *buckets"
-	pack(
-		struct openflow12::ofp_bucket *buckets, // pointer to memory area for storing this->bcvec
-		size_t bclen) const			// length of memory area
-	throw (eBcListInval);
+	uint8_t*
+	pack_of12(uint8_t* buf, size_t buflen);
 
-	/** stores cofbucket instances in this->bcvec from a packed array struct ofp_bucket (e.g. in struct ofp_group_mod)
+	/**
 	 */
-	std::vector<cofbucket>&		// returns reference to this->bcvec
-	unpack(
-		struct openflow13::ofp_bucket *buckets, // parses memory area buckets and creates cofbucket instance in this->bcvec
-		size_t bclen) 					// length of memory area to be parsed
-	throw (eBucketBadLen, eBadActionBadOutPort);
+	std::vector<cofbucket>&
+	unpack_of13(uint8_t* buf, size_t buflen);
 
-	/** builds an array of struct ofp_buckets from this->bcvec
+	/**
 	 */
-	struct openflow13::ofp_bucket*				// returns parameter "struct ofp_bucket *buckets"
-	pack(
-		struct openflow13::ofp_bucket *buckets, // pointer to memory area for storing this->bcvec
-		size_t bclen) const			// length of memory area
-	throw (eBcListInval);
+	uint8_t*
+	pack_of13(uint8_t* buf, size_t buflen);
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofbuckets const& buckets) {
-		os << "<cofbclist ";
-			os << dynamic_cast<coflist const&>( buckets ) << " ";
-		os << ">";
+		os << "<cofbuckets ofp-version:" << (int)buckets.ofp_version << ">";
+		for (coflist<cofbucket>::const_iterator
+				it = buckets.elems.begin(); it != buckets.elems.end(); ++it) {
+			os << "  " << (*it) << std::endl;
+		}
 		return os;
 	};
 };

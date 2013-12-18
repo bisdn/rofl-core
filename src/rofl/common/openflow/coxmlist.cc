@@ -94,27 +94,27 @@ coxmlist::unpack(
 	}
 
 	// first instruction
-	struct ofp_oxm_hdr *hdr = (struct ofp_oxm_hdr*)buf;
+	struct openflow::ofp_oxm_hdr *hdr = (struct openflow::ofp_oxm_hdr*)buf;
 
 
 	while (buflen > 0) {
-		if ((buflen < sizeof(struct ofp_oxm_hdr)) || (0 == hdr->oxm_length)) {
+		if ((buflen < sizeof(struct openflow::ofp_oxm_hdr)) || (0 == hdr->oxm_length)) {
 			return; // not enough bytes to parse an entire ofp_oxm_hdr, possibly padding bytes found
 		}
 
-		if (hdr->oxm_length > (sizeof(struct ofp_oxm_hdr) + buflen))
+		if (hdr->oxm_length > (sizeof(struct openflow::ofp_oxm_hdr) + buflen))
 			throw eBadMatchBadLen();
 
-		coxmatch oxm(hdr, sizeof(struct ofp_oxm_hdr) + hdr->oxm_length);
+		coxmatch oxm(hdr, sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length);
 
 		switch (oxm.get_oxm_class()) {
-		case OFPXMC_OPENFLOW_BASIC: {
-			if (oxm.get_oxm_field() >= OFPXMT_OFB_MAX) {
+		case openflow::OFPXMC_OPENFLOW_BASIC: {
+			if (oxm.get_oxm_field() >= openflow::OFPXMT_OFB_MAX) {
 				throw eBadMatchBadField();
 			}
 		} break;
-		case OFPXMC_EXPERIMENTER: {
-			if (oxm.get_oxm_field() >= OFPXMT_OFX_MAX) {
+		case openflow::OFPXMC_EXPERIMENTER: {
+			if (oxm.get_oxm_field() >= openflow::experimental::OFPXMT_OFX_MAX) {
 				throw eBadMatchBadField();
 			}
 		} break;
@@ -126,8 +126,8 @@ coxmlist::unpack(
 
 		matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch(oxm);
 
-		buflen -= (sizeof(struct ofp_oxm_hdr) + hdr->oxm_length);
-		hdr = (struct ofp_oxm_hdr*)(((uint8_t*)hdr) + sizeof(struct ofp_oxm_hdr) + hdr->oxm_length);
+		buflen -= (sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length);
+		hdr = (struct openflow::ofp_oxm_hdr*)(((uint8_t*)hdr) + sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length);
 	}
 }
 

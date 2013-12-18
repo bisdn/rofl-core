@@ -22,6 +22,7 @@ std::ostream logging::warn	(std::clog.rdbuf());
 std::ostream logging::notice(std::cout.rdbuf());
 std::ostream logging::info	(std::cout.rdbuf());
 std::ostream logging::debug	(std::cout.rdbuf());
+std::streamsize logging::width(70);
 
 
 
