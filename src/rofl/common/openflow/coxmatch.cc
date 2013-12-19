@@ -77,7 +77,7 @@ coxmatch::operator= (
 
 	cmemory::operator= (oxm);
 
-	oxm_header = (struct ofp_oxm_hdr*)somem();
+	oxm_header = (struct openflow::ofp_oxm_hdr*)somem();
 
 	return *this;
 }
@@ -132,11 +132,11 @@ void
 coxmatch::reset()
 {
 	clear();
-	oxm_header = (struct ofp_oxm_hdr*)somem();
+	oxm_header = (struct openflow::ofp_oxm_hdr*)somem();
 }
 
 
-struct ofp_oxm_hdr*
+struct openflow::ofp_oxm_hdr*
 coxmatch::sooxm() const
 {
 	return oxm_header;
@@ -173,11 +173,11 @@ coxmatch::unpack(
 	reset();
 
 	if (buflen > memlen()) {
-		oxm_header = (struct ofp_oxm_hdr*)resize(buflen);
+		oxm_generic = resize(buflen);
 	}
 
 	assign(buf, buflen);
-	oxm_header = (struct ofp_oxm_hdr*)somem();
+	oxm_generic = somem();
 }
 
 

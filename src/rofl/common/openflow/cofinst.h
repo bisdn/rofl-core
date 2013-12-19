@@ -96,7 +96,7 @@ public: // methods
 	 */
 	cofinst(
 			uint8_t ofp_version,
-			struct openflow::ofp_instruction *instruction,
+			uint8_t* instruction,
 			size_t inlen);
 
 	/** copy constructor
@@ -120,13 +120,13 @@ public: // methods
 
 	/** return pointer to ofp_instruction start
 	 */
-	struct ofp_instruction*
+	struct openflow::ofp_instruction*
 	soinst();
 
 	/** return length of action in bytes
 	 */
 	size_t
-	length() const throw (eInstructionInvalType);
+	length() const;
 
 	/** find specific action
 	 */

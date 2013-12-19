@@ -46,7 +46,6 @@ std::vector<cofinst>&
 cofinstructions::unpack(
 		uint8_t *instructions,
 		size_t inlen)
-throw (eInstructionBadLen)
 {
 	clear(); // clears bcvec
 
@@ -58,12 +57,11 @@ throw (eInstructionBadLen)
 	struct openflow::ofp_instruction *inhdr = (struct openflow::ofp_instruction*)instructions;
 
 
-	while (inlen > 0)
-	{
+	while (inlen > 0) {
 		if (be16toh(inhdr->len) < sizeof(struct openflow::ofp_instruction))
 			throw eInstructionBadLen();
 
-		next() = cofinst(ofp_version, inhdr, be16toh(inhdr->len) );
+		next() = cofinst(ofp_version, (uint8_t*)inhdr, be16toh(inhdr->len) );
 
 		inlen -= be16toh(inhdr->len);
 		inhdr = (struct openflow::ofp_instruction*)(((uint8_t*)inhdr) + be16toh(inhdr->len));
@@ -76,7 +74,7 @@ throw (eInstructionBadLen)
 uint8_t*
 cofinstructions::pack(
 		uint8_t *instructions,
-		size_t inlen) const throw (eInListInval)
+		size_t inlen)
 {
 	size_t needed_inlen = length();
 
@@ -85,12 +83,12 @@ cofinstructions::pack(
 
 	struct openflow::ofp_instruction *inhdr = (struct openflow::ofp_instruction*)instructions; // first instruction header
 
-	cofinstructions::const_iterator it;
+	cofinstructions::iterator it;
 	for (it = elems.begin(); it != elems.end(); ++it) {
-		cofinst const& inst = (*it);
+		cofinst& inst = (*it);
 
 		inhdr = (struct openflow::ofp_instruction*)
-				((uint8_t*)(inst.pack(inhdr, inst.length())) + inst.length());
+				((uint8_t*)(inst.pack((uint8_t*)inhdr, inst.length())) + inst.length());
 	}
 
 	return instructions;
