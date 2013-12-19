@@ -68,6 +68,14 @@ namespace openflow {
 	OFP_ASSERT(sizeof(struct ofp_error_msg) == 12);
 
 
+	/* What changed about the physical port */
+	enum ofp_port_reason {
+		OFPPR_ADD,              /* The port was added. */
+		OFPPR_DELETE,           /* The port was removed. */
+		OFPPR_MODIFY            /* Some attribute of the port has changed. */
+	};
+
+
 
 	/* Generic ofp_instruction structure */
 	struct ofp_instruction {

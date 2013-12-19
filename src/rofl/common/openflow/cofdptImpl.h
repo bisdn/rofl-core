@@ -689,18 +689,27 @@ private:
 			cofmsg_stats *msg);
 
 
-	/**
-	 * @name	table_stats_reply_rcvd
-	 * @brief	Called by cofdpt when a TABLE-STATS-reply was received.
-	 *
-	 * Stores parameters received in internal variables.
-	 * Calls method fwdelem->handle_table_stats_reply().
-	 *
-	 * @param[in] pack The OpenFlow message received.
-	 */
+
 	void
-	table_stats_reply_rcvd(
-			cofmsg_table_stats_reply *msg);
+	desc_stats_reply_rcvd(cofmsg_desc_stats_reply* msg);
+	void
+	table_stats_reply_rcvd(cofmsg_table_stats_reply *msg);
+	void
+	port_stats_reply_rcvd(cofmsg_port_stats_reply* msg);
+	void
+	flow_stats_reply_rcvd(cofmsg_flow_stats_reply* msg);
+	void
+	aggregate_stats_reply_rcvd(cofmsg_aggr_stats_reply* msg);
+	void
+	queue_stats_reply_rcvd(cofmsg_queue_stats_reply* msg);
+	void
+	group_stats_reply_rcvd(cofmsg_group_stats_reply* msg);
+	void
+	group_desc_stats_reply_rcvd(cofmsg_group_desc_stats_reply* msg);
+	void
+	group_features_stats_reply_rcvd(cofmsg_group_features_stats_reply* msg);
+	void
+	experimenter_stats_reply_rcvd(cofmsg_experimenter_stats_reply* msg);
 
 
 	/**
@@ -912,7 +921,7 @@ private:
 	 *
 	 */
 	void
-	handle_message(
+	parse_message(
 			cmemory *mem);
 
 

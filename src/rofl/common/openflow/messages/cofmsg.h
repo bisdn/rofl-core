@@ -262,7 +262,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg const& msg) {
-		os << "<cofmsg ";
+		os << indent(0) << "<cofmsg ";
 			os << "version:" 				<< (int)msg.get_version() 			<< " ";
 			os << "type:" 					<< std::dec << (int)msg.get_type() 	<< " ";
 			os << "length:" 				<< (int)msg.get_length() 			<< " ";

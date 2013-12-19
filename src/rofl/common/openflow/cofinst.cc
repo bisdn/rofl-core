@@ -15,10 +15,13 @@ cofinst::cofinst(
 				actions(ofp_version),
 				instruction(size)
 {
-	WRITELOG(COFINST, DBG, "cofinst(%p)::cofinst() [1]", this);
-	oin_header = (struct ofp_instruction*)instruction.somem();
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION: break;
+	case openflow13::OFP_VERSION: break;
+	default: throw eBadVersion();
+	}
+	oin_generic = instruction.somem();
 	pthread_mutex_init(&inmutex, NULL);
-	//cofinst_set.insert(this);
 }
 
 
@@ -30,10 +33,13 @@ cofinst::cofinst(
 				actions(ofp_version),
 				instruction(inlen)
 {
-	WRITELOG(COFINST, DBG, "cofinst(%p)::cofinst() [2]", this);
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION: break;
+	case openflow13::OFP_VERSION: break;
+	default: throw eBadVersion();
+	}
 	pthread_mutex_init(&inmutex, NULL);
 	unpack(inhdr, inlen);
-	//cofinst_set.insert(this);
 }
 
 
@@ -46,8 +52,6 @@ cofinst::cofinst(cofinst const& inst)
 
 cofinst::~cofinst()
 {
-	//cofinst_set.erase(this);
-	WRITELOG(COFINST, DBG, "cofinst(%p)::~cofinst()", this);
 	pthread_mutex_destroy(&inmutex);
 }
 
@@ -58,12 +62,10 @@ cofinst::operator= (const cofinst& inst)
 	if (this == &inst)
 		return *this;
 
-	WRITELOG(COFINST, DBG, "cofinst(%p)::operator=() inst: %p", this, &inst);
-
-	this->ofp_version = inst.ofp_version;
-	this->actions = inst.actions;
-	this->instruction = inst.instruction;
-	this->oin_header = (struct ofp_instruction*)(this->instruction.somem());
+	this->ofp_version 	= inst.ofp_version;
+	this->actions 		= inst.actions;
+	this->instruction 	= inst.instruction;
+	this->oin_generic 	= this->instruction.somem();
 
 	return *this;
 }
@@ -81,60 +83,61 @@ void
 cofinst::resize(size_t len)
 {
 	instruction.resize(len);
-	oin_header = (struct openflow::ofp_instruction*)instruction.somem();
+	oin_generic = instruction.somem();
 }
 
 
-struct openflow::ofp_instruction*
-cofinst::pack(
-		struct openflow::ofp_instruction* inhdr,
-		size_t inlen) const throw (eInstructionInval)
+uint8_t*
+cofinst::pack(uint8_t* buf, size_t buflen)
 {
-	//Lock lock(&inmutex);
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: return pack_of12(buf, buflen);
+	default: throw eBadVersion();
+	}
+}
 
-	if (inlen < this->length())
+
+uint8_t*
+cofinst::pack_of12(uint8_t* buf, size_t buflen)
+{
+	if (buflen < this->length())
 		throw eInstructionInval();
 
-	//WRITELOG(CSYSLOG_ACTION, "soaction()=%p actionlen()=%d", soaction(), actionlen());
+	struct openflow::ofp_instruction *inhdr = (struct openflow::ofp_instruction*)buf;
 
 	inhdr->type = oin_header->type; // set type field, hint: this is already network byte order
 	inhdr->len  = htobe16(length()); // set length field
 
 	// step -2- copy all actions into the memory area for instructions APPLY/CLEAR/WRITE_ACTIONS
 	switch (be16toh(inhdr->type)) {
-	case OFPIT_APPLY_ACTIONS:
-	case OFPIT_CLEAR_ACTIONS:
-	case OFPIT_WRITE_ACTIONS:
-		{
-			size_t aclen = this->length() - sizeof(struct ofp_instruction);
-
-			actions.pack(((struct ofp_instruction_actions*)inhdr)->actions, aclen);
+	case openflow12::OFPIT_APPLY_ACTIONS:
+	case openflow12::OFPIT_CLEAR_ACTIONS:
+	case openflow12::OFPIT_WRITE_ACTIONS: {
+		if (buflen < (sizeof(struct openflow12::ofp_instruction_actions) + actions.length())) {
+			throw eInstructionInval();
 		}
-		break;
-
-	case OFPIT_WRITE_METADATA:
-		{
-			if (inlen < sizeof(struct ofp_instruction_write_metadata))
-			{
-				throw eInstructionInval();
-			}
-			memcpy(inhdr, oin_header, sizeof(struct ofp_instruction_write_metadata));
+		size_t aclen = this->length() - sizeof(struct openflow::ofp_instruction);
+		actions.pack((uint8_t*)((struct openflow12::ofp_instruction_actions*)inhdr)->actions, aclen);
+	} break;
+	case openflow12::OFPIT_WRITE_METADATA: {
+		if (buflen < sizeof(struct ofp_instruction_write_metadata)) {
+			throw eInstructionInval();
 		}
-		break;
-
-	case OFPIT_GOTO_TABLE:
-		{
-			if (inlen < sizeof(struct ofp_instruction_goto_table))
-			{
-				throw eInstructionInval();
-			}
-			memcpy(inhdr, oin_header, sizeof(struct ofp_instruction_goto_table));
+		memcpy(inhdr, oin_header, sizeof(struct ofp_instruction_write_metadata));
+	} break;
+	case openflow12::OFPIT_GOTO_TABLE: {
+		if (buflen < sizeof(struct ofp_instruction_goto_table)) {
+			throw eInstructionInval();
 		}
-		break;
-
-	case OFPIT_EXPERIMENTER:
+		memcpy(inhdr, oin_header, sizeof(struct ofp_instruction_goto_table));
+	} break;
+	case openflow12::OFPIT_EXPERIMENTER:
 		// do nothing for now
+		logging::warn << "[rofl][instruction] unsupported experimental instruction type: " << (int)inhdr->type << std::endl;
 		break;
+	default:
+		logging::error << "[rofl][instruction] unsupported instruction type: " << (int)inhdr->type << std::endl;
 	}
 
 	oin_header->len = htobe16(length());

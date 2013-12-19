@@ -309,19 +309,19 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_flow_mod const& msg) {
-		os << indent(0) << "<cofmsg_flow_mod ";
-			os << dynamic_cast<cofmsg const&>( msg ) << std::endl;
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg ) << std::endl;
+		os << indent(2) << "<cofmsg_flow_mod ";
 			os << "command:" 		<< (int)msg.get_command() << " ";
 			os << "cookie:" 		<< (unsigned long long)msg.get_cookie() << " ";
 			os << "cookie-mask:" 	<< (unsigned long long)msg.get_cookie_mask() << " " << std::endl;
-			os << "table-id:" 		<< (int)msg.get_table_id() << " ";
-			os << "idle-timeout:" 	<< (int)msg.get_idle_timeout() << " ";
+			os << "table-id:" 		<< (int)msg.get_table_id() << " " << std::endl;
+		os << indent(4) << "idle-timeout:" 	<< (int)msg.get_idle_timeout() << " ";
 			os << "hard-timeout:" 	<< (int)msg.get_hard_timeout() << " " << std::endl;
 			os << "priority:" 		<< (int)msg.get_priority() << " ";
 			os << "buffer-id:" 		<< (int)msg.get_buffer_id() << " ";
 			os << "flags:" 			<< (int)msg.get_flags() << " " << std::endl;
-			os << "match:" 			<< msg.match << std::endl;
 			os << ">";
+		os << indent(2) << "match:"	<< msg.match << std::endl;
 			switch (msg.get_version()) {
 			case OFP10_VERSION: {
 				os << indent(2) << msg.actions << " ";

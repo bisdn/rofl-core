@@ -759,16 +759,33 @@ namespace openflow13 {
 	#endif
 	};
 
-
-
 	// A3.3 Flow Table Configuration
 
 	/* unaltered message types since OpenFlow 1.2, config constants have changed */
 
-	/* Flags to configure the table. Reserved for future use. */
+
+	/* Flags to indicate behavior of the flow table for unmatched packets.
+	   These flags are used in ofp_table_stats messages to describe the current
+	   configuration and in ofp_table_mod messages to configure table behavior. */
 	enum ofp_table_config {
-		OFPTC_DEPRECATED_MASK	= 3, 	/* Deprecated bits */
+		OFPTC_TABLE_MISS_CONTROLLER = 0,    /* Send to controller. */
+		OFPTC_TABLE_MISS_CONTINUE   = 1, 	/* Continue to the next table in the
+												 pipeline (OpenFlow 1.0
+												 behavior). */
+		OFPTC_TABLE_MISS_DROP       = 2, 	/* Drop the packet. */
+		OFPTC_DEPRECATED_MASK		= 3, 	/* Deprecated bits */
 	};
+
+	/* Table numbering. Tables can use any number up to OFPT_MAX. */
+	enum ofp_table {
+		/* Last usable table number. */
+		OFPTT_MAX = 0xfe,
+		/* Fake tables. */
+		OFPTT_ALL = 0xff
+		/* Wildcard table used for table config,
+		   flow stats and flow deletes. */
+	};
+
 
 	/* Configure/Modify behavior of a flow table */
 	struct ofp_table_mod {
@@ -778,6 +795,7 @@ namespace openflow13 {
 		uint32_t config;        /* Bitmap of OFPTC_* flags */
 	};
 	OFP_ASSERT(sizeof(struct ofp_table_mod) == 16);
+
 
 
 	// A3.4 Modify State Messages

@@ -54,6 +54,9 @@ public: // data structures
 	cofactions actions;	// vector of cofaction instances
 
 	union {
+		// generic
+		uint8_t												*oinu_generic;
+
 		// OpenFlow 1.2
 		struct openflow12::ofp_instruction  				*oinu12_header;
 		struct openflow12::ofp_instruction_goto_table		*oinu12_goto_table;
@@ -71,6 +74,7 @@ public: // data structures
 
 	} oin_oinu;
 
+#define oin_generic			oin_oinu.oinu_generic			// generic pointer to cmemory::instruction.somem()
 #define oin_header 			oin_oinu.oinu12_header			// instruction: plain header
 #define oin_goto_table 		oin_oinu.oinu12_goto_table		// instruction: goto table
 #define oin_actions 		oin_oinu.oinu12_actions			// instruction: actions
@@ -131,17 +135,13 @@ public: // methods
 
 	/** copy struct ofp_action_header
 	 */
-	virtual struct openflow::ofp_instruction*
-	pack(
-			struct openflow::ofp_instruction* inhdr,
-			size_t inlen) const throw (eInstructionInval);
+	virtual uint8_t*
+	pack(uint8_t* buf, size_t buflen);
 
 	/** unpack
 	 */
 	virtual void
-	unpack(
-			struct openflow::ofp_instruction *inhdr,
-			size_t inlen) throw (eInstructionBadLen, eInstructionBadExperimenter);
+	unpack(uint8_t* buf, size_t buflen);
 
 
 	/**
@@ -188,6 +188,19 @@ public: // methods
 	{
 		oin_header->len = htobe16(len);
 	};
+
+private:
+
+	/** copy struct ofp_action_header
+	 */
+	virtual uint8_t*
+	pack_of12(uint8_t* buf, size_t buflen);
+
+	/** unpack
+	 */
+	virtual void
+	unpack_of12(uint8_t* buf, size_t buflen);
+
 
 protected: // data structures
 

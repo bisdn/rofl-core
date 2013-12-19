@@ -67,9 +67,6 @@ cofdptImpl::cofdptImpl(
 				barrier_reply_timeout(DEFAULT_DP_BARRIER_REPLY_TIMEOUT),
 				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT)
 {
-	WRITELOG(COFDPT, DBG, "cofdpt(%p)::cofdpt() "
-			"dpid:%"PRIu64" ", this, dpid);
-
 #ifndef NDEBUG
         caddress raddr(ra);
         fprintf(stderr, "A:dpt[%s] ", raddr.c_str());
@@ -77,7 +74,7 @@ cofdptImpl::cofdptImpl(
 
 	init_state(COFDPT_STATE_DISCONNECTED);
 
-        register_timer(COFDPT_TIMER_SEND_HELLO, 0);
+    register_timer(COFDPT_TIMER_SEND_HELLO, 0);
 }
 
 
@@ -113,10 +110,6 @@ cofdptImpl::cofdptImpl(
 				barrier_reply_timeout(DEFAULT_DP_BARRIER_REPLY_TIMEOUT),
 				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT)
 {
-	WRITELOG(COFDPT, DBG, "cofdpt(%p)::cofdpt() "
-			"dpid:%"PRIu64" ",
-			this, dpid);
-
 	init_state(COFDPT_STATE_DISCONNECTED);
 
 	dptflags.set(COFDPT_FLAG_ACTIVE_SOCKET);
@@ -131,8 +124,7 @@ cofdptImpl::cofdptImpl(
 cofdptImpl::~cofdptImpl()
 {
 	// remove all cofport instances
-	while (not ports.empty())
-	{
+	while (not ports.empty()) {
 		delete (ports.begin()->second);
 	}
 }
@@ -285,7 +277,7 @@ cofdptImpl::handle_read(
 					// ok, message was received completely
 					if (msg_len == msg_bytes_read) {
 						fragment = (cmemory*)0;
-						handle_message(mem);
+						parse_message(mem);
 						return;
 					}
 				}
@@ -294,7 +286,7 @@ cofdptImpl::handle_read(
 
 	} catch (eOFpacketInval& e) {
 
-		logging::warn << "dropping invalid packet " << *mem << std::endl;
+		logging::warn << "[rofl][dpt] dpid:" << dpid << "dropping invalid packet " << *mem << std::endl;
 		if (mem) {
 			delete mem; fragment = (cmemory*)0;
 		}
@@ -317,12 +309,9 @@ cofdptImpl::handle_closed(
 	flags.reset(COFDPT_FLAG_HELLO_SENT);
 	flags.reset(COFDPT_FLAG_HELLO_RCVD);
 
-	if (dptflags.test(COFDPT_FLAG_ACTIVE_SOCKET))
-	{
+	if (dptflags.test(COFDPT_FLAG_ACTIVE_SOCKET)) {
 		try_to_connect(true);
-	}
-	else
-	{
+	} else {
 		rofbase->handle_dpt_close(this);
 	}
 }
@@ -330,15 +319,13 @@ cofdptImpl::handle_closed(
 
 
 void
-cofdptImpl::handle_message(
+cofdptImpl::parse_message(
 		cmemory *mem)
 {
 	cofmsg *msg = (cofmsg*)0;
 
 	try {
 		if (0 == mem) {
-			writelog(COFDPT, WARN, "cofdpt(%p)::handle_message() "
-					"assert(msg != 0) failed", this);
 			return;
 		}
 
@@ -356,119 +343,93 @@ cofdptImpl::handle_message(
 
 			switch (ofh_header->type) {
 			case openflow10::OFPT_HELLO: {
-				msg = new cofmsg_hello(mem);
-				msg->validate();
+				(msg = new cofmsg_hello(mem))->validate();
 				hello_rcvd(dynamic_cast<cofmsg_hello*>( msg ));
 			} break;
 			case openflow10::OFPT_ECHO_REQUEST: {
-				msg = new cofmsg_echo_request(mem);
-				msg->validate();
+				(msg = new cofmsg_echo_request(mem))->validate();
 				echo_request_rcvd(dynamic_cast<cofmsg_echo_request*>( msg ));
 			} break;
 			case openflow10::OFPT_ECHO_REPLY: {
-				msg = new cofmsg_echo_reply(mem);
-				msg->validate();
+				(msg = new cofmsg_echo_reply(mem))->validate();
 				echo_reply_rcvd(dynamic_cast<cofmsg_echo_reply*>( msg ));
 			} break;
 			case openflow10::OFPT_VENDOR:	{
-				msg = new cofmsg_experimenter(mem);
-				msg->validate();
+				(msg = new cofmsg_experimenter(mem))->validate();
 				experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ));
 			} break;
 			case openflow10::OFPT_FEATURES_REPLY: {
 				rofbase->ta_validate(be32toh(ofh_header->xid), openflow10::OFPT_FEATURES_REQUEST);
-				msg = new cofmsg_features_reply(mem);
-				msg->validate();
+				(msg = new cofmsg_features_reply(mem))->validate();
 				features_reply_rcvd(dynamic_cast<cofmsg_features_reply*>( msg ));
 			} break;
 			case openflow10::OFPT_GET_CONFIG_REPLY: {
 				rofbase->ta_validate(be32toh(ofh_header->xid), openflow10::OFPT_GET_CONFIG_REQUEST);
-				msg = new cofmsg_get_config_reply(mem);
-				msg->validate();
+				(msg = new cofmsg_get_config_reply(mem))->validate();
 				get_config_reply_rcvd(dynamic_cast<cofmsg_get_config_reply*>( msg ));
 			} break;
 			case openflow10::OFPT_PACKET_IN: {
-				msg = new cofmsg_packet_in(mem);
-				msg->validate();
+				(msg = new cofmsg_packet_in(mem))->validate();
 				packet_in_rcvd(dynamic_cast<cofmsg_packet_in*>( msg ));
 			} break;
 			case openflow10::OFPT_FLOW_REMOVED: {
-				msg = new cofmsg_flow_removed(mem);
-				msg->validate();
+				(msg = new cofmsg_flow_removed(mem))->validate();
 				flow_rmvd_rcvd(dynamic_cast<cofmsg_flow_removed*>( msg ));
 			} break;
 			case openflow10::OFPT_PORT_STATUS: {
-				msg = new cofmsg_port_status(mem);
-				msg->validate();
+				(msg = new cofmsg_port_status(mem))->validate();
 				port_status_rcvd(dynamic_cast<cofmsg_port_status*>( msg ));
 			} break;
 			case openflow10::OFPT_STATS_REPLY: {
 				rofbase->ta_validate(be32toh(ofh_header->xid), openflow10::OFPT_STATS_REQUEST);
-				uint16_t stats_type = 0;
-				switch (ofh_header->version) {
-				case openflow10::OFP_VERSION: {
-					if (mem->memlen() < sizeof(struct openflow10::ofp_stats_reply)) {
-						msg = new cofmsg(mem);
-						throw eBadSyntaxTooShort();
-					}
-					stats_type = be16toh(((struct openflow10::ofp_stats_reply*)mem->somem())->type);
-				} break;
-				case openflow12::OFP_VERSION: {
-					if (mem->memlen() < sizeof(struct openflow12::ofp_stats_reply)) {
-						msg = new cofmsg(mem);
-						throw eBadSyntaxTooShort();
-					}
-					stats_type = be16toh(((struct openflow12::ofp_stats_reply*)mem->somem())->type);
-				} break;
-				case openflow13::OFP_VERSION: {
-					if (mem->memlen() < sizeof(struct openflow13::ofp_multipart_reply)) {
-						msg = new cofmsg(mem);
-						throw eBadSyntaxTooShort();
-					}
-					stats_type = be16toh(((struct openflow13::ofp_multipart_reply*)mem->somem())->type);
-				} break;
-				default:
-					throw eBadVersion();
+
+				if (mem->memlen() < sizeof(struct openflow10::ofp_stats_reply)) {
+					msg = new cofmsg(mem);
+					throw eBadSyntaxTooShort();
 				}
+				uint16_t stats_type = be16toh(((struct openflow10::ofp_stats_reply*)mem->somem())->type);
 
 				switch (stats_type) {
 				case openflow10::OFPST_DESC: {
-					msg = new cofmsg_desc_stats_reply(mem);
+					(msg = new cofmsg_desc_stats_reply(mem))->validate();
+					desc_stats_reply_rcvd(dynamic_cast<cofmsg_desc_stats_reply*>( msg ));
 				} break;
 				case openflow10::OFPST_FLOW: {
-					msg = new cofmsg_flow_stats_reply(mem);
+					(msg = new cofmsg_flow_stats_reply(mem))->validate();
+					flow_stats_reply_rcvd(dynamic_cast<cofmsg_flow_stats_reply*>( msg ));
 				} break;
 				case openflow10::OFPST_AGGREGATE: {
-					msg = new cofmsg_aggr_stats_reply(mem);
+					(msg = new cofmsg_aggr_stats_reply(mem))->validate();
+					aggregate_stats_reply_rcvd(dynamic_cast<cofmsg_aggr_stats_reply*>( msg ));
 				} break;
 				case openflow10::OFPST_TABLE: {
-					msg = new cofmsg_table_stats_reply(mem);
+					(msg = new cofmsg_table_stats_reply(mem))->validate();
+					table_stats_reply_rcvd(dynamic_cast<cofmsg_table_stats_reply*>( msg ));
 				} break;
 				case openflow10::OFPST_PORT: {
-					msg = new cofmsg_port_stats_reply(mem);
+					(msg = new cofmsg_port_stats_reply(mem))->validate();
+					port_stats_reply_rcvd(dynamic_cast<cofmsg_port_stats_reply*>( msg ));
 				} break;
 				case openflow10::OFPST_QUEUE: {
-					msg = new cofmsg_queue_stats_reply(mem);
+					(msg = new cofmsg_queue_stats_reply(mem))->validate();
+					queue_stats_reply_rcvd(dynamic_cast<cofmsg_queue_stats_reply*>( msg ));
 				} break;
 				// TODO: experimenter statistics
 				default: {
-					msg = new cofmsg_stats_reply(mem);
+					(msg = new cofmsg_stats_reply(mem))->validate();
+					stats_reply_rcvd(dynamic_cast<cofmsg_stats*>( msg ));
 				} break;
 				}
 
-				msg->validate();
-				stats_reply_rcvd(dynamic_cast<cofmsg_stats_reply*>( msg ));
 			} break;
 			case openflow10::OFPT_BARRIER_REPLY: {
 				rofbase->ta_validate(be32toh(ofh_header->xid), openflow10::OFPT_BARRIER_REQUEST);
-				msg = new cofmsg_barrier_reply(mem);
-				msg->validate();
+				(msg = new cofmsg_barrier_reply(mem))->validate();
 				barrier_reply_rcvd(dynamic_cast<cofmsg_barrier_reply*>( msg ));
 			} break;
 			case openflow10::OFPT_QUEUE_GET_CONFIG_REPLY: {
 				rofbase->ta_validate(be32toh(ofh_header->xid), openflow10::OFPT_QUEUE_GET_CONFIG_REQUEST);
-				msg = new cofmsg_queue_get_config_reply(mem);
-				msg->validate();
+				(msg = new cofmsg_queue_get_config_reply(mem))->validate();
 				queue_get_config_reply_rcvd(dynamic_cast<cofmsg_queue_get_config_reply*>( msg ));
 			} break;
 			default: {
@@ -484,140 +445,115 @@ cofdptImpl::handle_message(
 
 			switch (ofh_header->type) {
 			case openflow12::OFPT_HELLO: {
-				msg = new cofmsg_hello(mem);
-				msg->validate();
+				(msg = new cofmsg_hello(mem))->validate();
 				hello_rcvd(dynamic_cast<cofmsg_hello*>( msg ));
 			} break;
 			case openflow12::OFPT_ECHO_REQUEST: {
-				msg = new cofmsg_echo_request(mem);
-				msg->validate();
+				(msg = new cofmsg_echo_request(mem))->validate();
 				echo_request_rcvd(dynamic_cast<cofmsg_echo_request*>( msg ));
 			} break;
 			case openflow12::OFPT_ECHO_REPLY: {
-				msg = new cofmsg_echo_reply(mem);
-				msg->validate();
+				(msg = new cofmsg_echo_reply(mem))->validate();
 				echo_reply_rcvd(dynamic_cast<cofmsg_echo_reply*>( msg ));
 			} break;
 			case openflow12::OFPT_EXPERIMENTER:	{
-				msg = new cofmsg_experimenter(mem);
-				msg->validate();
+				(msg = new cofmsg_experimenter(mem))->validate();
 				experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ));
 			} break;
 			case openflow12::OFPT_FEATURES_REPLY: {
 				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_FEATURES_REQUEST);
-				msg = new cofmsg_features_reply(mem);
-				msg->validate();
+				(msg = new cofmsg_features_reply(mem))->validate();
 				features_reply_rcvd(dynamic_cast<cofmsg_features_reply*>( msg ));
 			} break;
 			case openflow12::OFPT_GET_CONFIG_REPLY: {
 				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_GET_CONFIG_REQUEST);
-				msg = new cofmsg_get_config_reply(mem);
-				msg->validate();
+				(msg = new cofmsg_get_config_reply(mem))->validate();
 				get_config_reply_rcvd(dynamic_cast<cofmsg_get_config_reply*>( msg ));
 			} break;
 			case openflow12::OFPT_PACKET_IN: {
-				msg = new cofmsg_packet_in(mem);
-				msg->validate();
+				(msg = new cofmsg_packet_in(mem))->validate();
 				packet_in_rcvd(dynamic_cast<cofmsg_packet_in*>( msg ));
 			} break;
 			case openflow12::OFPT_FLOW_REMOVED: {
-				msg = new cofmsg_flow_removed(mem);
-				msg->validate();
+				(msg = new cofmsg_flow_removed(mem))->validate();
 				flow_rmvd_rcvd(dynamic_cast<cofmsg_flow_removed*>( msg ));
 			} break;
 			case openflow12::OFPT_PORT_STATUS: {
-				msg = new cofmsg_port_status(mem);
-				msg->validate();
+				(msg = new cofmsg_port_status(mem))->validate();
 				port_status_rcvd(dynamic_cast<cofmsg_port_status*>( msg ));
 			} break;
 			case openflow12::OFPT_STATS_REPLY: {
 				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_STATS_REQUEST);
-				uint16_t stats_type = 0;
-				switch (ofh_header->version) {
-				case openflow10::OFP_VERSION: {
-					if (mem->memlen() < sizeof(struct openflow10::ofp_stats_reply)) {
-						msg = new cofmsg(mem);
-						throw eBadSyntaxTooShort();
-					}
-					stats_type = be16toh(((struct openflow10::ofp_stats_reply*)mem->somem())->type);
-				} break;
-				case openflow12::OFP_VERSION: {
-					if (mem->memlen() < sizeof(struct openflow12::ofp_stats_reply)) {
-						msg = new cofmsg(mem);
-						throw eBadSyntaxTooShort();
-					}
-					stats_type = be16toh(((struct openflow12::ofp_stats_reply*)mem->somem())->type);
-				} break;
-				case openflow13::OFP_VERSION: {
-					if (mem->memlen() < sizeof(struct openflow13::ofp_multipart_reply)) {
-						msg = new cofmsg(mem);
-						throw eBadSyntaxTooShort();
-					}
-					stats_type = be16toh(((struct openflow13::ofp_multipart_reply*)mem->somem())->type);
-				} break;
-				default:
-					throw eBadVersion();
+
+				if (mem->memlen() < sizeof(struct openflow12::ofp_stats_reply)) {
+					msg = new cofmsg(mem);
+					throw eBadSyntaxTooShort();
 				}
+				uint16_t stats_type = be16toh(((struct openflow12::ofp_stats_reply*)mem->somem())->type);
 
 				switch (stats_type) {
 				case openflow12::OFPST_DESC: {
-					msg = new cofmsg_desc_stats_reply(mem);
+					(msg = new cofmsg_desc_stats_reply(mem))->validate();
+					desc_stats_reply_rcvd(dynamic_cast<cofmsg_desc_stats_reply*>( msg ));
 				} break;
 				case openflow12::OFPST_FLOW: {
-					msg = new cofmsg_flow_stats_reply(mem);
+					(msg = new cofmsg_flow_stats_reply(mem))->validate();
+					flow_stats_reply_rcvd(dynamic_cast<cofmsg_flow_stats_reply*>( msg ));
 				} break;
 				case openflow12::OFPST_AGGREGATE: {
-					msg = new cofmsg_aggr_stats_reply(mem);
+					(msg = new cofmsg_aggr_stats_reply(mem))->validate();
+					aggregate_stats_reply_rcvd(dynamic_cast<cofmsg_aggr_stats_reply*>( msg ));
 				} break;
 				case openflow12::OFPST_TABLE: {
-					msg = new cofmsg_table_stats_reply(mem);
+					(msg = new cofmsg_table_stats_reply(mem))->validate();
+					table_stats_reply_rcvd(dynamic_cast<cofmsg_table_stats_reply*>( msg ));
 				} break;
 				case openflow12::OFPST_PORT: {
-					msg = new cofmsg_port_stats_reply(mem);
+					(msg = new cofmsg_port_stats_reply(mem))->validate();
+					port_stats_reply_rcvd(dynamic_cast<cofmsg_port_stats_reply*>( msg ));
 				} break;
 				case openflow12::OFPST_QUEUE: {
-					msg = new cofmsg_queue_stats_reply(mem);
+					(msg = new cofmsg_queue_stats_reply(mem))->validate();
+					queue_stats_reply_rcvd(dynamic_cast<cofmsg_queue_stats_reply*>( msg ));
 				} break;
 				case openflow12::OFPST_GROUP: {
-					msg = new cofmsg_group_stats_reply(mem);
+					(msg = new cofmsg_group_stats_reply(mem))->validate();
+					group_stats_reply_rcvd(dynamic_cast<cofmsg_group_stats_reply*>( msg ));
 				} break;
 				case openflow12::OFPST_GROUP_DESC: {
-					msg = new cofmsg_group_desc_stats_reply(mem);
+					(msg = new cofmsg_group_desc_stats_reply(mem))->validate();
+					group_desc_stats_reply_rcvd(dynamic_cast<cofmsg_group_desc_stats_reply*>( msg ));
 				} break;
 				case openflow12::OFPST_GROUP_FEATURES: {
-					msg = new cofmsg_group_features_stats_reply(mem);
+					(msg = new cofmsg_group_features_stats_reply(mem))->validate();
+					group_features_stats_reply_rcvd(dynamic_cast<cofmsg_group_features_stats_reply*>( msg ));
 				} break;
 				// TODO: experimenter statistics
 				default: {
-					msg = new cofmsg_stats_reply(mem);
+					(msg = new cofmsg_stats_reply(mem))->validate();
+					stats_reply_rcvd(dynamic_cast<cofmsg_stats_reply*>( msg ));
 				} break;
 				}
 
-				msg->validate();
-				stats_reply_rcvd(dynamic_cast<cofmsg_stats_reply*>( msg ));
 			} break;
 			case openflow12::OFPT_BARRIER_REPLY: {
 				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_BARRIER_REQUEST);
-				msg = new cofmsg_barrier_reply(mem);
-				msg->validate();
+				(msg = new cofmsg_barrier_reply(mem))->validate();
 				barrier_reply_rcvd(dynamic_cast<cofmsg_barrier_reply*>( msg ));
 			} break;
 			case openflow12::OFPT_QUEUE_GET_CONFIG_REPLY: {
 				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_QUEUE_GET_CONFIG_REQUEST);
-				msg = new cofmsg_queue_get_config_reply(mem);
-				msg->validate();
+				(msg = new cofmsg_queue_get_config_reply(mem))->validate();
 				queue_get_config_reply_rcvd(dynamic_cast<cofmsg_queue_get_config_reply*>( msg ));
 			} break;
 			case openflow12::OFPT_ROLE_REPLY: {
 				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_ROLE_REQUEST);
-				msg = new cofmsg_role_reply(mem);
-				msg->validate();
+				(msg = new cofmsg_role_reply(mem))->validate();
 				role_reply_rcvd(dynamic_cast<cofmsg_role_reply*>( msg ));
 			} break;
 			case openflow12::OFPT_GET_ASYNC_REPLY: {
 				rofbase->ta_validate(be32toh(ofh_header->xid), openflow12::OFPT_GET_ASYNC_REQUEST);
-				msg = new cofmsg_get_async_config_reply(mem);
-				msg->validate();
+				(msg = new cofmsg_get_async_config_reply(mem))->validate();
 				get_async_config_reply_rcvd(dynamic_cast<cofmsg_get_async_config_reply*>( msg ));
 			} break;
 			default: {
@@ -633,18 +569,17 @@ cofdptImpl::handle_message(
 
 	} catch (eBadSyntaxTooShort& e) {
 
-		logging::warn << "eBadSyntaxTooShort " << *mem << std::endl;
-
+		logging::error << "eBadSyntaxTooShort " << *mem << std::endl;
 		delete msg;
+
 	} catch (eBadVersion& e) {
 
 		logging::warn << "eBadVersion " << *mem << std::endl;
-
 		delete msg;
+
 	} catch (eRofBaseXidInval& e) {
 
 		logging::warn << "eRofBaseXidInval " << *mem << std::endl;
-
 		delete msg;
 	}
 }
@@ -1066,8 +1001,7 @@ cofdptImpl::features_reply_rcvd(
 void
 cofdptImpl::handle_features_reply_timeout()
 {
-	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_features_reply_timeout() ", this);
-
+	logging::warn << "[rofl][dpt] dpid:" << dpid << " Features request expired" << std::endl;
 	rofbase->handle_features_reply_timeout(this);
 }
 
@@ -1091,10 +1025,6 @@ cofdptImpl::get_config_reply_rcvd(
 	config = msg->get_flags();
 	miss_send_len = msg->get_miss_send_len();
 
-	WRITELOG(COFDPT, DBG, "cofdpt(%p)::get_config_reply_rcvd() "
-			"dpid:%"PRIu64" ",
-			this, dpid);
-
 	rofbase->handle_get_config_reply(this, msg);
 
 	if (COFDPT_STATE_WAIT_GET_CONFIG == cur_state())
@@ -1106,13 +1036,13 @@ cofdptImpl::get_config_reply_rcvd(
 			rofbase->handle_dpt_open(this);
 
 		} break;
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			// send stats request during initialization
-			rofbase->send_stats_request(this, OFPST_TABLE, 0);
-
+		case openflow12::OFP_VERSION: {
+			rofbase->send_stats_request(this, openflow12::OFPST_TABLE, 0);
 			new_state(COFDPT_STATE_WAIT_TABLE_STATS);
-
+		} break;
+		case openflow13::OFP_VERSION: {
+			rofbase->send_stats_request(this, openflow13::OFPST_TABLE, 0);
+			new_state(COFDPT_STATE_WAIT_TABLE_STATS);
 		} break;
 		}
 
@@ -1124,10 +1054,7 @@ cofdptImpl::get_config_reply_rcvd(
 void
 cofdptImpl::handle_get_config_reply_timeout()
 {
-	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_get_config_reply_timeout() "
-			"dpid:%"PRIu64" ",
-			this, dpid);
-
+	logging::warn << "[rofl][dpt] dpid:" << dpid << " Get-Config request expired" << std::endl;
 	rofbase->handle_get_config_reply_timeout(this);
 }
 
@@ -1185,56 +1112,7 @@ cofdptImpl::stats_reply_rcvd(
 		throw eBadVersion();
 	}
 
-	WRITELOG(COFDPT, DBG, "cofdpt(%p)::stats_reply_rcvd() "
-			"dpid:%"PRIu64" ",
-			this, dpid);
-
-	// msg->get_stats_reply() !!!
-	switch (msg->get_stats_type()) {
-	case OFPST_DESC: {
-		rofbase->handle_desc_stats_reply(this, dynamic_cast<cofmsg_desc_stats_reply*>( msg ));
-	} break;
-	case OFPST_TABLE: {
-		table_stats_reply_rcvd(dynamic_cast<cofmsg_table_stats_reply*>( msg ));
-	} break;
-	case OFPST_PORT: {
-		rofbase->handle_port_stats_reply(this, dynamic_cast<cofmsg_port_stats_reply*>( msg ));
-	} break;
-	case OFPST_FLOW: {
-		rofbase->handle_flow_stats_reply(this, dynamic_cast<cofmsg_flow_stats_reply*>( msg ));
-	} break;
-	case OFPST_AGGREGATE: {
-		rofbase->handle_aggregate_stats_reply(this, dynamic_cast<cofmsg_aggr_stats_reply*>( msg ));
-	} break;
-	case OFPST_QUEUE: {
-		rofbase->handle_queue_stats_reply(this, dynamic_cast<cofmsg_queue_stats_reply*>( msg ));
-	} break;
-	case OFPST_GROUP: {
-		rofbase->handle_group_stats_reply(this, dynamic_cast<cofmsg_group_stats_reply*>( msg ));
-	} break;
-	case OFPST_GROUP_DESC: {
-		rofbase->handle_group_desc_stats_reply(this, dynamic_cast<cofmsg_group_desc_stats_reply*>( msg ));
-	} break;
-	case OFPST_GROUP_FEATURES: {
-		rofbase->handle_group_features_stats_reply(this, dynamic_cast<cofmsg_group_features_stats_reply*>( msg ));
-	} break;
-	case OFPST_EXPERIMENTER: {
-		rofbase->handle_experimenter_stats_reply(this, dynamic_cast<cofmsg_experimenter_stats_reply*>( msg ));
-	} break;
-	default: {
-		WRITELOG(COFCTL, WARN, "cofctl(%p)::recv_stats_request() "
-				"unknown stats request type (%d)",
-				this, msg->get_type());
-		rofbase->handle_stats_reply(this, dynamic_cast<cofmsg_stats*>( msg ));
-	} break;
-	}
-
-	if (COFDPT_STATE_WAIT_TABLE_STATS == cur_state()) // enter state running during initialization
-	{
-		new_state(COFDPT_STATE_CONNECTED);
-
-		rofbase->handle_dpt_open(this);
-	}
+	rofbase->handle_stats_reply(this, dynamic_cast<cofmsg_stats*>( msg ));
 }
 
 
@@ -1242,9 +1120,7 @@ cofdptImpl::stats_reply_rcvd(
 void
 cofdptImpl::handle_stats_reply_timeout()
 {
-	WRITELOG(COFDPT, DBG, "cofdpt(%p)::handle_stats_reply_timeout() "
-			"dpid:%"PRIu64" ",
-			this, dpid);
+	logging::warn << "[rofl][dpt] dpid:" << dpid << " Stats request expired" << std::endl;
 
 	uint8_t msg_type = 0;
 
@@ -1260,24 +1136,27 @@ cofdptImpl::handle_stats_reply_timeout()
 restart:
 	for (cxidstore::iterator
 				it = xidstore[msg_type].begin();
-							it != xidstore[msg_type].end(); ++it)
-	{
+							it != xidstore[msg_type].end(); ++it) {
 		cxidtrans& xidt = it->second;
 
-		if (xidt.timeout <= cclock::now())
-		{
+		if (xidt.timeout <= cclock::now()) {
 			rofbase->handle_stats_reply_timeout(this, xidt.xid);
-
 			xidstore[msg_type].xid_rem(xidt.xid);
-
 			goto restart;
 		}
 	}
 
-	if (not xidstore.empty())
-	{
+	if (not xidstore.empty()) {
 		reset_timer(COFDPT_TIMER_STATS_REPLY, stats_reply_timeout);
 	}
+}
+
+
+
+void
+cofdptImpl::desc_stats_reply_rcvd(cofmsg_desc_stats_reply *msg)
+{
+	rofbase->handle_desc_stats_reply(this, msg);
 }
 
 
@@ -1296,6 +1175,76 @@ cofdptImpl::table_stats_reply_rcvd(
 	}
 
 	rofbase->handle_table_stats_reply(this,  msg);
+
+	if (COFDPT_STATE_WAIT_TABLE_STATS == cur_state()) {
+		new_state(COFDPT_STATE_CONNECTED);
+
+		rofbase->handle_dpt_open(this);
+	}
+}
+
+
+
+void
+cofdptImpl::port_stats_reply_rcvd(cofmsg_port_stats_reply* msg)
+{
+	rofbase->handle_port_stats_reply(this, msg);
+}
+
+
+
+void
+cofdptImpl::flow_stats_reply_rcvd(cofmsg_flow_stats_reply* msg)
+{
+	rofbase->handle_flow_stats_reply(this, msg);
+}
+
+
+
+void
+cofdptImpl::aggregate_stats_reply_rcvd(cofmsg_aggr_stats_reply* msg)
+{
+	rofbase->handle_aggregate_stats_reply(this, msg);
+}
+
+
+
+void
+cofdptImpl::queue_stats_reply_rcvd(cofmsg_queue_stats_reply* msg)
+{
+	rofbase->handle_queue_stats_reply(this, msg);
+}
+
+
+
+void
+cofdptImpl::group_stats_reply_rcvd(cofmsg_group_stats_reply* msg)
+{
+	rofbase->handle_group_stats_reply(this, msg);
+}
+
+
+
+void
+cofdptImpl::group_desc_stats_reply_rcvd(cofmsg_group_desc_stats_reply* msg)
+{
+	rofbase->handle_group_desc_stats_reply(this, msg);
+}
+
+
+
+void
+cofdptImpl::group_features_stats_reply_rcvd(cofmsg_group_features_stats_reply* msg)
+{
+	rofbase->handle_group_features_stats_reply(this, msg);
+}
+
+
+
+void
+cofdptImpl::experimenter_stats_reply_rcvd(cofmsg_experimenter_stats_reply* msg)
+{
+	rofbase->handle_experimenter_stats_reply(this, msg);
 }
 
 
@@ -1419,8 +1368,20 @@ void
 cofdptImpl::flow_mod_reset()
 {
 	cflowentry fe(ofp_version);
-	fe.set_command(OFPFC_DELETE);
-	fe.set_table_id(OFPTT_ALL /*all tables*/);
+	switch (ofp_version) {
+	case openflow10::OFP_VERSION: {
+		fe.set_command(openflow10::OFPFC_DELETE);
+	} break;
+	case openflow12::OFP_VERSION: {
+		fe.set_command(openflow12::OFPFC_DELETE);
+		fe.set_table_id(openflow12::OFPTT_ALL /*all tables*/);
+	} break;
+	case openflow13::OFP_VERSION: {
+		fe.set_command(openflow13::OFPFC_DELETE);
+		fe.set_table_id(openflow13::OFPTT_ALL /*all tables*/);
+	} break;
+	default: throw eBadVersion();
+	}
 
 	rofbase->send_flow_mod_message(this, fe); // calls this->flow_mod_sent() implicitly
 }
@@ -1440,8 +1401,18 @@ void
 cofdptImpl::group_mod_reset()
 {
 	cgroupentry ge(get_version());
-	ge.set_command(OFPGC_DELETE);
-	ge.set_group_id(OFPG12_ALL);
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION: {
+		ge.set_command(openflow12::OFPGC_DELETE);
+		ge.set_group_id(openflow12::OFPG_ALL);
+	} break;
+	case openflow13::OFP_VERSION: {
+		ge.set_command(openflow13::OFPGC_DELETE);
+		ge.set_group_id(openflow13::OFPG_ALL);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
 	rofbase->send_group_mod_message(this, ge); // calls this->group_mod_sent() implicitly
 }
@@ -1527,38 +1498,23 @@ cofdptImpl::port_status_rcvd(cofmsg_port_status *msg)
 {
 	std::map<uint32_t, cofport*>::iterator it;
 	switch (msg->get_reason()) {
-	case OFPPR_ADD: {
-		if (ports.find(msg->get_port().get_port_no()) == ports.end())
-		{
-			//cofport *lport = new cofport(&ports, be32toh(pack->ofh_port_status->desc.port_no), &(pack->ofh_port_status->desc), sizeof(struct ofp_port));
+	case openflow::OFPPR_ADD: {
+		if (ports.find(msg->get_port().get_port_no()) == ports.end()) {
 			new cofport(msg->get_port(), &ports, msg->get_port().get_port_no());
-
-			// let derived class handle PORT-STATUS message
-			//rofbase->handle_port_status(this, pack, lport);
 			rofbase->handle_port_status(this, msg);
 		}
 	} break;
-	case OFPPR_DELETE: {
-		if (ports.find(msg->get_port().get_port_no()) != ports.end())
-		{
+	case openflow::OFPPR_DELETE: {
+		if (ports.find(msg->get_port().get_port_no()) != ports.end()) {
 			uint32_t port_no = msg->get_port().get_port_no();
-			// let derived class handle PORT-STATUS message
-			//rofbase->handle_port_status(this, pack, ports[port_no]);
 			rofbase->handle_port_status(this, msg);
-
-			// do not access pack here, as it was already deleted by rofbase->handle_port_status() !!!
 			delete ports[port_no];
-
 			ports.erase(port_no);
 		}
 	} break;
-	case OFPPR_MODIFY: {
-		if (ports.find(msg->get_port().get_port_no()) != ports.end())
-		{
+	case openflow::OFPPR_MODIFY: {
+		if (ports.find(msg->get_port().get_port_no()) != ports.end()) {
 			*(ports[msg->get_port().get_port_no()]) = msg->get_port();
-
-			// let derived class handle PORT-STATUS message
-			//rofbase->handle_port_status(this, pack, ports[be32toh(pack->ofh_port_status->desc.port_no)]);
 			rofbase->handle_port_status(this, msg);
 		}
 	} break;
