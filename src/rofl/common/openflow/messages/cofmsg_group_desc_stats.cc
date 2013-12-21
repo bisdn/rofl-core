@@ -175,8 +175,13 @@ cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 		set_stats_type(openflow12::OFPST_GROUP_DESC);
 		resize(length());
 		size_t offset = 0;
-		for (unsigned int i = 0; i < group_desc_stats.size(); i++) {
-			group_desc_stats[i].pack(soframe() + sizeof(struct openflow12::ofp_stats_reply) + offset, group_desc_stats[i].length());
+		std::vector<cofgroup_desc_stats_reply> tmp;
+		for (std::vector<cofgroup_desc_stats_reply>::const_iterator
+				it = group_desc_stats.begin(); it != group_desc_stats.end(); ++it) {
+			tmp.push_back(*it);
+		}
+		for (unsigned int i = 0; i < tmp.size(); i++) {
+			tmp[i].pack(soframe() + sizeof(struct openflow12::ofp_stats_reply) + offset, tmp[i].length());
 			offset += group_desc_stats[i].length();
 		}
 	} break;

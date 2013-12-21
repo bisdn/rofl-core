@@ -429,8 +429,18 @@ cofqueue_prop_max_rate::operator= (
 	if (this == &qp)
 		return *this;
 
-	if (OFPQT_MAX_RATE != qp.get_property())
-		throw eInval();
+	switch (of_version) {
+	case openflow12::OFP_VERSION: {
+		if (openflow12::OFPQT_MAX_RATE != qp.get_property())
+			throw eInval();
+	} break;
+	case openflow13::OFP_VERSION: {
+		if (openflow13::OFPQT_MAX_RATE != qp.get_property())
+			throw eInval();
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
 	unpack(qp.somem(), qp.memlen());
 
@@ -537,17 +547,18 @@ cofqueue_prop_expr::cofqueue_prop_expr(
 	switch (of_version) {
 	case openflow12::OFP_VERSION: {
 		resize(sizeof(struct openflow12::ofp_queue_prop_experimenter));
+		ofq_expr = somem();
+		set_property(openflow12::OFPQT_EXPERIMENTER);
+		set_length(memlen());
 	} break;
 	case openflow13::OFP_VERSION: {
+		assert(0);
 		throw eNotImplemented();
 	} break;
 	default: {
 		throw eBadVersion();
 	}
 	}
-	ofq_expr = somem();
-	set_property(OFPQT_EXPERIMENTER);
-	set_length(memlen());
 }
 
 
@@ -593,8 +604,15 @@ cofqueue_prop_expr::operator= (
 	if (this == &qp)
 		return *this;
 
-	if (OFPQT_EXPERIMENTER != qp.get_property())
-		throw eInval();
+	switch (of_version) {
+	case openflow12::OFP_VERSION: {
+		if (openflow12::OFPQT_EXPERIMENTER != qp.get_property())
+			throw eInval();
+	} break;
+	default:
+		assert(0);
+		throw eBadVersion();
+	}
 
 	unpack(qp.somem(), qp.memlen());
 

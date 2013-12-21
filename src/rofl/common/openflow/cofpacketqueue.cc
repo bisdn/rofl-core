@@ -189,10 +189,10 @@ cofpacket_queue::get_queue_id() const
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
-		return be32toh(openflow10::ofp_pqueue->queue_id);
+		return be32toh(ofp10_pqueue->queue_id);
 	} break;
 	case openflow12::OFP_VERSION: {
-		return be32toh(openflow12::ofp_pqueue->queue_id);
+		return be32toh(ofp12_pqueue->queue_id);
 	} break;
 	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
@@ -212,10 +212,10 @@ cofpacket_queue::set_queue_id(
 {
 	switch(of_version) {
 	case openflow10::OFP_VERSION: {
-		openflow10::ofp_pqueue->queue_id = htobe32(queue_id);
+		ofp10_pqueue->queue_id = htobe32(queue_id);
 	} break;
 	case openflow12::OFP_VERSION: {
-		openflow12::ofp_pqueue->queue_id = htobe32(queue_id);
+		ofp12_pqueue->queue_id = htobe32(queue_id);
 	} break;
 	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
@@ -233,7 +233,7 @@ cofpacket_queue::get_port() const
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION: {
-		return be32toh(openflow12::ofp_pqueue->port);
+		return be32toh(ofp12_pqueue->port);
 	} break;
 	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
@@ -253,7 +253,7 @@ cofpacket_queue::set_port(
 {
 	switch(of_version) {
 	case openflow12::OFP_VERSION: {
-		openflow12::ofp_pqueue->port = htobe32(port_no);
+		ofp12_pqueue->port = htobe32(port_no);
 	} break;
 	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();

@@ -236,7 +236,7 @@ cofflow_stats_request::pack(uint8_t *buf, size_t buflen)
 		struct openflow10::ofp_flow_stats_request *req = (struct openflow10::ofp_flow_stats_request*)buf;
 		req->table_id 	= table_id;
 		req->out_port 	= htobe16((uint16_t)(out_port & 0x0000ffff));
-		match.pack(&(req->match), sizeof(struct openflow10::ofp_match));
+		match.pack((uint8_t*)&(req->match), sizeof(struct openflow10::ofp_match));
 	} break;
 	case openflow12::OFP_VERSION: {
 		if (buflen < (sizeof(struct openflow12::ofp_flow_stats_request) - sizeof(struct openflow12::ofp_match) + match.length()))
@@ -248,7 +248,7 @@ cofflow_stats_request::pack(uint8_t *buf, size_t buflen)
 		req->out_group		= htobe32(out_group);
 		req->cookie			= htobe64(cookie);
 		req->cookie_mask 	= htobe64(cookie_mask);
-		match.pack(&(req->match), buflen - sizeof(struct openflow12::ofp_flow_stats_request) + sizeof(struct openflow12::ofp_match));
+		match.pack((uint8_t*)&(req->match), buflen - sizeof(struct openflow12::ofp_flow_stats_request) + sizeof(struct openflow12::ofp_match));
 	} break;
 	default:
 		throw eBadVersion();
@@ -267,7 +267,7 @@ cofflow_stats_request::unpack(uint8_t *buf, size_t buflen)
 
 		struct openflow10::ofp_flow_stats_request *req = (struct openflow10::ofp_flow_stats_request*)buf;
 
-		match.unpack(&(req->match), sizeof(struct openflow10::ofp_match));
+		match.unpack((uint8_t*)&(req->match), sizeof(struct openflow10::ofp_match));
 		table_id 		= req->table_id;
 		out_port 		= (uint32_t)(be16toh(req->out_port));
 	} break;
@@ -277,7 +277,7 @@ cofflow_stats_request::unpack(uint8_t *buf, size_t buflen)
 
 		struct openflow12::ofp_flow_stats_request *req = (struct openflow12::ofp_flow_stats_request*)buf;
 
-		match.unpack(&(req->match), buflen - sizeof(struct openflow12::ofp_flow_stats_request) + sizeof(struct openflow12::ofp_match));
+		match.unpack((uint8_t*)&(req->match), buflen - sizeof(struct openflow12::ofp_flow_stats_request) + sizeof(struct openflow12::ofp_match));
 		table_id 		= req->table_id;
 		out_port 		= be32toh(req->out_port);
 		out_group 		= be32toh(req->out_group);
@@ -439,7 +439,7 @@ cofflow_stats_reply::pack(uint8_t *buf, size_t buflen)
 
 		fs->length 			= htobe16(length());
 		fs->table_id 		= table_id;
-		match.pack(&(fs->match), sizeof(struct openflow10::ofp_match));
+		match.pack((uint8_t*)&(fs->match), sizeof(struct openflow10::ofp_match));
 		fs->duration_sec 	= htobe32(duration_sec);
 		fs->duration_nsec 	= htobe32(duration_nsec);
 		fs->priority		= htobe16(priority);
@@ -448,7 +448,7 @@ cofflow_stats_reply::pack(uint8_t *buf, size_t buflen)
 		fs->cookie			= htobe64(cookie);
 		fs->packet_count	= htobe64(packet_count);
 		fs->byte_count		= htobe64(byte_count);
-		actions.pack(fs->actions, buflen - sizeof(struct openflow10::ofp_flow_stats));
+		actions.pack((uint8_t*)(fs->actions), buflen - sizeof(struct openflow10::ofp_flow_stats));
 
 	} break;
 	case openflow12::OFP_VERSION: {
@@ -467,7 +467,7 @@ cofflow_stats_reply::pack(uint8_t *buf, size_t buflen)
 		fs->cookie			= htobe64(cookie);
 		fs->packet_count	= htobe64(packet_count);
 		fs->byte_count		= htobe64(byte_count);
-		match.pack(&(fs->match), match.length());
+		match.pack((uint8_t*)&(fs->match), match.length());
 		instructions.pack((((uint8_t*)&(fs->match)) + match.length()), instructions.length());
 
 	} break;
@@ -498,8 +498,8 @@ cofflow_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		packet_count	= be64toh(fs->packet_count);
 		byte_count		= be64toh(fs->byte_count);
 
-		match.unpack(&(fs->match), sizeof(struct openflow10::ofp_match));
-		actions.unpack(fs->actions, buflen - sizeof(struct openflow10::ofp_flow_stats));
+		match.unpack((uint8_t*)&(fs->match), sizeof(struct openflow10::ofp_match));
+		actions.unpack((uint8_t*)fs->actions, buflen - sizeof(struct openflow10::ofp_flow_stats));
 
 	} break;
 	case openflow12::OFP_VERSION: {
@@ -530,7 +530,7 @@ cofflow_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		if (buflen < (sizeof(struct openflow12::ofp_flow_stats) - 4 + matchlen))
 			throw eInval();
 
-		match.unpack(&(fs->match), matchlen);
+		match.unpack((uint8_t*)&(fs->match), matchlen);
 		instructions.unpack((buf + sizeof(struct openflow12::ofp_flow_stats) - sizeof(struct openflow12::ofp_match) + matchlen),
 									buflen - sizeof(struct openflow12::ofp_flow_stats) + sizeof(struct openflow12::ofp_match) - matchlen);
 

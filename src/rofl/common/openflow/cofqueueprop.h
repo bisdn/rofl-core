@@ -8,6 +8,14 @@
 #ifndef COFQUEUEPROP_H_
 #define COFQUEUEPROP_H_ 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <assert.h>
+#ifdef __cplusplus
+}
+#endif
+
 #include <ostream>
 #include <endian.h>
 #ifndef htobe16

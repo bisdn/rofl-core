@@ -88,8 +88,23 @@ cpacket::cpacket(
 
 	pthread_rwlock_init(&ac_rwlock, NULL);
 
-	match.set_in_port(OFPP12_CONTROLLER); 		// FIXME: OpenFlow version dependencies !!!
-	match.set_in_phy_port(OFPP12_CONTROLLER);
+	struct openflow::ofp_header *ofp = (struct openflow::ofp_header*)(mem->somem());
+
+	switch (ofp->version) {
+	case openflow10::OFP_VERSION: {
+		match.set_in_port(openflow10::OFPP_CONTROLLER); 		// FIXME: OpenFlow version dependencies !!!
+		match.set_in_phy_port(openflow12::OFPP_CONTROLLER);
+	} break;
+	case openflow12::OFP_VERSION: {
+		match.set_in_port(OFPP12_CONTROLLER); 		// FIXME: OpenFlow version dependencies !!!
+		match.set_in_phy_port(OFPP12_CONTROLLER);
+	} break;
+	case openflow13::OFP_VERSION: {
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
 	if (do_classify)
 	{

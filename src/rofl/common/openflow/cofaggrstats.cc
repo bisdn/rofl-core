@@ -230,7 +230,7 @@ cofaggr_stats_request::pack(uint8_t *buf, size_t buflen)
 		struct openflow10::ofp_flow_stats_request *req = (struct openflow10::ofp_flow_stats_request*)buf;
 		req->table_id 	= table_id;
 		req->out_port 	= htobe16((uint16_t)(out_port & 0x0000ffff));
-		match.pack(&(req->match), sizeof(struct openflow10::ofp_match));
+		match.pack((uint8_t*)&(req->match), sizeof(struct openflow10::ofp_match));
 	} break;
 	case openflow12::OFP_VERSION: {
 		if (buflen < (sizeof(struct openflow12::ofp_flow_stats_request) - sizeof(struct openflow12::ofp_match) + match.length()))
@@ -242,7 +242,7 @@ cofaggr_stats_request::pack(uint8_t *buf, size_t buflen)
 		req->out_group		= htobe32(out_group);
 		req->cookie			= htobe64(cookie);
 		req->cookie_mask 	= htobe64(cookie_mask);
-		match.pack(&(req->match), buflen - sizeof(struct openflow12::ofp_flow_stats_request) + sizeof(struct openflow12::ofp_match));
+		match.pack((uint8_t*)&(req->match), buflen - sizeof(struct openflow12::ofp_flow_stats_request) + sizeof(struct openflow12::ofp_match));
 	} break;
 	default:
 		throw eBadVersion();
@@ -261,7 +261,7 @@ cofaggr_stats_request::unpack(uint8_t *buf, size_t buflen)
 
 		struct openflow10::ofp_flow_stats_request *req = (struct openflow10::ofp_flow_stats_request*)buf;
 
-		match.unpack(&(req->match), sizeof(struct openflow10::ofp_match));
+		match.unpack((uint8_t*)&(req->match), sizeof(struct openflow10::ofp_match));
 		table_id 		= req->table_id;
 		out_port 		= (uint32_t)(be16toh(req->out_port));
 	} break;
@@ -271,7 +271,7 @@ cofaggr_stats_request::unpack(uint8_t *buf, size_t buflen)
 
 		struct openflow12::ofp_flow_stats_request *req = (struct openflow12::ofp_flow_stats_request*)buf;
 
-		match.unpack(&(req->match), buflen - sizeof(struct openflow12::ofp_flow_stats_request) + sizeof(struct openflow12::ofp_match));
+		match.unpack((uint8_t*)&(req->match), buflen - sizeof(struct openflow12::ofp_flow_stats_request) + sizeof(struct openflow12::ofp_match));
 		table_id 		= req->table_id;
 		out_port 		= be32toh(req->out_port);
 		out_group 		= be32toh(req->out_group);

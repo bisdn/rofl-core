@@ -58,7 +58,7 @@ cofgroup_desc_stats_reply::operator= (
 
 
 void
-cofgroup_desc_stats_reply::pack(uint8_t *buf, size_t buflen) const
+cofgroup_desc_stats_reply::pack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION: {
@@ -71,7 +71,7 @@ cofgroup_desc_stats_reply::pack(uint8_t *buf, size_t buflen) const
 		stats->type			= type;
 		stats->group_id		= htobe32(group_id);
 
-		buckets.pack((uint8_t*)stats->buckets, buckets.length());
+		buckets.pack((uint8_t*)(stats->buckets), buckets.length());
 
 	} break;
 	default:

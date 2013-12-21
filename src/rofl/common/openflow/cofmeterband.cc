@@ -308,8 +308,14 @@ cofmeter_band_drop::operator= (
 	if (this == &mb)
 		return *this;
 
-	if (OFPMBT_DROP != mb.get_type())
-		throw eInval();
+	switch (of_version) {
+	case openflow13::OFP_VERSION: {
+		if (openflow13::OFPMBT_DROP != mb.get_type())
+			throw eInval();
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
 	unpack(mb.somem(), mb.memlen());
 
@@ -384,14 +390,14 @@ cofmeter_band_dscp_remark::cofmeter_band_dscp_remark(
 	case openflow12::OFP_VERSION: {
 		resize(sizeof(struct openflow13::ofp_meter_band_dscp_remark));
 		set_length(sizeof(struct openflow13::ofp_meter_band_dscp_remark));
+		ofm_dscp_remark = somem();
+		set_type(openflow13::OFPMBT_DSCP_REMARK);
+		set_prec_level(prec_level);
 	} break;
 	default: {
 		throw eBadVersion();
 	}
 	}
-	ofm_dscp_remark = somem();
-	set_type(OFPMBT_DSCP_REMARK);
-	set_prec_level(prec_level);
 }
 
 
@@ -420,8 +426,14 @@ cofmeter_band_dscp_remark::operator= (
 	if (this == &mb)
 		return *this;
 
-	if (OFPMBT_DSCP_REMARK != mb.get_type())
-		throw eInval();
+	switch (of_version) {
+	case openflow13::OFP_VERSION: {
+		if (openflow13::OFPMBT_DSCP_REMARK != mb.get_type())
+			throw eInval();
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
 	unpack(mb.somem(), mb.memlen());
 
@@ -528,13 +540,13 @@ cofmeter_band_expr::cofmeter_band_expr(
 	case openflow13::OFP_VERSION: {
 		resize(sizeof(struct openflow13::ofp_meter_band_experimenter) + body.memlen());
 		set_length(sizeof(struct openflow13::ofp_meter_band_experimenter) + body.memlen());
+		ofm_expr = somem();
+		set_type(openflow13::OFPMBT_EXPERIMENTER);
 	} break;
 	default: {
 		throw eBadVersion();
 	}
 	}
-	ofm_expr = somem();
-	set_type(OFPMBT_EXPERIMENTER);
 }
 
 
@@ -582,8 +594,14 @@ cofmeter_band_expr::operator= (
 	if (this == &mb)
 		return *this;
 
-	if (OFPMBT_EXPERIMENTER != mb.get_type())
-		throw eInval();
+	switch (of_version) {
+	case openflow13::OFP_VERSION: {
+		if (openflow13::OFPMBT_EXPERIMENTER != mb.get_type())
+			throw eInval();
+	} break;
+	default:
+		throw eBadVersion();
+	}
 
 	of_version = mb.get_version();
 	unpack(mb.somem(), mb.memlen());
