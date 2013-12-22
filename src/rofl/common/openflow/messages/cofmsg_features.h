@@ -91,6 +91,15 @@ public:
 	 */
 	virtual void
 	validate();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_features_request const& msg) {
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_features_request >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -283,6 +292,45 @@ public:
 	 */
 	cofportlist&
 	get_ports();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_features_reply const& msg) {
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_features_reply ";
+		switch (msg.get_version()) {
+		case openflow10::OFP_VERSION: {
+			os << "dpid:" 			<< msg.get_dpid() 				<< " ";
+			os << "#buffers:" 		<< (int)msg.get_n_buffers() 	<< " ";
+			os << "#tables:" 		<< (int)msg.get_n_tables() 		<< " ";
+			os << "capabilities:" 	<< (int)msg.get_capabilities() 	<< " ";
+			os << "actions:" 		<< (int)msg.get_actions_bitmap() << " ";
+			os << " >" << std::endl;
+			os << indent(2) << msg.ports;
+		} break;
+		case openflow12::OFP_VERSION: {
+			os << "dpid:" 			<< msg.get_dpid() 				<< " ";
+			os << "#buffers:" 		<< (int)msg.get_n_buffers() 	<< " ";
+			os << "#tables:" 		<< (int)msg.get_n_tables() 		<< " ";
+			os << "capabilities:" 	<< (int)msg.get_capabilities() 	<< " ";
+			os << " >" << std::endl;
+			os << indent(2) << msg.ports;
+		} break;
+		case openflow13::OFP_VERSION: {
+			os << "dpid:" 			<< msg.get_dpid() 				<< " ";
+			os << "#buffers:" 		<< (int)msg.get_n_buffers() 	<< " ";
+			os << "#tables:" 		<< (int)msg.get_n_tables() 		<< " ";
+			os << "capabilities:" 	<< (int)msg.get_capabilities() 	<< " ";
+			os << " >" << std::endl;
+			os << indent(2) << msg.ports;
+		} break;
+		default: {
+
+		} break;
+		}
+		return os;
+	};
 };
 
 } // end of namespace rofl

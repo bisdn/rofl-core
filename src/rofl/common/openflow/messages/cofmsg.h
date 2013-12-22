@@ -267,9 +267,7 @@ public:
 			os << "type:" 					<< std::dec << (int)msg.get_type() 	<< " ";
 			os << "length:" 				<< (int)msg.get_length() 			<< " ";
 			os << "xid:" 		<< std::hex << (int)msg.get_xid() << std::dec 	<< " ";
-			os << "buffer:" 	<< std::endl;
-			os << *(msg.memarea) << std::endl;
-		os << ">";
+		os << ">" << std::endl;
 		return os;
 	};
 };

@@ -8,7 +8,7 @@ cofmsg_hello::cofmsg_hello(
 		uint8_t* data,
 		size_t datalen) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
-	body(0)
+	body((size_t)0)
 {
 	body.assign(data, datalen);
 
@@ -35,7 +35,8 @@ cofmsg_hello::cofmsg_hello(
 
 cofmsg_hello::cofmsg_hello(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	body((size_t)0)
 {
 
 }

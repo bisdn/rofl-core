@@ -79,7 +79,7 @@ cofinstructions::pack(
 	size_t needed_inlen = length();
 
 	if (inlen < needed_inlen)
-		throw eInListInval();
+		throw eInstructionsInval();
 
 	struct openflow::ofp_instruction *inhdr = (struct openflow::ofp_instruction*)instructions; // first instruction header
 
@@ -108,16 +108,93 @@ cofinstructions::length() const
 
 
 
+cofinst_goto_table&
+cofinstructions::get_inst_goto_table()
+{
+	if (instructions.find(openflow::OFPIT_GOTO_TABLE) == instructions.end())
+		throw eInstructionsNotFound();
+#ifndef NDEBUG
+	assert(dynamic_cast<cofinst_goto_table*>( instructions[openflow::OFPIT_GOTO_TABLE]));
+#endif
+	return *(dynamic_cast<cofinst_goto_table*>( instructions[openflow::OFPIT_GOTO_TABLE] ));
+}
+
+
+
+cofinst_write_metadata&
+cofinstructions::get_inst_write_metadata()
+{
+	if (instructions.find(openflow::OFPIT_WRITE_METADATA) == instructions.end())
+		throw eInstructionsNotFound();
+#ifndef NDEBUG
+	assert(dynamic_cast<cofinst_write_metadata*>( instructions[openflow::OFPIT_WRITE_METADATA]));
+#endif
+	return *(dynamic_cast<cofinst_write_metadata*>( instructions[openflow::OFPIT_WRITE_METADATA] ));
+}
+
+
+
+cofinst_write_actions&
+cofinstructions::get_inst_write_actions()
+{
+	if (instructions.find(openflow::OFPIT_WRITE_ACTIONS) == instructions.end())
+		throw eInstructionsNotFound();
+#ifndef NDEBUG
+	assert(dynamic_cast<cofinst_write_actions*>( instructions[openflow::OFPIT_WRITE_ACTIONS]));
+#endif
+	return *(dynamic_cast<cofinst_write_actions*>( instructions[openflow::OFPIT_WRITE_ACTIONS] ));
+}
+
+
+
+cofinst_apply_actions&
+cofinstructions::get_inst_apply_actions()
+{
+	if (instructions.find(openflow::OFPIT_APPLY_ACTIONS) == instructions.end())
+		throw eInstructionsNotFound();
+#ifndef NDEBUG
+	assert(dynamic_cast<cofinst_apply_actions*>( instructions[openflow::OFPIT_APPLY_ACTIONS]));
+#endif
+	return *(dynamic_cast<cofinst_apply_actions*>( instructions[openflow::OFPIT_APPLY_ACTIONS] ));
+}
+
+
+
+cofinst_clear_actions&
+cofinstructions::get_inst_clear_actions()
+{
+	if (instructions.find(openflow::OFPIT_CLEAR_ACTIONS) == instructions.end())
+		throw eInstructionsNotFound();
+#ifndef NDEBUG
+	assert(dynamic_cast<cofinst_clear_actions*>( instructions[openflow::OFPIT_CLEAR_ACTIONS]));
+#endif
+	return *(dynamic_cast<cofinst_clear_actions*>( instructions[openflow::OFPIT_CLEAR_ACTIONS] ));
+}
+
+
+
+cofinst_meter&
+cofinstructions::get_inst_meter()
+{
+	if (instructions.find(openflow::OFPIT_METER) == instructions.end())
+		throw eInstructionsNotFound();
+#ifndef NDEBUG
+	assert(dynamic_cast<cofinst_meter*>( instructions[openflow::OFPIT_METER]));
+#endif
+	return *(dynamic_cast<cofinst_meter*>( instructions[openflow::OFPIT_METER] ));
+}
+
+
 
 cofinst&
 cofinstructions::find_inst(
 		uint8_t type)
-throw (eInListNotFound)
+throw (eInstructionsNotFound)
 {
 	cofinstructions::iterator it;
 	if ((it = find_if(elems.begin(), elems.end(),
 			cofinst_find_type((uint16_t)type))) == elems.end()) {
-		throw eInListNotFound();
+		throw eInstructionsNotFound();
 	}
 	return (*it);
 }

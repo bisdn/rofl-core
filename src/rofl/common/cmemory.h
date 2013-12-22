@@ -15,6 +15,7 @@
 #include "../platform/unix/csyslog.h"
 #include "cvastring.h"
 #include "cerror.h"
+#include "logging.h"
 
 namespace rofl
 {
@@ -382,20 +383,26 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cmemory const& mem) {
-		os << "<cmemory: ";
+		os << indent(0) << "<cmemory: ";
 			os << "data:" << (void*)mem.data.first << " ";
 			os << "datalen:" << (int)mem.data.second << " ";
-			os << "buffer:" << std::endl;
-			for (unsigned int i=0; i < mem.data.second; i++) {
-				if (0 == (i % 64))
-					os << (std::dec) << (i/64) << ": ";
-				os << (std::hex) << (int)(*(mem.somem() + i)) << " ";
-				if (0 == ((i+1) % 8))
-					os << "  ";
-				if (0 == ((i+1) % 64))
-					os << std::endl;
+			os << ">" << std::endl;
+
+			if (mem.data.second > 0) {
+				for (unsigned int i=0; i < mem.data.second; i++) {
+					if (0 == (i % 64))
+						os << std::setw(4) << (std::dec) << (i/64) << ": " << std::setw(0);
+					std::setfill("0");
+					os << (std::hex) << (int)(*(mem.somem() + i)) << " ";
+					std::setfill(" ");
+					if (0 == ((i+1) % 8))
+						os << "  ";
+					if (0 == ((i+1) % 64))
+						os << std::endl;
+				}
+				os << std::endl;
 			}
-		os << ">";
+
 		return os;
 	};
 };

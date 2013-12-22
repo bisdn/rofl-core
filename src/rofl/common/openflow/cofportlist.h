@@ -155,9 +155,14 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofportlist const& ofportlist) {
-		os << "<cofportlist ";
-			os << dynamic_cast<coflist const&>( ofportlist ) << " ";
-		os << ">";
+		os << indent(0) << "<cofportlist size:" << (int)ofportlist.size() << " >" << std::endl;;
+		os << indent(2) << dynamic_cast<coflist const&>( ofportlist );
+#if 0
+		for (cofportlist::const_iterator
+				it = ofportlist.begin(); it != ofportlist.end(); ++it) {
+			os << *it;
+		}
+#endif
 		return os;
 	};
 };

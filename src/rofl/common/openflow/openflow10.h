@@ -990,6 +990,17 @@ namespace openflow10 {
 	};
 	OFP_ASSERT(sizeof(struct ofp_queue_stats) == 32);
 
+	/* Table numbering. Tables can use any number up to OFPT_MAX. */
+	enum ofp_table {
+		/* Last usable table number. */
+		OFPTT_MAX = 0xfe,
+		/* Fake tables. */
+		OFPTT_ALL = 0xff
+		/* Wildcard table used for table config,
+		   flow stats and flow deletes. */
+	};
+
+
 }; // end of namespace openflow10
 }; // end of namespace rofl
 

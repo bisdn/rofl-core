@@ -11,6 +11,7 @@
 
 #include "cvastring.h"
 #include "cerror.h"
+#include "logging.h"
 
 #include "rofl/platform/unix/csyslog.h"
 
@@ -118,13 +119,11 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, coflist<T> const& oflist) {
-		os << "<coflist " << std::endl;
-			for (coflist<T>::const_iterator
-					it = oflist.begin(); it != oflist.end(); ++it) {
-				os << (*it);
-				os << std::endl;
-			}
-		os << ">";
+		os << indent(0) << "<coflist size:" << (int)oflist.size() << " >" << std::endl;
+		for (coflist<T>::const_iterator
+				it = oflist.begin(); it != oflist.end(); ++it) {
+			os << indent(2) << (*it); os << std::endl;
+		}
 		return os;
 	};
 };

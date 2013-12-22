@@ -161,110 +161,127 @@ cofctlImpl::set_role(uint32_t role)
 
 void
 cofctlImpl::send_message(
-		cofmsg *pack)
+		cofmsg *msg)
 {
 	const uint8_t OFPT_HELLO = 0; // == openflow10::OFPT_HELLO == openflow12::OFPT_HELLO == openflow13::OFPT_HELLO
 
-    if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (pack->get_type() != OFPT_HELLO))
+    if (not flags.test(COFCTL_FLAG_HELLO_RCVD) && (msg->get_type() != OFPT_HELLO))
     {
-    	logging::error << "dropping message (missing HELLO from peer) " << *pack << " " << *this << std::endl;
-        delete pack; return;
+    	logging::error << "dropping message (missing HELLO from peer) " << *msg << " " << *this << std::endl;
+        delete msg; return;
     }
 
-    switch (pack->get_version()) {
+    switch (msg->get_version()) {
     case openflow10::OFP_VERSION: {
 
-        switch (pack->get_type()) {
-        case openflow10::OFPT_HELLO:
+        switch (msg->get_type()) {
+        case openflow10::OFPT_HELLO: {
+        	logging::debug << "sending Hello message " << std::endl << *msg;
+        } break;
         case openflow10::OFPT_ERROR: {
-    		// ...
+        	logging::debug << "sending Error message " << std::endl << *msg;
     	} break;
         case openflow10::OFPT_ECHO_REQUEST: {
-    		echo_request_sent(pack);
+        	logging::debug << "sending Echo-Request message " << std::endl << *msg;
+    		echo_request_sent(msg);
     	} break;
         case openflow10::OFPT_ECHO_REPLY: {
-        	// do nothing here
+        	logging::debug << "sending Echo-Reply message " << std::endl << *msg;
     	} break;
         case openflow10::OFPT_VENDOR: {
-    		// ...
+        	logging::debug << "sending Vendor message " << std::endl << *msg;
     	} break;
         case openflow10::OFPT_FEATURES_REPLY: {
-    		features_reply_sent(pack);
+        	logging::debug << "sending Features-Reply message " << std::endl << *msg;
+    		features_reply_sent(msg);
     	} break;
         case openflow10::OFPT_GET_CONFIG_REPLY: {
-    		get_config_reply_sent(pack);
+        	logging::debug << "sending Get-Config-Reply message " << std::endl << *msg;
+    		get_config_reply_sent(msg);
     	} break;
         case openflow10::OFPT_PACKET_IN: {
-    		// asynchronous ...
+        	logging::debug << "sending Packet-In message " << std::endl << *msg;
     	} break;
         case openflow10::OFPT_FLOW_REMOVED: {
-    		// asynchronous ...
+        	logging::debug << "sending Flow-Removed message " << std::endl << *msg;
     	} break;
         case openflow10::OFPT_PORT_STATUS: {
-    		// asynchronous ...
+        	logging::debug << "sending Port-Status message " << std::endl << *msg;
     	} break;
         case openflow10::OFPT_STATS_REPLY: {
-    		stats_reply_sent(pack);
+        	logging::debug << "sending Stats-Reply message " << std::endl << *msg;
+    		stats_reply_sent(msg);
     	} break;
         case openflow10::OFPT_BARRIER_REPLY: {
-    		barrier_reply_sent(pack);
+        	logging::debug << "sending Barrier-Reply message " << std::endl << *msg;
+    		barrier_reply_sent(msg);
     	} break;
         case openflow10::OFPT_QUEUE_GET_CONFIG_REPLY: {
-    		queue_get_config_reply_sent(pack);
+        	logging::debug << "sending Queue-Get-Config-Reply message " << std::endl << *msg;
+    		queue_get_config_reply_sent(msg);
     	} break;
         default: {
-        	logging::error << "dropping invalid packet " << *pack << " " << *this << std::endl;
-    		delete pack;
+        	logging::error << "dropping invalid packet " << *msg << " " << *this << std::endl;
+    		delete msg;
     	} return;
         }
 
     } break;
     case openflow12::OFP_VERSION: {
 
-        switch (pack->get_type()) {
-        case openflow12::OFPT_HELLO:
+        switch (msg->get_type()) {
+        case openflow12::OFPT_HELLO: {
+        	logging::debug << "sending Hello message " << std::endl << *msg;
+        } break;
         case openflow12::OFPT_ERROR: {
-    		// ...
+        	logging::debug << "sending Error message " << std::endl << *msg;
     	} break;
         case openflow12::OFPT_ECHO_REQUEST: {
-    		echo_request_sent(pack);
+        	logging::debug << "sending Echo-Request message " << std::endl << *msg;
+    		echo_request_sent(msg);
     	} break;
         case openflow12::OFPT_ECHO_REPLY: {
-        	// do nothing here
+        	logging::debug << "sending Echo-Reply message " << std::endl << *msg;
     	} break;
         case openflow12::OFPT_EXPERIMENTER: {
-    		// ...
+        	logging::debug << "sending Experimenter message " << std::endl << *msg;
     	} break;
         case openflow12::OFPT_FEATURES_REPLY: {
-    		features_reply_sent(pack);
+        	logging::debug << "sending Features-Reply message " << std::endl << *msg;
+    		features_reply_sent(msg);
     	} break;
         case openflow12::OFPT_GET_CONFIG_REPLY: {
-    		get_config_reply_sent(pack);
+        	logging::debug << "sending Get-Config-Reply message " << std::endl << *msg;
+    		get_config_reply_sent(msg);
     	} break;
         case openflow12::OFPT_PACKET_IN: {
-    		// asynchronous ...
+        	logging::debug << "sending Packet-In message " << std::endl << *msg;
     	} break;
         case openflow12::OFPT_FLOW_REMOVED: {
-    		// asynchronous ...
+        	logging::debug << "sending Flow-Removed message " << std::endl << *msg;
     	} break;
         case openflow12::OFPT_PORT_STATUS: {
-    		// asynchronous ...
+        	logging::debug << "sending Port-Status message " << std::endl << *msg;
     	} break;
         case openflow12::OFPT_STATS_REPLY: {
-    		stats_reply_sent(pack);
+        	logging::debug << "sending Stats-Reply message " << std::endl << *msg;
+    		stats_reply_sent(msg);
     	} break;
         case openflow12::OFPT_BARRIER_REPLY: {
-    		barrier_reply_sent(pack);
+        	logging::debug << "sending Barrier-Reply message " << std::endl << *msg;
+    		barrier_reply_sent(msg);
     	} break;
         case openflow12::OFPT_QUEUE_GET_CONFIG_REPLY: {
-    		queue_get_config_reply_sent(pack);
+        	logging::debug << "sending Queue-Get-Config-Reply message " << std::endl << *msg;
+    		queue_get_config_reply_sent(msg);
     	} break;
         case openflow12::OFPT_ROLE_REPLY: {
-    		role_reply_sent(pack);
+        	logging::debug << "sending Role-Reply message " << std::endl << *msg;
+    		role_reply_sent(msg);
     	} break;
         default: {
-        	logging::error << "dropping invalid packet " << *pack << " " << *this << std::endl;
-        	delete pack;
+        	logging::error << "dropping invalid packet " << *msg << " " << *this << std::endl;
+        	delete msg;
     	} return;
         }
 
@@ -272,63 +289,73 @@ cofctlImpl::send_message(
     } break;
     case openflow13::OFP_VERSION: {
 
-        switch (pack->get_type()) {
-        case openflow13::OFPT_HELLO:
+        switch (msg->get_type()) {
+        case openflow13::OFPT_HELLO: {
+        	logging::debug << "sending Hello message " << std::endl << *msg;
+        } break;
         case openflow13::OFPT_ERROR: {
-    		// ...
+        	logging::debug << "sending Error message " << std::endl << *msg;
     	} break;
         case openflow13::OFPT_ECHO_REQUEST: {
-    		echo_request_sent(pack);
+        	logging::debug << "sending Echo-Request message " << std::endl << *msg;
+    		echo_request_sent(msg);
     	} break;
         case openflow13::OFPT_ECHO_REPLY: {
-        	// do nothing here
+        	logging::debug << "sending Echo-Reply message " << std::endl << *msg;
     	} break;
         case openflow13::OFPT_EXPERIMENTER: {
-    		// ...
+        	logging::debug << "sending Experimenter message " << std::endl << *msg;
     	} break;
         case openflow13::OFPT_FEATURES_REPLY: {
-    		features_reply_sent(pack);
+        	logging::debug << "sending Features-Reply message " << std::endl << *msg;
+    		features_reply_sent(msg);
     	} break;
         case openflow13::OFPT_GET_CONFIG_REPLY: {
-    		get_config_reply_sent(pack);
+        	logging::debug << "sending Get-Config-Reply message " << std::endl << *msg;
+    		get_config_reply_sent(msg);
     	} break;
         case openflow13::OFPT_PACKET_IN: {
-    		// asynchronous ...
+        	logging::debug << "sending Packet-In message " << std::endl << *msg;
     	} break;
         case openflow13::OFPT_FLOW_REMOVED: {
-    		// asynchronous ...
+        	logging::debug << "sending Flow-Removed message " << std::endl << *msg;
     	} break;
         case openflow13::OFPT_PORT_STATUS: {
-    		// asynchronous ...
+        	logging::debug << "sending Port-Status message " << std::endl << *msg;
     	} break;
         case openflow13::OFPT_STATS_REPLY: {
-    		stats_reply_sent(pack);
+        	logging::debug << "sending Stats-Reply message " << std::endl << *msg;
+    		stats_reply_sent(msg);
     	} break;
         case openflow13::OFPT_BARRIER_REPLY: {
-    		barrier_reply_sent(pack);
+        	logging::debug << "sending Barrier-Reply message " << std::endl << *msg;
+    		barrier_reply_sent(msg);
     	} break;
         case openflow13::OFPT_QUEUE_GET_CONFIG_REPLY: {
-    		queue_get_config_reply_sent(pack);
+        	logging::debug << "sending Queue-Get-Config-Reply message " << std::endl << *msg;
+    		queue_get_config_reply_sent(msg);
     	} break;
         case openflow13::OFPT_ROLE_REPLY: {
-    		role_reply_sent(pack);
+        	logging::debug << "sending Role-Reply message " << std::endl << *msg;
+    		role_reply_sent(msg);
     	} break;
         case openflow13::OFPT_GET_ASYNC_REPLY: {
-        	get_async_config_reply_sent(pack);
+        	logging::debug << "sending Get-Async-Reply message " << std::endl << *msg;
+        	get_async_config_reply_sent(msg);
         } break;
         default: {
-        	logging::error << "dropping invalid packet " << *pack << " " << *this << std::endl;
-        	delete pack;
+        	logging::error << "dropping invalid packet " << *msg << " " << *this << std::endl;
+        	delete msg;
     	} return;
         }
 
     } break;
     default:
-    	logging::error << "dropping packet due to bad version " << *pack << std::endl;
+    	logging::error << "dropping packet due to bad version " << *msg << std::endl;
     	throw eBadVersion();
     }
 
-	send_message_via_socket(pack);
+	send_message_via_socket(msg);
 }
 
 
@@ -1269,8 +1296,10 @@ cofctlImpl::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 void
 cofctlImpl::hello_rcvd(cofmsg_hello *msg)
 {
+	logging::debug << "Hello message received" << std::endl << *msg << std::endl;
+
 	try {
-		logging::debug << "HELLO message received " << *msg << std::endl;
+		logging::debug << "Hello message received" << std::endl << *msg << std::endl;
 
 		// OpenFlow versions not supported on our side, send error, close connection
 		if (not rofbase->is_ofp_version_supported(msg->get_version()))
@@ -1341,6 +1370,8 @@ cofctlImpl::echo_request_sent(cofmsg *pack)
 void
 cofctlImpl::echo_request_rcvd(cofmsg_echo_request *msg)
 {
+	logging::debug << "Echo-Request message received" << std::endl << *msg << std::endl;
+
 	// send echo reply back including any appended data
 	rofbase->send_echo_reply(this, msg->get_xid(), msg->get_body().somem(), msg->get_body().memlen());
 
@@ -1356,6 +1387,8 @@ cofctlImpl::echo_request_rcvd(cofmsg_echo_request *msg)
 void
 cofctlImpl::echo_reply_rcvd(cofmsg_echo_reply *msg)
 {
+	logging::debug << "Echo-Reply message received" << std::endl << *msg << std::endl;
+
 	cancel_timer(COFCTL_TIMER_ECHO_REPLY_TIMEOUT);
 	register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
 
@@ -1367,6 +1400,8 @@ cofctlImpl::echo_reply_rcvd(cofmsg_echo_reply *msg)
 void
 cofctlImpl::features_request_rcvd(cofmsg_features_request *msg)
 {
+	logging::debug << "Features-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid(), 0);
 
@@ -1399,6 +1434,8 @@ cofctlImpl::features_reply_sent(cofmsg *msg)
 void
 cofctlImpl::get_config_request_rcvd(cofmsg_get_config_request *msg)
 {
+	logging::debug << "Get-Config-Request message received" << std::endl << *msg << std::endl;
+
 	if (openflow12::OFPCR_ROLE_SLAVE == role) {
 		send_error_is_slave(msg); return;
 	}
@@ -1428,6 +1465,8 @@ cofctlImpl::get_config_reply_sent(cofmsg *msg)
 void
 cofctlImpl::set_config_rcvd(cofmsg_set_config *msg)
 {
+	logging::debug << "Set-Config message received" << std::endl << *msg << std::endl;
+
 	try {
 		if (openflow12::OFPCR_ROLE_SLAVE == role) {
 			send_error_is_slave(msg); return;
@@ -1459,6 +1498,8 @@ cofctlImpl::set_config_rcvd(cofmsg_set_config *msg)
 void
 cofctlImpl::packet_out_rcvd(cofmsg_packet_out *msg)
 {
+	logging::debug << "Packet-Out message received" << std::endl << *msg << std::endl;
+
 	if (openflow12::OFPCR_ROLE_SLAVE == role) {
 		send_error_is_slave(msg); return;
 	}
@@ -1471,6 +1512,8 @@ cofctlImpl::packet_out_rcvd(cofmsg_packet_out *msg)
 void
 cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 {
+	logging::debug << "Flow-Mod message received" << std::endl << *msg << std::endl;
+
 	try {
 		switch (get_version()) {
 		case openflow12::OFP_VERSION: {
@@ -1635,6 +1678,8 @@ cofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg)
 void
 cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 {
+	logging::debug << "Group-Mod message received" << std::endl << *msg << std::endl;
+
 	try {
 		switch (get_version()) {
 		case openflow12::OFP_VERSION: {
@@ -1754,6 +1799,8 @@ cofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg)
 void
 cofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg)
 {
+	logging::debug << "Port-Mod message received" << std::endl << *msg << std::endl;
+
 	try {
 		switch (get_version()) {
 		case openflow12::OFP_VERSION: {
@@ -1807,6 +1854,8 @@ cofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg)
 void
 cofctlImpl::table_mod_rcvd(cofmsg_table_mod *msg)
 {
+	logging::debug << "Table-Mod message received" << std::endl << *msg << std::endl;
+
 	try {
 		switch (get_version()) {
 		case openflow12::OFP_VERSION: {
@@ -1848,6 +1897,8 @@ cofctlImpl::table_mod_rcvd(cofmsg_table_mod *msg)
 void
 cofctlImpl::stats_request_rcvd(cofmsg_stats *msg)
 {
+	logging::debug << "Stats-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -1863,6 +1914,8 @@ cofctlImpl::stats_request_rcvd(cofmsg_stats *msg)
 void
 cofctlImpl::desc_stats_request_rcvd(cofmsg_desc_stats_request *msg)
 {
+	logging::debug << "Desc-Stats-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -1878,6 +1931,8 @@ cofctlImpl::desc_stats_request_rcvd(cofmsg_desc_stats_request *msg)
 void
 cofctlImpl::table_stats_request_rcvd(cofmsg_table_stats_request* msg)
 {
+	logging::debug << "Table-Stats-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -1893,6 +1948,8 @@ cofctlImpl::table_stats_request_rcvd(cofmsg_table_stats_request* msg)
 void
 cofctlImpl::port_stats_request_rcvd(cofmsg_port_stats_request* msg)
 {
+	logging::debug << "Port-Stats-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -1908,6 +1965,8 @@ cofctlImpl::port_stats_request_rcvd(cofmsg_port_stats_request* msg)
 void
 cofctlImpl::flow_stats_request_rcvd(cofmsg_flow_stats_request* msg)
 {
+	logging::debug << "Flow-Stats-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -1923,6 +1982,8 @@ cofctlImpl::flow_stats_request_rcvd(cofmsg_flow_stats_request* msg)
 void
 cofctlImpl::aggregate_stats_request_rcvd(cofmsg_aggr_stats_request* msg)
 {
+	logging::debug << "Aggregate-Stats-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -1938,6 +1999,8 @@ cofctlImpl::aggregate_stats_request_rcvd(cofmsg_aggr_stats_request* msg)
 void
 cofctlImpl::queue_stats_request_rcvd(cofmsg_queue_stats_request* msg)
 {
+	logging::debug << "Queue-Stats-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -1953,6 +2016,8 @@ cofctlImpl::queue_stats_request_rcvd(cofmsg_queue_stats_request* msg)
 void
 cofctlImpl::group_stats_request_rcvd(cofmsg_group_stats_request* msg)
 {
+	logging::debug << "Group-Stats-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -1968,6 +2033,8 @@ cofctlImpl::group_stats_request_rcvd(cofmsg_group_stats_request* msg)
 void
 cofctlImpl::group_desc_stats_request_rcvd(cofmsg_group_desc_stats_request* msg)
 {
+	logging::debug << "Group-Desc-Stats-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -1983,6 +2050,8 @@ cofctlImpl::group_desc_stats_request_rcvd(cofmsg_group_desc_stats_request* msg)
 void
 cofctlImpl::group_features_stats_request_rcvd(cofmsg_group_features_stats_request* msg)
 {
+	logging::debug << "Group-Features-Stats-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -1998,6 +2067,8 @@ cofctlImpl::group_features_stats_request_rcvd(cofmsg_group_features_stats_reques
 void
 cofctlImpl::experimenter_stats_request_rcvd(cofmsg_experimenter_stats_request* msg)
 {
+	logging::debug << "Experimenter-Stats-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -2030,6 +2101,8 @@ cofctlImpl::stats_reply_sent(cofmsg *msg)
 void
 cofctlImpl::role_request_rcvd(cofmsg_role_request *msg)
 {
+	logging::debug << "Role-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		try {
 			xidstore.xid_add(this, msg->get_xid());
@@ -2135,6 +2208,8 @@ cofctlImpl::role_reply_sent(cofmsg *msg)
 void
 cofctlImpl::barrier_request_rcvd(cofmsg_barrier_request *msg)
 {
+	logging::debug << "Barrier-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -2167,6 +2242,8 @@ cofctlImpl::barrier_reply_sent(cofmsg *msg)
 void
 cofctlImpl::queue_get_config_request_rcvd(cofmsg_queue_get_config_request *msg)
 {
+	logging::debug << "Queue-Get-Config-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -2199,6 +2276,8 @@ cofctlImpl::queue_get_config_reply_sent(cofmsg *msg)
 void
 cofctlImpl::experimenter_rcvd(cofmsg_experimenter *msg)
 {
+	logging::debug << "Experimenter message received" << std::endl << *msg << std::endl;
+
 	switch (msg->get_experimenter_id()) {
 	case OFPEXPID_ROFL: {
 		switch (msg->get_experimenter_type()) {
@@ -2281,6 +2360,8 @@ cofctlImpl::handle_echo_reply_timeout()
 void
 cofctlImpl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg)
 {
+	logging::debug << "Get-Async-Config-Request message received" << std::endl << *msg << std::endl;
+
 	try {
 		xidstore.xid_add(this, msg->get_xid());
 
@@ -2296,6 +2377,8 @@ cofctlImpl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg)
 void
 cofctlImpl::set_async_config_rcvd(cofmsg_set_async_config *msg)
 {
+	logging::debug << "Set-Async-Config message received" << std::endl << *msg << std::endl;
+
 	// TODO: handle request here in this cofctl instance
 	rofbase->handle_set_async_config(this, msg);
 }

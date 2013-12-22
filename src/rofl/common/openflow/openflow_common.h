@@ -31,6 +31,9 @@
 #define OFP_PACKED              /* SWIG doesn't understand __attribute. */
 #endif
 
+
+namespace rofl {
+
 #define OFP_MAX_TABLE_NAME_LEN 32
 #define OFP_MAX_PORT_NAME_LEN  16
 
@@ -41,7 +44,6 @@
 
 #define OFP_ETH_ALEN 6          /* Bytes in an Ethernet address. */
 
-namespace rofl {
 namespace openflow {
 
 	/* Header on all OpenFlow packets. */
@@ -86,6 +88,20 @@ namespace openflow {
 		OFPPR_MODIFY            /* Some attribute of the port has changed. */
 	};
 
+
+	enum ofp_instruction_type {
+		OFPIT_GOTO_TABLE = 1,       /* Setup the next table in the lookup
+									   pipeline */
+		OFPIT_WRITE_METADATA = 2,   /* Setup the metadata field for use later in
+									   pipeline */
+		OFPIT_WRITE_ACTIONS = 3,    /* Write the action(s) onto the datapath action
+									   set */
+		OFPIT_APPLY_ACTIONS = 4,    /* Applies the action(s) immediately */
+		OFPIT_CLEAR_ACTIONS = 5,    /* Clears all actions from the datapath
+									   action set */
+		OFPIT_METER = 6,				/* Apply meter (rate limiter) */
+		OFPIT_EXPERIMENTER = 0xFFFF  /* Experimenter instruction */
+	};
 
 
 	/* Generic ofp_instruction structure */

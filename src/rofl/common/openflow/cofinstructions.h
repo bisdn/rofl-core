@@ -5,6 +5,15 @@
 #ifndef COFINSTRUCTIONLIST_H
 #define COFINSTRUCTIONLIST_H 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <assert.h>
+#ifdef __cplusplus
+}
+#endif
+
+#include <map>
 #include <algorithm>
 #include "../cerror.h"
 #include "../cvastring.h"
@@ -16,15 +25,17 @@
 namespace rofl
 {
 
-class eInListBase : public cerror {}; // base error class cofinlist
-class eInListInval : public eInListBase {}; // invalid parameter
-class eInListNotFound : public eInListBase {}; // element not found
-class eInListOutOfRange : public eInListBase {}; // out of range
+class eInstructionsBase 		: public cerror {}; // base error class cofinlist
+class eInstructionsInval 		: public eInstructionsBase {}; // invalid parameter
+class eInstructionsNotFound 	: public eInstructionsBase {}; // element not found
+class eInstructionsOutOfRange	: public eInstructionsBase {}; // out of range
 
 
 
 class cofinstructions : public coflist<cofinst>
 {
+	std::map<int, cofinst*> instructions;
+
 public:
 
 	uint8_t ofp_version;
@@ -78,12 +89,55 @@ public: // methods
 	size_t
 	length() const;
 
+
+	/**
+	 *
+	 */
+	cofinst_goto_table&
+	get_inst_goto_table();
+
+
+	/**
+	 *
+	 */
+	cofinst_write_metadata&
+	get_inst_write_metadata();
+
+
+	/**
+	 *
+	 */
+	cofinst_write_actions&
+	get_inst_write_actions();
+
+
+	/**
+	 *
+	 */
+	cofinst_apply_actions&
+	get_inst_apply_actions();
+
+
+	/**
+	 *
+	 */
+	cofinst_clear_actions&
+	get_inst_clear_actions();
+
+
+	/**
+	 *
+	 */
+	cofinst_meter&
+	get_inst_meter();
+
+
 	/** find a specific instruction
 	 */
 	cofinst&
 	find_inst(
 			uint8_t type)
-	throw (eInListNotFound);
+	throw (eInstructionsNotFound);
 
 public:
 

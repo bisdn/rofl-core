@@ -705,8 +705,6 @@ crofbase::send_hello_message(
 					ta_new_async_xid(),
 					(uint8_t*)body, bodylen);
 
-	logging::debug << "sending HELLO message " << std::endl << *pack << std::endl;
-
 	ctl_find(ctl)->send_message(pack);
 }
 

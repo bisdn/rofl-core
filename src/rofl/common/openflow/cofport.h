@@ -583,23 +583,26 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofport const& port) {
-		os << "<cofport ";
+		os << indent(0) << "<cofport ";
 			os << "portno:" << (int)port.get_port_no() << " ";
 			os << "hwaddr:" << port.get_hwaddr() << " ";
 			os << "name:" << port.get_name() << " ";
-			os << "config:" << (int)port.get_config() << " ";
-			os << "state:" << (int)port.get_state() << " ";
+			os << "config:" << (int)port.get_config() << " >" << std::endl;
+
+		os << indent(2) << "<state:" << (int)port.get_state() << " ";
 			os << "curr:" << (int)port.get_curr() << " ";
 			os << "advertised:" << (int)port.get_advertised() << " ";
 			os << "supported:" << (int)port.get_supported() << " ";
-			os << "peer:" << (int)port.get_peer() << " ";
-			os << "curr-speed:" << (int)port.get_curr_speed() << " ";
+			os << "peer:" << (int)port.get_peer() << " >" << std::endl;
+
+		os << indent(2) << "<curr-speed:" << (int)port.get_curr_speed() << " ";
 			os << "max-speed:" << (int)port.get_max_speed() << " ";
-			os << "state-blocked:" << (int)port.link_state_is_blocked() << " ";
-			os << "state-live:" << (int)port.link_state_is_live() << " ";
+			os << "state-blocked:" << (int)port.link_state_is_blocked() << " >" << std::endl;
+
+
+		os << indent(2) << "<state-live:" << (int)port.link_state_is_live() << " ";
 			os << "state-link-down:" << (int)port.link_state_is_link_down() << " ";
-			os << "config-port-down:" << (int)port.config_is_port_down() << " ";
-		os << ">";
+			os << "config-port-down:" << (int)port.config_is_port_down() << " >" << std::endl;
 		return os;
 	};
 };

@@ -70,7 +70,9 @@ public:
 	};
 	friend std::ostream&
 	operator<< (std::ostream& os, indent const& i) {
-		os << std::setw(indent::width) << " " << std::setw(0);
+		if (indent::width) {
+			os << std::setw(indent::width) << " " << std::setw(0);
+		}
 		return os;
 	};
 };

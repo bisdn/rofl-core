@@ -128,6 +128,12 @@ public: // methods
 	size_t
 	length() const;
 
+	/**
+	 *
+	 */
+	cofactions&
+	get_actions() { return actions; };
+
 	/** find specific action
 	 */
 	cofaction&
@@ -277,7 +283,7 @@ public:
 	 */
 	cofinst_apply_actions(uint8_t ofp_version) : cofinst(ofp_version)
 	{
-		switch (get_version()) {
+		switch (ofp_version) {
 		case openflow12::OFP_VERSION: {
 			set_type(openflow12::OFPIT_APPLY_ACTIONS);
 			set_length(0); // fill this when calling method pack()
@@ -307,7 +313,7 @@ public:
 	 */
 	cofinst_write_actions(uint8_t ofp_version) : cofinst(ofp_version)
 	{
-		switch (get_version()) {
+		switch (ofp_version) {
 		case openflow12::OFP_VERSION: {
 			set_type(openflow12::OFPIT_WRITE_ACTIONS);
 			set_length(0); // fill this when calling method pack()
@@ -337,7 +343,7 @@ public:
 	 */
 	cofinst_clear_actions(uint8_t ofp_version) : cofinst(ofp_version)
 	{
-		switch (get_version()) {
+		switch (ofp_version) {
 		case openflow12::OFP_VERSION: {
 			set_type(openflow12::OFPIT_CLEAR_ACTIONS);
 			set_length(0); // fill this when calling method pack()
@@ -370,7 +376,7 @@ public:
 			uint8_t table_id) :
 				cofinst(ofp_version, sizeof(struct openflow::ofp_instruction))
 	{
-		switch (get_version()) {
+		switch (ofp_version) {
 		case openflow12::OFP_VERSION: {
 			cofinst::resize(sizeof(struct openflow12::ofp_instruction_goto_table));
 			set_type(openflow12::OFPIT_GOTO_TABLE);
@@ -424,7 +430,7 @@ public:
 			uint64_t metadata_mask) :
 				cofinst(ofp_version, sizeof(struct openflow::ofp_instruction))
 	{
-		switch (get_version()) {
+		switch (ofp_version) {
 		case openflow12::OFP_VERSION: {
 			cofinst::resize(sizeof(struct openflow12::ofp_instruction_write_metadata));
 			set_type(openflow12::OFPIT_WRITE_METADATA);
@@ -482,6 +488,10 @@ public:
 	{
 		oin_write_metadata->metadata_mask = htobe64(metadata_mask);
 	};
+};
+
+class cofinst_meter : public cofinst {
+
 };
 
 }; // end of namespace
