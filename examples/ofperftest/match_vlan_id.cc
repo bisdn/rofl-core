@@ -74,8 +74,8 @@ match_vlan_id::install_flow_mods(cofdpt *dpt, unsigned int n)
 
 		cflowentry fe(dpt->get_version());
 
-		fe.set_command(OFPFC_ADD);
-		fe.set_buffer_id(OFP_NO_BUFFER);
+		fe.set_command(crofbase::get_ofp_command(dpt->get_version(), openflow::OFPFC_ADD));
+		fe.set_buffer_id(crofbase::get_ofp_no_buffer(dpt->get_version()));
 		fe.set_idle_timeout(0);
 		fe.set_hard_timeout(0);
 		fe.set_table_id(0);
@@ -117,10 +117,10 @@ match_vlan_id::flow_mod_delete_all()
 		cofdpt *dpt = it->first;
 
 		cflowentry fe(dpt->get_version());
-		fe.set_command(OFPFC_DELETE);
-		fe.set_table_id(OFPTT_ALL);
-		fe.set_out_port(OFPP12_ANY);
-		fe.set_out_group(OFPG12_ANY);
+		fe.set_command(crofbase::get_ofp_command(dpt->get_version(), openflow::OFPFC_DELETE));
+		fe.set_table_id(openflow12::OFPTT_ALL);
+		fe.set_out_port(openflow12::OFPP_ANY);
+		fe.set_out_group(openflow12::OFPG_ANY);
 
 		std::cerr << "FLOW-MOD: delete all: " << fe << std::endl;
 
@@ -174,7 +174,7 @@ match_vlan_id::handle_packet_in(
 		msg->get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
 		cflowentry fe(dpt->get_version());
 
-		fe.set_command(OFPFC_ADD);
+		fe.set_command(crofbase::get_ofp_command(dpt->get_version(), openflow::OFPFC_ADD));
 		fe.set_buffer_id(msg->get_buffer_id());
 		fe.set_idle_timeout(15);
 		fe.set_table_id(msg->get_table_id());
@@ -219,9 +219,9 @@ match_vlan_id::handle_packet_in(
 			(fib[dpt][vlan_id].find(eth_dst) == fib[dpt][vlan_id].end()))
 	{
 		cofactions actions;
-		actions.next() = cofaction_output(dpt->get_version(), OFPP12_FLOOD);
+		actions.next() = cofaction_output(dpt->get_version(), crofbase::get_ofp_flood_port(dpt->get_version()));
 
-		if (OFP_NO_BUFFER == msg->get_buffer_id()) {
+		if (crofbase::get_ofp_no_buffer(dpt->get_version()) == msg->get_buffer_id()) {
 			send_packet_out_message(
 					dpt,
 					msg->get_buffer_id(),
@@ -252,7 +252,7 @@ match_vlan_id::handle_packet_in(
 
 		cflowentry fe(dpt->get_version());
 
-		fe.set_command(OFPFC_ADD);
+		fe.set_command(crofbase::get_ofp_command(dpt->get_version(), openflow::OFPFC_ADD));
 		fe.set_buffer_id(msg->get_buffer_id());
 		fe.set_idle_timeout(0);
 		fe.set_table_id(msg->get_table_id());

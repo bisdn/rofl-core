@@ -113,13 +113,35 @@ ethswitch::handle_dpath_open(
 {
 	rofl::cflowentry fe(dpt->get_version());
 
-	fe.set_command(OFPFC_ADD);
-	fe.set_table_id(0);
+	switch (dpt->get_version()) {
+	case openflow10::OFP_VERSION: {
+		fe.set_command(openflow10::OFPFC_ADD);
+		fe.set_table_id(0);
+		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
+		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), openflow10::OFPP_CONTROLLER);
+		fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
 
-	fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
-	fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), OFPP12_CONTROLLER);
+	} break;
+	case openflow12::OFP_VERSION: {
+		fe.set_command(openflow12::OFPFC_ADD);
+		fe.set_table_id(0);
+		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
+		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), openflow12::OFPP_CONTROLLER);
+		fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
 
-	fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
+	} break;
+	case openflow13::OFP_VERSION: {
+		fe.set_command(openflow13::OFPFC_ADD);
+		fe.set_table_id(0);
+		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
+		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), openflow13::OFPP_CONTROLLER);
+		fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
+
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	send_flow_mod_message(dpt, fe);
 
 	cfib::get_fib(dpt->get_dpid()).dpt_bind(this, dpt);
@@ -158,7 +180,14 @@ ethswitch::handle_packet_in(
 		msg->get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
 		cflowentry fe(dpt->get_version());
 
-		fe.set_command(OFPFC_ADD);
+		switch (dpt->get_version()) {
+		case openflow10::OFP_VERSION: fe.set_command(openflow10::OFPFC_ADD); break;
+		case openflow12::OFP_VERSION: fe.set_command(openflow12::OFPFC_ADD); break;
+		case openflow13::OFP_VERSION: fe.set_command(openflow13::OFPFC_ADD); break;
+		default:
+			throw eBadVersion();
+		}
+
 		fe.set_buffer_id(msg->get_buffer_id());
 		fe.set_idle_timeout(15);
 		fe.set_table_id(msg->get_table_id());
@@ -193,7 +222,16 @@ ethswitch::handle_packet_in(
 
 	if (eth_dst.is_multicast()) {
 
-		actions.next() = cofaction_output(dpt->get_version(), OFPP12_FLOOD);
+		switch (dpt->get_version()) {
+		case openflow10::OFP_VERSION:
+			actions.next() = cofaction_output(dpt->get_version(), openflow10::OFPP_FLOOD); break;
+		case openflow12::OFP_VERSION:
+			actions.next() = cofaction_output(dpt->get_version(), openflow12::OFPP_FLOOD); break;
+		case openflow13::OFP_VERSION:
+			actions.next() = cofaction_output(dpt->get_version(), openflow13::OFPP_FLOOD); break;
+		default:
+			throw eBadVersion();
+		}
 
 	} else {
 
@@ -211,9 +249,16 @@ ethswitch::handle_packet_in(
 		actions.next() = cofaction_output(dpt->get_version(), entry.get_out_port_no());
 	}
 
+	uint32_t ofp_no_buffer = 0;
+	switch (dpt->get_version()) {
+	case openflow10::OFP_VERSION: ofp_no_buffer = openflow10::OFP_NO_BUFFER; break;
+	case openflow12::OFP_VERSION: ofp_no_buffer = openflow12::OFP_NO_BUFFER; break;
+	case openflow13::OFP_VERSION: ofp_no_buffer = openflow13::OFP_NO_BUFFER; break;
+	default:
+		throw eBadVersion();
+	}
 
-
-	if (OFP_NO_BUFFER != msg->get_buffer_id()) {
+	if (ofp_no_buffer != msg->get_buffer_id()) {
 		send_packet_out_message(dpt, msg->get_buffer_id(), msg->get_match().get_in_port(), actions);
 	} else {
 		send_packet_out_message(dpt, msg->get_buffer_id(), msg->get_match().get_in_port(), actions,

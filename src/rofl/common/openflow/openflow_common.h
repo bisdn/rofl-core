@@ -68,6 +68,17 @@ namespace openflow {
 	OFP_ASSERT(sizeof(struct ofp_error_msg) == 12);
 
 
+	enum ofp_flow_mod_command {
+		OFPFC_ADD,              /* New flow. */
+		OFPFC_MODIFY,           /* Modify all matching flows. */
+		OFPFC_MODIFY_STRICT,    /* Modify entry strictly matching wildcards and
+								   priority. */
+		OFPFC_DELETE,           /* Delete all matching flows. */
+		OFPFC_DELETE_STRICT     /* Delete entry strictly matching wildcards and
+								   priority. */
+	};
+
+
 	/* What changed about the physical port */
 	enum ofp_port_reason {
 		OFPPR_ADD,              /* The port was added. */

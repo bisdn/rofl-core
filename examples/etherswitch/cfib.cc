@@ -143,7 +143,17 @@ cfib::fib_lookup(
 	// find out-port for dst
 	if (fibtable.find(dst) == fibtable.end()) {
 
-		fibtable[dst] = new cfibentry(this, rofbase, dpt, dst, OFPP12_FLOOD);
+		switch (dpt->get_version()) {
+		case rofl::openflow10::OFP_VERSION:
+			fibtable[dst] = new cfibentry(this, rofbase, dpt, dst, rofl::openflow10::OFPP_FLOOD); break;
+		case rofl::openflow12::OFP_VERSION:
+			fibtable[dst] = new cfibentry(this, rofbase, dpt, dst, rofl::openflow12::OFPP_FLOOD); break;
+		case rofl::openflow13::OFP_VERSION:
+			fibtable[dst] = new cfibentry(this, rofbase, dpt, dst, rofl::openflow13::OFPP_FLOOD); break;
+		default:
+			throw rofl::eBadVersion();
+		}
+
 		fibtable[dst]->flow_mod_add();
 
 		std::cerr << "LOOKUP[1]: " << *this << std::endl;

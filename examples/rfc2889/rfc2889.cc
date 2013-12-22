@@ -63,20 +63,14 @@ etherswitch::request_flow_stats()
 		cofflow_stats_request req;
 
 		switch (dpt->get_version()) {
-		case OFP10_VERSION: {
+		case openflow12::OFP_VERSION: {
 			req.set_version(dpt->get_version());
-			req.set_table_id(OFPTT_ALL);
-			req.set_match(cofmatch(OFP10_VERSION));
-			req.set_out_port(OFPP12_ANY);
-		} break;
-		case OFP12_VERSION: {
-			req.set_version(dpt->get_version());
-			req.set_table_id(OFPTT_ALL);
-			cofmatch match(OFP12_VERSION);
+			req.set_table_id(openflow12::OFPTT_ALL);
+			cofmatch match(openflow12::OFP_VERSION);
 			//match.set_eth_dst(cmacaddr("01:80:c2:00:00:00"));
 			req.set_match(match);
-			req.set_out_port(OFPP12_ANY);
-			req.set_out_group(OFPG12_ANY);
+			req.set_out_port(openflow12::OFPP_ANY);
+			req.set_out_group(openflow12::OFPG_ANY);
 			req.set_cookie(0);
 			req.set_cookie_mask(0);
 		} break;
@@ -108,12 +102,7 @@ etherswitch::handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg)
 	std::vector<cofflow_stats_reply>::iterator it;
 	for (it = replies.begin(); it != replies.end(); ++it) {
 		switch (it->get_version()) {
-		case OFP10_VERSION: {
-			std::cerr << "FLOW-STATS-REPLY: " << std::endl;
-			std::cerr << "match: " << it->get_match() << std::endl;
-			std::cerr << "actions: " << it->get_actions() << std::endl;
-		} break;
-		case OFP12_VERSION: {
+		case openflow12::OFP_VERSION: {
 			std::cerr << "FLOW-STATS-REPLY: " << std::endl;
 			std::cerr << "match: " << it->get_match() << std::endl;
 			std::cerr << "instructions: " << it->get_instructions() << std::endl;
@@ -138,10 +127,10 @@ etherswitch::flow_mod_delete_all()
 		cofdpt *dpt = it->first;
 
 		cflowentry fe(dpt->get_version());
-		fe.set_command(OFPFC_DELETE);
-		fe.set_table_id(OFPTT_ALL);
-		fe.set_out_port(OFPP12_ANY);
-		fe.set_out_group(OFPG12_ANY);
+		fe.set_command(openflow12::OFPFC_DELETE);
+		fe.set_table_id(openflow12::OFPTT_ALL);
+		fe.set_out_port(openflow12::OFPP_ANY);
+		fe.set_out_group(openflow12::OFPG_ANY);
 
 		std::cerr << "FLOW-MOD: delete all: " << fe << std::endl;
 
@@ -193,7 +182,7 @@ etherswitch::handle_packet_in(
 		msg->get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
 		cflowentry fe(dpt->get_version());
 
-		fe.set_command(OFPFC_ADD);
+		fe.set_command(openflow12::OFPFC_ADD);
 		fe.set_buffer_id(msg->get_buffer_id());
 		fe.set_idle_timeout(15);
 		fe.set_table_id(msg->get_table_id());
@@ -238,9 +227,9 @@ etherswitch::handle_packet_in(
 			(fib[dpt][vlan_id].find(eth_dst) == fib[dpt][vlan_id].end()))
 	{
 		cofactions actions;
-		actions.next() = cofaction_output(dpt->get_version(), OFPP12_FLOOD);
+		actions.next() = cofaction_output(dpt->get_version(), openflow12::OFPP_FLOOD);
 
-		if (OFP_NO_BUFFER == msg->get_buffer_id()) {
+		if (openflow12::OFP_NO_BUFFER == msg->get_buffer_id()) {
 			send_packet_out_message(
 					dpt,
 					msg->get_buffer_id(),
@@ -271,7 +260,7 @@ etherswitch::handle_packet_in(
 
 		cflowentry fe(dpt->get_version());
 
-		fe.set_command(OFPFC_ADD);
+		fe.set_command(openflow12::OFPFC_ADD);
 		fe.set_buffer_id(msg->get_buffer_id());
 		// hard timeout = 0 (=> indefinite entry)
 		fe.set_hard_timeout(0);

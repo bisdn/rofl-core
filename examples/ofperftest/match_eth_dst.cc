@@ -79,8 +79,23 @@ match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 
 		cflowentry fe(dpt->get_version());
 
-		fe.set_command(OFPFC_ADD);
-		fe.set_buffer_id(OFP_NO_BUFFER);
+		switch (dpt->get_version()) {
+		case openflow10::OFP_VERSION: {
+			fe.set_command(openflow10::OFPFC_ADD);
+			fe.set_buffer_id(openflow10::OFP_NO_BUFFER);
+		} break;
+		case openflow12::OFP_VERSION: {
+			fe.set_command(openflow12::OFPFC_ADD);
+			fe.set_buffer_id(openflow12::OFP_NO_BUFFER);
+		} break;
+		case openflow13::OFP_VERSION: {
+			fe.set_command(openflow13::OFPFC_ADD);
+			fe.set_buffer_id(openflow13::OFP_NO_BUFFER);
+		} break;
+		default:
+			throw eBadVersion();
+		}
+
 		fe.set_idle_timeout(0);
 		fe.set_hard_timeout(0);
 		fe.set_table_id(0);
@@ -119,10 +134,25 @@ match_eth_dst::flow_mod_delete_all()
 		cofdpt *dpt = it->first;
 
 		cflowentry fe(dpt->get_version());
-		fe.set_command(OFPFC_DELETE);
-		fe.set_table_id(OFPTT_ALL);
-		fe.set_out_port(OFPP12_ANY);
-		fe.set_out_group(OFPG12_ANY);
+		switch (dpt->get_version()) {
+		case openflow10::OFP_VERSION: {
+			fe.set_command(openflow10::OFPFC_DELETE);
+		} break;
+		case openflow12::OFP_VERSION: {
+			fe.set_command(openflow12::OFPFC_DELETE);
+			fe.set_table_id(openflow12::OFPTT_ALL);
+			fe.set_out_port(openflow12::OFPP_ANY);
+			fe.set_out_group(openflow12::OFPG_ANY);
+		} break;
+		case openflow13::OFP_VERSION: {
+			fe.set_command(openflow13::OFPFC_DELETE);
+			fe.set_table_id(openflow13::OFPTT_ALL);
+			fe.set_out_port(openflow13::OFPP_ANY);
+			fe.set_out_group(openflow13::OFPG_ANY);
+		} break;
+		default:
+			throw eBadVersion();
+		}
 
 		std::cerr << "FLOW-MOD: delete all: " << fe << std::endl;
 
@@ -162,6 +192,30 @@ match_eth_dst::handle_packet_in(
 {
 	cmacaddr eth_src = msg->get_packet().ether()->get_dl_src();
 
+	uint8_t command = 0;
+	uint32_t flood_port = 0;
+	uint32_t ofp_no_buffer = 0;
+
+	switch (dpt->get_version()) {
+	case openflow10::OFP_VERSION: {
+		command = openflow10::OFPFC_ADD;
+		flood_port = openflow10::OFPP_FLOOD;
+		ofp_no_buffer = openflow10::OFP_NO_BUFFER;
+	} break;
+	case openflow12::OFP_VERSION: {
+		command = openflow12::OFPFC_ADD;
+		flood_port = openflow12::OFPP_FLOOD;
+		ofp_no_buffer = openflow12::OFP_NO_BUFFER;
+	} break;
+	case openflow13::OFP_VERSION: {
+		command = openflow13::OFPFC_ADD;
+		flood_port = openflow13::OFPP_FLOOD;
+		ofp_no_buffer = openflow13::OFP_NO_BUFFER;
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
 	/*
 	 * sanity check: if source mac is multicast => invalid frame
 	 */
@@ -176,7 +230,7 @@ match_eth_dst::handle_packet_in(
 		msg->get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
 		cflowentry fe(dpt->get_version());
 
-		fe.set_command(OFPFC_ADD);
+		fe.set_command(command);
 		fe.set_buffer_id(msg->get_buffer_id());
 		fe.set_idle_timeout(15);
 		fe.set_table_id(msg->get_table_id());
@@ -221,9 +275,9 @@ match_eth_dst::handle_packet_in(
 			(fib[dpt][vlan_id].find(eth_dst) == fib[dpt][vlan_id].end()))
 	{
 		cofactions actions;
-		actions.next() = cofaction_output(dpt->get_version(), OFPP12_FLOOD);
+		actions.next() = cofaction_output(dpt->get_version(), flood_port);
 
-		if (OFP_NO_BUFFER == msg->get_buffer_id()) {
+		if (ofp_no_buffer == msg->get_buffer_id()) {
 			send_packet_out_message(
 					dpt,
 					msg->get_buffer_id(),
@@ -254,7 +308,7 @@ match_eth_dst::handle_packet_in(
 
 		cflowentry fe(dpt->get_version());
 
-		fe.set_command(OFPFC_ADD);
+		fe.set_command(command);
 		fe.set_buffer_id(msg->get_buffer_id());
 		fe.set_idle_timeout(0);
 		fe.set_table_id(msg->get_table_id());

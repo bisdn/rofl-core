@@ -428,7 +428,23 @@ public:
 	/**@}*/
 
 
+	/**
+	 *
+	 */
+	static uint32_t
+	get_ofp_no_buffer(uint8_t ofp_version);
 
+	/**
+	 *
+	 */
+	static uint32_t
+	get_ofp_flood_port(uint8_t ofp_version);
+
+	/**
+	 *
+	 */
+	static uint8_t
+	get_ofp_command(uint8_t ofp_version, enum openflow::ofp_flow_mod_command const& cmd);
 
 
 

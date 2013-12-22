@@ -18,7 +18,10 @@ clinuxport::clinuxport(
 		std::string devname,
 		std::string devtype) :
 		cport(owner, devname, devtype),
-		ifindex(0)
+		ifindex(0),
+		state(0),
+		curr_speed(0),
+		max_speed(0)
 {
 
 }
@@ -150,9 +153,9 @@ clinuxport::get_state() throw (ePortSocketCallFailed,
 	if ((rc = ioctl(sd, SIOCGIFFLAGS, &ifr)) < 0)
 		throw ePortIoctlCallFailed();
 	if (ifr.ifr_flags & IFF_UP)
-		state &= ~OFP12PS_LINK_DOWN;
+		state &= ~openflow12::OFPPS_LINK_DOWN;
 	else if (!(ifr.ifr_flags & IFF_UP))
-		state |= OFP12PS_LINK_DOWN;
+		state |= openflow12::OFPPS_LINK_DOWN;
 	close(sd);
 
 	return state;
