@@ -46,6 +46,7 @@
 #include "../openflow/messages/cofmsg_queue_get_config.h"
 #include "../openflow/messages/cofmsg_role.h"
 #include "../openflow/messages/cofmsg_experimenter.h"
+#include "../openflow/messages/cofmsg_experimenter_stats.h"
 #include "../openflow/messages/cofmsg_async_config.h"
 
 #include "rofl/common/openflow/cofdpt.h"

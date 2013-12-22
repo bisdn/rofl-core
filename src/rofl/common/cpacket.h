@@ -774,7 +774,7 @@ public: // action related methods
 
 	/**@{*/
 
-
+#if 0
 	/**
 	 * @brief	Dispatcher for all actions received.
 	 *
@@ -785,7 +785,7 @@ public: // action related methods
 	void
 	handle_action(
 		cofaction& action);
-
+#endif
 
 
 	/**

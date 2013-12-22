@@ -442,31 +442,57 @@ crofbase::role_request_rcvd(
 		cofctl *ctl,
 		uint32_t role)
 {
-	// FIXME: check and add if required support for other versions
-	switch (role) {
-	case OFP12CR_ROLE_NOCHANGE: {
-	} break;
-	case OFP12CR_ROLE_EQUAL: {
+	switch (ctl->get_version()) {
+	case openflow12::OFP_VERSION: {
+		switch (role) {
+		case openflow12::OFPCR_ROLE_NOCHANGE: {
+		} break;
+		case openflow12::OFPCR_ROLE_EQUAL: {
+		} break;
+		case openflow12::OFPCR_ROLE_MASTER: {
+			for (std::set<cofctl*>::iterator
+					it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
+				cofctl *tctl = (*it);
 
-	} break;
-	case OFP12CR_ROLE_MASTER: {
-		for (std::set<cofctl*>::iterator
-				it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
-			cofctl *tctl = (*it);
+				if (tctl == ctl)
+					continue;
 
-			if (tctl == ctl)
-				continue;
-
-			if (OFP12CR_ROLE_MASTER == tctl->get_role())
-				tctl->set_role(OFP12CR_ROLE_SLAVE);
+				if (openflow12::OFPCR_ROLE_MASTER == tctl->get_role())
+					tctl->set_role(openflow12::OFPCR_ROLE_SLAVE);
+			}
+		} break;
+		case openflow12::OFPCR_ROLE_SLAVE: {
+		} break;
+		default: {
+		} break;
 		}
 	} break;
-	case OFP12CR_ROLE_SLAVE: {
+	case openflow13::OFP_VERSION: {
+		switch (role) {
+		case openflow13::OFPCR_ROLE_NOCHANGE: {
+		} break;
+		case openflow13::OFPCR_ROLE_EQUAL: {
+		} break;
+		case openflow13::OFPCR_ROLE_MASTER: {
+			for (std::set<cofctl*>::iterator
+					it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
+				cofctl *tctl = (*it);
 
-	} break;
-	default: {
+				if (tctl == ctl)
+					continue;
 
+				if (openflow13::OFPCR_ROLE_MASTER == tctl->get_role())
+					tctl->set_role(openflow13::OFPCR_ROLE_SLAVE);
+			}
+		} break;
+		case openflow13::OFPCR_ROLE_SLAVE: {
+		} break;
+		default: {
+		} break;
+		}
 	} break;
+	default:
+		throw eBadVersion();
 	}
 }
 
