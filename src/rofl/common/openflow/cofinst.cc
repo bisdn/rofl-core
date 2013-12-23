@@ -16,6 +16,7 @@ cofinst::cofinst(
 				instruction(size)
 {
 	switch (ofp_version) {
+	case OFP_VERSION_UNKNOWN: break;
 	case openflow12::OFP_VERSION: break;
 	case openflow13::OFP_VERSION: break;
 	default: throw eBadVersion();
@@ -34,6 +35,7 @@ cofinst::cofinst(
 				instruction(inlen)
 {
 	switch (ofp_version) {
+	case OFP_VERSION_UNKNOWN: break;
 	case openflow12::OFP_VERSION: break;
 	case openflow13::OFP_VERSION: break;
 	default: throw eBadVersion();
