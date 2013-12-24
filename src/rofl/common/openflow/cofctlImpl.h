@@ -551,7 +551,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofctlImpl const& ctl) {
 		os << "<cofctlImpl ";
-		os << "ctid:" << std::hex << (unsigned long long)(ctl.ctid) << std::dec << " ";
+		os << "ctid:0x" << std::hex << (unsigned long long)(ctl.ctid) << std::dec << " ";
 		os << "state:" << (enum cofctl_state_t)ctl.fsm_state << " ";
 		os << "remote:" << ctl.socket->raddr << " ";
 		os << "local:" << ctl.socket->laddr << " ";
