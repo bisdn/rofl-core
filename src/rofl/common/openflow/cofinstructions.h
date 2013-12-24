@@ -32,9 +32,9 @@ class eInstructionsOutOfRange	: public eInstructionsBase {}; // out of range
 
 
 
-class cofinstructions : public coflist<cofinst>
+class cofinstructions
 {
-	std::map<int, cofinst*> instructions;
+	std::map<enum openflow::ofp_instruction_type, cofinst*> instmap;
 
 public:
 
@@ -67,12 +67,11 @@ public: // methods
 	operator= (
 			cofinstructions const& inlist);
 
-	/** stores cofinst instances in this->invec from a packed array struct ofp_instruction (e.g. in struct ofp_flow_mod)
+	/**
 	 */
-	std::vector<cofinst>&			// returns reference to this->invec
+	void
 	unpack(
-			uint8_t *instructions, // parses memory area buckets and creates cofinst instance in this->invec
-			size_t inlen);					// length of memory area to be parsed
+			uint8_t *buf, size_t buflen);
 
 
 	/** builds an array of struct ofp_instruction from this->invec
@@ -90,67 +89,107 @@ public: // methods
 	length() const;
 
 
-	/**
-	 *
+	/*
+	 * Goto-Table
 	 */
 	cofinst_goto_table&
-	get_inst_goto_table();
+	add_inst_goto_table();
+
+	cofinst_goto_table&
+	get_inst_goto_table() const;
+
+	void
+	drop_inst_goto_table();
 
 
-	/**
-	 *
+	/*
+	 * Write-Metadata
 	 */
 	cofinst_write_metadata&
-	get_inst_write_metadata();
+	add_inst_write_metadata();
+
+	cofinst_write_metadata&
+	get_inst_write_metadata() const;
+
+	void
+	drop_inst_write_metadata();
 
 
-	/**
-	 *
+	/*
+	 * Write-Actions
 	 */
 	cofinst_write_actions&
-	get_inst_write_actions();
+	add_inst_write_actions();
+
+	cofinst_write_actions&
+	get_inst_write_actions() const;
+
+	void
+	drop_inst_write_actions();
 
 
-	/**
-	 *
+	/*
+	 * Apply-Actions
 	 */
 	cofinst_apply_actions&
-	get_inst_apply_actions();
+	add_inst_apply_actions();
+
+	cofinst_apply_actions&
+	get_inst_apply_actions() const;
+
+	void
+	drop_inst_apply_actions();
 
 
-	/**
-	 *
+	/*
+	 * Clear-Actions
 	 */
 	cofinst_clear_actions&
-	get_inst_clear_actions();
+	add_inst_clear_actions();
+
+	cofinst_clear_actions&
+	get_inst_clear_actions() const;
+
+	void
+	drop_inst_clear_actions();
 
 
-	/**
-	 *
+	/*
+	 * Meter
 	 */
 	cofinst_meter&
-	get_inst_meter();
+	add_inst_meter();
+
+	cofinst_meter&
+	get_inst_meter() const;
+
+	void
+	drop_inst_meter();
+
+
 
 
 	/** find a specific instruction
 	 */
 	cofinst&
 	find_inst(
-			uint8_t type)
-	throw (eInstructionsNotFound);
+			uint8_t type);
+
+	/**
+	 *
+	 */
+	void
+	clear();
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofinstructions const& inlist) {
-		os << "<cofinlist ";
-			os << "ofp-version:" << (int)inlist.ofp_version << " ";
-			os << std::endl;
-			for (cofinstructions::const_iterator
-					it = inlist.elems.begin(); it != inlist.elems.end(); ++it) {
-				os << (*it) << std::endl;
-			}
-		os << ">";
+		os << indent(0) << "<cofintructions >" << std::endl;
+		for (std::map<enum openflow::ofp_instruction_type, cofinst*>::const_iterator
+				it = inlist.instmap.begin(); it != inlist.instmap.end(); ++it) {
+			os << indent(2) << *(it->second);
+		}
 		return os;
 	};
 };

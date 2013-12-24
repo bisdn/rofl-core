@@ -270,6 +270,10 @@ public:
 		return (be16toh(inst.oin_header->type) == type);
 	};
 
+	bool operator() (std::pair<enum openflow::ofp_instruction_type, cofinst*> const& p) {
+		return (be16toh(p.second->oin_header->type) == type);
+	};
+
 	uint16_t type;
 };
 
@@ -297,6 +301,10 @@ public:
 			throw eBadVersion();
 		}
 	};
+	/** constructor
+	 */
+	cofinst_apply_actions(cofinst const& inst) :
+		cofinst(inst) {};
 	/** destructor
 	 */
 	virtual
@@ -373,7 +381,7 @@ public:
 	 */
 	cofinst_goto_table(
 			uint8_t ofp_version,
-			uint8_t table_id) :
+			uint8_t table_id = 0) :
 				cofinst(ofp_version, sizeof(struct openflow::ofp_instruction))
 	{
 		switch (ofp_version) {
@@ -426,8 +434,8 @@ public:
 	 */
 	cofinst_write_metadata(
 			uint8_t ofp_version,
-			uint64_t metadata,
-			uint64_t metadata_mask) :
+			uint64_t metadata = 0,
+			uint64_t metadata_mask = 0) :
 				cofinst(ofp_version, sizeof(struct openflow::ofp_instruction))
 	{
 		switch (ofp_version) {
@@ -491,7 +499,13 @@ public:
 };
 
 class cofinst_meter : public cofinst {
+public:
+	cofinst_meter(
+			uint8_t ofp_version) :
+				cofinst(ofp_version, sizeof(struct openflow::ofp_instruction))
+	{
 
+	};
 };
 
 }; // end of namespace

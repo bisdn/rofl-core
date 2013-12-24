@@ -599,23 +599,25 @@ cflowentry::test()
 	fe.match.set_eth_src(dl_src);
 	fe.match.set_eth_dst(dl_dst);
 
-	fe.instructions[0] = cofinst_clear_actions(openflow12::OFP_VERSION);
+	fe.instructions.add_inst_clear_actions();
 
-	fe.instructions[1] = cofinst_apply_actions(openflow12::OFP_VERSION);
-	fe.instructions[1].actions[0] = cofaction_output(openflow12::OFP_VERSION, 2);
-	fe.instructions[1].actions[1] = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 3));
-	fe.instructions[1].actions[2] = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_ip_dscp(4));
-	fe.instructions[1].actions[3] = cofaction_push_mpls(openflow12::OFP_VERSION, 50);
-	fe.instructions[1].actions[4] = cofaction_push_mpls(openflow12::OFP_VERSION, 100);
-	fe.instructions[1].actions[5] = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_tcp_dst(8080));
+	fe.instructions.add_inst_apply_actions();
+	fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_output(openflow12::OFP_VERSION, 2);
+	fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 3));
+	fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_ip_dscp(4));
+	fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_push_mpls(openflow12::OFP_VERSION, 50);
+	fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_push_mpls(openflow12::OFP_VERSION, 100);
+	fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_tcp_dst(8080));
 
-	fe.instructions[2] = cofinst_write_actions(openflow12::OFP_VERSION);
-	fe.instructions[2].actions[0] = cofaction_pop_mpls(openflow12::OFP_VERSION, 1000);
-	fe.instructions[2].actions[1] = cofaction_group(openflow12::OFP_VERSION, 32);
+	fe.instructions.add_inst_write_actions();
+	fe.instructions.get_inst_write_actions().get_actions().next() = cofaction_pop_mpls(openflow12::OFP_VERSION, 1000);
+	fe.instructions.get_inst_write_actions().get_actions().next() = cofaction_group(openflow12::OFP_VERSION, 32);
 
-	fe.instructions[3] = cofinst_goto_table(openflow12::OFP_VERSION, 5);
+	fe.instructions.add_inst_goto_table().set_table_id(5);
 
-	fe.instructions[4] = cofinst_write_metadata(openflow12::OFP_VERSION, 1, 2);
+	fe.instructions.add_inst_write_metadata();
+	fe.instructions.get_inst_write_metadata().set_metadata(1);
+	fe.instructions.get_inst_write_metadata().set_metadata_mask(2);
 
 	//fe.reset();
 
