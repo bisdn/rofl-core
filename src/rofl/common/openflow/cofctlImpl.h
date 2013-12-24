@@ -524,6 +524,12 @@ private:
 private:
 
 
+	/**
+	 *
+	 */
+	void
+	check_role();
+
 
 	/** handle ECHO reply timeout
 	 */

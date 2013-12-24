@@ -752,8 +752,6 @@ crofbase::send_echo_request(
 					body,
 					bodylen);
 
-	logging::debug << "sending Echo-Request message " << std::endl << *msg;
-
 	dpt_find(dpt)->send_message(msg);
 }
 
@@ -771,8 +769,6 @@ crofbase::send_echo_reply(
 					xid,
 					body,
 					bodylen);
-
-	logging::debug << "sending Echo-Reply message " << std::endl << *msg << std::endl;
 
 	dpt_find(dpt)->send_message(msg);
 }
@@ -801,8 +797,6 @@ crofbase::send_echo_request(
 					body,
 					bodylen);
 
-	logging::debug << "sending Echo-Request message " << std::endl << *msg << std::endl;
-
 	ctl_find(ctl)->send_message(msg);
 }
 
@@ -820,8 +814,6 @@ crofbase::send_echo_reply(
 					xid,
 					body,
 					bodylen);
-
-	logging::debug << "sending Echo-Reply message " << std::endl << *msg << std::endl;
 
 	ctl_find(ctl)->send_message(msg);
 }
@@ -846,8 +838,6 @@ crofbase::send_features_request(cofdpt *dpt)
 	}
 
 	uint32_t xid = 0;
-
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_features_request()", this);
 
 	cofmsg_features_request *msg =
 			new cofmsg_features_request(
@@ -875,8 +865,6 @@ crofbase::send_features_reply(
 		uint32_t of10_actions_bitmap,
 		cofportlist const& portlist)
 {
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_features_reply()", this);
-
 	cofmsg_features_reply *reply =
 			new cofmsg_features_reply(
 					ctl->get_version(),
@@ -900,10 +888,9 @@ crofbase::send_features_reply(
 void
 crofbase::handle_features_reply_timeout(cofdpt *dpt)
 {
-    if (ofdpt_set.find(dpt) != ofdpt_set.end())
-    {
-            delete dpt;
-            ofdpt_set.erase(dpt);
+    if (ofdpt_set.find(dpt) != ofdpt_set.end()) {
+    	delete dpt;
+    	ofdpt_set.erase(dpt);
     }
 }
 

@@ -58,6 +58,16 @@ csocket::csocket(
 
 	sockflags.set(CONNECTED);
 
+	if ((getsockname(sd, laddr.ca_saddr, &(laddr.salen))) < 0) {
+		logging::error << "[rofl][socket] unable to read local address from socket descriptor:"
+				<< sd << " " << eSysCall() << std::endl;
+	}
+
+	if ((getpeername(sd, raddr.ca_saddr, &(raddr.salen))) < 0) {
+		logging::error << "[rofl][socket] unable to read remote address from socket descriptor:"
+				<< sd << " " << eSysCall() << std::endl;
+	}
+
 	csock_list.insert(this);
 	register_filedesc_r(sd);
 }
@@ -137,6 +147,17 @@ csocket::handle_wevent(int fd)
 				register_filedesc_r(sd);
 
 				sockflags[CONNECTED] = true;
+
+				if ((getsockname(sd, laddr.ca_saddr, &(laddr.salen))) < 0) {
+					logging::error << "[rofl][socket] unable to read local address from socket descriptor:"
+							<< sd << " " << eSysCall() << std::endl;
+				}
+
+				if ((getpeername(sd, raddr.ca_saddr, &(raddr.salen))) < 0) {
+					logging::error << "[rofl][socket] unable to read remote address from socket descriptor:"
+							<< sd << " " << eSysCall() << std::endl;
+				}
+
 				handle_connected();
 			}
 			break;
@@ -382,6 +403,17 @@ csocket::cconnect(
 		// connect was successful, register sd for read events
 		register_filedesc_r(sd);
 		sockflags.set(CONNECTED);
+
+		if ((getsockname(sd, laddr.ca_saddr, &(laddr.salen))) < 0) {
+			logging::error << "[rofl][socket] unable to read local address from socket descriptor:"
+					<< sd << " " << eSysCall() << std::endl;
+		}
+
+		if ((getpeername(sd, raddr.ca_saddr, &(raddr.salen))) < 0) {
+			logging::error << "[rofl][socket] unable to read remote address from socket descriptor:"
+					<< sd << " " << eSysCall() << std::endl;
+		}
+
 		handle_connected();
 	}
 }

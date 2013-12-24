@@ -353,6 +353,23 @@ public:
 	rpc_close_all();
 
 
+	/**
+	 * @brief	Called by cofctl instance when connection establishment failed.
+	 *
+	 * To be overwritten by class deriving from crofbase.
+	 */
+	virtual void
+	rpc_ctl_failed(cofctl *ctl) {};
+
+	/**
+	 * @brief	Called by cofdpt instance when connection establishment failed.
+	 *
+	 * To be overwritten by class deriving from crofbase.
+	 */
+	virtual void
+	rpc_dpt_failed(cofdpt *dpt) {};
+
+
 	/**@}*/
 
 
