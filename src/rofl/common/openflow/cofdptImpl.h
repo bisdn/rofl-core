@@ -945,25 +945,11 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofdptImpl const& dpt) {
-		os << "<cofdptImpl ";
-			// TODO
-#if 0
-		const char*
-		cofdptImpl::c_str()
-		{
-			cvastring vas;
-			info.assign(vas("cofdpt(%p) dpid:0x%llx buffers: %d tables: %d capabilities: 0x%x =>",
-					this, dpid, n_buffers, n_tables, capabilities));
-
-			std::map<uint32_t, cofport*>::iterator it;
-			for (it = ports.begin(); it != ports.end(); ++it)
-			{
-				info.append(vas("\n  %s", it->second->c_str()));
-			}
-
-			return info.c_str();
-		}
-#endif
+		os << indent(0) << "<cofdptImpl ";
+		os << "dpid:0x" << std::hex << (unsigned long long)(dpt.dpid) << std::dec << " ";
+		os << "state:" << (enum cofdpt_state_t)dpt.fsm_state << " ";
+		os << "remote:" << dpt.socket->raddr << " ";
+		os << "local:" << dpt.socket->laddr << " ";
 		os << ">";
 		return os;
 	};

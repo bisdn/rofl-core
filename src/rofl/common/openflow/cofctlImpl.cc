@@ -10,6 +10,7 @@ using namespace rofl;
 cofctlImpl::cofctlImpl(
 		crofbase *rofbase) :
 				cofctl(rofbase),
+				ctid(0),
 				rofbase(rofbase),
 				flags(0),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
@@ -41,6 +42,7 @@ cofctlImpl::cofctlImpl(
 		int type,
 		int protocol) :
 				cofctl(rofbase),
+				ctid(0),
 				rofbase(rofbase),
 				flags(0),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),
@@ -73,6 +75,7 @@ cofctlImpl::cofctlImpl(
 		int type,
 		int protocol) :
 				cofctl(rofbase),
+				ctid(0),
 				rofbase(rofbase),
 				flags(COFCTL_FLAG_ACTIVE_SOCKET),
 				miss_send_len(OFP_DEFAULT_MISS_SEND_LEN),

@@ -74,6 +74,7 @@ private: // data structures
 
 	friend class crofbase;
 
+	uint64_t						ctid;					// controller id (TODO: unique hash value per controller connection)
 	crofbase 						*rofbase;				// parent crofbase instance
 	std::bitset<32> 				flags;					// config: flags
 	uint16_t 						miss_send_len;			// config: miss_send_len
@@ -550,7 +551,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofctlImpl const& ctl) {
 		os << "<cofctlImpl ";
-			// TODO
+		os << "ctid:" << std::hex << (unsigned long long)(ctl.ctid) << std::dec << " ";
+		os << "state:" << (enum cofctl_state_t)ctl.fsm_state << " ";
+		os << "remote:" << ctl.socket->raddr << " ";
+		os << "local:" << ctl.socket->laddr << " ";
 		os << ">";
 		return os;
 	};
