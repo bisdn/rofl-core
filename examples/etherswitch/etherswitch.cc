@@ -128,6 +128,7 @@ ethswitch::handle_dpath_open(
 		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
 		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), openflow12::OFPP_CONTROLLER);
 		fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
+		fe.match.set_eth_dst(cmacaddr("00:11:22:33:44:55"));
 
 	} break;
 	case openflow13::OFP_VERSION: {

@@ -442,7 +442,7 @@ public:
 			os << "[" << (int)oxm.get_oxm_field() << "]";
 		} break;
 		}
-		os << "hasmask:" << (oxm.get_oxm_hasmask() == true ? "yes" : "no") << " ";
+		os << " hasmask:" << (oxm.get_oxm_hasmask() == true ? "yes" : "no") << " ";
 		os << ">";
 		return os;
 	};
@@ -524,6 +524,10 @@ public:
 		set_oxm_length(sizeof(uint32_t));
 		oxm_uint32t->dword = htobe32(port_no);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_in_port(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -541,8 +545,8 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_in_port const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
-		os << indent(2) << "<in-port: " << (int)oxm.get_in_port() << " >" << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << indent(2) << "<in-port: " << std::hex << (int)oxm.get_in_port() << std::dec << " >" << std::endl;
 		return os;
 	};
 };
@@ -566,6 +570,10 @@ public:
 		set_oxm_length(sizeof(uint32_t));
 		oxm_uint32t->dword = htobe32(port_no);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_in_phy_port(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -583,8 +591,8 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_in_phy_port const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
-		os << indent(2) << "<in-phy-port: " << (int)oxm.get_in_phy_port() << " >" << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << indent(2) << "<in-phy-port: " << std::hex << (int)oxm.get_in_phy_port() << std::dec << " >" << std::endl;
 		return os;
 	};
 };
@@ -625,6 +633,10 @@ public:
 		//oxm_uint64t->qword = htobe64(metadata);
 		//oxm_uint64t->mask  = htobe64(metadata_mask);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_metadata(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -634,9 +646,11 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_metadata const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<metadata: "
+						<< std::hex
 						<< (unsigned long long)oxm.uint64_value() << "/" << (unsigned long long)oxm.uint64_mask()
+						<< std::dec
 						<< " >" << std::endl;
 		return os;
 	};
@@ -675,6 +689,10 @@ public:
 		memcpy(oxm_maddr->addr, maddr.somem(), OFP_ETH_ALEN);
 		memcpy(oxm_maddr->mask, mask.somem(), OFP_ETH_ALEN);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_eth_dst(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -684,7 +702,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_eth_dst const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<eth-dst: "
 						<< oxm.u48addr()
 						<< " >" << std::endl;
@@ -725,6 +743,10 @@ public:
 		memcpy(oxm_maddr->addr, maddr.somem(), OFP_ETH_ALEN);
 		memcpy(oxm_maddr->mask, mask.somem(), OFP_ETH_ALEN);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_eth_src(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -734,7 +756,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_eth_src const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<eth-src: "
 						<< oxm.u48addr()
 						<< " >" << std::endl;
@@ -765,13 +787,17 @@ public:
 	 */
 	virtual
 	~coxmatch_ofb_eth_type() {};
+	/** constructor
+	 */
+	coxmatch_ofb_eth_type(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/**
 	 */
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_eth_type const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
-		os << indent(2) << "<eth-type: " << (int)oxm.uint16_value() << " >" << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << indent(2) << "<eth-type: 0x" << std::hex << (int)oxm.uint16_value() << std::dec << " >" << std::endl;
 		return os;
 	};
 };
@@ -866,6 +892,11 @@ public:
 		} break;
 		}
 	};
+	/** constructor
+	 */
+	// TODO: set tag_mode
+	coxmatch_ofb_vlan_vid(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -875,7 +906,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_vlan_vid const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<tag-mode:" << oxm.tag_mode << " >" << std::endl;
 		os << indent(2) << "<vlan-vid: " << (int)oxm.uint16_value() << "/" << (int)oxm.uint16_mask() << " >" << std::endl;
 		return os;
@@ -901,6 +932,10 @@ public:
 		set_oxm_length(sizeof(uint8_t));
 		oxm_uint8t->byte = pcp;
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_vlan_pcp(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -910,7 +945,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_vlan_pcp const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<vlan-pcp: " << (int)oxm.u8value() << " >" << std::endl;
 		return os;
 	};
@@ -936,6 +971,10 @@ public:
 		set_oxm_length(sizeof(uint8_t));
 		oxm_uint8t->byte = (0x3f & dscp); // lower 6 bits only
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_ip_dscp(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -945,7 +984,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ip_dscp const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<ip-dscp: " << (int)oxm.u8value() << " >" << std::endl;
 		return os;
 	};
@@ -970,6 +1009,10 @@ public:
 		set_oxm_length(sizeof(uint8_t));
 		oxm_uint8t->byte = (0x03 & ecn); // lower 2 bits only (will be moved up later)
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_ip_ecn(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -979,7 +1022,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ip_ecn const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<ip-ecn: " << (int)oxm.u8value() << " >" << std::endl;
 		return os;
 	};
@@ -1004,6 +1047,10 @@ public:
 		set_oxm_length(sizeof(uint8_t));
 		oxm_uint8t->byte = proto;
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_ip_proto(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1013,7 +1060,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ip_proto const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<ip-proto: " << (int)oxm.u8value() << " >" << std::endl;
 		return os;
 	};
@@ -1037,6 +1084,10 @@ public:
 		set_oxm_length(sizeof(uint8_t));
 		oxm_uint8t->byte = proto;
 	};
+	/** constructor
+	 */
+	coxmatch_ofx_nw_proto(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1046,7 +1097,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_nw_proto const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<nw-proto: " << (int)oxm.u8value() << " >" << std::endl;
 		return os;
 	};
@@ -1117,6 +1168,10 @@ public:
 		oxm_uint32t->dword = src.ca_s4addr->sin_addr.s_addr;
 		oxm_uint32t->mask  = mask.ca_s4addr->sin_addr.s_addr;
 	};
+	/** constructor
+	 */
+	coxmatch_ofx_nw_src(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1126,7 +1181,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_nw_src const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<nw-src: "
 						<< oxm.u32addr()
 						<< " >" << std::endl;
@@ -1200,6 +1255,10 @@ public:
 		oxm_uint32t->dword = dst.ca_s4addr->sin_addr.s_addr;
 		oxm_uint32t->mask  = mask.ca_s4addr->sin_addr.s_addr;
 	};
+	/** constructor
+	 */
+	coxmatch_ofx_nw_dst(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1209,7 +1268,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_nw_dst const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<nw-dst: "
 						<< oxm.u32addr()
 						<< " >" << std::endl;
@@ -1282,6 +1341,10 @@ public:
 		oxm_uint32t->dword = src.ca_s4addr->sin_addr.s_addr;
 		oxm_uint32t->mask  = mask.ca_s4addr->sin_addr.s_addr;
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv4_src(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1291,7 +1354,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv4_src const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<ipv4-src: "
 						<< (int)oxm.uint32_value() << "/" << (int)oxm.uint32_mask()
 						<< " >" << std::endl;
@@ -1365,6 +1428,10 @@ public:
 		oxm_uint32t->dword = dst.ca_s4addr->sin_addr.s_addr;
 		oxm_uint32t->mask  = mask.ca_s4addr->sin_addr.s_addr;
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv4_dst(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1374,7 +1441,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv4_dst const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<ipv4-dst: "
 						<< (int)oxm.uint32_value() << "/" << (int)oxm.uint32_mask()
 						<< " >" << std::endl;
@@ -1451,6 +1518,10 @@ public:
 		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
 		memcpy(oxm_ipv6addr->mask, mask.ca_s6addr->sin6_addr.s6_addr, 16);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_src(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1460,7 +1531,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_src const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<ipv6-src: ";
 		if (oxm.get_oxm_hasmask()) {
 			os << cmemory(oxm.oxm_ipv6addr->addr, 16) << "/" << cmemory(oxm.oxm_ipv6addr->mask, 16);
@@ -1542,6 +1613,10 @@ public:
 		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
 		memcpy(oxm_ipv6addr->mask, mask.ca_s6addr->sin6_addr.s6_addr, 16);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_dst(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1551,7 +1626,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_dst const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<ipv6-dst: ";
 		if (oxm.get_oxm_hasmask()) {
 			os << cmemory(oxm.oxm_ipv6addr->addr, 16) << "/" << cmemory(oxm.oxm_ipv6addr->mask, 16);
@@ -1599,6 +1674,10 @@ public:
 		set_oxm_length(1 * 16 * sizeof(uint8_t));
 		memcpy(oxm_ipv6addr->addr, addr.ca_s6addr->sin6_addr.s6_addr, 16);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_nd_target(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1608,7 +1687,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_target const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<ipv6-nd-target: ";
 		os << cmemory(oxm.oxm_ipv6addr->addr, 16);
 		os << " >" << std::endl;
@@ -1634,6 +1713,10 @@ public:
 		set_oxm_length(sizeof(uint16_t));
 		oxm_uint16t->word = htobe16(src);
 	};
+	/** constructor
+	 */
+	coxmatch_ofx_tp_src(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1643,7 +1726,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_tp_src const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<tp-src: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1670,6 +1753,10 @@ public:
 		set_oxm_length(sizeof(uint16_t));
 		oxm_uint16t->word = htobe16(dst);
 	};
+	/** constructor
+	 */
+	coxmatch_ofx_tp_dst(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1679,7 +1766,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_tp_dst const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<tp-dst: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1707,6 +1794,10 @@ public:
 		set_oxm_length(sizeof(uint16_t));
 		oxm_uint16t->word = htobe16(src);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_tcp_src(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1716,7 +1807,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_tcp_src const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<tcp-src: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1743,6 +1834,10 @@ public:
 		set_oxm_length(sizeof(uint16_t));
 		oxm_uint16t->word = htobe16(dst);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_tcp_dst(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1752,7 +1847,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_tcp_dst const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<tcp-dst: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1779,6 +1874,10 @@ public:
 		set_oxm_length(sizeof(uint16_t));
 		oxm_uint16t->word = htobe16(src);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_udp_src(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1788,7 +1887,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_udp_src const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<udp-src: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1815,6 +1914,10 @@ public:
 		set_oxm_length(sizeof(uint16_t));
 		oxm_uint16t->word = htobe16(dst);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_udp_dst(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1824,7 +1927,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_udp_dst const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<udp-dst: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1851,6 +1954,10 @@ public:
 		set_oxm_length(sizeof(uint16_t));
 		oxm_uint16t->word = htobe16(src);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_sctp_src(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1860,7 +1967,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_sctp_src const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<sctp-src: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1887,6 +1994,10 @@ public:
 		set_oxm_length(sizeof(uint16_t));
 		oxm_uint16t->word = htobe16(dst);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_sctp_dst(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1896,7 +2007,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_sctp_dst const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<sctp-dst: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1923,6 +2034,10 @@ public:
 		set_oxm_length(sizeof(uint8_t));
 		oxm_uint8t->byte = type;
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_icmpv4_type(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1932,7 +2047,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_icmpv4_type const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<icmpv4-type: "
 						<< (int)oxm.u8value()
 						<< " >" << std::endl;
@@ -1959,6 +2074,10 @@ public:
 		set_oxm_length(sizeof(uint8_t));
 		oxm_uint8t->byte = code;
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_icmpv4_code(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -1968,7 +2087,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_icmpv4_code const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<icmpv4-code: "
 						<< (int)oxm.u8value()
 						<< " >" << std::endl;
@@ -1995,6 +2114,10 @@ public:
 		set_oxm_length(sizeof(uint16_t));
 		oxm_uint16t->word = htobe16(opcode);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_arp_opcode(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -2004,7 +2127,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_opcode const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<arp-opcode: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -2079,6 +2202,10 @@ public:
 		oxm_uint32t->dword = spa.ca_s4addr->sin_addr.s_addr;
 		oxm_uint32t->mask  = mask.ca_s4addr->sin_addr.s_addr;
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_arp_spa(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -2088,7 +2215,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_spa const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<arp-spa: "
 						<< (int)oxm.uint32_value() << "/" << (int)oxm.uint32_mask()
 						<< " >" << std::endl;
@@ -2163,6 +2290,10 @@ public:
 		oxm_uint32t->dword = tpa.ca_s4addr->sin_addr.s_addr;
 		oxm_uint32t->mask  = mask.ca_s4addr->sin_addr.s_addr;
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_arp_tpa(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -2172,7 +2303,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_tpa const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<arp-tpa: "
 						<< (int)oxm.uint32_value() << "/" << (int)oxm.uint32_mask()
 						<< " >" << std::endl;
@@ -2213,6 +2344,10 @@ public:
 		memcpy(oxm_uint48t->value, maddr.somem(), OFP_ETH_ALEN);
 		memcpy(oxm_uint48t->mask, mask.somem(), OFP_ETH_ALEN);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_arp_sha(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -2222,7 +2357,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_sha const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<arp-sha: "
 						<< oxm.u48addr()
 						<< " >" << std::endl;
@@ -2264,6 +2399,10 @@ public:
 		memcpy(oxm_uint48t->value, maddr.somem(), OFP_ETH_ALEN);
 		memcpy(oxm_uint48t->mask, mask.somem(), OFP_ETH_ALEN);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_arp_tha(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -2273,7 +2412,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_tha const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<arp-tha: "
 						<< oxm.u48addr()
 						<< " >" << std::endl;
@@ -2316,6 +2455,10 @@ public:
 		oxm_uint32t->dword = htobe32(flow_label);
 		oxm_uint32t->mask = htobe32(mask);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_flabel(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -2325,7 +2468,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_flabel const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<ipv6-flabel: "
 						<< (int)oxm.uint32_value() << "/" << (int)oxm.uint32_mask()
 						<< " >" << std::endl;
@@ -2352,6 +2495,10 @@ public:
 		set_oxm_length(sizeof(uint8_t));
 		oxm_uint8t->byte = type;
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_icmpv6_type(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -2361,7 +2508,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_icmpv6_type const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<icmpv6-type: "
 						<< (int)oxm.u8value()
 						<< " >" << std::endl;
@@ -2388,6 +2535,10 @@ public:
 		set_oxm_length(sizeof(uint8_t));
 		oxm_uint8t->byte = code;
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_icmpv6_code(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -2397,7 +2548,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_icmpv6_code const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<icmpv6-code: "
 						<< (int)oxm.u8value()
 						<< " >" << std::endl;
@@ -2425,6 +2576,10 @@ public:
 		set_oxm_length(OFP_ETH_ALEN);
 		memcpy(oxm_maddr->addr, addr.somem(), OFP_ETH_ALEN);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_nd_sll(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -2434,7 +2589,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_sll const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<ipv6-nd-sll: "
 						<< oxm.u48addr()
 						<< " >" << std::endl;
@@ -2461,6 +2616,10 @@ public:
 		set_oxm_length(OFP_ETH_ALEN);
 		memcpy(oxm_maddr->addr, addr.somem(), OFP_ETH_ALEN);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_ipv6_nd_tll(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -2470,7 +2629,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_tll const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<ipv6-nd-tll: "
 						<< oxm.u48addr()
 						<< " >" << std::endl;
@@ -2497,6 +2656,10 @@ public:
 		set_oxm_length(sizeof(uint32_t));
 		oxm_uint32t->dword = htobe32(mpls_label);
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_mpls_label(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -2506,7 +2669,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_mpls_label const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<mpls-label: "
 						<< (int)oxm.u32value()
 						<< " >" << std::endl;
@@ -2533,6 +2696,10 @@ public:
 		set_oxm_length(sizeof(uint8_t));
 		oxm_uint8t->byte = mpls_tc;
 	};
+	/** constructor
+	 */
+	coxmatch_ofb_mpls_tc(
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -2542,7 +2709,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_mpls_tc const& oxm)
 	{
-		os << indent(0) << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
 		os << indent(2) << "<mpls-tc: "
 						<< (int)oxm.u8value()
 						<< " >" << std::endl;

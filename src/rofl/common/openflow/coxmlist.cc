@@ -46,7 +46,10 @@ coxmlist::operator= (
 			it = oxl.matches.begin(); it != oxl.matches.end(); ++it) {
 		for (std::map<uint8_t, coxmatch*>::const_iterator
 				jt = it->second.begin(); jt != it->second.end(); ++jt) {
+#if 0
 			matches[it->first][jt->first] = new coxmatch(*(jt->second));
+#endif
+			map_and_insert(*(jt->second));
 		}
 	}
 
@@ -107,24 +110,7 @@ coxmlist::unpack(
 
 		coxmatch oxm(hdr, sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length);
 
-		switch (oxm.get_oxm_class()) {
-		case openflow::OFPXMC_OPENFLOW_BASIC: {
-			if (oxm.get_oxm_field() >= openflow::OFPXMT_OFB_MAX) {
-				throw eBadMatchBadField();
-			}
-		} break;
-		case openflow::OFPXMC_EXPERIMENTER: {
-			if (oxm.get_oxm_field() >= openflow::experimental::OFPXMT_OFX_MAX) {
-				throw eBadMatchBadField();
-			}
-		} break;
-		}
-
-		if (matches[oxm.get_oxm_class()].find(oxm.get_oxm_field()) != matches[oxm.get_oxm_class()].end()) {
-			delete matches[oxm.get_oxm_class()][oxm.get_oxm_field()];
-		}
-
-		matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch(oxm);
+		map_and_insert(oxm);
 
 		buflen -= (sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length);
 		hdr = (struct openflow::ofp_oxm_hdr*)(((uint8_t*)hdr) + sizeof(struct openflow::ofp_oxm_hdr) + hdr->oxm_length);
@@ -222,11 +208,7 @@ void
 coxmlist::insert(
 		coxmatch const& oxm)
 {
-	if (matches[oxm.get_oxm_class()].find(oxm.get_oxm_field()) != matches[oxm.get_oxm_class()].end()) {
-		*(matches[oxm.get_oxm_class()][oxm.get_oxm_field()]) = oxm;
-	} else {
-		matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch(oxm);
-	}
+	map_and_insert(oxm);
 }
 
 
@@ -358,3 +340,131 @@ coxmlist::is_part_of(
 }
 
 
+
+void
+coxmlist::map_and_insert(coxmatch const& oxm)
+{
+	// avoid memory leaks
+	if (matches[oxm.get_oxm_class()].find(oxm.get_oxm_field()) != matches[oxm.get_oxm_class()].end()) {
+		delete matches[oxm.get_oxm_class()][oxm.get_oxm_field()];
+		matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = (coxmatch*)0;
+	}
+
+	switch (oxm.get_oxm_class()) {
+	case openflow::OFPXMC_OPENFLOW_BASIC: {
+		switch (oxm.get_oxm_field()) {
+		case openflow::OFPXMT_OFB_IN_PORT:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_in_port(oxm); break;
+		case openflow::OFPXMT_OFB_IN_PHY_PORT:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_in_phy_port(oxm); break;
+		case openflow::OFPXMT_OFB_METADATA:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_metadata(oxm); break;
+		case openflow::OFPXMT_OFB_ETH_DST:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_eth_dst(oxm); break;
+		case openflow::OFPXMT_OFB_ETH_SRC:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_eth_src(oxm); break;
+		case openflow::OFPXMT_OFB_ETH_TYPE:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_eth_type(oxm); break;
+		case openflow::OFPXMT_OFB_VLAN_VID:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_vlan_vid(oxm); break;
+		case openflow::OFPXMT_OFB_VLAN_PCP:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_vlan_pcp(oxm); break;
+		case openflow::OFPXMT_OFB_IP_DSCP:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_ip_dscp(oxm); break;
+		case openflow::OFPXMT_OFB_IP_ECN:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_ip_ecn(oxm); break;
+		case openflow::OFPXMT_OFB_IP_PROTO:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_ip_proto(oxm); break;
+		case openflow::OFPXMT_OFB_IPV4_SRC:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_ipv4_src(oxm); break;
+		case openflow::OFPXMT_OFB_IPV4_DST:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_ipv4_dst(oxm); break;
+		case openflow::OFPXMT_OFB_TCP_SRC:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_tcp_src(oxm); break;
+		case openflow::OFPXMT_OFB_TCP_DST:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_tcp_dst(oxm); break;
+		case openflow::OFPXMT_OFB_UDP_SRC:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_udp_src(oxm); break;
+		case openflow::OFPXMT_OFB_UDP_DST:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_udp_dst(oxm); break;
+		case openflow::OFPXMT_OFB_SCTP_SRC:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_sctp_src(oxm); break;
+		case openflow::OFPXMT_OFB_SCTP_DST:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_sctp_dst(oxm); break;
+		case openflow::OFPXMT_OFB_ICMPV4_TYPE:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_icmpv4_type(oxm); break;
+		case openflow::OFPXMT_OFB_ICMPV4_CODE:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_icmpv4_code(oxm); break;
+		case openflow::OFPXMT_OFB_ARP_OP:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_arp_opcode(oxm); break;
+		case openflow::OFPXMT_OFB_ARP_SPA:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_arp_spa(oxm); break;
+		case openflow::OFPXMT_OFB_ARP_TPA:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_arp_tpa(oxm); break;
+		case openflow::OFPXMT_OFB_ARP_SHA:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_arp_sha(oxm); break;
+		case openflow::OFPXMT_OFB_ARP_THA:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_arp_tha(oxm); break;
+		case openflow::OFPXMT_OFB_IPV6_SRC:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_ipv6_src(oxm); break;
+		case openflow::OFPXMT_OFB_IPV6_DST:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_ipv6_dst(oxm); break;
+		case openflow::OFPXMT_OFB_IPV6_FLABEL:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_ipv6_flabel(oxm); break;
+		case openflow::OFPXMT_OFB_ICMPV6_TYPE:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_icmpv6_type(oxm); break;
+		case openflow::OFPXMT_OFB_ICMPV6_CODE:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_icmpv6_code(oxm); break;
+		case openflow::OFPXMT_OFB_IPV6_ND_TARGET:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_ipv6_nd_target(oxm); break;
+		case openflow::OFPXMT_OFB_IPV6_ND_SLL:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_ipv6_nd_sll(oxm); break;
+		case openflow::OFPXMT_OFB_IPV6_ND_TLL:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_ipv6_nd_tll(oxm); break;
+		case openflow::OFPXMT_OFB_MPLS_LABEL:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_mpls_label(oxm); break;
+		case openflow::OFPXMT_OFB_MPLS_TC:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofb_mpls_tc(oxm); break;
+		default:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch(oxm);
+		}
+	} break;
+	case openflow::OFPXMC_EXPERIMENTER: {
+		switch (oxm.get_oxm_field()) {
+		case openflow::experimental::OFPXMT_OFX_NW_SRC:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_nw_src(oxm); break;
+		case openflow::experimental::OFPXMT_OFX_NW_DST:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_nw_dst(oxm); break;
+		case openflow::experimental::OFPXMT_OFX_NW_PROTO:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_nw_proto(oxm); break;
+		case openflow::experimental::OFPXMT_OFX_TP_SRC:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_tp_src(oxm); break;
+		case openflow::experimental::OFPXMT_OFX_TP_DST:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_tp_dst(oxm); break;
+		case openflow::experimental::OFPXMT_OFX_PPPOE_CODE:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_pppoe_code(oxm); break;
+		case openflow::experimental::OFPXMT_OFX_PPPOE_TYPE:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_pppoe_type(oxm); break;
+		case openflow::experimental::OFPXMT_OFX_PPPOE_SID:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_pppoe_sid(oxm); break;
+		case openflow::experimental::OFPXMT_OFX_PPP_PROT:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_ppp_prot(oxm); break;
+		case openflow::experimental::OFPXMT_OFX_GTP_MSG_TYPE:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_gtp_msg_type(oxm); break;
+		case openflow::experimental::OFPXMT_OFX_GTP_TEID:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch_ofx_gtp_teid(oxm); break;
+		default:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch(oxm);
+		}
+	} break;
+	case openflow::OFPXMC_NXM_0:
+	case openflow::OFPXMC_NXM_1:
+	default: {
+		switch (oxm.get_oxm_field()) {
+		default:
+			matches[oxm.get_oxm_class()][oxm.get_oxm_field()] = new coxmatch(oxm);
+		}
+	} break;
+	}
+
+}

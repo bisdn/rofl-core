@@ -325,19 +325,19 @@ public:
 		{
 			os << indent(4) << "<matches: >" << std::endl;
 			indent i(6);
-			os << msg.match << std::endl;
+			os << msg.match;
 		}
 
 		switch (msg.get_version()) {
 		case OFP10_VERSION: {
 			os << indent(4) << "<actions: >" << std::endl;
 			indent i(6);
-			os << msg.actions << std::endl;
+			os << msg.actions;
 		} break;
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
 			os << indent(4) << "<instructions: >" << std::endl;
-			os << msg.instructions << std::endl;
+			os << msg.instructions;
 		} break;
 		}
 		return os;

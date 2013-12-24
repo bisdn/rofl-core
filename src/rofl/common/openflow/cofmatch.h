@@ -1204,31 +1204,28 @@ public:
 
 public:
 
-	/**
-	 *
-	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, cofmatch const& m)
-	{
-		os << "cofmatch<";
+	operator<< (std::ostream& os, cofmatch const& m) {
+		os << indent(0) << "<cofmatch ";
 			switch (m.of_version) {
 			case openflow10::OFP_VERSION: {
-				//ofh10_match->
+				os << "OF1.0 ";
 			} break;
 			case openflow12::OFP_VERSION: {
-				os << "type: " << m.ofh12_match->type << " ";
-				os << "length: " << m.ofh12_match->length << " ";
+				os << "OF1.2 type: " << be16toh(m.ofh12_match->type) << " ";
+				os << "length: " << be16toh(m.ofh12_match->length) << " ";
 			} break;
 			case openflow13::OFP_VERSION: {
-				os << "type: " << m.ofh13_match->type << " ";
-				os << "length: " << m.ofh13_match->length << " ";
+				os << "OF1.3 type: " << be16toh(m.ofh13_match->type) << " ";
+				os << "length: " << be16toh(m.ofh13_match->length) << " ";
 			} break;
 			default: {
-				os << "OF version " << m.of_version << " not supported " << std::endl;
+				os << "OF version " << m.of_version << " not supported";
 			}
 			}
-			os << "OXMlist: " << m.oxmlist << std::endl;
-		os << ">";
+		os << ">" << std::endl;
+		indent i(2);
+		os << m.oxmlist;
 		return os;
 	};
 };
