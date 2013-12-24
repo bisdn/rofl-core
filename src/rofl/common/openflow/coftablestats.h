@@ -44,22 +44,25 @@ public: // data structures
 
 	friend std::ostream&
 	operator<< (std::ostream& os, coftable_stats_reply const& tsr) {
-		os << "tableID=" << (int)(tsr.table_id) << " "
-				<< "name=" << tsr.name << " "
-				<< "match=" << tsr.match << " "
-				<< "wildcards=" << tsr.wildcards << " "
-				<< "write-actions=" << tsr.write_actions << " "
-				<< "apply-actions=" << tsr.apply_actions << " "
-				<< "write-setfields=" << tsr.write_setfields << " "
-				<< "apply-setfields=" << tsr.apply_setfields << " "
-				<< "metadata-match=" << tsr.metadata_match << " "
-				<< "metadata-write=" << tsr.metadata_write << " "
-				<< "instructions=" << tsr.instructions << " "
-				<< "config=" << tsr.config << " "
-				<< "max_entries=" << tsr.max_entries << " "
-				<< "active-count=" << tsr.active_count << " "
-				<< "lookup-count=" << tsr.lookup_count << " "
-				<< "matched-count=" << tsr.matched_count << " ";
+		os << indent(0) << "<coftable_stats_reply ";
+				os << "table-id:" << (int)(tsr.table_id) << " ";
+				os << "name:" << tsr.name << " ";
+				os << std::hex;
+				os << "match:" << (unsigned long long)tsr.match << " ";
+				os << "wildcards:" << (unsigned int)tsr.wildcards << " >" << std::endl;
+				os << indent(2) << "<write-actions:" << (unsigned int)tsr.write_actions << " ";
+				os << "apply-actions:" << (unsigned int)tsr.apply_actions << " ";
+				os << "write-setfields:" << (unsigned long long)tsr.write_setfields << " ";
+				os << "apply-setfields:" << (unsigned long long)tsr.apply_setfields << " >" << std::endl;;
+				os << indent(2) << "<metadata-match:" << (unsigned long long)tsr.metadata_match << " ";
+				os << "metadata-write:" << (unsigned long long)tsr.metadata_write << " ";
+				os << "instructions:" << (unsigned int)tsr.instructions << " ";
+				os << std::dec;
+				os << "config:" << (unsigned int)tsr.config << " >" << std::endl;;
+				os << indent(2) << "<max_entries:" << (unsigned int)tsr.max_entries << " ";
+				os << "active-count:" << (unsigned int)tsr.active_count << " ";
+				os << "lookup-count:" << (unsigned long long)tsr.lookup_count << " ";
+				os << "matched-count:" << (unsigned long long)tsr.matched_count << " >" << std::endl;
 		return os;
 	};
 

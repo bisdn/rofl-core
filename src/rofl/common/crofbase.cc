@@ -752,7 +752,7 @@ crofbase::send_echo_request(
 					body,
 					bodylen);
 
-	logging::debug << "sending Echo-Request message " << std::endl << *msg << std::endl;
+	logging::debug << "sending Echo-Request message " << std::endl << *msg;
 
 	dpt_find(dpt)->send_message(msg);
 }

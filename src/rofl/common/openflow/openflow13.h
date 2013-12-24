@@ -13,7 +13,6 @@ namespace openflow13 {
 
 	#define OFP13_VERSION   4
 
-
 	/* Header on all OpenFlow packets. */
 	struct ofp_header {
 	    uint8_t version;    /* OFP10_VERSION. */
@@ -734,9 +733,7 @@ namespace openflow13 {
 
 
 
-	// A3.2 Switch Configuration
-
-	/* unaltered message types since OpenFlow 1.2, flag constants have change */
+	// 7.3.2 Switch Configuration
 
 	/* Switch configuration. */
 	struct ofp_switch_config {
@@ -748,15 +745,12 @@ namespace openflow13 {
 	OFP_ASSERT(sizeof(struct ofp_switch_config) == 12);
 
 	enum ofp_config_flags {
-	#if 0
 		/* Handling of IP fragments. */
 		OFPC_FRAG_NORMAL 	= 0,		/* No special handling for fragments. */
 		OFPC_FRAG_DROP		= 1 << 0, 	/* Drop fragments. */
 		OFPC_FRAG_REASM		= 1 << 1, 	/* Reassemble (only if OFPC_IP_REASM set). */
 		OFPC_FRAG_MASK		= 3,
-
 		// OFPC_INVALID_TTL_TO_CONTROLLER was removed in OF1.3
-	#endif
 	};
 
 	// A3.3 Flow Table Configuration
@@ -2104,8 +2098,7 @@ namespace openflow13 {
 
 
 
-	// A5.1 Hello
-
+	// 7.5.1 Hello
 
 
 	/* Hello elements types.
@@ -2114,14 +2107,12 @@ namespace openflow13 {
 		OFPHET_VERSIONBITMAP	= 1,/* Bitmap of version supported. */
 	};
 
-
 	/* Common header for all Hello Elements */
 	struct ofp_hello_elem_header {
 		uint16_t type;		/* One of OFPHET_*. */
 		uint16_t length; 	/* Length in bytes of this element. */
 	};
 	OFP_ASSERT(sizeof(struct ofp_hello_elem_header) == 4);
-
 
 	/* Version bitmap Hello Element */
 	struct ofp_hello_elem_versionbitmap {
@@ -2134,7 +2125,6 @@ namespace openflow13 {
 		uint32_t bitmaps[0];/* List of bitmaps - supported versions */
 	};
 	OFP_ASSERT(sizeof(struct ofp_hello_elem_versionbitmap) == 4);
-
 
 	/* OFPT_HELLO. This message includes zero or more hello elements having
 	* variable size. Unknown elements types must be ignored/skipped, to allow

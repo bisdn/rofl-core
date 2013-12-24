@@ -176,48 +176,48 @@ cofctlImpl::send_message(
 
         switch (msg->get_type()) {
         case openflow10::OFPT_HELLO: {
-        	logging::debug << "sending Hello message " << std::endl << *msg;
+        	logging::debug << "sending Hello message " << std::endl << *dynamic_cast<cofmsg_hello*>(msg);
         } break;
         case openflow10::OFPT_ERROR: {
-        	logging::debug << "sending Error message " << std::endl << *msg;
+        	logging::debug << "sending Error message " << std::endl << *dynamic_cast<cofmsg_error*>(msg);
     	} break;
         case openflow10::OFPT_ECHO_REQUEST: {
-        	logging::debug << "sending Echo-Request message " << std::endl << *msg;
+        	logging::debug << "sending Echo-Request message " << std::endl << *dynamic_cast<cofmsg_echo_request*>(msg);
     		echo_request_sent(msg);
     	} break;
         case openflow10::OFPT_ECHO_REPLY: {
-        	logging::debug << "sending Echo-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Echo-Reply message " << std::endl << *dynamic_cast<cofmsg_echo_reply*>(msg);
     	} break;
         case openflow10::OFPT_VENDOR: {
-        	logging::debug << "sending Vendor message " << std::endl << *msg;
+        	logging::debug << "sending Vendor message " << std::endl << *dynamic_cast<cofmsg_experimenter*>(msg);
     	} break;
         case openflow10::OFPT_FEATURES_REPLY: {
-        	logging::debug << "sending Features-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Features-Reply message " << std::endl << *dynamic_cast<cofmsg_features_reply*>(msg);
     		features_reply_sent(msg);
     	} break;
         case openflow10::OFPT_GET_CONFIG_REPLY: {
-        	logging::debug << "sending Get-Config-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Get-Config-Reply message " << std::endl << *dynamic_cast<cofmsg_get_config_reply*>(msg);
     		get_config_reply_sent(msg);
     	} break;
         case openflow10::OFPT_PACKET_IN: {
-        	logging::debug << "sending Packet-In message " << std::endl << *msg;
+        	logging::debug << "sending Packet-In message " << std::endl << *dynamic_cast<cofmsg_packet_in*>(msg);
     	} break;
         case openflow10::OFPT_FLOW_REMOVED: {
-        	logging::debug << "sending Flow-Removed message " << std::endl << *msg;
+        	logging::debug << "sending Flow-Removed message " << std::endl << *dynamic_cast<cofmsg_flow_removed*>(msg);
     	} break;
         case openflow10::OFPT_PORT_STATUS: {
-        	logging::debug << "sending Port-Status message " << std::endl << *msg;
+        	logging::debug << "sending Port-Status message " << std::endl << *dynamic_cast<cofmsg_port_status*>(msg);
     	} break;
         case openflow10::OFPT_STATS_REPLY: {
-        	logging::debug << "sending Stats-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Stats-Reply message " << std::endl << *dynamic_cast<cofmsg_stats_reply*>(msg);
     		stats_reply_sent(msg);
     	} break;
         case openflow10::OFPT_BARRIER_REPLY: {
-        	logging::debug << "sending Barrier-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Barrier-Reply message " << std::endl << *dynamic_cast<cofmsg_barrier_reply*>(msg);
     		barrier_reply_sent(msg);
     	} break;
         case openflow10::OFPT_QUEUE_GET_CONFIG_REPLY: {
-        	logging::debug << "sending Queue-Get-Config-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Queue-Get-Config-Reply message " << std::endl << *dynamic_cast<cofmsg_queue_get_config_reply*>(msg);
     		queue_get_config_reply_sent(msg);
     	} break;
         default: {
@@ -231,56 +231,56 @@ cofctlImpl::send_message(
 
         switch (msg->get_type()) {
         case openflow12::OFPT_HELLO: {
-        	logging::debug << "sending Hello message " << std::endl << *msg;
+        	logging::debug << "sending Hello message " << std::endl << *dynamic_cast<cofmsg_hello*>(msg);
         } break;
         case openflow12::OFPT_ERROR: {
-        	logging::debug << "sending Error message " << std::endl << *msg;
+        	logging::debug << "sending Error message " << std::endl << *dynamic_cast<cofmsg_error*>(msg);
     	} break;
         case openflow12::OFPT_ECHO_REQUEST: {
-        	logging::debug << "sending Echo-Request message " << std::endl << *msg;
+        	logging::debug << "sending Echo-Request message " << std::endl << *dynamic_cast<cofmsg_echo_request*>(msg);
     		echo_request_sent(msg);
     	} break;
         case openflow12::OFPT_ECHO_REPLY: {
-        	logging::debug << "sending Echo-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Echo-Reply message " << std::endl << *dynamic_cast<cofmsg_echo_reply*>(msg);
     	} break;
         case openflow12::OFPT_EXPERIMENTER: {
-        	logging::debug << "sending Experimenter message " << std::endl << *msg;
+        	logging::debug << "sending Experimenter message " << std::endl << *dynamic_cast<cofmsg_experimenter*>(msg);
     	} break;
         case openflow12::OFPT_FEATURES_REPLY: {
-        	logging::debug << "sending Features-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Features-Reply message " << std::endl << *dynamic_cast<cofmsg_features_reply*>(msg);
     		features_reply_sent(msg);
     	} break;
         case openflow12::OFPT_GET_CONFIG_REPLY: {
-        	logging::debug << "sending Get-Config-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Get-Config-Reply message " << std::endl << *dynamic_cast<cofmsg_get_config_reply*>(msg);
     		get_config_reply_sent(msg);
     	} break;
         case openflow12::OFPT_PACKET_IN: {
-        	logging::debug << "sending Packet-In message " << std::endl << *msg;
+        	logging::debug << "sending Packet-In message " << std::endl << *dynamic_cast<cofmsg_packet_in*>(msg);
     	} break;
         case openflow12::OFPT_FLOW_REMOVED: {
-        	logging::debug << "sending Flow-Removed message " << std::endl << *msg;
+        	logging::debug << "sending Flow-Removed message " << std::endl << *dynamic_cast<cofmsg_flow_removed*>(msg);
     	} break;
         case openflow12::OFPT_PORT_STATUS: {
-        	logging::debug << "sending Port-Status message " << std::endl << *msg;
+        	logging::debug << "sending Port-Status message " << std::endl << *dynamic_cast<cofmsg_port_status*>(msg);
     	} break;
         case openflow12::OFPT_STATS_REPLY: {
-        	logging::debug << "sending Stats-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Stats-Reply message " << std::endl << *dynamic_cast<cofmsg_stats_reply*>(msg);
     		stats_reply_sent(msg);
     	} break;
         case openflow12::OFPT_BARRIER_REPLY: {
-        	logging::debug << "sending Barrier-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Barrier-Reply message " << std::endl << *dynamic_cast<cofmsg_barrier_reply*>(msg);
     		barrier_reply_sent(msg);
     	} break;
         case openflow12::OFPT_QUEUE_GET_CONFIG_REPLY: {
-        	logging::debug << "sending Queue-Get-Config-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Queue-Get-Config-Reply message " << std::endl << *dynamic_cast<cofmsg_queue_get_config_reply*>(msg);
     		queue_get_config_reply_sent(msg);
     	} break;
         case openflow12::OFPT_ROLE_REPLY: {
-        	logging::debug << "sending Role-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Role-Reply message " << std::endl << *dynamic_cast<cofmsg_role_reply*>(msg);
     		role_reply_sent(msg);
     	} break;
         default: {
-        	logging::error << "dropping invalid packet " << *msg << " " << *this << std::endl;
+        	logging::error << "dropping invalid packet " << *dynamic_cast<cofmsg*>(msg) << " " << *this << std::endl;
         	delete msg;
     	} return;
         }
@@ -291,56 +291,56 @@ cofctlImpl::send_message(
 
         switch (msg->get_type()) {
         case openflow13::OFPT_HELLO: {
-        	logging::debug << "sending Hello message " << std::endl << *msg;
+        	logging::debug << "sending Hello message " << std::endl << *dynamic_cast<cofmsg_hello*>(msg);
         } break;
         case openflow13::OFPT_ERROR: {
-        	logging::debug << "sending Error message " << std::endl << *msg;
+        	logging::debug << "sending Error message " << std::endl << *dynamic_cast<cofmsg_error*>(msg);
     	} break;
         case openflow13::OFPT_ECHO_REQUEST: {
-        	logging::debug << "sending Echo-Request message " << std::endl << *msg;
+        	logging::debug << "sending Echo-Request message " << std::endl << *dynamic_cast<cofmsg_echo_request*>(msg);
     		echo_request_sent(msg);
     	} break;
         case openflow13::OFPT_ECHO_REPLY: {
-        	logging::debug << "sending Echo-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Echo-Reply message " << std::endl << *dynamic_cast<cofmsg_echo_reply*>(msg);
     	} break;
         case openflow13::OFPT_EXPERIMENTER: {
-        	logging::debug << "sending Experimenter message " << std::endl << *msg;
+        	logging::debug << "sending Experimenter message " << std::endl << *dynamic_cast<cofmsg_experimenter*>(msg);
     	} break;
         case openflow13::OFPT_FEATURES_REPLY: {
-        	logging::debug << "sending Features-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Features-Reply message " << std::endl << *dynamic_cast<cofmsg_features_reply*>(msg);
     		features_reply_sent(msg);
     	} break;
         case openflow13::OFPT_GET_CONFIG_REPLY: {
-        	logging::debug << "sending Get-Config-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Get-Config-Reply message " << std::endl << *dynamic_cast<cofmsg_get_config_reply*>(msg);
     		get_config_reply_sent(msg);
     	} break;
         case openflow13::OFPT_PACKET_IN: {
-        	logging::debug << "sending Packet-In message " << std::endl << *msg;
+        	logging::debug << "sending Packet-In message " << std::endl << *dynamic_cast<cofmsg_packet_in*>(msg);
     	} break;
         case openflow13::OFPT_FLOW_REMOVED: {
-        	logging::debug << "sending Flow-Removed message " << std::endl << *msg;
+        	logging::debug << "sending Flow-Removed message " << std::endl << *dynamic_cast<cofmsg_flow_removed*>(msg);
     	} break;
         case openflow13::OFPT_PORT_STATUS: {
-        	logging::debug << "sending Port-Status message " << std::endl << *msg;
+        	logging::debug << "sending Port-Status message " << std::endl << *dynamic_cast<cofmsg_port_status*>(msg);
     	} break;
         case openflow13::OFPT_STATS_REPLY: {
-        	logging::debug << "sending Stats-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Stats-Reply message " << std::endl << *dynamic_cast<cofmsg_stats_reply*>(msg);
     		stats_reply_sent(msg);
     	} break;
         case openflow13::OFPT_BARRIER_REPLY: {
-        	logging::debug << "sending Barrier-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Barrier-Reply message " << std::endl << *dynamic_cast<cofmsg_barrier_reply*>(msg);
     		barrier_reply_sent(msg);
     	} break;
         case openflow13::OFPT_QUEUE_GET_CONFIG_REPLY: {
-        	logging::debug << "sending Queue-Get-Config-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Queue-Get-Config-Reply message " << std::endl << *dynamic_cast<cofmsg_queue_get_config_reply*>(msg);
     		queue_get_config_reply_sent(msg);
     	} break;
         case openflow13::OFPT_ROLE_REPLY: {
-        	logging::debug << "sending Role-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Role-Reply message " << std::endl << *dynamic_cast<cofmsg_role_reply*>(msg);
     		role_reply_sent(msg);
     	} break;
         case openflow13::OFPT_GET_ASYNC_REPLY: {
-        	logging::debug << "sending Get-Async-Reply message " << std::endl << *msg;
+        	logging::debug << "sending Get-Async-Reply message " << std::endl << *dynamic_cast<cofmsg_get_async_config_reply*>(msg);
         	get_async_config_reply_sent(msg);
         } break;
         default: {

@@ -152,25 +152,29 @@ public:
 	cmemory&
 	get_body();
 
-
 public:
-
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_stats const& msg) {
-		os << "<cofmsg_stats " << dynamic_cast<cofmsg const&>( msg ) << " ";
-			switch (msg.get_version()) {
-			case openflow10::OFP_VERSION:
-			case openflow12::OFP_VERSION:
-			case openflow13::OFP_VERSION: {
-				os << "stats-type:" << (int)msg.get_stats_type() << " ";
-				os << "stats-flags:" << (int)msg.get_stats_flags() << " ";
-			} break;
-			default: {
-				os << "unsupported OF version:" << (int)msg.get_version() << " ";
-			} break;
-			}
-		os << ">";
+		std::string s_flags;
+		switch (msg.get_version()) {
+		case openflow10::OFP_VERSION: {
+			if (msg.get_stats_flags() & openflow10::OFPSF_REPLY_MORE)
+				s_flags.append("MORE ");
+		} break;
+		case openflow12::OFP_VERSION: {
+			if (msg.get_stats_flags() & openflow12::OFPSF_REPLY_MORE)
+				s_flags.append("MORE ");
+		} break;
+		default: {
+			s_flags.append("unsupported OF version");
+		} break;
+		}
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_stats ";
+		os << "type:" << (int)msg.get_stats_type() << " ";
+		os << "flags:" << s_flags << " ";
+		os << ">" << std::endl;;
 		return os;
 	};
 };
