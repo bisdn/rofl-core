@@ -270,7 +270,7 @@ public:
 		return (be16toh(inst.oin_header->type) == type);
 	};
 
-	bool operator() (std::pair<enum openflow::ofp_instruction_type, cofinst*> const& p) {
+	bool operator() (std::pair<uint16_t, cofinst*> const& p) {
 		return (be16toh(p.second->oin_header->type) == type);
 	};
 
@@ -300,6 +300,14 @@ public:
 			logging::warn << "cofinst_apply_actions: OFP version not supported" << std::endl;
 			throw eBadVersion();
 		}
+	};
+	/** constructor
+	 */
+	cofinst_apply_actions(
+			uint8_t ofp_version,
+			uint8_t *buf, size_t buflen) :
+				cofinst(ofp_version, buflen) {
+		unpack(buf, buflen);
 	};
 	/** constructor
 	 */
@@ -335,6 +343,14 @@ public:
 			throw eBadVersion();
 		}
 	};
+	/** constructor
+	 */
+	cofinst_write_actions(
+			uint8_t ofp_version,
+			uint8_t *buf, size_t buflen) :
+				cofinst(ofp_version, buflen) {
+		unpack(buf, buflen);
+	};
 	/** destructor
 	 */
 	virtual
@@ -364,6 +380,14 @@ public:
 			logging::warn << "cofinst_clear_actions: OFP version not supported" << std::endl;
 			throw eBadVersion();
 		}
+	};
+	/** constructor
+	 */
+	cofinst_clear_actions(
+			uint8_t ofp_version,
+			uint8_t *buf, size_t buflen) :
+				cofinst(ofp_version, buflen) {
+		unpack(buf, buflen);
 	};
 	/** destructor
 	 */
@@ -401,6 +425,14 @@ public:
 			logging::warn << "cofinst_goto_table: OFP version not supported" << std::endl;
 			throw eBadVersion();
 		}
+	};
+	/** constructor
+	 */
+	cofinst_goto_table(
+			uint8_t ofp_version,
+			uint8_t *buf, size_t buflen) :
+				cofinst(ofp_version, buflen) {
+		unpack(buf, buflen);
 	};
 	/** destructor
 	 */
@@ -458,6 +490,14 @@ public:
 			throw eBadVersion();
 		}
 	};
+	/** constructor
+	 */
+	cofinst_write_metadata(
+			uint8_t ofp_version,
+			uint8_t *buf, size_t buflen) :
+				cofinst(ofp_version, buflen) {
+		unpack(buf, buflen);
+	};
 	/** destructor
 	 */
 	virtual
@@ -500,11 +540,21 @@ public:
 
 class cofinst_meter : public cofinst {
 public:
+	/** constructor
+	 */
 	cofinst_meter(
 			uint8_t ofp_version) :
 				cofinst(ofp_version, sizeof(struct openflow::ofp_instruction))
 	{
 
+	};
+	/** constructor
+	 */
+	cofinst_meter(
+			uint8_t ofp_version,
+			uint8_t *buf, size_t buflen) :
+				cofinst(ofp_version, buflen) {
+		unpack(buf, buflen);
 	};
 };
 

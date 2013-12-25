@@ -34,7 +34,7 @@ class eInstructionsOutOfRange	: public eInstructionsBase {}; // out of range
 
 class cofinstructions
 {
-	std::map<enum openflow::ofp_instruction_type, cofinst*> instmap;
+	std::map<uint16_t, cofinst*> instmap;
 
 public:
 
@@ -186,7 +186,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofinstructions const& inlist) {
 		os << indent(0) << "<cofintructions >" << std::endl;
-		for (std::map<enum openflow::ofp_instruction_type, cofinst*>::const_iterator
+		for (std::map<uint16_t, cofinst*>::const_iterator
 				it = inlist.instmap.begin(); it != inlist.instmap.end(); ++it) {
 			os << indent(2) << *(it->second);
 		}

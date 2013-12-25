@@ -189,7 +189,7 @@ etherswitch::handle_packet_in(
 
 		fe.match.set_in_port(msg->get_match().get_in_port());
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
-		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
+		fe.instructions.add_inst_apply_actions();
 
 		std::cerr << "etherswitch: installing FLOW-MOD with entry: " << fe << std::endl;
 
@@ -269,8 +269,7 @@ etherswitch::handle_packet_in(
 		fe.set_table_id(msg->get_table_id());
 
 		fe.match.set_eth_dst(eth_dst);
-		fe.instructions.next() = cofinst_write_actions(dpt->get_version());
-		fe.instructions[0].actions.next() = cofaction_output(dpt->get_version(), out_port);
+		fe.instructions.add_inst_write_actions().get_actions().next() = cofaction_output(dpt->get_version(), out_port);
 
 		std::cerr << "etherswitch: calling FLOW-MOD with entry: " << fe << std::endl;
 

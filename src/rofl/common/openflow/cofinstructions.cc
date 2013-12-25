@@ -25,7 +25,7 @@ cofinstructions::cofinstructions(cofinstructions const& inlist)
 void
 cofinstructions::clear()
 {
-	for (std::map<enum openflow::ofp_instruction_type, cofinst*>::iterator
+	for (std::map<uint16_t, cofinst*>::iterator
 			it = instmap.begin(); it != instmap.end(); ++it) {
 		delete it->second;
 	}
@@ -45,7 +45,7 @@ cofinstructions::operator= (
 
 	this->ofp_version = inlist.ofp_version;
 
-	for (std::map<enum openflow::ofp_instruction_type, cofinst*>::const_iterator
+	for (std::map<uint16_t, cofinst*>::const_iterator
 			it = inlist.instmap.begin(); it != inlist.instmap.end(); ++it) {
 		try {
 			switch (it->first) {
@@ -92,21 +92,19 @@ cofinstructions::unpack(
 		if (be16toh(inhdr->len) < sizeof(struct openflow::ofp_instruction))
 			throw eInstructionBadLen();
 
-		cofinst inst(ofp_version, (uint8_t*)inhdr, be16toh(inhdr->len));
-
 		switch (be16toh(inhdr->type)) {
 		case openflow::OFPIT_GOTO_TABLE:
-			add_inst_goto_table() = cofinst_goto_table(inst); break;
+			add_inst_goto_table() = cofinst_goto_table(ofp_version, (uint8_t*)inhdr, be16toh(inhdr->len)); break;
 		case openflow::OFPIT_WRITE_METADATA:
-			add_inst_write_metadata() = cofinst_write_metadata(inst); break;
+			add_inst_write_metadata() = cofinst_write_metadata(ofp_version, (uint8_t*)inhdr, be16toh(inhdr->len)); break;
 		case openflow::OFPIT_WRITE_ACTIONS:
-			add_inst_write_actions() = cofinst_write_actions(inst); break;
+			add_inst_write_actions() = cofinst_write_actions(ofp_version, (uint8_t*)inhdr, be16toh(inhdr->len)); break;
 		case openflow::OFPIT_APPLY_ACTIONS:
-			add_inst_apply_actions() = cofinst_apply_actions(inst); break;
+			add_inst_apply_actions() = cofinst_apply_actions(ofp_version, (uint8_t*)inhdr, be16toh(inhdr->len)); break;
 		case openflow::OFPIT_CLEAR_ACTIONS:
-			add_inst_clear_actions() = cofinst_clear_actions(inst); break;
+			add_inst_clear_actions() = cofinst_clear_actions(ofp_version, (uint8_t*)inhdr, be16toh(inhdr->len)); break;
 		case openflow::OFPIT_METER:
-			add_inst_meter() = cofinst_meter(inst); break;
+			add_inst_meter() = cofinst_meter(ofp_version, (uint8_t*)inhdr, be16toh(inhdr->len)); break;
 		default:
 			instmap[be16toh(inhdr->type)] = new cofinst(ofp_version, (uint8_t*)inhdr, be16toh(inhdr->len));
 		}
@@ -129,7 +127,7 @@ cofinstructions::pack(
 
 	struct openflow::ofp_instruction *inhdr = (struct openflow::ofp_instruction*)instructions; // first instruction header
 
-	for (std::map<enum openflow::ofp_instruction_type, cofinst*>::iterator
+	for (std::map<uint16_t, cofinst*>::iterator
 			it = instmap.begin(); it != instmap.end(); ++it) {
 		cofinst& inst = *(it->second);
 		inhdr = (struct openflow::ofp_instruction*)
@@ -146,7 +144,7 @@ cofinstructions::length() const
 {
 	size_t inlen = 0;
 
-	for (std::map<enum openflow::ofp_instruction_type, cofinst*>::const_iterator
+	for (std::map<uint16_t, cofinst*>::const_iterator
 			it = instmap.begin(); it != instmap.end(); ++it) {
 		inlen += it->second->length();
 	}
@@ -374,7 +372,7 @@ cofinstructions::drop_inst_meter()
 cofinst&
 cofinstructions::find_inst(uint8_t type)
 {
-	std::map<enum openflow::ofp_instruction_type, cofinst*>::iterator it;
+	std::map<uint16_t, cofinst*>::iterator it;
 	if ((it = find_if(instmap.begin(), instmap.end(),
 			cofinst_find_type((uint16_t)type))) == instmap.end()) {
 		throw eInstructionsNotFound();

@@ -117,16 +117,16 @@ ethswitch::handle_dpath_open(
 	case openflow10::OFP_VERSION: {
 		fe.set_command(openflow10::OFPFC_ADD);
 		fe.set_table_id(0);
-		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
-		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), openflow10::OFPP_CONTROLLER);
+		fe.instructions.add_inst_apply_actions();
+		fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_output(dpt->get_version(), openflow10::OFPP_CONTROLLER);
 		fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
 
 	} break;
 	case openflow12::OFP_VERSION: {
 		fe.set_command(openflow12::OFPFC_ADD);
 		fe.set_table_id(0);
-		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
-		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), openflow12::OFPP_CONTROLLER);
+		fe.instructions.add_inst_apply_actions();
+		fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_output(dpt->get_version(), openflow12::OFPP_CONTROLLER);
 		fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
 		fe.match.set_eth_dst(cmacaddr("00:11:22:33:44:55"));
 
@@ -134,8 +134,8 @@ ethswitch::handle_dpath_open(
 	case openflow13::OFP_VERSION: {
 		fe.set_command(openflow13::OFPFC_ADD);
 		fe.set_table_id(0);
-		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
-		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), openflow13::OFPP_CONTROLLER);
+		fe.instructions.add_inst_apply_actions();
+		fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_output(dpt->get_version(), openflow13::OFPP_CONTROLLER);
 		fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
 
 	} break;
@@ -195,7 +195,7 @@ ethswitch::handle_packet_in(
 
 		fe.match.set_in_port(msg->get_match().get_in_port());
 		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
-		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
+		fe.instructions.add_inst_apply_actions();
 
 		fprintf(stderr, "etherswitch: installing FLOW-MOD with entry: ");
 		std::cerr << fe << std::endl;

@@ -199,6 +199,10 @@ cofinst::unpack_of12(uint8_t* buf, size_t buflen)
 			throw eInstructionBadExperimenter();
 		}
 		break;
+	case openflow13::OFPIT_METER:
+		oin_meter = (struct openflow13::ofp_instruction_meter*)oin_header;
+		// TODO: parse remaining instructions
+		break;
 	default:
 		logging::error << "[rofl][instruction] unsupported instruction type: " << (int)get_type() << std::endl;
 		throw eInstructionInvalType();
