@@ -218,8 +218,8 @@ match_vlan_id::handle_packet_in(
 	if (eth_dst.is_multicast() ||
 			(fib[dpt][vlan_id].find(eth_dst) == fib[dpt][vlan_id].end()))
 	{
-		cofactions actions;
-		actions.next() = cofaction_output(dpt->get_version(), crofbase::get_ofp_flood_port(dpt->get_version()));
+		cofactions actions(dpt->get_version());
+		actions.append_action_output(crofbase::get_ofp_flood_port(dpt->get_version()));
 
 		if (crofbase::get_ofp_no_buffer(dpt->get_version()) == msg->get_buffer_id()) {
 			send_packet_out_message(
@@ -260,7 +260,7 @@ match_vlan_id::handle_packet_in(
 		fe.match.set_eth_dst(eth_dst);
 		if (vlan_id != 0xffff)
 			fe.match.set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, vlan_id);
-		fe.instructions.add_inst_write_actions().get_actions().next() = cofaction_output(dpt->get_version(), out_port);
+		fe.instructions.set_inst_write_actions().get_actions().append_action_output(out_port);
 
 		std::cerr << "match_vlan_id: calling FLOW-MOD with entry: " << fe << std::endl;
 

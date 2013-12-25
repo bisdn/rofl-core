@@ -136,14 +136,14 @@ cgroupentry::test()
 	ge.buckets[0].watch_group = 1;
 	ge.buckets[0].watch_port = 8;
 	ge.buckets[0].weight = 0x0800;
-	ge.buckets[0].actions[0] = cofaction_output(openflow12::OFP_VERSION, 6);
-	ge.buckets[1].actions[0] = cofaction_pop_vlan(openflow12::OFP_VERSION);
-	ge.buckets[1].actions[1] = cofaction_push_vlan(openflow12::OFP_VERSION, 600);
-	ge.buckets[1].actions[2] = cofaction_dec_nw_ttl(openflow12::OFP_VERSION);
-	ge.buckets[1].actions[3] = cofaction_set_queue(openflow12::OFP_VERSION, 3);
-	ge.buckets[1].actions[4] = cofaction_copy_ttl_out(openflow12::OFP_VERSION);
-	ge.buckets[1].actions[5] = cofaction_copy_ttl_in(openflow12::OFP_VERSION);
-	ge.buckets[1].actions[6] = cofaction_output(openflow12::OFP_VERSION, 16);
+	ge.buckets[0].actions.append_action_output(6);
+	ge.buckets[1].actions.append_action_pop_vlan();
+	ge.buckets[1].actions.append_action_push_vlan(600);
+	ge.buckets[1].actions.append_action_dec_nw_ttl();
+	ge.buckets[1].actions.append_action_set_queue(3);
+	ge.buckets[1].actions.append_action_copy_ttl_out();
+	ge.buckets[1].actions.append_action_copy_ttl_in();
+	ge.buckets[1].actions.append_action_output(16);
 
 	std::cerr << "XXXXXX => " << ge << std::endl;
 }

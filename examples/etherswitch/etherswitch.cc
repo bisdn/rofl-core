@@ -117,15 +117,14 @@ ethswitch::handle_dpath_open(
 	case openflow10::OFP_VERSION: {
 		fe.set_command(openflow10::OFPFC_ADD);
 		fe.set_table_id(0);
-		fe.instructions.add_inst_apply_actions();
-		fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_output(dpt->get_version(), openflow10::OFPP_CONTROLLER);
+		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(openflow10::OFPP_CONTROLLER);
 		fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
 
 	} break;
 	case openflow12::OFP_VERSION: {
 		fe.set_command(openflow12::OFPFC_ADD);
 		fe.set_table_id(0);
-		fe.instructions.set_inst_apply_actions().get_actions().next() = cofaction_output(dpt->get_version(), openflow12::OFPP_CONTROLLER);
+		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(openflow12::OFPP_CONTROLLER);
 		fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
 		fe.match.set_eth_dst(cmacaddr("00:11:22:33:44:55"));
 		fe.instructions.set_inst_goto_table().set_table_id(4);
@@ -134,8 +133,7 @@ ethswitch::handle_dpath_open(
 	case openflow13::OFP_VERSION: {
 		fe.set_command(openflow13::OFPFC_ADD);
 		fe.set_table_id(0);
-		fe.instructions.add_inst_apply_actions();
-		fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_output(dpt->get_version(), openflow13::OFPP_CONTROLLER);
+		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(openflow13::OFPP_CONTROLLER);
 		fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
 
 	} break;
@@ -213,7 +211,7 @@ ethswitch::handle_packet_in(
 			msg->get_packet().ether()->get_dl_type());
 
 
-	cofactions actions;
+	cofactions actions(dpt->get_version());
 
 	cfib::get_fib(dpt->get_dpid()).fib_update(
 							this,
@@ -225,11 +223,11 @@ ethswitch::handle_packet_in(
 
 		switch (dpt->get_version()) {
 		case openflow10::OFP_VERSION:
-			actions.next() = cofaction_output(dpt->get_version(), openflow10::OFPP_FLOOD); break;
+			actions.append_action_output(openflow10::OFPP_FLOOD); break;
 		case openflow12::OFP_VERSION:
-			actions.next() = cofaction_output(dpt->get_version(), openflow12::OFPP_FLOOD); break;
+			actions.append_action_output(openflow12::OFPP_FLOOD); break;
 		case openflow13::OFP_VERSION:
-			actions.next() = cofaction_output(dpt->get_version(), openflow13::OFPP_FLOOD); break;
+			actions.append_action_output(openflow13::OFPP_FLOOD); break;
 		default:
 			throw eBadVersion();
 		}
@@ -247,7 +245,7 @@ ethswitch::handle_packet_in(
 			delete msg; return;
 		}
 
-		actions.next() = cofaction_output(dpt->get_version(), entry.get_out_port_no());
+		actions.append_action_output(entry.get_out_port_no());
 	}
 
 	uint32_t ofp_no_buffer = 0;

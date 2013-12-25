@@ -128,6 +128,38 @@ namespace openflow {
 	};
 	OFP_ASSERT(sizeof(struct ofp_action_header) == 8);
 
+	enum ofp_action_type {
+		OFPAT_OUTPUT 			= 0, 	/* Output to switch port. */
+		// OF1.0 only actions
+		OFPAT_SET_VLAN_VID      = 1, 	/* Set the 802.1q VLAN id. */
+		OFPAT_SET_VLAN_PCP		= 2,    /* Set the 802.1q priority. */
+		OFPAT_STRIP_VLAN		= 3,    /* Strip the 802.1q header. */
+		OFPAT_SET_DL_SRC		= 4,    /* Ethernet source address. */
+		OFPAT_SET_DL_DST		= 5,    /* Ethernet destination address. */
+		OFPAT_SET_NW_SRC		= 6,    /* IP source address. */
+		OFPAT_SET_NW_DST		= 7,    /* IP destination address. */
+		OFPAT_SET_NW_TOS		= 8,    /* IP ToS (DSCP field, 6 bits). */
+		OFPAT_SET_TP_SRC		= 9,    /* TCP/UDP source port. */
+		OFPAT_SET_TP_DST		= 10,   /* TCP/UDP destination port. */
+		// OF1.0 only actions (end)
+		// Please note: #0 and #11 needs special care in OF10 and OF12
+		OFPAT_COPY_TTL_OUT 		= 11, 	/* Copy TTL "outwards" -- from next-to-outermost to outermost */
+		OFPAT_COPY_TTL_IN 		= 12, 	/* Copy TTL "inwards" -- from outermost to next-to-outermost */
+		OFPAT_SET_MPLS_TTL 		= 15, 	/* MPLS TTL */
+		OFPAT_DEC_MPLS_TTL 		= 16, 	/* Decrement MPLS TTL */
+		OFPAT_PUSH_VLAN 		= 17, 	/* Push a new VLAN tag */
+		OFPAT_POP_VLAN 			= 18, 	/* Pop the outer VLAN tag */
+		OFPAT_PUSH_MPLS 		= 19, 	/* Push a new MPLS tag */
+		OFPAT_POP_MPLS 			= 20, 	/* Pop the outer MPLS tag */
+		OFPAT_SET_QUEUE 		= 21, 	/* Set queue id when outputting to a port */
+		OFPAT_GROUP 			= 22, 	/* Apply group. */
+		OFPAT_SET_NW_TTL 		= 23, 	/* IP TTL. */
+		OFPAT_DEC_NW_TTL 		= 24, 	/* Decrement IP TTL. */
+		OFPAT_SET_FIELD 		= 25, 	/* Set a header field using OXM TLV format. */
+		OFPAT_EXPERIMENTER		= 0xffff
+	};
+
+
 
 	struct ofp_oxm_hdr {
 		uint16_t oxm_class;		/* oxm_class */

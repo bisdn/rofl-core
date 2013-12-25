@@ -249,11 +249,5 @@ cofinst::length() const
 
 
 
-cofaction&
-cofinst::find_action(uint8_t type)
-{
-	return actions.find_action(type);
-}
-
 
 template class coflist<cofinst>;

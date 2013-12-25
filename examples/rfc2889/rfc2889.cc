@@ -226,8 +226,8 @@ etherswitch::handle_packet_in(
 	if (eth_dst.is_multicast() ||
 			(fib[dpt][vlan_id].find(eth_dst) == fib[dpt][vlan_id].end()))
 	{
-		cofactions actions;
-		actions.next() = cofaction_output(dpt->get_version(), openflow12::OFPP_FLOOD);
+		cofactions actions(dpt->get_version());
+		actions.append_action_output(openflow12::OFPP_FLOOD);
 
 		if (openflow12::OFP_NO_BUFFER == msg->get_buffer_id()) {
 			send_packet_out_message(
@@ -269,7 +269,7 @@ etherswitch::handle_packet_in(
 		fe.set_table_id(msg->get_table_id());
 
 		fe.match.set_eth_dst(eth_dst);
-		fe.instructions.add_inst_write_actions().get_actions().next() = cofaction_output(dpt->get_version(), out_port);
+		fe.instructions.set_inst_write_actions().get_actions().append_action_output(out_port);
 
 		std::cerr << "etherswitch: calling FLOW-MOD with entry: " << fe << std::endl;
 

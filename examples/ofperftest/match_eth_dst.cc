@@ -112,7 +112,7 @@ match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 		r_mac[5] &= 0xf7;
 
 		fe.match.set_eth_dst(r_mac);
-		fe.instructions.add_inst_write_actions().get_actions().next() = cofaction_output(dpt->get_version(), portnums[0]);
+		fe.instructions.set_inst_write_actions().get_actions().append_action_output(portnums[0]);
 
 		std::cerr << "match_eth_dst: calling FLOW-MOD with entry: " << fe << std::endl;
 
@@ -273,8 +273,8 @@ match_eth_dst::handle_packet_in(
 	if (eth_dst.is_multicast() ||
 			(fib[dpt][vlan_id].find(eth_dst) == fib[dpt][vlan_id].end()))
 	{
-		cofactions actions;
-		actions.next() = cofaction_output(dpt->get_version(), flood_port);
+		cofactions actions(dpt->get_version());
+		actions.append_action_output(flood_port);
 
 		if (ofp_no_buffer == msg->get_buffer_id()) {
 			send_packet_out_message(
@@ -313,7 +313,7 @@ match_eth_dst::handle_packet_in(
 		fe.set_table_id(msg->get_table_id());
 
 		fe.match.set_eth_dst(eth_dst);
-		fe.instructions.add_inst_write_actions().get_actions().next() = cofaction_output(dpt->get_version(), out_port);
+		fe.instructions.set_inst_write_actions().get_actions().append_action_output(out_port);
 
 		std::cerr << "match_eth_dst: calling FLOW-MOD with entry: " << fe << std::endl;
 

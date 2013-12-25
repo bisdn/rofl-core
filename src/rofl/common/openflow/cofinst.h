@@ -134,10 +134,6 @@ public: // methods
 	cofactions&
 	get_actions() { return actions; };
 
-	/** find specific action
-	 */
-	cofaction&
-	find_action(uint8_t type);
 
 	/** copy struct ofp_action_header
 	 */

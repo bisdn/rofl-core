@@ -65,10 +65,9 @@ cofactionset::actionset_clear(cofinst& inst)
 	acset.clear();
 
 	cofactions::iterator at;
-	for (at = inst.actions.begin(); at != inst.actions.end(); ++at)
-	{
-		cofaction& action = (*at);
-
+	for (std::list<cofaction*>::iterator
+			at = inst.get_actions().begin(); at != inst.get_actions().end(); ++at) {
+		cofaction& action = *(*at);
 		switch (be16toh(action.oac_header->type)) {
 		case openflow12::OFPAT_SET_FIELD: {
 			coxmatch oxm(
@@ -94,10 +93,9 @@ cofactionset::actionset_write_actions(cofinst& inst)
 {
 	WRITELOG(COFACTION, DBG, "cofactionset(%p)::actionset_write_actions() inst->actions.elems.size()=%u", this, inst.actions.size());
 
-	cofactions::iterator at;
-	for (at = inst.actions.begin(); at != inst.actions.end(); ++at)
-	{
-		cofaction& action = (*at);
+	for (std::list<cofaction*>::iterator
+			at = inst.get_actions().begin(); at != inst.get_actions().end(); ++at) {
+		cofaction& action = *(*at);
 
 		WRITELOG(COFACTION, DBG, "write action %u at position %u",
 				be16toh(action.oac_header->type),

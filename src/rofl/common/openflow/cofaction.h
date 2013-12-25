@@ -248,6 +248,10 @@ public:
 		return (be16toh(action.oac_header->type) == type);
 	};
 
+	bool operator() (cofaction const* action) {
+		return (be16toh(action->oac_header->type) == type);
+	};
+
 	uint16_t type;
 };
 
@@ -291,6 +295,12 @@ public:
 		}
 		}
 	};
+
+	/** constructor
+	 */
+	cofaction_output(
+			cofaction const& action) :
+				cofaction(action) {};
 
 	/** destructor
 	 */
@@ -346,6 +356,12 @@ public:
 		}
 	};
 
+	/** constructor
+	 */
+	cofaction_set_vlan_vid(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual
@@ -377,6 +393,12 @@ public:
 		}
 	};
 
+	/** constructor
+	 */
+	cofaction_set_vlan_pcp(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual
@@ -404,6 +426,12 @@ public:
 			throw eBadVersion();
 		}
 	};
+
+	/** constructor
+	 */
+	cofaction_strip_vlan(
+			cofaction const& action) :
+				cofaction(action) {};
 
 	/** destructor
 	 */
@@ -436,6 +464,12 @@ public:
 		}
 	};
 
+	/** constructor
+	 */
+	cofaction_set_dl_src(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual
@@ -466,6 +500,12 @@ public:
 			throw eBadVersion();
 		}
 	};
+
+	/** constructor
+	 */
+	cofaction_set_dl_dst(
+			cofaction const& action) :
+				cofaction(action) {};
 
 	/** destructor
 	 */
@@ -498,6 +538,12 @@ public:
 		}
 	};
 
+	/** constructor
+	 */
+	cofaction_set_nw_src(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual
@@ -528,6 +574,12 @@ public:
 			throw eBadVersion();
 		}
 	};
+
+	/** constructor
+	 */
+	cofaction_set_nw_dst(
+			cofaction const& action) :
+				cofaction(action) {};
 
 	/** destructor
 	 */
@@ -560,6 +612,12 @@ public:
 		}
 	};
 
+	/** constructor
+	 */
+	cofaction_set_nw_tos(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual
@@ -590,6 +648,12 @@ public:
 			throw eBadVersion();
 		}
 	};
+
+	/** constructor
+	 */
+	cofaction_set_tp_src(
+			cofaction const& action) :
+				cofaction(action) {};
 
 	/** destructor
 	 */
@@ -622,6 +686,12 @@ public:
 		}
 	};
 
+	/** constructor
+	 */
+	cofaction_set_tp_dst(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual
@@ -653,6 +723,12 @@ public:
 			throw eBadVersion();
 		}
 	};
+
+	/** constructor
+	 */
+	cofaction_enqueue(
+			cofaction const& action) :
+				cofaction(action) {};
 
 	/** destructor
 	 */
@@ -751,6 +827,12 @@ public:
 		}
 	};
 
+	/** constructor
+	 */
+	cofaction_set_mpls_ttl(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual
@@ -785,6 +867,12 @@ public:
 		}
 	};
 
+	/** constructor
+	 */
+	cofaction_dec_mpls_ttl(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual
@@ -817,6 +905,12 @@ public:
 			throw eBadVersion();
 		}
 	};
+
+	/** constructor
+	 */
+	cofaction_push_vlan(
+			cofaction const& action) :
+				cofaction(action) {};
 
 	/** destructor
 	 */
@@ -851,6 +945,12 @@ public:
 		}
 	};
 
+	/** constructor
+	 */
+	cofaction_push_mpls(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual
@@ -880,6 +980,12 @@ public:
 			throw eBadVersion();
 		}
 	};
+
+	/** constructor
+	 */
+	cofaction_pop_vlan(
+			cofaction const& action) :
+				cofaction(action) {};
 
 	/** destructor
 	 */
@@ -913,6 +1019,12 @@ public:
 			throw eBadVersion();
 		}
 	};
+
+	/** constructor
+	 */
+	cofaction_pop_mpls(
+			cofaction const& action) :
+				cofaction(action) {};
 
 	/** destructor
 	 */
@@ -948,6 +1060,12 @@ public:
 		}
 	};
 
+	/** constructor
+	 */
+	cofaction_group(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual
@@ -982,6 +1100,12 @@ public:
 
 	};
 
+	/** constructor
+	 */
+	cofaction_set_nw_ttl(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual
@@ -1012,6 +1136,12 @@ public:
 		}
 	};
 
+	/** constructor
+	 */
+	cofaction_dec_nw_ttl(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual
@@ -1041,6 +1171,12 @@ public:
 			throw eBadVersion();
 		}
 	};
+
+	/** constructor
+	 */
+	cofaction_copy_ttl_out(
+			cofaction const& action) :
+				cofaction(action) {};
 
 	/** destructor
 	 */
@@ -1073,6 +1209,12 @@ public:
 
 	};
 
+	/** constructor
+	 */
+	cofaction_copy_ttl_in(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual
@@ -1090,7 +1232,7 @@ public:
 	 */
 	cofaction_set_queue(
 			uint8_t ofp_version,
-			uint8_t queue_id) :
+			uint32_t queue_id) :
 				cofaction(ofp_version, sizeof(struct openflow12::ofp_action_set_queue))
 	{
 		switch (ofp_version) {
@@ -1106,6 +1248,12 @@ public:
 			throw eBadVersion();
 		}
 	};
+
+	/** constructor
+	 */
+	cofaction_set_queue(
+			cofaction const& action) :
+				cofaction(action) {};
 
 	/** destructor
 	 */
@@ -1152,6 +1300,13 @@ public:
 			throw eBadVersion();
 		}
 	};
+
+	/** constructor
+	 */
+	cofaction_set_field(
+			cofaction const& action) :
+				cofaction(action) {};
+
 	/** destructor
 	 */
 	virtual

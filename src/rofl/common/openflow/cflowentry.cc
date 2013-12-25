@@ -603,16 +603,16 @@ cflowentry::test()
 	fe.instructions.add_inst_clear_actions();
 
 	fe.instructions.add_inst_apply_actions();
-	fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_output(openflow12::OFP_VERSION, 2);
-	fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 3));
-	fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_ip_dscp(4));
-	fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_push_mpls(openflow12::OFP_VERSION, 50);
-	fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_push_mpls(openflow12::OFP_VERSION, 100);
-	fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_set_field(openflow12::OFP_VERSION, coxmatch_ofb_tcp_dst(8080));
+	fe.instructions.get_inst_apply_actions().get_actions().append_action_output(2);
+	fe.instructions.get_inst_apply_actions().get_actions().append_action_set_field(coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 3));
+	fe.instructions.get_inst_apply_actions().get_actions().append_action_set_field(coxmatch_ofb_ip_dscp(4));
+	fe.instructions.get_inst_apply_actions().get_actions().append_action_push_mpls(50);
+	fe.instructions.get_inst_apply_actions().get_actions().append_action_push_mpls(100);
+	fe.instructions.get_inst_apply_actions().get_actions().append_action_set_field(coxmatch_ofb_tcp_dst(8080));
 
 	fe.instructions.add_inst_write_actions();
-	fe.instructions.get_inst_write_actions().get_actions().next() = cofaction_pop_mpls(openflow12::OFP_VERSION, 1000);
-	fe.instructions.get_inst_write_actions().get_actions().next() = cofaction_group(openflow12::OFP_VERSION, 32);
+	fe.instructions.set_inst_write_actions().get_actions().append_action_pop_mpls(1000);
+	fe.instructions.set_inst_write_actions().get_actions().append_action_group(32);
 
 	fe.instructions.add_inst_goto_table().set_table_id(5);
 
