@@ -165,6 +165,16 @@ cofinstructions::add_inst_goto_table()
 
 
 cofinst_goto_table&
+cofinstructions::set_inst_goto_table()
+{
+	if (instmap.find(openflow::OFPIT_GOTO_TABLE) == instmap.end())
+		instmap[openflow::OFPIT_GOTO_TABLE] = new cofinst_goto_table(ofp_version);
+	return *dynamic_cast<cofinst_goto_table*>(instmap[openflow::OFPIT_GOTO_TABLE]);
+}
+
+
+
+cofinst_goto_table&
 cofinstructions::get_inst_goto_table() const
 {
 	// may throw std::out_of_range
@@ -195,6 +205,16 @@ cofinstructions::add_inst_write_metadata()
 	if (instmap.find(openflow::OFPIT_WRITE_METADATA) != instmap.end())
 		delete instmap[openflow::OFPIT_WRITE_METADATA];
 	instmap[openflow::OFPIT_WRITE_METADATA] = new cofinst_write_metadata(ofp_version);
+	return *dynamic_cast<cofinst_write_metadata*>(instmap[openflow::OFPIT_WRITE_METADATA]);
+}
+
+
+
+cofinst_write_metadata&
+cofinstructions::set_inst_write_metadata()
+{
+	if (instmap.find(openflow::OFPIT_WRITE_METADATA) == instmap.end())
+		instmap[openflow::OFPIT_WRITE_METADATA] = new cofinst_write_metadata(ofp_version);
 	return *dynamic_cast<cofinst_write_metadata*>(instmap[openflow::OFPIT_WRITE_METADATA]);
 }
 
@@ -237,6 +257,16 @@ cofinstructions::add_inst_write_actions()
 
 
 cofinst_write_actions&
+cofinstructions::set_inst_write_actions()
+{
+	if (instmap.find(openflow::OFPIT_WRITE_ACTIONS) == instmap.end())
+		instmap[openflow::OFPIT_WRITE_ACTIONS] = new cofinst_write_actions(ofp_version);
+	return *dynamic_cast<cofinst_write_actions*>(instmap[openflow::OFPIT_WRITE_ACTIONS]);
+}
+
+
+
+cofinst_write_actions&
 cofinstructions::get_inst_write_actions() const
 {
 	// may throw std::out_of_range
@@ -267,6 +297,16 @@ cofinstructions::add_inst_apply_actions()
 	if (instmap.find(openflow::OFPIT_APPLY_ACTIONS) != instmap.end())
 		delete instmap[openflow::OFPIT_APPLY_ACTIONS];
 	instmap[openflow::OFPIT_APPLY_ACTIONS] = new cofinst_apply_actions(ofp_version);
+	return *dynamic_cast<cofinst_apply_actions*>(instmap[openflow::OFPIT_APPLY_ACTIONS]);
+}
+
+
+
+cofinst_apply_actions&
+cofinstructions::set_inst_apply_actions()
+{
+	if (instmap.find(openflow::OFPIT_APPLY_ACTIONS) == instmap.end())
+		instmap[openflow::OFPIT_APPLY_ACTIONS] = new cofinst_apply_actions(ofp_version);
 	return *dynamic_cast<cofinst_apply_actions*>(instmap[openflow::OFPIT_APPLY_ACTIONS]);
 }
 
@@ -309,6 +349,16 @@ cofinstructions::add_inst_clear_actions()
 
 
 cofinst_clear_actions&
+cofinstructions::set_inst_clear_actions()
+{
+	if (instmap.find(openflow::OFPIT_CLEAR_ACTIONS) == instmap.end())
+		instmap[openflow::OFPIT_CLEAR_ACTIONS] = new cofinst_clear_actions(ofp_version);
+	return *dynamic_cast<cofinst_clear_actions*>(instmap[openflow::OFPIT_CLEAR_ACTIONS]);
+}
+
+
+
+cofinst_clear_actions&
 cofinstructions::get_inst_clear_actions() const
 {
 	// may throw std::out_of_range
@@ -339,6 +389,16 @@ cofinstructions::add_inst_meter()
 	if (instmap.find(openflow::OFPIT_METER) != instmap.end())
 		delete instmap[openflow::OFPIT_METER];
 	instmap[openflow::OFPIT_METER] = new cofinst_meter(ofp_version);
+	return *dynamic_cast<cofinst_meter*>(instmap[openflow::OFPIT_METER]);
+}
+
+
+
+cofinst_meter&
+cofinstructions::set_inst_meter()
+{
+	if (instmap.find(openflow::OFPIT_METER) == instmap.end())
+		instmap[openflow::OFPIT_METER] = new cofinst_meter(ofp_version);
 	return *dynamic_cast<cofinst_meter*>(instmap[openflow::OFPIT_METER]);
 }
 

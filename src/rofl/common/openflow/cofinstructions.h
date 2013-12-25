@@ -96,6 +96,9 @@ public: // methods
 	add_inst_goto_table();
 
 	cofinst_goto_table&
+	set_inst_goto_table();
+
+	cofinst_goto_table&
 	get_inst_goto_table() const;
 
 	void
@@ -107,6 +110,9 @@ public: // methods
 	 */
 	cofinst_write_metadata&
 	add_inst_write_metadata();
+
+	cofinst_write_metadata&
+	set_inst_write_metadata();
 
 	cofinst_write_metadata&
 	get_inst_write_metadata() const;
@@ -122,6 +128,9 @@ public: // methods
 	add_inst_write_actions();
 
 	cofinst_write_actions&
+	set_inst_write_actions();
+
+	cofinst_write_actions&
 	get_inst_write_actions() const;
 
 	void
@@ -133,6 +142,9 @@ public: // methods
 	 */
 	cofinst_apply_actions&
 	add_inst_apply_actions();
+
+	cofinst_apply_actions&
+	set_inst_apply_actions();
 
 	cofinst_apply_actions&
 	get_inst_apply_actions() const;
@@ -148,6 +160,9 @@ public: // methods
 	add_inst_clear_actions();
 
 	cofinst_clear_actions&
+	set_inst_clear_actions();
+
+	cofinst_clear_actions&
 	get_inst_clear_actions() const;
 
 	void
@@ -159,6 +174,9 @@ public: // methods
 	 */
 	cofinst_meter&
 	add_inst_meter();
+
+	cofinst_meter&
+	set_inst_meter();
 
 	cofinst_meter&
 	get_inst_meter() const;
@@ -180,6 +198,12 @@ public: // methods
 	 */
 	void
 	clear();
+
+	/**
+	 *
+	 */
+	unsigned int
+	size() { return instmap.size(); };
 
 public:
 
