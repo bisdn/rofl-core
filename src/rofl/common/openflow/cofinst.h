@@ -210,7 +210,7 @@ private:
 
 protected: // data structures
 
-	cmemory instruction; // memory area with original packes instruction
+	cmemory instruction; // memory area with original packed instruction
 
 protected:
 
@@ -224,36 +224,10 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofinst const& inst) {
-		os << "<cofinst ";
-		switch (inst.get_version()) {
-		case openflow12::OFP_VERSION: {
-			switch (inst.get_type()) {
-			case openflow12::OFPIT_APPLY_ACTIONS:	os << "OFIT-APPLY-ACTIONS" 	<< " "; break;
-			case openflow12::OFPIT_WRITE_ACTIONS:	os << "OFIT-WRITE-ACTIONS" 	<< " "; break;
-			case openflow12::OFPIT_CLEAR_ACTIONS:	os << "OFIT-CLEAR-ACTIONS" 	<< " ";	break;
-			case openflow12::OFPIT_WRITE_METADATA:	os << "OFIT-WRITE-METADATA" << " ";	break;
-			case openflow12::OFPIT_GOTO_TABLE:		os << "OFIT-GOTO-TABLE"	    << " "; break;
-			default:								os << "OFIT-UNKNOWN"		<< " "; break;
-			}
-		} break;
-		case openflow13::OFP_VERSION: {
-			switch (inst.get_type()) {
-			case openflow13::OFPIT_APPLY_ACTIONS:	os << "OFIT-APPLY-ACTIONS" 	<< " "; break;
-			case openflow13::OFPIT_WRITE_ACTIONS:	os << "OFIT-WRITE-ACTIONS" 	<< " "; break;
-			case openflow13::OFPIT_CLEAR_ACTIONS:	os << "OFIT-CLEAR-ACTIONS" 	<< " ";	break;
-			case openflow13::OFPIT_WRITE_METADATA:	os << "OFIT-WRITE-METADATA" << " ";	break;
-			case openflow13::OFPIT_GOTO_TABLE:		os << "OFIT-GOTO-TABLE"	    << " "; break;
-			case openflow13::OFPIT_METER:			os << "OFIT-METER"	   		<< " "; break;
-			default:								os << "OFIT-UNKNOWN"		<< " "; break;
-			}
-		} break;
-		default: {
-			// do nothing
-		} break;
-		}
-		os << "actions:" << std::endl;
-		os << inst.actions << " ";
-		os << ">";
+		os << indent(0) << "<cofinst ";
+		os << "type:" << (int)inst.get_type() << " ";
+		os << "length:" << (int)inst.get_length() << " ";
+		os << ">" << std::endl;
 		return os;
 	};
 };
@@ -304,19 +278,30 @@ public:
 	/** constructor
 	 */
 	cofinst_apply_actions(
+			cofinst const& inst) :
+				cofinst(inst) {};
+	/** constructor
+	 */
+	cofinst_apply_actions(
 			uint8_t ofp_version,
 			uint8_t *buf, size_t buflen) :
 				cofinst(ofp_version, buflen) {
 		unpack(buf, buflen);
 	};
-	/** constructor
-	 */
-	cofinst_apply_actions(cofinst const& inst) :
-		cofinst(inst) {};
 	/** destructor
 	 */
 	virtual
 	~cofinst_apply_actions() {};
+public:
+	friend std::ostream&
+	operator<< (std::ostream& os, cofinst_apply_actions const& inst) {
+		os << dynamic_cast<cofinst const&>( inst );
+		indent i1(2);
+		os << indent() << "<cofinst_apply_actions >" << std::endl;
+		indent i2(2);
+		os << inst.actions;
+		return os;
+	};
 };
 
 
@@ -346,6 +331,11 @@ public:
 	/** constructor
 	 */
 	cofinst_write_actions(
+			cofinst const& inst) :
+				cofinst(inst) {};
+	/** constructor
+	 */
+	cofinst_write_actions(
 			uint8_t ofp_version,
 			uint8_t *buf, size_t buflen) :
 				cofinst(ofp_version, buflen) {
@@ -355,6 +345,14 @@ public:
 	 */
 	virtual
 	~cofinst_write_actions() {};
+public:
+	friend std::ostream&
+	operator<< (std::ostream& os, cofinst_write_actions const& inst) {
+		os << dynamic_cast<cofinst const&>( inst );
+		os << indent(2) << "<cofinst_write_actions >" << std::endl;
+		os << indent(4) << inst.actions;
+		return os;
+	};
 };
 
 
@@ -384,6 +382,11 @@ public:
 	/** constructor
 	 */
 	cofinst_clear_actions(
+			cofinst const& inst) :
+				cofinst(inst) {};
+	/** constructor
+	 */
+	cofinst_clear_actions(
 			uint8_t ofp_version,
 			uint8_t *buf, size_t buflen) :
 				cofinst(ofp_version, buflen) {
@@ -393,6 +396,13 @@ public:
 	 */
 	virtual
 	~cofinst_clear_actions() {};
+public:
+	friend std::ostream&
+	operator<< (std::ostream& os, cofinst_clear_actions const& inst) {
+		os << dynamic_cast<cofinst const&>( inst );
+		os << indent(2) << "<cofinst_clear_actions >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -429,6 +439,11 @@ public:
 	/** constructor
 	 */
 	cofinst_goto_table(
+			cofinst const& inst) :
+				cofinst(inst) {};
+	/** constructor
+	 */
+	cofinst_goto_table(
 			uint8_t ofp_version,
 			uint8_t *buf, size_t buflen) :
 				cofinst(ofp_version, buflen) {
@@ -453,6 +468,14 @@ public:
 	set_table_id(uint8_t table_id)
 	{
 		oin_goto_table->table_id = table_id;
+	};
+public:
+	friend std::ostream&
+	operator<< (std::ostream& os, cofinst_goto_table const& inst) {
+		os << dynamic_cast<cofinst const&>( inst );
+		os << indent(2) << "<cofinst_goto_table >" << std::endl;
+		os << indent(4) << "<table-id:" << (int)inst.get_table_id() << " >" << std::endl;
+		return os;
 	};
 };
 
@@ -490,6 +513,11 @@ public:
 			throw eBadVersion();
 		}
 	};
+	/** constructor
+	 */
+	cofinst_write_metadata(
+			cofinst const& inst) :
+				cofinst(inst) {};
 	/** constructor
 	 */
 	cofinst_write_metadata(
@@ -536,6 +564,47 @@ public:
 	{
 		oin_write_metadata->metadata_mask = htobe64(metadata_mask);
 	};
+public:
+	friend std::ostream&
+	operator<< (std::ostream& os, cofinst_write_metadata const& inst) {
+		os << dynamic_cast<cofinst const&>( inst );
+		os << indent(2) << "<cofinst_write_metadata >" << std::endl;
+		os << indent(4) << "<metadata:" << (unsigned long long)inst.get_metadata() << " >" << std::endl;
+		os << indent(4) << "<metadata-mask:" << (unsigned long long)inst.get_metadata_mask() << " >" << std::endl;
+		return os;
+	};
+};
+
+class cofinst_experimenter : public cofinst {
+public:
+	/** constructor
+	 */
+	cofinst_experimenter(
+			uint8_t ofp_version) :
+				cofinst(ofp_version, sizeof(struct openflow::ofp_instruction))
+	{
+
+	};
+	/** constructor
+	 */
+	cofinst_experimenter(
+			cofinst const& inst) :
+				cofinst(inst) {};
+	/** constructor
+	 */
+	cofinst_experimenter(
+			uint8_t ofp_version,
+			uint8_t *buf, size_t buflen) :
+				cofinst(ofp_version, buflen) {
+		unpack(buf, buflen);
+	};
+public:
+	friend std::ostream&
+	operator<< (std::ostream& os, cofinst_experimenter const& inst) {
+		os << dynamic_cast<cofinst const&>( inst );
+		os << indent(2) << "<cofinst_experimenter >" << std::endl;
+		return os;
+	};
 };
 
 class cofinst_meter : public cofinst {
@@ -551,10 +620,22 @@ public:
 	/** constructor
 	 */
 	cofinst_meter(
+			cofinst const& inst) :
+				cofinst(inst) {};
+	/** constructor
+	 */
+	cofinst_meter(
 			uint8_t ofp_version,
 			uint8_t *buf, size_t buflen) :
 				cofinst(ofp_version, buflen) {
 		unpack(buf, buflen);
+	};
+public:
+	friend std::ostream&
+	operator<< (std::ostream& os, cofinst_meter const& inst) {
+		os << dynamic_cast<cofinst const&>( inst );
+		os << indent(2) << "<cofinst_meter >" << std::endl;
+		return os;
 	};
 };
 

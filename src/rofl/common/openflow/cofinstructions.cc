@@ -67,6 +67,19 @@ cofinstructions::operator= (
 
 
 
+cofinst&
+cofinstructions::operator[] (unsigned int index)
+{
+	if ((index + 1) > instmap.size())
+		throw eInstructionsOutOfRange();
+	std::map<uint16_t, cofinst*>::iterator it = instmap.begin();
+	for (unsigned int i = 0; i < index; i++)
+		it++;
+	return *(it->second);
+}
+
+
+
 cofinstructions::~cofinstructions()
 {
 	clear();
@@ -153,6 +166,32 @@ cofinstructions::length() const
 
 
 
+cofinst&
+cofinstructions::add_inst(
+		cofinst const& inst)
+{
+	switch (inst.get_type()) {
+	case openflow::OFPIT_GOTO_TABLE:
+		return (add_inst_goto_table() = cofinst_goto_table(inst));
+	case openflow::OFPIT_WRITE_METADATA:
+		return (add_inst_write_metadata() = cofinst_write_metadata(inst));
+	case openflow::OFPIT_WRITE_ACTIONS:
+		return (add_inst_write_actions() = cofinst_write_actions(inst));
+	case openflow::OFPIT_APPLY_ACTIONS:
+		return (add_inst_apply_actions() = cofinst_apply_actions(inst));
+	case openflow::OFPIT_CLEAR_ACTIONS:
+		return (add_inst_clear_actions() = cofinst_clear_actions(inst));
+	case openflow::OFPIT_METER:
+		return (add_inst_meter() = cofinst_meter(inst));
+	default:
+		if (instmap.find(inst.get_type()) != instmap.end())
+			delete instmap[inst.get_type()];
+		return *(instmap[inst.get_type()] = new cofinst(inst));
+	}
+}
+
+
+
 cofinst_goto_table&
 cofinstructions::add_inst_goto_table()
 {
@@ -195,6 +234,14 @@ cofinstructions::drop_inst_goto_table()
 		return;
 	delete instmap[openflow::OFPIT_GOTO_TABLE];
 	instmap.erase(openflow::OFPIT_GOTO_TABLE);
+}
+
+
+
+bool
+cofinstructions::has_inst_goto_table() const
+{
+	return (instmap.find(openflow::OFPIT_GOTO_TABLE) != instmap.end());
 }
 
 
@@ -245,6 +292,14 @@ cofinstructions::drop_inst_write_metadata()
 
 
 
+bool
+cofinstructions::has_inst_write_metadata() const
+{
+	return (instmap.find(openflow::OFPIT_WRITE_METADATA) != instmap.end());
+}
+
+
+
 cofinst_write_actions&
 cofinstructions::add_inst_write_actions()
 {
@@ -287,6 +342,14 @@ cofinstructions::drop_inst_write_actions()
 		return;
 	delete instmap[openflow::OFPIT_WRITE_ACTIONS];
 	instmap.erase(openflow::OFPIT_WRITE_ACTIONS);
+}
+
+
+
+bool
+cofinstructions::has_inst_write_actions() const
+{
+	return (instmap.find(openflow::OFPIT_WRITE_ACTIONS) != instmap.end());
 }
 
 
@@ -337,6 +400,14 @@ cofinstructions::drop_inst_apply_actions()
 
 
 
+bool
+cofinstructions::has_inst_apply_actions() const
+{
+	return (instmap.find(openflow::OFPIT_APPLY_ACTIONS) != instmap.end());
+}
+
+
+
 cofinst_clear_actions&
 cofinstructions::add_inst_clear_actions()
 {
@@ -383,6 +454,68 @@ cofinstructions::drop_inst_clear_actions()
 
 
 
+bool
+cofinstructions::has_inst_clear_actions() const
+{
+	return (instmap.find(openflow::OFPIT_CLEAR_ACTIONS) != instmap.end());
+}
+
+
+
+cofinst_experimenter&
+cofinstructions::add_inst_experimenter()
+{
+	if (instmap.find(openflow::OFPIT_EXPERIMENTER) != instmap.end())
+		delete instmap[openflow::OFPIT_EXPERIMENTER];
+	instmap[openflow::OFPIT_EXPERIMENTER] = new cofinst_experimenter(ofp_version);
+	return *dynamic_cast<cofinst_experimenter*>(instmap[openflow::OFPIT_EXPERIMENTER]);
+}
+
+
+
+cofinst_experimenter&
+cofinstructions::set_inst_experimenter()
+{
+	if (instmap.find(openflow::OFPIT_EXPERIMENTER) == instmap.end())
+		instmap[openflow::OFPIT_EXPERIMENTER] = new cofinst_experimenter(ofp_version);
+	return *dynamic_cast<cofinst_experimenter*>(instmap[openflow::OFPIT_EXPERIMENTER]);
+}
+
+
+
+cofinst_experimenter&
+cofinstructions::get_inst_experimenter() const
+{
+	// may throw std::out_of_range
+	if (instmap.find(openflow::OFPIT_EXPERIMENTER) == instmap.end())
+		throw eInstructionsNotFound();
+#ifndef NDEBUG
+	assert(dynamic_cast<cofinst_experimenter*>( instmap.at(openflow::OFPIT_EXPERIMENTER)));
+#endif
+	return *(dynamic_cast<cofinst_experimenter*>( instmap.at(openflow::OFPIT_EXPERIMENTER) ));
+}
+
+
+
+void
+cofinstructions::drop_inst_experimenter()
+{
+	if (instmap.find(openflow::OFPIT_EXPERIMENTER) == instmap.end())
+		return;
+	delete instmap[openflow::OFPIT_EXPERIMENTER];
+	instmap.erase(openflow::OFPIT_EXPERIMENTER);
+}
+
+
+
+bool
+cofinstructions::has_inst_experimenter() const
+{
+	return (instmap.find(openflow::OFPIT_EXPERIMENTER) != instmap.end());
+}
+
+
+
 cofinst_meter&
 cofinstructions::add_inst_meter()
 {
@@ -425,6 +558,14 @@ cofinstructions::drop_inst_meter()
 		return;
 	delete instmap[openflow::OFPIT_METER];
 	instmap.erase(openflow::OFPIT_METER);
+}
+
+
+
+bool
+cofinstructions::has_inst_meter() const
+{
+	return (instmap.find(openflow::OFPIT_METER) != instmap.end());
 }
 
 

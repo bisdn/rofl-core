@@ -125,10 +125,10 @@ ethswitch::handle_dpath_open(
 	case openflow12::OFP_VERSION: {
 		fe.set_command(openflow12::OFPFC_ADD);
 		fe.set_table_id(0);
-		fe.instructions.add_inst_apply_actions();
-		fe.instructions.get_inst_apply_actions().get_actions().next() = cofaction_output(dpt->get_version(), openflow12::OFPP_CONTROLLER);
+		fe.instructions.set_inst_apply_actions().get_actions().next() = cofaction_output(dpt->get_version(), openflow12::OFPP_CONTROLLER);
 		fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
 		fe.match.set_eth_dst(cmacaddr("00:11:22:33:44:55"));
+		fe.instructions.set_inst_goto_table().set_table_id(4);
 
 	} break;
 	case openflow13::OFP_VERSION: {

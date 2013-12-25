@@ -337,6 +337,7 @@ public:
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
 			os << indent(4) << "<instructions: >" << std::endl;
+			indent i(6);
 			os << msg.instructions;
 		} break;
 		}

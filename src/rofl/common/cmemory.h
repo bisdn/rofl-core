@@ -384,25 +384,35 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cmemory const& mem) {
 		os << indent(0) << "<cmemory: ";
-			os << "data:" << (void*)mem.data.first << " ";
-			os << "datalen:" << (int)mem.data.second << " ";
-			os << ">" << std::endl;
+		os << "data:" << (void*)mem.data.first << " ";
+		os << "datalen:" << (int)mem.data.second << " ";
+		os << ">" << std::endl;
 
-			if (mem.data.second > 0) {
-				for (unsigned int i=0; i < mem.data.second; i++) {
-					if (0 == (i % 64))
-						os << std::setw(4) << (std::dec) << (i/64) << ": " << std::setw(0);
-					std::setfill("0");
-					os << (std::hex) << (int)(*(mem.somem() + i)) << " ";
-					std::setfill(" ");
-					if (0 == ((i+1) % 8))
-						os << "  ";
-					if (0 == ((i+1) % 64))
-						os << std::endl;
+		if (mem.data.second > 0) {
+			for (unsigned int i=0; i < mem.data.second; i++) {
+				if (0 == (i % 64)) {
+					os << indent(2)
+						<< std::setfill('0')
+						<< std::setw(4)
+						<< std::dec << (i/64) << ": " << std::hex
+						<< std::setw(0)
+						<< std::setfill(' ');
 				}
-				os << std::endl;
-			}
 
+				os << std::setfill('0')
+					<< std::setw(2)
+					<< std::hex << (int)(*(mem.somem() + i)) << std::dec
+					<< std::setw(0)
+					<< std::setfill(' ')
+					<< " ";
+
+				if (0 == ((i+1) % 8))
+					os << "  ";
+				if (0 == ((i+1) % 64))
+					os << std::endl;
+			}
+			os << std::endl;
+		}
 		return os;
 	};
 };

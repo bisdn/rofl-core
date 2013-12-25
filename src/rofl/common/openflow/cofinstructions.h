@@ -36,6 +36,20 @@ class cofinstructions
 {
 	std::map<uint16_t, cofinst*> instmap;
 
+public: // iterators
+
+	typedef typename std::map<uint16_t, cofinst*>::iterator iterator;
+	typedef typename std::map<uint16_t, cofinst*>::const_iterator const_iterator;
+	iterator begin() { return instmap.begin(); }
+	iterator end() { return instmap.end(); }
+	const_iterator begin() const { return instmap.begin(); }
+	const_iterator end() const { return instmap.end(); }
+
+	typedef typename std::map<uint16_t, cofinst*>::reverse_iterator reverse_iterator;
+	typedef typename std::map<uint16_t, cofinst*>::const_reverse_iterator const_reverse_iterator;
+	reverse_iterator rbegin() { return instmap.rbegin(); }
+	reverse_iterator rend() { return instmap.rend(); }
+
 public:
 
 	uint8_t ofp_version;
@@ -68,6 +82,13 @@ public: // methods
 			cofinstructions const& inlist);
 
 	/**
+	 *
+	 */
+	cofinst&
+	operator[] (
+			unsigned int index);
+
+	/**
 	 */
 	void
 	unpack(
@@ -89,6 +110,14 @@ public: // methods
 	length() const;
 
 
+	/**
+	 *
+	 */
+	cofinst&
+	add_inst(
+			cofinst const& inst);
+
+
 	/*
 	 * Goto-Table
 	 */
@@ -103,6 +132,9 @@ public: // methods
 
 	void
 	drop_inst_goto_table();
+
+	bool
+	has_inst_goto_table() const;
 
 
 	/*
@@ -120,6 +152,9 @@ public: // methods
 	void
 	drop_inst_write_metadata();
 
+	bool
+	has_inst_write_metadata() const;
+
 
 	/*
 	 * Write-Actions
@@ -135,6 +170,9 @@ public: // methods
 
 	void
 	drop_inst_write_actions();
+
+	bool
+	has_inst_write_actions() const;
 
 
 	/*
@@ -152,6 +190,9 @@ public: // methods
 	void
 	drop_inst_apply_actions();
 
+	bool
+	has_inst_apply_actions() const;
+
 
 	/*
 	 * Clear-Actions
@@ -168,6 +209,28 @@ public: // methods
 	void
 	drop_inst_clear_actions();
 
+	bool
+	has_inst_clear_actions() const;
+
+
+	/*
+	 * Experimenter
+	 */
+	cofinst_experimenter&
+	add_inst_experimenter();
+
+	cofinst_experimenter&
+	set_inst_experimenter();
+
+	cofinst_experimenter&
+	get_inst_experimenter() const;
+
+	void
+	drop_inst_experimenter();
+
+	bool
+	has_inst_experimenter() const;
+
 
 	/*
 	 * Meter
@@ -183,6 +246,9 @@ public: // methods
 
 	void
 	drop_inst_meter();
+
+	bool
+	has_inst_meter() const;
 
 
 
@@ -209,10 +275,28 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofinstructions const& inlist) {
-		os << indent(0) << "<cofintructions >" << std::endl;
+		os << indent(0) << "<cofintructions ofp-version:" << (int)inlist.ofp_version << " >" << std::endl;
 		for (std::map<uint16_t, cofinst*>::const_iterator
 				it = inlist.instmap.begin(); it != inlist.instmap.end(); ++it) {
-			os << indent(2) << *(it->second);
+			indent i(2);
+			switch (it->second->get_type()) {
+			case openflow::OFPIT_GOTO_TABLE:
+				os << inlist.get_inst_goto_table(); break;
+			case openflow::OFPIT_WRITE_METADATA:
+				os << inlist.get_inst_write_metadata(); break;
+			case openflow::OFPIT_WRITE_ACTIONS:
+				os << inlist.get_inst_write_actions(); break;
+			case openflow::OFPIT_APPLY_ACTIONS:
+				os << inlist.get_inst_apply_actions(); break;
+			case openflow::OFPIT_CLEAR_ACTIONS:
+				os << inlist.get_inst_clear_actions(); break;
+			case openflow::OFPIT_METER:
+				os << inlist.get_inst_meter(); break;
+			case openflow::OFPIT_EXPERIMENTER:
+				os << inlist.get_inst_experimenter(); break;
+			default:
+				os << *(it->second); break;
+			}
 		}
 		return os;
 	};
