@@ -122,6 +122,8 @@ private:
 
 public:
 
+	cofaction&
+	append_action(cofaction const action);
 
 	cofaction_output&
 	append_action_output(uint32_t port_no);

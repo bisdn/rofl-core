@@ -227,10 +227,11 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction const& action) {
-		os << "<cofaction ";
+		os << indent(0) << "<cofaction ";
 			os << "ofp-version:" << (int)action.ofp_version << " ";
-			os << "buffer:" << std::endl << action.action << " ";
-		os << ">";
+			os << "type:" << (int)action.get_type() << " ";
+			os << "length:" << (int)action.length() << " ";
+		os << " >" << std::endl;
 		return os;
 	};
 };
@@ -311,19 +312,30 @@ public:
 	 *
 	 */
 	uint32_t
-	get_port() throw (eActionInvalType);
+	get_port() const;
 
 	/**
 	 *
 	 */
 	void
-	set_max_len(uint16_t max_len) const throw (eActionInvalType);
+	set_max_len(uint16_t max_len);
 
 	/**
 	 *
 	 */
 	uint16_t
-	get_max_len() const throw (eActionInvalType);
+	get_max_len() const;
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_output const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_output ";
+		os << "port:0x" << std::hex << (int)action.get_port() << std::dec << " ";
+		os << "max-len:" << (int)action.get_max_len() << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -356,6 +368,23 @@ public:
 		}
 	};
 
+	/**
+	 *
+	 */
+	void
+	set_vlan_vid(uint16_t vlan_vid) {
+		oac_10vlanvid->vlan_vid = htobe16(vlan_vid);
+	};
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_vlan_vid() const {
+		return be16toh(oac_10vlanvid->vlan_vid);
+	};
+
+
 	/** constructor
 	 */
 	cofaction_set_vlan_vid(
@@ -366,6 +395,16 @@ public:
 	 */
 	virtual
 	~cofaction_set_vlan_vid() {};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_set_vlan_vid const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_set_vlan_vid ";
+		os << "vid:" << (int)action.get_vlan_vid() << " >" << std::endl;
+		return os;
+	};
 };
 
 /** OFPAT_SET_VLAN_PCP
@@ -393,6 +432,22 @@ public:
 		}
 	};
 
+	/**
+	 *
+	 */
+	void
+	set_vlan_pcp(uint8_t vlan_pcp) {
+		oac_10vlanpcp->vlan_pcp = vlan_pcp;
+	};
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_vlan_pcp() const {
+		return oac_10vlanpcp->vlan_pcp;
+	};
+
 	/** constructor
 	 */
 	cofaction_set_vlan_pcp(
@@ -403,6 +458,16 @@ public:
 	 */
 	virtual
 	~cofaction_set_vlan_pcp() {};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_set_vlan_pcp const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_set_vlan_pcp ";
+		os << "pcp:" << (int)action.get_vlan_pcp() << " >" << std::endl;
+		return os;
+	};
 };
 
 /** OFPAT_STRIP_VLAN
@@ -437,6 +502,15 @@ public:
 	 */
 	virtual
 	~cofaction_strip_vlan() {};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_strip_vlan const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_strip_vlan >" << std::endl;
+		return os;
+	};
 };
 
 /** OFPAT_SET_DL_SRC
@@ -464,6 +538,22 @@ public:
 		}
 	};
 
+	/**
+	 *
+	 */
+	cmacaddr
+	get_dl_src() const {
+		return cmacaddr(oac_10dladdr->dl_addr, OFP_ETH_ALEN);
+	};
+
+	/**
+	 *
+	 */
+	void
+	set_dl_src(cmacaddr maddr) {
+		memcpy(oac_10dladdr->dl_addr, maddr.somem(), OFP_ETH_ALEN);
+	};
+
 	/** constructor
 	 */
 	cofaction_set_dl_src(
@@ -474,6 +564,16 @@ public:
 	 */
 	virtual
 	~cofaction_set_dl_src() {};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_set_dl_src const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_set_dl_src ";
+		os << "dl-src:" << action.get_dl_src() << " >" << std::endl;
+		return os;
+	};
 };
 
 /** OFPAT_SET_DL_DST
@@ -501,6 +601,22 @@ public:
 		}
 	};
 
+	/**
+	 *
+	 */
+	cmacaddr
+	get_dl_dst() const {
+		return cmacaddr(oac_10dladdr->dl_addr, OFP_ETH_ALEN);
+	};
+
+	/**
+	 *
+	 */
+	void
+	set_dl_dst(cmacaddr maddr) {
+		memcpy(oac_10dladdr->dl_addr, maddr.somem(), OFP_ETH_ALEN);
+	};
+
 	/** constructor
 	 */
 	cofaction_set_dl_dst(
@@ -511,6 +627,16 @@ public:
 	 */
 	virtual
 	~cofaction_set_dl_dst() {};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_set_dl_dst const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_set_dl_dst ";
+		os << "dl-dst:" << action.get_dl_dst() << " >" << std::endl;
+		return os;
+	};
 };
 
 /** OFPAT_SET_NW_SRC

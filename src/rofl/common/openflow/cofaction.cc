@@ -421,7 +421,7 @@ cofaction::resize(size_t len)
 
 
 uint32_t
-cofaction_output::get_port() throw (eActionInvalType)
+cofaction_output::get_port() const
 {
 	switch (ofp_version) {
 	case openflow10::OFP_VERSION: {
@@ -441,7 +441,7 @@ cofaction_output::get_port() throw (eActionInvalType)
 }
 
 void
-cofaction_output::set_max_len(uint16_t max_len) const throw (eActionInvalType)
+cofaction_output::set_max_len(uint16_t max_len)
 {
 	switch (ofp_version) {
 		case openflow10::OFP_VERSION: {
@@ -460,7 +460,7 @@ cofaction_output::set_max_len(uint16_t max_len) const throw (eActionInvalType)
 	}
 }
 uint16_t
-cofaction_output::get_max_len() const throw (eActionInvalType)
+cofaction_output::get_max_len() const
 {
 	switch (ofp_version) {
 	case openflow10::OFP_VERSION: {

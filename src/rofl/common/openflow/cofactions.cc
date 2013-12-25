@@ -276,6 +276,18 @@ cofactions::actions_output_ports()
 
 
 
+cofaction&
+cofactions::append_action(cofaction const action)
+{
+	cofaction *n_action = new cofaction(action);
+
+	push_back(n_action);
+
+	return *n_action;
+}
+
+
+
 cofaction_output&
 cofactions::append_action_output(uint32_t port_no)
 {
