@@ -125,6 +125,12 @@ ethswitch::handle_dpath_open(
 		fe.set_command(openflow12::OFPFC_ADD);
 		fe.set_table_id(0);
 		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(openflow12::OFPP_CONTROLLER);
+		fe.instructions.set_inst_write_actions().get_actions().append_action_push_mpls(fmplsframe::MPLS_ETHER);
+		fe.instructions.set_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_mpls_label(0x12345678));
+		fe.instructions.set_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_mpls_tc(7));
+		fe.instructions.set_inst_write_actions().get_actions().append_action_push_vlan(fvlanframe::VLAN_STAG_ETHER);
+		fe.instructions.set_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 4));
+		fe.instructions.set_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_vlan_pcp(3));
 		fe.match.set_eth_type(farpv4frame::ARPV4_ETHER);
 		fe.match.set_eth_dst(cmacaddr("00:11:22:33:44:55"));
 		fe.instructions.set_inst_goto_table().set_table_id(4);

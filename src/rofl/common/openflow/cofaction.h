@@ -368,6 +368,17 @@ public:
 		}
 	};
 
+	/** constructor
+	 */
+	cofaction_set_vlan_vid(
+			cofaction const& action) :
+				cofaction(action) {};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_set_vlan_vid() {};
+
 	/**
 	 *
 	 */
@@ -383,18 +394,6 @@ public:
 	get_vlan_vid() const {
 		return be16toh(oac_10vlanvid->vlan_vid);
 	};
-
-
-	/** constructor
-	 */
-	cofaction_set_vlan_vid(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
-	 */
-	virtual
-	~cofaction_set_vlan_vid() {};
 
 public:
 
@@ -432,6 +431,17 @@ public:
 		}
 	};
 
+	/** constructor
+	 */
+	cofaction_set_vlan_pcp(
+			cofaction const& action) :
+				cofaction(action) {};
+
+	/** destructor
+	 */
+	virtual
+	~cofaction_set_vlan_pcp() {};
+
 	/**
 	 *
 	 */
@@ -447,17 +457,6 @@ public:
 	get_vlan_pcp() const {
 		return oac_10vlanpcp->vlan_pcp;
 	};
-
-	/** constructor
-	 */
-	cofaction_set_vlan_pcp(
-			cofaction const& action) :
-				cofaction(action) {};
-
-	/** destructor
-	 */
-	virtual
-	~cofaction_set_vlan_pcp() {};
 
 public:
 
@@ -674,6 +673,34 @@ public:
 	 */
 	virtual
 	~cofaction_set_nw_src() {};
+
+	/**
+	 *
+	 */
+	caddress
+	get_nw_src() const {
+		caddress addr(AF_INET, "0.0.0.0");
+		addr.ca_s4addr->sin_addr.s_addr = oac_10nwaddr->nw_addr;
+		return addr;
+	};
+
+	/**
+	 *
+	 */
+	void
+	set_nw_src(caddress addr) {
+		oac_10nwaddr->nw_addr 	= addr.ca_s4addr->sin_addr.s_addr;
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_set_nw_src const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_set_nw_src ";
+		os << "nw-src:" << action.get_nw_src() << " >" << std::endl;
+		return os;
+	};
 };
 
 /** OFPAT_SET_NW_DST
@@ -711,6 +738,34 @@ public:
 	 */
 	virtual
 	~cofaction_set_nw_dst() {};
+
+	/**
+	 *
+	 */
+	caddress
+	get_nw_dst() const {
+		caddress addr(AF_INET, "0.0.0.0");
+		addr.ca_s4addr->sin_addr.s_addr = oac_10nwaddr->nw_addr;
+		return addr;
+	};
+
+	/**
+	 *
+	 */
+	void
+	set_nw_dst(caddress addr) {
+		oac_10nwaddr->nw_addr 	= addr.ca_s4addr->sin_addr.s_addr;
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_set_nw_dst const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_set_nw_dst ";
+		os << "nw-dst:" << action.get_nw_dst() << " >" << std::endl;
+		return os;
+	};
 };
 
 /** OFPAT_SET_NW_TOS
@@ -748,6 +803,32 @@ public:
 	 */
 	virtual
 	~cofaction_set_nw_tos() {};
+
+	/**
+	 *
+	 */
+	void
+	set_nw_tos(uint8_t nw_tos) {
+		oac_10nwtos->nw_tos = nw_tos;
+	};
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_nw_tos() const {
+		return oac_10nwtos->nw_tos;
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_set_nw_tos const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_set_nw_tos ";
+		os << "nw-tos:" << (int)action.get_nw_tos() << " >" << std::endl;
+		return os;
+	};
 };
 
 /** OFPAT_SET_TP_SRC
@@ -785,6 +866,32 @@ public:
 	 */
 	virtual
 	~cofaction_set_tp_src() {};
+
+	/**
+	 *
+	 */
+	void
+	set_tp_src(uint16_t tp_src) {
+		oac_10tpport->tp_port 	= htobe16(tp_src);
+	};
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_tp_src() const {
+		return be16toh(oac_10tpport->tp_port);
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_set_tp_src const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_set_tp_src ";
+		os << "tp-src:" << (int)action.get_tp_src() << " >" << std::endl;
+		return os;
+	};
 };
 
 /** OFPAT_SET_TP_DST
@@ -822,6 +929,32 @@ public:
 	 */
 	virtual
 	~cofaction_set_tp_dst() {};
+
+	/**
+	 *
+	 */
+	void
+	set_tp_dst(uint16_t tp_dst) {
+		oac_10tpport->tp_port 	= htobe16(tp_dst);
+	};
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_tp_dst() const {
+		return be16toh(oac_10tpport->tp_port);
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_set_tp_dst const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_set_tp_dst ";
+		os << "tp-dst:" << (int)action.get_tp_dst() << " >" << std::endl;
+		return os;
+	};
 };
 
 /** OFPAT_ENQUEUE
@@ -860,6 +993,49 @@ public:
 	 */
 	virtual
 	~cofaction_enqueue() {};
+
+	/**
+	 *
+	 */
+	void
+	set_port_no(uint16_t port_no) {
+		oac_10enqueue->port	= htobe16(port_no);
+	};
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_port() const {
+		return be16toh(oac_10enqueue->port);
+	};
+
+	/**
+	 *
+	 */
+	void
+	set_queue_id(uint32_t queue_id) {
+		oac_10enqueue->queue_id = htobe32(queue_id);
+	};
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_queue_id() const {
+		return be32toh(oac_10enqueue->queue_id);
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_enqueue const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_enqueue ";
+		os << "port:0x" << std::hex << (int)action.get_port() << std::dec << " ";
+		os << "queue-id:" << (int)action.get_queue_id() << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -912,8 +1088,29 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_vendor(uint32_t vendor_id) {
+		oac_10vendor->vendor = htobe32(vendor_id);
+	};
+
+	/**
+	 *
+	 */
 	uint32_t
-	get_vendor() const { return be32toh(oac_10vendor->vendor); };
+	get_vendor() const {
+		return be32toh(oac_10vendor->vendor);
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_vendor const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_vendor ";
+		os << "vendor-id:" << (int)action.get_vendor() << " >" << std::endl;
+		os << action.action;
+		return os;
+	};
 };
 
 
@@ -963,6 +1160,32 @@ public:
 	 */
 	virtual
 	~cofaction_set_mpls_ttl() {};
+
+	/**
+	 *
+	 */
+	void
+	set_mpls_ttl(uint8_t mpls_ttl) {
+		oac_12mpls_ttl->mpls_ttl = mpls_ttl;
+	};
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_mpls_ttl() const {
+		return oac_12mpls_ttl->mpls_ttl;
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_set_mpls_ttl const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_set_mpls_ttl ";
+		os << "mpls-ttl:" << (int)action.get_mpls_ttl() << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -1003,6 +1226,15 @@ public:
 	 */
 	virtual
 	~cofaction_dec_mpls_ttl() {};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_dec_mpls_ttl const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_dec_mpls_ttl >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -1042,6 +1274,32 @@ public:
 	 */
 	virtual
 	~cofaction_push_vlan() {};
+
+	/**
+	 *
+	 */
+	void
+	set_eth_type(uint16_t ethertype) {
+		oac_12push->ethertype = htobe16(ethertype);
+	};
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_eth_type() const {
+		return be16toh(oac_12push->ethertype);
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_push_vlan const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_push_vlan ";
+		os << "eth-type:" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -1081,6 +1339,32 @@ public:
 	 */
 	virtual
 	~cofaction_push_mpls() {};
+
+	/**
+	 *
+	 */
+	void
+	set_eth_type(uint16_t ethertype) {
+		oac_12push->ethertype = htobe16(ethertype);
+	};
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_eth_type() const {
+		return be16toh(oac_12push->ethertype);
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_push_mpls const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_push_mpls ";
+		os << "eth-type:" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -1117,6 +1401,15 @@ public:
 	 */
 	virtual
 	~cofaction_pop_vlan() {};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_pop_vlan const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_pop_vlan >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -1156,6 +1449,32 @@ public:
 	 */
 	virtual
 	~cofaction_pop_mpls() {};
+
+	/**
+	 *
+	 */
+	void
+	set_eth_type(uint16_t ethertype) {
+		oac_12pop_mpls->ethertype = htobe16(ethertype);
+	};
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_eth_type() const {
+		return be16toh(oac_12pop_mpls->ethertype);
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_pop_mpls const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_pop_mpls ";
+		os << "eth-type:" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -1196,6 +1515,32 @@ public:
 	 */
 	virtual
 	~cofaction_group() {};
+
+	/**
+	 *
+	 */
+	void
+	set_group_id(uint32_t group_id) {
+		oac_12group->group_id = htobe32(group_id);
+	};
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_group_id() const {
+		return be32toh(oac_12group->group_id);
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_group const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_group ";
+		os << "group-id:" << (int)action.get_group_id() << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -1236,6 +1581,32 @@ public:
 	 */
 	virtual
 	~cofaction_set_nw_ttl() {};
+
+	/**
+	 *
+	 */
+	void
+	set_nw_ttl(uint8_t nw_ttl) {
+		oac_12nw_ttl->nw_ttl = nw_ttl;
+	};
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_nw_ttl() const {
+		return oac_12nw_ttl->nw_ttl;
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_set_nw_ttl const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_set_nw_ttl ";
+		os << "nw-ttl:" << (int)action.get_nw_ttl() << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -1272,6 +1643,15 @@ public:
 	 */
 	virtual
 	~cofaction_dec_nw_ttl() {};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_dec_nw_ttl const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_dec_nw_ttl >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -1308,6 +1688,15 @@ public:
 	 */
 	virtual
 	~cofaction_copy_ttl_out() {};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_copy_ttl_out const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_copy_ttl_out >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -1345,6 +1734,15 @@ public:
 	 */
 	virtual
 	~cofaction_copy_ttl_in() {};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_copy_ttl_in const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_copy_ttl_in >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -1385,6 +1783,32 @@ public:
 	 */
 	virtual
 	~cofaction_set_queue() {};
+
+	/**
+	 *
+	 */
+	void
+	set_queue_id(uint32_t queue_id) {
+		oac_12set_queue->queue_id = htobe32(queue_id);
+	};
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_queue_id() const {
+		return be32toh(oac_12set_queue->queue_id);
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_set_queue const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_set_queue ";
+		os << "queue-id:" << (int)action.get_queue_id() << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -1437,6 +1861,19 @@ public:
 	 */
 	virtual
 	~cofaction_set_field() {};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_set_field const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_set_field >" << std::endl;
+		coxmatch oxm((struct openflow::ofp_oxm_hdr*)(action.oac_12set_field->field),
+				be16toh(action.oac_12set_field->len) - 4*sizeof(uint8_t));
+		indent i(4);
+		os << oxm;
+		return os;
+	};
 };
 
 
@@ -1529,8 +1966,45 @@ public:
 	/**
 	 *
 	 */
+	void
+	set_exp_id(uint32_t exp_id) const {
+		oac_12experimenter->experimenter = htobe32(exp_id);
+	};
+
+	/**
+	 *
+	 */
 	uint32_t
-	get_exp_id() const { return be32toh(oac_12experimenter->experimenter); };
+	get_exp_id() const {
+		return be32toh(oac_12experimenter->experimenter);
+	};
+
+	/**
+	 *
+	 */
+	void
+	set_exp_type(uint32_t exp_type) {
+		oac_12experimenter->exp_type = htobe32(exp_type);
+	};
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_exp_type() const {
+		return be32toh(oac_12experimenter->exp_type);
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaction_experimenter const& action) {
+		os << dynamic_cast<cofaction const&>( action );
+		os << indent(2) << "<cofaction_experimenter ";
+		os << "exp-id:" << (int)action.get_exp_id() << " ";
+		os << "exp-type:" << (int)action.get_exp_type() << " >" << std::endl;
+		return os;
+	};
 };
 
 

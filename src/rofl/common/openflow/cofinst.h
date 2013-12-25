@@ -345,8 +345,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofinst_write_actions const& inst) {
 		os << dynamic_cast<cofinst const&>( inst );
-		os << indent(2) << "<cofinst_write_actions >" << std::endl;
-		os << indent(4) << inst.actions;
+		indent i1(2);
+		os << indent() << "<cofinst_write_actions >" << std::endl;
+		indent i2(2);
+		os << inst.actions;
 		return os;
 	};
 };

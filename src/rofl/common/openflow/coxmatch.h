@@ -358,7 +358,7 @@ public: // methods
 
 public:
 
-
+#if 1
 	/**
 	 *
 	 */
@@ -443,10 +443,10 @@ public:
 		} break;
 		}
 		os << " hasmask:" << (oxm.get_oxm_hasmask() == true ? "yes" : "no") << " ";
-		os << ">";
+		os << ">" << std::endl;
 		return os;
 	};
-
+#endif
 
 private: // methods
 
@@ -545,7 +545,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_in_port const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<in-port: " << std::hex << (int)oxm.get_in_port() << std::dec << " >" << std::endl;
 		return os;
 	};
@@ -591,7 +591,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_in_phy_port const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<in-phy-port: " << std::hex << (int)oxm.get_in_phy_port() << std::dec << " >" << std::endl;
 		return os;
 	};
@@ -646,7 +646,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_metadata const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<metadata: "
 						<< std::hex
 						<< (unsigned long long)oxm.uint64_value() << "/" << (unsigned long long)oxm.uint64_mask()
@@ -702,7 +702,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_eth_dst const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<eth-dst: "
 						<< oxm.u48addr()
 						<< " >" << std::endl;
@@ -756,7 +756,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_eth_src const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<eth-src: "
 						<< oxm.u48addr()
 						<< " >" << std::endl;
@@ -796,7 +796,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_eth_type const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<eth-type: 0x" << std::hex << (int)oxm.uint16_value() << std::dec << " >" << std::endl;
 		return os;
 	};
@@ -906,7 +906,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_vlan_vid const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<tag-mode:" << oxm.tag_mode << " >" << std::endl;
 		os << indent(2) << "<vlan-vid: " << (int)oxm.uint16_value() << "/" << (int)oxm.uint16_mask() << " >" << std::endl;
 		return os;
@@ -945,7 +945,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_vlan_pcp const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<vlan-pcp: " << (int)oxm.u8value() << " >" << std::endl;
 		return os;
 	};
@@ -984,7 +984,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ip_dscp const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ip-dscp: " << (int)oxm.u8value() << " >" << std::endl;
 		return os;
 	};
@@ -1022,7 +1022,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ip_ecn const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ip-ecn: " << (int)oxm.u8value() << " >" << std::endl;
 		return os;
 	};
@@ -1060,7 +1060,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ip_proto const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ip-proto: " << (int)oxm.u8value() << " >" << std::endl;
 		return os;
 	};
@@ -1097,7 +1097,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_nw_proto const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<nw-proto: " << (int)oxm.u8value() << " >" << std::endl;
 		return os;
 	};
@@ -1181,7 +1181,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_nw_src const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<nw-src: "
 						<< oxm.u32addr()
 						<< " >" << std::endl;
@@ -1268,7 +1268,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_nw_dst const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<nw-dst: "
 						<< oxm.u32addr()
 						<< " >" << std::endl;
@@ -1354,7 +1354,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv4_src const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ipv4-src: "
 						<< (int)oxm.uint32_value() << "/" << (int)oxm.uint32_mask()
 						<< " >" << std::endl;
@@ -1441,7 +1441,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv4_dst const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ipv4-dst: "
 						<< (int)oxm.uint32_value() << "/" << (int)oxm.uint32_mask()
 						<< " >" << std::endl;
@@ -1531,7 +1531,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_src const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ipv6-src: ";
 		if (oxm.get_oxm_hasmask()) {
 			os << cmemory(oxm.oxm_ipv6addr->addr, 16) << "/" << cmemory(oxm.oxm_ipv6addr->mask, 16);
@@ -1626,7 +1626,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_dst const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ipv6-dst: ";
 		if (oxm.get_oxm_hasmask()) {
 			os << cmemory(oxm.oxm_ipv6addr->addr, 16) << "/" << cmemory(oxm.oxm_ipv6addr->mask, 16);
@@ -1687,7 +1687,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_target const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ipv6-nd-target: ";
 		os << cmemory(oxm.oxm_ipv6addr->addr, 16);
 		os << " >" << std::endl;
@@ -1726,7 +1726,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_tp_src const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<tp-src: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1766,7 +1766,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofx_tp_dst const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<tp-dst: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1807,7 +1807,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_tcp_src const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<tcp-src: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1847,7 +1847,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_tcp_dst const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<tcp-dst: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1887,7 +1887,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_udp_src const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<udp-src: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1927,7 +1927,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_udp_dst const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<udp-dst: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -1967,7 +1967,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_sctp_src const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<sctp-src: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -2007,7 +2007,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_sctp_dst const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<sctp-dst: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -2047,7 +2047,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_icmpv4_type const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<icmpv4-type: "
 						<< (int)oxm.u8value()
 						<< " >" << std::endl;
@@ -2087,7 +2087,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_icmpv4_code const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<icmpv4-code: "
 						<< (int)oxm.u8value()
 						<< " >" << std::endl;
@@ -2127,7 +2127,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_opcode const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<arp-opcode: "
 						<< (int)oxm.u16value()
 						<< " >" << std::endl;
@@ -2215,7 +2215,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_spa const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<arp-spa: "
 						<< (int)oxm.uint32_value() << "/" << (int)oxm.uint32_mask()
 						<< " >" << std::endl;
@@ -2303,7 +2303,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_tpa const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<arp-tpa: "
 						<< (int)oxm.uint32_value() << "/" << (int)oxm.uint32_mask()
 						<< " >" << std::endl;
@@ -2357,7 +2357,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_sha const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<arp-sha: "
 						<< oxm.u48addr()
 						<< " >" << std::endl;
@@ -2412,7 +2412,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_arp_tha const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<arp-tha: "
 						<< oxm.u48addr()
 						<< " >" << std::endl;
@@ -2468,7 +2468,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_flabel const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ipv6-flabel: "
 						<< (int)oxm.uint32_value() << "/" << (int)oxm.uint32_mask()
 						<< " >" << std::endl;
@@ -2508,7 +2508,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_icmpv6_type const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<icmpv6-type: "
 						<< (int)oxm.u8value()
 						<< " >" << std::endl;
@@ -2548,7 +2548,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_icmpv6_code const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<icmpv6-code: "
 						<< (int)oxm.u8value()
 						<< " >" << std::endl;
@@ -2589,7 +2589,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_sll const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ipv6-nd-sll: "
 						<< oxm.u48addr()
 						<< " >" << std::endl;
@@ -2629,7 +2629,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_nd_tll const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ipv6-nd-tll: "
 						<< oxm.u48addr()
 						<< " >" << std::endl;
@@ -2669,7 +2669,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_mpls_label const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<mpls-label: "
 						<< (int)oxm.u32value()
 						<< " >" << std::endl;
@@ -2709,7 +2709,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coxmatch_ofb_mpls_tc const& oxm)
 	{
-		os << dynamic_cast<coxmatch const&>(oxm) << std::endl;
+		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<mpls-tc: "
 						<< (int)oxm.u8value()
 						<< " >" << std::endl;
