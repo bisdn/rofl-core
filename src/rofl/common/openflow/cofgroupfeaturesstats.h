@@ -152,6 +152,22 @@ public:
 	 */
 	std::vector<uint32_t>&
 	get_actions();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofgroup_features_stats_reply const& reply) {
+		os << indent(0) << "<cofgroup_features_stats_reply >" << std::endl;
+		os << indent(2) << "<types: 0x" << std::hex << (int)reply.get_types() << std::dec << " >" << std::endl;
+		os << indent(2) << "<capabilities: 0x" << std::hex << (int)reply.get_capabilities() << std::dec << " >" << std::endl;
+		for (unsigned int i = 0; i < reply.max_groups.size(); ++i) {
+			os << indent(2) << "<max-groups[" << i << "]: " << (int)reply.max_groups[i] << " >" << std::endl;
+		}
+		for (unsigned int i = 0; i < reply.actions.size(); ++i) {
+			os << indent(2) << "<actions[" << i << "]: 0x" << std::hex << (int)reply.max_groups[i] << std::dec << " >" << std::endl;
+		}
+		return os;
+	};
 };
 
 

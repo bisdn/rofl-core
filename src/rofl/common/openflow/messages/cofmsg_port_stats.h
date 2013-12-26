@@ -131,6 +131,17 @@ public:
 	 */
 	cofport_stats_request&
 	get_port_stats();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_port_stats_request const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_port_stats_request >" << std::endl;
+		indent i(4);
+		os << msg.port_stats;
+		return os;
+	};
 };
 
 
@@ -247,6 +258,20 @@ public:
 	 */
 	std::vector<cofport_stats_reply>&
 	get_port_stats();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_port_stats_reply const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_port_stats_reply >" << std::endl;
+		indent i(4);
+		for (std::vector<cofport_stats_reply>::const_iterator
+				it = msg.port_stats.begin(); it != msg.port_stats.end(); ++it) {
+			os << (*it);
+		}
+		return os;
+	};
 };
 
 } // end of namespace rofl

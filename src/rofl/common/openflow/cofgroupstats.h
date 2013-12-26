@@ -112,6 +112,15 @@ public:
 	 */
 	void
 	set_group_id(uint32_t group_id) { this->group_id = group_id; };
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofgroup_stats_request const& r) {
+		os << indent(0) << "<cofgroup_stats_request >" << std::endl;
+		os << indent(2) << "<group-id: " << (int)r.get_group_id() << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -262,6 +271,20 @@ public:
 	 */
 	void
 	set_byte_count(uint64_t byte_count) { this->byte_count = byte_count; };
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofgroup_stats_reply const& r) {
+		os << indent(0) << "<cofgroup_stats_reply >" << std::endl;
+		os << indent(2) << "<group-id: " << (int)r.get_group_id() << " >" << std::endl;
+		os << indent(2) << "<ref-count: " << (int)r.get_ref_count() << " >" << std::endl;
+		os << indent(2) << "<packet-count: " << (int)r.get_packet_count() << " >" << std::endl;
+		os << indent(2) << "<byte-count: " << (int)r.get_byte_count() << " >" << std::endl;
+		indent i(2);
+		os << r.bucket_stats;
+		return os;
+	};
 };
 
 }

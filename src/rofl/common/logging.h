@@ -71,7 +71,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, indent const& i) {
 		if (indent::width) {
-			os << std::setw(indent::width) << "." << std::setw(0);
+			os << std::setw(indent::width) << " " << std::setw(0);
 		}
 		return os;
 	};

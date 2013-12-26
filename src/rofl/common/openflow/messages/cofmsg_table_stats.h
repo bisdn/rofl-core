@@ -110,9 +110,10 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_table_stats_request const& msg) {
-		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
-		os << indent(2) << dynamic_cast<cofmsg_stats const&>( msg );
-		os << indent(4) << "<cofmsg_table_stats_request >" << std::endl;
+		os << dynamic_cast<cofmsg const&>( msg );
+		indent i(2);
+		os << dynamic_cast<cofmsg_stats const&>( msg );
+		os << indent(2) << "<cofmsg_table_stats_request >" << std::endl;
 		return os;
 	};
 };

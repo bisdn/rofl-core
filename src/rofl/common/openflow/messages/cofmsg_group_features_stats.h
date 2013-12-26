@@ -102,6 +102,15 @@ public:
 	 */
 	virtual void
 	validate();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_group_features_stats_request const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_group_features_stats_request >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -216,6 +225,18 @@ public:
 	 */
 	cofgroup_features_stats_reply&
 	get_group_features_stats();
+
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_group_features_stats_reply const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_group_features_stats_reply >" << std::endl;
+		indent i(4);
+		os << msg.group_features_stats;
+		return os;
+	};
 };
 
 } // end of namespace rofl

@@ -125,6 +125,7 @@ ethswitch::handle_dpath_open(
 		fe.set_command(openflow12::OFPFC_ADD);
 		fe.set_table_id(0);
 		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(openflow12::OFPP_CONTROLLER);
+#if 0
 		fe.instructions.set_inst_write_actions().get_actions().append_action_push_mpls(fmplsframe::MPLS_ETHER);
 		fe.instructions.set_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_mpls_label(0x12345678));
 		fe.instructions.set_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_mpls_tc(7));
@@ -146,7 +147,7 @@ ethswitch::handle_dpath_open(
 		ge.buckets.back().get_actions().append_action_set_field(coxmatch_ofb_mpls_tc(7));
 
 		std::cerr << ge << std::endl;
-
+#endif
 	} break;
 	case openflow13::OFP_VERSION: {
 		fe.set_command(openflow13::OFPFC_ADD);
