@@ -192,7 +192,7 @@ public: // methods
 	 *
 	 */
 	coxmatch
-	get_oxm() throw (eActionInvalType);
+	get_oxm() const;
 
 protected: // methods
 
@@ -1297,7 +1297,7 @@ public:
 	operator<< (std::ostream& os, cofaction_push_vlan const& action) {
 		os << dynamic_cast<cofaction const&>( action );
 		os << indent(2) << "<cofaction_push_vlan ";
-		os << "eth-type:" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
+		os << "eth-type:0x" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
 		return os;
 	};
 };
@@ -1362,7 +1362,7 @@ public:
 	operator<< (std::ostream& os, cofaction_push_mpls const& action) {
 		os << dynamic_cast<cofaction const&>( action );
 		os << indent(2) << "<cofaction_push_mpls ";
-		os << "eth-type:" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
+		os << "eth-type:0x" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
 		return os;
 	};
 };
@@ -1472,7 +1472,7 @@ public:
 	operator<< (std::ostream& os, cofaction_pop_mpls const& action) {
 		os << dynamic_cast<cofaction const&>( action );
 		os << indent(2) << "<cofaction_pop_mpls ";
-		os << "eth-type:" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
+		os << "eth-type:0x" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
 		return os;
 	};
 };
@@ -1868,10 +1868,12 @@ public:
 	operator<< (std::ostream& os, cofaction_set_field const& action) {
 		os << dynamic_cast<cofaction const&>( action );
 		os << indent(2) << "<cofaction_set_field >" << std::endl;
+#if 0
 		coxmatch oxm((struct openflow::ofp_oxm_hdr*)(action.oac_12set_field->field),
 				be16toh(action.oac_12set_field->len) - 4*sizeof(uint8_t));
+#endif
 		indent i(4);
-		os << oxm;
+		os << coxmatch_output(action.get_oxm());
 		return os;
 	};
 };

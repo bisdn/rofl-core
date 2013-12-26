@@ -481,10 +481,9 @@ cofaction_output::get_max_len() const
 
 
 coxmatch
-cofaction::get_oxm() throw (eActionInvalType)
+cofaction::get_oxm() const
 {
-	if (openflow12::OFPAT_SET_FIELD != get_type())
-	{
+	if (openflow::OFPAT_SET_FIELD != get_type()) {
 		throw eActionInvalType();
 	}
 
