@@ -55,10 +55,60 @@ cofactions::operator= (
 
 cofactions::~cofactions()
 {
-	for (std::list<cofaction*>::iterator it = begin(); it != end(); ++it) {
+	clear();
+}
+
+
+
+void
+cofactions::pop_front()
+{
+	if (empty())
+		return;
+	delete std::list<cofaction*>::front();
+	std::list<cofaction*>::pop_front();
+}
+
+
+
+void
+cofactions::pop_back()
+{
+	if (empty())
+		return;
+	delete std::list<cofaction*>::back();
+	std::list<cofaction*>::pop_back();
+}
+
+
+
+cofaction&
+cofactions::front()
+{
+	if (empty())
+		throw eActionsOutOfRange();
+	return *(std::list<cofaction*>::front());
+}
+
+
+
+cofaction&
+cofactions::back()
+{
+	if (empty())
+		throw eActionsOutOfRange();
+	return *(std::list<cofaction*>::back());
+}
+
+
+
+void
+cofactions::clear()
+{
+	for (cofactions::iterator it = begin(); it != end(); ++it) {
 		delete (*it);
 	}
-	clear();
+	std::list<cofaction*>::clear();
 }
 
 

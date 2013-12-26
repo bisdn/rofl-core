@@ -135,6 +135,18 @@ ethswitch::handle_dpath_open(
 		fe.match.set_eth_dst(cmacaddr("00:11:22:33:44:55"));
 		fe.instructions.set_inst_goto_table().set_table_id(4);
 
+		cgroupentry ge(openflow12::OFP_VERSION);
+		ge.set_command(openflow12::OFPFC_ADD);
+		ge.set_group_id(1111);
+		ge.set_type(openflow12::OFPGT_ALL);
+		ge.buckets.append_bucket(cofbucket(openflow12::OFP_VERSION, 1, 2, 3));
+		ge.buckets.back().get_actions().append_action_output(5);
+		ge.buckets.back().get_actions().append_action_push_mpls(fmplsframe::MPLS_ETHER);
+		ge.buckets.back().get_actions().append_action_set_field(coxmatch_ofb_mpls_label(0x55555555));
+		ge.buckets.back().get_actions().append_action_set_field(coxmatch_ofb_mpls_tc(7));
+
+		std::cerr << ge << std::endl;
+
 	} break;
 	case openflow13::OFP_VERSION: {
 		fe.set_command(openflow13::OFPFC_ADD);

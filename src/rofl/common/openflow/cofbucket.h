@@ -103,6 +103,13 @@ public: // per instance methods
 			cmemory& body);
 
 
+	/**
+	 *
+	 */
+	cofactions&
+	get_actions() { return actions; };
+
+
 private:
 
 	/** pack bucket
@@ -129,16 +136,16 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofbucket const& bucket) {
-		os << "<cofbucket ";
-			os << "ofp-version:" 	<< (int)bucket.ofp_version 	<< " ";
-			os << "weight:" 		<< (int)bucket.weight 		<< " ";
-			os << "watch-group:" 	<< (int)bucket.watch_group 	<< " ";
-			os << "watch-port:" 	<< (int)bucket.watch_port 	<< " ";
-			os << "packet-count:" 	<< (int)bucket.packet_count << " ";
-			os << "byte-count:" 	<< (int)bucket.byte_count 	<< " ";
-			os << "action-list:"	<< std::endl;
+		os << indent(0) << "<cofbucket ";
+			os << "ofp-version:" 	<< (int)bucket.ofp_version 	<< " >" << std::endl;
+			os << indent(2) << "<weight:" 		<< (int)bucket.weight 	<< " >" << std::endl;
+			os << indent(2) << "<watch-group:" 	<< (int)bucket.watch_group 	<< " >" << std::endl;
+			os << indent(2) << "<watch-port:" 	<< (int)bucket.watch_port 	<< " >" << std::endl;
+			os << indent(2) << "<packet-count:"	<< (int)bucket.packet_count << " >" << std::endl;
+			os << indent(2) << "<byte-count:" 	<< (int)bucket.byte_count 	<< " >" << std::endl;
+			os << indent(2) << "<actions: >"	<< std::endl;
+			indent i(4);
 			os << bucket.actions;
-		os << ">";
 		return os;
 	};
 };

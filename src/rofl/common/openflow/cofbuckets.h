@@ -13,32 +13,34 @@
 #endif
 
 #include "openflow.h"
-#include "../coflist.h"
-#include "../cvastring.h"
 #include "cofbucket.h"
 
 namespace rofl
 {
 
-class eBcListBase : public cerror {}; // base error class for cofbclist
-class eBcListInval : public eBcListBase {};
-class eBcListOutOfRange : public eBcListBase {};
+class eBucketsBase 			: public cerror {};
+class eBucketsInval 		: public eBucketsBase {};
+class eBucketsOutOfRange 	: public eBucketsBase {};
 
 
-class cofbuckets : public coflist<cofbucket> {
-
+class cofbuckets : public std::list<cofbucket*>
+{
 	uint8_t ofp_version;
 
-public: // static methods
+public: // iterators
 
+	typedef typename std::list<cofbucket*>::iterator iterator;
+	typedef typename std::list<cofbucket*>::const_iterator const_iterator;
+
+	typedef typename std::list<cofbucket*>::reverse_iterator reverse_iterator;
+	typedef typename std::list<cofbucket*>::const_reverse_iterator const_reverse_iterator;
 
 public: // methods
 
 	/** constructor
 	 */
 	cofbuckets(
-			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
-			int bcnum = 0);
+			uint8_t ofp_version = OFP_VERSION_UNKNOWN);
 
 	/** destructor
 	 */
@@ -48,24 +50,56 @@ public: // methods
 	/**
 	 */
 	cofbuckets(
-			cofbuckets const& bclist);
+			cofbuckets const& buckets);
 
 	/**
 	 */
 	cofbuckets&
 	operator= (
-			cofbuckets const& bclist);
-
+			cofbuckets const& buckets);
 
 
 	/**
 	 *
-	 * @param buckets
-	 * @param bclen
+	 */
+	void
+	pop_front();
+
+
+	/**
+	 *
+	 */
+	void
+	pop_back();
+
+
+	/**
+	 *
+	 */
+	cofbucket&
+	front();
+
+
+	/**
+	 *
+	 */
+	cofbucket&
+	back();
+
+
+	/**
+	 *
+	 */
+	void
+	clear();
+
+
+	/**
+	 *
 	 * @return
 	 */
-	std::vector<cofbucket>&
-	unpack(uint8_t* buckets, size_t bclen);
+	void
+	unpack(uint8_t* buf, size_t buflen);
 
 
 	/**
@@ -75,7 +109,7 @@ public: // methods
 	 * @return
 	 */
 	uint8_t*
-	pack(uint8_t* buckets, size_t bclen);
+	pack(uint8_t* buf, size_t buflen);
 
 
 
@@ -86,21 +120,25 @@ public: // methods
 	length() const;
 
 
+	/**
+	 *
+	 */
+	void
+	append_bucket(cofbucket const& bucket);
+
+
+	/**
+	 *
+	 */
+	void
+	prepend_bucket(cofbucket const& bucket);
+
+
 private:
 
 	/**
 	 */
-	std::vector<cofbucket>&
-	unpack_of12(uint8_t* buf, size_t buflen);
-
-	/**
-	 */
-	uint8_t*
-	pack_of12(uint8_t* buf, size_t buflen);
-
-	/**
-	 */
-	std::vector<cofbucket>&
+	void
 	unpack_of13(uint8_t* buf, size_t buflen);
 
 	/**
@@ -112,10 +150,13 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofbuckets const& buckets) {
-		os << indent(0) << "<cofbuckets ofp-version:" << (int)buckets.ofp_version << ">";
-		for (coflist<cofbucket>::const_iterator
-				it = buckets.elems.begin(); it != buckets.elems.end(); ++it) {
-			os << indent(2) << (*it) << std::endl;
+		os << indent(0) << "<cofbuckets ";
+		os << "ofp-version:" << (int)buckets.ofp_version << " ";
+		os << "#buckets:" << buckets.size() << " >" << std::endl;
+		indent i(2);
+		for (cofbuckets::const_iterator
+				it = buckets.begin(); it != buckets.end(); ++it) {
+			os << *(*it);
 		}
 		return os;
 	};

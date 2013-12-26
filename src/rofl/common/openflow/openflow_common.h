@@ -353,6 +353,42 @@ namespace openflow {
 	};
 
 
+	/* Group numbering. Groups can use any number up to OFPG_MAX. */
+	enum ofp_group {
+		/* Last usable group number. */
+		OFPG_MAX        = 0xffffff00,
+
+		/* Fake groups. */
+		OFPG_ALL        = 0xfffffffc,  /* Represents all groups for group delete
+										  commands. */
+		OFPG_ANY        = 0xffffffff   /* Wildcard group used only for flow stats
+										  requests. Selects all flows regardless of
+										  group (including flows with no group).
+										  */
+	};
+
+	/* Bucket for use in groups. */
+	struct ofp_bucket {
+		uint16_t len;                   /* Length the bucket in bytes, including
+										   this header and any padding to make it
+										   64-bit aligned. */
+		uint16_t weight;                /* Relative weight of bucket.  Only
+										   defined for select groups. */
+		uint32_t watch_port;            /* Port whose state affects whether this
+										   bucket is live.  Only required for fast
+										   failover groups. */
+		uint32_t watch_group;           /* Group whose state affects whether this
+										   bucket is live.  Only required for fast
+										   failover groups. */
+		uint8_t pad[4];
+		struct ofp_action_header actions[0]; /* The action length is inferred
+											   from the length field in the
+											   header. */
+	};
+	OFP_ASSERT(sizeof(struct ofp_bucket) == 16);
+
+
+
 }; // end of namespace openflow
 }; // end of namespace rofl
 

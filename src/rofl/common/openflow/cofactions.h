@@ -34,6 +34,14 @@ class eActionsOutOfRange 	: public eActionsBase {}; 	// index out of range in op
 
 class cofactions : public std::list<cofaction*>
 {
+public: // iterators
+
+	typedef typename std::list<cofaction*>::iterator iterator;
+	typedef typename std::list<cofaction*>::const_iterator const_iterator;
+
+	typedef typename std::list<cofaction*>::reverse_iterator reverse_iterator;
+	typedef typename std::list<cofaction*>::const_reverse_iterator const_reverse_iterator;
+
 public:
 
 	uint8_t 		ofp_version;
@@ -69,6 +77,35 @@ public:
 	~cofactions();
 
 
+	/**
+	 *
+	 */
+	void
+	pop_front();
+
+	/**
+	 *
+	 */
+	void
+	pop_back();
+
+	/**
+	 *
+	 */
+	cofaction&
+	front();
+
+	/**
+	 *
+	 */
+	cofaction&
+	back();
+
+	/**
+	 *
+	 */
+	void
+	clear();
 
 	/** create a std::list<cofaction*> from a struct ofp_flow_mod
 	 */

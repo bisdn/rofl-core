@@ -125,6 +125,13 @@ public: // setter methods for ofp_group_mod structure
 			uint32_t group_id);
 
 
+	/**
+	 *
+	 */
+	cofbuckets&
+	get_buckets() { return buckets; };
+
+
 public:
 
 	friend std::ostream&
@@ -167,10 +174,10 @@ public:
 			default:
 				throw eBadVersion();
 			}
-			os << "group-id:" << (int)ge.get_group_id() << " ";
-			os << "buckets:" << std::endl;
-			os << ge.buckets << std::endl;
-		os << ">";
+			os << "group-id:" << (int)ge.get_group_id() << " >" << std::endl;
+			os << indent(2) << "<buckets: >" << std::endl;
+			indent i(4);
+			os << ge.buckets;
 		return os;
 	};
 };
