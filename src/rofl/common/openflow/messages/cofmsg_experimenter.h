@@ -151,6 +151,19 @@ public:
 	 */
 	cmemory&
 	get_body();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_experimenter const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_experimenter >" << std::endl;
+		os << indent(4) << "<exp-id:" << (int)msg.get_experimenter_id() << " >" << std::endl;
+		os << indent(4) << "<exp-type:" << (int)msg.get_experimenter_type() << " >" << std::endl;
+		indent i(4);
+		os << msg.body;
+		return os;
+	};
 };
 
 } // end of namespace rofl

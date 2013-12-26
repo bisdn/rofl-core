@@ -191,6 +191,21 @@ public:
 	 */
 	cofmatch&
 	get_match();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofflow_stats_request const& flow_stats_request) {
+		os << indent(0) << "<cofflow_stats_request >" << std::endl;
+		os << indent(2) << "<table-id:" << (int)flow_stats_request.get_table_id() << " >" << std::endl;
+		os << indent(2) << "<out-port:0x" << std::hex << (int)flow_stats_request.get_out_port() << std::dec << " >" << std::endl;
+		os << indent(2) << "<out-group:0x" << std::hex << (int)flow_stats_request.get_out_group() << std::dec << " >" << std::endl;
+		os << indent(2) << "<cookie:0x" << std::hex << (unsigned long long)flow_stats_request.get_cookie() << std::dec << " >" << std::endl;
+		os << indent(2) << "<cookie-mask:0x" << std::hex << (unsigned long long)flow_stats_request.get_cookie_mask() << std::dec << " >" << std::endl;
+		indent i(2);
+		os << flow_stats_request.match;
+		return os;
+	};
 };
 
 
@@ -392,6 +407,29 @@ public:
 	 */
 	cofinstructions&
 	get_instructions();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofflow_stats_reply const& flow_stats_reply) {
+		os << indent(0) << "<cofflow_stats_reply >" << std::endl;
+		os << indent(2) << "<table-id:" << (int)flow_stats_reply.get_table_id() << " >" << std::endl;
+		os << indent(2) << "<duration-sec:" << (int)flow_stats_reply.get_duration_sec() << " >" << std::endl;
+		os << indent(2) << "<duration-nsec:" << (int)flow_stats_reply.get_duration_nsec() << " >" << std::endl;
+		os << indent(2) << "<priority:" << (int)flow_stats_reply.get_priority() << " >" << std::endl;
+		os << indent(2) << "<idle-timeout:" << (int)flow_stats_reply.get_idle_timeout() << " >" << std::endl;
+		os << indent(2) << "<hard-timeout:" << (int)flow_stats_reply.get_hard_timeout() << " >" << std::endl;
+		os << indent(2) << "<cookie:0x" << std::hex << (unsigned long long)flow_stats_reply.get_cookie() << std::dec << " >" << std::endl;
+		os << indent(2) << "<packet-count:" << (int)flow_stats_reply.get_packet_count() << " >" << std::endl;
+		os << indent(2) << "<byte-count:" << (int)flow_stats_reply.get_byte_count() << " >" << std::endl;
+		indent i(2);
+		os << flow_stats_reply.match;
+		switch (flow_stats_reply.of_version) {
+		case openflow10::OFP_VERSION: os << flow_stats_reply.actions; break;
+		default: os << flow_stats_reply.instructions; break;
+		}
+		return os;
+	};
 };
 
 

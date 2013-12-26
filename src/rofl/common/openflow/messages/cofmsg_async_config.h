@@ -90,6 +90,15 @@ public:
 	 */
 	virtual void
 	validate();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_get_async_config_request const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_get_async_config_request >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -233,6 +242,19 @@ public:
 	 */
 	void
 	set_flow_removed_mask(unsigned int index, uint32_t mask);
+
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_get_async_config_reply const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_get_async_config_reply >" << std::endl;
+		os << indent(4) << "<packet-in-mask:0x" << std::hex << msg.get_packet_in_mask(0) << std::dec << " >" << std::endl;
+		os << indent(4) << "<port-status-mask:0x" << std::hex << msg.get_port_status_mask(0) << std::dec << " >" << std::endl;
+		os << indent(4) << "<flow-removed-mask:0x" << std::hex << msg.get_flow_removed_mask(0) << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 /**
@@ -375,6 +397,18 @@ public:
 	 */
 	void
 	set_flow_removed_mask(unsigned int index, uint32_t mask);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_set_async_config const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_get_async_config_reply >" << std::endl;
+		os << indent(4) << "<packet-in-mask:0x" << std::hex << msg.get_packet_in_mask(0) << std::dec << " >" << std::endl;
+		os << indent(4) << "<port-status-mask:0x" << std::hex << msg.get_port_status_mask(0) << std::dec << " >" << std::endl;
+		os << indent(4) << "<flow-removed-mask:0x" << std::hex << msg.get_flow_removed_mask(0) << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 

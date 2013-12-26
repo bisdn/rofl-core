@@ -41,14 +41,18 @@ private: // data structures
 public: // data structures
 
 	cofmatch 		match; 			// cofmatch class containing ofp_match structure
-
-	cofinstructions 		instructions; 	// list of instructions
+	cofactions		actions;		// list of actions for OF 1.0
+	cofinstructions instructions; 	// list of instructions since OF1.2
 
 	union {
-		struct openflow12::ofp_flow_mod 		*ofmu12_flow_mod;
+		uint8_t								*ofmu_generic;
+		struct openflow10::ofp_flow_mod		*ofmu10_flow_mod;
+		struct openflow12::ofp_flow_mod 	*ofmu12_flow_mod;
 		struct openflow13::ofp_flow_mod		*ofmu13_flow_mod;
 	} ofm_ofmu;
 
+#define ofm_generic			ofm_ofmu.ofmu_generic
+#define of10m_flow_mod		ofm_ofmu.ofmu10_flow_mod
 #define of12m_flow_mod		ofm_ofmu.ofmu12_flow_mod
 #define of13m_flow_mod		ofm_ofmu.ofmu13_flow_mod
 
@@ -213,49 +217,68 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cflowentry const& fe) {
-		os << "<cflowentry ";
+		os << indent(0) << "<cflowentry >";
 		switch (fe.of_version) {
-		case openflow12::OFP_VERSION: {
+		case openflow10::OFP_VERSION: {
+			os << indent(2) << "<cookie:0x" << std::hex << (int)fe.get_cookie() 	<< std::dec << " >" << std::endl;
 			switch (fe.get_command()) {
-			case openflow12::OFPFC_ADD: 			os << "OFPFC-ADD "; 			break;
-			case openflow12::OFPFC_DELETE:			os << "OFPFC-DELETE "; 			break;
-			case openflow12::OFPFC_DELETE_STRICT:	os << "OFPFC-DELETE-STRICT "; 	break;
-			case openflow12::OFPFC_MODIFY:			os << "OFPFC-MODIFY "; 			break;
-			case openflow12::OFPFC_MODIFY_STRICT:	os << "OFPFC-MODIFY-STRICT ";	break;
-			default:					os << "UNKNOWN ";				break;
+			case openflow10::OFPFC_ADD:
+				os << indent(2) << "<command:ADD >" 			<< std::endl; break;
+			case openflow10::OFPFC_DELETE:
+				os << indent(2) << "<command:DELETE >" 			<< std::endl; break;
+			case openflow10::OFPFC_DELETE_STRICT:
+				os << indent(2) << "<command:DELETE-STRICT >" 	<< std::endl; break;
+			case openflow10::OFPFC_MODIFY:
+				os << indent(2) << "<command:MODIFY >" 			<< std::endl; break;
+			case openflow10::OFPFC_MODIFY_STRICT:
+				os << indent(2) << "<command:MODIFY-STRICT >" 	<< std::endl; break;
+			default:
+				os << indent(2) << "<command:UNKNOWN >" 		<< std::endl; break;
 			}
-			os << "table-id:" 		<< (int)fe.get_table_id() << " ";
-			os << "buffer-id:" 		<< (int)fe.get_buffer_id() << " ";
-			os << "idle-timeout:" 	<< (int)fe.get_idle_timeout() << " ";
-			os << "hard-timeout:" 	<< (int)fe.get_hard_timeout() << " ";
-			os << "priority:" 		<< (int)fe.get_priority() << " ";
-			os << std::endl;
-			os << "match:" 			<< fe.match << std::endl;
-			os << "instructions:" 	<< fe.instructions << std::endl;
+			os << indent(2) << "<idle-timeout:" 	<< (int)fe.get_idle_timeout() 	<< " >" << std::endl;
+			os << indent(2) << "<hard-timeout:" 	<< (int)fe.get_hard_timeout() 	<< " >" << std::endl;
+			os << indent(2) << "<priority:" 		<< (int)fe.get_priority() 		<< " >" << std::endl;
+			os << indent(2) << "<buffer-id:" 		<< (int)fe.get_buffer_id() 		<< " >" << std::endl;
+			os << indent(2) << "<out-port:0x" << std::hex << (int)fe.get_out_port() 	<< std::dec << " >" << std::endl;
+			os << indent(2) << "<flags:" 	<< std::hex << (int)fe.get_flags() 		<< std::dec << " >" << std::endl;
+			indent i(4);
+			os << fe.match;
+			os << fe.actions;
 		} break;
+		case openflow12::OFP_VERSION:
 		case openflow13::OFP_VERSION: {
+			os << indent(2) << "<cookie:0x" << std::hex << (int)fe.get_cookie() 	<< std::dec << " >" << std::endl;
+			os << indent(2) << "<cookie-mask:0x" << std::hex << (int)fe.get_cookie_mask() << std::dec << " >" << std::endl;
+			os << indent(2) << "<table-id:" 		<< (int)fe.get_table_id() 		<< " >" << std::endl;
 			switch (fe.get_command()) {
-			case openflow13::OFPFC_ADD: 			os << "OFPFC-ADD "; 			break;
-			case openflow13::OFPFC_DELETE:			os << "OFPFC-DELETE "; 			break;
-			case openflow13::OFPFC_DELETE_STRICT:	os << "OFPFC-DELETE-STRICT "; 	break;
-			case openflow13::OFPFC_MODIFY:			os << "OFPFC-MODIFY "; 			break;
-			case openflow13::OFPFC_MODIFY_STRICT:	os << "OFPFC-MODIFY-STRICT ";	break;
-			default:					os << "UNKNOWN ";				break;
+			case openflow12::OFPFC_ADD:
+				os << indent(2) << "<command:ADD >" 			<< std::endl; break;
+			case openflow12::OFPFC_DELETE:
+				os << indent(2) << "<command:DELETE >" 			<< std::endl; break;
+			case openflow12::OFPFC_DELETE_STRICT:
+				os << indent(2) << "<command:DELETE-STRICT >" 	<< std::endl; break;
+			case openflow12::OFPFC_MODIFY:
+				os << indent(2) << "<command:MODIFY >" 			<< std::endl; break;
+			case openflow12::OFPFC_MODIFY_STRICT:
+				os << indent(2) << "<command:MODIFY-STRICT >" 	<< std::endl; break;
+			default:
+				os << indent(2) << "<command:UNKNOWN >" 		<< std::endl; break;
 			}
-			os << "table-id:" 		<< (int)fe.get_table_id() << " ";
-			os << "buffer-id:" 		<< (int)fe.get_buffer_id() << " ";
-			os << "idle-timeout:" 	<< (int)fe.get_idle_timeout() << " ";
-			os << "hard-timeout:" 	<< (int)fe.get_hard_timeout() << " ";
-			os << "priority:" 		<< (int)fe.get_priority() << " ";
-			os << std::endl;
-			os << "match:" 			<< fe.match << std::endl;
-			os << "instructions:" 	<< fe.instructions << std::endl;
+			os << indent(2) << "<idle-timeout:" 	<< (int)fe.get_idle_timeout() 	<< " >" << std::endl;
+			os << indent(2) << "<hard-timeout:" 	<< (int)fe.get_hard_timeout() 	<< " >" << std::endl;
+			os << indent(2) << "<priority:" 		<< (int)fe.get_priority() 		<< " >" << std::endl;
+			os << indent(2) << "<buffer-id:" 		<< (int)fe.get_buffer_id() 		<< " >" << std::endl;
+			os << indent(2) << "<out-port:0x" << std::hex << (int)fe.get_out_port() 	<< std::dec << " >" << std::endl;
+			os << indent(2) << "<out-group:0x" << std::hex << (int)fe.get_out_group() 	<< std::dec << " >" << std::endl;
+			os << indent(2) << "<flags:" 	<< std::hex << (int)fe.get_flags() 		<< std::dec << " >" << std::endl;
+			indent i(4);
+			os << fe.match;
+			os << fe.instructions;
 		} break;
 		default: {
-			os << "unknown";
+			os << indent(2) << "<unknown OFP version >" << std::endl;
 		} break;
 		}
-		os << ">";
 		return os;
 	};
 };

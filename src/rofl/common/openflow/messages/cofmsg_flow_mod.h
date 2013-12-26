@@ -25,7 +25,7 @@ class cofmsg_flow_mod :
 private:
 
 	cofactions			actions; 		// for OF1.0
-	cofinstructions			instructions; 	// since OF1.1
+	cofinstructions		instructions; 	// since OF1.1
 	cofmatch			match;
 
 	union {

@@ -260,6 +260,28 @@ public:
 	cofmatch&
 	get_match();
 
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_flow_removed const& msg) {
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_flow_removed >" << std::endl;
+			os << indent(4) << "<cookie:0x" << std::hex << (int)msg.get_cookie() << std::dec << " >" << std::endl;
+			os << indent(4) << "<priority:0x" << std::hex << (int)msg.get_priority() << std::dec << " >" << std::endl;
+			os << indent(4) << "<reason:" << (int)msg.get_reason() << " >" << std::endl;
+			os << indent(4) << "<table-id:" << (int)msg.get_table_id() << " >" << std::endl;
+			os << indent(4) << "<duration-sec:" << (int)msg.get_duration_sec() << " >" << std::endl;
+			os << indent(4) << "<duration-nsec:" << (int)msg.get_duration_nsec() << " >" << std::endl;
+			os << indent(4) << "<idle-timeout:" << (int)msg.get_idle_timeout() << " >" << std::endl;
+			os << indent(4) << "<hard-timeout:" << (int)msg.get_hard_timeout() << " >" << std::endl;
+			os << indent(4) << "<packet-count:" << (int)msg.get_packet_count() << " >" << std::endl;
+			os << indent(4) << "<byte-count:" << (int)msg.get_byte_count() << " >" << std::endl;
+			os << indent(4) << "<matches: >" << std::endl;
+			indent i(6);
+			os << msg.match;
+		return os;
+	};
 };
 
 } // end of namespace rofl

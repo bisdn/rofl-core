@@ -146,9 +146,9 @@ public:
 	 *
 	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, cofqueue_prop const& qp)
-	{
-		os << "QueueProperty[property: " << qp.get_property() << "]";
+	operator<< (std::ostream& os, cofqueue_prop const& qp) {
+		os << indent(0) << "<QueueProperty property:0x"
+				<< std::hex << (int)qp.get_property() << std::dec << " >" << std::endl;
 		return os;
 	};
 

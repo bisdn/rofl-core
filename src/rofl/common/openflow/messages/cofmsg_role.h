@@ -140,6 +140,17 @@ public:
 	 */
 	void
 	set_generation_id(uint64_t generation_id);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_role_request const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(0) << "<cofmsg_role_request >" << std::endl;
+			os << indent(2) << "<role:0x" << std::hex << (int)msg.get_role() << std::dec << " >" << std::endl;
+			os << indent(2) << "<generation-id:0x" << std::hex << (int)msg.get_generation_id() << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -271,6 +282,17 @@ public:
 	 */
 	void
 	set_generation_id(uint64_t generation_id);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_role_reply const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(0) << "<cofmsg_role_reply >" << std::endl;
+			os << indent(2) << "<role:0x" << std::hex << (int)msg.get_role() << std::dec << " >" << std::endl;
+			os << indent(2) << "<generation-id:0x" << std::hex << (int)msg.get_generation_id() << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 

@@ -170,7 +170,7 @@ public:
 			s_flags.append("unsupported OF version");
 		} break;
 		}
-		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << dynamic_cast<cofmsg const&>( msg );
 		os << indent(2) << "<cofmsg_stats ";
 		os << "type:" << (int)msg.get_stats_type() << " ";
 		os << "flags:" << s_flags << " ";

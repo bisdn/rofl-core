@@ -103,12 +103,12 @@ public:
 	 *
 	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, cofqueue_prop_list const& qpl)
-	{
-		os << "QueuePropertyList: ";
+	operator<< (std::ostream& os, cofqueue_prop_list const& qpl) {
+		os << indent(0) << "<QueuePropertyList >";
+		indent i(2);
 		for (cofqueue_prop_list::const_iterator
 				it = qpl.begin(); it != qpl.end(); ++it) {
-			os << (*it) << " ";
+			os << (*it);
 		}
 		return os;
 	};

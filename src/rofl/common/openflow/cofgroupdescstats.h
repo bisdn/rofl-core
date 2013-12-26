@@ -137,6 +137,18 @@ public:
 	 */
 	void
 	set_buckets(cofbuckets const& buckets) { this->buckets = buckets; };
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofgroup_desc_stats_reply const& group_desc_stats_reply) {
+		os << indent(0) << "<cofgroup_desc_stats_reply >" << std::endl;
+		os << indent(2) << "<type: " << group_desc_stats_reply.get_type() << " >" << std::endl;
+		os << indent(2) << "<group-id: " << group_desc_stats_reply.get_group_id() << " >" << std::endl;
+		indent i(2);
+		os << group_desc_stats_reply.buckets;
+		return os;
+	};
 };
 
 }

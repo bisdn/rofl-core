@@ -234,42 +234,38 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_packet_in const& msg) {
-		os << "<cofmsg_packet_in " << dynamic_cast<cofmsg const&>( msg ) << " ";
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(0) << "<cofmsg_packet_in >" << std::endl;
 		switch (msg.get_version()) {
 		case openflow10::OFP_VERSION: {
-			os << "in-port:" << (int)msg.get_in_port() << " ";
-			os << "buffer-id:" << (int)msg.get_buffer_id() << " ";
-			os << "total-len:" << (int)msg.get_total_len() << " ";
-			os << "reason:" << (int)msg.get_reason() << " ";
-			os << "table-id:" << (int)msg.get_table_id() << " ";
-			os << "match:" << msg.get_match_const() << " ";
-			os << "packet:" << msg.get_packet_const() << " ";
+			os << indent(2) << "<in-port:" 		<< (int)msg.get_in_port() 	<< " >" << std::endl;
+			os << indent(2) << "<buffer-id:" 	<< (int)msg.get_buffer_id() << " >" << std::endl;
+			os << indent(2) << "<total-len:" 	<< (int)msg.get_total_len() << " >" << std::endl;
+			os << indent(2) << "<reason:" 		<< (int)msg.get_reason() 	<< " >" << std::endl;
+			os << indent(2) << "<table-id:" 	<< (int)msg.get_table_id() 	<< " >" << std::endl;
 
 		} break;
 		case openflow12::OFP_VERSION: {
-			os << "buffer-id:" << (int)msg.get_buffer_id() << " ";
-			os << "total-len:" << (int)msg.get_total_len() << " ";
-			os << "reason:" << (int)msg.get_reason() << " ";
-			os << "table-id:" << (int)msg.get_table_id() << " ";
-			os << "match:" << msg.get_match_const() << " ";
-			os << "packet:" << msg.get_packet_const() << " ";
+			os << indent(2) << "<buffer-id:"	<< (int)msg.get_buffer_id() << " >" << std::endl;
+			os << indent(2) << "<total-len:" 	<< (int)msg.get_total_len() << " >" << std::endl;
+			os << indent(2) << "<reason:" 		<< (int)msg.get_reason() 	<< " >" << std::endl;
+			os << indent(2) << "<table-id:" 	<< (int)msg.get_table_id() 	<< " >" << std::endl;
 
 		} break;
 		case openflow13::OFP_VERSION: {
-			os << "buffer-id:" << (int)msg.get_buffer_id() << " ";
-			os << "total-len:" << (int)msg.get_total_len() << " ";
-			os << "reason:" << (int)msg.get_reason() << " ";
-			os << "table-id:" << (int)msg.get_table_id() << " ";
-			os << "cookie:" << (int)msg.get_cookie() << " ";
-			os << "match:" << msg.get_match_const() << " ";
-			os << "packet:" << msg.get_packet_const() << " ";
+			os << indent(2) << "<buffer-id:" 	<< (int)msg.get_buffer_id() << " >" << std::endl;
+			os << indent(2) << "<total-len:" 	<< (int)msg.get_total_len() << " >" << std::endl;
+			os << indent(2) << "<reason:" 		<< (int)msg.get_reason() 	<< " >" << std::endl;
+			os << indent(2) << "<table-id:" 	<< (int)msg.get_table_id() 	<< " >" << std::endl;
+			os << indent(2) << "<cookie:" 		<< (int)msg.get_cookie() 	<< " >" << std::endl;
 
 		} break;
 		default: {
-			os << "unsupported OF version:" << (int)msg.get_version() << " ";
+			os << "<unsupported OF version:" 	<< (int)msg.get_version() 	<< " >" << std::endl;
 		} break;
 		}
-		os << ">";
+		os << indent(2) << msg.match;
+		os << indent(2) << msg.packet;
 		return os;
 	};
 };

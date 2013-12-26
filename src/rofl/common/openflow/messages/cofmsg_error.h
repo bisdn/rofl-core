@@ -150,6 +150,19 @@ public:
 	 */
 	cmemory&
 	get_body();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_error const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_error >" << std::endl;
+		os << indent(4) << "<err-type:" << (int)msg.get_err_type() << " >" << std::endl;
+		os << indent(4) << "<err-code:" << (int)msg.get_err_code() << " >" << std::endl;
+		indent i(6);
+		os << msg.body;
+		return os;
+	};
 };
 
 } // end of namespace rofl

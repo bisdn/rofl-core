@@ -180,6 +180,20 @@ public:
 	 */
 	void
 	set_advertise(uint32_t advertise);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_port_mod const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_port_mod >" << std::endl;
+		os << indent(2) << "<port-no:" 		<< (int)msg.get_port_no() 		<< " >" << std::endl;
+		os << indent(2) << "<hw-addr:" 		<< msg.get_hwaddr() 			<< " >" << std::endl;
+		os << indent(2) << "<config:" 		<< std::hex << (int)msg.get_config() 	<< std::dec << " >" << std::endl;
+		os << indent(2) << "<mask:" 		<< std::hex << (int)msg.get_mask() 		<< std::dec << " >" << std::endl;
+		os << indent(2) << "<advertise:" 	<< std::hex << (int)msg.get_advertise() << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 } // end of namespace rofl

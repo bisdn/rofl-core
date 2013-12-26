@@ -139,6 +139,17 @@ public:
 	 */
 	void
 	set_config(uint32_t config);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_table_mod const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(0) << "<cofmsg_table_mod >" << std::endl;
+			os << indent(2) << "<table-id:" << (int)msg.get_table_id() << " >" << std::endl;
+			os << indent(2) << "<config:0x" << std::hex << (int)msg.get_config() << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 } // end of namespace rofl

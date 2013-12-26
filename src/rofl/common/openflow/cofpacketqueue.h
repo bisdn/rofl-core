@@ -21,8 +21,8 @@ namespace rofl
 {
 
 
-class ePacketQueueBase : public cerror {};
-class ePacketQueueNotFound : public ePacketQueueBase {};
+class ePacketQueueBase 		: public cerror {};
+class ePacketQueueNotFound 	: public ePacketQueueBase {};
 
 
 class cofpacket_queue :
@@ -44,19 +44,6 @@ private:
 #define ofp12_pqueue	ofp_ofpu.ofpu12_pqueue
 
 
-	/**
-	 *
-	 */
-	friend std::ostream&
-	operator<< (std::ostream& os, cofpacket_queue const& pq)
-	{
-		os 	<< "<PacketQueue "
-				<< "port:" 			<< pq.get_port() << " "
-				<< "queueid: " 	<< pq.get_queue_id() << " "
-				<< "properties: " 	<< pq.qpl << " ";
-		os << ">";
-		return os;
-	};
 
 
 public:
@@ -154,6 +141,18 @@ public:
 	 */
 	cofqueue_prop_list&
 	get_queue_prop_list();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofpacket_queue const& pq) {
+		os 	<< indent(0) << "<PacketQueue >" << std::endl;
+			os << indent(2) << "<port:0x" << std::hex << (int)pq.get_port() << std::dec << " >" << std::endl;
+			os << indent(2) << "<queueid:" << (int)pq.get_queue_id() << " >" << std::endl;
+			indent i(2);
+			os << pq.qpl;
+		return os;
+	};
 };
 
 }

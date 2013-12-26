@@ -131,6 +131,16 @@ public:
 	 */
 	void
 	set_port_no(uint32_t port_no);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_queue_get_config_request const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(0) << "<cofmsg_queue_get_config_request >" << std::endl;
+			os << indent(2) << "<port-no:0x" << std::hex << (int)msg.get_port_no() << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -266,16 +276,15 @@ public:
 	cofpacket_queue_list&
 	get_queues();
 
+public:
 
-	/**
-	 *
-	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, cofmsg_queue_get_config_reply const& msg)
-	{
-		os << "cofmsg_queue_get_config_reply[";
-		os << "portno: " << msg.get_port_no() << " ";
-		os << "queues: " << msg.pql << "]";
+	operator<< (std::ostream& os, cofmsg_queue_get_config_reply const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(0) << "<cofmsg_queue_get_config_request >" << std::endl;
+			os << indent(2) << "<port-no:0x" << std::hex << (int)msg.get_port_no() << std::dec << " >" << std::endl;
+			indent i(4);
+			os << msg.pql;
 		return os;
 	};
 };

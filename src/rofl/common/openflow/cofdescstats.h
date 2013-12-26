@@ -131,6 +131,19 @@ public:
 	 */
 	void
 	unpack(uint8_t *buf, size_t buflen);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofdesc_stats_reply const& desc_stats_reply) {
+		os << indent(0) << "<cofdesc_stats_reply >" << std::endl;
+		os << indent(2) << "<mfr-desc: " << desc_stats_reply.mfr_desc << " >" << std::endl;
+		os << indent(2) << "<hw-desc: " << desc_stats_reply.hw_desc << " >" << std::endl;
+		os << indent(2) << "<sw-desc: " << desc_stats_reply.sw_desc << " >" << std::endl;
+		os << indent(2) << "<serial-num: " << desc_stats_reply.serial_num << " >" << std::endl;
+		os << indent(2) << "<dp-desc: " << desc_stats_reply.dp_desc << " >" << std::endl;
+		return os;
+	};
 };
 
 }

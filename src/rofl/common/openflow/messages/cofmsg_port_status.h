@@ -149,19 +149,12 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_port_status const& msg) {
-		os << "<cofmsg_port_status " << dynamic_cast<cofmsg const&>( msg ) << " ";
-		switch (msg.get_version()) {
-		case openflow10::OFP_VERSION:
-		case openflow12::OFP_VERSION:
-		case openflow13::OFP_VERSION: {
-			os << "reason:" << (int)msg.get_reason() << " ";
-			os << "port:" << msg.get_port_const() << " ";
-		} break;
-		default: {
-			os << "unsupported OF version:" << (int)msg.get_version() << " ";
-		} break;
-		}
-		os << ">";
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(0) << "<cofmsg_port_status >" << std::endl;
+			os << indent(2) << "<reason:" << (int)msg.get_reason() << " >" << std::endl;
+			os << indent(2) << "<port:0x" << std::hex << msg.get_port_const() << std::dec << " >" << std::endl;
+			indent i(2);
+			os << msg.port;
 		return os;
 	};
 };

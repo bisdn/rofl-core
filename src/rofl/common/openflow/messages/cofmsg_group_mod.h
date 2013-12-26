@@ -167,12 +167,11 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_group_mod const& msg) {
-		os << indent(0) << "<cofmsg_group_mod ";
-		os << "command:" 	<< (int)msg.get_command() 		<< " ";
-		os << "group-type:" << (int)msg.get_group_type() 	<< " ";
-		os << "group-id:" 	<< (int)msg.get_group_id() 		<< " ";
-		os << ">";
-		os << indent(2) << dynamic_cast<cofbuckets const&>( msg.buckets );
+		os << indent(0) << "<cofmsg_group_mod >" << std::endl;
+		os << indent(2) << "<command:" 		<< (int)msg.get_command() 		<< " >" << std::endl;
+		os << indent(2) << "<group-type:" 	<< (int)msg.get_group_type() 	<< " >" << std::endl;
+		os << indent(2) << "<group-id:" 	<< (int)msg.get_group_id() 		<< " >" << std::endl;
+		os << indent(2) << msg.buckets;
 		return os;
 	};
 };

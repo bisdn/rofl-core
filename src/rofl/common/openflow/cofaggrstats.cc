@@ -60,14 +60,6 @@ cofaggr_stats_request::~cofaggr_stats_request()
 
 
 
-const char*
-cofaggr_stats_request::c_str()
-{
-	// TODO: fill in std::string info
-	return info.c_str();
-}
-
-
 
 cofaggr_stats_request::cofaggr_stats_request(
 		cofaggr_stats_request const& request)

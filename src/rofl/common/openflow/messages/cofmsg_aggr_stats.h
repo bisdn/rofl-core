@@ -126,6 +126,17 @@ public:
 	 */
 	cofaggr_stats_request&
 	get_aggr_stats();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_aggr_stats_request const& msg) {
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_aggr_stats_request >" << std::endl;
+		indent i(4);
+		os << msg.aggr_stats;
+		return os;
+	};
 };
 
 
@@ -242,6 +253,17 @@ public:
 	 */
 	cofaggr_stats_reply&
 	get_aggr_stats();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_aggr_stats_reply const& msg) {
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_aggr_stats_reply >" << std::endl;
+		indent i(4);
+		os << msg.aggr_stats;
+		return os;
+	};
 };
 
 } // end of namespace rofl
