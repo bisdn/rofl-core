@@ -21,7 +21,7 @@
 namespace rofl
 {
 
-class eGroupEntryBase : public cerror {};
+class eGroupEntryBase : public RoflException {};
 class eGroupEntryOutOfMem : public eGroupEntryBase {}; // out of memory
 
 

@@ -20,7 +20,7 @@
 namespace rofl
 {
 
-class ePPPoEbase : public cerror {};
+class ePPPoEbase : public RoflException {};
 class ePPPoEInval : public ePPPoEbase {};
 class ePPPoENotFound : public ePPPoEbase {};
 

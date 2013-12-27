@@ -29,7 +29,7 @@ namespace rofl
 
 
 /* error classes */
-class eOFdptBase					: public cerror {};
+class eOFdptBase					: public RoflException {};
 class eDataPathIdInUse 				: public eOFdptBase {}; // datapath id already in use
 class eDataPathAlreadyAttached 		: public eOFdptBase {}; // crofbase *entity is already attached
 class eOFswitchBase 				: public eOFdptBase {};

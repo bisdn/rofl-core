@@ -34,7 +34,7 @@ namespace rofl
 {
 
 /* error classes */
-class eOxmBase 				: public cerror {}; // error base class for class cofinstruction
+class eOxmBase 				: public RoflException {}; // error base class for class cofinstruction
 class eOxmInval 			: public eOxmBase {}; // invalid parameter
 class eOxmBadLen 			: public eOxmBase {}; // bad length
 class eOxmInvalType 		: public eOxmBase {}; // invalid OXM TLV field value

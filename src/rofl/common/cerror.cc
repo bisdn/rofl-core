@@ -6,4 +6,4 @@
 
 using namespace rofl;
 
-std::set<cerror*> cerr_list;
+std::set<RoflException*> cerr_list;

@@ -62,7 +62,7 @@ private:
 #endif
 
 
-class eMMapPortBase 			: public cerror {}; // base error class for cmmapport
+class eMMapPortBase 			: public RoflException {}; // base error class for cmmapport
 class eMMapPortSocketFailed 	: public eMMapPortBase {};
 class eMMapPortIfaceNotFound 	: public eMMapPortBase {};
 class eMMapPortBindFailed 		: public eMMapPortBase {};

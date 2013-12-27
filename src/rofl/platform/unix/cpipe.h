@@ -16,7 +16,7 @@
 namespace rofl
 {
 
-class ePipeBase : public cerror {};
+class ePipeBase : public RoflException {};
 class ePipeInit : public ePipeBase {}; // initialization of pipe failed
 class ePipeInval : public ePipeBase {}; // invalid parameter
 

@@ -18,7 +18,7 @@
 namespace rofl
 {
 
-class eBucketsBase 			: public cerror {};
+class eBucketsBase 			: public RoflException {};
 class eBucketsInval 		: public eBucketsBase {};
 class eBucketsOutOfRange 	: public eBucketsBase {};
 

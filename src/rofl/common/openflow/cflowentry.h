@@ -26,7 +26,7 @@
 namespace rofl
 {
 
-class eFlowEntryBase : public cerror {}; // error base class cflowentry
+class eFlowEntryBase : public RoflException {}; // error base class cflowentry
 class eFlowEntryInvalid : public eFlowEntryBase {}; // invalid parameter
 class eFlowEntryOutOfMem : public eFlowEntryBase {}; // out of memory
 

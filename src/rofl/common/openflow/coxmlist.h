@@ -32,7 +32,7 @@
 namespace rofl
 {
 
-class eOxmListBase 			: public cerror {};
+class eOxmListBase 			: public RoflException {};
 class eOxmListInval 		: public eOxmListBase {}; // invalid parameter
 class eOxmListBadLen 		: public eOxmListBase {}; // bad length
 class eOxmListNotFound 		: public eOxmListBase {}; // element not found

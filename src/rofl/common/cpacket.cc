@@ -1687,7 +1687,7 @@ cpacket::classify(uint32_t in_port /* host byte order */)
 
 	    parse_ether(data.first, data.second);
 
-	} catch (cerror& e) {
+	} catch (RoflException& e) {
 	    // catch all exceptions here
 	}
 }

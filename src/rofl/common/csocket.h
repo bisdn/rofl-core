@@ -28,7 +28,7 @@ namespace rofl
 {
 
 /* error classes */
-class eSocketBase     		: public cerror {}; /**< base class for socket related errors */
+class eSocketBase     		: public RoflException {}; /**< base class for socket related errors */
 class eSocketBindFailed		: public eSocketBase {}; /**< bind system call failed */
 class eSocketAddressInUse 	: public eSocketBase {}; /**< address for socket is busy */
 class eSocketListenFailed 	: public eSocketBase {}; /**< listen operation on socket failed */

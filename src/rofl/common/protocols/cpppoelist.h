@@ -17,7 +17,7 @@
 namespace rofl
 {
 
-class ePPPoElistBase : public cerror {}; // base error class cofinlist
+class ePPPoElistBase : public RoflException {}; // base error class cofinlist
 class ePPPoElistInval : public ePPPoElistBase {}; // invalid parameter
 class ePPPoElistNotFound : public ePPPoElistBase {}; // element not found
 class ePPPoElistOutOfRange : public ePPPoElistBase {}; // out of range

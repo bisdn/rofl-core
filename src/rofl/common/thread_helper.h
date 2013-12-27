@@ -21,7 +21,7 @@
 namespace rofl
 {
 
-class eLockBase : public cerror {};
+class eLockBase : public RoflException {};
 class eLockInval : public eLockBase {};
 class eLockWouldBlock : public eLockBase {};
 

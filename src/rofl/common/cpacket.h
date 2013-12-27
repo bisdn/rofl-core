@@ -75,7 +75,7 @@ class fgtpuframe;
 
 
 
-class ePacket 				: public cerror {}; // base error class for cpacket
+class ePacket 				: public RoflException {}; // base error class for cpacket
 class ePacketInval 			: public ePacket {}; // invalid
 class ePacketOutOfMem 		: public ePacket {}; // out of memory
 class ePacketNotFound 		: public ePacket {}; // value not found

@@ -14,7 +14,7 @@
 
 namespace rofl {
 
-class eOFMeterBandSetBase : public cerror {};
+class eOFMeterBandSetBase : public RoflException {};
 class eOFMeterBandSetNotFound : public eOFMeterBandSetBase {};
 
 class cofmeter_band_set {

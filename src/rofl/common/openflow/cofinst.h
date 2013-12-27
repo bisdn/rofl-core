@@ -29,7 +29,7 @@ namespace rofl
 {
 
 /* error classes */
-class eInstructionBase 				: public cerror {}; // error base class for class cofinstruction
+class eInstructionBase 				: public RoflException {}; // error base class for class cofinstruction
 class eInstructionInval 			: public eInstructionBase {}; // invalid parameter
 class eInstructionBadLen 			: public eInstructionBase {}; // bad length
 class eInstructionInvalType 		: public eInstructionBase {}; // invalid instruction type

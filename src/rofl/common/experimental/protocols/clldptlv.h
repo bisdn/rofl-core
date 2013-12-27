@@ -18,7 +18,7 @@
 namespace rofl
 {
 
-class eLLDPbase : public cerror {};
+class eLLDPbase : public RoflException {};
 class eLLDPInval : public eLLDPbase {};
 
 class clldptlv {

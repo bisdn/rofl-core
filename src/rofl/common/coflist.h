@@ -18,7 +18,7 @@
 namespace rofl
 {
 
-class eOFlistBase : public cerror {}; // base error class cofinlist
+class eOFlistBase : public RoflException {}; // base error class cofinlist
 class eOFlistInval : public eOFlistBase {}; // invalid parameter
 class eOFlistNotFound : public eOFlistBase {}; // element not found
 class eOFlistOutOfRange : public eOFlistBase {}; // out of range

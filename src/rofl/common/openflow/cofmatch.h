@@ -32,7 +32,7 @@ namespace rofl
 {
 
 
-class eOFmatchBase 			: public cerror {}; // error base class cofmatch
+class eOFmatchBase 			: public RoflException {}; // error base class cofmatch
 class eOFmatchType 			: public eOFmatchBase {};
 class eOFmatchInval 		: public eOFmatchBase {};
 class eOFmatchNotFound 		: public eOFmatchBase {};

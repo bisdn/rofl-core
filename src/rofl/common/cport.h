@@ -34,11 +34,11 @@ namespace rofl
 #define SIOCBASE 0x01
 
 class ePortBase : // base error class cport
-	public cerror
+	public RoflException
 {
 public:
 	ePortBase(std::string desc = std::string("")) :
-		cerror(desc) {};
+		RoflException(desc) {};
 };
 class ePortNotOpen : // port is not operational
 	public ePortBase

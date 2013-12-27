@@ -21,7 +21,7 @@ namespace rofl
 {
 
 
-class ePacketQueueBase 		: public cerror {};
+class ePacketQueueBase 		: public RoflException {};
 class ePacketQueueNotFound 	: public ePacketQueueBase {};
 
 

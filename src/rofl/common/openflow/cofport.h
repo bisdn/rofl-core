@@ -37,7 +37,7 @@ namespace rofl
 {
 
 /* error classes */
-class eOFportBase 			: public cerror {};
+class eOFportBase 			: public RoflException {};
 class eOFportInval	 		: public eOFportBase {};
 class eOFportNotFound 		: public eOFportBase {};
 class eOFportMalformed 		: public eOFportBase {}; // malformed array of structs ofp_phy_port

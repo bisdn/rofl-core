@@ -19,22 +19,22 @@ namespace rofl
 {
 
 // base class for entire error class hierarchy
-class cerror {
+class RoflException {
 public:
 
 	std::string 		desc;
 
 public:
-	cerror(std::string const& desc = std::string("")) :
+	RoflException(std::string const& desc = std::string("")) :
 		desc(desc)
 	{};
-	friend std::ostream& operator<< (std::ostream& os, cerror& e) {
+	friend std::ostream& operator<< (std::ostream& os, RoflException& e) {
 		os << "<ROFL exception " << e.desc << ">";
 		return os;
 	};
 };
 
-class eSysCall : public cerror {
+class eSysCall : public RoflException {
 public:
 	int			n_err;
 	std::string	s_err;
@@ -50,15 +50,15 @@ public:
 	};
 };
 
-class eOutOFMemory 			: public cerror {}; //< out of mem error
-class eNotImplemented 		: public cerror {
+class eOutOFMemory 			: public RoflException {}; //< out of mem error
+class eNotImplemented 		: public RoflException {
 public:
-	eNotImplemented(std::string desc = std::string("")) : cerror(desc) {};
+	eNotImplemented(std::string desc = std::string("")) : RoflException(desc) {};
 }; //< oops, fix me exception :D
-class eInternalError 		: public cerror {}; //< some internal error occured
-class eDebug 				: public cerror {};
-class eInval				: public cerror {};
-class eTooShort				: public cerror {};
+class eInternalError 		: public RoflException {}; //< some internal error occured
+class eDebug 				: public RoflException {};
+class eInval				: public RoflException {};
+class eTooShort				: public RoflException {};
 
 }; // end of namespace
 

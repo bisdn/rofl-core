@@ -18,7 +18,7 @@
 namespace rofl
 {
 
-class eFrameBase : public cerror {}; // error base class fframe
+class eFrameBase : public RoflException {}; // error base class fframe
 class eFrameNoPayload : public eFrameBase {}; // no payload in frame
 class eFrameOutOfRange : public eFrameBase {}; // too many data to copy
 class eFrameInvalidSyntax : public eFrameBase {}; // invalid syntax

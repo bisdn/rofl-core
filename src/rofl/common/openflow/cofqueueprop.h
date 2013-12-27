@@ -30,7 +30,7 @@ extern "C" {
 namespace rofl
 {
 
-class eQueuePropBase : public cerror {};
+class eQueuePropBase : public RoflException {};
 class eQueuePropNotFound : public eQueuePropBase {};
 
 

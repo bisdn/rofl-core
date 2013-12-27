@@ -21,7 +21,7 @@ namespace rofl
 {
 
 /* error classes */
-class eMemBase 				: public cerror {};
+class eMemBase 				: public RoflException {};
 class eMemAllocFailed 		: public eMemBase {};
 class eMemOutOfRange 		: public eMemBase {};
 class eMemNotFound 			: public eMemBase {};

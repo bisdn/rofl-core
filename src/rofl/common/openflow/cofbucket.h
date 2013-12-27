@@ -23,7 +23,7 @@ namespace rofl
 {
 
 /* error classes */
-class eBucketBase 	: public cerror {}; // error base class for class cofbucket
+class eBucketBase 	: public RoflException {}; // error base class for class cofbucket
 class eBucketInval 	: public eBucketBase {}; // parameter is invalid
 class eBucketBadLen : public eBucketBase {}; // invalid length
 

@@ -11,7 +11,7 @@
 
 namespace rofl {
 
-class eOpenFlowBase					: public cerror {};
+class eOpenFlowBase					: public RoflException {};
 
 /* exceptions for hello according to OpenFlow */
 class eHelloBase					: public eOpenFlowBase {};
@@ -131,8 +131,8 @@ class eRoleRequestBadRole			: public eRoleRequestBase {};	// OFPRRFC_BAD_ROLE
 /*
  * further rofl internal exceptions
  */
-class eBadVersion					: public cerror {};
-class eBadSyntax					: public cerror {};
+class eBadVersion					: public RoflException {};
+class eBadSyntax					: public RoflException {};
 class eBadSyntaxTooShort			: public eBadSyntax {};
 }
 

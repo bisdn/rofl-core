@@ -43,7 +43,7 @@ class cofbase;
 namespace rofl
 {
 
-class eOFpacketBase 		: public cerror {};
+class eOFpacketBase 		: public RoflException {};
 class eOFpacketInval 		: public eOFpacketBase {};
 class eOFpacketNoData 		: public eOFpacketBase {};
 class eOFpacketHeaderInval 	: public eOFpacketBase {}; // invalid header

@@ -24,7 +24,7 @@ namespace rofl
 
 #define XIDSTORE_ALL_XIDS	0xffffffff
 
-class eXidStoreBase 			: public cerror {};
+class eXidStoreBase 			: public RoflException {};
 class eXidStoreXidBusy			: public eXidStoreBase {};		// xid is already in use
 class eXidStoreNotFound			: public eXidStoreBase {};		// xid not found
 
@@ -48,7 +48,7 @@ protected:
 };
 
 
-class eXidTransBase				: public cerror {};
+class eXidTransBase				: public RoflException {};
 class eXidTransNotFound			: public eXidTransBase {};
 
 

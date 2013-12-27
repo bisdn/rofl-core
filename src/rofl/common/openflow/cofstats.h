@@ -20,7 +20,7 @@
 namespace rofl
 {
 
-class eOFstatsBase			: public cerror {};
+class eOFstatsBase			: public RoflException {};
 class eOFstatsTooShort		: public eOFstatsBase {};
 
 

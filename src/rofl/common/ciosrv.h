@@ -104,7 +104,7 @@ public:
 
 
 /* error classes */
-class eIoSvcBase			: public cerror {}; 	//< base error class for ciosrv
+class eIoSvcBase			: public RoflException {}; 	//< base error class for ciosrv
 class eIoSvcInitFailed 		: public eIoSvcBase {};	//< init of ciosrv instance failed
 class eIoSvcRunError 		: public eIoSvcBase {}; //< error in core loop (select)
 class eIoSvcUnhandledTimer 	: public eIoSvcBase {}; //< unhandled timer

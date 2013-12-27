@@ -25,7 +25,7 @@ extern "C" {
 namespace rofl
 {
 
-class eInstructionsBase 		: public cerror {}; // base error class cofinlist
+class eInstructionsBase 		: public RoflException {}; // base error class cofinlist
 class eInstructionsInval 		: public eInstructionsBase {}; // invalid parameter
 class eInstructionsNotFound 	: public eInstructionsBase {}; // element not found
 class eInstructionsOutOfRange	: public eInstructionsBase {}; // out of range

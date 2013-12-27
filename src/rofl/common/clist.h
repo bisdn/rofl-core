@@ -18,7 +18,7 @@
 namespace rofl
 {
 
-class eListBase : public cerror {};
+class eListBase : public RoflException {};
 class eListInval : public eListBase {};
 class eListTooShort : public eListBase {};
 class eListOutOfRange : public eListBase {};

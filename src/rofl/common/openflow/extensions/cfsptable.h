@@ -19,7 +19,7 @@
 namespace rofl
 {
 
-class eFspTable 			: public cerror {}; 	// base class cnstable errors
+class eFspTable 			: public RoflException {}; 	// base class cnstable errors
 class eFspNoMatch 			: public eFspTable {};	// no matching entry found
 class eFspEntryOverlap 		: public eFspTable {}; 	// new namespace entry overlaps
 class eFspEntryNotFound 	: public eFspTable {};  // namespace entry not found

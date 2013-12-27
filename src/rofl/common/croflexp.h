@@ -21,7 +21,7 @@
 namespace rofl
 {
 
-class eRoflExpBase 		: public cerror {};
+class eRoflExpBase 		: public RoflException {};
 class eRoflExpInval 	: public eRoflExpBase {};
 
 #define OFPEXPID_ROFL		0x55b12399

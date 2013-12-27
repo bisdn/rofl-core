@@ -35,7 +35,7 @@ namespace rofl
 {
 
 /* error classes */
-class eAddress 							: public cerror {}; // base class caddress related errors
+class eAddress 							: public RoflException {}; // base class caddress related errors
 class eAddressIoctlFailed 				: public eAddress {};
 class eAddressSocketFailed 				: public eAddress {};
 class eAddressSocketFailedNoPermission 	: public eAddressSocketFailed {};

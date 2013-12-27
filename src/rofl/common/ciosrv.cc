@@ -1219,14 +1219,14 @@ handle_packets:			// handle incoming events
 #ifndef NDEBUG
 			try {
 				ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
-			} catch (cerror& e) {
+			} catch (RoflException& e) {
 				//fprintf(stderr, "exception\n");
 				//throw;
 			}
 #else
 			try {
 				ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
-			} catch (cerror& e) {
+			} catch (RoflException& e) {
 				//fprintf(stderr, "exception\n");
 				throw;
 			}

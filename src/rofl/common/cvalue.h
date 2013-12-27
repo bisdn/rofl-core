@@ -21,7 +21,7 @@
 namespace rofl
 {
 
-class eValueBase 			: public cerror {};
+class eValueBase 			: public RoflException {};
 class eValueInval 			: public eValueBase {};
 
 

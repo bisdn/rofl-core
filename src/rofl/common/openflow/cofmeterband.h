@@ -22,7 +22,7 @@
 namespace rofl
 {
 
-class eMeterBandBase : public cerror {};
+class eMeterBandBase : public RoflException {};
 class eMeterBandNotFound : public eMeterBandBase {};
 
 

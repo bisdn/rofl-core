@@ -26,7 +26,7 @@ extern "C" {
 namespace rofl
 {
 
-class eActionsBase 			: public cerror {}; 		// base error class for cofactions
+class eActionsBase 			: public RoflException {}; 		// base error class for cofactions
 class eActionsInval 		: public eActionsBase {}; 	// parameter is invalid
 class eActionsNotFound 		: public eActionsBase {}; 	// element not found
 class eActionsOutOfRange 	: public eActionsBase {}; 	// index out of range in operator[]

@@ -25,9 +25,9 @@ namespace rofl
 {
 
 /** error classes */
-class eTapPortInval : public cerror {}; // invalid parameter
-class eTapPortWriteFailed : public cerror {}; // write failed
-class eTapPortOpenFailed : public cerror {}; // open failed
+class eTapPortInval : public RoflException {}; // invalid parameter
+class eTapPortWriteFailed : public RoflException {}; // write failed
+class eTapPortOpenFailed : public RoflException {}; // open failed
 
 class ctapport : public clinuxport {
 public: // static

@@ -35,7 +35,7 @@ namespace rofl
 {
 
 /* error classes */
-class eActionBase 			: public cerror {};
+class eActionBase 			: public RoflException {};
 class eActionInval 			: public eActionBase {}; // invalid parameter
 class eActionInvalType 		: public eActionBase {}; // invalid action type
 
