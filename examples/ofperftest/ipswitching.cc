@@ -264,7 +264,7 @@ ipswitching::handle_packet_in_arpv4(
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			actions.append_action_set_field(coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][ip_dst].vid));
+			actions.append_action_set_field(coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
 		}
 		// src uses vlan, dst is untagged => pop vlan tag
 		else if ((fib[dpt][ip_dst].vid == 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
@@ -273,7 +273,7 @@ ipswitching::handle_packet_in_arpv4(
 		// src is untagged, dst uses vlan => push vlan tag
 		else if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid == 0xffff)) {
 			actions.append_action_push_vlan(fvlanframe::VLAN_CTAG_ETHER);
-			actions.append_action_set_field(coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][ip_dst].vid));
+			actions.append_action_set_field(coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
 		}
 		// src and dst are untagged => do nothing
 		else {
@@ -346,18 +346,18 @@ ipswitching::handle_packet_in_ipv4(
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			fe.match.set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][ip_src].vid);
-			fe.instructions.get_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][ip_dst].vid));
+			fe.match.set_vlan_vid(fib[dpt][ip_src].vid);
+			fe.instructions.get_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
 		}
 		// src uses vlan, dst is untagged => pop vlan tag
 		else if ((fib[dpt][ip_dst].vid == 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			fe.match.set_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][ip_src].vid);
+			fe.match.set_vlan_vid(fib[dpt][ip_src].vid);
 			fe.instructions.get_inst_write_actions().get_actions().append_action_pop_vlan();
 		}
 		// src is untagged, dst uses vlan => push vlan tag
 		else if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid == 0xffff)) {
 			fe.instructions.get_inst_write_actions().get_actions().append_action_push_vlan(fvlanframe::VLAN_CTAG_ETHER);
-			fe.instructions.get_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][ip_dst].vid));
+			fe.instructions.get_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
 		}
 		// src and dst are untagged => do nothing
 		else {
@@ -431,7 +431,7 @@ ipswitching::flood_vlans(crofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][it->second.addr].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			actions.append_action_set_field(coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][it->second.addr].vid));
+			actions.append_action_set_field(coxmatch_ofb_vlan_vid(fib[dpt][it->second.addr].vid));
 		}
 		// src uses vlan, dst is untagged => pop vlan tag
 		else if ((fib[dpt][it->second.addr].vid == 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
@@ -440,7 +440,7 @@ ipswitching::flood_vlans(crofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 		// src is untagged, dst uses vlan => push vlan tag
 		else if ((fib[dpt][it->second.addr].vid != 0xffff) && (fib[dpt][ip_src].vid == 0xffff)) {
 			actions.append_action_push_vlan(fvlanframe::VLAN_CTAG_ETHER);
-			actions.append_action_set_field(coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, fib[dpt][it->second.addr].vid));
+			actions.append_action_set_field(coxmatch_ofb_vlan_vid(fib[dpt][it->second.addr].vid));
 		}
 		// src and dst are untagged => do nothing
 		else {

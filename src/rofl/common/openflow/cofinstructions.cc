@@ -600,7 +600,7 @@ cofinstructions::test()
 
 	inlist2.add_inst_apply_actions().get_actions().push_back(new cofaction_output(openflow12::OFP_VERSION, 1));
 	inlist2.add_inst_clear_actions();
-	inlist2.set_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 1111));
+	inlist2.set_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_vlan_vid(1111));
 	inlist2.set_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_mpls_tc(7));
 
 	std::cerr << "YYY => " << inlist2 << std::endl;
