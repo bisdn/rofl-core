@@ -19,8 +19,8 @@
 #include "rofl/common/cxidstore.h"
 #include "rofl/common/openflow/cofport.h"
 #include "rofl/common/openflow/extensions/cfsptable.h"
-#include "openflow.h"
-#include "../openflow/messages/cofmsg.h"
+#include "openflow/openflow.h"
+#include "openflow/messages/cofmsg.h"
 
 
 

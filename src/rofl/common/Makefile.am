@@ -39,6 +39,12 @@ librofl_common_la_SOURCES = \
 		cxidstore.cc \
 		crofbase.h \
 		crofbase.cc \
+		crofctl.h \
+		crofctlImpl.h \
+		crofctlImpl.cc \
+		crofdpt.h \
+		crofdptImpl.h \
+		crofdptImpl.cc \
 		logging.h \
 		logging.cc
 
@@ -54,6 +60,10 @@ library_include_HEADERS= \
 		endian_conversion.h \
 		rofcommon.h \
 		crofbase.h \
+		crofctl.h \
+		crofctlImpl.h \
+		crofdpt.h \
+		crofdptImpl.h \
 		cclock.h \
 		croflexception.h \
 		cfsm.h \

@@ -28,6 +28,10 @@
 #include "csocket.h"
 #include "thread_helper.h"
 #include "logging.h"
+#include "crofdpt.h"
+#include "crofdptImpl.h"
+#include "crofctl.h"
+#include "crofctlImpl.h"
 
 #include "openflow/openflow.h"
 
@@ -35,10 +39,6 @@
 #include "rofl/platform/unix/crandom.h"
 
 #include "openflow/cofport.h"
-#include "openflow/crofdpt.h"
-#include "openflow/crofdptImpl.h"
-#include "openflow/crofctl.h"
-#include "openflow/crofctlImpl.h"
 #include "openflow/cofinst.h"
 #include "openflow/cofinstructions.h"
 #include "openflow/cofaction.h"

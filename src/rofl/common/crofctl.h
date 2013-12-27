@@ -8,12 +8,12 @@
 #include <map>
 #include <string>
 
-#include "openflow.h"
-#include "../croflexception.h"
-#include "../cmemory.h"
-#include "../crofbase.h"
-#include "../cxidstore.h"
-#include "../openflow/messages/cofmsg.h"
+#include "openflow/openflow.h"
+#include "croflexception.h"
+#include "cmemory.h"
+#include "crofbase.h"
+#include "cxidstore.h"
+#include "openflow/messages/cofmsg.h"
 
 
 
