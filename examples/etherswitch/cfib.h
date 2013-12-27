@@ -21,7 +21,7 @@ extern "C" {
 #endif
 
 #include <rofl/common/crofbase.h>
-#include <rofl/common/openflow/cofdpt.h>
+#include <rofl/common/openflow/crofdpt.h>
 #include <rofl/common/cmacaddr.h>
 
 #include <cfibentry.h>

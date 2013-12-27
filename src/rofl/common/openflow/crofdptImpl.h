@@ -1,5 +1,5 @@
 /*
- * cofdptImpl.h
+ * crofdptImpl.h
  *
  *  Created on: 25.09.2013
  *      Author: andreas
@@ -49,7 +49,7 @@
 #include "../openflow/messages/cofmsg_experimenter_stats.h"
 #include "../openflow/messages/cofmsg_async_config.h"
 
-#include "rofl/common/openflow/cofdpt.h"
+#include "rofl/common/openflow/crofdpt.h"
 
 namespace rofl
 {

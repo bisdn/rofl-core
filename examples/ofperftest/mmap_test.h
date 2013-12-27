@@ -12,7 +12,7 @@ ROFL_END_DECLS
 #include "rofl/common/cmacaddr.h"
 #include "rofl/common/caddress.h"
 #include "rofl/common/crofbase.h"
-#include "rofl/common/openflow/cofdpt.h"
+#include "rofl/common/openflow/crofdpt.h"
 
 #include "ofperftest.h"
 

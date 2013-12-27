@@ -6,7 +6,7 @@
 #define ROFCOMMON_H 1
 
 #include "crofbase.h"
-#include "cofctl.h"
-#include "cofdpt.h"
+#include "crofctl.h"
+#include "crofdpt.h"
 
 #endif

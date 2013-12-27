@@ -56,7 +56,7 @@ extern "C" {
 #include "../openflow/messages/cofmsg_experimenter.h"
 #include "../openflow/messages/cofmsg_async_config.h"
 
-#include "rofl/common/openflow/cofctl.h"
+#include "rofl/common/openflow/crofctl.h"
 
 namespace rofl
 {
