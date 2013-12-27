@@ -17,24 +17,19 @@
 #include "openflow.h"
 #include "../cerror.h"
 #include "../cmemory.h"
-#include "../cvastring.h"
-#include "../coflist.h"
-
-#include "rofl/platform/unix/csyslog.h"
-
 #include "cofactions.h"
 
 namespace rofl
 {
 
 /* error classes */
-class eBucketBase : public cerror {}; // error base class for class cofbucket
-class eBucketInval : public eBucketBase {}; // parameter is invalid
+class eBucketBase 	: public cerror {}; // error base class for class cofbucket
+class eBucketInval 	: public eBucketBase {}; // parameter is invalid
 class eBucketBadLen : public eBucketBase {}; // invalid length
 
 
 
-class cofbucket : public csyslog {
+class cofbucket {
 
 	uint8_t ofp_version;
 

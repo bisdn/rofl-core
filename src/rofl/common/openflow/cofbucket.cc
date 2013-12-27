@@ -214,5 +214,5 @@ cofbucket::get_bucket_stats(
 	body += bstats;
 }
 
-template class coflist<cofbucket>;
+
 
