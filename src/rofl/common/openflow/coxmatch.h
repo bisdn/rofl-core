@@ -810,92 +810,20 @@ class coxmatch_ofb_vlan_vid :
 	public coxmatch
 {
 public:
-	enum vlan_tag_mode_t {
-		VLAN_TAG_MODE_UNTAGGED = 1,
-		VLAN_TAG_MODE_NORMAL = 2,
-		VLAN_TAG_MODE_ANY_TAG = 3,
-	};
-private:
-	enum vlan_tag_mode_t tag_mode;
-public:
 	/** constructor
 	 */
-	coxmatch_ofb_vlan_vid(
-			enum vlan_tag_mode_t tag_mode) :
-				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + 2 * sizeof(uint16_t)),
-				tag_mode(tag_mode)
-	{
-		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
-		set_oxm_field(openflow::OFPXMT_OFB_VLAN_VID);
-		set_oxm_hasmask(true);
-		set_oxm_length(2 * sizeof(uint16_t));
-		switch (tag_mode) {
-		case VLAN_TAG_MODE_UNTAGGED: {
-			throw eOxmInval();
-		} break;
-		case VLAN_TAG_MODE_NORMAL: {
-			throw eOxmInval();
-		} break;
-		case VLAN_TAG_MODE_ANY_TAG: {
-			oxm_uint16t->word = htobe16(openflow::OFPVID_PRESENT);
-			oxm_uint16t->mask = htobe16(openflow::OFPVID_PRESENT);
-		} break;
-		}
-	};
-	/** constructor
-	 */
-	coxmatch_ofb_vlan_vid(
-			enum vlan_tag_mode_t tag_mode,
-			uint16_t vid) :
-				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + sizeof(uint16_t)),
-				tag_mode(tag_mode)
+	coxmatch_ofb_vlan_vid(uint16_t vid) :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + sizeof(uint16_t))
 	{
 		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
 		set_oxm_field(openflow::OFPXMT_OFB_VLAN_VID);
 		set_oxm_length(sizeof(uint16_t));
-		switch (tag_mode) {
-		case VLAN_TAG_MODE_UNTAGGED: {
-			oxm_uint16t->word = htobe16(vid & ~(openflow::OFPVID_PRESENT));
-			//oxm_uint16t->word = htobe16(0);
-		} break;
-		case VLAN_TAG_MODE_NORMAL: {
-			oxm_uint16t->word = htobe16(vid | (openflow::OFPVID_PRESENT));
-		} break;
-		case VLAN_TAG_MODE_ANY_TAG: {
-			throw eOxmInval();
-		} break;
-		}
+		oxm_uint16t->word = htobe16(vid | openflow::OFPVID_PRESENT);
 	};
 	/** constructor
 	 */
 	coxmatch_ofb_vlan_vid(
-			enum vlan_tag_mode_t tag_mode,
-			uint16_t vid,
-			uint16_t mask) :
-				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + 2 * sizeof(uint16_t)),
-				tag_mode(tag_mode)
-	{
-		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
-		set_oxm_field(openflow::OFPXMT_OFB_VLAN_VID);
-		set_oxm_hasmask(true);
-		set_oxm_length(2 * sizeof(uint16_t));
-		switch (tag_mode) {
-		case VLAN_TAG_MODE_UNTAGGED: {
-			throw eOxmInval();
-		} break;
-		case VLAN_TAG_MODE_NORMAL: {
-			oxm_uint16t->word = htobe16(vid | (openflow::OFPVID_PRESENT));
-			oxm_uint16t->mask = htobe16(mask);
-		} break;
-		case VLAN_TAG_MODE_ANY_TAG: {
-			throw eOxmInval();
-		} break;
-		}
-	};
-	/** constructor
-	 */
-	coxmatch_ofb_vlan_vid(
-			coxmatch const& oxm) : coxmatch(oxm), tag_mode(VLAN_TAG_MODE_NORMAL) {};
+			coxmatch const& oxm) : coxmatch(oxm) {};
 	/** destructor
 	 */
 	virtual
@@ -906,11 +834,90 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofb_vlan_vid const& oxm)
 	{
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<tag-mode:" << oxm.tag_mode << " >" << std::endl;
-		os << indent(2) << "<vlan-vid: " << (int)oxm.uint16_value() << "/" << (int)oxm.uint16_mask() << " >" << std::endl;
+		os << indent(2) << "<coxmatch_ofb_vlan_vid >" << std::endl;
+		os << indent(4) << "<vlan-vid: " << (int)oxm.uint16_value() << " >" << std::endl;
 		return os;
 	};
 };
+
+
+/** OXM_OF_VLAN_VID
+ *
+ */
+class coxmatch_ofb_vlan_untagged :
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofb_vlan_untagged() :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + sizeof(uint16_t))
+	{
+		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(openflow::OFPXMT_OFB_VLAN_VID);
+		set_oxm_length(sizeof(uint16_t));
+		oxm_uint16t->word = htobe16(openflow::OFPVID_NONE);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_vlan_untagged(
+			coxmatch const& oxm) : coxmatch(oxm) {};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofb_vlan_untagged() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofb_vlan_untagged const& oxm)
+	{
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<coxmatch_ofb_vlan_untagged >" << std::endl;
+		os << indent(4) << "<vlan-vid: " << (int)oxm.uint16_value() << "/" << (int)oxm.uint16_mask() << " >" << std::endl;
+		return os;
+	};
+};
+
+
+/** OXM_OF_VLAN_VID
+ *
+ */
+class coxmatch_ofb_vlan_present : // tagged with any vid
+	public coxmatch
+{
+public:
+	/** constructor
+	 */
+	coxmatch_ofb_vlan_present() :
+				coxmatch(sizeof(struct openflow::ofp_oxm_hdr) + 2 * sizeof(uint16_t))
+	{
+		set_oxm_class(openflow::OFPXMC_OPENFLOW_BASIC);
+		set_oxm_field(openflow::OFPXMT_OFB_VLAN_VID);
+		set_oxm_hasmask(true);
+		set_oxm_length(2 * sizeof(uint16_t));
+		oxm_uint16t->word = htobe16(openflow::OFPVID_PRESENT);
+		oxm_uint16t->mask = htobe16(openflow::OFPVID_PRESENT);
+	};
+	/** constructor
+	 */
+	coxmatch_ofb_vlan_present(
+			coxmatch const& oxm) : coxmatch(oxm) {};
+	/** destructor
+	 */
+	virtual
+	~coxmatch_ofb_vlan_present() {};
+	/**
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, coxmatch_ofb_vlan_present const& oxm)
+	{
+		os << dynamic_cast<coxmatch const&>(oxm);
+		os << indent(2) << "<coxmatch_ofb_vlan_present >" << std::endl;
+		os << indent(4) << "<vlan-vid: " << (int)oxm.uint16_value() << "/" << (int)oxm.uint16_mask() << " >" << std::endl;
+		return os;
+	};
+};
+
 
 
 /** OXM_OF_VLAN_PCP

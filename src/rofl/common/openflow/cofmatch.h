@@ -446,8 +446,20 @@ public:
 	 */
 	void
 	set_vlan_vid(
-			coxmatch_ofb_vlan_vid::vlan_tag_mode_t tag_mode,
 			uint16_t vid);
+
+	/**
+	 *
+	 */
+	void
+	set_vlan_present();
+
+
+	/**
+	 *
+	 */
+	void
+	set_vlan_untagged();
 
 
 	/**

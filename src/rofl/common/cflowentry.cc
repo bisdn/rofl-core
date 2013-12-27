@@ -604,7 +604,7 @@ cflowentry::test()
 
 	fe.instructions.add_inst_apply_actions();
 	fe.instructions.get_inst_apply_actions().get_actions().append_action_output(2);
-	fe.instructions.get_inst_apply_actions().get_actions().append_action_set_field(coxmatch_ofb_vlan_vid(coxmatch_ofb_vlan_vid::VLAN_TAG_MODE_NORMAL, 3));
+	fe.instructions.get_inst_apply_actions().get_actions().append_action_set_field(coxmatch_ofb_vlan_vid(3));
 	fe.instructions.get_inst_apply_actions().get_actions().append_action_set_field(coxmatch_ofb_ip_dscp(4));
 	fe.instructions.get_inst_apply_actions().get_actions().append_action_push_mpls(50);
 	fe.instructions.get_inst_apply_actions().get_actions().append_action_push_mpls(100);
