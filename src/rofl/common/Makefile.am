@@ -4,14 +4,69 @@ SUBDIRS = openflow protocols utils
 
 noinst_LTLIBRARIES = librofl_common.la
 
-librofl_common_la_SOURCES = caddress.h  cmacaddr.h cpacket.h croflexp.h endian_conversion.h rofcommon.h cclock.h croflexception.h cfsm.h ciosrv.h cmemory.h coflist.h cport.h csocket.h cvastring.h fframe.h thread_helper.h cxidstore.h crofbase.h cvalue.h clist.h logging.h \
-caddress.cc cclock.cc cfsm.cc ciosrv.cc cmacaddr.cc cmemory.cc coflist.cc cpacket.cc cport.cc croflexp.cc csocket.cc fframe.cc cxidstore.cc  crofbase.cc clist.cc logging.cc
+librofl_common_la_SOURCES = \
+		endian_conversion.h \
+		rofcommon.h \
+		croflexception.h \
+		thread_helper.h \
+		cvalue.h \
+		caddress.h \
+		caddress.cc \
+		cmacaddr.h \
+		cmacaddr.cc \
+		cpacket.h \
+		cpacket.cc \
+		croflexp.h \
+		croflexp.cc \
+		cclock.h \
+		cclock.cc \
+		cfsm.h \
+		cfsm.cc \
+		ciosrv.h \
+		ciosrv.cc \
+		cmemory.h \
+		cmemory.cc \
+		coflist.h \
+		coflist.cc \
+		cport.h \
+		cport.cc \
+		csocket.h \
+		csocket.cc \
+		cvastring.h \
+		fframe.h \
+		fframe.cc \
+		cxidstore.h \
+		cxidstore.cc \
+		crofbase.h \
+		crofbase.cc \
+		logging.h \
+		logging.cc
 
 librofl_common_la_LIBADD=openflow/libopenflow.la protocols/libprotocols.la utils/librofl_common_utils.la -lrt
 
 library_includedir=$(includedir)/rofl/common
-library_include_HEADERS= caddress.h      cmacaddr.h  cpacket.h    croflexp.h    endian_conversion.h  rofcommon.h crofbase.h cvalue.h \
-		cclock.h croflexception.h cfsm.h ciosrv.h cmemory.h coflist.h cport.h csocket.h cvastring.h fframe.h thread_helper.h  cxidstore.h clist.h logging.h
+library_include_HEADERS= \
+		cvalue.h \
+		caddress.h \
+		cmacaddr.h \
+		cpacket.h \
+		croflexp.h \
+		endian_conversion.h \
+		rofcommon.h \
+		crofbase.h \
+		cclock.h \
+		croflexception.h \
+		cfsm.h \
+		ciosrv.h \
+		cmemory.h \
+		coflist.h \
+		cport.h \
+		csocket.h \
+		cvastring.h \
+		fframe.h \
+		thread_helper.h \
+		cxidstore.h \
+		logging.h
 
 
 AM_CPPFLAGS=-fPIC

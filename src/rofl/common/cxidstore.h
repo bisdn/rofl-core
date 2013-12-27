@@ -14,10 +14,10 @@
 
 #include <map>
 
-#include <rofl/common/ciosrv.h>
-#include <rofl/common/croflexception.h>
-#include <rofl/common/cclock.h>
-#include <rofl/common/cvalue.h>
+#include "rofl/common/ciosrv.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cclock.h"
+#include "rofl/common/cvalue.h"
 
 namespace rofl
 {
