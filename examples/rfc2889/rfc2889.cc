@@ -55,10 +55,10 @@ etherswitch::drop_expired_fib_entries()
 void
 etherswitch::request_flow_stats()
 {
-	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
+	std::map<crofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
 
 	for (it = fib.begin(); it != fib.end(); ++it) {
-		cofdpt *dpt = it->first;
+		crofdpt *dpt = it->first;
 
 		cofflow_stats_request req;
 
@@ -91,7 +91,7 @@ etherswitch::request_flow_stats()
 
 
 void
-etherswitch::handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg)
+etherswitch::handle_flow_stats_reply(crofdpt *dpt, cofmsg_flow_stats_reply *msg)
 {
 	if (fib.find(dpt) == fib.end()) {
 		delete msg; return;
@@ -121,10 +121,10 @@ etherswitch::handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg)
 void
 etherswitch::flow_mod_delete_all()
 {
-	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
+	std::map<crofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
 
 	for (it = fib.begin(); it != fib.end(); ++it) {
-		cofdpt *dpt = it->first;
+		crofdpt *dpt = it->first;
 
 		cflowentry fe(dpt->get_version());
 		fe.set_command(openflow12::OFPFC_DELETE);
@@ -144,7 +144,7 @@ etherswitch::flow_mod_delete_all()
 
 void
 etherswitch::handle_dpath_open(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	fib[dpt] = std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> >();
 	// do nothing here
@@ -154,7 +154,7 @@ etherswitch::handle_dpath_open(
 
 void
 etherswitch::handle_dpath_close(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	fib.erase(dpt);
 }
@@ -163,7 +163,7 @@ etherswitch::handle_dpath_close(
 
 void
 etherswitch::handle_packet_in(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		cofmsg_packet_in *msg)
 {
 	cmacaddr eth_src = msg->get_packet().ether()->get_dl_src();

@@ -7,9 +7,9 @@
 using namespace rofl;
 
 
-cofdptImpl::cofdptImpl(
+crofdptImpl::crofdptImpl(
 		crofbase *rofbase) :
-				cofdpt(rofbase),
+				crofdpt(rofbase),
 				dpid(0),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
@@ -37,14 +37,14 @@ cofdptImpl::cofdptImpl(
 
 
 
-cofdptImpl::cofdptImpl(
+crofdptImpl::crofdptImpl(
 		crofbase *rofbase,
 		int newsd,
 		caddress const& ra,
 		int domain,
 		int type,
 		int protocol) :
-				cofdpt(rofbase),
+				crofdpt(rofbase),
 				dpid(0),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
@@ -74,7 +74,7 @@ cofdptImpl::cofdptImpl(
 
 
 
-cofdptImpl::cofdptImpl(
+crofdptImpl::crofdptImpl(
 		crofbase *rofbase,
 		uint8_t ofp_version,
 		int reconnect_start_timeout,
@@ -82,7 +82,7 @@ cofdptImpl::cofdptImpl(
 		int domain,
 		int type,
 		int protocol) :
-				cofdpt(rofbase),
+				crofdpt(rofbase),
 				dpid(0),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
@@ -116,7 +116,7 @@ cofdptImpl::cofdptImpl(
 
 
 
-cofdptImpl::~cofdptImpl()
+crofdptImpl::~crofdptImpl()
 {
 	// remove all cofport instances
 	while (not ports.empty()) {
@@ -127,7 +127,7 @@ cofdptImpl::~cofdptImpl()
 
 
 uint8_t
-cofdptImpl::get_version()
+crofdptImpl::get_version()
 {
 	return ofp_version;
 }
@@ -135,7 +135,7 @@ cofdptImpl::get_version()
 
 
 caddress
-cofdptImpl::get_peer_addr()
+crofdptImpl::get_peer_addr()
 {
 	return socket->raddr;
 }
@@ -143,7 +143,7 @@ cofdptImpl::get_peer_addr()
 
 
 void
-cofdptImpl::handle_accepted(
+crofdptImpl::handle_accepted(
 		csocket *socket,
 		int newsd,
 		caddress const& ra)
@@ -154,7 +154,7 @@ cofdptImpl::handle_accepted(
 
 
 void
-cofdptImpl::handle_connected(
+crofdptImpl::handle_connected(
 		csocket *socket,
 		int sd)
 {
@@ -166,7 +166,7 @@ cofdptImpl::handle_connected(
 
 
 void
-cofdptImpl::handle_connect_refused(
+crofdptImpl::handle_connect_refused(
 		csocket *socket,
 		int sd)
 {
@@ -183,7 +183,7 @@ cofdptImpl::handle_connect_refused(
 
 
 void
-cofdptImpl::handle_read(
+crofdptImpl::handle_read(
 		csocket *socket,
 		int sd)
 {
@@ -285,7 +285,7 @@ cofdptImpl::handle_read(
 
 
 void
-cofdptImpl::handle_closed(
+crofdptImpl::handle_closed(
 		csocket *socket,
 		int sd)
 {
@@ -310,7 +310,7 @@ cofdptImpl::handle_closed(
 
 
 void
-cofdptImpl::parse_message(
+crofdptImpl::parse_message(
 		cmemory *mem)
 {
 	cofmsg *msg = (cofmsg*)0;
@@ -577,7 +577,7 @@ cofdptImpl::parse_message(
 
 
 void
-cofdptImpl::send_message(
+crofdptImpl::send_message(
 		cofmsg *msg)
 {
 	const uint8_t OFPT_HELLO = 0;
@@ -800,7 +800,7 @@ cofdptImpl::send_message(
 
 
 void
-cofdptImpl::handle_timeout(int opaque)
+crofdptImpl::handle_timeout(int opaque)
 {
 	switch (opaque) {
 	case COFDPT_TIMER_SEND_HELLO: {
@@ -850,7 +850,7 @@ cofdptImpl::handle_timeout(int opaque)
 
 
 void
-cofdptImpl::hello_rcvd(cofmsg_hello *msg)
+crofdptImpl::hello_rcvd(cofmsg_hello *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Hello message received" << std::endl << *msg;
 
@@ -916,7 +916,7 @@ cofdptImpl::hello_rcvd(cofmsg_hello *msg)
 
 
 void
-cofdptImpl::echo_request_sent(cofmsg *pack)
+crofdptImpl::echo_request_sent(cofmsg *pack)
 {
 	reset_timer(COFDPT_TIMER_ECHO_REPLY, 5); // TODO: multiple concurrent echo-requests?
 }
@@ -924,7 +924,7 @@ cofdptImpl::echo_request_sent(cofmsg *pack)
 
 
 void
-cofdptImpl::echo_request_rcvd(cofmsg_echo_request *msg)
+crofdptImpl::echo_request_rcvd(cofmsg_echo_request *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Echo-Request message received" << std::endl << *msg;
 
@@ -941,7 +941,7 @@ cofdptImpl::echo_request_rcvd(cofmsg_echo_request *msg)
 
 
 void
-cofdptImpl::echo_reply_rcvd(cofmsg_echo_reply *msg)
+crofdptImpl::echo_reply_rcvd(cofmsg_echo_reply *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Echo-Reply message received" << std::endl << *msg;
 
@@ -954,7 +954,7 @@ cofdptImpl::echo_reply_rcvd(cofmsg_echo_reply *msg)
 
 
 void
-cofdptImpl::handle_echo_reply_timeout()
+crofdptImpl::handle_echo_reply_timeout()
 {
 	logging::warn << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Echo-Reply timer expired" << *this << std::endl;
 
@@ -971,7 +971,7 @@ cofdptImpl::handle_echo_reply_timeout()
 
 
 void
-cofdptImpl::features_request_sent(
+crofdptImpl::features_request_sent(
 		cofmsg *pack)
 {
 	register_timer(COFDPT_TIMER_FEATURES_REPLY, features_reply_timeout /* seconds */);
@@ -980,7 +980,7 @@ cofdptImpl::features_request_sent(
 
 
 void
-cofdptImpl::features_reply_rcvd(
+crofdptImpl::features_reply_rcvd(
 		cofmsg_features_reply *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Features-Reply message received" << std::endl << *msg;
@@ -1061,7 +1061,7 @@ cofdptImpl::features_reply_rcvd(
 
 
 void
-cofdptImpl::handle_features_reply_timeout()
+crofdptImpl::handle_features_reply_timeout()
 {
 	logging::warn << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Features-Reply timer expired" << *this << std::endl;
 	rofbase->handle_features_reply_timeout(this);
@@ -1070,7 +1070,7 @@ cofdptImpl::handle_features_reply_timeout()
 
 
 void
-cofdptImpl::get_config_request_sent(
+crofdptImpl::get_config_request_sent(
 		cofmsg *pack)
 {
 	register_timer(COFDPT_TIMER_GET_CONFIG_REPLY, get_config_reply_timeout);
@@ -1079,7 +1079,7 @@ cofdptImpl::get_config_request_sent(
 
 
 void
-cofdptImpl::get_config_reply_rcvd(
+crofdptImpl::get_config_reply_rcvd(
 		cofmsg_get_config_reply *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Get-Config-Reply message received" << std::endl << *msg;
@@ -1120,7 +1120,7 @@ cofdptImpl::get_config_reply_rcvd(
 
 
 void
-cofdptImpl::handle_get_config_reply_timeout()
+crofdptImpl::handle_get_config_reply_timeout()
 {
 	logging::warn << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Get-Config-Reply timer expired" << *this << std::endl;
 	rofbase->handle_get_config_reply_timeout(this);
@@ -1129,7 +1129,7 @@ cofdptImpl::handle_get_config_reply_timeout()
 
 
 void
-cofdptImpl::stats_request_sent(
+crofdptImpl::stats_request_sent(
 		cofmsg *pack)
 {
 	try {
@@ -1161,7 +1161,7 @@ cofdptImpl::stats_request_sent(
 
 
 void
-cofdptImpl::stats_reply_rcvd(
+crofdptImpl::stats_reply_rcvd(
 		cofmsg_stats_reply *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Stats-Reply message received" << std::endl << *msg;
@@ -1188,7 +1188,7 @@ cofdptImpl::stats_reply_rcvd(
 
 
 void
-cofdptImpl::handle_stats_reply_timeout()
+crofdptImpl::handle_stats_reply_timeout()
 {
 	logging::warn << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Stats-Reply timer expired" << *this << std::endl;
 
@@ -1224,7 +1224,7 @@ restart:
 
 
 void
-cofdptImpl::desc_stats_reply_rcvd(cofmsg_desc_stats_reply *msg)
+crofdptImpl::desc_stats_reply_rcvd(cofmsg_desc_stats_reply *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Desc-Stats-Reply message received" << std::endl << *msg;
 
@@ -1234,7 +1234,7 @@ cofdptImpl::desc_stats_reply_rcvd(cofmsg_desc_stats_reply *msg)
 
 
 void
-cofdptImpl::table_stats_reply_rcvd(
+crofdptImpl::table_stats_reply_rcvd(
 		cofmsg_table_stats_reply *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Table-Stats-Reply message received" << std::endl << *msg;
@@ -1261,7 +1261,7 @@ cofdptImpl::table_stats_reply_rcvd(
 
 
 void
-cofdptImpl::port_stats_reply_rcvd(cofmsg_port_stats_reply* msg)
+crofdptImpl::port_stats_reply_rcvd(cofmsg_port_stats_reply* msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Port-Stats-Reply message received" << std::endl << *msg;
 
@@ -1271,7 +1271,7 @@ cofdptImpl::port_stats_reply_rcvd(cofmsg_port_stats_reply* msg)
 
 
 void
-cofdptImpl::flow_stats_reply_rcvd(cofmsg_flow_stats_reply* msg)
+crofdptImpl::flow_stats_reply_rcvd(cofmsg_flow_stats_reply* msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Flow-Stats-Reply message received" << std::endl << *msg;
 
@@ -1281,7 +1281,7 @@ cofdptImpl::flow_stats_reply_rcvd(cofmsg_flow_stats_reply* msg)
 
 
 void
-cofdptImpl::aggregate_stats_reply_rcvd(cofmsg_aggr_stats_reply* msg)
+crofdptImpl::aggregate_stats_reply_rcvd(cofmsg_aggr_stats_reply* msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Aggregate-Stats-Reply message received" << std::endl << *msg;
 
@@ -1291,7 +1291,7 @@ cofdptImpl::aggregate_stats_reply_rcvd(cofmsg_aggr_stats_reply* msg)
 
 
 void
-cofdptImpl::queue_stats_reply_rcvd(cofmsg_queue_stats_reply* msg)
+crofdptImpl::queue_stats_reply_rcvd(cofmsg_queue_stats_reply* msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Queue-Stats-Reply message received" << std::endl << *msg;
 
@@ -1301,7 +1301,7 @@ cofdptImpl::queue_stats_reply_rcvd(cofmsg_queue_stats_reply* msg)
 
 
 void
-cofdptImpl::group_stats_reply_rcvd(cofmsg_group_stats_reply* msg)
+crofdptImpl::group_stats_reply_rcvd(cofmsg_group_stats_reply* msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Group-Stats-Reply message received" << std::endl << *msg;
 
@@ -1311,7 +1311,7 @@ cofdptImpl::group_stats_reply_rcvd(cofmsg_group_stats_reply* msg)
 
 
 void
-cofdptImpl::group_desc_stats_reply_rcvd(cofmsg_group_desc_stats_reply* msg)
+crofdptImpl::group_desc_stats_reply_rcvd(cofmsg_group_desc_stats_reply* msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Group-Desc-Stats-Reply message received" << std::endl << *msg;
 
@@ -1321,7 +1321,7 @@ cofdptImpl::group_desc_stats_reply_rcvd(cofmsg_group_desc_stats_reply* msg)
 
 
 void
-cofdptImpl::group_features_stats_reply_rcvd(cofmsg_group_features_stats_reply* msg)
+crofdptImpl::group_features_stats_reply_rcvd(cofmsg_group_features_stats_reply* msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Group-Features-Stats-Reply message received" << std::endl << *msg;
 
@@ -1331,7 +1331,7 @@ cofdptImpl::group_features_stats_reply_rcvd(cofmsg_group_features_stats_reply* m
 
 
 void
-cofdptImpl::experimenter_stats_reply_rcvd(cofmsg_experimenter_stats_reply* msg)
+crofdptImpl::experimenter_stats_reply_rcvd(cofmsg_experimenter_stats_reply* msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Experimenter-Stats-Reply message received" << std::endl << *msg;
 
@@ -1341,7 +1341,7 @@ cofdptImpl::experimenter_stats_reply_rcvd(cofmsg_experimenter_stats_reply* msg)
 
 
 void
-cofdptImpl::barrier_request_sent(
+crofdptImpl::barrier_request_sent(
 		cofmsg *pack)
 {
 	try {
@@ -1371,7 +1371,7 @@ cofdptImpl::barrier_request_sent(
 
 
 void
-cofdptImpl::barrier_reply_rcvd(cofmsg_barrier_reply *msg)
+crofdptImpl::barrier_reply_rcvd(cofmsg_barrier_reply *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Barrier-Reply message received" << std::endl << *msg << std::endl;
 
@@ -1395,7 +1395,7 @@ cofdptImpl::barrier_reply_rcvd(cofmsg_barrier_reply *msg)
 
 
 void
-cofdptImpl::handle_barrier_reply_timeout()
+crofdptImpl::handle_barrier_reply_timeout()
 {
 	logging::warn << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Barrier-Reply timer expired" << *this << std::endl;
 
@@ -1435,7 +1435,7 @@ restart:
 
 
 void
-cofdptImpl::flow_mod_sent(
+crofdptImpl::flow_mod_sent(
 		cofmsg *msg)
 {
 
@@ -1444,7 +1444,7 @@ cofdptImpl::flow_mod_sent(
 
 
 void
-cofdptImpl::flow_rmvd_rcvd(
+crofdptImpl::flow_rmvd_rcvd(
 		cofmsg_flow_removed *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Flow-Removed message received" << std::endl << *msg << std::endl;
@@ -1455,7 +1455,7 @@ cofdptImpl::flow_rmvd_rcvd(
 
 
 void
-cofdptImpl::flow_mod_reset()
+crofdptImpl::flow_mod_reset()
 {
 	cflowentry fe(ofp_version);
 	switch (ofp_version) {
@@ -1479,7 +1479,7 @@ cofdptImpl::flow_mod_reset()
 
 
 void
-cofdptImpl::group_mod_sent(
+crofdptImpl::group_mod_sent(
 		cofmsg *pack)
 {
 
@@ -1488,7 +1488,7 @@ cofdptImpl::group_mod_sent(
 
 
 void
-cofdptImpl::group_mod_reset()
+crofdptImpl::group_mod_reset()
 {
 	cgroupentry ge(get_version());
 	switch (ofp_version) {
@@ -1510,7 +1510,7 @@ cofdptImpl::group_mod_reset()
 
 
 void
-cofdptImpl::table_mod_sent(cofmsg *pack)
+crofdptImpl::table_mod_sent(cofmsg *pack)
 {
 	cofmsg_table_mod *table_mod = dynamic_cast<cofmsg_table_mod*>( pack );
 
@@ -1523,7 +1523,7 @@ cofdptImpl::table_mod_sent(cofmsg *pack)
 
 
 void
-cofdptImpl::port_mod_sent(cofmsg *pack)
+crofdptImpl::port_mod_sent(cofmsg *pack)
 {
 	cofmsg_port_mod *port_mod = dynamic_cast<cofmsg_port_mod*>( pack );
 
@@ -1545,7 +1545,7 @@ cofdptImpl::port_mod_sent(cofmsg *pack)
 
 
 void
-cofdptImpl::packet_in_rcvd(cofmsg_packet_in *msg)
+crofdptImpl::packet_in_rcvd(cofmsg_packet_in *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Packet-In message received" << std::endl << *msg << std::endl;
 
@@ -1565,7 +1565,7 @@ cofdptImpl::packet_in_rcvd(cofmsg_packet_in *msg)
 
 
 void
-cofdptImpl::port_status_rcvd(cofmsg_port_status *msg)
+crofdptImpl::port_status_rcvd(cofmsg_port_status *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Port-Status message received" << std::endl << *msg << std::endl;
 
@@ -1599,7 +1599,7 @@ cofdptImpl::port_status_rcvd(cofmsg_port_status *msg)
 
 
 void
-cofdptImpl::fsp_open(cofmatch const& ofmatch)
+crofdptImpl::fsp_open(cofmatch const& ofmatch)
 {
 	cofmatch m(ofmatch);
 	croflexp_flowspace rexp(croflexp::OFPRET_FSP_ADD, m);
@@ -1619,7 +1619,7 @@ cofdptImpl::fsp_open(cofmatch const& ofmatch)
 
 
 void
-cofdptImpl::fsp_close(cofmatch const& ofmatch)
+crofdptImpl::fsp_close(cofmatch const& ofmatch)
 {
 	cofmatch m(ofmatch);
 	croflexp_flowspace rexp(croflexp::OFPRET_FSP_DELETE, m);
@@ -1640,7 +1640,7 @@ cofdptImpl::fsp_close(cofmatch const& ofmatch)
 
 
 void
-cofdptImpl::experimenter_rcvd(cofmsg_experimenter *msg)
+crofdptImpl::experimenter_rcvd(cofmsg_experimenter *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Experimenter message received" << std::endl << *msg << std::endl;
 
@@ -1656,7 +1656,7 @@ cofdptImpl::experimenter_rcvd(cofmsg_experimenter *msg)
 
 
 void
-cofdptImpl::role_request_sent(
+crofdptImpl::role_request_sent(
 		cofmsg *pack)
 {
 
@@ -1665,7 +1665,7 @@ cofdptImpl::role_request_sent(
 
 
 void
-cofdptImpl::role_reply_rcvd(cofmsg_role_reply *msg)
+crofdptImpl::role_reply_rcvd(cofmsg_role_reply *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Role-Reply message received" << std::endl << *msg << std::endl;
 
@@ -1674,7 +1674,7 @@ cofdptImpl::role_reply_rcvd(cofmsg_role_reply *msg)
 
 
 void
-cofdptImpl::queue_get_config_request_sent(
+crofdptImpl::queue_get_config_request_sent(
 		cofmsg *pack)
 {
 	// TODO
@@ -1683,7 +1683,7 @@ cofdptImpl::queue_get_config_request_sent(
 
 
 void
-cofdptImpl::queue_get_config_reply_rcvd(
+crofdptImpl::queue_get_config_reply_rcvd(
 		cofmsg_queue_get_config_reply *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Queue-Get-Config-Reply message received" << std::endl << *msg << std::endl;
@@ -1693,7 +1693,7 @@ cofdptImpl::queue_get_config_reply_rcvd(
 
 
 void
-cofdptImpl::get_async_config_request_sent(
+crofdptImpl::get_async_config_request_sent(
 		cofmsg *pack)
 {
 	register_timer(COFDPT_TIMER_GET_ASYNC_CONFIG_REPLY, get_async_config_reply_timeout);
@@ -1702,7 +1702,7 @@ cofdptImpl::get_async_config_request_sent(
 
 
 void
-cofdptImpl::get_async_config_reply_rcvd(
+crofdptImpl::get_async_config_reply_rcvd(
 		cofmsg_get_async_config_reply *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "Get-Async-Config-Reply message received" << std::endl << *msg << std::endl;
@@ -1717,7 +1717,7 @@ cofdptImpl::get_async_config_reply_rcvd(
 
 
 void
-cofdptImpl::handle_get_async_config_reply_timeout()
+crofdptImpl::handle_get_async_config_reply_timeout()
 {
 	logging::warn << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Get-Async-Config-Reply timer expired" << *this << std::endl;
 	rofbase->handle_get_async_config_reply_timeout(this);
@@ -1728,7 +1728,7 @@ cofdptImpl::handle_get_async_config_reply_timeout()
 
 
 cofport*
-cofdptImpl::find_cofport(
+crofdptImpl::find_cofport(
 	uint32_t port_no) throw (eOFdpathNotFound)
 {
 	std::map<uint32_t, cofport*>::iterator it;
@@ -1741,7 +1741,7 @@ cofdptImpl::find_cofport(
 
 
 cofport*
-cofdptImpl::find_cofport(
+crofdptImpl::find_cofport(
 	std::string port_name) throw (eOFdpathNotFound)
 {
 	std::map<uint32_t, cofport*>::iterator it;
@@ -1755,7 +1755,7 @@ cofdptImpl::find_cofport(
 
 
 cofport*
-cofdptImpl::find_cofport(
+crofdptImpl::find_cofport(
 	cmacaddr const& maddr) throw (eOFdpathNotFound)
 {
 	std::map<uint32_t, cofport*>::iterator it;
@@ -1770,7 +1770,7 @@ cofdptImpl::find_cofport(
 
 
 void
-cofdptImpl::try_to_connect(bool reset_timeout)
+crofdptImpl::try_to_connect(bool reset_timeout)
 {
 	if (pending_timer(COFDPT_TIMER_RECONNECT)) {
 		return;
@@ -1801,7 +1801,7 @@ cofdptImpl::try_to_connect(bool reset_timeout)
 
 
 void
-cofdptImpl::send_message_via_socket(
+crofdptImpl::send_message_via_socket(
 		cofmsg *pack)
 {
 	if (0 == socket) {

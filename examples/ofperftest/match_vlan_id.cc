@@ -49,7 +49,7 @@ match_vlan_id::drop_expired_fib_entries()
 
 
 void
-match_vlan_id::install_flow_mods(cofdpt *dpt, unsigned int n)
+match_vlan_id::install_flow_mods(crofdpt *dpt, unsigned int n)
 {
 	if (0 == dpt) {
 		fprintf(stderr, "error installing test FlowMod entries on data path: dpt is NULL");
@@ -111,10 +111,10 @@ match_vlan_id::install_flow_mods(cofdpt *dpt, unsigned int n)
 void
 match_vlan_id::flow_mod_delete_all()
 {
-	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
+	std::map<crofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
 
 	for (it = fib.begin(); it != fib.end(); ++it) {
-		cofdpt *dpt = it->first;
+		crofdpt *dpt = it->first;
 
 		cflowentry fe(dpt->get_version());
 		fe.set_command(crofbase::get_ofp_command(dpt->get_version(), openflow::OFPFC_DELETE));
@@ -134,7 +134,7 @@ match_vlan_id::flow_mod_delete_all()
 
 void
 match_vlan_id::handle_dpath_open(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	fib[dpt] = std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> >();
 	// do nothing here
@@ -146,7 +146,7 @@ match_vlan_id::handle_dpath_open(
 
 void
 match_vlan_id::handle_dpath_close(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	fib.erase(dpt);
 }
@@ -155,7 +155,7 @@ match_vlan_id::handle_dpath_close(
 
 void
 match_vlan_id::handle_packet_in(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		cofmsg_packet_in *msg)
 {
 	cmacaddr eth_src = msg->get_packet().ether()->get_dl_src();

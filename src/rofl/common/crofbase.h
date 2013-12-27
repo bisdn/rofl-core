@@ -105,8 +105,8 @@ class eRofBaseFspSupportDisabled 	: public eRofBase {};
 
 
 
-class cofctl;
-class cofdpt;
+class crofctl;
+class crofdpt;
 
 
 
@@ -129,8 +129,8 @@ protected:
 
 	uint32_t					supported_ofp_versions;	/**< bitfield of supported ofp versions */
 	cfsptable 					fsptable; 		/**< flowspace registrations table */
-	std::set<cofctl*>			ofctl_set;		/**< set of active controller connections */
-	std::set<cofdpt*>			ofdpt_set;		/**< set of active data path connections */
+	std::set<crofctl*>			ofctl_set;		/**< set of active controller connections */
+	std::set<crofdpt*>			ofdpt_set;		/**< set of active data path connections */
 
 public:
 
@@ -273,7 +273,7 @@ public:
 	 */
 	void
 	rpc_disconnect_from_ctl(
-			cofctl *ctl);
+			crofctl *ctl);
 
 
 
@@ -327,7 +327,7 @@ public:
 	 */
 	void
 	rpc_disconnect_from_dpt(
-			cofdpt *dpath);
+			crofdpt *dpath);
 
 
 
@@ -359,7 +359,7 @@ public:
 	 * To be overwritten by class deriving from crofbase.
 	 */
 	virtual void
-	rpc_ctl_failed(cofctl *ctl) {};
+	rpc_ctl_failed(crofctl *ctl) {};
 
 	/**
 	 * @brief	Called by cofdpt instance when connection establishment failed.
@@ -367,7 +367,7 @@ public:
 	 * To be overwritten by class deriving from crofbase.
 	 */
 	virtual void
-	rpc_dpt_failed(cofdpt *dpt) {};
+	rpc_dpt_failed(crofdpt *dpt) {};
 
 
 	/**@}*/
@@ -388,7 +388,7 @@ public:
 	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
 	 * @result pointer to cofdpt instance
 	 */
-	cofdpt*
+	crofdpt*
 	dpt_find(
 		uint64_t dpid) throw (eRofBaseNotFound);
 
@@ -400,7 +400,7 @@ public:
 	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
 	 * @result pointer to cofdpt instance
 	 */
-	cofdpt*
+	crofdpt*
 	dpt_find(
 		std::string s_dpid) throw (eRofBaseNotFound);
 
@@ -412,7 +412,7 @@ public:
 	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
 	 * @result pointer to cofdpt instance
 	 */
-	cofdpt*
+	crofdpt*
 	dpt_find(
 		cmacaddr dl_dpid) throw (eRofBaseNotFound);
 
@@ -424,9 +424,9 @@ public:
 	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
 	 * @result pointer to cofdpt instance
 	 */
-	cofdpt*
+	crofdpt*
 	dpt_find(
-			cofdpt* dpt) throw (eRofBaseNotFound);
+			crofdpt* dpt) throw (eRofBaseNotFound);
 
 
 
@@ -437,9 +437,9 @@ public:
 	 * @throws eRofBaseNotFound { thrown when cofctl instance not found }
 	 * @result pointer to cofctl instance
 	 */
-	cofctl*
+	crofctl*
 	ctl_find(
-			cofctl* ctl) throw (eRofBaseNotFound);
+			crofctl* ctl) throw (eRofBaseNotFound);
 
 
 	/**@}*/
@@ -494,7 +494,7 @@ protected:
 	 * @param protocol socket protocol (see man 2 socket for details)
 	 *
 	 */
-	virtual cofctl*
+	virtual crofctl*
 	cofctl_factory(
 			crofbase* owner,
 			int newsd,
@@ -522,7 +522,7 @@ protected:
 	 * @param protocol socket protocol (see man 2 socket for details)
 	 *
 	 */
-	virtual cofctl*
+	virtual crofctl*
 	cofctl_factory(
 			crofbase* owner,
 			uint8_t ofp_version,
@@ -550,7 +550,7 @@ protected:
 	 * @param protocol socket protocol (see man 2 socket for details)
 	 *
 	 */
-	virtual cofdpt*
+	virtual crofdpt*
 	cofdpt_factory(
 			crofbase* owner,
 			int newsd,
@@ -578,7 +578,7 @@ protected:
 	 * @param protocol socket protocol (see man 2 socket for details)
 	 *
 	 */
-	virtual cofdpt*
+	virtual crofdpt*
 	cofdpt_factory(
 			crofbase* owner,
 			uint8_t ofp_version,
@@ -599,7 +599,7 @@ protected:
 	 * @param dpt pointer to new cofdpt instance
 	 */
 	virtual void
-	handle_dpath_open(cofdpt *dpt) {};
+	handle_dpath_open(crofdpt *dpt) {};
 
 
 	/**
@@ -619,7 +619,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_dpath_close(cofdpt *dpt) {};
+	handle_dpath_close(crofdpt *dpt) {};
 
 
 
@@ -632,7 +632,7 @@ protected:
 	 * @param ctl pointer to new cofctl instance
 	 */
 	virtual void
-	handle_ctrl_open(cofctl *ctl) {};
+	handle_ctrl_open(crofctl *ctl) {};
 
 
 
@@ -653,7 +653,7 @@ protected:
 	 * @param ctl pointer to cofctl instance
 	 */
 	virtual void
-	handle_ctrl_close(cofctl *ctl) {};
+	handle_ctrl_close(crofctl *ctl) {};
 
 
 	/**@}*/
@@ -665,7 +665,7 @@ protected:
 	 *
 	 */
 	virtual void
-	role_request_rcvd(cofctl *ctl, uint32_t role);
+	role_request_rcvd(crofctl *ctl, uint32_t role);
 
 
 protected:
@@ -690,7 +690,7 @@ protected:
 	 * @param msg Pointer to cofmsg_features_request message containing the received message
 	 */
 	virtual void
-	handle_features_request(cofctl *ctl, cofmsg_features_request *msg) { delete msg; };
+	handle_features_request(crofctl *ctl, cofmsg_features_request *msg) { delete msg; };
 
 
 
@@ -703,7 +703,7 @@ protected:
 	 * @param msg Pointer to cofmsg_features_reply message containing the received message
 	 */
 	virtual void
-	handle_features_reply(cofdpt *dpt, cofmsg_features_reply *msg) { delete msg; };
+	handle_features_reply(crofdpt *dpt, cofmsg_features_reply *msg) { delete msg; };
 
 
 
@@ -715,7 +715,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_features_reply_timeout(cofdpt *dpt);
+	handle_features_reply_timeout(crofdpt *dpt);
 
 
 
@@ -728,7 +728,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_config_request(cofctl *ctl, cofmsg_get_config_request *msg) { delete msg; };
+	handle_get_config_request(crofctl *ctl, cofmsg_get_config_request *msg) { delete msg; };
 
 
 
@@ -741,7 +741,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_config_reply message containing the received message
 	 */
 	virtual void
-	handle_get_config_reply(cofdpt *dpt, cofmsg_get_config_reply *msg) { delete msg; };
+	handle_get_config_reply(crofdpt *dpt, cofmsg_get_config_reply *msg) { delete msg; };
 
 
 
@@ -753,7 +753,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_get_config_reply_timeout(cofdpt *dpt);
+	handle_get_config_reply_timeout(crofdpt *dpt);
 
 
 
@@ -781,7 +781,7 @@ protected:
 	 * @exception eBadRequestBadStat { sends a proper error message to the controller entity }
 	 */
 	void
-	handle_stats_request(cofctl *ctl, cofmsg_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_stats_request(crofctl *ctl, cofmsg_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 	/**
@@ -794,7 +794,7 @@ protected:
 	 * @param msg Pointer to cofmsg_desc_stats_request message containing the received message
 	 */
 	virtual void
-	handle_desc_stats_request(cofctl *ctl, cofmsg_desc_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_desc_stats_request(crofctl *ctl, cofmsg_desc_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -808,7 +808,7 @@ protected:
 	 * @param msg Pointer to cofmsg_table_stats_request message containing the received message
 	 */
 	virtual void
-	handle_table_stats_request(cofctl *ctl, cofmsg_table_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_table_stats_request(crofctl *ctl, cofmsg_table_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -822,7 +822,7 @@ protected:
 	 * @param msg Pointer to cofmsg_port_stats_request message containing the received message
 	 */
 	virtual void
-	handle_port_stats_request(cofctl *ctl, cofmsg_port_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_port_stats_request(crofctl *ctl, cofmsg_port_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -836,7 +836,7 @@ protected:
 	 * @param msg Pointer to cofmsg_flow_stats_request message containing the received message
 	 */
 	virtual void
-	handle_flow_stats_request(cofctl *ctl, cofmsg_flow_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_flow_stats_request(crofctl *ctl, cofmsg_flow_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -850,7 +850,7 @@ protected:
 	 * @param msg Pointer to cofmsg_aggr_stats_request message containing the received message
 	 */
 	virtual void
-	handle_aggregate_stats_request(cofctl *ctl, cofmsg_aggr_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_aggregate_stats_request(crofctl *ctl, cofmsg_aggr_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -864,7 +864,7 @@ protected:
 	 * @param msg Pointer to cofmsg_queue_stats_request message containing the received message
 	 */
 	virtual void
-	handle_queue_stats_request(cofctl *ctl, cofmsg_queue_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_queue_stats_request(crofctl *ctl, cofmsg_queue_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -878,7 +878,7 @@ protected:
 	 * @param msg Pointer to cofmsg_group_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_stats_request(cofctl *ctl, cofmsg_group_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_group_stats_request(crofctl *ctl, cofmsg_group_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -892,7 +892,7 @@ protected:
 	 * @param msg Pointer to cofmsg_group_desc_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_desc_stats_request(cofctl *ctl, cofmsg_group_desc_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_group_desc_stats_request(crofctl *ctl, cofmsg_group_desc_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -906,7 +906,7 @@ protected:
 	 * @param msg Pointer to cofmsg_group_features_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_features_stats_request(cofctl *ctl, cofmsg_group_features_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_group_features_stats_request(crofctl *ctl, cofmsg_group_features_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -920,7 +920,7 @@ protected:
 	 * @param msg Pointer to cofmsg_experimenter_stats_request message containing the received message
 	 */
 	virtual void
-	handle_experimenter_stats_request(cofctl *ctl, cofmsg_experimenter_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_experimenter_stats_request(crofctl *ctl, cofmsg_experimenter_stats_request *msg) { throw eBadRequestBadStat(); };
 
 
 
@@ -933,7 +933,7 @@ protected:
 	 * @param msg pointer to cofmsg_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_stats_reply(cofdpt *dpt, cofmsg_stats_reply *msg) { delete msg; };
+	handle_stats_reply(crofdpt *dpt, cofmsg_stats_reply *msg) { delete msg; };
 
 
 
@@ -946,7 +946,7 @@ protected:
 	 * @param xid transaction ID of STATS.request previously sent to data path element.
 	 */
 	virtual void
-	handle_stats_reply_timeout(cofdpt *dpt, uint32_t xid) {};
+	handle_stats_reply_timeout(crofdpt *dpt, uint32_t xid) {};
 
 
 
@@ -959,7 +959,7 @@ protected:
 	 * @param msg pointer to cofmsg_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_desc_stats_reply(cofdpt *dpt, cofmsg_desc_stats_reply *msg) { delete msg; };
+	handle_desc_stats_reply(crofdpt *dpt, cofmsg_desc_stats_reply *msg) { delete msg; };
 
 
 
@@ -972,7 +972,7 @@ protected:
 	 * @param msg pointer to cofmsg_table_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_table_stats_reply(cofdpt *dpt, cofmsg_table_stats_reply *msg) { delete msg; };
+	handle_table_stats_reply(crofdpt *dpt, cofmsg_table_stats_reply *msg) { delete msg; };
 
 
 
@@ -985,7 +985,7 @@ protected:
 	 * @param msg pointer to cofmsg_port_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_port_stats_reply(cofdpt *dpt, cofmsg_port_stats_reply *msg) { delete msg; };
+	handle_port_stats_reply(crofdpt *dpt, cofmsg_port_stats_reply *msg) { delete msg; };
 
 
 
@@ -998,7 +998,7 @@ protected:
 	 * @param msg pointer to cofmsg_flow_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg) { delete msg; };
+	handle_flow_stats_reply(crofdpt *dpt, cofmsg_flow_stats_reply *msg) { delete msg; };
 
 
 
@@ -1012,7 +1012,7 @@ protected:
 
 	 */
 	virtual void
-	handle_aggregate_stats_reply(cofdpt *dpt, cofmsg_aggr_stats_reply *msg) { delete msg; };
+	handle_aggregate_stats_reply(crofdpt *dpt, cofmsg_aggr_stats_reply *msg) { delete msg; };
 
 
 
@@ -1025,7 +1025,7 @@ protected:
 	 * @param msg pointer to cofmsg_queue_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_queue_stats_reply(cofdpt *dpt, cofmsg_queue_stats_reply *msg) { delete msg; };
+	handle_queue_stats_reply(crofdpt *dpt, cofmsg_queue_stats_reply *msg) { delete msg; };
 
 
 
@@ -1038,7 +1038,7 @@ protected:
 	 * @param msg pointer to cofmsg_group_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_stats_reply(cofdpt *dpt, cofmsg_group_stats_reply *msg) { delete msg; };
+	handle_group_stats_reply(crofdpt *dpt, cofmsg_group_stats_reply *msg) { delete msg; };
 
 
 
@@ -1051,7 +1051,7 @@ protected:
 	 * @param msg pointer to cofmsg_group_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_desc_stats_reply(cofdpt *dpt, cofmsg_group_desc_stats_reply *msg) { delete msg; };
+	handle_group_desc_stats_reply(crofdpt *dpt, cofmsg_group_desc_stats_reply *msg) { delete msg; };
 
 
 
@@ -1064,7 +1064,7 @@ protected:
 	 * @param msg pointer to cofmsg_group_features_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_features_stats_reply(cofdpt *dpt, cofmsg_group_features_stats_reply *msg) { delete msg; };
+	handle_group_features_stats_reply(crofdpt *dpt, cofmsg_group_features_stats_reply *msg) { delete msg; };
 
 
 
@@ -1077,7 +1077,7 @@ protected:
 	 * @param msg pointer to cofmsg_experimenter_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_experimenter_stats_reply(cofdpt *dpt, cofmsg_experimenter_stats_reply *msg) { delete msg; };
+	handle_experimenter_stats_reply(crofdpt *dpt, cofmsg_experimenter_stats_reply *msg) { delete msg; };
 
 
 
@@ -1090,7 +1090,7 @@ protected:
 	 * @param msg Pointer to cofmsg_packet_out message containing the received message
 	 */
 	virtual void
-	handle_packet_out(cofctl *ctl, cofmsg_packet_out *msg) { delete msg; };
+	handle_packet_out(crofctl *ctl, cofmsg_packet_out *msg) { delete msg; };
 
 
 
@@ -1103,7 +1103,7 @@ protected:
 	 * @param msg pointer to cofmsg_packet_in message containing the received message
 	 */
 	virtual void
-	handle_packet_in(cofdpt *dpt, cofmsg_packet_in *msg) { delete msg; };
+	handle_packet_in(crofdpt *dpt, cofmsg_packet_in *msg) { delete msg; };
 
 
 
@@ -1116,7 +1116,7 @@ protected:
 	 * @param msg Pointer to cofmsg_barrier_request message containing the received message
 	 */
 	virtual void
-	handle_barrier_request(cofctl *ctl, cofmsg_barrier_request *msg) { delete msg; };
+	handle_barrier_request(crofctl *ctl, cofmsg_barrier_request *msg) { delete msg; };
 
 
 
@@ -1129,7 +1129,7 @@ protected:
 	 * @param msg pointer to cofmsg_barrier_reply message containing the received message
 	 */
 	virtual void
-	handle_barrier_reply(cofdpt *dpt, cofmsg_barrier_reply *msg) { delete msg; };
+	handle_barrier_reply(crofdpt *dpt, cofmsg_barrier_reply *msg) { delete msg; };
 
 
 
@@ -1142,7 +1142,7 @@ protected:
 	 * @param xid transaction ID of BARRIER.request previously sent to data path element.
 	 */
 	virtual void
-	handle_barrier_reply_timeout(cofdpt *dpt, uint32_t xid) {};
+	handle_barrier_reply_timeout(crofdpt *dpt, uint32_t xid) {};
 
 
 
@@ -1155,7 +1155,7 @@ protected:
 	 * @param msg pointer to cofmsg_error message containing the received message
 	 */
 	virtual void
-	handle_error(cofdpt *dpt, cofmsg_error *msg) { delete msg; };
+	handle_error(crofdpt *dpt, cofmsg_error *msg) { delete msg; };
 
 
 
@@ -1168,7 +1168,7 @@ protected:
 	 * @param msg Pointer to cofmsg_flow_mod message containing the received message
 	 */
 	virtual void
-	handle_flow_mod(cofctl *ctl, cofmsg_flow_mod *msg) { delete msg; };
+	handle_flow_mod(crofctl *ctl, cofmsg_flow_mod *msg) { delete msg; };
 
 
 
@@ -1181,7 +1181,7 @@ protected:
 	 * @param msg Pointer to cofmsg_group_mod message containing the received message
 	 */
 	virtual void
-	handle_group_mod(cofctl *ctl, cofmsg_group_mod *msg) { delete msg; };
+	handle_group_mod(crofctl *ctl, cofmsg_group_mod *msg) { delete msg; };
 
 
 
@@ -1194,7 +1194,7 @@ protected:
 	 * @param msg Pointer to cofmsg_table_mod message containing the received message
 	 */
 	virtual void
-	handle_table_mod(cofctl *ctl, cofmsg_table_mod *msg) { delete msg; };
+	handle_table_mod(crofctl *ctl, cofmsg_table_mod *msg) { delete msg; };
 
 
 
@@ -1207,7 +1207,7 @@ protected:
 	 * @param msg Pointer to cofmsg_port_mod message containing the received message
 	 */
 	virtual void
-	handle_port_mod(cofctl *ctl, cofmsg_port_mod *msg) { delete msg; };
+	handle_port_mod(crofctl *ctl, cofmsg_port_mod *msg) { delete msg; };
 
 
 
@@ -1220,7 +1220,7 @@ protected:
 	 * @param msg pointer to cofmsg_flow_removed message containing the received message
 	 */
 	virtual void
-	handle_flow_removed(cofdpt *dpt, cofmsg_flow_removed *msg) { delete msg; };
+	handle_flow_removed(crofdpt *dpt, cofmsg_flow_removed *msg) { delete msg; };
 
 
 
@@ -1233,7 +1233,7 @@ protected:
 	 * @param msg pointer to cofmsg_port_status message containing the received message
 	 */
 	virtual void
-	handle_port_status(cofdpt *dpt, cofmsg_port_status *msg) { delete msg; };
+	handle_port_status(crofdpt *dpt, cofmsg_port_status *msg) { delete msg; };
 
 
 
@@ -1247,7 +1247,7 @@ protected:
 	 * @param msg Pointer to cofmsg_queue_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_queue_get_config_request(cofctl *ctl, cofmsg_queue_get_config_request *msg) { delete msg; };
+	handle_queue_get_config_request(crofctl *ctl, cofmsg_queue_get_config_request *msg) { delete msg; };
 
 
 
@@ -1260,7 +1260,7 @@ protected:
 	 * @param msg pointer to cofmsg_queue_get_config_reply message containing the received message
 	 */
 	virtual void
-	handle_queue_get_config_reply(cofdpt *dpt, cofmsg_queue_get_config_reply *msg) { delete msg; };
+	handle_queue_get_config_reply(crofdpt *dpt, cofmsg_queue_get_config_reply *msg) { delete msg; };
 
 
 
@@ -1273,7 +1273,7 @@ protected:
 	 * @param msg Pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_set_config(cofctl *ctl, cofmsg_set_config *msg) { delete msg; };
+	handle_set_config(crofctl *ctl, cofmsg_set_config *msg) { delete msg; };
 
 
 
@@ -1287,7 +1287,7 @@ protected:
 	 * @param msg pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(cofdpt *dpt, cofmsg_experimenter *msg) { delete msg; };
+	handle_experimenter_message(crofdpt *dpt, cofmsg_experimenter *msg) { delete msg; };
 
 
 
@@ -1300,7 +1300,7 @@ protected:
 	 * @param msg pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(cofctl *ctl, cofmsg_experimenter *msg);
+	handle_experimenter_message(crofctl *ctl, cofmsg_experimenter *msg);
 
 
 
@@ -1313,7 +1313,7 @@ protected:
 	 * @param xid transaction ID of EXPERIMENTER.message previously sent to data path element.
 	 */
 	virtual void
-	handle_get_fsp_reply_timeout(cofdpt *dpt) {};
+	handle_get_fsp_reply_timeout(crofdpt *dpt) {};
 
 
 
@@ -1326,7 +1326,7 @@ protected:
 	 * @param msg Pointer to cofmsg_role_request message containing the received message
 	 */
 	virtual void
-	handle_role_request(cofctl *ctl, cofmsg_role_request *msg) { delete msg; };
+	handle_role_request(crofctl *ctl, cofmsg_role_request *msg) { delete msg; };
 
 
 
@@ -1339,7 +1339,7 @@ protected:
 	 * @param msg pointer to cofmsg_role_reply message containing the received message
 	 */
 	virtual void
-	handle_role_reply(cofdpt *dpt, cofmsg_role_reply *msg) { delete msg; };
+	handle_role_reply(crofdpt *dpt, cofmsg_role_reply *msg) { delete msg; };
 
 
 
@@ -1352,7 +1352,7 @@ protected:
 	 * @param xid transaction ID of ROLE.reply message previously sent to data path element.
 	 */
 	virtual void
-	handle_role_reply_timeout(cofdpt *dpt) {};
+	handle_role_reply_timeout(crofdpt *dpt) {};
 
 
 	/**
@@ -1364,7 +1364,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_async_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_async_config_request(cofctl *ctl, cofmsg_get_async_config_request *msg) { delete msg; };
+	handle_get_async_config_request(crofctl *ctl, cofmsg_get_async_config_request *msg) { delete msg; };
 
 
 
@@ -1377,7 +1377,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_async_config_reply message containing the received message
 	 */
 	virtual void
-	handle_get_async_config_reply(cofdpt *dpt, cofmsg_get_async_config_reply *msg) { delete msg; };
+	handle_get_async_config_reply(crofdpt *dpt, cofmsg_get_async_config_reply *msg) { delete msg; };
 
 
 	/**
@@ -1388,7 +1388,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_get_async_config_reply_timeout(cofdpt *dpt);
+	handle_get_async_config_reply_timeout(crofdpt *dpt);
 
 
 	/**
@@ -1400,7 +1400,7 @@ protected:
 	 * @param msg Pointer to cofmsg_set_async_config message containing the received message
 	 */
 	virtual void
-	handle_set_async_config(cofctl *ctl, cofmsg_set_async_config *msg) { delete msg; };
+	handle_set_async_config(crofctl *ctl, cofmsg_set_async_config *msg) { delete msg; };
 
 
 	/**@}*/
@@ -1453,9 +1453,9 @@ protected:
 
 private:
 
-	friend class cofdptImpl;
+	friend class crofdptImpl;
 
-	friend class cofctlImpl;
+	friend class crofctlImpl;
 
 	/**
 	 * @name	Methods for sending OpenFlow messages used solely by cofctl and cofdpt instances
@@ -1477,7 +1477,7 @@ private:
 	 */
 	virtual void
 	send_hello_message(
-			cofdpt *dpt,
+			crofdpt *dpt,
 			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
 
 
@@ -1493,7 +1493,7 @@ private:
 	 */
 	virtual void
 	send_hello_message(
-			cofctl *ctl,
+			crofctl *ctl,
 			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
 
 
@@ -1510,7 +1510,7 @@ private:
 	 */
 	virtual void
 	send_echo_request(
-			cofdpt *dpt,
+			crofdpt *dpt,
 			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
 
 
@@ -1527,7 +1527,7 @@ private:
 	 */
 	virtual void
 	send_echo_reply(
-			cofdpt *dpt,
+			crofdpt *dpt,
 			uint32_t xid,
 			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
 
@@ -1543,7 +1543,7 @@ private:
 	 */
 	virtual void
 	send_echo_request(
-			cofctl *ctl,
+			crofctl *ctl,
 			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
 
 
@@ -1560,7 +1560,7 @@ private:
 	 */
 	virtual void
 	send_echo_reply(
-			cofctl *ctl,
+			crofctl *ctl,
 			uint32_t xid,
 			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
 
@@ -1591,7 +1591,7 @@ public:
 	 */
 	virtual uint32_t
 	send_features_request(
-		cofdpt *dpt);
+		crofdpt *dpt);
 
 
 
@@ -1609,7 +1609,7 @@ public:
 	 */
 	virtual void
 	send_features_reply(
-			cofctl *ctl,
+			crofctl *ctl,
 			uint32_t xid,
 			uint64_t dpid,
 			uint32_t n_buffers,
@@ -1629,7 +1629,7 @@ public:
 	 */
 	virtual uint32_t
 	send_get_config_request(
-		cofdpt *dpt);
+		crofdpt *dpt);
 
 
 
@@ -1643,7 +1643,7 @@ public:
 	 */
 	virtual void
 	send_get_config_reply(
-			cofctl *ctl,
+			crofctl *ctl,
 			uint32_t xid,
 			uint16_t flags,
 			uint16_t miss_send_len);
@@ -1663,7 +1663,7 @@ public:
 	 */
 	virtual uint32_t
 	send_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t stats_type,
 		uint16_t stats_flags,
 		uint8_t *body = NULL,
@@ -1680,7 +1680,7 @@ public:
 	 */
 	virtual uint32_t
 	send_desc_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t stats_flags);
 
 
@@ -1695,7 +1695,7 @@ public:
 	 */
 	virtual uint32_t
 	send_flow_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t stats_flags,
 		cofflow_stats_request const& flow_stats_request);
 
@@ -1711,7 +1711,7 @@ public:
 	 */
 	virtual uint32_t
 	send_aggr_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t flags,
 		cofaggr_stats_request const& aggr_stats_request);
 
@@ -1725,7 +1725,7 @@ public:
 	 */
 	virtual uint32_t
 	send_table_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t stats_flags);
 
 
@@ -1739,7 +1739,7 @@ public:
 	 */
 	virtual uint32_t
 	send_port_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t stats_flags,
 		cofport_stats_request const& port_stats_request);
 
@@ -1755,7 +1755,7 @@ public:
 	 */
 	virtual uint32_t
 	send_queue_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t stats_flags,
 		cofqueue_stats_request const& queue_stats_request);
 
@@ -1771,7 +1771,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t stats_flags,
 		cofgroup_stats_request const& group_stats_request);
 
@@ -1786,7 +1786,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_desc_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t flags);
 
 
@@ -1800,7 +1800,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_features_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t flags);
 
 
@@ -1817,7 +1817,7 @@ public:
 	 */
 	virtual uint32_t
 	send_experimenter_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t stats_flags,
 		uint32_t exp_id,
 		uint32_t exp_type,
@@ -1837,7 +1837,7 @@ public:
 	 */
 	virtual void
 	send_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint16_t stats_type,
 		uint8_t *body = NULL,
@@ -1856,7 +1856,7 @@ public:
 	 */
 	virtual void
 	send_desc_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		cofdesc_stats_reply const& desc_stats,
 		bool more = false);
@@ -1873,7 +1873,7 @@ public:
 	 */
 	virtual void
 	send_table_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		std::vector<coftable_stats_reply> const& table_stats,
 		bool more = false);
@@ -1890,7 +1890,7 @@ public:
 	 */
 	virtual void
 	send_port_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		std::vector<cofport_stats_reply> const& port_stats,
 		bool more = false);
@@ -1907,7 +1907,7 @@ public:
 	 */
 	virtual void
 	send_queue_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		std::vector<cofqueue_stats_reply> const& queue_stats,
 		bool more = false);
@@ -1924,7 +1924,7 @@ public:
 	 */
 	virtual void
 	send_flow_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		std::vector<cofflow_stats_reply> const& flow_stats,
 		bool more = false);
@@ -1941,7 +1941,7 @@ public:
 	 */
 	virtual void
 	send_aggr_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		cofaggr_stats_reply const& aggr_stats,
 		bool more = false);
@@ -1958,7 +1958,7 @@ public:
 	 */
 	virtual void
 	send_group_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		std::vector<cofgroup_stats_reply> const& group_stats,
 		bool more = false);
@@ -1975,7 +1975,7 @@ public:
 	 */
 	virtual void
 	send_group_desc_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
 		bool more = false);
@@ -1992,7 +1992,7 @@ public:
 	 */
 	virtual void
 	send_group_features_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		cofgroup_features_stats_reply const& group_features_stats,
 		bool more = false);
@@ -2012,7 +2012,7 @@ public:
 	 */
 	virtual void
 	send_experimenter_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint32_t exp_id,
 		uint32_t exp_type,
@@ -2033,7 +2033,7 @@ public:
 	 */
 	virtual void
 	send_packet_out_message(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint32_t buffer_id,
 		uint32_t in_port,
 		cofactions& aclist,
@@ -2059,7 +2059,7 @@ public:
 	 */
 	virtual void
 	send_packet_in_message(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t buffer_id,
 		uint16_t total_len,
 		uint8_t reason,
@@ -2080,7 +2080,7 @@ public:
 	 */
 	virtual uint32_t
 	send_barrier_request(
-		cofdpt *dpt);
+		crofdpt *dpt);
 
 
 
@@ -2092,7 +2092,7 @@ public:
 	 */
 	virtual void
 	send_barrier_reply(
-			cofctl *ctl,
+			crofctl *ctl,
 			uint32_t xid);
 
 
@@ -2109,7 +2109,7 @@ public:
 	 */
 	virtual void
 	send_error_message(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint16_t type,
 		uint16_t code,
@@ -2133,7 +2133,7 @@ public:
 	 */
 	virtual void
 	send_error_message(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint32_t xid,
 		uint16_t type,
 		uint16_t code,
@@ -2153,7 +2153,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_request_bad_len(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2169,7 +2169,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_request_bad_version(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2186,7 +2186,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_request_bad_type(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2203,7 +2203,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_request_bad_stat(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2220,7 +2220,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_request_bad_experimenter(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2237,7 +2237,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_request_bad_exp_type(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2253,7 +2253,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_request_eperm(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2270,7 +2270,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_request_buffer_empty(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2286,7 +2286,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_request_buffer_unknown(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2303,7 +2303,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_request_bad_table_id(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2321,7 +2321,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_request_is_slave(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2338,7 +2338,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_request_bad_port(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2355,7 +2355,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_request_bad_packet(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2373,7 +2373,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_action_bad_type(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2390,7 +2390,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_action_bad_len(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2407,7 +2407,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_action_bad_experimenter(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2424,7 +2424,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_action_bad_experimenter_type(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2439,7 +2439,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_action_bad_out_port(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2454,7 +2454,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_action_bad_argument(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2469,7 +2469,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_action_eperm(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2484,7 +2484,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_action_too_many(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2499,7 +2499,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_action_bad_queue(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2514,7 +2514,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_action_bad_out_group(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2529,7 +2529,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_action_match_inconsistent(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2544,7 +2544,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_action_unsupported_order(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2559,7 +2559,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_action_bad_tag(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2574,7 +2574,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_inst_unknown_inst(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2589,7 +2589,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_inst_unsup_inst(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2604,7 +2604,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_inst_bad_table_id(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2619,7 +2619,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_inst_unsup_metadata(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2634,7 +2634,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_inst_unsup_metadata_mask(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2649,7 +2649,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_inst_unsup_exp_inst(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2664,7 +2664,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_match_bad_type(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2679,7 +2679,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_match_bad_len(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2694,7 +2694,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_match_bad_tag(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2709,7 +2709,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_match_bad_dladdr_mask(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2724,7 +2724,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_match_bad_nwaddr_mask(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2739,7 +2739,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_match_bad_wildcards(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2754,7 +2754,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_match_bad_field(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2769,7 +2769,7 @@ public:
 	 */
 	virtual void
 	send_error_bad_match_bad_value(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2784,7 +2784,7 @@ public:
 	 */
 	virtual void
 	send_error_hello_failed_incompatible(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2799,7 +2799,7 @@ public:
 	 */
 	virtual void
 	send_error_hello_failed_eperm(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2814,7 +2814,7 @@ public:
 	 */
 	virtual void
 	send_error_switch_config_failed_bad_flags(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2829,7 +2829,7 @@ public:
 	 */
 	virtual void
 	send_error_switch_config_failed_bad_len(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2844,7 +2844,7 @@ public:
 	 */
 	virtual void
 	send_error_flow_mod_failed_unknown(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2859,7 +2859,7 @@ public:
 	 */
 	virtual void
 	send_error_flow_mod_failed_table_full(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2874,7 +2874,7 @@ public:
 	 */
 	virtual void
 	send_error_flow_mod_failed_bad_table_id(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2889,7 +2889,7 @@ public:
 	 */
 	virtual void
 	send_error_flow_mod_failed_overlap(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2904,7 +2904,7 @@ public:
 	 */
 	virtual void
 	send_error_flow_mod_failed_eperm(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2919,7 +2919,7 @@ public:
 	 */
 	virtual void
 	send_error_flow_mod_failed_bad_timeout(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2934,7 +2934,7 @@ public:
 	 */
 	virtual void
 	send_error_flow_mod_failed_bad_command(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2949,7 +2949,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_group_exists(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2964,7 +2964,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_inval_group(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2979,7 +2979,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_weight_unsupported(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -2994,7 +2994,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_out_of_groups(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3009,7 +3009,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_out_of_buckets(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3024,7 +3024,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_chaining_unsupported(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3039,7 +3039,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_watch_unsupported(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3054,7 +3054,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_loop(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3069,7 +3069,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_unknown_group(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3084,7 +3084,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_chained_group(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3099,7 +3099,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_bad_type(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3114,7 +3114,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_bad_command(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3129,7 +3129,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_bad_bucket(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3144,7 +3144,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_bad_watch(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3159,7 +3159,7 @@ public:
 	 */
 	virtual void
 	send_error_group_mod_failed_eperm(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3174,7 +3174,7 @@ public:
 	 */
 	virtual void
 	send_error_port_mod_failed_bad_port(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3189,7 +3189,7 @@ public:
 	 */
 	virtual void
 	send_error_port_mod_failed_bad_hw_addr(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3204,7 +3204,7 @@ public:
 	 */
 	virtual void
 	send_error_port_mod_failed_bad_config(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3219,7 +3219,7 @@ public:
 	 */
 	virtual void
 	send_error_port_mod_failed_bad_advertise(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3234,7 +3234,7 @@ public:
 	 */
 	virtual void
 	send_error_table_mod_failed_bad_table(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3249,7 +3249,7 @@ public:
 	 */
 	virtual void
 	send_error_table_mod_failed_bad_config(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3264,7 +3264,7 @@ public:
 	 */
 	virtual void
 	send_error_role_request_failed_stale(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3279,7 +3279,7 @@ public:
 	 */
 	virtual void
 	send_error_role_request_failed_unsupported(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3294,7 +3294,7 @@ public:
 	 */
 	virtual void
 	send_error_role_request_failed_bad_role(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3309,7 +3309,7 @@ public:
 	 */
 	virtual void
 	send_error_hello_failed_incompatible(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3324,7 +3324,7 @@ public:
 	 */
 	virtual void
 	send_error_hello_failed_eperm(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint32_t xid,
 		uint8_t* data = NULL,
 		size_t datalen = 0);
@@ -3361,7 +3361,7 @@ public:
 	 */
 	virtual void
 	send_flow_mod_message(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		cofmatch& match,
 		uint64_t cookie,
 		uint64_t cookie_mask,
@@ -3386,7 +3386,7 @@ public:
 	 */
 	virtual void
 	send_flow_mod_message(
-			cofdpt *dpt,
+			crofdpt *dpt,
 			cflowentry& flowentry);
 
 
@@ -3400,7 +3400,7 @@ public:
 	 */
 	virtual void
 	send_group_mod_message(
-			cofdpt *dpt,
+			crofdpt *dpt,
 			cgroupentry& groupentry);
 
 
@@ -3414,7 +3414,7 @@ public:
 	 */
 	virtual void
 	send_table_mod_message(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint8_t table_id,
 		uint32_t config);
 
@@ -3433,7 +3433,7 @@ public:
 	 */
 	virtual void
 	send_port_mod_message(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint32_t port_no,
 		cmacaddr const& hwaddr,
 		uint32_t config,
@@ -3460,7 +3460,7 @@ public:
 	 */
 	virtual void
 	send_flow_removed_message(
-		cofctl *ctl,
+		crofctl *ctl,
 		cofmatch& match,
 		uint64_t cookie,
 		uint16_t priority,
@@ -3485,7 +3485,7 @@ public:
 	 */
 	virtual void
 	send_port_status_message(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint8_t reason,
 		cofport const& port);
 
@@ -3500,7 +3500,7 @@ public:
 	 */
 	virtual void
 	send_set_config_message(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t flags,
 		uint16_t miss_send_len);
 
@@ -3515,7 +3515,7 @@ public:
 	 */
 	virtual uint32_t
 	send_queue_get_config_request(
-		cofdpt *sw,
+		crofdpt *sw,
 		uint32_t port);
 
 
@@ -3530,7 +3530,7 @@ public:
 	 */
 	virtual void
 	send_queue_get_config_reply(
-			cofctl *ctl,
+			crofctl *ctl,
 			uint32_t xid,
 			uint32_t portno,
 			cofpacket_queue_list const& pql);
@@ -3550,7 +3550,7 @@ public:
 	 */
 	virtual uint32_t
 	send_experimenter_message(
-			cofdpt *dpt,
+			crofdpt *dpt,
 			uint32_t experimenter_id,
 			uint32_t exp_type,
 			uint8_t *body = NULL,
@@ -3570,7 +3570,7 @@ public:
 	 */
 	virtual uint32_t
 	send_experimenter_message(
-			cofctl *ctl,
+			crofctl *ctl,
 			uint32_t experimenter_id,
 			uint32_t exp_type,
 			uint8_t *body = NULL,
@@ -3588,7 +3588,7 @@ public:
 	 */
 	virtual uint32_t
 	send_role_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint32_t role,
 		uint64_t generation_id);
 
@@ -3604,7 +3604,7 @@ public:
 	 */
 	virtual void
 	send_role_reply(
-			cofctl *ctl,
+			crofctl *ctl,
 			uint32_t xid,
 			uint32_t role,
 			uint64_t generation_id);
@@ -3619,7 +3619,7 @@ public:
 	 */
 	virtual uint32_t
 	send_get_async_config_request(
-		cofdpt *dpt);
+		crofdpt *dpt);
 
 
 
@@ -3637,7 +3637,7 @@ public:
 	 */
 	virtual void
 	send_get_async_config_reply(
-			cofctl *ctl,
+			crofctl *ctl,
 			uint32_t xid,
 			uint32_t packet_in_mask0,
 			uint32_t packet_in_mask1,
@@ -3660,7 +3660,7 @@ public:
 	 */
 	virtual void
 	send_set_async_config_message(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint32_t packet_in_mask0,
 		uint32_t packet_in_mask1,
 		uint32_t port_status_mask0,
@@ -3866,25 +3866,25 @@ private:
 	 *
 	 */
 	void
-	handle_dpt_open(cofdpt *dpt);
+	handle_dpt_open(crofdpt *dpt);
 
 	/** for use by cofdpt
 	 *
 	 */
 	void
-	handle_dpt_close(cofdpt *dpt);
+	handle_dpt_close(crofdpt *dpt);
 
 	/** for use by cofctl
 	 *
 	 */
 	void
-	handle_ctl_open(cofctl *ctl);
+	handle_ctl_open(crofctl *ctl);
 
 	/** for use by cofctl
 	 *
 	 */
 	void
-	handle_ctl_close(cofctl *ctl);
+	handle_ctl_close(crofctl *ctl);
 
 	/** get highest support OF protocol version
 	 *
@@ -3903,11 +3903,11 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, crofbase const& rofbase) {
 		os << "<crofbase ";
-		for (std::set<cofctl*>::const_iterator
+		for (std::set<crofctl*>::const_iterator
 				it = rofbase.ofctl_set.begin(); it != rofbase.ofctl_set.end(); ++it) {
 			os << "    " << (*it) << std::endl;
 		}
-		for (std::set<cofdpt*>::const_iterator
+		for (std::set<crofdpt*>::const_iterator
 				it = rofbase.ofdpt_set.begin(); it != rofbase.ofdpt_set.end(); ++it) {
 			os << "    " << (*it) << std::endl;
 		}

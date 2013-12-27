@@ -44,7 +44,7 @@ cfib::~cfib()
 
 
 void
-cfib::dpt_bind(rofl::crofbase *rofbase, rofl::cofdpt *dpt)
+cfib::dpt_bind(rofl::crofbase *rofbase, rofl::crofdpt *dpt)
 {
 	if (((0 != this->rofbase) && (rofbase != this->rofbase)) ||
 			((0 != this->dpt) && (dpt != this->dpt))) {
@@ -57,7 +57,7 @@ cfib::dpt_bind(rofl::crofbase *rofbase, rofl::cofdpt *dpt)
 
 
 void
-cfib::dpt_release(rofl::crofbase *rofbase, rofl::cofdpt *dpt)
+cfib::dpt_release(rofl::crofbase *rofbase, rofl::crofdpt *dpt)
 {
 	if (((0 != this->rofbase) && (rofbase != this->rofbase)) ||
 			((0 != this->dpt) && (dpt != this->dpt))) {
@@ -96,7 +96,7 @@ cfib::fib_timer_expired(cfibentry *entry)
 void
 cfib::fib_update(
 		rofl::crofbase *rofbase,
-		rofl::cofdpt *dpt,
+		rofl::crofdpt *dpt,
 		rofl::cmacaddr const& src,
 		uint32_t in_port)
 {
@@ -122,7 +122,7 @@ cfib::fib_update(
 cfibentry&
 cfib::fib_lookup(
 		rofl::crofbase *rofbase,
-		rofl::cofdpt *dpt,
+		rofl::crofdpt *dpt,
 		rofl::cmacaddr const& dst,
 		rofl::cmacaddr const& src,
 		uint32_t in_port)

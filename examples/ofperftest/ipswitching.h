@@ -28,7 +28,7 @@ private:
 
 	unsigned int 		n_entries;	// number of competing flowmods to be installed
 	// a very simple forwarding information base
-	std::map<cofdpt*, std::map<caddress, struct fibentry_t> > fib;
+	std::map<crofdpt*, std::map<caddress, struct fibentry_t> > fib;
 
 	unsigned int 		fib_check_timeout; 		// periodic timeout for removing expired FIB entries
 	unsigned int		fm_delete_all_timeout;	// periodic purging of all FLOW-MODs
@@ -50,18 +50,18 @@ public:
 	handle_timeout(int opaque);
 
 	virtual void
-	handle_dpath_open(cofdpt *dpt);
+	handle_dpath_open(crofdpt *dpt);
 
 	virtual void
-	handle_dpath_close(cofdpt *dpt);
+	handle_dpath_close(crofdpt *dpt);
 
 	virtual void
-	handle_packet_in(cofdpt *dpt, cofmsg_packet_in *msg);
+	handle_packet_in(crofdpt *dpt, cofmsg_packet_in *msg);
 
 private:
 
 	void
-	install_flow_mods(cofdpt *dpt, unsigned int n = 0);
+	install_flow_mods(crofdpt *dpt, unsigned int n = 0);
 
 	void
 	drop_expired_fib_entries();
@@ -70,16 +70,16 @@ private:
 	flow_mod_delete_all();
 
 	void
-	handle_packet_in_ipv4(cofdpt *dpt, cofmsg_packet_in *msg);
+	handle_packet_in_ipv4(crofdpt *dpt, cofmsg_packet_in *msg);
 
 	void
-	handle_packet_in_arpv4(cofdpt *dpt, cofmsg_packet_in *msg);
+	handle_packet_in_arpv4(crofdpt *dpt, cofmsg_packet_in *msg);
 
 	void
-	update_fib_table(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src);
+	update_fib_table(crofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src);
 
 	void
-	flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src);
+	flood_vlans(crofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src);
 };
 
 #endif

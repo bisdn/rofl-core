@@ -49,7 +49,7 @@ ipswitching::drop_expired_fib_entries()
 
 
 void
-ipswitching::install_flow_mods(cofdpt *dpt, unsigned int n)
+ipswitching::install_flow_mods(crofdpt *dpt, unsigned int n)
 {
 	if (0 == dpt) {
 		fprintf(stderr, "error installing test FlowMod entries on data path: dpt is NULL");
@@ -103,10 +103,10 @@ ipswitching::install_flow_mods(cofdpt *dpt, unsigned int n)
 void
 ipswitching::flow_mod_delete_all()
 {
-	std::map<cofdpt*, std::map<caddress, struct fibentry_t> >::iterator it;
+	std::map<crofdpt*, std::map<caddress, struct fibentry_t> >::iterator it;
 
 	for (it = fib.begin(); it != fib.end(); ++it) {
-		cofdpt *dpt = it->first;
+		crofdpt *dpt = it->first;
 
 		cflowentry fe(dpt->get_version());
 		fe.set_command(crofbase::get_ofp_command(dpt->get_version(), openflow::OFPFC_DELETE));
@@ -126,7 +126,7 @@ ipswitching::flow_mod_delete_all()
 
 void
 ipswitching::handle_dpath_open(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	fib[dpt] = std::map<caddress, struct fibentry_t>();
 	// do nothing here
@@ -138,7 +138,7 @@ ipswitching::handle_dpath_open(
 
 void
 ipswitching::handle_dpath_close(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	fib.erase(dpt);
 }
@@ -147,7 +147,7 @@ ipswitching::handle_dpath_close(
 
 void
 ipswitching::handle_packet_in(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		cofmsg_packet_in *msg)
 {
 	/*
@@ -206,7 +206,7 @@ ipswitching::handle_packet_in(
 
 void
 ipswitching::handle_packet_in_arpv4(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		cofmsg_packet_in *msg)
 {
 #if 0
@@ -311,7 +311,7 @@ ipswitching::handle_packet_in_arpv4(
 
 void
 ipswitching::handle_packet_in_ipv4(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		cofmsg_packet_in *msg)
 {
 	caddress ip_src = msg->get_packet().ipv4()->get_ipv4_src();
@@ -378,7 +378,7 @@ ipswitching::handle_packet_in_ipv4(
 
 
 void
-ipswitching::update_fib_table(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
+ipswitching::update_fib_table(crofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 {
 	fprintf(stderr, "ipswitching::update_fib_table() Pt. 3.1 ip_src:%s\n", ip_src.c_str());
 	if (fib[dpt].find(ip_src) == fib[dpt].end()) {
@@ -415,7 +415,7 @@ ipswitching::update_fib_table(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_sr
 
 
 void
-ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
+ipswitching::flood_vlans(crofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 {
 	/*
 	 * this is a workaround, as OFPP12_TABLE is not implemented yet in xdpd

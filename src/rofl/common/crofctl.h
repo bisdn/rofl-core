@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COFCTL_H
-#define COFCTL_H 1
+#ifndef CROFCTL_H
+#define CROFCTL_H 1
 
 #include <map>
 #include <string>
@@ -24,7 +24,7 @@ namespace rofl
 class crofbase;
 
 
-class cofctl :
+class crofctl :
 	public cxidowner
 {
 public: // methods
@@ -37,7 +37,7 @@ public: // methods
 	 *
 	 * @param rofbase pointer to crofbase instance
 	 */
-	cofctl(
+	crofctl(
 			crofbase *rofbase = (crofbase*)0) {};
 
 
@@ -52,7 +52,7 @@ public: // methods
 	 * @param type socket type
 	 * @param protocol socket protocol
 	 */
-	cofctl(
+	crofctl(
 			crofbase *rofbase,
 			int newsd,
 			caddress const& ra,
@@ -73,7 +73,7 @@ public: // methods
 	 * @param protocol socket protocol
 	 *
 	 */
-	cofctl(
+	crofctl(
 			crofbase *rofbase,
 			uint8_t ofp_version,
 			int reconnect_in_seconds,
@@ -88,7 +88,7 @@ public: // methods
 	 * @brief	Destructor.
 	 */
 	virtual
-	~cofctl() {};
+	~crofctl() {};
 
 
 

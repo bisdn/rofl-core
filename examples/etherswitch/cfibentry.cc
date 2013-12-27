@@ -12,7 +12,7 @@ using namespace etherswitch;
 cfibentry::cfibentry(
 		cfibtable *fib,
 		rofl::crofbase *rofbase,
-		rofl::cofdpt *dpt,
+		rofl::crofdpt *dpt,
 		rofl::cmacaddr dst,
 		uint32_t out_port_no) :
 		fib(fib),

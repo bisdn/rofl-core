@@ -49,7 +49,7 @@ match_eth_dst::drop_expired_fib_entries()
 
 
 void
-match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
+match_eth_dst::install_flow_mods(crofdpt *dpt, unsigned int n)
 {
 	if (0 == dpt) {
 		fprintf(stderr, "error installing test FlowMod entries on data path: dpt is NULL");
@@ -127,10 +127,10 @@ match_eth_dst::install_flow_mods(cofdpt *dpt, unsigned int n)
 void
 match_eth_dst::flow_mod_delete_all()
 {
-	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
+	std::map<crofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > >::iterator it;
 
 	for (it = fib.begin(); it != fib.end(); ++it) {
-		cofdpt *dpt = it->first;
+		crofdpt *dpt = it->first;
 
 		cflowentry fe(dpt->get_version());
 		switch (dpt->get_version()) {
@@ -165,7 +165,7 @@ match_eth_dst::flow_mod_delete_all()
 
 void
 match_eth_dst::handle_dpath_open(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	fib[dpt] = std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> >();
 	// do nothing here
@@ -177,7 +177,7 @@ match_eth_dst::handle_dpath_open(
 
 void
 match_eth_dst::handle_dpath_close(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	fib.erase(dpt);
 }
@@ -186,7 +186,7 @@ match_eth_dst::handle_dpath_close(
 
 void
 match_eth_dst::handle_packet_in(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		cofmsg_packet_in *msg)
 {
 	cmacaddr eth_src = msg->get_packet().ether()->get_dl_src();

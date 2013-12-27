@@ -58,14 +58,14 @@ crofbase::rpc_close_all()
 	rpc[RPC_DPT].clear();
 
 	// detach from higher layer entities
-	for (std::set<cofctl*>::iterator
+	for (std::set<crofctl*>::iterator
 			it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
 	{
 		delete (*it);
 	}
 	ofctl_set.clear();
 
-	for (std::set<cofdpt*>::iterator
+	for (std::set<crofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
 		delete (*it);
@@ -97,7 +97,7 @@ crofbase::nsp_enable(bool enable)
 
 void
 crofbase::handle_dpt_open(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	handle_dpath_open(dpt);
 }
@@ -106,7 +106,7 @@ crofbase::handle_dpt_open(
 
 void
 crofbase::handle_dpt_close(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	handle_dpath_close(dpt);
 	if (ofdpt_set.find(dpt) != ofdpt_set.end())
@@ -120,7 +120,7 @@ crofbase::handle_dpt_close(
 
 void
 crofbase::handle_ctl_open(
-		cofctl *ctl)
+		crofctl *ctl)
 {
 	handle_ctrl_open(ctl);
 }
@@ -129,7 +129,7 @@ crofbase::handle_ctl_open(
 
 void
 crofbase::handle_ctl_close(
-		cofctl *ctl)
+		crofctl *ctl)
 {
 	if (ofctl_set.find(ctl) != ofctl_set.end())
 	{
@@ -295,7 +295,7 @@ crofbase::rpc_connect_to_ctl(
 
 void
 crofbase::rpc_disconnect_from_ctl(
-		cofctl *ctl)
+		crofctl *ctl)
 {
 	if (0 == ctl)
 	{
@@ -317,9 +317,9 @@ void
 crofbase::rpc_disconnect_from_ctl(
 		caddress const& ra)
 {
-	for (std::set<cofctl*>::iterator
+	for (std::set<crofctl*>::iterator
 			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
-		cofctl *ctl = (*it);
+		crofctl *ctl = (*it);
 		if (ctl->get_peer_addr() == ra) {
 			rpc_disconnect_from_ctl(ctl);
 			return;
@@ -344,7 +344,7 @@ crofbase::rpc_connect_to_dpt(
 
 void
 crofbase::rpc_disconnect_from_dpt(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	if (0 == dpt)
 	{
@@ -367,9 +367,9 @@ void
 crofbase::rpc_disconnect_from_dpt(
 		caddress const& ra)
 {
-	for (std::set<cofdpt*>::iterator
+	for (std::set<crofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it) {
-		cofdpt *dpt = (*it);
+		crofdpt *dpt = (*it);
 		if (dpt->get_peer_addr() == ra) {
 			rpc_disconnect_from_dpt(dpt);
 			return;
@@ -379,7 +379,7 @@ crofbase::rpc_disconnect_from_dpt(
 
 
 
-cofctl*
+crofctl*
 crofbase::cofctl_factory(
 		crofbase* owner,
 		int newsd,
@@ -388,12 +388,12 @@ crofbase::cofctl_factory(
 		int type,
 		int protocol)
 {
-	return new cofctlImpl(owner, newsd, ra, domain, type, protocol);
+	return new crofctlImpl(owner, newsd, ra, domain, type, protocol);
 }
 
 
 
-cofctl*
+crofctl*
 crofbase::cofctl_factory(
 		crofbase* owner,
 		uint8_t ofp_version,
@@ -403,12 +403,12 @@ crofbase::cofctl_factory(
 		int type,
 		int protocol)
 {
-	return new cofctlImpl(owner, ofp_version, reconnect_start_timeout, ra, domain, type, protocol);
+	return new crofctlImpl(owner, ofp_version, reconnect_start_timeout, ra, domain, type, protocol);
 }
 
 
 
-cofdpt*
+crofdpt*
 crofbase::cofdpt_factory(
 		crofbase* owner,
 		int newsd,
@@ -417,12 +417,12 @@ crofbase::cofdpt_factory(
 		int type,
 		int protocol)
 {
-	return new cofdptImpl(owner, newsd, ra, domain, type, protocol);
+	return new crofdptImpl(owner, newsd, ra, domain, type, protocol);
 }
 
 
 
-cofdpt*
+crofdpt*
 crofbase::cofdpt_factory(
 		crofbase* owner,
 		uint8_t ofp_version,
@@ -432,14 +432,14 @@ crofbase::cofdpt_factory(
 		int type,
 		int protocol)
 {
-	return new cofdptImpl(owner, ofp_version, reconnect_start_timeout, ra, domain, type, protocol);
+	return new crofdptImpl(owner, ofp_version, reconnect_start_timeout, ra, domain, type, protocol);
 }
 
 
 
 void
 crofbase::role_request_rcvd(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t role)
 {
 	switch (ctl->get_version()) {
@@ -450,9 +450,9 @@ crofbase::role_request_rcvd(
 		case openflow12::OFPCR_ROLE_EQUAL: {
 		} break;
 		case openflow12::OFPCR_ROLE_MASTER: {
-			for (std::set<cofctl*>::iterator
+			for (std::set<crofctl*>::iterator
 					it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
-				cofctl *tctl = (*it);
+				crofctl *tctl = (*it);
 
 				if (tctl == ctl)
 					continue;
@@ -474,9 +474,9 @@ crofbase::role_request_rcvd(
 		case openflow13::OFPCR_ROLE_EQUAL: {
 		} break;
 		case openflow13::OFPCR_ROLE_MASTER: {
-			for (std::set<cofctl*>::iterator
+			for (std::set<crofctl*>::iterator
 					it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
-				cofctl *tctl = (*it);
+				crofctl *tctl = (*it);
 
 				if (tctl == ctl)
 					continue;
@@ -542,7 +542,7 @@ crofbase::wakeup()
 
 
 void
-crofbase::handle_experimenter_message(cofctl *ofctrl, cofmsg_experimenter *pack)
+crofbase::handle_experimenter_message(crofctl *ofctrl, cofmsg_experimenter *pack)
 {
 	// base class does not support any vendor extensions, so: send error indication
 	size_t datalen = (pack->framelen() > 64) ? 64 : pack->framelen();
@@ -553,10 +553,10 @@ crofbase::handle_experimenter_message(cofctl *ofctrl, cofmsg_experimenter *pack)
 }
 
 
-cofdpt*
+crofdpt*
 crofbase::dpt_find(uint64_t dpid) throw (eRofBaseNotFound)
 {
-	for (std::set<cofdpt*>::iterator
+	for (std::set<crofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
 		if ((*it)->get_dpid() == dpid)
@@ -566,10 +566,10 @@ crofbase::dpt_find(uint64_t dpid) throw (eRofBaseNotFound)
 }
 
 
-cofdpt*
+crofdpt*
 crofbase::dpt_find(std::string s_dpid) throw (eRofBaseNotFound)
 {
-	for (std::set<cofdpt*>::iterator
+	for (std::set<crofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
 		if ((*it)->get_dpid_s() == s_dpid)
@@ -579,10 +579,10 @@ crofbase::dpt_find(std::string s_dpid) throw (eRofBaseNotFound)
 }
 
 
-cofdpt*
+crofdpt*
 crofbase::dpt_find(cmacaddr dl_dpid) throw (eRofBaseNotFound)
 {
-	for (std::set<cofdpt*>::iterator
+	for (std::set<crofdpt*>::iterator
 			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 	{
 		if ((*it)->get_hwaddr() == dl_dpid)
@@ -594,8 +594,8 @@ crofbase::dpt_find(cmacaddr dl_dpid) throw (eRofBaseNotFound)
 
 
 
-cofdpt*
-crofbase::dpt_find(cofdpt *dpt) throw (eRofBaseNotFound)
+crofdpt*
+crofbase::dpt_find(crofdpt *dpt) throw (eRofBaseNotFound)
 {
 	if (ofdpt_set.find(dpt) == ofdpt_set.end())
 	{
@@ -606,8 +606,8 @@ crofbase::dpt_find(cofdpt *dpt) throw (eRofBaseNotFound)
 
 
 
-cofctl*
-crofbase::ctl_find(cofctl *ctl) throw (eRofBaseNotFound)
+crofctl*
+crofbase::ctl_find(crofctl *ctl) throw (eRofBaseNotFound)
 {
 	if (ofctl_set.find(ctl) == ofctl_set.end())
 	{
@@ -696,7 +696,7 @@ crofbase::get_ofp_command(uint8_t ofp_version, enum openflow::ofp_flow_mod_comma
 
 void
 crofbase::send_hello_message(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint8_t *body, size_t bodylen)
 {
 	cofmsg_hello *pack =
@@ -712,7 +712,7 @@ crofbase::send_hello_message(
 
 void
 crofbase::send_hello_message(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint8_t *body, size_t bodylen)
 {
 	cofmsg_hello *pack =
@@ -732,7 +732,7 @@ crofbase::send_hello_message(
 
 void
 crofbase::send_echo_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint8_t *body, size_t bodylen)
 {
 	uint8_t msg_type = 0;
@@ -759,7 +759,7 @@ crofbase::send_echo_request(
 
 void
 crofbase::send_echo_reply(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint32_t xid,
 		uint8_t *body, size_t bodylen)
 {
@@ -777,7 +777,7 @@ crofbase::send_echo_reply(
 
 void
 crofbase::send_echo_request(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint8_t *body, size_t bodylen)
 {
 	uint8_t msg_type = 0;
@@ -804,7 +804,7 @@ crofbase::send_echo_request(
 
 void
 crofbase::send_echo_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t *body, size_t bodylen)
 {
@@ -825,7 +825,7 @@ crofbase::send_echo_reply(
  */
 
 uint32_t
-crofbase::send_features_request(cofdpt *dpt)
+crofbase::send_features_request(crofdpt *dpt)
 {
 	uint8_t msg_type = 0;
 
@@ -855,7 +855,7 @@ crofbase::send_features_request(cofdpt *dpt)
 
 void
 crofbase::send_features_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint64_t dpid,
 		uint32_t n_buffers,
@@ -886,7 +886,7 @@ crofbase::send_features_reply(
 
 
 void
-crofbase::handle_features_reply_timeout(cofdpt *dpt)
+crofbase::handle_features_reply_timeout(crofdpt *dpt)
 {
     if (ofdpt_set.find(dpt) != ofdpt_set.end()) {
     	delete dpt;
@@ -902,7 +902,7 @@ crofbase::handle_features_reply_timeout(cofdpt *dpt)
  */
 uint32_t
 crofbase::send_get_config_request(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	uint8_t msg_type = 0;
 
@@ -933,7 +933,7 @@ crofbase::send_get_config_request(
 
 
 void
-crofbase::send_get_config_reply(cofctl *ctl, uint32_t xid, uint16_t flags, uint16_t miss_send_len)
+crofbase::send_get_config_reply(crofctl *ctl, uint32_t xid, uint16_t flags, uint16_t miss_send_len)
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_get_config_reply()", this);
 
@@ -950,7 +950,7 @@ crofbase::send_get_config_reply(cofctl *ctl, uint32_t xid, uint16_t flags, uint1
 
 
 void
-crofbase::handle_get_config_reply_timeout(cofdpt *dpt)
+crofbase::handle_get_config_reply_timeout(crofdpt *dpt)
 {
     if (ofdpt_set.find(dpt) != ofdpt_set.end())
     {
@@ -967,7 +967,7 @@ crofbase::handle_get_config_reply_timeout(cofdpt *dpt)
 
 uint32_t
 crofbase::send_stats_request(
-	cofdpt *dpt,
+	crofdpt *dpt,
 	uint16_t stats_type,
 	uint16_t stats_flags,
 	uint8_t* body,
@@ -1005,7 +1005,7 @@ crofbase::send_stats_request(
 
 uint32_t
 crofbase::send_desc_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t flags)
 {
 	uint8_t msg_type = 0;
@@ -1037,7 +1037,7 @@ crofbase::send_desc_stats_request(
 
 uint32_t
 crofbase::send_flow_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t flags,
 		cofflow_stats_request const& flow_stats_request)
 {
@@ -1071,7 +1071,7 @@ crofbase::send_flow_stats_request(
 
 uint32_t
 crofbase::send_aggr_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t flags,
 		cofaggr_stats_request const& aggr_stats_request)
 {
@@ -1105,7 +1105,7 @@ crofbase::send_aggr_stats_request(
 
 uint32_t
 crofbase::send_table_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t flags)
 {
 	uint8_t msg_type = 0;
@@ -1137,7 +1137,7 @@ crofbase::send_table_stats_request(
 
 uint32_t
 crofbase::send_port_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t flags,
 		cofport_stats_request const& port_stats_request)
 {
@@ -1171,7 +1171,7 @@ crofbase::send_port_stats_request(
 
 uint32_t
 crofbase::send_queue_stats_request(
-	cofdpt *dpt,
+	crofdpt *dpt,
 	uint16_t flags,
 	cofqueue_stats_request const& queue_stats_request)
 {
@@ -1205,7 +1205,7 @@ crofbase::send_queue_stats_request(
 
 uint32_t
 crofbase::send_group_stats_request(
-	cofdpt *dpt,
+	crofdpt *dpt,
 	uint16_t flags,
 	cofgroup_stats_request const& group_stats_request)
 {
@@ -1238,7 +1238,7 @@ crofbase::send_group_stats_request(
 
 uint32_t
 crofbase::send_group_desc_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t flags)
 {
 	uint8_t msg_type = 0;
@@ -1269,7 +1269,7 @@ crofbase::send_group_desc_stats_request(
 
 uint32_t
 crofbase::send_group_features_stats_request(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint16_t flags)
 {
 	uint8_t msg_type = 0;
@@ -1300,7 +1300,7 @@ crofbase::send_group_features_stats_request(
 
 uint32_t
 crofbase::send_experimenter_stats_request(
-	cofdpt *dpt,
+	crofdpt *dpt,
 	uint16_t flags,
 	uint32_t exp_id,
 	uint32_t exp_type,
@@ -1338,7 +1338,7 @@ crofbase::send_experimenter_stats_request(
 
 void
 crofbase::send_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint16_t stats_type, /* network byte order */
 		uint8_t *body, size_t bodylen,
@@ -1372,7 +1372,7 @@ crofbase::send_stats_reply(
 
 void
 crofbase::send_desc_stats_reply(
-	cofctl *ctl,
+	crofctl *ctl,
 	uint32_t xid,
 	cofdesc_stats_reply const& desc_stats,
 	bool more)
@@ -1403,7 +1403,7 @@ crofbase::send_desc_stats_reply(
 
 void
 crofbase::send_table_stats_reply(
-	cofctl *ctl,
+	crofctl *ctl,
 	uint32_t xid,
 	std::vector<coftable_stats_reply> const& table_stats,
 	bool more)
@@ -1434,7 +1434,7 @@ crofbase::send_table_stats_reply(
 
 void
 crofbase::send_port_stats_reply(
-	cofctl *ctl,
+	crofctl *ctl,
 	uint32_t xid,
 	std::vector<cofport_stats_reply> const& port_stats,
 	bool more)
@@ -1465,7 +1465,7 @@ crofbase::send_port_stats_reply(
 
 void
 crofbase::send_queue_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		std::vector<cofqueue_stats_reply> const& queue_stats,
 		bool more)
@@ -1496,7 +1496,7 @@ crofbase::send_queue_stats_reply(
 
 void
 crofbase::send_flow_stats_reply(
-	cofctl *ctl,
+	crofctl *ctl,
 	uint32_t xid,
 	std::vector<cofflow_stats_reply> const& flow_stats,
 	bool more)
@@ -1527,7 +1527,7 @@ crofbase::send_flow_stats_reply(
 
 void
 crofbase::send_aggr_stats_reply(
-	cofctl *ctl,
+	crofctl *ctl,
 	uint32_t xid,
 	cofaggr_stats_reply const& aggr_stats,
 	bool more)
@@ -1558,7 +1558,7 @@ crofbase::send_aggr_stats_reply(
 
 void
 crofbase::send_group_stats_reply(
-	cofctl *ctl,
+	crofctl *ctl,
 	uint32_t xid,
 	std::vector<cofgroup_stats_reply> const& group_stats,
 	bool more)
@@ -1589,7 +1589,7 @@ crofbase::send_group_stats_reply(
 
 void
 crofbase::send_group_desc_stats_reply(
-	cofctl *ctl,
+	crofctl *ctl,
 	uint32_t xid,
 	std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
 	bool more)
@@ -1620,7 +1620,7 @@ crofbase::send_group_desc_stats_reply(
 
 void
 crofbase::send_group_features_stats_reply(
-	cofctl *ctl,
+	crofctl *ctl,
 	uint32_t xid,
 	cofgroup_features_stats_reply const& group_features_stats,
 	bool more)
@@ -1651,7 +1651,7 @@ crofbase::send_group_features_stats_reply(
 
 void
 crofbase::send_experimenter_stats_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint32_t exp_id,
 		uint32_t exp_type,
@@ -1692,7 +1692,7 @@ crofbase::send_experimenter_stats_reply(
 
 void
 crofbase::send_set_config_message(
-	cofdpt *dpt,
+	crofdpt *dpt,
 	uint16_t flags,
 	uint16_t miss_send_len)
 {
@@ -1717,7 +1717,7 @@ crofbase::send_set_config_message(
 
 void
 crofbase::send_packet_out_message(
-	cofdpt *dpt,
+	crofdpt *dpt,
 	uint32_t buffer_id,
 	uint32_t in_port,
 	cofactions& aclist,
@@ -1748,7 +1748,7 @@ crofbase::send_packet_out_message(
 
 void
 crofbase::send_packet_in_message(
-	cofctl *ctl,
+	crofctl *ctl,
 	uint32_t buffer_id,
 	uint16_t total_len,
 	uint8_t reason,
@@ -1817,7 +1817,7 @@ crofbase::send_packet_in_message(
 			for (std::set<cfspentry*>::iterator
 					it = nse_list.begin(); it != nse_list.end(); ++it)
 			{
-				cofctl *ctl = dynamic_cast<cofctl*>( (*nse_list.begin())->fspowner );
+				crofctl *ctl = dynamic_cast<crofctl*>( (*nse_list.begin())->fspowner );
 				if (role_is_slave == ctl->get_role()) {
 					// entity has role slave
 					continue;
@@ -1865,7 +1865,7 @@ crofbase::send_packet_in_message(
 
 			bool no_active_ctl = true;
 
-			for (std::set<cofctl*>::iterator it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
+			for (std::set<crofctl*>::iterator it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
 
 				if (not (*it)->is_established()) {
 					continue;
@@ -1927,7 +1927,7 @@ crofbase::send_packet_in_message(
  */
 
 uint32_t
-crofbase::send_barrier_request(cofdpt *dpt)
+crofbase::send_barrier_request(crofdpt *dpt)
 {
 	uint8_t msg_type = 0;
 
@@ -1955,7 +1955,7 @@ crofbase::send_barrier_request(cofdpt *dpt)
 
 void
 crofbase::send_barrier_reply(
-		cofctl* ctl,
+		crofctl* ctl,
 		uint32_t xid)
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_barrier_reply()", this);
@@ -1995,7 +1995,7 @@ crofbase::send_barrier_reply(
 
 uint32_t
 crofbase::send_role_request(
-	cofdpt *dpt,
+	crofdpt *dpt,
 	uint32_t role,
 	uint64_t generation_id)
 {
@@ -2028,7 +2028,7 @@ crofbase::send_role_request(
 
 void
 crofbase::send_role_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint32_t role,
 		uint64_t generation_id)
@@ -2060,7 +2060,7 @@ crofbase::send_role_reply(
 
 void
 crofbase::send_error_message(
-	cofctl *ctl,
+	crofctl *ctl,
 	uint32_t xid,
 	uint16_t type,
 	uint16_t code,
@@ -2086,7 +2086,7 @@ crofbase::send_error_message(
 	}
 	else
 	{
-		for (std::set<cofctl*>::iterator
+		for (std::set<crofctl*>::iterator
 				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
 		{
 			if (not (*it)->is_established()) {
@@ -2109,7 +2109,7 @@ crofbase::send_error_message(
 
 void
 crofbase::send_error_message(
-	cofdpt *dpt,
+	crofdpt *dpt,
 	uint32_t xid,
 	uint16_t type,
 	uint16_t code,
@@ -2135,7 +2135,7 @@ crofbase::send_error_message(
 	}
 	else
 	{
-		for (std::set<cofdpt*>::iterator
+		for (std::set<crofdpt*>::iterator
 				it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 		{
 			cofmsg_error *pack =
@@ -2155,7 +2155,7 @@ crofbase::send_error_message(
 
 void
 crofbase::send_error_bad_request_bad_len(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2184,7 +2184,7 @@ crofbase::send_error_bad_request_bad_len(
 
 void
 crofbase::send_error_bad_request_bad_version(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2213,7 +2213,7 @@ crofbase::send_error_bad_request_bad_version(
 
 void
 crofbase::send_error_bad_request_bad_type(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2242,7 +2242,7 @@ crofbase::send_error_bad_request_bad_type(
 
 void
 crofbase::send_error_bad_request_bad_stat(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2271,7 +2271,7 @@ crofbase::send_error_bad_request_bad_stat(
 
 void
 crofbase::send_error_bad_request_bad_experimenter(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2300,7 +2300,7 @@ crofbase::send_error_bad_request_bad_experimenter(
 
 void
 crofbase::send_error_bad_request_bad_exp_type(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2329,7 +2329,7 @@ crofbase::send_error_bad_request_bad_exp_type(
 
 void
 crofbase::send_error_bad_request_eperm(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2358,7 +2358,7 @@ crofbase::send_error_bad_request_eperm(
 
 void
 crofbase::send_error_bad_request_buffer_empty(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2387,7 +2387,7 @@ crofbase::send_error_bad_request_buffer_empty(
 
 void
 crofbase::send_error_bad_request_buffer_unknown(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2416,7 +2416,7 @@ crofbase::send_error_bad_request_buffer_unknown(
 
 void
 crofbase::send_error_bad_request_bad_table_id(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2442,7 +2442,7 @@ crofbase::send_error_bad_request_bad_table_id(
 
 void
 crofbase::send_error_bad_request_is_slave(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2468,7 +2468,7 @@ crofbase::send_error_bad_request_is_slave(
 
 void
 crofbase::send_error_bad_request_bad_port(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2494,7 +2494,7 @@ crofbase::send_error_bad_request_bad_port(
 
 void
 crofbase::send_error_bad_request_bad_packet(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2520,7 +2520,7 @@ crofbase::send_error_bad_request_bad_packet(
 
 void
 crofbase::send_error_bad_action_bad_type(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2548,7 +2548,7 @@ crofbase::send_error_bad_action_bad_type(
 
 void
 crofbase::send_error_bad_action_bad_len(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2577,7 +2577,7 @@ crofbase::send_error_bad_action_bad_len(
 
 void
 crofbase::send_error_bad_action_bad_experimenter(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2606,7 +2606,7 @@ crofbase::send_error_bad_action_bad_experimenter(
 
 void
 crofbase::send_error_bad_action_bad_experimenter_type(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2635,7 +2635,7 @@ crofbase::send_error_bad_action_bad_experimenter_type(
 
 void
 crofbase::send_error_bad_action_bad_out_port(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2664,7 +2664,7 @@ crofbase::send_error_bad_action_bad_out_port(
 
 void
 crofbase::send_error_bad_action_bad_argument(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2693,7 +2693,7 @@ crofbase::send_error_bad_action_bad_argument(
 
 void
 crofbase::send_error_bad_action_eperm(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2722,7 +2722,7 @@ crofbase::send_error_bad_action_eperm(
 
 void
 crofbase::send_error_bad_action_too_many(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2751,7 +2751,7 @@ crofbase::send_error_bad_action_too_many(
 
 void
 crofbase::send_error_bad_action_bad_queue(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2780,7 +2780,7 @@ crofbase::send_error_bad_action_bad_queue(
 
 void
 crofbase::send_error_bad_action_bad_out_group(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2806,7 +2806,7 @@ crofbase::send_error_bad_action_bad_out_group(
 
 void
 crofbase::send_error_bad_action_match_inconsistent(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2832,7 +2832,7 @@ crofbase::send_error_bad_action_match_inconsistent(
 
 void
 crofbase::send_error_bad_action_unsupported_order(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2858,7 +2858,7 @@ crofbase::send_error_bad_action_unsupported_order(
 
 void
 crofbase::send_error_bad_action_bad_tag(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2884,7 +2884,7 @@ crofbase::send_error_bad_action_bad_tag(
 
 void
 crofbase::send_error_bad_inst_unknown_inst(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2910,7 +2910,7 @@ crofbase::send_error_bad_inst_unknown_inst(
 
 void
 crofbase::send_error_bad_inst_unsup_inst(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2936,7 +2936,7 @@ crofbase::send_error_bad_inst_unsup_inst(
 
 void
 crofbase::send_error_bad_inst_bad_table_id(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2962,7 +2962,7 @@ crofbase::send_error_bad_inst_bad_table_id(
 
 void
 crofbase::send_error_bad_inst_unsup_metadata(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -2988,7 +2988,7 @@ crofbase::send_error_bad_inst_unsup_metadata(
 
 void
 crofbase::send_error_bad_inst_unsup_metadata_mask(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3014,7 +3014,7 @@ crofbase::send_error_bad_inst_unsup_metadata_mask(
 
 void
 crofbase::send_error_bad_inst_unsup_exp_inst(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3040,7 +3040,7 @@ crofbase::send_error_bad_inst_unsup_exp_inst(
 
 void
 crofbase::send_error_bad_match_bad_type(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3066,7 +3066,7 @@ crofbase::send_error_bad_match_bad_type(
 
 void
 crofbase::send_error_bad_match_bad_len(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3092,7 +3092,7 @@ crofbase::send_error_bad_match_bad_len(
 
 void
 crofbase::send_error_bad_match_bad_tag(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3118,7 +3118,7 @@ crofbase::send_error_bad_match_bad_tag(
 
 void
 crofbase::send_error_bad_match_bad_dladdr_mask(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3144,7 +3144,7 @@ crofbase::send_error_bad_match_bad_dladdr_mask(
 
 void
 crofbase::send_error_bad_match_bad_nwaddr_mask(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3170,7 +3170,7 @@ crofbase::send_error_bad_match_bad_nwaddr_mask(
 
 void
 crofbase::send_error_bad_match_bad_wildcards(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3196,7 +3196,7 @@ crofbase::send_error_bad_match_bad_wildcards(
 
 void
 crofbase::send_error_bad_match_bad_field(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3222,7 +3222,7 @@ crofbase::send_error_bad_match_bad_field(
 
 void
 crofbase::send_error_bad_match_bad_value(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3248,7 +3248,7 @@ crofbase::send_error_bad_match_bad_value(
 
 void
 crofbase::send_error_hello_failed_incompatible(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3274,7 +3274,7 @@ crofbase::send_error_hello_failed_incompatible(
 
 void
 crofbase::send_error_hello_failed_eperm(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3300,7 +3300,7 @@ crofbase::send_error_hello_failed_eperm(
 
 void
 crofbase::send_error_switch_config_failed_bad_flags(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3326,7 +3326,7 @@ crofbase::send_error_switch_config_failed_bad_flags(
 
 void
 crofbase::send_error_switch_config_failed_bad_len(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3352,7 +3352,7 @@ crofbase::send_error_switch_config_failed_bad_len(
 
 void
 crofbase::send_error_flow_mod_failed_unknown(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3378,7 +3378,7 @@ crofbase::send_error_flow_mod_failed_unknown(
 
 void
 crofbase::send_error_flow_mod_failed_table_full(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3407,7 +3407,7 @@ crofbase::send_error_flow_mod_failed_table_full(
 
 void
 crofbase::send_error_flow_mod_failed_bad_table_id(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3433,7 +3433,7 @@ crofbase::send_error_flow_mod_failed_bad_table_id(
 
 void
 crofbase::send_error_flow_mod_failed_overlap(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3462,7 +3462,7 @@ crofbase::send_error_flow_mod_failed_overlap(
 
 void
 crofbase::send_error_flow_mod_failed_eperm(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3491,7 +3491,7 @@ crofbase::send_error_flow_mod_failed_eperm(
 
 void
 crofbase::send_error_flow_mod_failed_bad_timeout(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3520,7 +3520,7 @@ crofbase::send_error_flow_mod_failed_bad_timeout(
 
 void
 crofbase::send_error_flow_mod_failed_bad_command(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3549,7 +3549,7 @@ crofbase::send_error_flow_mod_failed_bad_command(
 
 void
 crofbase::send_error_group_mod_failed_group_exists(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3575,7 +3575,7 @@ crofbase::send_error_group_mod_failed_group_exists(
 
 void
 crofbase::send_error_group_mod_failed_inval_group(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3601,7 +3601,7 @@ crofbase::send_error_group_mod_failed_inval_group(
 
 void
 crofbase::send_error_group_mod_failed_weight_unsupported(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3627,7 +3627,7 @@ crofbase::send_error_group_mod_failed_weight_unsupported(
 
 void
 crofbase::send_error_group_mod_failed_out_of_groups(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3653,7 +3653,7 @@ crofbase::send_error_group_mod_failed_out_of_groups(
 
 void
 crofbase::send_error_group_mod_failed_out_of_buckets(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3679,7 +3679,7 @@ crofbase::send_error_group_mod_failed_out_of_buckets(
 
 void
 crofbase::send_error_group_mod_failed_chaining_unsupported(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3705,7 +3705,7 @@ crofbase::send_error_group_mod_failed_chaining_unsupported(
 
 void
 crofbase::send_error_group_mod_failed_watch_unsupported(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3731,7 +3731,7 @@ crofbase::send_error_group_mod_failed_watch_unsupported(
 
 void
 crofbase::send_error_group_mod_failed_loop(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3757,7 +3757,7 @@ crofbase::send_error_group_mod_failed_loop(
 
 void
 crofbase::send_error_group_mod_failed_unknown_group(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3783,7 +3783,7 @@ crofbase::send_error_group_mod_failed_unknown_group(
 
 void
 crofbase::send_error_group_mod_failed_chained_group(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3809,7 +3809,7 @@ crofbase::send_error_group_mod_failed_chained_group(
 
 void
 crofbase::send_error_group_mod_failed_bad_type(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3835,7 +3835,7 @@ crofbase::send_error_group_mod_failed_bad_type(
 
 void
 crofbase::send_error_group_mod_failed_bad_command(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3861,7 +3861,7 @@ crofbase::send_error_group_mod_failed_bad_command(
 
 void
 crofbase::send_error_group_mod_failed_bad_bucket(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3887,7 +3887,7 @@ crofbase::send_error_group_mod_failed_bad_bucket(
 
 void
 crofbase::send_error_group_mod_failed_bad_watch(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3913,7 +3913,7 @@ crofbase::send_error_group_mod_failed_bad_watch(
 
 void
 crofbase::send_error_group_mod_failed_eperm(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3939,7 +3939,7 @@ crofbase::send_error_group_mod_failed_eperm(
 
 void
 crofbase::send_error_port_mod_failed_bad_port(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3965,7 +3965,7 @@ crofbase::send_error_port_mod_failed_bad_port(
 
 void
 crofbase::send_error_port_mod_failed_bad_hw_addr(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -3991,7 +3991,7 @@ crofbase::send_error_port_mod_failed_bad_hw_addr(
 
 void
 crofbase::send_error_port_mod_failed_bad_config(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -4017,7 +4017,7 @@ crofbase::send_error_port_mod_failed_bad_config(
 
 void
 crofbase::send_error_port_mod_failed_bad_advertise(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -4043,7 +4043,7 @@ crofbase::send_error_port_mod_failed_bad_advertise(
 
 void
 crofbase::send_error_table_mod_failed_bad_table(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -4069,7 +4069,7 @@ crofbase::send_error_table_mod_failed_bad_table(
 
 void
 crofbase::send_error_table_mod_failed_bad_config(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -4095,7 +4095,7 @@ crofbase::send_error_table_mod_failed_bad_config(
 
 void
 crofbase::send_error_role_request_failed_stale(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -4121,7 +4121,7 @@ crofbase::send_error_role_request_failed_stale(
 
 void
 crofbase::send_error_role_request_failed_unsupported(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -4147,7 +4147,7 @@ crofbase::send_error_role_request_failed_unsupported(
 
 void
 crofbase::send_error_role_request_failed_bad_role(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -4173,7 +4173,7 @@ crofbase::send_error_role_request_failed_bad_role(
 
 void
 crofbase::send_error_hello_failed_incompatible(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -4199,7 +4199,7 @@ crofbase::send_error_hello_failed_incompatible(
 
 void
 crofbase::send_error_hello_failed_eperm(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen)
@@ -4237,7 +4237,7 @@ crofbase::send_error_hello_failed_eperm(
 
 void
 crofbase::send_flow_mod_message(
-	cofdpt *dpt,
+	crofdpt *dpt,
 	cofmatch& ofmatch,
 	uint64_t cookie,
 	uint64_t cookie_mask,
@@ -4281,7 +4281,7 @@ crofbase::send_flow_mod_message(
 
 void
 crofbase::send_flow_mod_message(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		cflowentry& fe)
 {
 	cofmsg_flow_mod *pack =
@@ -4318,7 +4318,7 @@ crofbase::send_flow_mod_message(
 
 void
 crofbase::send_group_mod_message(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		cgroupentry& ge)
 {
 	cofmsg_group_mod *pack =
@@ -4346,7 +4346,7 @@ crofbase::send_group_mod_message(
 
 void
 crofbase::send_port_mod_message(
-	cofdpt *dpt,
+	crofdpt *dpt,
 	uint32_t port_no,
 	cmacaddr const& hwaddr,
 	uint32_t config,
@@ -4380,7 +4380,7 @@ crofbase::send_port_mod_message(
 
 void
 crofbase::send_table_mod_message(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint8_t table_id,
 		uint32_t config)
 {
@@ -4408,7 +4408,7 @@ crofbase::send_table_mod_message(
 
 void
 crofbase::send_flow_removed_message(
-	cofctl *ctl,
+	crofctl *ctl,
 	cofmatch& ofmatch,
 	uint64_t cookie,
 	uint16_t priority,
@@ -4426,13 +4426,13 @@ crofbase::send_flow_removed_message(
 
 		//ofctrl_exists(ofctrl);
 
-		for (std::set<cofctl*>::iterator
+		for (std::set<crofctl*>::iterator
 				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
 		{
 			if (not (*it)->is_established()) {
 				continue;
 			}
-			cofctl *ofctrl = (*it);
+			crofctl *ofctrl = (*it);
 
 			if (ofctrl->is_slave())
 			{
@@ -4483,7 +4483,7 @@ crofbase::send_flow_removed_message(
 
 void
 crofbase::send_port_status_message(
-	cofctl *ctl,
+	crofctl *ctl,
 	uint8_t reason,
 	cofport const& port)
 {
@@ -4508,8 +4508,8 @@ crofbase::send_port_status_message(
 
 	} else {
 
-		std::map<cofbase*, cofctl*>::iterator it;
-		for (std::set<cofctl*>::iterator
+		std::map<cofbase*, crofctl*>::iterator it;
+		for (std::set<crofctl*>::iterator
 				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
 		{
 			if (not (*it)->is_established()) {
@@ -4544,7 +4544,7 @@ crofbase::send_port_status_message(
 
 uint32_t
 crofbase::send_queue_get_config_request(
-	cofdpt *dpt,
+	crofdpt *dpt,
 	uint32_t port)
 {
 	uint32_t xid = 0;
@@ -4576,7 +4576,7 @@ crofbase::send_queue_get_config_request(
 
 void
 crofbase::send_queue_get_config_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint32_t portno,
 		cofpacket_queue_list const& pql)
@@ -4607,7 +4607,7 @@ crofbase::send_queue_get_config_reply(
 
 uint32_t
 crofbase::send_experimenter_message(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		uint32_t experimenter_id,
 		uint32_t exp_type,
 		uint8_t* body,
@@ -4632,7 +4632,7 @@ crofbase::send_experimenter_message(
 
 	if (NULL == dpt) // send to all attached data path entities
 	{
-		for (std::set<cofdpt*>::iterator
+		for (std::set<crofdpt*>::iterator
 				it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
 		{
 			(*it)->send_message(new cofmsg(*msg));
@@ -4651,7 +4651,7 @@ crofbase::send_experimenter_message(
 
 uint32_t
 crofbase::send_experimenter_message(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t experimenter_id,
 		uint32_t exp_type,
 		uint8_t* body,
@@ -4674,9 +4674,9 @@ crofbase::send_experimenter_message(
 
 	logging::debug << "sending Experimenter message" << std::endl << *msg << std::endl;
 
-	if ((cofctl*)0 == ctl) // send to all attached controller entities
+	if ((crofctl*)0 == ctl) // send to all attached controller entities
 	{
-		for (std::set<cofctl*>::iterator
+		for (std::set<crofctl*>::iterator
 				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
 		{
 			if (not (*it)->is_established()) {
@@ -4704,7 +4704,7 @@ crofbase::send_experimenter_message(
  */
 uint32_t
 crofbase::send_get_async_config_request(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	uint32_t xid = 0;
 
@@ -4732,7 +4732,7 @@ crofbase::send_get_async_config_request(
 
 void
 crofbase::send_get_async_config_reply(
-		cofctl *ctl,
+		crofctl *ctl,
 		uint32_t xid,
 		uint32_t packet_in_mask0,
 		uint32_t packet_in_mask1,
@@ -4760,7 +4760,7 @@ crofbase::send_get_async_config_reply(
 
 
 void
-crofbase::handle_get_async_config_reply_timeout(cofdpt *dpt)
+crofbase::handle_get_async_config_reply_timeout(crofdpt *dpt)
 {
 
 }
@@ -4774,7 +4774,7 @@ crofbase::handle_get_async_config_reply_timeout(cofdpt *dpt)
 
 void
 crofbase::send_set_async_config_message(
-	cofdpt *dpt,
+	crofdpt *dpt,
 	uint32_t packet_in_mask0,
 	uint32_t packet_in_mask1,
 	uint32_t port_status_mask0,

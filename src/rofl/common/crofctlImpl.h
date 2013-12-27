@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COFCTLIMPL_H
-#define COFCTLIMPL_H 1
+#ifndef CROFCTLIMPL_H
+#define CROFCTLIMPL_H 1
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,8 +62,8 @@ namespace rofl
 {
 
 
-class cofctlImpl :
-	public cofctl,
+class crofctlImpl :
+	public crofctl,
 	public csocket_owner,
 	public ciosrv,
 	public cfsm,
@@ -138,7 +138,7 @@ public: // methods
 	 *
 	 * @param rofbase pointer to crofbase instance
 	 */
-	cofctlImpl(
+	crofctlImpl(
 			crofbase *rofbase);
 
 
@@ -154,7 +154,7 @@ public: // methods
 	 * @param type socket type
 	 * @param protocol socket protocol
 	 */
-	cofctlImpl(
+	crofctlImpl(
 			crofbase *rofbase,
 			int newsd,
 			caddress const& ra,
@@ -174,7 +174,7 @@ public: // methods
 	 * @param protocol socket protocol
 	 *
 	 */
-	cofctlImpl(
+	crofctlImpl(
 			crofbase *rofbase,
 			uint8_t ofp_version,
 			int reconnect_start_timeout,
@@ -189,7 +189,7 @@ public: // methods
 	 * @brief	Destructor.
 	 */
 	virtual
-	~cofctlImpl();
+	~crofctlImpl();
 
 
 	/**
@@ -555,7 +555,7 @@ private:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofctlImpl const& ctl) {
+	operator<< (std::ostream& os, crofctlImpl const& ctl) {
 		os << "<cofctlImpl ";
 		os << "ctid:0x" << std::hex << (unsigned long long)(ctl.ctid) << std::dec << " ";
 		os << "state:" << (enum cofctl_state_t)ctl.fsm_state << " ";

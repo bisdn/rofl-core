@@ -20,7 +20,7 @@ class queuetest :
 		QUEUETEST_TIMER_STATS_INTERVAL,
 	};
 
-	std::set<cofdpt*> 	dpaths;
+	std::set<crofdpt*> 	dpaths;
 
 public:
 
@@ -39,20 +39,20 @@ public:
 
 	virtual void
 	handle_dpath_open(
-			cofdpt *dpt);
+			crofdpt *dpt);
 
 	virtual void
 	handle_dpath_close(
-			cofdpt *dpt);
+			crofdpt *dpt);
 
 	virtual void
 	handle_queue_get_config_reply(
-			cofdpt *dpt,
+			crofdpt *dpt,
 			cofmsg_queue_get_config_reply *msg);
 
 	virtual void
 	handle_queue_stats_reply(
-			cofdpt *dpt,
+			crofdpt *dpt,
 			cofmsg_queue_stats_reply *msg);
 };
 

@@ -5,8 +5,8 @@
  *      Author: andreas
  */
 
-#ifndef COFDPTIMPL_H
-#define COFDPTIMPL_H 1
+#ifndef CROFDPTIMPL_H
+#define CROFDPTIMPL_H 1
 
 #include <map>
 #include <set>
@@ -67,8 +67,8 @@ namespace rofl
  * or grouptable entries.
  *
  */
-class cofdptImpl :
-	public cofdpt,
+class crofdptImpl :
+	public crofdpt,
 	public csocket_owner,
 	public ciosrv,
 	public cfsm
@@ -167,7 +167,7 @@ public:
 	 *
 	 * @param rofbase pointer to crofbase instance
 	 */
-	cofdptImpl(
+	crofdptImpl(
 			crofbase *rofbase);
 
 	/**
@@ -180,7 +180,7 @@ public:
 	 * @param type socket type
 	 * @param protocol socket protocol
 	 */
-	cofdptImpl(
+	crofdptImpl(
 			crofbase *rofbase,
 			int newsd,
 			caddress const& ra,
@@ -199,7 +199,7 @@ public:
 	 * @param type socket type
 	 * @param protocol socket protocol
 	 */
-	cofdptImpl(
+	crofdptImpl(
 			crofbase *rofbase,
 			uint8_t ofp_version,
 			int reconnect_start_timeout,
@@ -217,7 +217,7 @@ public:
 	 * exposed by the data path element.
 	 */
 	virtual
-	~cofdptImpl();
+	~crofdptImpl();
 
 
 
@@ -944,7 +944,7 @@ private:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofdptImpl const& dpt) {
+	operator<< (std::ostream& os, crofdptImpl const& dpt) {
 		os << indent(0) << "<cofdptImpl ";
 		os << "dpid:0x" << std::hex << (unsigned long long)(dpt.dpid) << std::dec << " ";
 		os << "state:" << (enum cofdpt_state_t)dpt.fsm_state << " ";

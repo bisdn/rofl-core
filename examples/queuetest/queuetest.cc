@@ -30,7 +30,7 @@ queuetest::handle_timeout(
 	case QUEUETEST_TIMER_GET_CONFIG_INTERVAL: {
 		register_timer(QUEUETEST_TIMER_GET_CONFIG_INTERVAL, 15);
 		fprintf(stderr, "C");
-		for (std::set<cofdpt*>::iterator
+		for (std::set<crofdpt*>::iterator
 				it = dpaths.begin(); it != dpaths.end(); ++it) {
 			send_queue_get_config_request((*it), openflow12::OFPP_ALL);
 		}
@@ -38,7 +38,7 @@ queuetest::handle_timeout(
 	case QUEUETEST_TIMER_STATS_INTERVAL: {
 		fprintf(stderr, "S");
 		register_timer(QUEUETEST_TIMER_STATS_INTERVAL, 5);
-		for (std::set<cofdpt*>::iterator
+		for (std::set<crofdpt*>::iterator
 				it = dpaths.begin(); it != dpaths.end(); ++it) {
 			send_queue_stats_request(
 					(*it),
@@ -59,7 +59,7 @@ queuetest::handle_timeout(
 
 void
 queuetest::handle_dpath_open(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	if (dpaths.empty()) {
 		reset_timer(QUEUETEST_TIMER_GET_CONFIG_INTERVAL, 1);
@@ -72,7 +72,7 @@ queuetest::handle_dpath_open(
 
 void
 queuetest::handle_dpath_close(
-		cofdpt *dpt)
+		crofdpt *dpt)
 {
 	dpaths.erase(dpt);
 }
@@ -81,7 +81,7 @@ queuetest::handle_dpath_close(
 
 void
 queuetest::handle_queue_get_config_reply(
-			cofdpt *dpt,
+			crofdpt *dpt,
 			cofmsg_queue_get_config_reply *msg)
 {
 	//fprintf(stderr, "queue-get-config-reply: msg:%p\n", msg);
@@ -95,7 +95,7 @@ queuetest::handle_queue_get_config_reply(
 
 void
 queuetest::handle_queue_stats_reply(
-			cofdpt *dpt,
+			crofdpt *dpt,
 			cofmsg_queue_stats_reply *msg)
 {
 	//fprintf(stderr, "queue-stats-reply: msg:%p\n", msg);

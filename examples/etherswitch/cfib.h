@@ -49,7 +49,7 @@ private:
 
 	uint64_t 								dpid;
 	rofl::crofbase							*rofbase;
-	rofl::cofdpt							*dpt;
+	rofl::crofdpt							*dpt;
 	std::map<rofl::cmacaddr, cfibentry*>	fibtable;
 
 public:
@@ -69,13 +69,13 @@ public:
 	 *
 	 */
 	void
-	dpt_bind(rofl::crofbase *rofbase, rofl::cofdpt *dpt);
+	dpt_bind(rofl::crofbase *rofbase, rofl::crofdpt *dpt);
 
 	/**
 	 *
 	 */
 	void
-	dpt_release(rofl::crofbase *rofbase = 0, rofl::cofdpt *dpt = 0);
+	dpt_release(rofl::crofbase *rofbase = 0, rofl::crofdpt *dpt = 0);
 
 	/**
 	 *
@@ -83,7 +83,7 @@ public:
 	void
 	fib_update(
 			rofl::crofbase *rofbase,
-			rofl::cofdpt *dpt,
+			rofl::crofdpt *dpt,
 			rofl::cmacaddr const& src,
 			uint32_t in_port);
 
@@ -93,7 +93,7 @@ public:
 	cfibentry&
 	fib_lookup(
 			rofl::crofbase *rofbase,
-			rofl::cofdpt *dpt,
+			rofl::crofdpt *dpt,
 			rofl::cmacaddr const& dst,
 			rofl::cmacaddr const& src,
 			uint32_t in_port);

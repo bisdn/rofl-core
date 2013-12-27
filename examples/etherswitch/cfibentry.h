@@ -50,7 +50,7 @@ private:
 	uint32_t					out_port_no;
 	rofl::cmacaddr				dst;
 	rofl::crofbase				*rofbase;
-	rofl::cofdpt				*dpt;
+	rofl::crofdpt				*dpt;
 	int							entry_timeout;
 
 public:
@@ -61,7 +61,7 @@ public:
 	cfibentry(
 			cfibtable *fib,
 			rofl::crofbase *rofbase,
-			rofl::cofdpt *dpt,
+			rofl::crofdpt *dpt,
 			rofl::cmacaddr dst,
 			uint32_t out_port_no);
 

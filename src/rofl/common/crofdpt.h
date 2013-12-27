@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef COFDPT_H
-#define COFDPT_H 1
+#ifndef CROFDPT_H
+#define CROFDPT_H 1
 
 #include <map>
 #include <set>
@@ -53,7 +53,7 @@ class crofbase;
  * or grouptable entries.
  *
  */
-class cofdpt :
+class crofdpt :
 	public cxidowner
 {
 public:
@@ -65,7 +65,7 @@ public:
 	 *
 	 * @param rofbase pointer to crofbase instance
 	 */
-	cofdpt(
+	crofdpt(
 			crofbase *rofbase = (crofbase*)0) {};
 
 
@@ -81,7 +81,7 @@ public:
 	 * @param type socket type
 	 * @param protocol socket protocol
 	 */
-	cofdpt(
+	crofdpt(
 			crofbase *rofbase,
 			int newsd,
 			caddress const& ra,
@@ -101,7 +101,7 @@ public:
 	 * @param type socket type
 	 * @param protocol socket protocol
 	 */
-	cofdpt(
+	crofdpt(
 			crofbase *rofbase,
 			uint8_t ofp_version,
 			int reconnect_start_timeout,
@@ -119,7 +119,7 @@ public:
 	 * exposed by the data path element.
 	 */
 	virtual
-	~cofdpt() {};
+	~crofdpt() {};
 
 
 
