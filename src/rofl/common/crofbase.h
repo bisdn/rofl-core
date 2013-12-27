@@ -32,10 +32,11 @@
 #include "crofdptImpl.h"
 #include "crofctl.h"
 #include "crofctlImpl.h"
+#include "cflowentry.h"
+#include "cgroupentry.h"
 
 #include "openflow/openflow.h"
 
-//#include "rofl/experimental/crib.h"
 #include "rofl/platform/unix/crandom.h"
 
 #include "openflow/cofport.h"
@@ -45,8 +46,6 @@
 #include "openflow/cofactions.h"
 #include "openflow/cofpacketqueuelist.h"
 #include "openflow/cofmatch.h"
-#include "openflow/cflowentry.h"
-#include "openflow/cgroupentry.h"
 #include "openflow/cofstats.h"
 #include "openflow/extensions/cfsptable.h"
 #include "openflow/openflow_rofl_exceptions.h"

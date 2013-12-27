@@ -45,6 +45,10 @@ librofl_common_la_SOURCES = \
 		crofdpt.h \
 		crofdptImpl.h \
 		crofdptImpl.cc \
+		cflowentry.h \
+		cflowentry.cc \
+		cgroupentry.h \
+		cgroupentry.cc \
 		logging.h \
 		logging.cc
 
@@ -76,6 +80,8 @@ library_include_HEADERS= \
 		fframe.h \
 		thread_helper.h \
 		cxidstore.h \
+		cflowentry.h \
+		cgroupentry.h \
 		logging.h
 
 

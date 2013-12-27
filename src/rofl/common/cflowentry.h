@@ -11,17 +11,17 @@
 #include <endian.h>
 #include <strings.h>
 
-#include "../croflexception.h"
-#include "../cmemory.h"
-#include "../caddress.h"
-#include "../cvastring.h"
+#include "croflexception.h"
+#include "cmemory.h"
+#include "caddress.h"
+#include "cvastring.h"
 #include "rofl/platform/unix/csyslog.h"
 
-#include "cofmatch.h"
-#include "cofaction.h"
-#include "cofinst.h"
-#include "cofinstructions.h"
-#include "coxmatch.h"
+#include "openflow/cofmatch.h"
+#include "openflow/cofaction.h"
+#include "openflow/cofinst.h"
+#include "openflow/cofinstructions.h"
+#include "openflow/coxmatch.h"
 
 namespace rofl
 {
