@@ -13,7 +13,9 @@ namespace openflow13 {
 
 	#define OFP13_VERSION   4
 
-	/* Header on all OpenFlow packets. */
+	// 7.1
+
+	/* 7.1 Header on all OpenFlow packets. */
 	struct ofp_header {
 	    uint8_t version;    /* OFP10_VERSION. */
 	    uint8_t type;       /* One of the OFP10T_ constants. */
@@ -24,40 +26,61 @@ namespace openflow13 {
 	};
 	OFP_ASSERT(sizeof(struct ofp_header) == 8);
 
+	enum ofp_type {
+		/* Immutable messages. */
+		OFPT_HELLO 					= 0,    /* Symmetric message */
+		OFPT_ERROR 					= 1,	/* Symmetric message */
+		OFPT_ECHO_REQUEST 			= 2,	/* Symmetric message */
+		OFPT_ECHO_REPLY				= 3,    /* Symmetric message */
+		OFPT_EXPERIMENTER			= 4,    /* Symmetric message */
 
-	/* OFPT_ERROR: Error message (datapath -> controller). */
-	struct ofp_error_msg {
-	    struct ofp_header header;
+		/* Switch configuration messages. */
+		OFPT_FEATURES_REQUEST		= 5,    /* Controller/switch message */
+		OFPT_FEATURES_REPLY			= 6,    /* Controller/switch message */
+		OFPT_GET_CONFIG_REQUEST		= 7,    /* Controller/switch message */
+		OFPT_GET_CONFIG_REPLY		= 8,    /* Controller/switch message */
+		OFPT_SET_CONFIG				= 9,    /* Controller/switch message */
 
-	    uint16_t type;
-	    uint16_t code;
-	    uint8_t data[0];          /* Variable-length data.  Interpreted based
-	                                 on the type and code.  No padding. */
+		/* Asynchronous messages. */
+		OFPT_PACKET_IN				= 10,   /* Async message */
+		OFPT_FLOW_REMOVED			= 11,   /* Async message */
+		OFPT_PORT_STATUS			= 12,   /* Async message */
+
+		/* Controller command messages. */
+		OFPT_PACKET_OUT				= 13,   /* Controller/switch message */
+		OFPT_FLOW_MOD				= 14,   /* Controller/switch message */
+		OFPT_GROUP_MOD				= 15,   /* Controller/switch message */
+		OFPT_PORT_MOD				= 16,   /* Controller/switch message */
+		OFPT_TABLE_MOD				= 17,   /* Controller/switch message */
+
+		/* Multipart messages. */
+		OFPT_MULTIPART_REQUEST		= 18,   /* Controller/switch message */
+		OFPT_MULTIPART_REPLY		= 19,   /* Controller/switch message */
+
+		/* Barrier messages. */
+		OFPT_BARRIER_REQUEST		= 20,   /* Controller/switch message */
+		OFPT_BARRIER_REPLY			= 21,   /* Controller/switch message */
+
+		/* Queue Configuration messages. */
+		OFPT_QUEUE_GET_CONFIG_REQUEST	= 22,  /* Controller/switch message */
+		OFPT_QUEUE_GET_CONFIG_REPLY		= 23,  /* Controller/switch message */
+
+		/* Controller role change request messages. */
+		OFPT_ROLE_REQUEST    		= 24, /* Controller/switch message */
+		OFPT_ROLE_REPLY				= 25, /* Controller/switch message */
+
+		/* Asynchronous message configuration. */
+		OFPT_GET_ASYNC_REQUEST		= 26, /* Controller/switch message */
+		OFPT_GET_ASYNC_REPLY		= 27, /* Controller/switch message */
+		OFPT_SET_ASYNC				= 28, /* Controller/switch message */
+
+		/* Meters and rate limiters configuration messages. */
+		OFPT_METER_MOD				= 29, /* Controller/switch message */
 	};
-	OFP_ASSERT(sizeof(struct ofp_error_msg) == 12);
 
+	// 7.2.1
 
-
-
-
-
-
-	/* Action header that is common to all actions.  The length includes the
-	 * header and any padding used to make the action 64-bit aligned.
-	 * NB: The length of an action *must* always be a multiple of eight. */
-	struct ofp_action_header {
-	    uint16_t type;                  /* One of OFPAT_*. */
-	    uint16_t len;                   /* Length of action, including this
-	                                       header.  This is the length of action,
-	                                       including any padding to make it
-	                                       64-bit aligned. */
-	    uint8_t pad[4];
-	};
-	OFP_ASSERT(sizeof(struct ofp_action_header) == 8);
-
-
-
-	/* Port numbering. Ports are numbered starting from 1. */
+	/* 7.2.1 Port numbering. Ports are numbered starting from 1. */
 	enum ofp_port_no {
 		/* Maximum number of physical switch ports. */
 		OFPP_MAX        = 0xffffff00,
@@ -82,142 +105,89 @@ namespace openflow13 {
 										  (including flows with no output port). */
 	};
 
-	enum ofp_buffer_t {
-		OFP_NO_BUFFER = 0xffffffff,
+	/* 7.2.1 Description of a port */
+	struct ofp_port {
+		uint32_t port_no;
+		uint8_t pad[4];
+		uint8_t hw_addr[OFP_ETH_ALEN];
+		uint8_t pad2[2];                  /* Align to 64 bits. */
+		char name[OFP_MAX_PORT_NAME_LEN]; /* Null-terminated */
+
+		uint32_t config;        /* Bitmap of OFPPC_* flags. */
+		uint32_t state;         /* Bitmap of OFPPS_* flags. */
+
+		/* Bitmaps of OFPPF_* that describe features.  All bits zeroed if
+		 * unsupported or unavailable. */
+		uint32_t curr;          /* Current features. */
+		uint32_t advertised;    /* Features being advertised by the port. */
+		uint32_t supported;     /* Features supported by the port. */
+		uint32_t peer;          /* Features advertised by peer. */
+
+		uint32_t curr_speed;    /* Current port bitrate in kbps. */
+		uint32_t max_speed;     /* Max port bitrate in kbps */
+	};
+	OFP_ASSERT(sizeof(struct ofp_port) == 64);
+
+	/* Flags to indicate behavior of the physical port.  These flags are
+	 * used in ofp_port to describe the current configuration.  They are
+	 * used in the ofp_port_mod message to configure the port's behavior.
+	 */
+	enum ofp_port_config {
+		OFPPC_PORT_DOWN    = 1 << 0,  /* Port is administratively down. */
+
+		OFPPC_NO_RECV      = 1 << 2,  /* Drop all packets received by port. */
+		OFPPC_NO_FWD       = 1 << 5,  /* Drop packets forwarded to port. */
+		OFPPC_NO_PACKET_IN = 1 << 6   /* Do not send packet-in msgs for port. */
 	};
 
-
-	/* Group numbering. Groups can use any number up to OFPG_MAX. */
-	enum ofp_group {
-		/* Last usable group number. */
-		OFPG_MAX        = 0xffffff00,
-
-		/* Fake groups. */
-		OFPG_ALL        = 0xfffffffc,  /* Represents all groups for group delete
-										  commands. */
-		OFPG_ANY        = 0xffffffff   /* Wildcard group used only for flow stats
-										  requests. Selects all flows regardless of
-										  group (including flows with no group).
-										  */
+	/* Current state of the physical port.  These are not configurable from
+	 * the controller.
+	 */
+	enum ofp_port_state {
+		OFPPS_LINK_DOWN    = 1 << 0,  /* No physical link present. */
+		OFPPS_BLOCKED      = 1 << 1,  /* Port is blocked */
+		OFPPS_LIVE         = 1 << 2,  /* Live for Fast Failover Group. */
 	};
 
+	/* Features of ports available in a datapath. */
+	enum ofp_port_features {
+		OFPPF_10MB_HD    = 1 << 0,  /* 10 Mb half-duplex rate support. */
+		OFPPF_10MB_FD    = 1 << 1,  /* 10 Mb full-duplex rate support. */
+		OFPPF_100MB_HD   = 1 << 2,  /* 100 Mb half-duplex rate support. */
+		OFPPF_100MB_FD   = 1 << 3,  /* 100 Mb full-duplex rate support. */
+		OFPPF_1GB_HD     = 1 << 4,  /* 1 Gb half-duplex rate support. */
+		OFPPF_1GB_FD     = 1 << 5,  /* 1 Gb full-duplex rate support. */
+		OFPPF_10GB_FD    = 1 << 6,  /* 10 Gb full-duplex rate support. */
+		OFPPF_40GB_FD    = 1 << 7,  /* 40 Gb full-duplex rate support. */
+		OFPPF_100GB_FD   = 1 << 8,  /* 100 Gb full-duplex rate support. */
+		OFPPF_1TB_FD     = 1 << 9,  /* 1 Tb full-duplex rate support. */
+		OFPPF_OTHER      = 1 << 10, /* Other rate, not in the list. */
 
-	enum ofp_type {
-		/* Immutable messages. */
-		OFPT_HELLO 					= 0,    /* Symmetric message */
-		OFPT_ERROR 					= 1,	/* Symmetric message */
-		OFPT_ECHO_REQUEST 			= 2,	/* Symmetric message */
-		OFPT_ECHO_REPLY				= 3,    /* Symmetric message */
-		OFPT_EXPERIMENTER				= 4,    /* Symmetric message */
-
-		/* Switch configuration messages. */
-		OFPT_FEATURES_REQUEST			= 5,    /* Controller/switch message */
-		OFPT_FEATURES_REPLY			= 6,    /* Controller/switch message */
-		OFPT_GET_CONFIG_REQUEST		= 7,    /* Controller/switch message */
-		OFPT_GET_CONFIG_REPLY			= 8,    /* Controller/switch message */
-		OFPT_SET_CONFIG				= 9,    /* Controller/switch message */
-
-		/* Asynchronous messages. */
-		OFPT_PACKET_IN				= 10,   /* Async message */
-		OFPT_FLOW_REMOVED				= 11,   /* Async message */
-		OFPT_PORT_STATUS				= 13,   /* Async message */
-
-		/* Controller command messages. */
-		OFPT_PACKET_OUT				= 13,   /* Controller/switch message */
-		OFPT_FLOW_MOD					= 14,   /* Controller/switch message */
-		OFPT_GROUP_MOD				= 15,   /* Controller/switch message */
-		OFPT_PORT_MOD					= 16,   /* Controller/switch message */
-		OFPT_TABLE_MOD				= 17,   /* Controller/switch message */
-
-		/* Multipart messages. */
-		OFPT_MULTIPART_REQUEST		= 18,   /* Controller/switch message */
-		OFPT_MULTIPART_REPLY			= 19,   /* Controller/switch message */
-
-		/* Statistics messages (up to and including OF1.2) */
-		OFPT_STATS_REQUEST			= 18,	/* Controller/switch message */
-		OFPT_STATS_REPLY				= 19,	/* Controller/switch message */
-
-		/* Barrier messages. */
-		OFPT_BARRIER_REQUEST			= 20,   /* Controller/switch message */
-		OFPT_BARRIER_REPLY			= 21,   /* Controller/switch message */
-
-		/* Queue Configuration messages. */
-		OFPT_QUEUE_GET_CONFIG_REQUEST	= 22,  /* Controller/switch message */
-		OFPT_QUEUE_GET_CONFIG_REPLY	= 23,  /* Controller/switch message */
-
-		/* Controller role change request messages. */
-		OFPT_ROLE_REQUEST    			= 24, /* Controller/switch message */
-		OFPT_ROLE_REPLY				= 25, /* Controller/switch message */
-
-		/* Asynchronous message configuration. */
-		OFPT_GET_ASYNC_REQUEST		= 26, /* Controller/switch message */
-		OFPT_GET_ASYNC_REPLY			= 27, /* Controller/switch message */
-		OFPT_SET_ASYNC				= 28, /* Controller/switch message */
-
-		/* Meters and rate limiters configuration messages. */
-		OFPT_METER_MOD				= 29, /* Controller/switch message */
+		OFPPF_COPPER     = 1 << 11, /* Copper medium. */
+		OFPPF_FIBER      = 1 << 12, /* Fiber medium. */
+		OFPPF_AUTONEG    = 1 << 13, /* Auto-negotiation. */
+		OFPPF_PAUSE      = 1 << 14, /* Pause. */
+		OFPPF_PAUSE_ASYM = 1 << 15  /* Asymmetric pause. */
 	};
 
-
-
-	// A.1 OpenFlow Header
-
-	/* unaltered since OpenFlow 1.2, new message types defined */
-
-
-
+	// 7.2.2
 
 	/* All ones is used to indicate all queues in a port (for stats retrieval). */
-	#define OFPQ_ALL      0xffffffff
+	#define OFPQ_ALL      			0xffffffff
 
 	/* Min rate > 1000 means not configured. */
-	#define OFPQ_MIN_RATE_UNCFG      0xffff
+	#define OFPQ_MIN_RATE_UNCFG     0xffff
 
 	enum ofp_queue_properties {
-		OFPQT_NONE = 0,       /* No property defined for queue (default). */
-		OFPQT_MIN_RATE = 1,       /* Minimum datarate guaranteed. */
+		OFPQT_MIN_RATE 	= 1,  /* Minimum datarate guaranteed. */
 							  /* Other types should be added here
 							   * (i.e. max rate, precedence, etc). */
-		OFPQT_MAX_RATE = 2,
+		OFPQT_MAX_RATE 	= 2,
 		OFPQT_EXPERIMENTER = 0xffff,
 	};
 
-	/* Common description for a queue. */
-	struct ofp_queue_prop_header {
-		uint16_t property;    /* One of OFPQT_. */
-		uint16_t len;         /* Length of property, including this header. */
-		uint8_t pad[4];       /* 64-bit alignemnt. */
-	};
-	OFP_ASSERT(sizeof(struct ofp_queue_prop_header) == 8);
-
-
-	/* Min-Rate queue property description. */
-	struct ofp_queue_prop_min_rate {
-		struct ofp_queue_prop_header prop_header; /* prop: OFPQT_MIN, len: 16. */
-		uint16_t rate;        			/* In 1/10 of a percent; >1000 -> disabled. */
-		uint8_t pad[6];       			/* 64-bit alignment */
-	};
-	OFP_ASSERT(sizeof(struct ofp_queue_prop_min_rate) == 16);
-
-
-	/* Max-Rate queue property description. */
-	struct ofp_queue_prop_max_rate {
-		struct ofp_queue_prop_header prop_header; /* prop: OFPQT_MAX, len: 16. */
-		uint16_t rate;					/* In 1/10 of a percent; >1000 -> disabled. */
-		uint8_t pad[6];					/* 64-bit alignment */
-	};
-	OFP_ASSERT(sizeof(struct ofp_queue_prop_max_rate) == 16);
-
-
-	/* Experimenter queue property description. */
-	struct ofp_queue_prop_experimenter {
-		struct ofp_queue_prop_header prop_header; /* prop: OFPQT_EXPERIMENTER, len: 16. */
-		uint32_t experimenter;			/* Experimenter ID which takes the same form as in struct ofp_experimenter_header. */
-		uint8_t pad[4];					/* 64-bit alignment */
-		uint8_t data[0];				/* Experimenter defined data. */
-	};
-	OFP_ASSERT(sizeof(struct ofp_queue_prop_experimenter) == 16);
-
+	/* forward declaration */
+	struct ofp_queue_prop_header;
 
 	/* Full description for a queue. */
 	struct ofp_packet_queue {
@@ -229,11 +199,94 @@ namespace openflow13 {
 	};
 	OFP_ASSERT(sizeof(struct ofp_packet_queue) == 16);
 
+	/* Common description for a queue. */
+	struct ofp_queue_prop_header {
+		uint16_t property;    /* One of OFPQT_. */
+		uint16_t len;         /* Length of property, including this header. */
+		uint8_t pad[4];       /* 64-bit alignemnt. */
+	};
+	OFP_ASSERT(sizeof(struct ofp_queue_prop_header) == 8);
+
+	/* Min-Rate queue property description. */
+	struct ofp_queue_prop_min_rate {
+		struct ofp_queue_prop_header prop_header; /* prop: OFPQT_MIN, len: 16. */
+		uint16_t rate;        			/* In 1/10 of a percent; >1000 -> disabled. */
+		uint8_t pad[6];       			/* 64-bit alignment */
+	};
+	OFP_ASSERT(sizeof(struct ofp_queue_prop_min_rate) == 16);
+
+	/* Max-Rate queue property description. */
+	struct ofp_queue_prop_max_rate {
+		struct ofp_queue_prop_header prop_header; /* prop: OFPQT_MAX, len: 16. */
+		uint16_t rate;					/* In 1/10 of a percent; >1000 -> disabled. */
+		uint8_t pad[6];					/* 64-bit alignment */
+	};
+	OFP_ASSERT(sizeof(struct ofp_queue_prop_max_rate) == 16);
+
+	/* Experimenter queue property description. */
+	struct ofp_queue_prop_experimenter {
+		struct ofp_queue_prop_header prop_header; /* prop: OFPQT_EXPERIMENTER, len: 16. */
+		uint32_t experimenter;			/* Experimenter ID which takes the same form as in struct ofp_experimenter_header. */
+		uint8_t pad[4];					/* 64-bit alignment */
+		uint8_t data[0];				/* Experimenter defined data. */
+	};
+	OFP_ASSERT(sizeof(struct ofp_queue_prop_experimenter) == 16);
+
+
+
+	// 7.2.3
+
+	/* Fields to match against flows */
+	struct ofp_match {
+		uint16_t type;			/* One of OFPMT_* */
+		uint16_t length;		/* Length of ofp_match (excluding padding) */
+		/* Followed by:
+		 * - Exactly (length - 4) (possibly 0) bytes containing OXM TLVs, then
+		 * - Exactly ((length + 7)/8*8 - length) (between 0 and 7) bytes of
+		 * all-zero bytes
+		 * In summary, ofp_match is padded as needed, to make its overall size
+		 * a multiple of 8, to preserve alignment in structures using it.
+		 */
+		uint8_t oxm_fields[0];	/* 0 or more OXM match fields */
+		uint8_t pad[4];			/* Zero bytes - see above for sizing */
+	};
+	OFP_ASSERT(sizeof(struct ofp_match) == 8);
+
+	/* length of static part of ofp_match header */
+	static int const OFP_MATCH_STATIC_LEN = 2 * sizeof(uint16_t);
+
+	/* The match type indicates the match structure (set of fields that compose the
+	* match) in use. The match type is placed in the type field at the beginning
+	* of all match structures. The "OpenFlow Extensible Match" type corresponds
+	* to OXM TLV format described below and must be supported by all OpenFlow
+	* switches. Extensions that define other match types may be published on the
+	* ONF wiki. Support for extensions is optional.
+	*/
+	enum ofp_match_type {
+		OFPMT_STANDARD = 0, /* Deprecated. */
+		OFPMT_OXM = 1, 		/* OpenFlow Extensible Match */
+	};
+
+	// 7.2.3.3
+
+	/* OXM Class IDs.
+	 * The high order bit differentiate reserved classes from member classes.
+	 * Classes 0x0000 to 0x7FFF are member classes, allocated by ONF.
+	 * Classes 0x8000 to 0xFFFE are reserved classes, reserved for standardisation.
+	 */
+	enum ofp_oxm_class {
+		OFPXMC_NXM_0			= 0x0000, 	/* Backward compatibility with NXM */
+		OFPXMC_NXM_1			= 0x0001,	/* Backward compatibility with NXM */
+		OFPXMC_OPENFLOW_BASIC	= 0x8000,	/* Basic class for OpenFlow */
+		OFPXMC_EXPERIMENTER		= 0xFFFF,	/* Experimenter class */
+	};
+
+	// 7.2.3.7
+
 
 
 	/* OXM Flow match field types for OpenFlow basic class. */
 	enum ofp_oxm_ofb_match_fields {
-	#if 0
 		OFPXMT_OFB_IN_PORT = 0,			/* Switch input port. */				// required
 		OFPXMT_OFB_IN_PHY_PORT = 1,		/* Switch physical input port. */
 		OFPXMT_OFB_METADATA = 2,		/* Metadata passed between tables. */
@@ -270,21 +323,100 @@ namespace openflow13 {
 		OFPXMT_OFB_IPV6_ND_TLL = 33,	/* Target link-layer for ND. */
 		OFPXMT_OFB_MPLS_LABEL = 34,		/* MPLS label. */
 		OFPXMT_OFB_MPLS_TC = 35,		/* MPLS TC. */
-	#endif
 		OFPXMT_OFP_MPLS_BOS = 36,		/* MPLS BoS bit. */
 		OFPXMT_OFB_PBB_ISID = 37,		/* PBB I-SID. */
 		OFPXMT_OFB_TUNNEL_ID = 38,		/* Logical Port Metadata. */
 		OFPXMT_OFB_IPV6_EXTHDR = 39,	/* IPv6 Extension Header pseudo-field */
-	#if 0
-		/* PPP/PPPoE related extensions */
-		OFPXMT_OFB_PPPOE_CODE = 40,		/* PPPoE code */
-		OFPXMT_OFB_PPPOE_TYPE = 41,		/* PPPoE type */
-		OFPXMT_OFB_PPPOE_SID = 42,		/* PPPoE session id */
-		OFPXMT_OFB_PPP_PROT = 43,		/* PPP protocol */
 		/* max value */
 		OFPXMT_OFB_MAX,
-	#endif
 	};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/* OFPT_ERROR: Error message (datapath -> controller). */
+	struct ofp_error_msg {
+	    struct ofp_header header;
+
+	    uint16_t type;
+	    uint16_t code;
+	    uint8_t data[0];          /* Variable-length data.  Interpreted based
+	                                 on the type and code.  No padding. */
+	};
+	OFP_ASSERT(sizeof(struct ofp_error_msg) == 12);
+
+
+
+
+
+
+
+	/* Action header that is common to all actions.  The length includes the
+	 * header and any padding used to make the action 64-bit aligned.
+	 * NB: The length of an action *must* always be a multiple of eight. */
+	struct ofp_action_header {
+	    uint16_t type;                  /* One of OFPAT_*. */
+	    uint16_t len;                   /* Length of action, including this
+	                                       header.  This is the length of action,
+	                                       including any padding to make it
+	                                       64-bit aligned. */
+	    uint8_t pad[4];
+	};
+	OFP_ASSERT(sizeof(struct ofp_action_header) == 8);
+
+
+	enum ofp_buffer_t {
+		OFP_NO_BUFFER = 0xffffffff,
+	};
+
+
+	/* Group numbering. Groups can use any number up to OFPG_MAX. */
+	enum ofp_group {
+		/* Last usable group number. */
+		OFPG_MAX        = 0xffffff00,
+
+		/* Fake groups. */
+		OFPG_ALL        = 0xfffffffc,  /* Represents all groups for group delete
+										  commands. */
+		OFPG_ANY        = 0xffffffff   /* Wildcard group used only for flow stats
+										  requests. Selects all flows regardless of
+										  group (including flows with no group).
+										  */
+	};
+
+
+
+
+	// A.1 OpenFlow Header
+
+	/* unaltered since OpenFlow 1.2, new message types defined */
+
+
+
+
+
+
+
 
 
 	/* Bit definitions for IPv6 Extension Header pseudo-field. */
@@ -507,36 +639,6 @@ namespace openflow13 {
 
 
 
-	/* Fields to match against flows */
-	struct ofp_match {
-		uint16_t type;			/* One of OFPMT_* */
-		uint16_t length;		/* Length of ofp_match (excluding padding) */
-		/* Followed by:
-		 * - Exactly (length - 4) (possibly 0) bytes containing OXM TLVs, then
-		 * - Exactly ((length + 7)/8*8 - length) (between 0 and 7) bytes of
-		 * all-zero bytes
-		 * In summary, ofp_match is padded as needed, to make its overall size
-		 * a multiple of 8, to preserve alignement in structures using it.
-		 */
-		uint8_t oxm_fields[4];
-		/* OXMs start here - Make compiler happy */
-	};
-	OFP_ASSERT(sizeof(struct ofp_match) == 8);
-
-	static int const OFP_MATCH_STATIC_LEN = 2 * sizeof(uint16_t);
-
-	/* The match type indicates the match structure (set of fields that compose the
-	* match) in use. The match type is placed in the type field at the beginning
-	* of all match structures. The "OpenFlow Extensible Match" type corresponds
-	* to OXM TLV format described below and must be supported by all OpenFlow
-	* switches. Extensions that define other match types may be published on the
-	* ONF wiki. Support for extensions is optional.
-	*/
-	enum ofp_match_type {
-		OFPMT_STANDARD = 0, /* Deprecated. */
-		OFPMT_OXM = 1, 		/* OpenFlow Extensible Match */
-	};
-
 
 	struct ofp_oxm_hdr {
 		uint16_t oxm_class;		/* oxm_class */
@@ -633,17 +735,6 @@ namespace openflow13 {
 	};
 
 
-	/* OXM Class IDs.
-	 * The high order bit differentiate reserved classes from member classes.
-	 * Classes 0x0000 to 0x7FFF are member classes, allocated by ONF.
-	 * Classes 0x8000 to 0xFFFE are reserved classes, reserved for standardisation.
-	 */
-	enum ofp_oxm_class {
-		OFPXMC_NXM_0			= 0x0000, 	/* Backward compatibility with NXM */
-		OFPXMC_NXM_1			= 0x0001,	/* Backward compatibility with NXM */
-		OFPXMC_OPENFLOW_BASIC	= 0x8000,	/* Basic class for OpenFlow */
-		OFPXMC_EXPERIMENTER		= 0xFFFF,	/* Experimenter class */
-	};
 
 
 	/* OXM Flow match field types for OpenFlow basic class. */
@@ -1378,31 +1469,6 @@ namespace openflow13 {
 	OFP_ASSERT(sizeof(struct ofp_port_stats) == 112);
 
 
-	// A3.5.7 Port Description
-
-
-	/* Description of a port */
-	struct ofp_port {
-		uint32_t port_no;
-		uint8_t pad[4];
-		uint8_t hw_addr[OFP_ETH_ALEN];
-		uint8_t pad2[2];                  /* Align to 64 bits. */
-		char name[OFP_MAX_PORT_NAME_LEN]; /* Null-terminated */
-
-		uint32_t config;        /* Bitmap of OFPPC_* flags. */
-		uint32_t state;         /* Bitmap of OFPPS_* flags. */
-
-		/* Bitmaps of OFPPF_* that describe features.  All bits zeroed if
-		 * unsupported or unavailable. */
-		uint32_t curr;          /* Current features. */
-		uint32_t advertised;    /* Features being advertised by the port. */
-		uint32_t supported;     /* Features supported by the port. */
-		uint32_t peer;          /* Features advertised by peer. */
-
-		uint32_t curr_speed;    /* Current port bitrate in kbps. */
-		uint32_t max_speed;     /* Max port bitrate in kbps */
-	};
-	OFP_ASSERT(sizeof(struct ofp_port) == 64);
 
 
 	// A3.5.8 Queue Statistics
