@@ -11,7 +11,7 @@
 #include <ostream>
 
 #include "../cmemory.h"
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "openflow.h"
 #include "openflow_rofl_exceptions.h"
 

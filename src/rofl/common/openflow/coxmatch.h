@@ -22,7 +22,7 @@
 
 #include "openflow.h"
 #include "../cvastring.h"
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "../cmemory.h"
 #include "../cmacaddr.h"
 #include "../caddress.h"

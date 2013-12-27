@@ -10,7 +10,7 @@
 #include <algorithm>
 
 #include "cvastring.h"
-#include "cerror.h"
+#include "croflexception.h"
 #include "logging.h"
 
 #include "rofl/platform/unix/csyslog.h"

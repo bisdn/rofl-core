@@ -10,7 +10,7 @@
 #include <string>
 #include <iostream>
 
-#include "cerror.h"
+#include "croflexception.h"
 #include "cmemory.h"
 #include "cvastring.h"
 #include "rofl/platform/unix/csyslog.h"

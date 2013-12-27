@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-#include "cerror.h"
+#include "croflexception.h"
 
 
 namespace rofl

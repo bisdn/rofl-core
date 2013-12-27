@@ -9,7 +9,7 @@
 #define COFQUEUEPROPLIST_H_ 1
 
 #include "../cvastring.h"
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "../coflist.h"
 #include "openflow.h"
 

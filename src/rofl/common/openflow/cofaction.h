@@ -14,7 +14,7 @@
 #endif
 
 #include "openflow.h"
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "../cmemory.h"
 #include "../cmacaddr.h"
 #include "../cvastring.h"

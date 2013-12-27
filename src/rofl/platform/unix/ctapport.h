@@ -16,7 +16,7 @@
 #include <string>
 
 #include "rofl/common/cpacket.h"
-#include "rofl/common/cerror.h"
+#include "rofl/common/croflexception.h"
 #include "rofl/common/csocket.h"
 
 #include "clinuxport.h"

@@ -14,7 +14,7 @@
 
 #include "../platform/unix/csyslog.h"
 #include "cvastring.h"
-#include "cerror.h"
+#include "croflexception.h"
 #include "logging.h"
 
 namespace rofl

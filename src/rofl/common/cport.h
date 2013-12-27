@@ -20,7 +20,7 @@
 
 #include "ciosrv.h"
 #include "cpacket.h"
-#include "cerror.h"
+#include "croflexception.h"
 #include "cmacaddr.h"
 #include "thread_helper.h"
 #include "cvastring.h"

@@ -22,7 +22,7 @@
 #include <sys/uio.h>
 #include <assert.h>
 
-#include "cerror.h"
+#include "croflexception.h"
 #include "cclock.h"
 #include "fframe.h"
 #include "cmacaddr.h"

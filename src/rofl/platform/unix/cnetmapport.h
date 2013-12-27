@@ -21,7 +21,7 @@
 
 #include "rofl/common/cvastring.h"
 #include "rofl/common/ciosrv.h"
-#include "rofl/common/cerror.h"
+#include "rofl/common/croflexception.h"
 #include "clinuxport.h"
 
 #ifndef HARDWARE

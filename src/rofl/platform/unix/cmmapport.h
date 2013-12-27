@@ -30,7 +30,7 @@
 #include "rofl/common/cpacket.h"
 #include "rofl/common/thread_helper.h"
 #include "rofl/common/caddress.h"
-#include "rofl/common/cerror.h"
+#include "rofl/common/croflexception.h"
 #include "rofl/common/csocket.h" // for csocket error types
 #include <rofl/platform/unix/clinuxport.h>
 

@@ -15,7 +15,7 @@
 #include <map>
 
 #include <rofl/common/ciosrv.h>
-#include <rofl/common/cerror.h>
+#include <rofl/common/croflexception.h>
 #include <rofl/common/cclock.h>
 #include <rofl/common/cvalue.h>
 

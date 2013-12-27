@@ -9,7 +9,7 @@
 #include <string>
 
 #include "openflow.h"
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "../cmemory.h"
 #include "../crofbase.h"
 #include "../cxidstore.h"

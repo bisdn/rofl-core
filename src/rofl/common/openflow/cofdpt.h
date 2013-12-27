@@ -13,7 +13,7 @@
 #include <strings.h>
 
 
-#include "rofl/common/cerror.h"
+#include "rofl/common/croflexception.h"
 #include "rofl/common/crofbase.h"
 #include "rofl/common/cmemory.h"
 #include "rofl/common/cxidstore.h"

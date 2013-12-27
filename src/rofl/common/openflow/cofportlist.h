@@ -8,7 +8,7 @@
 #include <algorithm>
 
 #include "../cvastring.h"
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "../coflist.h"
 #include "openflow.h"
 

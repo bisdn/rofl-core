@@ -10,7 +10,7 @@
 
 #include "../ciosrv.h"
 #include "../caddress.h"
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "../cmemory.h"
 #include "../cvastring.h"
 

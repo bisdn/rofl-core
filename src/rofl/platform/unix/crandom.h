@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <assert.h>
 
-#include "rofl/common/cerror.h"
+#include "rofl/common/croflexception.h"
 #include "rofl/common/cmemory.h"
 
 namespace rofl

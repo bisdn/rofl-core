@@ -18,7 +18,7 @@
 #include "openflow.h"
 #include "../cvastring.h"
 #include "../cmemory.h"
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "../cmacaddr.h"
 #include "../coflist.h"
 #include "rofl/platform/unix/csyslog.h"

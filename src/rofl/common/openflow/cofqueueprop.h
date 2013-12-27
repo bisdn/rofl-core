@@ -24,7 +24,7 @@ extern "C" {
 
 #include "openflow_rofl_exceptions.h"
 #include "../cmemory.h"
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "openflow.h"
 
 namespace rofl

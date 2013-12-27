@@ -15,7 +15,7 @@
 	#include "../../endian_conversion.h"
 #endif
 
-#include "rofl/common/cerror.h"
+#include "rofl/common/croflexception.h"
 #include "rofl/common/cvastring.h"
 #include "rofl/common/fframe.h"
 #include "rofl/common/cpacket.h"

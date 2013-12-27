@@ -15,7 +15,7 @@
 #include <pthread.h>
 #include <inttypes.h>
 
-#include "cerror.h"
+#include "croflexception.h"
 #include "rofl/platform/unix/csyslog.h"
 
 namespace rofl

@@ -17,7 +17,7 @@
 #include "openflow.h"
 #include "../cmemory.h"
 #include "../caddress.h"
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "../cmacaddr.h"
 #include "../cvastring.h"
 #include "../openflow/openflow_rofl_exceptions.h"

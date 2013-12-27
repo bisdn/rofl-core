@@ -10,7 +10,7 @@
 #include <fcntl.h>
 #include <inttypes.h>
 
-#include "rofl/common/cerror.h"
+#include "rofl/common/croflexception.h"
 #include "csyslog.h"
 
 namespace rofl

@@ -15,7 +15,7 @@
 #endif
 
 #include "openflow.h"
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "../cmemory.h"
 #include "cofactions.h"
 

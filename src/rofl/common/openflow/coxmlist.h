@@ -20,7 +20,7 @@
 #include <algorithm>
 
 #include "../cmemory.h"
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "../cvastring.h"
 #include "rofl/platform/unix/csyslog.h"
 #include "../openflow/openflow_rofl_exceptions.h"

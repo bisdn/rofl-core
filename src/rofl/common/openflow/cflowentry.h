@@ -11,7 +11,7 @@
 #include <endian.h>
 #include <strings.h>
 
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "../cmemory.h"
 #include "../caddress.h"
 #include "../cvastring.h"

@@ -11,7 +11,7 @@
 #endif
 
 #include "../../cmemory.h"
-#include "../../cerror.h"
+#include "../../croflexception.h"
 #include "../../cvastring.h"
 #include "../../coflist.h"
 

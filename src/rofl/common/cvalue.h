@@ -16,7 +16,7 @@
 #include <inttypes.h>
 
 #include "cmemory.h"
-#include "cerror.h"
+#include "croflexception.h"
 
 namespace rofl
 {

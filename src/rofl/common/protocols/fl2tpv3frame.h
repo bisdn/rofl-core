@@ -16,7 +16,7 @@
 
 #include "../openflow/openflow.h"
 #include "../fframe.h"
-#include "../cerror.h"
+#include "../croflexception.h"
 
 
 namespace rofl
