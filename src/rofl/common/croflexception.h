@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef CERROR_H
-#define CERROR_H
+#ifndef CROFLEXCEPTION_H
+#define CROFLEXCEPTION_H
 
 #include <set>
 #include <string>
