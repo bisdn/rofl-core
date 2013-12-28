@@ -69,6 +69,10 @@ class eBadMatchBadNwAddrMask		: public eBadMatchBase {};		// OFPBMC_BAD_NW_ADDR_
 class eBadMatchBadWildcards			: public eBadMatchBase {};		// OFPBMC_BAD_WILDCARDS
 class eBadMatchBadField				: public eBadMatchBase {};		// OFPBMC_BAD_FIELD
 class eBadMatchBadValue				: public eBadMatchBase {};		// OFPBMC_BAD_VALUE
+class eBadMatchBadMask				: public eBadMatchBase {};		// OFPBMC_BAD_MASK
+class eBadMatchBadPrereq			: public eBadMatchBase {};		// OFPBMC_BAD_PREREQ
+class eBadMatchDupField				: public eBadMatchBase {};		// OFPBMC_DUP_FIELD
+class eBadMatchEPerm				: public eBadMatchBase {};		// OFPBMC_EPERM
 
 /* exceptions for flow-mod tables and flow-mod entries according to OpenFlow */
 class eFlowModBase					: public eOpenFlowBase {};

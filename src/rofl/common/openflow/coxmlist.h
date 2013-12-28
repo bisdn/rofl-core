@@ -144,8 +144,12 @@ public:
 		insert(
 				coxmatch const& oxm);
 
-
-
+		/**
+		 *
+		 */
+		bool
+		has_match(
+				uint16_t ofm_class, uint8_t ofm_field) const;
 
 		/**
 		 *
@@ -154,19 +158,12 @@ public:
 		get_match(
 				uint16_t ofm_class, uint8_t ofm_field);
 
-
-
-
 		/**
 		 *
 		 */
 		coxmatch const&
 		get_const_match(
 				uint16_t ofm_class, uint8_t ofm_field) const;
-
-
-
-
 
 		/**
 		 *

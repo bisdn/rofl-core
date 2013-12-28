@@ -323,7 +323,7 @@ namespace openflow13 {
 		OFPXMT_OFB_IPV6_ND_TLL = 33,	/* Target link-layer for ND. */
 		OFPXMT_OFB_MPLS_LABEL = 34,		/* MPLS label. */
 		OFPXMT_OFB_MPLS_TC = 35,		/* MPLS TC. */
-		OFPXMT_OFP_MPLS_BOS = 36,		/* MPLS BoS bit. */
+		OFPXMT_OFB_MPLS_BOS = 36,		/* MPLS BoS bit. */
 		OFPXMT_OFB_PBB_ISID = 37,		/* PBB I-SID. */
 		OFPXMT_OFB_TUNNEL_ID = 38,		/* Logical Port Metadata. */
 		OFPXMT_OFB_IPV6_EXTHDR = 39,	/* IPv6 Extension Header pseudo-field */
@@ -2040,23 +2040,27 @@ namespace openflow13 {
 									  unsupported. */
 	};
 
-	/* ofp_error_msg 'code' values for OFPET_BAD_MATCH.  'data' contains at least
-	 * the first 64 bytes of the failed request. */
+	/* ofp_error_msg 'code' values for OFPET_BAD_MATCH. 'data' contains at least
+	* the first 64 bytes of the failed request. */
 	enum ofp_bad_match_code {
-		OFPBMC_BAD_TYPE,            /* Unsupported match type specified by the
-									   match */
-		OFPBMC_BAD_LEN,             /* Length problem in match. */
-		OFPBMC_BAD_TAG,             /* Match uses an unsupported tag/encap. */
-		OFPBMC_BAD_DL_ADDR_MASK,    /* Unsupported datalink addr mask - switch does
-									   not support arbitrary datalink address
-									   mask. */
-		OFPBMC_BAD_NW_ADDR_MASK,    /* Unsupported network addr mask - switch does
-									   not support arbitrary network address
-									   mask. */
-		OFPBMC_BAD_WILDCARDS,       /* Unsupported wildcard specified in the
-									   match. */
-		OFPBMC_BAD_FIELD,		/* Unsupported field in the match. */
-		OFPBMC_BAD_VALUE,		/* Unsupported value in a match field. */
+		OFPBMC_BAD_TYPE = 0, /* Unsupported match type specified by the match */
+		OFPBMC_BAD_LEN = 1, /* Length problem in match. */
+		OFPBMC_BAD_TAG = 2, /* Match uses an unsupported tag/encap. */
+		OFPBMC_BAD_DL_ADDR_MASK = 3, /* Unsupported datalink addr mask - switch
+									does not support arbitrary datalink
+									address mask. */
+		OFPBMC_BAD_NW_ADDR_MASK = 4, /* Unsupported network addr mask - switch
+									does not support arbitrary network
+									address mask. */
+		OFPBMC_BAD_WILDCARDS = 5, /* Unsupported combination of fields masked
+									or omitted in the match. */
+		OFPBMC_BAD_FIELD = 6, /* Unsupported field type in the match. */
+		OFPBMC_BAD_VALUE = 7, /* Unsupported value in a match field. */
+		OFPBMC_BAD_MASK = 8, /* Unsupported mask specified in the match,
+									field is not dl-address or nw-address. */
+		OFPBMC_BAD_PREREQ = 9, /* A prerequisite was not met. */
+		OFPBMC_DUP_FIELD = 10, /* A field type was duplicated. */
+		OFPBMC_EPERM = 11, /* Permissions error. */
 	};
 
 	/* ofp_error_msg 'code' values for OFPET_FLOW_MOD_FAILED.  'data' contains

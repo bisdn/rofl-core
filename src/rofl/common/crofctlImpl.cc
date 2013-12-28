@@ -881,6 +881,30 @@ crofctlImpl::parse_message(
 		rofbase->send_error_bad_match_bad_value(this, xid, mem->somem(), mem->memlen());
 		delete msg;
 
+	} catch (eBadMatchBadMask& e) {
+
+		logging::error << "eBadMatchBadMask " << *mem << std::endl;
+		rofbase->send_error_bad_match_bad_mask(this, xid, mem->somem(), mem->memlen());
+		delete msg;
+
+	} catch (eBadMatchBadPrereq& e) {
+
+		logging::error << "eBadMatchBadPrereq " << *mem << std::endl;
+		rofbase->send_error_bad_match_bad_prereq(this, xid, mem->somem(), mem->memlen());
+		delete msg;
+
+	} catch (eBadMatchDupField& e) {
+
+		logging::error << "eBadMatchDupField " << *mem << std::endl;
+		rofbase->send_error_bad_match_dup_field(this, xid, mem->somem(), mem->memlen());
+		delete msg;
+
+	} catch (eBadMatchEPerm& e) {
+
+		logging::error << "eBadMatchEPerm " << *mem << std::endl;
+		rofbase->send_error_bad_match_eperm(this, xid, mem->somem(), mem->memlen());
+		delete msg;
+
 	} catch (eBadMatchBase& e) {
 
 		logging::error << "eBadMatchBase " << *mem << std::endl;
@@ -930,6 +954,7 @@ crofctlImpl::parse_of10_message(cmemory *mem, cofmsg **pmsg)
 	} break;
 	case openflow10::OFPT_FLOW_MOD: {
 		(*pmsg = new cofmsg_flow_mod(mem))->validate();
+		dynamic_cast<cofmsg_flow_mod*>( *pmsg )->get_match().check_prerequisites();
 		flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( *pmsg ));
 	} break;
 	case openflow10::OFPT_PORT_MOD: {
@@ -1034,6 +1059,7 @@ crofctlImpl::parse_of12_message(cmemory *mem, cofmsg **pmsg)
 	} break;
 	case openflow12::OFPT_FLOW_MOD: {
 		(*pmsg = new cofmsg_flow_mod(mem))->validate();
+		dynamic_cast<cofmsg_flow_mod*>( *pmsg )->get_match().check_prerequisites();
 		flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( *pmsg ));
 	} break;
 	case openflow12::OFPT_GROUP_MOD: {
@@ -1171,6 +1197,7 @@ crofctlImpl::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 	} break;
 	case openflow13::OFPT_FLOW_MOD: {
 		(*pmsg = new cofmsg_flow_mod(mem))->validate();
+		dynamic_cast<cofmsg_flow_mod*>( *pmsg )->get_match().check_prerequisites();
 		flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( *pmsg ));
 	} break;
 	case openflow13::OFPT_GROUP_MOD: {
