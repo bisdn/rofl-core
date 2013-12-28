@@ -936,7 +936,19 @@ uint16_t
 cofmatch::get_vlan_vid() const
 {
 	try {
-		return oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_VLAN_VID).u16value();
+		coxmatch const& oxm = oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_VLAN_VID);
+
+		if ((oxm.uint16_value() & openflow::OFPVID_PRESENT) == openflow::OFPVID_PRESENT) {
+			if (oxm.get_oxm_hasmask() && ((oxm.uint16_mask() & openflow::OFPVID_PRESENT) == openflow::OFPVID_PRESENT)) {
+				return openflow::OFPVID_PRESENT; // tagged with any vid
+			}
+			if (not oxm.get_oxm_hasmask()) {
+				return (oxm.uint16_value() & ~openflow::OFPVID_PRESENT); // tagged with specific vid
+			}
+		}
+		return openflow::OFPVID_NONE; // untagged
+
+		//return oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_VLAN_VID).u16value();
 	} catch (eOxmListNotFound& e) {
 		throw eOFmatchNotFound();
 	}
