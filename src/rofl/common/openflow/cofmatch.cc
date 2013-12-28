@@ -563,7 +563,7 @@ cofmatch::unpack_of12(uint8_t* match, size_t matchlen)
 		oxmlist.unpack(m->oxm_fields, matchlen);
 	}
 
-	check_prerequisites();
+	//check_prerequisites();
 }
 
 
@@ -621,7 +621,7 @@ cofmatch::unpack_of13(uint8_t* match, size_t matchlen)
 		oxmlist.unpack(m->oxm_fields, matchlen);
 	}
 
-	check_prerequisites();
+	//check_prerequisites();
 }
 
 

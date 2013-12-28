@@ -954,6 +954,7 @@ crofctlImpl::parse_of10_message(cmemory *mem, cofmsg **pmsg)
 	} break;
 	case openflow10::OFPT_FLOW_MOD: {
 		(*pmsg = new cofmsg_flow_mod(mem))->validate();
+		dynamic_cast<cofmsg_flow_mod*>( *pmsg )->get_match().check_prerequisites();
 		flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( *pmsg ));
 	} break;
 	case openflow10::OFPT_PORT_MOD: {
