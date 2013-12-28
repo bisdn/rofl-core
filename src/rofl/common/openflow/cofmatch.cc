@@ -939,8 +939,13 @@ cofmatch::get_vlan_vid() const
 		coxmatch const& oxm = oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_VLAN_VID);
 
 		if ((oxm.uint16_value() & openflow::OFPVID_PRESENT) == openflow::OFPVID_PRESENT) {
-			if (oxm.get_oxm_hasmask() && ((oxm.uint16_mask() & openflow::OFPVID_PRESENT) == openflow::OFPVID_PRESENT)) {
-				return openflow::OFPVID_PRESENT; // tagged with any vid
+			if (oxm.get_oxm_hasmask()) {
+				if ((oxm.uint16_mask() & openflow::OFPVID_PRESENT) == openflow::OFPVID_PRESENT) {
+					return openflow::OFPVID_PRESENT; // tagged with any vid
+				} else {
+					// this is ambiguous in the OF 1.3 specification (as usual ...)
+					return (oxm.uint16_value() & ~openflow::OFPVID_PRESENT & oxm.uint16_mask()); // tagged with specific vid and masked
+				}
 			}
 			if (not oxm.get_oxm_hasmask()) {
 				return (oxm.uint16_value() & ~openflow::OFPVID_PRESENT); // tagged with specific vid
