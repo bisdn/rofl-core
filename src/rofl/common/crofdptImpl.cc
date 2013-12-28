@@ -764,7 +764,7 @@ crofdptImpl::send_message(
     		logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " sending Get-Config-Request message " << std::endl << *dynamic_cast<cofmsg_get_config_request*>(msg);
     		get_config_request_sent(msg);
     	} break;
-    	case openflow13::OFPT_STATS_REQUEST: {
+    	case openflow13::OFPT_MULTIPART_REQUEST: {
     		logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " sending Stats-Request message " << std::endl << *dynamic_cast<cofmsg_stats_request*>(msg);
     		stats_request_sent(msg);
     	} break;
@@ -1107,7 +1107,7 @@ crofdptImpl::get_config_reply_rcvd(
 					<< "Get-Config-Reply rcvd (wait-get-config-reply -> wait-table-stats-reply)" << std::endl;
 		} break;
 		case openflow13::OFP_VERSION: {
-			rofbase->send_stats_request(this, openflow13::OFPST_TABLE, 0);
+			rofbase->send_stats_request(this, openflow13::OFPMP_TABLE, 0);
 			new_state(COFDPT_STATE_WAIT_TABLE_STATS);
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 								<< "Get-Config-Reply rcvd (wait-get-config-reply -> wait-table-stats-reply)" << std::endl;
@@ -1197,7 +1197,7 @@ crofdptImpl::handle_stats_reply_timeout()
 	switch (ofp_version) {
 	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
 	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_STATS_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}

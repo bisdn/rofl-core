@@ -875,9 +875,11 @@ namespace openflow12 {
 	struct ofp_instruction {
 		uint16_t type;                /* Instruction type */
 		uint16_t len;                 /* Length of this struct in bytes. */
+#if 0
 		uint8_t pad[4];               /* Align to 64-bits */
+#endif
 	};
-	OFP_ASSERT(sizeof(struct ofp_instruction) == 8);
+	OFP_ASSERT(sizeof(struct ofp_instruction) == 4);
 
 	/* Instruction structure for OFPIT_GOTO_TABLE */
 	struct ofp_instruction_goto_table {

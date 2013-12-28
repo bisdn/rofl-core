@@ -35,7 +35,7 @@ cofmsg_stats::cofmsg_stats(
 		ofh12_stats_request->flags			= htobe16(stats_flags);
 	} break;
 	case openflow13::OFP_VERSION: {
-		set_type(openflow13::OFPT_STATS_REQUEST);
+		set_type(openflow13::OFPT_MULTIPART_REQUEST);
 		resize(sizeof(struct openflow13::ofp_multipart_request) + body.memlen());
 		ofh13_multipart_request->type		= htobe16(stats_type);
 		ofh13_multipart_request->flags		= htobe16(stats_flags);

@@ -33,6 +33,7 @@ class eBadRequestBadTableId			: public eBadRequestBase {};	// OFPBRC_BAD_TABLE_I
 class eBadRequestIsSlave			: public eBadRequestBase {};	// OFPBRC_IS_SLAVE
 class eBadRequestBadPort			: public eBadRequestBase {};	// OFPBRC_BAD_PORT
 class eBadRequestBadPacket			: public eBadRequestBase {};	// OFPBRC_BAD_PACKET
+class eBadRequestMultipartBufferOverflow : public eBadRequestBase {}; // OFPBRC_MULTIPART_BUFFER_OVERFLOW
 
 /* exceptions for action-containing requests according to OpenFlow */
 class eBadActionBase				: public eOpenFlowBase {};
@@ -49,6 +50,9 @@ class eBadActionBadOutGroup			: public eBadActionBase {};		// OFPBAC_BAD_OUT_GRO
 class eBadActionMatchInconsistent	: public eBadActionBase {};		// OFPBAC_MATCH_INCONSISTENT
 class eBadActionUnsupportedOrder	: public eBadActionBase {};		// OFPBAC_UNSUPPORTED_ORDER
 class eBadActionBadTag				: public eBadActionBase {};		// OFPBAC_BAD_TAG
+class eBadActionSetType				: public eBadActionBase {};		// OFPBAC_BAD_SET_TYPE
+class eBadActionSetLen				: public eBadActionBase {};		// OFPBAC_BAD_SET_LEN
+class eBadActionSetArgument			: public eBadActionBase {}; 	// OFPBAC_BAD_SET_ARGUMENT
 
 /* exceptions for action-containing requests according to OpenFlow */
 class eBadInstBase					: public eOpenFlowBase {};
@@ -57,7 +61,10 @@ class eBadInstUnsupInst				: public eBadInstBase {};		// OFPBIC_UNSUP_INST
 class eBadInstBadTableId			: public eBadInstBase {};		// OFPBIC_BAD_TABLE_ID
 class eBadInstUnsupMetadata			: public eBadInstBase {};		// OFPBIC_UNSUP_METADATA
 class eBadInstUnsupMetadataMask		: public eBadInstBase {};		// OFPBIC_UNSUP_METADATA_MASK
-class eBadInstUnsupExpInst			: public eBadInstBase {};		// OFPBIC_UNSUP_EXP_INST
+class eBadInstBadExperimenter		: public eBadInstBase {};		// OFPBIC_BAD_EXPERIMENTER
+class eBadInstBadExpType			: public eBadInstBase {};		// OFPBIC_BAD_EXP_TYPE
+class eBadInstBadLen				: public eBadInstBase {};		// OFPBIC_BAD_LEN
+class eBadInstEPerm					: public eBadInstBase {};		// OFPBIC_EPERM
 
 /* exceptions for action-containing requests according to OpenFlow */
 class eBadMatchBase					: public eOpenFlowBase {};
@@ -83,6 +90,7 @@ class eFlowModOverlap				: public eFlowModBase {}; 		// OFPFMFC_OVERLAP
 class eFlowModEperm					: public eFlowModBase {};		// OFPFMFC_EPERM
 class eFlowModBadTimeout			: public eFlowModBase {};		// OFPFMFC_BAD_TIMEOUT
 class eFlowModBadCommand			: public eFlowModBase {};		// OFPFMFC_BAD_COMMAND
+class eFlowModBadFlags				: public eFlowModBase {};		// OFPFMFC_BAD_FLAGS
 
 /* exceptions for group table and group entries according to OpenFlow */
 class eGroupModBase					: public eOpenFlowBase {};
@@ -108,11 +116,13 @@ class ePortModBadPort				: public ePortModBase {};		// OFPPMFC_BAD_PORT
 class ePortModBadHwAddr				: public ePortModBase {};		// OFPPMFC_BAD_HW_ADDR
 class ePortModBadConfig				: public ePortModBase {};		// OFPPMFC_BAD_CONFIG
 class ePortModBadAdvertise			: public ePortModBase {};		// OFPPMFC_BAD_ADVERTISE
+class ePortModEPerm					: public ePortModBase {};		// OFPPMFC_EPERM
 
 /* exceptions for table-mod commands according to OpenFlow */
 class eTableModBase					: public eOpenFlowBase {};
 class eTableModBadTable				: public eTableModBase {};		// OFPTMFC_BAD_TABLE
 class eTableModBadConfig			: public eTableModBase {};		// OFPTMFC_BAD_CONFIG
+class eTableModEPerm				: public eTableModBase {};		// OFPTMFC_EPERM
 
 /* exceptions for queue-op commands according to OpenFlow */
 class eQueueOpBase					: public eOpenFlowBase {};
@@ -124,6 +134,7 @@ class eQueueOpEperm					: public eQueueOpBase {};		// OFPQOFC_EPERM
 class eSwitchConfigBase				: public eOpenFlowBase {};
 class eSwitchConfigBadFlags			: public eSwitchConfigBase {};	// OFPSCFC_BAD_FLAGS
 class eSwitchConfigBadLen			: public eSwitchConfigBase {};	// OFPSCFC_BAD_LEN
+class eSwitchConfigEPerm			: public eSwitchConfigBase {};	// OFPSCFC_EPERM
 
 /* exceptions for role-request commands according to OpenFlow */
 class eRoleRequestBase				: public eOpenFlowBase {};
@@ -131,6 +142,29 @@ class eRoleRequestStale				: public eRoleRequestBase {};	// OFPRRFC_STALE
 class eRoleRequestUnsupported		: public eRoleRequestBase {};	// OFPRRFC_UNSUPPORTED
 class eRoleRequestBadRole			: public eRoleRequestBase {};	// OFPRRFC_BAD_ROLE
 
+/* exceptions for meter-mod commands according to OpenFlow */
+class eMeterModBase					: public eOpenFlowBase {};
+class eMeterModUnknown				: public eMeterModBase {};		// OFPMMFC_UNKNOWN
+class eMeterModMeterExists			: public eMeterModBase {};		// OFPMMFC_METER_EXISTS
+class eMeterModInvalidMeter			: public eMeterModBase {};		// OFPMMFC_INVALID_METER
+class eMeterModUnknownMeter			: public eMeterModBase {};		// OFPMMFC_UNKNOWN_METER
+class eMeterModBadCommand			: public eMeterModBase {};		// OFPMMFC_BAD_COMMAND
+class eMeterModBadFlags				: public eMeterModBase {};		// OFPMMFC_BAD_FLAGS
+class eMeterModBadRate				: public eMeterModBase {};		// OFPMMFC_BAD_RATE
+class eMeterModBadBurst				: public eMeterModBase {};		// OFPMMFC_BAD_BURST
+class eMeterModBadBand				: public eMeterModBase {};		// OFPMMFC_BAD_BAND
+class eMeterModBadBandValue			: public eMeterModBase {};		// OFPMMFC_BAD_BAND_VALUE
+class eMeterModOutOfMeters			: public eMeterModBase {};		// OFPMMFC_OUT_OF_METERS
+class eMeterModOutOfBands			: public eMeterModBase {};		// OFPMMFC_OUT_OF_BANDS
+
+/* exceptions for table-features commands according to OpenFlow */
+class eTableFeaturesReqBase			: public eOpenFlowBase {};
+class eTableFeaturesReqBadTable		: public eTableFeaturesReqBase {};	//OFPTFFC_BAD_TABLE
+class eTableFeaturesReqBadMetaData	: public eTableFeaturesReqBase {};	//OFPTFFC_BAD_METADATA
+class eTableFeaturesReqBadType		: public eTableFeaturesReqBase {};	//OFPTFFC_BAD_TYPE
+class eTableFeaturesReqBadLen		: public eTableFeaturesReqBase {};	//OFPTFFC_BAD_LEN
+class eTableFeaturesReqBadArgument	: public eTableFeaturesReqBase {};	//OFPTFFC_BAD_ARGUMENT
+class eTableFeaturesReqEPerm		: public eTableFeaturesReqBase {};	//OFPTFFC_EPERM
 
 /*
  * further rofl internal exceptions

@@ -2360,6 +2360,22 @@ public:
 		size_t datalen = 0);
 
 
+	/**
+	 * @brief	Sends a BadRequest/MultipartBufferOverflow ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_request_multipart_buffer_overflow(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
 
 
 	/**
@@ -2564,6 +2580,51 @@ public:
 		size_t datalen = 0);
 
 	/**
+	 * @brief	Sends a BadAction/SetLen ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_set_len(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadAction/SetType ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_set_type(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadAction/SetArgument ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_action_set_argument(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
 	 * @brief	Sends a BadInst/UnknownInst ERROR.message to a controller entity.
 	 *
 	 * @param ctl pointer to cofctl instance
@@ -2639,7 +2700,7 @@ public:
 		size_t datalen = 0);
 
 	/**
-	 * @brief	Sends a BadInst/UnsupExpInst ERROR.message to a controller entity.
+	 * @brief	Sends a BadInst/UnsupExpInst / BadInst/BadExperimenter ERROR.message to a controller entity.
 	 *
 	 * @param ctl pointer to cofctl instance
 	 * @param xid transaction ID of request that generated this error message
@@ -2647,7 +2708,52 @@ public:
 	 * @param datalen length of failed request appended to error message
 	 */
 	virtual void
-	send_error_bad_inst_unsup_exp_inst(
+	send_error_bad_inst_bad_experimenter(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadInst/BadExpType ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_inst_bad_exp_type(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadInst/BadLen ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_inst_bad_len(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadInst/EPerm ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_inst_eperm(
 		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
@@ -2895,6 +3001,21 @@ public:
 		size_t datalen = 0);
 
 	/**
+	 * @brief	Sends a SwitchConfigFailed/EPerm ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_switch_config_failed_eperm(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
 	 * @brief	Sends a FlowModFailed/Unknown ERROR.message to a controller entity.
 	 *
 	 * @param ctl pointer to cofctl instance
@@ -2994,6 +3115,21 @@ public:
 	 */
 	virtual void
 	send_error_flow_mod_failed_bad_command(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a FlowModFailed/BadFlags ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_flow_mod_failed_bad_flags(
 		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,
@@ -3285,6 +3421,21 @@ public:
 		size_t datalen = 0);
 
 	/**
+	 * @brief	Sends a PortModFailed/EPerm ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_port_mod_failed_eperm(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
 	 * @brief	Sends a TableModFailed/BadTable ERROR.message to a controller entity.
 	 *
 	 * @param ctl pointer to cofctl instance
@@ -3309,6 +3460,21 @@ public:
 	 */
 	virtual void
 	send_error_table_mod_failed_bad_config(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a TableModFailed/EPerm ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_table_mod_failed_eperm(
 		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data = NULL,

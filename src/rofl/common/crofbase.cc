@@ -978,7 +978,7 @@ crofbase::send_stats_request(
 	switch (dpt->get_version()) {
 	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
 	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_STATS_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1013,7 +1013,7 @@ crofbase::send_desc_stats_request(
 	switch (dpt->get_version()) {
 	case OFP10_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
 	case OFP12_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case OFP13_VERSION: msg_type = openflow13::OFPT_STATS_REQUEST; break;
+	case OFP13_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1046,7 +1046,7 @@ crofbase::send_flow_stats_request(
 	switch (dpt->get_version()) {
 	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
 	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_STATS_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1080,7 +1080,7 @@ crofbase::send_aggr_stats_request(
 	switch (dpt->get_version()) {
 	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
 	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_STATS_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1113,7 +1113,7 @@ crofbase::send_table_stats_request(
 	switch (dpt->get_version()) {
 	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
 	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_STATS_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1146,7 +1146,7 @@ crofbase::send_port_stats_request(
 	switch (dpt->get_version()) {
 	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
 	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_STATS_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1180,7 +1180,7 @@ crofbase::send_queue_stats_request(
 	switch (dpt->get_version()) {
 	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
 	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_STATS_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1213,7 +1213,7 @@ crofbase::send_group_stats_request(
 
 	switch (dpt->get_version()) {
 	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_STATS_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1245,7 +1245,7 @@ crofbase::send_group_desc_stats_request(
 
 	switch (dpt->get_version()) {
 	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_STATS_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1276,7 +1276,7 @@ crofbase::send_group_features_stats_request(
 
 	switch (dpt->get_version()) {
 	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_STATS_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1311,7 +1311,7 @@ crofbase::send_experimenter_stats_request(
 	switch (dpt->get_version()) {
 	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
 	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_STATS_REQUEST; break;
+	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1349,7 +1349,7 @@ crofbase::send_stats_reply(
 	switch (ctl->get_version()) {
 	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
 	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPSF_REPLY_MORE : 0; break;
+	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1382,7 +1382,7 @@ crofbase::send_desc_stats_reply(
 	switch (ctl->get_version()) {
 	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
 	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPSF_REPLY_MORE : 0; break;
+	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1413,7 +1413,7 @@ crofbase::send_table_stats_reply(
 	switch (ctl->get_version()) {
 	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
 	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPSF_REPLY_MORE : 0; break;
+	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1444,7 +1444,7 @@ crofbase::send_port_stats_reply(
 	switch (ctl->get_version()) {
 	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
 	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPSF_REPLY_MORE : 0; break;
+	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1475,7 +1475,7 @@ crofbase::send_queue_stats_reply(
 	switch (ctl->get_version()) {
 	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
 	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPSF_REPLY_MORE : 0; break;
+	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1506,7 +1506,7 @@ crofbase::send_flow_stats_reply(
 	switch (ctl->get_version()) {
 	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
 	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPSF_REPLY_MORE : 0; break;
+	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1537,7 +1537,7 @@ crofbase::send_aggr_stats_reply(
 	switch (ctl->get_version()) {
 	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
 	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPSF_REPLY_MORE : 0; break;
+	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1568,7 +1568,7 @@ crofbase::send_group_stats_reply(
 	switch (ctl->get_version()) {
 	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
 	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPSF_REPLY_MORE : 0; break;
+	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1599,7 +1599,7 @@ crofbase::send_group_desc_stats_reply(
 	switch (ctl->get_version()) {
 	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
 	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPSF_REPLY_MORE : 0; break;
+	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1630,7 +1630,7 @@ crofbase::send_group_features_stats_reply(
 	switch (ctl->get_version()) {
 	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
 	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPSF_REPLY_MORE : 0; break;
+	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
 	default:
 		throw eBadVersion();
 	}
@@ -1663,7 +1663,7 @@ crofbase::send_experimenter_stats_reply(
 	switch (ctl->get_version()) {
 	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
 	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPSF_REPLY_MORE : 0; break;
+	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
 	default:
 		throw eBadVersion();
 	}
@@ -2519,6 +2519,29 @@ crofbase::send_error_bad_request_bad_packet(
 
 
 void
+crofbase::send_error_bad_request_multipart_buffer_overflow(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_BAD_REQUEST; code = openflow13::OFPBRC_MULTIPART_BUFFER_OVERFLOW;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send BadRequest/MultipartBufferOverflow for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
 crofbase::send_error_bad_action_bad_type(
 		crofctl *ctl,
 		uint32_t xid,
@@ -2621,7 +2644,7 @@ crofbase::send_error_bad_action_bad_experimenter_type(
 		type = openflow12::OFPET_BAD_ACTION; code = openflow12::OFPBAC_BAD_EXPERIMENTER_TYPE;
 	} break;
 	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_BAD_ACTION; code = openflow13::OFPBAC_BAD_EXPERIMENTER_TYPE;
+		type = openflow13::OFPET_BAD_ACTION; code = openflow13::OFPBAC_BAD_EXP_TYPE;
 	} break;
 	default: {
 		logging::warn << "[rofl][crofbase] cannot send BadAction/BadExperimenter for ofp-version:" << (int)ctl->get_version() << std::endl;
@@ -2883,6 +2906,75 @@ crofbase::send_error_bad_action_bad_tag(
 
 
 void
+crofbase::send_error_bad_action_set_len(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_BAD_ACTION; code = openflow13::OFPBAC_BAD_SET_LEN;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send BadAction/SetLen for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_bad_action_set_type(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_BAD_ACTION; code = openflow13::OFPBAC_BAD_SET_TYPE;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send BadAction/SetType for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_bad_action_set_argument(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_BAD_ACTION; code = openflow13::OFPBAC_BAD_SET_ARGUMENT;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send BadAction/SetArgument for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
 crofbase::send_error_bad_inst_unknown_inst(
 		crofctl *ctl,
 		uint32_t xid,
@@ -3013,7 +3105,7 @@ crofbase::send_error_bad_inst_unsup_metadata_mask(
 
 
 void
-crofbase::send_error_bad_inst_unsup_exp_inst(
+crofbase::send_error_bad_inst_bad_experimenter(
 		crofctl *ctl,
 		uint32_t xid,
 		uint8_t* data,
@@ -3026,10 +3118,79 @@ crofbase::send_error_bad_inst_unsup_exp_inst(
 		type = openflow12::OFPET_BAD_INSTRUCTION; code = openflow12::OFPBIC_UNSUP_EXP_INST;
 	} break;
 	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_BAD_INSTRUCTION; code = openflow13::OFPBIC_UNSUP_EXP_INST;
+		type = openflow13::OFPET_BAD_INSTRUCTION; code = openflow13::OFPBIC_BAD_EXPERIMENTER;
 	} break;
 	default: {
-		logging::warn << "[rofl][crofbase] cannot send BadInst/UnsupExpInst for ofp-version:" << (int)ctl->get_version() << std::endl;
+		logging::warn << "[rofl][crofbase] cannot send BadInst/BadExperimenter for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_bad_inst_bad_exp_type(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_BAD_INSTRUCTION; code = openflow13::OFPBIC_BAD_EXP_TYPE;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send BadInst/BadExpType for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_bad_inst_bad_len(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_BAD_INSTRUCTION; code = openflow13::OFPBIC_BAD_LEN;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send BadInst/BadLen for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_bad_inst_eperm(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_BAD_INSTRUCTION; code = openflow13::OFPBIC_EPERM;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send BadInst/EPerm for ofp-version:" << (int)ctl->get_version() << std::endl;
 	} return;
 	}
 
@@ -3443,6 +3604,29 @@ crofbase::send_error_switch_config_failed_bad_len(
 
 
 void
+crofbase::send_error_switch_config_failed_eperm(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_SWITCH_CONFIG_FAILED; code = openflow13::OFPSCFC_EPERM;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send SwitchConfigFailed/EPerm for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
 crofbase::send_error_flow_mod_failed_unknown(
 		crofctl *ctl,
 		uint32_t xid,
@@ -3631,6 +3815,29 @@ crofbase::send_error_flow_mod_failed_bad_command(
 	} break;
 	default: {
 		logging::warn << "[rofl][crofbase] cannot send FlowModFailed/BadCommand for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_flow_mod_failed_bad_flags(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_FLOW_MOD_FAILED; code = openflow13::OFPFMFC_BAD_FLAGS;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send FlowModFailed/BadFlags for ofp-version:" << (int)ctl->get_version() << std::endl;
 	} return;
 	}
 
@@ -4134,6 +4341,29 @@ crofbase::send_error_port_mod_failed_bad_advertise(
 
 
 void
+crofbase::send_error_port_mod_failed_eperm(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_PORT_MOD_FAILED; code = openflow13::OFPPMFC_BAD_ADVERTISE;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send PortModFailed/EPerm for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
 crofbase::send_error_table_mod_failed_bad_table(
 		crofctl *ctl,
 		uint32_t xid,
@@ -4177,6 +4407,29 @@ crofbase::send_error_table_mod_failed_bad_config(
 	} break;
 	default: {
 		logging::warn << "[rofl][crofbase] cannot send TableModFailed/BadConfig for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_table_mod_failed_eperm(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_TABLE_MOD_FAILED; code = openflow13::OFPTMFC_EPERM;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send TableModFailed/EPerm for ofp-version:" << (int)ctl->get_version() << std::endl;
 	} return;
 	}
 
