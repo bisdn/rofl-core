@@ -3247,6 +3247,98 @@ crofbase::send_error_bad_match_bad_value(
 
 
 void
+crofbase::send_error_bad_match_bad_mask(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_BAD_MATCH; code = openflow13::OFPBMC_BAD_MASK;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send BadMatch/BadMask for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_bad_match_bad_prereq(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_BAD_MATCH; code = openflow13::OFPBMC_BAD_PREREQ;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send BadMatch/BadPrereq for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_bad_match_dup_field(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_BAD_MATCH; code = openflow13::OFPBMC_DUP_FIELD;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send BadMatch/DupField for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
+crofbase::send_error_bad_match_eperm(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data,
+		size_t datalen)
+{
+	uint16_t type = 0, code = 0;
+
+	switch (ctl->get_version()) {
+	case openflow13::OFP_VERSION: {
+		type = openflow13::OFPET_BAD_MATCH; code = openflow13::OFPBMC_EPERM;
+	} break;
+	default: {
+		logging::warn << "[rofl][crofbase] cannot send BadMatch/EPerm for ofp-version:" << (int)ctl->get_version() << std::endl;
+	} return;
+	}
+
+	send_error_message(ctl, xid, type, code, data, datalen);
+}
+
+
+
+void
 crofbase::send_error_hello_failed_incompatible(
 		crofctl *ctl,
 		uint32_t xid,

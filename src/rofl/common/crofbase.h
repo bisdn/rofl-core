@@ -2774,6 +2774,67 @@ public:
 		size_t datalen = 0);
 
 	/**
+	 * @brief	Sends a BadMatch/BadMask ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_match_bad_mask(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadMatch/BadPrereq ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_match_bad_prereq(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+
+	/**
+	 * @brief	Sends a BadMatch/DupField ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_match_dup_field(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BadMatch/EPerm ERROR.message to a controller entity.
+	 *
+	 * @param ctl pointer to cofctl instance
+	 * @param xid transaction ID of request that generated this error message
+	 * @param data first (at least 64) bytes of failed request
+	 * @param datalen length of failed request appended to error message
+	 */
+	virtual void
+	send_error_bad_match_eperm(
+		crofctl *ctl,
+		uint32_t xid,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
 	 * @brief	Sends a HelloFailed/Incompatible ERROR.message to a controller entity.
 	 *
 	 * @param ctl pointer to cofctl instance

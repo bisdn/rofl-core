@@ -218,6 +218,13 @@ public:
 
 
 
+	/**
+	 * @brief	checks prerequisites for OF1.2 and beyond OXM TLV lists
+	 */
+	void
+	check_prerequisites();
+
+
 	
 	/** check for an identical match between two ofp_match structures
 	 */

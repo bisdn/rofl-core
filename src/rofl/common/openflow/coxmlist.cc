@@ -176,6 +176,20 @@ coxmlist::length() const
 
 
 
+bool
+coxmlist::has_match(
+		uint16_t ofm_class, uint8_t ofm_field) const
+{
+	try {
+		matches.at(ofm_class).at(ofm_field);
+		return true;
+	} catch (std::out_of_range& e) {
+		return false;
+	}
+}
+
+
+
 coxmatch&
 coxmlist::get_match(uint16_t ofm_class, uint8_t ofm_field)
 {
