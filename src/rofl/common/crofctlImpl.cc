@@ -1059,6 +1059,7 @@ crofctlImpl::parse_of12_message(cmemory *mem, cofmsg **pmsg)
 	} break;
 	case openflow12::OFPT_FLOW_MOD: {
 		(*pmsg = new cofmsg_flow_mod(mem))->validate();
+		dynamic_cast<cofmsg_flow_mod*>( *pmsg )->get_match().check_prerequisites();
 		flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( *pmsg ));
 	} break;
 	case openflow12::OFPT_GROUP_MOD: {
@@ -1196,6 +1197,7 @@ crofctlImpl::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 	} break;
 	case openflow13::OFPT_FLOW_MOD: {
 		(*pmsg = new cofmsg_flow_mod(mem))->validate();
+		dynamic_cast<cofmsg_flow_mod*>( *pmsg )->get_match().check_prerequisites();
 		flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( *pmsg ));
 	} break;
 	case openflow13::OFPT_GROUP_MOD: {
