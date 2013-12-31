@@ -23,6 +23,9 @@ extern "C" {
 namespace rofl {
 namespace openflow {
 
+class eHelloElemVersionBitmapBase 	: public eHelloElemBase {};
+class eHelloElemVersionBitmapInval	: public eHelloElemVersionBitmapBase {};
+
 class cofhello_elem_versionbitmap :
 		public cofhello_elem
 {
@@ -79,6 +82,32 @@ public:
 	/**
 	 *
 	 */
+	virtual uint8_t*
+	resize(size_t len);
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length();
+
+	/**
+	 *
+	 */
+	void
+	pack(uint8_t *buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(uint8_t *buf, size_t buflen);
+
+public:
+
+	/**
+	 *
+	 */
 	void
 	add_ofp_version(uint8_t ofp_version);
 
@@ -100,6 +129,10 @@ public:
 	operator<< (std::ostream& os, cofhello_elem_versionbitmap const& elem) {
 		os << dynamic_cast<cofhello_elem const&>( elem );
 		os << indent(2) << "<cofhello_elem_versionbitmap >" << std::endl;
+		for (unsigned int i = 0; i < elem.bitmaps.size(); i++) {
+			os << indent(4) << "<bitmap[" << i << "] 0x" <<
+					std::hex << elem.bitmaps[i] << std::dec << " >" << std::endl;
+		}
 		return os;
 	};
 };
