@@ -21,6 +21,20 @@
 namespace rofl
 {
 
+class RwLock; // forward declaration
+
+class PthreadRwLock {
+	pthread_rwlock_t rwlock;
+	friend class RwLock;
+public:
+	PthreadRwLock(pthread_rwlockattr_t *attr = NULL) {
+		pthread_rwlock_init(&rwlock, attr);
+	};
+	~PthreadRwLock() {
+		pthread_rwlock_destroy(&rwlock);
+	}
+};
+
 class eLockBase : public RoflException {};
 class eLockInval : public eLockBase {};
 class eLockWouldBlock : public eLockBase {};
@@ -136,6 +150,62 @@ public:
 			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x rwlock %p -locked- %s lock",
 					this, pthread_self(), rwlock, (rwtype == RWLOCK_READ) ? "READ" : "WRITE");
 		};
+
+		/** constructor locks rwlock (or checks for existing lock)
+		 *
+		 */
+		RwLock(PthreadRwLock& pthreadRwLock,
+				uint8_t rwtype = RWLOCK_WRITE, // safe option: lock for writing
+				bool blocking = true) throw (eLockWouldBlock, eLockInval) :
+			rwlock(&(pthreadRwLock.rwlock)), locked(false)
+		{
+			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x rwlock %p -trying- %s lock",
+					this, pthread_self(), rwlock, (rwtype == RWLOCK_READ) ? "READ" : "WRITE");
+			if (blocking)
+			{
+				switch (rwtype) {
+				case RWLOCK_READ:
+					pthread_rwlock_rdlock(rwlock);
+					break;
+				case RWLOCK_WRITE:
+					pthread_rwlock_wrlock(rwlock);
+					break;
+				default:
+					throw eLockInval();
+				}
+			}
+			else
+			{
+				int rc = 0;
+
+				switch (rwtype) {
+				case RWLOCK_READ:
+					rc = pthread_rwlock_tryrdlock(rwlock);
+					break;
+				case RWLOCK_WRITE:
+					rc = pthread_rwlock_trywrlock(rwlock);
+					break;
+				default:
+					throw eLockInval();
+				}
+
+				if (rc < 0)
+				{
+					switch (errno) {
+					case EBUSY:
+						throw eLockWouldBlock();
+
+					default:
+						throw eInternalError();
+					}
+				}
+			}
+			locked = true;
+			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x rwlock %p -locked- %s lock",
+					this, pthread_self(), rwlock, (rwtype == RWLOCK_READ) ? "READ" : "WRITE");
+		};
+
+
 
 		/** destructor unlocks rwlock (if it has been locked)
 		 *

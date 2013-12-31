@@ -112,7 +112,7 @@ cethport::handle_out_queue()
 
 		logging::debug << "cethport[" << devname << "] sending packet " << *pack << std::endl;
 
-		csocket::send_packet(mem);
+		csocket::send(mem);
 
 		pout_queue.pop_front();
 

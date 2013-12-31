@@ -462,8 +462,17 @@ csocket::cclose()
 
 
 
+ssize_t
+csocket::recv(void *buf, size_t count)
+{
+	// read from socket: TODO: TLS socket
+	return ::read(sd, (void*)buf, count);
+}
+
+
+
 void
-csocket::send_packet(cmemory* pack, caddress const& dest)
+csocket::send(cmemory* pack, caddress const& dest)
 {
 	if (not sockflags.test(CONNECTED) && not sockflags.test(RAW_SOCKET)) {
 		logging::warn << "socket not connected, dropping packet " << *pack << std::endl;

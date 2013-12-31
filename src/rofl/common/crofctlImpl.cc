@@ -2539,7 +2539,7 @@ crofctlImpl::send_message_via_socket(
 
 	delete pack;
 
-	socket->send_packet(mem);
+	socket->send(mem);
 
 	rofbase->wakeup(); // wake-up thread in case, we've been called from another thread
 }

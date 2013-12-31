@@ -94,7 +94,7 @@ mmap_test::udp_send()
 			fprintf(stderr, "seqno: %"PRIu64" dport: %d laddr: %s raddr(orig): %s raddr(dport): %s\n",
 					seqno, dport, laddr.c_str(), ra.c_str(), raddr.c_str());
 
-			sock->send_packet(new cmemory(payload), raddr);
+			sock->send(new cmemory(payload), raddr);
 
 #if 1
 			struct timeval timeout;

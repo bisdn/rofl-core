@@ -308,6 +308,13 @@ public:
 	cclose();
 
 
+	/**
+	 * @brief	Reads bytes from socket
+	 *
+	 */
+	virtual ssize_t
+	recv(void *buf, size_t count);
+
 
 	/**
 	 * @brief	Store a packet for transmission.
@@ -326,7 +333,7 @@ public:
 	 * @param mem cmemory instance to be sent out
 	 */
 	virtual void
-	send_packet(cmemory *mem, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0));
+	send(cmemory *mem, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0));
 
 
 
