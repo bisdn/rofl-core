@@ -5,17 +5,17 @@
  *      Author: andreas
  */
 
-#include "crofendpnt.h"
+#include "crofsock.h"
 
 using namespace rofl::openflow;
 
-crofendpnt::crofendpnt(
-		crofendpnt_owner *endpnt_owner,
+crofsock::crofsock(
+		crofsock_env *env,
 		int sd,
 		caddress const& ra) :
-				endpnt_owner(endpnt_owner),
+				env(env),
 				socket(new csocket(this, sd, ra)),
-				fragment((cofmsg*)0),
+				fragment((cmemory*)0),
 				msg_bytes_read(0)
 {
 
@@ -23,7 +23,7 @@ crofendpnt::crofendpnt(
 
 
 
-crofendpnt::~crofendpnt()
+crofsock::~crofsock()
 {
 
 }
@@ -31,39 +31,39 @@ crofendpnt::~crofendpnt()
 
 
 void
-crofendpnt::handle_accepted(
+crofsock::handle_accepted(
 		csocket *socket,
 		int newsd,
 		caddress const& ra)
 {
-	logging::info << "[rofl][rofendpnt] connection accepted:" << ra << std::endl;
+	logging::info << "[rofl][conn] connection accepted:" << ra << std::endl;
 }
 
 
 
 void
-crofendpnt::handle_connected(
+crofsock::handle_connected(
 		csocket *socket,
 		int sd)
 {
-	logging::info << "[rofl][rofendpnt] connection established:" << socket->raddr << std::endl;
+	logging::info << "[rofl][conn] connection established:" << socket->raddr << std::endl;
 }
 
 
 
 void
-crofendpnt::handle_connect_refused(
+crofsock::handle_connect_refused(
 		csocket *socket,
 		int sd)
 {
-	logging::info << "[rofl][rofendpnt] connection failed:" << socket->raddr << std::endl;
-	endpnt_owner->handle_connect_refused(this);
+	logging::info << "[rofl][conn] connection failed:" << socket->raddr << std::endl;
+	env->handle_connect_refused(this);
 }
 
 
 
 void
-crofendpnt::handle_read(
+crofsock::handle_read(
 		csocket *socket,
 		int sd)
 {
@@ -105,11 +105,11 @@ crofendpnt::handle_read(
 					fragment = mem;	// more bytes are needed, store pointer to msg in "fragment"
 				} return;
 				case ECONNREFUSED: {
-					endpnt_owner->handle_connect_refused(this);
+					env->handle_connect_refused(this);
 				} return;
 				case ECONNRESET:
 				default: {
-					logging::error << "[rofl][rofendpnt] error reading from socket descriptor:" << sd
+					logging::error << "[rofl][conn] error reading from socket descriptor:" << sd
 							<< " " << eSysCall() << ", closing endpoint." << std::endl;
 					handle_closed(socket, sd);
 				} return;
@@ -118,7 +118,7 @@ crofendpnt::handle_read(
 			else if (rc == 0) // socket was closed
 			{
 				//rfds.erase(fd);
-				logging::info << "[rofl][rofendpnt] peer closed connection." << *this << std::endl;
+				logging::info << "[rofl][conn] peer closed connection." << *this << std::endl;
 
 				if (mem) {
 					delete mem; fragment = (cmemory*)0;
@@ -147,7 +147,7 @@ crofendpnt::handle_read(
 
 	} catch (RoflException& e) {
 
-		logging::warn << "[rofl][rofendpnt] dropping invalid message " << *mem << std::endl;
+		logging::warn << "[rofl][conn] dropping invalid message " << *mem << std::endl;
 
 		if (mem) {
 			delete mem; fragment = (cmemory*)0;
@@ -160,21 +160,21 @@ crofendpnt::handle_read(
 
 
 void
-crofendpnt::handle_closed(
+crofsock::handle_closed(
 		csocket *socket,
 		int sd)
 {
-	logging::info << "[rofl][rofendpnt] connection closed. " << *this << std::endl;
+	logging::info << "[rofl][conn] connection closed. " << *this << std::endl;
 
 	socket->cclose();
 
-	endpnt_owner->handle_close(this);
+	env->handle_close(this);
 }
 
 
 
 rofl::csocket&
-crofendpnt::get_socket()
+crofsock::get_socket()
 {
 	return (*socket);
 }
@@ -182,7 +182,7 @@ crofendpnt::get_socket()
 
 
 void
-crofendpnt::send_message(
+crofsock::send_message(
 		cofmsg *msg)
 {
 	if (0 == socket) {
@@ -199,7 +199,7 @@ crofendpnt::send_message(
 
 
 void
-crofendpnt::send_from_queue()
+crofsock::send_from_queue()
 {
 	RwLock(outqueue_rwlock, RwLock::RWLOCK_WRITE);
 
@@ -221,7 +221,7 @@ crofendpnt::send_from_queue()
 
 
 void
-crofendpnt::handle_event(
+crofsock::handle_event(
 		cevent const &ev)
 {
 	switch (ev.cmd) {
@@ -229,14 +229,14 @@ crofendpnt::handle_event(
 		send_from_queue();
 	} break;
 	default:
-		logging::error << "[rofl][rofendpnt] unknown event type:" << (int)ev.cmd << std::endl;
+		logging::error << "[rofl][conn] unknown event type:" << (int)ev.cmd << std::endl;
 	}
 }
 
 
 
 void
-crofendpnt::parse_message(
+crofsock::parse_message(
 		cmemory *mem)
 {
 	cofmsg *msg = (cofmsg*)0;
@@ -252,7 +252,7 @@ crofendpnt::parse_message(
 		default: msg = new cofmsg(mem); break;
 		}
 
-		endpnt_owner->recv_message(this, msg);
+		env->recv_message(this, msg);
 
 	} catch (eBadRequestBadType& e) {
 
@@ -270,7 +270,7 @@ crofendpnt::parse_message(
 
 
 void
-crofendpnt::parse_of10_message(cmemory *mem, cofmsg **pmsg)
+crofsock::parse_of10_message(cmemory *mem, cofmsg **pmsg)
 {
 	struct openflow::ofp_header* ofh_header = (struct openflow::ofp_header*)mem->somem();
 
@@ -412,7 +412,7 @@ crofendpnt::parse_of10_message(cmemory *mem, cofmsg **pmsg)
 
 	default: {
 		(*pmsg = new cofmsg(mem))->validate();
-		logging::warn << "[rofl][rofendpnt] dropping unknown message " << **pmsg << std::endl;
+		logging::warn << "[rofl][conn] dropping unknown message " << **pmsg << std::endl;
 		throw eBadRequestBadType();
 	} break;
 	}
@@ -421,7 +421,7 @@ crofendpnt::parse_of10_message(cmemory *mem, cofmsg **pmsg)
 
 
 void
-crofendpnt::parse_of12_message(cmemory *mem, cofmsg **pmsg)
+crofsock::parse_of12_message(cmemory *mem, cofmsg **pmsg)
 {
 	struct openflow::ofp_header* ofh_header = (struct openflow::ofp_header*)mem->somem();
 
@@ -607,7 +607,7 @@ crofendpnt::parse_of12_message(cmemory *mem, cofmsg **pmsg)
 
 	default: {
 		(*pmsg = new cofmsg(mem))->validate();
-		logging::warn << "[rofl][rofendpnt] dropping unknown message " << **pmsg << std::endl;
+		logging::warn << "[rofl][conn] dropping unknown message " << **pmsg << std::endl;
 		throw eBadRequestBadType();
 	} return;
 	}
@@ -616,7 +616,7 @@ crofendpnt::parse_of12_message(cmemory *mem, cofmsg **pmsg)
 
 
 void
-crofendpnt::parse_of13_message(cmemory *mem, cofmsg **pmsg)
+crofsock::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 {
 	struct openflow::ofp_header* ofh_header = (struct openflow::ofp_header*)mem->somem();
 
@@ -802,7 +802,7 @@ crofendpnt::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 
 	default: {
 		(*pmsg = new cofmsg(mem))->validate();
-		logging::warn << "[rofl][rofendpnt] dropping unknown message " << **pmsg << std::endl;
+		logging::warn << "[rofl][conn] dropping unknown message " << **pmsg << std::endl;
 		throw eBadRequestBadType();
 	} return;
 	}

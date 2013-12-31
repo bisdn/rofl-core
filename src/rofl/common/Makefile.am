@@ -45,6 +45,12 @@ librofl_common_la_SOURCES = \
 		crofdpt.h \
 		crofdptImpl.h \
 		crofdptImpl.cc \
+		crofsock.h \
+		crofsock.cc \
+		crofconn.h \
+		crofconn.cc \
+		crofchan.h \
+		crofchan.cc \
 		cflowentry.h \
 		cflowentry.cc \
 		cgroupentry.h \
@@ -68,6 +74,9 @@ library_include_HEADERS= \
 		crofctlImpl.h \
 		crofdpt.h \
 		crofdptImpl.h \
+		crofsock.h \
+		crofconn.h \
+		crofchan.h \
 		cclock.h \
 		croflexception.h \
 		cfsm.h \
