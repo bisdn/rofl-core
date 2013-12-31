@@ -1,5 +1,5 @@
 /*
- * cofhello_elem.h
+ * cofhelloelem.h
  *
  *  Created on: 31.12.2013
  *      Author: andreas

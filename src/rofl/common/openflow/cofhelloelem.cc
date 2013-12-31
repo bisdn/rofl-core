@@ -1,11 +1,11 @@
 /*
- * cofhello_elem.cc
+ * cofhelloelem.cc
  *
  *  Created on: 31.12.2013
  *      Author: andreas
  */
 
-#include "cofhello_elem.h"
+#include "cofhelloelem.h"
 
 using namespace rofl::openflow;
 
@@ -67,7 +67,16 @@ cofhello_elem::resize(size_t len)
 size_t
 cofhello_elem::length()
 {
-	return memlen();
+	size_t total_length = memlen();
+
+	size_t pad = (0x7 & total_length);
+
+	/* append padding if not a multiple of 8 */
+	if (pad) {
+		total_length += 8 - pad;
+	}
+
+	return (total_length);
 }
 
 
