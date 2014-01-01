@@ -42,8 +42,40 @@ cofhelloelemsTest::tearDown()
 void
 cofhelloelemsTest::testPack()
 {
+	rofl::openflow::cofhello_elem e1(16);
+	e1.set_type(1);
+	e1.set_length(12);
+	for (unsigned int i = 0; i < 8; i++) {
+		e1[i+4] = 0xff;
+	}
+	rofl::openflow::cofhello_elem e2( 8);
+	e2.set_type(2);
+	e2.set_length(8);
+	for (unsigned int i = 0; i < 4; i++) {
+		e2[i+4] = 0xaa;
+	}
+	rofl::openflow::cofhello_elem e3( 8);
+	e3.set_type(3);
+	e3.set_length(8);
+	for (unsigned int i = 0; i < 4; i++) {
+		e3[i+4] = 0xbb;
+	}
 
-	//CPPUNIT_ASSERT(*rule_nonstrict == oxl);
+	(*elems)[1] = new rofl::openflow::cofhello_elem(e1);
+	(*elems)[2] = new rofl::openflow::cofhello_elem(e2);
+	(*elems)[3] = new rofl::openflow::cofhello_elem(e3);
+
+	//std::cerr << "testPack: elems: " << *elems << std::endl;
+
+	CPPUNIT_ASSERT(elems->length() == 32);
+
+	rofl::cmemory packed(elems->length());
+
+	elems->pack(packed.somem(), packed.memlen());
+
+	//std::cerr << "testPack: packed: " << packed << std::endl;
+
+	CPPUNIT_ASSERT(packed == *mem);
 }
 
 
@@ -51,10 +83,17 @@ cofhelloelemsTest::testPack()
 void
 cofhelloelemsTest::testUnPack()
 {
-	std::cerr << *mem << std::endl;
+	//std::cerr << "testUnPack: mem: "<< *mem << std::endl;
 	elems->unpack(mem->somem(), mem->memlen());
-	std::cerr << *elems << std::endl;
-	//CPPUNIT_ASSERT(*rule_nonstrict == oxl);
+	//std::cerr << "testUnPack: elems: "<< *elems << std::endl;
+	CPPUNIT_ASSERT(3 == elems->size());
+	CPPUNIT_ASSERT((*elems)[1]->get_type() == 1);
+	CPPUNIT_ASSERT((*elems)[2]->get_type() == 2);
+	CPPUNIT_ASSERT((*elems)[3]->get_type() == 3);
+	CPPUNIT_ASSERT((*elems)[1]->get_length() == 12);
+	CPPUNIT_ASSERT((*elems)[2]->get_length() ==  8);
+	CPPUNIT_ASSERT((*elems)[3]->get_length() ==  8);
+	CPPUNIT_ASSERT(elems->length() == 32);
 }
 
 

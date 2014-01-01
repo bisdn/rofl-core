@@ -143,7 +143,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofhelloelems const& elems) {
-		os << indent(0) << "<cofhelloelems #elems:" << (int)elems.size() << " >" << std::endl;
+		os << indent(0) << "<cofhelloelems #elems:" << (int)elems.size() <<
+				" length:" << (int)elems.length() << " >" << std::endl;
 		indent i(2);
 		for (cofhelloelems::const_iterator
 				it = elems.begin(); it != elems.end(); ++it) {
