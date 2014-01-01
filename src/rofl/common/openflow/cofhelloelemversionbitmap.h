@@ -89,7 +89,7 @@ public:
 	 *
 	 */
 	virtual size_t
-	length();
+	length() const;
 
 	/**
 	 *
@@ -131,7 +131,9 @@ public:
 		os << indent(2) << "<cofhello_elem_versionbitmap >" << std::endl;
 		for (unsigned int i = 0; i < elem.bitmaps.size(); i++) {
 			os << indent(4) << "<bitmap[" << i << "] 0x" <<
-					std::hex << elem.bitmaps[i] << std::dec << " >" << std::endl;
+					std::setfill('0') << std::setw(8) <<
+					std::hex << elem.bitmaps[i] << std::dec <<
+					std::setw(0) << std::setfill(' ') << " >" << std::endl;
 		}
 		return os;
 	};

@@ -4,8 +4,6 @@
 #include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-using namespace rofl::openflow;
-
 class cofhelloelemsTest : public CppUnit::TestFixture {
 
 	CPPUNIT_TEST_SUITE( cofhelloelemsTest );
@@ -15,7 +13,7 @@ class cofhelloelemsTest : public CppUnit::TestFixture {
 
 private:
 
-	cofhelloelems	*elems;
+	rofl::openflow::cofhelloelems	*elems;
 
 public:
 	void setUp();

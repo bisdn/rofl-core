@@ -91,7 +91,7 @@ cofhello_elem_versionbitmap::resize(size_t len)
 
 
 size_t
-cofhello_elem_versionbitmap::length()
+cofhello_elem_versionbitmap::length() const
 {
 	size_t total_length =
 			sizeof(struct openflow13::ofp_hello_elem_header) +
@@ -115,7 +115,7 @@ cofhello_elem_versionbitmap::pack(uint8_t *buf, size_t buflen)
 	if (buflen < length())
 		throw eHelloElemVersionBitmapInval();
 
-	set_length(length());
+	set_length(sizeof(struct openflow13::ofp_hello_elem_header) + bitmaps.size() * sizeof(uint32_t));
 
 	memcpy(buf, somem(), sizeof(struct openflow13::ofp_hello_elem_header));
 

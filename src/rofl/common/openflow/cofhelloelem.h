@@ -75,7 +75,7 @@ public:
 	 *
 	 */
 	virtual size_t
-	length();
+	length() const;
 
 	/**
 	 *
@@ -118,7 +118,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofhello_elem const& elem) {
 		os << indent(0) << "<cofhello_elem type:" << elem.get_type()
-				<< " length:" << elem.get_length() << " >" << std::endl;
+				<< " length:" << elem.get_length() << " padding:" << (elem.length()-elem.get_length()) << " >" << std::endl;
 		return os;
 	};
 };

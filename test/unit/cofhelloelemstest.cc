@@ -3,15 +3,12 @@
 #include "cofhelloelemstest.h"
 #include <stdlib.h>
 
-using namespace rofl::openflow;
-
 CPPUNIT_TEST_SUITE_REGISTRATION( cofhelloelemsTest );
-
 
 void
 cofhelloelemsTest::setUp()
 {
-	elems			= new cofhelloelems();
+	elems = new rofl::openflow::cofhelloelems();
 }
 
 

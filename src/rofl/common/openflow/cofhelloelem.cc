@@ -65,7 +65,7 @@ cofhello_elem::resize(size_t len)
 
 
 size_t
-cofhello_elem::length()
+cofhello_elem::length() const
 {
 	size_t total_length = memlen();
 
