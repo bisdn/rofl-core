@@ -29,14 +29,14 @@ check_rext_flowspace()
 {
 	printf("croflexp_flowspace::croflexp_flowspace() check\n");
 
-	cofmatch m;
+	cofmatch m(openflow12::OFP_VERSION);
 
 	m.set_in_port(1);
 	m.set_eth_src(cmacaddr("00:11:11:11:11:11"));
 
 	croflexp_flowspace *fsp = new croflexp_flowspace(croflexp::OFPRET_FSP_ADD, m);
 
-	cmemory test(m.length()); m.pack((struct ofp12_match*)test.somem(), test.memlen());
+	cmemory test(m.length()); m.pack(test.somem(), test.memlen());
 
 	cmemory result(sizeof(struct croflexp::ofp_rofl_ext_flowspace) + m.length());
 
@@ -50,7 +50,7 @@ check_rext_flowspace()
 	result[6] = 0;
 	result[7] = 0;
 
-	m.pack((struct ofp12_match*)(result.somem() +
+	m.pack((result.somem() +
 					sizeof(struct croflexp::ofp_rofl_ext_flowspace)), m.length());
 
 
@@ -60,7 +60,9 @@ check_rext_flowspace()
 
 	if (fsp_packed != result)
 	{
-		printf("failed. =>\nexpected: %s\nreceived: %s\n", result.c_str(), fsp_packed.c_str());
+		std::cerr << "failed. =>" << std::endl;
+		std::cerr << "expected: " << result << std::endl;
+		std::cerr << "received: " << fsp_packed << std::endl;
 
 		exit(EXIT_FAILURE);
 	}
@@ -78,7 +80,9 @@ check_rext_flowspace()
 
 		if (not (rexp.match == m))
 		{
-			printf("failed. =>\nexpected match: %s\nreceived match: %s\n", m.c_str(), rexp.match.c_str());
+			std::cerr << "failed. =>" << std::endl;
+			std::cerr << "expected match: " << m << std::endl;
+			std::cerr << "received match: " << rexp.match << std::endl;
 
 			exit(EXIT_FAILURE);
 		}

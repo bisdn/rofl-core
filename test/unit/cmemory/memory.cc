@@ -50,8 +50,8 @@ check_index_operator()
 		a2[i] = 0x55;
 	}
 
-	printf("a1: %s\n", a1.c_str());
-	printf("a2: %s\n", a2.c_str());
+	std::cerr << "a1: " << a1 << std::endl;
+	std::cerr << "a2: " << a2 << std::endl;
 
 	if (a1 != a2)
 	{
@@ -95,29 +95,24 @@ check_insert()
 	uint8_t *ptr;
 	cmemory a2(size);
 	memset(a2.somem(), 0x55, a2.memlen());
-	printf("start\n");
-	printf("%s\n", a2.c_str());
+	std::cerr << "start" << std::endl << a2 << std::endl;
 
-
-	printf("adding 2 bytes at offset 4\n");
+	std::cerr << "adding 2 bytes at offset 4" << std::endl;
 	ptr = a2.insert((unsigned int)4, 2);
 	memset(ptr, 0x33, 2);
-	printf("%s\n", a2.c_str());
+	std::cerr << a2 << std::endl;
 
-
-	printf("adding 4 bytes at offset 2\n");
+	std::cerr << "adding 4 bytes at offset 2" << std::endl;
 	ptr = a2.insert((unsigned int)2, 4);
 	memset(ptr, 0x77, 4);
-	printf("%s\n", a2.c_str());
+	std::cerr << a2 << std::endl;
 
-
-	printf("removing 2 bytes at offset 1\n");
-	printf("%s\n", a2.c_str());
+	std::cerr << "removing 2 bytes at offset 1" << std::endl;
+	std::cerr << a2 << std::endl;
 	a2.remove((unsigned int)1, 2);
 
-
-	printf("a1: %s\n", a1.c_str());
-	printf("a2: %s\n", a2.c_str());
+	std::cerr << "a1: " << a1 << std::endl;
+	std::cerr << "a2: " << a2 << std::endl;
 
 	if (a1 != a2)
 	{
@@ -128,9 +123,9 @@ check_insert()
 	a1.clear();
 	a2.clear();
 
-	printf("clearing memory\n");
-	printf("a1: %s\n", a1.c_str());
-	printf("a2: %s\n", a2.c_str());
+	std::cerr << "clearing memory" << std::endl;
+	std::cerr << "a1: " << a1 << std::endl;
+	std::cerr << "a2: " << a2 << std::endl;
 
 	if (a1 != a2)
 	{
@@ -175,12 +170,12 @@ check_add_operator()
 
 	if (memcmp(result1, mem1.somem(), mem1.memlen()))
 	{
-		printf(" failed. %s\n", mem1.c_str());
+		std::cerr << " failed." <<  mem1 << std::endl;
 		exit(EXIT_FAILURE);
 	}
 	else
 	{
-		printf(" success.\n");
+		std::cerr << " success." << std::endl;
 	}
 }
 
