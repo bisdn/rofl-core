@@ -133,7 +133,14 @@ cofhelloelems::unpack(
 		if ((be16toh(hello->length) > buflen) || (be16toh(hello->length) == 0))
 			break;
 		map_and_insert(cofhello_elem(buf, be16toh(hello->length)));
-		buf += be16toh(hello->length);
+
+		size_t total_length = be16toh(hello->length);
+		size_t pad = (0x7 & total_length);
+		/* append padding if not a multiple of 8 */
+		if (pad) {
+			total_length += 8 - pad;
+		}
+		buf += total_length;
 	}
 }
 

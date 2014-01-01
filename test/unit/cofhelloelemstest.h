@@ -8,18 +8,19 @@ class cofhelloelemsTest : public CppUnit::TestFixture {
 
 	CPPUNIT_TEST_SUITE( cofhelloelemsTest );
 	CPPUNIT_TEST( testPack );
-	CPPUNIT_TEST( testUnpack );
+	CPPUNIT_TEST( testUnPack );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
 
-	rofl::openflow::cofhelloelems	*elems;
+	rofl::openflow::cofhelloelems *elems;
+	rofl::cmemory *mem;
 
 public:
 	void setUp();
 	void tearDown();
 
 	void testPack();
-	void testUnpack();
+	void testUnPack();
 };
 

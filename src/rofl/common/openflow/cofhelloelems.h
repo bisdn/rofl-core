@@ -147,7 +147,15 @@ public:
 		indent i(2);
 		for (cofhelloelems::const_iterator
 				it = elems.begin(); it != elems.end(); ++it) {
-			os << *(it->second);
+			cofhello_elem const& elem = *(it->second);
+			switch (elem.get_type()) {
+			case openflow13::OFPHET_VERSIONBITMAP: {
+				os << cofhello_elem_versionbitmap(elem);
+			} break;
+			default: {
+				os << *(it->second);
+			} break;
+			}
 		}
 		return os;
 	};
