@@ -101,7 +101,8 @@ public:
 			crofconn_env *env,
 			uint8_t auxiliary_id,
 			int sd,
-			caddress const& ra);
+			caddress const& ra,
+			cofhello_elem_versionbitmap const& versionbitmap);
 
 	/**
 	 *
@@ -244,7 +245,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, crofconn const& conn) {
-
+		os << indent(0) << "<crofconn >" << std::endl;
 		return os;
 	};
 };

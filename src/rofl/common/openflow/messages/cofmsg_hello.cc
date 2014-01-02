@@ -13,7 +13,7 @@ cofmsg_hello::cofmsg_hello(
 	body.assign(data, datalen);
 
 	set_version(of_version);
-	set_length(sizeof(struct openflow::ofp_header));
+	set_length(sizeof(struct openflow::ofp_header) + datalen);
 	set_xid(xid);
 
 	switch (of_version) {
@@ -132,7 +132,9 @@ cofmsg_hello::validate()
 		}
 	} break;
 	case openflow13::OFP_VERSION: {
-		// TODO: create hello elements list
+		if (get_length() > sizeof(struct openflow::ofp_header)) {
+			body.assign(sobody(), bodylen());
+		}
 	} break;
 	default:
 		throw eBadRequestBadVersion();

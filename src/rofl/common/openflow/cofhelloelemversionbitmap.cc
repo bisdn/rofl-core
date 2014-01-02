@@ -92,7 +92,7 @@ cofhello_elem_versionbitmap::operator& (
 	elem.bitmaps.resize(size, 0);
 
 	for (unsigned int i = 0; i < elem.bitmaps.size(); i++) {
-		elem.bitmaps[i] = (*this)[i] & versionbitmap.bitmaps[i];
+		elem.bitmaps[i] = bitmaps[i] & versionbitmap.bitmaps[i];
 	}
 
 	return elem;
@@ -229,7 +229,7 @@ cofhello_elem_versionbitmap::get_highest_ofp_version() const
 	for (std::vector<uint32_t>::const_reverse_iterator
 			it = bitmaps.rbegin(); it != bitmaps.rend(); ++it) {
 		uint32_t const& bitmap = (*it); j--;
-		for (unsigned int i = 31; i >= 0; i--) {
+		for (int i = 31; i >= 0; i--) {
 			if (bitmap & (1<<i)) {
 				return ((j * 32) + i);
 			}
