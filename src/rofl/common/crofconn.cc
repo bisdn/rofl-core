@@ -52,7 +52,7 @@ crofconn::handle_timeout(
 		run_engine(EVENT_ECHO_EXPIRED);
 	} break;
 	default: {
-		logging::warn << "[rofl][conn] unknown timer type:" << opaque << " rcvd" << std::endl;
+		logging::warn << "[rofl][conn] unknown timer type:" << opaque << " rcvd" << std::endl << *this;
 	};
 	}
 }
@@ -211,7 +211,7 @@ crofconn::action_send_hello_message()
 {
 	try {
 		if (versionbitmap.get_highest_ofp_version() == OFP_VERSION_UNKNOWN) {
-			logging::warn << "[rofl][conn] unable to send HELLO message, as no OFP versions are currently configured" << std::endl;
+			logging::warn << "[rofl][conn] unable to send HELLO message, as no OFP versions are currently configured" << std::endl << *this;
 			return;
 		}
 
@@ -256,7 +256,7 @@ crofconn::action_send_echo_request()
 
 	} catch (RoflException& e) {
 
-		logging::error << "[rofl][conn] sending ECHO.request failed " << *this << std::endl;
+		logging::error << "[rofl][conn] sending ECHO.request failed " << std::endl << *this;
 	}
 }
 
@@ -352,7 +352,7 @@ crofconn::hello_rcvd(
 		default: { // msg->get_version() should contain the highest number of supported OFP versions encoded in versionbitmap
 			cofhelloelems helloIEs(hello->get_body());
 			if (not helloIEs.has_hello_elem_versionbitmap()) {
-				logging::warn << "[rofl][conn] HELLO message rcvd without HelloIE -VersionBitmap-" << *hello << std::endl;
+				logging::warn << "[rofl][conn] HELLO message rcvd without HelloIE -VersionBitmap-" << std::endl << *hello << std::endl;
 				versionbitmap_peer.add_ofp_version(hello->get_version());
 			} else {
 				versionbitmap_peer = helloIEs.get_hello_elem_versionbitmap();
