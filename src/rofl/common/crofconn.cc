@@ -265,7 +265,8 @@ crofconn::action_send_echo_request()
 void
 crofconn::handle_connect_refused(crofsock *endpnt)
 {
-
+	run_engine(EVENT_DISCONNECTED);
+	logging::warn << "[rofl][conn] OFP socket indicated connection refused." << std::endl << *this;
 }
 
 
@@ -273,7 +274,8 @@ crofconn::handle_connect_refused(crofsock *endpnt)
 void
 crofconn::handle_open (crofsock *endpnt)
 {
-
+	run_engine(EVENT_CONNECTED);
+	logging::warn << "[rofl][conn] OFP socket indicated connection estabslished." << std::endl << *this;
 }
 
 
@@ -281,7 +283,8 @@ crofconn::handle_open (crofsock *endpnt)
 void
 crofconn::handle_close(crofsock *endpnt)
 {
-
+	run_engine(EVENT_DISCONNECTED);
+	logging::warn << "[rofl][conn] OFP socket indicated connection closed." << std::endl << *this;
 }
 
 
@@ -382,8 +385,8 @@ crofconn::hello_rcvd(
 			logging::warn << "[rofl][conn] no common OFP version supported, closing connection." << std::endl << *this;
 			run_engine(EVENT_DISCONNECTED);
 		} else {
-			logging::info << "[rofl][conn] connection established." << std::endl << *this;
 			run_engine(EVENT_HELLO_RCVD);
+			logging::info << "[rofl][conn] connection established." << std::endl << *this;
 		}
 
 	} catch (eHelloIncompatible& e) {

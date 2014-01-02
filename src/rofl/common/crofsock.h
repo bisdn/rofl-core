@@ -239,8 +239,9 @@ private:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, crofsock const& chan) {
-
+	operator<< (std::ostream& os, crofsock const& rofsock) {
+		os << indent(0) << "<crofsock >" << std::endl;
+		{ indent i(2); os << *(rofsock.socket); }
 		return os;
 	};
 };

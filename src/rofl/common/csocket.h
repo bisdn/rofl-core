@@ -490,6 +490,35 @@ private:
 	void
 	dequeue_packet() throw (eSocketSendFailed, eSocketShortSend);
 
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, csocket const& sock) {
+		os << indent(0) << "<csocket "
+			<< "sd:" << sock.sd << " "
+			<< "domain:" << sock.domain << " "
+			<< "type:" << sock.type << " "
+			<< "protocol:" << sock.protocol << " ";
+		os << ">" << std::endl;
+		os << indent(2) << "<raddr: " << sock.raddr << " >" << std::endl;
+		os << indent(2) << "<laddr: " << sock.laddr << " >" << std::endl;
+		os << indent(2) << "<flags: ";
+		if (sock.sockflags.test(SOCKET_IS_LISTENING)) {
+			os << "LISTENING ";
+		}
+		if (sock.sockflags.test(CONNECT_PENDING)) {
+			os << "CONNECT-PENDING ";
+		}
+		if (sock.sockflags.test(RAW_SOCKET)) {
+			os << "RAW-SOCKET ";
+		}
+		if (sock.sockflags.test(CONNECTED)) {
+			os << "CONNECTED ";
+		}
+		os << ">" << std::endl;
+		return os;
+	};
+
 };
 
 }; // end of namespace

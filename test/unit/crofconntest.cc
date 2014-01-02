@@ -73,7 +73,8 @@ crofconnTest::handle_connected(rofl::csocket *socket, int sd)
 {
 	std::cerr << "connected." << std::endl;
 	rofl::openflow::cofhello_elem_versionbitmap versionbitmap;
-	versionbitmap.add_ofp_version(rofl::openflow10::OFP_VERSION);
+	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
+	versionbitmap.add_ofp_version(rofl::openflow13::OFP_VERSION);
 	lconn = new rofl::openflow::crofconn(this, 0, lsock->sd, versionbitmap);
 }
 

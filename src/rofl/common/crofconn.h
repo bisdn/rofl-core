@@ -244,7 +244,23 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, crofconn const& conn) {
-		os << indent(0) << "<crofconn >" << std::endl;
+		os << indent(0) << "<crofconn ofp-version:" << (int)conn.ofp_version
+				<< " aux-id:" << (int)conn.auxiliary_id << " >" << std::endl;
+		if (conn.state == STATE_DISCONNECTED) {
+			os << indent(2) << "<state: -DISCONNECTED- >" << std::endl;
+		}
+		else if (conn.state == STATE_WAIT_FOR_HELLO) {
+			os << indent(2) << "<state: -WAIT-FOR-HELLO- >" << std::endl;
+		}
+		else if (conn.state == STATE_ESTABLISHED) {
+			os << indent(2) << "<state: -ESTABLISHED- >" << std::endl;
+		}
+
+		{ indent i(2); os << *(conn.rofsock); }
+		os << indent(2) << "<versionbitmap-local: >" << std::endl;
+		{ indent i(4); os << conn.versionbitmap; }
+		os << indent(2) << "<versionbitmap-remote: >" << std::endl;
+		{ indent i(4); os << conn.versionbitmap_peer; }
 		return os;
 	};
 };
