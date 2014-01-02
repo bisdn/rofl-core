@@ -11,7 +11,7 @@ std::set<cunixport*> cunixport::cunixport_list;
 cunixport::cunixport(
 		cport_owner *owner,
 		std::string devname) :
-		csocket(0, PF_UNIX, SOCK_DGRAM, 0),
+		csocket(0, PF_UNIX, SOCK_DGRAM, IPPROTO_UDP, 10),
 		clinuxport(owner, devname, std::string("vport")),
 		baddr(AF_UNIX, devname.c_str())
 {

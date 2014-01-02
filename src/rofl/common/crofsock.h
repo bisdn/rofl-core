@@ -101,7 +101,7 @@ public:
 	 *
 	 */
 	crofsock(
-			crofsock_env *endpnt_owner, int sd, caddress const& ra);
+			crofsock_env *endpnt_owner, int sd);
 
 
 	/**

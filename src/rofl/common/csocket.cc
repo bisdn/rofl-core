@@ -36,21 +36,12 @@ csocket::csocket(
 
 csocket::csocket(
 		csocket_owner *owner,
-		int sd,
-		caddress const& ra,
-		int domain,
-		int type,
-		int protocol,
-		int backlog) :
+		int sd) :
 	socket_owner(owner),
 	sd(sd),
-	laddr(domain),
-	raddr(ra),
-	domain(domain),
-	type(type),
-	protocol(protocol),
-	backlog(backlog)
+	backlog(0)
 {
+	socklen_t optlen = 0;
 
 	WRITELOG(CSOCKET, DBG, "csocket(%p)::csocket()", this);
 
@@ -66,6 +57,24 @@ csocket::csocket(
 	if ((getpeername(sd, raddr.ca_saddr, &(raddr.salen))) < 0) {
 		logging::error << "[rofl][socket] unable to read remote address from socket descriptor:"
 				<< sd << " " << eSysCall() << std::endl;
+	}
+
+	optlen = sizeof(domain);
+	if ((getsockopt(sd, SOL_SOCKET, SO_DOMAIN, &domain, &optlen)) < 0) {
+		logging::error << "[rofl][socket] unable to read domain from socket descriptor:"
+						<< sd << " " << eSysCall() << std::endl;
+	}
+
+	optlen = sizeof(type);
+	if ((getsockopt(sd, SOL_SOCKET, SO_TYPE, &type, &optlen)) < 0) {
+		logging::error << "[rofl][socket] unable to read type from socket descriptor:"
+						<< sd << " " << eSysCall() << std::endl;
+	}
+
+	optlen = sizeof(protocol);
+	if ((getsockopt(sd, SOL_SOCKET, SO_PROTOCOL, &protocol, &optlen)) < 0) {
+		logging::error << "[rofl][socket] unable to read protocol from socket descriptor:"
+						<< sd << " " << eSysCall() << std::endl;
 	}
 
 	csock_list.insert(this);

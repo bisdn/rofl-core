@@ -11,10 +11,9 @@ using namespace rofl::openflow;
 
 crofsock::crofsock(
 		crofsock_env *env,
-		int sd,
-		caddress const& ra) :
+		int sd) :
 				env(env),
-				socket(new csocket(this, sd, ra)),
+				socket(new csocket(this, sd)),
 				fragment((cmemory*)0),
 				msg_bytes_read(0)
 {

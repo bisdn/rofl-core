@@ -13,11 +13,10 @@ crofconn::crofconn(
 		crofconn_env *env,
 		uint8_t auxiliary_id,
 		int sd,
-		caddress const& ra,
 		cofhello_elem_versionbitmap const& versionbitmap) :
 				env(env),
 				auxiliary_id(auxiliary_id),
-				rofsock(new crofsock(this, sd, ra)),
+				rofsock(new crofsock(this, sd)),
 				versionbitmap(versionbitmap),
 				ofp_version(OFP_VERSION_UNKNOWN),
 				state(STATE_DISCONNECTED),

@@ -101,7 +101,6 @@ public:
 			crofconn_env *env,
 			uint8_t auxiliary_id,
 			int sd,
-			caddress const& ra,
 			cofhello_elem_versionbitmap const& versionbitmap);
 
 	/**

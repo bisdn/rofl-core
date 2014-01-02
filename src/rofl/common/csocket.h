@@ -9,6 +9,9 @@
 #include <bitset>
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <netinet/in.h>
 #include <sys/un.h>
 #include <fcntl.h>
@@ -16,6 +19,11 @@
 #include <sys/ioctl.h>
 #include <sys/uio.h>
 #include <pthread.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#ifdef __cplusplus
+}
+#endif
 
 #include "croflexception.h"
 #include "ciosrv.h"
@@ -207,12 +215,7 @@ public:
 	 * @param backlog listen backlog
 	 */
 	csocket(csocket_owner *owner,
-			int newsd,
-			caddress const& ra,
-			int domain 		= PF_INET,
-			int type 		= SOCK_STREAM,
-			int protocol 	= IPPROTO_TCP,
-			int backlog 	= 10);
+			int newsd);
 
 
 
@@ -230,10 +233,10 @@ public:
 	 * @param backlog listen backlog
 	 */
 	csocket(csocket_owner *owner,
-			int domain 		= PF_INET,
-			int type 		= SOCK_STREAM,
-			int protocol 	= IPPROTO_TCP,
-			int backlog 	= 10);
+			int domain,
+			int type,
+			int protocol,
+			int backlog);
 
 
 
