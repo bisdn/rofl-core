@@ -293,11 +293,33 @@ crofconn::recv_message(
 		cofmsg *msg)
 {
 	switch (msg->get_type()) {
-	case OFPT_HELLO: 		hello_rcvd(msg);				break;
-	case OFPT_ERROR: 		error_rcvd(msg);				break;
-	case OFPT_ECHO_REQUEST: echo_request_rcvd(msg);			break;
-	case OFPT_ECHO_REPLY: 	echo_reply_rcvd(msg);			break;
-	default:				env->recv_message(this, msg);	break;
+	case OFPT_HELLO: {
+		hello_rcvd(msg);
+	} break;
+	case OFPT_ERROR: {
+		error_rcvd(msg);
+	} break;
+	case OFPT_ECHO_REQUEST: {
+		if (state != STATE_ESTABLISHED) {
+			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
+			delete msg; return;
+		}
+		echo_request_rcvd(msg);
+	} break;
+	case OFPT_ECHO_REPLY: {
+		if (state != STATE_ESTABLISHED) {
+			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
+			delete msg; return;
+		}
+		echo_reply_rcvd(msg);
+	} break;
+	default: {
+		if (state != STATE_ESTABLISHED) {
+			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
+			delete msg; return;
+		}
+		env->recv_message(this, msg);
+	} break;
 	}
 }
 

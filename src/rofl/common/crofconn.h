@@ -5,8 +5,8 @@
  *      Author: andreas
  */
 
-#ifndef CROFCHAN_H_
-#define CROFCHAN_H_
+#ifndef CROFCONN_H_
+#define CROFCONN_H_
 
 #ifdef __cplusplus
 extern "C" {
