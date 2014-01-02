@@ -123,6 +123,12 @@ public:
 	bool
 	has_ofp_version(uint8_t ofp_version);
 
+	/**
+	 *
+	 */
+	void
+	clear_ofp_versions();
+
 public:
 
 	friend std::ostream&

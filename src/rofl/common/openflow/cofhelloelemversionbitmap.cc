@@ -188,3 +188,14 @@ cofhello_elem_versionbitmap::has_ofp_version(uint8_t ofp_version)
 }
 
 
+
+void
+cofhello_elem_versionbitmap::clear_ofp_versions()
+{
+	for (std::vector<uint32_t>::iterator
+			it = bitmaps.begin(); it != bitmaps.end(); ++it) {
+		(*it) = 0;
+	}
+}
+
+

@@ -73,6 +73,38 @@ void
 crofconn::hello_rcvd(
 		cofmsg *msg)
 {
+	cofmsg_hello *hello = dynamic_cast<cofmsg_hello*>( msg );
+
+	if (NULL == msg) {
+		logging::warn << "[rofl][conn] invalid message rcvd in method hello_rcvd()" << std::endl << *msg;
+		delete msg; return;
+	}
+
+	versionbitmap_peer.clear();
+
+	switch (hello->get_version()) {
+	case openflow10::OFP_VERSION:
+	case openflow12::OFP_VERSION: {
+		versionbitmap_peer.add_ofp_version(hello->get_version());
+	} break;
+	default: { // msg->get_version() should contain the highest number of supported OFP versions
+		cofhelloelems helloIEs(hello->get_body());
+		if (not helloIEs.has_hello_elem_versionbitmap()) {
+			logging::warn << "[rofl][conn] HELLO message rcvd without HelloIE -VersionBitmap-" << *hello << std::endl;
+			versionbitmap_peer.add_ofp_version(hello->get_version());
+		} else {
+			versionbitmap_peer = helloIEs.get_hello_elem_versionbitmap();
+			// sanity check
+			if (not versionbitmap_peer.has_ofp_version(hello->get_version())) {
+				logging::warn << "[rofl][conn] malformed HelloIE -VersionBitmap- => " <<
+						"does not contain version defined in OFP message header:" <<
+						(int)hello->get_version() << std::endl << *hello;
+			}
+		}
+	};
+	}
+
+
 #if 0
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Hello message received" << std::endl << *msg << std::endl;

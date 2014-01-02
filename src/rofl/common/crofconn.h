@@ -17,6 +17,8 @@ extern "C" {
 #endif
 
 #include "crofsock.h"
+#include "openflow/cofhelloelems.h"
+#include "openflow/cofhelloelemversionbitmap.h"
 
 namespace rofl {
 namespace openflow {
@@ -36,7 +38,9 @@ class crofconn :
 	crofconn_env 					*env;
 	uint8_t							auxiliary_id;
 	crofsock						*rofsock;
-	std::vector<uint32_t>			bitmaps;
+	cofhello_elem_versionbitmap		versionbitmap; 			// supported OF versions by this entity
+	cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OF versions by peer entity
+
 
 	enum msg_type_t {
 		OFPT_HELLO = 0,

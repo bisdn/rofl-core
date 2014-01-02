@@ -63,6 +63,12 @@ public:
 	 *
 	 */
 	cofhelloelems(
+			cmemory const& body);
+
+	/**
+	 *
+	 */
+	cofhelloelems(
 			cofhelloelems const& elems);
 
 	/**

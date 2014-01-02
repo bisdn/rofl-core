@@ -31,6 +31,14 @@ cofhelloelems::cofhelloelems(
 
 
 cofhelloelems::cofhelloelems(
+		cmemory const& body)
+{
+	unpack(body.somem(), body.memlen());
+}
+
+
+
+cofhelloelems::cofhelloelems(
 		cofhelloelems const& elems)
 {
 	*this = elems;
