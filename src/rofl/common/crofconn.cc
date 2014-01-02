@@ -76,7 +76,7 @@ crofconn::hello_rcvd(
 	cofmsg_hello *hello = dynamic_cast<cofmsg_hello*>( msg );
 
 	if (NULL == msg) {
-		logging::warn << "[rofl][conn] invalid message rcvd in method hello_rcvd()" << std::endl << *msg;
+		logging::debug << "[rofl][conn] invalid message rcvd in method hello_rcvd()" << std::endl << *msg;
 		delete msg; return;
 	}
 
