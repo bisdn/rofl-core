@@ -77,6 +77,13 @@ public:
 	operator= (
 			cofhello_elem_versionbitmap const& elem);
 
+	/**
+	 * @brief	Calculates (*this AND versionbitmap) and returns a new copy of cofhello_elem_versionbitmap
+	 */
+	cofhello_elem_versionbitmap
+	operator& (
+			cofhello_elem_versionbitmap const& versionbitmap) const;
+
 public:
 
 	/**
@@ -121,13 +128,19 @@ public:
 	 *
 	 */
 	bool
-	has_ofp_version(uint8_t ofp_version);
+	has_ofp_version(uint8_t ofp_version) const;
 
 	/**
 	 *
 	 */
 	void
 	clear_ofp_versions();
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_highest_ofp_version() const;
 
 public:
 

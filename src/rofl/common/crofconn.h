@@ -16,6 +16,7 @@ extern "C" {
 }
 #endif
 
+#include "ciosrv.h"
 #include "crofsock.h"
 #include "openflow/cofhelloelems.h"
 #include "openflow/cofhelloelemversionbitmap.h"
@@ -23,24 +24,32 @@ extern "C" {
 namespace rofl {
 namespace openflow {
 
+class eRofConnBase 					: public RoflException {};
+class eRofConnXidSpaceExhausted		: public eRofConnBase {};
+
 class crofconn; // forward declaration
 
 class crofconn_env {
 public:
 	virtual ~crofconn_env() {};
-	virtual void recv_message(cofmsg *msg) = 0;
+	virtual void handle_close(crofconn *conn) = 0;
+	virtual void recv_message(crofconn *conn, cofmsg *msg) = 0;
+	virtual uint32_t get_async_xid(crofconn *conn) = 0;
+	virtual uint32_t get_sync_xid(crofconn *conn) = 0;
+	virtual void release_sync_xid(crofconn *conn, uint32_t xid) = 0;
 };
 
 
 class crofconn :
-		public crofsock_env
+		public crofsock_env,
+		public ciosrv
 {
 	crofconn_env 					*env;
 	uint8_t							auxiliary_id;
 	crofsock						*rofsock;
 	cofhello_elem_versionbitmap		versionbitmap; 			// supported OF versions by this entity
 	cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OF versions by peer entity
-
+	uint8_t							ofp_version;
 
 	enum msg_type_t {
 		OFPT_HELLO = 0,
@@ -48,6 +57,40 @@ class crofconn :
 		OFPT_ECHO_REQUEST = 2,
 		OFPT_ECHO_REPLY = 3,
 	};
+
+	enum crofconn_event_t {
+		EVENT_NONE				= 0,
+		EVENT_CONNECTED 		= 1,
+		EVENT_DISCONNECTED 		= 2,
+		EVENT_HELLO_RCVD 		= 3,
+		EVENT_HELLO_EXPIRED		= 4,
+		EVENT_ECHO_RCVD			= 5,
+		EVENT_ECHO_EXPIRED		= 6,
+	};
+	std::deque<enum crofconn_event_t> 	events;
+
+	enum crofconn_state_t {
+		STATE_DISCONNECTED 		= 1,
+		STATE_WAIT_FOR_HELLO	= 2,
+		STATE_ESTABLISHED 		= 3,
+	};
+	enum crofconn_state_t				state;
+
+	enum crofconn_timer_t {
+		TIMER_WAIT_FOR_HELLO	= 1,
+		TIMER_SEND_ECHO			= 2,
+		TIMER_WAIT_FOR_ECHO		= 3,
+	};
+
+#define DEFAULT_HELLO_TIMEOUT	5
+#define DEFAULT_ECHO_TIMEOUT 	5
+#define DEFAULT_ECHO_INTERVAL	5
+
+public:
+
+	unsigned int					hello_timeout;
+	unsigned int					echo_timeout;
+	unsigned int					echo_interval;
 
 public:
 
@@ -65,6 +108,26 @@ public:
 	 */
 	virtual ~crofconn();
 
+public:
+
+	/**
+	 * @brief	Returns a reference to the versionbitmap announced by this entity
+	 */
+	cofhello_elem_versionbitmap&
+	get_versionbitmap() { return versionbitmap; };
+
+	/**
+	 * @brief	Returns a reference to the versionbitmap seen from the peer
+	 */
+	cofhello_elem_versionbitmap&
+	get_versionbitmap_peer() { return versionbitmap_peer; };
+
+	/**
+	 * @brief	Returns the negotiated OFP version (or OFP_UNKNOWN)
+	 */
+	uint8_t
+	get_version() const { return ofp_version; };
+
 private:
 
 	virtual void
@@ -81,6 +144,73 @@ private:
 
 private:
 
+	/**
+	 *
+	 */
+	virtual void
+	handle_timeout(int opaque);
+
+	/**
+	 *
+	 */
+	void
+	run_engine(enum crofconn_event_t event = EVENT_NONE);
+
+	/**
+	 *
+	 */
+	void
+	event_connected();
+
+	/**
+	 *
+	 */
+	void
+	event_disconnected();
+
+	/**
+	 *
+	 */
+	void
+	event_hello_rcvd();
+
+	/**
+	 *
+	 */
+	void
+	event_hello_expired();
+
+	/**
+	 *
+	 */
+	void
+	event_echo_rcvd();
+
+	/**
+	 *
+	 */
+	void
+	event_echo_expired();
+
+	/**
+	 *
+	 */
+	void
+	action_send_hello_message();
+
+	/**
+	 *
+	 */
+	void
+	action_disconnect();
+
+	/**
+	 *
+	 */
+	void
+	action_send_echo_request();
+
+private:
 
 	/**
 	 *

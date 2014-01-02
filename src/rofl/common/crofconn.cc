@@ -16,15 +16,247 @@ crofconn::crofconn(
 		caddress const& ra) :
 				env(env),
 				auxiliary_id(auxiliary_id),
-				rofsock(new crofsock(this, sd, ra))
+				rofsock(new crofsock(this, sd, ra)),
+				ofp_version(OFP_VERSION_UNKNOWN),
+				state(STATE_DISCONNECTED),
+				hello_timeout(DEFAULT_HELLO_TIMEOUT),
+				echo_timeout(DEFAULT_ECHO_TIMEOUT),
+				echo_interval(DEFAULT_ECHO_INTERVAL)
 {
-
+	run_engine(EVENT_CONNECTED); // socket is available
 }
+
 
 
 crofconn::~crofconn()
 {
 
+}
+
+
+
+void
+crofconn::handle_timeout(
+		int opaque)
+{
+	switch (opaque) {
+	case TIMER_WAIT_FOR_HELLO: {
+		events.push_back(EVENT_HELLO_EXPIRED);
+	} break;
+	case TIMER_SEND_ECHO: {
+		action_send_echo_request();
+	} break;
+	case TIMER_WAIT_FOR_ECHO: {
+		events.push_back(EVENT_ECHO_EXPIRED);
+	} break;
+	default: {
+		logging::warn << "[rofl][conn] unknown timer type:" << opaque << " rcvd" << std::endl;
+	};
+	}
+	run_engine();
+}
+
+
+
+void
+crofconn::run_engine(crofconn_event_t event)
+{
+	if (EVENT_NONE != event) {
+		events.push_back(event);
+	}
+
+	while (not events.empty()) {
+		enum crofconn_event_t event = events.front();
+		events.pop_front();
+
+		switch (event) {
+		case EVENT_CONNECTED: 		event_connected(); 			break;
+		case EVENT_DISCONNECTED:	event_disconnected();		break;
+		case EVENT_HELLO_RCVD:		event_hello_rcvd();			break;
+		case EVENT_HELLO_EXPIRED:	event_hello_expired();		break;
+		case EVENT_ECHO_EXPIRED:	event_echo_expired();		break;
+		default: {
+			logging::error << "[rofl][conn] unknown event seen, internal error" << std::endl << *this;
+		};
+		}
+	}
+}
+
+
+
+void
+crofconn::event_connected()
+{
+	switch (state) {
+	case STATE_DISCONNECTED:
+	case STATE_WAIT_FOR_HELLO:
+	case STATE_ESTABLISHED: {
+		action_send_hello_message();
+		reset_timer(TIMER_WAIT_FOR_HELLO, hello_timeout);
+		state = STATE_WAIT_FOR_HELLO;
+
+	} break;
+	default: {
+		logging::error << "[rofl][conn] event -CONNECTED- invalid state reached, internal error" << std::endl << *this;
+	};
+	}
+}
+
+
+
+void
+crofconn::event_disconnected()
+{
+	switch (state) {
+	case STATE_DISCONNECTED: {
+		// do nothing
+	} break;
+	case STATE_WAIT_FOR_HELLO:
+	case STATE_ESTABLISHED: {
+		cancel_timer(TIMER_WAIT_FOR_ECHO);
+		cancel_timer(TIMER_WAIT_FOR_HELLO);
+		rofsock->get_socket().cclose();
+		env->handle_close(this);
+		state = STATE_DISCONNECTED;
+
+	} break;
+	default: {
+		logging::error << "[rofl][conn] event -DISCONNECTED- invalid state reached, internal error" << std::endl << *this;
+	};
+	}
+}
+
+
+
+void
+crofconn::event_hello_rcvd()
+{
+	switch (state) {
+	case STATE_DISCONNECTED: {
+		action_send_hello_message();
+		reset_timer(TIMER_WAIT_FOR_HELLO, hello_timeout);
+		state = STATE_WAIT_FOR_HELLO;
+
+	} break;
+	case STATE_WAIT_FOR_HELLO:
+	case STATE_ESTABLISHED: {
+		cancel_timer(TIMER_WAIT_FOR_HELLO);
+		reset_timer(TIMER_SEND_ECHO, echo_interval);
+		state = STATE_ESTABLISHED;
+
+	} break;
+	default: {
+		logging::error << "[rofl][conn] event -HELLO-RCVD- occured in invalid state, internal error" << std::endl << *this;
+	};
+	}
+}
+
+
+
+void
+crofconn::event_hello_expired()
+{
+	switch (state) {
+	case STATE_WAIT_FOR_HELLO: {
+		logging::warn << "[rofl][conn] event -HELLO-EXPIRED- occured in state -WAIT-FOR-HELLO-" << std::endl << *this;
+		run_engine(EVENT_DISCONNECTED);
+
+	} break;
+	default: {
+		logging::error << "[rofl][conn] event -HELLO-EXPIRED- occured in invalid state, internal error" << std::endl << *this;
+	};
+	}
+}
+
+
+
+void
+crofconn::event_echo_rcvd()
+{
+	switch (state) {
+	case STATE_ESTABLISHED: {
+		cancel_timer(TIMER_WAIT_FOR_ECHO);
+		register_timer(TIMER_SEND_ECHO, echo_interval);
+
+	} break;
+	default: {
+		logging::error << "[rofl][conn] event -ECHO.reply-RCVD- occured in invalid state, internal error" << std::endl << *this;
+	};
+	}
+}
+
+
+
+void
+crofconn::event_echo_expired()
+{
+	switch (state) {
+	case STATE_ESTABLISHED: {
+		run_engine(EVENT_DISCONNECTED);
+
+	} break;
+	default: {
+		logging::error << "[rofl][conn] event -ECHO.reply-EXPIRED- occured in invalid state, internal error" << std::endl << *this;
+	};
+	}
+}
+
+
+
+void
+crofconn::action_send_hello_message()
+{
+	try {
+		if (versionbitmap.get_highest_ofp_version() == OFP_VERSION_UNKNOWN) {
+			logging::warn << "[rofl][conn] unable to send HELLO message, as no OFP versions are currently configured" << std::endl;
+			return;
+		}
+
+		cmemory body(versionbitmap.length());
+		versionbitmap.pack(body.somem(), body.memlen());
+
+		cofmsg_hello *hello =
+				new cofmsg_hello(
+						versionbitmap.get_highest_ofp_version(),
+						env->get_async_xid(this),
+						body.somem(), body.memlen());
+
+		rofsock->send_message(hello);
+
+	} catch (eRofConnXidSpaceExhausted& e) {
+
+		logging::error << "[rofl][conn] sending HELLO.message failed: no idle xid available" << std::endl << *this;
+
+	} catch (RoflException& e) {
+
+		logging::error << "[rofl][conn] sending HELLO.message failed " << std::endl << *this;
+
+	}
+}
+
+
+
+void
+crofconn::action_send_echo_request()
+{
+	try {
+		cofmsg_echo_request *echo =
+				new cofmsg_echo_request(
+						ofp_version,
+						env->get_sync_xid(this));
+
+		rofsock->send_message(echo);
+
+	} catch (eRofConnXidSpaceExhausted& e) {
+
+		logging::error << "[rofl][conn] sending ECHO.request failed: no idle xid available" << std::endl << *this;
+
+
+	} catch (RoflException& e) {
+
+		logging::error << "[rofl][conn] sending ECHO.request failed " << *this << std::endl;
+
+	}
 }
 
 
@@ -59,11 +291,11 @@ crofconn::recv_message(
 		cofmsg *msg)
 {
 	switch (msg->get_type()) {
-	case OFPT_HELLO: 		hello_rcvd(msg);		break;
-	case OFPT_ERROR: 		error_rcvd(msg);		break;
-	case OFPT_ECHO_REQUEST: echo_request_rcvd(msg);	break;
-	case OFPT_ECHO_REPLY: 	echo_reply_rcvd(msg);	break;
-	default:				env->recv_message(msg);	break;
+	case OFPT_HELLO: 		hello_rcvd(msg);				break;
+	case OFPT_ERROR: 		error_rcvd(msg);				break;
+	case OFPT_ECHO_REQUEST: echo_request_rcvd(msg);			break;
+	case OFPT_ECHO_REPLY: 	echo_reply_rcvd(msg);			break;
+	default:				env->recv_message(this, msg);	break;
 	}
 }
 
@@ -80,94 +312,136 @@ crofconn::hello_rcvd(
 		delete msg; return;
 	}
 
-	versionbitmap_peer.clear();
-
-	switch (hello->get_version()) {
-	case openflow10::OFP_VERSION:
-	case openflow12::OFP_VERSION: {
-		versionbitmap_peer.add_ofp_version(hello->get_version());
-	} break;
-	default: { // msg->get_version() should contain the highest number of supported OFP versions
-		cofhelloelems helloIEs(hello->get_body());
-		if (not helloIEs.has_hello_elem_versionbitmap()) {
-			logging::warn << "[rofl][conn] HELLO message rcvd without HelloIE -VersionBitmap-" << *hello << std::endl;
-			versionbitmap_peer.add_ofp_version(hello->get_version());
-		} else {
-			versionbitmap_peer = helloIEs.get_hello_elem_versionbitmap();
-			// sanity check
-			if (not versionbitmap_peer.has_ofp_version(hello->get_version())) {
-				logging::warn << "[rofl][conn] malformed HelloIE -VersionBitmap- => " <<
-						"does not contain version defined in OFP message header:" <<
-						(int)hello->get_version() << std::endl << *hello;
-			}
-		}
-	};
-	}
-
-
-#if 0
-	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Hello message received" << std::endl << *msg << std::endl;
-
 	try {
-		// OpenFlow versions not supported on our side, send error, close connection
-		if (not rofbase->is_ofp_version_supported(msg->get_version()))
-		{
-			new_state(STATE_CTL_DISCONNECTED);
 
-			// invalid OFP_VERSION
-			char explanation[256];
-			bzero(explanation, sizeof(explanation));
-			snprintf(explanation, sizeof(explanation) - 1,
-							"unsupported OF version (%d), supported version is (%d)",
-							(msg->get_version()), openflow12::OFP_VERSION);
+		/* Step 1: extract version information from HELLO message */
 
+		versionbitmap_peer.clear();
+
+		switch (hello->get_version()) {
+		case openflow10::OFP_VERSION:
+		case openflow12::OFP_VERSION: {
+			versionbitmap_peer.add_ofp_version(hello->get_version());
+		} break;
+		default: { // msg->get_version() should contain the highest number of supported OFP versions encoded in versionbitmap
+			cofhelloelems helloIEs(hello->get_body());
+			if (not helloIEs.has_hello_elem_versionbitmap()) {
+				logging::warn << "[rofl][conn] HELLO message rcvd without HelloIE -VersionBitmap-" << *hello << std::endl;
+				versionbitmap_peer.add_ofp_version(hello->get_version());
+			} else {
+				versionbitmap_peer = helloIEs.get_hello_elem_versionbitmap();
+				// sanity check
+				if (not versionbitmap_peer.has_ofp_version(hello->get_version())) {
+					logging::warn << "[rofl][conn] malformed HelloIE -VersionBitmap- => " <<
+							"does not contain version defined in OFP message header:" <<
+							(int)hello->get_version() << std::endl << *hello;
+				}
+			}
+		};
+		}
+
+		/* Step 2: select highest supported protocol version on both sides */
+
+		cofhello_elem_versionbitmap versionbitmap_common = versionbitmap & versionbitmap_peer;
+		if (versionbitmap_common.get_highest_ofp_version() == OFP_VERSION_UNKNOWN) {
+			logging::warn << "[rofl][conn] no common OFP version found for peer" << std::endl;
+			logging::warn << "local version-bitmap:" << std::endl << indent(2) << versionbitmap;
+			logging::warn << "remote version-bitmap:" << std::endl << indent(2) << versionbitmap_peer;
 			throw eHelloIncompatible();
 		}
-		else
-		{
-			// TODO: determine properly version from hello elements in OpenFlow 1.3
-			ofp_version = msg->get_version();
 
-			flags.set(COFCTL_FLAG_HELLO_RCVD);
+		ofp_version = versionbitmap_common.get_highest_ofp_version();
 
-			new_state(STATE_CTL_ESTABLISHED);
+		logging::info << "[rofl][conn] negotiated OFP version:" << (int)ofp_version << std::endl;
 
-			logging::info << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-					<< " Hello exchanged with peer entity, attached. " << *this << std::endl;
-
-			if (flags.test(COFCTL_FLAG_HELLO_SENT)) {
-				register_timer(COFCTL_TIMER_SEND_ECHO_REQUEST, rpc_echo_interval);
-
-				logging::info << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec << "" << *this << indent(2)
-						<< "Hello exchanged with peer entity (disconnected -> connected)" << std::endl;
-
-				rofbase->handle_ctl_open(this);
-			}
+		// move on state machine
+		if (ofp_version == OFP_VERSION_UNKNOWN) {
+			logging::warn << "[rofl][conn] no common OFP version supported, closing connection." << std::endl << *this;
+			run_engine(EVENT_DISCONNECTED);
+		} else {
+			logging::info << "[rofl][conn] connection established." << std::endl << *this;
+			run_engine(EVENT_HELLO_RCVD);
 		}
-
-		delete msg;
 
 	} catch (eHelloIncompatible& e) {
 
-		logging::warn << "eHelloIncompatible " << *msg << std::endl;
-		rofbase->send_error_hello_failed_incompatible(this, msg->get_xid(), msg->soframe(), msg->framelen());
+		logging::warn << "[rofl][conn] eHelloIncompatible " << *msg << std::endl;
+
+		uint16_t type = 0, code = 0;
+
+		switch (hello->get_version()) {
+		case openflow10::OFP_VERSION: {
+			type = openflow10::OFPET_HELLO_FAILED; code = openflow10::OFPHFC_INCOMPATIBLE;
+		} break;
+		case openflow12::OFP_VERSION: {
+			type = openflow12::OFPET_HELLO_FAILED; code = openflow12::OFPHFC_INCOMPATIBLE;
+		} break;
+		case openflow13::OFP_VERSION: {
+			type = openflow13::OFPET_HELLO_FAILED; code = openflow13::OFPHFC_INCOMPATIBLE;
+		} break;
+		default: {
+			logging::warn << "[rofl][crofbase] cannot send HelloFailed/Incompatible for ofp-version:"
+					<< (int)hello->get_version() << std::endl;
+		} delete msg; return;
+		}
+
+		cofmsg_error *error =
+				new cofmsg_error(
+						hello->get_version(), hello->get_xid(), type, code,
+							msg->soframe(), msg->framelen());
 		delete msg;
-		handle_closed(socket, socket->sd);
+
+		rofsock->send_message(error);
+
+		// TODO: close socket
+		//rofsock->
+
+		run_engine(EVENT_DISCONNECTED);
 
 	} catch (eHelloEperm& e) {
 
 		logging::warn << "eHelloEperm " << *msg << std::endl;
-		rofbase->send_error_hello_failed_eperm(this, msg->get_xid(), msg->soframe(), msg->framelen());
-		delete msg;
-		handle_closed(socket, socket->sd);
 
-	} catch (eHelloBase& e) {
+		uint16_t type = 0, code = 0;
 
-		logging::warn << "eHelloBase " << *msg << std::endl;
+		switch (hello->get_version()) {
+		case openflow10::OFP_VERSION: {
+			type = openflow10::OFPET_HELLO_FAILED; code = openflow10::OFPHFC_EPERM;
+		} break;
+		case openflow12::OFP_VERSION: {
+			type = openflow12::OFPET_HELLO_FAILED; code = openflow12::OFPHFC_EPERM;
+		} break;
+		case openflow13::OFP_VERSION: {
+			type = openflow13::OFPET_HELLO_FAILED; code = openflow13::OFPHFC_EPERM;
+		} break;
+		default: {
+			logging::warn << "[rofl][crofbase] cannot send HelloFailed/EPerm for ofp-version:"
+					<< (int)hello->get_version() << std::endl;
+		} delete msg; return;
+		}
+
+		cofmsg_error *error =
+				new cofmsg_error(
+						hello->get_version(), hello->get_xid(), type, code,
+							msg->soframe(), msg->framelen());
 		delete msg;
+
+		rofsock->send_message(error);
+
+		// TODO: close socket
+		// rofsock->
+
+		run_engine(EVENT_DISCONNECTED);
+
+	} catch (RoflException& e) {
+
+		logging::warn << "[rofl][conn] RoflException " << *msg << std::endl;
+
+		delete msg;
+
+		run_engine(EVENT_DISCONNECTED);
 	}
-#endif
+
 }
 
 

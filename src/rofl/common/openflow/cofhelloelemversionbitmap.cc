@@ -80,6 +80,26 @@ cofhello_elem_versionbitmap::operator= (
 
 
 
+cofhello_elem_versionbitmap
+cofhello_elem_versionbitmap::operator& (
+		cofhello_elem_versionbitmap const& versionbitmap) const
+{
+	size_t size =
+			(bitmaps.size() < versionbitmap.bitmaps.size()) ?
+						bitmaps.size() : versionbitmap.bitmaps.size();
+
+	cofhello_elem_versionbitmap elem;
+	elem.bitmaps.resize(size, 0);
+
+	for (unsigned int i = 0; i < elem.bitmaps.size(); i++) {
+		elem.bitmaps[i] = (*this)[i] & versionbitmap.bitmaps[i];
+	}
+
+	return elem;
+}
+
+
+
 uint8_t*
 cofhello_elem_versionbitmap::resize(size_t len)
 {
@@ -176,7 +196,7 @@ cofhello_elem_versionbitmap::drop_ofp_version(uint8_t ofp_version)
 
 
 bool
-cofhello_elem_versionbitmap::has_ofp_version(uint8_t ofp_version)
+cofhello_elem_versionbitmap::has_ofp_version(uint8_t ofp_version) const
 {
 	unsigned int index  = ofp_version / 32;
 	unsigned int bitpos = ofp_version % 32;
@@ -197,5 +217,28 @@ cofhello_elem_versionbitmap::clear_ofp_versions()
 		(*it) = 0;
 	}
 }
+
+
+
+uint8_t
+cofhello_elem_versionbitmap::get_highest_ofp_version() const
+{
+	uint8_t ofp_version = OFP_VERSION_UNKNOWN;
+
+	unsigned int j = bitmaps.size();
+	for (std::vector<uint32_t>::const_reverse_iterator
+			it = bitmaps.rbegin(); it != bitmaps.rend(); ++it) {
+		uint32_t const& bitmap = (*it); j--;
+		for (unsigned int i = 31; i >= 0; i--) {
+			if (bitmap & (1<<i)) {
+				return ((j * 32) + i);
+			}
+		}
+	}
+
+	return ofp_version;
+}
+
+
 
 
