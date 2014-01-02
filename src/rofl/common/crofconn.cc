@@ -275,7 +275,7 @@ void
 crofconn::handle_open (crofsock *endpnt)
 {
 	run_engine(EVENT_CONNECTED);
-	logging::warn << "[rofl][conn] OFP socket indicated connection estabslished." << std::endl << *this;
+	logging::warn << "[rofl][conn] OFP socket indicated connection established." << std::endl << *this;
 }
 
 
