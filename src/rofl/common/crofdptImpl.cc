@@ -8,8 +8,10 @@ using namespace rofl;
 
 
 crofdptImpl::crofdptImpl(
-		crofbase *rofbase) :
+		crofbase *rofbase,
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
 				crofdpt(rofbase),
+				rofchan(this, versionbitmap),
 				dpid(0),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
@@ -17,34 +19,25 @@ crofdptImpl::crofdptImpl(
 				capabilities(0),
 				config(0),
 				miss_send_len(0),
-				socket(0),
 				rofbase(rofbase),
-				fragment(0),
-				msg_bytes_read(0),
-				reconnect_start_timeout(0),
-				reconnect_in_seconds(RECONNECT_START_TIMEOUT),
-				reconnect_counter(0),
-				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
-				ofp_version(openflow12::OFP_VERSION),
 				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
 				barrier_reply_timeout(DEFAULT_DP_BARRIER_REPLY_TIMEOUT),
-				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT)
+				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT),
+				state(STATE_INIT)
 {
-
+	run_engine(EVENT_DISCONNECTED);
 }
 
 
 
 crofdptImpl::crofdptImpl(
 		crofbase *rofbase,
-		int newsd,
-		caddress const& ra,
-		int domain,
-		int type,
-		int protocol) :
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		int newsd) :
 				crofdpt(rofbase),
+				rofchan(this, versionbitmap),
 				dpid(0),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
@@ -52,37 +45,29 @@ crofdptImpl::crofdptImpl(
 				capabilities(0),
 				config(0),
 				miss_send_len(0),
-				socket(new csocket(this, newsd)),
 				rofbase(rofbase),
-				fragment(0),
-				msg_bytes_read(0),
-				reconnect_start_timeout(0),
-				reconnect_in_seconds(0),
-				reconnect_counter(0),
-				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
-				ofp_version(openflow12::OFP_VERSION),
 				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
 				barrier_reply_timeout(DEFAULT_DP_BARRIER_REPLY_TIMEOUT),
-				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT)
+				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT),
+				state(STATE_INIT)
 {
-	init_state(COFDPT_STATE_DISCONNECTED);
-
-    register_timer(COFDPT_TIMER_SEND_HELLO, 0);
+	run_engine(EVENT_CONNECTED);
 }
 
 
 
 crofdptImpl::crofdptImpl(
 		crofbase *rofbase,
-		uint8_t ofp_version,
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int reconnect_start_timeout,
 		caddress const& ra,
 		int domain,
 		int type,
 		int protocol) :
 				crofdpt(rofbase),
+				rofchan(this, versionbitmap),
 				dpid(0),
 				hwaddr(cmacaddr("00:00:00:00:00:00")),
 				n_buffers(0),
@@ -90,28 +75,15 @@ crofdptImpl::crofdptImpl(
 				capabilities(0),
 				config(0),
 				miss_send_len(0),
-				socket(new csocket(this, domain, type, protocol, 10)),
 				rofbase(rofbase),
-				fragment(0),
-				msg_bytes_read(0),
-				reconnect_start_timeout(reconnect_start_timeout),
-				reconnect_in_seconds(reconnect_start_timeout),
-				reconnect_counter(0),
-				rpc_echo_interval(DEFAULT_RPC_ECHO_INTERVAL),
-				ofp_version(ofp_version),
 				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
 				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
 				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
 				barrier_reply_timeout(DEFAULT_DP_BARRIER_REPLY_TIMEOUT),
-				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT)
+				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT),
+				state(STATE_INIT)
 {
-	init_state(COFDPT_STATE_DISCONNECTED);
-
-	dptflags.set(COFDPT_FLAG_ACTIVE_SOCKET);
-
-	this->reconnect_in_seconds = this->reconnect_start_timeout = (reconnect_start_timeout == 0) ? 1 : reconnect_start_timeout;
-
-	socket->cconnect(ra, caddress(AF_INET, "0.0.0.0"), domain, type, protocol);
+	rofchan.add_conn(0, domain, type, protocol, ra);
 }
 
 
@@ -122,6 +94,112 @@ crofdptImpl::~crofdptImpl()
 	while (not ports.empty()) {
 		delete (ports.begin()->second);
 	}
+}
+
+
+
+void
+crofdptImpl::run_engine(crofdptImpl_event_t event)
+{
+	if (EVENT_NONE != event) {
+		events.push_back(event);
+	}
+
+	while (not events.empty()) {
+		enum crofdptImpl_event_t event = events.front();
+		events.pop_front();
+
+		switch (event) {
+		case EVENT_CONNECTED: 						event_connected(); 						break;
+		case EVENT_DISCONNECTED:					event_disconnected();					break;
+		case EVENT_FEATURES_REPLY_RCVD:				event_features_reply_rcvd();			break;
+		case EVENT_FEATURES_REQUEST_EXPIRED:		event_features_request_expired();		break;
+		case EVENT_GET_CONFIG_REPLY_RCVD:			event_get_config_reply_rcvd();			break;
+		case EVENT_GET_CONFIG_REQUEST_EXPIRED:		event_get_config_request_expired();		break;
+		case EVENT_TABLE_FEATURES_REPLY_RCVD:		event_table_features_reply_rcvd();		break;
+		case EVENT_TABLE_FEATURES_REQUEST_EXPIRED:	event_table_features_request_expired(); break;
+		default: {
+			logging::error << "[rofl][dpt] unknown event seen, internal error" << std::endl << *this;
+		};
+		}
+	}
+}
+
+
+
+void
+crofdptImpl::event_connected()
+{
+	switch (state) {
+	case STATE_INIT:
+	case STATE_DISCONNECTED: {
+
+	} break;
+	}
+}
+
+
+
+void
+crofdptImpl::event_disconnected()
+{
+	switch (state) {
+	case STATE_ESTABLISHED: {
+		rofbase->handle_dpt_close(this);
+	} break;
+	default: {
+		logging::error << "[rofl][dpt] event -DISCONNECTED- invalid state reached, internal error" << std::endl << *this;
+	};
+	}
+	state = STATE_DISCONNECTED;
+}
+
+
+
+void
+crofdptImpl::event_features_reply_rcvd()
+{
+
+}
+
+
+
+void
+crofdptImpl::event_features_request_expired()
+{
+
+}
+
+
+
+void
+crofdptImpl::event_get_config_reply_rcvd()
+{
+
+}
+
+
+
+void
+crofdptImpl::event_get_config_request_expired()
+{
+
+}
+
+
+
+void
+crofdptImpl::event_table_features_reply_rcvd()
+{
+
+}
+
+
+
+void
+crofdptImpl::event_table_features_request_expired()
+{
+
 }
 
 
@@ -174,7 +252,7 @@ crofdptImpl::handle_connect_refused(
 
 	rofbase->rpc_dpt_failed(this); // signal event back to rofbase
 
-	new_state(COFDPT_STATE_DISCONNECTED);
+	new_state(STATE_DISCONNECTED);
 	if (dptflags.test(COFDPT_FLAG_ACTIVE_SOCKET)) {
 		try_to_connect();
 	}
@@ -858,7 +936,7 @@ crofdptImpl::hello_rcvd(cofmsg_hello *msg)
 		// OpenFlow versions do not match, send error, close connection
 		if (not rofbase->is_ofp_version_supported(msg->get_version()))
 		{
-			new_state(COFDPT_STATE_DISCONNECTED);
+			new_state(STATE_DISCONNECTED);
 
 			logging::info << "unsupported OF version during HELLO exhange, closing." << *this << std::endl;
 
@@ -880,7 +958,7 @@ crofdptImpl::hello_rcvd(cofmsg_hello *msg)
 
 			flags.set(COFDPT_FLAG_HELLO_RCVD);
 
-			new_state(COFDPT_STATE_WAIT_FEATURES);
+			new_state(STATE_WAIT_FEATURES);
 
 			if (flags.test(COFDPT_FLAG_HELLO_SENT))
 			{
@@ -961,7 +1039,7 @@ crofdptImpl::handle_echo_reply_timeout()
 	// TODO: repeat ECHO request multiple times (should be configurable)
 
 	socket->cclose();
-	new_state(COFDPT_STATE_DISCONNECTED);
+	new_state(STATE_DISCONNECTED);
 	if (dptflags.test(COFDPT_FLAG_ACTIVE_SOCKET)) {
 			try_to_connect(true);
 	}
@@ -1033,7 +1111,7 @@ crofdptImpl::features_reply_rcvd(
 
 		rofbase->handle_features_reply(this, msg);
 
-		if (COFDPT_STATE_WAIT_FEATURES == cur_state()) {
+		if (STATE_WAIT_FEATURES == cur_state()) {
 
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 					<< "Features-Reply rcvd (wait-features-reply -> wait-get-config-reply)" << std::endl;
@@ -1041,7 +1119,7 @@ crofdptImpl::features_reply_rcvd(
 			// next step: send GET-CONFIG request to datapath
 			rofbase->send_get_config_request(this);
 
-			new_state(COFDPT_STATE_WAIT_GET_CONFIG);
+			new_state(STATE_WAIT_GET_CONFIG);
 		}
 
 
@@ -1051,7 +1129,7 @@ crofdptImpl::features_reply_rcvd(
 
 		socket->cclose();
 
-		new_state(COFDPT_STATE_DISCONNECTED);
+		new_state(STATE_DISCONNECTED);
 
 		rofbase->handle_dpt_close(this);
 	}
@@ -1091,24 +1169,24 @@ crofdptImpl::get_config_reply_rcvd(
 
 	rofbase->handle_get_config_reply(this, msg);
 
-	if (COFDPT_STATE_WAIT_GET_CONFIG == cur_state()) {
+	if (STATE_WAIT_GET_CONFIG == cur_state()) {
 
 		switch (ofp_version) {
 		case openflow10::OFP_VERSION: {
-			new_state(COFDPT_STATE_CONNECTED);
+			new_state(STATE_CONNECTED);
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 					<< "Get-Config-Reply rcvd (wait-get-config-reply -> connected)" << std::endl;
 			rofbase->handle_dpt_open(this);
 		} break;
 		case openflow12::OFP_VERSION: {
 			rofbase->send_stats_request(this, openflow12::OFPST_TABLE, 0);
-			new_state(COFDPT_STATE_WAIT_TABLE_STATS);
+			new_state(STATE_WAIT_TABLE_STATS);
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 					<< "Get-Config-Reply rcvd (wait-get-config-reply -> wait-table-stats-reply)" << std::endl;
 		} break;
 		case openflow13::OFP_VERSION: {
 			rofbase->send_stats_request(this, openflow13::OFPMP_TABLE, 0);
-			new_state(COFDPT_STATE_WAIT_TABLE_STATS);
+			new_state(STATE_WAIT_TABLE_STATS);
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 								<< "Get-Config-Reply rcvd (wait-get-config-reply -> wait-table-stats-reply)" << std::endl;
 		} break;
@@ -1250,8 +1328,8 @@ crofdptImpl::table_stats_reply_rcvd(
 
 	rofbase->handle_table_stats_reply(this,  msg);
 
-	if (COFDPT_STATE_WAIT_TABLE_STATS == cur_state()) {
-		new_state(COFDPT_STATE_CONNECTED);
+	if (STATE_WAIT_TABLE_STATS == cur_state()) {
+		new_state(STATE_CONNECTED);
 		logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 							<< "Table-Stats-Reply rcvd (wait-table-stats-reply -> connected)" << std::endl;
 		rofbase->handle_dpt_open(this);

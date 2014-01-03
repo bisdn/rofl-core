@@ -26,8 +26,8 @@ extern "C" {
 #include "rofl/common/cmemory.h"
 #include "rofl/common/protocols/fetherframe.h"
 #include "rofl/common/logging.h"
-
 #include "rofl/common/crofdpt.h"
+#include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 
 namespace rofl
 {
@@ -74,21 +74,26 @@ private: // data structures
 			COFDPT_TIMER_GET_ASYNC_CONFIG_REPLY = ((COFDPT_TIMER_BASE) << 16 | (0x10 << 8)),
 		};
 
-		/* cofdpt state types */
-		enum crofdpt_state_t {
-			COFDPT_STATE_INIT 				= (1 << 0),
-			COFDPT_STATE_DISCONNECTED		= (1 << 1),
-			COFDPT_STATE_WAIT_FEATURES 		= (1 << 2), // waiting for FEATURE-REPLY
-			COFDPT_STATE_WAIT_GET_CONFIG	= (1 << 3), // waiting for GET-CONFIG-REPLY
-			COFDPT_STATE_WAIT_TABLE_STATS	= (1 << 4), // waiting for TABLE-STATS-REPLY
-			COFDPT_STATE_CONNECTED			= (1 << 5),
+		enum crofdptImpl_state_t {
+			STATE_INIT 							= 0,
+			STATE_DISCONNECTED					= 1,
+			STATE_CONNECTED						= 2,
+			STATE_FEATURES_RCVD 				= 3,
+			STATE_GET_CONFIG_RCVD				= 4,
+			STATE_TABLE_FEATURES_RCVD			= 5,
+			STATE_ESTABLISHED					= 6,
 		};
 
-		/* cofdpt flags */
-		enum crofdpt_flag_t {
-			COFDPT_FLAG_ACTIVE_SOCKET		= (1 << 0),
-			COFDPT_FLAG_HELLO_RCVD          = (1 << 1),
-			COFDPT_FLAG_HELLO_SENT			= (1 << 2),
+		enum crofdptImpl_event_t {
+			EVENT_NONE							= 0,
+			EVENT_DISCONNECTED					= 1,
+			EVENT_CONNECTED						= 2,
+			EVENT_FEATURES_REPLY_RCVD			= 3,
+			EVENT_FEATURES_REQUEST_EXPIRED		= 4,
+			EVENT_GET_CONFIG_REPLY_RCVD			= 5,
+			EVENT_GET_CONFIG_REQUEST_EXPIRED	= 6,
+			EVENT_TABLE_FEATURES_REPLY_RCVD		= 7,
+			EVENT_TABLE_FEATURES_REQUEST_EXPIRED= 8,
 		};
 
 #define DEFAULT_DP_FEATURES_REPLY_TIMEOUT 			10
@@ -96,6 +101,8 @@ private: // data structures
 #define DEFAULT_DP_STATS_REPLY_TIMEOUT 				10
 #define DEFAULT_DP_BARRIER_REPLY_TIMEOUT 			10
 #define DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT	10
+
+		rofl::openflow::crofchan		rofchan;		// OFP control channel
 
 		std::bitset<32>                 flags;
 
@@ -114,19 +121,10 @@ private: // data structures
 
 		cfsptable 						fsptable;		// flowspace registration table
 
-
-		csocket							*socket;		// TCP socket towards data path element
 		crofbase 						*rofbase;		// layer-(n) entity
 		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store
 
 		std::string 					 info;			// info string
-		cmemory							*fragment;		// fragment of OF packet rcvd on fragment during last call(s)
-		size_t							 msg_bytes_read; // bytes already read for current message
-		int								 reconnect_start_timeout;
-		int 							 reconnect_in_seconds; 	// reconnect in x seconds
-		int 							 reconnect_counter;
-		int 							 rpc_echo_interval;		// default ECHO time interval
-		uint8_t							 ofp_version;	// OpenFlow version negotiated
 
 		int 							 features_reply_timeout;
 		int 							 get_config_reply_timeout;
@@ -134,6 +132,8 @@ private: // data structures
 		int 							 barrier_reply_timeout;
 		int 							 get_async_config_reply_timeout;
 
+		unsigned int					state;
+		std::deque<uint32_t>			events;
 
 public:
 
@@ -143,27 +143,19 @@ public:
 	 * @param rofbase pointer to crofbase instance
 	 */
 	crofdptImpl(
-			crofbase *rofbase);
+			crofbase *rofbase,
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
 
 	/**
 	 * @brief 	Constructor for accepted incoming connection on socket.
 	 *
 	 * @param rofbase pointer to crofbase instance
 	 * @param newsd socket descriptor of new established control connection socket
-	 * @param ra peer address of control connection
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
 	 */
 	crofdptImpl(
 			crofbase *rofbase,
-			int newsd,
-			caddress const& ra,
-			int domain,
-			int type,
-			int protocol);
-
-
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+			int newsd);
 
 	/**
 	 * @brief 	Constructor for creating a new cofdpt instance and actively connecting to a data path element.
@@ -176,7 +168,7 @@ public:
 	 */
 	crofdptImpl(
 			crofbase *rofbase,
-			uint8_t ofp_version,
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
 			caddress const& ra,
 			int domain,
@@ -487,14 +479,64 @@ private:
 	handle_timeout(
 		int opaque);
 
-
-
-
-
-
-
 private:
 
+	/**
+	 *
+	 */
+	void
+	run_engine(
+			enum crofdptImpl_event_t state = EVENT_NONE);
+
+	/**
+	 *
+	 */
+	void
+	event_disconnected();
+
+	/**
+	 *
+	 */
+	void
+	event_connected();
+
+	/**
+	 *
+	 */
+	void
+	event_features_reply_rcvd();
+
+	/**
+	 *
+	 */
+	void
+	event_features_request_expired();
+
+	/**
+	 *
+	 */
+	void
+	event_get_config_reply_rcvd();
+
+	/**
+	 *
+	 */
+	void
+	event_get_config_request_expired();
+
+	/**
+	 *
+	 */
+	void
+	event_table_features_reply_rcvd();
+
+	/**
+	 *
+	 */
+	void
+	event_table_features_request_expired();
+
+private:
 
 	/**
 	 *
@@ -922,7 +964,6 @@ public:
 	operator<< (std::ostream& os, crofdptImpl const& dpt) {
 		os << indent(0) << "<cofdptImpl ";
 		os << "dpid:0x" << std::hex << (unsigned long long)(dpt.dpid) << std::dec << " ";
-		os << "state:" << (enum cofdpt_state_t)dpt.fsm_state << " ";
 		os << "remote:" << dpt.socket->raddr << " ";
 		os << "local:" << dpt.socket->laddr << " ";
 		os << ">";

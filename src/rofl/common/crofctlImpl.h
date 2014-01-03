@@ -52,7 +52,7 @@ private: // data structures
 	bool 							role_initialized;		// true, when role values have been initialized properly
 	uint16_t 						role;					// role of this controller instance
 	uint64_t 						cached_generation_id;	// generation-id used by role requests
-	rofl::openflow::crofchan		rofchan;				// OFP channel
+	rofl::openflow::crofchan		rofchan;				// OFP control channel
 	cxidstore						xidstore;
 
 
