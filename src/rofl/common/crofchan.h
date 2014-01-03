@@ -39,7 +39,7 @@ public:
 	virtual ~crofchan_env() {};
 	virtual void handle_connected(crofchan *chan, uint8_t aux_id) = 0;
 	virtual void handle_closed(crofchan *chan, uint8_t aux_id) = 0;
-	virtual void recv_message(crofchan *chan, cofmsg *msg) = 0;
+	virtual void recv_message(crofchan *chan, uint8_t aux_id, cofmsg *msg) = 0;
 	virtual uint32_t get_async_xid(crofchan *chan) = 0;
 	virtual uint32_t get_sync_xid(crofchan *chan) = 0;
 	virtual void release_sync_xid(crofchan *chan, uint32_t xid) = 0;
@@ -129,6 +129,12 @@ public:
 	 */
 	void
 	drop_conn(uint8_t aux_id);
+
+	/**
+	 *
+	 */
+	void
+	send_message(cofmsg *msg, uint8_t aux_id = 0);
 
 public:
 

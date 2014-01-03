@@ -33,7 +33,7 @@ crofsock::crofsock(
 				fragment((cmemory*)0),
 				msg_bytes_read(0)
 {
-
+	socket->cconnect(ra);
 }
 
 

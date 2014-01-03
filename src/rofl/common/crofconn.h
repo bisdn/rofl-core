@@ -148,6 +148,12 @@ public:
 	uint8_t
 	get_aux_id() const { return auxiliary_id; };
 
+	/**
+	 * @brief	Send OFP message via socket
+	 */
+	void
+	send_message(cofmsg *msg);
+
 private:
 
 	virtual void

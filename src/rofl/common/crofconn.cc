@@ -585,3 +585,13 @@ crofconn::error_rcvd(
 }
 
 
+
+void
+crofconn::send_message(
+		cofmsg *msg)
+{
+	rofsock->send_message(msg);
+}
+
+
+

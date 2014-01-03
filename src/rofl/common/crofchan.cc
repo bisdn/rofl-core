@@ -198,11 +198,28 @@ crofchan::handle_closed(crofconn *conn)
 	}
 }
 
+
+
 void
 crofchan::recv_message(crofconn *conn, cofmsg *msg)
 {
-
+	env->recv_message(this, conn->get_aux_id(), msg);
 }
+
+
+
+void
+crofchan::send_message(
+		cofmsg *msg,
+		uint8_t aux_id)
+{
+	if (conns.find(aux_id) == conns.end()) {
+		throw eRofChanNotFound();
+	}
+	conns[aux_id]->send_message(msg);
+}
+
+
 
 uint32_t
 crofchan::get_async_xid(crofconn *conn)
