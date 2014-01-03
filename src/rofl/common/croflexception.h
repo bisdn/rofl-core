@@ -36,16 +36,18 @@ public:
 
 class eSysCall : public RoflException {
 public:
+	std::string	syscall;
 	int			n_err;
 	std::string	s_err;
 public:
-	eSysCall() :
+	eSysCall(std::string const& syscall = std::string("")) :
+		syscall(syscall),
 		n_err(errno),
 		s_err(strerror(errno))
 	{};
 public:
 	friend std::ostream& operator<< (std::ostream& os, eSysCall const& e) {
-		os << "<eSysCall errno: " << e.n_err << " (" << e.s_err << ") >";
+		os << "<eSysCall syscall:" << e.syscall << " errno: " << e.n_err << " (" << e.s_err << ") >";
 		return os;
 	};
 };

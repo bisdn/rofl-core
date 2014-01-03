@@ -73,8 +73,8 @@ class crofsock_env {
 public:
 	virtual ~crofsock_env() {};
 	virtual void handle_connect_refused(crofsock *endpnt) = 0;
-	virtual void handle_open (crofsock *endpnt) = 0;
-	virtual void handle_close(crofsock *endpnt) = 0;
+	virtual void handle_connected(crofsock *endpnt) = 0;
+	virtual void handle_closed(crofsock *endpnt) = 0;
 	virtual void recv_message(crofsock *endpnt, cofmsg *msg) { delete msg; };
 };
 
@@ -101,8 +101,13 @@ public:
 	 *
 	 */
 	crofsock(
-			crofsock_env *endpnt_owner, int sd);
+			crofsock_env *env, int sd);
 
+	/**
+	 *
+	 */
+	crofsock(
+			crofsock_env *env, int domain, int type, int protocol, rofl::caddress const& ra);
 
 	/**
 	 *

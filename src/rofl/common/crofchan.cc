@@ -54,7 +54,7 @@ crofchan::get_conn(
 
 
 void
-crofchan::handle_close(crofconn *conn)
+crofchan::handle_closed(crofconn *conn)
 {
 
 }

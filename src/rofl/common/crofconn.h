@@ -32,7 +32,9 @@ class crofconn; // forward declaration
 class crofconn_env {
 public:
 	virtual ~crofconn_env() {};
-	virtual void handle_close(crofconn *conn) = 0;
+	virtual void handle_connect_refused(crofconn *conn) = 0;
+	virtual void handle_connected(crofconn *conn) = 0;
+	virtual void handle_closed(crofconn *conn) = 0;
 	virtual void recv_message(crofconn *conn, cofmsg *msg) = 0;
 	virtual uint32_t get_async_xid(crofconn *conn) = 0;
 	virtual uint32_t get_sync_xid(crofconn *conn) = 0;
@@ -106,6 +108,18 @@ public:
 	/**
 	 *
 	 */
+	crofconn(
+			crofconn_env *env,
+			uint8_t auxiliary_id,
+			int domain,
+			int type,
+			int protocol,
+			rofl::caddress const& ra,
+			cofhello_elem_versionbitmap const& versionbitmap);
+
+	/**
+	 *
+	 */
 	virtual ~crofconn();
 
 public:
@@ -134,10 +148,10 @@ private:
 	handle_connect_refused(crofsock *rofsock);
 
 	virtual void
-	handle_open (crofsock *rofsock);
+	handle_connected (crofsock *rofsock);
 
 	virtual void
-	handle_close(crofsock *rofsock);
+	handle_closed(crofsock *rofsock);
 
 	virtual void
 	recv_message(crofsock *rofsock, cofmsg *msg);

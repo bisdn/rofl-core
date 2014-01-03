@@ -272,7 +272,7 @@ public:
 		int type = SOCK_STREAM, 
 		int protocol = 0, 
 		int backlog = 10,
-		std::string devname = std::string("")) throw (eSocketError, eSocketListenFailed, eSocketAddressInUse);
+		std::string devname = std::string(""));
 
 
 
@@ -296,7 +296,7 @@ public:
 		caddress la = caddress(AF_INET, "0.0.0.0", 0),
 		int domain = PF_INET, 
 		int type = SOCK_STREAM, 
-		int protocol = 0) throw (eSocketError, eSocketConnectFailed);
+		int protocol = 0);
 
 
 

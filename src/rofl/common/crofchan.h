@@ -68,7 +68,7 @@ public:
 public:
 
 	virtual void
-	handle_close(crofconn *conn);
+	handle_closed(crofconn *conn);
 
 	virtual void
 	recv_message(crofconn *conn, cofmsg *msg);

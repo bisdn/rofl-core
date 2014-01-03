@@ -22,6 +22,22 @@ crofsock::crofsock(
 
 
 
+crofsock::crofsock(
+		crofsock_env *env,
+		int domain,
+		int type,
+		int protocol,
+		rofl::caddress const& ra) :
+				env(env),
+				socket(new csocket(this, domain, type, protocol, /*backlog=*/10)),
+				fragment((cmemory*)0),
+				msg_bytes_read(0)
+{
+
+}
+
+
+
 crofsock::~crofsock()
 {
 
@@ -35,7 +51,8 @@ crofsock::handle_accepted(
 		int newsd,
 		caddress const& ra)
 {
-	logging::info << "[rofl][conn] connection accepted:" << ra << std::endl;
+	logging::info << "[rofl][sock] connection accepted:" << std::endl << *this;
+	// this should never happen, as passively opened sockets are handled outside of crofsock
 }
 
 
@@ -45,7 +62,8 @@ crofsock::handle_connected(
 		csocket *socket,
 		int sd)
 {
-	logging::info << "[rofl][conn] connection established:" << socket->raddr << std::endl;
+	logging::info << "[rofl][sock] connection established:" << std::endl << *this;
+	env->handle_connected(this);
 }
 
 
@@ -55,8 +73,19 @@ crofsock::handle_connect_refused(
 		csocket *socket,
 		int sd)
 {
-	logging::info << "[rofl][conn] connection failed:" << socket->raddr << std::endl;
+	logging::info << "[rofl][sock] connection failed:" << std::endl << *this;
 	env->handle_connect_refused(this);
+}
+
+
+
+void
+crofsock::handle_closed(
+			csocket *socket,
+			int sd)
+{
+	logging::info << "[rofl][sock] connection closed:" << std::endl << *this;
+	env->handle_closed(this);
 }
 
 
@@ -108,7 +137,7 @@ crofsock::handle_read(
 				} return;
 				case ECONNRESET:
 				default: {
-					logging::error << "[rofl][conn] error reading from socket descriptor:" << sd
+					logging::error << "[rofl][sock] error reading from socket descriptor:" << sd
 							<< " " << eSysCall() << ", closing endpoint." << std::endl;
 					handle_closed(socket, sd);
 				} return;
@@ -117,12 +146,14 @@ crofsock::handle_read(
 			else if (rc == 0) // socket was closed
 			{
 				//rfds.erase(fd);
-				logging::info << "[rofl][conn] peer closed connection." << *this << std::endl;
+				logging::info << "[rofl][sock] peer closed connection." << *this << std::endl;
 
 				if (mem) {
 					delete mem; fragment = (cmemory*)0;
 				}
-				handle_closed(socket, sd);
+
+				socket->cclose();
+				env->handle_closed(this);
 				return;
 			}
 			else // rc > 0, // some bytes were received, check for completeness of packet
@@ -146,7 +177,7 @@ crofsock::handle_read(
 
 	} catch (RoflException& e) {
 
-		logging::warn << "[rofl][conn] dropping invalid message " << *mem << std::endl;
+		logging::warn << "[rofl][sock] dropping invalid message " << *mem << std::endl;
 
 		if (mem) {
 			delete mem; fragment = (cmemory*)0;
@@ -154,20 +185,6 @@ crofsock::handle_read(
 		// handle_closed(socket, sd);
 	}
 
-}
-
-
-
-void
-crofsock::handle_closed(
-		csocket *socket,
-		int sd)
-{
-	logging::info << "[rofl][conn] connection closed. " << *this << std::endl;
-
-	socket->cclose();
-
-	env->handle_close(this);
 }
 
 
@@ -228,7 +245,7 @@ crofsock::handle_event(
 		send_from_queue();
 	} break;
 	default:
-		logging::error << "[rofl][conn] unknown event type:" << (int)ev.cmd << std::endl;
+		logging::error << "[rofl][sock] unknown event type:" << (int)ev.cmd << std::endl;
 	}
 }
 
@@ -411,7 +428,7 @@ crofsock::parse_of10_message(cmemory *mem, cofmsg **pmsg)
 
 	default: {
 		(*pmsg = new cofmsg(mem))->validate();
-		logging::warn << "[rofl][conn] dropping unknown message " << **pmsg << std::endl;
+		logging::warn << "[rofl][sock] dropping unknown message " << **pmsg << std::endl;
 		throw eBadRequestBadType();
 	} break;
 	}
@@ -606,7 +623,7 @@ crofsock::parse_of12_message(cmemory *mem, cofmsg **pmsg)
 
 	default: {
 		(*pmsg = new cofmsg(mem))->validate();
-		logging::warn << "[rofl][conn] dropping unknown message " << **pmsg << std::endl;
+		logging::warn << "[rofl][sock] dropping unknown message " << **pmsg << std::endl;
 		throw eBadRequestBadType();
 	} return;
 	}
@@ -801,7 +818,7 @@ crofsock::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 
 	default: {
 		(*pmsg = new cofmsg(mem))->validate();
-		logging::warn << "[rofl][conn] dropping unknown message " << **pmsg << std::endl;
+		logging::warn << "[rofl][sock] dropping unknown message " << **pmsg << std::endl;
 		throw eBadRequestBadType();
 	} return;
 	}

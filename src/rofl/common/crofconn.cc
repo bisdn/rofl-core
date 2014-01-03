@@ -29,6 +29,29 @@ crofconn::crofconn(
 
 
 
+crofconn::crofconn(
+		crofconn_env *env,
+		uint8_t auxiliary_id,
+		int domain,
+		int type,
+		int protocol,
+		rofl::caddress const& ra,
+		cofhello_elem_versionbitmap const& versionbitmap) :
+					env(env),
+					auxiliary_id(auxiliary_id),
+					rofsock(new crofsock(this, domain, type, protocol, ra)),
+					versionbitmap(versionbitmap),
+					ofp_version(OFP_VERSION_UNKNOWN),
+					state(STATE_DISCONNECTED),
+					hello_timeout(DEFAULT_HELLO_TIMEOUT),
+					echo_timeout(DEFAULT_ECHO_TIMEOUT),
+					echo_interval(DEFAULT_ECHO_INTERVAL)
+{
+
+}
+
+
+
 crofconn::~crofconn()
 {
 	run_engine(EVENT_DISCONNECTED);
@@ -118,7 +141,7 @@ crofconn::event_disconnected()
 		cancel_timer(TIMER_WAIT_FOR_ECHO);
 		cancel_timer(TIMER_WAIT_FOR_HELLO);
 		rofsock->get_socket().cclose();
-		env->handle_close(this);
+		env->handle_closed(this);
 		state = STATE_DISCONNECTED;
 
 	} break;
@@ -267,24 +290,27 @@ crofconn::handle_connect_refused(crofsock *endpnt)
 {
 	run_engine(EVENT_DISCONNECTED);
 	logging::warn << "[rofl][conn] OFP socket indicated connection refused." << std::endl << *this;
+	env->handle_connect_refused(this);
 }
 
 
 
 void
-crofconn::handle_open (crofsock *endpnt)
+crofconn::handle_connected (crofsock *endpnt)
 {
 	run_engine(EVENT_CONNECTED);
 	logging::warn << "[rofl][conn] OFP socket indicated connection established." << std::endl << *this;
+	env->handle_connected(this);
 }
 
 
 
 void
-crofconn::handle_close(crofsock *endpnt)
+crofconn::handle_closed(crofsock *endpnt)
 {
 	run_engine(EVENT_DISCONNECTED);
 	logging::warn << "[rofl][conn] OFP socket indicated connection closed." << std::endl << *this;
+	env->handle_closed(this);
 }
 
 
