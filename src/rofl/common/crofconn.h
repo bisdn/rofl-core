@@ -33,7 +33,7 @@ class crofconn_env {
 public:
 	virtual ~crofconn_env() {};
 	virtual void handle_connect_refused(crofconn *conn) = 0;
-	virtual void handle_connected(crofconn *conn) = 0;
+	virtual void handle_connected(crofconn *conn, uint8_t ofp_version) = 0;
 	virtual void handle_closed(crofconn *conn) = 0;
 	virtual void recv_message(crofconn *conn, cofmsg *msg) = 0;
 	virtual uint32_t get_async_xid(crofconn *conn) = 0;
@@ -141,6 +141,12 @@ public:
 	 */
 	uint8_t
 	get_version() const { return ofp_version; };
+
+	/**
+	 * @brief	Return auxialiary_id
+	 */
+	uint8_t
+	get_aux_id() const { return auxiliary_id; };
 
 private:
 

@@ -29,13 +29,16 @@ namespace openflow {
 
 class eRofChanBase			: public RoflException {};
 class eRofChanNotFound		: public eRofChanBase {};
+class eRofChanExists		: public eRofChanBase {};
+class eRofChanInval			: public eRofChanBase {};
 
 class crofchan; // forward declaration
 
 class crofchan_env {
 public:
 	virtual ~crofchan_env() {};
-	virtual void handle_close(crofchan *chan) = 0;
+	virtual void handle_connected(crofchan *chan, uint8_t aux_id) = 0;
+	virtual void handle_closed(crofchan *chan, uint8_t aux_id) = 0;
 	virtual void recv_message(crofchan *chan, cofmsg *msg) = 0;
 	virtual uint32_t get_async_xid(crofchan *chan) = 0;
 	virtual uint32_t get_sync_xid(crofchan *chan) = 0;
@@ -49,6 +52,7 @@ class crofchan :
 	crofchan_env						*env;
 	std::map<uint8_t, crofconn*>		conns;				// main and auxiliary connections
 	cofhello_elem_versionbitmap			versionbitmap;		// supported OFP versions
+	uint8_t								ofp_version;		// OFP version negotiated
 
 public:
 
@@ -66,6 +70,12 @@ public:
 	~crofchan();
 
 public:
+
+	virtual void
+	handle_connect_refused(crofconn *conn);
+
+	virtual void
+	handle_connected(crofconn *conn, uint8_t ofp_version);
 
 	virtual void
 	handle_closed(crofconn *conn);
@@ -87,6 +97,12 @@ public:
 	/**
 	 *
 	 */
+	cofhello_elem_versionbitmap&
+	get_versionbitmap() { return versionbitmap; };
+
+	/**
+	 *
+	 */
 	void
 	clear();
 
@@ -94,7 +110,25 @@ public:
 	 *
 	 */
 	crofconn&
+	add_conn(uint8_t aux_id, int sd);
+
+	/**
+	 *
+	 */
+	crofconn&
+	add_conn(uint8_t aux_id, int domain, int type, int protocol, caddress const& ra);
+
+	/**
+	 *
+	 */
+	crofconn&
 	get_conn(uint8_t aux_id);
+
+	/**
+	 *
+	 */
+	void
+	drop_conn(uint8_t aux_id);
 
 public:
 

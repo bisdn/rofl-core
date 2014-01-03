@@ -300,7 +300,6 @@ crofconn::handle_connected (crofsock *endpnt)
 {
 	run_engine(EVENT_CONNECTED);
 	logging::warn << "[rofl][conn] OFP socket indicated connection established." << std::endl << *this;
-	env->handle_connected(this);
 }
 
 
@@ -413,6 +412,7 @@ crofconn::hello_rcvd(
 		} else {
 			run_engine(EVENT_HELLO_RCVD);
 			logging::info << "[rofl][conn] connection established." << std::endl << *this;
+			env->handle_connected(this, ofp_version);
 		}
 
 	} catch (eHelloIncompatible& e) {
