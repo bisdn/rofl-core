@@ -55,7 +55,13 @@ private:
 private:
 
 	virtual void
-	handle_close(rofl::openflow::crofconn *conn);
+	handle_connected(rofl::openflow::crofconn *conn, uint8_t aux_id);
+
+	virtual void
+	handle_connect_refused(rofl::openflow::crofconn *conn);
+
+	virtual void
+	handle_closed(rofl::openflow::crofconn *conn);
 
 	virtual void
 	recv_message(rofl::openflow::crofconn *conn, rofl::cofmsg *msg);

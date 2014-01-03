@@ -97,7 +97,19 @@ crofconnTest::handle_closed(rofl::csocket *socket, int sd)
 }
 
 void
-crofconnTest::handle_close(rofl::openflow::crofconn *conn)
+crofconnTest::handle_connected(rofl::openflow::crofconn *conn, uint8_t aux_id)
+{
+
+}
+
+void
+crofconnTest::handle_connect_refused(rofl::openflow::crofconn *conn)
+{
+
+}
+
+void
+crofconnTest::handle_closed(rofl::openflow::crofconn *conn)
 {
 	std::cerr << "handle_close() " << std::endl;
 	rofl::ciosrv::stop();
