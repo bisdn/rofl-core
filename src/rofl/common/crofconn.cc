@@ -31,7 +31,7 @@ crofconn::crofconn(
 
 crofconn::~crofconn()
 {
-
+	run_engine(EVENT_DISCONNECTED);
 }
 
 

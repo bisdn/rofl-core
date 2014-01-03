@@ -10,6 +10,15 @@
 
 #include <map>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <inttypes.h>
+#ifdef __cplusplus
+}
+#endif
+
+#include "croflexception.h"
 #include "ciosrv.h"
 #include "crofconn.h"
 #include "openflow/messages/cofmsg.h"
@@ -17,6 +26,9 @@
 
 namespace rofl {
 namespace openflow {
+
+class eRofChanBase			: public RoflException {};
+class eRofChanNotFound		: public eRofChanBase {};
 
 class crofchan; // forward declaration
 
@@ -69,6 +81,20 @@ public:
 
 	virtual void
 	release_sync_xid(crofconn *conn, uint32_t xid);
+
+public:
+
+	/**
+	 *
+	 */
+	void
+	clear();
+
+	/**
+	 *
+	 */
+	crofconn&
+	get_conn(uint8_t aux_id);
 
 public:
 

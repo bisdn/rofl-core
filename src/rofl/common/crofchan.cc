@@ -24,7 +24,31 @@ crofchan::crofchan(
 
 crofchan::~crofchan()
 {
+	clear();
+}
 
+
+
+void
+crofchan::clear()
+{
+	for (std::map<uint8_t, crofconn*>::iterator
+			it = conns.begin(); it != conns.end(); ++it) {
+		delete it->second;
+	}
+	conns.clear();
+}
+
+
+
+crofconn&
+crofchan::get_conn(
+		uint8_t aux_id)
+{
+	if (conns.find(aux_id) == conns.end()) {
+		throw eRofChanNotFound();
+	}
+	return *(conns[aux_id]);
 }
 
 
