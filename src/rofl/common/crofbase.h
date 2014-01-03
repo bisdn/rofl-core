@@ -1640,6 +1640,18 @@ public:
 			uint16_t miss_send_len);
 
 
+	/**
+	 * @brief	Sends a TABLE-STATS.request to a data path element.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this TABLE-STATS.request
+	 */
+	virtual uint32_t
+	send_table_features_stats_request(
+		crofdpt *dpt,
+		uint16_t stats_flags) { return 0; };
+
 
 
 	/**

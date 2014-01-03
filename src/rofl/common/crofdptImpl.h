@@ -28,6 +28,7 @@ extern "C" {
 #include "rofl/common/logging.h"
 #include "rofl/common/crofdpt.h"
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
+#include "rofl/common/crofchan.h"
 
 namespace rofl
 {
@@ -74,14 +75,19 @@ private: // data structures
 			COFDPT_TIMER_GET_ASYNC_CONFIG_REPLY = ((COFDPT_TIMER_BASE) << 16 | (0x10 << 8)),
 		};
 
+		enum crofdptImpl_timer_t {
+			TIMER_WAIT_FOR_FEATURES_REPLY		= 1,
+			TIMER_WAIT_FOR_GET_CONFIG_REPLY		= 2,
+			TIMER_WAIT_FOR_TABLE_FEATURES_REPLY	= 3,
+		};
+
 		enum crofdptImpl_state_t {
 			STATE_INIT 							= 0,
 			STATE_DISCONNECTED					= 1,
 			STATE_CONNECTED						= 2,
 			STATE_FEATURES_RCVD 				= 3,
 			STATE_GET_CONFIG_RCVD				= 4,
-			STATE_TABLE_FEATURES_RCVD			= 5,
-			STATE_ESTABLISHED					= 6,
+			STATE_ESTABLISHED					= 5,
 		};
 
 		enum crofdptImpl_event_t {
@@ -126,8 +132,9 @@ private: // data structures
 
 		std::string 					 info;			// info string
 
-		int 							 features_reply_timeout;
-		int 							 get_config_reply_timeout;
+		int 							 features_request_timeout;
+		int 							 get_config_request_timeout;
+		int								 table_features_request_timeout;
 		int 							 stats_reply_timeout;
 		int 							 barrier_reply_timeout;
 		int 							 get_async_config_reply_timeout;
@@ -187,16 +194,31 @@ public:
 	~crofdptImpl();
 
 
+public:
 
 	/**
-	 * @brief 	Returns the OpenFlow protocol version used for this control connection.
-	 *
-	 * @return OpenFlow version used for this control connection
+	 * @brief	Returns OpenFlow version negotiated for control connection.
 	 */
 	virtual uint8_t
-	get_version();
+	get_version() const { return rofchan.get_version(); };
 
+	/**
+	 * @brief	Returns a reference to rofchan's cofhello_elem_versionbitmap instance
+	 */
+	rofl::openflow::cofhello_elem_versionbitmap&
+	get_versionbitmap() { return rofchan.get_versionbitmap(); };
 
+	/**
+	 * @brief	Returns a reference to the associated crofchan instance
+	 */
+	rofl::openflow::crofchan&
+	get_channel() { return rofchan; };
+
+	/**
+	 * @brief	Returns true, when the OFP control channel is up
+	 */
+	virtual bool
+	is_established() const { return (rofchan.is_established()); };
 
 
 	/**
@@ -209,15 +231,31 @@ public:
 			cofmsg *msg);
 
 
-
 	/**
-	 * @brief	Returns caddress of connected remote entity.
 	 *
-	 * @return caddress object obtained from this->socket
 	 */
 	virtual caddress
-	get_peer_addr();
+	get_peer_addr() { return rofchan.get_conn(0).get_rofsocket().get_socket().raddr; };
 
+public:
+
+	virtual void
+	handle_connected(rofl::openflow::crofchan *chan, uint8_t aux_id);
+
+	virtual void
+	handle_closed(rofl::openflow::crofchan *chan, uint8_t aux_id);
+
+	virtual void
+	recv_message(rofl::openflow::crofchan *chan, uint8_t aux_id, cofmsg *msg);
+
+	virtual uint32_t
+	get_async_xid(rofl::openflow::crofchan *chan);
+
+	virtual uint32_t
+	get_sync_xid(rofl::openflow::crofchan *chan);
+
+	virtual void
+	release_sync_xid(rofl::openflow::crofchan *chan, uint32_t xid);
 
 public:
 
@@ -535,6 +573,7 @@ private:
 	 */
 	void
 	event_table_features_request_expired();
+
 
 private:
 
@@ -964,9 +1003,10 @@ public:
 	operator<< (std::ostream& os, crofdptImpl const& dpt) {
 		os << indent(0) << "<cofdptImpl ";
 		os << "dpid:0x" << std::hex << (unsigned long long)(dpt.dpid) << std::dec << " ";
-		os << "remote:" << dpt.socket->raddr << " ";
-		os << "local:" << dpt.socket->laddr << " ";
-		os << ">";
+
+		os << ">" << std::endl;
+		indent i(2);
+		os << dpt.rofchan;
 		return os;
 	};
 };

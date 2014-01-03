@@ -20,9 +20,9 @@ crofdptImpl::crofdptImpl(
 				config(0),
 				miss_send_len(0),
 				rofbase(rofbase),
-				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
-				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
-				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
+				features_request_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
+				get_config_request_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
+				table_features_request_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
 				barrier_reply_timeout(DEFAULT_DP_BARRIER_REPLY_TIMEOUT),
 				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT),
 				state(STATE_INIT)
@@ -46,9 +46,9 @@ crofdptImpl::crofdptImpl(
 				config(0),
 				miss_send_len(0),
 				rofbase(rofbase),
-				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
-				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
-				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
+				features_request_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
+				get_config_request_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
+				table_features_request_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
 				barrier_reply_timeout(DEFAULT_DP_BARRIER_REPLY_TIMEOUT),
 				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT),
 				state(STATE_INIT)
@@ -76,9 +76,9 @@ crofdptImpl::crofdptImpl(
 				config(0),
 				miss_send_len(0),
 				rofbase(rofbase),
-				features_reply_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
-				get_config_reply_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
-				stats_reply_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
+				features_request_timeout(DEFAULT_DP_FEATURES_REPLY_TIMEOUT),
+				get_config_request_timeout(DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT),
+				table_features_request_timeout(DEFAULT_DP_STATS_REPLY_TIMEOUT),
 				barrier_reply_timeout(DEFAULT_DP_BARRIER_REPLY_TIMEOUT),
 				get_async_config_reply_timeout(DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT),
 				state(STATE_INIT)
@@ -133,8 +133,13 @@ crofdptImpl::event_connected()
 	switch (state) {
 	case STATE_INIT:
 	case STATE_DISCONNECTED: {
-
+		rofbase->send_features_request(this);
+		register_timer(TIMER_WAIT_FOR_FEATURES_REPLY, features_request_timeout);
+		state = STATE_CONNECTED;
 	} break;
+	default: {
+		logging::error << "[rofl][dpt] event -CONNECTED- in invalid state rcvd, internal error" << std::endl << *this;
+	};
 	}
 }
 
@@ -145,13 +150,16 @@ crofdptImpl::event_disconnected()
 {
 	switch (state) {
 	case STATE_ESTABLISHED: {
+		cancel_all_timer();
 		rofbase->handle_dpt_close(this);
+		state = STATE_DISCONNECTED;
 	} break;
 	default: {
-		logging::error << "[rofl][dpt] event -DISCONNECTED- invalid state reached, internal error" << std::endl << *this;
+		logging::error << "[rofl][dpt] event -DISCONNECTED- in invalid state rcvd, internal error" << std::endl << *this;
+		cancel_all_timer();
+		state = STATE_DISCONNECTED;
 	};
 	}
-	state = STATE_DISCONNECTED;
 }
 
 
@@ -159,7 +167,21 @@ crofdptImpl::event_disconnected()
 void
 crofdptImpl::event_features_reply_rcvd()
 {
-
+	switch (state) {
+	case STATE_CONNECTED: {
+		cancel_timer(TIMER_WAIT_FOR_FEATURES_REPLY);
+		rofbase->send_get_config_request(this);
+		register_timer(TIMER_WAIT_FOR_GET_CONFIG_REPLY, get_config_request_timeout);
+		state = STATE_FEATURES_RCVD;
+	} break;
+	case STATE_ESTABLISHED: {
+		// do nothing: Feature.requests may be sent by a derived class during state ESTABLISHED
+		cancel_timer(TIMER_WAIT_FOR_FEATURES_REPLY);
+	} break;
+	default: {
+		logging::error << "[rofl][dpt] event -FEATURES-REPLY-RCVD- in invalid state rcvd, internal error" << std::endl << *this;
+	};
+	}
 }
 
 
@@ -167,7 +189,18 @@ crofdptImpl::event_features_reply_rcvd()
 void
 crofdptImpl::event_features_request_expired()
 {
-
+	switch (state) {
+	case STATE_CONNECTED: {
+		cancel_all_timer();
+		state = STATE_DISCONNECTED;
+	} break;
+	case STATE_ESTABLISHED: {
+		// do nothing
+	} break;
+	default: {
+		logging::error << "[rofl][dpt] event -FEATURES-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
+	};
+	}
 }
 
 
@@ -175,7 +208,21 @@ crofdptImpl::event_features_request_expired()
 void
 crofdptImpl::event_get_config_reply_rcvd()
 {
-
+	switch (state) {
+	case STATE_FEATURES_RCVD: {
+		cancel_timer(TIMER_WAIT_FOR_GET_CONFIG_REPLY);
+		rofbase->send_table_features_stats_request(this, 0); // TODO
+		register_timer(TIMER_WAIT_FOR_FEATURES_REPLY, table_features_request_timeout);
+		state = STATE_GET_CONFIG_RCVD;
+	} break;
+	case STATE_ESTABLISHED: {
+		// do nothing
+		cancel_timer(TIMER_WAIT_FOR_GET_CONFIG_REPLY);
+	} break;
+	default: {
+		logging::error << "[rofl][dpt] event -GET-CONFIG-REPLY-RCVD- in invalid state rcvd, internal error" << std::endl << *this;
+	};
+	}
 }
 
 
@@ -183,7 +230,18 @@ crofdptImpl::event_get_config_reply_rcvd()
 void
 crofdptImpl::event_get_config_request_expired()
 {
-
+	switch (state) {
+	case STATE_FEATURES_RCVD: {
+		cancel_all_timer();
+		state = STATE_DISCONNECTED;
+	} break;
+	case STATE_ESTABLISHED: {
+		// do nothing
+	} break;
+	default: {
+		logging::error << "[rofl][dpt] event -GET-CONFIG-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
+	};
+	}
 }
 
 
@@ -191,7 +249,19 @@ crofdptImpl::event_get_config_request_expired()
 void
 crofdptImpl::event_table_features_reply_rcvd()
 {
-
+	switch (state) {
+	case STATE_GET_CONFIG_RCVD: {
+		cancel_timer(TIMER_WAIT_FOR_TABLE_FEATURES_REPLY);
+		state = STATE_ESTABLISHED;
+	} break;
+	case STATE_ESTABLISHED: {
+		// do nothing
+		cancel_timer(TIMER_WAIT_FOR_TABLE_FEATURES_REPLY);
+	} break;
+	default: {
+		logging::error << "[rofl][dpt] event -GET-CONFIG-REPLY-RCVD- in invalid state rcvd, internal error" << std::endl << *this;
+	};
+	}
 }
 
 
@@ -199,24 +269,149 @@ crofdptImpl::event_table_features_reply_rcvd()
 void
 crofdptImpl::event_table_features_request_expired()
 {
-
+	switch (state) {
+	case STATE_GET_CONFIG_RCVD: {
+		cancel_all_timer();
+		state = STATE_DISCONNECTED;
+	} break;
+	case STATE_ESTABLISHED: {
+		// do nothing
+	} break;
+	default: {
+		logging::error << "[rofl][dpt] event -GET-CONFIG-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
+	};
+	}
 }
 
 
 
-uint8_t
-crofdptImpl::get_version()
+void
+crofdptImpl::handle_connected(rofl::openflow::crofchan *chan, uint8_t aux_id)
 {
-	return ofp_version;
+	logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " connected:" << std::endl << *chan;
+
+	if (0 == aux_id) {
+		run_engine(EVENT_CONNECTED);
+	}
 }
 
-
-
-caddress
-crofdptImpl::get_peer_addr()
+void
+crofdptImpl::handle_closed(rofl::openflow::crofchan *chan, uint8_t aux_id)
 {
-	return socket->raddr;
+	logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " connection closed:" << std::endl << *chan;
+
+	if (0 == aux_id) {
+		rofbase->rpc_dpt_failed(this); // send notification to crofbase, when main connection has been closed
+		run_engine(EVENT_DISCONNECTED);
+	}
 }
+
+void
+crofdptImpl::recv_message(rofl::openflow::crofchan *chan, uint8_t aux_id, cofmsg *msg)
+{
+
+}
+
+uint32_t
+crofdptImpl::get_async_xid(rofl::openflow::crofchan *chan)
+{
+	return 0; // TODO
+}
+
+uint32_t
+crofdptImpl::get_sync_xid(rofl::openflow::crofchan *chan)
+{
+	return 0; // TODO
+}
+
+void
+crofdptImpl::release_sync_xid(rofl::openflow::crofchan *chan, uint32_t xid)
+{
+
+}
+
+
+
+void
+crofdptImpl::handle_timeout(int opaque)
+{
+	switch (opaque) {
+	case TIMER_WAIT_FOR_FEATURES_REPLY: {
+		run_engine(EVENT_FEATURES_REQUEST_EXPIRED);
+	} break;
+	case TIMER_WAIT_FOR_GET_CONFIG_REPLY: {
+		run_engine(EVENT_GET_CONFIG_REQUEST_EXPIRED);
+	} break;
+	case TIMER_WAIT_FOR_TABLE_FEATURES_REPLY: {
+		run_engine(EVENT_TABLE_FEATURES_REQUEST_EXPIRED);
+	} break;
+	default: {
+		logging::error << "[rofl][dpt] dpid:0x"
+				<< std::hex << dpid << std::dec
+				<< " unknown timer event:" << opaque << std::endl;
+	};
+	}
+
+#if 0
+	switch (opaque) {
+	case COFDPT_TIMER_SEND_HELLO: {
+		rofbase->send_hello_message(this);
+		flags.set(COFDPT_FLAG_HELLO_SENT);
+
+		if (flags.test(COFDPT_FLAG_HELLO_RCVD)) {
+			rofbase->send_features_request(this);
+			rofbase->send_echo_request(this);
+		}
+	} break;
+	case COFDPT_TIMER_FEATURES_REQUEST: {
+		rofbase->send_features_request(this);
+	} break;
+	case COFDPT_TIMER_FEATURES_REPLY: {
+		handle_features_reply_timeout();
+	} break;
+	case COFDPT_TIMER_GET_CONFIG_REPLY: {
+		handle_get_config_reply_timeout();
+	} break;
+	case COFDPT_TIMER_STATS_REPLY: {
+		handle_stats_reply_timeout();
+	} break;
+	case COFDPT_TIMER_BARRIER_REPLY: {
+		handle_barrier_reply_timeout();
+	} break;
+	case COFDPT_TIMER_RECONNECT: {
+		if (socket) {
+			socket->cconnect(socket->raddr, caddress(AF_INET, "0.0.0.0"), socket->domain, socket->type, socket->protocol);
+		}
+	} break;
+	case COFDPT_TIMER_SEND_ECHO_REQUEST: {
+		rofbase->send_echo_request(this);
+	} break;
+	case COFDPT_TIMER_ECHO_REPLY: {
+		handle_echo_reply_timeout();
+	} break;
+	case COFDPT_TIMER_GET_ASYNC_CONFIG_REPLY: {
+		handle_get_async_config_reply_timeout();
+	} break;
+	default: {
+		logging::error << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " unknown timer event:" << opaque << std::endl;
+	} break;
+	}
+#endif
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -878,56 +1073,6 @@ crofdptImpl::send_message(
 
 
 void
-crofdptImpl::handle_timeout(int opaque)
-{
-	switch (opaque) {
-	case COFDPT_TIMER_SEND_HELLO: {
-		rofbase->send_hello_message(this);
-		flags.set(COFDPT_FLAG_HELLO_SENT);
-
-		if (flags.test(COFDPT_FLAG_HELLO_RCVD)) {
-			rofbase->send_features_request(this);
-			rofbase->send_echo_request(this);
-		}
-	} break;
-	case COFDPT_TIMER_FEATURES_REQUEST: {
-		rofbase->send_features_request(this);
-	} break;
-	case COFDPT_TIMER_FEATURES_REPLY: {
-		handle_features_reply_timeout();
-	} break;
-	case COFDPT_TIMER_GET_CONFIG_REPLY: {
-		handle_get_config_reply_timeout();
-	} break;
-	case COFDPT_TIMER_STATS_REPLY: {
-		handle_stats_reply_timeout();
-	} break;
-	case COFDPT_TIMER_BARRIER_REPLY: {
-		handle_barrier_reply_timeout();
-	} break;
-	case COFDPT_TIMER_RECONNECT: {
-		if (socket) {
-			socket->cconnect(socket->raddr, caddress(AF_INET, "0.0.0.0"), socket->domain, socket->type, socket->protocol);
-		}
-	} break;
-	case COFDPT_TIMER_SEND_ECHO_REQUEST: {
-		rofbase->send_echo_request(this);
-	} break;
-	case COFDPT_TIMER_ECHO_REPLY: {
-		handle_echo_reply_timeout();
-	} break;
-	case COFDPT_TIMER_GET_ASYNC_CONFIG_REPLY: {
-		handle_get_async_config_reply_timeout();
-	} break;
-	default: {
-		logging::error << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " unknown timer event:" << opaque << std::endl;
-	} break;
-	}
-}
-
-
-
-void
 crofdptImpl::hello_rcvd(cofmsg_hello *msg)
 {
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Hello message received" << std::endl << *msg;
@@ -1052,7 +1197,7 @@ void
 crofdptImpl::features_request_sent(
 		cofmsg *pack)
 {
-	register_timer(COFDPT_TIMER_FEATURES_REPLY, features_reply_timeout /* seconds */);
+	register_timer(COFDPT_TIMER_FEATURES_REPLY, features_request_timeout /* seconds */);
 }
 
 
