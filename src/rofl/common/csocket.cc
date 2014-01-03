@@ -23,11 +23,16 @@ csocket::csocket(
 	domain(domain),
 	type(type),
 	protocol(protocol),
-	backlog(backlog)
+	backlog(backlog),
+	reconnect_start_timeout(RECONNECT_START_TIMEOUT),
+	reconnect_in_seconds(RECONNECT_START_TIMEOUT),
+	reconnect_counter(0)
 {
 	pthread_rwlock_init(&pout_squeue_lock, 0);
 
 	csock_list.insert(this);
+
+	//reconnect_in_seconds = reconnect_start_timeout = (reconnect_start_timeout == 0) ? 1 : reconnect_start_timeout;
 }
 
 
@@ -37,7 +42,10 @@ csocket::csocket(
 		int sd) :
 	socket_owner(owner),
 	sd(sd),
-	backlog(0)
+	backlog(0),
+	reconnect_start_timeout(RECONNECT_START_TIMEOUT),
+	reconnect_in_seconds(RECONNECT_START_TIMEOUT),
+	reconnect_counter(0)
 {
 	socklen_t optlen = 0;
 
@@ -75,6 +83,8 @@ csocket::csocket(
 
 	csock_list.insert(this);
 	register_filedesc_r(sd);
+
+	//reconnect_in_seconds = reconnect_start_timeout = (reconnect_start_timeout == 0) ? 1 : reconnect_start_timeout;
 }
 
 
@@ -86,6 +96,50 @@ csocket::~csocket()
 	pthread_rwlock_destroy(&pout_squeue_lock);
 
 	csock_list.erase(this);
+}
+
+
+
+void
+csocket::handle_timeout(
+		int opaque)
+{
+	switch (opaque) {
+	case TIMER_RECONNECT: cconnect(raddr, laddr, domain, type, protocol); break;
+	default:
+		logging::error << "[rofl][csocket] unknown timer type:" << opaque << std::endl;
+	}
+}
+
+
+
+void
+csocket::reconnect(bool reset_timeout)
+{
+	if (pending_timer(TIMER_RECONNECT)) {
+		return;
+	}
+
+	logging::info << "[rofl][csocket] " << " scheduled reconnect in "
+			<< (int)reconnect_in_seconds << " seconds." << std::endl << *this;
+
+	int max_backoff = 16 * reconnect_start_timeout;
+
+	if (reset_timeout) {
+		reconnect_in_seconds = reconnect_start_timeout;
+		reconnect_counter = 0;
+	} else {
+		reconnect_in_seconds *= 2;
+	}
+
+
+	if (reconnect_in_seconds > max_backoff) {
+		reconnect_in_seconds = max_backoff;
+	}
+
+	reset_timer(TIMER_RECONNECT, reconnect_in_seconds);
+
+	++reconnect_counter;
 }
 
 
@@ -153,6 +207,10 @@ csocket::handle_wevent(int fd)
 						<< sd << " " << eSysCall() << std::endl;
 			}
 
+			if (sockflags.test(FLAG_ACTIVE_SOCKET)) {
+				cancel_timer(TIMER_RECONNECT);
+			}
+
 			handle_connected();
 		} break;
 		case EINPROGRESS: {
@@ -163,6 +221,9 @@ csocket::handle_wevent(int fd)
 			logging::warn << "[rofl][csocket] connection failed." << std::endl << *this;
 			cclose();
 			handle_conn_refused();
+			if (sockflags.test(FLAG_ACTIVE_SOCKET)) {
+				reconnect(false);
+			}
 		} break;
 		default: {
 			logging::error << "[rofl][csocket] error occured during connection establishment." << std::endl << *this;
@@ -322,12 +383,14 @@ csocket::cconnect(
 	if (sd >= 0)
 		cclose();
 
+	sockflags.set(FLAG_ACTIVE_SOCKET);
+
 	// open socket
 	if ((sd = socket(domain, type, protocol)) < 0) {
 		throw eSysCall("socket");
 	}
 
-	// make socket non-blocking
+	// make socket non-blockingSOCKET_IS_LISTENING
 	long flags;
 	if ((flags = fcntl(sd, F_GETFL)) < 0) {
 		throw eSysCall("fnctl(F_GETFL");
@@ -366,6 +429,7 @@ csocket::cconnect(
 		case ECONNREFUSED: {	// connect has been refused
 			cclose();
 			handle_conn_refused();
+			reconnect(false);
 		} break;
 		default: {
 			throw eSysCall("connect");
@@ -431,7 +495,13 @@ ssize_t
 csocket::recv(void *buf, size_t count)
 {
 	// read from socket: TODO: TLS socket
-	return ::read(sd, (void*)buf, count);
+	int rc = ::read(sd, (void*)buf, count);
+
+	if ((rc == 0) && (sockflags.test(FLAG_ACTIVE_SOCKET))) {
+		reconnect(true);
+	}
+
+	return rc;
 }
 
 
@@ -500,4 +570,5 @@ out:
 	cclose(); // clears also pout_squeue
 	handle_closed(sd);
 }
+
 

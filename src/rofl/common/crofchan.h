@@ -71,6 +71,9 @@ public:
 
 public:
 
+	bool
+	is_established() const;
+
 	virtual void
 	handle_connect_refused(crofconn *conn);
 
@@ -93,6 +96,12 @@ public:
 	release_sync_xid(crofconn *conn, uint32_t xid);
 
 public:
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const { return ofp_version; };
 
 	/**
 	 *
@@ -140,7 +149,14 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, crofchan const& chan) {
-		os << indent(0) << "<crofchan >" << std::endl;
+		os << indent(0) << "<crofchan established:" << chan.is_established()
+				<< " ofp-version: " << (int)chan.ofp_version << " >" << std::endl;
+		indent i(2);
+		os << chan.versionbitmap;
+		for (std::map<uint8_t, crofconn*>::const_iterator
+				it = chan.conns.begin(); it != chan.conns.end(); ++it) {
+			os << *(it->second);
+		}
 		return os;
 	};
 };

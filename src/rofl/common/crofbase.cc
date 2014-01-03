@@ -179,7 +179,7 @@ crofbase::handle_accepted(
 		fprintf(stderr, "A:ctl[%s] ", raddr.c_str());
 #endif
 		WRITELOG(CROFBASE, INFO, "crofbase(%p): new ctl TCP connection", this);
-		ofctl_set.insert(cofctl_factory(this, newsd, ra, socket->domain, socket->type, socket->protocol));
+		ofctl_set.insert(cofctl_factory(this, versionbitmap, newsd));
 	}
 	else if (rpc[RPC_DPT].find(socket) != rpc[RPC_DPT].end())
 	{
@@ -188,7 +188,7 @@ crofbase::handle_accepted(
 		fprintf(stderr, "A:dpt[%s] ", raddr.c_str());
 #endif
 		WRITELOG(CROFBASE, INFO, "crofbase(%p): new dpt TCP connection", this);
-		ofdpt_set.insert(cofdpt_factory(this, newsd, ra, socket->domain, socket->type, socket->protocol));
+		ofdpt_set.insert(cofdpt_factory(this, versionbitmap, newsd));
 	}
 	else
 	{
@@ -282,14 +282,14 @@ crofbase::rpc_listen_for_ctls(
 
 void
 crofbase::rpc_connect_to_ctl(
-		uint8_t ofp_version,
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int reconnect_start_timeout,
 		caddress const& ra,
 		int domain,
 		int type,
 		int protocol)
 {
-	ofctl_set.insert(cofctl_factory(this, ofp_version, reconnect_start_timeout, ra, domain, type, protocol));
+	ofctl_set.insert(cofctl_factory(this, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol));
 }
 
 
@@ -331,14 +331,14 @@ crofbase::rpc_disconnect_from_ctl(
 
 void
 crofbase::rpc_connect_to_dpt(
-		uint8_t ofp_version,
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int reconnect_start_timeout,
 		caddress const& ra,
 		int domain,
 		int type,
 		int protocol)
 {
-	ofdpt_set.insert(cofdpt_factory(this, ofp_version, reconnect_start_timeout, ra, domain, type, protocol));
+	ofdpt_set.insert(cofdpt_factory(this, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol));
 }
 
 
@@ -382,13 +382,10 @@ crofbase::rpc_disconnect_from_dpt(
 crofctl*
 crofbase::cofctl_factory(
 		crofbase* owner,
-		int newsd,
-		caddress const& ra,
-		int domain,
-		int type,
-		int protocol)
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		int newsd)
 {
-	return new crofctlImpl(owner, newsd, ra, domain, type, protocol);
+	return new crofctlImpl(owner, versionbitmap, newsd);
 }
 
 
@@ -396,14 +393,14 @@ crofbase::cofctl_factory(
 crofctl*
 crofbase::cofctl_factory(
 		crofbase* owner,
-		uint8_t ofp_version,
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int reconnect_start_timeout,
 		caddress const& ra,
 		int domain,
 		int type,
 		int protocol)
 {
-	return new crofctlImpl(owner, ofp_version, reconnect_start_timeout, ra, domain, type, protocol);
+	return new crofctlImpl(owner, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol);
 }
 
 
@@ -411,13 +408,11 @@ crofbase::cofctl_factory(
 crofdpt*
 crofbase::cofdpt_factory(
 		crofbase* owner,
-		int newsd,
-		caddress const& ra,
-		int domain,
-		int type,
-		int protocol)
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+		int newsd)
 {
-	return new crofdptImpl(owner, newsd, ra, domain, type, protocol);
+//	return new crofdptImpl(owner, versionbitmap, newsd);
+	return NULL; // FIXME!!!!
 }
 
 
@@ -425,14 +420,15 @@ crofbase::cofdpt_factory(
 crofdpt*
 crofbase::cofdpt_factory(
 		crofbase* owner,
-		uint8_t ofp_version,
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int reconnect_start_timeout,
 		caddress const& ra,
 		int domain,
 		int type,
 		int protocol)
 {
-	return new crofdptImpl(owner, ofp_version, reconnect_start_timeout, ra, domain, type, protocol);
+//	return new crofdptImpl(owner, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol);
+	return NULL; //FIXME!!!!
 }
 
 

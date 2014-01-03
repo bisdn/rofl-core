@@ -11,43 +11,21 @@
 #include <map>
 #include <set>
 #include <algorithm>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <inttypes.h>
 #include <stdio.h>
 #include <strings.h>
+#ifdef __cplusplus
+}
+#endif
 
 #include "rofl/common/ciosrv.h"
 #include "rofl/common/cmemory.h"
-#include "rofl/common/cvastring.h"
-#include "rofl/common/cfsm.h"
 #include "rofl/common/protocols/fetherframe.h"
-#include "rofl/common/csocket.h"
 #include "rofl/common/logging.h"
-
-#include "openflow/messages/cofmsg.h"
-#include "openflow/messages/cofmsg_hello.h"
-#include "openflow/messages/cofmsg_echo.h"
-#include "openflow/messages/cofmsg_error.h"
-#include "openflow/messages/cofmsg_features.h"
-#include "openflow/messages/cofmsg_config.h"
-#include "openflow/messages/cofmsg_packet_in.h"
-#include "openflow/messages/cofmsg_flow_removed.h"
-#include "openflow/messages/cofmsg_port_status.h"
-#include "openflow/messages/cofmsg_stats.h"
-#include "openflow/messages/cofmsg_desc_stats.h"
-#include "openflow/messages/cofmsg_flow_stats.h"
-#include "openflow/messages/cofmsg_aggr_stats.h"
-#include "openflow/messages/cofmsg_table_stats.h"
-#include "openflow/messages/cofmsg_port_stats.h"
-#include "openflow/messages/cofmsg_queue_stats.h"
-#include "openflow/messages/cofmsg_group_stats.h"
-#include "openflow/messages/cofmsg_group_desc_stats.h"
-#include "openflow/messages/cofmsg_group_features_stats.h"
-#include "openflow/messages/cofmsg_barrier.h"
-#include "openflow/messages/cofmsg_queue_get_config.h"
-#include "openflow/messages/cofmsg_role.h"
-#include "openflow/messages/cofmsg_experimenter.h"
-#include "openflow/messages/cofmsg_experimenter_stats.h"
-#include "openflow/messages/cofmsg_async_config.h"
 
 #include "rofl/common/crofdpt.h"
 
@@ -69,17 +47,14 @@ namespace rofl
  */
 class crofdptImpl :
 	public crofdpt,
-	public csocket_owner,
-	public ciosrv,
-	public cfsm
+	public rofl::openflow::crofchan_env,
+	public ciosrv
 {
 
 private: // data structures
 
-
-
-		/* cofdpt timer types */
-		enum cofdpt_timer_t {
+		/* crofdpt timer types */
+		enum crofdpt_timer_t {
 			COFDPT_TIMER_BASE = 0xc721,
 			COFDPT_TIMER_RECONNECT		= ((COFDPT_TIMER_BASE) << 16 | (0x01 << 8)),
 			COFDPT_TIMER_FEATURES_REQUEST 	= ((COFDPT_TIMER_BASE) << 16 | (0x02 << 8)),
@@ -100,7 +75,7 @@ private: // data structures
 		};
 
 		/* cofdpt state types */
-		enum cofdpt_state_t {
+		enum crofdpt_state_t {
 			COFDPT_STATE_INIT 				= (1 << 0),
 			COFDPT_STATE_DISCONNECTED		= (1 << 1),
 			COFDPT_STATE_WAIT_FEATURES 		= (1 << 2), // waiting for FEATURE-REPLY
@@ -110,7 +85,7 @@ private: // data structures
 		};
 
 		/* cofdpt flags */
-		enum cofdpt_flag_t {
+		enum crofdpt_flag_t {
 			COFDPT_FLAG_ACTIVE_SOCKET		= (1 << 0),
 			COFDPT_FLAG_HELLO_RCVD          = (1 << 1),
 			COFDPT_FLAG_HELLO_SENT			= (1 << 2),

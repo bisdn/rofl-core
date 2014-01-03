@@ -125,6 +125,12 @@ public:
 public:
 
 	/**
+	 * @brief	Returns whether this connection is established
+	 */
+	bool
+	is_established() const { return (STATE_ESTABLISHED == state); }
+
+	/**
 	 * @brief	Returns a reference to the versionbitmap announced by this entity
 	 */
 	cofhello_elem_versionbitmap&
@@ -147,6 +153,12 @@ public:
 	 */
 	uint8_t
 	get_aux_id() const { return auxiliary_id; };
+
+	/**
+	 * @brief
+	 */
+	crofsock&
+	get_rofsocket() { return *rofsock; };
 
 	/**
 	 * @brief	Send OFP message via socket

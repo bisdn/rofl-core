@@ -21,6 +21,7 @@ extern "C" {
 #include <map>
 #include <set>
 #include <deque>
+#include <bitset>
 #include <algorithm>
 
 #include "ciosrv.h"
@@ -91,8 +92,8 @@ class crofsock :
 	PthreadRwLock						outqueue_rwlock;
 	std::deque<cofmsg*>					outqueue;
 
-	enum crofendpnt_event_t {
-		CROFENDPNT_EVENT_WAKEUP = 1,
+	enum crofsock_event_t {
+		CROFSOCK_EVENT_WAKEUP = 1,
 	};
 
 public:
@@ -133,7 +134,7 @@ private:
 
 
 	/**
-	 * @brief	Private copy constructor to suppress any copy attempt.
+	 * @brief	Private copy constructor for suppressing any copy attempt.
 	 */
 	crofsock(crofsock const& endpnt) :
 		env(NULL),
@@ -152,6 +153,7 @@ private:
 
 
 private:
+
 
 
 	/**

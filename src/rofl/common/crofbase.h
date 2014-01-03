@@ -49,6 +49,7 @@
 #include "openflow/cofstats.h"
 #include "openflow/extensions/cfsptable.h"
 #include "openflow/openflow_rofl_exceptions.h"
+#include "openflow/cofhelloelemversionbitmap.h"
 #include "openflow/messages/cofmsg.h"
 #include "openflow/messages/cofmsg_hello.h"
 #include "openflow/messages/cofmsg_echo.h"
@@ -254,7 +255,7 @@ public:
 	 */
 	void
 	rpc_connect_to_ctl(
-			uint8_t ofp_version,
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
 			caddress const& ra,
 			int domain = PF_INET,
@@ -308,7 +309,7 @@ public:
 	 */
 	void
 	rpc_connect_to_dpt(
-			uint8_t ofp_version,
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
 			caddress const& ra,
 			int domain = PF_INET,
@@ -462,8 +463,11 @@ public:
 	static uint8_t
 	get_ofp_command(uint8_t ofp_version, enum openflow::ofp_flow_mod_command const& cmd);
 
-
-
+	/**
+	 *
+	 */
+	rofl::openflow::cofhello_elem_versionbitmap&
+	get_versionbitmap() { return versionbitmap; };
 
 
 
@@ -486,21 +490,15 @@ protected:
 	 * exchange in OpenFlow succeeds, method crofbase::handle_ctrl_open() will be called.
 	 *
 	 * @param owner Pointer to this crofbase instance for callbacks used by the cofctl instance
+	 * @param versionbitmap version-bitmap Hello IE containing acceptable OFP versions
 	 * @param newsd socket descriptor of new created socket for cofctl instance
-	 * @param ra Remote address of peer entity connected via socket referenced by newsd
-	 * @param domain socket domain (see man 2 socket for details)
-	 * @param type socket type (see man 2 socket for details)
-	 * @param protocol socket protocol (see man 2 socket for details)
 	 *
 	 */
 	virtual crofctl*
 	cofctl_factory(
 			crofbase* owner,
-			int newsd,
-			caddress const& ra,
-			int domain,
-			int type,
-			int protocol);
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+			int newsd);
 
 
 	/**
@@ -524,7 +522,7 @@ protected:
 	virtual crofctl*
 	cofctl_factory(
 			crofbase* owner,
-			uint8_t ofp_version,
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
 			caddress const& ra,
 			int domain,
@@ -542,21 +540,15 @@ protected:
 	 * crofbase::handle_ctrl_open() will be called.
 	 *
 	 * @param owner Pointer to this crofbase instance for callbacks used by the cofdpt instance
+	 * @param versionbitmap version-bitmap Hello IE containing acceptable OFP versions
 	 * @param newsd socket descriptor of new created socket for cofdpt instance
-	 * @param ra Remote address of peer entity connected via socket referenced by newsd
-	 * @param domain socket domain (see man 2 socket for details)
-	 * @param type socket type (see man 2 socket for details)
-	 * @param protocol socket protocol (see man 2 socket for details)
 	 *
 	 */
 	virtual crofdpt*
 	cofdpt_factory(
 			crofbase* owner,
-			int newsd,
-			caddress const& ra,
-			int domain,
-			int type,
-			int protocol);
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
+			int newsd);
 
 
 	/**
@@ -580,7 +572,7 @@ protected:
 	virtual crofdpt*
 	cofdpt_factory(
 			crofbase* owner,
-			uint8_t ofp_version,
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
 			caddress const& ra,
 			int domain,
@@ -3952,6 +3944,7 @@ private:
 
 	std::set<csocket*>			rpc[2];	/**< two sets of listening sockets for ctl and dpt */
 
+	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap;
 
 
 private:

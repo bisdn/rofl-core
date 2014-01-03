@@ -112,7 +112,7 @@ public: // methods
 	 * @brief	Returns OpenFlow version negotiated for control connection.
 	 */
 	virtual uint8_t
-	get_version() = 0;
+	get_version() const = 0;
 
 
 
@@ -134,16 +134,16 @@ public: // methods
 	 */
 	virtual void
 	send_message(
-			cofmsg *msg) = 0;
+			cofmsg *msg, uint8_t aux_id = 0) = 0;
 
-
+#if 0
 	/**
 	 *
 	 */
 	virtual void
-	parse_message(
-			cmemory *pack) = 0;
-
+	recv_message(
+			cofmsg *msg, uint8_t aux_id) = 0;
+#endif
 
 	/**
 	 * @brief	Returns caddress of connected remote entity.

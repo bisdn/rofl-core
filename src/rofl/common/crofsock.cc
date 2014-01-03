@@ -241,7 +241,7 @@ crofsock::handle_event(
 		cevent const &ev)
 {
 	switch (ev.cmd) {
-	case CROFENDPNT_EVENT_WAKEUP: {
+	case CROFSOCK_EVENT_WAKEUP: {
 		send_from_queue();
 	} break;
 	default:

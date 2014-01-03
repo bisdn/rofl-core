@@ -172,18 +172,25 @@ private:
 
 	static std::set<csocket*> 	csock_list; 		/**< list of all csocket instances */
 
+
+
 protected:
 
 	csocket_owner				*socket_owner;		/**< owner of this csocket instance */
 
 	enum socket_flag_t {
 		SOCKET_IS_LISTENING = 1, 	/**< socket is in listening state */
-		CONNECT_PENDING, 			/**< connect() call is pending */
-		RAW_SOCKET, 				/**< socket is in raw mode (link layer) */
-		CONNECTED, 					/**< socket is connected */
+		CONNECT_PENDING		= 2, 	/**< connect() call is pending */
+		RAW_SOCKET			= 3, 	/**< socket is in raw mode (link layer) */
+		CONNECTED			= 4,	/**< socket is connected */
+		FLAG_ACTIVE_SOCKET	= 5,
 	};
 
 	std::bitset<16> 			sockflags; /**< socket flags (see below) */
+
+	enum csocket_timer_t {
+		TIMER_RECONNECT 	= 1,
+	};
 
 public:
 
@@ -195,6 +202,11 @@ public:
 	int 						protocol; 			/**< socket protocol (TCP, UDP, SCTP, ...) */
 	int 						backlog; 			/**< backlog value for listen() system call */
 
+	int							reconnect_start_timeout;
+	int 						reconnect_in_seconds; 	// reconnect in x seconds
+	int 						reconnect_counter;
+
+#define RECONNECT_START_TIMEOUT 1						// start reconnect timeout (default 1s)
 
 public:
 
@@ -440,9 +452,25 @@ private:
 private:
 
 
-	//
-	// inherited from ciosrv
-	//
+	/**
+	 *
+	 */
+	void
+	reconnect(
+			bool reset_timeout = false);
+
+
+	/*
+	 * inherited from ciosrv
+	 */
+
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_timeout(
+			int opaque);
 
 
 	/**
