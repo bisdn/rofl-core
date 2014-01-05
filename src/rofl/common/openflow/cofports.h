@@ -28,11 +28,11 @@ class cofports : public std::map<uint32_t, cofport*>
 
 public: // iterators
 
-	typedef typename std::map<uint32_t, cofport>::iterator iterator;
-	typedef typename std::map<uint32_t, cofport>::const_iterator const_iterator;
+	typedef typename std::map<uint32_t, cofport*>::iterator iterator;
+	typedef typename std::map<uint32_t, cofport*>::const_iterator const_iterator;
 
-	typedef typename std::map<uint32_t, cofport>::reverse_iterator reverse_iterator;
-	typedef typename std::map<uint32_t, cofport>::const_reverse_iterator const_reverse_iterator;
+	typedef typename std::map<uint32_t, cofport*>::reverse_iterator reverse_iterator;
+	typedef typename std::map<uint32_t, cofport*>::const_reverse_iterator const_reverse_iterator;
 
 public: // methods
 
@@ -86,7 +86,7 @@ public:
 	/**
 	 *
 	 */
-	uint8_t*
+	void
 	pack(uint8_t* buf, size_t buflen);
 
 
@@ -130,10 +130,13 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofportlist const& ofportlist) {
-		os << indent(0) << "<cofportlist size:" << (int)ofportlist.size() << " >" << std::endl;;
+	operator<< (std::ostream& os, cofports const& ports) {
+		os << indent(0) << "<cofports size:" << (int)ports.size() << " >" << std::endl;;
 		indent i(2);
-		os << dynamic_cast<coflist const&>( ofportlist );
+		for (cofports::const_iterator
+				it = ports.begin(); it != ports.end(); ++it) {
+			os << *(it->second);
+		}
 #if 0
 		for (cofportlist::const_iterator
 				it = ofportlist.begin(); it != ofportlist.end(); ++it) {

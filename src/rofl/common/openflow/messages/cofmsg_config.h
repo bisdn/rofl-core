@@ -9,7 +9,6 @@
 #define COFMSG_CONFIG_H_A 1
 
 #include "cofmsg.h"
-#include "rofl/common/openflow/cofportlist.h"
 
 namespace rofl
 {

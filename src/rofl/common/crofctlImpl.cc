@@ -635,7 +635,7 @@ crofctlImpl::send_features_reply(
 		uint32_t capabilities,
 		uint8_t of13_auxiliary_id,
 		uint32_t of10_actions_bitmap,
-		cofportlist const& portlist)
+		cofports const& ports)
 {
 	cofmsg_features_reply *msg =
 			new cofmsg_features_reply(
@@ -647,7 +647,7 @@ crofctlImpl::send_features_reply(
 					capabilities,
 					of10_actions_bitmap,
 					of13_auxiliary_id,
-					portlist);
+					ports);
 
 	rofchan.send_message(msg, 0);
 }

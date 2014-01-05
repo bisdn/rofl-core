@@ -33,9 +33,9 @@
 
 namespace rofl
 {
-class eOFportBase 			: public RoflException {};
-class eOFportInval	 		: public eOFportBase {};
-class eOFportNotFound 		: public eOFportBase {};
+class ePortBase 			: public RoflException {};
+class ePortInval	 		: public ePortBase {};
+class ePortNotFound 		: public ePortBase {};
 
 class cofport : public cmemory
 {
@@ -105,7 +105,7 @@ public:
 	/**
 	 *
 	 */
-	uint8_t*
+	void
 	pack(
 			uint8_t *buf, size_t buflen);
 

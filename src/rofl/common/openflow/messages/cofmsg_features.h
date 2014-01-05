@@ -9,7 +9,7 @@
 #define COFMSG_FEATURES_H_ 1
 
 #include "cofmsg.h"
-#include "rofl/common/openflow/cofportlist.h"
+#include "rofl/common/openflow/cofports.h"
 
 namespace rofl
 {
@@ -111,7 +111,7 @@ class cofmsg_features_reply :
 {
 private:
 
-	cofportlist			ports;
+	cofports			ports;
 
 	union {
 		uint8_t*						ofhu_switch_features;
@@ -140,7 +140,7 @@ public:
 			uint32_t capabilities = 0,
 			uint32_t of10_actions_bitmap = 0,
 			uint8_t  of13_auxiliary_id = 0,
-			cofportlist const& ports = cofportlist());
+			cofports const& ports = cofports());
 
 
 	/**
@@ -290,7 +290,7 @@ public:
 	/**
 	 *
 	 */
-	cofportlist&
+	cofports&
 	get_ports();
 
 public:

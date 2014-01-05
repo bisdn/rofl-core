@@ -26,7 +26,7 @@
 #include "rofl/common/openflow/cofinstructions.h"
 #include "rofl/common/openflow/cofactions.h"
 #include "rofl/common/openflow/cofbuckets.h"
-#include "rofl/common/openflow/cofportlist.h"
+#include "rofl/common/openflow/cofports.h"
 #include "rofl/common/openflow/cofport.h"
 #include "rofl/common/openflow/cofdescstats.h"
 #include "rofl/common/openflow/cofflowstats.h"

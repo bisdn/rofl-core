@@ -144,7 +144,7 @@ cofmsg_features_reply::cofmsg_features_reply(
 		uint32_t capabilities,
 		uint32_t of10_actions_bitmap,
 		uint8_t  of13_auxiliary_id,
-		cofportlist const& ports) :
+		cofports const& ports) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
 	ports(ports)
 {
@@ -288,11 +288,11 @@ cofmsg_features_reply::pack(uint8_t *buf, size_t buflen)
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {
 		memcpy(buf, soframe(), framelen());
-		ports.pack((struct openflow10::ofp_port*)(buf + sizeof(struct openflow10::ofp_switch_features)), ports.length());
+		ports.pack(buf + sizeof(struct openflow10::ofp_switch_features), ports.length());
 	} break;
 	case openflow12::OFP_VERSION: {
 		memcpy(buf, soframe(), framelen());
-		ports.pack((struct openflow12::ofp_port*)(buf + sizeof(struct openflow12::ofp_switch_features)), ports.length());
+		ports.pack(buf + sizeof(struct openflow12::ofp_switch_features), ports.length());
 	} break;
 	case openflow13::OFP_VERSION: {
 		memcpy(buf, soframe(), framelen());
@@ -328,14 +328,14 @@ cofmsg_features_reply::validate()
 		if (get_length() < sizeof(struct openflow10::ofp_switch_features))
 			throw eBadSyntaxTooShort();
 		if (get_length() > sizeof(struct openflow10::ofp_switch_features)) {
-			ports.unpack(ofh10_switch_features->ports, get_length() - sizeof(struct openflow10::ofp_switch_features));
+			ports.unpack((uint8_t*)(ofh10_switch_features->ports), get_length() - sizeof(struct openflow10::ofp_switch_features));
 		}
 	} break;
 	case openflow12::OFP_VERSION: {
 		if (get_length() < sizeof(struct openflow12::ofp_switch_features))
 			throw eBadSyntaxTooShort();
 		if (get_length() > sizeof(struct openflow12::ofp_switch_features)) {
-			ports.unpack(ofh12_switch_features->ports, get_length() - sizeof(struct openflow12::ofp_switch_features));
+			ports.unpack((uint8_t*)(ofh12_switch_features->ports), get_length() - sizeof(struct openflow12::ofp_switch_features));
 		}
 	} break;
 	case openflow13::OFP_VERSION: {
@@ -572,7 +572,7 @@ cofmsg_features_reply::set_actions_bitmap(uint32_t actions_bitmap)
 
 
 
-cofportlist&
+cofports&
 cofmsg_features_reply::get_ports()
 {
 	return ports;

@@ -426,7 +426,7 @@ public:
 			uint32_t capabilities,
 			uint8_t of13_auxiliary_id = 0,
 			uint32_t of10_actions_bitmap = 0,
-			cofportlist const& portlist = cofportlist());
+			cofports const& ports = cofports());
 
 	/**
 	 * @brief	Sends a GET-CONFIG.reply to a controller entity.

@@ -45,7 +45,7 @@ cofports::operator= (
 
 	for (cofports::const_iterator
 			it = ports.begin(); it != ports.end(); ++it) {
-		ports[it->first] = new cofport(*it->second);
+		(*this)[it->first] = new cofport(*it->second);
 	}
 
 	return *this;
@@ -77,9 +77,47 @@ cofports::length() const
 {
 	size_t len = 0;
 	for (cofports::const_iterator it = begin(); it != end(); ++it) {
-		len += *(it->second);
+		len += (*(it->second)).length();
 	}
 	return len;
+}
+
+
+
+void
+cofports::pack(
+	uint8_t *buf,
+	size_t buflen)
+{
+	if (buflen < length()) {
+		throw ePortsInval();
+	}
+
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
+		for (cofports::iterator it = begin(); it != end(); ++it) {
+			cofport& port = *(it->second);
+			port.pack(buf, sizeof(struct rofl::openflow10::ofp_port));
+			buf += sizeof(struct rofl::openflow10::ofp_port);
+		}
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		for (cofports::iterator it = begin(); it != end(); ++it) {
+			cofport& port = *(it->second);
+			port.pack(buf, sizeof(struct rofl::openflow12::ofp_port));
+			buf += sizeof(struct rofl::openflow12::ofp_port);
+		}
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		for (cofports::iterator it = begin(); it != end(); ++it) {
+			cofport& port = *(it->second);
+			port.pack(buf, sizeof(struct rofl::openflow13::ofp_port));
+			buf += sizeof(struct rofl::openflow13::ofp_port);
+		}
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 
@@ -144,42 +182,63 @@ cofports::unpack(
 
 
 
-uint8_t*
-cofports::pack(
-	uint8_t *buf,
-	size_t buflen)
+cofport&
+cofports::add_port(uint32_t portno)
 {
-	if (buflen < length()) {
-		throw ePortsInval();
+	std::map<uint32_t, cofport*>& ports = (*this);
+	if (ports.find(portno) != ports.end()) {
+		ports.erase(portno);
 	}
+	ports[portno] = new cofport(ofp_version);
+	ports[portno]->set_port_no(portno);
+	return *(ports[portno]);
+}
 
-	switch (ofp_version) {
-	case rofl::openflow10::OFP_VERSION: {
-		for (cofports::iterator it = begin(); it != end(); ++it) {
-			cofport& port = *(it->second);
-			port.pack(buf, sizeof(struct rofl::openflow10::ofp_port));
-			buf += sizeof(struct rofl::openflow10::ofp_port);
-		}
-	} break;
-	case rofl::openflow12::OFP_VERSION: {
-		for (cofports::iterator it = begin(); it != end(); ++it) {
-			cofport& port = *(it->second);
-			port.pack(buf, sizeof(struct rofl::openflow12::ofp_port));
-			buf += sizeof(struct rofl::openflow12::ofp_port);
-		}
-	} break;
-	case rofl::openflow13::OFP_VERSION: {
-		for (cofports::iterator it = begin(); it != end(); ++it) {
-			cofport& port = *(it->second);
-			port.pack(buf, sizeof(struct rofl::openflow13::ofp_port));
-			buf += sizeof(struct rofl::openflow13::ofp_port);
-		}
-	} break;
-	default:
-		throw eBadVersion();
+
+
+cofport&
+cofports::set_port(uint32_t portno)
+{
+	std::map<uint32_t, cofport*>& ports = (*this);
+	if (ports.find(portno) == ports.end()) {
+		ports[portno] = new cofport(ofp_version);
+		ports[portno]->set_port_no(portno);
 	}
+	return *(ports[portno]);
+}
 
-	return buf;
+
+
+cofport&
+cofports::get_port(uint32_t portno)
+{
+	std::map<uint32_t, cofport*>& ports = (*this);
+	if (ports.find(portno) == ports.end()) {
+		throw ePortNotFound();
+	}
+	return *(ports[portno]);
+}
+
+
+
+void
+cofports::drop_port(uint32_t portno)
+{
+	std::map<uint32_t, cofport*>& ports = (*this);
+	if (ports.find(portno) == ports.end()) {
+		return;
+	}
+	delete ports[portno];
+	ports.erase(portno);
+}
+
+
+
+bool
+cofports::has_port(uint32_t portno)
+{
+	std::map<uint32_t, cofport*>& ports = (*this);
+	return (ports.find(portno) != ports.end());
 }
 
 
