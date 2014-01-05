@@ -632,7 +632,7 @@ private:
 	 */
 	void
 	experimenter_rcvd(
-			cofmsg_experimenter *msg);
+			cofmsg_experimenter *msg, uint8_t aux_id = 0);
 
 
 
@@ -648,7 +648,7 @@ private:
 	 */
 	void
 	features_reply_rcvd(
-			cofmsg_features_reply *msg);
+			cofmsg_features_reply *msg, uint8_t aux_id = 0);
 
 	/**
 	 * @name	get_config_reply_rcvd
@@ -662,7 +662,7 @@ private:
 	 */
 	void
 	get_config_reply_rcvd(
-			cofmsg_get_config_reply *msg);
+			cofmsg_get_config_reply *msg, uint8_t aux_id = 0);
 
 	/**
 	 * @name	stats_reply_rcvd
@@ -675,31 +675,31 @@ private:
 	 * @param[in] pack The OpenFlow message received.
 	 */
 	void
-	stats_reply_rcvd(
-			cofmsg_stats *msg);
+	multipart_reply_rcvd(
+			cofmsg_multipart_reply *msg, uint8_t aux_id = 0);
 
 
 
 	void
-	desc_stats_reply_rcvd(cofmsg_desc_stats_reply* msg);
+	desc_stats_reply_rcvd(cofmsg_desc_stats_reply* msg, uint8_t aux_id = 0);
 	void
-	table_stats_reply_rcvd(cofmsg_table_stats_reply *msg);
+	table_stats_reply_rcvd(cofmsg_table_stats_reply *msg, uint8_t aux_id = 0);
 	void
-	port_stats_reply_rcvd(cofmsg_port_stats_reply* msg);
+	port_stats_reply_rcvd(cofmsg_port_stats_reply* msg, uint8_t aux_id = 0);
 	void
-	flow_stats_reply_rcvd(cofmsg_flow_stats_reply* msg);
+	flow_stats_reply_rcvd(cofmsg_flow_stats_reply* msg, uint8_t aux_id = 0);
 	void
-	aggregate_stats_reply_rcvd(cofmsg_aggr_stats_reply* msg);
+	aggregate_stats_reply_rcvd(cofmsg_aggr_stats_reply* msg, uint8_t aux_id = 0);
 	void
-	queue_stats_reply_rcvd(cofmsg_queue_stats_reply* msg);
+	queue_stats_reply_rcvd(cofmsg_queue_stats_reply* msg, uint8_t aux_id = 0);
 	void
-	group_stats_reply_rcvd(cofmsg_group_stats_reply* msg);
+	group_stats_reply_rcvd(cofmsg_group_stats_reply* msg, uint8_t aux_id = 0);
 	void
-	group_desc_stats_reply_rcvd(cofmsg_group_desc_stats_reply* msg);
+	group_desc_stats_reply_rcvd(cofmsg_group_desc_stats_reply* msg, uint8_t aux_id = 0);
 	void
-	group_features_stats_reply_rcvd(cofmsg_group_features_stats_reply* msg);
+	group_features_stats_reply_rcvd(cofmsg_group_features_stats_reply* msg, uint8_t aux_id = 0);
 	void
-	experimenter_stats_reply_rcvd(cofmsg_experimenter_stats_reply* msg);
+	experimenter_stats_reply_rcvd(cofmsg_experimenter_stats_reply* msg, uint8_t aux_id = 0);
 
 
 	/**
@@ -713,7 +713,7 @@ private:
 	 */
 	void
 	barrier_reply_rcvd(
-			cofmsg_barrier_reply *msg);
+			cofmsg_barrier_reply *msg, uint8_t aux_id = 0);
 
 	/**
 	 * @name	flow_rmvd_rcvd
@@ -725,7 +725,7 @@ private:
 	 */
 	void
 	flow_rmvd_rcvd(
-			cofmsg_flow_removed *msg);
+			cofmsg_flow_removed *msg, uint8_t aux_id = 0);
 
 	/**
 	 * @name	port_mod_sent
@@ -744,28 +744,34 @@ private:
 	 */
 	void
 	packet_in_rcvd(
-			cofmsg_packet_in *msg);
+			cofmsg_packet_in *msg, uint8_t aux_id = 0);
+
+	/** handle FlowRemoved message
+	 */
+	void
+	flow_removed_rcvd(
+			cofmsg_flow_removed *msg, uint8_t aux_id = 0);
 
 
 	/** handle PORT-STATUS message
 	 */
 	void
 	port_status_rcvd(
-			cofmsg_port_status *msg);
+			cofmsg_port_status *msg, uint8_t aux_id = 0);
 
 	/** handle ROLE-REPLY messages
 	 *
 	 */
 	void
 	role_reply_rcvd(
-			cofmsg_role_reply *msg);
+			cofmsg_role_reply *msg, uint8_t aux_id = 0);
 
 	/**
 	 *
 	 */
 	void
 	queue_get_config_reply_rcvd(
-			cofmsg_queue_get_config_reply *msg);
+			cofmsg_queue_get_config_reply *msg, uint8_t aux_id = 0);
 
 	/**
 	 * @name	get_async_config_reply_rcvd
@@ -779,7 +785,7 @@ private:
 	 */
 	void
 	get_async_config_reply_rcvd(
-			cofmsg_get_async_config_reply *msg);
+			cofmsg_get_async_config_reply *msg, uint8_t aux_id = 0);
 
 
 

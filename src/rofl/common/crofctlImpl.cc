@@ -2217,19 +2217,19 @@ crofctlImpl::transaction(uint32_t xid)
 uint32_t
 crofctlImpl::get_async_xid(rofl::openflow::crofchan *chan)
 {
-	return 0; // TODO
+	return transactions.get_async_xid();
 }
 
 uint32_t
 crofctlImpl::get_sync_xid(rofl::openflow::crofchan *chan)
 {
-	return 0; // TODO
+	return transactions.add_ta(cclock(/*secs=*/5));
 }
 
 void
 crofctlImpl::release_sync_xid(rofl::openflow::crofchan *chan, uint32_t xid)
 {
-
+	transactions.drop_ta(xid);
 }
 
 

@@ -182,6 +182,8 @@ public:
 
 typedef cofmsg_stats cofmsg_stats_request;
 typedef cofmsg_stats cofmsg_stats_reply;
+typedef cofmsg_stats cofmsg_multipart_request;
+typedef cofmsg_stats cofmsg_multipart_reply;
 
 
 } // end of namespace rofl
