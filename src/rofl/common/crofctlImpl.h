@@ -340,12 +340,6 @@ private:
 	/**
 	 *
 	 */
-	void
-	send_error_is_slave(cofmsg *pack);
-
-	/**
-	 *
-	 */
 	virtual void
 	handle_timeout(
 			int opaque);
@@ -399,13 +393,6 @@ private:
 	 */
 	void
 	check_role();
-
-	/**
-	 *
-	 */
-	void
-	send_message_via_ctl_channel(
-			cofmsg *msg, uint8_t aux_id);
 
 public:
 

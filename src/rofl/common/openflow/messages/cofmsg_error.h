@@ -949,972 +949,661 @@ public:
 
 
 
-
-#if 0
-void
-crofbase::send_error_switch_config_failed_bad_flags(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_SWITCH_CONFIG_FAILED; code = openflow12::OFPSCFC_BAD_FLAGS;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_SWITCH_CONFIG_FAILED; code = openflow13::OFPSCFC_BAD_FLAGS;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send SwitchConfigFailed/BadFlags for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_switch_config_failed_bad_len(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_SWITCH_CONFIG_FAILED; code = openflow12::OFPSCFC_BAD_LEN;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_SWITCH_CONFIG_FAILED; code = openflow13::OFPSCFC_BAD_LEN;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send SwitchConfigFailed/BadLen for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_switch_config_failed_eperm(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_SWITCH_CONFIG_FAILED; code = openflow13::OFPSCFC_EPERM;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send SwitchConfigFailed/EPerm for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_flow_mod_failed_unknown(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_FLOW_MOD_FAILED; code = openflow12::OFPFMFC_UNKNOWN;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_FLOW_MOD_FAILED; code = openflow13::OFPFMFC_UNKNOWN;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send FlowModFailed/Unknown for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_flow_mod_failed_table_full(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: {
-		type = openflow10::OFPET_FLOW_MOD_FAILED; code = openflow10::OFPFMFC_ALL_TABLES_FULL;
-	} break;
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_FLOW_MOD_FAILED; code = openflow12::OFPFMFC_TABLE_FULL;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_FLOW_MOD_FAILED; code = openflow13::OFPFMFC_TABLE_FULL;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send FlowModFailed/TableFull for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_flow_mod_failed_bad_table_id(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_FLOW_MOD_FAILED; code = openflow12::OFPFMFC_BAD_TABLE_ID;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_FLOW_MOD_FAILED; code = openflow13::OFPFMFC_BAD_TABLE_ID;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send FlowModFailed/BadTableId for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_flow_mod_failed_overlap(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: {
-		type = openflow10::OFPET_FLOW_MOD_FAILED; code = openflow10::OFPFMFC_OVERLAP;
-	} break;
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_FLOW_MOD_FAILED; code = openflow12::OFPFMFC_OVERLAP;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_FLOW_MOD_FAILED; code = openflow13::OFPFMFC_OVERLAP;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send FlowModFailed/Overlap for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_flow_mod_failed_eperm(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: {
-		type = openflow10::OFPET_FLOW_MOD_FAILED; code = openflow10::OFPFMFC_EPERM;
-	} break;
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_FLOW_MOD_FAILED; code = openflow12::OFPFMFC_EPERM;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_FLOW_MOD_FAILED; code = openflow13::OFPFMFC_EPERM;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send FlowModFailed/EPerm for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_flow_mod_failed_bad_timeout(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: {
-		type = openflow10::OFPET_FLOW_MOD_FAILED; code = openflow10::OFPFMFC_BAD_EMERG_TIMEOUT;
-	} break;
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_FLOW_MOD_FAILED; code = openflow12::OFPFMFC_BAD_TIMEOUT;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_FLOW_MOD_FAILED; code = openflow13::OFPFMFC_BAD_TIMEOUT;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send FlowModFailed/BadTimeout for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_flow_mod_failed_bad_command(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: {
-		type = openflow10::OFPET_FLOW_MOD_FAILED; code = openflow10::OFPFMFC_BAD_COMMAND;
-	} break;
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_FLOW_MOD_FAILED; code = openflow12::OFPFMFC_BAD_COMMAND;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_FLOW_MOD_FAILED; code = openflow13::OFPFMFC_BAD_COMMAND;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send FlowModFailed/BadCommand for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_flow_mod_failed_bad_flags(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_FLOW_MOD_FAILED; code = openflow13::OFPFMFC_BAD_FLAGS;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send FlowModFailed/BadFlags for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_group_exists(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_GROUP_EXISTS;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_GROUP_EXISTS;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/GroupExists for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_inval_group(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_INVALID_GROUP;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_INVALID_GROUP;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/InvalGroup for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_weight_unsupported(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_WEIGHT_UNSUPPORTED;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_WEIGHT_UNSUPPORTED;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/WeightUnsupported for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_out_of_groups(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_OUT_OF_GROUPS;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_OUT_OF_GROUPS;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/OutOfGroups for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_out_of_buckets(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_OUT_OF_BUCKETS;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_OUT_OF_BUCKETS;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/OutOfBuckets for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_chaining_unsupported(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_CHAINING_UNSUPPORTED;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_CHAINING_UNSUPPORTED;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/ChainingUnsupported for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_watch_unsupported(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_WATCH_UNSUPPORTED;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_WATCH_UNSUPPORTED;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/WatchUnsupported for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_loop(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_LOOP;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_LOOP;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/Loop for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_unknown_group(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_UNKNOWN_GROUP;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_UNKNOWN_GROUP;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/UnknownGroup for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_chained_group(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_CHAINED_GROUP;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_CHAINED_GROUP;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/ChainedGroup for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_bad_type(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_BAD_TYPE;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_BAD_TYPE;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/BadType for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_bad_command(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_BAD_COMMAND;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_BAD_COMMAND;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/BadCommand for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_bad_bucket(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_BAD_BUCKET;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_BAD_BUCKET;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/BadBucket for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_bad_watch(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_BAD_WATCH;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_BAD_WATCH;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/BadWatch for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_group_mod_failed_eperm(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_GROUP_MOD_FAILED; code = openflow12::OFPGMFC_EPERM;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_GROUP_MOD_FAILED; code = openflow13::OFPGMFC_EPERM;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send GroupModFailed/EPerm for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_port_mod_failed_bad_port(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_PORT_MOD_FAILED; code = openflow12::OFPPMFC_BAD_PORT;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_PORT_MOD_FAILED; code = openflow13::OFPPMFC_BAD_PORT;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send PortModFailed/BadPort for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_port_mod_failed_bad_hw_addr(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_PORT_MOD_FAILED; code = openflow12::OFPPMFC_BAD_HW_ADDR;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_PORT_MOD_FAILED; code = openflow13::OFPPMFC_BAD_HW_ADDR;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send PortModFailed/BadHwAddr for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_port_mod_failed_bad_config(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_PORT_MOD_FAILED; code = openflow12::OFPPMFC_BAD_CONFIG;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_PORT_MOD_FAILED; code = openflow13::OFPPMFC_BAD_CONFIG;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send PortModFailed/BadConfig for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_port_mod_failed_bad_advertise(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_PORT_MOD_FAILED; code = openflow12::OFPPMFC_BAD_ADVERTISE;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_PORT_MOD_FAILED; code = openflow13::OFPPMFC_BAD_ADVERTISE;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send PortModFailed/BadAdvertise for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_port_mod_failed_eperm(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_PORT_MOD_FAILED; code = openflow13::OFPPMFC_BAD_ADVERTISE;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send PortModFailed/EPerm for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_table_mod_failed_bad_table(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_TABLE_MOD_FAILED; code = openflow12::OFPTMFC_BAD_TABLE;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_TABLE_MOD_FAILED; code = openflow13::OFPTMFC_BAD_TABLE;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send TableModFailed/BadTable for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_table_mod_failed_bad_config(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_TABLE_MOD_FAILED; code = openflow12::OFPTMFC_BAD_CONFIG;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_TABLE_MOD_FAILED; code = openflow13::OFPTMFC_BAD_CONFIG;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send TableModFailed/BadConfig for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_table_mod_failed_eperm(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_TABLE_MOD_FAILED; code = openflow13::OFPTMFC_EPERM;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send TableModFailed/EPerm for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_role_request_failed_stale(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_ROLE_REQUEST_FAILED; code = openflow12::OFPRRFC_STALE;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_ROLE_REQUEST_FAILED; code = openflow13::OFPRRFC_STALE;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send RoleRequestFailed/Stale for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_role_request_failed_unsupported(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_ROLE_REQUEST_FAILED; code = openflow12::OFPRRFC_UNSUP;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_ROLE_REQUEST_FAILED; code = openflow13::OFPRRFC_UNSUP;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send RoleRequestFailed/Unsupported for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_role_request_failed_bad_role(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (ctl->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_ROLE_REQUEST_FAILED; code = openflow12::OFPRRFC_BAD_ROLE;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_ROLE_REQUEST_FAILED; code = openflow13::OFPRRFC_BAD_ROLE;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send RoleRequestFailed/BadRole for ofp-version:" << (int)ctl->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(ctl, xid, type, code, data, datalen);
-}
-#endif
-
+class cofmsg_error_switch_config_failed_bad_flags : public cofmsg_error {
+public:
+	cofmsg_error_switch_config_failed_bad_flags(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_SWITCH_CONFIG_FAILED, OFPSCFC_BAD_FLAGS, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_switch_config_failed_bad_flags() {};
+};
+
+
+
+class cofmsg_error_switch_config_failed_bad_len : public cofmsg_error {
+public:
+	cofmsg_error_switch_config_failed_bad_len(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_SWITCH_CONFIG_FAILED, OFPSCFC_BAD_LEN, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_switch_config_failed_bad_len() {};
+};
+
+
+
+class cofmsg_error_switch_config_failed_eperm : public cofmsg_error {
+public:
+	cofmsg_error_switch_config_failed_eperm(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_SWITCH_CONFIG_FAILED, OFPSCFC_EPERM, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_switch_config_failed_eperm() {};
+};
+
+
+
+class cofmsg_error_flow_mod_failed_unknown : public cofmsg_error {
+public:
+	cofmsg_error_flow_mod_failed_unknown(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_FLOW_MOD_FAILED, OFPFMFC_UNKNOWN, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_flow_mod_failed_unknown() {};
+};
+
+
+
+class cofmsg_error_flow_mod_failed_table_full : public cofmsg_error {
+public:
+	cofmsg_error_flow_mod_failed_table_full(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, 0, 0, data, datalen) {
+		switch (ofp_version) {
+		case rofl::openflow10::OFP_VERSION: {
+			set_err_type(rofl::openflow10::OFPET_FLOW_MOD_FAILED);
+			set_err_code(rofl::openflow10::OFPFMFC_ALL_TABLES_FULL);
+		} break;
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION:
+		default: {
+			set_err_type(rofl::openflow12::OFPET_FLOW_MOD_FAILED);
+			set_err_code(rofl::openflow12::OFPFMFC_TABLE_FULL);
+		};
+		}
+	};
+	virtual ~cofmsg_error_flow_mod_failed_table_full() {};
+};
+
+
+
+class cofmsg_error_flow_mod_failed_bad_table_id : public cofmsg_error {
+public:
+	cofmsg_error_flow_mod_failed_bad_table_id(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_FLOW_MOD_FAILED, OFPFMFC_BAD_TABLE_ID, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_flow_mod_failed_bad_table_id() {};
+};
+
+
+
+class cofmsg_error_flow_mod_failed_overlap : public cofmsg_error {
+public:
+	cofmsg_error_flow_mod_failed_overlap(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, 0, 0, data, datalen) {
+		switch (ofp_version) {
+		case rofl::openflow10::OFP_VERSION: {
+			set_err_type(rofl::openflow10::OFPET_FLOW_MOD_FAILED);
+			set_err_code(rofl::openflow10::OFPFMFC_OVERLAP);
+		} break;
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION:
+		default: {
+			set_err_type(rofl::openflow12::OFPET_FLOW_MOD_FAILED);
+			set_err_code(rofl::openflow12::OFPFMFC_OVERLAP);
+		};
+		}
+	};
+	virtual ~cofmsg_error_flow_mod_failed_overlap() {};
+};
+
+
+
+class cofmsg_error_flow_mod_failed_eperm : public cofmsg_error {
+public:
+	cofmsg_error_flow_mod_failed_eperm(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, 0, 0, data, datalen) {
+		switch (ofp_version) {
+		case rofl::openflow10::OFP_VERSION: {
+			set_err_type(rofl::openflow10::OFPET_FLOW_MOD_FAILED);
+			set_err_code(rofl::openflow10::OFPFMFC_EPERM);
+		} break;
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION:
+		default: {
+			set_err_type(rofl::openflow12::OFPET_FLOW_MOD_FAILED);
+			set_err_code(rofl::openflow12::OFPFMFC_EPERM);
+		};
+		}
+	};
+	virtual ~cofmsg_error_flow_mod_failed_eperm() {};
+};
+
+
+
+class cofmsg_error_flow_mod_failed_bad_timeout : public cofmsg_error {
+public:
+	cofmsg_error_flow_mod_failed_bad_timeout(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, 0, 0, data, datalen) {
+		switch (ofp_version) {
+		case rofl::openflow10::OFP_VERSION: {
+			set_err_type(rofl::openflow10::OFPET_FLOW_MOD_FAILED);
+			set_err_code(rofl::openflow10::OFPFMFC_BAD_EMERG_TIMEOUT);
+		} break;
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION:
+		default: {
+			set_err_type(rofl::openflow12::OFPET_FLOW_MOD_FAILED);
+			set_err_code(rofl::openflow12::OFPFMFC_BAD_TIMEOUT);
+		};
+		}
+	};
+	virtual ~cofmsg_error_flow_mod_failed_bad_timeout() {};
+};
+
+
+
+class cofmsg_error_flow_mod_failed_bad_command : public cofmsg_error {
+public:
+	cofmsg_error_flow_mod_failed_bad_command(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, 0, 0, data, datalen) {
+		switch (ofp_version) {
+		case rofl::openflow10::OFP_VERSION: {
+			set_err_type(rofl::openflow10::OFPET_FLOW_MOD_FAILED);
+			set_err_code(rofl::openflow10::OFPFMFC_BAD_COMMAND);
+		} break;
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION:
+		default: {
+			set_err_type(rofl::openflow12::OFPET_FLOW_MOD_FAILED);
+			set_err_code(rofl::openflow12::OFPFMFC_BAD_COMMAND);
+		};
+		}
+	};
+	virtual ~cofmsg_error_flow_mod_failed_bad_command() {};
+};
+
+
+
+class cofmsg_error_flow_mod_failed_unsupported : public cofmsg_error {
+public:
+	cofmsg_error_flow_mod_failed_unsupported(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, rofl::openflow10::OFPET_FLOW_MOD_FAILED, rofl::openflow10::OFPFMFC_UNSUPPORTED, data, datalen) {
+		if (ofp_version > rofl::openflow10::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_flow_mod_failed_unsupported() {};
+};
+
+
+
+class cofmsg_error_flow_mod_failed_bad_flags : public cofmsg_error {
+public:
+	cofmsg_error_flow_mod_failed_bad_flags(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_FLOW_MOD_FAILED, OFPFMFC_BAD_FLAGS, data, datalen) {
+		if (ofp_version < rofl::openflow13::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_flow_mod_failed_bad_flags() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_group_exists : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_group_exists(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_GROUP_EXISTS, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_group_exists() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_inval_group : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_inval_group(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_INVALID_GROUP, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_inval_group() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_weight_unsupported : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_weight_unsupported(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_WEIGHT_UNSUPPORTED, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_weight_unsupported() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_out_of_groups : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_out_of_groups(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_OUT_OF_GROUPS, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_out_of_groups() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_out_of_buckets : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_out_of_buckets(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_OUT_OF_BUCKETS, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_out_of_buckets() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_chaining_unsupported : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_chaining_unsupported(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_CHAINING_UNSUPPORTED, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_chaining_unsupported() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_watch_unsupported : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_watch_unsupported(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_WATCH_UNSUPPORTED, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_watch_unsupported() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_loop : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_loop(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_LOOP, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_loop() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_unknown_group : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_unknown_group(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_UNKNOWN_GROUP, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_unknown_group() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_chained_group : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_chained_group(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_CHAINED_GROUP, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_chained_group() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_bad_type : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_bad_type(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_BAD_TYPE, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_bad_type() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_bad_command : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_bad_command(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_BAD_COMMAND, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_bad_command() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_bad_bucket : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_bad_bucket(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_BAD_BUCKET, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_bad_bucket() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_bad_watch : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_bad_watch(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_BAD_WATCH, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_bad_watch() {};
+};
+
+
+
+class cofmsg_error_group_mod_failed_eperm : public cofmsg_error {
+public:
+	cofmsg_error_group_mod_failed_eperm(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_GROUP_MOD_FAILED, OFPGMFC_EPERM, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_group_mod_failed_eperm() {};
+};
+
+
+
+class cofmsg_error_port_mod_failed_bad_port : public cofmsg_error {
+public:
+	cofmsg_error_port_mod_failed_bad_port(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_PORT_MOD_FAILED, OFPPMFC_BAD_PORT, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_port_mod_failed_bad_port() {};
+};
+
+
+
+class cofmsg_error_port_mod_failed_bad_hwaddr : public cofmsg_error {
+public:
+	cofmsg_error_port_mod_failed_bad_hwaddr(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_PORT_MOD_FAILED, OFPPMFC_BAD_HW_ADDR, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_port_mod_failed_bad_hwaddr() {};
+};
+
+
+
+class cofmsg_error_port_mod_failed_bad_config : public cofmsg_error {
+public:
+	cofmsg_error_port_mod_failed_bad_config(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_PORT_MOD_FAILED, OFPPMFC_BAD_CONFIG, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_port_mod_failed_bad_config() {};
+};
+
+
+
+class cofmsg_error_port_mod_failed_bad_advertise : public cofmsg_error {
+public:
+	cofmsg_error_port_mod_failed_bad_advertise(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_PORT_MOD_FAILED, OFPPMFC_BAD_ADVERTISE, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_port_mod_failed_bad_advertise() {};
+};
+
+
+
+class cofmsg_error_port_mod_failed_eperm : public cofmsg_error {
+public:
+	cofmsg_error_port_mod_failed_eperm(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_PORT_MOD_FAILED, OFPPMFC_EPERM, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_port_mod_failed_eperm() {};
+};
+
+
+
+class cofmsg_error_table_mod_failed_bad_table : public cofmsg_error {
+public:
+	cofmsg_error_table_mod_failed_bad_table(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_TABLE_MOD_FAILED, OFPTMFC_BAD_TABLE, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_table_mod_failed_bad_table() {};
+};
+
+
+
+class cofmsg_error_table_mod_failed_bad_config : public cofmsg_error {
+public:
+	cofmsg_error_table_mod_failed_bad_config(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_TABLE_MOD_FAILED, OFPTMFC_BAD_CONFIG, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_table_mod_failed_bad_config() {};
+};
+
+
+
+class cofmsg_error_table_mod_failed_eperm : public cofmsg_error {
+public:
+	cofmsg_error_table_mod_failed_eperm(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_TABLE_MOD_FAILED, OFPTMFC_EPERM, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_table_mod_failed_eperm() {};
+};
+
+
+
+class cofmsg_error_role_request_failed_stale : public cofmsg_error {
+public:
+	cofmsg_error_role_request_failed_stale(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_ROLE_REQUEST_FAILED, OFPRRFC_STALE, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_role_request_failed_stale() {};
+};
+
+
+
+class cofmsg_error_role_request_failed_unsupported : public cofmsg_error {
+public:
+	cofmsg_error_role_request_failed_unsupported(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_ROLE_REQUEST_FAILED, OFPRRFC_UNSUP, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_role_request_failed_unsupported() {};
+};
+
+
+
+class cofmsg_error_role_request_failed_bad_role : public cofmsg_error {
+public:
+	cofmsg_error_role_request_failed_bad_role(
+				uint8_t ofp_version,
+				uint32_t xid,
+				uint8_t* data = 0,
+				size_t datalen = 0) :
+					cofmsg_error(ofp_version, xid, OFPET_ROLE_REQUEST_FAILED, OFPRRFC_BAD_ROLE, data, datalen) {
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
+			throw eBadVersion();
+	};
+	virtual ~cofmsg_error_role_request_failed_bad_role() {};
+};
 
 } // end of namespace rofl
 
