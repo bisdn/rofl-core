@@ -80,7 +80,8 @@ private: // data structures
 		enum crofdptImpl_timer_t {
 			TIMER_WAIT_FOR_FEATURES_REPLY		= 1,
 			TIMER_WAIT_FOR_GET_CONFIG_REPLY		= 2,
-			TIMER_WAIT_FOR_TABLE_FEATURES_REPLY	= 3,
+			TIMER_WAIT_FOR_TABLE_STATS_REPLY	= 3,
+			TIMER_WAIT_FOR_TABLE_FEATURES_STATS_REPLY	= 4,
 		};
 
 		enum crofdptImpl_state_t {
@@ -100,8 +101,10 @@ private: // data structures
 			EVENT_FEATURES_REQUEST_EXPIRED		= 4,
 			EVENT_GET_CONFIG_REPLY_RCVD			= 5,
 			EVENT_GET_CONFIG_REQUEST_EXPIRED	= 6,
-			EVENT_TABLE_FEATURES_REPLY_RCVD		= 7,
-			EVENT_TABLE_FEATURES_REQUEST_EXPIRED= 8,
+			EVENT_TABLE_STATS_REPLY_RCVD		= 7,
+			EVENT_TABLE_STATS_REQUEST_EXPIRED	= 8,
+			EVENT_TABLE_FEATURES_STATS_REPLY_RCVD		= 9,
+			EVENT_TABLE_FEATURES_STATS_REQUEST_EXPIRED	= 10,
 		};
 
 #define DEFAULT_DP_FEATURES_REPLY_TIMEOUT 			10
@@ -122,7 +125,7 @@ private: // data structures
 		uint32_t 						capabilities;	// capabilities flags
 
 		std::map<uint8_t, coftable_stats_reply> tables;	// map of tables: table_id:coftable_stats_reply
-		std::map<uint32_t, cofport*> 	ports;			// map of ports
+		cofports						ports;			// list of ports
 		std::bitset<32> 				dptflags;		// 'fragmentation' flags
 		uint16_t						config;
 		uint16_t 						miss_send_len; 	// length of bytes sent to controller

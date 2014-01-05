@@ -155,6 +155,7 @@ crofdptImpl::event_disconnected()
 	case STATE_ESTABLISHED: {
 		cancel_all_timer();
 		rofbase->handle_dpt_close(this);
+		rofchan.clear();
 		state = STATE_DISCONNECTED;
 	} break;
 	default: {
@@ -176,6 +177,10 @@ crofdptImpl::event_features_reply_rcvd()
 		send_get_config_request();
 		register_timer(TIMER_WAIT_FOR_GET_CONFIG_REPLY, get_config_request_timeout);
 		state = STATE_FEATURES_RCVD;
+
+		logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
+				<< "Features-Reply rcvd (connected -> features-reply-rcvd)" << std::endl;
+
 	} break;
 	case STATE_ESTABLISHED: {
 		// do nothing: Feature.requests may be sent by a derived class during state ESTABLISHED
@@ -214,9 +219,30 @@ crofdptImpl::event_get_config_reply_rcvd()
 	switch (state) {
 	case STATE_FEATURES_RCVD: {
 		cancel_timer(TIMER_WAIT_FOR_GET_CONFIG_REPLY);
-		send_table_features_stats_request(0);
-		register_timer(TIMER_WAIT_FOR_FEATURES_REPLY, table_features_request_timeout);
-		state = STATE_GET_CONFIG_RCVD;
+
+		switch (rofchan.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			state = STATE_ESTABLISHED;
+
+		} break;
+		case rofl::openflow12::OFP_VERSION: {
+			send_table_stats_request(0);
+			register_timer(TIMER_WAIT_FOR_TABLE_STATS_REPLY, table_stats_request_timeout);
+			state = STATE_GET_CONFIG_RCVD;
+
+		} break;
+		case rofl::openflow13::OFP_VERSION:
+		default: {
+			send_table_features_stats_request(0);
+			register_timer(TIMER_WAIT_FOR_TABLE_FEATURES_STATS_REPLY, table_features_stats_request_timeout);
+			state = STATE_GET_CONFIG_RCVD;
+
+		} break;
+		}
+
+		logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
+						<< "Get-Config-Reply rcvd (features-reply-rcvd -> get-config-reply-rcvd)" << std::endl;
+
 	} break;
 	case STATE_ESTABLISHED: {
 		// do nothing
@@ -985,42 +1011,29 @@ crofdptImpl::send_experimenter_message(
 
 void
 crofdptImpl::features_reply_rcvd(
-		cofmsg_features_reply *msg)
+		cofmsg_features_reply *msg,
+		uint8_t aux_id)
 {
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Features-Reply message received" << std::endl << *msg;
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Features-Reply message received" << std::endl << *msg;
 
 	try {
-		cancel_timer(COFDPT_TIMER_FEATURES_REPLY);
+		transactions.drop_ta(msg->get_xid());
 
 		dpid 			= msg->get_dpid();
 		n_buffers 		= msg->get_n_buffers();
 		n_tables 		= msg->get_n_tables();
 		capabilities 	= msg->get_capabilities();
 
-		switch (ofp_version) {
+		switch (rofchan.get_version()) {
 		case openflow10::OFP_VERSION:
 		case openflow12::OFP_VERSION: {
-			cofportlist& portlist = msg->get_ports();
-
-			for (std::map<uint32_t, cofport*>::iterator it = ports.begin();
-					it != ports.end(); ++it) {
-				delete it->second;
-			}
-			ports.clear();
-
-			for (cofportlist::iterator it = portlist.begin();
-					it != portlist.end(); ++it) {
-				cofport& port = (*it);
-				ports[port.get_port_no()] = new cofport(port, &ports, port.get_port_no());
-			}
-
+			ports = msg->get_ports();
 		} break;
 		case openflow13::OFP_VERSION: {
 			// no ports in OpenFlow 1.3 in FeaturesRequest
 		} break;
 		}
-
-
 
 		// dpid as std::string
 		cvastring vas;
@@ -1035,29 +1048,14 @@ crofdptImpl::features_reply_rcvd(
 		hwaddr[5] = (dpid & 0x00000000000000ffULL) >>  0;
 		hwaddr[0] &= 0xfc;
 
-		rofbase->handle_features_reply(this, msg);
-
-		if (STATE_WAIT_FEATURES == cur_state()) {
-
-			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
-					<< "Features-Reply rcvd (wait-features-reply -> wait-get-config-reply)" << std::endl;
-
-			// next step: send GET-CONFIG request to datapath
-			rofbase->send_get_config_request(this);
-
-			new_state(STATE_WAIT_GET_CONFIG);
+		if (STATE_ESTABLISHED == state) {
+			rofbase->handle_features_reply(this, msg);
 		}
 
+	} catch (RoflException& e) {
 
-	} catch (eOFportMalformed& e) {
-
-		logging::error << "eOFportMalformed " << *msg << std::endl;
-
-		socket->cclose();
-
-		new_state(STATE_DISCONNECTED);
-
-		rofbase->handle_dpt_close(this);
+		logging::error << "[rofl][dpt] eRoflException in Features.reply rcvd" << *msg << std::endl;
+		run_engine(EVENT_DISCONNECTED);
 	}
 }
 
@@ -1074,16 +1072,20 @@ crofdptImpl::handle_features_reply_timeout()
 
 void
 crofdptImpl::get_config_reply_rcvd(
-		cofmsg_get_config_reply *msg)
+		cofmsg_get_config_reply *msg,
+		uint8_t aux_id)
 {
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Get-Config-Reply message received" << std::endl << *msg;
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Get-Config-Reply message received" << std::endl << *msg;
 
-	cancel_timer(COFDPT_TIMER_GET_CONFIG_REPLY);
+	transactions.drop_ta(msg->get_xid());
 
 	config = msg->get_flags();
 	miss_send_len = msg->get_miss_send_len();
 
-	rofbase->handle_get_config_reply(this, msg);
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_get_config_reply(this, msg);
+	}
 
 	if (STATE_WAIT_GET_CONFIG == cur_state()) {
 
