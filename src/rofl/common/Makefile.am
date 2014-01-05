@@ -37,6 +37,10 @@ librofl_common_la_SOURCES = \
 		fframe.cc \
 		cxidstore.h \
 		cxidstore.cc \
+		ctransaction.h \
+		ctransaction.cc \
+		ctransactions.h \
+		ctransactions.cc \
 		crofbase.h \
 		crofbase.cc \
 		crofctl.h \
@@ -89,6 +93,8 @@ library_include_HEADERS= \
 		fframe.h \
 		thread_helper.h \
 		cxidstore.h \
+		ctransaction.h \
+		ctransactions.h \
 		cflowentry.h \
 		cgroupentry.h \
 		logging.h
