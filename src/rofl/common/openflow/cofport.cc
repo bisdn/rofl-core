@@ -6,247 +6,58 @@
 
 using namespace rofl;
 
-
-
-
-
-/* static */
-void
-cofport::ports_parse(
-		std::map<uint32_t, cofport*>& portsmap,
-		struct openflow10::ofp_port *ports, // ptr to array of ofp_phy_ports
-		int portslen) // number of bytes in array
-	throw (eOFportMalformed)
+cofport::cofport(
+		uint8_t ofp_version) :
+				ofp_version(ofp_version),
+				port_stats(ofp_version)
 {
-	if (0 == ports) {
-		return;
-	}
-
-	// sanity check: portslen must be of size at least of openflow10::ofp_port
-	if (sizeof(struct openflow10::ofp_port) <= (unsigned int)portslen) {
-		throw eOFportMalformed();
-	}
-
-	// first struct ofp_phy_port
-	struct openflow10::ofp_port *phdr = ports;
-
-	while (portslen > 0) {
-		if (portslen < (int)sizeof(struct openflow10::ofp_port)) {
-			throw eOFportMalformed();
-		}
-		cofport *ofport = new cofport(phdr, sizeof(struct openflow10::ofp_port), &portsmap, be16toh(phdr->port_no));
-		portsmap[ofport->get_port_no()] = ofport;
-		phdr++;
-		portslen -= sizeof(struct openflow10::ofp_port);
-	}
-}
-
-
-
-/* static */
-void
-cofport::ports_parse(
-		std::map<uint32_t, cofport*>& portsmap,
-		struct openflow12::ofp_port *ports, // ptr to array of openflow12::ofp_ports
-		int portslen) // number of bytes in array
-	throw (eOFportMalformed)
-{
-	if (0 == ports) {
-		return;
-	}
-
-	// sanity check: portslen must be of size at least of openflow12::ofp_port
-	if (sizeof(struct openflow12::ofp_port) <= (unsigned int)portslen) {
-		throw eOFportMalformed();
-	}
-
-	// first struct ofp_phy_port
-	struct openflow12::ofp_port *phdr = ports;
-
-	while (portslen > 0) {
-		if (portslen < (int)sizeof(struct openflow12::ofp_port)) {
-			throw eOFportMalformed();
-		}
-		cofport *ofport = new cofport(phdr, sizeof(struct openflow12::ofp_port), &portsmap, be32toh(phdr->port_no));
-		portsmap[ofport->get_port_no()] = ofport;
-		phdr++;
-		portslen -= sizeof(struct openflow12::ofp_port);
-	}
-}
-
-
-
-/* static */
-void
-cofport::ports_parse(
-		std::map<uint32_t, cofport*>& portsmap,
-		struct openflow13::ofp_port *ports, // ptr to array of openflow13::ofp_ports
-		int portslen) // number of bytes in array
-	throw (eOFportMalformed)
-{
-	if (0 == ports) {
-		return;
-	}
-
-	// sanity check: portslen must be of size at least of openflow13::ofp_port
-	if (sizeof(struct openflow13::ofp_port) <= (unsigned int)portslen) {
-		throw eOFportMalformed();
-	}
-
-	// first struct ofp_phy_port
-	struct openflow13::ofp_port *phdr = ports;
-
-	while (portslen > 0) {
-		if (portslen < (int)sizeof(struct openflow13::ofp_port)) {
-			throw eOFportMalformed();
-		}
-		cofport *ofport = new cofport(phdr, sizeof(struct openflow13::ofp_port), &portsmap, be32toh(phdr->port_no));
-		portsmap[ofport->get_port_no()] = ofport;
-		phdr++;
-		portslen -= sizeof(struct openflow13::ofp_port);
-	}
-}
-
-
-
-#if 0
-/*static*/ uint32_t
-cofport::ports_get_free_port_no(
-	std::map<uint32_t, cofport*> *port_list) throw (eOFportNotFound)
-{
-	uint32_t port_no = 1;
-
-	while (port_list->find(port_no) != port_list->end())
-	{
-		port_no++;
-		if (port_no == std::numeric_limits<uint32_t>::max())
-		{
-			throw eOFportNotFound();
-		}
-	}
-	return port_no;
-}
-#endif
-
-
-
-cofport::cofport(uint8_t of_version) :
-		of_version(of_version),
-		port_list(0),
-		port_stats(of_version)
-{
-	reset_stats();
 	switch (of_version) {
-	case openflow10::OFP_VERSION: memarea.resize(sizeof(struct openflow10::ofp_port)); ofh10_port = (struct openflow10::ofp_port*)memarea.somem(); break;
-	case openflow12::OFP_VERSION: memarea.resize(sizeof(struct openflow12::ofp_port)); ofh12_port = (struct openflow12::ofp_port*)memarea.somem(); break;
-	case openflow13::OFP_VERSION: memarea.resize(sizeof(struct openflow13::ofp_port)); ofh13_port = (struct openflow13::ofp_port*)memarea.somem(); break;
-	default: ofh10_port = (struct openflow10::ofp_port*)0; break;
+	case openflow10::OFP_VERSION: {
+		resize(sizeof(struct rofl::openflow10::ofp_port));
+	} break;
+	case openflow12::OFP_VERSION: {
+		resize(sizeof(struct rofl::openflow12::ofp_port));
+	} break;
+	case openflow13::OFP_VERSION: {
+		resize(sizeof(struct rofl::openflow13::ofp_port));
+	} break;
+	default:
+		throw eBadVersion();
 	}
 }
 
 
 
 cofport::cofport(
-	struct openflow10::ofp_port *port,
-	size_t port_len,
-	std::map<uint32_t, cofport*> *port_list,
-	uint32_t portno) :
-			of_version(openflow10::OFP_VERSION),
-			port_list(port_list),
-			memarea(sizeof(struct openflow10::ofp_port)),
-			port_stats(openflow10::OFP_VERSION)
+		uint8_t ofp_version,
+		uint8_t *buf,
+		size_t buflen) :
+				ofp_version(ofp_version),
+				port_stats(ofp_version)
 {
-	ofh10_port = (struct openflow10::ofp_port*)memarea.somem();
-
-	reset_stats();
-
-	if ((0 != port) && (port_len >= sizeof(struct openflow10::ofp_port))) {
-		unpack(port, port_len);
+	switch (of_version) {
+	case openflow10::OFP_VERSION: {
+		resize(sizeof(struct rofl::openflow10::ofp_port));
+	} break;
+	case openflow12::OFP_VERSION: {
+		resize(sizeof(struct rofl::openflow12::ofp_port));
+	} break;
+	case openflow13::OFP_VERSION: {
+		resize(sizeof(struct rofl::openflow13::ofp_port));
+	} break;
+	default:
+		throw eBadVersion();
 	}
 
-	if (0 != port_list) {
-		(*port_list)[portno] = this;
-	}
+	unpack(buf, buflen);
 }
 
 
 
 cofport::cofport(
-	struct openflow12::ofp_port *port,
-	size_t port_len,
-	std::map<uint32_t, cofport*> *port_list,
-	uint32_t portno) :
-			of_version(openflow12::OFP_VERSION),
-			port_list(port_list),
-			memarea(sizeof(struct openflow12::ofp_port)),
-			port_stats(openflow12::OFP_VERSION)
-{
-	ofh12_port = (struct openflow12::ofp_port*)memarea.somem();
-
-	reset_stats();
-
-	if ((0 != port) && (port_len >= sizeof(struct openflow12::ofp_port))) {
-		unpack(port, port_len);
-	}
-
-	if (0 != port_list) {
-		(*port_list)[portno] = this;
-	}
-}
-
-
-
-cofport::cofport(
-	struct openflow13::ofp_port *port,
-	size_t port_len,
-	std::map<uint32_t, cofport*> *port_list,
-	uint32_t portno) :
-			of_version(openflow13::OFP_VERSION),
-			port_list(port_list),
-			memarea(sizeof(struct openflow13::ofp_port)),
-			port_stats(openflow13::OFP_VERSION)
-{
-	ofh13_port = (struct openflow13::ofp_port*)memarea.somem();
-
-	reset_stats();
-
-	if ((0 != port) && (port_len >= sizeof(struct openflow13::ofp_port))) {
-		unpack(port, port_len);
-	}
-
-	if (0 != port_list) {
-		(*port_list)[portno] = this;
-	}
-}
-
-
-
-cofport::~cofport()
-{
-	if ((std::map<uint32_t, cofport*>*)0 != port_list) {
-
-		port_list->erase(get_port_no());
-	}
-}
-
-
-
-cofport::cofport(cofport const& port) :
-		port_list(0)
+		cofport const& port)
 {
 	*this = port;
-}
-
-
-
-cofport::cofport(cofport const& port, std::map<uint32_t, cofport*> *port_list, uint32_t port_no) :
-		port_list(port_list)
-{
-	*this = port;
-
-	if (0 != port_list) {
-		(*port_list)[port_no] = this;
-	}
 }
 
 
@@ -257,19 +68,68 @@ cofport::operator= (cofport const& port)
 	if (this == &port)
 		return *this;
 
-	reset_stats();
+	ofp_version	= port.ofp_version;
+	port_stats 	= port.port_stats;
 
-	WRITELOG(CPORT, DBG, "cofport(%p)::operator=() from port:%p", this, &port);
-
-	this->of_version 	= port.of_version;
-	this->memarea 		= port.memarea;
-	this->port_stats	= port.port_stats;
-
-	this->ofh_port		= (uint8_t*)memarea.somem();
-
-	//port_list 		= 0; // keep port_list as it is
+	cmemory::operator= (port);
 
 	return *this;
+}
+
+
+
+cofport::~cofport()
+{
+
+}
+
+
+
+uint8_t*
+cofport::resize(
+		size_t len)
+{
+	return (ofh_port = cmemory::resize(len));
+}
+
+
+
+uint8_t*
+cofport::pack(
+		uint8_t *buf, size_t buflen)
+{
+	if (buflen < length()) {
+		throw ePortInval();
+	}
+	memcpy(buf, somem(), length());
+	return (buf + length());
+}
+
+
+
+void
+cofport::unpack(
+		uint8_t *buf, size_t buflen)
+{
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
+		if (buflen < sizeof(struct rofl::openflow10::ofp_port))
+			throw ePortInval();
+		assign(buf, sizeof(struct rofl::openflow10::ofp_port));
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct rofl::openflow12::ofp_port))
+			throw ePortInval();
+		assign(buf, sizeof(struct rofl::openflow12::ofp_port));
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		if (buflen < sizeof(struct rofl::openflow13::ofp_port))
+			throw ePortInval();
+		assign(buf, sizeof(struct rofl::openflow13::ofp_port));
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 
@@ -1096,222 +956,6 @@ cofport::length() const
 
 
 
-
-template<class T>
-T*
-cofport::pack(T* port, size_t portlen) const throw (eOFportInval)
-{
-#if 0
-	if (openflow10::OFP_VERSION != of_version) {
-		throw eBadVersion();
-	}
-#endif
-
-	if (portlen < sizeof(T)) {
-		throw eOFportInval();
-	}
-
-	memcpy(port, memarea.somem(), sizeof(T));
-
-	return port;
-}
-
-
-
-struct openflow10::ofp_port*
-cofport::pack(struct openflow10::ofp_port* port, size_t portlen) const throw (eOFportInval)
-{
-	if (openflow10::OFP_VERSION != of_version) {
-		throw eBadVersion();
-	}
-
-	if (portlen < sizeof(struct openflow10::ofp_port)) {
-		throw eOFportInval();
-	}
-
-	memcpy(port, memarea.somem(), sizeof(struct openflow10::ofp_port));
-
-	return port;
-}
-
-
-
-
-struct openflow12::ofp_port*
-cofport::pack(struct openflow12::ofp_port* port, size_t portlen) const throw (eOFportInval)
-{
-	if (openflow12::OFP_VERSION != of_version) {
-		throw eBadVersion();
-	}
-
-	if (portlen < sizeof(struct openflow12::ofp_port)) {
-		throw eOFportInval();
-	}
-
-	memcpy(port, memarea.somem(), sizeof(struct openflow12::ofp_port));
-
-	return port;
-}
-
-
-
-struct openflow13::ofp_port*
-cofport::pack(struct openflow13::ofp_port* port, size_t portlen) const throw (eOFportInval)
-{
-	if (openflow13::OFP_VERSION != of_version) {
-		throw eBadVersion();
-	}
-
-	if (portlen < sizeof(struct openflow13::ofp_port)) {
-		throw eOFportInval();
-	}
-
-	memcpy(port, memarea.somem(), sizeof(struct openflow13::ofp_port));
-
-	return port;
-}
-
-
-
-
-template<class T>
-T*
-cofport::unpack(
-	T* port, size_t portlen)
-throw (eOFportInval)
-{
-#if 0
-	if (openflow10::OFP_VERSION != of_version) {
-		throw eBadVersion();
-	}
-#endif
-
-	if (portlen < sizeof(T)) {
-		throw eOFportInval();
-	}
-
-	memarea.assign((uint8_t*)port, portlen);
-	ofh_port = memarea.somem();
-
-	return port;
-}
-
-
-
-struct openflow10::ofp_port*
-cofport::unpack(
-	struct openflow10::ofp_port* port, size_t portlen)
-throw (eOFportInval)
-{
-	if (openflow10::OFP_VERSION != of_version) {
-		throw eBadVersion();
-	}
-
-	if (portlen < sizeof(struct openflow10::ofp_port)) {
-		throw eOFportInval();
-	}
-
-	memarea.assign((uint8_t*)port, portlen);
-	ofh10_port = (struct openflow10::ofp_port*)memarea.somem();
-
-	return port;
-}
-
-
-
-struct openflow12::ofp_port*
-cofport::unpack(
-	struct openflow12::ofp_port* port, size_t portlen)
-throw (eOFportInval)
-{
-	if (openflow12::OFP_VERSION != of_version) {
-		throw eBadVersion();
-	}
-
-	if (portlen < sizeof(struct openflow12::ofp_port)) {
-		throw eOFportInval();
-	}
-
-	memarea.assign((uint8_t*)port, portlen);
-	ofh12_port = (struct openflow12::ofp_port*)memarea.somem();
-
-	return port;
-}
-
-
-
-struct openflow13::ofp_port*
-cofport::unpack(
-	struct openflow13::ofp_port* port, size_t portlen)
-throw (eOFportInval)
-{
-	if (openflow13::OFP_VERSION != of_version) {
-		throw eBadVersion();
-	}
-
-	if (portlen < sizeof(struct openflow13::ofp_port)) {
-		throw eOFportInval();
-	}
-
-	memarea.assign((uint8_t*)port, portlen);
-	ofh13_port = (struct openflow13::ofp_port*)memarea.somem();
-
-	return port;
-}
-
-
-
-
-
-void
-cofport::reset_stats()
-{
-	port_stats.reset();
-#if 0
-	rx_packets 		= 0;
-	tx_packets 		= 0;
-	rx_bytes 		= 0;
-	tx_bytes 		= 0;
-	rx_dropped 		= 0;
-	tx_dropped 		= 0;
-	rx_errors 		= 0;
-	tx_errors 		= 0;
-	rx_frame_err 	= 0;
-	rx_over_err 	= 0;
-	rx_crc_err 		= 0;
-	collisions 		= 0;
-#endif
-}
-
-#if 0
-void
-cofport::get_port_stats(
-		cmemory& body)
-{
-	cmemory pstats(sizeof(struct ofp_port_stats));
-	struct ofp_port_stats* stats = (struct ofp_port_stats*)pstats.somem();
-
-	stats->port_no					= htobe32(get_port_no());
-	stats->rx_packets				= htobe32(rx_packets);
-	stats->tx_packets				= htobe32(tx_packets);
-	stats->rx_bytes					= htobe32(rx_bytes);
-	stats->tx_bytes					= htobe32(tx_bytes);
-	stats->rx_dropped				= htobe32(rx_dropped);
-	stats->tx_dropped				= htobe32(tx_dropped);
-	stats->rx_errors				= htobe32(rx_errors);
-	stats->tx_errors				= htobe32(tx_errors);
-	stats->rx_frame_err				= htobe32(rx_frame_err);
-	stats->rx_over_err				= htobe32(rx_over_err);
-	stats->rx_crc_err				= htobe32(rx_crc_err);
-	stats->collisions				= htobe32(collisions);
-
-	body += pstats;
-}
-#endif
-
-
-
-
 uint8_t
 cofport::get_version() const
 {
@@ -1319,35 +963,5 @@ cofport::get_version() const
 }
 
 
-
-/*static*/
-void
-cofport::test()
-{
-	cofport p1;
-
-	p1.set_port_no(1);
-	p1.set_config(10);
-	p1.set_curr(2);
-	p1.set_hwaddr(cmacaddr("00:11:11:11:11:11"));
-	p1.set_curr_speed(0xdeadbeef);
-	p1.set_max_speed(0xdeafdeaf);
-
-	std::cerr << "p1 => " << p1 << std::endl;
-
-	cmemory mem(sizeof(struct openflow10::ofp_port));
-
-	p1.pack((struct openflow10::ofp_port*)mem.somem(), mem.memlen());
-
-	std::cerr << "p1.packed => " << mem << std::endl;
-
-	cofport p2;
-
-	p2.unpack((struct openflow10::ofp_port*)mem.somem(), mem.memlen());
-
-	std::cerr << "p1.unpacked => " << p2 << std::endl;
-}
-
-template class coflist<cofport>;
 
 

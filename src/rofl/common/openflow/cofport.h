@@ -15,15 +15,13 @@
 	#include "../endian_conversion.h"
 #endif
 
-#include "openflow.h"
-#include "../cvastring.h"
-#include "../cmemory.h"
-#include "../croflexception.h"
-#include "../cmacaddr.h"
-#include "../coflist.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cmacaddr.h"
 #include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
-#include "cofportstats.h"
+#include "rofl/common/openflow/cofportstats.h"
 
 
 
@@ -35,56 +33,30 @@
 
 namespace rofl
 {
-
-/* error classes */
 class eOFportBase 			: public RoflException {};
 class eOFportInval	 		: public eOFportBase {};
 class eOFportNotFound 		: public eOFportBase {};
-class eOFportMalformed 		: public eOFportBase {}; // malformed array of structs ofp_phy_port
 
-
-
-class cofport :
-		public csyslog
+class cofport : public cmemory
 {
 private: // data structures
 
-	uint8_t								 of_version;	// OpenFlow version of port stored (openflow10::OFP_VERSION, openflow12::OFP_VERSION, ...)
-	std::map<uint32_t, cofport*> 		*port_list; 	// port_list this port belongs to
-	cmemory 							 memarea;		// ofpXX_port structure
+	uint8_t								 ofp_version;	// OpenFlow version of port stored (openflow10::OFP_VERSION, openflow12::OFP_VERSION, ...)
 	cofport_stats_reply					 port_stats;
 
 public: // data structures
 
 	union {
 		uint8_t							*ofpu_port;
-		struct openflow10::ofp_port				*ofpu10_port;
-		struct openflow12::ofp_port				*ofpu12_port;
-		struct openflow13::ofp_port				*ofpu13_port;
+		struct openflow10::ofp_port		*ofpu10_port;
+		struct openflow12::ofp_port		*ofpu12_port;
+		struct openflow13::ofp_port		*ofpu13_port;
 	} ofp_ofpu;
 
 #define ofh_port   ofp_ofpu.ofpu_port
 #define ofh10_port ofp_ofpu.ofpu10_port
 #define ofh12_port ofp_ofpu.ofpu12_port
 #define ofh13_port ofp_ofpu.ofpu13_port
-
-#if 0
-	/*
-	 * port statistics
-	 */
-	uint64_t 							rx_packets;
-	uint64_t 							tx_packets;
-	uint64_t 							rx_bytes;
-	uint64_t 							tx_bytes;
-	uint64_t 							rx_dropped;
-	uint64_t 							tx_dropped;
-	uint64_t 							rx_errors;
-	uint64_t 							tx_errors;
-	uint64_t 							rx_frame_err;
-	uint64_t 							rx_over_err;
-	uint64_t 							rx_crc_err;
-	uint64_t 							collisions;
-#endif
 
 
 /*
@@ -93,162 +65,64 @@ public: // data structures
 public:
 
 
-	/** default constructor
-	 *
-	 */
-	cofport(uint8_t of_version = openflow12::OFP_VERSION);
-
-
-	/** constructor
+	/**
 	 *
 	 */
 	cofport(
-			struct openflow10::ofp_port *port,
-			size_t port_len,
-			std::map<uint32_t, cofport*> *port_list = 0,
-			uint32_t port_no = 0);
+			uint8_t of_version = OFP_VERSION_UNKNOWN);
 
 
-	/** constructor
+	/**
 	 *
 	 */
 	cofport(
-			struct openflow12::ofp_port *port,
-			size_t port_len,
-			std::map<uint32_t, cofport*> *port_list = 0,
-			uint32_t port_no = 0);
+			uint8_t ofp_version, uint8_t *buf, size_t buflen);
 
 
-	/** constructor
+	/**
 	 *
-	 */
-	cofport(
-			struct openflow13::ofp_port *port,
-			size_t port_len,
-			std::map<uint32_t, cofport*> *port_list = 0,
-			uint32_t port_no = 0);
-
-
-
-
-
-	/** destructor
-	 */
-	virtual
-	~cofport();
-
-
-	/** copy constructor
 	 */
 	cofport(
 			cofport const& port);
 
 
-
-	/** copy constructor
+	/**
 	 *
-	 */
-	cofport(
-			cofport const& port,
-			std::map<uint32_t, cofport*> *port_list,
-			uint32_t port_no);
-
-
-
-	/** assignment operator
 	 */
 	cofport&
 	operator= (
 			cofport const& port);
 
+
 	/**
 	 *
 	 */
-	template<class T>
-	T*
+	virtual
+	~cofport();
+
+public:
+
+	/**
+	 *
+	 */
+	uint8_t*
 	pack(
-			T* port,
-			size_t portlen) const throw (eOFportInval);
+			uint8_t *buf, size_t buflen);
 
 
 
 	/**
 	 *
 	 */
-	struct openflow10::ofp_port*
-	pack(
-			struct openflow10::ofp_port *port,
-			size_t portlen) const throw (eOFportInval);
-
-
-	/**
-	 *
-	 */
-	struct openflow12::ofp_port*
-	pack(
-			struct openflow12::ofp_port *port,
-			size_t portlen) const throw (eOFportInval);
-
-
-	/**
-	 *
-	 */
-	struct openflow13::ofp_port*
-	pack(
-			struct openflow13::ofp_port *port,
-			size_t portlen) const throw (eOFportInval);
-
-	/**
-	 *
-	 */
-	template<class T>
-	T*
+	void
 	unpack(
-			T* port,
-			size_t portlen) throw (eOFportInval);
-
-
-	/**
-	 *
-	 */
-	struct openflow10::ofp_port*
-	unpack(
-			struct openflow10::ofp_port *port,
-			size_t portlen) throw (eOFportInval);
-
-
-
-	/**
-	 *
-	 */
-	struct openflow12::ofp_port*
-	unpack(
-			struct openflow12::ofp_port *port,
-			size_t portlen) throw (eOFportInval);
-
-
-	/**
-	 *
-	 */
-	struct openflow13::ofp_port*
-	unpack(
-			struct openflow13::ofp_port *port,
-			size_t portlen) throw (eOFportInval);
-
-
+			uint8_t *buf, size_t buflen);
 
 	/**
 	 *
 	 */
 	size_t
 	length() const;
-
-
-	/** sets all statistics counters to zero
-	 *
-	 */
-	void
-	reset_stats();
 
 
 	/**
@@ -503,6 +377,13 @@ private:
 	/**
 	 *
 	 */
+	virtual uint8_t*
+	resize(size_t len);
+
+
+	/**
+	 *
+	 */
 	virtual void
 	recv_port_mod_of10(
 			uint32_t config,
@@ -531,52 +412,6 @@ private:
 
 
 
-
-
-
-public: // static
-
-	/**
-	 *
-	 */
-	static void
-	test();
-
-
-	/** parse array of struct openflow10::ofp_ports
-	 */
-	static void
-	ports_parse(
-			std::map<uint32_t, cofport*>& portsmap,
-			struct openflow10::ofp_port *ports,
-			int portslen) throw (eOFportMalformed);
-
-
-	/** parse array of struct openflow12::ofp_ports
-	 */
-	static void
-	ports_parse(
-			std::map<uint32_t, cofport*>& portsmap,
-			struct openflow12::ofp_port *ports,
-			int portslen) throw (eOFportMalformed);
-
-
-	/** parse array of struct openflow13::ofp_ports
-	 */
-	static void
-	ports_parse(
-			std::map<uint32_t, cofport*>& portsmap,
-			struct openflow13::ofp_port *ports,
-			int portslen) throw (eOFportMalformed);
-
-
-#if 0
-	/** get a free port-no for a specific cofport list
-	 */
-	static uint32_t
-	ports_get_free_port_no(
-		std::map<uint32_t, cofport*> *port_list) throw (eOFportNotFound);
-#endif
 
 public:
 
