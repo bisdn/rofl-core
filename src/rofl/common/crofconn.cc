@@ -418,62 +418,18 @@ crofconn::hello_rcvd(
 	} catch (eHelloIncompatible& e) {
 
 		logging::warn << "[rofl][conn] eHelloIncompatible " << *msg << std::endl;
-
-		uint16_t type = 0, code = 0;
-
-		switch (hello->get_version()) {
-		case openflow10::OFP_VERSION: {
-			type = openflow10::OFPET_HELLO_FAILED; code = openflow10::OFPHFC_INCOMPATIBLE;
-		} break;
-		case openflow12::OFP_VERSION: {
-			type = openflow12::OFPET_HELLO_FAILED; code = openflow12::OFPHFC_INCOMPATIBLE;
-		} break;
-		case openflow13::OFP_VERSION: {
-			type = openflow13::OFPET_HELLO_FAILED; code = openflow13::OFPHFC_INCOMPATIBLE;
-		} break;
-		default: {
-			logging::warn << "[rofl][crofbase] cannot send HelloFailed/Incompatible for ofp-version:"
-					<< (int)hello->get_version() << std::endl;
-		} delete msg; return;
-		}
-
-		cofmsg_error *error =
-				new cofmsg_error(
-						hello->get_version(), hello->get_xid(), type, code,
-							msg->soframe(), msg->framelen());
-
-		rofsock->send_message(error);
+		rofsock->send_message(
+				new cofmsg_error_hello_failed_incompatible(
+						hello->get_version(), hello->get_xid(), hello->soframe(), hello->framelen()));
 
 		run_engine(EVENT_DISCONNECTED);
 
 	} catch (eHelloEperm& e) {
 
-		logging::warn << "eHelloEperm " << *msg << std::endl;
-
-		uint16_t type = 0, code = 0;
-
-		switch (hello->get_version()) {
-		case openflow10::OFP_VERSION: {
-			type = openflow10::OFPET_HELLO_FAILED; code = openflow10::OFPHFC_EPERM;
-		} break;
-		case openflow12::OFP_VERSION: {
-			type = openflow12::OFPET_HELLO_FAILED; code = openflow12::OFPHFC_EPERM;
-		} break;
-		case openflow13::OFP_VERSION: {
-			type = openflow13::OFPET_HELLO_FAILED; code = openflow13::OFPHFC_EPERM;
-		} break;
-		default: {
-			logging::warn << "[rofl][crofbase] cannot send HelloFailed/EPerm for ofp-version:"
-					<< (int)hello->get_version() << std::endl;
-		} delete msg; return;
-		}
-
-		cofmsg_error *error =
-				new cofmsg_error(
-						hello->get_version(), hello->get_xid(), type, code,
-							msg->soframe(), msg->framelen());
-
-		rofsock->send_message(error);
+		logging::warn << "[rofl][conn] eHelloEperm " << *msg << std::endl;
+		rofsock->send_message(
+				new cofmsg_error_hello_failed_eperm(
+						hello->get_version(), hello->get_xid(), hello->soframe(), hello->framelen()));
 
 		run_engine(EVENT_DISCONNECTED);
 

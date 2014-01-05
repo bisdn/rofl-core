@@ -129,19 +129,10 @@ public:
 	 * @return OpenFlow version used for this control connection
 	 */
 	virtual uint8_t
-	get_version() = 0;
+	get_version() const = 0;
 
 
 
-
-	/**
-	 * @brief	Send an OpenFlow message to the data path element managed by this cofdpt instance.
-	 *
-	 * @param msg an OpenFlow message
-	 */
-	virtual void
-	send_message(
-			cofmsg *msg) = 0;
 
 
 

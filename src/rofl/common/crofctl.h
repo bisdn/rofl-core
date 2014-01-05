@@ -127,15 +127,6 @@ public: // methods
 
 
 
-	/**
-	 * @brief	Sends an OpenFlow message via this cofctl instance.
-	 *
-	 * @param msg pointer to cofmsg instance
-	 */
-	virtual void
-	send_message(
-			cofmsg *msg, uint8_t aux_id = 0) = 0;
-
 #if 0
 	/**
 	 *

@@ -411,8 +411,7 @@ crofbase::cofdpt_factory(
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int newsd)
 {
-//	return new crofdptImpl(owner, versionbitmap, newsd);
-	return NULL; // FIXME!!!!
+	return new crofdptImpl(owner, versionbitmap, newsd);
 }
 
 
@@ -427,8 +426,7 @@ crofbase::cofdpt_factory(
 		int type,
 		int protocol)
 {
-//	return new crofdptImpl(owner, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol);
-	return NULL; //FIXME!!!!
+	return new crofdptImpl(owner, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol);
 }
 
 
@@ -540,11 +538,12 @@ crofbase::wakeup()
 void
 crofbase::handle_experimenter_message(crofctl *ofctrl, cofmsg_experimenter *pack)
 {
+#if 0
 	// base class does not support any vendor extensions, so: send error indication
 	size_t datalen = (pack->framelen() > 64) ? 64 : pack->framelen();
 	send_error_bad_request_bad_experimenter(ofctrl, pack->get_xid(),
 									(unsigned char*)pack->soframe(), datalen);
-
+#endif
 	delete pack;
 }
 
@@ -686,197 +685,13 @@ crofbase::get_ofp_command(uint8_t ofp_version, enum openflow::ofp_flow_mod_comma
 
 
 
-/*
-* HELLO messages
-*/
-
-void
-crofbase::send_hello_message(
-		crofctl *ctl,
-		uint8_t *body, size_t bodylen)
-{
-	cofmsg_hello *pack =
-			new cofmsg_hello(
-					ctl->get_version(),
-					ta_new_async_xid(),
-					(uint8_t*)body, bodylen);
-
-	ctl_find(ctl)->send_message(pack);
-}
-
-
-
-void
-crofbase::send_hello_message(
-		crofdpt *dpt,
-		uint8_t *body, size_t bodylen)
-{
-	cofmsg_hello *pack =
-			new cofmsg_hello(
-					dpt->get_version(),
-					ta_new_async_xid(),
-					body,
-					bodylen);
-
-	logging::debug << "sending HELLO message " << std::endl << *pack << std::endl;
-
-	dpt_find(dpt)->send_message(pack);
-}
-
-
-
-
-void
-crofbase::send_echo_request(
-		crofdpt *dpt,
-		uint8_t *body, size_t bodylen)
-{
-	uint8_t msg_type = 0;
-
-	switch (dpt->get_version()) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_ECHO_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_ECHO_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_ECHO_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_echo_request *msg =
-			new cofmsg_echo_request(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					body,
-					bodylen);
-
-	dpt_find(dpt)->send_message(msg);
-}
-
-
-
-void
-crofbase::send_echo_reply(
-		crofdpt *dpt,
-		uint32_t xid,
-		uint8_t *body, size_t bodylen)
-{
-	cofmsg_echo_reply *msg =
-			new cofmsg_echo_reply(
-					dpt->get_version(),
-					xid,
-					body,
-					bodylen);
-
-	dpt_find(dpt)->send_message(msg);
-}
-
-
-
-void
-crofbase::send_echo_request(
-		crofctl *ctl,
-		uint8_t *body, size_t bodylen)
-{
-	uint8_t msg_type = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_ECHO_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_ECHO_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_ECHO_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_echo_request *msg =
-			new cofmsg_echo_request(
-					ctl->get_version(),
-					ta_add_request(msg_type),
-					body,
-					bodylen);
-
-	ctl_find(ctl)->send_message(msg);
-}
-
-
-
-void
-crofbase::send_echo_reply(
-		crofctl *ctl,
-		uint32_t xid,
-		uint8_t *body, size_t bodylen)
-{
-	cofmsg_echo_reply *msg =
-			new cofmsg_echo_reply(
-					ctl->get_version(),
-					xid,
-					body,
-					bodylen);
-
-	ctl_find(ctl)->send_message(msg);
-}
-
 
 
 /*
  * FEATURES request/reply
  */
 
-uint32_t
-crofbase::send_features_request(crofdpt *dpt)
-{
-	uint8_t msg_type = 0;
 
-	switch (dpt->get_version()) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_FEATURES_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_FEATURES_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_FEATURES_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	uint32_t xid = 0;
-
-	cofmsg_features_request *msg =
-			new cofmsg_features_request(
-					dpt->get_version(),
-					ta_add_request(msg_type));
-
-	xid = msg->get_xid();
-
-	dpt_find(dpt)->send_message(msg);
-
-	return xid;
-}
-
-
-
-void
-crofbase::send_features_reply(
-		crofctl *ctl,
-		uint32_t xid,
-		uint64_t dpid,
-		uint32_t n_buffers,
-		uint8_t n_tables,
-		uint32_t capabilities,
-		uint8_t of13_auxiliary_id,
-		uint32_t of10_actions_bitmap,
-		cofportlist const& portlist)
-{
-	cofmsg_features_reply *reply =
-			new cofmsg_features_reply(
-					ctl->get_version(),
-					xid,
-					dpid,
-					n_buffers,
-					n_tables,
-					capabilities,
-					of10_actions_bitmap,
-					of13_auxiliary_id,
-					portlist);
-
-	reply->pack(); // adjust fields, e.g. length in ofp_header
-
-	ctl_find(ctl)->send_message(reply);
-}
 
 
 
@@ -896,52 +711,6 @@ crofbase::handle_features_reply_timeout(crofdpt *dpt)
 /*
  * GET-CONFIG request/reply
  */
-uint32_t
-crofbase::send_get_config_request(
-		crofdpt *dpt)
-{
-	uint8_t msg_type = 0;
-
-	switch (dpt->get_version()) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_GET_CONFIG_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_GET_CONFIG_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_GET_CONFIG_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_get_config_request *msg =
-			new cofmsg_get_config_request(
-					dpt->get_version(),
-					ta_add_request(msg_type));
-
-	msg->pack();
-
-	uint32_t xid = msg->get_xid();
-
-	dpt_find(dpt)->send_message(msg);
-
-	return xid;
-}
-
-
-
-
-
-void
-crofbase::send_get_config_reply(crofctl *ctl, uint32_t xid, uint16_t flags, uint16_t miss_send_len)
-{
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_get_config_reply()", this);
-
-	cofmsg_get_config_reply *msg =
-			new cofmsg_get_config_reply(
-					ctl->get_version(),
-					xid,
-					flags,
-					miss_send_len);
-
-	ctl_find(ctl)->send_message(msg);
-}
 
 
 
@@ -961,779 +730,71 @@ crofbase::handle_get_config_reply_timeout(crofdpt *dpt)
  * STATS request/reply
  */
 
-uint32_t
-crofbase::send_stats_request(
-	crofdpt *dpt,
-	uint16_t stats_type,
-	uint16_t stats_flags,
-	uint8_t* body,
-	size_t bodylen)
-{
-	uint8_t msg_type = 0;
-
-	switch (dpt->get_version()) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_stats *msg =
-			new cofmsg_stats(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					stats_type,
-					stats_flags,
-					body,
-					bodylen);
-
-	msg->pack();
-
-	uint32_t xid = msg->get_xid();
-
-	dpt_find(dpt)->send_message(msg);
-
-	return xid;
-}
-
 
 
-uint32_t
-crofbase::send_desc_stats_request(
-		crofdpt *dpt,
-		uint16_t flags)
-{
-	uint8_t msg_type = 0;
 
-	switch (dpt->get_version()) {
-	case OFP10_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
-	case OFP12_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case OFP13_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_desc_stats_request *msg =
-			new cofmsg_desc_stats_request(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					flags);
-
-	msg->pack();
-
-	uint32_t xid = msg->get_xid();
-
-	dpt_find(dpt)->send_message(msg);
 
-	return xid;
-}
 
 
 
-uint32_t
-crofbase::send_flow_stats_request(
-		crofdpt *dpt,
-		uint16_t flags,
-		cofflow_stats_request const& flow_stats_request)
-{
-	uint8_t msg_type = 0;
 
-	switch (dpt->get_version()) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_flow_stats_request *msg =
-			new cofmsg_flow_stats_request(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					flags,
-					flow_stats_request);
-
-	msg->pack();
-
-	uint32_t xid = msg->get_xid();
 
-	dpt_find(dpt)->send_message(msg);
 
-	return xid;
-}
 
 
 
-uint32_t
-crofbase::send_aggr_stats_request(
-		crofdpt *dpt,
-		uint16_t flags,
-		cofaggr_stats_request const& aggr_stats_request)
-{
-	uint8_t msg_type = 0;
 
-	switch (dpt->get_version()) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
 
-	cofmsg_aggr_stats_request *msg =
-			new cofmsg_aggr_stats_request(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					flags,
-					aggr_stats_request);
 
-	msg->pack();
 
-	uint32_t xid = msg->get_xid();
 
-	dpt_find(dpt)->send_message(msg);
 
-	return xid;
-}
 
 
 
-uint32_t
-crofbase::send_table_stats_request(
-		crofdpt *dpt,
-		uint16_t flags)
-{
-	uint8_t msg_type = 0;
 
-	switch (dpt->get_version()) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
 
-	cofmsg_table_stats_request *msg =
-			new cofmsg_table_stats_request(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					flags);
 
-	msg->pack();
 
-	uint32_t xid = msg->get_xid();
 
-	dpt_find(dpt)->send_message(msg);
 
-	return xid;
-}
 
 
 
-uint32_t
-crofbase::send_port_stats_request(
-		crofdpt *dpt,
-		uint16_t flags,
-		cofport_stats_request const& port_stats_request)
-{
-	uint8_t msg_type = 0;
 
-	switch (dpt->get_version()) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
 
-	cofmsg_port_stats_request *msg =
-			new cofmsg_port_stats_request(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					flags,
-					port_stats_request);
 
-	msg->pack();
 
-	uint32_t xid = msg->get_xid();
 
-	dpt_find(dpt)->send_message(msg);
 
-	return xid;
-}
 
 
 
-uint32_t
-crofbase::send_queue_stats_request(
-	crofdpt *dpt,
-	uint16_t flags,
-	cofqueue_stats_request const& queue_stats_request)
-{
-	uint8_t msg_type = 0;
 
-	switch (dpt->get_version()) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
 
-	cofmsg_queue_stats_request *msg =
-			new cofmsg_queue_stats_request(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					flags,
-					queue_stats_request);
 
-	msg->pack();
 
-	uint32_t xid = msg->get_xid();
 
-	dpt_find(dpt)->send_message(msg);
 
-	return xid;
-}
 
 
 
-uint32_t
-crofbase::send_group_stats_request(
-	crofdpt *dpt,
-	uint16_t flags,
-	cofgroup_stats_request const& group_stats_request)
-{
-	uint8_t msg_type = 0;
 
-	switch (dpt->get_version()) {
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
 
-	cofmsg_group_stats_request *msg =
-			new cofmsg_group_stats_request(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					flags,
-					group_stats_request);
 
-	msg->pack();
 
-	uint32_t xid = msg->get_xid();
 
-	dpt_find(dpt)->send_message(msg);
 
-	return xid;
-}
 
 
 
-uint32_t
-crofbase::send_group_desc_stats_request(
-		crofdpt *dpt,
-		uint16_t flags)
-{
-	uint8_t msg_type = 0;
 
-	switch (dpt->get_version()) {
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
 
-	cofmsg_group_desc_stats_request *msg =
-			new cofmsg_group_desc_stats_request(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					flags);
 
-	msg->pack();
 
-	uint32_t xid = msg->get_xid();
 
-	dpt_find(dpt)->send_message(msg);
 
-	return xid;
-}
 
-
-
-uint32_t
-crofbase::send_group_features_stats_request(
-		crofdpt *dpt,
-		uint16_t flags)
-{
-	uint8_t msg_type = 0;
-
-	switch (dpt->get_version()) {
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_group_features_stats_request *msg =
-			new cofmsg_group_features_stats_request(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					flags);
-
-	msg->pack();
-
-	uint32_t xid = msg->get_xid();
-
-	dpt_find(dpt)->send_message(msg);
-
-	return xid;
-}
-
-
-
-uint32_t
-crofbase::send_experimenter_stats_request(
-	crofdpt *dpt,
-	uint16_t flags,
-	uint32_t exp_id,
-	uint32_t exp_type,
-	cmemory const& body)
-{
-	uint8_t msg_type = 0;
-
-	switch (dpt->get_version()) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_STATS_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_STATS_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_MULTIPART_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_experimenter_stats_request *msg =
-			new cofmsg_experimenter_stats_request(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					flags,
-					exp_id,
-					exp_type,
-					body);
-
-	msg->pack();
-
-	uint32_t xid = msg->get_xid();
-
-	dpt_find(dpt)->send_message(msg);
-
-	return xid;
-}
-
-
-
-void
-crofbase::send_stats_reply(
-		crofctl *ctl,
-		uint32_t xid,
-		uint16_t stats_type, /* network byte order */
-		uint8_t *body, size_t bodylen,
-		bool more)
-{
-	uint16_t flags = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
-	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_stats *msg =
-			new cofmsg_stats(
-					ctl->get_version(),
-					xid,
-					stats_type,
-					flags,
-					body,
-					bodylen);
-
-	msg->pack();
-
-	ctl_find(ctl)->send_message(msg);
-}
-
-
-
-void
-crofbase::send_desc_stats_reply(
-	crofctl *ctl,
-	uint32_t xid,
-	cofdesc_stats_reply const& desc_stats,
-	bool more)
-{
-	uint16_t flags = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
-	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_desc_stats_reply *msg =
-			new cofmsg_desc_stats_reply(
-					ctl->get_version(),
-					xid,
-					flags,
-					desc_stats);
-
-	msg->pack();
-
-	ctl_find(ctl)->send_message(msg);
-}
-
-
-
-void
-crofbase::send_table_stats_reply(
-	crofctl *ctl,
-	uint32_t xid,
-	std::vector<coftable_stats_reply> const& table_stats,
-	bool more)
-{
-	uint16_t flags = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
-	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_table_stats_reply *msg =
-			new cofmsg_table_stats_reply(
-					ctl->get_version(),
-					xid,
-					flags,
-					table_stats);
-
-	msg->pack();
-
-	ctl_find(ctl)->send_message(msg);
-}
-
-
-
-void
-crofbase::send_port_stats_reply(
-	crofctl *ctl,
-	uint32_t xid,
-	std::vector<cofport_stats_reply> const& port_stats,
-	bool more)
-{
-	uint16_t flags = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
-	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_port_stats_reply *msg =
-			new cofmsg_port_stats_reply(
-					ctl->get_version(),
-					xid,
-					flags,
-					port_stats);
-
-	msg->pack();
-
-	ctl_find(ctl)->send_message(msg);
-}
-
-
-
-void
-crofbase::send_queue_stats_reply(
-		crofctl *ctl,
-		uint32_t xid,
-		std::vector<cofqueue_stats_reply> const& queue_stats,
-		bool more)
-{
-	uint16_t flags = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
-	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_queue_stats_reply *msg =
-			new cofmsg_queue_stats_reply(
-					ctl->get_version(),
-					xid,
-					flags,
-					queue_stats);
-
-	msg->pack();
-
-	ctl_find(ctl)->send_message(msg);
-}
-
-
-
-void
-crofbase::send_flow_stats_reply(
-	crofctl *ctl,
-	uint32_t xid,
-	std::vector<cofflow_stats_reply> const& flow_stats,
-	bool more)
-{
-	uint16_t flags = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
-	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_flow_stats_reply *msg =
-			new cofmsg_flow_stats_reply(
-					ctl->get_version(),
-					xid,
-					flags,
-					flow_stats);
-
-	msg->pack();
-
-	ctl_find(ctl)->send_message(msg);
-}
-
-
-
-void
-crofbase::send_aggr_stats_reply(
-	crofctl *ctl,
-	uint32_t xid,
-	cofaggr_stats_reply const& aggr_stats,
-	bool more)
-{
-	uint16_t flags = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
-	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_aggr_stats_reply *msg =
-			new cofmsg_aggr_stats_reply(
-					ctl->get_version(),
-					xid,
-					flags,
-					aggr_stats);
-
-	msg->pack();
-
-	ctl_find(ctl)->send_message(msg);
-}
-
-
-
-void
-crofbase::send_group_stats_reply(
-	crofctl *ctl,
-	uint32_t xid,
-	std::vector<cofgroup_stats_reply> const& group_stats,
-	bool more)
-{
-	uint16_t flags = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
-	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_group_stats_reply *msg =
-			new cofmsg_group_stats_reply(
-					ctl->get_version(),
-					xid,
-					flags,
-					group_stats);
-
-	msg->pack();
-
-	ctl_find(ctl)->send_message(msg);
-}
-
-
-
-void
-crofbase::send_group_desc_stats_reply(
-	crofctl *ctl,
-	uint32_t xid,
-	std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
-	bool more)
-{
-	uint16_t flags = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
-	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_group_desc_stats_reply *msg =
-			new cofmsg_group_desc_stats_reply(
-					ctl->get_version(),
-					xid,
-					flags,
-					group_desc_stats);
-
-	msg->pack();
-
-	ctl_find(ctl)->send_message(msg);
-}
-
-
-
-void
-crofbase::send_group_features_stats_reply(
-	crofctl *ctl,
-	uint32_t xid,
-	cofgroup_features_stats_reply const& group_features_stats,
-	bool more)
-{
-	uint16_t flags = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
-	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_group_features_stats_reply *msg =
-			new cofmsg_group_features_stats_reply(
-					ctl->get_version(),
-					xid,
-					flags,
-					group_features_stats);
-
-	msg->pack();
-
-	ctl_find(ctl)->send_message(msg);
-}
-
-
-
-void
-crofbase::send_experimenter_stats_reply(
-		crofctl *ctl,
-		uint32_t xid,
-		uint32_t exp_id,
-		uint32_t exp_type,
-		cmemory const& body,
-		bool more)
-{
-	uint16_t flags = 0;
-
-	switch (ctl->get_version()) {
-	case openflow10::OFP_VERSION: flags |= (more) ? openflow10::OFPSF_REPLY_MORE : 0; break;
-	case openflow12::OFP_VERSION: flags |= (more) ? openflow12::OFPSF_REPLY_MORE : 0; break;
-	case openflow13::OFP_VERSION: flags |= (more) ? openflow13::OFPMPF_REPLY_MORE : 0; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_experimenter_stats_reply *msg =
-			new cofmsg_experimenter_stats_reply(
-					ctl->get_version(),
-					xid,
-					flags,
-					exp_id,
-					exp_type,
-					body);
-
-	msg->pack();
-
-	ctl_find(ctl)->send_message(msg);
-}
-
-
-
-
-/*
- * SET-CONFIG message
- */
-
-
-void
-crofbase::send_set_config_message(
-	crofdpt *dpt,
-	uint16_t flags,
-	uint16_t miss_send_len)
-{
-	cofmsg_set_config *msg =
-			new cofmsg_set_config(
-					dpt->get_version(),
-					ta_new_async_xid(),
-					flags,
-					miss_send_len);
-
-	dpt_find(dpt)->send_message(msg);
-}
-
-
-
-
-
-/*
- * PACKET-OUT message
- */
-
-
-void
-crofbase::send_packet_out_message(
-	crofdpt *dpt,
-	uint32_t buffer_id,
-	uint32_t in_port,
-	cofactions& aclist,
-	uint8_t *data,
-	size_t datalen)
-{
-	cofmsg_packet_out *msg =
-			new cofmsg_packet_out(
-					dpt->get_version(),
-					ta_new_async_xid(),
-					buffer_id,
-					in_port,
-					aclist,
-					data,
-					datalen);
-
-	msg->pack();
-
-	dpt_find(dpt)->send_message(msg);
-}
 
 
 
@@ -1742,178 +803,6 @@ crofbase::send_packet_out_message(
  */
 
 
-void
-crofbase::send_packet_in_message(
-	crofctl *ctl,
-	uint32_t buffer_id,
-	uint16_t total_len,
-	uint8_t reason,
-	uint8_t table_id,
-	uint64_t cookie,
-	uint16_t in_port, // for OF 1.0
-	cofmatch& match,
-	uint8_t* data,
-	size_t datalen)
-{
-	try {
-
-		WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
-				"ofctrl_list.size()=%d", this, ofctl_set.size());
-
-		cpacket n_pack(data, datalen, match.get_in_port());
-
-		if (0 != ctl) { // cofctl instance was specified
-
-			if (ofctl_set.find(ctl) == ofctl_set.end()) {
-				throw eRofBaseNotConnected();
-			}
-
-			cofmsg_packet_in *pack =
-					new cofmsg_packet_in(
-							ctl->get_version(),
-							ta_new_async_xid(),
-							buffer_id,
-							total_len,
-							reason,
-							table_id,
-							cookie,
-							in_port, /* in_port for OF1.0 */
-							match,
-							data,
-							datalen);
-
-			logging::debug << "sending Packet-In message " << std::endl << *pack << std::endl;
-
-			pack->pack();
-
-			ctl_find(ctl)->send_message(pack);
-
-		} else if (fe_flags.test(NSP_ENABLED)) { //cofctl was not specified and flowspace registration is enabled
-
-			std::set<cfspentry*> nse_list;
-
-			nse_list = fsptable.find_matching_entries(match.get_in_port(), total_len, n_pack);
-
-			WRITELOG(CROFBASE, DBG, "crofbase(%p) nse_list.size()=%d", this, nse_list.size());
-
-			if (nse_list.empty()) {
-				throw eRofBaseNotConnected();
-			}
-
-			bool no_active_ctl = true;
-
-			uint32_t role_is_slave = 0;
-			switch (ctl->get_version()) {
-			case openflow12::OFP_VERSION: role_is_slave = openflow12::OFPCR_ROLE_SLAVE; break;
-			case openflow13::OFP_VERSION: role_is_slave = openflow13::OFPCR_ROLE_SLAVE; break;
-			default:
-				throw eBadVersion();
-			}
-
-			for (std::set<cfspentry*>::iterator
-					it = nse_list.begin(); it != nse_list.end(); ++it)
-			{
-				crofctl *ctl = dynamic_cast<crofctl*>( (*nse_list.begin())->fspowner );
-				if (role_is_slave == ctl->get_role()) {
-					// entity has role slave
-					continue;
-				}
-
-				if (not ctl->is_established()) {
-					continue;
-				}
-
-				no_active_ctl = false;
-
-				cofmsg_packet_in *pack =
-						new cofmsg_packet_in(
-								ctl->get_version(),
-								ta_new_async_xid(),
-								buffer_id,
-								total_len,
-								reason,
-								table_id,
-								cookie,
-								in_port, /* in_port for OF1.0 */
-								match,
-								data,
-								datalen);
-
-				logging::debug << "sending Packet-In message " << std::endl << *pack << std::endl;
-
-				pack->pack();
-
-				// straight call to layer-(n+1) entity's fe_up_packet_in() method
-				ctl_find(ctl)->send_message(pack);
-			}
-
-			if (no_active_ctl) {
-				throw eRofBaseNotConnected();
-			}
-
-			return;
-
-		} else { // cofctl was not specified and there is no flowspace registration active
-
-			if (ofctl_set.empty()) {
-				throw eRofBaseNotConnected();
-			}
-
-			bool no_active_ctl = true;
-
-			for (std::set<crofctl*>::iterator it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
-
-				if (not (*it)->is_established()) {
-					continue;
-				}
-
-				if ((*it)->is_slave()) {
-					continue;
-				}
-
-				no_active_ctl = false;
-
-				cofmsg_packet_in *pack =
-						new cofmsg_packet_in(
-								(*it)->get_version(),
-								ta_new_async_xid(),
-								buffer_id,
-								total_len,
-								reason,
-								table_id,
-								cookie,
-								in_port, /* in_port for OF1.0 */
-								match,
-								data,
-								datalen);
-
-				logging::debug << "sending Packet-In message " << std::endl << *pack << std::endl;
-
-				pack->pack();
-
-				// straight call to layer-(n+1) entity's fe_up_packet_in() method
-				ctl_find(*it)->send_message(pack);
-			}
-
-			if (no_active_ctl) {
-				throw eRofBaseNotConnected();
-			}
-		}
-
-	} catch (eFspNoMatch& e) {
-
-		cpacket pack(data, datalen);
-
-		logging::warn << "no ctl found for Packet-In" << std::endl << pack << std::endl;
-
-	} catch (eRofBaseNotFound& e) {
-
-		cpacket pack(data, datalen);
-
-		logging::warn << "no ctl found for Packet-In" << std::endl << pack << std::endl;
-
-	}
-}
 
 
 
@@ -1922,64 +811,8 @@ crofbase::send_packet_in_message(
  * BARRIER request/reply
  */
 
-uint32_t
-crofbase::send_barrier_request(crofdpt *dpt)
-{
-	uint8_t msg_type = 0;
-
-	switch (dpt->get_version()) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_BARRIER_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_BARRIER_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_BARRIER_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_barrier_request *msg =
-			new cofmsg_barrier_request(
-					dpt->get_version(),
-					ta_add_request(msg_type));
-
-	uint32_t xid = msg->get_xid();
-
-	dpt_find(dpt)->send_message(msg);
-
-	return xid;
-}
 
 
-
-void
-crofbase::send_barrier_reply(
-		crofctl* ctl,
-		uint32_t xid)
-{
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_barrier_reply()", this);
-
-	cofmsg_barrier_reply *msg = (cofmsg_barrier_reply*)0;
-
-	switch (ctl->get_version()) {
-	case OFP10_VERSION: {
-		msg = new cofmsg_barrier_reply(
-				ctl->get_version(),
-				xid);
-	} break;
-	case OFP12_VERSION: {
-		msg = new cofmsg_barrier_reply(
-				ctl->get_version(),
-				xid);
-	} break;
-	case OFP13_VERSION: {
-		msg = new cofmsg_barrier_reply(
-				ctl->get_version(),
-				xid);
-	} break;
-	default:
-		throw eBadVersion();
-	}
-
-	ctl_find(ctl)->send_message(msg);
-}
 
 
 
@@ -1989,59 +822,9 @@ crofbase::send_barrier_reply(
  * ROLE.request/reply
  */
 
-uint32_t
-crofbase::send_role_request(
-	crofdpt *dpt,
-	uint32_t role,
-	uint64_t generation_id)
-{
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_role_request()", this);
-
-	uint8_t msg_type = 0;
-
-	switch (dpt->get_version()) {
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_ROLE_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_ROLE_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_role_request *msg =
-			new cofmsg_role_request(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					role,
-					generation_id);
-
-	uint32_t xid = msg->get_xid();
-
-	dpt_find(dpt)->send_message(msg);
-
-	return xid;
-}
 
 
 
-void
-crofbase::send_role_reply(
-		crofctl *ctl,
-		uint32_t xid,
-		uint32_t role,
-		uint64_t generation_id)
-{
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_role_reply()", this);
-
-	cofmsg_role_reply *msg =
-			new cofmsg_role_reply(
-					ctl->get_version(),
-					xid,
-					role,
-					generation_id);
-
-	msg->pack();
-
-	ctl_find(ctl)->send_message(msg);
-}
 
 
 
@@ -2054,100 +837,9 @@ crofbase::send_role_reply(
  */
 
 
-void
-crofbase::send_error_message(
-	crofctl *ctl,
-	uint32_t xid,
-	uint16_t type,
-	uint16_t code,
-	uint8_t* data,
-	size_t datalen)
-{
-	WRITELOG(CROFBASE, DBG, "crofbase::send_error_message()");
-
-	xid = (xid == 0) ? ta_new_async_xid() : xid;
-
-	if (0 != ctl)
-	{
-		cofmsg_error *pack =
-				new cofmsg_error(
-						ctl->get_version(),
-						xid,
-						type,
-						code,
-						data, datalen);
-
-		// straight call to layer-(n+1) entity's fe_up_packet_in() method
-		ctl_find(ctl)->send_message(pack);
-	}
-	else
-	{
-		for (std::set<crofctl*>::iterator
-				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
-		{
-			if (not (*it)->is_established()) {
-				continue;
-			}
-			cofmsg_error *pack =
-					new cofmsg_error(
-							(*it)->get_version(),
-							xid,
-							type,
-							code,
-							data, datalen);
-
-			(*it)->send_message(pack);
-		}
-	}
-}
 
 
-
-void
-crofbase::send_error_message(
-	crofdpt *dpt,
-	uint32_t xid,
-	uint16_t type,
-	uint16_t code,
-	uint8_t* data,
-	size_t datalen)
-{
-	WRITELOG(CROFBASE, DBG, "crofbase::send_error_message()");
-
-	xid = (xid == 0) ? ta_new_async_xid() : xid;
-
-	if (0 != dpt)
-	{
-		cofmsg_error *pack =
-				new cofmsg_error(
-						dpt->get_version(),
-						xid,
-						type,
-						code,
-						data, datalen);
-
-		// straight call to layer-(n+1) entity's fe_up_packet_in() method
-		dpt_find(dpt)->send_message(pack);
-	}
-	else
-	{
-		for (std::set<crofdpt*>::iterator
-				it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
-		{
-			cofmsg_error *pack =
-					new cofmsg_error(
-							(*it)->get_version(),
-							xid,
-							type,
-							code,
-							data, datalen);
-
-			(*it)->send_message(pack);
-		}
-	}
-}
-
-
+#if 0
 
 void
 crofbase::send_error_bad_request_bad_len(
@@ -4511,233 +3203,12 @@ crofbase::send_error_role_request_failed_bad_role(
 }
 
 
-
-void
-crofbase::send_error_hello_failed_incompatible(
-		crofdpt *dpt,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (dpt->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_HELLO_FAILED; code = openflow12::OFPHFC_INCOMPATIBLE;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_HELLO_FAILED; code = openflow13::OFPHFC_INCOMPATIBLE;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send HelloFailed/Incompatible for ofp-version:" << (int)dpt->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(dpt, xid, type, code, data, datalen);
-}
-
-
-
-void
-crofbase::send_error_hello_failed_eperm(
-		crofdpt *dpt,
-		uint32_t xid,
-		uint8_t* data,
-		size_t datalen)
-{
-	uint16_t type = 0, code = 0;
-
-	switch (dpt->get_version()) {
-	case openflow12::OFP_VERSION: {
-		type = openflow12::OFPET_HELLO_FAILED; code = openflow12::OFPHFC_EPERM;
-	} break;
-	case openflow13::OFP_VERSION: {
-		type = openflow13::OFPET_HELLO_FAILED; code = openflow13::OFPHFC_EPERM;
-	} break;
-	default: {
-		logging::warn << "[rofl][crofbase] cannot send HelloFailed/EPerm for ofp-version:" << (int)dpt->get_version() << std::endl;
-	} return;
-	}
-
-	send_error_message(dpt, xid, type, code, data, datalen);
-}
+#endif
 
 
 
 
 
-
-
-
-
-
-/*
- * FLOW-MOD message
- */
-
-
-void
-crofbase::send_flow_mod_message(
-	crofdpt *dpt,
-	cofmatch& ofmatch,
-	uint64_t cookie,
-	uint64_t cookie_mask,
-	uint8_t table_id,
-	uint8_t command,
-	uint16_t idle_timeout,
-	uint16_t hard_timeout,
-	uint16_t priority,
-	uint32_t buffer_id,
-	uint32_t out_port,
-	uint32_t out_group,
-	uint16_t flags,
-	cofinstructions& inlist)
-{
-	cofmsg_flow_mod *pack =
-			new cofmsg_flow_mod(
-					dpt->get_version(),
-					ta_new_async_xid(),
-					cookie,
-					cookie_mask,
-					table_id,
-					command,
-					idle_timeout,
-					hard_timeout,
-					priority,
-					buffer_id,
-					out_port,
-					out_group,
-					flags,
-					inlist,
-					ofmatch);
-
-	pack->pack();
-
-	logging::debug << "send Flow-Mod message" << std::endl << pack << std::endl;
-
-	dpt_find(dpt)->send_message(pack);
-}
-
-
-
-void
-crofbase::send_flow_mod_message(
-		crofdpt *dpt,
-		cflowentry& fe)
-{
-	cofmsg_flow_mod *pack =
-			new cofmsg_flow_mod(
-					dpt->get_version(),
-					ta_new_async_xid(),
-					fe.get_cookie(),
-					fe.get_cookie_mask(),
-					fe.get_table_id(),
-					fe.get_command(),
-					fe.get_idle_timeout(),
-					fe.get_hard_timeout(),
-					fe.get_priority(),
-					fe.get_buffer_id(),
-					fe.get_out_port(),
-					fe.get_out_group(),
-					fe.get_flags(),
-					fe.instructions,
-					fe.match);
-
-	pack->pack();
-
-	logging::debug << "sending Flow-Mod message" << std::endl << *pack << std::endl;
-
-	dpt_find(dpt)->send_message(pack);
-}
-
-
-
-/*
- * GROUP-MOD message
- */
-
-
-void
-crofbase::send_group_mod_message(
-		crofdpt *dpt,
-		cgroupentry& ge)
-{
-	cofmsg_group_mod *pack =
-			new cofmsg_group_mod(
-					dpt->get_version(),
-					ta_new_async_xid(),
-					be16toh(ge.group_mod->command),
-					ge.group_mod->type,
-					be32toh(ge.group_mod->group_id),
-					ge.buckets);
-
-	pack->pack();
-
-	logging::debug << "sending Group-Mod message" << std::endl << *pack << std::endl;
-
-	dpt_find(dpt)->send_message(pack);
-}
-
-
-
-/*
- * PORT-MOD message
- */
-
-
-void
-crofbase::send_port_mod_message(
-	crofdpt *dpt,
-	uint32_t port_no,
-	cmacaddr const& hwaddr,
-	uint32_t config,
-	uint32_t mask,
-	uint32_t advertise)
-{
-	cofmsg_port_mod *pack =
-			new cofmsg_port_mod(
-					dpt->get_version(),
-					ta_new_async_xid(),
-					port_no,
-					hwaddr,
-					config,
-					mask,
-					advertise);
-
-	pack->pack();
-
-	logging::debug << "sending Port-Mod message" << std::endl << pack << std::endl;
-
-	dpt_find(dpt)->send_message(pack);
-}
-
-
-
-
-/*
- * TABLE-MOD message
- */
-
-
-void
-crofbase::send_table_mod_message(
-		crofdpt *dpt,
-		uint8_t table_id,
-		uint32_t config)
-{
-	cofmsg_table_mod *pack =
-			new cofmsg_table_mod(
-						dpt->get_version(),
-						ta_new_async_xid(),
-						table_id,
-						config);
-
-	pack->pack();
-
-	logging::debug << "sending Table-Mod message" << std::endl << pack << std::endl;
-
-	dpt_find(dpt)->send_message(pack);
-}
 
 
 
@@ -4747,71 +3218,8 @@ crofbase::send_table_mod_message(
  */
 
 
-void
-crofbase::send_flow_removed_message(
-	crofctl *ctl,
-	cofmatch& ofmatch,
-	uint64_t cookie,
-	uint16_t priority,
-	uint8_t reason,
-	uint8_t table_id,
-	uint32_t duration_sec,
-	uint32_t duration_nsec,
-	uint16_t idle_timeout,
-	uint16_t hard_timeout,
-	uint64_t packet_count,
-	uint64_t byte_count)
-{
-	try {
-		WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_removed_message()", this);
-
-		//ofctrl_exists(ofctrl);
-
-		for (std::set<crofctl*>::iterator
-				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
-		{
-			if (not (*it)->is_established()) {
-				continue;
-			}
-			crofctl *ofctrl = (*it);
-
-			if (ofctrl->is_slave())
-			{
-				WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_removed_message() ofctrl:%p is SLAVE", this, ofctrl);
-				continue;
-			}
 
 
-			cofmsg_flow_removed *pack =
-					new cofmsg_flow_removed(
-							ofctrl->get_version(),
-							ta_new_async_xid(),
-							cookie,
-							priority,
-							reason,
-							table_id,
-							duration_sec,
-							duration_nsec,
-							idle_timeout,
-							hard_timeout,
-							packet_count,
-							byte_count,
-							ofmatch);
-
-			pack->pack();
-
-			logging::debug << "send Flow-Removed message" << std::endl << pack << std::endl;
-
-			// straight call to layer-(n+1) entity's fe_up_packet_in() method
-			ctl_find(ofctrl)->send_message(pack);
-		}
-
-	} catch (eRofBaseNotFound& e) {
-
-		WRITELOG(CROFBASE, ERROR, "crofbase(%p)::send_flow_removed_message() cofctrl instance not found", this);
-
-	}
-}
 
 
 
@@ -4822,56 +3230,6 @@ crofbase::send_flow_removed_message(
  * PORT-STATUS message
  */
 
-void
-crofbase::send_port_status_message(
-	crofctl *ctl,
-	uint8_t reason,
-	cofport const& port)
-{
-	if (0 != ctl) {
-
-		if (ofctl_set.find(ctl) == ofctl_set.end()) {
-			throw eRofBaseNotConnected();
-		}
-
-		cofmsg_port_status *pack =
-				new cofmsg_port_status(
-							ctl->get_version(),
-							ta_new_async_xid(),
-							reason,
-							port);
-
-		pack->pack();
-
-		logging::debug << "sending PortStatus message" << std::endl << pack << std::endl;
-
-		(ctl)->send_message(pack);
-
-	} else {
-
-		std::map<cofbase*, crofctl*>::iterator it;
-		for (std::set<crofctl*>::iterator
-				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
-		{
-			if (not (*it)->is_established()) {
-				continue;
-			}
-
-			cofmsg_port_status *pack =
-					new cofmsg_port_status(
-								(*it)->get_version(),
-								ta_new_async_xid(),
-								reason,
-								port);
-
-			pack->pack();
-
-			logging::debug << "sending PortStatus message" << std::endl << pack << std::endl;
-
-			(*it)->send_message(pack);
-		}
-	}
-}
 
 
 
@@ -4883,58 +3241,8 @@ crofbase::send_port_status_message(
  * QUEUE-GET-CONFIG request/reply
  */
 
-uint32_t
-crofbase::send_queue_get_config_request(
-	crofdpt *dpt,
-	uint32_t port)
-{
-	uint32_t xid = 0;
-
-	uint8_t msg_type = 0;
-
-	switch (dpt->get_version()) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_QUEUE_GET_CONFIG_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_QUEUE_GET_CONFIG_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_QUEUE_GET_CONFIG_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_queue_get_config_request *msg =
-			new cofmsg_queue_get_config_request(
-					dpt->get_version(),
-					ta_add_request(msg_type),
-					port);
-
-	xid = msg->get_xid();
-
-	dpt_find(dpt)->send_message(msg);
-
-	return xid;
-}
 
 
-
-void
-crofbase::send_queue_get_config_reply(
-		crofctl *ctl,
-		uint32_t xid,
-		uint32_t portno,
-		cofpacket_queue_list const& pql)
-{
-	WRITELOG(CROFBASE, DBG, "crofbase::send_queue_get_config_reply()");
-
-	cofmsg_queue_get_config_reply *pack =
-			new cofmsg_queue_get_config_reply(
-					ctl->get_version(),
-					xid,
-					portno,
-					pql);
-
-	//std::cerr << *pack << std::endl;
-
-	ctl_find(ctl)->send_message(pack);
-}
 
 
 
@@ -4946,157 +3254,16 @@ crofbase::send_queue_get_config_reply(
 
 
 
-uint32_t
-crofbase::send_experimenter_message(
-		crofdpt *dpt,
-		uint32_t experimenter_id,
-		uint32_t exp_type,
-		uint8_t* body,
-		size_t bodylen)
-{
-	uint32_t xid = 0;
-
-	cofmsg_experimenter *msg =
-			new cofmsg_experimenter(
-						dpt->get_version(),
-						ta_new_async_xid(),
-						experimenter_id,
-						exp_type,
-						body,
-						bodylen);
-
-	msg->pack();
-
-	logging::debug << "sending Experimenter message" << std::endl << *msg << std::endl;
-
-	xid = msg->get_xid();
-
-	if (NULL == dpt) // send to all attached data path entities
-	{
-		for (std::set<crofdpt*>::iterator
-				it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it)
-		{
-			(*it)->send_message(new cofmsg(*msg));
-		}
-		delete msg;
-	}
-	else
-	{
-		dpt_find(dpt)->send_message(msg);
-	}
-
-	return xid;
-}
-
-
-
-uint32_t
-crofbase::send_experimenter_message(
-		crofctl *ctl,
-		uint32_t experimenter_id,
-		uint32_t exp_type,
-		uint8_t* body,
-		size_t bodylen)
-{
-	uint32_t xid = 0;
-
-	cofmsg_experimenter *msg =
-			new cofmsg_experimenter(
-						ctl->get_version(),
-						ta_new_async_xid(),
-						experimenter_id,
-						exp_type,
-						body,
-						bodylen);
-
-	msg->pack();
-
-	xid = msg->get_xid();
-
-	logging::debug << "sending Experimenter message" << std::endl << *msg << std::endl;
-
-	if ((crofctl*)0 == ctl) // send to all attached controller entities
-	{
-		for (std::set<crofctl*>::iterator
-				it = ofctl_set.begin(); it != ofctl_set.end(); ++it)
-		{
-			if (not (*it)->is_established()) {
-				continue;
-			}
-			(*it)->send_message(new cofmsg(*msg));
-		}
-
-		delete msg;
-	}
-	else
-	{
-		// straight call to layer-(n+1) entity's fe_up_experimenter_message() method
-		ctl->send_message(msg);
-	}
-
-	return xid;
-}
-
 
 
 
 /*
  * GET-ASYNC-CONFIG request/reply
  */
-uint32_t
-crofbase::send_get_async_config_request(
-		crofdpt *dpt)
-{
-	uint32_t xid = 0;
-
-	uint8_t msg_type = 0;
-
-	switch (dpt->get_version()) {
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_GET_ASYNC_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	cofmsg_get_async_config_request *msg =
-			new cofmsg_get_async_config_request(
-					dpt->get_version(),
-					ta_add_request(msg_type));
-
-	xid = msg->get_xid();
-
-	dpt_find(dpt)->send_message(msg);
-
-	return xid;
-}
 
 
 
-void
-crofbase::send_get_async_config_reply(
-		crofctl *ctl,
-		uint32_t xid,
-		uint32_t packet_in_mask0,
-		uint32_t packet_in_mask1,
-		uint32_t port_status_mask0,
-		uint32_t port_status_mask1,
-		uint32_t flow_removed_mask0,
-		uint32_t flow_removed_mask1)
-{
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_get_async_config_reply()", this);
 
-	cofmsg_get_async_config_reply *msg =
-			new cofmsg_get_async_config_reply(
-					ctl->get_version(),
-					xid,
-					packet_in_mask0,
-					packet_in_mask1,
-					port_status_mask0,
-					port_status_mask1,
-					flow_removed_mask0,
-					flow_removed_mask1);
-
-	ctl_find(ctl)->send_message(msg);
-}
 
 
 
@@ -5111,31 +3278,6 @@ crofbase::handle_get_async_config_reply_timeout(crofdpt *dpt)
 /*
  * SET-ASYNC-CONFIG message
  */
-
-
-void
-crofbase::send_set_async_config_message(
-	crofdpt *dpt,
-	uint32_t packet_in_mask0,
-	uint32_t packet_in_mask1,
-	uint32_t port_status_mask0,
-	uint32_t port_status_mask1,
-	uint32_t flow_removed_mask0,
-	uint32_t flow_removed_mask1)
-{
-	cofmsg_set_async_config *msg =
-			new cofmsg_set_async_config(
-					dpt->get_version(),
-					ta_new_async_xid(),
-					packet_in_mask0,
-					packet_in_mask1,
-					port_status_mask0,
-					port_status_mask1,
-					flow_removed_mask0,
-					flow_removed_mask1);
-
-	dpt_find(dpt)->send_message(msg);
-}
 
 
 

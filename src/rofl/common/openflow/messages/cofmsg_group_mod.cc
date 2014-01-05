@@ -2,6 +2,39 @@
 
 using namespace rofl;
 
+cofmsg_group_mod::cofmsg_group_mod(
+		uint8_t of_version,
+		uint32_t xid,
+		cgroupentry const& ge) :
+	cofmsg(sizeof(struct openflow::ofp_header)),
+	buckets(ge.buckets)
+{
+	ofh_group_mod = soframe();
+
+	set_version(of_version);
+	set_xid(xid);
+
+	switch (of_version) {
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_GROUP_MOD);
+		resize(sizeof(struct openflow12::ofp_group_mod));
+
+		ofh12_group_mod->command		= htobe16(ge.get_command());
+		ofh12_group_mod->type			= ge.get_type();
+		ofh12_group_mod->group_id		= htobe32(ge.get_group_id());
+	} break;
+	case openflow13::OFP_VERSION: {
+		set_type(openflow13::OFPT_GROUP_MOD);
+		resize(sizeof(struct openflow13::ofp_group_mod));
+
+		ofh13_group_mod->command		= htobe16(ge.get_command());
+		ofh13_group_mod->type			= ge.get_type();
+		ofh13_group_mod->group_id		= htobe32(ge.get_group_id());
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
 
 
 cofmsg_group_mod::cofmsg_group_mod(

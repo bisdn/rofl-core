@@ -18,6 +18,7 @@ extern "C" {
 
 #include <map>
 
+#include "rofl/common/thread_helper.h"
 #include "rofl/common/ciosrv.h"
 #include "rofl/common/ctransaction.h"
 #include "rofl/platform/unix/crandom.h"
@@ -30,7 +31,7 @@ class ctransactions;
 class ctransactions_env {
 public:
 	virtual ~ctransactions_env() {};
-	virtual void ta_expired(ctransactions *tas, ctransaction *ta);
+	virtual void ta_expired(ctransactions *tas, ctransaction& ta) = 0;
 };
 
 class ctransactions :
@@ -39,7 +40,8 @@ class ctransactions :
 {
 	ctransactions_env			*env;
 	uint32_t					nxid;			// next xid
-	unsigned int				work_interval; 	// time interval for checking entry list
+	unsigned int				work_interval; 	// time interval for checking work-queue
+	PthreadRwLock				queuelock;		// rwlock for work-queue
 
 	enum ctransactions_timer_t {
 		TIMER_WORK_ON_TA_QUEUE 	= 1,	// lookup all expired TAs in list
@@ -78,7 +80,7 @@ public:
 	 *
 	 */
 	uint32_t
-	get_async_ta() { return ++nxid; };
+	get_async_xid() { return ++nxid; };
 
 private:
 
@@ -86,7 +88,7 @@ private:
 	 *
 	 */
 	ctransactions(
-			ctransactions const& tas) : env(env), nxid(nxid), work_interval(work_interval) {};
+			ctransactions const& tas) : env(0), nxid(0), work_interval(0) {};
 
 	/**
 	 *
@@ -110,7 +112,7 @@ private:
 
 public:
 
-	std::ostream&
+	friend std::ostream&
 	operator<< (std::ostream& os, ctransactions const& tas) {
 		os << indent(0) << "<transactions #ta:" << tas.size() << " >" << std::endl;
 		indent i(2);

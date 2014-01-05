@@ -12,7 +12,9 @@ cofmsg_error::cofmsg_error(
 	cofmsg(sizeof(struct openflow::ofp_header)),
 	body(0)
 {
-	body.assign(data, datalen);
+	size_t len = (datalen > 64) ? 64 : datalen;
+
+	body.assign(data, len);
 
 	set_version(of_version);
 	set_xid(xid);

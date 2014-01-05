@@ -10,6 +10,7 @@
 
 #include "cofmsg.h"
 #include "rofl/common/openflow/cofbuckets.h"
+#include "rofl/common/cgroupentry.h"
 
 namespace rofl
 {
@@ -35,6 +36,15 @@ private:
 #define ofh13_group_mod ofhu.ofhu13_group_mod
 
 public:
+
+
+	/**
+	 *
+	 */
+	cofmsg_group_mod(
+			uint8_t of_version,
+			uint32_t xid,
+			cgroupentry const& ge);
 
 
 	/** constructor

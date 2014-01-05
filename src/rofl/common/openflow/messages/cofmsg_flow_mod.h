@@ -12,6 +12,7 @@
 #include "rofl/common/openflow/cofactions.h"
 #include "rofl/common/openflow/cofinstructions.h"
 #include "rofl/common/openflow/cofmatch.h"
+#include "rofl/common/cflowentry.h"
 
 namespace rofl
 {
@@ -81,6 +82,15 @@ public:
 			uint16_t flags = 0,
 			cofinstructions const& instructions = cofinstructions(),
 			cofmatch const& match = cofmatch(openflow12::OFP_VERSION));
+
+
+	/**
+	 *
+	 */
+	cofmsg_flow_mod(
+			uint8_t of_version,
+			uint32_t xid,
+			cflowentry const& fe);
 
 
 	/**

@@ -2,6 +2,76 @@
 
 using namespace rofl;
 
+cofmsg_flow_mod::cofmsg_flow_mod(
+		uint8_t of_version,
+		uint32_t xid,
+		cflowentry const& fe)
+{
+	ofh_flow_mod = soframe();
+
+	set_version(of_version);
+	set_xid(xid);
+
+	switch (of_version) {
+	case openflow10::OFP_VERSION: {
+		set_type(openflow10::OFPT_FLOW_MOD);
+		resize(openflow10::OFP_FLOW_MOD_STATIC_HDR_LEN);
+
+		ofh10_flow_mod->cookie			= htobe64(fe.get_cookie());
+		ofh10_flow_mod->command			= htobe16(fe.get_command());
+		ofh10_flow_mod->idle_timeout	= htobe16(fe.get_idle_timeout());
+		ofh10_flow_mod->hard_timeout	= htobe16(fe.get_hard_timeout());
+		ofh10_flow_mod->priority		= htobe16(fe.get_priority());
+		ofh10_flow_mod->buffer_id		= htobe32(fe.get_buffer_id());
+		ofh10_flow_mod->out_port		= htobe16(fe.get_out_port());
+		ofh10_flow_mod->flags			= htobe16(fe.get_flags());
+
+		actions			= fe.actions;
+		match 			= fe.match;
+	} break;
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_FLOW_MOD);
+		resize(openflow12::OFP_FLOW_MOD_STATIC_HDR_LEN);
+
+		ofh12_flow_mod->cookie			= htobe64(fe.get_cookie());
+		ofh12_flow_mod->cookie_mask		= htobe64(fe.get_cookie_mask());
+		ofh12_flow_mod->table_id		= fe.get_table_id();
+		ofh12_flow_mod->command			= fe.get_command();
+		ofh12_flow_mod->idle_timeout	= htobe16(fe.get_idle_timeout());
+		ofh12_flow_mod->hard_timeout	= htobe16(fe.get_hard_timeout());
+		ofh12_flow_mod->priority		= htobe16(fe.get_priority());
+		ofh12_flow_mod->buffer_id		= htobe32(fe.get_buffer_id());
+		ofh12_flow_mod->out_port		= htobe32(fe.get_out_port());
+		ofh12_flow_mod->out_group		= htobe32(fe.get_out_group());
+		ofh12_flow_mod->flags			= htobe16(fe.get_flags());
+
+		instructions	= fe.instructions;
+		match 			= fe.match;
+	} break;
+	case openflow13::OFP_VERSION: {
+		set_type(openflow13::OFPT_FLOW_MOD);
+		resize(openflow13::OFP_FLOW_MOD_STATIC_HDR_LEN);
+
+		ofh13_flow_mod->cookie			= htobe64(fe.get_cookie());
+		ofh13_flow_mod->cookie_mask		= htobe64(fe.get_cookie_mask());
+		ofh13_flow_mod->table_id		= fe.get_table_id();
+		ofh13_flow_mod->command			= fe.get_command();
+		ofh13_flow_mod->idle_timeout	= htobe16(fe.get_idle_timeout());
+		ofh13_flow_mod->hard_timeout	= htobe16(fe.get_hard_timeout());
+		ofh13_flow_mod->priority		= htobe16(fe.get_priority());
+		ofh13_flow_mod->buffer_id		= htobe32(fe.get_buffer_id());
+		ofh13_flow_mod->out_port		= htobe32(fe.get_out_port());
+		ofh13_flow_mod->out_group		= htobe32(fe.get_out_group());
+		ofh13_flow_mod->flags			= htobe16(fe.get_flags());
+
+		instructions	= fe.instructions;
+		match 			= fe.match;
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
+}
 
 
 cofmsg_flow_mod::cofmsg_flow_mod(

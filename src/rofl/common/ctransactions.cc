@@ -20,7 +20,7 @@ ctransactions::ctransactions(
 
 
 
-virtual void
+void
 ctransactions::handle_timeout(
 		int opaque)
 {
@@ -36,9 +36,15 @@ ctransactions::handle_timeout(
 void
 ctransactions::work_on_ta_queue()
 {
-	// TODO
+	RwLock lock(queuelock, RwLock::RWLOCK_WRITE);
 
-	if (not empty()) {
+	std::list<ctransaction>::iterator it = (*this).begin();
+	while ((it != (*this).end()) && ((*it).get_expires() <= cclock::now())) {
+		env->ta_expired(this, (*it));
+		(*this).erase(it);
+	}
+
+	if (not (*this).empty()) {
 		register_timer(TIMER_WORK_ON_TA_QUEUE, work_interval);
 	}
 }
@@ -49,9 +55,17 @@ uint32_t
 ctransactions::add_ta(
 		cclock const& delta)
 {
+	RwLock lock(queuelock, RwLock::RWLOCK_WRITE);
+
 	++nxid;
 
-	(*this).push_back(ctransaction(nxid, delta));
+	cclock expires(delta);
+
+	std::list<ctransaction>::iterator it = begin();
+	while ((it != end()) && ((*it).get_expires() < expires)) {
+		++it;
+	}
+	(*this).insert(it, ctransaction(nxid, delta));
 
 	if (not pending_timer(TIMER_WORK_ON_TA_QUEUE)) {
 		register_timer(TIMER_WORK_ON_TA_QUEUE, work_interval);
@@ -66,9 +80,17 @@ void
 ctransactions::drop_ta(
 		uint32_t xid)
 {
-	// TODO
+	RwLock lock(queuelock, RwLock::RWLOCK_WRITE);
 
-	if (this->empty() && pending_timer(TIMER_WORK_ON_TA_QUEUE)) {
+	for (std::list<ctransaction>::iterator
+			it = begin(); it != end(); ++it) {
+		if ((*it).get_xid() == xid) {
+			(*this).erase(it);
+			break;
+		}
+	}
+
+	if ((*this).empty() && pending_timer(TIMER_WORK_ON_TA_QUEUE)) {
 		cancel_timer(TIMER_WORK_ON_TA_QUEUE);
 	}
 }

@@ -14,7 +14,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <string>
 #include <errno.h>
 #include <string.h>
 #include <time.h>
@@ -22,7 +21,10 @@ extern "C" {
 }
 #endif
 
-#include "logging.h"
+#include <string>
+
+#include "rofl/common/logging.h"
+#include "rofl/common/croflexception.h"
 
 namespace rofl
 {

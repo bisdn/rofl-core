@@ -29,6 +29,7 @@ extern "C" {
 #include "rofl/common/crofdpt.h"
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/crofchan.h"
+#include "rofl/common/ctransactions.h"
 
 namespace rofl
 {
@@ -49,6 +50,7 @@ namespace rofl
 class crofdptImpl :
 	public crofdpt,
 	public rofl::openflow::crofchan_env,
+	public rofl::openflow::ctransactions_env,
 	public ciosrv
 {
 
@@ -129,8 +131,7 @@ private: // data structures
 
 		crofbase 						*rofbase;		// layer-(n) entity
 		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store
-
-		std::string 					 info;			// info string
+		rofl::openflow::ctransactions	transactions;	// pending OFP transactions
 
 		int 							 features_request_timeout;
 		int 							 get_config_request_timeout;
@@ -140,7 +141,7 @@ private: // data structures
 		int 							 get_async_config_reply_timeout;
 
 		unsigned int					state;
-		std::deque<uint32_t>			events;
+		std::deque<enum crofdptImpl_event_t> events;
 
 public:
 
@@ -220,17 +221,6 @@ public:
 	virtual bool
 	is_established() const { return (rofchan.is_established()); };
 
-
-	/**
-	 * @brief	Send an OpenFlow message to the data path element managed by this cofdpt instance.
-	 *
-	 * @param msg an OpenFlow message
-	 */
-	virtual void
-	send_message(
-			cofmsg *msg);
-
-
 	/**
 	 *
 	 */
@@ -238,6 +228,8 @@ public:
 	get_peer_addr() { return rofchan.get_conn(0).get_rofsocket().get_socket().raddr; };
 
 public:
+
+	/* overloaded from crofchan_env */
 
 	virtual void
 	handle_connected(rofl::openflow::crofchan *chan, uint8_t aux_id);
@@ -256,6 +248,13 @@ public:
 
 	virtual void
 	release_sync_xid(rofl::openflow::crofchan *chan, uint32_t xid);
+
+public:
+
+	/* overloaded from ctransactions_env */
+
+	virtual void
+	ta_expired(rofl::openflow::ctransactions *tas, rofl::openflow::ctransaction& ta);
 
 public:
 
@@ -629,54 +628,12 @@ private:
 private:
 
 
-	/**
-	 *
-	 */
-	void
-	hello_rcvd(
-			cofmsg_hello *msg);
-
-
-	/**
-	 *
-	 */
-	void
-	echo_request_sent(
-			cofmsg *msg);
-
-
-	/**
-	 *
-	 */
-	void
-	echo_request_rcvd(
-			cofmsg_echo_request *msg);
-
-
-	/**
-	 *
-	 */
-	void
-	echo_reply_rcvd(
-			cofmsg_echo_reply *msg);
-
-
 	/** handle incoming vendor message (ROFL extensions)
 	 */
 	void
 	experimenter_rcvd(
 			cofmsg_experimenter *msg);
 
-
-	/**
-	 * @name	features_request_sent
-	 * @brief	Called by crofbase when a FEATURES-request was sent.
-	 *
-	 * Starts an internal timer for the expected FEATURES-reply.
-	 */
-	void
-	features_request_sent(
-			cofmsg *msg);
 
 
 	/**
@@ -693,18 +650,6 @@ private:
 	features_reply_rcvd(
 			cofmsg_features_reply *msg);
 
-
-	/**
-	 * @name	get_config_request_sent
-	 * @brief	Called by crofbase when a GET-CONFIG-request was sent.
-	 *
-	 * Starts an internal timer for the expected GET-CONFIG-reply.
-	 */
-	void
-	get_config_request_sent(
-			cofmsg *msg);
-
-
 	/**
 	 * @name	get_config_reply_rcvd
 	 * @brief	Called by cfwdekem when a GET-CONFIG-reply was received.
@@ -718,18 +663,6 @@ private:
 	void
 	get_config_reply_rcvd(
 			cofmsg_get_config_reply *msg);
-
-
-	/**
-	 * @name	stats_request_sent
-	 * @brief	Called by crofbase when a STATS-request was sent.
-	 *
-	 * Starts an internal timer for the expected STATS-reply.
-	 */
-	void
-	stats_request_sent(
-			cofmsg *pack);
-
 
 	/**
 	 * @name	stats_reply_rcvd
@@ -770,17 +703,6 @@ private:
 
 
 	/**
-	 * @name	barrier_request_sent
-	 * @brief	Called by crofbase when a BARRIER-request was sent.
-	 *
-	 * Starts an internal timer for the expected BARRIER-reply.
-	 */
-	void
-	barrier_request_sent(
-			cofmsg *pack);
-
-
-	/**
 	 * @name	barrier_reply_rcvd
 	 * @brief	Called by cfwdekem when a BARRIER-reply was received.
 	 *
@@ -793,20 +715,6 @@ private:
 	barrier_reply_rcvd(
 			cofmsg_barrier_reply *msg);
 
-
-	/**
-	 * @name	flow_mod_sent
-	 * @brief	Called by crofbase when a FLOW-MOD-message was sent.
-	 *
-	 * Applies FlowMod message to local flowtables.
-	 *
-	 * @param[in] pack The OpenFlow message sent.
-	 *
-	 * @throws eOFdpathNotFound Thrown when the table-id specified in pack cannot be found.
-	 */
-	void flow_mod_sent(
-			cofmsg* msg);
-
 	/**
 	 * @name	flow_rmvd_rcvd
 	 * @brief	Called by crofbase when a FLOW-MOD-message was sent.
@@ -818,33 +726,6 @@ private:
 	void
 	flow_rmvd_rcvd(
 			cofmsg_flow_removed *msg);
-
-
-	/**
-	 * @name	group_mod_sent
-	 * @brief	Called by crofbase when a GROUP-MOD-message was sent.
-	 *
-	 * Applies GroupMod message to local grouptables.
-	 *
-	 * @param[in] pack The OpenFlow message sent.
-	 */
-	void
-	group_mod_sent(
-			cofmsg *pack);
-
-
-	/**
-	 * @name	table_mod_sent
-	 * @brief	Called by crofbase when a TABLE-MOD-message was sent.
-	 *
-	 * Applies TableMod message to local flowtables.
-	 *
-	 * @param[in] pack The OpenFlow message sent.
-	 */
-	void
-	table_mod_sent(
-			cofmsg *pack);
-
 
 	/**
 	 * @name	port_mod_sent
@@ -872,16 +753,6 @@ private:
 	port_status_rcvd(
 			cofmsg_port_status *msg);
 
-
-
-	/**
-	 *
-	 */
-	void
-	role_request_sent(
-			cofmsg *pack);
-
-
 	/** handle ROLE-REPLY messages
 	 *
 	 */
@@ -889,33 +760,12 @@ private:
 	role_reply_rcvd(
 			cofmsg_role_reply *msg);
 
-
-	/**
-	 *
-	 */
-	void
-	queue_get_config_request_sent(
-			cofmsg *pack);
-
-
 	/**
 	 *
 	 */
 	void
 	queue_get_config_reply_rcvd(
 			cofmsg_queue_get_config_reply *msg);
-
-
-	/**
-	 * @name	get_async_config_request_sent
-	 * @brief	Called by crofbase when a GET-ASYNC-CONFIG-request was sent.
-	 *
-	 * Starts an internal timer for the expected GET-ASYNC-CONFIG-reply.
-	 */
-	void
-	get_async_config_request_sent(
-			cofmsg *msg);
-
 
 	/**
 	 * @name	get_async_config_reply_rcvd
@@ -934,12 +784,6 @@ private:
 
 
 private:
-
-
-	/** handle ECHO reply timeout
-	 */
-	void
-	handle_echo_reply_timeout();
 
 	/** handle FEATURES reply timeout
 	 */
@@ -982,20 +826,345 @@ private:
 			cmemory *mem);
 
 
-	/**
-	 *
-	 */
-	void
-	try_to_connect(
-			bool reset_timeout = false);
+public:
 
 
 	/**
+	 * @name	Methods for sending OpenFlow messages
 	 *
+	 * These methods may be called by a derived class for sending
+	 * a specific OF message.
 	 */
-	void
-	send_message_via_socket(
-			cofmsg *msg);
+
+	/**@{*/
+
+	/**
+	 * @brief	Sends a FEATURES.request to a data path element.
+	 *
+	 * @return transaction ID assigned to this request
+	 */
+	virtual uint32_t
+	send_features_request();
+
+	/**
+	 * @brief	Sends a GET-CONFIG.request to a data path element.
+	 *
+	 * @return transaction ID assigned to this request
+	 */
+	virtual uint32_t
+	send_get_config_request();
+
+	/**
+	 * @brief	Sends a TABLE-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this TABLE-STATS.request
+	 */
+	virtual uint32_t
+	send_table_features_stats_request(
+			uint16_t stats_flags);
+
+	/**
+	 * @brief	Sends a STATS.request to a data path element.
+	 *
+	 * @param stats_type one of the OFPMP_* constants
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param body body of STATS.request
+	 * @param bodylen length of STATS.request body
+	 * @return transaction ID for this STATS.request
+	 */
+	virtual uint32_t
+	send_stats_request(
+			uint16_t stats_type,
+			uint16_t stats_flags,
+			uint8_t *body = NULL,
+			size_t bodylen = 0);
+
+	/**
+	 * @brief	Sends a DESC-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this DESC-STATS.request
+	 */
+	virtual uint32_t
+	send_desc_stats_request(
+			uint16_t stats_flags);
+
+	/**
+	 * @brief	Sends a FLOW-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param flow_stats_request body of a FLOW-STATS.request
+	 * @return transaction ID for this FLOW-STATS.request
+	 */
+	virtual uint32_t
+	send_flow_stats_request(
+			uint16_t stats_flags,
+			cofflow_stats_request const& flow_stats_request);
+
+	/**
+	 * @brief	Sends a AGGREGATE-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param aggr_stats_request body of an AGGREGATE-STATS.request
+	 * @return transaction ID for this AGGREGATE-STATS.request
+	 */
+	virtual uint32_t
+	send_aggr_stats_request(
+			uint16_t flags,
+			cofaggr_stats_request const& aggr_stats_request);
+
+
+	/**
+	 * @brief	Sends a TABLE-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this TABLE-STATS.request
+	 */
+	virtual uint32_t
+	send_table_stats_request(
+			uint16_t stats_flags = 0);
+
+	/**
+	 * @brief	Sends a FLOW-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param port_stats_request body of a PORT-STATS.request
+	 * @return transaction ID for this FLOW-STATS.request
+	 */
+	virtual uint32_t
+	send_port_stats_request(
+			uint16_t stats_flags,
+			cofport_stats_request const& port_stats_request);
+
+	/**
+	 * @brief	Sends a QUEUE-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param queue_stats_request body of a QUEUE-STATS.request
+	 * @return transaction ID for this QUEUE-STATS.request
+	 */
+	virtual uint32_t
+	send_queue_stats_request(
+			uint16_t stats_flags,
+			cofqueue_stats_request const& queue_stats_request);
+
+	/**
+	 * @brief	Sends a GROUP-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param queue_stats_request body of a GROUP-STATS.request
+	 * @return transaction ID for this GROUP-STATS.request
+	 */
+	virtual uint32_t
+	send_group_stats_request(
+			uint16_t stats_flags,
+			cofgroup_stats_request const& group_stats_request);
+
+	/**
+	 * @brief	Sends a GROUP-DESC-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this AGGREGATE-STATS.request
+	 */
+	virtual uint32_t
+	send_group_desc_stats_request(
+			uint16_t flags = 0);
+
+	/**
+	 * @brief	Sends a GROUP-FEATURES-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this AGGREGATE-STATS.request
+	 */
+	virtual uint32_t
+	send_group_features_stats_request(
+			uint16_t flags);
+
+	/**
+	 * @brief	Sends an EXPERIMENTER-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @param exp_id experimenter ID
+	 * @param exp_type user defined type
+	 * @param body user defined body
+	 * @return transaction ID for this EXPERIMENTER-STATS.request
+	 */
+	virtual uint32_t
+	send_experimenter_stats_request(
+			uint16_t stats_flags,
+			uint32_t exp_id,
+			uint32_t exp_type,
+			cmemory const& body);
+
+	/**
+	 * @brief	Sends a PACKET-OUT.message to a data path element.
+	 *
+	 * @param buffer_id buffer ID assigned by datapath (-1 if none) in host byte order
+	 * @param in_port packet’s in-port (OFPP_NONE if none) in host byte order
+	 * @param aclist OpenFlow ActionList
+	 * @param data data packet to be sent out (optional)
+	 * @param datalen length of data packet (optional)
+	 * @result transaction ID assigned to this request
+	 */
+	virtual uint32_t
+	send_packet_out_message(
+			uint32_t buffer_id,
+			uint32_t in_port,
+			cofactions& aclist,
+			uint8_t *data = NULL,
+			size_t datalen = 0);
+
+	/**
+	 * @brief	Sends a BARRIER.request to a data path element.
+	 *
+	 * @result transaction ID assigned to this request
+	 */
+	virtual uint32_t
+	send_barrier_request();
+
+	/**
+	 * @brief	Sends a ROLE.request to a data path element.
+	 *
+	 * @param role role as defined by OpenFlow
+	 * @param generation_id gen_id as defined by OpenFlow
+	 */
+	virtual uint32_t
+	send_role_request(
+			uint32_t role,
+			uint64_t generation_id);
+
+	/**
+	 * @brief 	Sends a FLOW-MOD.message to a data path element.
+	 *
+	 * @param flowentry FlowMod entry
+	 */
+	virtual uint32_t
+	send_flow_mod_message(
+			cflowentry const& flowentry);
+
+	/**
+	 * @brief 	Sends a GROUP-MOD.message to a data path element.
+	 *
+	 * @param groupentry GroupMod entry
+	 */
+	virtual uint32_t
+	send_group_mod_message(
+			cgroupentry const& groupentry);
+
+	/**
+	 * @brief	Sends a TABLE-MOD.message to a data path element.
+	 *
+	 * @param table_id ID of table to be reconfigured
+	 * @param config new configuration for table
+	 */
+	virtual uint32_t
+	send_table_mod_message(
+			uint8_t table_id,
+			uint32_t config);
+
+	/**
+	 * @brief	Sends a PORT-MOD.message to a data path element.
+	 *
+	 * @param port_no number of port to be updated
+	 * @param hwaddr MAC address assigned to port
+	 * @param config OpenFlow config parameter
+	 * * @param mask OpenFlow mask parameter
+	 * * @param advertise OpenFlow advertise parameter
+	 */
+	virtual uint32_t
+	send_port_mod_message(
+			uint32_t port_no,
+			cmacaddr const& hwaddr,
+			uint32_t config,
+			uint32_t mask,
+			uint32_t advertise);
+
+	/**
+	 * @brief	Sends a SET-CONFIG.message to a data path element.
+	 *
+	 * @param flags field of OpenFlow's OFPC_* flags
+	 * @param miss_send_len OpenFlow' miss_send_len parameter
+	 */
+	virtual uint32_t
+	send_set_config_message(
+		uint16_t flags,
+		uint16_t miss_send_len);
+
+	/**
+	 * @brief	Sends a QUEUE-GET-CONFIG.request to a data path element.
+	 *
+	 * @param port port to be queried. Should refer to a valid physical port (i.e. < OFPP_MAX)
+	 * @result transaction ID assigned to this request
+	 */
+	virtual uint32_t
+	send_queue_get_config_request(
+		uint32_t port);
+
+	/**
+	 * @brief	Sends a GET-ASYNC-CONFIG.request to a data path element.
+	 *
+	 * @return transaction ID assigned to this request
+	 */
+	virtual uint32_t
+	send_get_async_config_request();
+
+	/**
+	 * @brief	Sends a SET-ASYNC-CONFIG.message to a data path element.
+	 *
+	 * @param packet_in_mask0 packet_in_mask[0]
+	 * @param packet_in_mask1 packet_in_mask[1]
+	 * @param port_status_mask0 port_status_mask[0]
+	 * @param port_status_mask1 port_status_mask[1]
+	 * @param flow_removed_mask0 flow_removed_mask[0]
+	 * @param flow_removed_mask1 flow_removed_mask[1]
+	 */
+	virtual uint32_t
+	send_set_async_config_message(
+		uint32_t packet_in_mask0,
+		uint32_t packet_in_mask1,
+		uint32_t port_status_mask0,
+		uint32_t port_status_mask1,
+		uint32_t flow_removed_mask0,
+		uint32_t flow_removed_mask1);
+
+	/**
+	 * @brief	Sends an ERROR.message to a data path element.
+	 *
+	 * These messages are used for failed HELLO negotiations and
+	 * experimental extensions.
+	 *
+	 * @param xid transaction ID of reply/notification that generated this error message
+	 * @param type one of OpenFlow's OFPET_* flags
+	 * @param code one of OpenFlow's error codes
+	 * @param data first (at least 64) bytes of failed reply/notification
+	 * @param datalen length of failed reply/notification appended to error message
+	 */
+	virtual uint32_t
+	send_error_message(
+		uint32_t xid,
+		uint16_t type,
+		uint16_t code,
+		uint8_t* data = NULL,
+		size_t datalen = 0);
+
+	/**
+	 * @brief 	Sends an EXPERIMENTER.message to a data path element.
+	 *
+	 * @param experimenter_id exp_id as assigned by ONF
+	 * @param exp_type exp_type as defined by the ONF member
+	 * @param body pointer to opaque experimenter message body (optional)
+	 * @param bodylen length of body (optional)
+	 * @result transaction ID assigned to this request
+	 */
+	virtual uint32_t
+	send_experimenter_message(
+			uint32_t experimenter_id,
+			uint32_t exp_type,
+			uint8_t *body = NULL,
+			size_t bodylen = 0);
+
+	/**@}*/
 
 public:
 

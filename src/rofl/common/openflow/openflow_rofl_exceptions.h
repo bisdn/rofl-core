@@ -50,9 +50,9 @@ class eBadActionBadOutGroup			: public eBadActionBase {};		// OFPBAC_BAD_OUT_GRO
 class eBadActionMatchInconsistent	: public eBadActionBase {};		// OFPBAC_MATCH_INCONSISTENT
 class eBadActionUnsupportedOrder	: public eBadActionBase {};		// OFPBAC_UNSUPPORTED_ORDER
 class eBadActionBadTag				: public eBadActionBase {};		// OFPBAC_BAD_TAG
-class eBadActionSetType				: public eBadActionBase {};		// OFPBAC_BAD_SET_TYPE
-class eBadActionSetLen				: public eBadActionBase {};		// OFPBAC_BAD_SET_LEN
-class eBadActionSetArgument			: public eBadActionBase {}; 	// OFPBAC_BAD_SET_ARGUMENT
+class eBadActionBadSetType			: public eBadActionBase {};		// OFPBAC_BAD_SET_TYPE
+class eBadActionBadSetLen			: public eBadActionBase {};		// OFPBAC_BAD_SET_LEN
+class eBadActionBadSetArgument		: public eBadActionBase {}; 	// OFPBAC_BAD_SET_ARGUMENT
 
 /* exceptions for action-containing requests according to OpenFlow */
 class eBadInstBase					: public eOpenFlowBase {};
