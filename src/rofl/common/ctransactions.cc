@@ -40,7 +40,7 @@ ctransactions::work_on_ta_queue()
 
 	std::list<ctransaction>::iterator it = (*this).begin();
 	while ((it != (*this).end()) && ((*it).get_expires() <= cclock::now())) {
-		env->ta_expired(this, (*it));
+		env->ta_expired(*this, (*it));
 		(*this).erase(it);
 	}
 
@@ -53,7 +53,9 @@ ctransactions::work_on_ta_queue()
 
 uint32_t
 ctransactions::add_ta(
-		cclock const& delta)
+		cclock const& delta,
+		uint8_t msg_type,
+		uint8_t msg_sub_type)
 {
 	RwLock lock(queuelock, RwLock::RWLOCK_WRITE);
 

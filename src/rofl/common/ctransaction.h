@@ -24,15 +24,17 @@ namespace openflow {
 class ctransaction {
 
 	uint32_t 	xid;
-	cclock		since;		// time this transaction was created
-	cclock		expires;	// time this transaction expires
+	cclock		since;			// time this transaction was created
+	cclock		expires;		// time this transaction expires
+	uint8_t		msg_type;		// message type
+	uint8_t		msg_sub_type;	// message sub-type
 
 public:
 
 	/**
 	 *
 	 */
-	ctransaction(uint32_t xid, cclock const& delta);
+	ctransaction(uint32_t xid, cclock const& delta, uint8_t msg_type = 0, uint8_t msg_sub_type = 0);
 
 	/**
 	 *
@@ -71,12 +73,24 @@ public:
 	cclock&
 	get_expires() { return expires; };
 
+	/**
+	 *
+	 */
+	uint8_t
+	get_msg_type() const { return msg_type; };
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_msg_sub_type() const { return msg_sub_type; };
+
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, ctransaction const& ta) {
 		os << indent(0) << "<transaction ";
-			os << "xid:" << (int)ta.xid << " >" << std::endl;
+			os << "xid:" << (int)ta.xid << " msg-type:" << (int)ta.msg_type << " msg-subtype:" << (int)ta.msg_sub_type << " >" << std::endl;
 		os << indent(2) << "<since: >" << std::endl;
 		{ indent i(4); os << ta.since; }
 		os << indent(2) << "<expires: >" << std::endl;

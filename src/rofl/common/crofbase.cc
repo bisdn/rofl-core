@@ -697,7 +697,7 @@ crofbase::get_ofp_command(uint8_t ofp_version, enum openflow::ofp_flow_mod_comma
 
 
 void
-crofbase::handle_features_reply_timeout(crofdpt *dpt)
+crofbase::handle_features_reply_timeout(crofdpt *dpt, uint32_t xid)
 {
     if (ofdpt_set.find(dpt) != ofdpt_set.end()) {
     	delete dpt;
@@ -715,7 +715,7 @@ crofbase::handle_features_reply_timeout(crofdpt *dpt)
 
 
 void
-crofbase::handle_get_config_reply_timeout(crofdpt *dpt)
+crofbase::handle_get_config_reply_timeout(crofdpt *dpt, uint32_t xid)
 {
     if (ofdpt_set.find(dpt) != ofdpt_set.end())
     {

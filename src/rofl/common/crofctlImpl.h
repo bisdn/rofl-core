@@ -383,7 +383,7 @@ public:
 
 	virtual void
 	ta_expired(
-			rofl::openflow::ctransactions *tas,
+			rofl::openflow::ctransactions& tas,
 			rofl::openflow::ctransaction& ta);
 
 private:

@@ -706,7 +706,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_features_reply_timeout(crofdpt *dpt);
+	handle_features_reply_timeout(crofdpt *dpt, uint32_t xid);
 
 
 
@@ -744,7 +744,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_get_config_reply_timeout(crofdpt *dpt);
+	handle_get_config_reply_timeout(crofdpt *dpt, uint32_t xid);
 
 
 
@@ -937,7 +937,7 @@ protected:
 	 * @param xid transaction ID of STATS.request previously sent to data path element.
 	 */
 	virtual void
-	handle_stats_reply_timeout(crofdpt *dpt, uint32_t xid) {};
+	handle_multipart_reply_timeout(crofdpt *dpt, uint32_t xid, uint8_t msg_sub_type) {};
 
 
 
@@ -1254,6 +1254,17 @@ protected:
 	handle_queue_get_config_reply(crofdpt *dpt, cofmsg_queue_get_config_reply *msg) { delete msg; };
 
 
+	/**
+	 * @brief	Called once a timer expires for a GET-CONFIG.reply message.
+	 *
+	 * Default behaviour: deletes cofdpt instance, thus effectively closing the control connection.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 */
+	virtual void
+	handle_queue_get_config_reply_timeout(crofdpt *dpt, uint32_t xid) {};
+
+
 
 	/**
 	 * @brief	Called once an EXPERIMENTER.message was received from a controller entity.
@@ -1296,6 +1307,17 @@ protected:
 
 
 	/**
+	 * @brief	Called once a timer expires for a GET-CONFIG.reply message.
+	 *
+	 * Default behaviour: deletes cofdpt instance, thus effectively closing the control connection.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 */
+	virtual void
+	handle_experimenter_timeout(crofdpt *dpt, uint32_t xid) {};
+
+
+	/**
 	 * @brief	Called once a timer has expired for an EXPERIMENTER.message.
 	 *
 	 * To be overwritten by derived class. Default behaviour: ignores event.
@@ -1304,7 +1326,7 @@ protected:
 	 * @param xid transaction ID of EXPERIMENTER.message previously sent to data path element.
 	 */
 	virtual void
-	handle_get_fsp_reply_timeout(crofdpt *dpt) {};
+	handle_get_fsp_reply_timeout(crofdpt *dpt, uint32_t xid) {};
 
 
 
@@ -1343,7 +1365,7 @@ protected:
 	 * @param xid transaction ID of ROLE.reply message previously sent to data path element.
 	 */
 	virtual void
-	handle_role_reply_timeout(crofdpt *dpt) {};
+	handle_role_reply_timeout(crofdpt *dpt, uint32_t xid) {};
 
 
 	/**
@@ -1379,7 +1401,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_get_async_config_reply_timeout(crofdpt *dpt);
+	handle_get_async_config_reply_timeout(crofdpt *dpt, uint32_t xid);
 
 
 	/**

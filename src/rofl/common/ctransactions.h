@@ -31,7 +31,7 @@ class ctransactions;
 class ctransactions_env {
 public:
 	virtual ~ctransactions_env() {};
-	virtual void ta_expired(ctransactions *tas, ctransaction& ta) = 0;
+	virtual void ta_expired(ctransactions& tas, ctransaction& ta) = 0;
 };
 
 class ctransactions :
@@ -67,7 +67,7 @@ public:
 	 */
 	uint32_t
 	add_ta(
-			cclock const& delta);
+			cclock const& delta, uint8_t msg_type = 0, uint8_t msg_subtype = 0);
 
 	/**
 	 *

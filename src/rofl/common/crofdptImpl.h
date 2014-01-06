@@ -78,10 +78,6 @@ private: // data structures
 		};
 
 		enum crofdptImpl_timer_t {
-			TIMER_WAIT_FOR_FEATURES_REPLY		= 1,
-			TIMER_WAIT_FOR_GET_CONFIG_REPLY		= 2,
-			TIMER_WAIT_FOR_TABLE_STATS_REPLY	= 3,
-			TIMER_WAIT_FOR_TABLE_FEATURES_STATS_REPLY	= 4,
 		};
 
 		enum crofdptImpl_state_t {
@@ -135,13 +131,6 @@ private: // data structures
 		crofbase 						*rofbase;		// layer-(n) entity
 		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store
 		rofl::openflow::ctransactions	transactions;	// pending OFP transactions
-
-		int 							 features_request_timeout;
-		int 							 get_config_request_timeout;
-		int								 table_features_request_timeout;
-		int 							 stats_reply_timeout;
-		int 							 barrier_reply_timeout;
-		int 							 get_async_config_reply_timeout;
 
 		unsigned int					state;
 		std::deque<enum crofdptImpl_event_t> events;
@@ -257,7 +246,7 @@ public:
 	/* overloaded from ctransactions_env */
 
 	virtual void
-	ta_expired(rofl::openflow::ctransactions *tas, rofl::openflow::ctransaction& ta);
+	ta_expired(rofl::openflow::ctransactions& tas, rofl::openflow::ctransaction& ta);
 
 public:
 
@@ -568,13 +557,25 @@ private:
 	 *
 	 */
 	void
-	event_table_features_reply_rcvd();
+	event_table_stats_reply_rcvd();
 
 	/**
 	 *
 	 */
 	void
-	event_table_features_request_expired();
+	event_table_stats_request_expired();
+
+	/**
+	 *
+	 */
+	void
+	event_table_features_stats_reply_rcvd();
+
+	/**
+	 *
+	 */
+	void
+	event_table_features_stats_request_expired();
 
 
 private:
@@ -635,7 +636,7 @@ private:
 	 */
 	void
 	experimenter_rcvd(
-			cofmsg_experimenter *msg, uint8_t aux_id = 0);
+			cofmsg *msg, uint8_t aux_id = 0);
 
 
 
@@ -651,7 +652,7 @@ private:
 	 */
 	void
 	features_reply_rcvd(
-			cofmsg_features_reply *msg, uint8_t aux_id = 0);
+			cofmsg *msg, uint8_t aux_id = 0);
 
 	/**
 	 * @name	get_config_reply_rcvd
@@ -665,7 +666,7 @@ private:
 	 */
 	void
 	get_config_reply_rcvd(
-			cofmsg_get_config_reply *msg, uint8_t aux_id = 0);
+			cofmsg *msg, uint8_t aux_id = 0);
 
 	/**
 	 * @name	stats_reply_rcvd
@@ -679,30 +680,69 @@ private:
 	 */
 	void
 	multipart_reply_rcvd(
-			cofmsg_multipart_reply *msg, uint8_t aux_id = 0);
+			cofmsg *msg, uint8_t aux_id = 0);
 
 
 
 	void
-	desc_stats_reply_rcvd(cofmsg_desc_stats_reply* msg, uint8_t aux_id = 0);
+	desc_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
 	void
-	table_stats_reply_rcvd(cofmsg_table_stats_reply *msg, uint8_t aux_id = 0);
+	table_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
 	void
-	port_stats_reply_rcvd(cofmsg_port_stats_reply* msg, uint8_t aux_id = 0);
+	port_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
 	void
-	flow_stats_reply_rcvd(cofmsg_flow_stats_reply* msg, uint8_t aux_id = 0);
+	flow_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
 	void
-	aggregate_stats_reply_rcvd(cofmsg_aggr_stats_reply* msg, uint8_t aux_id = 0);
+	aggregate_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
 	void
-	queue_stats_reply_rcvd(cofmsg_queue_stats_reply* msg, uint8_t aux_id = 0);
+	queue_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
 	void
-	group_stats_reply_rcvd(cofmsg_group_stats_reply* msg, uint8_t aux_id = 0);
+	group_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
 	void
-	group_desc_stats_reply_rcvd(cofmsg_group_desc_stats_reply* msg, uint8_t aux_id = 0);
+	group_desc_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
 	void
-	group_features_stats_reply_rcvd(cofmsg_group_features_stats_reply* msg, uint8_t aux_id = 0);
+	group_features_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
 	void
-	experimenter_stats_reply_rcvd(cofmsg_experimenter_stats_reply* msg, uint8_t aux_id = 0);
+	meter_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
+	void
+	meter_config_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
+	void
+	meter_features_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
+	void
+	table_features_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
+	void
+	port_desc_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
+	void
+	experimenter_stats_reply_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
 
 
 	/**
@@ -716,19 +756,7 @@ private:
 	 */
 	void
 	barrier_reply_rcvd(
-			cofmsg_barrier_reply *msg, uint8_t aux_id = 0);
-
-	/**
-	 * @name	flow_rmvd_rcvd
-	 * @brief	Called by crofbase when a FLOW-MOD-message was sent.
-	 *
-	 * Applies FlowRmvd message to local flowtables.
-	 *
-	 * @param[in] pack The OpenFlow message received.
-	 */
-	void
-	flow_rmvd_rcvd(
-			cofmsg_flow_removed *msg, uint8_t aux_id = 0);
+			cofmsg *msg, uint8_t aux_id = 0);
 
 	/**
 	 * @name	port_mod_sent
@@ -742,39 +770,37 @@ private:
 	port_mod_sent(
 			cofmsg *pack);
 
-
 	/** handle PACKET-IN message
 	 */
 	void
 	packet_in_rcvd(
-			cofmsg_packet_in *msg, uint8_t aux_id = 0);
+			cofmsg *msg, uint8_t aux_id = 0);
 
 	/** handle FlowRemoved message
 	 */
 	void
 	flow_removed_rcvd(
-			cofmsg_flow_removed *msg, uint8_t aux_id = 0);
-
+			cofmsg *msg, uint8_t aux_id = 0);
 
 	/** handle PORT-STATUS message
 	 */
 	void
 	port_status_rcvd(
-			cofmsg_port_status *msg, uint8_t aux_id = 0);
+			cofmsg *msg, uint8_t aux_id = 0);
 
 	/** handle ROLE-REPLY messages
 	 *
 	 */
 	void
 	role_reply_rcvd(
-			cofmsg_role_reply *msg, uint8_t aux_id = 0);
+			cofmsg *msg, uint8_t aux_id = 0);
 
 	/**
 	 *
 	 */
 	void
 	queue_get_config_reply_rcvd(
-			cofmsg_queue_get_config_reply *msg, uint8_t aux_id = 0);
+			cofmsg *msg, uint8_t aux_id = 0);
 
 	/**
 	 * @name	get_async_config_reply_rcvd
@@ -788,40 +814,7 @@ private:
 	 */
 	void
 	get_async_config_reply_rcvd(
-			cofmsg_get_async_config_reply *msg, uint8_t aux_id = 0);
-
-
-
-private:
-
-	/** handle FEATURES reply timeout
-	 */
-	void
-	handle_features_reply_timeout();
-
-
-	/** handle GET-CONFIG reply timeout
-	 */
-	void
-	handle_get_config_reply_timeout();
-
-
-	/** handle STATS reply timeout
-	 */
-	void
-	handle_stats_reply_timeout();
-
-
-	/** handle BARRIER reply timeout
-	 */
-	void
-	handle_barrier_reply_timeout();
-
-
-	/** handle GET-ASYNC-CONFIG reply timeout
-	 */
-	void
-	handle_get_async_config_reply_timeout();
+			cofmsg *msg, uint8_t aux_id = 0);
 
 
 private:
