@@ -99,7 +99,7 @@ void
 crofbase::handle_dpt_open(
 		crofdpt *dpt)
 {
-	handle_dpath_open(dpt);
+	handle_dpath_open(*dpt);
 }
 
 
@@ -108,7 +108,7 @@ void
 crofbase::handle_dpt_close(
 		crofdpt *dpt)
 {
-	handle_dpath_close(dpt);
+	handle_dpath_close(*dpt);
 	if (ofdpt_set.find(dpt) != ofdpt_set.end())
 	{
 		delete dpt;
@@ -536,7 +536,7 @@ crofbase::wakeup()
 
 
 void
-crofbase::handle_experimenter_message(crofctl *ofctrl, cofmsg_experimenter *pack)
+crofbase::handle_experimenter_message(crofctl *ofctrl, cofmsg_experimenter *pack, uint8_t aux_id)
 {
 #if 0
 	// base class does not support any vendor extensions, so: send error indication
@@ -686,43 +686,6 @@ crofbase::get_ofp_command(uint8_t ofp_version, enum openflow::ofp_flow_mod_comma
 
 
 
-
-/*
- * FEATURES request/reply
- */
-
-
-
-
-
-
-void
-crofbase::handle_features_reply_timeout(crofdpt *dpt, uint32_t xid)
-{
-    if (ofdpt_set.find(dpt) != ofdpt_set.end()) {
-    	delete dpt;
-    	ofdpt_set.erase(dpt);
-    }
-}
-
-
-
-
-/*
- * GET-CONFIG request/reply
- */
-
-
-
-void
-crofbase::handle_get_config_reply_timeout(crofdpt *dpt, uint32_t xid)
-{
-    if (ofdpt_set.find(dpt) != ofdpt_set.end())
-    {
-           delete dpt;
-           ofdpt_set.erase(dpt);
-    }
-}
 
 
 uint32_t

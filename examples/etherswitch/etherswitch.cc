@@ -74,7 +74,7 @@ ethswitch::request_flow_stats()
 
 
 void
-ethswitch::handle_flow_stats_reply(crofdpt *dpt, cofmsg_flow_stats_reply *msg)
+ethswitch::handle_flow_stats_reply(crofdpt& dpt, cofmsg_flow_stats_reply& msg, uint8_t aux_id)
 {
 #if 0
 	if (fib.find(dpt) == fib.end()) {
@@ -100,7 +100,6 @@ ethswitch::handle_flow_stats_reply(crofdpt *dpt, cofmsg_flow_stats_reply *msg)
 		}
 	}
 #endif
-	delete msg;
 }
 
 
@@ -109,11 +108,11 @@ ethswitch::handle_flow_stats_reply(crofdpt *dpt, cofmsg_flow_stats_reply *msg)
 
 void
 ethswitch::handle_dpath_open(
-		crofdpt *dpt)
+		crofdpt& dpt)
 {
-	rofl::cflowentry fe(dpt->get_version());
+	rofl::cflowentry fe(dpt.get_version());
 
-	switch (dpt->get_version()) {
+	switch (dpt.get_version()) {
 	case openflow10::OFP_VERSION: {
 		fe.set_command(openflow10::OFPFC_ADD);
 		fe.set_table_id(0);
@@ -160,45 +159,46 @@ ethswitch::handle_dpath_open(
 		throw eBadVersion();
 	}
 
-	send_flow_mod_message(dpt, fe);
+	dpt.send_flow_mod_message(fe);
 
-	cfib::get_fib(dpt->get_dpid()).dpt_bind(this, dpt);
+	cfib::get_fib(dpt.get_dpid()).dpt_bind(this, &dpt);
 }
 
 
 
 void
 ethswitch::handle_dpath_close(
-		crofdpt *dpt)
+		crofdpt& dpt)
 {
-	cfib::get_fib(dpt->get_dpid()).dpt_release(this, dpt);
+	cfib::get_fib(dpt.get_dpid()).dpt_release(this, &dpt);
 }
 
 
 
 void
 ethswitch::handle_packet_in(
-		crofdpt *dpt,
-		cofmsg_packet_in *msg)
+		crofdpt& dpt,
+		cofmsg_packet_in& msg,
+		uint8_t aux_id)
 {
-	cmacaddr eth_src = msg->get_packet().ether()->get_dl_src();
-	cmacaddr eth_dst = msg->get_packet().ether()->get_dl_dst();
+	cmacaddr eth_src = msg.get_packet().ether()->get_dl_src();
+	cmacaddr eth_dst = msg.get_packet().ether()->get_dl_dst();
 
 	/*
 	 * sanity check: if source mac is multicast => invalid frame
 	 */
 	if (eth_src.is_multicast()) {
-		delete msg; return;
+		return;
 	}
 
 	/*
 	 * block mac address 01:80:c2:00:00:00
 	 */
-	if (msg->get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
-		msg->get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
-		cflowentry fe(dpt->get_version());
+	if (msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
+		msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
+		cflowentry fe(dpt.get_version());
 
-		switch (dpt->get_version()) {
+		switch (dpt.get_version()) {
 		case openflow10::OFP_VERSION: fe.set_command(openflow10::OFPFC_ADD); break;
 		case openflow12::OFP_VERSION: fe.set_command(openflow12::OFPFC_ADD); break;
 		case openflow13::OFP_VERSION: fe.set_command(openflow13::OFPFC_ADD); break;
@@ -206,41 +206,41 @@ ethswitch::handle_packet_in(
 			throw eBadVersion();
 		}
 
-		fe.set_buffer_id(msg->get_buffer_id());
+		fe.set_buffer_id(msg.get_buffer_id());
 		fe.set_idle_timeout(15);
-		fe.set_table_id(msg->get_table_id());
+		fe.set_table_id(msg.get_table_id());
 
-		fe.match.set_in_port(msg->get_match().get_in_port());
-		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
+		fe.match.set_in_port(msg.get_match().get_in_port());
+		fe.match.set_eth_dst(msg.get_packet().ether()->get_dl_dst());
 		fe.instructions.add_inst_apply_actions();
 
 		fprintf(stderr, "etherswitch: installing FLOW-MOD with entry: ");
 		std::cerr << fe << std::endl;
 
-		send_flow_mod_message(dpt, fe);
+		dpt.send_flow_mod_message(fe);
 
-		delete msg; return;
+		return;
 	}
 
 	fprintf(stderr, "etherswitch: PACKET-IN from dpid:0x%"PRIu64" buffer-id:0x%x => from %s to %s type: 0x%x\n",
-			dpt->get_dpid(),
-			msg->get_buffer_id(),
-			msg->get_packet().ether()->get_dl_src().c_str(),
-			msg->get_packet().ether()->get_dl_dst().c_str(),
-			msg->get_packet().ether()->get_dl_type());
+			dpt.get_dpid(),
+			msg.get_buffer_id(),
+			msg.get_packet().ether()->get_dl_src().c_str(),
+			msg.get_packet().ether()->get_dl_dst().c_str(),
+			msg.get_packet().ether()->get_dl_type());
 
 
-	cofactions actions(dpt->get_version());
+	cofactions actions(dpt.get_version());
 
-	cfib::get_fib(dpt->get_dpid()).fib_update(
+	cfib::get_fib(dpt.get_dpid()).fib_update(
 							this,
 							dpt,
-							msg->get_packet().ether()->get_dl_src(),
-							msg->get_match().get_in_port());
+							msg.get_packet().ether()->get_dl_src(),
+							msg.get_match().get_in_port());
 
 	if (eth_dst.is_multicast()) {
 
-		switch (dpt->get_version()) {
+		switch (dpt.get_version()) {
 		case openflow10::OFP_VERSION:
 			actions.append_action_output(openflow10::OFPP_FLOOD); break;
 		case openflow12::OFP_VERSION:
@@ -253,22 +253,22 @@ ethswitch::handle_packet_in(
 
 	} else {
 
-		cfibentry& entry = cfib::get_fib(dpt->get_dpid()).fib_lookup(
+		cfibentry& entry = cfib::get_fib(dpt.get_dpid()).fib_lookup(
 					this,
 					dpt,
-					msg->get_packet().ether()->get_dl_dst(),
-					msg->get_packet().ether()->get_dl_src(),
-					msg->get_match().get_in_port());
+					msg.get_packet().ether()->get_dl_dst(),
+					msg.get_packet().ether()->get_dl_src(),
+					msg.get_match().get_in_port());
 
-		if (msg->get_match().get_in_port() == entry.get_out_port_no()) {
-			delete msg; return;
+		if (msg.get_match().get_in_port() == entry.get_out_port_no()) {
+			return;
 		}
 
 		actions.append_action_output(entry.get_out_port_no());
 	}
 
 	uint32_t ofp_no_buffer = 0;
-	switch (dpt->get_version()) {
+	switch (dpt.get_version()) {
 	case openflow10::OFP_VERSION: ofp_no_buffer = openflow10::OFP_NO_BUFFER; break;
 	case openflow12::OFP_VERSION: ofp_no_buffer = openflow12::OFP_NO_BUFFER; break;
 	case openflow13::OFP_VERSION: ofp_no_buffer = openflow13::OFP_NO_BUFFER; break;
@@ -276,14 +276,12 @@ ethswitch::handle_packet_in(
 		throw eBadVersion();
 	}
 
-	if (ofp_no_buffer != msg->get_buffer_id()) {
-		send_packet_out_message(dpt, msg->get_buffer_id(), msg->get_match().get_in_port(), actions);
+	if (ofp_no_buffer != msg.get_buffer_id()) {
+		dpt.send_packet_out_message(msg.get_buffer_id(), msg.get_match().get_in_port(), actions);
 	} else {
-		send_packet_out_message(dpt, msg->get_buffer_id(), msg->get_match().get_in_port(), actions,
-				msg->get_packet().soframe(), msg->get_packet().framelen());
+		dpt.send_packet_out_message(msg.get_buffer_id(), msg.get_match().get_in_port(), actions,
+				msg.get_packet().soframe(), msg.get_packet().framelen());
 	}
-
-	delete msg; return;
 }
 
 

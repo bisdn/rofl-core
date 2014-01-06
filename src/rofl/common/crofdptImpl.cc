@@ -223,6 +223,7 @@ crofdptImpl::event_get_config_reply_rcvd()
 
 		switch (rofchan.get_version()) {
 		case rofl::openflow10::OFP_VERSION: {
+			rofbase->handle_dpath_open(*this);
 			state = STATE_ESTABLISHED;
 
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
@@ -290,6 +291,9 @@ crofdptImpl::event_table_stats_reply_rcvd()
 		switch (rofchan.get_version()) {
 		case rofl::openflow12::OFP_VERSION: {
 			state = STATE_ESTABLISHED;
+			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
+								<< "Table-Stats-Reply rcvd (get-config-rcvd -> established)" << std::endl;
+			rofbase->handle_dpt_open(this);
 		} break;
 		default: {
 			// do nothing
@@ -455,17 +459,15 @@ crofdptImpl::ta_expired(
 		rofl::openflow::ctransaction& ta)
 {
 	logging::warn << "[rofl][dpt] transaction expired, xid:" << std::endl << ta;
-	// TODO
-	//rofbase->ta_expired(ta);
 
 	switch (ta.get_msg_type()) {
 	case OFPT_FEATURES_REQUEST: {
 		run_engine(EVENT_FEATURES_REQUEST_EXPIRED);
-		rofbase->handle_features_reply_timeout(this, ta.get_xid());
+		rofbase->handle_features_reply_timeout(*this, ta.get_xid());
 	} break;
 	case OFPT_GET_CONFIG_REQUEST: {
 		run_engine(EVENT_GET_CONFIG_REQUEST_EXPIRED);
-		rofbase->handle_get_config_reply_timeout(this, ta.get_xid());
+		rofbase->handle_get_config_reply_timeout(*this, ta.get_xid());
 	} break;
 	case OFPT_MULTIPART_REQUEST: {
 		switch (ta.get_msg_sub_type()) {
@@ -518,22 +520,22 @@ crofdptImpl::ta_expired(
 
 		};
 		}
-		rofbase->handle_multipart_reply_timeout(this, ta.get_xid(), ta.get_msg_sub_type());
+		rofbase->handle_multipart_reply_timeout(*this, ta.get_xid(), ta.get_msg_sub_type());
 	} break;
 	case OFPT_BARRIER_REQUEST: {
-		rofbase->handle_barrier_reply_timeout(this, ta.get_xid());
+		rofbase->handle_barrier_reply_timeout(*this, ta.get_xid());
 	} break;
 	case OFPT_QUEUE_GET_CONFIG_REQUEST: {
-		rofbase->handle_queue_get_config_reply_timeout(this, ta.get_xid());
+		rofbase->handle_queue_get_config_reply_timeout(*this, ta.get_xid());
 	} break;
 	case OFPT_ROLE_REQUEST: {
-		rofbase->handle_role_reply_timeout(this, ta.get_xid());
+		rofbase->handle_role_reply_timeout(*this, ta.get_xid());
 	} break;
 	case OFPT_GET_ASYNC_REQUEST: {
-		rofbase->handle_get_async_config_reply_timeout(this, ta.get_xid());
+		rofbase->handle_get_async_config_reply_timeout(*this, ta.get_xid());
 	} break;
 	case OFPT_EXPERIMENTER: {
-		rofbase->handle_experimenter_timeout(this, ta.get_xid());
+		rofbase->handle_experimenter_timeout(*this, ta.get_xid());
 	} break;
 	default: {
 
@@ -553,6 +555,52 @@ crofdptImpl::handle_timeout(int opaque)
 				<< " unknown timer event:" << opaque << std::endl;
 	};
 	}
+}
+
+
+
+void
+crofdptImpl::flow_mod_reset()
+{
+	cflowentry fe(rofchan.get_version());
+	switch (rofchan.get_version()) {
+	case openflow10::OFP_VERSION: {
+		fe.set_command(openflow10::OFPFC_DELETE);
+	} break;
+	case openflow12::OFP_VERSION: {
+		fe.set_command(openflow12::OFPFC_DELETE);
+		fe.set_table_id(openflow12::OFPTT_ALL /*all tables*/);
+	} break;
+	case openflow13::OFP_VERSION: {
+		fe.set_command(openflow13::OFPFC_DELETE);
+		fe.set_table_id(openflow13::OFPTT_ALL /*all tables*/);
+	} break;
+	default: throw eBadVersion();
+	}
+
+	send_flow_mod_message(fe);
+}
+
+
+
+void
+crofdptImpl::group_mod_reset()
+{
+	cgroupentry ge(rofchan.get_version());
+	switch (rofchan.get_version()) {
+	case openflow12::OFP_VERSION: {
+		ge.set_command(openflow12::OFPGC_DELETE);
+		ge.set_group_id(openflow12::OFPG_ALL);
+	} break;
+	case openflow13::OFP_VERSION: {
+		ge.set_command(openflow13::OFPGC_DELETE);
+		ge.set_group_id(openflow13::OFPG_ALL);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+
+	send_group_mod_message(ge);
 }
 
 
@@ -1172,7 +1220,9 @@ crofdptImpl::features_reply_rcvd(
 		hwaddr[0] &= 0xfc;
 
 		if (STATE_ESTABLISHED == state) {
-			rofbase->handle_features_reply(this, reply);
+			rofbase->handle_features_reply(*this, *reply);
+		} else {
+			delete msg;
 		}
 
 		run_engine(EVENT_FEATURES_REPLY_RCVD);
@@ -1203,34 +1253,13 @@ crofdptImpl::get_config_reply_rcvd(
 	miss_send_len 	= reply->get_miss_send_len();
 
 	if (STATE_ESTABLISHED == state) {
-		rofbase->handle_get_config_reply(this, reply);
+		rofbase->handle_get_config_reply(*this, *reply);
+	} else {
+		delete msg;
 	}
 
 	run_engine(EVENT_GET_CONFIG_REPLY_RCVD);
 }
-
-
-
-void
-crofdptImpl::packet_in_rcvd(
-		cofmsg *msg,
-		uint8_t aux_id)
-{
-	cofmsg_packet_in *packet_in = dynamic_cast<cofmsg_packet_in*>( msg );
-	assert(packet_in != NULL);
-
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Packet-In message received" << std::endl << *msg;
-
-	if (STATE_ESTABLISHED != state) {
-		logging::warn << "[rofl][dpt] rcvd Packet-In without being "
-				"established, dropping message:" << std::endl << *packet_in;
-		delete msg; return;
-	}
-
-	rofbase->handle_packet_in(this, packet_in);
-}
-
 
 
 void
@@ -1300,7 +1329,7 @@ crofdptImpl::multipart_reply_rcvd(
 					"established, dropping message:" << std::endl << *reply;
 			delete msg; return;
 		}
-		rofbase->handle_stats_reply(this, dynamic_cast<cofmsg_stats*>( msg ));
+		rofbase->handle_stats_reply(*this, dynamic_cast<cofmsg_stats&>( *msg ));
 	};
 	}
 }
@@ -1308,254 +1337,342 @@ crofdptImpl::multipart_reply_rcvd(
 
 
 void
-crofdptImpl::desc_stats_reply_rcvd(cofmsg_desc_stats_reply *msg)
+crofdptImpl::desc_stats_reply_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
 {
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Desc-Stats-Reply message received" << std::endl << *msg;
+	cofmsg_desc_stats_reply& reply = dynamic_cast<cofmsg_desc_stats_reply&>( *msg );
 
-	rofbase->handle_desc_stats_reply(this, msg);
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Desc-Stats-Reply message received" << std::endl << reply;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_desc_stats_reply(*this, reply, aux_id);
+	} else {
+		delete msg; return;
+	}
 }
 
 
 
 void
 crofdptImpl::table_stats_reply_rcvd(
-		cofmsg_table_stats_reply *msg)
+		cofmsg *msg,
+		uint8_t aux_id)
 {
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Table-Stats-Reply message received" << std::endl << *msg;
+	cofmsg_table_stats_reply& reply = dynamic_cast<cofmsg_table_stats_reply&>( *msg );
 
-	// clear our old table map
-	tables.clear();
-	// iterate through all received table stats bodies and fill in our local tables map
-	for (std::vector<coftable_stats_reply>::iterator
-			it = msg->get_table_stats().begin(); it != msg->get_table_stats().end(); ++it) {
-		coftable_stats_reply& table = (*it);
-		tables[table.get_table_id()] = table;
-	}
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Table-Stats-Reply message received" << std::endl << reply;
 
-	rofbase->handle_table_stats_reply(this,  msg);
-
-	if (STATE_WAIT_TABLE_STATS == cur_state()) {
-		new_state(STATE_CONNECTED);
-		logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
-							<< "Table-Stats-Reply rcvd (wait-table-stats-reply -> connected)" << std::endl;
-		rofbase->handle_dpt_open(this);
-	}
-}
-
-
-
-void
-crofdptImpl::port_stats_reply_rcvd(cofmsg_port_stats_reply* msg)
-{
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Port-Stats-Reply message received" << std::endl << *msg;
-
-	rofbase->handle_port_stats_reply(this, msg);
-}
-
-
-
-void
-crofdptImpl::flow_stats_reply_rcvd(cofmsg_flow_stats_reply* msg)
-{
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Flow-Stats-Reply message received" << std::endl << *msg;
-
-	rofbase->handle_flow_stats_reply(this, msg);
-}
-
-
-
-void
-crofdptImpl::aggregate_stats_reply_rcvd(cofmsg_aggr_stats_reply* msg)
-{
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Aggregate-Stats-Reply message received" << std::endl << *msg;
-
-	rofbase->handle_aggregate_stats_reply(this, msg);
-}
-
-
-
-void
-crofdptImpl::queue_stats_reply_rcvd(cofmsg_queue_stats_reply* msg)
-{
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Queue-Stats-Reply message received" << std::endl << *msg;
-
-	rofbase->handle_queue_stats_reply(this, msg);
-}
-
-
-
-void
-crofdptImpl::group_stats_reply_rcvd(cofmsg_group_stats_reply* msg)
-{
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Group-Stats-Reply message received" << std::endl << *msg;
-
-	rofbase->handle_group_stats_reply(this, msg);
-}
-
-
-
-void
-crofdptImpl::group_desc_stats_reply_rcvd(cofmsg_group_desc_stats_reply* msg)
-{
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Group-Desc-Stats-Reply message received" << std::endl << *msg;
-
-	rofbase->handle_group_desc_stats_reply(this, msg);
-}
-
-
-
-void
-crofdptImpl::group_features_stats_reply_rcvd(cofmsg_group_features_stats_reply* msg)
-{
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Group-Features-Stats-Reply message received" << std::endl << *msg;
-
-	rofbase->handle_group_features_stats_reply(this, msg);
-}
-
-
-
-void
-crofdptImpl::experimenter_stats_reply_rcvd(cofmsg_experimenter_stats_reply* msg)
-{
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Experimenter-Stats-Reply message received" << std::endl << *msg;
-
-	rofbase->handle_experimenter_stats_reply(this, msg);
-}
-
-
-
-void
-crofdptImpl::barrier_reply_rcvd(cofmsg_barrier_reply *msg)
-{
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Barrier-Reply message received" << std::endl << *msg << std::endl;
-
-	cancel_timer(COFDPT_TIMER_BARRIER_REPLY);
-
-	uint8_t msg_type = 0;
-
-	switch (ofp_version) {
-	case openflow10::OFP_VERSION: msg_type = openflow10::OFPT_BARRIER_REQUEST; break;
-	case openflow12::OFP_VERSION: msg_type = openflow12::OFPT_BARRIER_REQUEST; break;
-	case openflow13::OFP_VERSION: msg_type = openflow13::OFPT_BARRIER_REQUEST; break;
-	default:
-		throw eBadVersion();
-	}
-
-	xidstore[msg_type].xid_rem(msg->get_xid());
-
-	rofbase->handle_barrier_reply(this, msg);
-}
-
-
-
-
-void
-crofdptImpl::flow_rmvd_rcvd(
-		cofmsg_flow_removed *msg)
-{
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Flow-Removed message received" << std::endl << *msg << std::endl;
-
-	rofbase->handle_flow_removed(this, msg);
-}
-
-
-
-void
-crofdptImpl::flow_mod_reset()
-{
-	cflowentry fe(ofp_version);
-	switch (ofp_version) {
-	case openflow10::OFP_VERSION: {
-		fe.set_command(openflow10::OFPFC_DELETE);
-	} break;
-	case openflow12::OFP_VERSION: {
-		fe.set_command(openflow12::OFPFC_DELETE);
-		fe.set_table_id(openflow12::OFPTT_ALL /*all tables*/);
-	} break;
-	case openflow13::OFP_VERSION: {
-		fe.set_command(openflow13::OFPFC_DELETE);
-		fe.set_table_id(openflow13::OFPTT_ALL /*all tables*/);
-	} break;
-	default: throw eBadVersion();
-	}
-
-	rofbase->send_flow_mod_message(this, fe); // calls this->flow_mod_sent() implicitly
-}
-
-
-
-void
-crofdptImpl::group_mod_reset()
-{
-	cgroupentry ge(get_version());
-	switch (ofp_version) {
-	case openflow12::OFP_VERSION: {
-		ge.set_command(openflow12::OFPGC_DELETE);
-		ge.set_group_id(openflow12::OFPG_ALL);
-	} break;
-	case openflow13::OFP_VERSION: {
-		ge.set_command(openflow13::OFPGC_DELETE);
-		ge.set_group_id(openflow13::OFPG_ALL);
-	} break;
-	default:
-		throw eBadVersion();
-	}
-
-	rofbase->send_group_mod_message(this, ge); // calls this->group_mod_sent() implicitly
-}
-
-
-
-void
-crofdptImpl::packet_in_rcvd(cofmsg_packet_in *msg)
-{
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Packet-In message received" << std::endl << *msg << std::endl;
-
-	try {
-		// datalen must be at least one Ethernet header in size
-		if (msg->get_packet().length() >= (2 * OFP_ETH_ALEN + sizeof(uint16_t))) {
-
-			// let derived class handle PACKET-IN event
-			rofbase->handle_packet_in(this, msg);
+	switch (msg->get_version()) {
+	case rofl::openflow12::OFP_VERSION: {
+		// clear our old table map
+		tables.clear();
+		// iterate through all received table stats bodies and fill in our local tables map
+		for (std::vector<coftable_stats_reply>::iterator
+				it = reply.get_table_stats().begin(); it != reply.get_table_stats().end(); ++it) {
+			coftable_stats_reply& table = (*it);
+			tables[table.get_table_id()] = table;
 		}
-	} catch (eOFmatchNotFound& e) {
 
-		logging::error << "eOFmatchNotFound " << *msg << std::endl;
+	} break;
+	}
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_table_stats_reply(*this, reply, aux_id);
+	} else {
+		run_engine(EVENT_TABLE_STATS_REPLY_RCVD);
+		delete msg; return;
 	}
 }
 
 
 
 void
-crofdptImpl::port_status_rcvd(cofmsg_port_status *msg)
+crofdptImpl::port_stats_reply_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
 {
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Port-Status message received" << std::endl << *msg << std::endl;
+	cofmsg_port_stats_reply& reply = dynamic_cast<cofmsg_port_stats_reply&>( *msg );
 
-	std::map<uint32_t, cofport*>::iterator it;
-	switch (msg->get_reason()) {
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Port-Stats-Reply message received" << std::endl << reply;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_port_stats_reply(*this, reply, aux_id);
+	} else {
+		delete msg; return;
+	}
+}
+
+
+
+void
+crofdptImpl::flow_stats_reply_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
+{
+	cofmsg_flow_stats_reply& reply = dynamic_cast<cofmsg_flow_stats_reply&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Flow-Stats-Reply message received" << std::endl << reply;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_flow_stats_reply(*this, reply, aux_id);
+	} else {
+		delete msg; return;
+	}
+}
+
+
+
+void
+crofdptImpl::aggregate_stats_reply_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
+{
+	cofmsg_aggr_stats_reply& reply = dynamic_cast<cofmsg_aggr_stats_reply&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Aggregate-Stats-Reply message received" << std::endl << reply;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_aggregate_stats_reply(*this, reply, aux_id);
+	} else {
+		delete msg; return;
+	}
+}
+
+
+
+void
+crofdptImpl::queue_stats_reply_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
+{
+	cofmsg_queue_stats_reply& reply = dynamic_cast<cofmsg_queue_stats_reply&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Queue-Stats-Reply message received" << std::endl << reply;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_queue_stats_reply(*this, reply, aux_id);
+	} else {
+		delete msg; return;
+	}
+}
+
+
+
+void
+crofdptImpl::group_stats_reply_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
+{
+	cofmsg_group_stats_reply& reply = dynamic_cast<cofmsg_group_stats_reply&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Group-Stats-Reply message received" << std::endl << reply;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_group_stats_reply(*this, reply, aux_id);
+	} else {
+		delete msg; return;
+	}
+}
+
+
+
+void
+crofdptImpl::group_desc_stats_reply_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
+{
+	cofmsg_group_desc_stats_reply& reply = dynamic_cast<cofmsg_group_desc_stats_reply&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Group-Desc-Stats-Reply message received" << std::endl << reply;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_group_desc_stats_reply(*this, reply, aux_id);
+	} else {
+		delete msg; return;
+	}
+}
+
+
+
+void
+crofdptImpl::group_features_stats_reply_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
+{
+	cofmsg_group_features_stats_reply& reply = dynamic_cast<cofmsg_group_features_stats_reply&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Group-Features-Stats-Reply message received" << std::endl << reply;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_group_features_stats_reply(*this, reply, aux_id);
+	} else {
+		delete msg; return;
+	}
+}
+
+
+
+void
+crofdptImpl::meter_stats_reply_rcvd(
+		cofmsg *msg, uint8_t aux_id)
+{
+	throw eNotImplemented(); // TODO
+}
+
+
+
+void
+crofdptImpl::meter_config_stats_reply_rcvd(
+		cofmsg *msg, uint8_t aux_id)
+{
+	throw eNotImplemented(); // TODO
+}
+
+
+
+void
+crofdptImpl::meter_features_stats_reply_rcvd(
+		cofmsg *msg, uint8_t aux_id)
+{
+	throw eNotImplemented(); // TODO
+}
+
+
+
+void
+crofdptImpl::table_features_stats_reply_rcvd(
+		cofmsg *msg, uint8_t aux_id)
+{
+	throw eNotImplemented(); // TODO
+}
+
+
+
+void
+crofdptImpl::port_desc_stats_reply_rcvd(
+		cofmsg *msg, uint8_t aux_id)
+{
+	throw eNotImplemented(); // TODO
+}
+
+
+
+void
+crofdptImpl::experimenter_stats_reply_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
+{
+	cofmsg_experimenter_stats_reply& reply = dynamic_cast<cofmsg_experimenter_stats_reply&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Experimenter-Stats-Reply message received" << std::endl << reply;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_experimenter_stats_reply(*this, reply, aux_id);
+	} else {
+		delete msg; return;
+	}
+}
+
+
+
+void
+crofdptImpl::barrier_reply_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
+{
+	cofmsg_barrier_reply& reply = dynamic_cast<cofmsg_barrier_reply&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Barrier-Reply message received" << std::endl << reply;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_barrier_reply(*this, reply, aux_id);
+	} else {
+		delete msg; return;
+	}
+}
+
+
+
+
+void
+crofdptImpl::flow_removed_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
+{
+	cofmsg_flow_removed& flow_removed = dynamic_cast<cofmsg_flow_removed&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Flow-Removed message received" << std::endl << flow_removed;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_flow_removed(*this, flow_removed, aux_id);
+	} else {
+		delete msg; return;
+	}
+}
+
+
+
+void
+crofdptImpl::packet_in_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
+{
+	cofmsg_packet_in& packet_in = dynamic_cast<cofmsg_packet_in&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Packet-In message received" << std::endl << packet_in;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_packet_in(*this, packet_in, aux_id);
+	} else {
+		delete msg; return;
+	}
+}
+
+
+
+void
+crofdptImpl::port_status_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
+{
+	cofmsg_port_status& port_status = dynamic_cast<cofmsg_port_status&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Port-Status message received" << std::endl << port_status;
+
+	switch (port_status.get_reason()) {
 	case openflow::OFPPR_ADD: {
-		if (ports.find(msg->get_port().get_port_no()) == ports.end()) {
-			new cofport(msg->get_port(), &ports, msg->get_port().get_port_no());
-			rofbase->handle_port_status(this, msg);
-		}
+		ports.add_port(port_status.get_port().get_port_no()) = port_status.get_port();
 	} break;
 	case openflow::OFPPR_DELETE: {
-		if (ports.find(msg->get_port().get_port_no()) != ports.end()) {
-			uint32_t port_no = msg->get_port().get_port_no();
-			rofbase->handle_port_status(this, msg);
-			delete ports[port_no];
-			ports.erase(port_no);
-		}
+		ports.drop_port(port_status.get_port().get_port_no());
 	} break;
 	case openflow::OFPPR_MODIFY: {
-		if (ports.find(msg->get_port().get_port_no()) != ports.end()) {
-			*(ports[msg->get_port().get_port_no()]) = msg->get_port();
-			rofbase->handle_port_status(this, msg);
-		}
+		ports.set_port(port_status.get_port().get_port_no()) = port_status.get_port();
 	} break;
 	default: {
-		delete msg;
+		delete msg; return;
 	} break;
+	}
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_port_status(*this, port_status, aux_id);
+	} else {
+		delete msg; return;
 	}
 }
 
@@ -1570,8 +1687,7 @@ crofdptImpl::fsp_open(cofmatch const& ofmatch)
 
 	rexp.pack(packed.somem(), packed.memlen());
 
-	rofbase->send_experimenter_message(
-			this,
+	send_experimenter_message(
 			OFPEXPID_ROFL,
 			croflexp::OFPRET_FLOWSPACE,
 			packed.somem(),
@@ -1590,8 +1706,7 @@ crofdptImpl::fsp_close(cofmatch const& ofmatch)
 
 	rexp.pack(packed.somem(), packed.memlen());
 
-	rofbase->send_experimenter_message(
-			this,
+	send_experimenter_message(
 			OFPEXPID_ROFL,
 			croflexp::OFPRET_FLOWSPACE,
 			packed.somem(),
@@ -1602,96 +1717,79 @@ crofdptImpl::fsp_close(cofmatch const& ofmatch)
 
 
 void
-crofdptImpl::experimenter_rcvd(cofmsg_experimenter *msg)
+crofdptImpl::experimenter_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
 {
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Experimenter message received" << std::endl << *msg << std::endl;
+	cofmsg_experimenter& exp = dynamic_cast<cofmsg_experimenter&>( *msg );
 
-	switch (msg->get_experimenter_id()) {
-	default:
-		break;
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Experimenter message received" << std::endl << exp;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_experimenter_message(*this, exp, aux_id);
+	} else {
+		delete msg; return;
 	}
-
-	// for now: send vendor extensions directly to class derived from crofbase
-	rofbase->handle_experimenter_message(this, msg);
 }
 
 
 
 void
-crofdptImpl::role_reply_rcvd(cofmsg_role_reply *msg)
+crofdptImpl::role_reply_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
 {
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Role-Reply message received" << std::endl << *msg << std::endl;
+	cofmsg_role_reply& reply = dynamic_cast<cofmsg_role_reply&>( *msg );
 
-	rofbase->handle_role_reply(this, msg);
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Role-Reply message received" << std::endl << reply;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_role_reply(*this, reply, aux_id);
+	} else {
+		delete msg; return;
+	}
 }
 
 
 
 void
 crofdptImpl::queue_get_config_reply_rcvd(
-		cofmsg_queue_get_config_reply *msg)
+		cofmsg *msg,
+		uint8_t aux_id)
 {
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << " Queue-Get-Config-Reply message received" << std::endl << *msg << std::endl;
+	cofmsg_queue_get_config_reply& reply = dynamic_cast<cofmsg_queue_get_config_reply&>( *msg );
 
-	rofbase->handle_queue_get_config_reply(this, msg);
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Queue-Get-Config-Reply message received" << std::endl << reply;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_queue_get_config_reply(*this, reply, aux_id);
+	} else {
+		delete msg; return;
+	}
 }
 
 
 
 void
 crofdptImpl::get_async_config_reply_rcvd(
-		cofmsg_get_async_config_reply *msg)
+		cofmsg *msg,
+		uint8_t aux_id)
 {
-	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "Get-Async-Config-Reply message received" << std::endl << *msg << std::endl;
+	cofmsg_get_async_config_reply& reply = dynamic_cast<cofmsg_get_async_config_reply&>( *msg );
 
-	cancel_timer(COFDPT_TIMER_GET_ASYNC_CONFIG_REPLY);
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< "Get-Async-Config-Reply message received" << std::endl << reply;
 
-	// TODO: store mask values into local variables?
-
-	rofbase->handle_get_async_config_reply(this, msg);
-}
-
-
-
-
-cofport*
-crofdptImpl::find_cofport(
-	uint32_t port_no) throw (eOFdpathNotFound)
-{
-	std::map<uint32_t, cofport*>::iterator it;
-	if (ports.find(port_no) == ports.end())
-	{
-		throw eOFdpathNotFound();
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_get_async_config_reply(*this, reply, aux_id);
+	} else {
+		delete msg; return;
 	}
-	return ports[port_no];
 }
 
 
-cofport*
-crofdptImpl::find_cofport(
-	std::string port_name) throw (eOFdpathNotFound)
-{
-	std::map<uint32_t, cofport*>::iterator it;
-	if ((it = find_if(ports.begin(), ports.end(),
-			cofport_find_by_port_name(port_name))) == ports.end())
-	{
-		throw eOFdpathNotFound();
-	}
-	return it->second;
-}
-
-
-cofport*
-crofdptImpl::find_cofport(
-	cmacaddr const& maddr) throw (eOFdpathNotFound)
-{
-	std::map<uint32_t, cofport*>::iterator it;
-	if ((it = find_if(ports.begin(), ports.end(),
-			cofport_find_by_maddr(maddr))) == ports.end())
-	{
-		throw eOFdpathNotFound();
-	}
-	return it->second;
-}
 
 

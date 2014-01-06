@@ -94,7 +94,7 @@ ipswitching::install_flow_mods(crofdpt *dpt, unsigned int n)
 
 		std::cerr << "ipswitching: installing fake FLowMod entry #" << i << ": " << fe << std::endl;
 
-		send_flow_mod_message(dpt, fe);
+		dpt->send_flow_mod_message(fe);
 	}
 }
 
@@ -116,7 +116,7 @@ ipswitching::flow_mod_delete_all()
 
 		std::cerr << "FLOW-MOD: delete all: " << fe << std::endl;
 
-		send_flow_mod_message(dpt, fe);
+		dpt->send_flow_mod_message(fe);
 	}
 
 	register_timer(IPSWITCHING_TIMER_FLOW_MOD_DELETE_ALL, fm_delete_all_timeout);
@@ -126,78 +126,77 @@ ipswitching::flow_mod_delete_all()
 
 void
 ipswitching::handle_dpath_open(
-		crofdpt *dpt)
+		crofdpt& dpt)
 {
-	fib[dpt] = std::map<caddress, struct fibentry_t>();
+	fib[&dpt] = std::map<caddress, struct fibentry_t>();
 	// do nothing here
 
-	install_flow_mods(dpt, n_entries);
+	install_flow_mods(&dpt, n_entries);
 }
 
 
 
 void
 ipswitching::handle_dpath_close(
-		crofdpt *dpt)
+		crofdpt& dpt)
 {
-	fib.erase(dpt);
+	fib.erase(&dpt);
 }
 
 
 
 void
 ipswitching::handle_packet_in(
-		crofdpt *dpt,
-		cofmsg_packet_in *msg)
+		crofdpt& dpt,
+		cofmsg_packet_in& msg,
+		uint8_t aux_id)
 {
 	/*
 	 * block mac address 01:80:c2:00:00:00
 	 */
-	if (msg->get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
-		msg->get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
-		cflowentry fe(dpt->get_version());
+	if (msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
+		msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
+		cflowentry fe(dpt.get_version());
 
-		fe.set_command(crofbase::get_ofp_command(dpt->get_version(), openflow::OFPFC_ADD));
-		fe.set_buffer_id(msg->get_buffer_id());
+		fe.set_command(crofbase::get_ofp_command(dpt.get_version(), openflow::OFPFC_ADD));
+		fe.set_buffer_id(msg.get_buffer_id());
 		fe.set_idle_timeout(15);
-		fe.set_table_id(msg->get_table_id());
+		fe.set_table_id(msg.get_table_id());
 
-		fe.match.set_in_port(msg->get_match().get_in_port());
-		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
+		fe.match.set_in_port(msg.get_match().get_in_port());
+		fe.match.set_eth_dst(msg.get_packet().ether()->get_dl_dst());
 		fe.instructions.add_inst_apply_actions();
 
 		std::cerr << "ipswitching: installing FLOW-MOD with entry: " << fe << std::endl;
 
-		send_flow_mod_message(dpt, fe);
+		dpt.send_flow_mod_message(fe);
 
-		delete msg; return;
+		return;
 	}
 
 
 
-	switch (msg->get_packet().ether()->get_dl_type()) {
+	switch (msg.get_packet().ether()->get_dl_type()) {
 	case farpv4frame::ARPV4_ETHER: {
-		return handle_packet_in_arpv4(dpt, msg);
+		return handle_packet_in_arpv4(&dpt, &msg);
 	} break;
 	case fipv4frame::IPV4_ETHER: {
-		return handle_packet_in_ipv4(dpt, msg);
+		return handle_packet_in_ipv4(&dpt, &msg);
 	} break;
 	case fvlanframe::VLAN_CTAG_ETHER: {
-		switch (msg->get_packet().vlan()->get_dl_type()) {
+		switch (msg.get_packet().vlan()->get_dl_type()) {
 		case farpv4frame::ARPV4_ETHER: {
-			return handle_packet_in_arpv4(dpt, msg);
+			return handle_packet_in_arpv4(&dpt, &msg);
 		} break;
 		case fipv4frame::IPV4_ETHER: {
-			return handle_packet_in_ipv4(dpt, msg);
+			return handle_packet_in_ipv4(&dpt, &msg);
 		} break;
 		default: {
-			delete msg;
 		}
 		}
 
 	} break;
 	default: {
-		delete msg;
 	}
 	}
 }
@@ -283,15 +282,13 @@ ipswitching::handle_packet_in_arpv4(
 		actions.append_action_output(fib[dpt][ip_dst].port_no);
 		if (crofbase::get_ofp_no_buffer(dpt->get_version()) == msg->get_buffer_id()) {
 			fprintf(stderr, "NOEEEETTTTT!!!!!\n");
-			send_packet_out_message(
-					dpt,
+			dpt->send_packet_out_message(
 					msg->get_buffer_id(),
 					msg->get_match().get_in_port(),
 					actions,
 					msg->get_packet().soframe(), msg->get_packet().framelen());
 		} else {
-			send_packet_out_message(
-					dpt,
+			dpt->send_packet_out_message(
 					msg->get_buffer_id(),
 					msg->get_match().get_in_port(),
 					actions);
@@ -368,7 +365,7 @@ ipswitching::handle_packet_in_ipv4(
 
 		std::cerr << "ipswitching::handle_packet_in_ipv4() setting FlowMod entry: " << fe << std::endl;
 
-		send_flow_mod_message(dpt, fe);
+		dpt->send_flow_mod_message(fe);
 	}
 
 	delete msg;
@@ -455,15 +452,13 @@ ipswitching::flood_vlans(crofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 
 		if (crofbase::get_ofp_no_buffer(dpt->get_version()) == msg->get_buffer_id()) {
 			fprintf(stderr, "NOEEEETTTTT!!!!! (2.1)\n");
-			send_packet_out_message(
-					dpt,
+			dpt->send_packet_out_message(
 					msg->get_buffer_id(),
 					msg->get_match().get_in_port(),
 					actions,
 					msg->get_packet().soframe(), msg->get_packet().framelen());
 		} else {
-			send_packet_out_message(
-					dpt,
+			dpt->send_packet_out_message(
 					msg->get_buffer_id(),
 					msg->get_match().get_in_port(),
 					actions);
@@ -482,15 +477,13 @@ ipswitching::flood_vlans(crofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 	actions.append_action_output(crofbase::get_ofp_flood_port(dpt->get_version()));
 	if (crofbase::get_ofp_no_buffer(dpt->get_version()) == msg->get_buffer_id()) {
 		fprintf(stderr, "NOEEEETTTTT!!!!! (2.2)\n");
-		send_packet_out_message(
-				dpt,
+		dpt->send_packet_out_message(
 				msg->get_buffer_id(),
 				msg->get_match().get_in_port(),
 				actions,
 				msg->get_packet().soframe(), msg->get_packet().framelen());
 	} else {
-		send_packet_out_message(
-				dpt,
+		dpt->send_packet_out_message(
 				msg->get_buffer_id(),
 				msg->get_match().get_in_port(),
 				actions);

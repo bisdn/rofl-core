@@ -590,7 +590,7 @@ protected:
 	 * @param dpt pointer to new cofdpt instance
 	 */
 	virtual void
-	handle_dpath_open(crofdpt *dpt) {};
+	handle_dpath_open(crofdpt& dpt) {};
 
 
 	/**
@@ -610,7 +610,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_dpath_close(crofdpt *dpt) {};
+	handle_dpath_close(crofdpt& dpt) {};
 
 
 
@@ -681,7 +681,7 @@ protected:
 	 * @param msg Pointer to cofmsg_features_request message containing the received message
 	 */
 	virtual void
-	handle_features_request(crofctl *ctl, cofmsg_features_request *msg) { delete msg; };
+	handle_features_request(crofctl *ctl, cofmsg_features_request *msg, uint8_t aux_id = 0) { delete msg; };
 
 
 
@@ -694,7 +694,7 @@ protected:
 	 * @param msg Pointer to cofmsg_features_reply message containing the received message
 	 */
 	virtual void
-	handle_features_reply(crofdpt *dpt, cofmsg_features_reply *msg) { delete msg; };
+	handle_features_reply(crofdpt& dpt, cofmsg_features_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -706,7 +706,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_features_reply_timeout(crofdpt *dpt, uint32_t xid);
+	handle_features_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -719,7 +719,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_config_request(crofctl *ctl, cofmsg_get_config_request *msg) { delete msg; };
+	handle_get_config_request(crofctl *ctl, cofmsg_get_config_request *msg, uint8_t aux_id = 0) { delete msg; };
 
 
 
@@ -732,7 +732,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_config_reply message containing the received message
 	 */
 	virtual void
-	handle_get_config_reply(crofdpt *dpt, cofmsg_get_config_reply *msg) { delete msg; };
+	handle_get_config_reply(crofdpt& dpt, cofmsg_get_config_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -744,7 +744,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_get_config_reply_timeout(crofdpt *dpt, uint32_t xid);
+	handle_get_config_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -924,7 +924,7 @@ protected:
 	 * @param msg pointer to cofmsg_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_stats_reply(crofdpt *dpt, cofmsg_stats_reply *msg) { delete msg; };
+	handle_stats_reply(crofdpt& dpt, cofmsg_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -937,7 +937,7 @@ protected:
 	 * @param xid transaction ID of STATS.request previously sent to data path element.
 	 */
 	virtual void
-	handle_multipart_reply_timeout(crofdpt *dpt, uint32_t xid, uint8_t msg_sub_type) {};
+	handle_multipart_reply_timeout(crofdpt& dpt, uint32_t xid, uint8_t msg_sub_type) {};
 
 
 
@@ -950,7 +950,7 @@ protected:
 	 * @param msg pointer to cofmsg_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_desc_stats_reply(crofdpt *dpt, cofmsg_desc_stats_reply *msg) { delete msg; };
+	handle_desc_stats_reply(crofdpt& dpt, cofmsg_desc_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -963,7 +963,7 @@ protected:
 	 * @param msg pointer to cofmsg_table_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_table_stats_reply(crofdpt *dpt, cofmsg_table_stats_reply *msg) { delete msg; };
+	handle_table_stats_reply(crofdpt& dpt, cofmsg_table_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -976,7 +976,7 @@ protected:
 	 * @param msg pointer to cofmsg_port_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_port_stats_reply(crofdpt *dpt, cofmsg_port_stats_reply *msg) { delete msg; };
+	handle_port_stats_reply(crofdpt& dpt, cofmsg_port_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -989,7 +989,7 @@ protected:
 	 * @param msg pointer to cofmsg_flow_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_flow_stats_reply(crofdpt *dpt, cofmsg_flow_stats_reply *msg) { delete msg; };
+	handle_flow_stats_reply(crofdpt& dpt, cofmsg_flow_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1003,7 +1003,7 @@ protected:
 
 	 */
 	virtual void
-	handle_aggregate_stats_reply(crofdpt *dpt, cofmsg_aggr_stats_reply *msg) { delete msg; };
+	handle_aggregate_stats_reply(crofdpt& dpt, cofmsg_aggr_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1016,7 +1016,7 @@ protected:
 	 * @param msg pointer to cofmsg_queue_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_queue_stats_reply(crofdpt *dpt, cofmsg_queue_stats_reply *msg) { delete msg; };
+	handle_queue_stats_reply(crofdpt& dpt, cofmsg_queue_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1029,7 +1029,7 @@ protected:
 	 * @param msg pointer to cofmsg_group_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_stats_reply(crofdpt *dpt, cofmsg_group_stats_reply *msg) { delete msg; };
+	handle_group_stats_reply(crofdpt& dpt, cofmsg_group_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1042,7 +1042,7 @@ protected:
 	 * @param msg pointer to cofmsg_group_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_desc_stats_reply(crofdpt *dpt, cofmsg_group_desc_stats_reply *msg) { delete msg; };
+	handle_group_desc_stats_reply(crofdpt& dpt, cofmsg_group_desc_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1055,7 +1055,7 @@ protected:
 	 * @param msg pointer to cofmsg_group_features_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_features_stats_reply(crofdpt *dpt, cofmsg_group_features_stats_reply *msg) { delete msg; };
+	handle_group_features_stats_reply(crofdpt& dpt, cofmsg_group_features_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1068,7 +1068,7 @@ protected:
 	 * @param msg pointer to cofmsg_experimenter_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_experimenter_stats_reply(crofdpt *dpt, cofmsg_experimenter_stats_reply *msg) { delete msg; };
+	handle_experimenter_stats_reply(crofdpt& dpt, cofmsg_experimenter_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1081,7 +1081,7 @@ protected:
 	 * @param msg Pointer to cofmsg_packet_out message containing the received message
 	 */
 	virtual void
-	handle_packet_out(crofctl *ctl, cofmsg_packet_out *msg) { delete msg; };
+	handle_packet_out(crofctl *ctl, cofmsg_packet_out *msg, uint8_t aux_id = 0) { delete msg; };
 
 
 
@@ -1094,7 +1094,7 @@ protected:
 	 * @param msg pointer to cofmsg_packet_in message containing the received message
 	 */
 	virtual void
-	handle_packet_in(crofdpt *dpt, cofmsg_packet_in *msg) { delete msg; };
+	handle_packet_in(crofdpt& dpt, cofmsg_packet_in& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1107,7 +1107,7 @@ protected:
 	 * @param msg Pointer to cofmsg_barrier_request message containing the received message
 	 */
 	virtual void
-	handle_barrier_request(crofctl *ctl, cofmsg_barrier_request *msg) { delete msg; };
+	handle_barrier_request(crofctl *ctl, cofmsg_barrier_request *msg, uint8_t aux_id = 0) { delete msg; };
 
 
 
@@ -1120,7 +1120,7 @@ protected:
 	 * @param msg pointer to cofmsg_barrier_reply message containing the received message
 	 */
 	virtual void
-	handle_barrier_reply(crofdpt *dpt, cofmsg_barrier_reply *msg) { delete msg; };
+	handle_barrier_reply(crofdpt& dpt, cofmsg_barrier_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1133,7 +1133,7 @@ protected:
 	 * @param xid transaction ID of BARRIER.request previously sent to data path element.
 	 */
 	virtual void
-	handle_barrier_reply_timeout(crofdpt *dpt, uint32_t xid) {};
+	handle_barrier_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -1146,7 +1146,7 @@ protected:
 	 * @param msg pointer to cofmsg_error message containing the received message
 	 */
 	virtual void
-	handle_error(crofdpt *dpt, cofmsg_error *msg) { delete msg; };
+	handle_error(crofdpt& dpt, cofmsg_error& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1159,7 +1159,7 @@ protected:
 	 * @param msg Pointer to cofmsg_flow_mod message containing the received message
 	 */
 	virtual void
-	handle_flow_mod(crofctl *ctl, cofmsg_flow_mod *msg) { delete msg; };
+	handle_flow_mod(crofctl *ctl, cofmsg_flow_mod *msg, uint8_t aux_id = 0) { delete msg; };
 
 
 
@@ -1172,7 +1172,7 @@ protected:
 	 * @param msg Pointer to cofmsg_group_mod message containing the received message
 	 */
 	virtual void
-	handle_group_mod(crofctl *ctl, cofmsg_group_mod *msg) { delete msg; };
+	handle_group_mod(crofctl *ctl, cofmsg_group_mod *msg, uint8_t aux_id = 0) { delete msg; };
 
 
 
@@ -1185,7 +1185,7 @@ protected:
 	 * @param msg Pointer to cofmsg_table_mod message containing the received message
 	 */
 	virtual void
-	handle_table_mod(crofctl *ctl, cofmsg_table_mod *msg) { delete msg; };
+	handle_table_mod(crofctl *ctl, cofmsg_table_mod *msg, uint8_t aux_id = 0) { delete msg; };
 
 
 
@@ -1198,7 +1198,7 @@ protected:
 	 * @param msg Pointer to cofmsg_port_mod message containing the received message
 	 */
 	virtual void
-	handle_port_mod(crofctl *ctl, cofmsg_port_mod *msg) { delete msg; };
+	handle_port_mod(crofctl *ctl, cofmsg_port_mod *msg, uint8_t aux_id = 0) { delete msg; };
 
 
 
@@ -1211,7 +1211,7 @@ protected:
 	 * @param msg pointer to cofmsg_flow_removed message containing the received message
 	 */
 	virtual void
-	handle_flow_removed(crofdpt *dpt, cofmsg_flow_removed *msg) { delete msg; };
+	handle_flow_removed(crofdpt& dpt, cofmsg_flow_removed& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1224,7 +1224,7 @@ protected:
 	 * @param msg pointer to cofmsg_port_status message containing the received message
 	 */
 	virtual void
-	handle_port_status(crofdpt *dpt, cofmsg_port_status *msg) { delete msg; };
+	handle_port_status(crofdpt& dpt, cofmsg_port_status& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1238,7 +1238,7 @@ protected:
 	 * @param msg Pointer to cofmsg_queue_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_queue_get_config_request(crofctl *ctl, cofmsg_queue_get_config_request *msg) { delete msg; };
+	handle_queue_get_config_request(crofctl *ctl, cofmsg_queue_get_config_request *msg, uint8_t aux_id = 0) { delete msg; };
 
 
 
@@ -1251,7 +1251,7 @@ protected:
 	 * @param msg pointer to cofmsg_queue_get_config_reply message containing the received message
 	 */
 	virtual void
-	handle_queue_get_config_reply(crofdpt *dpt, cofmsg_queue_get_config_reply *msg) { delete msg; };
+	handle_queue_get_config_reply(crofdpt& dpt, cofmsg_queue_get_config_reply& msg, uint8_t aux_id = 0) {};
 
 
 	/**
@@ -1262,7 +1262,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_queue_get_config_reply_timeout(crofdpt *dpt, uint32_t xid) {};
+	handle_queue_get_config_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -1275,7 +1275,7 @@ protected:
 	 * @param msg Pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_set_config(crofctl *ctl, cofmsg_set_config *msg) { delete msg; };
+	handle_set_config(crofctl *ctl, cofmsg_set_config *msg, uint8_t aux_id = 0) { delete msg; };
 
 
 
@@ -1289,7 +1289,7 @@ protected:
 	 * @param msg pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(crofdpt *dpt, cofmsg_experimenter *msg) { delete msg; };
+	handle_experimenter_message(crofdpt& dpt, cofmsg_experimenter& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1302,7 +1302,7 @@ protected:
 	 * @param msg pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(crofctl *ctl, cofmsg_experimenter *msg);
+	handle_experimenter_message(crofctl *ctl, cofmsg_experimenter *msg, uint8_t aux_id = 0);
 
 
 
@@ -1314,7 +1314,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_experimenter_timeout(crofdpt *dpt, uint32_t xid) {};
+	handle_experimenter_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 	/**
@@ -1326,7 +1326,7 @@ protected:
 	 * @param xid transaction ID of EXPERIMENTER.message previously sent to data path element.
 	 */
 	virtual void
-	handle_get_fsp_reply_timeout(crofdpt *dpt, uint32_t xid) {};
+	handle_get_fsp_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -1339,7 +1339,7 @@ protected:
 	 * @param msg Pointer to cofmsg_role_request message containing the received message
 	 */
 	virtual void
-	handle_role_request(crofctl *ctl, cofmsg_role_request *msg) { delete msg; };
+	handle_role_request(crofctl *ctl, cofmsg_role_request *msg, uint8_t aux_id = 0) { delete msg; };
 
 
 
@@ -1352,7 +1352,7 @@ protected:
 	 * @param msg pointer to cofmsg_role_reply message containing the received message
 	 */
 	virtual void
-	handle_role_reply(crofdpt *dpt, cofmsg_role_reply *msg) { delete msg; };
+	handle_role_reply(crofdpt& dpt, cofmsg_role_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1365,7 +1365,7 @@ protected:
 	 * @param xid transaction ID of ROLE.reply message previously sent to data path element.
 	 */
 	virtual void
-	handle_role_reply_timeout(crofdpt *dpt, uint32_t xid) {};
+	handle_role_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 	/**
@@ -1377,7 +1377,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_async_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_async_config_request(crofctl *ctl, cofmsg_get_async_config_request *msg) { delete msg; };
+	handle_get_async_config_request(crofctl *ctl, cofmsg_get_async_config_request *msg, uint8_t aux_id = 0) { delete msg; };
 
 
 
@@ -1390,7 +1390,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_async_config_reply message containing the received message
 	 */
 	virtual void
-	handle_get_async_config_reply(crofdpt *dpt, cofmsg_get_async_config_reply *msg) { delete msg; };
+	handle_get_async_config_reply(crofdpt& dpt, cofmsg_get_async_config_reply& msg, uint8_t aux_id = 0) {};
 
 
 	/**
@@ -1401,7 +1401,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_get_async_config_reply_timeout(crofdpt *dpt, uint32_t xid);
+	handle_get_async_config_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 	/**
@@ -1413,7 +1413,7 @@ protected:
 	 * @param msg Pointer to cofmsg_set_async_config message containing the received message
 	 */
 	virtual void
-	handle_set_async_config(crofctl *ctl, cofmsg_set_async_config *msg) { delete msg; };
+	handle_set_async_config(crofctl *ctl, cofmsg_set_async_config *msg, uint8_t aux_id = 0) { delete msg; };
 
 
 	/**@}*/

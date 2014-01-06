@@ -96,7 +96,7 @@ cfib::fib_timer_expired(cfibentry *entry)
 void
 cfib::fib_update(
 		rofl::crofbase *rofbase,
-		rofl::crofdpt *dpt,
+		rofl::crofdpt& dpt,
 		rofl::cmacaddr const& src,
 		uint32_t in_port)
 {
@@ -104,7 +104,7 @@ cfib::fib_update(
 
 	// update cfibentry for src/inport
 	if (fibtable.find(src) == fibtable.end()) {
-		fibtable[src] = new cfibentry(this, rofbase, dpt, src, in_port);
+		fibtable[src] = new cfibentry(this, rofbase, &dpt, src, in_port);
 		fibtable[src]->flow_mod_add();
 
 		std::cerr << "UPDATE[2.1]: " << *this << std::endl;
@@ -122,7 +122,7 @@ cfib::fib_update(
 cfibentry&
 cfib::fib_lookup(
 		rofl::crofbase *rofbase,
-		rofl::crofdpt *dpt,
+		rofl::crofdpt& dpt,
 		rofl::cmacaddr const& dst,
 		rofl::cmacaddr const& src,
 		uint32_t in_port)
@@ -143,13 +143,13 @@ cfib::fib_lookup(
 	// find out-port for dst
 	if (fibtable.find(dst) == fibtable.end()) {
 
-		switch (dpt->get_version()) {
+		switch (dpt.get_version()) {
 		case rofl::openflow10::OFP_VERSION:
-			fibtable[dst] = new cfibentry(this, rofbase, dpt, dst, rofl::openflow10::OFPP_FLOOD); break;
+			fibtable[dst] = new cfibentry(this, rofbase, &dpt, dst, rofl::openflow10::OFPP_FLOOD); break;
 		case rofl::openflow12::OFP_VERSION:
-			fibtable[dst] = new cfibentry(this, rofbase, dpt, dst, rofl::openflow12::OFPP_FLOOD); break;
+			fibtable[dst] = new cfibentry(this, rofbase, &dpt, dst, rofl::openflow12::OFPP_FLOOD); break;
 		case rofl::openflow13::OFP_VERSION:
-			fibtable[dst] = new cfibentry(this, rofbase, dpt, dst, rofl::openflow13::OFPP_FLOOD); break;
+			fibtable[dst] = new cfibentry(this, rofbase, &dpt, dst, rofl::openflow13::OFPP_FLOOD); break;
 		default:
 			throw rofl::eBadVersion();
 		}

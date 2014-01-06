@@ -344,40 +344,6 @@ private:
 	handle_timeout(
 			int opaque);
 
-private:
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_accepted(
-			csocket *socket,
-			int newsd,
-			caddress const& ra);
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_connected(
-			csocket *socket,
-			int sd);
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_connect_refused(
-			csocket *socket,
-			int sd);
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_closed(
-			csocket *socket,
-			int sd);
 
 public:
 
@@ -713,21 +679,6 @@ public:
 			uint32_t portno,
 			cofpacket_queue_list const& pql);
 
-	/**
-	 * @brief 	Sends an EXPERIMENTER.message to a controller entity.
-	 *
-	 * @param experimenter_id exp_id as assigned by ONF
-	 * @param exp_type exp_type as defined by the ONF member
-	 * @param body pointer to opaque experimenter message body (optional)
-	 * @param bodylen length of body (optional)
-	 * @result transaction ID assigned to this request
-	 */
-	virtual uint32_t
-	send_experimenter_message(
-			uint32_t experimenter_id,
-			uint32_t exp_type,
-			uint8_t *body = NULL,
-			size_t bodylen = 0);
 
 	/**
 	 * @brief	Sends a ROLE.reply to a controller entity.

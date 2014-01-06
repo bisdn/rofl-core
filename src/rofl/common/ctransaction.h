@@ -27,14 +27,14 @@ class ctransaction {
 	cclock		since;			// time this transaction was created
 	cclock		expires;		// time this transaction expires
 	uint8_t		msg_type;		// message type
-	uint8_t		msg_sub_type;	// message sub-type
+	uint16_t	msg_sub_type;	// message sub-type
 
 public:
 
 	/**
 	 *
 	 */
-	ctransaction(uint32_t xid, cclock const& delta, uint8_t msg_type = 0, uint8_t msg_sub_type = 0);
+	ctransaction(uint32_t xid, cclock const& delta, uint8_t msg_type = 0, uint16_t msg_sub_type = 0);
 
 	/**
 	 *
@@ -82,7 +82,7 @@ public:
 	/**
 	 *
 	 */
-	uint8_t
+	uint16_t
 	get_msg_sub_type() const { return msg_sub_type; };
 
 public:

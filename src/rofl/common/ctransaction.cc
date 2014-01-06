@@ -13,7 +13,7 @@ ctransaction::ctransaction(
 		uint32_t xid,
 		cclock const& delta,
 		uint8_t msg_type,
-		uint8_t msg_sub_type) :
+		uint16_t msg_sub_type) :
 				xid(xid),
 				since(cclock::now()),
 				expires(cclock::now() + delta),

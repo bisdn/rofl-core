@@ -99,7 +99,7 @@ cfibentry::flow_mod_add()
 
 		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(out_port_no);
 
-		rofbase->send_flow_mod_message(dpt, fe);
+		dpt->send_flow_mod_message(fe);
 
 	} else {
 
@@ -112,7 +112,7 @@ cfibentry::flow_mod_add()
 
 		fe.instructions.set_inst_apply_actions().get_actions().append_action_output(out_port);
 
-		rofbase->send_flow_mod_message(dpt, fe);
+		dpt->send_flow_mod_message(fe);
 
 	}
 }
@@ -140,7 +140,7 @@ cfibentry::flow_mod_modify()
 
 	fe.instructions.set_inst_apply_actions().get_actions().append_action_output(out_port_no);
 
-	rofbase->send_flow_mod_message(dpt, fe);
+	dpt->send_flow_mod_message(fe);
 }
 
 
@@ -174,7 +174,7 @@ cfibentry::flow_mod_delete()
 		fe.set_table_id(0);
 		fe.match.set_eth_dst(dst);
 
-		rofbase->send_flow_mod_message(dpt, fe);
+		dpt->send_flow_mod_message(fe);
 
 	} else {
 
@@ -184,7 +184,7 @@ cfibentry::flow_mod_delete()
 		fe.set_table_id(0);
 		fe.match.set_eth_src(dst);
 
-		rofbase->send_flow_mod_message(dpt, fe);
+		dpt->send_flow_mod_message(fe);
 
 	}
 }

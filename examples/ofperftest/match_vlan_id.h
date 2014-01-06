@@ -45,13 +45,13 @@ public:
 	handle_timeout(int opaque);
 
 	virtual void
-	handle_dpath_open(crofdpt *dpt);
+	handle_dpath_open(crofdpt& dpt);
 
 	virtual void
-	handle_dpath_close(crofdpt *dpt);
+	handle_dpath_close(crofdpt& dpt);
 
 	virtual void
-	handle_packet_in(crofdpt *dpt, cofmsg_packet_in *msg);
+	handle_packet_in(crofdpt& dpt, cofmsg_packet_in& msg, uint8_t aux_id);
 
 private:
 

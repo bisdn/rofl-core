@@ -36,7 +36,7 @@ crofchan::is_established() const
 	if (conns.empty())
 		return false;
 	// this channel is up, when its main connection is up
-	return conns[0]->is_established();
+	return conns.at(0)->is_established();
 }
 
 

@@ -83,7 +83,7 @@ public:
 	void
 	fib_update(
 			rofl::crofbase *rofbase,
-			rofl::crofdpt *dpt,
+			rofl::crofdpt& dpt,
 			rofl::cmacaddr const& src,
 			uint32_t in_port);
 
@@ -93,7 +93,7 @@ public:
 	cfibentry&
 	fib_lookup(
 			rofl::crofbase *rofbase,
-			rofl::crofdpt *dpt,
+			rofl::crofdpt& dpt,
 			rofl::cmacaddr const& dst,
 			rofl::cmacaddr const& src,
 			uint32_t in_port);

@@ -30,6 +30,7 @@ extern "C" {
 #include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 #include "rofl/common/crofchan.h"
 #include "rofl/common/ctransactions.h"
+#include "rofl/common/openflow/cofpacketqueue.h"
 
 namespace rofl
 {
@@ -55,27 +56,6 @@ class crofdptImpl :
 {
 
 private: // data structures
-
-		/* crofdpt timer types */
-		enum crofdpt_timer_t {
-			COFDPT_TIMER_BASE = 0xc721,
-			COFDPT_TIMER_RECONNECT		= ((COFDPT_TIMER_BASE) << 16 | (0x01 << 8)),
-			COFDPT_TIMER_FEATURES_REQUEST 	= ((COFDPT_TIMER_BASE) << 16 | (0x02 << 8)),
-			COFDPT_TIMER_FEATURES_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x03 << 8)),
-			COFDPT_TIMER_GET_CONFIG_REQUEST = ((COFDPT_TIMER_BASE) << 16 | (0x04 << 8)),
-			COFDPT_TIMER_GET_CONFIG_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x05 << 8)),
-			COFDPT_TIMER_STATS_REQUEST 	= ((COFDPT_TIMER_BASE) << 16 | (0x06 << 8)),
-			COFDPT_TIMER_STATS_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x07 << 8)),
-			COFDPT_TIMER_BARRIER_REQUEST 	= ((COFDPT_TIMER_BASE) << 16 | (0x08 << 8)),
-			COFDPT_TIMER_BARRIER_REPLY 	= ((COFDPT_TIMER_BASE) << 16 | (0x09 << 8)),
-			COFDPT_TIMER_LLDP_SEND_DISC 	= ((COFDPT_TIMER_BASE) << 16 | (0x0a << 8)),
-			COFDPT_TIMER_ECHO_REQUEST	= ((COFDPT_TIMER_BASE) << 16 | (0x0b << 8)),
-			COFDPT_TIMER_ECHO_REPLY	        = ((COFDPT_TIMER_BASE) << 16 | (0x0c << 8)),
-			COFDPT_TIMER_SEND_ECHO_REQUEST	= ((COFDPT_TIMER_BASE) << 16 | (0x0d << 8)),
-			COFDPT_TIMER_SEND_HELLO         = ((COFDPT_TIMER_BASE) << 16 | (0x0e << 8)),
-			COFDPT_TIMER_GET_ASYNC_CONFIG_REQUEST = ((COFDPT_TIMER_BASE) << 16 | (0x0f << 8)),
-			COFDPT_TIMER_GET_ASYNC_CONFIG_REPLY = ((COFDPT_TIMER_BASE) << 16 | (0x10 << 8)),
-		};
 
 		enum crofdptImpl_timer_t {
 		};
@@ -103,37 +83,31 @@ private: // data structures
 			EVENT_TABLE_FEATURES_STATS_REQUEST_EXPIRED	= 10,
 		};
 
-#define DEFAULT_DP_FEATURES_REPLY_TIMEOUT 			10
-#define DEFAULT_DP_GET_CONFIG_REPLY_TIMEOUT 		10
-#define DEFAULT_DP_STATS_REPLY_TIMEOUT 				10
-#define DEFAULT_DP_BARRIER_REPLY_TIMEOUT 			10
-#define DEFAULT_DP_GET_ASYNC_CONFIG_REPLY_TIMEOUT	10
 
-		rofl::openflow::crofchan		rofchan;		// OFP control channel
+		rofl::openflow::crofchan				rofchan;		// OFP control channel
 
-		std::bitset<32>                 flags;
+		std::bitset<32>     		            flags;
 
-		uint64_t 						dpid;			// datapath id
-		std::string	 					s_dpid;			// datapath id as std::string
-		cmacaddr 						hwaddr;			// datapath mac address
-		uint32_t 						n_buffers; 		// number of buffer lines
-		uint8_t 						n_tables;		// number of tables
-		uint32_t 						capabilities;	// capabilities flags
+		uint64_t 								dpid;			// datapath id
+		std::string	 							s_dpid;			// datapath id as std::string
+		cmacaddr 								hwaddr;			// datapath mac address
+		uint32_t 								n_buffers; 		// number of buffer lines
+		uint8_t 								n_tables;		// number of tables
+		uint32_t 								capabilities;	// capabilities flags
 
 		std::map<uint8_t, coftable_stats_reply> tables;	// map of tables: table_id:coftable_stats_reply
-		cofports						ports;			// list of ports
-		std::bitset<32> 				dptflags;		// 'fragmentation' flags
-		uint16_t						config;
-		uint16_t 						miss_send_len; 	// length of bytes sent to controller
+		cofports								ports;			// list of ports
+		std::bitset<32> 						dptflags;		// 'fragmentation' flags
+		uint16_t								config;
+		uint16_t 								miss_send_len; 	// length of bytes sent to controller
 
-		cfsptable 						fsptable;		// flowspace registration table
+		cfsptable 								fsptable;		// flowspace registration table
 
-		crofbase 						*rofbase;		// layer-(n) entity
-		std::map<uint8_t, cxidstore>	 xidstore;		// transaction store
-		rofl::openflow::ctransactions	transactions;	// pending OFP transactions
+		crofbase 								*rofbase;		// layer-(n) entity
+		rofl::openflow::ctransactions			transactions;	// pending OFP transactions
 
-		unsigned int					state;
-		std::deque<enum crofdptImpl_event_t> events;
+		unsigned int							state;
+		std::deque<enum crofdptImpl_event_t> 	events;
 
 public:
 
@@ -259,39 +233,6 @@ public:
 	/**@{*/
 
 	/**
-	 * @brief 	Find a cofport instance based on OpenFlow port number.
-	 *
-	 * @return pointer to cofport instance
-	 * @throws eOFdpathNotFound if port could not be found
-	 */
-	virtual cofport*
-	find_cofport(
-			uint32_t port_no) throw (eOFdpathNotFound);
-
-
-	/**
-	 * @brief 	Find a cofport instance based on OpenFlow port name (e.g. eth0).
-	 *
-	 * @return pointer to cofport instance
-	 * @throws eOFdpathNotFound if port could not be found
-	 */
-	virtual cofport*
-	find_cofport(
-			std::string port_name) throw (eOFdpathNotFound);
-
-
-	/**
-	 * @brief 	Find a cofport instance based on OpenFlow port hardware address.
-	 *
-	 * @return pointer to cofport instance
-	 * @throws eOFdpathNotFound if port could not be found
-	 */
-	virtual cofport*
-	find_cofport(
-			cmacaddr const& maddr) throw (eOFdpathNotFound);
-
-
-	/**
 	 * @brief	Returns the data path element's data path ID.
 	 *
 	 * @return dpid
@@ -377,23 +318,8 @@ public:
 	 *
 	 * @return ports
 	 */
-	virtual std::map<uint32_t, cofport*>&
+	virtual cofports&
 	get_ports() { return ports; };
-
-
-	/**
-	 * @brief	Returns reference to cofport instance assigned to portno.
-	 *
-	 * if portno is invalid, an exeception of type eOFdpathNotFound is thrown.
-	 *
-	 * @return reference to cofport instance assigned to specified portno
-	 */
-	virtual cofport&
-	get_port(uint32_t portno) {
-		if (ports.find(portno) == ports.end())
-			throw eOFdpathNotFound();
-		return *(ports[portno]);
-	};
 
 
 	/**
@@ -576,56 +502,6 @@ private:
 	 */
 	void
 	event_table_features_stats_request_expired();
-
-
-private:
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_accepted(
-			csocket *socket,
-			int newsd,
-			caddress const& ra);
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_connected(
-			csocket *socket,
-			int sd);
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_connect_refused(
-			csocket *socket,
-			int sd);
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_read(
-			csocket *socket,
-			int sd);
-
-
-	/**
-	 *
-	 */
-	virtual void
-	handle_closed(
-			csocket *socket,
-			int sd);
-
-
 
 
 

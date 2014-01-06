@@ -209,7 +209,7 @@ crofsock::send_message(
 
 	outqueue.push_back(msg);
 
-	notify(CROFENDPNT_EVENT_WAKEUP);
+	notify(CROFSOCK_EVENT_WAKEUP);
 }
 
 

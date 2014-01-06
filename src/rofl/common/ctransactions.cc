@@ -20,6 +20,13 @@ ctransactions::ctransactions(
 
 
 
+ctransactions::~ctransactions()
+{
+
+}
+
+
+
 void
 ctransactions::handle_timeout(
 		int opaque)
@@ -55,7 +62,7 @@ uint32_t
 ctransactions::add_ta(
 		cclock const& delta,
 		uint8_t msg_type,
-		uint8_t msg_sub_type)
+		uint16_t msg_sub_type)
 {
 	RwLock lock(queuelock, RwLock::RWLOCK_WRITE);
 
@@ -67,7 +74,7 @@ ctransactions::add_ta(
 	while ((it != end()) && ((*it).get_expires() < expires)) {
 		++it;
 	}
-	(*this).insert(it, ctransaction(nxid, delta));
+	(*this).insert(it, ctransaction(nxid, delta, msg_type, msg_sub_type));
 
 	if (not pending_timer(TIMER_WORK_ON_TA_QUEUE)) {
 		register_timer(TIMER_WORK_ON_TA_QUEUE, work_interval);

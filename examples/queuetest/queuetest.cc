@@ -32,7 +32,7 @@ queuetest::handle_timeout(
 		fprintf(stderr, "C");
 		for (std::set<crofdpt*>::iterator
 				it = dpaths.begin(); it != dpaths.end(); ++it) {
-			send_queue_get_config_request((*it), openflow12::OFPP_ALL);
+			(*(*it)).send_queue_get_config_request(openflow12::OFPP_ALL);
 		}
 	} break;
 	case QUEUETEST_TIMER_STATS_INTERVAL: {
@@ -40,8 +40,7 @@ queuetest::handle_timeout(
 		register_timer(QUEUETEST_TIMER_STATS_INTERVAL, 5);
 		for (std::set<crofdpt*>::iterator
 				it = dpaths.begin(); it != dpaths.end(); ++it) {
-			send_queue_stats_request(
-					(*it),
+			(*(*it)).send_queue_stats_request(
 					0,
 					cofqueue_stats_request(
 							(*it)->get_version(),

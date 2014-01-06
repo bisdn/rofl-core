@@ -969,7 +969,7 @@ crofctlImpl::send_experimenter_message(
 		uint8_t* body,
 		size_t bodylen)
 {
-		cofmsg_experimenter *msg =
+	cofmsg_experimenter *msg =
 			new cofmsg_experimenter(
 						rofchan.get_version(),
 						xid,
