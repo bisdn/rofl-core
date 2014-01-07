@@ -535,17 +535,6 @@ crofbase::wakeup()
 }
 
 
-void
-crofbase::handle_experimenter_message(crofctl *ofctrl, cofmsg_experimenter *pack, uint8_t aux_id)
-{
-#if 0
-	// base class does not support any vendor extensions, so: send error indication
-	size_t datalen = (pack->framelen() > 64) ? 64 : pack->framelen();
-	send_error_bad_request_bad_experimenter(ofctrl, pack->get_xid(),
-									(unsigned char*)pack->soframe(), datalen);
-#endif
-	delete pack;
-}
 
 
 crofdpt*

@@ -176,83 +176,99 @@ public:
 public:
 
 	virtual void
-	handle_connected(rofl::openflow::crofchan *chan, uint8_t aux_id);
+	handle_connected(
+			rofl::openflow::crofchan *chan,
+			uint8_t aux_id);
 
 	virtual void
-	handle_closed(rofl::openflow::crofchan *chan, uint8_t aux_id);
+	handle_closed(
+			rofl::openflow::crofchan *chan,
+			uint8_t aux_id);
 
 	virtual void
-	recv_message(rofl::openflow::crofchan *chan, uint8_t aux_id, cofmsg *msg);
+	recv_message(
+			rofl::openflow::crofchan *chan,
+			uint8_t aux_id, cofmsg *msg);
 
 	virtual uint32_t
-	get_async_xid(rofl::openflow::crofchan *chan);
+	get_async_xid(
+			rofl::openflow::crofchan *chan);
 
 	virtual uint32_t
-	get_sync_xid(rofl::openflow::crofchan *chan);
+	get_sync_xid(
+			rofl::openflow::crofchan *chan);
 
 	virtual void
-	release_sync_xid(rofl::openflow::crofchan *chan, uint32_t xid);
+	release_sync_xid(
+			rofl::openflow::crofchan *chan,
+			uint32_t xid);
 
 private:
 
 	/** handle incoming vendor message (ROFL extensions)
 	 */
 	void
-	experimenter_rcvd(cofmsg_experimenter *pack, uint8_t aux_id);
+	experimenter_rcvd(
+			cofmsg_experimenter *pack,
+			uint8_t aux_id);
 
 	/** handle incoming FEATURE requests
 	 */
 	void
-	features_request_rcvd(cofmsg_features_request *pack, uint8_t aux_id = 0);
+	features_request_rcvd(
+			cofmsg_features_request *pack,
+			uint8_t aux_id = 0);
 
 	/**
 	 *
 	 */
 	void
-	features_reply_sent(cofmsg *pack);
+	get_config_request_rcvd(
+			cofmsg_get_config_request *pack,
+			uint8_t aux_id = 0);
 
 	/**
 	 *
 	 */
 	void
-	get_config_request_rcvd(cofmsg_get_config_request *pack, uint8_t aux_id = 0);
-
-	/**
-	 *
-	 */
-	void
-	get_config_reply_sent(cofmsg *pack);
-
-	/**
-	 *
-	 */
-	void
-	set_config_rcvd(cofmsg_set_config *pack, uint8_t aux_id = 0);
+	set_config_rcvd(
+			cofmsg_set_config *pack,
+			uint8_t aux_id = 0);
 
 	/** handle incoming PACKET-OUT messages
 	 */
 	void
-	packet_out_rcvd(cofmsg_packet_out *pack, uint8_t aux_id = 0);
+	packet_out_rcvd(
+			cofmsg_packet_out *pack,
+			uint8_t aux_id = 0);
 
 	/** handle incoming FLOW-MOD messages
 	 */
 	void
-	flow_mod_rcvd(cofmsg_flow_mod *pack, uint8_t aux_id = 0);
+	flow_mod_rcvd(
+			cofmsg_flow_mod *pack,
+			uint8_t aux_id = 0);
 
 	/** handle incoming GROUP-MOD messages
 	 */
 	void
-	group_mod_rcvd(cofmsg_group_mod *pack, uint8_t aux_id = 0);
+	group_mod_rcvd(
+			cofmsg_group_mod *pack,
+			uint8_t aux_id = 0);
 
 	/** handle incoming PORT-MOD messages
 	 */
 	void
-	port_mod_rcvd(cofmsg_port_mod *pack, uint8_t aux_id = 0);
+	port_mod_rcvd(
+			cofmsg_port_mod *pack,
+			uint8_t aux_id = 0);
 
 	/** handle incoming TABLE-MOD messages
 	 */
 	void
-	table_mod_rcvd(cofmsg_table_mod *pack, uint8_t aux_id = 0);
+	table_mod_rcvd(
+			cofmsg_table_mod *pack,
+			uint8_t aux_id = 0);
 
 	/** STATS-REQUEST received
 	 *
@@ -261,81 +277,90 @@ private:
 	stats_request_rcvd(cofmsg_stats *pack, uint8_t aux_id = 0);
 
 	void
-	desc_stats_request_rcvd(cofmsg_desc_stats_request* msg, uint8_t aux_id = 0);
-	void
-	table_stats_request_rcvd(cofmsg_table_stats_request* msg, uint8_t aux_id = 0);
-	void
-	port_stats_request_rcvd(cofmsg_port_stats_request* msg, uint8_t aux_id = 0);
-	void
-	flow_stats_request_rcvd(cofmsg_flow_stats_request* msg, uint8_t aux_id = 0);
-	void
-	aggregate_stats_request_rcvd(cofmsg_aggr_stats_request* msg, uint8_t aux_id = 0);
-	void
-	queue_stats_request_rcvd(cofmsg_queue_stats_request* msg, uint8_t aux_id = 0);
-	void
-	group_stats_request_rcvd(cofmsg_group_stats_request* msg, uint8_t aux_id = 0);
-	void
-	group_desc_stats_request_rcvd(cofmsg_group_desc_stats_request* msg, uint8_t aux_id = 0);
-	void
-	group_features_stats_request_rcvd(cofmsg_group_features_stats_request* msg, uint8_t aux_id = 0);
-	void
-	experimenter_stats_request_rcvd(cofmsg_experimenter_stats_request* msg, uint8_t aux_id = 0);
+	desc_stats_request_rcvd(
+			cofmsg_desc_stats_request* msg,
+			uint8_t aux_id = 0);
 
-	/**
-	 *
-	 */
 	void
-	stats_reply_sent(cofmsg *pack);
+	table_stats_request_rcvd(
+			cofmsg_table_stats_request* msg,
+			uint8_t aux_id = 0);
+
+	void
+	port_stats_request_rcvd(
+			cofmsg_port_stats_request* msg,
+			uint8_t aux_id = 0);
+
+	void
+	flow_stats_request_rcvd(
+			cofmsg_flow_stats_request* msg,
+			uint8_t aux_id = 0);
+
+	void
+	aggregate_stats_request_rcvd(
+			cofmsg_aggr_stats_request* msg,
+			uint8_t aux_id = 0);
+
+	void
+	queue_stats_request_rcvd(
+			cofmsg_queue_stats_request* msg,
+			uint8_t aux_id = 0);
+
+	void
+	group_stats_request_rcvd(
+			cofmsg_group_stats_request* msg,
+			uint8_t aux_id = 0);
+
+	void
+	group_desc_stats_request_rcvd(
+			cofmsg_group_desc_stats_request* msg,
+			uint8_t aux_id = 0);
+
+	void
+	group_features_stats_request_rcvd(
+			cofmsg_group_features_stats_request* msg,
+			uint8_t aux_id = 0);
+
+	void
+	experimenter_stats_request_rcvd(
+			cofmsg_experimenter_stats_request* msg,
+			uint8_t aux_id = 0);
 
 	/** handle incoming ROLE-REQUEST messages
 	 */
 	void
-	role_request_rcvd(cofmsg_role_request *pack, uint8_t aux_id = 0);
-
-	/**
-	 *
-	 */
-	void
-	role_reply_sent(cofmsg *pack);
+	role_request_rcvd(
+			cofmsg_role_request *pack,
+			uint8_t aux_id = 0);
 
 	/** handle incoming BARRIER request
 	 */
 	void
-	barrier_request_rcvd(cofmsg_barrier_request *pack, uint8_t aux_id = 0);
-
-	/** BARRIER reply sent back
-	 *
-	 */
-	void
-	barrier_reply_sent(cofmsg *pack);
+	barrier_request_rcvd(
+			cofmsg_barrier_request *pack,
+			uint8_t aux_id = 0);
 
 	/**
 	 *
 	 */
 	void
-	queue_get_config_request_rcvd(cofmsg_queue_get_config_request *pack, uint8_t aux_id = 0);
-
-	/**
-	 *
-	 */
-	void
-	queue_get_config_reply_sent(cofmsg *pack);
+	queue_get_config_request_rcvd(
+			cofmsg_queue_get_config_request *pack,
+			uint8_t aux_id = 0);
 
 	/**
 	 */
 	void
-	get_async_config_request_rcvd(cofmsg_get_async_config_request *pack, uint8_t aux_id = 0);
+	get_async_config_request_rcvd(
+			cofmsg_get_async_config_request *pack,
+			uint8_t aux_id = 0);
 
 	/**
 	 */
 	void
-	set_async_config_rcvd(cofmsg_set_async_config *pack, uint8_t aux_id = 0);
-
-	/**
-	 *
-	 */
-	void
-	get_async_config_reply_sent(cofmsg *pack);
+	set_async_config_rcvd(
+			cofmsg_set_async_config *pack,
+			uint8_t aux_id = 0);
 
 	/**
 	 *

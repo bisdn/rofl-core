@@ -1083,75 +1083,6 @@ crofctlImpl::send_get_async_config_reply(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void
-crofctlImpl::features_request_rcvd(cofmsg_features_request *msg, uint8_t aux_id)
-{
-	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Features-Request message received" << std::endl << *msg << std::endl;
-
-	try {
-		xidstore.xid_add(this, msg->get_xid(), 0);
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::debug << "retransmitted Features-Request " << *msg << std::endl;
-	}
-
-	rofbase->handle_features_request(this, msg);
-}
-
-
-
-void
-crofctlImpl::features_reply_sent(cofmsg *msg)
-{
-	uint32_t xid = msg->get_xid();
-	try {
-
-		xidstore.xid_find(xid);
-
-		xidstore.xid_rem(xid);
-
-	} catch (eXidStoreNotFound& e) {
-		logging::error << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " spurious xid in reply to Features-Request " << *msg << std::endl;
-	}
-}
-
-
-
 void
 crofctlImpl::check_role()
 {
@@ -1169,33 +1100,31 @@ crofctlImpl::check_role()
 
 
 
+
 void
-crofctlImpl::get_config_request_rcvd(cofmsg_get_config_request *msg, uint8_t aux_id)
+crofctlImpl::features_request_rcvd(cofmsg_features_request *msg, uint8_t aux_id)
 {
+	cofmsg_features_request& request = dynamic_cast<cofmsg_features_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Get-Config-Request message received" << std::endl << *msg << std::endl;
+			<< " Features-Request message received" << std::endl << request;
 
-	check_role();
-
-	rofbase->handle_get_config_request(this, msg);
+	rofbase->handle_features_request(*this, request, aux_id);
 }
 
 
 
 void
-crofctlImpl::get_config_reply_sent(cofmsg *msg)
+crofctlImpl::get_config_request_rcvd(cofmsg_get_config_request *msg, uint8_t aux_id)
 {
-	uint32_t xid = msg->get_xid();
-	try {
+	cofmsg_get_config_request& request = dynamic_cast<cofmsg_get_config_request&>( *msg );
 
-		xidstore.xid_find(xid);
+	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
+			<< " Get-Config-Request message received" << std::endl << request;
 
-		xidstore.xid_rem(xid);
+	check_role();
 
-	} catch (eXidStoreNotFound& e) {
-		logging::error << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " spurious xid in reply to Get-Config-Request " << *msg << std::endl;
-	}
+	rofbase->handle_get_config_request(*this, request, aux_id);
 }
 
 
@@ -1203,13 +1132,15 @@ crofctlImpl::get_config_reply_sent(cofmsg *msg)
 void
 crofctlImpl::set_config_rcvd(cofmsg_set_config *msg, uint8_t aux_id)
 {
+	cofmsg_set_config& message = dynamic_cast<cofmsg_set_config&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Set-Config message received" << std::endl << *msg << std::endl;
+			<< " Set-Config message received" << std::endl << message;
 
 	try {
 		check_role();
 
-		rofbase->handle_set_config(this, msg);
+		rofbase->handle_set_config(*this, message, aux_id);
 
 	} catch (eSwitchConfigBadFlags& e) {
 
@@ -1244,12 +1175,14 @@ crofctlImpl::set_config_rcvd(cofmsg_set_config *msg, uint8_t aux_id)
 void
 crofctlImpl::packet_out_rcvd(cofmsg_packet_out *msg, uint8_t aux_id)
 {
+	cofmsg_packet_out& message = dynamic_cast<cofmsg_packet_out&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Packet-Out message received" << std::endl << *msg << std::endl;
+			<< " Packet-Out message received" << std::endl << message;
 
 	check_role();
 
-	rofbase->handle_packet_out(this, msg);
+	rofbase->handle_packet_out(*this, message, aux_id);
 }
 
 
@@ -1257,8 +1190,10 @@ crofctlImpl::packet_out_rcvd(cofmsg_packet_out *msg, uint8_t aux_id)
 void
 crofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg, uint8_t aux_id)
 {
+	cofmsg_flow_mod& message = dynamic_cast<cofmsg_flow_mod&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Flow-Mod message received" << std::endl << *msg << std::endl;
+			<< " Flow-Mod message received" << std::endl << message;
 
 	try {
 		check_role();
@@ -1317,7 +1252,7 @@ crofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg, uint8_t aux_id)
 			}
 		}
 
-		rofbase->handle_flow_mod(this, msg);
+		rofbase->handle_flow_mod(*this, message, aux_id);
 
 	} catch (eFlowModUnknown& e) {
 
@@ -1429,13 +1364,15 @@ crofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg, uint8_t aux_id)
 void
 crofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg, uint8_t aux_id)
 {
+	cofmsg_group_mod& message = dynamic_cast<cofmsg_group_mod&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Group-Mod message received" << std::endl << *msg << std::endl;
+			<< " Group-Mod message received" << std::endl << message;
 
 	try {
 		check_role();
 
-		rofbase->handle_group_mod(this, msg);
+		rofbase->handle_group_mod(*this, message, aux_id);
 
 	} catch (eGroupModExists& e) {
 
@@ -1554,13 +1491,15 @@ crofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg, uint8_t aux_id)
 void
 crofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg, uint8_t aux_id)
 {
+	cofmsg_port_mod& message = dynamic_cast<cofmsg_port_mod&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Port-Mod message received" << std::endl << *msg << std::endl;
+			<< " Port-Mod message received" << std::endl << message;
 
 	try {
 		check_role();
 
-		rofbase->handle_port_mod(this, msg);
+		rofbase->handle_port_mod(*this, message, aux_id);
 
 	} catch (ePortModBadPort& e) {
 
@@ -1609,13 +1548,15 @@ crofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg, uint8_t aux_id)
 void
 crofctlImpl::table_mod_rcvd(cofmsg_table_mod *msg, uint8_t aux_id)
 {
+	cofmsg_table_mod& message = dynamic_cast<cofmsg_table_mod&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Table-Mod message received" << std::endl << *msg << std::endl;
+			<< " Table-Mod message received" << std::endl << message;
 
 	try {
 		check_role();
 
-		rofbase->handle_table_mod(this, msg);
+		rofbase->handle_table_mod(*this, message, aux_id);
 
 	} catch (eTableModBadTable& e) {
 
@@ -1650,16 +1591,10 @@ crofctlImpl::table_mod_rcvd(cofmsg_table_mod *msg, uint8_t aux_id)
 void
 crofctlImpl::stats_request_rcvd(cofmsg_stats *msg, uint8_t aux_id)
 {
+	cofmsg_stats_request& request = dynamic_cast<cofmsg_stats_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Stats-Request message received" << std::endl << *msg << std::endl;
-
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Stats-Request " << *msg << std::endl;
-	}
+			<< " Stats-Request message received" << std::endl << request;
 
 	switch (msg->get_stats_type()) {
 	case openflow13::OFPMP_DESC: {
@@ -1692,7 +1627,7 @@ crofctlImpl::stats_request_rcvd(cofmsg_stats *msg, uint8_t aux_id)
 	// TODO: add remaining OF 1.3 statistics messages
 	// TODO: experimenter statistics
 	default: {
-		rofbase->handle_stats_request(this, msg);
+		rofbase->handle_stats_request(*this, request, aux_id);
 	} break;
 	}
 }
@@ -1702,18 +1637,12 @@ crofctlImpl::stats_request_rcvd(cofmsg_stats *msg, uint8_t aux_id)
 void
 crofctlImpl::desc_stats_request_rcvd(cofmsg_desc_stats_request *msg, uint8_t aux_id)
 {
+	cofmsg_desc_stats_request& request = dynamic_cast<cofmsg_desc_stats_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Desc-Stats-Request message received" << std::endl << *msg << std::endl;
+			<< " Desc-Stats-Request message received" << std::endl << request;
 
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Desc-Stats-Request " << *msg << std::endl;
-	}
-
-	rofbase->handle_desc_stats_request(this, msg);
+	rofbase->handle_desc_stats_request(*this, request, aux_id);
 }
 
 
@@ -1721,18 +1650,12 @@ crofctlImpl::desc_stats_request_rcvd(cofmsg_desc_stats_request *msg, uint8_t aux
 void
 crofctlImpl::table_stats_request_rcvd(cofmsg_table_stats_request* msg, uint8_t aux_id)
 {
+	cofmsg_table_stats_request& request = dynamic_cast<cofmsg_table_stats_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Table-Stats-Request message received" << std::endl << *msg << std::endl;
+			<< " Table-Stats-Request message received" << std::endl << request;
 
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Table-Stats-Request " << *msg << std::endl;
-	}
-
-	rofbase->handle_table_stats_request(this, msg);
+	rofbase->handle_table_stats_request(*this, request, aux_id);
 }
 
 
@@ -1740,18 +1663,12 @@ crofctlImpl::table_stats_request_rcvd(cofmsg_table_stats_request* msg, uint8_t a
 void
 crofctlImpl::port_stats_request_rcvd(cofmsg_port_stats_request* msg, uint8_t aux_id)
 {
+	cofmsg_port_stats_request& request = dynamic_cast<cofmsg_port_stats_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Port-Stats-Request message received" << std::endl << *msg << std::endl;
+			<< " Port-Stats-Request message received" << std::endl << request;
 
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Port-Stats-Request " << *msg << std::endl;
-	}
-
-	rofbase->handle_port_stats_request(this, msg);
+	rofbase->handle_port_stats_request(*this, request, aux_id);
 }
 
 
@@ -1759,18 +1676,12 @@ crofctlImpl::port_stats_request_rcvd(cofmsg_port_stats_request* msg, uint8_t aux
 void
 crofctlImpl::flow_stats_request_rcvd(cofmsg_flow_stats_request* msg, uint8_t aux_id)
 {
+	cofmsg_flow_stats_request& request = dynamic_cast<cofmsg_flow_stats_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Flow-Stats-Request message received" << std::endl << *msg << std::endl;
+			<< " Flow-Stats-Request message received" << std::endl << request;
 
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Flow-Stats-Request " << *msg << std::endl;
-	}
-
-	rofbase->handle_flow_stats_request(this, msg);
+	rofbase->handle_flow_stats_request(*this, request, aux_id);
 }
 
 
@@ -1778,18 +1689,12 @@ crofctlImpl::flow_stats_request_rcvd(cofmsg_flow_stats_request* msg, uint8_t aux
 void
 crofctlImpl::aggregate_stats_request_rcvd(cofmsg_aggr_stats_request* msg, uint8_t aux_id)
 {
+	cofmsg_aggr_stats_request& request = dynamic_cast<cofmsg_aggr_stats_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Aggregate-Stats-Request message received" << std::endl << *msg << std::endl;
+			<< " Aggregate-Stats-Request message received" << std::endl << request;
 
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Aggregate-Stats-Request " << *msg << std::endl;
-	}
-
-	rofbase->handle_aggregate_stats_request(this, msg);
+	rofbase->handle_aggregate_stats_request(*this, request, aux_id);
 }
 
 
@@ -1797,18 +1702,12 @@ crofctlImpl::aggregate_stats_request_rcvd(cofmsg_aggr_stats_request* msg, uint8_
 void
 crofctlImpl::queue_stats_request_rcvd(cofmsg_queue_stats_request* msg, uint8_t aux_id)
 {
+	cofmsg_queue_stats_request& request = dynamic_cast<cofmsg_queue_stats_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Queue-Stats-Request message received" << std::endl << *msg << std::endl;
+			<< " Queue-Stats-Request message received" << std::endl << request;
 
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Queue-Stats-Request " << *msg << std::endl;
-	}
-
-	rofbase->handle_queue_stats_request(this, msg);
+	rofbase->handle_queue_stats_request(*this, request, aux_id);
 }
 
 
@@ -1816,18 +1715,12 @@ crofctlImpl::queue_stats_request_rcvd(cofmsg_queue_stats_request* msg, uint8_t a
 void
 crofctlImpl::group_stats_request_rcvd(cofmsg_group_stats_request* msg, uint8_t aux_id)
 {
+	cofmsg_group_stats_request& request = dynamic_cast<cofmsg_group_stats_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Group-Stats-Request message received" << std::endl << *msg << std::endl;
+			<< " Group-Stats-Request message received" << std::endl << request;
 
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Group-Stats-Request " << *msg << std::endl;
-	}
-
-	rofbase->handle_group_stats_request(this, msg);
+	rofbase->handle_group_stats_request(*this, request, aux_id);
 }
 
 
@@ -1835,18 +1728,12 @@ crofctlImpl::group_stats_request_rcvd(cofmsg_group_stats_request* msg, uint8_t a
 void
 crofctlImpl::group_desc_stats_request_rcvd(cofmsg_group_desc_stats_request* msg, uint8_t aux_id)
 {
+	cofmsg_group_desc_stats_request& request = dynamic_cast<cofmsg_group_desc_stats_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Group-Desc-Stats-Request message received" << std::endl << *msg << std::endl;
+			<< " Group-Desc-Stats-Request message received" << std::endl << request;
 
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Group-Desc-Stats-Request " << *msg << std::endl;
-	}
-
-	rofbase->handle_group_desc_stats_request(this, msg);
+	rofbase->handle_group_desc_stats_request(*this, request, aux_id);
 }
 
 
@@ -1854,18 +1741,12 @@ crofctlImpl::group_desc_stats_request_rcvd(cofmsg_group_desc_stats_request* msg,
 void
 crofctlImpl::group_features_stats_request_rcvd(cofmsg_group_features_stats_request* msg, uint8_t aux_id)
 {
+	cofmsg_group_features_stats_request& request = dynamic_cast<cofmsg_group_features_stats_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Group-Features-Stats-Request message received" << std::endl << *msg << std::endl;
+			<< " Group-Features-Stats-Request message received" << std::endl << request;
 
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Group-Features-Stats-Request " << *msg << std::endl;
-	}
-
-	rofbase->handle_group_features_stats_request(this, msg);
+	rofbase->handle_group_features_stats_request(*this, request, aux_id);
 }
 
 
@@ -1873,36 +1754,12 @@ crofctlImpl::group_features_stats_request_rcvd(cofmsg_group_features_stats_reque
 void
 crofctlImpl::experimenter_stats_request_rcvd(cofmsg_experimenter_stats_request* msg, uint8_t aux_id)
 {
+	cofmsg_experimenter_stats_request& request = dynamic_cast<cofmsg_experimenter_stats_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Experimenter-Stats-Request message received" << std::endl << *msg << std::endl;
+			<< " Experimenter-Stats-Request message received" << std::endl << request;
 
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Experimenter-Stats-Request " << *msg << std::endl;
-	}
-
-	rofbase->handle_experimenter_stats_request(this, msg);
-}
-
-
-
-void
-crofctlImpl::stats_reply_sent(cofmsg *msg)
-{
-	uint32_t xid = msg->get_xid();
-	try {
-
-		xidstore.xid_find(xid);
-
-		xidstore.xid_rem(xid);
-
-	} catch (eXidStoreNotFound& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " spurious xid in reply to Stats-Request " << *msg << std::endl;
-	}
+	rofbase->handle_experimenter_stats_request(*this, request, aux_id);
 }
 
 
@@ -1910,18 +1767,12 @@ crofctlImpl::stats_reply_sent(cofmsg *msg)
 void
 crofctlImpl::role_request_rcvd(cofmsg_role_request *msg, uint8_t aux_id)
 {
+	cofmsg_role_request& request = dynamic_cast<cofmsg_role_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Role-Request message received" << std::endl << *msg << std::endl;
+			<< " Role-Request message received" << std::endl << request;
 
 	try {
-		try {
-			xidstore.xid_add(this, msg->get_xid());
-
-		} catch (eXidStoreXidBusy& e) {
-			logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-					<< " retransmitted Role-Request " << *msg << std::endl;
-		}
-
 		switch (msg->get_role()) {
 		case openflow12::OFPCR_ROLE_MASTER:
 		case openflow12::OFPCR_ROLE_SLAVE:
@@ -1970,7 +1821,7 @@ crofctlImpl::role_request_rcvd(cofmsg_role_request *msg, uint8_t aux_id)
 
 		rofbase->role_request_rcvd(this, role);
 
-		rofbase->handle_role_request(this, msg);
+		rofbase->handle_role_request(*this, request, aux_id);
 
 	} catch (eRoleRequestStale& e) {
 
@@ -2003,56 +1854,14 @@ crofctlImpl::role_request_rcvd(cofmsg_role_request *msg, uint8_t aux_id)
 
 
 void
-crofctlImpl::role_reply_sent(cofmsg *msg)
-{
-	uint32_t xid = msg->get_xid();
-	try {
-
-		xidstore.xid_find(xid);
-
-		xidstore.xid_rem(xid);
-
-	} catch (eXidStoreNotFound& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " spurious xid in reply to Role-Request " << *msg << std::endl;
-	}
-}
-
-
-
-void
 crofctlImpl::barrier_request_rcvd(cofmsg_barrier_request *msg, uint8_t aux_id)
 {
+	cofmsg_barrier_request& request = dynamic_cast<cofmsg_barrier_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Barrier-Request message received" << std::endl << *msg << std::endl;
+			<< " Barrier-Request message received" << std::endl << request;
 
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Barrier-Request " << *msg << std::endl;
-	}
-
-	rofbase->handle_barrier_request(this, msg);
-}
-
-
-
-void
-crofctlImpl::barrier_reply_sent(cofmsg *msg)
-{
-	uint32_t xid = msg->get_xid();
-	try {
-
-		xidstore.xid_find(xid);
-
-		xidstore.xid_rem(xid);
-
-	} catch (eXidStoreNotFound& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " spurious xid in reply to Barrier-Request " << *msg << std::endl;
-	}
+	rofbase->handle_barrier_request(*this, request, aux_id);
 }
 
 
@@ -2060,36 +1869,12 @@ crofctlImpl::barrier_reply_sent(cofmsg *msg)
 void
 crofctlImpl::queue_get_config_request_rcvd(cofmsg_queue_get_config_request *msg, uint8_t aux_id)
 {
+	cofmsg_queue_get_config_request& request = dynamic_cast<cofmsg_queue_get_config_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Queue-Get-Config-Request message received" << std::endl << *msg << std::endl;
+			<< " Queue-Get-Config-Request message received" << std::endl << request;
 
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Queue-Get-Config-Request " << *msg << std::endl;
-	}
-
-	rofbase->handle_queue_get_config_request(this, msg);
-}
-
-
-
-void
-crofctlImpl::queue_get_config_reply_sent(cofmsg *msg)
-{
-	uint32_t xid = msg->get_xid();
-	try {
-
-		xidstore.xid_find(xid);
-
-		xidstore.xid_rem(xid);
-
-	} catch (eXidStoreNotFound& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " spurious xid in reply to Queue-Get-Config-Request " << *msg << std::endl;
-	}
+	rofbase->handle_queue_get_config_request(*this, request, aux_id);
 }
 
 
@@ -2097,8 +1882,10 @@ crofctlImpl::queue_get_config_reply_sent(cofmsg *msg)
 void
 crofctlImpl::experimenter_rcvd(cofmsg_experimenter *msg, uint8_t aux_id)
 {
+	cofmsg_experimenter& message = dynamic_cast<cofmsg_experimenter&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Experimenter message received" << std::endl << *msg << std::endl;
+			<< " Experimenter message received" << std::endl << message;
 
 	switch (msg->get_experimenter_id()) {
 	case OFPEXPID_ROFL: {
@@ -2147,10 +1934,8 @@ crofctlImpl::experimenter_rcvd(cofmsg_experimenter *msg, uint8_t aux_id)
 		delete msg;
 		break;
 	}
-
-
 	default:
-		rofbase->handle_experimenter_message(this, msg);
+		rofbase->handle_experimenter_message(*this, message, aux_id);
 		break;
 	}
 }
@@ -2160,16 +1945,10 @@ crofctlImpl::experimenter_rcvd(cofmsg_experimenter *msg, uint8_t aux_id)
 void
 crofctlImpl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg, uint8_t aux_id)
 {
+	cofmsg_get_async_config_request& request = dynamic_cast<cofmsg_get_async_config_request&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Get-Async-Config-Request message received" << std::endl << *msg << std::endl;
-
-	try {
-		xidstore.xid_add(this, msg->get_xid());
-
-	} catch (eXidStoreXidBusy& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " retransmitted Get-Async-Config-Request " << *msg << std::endl;
-	}
+			<< " Get-Async-Config-Request message received" << std::endl << request;
 
 	// TODO: handle request
 }
@@ -2179,29 +1958,13 @@ crofctlImpl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg,
 void
 crofctlImpl::set_async_config_rcvd(cofmsg_set_async_config *msg, uint8_t aux_id)
 {
+	cofmsg_set_async_config& message = dynamic_cast<cofmsg_set_async_config&>( *msg );
+
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-			<< " Set-Async-Config message received" << std::endl << *msg << std::endl;
+			<< " Set-Async-Config message received" << std::endl << message;
 
 	// TODO: handle request here in this cofctl instance
-	rofbase->handle_set_async_config(this, msg);
-}
-
-
-
-void
-crofctlImpl::get_async_config_reply_sent(cofmsg *msg)
-{
-	uint32_t xid = msg->get_xid();
-	try {
-
-		xidstore.xid_find(xid);
-
-		xidstore.xid_rem(xid);
-
-	} catch (eXidStoreNotFound& e) {
-		logging::warn << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
-				<< " spurious xid in reply to Get-Async-Config-Request " << *msg << std::endl;
-	}
+	rofbase->handle_set_async_config(*this, message, aux_id);
 }
 
 

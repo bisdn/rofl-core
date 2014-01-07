@@ -681,7 +681,7 @@ protected:
 	 * @param msg Pointer to cofmsg_features_request message containing the received message
 	 */
 	virtual void
-	handle_features_request(crofctl *ctl, cofmsg_features_request *msg, uint8_t aux_id = 0) { delete msg; };
+	handle_features_request(crofctl& ctl, cofmsg_features_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -719,7 +719,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_config_request(crofctl *ctl, cofmsg_get_config_request *msg, uint8_t aux_id = 0) { delete msg; };
+	handle_get_config_request(crofctl& ctl, cofmsg_get_config_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -772,7 +772,7 @@ protected:
 	 * @exception eBadRequestBadStat { sends a proper error message to the controller entity }
 	 */
 	void
-	handle_stats_request(crofctl *ctl, cofmsg_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_stats_request(crofctl& ctl, cofmsg_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 	/**
@@ -785,7 +785,7 @@ protected:
 	 * @param msg Pointer to cofmsg_desc_stats_request message containing the received message
 	 */
 	virtual void
-	handle_desc_stats_request(crofctl *ctl, cofmsg_desc_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_desc_stats_request(crofctl& ctl, cofmsg_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -799,7 +799,7 @@ protected:
 	 * @param msg Pointer to cofmsg_table_stats_request message containing the received message
 	 */
 	virtual void
-	handle_table_stats_request(crofctl *ctl, cofmsg_table_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_table_stats_request(crofctl& ctl, cofmsg_table_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -813,7 +813,7 @@ protected:
 	 * @param msg Pointer to cofmsg_port_stats_request message containing the received message
 	 */
 	virtual void
-	handle_port_stats_request(crofctl *ctl, cofmsg_port_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_port_stats_request(crofctl& ctl, cofmsg_port_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -827,7 +827,7 @@ protected:
 	 * @param msg Pointer to cofmsg_flow_stats_request message containing the received message
 	 */
 	virtual void
-	handle_flow_stats_request(crofctl *ctl, cofmsg_flow_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_flow_stats_request(crofctl& ctl, cofmsg_flow_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -841,7 +841,7 @@ protected:
 	 * @param msg Pointer to cofmsg_aggr_stats_request message containing the received message
 	 */
 	virtual void
-	handle_aggregate_stats_request(crofctl *ctl, cofmsg_aggr_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_aggregate_stats_request(crofctl& ctl, cofmsg_aggr_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -855,7 +855,7 @@ protected:
 	 * @param msg Pointer to cofmsg_queue_stats_request message containing the received message
 	 */
 	virtual void
-	handle_queue_stats_request(crofctl *ctl, cofmsg_queue_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_queue_stats_request(crofctl& ctl, cofmsg_queue_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -869,7 +869,7 @@ protected:
 	 * @param msg Pointer to cofmsg_group_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_stats_request(crofctl *ctl, cofmsg_group_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_group_stats_request(crofctl& ctl, cofmsg_group_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -883,7 +883,7 @@ protected:
 	 * @param msg Pointer to cofmsg_group_desc_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_desc_stats_request(crofctl *ctl, cofmsg_group_desc_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_group_desc_stats_request(crofctl& ctl, cofmsg_group_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -897,7 +897,7 @@ protected:
 	 * @param msg Pointer to cofmsg_group_features_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_features_stats_request(crofctl *ctl, cofmsg_group_features_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_group_features_stats_request(crofctl& ctl, cofmsg_group_features_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -911,7 +911,7 @@ protected:
 	 * @param msg Pointer to cofmsg_experimenter_stats_request message containing the received message
 	 */
 	virtual void
-	handle_experimenter_stats_request(crofctl *ctl, cofmsg_experimenter_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_experimenter_stats_request(crofctl& ctl, cofmsg_experimenter_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -1081,7 +1081,7 @@ protected:
 	 * @param msg Pointer to cofmsg_packet_out message containing the received message
 	 */
 	virtual void
-	handle_packet_out(crofctl *ctl, cofmsg_packet_out *msg, uint8_t aux_id = 0) { delete msg; };
+	handle_packet_out(crofctl& ctl, cofmsg_packet_out& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1107,7 +1107,7 @@ protected:
 	 * @param msg Pointer to cofmsg_barrier_request message containing the received message
 	 */
 	virtual void
-	handle_barrier_request(crofctl *ctl, cofmsg_barrier_request *msg, uint8_t aux_id = 0) { delete msg; };
+	handle_barrier_request(crofctl& ctl, cofmsg_barrier_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1159,7 +1159,7 @@ protected:
 	 * @param msg Pointer to cofmsg_flow_mod message containing the received message
 	 */
 	virtual void
-	handle_flow_mod(crofctl *ctl, cofmsg_flow_mod *msg, uint8_t aux_id = 0) { delete msg; };
+	handle_flow_mod(crofctl& ctl, cofmsg_flow_mod& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1172,7 +1172,7 @@ protected:
 	 * @param msg Pointer to cofmsg_group_mod message containing the received message
 	 */
 	virtual void
-	handle_group_mod(crofctl *ctl, cofmsg_group_mod *msg, uint8_t aux_id = 0) { delete msg; };
+	handle_group_mod(crofctl& ctl, cofmsg_group_mod& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1185,7 +1185,7 @@ protected:
 	 * @param msg Pointer to cofmsg_table_mod message containing the received message
 	 */
 	virtual void
-	handle_table_mod(crofctl *ctl, cofmsg_table_mod *msg, uint8_t aux_id = 0) { delete msg; };
+	handle_table_mod(crofctl& ctl, cofmsg_table_mod& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1198,7 +1198,7 @@ protected:
 	 * @param msg Pointer to cofmsg_port_mod message containing the received message
 	 */
 	virtual void
-	handle_port_mod(crofctl *ctl, cofmsg_port_mod *msg, uint8_t aux_id = 0) { delete msg; };
+	handle_port_mod(crofctl& ctl, cofmsg_port_mod& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1238,7 +1238,7 @@ protected:
 	 * @param msg Pointer to cofmsg_queue_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_queue_get_config_request(crofctl *ctl, cofmsg_queue_get_config_request *msg, uint8_t aux_id = 0) { delete msg; };
+	handle_queue_get_config_request(crofctl& ctl, cofmsg_queue_get_config_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1275,7 +1275,7 @@ protected:
 	 * @param msg Pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_set_config(crofctl *ctl, cofmsg_set_config *msg, uint8_t aux_id = 0) { delete msg; };
+	handle_set_config(crofctl& ctl, cofmsg_set_config& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1302,7 +1302,7 @@ protected:
 	 * @param msg pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(crofctl *ctl, cofmsg_experimenter *msg, uint8_t aux_id = 0);
+	handle_experimenter_message(crofctl& ctl, cofmsg_experimenter& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1339,7 +1339,7 @@ protected:
 	 * @param msg Pointer to cofmsg_role_request message containing the received message
 	 */
 	virtual void
-	handle_role_request(crofctl *ctl, cofmsg_role_request *msg, uint8_t aux_id = 0) { delete msg; };
+	handle_role_request(crofctl& ctl, cofmsg_role_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1377,7 +1377,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_async_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_async_config_request(crofctl *ctl, cofmsg_get_async_config_request *msg, uint8_t aux_id = 0) { delete msg; };
+	handle_get_async_config_request(crofctl& ctl, cofmsg_get_async_config_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1413,7 +1413,7 @@ protected:
 	 * @param msg Pointer to cofmsg_set_async_config message containing the received message
 	 */
 	virtual void
-	handle_set_async_config(crofctl *ctl, cofmsg_set_async_config *msg, uint8_t aux_id = 0) { delete msg; };
+	handle_set_async_config(crofctl& ctl, cofmsg_set_async_config& msg, uint8_t aux_id = 0) {};
 
 
 	/**@}*/
