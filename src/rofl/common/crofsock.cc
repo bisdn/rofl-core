@@ -40,7 +40,7 @@ crofsock::crofsock(
 
 crofsock::~crofsock()
 {
-
+	delete socket;
 }
 
 

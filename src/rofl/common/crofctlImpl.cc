@@ -637,6 +637,11 @@ crofctlImpl::send_features_reply(
 		uint32_t of10_actions_bitmap,
 		cofports const& ports)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Features-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_features_reply *msg =
 			new cofmsg_features_reply(
 					rofchan.get_version(),
@@ -660,6 +665,11 @@ crofctlImpl::send_get_config_reply(
 		uint16_t flags,
 		uint16_t miss_send_len)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Get-Config-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_get_config_reply *msg =
 			new cofmsg_get_config_reply(
 					rofchan.get_version(),
@@ -679,6 +689,11 @@ crofctlImpl::send_stats_reply(
 		uint16_t stats_flags,
 		uint8_t *body, size_t bodylen)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Stats-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_stats *msg =
 			new cofmsg_stats(
 					rofchan.get_version(),
@@ -699,6 +714,11 @@ crofctlImpl::send_desc_stats_reply(
 	cofdesc_stats_reply const& desc_stats,
 	uint16_t stats_flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Desc-Stats-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_desc_stats_reply *msg =
 			new cofmsg_desc_stats_reply(
 					rofchan.get_version(),
@@ -717,6 +737,11 @@ crofctlImpl::send_flow_stats_reply(
 	std::vector<cofflow_stats_reply> const& flow_stats,
 	uint16_t stats_flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Flow-Stats-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_flow_stats_reply *msg =
 			new cofmsg_flow_stats_reply(
 					rofchan.get_version(),
@@ -735,6 +760,11 @@ crofctlImpl::send_aggr_stats_reply(
 	cofaggr_stats_reply const& aggr_stats,
 	uint16_t stats_flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Aggr-Stats-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_aggr_stats_reply *msg =
 			new cofmsg_aggr_stats_reply(
 					rofchan.get_version(),
@@ -753,6 +783,11 @@ crofctlImpl::send_table_stats_reply(
 	std::vector<coftable_stats_reply> const& table_stats,
 	uint16_t stats_flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Table-Stats-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_table_stats_reply *msg =
 			new cofmsg_table_stats_reply(
 					rofchan.get_version(),
@@ -771,6 +806,11 @@ crofctlImpl::send_port_stats_reply(
 	std::vector<cofport_stats_reply> const& port_stats,
 	uint16_t stats_flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Port-Stats-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_port_stats_reply *msg =
 			new cofmsg_port_stats_reply(
 					rofchan.get_version(),
@@ -789,6 +829,11 @@ crofctlImpl::send_queue_stats_reply(
 		std::vector<cofqueue_stats_reply> const& queue_stats,
 		uint16_t stats_flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Queue-Stats-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_queue_stats_reply *msg =
 			new cofmsg_queue_stats_reply(
 					rofchan.get_version(),
@@ -807,6 +852,11 @@ crofctlImpl::send_group_stats_reply(
 	std::vector<cofgroup_stats_reply> const& group_stats,
 	uint16_t stats_flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Group-Stats-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_group_stats_reply *msg =
 			new cofmsg_group_stats_reply(
 					rofchan.get_version(),
@@ -825,6 +875,11 @@ crofctlImpl::send_group_desc_stats_reply(
 	std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
 	uint16_t stats_flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Group-Desc-Stats-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_group_desc_stats_reply *msg =
 			new cofmsg_group_desc_stats_reply(
 					rofchan.get_version(),
@@ -843,6 +898,11 @@ crofctlImpl::send_group_features_stats_reply(
 	cofgroup_features_stats_reply const& group_features_stats,
 	uint16_t stats_flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Group-Features-Stats-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_group_features_stats_reply *msg =
 			new cofmsg_group_features_stats_reply(
 					rofchan.get_version(),
@@ -863,6 +923,11 @@ crofctlImpl::send_experimenter_stats_reply(
 		cmemory const& body,
 		uint16_t stats_flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Experimenter-Stats-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_experimenter_stats_reply *msg =
 			new cofmsg_experimenter_stats_reply(
 					rofchan.get_version(),
@@ -889,6 +954,11 @@ crofctlImpl::send_packet_in_message(
 	uint8_t* data,
 	size_t datalen)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Packet-In message" << std::endl;
+		return;
+	}
+
 	cofmsg_packet_in *msg =
 			new cofmsg_packet_in(
 					rofchan.get_version(),
@@ -912,6 +982,11 @@ void
 crofctlImpl::send_barrier_reply(
 		uint32_t xid)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Barrier-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_barrier_reply *msg =
 			new cofmsg_barrier_reply(
 					rofchan.get_version(),
@@ -928,6 +1003,11 @@ crofctlImpl::send_role_reply(
 		uint32_t role,
 		uint64_t generation_id)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Role-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_role_reply *msg =
 			new cofmsg_role_reply(
 					rofchan.get_version(),
@@ -948,6 +1028,11 @@ crofctlImpl::send_error_message(
 	uint8_t* data,
 	size_t datalen)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Error message" << std::endl;
+		return;
+	}
+
 	cofmsg_error *msg =
 			new cofmsg_error(
 					rofchan.get_version(),
@@ -969,6 +1054,11 @@ crofctlImpl::send_experimenter_message(
 		uint8_t* body,
 		size_t bodylen)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Experimenter message" << std::endl;
+		return;
+	}
+
 	cofmsg_experimenter *msg =
 			new cofmsg_experimenter(
 						rofchan.get_version(),
@@ -998,6 +1088,11 @@ crofctlImpl::send_flow_removed_message(
 	uint64_t packet_count,
 	uint64_t byte_count)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Flow-Removed message" << std::endl;
+		return;
+	}
+
 	cofmsg_flow_removed *msg =
 			new cofmsg_flow_removed(
 					rofchan.get_version(),
@@ -1024,6 +1119,11 @@ crofctlImpl::send_port_status_message(
 	uint8_t reason,
 	cofport const& port)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Port-Status message" << std::endl;
+		return;
+	}
+
 	cofmsg_port_status *msg =
 			new cofmsg_port_status(
 						rofchan.get_version(),
@@ -1042,6 +1142,11 @@ crofctlImpl::send_queue_get_config_reply(
 		uint32_t portno,
 		cofpacket_queue_list const& pql)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Queue-Get-Config-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_queue_get_config_reply *msg =
 			new cofmsg_queue_get_config_reply(
 					rofchan.get_version(),
@@ -1064,6 +1169,11 @@ crofctlImpl::send_get_async_config_reply(
 		uint32_t flow_removed_mask0,
 		uint32_t flow_removed_mask1)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Get-Async-Config-Reply message" << std::endl;
+		return;
+	}
+
 	cofmsg_get_async_config_reply *msg =
 			new cofmsg_get_async_config_reply(
 					rofchan.get_version(),

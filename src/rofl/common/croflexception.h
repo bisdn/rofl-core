@@ -56,7 +56,13 @@ class eOutOFMemory 			: public RoflException {}; //< out of mem error
 class eNotImplemented 		: public RoflException {
 public:
 	eNotImplemented(std::string desc = std::string("")) : RoflException(desc) {};
+public:
+	friend std::ostream& operator<< (std::ostream& os, eNotImplemented const& e) {
+		os << "<eNotImplemented where:" << e.desc << " >";
+		return os;
+	};
 }; //< oops, fix me exception :D
+
 class eInternalError 		: public RoflException {}; //< some internal error occured
 class eDebug 				: public RoflException {};
 class eInval				: public RoflException {};

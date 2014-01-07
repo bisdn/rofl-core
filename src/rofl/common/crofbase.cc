@@ -52,7 +52,23 @@ crofbase::send_packet_in_message(
 		uint8_t *data,
 		size_t datalen)
 {
-	throw eNotImplemented();
+	for (std::set<crofctl*>::iterator
+			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
+
+		// TODO: roles
+
+		(*(*it)).send_packet_in_message(
+				buffer_id,
+				total_len,
+				reason,
+				table_id,
+				cookie,
+				in_port, // for OF1.0
+				match,
+				data,
+				datalen);
+	}
+	//throw eNotImplemented("crofbase::send_packet_in_message()");
 }
 
 
@@ -71,7 +87,25 @@ crofbase::send_flow_removed_message(
 	uint64_t packet_count,
 	uint64_t byte_count)
 {
-	throw eNotImplemented();
+	for (std::set<crofctl*>::iterator
+			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
+
+		// TODO: roles
+
+		(*(*it)).send_flow_removed_message(
+				match,
+				cookie,
+				priority,
+				reason,
+				table_id,
+				duration_sec,
+				duration_nsec,
+				idle_timeout,
+				hard_timeout,
+				packet_count,
+				byte_count);
+	}
+	//throw eNotImplemented("crofbase::send_flow_removed_message()");
 }
 
 
@@ -81,7 +115,14 @@ crofbase::send_port_status_message(
 	uint8_t reason,
 	cofport const& port)
 {
-	throw eNotImplemented();
+	for (std::set<crofctl*>::iterator
+			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
+
+		// TODO: roles
+
+		(*(*it)).send_port_status_message(reason, port);
+	}
+	//throw eNotImplemented("crofbase::send_port_status_message()");
 }
 
 

@@ -319,7 +319,7 @@ public:
 	send_queue_stats_reply(
 		uint32_t xid,
 		std::vector<cofqueue_stats_reply> const& queue_stats,
-		uint16_t stats_flags) = 0;
+		uint16_t stats_flags = 0) = 0;
 
 	/**
 	 * @brief	Sends a GROUP-STATS.reply to a controller entity.

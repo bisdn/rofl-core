@@ -1220,6 +1220,8 @@ handle_packets:			// handle incoming events
 			try {
 				ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
 			} catch (RoflException& e) {
+				std::cerr << "aborting due to exception: " << e << std::endl;
+				throw;
 				//fprintf(stderr, "exception\n");
 				//throw;
 			}

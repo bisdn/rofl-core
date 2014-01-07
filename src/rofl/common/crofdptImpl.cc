@@ -641,7 +641,7 @@ crofdptImpl::send_table_features_stats_request(
 {
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_TABLE_FEATURES);
 
-	throw eNotImplemented();
+	throw eNotImplemented("crofdptImpl::send_table_features_stats_request()");
 #if 0
 	cofmsg_get_config_request *msg =
 			new cofmsg_get_config_request(rofchan.get_version(), xid);
@@ -1526,7 +1526,7 @@ void
 crofdptImpl::meter_stats_reply_rcvd(
 		cofmsg *msg, uint8_t aux_id)
 {
-	throw eNotImplemented(); // TODO
+	throw eNotImplemented("crofdptImpl::meter_stats_reply_rcvd()"); // TODO
 }
 
 
@@ -1535,7 +1535,7 @@ void
 crofdptImpl::meter_config_stats_reply_rcvd(
 		cofmsg *msg, uint8_t aux_id)
 {
-	throw eNotImplemented(); // TODO
+	throw eNotImplemented("crofdptImpl::meter_config_stats_reply_rcvd()"); // TODO
 }
 
 
@@ -1544,7 +1544,7 @@ void
 crofdptImpl::meter_features_stats_reply_rcvd(
 		cofmsg *msg, uint8_t aux_id)
 {
-	throw eNotImplemented(); // TODO
+	throw eNotImplemented("crofdptImpl::meter_features_stats_reply_rcvd()"); // TODO
 }
 
 
@@ -1553,7 +1553,7 @@ void
 crofdptImpl::table_features_stats_reply_rcvd(
 		cofmsg *msg, uint8_t aux_id)
 {
-	throw eNotImplemented(); // TODO
+	throw eNotImplemented("crofdptImpl::table_features_stats_reply_rcvd()"); // TODO
 }
 
 
@@ -1562,7 +1562,7 @@ void
 crofdptImpl::port_desc_stats_reply_rcvd(
 		cofmsg *msg, uint8_t aux_id)
 {
-	throw eNotImplemented(); // TODO
+	throw eNotImplemented("crofdptImpl::port_desc_stats_reply_rcvd()"); // TODO
 }
 
 
