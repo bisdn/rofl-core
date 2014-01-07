@@ -11,7 +11,6 @@
 #include "openflow/openflow.h"
 #include "croflexception.h"
 #include "cmemory.h"
-#include "crofbase.h"
 #include "cxidstore.h"
 #include "openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofgroupfeaturesstats.h"
@@ -22,6 +21,9 @@
 namespace rofl
 {
 
+class eRofCtlBase 		: public RoflException {};
+class eRofCtlNotFound 	: public eRofCtlBase {};
+
 
 class crofbase;
 
@@ -29,9 +31,17 @@ class crofbase;
 class crofctl :
 	public cxidowner
 {
+	static uint64_t next_ctlid;
+
+	static std::map<uint64_t, crofctl*> rofctls;
+
+	uint64_t   ctlid;
+
 public: // methods
 
 
+	static crofctl&
+	get_ctl(uint64_t ctlid);
 
 
 	/**
@@ -40,7 +50,10 @@ public: // methods
 	 * @param rofbase pointer to crofbase instance
 	 */
 	crofctl(
-			crofbase *rofbase = (crofbase*)0) {};
+			crofbase *rofbase = (crofbase*)0) :
+			ctlid(++crofctl::next_ctlid) {
+		crofctl::rofctls[ctlid] = this;
+	};
 
 
 
@@ -60,7 +73,10 @@ public: // methods
 			caddress const& ra,
 			int domain,
 			int type,
-			int protocol) {};
+			int protocol) :
+				ctlid(++crofctl::next_ctlid) {
+			crofctl::rofctls[ctlid] = this;
+		};
 
 
 
@@ -82,15 +98,18 @@ public: // methods
 			caddress const& ra,
 			int domain,
 			int type,
-			int protocol) {};
-
-
+			int protocol) :
+				ctlid(++crofctl::next_ctlid) {
+			crofctl::rofctls[ctlid] = this;
+		};
 
 	/**
 	 * @brief	Destructor.
 	 */
 	virtual
-	~crofctl() {};
+	~crofctl() {
+		crofctl::rofctls.erase(ctlid);
+	};
 
 
 
@@ -519,5 +538,7 @@ public:
 
 
 }; // end of namespace
+
+#include "crofbase.h"
 
 #endif

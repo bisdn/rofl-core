@@ -39,6 +39,53 @@ crofbase::~crofbase()
 }
 
 
+
+void
+crofbase::send_packet_in_message(
+		uint32_t buffer_id,
+		uint16_t total_len,
+		uint8_t reason,
+		uint8_t table_id,
+		uint64_t cookie,
+		uint16_t in_port, // for OF1.0
+		cofmatch &match,
+		uint8_t *data,
+		size_t datalen)
+{
+	throw eNotImplemented();
+}
+
+
+
+void
+crofbase::send_flow_removed_message(
+	cofmatch& match,
+	uint64_t cookie,
+	uint16_t priority,
+	uint8_t reason,
+	uint8_t table_id,
+	uint32_t duration_sec,
+	uint32_t duration_nsec,
+	uint16_t idle_timeout,
+	uint16_t hard_timeout,
+	uint64_t packet_count,
+	uint64_t byte_count)
+{
+	throw eNotImplemented();
+}
+
+
+
+void
+crofbase::send_port_status_message(
+	uint8_t reason,
+	cofport const& port)
+{
+	throw eNotImplemented();
+}
+
+
+
 void
 crofbase::rpc_close_all()
 {
