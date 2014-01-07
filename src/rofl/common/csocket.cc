@@ -220,9 +220,11 @@ csocket::handle_wevent(int fd)
 		case ECONNREFUSED: {
 			logging::warn << "[rofl][csocket] connection failed." << std::endl << *this;
 			cclose();
-			handle_conn_refused();
+
 			if (sockflags.test(FLAG_ACTIVE_SOCKET)) {
 				reconnect(false);
+			} else {
+				handle_conn_refused();
 			}
 		} break;
 		default: {
@@ -428,7 +430,6 @@ csocket::cconnect(
 		} break;
 		case ECONNREFUSED: {	// connect has been refused
 			cclose();
-			handle_conn_refused();
 			reconnect(false);
 		} break;
 		default: {
