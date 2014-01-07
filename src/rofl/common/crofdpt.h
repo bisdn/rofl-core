@@ -14,7 +14,6 @@
 
 
 #include "rofl/common/croflexception.h"
-#include "rofl/common/crofbase.h"
 #include "rofl/common/cmemory.h"
 #include "rofl/common/cxidstore.h"
 #include "rofl/common/openflow/cofports.h"
@@ -28,6 +27,9 @@
 
 namespace rofl
 {
+
+class eRofDptBase 		: public RoflException {};
+class eRofDptNotFound 	: public eRofDptBase {};
 
 
 /* error classes */
@@ -57,7 +59,17 @@ class crofbase;
  */
 class crofdpt
 {
-public:
+	static uint64_t next_dptid;
+
+	static std::map<uint64_t, crofdpt*> rofdpts;
+
+	uint64_t   dptid;
+
+public: // methods
+
+
+	static crofdpt&
+	get_dpt(uint64_t dptid);
 
 
 
@@ -67,7 +79,10 @@ public:
 	 * @param rofbase pointer to crofbase instance
 	 */
 	crofdpt(
-			crofbase *rofbase = (crofbase*)0) {};
+			crofbase *rofbase = (crofbase*)0) :
+			dptid(++crofdpt::next_dptid) {
+		crofdpt::rofdpts[dptid] = this;
+	};
 
 
 
@@ -88,7 +103,10 @@ public:
 			caddress const& ra,
 			int domain,
 			int type,
-			int protocol) {};
+			int protocol) :
+				dptid(++crofdpt::next_dptid) {
+			crofdpt::rofdpts[dptid] = this;
+		};
 
 
 
@@ -109,7 +127,10 @@ public:
 			caddress const& ra,
 			int domain,
 			int type,
-			int protocol) {};
+			int protocol) :
+				dptid(++crofdpt::next_dptid) {
+			crofdpt::rofdpts[dptid] = this;
+		};
 
 
 
@@ -120,7 +141,9 @@ public:
 	 * exposed by the data path element.
 	 */
 	virtual
-	~crofdpt() {};
+	~crofdpt() {
+		crofdpt::rofdpts.erase(dptid);
+	};
 
 
 
@@ -684,5 +707,7 @@ public:
 
 
 }; // end of namespace
+
+#include "rofl/common/crofbase.h"
 
 #endif

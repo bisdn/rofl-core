@@ -48,6 +48,7 @@ librofl_common_la_SOURCES = \
 		crofctlImpl.h \
 		crofctlImpl.cc \
 		crofdpt.h \
+		crofdpt.cc \
 		crofdptImpl.h \
 		crofdptImpl.cc \
 		crofsock.h \
