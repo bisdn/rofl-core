@@ -469,7 +469,7 @@ csocket::cclose()
 	deregister_filedesc_w(sd);
 	if (not sockflags[RAW_SOCKET]) {
 		if ((rc = shutdown(sd, SHUT_RDWR)) < 0) {
-			logging::error << "[rofl][csocket] error occured during shutdown():" << eSysCall("shutdown") << std::endl << *this;
+			logging::error << "[rofl][csocket] error occured during shutdown(): " << eSysCall("shutdown") << std::endl << *this;
 		}
 	}
 	if ((rc = close(sd)) < 0) {
