@@ -85,7 +85,7 @@ class crofsock :
 {
 
 	crofsock_env						*env;
-	csocket								*socket;		// socket abstraction towards peer
+	csocket								socket;		// socket abstraction towards peer
 	cmemory								*fragment;
 	unsigned int						msg_bytes_read;
 
@@ -138,7 +138,7 @@ private:
 	 */
 	crofsock(crofsock const& endpnt) :
 		env(NULL),
-		socket(NULL),
+		socket(this, 0),
 		fragment(NULL),
 		msg_bytes_read(0)
 	{ };
@@ -248,7 +248,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, crofsock const& rofsock) {
 		os << indent(0) << "<crofsock >" << std::endl;
-		{ indent i(2); os << *(rofsock.socket); }
+		{ indent i(2); os << (rofsock.socket); }
 		return os;
 	};
 };

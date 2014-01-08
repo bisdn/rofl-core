@@ -13,10 +13,11 @@ using namespace rofl;
 
 /* static */ std::set<crofbase*> crofbase::rofbases;
 
-crofbase::crofbase(uint32_t supported_ofp_versions) :
-		supported_ofp_versions(supported_ofp_versions),
-		xid_used_max(CPCP_DEFAULT_XID_USED_MAX),
-		xid_start(crandom(sizeof(uint32_t)).uint32())
+crofbase::crofbase(
+		cofhello_elem_versionbitmap const& versionbitmap) :
+				versionbitmap(versionbitmap),
+				xid_used_max(CPCP_DEFAULT_XID_USED_MAX),
+				xid_start(crandom(sizeof(uint32_t)).uint32())
 {
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::crofbase()", this);
 
@@ -232,16 +233,7 @@ crofbase::handle_ctl_close(
 uint8_t
 crofbase::get_highest_supported_ofp_version()
 {
-	if (supported_ofp_versions & (1 << OFP13_VERSION)) {
-		return OFP13_VERSION;
-	}
-	else if (supported_ofp_versions & (1 << OFP12_VERSION)) {
-		return OFP12_VERSION;
-	}
-	else if (supported_ofp_versions & (1 << OFP10_VERSION)) {
-		return OFP10_VERSION;
-	}
-	throw eRofBaseNotFound();
+	return versionbitmap.get_highest_ofp_version();
 }
 
 
@@ -249,7 +241,7 @@ crofbase::get_highest_supported_ofp_version()
 bool
 crofbase::is_ofp_version_supported(uint8_t ofp_version)
 {
-	return ((1 << ofp_version) & supported_ofp_versions) ? true : false;
+	return versionbitmap.has_ofp_version(ofp_version);
 }
 
 

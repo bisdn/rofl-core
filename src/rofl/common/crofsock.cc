@@ -13,7 +13,7 @@ crofsock::crofsock(
 		crofsock_env *env,
 		int sd) :
 				env(env),
-				socket(new csocket(this, sd)),
+				socket(this, sd),
 				fragment((cmemory*)0),
 				msg_bytes_read(0)
 {
@@ -29,18 +29,18 @@ crofsock::crofsock(
 		int protocol,
 		rofl::caddress const& ra) :
 				env(env),
-				socket(new csocket(this, domain, type, protocol, /*backlog=*/10)),
+				socket(this, domain, type, protocol, /*backlog=*/10),
 				fragment((cmemory*)0),
 				msg_bytes_read(0)
 {
-	socket->cconnect(ra);
+	socket.cconnect(ra);
 }
 
 
 
 crofsock::~crofsock()
 {
-	delete socket;
+
 }
 
 
@@ -192,7 +192,7 @@ crofsock::handle_read(
 rofl::csocket&
 crofsock::get_socket()
 {
-	return (*socket);
+	return socket;
 }
 
 
@@ -201,7 +201,7 @@ void
 crofsock::send_message(
 		cofmsg *msg)
 {
-	if (0 == socket) {
+	if (not socket.is_connected()) {
 		delete msg; return;
 	}
 
@@ -230,7 +230,7 @@ crofsock::send_from_queue()
 
 		delete msg;
 
-		socket->send(mem);
+		socket.send(mem);
 	}
 }
 

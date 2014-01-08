@@ -123,11 +123,12 @@ class crofdpt;
 class crofbase :
 	public ciosrv,
 	public csocket_owner,
+	public crofchan_env,
 	public cfsm
 {
 protected:
 
-	uint32_t					supported_ofp_versions;	/**< bitfield of supported ofp versions */
+	cofhello_elem_versionbitmap	versionbitmap;	/**< bitfield of supported ofp versions */
 	cfsptable 					fsptable; 		/**< flowspace registrations table */
 	std::set<crofctl*>			ofctl_set;		/**< set of active controller connections */
 	std::set<crofdpt*>			ofdpt_set;		/**< set of active data path connections */
@@ -153,7 +154,8 @@ public:
 	 * \see xidlock
 	 * \see xid_start
 	 */
-	crofbase(uint32_t supported_ofp_versions = /*(1 << OFP10_VERSION) |*/ (1 << OFP12_VERSION));
+	crofbase(
+			cofhello_elem_versionbitmap const& versionbitmap);
 
 
 	/**
@@ -1562,8 +1564,6 @@ private:
 	};
 
 	std::set<csocket*>			rpc[2];	/**< two sets of listening sockets for ctl and dpt */
-
-	rofl::openflow::cofhello_elem_versionbitmap		versionbitmap;
 
 
 private:

@@ -16,7 +16,7 @@ crofconn::crofconn(
 		cofhello_elem_versionbitmap const& versionbitmap) :
 				env(env),
 				auxiliary_id(auxiliary_id),
-				rofsock(new crofsock(this, sd)),
+				rofsock(this, sd),
 				versionbitmap(versionbitmap),
 				ofp_version(OFP_VERSION_UNKNOWN),
 				state(STATE_DISCONNECTED),
@@ -40,7 +40,7 @@ crofconn::crofconn(
 		cofhello_elem_versionbitmap const& versionbitmap) :
 					env(env),
 					auxiliary_id(auxiliary_id),
-					rofsock(new crofsock(this, domain, type, protocol, ra)),
+					rofsock(this, domain, type, protocol, ra),
 					versionbitmap(versionbitmap),
 					ofp_version(OFP_VERSION_UNKNOWN),
 					state(STATE_DISCONNECTED),
@@ -56,7 +56,6 @@ crofconn::crofconn(
 crofconn::~crofconn()
 {
 	run_engine(EVENT_DISCONNECTED);
-	delete rofsock;
 }
 
 
@@ -142,7 +141,7 @@ crofconn::event_disconnected()
 	case STATE_ESTABLISHED: {
 		cancel_timer(TIMER_WAIT_FOR_ECHO);
 		cancel_timer(TIMER_WAIT_FOR_HELLO);
-		rofsock->get_socket().cclose();
+		rofsock.get_socket().cclose();
 		env->handle_closed(this);
 		state = STATE_DISCONNECTED;
 
@@ -172,7 +171,6 @@ crofconn::event_hello_rcvd()
 			reset_timer(TIMER_WAIT_FOR_FEATURES, echo_interval);
 			state = STATE_WAIT_FOR_FEATURES;
 		} else {
-			cancel_timer(TIMER_WAIT_FOR_FEATURES);
 			reset_timer(TIMER_SEND_ECHO, echo_interval);
 			state = STATE_ESTABLISHED;
 		}
@@ -184,15 +182,6 @@ crofconn::event_hello_rcvd()
 		state = STATE_ESTABLISHED;
 
 	} break;
-#if 0
-	case STATE_WAIT_FOR_HELLO:
-	case STATE_ESTABLISHED: {
-		cancel_timer(TIMER_WAIT_FOR_HELLO);
-		reset_timer(TIMER_SEND_ECHO, echo_interval);
-		state = STATE_ESTABLISHED;
-
-	} break;
-#endif
 	default: {
 		logging::error << "[rofl][conn] event -HELLO-RCVD- occured in invalid state, internal error" << std::endl << *this;
 	};
@@ -216,6 +205,43 @@ crofconn::event_hello_expired()
 	}
 }
 
+
+
+void
+crofconn::event_features_rcvd()
+{
+	switch (state) {
+	case STATE_WAIT_FOR_FEATURES:
+	case STATE_ESTABLISHED: {
+		if (flags.test(FLAGS_PASSIVE)) {
+			cancel_timer(TIMER_WAIT_FOR_FEATURES);
+			reset_timer(TIMER_SEND_ECHO, echo_interval);
+		}
+		state = STATE_ESTABLISHED;
+
+	} break;
+	default: {
+		logging::error << "[rofl][conn] event -FEATURES-RCVD- occured in invalid state, internal error" << std::endl << *this;
+	};
+	}
+}
+
+
+
+void
+crofconn::event_features_expired()
+{
+	switch (state) {
+	case STATE_WAIT_FOR_FEATURES: {
+		logging::warn << "[rofl][conn] event -FEATURES-EXPIRED- occured in state -WAIT-FOR-FEATURES-" << std::endl << *this;
+		run_engine(EVENT_DISCONNECTED);
+
+	} break;
+	default: {
+		logging::error << "[rofl][conn] event -FEATURES-EXPIRED- occured in invalid state, internal error" << std::endl << *this;
+	};
+	}
+}
 
 
 void
@@ -272,7 +298,7 @@ crofconn::action_send_hello_message()
 
 		logging::error << "[rofl][conn] sending HELLO.message:" << std::endl << *hello;
 
-		rofsock->send_message(hello);
+		rofsock.send_message(hello);
 
 	} catch (eRofConnXidSpaceExhausted& e) {
 
@@ -299,7 +325,7 @@ crofconn::action_send_features_request()
 
 		logging::error << "[rofl][conn] sending FEATURES.request:" << std::endl << *request;
 
-		rofsock->send_message(request);
+		rofsock.send_message(request);
 
 	} catch (eRofConnXidSpaceExhausted& e) {
 
@@ -323,7 +349,7 @@ crofconn::action_send_echo_request()
 						ofp_version,
 						env->get_sync_xid(this));
 
-		rofsock->send_message(echo);
+		rofsock.send_message(echo);
 
 	} catch (eRofConnXidSpaceExhausted& e) {
 
@@ -475,7 +501,7 @@ crofconn::hello_rcvd(
 	} catch (eHelloIncompatible& e) {
 
 		logging::warn << "[rofl][conn] eHelloIncompatible " << *msg << std::endl;
-		rofsock->send_message(
+		rofsock.send_message(
 				new cofmsg_error_hello_failed_incompatible(
 						hello->get_version(), hello->get_xid(), hello->soframe(), hello->framelen()));
 
@@ -484,7 +510,7 @@ crofconn::hello_rcvd(
 	} catch (eHelloEperm& e) {
 
 		logging::warn << "[rofl][conn] eHelloEperm " << *msg << std::endl;
-		rofsock->send_message(
+		rofsock.send_message(
 				new cofmsg_error_hello_failed_eperm(
 						hello->get_version(), hello->get_xid(), hello->soframe(), hello->framelen()));
 
@@ -518,7 +544,7 @@ crofconn::echo_request_rcvd(
 				new cofmsg_echo_reply(request->get_version(), request->get_xid(),
 						request->get_body().somem(), request->get_body().memlen());
 
-		rofsock->send_message(reply);
+		rofsock.send_message(reply);
 
 	} catch (RoflException& e) {
 
@@ -610,6 +636,12 @@ crofconn::features_reply_rcvd(
 			delete msg; return;
 		}
 
+		if (STATE_ESTABLISHED != state) {
+			dpid 			= reply->get_dpid();
+			auxiliary_id 	= reply->get_auxiliary_id();
+			env->handle_connected(this, ofp_version);
+		}
+
 		run_engine(EVENT_ECHO_RCVD);
 
 	} catch (RoflException& e) {
@@ -626,7 +658,7 @@ void
 crofconn::send_message(
 		cofmsg *msg)
 {
-	rofsock->send_message(msg);
+	rofsock.send_message(msg);
 }
 
 

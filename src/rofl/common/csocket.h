@@ -351,6 +351,12 @@ public:
 	send(cmemory *mem, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0));
 
 
+	/**
+	 *
+	 */
+	bool
+	is_connected() const { return sockflags.test(CONNECTED); };
+
 
 private:
 

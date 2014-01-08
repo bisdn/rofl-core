@@ -49,8 +49,9 @@ class crofconn :
 		public ciosrv
 {
 	crofconn_env 					*env;
+	uint64_t						dpid;
 	uint8_t							auxiliary_id;
-	crofsock						*rofsock;
+	crofsock						rofsock;
 	cofhello_elem_versionbitmap		versionbitmap; 			// supported OF versions by this entity
 	cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OF versions by peer entity
 	uint8_t							ofp_version;
@@ -160,6 +161,12 @@ public:
 	get_version() const { return ofp_version; };
 
 	/**
+	 * @brief	Returns data path id assigned to this connection
+	 */
+	uint64_t
+	get_dpid() const { return dpid; };
+
+	/**
 	 * @brief	Return auxialiary_id
 	 */
 	uint8_t
@@ -169,7 +176,7 @@ public:
 	 * @brief
 	 */
 	crofsock&
-	get_rofsocket() { return *rofsock; };
+	get_rofsocket() { return rofsock; };
 
 	/**
 	 * @brief	Send OFP message via socket
@@ -228,6 +235,18 @@ private:
 	 */
 	void
 	event_hello_expired();
+
+	/**
+	 *
+	 */
+	void
+	event_features_rcvd();
+
+	/**
+	 *
+	 */
+	void
+	event_features_expired();
 
 	/**
 	 *
@@ -318,7 +337,7 @@ public:
 			os << indent(2) << "<state: -ESTABLISHED- >" << std::endl;
 		}
 
-		{ indent i(2); os << *(conn.rofsock); }
+		{ indent i(2); os << (conn.rofsock); }
 		os << indent(2) << "<versionbitmap-local: >" << std::endl;
 		{ indent i(4); os << conn.versionbitmap; }
 		os << indent(2) << "<versionbitmap-remote: >" << std::endl;
