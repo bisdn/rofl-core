@@ -16,6 +16,8 @@ extern "C" {
 }
 #endif
 
+#include <bitset>
+
 #include "ciosrv.h"
 #include "crofsock.h"
 #include "openflow/cofhelloelems.h"
@@ -52,6 +54,7 @@ class crofconn :
 	cofhello_elem_versionbitmap		versionbitmap; 			// supported OF versions by this entity
 	cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OF versions by peer entity
 	uint8_t							ofp_version;
+	std::bitset<32>					flags;
 
 	enum msg_type_t {
 		OFPT_HELLO = 0,
@@ -66,8 +69,10 @@ class crofconn :
 		EVENT_DISCONNECTED 		= 2,
 		EVENT_HELLO_RCVD 		= 3,
 		EVENT_HELLO_EXPIRED		= 4,
-		EVENT_ECHO_RCVD			= 5,
-		EVENT_ECHO_EXPIRED		= 6,
+		EVENT_FEATURES_RCVD		= 5,
+		EVENT_FEATURES_EXPIRED	= 6,
+		EVENT_ECHO_RCVD			= 7,
+		EVENT_ECHO_EXPIRED		= 8,
 	};
 	std::deque<enum crofconn_event_t> 	events;
 
@@ -84,6 +89,10 @@ class crofconn :
 		TIMER_WAIT_FOR_FEATURES = 2,
 		TIMER_SEND_ECHO			= 3,
 		TIMER_WAIT_FOR_ECHO		= 4,
+	};
+
+	enum crofconn_flags_t {
+		FLAGS_PASSIVE			= 1,
 	};
 
 #define DEFAULT_HELLO_TIMEOUT	5
@@ -242,6 +251,12 @@ private:
 	 *
 	 */
 	void
+	action_send_features_request();
+
+	/**
+	 *
+	 */
+	void
 	action_disconnect();
 
 	/**
@@ -278,6 +293,13 @@ private:
 	 */
 	void
 	error_rcvd(
+			cofmsg *msg);
+
+	/**
+	 *
+	 */
+	void
+	features_reply_rcvd(
 			cofmsg *msg);
 
 public:

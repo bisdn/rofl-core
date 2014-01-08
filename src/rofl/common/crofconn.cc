@@ -25,6 +25,7 @@ crofconn::crofconn(
 				echo_interval(DEFAULT_ECHO_INTERVAL)
 {
 	run_engine(EVENT_CONNECTED); // socket is available
+	flags.set(FLAGS_PASSIVE);
 }
 
 
@@ -164,13 +165,17 @@ crofconn::event_hello_rcvd()
 		state = STATE_WAIT_FOR_HELLO;
 
 	} break;
-
-#if 0
-	case STATE_WAIT_FOR_HELLO:
-	{
+	case STATE_WAIT_FOR_HELLO: {
 		cancel_timer(TIMER_WAIT_FOR_HELLO);
-		reset_timer(TIMER_WAIT_FOR_FEATURES, echo_interval);
-		state = STATE_WAIT_FOR_FEATURES;
+		if (flags.test(FLAGS_PASSIVE)) {
+			action_send_features_request();
+			reset_timer(TIMER_WAIT_FOR_FEATURES, echo_interval);
+			state = STATE_WAIT_FOR_FEATURES;
+		} else {
+			cancel_timer(TIMER_WAIT_FOR_FEATURES);
+			reset_timer(TIMER_SEND_ECHO, echo_interval);
+			state = STATE_ESTABLISHED;
+		}
 
 	} break;
 	case STATE_ESTABLISHED: {
@@ -179,7 +184,7 @@ crofconn::event_hello_rcvd()
 		state = STATE_ESTABLISHED;
 
 	} break;
-#endif
+#if 0
 	case STATE_WAIT_FOR_HELLO:
 	case STATE_ESTABLISHED: {
 		cancel_timer(TIMER_WAIT_FOR_HELLO);
@@ -187,6 +192,7 @@ crofconn::event_hello_rcvd()
 		state = STATE_ESTABLISHED;
 
 	} break;
+#endif
 	default: {
 		logging::error << "[rofl][conn] event -HELLO-RCVD- occured in invalid state, internal error" << std::endl << *this;
 	};
@@ -282,6 +288,33 @@ crofconn::action_send_hello_message()
 
 
 void
+crofconn::action_send_features_request()
+{
+	try {
+		cmemory body(versionbitmap.length());
+		versionbitmap.pack(body.somem(), body.memlen());
+
+		cofmsg_features_request *request =
+				new cofmsg_features_request(ofp_version, env->get_async_xid(this));
+
+		logging::error << "[rofl][conn] sending FEATURES.request:" << std::endl << *request;
+
+		rofsock->send_message(request);
+
+	} catch (eRofConnXidSpaceExhausted& e) {
+
+		logging::error << "[rofl][conn] sending FEATURES.request failed: no idle xid available" << std::endl << *this;
+
+	} catch (RoflException& e) {
+
+		logging::error << "[rofl][conn] sending FEATURES.request failed " << std::endl << *this;
+
+	}
+}
+
+
+
+void
 crofconn::action_send_echo_request()
 {
 	try {
@@ -358,6 +391,9 @@ crofconn::recv_message(
 			delete msg; return;
 		}
 		echo_reply_rcvd(msg);
+	} break;
+	case OFPT_FEATURES_REPLY: {
+		features_reply_rcvd(msg);
 	} break;
 	default: {
 		if (state != STATE_ESTABLISHED) {
@@ -514,7 +550,6 @@ crofconn::echo_reply_rcvd(
 	}
 
 	delete msg;
-
 }
 
 
@@ -559,6 +594,30 @@ crofconn::error_rcvd(
 
 		logging::warn << "[rofl][conn] RoflException in error_rcvd() " << *error << std::endl;
 	}
+}
+
+
+
+void
+crofconn::features_reply_rcvd(
+		cofmsg *msg)
+{
+	cofmsg_features_reply *reply = dynamic_cast<cofmsg_features_reply*>( msg );
+
+	try {
+		if (NULL == reply) {
+			logging::debug << "[rofl][conn] invalid message rcvd in method features_reply_rcvd()" << std::endl << *msg;
+			delete msg; return;
+		}
+
+		run_engine(EVENT_ECHO_RCVD);
+
+	} catch (RoflException& e) {
+
+		logging::warn << "[rofl][conn] RoflException in echo_reply_rcvd() " << *reply << std::endl;
+	}
+
+	delete msg;
 }
 
 
