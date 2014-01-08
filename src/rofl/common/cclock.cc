@@ -31,7 +31,7 @@ cclock::cclock(
 		time_t delta_sec,
 		time_t delta_nsec)
 {
-	*this = cclock::now();
+	current_time();
 	ts.tv_sec += delta_sec;
 	ts.tv_nsec += delta_nsec;
 }

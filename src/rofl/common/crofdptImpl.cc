@@ -45,7 +45,7 @@ crofdptImpl::crofdptImpl(
 				transactions(this),
 				state(STATE_INIT)
 {
-	run_engine(EVENT_CONNECTED);
+	run_engine(EVENT_DISCONNECTED);
 }
 
 

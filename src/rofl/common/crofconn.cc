@@ -164,6 +164,22 @@ crofconn::event_hello_rcvd()
 		state = STATE_WAIT_FOR_HELLO;
 
 	} break;
+
+#if 0
+	case STATE_WAIT_FOR_HELLO:
+	{
+		cancel_timer(TIMER_WAIT_FOR_HELLO);
+		reset_timer(TIMER_WAIT_FOR_FEATURES, echo_interval);
+		state = STATE_WAIT_FOR_FEATURES;
+
+	} break;
+	case STATE_ESTABLISHED: {
+		cancel_timer(TIMER_WAIT_FOR_FEATURES);
+		reset_timer(TIMER_SEND_ECHO, echo_interval);
+		state = STATE_ESTABLISHED;
+
+	} break;
+#endif
 	case STATE_WAIT_FOR_HELLO:
 	case STATE_ESTABLISHED: {
 		cancel_timer(TIMER_WAIT_FOR_HELLO);
@@ -247,6 +263,8 @@ crofconn::action_send_hello_message()
 						versionbitmap.get_highest_ofp_version(),
 						env->get_async_xid(this),
 						body.somem(), body.memlen());
+
+		logging::error << "[rofl][conn] sending HELLO.message:" << std::endl << *hello;
 
 		rofsock->send_message(hello);
 
@@ -363,6 +381,8 @@ crofconn::hello_rcvd(
 		logging::debug << "[rofl][conn] invalid message rcvd in method hello_rcvd()" << std::endl << *msg;
 		delete msg; return;
 	}
+
+	logging::info << "[rofl][conn] received HELLO message:" << std::endl << *hello;
 
 	try {
 

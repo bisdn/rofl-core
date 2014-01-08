@@ -74,14 +74,16 @@ class crofconn :
 	enum crofconn_state_t {
 		STATE_DISCONNECTED 		= 1,
 		STATE_WAIT_FOR_HELLO	= 2,
-		STATE_ESTABLISHED 		= 3,
+		STATE_WAIT_FOR_FEATURES = 3,
+		STATE_ESTABLISHED 		= 4,
 	};
 	enum crofconn_state_t				state;
 
 	enum crofconn_timer_t {
 		TIMER_WAIT_FOR_HELLO	= 1,
-		TIMER_SEND_ECHO			= 2,
-		TIMER_WAIT_FOR_ECHO		= 3,
+		TIMER_WAIT_FOR_FEATURES = 2,
+		TIMER_SEND_ECHO			= 3,
+		TIMER_WAIT_FOR_ECHO		= 4,
 	};
 
 #define DEFAULT_HELLO_TIMEOUT	5
