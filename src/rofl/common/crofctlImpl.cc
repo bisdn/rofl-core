@@ -2079,14 +2079,6 @@ crofctlImpl::set_async_config_rcvd(cofmsg_set_async_config *msg, uint8_t aux_id)
 
 
 
-cxidtrans&
-crofctlImpl::transaction(uint32_t xid)
-{
-	return xidstore.xid_find(xid);
-}
-
-
-
 uint32_t
 crofctlImpl::get_async_xid(rofl::openflow::crofchan *chan)
 {

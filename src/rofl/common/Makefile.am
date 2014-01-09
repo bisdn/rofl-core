@@ -35,8 +35,6 @@ librofl_common_la_SOURCES = \
 		cvastring.h \
 		fframe.h \
 		fframe.cc \
-		cxidstore.h \
-		cxidstore.cc \
 		ctransaction.h \
 		ctransaction.cc \
 		ctransactions.h \
@@ -94,7 +92,6 @@ library_include_HEADERS= \
 		cvastring.h \
 		fframe.h \
 		thread_helper.h \
-		cxidstore.h \
 		ctransaction.h \
 		ctransactions.h \
 		cflowentry.h \

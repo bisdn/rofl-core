@@ -15,7 +15,6 @@
 
 #include "rofl/common/croflexception.h"
 #include "rofl/common/cmemory.h"
-#include "rofl/common/cxidstore.h"
 #include "rofl/common/openflow/cofports.h"
 #include "rofl/common/openflow/extensions/cfsptable.h"
 #include "openflow/openflow.h"

@@ -54,7 +54,6 @@ private: // data structures
 	uint16_t 						role;					// role of this controller instance
 	uint64_t 						cached_generation_id;	// generation-id used by role requests
 	rofl::openflow::crofchan		rofchan;				// OFP control channel
-	cxidstore						xidstore;
 	rofl::openflow::ctransactions	transactions;
 
 
@@ -145,15 +144,6 @@ public:
 	 */
 	virtual bool
 	is_slave() const;
-
-	/**
-	 * @brief	Returns cxidtrans instance associated with transaction ID xid.
-	 *
-	 * @param xid transaction ID
-	 */
-	virtual cxidtrans&
-	transaction(
-			uint32_t xid);
 
 	/**
 	 * @brief	Returns the current role of attached control entity.

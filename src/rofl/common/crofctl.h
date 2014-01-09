@@ -11,7 +11,6 @@
 #include "openflow/openflow.h"
 #include "croflexception.h"
 #include "cmemory.h"
-#include "cxidstore.h"
 #include "openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofgroupfeaturesstats.h"
 #include "rofl/common/openflow/cofpacketqueuelist.h"
@@ -28,8 +27,7 @@ class eRofCtlNotFound 	: public eRofCtlBase {};
 class crofbase;
 
 
-class crofctl :
-	public cxidowner
+class crofctl
 {
 	static uint64_t next_ctlid;
 
@@ -135,16 +133,6 @@ public: // methods
 	virtual uint8_t
 	get_version() const = 0;
 
-
-
-	/**
-	 * @brief	Returns cxidtrans instance associated with transaction ID xid.
-	 *
-	 * @param xid transaction ID
-	 */
-	virtual cxidtrans&
-	transaction(
-			uint32_t xid) = 0;
 
 
 
