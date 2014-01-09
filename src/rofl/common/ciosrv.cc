@@ -1222,6 +1222,8 @@ handle_packets:			// handle incoming events
 #else
 			try {
 				ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
+			} catch (eSocketError& e){
+				//Ignore socket errors
 			} catch (cerror& e) {
 				//fprintf(stderr, "exception\n");
 				throw;
