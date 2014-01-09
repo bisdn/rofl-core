@@ -11,12 +11,11 @@ using namespace rofl::openflow;
 
 crofconn::crofconn(
 		crofconn_env *env,
-		uint8_t auxiliary_id,
 		int sd,
 		cofhello_elem_versionbitmap const& versionbitmap) :
 				env(env),
 				dpid(0), // will be determined later via Features.request
-				auxiliary_id(auxiliary_id),
+				auxiliary_id(0), // same as dpid
 				rofsock(this, sd),
 				versionbitmap(versionbitmap),
 				ofp_version(OFP_VERSION_UNKNOWN),
@@ -33,7 +32,6 @@ crofconn::crofconn(
 
 crofconn::crofconn(
 		crofconn_env *env,
-		uint64_t dpid,
 		uint8_t auxiliary_id,
 		int domain,
 		int type,
@@ -41,7 +39,7 @@ crofconn::crofconn(
 		rofl::caddress const& ra,
 		cofhello_elem_versionbitmap const& versionbitmap) :
 					env(env),
-					dpid(dpid),
+					dpid(0),
 					auxiliary_id(auxiliary_id),
 					rofsock(this, domain, type, protocol, ra),
 					versionbitmap(versionbitmap),
@@ -217,12 +215,7 @@ crofconn::event_features_rcvd()
 			cancel_timer(TIMER_WAIT_FOR_FEATURES);
 			reset_timer(TIMER_SEND_ECHO, echo_interval);
 			state = STATE_ESTABLISHED;
-			try {
-				crofdpt::get_dpt(dpid).get_channel().add_conn(this, auxiliary_id);
-				env->handle_connected(this, ofp_version);
-			} catch (eRofDptNotFound& e) {
-				// TODO
-			}
+			env->handle_connected(this, ofp_version);
 		}
 
 	} break;

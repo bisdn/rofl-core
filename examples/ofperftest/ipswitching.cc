@@ -2,7 +2,8 @@
 
 #include <inttypes.h>
 
-ipswitching::ipswitching(unsigned int n_entries) :
+ipswitching::ipswitching(cofhello_elem_versionbitmap const& versionbitmap, unsigned int n_entries) :
+	ofperftest(versionbitmap),
 	n_entries(n_entries),
 	fib_check_timeout(5), // check for expired FIB entries every 5 seconds
 	fm_delete_all_timeout(30)

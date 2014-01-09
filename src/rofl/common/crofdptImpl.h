@@ -172,13 +172,13 @@ public:
 	/**
 	 * @brief	Returns a reference to rofchan's cofhello_elem_versionbitmap instance
 	 */
-	rofl::openflow::cofhello_elem_versionbitmap&
+	virtual rofl::openflow::cofhello_elem_versionbitmap&
 	get_versionbitmap() { return rofchan.get_versionbitmap(); };
 
 	/**
 	 * @brief	Returns a reference to the associated crofchan instance
 	 */
-	rofl::openflow::crofchan&
+	virtual rofl::openflow::crofchan&
 	get_channel() { return rofchan; };
 
 	/**

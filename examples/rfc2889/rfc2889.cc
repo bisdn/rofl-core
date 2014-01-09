@@ -2,10 +2,12 @@
 
 #include <inttypes.h>
 
-etherswitch::etherswitch() :
-	fib_check_timeout(5), // check for expired FIB entries every 5 seconds
-	flow_stats_timeout(10),
-	fm_delete_all_timeout(30)
+etherswitch::etherswitch(
+		cofhello_elem_versionbitmap const& versionbitmap) :
+			crofbase(versionbitmap),
+			fib_check_timeout(5), // check for expired FIB entries every 5 seconds
+			flow_stats_timeout(10),
+			fm_delete_all_timeout(30)
 {
 	// ...
 	register_timer(ETHSWITCH_TIMER_FIB, fib_check_timeout);

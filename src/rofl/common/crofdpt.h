@@ -23,7 +23,7 @@
 #include "rofl/common/cflowentry.h"
 #include "rofl/common/cgroupentry.h"
 #include "rofl/common/crofchan.h"
-
+#include "rofl/common/openflow/cofhelloelemversionbitmap.h"
 
 
 namespace rofl
@@ -170,12 +170,19 @@ public: // methods
 	get_peer_addr() = 0;
 
 
+	/**
+	 *
+	 * @return
+	 */
+	virtual rofl::openflow::cofhello_elem_versionbitmap&
+	get_versionbitmap() = 0;
+
 
 	/**
 	 *
 	 * @return
 	 */
-	rofl::openflow::crofchan&
+	virtual rofl::openflow::crofchan&
 	get_channel() = 0;
 
 

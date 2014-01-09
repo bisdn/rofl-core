@@ -8,7 +8,9 @@
 #include "queuetest.h"
 
 
-queuetest::queuetest()
+queuetest::queuetest(
+		cofhello_elem_versionbitmap const& versionbitmap) :
+			crofbase(versionbitmap)
 {
 
 }

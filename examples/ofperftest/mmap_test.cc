@@ -2,7 +2,8 @@
 
 #include <inttypes.h>
 
-mmap_test::mmap_test(caddress const& laddr, unsigned int burst_interval, unsigned int pkt_interval, size_t pkt_len) :
+mmap_test::mmap_test(cofhello_elem_versionbitmap const& versionbitmap, caddress const& laddr, unsigned int burst_interval, unsigned int pkt_interval, size_t pkt_len) :
+	ofperftest(versionbitmap),
 	sock(0),
 	laddr(laddr),
 	burst_interval(burst_interval),

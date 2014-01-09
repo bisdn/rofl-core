@@ -24,7 +24,7 @@ class queuetest :
 
 public:
 
-	queuetest();
+	queuetest(cofhello_elem_versionbitmap const& versionbitmap);
 
 	virtual
 	~queuetest();

@@ -35,7 +35,7 @@ private:
 
 public:
 
-	etherswitch();
+	etherswitch(cofhello_elem_versionbitmap const& versionbitmap);
 
 	virtual
 	~etherswitch();

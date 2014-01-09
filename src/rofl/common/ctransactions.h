@@ -67,7 +67,7 @@ public:
 	 */
 	uint32_t
 	add_ta(
-			cclock const& delta, uint8_t msg_type = 0, uint16_t msg_subtype = 0);
+			cclock const& delta = cclock(0, 0), uint8_t msg_type = 0, uint16_t msg_subtype = 0);
 
 	/**
 	 *

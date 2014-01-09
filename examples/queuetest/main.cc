@@ -17,7 +17,9 @@ main(int argc, char** argv)
 
 	rofl::ciosrv::init();
 
-	queuetest qtest;
+	cofhello_elem_versionbitmap versionbitmap;
+	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
+	queuetest qtest(versionbitmap);
 
 	qtest.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
 	qtest.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));

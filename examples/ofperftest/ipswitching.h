@@ -41,7 +41,7 @@ private:
 
 public:
 
-	ipswitching(unsigned int n_entries = 0);
+	ipswitching(cofhello_elem_versionbitmap const& versionbitmap, unsigned int n_entries = 0);
 
 	virtual
 	~ipswitching();

@@ -14,7 +14,7 @@ class ofperftest :
 
 public:
 
-	ofperftest();
+	ofperftest(cofhello_elem_versionbitmap const& versionbitmap);
 
 	virtual
 	~ofperftest();

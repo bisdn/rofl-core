@@ -119,12 +119,6 @@ public:
 	 *
 	 */
 	crofconn&
-	add_conn(uint8_t aux_id, int sd);
-
-	/**
-	 *
-	 */
-	crofconn&
 	add_conn(uint8_t aux_id, int domain, int type, int protocol, caddress const& ra);
 
 	/**

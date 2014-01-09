@@ -4,7 +4,8 @@
 
 using namespace etherswitch;
 
-ethswitch::ethswitch()
+ethswitch::ethswitch(cofhello_elem_versionbitmap const& versionbitmap) :
+		crofbase(versionbitmap)
 {
 
 }

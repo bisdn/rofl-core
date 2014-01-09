@@ -57,36 +57,6 @@ crofchan::clear()
 crofconn&
 crofchan::add_conn(
 		uint8_t aux_id,
-		int sd)
-{
-	if (conns.find(aux_id) != conns.end()) {
-		throw eRofChanExists();
-	}
-	if (conns.empty() && (0 != aux_id)) {
-		logging::error << "[rofl][chan] first connection must have aux-id:0, found " << (int)aux_id << " instead." << std::endl << *this;
-		throw eRofChanInval();
-	}
-
-	if ((aux_id > 0) && (ofp_version < rofl::openflow13::OFP_VERSION)) {
-		logging::error << "[rofl][chan] no auxiliary connections allowed in OFP version: " << ofp_version << std::endl << *this;
-		throw eRofChanInval();
-	}
-
-	cofhello_elem_versionbitmap vbitmap;
-	if (0 == aux_id) {
-		vbitmap = versionbitmap;				// main connection: propose all OFP versions defined for our side
-	} else {
-		vbitmap.add_ofp_version(ofp_version);	// auxiliary connections: use OFP version negotiated for main connection
-	}
-
-	return *(conns[aux_id] = new crofconn(this, aux_id, sd, vbitmap));
-}
-
-
-
-crofconn&
-crofchan::add_conn(
-		uint8_t aux_id,
 		int domain,
 		int type,
 		int protocol,
@@ -121,10 +91,24 @@ crofchan::add_conn(
 		crofconn* conn,
 		uint8_t aux_id)
 {
+	if (conns.empty() && (0 != aux_id)) {
+		logging::error << "[rofl][chan] first connection must have aux-id:0, found " << (int)aux_id << " instead." << std::endl << *this;
+		throw eRofChanInval();
+	}
+
+	if ((aux_id > 0) && (ofp_version < rofl::openflow13::OFP_VERSION)) {
+		logging::error << "[rofl][chan] no auxiliary connections allowed in OFP version: " << ofp_version << std::endl << *this;
+		throw eRofChanInval();
+	}
+
+
+
 	if (conns.find(aux_id) != conns.end()) {
 		drop_conn(aux_id); // drop old connection first
 	}
 	conns[aux_id] = conn;
+	conns[aux_id]->set_env(this);
+	handle_connected(conns[aux_id], conns[aux_id]->get_version());
 	return *(conns[aux_id]);
 }
 
@@ -198,6 +182,9 @@ crofchan::handle_connected(
 
 			drop_conn(aux_id);
 		} else {
+			logging::debug << "[rofl][chan] auxiliary connection with aux-id:" << (int)aux_id
+					<< " established." << std::endl << *conn;
+
 			env->handle_connected(this, aux_id);
 		}
 	}

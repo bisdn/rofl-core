@@ -45,6 +45,7 @@ private:
 public:
 
 	mmap_test(
+			cofhello_elem_versionbitmap const& versionbitmap,
 			caddress const& laddr = caddress(AF_INET, "0.0.0.0", 4444),
 			unsigned int burst_interval = MMAP_TEST_DEFAULT_BURST_INTERVAL,
 			unsigned int pkt_interval = MMAP_TEST_DEFAULT_PKT_INTERVAL,

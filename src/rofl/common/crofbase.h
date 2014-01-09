@@ -80,6 +80,7 @@
 #include "openflow/messages/cofmsg_role.h"
 #include "openflow/messages/cofmsg_experimenter.h"
 #include "openflow/messages/cofmsg_async_config.h"
+#include "rofl/common/ctransactions.h"
 
 namespace rofl
 {
@@ -123,7 +124,11 @@ class crofdpt;
 class crofbase :
 	public ciosrv,
 	public csocket_owner,
+#if 0
 	public crofchan_env,
+#endif
+	public crofconn_env,
+	public ctransactions_env,
 	public cfsm
 {
 protected:
@@ -132,6 +137,7 @@ protected:
 	cfsptable 					fsptable; 		/**< flowspace registrations table */
 	std::set<crofctl*>			ofctl_set;		/**< set of active controller connections */
 	std::set<crofdpt*>			ofdpt_set;		/**< set of active data path connections */
+	ctransactions				transactions;
 
 public:
 
@@ -189,9 +195,63 @@ public:
 	nsp_enable(bool enable = true);
 
 
+public:
 
+	/*
+	 * overloaded from rofl::openflow::crofconn_env
+	 */
 
+	virtual void
+	handle_connect_refused(crofconn *conn);
 
+	virtual void
+	handle_connected(crofconn *conn, uint8_t ofp_version);
+
+	virtual void
+	handle_closed(crofconn *conn);
+
+	virtual void
+	recv_message(crofconn *conn, cofmsg *msg) { delete msg; };
+
+	virtual uint32_t
+	get_async_xid(crofconn *conn) { return transactions.get_async_xid(); };
+
+	virtual uint32_t
+	get_sync_xid(crofconn *conn) { return transactions.add_ta(cclock(5, 0)); };
+
+	virtual void
+	release_sync_xid(crofconn *conn, uint32_t xid) { transactions.drop_ta(xid); };
+
+#if 0
+public:
+
+	virtual void
+	handle_connected(crofchan *chan, uint8_t aux_id);
+
+	virtual void
+	handle_closed(crofchan *chan, uint8_t aux_id);
+
+	virtual void
+	recv_message(crofchan *chan, uint8_t aux_id, cofmsg *msg) { delete msg; };
+
+	virtual uint32_t
+	get_async_xid(crofchan *chan) { return transactions.get_async_xid(); };
+
+	virtual uint32_t
+	get_sync_xid(crofchan *chan) { return transactions.add_ta(cclock(5, 0)); };
+
+	virtual void
+	release_sync_xid(crofchan *chan, uint32_t xid) { transactions.drop_ta(xid); };
+#endif
+
+public:
+
+	/*
+	 * overloaded from rofl::openflow::ctransactions_env
+	 */
+
+	virtual void
+	ta_expired(ctransactions& tas, ctransaction& ta) {};
 
 public:
 
@@ -292,31 +352,6 @@ public:
 			caddress const& ra);
 
 
-
-	/**
-	 * @fn	 	rpc_connect_to_dpt
-	 * @brief	Connects to a remote data path in controller role.
-	 *
-	 * Establishes a socket connection to a remote data path element.
-	 * When the connection is successfully established, crofbase calls
-	 * method crofbase::handle_dpath_open().
-	 *
-	 * \see{ handle_dpath_open() }
-	 *
-	 * @param ofp_version OpenFlow version to use for connecting to data path element
-	 * @param ra Address to connect to
-	 * @param domain Socket domain (default: PF_INET)
-	 * @param type Socket type (default: SOCK_STREAM)
-	 * @param protocol Socket protocol (default: IPPROTO_TCP)
-	 */
-	void
-	rpc_connect_to_dpt(
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-			int reconnect_start_timeout,
-			caddress const& ra,
-			int domain = PF_INET,
-			int type = SOCK_STREAM,
-			int protocol = IPPROTO_TCP);
 
 
 	/**
@@ -483,25 +518,6 @@ protected:
 
 	/**@{*/
 
-	/**
-	 * @brief	creates a new cofctl instance for an existing socket with sockfd newsd.
-	 *
-	 * This method constructs a new instance of class cofctl for managing a single connection
-	 * to a controller. This class is supposed to be overwritten, if a class derived from crofbase
-	 * intends to overwrite cofctl and add additional functionality. When the initial HELLO message
-	 * exchange in OpenFlow succeeds, method crofbase::handle_ctrl_open() will be called.
-	 *
-	 * @param owner Pointer to this crofbase instance for callbacks used by the cofctl instance
-	 * @param versionbitmap version-bitmap Hello IE containing acceptable OFP versions
-	 * @param newsd socket descriptor of new created socket for cofctl instance
-	 *
-	 */
-	virtual crofctl*
-	cofctl_factory(
-			crofbase* owner,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-			int newsd);
-
 
 	/**
 	 * @brief	Creates a new cofctl instance and tries to connect to a remote controller entity.
@@ -543,45 +559,12 @@ protected:
 	 *
 	 * @param owner Pointer to this crofbase instance for callbacks used by the cofdpt instance
 	 * @param versionbitmap version-bitmap Hello IE containing acceptable OFP versions
-	 * @param newsd socket descriptor of new created socket for cofdpt instance
 	 *
 	 */
 	virtual crofdpt*
 	cofdpt_factory(
 			crofbase* owner,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-			int newsd);
-
-
-	/**
-	 * @brief	Creates a new cofdpt instance and tries to connect to a remote data path element.
-	 *
-	 * This method constructs a new instance of class cofdpt for actively establishing a single connection
-	 * to a data path element. This class is supposed to be overwritten, if a class derived from crofbase
-	 * intends to overwrite cofdpt and add additional functionality. cofdpt will indefinitely attempt
-	 * to connect to the peer entity unless it is removed by calling crofbase::rpf_disconnect_from_dpt().
-	 * When the initial handshake in OpenFlow succeeds (FEATURES.request/reply, GET-CONFIG.request/reply,
-	 * TABLE-STATS.request/reply), method crofbase::handle_dpath_open() will be called.
-	 *
-	 * @param owner Pointer to this crofbase instance for callbacks used by the cofdpt instance
-	 * @param ofp_version OpenFlow version to use for connecting to data path element
-	 * @param ra Remote address to connect to
-	 * @param domain socket domain (see man 2 socket for details)
-	 * @param type socket type (see man 2 socket for details)
-	 * @param protocol socket protocol (see man 2 socket for details)
-	 *
-	 */
-	virtual crofdpt*
-	cofdpt_factory(
-			crofbase* owner,
-			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-			int reconnect_start_timeout,
-			caddress const& ra,
-			int domain,
-			int type,
-			int protocol);
-
-
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
 
 	/**
 	 * @brief	called once a new cofdpt instance has been created
@@ -1518,19 +1501,6 @@ private:
 	};
 
 	std::bitset<32> 					fe_flags;
-	std::string 						info;			/**< info string */
-	pthread_rwlock_t					xidlock;		/**< rwlock variable for transaction ids
-															stored in ta_pending_reqs */
-
-	/*
-	 * data structures
-	 */
-
-	std::map<uint32_t, uint8_t> 		ta_pending_reqs; 	// list of pending requests
-	std::set<uint32_t>	 				xids_used;			// list of recently used xids
-	size_t 								xid_used_max; 		// reusing xids: max number of currently blocked xid entries stored
-	uint32_t 							xid_start; 			// start value xid
-#define CPCP_DEFAULT_XID_USED_MAX       16
 
 	/** \enum crofbase::crofbase_event_t
 	 *
@@ -1569,76 +1539,6 @@ private:
 private:
 
 	friend class csocket;
-
-
-	/** Helper method for handling DESCription STATS.requests.
-	 * Only used within crofbase internally.
-	 */
-	void
-	send_stats_reply_local();
-
-
-	/*
-	 * transaction ID related methods
-	 */
-
-
-	/** add pending request to transaction queue
-	 * - allocates new xid not in xid_used
-	 * - adds xid to xid_used
-	 * - adds pair(type, xid) to ta_pending_requests
-	 */
-	uint32_t
-	ta_add_request(
-			uint8_t type);
-
-
-	/** remove pending request from transaction queue
-	 */
-	void
-	ta_rem_request(
-			uint32_t xid);
-
-
-	/** return boolean flag for pending request of type x
-	 */
-	bool
-	ta_pending(
-			uint32_t xid,
-			uint8_t type);
-
-
-	/** return new xid for asynchronous calls
-	 * - adds xid to xid_used
-	 * - does not add xid to ta_pending_requests
-	 */
-	uint32_t
-	ta_new_async_xid();
-
-
-	/** validate incoming reply for transaction
-	 * checks for existing type and associated xid
-	 * removes request from ta_pending_reqs, if found
-	 */
-	bool
-	ta_validate(
-			uint32_t xid,
-			uint8_t type) throw (eRofBaseXidInval);
-
-
-	/** validate a cofpacket, calls ta_validate(xid, type)
-	 */
-	bool
-	ta_validate(
-			cofmsg *pack);
-
-
-	/** returns true if a xid is used by a pending
-	 * transaction
-	 */
-	bool
-	ta_active_xid(
-			uint32_t xid);
 
 
 	/*

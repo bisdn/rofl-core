@@ -36,7 +36,7 @@ private:
 
 public:
 
-	match_eth_dst(unsigned int n_entries = 0);
+	match_eth_dst(cofhello_elem_versionbitmap const& versionbitmap, unsigned int n_entries = 0);
 
 	virtual
 	~match_eth_dst();

@@ -2,7 +2,8 @@
 
 #include <inttypes.h>
 
-match_vlan_id::match_vlan_id(unsigned int n_entries) :
+match_vlan_id::match_vlan_id(cofhello_elem_versionbitmap const& versionbitmap, unsigned int n_entries) :
+	ofperftest(versionbitmap),
 	n_entries(n_entries),
 	fib_check_timeout(5), // check for expired FIB entries every 5 seconds
 	fm_delete_all_timeout(30)

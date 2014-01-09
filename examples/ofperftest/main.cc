@@ -32,17 +32,18 @@ main(int argc, char** argv)
 	rofl::csyslog::set_debug_level("cthread", "emergency");
 
 
-
+	cofhello_elem_versionbitmap versionbitmap;
+	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
 	ofperftest* perftest;
 
 	if (s_testcase == std::string("match_eth_dst")) {
-		perftest = new match_eth_dst(n_entries);
+		perftest = new match_eth_dst(versionbitmap, n_entries);
 	} else if (s_testcase == std::string("match_vlan_id")) {
-		perftest = new match_vlan_id(n_entries);
+		perftest = new match_vlan_id(versionbitmap, n_entries);
 	} else if (s_testcase == std::string("ipswitching")) {
-		perftest = new ipswitching(n_entries);
+		perftest = new ipswitching(versionbitmap, n_entries);
 	} else if (s_testcase == std::string("mmap_test")) {
-		mmap_test *mmaptest = new mmap_test(caddress(AF_INET, "0.0.0.0", 4444), burst_interval, pkt_interval);
+		mmap_test *mmaptest = new mmap_test(versionbitmap, caddress(AF_INET, "0.0.0.0", 4444), burst_interval, pkt_interval);
 		mmaptest->udp_start_sending(caddress(AF_INET, s_destip.c_str(), destport));
 		perftest = mmaptest;
 	} else {

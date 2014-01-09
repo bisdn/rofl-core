@@ -36,7 +36,7 @@ private:
 
 public:
 
-	match_vlan_id(unsigned int n_entries = 0);
+	match_vlan_id(cofhello_elem_versionbitmap const& versionbitmap, unsigned int n_entries = 0);
 
 	virtual
 	~match_vlan_id();

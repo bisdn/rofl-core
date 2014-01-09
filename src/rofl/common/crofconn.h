@@ -113,7 +113,6 @@ public:
 	 */
 	crofconn(
 			crofconn_env *env,
-			uint8_t auxiliary_id,
 			int sd,
 			cofhello_elem_versionbitmap const& versionbitmap);
 
@@ -122,7 +121,6 @@ public:
 	 */
 	crofconn(
 			crofconn_env *env,
-			uint64_t dpid,
 			uint8_t auxiliary_id,
 			int domain,
 			int type,
@@ -184,6 +182,12 @@ public:
 	 */
 	void
 	send_message(cofmsg *msg);
+
+	/**
+	 *
+	 */
+	void
+	set_env(crofconn_env* env) { this->env = env; };
 
 private:
 

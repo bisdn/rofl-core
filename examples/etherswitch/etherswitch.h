@@ -42,7 +42,7 @@ private:
 
 public:
 
-	ethswitch();
+	ethswitch(cofhello_elem_versionbitmap const& versionbitmap);
 
 	virtual
 	~ethswitch();

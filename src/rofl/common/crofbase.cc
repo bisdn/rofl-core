@@ -16,15 +16,8 @@ using namespace rofl;
 crofbase::crofbase(
 		cofhello_elem_versionbitmap const& versionbitmap) :
 				versionbitmap(versionbitmap),
-				xid_used_max(CPCP_DEFAULT_XID_USED_MAX),
-				xid_start(crandom(sizeof(uint32_t)).uint32())
+				transactions(this)
 {
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::crofbase()", this);
-
-	//register_timer(TIMER_FE_DUMP_OFPACKETS, 15);
-
-	pthread_rwlock_init(&xidlock, 0);
-
 	crofbase::rofbases.insert(this);
 }
 
@@ -34,9 +27,6 @@ crofbase::~crofbase()
 	rpc_close_all();
 	
 	crofbase::rofbases.erase(this);
-	WRITELOG(CROFBASE, DBG, "crofbase(%p)::~crofbase()", this);
-
-	pthread_rwlock_destroy(&xidlock);
 }
 
 
@@ -185,6 +175,77 @@ crofbase::nsp_enable(bool enable)
 
 
 void
+crofbase::handle_connect_refused(
+		crofconn *conn)
+{
+
+}
+
+
+
+void
+crofbase::handle_connected(
+		crofconn *conn,
+		uint8_t ofp_version)
+{
+	/*
+	 * situation:
+	 * 1. csocket accepted new connection
+	 * 2. crofconn was created and socket description handed over
+	 * 3. crofconn conducts HELLO exchange and FEATURES.request/reply
+	 * 4. this method is called
+	 *
+	 * next step: check for exisiting crofdpt instance for dpid seen by crofconn
+	 * if none exists, create new one, otherwise, add connection to existing crofdpt
+	 */
+	try {
+
+		crofdpt::get_dpt(conn->get_dpid()).get_channel().add_conn(conn, conn->get_aux_id());
+
+	} catch (eRofDptNotFound& e) {
+
+		// TODO: THINK: test for aux_id == 0 here?
+		crofdpt *dpt = cofdpt_factory(this, versionbitmap);
+		ofdpt_set.insert(dpt);
+		logging::info << "[rofl][base] new dpt representing handle created for dpid:"
+				<< conn->get_dpid() << std::endl;
+
+		dpt->get_channel().add_conn(conn, conn->get_aux_id());
+	}
+}
+
+
+
+void
+crofbase::handle_closed(
+		crofconn *conn)
+{
+
+}
+
+
+#if 0
+void
+crofbase::handle_connected(
+		crofchan *chan,
+		uint8_t aux_id)
+{
+
+}
+
+
+
+void
+crofbase::handle_closed(
+		crofchan *chan,
+		uint8_t aux_id)
+{
+
+}
+#endif
+
+
+void
 crofbase::handle_dpt_open(
 		crofdpt *dpt)
 {
@@ -252,29 +313,7 @@ crofbase::handle_accepted(
 		int newsd,
 		caddress const& ra)
 {
-	if (rpc[RPC_CTL].find(socket) != rpc[RPC_CTL].end())
-	{
-#ifndef NDEBUG
-		caddress raddr(ra);
-		fprintf(stderr, "A:ctl[%s] ", raddr.c_str());
-#endif
-		WRITELOG(CROFBASE, INFO, "crofbase(%p): new ctl TCP connection", this);
-		ofctl_set.insert(cofctl_factory(this, versionbitmap, newsd));
-	}
-	else if (rpc[RPC_DPT].find(socket) != rpc[RPC_DPT].end())
-	{
-#ifndef NDEBUG
-		caddress raddr(ra);
-		fprintf(stderr, "A:dpt[%s] ", raddr.c_str());
-#endif
-		WRITELOG(CROFBASE, INFO, "crofbase(%p): new dpt TCP connection", this);
-		ofdpt_set.insert(cofdpt_factory(this, versionbitmap, newsd));
-	}
-	else
-	{
-		WRITELOG(CROFBASE, INFO, "crofbase(%p): new unknown TCP connection, closing", this);
-		close(newsd);
-	}
+	new rofl::openflow::crofconn(this, newsd, versionbitmap);
 }
 
 
@@ -410,29 +449,14 @@ crofbase::rpc_disconnect_from_ctl(
 
 
 void
-crofbase::rpc_connect_to_dpt(
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-		int reconnect_start_timeout,
-		caddress const& ra,
-		int domain,
-		int type,
-		int protocol)
-{
-	ofdpt_set.insert(cofdpt_factory(this, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol));
-}
-
-
-void
 crofbase::rpc_disconnect_from_dpt(
 		crofdpt *dpt)
 {
-	if (0 == dpt)
-	{
+	if (0 == dpt) {
 		return;
 	}
 
-	if (ofdpt_set.find(dpt) == ofdpt_set.end())
-	{
+	if (ofdpt_set.find(dpt) == ofdpt_set.end()) {
 		return;
 	}
 
@@ -463,17 +487,6 @@ crofctl*
 crofbase::cofctl_factory(
 		crofbase* owner,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-		int newsd)
-{
-	return new crofctlImpl(owner, versionbitmap, newsd);
-}
-
-
-
-crofctl*
-crofbase::cofctl_factory(
-		crofbase* owner,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int reconnect_start_timeout,
 		caddress const& ra,
 		int domain,
@@ -488,25 +501,9 @@ crofbase::cofctl_factory(
 crofdpt*
 crofbase::cofdpt_factory(
 		crofbase* owner,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-		int newsd)
+		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap)
 {
-	return new crofdptImpl(owner, versionbitmap, newsd);
-}
-
-
-
-crofdpt*
-crofbase::cofdpt_factory(
-		crofbase* owner,
-		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
-		int reconnect_start_timeout,
-		caddress const& ra,
-		int domain,
-		int type,
-		int protocol)
-{
-	return new crofdptImpl(owner, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol);
+	return new crofdptImpl(owner, versionbitmap);
 }
 
 
@@ -754,149 +751,6 @@ crofbase::get_ofp_command(uint8_t ofp_version, enum openflow::ofp_flow_mod_comma
 
 
 
-
-
-
-uint32_t
-crofbase::ta_add_request(
-		uint8_t type)
-{
-	uint32_t xid = ta_new_async_xid();
-
-	RwLock lock(&xidlock, RwLock::RWLOCK_WRITE);
-
-	// add pair(type, xid) to transaction list
-	//ta_pending_reqs.insert(std::make_pair<uint32_t, uint8_t>(xid, type));
-	ta_pending_reqs[xid] = type;
-
-	WRITELOG(XID, DBG, "cofbase::ta_add_request() rand number=0x%x", xid);
-
-#ifndef NDEBUG
-	std::map<uint32_t, uint8_t>::iterator it;
-	for (it = ta_pending_reqs.begin(); it != ta_pending_reqs.end(); ++it) {
-		WRITELOG(XID, DBG, "cofbase::ta_pending_request: xid=0x%x type=%d",
-				 (*it).first, (*it).second);
-	}
-#endif
-
-	return xid;
-}
-
-
-
-void
-crofbase::ta_rem_request(
-		uint32_t xid)
-{
-	RwLock lock(&xidlock, RwLock::RWLOCK_WRITE);
-
-	ta_pending_reqs.erase(xid);
-	// this yields an exception if type wasn't stored in ta_pending_reqs
-}
-
-
-
-bool
-crofbase::ta_pending(
-		uint32_t xid, uint8_t type)
-{
-	RwLock lock(&xidlock, RwLock::RWLOCK_WRITE);
-
-#ifndef NDEBUG
-	std::map<uint32_t, uint8_t>::iterator it;
-	for (it = ta_pending_reqs.begin(); it != ta_pending_reqs.end(); ++it) {
-		WRITELOG(XID, DBG, "cofbase::ta_pending_request: xid=0x%x type=%d",
-				 (*it).first, (*it).second);
-	}
-
-	WRITELOG(XID, DBG, "%s 0x%x %d %d",
-			(ta_pending_reqs.find(xid) != ta_pending_reqs.end()) ? "true" : "false",
-			xid, ta_pending_reqs[xid], (int)type);
-#endif
-
-	return((ta_pending_reqs[xid] == type) &&
-		   (ta_pending_reqs.find(xid) != ta_pending_reqs.end()));
-}
-
-
-
-bool
-crofbase::ta_active_xid(
-		uint32_t xid)
-{
-	RwLock lock(&xidlock, RwLock::RWLOCK_READ);
-
-	return(ta_pending_reqs.find(xid) != ta_pending_reqs.end());
-}
-
-
-
-uint32_t
-crofbase::ta_new_async_xid()
-{
-#if 0
-	int count = xid_used_max;
-	// if xid_used is larger than xid_used_max, remove oldest entries
-	while ((xids_used.size() > xid_used_max) && (--count)) {
-		// do not remove xids from active transactions
-		if (!ta_active_xid(xids_used.front()))
-			xids_used.pop_front();
-	}
-
-	// allocate new xid not used before
-	crandom r(sizeof(uint32_t));
-	while (find(xids_used.begin(), xids_used.end(), r.uint32()) != xids_used.end())
-		r.rand(sizeof(uint32_t));
-
-	// store new allocated xid
-	xids_used.push_back(r.uint32());
-
-	return r.uint32();
-#endif
-
-	RwLock lock(&xidlock, RwLock::RWLOCK_WRITE);
-
-	if (xids_used.size() > xid_used_max) {
-		xids_used.clear();
-	}
-
-	do {
-		xid_start++;
-	} while (xids_used.find(xid_start) != xids_used.end());
-
-	xids_used.insert(xid_start);
-
-	return xid_start;
-}
-
-
-
-bool
-crofbase::ta_validate(
-		cofmsg *msg)
-{
-		return ta_validate(msg->get_xid(), msg->get_type());
-}
-
-
-
-bool
-crofbase::ta_validate(
-		uint32_t xid,
-		uint8_t type) throw (eRofBaseXidInval)
-{
-	// check for pending transaction of type 'type'
-	if (!ta_pending(xid, type))
-	{
-		WRITELOG(XID, DBG, "crofbase(%p)::ta_validate() no pending transaction for xid: 0x%x", this, xid);
-		throw eRofBaseXidInval();
-	}
-
-	// delete transaction
-	ta_rem_request(xid);
-
-	return true;
-}
 
 
 

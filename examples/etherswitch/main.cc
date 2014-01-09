@@ -17,7 +17,9 @@ main(int argc, char** argv)
 
 	rofl::ciosrv::init();
 
-	etherswitch::ethswitch sw;
+	cofhello_elem_versionbitmap versionbitmap;
+	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
+	etherswitch::ethswitch sw(versionbitmap);
 
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));
