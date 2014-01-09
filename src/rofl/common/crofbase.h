@@ -161,7 +161,7 @@ public:
 	 * \see xid_start
 	 */
 	crofbase(
-			cofhello_elem_versionbitmap const& versionbitmap);
+			cofhello_elem_versionbitmap const& versionbitmap = cofhello_elem_versionbitmap());
 
 
 	/**
