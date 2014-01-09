@@ -131,6 +131,12 @@ public:
 	 *
 	 */
 	crofconn&
+	add_conn(crofconn* conn, uint8_t aux_id);
+
+	/**
+	 *
+	 */
+	crofconn&
 	get_conn(uint8_t aux_id);
 
 	/**

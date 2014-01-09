@@ -52,9 +52,9 @@ class crofconn :
 	uint64_t						dpid;
 	uint8_t							auxiliary_id;
 	crofsock						rofsock;
-	cofhello_elem_versionbitmap		versionbitmap; 			// supported OF versions by this entity
-	cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OF versions by peer entity
-	uint8_t							ofp_version;
+	cofhello_elem_versionbitmap		versionbitmap; 			// supported OFP versions by this entity
+	cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OFP versions by peer entity
+	uint8_t							ofp_version;			// negotiated OFP version
 	std::bitset<32>					flags;
 
 	enum msg_type_t {
@@ -109,7 +109,7 @@ public:
 public:
 
 	/**
-	 *
+	 * controller mode
 	 */
 	crofconn(
 			crofconn_env *env,
@@ -118,10 +118,11 @@ public:
 			cofhello_elem_versionbitmap const& versionbitmap);
 
 	/**
-	 *
+	 * datapath mode
 	 */
 	crofconn(
 			crofconn_env *env,
+			uint64_t dpid,
 			uint8_t auxiliary_id,
 			int domain,
 			int type,

@@ -15,6 +15,7 @@ crofconn::crofconn(
 		int sd,
 		cofhello_elem_versionbitmap const& versionbitmap) :
 				env(env),
+				dpid(0), // will be determined later via Features.request
 				auxiliary_id(auxiliary_id),
 				rofsock(this, sd),
 				versionbitmap(versionbitmap),
@@ -32,6 +33,7 @@ crofconn::crofconn(
 
 crofconn::crofconn(
 		crofconn_env *env,
+		uint64_t dpid,
 		uint8_t auxiliary_id,
 		int domain,
 		int type,
@@ -39,6 +41,7 @@ crofconn::crofconn(
 		rofl::caddress const& ra,
 		cofhello_elem_versionbitmap const& versionbitmap) :
 					env(env),
+					dpid(dpid),
 					auxiliary_id(auxiliary_id),
 					rofsock(this, domain, type, protocol, ra),
 					versionbitmap(versionbitmap),
@@ -173,14 +176,12 @@ crofconn::event_hello_rcvd()
 		} else {
 			reset_timer(TIMER_SEND_ECHO, echo_interval);
 			state = STATE_ESTABLISHED;
+			env->handle_connected(this, ofp_version);
 		}
 
 	} break;
 	case STATE_ESTABLISHED: {
-		cancel_timer(TIMER_WAIT_FOR_FEATURES);
-		reset_timer(TIMER_SEND_ECHO, echo_interval);
-		state = STATE_ESTABLISHED;
-
+		// do nothing
 	} break;
 	default: {
 		logging::error << "[rofl][conn] event -HELLO-RCVD- occured in invalid state, internal error" << std::endl << *this;
@@ -211,14 +212,22 @@ void
 crofconn::event_features_rcvd()
 {
 	switch (state) {
-	case STATE_WAIT_FOR_FEATURES:
-	case STATE_ESTABLISHED: {
+	case STATE_WAIT_FOR_FEATURES: {
 		if (flags.test(FLAGS_PASSIVE)) {
 			cancel_timer(TIMER_WAIT_FOR_FEATURES);
 			reset_timer(TIMER_SEND_ECHO, echo_interval);
+			state = STATE_ESTABLISHED;
+			try {
+				crofdpt::get_dpt(dpid).get_channel().add_conn(this, auxiliary_id);
+				env->handle_connected(this, ofp_version);
+			} catch (eRofDptNotFound& e) {
+				// TODO
+			}
 		}
-		state = STATE_ESTABLISHED;
 
+	} break;
+	case STATE_ESTABLISHED: {
+		// do nothing
 	} break;
 	default: {
 		logging::error << "[rofl][conn] event -FEATURES-RCVD- occured in invalid state, internal error" << std::endl << *this;
@@ -493,9 +502,8 @@ crofconn::hello_rcvd(
 			logging::warn << "[rofl][conn] no common OFP version supported, closing connection." << std::endl << *this;
 			run_engine(EVENT_DISCONNECTED);
 		} else {
-			run_engine(EVENT_HELLO_RCVD);
 			logging::info << "[rofl][conn] connection established." << std::endl << *this;
-			env->handle_connected(this, ofp_version);
+			run_engine(EVENT_HELLO_RCVD);
 		}
 
 	} catch (eHelloIncompatible& e) {
@@ -639,10 +647,8 @@ crofconn::features_reply_rcvd(
 		if (STATE_ESTABLISHED != state) {
 			dpid 			= reply->get_dpid();
 			auxiliary_id 	= reply->get_auxiliary_id();
-			env->handle_connected(this, ofp_version);
+			run_engine(EVENT_FEATURES_RCVD);
 		}
-
-		run_engine(EVENT_ECHO_RCVD);
 
 	} catch (RoflException& e) {
 

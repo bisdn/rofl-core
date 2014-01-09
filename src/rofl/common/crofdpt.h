@@ -22,6 +22,7 @@
 #include "openflow/messages/cofmsg.h"
 #include "rofl/common/cflowentry.h"
 #include "rofl/common/cgroupentry.h"
+#include "rofl/common/crofchan.h"
 
 
 
@@ -167,6 +168,15 @@ public: // methods
 	 */
 	virtual caddress
 	get_peer_addr() = 0;
+
+
+
+	/**
+	 *
+	 * @return
+	 */
+	rofl::openflow::crofchan&
+	get_channel() = 0;
 
 
 public:

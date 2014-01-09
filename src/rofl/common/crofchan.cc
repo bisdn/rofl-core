@@ -116,6 +116,19 @@ crofchan::add_conn(
 }
 
 
+crofconn&
+crofchan::add_conn(
+		crofconn* conn,
+		uint8_t aux_id)
+{
+	if (conns.find(aux_id) != conns.end()) {
+		drop_conn(aux_id); // drop old connection first
+	}
+	conns[aux_id] = conn;
+	return *(conns[aux_id]);
+}
+
+
 
 crofconn&
 crofchan::get_conn(
