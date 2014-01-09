@@ -73,6 +73,8 @@ cofport::operator= (cofport const& port)
 
 	cmemory::operator= (port);
 
+	ofh_port = somem();
+
 	return *this;
 }
 
@@ -129,6 +131,7 @@ cofport::unpack(
 	default:
 		throw eBadVersion();
 	}
+	ofh_port = somem();
 }
 
 

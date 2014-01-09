@@ -217,7 +217,7 @@ public:
 	get_async_xid(crofconn *conn) { return transactions.get_async_xid(); };
 
 	virtual uint32_t
-	get_sync_xid(crofconn *conn) { return transactions.add_ta(cclock(5, 0)); };
+	get_sync_xid(crofconn *conn, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) { return transactions.add_ta(cclock(5, 0), msg_type, msg_sub_type); };
 
 	virtual void
 	release_sync_xid(crofconn *conn, uint32_t xid) { transactions.drop_ta(xid); };

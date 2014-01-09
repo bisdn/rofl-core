@@ -41,7 +41,7 @@ public:
 	virtual void handle_closed(crofchan *chan, uint8_t aux_id) = 0;
 	virtual void recv_message(crofchan *chan, uint8_t aux_id, cofmsg *msg) = 0;
 	virtual uint32_t get_async_xid(crofchan *chan) = 0;
-	virtual uint32_t get_sync_xid(crofchan *chan) = 0;
+	virtual uint32_t get_sync_xid(crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) = 0;
 	virtual void release_sync_xid(crofchan *chan, uint32_t xid) = 0;
 };
 
@@ -90,7 +90,7 @@ public:
 	get_async_xid(crofconn *conn);
 
 	virtual uint32_t
-	get_sync_xid(crofconn *conn);
+	get_sync_xid(crofconn *conn, uint8_t msg_type = 0, uint16_t msg_sub_type = 0);
 
 	virtual void
 	release_sync_xid(crofconn *conn, uint32_t xid);

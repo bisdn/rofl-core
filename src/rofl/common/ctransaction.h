@@ -90,11 +90,18 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, ctransaction const& ta) {
 		os << indent(0) << "<transaction ";
-			os << "xid:" << (int)ta.xid << " msg-type:" << (int)ta.msg_type << " msg-subtype:" << (int)ta.msg_sub_type << " >" << std::endl;
-		os << indent(2) << "<since: >" << std::endl;
-		{ indent i(4); os << ta.since; }
-		os << indent(2) << "<expires: >" << std::endl;
-		{ indent i(4); os << ta.expires; }
+			os << "xid:" << std::hex << (int)ta.xid << std::dec
+					<< " msg-type:" << (int)ta.msg_type
+					<< " msg-subtype:" << (int)ta.msg_sub_type << " >" << std::endl;
+			cclock delta(ta.since); delta -= ta.expires;
+			os << indent(2) << "<expires: >" << std::endl;
+			{ indent i(4); os << delta; }
+#if 0
+			os << indent(2) << "<since: >" << std::endl;
+			{ indent i(4); os << ta.since; }
+			os << indent(2) << "<expires: >" << std::endl;
+			{ indent i(4); os << ta.expires; }
+#endif
 		return os;
 	};
 };

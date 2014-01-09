@@ -39,7 +39,7 @@ public:
 	virtual void handle_closed(crofconn *conn) = 0;
 	virtual void recv_message(crofconn *conn, cofmsg *msg) = 0;
 	virtual uint32_t get_async_xid(crofconn *conn) = 0;
-	virtual uint32_t get_sync_xid(crofconn *conn) = 0;
+	virtual uint32_t get_sync_xid(crofconn *conn, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) = 0;
 	virtual void release_sync_xid(crofconn *conn, uint32_t xid) = 0;
 };
 
@@ -337,6 +337,9 @@ public:
 		}
 		else if (conn.state == STATE_WAIT_FOR_HELLO) {
 			os << indent(2) << "<state: -WAIT-FOR-HELLO- >" << std::endl;
+		}
+		else if (conn.state == STATE_WAIT_FOR_FEATURES) {
+			os << indent(2) << "<state: -WAIT-FOR-FEATURES- >" << std::endl;
 		}
 		else if (conn.state == STATE_ESTABLISHED) {
 			os << indent(2) << "<state: -ESTABLISHED- >" << std::endl;

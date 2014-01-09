@@ -24,8 +24,8 @@ crofconn::crofconn(
 				echo_timeout(DEFAULT_ECHO_TIMEOUT),
 				echo_interval(DEFAULT_ECHO_INTERVAL)
 {
-	run_engine(EVENT_CONNECTED); // socket is available
 	flags.set(FLAGS_PASSIVE);
+	run_engine(EVENT_CONNECTED); // socket is available
 }
 
 
@@ -76,6 +76,9 @@ crofconn::handle_timeout(
 	case TIMER_WAIT_FOR_ECHO: {
 		run_engine(EVENT_ECHO_EXPIRED);
 	} break;
+	case TIMER_WAIT_FOR_FEATURES: {
+		run_engine(EVENT_FEATURES_EXPIRED);
+	} break;
 	default: {
 		logging::warn << "[rofl][conn] unknown timer type:" << opaque << " rcvd" << std::endl << *this;
 	};
@@ -100,6 +103,8 @@ crofconn::run_engine(crofconn_event_t event)
 		case EVENT_DISCONNECTED:	event_disconnected();		break;
 		case EVENT_HELLO_RCVD:		event_hello_rcvd();			break;
 		case EVENT_HELLO_EXPIRED:	event_hello_expired();		break;
+		case EVENT_FEATURES_RCVD:	event_features_rcvd();		break;
+		case EVENT_FEATURES_EXPIRED:event_features_expired();	break;
 		case EVENT_ECHO_RCVD:		event_echo_rcvd();			break;
 		case EVENT_ECHO_EXPIRED:	event_echo_expired();		break;
 		default: {
@@ -349,7 +354,7 @@ crofconn::action_send_echo_request()
 		cofmsg_echo_request *echo =
 				new cofmsg_echo_request(
 						ofp_version,
-						env->get_sync_xid(this));
+						env->get_sync_xid(this, OFPT_ECHO_REQUEST));
 
 		rofsock.send_message(echo);
 
@@ -569,6 +574,8 @@ crofconn::echo_reply_rcvd(
 			delete msg; return;
 		}
 
+		env->release_sync_xid(this, msg->get_xid());
+
 		run_engine(EVENT_ECHO_RCVD);
 
 	} catch (RoflException& e) {
@@ -638,14 +645,23 @@ crofconn::features_reply_rcvd(
 		}
 
 		if (STATE_ESTABLISHED != state) {
+			logging::error << "[rofl][conn] rcvd FEATURES.reply:" << std::endl << *reply;
+
 			dpid 			= reply->get_dpid();
-			auxiliary_id 	= reply->get_auxiliary_id();
+			if (ofp_version >= rofl::openflow13::OFP_VERSION) {
+				auxiliary_id 	= reply->get_auxiliary_id();
+			} else {
+				auxiliary_id 	= 0;
+			}
+
+			env->release_sync_xid(this, msg->get_xid());
+
 			run_engine(EVENT_FEATURES_RCVD);
 		}
 
 	} catch (RoflException& e) {
 
-		logging::warn << "[rofl][conn] RoflException in echo_reply_rcvd() " << *reply << std::endl;
+		logging::warn << "[rofl][conn] RoflException in features_reply_rcvd() " << *reply << std::endl;
 	}
 
 	delete msg;

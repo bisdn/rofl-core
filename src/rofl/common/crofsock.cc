@@ -40,7 +40,7 @@ crofsock::crofsock(
 
 crofsock::~crofsock()
 {
-
+	socket.cclose();
 }
 
 
@@ -152,7 +152,7 @@ crofsock::handle_read(
 					delete mem; fragment = (cmemory*)0;
 				}
 
-				socket->cclose();
+				//socket->cclose();
 				env->handle_closed(this);
 				return;
 			}

@@ -126,8 +126,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cclock const clk) {
-		os << indent(0) << "<cclock sec:" << (int)clk.ts.tv_sec
-				<< " nsec:" << (int)clk.ts.tv_nsec << " >" << std::endl;
+		os << indent(0) << "<cclock sec:" << std::hex << (int)clk.ts.tv_sec
+				<< " nsec:" << (int)clk.ts.tv_nsec << std::dec << " >" << std::endl;
 		return os;
 	};
 };

@@ -210,7 +210,7 @@ public:
 	get_async_xid(rofl::openflow::crofchan *chan);
 
 	virtual uint32_t
-	get_sync_xid(rofl::openflow::crofchan *chan);
+	get_sync_xid(rofl::openflow::crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0);
 
 	virtual void
 	release_sync_xid(rofl::openflow::crofchan *chan, uint32_t xid);

@@ -239,9 +239,9 @@ crofchan::get_async_xid(crofconn *conn)
 }
 
 uint32_t
-crofchan::get_sync_xid(crofconn *conn)
+crofchan::get_sync_xid(crofconn *conn, uint8_t msg_type, uint16_t msg_sub_type)
 {
-	return env->get_sync_xid(this);
+	return env->get_sync_xid(this, msg_type, msg_sub_type);
 }
 
 void

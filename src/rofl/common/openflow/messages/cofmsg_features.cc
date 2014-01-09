@@ -328,6 +328,7 @@ cofmsg_features_reply::validate()
 		if (get_length() < sizeof(struct openflow10::ofp_switch_features))
 			throw eBadSyntaxTooShort();
 		if (get_length() > sizeof(struct openflow10::ofp_switch_features)) {
+			ports = cofports(rofl::openflow10::OFP_VERSION);
 			ports.unpack((uint8_t*)(ofh10_switch_features->ports), get_length() - sizeof(struct openflow10::ofp_switch_features));
 		}
 	} break;
@@ -335,6 +336,7 @@ cofmsg_features_reply::validate()
 		if (get_length() < sizeof(struct openflow12::ofp_switch_features))
 			throw eBadSyntaxTooShort();
 		if (get_length() > sizeof(struct openflow12::ofp_switch_features)) {
+			ports = cofports(rofl::openflow12::OFP_VERSION);
 			ports.unpack((uint8_t*)(ofh12_switch_features->ports), get_length() - sizeof(struct openflow12::ofp_switch_features));
 		}
 	} break;

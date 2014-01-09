@@ -23,7 +23,7 @@ crofdptImpl::crofdptImpl(
 				transactions(this),
 				state(STATE_INIT)
 {
-	run_engine(EVENT_DISCONNECTED);
+
 }
 
 
@@ -441,9 +441,9 @@ crofdptImpl::get_async_xid(rofl::openflow::crofchan *chan)
 }
 
 uint32_t
-crofdptImpl::get_sync_xid(rofl::openflow::crofchan *chan)
+crofdptImpl::get_sync_xid(rofl::openflow::crofchan *chan, uint8_t msg_type, uint16_t msg_sub_type)
 {
-	return transactions.add_ta(cclock(/*secs=*/5));
+	return transactions.add_ta(cclock(/*secs=*/5), msg_type, msg_sub_type);
 }
 
 void

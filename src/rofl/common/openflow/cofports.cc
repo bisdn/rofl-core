@@ -136,42 +136,42 @@ cofports::unpack(
 			if (buflen < (int)sizeof(struct rofl::openflow10::ofp_port))
 				return;
 
-			cofport port(ofp_version, buf, sizeof(struct rofl::openflow10::ofp_port*));
+			cofport port(ofp_version, buf, sizeof(struct rofl::openflow10::ofp_port));
 			if ((*this).find(port.get_port_no()) != (*this).end()) {
 				delete (*this)[port.get_port_no()];
 			}
 			(*this)[port.get_port_no()] = new cofport(port);
 
-			buf += sizeof(struct rofl::openflow10::ofp_port*);
-			buflen -= sizeof(struct rofl::openflow10::ofp_port*);
+			buf += sizeof(struct rofl::openflow10::ofp_port);
+			buflen -= sizeof(struct rofl::openflow10::ofp_port);
 
 		} break;
 		case rofl::openflow12::OFP_VERSION: {
 			if (buflen < (int)sizeof(struct rofl::openflow12::ofp_port))
 				return;
 
-			cofport port(ofp_version, buf, sizeof(struct rofl::openflow12::ofp_port*));
+			cofport port(ofp_version, buf, sizeof(struct rofl::openflow12::ofp_port));
 			if ((*this).find(port.get_port_no()) != (*this).end()) {
 				delete (*this)[port.get_port_no()];
 			}
 			(*this)[port.get_port_no()] = new cofport(port);
 
-			buf += sizeof(struct rofl::openflow12::ofp_port*);
-			buflen -= sizeof(struct rofl::openflow12::ofp_port*);
+			buf += sizeof(struct rofl::openflow12::ofp_port);
+			buflen -= sizeof(struct rofl::openflow12::ofp_port);
 
 		} break;
 		case rofl::openflow13::OFP_VERSION: {
 			if (buflen < (int)sizeof(struct rofl::openflow13::ofp_port))
 				return;
 
-			cofport port(ofp_version, buf, sizeof(struct rofl::openflow13::ofp_port*));
+			cofport port(ofp_version, buf, sizeof(struct rofl::openflow13::ofp_port));
 			if ((*this).find(port.get_port_no()) != (*this).end()) {
 				delete (*this)[port.get_port_no()];
 			}
 			(*this)[port.get_port_no()] = new cofport(port);
 
-			buf += sizeof(struct rofl::openflow13::ofp_port*);
-			buflen -= sizeof(struct rofl::openflow13::ofp_port*);
+			buf += sizeof(struct rofl::openflow13::ofp_port);
+			buflen -= sizeof(struct rofl::openflow13::ofp_port);
 
 		} break;
 		default:
