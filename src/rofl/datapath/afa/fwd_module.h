@@ -5,6 +5,7 @@
 #ifndef AFA_DRIVER_H
 #define AFA_DRIVER_H 
 
+#include <rofl/datapath/pipeline/monitoring.h>
 #include <rofl/datapath/pipeline/switch_port.h>
 #include <rofl/datapath/pipeline/openflow/of_switch.h>
 #include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms.h>
