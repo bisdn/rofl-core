@@ -31,6 +31,13 @@ afa_result_t fwd_module_init(void);
 afa_result_t fwd_module_destroy(void);
 
 /**
+* @name    fwd_module_get_chassis_info_
+* @brief   Get the chassis information in the form of a monitored entity.
+* @ingroup fwd_module_management
+*/
+monitored_entity_t* fwd_module_get_chassis_info(void);
+
+/**
 *
 * Switch management functions
 *

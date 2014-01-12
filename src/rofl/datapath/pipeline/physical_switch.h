@@ -11,6 +11,7 @@
 #include "platform/lock.h"
 #include "openflow/of_switch.h"
 #include "switch_port.h"
+#include "monitoring.h"
 
 /**
 * @file physical_switch.h
@@ -152,35 +153,38 @@ extern switch_port_t* all_meta_port;
 */
 typedef struct physical_switch{
 
-    /*
-    * List of all logical switches in the system
-    */
-    unsigned int num_of_logical_switches;
-    of_switch_t* logical_switches[PHYSICAL_SWITCH_MAX_LS];
+	/*
+	* List of all logical switches in the system
+	*/
+	unsigned int num_of_logical_switches;
+	of_switch_t* logical_switches[PHYSICAL_SWITCH_MAX_LS];
 
-    /*
-    * Ports
-    */
-    //physical: index is the physical port of the platform.
-    switch_port_t* physical_ports[PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS];
+	/*
+	* Ports
+	*/
+	//physical: index is the physical port of the platform.
+	switch_port_t* physical_ports[PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS];
 
-    //tunnel ports
-    switch_port_t* tunnel_ports[PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS]; //Not used yet
+	//tunnel ports
+	switch_port_t* tunnel_ports[PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS]; //Not used yet
 
-    //virtual ports (which are not tunnel)
-    switch_port_t* virtual_ports[PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS]; //Not used yet
+	//virtual ports (which are not tunnel)
+	switch_port_t* virtual_ports[PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS]; //Not used yet
 
-    //meta ports (esoteric ports). This is NOT an array of pointers!
-    switch_port_t meta_ports[PHYSICAL_SWITCH_MAX_NUM_META_PORTS]; 
+	//meta ports (esoteric ports). This is NOT an array of pointers!
+	switch_port_t meta_ports[PHYSICAL_SWITCH_MAX_NUM_META_PORTS]; 
 
-    /* 
-    * Other state 
-    */
-    //Mutex
-    platform_mutex_t* mutex;
-    
-    //Opaque platform specific extra state 
-    platform_physical_switch_state_t* platform_state;	
+	//Monitoring data
+	monitored_entity_t chassis;
+
+	/* 
+	* Other state 
+	*/
+	//Mutex
+	platform_mutex_t* mutex;
+
+	//Opaque platform specific extra state 
+	platform_physical_switch_state_t* platform_state;	
 }physical_switch_t; 
 
 //C++ extern C

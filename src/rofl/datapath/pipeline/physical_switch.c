@@ -65,6 +65,10 @@ rofl_result_t physical_switch_init(){
 	in_port_meta_port = &psw->meta_ports[META_PORT_IN_PORT_INDEX];
 	all_meta_port = &psw->meta_ports[META_PORT_ALL_INDEX];
 
+	//Set initial chassis monitoring data
+	memset(&psw->chassis,0,sizeof(monitored_entity_t));
+	psw->chassis.type = ME_TYPE_CHASSIS;
+
 	//Generate matching algorithm lists
 	__physical_switch_generate_matching_algorithm_list();
 
