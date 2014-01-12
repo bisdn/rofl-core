@@ -145,11 +145,11 @@ crofconn::event_disconnected()
 	} break;
 	case STATE_WAIT_FOR_HELLO:
 	case STATE_ESTABLISHED: {
+		state = STATE_DISCONNECTED;
 		cancel_timer(TIMER_WAIT_FOR_ECHO);
 		cancel_timer(TIMER_WAIT_FOR_HELLO);
 		rofsock.get_socket().cclose();
 		env->handle_closed(this);
-		state = STATE_DISCONNECTED;
 
 	} break;
 	default: {
@@ -165,20 +165,20 @@ crofconn::event_hello_rcvd()
 {
 	switch (state) {
 	case STATE_DISCONNECTED: {
+		state = STATE_WAIT_FOR_HELLO;
 		action_send_hello_message();
 		reset_timer(TIMER_WAIT_FOR_HELLO, hello_timeout);
-		state = STATE_WAIT_FOR_HELLO;
 
 	} break;
 	case STATE_WAIT_FOR_HELLO: {
 		cancel_timer(TIMER_WAIT_FOR_HELLO);
 		if (flags.test(FLAGS_PASSIVE)) {
+			state = STATE_WAIT_FOR_FEATURES;
 			action_send_features_request();
 			reset_timer(TIMER_WAIT_FOR_FEATURES, echo_interval);
-			state = STATE_WAIT_FOR_FEATURES;
 		} else {
-			reset_timer(TIMER_SEND_ECHO, echo_interval);
 			state = STATE_ESTABLISHED;
+			reset_timer(TIMER_SEND_ECHO, echo_interval);
 			env->handle_connected(this, ofp_version);
 		}
 
@@ -217,9 +217,9 @@ crofconn::event_features_rcvd()
 	switch (state) {
 	case STATE_WAIT_FOR_FEATURES: {
 		if (flags.test(FLAGS_PASSIVE)) {
+			state = STATE_ESTABLISHED;
 			cancel_timer(TIMER_WAIT_FOR_FEATURES);
 			reset_timer(TIMER_SEND_ECHO, echo_interval);
-			state = STATE_ESTABLISHED;
 			env->handle_connected(this, ofp_version);
 		}
 
@@ -394,7 +394,6 @@ crofconn::handle_closed(crofsock *endpnt)
 {
 	run_engine(EVENT_DISCONNECTED);
 	logging::warn << "[rofl][conn] OFP socket indicated connection closed." << std::endl << *this;
-	env->handle_closed(this);
 }
 
 
