@@ -146,7 +146,7 @@ crofsock::handle_read(
 			else if (rc == 0) // socket was closed
 			{
 				//rfds.erase(fd);
-				logging::info << "[rofl][sock] peer closed connection." << *this << std::endl;
+				logging::info << "[rofl][sock] peer closed connection." << std::endl << *this;
 
 				if (mem) {
 					delete mem; fragment = (cmemory*)0;
