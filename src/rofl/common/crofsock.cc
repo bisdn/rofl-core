@@ -213,7 +213,7 @@ crofsock::send_message(
 		delete msg; return;
 	}
 
-	log_message(std::string("[rofl][sock] queueing message for sending:"), *msg);
+	log_message(std::string("queueing message for sending:"), *msg);
 
 	RwLock(outqueue_rwlock, RwLock::RWLOCK_WRITE);
 
@@ -278,7 +278,7 @@ crofsock::parse_message(
 		default: msg = new cofmsg(mem); break;
 		}
 
-		log_message(std::string("[rofl][sock] received message:"), *msg);
+		log_message(std::string("received message:"), *msg);
 
 		env->recv_message(this, msg);
 
