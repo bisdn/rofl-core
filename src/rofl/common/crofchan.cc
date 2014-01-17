@@ -199,13 +199,24 @@ crofchan::handle_closed(crofconn *conn)
 	if (conns.find(conn->get_aux_id()) == conns.end()) {
 		return;
 	}
-	uint8_t aux_id = conn->get_aux_id();
+
+	bool active_connection = conn->is_actively_established();
+	uint8_t aux_id 	= conn->get_aux_id();
+	int domain 		= conn->get_rofsocket().get_socket().domain;
+	int type 		= conn->get_rofsocket().get_socket().type;
+	int protocol 	= conn->get_rofsocket().get_socket().protocol;
+	caddress raddr 	= conn->get_rofsocket().get_socket().raddr;
+
 	conns.erase(aux_id); // remove pointer from map conns
 	delete conn; // call destructor => this will lead to a call to crofchan::handle_closed(conn); (again)
 	env->handle_closed(this, aux_id);
 
 	if (conns.empty()) {
 		ofp_version = OFP_VERSION_UNKNOWN;
+	}
+
+	if (active_connection) {
+		add_conn(aux_id, domain, type, protocol, raddr);
 	}
 }
 

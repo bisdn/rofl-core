@@ -99,7 +99,7 @@ class crofconn :
 
 #define DEFAULT_HELLO_TIMEOUT	5
 #define DEFAULT_ECHO_TIMEOUT 	5
-#define DEFAULT_ECHO_INTERVAL	5
+#define DEFAULT_ECHO_INTERVAL	30
 
 public:
 
@@ -141,6 +141,12 @@ public:
 	 */
 	bool
 	is_established() const { return (STATE_ESTABLISHED == state); }
+
+	/**
+	 * @brief	Returns true when this connection has been actively established
+	 */
+	bool
+	is_actively_established() const { return not flags.test(FLAGS_PASSIVE); };
 
 	/**
 	 * @brief	Returns a reference to the versionbitmap announced by this entity

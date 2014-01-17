@@ -446,6 +446,10 @@ csocket::cconnect(
 		register_filedesc_r(sd);
 		sockflags.set(CONNECTED);
 
+		if (sockflags.test(FLAG_ACTIVE_SOCKET)) {
+			cancel_timer(TIMER_RECONNECT);
+		}
+
 		if ((getsockname(sd, laddr.ca_saddr, &(laddr.salen))) < 0) {
 			throw eSysCall("getsockname");
 		}
@@ -474,13 +478,13 @@ csocket::cclose()
 
 	deregister_filedesc_r(sd);
 	deregister_filedesc_w(sd);
-	if (not sockflags[RAW_SOCKET]) {
+	if (not sockflags.test(RAW_SOCKET) and sockflags.test(CONNECTED)) {
 		if ((rc = shutdown(sd, SHUT_RDWR)) < 0) {
 			logging::error << "[rofl][csocket] error occured during shutdown(): " << eSysCall("shutdown") << std::endl << *this;
 		}
 	}
 	if ((rc = close(sd)) < 0) {
-		logging::error << "[rofl][csocket] error occured during close():" << eSysCall("shutdown") << std::endl << *this;
+		logging::error << "[rofl][csocket] error occured during close():" << eSysCall("close") << std::endl << *this;
 	}
 
 	sd = -1;
@@ -509,6 +513,7 @@ csocket::recv(void *buf, size_t count)
 
 	if (rc == 0) {
 		if (sockflags.test(FLAG_ACTIVE_SOCKET)) {
+			sockflags.reset(CONNECTED);
 			reconnect(true);
 		} else {
 			logging::info << "[rofl][csocket] peer closed socket." << std::endl << *this;
