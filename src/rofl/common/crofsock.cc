@@ -40,6 +40,14 @@ crofsock::crofsock(
 
 crofsock::~crofsock()
 {
+
+}
+
+
+
+void
+crofsock::close()
+{
 	socket.cclose();
 }
 

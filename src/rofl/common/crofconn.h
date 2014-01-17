@@ -79,9 +79,10 @@ class crofconn :
 
 	enum crofconn_state_t {
 		STATE_DISCONNECTED 		= 1,
-		STATE_WAIT_FOR_HELLO	= 2,
-		STATE_WAIT_FOR_FEATURES = 3,
-		STATE_ESTABLISHED 		= 4,
+		STATE_CONNECT_PENDING	= 2,
+		STATE_WAIT_FOR_HELLO	= 3,
+		STATE_WAIT_FOR_FEATURES = 4,
+		STATE_ESTABLISHED 		= 5,
 	};
 	enum crofconn_state_t				state;
 

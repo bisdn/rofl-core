@@ -119,6 +119,13 @@ public:
 	/**
 	 *
 	 */
+	void
+	close();
+
+
+	/**
+	 *
+	 */
 	csocket&
 	get_socket();
 
