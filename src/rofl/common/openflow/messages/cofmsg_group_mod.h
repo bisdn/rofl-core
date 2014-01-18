@@ -8,9 +8,9 @@
 #ifndef COFMSG_GROUP_MOD_H_
 #define COFMSG_GROUP_MOD_H_ 1
 
-#include "cofmsg.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofbuckets.h"
-#include "rofl/common/cgroupentry.h"
+#include "rofl/common/openflow/cofgroupmod.h"
 
 namespace rofl
 {

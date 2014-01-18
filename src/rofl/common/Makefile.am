@@ -52,10 +52,6 @@ librofl_common_la_SOURCES = \
 		crofconn.cc \
 		crofchan.h \
 		crofchan.cc \
-		cflowentry.h \
-		cflowentry.cc \
-		cgroupentry.h \
-		cgroupentry.cc \
 		logging.h \
 		logging.cc
 
@@ -89,8 +85,6 @@ library_include_HEADERS= \
 		thread_helper.h \
 		ctransaction.h \
 		ctransactions.h \
-		cflowentry.h \
-		cgroupentry.h \
 		logging.h
 
 

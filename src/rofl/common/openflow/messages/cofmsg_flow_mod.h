@@ -12,7 +12,7 @@
 #include "rofl/common/openflow/cofactions.h"
 #include "rofl/common/openflow/cofinstructions.h"
 #include "rofl/common/openflow/cofmatch.h"
-#include "rofl/common/cflowentry.h"
+#include "rofl/common/openflow/cofflowmod.h"
 
 namespace rofl
 {

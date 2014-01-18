@@ -8,15 +8,15 @@
 #include <string>
 #include <vector>
 
-#include "ciosrv.h"
-#include "caddress.h"
-#include "croflexception.h"
-#include "cmemory.h"
-#include "cvastring.h"
+#include "rofl/common/ciosrv.h"
+#include "rofl/common/caddress.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/cvastring.h"
 
-#include "openflow/cofmatch.h"
-#include "openflow/cofbuckets.h"
-#include "openflow/cofinst.h"
+#include "rofl/common/openflow/cofmatch.h"
+#include "rofl/common/openflow/cofbuckets.h"
+#include "rofl/common/openflow/cofinst.h"
 
 namespace rofl
 {
