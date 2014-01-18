@@ -47,6 +47,8 @@ class eSocketError   		: public eSocketBase {}; /**< generic operation on socket
 class eSocketIoctl			: public eSocketBase {}; /**< ioctl failed */
 class eSocketShortSend		: public eSocketBase {}; /**< send() 2 call returned with fewer bytes than expected */
 class eSocketReadFailed		: public eSocketBase {}; /**< read() failed or packet cannot be read completely */
+class eSocketAgain			: public eSocketBase {}; /**< read() would block */
+class eSocketConnReset		: public eSocketBase {}; /**< read() returned connection reset */
 
 class csocket; // forward declaration for csocket_owner, see below
 
@@ -85,7 +87,7 @@ protected:
 	 * @param ra address of peer entity
 	 */
 	virtual void
-	handle_accepted(csocket *socket, int newsd, caddress const& ra) = 0;
+	handle_accepted(csocket& socket, int newsd, caddress const& ra) = 0;
 
 	/**
 	 * @brief	Called once a connection request to a remote entity has succeeded.
@@ -94,7 +96,7 @@ protected:
 	 * @param sd socket descriptor used for new connection
 	 */
 	virtual void
-	handle_connected(csocket *socket, int sd) = 0;
+	handle_connected(csocket& socket) = 0;
 
 	/**
 	 * @brief	Called once a connection request to a remote entity failed.
@@ -103,7 +105,7 @@ protected:
 	 * @param sd socket descriptor used for connection
 	 */
 	virtual void
-	handle_connect_refused(csocket *socket, int sd) = 0;
+	handle_connect_refused(csocket& socket) = 0;
 
 	/**
 	 * @brief	Called once new data is available for reading from the socket.
@@ -112,7 +114,7 @@ protected:
 	 * @param sd socket descriptor used by the connection
 	 */
 	virtual void
-	handle_read(csocket *socket, int sd) = 0;
+	handle_read(csocket& socket) = 0;
 
 	/**
 	 * @brief	Called once the socket has been shutdown and closed.
@@ -121,7 +123,7 @@ protected:
 	 * @param sd socket descriptor used by the connection
 	 */
 	virtual void
-	handle_closed(csocket *socket, int sd) = 0;
+	handle_closed(csocket& socket) = 0;
 };
 
 
@@ -183,7 +185,7 @@ protected:
 		CONNECT_PENDING		= 2, 	/**< connect() call is pending */
 		RAW_SOCKET			= 3, 	/**< socket is in raw mode (link layer) */
 		CONNECTED			= 4,	/**< socket is connected */
-		FLAG_ACTIVE_SOCKET	= 5,
+		FLAG_DO_RECONNECT	= 5,
 	};
 
 	std::bitset<16> 			sockflags; /**< socket flags (see below) */
@@ -191,6 +193,12 @@ protected:
 	enum csocket_timer_t {
 		TIMER_RECONNECT 	= 1,
 	};
+
+	enum csocket_event_t {
+		EVENT_CONN_RESET	= 1,
+		EVENT_DISCONNECTED	= 2,
+	};
+
 
 public:
 
@@ -278,7 +286,7 @@ public:
 	 * @throw eSocketError thrown for all other socket related errors
 	 */
 	void 
-	clisten(
+	listen(
 		caddress la,
 		int domain = PF_INET, 
 		int type = SOCK_STREAM, 
@@ -303,12 +311,13 @@ public:
 	 * @throw eSocketError thrown for all other socket related errors
 	 */
 	void
-	cconnect(
+	connect(
 		caddress ra,
 		caddress la = caddress(AF_INET, "0.0.0.0", 0),
 		int domain = PF_INET, 
 		int type = SOCK_STREAM, 
-		int protocol = 0);
+		int protocol = 0,
+		bool do_reconnect = false);
 
 
 
@@ -320,7 +329,7 @@ public:
 	 * After calling cclose() it is safe to call caopen() or cpopen() again.
 	 */
 	void
-	cclose();
+	close();
 
 
 	/**
@@ -375,7 +384,7 @@ private:
 	void
 	handle_connected() {
 		if (socket_owner) {
-			socket_owner->handle_connected(this, sd);
+			socket_owner->handle_connected(*this);
 		}
 	};
 
@@ -389,7 +398,7 @@ private:
 	void
 	handle_conn_refused() {
 		if (socket_owner) {
-			socket_owner->handle_connect_refused(this, sd);
+			socket_owner->handle_connect_refused(*this);
 		}
 	};
 
@@ -405,7 +414,7 @@ private:
 	void
 	handle_accepted(int newsd, caddress const& ra) {
 		if (socket_owner) {
-			socket_owner->handle_accepted(this, newsd, ra);
+			socket_owner->handle_accepted(*this, newsd, ra);
 		}
 	};
 
@@ -416,10 +425,9 @@ private:
 	 * @param sd the socket descriptor
 	 */
 	void
-	handle_closed(int sd) {
-		deregister_filedesc_r(sd);
+	handle_closed() {
 		if (socket_owner) {
-			socket_owner->handle_closed(this, sd);
+			socket_owner->handle_closed(*this);
 		}
 	};
 
@@ -432,9 +440,9 @@ private:
 	 * @param fd the socket descriptor
 	 */
 	void
-	handle_read(int fd) {
+	handle_read() {
 		if (socket_owner) {
-			socket_owner->handle_read(this, sd);
+			socket_owner->handle_read(*this);
 		}
 	};
 
@@ -462,6 +470,13 @@ private:
 	virtual void
 	handle_timeout(
 			int opaque);
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_event(
+			cevent const& ev);
 
 
 	/**

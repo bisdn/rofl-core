@@ -1551,7 +1551,7 @@ private:
 	 */
 	virtual void
 	handle_accepted(
-			csocket *socket,
+			csocket& socket,
 			int newsd,
 			caddress const& ra);
 
@@ -1561,8 +1561,7 @@ private:
 	 */
 	virtual void
 	handle_connected(
-			csocket *socket,
-			int sd);
+			csocket& socket);
 
 
 
@@ -1571,8 +1570,7 @@ private:
 	 */
 	virtual void
 	handle_connect_refused(
-			csocket *socket,
-			int sd);
+			csocket& socket);
 
 
 	/**
@@ -1580,8 +1578,7 @@ private:
 	 */
 	virtual void
 	handle_read(
-			csocket *socket,
-			int sd);
+			csocket& socket);
 
 
 	/**
@@ -1589,8 +1586,7 @@ private:
 	 */
 	virtual void
 	handle_closed(
-			csocket *socket,
-			int sd);
+			csocket& socket);
 
 
 

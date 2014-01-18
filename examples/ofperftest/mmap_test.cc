@@ -16,7 +16,7 @@ mmap_test::mmap_test(cofhello_elem_versionbitmap const& versionbitmap, caddress 
 
 	sock = new csocket(this, AF_INET, SOCK_DGRAM, 0 /* udp */, 10);
 
-	sock->clisten(laddr, AF_INET, SOCK_DGRAM, 0, 10);
+	sock->listen(laddr, AF_INET, SOCK_DGRAM, 0, 10);
 
 	register_timer(MMAP_TEST_TIMER_PKT_INTERVAL, 0);
 

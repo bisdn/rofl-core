@@ -91,7 +91,7 @@ csocket::csocket(
 
 csocket::~csocket()
 {
-	cclose();
+	close();
 
 	pthread_rwlock_destroy(&pout_squeue_lock);
 
@@ -105,9 +105,34 @@ csocket::handle_timeout(
 		int opaque)
 {
 	switch (opaque) {
-	case TIMER_RECONNECT: cconnect(raddr, laddr, domain, type, protocol); break;
+	case TIMER_RECONNECT: {
+		connect(raddr, laddr, domain, type, protocol, true);
+	} break;
 	default:
 		logging::error << "[rofl][csocket] unknown timer type:" << opaque << std::endl;
+	}
+}
+
+
+
+void
+csocket::handle_event(
+		cevent const& ev)
+{
+	switch (ev.cmd) {
+	case EVENT_CONN_RESET:
+	case EVENT_DISCONNECTED: {
+		if (sockflags.test(FLAG_DO_RECONNECT)) {
+			sockflags.reset(CONNECTED);
+			reconnect(true);
+		} else {
+			logging::info << "[rofl][csocket] closed socket." << std::endl << *this;
+			close();
+			handle_closed();
+		}
+	} break;
+	default:
+		;;
 	}
 }
 
@@ -170,7 +195,7 @@ csocket::handle_revent(int fd)
 	} else {
 
 		if (sockflags.test(CONNECTED)) {
-			handle_read(fd); // call method in derived class
+			handle_read(); // call method in derived class
 		}
 	}
 }
@@ -210,7 +235,7 @@ csocket::handle_wevent(int fd)
 						<< sd << " " << eSysCall() << std::endl;
 			}
 
-			if (sockflags.test(FLAG_ACTIVE_SOCKET)) {
+			if (sockflags.test(FLAG_DO_RECONNECT)) {
 				cancel_timer(TIMER_RECONNECT);
 			}
 
@@ -222,9 +247,9 @@ csocket::handle_wevent(int fd)
 		} break;
 		case ECONNREFUSED: {
 			logging::warn << "[rofl][csocket] connection failed." << std::endl << *this;
-			cclose();
+			close();
 
-			if (sockflags.test(FLAG_ACTIVE_SOCKET)) {
+			if (sockflags.test(FLAG_DO_RECONNECT)) {
 				reconnect(false);
 			} else {
 				handle_conn_refused();
@@ -252,7 +277,7 @@ csocket::handle_xevent(int fd)
 
 
 void
-csocket::clisten(
+csocket::listen(
 	caddress la,
 	int domain, 
 	int type, 
@@ -268,7 +293,7 @@ csocket::clisten(
 	this->laddr 	= la;
 
 	if (sd >= 0) {
-		cclose();
+		close();
 	}
 
 	// open socket
@@ -354,7 +379,7 @@ csocket::clisten(
 
 	switch (type) {
 	case SOCK_STREAM: {	// listen on socket
-		if ((rc = listen(sd, backlog)) < 0) {
+		if ((rc = ::listen(sd, backlog)) < 0) {
 			throw eSysCall("listen");
 		}
 		sockflags[SOCKET_IS_LISTENING] = true;
@@ -373,12 +398,13 @@ csocket::clisten(
 
 
 void
-csocket::cconnect(
+csocket::connect(
 	caddress ra,
 	caddress la,
 	int domain, 
 	int type, 
-	int protocol)
+	int protocol,
+	bool do_reconnect)
 {
 	int rc;
 	this->domain 	= domain;
@@ -388,9 +414,12 @@ csocket::cconnect(
 	this->raddr 	= ra;
 
 	if (sd >= 0)
-		cclose();
+		close();
 
-	sockflags.set(FLAG_ACTIVE_SOCKET);
+	if (do_reconnect)
+		sockflags.set(FLAG_DO_RECONNECT);
+	else
+		sockflags.reset(FLAG_DO_RECONNECT);
 
 	// open socket
 	if ((sd = socket(domain, type, protocol)) < 0) {
@@ -427,14 +456,14 @@ csocket::cconnect(
 	}
 
 	// connect to remote address
-	if ((rc = connect(sd, (const struct sockaddr*)ra.ca_saddr, (socklen_t)ra.salen)) < 0) {
+	if ((rc = ::connect(sd, (const struct sockaddr*)ra.ca_saddr, (socklen_t)ra.salen)) < 0) {
 		switch (errno) {
 		case EINPROGRESS: {		// connect is pending, register sd for write events
 			sockflags[CONNECT_PENDING] = true;
 			register_filedesc_w(sd);
 		} break;
 		case ECONNREFUSED: {	// connect has been refused
-			cclose();
+			close();
 			reconnect(false);
 		} break;
 		default: {
@@ -446,7 +475,7 @@ csocket::cconnect(
 		register_filedesc_r(sd);
 		sockflags.set(CONNECTED);
 
-		if (sockflags.test(FLAG_ACTIVE_SOCKET)) {
+		if (sockflags.test(FLAG_DO_RECONNECT)) {
 			cancel_timer(TIMER_RECONNECT);
 		}
 
@@ -467,7 +496,7 @@ csocket::cconnect(
 
 
 void
-csocket::cclose()
+csocket::close()
 {
 	RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
 
@@ -483,7 +512,7 @@ csocket::cclose()
 			logging::error << "[rofl][csocket] error occured during shutdown(): " << eSysCall("shutdown") << std::endl << *this;
 		}
 	}
-	if ((rc = close(sd)) < 0) {
+	if ((rc = ::close(sd)) < 0) {
 		logging::error << "[rofl][csocket] error occured during close():" << eSysCall("close") << std::endl << *this;
 	}
 
@@ -511,17 +540,36 @@ csocket::recv(void *buf, size_t count)
 	// read from socket: TODO: TLS socket
 	int rc = ::read(sd, (void*)buf, count);
 
-	if (rc == 0) {
-		if (sockflags.test(FLAG_ACTIVE_SOCKET)) {
-			sockflags.reset(CONNECTED);
-			reconnect(true);
-		} else {
-			logging::info << "[rofl][csocket] peer closed socket." << std::endl << *this;
-			cclose();
+	if (rc > 0) {
+		return rc;
+
+	} else if (rc == 0) {
+		logging::error << "[rofl][csocket] error reading from socket: "
+				<< eSysCall() << std::endl << *this;
+		notify(cevent(EVENT_CONN_RESET));
+		throw eSocketReadFailed();
+
+	} else if (rc < 0) {
+
+		switch(errno) {
+		case EAGAIN:
+			throw eSocketAgain();
+		case ECONNRESET: {
+			logging::error << "[rofl][csocket] error reading from socket: "
+					<< eSysCall() << std::endl << *this;
+			notify(cevent(EVENT_CONN_RESET));
+			throw eSocketReadFailed();
+		} break;
+		default: {
+			logging::error << "[rofl][csocket] error reading from socket: "
+					<< eSysCall() << ", closing endpoint." << std::endl << *this;
+			notify(cevent(EVENT_DISCONNECTED));
+			throw eSocketReadFailed();
+		} break;
 		}
 	}
 
-	return rc;
+	return 0;
 }
 
 
@@ -587,8 +635,8 @@ csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
 		return;
 	} // unlocks pout_squeue_lock
 out:
-	cclose(); // clears also pout_squeue
-	handle_closed(sd);
+	close(); // clears also pout_squeue
+	handle_closed();
 }
 
 

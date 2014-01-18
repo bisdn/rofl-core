@@ -33,14 +33,15 @@ crofsock::crofsock(
 				fragment((cmemory*)0),
 				msg_bytes_read(0)
 {
-	socket.cconnect(ra, caddress(AF_INET, "0.0.0.0", 0), domain, type, protocol);
+	socket.connect(ra, caddress(AF_INET, "0.0.0.0", 0), domain, type, protocol);
 }
 
 
 
 crofsock::~crofsock()
 {
-
+	if (fragment)
+		delete fragment;
 }
 
 
@@ -48,14 +49,14 @@ crofsock::~crofsock()
 void
 crofsock::close()
 {
-	socket.cclose();
+	socket.close();
 }
 
 
 
 void
 crofsock::handle_accepted(
-		csocket *socket,
+		csocket& socket,
 		int newsd,
 		caddress const& ra)
 {
@@ -67,8 +68,7 @@ crofsock::handle_accepted(
 
 void
 crofsock::handle_connected(
-		csocket *socket,
-		int sd)
+		csocket& socket)
 {
 	logging::info << "[rofl][sock] connection established:" << std::endl << *this;
 	env->handle_connected(this);
@@ -78,10 +78,9 @@ crofsock::handle_connected(
 
 void
 crofsock::handle_connect_refused(
-		csocket *socket,
-		int sd)
+		csocket& socket)
 {
-	logging::info << "[rofl][sock] connection failed:" << std::endl << *this;
+	logging::info << "[rofl][sock] connection refused:" << std::endl << *this;
 	env->handle_connect_refused(this);
 }
 
@@ -89,10 +88,12 @@ crofsock::handle_connect_refused(
 
 void
 crofsock::handle_closed(
-			csocket *socket,
-			int sd)
+			csocket& socket)
 {
 	logging::info << "[rofl][sock] connection closed:" << std::endl << *this;
+	if (fragment)
+		delete fragment;
+	fragment = (cmemory*)0;
 	env->handle_closed(this);
 }
 
@@ -100,19 +101,12 @@ crofsock::handle_closed(
 
 void
 crofsock::handle_read(
-		csocket *socket,
-		int sd)
+		csocket& socket)
 {
-	int rc = 0;
-
-	cmemory *mem = (cmemory*)0;
 	try {
-
 		if (0 == fragment) {
-			mem = new cmemory(sizeof(struct openflow::ofp_header));
+			fragment = new cmemory(sizeof(struct openflow::ofp_header));
 			msg_bytes_read = 0;
-		} else {
-			mem = fragment;
 		}
 
 		while (true) {
@@ -123,74 +117,50 @@ crofsock::handle_read(
 			if (msg_bytes_read < sizeof(struct openflow::ofp_header)) {
 				msg_len = sizeof(struct openflow::ofp_header);
 			} else {
-				struct openflow::ofp_header *ofh_header = (struct openflow::ofp_header*)mem->somem();
+				struct openflow::ofp_header *ofh_header = (struct openflow::ofp_header*)fragment->somem();
 				msg_len = be16toh(ofh_header->length);
 			}
 
 			// resize msg buffer, if necessary
-			if (mem->memlen() < msg_len) {
-				mem->resize(msg_len);
+			if (fragment->memlen() < msg_len) {
+				fragment->resize(msg_len);
 			}
 
 			// read from socket more bytes, at most "msg_len - msg_bytes_read"
-			rc = socket->recv((void*)(mem->somem() + msg_bytes_read), msg_len - msg_bytes_read);
+			int rc = socket.recv((void*)(fragment->somem() + msg_bytes_read), msg_len - msg_bytes_read);
 
-			if (rc < 0) { // error occured (or non-blocking)
-				switch(errno) {
-				case EAGAIN: {
-					fragment = mem;	// more bytes are needed, store pointer to msg in "fragment"
-				} return;
-				case ECONNREFUSED: {
-					env->handle_connect_refused(this);
-				} return;
-				case ECONNRESET:
-				default: {
-					logging::error << "[rofl][sock] error reading from socket descriptor:" << sd
-							<< " " << eSysCall() << ", closing endpoint." << std::endl;
-					handle_closed(socket, sd);
-				} return;
-				}
-			}
-			else if (rc == 0) // socket was closed
-			{
-				//rfds.erase(fd);
-				logging::info << "[rofl][sock] peer closed connection." << std::endl << *this;
+			msg_bytes_read += rc;
 
-				if (mem) {
-					delete mem; fragment = (cmemory*)0;
-				}
+			// minimum message length received, check completeness of message
+			if (fragment->memlen() >= sizeof(struct openflow::ofp_header)) {
+				struct openflow::ofp_header *ofh_header = (struct openflow::ofp_header*)fragment->somem();
+				uint16_t msg_len = be16toh(ofh_header->length);
 
-				//socket->cclose();
-				env->handle_closed(this);
-				return;
-			}
-			else // rc > 0, // some bytes were received, check for completeness of packet
-			{
-				msg_bytes_read += rc;
-
-				// minimum message length received, check completeness of message
-				if (mem->memlen() >= sizeof(struct openflow::ofp_header)) {
-					struct openflow::ofp_header *ofh_header = (struct openflow::ofp_header*)mem->somem();
-					uint16_t msg_len = be16toh(ofh_header->length);
-
-					// ok, message was received completely
-					if (msg_len == msg_bytes_read) {
-						fragment = (cmemory*)0;
-						parse_message(mem);
-						return;
-					}
+				// ok, message was received completely
+				if (msg_len == msg_bytes_read) {
+					cmemory *mem = fragment;
+					fragment = (cmemory*)0; // just in case, we get an exception from parse_message()
+					parse_message(mem);
+					return;
 				}
 			}
 		}
+
+	} catch (eSocketAgain& e) {
+
+		// more bytes are needed, keep pointer to msg in "fragment"
+
+	} catch (eSocketReadFailed& e) {
+
+		logging::warn << "[rofl][sock] failed to read from socket: " << e << std::endl;
 
 	} catch (RoflException& e) {
 
-		logging::warn << "[rofl][sock] dropping invalid message " << *mem << std::endl;
+		logging::warn << "[rofl][sock] dropping invalid message: " << e << std::endl;
 
-		if (mem) {
-			delete mem; fragment = (cmemory*)0;
+		if (fragment) {
+			delete fragment; fragment = (cmemory*)0;
 		}
-		// handle_closed(socket, sd);
 	}
 
 }

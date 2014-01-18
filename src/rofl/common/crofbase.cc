@@ -306,7 +306,7 @@ crofbase::is_ofp_version_supported(uint8_t ofp_version)
 
 void
 crofbase::handle_accepted(
-		csocket *socket,
+		csocket& socket,
 		int newsd,
 		caddress const& ra)
 {
@@ -317,8 +317,7 @@ crofbase::handle_accepted(
 
 void
 crofbase::handle_connected(
-		csocket *socket,
-		int sd)
+		csocket& socket)
 {
 	// do nothing here, as our TCP sockets are used as listening sockets only
 }
@@ -327,8 +326,7 @@ crofbase::handle_connected(
 
 void
 crofbase::handle_connect_refused(
-		csocket *socket,
-		int sd)
+		csocket& socket)
 {
 	// do nothing here, as our TCP sockets are used as listening sockets only
 }
@@ -337,8 +335,7 @@ crofbase::handle_connect_refused(
 
 void
 crofbase::handle_read(
-		csocket *socket,
-		int sd)
+		csocket& socket)
 {
 	// do nothing here, as our TCP sockets are used as listening sockets only
 }
@@ -347,16 +344,15 @@ crofbase::handle_read(
 
 void
 crofbase::handle_closed(
-		csocket *socket,
-		int sd)
+		csocket& socket)
 {
-	if (rpc[RPC_CTL].find(socket) != rpc[RPC_CTL].end())
+	if (rpc[RPC_CTL].find(&socket) != rpc[RPC_CTL].end())
 	{
-		rpc[RPC_CTL].erase(socket);
+		rpc[RPC_CTL].erase(&socket);
 	}
-	else if (rpc[RPC_DPT].find(socket) != rpc[RPC_DPT].end())
+	else if (rpc[RPC_DPT].find(&socket) != rpc[RPC_DPT].end())
 	{
-		rpc[RPC_DPT].erase(socket);
+		rpc[RPC_DPT].erase(&socket);
 	}
 	else
 	{
@@ -375,7 +371,7 @@ crofbase::rpc_listen_for_dpts(
 		int backlog)
 {
 	csocket *socket = new csocket(this, domain, type, protocol, backlog);
-	socket->clisten(addr, domain, type, protocol, backlog);
+	socket->listen(addr, domain, type, protocol, backlog);
 	rpc[RPC_DPT].insert(socket);
 }
 
@@ -390,7 +386,7 @@ crofbase::rpc_listen_for_ctls(
 		int backlog)
 {
 	csocket *socket = new csocket(this, domain, type, protocol, backlog);
-	socket->clisten(addr, domain, type, protocol, backlog);
+	socket->listen(addr, domain, type, protocol, backlog);
 	rpc[RPC_CTL].insert(socket);
 }
 
