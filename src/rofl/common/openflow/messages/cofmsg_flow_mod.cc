@@ -845,7 +845,13 @@ cofmsg_flow_mod::set_flags(uint16_t flags)
 cofactions&
 cofmsg_flow_mod::get_actions()
 {
-	return actions;
+	switch (get_version()) {
+	case openflow10::OFP_VERSION: {
+		return actions;
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 
