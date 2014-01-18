@@ -1441,9 +1441,7 @@ cpacket::set_field_basic_class(coxmatch const& oxm)
 		match.set_mpls_tc(tc);
 	} break;
 	default: {
-		WRITELOG(CPACKET, WARN, "cpacket(%p)::set_field() "
-				"don't know how to handle class:0x%x field:%d, ignoring",
-				this, oxm.get_oxm_class(), oxm.get_oxm_field());
+		logging::error << "[rofl][packet][set-field] unknown OXM:" << std::endl << oxm;
 	} break;
 	}
 }
@@ -1554,13 +1552,9 @@ cpacket::push_vlan(uint16_t ethertype)
 		match.set_vlan_pcp(outer_pcp);
 #endif
 
-		//WRITELOG(CPACKET, DBG, "cpacket(%p)::push_vlan() "
-		//		"mem: %s", this, mem.c_str());
-
 	} catch (eMemAllocFailed& e) {
 
-		WRITELOG(CPACKET, DBG, "cpacket(%p)::push_vlan() "
-				"memory allocation failed", this);
+		logging::error << "[rofl][packet][push-vlan] out-of-memory" << std::endl;
 	}
 }
 
@@ -2276,74 +2270,12 @@ cpacket::cnt_mpls_tags()
 
 
 
-/*
- * action related methods
- */
-
-#if 0
-void
-cpacket::handle_action(
-		cofaction& action)
-{
-	/*
-	 * this code is deprecated and will be removed in one of the next releases
-	 */
-	switch (action.get_type()) {
-	// processing actions on cpkbuf instance
-	case OFP12AT_SET_FIELD:
-		action_set_field(action);
-		break;
-	case OFP12AT_COPY_TTL_OUT:
-		action_copy_ttl_out(action);
-		break;
-	case OFP12AT_COPY_TTL_IN:
-		action_copy_ttl_in(action);
-		break;
-	case OFP12AT_SET_MPLS_TTL:
-		action_set_mpls_ttl(action);
-		break;
-	case OFP12AT_DEC_MPLS_TTL:
-		action_dec_mpls_ttl(action);
-		break;
-	case OFP12AT_PUSH_VLAN:
-		action_push_vlan(action);
-		break;
-	case OFP12AT_POP_VLAN:
-		action_pop_vlan(action);
-		break;
-	case OFP12AT_PUSH_MPLS:
-		action_push_mpls(action);
-		break;
-	case OFP12AT_POP_MPLS:
-		action_pop_mpls(action);
-		break;
-	case OFP12AT_SET_NW_TTL:
-		action_set_nw_ttl(action);
-		break;
-	case OFP12AT_DEC_NW_TTL:
-		action_dec_nw_ttl(action);
-		break;
-	default:
-		WRITELOG(CPACKET, ERROR, "cpacket(%p)::handle_action() unknown action type %d",
-				this, action.get_type());
-		break;
-	}
-}
-#endif
 
 void
 cpacket::action_set_field(
 		cofaction& action)
 {
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_field() [1] pack: %s",
-	//			this,
-	//			c_str());
-
 	set_field(action.get_oxm());
-
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_field() [2] pack: %s",
-	//			this,
-	//			c_str());
 }
 
 
@@ -2352,8 +2284,6 @@ cpacket::action_copy_ttl_out(
 		cofaction& action)
 {
 	copy_ttl_out();
-
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_copy_ttl_out() ", this);
 }
 
 
@@ -2362,8 +2292,6 @@ cpacket::action_copy_ttl_in(
 		cofaction& action)
 {
 	copy_ttl_in();
-
-	WRITELOG(CPACKET, DBG, "cpacket(%p)::action_copy_ttl_in() ", this);
 }
 
 
@@ -2371,13 +2299,7 @@ void
 cpacket::action_set_mpls_ttl(
 		cofaction& action)
 {
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_mpls_ttl() "
-	//		"set to mpls ttl [%d] [1] pack: %s", this, action.oac_12mpls_ttl->mpls_ttl, c_str());
-
 	set_mpls_ttl(action.oac_12mpls_ttl->mpls_ttl);
-
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_mpls_ttl() "
-	//		"set to mpls ttl [%d] [2] pack: %s", this, action.oac_12mpls_ttl->mpls_ttl, c_str());
 }
 
 
@@ -2385,13 +2307,7 @@ void
 cpacket::action_dec_mpls_ttl(
 		cofaction& action)
 {
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_dec_mpls_ttl() [1] pack: %s",
-	//			this, c_str());
-
 	dec_mpls_ttl();
-
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_dec_mpls_ttl() [2] pack: %s",
-	//			this, c_str());
 }
 
 
@@ -2399,13 +2315,7 @@ void
 cpacket::action_push_vlan(
 		cofaction& action)
 {
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_vlan() "
-	//			 "set to vlan [%d] [1] pack: %s", this, be16toh(action.oac_12push->ethertype), c_str());
-
 	push_vlan(be16toh(action.oac_12push->ethertype));
-
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_vlan() "
-	//		 	 "set to vlan [%d] [2] pack: %s", this, be16toh(action.oac_12push->ethertype), c_str());
 }
 
 
@@ -2413,11 +2323,7 @@ void
 cpacket::action_pop_vlan(
 		cofaction& action)
 {
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_vlan() [1] pack: %s", this, c_str());
-
 	pop_vlan();
-
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_vlan() [2] pack: %s", this, c_str());
 }
 
 
@@ -2425,13 +2331,7 @@ void
 cpacket::action_push_mpls(
 		cofaction& action)
 {
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_mpls() "
-	//		"set to mpls [%d] [1] pack: %s", this, be16toh(action.oac_12push->ethertype), c_str());
-
 	push_mpls(be16toh(action.oac_12push->ethertype));
-
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_push_mpls() "
-	//		"set to mpls [%d] [2] pack: %s", this, be16toh(action.oac_12push->ethertype), c_str());
 }
 
 
@@ -2439,11 +2339,7 @@ void
 cpacket::action_pop_mpls(
 		cofaction& action)
 {
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_mpls() [1] pack: %s", this, c_str());
-
 	pop_mpls(be16toh(action.oac_12pop_mpls->ethertype));
-
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_pop_mpls() [2] pack: %s", this, c_str());
 }
 
 
@@ -2451,13 +2347,7 @@ void
 cpacket::action_set_nw_ttl(
 		cofaction& action)
 {
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_nw_ttl() [1] "
-	//			 "set nw-ttl [%d] pack: %s", this, action.oac_12nw_ttl->nw_ttl, c_str());
-
 	set_nw_ttl(action.oac_12nw_ttl->nw_ttl);
-
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_set_nw_ttl() [2] "
-	//		 	 "set tnw-ttl [%d] pack: %s", this, action.oac_12nw_ttl->nw_ttl, c_str());
 }
 
 
@@ -2466,8 +2356,6 @@ cpacket::action_dec_nw_ttl(
 		cofaction& action)
 {
 	dec_nw_ttl();
-
-	//WRITELOG(CPACKET, DBG, "cpacket(%p)::action_dec_nw_ttl() ", this);
 }
 
 
