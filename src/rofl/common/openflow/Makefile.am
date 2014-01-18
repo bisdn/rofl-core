@@ -20,8 +20,8 @@ libopenflow_la_SOURCES= \
 	cofbucket.cc \
 	cofbuckets.h \
 	cofbuckets.cc \
-	cofinst.h \
-	cofinst.cc \
+	cofinstruction.h \
+	cofinstruction.cc \
 	cofinstructions.h \
 	cofinstructions.cc \
 	cofmatch.h \
@@ -91,7 +91,7 @@ library_include_HEADERS = \
 	cofactionset.h \
 	cofbucket.h \
 	cofbuckets.h \
-	cofinst.h \
+	cofinstruction.h \
 	cofinstructions.h \
 	cofmatch.h \
 	coxmatch.h \
