@@ -85,9 +85,8 @@ crofctlImpl::handle_timeout(
 
 
 void
-crofctlImpl::handle_connected(
-		rofl::openflow::crofchan *chan,
-		uint8_t aux_id)
+crofctlImpl::handle_established(
+		rofl::openflow::crofchan *chan)
 {
 	logging::info << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " connection established:" << std::endl << *chan;
@@ -96,16 +95,13 @@ crofctlImpl::handle_connected(
 
 
 void
-crofctlImpl::handle_closed(
-		rofl::openflow::crofchan *chan,
-		uint8_t aux_id)
+crofctlImpl::handle_disconnected(
+		rofl::openflow::crofchan *chan)
 {
 	logging::info << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " connection closed:" << std::endl << *chan;
 
-	if (0 == aux_id) {
-		rofbase->rpc_ctl_failed(this); // send notification to crofbase, when main connection has been closed
-	}
+	rofbase->rpc_ctl_failed(this); // send notification to crofbase, when main connection has been closed
 }
 
 

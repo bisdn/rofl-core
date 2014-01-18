@@ -188,11 +188,11 @@ crofbase::handle_connected(
 	/*
 	 * situation:
 	 * 1. csocket accepted new connection
-	 * 2. crofconn was created and socket description handed over
-	 * 3. crofconn conducts HELLO exchange and FEATURES.request/reply
+	 * 2. crofconn was created and socket descriptor handed over
+	 * 3. crofconn conducts HELLO exchange and FEATURES.request/reply => learn dpid and aux-id
 	 * 4. this method is called
 	 *
-	 * next step: check for exisiting crofdpt instance for dpid seen by crofconn
+	 * next step: check for existing crofdpt instance for dpid seen by crofconn
 	 * if none exists, create new one, otherwise, add connection to existing crofdpt
 	 */
 	try {

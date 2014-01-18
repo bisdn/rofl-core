@@ -16,7 +16,8 @@ crofchan::crofchan(
 		cofhello_elem_versionbitmap const& versionbitmap) :
 				env(env),
 				versionbitmap(versionbitmap),
-				ofp_version(OFP_VERSION_UNKNOWN)
+				ofp_version(OFP_VERSION_UNKNOWN),
+				state(STATE_DISCONNECTED)
 {
 
 }
@@ -28,6 +29,64 @@ crofchan::~crofchan()
 	clear();
 }
 
+
+
+void
+crofchan::run_engine(enum crofchan_event_t event)
+{
+	if (EVENT_NONE != event) {
+		events.push_back(event);
+	}
+
+	while (not events.empty()) {
+		enum crofchan_event_t event = events.front();
+		events.pop_front();
+
+		switch (event) {
+		case EVENT_DISCONNECTED:	event_disconnected();	return; // might call this object's destructor
+		case EVENT_ESTABLISHED: 	event_established(); 	break;
+		default: {
+			logging::error << "[rofl][chan] unknown event seen, internal error" << std::endl << *this;
+		};
+		}
+	}
+}
+
+
+void
+crofchan::event_disconnected()
+{
+	switch (state) {
+	case STATE_DISCONNECTED:
+	case STATE_CONNECT_PENDING:
+	case STATE_ESTABLISHED: {
+		state = STATE_DISCONNECTED;
+		env->handle_disconnected(this);
+
+	} break;
+	default: {
+		logging::error << "[rofl][chan] event -DISCONNECTED- invalid state reached, internal error" << std::endl << *this;
+	};
+	}
+}
+
+
+void
+crofchan::event_established()
+{
+	switch (state) {
+	case STATE_DISCONNECTED:
+	case STATE_CONNECT_PENDING:
+	case STATE_ESTABLISHED: {
+		state = STATE_ESTABLISHED;
+		env->handle_established(this);
+
+	} break;
+	default: {
+		logging::error << "[rofl][chan] event -ESTABLISHED- invalid state reached, internal error" << std::endl << *this;
+	};
+	}
+}
 
 
 bool
@@ -147,6 +206,10 @@ crofchan::drop_conn(
 	crofconn *conn = conns[aux_id]; // temporary pointer
 	conns.erase(aux_id); // remove pointer from map conns
 	delete conn; // call destructor => this will lead to a call to crofchan::handle_closed(conn);
+
+	if (conns.empty()) {
+		run_engine(EVENT_DISCONNECTED);
+	}
 }
 
 
@@ -175,6 +238,8 @@ crofchan::handle_connected(
 		this->ofp_version = ofp_version;
 		logging::info << "[rofl][chan] main connection established. Negotiated OFP version:"
 				<< (int) ofp_version << std::endl << *conn;
+		run_engine(EVENT_ESTABLISHED);
+
 	} else {
 		if (this->ofp_version != ofp_version) {
 			logging::warn << "[rofl][chan] auxiliary connection with invalid OFP version "
@@ -184,8 +249,6 @@ crofchan::handle_connected(
 		} else {
 			logging::debug << "[rofl][chan] auxiliary connection with aux-id:" << (int)aux_id
 					<< " established." << std::endl << *conn;
-
-			env->handle_connected(this, aux_id);
 		}
 	}
 }
@@ -209,10 +272,10 @@ crofchan::handle_closed(crofconn *conn)
 
 	conns.erase(aux_id); // remove pointer from map conns
 	delete conn; // call destructor => this will lead to a call to crofchan::handle_closed(conn); (again)
-	env->handle_closed(this, aux_id);
 
 	if (conns.empty()) {
 		ofp_version = OFP_VERSION_UNKNOWN;
+		run_engine(EVENT_DISCONNECTED);
 	}
 
 	if (active_connection) {

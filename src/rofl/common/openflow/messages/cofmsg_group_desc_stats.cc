@@ -77,7 +77,7 @@ cofmsg_group_desc_stats_request::reset()
 void
 cofmsg_group_desc_stats_request::resize(size_t len)
 {
-	cofmsg::resize(len);
+	cofmsg_stats::resize(len);
 }
 
 

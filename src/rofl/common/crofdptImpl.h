@@ -198,10 +198,10 @@ public:
 	/* overloaded from crofchan_env */
 
 	virtual void
-	handle_connected(rofl::openflow::crofchan *chan, uint8_t aux_id);
+	handle_established(rofl::openflow::crofchan *chan);
 
 	virtual void
-	handle_closed(rofl::openflow::crofchan *chan, uint8_t aux_id);
+	handle_disconnected(rofl::openflow::crofchan *chan);
 
 	virtual void
 	recv_message(rofl::openflow::crofchan *chan, uint8_t aux_id, cofmsg *msg);

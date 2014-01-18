@@ -143,8 +143,8 @@ crofdptImpl::event_connected()
 	switch (state) {
 	case STATE_INIT:
 	case STATE_DISCONNECTED: {
-		send_features_request();
 		state = STATE_CONNECTED;
+		send_features_request();
 	} break;
 	default: {
 		logging::error << "[rofl][dpt] event -CONNECTED- in invalid state rcvd, internal error" << std::endl << *this;
@@ -223,28 +223,25 @@ crofdptImpl::event_get_config_reply_rcvd()
 
 		switch (rofchan.get_version()) {
 		case rofl::openflow10::OFP_VERSION: {
-			rofbase->handle_dpath_open(*this);
 			state = STATE_ESTABLISHED;
-
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 							<< "Get-Config-Reply rcvd (features-reply-rcvd -> established)" << std::endl;
+			rofbase->handle_dpath_open(*this);
 
 		} break;
 		case rofl::openflow12::OFP_VERSION: {
-			send_table_stats_request(0);
 			state = STATE_GET_CONFIG_RCVD;
-
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 							<< "Get-Config-Reply rcvd (features-reply-rcvd -> get-config-reply-rcvd)" << std::endl;
+			send_table_stats_request(0);
 
 		} break;
 		case rofl::openflow13::OFP_VERSION:
 		default: {
-			send_table_features_stats_request(0);
 			state = STATE_GET_CONFIG_RCVD;
-
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 							<< "Get-Config-Reply rcvd (features-reply-rcvd -> get-config-reply-rcvd)" << std::endl;
+			send_table_features_stats_request(0);
 
 		} break;
 		}
@@ -364,28 +361,23 @@ crofdptImpl::event_table_features_stats_request_expired()
 }
 
 
-
 void
-crofdptImpl::handle_connected(rofl::openflow::crofchan *chan, uint8_t aux_id)
+crofdptImpl::handle_established(rofl::openflow::crofchan *chan)
 {
 	logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " connected:" << std::endl << *chan;
-
-	if (0 == aux_id) {
-		run_engine(EVENT_CONNECTED);
-	}
+			<< " channel established:" << std::endl << *chan;
+	run_engine(EVENT_CONNECTED);
 }
+
 
 void
-crofdptImpl::handle_closed(rofl::openflow::crofchan *chan, uint8_t aux_id)
+crofdptImpl::handle_disconnected(rofl::openflow::crofchan *chan)
 {
 	logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " connection closed:" << std::endl << *chan;
-
-	if (0 == aux_id) {
-		run_engine(EVENT_DISCONNECTED);
-	}
+			<< " channel disconnected:" << std::endl << *chan;
+	run_engine(EVENT_DISCONNECTED);
 }
+
 
 void
 crofdptImpl::recv_message(rofl::openflow::crofchan *chan, uint8_t aux_id, cofmsg *msg)
@@ -423,7 +415,6 @@ crofdptImpl::recv_message(rofl::openflow::crofchan *chan, uint8_t aux_id, cofmsg
 			get_async_config_reply_rcvd(msg, aux_id);
 		} break;
 		default: {
-
 		};
 		}
 
@@ -1221,8 +1212,6 @@ crofdptImpl::features_reply_rcvd(
 
 		if (STATE_ESTABLISHED == state) {
 			rofbase->handle_features_reply(*this, *reply);
-		} else {
-			delete msg;
 		}
 
 		run_engine(EVENT_FEATURES_REPLY_RCVD);
@@ -1327,7 +1316,7 @@ crofdptImpl::multipart_reply_rcvd(
 		if (STATE_ESTABLISHED != state) {
 			logging::warn << "[rofl][dpt] rcvd Multipart-Reply without being "
 					"established, dropping message:" << std::endl << *reply;
-			delete msg; return;
+			return;
 		}
 		rofbase->handle_stats_reply(*this, dynamic_cast<cofmsg_stats&>( *msg ));
 	};
@@ -1348,8 +1337,6 @@ crofdptImpl::desc_stats_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_desc_stats_reply(*this, reply, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1383,7 +1370,6 @@ crofdptImpl::table_stats_reply_rcvd(
 		rofbase->handle_table_stats_reply(*this, reply, aux_id);
 	} else {
 		run_engine(EVENT_TABLE_STATS_REPLY_RCVD);
-		delete msg; return;
 	}
 }
 
@@ -1401,8 +1387,6 @@ crofdptImpl::port_stats_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_port_stats_reply(*this, reply, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1420,8 +1404,6 @@ crofdptImpl::flow_stats_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_flow_stats_reply(*this, reply, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1439,8 +1421,6 @@ crofdptImpl::aggregate_stats_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_aggregate_stats_reply(*this, reply, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1458,8 +1438,6 @@ crofdptImpl::queue_stats_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_queue_stats_reply(*this, reply, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1477,8 +1455,6 @@ crofdptImpl::group_stats_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_group_stats_reply(*this, reply, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1496,8 +1472,6 @@ crofdptImpl::group_desc_stats_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_group_desc_stats_reply(*this, reply, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1515,8 +1489,6 @@ crofdptImpl::group_features_stats_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_group_features_stats_reply(*this, reply, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1579,8 +1551,6 @@ crofdptImpl::experimenter_stats_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_experimenter_stats_reply(*this, reply, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1598,8 +1568,6 @@ crofdptImpl::barrier_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_barrier_reply(*this, reply, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1618,8 +1586,6 @@ crofdptImpl::flow_removed_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_flow_removed(*this, flow_removed, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1637,8 +1603,6 @@ crofdptImpl::packet_in_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_packet_in(*this, packet_in, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1671,8 +1635,6 @@ crofdptImpl::port_status_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_port_status(*this, port_status, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1728,8 +1690,6 @@ crofdptImpl::experimenter_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_experimenter_message(*this, exp, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1747,8 +1707,6 @@ crofdptImpl::role_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_role_reply(*this, reply, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1766,8 +1724,6 @@ crofdptImpl::queue_get_config_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_queue_get_config_reply(*this, reply, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 
@@ -1785,8 +1741,6 @@ crofdptImpl::get_async_config_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_get_async_config_reply(*this, reply, aux_id);
-	} else {
-		delete msg; return;
 	}
 }
 

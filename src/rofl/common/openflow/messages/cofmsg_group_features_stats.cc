@@ -78,7 +78,7 @@ cofmsg_group_features_stats_request::reset()
 void
 cofmsg_group_features_stats_request::resize(size_t len)
 {
-	cofmsg::resize(len);
+	cofmsg_stats::resize(len);
 }
 
 
@@ -249,7 +249,7 @@ cofmsg_group_features_stats_reply::reset()
 void
 cofmsg_group_features_stats_reply::resize(size_t len)
 {
-	cofmsg::resize(len);
+	cofmsg_stats::resize(len);
 	switch (get_version()) {
 	case openflow12::OFP_VERSION: {
 		ofh_group_features_stats = soframe() + sizeof(struct openflow12::ofp_stats_reply);

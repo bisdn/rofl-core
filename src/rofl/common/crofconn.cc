@@ -556,14 +556,14 @@ crofconn::echo_request_rcvd(
 				new cofmsg_echo_reply(request->get_version(), request->get_xid(),
 						request->get_body().somem(), request->get_body().memlen());
 
+		delete msg;
+
 		rofsock.send_message(reply);
 
 	} catch (RoflException& e) {
 
 		logging::warn << "[rofl][conn] RoflException in echo_request_rcvd() " << *request << std::endl;
 	}
-
-	delete msg;
 }
 
 
@@ -582,14 +582,14 @@ crofconn::echo_reply_rcvd(
 
 		env->release_sync_xid(this, msg->get_xid());
 
+		delete msg;
+
 		run_engine(EVENT_ECHO_RCVD);
 
 	} catch (RoflException& e) {
 
 		logging::warn << "[rofl][conn] RoflException in echo_reply_rcvd() " << *reply << std::endl;
 	}
-
-	delete msg;
 }
 
 
@@ -662,6 +662,8 @@ crofconn::features_reply_rcvd(
 
 			env->release_sync_xid(this, msg->get_xid());
 
+			delete msg;
+
 			run_engine(EVENT_FEATURES_RCVD);
 		} else {
 			env->recv_message(this, msg);
@@ -671,8 +673,6 @@ crofconn::features_reply_rcvd(
 
 		logging::warn << "[rofl][conn] RoflException in features_reply_rcvd() " << *reply << std::endl;
 	}
-
-	delete msg;
 }
 
 

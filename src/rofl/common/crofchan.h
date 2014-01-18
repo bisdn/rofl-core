@@ -37,8 +37,8 @@ class crofchan; // forward declaration
 class crofchan_env {
 public:
 	virtual ~crofchan_env() {};
-	virtual void handle_connected(crofchan *chan, uint8_t aux_id) = 0;
-	virtual void handle_closed(crofchan *chan, uint8_t aux_id) = 0;
+	virtual void handle_established(crofchan *chan) = 0;
+	virtual void handle_disconnected(crofchan *chan) = 0;
 	virtual void recv_message(crofchan *chan, uint8_t aux_id, cofmsg *msg) = 0;
 	virtual uint32_t get_async_xid(crofchan *chan) = 0;
 	virtual uint32_t get_sync_xid(crofchan *chan, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) = 0;
@@ -53,6 +53,20 @@ class crofchan :
 	std::map<uint8_t, crofconn*>		conns;				// main and auxiliary connections
 	cofhello_elem_versionbitmap			versionbitmap;		// supported OFP versions
 	uint8_t								ofp_version;		// OFP version negotiated
+
+	enum crofchan_event_t {
+		EVENT_NONE			= 0,
+		EVENT_DISCONNECTED	= 1,
+		EVENT_ESTABLISHED	= 2,
+	};
+	std::deque<enum crofchan_event_t> 	events;
+
+	enum crofchan_state_t {
+		STATE_DISCONNECTED 		= 1,
+		STATE_CONNECT_PENDING	= 2,
+		STATE_ESTABLISHED 		= 3,
+	};
+	enum crofchan_state_t				state;
 
 public:
 
@@ -144,6 +158,26 @@ public:
 	 */
 	void
 	send_message(cofmsg *msg, uint8_t aux_id = 0);
+
+private:
+
+	/**
+	 *
+	 */
+	void
+	run_engine(enum crofchan_event_t event = EVENT_NONE);
+
+	/**
+	 *
+	 */
+	void
+	event_established();
+
+	/**
+	 *
+	 */
+	void
+	event_disconnected();
 
 public:
 
