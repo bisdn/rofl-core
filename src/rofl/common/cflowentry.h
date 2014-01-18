@@ -59,7 +59,7 @@ public: // data structures
 
 public: // static methods
 
-	static void test();
+	static void example();
 
 
 
@@ -82,19 +82,17 @@ public: // methods
 	 */
 	cflowentry& operator= (const cflowentry& fe);
 
-#if 0
-	/**
-	 *
-	 */
-	bool
-	operator< (cflowentry const& fe) const;
-#endif
-
 	/** reset flowentry
 	 *
 	 */
 	void
 	reset();
+
+	/**
+	 * @brief
+	 */
+	size_t
+	length() const;
 
 	/** pack flowentry, i.e. add actions to flow_mod structure ready for transmission
 	 * @return length of flow_mod structure including actions

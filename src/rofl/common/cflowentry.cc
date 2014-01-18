@@ -12,6 +12,11 @@ cflowentry::cflowentry(uint8_t of_version, uint16_t __type) :
 		instructions(of_version)
 {
 	switch (of_version) {
+	case openflow10::OFP_VERSION: {
+		flow_mod_area.resize(sizeof(struct openflow10::ofp_flow_mod));
+		of10m_flow_mod = (struct openflow10::ofp_flow_mod*)flow_mod_area.somem();
+
+	} break;
 	case openflow12::OFP_VERSION: {
 		flow_mod_area.resize(sizeof(struct openflow12::ofp_flow_mod));
 		of12m_flow_mod = (struct openflow12::ofp_flow_mod*)flow_mod_area.somem();
@@ -46,22 +51,17 @@ cflowentry::cflowentry(uint8_t of_version, uint16_t __type) :
 		throw eBadVersion();
 	}
 	}
-
-
-	WRITELOG(CFTTABLE, DBG, "cflowentry(%p)::cflowentry()", this);
-
 }
 
 
 cflowentry::~cflowentry()
 {
-	WRITELOG(CFTTABLE, DBG, "cflowentry(%p)::~cflowentry()", this);
+
 }
 
 
 cflowentry::cflowentry(cflowentry const& fe)
 {
-	WRITELOG(CFTTABLE, DBG, "cflowentry(%p)::cflowentry()", this);
 	*this = fe;
 }
 
@@ -73,84 +73,50 @@ cflowentry::operator= (const cflowentry& fe)
 		return *this;
 
 	this->match 		= fe.match;
+	this->actions		= fe.actions;
 	this->instructions 	= fe.instructions;
 	this->flow_mod_area = fe.flow_mod_area;
 	this->of_version	= fe.of_version;
 
-	switch (of_version) {
-	case openflow12::OFP_VERSION: {
-		of12m_flow_mod = (struct openflow12::ofp_flow_mod*)(flow_mod_area.somem());
-	} break;
-	case openflow13::OFP_VERSION: {
-		of13m_flow_mod = (struct openflow13::ofp_flow_mod*)(flow_mod_area.somem());
-	} break;
-	default: {
-		// do nothing
-	} break;
-	}
+	ofm_generic = flow_mod_area.somem();
 
 	return *this;
 }
 
 
-#if 0
-bool
-cflowentry::operator< (cflowentry const& fe) const
-{
-	if (get_command() != fe.get_command())
-		return (get_command() < fe.get_command());
-	if (get_table_id() != fe.get_table_id())
-		return (get_table_id() < fe.get_table_id());
-	if (get_idle_timeout() != fe.get_idle_timeout())
-		return (get_idle_timeout() < fe.get_idle_timeout());
-	if (get_hard_timeout() != fe.get_hard_timeout())
-		return (get_hard_timeout() < fe.get_hard_timeout());
-	if (get_cookie() != fe.get_cookie())
-		return (get_cookie() < fe.get_cookie());
-	if (get_cookie_mask() != fe.get_cookie_mask())
-		return (get_cookie_mask() < fe.get_cookie_mask());
-	if (get_priority() != fe.get_priority())
-		return (get_priority() < fe.get_priority());
-	if (get_buffer_id() != fe.get_buffer_id())
-		return (get_buffer_id() < fe.get_buffer_id());
-	if (get_out_port() != fe.get_out_port())
-		return (get_out_port() < fe.get_out_port());
-	if (get_out_group() != fe.get_out_group())
-		return (get_out_group() < fe.get_out_group());
-	if (get_flags() != fe.get_flags())
-		return (get_flags() < fe.get_flags());
-	if ((match < fe.match) || (fe.match < match))
-		return (match < fe.match);
-	// TODO: add operator< to class cofinlist
-#if 0
-	if ((instructions < fe.instructions) || (fe.instructions < instructions))
-		return (instructions < fe.instructions);
-#endif
-	return false;
-}
-#endif
-
 
 void
 cflowentry::reset()
 {
-	WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::reset()", this);
-
 	match.clear();
-
+	actions.clear();
 	instructions.clear();
-
 	flow_mod_area.clear();
 
+
 	switch (of_version) {
+	case openflow10::OFP_VERSION: {
+		of10m_flow_mod = (struct openflow10::ofp_flow_mod*)(flow_mod_area.somem());
+
+		of10m_flow_mod->cookie		 	= htobe64(0xffffffffffffffffULL);
+		of10m_flow_mod->command 		= openflow10::OFPFC_ADD;				// default: add flow-mod entry
+		of10m_flow_mod->idle_timeout 	= htobe16(0);							// default: idle_timeout = 0 secs (not used)
+		of10m_flow_mod->hard_timeout 	= htobe16(0);							// default: hard_timeout = 0 secs (not used)
+		of10m_flow_mod->priority	 	= htobe16(0);
+		of10m_flow_mod->buffer_id 		= htobe32(openflow10::OFP_NO_BUFFER);	// default: buffer_id = -1
+		of10m_flow_mod->out_port 		= htobe16(openflow10::OFPP_ALL);
+		of10m_flow_mod->flags	 		= htobe16(0);
+
+	} break;
 	case openflow12::OFP_VERSION: {
 		of12m_flow_mod = (struct openflow12::ofp_flow_mod*)(flow_mod_area.somem());
 
 		of12m_flow_mod->table_id 		= 0;
+		of12m_flow_mod->cookie		 	= htobe64(0xffffffffffffffffULL);
 		of12m_flow_mod->cookie_mask 	= htobe64(0xffffffffffffffffULL);
 		of12m_flow_mod->buffer_id 		= htobe32(openflow12::OFP_NO_BUFFER);	// default: buffer_id = -1
 		of12m_flow_mod->priority 		= htobe16(0x0800);			// default: priority = 0x0800
-		of12m_flow_mod->idle_timeout 	= htobe16(5);				// default: idle_timeout = 5 secs
+		of12m_flow_mod->idle_timeout 	= htobe16(0);				// default: idle_timeout = 0 secs (not used)
 		of12m_flow_mod->hard_timeout 	= htobe16(0);				// default: hard_timeout = 0 secs (not used)
 		of12m_flow_mod->command 		= openflow12::OFPFC_ADD;				// default: add flow-mod entry
 		of12m_flow_mod->out_port 		= htobe32(openflow12::OFPP_ANY);
@@ -161,10 +127,11 @@ cflowentry::reset()
 		of13m_flow_mod = (struct openflow13::ofp_flow_mod*)(flow_mod_area.somem());
 
 		of13m_flow_mod->table_id 		= 0;
+		of13m_flow_mod->cookie		 	= htobe64(0xffffffffffffffffULL);
 		of13m_flow_mod->cookie_mask 	= htobe64(0xffffffffffffffffULL);
 		of13m_flow_mod->buffer_id 		= htobe32(openflow13::OFP_NO_BUFFER);	// default: buffer_id = -1
 		of13m_flow_mod->priority 		= htobe16(0x0800);			// default: priority = 0x0800
-		of13m_flow_mod->idle_timeout 	= htobe16(5);				// default: idle_timeout = 5 secs
+		of13m_flow_mod->idle_timeout 	= htobe16(0);				// default: idle_timeout = 0 secs (not used)
 		of13m_flow_mod->hard_timeout 	= htobe16(0);				// default: hard_timeout = 0 secs (not used)
 		of13m_flow_mod->command 		= openflow13::OFPFC_ADD;	// default: add flow-mod entry
 		of13m_flow_mod->out_port 		= htobe32(openflow13::OFPP_ANY);
@@ -187,10 +154,30 @@ cflowentry::set_table_id(uint8_t table_id)
 	case openflow13::OFP_VERSION: {
 		of13m_flow_mod->table_id = table_id;
 	} break;
+	case openflow10::OFP_VERSION:
 	default: {
 		throw eBadVersion();
 	} break;
 	}
+}
+
+
+uint8_t
+cflowentry::get_table_id() const
+{
+	switch (of_version) {
+	case openflow12::OFP_VERSION: {
+		return of12m_flow_mod->table_id;
+	} break;
+	case openflow13::OFP_VERSION: {
+		return of13m_flow_mod->table_id;
+	} break;
+	case openflow10::OFP_VERSION:
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+	return 0;
 }
 
 
@@ -198,144 +185,14 @@ void
 cflowentry::set_command(uint8_t command)
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
+	case openflow10::OFP_VERSION: {
+		of10m_flow_mod->command = htobe16((uint16_t)command);
+	} break;
+	case openflow12::OFP_VERSION: {
+		of12m_flow_mod->command = command;
+	} break;
 	case openflow13::OFP_VERSION: {
 		of13m_flow_mod->command = command;
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-}
-
-
-void
-cflowentry::set_idle_timeout(const uint16_t& idle_timeout)
-{
-	switch (of_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		of13m_flow_mod->idle_timeout = htobe16(idle_timeout);
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-}
-
-
-void
-cflowentry::set_hard_timeout(const uint16_t& hard_timeout)
-{
-	switch (of_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		of13m_flow_mod->hard_timeout = htobe16(hard_timeout);
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-}
-
-
-void
-cflowentry::set_cookie(const uint64_t& cookie)
-{
-	switch (of_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		of13m_flow_mod->cookie = htobe64(cookie);
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-}
-
-
-void
-cflowentry::set_cookie_mask(const uint64_t& cookie_mask)
-{
-	switch (of_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		of13m_flow_mod->cookie_mask = htobe64(cookie_mask);
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-}
-
-
-void
-cflowentry::set_priority(const uint16_t& priority)
-{
-	switch (of_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		of13m_flow_mod->priority = htobe16(priority);
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-}
-
-
-void
-cflowentry::set_buffer_id(const uint32_t& buffer_id)
-{
-	switch (of_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		of13m_flow_mod->buffer_id = htobe32(buffer_id);
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-}
-
-
-void
-cflowentry::set_out_port(const uint32_t& out_port)
-{
-	switch (of_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		of13m_flow_mod->out_port = htobe32(out_port);
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-}
-
-
-void
-cflowentry::set_out_group(const uint32_t& out_group)
-{
-	switch (of_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		of13m_flow_mod->out_group = htobe32(out_group);
-	} break;
-	default: {
-		throw eBadVersion();
-	} break;
-	}
-}
-
-
-void
-cflowentry::set_flags(const uint16_t& flags)
-{
-	switch (of_version) {
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		of13m_flow_mod->flags = htobe16(flags);
 	} break;
 	default: {
 		throw eBadVersion();
@@ -348,7 +205,12 @@ uint8_t
 cflowentry::get_command() const
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
+	case openflow10::OFP_VERSION: {
+		return (uint8_t)be16toh(of10m_flow_mod->command);
+	} break;
+	case openflow12::OFP_VERSION: {
+		return of12m_flow_mod->command;
+	} break;
 	case openflow13::OFP_VERSION: {
 		return of13m_flow_mod->command;
 	} break;
@@ -360,19 +222,23 @@ cflowentry::get_command() const
 }
 
 
-uint8_t
-cflowentry::get_table_id() const
+void
+cflowentry::set_idle_timeout(const uint16_t& idle_timeout)
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
+	case openflow10::OFP_VERSION: {
+		of10m_flow_mod->idle_timeout = htobe16(idle_timeout);
+	} break;
+	case openflow12::OFP_VERSION: {
+		of12m_flow_mod->idle_timeout = htobe16(idle_timeout);
+	} break;
 	case openflow13::OFP_VERSION: {
-		return of13m_flow_mod->table_id;
+		of13m_flow_mod->idle_timeout = htobe16(idle_timeout);
 	} break;
 	default: {
 		throw eBadVersion();
 	} break;
 	}
-	return 0;
 }
 
 
@@ -380,7 +246,12 @@ uint16_t
 cflowentry::get_idle_timeout() const
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
+	case openflow10::OFP_VERSION: {
+		return be16toh(of10m_flow_mod->idle_timeout);
+	} break;
+	case openflow12::OFP_VERSION: {
+		return be16toh(of12m_flow_mod->idle_timeout);
+	} break;
 	case openflow13::OFP_VERSION: {
 		return be16toh(of13m_flow_mod->idle_timeout);
 	} break;
@@ -392,11 +263,36 @@ cflowentry::get_idle_timeout() const
 }
 
 
+void
+cflowentry::set_hard_timeout(const uint16_t& hard_timeout)
+{
+	switch (of_version) {
+	case openflow10::OFP_VERSION: {
+		of10m_flow_mod->hard_timeout = htobe16(hard_timeout);
+	} break;
+	case openflow12::OFP_VERSION: {
+		of12m_flow_mod->hard_timeout = htobe16(hard_timeout);
+	} break;
+	case openflow13::OFP_VERSION: {
+		of13m_flow_mod->hard_timeout = htobe16(hard_timeout);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+}
+
+
 uint16_t
 cflowentry::get_hard_timeout() const
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
+	case openflow10::OFP_VERSION: {
+		return be16toh(of10m_flow_mod->hard_timeout);
+	} break;
+	case openflow12::OFP_VERSION: {
+		return be16toh(of12m_flow_mod->hard_timeout);
+	} break;
 	case openflow13::OFP_VERSION: {
 		return be16toh(of13m_flow_mod->hard_timeout);
 	} break;
@@ -408,11 +304,36 @@ cflowentry::get_hard_timeout() const
 }
 
 
+void
+cflowentry::set_cookie(const uint64_t& cookie)
+{
+	switch (of_version) {
+	case openflow10::OFP_VERSION: {
+		of10m_flow_mod->cookie = htobe64(cookie);
+	} break;
+	case openflow12::OFP_VERSION: {
+		of12m_flow_mod->cookie = htobe64(cookie);
+	} break;
+	case openflow13::OFP_VERSION: {
+		of13m_flow_mod->cookie = htobe64(cookie);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+}
+
+
 uint64_t
 cflowentry::get_cookie() const
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
+	case openflow10::OFP_VERSION: {
+		return be64toh(of10m_flow_mod->cookie);
+	} break;
+	case openflow12::OFP_VERSION: {
+		return be64toh(of12m_flow_mod->cookie);
+	} break;
 	case openflow13::OFP_VERSION: {
 		return be64toh(of13m_flow_mod->cookie);
 	} break;
@@ -424,14 +345,33 @@ cflowentry::get_cookie() const
 }
 
 
-uint64_t
-cflowentry::get_cookie_mask() const
+void
+cflowentry::set_cookie_mask(const uint64_t& cookie_mask)
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION:
 	case openflow13::OFP_VERSION: {
+		of13m_flow_mod->cookie_mask = htobe64(cookie_mask);
+	} break;
+	case openflow10::OFP_VERSION:
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+}
+
+
+uint64_t
+cflowentry::get_cookie_mask() const
+{
+	switch (of_version) {
+	case openflow12::OFP_VERSION: {
+		return be64toh(of12m_flow_mod->cookie_mask);
+	} break;
+	case openflow13::OFP_VERSION: {
 		return be64toh(of13m_flow_mod->cookie_mask);
 	} break;
+	case openflow10::OFP_VERSION:
 	default: {
 		throw eBadVersion();
 	} break;
@@ -440,11 +380,36 @@ cflowentry::get_cookie_mask() const
 }
 
 
+void
+cflowentry::set_priority(const uint16_t& priority)
+{
+	switch (of_version) {
+	case openflow10::OFP_VERSION: {
+		of10m_flow_mod->priority = htobe16(priority);
+	} break;
+	case openflow12::OFP_VERSION: {
+		of12m_flow_mod->priority = htobe16(priority);
+	} break;
+	case openflow13::OFP_VERSION: {
+		of13m_flow_mod->priority = htobe16(priority);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+}
+
+
 uint16_t
 cflowentry::get_priority() const
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
+	case openflow10::OFP_VERSION: {
+		return be16toh(of10m_flow_mod->priority);
+	} break;
+	case openflow12::OFP_VERSION: {
+		return be16toh(of12m_flow_mod->priority);
+	} break;
 	case openflow13::OFP_VERSION: {
 		return be16toh(of13m_flow_mod->priority);
 	} break;
@@ -456,11 +421,36 @@ cflowentry::get_priority() const
 }
 
 
+void
+cflowentry::set_buffer_id(const uint32_t& buffer_id)
+{
+	switch (of_version) {
+	case openflow10::OFP_VERSION: {
+		of10m_flow_mod->buffer_id = htobe32(buffer_id);
+	} break;
+	case openflow12::OFP_VERSION: {
+		of12m_flow_mod->buffer_id = htobe32(buffer_id);
+	} break;
+	case openflow13::OFP_VERSION: {
+		of13m_flow_mod->buffer_id = htobe32(buffer_id);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+}
+
+
 uint32_t
 cflowentry::get_buffer_id() const
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
+	case openflow10::OFP_VERSION: {
+		return be32toh(of10m_flow_mod->buffer_id);
+	} break;
+	case openflow12::OFP_VERSION: {
+		return be32toh(of12m_flow_mod->buffer_id);
+	} break;
 	case openflow13::OFP_VERSION: {
 		return be32toh(of13m_flow_mod->buffer_id);
 	} break;
@@ -472,11 +462,36 @@ cflowentry::get_buffer_id() const
 }
 
 
+void
+cflowentry::set_out_port(const uint32_t& out_port)
+{
+	switch (of_version) {
+	case openflow10::OFP_VERSION: {
+		of10m_flow_mod->out_port = htobe16(out_port);
+	} break;
+	case openflow12::OFP_VERSION: {
+		of12m_flow_mod->out_port = htobe32(out_port);
+	} break;
+	case openflow13::OFP_VERSION: {
+		of13m_flow_mod->out_port = htobe32(out_port);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+}
+
+
 uint32_t
 cflowentry::get_out_port() const
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
+	case openflow10::OFP_VERSION: {
+		return be16toh(of10m_flow_mod->out_port);
+	} break;
+	case openflow12::OFP_VERSION: {
+		return be32toh(of12m_flow_mod->out_port);
+	} break;
 	case openflow13::OFP_VERSION: {
 		return be32toh(of13m_flow_mod->out_port);
 	} break;
@@ -488,14 +503,35 @@ cflowentry::get_out_port() const
 }
 
 
+void
+cflowentry::set_out_group(const uint32_t& out_group)
+{
+	switch (of_version) {
+	case openflow12::OFP_VERSION: {
+		of12m_flow_mod->out_group = htobe32(out_group);
+	} break;
+	case openflow13::OFP_VERSION: {
+		of13m_flow_mod->out_group = htobe32(out_group);
+	} break;
+	case openflow10::OFP_VERSION:
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+}
+
+
 uint32_t
 cflowentry::get_out_group() const
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
+	case openflow12::OFP_VERSION: {
+		return be32toh(of12m_flow_mod->out_group);
+	} break;
 	case openflow13::OFP_VERSION: {
 		return be32toh(of13m_flow_mod->out_group);
 	} break;
+	case openflow10::OFP_VERSION:
 	default: {
 		throw eBadVersion();
 	} break;
@@ -504,11 +540,36 @@ cflowentry::get_out_group() const
 }
 
 
+void
+cflowentry::set_flags(const uint16_t& flags)
+{
+	switch (of_version) {
+	case openflow10::OFP_VERSION: {
+		of10m_flow_mod->flags = htobe16(flags);
+	} break;
+	case openflow12::OFP_VERSION: {
+		of12m_flow_mod->flags = htobe16(flags);
+	} break;
+	case openflow13::OFP_VERSION: {
+		of13m_flow_mod->flags = htobe16(flags);
+	} break;
+	default: {
+		throw eBadVersion();
+	} break;
+	}
+}
+
+
 uint16_t
 cflowentry::get_flags() const
 {
 	switch (of_version) {
-	case openflow12::OFP_VERSION:
+	case openflow10::OFP_VERSION: {
+		return be16toh(of10m_flow_mod->flags);
+	} break;
+	case openflow12::OFP_VERSION: {
+		return be16toh(of12m_flow_mod->flags);
+	} break;
 	case openflow13::OFP_VERSION: {
 		return be16toh(of13m_flow_mod->flags);
 	} break;
@@ -521,14 +582,43 @@ cflowentry::get_flags() const
 
 
 size_t
+cflowentry::length() const
+{
+	switch(of_version) {
+	case openflow10::OFP_VERSION: {
+		return sizeof(struct openflow10::ofp_flow_mod) + actions.length();
+	} break;
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_flow_mod) - sizeof(openflow12::ofp_match) + match.length() + instructions.length());
+	} break;
+	case openflow13::OFP_VERSION: {
+		return (sizeof(struct openflow13::ofp_flow_mod) - sizeof(openflow13::ofp_match) + match.length() + instructions.length());
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+size_t
 cflowentry::pack()
 {
 	size_t instslen = 0;
 	size_t ofmatch_len = 0;
 	size_t fm_len = 0;
-	size_t packlen = 0;
+	size_t packlen = length();
 
 	switch (of_version) {
+	case openflow10::OFP_VERSION: {
+
+		if (length() > flow_mod_area.memlen()) {// not enough space, resize memory area for flow_mod
+			ofm_generic = flow_mod_area.resize(packlen);
+		}
+
+		match.pack((uint8_t*)&(of10m_flow_mod->match), sizeof(struct openflow10::ofp_match));
+		actions.pack((uint8_t*)of10m_flow_mod->actions, actions.length());
+
+	} break;
 	case openflow12::OFP_VERSION:
 	case openflow13::OFP_VERSION: {
 		instslen = instructions.length();
@@ -538,39 +628,15 @@ cflowentry::pack()
 
 		packlen = fm_len + ofmatch_len + instslen;
 
-		WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [-] instslen:%d matchlen:%d fmgenlen:%d packlen:%d",
-				this,
-				instslen,
-				ofmatch_len,
-				fm_len,
-				packlen);
-
-		//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() instructions length: %d *this: %s", this, instslen, c_str());
-
-		//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [0] flow_mod_area: %s", this, flow_mod_area.c_str());
-
-
-		if (packlen > flow_mod_area.memlen()) // not enough space, resize memory area for flow_mod
-		{
-			WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() resizing flow_mod_area: from %d to %d",
-					this, flow_mod_area.memlen(), packlen);
-			flow_mod_area.resize(packlen);
+		if (length() > flow_mod_area.memlen()) {// not enough space, resize memory area for flow_mod
+			ofm_generic = flow_mod_area.resize(packlen);
 		}
-
-		//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [1] flow_mod_area: %s", this, flow_mod_area.c_str());
-
-
-		//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [1] flow_mod_area: %s", this, flow_mod_area.c_str());
 
 		struct openflow12::ofp_match* m = (struct openflow12::ofp_match*)(flow_mod_area.somem() + fm_len);
 		match.pack((uint8_t*)m, ofmatch_len);
 
-		//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [2] flow_mod_area: %s", this, flow_mod_area.c_str());
-
 		uint8_t* insts = (flow_mod_area.somem() + fm_len + ofmatch_len);
 		instructions.pack(insts, instslen);
-
-		//WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [3] flow_mod_area: %s", this, flow_mod_area.c_str());
 
 	} break;
 	default: {
@@ -583,7 +649,7 @@ cflowentry::pack()
 
 
 void
-cflowentry::test()
+cflowentry::example()
 {
 	cmacaddr dl_mask("ff:ff:ff:ff:ff:ff");
 	cmacaddr dl_src("00:01:01:01:01:01");
