@@ -150,22 +150,22 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_port_status const& msg) {
 		os << dynamic_cast<cofmsg const&>( msg );
-		os << indent(0) << "<cofmsg_port_status >" << std::endl;
+		os << indent(2) << "<cofmsg_port_status >" << std::endl;
 			switch (msg.get_reason()) {
 			case openflow::OFPPR_ADD: {
-				os << indent(2) << "<reason: -ADD- >" << std::endl;
+				os << indent(4) << "<reason: -ADD- >" << std::endl;
 			} break;
 			case openflow::OFPPR_DELETE: {
-				os << indent(2) << "<reason: -DELETE- >" << std::endl;
+				os << indent(4) << "<reason: -DELETE- >" << std::endl;
 			} break;
 			case openflow::OFPPR_MODIFY: {
-				os << indent(2) << "<reason: -MODIFY- >" << std::endl;
+				os << indent(4) << "<reason: -MODIFY- >" << std::endl;
 			} break;
 			default: {
-				os << indent(2) << "<reason: -UNKNOWN- >" << std::endl;
+				os << indent(4) << "<reason: -UNKNOWN- >" << std::endl;
 			} break;
 			}
-			indent i(2);
+			indent i(4);
 			os << msg.port;
 		return os;
 	};

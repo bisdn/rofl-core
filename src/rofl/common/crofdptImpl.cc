@@ -103,7 +103,7 @@ crofdptImpl::run_engine(crofdptImpl_event_t event)
 		} break;
 		case EVENT_DISCONNECTED: {
 			event_disconnected();
-		} break;
+		} return;
 		case EVENT_FEATURES_REPLY_RCVD: {
 			event_features_reply_rcvd();
 		} break;
@@ -159,9 +159,9 @@ crofdptImpl::event_disconnected()
 {
 	switch (state) {
 	case STATE_ESTABLISHED: {
-		rofbase->handle_dpt_close(this);
 		rofchan.clear();
-	} break;
+		rofbase->handle_dpt_close(this);
+	} return;
 	default: {
 		logging::error << "[rofl][dpt] event -DISCONNECTED- in invalid state rcvd, internal error" << std::endl << *this;
 	};
