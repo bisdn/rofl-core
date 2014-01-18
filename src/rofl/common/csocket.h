@@ -373,11 +373,8 @@ private:
 	 * if this signal is required for further operation.
 	 */
 	void
-	handle_connected()
-	{
-		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_connected()", this);
-		if (socket_owner)
-		{
+	handle_connected() {
+		if (socket_owner) {
 			socket_owner->handle_connected(this, sd);
 		}
 	};
@@ -390,11 +387,8 @@ private:
 	 * if the derived class wants to act upon this condition.
 	 */
 	void
-	handle_conn_refused()
-	{
-		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_conn_refused()", this);
-		if (socket_owner)
-		{
+	handle_conn_refused() {
+		if (socket_owner) {
 			socket_owner->handle_connect_refused(this, sd);
 		}
 	};
@@ -409,11 +403,8 @@ private:
 	 * @param ra reference to the peer entity's address
 	 */
 	void
-	handle_accepted(int newsd, caddress const& ra)
-	{
-		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_accepted()", this);
-		if (socket_owner)
-		{
+	handle_accepted(int newsd, caddress const& ra) {
+		if (socket_owner) {
 			socket_owner->handle_accepted(this, newsd, ra);
 		}
 	};
@@ -425,12 +416,9 @@ private:
 	 * @param sd the socket descriptor
 	 */
 	void
-	handle_closed(int sd)
-	{
+	handle_closed(int sd) {
 		deregister_filedesc_r(sd);
-		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_closed()", this);
-		if (socket_owner)
-		{
+		if (socket_owner) {
 			socket_owner->handle_closed(this, sd);
 		}
 	};
@@ -444,11 +432,8 @@ private:
 	 * @param fd the socket descriptor
 	 */
 	void
-	handle_read(int fd)
-	{
-		WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_read()", this);
-		if (socket_owner)
-		{
+	handle_read(int fd) {
+		if (socket_owner) {
 			socket_owner->handle_read(this, sd);
 		}
 	};

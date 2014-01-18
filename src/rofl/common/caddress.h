@@ -28,8 +28,7 @@
 #include "cvastring.h"
 #include "croflexception.h"
 #include "cmemory.h"
-#include "rofl/platform/unix/csyslog.h"
-#include <rofl/datapath/pipeline/common/large_types.h>
+#include "rofl/datapath/pipeline/common/large_types.h"
 
 namespace rofl
 {

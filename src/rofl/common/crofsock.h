@@ -119,6 +119,13 @@ public:
 	/**
 	 *
 	 */
+	void
+	close();
+
+
+	/**
+	 *
+	 */
 	csocket&
 	get_socket();
 
@@ -242,6 +249,35 @@ private:
 	 */
 	void
 	send_from_queue();
+
+	/**
+	 *
+	 */
+	void
+	log_message(
+			std::string const& text, cofmsg const& pmsg);
+
+	/**
+	 *
+	 */
+	void
+	log_of10_message(
+			cofmsg const& pmsg);
+
+	/**
+	 *
+	 */
+	void
+	log_of12_message(
+			cofmsg const& pmsg);
+
+	/**
+	 *
+	 */
+	void
+	log_of13_message(
+			cofmsg const& pmsg);
+
 
 public:
 

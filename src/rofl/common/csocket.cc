@@ -162,13 +162,16 @@ csocket::handle_revent(int fd)
 			}
 		}
 
+		logging::info << "[rofl][csocket] socket accepted" << std::endl << *this;
+
 		handle_accepted(new_sd, ra);
 
 		// handle socket when in normal (=non-listening) state
 	} else {
 
-		// call method in derived class
-		handle_read(fd);
+		if (sockflags.test(CONNECTED)) {
+			handle_read(fd); // call method in derived class
+		}
 	}
 }
 
@@ -233,7 +236,9 @@ csocket::handle_wevent(int fd)
 		};
 		}
 	} else {
-		dequeue_packet();
+		if (sockflags.test(CONNECTED)) {
+			dequeue_packet();
+		}
 	}
 }
 
@@ -241,7 +246,7 @@ csocket::handle_wevent(int fd)
 void
 csocket::handle_xevent(int fd)
 {
-	WRITELOG(CSOCKET, DBG, "csocket(%p)::handle_xevent()", this);
+	logging::error << "[rofl[csocket] error occured on socket descriptor" << std::endl << *this;
 }
 
 
@@ -441,6 +446,10 @@ csocket::cconnect(
 		register_filedesc_r(sd);
 		sockflags.set(CONNECTED);
 
+		if (sockflags.test(FLAG_ACTIVE_SOCKET)) {
+			cancel_timer(TIMER_RECONNECT);
+		}
+
 		if ((getsockname(sd, laddr.ca_saddr, &(laddr.salen))) < 0) {
 			throw eSysCall("getsockname");
 		}
@@ -448,6 +457,8 @@ csocket::cconnect(
 		if ((getpeername(sd, raddr.ca_saddr, &(raddr.salen))) < 0) {
 			throw eSysCall("getpeername");
 		}
+
+		logging::info << "[rofl][csocket] socket connected" << std::endl << *this;
 
 		handle_connected();
 	}
@@ -467,13 +478,13 @@ csocket::cclose()
 
 	deregister_filedesc_r(sd);
 	deregister_filedesc_w(sd);
-	if (not sockflags[RAW_SOCKET]) {
+	if (not sockflags.test(RAW_SOCKET) and sockflags.test(CONNECTED)) {
 		if ((rc = shutdown(sd, SHUT_RDWR)) < 0) {
 			logging::error << "[rofl][csocket] error occured during shutdown(): " << eSysCall("shutdown") << std::endl << *this;
 		}
 	}
 	if ((rc = close(sd)) < 0) {
-		logging::error << "[rofl][csocket] error occured during close():" << eSysCall("shutdown") << std::endl << *this;
+		logging::error << "[rofl][csocket] error occured during close():" << eSysCall("close") << std::endl << *this;
 	}
 
 	sd = -1;
@@ -481,6 +492,8 @@ csocket::cclose()
 	//sockflags.reset(SOCKET_IS_LISTENING);
 	sockflags.reset(RAW_SOCKET);
 	sockflags.reset(CONNECTED);
+
+	logging::info << "[rofl][csocket] cleaning-up socket." << std::endl << *this;
 
 	// purge pout_squeue
 	while (not pout_squeue.empty()) {
@@ -498,8 +511,14 @@ csocket::recv(void *buf, size_t count)
 	// read from socket: TODO: TLS socket
 	int rc = ::read(sd, (void*)buf, count);
 
-	if ((rc == 0) && (sockflags.test(FLAG_ACTIVE_SOCKET))) {
-		reconnect(true);
+	if (rc == 0) {
+		if (sockflags.test(FLAG_ACTIVE_SOCKET)) {
+			sockflags.reset(CONNECTED);
+			reconnect(true);
+		} else {
+			logging::info << "[rofl][csocket] peer closed socket." << std::endl << *this;
+			cclose();
+		}
 	}
 
 	return rc;

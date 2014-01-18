@@ -14,12 +14,11 @@ main(int argc, char** argv)
 	rofl::csyslog::set_debug_level("ciosrv", "emergency");
 	rofl::csyslog::set_debug_level("cthread", "emergency");
 
-
-	rofl::ciosrv::init();
-
 	cofhello_elem_versionbitmap versionbitmap;
 	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
 	etherswitch::ethswitch sw(versionbitmap);
+
+	//rofl::logging::set_logfile(rofl::logging::LOGGING_DEBUG, "/dev/null");
 
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));

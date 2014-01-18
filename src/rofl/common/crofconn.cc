@@ -44,7 +44,7 @@ crofconn::crofconn(
 					rofsock(this, domain, type, protocol, ra),
 					versionbitmap(versionbitmap),
 					ofp_version(OFP_VERSION_UNKNOWN),
-					state(STATE_DISCONNECTED),
+					state(STATE_CONNECT_PENDING),
 					hello_timeout(DEFAULT_HELLO_TIMEOUT),
 					echo_timeout(DEFAULT_ECHO_TIMEOUT),
 					echo_interval(DEFAULT_ECHO_INTERVAL)
@@ -56,7 +56,9 @@ crofconn::crofconn(
 
 crofconn::~crofconn()
 {
-	run_engine(EVENT_DISCONNECTED);
+	if (STATE_DISCONNECTED != state) {
+		run_engine(EVENT_DISCONNECTED);
+	}
 }
 
 
@@ -100,7 +102,7 @@ crofconn::run_engine(crofconn_event_t event)
 
 		switch (event) {
 		case EVENT_CONNECTED: 		event_connected(); 			break;
-		case EVENT_DISCONNECTED:	event_disconnected();		break;
+		case EVENT_DISCONNECTED:	event_disconnected();		return; // might call this object's destructor
 		case EVENT_HELLO_RCVD:		event_hello_rcvd();			break;
 		case EVENT_HELLO_EXPIRED:	event_hello_expired();		break;
 		case EVENT_FEATURES_RCVD:	event_features_rcvd();		break;
@@ -121,6 +123,7 @@ crofconn::event_connected()
 {
 	switch (state) {
 	case STATE_DISCONNECTED:
+	case STATE_CONNECT_PENDING:
 	case STATE_WAIT_FOR_HELLO:
 	case STATE_ESTABLISHED: {
 		action_send_hello_message();
@@ -141,14 +144,19 @@ crofconn::event_disconnected()
 {
 	switch (state) {
 	case STATE_DISCONNECTED: {
-		// do nothing
+
+	} break;
+	case STATE_CONNECT_PENDING: {
+		if (not flags.test(FLAGS_PASSIVE)) {
+			env->handle_connect_refused(this);
+		}
 	} break;
 	case STATE_WAIT_FOR_HELLO:
 	case STATE_ESTABLISHED: {
 		state = STATE_DISCONNECTED;
 		cancel_timer(TIMER_WAIT_FOR_ECHO);
 		cancel_timer(TIMER_WAIT_FOR_HELLO);
-		rofsock.get_socket().cclose();
+		rofsock.close();
 		env->handle_closed(this);
 
 	} break;
@@ -373,9 +381,8 @@ crofconn::action_send_echo_request()
 void
 crofconn::handle_connect_refused(crofsock *endpnt)
 {
-	run_engine(EVENT_DISCONNECTED);
 	logging::warn << "[rofl][conn] OFP socket indicated connection refused." << std::endl << *this;
-	env->handle_connect_refused(this);
+	run_engine(EVENT_DISCONNECTED);
 }
 
 
@@ -383,8 +390,8 @@ crofconn::handle_connect_refused(crofsock *endpnt)
 void
 crofconn::handle_connected (crofsock *endpnt)
 {
-	run_engine(EVENT_CONNECTED);
 	logging::warn << "[rofl][conn] OFP socket indicated connection established." << std::endl << *this;
+	run_engine(EVENT_CONNECTED);
 }
 
 
@@ -392,8 +399,8 @@ crofconn::handle_connected (crofsock *endpnt)
 void
 crofconn::handle_closed(crofsock *endpnt)
 {
-	run_engine(EVENT_DISCONNECTED);
 	logging::warn << "[rofl][conn] OFP socket indicated connection closed." << std::endl << *this;
+	run_engine(EVENT_DISCONNECTED);
 }
 
 
@@ -639,12 +646,12 @@ crofconn::features_reply_rcvd(
 
 	try {
 		if (NULL == reply) {
-			logging::debug << "[rofl][conn] invalid message rcvd in method features_reply_rcvd()" << std::endl << *msg;
+			logging::error << "[rofl][conn] invalid message rcvd in method features_reply_rcvd()" << std::endl << *msg;
 			delete msg; return;
 		}
 
 		if (STATE_ESTABLISHED != state) {
-			logging::error << "[rofl][conn] rcvd FEATURES.reply:" << std::endl << *reply;
+			logging::debug << "[rofl][conn] rcvd FEATURES.reply:" << std::endl << *reply;
 
 			dpid 			= reply->get_dpid();
 			if (ofp_version >= rofl::openflow13::OFP_VERSION) {
@@ -656,6 +663,8 @@ crofconn::features_reply_rcvd(
 			env->release_sync_xid(this, msg->get_xid());
 
 			run_engine(EVENT_FEATURES_RCVD);
+		} else {
+			env->recv_message(this, msg);
 		}
 
 	} catch (RoflException& e) {
