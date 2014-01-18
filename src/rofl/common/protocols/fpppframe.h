@@ -372,12 +372,6 @@ public: // overloaded from fframe
 	virtual size_t
 	payloadlen() const throw (eFrameNoPayload);
 
-	/** dump info
-	 *
-	 */
-	virtual const char*
-	c_str();
-
 
 public: // data structures
 
@@ -428,11 +422,6 @@ private: // methods
 	 */
 	void
 	parse_ipcp_options() throw (ePPPFrameInvalidSyntax);
-
-private: // data structures
-
-	std::string info;
-
 };
 
 

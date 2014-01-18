@@ -12,8 +12,6 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-#include "../platform/unix/csyslog.h"
-#include "cvastring.h"
 #include "croflexception.h"
 #include "logging.h"
 
@@ -43,9 +41,7 @@ class eMemInval 			: public eMemBase {};
  * Memory addresses kept outside of cmemory must be updated by
  * the developer explicitly.
  */
-class cmemory :
-	public csyslog
-{
+class cmemory {
 private:
 
 	static std::set<cmemory*> 		cmemory_list;
@@ -53,9 +49,6 @@ private:
 	static int 						memlockcnt;
 
 	std::pair<uint8_t*, size_t> 	data;		//< memory area including head- and tail-space
-#if 0
-	std::string 					info; 		//< info string
-#endif
 	size_t 							occupied; 	//< amount of bytes used in memory area
 
 #define CMEMORY_DEFAULT_SIZE 		1024
@@ -103,17 +96,6 @@ public:
 	 */
 	virtual
 	~cmemory();
-
-
-#if 0
-	/**
-	 * @brief	Returns a C-string containing an ASCII representation of the memory area.
-	 *
-	 * @return C-string
-	 */
-	const char*
-	c_str();
-#endif
 
 
 public:

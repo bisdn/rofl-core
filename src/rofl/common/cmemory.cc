@@ -23,16 +23,9 @@ cmemory::cmemory(
 	++cmemory::memlockcnt;
 #endif
 
-
-	if (len > 0)
-	{
+	if (len > 0) {
 		mallocate(len);
 	}
-
-#if 0
-	WRITELOG(CMEMORY, DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
-			this, somem(), memlen());
-#endif
 }
 
 
@@ -51,17 +44,10 @@ cmemory::cmemory(
 	++cmemory::memlockcnt;
 #endif
 
-
-	if (datalen > 0)
-	{
+	if (datalen > 0) {
 		mallocate(datalen);
 		memcpy(somem(), data, datalen);
 	}
-
-#if 0
-	WRITELOG(CMEMORY, DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
-				this, somem(), memlen());
-#endif
 }
 
 
@@ -79,11 +65,6 @@ cmemory::cmemory(cmemory const& m) :
 #endif
 
 	*this = m;
-
-#if 0
-	WRITELOG(CMEMORY, DBG, "cmemory(%p)::cmemory() somem()=%p memlen()=%d",
-				this, somem(), memlen());
-#endif
 }
 
 
@@ -98,11 +79,6 @@ cmemory::~cmemory()
 	}
 #endif
 
-#if 0
-	WRITELOG(CMEMORY, DBG, "cmemory(%p)::~cmemory() somem()=%p memlen()=%d",
-				this, somem(), memlen());
-#endif
-
 	mfree();
 }
 
@@ -115,14 +91,9 @@ cmemory::operator= (
 	if (this == &m)
 		return *this;
 
-	//fprintf(stderr, "\n\nXXX[1] => m.memlen(): %lu\n\n\n", m.memlen());
-
-
 	mallocate(m.memlen());
 
 	memcpy(this->somem(), m.somem(), m.memlen());
-
-	//fprintf(stderr, "\n\nXXX[2] => m.memlen(): %lu\n\n\n", m.memlen());
 
 	return *this;
 }
@@ -149,8 +120,7 @@ uint8_t&
 cmemory::operator[] (
 		size_t index) const
 {
-	if (index >= data.second)
-	{
+	if (index >= data.second) {
 		throw eMemOutOfRange();
 	}
 	return *(somem() + index);
@@ -161,24 +131,18 @@ cmemory::operator[] (
 bool
 cmemory::operator< (const cmemory& m) const
 {
-	if (this->memlen() < m.memlen())
-	{
+	if (this->memlen() < m.memlen()) {
 		return true;
 	}
-	else if (this->memlen() > m.memlen())
-	{
+	else if (this->memlen() > m.memlen()) {
 		return false;
 	}
-	// this->memlen() == m.memlen()
 
 	int rc = memcmp(this->somem(), m.somem(), this->memlen());
 
-	if (rc < 0)
-	{
+	if (rc < 0) {
 		return true;
-	}
-	else // rc >= 0
-	{
+	} else {
 		return false;
 	}
 
@@ -190,15 +154,13 @@ cmemory::operator< (const cmemory& m) const
 cmemory
 cmemory::operator& (const cmemory& m) const
 {
-	if (memlen() != m.memlen())
-	{
+	if (memlen() != m.memlen()) {
 		throw eMemInval();
 	}
 
 	cmemory tmp(*this);
 
-	for (size_t i = 0; i < memlen(); ++i)
-	{
+	for (size_t i = 0; i < memlen(); ++i) {
 		tmp[i] &= m[i];
 	}
 
@@ -236,10 +198,8 @@ cmemory::operator+ (cmemory const& m)
 bool
 cmemory::operator== (cmemory const& m) const
 {
-	if (this->memlen() == m.memlen())
-	{
-		if (!memcmp(this->somem(), m.somem(), this->memlen()))
-		{
+	if (this->memlen() == m.memlen()) {
+		if (!memcmp(this->somem(), m.somem(), this->memlen())) {
 			return true;
 		}
 	}
@@ -273,42 +233,24 @@ uint8_t*
 cmemory::resize(
 		size_t len)
 {
-	if (0 == len)
-	{
+	if (0 == len) {
 		mfree();
-	}
-	else if (len <= data.second)
-	{
-		if ((data.first = (uint8_t*)realloc(data.first, len)) == 0)
-		{
-			//fprintf(stderr, "UUU p_len: %lu\n", p_len);
+	} else if (len <= data.second) {
+		if ((data.first = (uint8_t*)realloc(data.first, len)) == 0) {
 			throw eMemAllocFailed();
 		}
-
 		//memset(data.first + len, 0x00, data.second);
 
 		// adjust data
 		data.second = len;
-	}
-	else
-	{
-#if 0
-		fprintf(stderr, "len: %lu area.second: %lu hspace: %lu tspace: %lu offset: %lu p_len: %lu\n",
-				len, area.second, hspace, tspace, offset, p_len);
-#endif
-
-		if ((data.first = (uint8_t*)realloc(data.first, len)) == 0)
-		{
-			//fprintf(stderr, "UUU p_len: %lu\n", p_len);
+	} else {
+		if ((data.first = (uint8_t*)realloc(data.first, len)) == 0) {
 			throw eMemAllocFailed();
 		}
-
 		memset(data.first + data.second, 0x00, len - data.second);
-
 
 		// adjust data
 		data.second = len;
-
 	}
 	return data.first;
 }
@@ -318,11 +260,9 @@ cmemory::resize(
 void
 cmemory::clear()
 {
-	if (!data.first || !data.second)
-	{
+	if (!data.first || !data.second) {
 		return;
 	}
-
 	memset(data.first, 0, data.second);
 }
 
@@ -355,15 +295,13 @@ cmemory::mallocate(
 		size_t len)
 		throw (eMemAllocFailed)
 {
-	if (data.first)
-	{
+	if (data.first) {
 		mfree();
 	}
 	data.second = len;
 
 
-	if ((data.first = (uint8_t*)calloc(1, data.second)) == 0)
-	{
+	if ((data.first = (uint8_t*)calloc(1, data.second)) == 0) {
 		throw eMemAllocFailed();
 	}
 
@@ -375,8 +313,7 @@ cmemory::mallocate(
 void
 cmemory::mfree()
 {
-	if (data.first)
-	{
+	if (data.first) {
 		memset(data.first, 0, data.second);
 		free(data.first);
 	}
@@ -390,8 +327,7 @@ cmemory::insert(
 		uint8_t *ptr,
 		size_t len)
 {
-	if (not ((ptr >= data.first) && (ptr < (data.first + data.second))))
-	{
+	if (not ((ptr >= data.first) && (ptr < (data.first + data.second)))) {
 		throw eMemInval();
 	}
 
@@ -405,15 +341,12 @@ cmemory::insert(
 		unsigned int offset,
 		size_t len)
 {
-	if (offset > data.second)
-	{
+	if (offset > data.second) {
 		throw eMemInval();
 	}
 
-	if (0 == data.first)
-	{
+	if (0 == data.first) {
 		mallocate(len);
-
 		return somem();
 	}
 
@@ -421,8 +354,7 @@ cmemory::insert(
 	size_t p_len = data.second + len;
 
 
-	if ((p_ptr = (uint8_t*)calloc(1, p_len)) == 0)
-	{
+	if ((p_ptr = (uint8_t*)calloc(1, p_len)) == 0) {
 		throw eMemInval();
 	}
 
@@ -445,13 +377,11 @@ cmemory::remove(
 		uint8_t *ptr,
 		size_t len)
 {
-	if (not ((ptr >= data.first) && (ptr < (data.first + data.second))))
-	{
+	if (not ((ptr >= data.first) && (ptr < (data.first + data.second)))) {
 		throw eMemInval();
 	}
 
-	if (not (((ptr + len) >= data.first) && ((ptr + len) < (data.first + data.second))))
-	{
+	if (not (((ptr + len) >= data.first) && ((ptr + len) < (data.first + data.second)))) {
 		throw eMemInval();
 	}
 
@@ -480,10 +410,8 @@ cmemory::find_first_of(
 		uint8_t value,
 		unsigned int start)
 {
-	for (unsigned int i = start; i < memlen(); i++)
-	{
-		if (operator[] (i) == value)
-		{
+	for (unsigned int i = start; i < memlen(); i++) {
+		if (operator[] (i) == value) {
 			return i;
 		}
 	}

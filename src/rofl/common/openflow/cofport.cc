@@ -878,9 +878,6 @@ cofport::recv_port_mod_of10(
 	if (0 != advertise) {
 		set_advertised(advertise);
 	}
-
-	WRITELOG(CPORT, DBG, "cofport(%s:%d)::recv_port_mod() config:0x%x advertise:0x%x",
-			get_name().c_str(), get_port_no(), get_config(), get_advertised());
 }
 
 
@@ -926,9 +923,6 @@ cofport::recv_port_mod_of12(
 	if (0 != advertise) {
 		set_advertised(advertise);
 	}
-
-	WRITELOG(CPORT, DBG, "cofport(%s:%d)::recv_port_mod() config:0x%x advertise:0x%x",
-			get_name().c_str(), get_port_no(), get_config(), get_advertised());
 }
 
 

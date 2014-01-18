@@ -13,7 +13,6 @@
 
 #include "../fframe.h"
 #include "../caddress.h"
-#include "../cvastring.h"
 #include "../cmacaddr.h"
 
 namespace rofl
@@ -36,8 +35,6 @@ class ficmpv6opt : public fframe {
 
 	#define IPV6_ADDR_LEN		16
 	#define ETHER_ADDR_LEN		6
-
-	std::string 						info;
 
 public: // static definitions and constants
 

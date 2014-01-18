@@ -12,8 +12,6 @@
 
 #include "croflexception.h"
 #include "cmemory.h"
-#include "cvastring.h"
-#include "rofl/platform/unix/csyslog.h"
 
 namespace rofl
 {
@@ -30,9 +28,7 @@ class eFrameInval : public eFrameBase {}; // invalid parameter
  * parsing functionality for specific packet formats, e.g. OpenFlow,
  * Ethernet, VLAN, IPv4, etc.
  */
-class fframe :
-	public csyslog
-{
+class fframe {
 /*
  * data structure
  */
@@ -46,9 +42,6 @@ private:
 		uint8_t                 *data;          // data area
 		size_t 					 datalen; 		// data area length
 //		uint16_t 				 total_len; 	// real length of packet
-#if 0
-		std::string 			 info; 			// info string
-#endif
 		std::bitset<32> 		 flags;
 
 
@@ -190,14 +183,6 @@ public:
 	{
 		return total_len;
 	};
-#endif
-
-#if 0
-	/** dump info
-	 *
-	 */
-	virtual const char*
-	c_str();
 #endif
 
 	/** get start of data area

@@ -160,15 +160,12 @@ crofbase::rpc_close_all()
 void
 crofbase::nsp_enable(bool enable)
 {
-	if (enable)
-	{
+	if (enable) {
 		fe_flags.set(NSP_ENABLED);
-		WRITELOG(CROFBASE, INFO, "crofbase(%p)::nsp_enable() enabling -NAMESPACE- support", this);
-	}
-	else
-	{
+		logging::info << "[rofl][base] enabling namespace support" << std::endl;
+	} else {
 		fe_flags.reset(NSP_ENABLED);
-		WRITELOG(CROFBASE, INFO, "crofbase(%p)::nsp_enable() disabling -NAMESPACE- support", this);
+		logging::info << "[rofl][base] disabling namespace support" << std::endl;
 	}
 }
 
@@ -578,8 +575,6 @@ crofbase::handle_timeout(int opaque)
 			// do nothing, just re-schedule via ciosrv::run()::pselect()
 		} break;
 		default: {
-			//WRITELOG(CROFBASE, DBG, "crofbase::handle_timeout() "
-			//		"received unknown timer event %d", opaque);
 		} break;
 		}
 

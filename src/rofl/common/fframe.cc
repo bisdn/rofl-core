@@ -49,10 +49,7 @@ fframe::~fframe()
 void
 fframe::reset(uint8_t *_data, size_t _datalen) //, uint16_t _total_len)
 {
-	if (flags.test(FFRAME_FLAG_MEM))
-	{
-		//WRITELOG(FFRAME, DBG, "fframe(%p)::reset() clone data", this);
-
+	if (flags.test(FFRAME_FLAG_MEM)) {
 		mem.resize(_datalen);
 
 		memcpy(mem.somem(), _data, mem.memlen());
@@ -60,16 +57,11 @@ fframe::reset(uint8_t *_data, size_t _datalen) //, uint16_t _total_len)
 		data = mem.somem();
 		datalen = mem.memlen();
 //		total_len = mem.memlen();
-	}
-	else
-	{
-		//WRITELOG(FFRAME, DBG, "fframe(%p)::reset() refer to external data", this);
-
+	} else {
 		data = _data;
 		datalen = _datalen;
 //		total_len = _total_len;
 	}
-	//WRITELOG(FFRAME, DBG, "fframe(%p)::reset() data:%p datalen:%d", this, data, datalen);
 
 	//Call initialize
 	if(data)
@@ -90,11 +82,6 @@ fframe::operator= (const fframe& frame)
 		return *this;
 
 	flags = frame.flags;
-
-#if 0
-	WRITELOG(FFRAME, DBG, "fframe(%p)::operator=() to be copied: data:%p datalen:%d",
-			this, frame.data, frame.datalen);
-#endif
 
 	// hint: there are two modes:
 	// 1. FFRAME_FLAG_MEM is set: fframe's memory area 'mem' contains the data

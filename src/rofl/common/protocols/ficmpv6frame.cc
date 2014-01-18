@@ -96,12 +96,12 @@ ficmpv6frame::initialize()
 			parse_icmpv6_redirect();
 		} break;
 		default: {
-			writelog(FFRAME, INFO, "ficmpv6frame::initialize() unsupported ICMPv6 message type detected");
+			logging::warn << "[rofl][frame][icmpv6] unsupported ICMPv6 message type detected" << std::endl;
 		} break;
 		}
 
 	} catch (eICMPv6FrameTooShort& e) {
-		writelog(FFRAME, WARN, "ficmpv6frame(%p)::initialize() ICMPv6 frame too short", this);
+		logging::warn << "[rofl][frame][icmpv6] ICMPv6 frame too short" << std::endl;
 	}
 }
 
@@ -123,12 +123,12 @@ ficmpv6frame::parse_icmpv6_options(
 			return;
 		}
 		if (0 == nextopt->len) {
-			writelog(FFRAME, WARN, "ficmpv6frame(%p)::parse_icmpv6_options() found invalid ICMPv6 option (len=0), ignoring", this);
+			logging::warn << "[rofl][frame][icmpv6][parser] found invalid ICMPv6 option (len=0), ignoring" << std::endl;;
 			return;
 		}
 		size_t optlen = 8 * nextopt->len; // length is measured in blocks of 8-octets
 		if (reslen < (int)optlen) {
-			writelog(FFRAME, WARN, "ficmpv6frame(%p)::parse_icmpv6_options() found invalid ICMPv6 option (too short), ignoring", this);
+			logging::warn << "[rofl][frame][icmpv6][parser] found invalid ICMPv6 option (too short), ignoring" << std::endl;
 			return;
 		}
 
@@ -437,8 +437,7 @@ ficmpv6frame::get_icmpv6_neighbor_taddr() const
 
 	} catch (eICMPv6FrameInvalType& e) {
 
-		writelog(FFRAME, WARN, "ficmpv6frame(%p)::get_icmpv6_neighbor_taddr() "
-				"invalid frame type", this);
+		logging::warn << "[rofl][frame][icmpv6][get-nb-taddr] invalid frame type" << std::endl;
 	}
 
 	return addr;
@@ -470,8 +469,7 @@ ficmpv6frame::set_icmpv6_neighbor_taddr(caddress const& addr)
 
 	} catch (eICMPv6FrameInvalType& e) {
 
-		writelog(FFRAME, WARN, "ficmpv6frame(%p)::set_icmpv6_neighbor_taddr() "
-				"invalid frame type", this);
+		logging::warn << "[rofl][frame][icmpv6][set-nb-taddr] invalid frame type" << std::endl;
 	}
 }
 
