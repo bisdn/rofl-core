@@ -27,8 +27,6 @@ librofl_common_la_SOURCES = \
 		cmemory.cc \
 		coflist.h \
 		coflist.cc \
-		cport.h \
-		cport.cc \
 		csocket.h \
 		csocket.cc \
 		cvastring.h \
@@ -85,7 +83,6 @@ library_include_HEADERS= \
 		ciosrv.h \
 		cmemory.h \
 		coflist.h \
-		cport.h \
 		csocket.h \
 		cvastring.h \
 		fframe.h \
