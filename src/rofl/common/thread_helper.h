@@ -16,7 +16,6 @@
 #include <inttypes.h>
 
 #include "croflexception.h"
-#include "rofl/platform/unix/csyslog.h"
 
 namespace rofl
 {
@@ -39,44 +38,33 @@ class eLockBase : public RoflException {};
 class eLockInval : public eLockBase {};
 class eLockWouldBlock : public eLockBase {};
 
-class Lock :
-	public csyslog
+class Lock
 {
 public:
 	Lock(pthread_mutex_t *mutex, bool blocking = true) throw (eLockWouldBlock) :
 		mutex(mutex), locked(false)
 	{
-		WRITELOG(CTHREAD, DBG, "thread %x lock mutex %p -trying-", pthread_self(), mutex);
-		if (blocking)
-		{
+		if (blocking) {
 			pthread_mutex_lock(this->mutex);
-		}
-		else
-		{
-			if (pthread_mutex_trylock(this->mutex) < 0)
-			{
+		} else {
+			if (pthread_mutex_trylock(this->mutex) < 0) {
 				switch (errno) {
 				case EBUSY:
 					throw eLockWouldBlock();
-
 				default:
 					throw eInternalError();
 				}
 			}
 		}
 		locked = true;
-		WRITELOG(CTHREAD, DBG, "thread %x lock mutex %p -locked-", pthread_self(), mutex);
 	}
 
 	virtual
 	~Lock()
 	{
-		WRITELOG(CTHREAD, DBG, "thread %x unlock mutex %p -trying-", pthread_self(), mutex);
-		if (locked)
-		{
+		if (locked) {
 			pthread_mutex_unlock(this->mutex);
 		}
-		WRITELOG(CTHREAD, DBG, "thread %x unlock mutex %p -unlocked-", pthread_self(), mutex);
 	}
 
 private:
@@ -85,8 +73,7 @@ private:
 };
 
 
-class RwLock :
-	public csyslog
+class RwLock
 {
 		pthread_rwlock_t *rwlock;
 		bool locked;
@@ -105,10 +92,7 @@ public:
 				bool blocking = true) throw (eLockWouldBlock, eLockInval) :
 			rwlock(rwlock), locked(false)
 		{
-			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x rwlock %p -trying- %s lock",
-					this, pthread_self(), rwlock, (rwtype == RWLOCK_READ) ? "READ" : "WRITE");
-			if (blocking)
-			{
+			if (blocking) {
 				switch (rwtype) {
 				case RWLOCK_READ:
 					pthread_rwlock_rdlock(rwlock);
@@ -119,9 +103,7 @@ public:
 				default:
 					throw eLockInval();
 				}
-			}
-			else
-			{
+			} else {
 				int rc = 0;
 
 				switch (rwtype) {
@@ -135,8 +117,7 @@ public:
 					throw eLockInval();
 				}
 
-				if (rc < 0)
-				{
+				if (rc < 0) {
 					switch (errno) {
 					case EBUSY:
 						throw eLockWouldBlock();
@@ -147,8 +128,6 @@ public:
 				}
 			}
 			locked = true;
-			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x rwlock %p -locked- %s lock",
-					this, pthread_self(), rwlock, (rwtype == RWLOCK_READ) ? "READ" : "WRITE");
 		};
 
 		/** constructor locks rwlock (or checks for existing lock)
@@ -159,10 +138,7 @@ public:
 				bool blocking = true) throw (eLockWouldBlock, eLockInval) :
 			rwlock(&(pthreadRwLock.rwlock)), locked(false)
 		{
-			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x rwlock %p -trying- %s lock",
-					this, pthread_self(), rwlock, (rwtype == RWLOCK_READ) ? "READ" : "WRITE");
-			if (blocking)
-			{
+			if (blocking) {
 				switch (rwtype) {
 				case RWLOCK_READ:
 					pthread_rwlock_rdlock(rwlock);
@@ -173,9 +149,7 @@ public:
 				default:
 					throw eLockInval();
 				}
-			}
-			else
-			{
+			} else {
 				int rc = 0;
 
 				switch (rwtype) {
@@ -189,8 +163,7 @@ public:
 					throw eLockInval();
 				}
 
-				if (rc < 0)
-				{
+				if (rc < 0) {
 					switch (errno) {
 					case EBUSY:
 						throw eLockWouldBlock();
@@ -201,8 +174,6 @@ public:
 				}
 			}
 			locked = true;
-			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x rwlock %p -locked- %s lock",
-					this, pthread_self(), rwlock, (rwtype == RWLOCK_READ) ? "READ" : "WRITE");
 		};
 
 
@@ -213,14 +184,9 @@ public:
 		virtual
 		~RwLock()
 		{
-			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x unlock rwlock %p -trying-",
-					this, pthread_self(), rwlock);
-			if (locked)
-			{
+			if (locked) {
 				pthread_rwlock_unlock(rwlock);
 			}
-			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x unlock rwlock %p -unlocked-",
-					this, pthread_self(), rwlock);
 		}
 };
 
