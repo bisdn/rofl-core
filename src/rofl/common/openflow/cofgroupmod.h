@@ -16,7 +16,7 @@
 
 #include "rofl/common/openflow/cofmatch.h"
 #include "rofl/common/openflow/cofbuckets.h"
-#include "rofl/common/openflow/cofinst.h"
+#include "rofl/common/openflow/cofinstruction.h"
 
 namespace rofl
 {

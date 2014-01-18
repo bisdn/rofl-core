@@ -19,7 +19,7 @@
 
 #include "rofl/common/openflow/cofmatch.h"
 #include "rofl/common/openflow/cofaction.h"
-#include "rofl/common/openflow/cofinst.h"
+#include "rofl/common/openflow/cofinstruction.h"
 #include "rofl/common/openflow/cofinstructions.h"
 #include "rofl/common/openflow/coxmatch.h"
 
