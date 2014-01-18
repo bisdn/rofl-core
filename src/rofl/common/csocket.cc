@@ -544,8 +544,8 @@ csocket::recv(void *buf, size_t count)
 		return rc;
 
 	} else if (rc == 0) {
-		logging::error << "[rofl][csocket] error reading from socket: "
-				<< eSysCall() << std::endl << *this;
+		logging::error << "[rofl][csocket] peer closed connection: "
+				<< eSysCall("read") << std::endl << *this;
 		notify(cevent(EVENT_CONN_RESET));
 		throw eSocketReadFailed();
 
@@ -556,13 +556,13 @@ csocket::recv(void *buf, size_t count)
 			throw eSocketAgain();
 		case ECONNRESET: {
 			logging::error << "[rofl][csocket] error reading from socket: "
-					<< eSysCall() << std::endl << *this;
+					<< eSysCall("read") << std::endl << *this;
 			notify(cevent(EVENT_CONN_RESET));
 			throw eSocketReadFailed();
 		} break;
 		default: {
 			logging::error << "[rofl][csocket] error reading from socket: "
-					<< eSysCall() << ", closing endpoint." << std::endl << *this;
+					<< eSysCall("read") << ", closing endpoint." << std::endl << *this;
 			notify(cevent(EVENT_DISCONNECTED));
 			throw eSocketReadFailed();
 		} break;

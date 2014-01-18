@@ -126,9 +126,9 @@ crofconn::event_connected()
 	case STATE_CONNECT_PENDING:
 	case STATE_WAIT_FOR_HELLO:
 	case STATE_ESTABLISHED: {
+		state = STATE_WAIT_FOR_HELLO;
 		action_send_hello_message();
 		reset_timer(TIMER_WAIT_FOR_HELLO, hello_timeout);
-		state = STATE_WAIT_FOR_HELLO;
 
 	} break;
 	default: {
