@@ -22,37 +22,35 @@
 #include <sys/uio.h>
 #include <assert.h>
 
-#include "croflexception.h"
-#include "cclock.h"
-#include "fframe.h"
-#include "cmacaddr.h"
-#include "cmemory.h"
-#include "cvastring.h"
-#include "thread_helper.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cclock.h"
+#include "rofl/common/fframe.h"
+#include "rofl/common/cmacaddr.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/thread_helper.h"
 
-#include "openflow/openflow.h"
+#include "rofl/common/openflow/openflow.h"
 
 /* Platform dependant */
-#include "rofl/platform/unix/csyslog.h"
 
 /* Openflow stuff */
-#include "openflow/cofmatch.h"
-#include "openflow/cofaction.h"
+#include "rofl/common/openflow/cofmatch.h"
+#include "rofl/common/openflow/cofaction.h"
 
 /* Protocol stuff */
-#include "protocols/fetherframe.h"
-#include "protocols/fvlanframe.h"
-#include "protocols/fmplsframe.h"
-#include "protocols/fipv4frame.h"
-#include "protocols/ficmpv4frame.h"
-#include "protocols/fipv6frame.h"
-#include "protocols/ficmpv6frame.h"
-#include "protocols/farpv4frame.h"
-#include "protocols/fudpframe.h"
-#include "protocols/ftcpframe.h"
-#include "protocols/fsctpframe.h"
-#include "protocols/fetherframe.h"
-#include "protocols/fgtpuframe.h"
+#include "rofl/common/protocols/fetherframe.h"
+#include "rofl/common/protocols/fvlanframe.h"
+#include "rofl/common/protocols/fmplsframe.h"
+#include "rofl/common/protocols/fipv4frame.h"
+#include "rofl/common/protocols/ficmpv4frame.h"
+#include "rofl/common/protocols/fipv6frame.h"
+#include "rofl/common/protocols/ficmpv6frame.h"
+#include "rofl/common/protocols/farpv4frame.h"
+#include "rofl/common/protocols/fudpframe.h"
+#include "rofl/common/protocols/ftcpframe.h"
+#include "rofl/common/protocols/fsctpframe.h"
+#include "rofl/common/protocols/fetherframe.h"
+#include "rofl/common/protocols/fgtpuframe.h"
 
 namespace rofl
 {
