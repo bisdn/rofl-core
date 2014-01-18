@@ -49,7 +49,8 @@ cofmsg_port_status::cofmsg_port_status(
 
 cofmsg_port_status::cofmsg_port_status(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	port(get_version())
 {
 	ofh_port_status = soframe();
 }

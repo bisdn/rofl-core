@@ -15,6 +15,7 @@
 	#include "../endian_conversion.h"
 #endif
 
+#include "rofl/common/openflow/openflow_common.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/cmemory.h"
 #include "rofl/common/croflexception.h"
@@ -69,7 +70,7 @@ public:
 	 *
 	 */
 	cofport(
-			uint8_t of_version = OFP_VERSION_UNKNOWN);
+			uint8_t of_version = openflow::OFP_VERSION_UNKNOWN);
 
 
 	/**

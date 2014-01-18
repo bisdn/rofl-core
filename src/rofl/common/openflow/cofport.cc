@@ -12,6 +12,9 @@ cofport::cofport(
 				port_stats(ofp_version)
 {
 	switch (ofp_version) {
+	case openflow::OFP_VERSION_UNKNOWN: {
+		ofh_port = 0;
+	} break;
 	case openflow10::OFP_VERSION: {
 		resize(sizeof(struct rofl::openflow10::ofp_port));
 	} break;

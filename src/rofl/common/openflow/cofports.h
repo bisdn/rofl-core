@@ -40,7 +40,7 @@ public: // methods
 	 *
 	 */
 	cofports(
-			uint8_t ofp_version = OFP_VERSION_UNKNOWN);
+			uint8_t ofp_version = openflow::OFP_VERSION_UNKNOWN);
 
 	/**
 	 *

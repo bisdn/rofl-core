@@ -51,7 +51,7 @@ public: // per instance methods
 	/** constructor
 	 */
 	cofbucket(
-			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
+			uint8_t ofp_version = openflow::OFP_VERSION_UNKNOWN,
 			uint16_t weigth = 0,
 			uint32_t watch_port = 0,
 			uint32_t watch_group = 0);

@@ -1176,7 +1176,7 @@ crofdptImpl::features_reply_rcvd(
 	assert(reply != NULL);
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Features-Reply message received" << std::endl << *reply;
+			<< " Features-Reply message received" << std::endl;
 
 	try {
 		transactions.drop_ta(msg->get_xid());
@@ -1233,7 +1233,7 @@ crofdptImpl::get_config_reply_rcvd(
 	assert(reply != NULL);
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Get-Config-Reply message received" << std::endl << *msg;
+			<< " Get-Config-Reply message received" << std::endl;
 
 	transactions.drop_ta(msg->get_xid());
 
@@ -1330,7 +1330,7 @@ crofdptImpl::desc_stats_reply_rcvd(
 	cofmsg_desc_stats_reply& reply = dynamic_cast<cofmsg_desc_stats_reply&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Desc-Stats-Reply message received" << std::endl << reply;
+			<< " Desc-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_desc_stats_reply(*this, reply, aux_id);
@@ -1347,7 +1347,7 @@ crofdptImpl::table_stats_reply_rcvd(
 	cofmsg_table_stats_reply& reply = dynamic_cast<cofmsg_table_stats_reply&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Table-Stats-Reply message received" << std::endl << reply;
+			<< " Table-Stats-Reply message received" << std::endl;
 
 	switch (msg->get_version()) {
 	case rofl::openflow12::OFP_VERSION: {
@@ -1380,7 +1380,7 @@ crofdptImpl::port_stats_reply_rcvd(
 	cofmsg_port_stats_reply& reply = dynamic_cast<cofmsg_port_stats_reply&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Port-Stats-Reply message received" << std::endl << reply;
+			<< " Port-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_port_stats_reply(*this, reply, aux_id);
@@ -1397,7 +1397,7 @@ crofdptImpl::flow_stats_reply_rcvd(
 	cofmsg_flow_stats_reply& reply = dynamic_cast<cofmsg_flow_stats_reply&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Flow-Stats-Reply message received" << std::endl << reply;
+			<< " Flow-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_flow_stats_reply(*this, reply, aux_id);
@@ -1414,7 +1414,7 @@ crofdptImpl::aggregate_stats_reply_rcvd(
 	cofmsg_aggr_stats_reply& reply = dynamic_cast<cofmsg_aggr_stats_reply&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Aggregate-Stats-Reply message received" << std::endl << reply;
+			<< " Aggregate-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_aggregate_stats_reply(*this, reply, aux_id);
@@ -1431,7 +1431,7 @@ crofdptImpl::queue_stats_reply_rcvd(
 	cofmsg_queue_stats_reply& reply = dynamic_cast<cofmsg_queue_stats_reply&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Queue-Stats-Reply message received" << std::endl << reply;
+			<< " Queue-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_queue_stats_reply(*this, reply, aux_id);
@@ -1448,7 +1448,7 @@ crofdptImpl::group_stats_reply_rcvd(
 	cofmsg_group_stats_reply& reply = dynamic_cast<cofmsg_group_stats_reply&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Group-Stats-Reply message received" << std::endl << reply;
+			<< " Group-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_group_stats_reply(*this, reply, aux_id);
@@ -1465,7 +1465,7 @@ crofdptImpl::group_desc_stats_reply_rcvd(
 	cofmsg_group_desc_stats_reply& reply = dynamic_cast<cofmsg_group_desc_stats_reply&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Group-Desc-Stats-Reply message received" << std::endl << reply;
+			<< " Group-Desc-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_group_desc_stats_reply(*this, reply, aux_id);
@@ -1482,7 +1482,7 @@ crofdptImpl::group_features_stats_reply_rcvd(
 	cofmsg_group_features_stats_reply& reply = dynamic_cast<cofmsg_group_features_stats_reply&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Group-Features-Stats-Reply message received" << std::endl << reply;
+			<< " Group-Features-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_group_features_stats_reply(*this, reply, aux_id);
@@ -1544,7 +1544,7 @@ crofdptImpl::experimenter_stats_reply_rcvd(
 	cofmsg_experimenter_stats_reply& reply = dynamic_cast<cofmsg_experimenter_stats_reply&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Experimenter-Stats-Reply message received" << std::endl << reply;
+			<< " Experimenter-Stats-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_experimenter_stats_reply(*this, reply, aux_id);
@@ -1561,7 +1561,7 @@ crofdptImpl::barrier_reply_rcvd(
 	cofmsg_barrier_reply& reply = dynamic_cast<cofmsg_barrier_reply&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Barrier-Reply message received" << std::endl << reply;
+			<< " Barrier-Reply message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_barrier_reply(*this, reply, aux_id);
@@ -1579,7 +1579,7 @@ crofdptImpl::flow_removed_rcvd(
 	cofmsg_flow_removed& flow_removed = dynamic_cast<cofmsg_flow_removed&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Flow-Removed message received" << std::endl << flow_removed;
+			<< " Flow-Removed message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_flow_removed(*this, flow_removed, aux_id);
@@ -1596,7 +1596,7 @@ crofdptImpl::packet_in_rcvd(
 	cofmsg_packet_in& packet_in = dynamic_cast<cofmsg_packet_in&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Packet-In message received" << std::endl << packet_in;
+			<< " Packet-In message received" << std::endl;
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_packet_in(*this, packet_in, aux_id);
@@ -1613,7 +1613,7 @@ crofdptImpl::port_status_rcvd(
 	cofmsg_port_status& port_status = dynamic_cast<cofmsg_port_status&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
-			<< " Port-Status message received" << std::endl << port_status;
+			<< " Port-Status message received" << std::endl;
 
 	switch (port_status.get_reason()) {
 	case openflow::OFPPR_ADD: {

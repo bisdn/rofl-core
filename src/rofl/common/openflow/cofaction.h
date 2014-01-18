@@ -131,7 +131,7 @@ public: // methods
 	/** constructor
 	 */
 	cofaction(
-			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
+			uint8_t ofp_version = openflow::OFP_VERSION_UNKNOWN,
 			size_t datalen = COFACTION_DEFAULT_SIZE);
 
 	/** constructor
