@@ -429,7 +429,7 @@ coftable_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		struct openflow10::ofp_table_stats *table_stats = (struct openflow10::ofp_table_stats*)buf;
 
 		table_id 		= table_stats->table_id;
-		name			= std::string(table_stats->name, OFP_MAX_TABLE_NAME_LEN);
+		name			= std::string(table_stats->name, strnlen(table_stats->name, OFP_MAX_TABLE_NAME_LEN));
 		wildcards		= be32toh(table_stats->wildcards);
 		max_entries		= be32toh(table_stats->max_entries);
 		active_count	= be32toh(table_stats->active_count);
@@ -444,7 +444,7 @@ coftable_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		struct openflow12::ofp_table_stats *table_stats = (struct openflow12::ofp_table_stats*)buf;
 
 		table_id 		= table_stats->table_id;
-		name			= std::string(table_stats->name, OFP_MAX_TABLE_NAME_LEN);
+		name			= std::string(table_stats->name, strnlen(table_stats->name, OFP_MAX_TABLE_NAME_LEN));
 		wildcards		= be64toh(table_stats->wildcards);
 		write_actions	= be32toh(table_stats->write_actions);
 		apply_actions	= be32toh(table_stats->apply_actions);

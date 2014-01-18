@@ -177,7 +177,7 @@ cofinst::unpack_of12(uint8_t* buf, size_t buflen)
 	case openflow12::OFPIT_WRITE_ACTIONS:
 	case openflow12::OFPIT_CLEAR_ACTIONS: {
 		oin_actions = (struct openflow12::ofp_instruction_actions*)oin_header;
-		size_t aclen = buflen - sizeof(struct openflow12::ofp_instruction);
+		size_t aclen = buflen - sizeof(struct openflow12::ofp_instruction_actions);
 		if (aclen >= sizeof(struct openflow12::ofp_action_header)) {
 			actions.unpack((uint8_t*)(oin_actions->actions), aclen);
 		}

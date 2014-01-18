@@ -178,11 +178,10 @@ crofdptImpl::event_features_reply_rcvd()
 {
 	switch (state) {
 	case STATE_CONNECTED: {
-		send_get_config_request();
-		state = STATE_FEATURES_RCVD;
-
 		logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 				<< "Features-Reply rcvd (connected -> features-reply-rcvd)" << std::endl;
+		state = STATE_FEATURES_RCVD;
+		send_get_config_request();
 
 	} break;
 	case STATE_ESTABLISHED: {
@@ -1243,8 +1242,6 @@ crofdptImpl::get_config_reply_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_get_config_reply(*this, *reply);
-	} else {
-		delete msg;
 	}
 
 	run_engine(EVENT_GET_CONFIG_REPLY_RCVD);
