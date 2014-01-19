@@ -47,6 +47,22 @@ crofsock::~crofsock()
 
 
 void
+crofsock::connect(int domain, int type, int protocol, rofl::caddress const& raddr)
+{
+	socket.connect(raddr, rofl::caddress(AF_INET, "0.0.0.0", 0), domain, type, protocol, false);
+}
+
+
+
+void
+crofsock::reconnect()
+{
+	socket.reconnect();
+}
+
+
+
+void
 crofsock::close()
 {
 	socket.close();

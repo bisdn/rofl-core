@@ -185,7 +185,8 @@ protected:
 		CONNECT_PENDING		= 2, 	/**< connect() call is pending */
 		RAW_SOCKET			= 3, 	/**< socket is in raw mode (link layer) */
 		CONNECTED			= 4,	/**< socket is connected */
-		FLAG_DO_RECONNECT	= 5,
+		FLAG_ACTIVE_SOCKET	= 5,
+		FLAG_DO_RECONNECT	= 6,
 	};
 
 	std::bitset<16> 			sockflags; /**< socket flags (see below) */
@@ -319,6 +320,17 @@ public:
 		int protocol = 0,
 		bool do_reconnect = false);
 
+
+	/**
+	 * @brief	Reconnect this socket.
+	 *
+	 * Reconnects this socket to the previously connected peer.
+	 * The socket must be an active one, i.e. we have all data
+	 * required for calling ::connect() towards the peer. A passive
+	 * socket is throwing an exception of type eSocketError.
+	 */
+	void
+	reconnect();
 
 
 	/**
@@ -455,7 +467,7 @@ private:
 	 *
 	 */
 	void
-	reconnect(
+	backoff_reconnect(
 			bool reset_timeout = false);
 
 

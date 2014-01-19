@@ -115,6 +115,19 @@ public:
 	 */
 	virtual ~crofsock();
 
+public:
+
+	/**
+	 *
+	 */
+	void
+	connect(int domain, int type, int protocol, rofl::caddress const& raddr);
+
+	/**
+	 *
+	 */
+	void
+	reconnect();
 
 	/**
 	 *

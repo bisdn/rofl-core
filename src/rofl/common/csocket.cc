@@ -124,7 +124,7 @@ csocket::handle_event(
 	case EVENT_DISCONNECTED: {
 		if (sockflags.test(FLAG_DO_RECONNECT)) {
 			sockflags.reset(CONNECTED);
-			reconnect(true);
+			backoff_reconnect(true);
 		} else {
 			logging::info << "[rofl][csocket] closed socket." << std::endl << *this;
 			close();
@@ -139,7 +139,7 @@ csocket::handle_event(
 
 
 void
-csocket::reconnect(bool reset_timeout)
+csocket::backoff_reconnect(bool reset_timeout)
 {
 	if (pending_timer(TIMER_RECONNECT)) {
 		return;
@@ -250,7 +250,7 @@ csocket::handle_wevent(int fd)
 			close();
 
 			if (sockflags.test(FLAG_DO_RECONNECT)) {
-				reconnect(false);
+				backoff_reconnect(false);
 			} else {
 				handle_conn_refused();
 			}
@@ -416,6 +416,8 @@ csocket::connect(
 	if (sd >= 0)
 		close();
 
+	sockflags.set(FLAG_ACTIVE_SOCKET);
+
 	if (do_reconnect)
 		sockflags.set(FLAG_DO_RECONNECT);
 	else
@@ -464,7 +466,7 @@ csocket::connect(
 		} break;
 		case ECONNREFUSED: {	// connect has been refused
 			close();
-			reconnect(false);
+			backoff_reconnect(false);
 		} break;
 		default: {
 			throw eSysCall("connect");
@@ -491,6 +493,18 @@ csocket::connect(
 
 		handle_connected();
 	}
+}
+
+
+
+void
+csocket::reconnect()
+{
+	if (not sockflags.test(FLAG_ACTIVE_SOCKET)) {
+		throw eSocketError();
+	}
+	close();
+	connect(raddr, laddr, domain, type, protocol, sockflags.test(FLAG_DO_RECONNECT));
 }
 
 

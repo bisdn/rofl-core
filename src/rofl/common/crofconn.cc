@@ -64,6 +64,48 @@ crofconn::~crofconn()
 
 
 void
+crofconn::reconnect()
+{
+	if (STATE_ESTABLISHED == state) {
+		return;
+	}
+	state = STATE_CONNECT_PENDING;
+	rofsock.reconnect();
+}
+
+
+
+void
+crofconn::connect(
+		uint8_t aux_id,
+		int domain,
+		int type,
+		int protocol,
+		caddress const& raddr)
+{
+	if (STATE_ESTABLISHED == state) {
+		throw eRofConnBusy();
+	}
+	auxiliary_id = aux_id;
+	state = STATE_CONNECT_PENDING;
+	rofsock.connect(domain, type, protocol ,raddr);
+}
+
+
+
+void
+crofconn::close()
+{
+	if (STATE_DISCONNECTED == state) {
+		return;
+	}
+	state = STATE_DISCONNECTED;
+	rofsock.close();
+}
+
+
+
+void
 crofconn::handle_timeout(
 		int opaque)
 {

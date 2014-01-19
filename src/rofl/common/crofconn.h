@@ -28,6 +28,7 @@ namespace openflow {
 
 class eRofConnBase 					: public RoflException {};
 class eRofConnXidSpaceExhausted		: public eRofConnBase {};
+class eRofConnBusy					: public eRofConnBase {}; // connection already established
 
 class crofconn; // forward declaration
 
@@ -135,6 +136,24 @@ public:
 	virtual ~crofconn();
 
 public:
+
+	/**
+	 * @brief	Instruct crofsock instance to connect to peer using specified parameters.
+	 */
+	void
+	connect(uint8_t aux_id, int domain, int type, int protocol, caddress const& raddr);
+
+	/**
+	 * @brief	Instruct crofsock instance to reconnect to previously connected peer.
+	 */
+	void
+	reconnect();
+
+	/**
+	 * @brief	Instruct crofsock instance to close connection to peer.
+	 */
+	void
+	close();
 
 	/**
 	 * @brief	Returns whether this connection is established
