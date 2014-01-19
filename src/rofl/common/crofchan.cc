@@ -17,7 +17,10 @@ crofchan::crofchan(
 				env(env),
 				versionbitmap(versionbitmap),
 				ofp_version(OFP_VERSION_UNKNOWN),
-				state(STATE_DISCONNECTED)
+				state(STATE_DISCONNECTED),
+				reconnect_start_timeout(CROFCHAN_RECONNECT_START_TIMEOUT),
+				reconnect_in_seconds(CROFCHAN_RECONNECT_START_TIMEOUT),
+				reconnect_counter(0)
 {
 
 }
@@ -221,7 +224,11 @@ crofchan::handle_connect_refused(
 
 	uint8_t aux_id = conn->get_aux_id();
 
-	drop_conn(aux_id);
+	if (0 == aux_id) {
+		backoff_reconnect(false);
+	} else {
+		conn->reconnect();
+	}
 }
 
 
@@ -238,13 +245,25 @@ crofchan::handle_connected(
 		logging::info << "[rofl][chan] main connection established. Negotiated OFP version:"
 				<< (int) ofp_version << std::endl << *conn;
 		run_engine(EVENT_ESTABLISHED);
+		cancel_timer(TIMER_RECONNECT);
+
+		for (std::map<uint8_t, crofconn*>::iterator
+				it = conns.begin(); it != conns.end(); ++it) {
+			if (0 == it->first)
+				continue;
+			if (it->second->is_actively_established()) {
+				it->second->reconnect();
+			}
+		}
 
 	} else {
 		if (this->ofp_version != ofp_version) {
 			logging::warn << "[rofl][chan] auxiliary connection with invalid OFP version "
 					<< "negotiated, closing connection." << std::endl << *conn;
 
-			drop_conn(aux_id);
+			delete conn;
+			conns.erase(aux_id);
+
 		} else {
 			logging::debug << "[rofl][chan] auxiliary connection with aux-id:" << (int)aux_id
 					<< " established." << std::endl << *conn;
@@ -306,8 +325,10 @@ restart:
 					it = conns.begin(); it != conns.end(); ++it) {
 
 				it->second->close();
-				it->second->reconnect();
 			}
+
+			// try reconnecting main connection
+			backoff_reconnect(true);
 		}
 
 		return;
@@ -386,3 +407,48 @@ crofchan::release_sync_xid(crofconn *conn, uint32_t xid)
 }
 
 
+
+void
+crofchan::handle_timeout(int opaque)
+{
+	switch (opaque) {
+	case TIMER_RECONNECT: {
+		if (conns.find(0) != conns.end()) {
+			conns[0]->reconnect();
+		}
+	} break;
+	default:
+		logging::warn << "[rofl][chan] unknown timer event" << std::endl;
+	}
+}
+
+
+
+void
+crofchan::backoff_reconnect(bool reset_timeout)
+{
+	if (pending_timer(TIMER_RECONNECT)) {
+		return;
+	}
+
+	logging::info << "[rofl][chan] " << " scheduled reconnect in "
+			<< (int)reconnect_in_seconds << " seconds." << std::endl << *this;
+
+	int max_backoff = 16 * reconnect_start_timeout;
+
+	if (reset_timeout) {
+		reconnect_in_seconds = reconnect_start_timeout;
+		reconnect_counter = 0;
+	} else {
+		reconnect_in_seconds *= 2;
+	}
+
+
+	if (reconnect_in_seconds > max_backoff) {
+		reconnect_in_seconds = max_backoff;
+	}
+
+	reset_timer(TIMER_RECONNECT, reconnect_in_seconds);
+
+	++reconnect_counter;
+}

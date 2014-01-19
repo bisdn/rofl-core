@@ -55,9 +55,9 @@ class crofchan :
 	uint8_t								ofp_version;		// OFP version negotiated
 
 	enum crofchan_event_t {
-		EVENT_NONE			= 0,
-		EVENT_DISCONNECTED	= 1,
-		EVENT_ESTABLISHED	= 2,
+		EVENT_NONE				= 0,
+		EVENT_DISCONNECTED		= 1,
+		EVENT_ESTABLISHED		= 2,
 	};
 	std::deque<enum crofchan_event_t> 	events;
 
@@ -67,6 +67,16 @@ class crofchan :
 		STATE_ESTABLISHED 		= 3,
 	};
 	enum crofchan_state_t				state;
+
+	enum crofchan_timer_t {
+		TIMER_RECONNECT			= 1,
+	};
+
+	int									reconnect_start_timeout;
+	int 								reconnect_in_seconds; 	// reconnect in x seconds
+	int 								reconnect_counter;
+
+#define CROFCHAN_RECONNECT_START_TIMEOUT 1				// start reconnect timeout (default 1s)
 
 public:
 
@@ -178,6 +188,19 @@ private:
 	 */
 	void
 	event_disconnected();
+
+	/**
+	 *
+	 */
+	void
+	backoff_reconnect(
+			bool reset_timeout = false);
+
+	/**
+	 *
+	 */
+	virtual void
+	handle_timeout(int opaque);
 
 public:
 
