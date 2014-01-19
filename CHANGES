@@ -1,9 +1,21 @@
-2013-11-24  Andreas Koepsel  <andreas.koepsel(at)bisdn.de>
+Legend:
 
-* Added a new frame class for L2TPv3 (RFC3931): fl2tpv3frame to rofl/common/protocols
+[+] New/improved feature 
+[B] Bug fixed
+[K] Known issue
+[O] Other
 
-* Added a new logging concept in rofl/common/logging.h: 8 output streams exist
-  for levels emerg, alert, crit, error, warn, info, notice, debug whose
-  destinations can be freely configured
+Change log
+==========
 
-* Fixed a bug in handling of OXM TLVs of type VLAN_VID
+v0.4-devel 2013-11-24  Andreas Koepsel  <andreas.koepsel(at)bisdn.de>
+
+[+] Added a new frame class for L2TPv3 (RFC3931): fl2tpv3frame to rofl/common/protocols
+[+] Added a new logging concept in rofl/common/logging.h: 8 output streams exist
+    for levels emerg, alert, crit, error, warn, info, notice, debug whose
+    destinations can be freely configured
+[B] Fixed a bug in handling of OXM TLVs of type VLAN_VID
+
+v0.3.2.1
+
+[+] Adding README and CHANGES

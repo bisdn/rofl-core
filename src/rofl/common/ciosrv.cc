@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "ciosrv.h"
+#include "csocket.h"
 
 using namespace rofl;
 
@@ -1205,7 +1206,7 @@ ciosrv::run()
 				goto handle_packets;
 				break;
 			default:
-#ifndef NDEBUG
+#ifdef DEBUG
 				throw eIoSvcRunError(); // for debugging: handle error
 #endif
 				break;
@@ -1216,7 +1217,7 @@ ciosrv::run()
 
 handle_packets:			// handle incoming events
 
-#ifndef NDEBUG
+#ifdef NDEBUG
 			try {
 				ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
 			} catch (RoflException& e) {
@@ -1228,6 +1229,8 @@ handle_packets:			// handle incoming events
 #else
 			try {
 				ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
+			} catch (eSocketError& e){
+				//Ignore socket errors
 			} catch (RoflException& e) {
 				//fprintf(stderr, "exception\n");
 				throw;

@@ -281,6 +281,48 @@ cofmsg_error::set_err_code(uint16_t code)
 		logging::warn << "cofmsg_error::set_err_code() unsupported OFP version" << std::endl;
 		throw eBadVersion();
 	}
+#if 0
+			case OFP10_VERSION:
+				//Translating it... this is crap
+				//only the ones which differ
+				if(err_msg->type == htobe16(OFPET_FLOW_MOD_FAILED)){
+					switch(code){
+						case OFPFMFC_UNKNOWN:
+							err_msg->code = htobe16(OFP10FMFC_BAD_COMMAND);
+							break;
+						case OFPFMFC_TABLE_FULL:
+							err_msg->code = htobe16(OFP10FMFC_ALL_TABLES_FULL);
+							break;
+						case OFPFMFC_BAD_TABLE_ID:
+							err_msg->code = htobe16(OFP10FMFC_BAD_COMMAND);
+							break;
+						case OFPFMFC_OVERLAP:
+							err_msg->code = htobe16(OFP10FMFC_OVERLAP);
+							break;
+						case OFPFMFC_EPERM:
+							err_msg->code = htobe16(OFP10FMFC_EPERM);
+							break;
+						case OFPFMFC_BAD_TIMEOUT:
+							err_msg->code = htobe16(OFP10FMFC_UNSUPPORTED);
+							break;
+						case OFPFMFC_BAD_COMMAND:
+							err_msg->code = htobe16(OFP10FMFC_BAD_COMMAND);
+							break;
+						default: 
+							err_msg->code = htobe16(code);
+							break;
+					}
+
+					break; //Only break for OF1.0 AND OFPET_FLOW_MOD_FAILED type
+				}
+			case OFP12_VERSION:
+			case OFP13_VERSION: 
+				err_msg->code = htobe16(code);
+				break;
+			
+			default: //TODO: what to do...
+				break;		
+#endif
 }
 
 
