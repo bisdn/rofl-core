@@ -1049,11 +1049,44 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, crofdptImpl const& dpt) {
 		os << indent(0) << "<cofdptImpl ";
-		os << "dpid:0x" << std::hex << (unsigned long long)(dpt.dpid) << std::dec << " ";
-
-		os << ">" << std::endl;
+		os << "dpid:0x" << std::hex << (unsigned long long)(dpt.dpid) << std::dec << " (" << dpt.s_dpid << ") " << std::endl;
+		switch (dpt.state) {
+		case STATE_INIT: {
+			os << indent(2) << "<state: -INIT- >" << std::endl;
+		} break;
+		case STATE_CONNECTED: {
+			os << indent(2) << "<state: -CONNECTED- >" << std::endl;
+		} break;
+		case STATE_DISCONNECTED: {
+			os << indent(2) << "<state: -DISCONNECTED- >" << std::endl;
+		} break;
+		case STATE_ESTABLISHED: {
+			os << indent(2) << "<state: -ESTABLISHED- >" << std::endl;
+		} break;
+		case STATE_FEATURES_RCVD: {
+			os << indent(2) << "<state: -FEATURES-RCVD- >" << std::endl;
+		} break;
+		case STATE_GET_CONFIG_RCVD: {
+			os << indent(2) << "<state: -GET-CONFIG-RCVD- >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<state: -UNKNOWN- >" << std::endl;
+		} break;
+		}
+		os << indent(2) << "<hwaddr: " << dpt.hwaddr << " >" << std::endl;
+		os << indent(2) << "<#buffers: " << (int)dpt.n_buffers << " >" << std::endl;
+		os << indent(2) << "<#tables: " << (int)dpt.n_tables << " >" << std::endl;
+		os << indent(2) << "<capabilities: " << std::hex << (int)dpt.capabilities << std::dec << " >" << std::endl;
+		os << indent(2) << "<config: " << std::hex << (int)dpt.config << std::dec << " >" << std::endl;
+		os << indent(2) << "<miss-send-len: " << (int)dpt.miss_send_len << " >" << std::endl;
 		indent i(2);
+		for (std::map<uint8_t, coftable_stats_reply>::const_iterator
+				it = dpt.tables.begin(); it != dpt.tables.end(); ++it) {
+			os << it->second;
+		}
+		os << dpt.ports;
 		os << dpt.rofchan;
+		os << dpt.transactions;
 		return os;
 	};
 };

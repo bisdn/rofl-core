@@ -78,10 +78,7 @@ crofdptImpl::crofdptImpl(
 
 crofdptImpl::~crofdptImpl()
 {
-	// remove all cofport instances
-	while (not ports.empty()) {
-		delete (ports.begin()->second);
-	}
+	logging::info << "[rofl][dpt] removing datapath abstraction:" << std::endl << *this;
 }
 
 
