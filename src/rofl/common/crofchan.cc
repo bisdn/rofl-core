@@ -113,7 +113,7 @@ crofchan::clear()
 
 
 
-crofconn&
+void
 crofchan::add_conn(
 		uint8_t aux_id,
 		int domain,
@@ -141,11 +141,11 @@ crofchan::add_conn(
 		vbitmap.add_ofp_version(ofp_version);	// auxiliary connections: use OFP version negotiated for main connection
 	}
 
-	return *(conns[aux_id] = new crofconn(this, aux_id, domain, type, protocol, ra, vbitmap));
+	(conns[aux_id] = new crofconn(this, vbitmap))->connect(aux_id, domain, type, protocol, ra);
 }
 
 
-crofconn&
+void
 crofchan::add_conn(
 		crofconn* conn,
 		uint8_t aux_id)
@@ -168,7 +168,6 @@ crofchan::add_conn(
 	conns[aux_id] = conn;
 	conns[aux_id]->set_env(this);
 	handle_connected(conns[aux_id], conns[aux_id]->get_version());
-	return *(conns[aux_id]);
 }
 
 
@@ -263,23 +262,73 @@ crofchan::handle_closed(crofconn *conn)
 		return;
 	}
 
-	bool active_connection = conn->is_actively_established();
-	uint8_t aux_id 	= conn->get_aux_id();
-	int domain 		= conn->get_rofsocket().get_socket().domain;
-	int type 		= conn->get_rofsocket().get_socket().type;
-	int protocol 	= conn->get_rofsocket().get_socket().protocol;
-	caddress raddr 	= conn->get_rofsocket().get_socket().raddr;
+	/*
+	 * main connection
+	 */
+	if (0 == conn->get_aux_id()) {
 
-	conns.erase(aux_id); // remove pointer from map conns
-	delete conn; // call destructor => this will lead to a call to crofchan::handle_closed(conn); (again)
+		/*
+		 * passive connection (=controller) => drop all connections
+		 */
+		if (not conn->is_actively_established()) {
+			// close all connections
+			while (not conns.empty()) {
+				uint8_t aux_id = conns.begin()->first;
+				delete conns[aux_id];
+				conns.erase(aux_id);
+			}
+			ofp_version = OFP_VERSION_UNKNOWN;
+			run_engine(EVENT_DISCONNECTED);
+			return;
 
-	if (conns.empty()) {
-		ofp_version = OFP_VERSION_UNKNOWN;
-		run_engine(EVENT_DISCONNECTED);
-	}
+		/*
+		 * active connection (=datapath) => close all connections and reconnect them
+		 */
+		} else {
+restart:
+			// remove all passive connections (there should be none, though ...)
+			for (std::map<uint8_t, crofconn*>::iterator
+					it = conns.begin(); it != conns.end(); ++it) {
+				if (not it->second->is_actively_established()) {
+					delete it->second;
+					conns.erase(it->first);
+					goto restart;
+				}
+			}
 
-	if (active_connection) {
-		add_conn(aux_id, domain, type, protocol, raddr);
+			// closing and reconnecting the active connections
+			for (std::map<uint8_t, crofconn*>::iterator
+					it = conns.begin(); it != conns.end(); ++it) {
+
+				it->second->close();
+				it->second->reconnect();
+			}
+
+			return;
+		}
+
+
+	/*
+	 * auxialiary connection
+	 */
+	} else {
+
+		/*
+		 * passive connection
+		 */
+		if (not conn->is_actively_established()) {
+			conns.erase(conn->get_aux_id());
+			delete conn;
+			return;
+
+		/*
+		 * active connection (=datapath) => reconnect
+		 */
+		} else {
+			conn->reconnect();
+			return;
+		}
+
 	}
 }
 

@@ -11,43 +11,17 @@ using namespace rofl::openflow;
 
 crofconn::crofconn(
 		crofconn_env *env,
-		int sd,
 		cofhello_elem_versionbitmap const& versionbitmap) :
 				env(env),
 				dpid(0), // will be determined later via Features.request
 				auxiliary_id(0), // same as dpid
-				rofsock(this, sd),
+				rofsock(this),
 				versionbitmap(versionbitmap),
 				ofp_version(OFP_VERSION_UNKNOWN),
 				state(STATE_DISCONNECTED),
 				hello_timeout(DEFAULT_HELLO_TIMEOUT),
 				echo_timeout(DEFAULT_ECHO_TIMEOUT),
 				echo_interval(DEFAULT_ECHO_INTERVAL)
-{
-	flags.set(FLAGS_PASSIVE);
-	run_engine(EVENT_CONNECTED); // socket is available
-}
-
-
-
-crofconn::crofconn(
-		crofconn_env *env,
-		uint8_t auxiliary_id,
-		int domain,
-		int type,
-		int protocol,
-		rofl::caddress const& ra,
-		cofhello_elem_versionbitmap const& versionbitmap) :
-					env(env),
-					dpid(0),
-					auxiliary_id(auxiliary_id),
-					rofsock(this, domain, type, protocol, ra),
-					versionbitmap(versionbitmap),
-					ofp_version(OFP_VERSION_UNKNOWN),
-					state(STATE_CONNECT_PENDING),
-					hello_timeout(DEFAULT_HELLO_TIMEOUT),
-					echo_timeout(DEFAULT_ECHO_TIMEOUT),
-					echo_interval(DEFAULT_ECHO_INTERVAL)
 {
 
 }
@@ -59,6 +33,15 @@ crofconn::~crofconn()
 	if (STATE_DISCONNECTED != state) {
 		run_engine(EVENT_DISCONNECTED);
 	}
+}
+
+
+
+void
+crofconn::accept(int newsd)
+{
+	flags.set(FLAGS_PASSIVE);
+	rofsock.accept(newsd);
 }
 
 
@@ -86,6 +69,7 @@ crofconn::connect(
 	if (STATE_ESTABLISHED == state) {
 		throw eRofConnBusy();
 	}
+	flags.reset(FLAGS_PASSIVE);
 	auxiliary_id = aux_id;
 	state = STATE_CONNECT_PENDING;
 	rofsock.connect(domain, type, protocol ,raddr);

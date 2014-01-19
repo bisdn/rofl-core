@@ -102,13 +102,7 @@ public:
 	 *
 	 */
 	crofsock(
-			crofsock_env *env, int sd);
-
-	/**
-	 *
-	 */
-	crofsock(
-			crofsock_env *env, int domain, int type, int protocol, rofl::caddress const& ra);
+			crofsock_env *env);
 
 	/**
 	 *
@@ -116,6 +110,12 @@ public:
 	virtual ~crofsock();
 
 public:
+
+	/**
+	 *
+	 */
+	void
+	accept(int sd);
 
 	/**
 	 *
@@ -158,7 +158,7 @@ private:
 	 */
 	crofsock(crofsock const& endpnt) :
 		env(NULL),
-		socket(this, 0),
+		socket(this),
 		fragment(NULL),
 		msg_bytes_read(0)
 	{ };

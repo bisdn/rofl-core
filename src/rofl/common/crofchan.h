@@ -132,13 +132,13 @@ public:
 	/**
 	 *
 	 */
-	crofconn&
+	void
 	add_conn(uint8_t aux_id, int domain, int type, int protocol, caddress const& ra);
 
 	/**
 	 *
 	 */
-	crofconn&
+	void
 	add_conn(crofconn* conn, uint8_t aux_id);
 
 	/**

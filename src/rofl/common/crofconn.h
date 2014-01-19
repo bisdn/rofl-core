@@ -115,19 +115,6 @@ public:
 	 */
 	crofconn(
 			crofconn_env *env,
-			int sd,
-			cofhello_elem_versionbitmap const& versionbitmap);
-
-	/**
-	 * datapath mode
-	 */
-	crofconn(
-			crofconn_env *env,
-			uint8_t auxiliary_id,
-			int domain,
-			int type,
-			int protocol,
-			rofl::caddress const& ra,
 			cofhello_elem_versionbitmap const& versionbitmap);
 
 	/**
@@ -136,6 +123,12 @@ public:
 	virtual ~crofconn();
 
 public:
+
+	/**
+	 *
+	 */
+	void
+	accept(int newsd);
 
 	/**
 	 * @brief	Instruct crofsock instance to connect to peer using specified parameters.

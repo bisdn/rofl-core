@@ -310,7 +310,7 @@ crofbase::handle_accepted(
 		int newsd,
 		caddress const& ra)
 {
-	new rofl::openflow::crofconn(this, newsd, versionbitmap);
+	(new rofl::openflow::crofconn(this, versionbitmap))->accept(newsd);
 }
 
 

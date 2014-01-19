@@ -10,30 +10,13 @@
 using namespace rofl::openflow;
 
 crofsock::crofsock(
-		crofsock_env *env,
-		int sd) :
+		crofsock_env *env) :
 				env(env),
-				socket(this, sd),
+				socket(this),
 				fragment((cmemory*)0),
 				msg_bytes_read(0)
 {
 
-}
-
-
-
-crofsock::crofsock(
-		crofsock_env *env,
-		int domain,
-		int type,
-		int protocol,
-		rofl::caddress const& ra) :
-				env(env),
-				socket(this, domain, type, protocol, /*backlog=*/10),
-				fragment((cmemory*)0),
-				msg_bytes_read(0)
-{
-	socket.connect(ra, caddress(AF_INET, "0.0.0.0", 0), domain, type, protocol);
 }
 
 
@@ -42,6 +25,13 @@ crofsock::~crofsock()
 {
 	if (fragment)
 		delete fragment;
+}
+
+
+void
+crofsock::accept(int sd)
+{
+	socket.accept(sd);
 }
 
 

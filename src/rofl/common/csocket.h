@@ -222,21 +222,11 @@ public:
 
 
 	/**
-	 * @brief	Constructor for new sockets created by accept().
-	 *
-	 * Use this constructor if you already have an established communication
-	 * association and a valid socket descriptor, e.g. after accepting
-	 * a connection request on a listening socket.
+	 * @brief	Constructor for new empty csocket instances.
 	 *
 	 * @param owner socket owning entity implementing interface csocket_owner
-	 * @param sd new socket descriptor
-	 * @param domain socket domain
-	 * @param type socket type
-	 * @param protocol socket protocol
-	 * @param backlog listen backlog
 	 */
-	csocket(csocket_owner *owner,
-			int newsd);
+	csocket(csocket_owner *owner);
 
 
 
@@ -295,6 +285,13 @@ public:
 		int backlog = 10,
 		std::string devname = std::string(""));
 
+
+	/**
+	 * @brief 	Handle accepted socket descriptor obtained from external listening socket
+	 */
+	void
+	accept(
+			int sd);
 
 
 
