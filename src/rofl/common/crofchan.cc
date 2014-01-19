@@ -259,6 +259,7 @@ crofchan::handle_closed(crofconn *conn)
 {
 	// do nothing upon reception of this closing notification, when there is no entry in map conns
 	if (conns.find(conn->get_aux_id()) == conns.end()) {
+		logging::warn << "[rofl][chan] internal error: unknown connection closed." << std::endl;
 		return;
 	}
 
@@ -267,24 +268,28 @@ crofchan::handle_closed(crofconn *conn)
 	 */
 	if (0 == conn->get_aux_id()) {
 
+		ofp_version = OFP_VERSION_UNKNOWN;
+		run_engine(EVENT_DISCONNECTED);
+
 		/*
 		 * passive connection (=controller) => drop all connections
 		 */
 		if (not conn->is_actively_established()) {
+			logging::info << "[rofl][chan] passive main connection closed." << std::endl;
+
 			// close all connections
 			while (not conns.empty()) {
 				uint8_t aux_id = conns.begin()->first;
 				delete conns[aux_id];
 				conns.erase(aux_id);
 			}
-			ofp_version = OFP_VERSION_UNKNOWN;
-			run_engine(EVENT_DISCONNECTED);
-			return;
 
 		/*
 		 * active connection (=datapath) => close all connections and reconnect them
 		 */
 		} else {
+			logging::info << "[rofl][chan] active main connection closed." << std::endl;
+
 restart:
 			// remove all passive connections (there should be none, though ...)
 			for (std::map<uint8_t, crofconn*>::iterator
@@ -303,9 +308,9 @@ restart:
 				it->second->close();
 				it->second->reconnect();
 			}
-
-			return;
 		}
+
+		return;
 
 
 	/*
@@ -317,6 +322,10 @@ restart:
 		 * passive connection
 		 */
 		if (not conn->is_actively_established()) {
+
+			logging::info << "[rofl][chan] passive auxiliary connection closed:"
+					<< (int)conn->get_aux_id() << std::endl;
+
 			conns.erase(conn->get_aux_id());
 			delete conn;
 			return;
@@ -325,6 +334,9 @@ restart:
 		 * active connection (=datapath) => reconnect
 		 */
 		} else {
+			logging::info << "[rofl][chan] active auxiliary connection closed:"
+					<< (int)conn->get_aux_id() << std::endl;
+
 			conn->reconnect();
 			return;
 		}

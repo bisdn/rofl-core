@@ -370,6 +370,8 @@ void
 csocket::accept(
 		int sd)
 {
+	this->sd = sd;
+
 	socklen_t optlen = 0;
 
 	sockflags.reset(FLAG_ACTIVE_SOCKET);
