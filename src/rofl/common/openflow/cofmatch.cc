@@ -12,6 +12,9 @@ cofmatch::cofmatch(
 				of_version(of_version)
 {
 	switch (of_version) {
+	case openflow::OFP_VERSION_UNKNOWN: {
+		ofh_match = 0;
+	} break;
 	case openflow10::OFP_VERSION: {
 		memarea.resize(openflow10::OFP_MATCH_STATIC_LEN);
 		ofh10_match = (struct openflow10::ofp_match*)memarea.somem();
