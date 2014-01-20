@@ -35,7 +35,8 @@ cofmsg_barrier_request::cofmsg_barrier_request(
 
 cofmsg_barrier_request::cofmsg_barrier_request(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	body((size_t)0)
 {
 
 }
@@ -180,7 +181,8 @@ cofmsg_barrier_reply::cofmsg_barrier_reply(
 
 cofmsg_barrier_reply::cofmsg_barrier_reply(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	body((size_t)0)
 {
 
 }
