@@ -128,6 +128,18 @@ public: // methods
 	c_str();
 #endif
 
+	/**
+	 *
+	 */
+	void
+	set_version(uint8_t ofp_version) { this->of_version = ofp_version; };
+
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const { return of_version; };
+
 	/** validate match structure
 	 *
 	 */

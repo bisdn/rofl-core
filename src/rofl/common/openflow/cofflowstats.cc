@@ -93,6 +93,7 @@ void
 cofflow_stats_request::set_version(uint8_t of_version)
 {
 	this->of_version = of_version;
+	match.set_version(of_version);
 }
 
 
