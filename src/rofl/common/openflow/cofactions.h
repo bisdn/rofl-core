@@ -248,7 +248,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofactions const& actions) {
-		os << indent(0) << "<cofactions ofp-version:" << (int)actions.ofp_version << " >" << std::endl;
+		os << indent(0) << "<cofactions ofp-version:" << (int)actions.ofp_version <<
+				" #size:" << (int)actions.size() << " >" << std::endl;
 		indent i(2);
 		for (std::list<cofaction*>::const_iterator
 				it = actions.begin(); it != actions.end(); ++it) {
