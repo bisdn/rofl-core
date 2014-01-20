@@ -106,6 +106,10 @@ cofmatch::clear()
 	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::reset()", this);
 
 	switch (of_version) {
+	case openflow::OFP_VERSION_UNKNOWN: {
+		memarea.clear();
+		ofh_match = 0;
+	} break;
 	case openflow10::OFP_VERSION: {
 		memset(ofh10_match, 0, openflow10::OFP_MATCH_STATIC_LEN);
 	} break;
