@@ -1188,9 +1188,9 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofx_nw_src const& oxm)
 	{
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<nw-src: "
-						<< oxm.u32addr()
-						<< " >" << std::endl;
+		os << indent(2) << "<nw-src: " << oxm.uint32_value() << " >" << std::endl;
+		if (oxm.get_oxm_hasmask())
+			os << indent(2) << "<nw-src-mask: " << oxm.uint32_mask() << " >" << std::endl;
 		return os;
 	};
 };
@@ -1275,9 +1275,9 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofx_nw_dst const& oxm)
 	{
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<nw-dst: "
-						<< oxm.u32addr()
-						<< " >" << std::endl;
+		os << indent(2) << "<nw-dst: " << oxm.uint32_value() << " >" << std::endl;
+		if (oxm.get_oxm_hasmask())
+			os << indent(2) << "<nw-dst-mask: " << oxm.uint32_mask() << " >" << std::endl;
 		return os;
 	};
 };
