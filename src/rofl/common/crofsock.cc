@@ -261,7 +261,16 @@ crofsock::parse_message(
 	} catch (eBadRequestBadType& e) {
 
 		logging::error << "[rofl][sock] eBadRequestBadType " << std::endl;
-		if (msg) delete msg;
+		if (msg) {
+			cofmsg_error_bad_request_bad_type *error =
+					new cofmsg_error_bad_request_bad_type(
+							msg->get_version(),
+							msg->get_xid(),
+							msg->soframe(),
+							msg->framelen());
+			send_message(error);
+			delete msg;
+		}
 
 	} catch (RoflException& e) {
 
