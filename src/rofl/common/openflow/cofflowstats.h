@@ -196,14 +196,33 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofflow_stats_request const& flow_stats_request) {
-		os << indent(0) << "<cofflow_stats_request >" << std::endl;
-		os << indent(2) << "<table-id:" << (int)flow_stats_request.get_table_id() << " >" << std::endl;
-		os << indent(2) << "<out-port:0x" << std::hex << (int)flow_stats_request.get_out_port() << std::dec << " >" << std::endl;
-		os << indent(2) << "<out-group:0x" << std::hex << (int)flow_stats_request.get_out_group() << std::dec << " >" << std::endl;
-		os << indent(2) << "<cookie:0x" << std::hex << (unsigned long long)flow_stats_request.get_cookie() << std::dec << " >" << std::endl;
-		os << indent(2) << "<cookie-mask:0x" << std::hex << (unsigned long long)flow_stats_request.get_cookie_mask() << std::dec << " >" << std::endl;
-		indent i(2);
-		os << flow_stats_request.match;
+		switch (flow_stats_request.of_version) {
+		case openflow10::OFP_VERSION: {
+			os << indent(0) << "<cofflow_stats_request >" << std::endl;
+			os << indent(2) << "<table-id:" << (int)flow_stats_request.get_table_id() << " >" << std::endl;
+			os << indent(2) << "<out-port:0x" << std::hex << (int)flow_stats_request.get_out_port() << std::dec << " >" << std::endl;
+			indent i(2);
+			os << flow_stats_request.match;
+
+		} break;
+		case openflow12::OFP_VERSION: {
+			os << indent(0) << "<cofflow_stats_request >" << std::endl;
+			os << indent(2) << "<table-id:" << (int)flow_stats_request.get_table_id() << " >" << std::endl;
+			os << indent(2) << "<out-port:0x" << std::hex << (int)flow_stats_request.get_out_port() << std::dec << " >" << std::endl;
+			os << indent(2) << "<out-group:0x" << std::hex << (int)flow_stats_request.get_out_group() << std::dec << " >" << std::endl;
+			os << indent(2) << "<cookie:0x" << std::hex << (unsigned long long)flow_stats_request.get_cookie() << std::dec << " >" << std::endl;
+			os << indent(2) << "<cookie-mask:0x" << std::hex << (unsigned long long)flow_stats_request.get_cookie_mask() << std::dec << " >" << std::endl;
+			indent i(2);
+			os << flow_stats_request.match;
+
+		} break;
+		case openflow13::OFP_VERSION: {
+			throw eNotImplemented();
+		}
+		default: {
+			os << "<cofflow_stats_request unknown OFP version >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -426,7 +445,9 @@ public:
 		os << flow_stats_reply.match;
 		switch (flow_stats_reply.of_version) {
 		case openflow10::OFP_VERSION: os << flow_stats_reply.actions; break;
-		default: os << flow_stats_reply.instructions; break;
+		case openflow12::OFP_VERSION: os << flow_stats_reply.instructions; break;
+		case openflow13::OFP_VERSION: throw eNotImplemented();
+		default: os << "<unknown OFP version >" << std::endl;
 		}
 		return os;
 	};
