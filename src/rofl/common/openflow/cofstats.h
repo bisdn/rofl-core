@@ -12,10 +12,10 @@
 #ifndef COFSTATS_H
 #define COFSTATS_H 1
 
-#include <rofl/common/croflexception.h>
-#include <rofl/common/cmemory.h>
-#include <rofl/common/cvastring.h>
-#include <rofl/common/openflow/cofmatch.h>
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/common/openflow/cofmatch.h"
 
 namespace rofl
 {

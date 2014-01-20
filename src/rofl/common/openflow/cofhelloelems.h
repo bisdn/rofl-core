@@ -18,9 +18,9 @@ extern "C" {
 
 #include <map>
 
-#include "cofhelloelem.h"
-#include "cofhelloelemversionbitmap.h"
-#include "../logging.h"
+#include "rofl/common/openflow/cofhelloelem.h"
+#include "rofl/common/openflow/cofhelloelemversionbitmap.h"
+#include "rofl/common/logging.h"
 
 namespace rofl {
 namespace openflow {

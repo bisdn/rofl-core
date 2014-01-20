@@ -10,7 +10,7 @@
 
 #include <map>
 
-#include <rofl/common/openflow/cofmeterband.h>
+#include "rofl/common/openflow/cofmeterband.h"
 
 namespace rofl {
 

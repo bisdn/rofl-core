@@ -13,16 +13,16 @@
 	#include "../endian_conversion.h"
 #endif
 
-#include "openflow.h"
-#include "../croflexception.h"
-#include "../cmemory.h"
-#include "../cmacaddr.h"
-#include "../cvastring.h"
-#include "../coflist.h"
-#include "openflow_rofl_exceptions.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/cmacaddr.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/common/coflist.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
 #include "rofl/platform/unix/csyslog.h"
-#include "coxmatch.h"
-#include "../logging.h"
+#include "rofl/common/openflow/coxmatch.h"
+#include "rofl/common/logging.h"
 
 #ifndef ORAN
 #define ORAN 1

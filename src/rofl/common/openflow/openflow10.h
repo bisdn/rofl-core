@@ -36,7 +36,7 @@
 #ifndef _OPENFLOW_OPENFLOW10_H
 #define _OPENFLOW_OPENFLOW10_H 1
 
-#include "openflow_common.h"
+#include "rofl/common/openflow/openflow_common.h"
 
 
 namespace rofl {

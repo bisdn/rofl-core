@@ -19,15 +19,15 @@
 
 #include <algorithm>
 
-#include "../cmemory.h"
-#include "../croflexception.h"
-#include "../cvastring.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cvastring.h"
 #include "rofl/platform/unix/csyslog.h"
-#include "../openflow/openflow_rofl_exceptions.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
-#include "coxmatch.h"
-#include "../openflow/experimental/matches/pppoe_matches.h"
-#include "../openflow/experimental/matches/gtp_matches.h"
+#include "rofl/common/openflow/coxmatch.h"
+#include "rofl/common/openflow/experimental/matches/pppoe_matches.h"
+#include "rofl/common/openflow/experimental/matches/gtp_matches.h"
 
 namespace rofl
 {

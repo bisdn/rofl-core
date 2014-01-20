@@ -8,9 +8,9 @@
 #ifndef OPENFLOW_H_
 #define OPENFLOW_H_ 1
 
-#include "openflow10.h"
-#include "openflow12.h"
-#include "openflow13.h"
-#include "openflow_experimental.h"
+#include "rofl/common/openflow/openflow10.h"
+#include "rofl/common/openflow/openflow12.h"
+#include "rofl/common/openflow/openflow13.h"
+#include "rofl/common/openflow/openflow_experimental.h"
 
 #endif /* OPENFLOW_H_ */

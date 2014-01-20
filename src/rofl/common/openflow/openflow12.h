@@ -40,7 +40,7 @@
 #ifndef _OPENFLOW_OPENFLOW12_H
 #define _OPENFLOW_OPENFLOW12_H 1
 
-#include "openflow_common.h"
+#include "rofl/common/openflow/openflow_common.h"
 
 /* Version number:
  * Non-experimental versions released: 0x01

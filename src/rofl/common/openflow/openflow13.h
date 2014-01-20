@@ -1,8 +1,11 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #ifndef _OPENFLOW_OPENFLOW13_H
 #define _OPENFLOW_OPENFLOW13_H 1
 
-#include "openflow_common.h"
+#include "rofl/common/openflow/openflow_common.h"
 
 namespace rofl {
 namespace openflow13 {

@@ -8,9 +8,9 @@
 #ifndef COFHELLO_ELEM_H_
 #define COFHELLO_ELEM_H_
 
-#include "../cmemory.h"
-#include "../logging.h"
-#include "openflow.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/logging.h"
+#include "rofl/common/openflow/openflow.h"
 
 namespace rofl {
 namespace openflow {

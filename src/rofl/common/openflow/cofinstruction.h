@@ -14,16 +14,16 @@
 	#include "../endian_conversion.h"
 #endif
 
-#include "openflow.h"
-#include "../cmemory.h"
-#include "../croflexception.h"
-#include "../cvastring.h"
-#include "../thread_helper.h"
-#include "cofactions.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/common/thread_helper.h"
+#include "rofl/common/openflow/cofactions.h"
 
 #include "rofl/platform/unix/csyslog.h"
 
-#include "cofaction.h"
+#include "rofl/common/openflow/cofaction.h"
 
 namespace rofl
 {

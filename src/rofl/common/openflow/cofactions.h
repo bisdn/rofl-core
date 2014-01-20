@@ -16,12 +16,12 @@ extern "C" {
 #include <vector>
 #include <algorithm>
 
-#include "../croflexception.h"
-#include "../cvastring.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cvastring.h"
 
-#include "../coflist.h"
-#include "openflow.h"
-#include "cofaction.h"
+#include "rofl/common/coflist.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/openflow/cofaction.h"
 
 namespace rofl
 {

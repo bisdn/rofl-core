@@ -14,19 +14,19 @@
 	#include "../endian_conversion.h"
 #endif
 
-#include "openflow.h"
-#include "../cmemory.h"
-#include "../caddress.h"
-#include "../croflexception.h"
-#include "../cmacaddr.h"
-#include "../cvastring.h"
-#include "../openflow/openflow_rofl_exceptions.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/caddress.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cmacaddr.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
 #include "rofl/platform/unix/csyslog.h"
-#include "coxmlist.h"
+#include "rofl/common/openflow/coxmlist.h"
 
-#include <rofl/common/openflow/experimental/matches/gtp_matches.h>
-#include <rofl/common/openflow/experimental/matches/pppoe_matches.h>
+#include "rofl/common/openflow/experimental/matches/gtp_matches.h"
+#include "rofl/common/openflow/experimental/matches/pppoe_matches.h"
 
 namespace rofl
 {

@@ -6,7 +6,7 @@
 #define OPENFLOW_ROFL_EXCEPTIONS_H 1
 
 
-#include "../croflexception.h"
+#include "rofl/common/croflexception.h"
 
 
 namespace rofl {

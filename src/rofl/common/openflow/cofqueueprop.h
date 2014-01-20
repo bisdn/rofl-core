@@ -22,10 +22,10 @@ extern "C" {
 	#include "../endian_conversion.h"
 #endif
 
-#include "openflow_rofl_exceptions.h"
-#include "../cmemory.h"
-#include "../croflexception.h"
-#include "openflow.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/openflow/openflow.h"
 
 namespace rofl
 {

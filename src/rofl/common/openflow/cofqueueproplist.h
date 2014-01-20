@@ -8,12 +8,12 @@
 #ifndef COFQUEUEPROPLIST_H_
 #define COFQUEUEPROPLIST_H_ 1
 
-#include "../cvastring.h"
-#include "../croflexception.h"
-#include "../coflist.h"
-#include "openflow.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/coflist.h"
+#include "rofl/common/openflow/openflow.h"
 
-#include "cofqueueprop.h"
+#include "rofl/common/openflow/cofqueueprop.h"
 
 namespace rofl
 {

@@ -14,10 +14,10 @@
 	#include "../endian_conversion.h"
 #endif
 
-#include "openflow.h"
-#include "../croflexception.h"
-#include "../cmemory.h"
-#include "cofactions.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/openflow/cofactions.h"
 
 namespace rofl
 {

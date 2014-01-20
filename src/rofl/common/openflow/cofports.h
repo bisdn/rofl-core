@@ -7,12 +7,12 @@
 
 #include <algorithm>
 
-#include "../cvastring.h"
-#include "../croflexception.h"
-#include "../coflist.h"
-#include "openflow.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/coflist.h"
+#include "rofl/common/openflow/openflow.h"
 
-#include "cofport.h"
+#include "rofl/common/openflow/cofport.h"
 
 namespace rofl
 {

@@ -10,12 +10,12 @@
 
 #include <ostream>
 
-#include "../cmemory.h"
-#include "../croflexception.h"
-#include "openflow.h"
-#include "openflow_rofl_exceptions.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
-#include "cofqueueproplist.h"
+#include "rofl/common/openflow/cofqueueproplist.h"
 
 namespace rofl
 {

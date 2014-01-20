@@ -18,7 +18,7 @@ extern "C" {
 
 #include <vector>
 
-#include "cofhelloelem.h"
+#include "rofl/common/openflow/cofhelloelem.h"
 
 namespace rofl {
 namespace openflow {

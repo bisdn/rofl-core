@@ -20,15 +20,15 @@
 	#include "../endian_conversion.h"
 #endif
 
-#include "openflow.h"
-#include "../cvastring.h"
-#include "../croflexception.h"
-#include "../cmemory.h"
-#include "../cmacaddr.h"
-#include "../caddress.h"
-#include "../coflist.h"
-#include "../fframe.h"
-#include "../logging.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/cmacaddr.h"
+#include "rofl/common/caddress.h"
+#include "rofl/common/coflist.h"
+#include "rofl/common/fframe.h"
+#include "rofl/common/logging.h"
 
 namespace rofl
 {

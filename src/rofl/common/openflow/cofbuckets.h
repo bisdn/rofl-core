@@ -12,8 +12,8 @@
 	#include "../endian_conversion.h"
 #endif
 
-#include "openflow.h"
-#include "cofbucket.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/openflow/cofbucket.h"
 
 namespace rofl
 {

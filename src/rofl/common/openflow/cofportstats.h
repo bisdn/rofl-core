@@ -8,13 +8,12 @@
 #ifndef COFPORTSTATS_H_
 #define COFPORTSTATS_H_ 1
 
-#include "../cmemory.h"
-#include "cofmatch.h"
-#include "cofactions.h"
-#include "cofinstructions.h"
-#include "../../platform/unix/csyslog.h"
-#include "openflow.h"
-#include "openflow_rofl_exceptions.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/openflow/cofactions.h"
+#include "rofl/common/openflow/cofinstructions.h"
+#include "rofl/platform/unix/csyslog.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
 namespace rofl
 {
