@@ -7,6 +7,7 @@ cofflow_stats_request::cofflow_stats_request(
 		uint8_t *buf,
 		size_t buflen) :
 				of_version(of_version),
+				match(of_version),
 				table_id(0),
 				out_port(0),
 				out_group(0),
@@ -321,7 +322,8 @@ cofflow_stats_reply::cofflow_stats_reply(
 				hard_timeout(0),
 				cookie(0),
 				packet_count(0),
-				byte_count(0)
+				byte_count(0),
+				match(of_version)
 {
 	if ((buflen > 0) && (0 != buf)) {
 		unpack(buf, buflen);
