@@ -8,7 +8,7 @@ cofmsg_barrier_request::cofmsg_barrier_request(
 		uint8_t* data,
 		size_t datalen) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
-	body(0)
+	body((size_t)0)
 {
 	body.assign(data, datalen);
 
@@ -153,7 +153,7 @@ cofmsg_barrier_reply::cofmsg_barrier_reply(
 		uint8_t* data,
 		size_t datalen) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
-	body(0)
+	body((size_t)0)
 {
 	body.assign(data, datalen);
 
