@@ -230,6 +230,9 @@ void
 cofflow_stats_request::pack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
+	case openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case openflow10::OFP_VERSION: {
 		if (buflen < (sizeof(struct openflow10::ofp_flow_stats_request) - 4 + match.length()))
 			throw eInval();
@@ -262,6 +265,9 @@ void
 cofflow_stats_request::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
+	case openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case openflow10::OFP_VERSION: {
 		if (buflen < sizeof(struct openflow10::ofp_flow_stats_request))
 			throw eInval();
@@ -433,6 +439,9 @@ void
 cofflow_stats_reply::pack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
+	case openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case openflow10::OFP_VERSION: {
 		if (buflen < length())
 			throw eInval();
@@ -484,6 +493,9 @@ void
 cofflow_stats_reply::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
+	case openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case openflow10::OFP_VERSION: {
 		if (buflen < sizeof(struct openflow10::ofp_flow_stats))
 			throw eInval();
