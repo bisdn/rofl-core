@@ -377,7 +377,7 @@ public:
 								break;
 							case openflow::experimental::OFPXMT_OFX_TP_SRC:
 								if (dynamic_cast<coxmatch_ofx_tp_src*>(jt->second))
-									os << *dynamic_cast<coxmatch_ofx_tp_dst*>(jt->second);
+									os << *dynamic_cast<coxmatch_ofx_tp_src*>(jt->second);
 								break;
 							case openflow::experimental::OFPXMT_OFX_TP_DST:
 								if (dynamic_cast<coxmatch_ofx_tp_dst*>(jt->second))
