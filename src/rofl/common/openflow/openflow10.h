@@ -109,7 +109,7 @@ namespace openflow10 {
 	};
 
 	enum ofp_buffer_t {
-		OFP_NO_BUFFER = 0xffff,
+		OFP_NO_BUFFER = 0xffffffff,
 	};
 
 	enum ofp_type {
