@@ -413,7 +413,7 @@ cofmatch::unpack_of10(uint8_t* match, size_t matchlen)
 	memarea.resize(openflow10::OFP_MATCH_STATIC_LEN);
 	ofh10_match = (struct openflow10::ofp_match*)memarea.somem();
 
-	if (matchlen < openflow10::OFP_MATCH_STATIC_LEN) {
+	if (matchlen < (unsigned int)openflow10::OFP_MATCH_STATIC_LEN) {
 		throw eOFmatchInval();
 	}
 
