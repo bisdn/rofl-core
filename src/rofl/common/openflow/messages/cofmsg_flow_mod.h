@@ -319,36 +319,57 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_flow_mod const& msg) {
-		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
-		os << indent(2) << "<cofmsg_flow_mod ";
-			os << "command:" 		<< (int)msg.get_command() << " ";
-			os << "table-id:" 		<< (int)msg.get_table_id() << " ";
-			os << " >" << std::endl;
-		os << indent(4) << "<cookie:0x" 		<< std::hex << (unsigned long long)msg.get_cookie() << std::dec << " >" << std::endl;
-		os << indent(4) << "<cookie-mask:0x" 	<< std::hex << (unsigned long long)msg.get_cookie_mask() << std::dec << " >" << std::endl;
-		os << indent(4) << "<idle-timeout:" 	<< (int)msg.get_idle_timeout() << " >" << std::endl;;
-		os << indent(4) << "<hard-timeout:" 	<< (int)msg.get_hard_timeout() << " >" << std::endl;
-		os << indent(4) << "<priority:" 		<< (int)msg.get_priority() << " >" << std::endl;
-		os << indent(4) << "<buffer-id:" 		<< std::hex << (int)msg.get_buffer_id() << std::dec << " >" << std::endl;
-		os << indent(4) << "<flags:" 			<< std::hex << (int)msg.get_flags() << std::dec << " >" << std::endl;
-
-		{
-			os << indent(4) << "<matches: >" << std::endl;
-			indent i(6);
-			os << msg.match;
-		}
-
 		switch (msg.get_version()) {
 		case OFP10_VERSION: {
-			os << indent(4) << "<actions: >" << std::endl;
-			indent i(6);
-			os << msg.actions;
+			os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+			os << indent(2) << "<cofmsg_flow_mod ";
+				os << "command:" 		<< (int)msg.get_command() << " ";
+				os << "table-id:" 		<< (int)msg.get_table_id() << " ";
+				os << " >" << std::endl;
+			os << indent(4) << "<cookie:0x" 		<< std::hex << (unsigned long long)msg.get_cookie() << std::dec << " >" << std::endl;
+			os << indent(4) << "<idle-timeout:" 	<< (int)msg.get_idle_timeout() << " >" << std::endl;;
+			os << indent(4) << "<hard-timeout:" 	<< (int)msg.get_hard_timeout() << " >" << std::endl;
+			os << indent(4) << "<priority:" 		<< (int)msg.get_priority() << " >" << std::endl;
+			os << indent(4) << "<buffer-id:" 		<< std::hex << (int)msg.get_buffer_id() << std::dec << " >" << std::endl;
+			os << indent(4) << "<flags:" 			<< std::hex << (int)msg.get_flags() << std::dec << " >" << std::endl;
+			os << indent(4) << "<out-port:" 		<< (int)msg.get_out_port() << " >" << std::endl;
+			{
+				os << indent(4) << "<matches: >" << std::endl;
+				indent i(6);
+				os << msg.match;
+			}
+			{
+				os << indent(4) << "<actions: >" << std::endl;
+				indent i(6);
+				os << msg.actions;
+			}
 		} break;
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
-			os << indent(4) << "<instructions: >" << std::endl;
-			indent i(6);
-			os << msg.instructions;
+			os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+			os << indent(2) << "<cofmsg_flow_mod ";
+				os << "command:" 		<< (int)msg.get_command() << " ";
+				os << "table-id:" 		<< (int)msg.get_table_id() << " ";
+				os << " >" << std::endl;
+			os << indent(4) << "<cookie:0x" 		<< std::hex << (unsigned long long)msg.get_cookie() << std::dec << " >" << std::endl;
+			os << indent(4) << "<cookie-mask:0x" 	<< std::hex << (unsigned long long)msg.get_cookie_mask() << std::dec << " >" << std::endl;
+			os << indent(4) << "<idle-timeout:" 	<< (int)msg.get_idle_timeout() << " >" << std::endl;;
+			os << indent(4) << "<hard-timeout:" 	<< (int)msg.get_hard_timeout() << " >" << std::endl;
+			os << indent(4) << "<priority:" 		<< (int)msg.get_priority() << " >" << std::endl;
+			os << indent(4) << "<buffer-id:" 		<< std::hex << (int)msg.get_buffer_id() << std::dec << " >" << std::endl;
+			os << indent(4) << "<flags:" 			<< std::hex << (int)msg.get_flags() << std::dec << " >" << std::endl;
+			os << indent(4) << "<out-port:" 		<< (int)msg.get_out_port() << " >" << std::endl;
+			os << indent(4) << "<out-group:" 		<< (int)msg.get_out_group() << " >" << std::endl;
+			{
+				os << indent(4) << "<matches: >" << std::endl;
+				indent i(6);
+				os << msg.match;
+			}
+			{
+				os << indent(4) << "<instructions: >" << std::endl;
+				indent i(6);
+				os << msg.instructions;
+			}
 		} break;
 		}
 		return os;
