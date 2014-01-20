@@ -34,7 +34,9 @@ cofbucket::cofbucket(
 				watch_group(0),
 				actions(ofp_version)
 {
-	unpack(bucket, bclen);
+	if ((0 != bucket) && (bclen > 0)) {
+		unpack(bucket, bclen);
+	}
 }
 
 

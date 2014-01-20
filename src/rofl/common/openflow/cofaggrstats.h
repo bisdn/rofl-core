@@ -41,7 +41,7 @@ public:
 	 *
 	 */
 	cofaggr_stats_request(
-			uint8_t of_version = 0,
+			uint8_t of_version = openflow::OFP_VERSION_UNKNOWN,
 			uint8_t *buf = (uint8_t*)0,
 			size_t buflen = 0);
 

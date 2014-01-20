@@ -7,6 +7,7 @@ cofaggr_stats_request::cofaggr_stats_request(
 		uint8_t *buf,
 		size_t buflen) :
 				of_version(of_version),
+				match(of_version),
 				table_id(0),
 				out_port(0),
 				out_group(0),
@@ -93,6 +94,7 @@ void
 cofaggr_stats_request::set_version(uint8_t of_version)
 {
 	this->of_version = of_version;
+	match.set_version(of_version);
 }
 
 
@@ -236,6 +238,9 @@ cofaggr_stats_request::pack(uint8_t *buf, size_t buflen)
 		req->cookie_mask 	= htobe64(cookie_mask);
 		match.pack((uint8_t*)&(req->match), buflen - sizeof(struct openflow12::ofp_flow_stats_request) + sizeof(struct openflow12::ofp_match));
 	} break;
+	case openflow13::OFP_VERSION: {
+		throw eNotImplemented();
+	} break;
 	default:
 		throw eBadVersion();
 	}
@@ -270,6 +275,9 @@ cofaggr_stats_request::unpack(uint8_t *buf, size_t buflen)
 		cookie 			= be64toh(req->cookie);
 		cookie_mask 	= be64toh(req->cookie_mask);
 	} break;
+	case openflow13::OFP_VERSION: {
+		throw eNotImplemented();
+	} break;
 	default:
 		throw eBadVersion();
 	}
@@ -286,6 +294,9 @@ cofaggr_stats_request::length() const
 	} break;
 	case openflow12::OFP_VERSION: {
 		return (sizeof(struct openflow12::ofp_flow_stats_request) - sizeof(struct openflow12::ofp_match) + match.length());
+	} break;
+	case openflow13::OFP_VERSION: {
+		throw eNotImplemented();
 	} break;
 	default:
 		throw eBadVersion();
@@ -377,6 +388,9 @@ cofaggr_stats_reply::pack(uint8_t *buf, size_t buflen)
 		as->flow_count		= htobe32(flow_count);
 
 	} break;
+	case openflow13::OFP_VERSION: {
+		throw eNotImplemented();
+	} break;
 	default:
 		throw eBadVersion();
 	}
@@ -408,6 +422,9 @@ cofaggr_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		flow_count		= be32toh(as->flow_count);
 
 	} break;
+	case openflow13::OFP_VERSION: {
+		throw eNotImplemented();
+	} break;
 	default:
 		throw eBadVersion();
 	}
@@ -424,6 +441,9 @@ cofaggr_stats_reply::length() const
 	} break;
 	case openflow12::OFP_VERSION: {
 		return (sizeof(struct openflow12::ofp_aggregate_stats_reply));
+	} break;
+	case openflow13::OFP_VERSION: {
+		throw eNotImplemented();
 	} break;
 	default:
 		throw eBadVersion();
