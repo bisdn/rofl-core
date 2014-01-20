@@ -419,7 +419,21 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofport const& port) {
-		os << indent(0) << "<cofport >" << std::endl;
+		switch (port.ofp_version) {
+		case openflow10::OFP_VERSION: {
+			os << indent(0) << "<cofport >" << std::endl;
+			os << indent(2) << "<portno:"		 	<< (int)port.get_port_no() 				<< " >" << std::endl;
+			os << indent(2) << "<hwaddr:"		 	<< port.get_hwaddr() 					<< " >" << std::endl;
+			os << indent(2) << "<name:" 			<< port.get_name() 						<< " >" << std::endl;
+			os << indent(2) << "<config:"		 	<< (int)port.get_config() 				<< " >" << std::endl;
+			os << indent(2) << "<state:"		 	<< (int)port.get_state() 				<< " >" << std::endl;
+			os << indent(2) << "<curr:" 			<< (int)port.get_curr() 				<< " >" << std::endl;
+			os << indent(2) << "<advertised:"	 	<< (int)port.get_advertised() 			<< " >" << std::endl;
+			os << indent(2) << "<supported:" 		<< (int)port.get_supported() 			<< " >" << std::endl;
+			os << indent(2) << "<peer:" 			<< (int)port.get_peer() 				<< " >" << std::endl;
+		} break;
+		case openflow12::OFP_VERSION: {
+			os << indent(0) << "<cofport >" << std::endl;
 			os << indent(2) << "<portno:"		 	<< (int)port.get_port_no() 				<< " >" << std::endl;
 			os << indent(2) << "<hwaddr:"		 	<< port.get_hwaddr() 					<< " >" << std::endl;
 			os << indent(2) << "<name:" 			<< port.get_name() 						<< " >" << std::endl;
@@ -435,6 +449,29 @@ public:
 			os << indent(2) << "<state-live:" 		<< (int)port.link_state_is_live() 		<< " >" << std::endl;
 			os << indent(2) << "<state-link-down:" 	<< (int)port.link_state_is_link_down() 	<< " >" << std::endl;
 			os << indent(2) << "<config-port-down:" << (int)port.config_is_port_down() 		<< " >" << std::endl;
+		} break;
+		case openflow13::OFP_VERSION: {
+			os << indent(0) << "<cofport >" << std::endl;
+			os << indent(2) << "<portno:"		 	<< (int)port.get_port_no() 				<< " >" << std::endl;
+			os << indent(2) << "<hwaddr:"		 	<< port.get_hwaddr() 					<< " >" << std::endl;
+			os << indent(2) << "<name:" 			<< port.get_name() 						<< " >" << std::endl;
+			os << indent(2) << "<config:"		 	<< (int)port.get_config() 				<< " >" << std::endl;
+			os << indent(2) << "<state:"		 	<< (int)port.get_state() 				<< " >" << std::endl;
+			os << indent(2) << "<curr:" 			<< (int)port.get_curr() 				<< " >" << std::endl;
+			os << indent(2) << "<advertised:"	 	<< (int)port.get_advertised() 			<< " >" << std::endl;
+			os << indent(2) << "<supported:" 		<< (int)port.get_supported() 			<< " >" << std::endl;
+			os << indent(2) << "<peer:" 			<< (int)port.get_peer() 				<< " >" << std::endl;
+			os << indent(2) << "<curr-speed:" 		<< (int)port.get_curr_speed() 			<< " >" << std::endl;
+			os << indent(2) << "<max-speed:" 		<< (int)port.get_max_speed() 			<< " >" << std::endl;
+			os << indent(2) << "<state-blocked:" 	<< (int)port.link_state_is_blocked() 	<< " >" << std::endl;
+			os << indent(2) << "<state-live:" 		<< (int)port.link_state_is_live() 		<< " >" << std::endl;
+			os << indent(2) << "<state-link-down:" 	<< (int)port.link_state_is_link_down() 	<< " >" << std::endl;
+			os << indent(2) << "<config-port-down:" << (int)port.config_is_port_down() 		<< " >" << std::endl;
+		} break;
+		default: {
+			os << "<cofport unknown OFP version>" << std::endl;
+		};
+		}
 		return os;
 	};
 };
