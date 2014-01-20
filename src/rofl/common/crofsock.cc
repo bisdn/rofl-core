@@ -261,7 +261,7 @@ crofsock::parse_message(
 	} catch (eBadRequestBadType& e) {
 
 		if (msg) {
-			logging::error << "[rofl][sock] eBadRequestBadType: " << std::endl << msg;
+			logging::error << "[rofl][sock] eBadRequestBadType: " << std::endl << *msg;
 			size_t len = (msg->framelen() > 64) ? 64 : msg->framelen();
 			cofmsg_error_bad_request_bad_type *error =
 					new cofmsg_error_bad_request_bad_type(
@@ -278,7 +278,7 @@ crofsock::parse_message(
 	} catch (RoflException& e) {
 
 		if (msg) {
-			logging::error << "[rofl][sock] RoflException: " << std::endl << msg;
+			logging::error << "[rofl][sock] RoflException: " << std::endl << *msg;
 			delete msg;
 		} else {
 			logging::error << "[rofl][sock] RoflException " << std::endl;
