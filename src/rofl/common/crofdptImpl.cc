@@ -379,38 +379,118 @@ void
 crofdptImpl::recv_message(rofl::openflow::crofchan *chan, uint8_t aux_id, cofmsg *msg)
 {
 	try {
-		switch (msg->get_type()) {
-		case rofl::openflow::OFPT_FEATURES_REPLY: {
-			features_reply_rcvd(msg, aux_id);
+		switch (msg->get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			switch (msg->get_type()) {
+			case rofl::openflow10::OFPT_VENDOR: {
+				experimenter_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow10::OFPT_FEATURES_REPLY: {
+				features_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow10::OFPT_GET_CONFIG_REPLY: {
+				get_config_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow10::OFPT_PACKET_IN: {
+				packet_in_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow10::OFPT_FLOW_REMOVED: {
+				flow_removed_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow10::OFPT_PORT_STATUS: {
+				port_status_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow10::OFPT_STATS_REPLY: {
+				multipart_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow10::OFPT_BARRIER_REPLY: {
+				barrier_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow10::OFPT_QUEUE_GET_CONFIG_REPLY: {
+				queue_get_config_reply_rcvd(msg, aux_id);
+			} break;
+			default: {
+			};
+			}
+
 		} break;
-		case rofl::openflow::OFPT_GET_CONFIG_REPLY: {
-			get_config_reply_rcvd(msg, aux_id);
+		case rofl::openflow12::OFP_VERSION: {
+			switch (msg->get_type()) {
+			case rofl::openflow12::OFPT_EXPERIMENTER: {
+				experimenter_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow12::OFPT_FEATURES_REPLY: {
+				features_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow12::OFPT_GET_CONFIG_REPLY: {
+				get_config_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow12::OFPT_PACKET_IN: {
+				packet_in_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow12::OFPT_FLOW_REMOVED: {
+				flow_removed_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow12::OFPT_PORT_STATUS: {
+				port_status_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow12::OFPT_STATS_REPLY: {
+				multipart_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow12::OFPT_BARRIER_REPLY: {
+				barrier_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow12::OFPT_QUEUE_GET_CONFIG_REPLY: {
+				queue_get_config_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow12::OFPT_ROLE_REPLY: {
+				role_reply_rcvd(msg, aux_id);
+			} break;
+			default: {
+			};
+			}
 		} break;
-		case rofl::openflow::OFPT_PACKET_IN: {
-			packet_in_rcvd(msg, aux_id);
-		} break;
-		case rofl::openflow::OFPT_FLOW_REMOVED: {
-			flow_removed_rcvd(msg, aux_id);
-		} break;
-		case rofl::openflow::OFPT_PORT_STATUS: {
-			port_status_rcvd(msg, aux_id);
-		} break;
-		case rofl::openflow::OFPT_MULTIPART_REPLY: {
-			multipart_reply_rcvd(msg, aux_id);
-		} break;
-		case rofl::openflow::OFPT_BARRIER_REPLY: {
-			barrier_reply_rcvd(msg, aux_id);
-		} break;
-		case rofl::openflow::OFPT_QUEUE_GET_CONFIG_REPLY: {
-			queue_get_config_reply_rcvd(msg, aux_id);
-		} break;
-		case rofl::openflow::OFPT_ROLE_REPLY: {
-			role_reply_rcvd(msg, aux_id);
-		} break;
-		case rofl::openflow::OFPT_GET_ASYNC_REPLY: {
-			get_async_config_reply_rcvd(msg, aux_id);
+		case rofl::openflow13::OFP_VERSION: {
+			switch (msg->get_type()) {
+			case rofl::openflow13::OFPT_EXPERIMENTER: {
+				experimenter_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow13::OFPT_FEATURES_REPLY: {
+				features_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow13::OFPT_GET_CONFIG_REPLY: {
+				get_config_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow13::OFPT_PACKET_IN: {
+				packet_in_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow13::OFPT_FLOW_REMOVED: {
+				flow_removed_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow13::OFPT_PORT_STATUS: {
+				port_status_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow13::OFPT_MULTIPART_REPLY: {
+				multipart_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow13::OFPT_BARRIER_REPLY: {
+				barrier_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow13::OFPT_QUEUE_GET_CONFIG_REPLY: {
+				queue_get_config_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow13::OFPT_ROLE_REPLY: {
+				role_reply_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow13::OFPT_GET_ASYNC_REPLY: {
+				get_async_config_reply_rcvd(msg, aux_id);
+			} break;
+			default: {
+			};
+			}
 		} break;
 		default: {
+
 		};
 		}
 

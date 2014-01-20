@@ -138,56 +138,150 @@ crofctlImpl::recv_message(
 		cofmsg *msg)
 {
 	try {
-		switch (msg->get_type()) {
-		case rofl::openflow::OFPT_FEATURES_REQUEST: {
-			features_request_rcvd(dynamic_cast<cofmsg_features_request*>( msg ), aux_id);
+		switch (msg->get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			switch (msg->get_type()) {
+			case rofl::openflow10::OFPT_VENDOR: {
+				experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ), aux_id);
+			} break;
+			case rofl::openflow10::OFPT_FEATURES_REQUEST: {
+				features_request_rcvd(dynamic_cast<cofmsg_features_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow10::OFPT_GET_CONFIG_REQUEST: {
+				get_config_request_rcvd(dynamic_cast<cofmsg_get_config_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow10::OFPT_SET_CONFIG: {
+				set_config_rcvd(dynamic_cast<cofmsg_set_config*>( msg ), aux_id);
+			} break;
+			case rofl::openflow10::OFPT_PACKET_OUT: {
+				packet_out_rcvd(dynamic_cast<cofmsg_packet_out*>( msg ), aux_id);
+			} break;
+			case rofl::openflow10::OFPT_FLOW_MOD: {
+				flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( msg ), aux_id);
+			} break;
+			case rofl::openflow10::OFPT_PORT_MOD: {
+				port_mod_rcvd(dynamic_cast<cofmsg_port_mod*>( msg ), aux_id);
+			} break;
+			case rofl::openflow10::OFPT_STATS_REQUEST: {
+				stats_request_rcvd(dynamic_cast<cofmsg_stats_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow10::OFPT_BARRIER_REQUEST: {
+				barrier_request_rcvd(dynamic_cast<cofmsg_barrier_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow10::OFPT_QUEUE_GET_CONFIG_REQUEST: {
+				queue_get_config_request_rcvd(dynamic_cast<cofmsg_queue_get_config_request*>( msg ), aux_id);
+			} break;
+			default: {
+
+			};
+			}
 		} break;
-		case rofl::openflow::OFPT_GET_CONFIG_REQUEST: {
-			get_config_request_rcvd(dynamic_cast<cofmsg_get_config_request*>( msg ), aux_id);
+		case rofl::openflow12::OFP_VERSION: {
+			switch (msg->get_type()) {
+			case rofl::openflow12::OFPT_EXPERIMENTER: {
+				experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ), aux_id);
+			} break;
+			case rofl::openflow12::OFPT_FEATURES_REQUEST: {
+				features_request_rcvd(dynamic_cast<cofmsg_features_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow12::OFPT_GET_CONFIG_REQUEST: {
+				get_config_request_rcvd(dynamic_cast<cofmsg_get_config_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow12::OFPT_SET_CONFIG: {
+				set_config_rcvd(dynamic_cast<cofmsg_set_config*>( msg ), aux_id);
+			} break;
+			case rofl::openflow12::OFPT_PACKET_OUT: {
+				packet_out_rcvd(dynamic_cast<cofmsg_packet_out*>( msg ), aux_id);
+			} break;
+			case rofl::openflow12::OFPT_FLOW_MOD: {
+				flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( msg ), aux_id);
+			} break;
+			case rofl::openflow12::OFPT_GROUP_MOD: {
+				group_mod_rcvd(dynamic_cast<cofmsg_group_mod*>( msg ), aux_id);
+			} break;
+			case rofl::openflow12::OFPT_PORT_MOD: {
+				port_mod_rcvd(dynamic_cast<cofmsg_port_mod*>( msg ), aux_id);
+			} break;
+			case rofl::openflow12::OFPT_TABLE_MOD: {
+				table_mod_rcvd(dynamic_cast<cofmsg_table_mod*>( msg ), aux_id);
+			} break;
+			case rofl::openflow12::OFPT_STATS_REQUEST: {
+				stats_request_rcvd(dynamic_cast<cofmsg_stats_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow12::OFPT_BARRIER_REQUEST: {
+				barrier_request_rcvd(dynamic_cast<cofmsg_barrier_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow12::OFPT_QUEUE_GET_CONFIG_REQUEST: {
+				queue_get_config_request_rcvd(dynamic_cast<cofmsg_queue_get_config_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow12::OFPT_ROLE_REQUEST: {
+				role_request_rcvd(dynamic_cast<cofmsg_role_request*>( msg ), aux_id);
+			} break;
+			default: {
+
+			};
+			}
 		} break;
-		case rofl::openflow::OFPT_SET_CONFIG: {
-			set_config_rcvd(dynamic_cast<cofmsg_set_config*>( msg ), aux_id);
-		} break;
-		case rofl::openflow::OFPT_PACKET_OUT: {
-			packet_out_rcvd(dynamic_cast<cofmsg_packet_out*>( msg ), aux_id);
-		} break;
-		case rofl::openflow::OFPT_FLOW_MOD: {
-			flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( msg ), aux_id);
-		} break;
-		case rofl::openflow::OFPT_GROUP_MOD: {
-			group_mod_rcvd(dynamic_cast<cofmsg_group_mod*>( msg ), aux_id);
-		} break;
-		case rofl::openflow::OFPT_PORT_MOD: {
-			port_mod_rcvd(dynamic_cast<cofmsg_port_mod*>( msg ), aux_id);
-		} break;
-		case rofl::openflow::OFPT_TABLE_MOD: {
-			table_mod_rcvd(dynamic_cast<cofmsg_table_mod*>( msg ), aux_id);
-		} break;
-		case rofl::openflow::OFPT_MULTIPART_REQUEST: {
-			stats_request_rcvd(dynamic_cast<cofmsg_stats_request*>( msg ), aux_id);
-		} break;
-		case rofl::openflow::OFPT_BARRIER_REQUEST: {
-			barrier_request_rcvd(dynamic_cast<cofmsg_barrier_request*>( msg ), aux_id);
-		} break;
-		case rofl::openflow::OFPT_QUEUE_GET_CONFIG_REQUEST: {
-			queue_get_config_request_rcvd(dynamic_cast<cofmsg_queue_get_config_request*>( msg ), aux_id);
-		} break;
-		case rofl::openflow::OFPT_ROLE_REQUEST: {
-			role_request_rcvd(dynamic_cast<cofmsg_role_request*>( msg ), aux_id);
-		} break;
-		case rofl::openflow::OFPT_GET_ASYNC_REQUEST: {
-			get_async_config_request_rcvd(dynamic_cast<cofmsg_get_async_config_request*>( msg ), aux_id);
-		} break;
-		case rofl::openflow::OFPT_SET_ASYNC: {
-			set_async_config_rcvd(dynamic_cast<cofmsg_set_async_config*>( msg ), aux_id);
-		} break;
-		case rofl::openflow::OFPT_METER_MOD: {
-			//TODO: meter_mod_rcvd(dynamic_cast<cofmsg_meter_mod*>( msg ), aux_id);
+		case openflow13::OFP_VERSION: {
+			switch (msg->get_type()) {
+			case rofl::openflow13::OFPT_EXPERIMENTER: {
+				experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_FEATURES_REQUEST: {
+				features_request_rcvd(dynamic_cast<cofmsg_features_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_GET_CONFIG_REQUEST: {
+				get_config_request_rcvd(dynamic_cast<cofmsg_get_config_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_SET_CONFIG: {
+				set_config_rcvd(dynamic_cast<cofmsg_set_config*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_PACKET_OUT: {
+				packet_out_rcvd(dynamic_cast<cofmsg_packet_out*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_FLOW_MOD: {
+				flow_mod_rcvd(dynamic_cast<cofmsg_flow_mod*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_GROUP_MOD: {
+				group_mod_rcvd(dynamic_cast<cofmsg_group_mod*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_PORT_MOD: {
+				port_mod_rcvd(dynamic_cast<cofmsg_port_mod*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_TABLE_MOD: {
+				table_mod_rcvd(dynamic_cast<cofmsg_table_mod*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_MULTIPART_REQUEST: {
+				stats_request_rcvd(dynamic_cast<cofmsg_stats_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_BARRIER_REQUEST: {
+				barrier_request_rcvd(dynamic_cast<cofmsg_barrier_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_QUEUE_GET_CONFIG_REQUEST: {
+				queue_get_config_request_rcvd(dynamic_cast<cofmsg_queue_get_config_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_ROLE_REQUEST: {
+				role_request_rcvd(dynamic_cast<cofmsg_role_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_GET_ASYNC_REQUEST: {
+				get_async_config_request_rcvd(dynamic_cast<cofmsg_get_async_config_request*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_SET_ASYNC: {
+				set_async_config_rcvd(dynamic_cast<cofmsg_set_async_config*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_METER_MOD: {
+				//TODO: meter_mod_rcvd(dynamic_cast<cofmsg_meter_mod*>( msg ), aux_id);
+			} break;
+			default: {
+
+			};
+			}
 		} break;
 		default: {
 
 		};
 		}
+
 
 
 	} catch (eBadSyntaxTooShort& e) {
