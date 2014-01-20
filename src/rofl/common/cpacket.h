@@ -295,15 +295,13 @@ public: // methods
 	 */
 	friend std::ostream &
 	operator<<(std::ostream& os, const cpacket& pack) {
-		os << "<cpacket ";
-			os << std::endl << "match:" << pack.match << std::endl;
-			os << std::endl << "head:" << (void*)pack.head << std::endl;
-			os << std::endl << "tail:" << (void*)pack.tail << std::endl;
-			for (fframe* curr = pack.head; curr != 0; curr = curr->next) {
-				os << std::endl << *curr << std::endl;
-			}
-			os << std::endl << "memory:" << pack.mem << std::endl;
-		os << ">";
+		os << indent(0) << "<cpacket >" << std::endl;
+		indent i(2);
+		os << pack.match;
+		for (fframe* curr = pack.head; curr != 0; curr = curr->next) {
+			os << *curr;
+		}
+		os << pack.mem;
 		return os;
 	};
 
