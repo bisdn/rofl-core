@@ -250,15 +250,15 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, fframe const& frame) {
-		os << "<fframe: ";
+		os << indent(0) << "<fframe: ";
 			os << "data:" << (void*)frame.soframe() << " ";
 			os << "datalen:" << frame.framelen() << " ";
 			os << "self-contained-mem:" << (frame.flags.test(FFRAME_FLAG_MEM) ? "yes" : "no") << " ";
 			os << "next:" << (void*)frame.next << " ";
 			os << "prev:" << (void*)frame.prev << " ";
-		os << ">";
-		os << std::endl;
-		os << frame.mem << " ";
+		os << ">" << std::endl;
+		indent i(2);
+		os << frame.mem;
 		return os;
 	};
 };
