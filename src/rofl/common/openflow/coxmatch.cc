@@ -533,6 +533,74 @@ coxmatch::u32addr() const
 
 
 
+caddress
+coxmatch::u32addr_value() const
+{
+	switch (get_oxm_class()) {
+	case openflow::OFPXMC_OPENFLOW_BASIC: {
+		switch (get_oxm_field()) {
+		case openflow::OFPXMT_OFB_IPV4_SRC:
+		case openflow::OFPXMT_OFB_IPV4_DST:
+		case openflow::OFPXMT_OFB_ARP_SPA:
+		case openflow::OFPXMT_OFB_ARP_TPA:
+			break;
+		default:
+			throw eOxmInval();
+			break;
+		}
+	} break;
+	case openflow::OFPXMC_EXPERIMENTER: {
+		// do nothing
+	} break;
+	default: {
+		throw eOxmInval();
+	} break;
+	}
+
+	caddress addr(AF_INET);
+	addr.ca_s4addr->sin_family = AF_INET;
+	addr.ca_s4addr->sin_addr.s_addr = oxm_uint32t->dword;
+	return addr;
+}
+
+
+
+caddress
+coxmatch::u32addr_mask() const
+{
+	if (not get_oxm_hasmask()) {
+		throw eOxmInval();
+	}
+
+	switch (get_oxm_class()) {
+	case openflow::OFPXMC_OPENFLOW_BASIC: {
+		switch (get_oxm_field()) {
+		case openflow::OFPXMT_OFB_IPV4_SRC:
+		case openflow::OFPXMT_OFB_IPV4_DST:
+		case openflow::OFPXMT_OFB_ARP_SPA:
+		case openflow::OFPXMT_OFB_ARP_TPA:
+			break;
+		default:
+			throw eOxmInval();
+			break;
+		}
+	} break;
+	case openflow::OFPXMC_EXPERIMENTER: {
+		// do nothing
+	} break;
+	default: {
+		throw eOxmInval();
+	} break;
+	}
+
+	caddress addr(AF_INET);
+	addr.ca_s4addr->sin_family = AF_INET;
+	addr.ca_s4addr->sin_addr.s_addr = oxm_uint32t->mask;
+	return addr;
+}
+
+
+
 cmacaddr
 coxmatch::u48addr() const
 {
@@ -604,6 +672,72 @@ coxmatch::u128addr() const
 	} else {
 		return (addr);
 	}
+}
+
+
+
+caddress
+coxmatch::u128addr_value() const
+{
+	switch (get_oxm_class()) {
+	case openflow::OFPXMC_OPENFLOW_BASIC: {
+		switch (get_oxm_field()) {
+		case openflow::OFPXMT_OFB_IPV6_SRC:
+		case openflow::OFPXMT_OFB_IPV6_DST:
+		case openflow::OFPXMT_OFB_IPV6_ND_TARGET:
+			break;
+		default:
+			throw eOxmInval();
+			break;
+		}
+	} break;
+	case openflow::OFPXMC_EXPERIMENTER: {
+		// do nothing
+	} break;
+	default: {
+		throw eOxmInval();
+	} break;
+	}
+
+	caddress addr(AF_INET6);
+	addr.ca_s6addr->sin6_family = AF_INET6;
+	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxm_ipv6addr->addr, 16);
+	return (addr);
+}
+
+
+
+caddress
+coxmatch::u128addr_mask() const
+{
+	if (not get_oxm_hasmask()) {
+		throw eOxmInval();
+	}
+
+	switch (get_oxm_class()) {
+	case openflow::OFPXMC_OPENFLOW_BASIC: {
+		switch (get_oxm_field()) {
+		case openflow::OFPXMT_OFB_IPV6_SRC:
+		case openflow::OFPXMT_OFB_IPV6_DST:
+		case openflow::OFPXMT_OFB_IPV6_ND_TARGET:
+			break;
+		default:
+			throw eOxmInval();
+			break;
+		}
+	} break;
+	case openflow::OFPXMC_EXPERIMENTER: {
+		// do nothing
+	} break;
+	default: {
+		throw eOxmInval();
+	} break;
+	}
+
+	caddress addr(AF_INET6);
+	addr.ca_s6addr->sin6_family = AF_INET6;
+	memcpy(addr.ca_s6addr->sin6_addr.s6_addr, oxm_ipv6addr->mask, 16);
+	return (addr);
 }
 
 

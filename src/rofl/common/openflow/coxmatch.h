@@ -277,8 +277,12 @@ public: // methods
 	uint32_t u32value() const;
 	uint64_t u64value() const;
 	caddress u32addr() const;
+	caddress u32addr_value() const;
+	caddress u32addr_mask() const;
 	cmacaddr u48addr() const;
 	caddress u128addr() const;
+	caddress u128addr_value() const;
+	caddress u128addr_mask() const;
 
 	/**
 	 *
@@ -1188,9 +1192,9 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofx_nw_src const& oxm)
 	{
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<nw-src: " << oxm.uint32_value() << " >" << std::endl;
+		os << indent(2) << "<nw-src: " << oxm.u32addr_value() << " >" << std::endl;
 		if (oxm.get_oxm_hasmask())
-			os << indent(2) << "<nw-src-mask: " << oxm.uint32_mask() << " >" << std::endl;
+			os << indent(2) << "<nw-src-mask: " << oxm.u32addr_mask() << " >" << std::endl;
 		return os;
 	};
 };
@@ -1275,9 +1279,9 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofx_nw_dst const& oxm)
 	{
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<nw-dst: " << oxm.uint32_value() << " >" << std::endl;
+		os << indent(2) << "<nw-dst: " << oxm.u32addr_value() << " >" << std::endl;
 		if (oxm.get_oxm_hasmask())
-			os << indent(2) << "<nw-dst-mask: " << oxm.uint32_mask() << " >" << std::endl;
+			os << indent(2) << "<nw-dst-mask: " << oxm.u32addr_mask() << " >" << std::endl;
 		return os;
 	};
 };
