@@ -16,6 +16,7 @@ csocket::csocket(
 		int type,
 		int protocol,
 		int backlog) :
+	had_short_write(false),
 	socket_owner(owner),
 	sd(-1),
 	laddr(domain),
@@ -39,6 +40,7 @@ csocket::csocket(
 
 csocket::csocket(
 		csocket_owner *owner) :
+	had_short_write(false),
 	socket_owner(owner),
 	sd(-1),
 	domain(-1),
@@ -636,6 +638,11 @@ csocket::dequeue_packet()
 		while (not pout_squeue.empty()) {
 			pout_entry_t& entry = pout_squeue.front(); // reference, do not make a copy
 
+			if (had_short_write) {
+				logging::warn << "[rofl][csocket] resending due to short write: " << std::endl << entry;
+				had_short_write = false;
+			}
+
 			int flags = MSG_NOSIGNAL;
 			if ((rc = sendto(sd, entry.mem->somem() + entry.msg_bytes_sent, entry.mem->memlen() - entry.msg_bytes_sent, flags,
 									entry.dest.ca_saddr, entry.dest.salen)) < 0) {
@@ -655,10 +662,13 @@ csocket::dequeue_packet()
 				}
 			}
 			else if (((unsigned int)(rc + entry.msg_bytes_sent) < entry.mem->memlen())) {
-				logging::warn << "[rofl][csocket] short write on socket descriptor:" << sd << std::endl;
+
 				if (SOCK_STREAM == type) {
+					had_short_write = true;
 					entry.msg_bytes_sent += rc;
+					logging::warn << "[rofl][csocket] short write on socket descriptor:" << sd << ", retrying..." << std::endl << entry;
 				} else {
+					logging::warn << "[rofl][csocket] short write on socket descriptor:" << sd << ", dropping packet." << std::endl;
 					delete entry.mem;
 					pout_squeue.pop_front();
 				}

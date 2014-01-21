@@ -169,8 +169,17 @@ private:
 			msg_bytes_sent = e.msg_bytes_sent;
 			return *this;
 		};
+		friend std::ostream&
+		operator<< (std::ostream& os, struct pout_entry_t const& entry) {
+			os << indent(0) << "<struct pout_entry_t >" << std::endl;
+			os << indent(2) << "<mem:0x" << entry.mem << " >" << std::endl;
+			os << indent(2) << "<dest:" << entry.dest << " >" << std::endl;
+			os << indent(2) << "<msg_bytes_sent:" << entry.msg_bytes_sent << " >" << std::endl;
+			return os;
+		};
 	};
 
+	bool 						had_short_write;
 	pthread_rwlock_t			pout_squeue_lock;	/**< rwlock for access to pout_squeue */
 	std::list<pout_entry_t> 	pout_squeue; 		/**< queue of outgoing packets */
 
