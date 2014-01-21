@@ -365,29 +365,28 @@ public:
 		case OFP12_VERSION:
 		case OFP13_VERSION: {
 			os << indent(0) << dynamic_cast<cofmsg const&>( msg );
-			os << indent(2) << "<cofmsg_flow_mod ";
+			os << indent(2) << "<cofmsg_flow_mod >" << std::endl;
 			switch (msg.get_command()) {
-			case rofl::openflow12::OFPFC_ADD: {
-				os << "command: -ADD- ";
+			case rofl::openflow10::OFPFC_ADD: {
+				os << indent(4) << "<command: -ADD- >" << std::endl;
 			} break;
-			case rofl::openflow12::OFPFC_MODIFY: {
-				os << "command: -MODIFY- ";
+			case rofl::openflow10::OFPFC_MODIFY: {
+				os << indent(4) << "<command: -MODIFY- >" << std::endl;
 			} break;
-			case rofl::openflow12::OFPFC_MODIFY_STRICT: {
-				os << "command: -MODIFY-STRICT- ";
+			case rofl::openflow10::OFPFC_MODIFY_STRICT: {
+				os << indent(4) << "<command: -MODIFY-STRICT- >" << std::endl;
 			} break;
-			case rofl::openflow12::OFPFC_DELETE: {
-				os << "command: -DELETE- ";
+			case rofl::openflow10::OFPFC_DELETE: {
+				os << indent(4) << "<command: -DELETE- >" << std::endl;
 			} break;
-			case rofl::openflow12::OFPFC_DELETE_STRICT: {
-				os << "command: -DELETE-STRICT- ";
+			case rofl::openflow10::OFPFC_DELETE_STRICT: {
+				os << indent(4) << "<command: -DELETE-STRICT- >" << std::endl;
 			} break;
 			default: {
-				os << "command: -UNKNOWN- ";
+				os << indent(4) << "<command: -UNKNOWN- >" << std::endl;
 			};
 			}
-				os << "table-id:" 		<< (int)msg.get_table_id() << " ";
-				os << " >" << std::endl;
+			os << indent(4) << "<table-id:" 		<< (int)msg.get_table_id() << " >" << std::endl;
 			os << indent(4) << "<cookie:0x" 		<< std::hex << (unsigned long long)msg.get_cookie() << std::dec << " >" << std::endl;
 			os << indent(4) << "<cookie-mask:0x" 	<< std::hex << (unsigned long long)msg.get_cookie_mask() << std::dec << " >" << std::endl;
 			os << indent(4) << "<idle-timeout:" 	<< (int)msg.get_idle_timeout() << " >" << std::endl;;
