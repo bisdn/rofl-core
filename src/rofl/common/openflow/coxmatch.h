@@ -1366,7 +1366,7 @@ public:
 	{
 		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ipv4-src: "
-						<< (int)oxm.uint32_value() << "/" << (int)oxm.uint32_mask()
+						<< oxm.u32addr_value() << "/" << oxm.u32addr_mask()
 						<< " >" << std::endl;
 		return os;
 	};
@@ -1453,7 +1453,7 @@ public:
 	{
 		os << dynamic_cast<coxmatch const&>(oxm);
 		os << indent(2) << "<ipv4-dst: "
-						<< (int)oxm.uint32_value() << "/" << (int)oxm.uint32_mask()
+						<< oxm.u32addr_value() << "/" << oxm.u32addr_mask()
 						<< " >" << std::endl;
 		return os;	};
 };
