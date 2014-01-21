@@ -658,10 +658,11 @@ csocket::dequeue_packet()
 				logging::warn << "[rofl][csocket] short write on socket descriptor:" << sd << std::endl;
 				if (SOCK_STREAM == type) {
 					entry.msg_bytes_sent += rc;
-					return;
 				} else {
-					throw eSysCall("sendto(short write)");
+					delete entry.mem;
+					pout_squeue.pop_front();
 				}
+				return;
 			}
 
 			pout_squeue.pop_front();
