@@ -107,10 +107,12 @@ cofmatch::clear()
 
 	switch (of_version) {
 	case openflow::OFP_VERSION_UNKNOWN: {
+		oxmlist.clear();
 		memarea.clear();
 		ofh_match = 0;
 	} break;
 	case openflow10::OFP_VERSION: {
+		oxmlist.clear();
 		memset(ofh10_match, 0, openflow10::OFP_MATCH_STATIC_LEN);
 	} break;
 	case openflow12::OFP_VERSION: {
