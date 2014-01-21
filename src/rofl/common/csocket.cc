@@ -654,7 +654,7 @@ csocket::dequeue_packet()
 					throw eSysCall("sendto");
 				}
 			}
-			else if ((rc < (int)entry.mem->memlen())) {
+			else if (((rc + entry.msg_bytes_sent) < (int)entry.mem->memlen())) {
 				logging::warn << "[rofl][csocket] short write on socket descriptor:" << sd << std::endl;
 				if (SOCK_STREAM == type) {
 					entry.msg_bytes_sent += rc;
