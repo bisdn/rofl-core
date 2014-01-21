@@ -634,10 +634,10 @@ csocket::dequeue_packet()
 		int rc = 0;
 
 		while (not pout_squeue.empty()) {
-			pout_entry_t entry = pout_squeue.front();
+			pout_entry_t& entry = pout_squeue.front(); // reference, do not make a copy
 
 			int flags = MSG_NOSIGNAL;
-			if ((rc = sendto(sd, entry.mem->somem(), entry.mem->memlen(), flags,
+			if ((rc = sendto(sd, entry.mem->somem() + entry.msg_bytes_sent, entry.mem->memlen() - entry.msg_bytes_sent, flags,
 									entry.dest.ca_saddr, entry.dest.salen)) < 0) {
 				switch (errno) {
 				case EAGAIN:
@@ -655,7 +655,13 @@ csocket::dequeue_packet()
 				}
 			}
 			else if ((rc < (int)entry.mem->memlen())) {
-				throw eSysCall("sendto(short write)");
+				logging::warn << "[rofl][csocket] short write on socket descriptor:" << sd << std::endl;
+				if (SOCK_STREAM == type) {
+					entry.msg_bytes_sent += rc;
+					return;
+				} else {
+					throw eSysCall("sendto(short write)");
+				}
 			}
 
 			pout_squeue.pop_front();

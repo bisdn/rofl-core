@@ -154,10 +154,11 @@ private:
 	struct pout_entry_t {
 		cmemory *mem;
 		caddress dest;
+		size_t msg_bytes_sent;
 		pout_entry_t(cmemory *mem = 0, caddress const& dest = caddress(AF_INET, "0.0.0.0", 0)) :
-			mem(mem), dest(dest) {};
+			mem(mem), dest(dest), msg_bytes_sent(0) {};
 		pout_entry_t(pout_entry_t const& e) :
-			mem(0), dest(caddress(AF_INET, "0.0.0.0", 0)) {
+			mem(0), dest(caddress(AF_INET, "0.0.0.0", 0)), msg_bytes_sent(0) {
 			*this = e;
 		};
 		struct pout_entry_t&
@@ -165,6 +166,7 @@ private:
 			if (this == &e) return *this;
 			mem = e.mem;
 			dest = e.dest;
+			msg_bytes_sent = e.msg_bytes_sent;
 			return *this;
 		};
 	};
