@@ -265,25 +265,121 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_flow_removed const& msg) {
-		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
-		os << indent(2) << "<cofmsg_flow_removed >" << std::endl;
-			os << indent(4) << "<cookie:0x" << std::hex << (int)msg.get_cookie() << std::dec << " >" << std::endl;
-			os << indent(4) << "<priority:0x" << std::hex << (int)msg.get_priority() << std::dec << " >" << std::endl;
-			os << indent(4) << "<reason:" << (int)msg.get_reason() << " >" << std::endl;
-			os << indent(4) << "<table-id:" << (int)msg.get_table_id() << " >" << std::endl;
-			os << indent(4) << "<duration-sec:" << (int)msg.get_duration_sec() << " >" << std::endl;
-			os << indent(4) << "<duration-nsec:" << (int)msg.get_duration_nsec() << " >" << std::endl;
-			os << indent(4) << "<idle-timeout:" << (int)msg.get_idle_timeout() << " >" << std::endl;
-			os << indent(4) << "<hard-timeout:" << (int)msg.get_hard_timeout() << " >" << std::endl;
-			os << indent(4) << "<packet-count:" << (int)msg.get_packet_count() << " >" << std::endl;
-			os << indent(4) << "<byte-count:" << (int)msg.get_byte_count() << " >" << std::endl;
-			os << indent(4) << "<matches: >" << std::endl;
-			indent i(6);
-			os << msg.match;
+		switch (msg.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+			os << indent(2) << "<cofmsg_flow_removed >" << std::endl;
+				os << indent(4) << "<cookie:0x" << std::hex << (int)msg.get_cookie() << std::dec << " >" << std::endl;
+				os << indent(4) << "<priority:0x" << std::hex << (int)msg.get_priority() << std::dec << " >" << std::endl;
+				switch (msg.get_reason()) {
+				case rofl::openflow10::OFPRR_IDLE_TIMEOUT: {
+					os << indent(4) << "<reason: -IDLE-TIMEOUT- >" << std::endl;
+				} break;
+				case rofl::openflow10::OFPRR_HARD_TIMEOUT: {
+					os << indent(4) << "<reason: -HARD-TIMEOUT- >" << std::endl;
+				} break;
+				case rofl::openflow10::OFPRR_DELETE: {
+					os << indent(4) << "<reason: -DELETE- >" << std::endl;
+				} break;
+				default: {
+					os << indent(4) << "<reason: -UNKNOWN- >" << std::endl;
+				};
+				}
+				os << indent(4) << "<duration-sec:" << (int)msg.get_duration_sec() << " >" << std::endl;
+				os << indent(4) << "<duration-nsec:" << (int)msg.get_duration_nsec() << " >" << std::endl;
+				os << indent(4) << "<idle-timeout:" << (int)msg.get_idle_timeout() << " >" << std::endl;
+				os << indent(4) << "<packet-count:" << (int)msg.get_packet_count() << " >" << std::endl;
+				os << indent(4) << "<byte-count:" << (int)msg.get_byte_count() << " >" << std::endl;
+				os << indent(4) << "<matches: >" << std::endl;
+				indent i(6);
+				os << msg.match;
+
+		} break;
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+			os << indent(2) << "<cofmsg_flow_removed >" << std::endl;
+				os << indent(4) << "<cookie:0x" << std::hex << (int)msg.get_cookie() << std::dec << " >" << std::endl;
+				os << indent(4) << "<priority:0x" << std::hex << (int)msg.get_priority() << std::dec << " >" << std::endl;
+				switch (msg.get_reason()) {
+				case rofl::openflow12::OFPRR_IDLE_TIMEOUT: {
+					os << indent(4) << "<reason: -IDLE-TIMEOUT- >" << std::endl;
+				} break;
+				case rofl::openflow12::OFPRR_HARD_TIMEOUT: {
+					os << indent(4) << "<reason: -HARD-TIMEOUT- >" << std::endl;
+				} break;
+				case rofl::openflow12::OFPRR_DELETE: {
+					os << indent(4) << "<reason: -DELETE- >" << std::endl;
+				} break;
+				case rofl::openflow12::OFPRR_GROUP_DELETE: {
+					os << indent(4) << "<reason: -GROUP-DELETE- >" << std::endl;
+				} break;
+				default: {
+					os << indent(4) << "<reason: -UNKNOWN- >" << std::endl;
+				};
+				}
+				os << indent(4) << "<table-id:" << (int)msg.get_table_id() << " >" << std::endl;
+				os << indent(4) << "<duration-sec:" << (int)msg.get_duration_sec() << " >" << std::endl;
+				os << indent(4) << "<duration-nsec:" << (int)msg.get_duration_nsec() << " >" << std::endl;
+				os << indent(4) << "<idle-timeout:" << (int)msg.get_idle_timeout() << " >" << std::endl;
+				os << indent(4) << "<hard-timeout:" << (int)msg.get_hard_timeout() << " >" << std::endl;
+				os << indent(4) << "<packet-count:" << (int)msg.get_packet_count() << " >" << std::endl;
+				os << indent(4) << "<byte-count:" << (int)msg.get_byte_count() << " >" << std::endl;
+				os << indent(4) << "<matches: >" << std::endl;
+				indent i(6);
+				os << msg.match;
+
+		} break;
+		}
 		return os;
 	};
 };
 
+
+#if 0
+OFPRR_IDLE_TIMEOUT,         /* Flow idle time exceeded idle_timeout. */
+OFPRR_HARD_TIMEOUT,         /* Time exceeded hard_timeout. */
+OFPRR_DELETE                /* Evicted by a DELETE flow mod. */
+
+struct ofp_header header;
+struct ofp_match match;   /* Description of fields. */
+uint64_t cookie;          /* Opaque controller-issued identifier. */
+
+uint16_t priority;        /* Priority level of flow entry. */
+uint8_t reason;           /* One of OFPRR_*. */
+uint8_t pad[1];           /* Align to 32-bits. */
+
+uint32_t duration_sec;    /* Time flow was alive in seconds. */
+uint32_t duration_nsec;   /* Time flow was alive in nanoseconds beyond
+							 duration_sec. */
+uint16_t idle_timeout;    /* Idle timeout from original flow mod. */
+uint8_t pad2[2];          /* Align to 64-bits. */
+uint64_t packet_count;
+uint64_t byte_count;
+#endif
+
+#if 0
+OFPRR_IDLE_TIMEOUT,         /* Flow idle time exceeded idle_timeout. */
+OFPRR_HARD_TIMEOUT,         /* Time exceeded hard_timeout. */
+OFPRR_DELETE,               /* Evicted by a DELETE flow mod. */
+OFPRR_GROUP_DELETE          /* Group was removed. */
+
+struct ofp_header header;
+uint64_t cookie;          /* Opaque controller-issued identifier. */
+
+uint16_t priority;        /* Priority level of flow entry. */
+uint8_t reason;           /* One of OFPRR_*. */
+uint8_t table_id;         /* ID of the table */
+
+uint32_t duration_sec;    /* Time flow was alive in seconds. */
+uint32_t duration_nsec;   /* Time flow was alive in nanoseconds beyond
+							 duration_sec. */
+uint16_t idle_timeout;    /* Idle timeout from original flow mod. */
+uint16_t hard_timeout;    /* Idle timeout from original flow mod. */
+uint64_t packet_count;
+uint64_t byte_count;
+struct ofp_match match; /* Description of fields. */
+#endif
 } // end of namespace rofl
 
 #endif /* COFMSG_FLOW_REMOVED_H_ */
