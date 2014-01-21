@@ -136,6 +136,7 @@ private:
 		static pthread_rwlock_t			cpacket_lock;
 		static std::set<cpacket*> 		cpacket_list;
 
+		uint8_t							ofp_version;
 		std::bitset<32> 				flags;			// flags (e.g. for checksum calculations, NO_PACKET_IN, etc.)
 		std::string 					info;			// info string
 		std::string						d_info;			// data info string (for use by method data_c_str()
@@ -228,6 +229,7 @@ public: // methods
 	 * @param do_classify run the classifier during construction
 	 */
 	cpacket(
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			size_t size = CPACKET_DEFAULT_SIZE,
 			uint32_t in_port = 0,
 			bool do_classify = false);
@@ -243,6 +245,7 @@ public: // methods
 	 * @param do_classify run the classifier during construction
 	 */
 	cpacket(
+			uint8_t ofp_version,
 			uint8_t *buf, size_t buflen,
 			uint32_t in_port = 0 /*invalid port in OF*/,
 			bool do_classify = true);
@@ -257,6 +260,7 @@ public: // methods
 	 * @param do_classify run the classifier during construction
 	 */
 	cpacket(
+			uint8_t ofp_version,
 			cmemory *mem,
 			uint32_t in_port = 0 /*invalid port in OF*/,
 			bool do_classify = true);

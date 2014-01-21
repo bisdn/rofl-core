@@ -40,26 +40,30 @@ cpacket::cpacket_list_erase()
 
 
 cpacket::cpacket(
-			size_t size,
-			uint32_t in_port,
-			bool do_classify) :
-					total_len(size),
-					head(0),
-					tail(0),
-					hspace(CPACKET_DEFAULT_HSPACE),
-					tspace(CPACKET_DEFAULT_TSPACE),
-					mem(size + hspace + tspace),
-					data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, size)),
-					packet_receive_time(time(NULL)),
-					in_port(in_port)
+		uint8_t ofp_version,
+		size_t size,
+		uint32_t in_port,
+		bool do_classify) :
+				ofp_version(ofp_version),
+				total_len(size),
+				head(0),
+				tail(0),
+				hspace(CPACKET_DEFAULT_HSPACE),
+				tspace(CPACKET_DEFAULT_TSPACE),
+				mem(size + hspace + tspace),
+				data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, size)),
+				match(ofp_version),
+				packet_receive_time(time(NULL)),
+				in_port(in_port)
 {
 	pthread_rwlock_init(&ac_rwlock, NULL);
 
 	match.set_in_port(in_port);
-	match.set_in_phy_port(in_port);
+	if (ofp_version >= rofl::openflow12::OFP_VERSION) {
+		match.set_in_phy_port(in_port);
+	}
 
-	if (do_classify)
-	{
+	if (do_classify) {
 		classify(in_port);
 	}
 
@@ -69,6 +73,7 @@ cpacket::cpacket(
 
 
 cpacket::cpacket(
+		uint8_t ofp_version,
 		cmemory *mem,
 		uint32_t in_port,
 		bool do_classify) :
@@ -79,6 +84,7 @@ cpacket::cpacket(
 				tspace(0),
 				mem(mem->memlen() + hspace + tspace),
 				data(std::pair<uint8_t*, size_t>(this->mem.somem() + hspace, mem->memlen())),
+				match(ofp_version),
 				packet_receive_time(time(NULL)),
 				in_port(in_port)
 {
@@ -99,6 +105,7 @@ cpacket::cpacket(
 
 
 cpacket::cpacket(
+		uint8_t ofp_version,
 		uint8_t *buf,
 		size_t buflen,
 		uint32_t in_port,
@@ -111,6 +118,7 @@ cpacket::cpacket(
 				mem(buflen + hspace + tspace),
 				//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
 				data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, buflen)),
+				match(ofp_version),
 				packet_receive_time(time(NULL)),
 				in_port(in_port)
 {
@@ -119,7 +127,9 @@ cpacket::cpacket(
 	memcpy(soframe(), buf, buflen);
 
 	match.set_in_port(in_port);
-	match.set_in_phy_port(in_port);
+	if (ofp_version >= rofl::openflow12::OFP_VERSION) {
+		match.set_in_phy_port(in_port);
+	}
 
 	if (do_classify) {
 		classify(in_port);
@@ -213,8 +223,9 @@ cpacket::operator=(
 
 	reset();
 
-	head = tail = 0;
-	hspace = tspace = 0;
+	ofp_version 		= p.ofp_version;
+	head = tail 		= 0;
+	hspace = tspace 	= 0;
 
 	total_len			= p.total_len;
 	match				= p.match;

@@ -12,7 +12,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 		size_t datalen) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
 	actions(actions),
-	packet(data, datalen)
+	packet(of_version, data, datalen)
 {
 	ofh_packet_out = soframe();
 
@@ -61,7 +61,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 		cmemory *memarea) :
 	cofmsg(memarea),
 	actions(get_version()),
-	packet((size_t)0)
+	packet(rofl::openflow::OFP_VERSION_UNKNOWN, (size_t)0)
 {
 	ofh_packet_out = soframe();
 }
