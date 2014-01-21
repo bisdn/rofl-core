@@ -480,11 +480,16 @@ cofmatch::unpack_of10(uint8_t* match, size_t matchlen)
 		caddress mask(AF_INET, "0.0.0.0");
 		addr.ca_s4addr->sin_addr.s_addr = m->nw_src;
 		mask.ca_s4addr->sin_addr.s_addr = htobe32((uint32_t)u_mask);
+		if (num_of_bits < 32) {
+			set_nw_src(addr, mask);
+		}
+#ifdef FALSCH
 		if (num_of_bits > 0) {
 			set_nw_src(addr, mask);
 		} else {
 			set_nw_src(addr);
 		}
+#endif
 	}
 
 	// nw_dst
@@ -497,11 +502,16 @@ cofmatch::unpack_of10(uint8_t* match, size_t matchlen)
 		caddress mask(AF_INET, "0.0.0.0");
 		addr.ca_s4addr->sin_addr.s_addr = m->nw_dst;
 		mask.ca_s4addr->sin_addr.s_addr = htobe32((uint32_t)u_mask);
+		if (num_of_bits < 32) {
+			set_nw_dst(addr, mask);
+		}
+#ifdef FALSCH
 		if (num_of_bits > 0) {
 			set_nw_dst(addr, mask);
 		} else {
 			set_nw_dst(addr);
 		}
+#endif
 	}
 
 	// tp_src
