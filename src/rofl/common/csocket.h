@@ -531,7 +531,7 @@ private:
 	 * queue pout_squeue.
 	 */
 	void
-	dequeue_packet() throw (eSocketSendFailed, eSocketShortSend);
+	dequeue_packet();
 
 public:
 

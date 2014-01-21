@@ -626,7 +626,7 @@ csocket::send(cmemory* mem, caddress const& dest)
 
 
 void
-csocket::dequeue_packet() throw (eSocketSendFailed, eSocketShortSend)
+csocket::dequeue_packet()
 {
 	{
 		RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
