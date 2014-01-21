@@ -231,7 +231,13 @@ csocket::handle_wevent(int fd)
 		}
 	} else {
 		if (sockflags.test(CONNECTED)) {
-			dequeue_packet();
+			try {
+				dequeue_packet();
+			} catch (eSysCall& e) {
+				logging::error << "[rofl][csocket] eSysCall " << e << std::endl;
+			} catch (RoflException& e) {
+				logging::error << "[rofl][csocket] RoflException " << e << std::endl;
+			}
 		}
 	}
 }
