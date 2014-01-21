@@ -1872,8 +1872,10 @@ cpacket::parse_mpls(
 	fmplsframe *mpls = new fmplsframe(p_ptr, sizeof(struct fmplsframe::mpls_hdr_t));
 
 	if (not flags.test(FLAG_MPLS_PRESENT)) {
-		match.set_mpls_label(mpls->get_mpls_label());
-		match.set_mpls_tc(mpls->get_mpls_tc());
+		if (ofp_version >= rofl::openflow12::OFP_VERSION) {
+			match.set_mpls_label(mpls->get_mpls_label());
+			match.set_mpls_tc(mpls->get_mpls_tc());
+		}
 
 		flags.set(FLAG_MPLS_PRESENT);
 	}
@@ -1911,11 +1913,36 @@ cpacket::parse_arpv4(
 
 	farpv4frame *arp = new farpv4frame(p_ptr, sizeof(struct farpv4frame::arpv4_hdr_t));
 
-	match.set_arp_opcode(arp->get_opcode());
-	match.set_arp_spa(arp->get_nw_src());
-	match.set_arp_tpa(arp->get_nw_dst());
-	match.set_arp_sha(arp->get_dl_src());
-	match.set_arp_tha(arp->get_dl_dst());
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
+		match.set_nw_proto(arp->get_opcode());
+		match.set_nw_src(arp->get_nw_src());
+		match.set_nw_dst(arp->get_nw_dst());
+		match.set_eth_src(arp->get_dl_src());
+		match.set_eth_dst(arp->get_dl_dst());
+
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		match.set_arp_opcode(arp->get_opcode());
+		match.set_arp_spa(arp->get_nw_src());
+		match.set_arp_tpa(arp->get_nw_dst());
+		match.set_arp_sha(arp->get_dl_src());
+		match.set_arp_tha(arp->get_dl_dst());
+
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		match.set_arp_opcode(arp->get_opcode());
+		match.set_arp_spa(arp->get_nw_src());
+		match.set_arp_tpa(arp->get_nw_dst());
+		match.set_arp_sha(arp->get_dl_src());
+		match.set_arp_tha(arp->get_dl_dst());
+
+	} break;
+	default: {
+
+	};
+	}
+
 
 	frame_append(arp);
 
@@ -1944,11 +1971,35 @@ cpacket::parse_ipv4(
 
 	fipv4frame *ip = new fipv4frame(p_ptr, sizeof(struct fipv4frame::ipv4_hdr_t));
 
-	match.set_ip_proto(ip->get_ipv4_proto());
-	match.set_ipv4_dst(ip->get_ipv4_dst());
-	match.set_ipv4_src(ip->get_ipv4_src());
-	match.set_ip_dscp(ip->get_ipv4_dscp());
-	match.set_ip_ecn(ip->get_ipv4_ecn());
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
+		match.set_nw_proto(ip->get_ipv4_proto());
+		match.set_nw_dst(ip->get_ipv4_dst());
+		match.set_nw_src(ip->get_ipv4_src());
+		match.set_ip_dscp(ip->get_ipv4_dscp());
+		match.set_ip_ecn(ip->get_ipv4_ecn());
+
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		match.set_ip_proto(ip->get_ipv4_proto());
+		match.set_ipv4_dst(ip->get_ipv4_dst());
+		match.set_ipv4_src(ip->get_ipv4_src());
+		match.set_ip_dscp(ip->get_ipv4_dscp());
+		match.set_ip_ecn(ip->get_ipv4_ecn());
+
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		match.set_ip_proto(ip->get_ipv4_proto());
+		match.set_ipv4_dst(ip->get_ipv4_dst());
+		match.set_ipv4_src(ip->get_ipv4_src());
+		match.set_ip_dscp(ip->get_ipv4_dscp());
+		match.set_ip_ecn(ip->get_ipv4_ecn());
+
+	} break;
+	default: {
+
+	};
+	}
 
 	frame_append(ip);
 
@@ -1997,8 +2048,26 @@ cpacket::parse_icmpv4(
 
 	ficmpv4frame *icmp = new ficmpv4frame(p_ptr, p_len);
 
-	match.set_icmpv4_type(icmp->get_icmp_type());
-	match.set_icmpv4_code(icmp->get_icmp_code());
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
+		match.set_tp_src(icmp->get_icmp_type());
+		match.set_tp_dst(icmp->get_icmp_code());
+
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		match.set_icmpv4_type(icmp->get_icmp_type());
+		match.set_icmpv4_code(icmp->get_icmp_code());
+
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		match.set_icmpv4_type(icmp->get_icmp_type());
+		match.set_icmpv4_code(icmp->get_icmp_code());
+
+	} break;
+	default: {
+
+	};
+	}
 
 	frame_append(icmp);
 
@@ -2029,10 +2098,28 @@ cpacket::parse_ipv6(
 
 	fipv6frame *ip = new fipv6frame(p_ptr, sizeof(struct fipv6frame::ipv6_hdr_t));
 
-	match.set_ip_proto(ip->get_next_header());
-	match.set_ipv6_dst(ip->get_ipv6_dst());
-	match.set_ipv6_src(ip->get_ipv6_src());
-	match.set_ipv6_flabel(ip->get_flow_label());
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
+
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		match.set_ip_proto(ip->get_next_header());
+		match.set_ipv6_dst(ip->get_ipv6_dst());
+		match.set_ipv6_src(ip->get_ipv6_src());
+		match.set_ipv6_flabel(ip->get_flow_label());
+
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		match.set_ip_proto(ip->get_next_header());
+		match.set_ipv6_dst(ip->get_ipv6_dst());
+		match.set_ipv6_src(ip->get_ipv6_src());
+		match.set_ipv6_flabel(ip->get_flow_label());
+
+	} break;
+	default: {
+
+	};
+	}
 
 	frame_append(ip);
 
@@ -2071,8 +2158,24 @@ cpacket::parse_icmpv6(
 
 	ficmpv6frame *icmp = new ficmpv6frame(p_ptr, sizeof(struct ficmpv6frame::icmpv6_hdr_t));
 
-	match.set_icmpv6_type(icmp->get_icmpv6_type());
-	match.set_icmpv6_code(icmp->get_icmpv6_code());
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
+
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		match.set_icmpv6_type(icmp->get_icmpv6_type());
+		match.set_icmpv6_code(icmp->get_icmpv6_code());
+
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		match.set_icmpv6_type(icmp->get_icmpv6_type());
+		match.set_icmpv6_code(icmp->get_icmpv6_code());
+
+	} break;
+	default: {
+
+	};
+	}
 
 	frame_append(icmp);
 
@@ -2102,8 +2205,26 @@ cpacket::parse_udp(
 
 	fudpframe *udp = new fudpframe(p_ptr, sizeof(struct fudpframe::udp_hdr_t));
 
-	match.set_udp_dst(udp->get_dport());
-	match.set_udp_src(udp->get_sport());
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
+		match.set_tp_dst(udp->get_dport());
+		match.set_tp_src(udp->get_sport());
+
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		match.set_udp_dst(udp->get_dport());
+		match.set_udp_src(udp->get_sport());
+
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		match.set_udp_dst(udp->get_dport());
+		match.set_udp_src(udp->get_sport());
+
+	} break;
+	default: {
+
+	};
+	}
 
 	frame_append(udp);
 
@@ -2138,8 +2259,26 @@ cpacket::parse_tcp(
 
 	ftcpframe *tcp = new ftcpframe(p_ptr, sizeof(struct ftcpframe::tcp_hdr_t));
 
-	match.set_tcp_dst(tcp->get_dport());
-	match.set_tcp_src(tcp->get_sport());
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
+		match.set_tp_dst(tcp->get_dport());
+		match.set_tp_src(tcp->get_sport());
+
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		match.set_tcp_dst(tcp->get_dport());
+		match.set_tcp_src(tcp->get_sport());
+
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		match.set_tcp_dst(tcp->get_dport());
+		match.set_tcp_src(tcp->get_sport());
+
+	} break;
+	default: {
+
+	};
+	}
 
 	frame_append(tcp);
 
@@ -2168,8 +2307,24 @@ cpacket::parse_sctp(
 
 	fsctpframe *sctp = new fsctpframe(p_ptr, sizeof(struct fsctpframe::sctp_hdr_t));
 
-	match.set_sctp_dst(sctp->get_dport());
-	match.set_sctp_src(sctp->get_sport());
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
+
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		match.set_sctp_dst(sctp->get_dport());
+		match.set_sctp_src(sctp->get_sport());
+
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		match.set_sctp_dst(sctp->get_dport());
+		match.set_sctp_src(sctp->get_sport());
+
+	} break;
+	default: {
+
+	};
+	}
 
 	frame_append(sctp);
 
