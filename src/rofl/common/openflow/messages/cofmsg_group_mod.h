@@ -177,11 +177,25 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_group_mod const& msg) {
-		os << indent(0) << "<cofmsg_group_mod >" << std::endl;
-		os << indent(2) << "<command:" 		<< (int)msg.get_command() 		<< " >" << std::endl;
-		os << indent(2) << "<group-type:" 	<< (int)msg.get_group_type() 	<< " >" << std::endl;
-		os << indent(2) << "<group-id:" 	<< (int)msg.get_group_id() 		<< " >" << std::endl;
-		os << indent(2) << msg.buckets;
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_group_mod >" << std::endl;
+		switch (msg.get_command()) {
+			case rofl::openflow12::OFPGC_ADD: {
+				os << indent(4) << "<command: -ADD- >" << std::endl;
+			} break;
+			case rofl::openflow12::OFPGC_MODIFY: {
+				os << indent(4) << "<command: -MODIFY- >" << std::endl;
+			} break;
+			case rofl::openflow12::OFPFC_DELETE: {
+				os << indent(4) << "<command: -DELETE- >" << std::endl;
+			} break;
+			default: {
+				os << indent(4) << "<command: -UNKNOWN- >" << std::endl;
+			};
+			}
+		os << indent(4) << "<group-type:" 	<< (int)msg.get_group_type() 	<< " >" << std::endl;
+		os << indent(4) << "<group-id:" 	<< (int)msg.get_group_id() 		<< " >" << std::endl;
+		os << indent(4) << msg.buckets;
 		return os;
 	};
 };

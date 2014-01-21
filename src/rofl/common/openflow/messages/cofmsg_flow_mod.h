@@ -322,17 +322,35 @@ public:
 		switch (msg.get_version()) {
 		case OFP10_VERSION: {
 			os << indent(0) << dynamic_cast<cofmsg const&>( msg );
-			os << indent(2) << "<cofmsg_flow_mod ";
-				os << "command:" 		<< (int)msg.get_command() << " ";
-				os << "table-id:" 		<< (int)msg.get_table_id() << " ";
-				os << " >" << std::endl;
+			os << indent(2) << "<cofmsg_flow_mod >" << std::endl;
+			switch (msg.get_command()) {
+			case rofl::openflow10::OFPFC_ADD: {
+				os << indent(4) << "<command: -ADD- >" << std::endl;
+			} break;
+			case rofl::openflow10::OFPFC_MODIFY: {
+				os << indent(4) << "<command: -MODIFY- >" << std::endl;
+			} break;
+			case rofl::openflow10::OFPFC_MODIFY_STRICT: {
+				os << indent(4) << "<command: -MODIFY-STRICT- >" << std::endl;
+			} break;
+			case rofl::openflow10::OFPFC_DELETE: {
+				os << indent(4) << "<command: -DELETE- >" << std::endl;
+			} break;
+			case rofl::openflow10::OFPFC_DELETE_STRICT: {
+				os << indent(4) << "<command: -DELETE-STRICT- >" << std::endl;
+			} break;
+			default: {
+				os << indent(4) << "<command: -UNKNOWN- >" << std::endl;
+			};
+			}
+			os << indent(4) << "<table-id:" 		<< (int)msg.get_table_id() << " >" << std::endl;
 			os << indent(4) << "<cookie:0x" 		<< std::hex << (unsigned long long)msg.get_cookie() << std::dec << " >" << std::endl;
 			os << indent(4) << "<idle-timeout:" 	<< (int)msg.get_idle_timeout() << " >" << std::endl;;
 			os << indent(4) << "<hard-timeout:" 	<< (int)msg.get_hard_timeout() << " >" << std::endl;
-			os << indent(4) << "<priority:" 		<< (int)msg.get_priority() << " >" << std::endl;
-			os << indent(4) << "<buffer-id:" 		<< std::hex << (int)msg.get_buffer_id() << std::dec << " >" << std::endl;
-			os << indent(4) << "<flags:" 			<< std::hex << (int)msg.get_flags() << std::dec << " >" << std::endl;
-			os << indent(4) << "<out-port:" 		<< (int)msg.get_out_port() << " >" << std::endl;
+			os << indent(4) << "<priority:0x" 		<< std::hex << (int)msg.get_priority() << std::dec << " >" << std::endl;
+			os << indent(4) << "<buffer-id:0x" 		<< std::hex << (int)msg.get_buffer_id() << std::dec << " >" << std::endl;
+			os << indent(4) << "<flags:0x" 			<< std::hex << (int)msg.get_flags() << std::dec << " >" << std::endl;
+			os << indent(4) << "<out-port:0x" 		<< std::hex << (int)msg.get_out_port() << std::dec << " >" << std::endl;
 			{
 				os << indent(4) << "<matches: >" << std::endl;
 				indent i(6);
@@ -348,18 +366,37 @@ public:
 		case OFP13_VERSION: {
 			os << indent(0) << dynamic_cast<cofmsg const&>( msg );
 			os << indent(2) << "<cofmsg_flow_mod ";
-				os << "command:" 		<< (int)msg.get_command() << " ";
+			switch (msg.get_command()) {
+			case rofl::openflow12::OFPFC_ADD: {
+				os << "command: -ADD- ";
+			} break;
+			case rofl::openflow12::OFPFC_MODIFY: {
+				os << "command: -MODIFY- ";
+			} break;
+			case rofl::openflow12::OFPFC_MODIFY_STRICT: {
+				os << "command: -MODIFY-STRICT- ";
+			} break;
+			case rofl::openflow12::OFPFC_DELETE: {
+				os << "command: -DELETE- ";
+			} break;
+			case rofl::openflow12::OFPFC_DELETE_STRICT: {
+				os << "command: -DELETE-STRICT- ";
+			} break;
+			default: {
+				os << "command: -UNKNOWN- ";
+			};
+			}
 				os << "table-id:" 		<< (int)msg.get_table_id() << " ";
 				os << " >" << std::endl;
 			os << indent(4) << "<cookie:0x" 		<< std::hex << (unsigned long long)msg.get_cookie() << std::dec << " >" << std::endl;
 			os << indent(4) << "<cookie-mask:0x" 	<< std::hex << (unsigned long long)msg.get_cookie_mask() << std::dec << " >" << std::endl;
 			os << indent(4) << "<idle-timeout:" 	<< (int)msg.get_idle_timeout() << " >" << std::endl;;
 			os << indent(4) << "<hard-timeout:" 	<< (int)msg.get_hard_timeout() << " >" << std::endl;
-			os << indent(4) << "<priority:" 		<< (int)msg.get_priority() << " >" << std::endl;
-			os << indent(4) << "<buffer-id:" 		<< std::hex << (int)msg.get_buffer_id() << std::dec << " >" << std::endl;
-			os << indent(4) << "<flags:" 			<< std::hex << (int)msg.get_flags() << std::dec << " >" << std::endl;
-			os << indent(4) << "<out-port:" 		<< (int)msg.get_out_port() << " >" << std::endl;
-			os << indent(4) << "<out-group:" 		<< (int)msg.get_out_group() << " >" << std::endl;
+			os << indent(4) << "<priority:0x" 		<< std::hex << (int)msg.get_priority() << std::dec << " >" << std::endl;
+			os << indent(4) << "<buffer-id:0x" 		<< std::hex << (int)msg.get_buffer_id() << std::dec << " >" << std::endl;
+			os << indent(4) << "<flags:0x" 			<< std::hex << (int)msg.get_flags() << std::dec << " >" << std::endl;
+			os << indent(4) << "<out-port:0x" 		<< std::hex << (int)msg.get_out_port() << std::dec << " >" << std::endl;
+			os << indent(4) << "<out-group:0x" 		<< std::hex << (int)msg.get_out_group() << std::dec << " >" << std::endl;
 			{
 				os << indent(4) << "<matches: >" << std::endl;
 				indent i(6);
