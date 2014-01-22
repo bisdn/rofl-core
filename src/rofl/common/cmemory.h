@@ -51,7 +51,7 @@ private:
 	std::pair<uint8_t*, size_t> 	data;		//< memory area including head- and tail-space
 	size_t 							occupied; 	//< amount of bytes used in memory area
 
-#define CMEMORY_DEFAULT_SIZE 		1024
+#define CMEMORY_DEFAULT_SIZE 		0
 
 
 public:

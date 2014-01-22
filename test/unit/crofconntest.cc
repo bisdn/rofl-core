@@ -33,7 +33,7 @@ crofconnTest::testConnect()
 	rsock = new rofl::csocket(this, PF_INET, SOCK_STREAM, IPPROTO_TCP, 10);
 	rsock->listen(rofl::caddress(AF_INET, "0.0.0.0", srv_port), PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	lsock = new rofl::csocket(this, PF_INET, SOCK_STREAM, IPPROTO_TCP, 10);
-	lsock->cconnect(rofl::caddress(AF_INET, "127.0.0.1", srv_port), rofl::caddress(AF_INET, "0.0.0.0", 0), PF_INET, SOCK_STREAM, IPPROTO_TCP);
+	lsock->connect(rofl::caddress(AF_INET, "127.0.0.1", srv_port), rofl::caddress(AF_INET, "0.0.0.0", 0), PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 	rofl::ciosrv::run();
 
