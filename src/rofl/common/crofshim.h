@@ -73,7 +73,7 @@ protected:
 	send_message(
 			crofsock *rofsock, cofmsg *msg) { rofsock->send_message(msg); };
 
-protected:
+private:
 
 	virtual void
 	handle_connect_refused(crofsock *rofsock);
@@ -87,7 +87,7 @@ protected:
 	virtual void
 	recv_message(crofsock *rofsock, cofmsg *msg) { handle_message(rofsock, msg); }
 
-protected:
+private:
 
 	virtual void
 	handle_accepted(csocket& socket, int newsd, caddress const& ra);
