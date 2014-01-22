@@ -496,9 +496,12 @@ crofdpt_impl::recv_message(rofl::openflow::crofchan *chan, uint8_t aux_id, cofms
 
 	} catch (eOpenFlowBase& e) {
 
-	}
+		delete msg;
 
-	delete msg;
+	} catch (RoflException& e) {
+
+		delete msg;
+	}
 }
 
 uint32_t
@@ -1289,6 +1292,7 @@ crofdpt_impl::features_reply_rcvd(
 		if (STATE_ESTABLISHED == state) {
 			rofbase->handle_features_reply(*this, *reply);
 		}
+		delete msg;
 
 		run_engine(EVENT_FEATURES_REPLY_RCVD);
 
@@ -1320,6 +1324,7 @@ crofdpt_impl::get_config_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_get_config_reply(*this, *reply);
 	}
+	delete msg;
 
 	run_engine(EVENT_GET_CONFIG_REPLY_RCVD);
 }
@@ -1412,6 +1417,7 @@ crofdpt_impl::desc_stats_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_desc_stats_reply(*this, reply, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1445,6 +1451,7 @@ crofdpt_impl::table_stats_reply_rcvd(
 	} else {
 		run_engine(EVENT_TABLE_STATS_REPLY_RCVD);
 	}
+	delete msg;
 }
 
 
@@ -1462,6 +1469,7 @@ crofdpt_impl::port_stats_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_port_stats_reply(*this, reply, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1479,6 +1487,7 @@ crofdpt_impl::flow_stats_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_flow_stats_reply(*this, reply, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1496,6 +1505,7 @@ crofdpt_impl::aggregate_stats_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_aggregate_stats_reply(*this, reply, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1513,6 +1523,7 @@ crofdpt_impl::queue_stats_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_queue_stats_reply(*this, reply, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1530,6 +1541,7 @@ crofdpt_impl::group_stats_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_group_stats_reply(*this, reply, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1547,6 +1559,7 @@ crofdpt_impl::group_desc_stats_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_group_desc_stats_reply(*this, reply, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1564,6 +1577,7 @@ crofdpt_impl::group_features_stats_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_group_features_stats_reply(*this, reply, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1572,6 +1586,7 @@ void
 crofdpt_impl::meter_stats_reply_rcvd(
 		cofmsg *msg, uint8_t aux_id)
 {
+	delete msg;
 	throw eNotImplemented("crofdpt_impl::meter_stats_reply_rcvd()"); // TODO
 }
 
@@ -1581,6 +1596,7 @@ void
 crofdpt_impl::meter_config_stats_reply_rcvd(
 		cofmsg *msg, uint8_t aux_id)
 {
+	delete msg;
 	throw eNotImplemented("crofdpt_impl::meter_config_stats_reply_rcvd()"); // TODO
 }
 
@@ -1590,6 +1606,7 @@ void
 crofdpt_impl::meter_features_stats_reply_rcvd(
 		cofmsg *msg, uint8_t aux_id)
 {
+	delete msg;
 	throw eNotImplemented("crofdpt_impl::meter_features_stats_reply_rcvd()"); // TODO
 }
 
@@ -1599,6 +1616,7 @@ void
 crofdpt_impl::table_features_stats_reply_rcvd(
 		cofmsg *msg, uint8_t aux_id)
 {
+	delete msg;
 	throw eNotImplemented("crofdpt_impl::table_features_stats_reply_rcvd()"); // TODO
 }
 
@@ -1608,6 +1626,7 @@ void
 crofdpt_impl::port_desc_stats_reply_rcvd(
 		cofmsg *msg, uint8_t aux_id)
 {
+	delete msg;
 	throw eNotImplemented("crofdpt_impl::port_desc_stats_reply_rcvd()"); // TODO
 }
 
@@ -1626,6 +1645,7 @@ crofdpt_impl::experimenter_stats_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_experimenter_stats_reply(*this, reply, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1643,6 +1663,7 @@ crofdpt_impl::barrier_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_barrier_reply(*this, reply, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1661,6 +1682,7 @@ crofdpt_impl::flow_removed_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_flow_removed(*this, flow_removed, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1678,6 +1700,7 @@ crofdpt_impl::packet_in_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_packet_in(*this, packet_in, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1710,6 +1733,7 @@ crofdpt_impl::port_status_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_port_status(*this, port_status, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1765,6 +1789,7 @@ crofdpt_impl::experimenter_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_experimenter_message(*this, exp, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1782,6 +1807,7 @@ crofdpt_impl::role_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_role_reply(*this, reply, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1799,6 +1825,7 @@ crofdpt_impl::queue_get_config_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_queue_get_config_reply(*this, reply, aux_id);
 	}
+	delete msg;
 }
 
 
@@ -1816,6 +1843,7 @@ crofdpt_impl::get_async_config_reply_rcvd(
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_get_async_config_reply(*this, reply, aux_id);
 	}
+	delete msg;
 }
 
 
