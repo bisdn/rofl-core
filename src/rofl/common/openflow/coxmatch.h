@@ -1365,9 +1365,15 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofb_ipv4_src const& oxm)
 	{
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<ipv4-src: "
-						<< oxm.u32addr_value() << "/" << oxm.u32addr_mask()
-						<< " >" << std::endl;
+		if (oxm.get_oxm_hasmask()) {
+			os << indent(2) << "<ipv4-src: "
+					<< oxm.u32addr_value() << "/" << oxm.u32addr_mask()
+					<< " >" << std::endl;
+		} else {
+			os << indent(2) << "<ipv4-src: "
+					<< oxm.u32addr_value()
+					<< " >" << std::endl;
+		}
 		return os;
 	};
 };
@@ -1452,10 +1458,17 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofb_ipv4_dst const& oxm)
 	{
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<ipv4-dst: "
-						<< oxm.u32addr_value() << "/" << oxm.u32addr_mask()
-						<< " >" << std::endl;
-		return os;	};
+		if (oxm.get_oxm_hasmask()) {
+			os << indent(2) << "<ipv4-dst: "
+				<< oxm.u32addr_value() << "/" << oxm.u32addr_mask()
+				<< " >" << std::endl;
+		} else {
+			os << indent(2) << "<ipv4-dst: "
+				<< oxm.u32addr_value()
+				<< " >" << std::endl;
+		}
+		return os;
+	};
 };
 
 

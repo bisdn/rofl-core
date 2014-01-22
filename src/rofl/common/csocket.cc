@@ -661,7 +661,7 @@ csocket::dequeue_packet()
 					throw eSysCall("sendto");
 				}
 			}
-			else if (((unsigned int)(rc + entry.msg_bytes_sent) < entry.mem->memlen())) {
+			else if ((((unsigned int)(rc + entry.msg_bytes_sent)) < entry.mem->memlen())) {
 
 				if (SOCK_STREAM == type) {
 					had_short_write = true;
