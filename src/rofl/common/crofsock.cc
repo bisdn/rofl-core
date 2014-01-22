@@ -859,6 +859,9 @@ crofsock::log_of10_message(
 	case openflow10::OFPT_HELLO: {
 		logging::debug << dynamic_cast<cofmsg_hello const&>( msg );
 	} break;
+	case openflow10::OFPT_ERROR: {
+		logging::debug << dynamic_cast<cofmsg_error const&>( msg );
+	} break;
 	case openflow10::OFPT_ECHO_REQUEST: {
 		logging::debug << dynamic_cast<cofmsg_echo_request const&>( msg );
 	} break;
@@ -983,6 +986,9 @@ crofsock::log_of12_message(
 	switch (msg.get_type()) {
 	case openflow12::OFPT_HELLO: {
 		logging::debug << dynamic_cast<cofmsg_hello const&>( msg );
+	} break;
+	case openflow12::OFPT_ERROR: {
+		logging::debug << dynamic_cast<cofmsg_error const&>( msg );
 	} break;
 	case openflow12::OFPT_ECHO_REQUEST: {
 		logging::debug << dynamic_cast<cofmsg_echo_request const&>( msg );
@@ -1148,6 +1154,9 @@ crofsock::log_of13_message(
 	switch (msg.get_type()) {
 	case openflow13::OFPT_HELLO: {
 		logging::debug << dynamic_cast<cofmsg_hello const&>( msg );
+	} break;
+	case openflow13::OFPT_ERROR: {
+		logging::debug << dynamic_cast<cofmsg_error const&>( msg );
 	} break;
 	case openflow13::OFPT_ECHO_REQUEST: {
 		logging::debug << dynamic_cast<cofmsg_echo_request const&>( msg );
