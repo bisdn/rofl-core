@@ -16,7 +16,7 @@ cofmsg_packet_in::cofmsg_packet_in(
 		size_t datalen) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
 	match(match),
-	packet(of_version, data, datalen, match.get_in_port())
+	packet(of_version, data, datalen, match.get_in_port(), false)
 {
 	ofh_packet_in = soframe();
 

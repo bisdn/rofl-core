@@ -77,6 +77,7 @@ cpacket::cpacket(
 		cmemory *mem,
 		uint32_t in_port,
 		bool do_classify) :
+				ofp_version(ofp_version),
 				total_len(mem->memlen()),
 				head(0),
 				tail(0),
@@ -110,6 +111,7 @@ cpacket::cpacket(
 		size_t buflen,
 		uint32_t in_port,
 		bool do_classify) :
+				ofp_version(ofp_version),
 				total_len(buflen),
 				head(0),
 				tail(0),
@@ -142,6 +144,7 @@ cpacket::cpacket(
 
 cpacket::cpacket(
 		cpacket const& pack) :
+				ofp_version(rofl::openflow::OFP_VERSION_UNKNOWN),
 				total_len(0),
 				head(0),
 				tail(0),
@@ -235,7 +238,7 @@ cpacket::operator=(
 	memcpy(soframe(), p.soframe(), p.framelen());
 	packet_receive_time = p.packet_receive_time;
 
-	classify(match.get_in_port());
+	//classify(match.get_in_port());
 
 	return *this;
 }

@@ -12,7 +12,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 		size_t datalen) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
 	actions(actions),
-	packet(of_version, data, datalen)
+	packet(of_version, data, datalen, in_port, false)
 {
 	ofh_packet_out = soframe();
 
