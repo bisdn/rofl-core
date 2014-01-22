@@ -186,7 +186,7 @@ public:
 			case rofl::openflow12::OFPGC_MODIFY: {
 				os << indent(4) << "<command: -MODIFY- >" << std::endl;
 			} break;
-			case rofl::openflow12::OFPFC_DELETE: {
+			case rofl::openflow12::OFPGC_DELETE: {
 				os << indent(4) << "<command: -DELETE- >" << std::endl;
 			} break;
 			default: {
