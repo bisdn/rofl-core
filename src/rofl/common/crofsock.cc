@@ -278,7 +278,52 @@ crofsock::parse_message(
 	} catch (eBadMatchBadPrereq& e) {
 
 		if (msg) {
-			logging::error << "[rofl][sock] eBadMatchBadPrereq: " << std::endl << *msg;
+
+			switch (msg->get_version()) {
+			case rofl::openflow10::OFP_VERSION: {
+				switch (msg->get_type()) {
+				case rofl::openflow10::OFPT_FLOW_MOD: {
+					logging::error << "[rofl][sock] eBadMatchBadPrereq: " << std::endl << dynamic_cast<cofmsg_flow_mod&>( *msg );
+				} break;
+				default: {
+					logging::error << "[rofl][sock] eBadMatchBadPrereq: " << std::endl << *msg;
+				};
+				}
+
+			} break;
+			case rofl::openflow12::OFP_VERSION: {
+				switch (msg->get_type()) {
+				case rofl::openflow12::OFPT_FLOW_MOD: {
+					logging::error << "[rofl][sock] eBadMatchBadPrereq: " << std::endl << dynamic_cast<cofmsg_flow_mod&>( *msg );
+				} break;
+				case rofl::openflow12::OFPT_GROUP_MOD: {
+					logging::error << "[rofl][sock] eBadMatchBadPrereq: " << std::endl << dynamic_cast<cofmsg_group_mod&>( *msg );
+				} break;
+				default: {
+					logging::error << "[rofl][sock] eBadMatchBadPrereq: " << std::endl << *msg;
+				};
+				}
+
+			} break;
+			case rofl::openflow13::OFP_VERSION: {
+				switch (msg->get_type()) {
+				case rofl::openflow13::OFPT_FLOW_MOD: {
+					logging::error << "[rofl][sock] eBadMatchBadPrereq: " << std::endl << dynamic_cast<cofmsg_flow_mod&>( *msg );
+				} break;
+				case rofl::openflow13::OFPT_GROUP_MOD: {
+					logging::error << "[rofl][sock] eBadMatchBadPrereq: " << std::endl << dynamic_cast<cofmsg_group_mod&>( *msg );
+				} break;
+				default: {
+					logging::error << "[rofl][sock] eBadMatchBadPrereq: " << std::endl << *msg;
+				};
+				}
+
+			} break;
+			default: {
+				logging::error << "[rofl][sock] eBadMatchBadPrereq: " << std::endl << *msg;
+			};
+			}
+
 			size_t len = (msg->framelen() > 64) ? 64 : msg->framelen();
 			cofmsg_error_bad_match_bad_prereq *error =
 					new cofmsg_error_bad_match_bad_prereq(
