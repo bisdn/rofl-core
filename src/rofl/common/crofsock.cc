@@ -275,6 +275,23 @@ crofsock::parse_message(
 			logging::error << "[rofl][sock] eBadRequestBadType " << std::endl;
 		}
 
+	} catch (eBadMatchBadPrereq& e) {
+
+		if (msg) {
+			logging::error << "[rofl][sock] eBadMatchBadPrereq: " << std::endl << *msg;
+			size_t len = (msg->framelen() > 64) ? 64 : msg->framelen();
+			cofmsg_error_bad_match_bad_prereq *error =
+					new cofmsg_error_bad_match_bad_prereq(
+							msg->get_version(),
+							msg->get_xid(),
+							msg->soframe(),
+							len);
+			send_message(error);
+			delete msg;
+		} else {
+			logging::error << "[rofl][sock] eBadMatchBadPrereq " << std::endl;
+		}
+
 	} catch (RoflException& e) {
 
 		if (msg) {
