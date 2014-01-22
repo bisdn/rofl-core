@@ -64,7 +64,7 @@ protected:
 	 */
 	virtual void
 	handle_message(
-			crofsock *rofsock, cofmsg *msg) { /* to be overwritten */ };
+			crofsock *rofsock, cofmsg *msg) { /* to be overwritten */ delete msg; };
 
 	/**
 	 *

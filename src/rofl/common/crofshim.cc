@@ -34,8 +34,10 @@ crofshim::~crofshim()
 void
 crofshim::listen(rofl::caddress const& laddr, int domain, int type, int protocol, int backlog)
 {
-	sockets[laddr] = new csocket(this);
-	sockets[laddr]->listen(laddr, domain, type, protocol, backlog);
+	if (sockets.find(laddr) != sockets.end()) {
+		return;
+	}
+	(sockets[laddr] = new csocket(this))->listen(laddr, domain, type, protocol, backlog);
 }
 
 
