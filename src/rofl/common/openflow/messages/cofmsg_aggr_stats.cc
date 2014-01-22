@@ -101,7 +101,7 @@ cofmsg_aggr_stats_request::reset()
 void
 cofmsg_aggr_stats_request::resize(size_t len)
 {
-	cofmsg::resize(len);
+	cofmsg_stats::resize(len);
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {
 		ofh_aggr_stats = soframe() + sizeof(struct openflow10::ofp_stats_request);
@@ -325,7 +325,7 @@ cofmsg_aggr_stats_reply::reset()
 void
 cofmsg_aggr_stats_reply::resize(size_t len)
 {
-	cofmsg::resize(len);
+	cofmsg_stats::resize(len);
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {
 		ofh_aggr_stats = soframe() + sizeof(struct openflow10::ofp_stats_reply);
