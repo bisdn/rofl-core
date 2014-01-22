@@ -149,6 +149,11 @@ public:
 	std::list<uint32_t>
 	actions_output_ports();
 
+	/**
+	 *
+	 */
+	void
+	check_prerequisites() const;
 
 private:
 

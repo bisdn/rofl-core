@@ -162,6 +162,13 @@ public:
 	validate();
 
 
+	/**
+	 *
+	 */
+	void
+	check_prerequisites() const;
+
+
 public:
 
 

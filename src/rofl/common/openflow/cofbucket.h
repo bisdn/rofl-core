@@ -105,6 +105,12 @@ public: // per instance methods
 	get_actions() { return actions; };
 
 
+	/**
+	 *
+	 */
+	void
+	check_prerequisites() const;
+
 private:
 
 	/** pack bucket

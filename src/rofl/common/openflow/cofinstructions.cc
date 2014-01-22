@@ -166,6 +166,16 @@ cofinstructions::length() const
 
 
 
+void
+cofinstructions::check_prerequisites() const
+{
+	for (cofinstructions::const_iterator it = begin(); it != end(); ++it) {
+		it->second->check_prerequisites();
+	}
+}
+
+
+
 cofinst&
 cofinstructions::add_inst(
 		cofinst const& inst)

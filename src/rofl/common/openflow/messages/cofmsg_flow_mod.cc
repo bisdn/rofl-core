@@ -406,6 +406,27 @@ cofmsg_flow_mod::validate()
 
 
 
+void
+cofmsg_flow_mod::check_prerequisites() const
+{
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+		match.check_prerequisites();
+		actions.check_prerequisites();
+	} break;
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		match.check_prerequisites();
+		instructions.check_prerequisites();
+	} break;
+	default: {
+
+	};
+	}
+}
+
+
+
 uint8_t
 cofmsg_flow_mod::get_table_id() const
 {

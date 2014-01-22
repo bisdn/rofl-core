@@ -112,10 +112,6 @@ cofaction::unpack_of10(uint8_t* buf, size_t buflen)
 		if (action.memlen() < sizeof(struct openflow10::ofp_action_output)) {
 			throw eBadActionBadLen();
 		}
-		uint16_t port_no = be16toh(oac_10output->port);
-		if (0 == port_no) {
-			throw eBadActionBadOutPort();
-		}
 	} break;
 	case openflow10::OFPAT_SET_VLAN_VID: {
 		//oac_vlanvid = (struct openflow10::ofp_action_vlan_vid*)oac_header;
@@ -190,10 +186,6 @@ cofaction::unpack_of12(uint8_t *buf, size_t buflen)
 	case openflow12::OFPAT_OUTPUT: {
 		if (action.memlen() < sizeof(struct openflow12::ofp_action_output)) {
 			throw eBadActionBadLen();
-		}
-		uint32_t port_no = be32toh(oac_12output->port);
-		if ((openflow12::OFPP_ANY == port_no) || (0 == port_no)) {
-			throw eBadActionBadOutPort();
 		}
 	} break;
 	case openflow12::OFPAT_SET_FIELD:
@@ -416,6 +408,37 @@ cofaction::resize(size_t len)
 {
 	action.resize(len);
 	oac_generic = action.somem();
+}
+
+
+
+void
+cofaction_output::check_prerequisites() const
+{
+	switch (ofp_version) {
+	case rofl::openflow10::OFP_VERSION: {
+		uint16_t port_no = be16toh(oac_10output->port);
+		if (0 == port_no) {
+			throw eBadActionBadOutPort();
+		}
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		uint32_t port_no = be32toh(oac_12output->port);
+		if ((rofl::openflow12::OFPP_ANY == port_no) || (0 == port_no)) {
+			throw eBadActionBadOutPort();
+		}
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		uint32_t port_no = be32toh(oac_13output->port);
+		if ((rofl::openflow13::OFPP_ANY == port_no) || (0 == port_no)) {
+			throw eBadActionBadOutPort();
+		}
+	} break;
+	case rofl::openflow::OFP_VERSION_UNKNOWN:
+	default: {
+
+	};
+	}
 }
 
 

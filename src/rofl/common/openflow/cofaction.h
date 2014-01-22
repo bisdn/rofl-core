@@ -194,6 +194,12 @@ public: // methods
 	coxmatch
 	get_oxm() const;
 
+	/**
+	 *
+	 */
+	virtual void
+	check_prerequisites() const {};
+
 protected: // methods
 
 	/**
@@ -307,6 +313,12 @@ public:
 	 */
 	virtual
 	~cofaction_output() {};
+
+	/**
+	 *
+	 */
+	virtual void
+	check_prerequisites() const;
 
 	/**
 	 *

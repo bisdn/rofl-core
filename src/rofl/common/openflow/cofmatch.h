@@ -234,7 +234,7 @@ public:
 	 * @brief	checks prerequisites for OF1.2 and beyond OXM TLV lists
 	 */
 	void
-	check_prerequisites();
+	check_prerequisites() const;
 
 
 	

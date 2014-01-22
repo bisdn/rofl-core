@@ -134,6 +134,13 @@ public: // methods
 	prepend_bucket(cofbucket const& bucket);
 
 
+	/**
+	 *
+	 */
+	void
+	check_prerequisites() const;
+
+
 private:
 
 	/**

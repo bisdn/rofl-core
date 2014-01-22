@@ -218,6 +218,22 @@ cofmsg_group_mod::validate()
 
 
 
+void
+cofmsg_group_mod::check_prerequisites() const
+{
+	switch (get_version()) {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
+		buckets.check_prerequisites();
+	} break;
+	default: {
+
+	};
+	}
+}
+
+
+
 uint16_t
 cofmsg_group_mod::get_command() const
 {

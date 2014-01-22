@@ -218,3 +218,11 @@ cofbucket::get_bucket_stats(
 
 
 
+void
+cofbucket::check_prerequisites() const
+{
+	actions.check_prerequisites();
+}
+
+
+

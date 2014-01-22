@@ -119,6 +119,16 @@ cofbuckets::prepend_bucket(cofbucket const& bucket)
 
 
 void
+cofbuckets::check_prerequisites() const
+{
+	for (cofbuckets::const_iterator it = begin(); it != end(); ++it) {
+		(*it)->check_prerequisites();
+	}
+}
+
+
+
+void
 cofbuckets::unpack(uint8_t* buf, size_t buflen)
 {
 	switch (ofp_version) {

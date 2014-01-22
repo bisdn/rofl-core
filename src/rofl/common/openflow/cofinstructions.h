@@ -113,6 +113,13 @@ public: // methods
 	/**
 	 *
 	 */
+	void
+	check_prerequisites() const;
+
+
+	/**
+	 *
+	 */
 	cofinst&
 	add_inst(
 			cofinst const& inst);

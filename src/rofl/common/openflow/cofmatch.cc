@@ -646,7 +646,7 @@ cofmatch::unpack_of13(uint8_t* match, size_t matchlen)
 
 
 void
-cofmatch::check_prerequisites()
+cofmatch::check_prerequisites() const
 {
 	/*
 	 * these are generic prerequisites as defined in OF 1.3, section 7.2.3.6, page 53 ff.

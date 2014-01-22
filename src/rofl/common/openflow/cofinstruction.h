@@ -145,6 +145,11 @@ public: // methods
 	virtual void
 	unpack(uint8_t* buf, size_t buflen);
 
+	/**
+	 *
+	 */
+	virtual void
+	check_prerequisites() const {};
 
 	/**
 	 *
@@ -288,6 +293,13 @@ public:
 	 */
 	virtual
 	~cofinst_apply_actions() {};
+	/**
+	 *
+	 */
+	virtual void
+	check_prerequisites() const {
+		actions.check_prerequisites();
+	};
 public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofinst_apply_actions const& inst) {
@@ -341,6 +353,13 @@ public:
 	 */
 	virtual
 	~cofinst_write_actions() {};
+	/**
+	 *
+	 */
+	virtual void
+	check_prerequisites() const {
+		actions.check_prerequisites();
+	};
 public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofinst_write_actions const& inst) {
@@ -466,6 +485,27 @@ public:
 	set_table_id(uint8_t table_id)
 	{
 		oin_goto_table->table_id = table_id;
+	};
+	/**
+	 *
+	 */
+	virtual void
+	check_prerequisites() const {
+		switch (get_version()) {
+		case rofl::openflow12::OFP_VERSION: {
+			if (rofl::openflow12::OFPTT_ALL == get_table_id()) {
+				throw eBadInstBadTableId();
+			}
+		} break;
+		case rofl::openflow13::OFP_VERSION: {
+			if (rofl::openflow13::OFPTT_ALL == get_table_id()) {
+				throw eBadInstBadTableId();
+			}
+		} break;
+		default: {
+
+		};
+		}
 	};
 public:
 	friend std::ostream&

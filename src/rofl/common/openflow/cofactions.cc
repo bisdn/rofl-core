@@ -325,6 +325,14 @@ cofactions::actions_output_ports()
 }
 
 
+void
+cofactions::check_prerequisites() const
+{
+	for (cofactions::const_iterator it = begin(); it != end(); ++it) {
+		(*it)->check_prerequisites();
+	}
+}
+
 
 cofaction&
 cofactions::append_action(cofaction const action)

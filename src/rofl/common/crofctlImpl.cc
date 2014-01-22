@@ -1395,7 +1395,7 @@ crofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg, uint8_t aux_id)
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Flow-Mod message received" << std::endl << message;
 
-	msg->get_match().check_prerequisites();
+	message.check_prerequisites();
 
 	try {
 		check_role();
@@ -1570,6 +1570,8 @@ crofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg, uint8_t aux_id)
 
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Group-Mod message received" << std::endl << message;
+
+	message.check_prerequisites();
 
 	try {
 		check_role();
