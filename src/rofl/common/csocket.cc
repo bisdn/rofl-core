@@ -675,9 +675,9 @@ csocket::dequeue_packet()
 				return;
 			}
 
-			pout_squeue.pop_front();
-
 			delete entry.mem;
+
+			pout_squeue.pop_front();
 		}
 
 		if (pout_squeue.empty()) {
