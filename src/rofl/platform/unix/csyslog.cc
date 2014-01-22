@@ -76,6 +76,22 @@ csyslog::initlog(
 }
 
 void
+csyslog::closelog()
+{
+	switch (logtype) {
+	case LOGTYPE_FILE:
+		fclose(filestream);
+		break;
+	case LOGTYPE_STDERR:
+		break;
+	case LOGTYPE_SYSLOG:
+	default:
+		::closelog();
+		break;
+	}
+}
+
+void
 csyslog::writelog(DebugClass debugClass, DebugLevel level, const char *fmt, ...)
 {
 	if (level > debugClasses[debugClass])
