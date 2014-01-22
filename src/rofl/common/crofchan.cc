@@ -439,16 +439,22 @@ crofchan::backoff_reconnect(bool reset_timeout)
 	if (reset_timeout) {
 		reconnect_in_seconds = reconnect_start_timeout;
 		reconnect_counter = 0;
+
+		reset_timer(TIMER_RECONNECT, 0);
+
+		++reconnect_counter;
+
+		return;
+
 	} else {
 		reconnect_in_seconds *= 2;
+
+		if (reconnect_in_seconds > max_backoff) {
+			reconnect_in_seconds = max_backoff;
+		}
+
+		reset_timer(TIMER_RECONNECT, reconnect_in_seconds);
+
+		++reconnect_counter;
 	}
-
-
-	if (reconnect_in_seconds > max_backoff) {
-		reconnect_in_seconds = max_backoff;
-	}
-
-	reset_timer(TIMER_RECONNECT, reconnect_in_seconds);
-
-	++reconnect_counter;
 }
