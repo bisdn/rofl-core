@@ -23,6 +23,8 @@ class logging
 {
 public:
 
+	static bool initialized;
+	static std::filebuf devnull;
 	static std::ostream emerg;
 	static std::ostream alert;
 	static std::ostream crit;
@@ -50,9 +52,28 @@ public:
 	 *
 	 */
 	static void
+	init();
+
+	/**
+	 *
+	 */
+	static void
+	close();
+
+	/**
+	 *
+	 */
+	static void
 	set_logfile(
 			enum logging_level level,
 			std::string const& filename);
+
+	/**
+	 *
+	 */
+	static void
+	set_debug_level(
+			unsigned int debug_level);
 };
 
 
