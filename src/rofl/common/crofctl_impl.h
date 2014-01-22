@@ -34,7 +34,7 @@ namespace rofl
 {
 
 
-class crofctlImpl :
+class crofctl_impl :
 	public crofctl,
 	public rofl::openflow::crofchan_env,
 	public rofl::openflow::ctransactions_env,
@@ -66,7 +66,7 @@ public: // methods
 	 *
 	 * @param rofbase pointer to crofbase instance
 	 */
-	crofctlImpl(
+	crofctl_impl(
 			crofbase *rofbase,
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
 
@@ -79,7 +79,7 @@ public: // methods
 	 * @param rofbase pointer to crofbase instance
 	 * @param newsd socket descriptor
 	 */
-	crofctlImpl(
+	crofctl_impl(
 			crofbase *rofbase,
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int newsd);
@@ -96,7 +96,7 @@ public: // methods
 	 * @param protocol socket protocol
 	 *
 	 */
-	crofctlImpl(
+	crofctl_impl(
 			crofbase *rofbase,
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
@@ -111,7 +111,7 @@ public: // methods
 	 * @brief	Destructor.
 	 */
 	virtual
-	~crofctlImpl();
+	~crofctl_impl();
 
 public:
 
@@ -732,8 +732,8 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, crofctlImpl const& ctl) {
-		os << indent(0) << "<crofctlImpl ";
+	operator<< (std::ostream& os, crofctl_impl const& ctl) {
+		os << indent(0) << "<crofctl_impl ";
 		os << "ctid:0x" << std::hex << (unsigned long long)(ctl.ctid) << std::dec << " ";
 		os << ">" << std::endl;
 		indent i(2);

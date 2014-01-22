@@ -1,5 +1,5 @@
 /*
- * crofdptImpl.h
+ * crofdpt_impl.h
  *
  *  Created on: 25.09.2013
  *      Author: andreas
@@ -48,7 +48,7 @@ namespace rofl
  * or grouptable entries.
  *
  */
-class crofdptImpl :
+class crofdpt_impl :
 	public crofdpt,
 	public rofl::openflow::crofchan_env,
 	public rofl::openflow::ctransactions_env,
@@ -57,10 +57,10 @@ class crofdptImpl :
 
 private: // data structures
 
-		enum crofdptImpl_timer_t {
+		enum crofdpt_impl_timer_t {
 		};
 
-		enum crofdptImpl_state_t {
+		enum crofdpt_impl_state_t {
 			STATE_INIT 							= 0,
 			STATE_DISCONNECTED					= 1,
 			STATE_CONNECTED						= 2,
@@ -69,7 +69,7 @@ private: // data structures
 			STATE_ESTABLISHED					= 5,
 		};
 
-		enum crofdptImpl_event_t {
+		enum crofdpt_impl_event_t {
 			EVENT_NONE							= 0,
 			EVENT_DISCONNECTED					= 1,
 			EVENT_CONNECTED						= 2,
@@ -107,7 +107,7 @@ private: // data structures
 		rofl::openflow::ctransactions			transactions;	// pending OFP transactions
 
 		unsigned int							state;
-		std::deque<enum crofdptImpl_event_t> 	events;
+		std::deque<enum crofdpt_impl_event_t> 	events;
 
 public:
 
@@ -116,7 +116,7 @@ public:
 	 *
 	 * @param rofbase pointer to crofbase instance
 	 */
-	crofdptImpl(
+	crofdpt_impl(
 			crofbase *rofbase,
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
 
@@ -126,7 +126,7 @@ public:
 	 * @param rofbase pointer to crofbase instance
 	 * @param newsd socket descriptor of new established control connection socket
 	 */
-	crofdptImpl(
+	crofdpt_impl(
 			crofbase *rofbase,
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int newsd);
@@ -140,7 +140,7 @@ public:
 	 * @param type socket type
 	 * @param protocol socket protocol
 	 */
-	crofdptImpl(
+	crofdpt_impl(
 			crofbase *rofbase,
 			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
@@ -158,7 +158,7 @@ public:
 	 * exposed by the data path element.
 	 */
 	virtual
-	~crofdptImpl();
+	~crofdpt_impl();
 
 
 public:
@@ -441,7 +441,7 @@ private:
 	 */
 	void
 	run_engine(
-			enum crofdptImpl_event_t state = EVENT_NONE);
+			enum crofdpt_impl_event_t state = EVENT_NONE);
 
 	/**
 	 *
@@ -1047,7 +1047,7 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, crofdptImpl const& dpt) {
+	operator<< (std::ostream& os, crofdpt_impl const& dpt) {
 		os << indent(0) << "<cofdptImpl ";
 		os << "dpid:0x" << std::hex << (unsigned long long)(dpt.dpid) << std::dec << " (" << dpt.s_dpid << ") " << std::endl;
 		switch (dpt.state) {

@@ -40,12 +40,12 @@ librofl_common_la_SOURCES = \
 		crofbase.cc \
 		crofctl.h \
 		crofctl.cc \
-		crofctlImpl.h \
-		crofctlImpl.cc \
+		crofctl_impl.h \
+		crofctl_impl.cc \
 		crofdpt.h \
 		crofdpt.cc \
-		crofdptImpl.h \
-		crofdptImpl.cc \
+		crofdpt_impl.h \
+		crofdpt_impl.cc \
 		crofsock.h \
 		crofsock.cc \
 		crofconn.h \
@@ -67,9 +67,9 @@ library_include_HEADERS= \
 		rofcommon.h \
 		crofbase.h \
 		crofctl.h \
-		crofctlImpl.h \
+		crofctl_impl.h \
 		crofdpt.h \
-		crofdptImpl.h \
+		crofdpt_impl.h \
 		crofsock.h \
 		crofconn.h \
 		crofchan.h \

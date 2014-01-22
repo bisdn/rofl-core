@@ -486,7 +486,7 @@ crofbase::cofctl_factory(
 		int type,
 		int protocol)
 {
-	return new crofctlImpl(owner, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol);
+	return new crofctl_impl(owner, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol);
 }
 
 
@@ -496,7 +496,7 @@ crofbase::cofdpt_factory(
 		crofbase* owner,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap)
 {
-	return new crofdptImpl(owner, versionbitmap);
+	return new crofdpt_impl(owner, versionbitmap);
 }
 
 

@@ -29,9 +29,9 @@
 #include "rofl/common/thread_helper.h"
 #include "rofl/common/logging.h"
 #include "rofl/common/crofdpt.h"
-#include "rofl/common/crofdptImpl.h"
+#include "rofl/common/crofdpt_impl.h"
 #include "rofl/common/crofctl.h"
-#include "rofl/common/crofctlImpl.h"
+#include "rofl/common/crofctl_impl.h"
 #include "rofl/common/openflow/cofflowmod.h"
 #include "rofl/common/openflow/cofgroupmod.h"
 
@@ -1489,9 +1489,9 @@ protected:
 
 private:
 
-	friend class crofdptImpl;
+	friend class crofdpt_impl;
 
-	friend class crofctlImpl;
+	friend class crofctl_impl;
 
 
 private:

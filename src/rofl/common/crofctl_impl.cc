@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "crofctlImpl.h"
+#include "crofctl_impl.h"
 
 using namespace rofl;
 
 
-crofctlImpl::crofctlImpl(
+crofctl_impl::crofctl_impl(
 		crofbase *rofbase,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap) :
 				crofctl(rofbase),
@@ -25,7 +25,7 @@ crofctlImpl::crofctlImpl(
 
 
 
-crofctlImpl::crofctlImpl(
+crofctl_impl::crofctl_impl(
 		crofbase *rofbase,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int newsd) :
@@ -44,7 +44,7 @@ crofctlImpl::crofctlImpl(
 
 
 
-crofctlImpl::crofctlImpl(
+crofctl_impl::crofctl_impl(
 		crofbase *rofbase,
 		rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 		int reconnect_start_timeout,
@@ -67,7 +67,7 @@ crofctlImpl::crofctlImpl(
 
 
 
-crofctlImpl::~crofctlImpl()
+crofctl_impl::~crofctl_impl()
 {
 	rofbase->fsptable.delete_fsp_entries(this);
 }
@@ -76,7 +76,7 @@ crofctlImpl::~crofctlImpl()
 
 
 void
-crofctlImpl::handle_timeout(
+crofctl_impl::handle_timeout(
 		int opaque)
 {
 
@@ -85,7 +85,7 @@ crofctlImpl::handle_timeout(
 
 
 void
-crofctlImpl::handle_established(
+crofctl_impl::handle_established(
 		rofl::openflow::crofchan *chan)
 {
 	logging::info << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
@@ -95,7 +95,7 @@ crofctlImpl::handle_established(
 
 
 void
-crofctlImpl::handle_disconnected(
+crofctl_impl::handle_disconnected(
 		rofl::openflow::crofchan *chan)
 {
 	logging::info << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
@@ -107,7 +107,7 @@ crofctlImpl::handle_disconnected(
 
 
 void
-crofctlImpl::ta_expired(
+crofctl_impl::ta_expired(
 		rofl::openflow::ctransactions& tas,
 		rofl::openflow::ctransaction& ta)
 {
@@ -117,7 +117,7 @@ crofctlImpl::ta_expired(
 
 
 bool
-crofctlImpl::is_slave() const
+crofctl_impl::is_slave() const
 {
 	switch (rofchan.get_version()) {
 	case openflow12::OFP_VERSION: return (openflow12::OFPCR_ROLE_SLAVE == role);
@@ -132,7 +132,7 @@ crofctlImpl::is_slave() const
 
 
 void
-crofctlImpl::recv_message(
+crofctl_impl::recv_message(
 		rofl::openflow::crofchan *chan,
 		uint8_t aux_id,
 		cofmsg *msg)
@@ -717,7 +717,7 @@ crofctlImpl::recv_message(
 
 
 void
-crofctlImpl::send_features_reply(
+crofctl_impl::send_features_reply(
 		uint32_t xid,
 		uint64_t dpid,
 		uint32_t n_buffers,
@@ -750,7 +750,7 @@ crofctlImpl::send_features_reply(
 
 
 void
-crofctlImpl::send_get_config_reply(
+crofctl_impl::send_get_config_reply(
 		uint32_t xid,
 		uint16_t flags,
 		uint16_t miss_send_len)
@@ -773,7 +773,7 @@ crofctlImpl::send_get_config_reply(
 
 
 void
-crofctlImpl::send_stats_reply(
+crofctl_impl::send_stats_reply(
 		uint32_t xid,
 		uint16_t stats_type,
 		uint16_t stats_flags,
@@ -799,7 +799,7 @@ crofctlImpl::send_stats_reply(
 
 
 void
-crofctlImpl::send_desc_stats_reply(
+crofctl_impl::send_desc_stats_reply(
 	uint32_t xid,
 	cofdesc_stats_reply const& desc_stats,
 	uint16_t stats_flags)
@@ -822,7 +822,7 @@ crofctlImpl::send_desc_stats_reply(
 
 
 void
-crofctlImpl::send_flow_stats_reply(
+crofctl_impl::send_flow_stats_reply(
 	uint32_t xid,
 	std::vector<cofflow_stats_reply> const& flow_stats,
 	uint16_t stats_flags)
@@ -845,7 +845,7 @@ crofctlImpl::send_flow_stats_reply(
 
 
 void
-crofctlImpl::send_aggr_stats_reply(
+crofctl_impl::send_aggr_stats_reply(
 	uint32_t xid,
 	cofaggr_stats_reply const& aggr_stats,
 	uint16_t stats_flags)
@@ -868,7 +868,7 @@ crofctlImpl::send_aggr_stats_reply(
 
 
 void
-crofctlImpl::send_table_stats_reply(
+crofctl_impl::send_table_stats_reply(
 	uint32_t xid,
 	std::vector<coftable_stats_reply> const& table_stats,
 	uint16_t stats_flags)
@@ -891,7 +891,7 @@ crofctlImpl::send_table_stats_reply(
 
 
 void
-crofctlImpl::send_port_stats_reply(
+crofctl_impl::send_port_stats_reply(
 	uint32_t xid,
 	std::vector<cofport_stats_reply> const& port_stats,
 	uint16_t stats_flags)
@@ -914,7 +914,7 @@ crofctlImpl::send_port_stats_reply(
 
 
 void
-crofctlImpl::send_queue_stats_reply(
+crofctl_impl::send_queue_stats_reply(
 		uint32_t xid,
 		std::vector<cofqueue_stats_reply> const& queue_stats,
 		uint16_t stats_flags)
@@ -937,7 +937,7 @@ crofctlImpl::send_queue_stats_reply(
 
 
 void
-crofctlImpl::send_group_stats_reply(
+crofctl_impl::send_group_stats_reply(
 	uint32_t xid,
 	std::vector<cofgroup_stats_reply> const& group_stats,
 	uint16_t stats_flags)
@@ -960,7 +960,7 @@ crofctlImpl::send_group_stats_reply(
 
 
 void
-crofctlImpl::send_group_desc_stats_reply(
+crofctl_impl::send_group_desc_stats_reply(
 	uint32_t xid,
 	std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
 	uint16_t stats_flags)
@@ -983,7 +983,7 @@ crofctlImpl::send_group_desc_stats_reply(
 
 
 void
-crofctlImpl::send_group_features_stats_reply(
+crofctl_impl::send_group_features_stats_reply(
 	uint32_t xid,
 	cofgroup_features_stats_reply const& group_features_stats,
 	uint16_t stats_flags)
@@ -1006,7 +1006,7 @@ crofctlImpl::send_group_features_stats_reply(
 
 
 void
-crofctlImpl::send_experimenter_stats_reply(
+crofctl_impl::send_experimenter_stats_reply(
 		uint32_t xid,
 		uint32_t exp_id,
 		uint32_t exp_type,
@@ -1033,7 +1033,7 @@ crofctlImpl::send_experimenter_stats_reply(
 
 
 void
-crofctlImpl::send_packet_in_message(
+crofctl_impl::send_packet_in_message(
 	uint32_t buffer_id,
 	uint16_t total_len,
 	uint8_t reason,
@@ -1069,7 +1069,7 @@ crofctlImpl::send_packet_in_message(
 
 
 void
-crofctlImpl::send_barrier_reply(
+crofctl_impl::send_barrier_reply(
 		uint32_t xid)
 {
 	if (not is_established()) {
@@ -1088,7 +1088,7 @@ crofctlImpl::send_barrier_reply(
 
 
 void
-crofctlImpl::send_role_reply(
+crofctl_impl::send_role_reply(
 		uint32_t xid,
 		uint32_t role,
 		uint64_t generation_id)
@@ -1111,7 +1111,7 @@ crofctlImpl::send_role_reply(
 
 
 void
-crofctlImpl::send_error_message(
+crofctl_impl::send_error_message(
 	uint32_t xid,
 	uint16_t type,
 	uint16_t code,
@@ -1137,7 +1137,7 @@ crofctlImpl::send_error_message(
 
 
 void
-crofctlImpl::send_experimenter_message(
+crofctl_impl::send_experimenter_message(
 		uint32_t xid,
 		uint32_t experimenter_id,
 		uint32_t exp_type,
@@ -1165,7 +1165,7 @@ crofctlImpl::send_experimenter_message(
 
 
 void
-crofctlImpl::send_flow_removed_message(
+crofctl_impl::send_flow_removed_message(
 	cofmatch& ofmatch,
 	uint64_t cookie,
 	uint16_t priority,
@@ -1205,7 +1205,7 @@ crofctlImpl::send_flow_removed_message(
 
 
 void
-crofctlImpl::send_port_status_message(
+crofctl_impl::send_port_status_message(
 	uint8_t reason,
 	cofport const& port)
 {
@@ -1227,7 +1227,7 @@ crofctlImpl::send_port_status_message(
 
 
 void
-crofctlImpl::send_queue_get_config_reply(
+crofctl_impl::send_queue_get_config_reply(
 		uint32_t xid,
 		uint32_t portno,
 		cofpacket_queue_list const& pql)
@@ -1250,7 +1250,7 @@ crofctlImpl::send_queue_get_config_reply(
 
 
 void
-crofctlImpl::send_get_async_config_reply(
+crofctl_impl::send_get_async_config_reply(
 		uint32_t xid,
 		uint32_t packet_in_mask0,
 		uint32_t packet_in_mask1,
@@ -1284,7 +1284,7 @@ crofctlImpl::send_get_async_config_reply(
 
 
 void
-crofctlImpl::check_role()
+crofctl_impl::check_role()
 {
 	switch (rofchan.get_version()) {
 	case openflow12::OFP_VERSION: {
@@ -1302,7 +1302,7 @@ crofctlImpl::check_role()
 
 
 void
-crofctlImpl::features_request_rcvd(cofmsg_features_request *msg, uint8_t aux_id)
+crofctl_impl::features_request_rcvd(cofmsg_features_request *msg, uint8_t aux_id)
 {
 	cofmsg_features_request& request = dynamic_cast<cofmsg_features_request&>( *msg );
 
@@ -1315,7 +1315,7 @@ crofctlImpl::features_request_rcvd(cofmsg_features_request *msg, uint8_t aux_id)
 
 
 void
-crofctlImpl::get_config_request_rcvd(cofmsg_get_config_request *msg, uint8_t aux_id)
+crofctl_impl::get_config_request_rcvd(cofmsg_get_config_request *msg, uint8_t aux_id)
 {
 	cofmsg_get_config_request& request = dynamic_cast<cofmsg_get_config_request&>( *msg );
 
@@ -1330,7 +1330,7 @@ crofctlImpl::get_config_request_rcvd(cofmsg_get_config_request *msg, uint8_t aux
 
 
 void
-crofctlImpl::set_config_rcvd(cofmsg_set_config *msg, uint8_t aux_id)
+crofctl_impl::set_config_rcvd(cofmsg_set_config *msg, uint8_t aux_id)
 {
 	cofmsg_set_config& message = dynamic_cast<cofmsg_set_config&>( *msg );
 
@@ -1373,7 +1373,7 @@ crofctlImpl::set_config_rcvd(cofmsg_set_config *msg, uint8_t aux_id)
 
 
 void
-crofctlImpl::packet_out_rcvd(cofmsg_packet_out *msg, uint8_t aux_id)
+crofctl_impl::packet_out_rcvd(cofmsg_packet_out *msg, uint8_t aux_id)
 {
 	cofmsg_packet_out& message = dynamic_cast<cofmsg_packet_out&>( *msg );
 
@@ -1388,7 +1388,7 @@ crofctlImpl::packet_out_rcvd(cofmsg_packet_out *msg, uint8_t aux_id)
 
 
 void
-crofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg, uint8_t aux_id)
+crofctl_impl::flow_mod_rcvd(cofmsg_flow_mod *msg, uint8_t aux_id)
 {
 	cofmsg_flow_mod& message = dynamic_cast<cofmsg_flow_mod&>( *msg );
 
@@ -1564,7 +1564,7 @@ crofctlImpl::flow_mod_rcvd(cofmsg_flow_mod *msg, uint8_t aux_id)
 
 
 void
-crofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg, uint8_t aux_id)
+crofctl_impl::group_mod_rcvd(cofmsg_group_mod *msg, uint8_t aux_id)
 {
 	cofmsg_group_mod& message = dynamic_cast<cofmsg_group_mod&>( *msg );
 
@@ -1693,7 +1693,7 @@ crofctlImpl::group_mod_rcvd(cofmsg_group_mod *msg, uint8_t aux_id)
 
 
 void
-crofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg, uint8_t aux_id)
+crofctl_impl::port_mod_rcvd(cofmsg_port_mod *msg, uint8_t aux_id)
 {
 	cofmsg_port_mod& message = dynamic_cast<cofmsg_port_mod&>( *msg );
 
@@ -1750,7 +1750,7 @@ crofctlImpl::port_mod_rcvd(cofmsg_port_mod *msg, uint8_t aux_id)
 
 
 void
-crofctlImpl::table_mod_rcvd(cofmsg_table_mod *msg, uint8_t aux_id)
+crofctl_impl::table_mod_rcvd(cofmsg_table_mod *msg, uint8_t aux_id)
 {
 	cofmsg_table_mod& message = dynamic_cast<cofmsg_table_mod&>( *msg );
 
@@ -1793,7 +1793,7 @@ crofctlImpl::table_mod_rcvd(cofmsg_table_mod *msg, uint8_t aux_id)
 
 
 void
-crofctlImpl::stats_request_rcvd(cofmsg_stats *msg, uint8_t aux_id)
+crofctl_impl::stats_request_rcvd(cofmsg_stats *msg, uint8_t aux_id)
 {
 	cofmsg_stats_request& request = dynamic_cast<cofmsg_stats_request&>( *msg );
 
@@ -1839,7 +1839,7 @@ crofctlImpl::stats_request_rcvd(cofmsg_stats *msg, uint8_t aux_id)
 
 
 void
-crofctlImpl::desc_stats_request_rcvd(cofmsg_desc_stats_request *msg, uint8_t aux_id)
+crofctl_impl::desc_stats_request_rcvd(cofmsg_desc_stats_request *msg, uint8_t aux_id)
 {
 	cofmsg_desc_stats_request& request = dynamic_cast<cofmsg_desc_stats_request&>( *msg );
 
@@ -1852,7 +1852,7 @@ crofctlImpl::desc_stats_request_rcvd(cofmsg_desc_stats_request *msg, uint8_t aux
 
 
 void
-crofctlImpl::table_stats_request_rcvd(cofmsg_table_stats_request* msg, uint8_t aux_id)
+crofctl_impl::table_stats_request_rcvd(cofmsg_table_stats_request* msg, uint8_t aux_id)
 {
 	cofmsg_table_stats_request& request = dynamic_cast<cofmsg_table_stats_request&>( *msg );
 
@@ -1865,7 +1865,7 @@ crofctlImpl::table_stats_request_rcvd(cofmsg_table_stats_request* msg, uint8_t a
 
 
 void
-crofctlImpl::port_stats_request_rcvd(cofmsg_port_stats_request* msg, uint8_t aux_id)
+crofctl_impl::port_stats_request_rcvd(cofmsg_port_stats_request* msg, uint8_t aux_id)
 {
 	cofmsg_port_stats_request& request = dynamic_cast<cofmsg_port_stats_request&>( *msg );
 
@@ -1878,7 +1878,7 @@ crofctlImpl::port_stats_request_rcvd(cofmsg_port_stats_request* msg, uint8_t aux
 
 
 void
-crofctlImpl::flow_stats_request_rcvd(cofmsg_flow_stats_request* msg, uint8_t aux_id)
+crofctl_impl::flow_stats_request_rcvd(cofmsg_flow_stats_request* msg, uint8_t aux_id)
 {
 	cofmsg_flow_stats_request& request = dynamic_cast<cofmsg_flow_stats_request&>( *msg );
 
@@ -1891,7 +1891,7 @@ crofctlImpl::flow_stats_request_rcvd(cofmsg_flow_stats_request* msg, uint8_t aux
 
 
 void
-crofctlImpl::aggregate_stats_request_rcvd(cofmsg_aggr_stats_request* msg, uint8_t aux_id)
+crofctl_impl::aggregate_stats_request_rcvd(cofmsg_aggr_stats_request* msg, uint8_t aux_id)
 {
 	cofmsg_aggr_stats_request& request = dynamic_cast<cofmsg_aggr_stats_request&>( *msg );
 
@@ -1904,7 +1904,7 @@ crofctlImpl::aggregate_stats_request_rcvd(cofmsg_aggr_stats_request* msg, uint8_
 
 
 void
-crofctlImpl::queue_stats_request_rcvd(cofmsg_queue_stats_request* msg, uint8_t aux_id)
+crofctl_impl::queue_stats_request_rcvd(cofmsg_queue_stats_request* msg, uint8_t aux_id)
 {
 	cofmsg_queue_stats_request& request = dynamic_cast<cofmsg_queue_stats_request&>( *msg );
 
@@ -1917,7 +1917,7 @@ crofctlImpl::queue_stats_request_rcvd(cofmsg_queue_stats_request* msg, uint8_t a
 
 
 void
-crofctlImpl::group_stats_request_rcvd(cofmsg_group_stats_request* msg, uint8_t aux_id)
+crofctl_impl::group_stats_request_rcvd(cofmsg_group_stats_request* msg, uint8_t aux_id)
 {
 	cofmsg_group_stats_request& request = dynamic_cast<cofmsg_group_stats_request&>( *msg );
 
@@ -1930,7 +1930,7 @@ crofctlImpl::group_stats_request_rcvd(cofmsg_group_stats_request* msg, uint8_t a
 
 
 void
-crofctlImpl::group_desc_stats_request_rcvd(cofmsg_group_desc_stats_request* msg, uint8_t aux_id)
+crofctl_impl::group_desc_stats_request_rcvd(cofmsg_group_desc_stats_request* msg, uint8_t aux_id)
 {
 	cofmsg_group_desc_stats_request& request = dynamic_cast<cofmsg_group_desc_stats_request&>( *msg );
 
@@ -1943,7 +1943,7 @@ crofctlImpl::group_desc_stats_request_rcvd(cofmsg_group_desc_stats_request* msg,
 
 
 void
-crofctlImpl::group_features_stats_request_rcvd(cofmsg_group_features_stats_request* msg, uint8_t aux_id)
+crofctl_impl::group_features_stats_request_rcvd(cofmsg_group_features_stats_request* msg, uint8_t aux_id)
 {
 	cofmsg_group_features_stats_request& request = dynamic_cast<cofmsg_group_features_stats_request&>( *msg );
 
@@ -1956,7 +1956,7 @@ crofctlImpl::group_features_stats_request_rcvd(cofmsg_group_features_stats_reque
 
 
 void
-crofctlImpl::experimenter_stats_request_rcvd(cofmsg_experimenter_stats_request* msg, uint8_t aux_id)
+crofctl_impl::experimenter_stats_request_rcvd(cofmsg_experimenter_stats_request* msg, uint8_t aux_id)
 {
 	cofmsg_experimenter_stats_request& request = dynamic_cast<cofmsg_experimenter_stats_request&>( *msg );
 
@@ -1969,7 +1969,7 @@ crofctlImpl::experimenter_stats_request_rcvd(cofmsg_experimenter_stats_request* 
 
 
 void
-crofctlImpl::role_request_rcvd(cofmsg_role_request *msg, uint8_t aux_id)
+crofctl_impl::role_request_rcvd(cofmsg_role_request *msg, uint8_t aux_id)
 {
 	cofmsg_role_request& request = dynamic_cast<cofmsg_role_request&>( *msg );
 
@@ -2058,7 +2058,7 @@ crofctlImpl::role_request_rcvd(cofmsg_role_request *msg, uint8_t aux_id)
 
 
 void
-crofctlImpl::barrier_request_rcvd(cofmsg_barrier_request *msg, uint8_t aux_id)
+crofctl_impl::barrier_request_rcvd(cofmsg_barrier_request *msg, uint8_t aux_id)
 {
 	cofmsg_barrier_request& request = dynamic_cast<cofmsg_barrier_request&>( *msg );
 
@@ -2071,7 +2071,7 @@ crofctlImpl::barrier_request_rcvd(cofmsg_barrier_request *msg, uint8_t aux_id)
 
 
 void
-crofctlImpl::queue_get_config_request_rcvd(cofmsg_queue_get_config_request *msg, uint8_t aux_id)
+crofctl_impl::queue_get_config_request_rcvd(cofmsg_queue_get_config_request *msg, uint8_t aux_id)
 {
 	cofmsg_queue_get_config_request& request = dynamic_cast<cofmsg_queue_get_config_request&>( *msg );
 
@@ -2084,7 +2084,7 @@ crofctlImpl::queue_get_config_request_rcvd(cofmsg_queue_get_config_request *msg,
 
 
 void
-crofctlImpl::experimenter_rcvd(cofmsg_experimenter *msg, uint8_t aux_id)
+crofctl_impl::experimenter_rcvd(cofmsg_experimenter *msg, uint8_t aux_id)
 {
 	cofmsg_experimenter& message = dynamic_cast<cofmsg_experimenter&>( *msg );
 
@@ -2147,7 +2147,7 @@ crofctlImpl::experimenter_rcvd(cofmsg_experimenter *msg, uint8_t aux_id)
 
 
 void
-crofctlImpl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg, uint8_t aux_id)
+crofctl_impl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg, uint8_t aux_id)
 {
 	cofmsg_get_async_config_request& request = dynamic_cast<cofmsg_get_async_config_request&>( *msg );
 
@@ -2160,7 +2160,7 @@ crofctlImpl::get_async_config_request_rcvd(cofmsg_get_async_config_request *msg,
 
 
 void
-crofctlImpl::set_async_config_rcvd(cofmsg_set_async_config *msg, uint8_t aux_id)
+crofctl_impl::set_async_config_rcvd(cofmsg_set_async_config *msg, uint8_t aux_id)
 {
 	cofmsg_set_async_config& message = dynamic_cast<cofmsg_set_async_config&>( *msg );
 
@@ -2174,19 +2174,19 @@ crofctlImpl::set_async_config_rcvd(cofmsg_set_async_config *msg, uint8_t aux_id)
 
 
 uint32_t
-crofctlImpl::get_async_xid(rofl::openflow::crofchan *chan)
+crofctl_impl::get_async_xid(rofl::openflow::crofchan *chan)
 {
 	return transactions.get_async_xid();
 }
 
 uint32_t
-crofctlImpl::get_sync_xid(rofl::openflow::crofchan *chan, uint8_t msg_type, uint16_t msg_sub_type)
+crofctl_impl::get_sync_xid(rofl::openflow::crofchan *chan, uint8_t msg_type, uint16_t msg_sub_type)
 {
 	return transactions.add_ta(cclock(/*secs=*/5), msg_type, msg_sub_type);
 }
 
 void
-crofctlImpl::release_sync_xid(rofl::openflow::crofchan *chan, uint32_t xid)
+crofctl_impl::release_sync_xid(rofl::openflow::crofchan *chan, uint32_t xid)
 {
 	transactions.drop_ta(xid);
 }
