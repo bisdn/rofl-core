@@ -52,6 +52,8 @@ librofl_common_la_SOURCES = \
 		crofconn.cc \
 		crofchan.h \
 		crofchan.cc \
+		crofshim.h \
+		crofshim.cc \
 		logging.h \
 		logging.cc
 
@@ -73,6 +75,7 @@ library_include_HEADERS= \
 		crofsock.h \
 		crofconn.h \
 		crofchan.h \
+		crofshim.h \
 		cclock.h \
 		croflexception.h \
 		cfsm.h \
