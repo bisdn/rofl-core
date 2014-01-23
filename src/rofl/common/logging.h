@@ -15,6 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <string>
 
 namespace rofl
 {
@@ -23,8 +24,8 @@ class logging
 {
 public:
 
-	static bool initialized;
 	static std::filebuf devnull;
+	static std::filebuf logfile;
 	static std::ostream emerg;
 	static std::ostream alert;
 	static std::ostream crit;
@@ -37,36 +38,20 @@ public:
 
 public:
 
-	enum logging_level {
-		LOGGING_EMERG = 1,
-		LOGGING_ALERT,
-		LOGGING_CRIT,
-		LOGGING_ERROR,
-		LOGGING_WARN,
-		LOGGING_NOTICE,
-		LOGGING_INFO,
-		LOGGING_DEBUG,
-	};
+
+#define DEFAULT_ROFL_LOGFILE "/var/log/rofl.log"
 
 	/**
 	 *
 	 */
 	static void
-	init();
+	init(std::string const& s_logfile = DEFAULT_ROFL_LOGFILE);
 
 	/**
 	 *
 	 */
 	static void
 	close();
-
-	/**
-	 *
-	 */
-	static void
-	set_logfile(
-			enum logging_level level,
-			std::string const& filename);
 
 	/**
 	 *

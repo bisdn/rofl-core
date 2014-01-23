@@ -13,10 +13,15 @@
 #include <getopt.h>
 #include <execinfo.h>
 #include <errno.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <signal.h>
+#include <sys/stat.h>
 #include <iostream>
 #include <string>
 #include <stdexcept>
-#include "csyslog.h"
+#include "rofl/platform/unix/csyslog.h"
+#include "rofl/common/croflexception.h"
 
 namespace rofl
 {
@@ -125,10 +130,14 @@ private:
 	 */
 	void usage(char *argv0);
 
+#define DEFAULT_PIDFILE "/var/run/rofl.pid"
+
 	/**
-	 * Fork process
+	 * @brief	Daemonize process
 	 */
-	void detach(void);
+	void
+	detach(
+			std::string const& pidfile = DEFAULT_PIDFILE);
 
 };
 

@@ -22,6 +22,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/stat.h>
 
 #include "cpacket.h"
 #include "cmemory.h"
@@ -262,6 +265,14 @@ public: // static
 	static void
 	destroy();
 
+
+
+	/**
+	 * @brief	Daemonize this process
+	 */
+	static void
+	daemonize(
+			std::string const& pidfile, std::string const& logfile);
 
 
 public:

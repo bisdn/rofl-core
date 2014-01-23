@@ -175,6 +175,7 @@ cunixenv::parse_args()
 	parsed = true;
 
 	// call detach when all args parsed
+	do_detach = false;
 	if (do_detach) {
 		detach();
 	}
@@ -260,27 +261,11 @@ cunixenv::update_paths()
 
 // todo this belongs rather to ciosrv than here. though needs refactoring
 void
-cunixenv::detach()
+cunixenv::detach(
+		std::string const& pidfile)
 {
-	pid_t pid = fork();
-
-	if (pid < 0) // error occured
-	{
-		fprintf(stderr, "fork() sys-call failed: %d (%s)\n", errno, strerror(errno));
-		exit(-1);
-	}
-	else if (pid > 0) // parent exit
-	{
-		exit(0);
-	}
-
-	// child code
-	if ((pid = setsid()) < 0) // detach from controlling terminal
-	{
-		fprintf(stderr, "setsid() sys-call failed: %d (%s)\n", errno, strerror(errno));
-		exit(-1);
-	}
-
+	throw eNotImplemented();
+#if 0
 	update_paths();
 
 	// set file mask
@@ -304,6 +289,7 @@ cunixenv::detach()
 		fprintf(stderr, "chdir() sys-call failed: %d (%s)\n", errno, strerror(errno));
 		exit(-1);
 	}
+#endif
 }
 
 cunixenv::~cunixenv() {
