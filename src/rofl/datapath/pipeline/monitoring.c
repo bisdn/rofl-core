@@ -90,7 +90,7 @@ monitored_entity_t* monitoring_add_monitored_entity(monitoring_state_t* monitori
 		return NULL;
 	}
 
-	//The root node is uninque
+	//The root node is unique
 	if(prev && !prev->parent){ 
 		assert(0);
 		return NULL;
@@ -109,7 +109,8 @@ monitored_entity_t* monitoring_add_monitored_entity(monitoring_state_t* monitori
 	entity->type = type;	
 
 	//Add it to the linked list
-	platform_rwlock_wrlock(monitoring->rwlock);
+	if(monitoring->rwlock)
+		platform_rwlock_wrlock(monitoring->rwlock);
 
 	if(prev){
 		//Append it after the prev
@@ -133,16 +134,18 @@ monitored_entity_t* monitoring_add_monitored_entity(monitoring_state_t* monitori
 	//Increment rev counter
 	monitoring->last_rev++;	
 
-	platform_rwlock_wrunlock(monitoring->rwlock);	
+	if(monitoring->rwlock)
+		platform_rwlock_wrunlock(monitoring->rwlock);	
 
 	return entity;	
 }
+
+void __monitoring_dump_me(int indentation, monitored_entity_t* me);
 
 //destroy monitored entity
 rofl_result_t __monitoring_remove_monitored_entity(monitoring_state_t* monitoring, monitored_entity_t* entity, bool lock_acquired){
 
 	monitored_entity_t *inner_it, *next;
-	
 
 	if(!entity)
 		return ROFL_SUCCESS;
@@ -152,7 +155,7 @@ rofl_result_t __monitoring_remove_monitored_entity(monitoring_state_t* monitorin
 		return ROFL_FAILURE;	
 
 	//Prevent readers (snapshot creators) to jump in
-	if(!lock_acquired)
+	if(!lock_acquired && monitoring->rwlock)
 		platform_rwlock_wrlock(monitoring->rwlock);	
 	
 	
@@ -173,7 +176,7 @@ rofl_result_t __monitoring_remove_monitored_entity(monitoring_state_t* monitorin
 		if(entity->parent)
 			entity->parent->inner = entity->next;
 	}else{
-		//Not the head of the list (really?)
+		//Not the head of the list
 		if(entity->next)
 			entity->next->prev = entity->prev;
 		entity->prev->next = entity->next;	
@@ -183,11 +186,11 @@ rofl_result_t __monitoring_remove_monitored_entity(monitoring_state_t* monitorin
 	//Increment rev counter
 	monitoring->last_rev++;	
 
-	if(!lock_acquired)
+	if(!lock_acquired && monitoring->rwlock)
 		platform_rwlock_wrunlock(monitoring->rwlock);	
 	
 	//Free dynamic memory(only if it is not the root me)
-	if(entity->parent || entity->prev){
+	if(entity != &monitoring->chassis){
 		platform_free_shared(entity);
 	}
 		
@@ -226,7 +229,7 @@ rofl_result_t monitoring_init(monitoring_state_t* monitoring){
 * @ingroup  mgmt
 */
 void monitoring_destroy(monitoring_state_t* monitoring){
-	
+
 	if(!monitoring)
 		return;
 
@@ -237,9 +240,14 @@ void monitoring_destroy(monitoring_state_t* monitoring){
 	//Destroy the inner-most monitored entity
 	__monitoring_remove_monitored_entity(monitoring, &monitoring->chassis, true);	
 
-	//Release 	
-	platform_rwlock_destroy(monitoring->rwlock);	
-	platform_mutex_destroy(monitoring->mutex);	
+	//Release dynamic memory allocated	
+	if(monitoring->rwlock)
+		platform_rwlock_destroy(monitoring->rwlock);
+	if(monitoring->mutex)
+		platform_mutex_destroy(monitoring->mutex);
+	
+	if(monitoring->is_snapshot)
+		platform_free_shared(monitoring);
 }
 
 void __monitoring_dump_me(int indentation, monitored_entity_t* me){
@@ -315,7 +323,7 @@ void monitoring_dump(monitoring_state_t* monitoring){
 		platform_rwlock_rdlock(monitoring->rwlock);	
 
 	ROFL_PIPELINE_INFO("\n"); //This is done in purpose 
-	ROFL_PIPELINE_INFO("Dumping monitoring state(%p). Last rev: %"PRIu64"\n", monitoring, monitoring->last_rev);
+	ROFL_PIPELINE_INFO("Dumping %smonitoring state(%p). Last rev: %"PRIu64"\n", monitoring->is_snapshot? "!SNAPSHOT! ":"", monitoring, monitoring->last_rev);
 
 	//Dump chassis
 	__monitoring_dump_me(0, &monitoring->chassis);
@@ -333,9 +341,9 @@ void monitoring_dump(monitoring_state_t* monitoring){
 //
 
 //Get a snapshot
-monitoring_state_snapshot_t* monitoring_get_snapshot(monitoring_state_t* monitoring){
+monitoring_snapshot_state_t* monitoring_get_snapshot(monitoring_state_t* monitoring){
 
-	monitoring_state_snapshot_t* sn;
+	monitoring_snapshot_state_t* sn;
 
 	sn = platform_malloc_shared(sizeof(monitoring_state_t));
 	if(!sn)
@@ -360,15 +368,8 @@ monitoring_state_snapshot_t* monitoring_get_snapshot(monitoring_state_t* monitor
 	//Release the rdlock
 	platform_rwlock_rdunlock(monitoring->rwlock);	
 
+	//Mark as snapshot
+	sn->is_snapshot = true;
+
 	return sn;
 }
-
-void monitoring_destroy_snapshot(monitoring_state_snapshot_t* snapshot){
-
-	//Destroy inner-most monitored entity
-	monitoring_destroy((monitoring_state_t*)snapshot);	//They are alias ;)
-	
-	//Deallocate the monitoring_state_snapshot_t 
-	platform_free_shared(snapshot);
-}
-

@@ -144,6 +144,9 @@ typedef struct monitored_entity{
 * Wrapper for the monitoMonitored entity data 
 */
 typedef struct monitoring_state{
+
+	//Reusing the same struct for the snapshot
+	bool is_snapshot;
 	
 	//Simple counter which mantains
 	//the version of the monitored data
@@ -166,7 +169,7 @@ typedef struct monitoring_state{
 }monitoring_state_t;
 
 //Alias
-typedef monitoring_state_t monitoring_state_snapshot_t;
+typedef monitoring_state_t monitoring_snapshot_state_t;
 
 //C++ extern C
 ROFL_BEGIN_DECLS
@@ -189,7 +192,7 @@ void monitoring_dump(monitoring_state_t* monitoring);
 * @brief Dumps the monitoring state of a snapshot
 * @ingroup  mgmt
 */
-static inline void monitoring_dump_snapshot(monitoring_state_snapshot_t* snapshot){
+static inline void monitoring_dump_snapshot(monitoring_snapshot_state_t* snapshot){
 	return monitoring_dump(snapshot);
 }
 
@@ -218,13 +221,15 @@ static inline bool monitoring_has_changed(monitoring_state_t* state, uint64_t* l
 *
 * @ingroup  mgmt
 */
-monitoring_state_snapshot_t* monitoring_get_snapshot(monitoring_state_t* monitoring);
+monitoring_snapshot_state_t* monitoring_get_snapshot(monitoring_state_t* monitoring);
 
 /**
 * @brief Destroy a snapshot previously generated via monitoring_get_snapshot() routine. 
 * @ingroup  mgmt
 */
-void monitoring_destroy_snapshot(monitoring_state_snapshot_t* snapshot);
+static inline void monitoring_destroy_snapshot(monitoring_snapshot_state_t* snapshot){
+	monitoring_destroy((monitoring_state_t*)snapshot);
+}
 
 /**
 * @brief Update(inc atomically) the rev counter
