@@ -38,8 +38,9 @@ rofl_result_t physical_switch_init(){
 	if(!psw)
 		return ROFL_FAILURE;	
 	
-	//FIXME: check error
 	psw->mutex = platform_mutex_init(NULL);
+	if(!psw->mutex)
+		return ROFL_FAILURE;
 	
 	memset(psw->logical_switches, 0, sizeof(psw->logical_switches));
 	psw->num_of_logical_switches = 0;	
@@ -65,9 +66,9 @@ rofl_result_t physical_switch_init(){
 	in_port_meta_port = &psw->meta_ports[META_PORT_IN_PORT_INDEX];
 	all_meta_port = &psw->meta_ports[META_PORT_ALL_INDEX];
 
-	//Set initial chassis monitoring data
-	memset(&psw->chassis,0,sizeof(monitored_entity_t));
-	psw->chassis.type = ME_TYPE_CHASSIS;
+	//Initialize monitoring data
+	if(monitoring_init(&psw->monitoring) != ROFL_SUCCESS)
+		return ROFL_FAILURE;		
 
 	//Generate matching algorithm lists
 	__physical_switch_generate_matching_algorithm_list();
@@ -116,6 +117,9 @@ void physical_switch_destroy(){
 		}
 	}
 
+	//Destroy monitoring
+	monitoring_destroy(&psw->monitoring);		
+	
 	//Destroy mutex
 	platform_mutex_destroy(psw->mutex);
 	

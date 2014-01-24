@@ -3,20 +3,97 @@
 #include <string.h>
 #include "platform/memory.h"
 
+//
+// Monitored entities
+//
+
+static inline void __clone_copy_me_fields(monitored_entity_t* d, monitored_entity_t* orig){
+
+	//Copy contents rawly
+	memcpy(d,orig,sizeof(monitored_entity_t));
+	
+	//Set pointers to NULL
+	d->parent=d->inner=d->prev=d->next=NULL;
+}
+
+//clones the monitored entity, and all next and inner ones
+static inline monitored_entity_t* __clone_monitored_entity(monitored_entity_t* orig){
+
+	monitored_entity_t* entity;	
+	
+	if(!orig)
+		return NULL;
+
+	//Create a new entity
+	entity = platform_malloc_shared(sizeof(monitored_entity_t));
+	
+	if(!entity)
+		return NULL;
+	//memset to zero
+	memset(entity,0,sizeof(*entity));
+
+	//Clone fields	
+	__clone_copy_me_fields(entity, orig);
+
+	//Launch recursively the copies over the inner and the next
+	if(orig->inner){
+		entity->inner = __clone_monitored_entity(orig->inner);
+		if(!entity->inner){
+			assert(0);
+		}
+	}
+	if(orig->next){
+		entity->next = __clone_monitored_entity(orig->next);
+		if(!entity->next){
+			assert(0);
+		}
+	}
+
+	return entity;
+}
+
+//Root needs a special treating
+static inline rofl_result_t __clone_root_monitored_entity(monitoring_state_t* monitoring, monitored_entity_t* root_dest, monitored_entity_t* root_orig){
+	
+	//First clone the contents
+	__clone_copy_me_fields(root_dest,root_orig);
+	
+	//Try to clone inner
+	if(root_orig->inner){
+		root_dest->inner = __clone_monitored_entity(root_orig->inner);
+		if(!root_dest->inner)
+			return ROFL_FAILURE;
+	}
+
+	//Try to clone next
+	if(root_orig->next){
+		root_dest->next = __clone_monitored_entity(root_orig->next);
+		if(!root_dest->next){
+			if(root_dest->inner)
+				__monitoring_remove_monitored_entity(monitoring, root_dest->inner, true);
+			return ROFL_FAILURE;
+		}
+	}
+	
+	return ROFL_SUCCESS;
+}
+
 //initialize in dynamic memory
-rofl_result_t init_monitored_entity(enum monitored_entity_type type, monitored_entity_t* prev, monitored_entity_t* parent){
+monitored_entity_t* monitoring_add_monitored_entity(monitoring_state_t* monitoring, enum monitored_entity_type type, monitored_entity_t* prev, monitored_entity_t* parent){
 
 	monitored_entity_t* entity;	
 
 	//We need to know really to place it
-	if(prev && parent)
-		return ROFL_FAILURE;
+	if( !monitoring || ( (prev && parent) || (!prev && !parent) ) ){
+		assert(0);
+		return NULL;
+	}
 
 	//Entity	
 	entity = platform_malloc_shared(sizeof(monitored_entity_t));
 	
 	if(!entity)
-		return ROFL_FAILURE;
+		return NULL;
 
 	//memset to zero
 	memset(entity,0,sizeof(*entity));
@@ -24,27 +101,57 @@ rofl_result_t init_monitored_entity(enum monitored_entity_type type, monitored_e
 	//Setting the type
 	entity->type = type;	
 
-	//Link it to the double-linked list	
+	//Add it to the linked list
+	platform_rwlock_wrlock(monitoring->rwlock);
 
-	return ROFL_SUCCESS;	
+	if(prev){
+		//Append it after the prev
+		entity->next = prev->next;
+		entity->prev = prev;
+		prev->next = entity;
+		entity->parent = prev->parent;
+	}else{
+		//Make it the first element of the inner leafs
+		if(parent->inner){
+			entity->next = parent->inner;
+			entity->next->prev = entity;
+			parent->inner = entity;	
+		}else{
+			parent->inner = entity;
+			entity->parent = parent;
+		}
+	}
+	
+	platform_rwlock_wrunlock(monitoring->rwlock);	
+
+	return entity;	
 }
 
 //destroy monitored entity
-void destroy_monitored_entity(monitored_entity_t* entity){
+rofl_result_t __monitoring_remove_monitored_entity(monitoring_state_t* monitoring, monitored_entity_t* entity, bool lock_acquired){
 
 	monitored_entity_t *inner_it, *next;
-	
+
+	//Sanity checks
+	if(!monitoring)
+		return ROFL_FAILURE;	
+
 	//Deleting the base always present chassis
 	//monitored entity is not allowed
 	if(!entity->parent && !entity->prev){
-		assert(0);	
+		assert(0);
+		return ROFL_FAILURE;	
 	}
 
+	//Prevent readers (snapshot creators) to jump in
+	if(!lock_acquired)
+		platform_rwlock_wrlock(monitoring->rwlock);	
+	
 	//Delete (all) nested inner elements
 	inner_it = entity->inner;
 	while(inner_it){
 		next = inner_it->next;
-		destroy_monitored_entity(inner_it);
+		__monitoring_remove_monitored_entity(monitoring, inner_it, true);
 		inner_it = next;
 	}
 
@@ -62,7 +169,99 @@ void destroy_monitored_entity(monitored_entity_t* entity){
 		entity->prev->next = entity->next;	
 	}
 	
+	platform_rwlock_wrunlock(monitoring->rwlock);	
+	
 	//Free dynamic memory
-	platform_free_shared(entity);
+	if(!lock_acquired)
+		platform_free_shared(entity);
+		
+	return ROFL_SUCCESS;	
+}
+
+//Cloning
+
+//
+// Montoring elements
+//
+rofl_result_t monitoring_init(monitoring_state_t* monitoring){
+
+	//Clear all
+	memset(monitoring,0,sizeof(*monitoring));
+
+	//General flags	
+	monitoring->is_last_rev_maintained = true;
+	monitoring->last_rev = 1; //Must be one
+	
+	//Set primary monitored entity as being chassis
+	monitoring->chassis.type = ME_TYPE_CHASSIS; 	
+
+	//Locking
+	monitoring->mutex = platform_mutex_init(NULL);
+	monitoring->rwlock = platform_rwlock_init(NULL);
+
+	if(!monitoring->mutex || !monitoring->rwlock){
+		return ROFL_FAILURE;
+	}
+	
+	return ROFL_SUCCESS;
+}
+
+/**
+* @brief Destroys the monitoring state 
+* @ingroup  mgmt
+*/
+void monitoring_destroy(monitoring_state_t* monitoring){
+
+	//Lock rwlock (write)
+	if(monitoring->rwlock)
+		platform_rwlock_wrlock(monitoring->rwlock);	
+
+	//Destroy the inner-most monitored entity
+	__monitoring_remove_monitored_entity(monitoring, monitoring->chassis.next, true);	
+	__monitoring_remove_monitored_entity(monitoring, monitoring->chassis.inner, true);	
+}
+
+//
+// Snapshots
+//
+
+//Get a snapshot
+monitoring_state_snapshot_t* monitoring_get_snapshot(monitoring_state_t* monitoring){
+
+	monitoring_state_snapshot_t* sn;
+
+	sn = platform_malloc_shared(sizeof(monitoring_state_t));
+	if(!sn)
+		return NULL;
+	
+	//Lock rwlock (read)
+	platform_rwlock_rdlock(monitoring->rwlock);	
+	
+	//Copy the state
+	memcpy(sn, monitoring, sizeof(monitoring_state_t));
+
+	//Set auxilary pointers to null
+	sn->mutex = sn->rwlock = NULL;	
+
+	//Clone monitored data
+	if(__clone_root_monitored_entity(monitoring, &sn->chassis, &monitoring->chassis) != ROFL_SUCCESS){
+		assert(0);
+		platform_free_shared(sn);
+		return NULL;
+	}
+	
+	//Release the rdlock
+	platform_rwlock_rdunlock(monitoring->rwlock);	
+
+	return sn;
+}
+
+void monitoring_destroy_snapshot(monitoring_state_snapshot_t* snapshot){
+
+	//Destroy inner-most monitored entity
+	monitoring_destroy((monitoring_state_t*)snapshot);	//They are alias ;)
+	
+	//Deallocate the monitoring_state_snapshot_t 
+	platform_free_shared(snapshot);
 }
 

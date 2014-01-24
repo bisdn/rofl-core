@@ -16,6 +16,7 @@
 #include <rofl.h>
 #include <stdbool.h>
 #include <time.h>
+#include "platform/atomic_operations.h"
 
 //fwd decl
 struct monitored_entity;
@@ -97,7 +98,7 @@ enum monitored_entity_type{
 #define MONITORED_ENTITY_MAX_SENSOR_DATA 8
 
 /**
-* Sensor data information
+* Monitored entity data 
 */
 typedef struct monitored_entity{
 
@@ -139,24 +140,108 @@ typedef struct monitored_entity{
 }monitored_entity_t; 
 
 
+/**
+* Wrapper for the monitoMonitored entity data 
+*/
+typedef struct monitoring_state{
+	//Set this flag to false
+	//if the last_rev is not mantained
+	bool is_last_rev_maintained; 
+	
+	//Simple counter which mantains
+	//the version of the monitored data
+	//Useful to avoid snapshots
+	uint64_t last_rev;		//1->2...
+
+	//Main chassis monitored entity(root)
+	monitored_entity_t chassis;
+	
+	/* 
+	* Protects state while creating snapshots
+	* Should be acquired in WRITE mode when updating
+	* information. READ mode should only be used while
+	* creating snapshots
+	*/
+	platform_rwlock_t* rwlock;
+	
+	//Not used at all (except for platform_atomic_inc64())
+	platform_mutex_t* mutex;
+}monitoring_state_t;
+
+//Alias
+typedef monitoring_state_t monitoring_state_snapshot_t;
 
 //C++ extern C
 ROFL_BEGIN_DECLS
 
+//Monitoring API
+
 /**
-* @brief Creates a monitored entity object and links it to 
-* the double linked list 
+* @brief Initializes the monitoring state 
 * @ingroup  mgmt
 */
-rofl_result_t init_monitored_entity(enum monitored_entity_type type, monitored_entity_t* prev, monitored_entity_t* parent);
+rofl_result_t monitoring_init(monitoring_state_t* monitoring);
 
+/**
+* @brief Destroys the monitoring state 
+* @ingroup  mgmt
+*/
+void monitoring_destroy(monitoring_state_t* monitoring);
+
+/**
+* @brief Returns true if the monitoring state has changed 
+* @ingroup  mgmt
+*/
+static inline bool monitoring_has_changed(monitoring_state_t* state, uint64_t* last_seen_rev){
+	return *last_seen_rev != state->last_rev;
+}
+
+/**
+* @brief Get a snapshot of the current monitoring state.
+*
+* This function may be expensive, as it involves a deep copy in dynamic
+* memory of all the monitored data.
+*
+* The monitoring is copied atomically (platform_rdlock) over the read lock
+* The monitoring snapshots needs to be destroyed by calling monitoring_destroy_snapshot()
+*
+* @ingroup  mgmt
+*/
+monitoring_state_snapshot_t* monitoring_get_snapshot(monitoring_state_t* monitoring);
+
+/**
+* @brief Destroy a snapshot previously generated via monitoring_get_snapshot() routine. 
+* @ingroup  mgmt
+*/
+void monitoring_destroy_snapshot(monitoring_state_snapshot_t* snapshot);
+
+/**
+* @brief Update(inc atomically) the rev counter
+* @ingroup  mgmt
+*/
+static inline void monitoring_state_inc_rev(monitoring_state_t* mon){
+	platform_atomic_inc64(&mon->last_rev, mon->mutex);
+}
+
+
+/**
+* @brief Creates a monitored entity object and links it to the linked-list, in the position of prev OR parent.
+* If no monitoring reference is passed, then an unlinked instance will be returned.
+* @ingroup  mgmt
+*/
+monitored_entity_t* monitoring_add_monitored_entity(monitoring_state_t* monitoring, enum monitored_entity_type type, monitored_entity_t* prev, monitored_entity_t* parent);
+
+
+//fwd declaration
+rofl_result_t __monitoring_remove_monitored_entity(monitoring_state_t* monitoring, monitored_entity_t* entity, bool lock_acquired);
 /**
 * @brief Destroys an detaches monitored entity object
 * @warning This routine is not thread safe
 * @ingroup  mgmt
 */
-void destroy_monitored_entity(monitored_entity_t* entity);
-
+static inline rofl_result_t monitoring_remove_monitored_entity(monitoring_state_t* monitoring, monitored_entity_t* entity){
+	return __monitoring_remove_monitored_entity(monitoring, entity, false);
+}
 
 //C++ extern C
 ROFL_END_DECLS

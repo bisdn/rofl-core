@@ -175,7 +175,7 @@ typedef struct physical_switch{
 	switch_port_t meta_ports[PHYSICAL_SWITCH_MAX_NUM_META_PORTS]; 
 
 	//Monitoring data
-	monitored_entity_t chassis;
+	monitoring_state_t monitoring;
 
 	/* 
 	* Other state 
