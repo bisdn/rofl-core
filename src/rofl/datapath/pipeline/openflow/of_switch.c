@@ -57,7 +57,7 @@ void of_process_pipeline_tables_timeout_expirations(const of_switch_t* sw){
 		case OF_VERSION_10: 
 		case OF_VERSION_12: 
 		case OF_VERSION_13: 
-			__of1x_process_pipeline_tables_timeout_expirations(((of1x_switch_t*)sw)->pipeline);
+			__of1x_process_pipeline_tables_timeout_expirations(&((of1x_switch_t*)sw)->pipeline);
 			break;
 		default: 
 			//return ROFL_FAILURE;

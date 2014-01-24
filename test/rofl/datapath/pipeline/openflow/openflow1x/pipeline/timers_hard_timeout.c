@@ -442,7 +442,7 @@ static int setup_test(of1x_switch_t** sw)
 		return EXIT_FAILURE;
 	}
 	pipeline->tables = table;
-	pipeline->num_of_tables=1;
+	pipeline.num_of_tables=1;
 */
 	return EXIT_SUCCESS;
 }
@@ -478,14 +478,14 @@ void main_test(void)
 		fprintf(stderr,"<%s:%d> Rnd values: ito %d hto %d n_entries %d\n", __func__, __LINE__,
 				rnd_to, rnd_toh, rnd_entries);
 #if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
-		test_insert_and_expiration_static(sw->pipeline, rnd_to);
-		test_insert_and_extract_static(sw->pipeline, rnd_to, rnd_entries);
-		test_simple_idle_static(sw->pipeline, rnd_to);
-		test_insert_both_expires_one_check_the_other_static(sw->pipeline,rnd_toh, rnd_to);
+		test_insert_and_expiration_static(&sw->pipeline, rnd_to);
+		test_insert_and_extract_static(&sw->pipeline, rnd_to, rnd_entries);
+		test_simple_idle_static(&sw->pipeline, rnd_to);
+		test_insert_both_expires_one_check_the_other_static(&sw->pipeline,rnd_toh, rnd_to);
 #else
-		test_insert_and_extract_dynamic(sw->pipeline,rnd_to, 2/*rnd_entries*/);
-		test_simple_idle_dynamic(sw->pipeline, rnd_to);
-		test_insert_both_expires_one_check_the_other_dynamic(sw->pipeline, rnd_toh, rnd_to );
+		test_insert_and_extract_dynamic(&sw->pipeline,rnd_to, 2/*rnd_entries*/);
+		test_simple_idle_dynamic(&sw->pipeline, rnd_to);
+		test_insert_both_expires_one_check_the_other_dynamic(&sw->pipeline, rnd_toh, rnd_to );
 #endif
 	}
 	

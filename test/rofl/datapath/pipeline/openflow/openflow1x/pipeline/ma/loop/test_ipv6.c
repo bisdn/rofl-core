@@ -174,16 +174,16 @@ void ipv6_install_flow_mod(void){
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_src_match(NULL,NULL,value,mask)) == ROFL_SUCCESS);
 	
 	//Install
-	CU_ASSERT(of1x_add_flow_entry_table(sw->pipeline, 0, entry, false,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false,false) == ROFL_OF1X_FM_SUCCESS);
 	
 	//Check real size of the table
-	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 1);
+	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 1);
 	
 	//Uninstall (specific)	
-	CU_ASSERT(of1x_remove_flow_entry_table(sw->pipeline, 0, entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_SUCCESS);
 	
 	//Check real size of the table
-	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
+	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 0);
 	
 	
 }
@@ -211,16 +211,16 @@ void ipv6_install_flow_mod_complete(void){
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip6_exthdr_match(NULL,NULL,value64,mask64)) == ROFL_SUCCESS);
 	
 	//Install
-	CU_ASSERT(of1x_add_flow_entry_table(sw->pipeline, 0, entry, false,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false,false) == ROFL_OF1X_FM_SUCCESS);
 	
 	//Check real size of the table
-	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 1);
+	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 1);
 	
 	//Uninstall (specific)	
-	CU_ASSERT(of1x_remove_flow_entry_table(sw->pipeline, 0, entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_SUCCESS);
 	
 	//Check real size of the table
-	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
+	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 0);
 	
 	
 }
@@ -241,16 +241,16 @@ void icmpv6_install_flow_mod_complete(void){
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_icmpv6_code_match(NULL,NULL,value64)) == ROFL_SUCCESS);
 	
 	//Install
-	CU_ASSERT(of1x_add_flow_entry_table(sw->pipeline, 0, entry, false,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false,false) == ROFL_OF1X_FM_SUCCESS);
 	
 	//Check real size of the table
-	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 1);
+	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 1);
 	
 	//Uninstall (specific)	
-	CU_ASSERT(of1x_remove_flow_entry_table(sw->pipeline, 0, entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_remove_flow_entry_table(&sw->pipeline, 0, entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY) == ROFL_SUCCESS);
 	
 	//Check real size of the table
-	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
+	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 0);
 }
 
 void ipv6_process_packet(void){

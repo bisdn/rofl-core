@@ -75,7 +75,7 @@ typedef struct of1x_pipeline{
 ROFL_BEGIN_DECLS
 
 /* Pipeline mgmt */
-of1x_pipeline_t* __of1x_init_pipeline(struct of1x_switch* sw, const unsigned int num_of_tables, enum of1x_matching_algorithm_available* list);
+rofl_result_t __of1x_init_pipeline(struct of1x_switch* sw, const unsigned int num_of_tables, enum of1x_matching_algorithm_available* list);
 rofl_result_t __of1x_destroy_pipeline(of1x_pipeline_t* pipeline);
 
 //Purge of all entries in the pipeline (reset)	

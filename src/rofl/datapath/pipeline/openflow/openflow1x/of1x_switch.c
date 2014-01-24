@@ -39,8 +39,7 @@ of1x_switch_t* of1x_init_switch(const char* name, of_version_t version, uint64_t
 	}
 	
 	//Setup pipeline	
-	sw->pipeline = __of1x_init_pipeline(sw, num_of_tables, list);
-	if(sw->pipeline == NULL){
+	if(__of1x_init_pipeline(sw, num_of_tables, list) != ROFL_SUCCESS){
 		platform_free_shared(sw->name);
 		platform_free_shared(sw);
 		return NULL;
@@ -48,7 +47,7 @@ of1x_switch_t* of1x_init_switch(const char* name, of_version_t version, uint64_t
 	
 	//Allow the platform to add specific configurations to the switch
 	if(platform_post_init_of1x_switch(sw) != ROFL_SUCCESS){
-		__of1x_destroy_pipeline(sw->pipeline);	
+		__of1x_destroy_pipeline(&sw->pipeline);	
 		platform_free_shared(sw->name);
 		platform_free_shared(sw);
 		return NULL;
@@ -65,7 +64,7 @@ rofl_result_t __of1x_destroy_switch(of1x_switch_t* sw){
 	if(platform_pre_destroy_of1x_switch(sw) != ROFL_SUCCESS)
 		return ROFL_FAILURE;
 		
-	result = __of1x_destroy_pipeline(sw->pipeline);
+	result = __of1x_destroy_pipeline(&sw->pipeline);
 
 	//TODO: trace if result != SUCCESS
 	(void)result;
@@ -90,11 +89,11 @@ rofl_result_t __of1x_reconfigure_switch(of1x_switch_t* sw, of_version_t version)
 		return ROFL_FAILURE; //Early return OF11 NOT supported
 
 	//Purge all entries(flow&groups) in the pipeline
-	if(__of1x_purge_pipeline_entries(sw->pipeline) != ROFL_SUCCESS)
+	if(__of1x_purge_pipeline_entries(&sw->pipeline) != ROFL_SUCCESS)
 		return ROFL_FAILURE;
 
 	//Set the default tables(flow and group tables) configuration according to the new version
-	if(__of1x_set_pipeline_tables_defaults(sw->pipeline, version) != ROFL_SUCCESS)
+	if(__of1x_set_pipeline_tables_defaults(&sw->pipeline, version) != ROFL_SUCCESS)
 		return ROFL_FAILURE;
 
 	//Set switch to the new version and return
@@ -257,11 +256,11 @@ void of1x_full_dump_switch(of1x_switch_t* sw){
 	of1x_dump_switch(sw);
 
 	/* Dumping tables */		
-	for(i=0;i<sw->pipeline->num_of_tables;i++)
-		of1x_dump_table(&sw->pipeline->tables[i]);
+	for(i=0;i<sw->pipeline.num_of_tables;i++)
+		of1x_dump_table(&sw->pipeline.tables[i]);
 	ROFL_PIPELINE_INFO("--End of pipeline tables--\n");
 	
-	of1x_dump_group_table(sw->pipeline->groups);
+	of1x_dump_group_table(sw->pipeline.groups);
 	ROFL_PIPELINE_DEBUG("--End of group table--\n\n");
 }
 

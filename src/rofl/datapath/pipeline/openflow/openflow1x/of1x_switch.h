@@ -46,7 +46,7 @@ typedef struct of1x_switch{
 	/* End of common part */
 
 	//pipeline
-	of1x_pipeline_t* pipeline;
+	of1x_pipeline_t pipeline;
 	
 	//Mutex
 	platform_mutex_t* mutex;
