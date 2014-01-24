@@ -28,8 +28,7 @@ unsigned int indent::width(0);
 
 
 void
-logging::init(
-		std::string const& s_logfile)
+logging::init()
 {
 	if (not logging::devnull.is_open()) {
 		logging::devnull.open("/dev/null", std::ios::out);
@@ -51,6 +50,8 @@ void
 logging::set_debug_level(
 			unsigned int debug_level)
 {
+	logging::init();
+
 	// EMERG
 	if (debug_level >= 0) {
 		logging::emerg .rdbuf(std::cerr.rdbuf());

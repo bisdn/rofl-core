@@ -38,14 +38,11 @@ public:
 
 public:
 
-
-#define DEFAULT_ROFL_LOGFILE "/var/log/rofl.log"
-
 	/**
 	 *
 	 */
 	static void
-	init(std::string const& s_logfile = DEFAULT_ROFL_LOGFILE);
+	init();
 
 	/**
 	 *
