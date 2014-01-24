@@ -144,9 +144,6 @@ typedef struct monitored_entity{
 * Wrapper for the monitoMonitored entity data 
 */
 typedef struct monitoring_state{
-	//Set this flag to false
-	//if the last_rev is not mantained
-	bool is_last_rev_maintained; 
 	
 	//Simple counter which mantains
 	//the version of the monitored data
@@ -181,6 +178,20 @@ ROFL_BEGIN_DECLS
 * @ingroup  mgmt
 */
 rofl_result_t monitoring_init(monitoring_state_t* monitoring);
+
+/**
+* @brief Dumps the monitoring state, only meaningful for debugging purposes 
+* @ingroup  mgmt
+*/
+void monitoring_dump(monitoring_state_t* monitoring);
+
+/**
+* @brief Dumps the monitoring state of a snapshot
+* @ingroup  mgmt
+*/
+static inline void monitoring_dump_snapshot(monitoring_state_snapshot_t* snapshot){
+	return monitoring_dump(snapshot);
+}
 
 /**
 * @brief Destroys the monitoring state 

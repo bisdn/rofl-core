@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <string.h>
 #include "platform/memory.h"
+#include "util/logging.h"
 
 //
 // Monitored entities
@@ -89,7 +90,13 @@ monitored_entity_t* monitoring_add_monitored_entity(monitoring_state_t* monitori
 		return NULL;
 	}
 
-	//Entity	
+	//The root node is uninque
+	if(prev && !prev->parent){ 
+		assert(0);
+		return NULL;
+	}
+
+	//Entity
 	entity = platform_malloc_shared(sizeof(monitored_entity_t));
 	
 	if(!entity)
@@ -116,12 +123,16 @@ monitored_entity_t* monitoring_add_monitored_entity(monitoring_state_t* monitori
 			entity->next = parent->inner;
 			entity->next->prev = entity;
 			parent->inner = entity;	
+			entity->parent = parent;
 		}else{
 			parent->inner = entity;
 			entity->parent = parent;
 		}
 	}
 	
+	//Increment rev counter
+	monitoring->last_rev++;	
+
 	platform_rwlock_wrunlock(monitoring->rwlock);	
 
 	return entity;	
@@ -131,21 +142,19 @@ monitored_entity_t* monitoring_add_monitored_entity(monitoring_state_t* monitori
 rofl_result_t __monitoring_remove_monitored_entity(monitoring_state_t* monitoring, monitored_entity_t* entity, bool lock_acquired){
 
 	monitored_entity_t *inner_it, *next;
+	
+
+	if(!entity)
+		return ROFL_SUCCESS;
 
 	//Sanity checks
 	if(!monitoring)
 		return ROFL_FAILURE;	
 
-	//Deleting the base always present chassis
-	//monitored entity is not allowed
-	if(!entity->parent && !entity->prev){
-		assert(0);
-		return ROFL_FAILURE;	
-	}
-
 	//Prevent readers (snapshot creators) to jump in
 	if(!lock_acquired)
 		platform_rwlock_wrlock(monitoring->rwlock);	
+	
 	
 	//Delete (all) nested inner elements
 	inner_it = entity->inner;
@@ -154,6 +163,7 @@ rofl_result_t __monitoring_remove_monitored_entity(monitoring_state_t* monitorin
 		__monitoring_remove_monitored_entity(monitoring, inner_it, true);
 		inner_it = next;
 	}
+	
 
 	//Unlink from linked list
 	if(!entity->prev){
@@ -169,11 +179,17 @@ rofl_result_t __monitoring_remove_monitored_entity(monitoring_state_t* monitorin
 		entity->prev->next = entity->next;	
 	}
 	
-	platform_rwlock_wrunlock(monitoring->rwlock);	
 	
-	//Free dynamic memory
+	//Increment rev counter
+	monitoring->last_rev++;	
+
 	if(!lock_acquired)
+		platform_rwlock_wrunlock(monitoring->rwlock);	
+	
+	//Free dynamic memory(only if it is not the root me)
+	if(entity->parent || entity->prev){
 		platform_free_shared(entity);
+	}
 		
 	return ROFL_SUCCESS;	
 }
@@ -189,7 +205,6 @@ rofl_result_t monitoring_init(monitoring_state_t* monitoring){
 	memset(monitoring,0,sizeof(*monitoring));
 
 	//General flags	
-	monitoring->is_last_rev_maintained = true;
 	monitoring->last_rev = 1; //Must be one
 	
 	//Set primary monitored entity as being chassis
@@ -211,15 +226,107 @@ rofl_result_t monitoring_init(monitoring_state_t* monitoring){
 * @ingroup  mgmt
 */
 void monitoring_destroy(monitoring_state_t* monitoring){
+	
+	if(!monitoring)
+		return;
 
 	//Lock rwlock (write)
 	if(monitoring->rwlock)
 		platform_rwlock_wrlock(monitoring->rwlock);	
 
 	//Destroy the inner-most monitored entity
-	__monitoring_remove_monitored_entity(monitoring, monitoring->chassis.next, true);	
-	__monitoring_remove_monitored_entity(monitoring, monitoring->chassis.inner, true);	
+	__monitoring_remove_monitored_entity(monitoring, &monitoring->chassis, true);	
+
+	//Release 	
+	platform_rwlock_destroy(monitoring->rwlock);	
+	platform_mutex_destroy(monitoring->mutex);	
 }
+
+void __monitoring_dump_me(int indentation, monitored_entity_t* me){
+
+	int indentation_=indentation;
+
+	if(!me)
+		return;
+
+	for(;indentation_ > 0;indentation_--)
+		ROFL_PIPELINE_INFO_NO_PREFIX("  ");	//Two space identation per level
+
+	//Dump current node
+	ROFL_PIPELINE_INFO_NO_PREFIX("[" );
+	switch(me->type){
+		case ME_TYPE_OTHER:
+			ROFL_PIPELINE_INFO_NO_PREFIX("t-OTHER");
+			break;
+		case ME_TYPE_UNKNOWN:
+			ROFL_PIPELINE_INFO_NO_PREFIX("t-UNKNOWN");
+			break;
+		case ME_TYPE_CHASSIS:
+			ROFL_PIPELINE_INFO_NO_PREFIX("t-CHASSIS");
+			break;
+		case ME_TYPE_BACKPLANE:
+			ROFL_PIPELINE_INFO_NO_PREFIX("t-BACKPLANE");
+			break;
+		case ME_TYPE_CONTAINER:
+			ROFL_PIPELINE_INFO_NO_PREFIX("t-CONTAINER");
+			break;
+		case ME_TYPE_POWER_SUPPLY:
+			ROFL_PIPELINE_INFO_NO_PREFIX("t-POWER_SUPPLY");
+			break;
+		case ME_TYPE_FAN:
+			ROFL_PIPELINE_INFO_NO_PREFIX("t-FAN");
+			break;
+		case ME_TYPE_SENSOR:
+			ROFL_PIPELINE_INFO_NO_PREFIX("t-SENSOR");
+			break;
+		case ME_TYPE_MODULE:
+			ROFL_PIPELINE_INFO_NO_PREFIX("t-MODULE");
+			break;
+		case ME_TYPE_PORT:
+			ROFL_PIPELINE_INFO_NO_PREFIX("t-PORT");
+			break;
+		case ME_TYPE_STACK:
+			ROFL_PIPELINE_INFO_NO_PREFIX("t-STACK");
+			break;
+				
+		default:
+			assert(0);
+			break;
+	}
+
+	ROFL_PIPELINE_INFO_NO_PREFIX(" (%p)] {name: %s}\n", me, me->name);
+	
+	//FIXME print sensor data	
+
+	//Dump inner
+	__monitoring_dump_me(indentation+1, me->inner);
+	
+	//Dump next element
+	__monitoring_dump_me(indentation, me->next);
+}
+
+//Dump
+void monitoring_dump(monitoring_state_t* monitoring){
+
+	if(!monitoring)
+		return;
+
+	if(monitoring->rwlock)
+		platform_rwlock_rdlock(monitoring->rwlock);	
+
+	ROFL_PIPELINE_INFO("\n"); //This is done in purpose 
+	ROFL_PIPELINE_INFO("Dumping monitoring state(%p). Last rev: %"PRIu64"\n", monitoring, monitoring->last_rev);
+
+	//Dump chassis
+	__monitoring_dump_me(0, &monitoring->chassis);
+
+	//Release the rdlock
+	if(monitoring->rwlock)
+		platform_rwlock_rdunlock(monitoring->rwlock);	
+	
+	ROFL_PIPELINE_INFO_NO_PREFIX("\n\n"); //This is done in purpose 
+}
+
 
 //
 // Snapshots
@@ -249,7 +356,7 @@ monitoring_state_snapshot_t* monitoring_get_snapshot(monitoring_state_t* monitor
 		platform_free_shared(sn);
 		return NULL;
 	}
-	
+
 	//Release the rdlock
 	platform_rwlock_rdunlock(monitoring->rwlock);	
 
