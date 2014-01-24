@@ -168,7 +168,7 @@ public:
 	append_action(cofaction const action);
 
 	cofaction_output&
-	append_action_output(uint32_t port_no);
+	append_action_output(uint32_t port_no, uint16_t max_len = 128);
 
 	cofaction_set_vlan_vid&
 	append_action_set_vlan_vid(uint16_t vid);

@@ -347,14 +347,14 @@ cofactions::append_action(cofaction const action)
 
 
 cofaction_output&
-cofactions::append_action_output(uint32_t port_no)
+cofactions::append_action_output(uint32_t port_no, uint16_t max_len)
 {
 	if (openflow10::OFP_VERSION == ofp_version) {
 		if ((port_no & 0x0000ffff) != port_no)
 			throw eActionsInval();
 	}
 
-	cofaction_output* output = new cofaction_output(ofp_version, port_no);
+	cofaction_output* output = new cofaction_output(ofp_version, port_no, max_len);
 
 	push_back(output);
 
