@@ -438,6 +438,13 @@ namespace openflow {
 										  */
 	};
 
+	enum ofp_group_type {
+		OFPGT_ALL 		= 0,	/* All (multicast/broadcast) group.  */
+		OFPGT_SELECT 	= 1,   	/* Select group. */
+		OFPGT_INDIRECT 	= 2, 	/* Indirect group. */
+		OFPGT_FF 		= 3,	/* Fast failover group. */
+	};
+
 	/* Bucket for use in groups. */
 	struct ofp_bucket {
 		uint16_t len;                   /* Length the bucket in bytes, including
