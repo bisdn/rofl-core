@@ -6,6 +6,7 @@ noinst_LTLIBRARIES = libopenflow.la
 
 libopenflow_la_SOURCES= \
 	openflow.h \
+	openflow.cc \
 	openflow10.h  \
 	openflow12.h \
 	openflow13.h \
