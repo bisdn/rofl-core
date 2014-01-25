@@ -141,6 +141,12 @@ namespace openflow {
 								   priority. */
 	};
 
+	/* Group commands */
+	enum ofp_group_mod_command {
+		OFPGC_ADD		= 0,          /* New group. */
+		OFPGC_MODIFY	= 1,          /* Modify all matching groups. */
+		OFPGC_DELETE	= 2,          /* Delete all matching groups. */
+	};
 
 	/* What changed about the physical port */
 	enum ofp_port_reason {
