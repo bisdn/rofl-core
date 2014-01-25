@@ -685,6 +685,20 @@ crofbase::get_ofp_no_buffer(uint8_t ofp_version)
 
 
 uint32_t
+crofbase::get_ofp_controller_port(uint8_t ofp_version)
+{
+	switch (ofp_version) {
+	case openflow10::OFP_VERSION: return openflow10::OFPP_CONTROLLER;
+	case openflow12::OFP_VERSION: return openflow12::OFPP_CONTROLLER;
+	case openflow13::OFP_VERSION: return openflow13::OFPP_CONTROLLER;
+	default:
+		throw eBadVersion();
+	}
+}
+
+
+
+uint32_t
 crofbase::get_ofp_flood_port(uint8_t ofp_version)
 {
 	switch (ofp_version) {

@@ -492,6 +492,12 @@ public:
 	 *
 	 */
 	static uint32_t
+	get_ofp_controller_port(uint8_t ofp_version);
+
+	/**
+	 *
+	 */
+	static uint32_t
 	get_ofp_flood_port(uint8_t ofp_version);
 
 	/**
