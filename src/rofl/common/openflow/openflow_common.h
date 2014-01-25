@@ -50,6 +50,10 @@ namespace openflow {
 		OFP_VERSION_UNKNOWN = 0,
 	};
 
+	enum ofp_buffer_t {
+		OFP_NO_BUFFER = 0xffffffff,
+	};
+
 	/* Header on all OpenFlow packets. */
 	struct ofp_header {
 		uint8_t version;    /* OFP10_VERSION. */
