@@ -1431,9 +1431,14 @@ ciosrv::daemonize(
 		}
 
 		/*
+		 * reset umask
+		 */
+		umask(0022);
+
+		/*
 		 * redirect STDIN, STDOUT, STDERR to logfile
 		 */
-		int fd = open(logfile.c_str(), O_RDWR | O_CREAT | O_TRUNC);
+		int fd = open(logfile.c_str(), O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
 			throw eSysCall("open()");
 		}
@@ -1448,11 +1453,6 @@ ciosrv::daemonize(
 		}
 
 		/*
-		 * reset umask
-		 */
-		umask(0);
-
-		/*
 		 * change current working directory
 		 */
 		if (chdir("/") < 0) {
@@ -1462,7 +1462,7 @@ ciosrv::daemonize(
 		/*
 		 * write pidfile
 		 */
-		int pidfd = open(pidfile.c_str(), O_WRONLY | O_CREAT | O_TRUNC);
+		int pidfd = open(pidfile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		if (pidfd < 0) {
 			throw eSysCall("open(): pidfile");
 		}
