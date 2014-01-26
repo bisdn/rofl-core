@@ -26,84 +26,17 @@
 #include <sys/resource.h>
 #include <sys/stat.h>
 
-#include "cpacket.h"
-#include "cmemory.h"
-#include "croflexception.h"
-#include "cvastring.h"
-#include "thread_helper.h"
-
-#include "rofl/platform/unix/csyslog.h"
-#include "rofl/platform/unix/cpipe.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/logging.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/thread_helper.h"
+#include "rofl/common/cpipe.h"
+#include "rofl/common/cfdset.h"
+#include "rofl/common/cevents.h"
+#include "rofl/common/ctimers.h"
 
 namespace rofl
 {
-
-/** class defining ioctl commands exchanged between ciosrv entities
- *
- */
-class cevent :
-	public csyslog
-{
-public:
-	/**
-	 */
-	cevent(int __cmd = -1) : cmd(__cmd), opaque((size_t)0)
-	{
-		WRITELOG(CIOSRV, DBG, "cevent(%p)::cevent() cmd:0x%x", this, cmd);
-	};
-	/**
-	 */
-	virtual
-	~cevent()
-	{
-		WRITELOG(CIOSRV, DBG, "cevent(%p)::~cevent() cmd:0x%x", this, cmd);
-	};
-	/**
-	 */
-	cevent(cevent const& ioctl) :
-		cmd(-1),
-		opaque((size_t)0)
-	{
-		WRITELOG(CIOSRV, DBG, "cevent(%p)::cevent() cmd:0x%x from 0x%x", this, cmd, &ioctl);
-		*this = ioctl;
-	};
-	/**
-	 */
-	cevent& operator= (cevent const& ioctl)
-	{
-		if (this == &ioctl)
-			return *this;
-		cmd = ioctl.cmd;
-		opaque = ioctl.opaque;
-		return *this;
-	};
-
-public: // data structures
-
-	int cmd; // command
-	cmemory opaque; // additional data
-
-public: // auxiliary classes
-
-	class cevent_find_by_cmd {
-		int cmd;
-	public:
-		cevent_find_by_cmd(int __cmd) :
-			cmd(__cmd) {};
-		bool operator() (cevent const* ev) {
-			return (ev->cmd == cmd);
-		};
-	};
-public:
-	friend std::ostream&
-	operator<< (std::ostream& os, cevent const& event) {
-		os << "<cevent ";
-			os << "cmd:" << event.cmd << " ";
-			os << "memory:" << event.opaque << " ";
-		os << ">";
-		return os;
-	};
-};
 
 
 /* error classes */
@@ -112,6 +45,104 @@ class eIoSvcInitFailed 		: public eIoSvcBase {};	//< init of ciosrv instance fai
 class eIoSvcRunError 		: public eIoSvcBase {}; //< error in core loop (select)
 class eIoSvcUnhandledTimer 	: public eIoSvcBase {}; //< unhandled timer
 class eIoSvcNotFound        : public eIoSvcBase {}; //< element not found
+
+class ciosrv;
+
+class cthread {
+
+	static PthreadRwLock 					threads_rwlock;
+	static std::map<pthread_t, cthread*> 	threads;
+
+public:
+
+	friend class ciosrv;
+
+	pthread_t               tid;
+	PthreadRwLock			rwlock;
+	std::set<ciosrv*> 		elems_add;
+	std::set<ciosrv*> 		elems_drop;
+	std::set<ciosrv*> 		elems;
+
+	cpipe					pipe;
+	cfdset					rfdset;
+	cfdset					wfdset;
+	ctimers					timers;
+	cevents					events;
+
+	struct timespec 		ts;
+	bool					keep_on_running;
+
+public:
+
+	/**
+	 *
+	 */
+	cthread() :
+		tid(pthread_self()),
+		keep_on_running(true) {};
+
+	/**
+	 *
+	 */
+	virtual
+	~cthread() {};
+
+	/**
+	 *
+	 */
+	void
+	add_ciosrv(ciosrv *iosrv) {
+		RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
+		elems_add.insert(iosrv);
+	};
+
+	/**
+	 *
+	 */
+	void
+	drop_ciosrv(ciosrv *iosrv) {
+		RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
+		elems_drop.erase(iosrv);
+	};
+
+private:
+
+	/**
+	 *
+	 */
+	cthread(cthread const& t) {
+		*this = t;
+	};
+
+	/**
+	 *
+	 */
+	cthread&
+	operator= (cthread const& t) {
+		if (this == &t)
+			return *this;
+		return *this;
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cthread const& thread) {
+		os << indent(0) << "<cthread >";
+		indent i(2);
+		os << "<read-fds: >" << std::endl;
+		{ indent i(2); os << thread.rfdset; }
+		os << "<write-fds: >" << std::endl;
+		{ indent i(2); os << thread.wfdset; }
+		os << "<timers: >" << std::endl;
+		{ indent i(2); os << thread.timers; }
+		os << "<events: >" << std::endl;
+		{ indent i(2); os << thread.events; }
+		return os;
+	};
+};
+
+
 
 /**
  * (Abstract) Base class for IO services.
@@ -140,8 +171,10 @@ class eIoSvcNotFound        : public eIoSvcBase {}; //< element not found
  * - cancel_all_timer() cancel all timers
  *
  */
-class ciosrv : public virtual csyslog
+class ciosrv :
+		public cfdowner
 {
+#if 0
 	class ciothread {
 	public:
 		pthread_t               tid;		// thread id
@@ -161,6 +194,7 @@ class ciosrv : public virtual csyslog
         std::set<class ciosrv*> ciosrv_deletion_list;  //< list of all ciosrv instances scheduled for deletion
         std::set<class ciosrv*> ciosrv_wakeup;         //< list of all cioctl commands rcvd
         int evlockinit; // = 0 => destroy mutex
+        bool					keep_on;
 
 	public:
 		/** constructor
@@ -168,7 +202,8 @@ class ciosrv : public virtual csyslog
 		 */
 		ciothread() :
 			tid(pthread_self()),
-			evlockinit(0)
+			evlockinit(0),
+			keep_on(true)
 		{
 			pipe = new cpipe();
 			pthread_rwlock_init(&(wakeup_rwlock), NULL);
@@ -192,18 +227,11 @@ class ciosrv : public virtual csyslog
 			delete pipe;
 		};
 	};
-
-
-protected:
+#endif
 
 private: // static
 
 
-	static pthread_rwlock_t iothread_lock;
-	static std::map<pthread_t, ciothread*> threads; // fds and timers for thread tid
-
-	//Flag that allows to stop ciosrv
-	static bool keep_on;
 
 	enum ciosrv_flag_t {
 		CIOSRV_FLAG_WAKEUP_CALLED = (1 << 0), // when set, pipe was already instructed to
@@ -211,64 +239,54 @@ private: // static
 	};
 
 
-	/** dump information about all registered fdsets
+
+private:
+
+	enum ciosrv_thread_state_t {
+		STATE_STOPPED 		= 0,
+		STATE_INITIALIZED	= 1,
+		STATE_STARTED		= 2,
+	};
+
+	/**
+ 	 *
+	 */
+	static int
+	thread_init();
+
+	/**
 	 *
 	 */
 	static void
-	dump_fdsets();
-
-	/** dump information about all active fdsets (FD_ISSET yields true)
-	 *
-	 */
-	static void
-	dump_active_fdsets(
-			int rc,
-			fd_set* readfds,
-			fd_set* writefds,
-			fd_set* exceptfds);
-
+	thread_shutdown();
 
 
 public: // static
 
 
 	/**
-	 * @brief 	Initializes thread-local variables for this thread.
 	 *
-	 * This method must be called once after creation of a new thread.
-	 */
-	static void
-	init();
-
-
-	/**
-	 * @brief	Runs the infinite event loop.
 	 */
 	static void
 	run();
 
 
-
 	/**
-	 * @brief	Leaves the infinite event loop.
-	 */
-	static void
-	stop() { keep_on = false; };
-
-
-
-	/**
-	 * @brief	Deallocates thread-local variables.
 	 *
-	 * This method must be called once before destroying the local thread.
 	 */
 	static void
-	destroy();
-
+	thread_stop();
 
 
 	/**
-	 * @brief	Daemonize this process
+	 *
+	 */
+	static void
+	stop();
+
+
+	/**
+	 *
 	 */
 	static void
 	daemonize(
@@ -301,6 +319,12 @@ public:
 	ciosrv(ciosrv const& iosrv);
 
 
+	/**
+	 *
+	 */
+	ciosrv&
+	operator= (ciosrv const& iosrv);
+
 
 	/**
 	 * @brief	Sends a notification to this ciosrv instance.
@@ -313,18 +337,8 @@ public:
 	 * @param ev the event to be sent to this instance
 	 */
 	void
-	notify(cevent const& ev = cevent());
-
-
-
-	/**
-	 * @brief	Returns a static c-string with information about this instance.
-	 *
-	 * @return a static c-string
-	 */
-	const char*
-	c_str();
-
+	notify(
+			cevent const& event);
 
 
 
@@ -545,28 +559,10 @@ protected:
 
 
 
+private:
 
 
-private: // data structures
-
-	pthread_t tid; //< ID of this thread
-
-	pthread_mutex_t event_mutex; //< mutex for event list
-
-	pthread_mutex_t timer_mutex; //< mutex for timer_list
-
-	std::list<cevent*> events; //< list of pending events
-
-	struct timeval* tv; //< timeval structure for timeout for select()
-
-	std::map<time_t, std::list<int> > timers_list; //< map of all pending timers for this instance
-
-	cmemory tv_mem; //< memory for timeval structure
-
-	std::string info;
-
-
-private: // methods
+private:
 
 	/** check for existence of ciosrv
 	 *
@@ -668,7 +664,13 @@ private: // methods
 	void
 	__handle_timeout();
 
+public:
 
+	friend std::ostream&
+	operator<< (std::ostream& os, ciosrv const& iosvc) {
+		os << indent(0) << "<ciosrv >";
+		return os;
+	};
 };
 
 }; // end of namespace
