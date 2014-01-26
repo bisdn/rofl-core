@@ -17,6 +17,10 @@ librofl_common_la_SOURCES = \
 		cpacket.cc \
 		croflexp.h \
 		croflexp.cc \
+		crandom.h \
+		crandom.cc \
+		cpipe.h \
+		cpipe.cc \
 		cclock.h \
 		cclock.cc \
 		cfsm.h \
@@ -65,6 +69,8 @@ library_include_HEADERS= \
 		cmacaddr.h \
 		cpacket.h \
 		croflexp.h \
+		crandom.h \
+		cpipe.h \
 		endian_conversion.h \
 		rofcommon.h \
 		crofbase.h \

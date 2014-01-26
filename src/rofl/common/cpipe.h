@@ -11,7 +11,6 @@
 #include <inttypes.h>
 
 #include "rofl/common/croflexception.h"
-#include "csyslog.h"
 
 namespace rofl
 {
@@ -20,8 +19,7 @@ class ePipeBase : public RoflException {};
 class ePipeInit : public ePipeBase {}; // initialization of pipe failed
 class ePipeInval : public ePipeBase {}; // invalid parameter
 
-class cpipe :
-	public csyslog
+class cpipe
 {
 	enum cpipe_cmd_t {
 		CPIPE_WAKEUP = 1,
@@ -32,7 +30,7 @@ public:
 	/**
 	 *
 	 */
-	cpipe() throw (ePipeInit);
+	cpipe();
 
 	/**
 	 *
