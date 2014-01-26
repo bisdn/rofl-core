@@ -48,10 +48,65 @@ class eIoSvcNotFound        : public eIoSvcBase {}; //< element not found
 
 class ciosrv;
 
-class cthread {
+
+
+class cioelem {
+
+	ciosrv		*iosrv;	// corresponding ciosrv instance
+
+public:
+
+	enum cioelem_state_t {
+		STATE_ADD		= 0,
+		STATE_RUNNING	= 1,
+		STATE_DROP		= 2,
+	};
+
+	cioelem_state_t		state;
+
+public:
+
+	cioelem(ciosrv *iosrv, cioelem_state_t state) :
+		iosrv(iosrv),
+		state(state) {};
+
+	virtual
+	~cioelem() {};
+
+	cioelem(cioelem const& elem) {
+		*this = elem;
+	};
+
+	cioelem&
+	operator= (cioelem const& elem) {
+		if (this == &elem)
+			return *this;
+		iosrv 	= elem.iosrv;
+		state 	= elem.state;
+		return *this;
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cioelem const& elem) {
+		os << "<cioelem iosrv:" << elem.iosrv << " ";
+		switch (elem.state) {
+		case STATE_ADD: 	os << "state:-ADD-"; 		break;
+		case STATE_RUNNING: os << "state:-RUNNING-"; 	break;
+		case STATE_DROP: 	os << "state:-DROP-"; 		break;
+		}
+		os << " >" << std::endl;
+		return os;
+	};
+};
+
+
+
+class cioloop {
 
 	static PthreadRwLock 					threads_rwlock;
-	static std::map<pthread_t, cthread*> 	threads;
+	static std::map<pthread_t, cioloop*> 	threads;
 
 public:
 
@@ -59,9 +114,9 @@ public:
 
 	pthread_t               tid;
 	PthreadRwLock			rwlock;
-	std::set<ciosrv*> 		elems_add;
-	std::set<ciosrv*> 		elems_drop;
-	std::set<ciosrv*> 		elems;
+	std::set<cioelem>		elems_add;
+	std::set<cioelem>		elems_drop;
+	std::set<cioelem> 		elems;
 
 	cpipe					pipe;
 	cfdset					rfdset;
@@ -77,57 +132,105 @@ public:
 	/**
 	 *
 	 */
-	cthread() :
-		tid(pthread_self()),
-		keep_on_running(true) {};
+	static cioloop&
+	get_loop() {
+		pthread_t tid = pthread_self();
+		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
+			cioloop::threads[tid] = new cioloop();
+		}
+		return *(cioloop::threads[tid]);
+	};
 
 	/**
 	 *
 	 */
-	virtual
-	~cthread() {};
+	static void
+	run() {
+		cioloop::get_loop().run_loop();
+	};
+
+	/**
+	 *
+	 */
+	static void
+	stop() {
+		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
+			return;
+		}
+		cioloop::threads[tid]->keep_on_running = false;
+	};
+
+public:
 
 	/**
 	 *
 	 */
 	void
-	add_ciosrv(ciosrv *iosrv) {
+	add_elem(ciosrv* iosrv) {
 		RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
-		elems_add.insert(iosrv);
+		elems_add.insert(cioelem(iosrv, cioelem::STATE_ADD));
 	};
 
 	/**
 	 *
 	 */
 	void
-	drop_ciosrv(ciosrv *iosrv) {
+	drop_elem(ciosrv* iosrv) {
 		RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
-		elems_drop.erase(iosrv);
+		elems_drop.erase(cioelem(iosrv, cioelem::STATE_DROP));
 	};
+
+
+	/**
+	 *
+	 */
+	static void
+	daemonize(
+			std::string const& pidfile, std::string const& logfile);
+
 
 private:
 
 	/**
 	 *
 	 */
-	cthread(cthread const& t) {
+	cioloop() :
+		tid(pthread_self()),
+		keep_on_running(false) {};
+
+	/**
+	 *
+	 */
+	virtual
+	~cioloop() {};
+
+	/**
+	 *
+	 */
+	cioloop(cioloop const& t) {
 		*this = t;
 	};
 
 	/**
 	 *
 	 */
-	cthread&
-	operator= (cthread const& t) {
+	cioloop&
+	operator= (cioloop const& t) {
 		if (this == &t)
 			return *this;
 		return *this;
 	};
 
+	/**
+	 * returns immediately, when called twice => checks keep_on_running flag
+	 */
+	void
+	run_loop();
+
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cthread const& thread) {
+	operator<< (std::ostream& os, cioloop const& thread) {
 		os << indent(0) << "<cthread >";
 		indent i(2);
 		os << "<read-fds: >" << std::endl;
@@ -261,36 +364,6 @@ private:
 	thread_shutdown();
 
 
-public: // static
-
-
-	/**
-	 *
-	 */
-	static void
-	run();
-
-
-	/**
-	 *
-	 */
-	static void
-	thread_stop();
-
-
-	/**
-	 *
-	 */
-	static void
-	stop();
-
-
-	/**
-	 *
-	 */
-	static void
-	daemonize(
-			std::string const& pidfile, std::string const& logfile);
 
 
 public:
@@ -563,12 +636,6 @@ private:
 
 
 private:
-
-	/** check for existence of ciosrv
-	 *
-	 */
-	static ciosrv*
-	ciosrv_exists(ciosrv* iosrv) throw (eIoSvcNotFound);
 
 
 	/**

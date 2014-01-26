@@ -24,8 +24,8 @@ void sighandler(int sig)
 
 
 
-PthreadRwLock 					cthread::threads_rwlock;
-std::map<pthread_t, cthread*> 	cthread::threads;
+PthreadRwLock 					cioloop::threads_rwlock;
+std::map<pthread_t, cioloop*> 	cioloop::threads;
 
 
 
@@ -1081,33 +1081,57 @@ ciosrv::thread_shutdown()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*static*/
 void
-ciosrv::thread_stop()
+cioloop::thread_stop()
 {
 	pthread_t tid = pthread_self();
 
-	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
-	if (ciosrv::threads.find(tid) == ciosrv::threads.end()) {
+	RwLock lock(&cioloop::threads_rwlock, RwLock::RWLOCK_READ);
+	if (cioloop::threads.find(tid) == cioloop::threads.end()) {
 		return;
 	}
-	ciosrv::threads[tid]->keep_on = false;
+	cioloop::threads[tid]->keep_on_running = false;
 }
 
 
 /*static*/
 void
-ciosrv::stop()
+cioloop::stop()
 {
-	while (not ciosrv::threads.empty()) {
-		ciosrv::threads.begin()->second->keep_on = false;
+	while (not cioloop::threads.empty()) {
+		cioloop::threads.begin()->second->keep_on_running = false;
 	}
 }
 
 
 /*static*/
 void
-ciosrv::run()
+cioloop::run()
 {
 	/*
 	 * signal masks, etc.
@@ -1136,7 +1160,7 @@ ciosrv::run()
 	}
 	sigemptyset(&empty_mask);
 
-	switch (rofl::ciosrv::thread_init()) {
+	switch (rofl::cioloop::thread_init()) {
 	case STATE_INITIALIZED:
 		break; // main loop() is prepared, ready to start
 	case STATE_STARTED:
@@ -1151,7 +1175,7 @@ ciosrv::run()
 	 * the infinite loop ...
 	 */
 
-	while (ciosrv::threads[tid]->keep_on) {
+	while (cioloop::threads[tid]->keep_on) {
 		fd_set readfds;
 		fd_set writefds;
 		fd_set exceptfds;
@@ -1160,11 +1184,11 @@ ciosrv::run()
 		int rc;
 		time_t ntimeout = time(NULL) + 60 /* seconds */; // one wakeup every 60seconds
 
-		// initialize exceptfds, because it is not set by ciosrv::fdset()
+		// initialize exceptfds, because it is not set by cthread::fdset()
 		FD_ZERO(&exceptfds);
 
-		ciosrv::fdset(maxfd, &readfds, &writefds); // get all file descriptors
-		ciosrv::next_timeout(ntimeout); // get next timeout
+		cioloop::fdset(maxfd, &readfds, &writefds); // get all file descriptors
+		cioloop::next_timeout(ntimeout); // get next timeout
 
 		ts.tv_sec = ((ntimeout - time(NULL)) > 0) ? ntimeout - time(NULL) : 0;
 
@@ -1182,7 +1206,7 @@ ciosrv::run()
 handle_packets:
 
 			try {
-				ciosrv::handle(rc, &readfds, &writefds, &exceptfds);
+				cioloop::handle(rc, &readfds, &writefds, &exceptfds);
 			} catch (RoflException& e) {
 				rofl::logging::error << "[rofl][ciosrv] caught RoflException in main loop:" << e << std::endl;
 #ifndef NDEBUG
@@ -1197,13 +1221,13 @@ handle_packets:
 		}
 	}
 
-	ciosrv::thread_shutdown();
+	cioloop::thread_shutdown();
 }
 
 
 /*static*/
 void
-ciosrv::daemonize(
+cioloop::daemonize(
 		std::string const& pidfile, std::string const& logfile)
 {
 	int pipefd[2];	// pipe for daemonizing
