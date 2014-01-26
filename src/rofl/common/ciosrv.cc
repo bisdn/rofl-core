@@ -22,8 +22,6 @@ void sighandler(int sig)
 }
 #endif
 
-
-
 PthreadRwLock 					cioloop::threads_rwlock;
 std::map<pthread_t, cioloop*> 	cioloop::threads;
 
@@ -34,24 +32,20 @@ std::map<pthread_t, cioloop*> 	cioloop::threads;
 ciosrv::ciosrv() :
 		tid(pthread_self())
 {
-	ciosrv::thread_init();
-	ciosrv::threads[tid]->add_ciosrv(this);
+	cioloop::get_loop().add_elem(this);
 }
 
 
 ciosrv::~ciosrv()
 {
-	ciosrv::threads[tid]->drop_ciosrv(this);
-	ciosrv::thread_shutdown();
+	cioloop::get_loop().drop_elem(this);
 }
-
 
 
 ciosrv::ciosrv(ciosrv const& iosrv)
 {
 	*this = iosrv;
 }
-
 
 
 ciosrv&
@@ -66,136 +60,41 @@ ciosrv::operator= (ciosrv const& iosrv)
 }
 
 
-
-
-
-void
-ciosrv::notify(cevent const& ev)
-{
-	try {
-		WRITELOG(CIOSRV, DBG, "ciosrv(%p)::notify() from thread: 0x%x to thread: 0x%x cmd:0x%x",
-				this, pthread_self(), tid, ev.cmd);
-
-		{
-			WRITELOG(CIOSRV, DBG, "ciosrv(%p)::notify() locking local event mutex",
-					this);
-
-			Lock lock(&event_mutex); // lock this->events
-#if 0
-			std::list<cevent*>::iterator it;
-			if ((it = find_if(events.begin(), events.end(),
-					cevent::cevent_find_by_cmd(ev.cmd))) == events.end())
-			{
-				// store event on this event list
-				events.push_back(new cevent(ev));
-			}
-			else
-			{
-				WRITELOG(CIOSRV, DBG, "ciosrv(%p)::notify() from thread: 0x%x to "
-						"thread: 0x%x - event already scheduled",
-						this, pthread_self(), tid);
-			}
-#endif
-			events.push_back(new cevent(ev));
-
-			WRITELOG(CIOSRV, DBG, "ciosrv(%p)::notify() unlocking local event mutex",
-					this);
-#if 0
-			std::string s_events;
-			for (std::list<cevent*>::iterator
-					it = new_events.begin(); it != new_events.end(); ++it)
-			{
-				cvastring vas(256);
-				s_events.append(vas("%s ", (*it)->c_str()));
-			}
-
-			WRITELOG(CIOSRV, DBG, "ciosrv(%p)::notify() ACTUAL-EVENT-LIST: %s",
-					this, s_events.c_str());
-#endif
-		}
-
-		/*
-		 * wakeup thread via pipe
-		 */
-
-		{
-			RwLock lock(&(ciosrv::threads[tid]->wakeup_rwlock), RwLock::RWLOCK_WRITE); // for locking ciosrv_wakeup[tid]
-
-			// insert this to list of entities with pending events
-			ciosrv::threads[tid]->ciosrv_wakeup.insert(this);
-
-#if 0
-			std::string s_wakeup;
-			for (std::set<ciosrv*>::iterator
-					it = ciosrv::ciosrv_wakeup[tid].begin();
-						it != ciosrv::ciosrv_wakeup[tid].end(); ++it)
-			{
-				cvastring vas(64);
-				s_wakeup.append(vas("0x%x ", *it));
-			}
-			WRITELOG(CIOSRV, DBG, "ciosrv(%p)::notify() UPDATED-WAKEUP-LIST %s",
-					this, s_wakeup.c_str());
-#endif
-
-			RwLock lock2(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
-
-			if (threads[tid]->flags.test(CIOSRV_FLAG_WAKEUP_CALLED))
-			{
-				WRITELOG(CIOSRV, DBG, "ciosrv(%p)::notify() wakeup call is pending", this);
-				return;
-			}
-
-			WRITELOG(CIOSRV, DBG, "ciosrv(%p)::notify() send new wake-up call", this);
-			threads[tid]->flags.set(CIOSRV_FLAG_WAKEUP_CALLED);
-		}
-
-		// wake up this thread from select()
-		ciosrv::threads[tid]->pipe->writemsg();
-
-
-	} catch (eLockWouldBlock& e) {
-#if 0
-		WRITELOG(CIOSRV, DBG, "ciosrv(%p)::notify() from thread: 0x%x "
-				"to thread: 0x%x, ignoring event: %s",
-				this, pthread_self(), tid, cevent(ev).c_str());
-#endif
-
-#if 0
-	} catch (eIoSvcNotFound& e) {
-		WRITELOG(CIOSRV, DBG, "ciosrv(%p)::notify() from thread: 0x%x "
-				"to thread: 0x%x, ciosrv:%p already deleted",
-				this, pthread_self(), tid, this);
-#endif
-	}
-}
-
-
 void
 ciosrv::register_filedesc_r(int fd)
 {
-	ciosrv::threads[tid]->rfdset.add_fd(fd, this);
+	cioloop::get_loop().add_readfd(this, fd);
 }
 
 
 void
 ciosrv::deregister_filedesc_r(int fd)
 {
-	ciosrv::threads[tid]->rfdset.drop_fd(fd);
+	cioloop::get_loop().drop_readfd(this, fd);
 }
 
 
 void
 ciosrv::register_filedesc_w(int fd)
 {
-	ciosrv::threads[tid]->wfdset.add_fd(fd, this);
+	cioloop::get_loop().add_writefd(this, fd);
 }
 
 
 void
 ciosrv::deregister_filedesc_w(int fd)
 {
-	ciosrv::threads[tid]->wfdset.drop_fd(fd);
+	cioloop::get_loop().drop_writefd(this, fd);
 }
+
+
+void
+ciosrv::notify(cevent const& ev)
+{
+	cioloop::get_loop().add_event(this, ev);
+}
+
+
 
 
 void

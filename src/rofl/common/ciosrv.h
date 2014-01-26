@@ -46,11 +46,273 @@ class eIoSvcRunError 		: public eIoSvcBase {}; //< error in core loop (select)
 class eIoSvcUnhandledTimer 	: public eIoSvcBase {}; //< unhandled timer
 class eIoSvcNotFound        : public eIoSvcBase {}; //< element not found
 
-class ciosrv;
+
+/**
+ * (Abstract) Base class for IO services.
+ * This class is a base class that adds IO event support to a derived class.
+ * ciosrv provides a static method for running an infinite loop of select()/poll()
+ * to handle file/socket descriptors. Each instance adds methods for adding/removing
+ * file descriptors to/from the set of monitored descriptors.
+ *
+ * A derived class may overwrite event handlers for receiving the following event types:
+ * - handle_revent() read events on file descriptors
+ * - handle_wevent() write events on file descriptors
+ * - handle_xevent() exceptions on file descriptors
+ * - handle_timeout() timeout events
+ * - handle_event() events emitted from external threads via cevent
+ *
+ * Methods for file descriptor management:
+ * - register_filedesc_r() register a descriptor for read IO
+ * - deregister_filedesc_r() deregister a read descriptor
+ * - register_filedesc_w() register a descriptor for write IO
+ * - deregister_filedesc_w() deregister a write descriptor
+ *
+ * Methods for timer management:
+ * - register_timer() register a timer
+ * - reset_timer() reset a timer
+ * - cancel_timer() cancel a timer
+ * - cancel_all_timer() cancel all timers
+ *
+ */
+class ciosrv
+{
+	pthread_t		tid;
+
+	enum ciosrv_flag_t {
+		CIOSRV_FLAG_WAKEUP_CALLED = (1 << 0), // when set, pipe was already instructed to
+						// wake up called thread
+	};
+
+public:
+
+	/**
+	 * @brief	Initializes all structures for this ciosrv object.
+	 */
+	ciosrv();
+
+	/**
+	 * @brief	Deallocates resources for this ciosrv object.
+	 */
+	virtual
+	~ciosrv();
+
+	/**
+	 * @brief	Initializes all structures for this ciosrv object.
+	 */
+	ciosrv(ciosrv const& iosrv);
+
+	/**
+	 *
+	 */
+	ciosrv&
+	operator= (ciosrv const& iosrv);
+
+public:
+
+	/**
+	 * @brief	Sends a notification to this ciosrv instance.
+	 *
+	 * Method notify() can be called from every thread within the
+	 * running application. The event management system wakes up
+	 * this thread when in sleeping condition in a poll/select loop and calls its
+	 * handle_event() method.
+	 *
+	 * @param ev the event to be sent to this instance
+	 */
+	void
+	notify(
+			cevent const& event);
+
+	/**
+	 * @brief	Returns thread-id of local thread.
+	 *
+	 * @return thread ID
+	 */
+	pthread_t
+	get_thread_id() const { return tid; };
+
+protected:
+
+
+	/**
+	 * @name Event handlers
+	 *
+	 * These methods define handlers for file descriptor and cevent notifications.
+	 * Derived classes should overwwrite all relevant handlers.
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief	Handler for event notifications using cevent instances.
+	 *
+	 * To be overwritten by derived class. Default behaviour: event is ignored.
+	 *
+	 * @see notify(cevent const& ev)
+	 *
+	 * @param ev cevent instance received
+	 */
+	virtual void
+	handle_event(cevent const& ev) {};
+
+	/**
+	 * @brief	Handler for read events on file descriptors.
+	 *
+	 * To be overwritten by derived class. Default behaviour: event is ignored.
+	 *
+	 * @param fd read event occured on file descriptor fd
+	 */
+	virtual void
+	handle_revent(int fd) {};
+
+	/**
+	 * @brief	Handler for write events on file descriptors.
+	 *
+	 * To be overwritten by derived class. Default behaviour: event is ignored.
+	 *
+	 * @param fd write event occured on file descriptor fd
+	 */
+	virtual void
+	handle_wevent(int fd) {};
+
+	/**
+	 * @brief	Handler for exceptions on file descriptors.
+	 *
+	 * To be overwritten by derived class. Default behaviour: event is ignored.
+	 *
+	 * @param fd exception occured on file descriptor fd
+	 */
+	virtual void
+	handle_xevent(int fd) {};
+
+	/**
+	 * @brief	Handler for timer events.
+	 *
+	 * To be overwritten by derived class. Default behaviour: event is ignored.
+	 *
+	 * @param opaque expired timer type
+	 */
+	virtual void
+	handle_timeout(int opaque) {};
+
+	/**@}*/
+
+protected:
+
+	/**
+	 * @name Management methods for file descriptors
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief	Registers a file descriptor for read events.
+	 *
+	 * A read event will be indicated via calling handle_revent(fd).
+	 *
+	 * @param fd the file descriptor waiting for read events
+	 */
+	void
+	register_filedesc_r(int fd);
+
+	/**
+	 * @brief	Deregisters a file descriptor from read events.
+	 *
+	 * @param fd the file descriptor removed from the set of read events
+	 */
+	void
+	deregister_filedesc_r(int fd);
+
+	/**
+	 * @brief	Registers a file descriptor for write events.
+	 *
+	 * A write event will be indicated via calling handle_wevent(fd).
+	 *
+	 * @param fd the file descriptor waiting for write events
+	 */
+	void
+	register_filedesc_w(int fd);
+
+	/**
+	 * @brief	Deregisters a file descriptor from write events.
+	 *
+	 * @param fd the file descriptor removed from the set of write events
+	 */
+	void
+	deregister_filedesc_w(int fd);
+
+	/**@}*/
+
+protected:
+
+	/**
+	 * @name Management methods for timers
+	 */
+
+	/**@{*/
+
+	/**
+	 * @brief	Installs a new timer to fire in t seconds.
+	 *
+	 * @param opaque this timer type can be arbitrarily chosen
+	 * @param t timeout in seconds of this timer
+	 */
+	void
+	register_timer(int opaque, time_t t);
+
+	/**
+	 * @brief	Resets a running timer of type opaque.
+	 *
+	 * If no timer of type opaque exists, a new timer will be started.
+	 *
+	 * @param opaque this timer type can be arbitrarily chosen
+	 * @param t timeout in seconds of this timer
+	 */
+	void
+	reset_timer(int opaque, time_t t);
+
+	/**
+	 * @brief	Checks for a pending timer of type opaque.
+	 *
+	 * @param opaque timer type the caller is seeking for
+	 * @return true: timer of type opaque exists, false: no pending timer
+	 */
+	bool
+	pending_timer(int opaque);
+
+	/**
+	 * @brief	Cancels a pending timer.
+	 *
+	 * @param opaque timer type the caller is seeking for
+	 */
+	void
+	cancel_timer(int opaque);
+
+	/**
+	 * @brief	Cancels all pending timer of this instance.
+	 *
+	 */
+	void
+	cancel_all_timer();
+
+	/**@}*/
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, ciosrv const& iosvc) {
+		os << indent(0) << "<ciosrv >";
+		return os;
+	};
+};
 
 
 
-class cioelem {
+
+
+class cioelem :
+		public cfdowner
+{
 
 	ciosrv		*iosrv;	// corresponding ciosrv instance
 
@@ -88,6 +350,20 @@ public:
 
 public:
 
+	/**
+	 *
+	 */
+	cioelem_state_t
+	get_state() const { return state; };
+
+	/**
+	 *
+	 */
+	void
+	set_state(cioelem_state_t state) { this->state = state; };
+
+public:
+
 	friend std::ostream&
 	operator<< (std::ostream& os, cioelem const& elem) {
 		os << "<cioelem iosrv:" << elem.iosrv << " ";
@@ -112,20 +388,17 @@ public:
 
 	friend class ciosrv;
 
-	pthread_t               tid;
-	PthreadRwLock			rwlock;
-	std::set<cioelem>		elems_add;
-	std::set<cioelem>		elems_drop;
-	std::set<cioelem> 		elems;
+	pthread_t               		tid;
+	PthreadRwLock					elems_rwlock;
+	std::map<ciosrv*, cioelem>		elems;
+	cpipe							pipe;
+	cfdset							rfdset;
+	cfdset							wfdset;
+	ctimers							timers;
+	cevents							events;
 
-	cpipe					pipe;
-	cfdset					rfdset;
-	cfdset					wfdset;
-	ctimers					timers;
-	cevents					events;
-
-	struct timespec 		ts;
-	bool					keep_on_running;
+	struct timespec 				ts;
+	bool							keep_on_running;
 
 public:
 
@@ -167,8 +440,8 @@ public:
 	 */
 	void
 	add_elem(ciosrv* iosrv) {
-		RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
-		elems_add.insert(cioelem(iosrv, cioelem::STATE_ADD));
+		RwLock lock(elems_rwlock, RwLock::RWLOCK_WRITE);
+		elems[iosrv] = cioelem(iosrv, cioelem::STATE_ADD);
 	};
 
 	/**
@@ -176,10 +449,63 @@ public:
 	 */
 	void
 	drop_elem(ciosrv* iosrv) {
-		RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
-		elems_drop.erase(cioelem(iosrv, cioelem::STATE_DROP));
+		RwLock lock(elems_rwlock, RwLock::RWLOCK_WRITE);
+		elems[iosrv].set_state(cioelem::STATE_DROP);
 	};
 
+	/**
+	 *
+	 */
+	void
+	add_readfd(ciosrv* iosrv, int fd) {
+		RwLock lock(elems_rwlock, RwLock::RWLOCK_READ);
+		rfdset.add_fd(fd, &elems[iosrv]);
+	};
+
+	/**
+	 *
+	 */
+	void
+	drop_readfd(ciosrv* iosrv, int fd) {
+		rfdset.drop_fd(fd);
+	};
+
+	/**
+	 *
+	 */
+	void
+	add_writefd(ciosrv* iosrv, int fd) {
+		RwLock lock(elems_rwlock, RwLock::RWLOCK_READ);
+		wfdset.add_fd(fd, &elems[iosrv]);
+	};
+
+
+	/**
+	 *
+	 */
+	void
+	drop_writefd(ciosrv* iosrv, int fd) {
+		wfdset.drop_fd(fd);
+	};
+
+
+	/**
+	 *
+	 */
+	void
+	add_timer(ciosrv* iosrv, ctimer const& t);
+
+	/**
+	 *
+	 */
+	void
+	drop_timer(ciosrv* iosrv, int type);
+
+	/**
+	 *
+	 */
+	void
+	add_event(ciosrv* iosrv, cevent const& e);
 
 	/**
 	 *
@@ -227,412 +553,8 @@ private:
 	void
 	run_loop();
 
-public:
 
-	friend std::ostream&
-	operator<< (std::ostream& os, cioloop const& thread) {
-		os << indent(0) << "<cthread >";
-		indent i(2);
-		os << "<read-fds: >" << std::endl;
-		{ indent i(2); os << thread.rfdset; }
-		os << "<write-fds: >" << std::endl;
-		{ indent i(2); os << thread.wfdset; }
-		os << "<timers: >" << std::endl;
-		{ indent i(2); os << thread.timers; }
-		os << "<events: >" << std::endl;
-		{ indent i(2); os << thread.events; }
-		return os;
-	};
-};
 
-
-
-/**
- * (Abstract) Base class for IO services.
- * This class is a base class that adds IO event support to a derived class.
- * ciosrv provides a static method for running an infinite loop of select()/poll()
- * to handle file/socket descriptors. Each instance adds methods for adding/removing
- * file descriptors to/from the set of monitored descriptors.
- *
- * A derived class may overwrite event handlers for receiving the following event types:
- * - handle_revent() read events on file descriptors
- * - handle_wevent() write events on file descriptors
- * - handle_xevent() exceptions on file descriptors
- * - handle_timeout() timeout events
- * - handle_event() events emitted from external threads via cevent
- *
- * Methods for file descriptor management:
- * - register_filedesc_r() register a descriptor for read IO
- * - deregister_filedesc_r() deregister a read descriptor
- * - register_filedesc_w() register a descriptor for write IO
- * - deregister_filedesc_w() deregister a write descriptor
- *
- * Methods for timer management:
- * - register_timer() register a timer
- * - reset_timer() reset a timer
- * - cancel_timer() cancel a timer
- * - cancel_all_timer() cancel all timers
- *
- */
-class ciosrv :
-		public cfdowner
-{
-#if 0
-	class ciothread {
-	public:
-		pthread_t               tid;		// thread id
-		cpipe                   *pipe;	        // wakeup pipe
-		std::set<ciosrv*>		ciosrv_elements;// all ciosrv objects within this thread
-		std::map<int, ciosrv*>  rfds; 	        // read fds
-		pthread_rwlock_t		rfds_rwlock;
-		std::map<int, ciosrv*>  wfds;	        // write fds
-		pthread_rwlock_t		wfds_rwlock;
-		std::list<ciosrv*>      ciosrv_timeouts;// set with all ciosrv instances with timeout in next round
-		std::bitset<32>         flags;          //< flags
-
-		pthread_rwlock_t wakeup_rwlock;  // rwlock for cevent lists
-        pthread_mutex_t  ciosrv_list_mutex;     // mutex for cevent lists
-        std::set<class ciosrv*> ciosrv_insertion_list; //< list of all ciosrv instances new inserted
-        std::set<class ciosrv*> ciosrv_list;           //< list of all ciosrv instances
-        std::set<class ciosrv*> ciosrv_deletion_list;  //< list of all ciosrv instances scheduled for deletion
-        std::set<class ciosrv*> ciosrv_wakeup;         //< list of all cioctl commands rcvd
-        int evlockinit; // = 0 => destroy mutex
-        bool					keep_on;
-
-	public:
-		/** constructor
-		 *
-		 */
-		ciothread() :
-			tid(pthread_self()),
-			evlockinit(0),
-			keep_on(true)
-		{
-			pipe = new cpipe();
-			pthread_rwlock_init(&(wakeup_rwlock), NULL);
-			pthread_mutex_init(&(ciosrv_list_mutex), NULL);
-			pthread_rwlock_init(&(rfds_rwlock), NULL);
-			pthread_rwlock_init(&(wfds_rwlock), NULL);
-		};
-		~ciothread()
-		{
-#if 0
-                        for (std::set<ciosrv*>::iterator it = ciosrv_list.begin();
-                            it != ciosrv_list.end(); ++it)
-                        {
-                            delete (*it);
-                        }
-#endif
-            pthread_rwlock_destroy(&wfds_rwlock);
-            pthread_rwlock_destroy(&rfds_rwlock);
-            pthread_mutex_destroy(&(ciosrv_list_mutex));
-	        pthread_rwlock_destroy(&(wakeup_rwlock));
-			delete pipe;
-		};
-	};
-#endif
-
-private: // static
-
-
-
-	enum ciosrv_flag_t {
-		CIOSRV_FLAG_WAKEUP_CALLED = (1 << 0), // when set, pipe was already instructed to
-						// wake up called thread
-	};
-
-
-
-private:
-
-	enum ciosrv_thread_state_t {
-		STATE_STOPPED 		= 0,
-		STATE_INITIALIZED	= 1,
-		STATE_STARTED		= 2,
-	};
-
-	/**
- 	 *
-	 */
-	static int
-	thread_init();
-
-	/**
-	 *
-	 */
-	static void
-	thread_shutdown();
-
-
-
-
-public:
-
-
-
-	/**
-	 * @brief	Initializes all structures for this ciosrv object.
-	 */
-	ciosrv();
-
-
-
-	/**
-	 * @brief	Deallocates resources for this ciosrv object.
-	 */
-	virtual
-	~ciosrv();
-
-
-
-
-	/**
-	 * @brief	Initializes all structures for this ciosrv object.
-	 */
-	ciosrv(ciosrv const& iosrv);
-
-
-	/**
-	 *
-	 */
-	ciosrv&
-	operator= (ciosrv const& iosrv);
-
-
-	/**
-	 * @brief	Sends a notification to this ciosrv instance.
-	 *
-	 * Method notify() can be called from every thread within the
-	 * running application. The event management system wakes up
-	 * this thread when in sleeping condition in a poll/select loop and calls its
-	 * handle_event() method.
-	 *
-	 * @param ev the event to be sent to this instance
-	 */
-	void
-	notify(
-			cevent const& event);
-
-
-
-	/**
-	 * @brief	Returns thread-id of local thread.
-	 *
-	 * @return thread ID
-	 */
-	pthread_t
-	get_thread_id() const { return tid; };
-
-
-
-
-protected:
-
-
-	/**
-	 * @name Event handlers
-	 *
-	 * These methods define handlers for file descriptor and cevent notifications.
-	 * Derived classes should overwwrite all relevant handlers.
-	 */
-
-	/**@{*/
-
-
-	/**
-	 * @brief	Handler for event notifications using cevent instances.
-	 *
-	 * To be overwritten by derived class. Default behaviour: event is ignored.
-	 *
-	 * @see notify(cevent const& ev)
-	 *
-	 * @param ev cevent instance received
-	 */
-	virtual void
-	handle_event(cevent const& ev) {};
-
-
-
-	/**
-	 * @brief	Handler for read events on file descriptors.
-	 *
-	 * To be overwritten by derived class. Default behaviour: event is ignored.
-	 *
-	 * @param fd read event occured on file descriptor fd
-	 */
-	virtual void
-	handle_revent(int fd) {};
-
-
-
-	/**
-	 * @brief	Handler for write events on file descriptors.
-	 *
-	 * To be overwritten by derived class. Default behaviour: event is ignored.
-	 *
-	 * @param fd write event occured on file descriptor fd
-	 */
-	virtual void
-	handle_wevent(int fd) {};
-
-
-
-	/**
-	 * @brief	Handler for exceptions on file descriptors.
-	 *
-	 * To be overwritten by derived class. Default behaviour: event is ignored.
-	 *
-	 * @param fd exception occured on file descriptor fd
-	 */
-	virtual void
-	handle_xevent(int fd) {};
-
-
-
-	/**
-	 * @brief	Handler for timer events.
-	 *
-	 * To be overwritten by derived class. Default behaviour: event is ignored.
-	 *
-	 * @param opaque expired timer type
-	 */
-	virtual void
-	handle_timeout(int opaque) {};
-
-
-	/**@}*/
-
-
-
-
-
-protected:
-
-	/**
-	 * @name Management methods for file descriptors
-	 */
-
-	/**@{*/
-
-
-	/**
-	 * @brief	Registers a file descriptor for read events.
-	 *
-	 * A read event will be indicated via calling handle_revent(fd).
-	 *
-	 * @param fd the file descriptor waiting for read events
-	 */
-	void
-	register_filedesc_r(int fd);
-
-
-
-	/**
-	 * @brief	Deregisters a file descriptor from read events.
-	 *
-	 * @param fd the file descriptor removed from the set of read events
-	 */
-	void
-	deregister_filedesc_r(int fd);
-
-
-
-
-	/**
-	 * @brief	Registers a file descriptor for write events.
-	 *
-	 * A write event will be indicated via calling handle_wevent(fd).
-	 *
-	 * @param fd the file descriptor waiting for write events
-	 */
-	void
-	register_filedesc_w(int fd);
-
-
-
-
-	/**
-	 * @brief	Deregisters a file descriptor from write events.
-	 *
-	 * @param fd the file descriptor removed from the set of write events
-	 */
-	void
-	deregister_filedesc_w(int fd);
-
-
-
-	/**@}*/
-
-
-
-protected:
-
-	/**
-	 * @name Management methods for timers
-	 */
-
-	/**@{*/
-
-
-	/**
-	 * @brief	Installs a new timer to fire in t seconds.
-	 *
-	 * @param opaque this timer type can be arbitrarily chosen
-	 * @param t timeout in seconds of this timer
-	 */
-	void
-	register_timer(int opaque, time_t t);
-
-
-
-	/**
-	 * @brief	Resets a running timer of type opaque.
-	 *
-	 * If no timer of type opaque exists, a new timer will be started.
-	 *
-	 * @param opaque this timer type can be arbitrarily chosen
-	 * @param t timeout in seconds of this timer
-	 */
-	void
-	reset_timer(int opaque, time_t t);
-
-
-
-	/**
-	 * @brief	Checks for a pending timer of type opaque.
-	 *
-	 * @param opaque timer type the caller is seeking for
-	 * @return true: timer of type opaque exists, false: no pending timer
-	 */
-	bool
-	pending_timer(int opaque);
-
-
-
-	/**
-	 * @brief	Cancels a pending timer.
-	 *
-	 * @param opaque timer type the caller is seeking for
-	 */
-	void
-	cancel_timer(int opaque);
-
-
-
-
-	/**
-	 * @brief	Cancels all pending timer of this instance.
-	 *
-	 */
-	void
-	cancel_all_timer();
-
-
-	/**@}*/
-
-
-
-private:
 
 
 private:
@@ -731,14 +653,27 @@ private:
 	void
 	__handle_timeout();
 
+
+
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, ciosrv const& iosvc) {
-		os << indent(0) << "<ciosrv >";
+	operator<< (std::ostream& os, cioloop const& thread) {
+		os << indent(0) << "<cioloop >";
+		indent i(2);
+		os << "<read-fds: >" << std::endl;
+		{ indent i(2); os << thread.rfdset; }
+		os << "<write-fds: >" << std::endl;
+		{ indent i(2); os << thread.wfdset; }
+		os << "<timers: >" << std::endl;
+		{ indent i(2); os << thread.timers; }
+		os << "<events: >" << std::endl;
+		{ indent i(2); os << thread.events; }
 		return os;
 	};
 };
+
+
 
 }; // end of namespace
 
