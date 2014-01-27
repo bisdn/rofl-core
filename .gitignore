@@ -28,6 +28,7 @@ libtool
 compile
 m4
 ar-lib
+test-driver
 
 /build-*
 /build/*
