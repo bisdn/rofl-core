@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include "platform/memory.h"
+#include "openflow/of_switch.h"
 
 /*
 * Inits a port structure including statistics 
@@ -52,7 +53,7 @@ switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_stat
 	port->curr = port->advertised = port->supported = port->peer = 0x0;	
 	port->curr_speed = port->curr_max_speed = 0;
 	port->of_port_num = 0;
-	port->of_generate_packet_in = true;
+	port->of_get_packet_in = true;
 	port->attached_sw = NULL;
 
 	//Platform state
@@ -143,4 +144,48 @@ void switch_port_set_current_max_speed(switch_port_t* port, port_features_t spee
 	if(speed > PORT_FEATURE_1TB_FD)
 		return;
 	port->curr_max_speed = speed;
+}
+
+
+/*
+* Internal call to copy the port
+*/
+switch_port_snapshot_t* __switch_port_get_snapshot(switch_port_t* port){
+
+	int i;
+
+	//Allocate it
+	switch_port_snapshot_t* s = platform_malloc_shared(sizeof(switch_port_snapshot_t)); 
+
+	if(!s)
+		return NULL;
+
+	//Copy the contents of the port
+	memcpy(s, port, sizeof(switch_port_snapshot_t)); //switch_port_t == switch_port_snapshot_t
+	
+	//Leave the appropiate values blank;
+	s->platform_port_state=s->mutex=s->attached_sw=s->stats.mutex=NULL;
+	for(i=0;i<SWITCH_PORT_MAX_QUEUES;i++)
+		s->queues[i].stats.mutex = NULL;
+	
+	//Copy missing information
+	s->is_attached_to_sw = (port->attached_sw != NULL);
+	if(port->attached_sw)
+		s->attached_sw_dpid = port->attached_sw->dpid;
+	else
+		s->attached_sw_dpid = 0x0;
+	
+	return s;
+}
+void switch_port_destroy_snapshot(switch_port_snapshot_t* port){
+	if(!port)
+		platform_free_shared(port);
+}
+
+//Destroy a port name list
+void switch_port_name_list_destroy(switch_port_name_list_t* list){
+	if(list){
+		platform_free_shared(list->names);
+		platform_free_shared(list);
+	}
 }

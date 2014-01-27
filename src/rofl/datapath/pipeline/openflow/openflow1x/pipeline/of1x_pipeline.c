@@ -2,6 +2,7 @@
 #include "of1x_instruction.h"
 #include "of1x_flow_table.h"
 #include "of1x_group_table.h"
+#include "of1x_timers.h"
 #include "../../../platform/lock.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/packet.h"
@@ -255,7 +256,7 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 
 			}else if(((of1x_switch_t*)sw)->pipeline.tables[i].default_action == OF1X_TABLE_MISS_CONTROLLER){
 			
-				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_CONTROLLER. It Will generate a PACKET_IN event to the controller\n",pkt);
+				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_CONTROLLER. It Will get a PACKET_IN event to the controller\n",pkt);
 
 				platform_of1x_packet_in((of1x_switch_t*)sw, i, pkt, OF1X_PKT_IN_NO_MATCH);
 				return;
@@ -299,4 +300,50 @@ void of1x_process_packet_out_pipeline(const of1x_switch_t *sw, datapacket_t *con
 		//Packet was replicated. Drop original packet
 		platform_packet_drop(pkt);
 	}
+}
+
+//
+// Snapshots
+//
+
+//Creates a snapshot of the running pipeline of an LSI 
+rofl_result_t __of1x_pipeline_get_snapshot(of1x_pipeline_t* pipeline, of1x_pipeline_snapshot_t* sn){
+
+	int i;
+	of1x_flow_table_t* t;
+
+	//Cleanup stuff coming from the cloning process
+	sn->tables = NULL;
+	sn->groups = NULL;
+	sn->sw = NULL;		
+
+	//Allocate tables and initialize	
+	sn->tables = (of1x_flow_table_t*)platform_malloc_shared(sizeof(of1x_flow_table_t)*pipeline->num_of_tables);
+	
+	if(!sn->tables)
+		return ROFL_FAILURE;
+
+	//Copy contents of the tables and remove references
+	memcpy(sn->tables, pipeline->tables, sizeof(of1x_flow_table_t)*pipeline->num_of_tables);
+
+	//Snapshot tables tables
+	for(i=0;i<pipeline->num_of_tables;i++){
+		t = &sn->tables[i];
+		t->pipeline = t->rwlock = t->mutex = t->matching_aux[0] = t->matching_aux[1] = NULL;
+		
+#if OF1X_TIMER_STATIC_ALLOCATION_SLOTS	
+#else
+		t->timers = NULL;
+#endif
+	}
+	
+	//TODO: deep entry copy?
+
+	return ROFL_SUCCESS;
+}
+
+//Destroy a previously getd snapshot
+void __of1x_pipeline_destroy_snapshot(of1x_pipeline_snapshot_t* sn){
+	//Release tables memory
+	platform_free_shared(sn->tables);
 }

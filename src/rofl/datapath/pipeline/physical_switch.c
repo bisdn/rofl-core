@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "platform/memory.h"
 #include "util/logging.h"
+#include "openflow/of_switch.h"
 #include "openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms.h"
 
 static physical_switch_t* psw=NULL;
@@ -161,7 +162,6 @@ switch_port_t* physical_switch_get_port_by_name(const char *name){
 }
 
 
-/* FIXME: this is dangerous. Better go for a copy of the ports */
 //Get the reference to the physical ports
 switch_port_t** physical_switch_get_physical_ports(unsigned int* max_ports){
 	*max_ports = PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;
@@ -319,7 +319,6 @@ rofl_result_t physical_switch_remove_port(const char* name){
 
 
 
-
 //
 // Logical switch management
 //
@@ -430,25 +429,7 @@ of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_po
 	return (of_switch_t*)port.attached_sw;
 }
 
-//Platform port mapping methods
-#if 0
-rofl_result_t physical_switch_attach_physical_port_num_to_logical_switch(unsigned int port_num, of_switch_t* sw, unsigned int* logical_switch_port_num){
-	
-	rofl_result_t return_val;
-
-	if( !sw || port_num >= PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS || psw->physical_ports[port_num]->attached_sw )
-		return ROFL_FAILURE;
-	
-	//Serialize
-	platform_mutex_lock(psw->mutex);
-
-	return_val = of_attach_port_to_switch(sw, psw->physical_ports[port_num], logical_switch_port_num);
-	
-	platform_mutex_unlock(psw->mutex);
-	return return_val;
-}
-#endif
-
+//Attach
 rofl_result_t physical_switch_attach_port_to_logical_switch(switch_port_t* port, of_switch_t* sw, unsigned int* port_num){
 
 	rofl_result_t return_val;
@@ -535,5 +516,160 @@ rofl_result_t physical_switch_detach_all_ports_from_logical_switch(of_switch_t* 
 }
 
 
+//
+// Snapshots
+//
 
+//List of ports
+switch_port_name_list_t* physical_switch_get_all_port_names(void){
 
+	switch_port_name_list_t* list;
+	__switch_port_name_t* names;
+	unsigned int num_of_ports, i;
+
+	//Serialize
+	platform_mutex_lock(psw->mutex);
+
+	//Determine the number of (currenly) exisitng ports
+	num_of_ports=0;
+	for(i=0;PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;i++){
+		if(psw->physical_ports[i])
+			num_of_ports++;
+	}
+	for(i=0;PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS;i++){
+		if(psw->tunnel_ports[i])
+			num_of_ports++;
+	}
+	for(i=0;PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS;i++){
+		if(psw->virtual_ports[i])
+			num_of_ports++;
+	}
+	
+	//Allocate memory
+	list = platform_malloc_shared(sizeof(switch_port_name_list_t));
+	names = platform_malloc_shared(sizeof(__switch_port_name_t)*num_of_ports);
+
+	if(!list || !names){
+		platform_mutex_unlock(psw->mutex);
+		if(list)
+			platform_free_shared(list);
+		if(names)
+			platform_free_shared(names);
+		return NULL;
+	}
+	
+	//Fill in
+	list->names = names;
+	list->num_of_ports = num_of_ports;
+
+	num_of_ports=0;
+	for(i=0;PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;i++){
+		if(psw->physical_ports[i]){
+			memcpy(&list->names[num_of_ports], &psw->physical_ports[i]->name, SWITCH_PORT_MAX_LEN_NAME);
+			num_of_ports++;
+		}
+	}
+	for(i=0;PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS;i++){
+		if(psw->tunnel_ports[i]){
+			memcpy(&list->names[num_of_ports], &psw->tunnel_ports[i]->name, SWITCH_PORT_MAX_LEN_NAME);
+			num_of_ports++;
+		}
+	}
+	for(i=0;PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS;i++){
+		if(psw->virtual_ports[i]){
+			memcpy(&list->names[num_of_ports], &psw->virtual_ports[i]->name, SWITCH_PORT_MAX_LEN_NAME);
+			num_of_ports++;
+		}
+	}
+	
+	platform_mutex_unlock(psw->mutex);
+	
+	return list;
+}
+
+//Get the port snapshot
+switch_port_snapshot_t* physical_switch_get_port_snapshot(const char* name){
+
+	switch_port_t* port;
+	switch_port_snapshot_t* snapshot;
+
+	if(!name)
+		return NULL;
+
+	//Serialize
+	platform_mutex_lock(psw->mutex);
+
+	port = physical_switch_get_port_by_name(name);
+	
+	if(!port){
+		platform_mutex_unlock(psw->mutex);
+		return NULL;
+	} 
+
+	snapshot = __switch_port_get_snapshot(port);
+
+	platform_mutex_unlock(psw->mutex);
+	
+	return snapshot;
+}
+
+//LSIs
+dpid_list_t* physical_switch_get_all_lsi_dpids(void){
+
+	int i,j;
+	dpid_list_t* list;
+
+	list = platform_malloc_shared(sizeof(dpid_list_t));
+
+	//Prevent management actions to screw the walk through the LSIs
+	platform_mutex_lock(psw->mutex);
+
+	//Set the number of elements
+	list->num_of_lsis = psw->num_of_logical_switches;
+
+	//Allocate the list space
+	list->dpids = platform_malloc_shared(sizeof(uint64_t)*list->num_of_lsis);
+	
+	if(!list->dpids){
+		platform_mutex_unlock(psw->mutex);
+		return NULL;
+	}
+	
+	//Fill it with 0s	
+	memset(list->dpids,0,sizeof(uint64_t)*list->num_of_lsis);
+	for(i=0,j=0;i<PHYSICAL_SWITCH_MAX_LS;i++){
+		if(psw->logical_switches[i]){
+			list->dpids[j] = psw->logical_switches[i]->dpid; 
+			j++;
+		}
+	}
+
+	platform_mutex_unlock(psw->mutex);
+	
+	return list;
+}
+
+void dpid_list_destroy(dpid_list_t* list){
+	platform_free_shared(list->dpids);
+	platform_free_shared(list);
+}
+
+of_switch_snapshot_t* physical_switch_get_logical_switch_snapshot(const uint64_t dpid){
+
+	of_switch_t* sw;
+	of_switch_snapshot_t* to_return=NULL;
+
+	
+	//Serialize
+	platform_mutex_lock(psw->mutex);
+
+	//Try to find the switch
+	sw = physical_switch_get_logical_switch_by_dpid(dpid);  
+
+	if(sw)
+		to_return = __of_switch_get_snapshot(sw); 
+
+	platform_mutex_unlock(psw->mutex);
+
+	return to_return;
+}

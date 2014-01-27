@@ -280,7 +280,7 @@ of1x_stats_group_msg_t * fwd_module_of1x_get_group_stats(uint64_t dpid, uint32_t
  */
 of1x_stats_group_msg_t * fwd_module_of1x_get_group_all_stats(uint64_t dpid, uint32_t id);
 
-//Add more here..
+// [+] Add more here..
 
 //C++ extern C
 AFA_END_DECLS

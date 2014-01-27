@@ -1,5 +1,6 @@
 #include "of1x_switch.h"
 
+#include "../../switch_port.h"
 #include "../../platform/memory.h"
 #include "../../util/logging.h"
 #include "../of_switch.h"
@@ -16,12 +17,7 @@ of1x_switch_t* of1x_init_switch(const char* name, of_version_t version, uint64_t
 	//Filling in values
 	sw->of_ver = version;
 	sw->dpid = dpid;
-	sw->name = (char*)platform_malloc_shared(strlen(name)+1);
-	if(sw->name == NULL){
-		platform_free_shared(sw);
-		return NULL;
-	}
-	strcpy(sw->name,name);
+	strncpy(sw->name,name,LOGICAL_SWITCH_MAX_LEN_NAME);
 
 	//Initialize logical_ports
 	memset(sw->logical_ports,0,sizeof(logical_switch_port_t)*LOGICAL_SWITCH_MAX_LOG_PORTS);
@@ -72,8 +68,6 @@ rofl_result_t __of1x_destroy_switch(of1x_switch_t* sw){
 	//TODO: rwlock
 	
 	platform_mutex_destroy(sw->mutex);
-	
-	platform_free_shared(sw->name);
 	platform_free_shared(sw);
 	
 	return ROFL_SUCCESS;
@@ -264,3 +258,80 @@ void of1x_full_dump_switch(of1x_switch_t* sw){
 	ROFL_PIPELINE_DEBUG("--End of group table--\n\n");
 }
 
+//
+// Snapshots
+//
+
+//Creates a snapshot of the running of LSI 
+of1x_switch_snapshot_t* __of1x_switch_get_snapshot(of1x_switch_t* sw){
+
+	int i;
+
+	//Allocate a snapshot
+	of1x_switch_snapshot_t* sn = platform_malloc_shared(sizeof(of1x_switch_snapshot_t));
+
+	if(!sn)
+		return NULL;
+
+	//Serialize actions over the switch
+	platform_mutex_lock(sw->mutex);
+	
+	//Copy contents
+	memcpy(sn, sw, sizeof(of1x_switch_snapshot_t));
+
+	//Cleanup the stuff that should not be exported
+	sn->mutex = sn->platform_state = NULL;
+	
+	//Snapshot ports
+	for(i=0;i<LOGICAL_SWITCH_MAX_LOG_PORTS;i++){
+		if(sw->logical_ports[i].port){
+			//Exists, snapshot it
+			sn->logical_ports[i].port = __switch_port_get_snapshot(sw->logical_ports[i].port);
+			if(!sn->logical_ports[i].port)
+				goto ports_only_snapshoting_error;	
+		}
+	}
+	
+	//Snapshot pipeline	
+	if(__of1x_pipeline_get_snapshot(&sw->pipeline, &sn->pipeline) != ROFL_SUCCESS)
+		goto pipeline_snapshoting_error;	
+
+	platform_mutex_unlock(sw->mutex);
+
+	return sn;
+
+pipeline_snapshoting_error:
+	//There is no need to do nothing, since
+	//call should have already cleanup his own memory
+ports_only_snapshoting_error:
+	//Delete snapshotted ports
+	for(;i>0;i--){
+		if(sn->logical_ports[i].port)
+			switch_port_destroy_snapshot(sn->logical_ports[i].port);
+	}
+
+	platform_mutex_unlock(sw->mutex);
+	
+	//Free main snapshot
+	platform_free_shared(sn);
+
+	return NULL;
+}
+
+//Destroy a previously generated snapshot
+void __of1x_switch_destroy_snapshot(of1x_switch_snapshot_t* sn){
+	
+	int i;
+
+	//Let the pipeline destroy its state
+	__of1x_pipeline_destroy_snapshot(&sn->pipeline);	
+	
+	//Destroy port snapshots
+	for(i=0;i<LOGICAL_SWITCH_MAX_LOG_PORTS;i++){
+		if(sn->logical_ports[i].port)
+			switch_port_destroy_snapshot(sn->logical_ports[i].port);
+	}
+	
+	//Free main snapshot
+	platform_free_shared(sn);
+}

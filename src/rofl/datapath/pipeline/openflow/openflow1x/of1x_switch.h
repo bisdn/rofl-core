@@ -9,7 +9,6 @@
 #include <string.h>
 #include "rofl.h"
 #include "../of_switch.h"
-#include "../of_switch.h"
 #include "pipeline/of1x_pipeline.h"
 #include "../../platform/lock.h"
 
@@ -34,7 +33,7 @@ typedef struct of1x_switch{
 	/* This part is common and MUST be at the very beginning */ 
 	of_version_t of_ver; 
 	uint64_t dpid;
-	char* name;
+	char name[LOGICAL_SWITCH_MAX_LEN_NAME];
 	unsigned int max_ports;
 	unsigned int num_of_ports;
 	
@@ -52,6 +51,11 @@ typedef struct of1x_switch{
 	platform_mutex_t* mutex;
 
 }of1x_switch_t;
+
+/**
+* Switch snapshot
+*/
+typedef of1x_switch_t of1x_switch_snapshot_t;
 
 //C++ extern C
 ROFL_BEGIN_DECLS
@@ -92,6 +96,13 @@ void of1x_dump_switch(of1x_switch_t* sw);
 * @ingroup core_of1x 
 */
 void of1x_full_dump_switch(of1x_switch_t* sw);
+
+//Creates a snapshot of the running of LSI 
+of1x_switch_snapshot_t* __of1x_switch_get_snapshot(of1x_switch_t* sw);
+
+//Destroy a previously generated snapshot
+void __of1x_switch_destroy_snapshot(of1x_switch_snapshot_t* snapshot);
+
 
 //C++ extern C
 ROFL_END_DECLS

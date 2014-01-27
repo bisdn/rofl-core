@@ -71,6 +71,9 @@ typedef struct of1x_pipeline{
 	struct of1x_switch* sw;	
 }of1x_pipeline_t;
 
+//Snapshot 
+typedef of1x_pipeline_t of1x_pipeline_snapshot_t;
+
 //C++ extern C
 ROFL_BEGIN_DECLS
 
@@ -96,6 +99,17 @@ rofl_result_t __of1x_set_pipeline_tables_defaults(of1x_pipeline_t* pipeline, of_
 * @ingroup sw_runtime 
 */
 void of1x_process_packet_out_pipeline(const struct of1x_switch *sw, datapacket_t *const pkt, const of1x_action_group_t* apply_actions_group);
+
+//
+// Snapshots
+//
+
+//Creates a snapshot of the running pipeline of an LSI 
+rofl_result_t __of1x_pipeline_get_snapshot(of1x_pipeline_t* pipeline, of1x_pipeline_snapshot_t* snapshot);
+
+//Destroy a previously generated snapshot
+void __of1x_pipeline_destroy_snapshot(of1x_pipeline_snapshot_t* snapshot);
+
 
 //C++ extern C
 ROFL_END_DECLS

@@ -187,6 +187,18 @@ typedef struct physical_switch{
 	platform_physical_switch_state_t* platform_state;	
 }physical_switch_t; 
 
+/**
+* List of dpids (snapshots)
+*/
+typedef struct dpid_list{
+
+	//Number of ports in the port list
+	unsigned int num_of_lsis;
+	
+	//dpids
+	uint64_t* dpids;
+}dpid_list_t; 
+
 //C++ extern C
 ROFL_BEGIN_DECLS
 
@@ -269,7 +281,6 @@ of_switch_t* physical_switch_get_logical_switch_by_dpid(const uint64_t dpid);
 */
 of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_port_t port);
 
-
 //
 //
 // Port management routines
@@ -336,7 +347,6 @@ rofl_result_t physical_switch_add_port(switch_port_t* port);
 rofl_result_t physical_switch_remove_port(const char* name);
 
 
-
 //
 //
 // Logical switches port management
@@ -363,10 +373,6 @@ switch_port_t* physical_switch_get_port_by_num(const uint64_t dpid, unsigned int
 * @param num_of_ports    Pointer to an int. Number of ports will be filled by the lib.
 */
 rofl_result_t get_logical_switch_ports(of_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports);
-
-#if 0
-rofl_result_t physical_switch_attach_port_num_to_logical_switch(unsigned int port_num, of_switch_t* sw, unsigned int* logical_switch_port_num);
-#endif
 
 /**
 * @brief Attaches port to logical switch.
@@ -408,6 +414,48 @@ rofl_result_t physical_switch_detach_all_ports_from_logical_switch(of_switch_t* 
 
 //This should not be used in general. Generates the matching algorithm list
 void __physical_switch_generate_matching_algorithm_list(void);
+
+
+//
+// Snapshots
+//
+
+//Ports
+/**
+* @brief Gets a list of port names of all (currently) available port names. 
+* @ingroup  mgmt
+
+* @retval  List of available port names, which MUST be deleted using physical_switch_destroy_port_name_list().
+*/
+switch_port_name_list_t* physical_switch_get_all_port_names(void);
+
+/**
+* @brief Gets a snapshot of the current port state, if it exists. 
+* @ingroup  mgmt
+* 
+* @retval Port snapshot on success, NULL otherwise. Shall be deleted using switch_port_destroy_snapshot()
+*/
+switch_port_snapshot_t* physical_switch_get_port_snapshot(const char* name);
+
+
+//LSIs
+
+/**
+* @brief   Get the list of existing LSI DPIDs. List should be deleted using 
+*/
+dpid_list_t* physical_switch_get_all_lsi_dpids(void);
+
+/**
+* Destroy a previously generated list of dpids 
+* @ingroup mgmt 
+*/
+void dpid_list_destroy(dpid_list_t* list);
+
+/**
+* @brief    Generates a snapshot of the current running state of a LSI, which can be safely read and iterated over time. Should be deleted using of_switch_destroy_snapshot()
+* @ingroup  mgmt
+*/
+of_switch_snapshot_t* physical_switch_get_logical_switch_snapshot(const uint64_t dpid);
 
 //C++ extern C
 ROFL_END_DECLS

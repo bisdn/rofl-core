@@ -78,52 +78,20 @@ afa_result_t fwd_module_destroy_switch_by_dpid(uint64_t dpid);
 *
 */
 
+/**
+* @brief   Retrieve the list of names of the available ports of the platform. You may want to 
+* 	   call fwd_module_get_port_snapshot_by_name(name) to get more information of the port 
+* @ingroup port_management
+* @retval  List of available port names, which MUST be deleted using switch_port_name_list_destroy().
+*/
+switch_port_name_list_t* fwd_module_get_all_port_names(void);
+
 /***
  * @name fwd_module_get_port_by_name
- * @brief returns the port structure found with the specified name or NULL if its not found
+ * @brief Fills in the switch port snapshot structure, if the port name is found
  * @ingroup port_management
  */
-switch_port_t* fwd_module_get_port_by_name(const char *name);
-
-/**
-* @name    fwd_module_list_platform_ports
-* @brief   Retrieve the list of ports of the platform 
-* @ingroup port_management
-* @retval  Pointer to the first port. 
-*/
-//NOTE probably not in use anymore
-switch_port_t* fwd_module_list_ports(void);
-
-/**
-* @name    fwd_module_get_physical_ports_ports
-* @brief   Retrieve the list of the physical ports of the switch
-* @ingroup port_management
-* @param   Number of ports in the array(boundary)
-* @retval  Pointer to the first port in the array of switch_port_t*. This array cannot
-*          be modified, is READ_ONLY!
-*/
-switch_port_t** fwd_module_get_physical_ports(unsigned int* max_ports);
-
-/**
-* @name    fwd_module_get_virtual_ports
-* @brief   Retrieve the list of virtual ports of the platform
-* @ingroup port_management
-* @param   Number of ports in the array(boundary)
-* @retval  Pointer to the first port in the array of switch_port_t*. This array cannot
-*          be modified, is READ_ONLY! 
-*/
-switch_port_t** fwd_module_get_virtual_ports(unsigned int* max_ports);
-
-/**
-* @name    fwd_module_get_tunnel_ports
-* @brief   Retrieve the list of tunnel ports of the platform
-* @ingroup port_management
-* @param   Number of ports in the array(boundary)
-* @retval  Pointer to the first port in the array of switch_port_t*. This array cannot
-*          be modified, is READ_ONLY!
-*/
-switch_port_t** fwd_module_get_tunnel_ports(unsigned int* max_ports);
-
+afa_result_t fwd_module_get_port_snapshot_by_name(const char *name, switch_port_snapshot_t* snapshot);
 
 //Attachment
 
@@ -228,6 +196,6 @@ AFA_END_DECLS
 
 /* OpenFlow related events */
 #include "openflow/openflow1x/of1x_fwd_module.h"
-//TODO: Add more versions here...
+// [+] Add more versions here...
 
 #endif /* AFA_DRIVER_H */

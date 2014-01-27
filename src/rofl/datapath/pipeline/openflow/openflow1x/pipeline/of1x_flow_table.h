@@ -137,6 +137,11 @@ typedef struct of1x_flow_table{
 
 }of1x_flow_table_t;
 
+/**
+* Table snapshot
+*/
+typedef of1x_flow_table_t __of1x_flow_table_snapshot_t;
+
 /*
 *
 * Function prototypes
