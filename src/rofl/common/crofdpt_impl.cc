@@ -1657,6 +1657,8 @@ crofdpt_impl::barrier_reply_rcvd(
 {
 	cofmsg_barrier_reply& reply = dynamic_cast<cofmsg_barrier_reply&>( *msg );
 
+	transactions.drop_ta(msg->get_xid());
+
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
 			<< " Barrier-Reply message received" << std::endl;
 
@@ -1783,6 +1785,8 @@ crofdpt_impl::experimenter_rcvd(
 {
 	cofmsg_experimenter& exp = dynamic_cast<cofmsg_experimenter&>( *msg );
 
+	transactions.drop_ta(msg->get_xid());
+
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
 			<< " Experimenter message received" << std::endl << exp;
 
@@ -1800,6 +1804,8 @@ crofdpt_impl::role_reply_rcvd(
 		uint8_t aux_id)
 {
 	cofmsg_role_reply& reply = dynamic_cast<cofmsg_role_reply&>( *msg );
+
+	transactions.drop_ta(msg->get_xid());
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
 			<< " Role-Reply message received" << std::endl << reply;
@@ -1819,6 +1825,8 @@ crofdpt_impl::queue_get_config_reply_rcvd(
 {
 	cofmsg_queue_get_config_reply& reply = dynamic_cast<cofmsg_queue_get_config_reply&>( *msg );
 
+	transactions.drop_ta(msg->get_xid());
+
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
 			<< " Queue-Get-Config-Reply message received" << std::endl << reply;
 
@@ -1836,6 +1844,8 @@ crofdpt_impl::get_async_config_reply_rcvd(
 		uint8_t aux_id)
 {
 	cofmsg_get_async_config_reply& reply = dynamic_cast<cofmsg_get_async_config_reply&>( *msg );
+
+	transactions.drop_ta(msg->get_xid());
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
 			<< "Get-Async-Config-Reply message received" << std::endl << reply;

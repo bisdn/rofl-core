@@ -26,6 +26,7 @@
 #include <sys/resource.h>
 #include <sys/stat.h>
 
+
 #include "rofl/common/cmemory.h"
 #include "rofl/common/logging.h"
 #include "rofl/common/croflexception.h"
@@ -46,6 +47,7 @@ class eIoSvcRunError 		: public eIoSvcBase {}; //< error in core loop (select)
 class eIoSvcUnhandledTimer 	: public eIoSvcBase {}; //< unhandled timer
 class eIoSvcNotFound        : public eIoSvcBase {}; //< element not found
 
+class cioloop;
 
 /**
  * (Abstract) Base class for IO services.
@@ -76,7 +78,10 @@ class eIoSvcNotFound        : public eIoSvcBase {}; //< element not found
  */
 class ciosrv
 {
-	pthread_t		tid;
+	pthread_t						tid;
+	cpipe							pipe;
+	ctimers							timers;
+	cevents							events;
 
 	enum ciosrv_flag_t {
 		CIOSRV_FLAG_WAKEUP_CALLED = (1 << 0), // when set, pipe was already instructed to
@@ -133,6 +138,13 @@ public:
 
 protected:
 
+	friend class cioloop;
+
+	/**
+	 * @brief	Called by cioloop
+	 */
+	void
+	__handle_revent(int fd);
 
 	/**
 	 * @name Event handlers
@@ -384,18 +396,18 @@ class cioloop {
 	static PthreadRwLock 					threads_rwlock;
 	static std::map<pthread_t, cioloop*> 	threads;
 
+	std::vector<ciosrv*>					rfds;
+	PthreadRwLock							rfds_rwlock;
+	std::vector<ciosrv*>					wfds;
+	PthreadRwLock							wfds_rwlock;
+
 public:
 
 	friend class ciosrv;
 
 	pthread_t               		tid;
-	PthreadRwLock					elems_rwlock;
+
 	std::map<ciosrv*, cioelem>		elems;
-	cpipe							pipe;
-	cfdset							rfdset;
-	cfdset							wfdset;
-	ctimers							timers;
-	cevents							events;
 
 	struct timespec 				ts;
 	bool							keep_on_running;
@@ -440,8 +452,7 @@ public:
 	 */
 	void
 	add_elem(ciosrv* iosrv) {
-		RwLock lock(elems_rwlock, RwLock::RWLOCK_WRITE);
-		elems[iosrv] = cioelem(iosrv, cioelem::STATE_ADD);
+
 	};
 
 	/**
@@ -449,8 +460,7 @@ public:
 	 */
 	void
 	drop_elem(ciosrv* iosrv) {
-		RwLock lock(elems_rwlock, RwLock::RWLOCK_WRITE);
-		elems[iosrv].set_state(cioelem::STATE_DROP);
+
 	};
 
 	/**
@@ -458,8 +468,8 @@ public:
 	 */
 	void
 	add_readfd(ciosrv* iosrv, int fd) {
-		RwLock lock(elems_rwlock, RwLock::RWLOCK_READ);
-		rfdset.add_fd(fd, &elems[iosrv]);
+		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
+		rfds[fd] = iosrv;
 	};
 
 	/**
@@ -467,7 +477,8 @@ public:
 	 */
 	void
 	drop_readfd(ciosrv* iosrv, int fd) {
-		rfdset.drop_fd(fd);
+		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
+		rfds[fd] = NULL;
 	};
 
 	/**
@@ -475,17 +486,17 @@ public:
 	 */
 	void
 	add_writefd(ciosrv* iosrv, int fd) {
-		RwLock lock(elems_rwlock, RwLock::RWLOCK_READ);
-		wfdset.add_fd(fd, &elems[iosrv]);
+		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
+		wfds[fd] = iosrv;
 	};
-
 
 	/**
 	 *
 	 */
 	void
 	drop_writefd(ciosrv* iosrv, int fd) {
-		wfdset.drop_fd(fd);
+		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
+		wfds[fd] = NULL;
 	};
 
 
@@ -504,12 +515,6 @@ public:
 	/**
 	 *
 	 */
-	void
-	add_event(ciosrv* iosrv, cevent const& e);
-
-	/**
-	 *
-	 */
 	static void
 	daemonize(
 			std::string const& pidfile, std::string const& logfile);
@@ -522,7 +527,17 @@ private:
 	 */
 	cioloop() :
 		tid(pthread_self()),
-		keep_on_running(false) {};
+		keep_on_running(false) {
+
+		struct rlimit rlim;
+		if (getrlimit(RLIMIT_NOFILE, &rlim) < 0) {
+			throw eSysCall("getrlimit()");
+		}
+		for (unsigned int i = 0; i < rlim.rlim_cur; i++) {
+			rfds.push_back(NULL);
+			wfds.push_back(NULL);
+		}
+	};
 
 	/**
 	 *
