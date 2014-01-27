@@ -83,11 +83,6 @@ class ciosrv
 	ctimers							timers;
 	cevents							events;
 
-	enum ciosrv_flag_t {
-		CIOSRV_FLAG_WAKEUP_CALLED = (1 << 0), // when set, pipe was already instructed to
-						// wake up called thread
-	};
-
 public:
 
 	/**
@@ -314,80 +309,16 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, ciosrv const& iosvc) {
 		os << indent(0) << "<ciosrv >";
+		os << "<timers: >" << std::endl;
+		{ indent i(2); os << iosvc.timers; }
+		os << "<events: >" << std::endl;
+		{ indent i(2); os << iosvc.events; }
 		return os;
 	};
 };
 
 
 
-
-
-class cioelem :
-		public cfdowner
-{
-
-	ciosrv		*iosrv;	// corresponding ciosrv instance
-
-public:
-
-	enum cioelem_state_t {
-		STATE_ADD		= 0,
-		STATE_RUNNING	= 1,
-		STATE_DROP		= 2,
-	};
-
-	cioelem_state_t		state;
-
-public:
-
-	cioelem(ciosrv *iosrv, cioelem_state_t state) :
-		iosrv(iosrv),
-		state(state) {};
-
-	virtual
-	~cioelem() {};
-
-	cioelem(cioelem const& elem) {
-		*this = elem;
-	};
-
-	cioelem&
-	operator= (cioelem const& elem) {
-		if (this == &elem)
-			return *this;
-		iosrv 	= elem.iosrv;
-		state 	= elem.state;
-		return *this;
-	};
-
-public:
-
-	/**
-	 *
-	 */
-	cioelem_state_t
-	get_state() const { return state; };
-
-	/**
-	 *
-	 */
-	void
-	set_state(cioelem_state_t state) { this->state = state; };
-
-public:
-
-	friend std::ostream&
-	operator<< (std::ostream& os, cioelem const& elem) {
-		os << "<cioelem iosrv:" << elem.iosrv << " ";
-		switch (elem.state) {
-		case STATE_ADD: 	os << "state:-ADD-"; 		break;
-		case STATE_RUNNING: os << "state:-RUNNING-"; 	break;
-		case STATE_DROP: 	os << "state:-DROP-"; 		break;
-		}
-		os << " >" << std::endl;
-		return os;
-	};
-};
 
 
 
@@ -406,9 +337,6 @@ public:
 	friend class ciosrv;
 
 	pthread_t               		tid;
-
-	std::map<ciosrv*, cioelem>		elems;
-
 	struct timespec 				ts;
 	bool							keep_on_running;
 
@@ -451,22 +379,6 @@ public:
 	 *
 	 */
 	void
-	add_elem(ciosrv* iosrv) {
-
-	};
-
-	/**
-	 *
-	 */
-	void
-	drop_elem(ciosrv* iosrv) {
-
-	};
-
-	/**
-	 *
-	 */
-	void
 	add_readfd(ciosrv* iosrv, int fd) {
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds[fd] = iosrv;
@@ -499,18 +411,6 @@ public:
 		wfds[fd] = NULL;
 	};
 
-
-	/**
-	 *
-	 */
-	void
-	add_timer(ciosrv* iosrv, ctimer const& t);
-
-	/**
-	 *
-	 */
-	void
-	drop_timer(ciosrv* iosrv, int type);
 
 	/**
 	 *
@@ -576,69 +476,11 @@ private:
 
 
 	/**
-	 * Prepare struct fd_set's for select().
-	 * This private method fills in fd_sets for calling select().
-	 * Each ciosrv instance holds two STL-sets for storing read and
-	 * write file descriptors. fdset() will query all ciosrv instances
-	 * (stored in ciosrv::ciosrv_list) for the read/write descriptors
-	 * and fill that into the struct fd_set suitable for calling select().
-	 * It sets the maxfd number for select() appropriately and selects
-	 * the next timeout from the ciosrv instances.
-	 * @param maxfd The reference to maxfd will be set to the highest
-	 * file descriptor value incremented by one
-	 * @param readfds pointer to the read_fds structure
-	 * @param writefds pointer to the write_fds structure
-	 * @param ntimeout this reference value is filled with the next timeout value
-	 *
-	 */
-	static void
-	fdset(
-			int& maxfd,
-			fd_set* readfds,
-			fd_set* writefds);
-
-	/**
 	 * find next timeout from all ciosrv instances
 	 */
 	static void
 	next_timeout(
 			time_t &ntimeout);
-
-	/**
-	 * Handle file descriptors after returning from select().
-	 * This static method checks which file descriptors have had an IO event
-	 * and will call the appropriate handler methods of the ciosrv instances, i.e.
-	 * handle_revent(), handle_wevent(), handle_xevent(), handle_timeout().
-	 * @param rc result code obtained from select() call
-	 * @param readfds read fd_set structure as set by select()
-	 * @param writefds write fd_set structure as set by select()
-	 * @param exceptfds exception fd_set structure as set by select()
-	 */
-	static void
-	handle(
-			int rc,
-			fd_set* readfds,
-			fd_set* writefds,
-			fd_set* exceptfds);
-
-	/**
-	 *
-	 */
-	static void
-	handle_rfds(std::list<int>& rfds,
-			int rc,
-			fd_set* readfds,
-			fd_set* exceptfds);
-
-
-	/**
-	 *
-	 */
-	static void
-	handle_wfds(std::list<int>& wfds,
-			int rc,
-			fd_set* writefds,
-			fd_set* exceptfds);
 
 
 	/**
@@ -647,13 +489,6 @@ private:
 	static void
 	handle_timeouts();
 
-	/**
-	 *
-	 */
-	static void
-	handle_events(int rc,
-			fd_set* readfds,
-			fd_set* exceptfds);
 
 	/**
 	 * A signal handler.
@@ -673,17 +508,25 @@ private:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cioloop const& thread) {
+	operator<< (std::ostream& os, cioloop const& ioloop) {
 		os << indent(0) << "<cioloop >";
-		indent i(2);
-		os << "<read-fds: >" << std::endl;
-		{ indent i(2); os << thread.rfdset; }
-		os << "<write-fds: >" << std::endl;
-		{ indent i(2); os << thread.wfdset; }
-		os << "<timers: >" << std::endl;
-		{ indent i(2); os << thread.timers; }
-		os << "<events: >" << std::endl;
-		{ indent i(2); os << thread.events; }
+
+		os << indent(2) << "<read-fds: ";
+		for (unsigned int i = 0; i < ioloop.rfds.size(); ++i) {
+			if (NULL != ioloop.rfds.at(i)) {
+				os << i << " ";
+			}
+		}
+		os << " >" << std::endl;
+
+		os << indent(2) << "<write-fds: ";
+		for (unsigned int i = 0; i < ioloop.wfds.size(); ++i) {
+			if (NULL != ioloop.wfds.at(i)) {
+				os << i << " ";
+			}
+		}
+		os << " >" << std::endl;
+
 		return os;
 	};
 };
