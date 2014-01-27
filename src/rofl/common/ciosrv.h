@@ -33,7 +33,7 @@
 #include "thread_helper.h"
 
 #include "rofl/platform/unix/csyslog.h"
-#include "rofl/platform/unix/cpipe.h"
+#include "rofl/common/cpipe.h"
 
 namespace rofl
 {

@@ -996,7 +996,7 @@ ciosrv::handle_events(int rc,
 #endif
 
 
-
+	try {
 
 
 	/*
@@ -1020,6 +1020,7 @@ ciosrv::handle_events(int rc,
 
 		ciosrv* cio = (*it);
 
+		ciosrv_exists(cio);
 
 		/*
 		 * make temporary copy of cio->events
@@ -1072,6 +1073,8 @@ ciosrv::handle_events(int rc,
 
 	WRITELOG(CIOSRV, DBG, "ciosrv(0x%x)::handle_events() ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
 			tid);
+
+	} catch (eIoSvcNotFound& e) {};
 }
 
 
