@@ -21,7 +21,7 @@ extern "C" {
 #include "rofl/common/thread_helper.h"
 #include "rofl/common/ciosrv.h"
 #include "rofl/common/ctransaction.h"
-#include "rofl/platform/unix/crandom.h"
+#include "rofl/common/crandom.h"
 
 namespace rofl {
 namespace openflow {

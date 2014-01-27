@@ -37,7 +37,7 @@
 
 #include "rofl/common/openflow/openflow.h"
 
-#include "rofl/platform/unix/crandom.h"
+#include "rofl/common/crandom.h"
 
 #include "rofl/common/openflow/cofport.h"
 #include "rofl/common/openflow/cofinstruction.h"
