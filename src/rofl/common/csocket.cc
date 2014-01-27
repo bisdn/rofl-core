@@ -17,6 +17,9 @@ csocket::csocket(
 		int protocol,
 		int backlog) :
 	had_short_write(false),
+#ifdef HAVE_OPENSSL
+	ssl_conn(NULL),
+#endif
 	socket_owner(owner),
 	sd(-1),
 	laddr(domain),
@@ -41,6 +44,9 @@ csocket::csocket(
 csocket::csocket(
 		csocket_owner *owner) :
 	had_short_write(false),
+#ifdef HAVE_OPENSSL
+	ssl_conn(NULL),
+#endif
 	socket_owner(owner),
 	sd(-1),
 	domain(-1),
@@ -62,7 +68,6 @@ csocket::csocket(
 
 csocket::~csocket()
 {
-	logging::debug << "[rofl][csocket] destructor:" << std::endl << *this;
 	close();
 
 	pthread_rwlock_destroy(&pout_squeue_lock);
@@ -587,9 +592,21 @@ csocket::recv(void *buf, size_t count)
 {
 	if (sd == -1)
 		throw eSocketReadFailed();
+	int rc;
 
-	// read from socket: TODO: TLS socket
-	int rc = ::read(sd, (void*)buf, count);
+#ifdef HAVE_OPENSSL
+	// read from tls connection
+	if (NULL != ssl_conn) {
+		rc = ssl_conn->read((void*)buf, count);
+	} else {
+#endif
+
+	// read from socket:
+	rc = ::read(sd, (void*)buf, count);
+
+#ifdef HAVE_OPENSSL
+	} /* else ( of NULL != ssl_conn)  */
+#endif
 
 	if (rc > 0) {
 		return rc;
@@ -663,6 +680,20 @@ csocket::dequeue_packet()
 				had_short_write = false;
 			}
 
+#ifdef HAVE_OPENSSL
+			if (NULL != ssl_conn) {
+				rc = ssl_conn->write(entry.mem->somem() + entry.msg_bytes_sent, entry.mem->memlen() - entry.msg_bytes_sent);
+
+				// check if buffer was sent completely
+				if (((unsigned int)(rc + entry.msg_bytes_sent)) < entry.mem->memlen()) {
+					had_short_write = true;
+					entry.msg_bytes_sent += rc;
+					return;
+				}
+
+			} else {
+#endif
+
 			int flags = MSG_NOSIGNAL;
 			if ((rc = sendto(sd, entry.mem->somem() + entry.msg_bytes_sent, entry.mem->memlen() - entry.msg_bytes_sent, flags,
 									entry.dest.ca_saddr, entry.dest.salen)) < 0) {
@@ -694,6 +725,9 @@ csocket::dequeue_packet()
 				}
 				return;
 			}
+#ifdef HAVE_OPENSSL
+			} /* else ( of NULL != ssl_conn)  */
+#endif
 
 			delete entry.mem;
 

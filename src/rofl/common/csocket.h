@@ -32,6 +32,10 @@ extern "C" {
 #include "thread_helper.h"
 #include "logging.h"
 
+#ifdef HAVE_OPENSSL
+#include "ssl_connection.h"
+#endif /* HAVE_OPENSSL */
+
 namespace rofl
 {
 
@@ -185,6 +189,9 @@ private:
 
 	static std::set<csocket*> 	csock_list; 		/**< list of all csocket instances */
 
+#ifdef HAVE_OPENSSL
+	ssl_connection *ssl_conn;
+#endif
 
 
 protected:
