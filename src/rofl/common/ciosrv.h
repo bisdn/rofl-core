@@ -436,7 +436,7 @@ public:
 	void
 	drop_timer(ciosrv *iosrv) {
 		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
-		timers[iosrv] = false;;
+		timers[iosrv] = false;
 	};
 
 	/**
