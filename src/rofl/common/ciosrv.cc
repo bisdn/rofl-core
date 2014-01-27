@@ -192,6 +192,8 @@ cioloop::run_loop()
 
 		// TODO: cioloop::next_timeout(ntimeout); // get next timeout
 
+		for (std)
+
 		ts.tv_sec = ((ntimeout - time(NULL)) > 0) ? ntimeout - time(NULL) : 0;
 
 		// call select

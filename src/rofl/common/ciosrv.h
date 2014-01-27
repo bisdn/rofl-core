@@ -253,6 +253,12 @@ protected:
 protected:
 
 	/**
+	 *
+	 */
+	ctimer&
+	get_next_timer();
+
+	/**
 	 * @name Management methods for timers
 	 */
 
@@ -331,14 +337,18 @@ class cioloop {
 	PthreadRwLock							rfds_rwlock;
 	std::vector<ciosrv*>					wfds;
 	PthreadRwLock							wfds_rwlock;
+	std::map<ciosrv*, bool>					timers;
+	PthreadRwLock							timers_rwlock;
+
+	pthread_t        			       		tid;
+	struct timespec 						ts;
+	bool									keep_on_running;
+
 
 public:
 
 	friend class ciosrv;
 
-	pthread_t               		tid;
-	struct timespec 				ts;
-	bool							keep_on_running;
 
 public:
 
@@ -411,6 +421,23 @@ public:
 		wfds[fd] = NULL;
 	};
 
+	/**
+	 *
+	 */
+	void
+	add_timer(ciosrv* iosrv) {
+		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
+		timers[iosrv] = true;
+	};
+
+	/**
+	 *
+	 */
+	void
+	drop_timer(ciosrv *iosrv) {
+		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
+		timers[iosrv] = false;;
+	};
 
 	/**
 	 *
