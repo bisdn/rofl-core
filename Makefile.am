@@ -7,7 +7,9 @@ MAINTAINERCLEANFILES = $(top_srcdir)/aclocal.m4 \
 	$(top_srcdir)/install-sh \
 	$(top_srcdir)/ltmain.sh \
 	$(top_srcdir)/Makefile.in \
-	$(top_srcdir)/missing 
+	$(top_srcdir)/missing \
+	$(top_srcdir)/compile \
+	$(top_srcdir)/test-driver
 
 export INCLUDES += -I$(abs_srcdir)/src/
 SUBDIRS = src test examples tools doc 
