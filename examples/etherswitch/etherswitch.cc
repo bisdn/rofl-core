@@ -275,13 +275,10 @@ ethswitch::handle_packet_in(
 			fe.set_idle_timeout(10);
 			fe.set_priority(0x8000);
 			fe.set_buffer_id(msg.get_buffer_id());
+			fe.set_flags(rofl::openflow12::OFPFF_SEND_FLOW_REM);
 
 			fe.match.set_eth_dst(eth_dst);
-			logging::debug << "XXXXXXXXXXXXXXXXXXXXXXXXXX" << std::endl << fe.match;
-
 			fe.match.set_eth_src(eth_src);
-			logging::debug << "XXXXXXXXXXXXXXXXXXXXXXXXXX" << std::endl << fe.match;
-
 
 			fe.instructions.add_inst_apply_actions().get_actions().append_action_output(entry.get_out_port_no());
 
