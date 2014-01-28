@@ -47,20 +47,27 @@ monitored_entity_t* fwd_module_get_chassis_info(void);
 */
 
 /**
+* @brief   Retrieve the list of LSIs dpids
+* @ingroup logical_switch_management
+* @retval  List of available dpids, which MUST be deleted using dpid_list_destroy().
+*/
+dpid_list_t* fwd_module_get_all_lsi_dpids(void);
+
+/**
 * @name    fwd_module_create_switch 
 * @brief   Instruct forward module to create an OF logical switch 
 * @ingroup logical_switch_management
 * @retval  Pointer to of_switch_t instance 
 */
-of_switch_t* fwd_module_create_switch(char* name, uint64_t dpid, of_version_t of_version, unsigned int num_of_tables, int* ma_list/**TODO add this list to the configuration*/);
+of_switch_t* fwd_module_create_switch(char* name, uint64_t dpid, of_version_t of_version, unsigned int num_of_tables, int* ma_list);
 
 /**
-* @name    fwd_module_get_switch_by_dpid 
-* @brief   Retrieve the switch with the specified dpid  
-* @ingroup logical_switch_management
-* @retval  Pointer to of_switch_t instance or NULL 
-*/
-of_switch_t* fwd_module_get_switch_by_dpid(uint64_t dpid);
+ * @name fwd_module_get_switch_snapshot_by_dpid 
+ * @brief Retrieves a snapshot of the current state of a switch port, if the port name is found. The snapshot MUST be deleted using switch_port_destroy_snapshot()
+ * @ingroup logical_switch_management
+ * @retval  Pointer to of_switch_snapshot_t instance or NULL 
+ */
+of_switch_snapshot_t* fwd_module_get_switch_snapshot_by_dpid(uint64_t dpid);
 
 /**
 * @name    fwd_module_destroy_switch_by_dpid 
@@ -86,12 +93,12 @@ afa_result_t fwd_module_destroy_switch_by_dpid(uint64_t dpid);
 */
 switch_port_name_list_t* fwd_module_get_all_port_names(void);
 
-/***
+/**
  * @name fwd_module_get_port_by_name
- * @brief Fills in the switch port snapshot structure, if the port name is found
+ * @brief Retrieves a snapshot of the current state of a switch port, if the port name is found. The snapshot MUST be deleted using switch_port_destroy_snapshot()
  * @ingroup port_management
  */
-afa_result_t fwd_module_get_port_snapshot_by_name(const char *name, switch_port_snapshot_t* snapshot);
+switch_port_snapshot_t* fwd_module_get_port_snapshot_by_name(const char *name);
 
 //Attachment
 

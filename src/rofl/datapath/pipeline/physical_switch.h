@@ -448,7 +448,7 @@ switch_port_snapshot_t* physical_switch_get_port_snapshot(const char* name);
 //LSIs
 
 /**
-* @brief   Get the list of existing LSI DPIDs. List should be deleted using 
+* @brief   Get the list of existing LSI DPIDs. List should be deleted using dpid_list_destroy() 
 */
 dpid_list_t* physical_switch_get_all_lsi_dpids(void);
 
