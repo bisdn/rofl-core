@@ -30,6 +30,7 @@ std::map<pthread_t, cioloop*> 	cioloop::threads;
 ciosrv::ciosrv() :
 		tid(pthread_self())
 {
+	rfds.insert(pipe.pipefd[0]);
 	register_filedesc_r(pipe.pipefd[0]);
 }
 
@@ -37,6 +38,12 @@ ciosrv::ciosrv() :
 ciosrv::~ciosrv()
 {
 	deregister_filedesc_r(pipe.pipefd[0]);
+	for (std::set<int>::iterator it = rfds.begin(); it != rfds.end(); ++it) {
+		cioloop::get_loop().drop_readfd(this, (*it));
+	}
+	for (std::set<int>::iterator it = wfds.begin(); it != wfds.end(); ++it) {
+		cioloop::get_loop().drop_writefd(this, (*it));
+	}
 }
 
 
@@ -61,6 +68,7 @@ ciosrv::operator= (ciosrv const& iosrv)
 void
 ciosrv::register_filedesc_r(int fd)
 {
+	rfds.insert(fd);
 	cioloop::get_loop().add_readfd(this, fd);
 }
 
@@ -68,6 +76,7 @@ ciosrv::register_filedesc_r(int fd)
 void
 ciosrv::deregister_filedesc_r(int fd)
 {
+	rfds.erase(fd);
 	cioloop::get_loop().drop_readfd(this, fd);
 }
 
@@ -75,6 +84,7 @@ ciosrv::deregister_filedesc_r(int fd)
 void
 ciosrv::register_filedesc_w(int fd)
 {
+	wfds.insert(fd);
 	cioloop::get_loop().add_writefd(this, fd);
 }
 
@@ -82,6 +92,7 @@ ciosrv::register_filedesc_w(int fd)
 void
 ciosrv::deregister_filedesc_w(int fd)
 {
+	wfds.erase(fd);
 	cioloop::get_loop().drop_writefd(this, fd);
 }
 
@@ -112,9 +123,49 @@ ciosrv::__handle_revent(int fd)
 }
 
 
+void
+ciosrv::register_timer(int opaque, time_t t)
+{
+	if (timers.empty())
+		cioloop::get_loop().has_timer(this);
+	timers.add_timer(ctimer(opaque, t));
+}
 
-/* static */void
-ciosrv::child_sig_handler (int x) {
+
+void
+ciosrv::reset_timer(int opaque, time_t t)
+{
+	timers.reset(opaque);
+}
+
+
+bool
+ciosrv::pending_timer(int opaque)
+{
+	return timers.has(opaque);
+}
+
+
+void
+ciosrv::cancel_timer(int opaque)
+{
+	timers.cancel(opaque);
+}
+
+
+void
+ciosrv::cancel_all_timer()
+{
+	timers.reset();
+}
+
+
+
+
+
+/* static */
+void
+cioloop::child_sig_handler (int x) {
 	logging::debug <<  "[cioloop][child-sig-handler] got signal: " << x << std::endl;
     // signal(SIGCHLD, child_sig_handler);
 }
@@ -162,7 +213,7 @@ cioloop::run_loop()
 		fd_set exceptfds;
 		struct timespec ts = { 0, 0 };
 		int maxfd = 0;
-		int rc;
+		int rc = 0;
 		time_t ntimeout = time(NULL) + 60 /* seconds */; // one wakeup every 60seconds
 
 		FD_ZERO(&readfds);
@@ -192,7 +243,7 @@ cioloop::run_loop()
 
 		// TODO: cioloop::next_timeout(ntimeout); // get next timeout
 
-		for (std)
+		//for (std)
 
 		ts.tv_sec = ((ntimeout - time(NULL)) > 0) ? ntimeout - time(NULL) : 0;
 
@@ -200,7 +251,6 @@ cioloop::run_loop()
 		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &ts, &empty_mask)) < 0) {
 			switch (errno) {
 			case EINTR:
-				goto handle_packets;
 				break;
 			default:
 				rofl::logging::error << "[rofl][ciosrv] " << eSysCall("pselect()") << std::endl;
@@ -212,7 +262,6 @@ cioloop::run_loop()
 			// TODO: handle timeouts
 
 		} else { // rc > 0
-handle_packets:
 
 			try {
 

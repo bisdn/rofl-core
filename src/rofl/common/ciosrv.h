@@ -80,6 +80,8 @@ class ciosrv
 {
 	pthread_t						tid;
 	cpipe							pipe;
+	std::set<int>					rfds;
+	std::set<int>					wfds;
 	ctimers							timers;
 	cevents							events;
 
@@ -315,10 +317,20 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, ciosrv const& iosvc) {
 		os << indent(0) << "<ciosrv >";
-		os << "<timers: >" << std::endl;
-		{ indent i(2); os << iosvc.timers; }
-		os << "<events: >" << std::endl;
-		{ indent i(2); os << iosvc.events; }
+			os << indent(2) << "<rfds: ";
+			for (std::set<int>::const_iterator it = iosvc.rfds.begin(); it != iosvc.rfds.end(); ++it) {
+				os << (*it) << " ";
+			}
+			os << ">" << std::endl;
+			os << indent(2) << "<wfds: ";
+			for (std::set<int>::const_iterator it = iosvc.wfds.begin(); it != iosvc.wfds.end(); ++it) {
+				os << (*it) << " ";
+			}
+			os << ">" << std::endl;
+			os << indent(2) << "<timers: >" << std::endl;
+			{ indent i(2); os << iosvc.timers; }
+			os << "<events: >" << std::endl;
+			{ indent i(2); os << iosvc.events; }
 		return os;
 	};
 };
@@ -425,7 +437,7 @@ public:
 	 *
 	 */
 	void
-	add_timer(ciosrv* iosrv) {
+	has_timer(ciosrv* iosrv) {
 		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
 		timers[iosrv] = true;
 	};
@@ -434,7 +446,7 @@ public:
 	 *
 	 */
 	void
-	drop_timer(ciosrv *iosrv) {
+	has_no_timer(ciosrv *iosrv) {
 		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
 		timers[iosrv] = false;
 	};

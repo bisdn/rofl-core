@@ -68,6 +68,30 @@ public:
 	 */
 	ctimer
 	get_expired_timer();
+
+	/**
+	 *
+	 */
+	bool
+	has(int opaque);
+
+	/**
+	 *
+	 */
+	void
+	cancel(int opaque);
+
+	/**
+	 * @brief	cancel all timers
+	 */
+	void
+	reset();
+
+	/**
+	 *
+	 */
+	void
+	reset(int opaque);
 };
 
 };
