@@ -11,19 +11,19 @@ int set_up(){
 
 int tear_down(){
 	fprintf(stderr,"Tearing down..\n");
-	monitoring_destroy(&(__get_physical_switch()->monitoring));
+	__monitoring_destroy(&(get_physical_switch()->monitoring));
 	return 0;
 }
 
 void reset(){
 	fprintf(stderr,"Reset..\n");
-	monitoring_destroy(&(__get_physical_switch()->monitoring));
-	monitoring_init(&(__get_physical_switch()->monitoring));
+	__monitoring_destroy(&(get_physical_switch()->monitoring));
+	__monitoring_init(&(get_physical_switch()->monitoring));
 }
 
 void test_simple_insertions(){
 	int i;
-	monitoring_state_t* mon = &(__get_physical_switch()->monitoring);
+	monitoring_state_t* mon = &(get_physical_switch()->monitoring);
 	
 	//Add backplane as inner element to chassis
 	monitoring_dump(mon);
@@ -88,9 +88,9 @@ void test_simple_insertions(){
 void test_simple_deletions(){
 	
 	int i;
-	monitoring_state_t* mon = &(__get_physical_switch()->monitoring);
+	monitoring_state_t* mon = &(get_physical_switch()->monitoring);
 	
-	monitoring_dump(&(__get_physical_switch()->monitoring));
+	monitoring_dump(&(get_physical_switch()->monitoring));
 
 	//Add backplane as inner element to chassis
 	monitoring_dump(mon);
@@ -157,7 +157,7 @@ void test_simple_deletions(){
 
 void test_snapshots(){
 	
-	monitoring_state_t* mon = &(__get_physical_switch()->monitoring);
+	monitoring_state_t* mon = &(get_physical_switch()->monitoring);
 
 	//Add other to the same level of the backplane
 	monitored_entity_t* backplane = mon->chassis.inner; 

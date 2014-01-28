@@ -215,8 +215,15 @@ ROFL_BEGIN_DECLS
 */
 rofl_result_t physical_switch_init(void);
 
+/**
+* @brief    Get the reference to the (unique) physical  switch
+* @warning  The physical switch state shall only be modified via the physical_switch_
+*           APIs 
+* @ingroup  mgmt
+*/
+physical_switch_t* get_physical_switch(void);
+
 //Only used in multi-process deployments (with shared memory)
-physical_switch_t* __get_physical_switch();
 void __set_physical_switch(physical_switch_t* sw);
 
 /**
