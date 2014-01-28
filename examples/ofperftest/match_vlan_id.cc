@@ -23,7 +23,7 @@ match_vlan_id::~match_vlan_id()
 
 
 void
-match_vlan_id::handle_timeout(int opaque)
+match_vlan_id::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
 	case ETHSWITCH_TIMER_FIB: {

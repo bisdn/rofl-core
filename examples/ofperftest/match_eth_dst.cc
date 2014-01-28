@@ -23,7 +23,7 @@ match_eth_dst::~match_eth_dst()
 
 
 void
-match_eth_dst::handle_timeout(int opaque)
+match_eth_dst::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
 	case ETHSWITCH_TIMER_FIB: {

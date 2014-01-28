@@ -563,7 +563,7 @@ crofbase::role_request_rcvd(
 
 
 void
-crofbase::handle_timeout(int opaque)
+crofbase::handle_timeout(int opaque, void *data)
 {
 	try {
 		switch (opaque) {

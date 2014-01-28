@@ -91,7 +91,7 @@ crofconn::close()
 
 void
 crofconn::handle_timeout(
-		int opaque)
+		int opaque, void *data)
 {
 	switch (opaque) {
 	case TIMER_WAIT_FOR_HELLO: {

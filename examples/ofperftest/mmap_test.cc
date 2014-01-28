@@ -33,7 +33,7 @@ mmap_test::~mmap_test()
 
 
 void
-mmap_test::handle_timeout(int opaque)
+mmap_test::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
 	case MMAP_TEST_TIMER_PKT_INTERVAL: {

@@ -73,7 +73,7 @@ csocket::~csocket()
 
 void
 csocket::handle_timeout(
-		int opaque)
+		int opaque, void *data)
 {
 	switch (opaque) {
 	case TIMER_RECONNECT: {

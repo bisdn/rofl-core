@@ -25,7 +25,7 @@ etherswitch::~etherswitch()
 
 
 void
-etherswitch::handle_timeout(int opaque)
+etherswitch::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
 	case ETHSWITCH_TIMER_FIB: {

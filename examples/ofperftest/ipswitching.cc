@@ -23,7 +23,7 @@ ipswitching::~ipswitching()
 
 
 void
-ipswitching::handle_timeout(int opaque)
+ipswitching::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
 	case IPSWITCHING_TIMER_FIB: {

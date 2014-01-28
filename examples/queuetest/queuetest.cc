@@ -26,7 +26,7 @@ queuetest::~queuetest()
 
 void
 queuetest::handle_timeout(
-		int opaque)
+		int opaque, void *data)
 {
 	switch (opaque) {
 	case QUEUETEST_TIMER_GET_CONFIG_INTERVAL: {

@@ -409,7 +409,7 @@ crofchan::release_sync_xid(crofconn *conn, uint32_t xid)
 
 
 void
-crofchan::handle_timeout(int opaque)
+crofchan::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
 	case TIMER_RECONNECT: {

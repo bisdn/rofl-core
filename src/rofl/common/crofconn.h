@@ -228,7 +228,7 @@ private:
 	 *
 	 */
 	virtual void
-	handle_timeout(int opaque);
+	handle_timeout(int opaque, void *data = (void*)0);
 
 	/**
 	 *

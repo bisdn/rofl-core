@@ -77,7 +77,7 @@ crofctl_impl::~crofctl_impl()
 
 void
 crofctl_impl::handle_timeout(
-		int opaque)
+		int opaque, void *data)
 {
 
 }
