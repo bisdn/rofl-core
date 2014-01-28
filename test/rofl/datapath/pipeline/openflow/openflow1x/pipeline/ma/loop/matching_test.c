@@ -34,7 +34,12 @@ void test_install_empty_flow_mod(){
 	CU_ASSERT(entry != NULL);	
 
 	//Install
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(entry == NULL);
+
+
+	//New entry	
+	entry = of1x_init_flow_entry(NULL, NULL, false); 
 	
 	//Check real size of the table
 	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 1);
@@ -58,7 +63,7 @@ void test_install_overlapping_specific(){
 		CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
 	
 		CU_ASSERT(entry != NULL);
-		CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false,false) == ROFL_OF1X_FM_SUCCESS);
+		CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false,false) == ROFL_OF1X_FM_SUCCESS);
 	}
 
 	//Check real size of the table
@@ -104,7 +109,7 @@ static void test_uninstall_wildcard_add_flows(of1x_flow_entry_t** entries, unsig
 		if(rand()%100 > 80)
 			CU_ASSERT(of1x_add_match_to_entry(entries[i],of1x_init_ip4_src_match(NULL,NULL,rand()%0xFFFFFFFF, 0xFFFFFFF)) == ROFL_SUCCESS);
 	
-		CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entries[i], false,false) == ROFL_OF1X_FM_SUCCESS);
+		CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entries[i], false,false) == ROFL_OF1X_FM_SUCCESS);
 	}
 
 }
@@ -217,14 +222,14 @@ void test_overlap(){
 
 	//Add match
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_SUCCESS);
 	
 	//Add second entry
 	entry = of1x_init_flow_entry(NULL, NULL, false); 
 
 	//Add match
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(NULL,NULL,2)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_SUCCESS);
 	
 	clean_pipeline(sw);	
 
@@ -237,7 +242,7 @@ void test_overlap(){
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_dst_match(NULL,NULL,0x11111111, 0xfffffff)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_src_match(NULL,NULL,0x22222222, 0xfffffff)) == ROFL_SUCCESS);
 	
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_SUCCESS);
 
 	entry = of1x_init_flow_entry(NULL, NULL, false); 
 	CU_ASSERT(entry != NULL);
@@ -246,7 +251,7 @@ void test_overlap(){
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_dst_match(NULL,NULL,0x44444444, 0xfffffff)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_src_match(NULL,NULL,0x33333333, 0xfffffff)) == ROFL_SUCCESS);
 
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_SUCCESS);
 
 	clean_pipeline(sw);	
 
@@ -256,7 +261,7 @@ void test_overlap(){
 
 	//Add match
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_SUCCESS);
 	
 	//Add second entry
 	entry = of1x_init_flow_entry(NULL, NULL, false); 
@@ -264,7 +269,7 @@ void test_overlap(){
 	//Add match
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_eth_src_match(NULL,NULL,0x999999999999, 0xffffffffffff)) == ROFL_SUCCESS);
 	
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_OVERLAP);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_OVERLAP);
 	
 	clean_pipeline(sw);	
 
@@ -282,7 +287,7 @@ void test_overlap(){
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_dst_match(NULL,NULL,0x11111111, 0xfffffff)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_src_match(NULL,NULL,0x22222233, 0xfffff00)) == ROFL_SUCCESS);
 	
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_SUCCESS);
 
 	entry = of1x_init_flow_entry(NULL, NULL, false); 
 	CU_ASSERT(entry != NULL);
@@ -291,7 +296,7 @@ void test_overlap(){
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_dst_match(NULL,NULL,0x11111144, 0xfffff00)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_src_match(NULL,NULL,0x22222233, 0xfffff00)) == ROFL_SUCCESS);
 
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) != ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) != ROFL_OF1X_FM_SUCCESS);
 
 	clean_pipeline(sw);	
 
@@ -301,14 +306,14 @@ void test_overlap(){
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_dst_match(NULL,NULL,0x11111111, 0xfffffff)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_src_match(NULL,NULL,0x22222233, 0xffffff0)) == ROFL_SUCCESS);
 	
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_SUCCESS);
 
 	entry = of1x_init_flow_entry(NULL, NULL, false); 
 	CU_ASSERT(entry != NULL);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_dst_match(NULL,NULL,0x11111144, 0xfffff00)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_src_match(NULL,NULL,0x22222233, 0xfffff00)) == ROFL_SUCCESS);
 
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) != ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) != ROFL_OF1X_FM_SUCCESS);
 
 	clean_pipeline(sw);	
 
@@ -319,13 +324,13 @@ void test_overlap(){
 	entry = of1x_init_flow_entry(NULL, NULL, false); 
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_dst_match(NULL,NULL,0x11111111, 0xfffffff)) == ROFL_SUCCESS);
 	
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_SUCCESS);
 
 	entry = of1x_init_flow_entry(NULL, NULL, false); 
 	CU_ASSERT(entry != NULL);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_src_match(NULL,NULL,0x22222233, 0xfffff00)) == ROFL_SUCCESS);
 
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) != ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) != ROFL_OF1X_FM_SUCCESS);
 
 
 	clean_pipeline(sw);	
@@ -334,13 +339,13 @@ void test_overlap(){
 	entry = of1x_init_flow_entry(NULL, NULL, false); 
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_src_match(NULL,NULL,0x11111111, 0xfffffff)) == ROFL_SUCCESS);
 	
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_SUCCESS);
 
 	entry = of1x_init_flow_entry(NULL, NULL, false); 
 	CU_ASSERT(entry != NULL);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_ip4_src_match(NULL,NULL,0x22222233, 0xfffff00)) == ROFL_SUCCESS);
 
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_SUCCESS);
 
 
 	clean_pipeline(sw);	
@@ -373,7 +378,7 @@ void test_overlap2(){
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_eth_src_match(NULL,NULL,0x4012534e57aa, 0xffffffffffff)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_vlan_vid_match(NULL,NULL,1620|OF1X_VLAN_PRESENT_MASK,0x1fff)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_vlan_pcp_match(NULL,NULL,7)) == ROFL_SUCCESS);
-	CU_ASSERT(of1x_add_flow_entry_table(&sw10->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw10->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_SUCCESS);
 	
 	//Add second entry
 	entry = of1x_init_flow_entry(NULL, NULL, false); 
@@ -393,7 +398,7 @@ void test_overlap2(){
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_tp_src_match(NULL,NULL,205)) == ROFL_SUCCESS);
 	CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_tp_dst_match(NULL,NULL,88)) == ROFL_SUCCESS);
 
-	CU_ASSERT(of1x_add_flow_entry_table(&sw10->pipeline, 0, entry, true,false) == ROFL_OF1X_FM_OVERLAP); //Check overlap == 1 => MUST FAIL
+	CU_ASSERT(of1x_add_flow_entry_table(&sw10->pipeline, 0, &entry, true,false) == ROFL_OF1X_FM_OVERLAP); //Check overlap == 1 => MUST FAIL
 	
 	of_destroy_switch((of_switch_t*)sw10);
 }
@@ -423,7 +428,7 @@ void test_flow_modify(){
 	of1x_add_instruction_to_group(&entry1->inst_grp, OF1X_IT_APPLY_ACTIONS, group1, NULL, NULL, 0);
 	
 	//Insert in the table	
-	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, entry1, true,false) == ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, 0, &entry1, true,false) == ROFL_OF1X_FM_SUCCESS);
 
 	/*****/
 
@@ -441,7 +446,7 @@ void test_flow_modify(){
 	of1x_add_instruction_to_group(&entry2->inst_grp, OF1X_IT_APPLY_ACTIONS, group2, NULL, NULL, 0);
 
 	//MODIFY strict
-	CU_ASSERT(of1x_modify_flow_entry_table(&sw->pipeline, 0, entry2, STRICT, true) == ROFL_SUCCESS);
+	CU_ASSERT(of1x_modify_flow_entry_table(&sw->pipeline, 0, &entry2, STRICT, true) == ROFL_SUCCESS);
 
 	
 	//Check actions are first entry of the table

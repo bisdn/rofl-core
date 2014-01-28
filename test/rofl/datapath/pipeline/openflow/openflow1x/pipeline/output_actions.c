@@ -54,7 +54,7 @@ void oa_basic_test(void){
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL, 0);
 	
 	//insert flow entry
-	of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false, false);
+	of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false, false);
 	
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline.tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==1);
@@ -84,7 +84,7 @@ void oa_only_apply(void){
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
-	of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false, false);
+	of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false, false);
 	
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline.tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==1);
@@ -113,7 +113,7 @@ void oa_only_write(void){
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
-	of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false, false);
+	of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false, false);
 	
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline.tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==0);
@@ -138,7 +138,7 @@ void oa_no_output(){
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
-	of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false, false);
+	of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false, false);
 	
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline.tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==0);
@@ -163,7 +163,7 @@ void oa_test_with_groups(void){
 	of1x_push_packet_action_to_group(ag2,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag2));
-	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,buckets);
+	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets);
 	
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,NULL,NULL));
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
@@ -174,7 +174,7 @@ void oa_test_with_groups(void){
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
-	of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false, false);
+	of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false, false);
 	
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline.tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==3); //Due to groups
@@ -200,7 +200,7 @@ void oa_two_outputs_apply(void){
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
-	of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false, false);
+	of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false, false);
 	
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline.tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==2);
@@ -227,7 +227,7 @@ void oa_two_outputs_write(void){
 	of1x_push_packet_action_to_group(ag2,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag2));
-	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,buckets);
+	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets);
 	
 	//of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,grp_id,NULL,NULL));
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,NULL,NULL));
@@ -239,7 +239,7 @@ void oa_two_outputs_write(void){
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
-	of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false, false);
+	of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false, false);
 	
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline.tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==0);
@@ -260,7 +260,7 @@ void oa_write_and_group(void){
 	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,NULL,NULL));
 	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
-	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,buckets);
+	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets);
 	
 	//of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,grp_id,NULL,NULL));
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,NULL,NULL));
@@ -272,7 +272,7 @@ void oa_write_and_group(void){
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
-	of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false, false);
+	of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false, false);
 	
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline.tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==0);
@@ -293,7 +293,7 @@ void oa_apply_and_group(void){
 	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_DEC_NW_TTL,field,NULL,NULL));
 	of1x_push_packet_action_to_group(ag,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
 	of1x_insert_bucket_in_list(buckets,of1x_init_bucket(0,1,0,ag));
-	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,buckets);
+	of1x_group_add(sw->pipeline.groups,OF1X_GROUP_TYPE_ALL,grp_id,&buckets);
 	
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_GROUP,field_grp,NULL,NULL));
 	of1x_push_packet_action_to_group(apply_actions,of1x_init_packet_action(OF1X_AT_OUTPUT,field,NULL,NULL));
@@ -304,7 +304,7 @@ void oa_apply_and_group(void){
 	of1x_add_instruction_to_group(&entry->inst_grp,OF1X_IT_WRITE_ACTIONS,NULL,write_actions,NULL,0);
 	
 	//insert flow entry
-	of1x_add_flow_entry_table(&sw->pipeline, 0, entry, false, false);
+	of1x_add_flow_entry_table(&sw->pipeline, 0, &entry, false, false);
 	
 	//check that the number of outputs is correct and the flag of multiple outpus is correctly set
 	assert(sw->pipeline.tables[0].entries->inst_grp.instructions[0].apply_actions->num_of_output_actions==3); //3 due to groups
