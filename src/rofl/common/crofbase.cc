@@ -379,10 +379,11 @@ crofbase::rpc_listen_for_dpts(
 		int domain,
 		int type,
 		int protocol,
+		ssl_context *ssl_ctx,
 		int backlog)
 {
 	csocket *socket = new csocket(this, domain, type, protocol, backlog);
-	socket->listen(addr, domain, type, protocol, backlog);
+	socket->listen(addr, domain, type, protocol, ssl_ctx, backlog);
 	rpc[RPC_DPT].insert(socket);
 }
 
@@ -394,10 +395,11 @@ crofbase::rpc_listen_for_ctls(
 		int domain,
 		int type,
 		int protocol,
+		ssl_context *ssl_ctx,
 		int backlog)
 {
 	csocket *socket = new csocket(this, domain, type, protocol, backlog);
-	socket->listen(addr, domain, type, protocol, backlog);
+	socket->listen(addr, domain, type, protocol, ssl_ctx, backlog);
 	rpc[RPC_CTL].insert(socket);
 }
 

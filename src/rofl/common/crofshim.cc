@@ -32,12 +32,12 @@ crofshim::~crofshim()
 
 
 void
-crofshim::listen(rofl::caddress const& laddr, int domain, int type, int protocol, int backlog)
+crofshim::listen(rofl::caddress const& laddr, int domain, int type, int protocol, ssl_context *ssl_ctx, int backlog)
 {
 	if (sockets.find(laddr) != sockets.end()) {
 		return;
 	}
-	(sockets[laddr] = new csocket(this))->listen(laddr, domain, type, protocol, backlog);
+	(sockets[laddr] = new csocket(this))->listen(laddr, domain, type, protocol, ssl_ctx, backlog);
 }
 
 

@@ -18,6 +18,7 @@ csocket::csocket(
 		int backlog) :
 	had_short_write(false),
 #ifdef HAVE_OPENSSL
+	ssl_ctx(NULL),
 	ssl_conn(NULL),
 #endif
 	socket_owner(owner),
@@ -223,6 +224,7 @@ csocket::handle_wevent(int fd)
 				cancel_timer(TIMER_RECONNECT);
 			}
 
+			// fixme tls has to be done until now
 			handle_connected();
 		} break;
 		case EINPROGRESS: {
@@ -272,6 +274,7 @@ csocket::listen(
 	int domain, 
 	int type, 
 	int protocol, 
+	ssl_context *ssl,
 	int backlog,
 	std::string devname)
 {
@@ -429,6 +432,10 @@ csocket::accept(
 
 	register_filedesc_r(sd);
 
+
+
+	// fixme tls has to be done until now
+
 	handle_connected();
 }
 
@@ -527,6 +534,7 @@ csocket::connect(
 
 		logging::info << "[rofl][csocket] socket connected" << std::endl << *this;
 
+		// fixme tls has to be done until now
 		handle_connected();
 	}
 }
@@ -605,7 +613,7 @@ csocket::recv(void *buf, size_t count)
 	rc = ::read(sd, (void*)buf, count);
 
 #ifdef HAVE_OPENSSL
-	} /* else ( of NULL != ssl_conn)  */
+	} /* else (of NULL != ssl_conn)  */
 #endif
 
 	if (rc > 0) {
@@ -726,7 +734,7 @@ csocket::dequeue_packet()
 				return;
 			}
 #ifdef HAVE_OPENSSL
-			} /* else ( of NULL != ssl_conn)  */
+			} /* else (of NULL != ssl_conn)  */
 #endif
 
 			delete entry.mem;

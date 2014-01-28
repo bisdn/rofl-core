@@ -278,6 +278,7 @@ public:
 			int domain = PF_INET,
 			int type = SOCK_STREAM,
 			int protocol = IPPROTO_TCP,
+			ssl_context *ssl_ctx = NULL,
 			int backlog = 10);
 
 
@@ -297,6 +298,7 @@ public:
 			int domain = PF_INET,
 			int type = SOCK_STREAM,
 			int protocol = IPPROTO_TCP,
+			ssl_context *ssl_ctx = NULL,
 			int backlog = 10);
 
 

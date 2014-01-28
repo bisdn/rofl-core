@@ -55,6 +55,7 @@ class eSocketAgain			: public eSocketBase {}; /**< read() would block */
 class eSocketConnReset		: public eSocketBase {}; /**< read() returned connection reset */
 
 class csocket; // forward declaration for csocket_owner, see below
+class ssl_context;
 
 
 /**
@@ -190,6 +191,7 @@ private:
 	static std::set<csocket*> 	csock_list; 		/**< list of all csocket instances */
 
 #ifdef HAVE_OPENSSL
+	ssl_context *ssl_ctx;
 	ssl_connection *ssl_conn;
 #endif
 
@@ -300,7 +302,8 @@ public:
 		caddress la,
 		int domain = PF_INET, 
 		int type = SOCK_STREAM, 
-		int protocol = 0, 
+		int protocol = 0,
+		ssl_context *ssl = NULL,
 		int backlog = 10,
 		std::string devname = std::string(""));
 

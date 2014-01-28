@@ -49,7 +49,7 @@ public:
 	 *
 	 */
 	void
-	listen(rofl::caddress const& laddr, int domain, int type, int protocol, int backlog = 10);
+	listen(rofl::caddress const& laddr, int domain, int type, int protocol, ssl_context *ssl_ctx, int backlog = 10);
 
 	/**
 	 *
