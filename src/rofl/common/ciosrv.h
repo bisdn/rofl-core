@@ -141,6 +141,12 @@ public:
 	static void
 	run();
 
+	/**
+	 *
+	 */
+	static void
+	stop();
+
 protected:
 
 	friend class cioloop;
@@ -468,13 +474,6 @@ public:
 		RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
 		timers[iosrv] = false;
 	};
-
-	/**
-	 *
-	 */
-	static void
-	daemonize(
-			std::string const& pidfile, std::string const& logfile);
 
 
 private:
