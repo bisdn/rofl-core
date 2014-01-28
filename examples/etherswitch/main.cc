@@ -20,6 +20,8 @@ main(int argc, char** argv)
 
 	//rofl::logging::set_logfile(rofl::logging::LOGGING_DEBUG, "/dev/null");
 
+	rofl::logging::set_debug_level(8);
+
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));
 

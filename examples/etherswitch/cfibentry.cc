@@ -48,13 +48,17 @@ cfibentry::handle_timeout(int opaque)
 void
 cfibentry::set_out_port_no(uint32_t out_port_no)
 {
+#if 0
 	flow_mod_delete();
+#endif
 
 	this->out_port_no = out_port_no;
 
 	reset_timer(CFIBENTRY_ENTRY_EXPIRED, entry_timeout);
 
+#if 0
 	flow_mod_add();
+#endif
 }
 
 

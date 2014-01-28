@@ -111,6 +111,8 @@ void
 ethswitch::handle_dpath_open(
 		crofdpt& dpt)
 {
+	dpt.flow_mod_reset();
+
 	rofl::cflowentry fe(dpt.get_version());
 
 	switch (dpt.get_version()) {
@@ -268,17 +270,24 @@ ethswitch::handle_packet_in(
 
 			cflowentry fe(dpt.get_version());
 
-			fe.set_command(rofl::openflow12::OFP_VERSION);
+			fe.set_command(rofl::openflow12::OFPFC_ADD);
 			fe.set_table_id(0);
 			fe.set_idle_timeout(10);
 			fe.set_priority(0x8000);
+			fe.set_buffer_id(msg.get_buffer_id());
 
 			fe.match.set_eth_dst(eth_dst);
+			logging::debug << "XXXXXXXXXXXXXXXXXXXXXXXXXX" << std::endl << fe.match;
+
 			fe.match.set_eth_src(eth_src);
+			logging::debug << "XXXXXXXXXXXXXXXXXXXXXXXXXX" << std::endl << fe.match;
+
 
 			fe.instructions.add_inst_apply_actions().get_actions().append_action_output(entry.get_out_port_no());
 
 			dpt.send_flow_mod_message(fe);
+
+			return;
 
 		} catch (eFibNotFound& e) {
 			switch (dpt.get_version()) {
