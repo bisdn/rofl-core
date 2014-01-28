@@ -68,7 +68,7 @@ rofl_result_t physical_switch_init(){
 	all_meta_port = &psw->meta_ports[META_PORT_ALL_INDEX];
 
 	//Initialize monitoring data
-	if(monitoring_init(&psw->monitoring) != ROFL_SUCCESS)
+	if(__monitoring_init(&psw->monitoring) != ROFL_SUCCESS)
 		return ROFL_FAILURE;		
 
 	//Generate matching algorithm lists
@@ -119,7 +119,7 @@ void physical_switch_destroy(){
 	}
 
 	//Destroy monitoring
-	monitoring_destroy(&psw->monitoring);		
+	__monitoring_destroy(&psw->monitoring);		
 	
 	//Destroy mutex
 	platform_mutex_destroy(psw->mutex);

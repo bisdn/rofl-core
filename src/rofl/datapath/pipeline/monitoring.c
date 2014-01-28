@@ -202,7 +202,7 @@ rofl_result_t __monitoring_remove_monitored_entity(monitoring_state_t* monitorin
 //
 // Montoring elements
 //
-rofl_result_t monitoring_init(monitoring_state_t* monitoring){
+rofl_result_t __monitoring_init(monitoring_state_t* monitoring){
 
 	//Clear all
 	memset(monitoring,0,sizeof(*monitoring));
@@ -228,7 +228,7 @@ rofl_result_t monitoring_init(monitoring_state_t* monitoring){
 * @brief Destroys the monitoring state 
 * @ingroup  mgmt
 */
-void monitoring_destroy(monitoring_state_t* monitoring){
+void __monitoring_destroy(monitoring_state_t* monitoring){
 
 	if(!monitoring)
 		return;

@@ -177,10 +177,9 @@ ROFL_BEGIN_DECLS
 //Monitoring API
 
 /**
-* @brief Initializes the monitoring state 
-* @ingroup  mgmt
+* Initializes the monitoring state 
 */
-rofl_result_t monitoring_init(monitoring_state_t* monitoring);
+rofl_result_t __monitoring_init(monitoring_state_t* monitoring);
 
 /**
 * @brief Dumps the monitoring state, only meaningful for debugging purposes 
@@ -197,10 +196,9 @@ static inline void monitoring_dump_snapshot(monitoring_snapshot_state_t* snapsho
 }
 
 /**
-* @brief Destroys the monitoring state 
-* @ingroup  mgmt
+* Destroys the monitoring state 
 */
-void monitoring_destroy(monitoring_state_t* monitoring);
+void __monitoring_destroy(monitoring_state_t* monitoring);
 
 /**
 * @brief Returns true if the monitoring state has changed 
@@ -228,7 +226,7 @@ monitoring_snapshot_state_t* monitoring_get_snapshot(monitoring_state_t* monitor
 * @ingroup  mgmt
 */
 static inline void monitoring_destroy_snapshot(monitoring_snapshot_state_t* snapshot){
-	monitoring_destroy((monitoring_state_t*)snapshot);
+	__monitoring_destroy((monitoring_state_t*)snapshot);
 }
 
 /**
