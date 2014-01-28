@@ -82,7 +82,9 @@ cfib::fib_timer_expired(cfibentry *entry)
 #if 0
 		entry->set_out_port_no(OFPP12_FLOOD);
 #else
+#if 0
 		fibtable[entry->get_lladdr()]->flow_mod_delete();
+#endif
 		fibtable.erase(entry->get_lladdr());
 		delete entry;
 #endif
@@ -105,7 +107,9 @@ cfib::fib_update(
 	// update cfibentry for src/inport
 	if (fibtable.find(src) == fibtable.end()) {
 		fibtable[src] = new cfibentry(this, rofbase, &dpt, src, in_port);
+#if 0
 		fibtable[src]->flow_mod_add();
+#endif
 
 		std::cerr << "UPDATE[2.1]: " << *this << std::endl;
 
@@ -143,6 +147,9 @@ cfib::fib_lookup(
 	// find out-port for dst
 	if (fibtable.find(dst) == fibtable.end()) {
 
+		throw eFibNotFound();
+
+#if 0
 		switch (dpt.get_version()) {
 		case rofl::openflow10::OFP_VERSION:
 			fibtable[dst] = new cfibentry(this, rofbase, &dpt, dst, rofl::openflow10::OFPP_FLOOD); break;
@@ -157,6 +164,7 @@ cfib::fib_lookup(
 		fibtable[dst]->flow_mod_add();
 
 		std::cerr << "LOOKUP[1]: " << *this << std::endl;
+#endif
 	}
 
 	return *(fibtable[dst]);

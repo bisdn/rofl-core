@@ -254,18 +254,45 @@ ethswitch::handle_packet_in(
 
 	} else {
 
-		cfibentry& entry = cfib::get_fib(dpt.get_dpid()).fib_lookup(
-					this,
-					dpt,
-					msg.get_packet().ether()->get_dl_dst(),
-					msg.get_packet().ether()->get_dl_src(),
-					msg.get_match().get_in_port());
+		try {
+			cfibentry& entry = cfib::get_fib(dpt.get_dpid()).fib_lookup(
+						this,
+						dpt,
+						msg.get_packet().ether()->get_dl_dst(),
+						msg.get_packet().ether()->get_dl_src(),
+						msg.get_match().get_in_port());
 
-		if (msg.get_match().get_in_port() == entry.get_out_port_no()) {
-			return;
+			if (msg.get_match().get_in_port() == entry.get_out_port_no()) {
+				return;
+			}
+
+			cflowentry fe(dpt.get_version());
+
+			fe.set_command(rofl::openflow12::OFP_VERSION);
+			fe.set_table_id(0);
+			fe.set_idle_timeout(10);
+			fe.set_priority(0x8000);
+
+			fe.match.set_eth_dst(eth_dst);
+			fe.match.set_eth_src(eth_src);
+
+			fe.instructions.add_inst_apply_actions().get_actions().append_action_output(entry.get_out_port_no());
+
+			dpt.send_flow_mod_message(fe);
+
+		} catch (eFibNotFound& e) {
+			switch (dpt.get_version()) {
+			case openflow10::OFP_VERSION:
+				actions.append_action_output(openflow10::OFPP_FLOOD); break;
+			case openflow12::OFP_VERSION:
+				actions.append_action_output(openflow12::OFPP_FLOOD); break;
+			case openflow13::OFP_VERSION:
+				actions.append_action_output(openflow13::OFPP_FLOOD); break;
+			default:
+				throw eBadVersion();
+			}
+
 		}
-
-		actions.append_action_output(entry.get_out_port_no());
 	}
 
 	uint32_t ofp_no_buffer = 0;
