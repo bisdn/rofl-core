@@ -70,11 +70,17 @@ public:
 	bool
 	empty();
 
+	/**
+	 *
+	 */
+	void
+	clear();
+
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cevents const& events) {
-		os << indent(0) << "<cevents >" << std::endl;
+		os << indent(0) << "<cevents: >" << std::endl;
 			indent i(2);
 			for (std::list<cevent>::const_iterator
 					it = events.events.begin(); it != events.events.end(); ++it) {

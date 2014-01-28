@@ -93,13 +93,16 @@ csocket::handle_event(
 	switch (ev.cmd) {
 	case EVENT_CONN_RESET:
 	case EVENT_DISCONNECTED: {
+		bool notify = sockflags.test(CONNECTED);
+		close();
+
 		if (sockflags.test(FLAG_DO_RECONNECT)) {
 			sockflags.reset(CONNECTED);
 			backoff_reconnect(true);
 		} else {
 			logging::info << "[rofl][csocket] closed socket." << std::endl << *this;
-			close();
-			handle_closed();
+			if (notify)
+				handle_closed();
 		}
 	} break;
 	default:
@@ -574,6 +577,9 @@ csocket::close()
 ssize_t
 csocket::recv(void *buf, size_t count)
 {
+	if (sd == -1)
+		throw eSocketReadFailed();
+
 	// read from socket: TODO: TLS socket
 	int rc = ::read(sd, (void*)buf, count);
 
@@ -583,6 +589,9 @@ csocket::recv(void *buf, size_t count)
 	} else if (rc == 0) {
 		logging::error << "[rofl][csocket] peer closed connection: "
 				<< eSysCall("read") << std::endl << *this;
+		//close();
+		deregister_filedesc_r(sd);
+		deregister_filedesc_w(sd);
 		notify(cevent(EVENT_CONN_RESET));
 		throw eSocketReadFailed();
 
@@ -594,12 +603,18 @@ csocket::recv(void *buf, size_t count)
 		case ECONNRESET: {
 			logging::error << "[rofl][csocket] error reading from socket: "
 					<< eSysCall("read") << std::endl << *this;
+			//close();
+			deregister_filedesc_r(sd);
+			deregister_filedesc_w(sd);
 			notify(cevent(EVENT_CONN_RESET));
 			throw eSocketReadFailed();
 		} break;
 		default: {
 			logging::error << "[rofl][csocket] error reading from socket: "
 					<< eSysCall("read") << ", closing endpoint." << std::endl << *this;
+			//close();
+			deregister_filedesc_r(sd);
+			deregister_filedesc_w(sd);
 			notify(cevent(EVENT_DISCONNECTED));
 			throw eSocketReadFailed();
 		} break;

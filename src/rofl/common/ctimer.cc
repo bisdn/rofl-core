@@ -11,6 +11,15 @@ using namespace rofl;
 
 uint32_t ctimer::next_timer_id = 0;
 
+uint32_t
+ctimer::get_next_timer_id() {
+	if (++ctimer::next_timer_id == 0) {
+		++ctimer::next_timer_id;
+	}
+	return ctimer::next_timer_id;
+}
+
+
 ctimer::ctimer() :
 		timer_id(0),
 		ptr(0),

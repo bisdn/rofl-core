@@ -22,6 +22,7 @@ void sighandler(int sig)
 #endif
 
 
+std::set<ciosrv*> 				ciosrv::ciolist;
 
 PthreadRwLock 					cioloop::threads_rwlock;
 std::map<pthread_t, cioloop*> 	cioloop::threads;
@@ -30,6 +31,7 @@ std::map<pthread_t, cioloop*> 	cioloop::threads;
 ciosrv::ciosrv() :
 		tid(pthread_self())
 {
+	ciosrv::ciolist.insert(this);
 	rfds.insert(pipe.pipefd[0]);
 	register_filedesc_r(pipe.pipefd[0]);
 }
@@ -37,6 +39,12 @@ ciosrv::ciosrv() :
 
 ciosrv::~ciosrv()
 {
+	ciosrv::ciolist.erase(this);
+	logging::debug << "[rofl][ciosrv][destructor] -1-" << std::endl << *this;
+	logging::debug << "[rofl][ciosrv][destructor] -1-" << std::endl << cioloop::get_loop();
+
+	timers.clear();
+	events.clear();
 	cioloop::get_loop().has_no_timer(this);
 	deregister_filedesc_r(pipe.pipefd[0]);
 	for (std::set<int>::iterator it = rfds.begin(); it != rfds.end(); ++it) {
@@ -45,6 +53,9 @@ ciosrv::~ciosrv()
 	for (std::set<int>::iterator it = wfds.begin(); it != wfds.end(); ++it) {
 		cioloop::get_loop().drop_writefd(this, (*it));
 	}
+
+	logging::debug << "[rofl][ciosrv][destructor] -2-" << std::endl << *this;
+	logging::debug << "[rofl][ciosrv][destructor] -2-" << std::endl << cioloop::get_loop();
 }
 
 
@@ -125,8 +136,17 @@ ciosrv::__handle_revent(int fd)
 {
 	try {
 		if (pipe.pipefd[0] == fd) {
+			logging::debug << "[rofl][ciosrv][revent] entering event loop:" << std::endl << *this;
+			if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
+				logging::debug << "[rofl][ciosrv][revent] ciosrv instance deleted, returning from event loop" << std::endl;
+				return;
+			}
 			pipe.recvmsg();
 			while (not events.empty()) {
+				if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
+					logging::debug << "[rofl][ciosrv][revent] ciosrv instance deleted, returning from event loop" << std::endl;
+					return;
+				}
 				handle_event(events.get_event());
 			}
 		} else {
@@ -143,6 +163,7 @@ ciosrv::__handle_timeout()
 {
 	try {
 		ctimer timer = timers.get_expired_timer();
+		logging::debug << "[rofl][ciosrv][handle-timeout] timer: " << std::endl << timer;
 		handle_timeout(timer.get_opaque());
 	} catch (eTimersNotFound& e) {
 
@@ -282,12 +303,12 @@ cioloop::run_loop()
 		FD_ZERO(&exceptfds);
 
 
-		std::pair<ciosrv*, ctimer> next_timeout(0, ctimer(NULL, 0, 3600));
+		std::pair<ciosrv*, ctimer> next_timeout(0, ctimer(NULL, 0, 60));
 		{
 			RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
 			for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
 				try {
-					ctimer timer = (*it).first->get_next_timer();
+					ctimer timer = ((*it).first->get_next_timer() - ctimer::now());
 					if (timer < next_timeout.second) {
 						next_timeout = std::pair<ciosrv*, ctimer>( (*it).first, timer );
 					}
@@ -295,6 +316,9 @@ cioloop::run_loop()
 			}
 		}
 
+		logging::debug << "[rofl][cioloop] before select:" << std::endl << *this;
+
+		logging::debug << "[rofl][cioloop] next-timeout for select:" << std::endl << next_timeout.second;
 
 		// blocking
 		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_ts()), &empty_mask)) < 0) {
@@ -308,39 +332,30 @@ cioloop::run_loop()
 
 		} else if ((0 == rc)/* || (EINTR == errno)*/) {
 
-			next_timeout.first->__handle_timeout();
+			rofl::logging::debug << "[rofl][ciosrv][cioloop] timeout event" << std::endl;
 
-			// clean-up timers map
-			if (true) {
-				RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
-restart:
-				for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
-					if ((*it).second == false) {
-						timers.erase(it);
-						goto restart;
-					}
-				}
-			}
+			next_timeout.first->__handle_timeout();
 
 		} else { // rc > 0
 
 			try {
 
-				while (rc > 0) {
-
-					if (FD_ISSET(rc, &exceptfds) && ((NULL != rfds[rc]) || (NULL != wfds[rc]))) {
-						rfds[rc]->handle_xevent(rc);
+				for (unsigned int i = 0; i < rfds.size(); i++) {
+					if (FD_ISSET(i, &exceptfds) && ((NULL != rfds[i]) || (NULL != wfds[i]))) {
+						rfds[i]->handle_xevent(i);
 					}
+				}
 
-					if (FD_ISSET(rc, &writefds)  && (NULL != wfds[rc])) {
-						rfds[rc]->handle_wevent(rc);
+				for (unsigned int i = 0; i < wfds.size(); i++) {
+					if (FD_ISSET(i, &writefds)  && (NULL != wfds[i])) {
+						wfds[i]->handle_wevent(i);
 					}
+				}
 
-					if (FD_ISSET(rc, &readfds) 	 && (NULL != rfds[rc])) {
-						rfds[rc]->__handle_revent(rc);
+				for (unsigned int i = 0; i < rfds.size(); i++) {
+					if (FD_ISSET(i, &readfds) 	 && (NULL != rfds[i])) {
+						rfds[i]->__handle_revent(i);
 					}
-
-					--rc;
 				}
 
 
@@ -356,6 +371,20 @@ restart:
 #endif
 			}
 		}
+
+		// clean-up timers map
+		if (true) {
+			RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
+restart:
+			for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
+				if ((*it).second == false) {
+					timers.erase(it);
+					goto restart;
+				}
+			}
+		}
+
+		logging::debug << "[rofl][cioloop] after select:" << std::endl << *this;
 	}
 }
 

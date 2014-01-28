@@ -143,6 +143,8 @@ cfib::fib_lookup(
 	// find out-port for dst
 	if (fibtable.find(dst) == fibtable.end()) {
 
+		throw eFibNotFound();
+
 		switch (dpt.get_version()) {
 		case rofl::openflow10::OFP_VERSION:
 			fibtable[dst] = new cfibentry(this, rofbase, &dpt, dst, rofl::openflow10::OFPP_FLOOD); break;

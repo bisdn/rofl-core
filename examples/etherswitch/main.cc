@@ -23,6 +23,8 @@ main(int argc, char** argv)
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));
 
+	rofl::logging::set_debug_level(8);
+
 	rofl::ciosrv::run();
 
 	return 0;

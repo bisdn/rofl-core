@@ -25,6 +25,8 @@ class ctimer {
 
 	static uint32_t next_timer_id;
 
+	static uint32_t get_next_timer_id();
+
 #define CC_TIMER_ONE_SECOND_S 1
 #define CC_TIMER_ONE_SECOND_NS 1000000000
 
@@ -181,11 +183,12 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, ctimer const& timer) {
+		ctimer delta = ctimer(timer) - ctimer::now();
 		os << indent(0) << "<ctimer ";
 		os << "timer-id:" << (unsigned long long)timer.timer_id << " ";
 		os << "opaque:" << timer.opaque << " ";
-		os << "sec:" << timer.ts.tv_sec << " ";
-		os << "nsec:" << timer.ts.tv_nsec << " ";
+		os << "sec:" << delta.ts.tv_sec << " ";
+		os << "nsec:" << delta.ts.tv_nsec << " ";
 		os << "data:" << timer.data << " ";
 		os << ">" << std::endl;
 		return os;

@@ -80,6 +80,8 @@ class cioloop;
 class ciosrv :
 		public ptrciosrv
 {
+	static std::set<ciosrv*> 		ciolist;
+
 	pthread_t						tid;
 	cpipe							pipe;
 	std::set<int>					rfds;
@@ -338,7 +340,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, ciosrv const& iosvc) {
-		os << indent(0) << "<ciosrv >";
+		os << indent(0) << "<ciosrv >" << std::endl;
 			os << indent(2) << "<rfds: ";
 			for (std::set<int>::const_iterator it = iosvc.rfds.begin(); it != iosvc.rfds.end(); ++it) {
 				os << (*it) << " ";
@@ -349,9 +351,8 @@ public:
 				os << (*it) << " ";
 			}
 			os << ">" << std::endl;
-			os << indent(2) << "<timers: >" << std::endl;
+
 			{ indent i(2); os << iosvc.timers; }
-			os << "<events: >" << std::endl;
 			{ indent i(2); os << iosvc.events; }
 		return os;
 	};
@@ -538,7 +539,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cioloop const& ioloop) {
-		os << indent(0) << "<cioloop >";
+		os << indent(0) << "<cioloop >" << std::endl;
 
 		os << indent(2) << "<read-fds: ";
 		for (unsigned int i = 0; i < ioloop.rfds.size(); ++i) {
@@ -546,7 +547,7 @@ public:
 				os << i << " ";
 			}
 		}
-		os << " >" << std::endl;
+		os << ">" << std::endl;
 
 		os << indent(2) << "<write-fds: ";
 		for (unsigned int i = 0; i < ioloop.wfds.size(); ++i) {
@@ -554,7 +555,15 @@ public:
 				os << i << " ";
 			}
 		}
-		os << " >" << std::endl;
+		os << ">" << std::endl;
+
+		os << indent(2) << "<instances with timer needs: ";
+		// locking?
+		for (std::map<ciosrv*, bool>::const_iterator
+				it = ioloop.timers.begin(); it != ioloop.timers.end(); ++it) {
+			os << it->first << ":" << it->second << " ";
+		}
+		os << ">" << std::endl;
 
 		return os;
 	};

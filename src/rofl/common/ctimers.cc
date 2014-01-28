@@ -57,7 +57,6 @@ ctimers::get_next_timer()
 		throw eTimersNotFound();
 	std::multiset<ctimer>::iterator first = timers.begin();
 	ctimer timer(*first);
-	timers.erase(first);
 	return timer;
 }
 
@@ -137,6 +136,14 @@ ctimers::cancel(uint32_t timer_id)
 
 void
 ctimers::cancel_all()
+{
+	clear();
+}
+
+
+
+void
+ctimers::clear()
 {
 	RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
 	timers.clear();

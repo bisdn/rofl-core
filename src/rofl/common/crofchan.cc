@@ -20,7 +20,8 @@ crofchan::crofchan(
 				state(STATE_DISCONNECTED),
 				reconnect_start_timeout(CROFCHAN_RECONNECT_START_TIMEOUT),
 				reconnect_in_seconds(CROFCHAN_RECONNECT_START_TIMEOUT),
-				reconnect_counter(0)
+				reconnect_counter(0),
+				reconnect_timer_id(0)
 {
 
 }
@@ -60,7 +61,9 @@ void
 crofchan::event_disconnected()
 {
 	switch (state) {
-	case STATE_DISCONNECTED:
+	case STATE_DISCONNECTED: {
+		// do nothing
+	} break;
 	case STATE_CONNECT_PENDING:
 	case STATE_ESTABLISHED: {
 		state = STATE_DISCONNECTED;
@@ -427,24 +430,19 @@ crofchan::handle_timeout(int opaque, void *data)
 void
 crofchan::backoff_reconnect(bool reset_timeout)
 {
-	if (pending_timer(TIMER_RECONNECT)) {
-		return;
-	}
-
 	logging::info << "[rofl][chan] " << " scheduled reconnect in "
 			<< (int)reconnect_in_seconds << " seconds." << std::endl << *this;
 
 	int max_backoff = 16 * reconnect_start_timeout;
 
-	if (reset_timeout) {
+	if ((0 == reconnect_timer_id) || (reset_timeout)) {
+
 		reconnect_in_seconds = reconnect_start_timeout;
 		reconnect_counter = 0;
 
-		reset_timer(TIMER_RECONNECT, 0);
-
-		++reconnect_counter;
-
-		return;
+		if ((0 != reconnect_timer_id) && reset_timeout) {
+			cancel_timer(reconnect_timer_id);
+		}
 
 	} else {
 		reconnect_in_seconds *= 2;
@@ -453,8 +451,9 @@ crofchan::backoff_reconnect(bool reset_timeout)
 			reconnect_in_seconds = max_backoff;
 		}
 
-		reset_timer(TIMER_RECONNECT, reconnect_in_seconds);
-
-		++reconnect_counter;
 	}
+
+	reconnect_timer_id = register_timer(TIMER_RECONNECT, reconnect_in_seconds);
+
+	++reconnect_counter;
 }

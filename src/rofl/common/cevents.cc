@@ -70,3 +70,12 @@ cevents::empty()
 }
 
 
+
+void
+cevents::clear()
+{
+	RwLock lock(rwlock, RwLock::RWLOCK_WRITE);
+	events.clear();
+}
+
+

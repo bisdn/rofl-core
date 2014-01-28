@@ -100,6 +100,14 @@ public:
 	void
 	cancel_all();
 
+
+	/**
+	 * @brief	cancel all timers
+	 */
+	void
+	clear();
+
+
 public:
 
 	friend std::ostream&
