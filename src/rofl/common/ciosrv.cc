@@ -37,6 +37,7 @@ ciosrv::ciosrv() :
 
 ciosrv::~ciosrv()
 {
+	cioloop::get_loop().has_no_timer(this);
 	deregister_filedesc_r(pipe.pipefd[0]);
 	for (std::set<int>::iterator it = rfds.begin(); it != rfds.end(); ++it) {
 		cioloop::get_loop().drop_readfd(this, (*it));
@@ -62,6 +63,13 @@ ciosrv::operator= (ciosrv const& iosrv)
 
 
 	return *this;
+}
+
+
+void
+ciosrv::run()
+{
+	cioloop::get_loop().run();
 }
 
 
@@ -124,39 +132,61 @@ ciosrv::__handle_revent(int fd)
 
 
 void
+ciosrv::__handle_timeout()
+{
+	try {
+		ctimer timer = timers.get_expired_timer();
+		handle_timeout(timer.get_opaque());
+	} catch (eTimersNotFound& e) {
+
+	}
+}
+
+
+ctimer
+ciosrv::get_next_timer()
+{
+	return timers.get_next_timer();
+}
+
+
+uint32_t
 ciosrv::register_timer(int opaque, time_t t)
 {
 	if (timers.empty())
 		cioloop::get_loop().has_timer(this);
-	timers.add_timer(ctimer(opaque, t));
+	return timers.add_timer(ctimer(this, opaque, t));
 }
 
 
-void
-ciosrv::reset_timer(int opaque, time_t t)
+uint32_t
+ciosrv::reset_timer(uint32_t timer_id, time_t t)
 {
-	timers.reset(opaque);
+	return timers.reset(timer_id, t);
 }
 
 
 bool
-ciosrv::pending_timer(int opaque)
+ciosrv::pending_timer(uint32_t timer_id)
 {
-	return timers.has(opaque);
+	return timers.pending(timer_id);
 }
 
 
 void
-ciosrv::cancel_timer(int opaque)
+ciosrv::cancel_timer(uint32_t timer_id)
 {
-	timers.cancel(opaque);
+	timers.cancel(timer_id);
+	if (timers.empty())
+		cioloop::get_loop().has_no_timer(this);
 }
 
 
 void
 ciosrv::cancel_all_timer()
 {
-	timers.reset();
+	timers.cancel_all();
+	cioloop::get_loop().has_no_timer(this);
 }
 
 
@@ -175,6 +205,12 @@ cioloop::child_sig_handler (int x) {
 void
 cioloop::run_loop()
 {
+	if (keep_on_running) {
+		return;
+	}
+
+	keep_on_running = true;
+
 	/*
 	 * signal masks, etc.
 	 */
@@ -211,10 +247,8 @@ cioloop::run_loop()
 		fd_set readfds;
 		fd_set writefds;
 		fd_set exceptfds;
-		struct timespec ts = { 0, 0 };
-		int maxfd = 0;
+		unsigned int maxfd = 0;
 		int rc = 0;
-		time_t ntimeout = time(NULL) + 60 /* seconds */; // one wakeup every 60seconds
 
 		FD_ZERO(&readfds);
 		{
@@ -241,14 +275,22 @@ cioloop::run_loop()
 		FD_ZERO(&exceptfds);
 
 
-		// TODO: cioloop::next_timeout(ntimeout); // get next timeout
+		std::pair<ciosrv*, ctimer> next_timeout(0, ctimer(NULL, 0, 3600));
+		{
+			RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
+			for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
+				try {
+					ctimer timer = (*it).first->get_next_timer();
+					if (timer < next_timeout.second) {
+						next_timeout = std::pair<ciosrv*, ctimer>( (*it).first, timer );
+					}
+				} catch (eTimersNotFound& e) {}
+			}
+		}
 
-		//for (std)
 
-		ts.tv_sec = ((ntimeout - time(NULL)) > 0) ? ntimeout - time(NULL) : 0;
-
-		// call select
-		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &ts, &empty_mask)) < 0) {
+		// blocking
+		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_ts()), &empty_mask)) < 0) {
 			switch (errno) {
 			case EINTR:
 				break;
@@ -259,7 +301,19 @@ cioloop::run_loop()
 
 		} else if ((0 == rc)/* || (EINTR == errno)*/) {
 
-			// TODO: handle timeouts
+			next_timeout.first->__handle_timeout();
+
+			// clean-up timers map
+			if (true) {
+				RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
+restart:
+				for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
+					if ((*it).second == false) {
+						timers.erase(it);
+						goto restart;
+					}
+				}
+			}
 
 		} else { // rc > 0
 
@@ -457,343 +511,4 @@ cioloop::daemonize(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void
-ciosrv::register_timer(int opaque, time_t t)
-{
-	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::register_timer(0x%x, %d)", this, opaque, t);
-	{
-		//Lock lock(&timer_mutex);
-
-		time_t timeout = time(NULL) + t;
-
-		this->timers_list[timeout].push_back(opaque); // local timers list with timer-type
-	}
-
-	//WRITELOG(CIOSRV, DBG, "ciosrv(%p)::register_timer() %s", this, this->c_str());
-}
-
-
-void
-ciosrv::reset_timer(int opaque, time_t t)
-{
-	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::reset_timer(0x%x, %d)", this, opaque, t);
-#if 0
-	{
-		//Lock lock(&timer_mutex);
-
-		// remove all instances of type opaque and set single new one
-		for (std::map<time_t, std::set<int> >::iterator
-				it = timers_list.begin(); it != timers_list.end(); ++it)
-		{
-			std::set<int>::iterator jt;
-			if ((jt = it->second.find(opaque)) != it->second.end())
-			{
-				it->second.erase(jt);
-			}
-		}
-	}
-#endif
-
-	cancel_timer(opaque);
-
-	register_timer(opaque, t);
-
-	//WRITELOG(CIOSRV, DBG, "ciosrv(%p)::reset_timer() %s", this, this->c_str());
-}
-
-
-bool
-ciosrv::pending_timer(int opaque)
-{
-	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::pending_timer() type:0x%x", this, opaque);
-	for (std::map<time_t, std::list<int> >::iterator
-			it = timers_list.begin(); it != timers_list.end(); ++it)
-	{
-		for (std::list<int>::iterator
-				jt = it->second.begin(); jt != it->second.end(); ++jt)
-		{
-			if ((*jt) == opaque)
-			{
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-
-void
-ciosrv::cancel_timer(int opaque)
-{
-	//Lock lock(&timer_mutex);
-
-	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::cancel_timer(0x%x)", this, opaque);
-
-	for (std::map<time_t, std::list<int> >::iterator
-			it = timers_list.begin(); it != timers_list.end(); ++it)
-	{
-		for (std::list<int>::iterator
-				jt = it->second.begin(); jt != it->second.end(); ++jt)
-		{
-			if ((*jt) == opaque)
-			{
-				it->second.erase(jt); return;
-			}
-		}
-	}
-}
-
-
-void
-ciosrv::cancel_all_timer()
-{
-	//Lock lock(&timer_mutex);
-
-	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::cancel_all_timer()", this);
-	for (std::map<time_t, std::list<int> >::iterator
-			it = timers_list.begin(); it != timers_list.end(); ++it)
-	{
-		it->second.clear();
-	}
-	timers_list.clear();
-}
-
-
-
-
-
-/*static*/
-void
-ciosrv::next_timeout(
-		time_t &ntimeout)
-{
-	pthread_t tid = pthread_self();
-
-	//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
-
-	RwLock lock(&ciosrv::iothread_lock, RwLock::RWLOCK_READ);
-
-	threads[tid]->ciosrv_timeouts.clear();
-
-	for (std::set<ciosrv*>::iterator
-			it = ciosrv::threads[tid]->ciosrv_list.begin(); it != ciosrv::threads[tid]->ciosrv_list.end(); ++it)
-	{
-#if 0
-		WRITELOG(CIOSRV, DBG, "ciosrv::next_timeout() ciosrv:%p %s",
-				*it,
-				(*it)->c_str());
-#endif
-		if ((*it)->timers_list.empty())
-		{
-			continue;
-		}
-
-		time_t timeout = (*it)->timers_list.begin()->first;
-#if 0
-		WRITELOG(CIOSRV, DBG, "ciosrv::next_timeout() ciosrv:%p timeout:%ld ntimeout:%ld",
-				*it,
-				timeout - time(NULL),
-				ntimeout - time(NULL));
-#endif
-		if (timeout < ntimeout)
-		{
-			ntimeout = timeout;
-			threads[tid]->ciosrv_timeouts.clear();
-			threads[tid]->ciosrv_timeouts.push_back(*it);
-
-#if 0
-			for (std::list<ciosrv*>::iterator
-					it = threads[tid]->ciosrv_timeouts.begin(); it != threads[tid]->ciosrv_timeouts.end(); ++it)
-			{
-				WRITELOG(CIOSRV, DBG, "ciosrv::next_timeout() [1] ciosrv-timeout-list: %p", *it);
-			}
-#endif
-		}
-		else if (timeout == ntimeout)
-		{
-			threads[tid]->ciosrv_timeouts.push_back(*it);
-#if 0
-			for (std::list<ciosrv*>::iterator
-					it = threads[tid]->ciosrv_timeouts.begin(); it != threads[tid]->ciosrv_timeouts.end(); ++it)
-			{
-				WRITELOG(CIOSRV, DBG, "ciosrv::next_timeout() [2] ciosrv-timeout-list: %p", *it);
-			}
-#endif
-		}
-	}
-
-#if 0
-	std::string s_ciosrv_timeouts;
-	for (std::list<ciosrv*>::iterator
-			it = threads[tid]->ciosrv_timeouts.begin(); it != threads[tid]->ciosrv_timeouts.end(); ++it)
-	{
-		cvastring vas(32);
-		s_ciosrv_timeouts.append(vas("%p ", *it));
-	}
-	WRITELOG(CIOSRV, DBG, "ciosrv::next_timeout() [%d] ciosrv-timeout-list: %s",
-			threads[tid]->ciosrv_timeouts.size(),
-			s_ciosrv_timeouts.c_str());
-#endif
-
-	//WRITELOG(CIOSRV, DBG, "ciosrv::next_timeout() ntimeout:%ld", ntimeout - time(NULL));
-}
-
-
-
-
-
-
-
-
-
-/*static*/
-void
-ciosrv::handle_timeouts()
-{
-	pthread_t tid = pthread_self();
-
-	/*
-	 * timeout events
-	 */
-
-	std::list<ciosrv*> p_timeouts;
-	{
-		//Lock lock(&ciosrv::ciosrv_list_mutex[tid]);
-		for (std::list<ciosrv*>::iterator
-				it = threads[tid]->ciosrv_timeouts.begin();
-						it != threads[tid]->ciosrv_timeouts.end(); ++it)
-		{
-			Lock lock(&(threads[tid]->ciosrv_list_mutex));
-			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(*it) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
-			{
-				WRITELOG(CIOSRV, DBG, "ciosrv::handle_timeouts(): skipping already deleted object %p "
-								"(%d deleted in this round)", *it,
-								ciosrv::threads[tid]->ciosrv_deletion_list.size());
-
-				continue; // do nothing for this object, as it was already deleted
-			}
-
-			p_timeouts.push_back(*it);
-		}
-		threads[tid]->ciosrv_timeouts.clear();
-	}
-
-	/*
-	 * enter the time consuming handling of timeout events
-	 */
-
-	for (std::list<ciosrv*>::iterator
-			it = p_timeouts.begin(); it != p_timeouts.end(); ++it)
-	{
-		{
-			Lock lock(&(threads[tid]->ciosrv_list_mutex));
-			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(*it) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
-			{
-				WRITELOG(CIOSRV, DBG, "ciosrv::handle_timeouts(): skipping already deleted object %p "
-								"(%d deleted in this round)", *it,
-								ciosrv::threads[tid]->ciosrv_deletion_list.size());
-
-				continue; // do nothing for this object, as it was already deleted
-			}
-			if (ciosrv::threads[tid]->ciosrv_list.find(*it) == ciosrv::threads[tid]->ciosrv_list.end())
-			{
-				continue;
-			}
-		}
-		(*it)->__handle_timeout();
-	}
-}
-
-
-void
-ciosrv::__handle_timeout()
-{
-	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::__handle_timeout() [1] TIMERS: %s", this, c_str());
-
-	std::list<int> expired_timers;
-	{
-		//Lock lock(&timer_mutex);
-		while (not timers_list.empty())
-		{
-			std::map<time_t, std::list<int> >::iterator jt = timers_list.begin();
-
-			if (jt->first/*timeout*/ <= time(NULL))
-			{
-				for (std::list<int>::iterator
-						kt = jt->second.begin(); kt != jt->second.end(); ++kt)
-				{
-					expired_timers.push_back(*kt/*opaque*/);
-				}
-
-				timers_list.erase(jt);
-			}
-			else // timer has not yet expired
-			{
-				break;
-			}
-		}
-	}
-
-	WRITELOG(CIOSRV, DBG, "ciosrv(%p)::__handle_timeout() [2] TIMERS: %s", this, c_str());
-
-	for (std::list<int>::iterator
-			it = expired_timers.begin(); it != expired_timers.end(); ++it)
-	{
-		WRITELOG(CIOSRV, DBG, "ciosrv(%p)::__handle_timeout() calling timer => type:0x%x",
-					this, *it);
-		{
-			Lock lock(&(threads[tid]->ciosrv_list_mutex));
-			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(this) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
-			{
-				return;
-			}
-			if (ciosrv::threads[tid]->ciosrv_list.find(this) == ciosrv::threads[tid]->ciosrv_list.end())
-			{
-				return;
-			}
-		}
-		handle_timeout(*it);
-#if 0
-		{
-			Lock lock(&(threads[tid]->ciosrv_list_mutex));
-			if (ciosrv::threads[tid]->ciosrv_deletion_list.find(this) != ciosrv::threads[tid]->ciosrv_deletion_list.end())
-			{
-				return;
-			}
-			if (ciosrv::threads[tid]->ciosrv_list.find(this) == ciosrv::threads[tid]->ciosrv_list.end())
-			{
-				return;
-			}
-		}
-#endif
-	}
-}
 

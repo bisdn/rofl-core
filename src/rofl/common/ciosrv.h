@@ -35,6 +35,7 @@
 #include "rofl/common/cfdset.h"
 #include "rofl/common/cevents.h"
 #include "rofl/common/ctimers.h"
+#include "rofl/common/ctimer.h"
 
 namespace rofl
 {
@@ -76,7 +77,8 @@ class cioloop;
  * - cancel_all_timer() cancel all timers
  *
  */
-class ciosrv
+class ciosrv :
+		public ptrciosrv
 {
 	pthread_t						tid;
 	cpipe							pipe;
@@ -133,6 +135,12 @@ public:
 	pthread_t
 	get_thread_id() const { return tid; };
 
+	/**
+	 *
+	 */
+	static void
+	run();
+
 protected:
 
 	friend class cioloop;
@@ -142,6 +150,12 @@ protected:
 	 */
 	void
 	__handle_revent(int fd);
+
+	/**
+	 * @brief	Called by cioloop
+	 */
+	void
+	__handle_timeout();
 
 	/**
 	 * @name Event handlers
@@ -202,7 +216,7 @@ protected:
 	 * @param opaque expired timer type
 	 */
 	virtual void
-	handle_timeout(int opaque) {};
+	handle_timeout(int opaque, void *data = (void*)0) {};
 
 	/**@}*/
 
@@ -257,7 +271,7 @@ protected:
 	/**
 	 *
 	 */
-	ctimer&
+	ctimer
 	get_next_timer();
 
 	/**
@@ -271,8 +285,9 @@ protected:
 	 *
 	 * @param opaque this timer type can be arbitrarily chosen
 	 * @param t timeout in seconds of this timer
+	 * @return timer handle
 	 */
-	void
+	uint32_t
 	register_timer(int opaque, time_t t);
 
 	/**
@@ -282,9 +297,10 @@ protected:
 	 *
 	 * @param opaque this timer type can be arbitrarily chosen
 	 * @param t timeout in seconds of this timer
+	 * @return timer handle
 	 */
-	void
-	reset_timer(int opaque, time_t t);
+	uint32_t
+	reset_timer(uint32_t timer_id, time_t t);
 
 	/**
 	 * @brief	Checks for a pending timer of type opaque.
@@ -293,7 +309,7 @@ protected:
 	 * @return true: timer of type opaque exists, false: no pending timer
 	 */
 	bool
-	pending_timer(int opaque);
+	pending_timer(uint32_t timer_id);
 
 	/**
 	 * @brief	Cancels a pending timer.
@@ -301,7 +317,7 @@ protected:
 	 * @param opaque timer type the caller is seeking for
 	 */
 	void
-	cancel_timer(int opaque);
+	cancel_timer(uint32_t timer_id);
 
 	/**
 	 * @brief	Cancels all pending timer of this instance.
@@ -389,6 +405,7 @@ public:
 	 */
 	static void
 	stop() {
+		pthread_t tid = pthread_self();
 		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
 			return;
 		}
@@ -396,6 +413,7 @@ public:
 	};
 
 public:
+
 
 	/**
 	 *
@@ -447,7 +465,7 @@ public:
 	 */
 	void
 	has_no_timer(ciosrv *iosrv) {
-		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
+		RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
 		timers[iosrv] = false;
 	};
 
@@ -508,39 +526,12 @@ private:
 	run_loop();
 
 
-
-
-
-private:
-
-
-	/**
-	 * find next timeout from all ciosrv instances
-	 */
-	static void
-	next_timeout(
-			time_t &ntimeout);
-
-
-	/**
-	 *
-	 */
-	static void
-	handle_timeouts();
-
-
 	/**
 	 * A signal handler.
 	 * for SIGUSR1
 	 */
 	static void
 	child_sig_handler (int x);
-
-	/**
-	 *
-	 */
-	void
-	__handle_timeout();
 
 
 

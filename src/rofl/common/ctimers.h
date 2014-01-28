@@ -9,6 +9,7 @@
 #define CTIMERS_H_
 
 #include <set>
+#include <algorithm>
 
 #include "rofl/common/ctimer.h"
 #include "rofl/common/logging.h"
@@ -22,7 +23,7 @@ class eTimersNotFound	: public eTimersBase {};
 
 class ctimers {
 
-	std::set<ctimer>	timers;
+	std::multiset<ctimer>	timers;
 	PthreadRwLock 		rwlock;
 
 public:
@@ -60,8 +61,20 @@ public:
 	/**
 	 *
 	 */
-	void
+	ctimer
+	get_next_timer();
+
+	/**
+	 *
+	 */
+	uint32_t
 	add_timer(ctimer const& t);
+
+	/**
+	 *
+	 */
+	uint32_t
+	reset(uint32_t timer_id, time_t t);
 
 	/**
 	 *
@@ -73,25 +86,31 @@ public:
 	 *
 	 */
 	bool
-	has(int opaque);
+	pending(uint32_t timer_id);
 
 	/**
 	 *
 	 */
 	void
-	cancel(int opaque);
+	cancel(uint32_t timer_id);
 
 	/**
 	 * @brief	cancel all timers
 	 */
 	void
-	reset();
+	cancel_all();
 
-	/**
-	 *
-	 */
-	void
-	reset(int opaque);
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, ctimers const& t) {
+		os << indent(0) << "<ctimers: >" << std::endl;
+		indent i(2);
+		for (std::multiset<ctimer>::const_iterator it = t.timers.begin(); it != t.timers.end(); ++it) {
+			os << (*it);
+		}
+		return os;
+	};
 };
 
 };

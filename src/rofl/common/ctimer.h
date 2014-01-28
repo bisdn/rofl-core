@@ -19,14 +19,20 @@
 
 namespace rofl {
 
+class ptrciosrv {};
+
 class ctimer {
+
+	static uint32_t next_timer_id;
 
 #define CC_TIMER_ONE_SECOND_S 1
 #define CC_TIMER_ONE_SECOND_NS 1000000000
 
+	uint32_t			timer_id;
+	ptrciosrv			*ptr;		// this refers to the ciosrv instance that registered the timer associated with this ctimer instance
 	struct timespec		ts;
-	int					type;
-	cmemory				opaque;
+	int					opaque; 	// can be used as type field by a class deriving from ciosrv => not used by ctimer, ciosrv or cioloop
+	void*				data;		// can be used as arbitrary pointer by a class deriving from ciosrv => not used by ctimer, ciosrv or cioloop
 
 public:
 
@@ -38,17 +44,17 @@ public:
 	/**
 	 *
 	 */
-	ctimer(int type, long tv_sec);
+	ctimer(ptrciosrv* ptr, int opaque, long tv_sec);
 
 	/**
 	 *
 	 */
-	ctimer(int type, long tv_sec, long tv_nsec);
+	ctimer(ptrciosrv* ptr, int opaque, long tv_sec, long tv_nsec);
 
 	/**
 	 *
 	 */
-	ctimer(int type, long tv_sec, long tv_nsec, cmemory const& opaque);
+	ctimer(ptrciosrv* ptr, int opaque, long tv_sec, long tv_nsec, void *data);
 
 	/**
 	 *
@@ -72,6 +78,30 @@ public:
 	 */
 	static ctimer
 	now();
+
+	/**
+	 *
+	 */
+	uint64_t
+	get_timer_id() const { return timer_id; };
+
+	/**
+	 *
+	 */
+	int
+	get_opaque() const { return opaque; };
+
+	/**
+	 *
+	 */
+	void*
+	get_data() const { return data; };
+
+	/**
+	 *
+	 */
+	struct timespec&
+	get_ts() { return ts; };
 
 	/**
 	 *
@@ -135,17 +165,29 @@ public:
 
 public:
 
+	class ctimer_find_by_timer_id {
+		uint32_t timer_id;
+	public:
+		ctimer_find_by_timer_id(uint32_t timer_id) : timer_id(timer_id) {};
+		bool operator() (ctimer const& t) {
+			return (t.get_timer_id() == timer_id);
+		};
+		bool operator() (ctimer const* t) {
+			return (t->get_timer_id() == timer_id);
+		};
+	};
+
+public:
+
 	friend std::ostream&
 	operator<< (std::ostream& os, ctimer const& timer) {
 		os << indent(0) << "<ctimer ";
-		os << "type:" << timer.type << " ";
+		os << "timer-id:" << (unsigned long long)timer.timer_id << " ";
+		os << "opaque:" << timer.opaque << " ";
 		os << "sec:" << timer.ts.tv_sec << " ";
 		os << "nsec:" << timer.ts.tv_nsec << " ";
+		os << "data:" << timer.data << " ";
 		os << ">" << std::endl;
-		indent i(2);
-		if (timer.opaque.memlen() > 0) {
-			os << timer.opaque;
-		}
 		return os;
 	};
 };

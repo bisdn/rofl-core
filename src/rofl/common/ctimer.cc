@@ -9,16 +9,24 @@
 
 using namespace rofl;
 
+uint32_t ctimer::next_timer_id = 0;
+
 ctimer::ctimer() :
-		type(0)
+		timer_id(0),
+		ptr(0),
+		opaque(0),
+		data(0)
 {
 	ts.tv_sec 	= 0;
 	ts.tv_nsec 	= 0;
 }
 
 
-ctimer::ctimer(int type, long tv_sec) :
-		type(type)
+ctimer::ctimer(ptrciosrv* ptr, int opaque, long tv_sec) :
+		timer_id(++next_timer_id),
+		ptr(ptr),
+		opaque(opaque),
+		data(0)
 {
 	ts.tv_sec 	= tv_sec;
 	ts.tv_nsec 	= 0;
@@ -26,8 +34,11 @@ ctimer::ctimer(int type, long tv_sec) :
 }
 
 
-ctimer::ctimer(int type, long tv_sec, long tv_nsec) :
-		type(type)
+ctimer::ctimer(ptrciosrv* ptr, int opaque, long tv_sec, long tv_nsec) :
+		timer_id(++next_timer_id),
+		ptr(ptr),
+		opaque(opaque),
+		data(0)
 {
 	ts.tv_sec 	= tv_sec;
 	ts.tv_nsec 	= tv_nsec;
@@ -35,9 +46,11 @@ ctimer::ctimer(int type, long tv_sec, long tv_nsec) :
 }
 
 
-ctimer::ctimer(int type, long tv_sec, long tv_nsec, cmemory const& opaque) :
-		type(type),
-		opaque(opaque)
+ctimer::ctimer(ptrciosrv* ptr, int opaque, long tv_sec, long tv_nsec, void *data) :
+		timer_id(++next_timer_id),
+		ptr(ptr),
+		opaque(opaque),
+		data(data)
 {
 	ts.tv_sec 	= tv_sec;
 	ts.tv_nsec 	= tv_nsec;
@@ -57,10 +70,12 @@ ctimer::operator= (ctimer const& timer)
 	if (this == &timer)
 		return *this;
 
+	timer_id	= timer.timer_id;
+	ptr			= timer.ptr;
 	ts.tv_sec	= timer.ts.tv_sec;
 	ts.tv_nsec	= timer.ts.tv_nsec;
-	type		= timer.type;
 	opaque		= timer.opaque;
+	data		= timer.data;
 
 	return *this;
 }

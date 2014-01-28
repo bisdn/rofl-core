@@ -15,8 +15,6 @@ main(int argc, char** argv)
 	rofl::csyslog::set_debug_level("cthread", "emergency");
 
 
-	rofl::ciosrv::init();
-
 	cofhello_elem_versionbitmap versionbitmap;
 	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
 	etherswitch ethswitch(versionbitmap);
