@@ -124,10 +124,10 @@ void of1x_destroy_group_table(of1x_group_table_t* gt);
 rofl_result_t of1x_fetch_group_table(struct of1x_pipeline *pipeline, of1x_group_table_t* group_table);
 
 //FIXME: put documentation
-rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t *buckets);
+rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets);
 
 //FIXME: put documentation
-rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t *buckets);
+rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets);
 
 //FIXME: put documentation
 rofl_of1x_gm_result_t of1x_group_delete( struct of1x_pipeline *pipeline, of1x_group_table_t *gt, uint32_t id);
