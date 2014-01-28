@@ -37,9 +37,9 @@ crofsock::accept(int sd)
 
 
 void
-crofsock::connect(int domain, int type, int protocol, rofl::caddress const& raddr)
+crofsock::connect(int domain, int type, int protocol, rofl::caddress const& raddr, ssl_context *ssl_ctx)
 {
-	socket.connect(raddr, rofl::caddress(AF_INET, "0.0.0.0", 0), domain, type, protocol, false);
+	socket.connect(raddr, rofl::caddress(AF_INET, "0.0.0.0", 0), domain, type, protocol, ssl_ctx, false);
 }
 
 

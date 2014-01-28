@@ -147,7 +147,7 @@ public:
 	 *
 	 */
 	void
-	add_conn(uint8_t aux_id, int domain, int type, int protocol, caddress const& ra);
+	add_conn(uint8_t aux_id, int domain, int type, int protocol, caddress const& ra, ssl_context *ssl_ctx);
 
 	/**
 	 *

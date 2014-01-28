@@ -43,7 +43,7 @@ public:
 	 *
 	 */
 	void
-	connect(rofl::caddress const& raddr, int domain, int type, int protocol);
+	connect(rofl::caddress const& raddr, int domain, int type, int protocol, ssl_context *ssl_ctx);
 
 	/**
 	 *

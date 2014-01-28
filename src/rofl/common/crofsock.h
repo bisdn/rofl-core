@@ -124,7 +124,7 @@ public:
 	 *
 	 */
 	void
-	connect(int domain, int type, int protocol, rofl::caddress const& raddr);
+	connect(int domain, int type, int protocol, rofl::caddress const& raddr, ssl_context *ssl_ctx);
 
 	/**
 	 *

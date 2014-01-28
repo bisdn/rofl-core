@@ -46,6 +46,7 @@ csocket::csocket(
 		csocket_owner *owner) :
 	had_short_write(false),
 #ifdef HAVE_OPENSSL
+	ssl_ctx(NULL),
 	ssl_conn(NULL),
 #endif
 	socket_owner(owner),
@@ -84,7 +85,7 @@ csocket::handle_timeout(
 {
 	switch (opaque) {
 	case TIMER_RECONNECT: {
-		connect(raddr, laddr, domain, type, protocol, true);
+		connect(raddr, laddr, domain, type, protocol, ssl_ctx, true);
 	} break;
 	default:
 		logging::error << "[rofl][csocket] unknown timer type:" << opaque << std::endl;
@@ -447,6 +448,7 @@ csocket::connect(
 	int domain, 
 	int type, 
 	int protocol,
+	ssl_context *ssl_ctx,
 	bool do_reconnect)
 {
 	int rc;
@@ -455,6 +457,7 @@ csocket::connect(
 	this->protocol 	= protocol;
 	this->laddr 	= la;
 	this->raddr 	= ra;
+	this->ssl_ctx = ssl_ctx;
 
 	if (sd >= 0)
 		close();
@@ -548,7 +551,7 @@ csocket::reconnect()
 		throw eSocketError();
 	}
 	close();
-	connect(raddr, laddr, domain, type, protocol, sockflags.test(FLAG_DO_RECONNECT));
+	connect(raddr, laddr, domain, type, protocol, ssl_ctx, sockflags.test(FLAG_DO_RECONNECT));
 }
 
 

@@ -136,7 +136,7 @@ public:
 	 * @brief	Instruct crofsock instance to connect to peer using specified parameters.
 	 */
 	void
-	connect(uint8_t aux_id, int domain, int type, int protocol, caddress const& raddr);
+	connect(uint8_t aux_id, int domain, int type, int protocol, caddress const& raddr, ssl_context *ssl_ctx);
 
 	/**
 	 * @brief	Instruct crofsock instance to reconnect to previously connected peer.

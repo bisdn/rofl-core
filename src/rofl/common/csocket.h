@@ -337,6 +337,7 @@ public:
 		int domain = PF_INET, 
 		int type = SOCK_STREAM, 
 		int protocol = 0,
+		ssl_context *ssl_ctx = NULL,
 		bool do_reconnect = false);
 
 

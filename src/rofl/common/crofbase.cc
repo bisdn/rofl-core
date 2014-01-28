@@ -412,9 +412,10 @@ crofbase::rpc_connect_to_ctl(
 		caddress const& ra,
 		int domain,
 		int type,
-		int protocol)
+		int protocol,
+		ssl_context *ssl_ctx)
 {
-	ofctl_set.insert(cofctl_factory(this, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol));
+	ofctl_set.insert(cofctl_factory(this, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol, ssl_ctx));
 }
 
 
@@ -497,9 +498,10 @@ crofbase::cofctl_factory(
 		caddress const& ra,
 		int domain,
 		int type,
-		int protocol)
+		int protocol,
+		ssl_context *ssl_ctx)
 {
-	return new crofctl_impl(owner, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol);
+	return new crofctl_impl(owner, versionbitmap, reconnect_start_timeout, ra, domain, type, protocol, ssl_ctx);
 }
 
 

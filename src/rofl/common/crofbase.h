@@ -325,7 +325,8 @@ public:
 			caddress const& ra,
 			int domain = PF_INET,
 			int type = SOCK_STREAM,
-			int protocol = IPPROTO_TCP);
+			int protocol = IPPROTO_TCP,
+			ssl_context *ssl_ctx = NULL);
 
 
 	/**
@@ -558,7 +559,8 @@ protected:
 			caddress const& ra,
 			int domain,
 			int type,
-			int protocol);
+			int protocol,
+			ssl_context *ssl_ctx);
 
 
 	/**
