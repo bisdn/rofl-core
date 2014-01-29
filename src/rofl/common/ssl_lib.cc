@@ -30,7 +30,7 @@ rofl::ssl_context::ssl_context(enum ssl_type type) :
 		}
 
 		/* Load the server private-key into the SSL context */
-		if (SSL_CTX_use_PrivateKey_file(ssl_ctx, "", SSL_FILETYPE_PEM) <= 0) {
+		if (SSL_CTX_use_PrivateKey_file(ssl_ctx, "dummy.pem", SSL_FILETYPE_PEM) <= 0) {
 			ERR_print_errors_fp(stderr);
 			exit(1);
 		}
