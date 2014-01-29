@@ -20,9 +20,10 @@ cfibentry::cfibentry(
 		dst(dst),
 		rofbase(rofbase),
 		dpt(dpt),
-		entry_timeout(CFIBENTRY_DEFAULT_TIMEOUT)
+		entry_timeout(CFIBENTRY_DEFAULT_TIMEOUT),
+		expiration_timer_id(0)
 {
-	register_timer(CFIBENTRY_ENTRY_EXPIRED, entry_timeout);
+	expiration_timer_id = register_timer(CFIBENTRY_ENTRY_EXPIRED, entry_timeout);
 }
 
 
@@ -54,7 +55,7 @@ cfibentry::set_out_port_no(uint32_t out_port_no)
 
 	this->out_port_no = out_port_no;
 
-	reset_timer(CFIBENTRY_ENTRY_EXPIRED, entry_timeout);
+	reset_timer(expiration_timer_id, entry_timeout);
 
 #if 0
 	flow_mod_add();

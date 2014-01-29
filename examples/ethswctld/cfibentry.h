@@ -52,6 +52,7 @@ private:
 	rofl::crofbase				*rofbase;
 	rofl::crofdpt				*dpt;
 	int							entry_timeout;
+	uint32_t					expiration_timer_id;
 
 public:
 
