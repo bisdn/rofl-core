@@ -72,7 +72,7 @@ csyslog::initlog(
 
 	init_level_names();
 	init_class_names();
-	puts("inited");
+	//puts("inited");
 }
 
 void

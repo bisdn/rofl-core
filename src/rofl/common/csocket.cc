@@ -62,7 +62,7 @@ csocket::csocket(
 
 csocket::~csocket()
 {
-	logging::error << "[rofl][csocket] destructor" << std::endl;
+	logging::debug << "[rofl][csocket] destructor:" << std::endl << *this;
 	close();
 
 	pthread_rwlock_destroy(&pout_squeue_lock);
