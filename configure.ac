@@ -72,7 +72,7 @@ AC_CONFIG_FILES([
         src/rofl/datapath/afa/openflow/openflow1x/Makefile
 	
 	examples/Makefile
-	examples/etherswitch/Makefile
+	examples/ethswctld/Makefile
 	examples/queuetest/Makefile
 	examples/rfc2889/Makefile
 	examples/ofperftest/Makefile

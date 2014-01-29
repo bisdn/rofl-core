@@ -1,4 +1,4 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = etherswitch queuetest rfc2889 ofperftest
+SUBDIRS = ethswctld queuetest rfc2889 ofperftest
 
