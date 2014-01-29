@@ -40,8 +40,8 @@ ciosrv::ciosrv() :
 ciosrv::~ciosrv()
 {
 	ciosrv::ciolist.erase(this);
-	logging::debug << "[rofl][ciosrv][destructor] -1-" << std::endl << *this;
-	logging::debug << "[rofl][ciosrv][destructor] -1-" << std::endl << cioloop::get_loop();
+	//logging::debug << "[rofl][ciosrv][destructor] -1-" << std::endl << *this;
+	//logging::debug << "[rofl][ciosrv][destructor] -1-" << std::endl << cioloop::get_loop();
 
 	timers.clear();
 	events.clear();
@@ -54,8 +54,8 @@ ciosrv::~ciosrv()
 		cioloop::get_loop().drop_writefd(this, (*it));
 	}
 
-	logging::debug << "[rofl][ciosrv][destructor] -2-" << std::endl << *this;
-	logging::debug << "[rofl][ciosrv][destructor] -2-" << std::endl << cioloop::get_loop();
+	//logging::debug << "[rofl][ciosrv][destructor] -2-" << std::endl << *this;
+	//logging::debug << "[rofl][ciosrv][destructor] -2-" << std::endl << cioloop::get_loop();
 }
 
 
@@ -71,7 +71,7 @@ ciosrv::operator= (ciosrv const& iosrv)
 	if (this == &iosrv)
 		return *this;
 
-
+	throw eNotImplemented();
 
 	return *this;
 }
@@ -136,9 +136,9 @@ ciosrv::__handle_revent(int fd)
 {
 	try {
 		if (pipe.pipefd[0] == fd) {
-			logging::debug << "[rofl][ciosrv][revent] entering event loop:" << std::endl << *this;
+			//logging::debug << "[rofl][ciosrv][revent] entering event loop:" << std::endl << *this;
 			if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
-				logging::debug << "[rofl][ciosrv][revent] ciosrv instance deleted, returning from event loop" << std::endl;
+				//logging::debug << "[rofl][ciosrv][revent] ciosrv instance deleted, returning from event loop" << std::endl;
 				return;
 			}
 			pipe.recvmsg();
@@ -146,14 +146,14 @@ ciosrv::__handle_revent(int fd)
 			cevents clone = events; events.clear();
 
 			while (not clone.empty()) {
-				logging::debug << "[rofl][ciosrv][revent] inside event loop:" << std::endl << clone;
+				//logging::debug << "[rofl][ciosrv][revent] inside event loop:" << std::endl << clone;
 				if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
-					logging::debug << "[rofl][ciosrv][revent] ciosrv instance deleted, returning from event loop" << std::endl;
+					//logging::debug << "[rofl][ciosrv][revent] ciosrv instance deleted, returning from event loop" << std::endl;
 					return;
 				}
 				handle_event(clone.get_event());
 			}
-			logging::debug << "[rofl][ciosrv][revent] leaving event loop:" << std::endl << clone;
+			//logging::debug << "[rofl][ciosrv][revent] leaving event loop:" << std::endl << clone;
 		} else {
 			handle_revent(fd);
 		}
@@ -168,7 +168,7 @@ ciosrv::__handle_timeout()
 {
 	try {
 		ctimer timer = timers.get_expired_timer();
-		logging::debug << "[rofl][ciosrv][handle-timeout] timer: " << std::endl << timer;
+		//logging::debug << "[rofl][ciosrv][handle-timeout] timer: " << std::endl << timer;
 		handle_timeout(timer.get_opaque());
 	} catch (eTimersNotFound& e) {
 
@@ -313,14 +313,17 @@ cioloop::run_loop()
 			RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
 			for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
 				try {
-					ctimer timer = ((*it).first->get_next_timer() - ctimer::now());
+					ctimer timer((*it).first->get_next_timer());
 
-					if (timer < ctimer::now()) {
+					if ((*it).first->get_next_timer() < ctimer::now()) {
+						logging::debug << "[rofl][ciosrv][loop] timer:" << (*it).first->get_next_timer();
+						logging::debug << "[rofl][ciosrv][loop]   now:" << ctimer::now();
+						logging::debug << "[rofl][ciosrv][loop] delta:" << timer;
 						(*it).first->handle_timeout(timer.get_opaque());
 						continue;
-					} else {
-						timer -= ctimer::now();
 					}
+
+					timer -= ctimer::now();
 
 					if (timer < next_timeout.second) {
 						next_timeout = std::pair<ciosrv*, ctimer>( (*it).first, timer );
@@ -329,9 +332,9 @@ cioloop::run_loop()
 			}
 		}
 
-		logging::debug << "[rofl][cioloop] before select:" << std::endl << *this;
+		//logging::debug << "[rofl][cioloop] before select:" << std::endl << *this;
 
-		logging::debug << "[rofl][cioloop] next-timeout for select:" << std::endl << next_timeout.second;
+		//logging::debug << "[rofl][cioloop] next-timeout for select:" << std::endl << next_timeout.second;
 
 		// blocking
 		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_ts()), &empty_mask)) < 0) {
@@ -345,7 +348,7 @@ cioloop::run_loop()
 
 		} else if ((0 == rc)/* || (EINTR == errno)*/) {
 
-			rofl::logging::debug << "[rofl][ciosrv][cioloop] timeout event" << std::endl;
+			//rofl::logging::debug << "[rofl][ciosrv][cioloop] timeout event" << std::endl;
 
 			next_timeout.first->__handle_timeout();
 
@@ -397,7 +400,7 @@ restart:
 			}
 		}
 
-		logging::debug << "[rofl][cioloop] after select:" << std::endl << *this;
+		//logging::debug << "[rofl][cioloop] after select:" << std::endl << *this;
 	}
 }
 

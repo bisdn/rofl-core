@@ -100,9 +100,9 @@ csocket::handle_event(
 			sockflags.reset(CONNECTED);
 			backoff_reconnect(true);
 		} else {
-			logging::info << "[rofl][csocket] closed socket." << std::endl << *this;
+			//logging::info << "[rofl][csocket] closed socket." << std::endl << *this;
 			if (sockflags.test(FLAG_SEND_CLOSED_NOTIFICATION)) {
-				logging::info << "[rofl][csocket] sending CLOSED NOTIFICATION." << std::endl;
+				//logging::info << "[rofl][csocket] sending CLOSED NOTIFICATION." << std::endl;
 				sockflags.reset(FLAG_SEND_CLOSED_NOTIFICATION);
 				events_clear();
 				handle_closed();
@@ -543,7 +543,7 @@ csocket::reconnect()
 void
 csocket::close()
 {
-	logging::error << "[rofl][csocket] close()" << std::endl;
+	//logging::error << "[rofl][csocket] close()" << std::endl;
 
 	RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
 
@@ -608,9 +608,9 @@ csocket::recv(void *buf, size_t count)
 		case EAGAIN:
 			throw eSocketAgain();
 		case ECONNRESET: {
-			logging::error << "[rofl][csocket] error reading from socket: "
-					<< eSysCall("read") << std::endl << *this;
-			close();
+			logging::error << "[rofl][csocket] connection reset on socket: "
+					<< eSysCall("read") << ", closing endpoint." << std::endl << *this;
+					close();
 
 			notify(cevent(EVENT_CONN_RESET));
 			throw eSocketReadFailed();

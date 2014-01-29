@@ -183,7 +183,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, ctimer const& timer) {
-		ctimer delta = ctimer(timer) - ctimer::now();
+		ctimer delta = ctimer(timer);
 		os << indent(0) << "<ctimer ";
 		os << "timer-id:" << (unsigned long long)timer.timer_id << " ";
 		os << "opaque:" << timer.opaque << " ";
