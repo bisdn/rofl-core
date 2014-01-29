@@ -243,6 +243,8 @@ ethswitch::handle_packet_in(
 							msg.get_packet().ether()->get_dl_src(),
 							msg.get_match().get_in_port());
 
+	rofl::logging::debug << "[ethswctld][ethsw] adding src:" << eth_src << " to FIB:" << std::endl << cfib::get_fib(dpt.get_dpid());
+
 	if (eth_dst.is_multicast()) {
 
 		switch (dpt.get_version()) {
@@ -259,6 +261,8 @@ ethswitch::handle_packet_in(
 	} else {
 
 		try {
+			rofl::logging::debug << "[ethswctld][ethsw] looking up dst:" << eth_dst << " in FIB:" << std::endl << cfib::get_fib(dpt.get_dpid());
+
 			cfibentry& entry = cfib::get_fib(dpt.get_dpid()).fib_lookup(
 						this,
 						dpt,
@@ -267,6 +271,8 @@ ethswitch::handle_packet_in(
 						msg.get_match().get_in_port());
 
 			if (msg.get_match().get_in_port() == entry.get_out_port_no()) {
+				rofl::logging::debug << "[ethswctld][ethsw] in-port == out-port, ignoring Packet-In" << std::endl;
+
 				return;
 			}
 
