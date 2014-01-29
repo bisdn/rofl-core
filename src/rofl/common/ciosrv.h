@@ -129,6 +129,7 @@ public:
 	notify(
 			cevent const& event);
 
+
 	/**
 	 * @brief	Returns thread-id of local thread.
 	 *
@@ -150,6 +151,13 @@ public:
 	stop();
 
 protected:
+
+	/**
+	 *
+	 * @return
+	 */
+	void
+	events_clear() { events.clear(); };
 
 	friend class cioloop;
 

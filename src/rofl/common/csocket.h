@@ -198,6 +198,7 @@ protected:
 		CONNECTED			= 4,	/**< socket is connected */
 		FLAG_ACTIVE_SOCKET	= 5,
 		FLAG_DO_RECONNECT	= 6,
+		FLAG_SEND_CLOSED_NOTIFICATION = 7,
 	};
 
 	std::bitset<16> 			sockflags; /**< socket flags (see below) */

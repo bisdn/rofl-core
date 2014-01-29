@@ -62,6 +62,7 @@ csocket::csocket(
 
 csocket::~csocket()
 {
+	logging::error << "[rofl][csocket] destructor" << std::endl;
 	close();
 
 	pthread_rwlock_destroy(&pout_squeue_lock);
@@ -93,7 +94,6 @@ csocket::handle_event(
 	switch (ev.cmd) {
 	case EVENT_CONN_RESET:
 	case EVENT_DISCONNECTED: {
-		bool notify = sockflags.test(CONNECTED);
 		close();
 
 		if (sockflags.test(FLAG_DO_RECONNECT)) {
@@ -101,8 +101,13 @@ csocket::handle_event(
 			backoff_reconnect(true);
 		} else {
 			logging::info << "[rofl][csocket] closed socket." << std::endl << *this;
-			if (notify)
+			if (sockflags.test(FLAG_SEND_CLOSED_NOTIFICATION)) {
+				logging::info << "[rofl][csocket] sending CLOSED NOTIFICATION." << std::endl;
+				sockflags.reset(FLAG_SEND_CLOSED_NOTIFICATION);
+				events_clear();
 				handle_closed();
+			}
+			return;
 		}
 	} break;
 	default:
@@ -538,6 +543,8 @@ csocket::reconnect()
 void
 csocket::close()
 {
+	logging::error << "[rofl][csocket] close()" << std::endl;
+
 	RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
 
 	int rc = 0;
@@ -561,6 +568,7 @@ csocket::close()
 	//sockflags.reset(SOCKET_IS_LISTENING);
 	sockflags.reset(RAW_SOCKET);
 	sockflags.reset(CONNECTED);
+	sockflags.set(FLAG_SEND_CLOSED_NOTIFICATION);
 
 	logging::info << "[rofl][csocket] cleaning-up socket." << std::endl << *this;
 
@@ -589,9 +597,8 @@ csocket::recv(void *buf, size_t count)
 	} else if (rc == 0) {
 		logging::error << "[rofl][csocket] peer closed connection: "
 				<< eSysCall("read") << std::endl << *this;
-		//close();
-		deregister_filedesc_r(sd);
-		deregister_filedesc_w(sd);
+		close();
+
 		notify(cevent(EVENT_CONN_RESET));
 		throw eSocketReadFailed();
 
@@ -603,18 +610,16 @@ csocket::recv(void *buf, size_t count)
 		case ECONNRESET: {
 			logging::error << "[rofl][csocket] error reading from socket: "
 					<< eSysCall("read") << std::endl << *this;
-			//close();
-			deregister_filedesc_r(sd);
-			deregister_filedesc_w(sd);
+			close();
+
 			notify(cevent(EVENT_CONN_RESET));
 			throw eSocketReadFailed();
 		} break;
 		default: {
 			logging::error << "[rofl][csocket] error reading from socket: "
 					<< eSysCall("read") << ", closing endpoint." << std::endl << *this;
-			//close();
-			deregister_filedesc_r(sd);
-			deregister_filedesc_w(sd);
+			close();
+
 			notify(cevent(EVENT_DISCONNECTED));
 			throw eSocketReadFailed();
 		} break;

@@ -142,13 +142,18 @@ ciosrv::__handle_revent(int fd)
 				return;
 			}
 			pipe.recvmsg();
-			while (not events.empty()) {
+
+			cevents clone = events; events.clear();
+
+			while (not clone.empty()) {
+				logging::debug << "[rofl][ciosrv][revent] inside event loop:" << std::endl << clone;
 				if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
 					logging::debug << "[rofl][ciosrv][revent] ciosrv instance deleted, returning from event loop" << std::endl;
 					return;
 				}
-				handle_event(events.get_event());
+				handle_event(clone.get_event());
 			}
+			logging::debug << "[rofl][ciosrv][revent] leaving event loop:" << std::endl << clone;
 		} else {
 			handle_revent(fd);
 		}
@@ -309,6 +314,14 @@ cioloop::run_loop()
 			for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
 				try {
 					ctimer timer = ((*it).first->get_next_timer() - ctimer::now());
+
+					if (timer < ctimer::now()) {
+						(*it).first->handle_timeout(timer.get_opaque());
+						continue;
+					} else {
+						timer -= ctimer::now();
+					}
+
 					if (timer < next_timeout.second) {
 						next_timeout = std::pair<ciosrv*, ctimer>( (*it).first, timer );
 					}

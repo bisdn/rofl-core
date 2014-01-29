@@ -30,6 +30,7 @@ crofchan::crofchan(
 
 crofchan::~crofchan()
 {
+	logging::debug << "[rofl][chan] destructor:" << std::endl << *this;
 	clear();
 }
 
@@ -60,12 +61,16 @@ crofchan::run_engine(enum crofchan_event_t event)
 void
 crofchan::event_disconnected()
 {
+	logging::debug << "[rofl][chan] event_disconnected -entry point-" << std::endl << *this;
+
 	switch (state) {
 	case STATE_DISCONNECTED: {
 		// do nothing
 	} break;
 	case STATE_CONNECT_PENDING:
 	case STATE_ESTABLISHED: {
+		logging::debug << "[rofl][chan] event_disconnected -calling env->handle_disconnected()-" << std::endl << *this;
+
 		state = STATE_DISCONNECTED;
 		env->handle_disconnected(this);
 
@@ -279,6 +284,8 @@ crofchan::handle_connected(
 void
 crofchan::handle_closed(crofconn *conn)
 {
+	logging::debug << "[rofl][chan] handle_closed" << std::endl << *this;
+
 	// do nothing upon reception of this closing notification, when there is no entry in map conns
 	if (conns.find(conn->get_aux_id()) == conns.end()) {
 		logging::warn << "[rofl][chan] internal error: unknown connection closed." << std::endl;
@@ -291,13 +298,12 @@ crofchan::handle_closed(crofconn *conn)
 	if (0 == conn->get_aux_id()) {
 
 		ofp_version = OFP_VERSION_UNKNOWN;
-		run_engine(EVENT_DISCONNECTED);
 
 		/*
 		 * passive connection (=controller) => drop all connections
 		 */
 		if (not conn->is_actively_established()) {
-			logging::info << "[rofl][chan] passive main connection closed." << std::endl;
+			logging::info << "[rofl][chan] passive main connection closed." << std::endl << *this;
 
 			// close all connections
 			while (not conns.empty()) {
@@ -333,6 +339,8 @@ restart:
 			// try reconnecting main connection
 			backoff_reconnect(true);
 		}
+
+		run_engine(EVENT_DISCONNECTED);
 
 		return;
 
