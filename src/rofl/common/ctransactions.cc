@@ -13,7 +13,8 @@ ctransactions::ctransactions(
 		ctransactions_env *env) :
 				env(env),
 				nxid(crandom(sizeof(uint32_t)).uint32()),
-				work_interval(1)
+				work_interval(1),
+				ta_queue_timer_id(0)
 {
 
 }
@@ -54,7 +55,7 @@ ctransactions::work_on_ta_queue()
 	}
 
 	if (not (*this).empty()) {
-		register_timer(TIMER_WORK_ON_TA_QUEUE, work_interval);
+		ta_queue_timer_id = register_timer(TIMER_WORK_ON_TA_QUEUE, work_interval);
 	}
 }
 
@@ -78,8 +79,8 @@ ctransactions::add_ta(
 	}
 	(*this).insert(it, ctransaction(nxid, delta, msg_type, msg_sub_type));
 
-	if (not pending_timer(TIMER_WORK_ON_TA_QUEUE)) {
-		register_timer(TIMER_WORK_ON_TA_QUEUE, work_interval);
+	if (not pending_timer(ta_queue_timer_id)) {
+		ta_queue_timer_id = register_timer(TIMER_WORK_ON_TA_QUEUE, work_interval);
 	}
 
 	return nxid;
@@ -101,8 +102,8 @@ ctransactions::drop_ta(
 		}
 	}
 
-	if ((*this).empty() && pending_timer(TIMER_WORK_ON_TA_QUEUE)) {
-		cancel_timer(TIMER_WORK_ON_TA_QUEUE);
+	if ((*this).empty() && pending_timer(ta_queue_timer_id)) {
+		cancel_timer(ta_queue_timer_id);
 	}
 }
 
