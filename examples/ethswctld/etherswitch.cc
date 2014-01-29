@@ -270,11 +270,17 @@ ethswitch::handle_packet_in(
 						msg.get_packet().ether()->get_dl_src(),
 						msg.get_match().get_in_port());
 
+			rofl::logging::debug << "[ethswctld][ethsw] FOUND FIB ENTRY:" << entry << std::endl;
+
+
 			if (msg.get_match().get_in_port() == entry.get_out_port_no()) {
 				rofl::logging::debug << "[ethswctld][ethsw] in-port == out-port, ignoring Packet-In" << std::endl;
 
 				return;
 			}
+
+			rofl::logging::debug << "[ethswctld][ethsw] preparing flow mod" << std::endl;
+
 
 			cflowentry fe(dpt.get_version());
 
