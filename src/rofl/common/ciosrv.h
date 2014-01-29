@@ -453,7 +453,6 @@ public:
 	add_readfd(ciosrv* iosrv, int fd) {
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds[fd] = iosrv;
-		return;
 
 		minrfd = (minrfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minrfd;
 		maxrfd = (maxrfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxrfd;
@@ -466,7 +465,6 @@ public:
 	drop_readfd(ciosrv* iosrv, int fd) {
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds[fd] = NULL;
-		return;
 
 		if (minrfd == (unsigned int)(fd+0)) {
 			minrfd = rfds.size();
@@ -480,9 +478,9 @@ public:
 
 		if (maxrfd == (unsigned int)(fd+1)) {
 			maxrfd = 0;
-			for (unsigned int i = 0; i < (unsigned int)fd; i++) {
+			for (unsigned int i = fd; i > 0; i--) {
 				if (rfds[i] != NULL) {
-					maxrfd = i;
+					maxrfd = (i+1);
 					break;
 				}
 			}
@@ -496,7 +494,6 @@ public:
 	add_writefd(ciosrv* iosrv, int fd) {
 		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds[fd] = iosrv;
-		return;
 
 		minwfd = (minwfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minwfd;
 		maxwfd = (maxwfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxwfd;
@@ -509,7 +506,6 @@ public:
 	drop_writefd(ciosrv* iosrv, int fd) {
 		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds[fd] = NULL;
-		return;
 
 		if (minwfd == (unsigned int)(fd+0)) {
 			minwfd = wfds.size();
@@ -523,9 +519,9 @@ public:
 
 		if (maxwfd == (unsigned int)(fd+1)) {
 			maxwfd = 0;
-			for (unsigned int i = 0; i < (unsigned int)fd; i++) {
+			for (unsigned int i = fd; i > 0; i--) {
 				if (wfds[i] != NULL) {
-					maxwfd = i;
+					maxwfd = (i+1);
 					break;
 				}
 			}
