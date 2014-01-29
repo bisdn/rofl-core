@@ -4,17 +4,17 @@ if !ONLY_C_CODE
 
 SUBDIRS = 
 
-sbin_PROGRAMS = etherswitch
+sbin_PROGRAMS = ethswctld
 
-etherswitch_SOURCES = \
-	main.cc \
+ethswctld_SOURCES = \
+	ethswctld.cc \
 	etherswitch.cc \
 	etherswitch.h \
 	cfib.cc \
 	cfib.h \
 	cfibentry.h \
 	cfibentry.cc
-etherswitch_LDADD = ../../src/rofl/librofl.la 
+ethswctld_LDADD = ../../src/rofl/librofl.la 
 	-lpthread \
 	-lrt 
 
