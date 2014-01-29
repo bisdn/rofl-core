@@ -147,6 +147,8 @@ cfib::fib_lookup(
 	// find out-port for dst
 	if (fibtable.find(dst) == fibtable.end()) {
 
+		rofl::logging::debug << "[ethswctld][ethsw][cfib][lookup] NOT FOUND" << std::endl;
+
 		throw eFibNotFound();
 
 #if 0
