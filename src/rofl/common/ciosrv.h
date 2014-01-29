@@ -427,6 +427,18 @@ public:
 		cioloop::threads[tid]->keep_on_running = false;
 	};
 
+	/**
+	 *
+	 */
+	static void
+	shutdown() {
+		for (std::map<pthread_t, cioloop*>::iterator
+				it = cioloop::threads.begin(); it != cioloop::threads.end(); ++it) {
+			delete it->second;
+		}
+		cioloop::threads.clear();
+	};
+
 public:
 
 
