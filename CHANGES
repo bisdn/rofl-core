@@ -19,6 +19,11 @@ v0.4-devel 2013-11-24  Andreas Koepsel  <andreas.koepsel(at)bisdn.de>
 [+] Revised workflow and split of crofdpt_impl and crofctl_impl
 [+] New logging subsystem
 [B] Fixed a bug in reverse mapping of pipeline matches to OXM-TLVs
+[+] Reimplementation of main io loop in ciosrv
+    - semantics of timer support haven changed
+    - each timer is referred to by a uint32_t timer_id assigned by the cioloop IO subsystem
+    - canceling or resetting timers must be done using this timer_id, the opaque value cannot
+      be used anymore
 
 v0.3.2.1
 
