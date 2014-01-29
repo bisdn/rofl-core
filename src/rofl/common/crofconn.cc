@@ -30,9 +30,9 @@ crofconn::crofconn(
 
 crofconn::~crofconn()
 {
-	if (STATE_DISCONNECTED != state) {
-		run_engine(EVENT_DISCONNECTED);
-	}
+	//if (STATE_DISCONNECTED != state) {
+	//	run_engine(EVENT_DISCONNECTED);
+	//}
 }
 
 
@@ -91,7 +91,7 @@ crofconn::close()
 
 void
 crofconn::handle_timeout(
-		int opaque)
+		int opaque, void *data)
 {
 	switch (opaque) {
 	case TIMER_WAIT_FOR_HELLO: {
@@ -99,7 +99,7 @@ crofconn::handle_timeout(
 	} break;
 	case TIMER_SEND_ECHO: {
 		action_send_echo_request();
-		register_timer(TIMER_WAIT_FOR_ECHO, echo_timeout);
+		timer_ids[TIMER_WAIT_FOR_ECHO] = register_timer(TIMER_WAIT_FOR_ECHO, echo_timeout);
 	} break;
 	case TIMER_WAIT_FOR_ECHO: {
 		run_engine(EVENT_ECHO_EXPIRED);
@@ -154,7 +154,10 @@ crofconn::event_connected()
 	case STATE_ESTABLISHED: {
 		state = STATE_WAIT_FOR_HELLO;
 		action_send_hello_message();
-		reset_timer(TIMER_WAIT_FOR_HELLO, hello_timeout);
+		if (timer_ids.find(TIMER_WAIT_FOR_HELLO) != timer_ids.end()) {
+			cancel_timer(timer_ids[TIMER_WAIT_FOR_HELLO]);
+		}
+		timer_ids[TIMER_WAIT_FOR_HELLO] = register_timer(TIMER_WAIT_FOR_HELLO, hello_timeout);
 
 	} break;
 	default: {
@@ -180,8 +183,12 @@ crofconn::event_disconnected()
 	case STATE_WAIT_FOR_HELLO:
 	case STATE_ESTABLISHED: {
 		state = STATE_DISCONNECTED;
-		cancel_timer(TIMER_WAIT_FOR_ECHO);
-		cancel_timer(TIMER_WAIT_FOR_HELLO);
+		if (timer_ids.find(TIMER_WAIT_FOR_ECHO) != timer_ids.end()) {
+			cancel_timer(timer_ids[TIMER_WAIT_FOR_ECHO]);
+		}
+		if (timer_ids.find(TIMER_WAIT_FOR_HELLO) != timer_ids.end()) {
+			cancel_timer(timer_ids[TIMER_WAIT_FOR_HELLO]);
+		}
 		rofsock.close();
 		env->handle_closed(this);
 
@@ -201,18 +208,29 @@ crofconn::event_hello_rcvd()
 	case STATE_DISCONNECTED: {
 		state = STATE_WAIT_FOR_HELLO;
 		action_send_hello_message();
-		reset_timer(TIMER_WAIT_FOR_HELLO, hello_timeout);
+		timer_ids[TIMER_WAIT_FOR_HELLO] = register_timer(TIMER_WAIT_FOR_HELLO, hello_timeout);
 
 	} break;
 	case STATE_WAIT_FOR_HELLO: {
-		cancel_timer(TIMER_WAIT_FOR_HELLO);
+
+		cancel_timer(timer_ids[TIMER_WAIT_FOR_HELLO]);
+
 		if (flags.test(FLAGS_PASSIVE)) {
 			state = STATE_WAIT_FOR_FEATURES;
 			action_send_features_request();
-			reset_timer(TIMER_WAIT_FOR_FEATURES, echo_interval);
+
+			if (timer_ids.find(TIMER_WAIT_FOR_FEATURES) != timer_ids.end()) {
+				cancel_timer(timer_ids[TIMER_WAIT_FOR_FEATURES]);
+			}
+			timer_ids[TIMER_WAIT_FOR_FEATURES] = register_timer(TIMER_WAIT_FOR_FEATURES, echo_interval);
+
 		} else {
 			state = STATE_ESTABLISHED;
-			reset_timer(TIMER_SEND_ECHO, echo_interval);
+
+			if (timer_ids.find(TIMER_SEND_ECHO) != timer_ids.end()) {
+				cancel_timer(timer_ids[TIMER_SEND_ECHO]);
+			}
+			timer_ids[TIMER_SEND_ECHO] = register_timer(TIMER_SEND_ECHO, echo_interval);
 			env->handle_connected(this, ofp_version);
 		}
 
@@ -252,8 +270,10 @@ crofconn::event_features_rcvd()
 	case STATE_WAIT_FOR_FEATURES: {
 		if (flags.test(FLAGS_PASSIVE)) {
 			state = STATE_ESTABLISHED;
-			cancel_timer(TIMER_WAIT_FOR_FEATURES);
-			reset_timer(TIMER_SEND_ECHO, echo_interval);
+			cancel_timer(timer_ids[TIMER_WAIT_FOR_FEATURES]);
+
+			timer_ids[TIMER_SEND_ECHO] = register_timer(TIMER_SEND_ECHO, echo_interval);
+
 			env->handle_connected(this, ofp_version);
 		}
 
@@ -290,8 +310,8 @@ crofconn::event_echo_rcvd()
 {
 	switch (state) {
 	case STATE_ESTABLISHED: {
-		cancel_timer(TIMER_WAIT_FOR_ECHO);
-		register_timer(TIMER_SEND_ECHO, echo_interval);
+		cancel_timer(timer_ids[TIMER_WAIT_FOR_ECHO]);
+		timer_ids[TIMER_SEND_ECHO] = register_timer(TIMER_SEND_ECHO, echo_interval);
 
 	} break;
 	default: {

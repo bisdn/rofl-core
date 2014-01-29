@@ -25,6 +25,15 @@ librofl_common_la_SOURCES = \
 		cclock.cc \
 		cfsm.h \
 		cfsm.cc \
+		ctimer.h \
+		ctimer.cc \
+		ctimers.h \
+		ctimers.cc \
+		cevent.h \
+		cevents.h \
+		cevents.cc \
+		cfdset.h \
+		cfdset.cc \
 		ciosrv.h \
 		ciosrv.cc \
 		cmemory.h \
@@ -85,6 +94,11 @@ library_include_HEADERS= \
 		cclock.h \
 		croflexception.h \
 		cfsm.h \
+		ctimer.h \
+		ctimers.h \
+		cevent.h \
+		cevents.h \
+		cfdset.h \
 		ciosrv.h \
 		cmemory.h \
 		coflist.h \

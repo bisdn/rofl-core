@@ -41,7 +41,7 @@ public:
 	~etherswitch();
 
 	virtual void
-	handle_timeout(int opaque);
+	handle_timeout(int opaque, void *data = (void*)0);
 
 	virtual void
 	handle_dpath_open(crofdpt& dpt);

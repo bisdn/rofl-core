@@ -57,6 +57,7 @@ class crofconn :
 	cofhello_elem_versionbitmap		versionbitmap_peer;		// supported OFP versions by peer entity
 	uint8_t							ofp_version;			// negotiated OFP version
 	std::bitset<32>					flags;
+	std::map<int, uint32_t>			timer_ids;				// timer-ids obtained from ciosrv
 
 	enum msg_type_t {
 		OFPT_HELLO = 0,
@@ -228,7 +229,7 @@ private:
 	 *
 	 */
 	virtual void
-	handle_timeout(int opaque);
+	handle_timeout(int opaque, void *data = (void*)0);
 
 	/**
 	 *

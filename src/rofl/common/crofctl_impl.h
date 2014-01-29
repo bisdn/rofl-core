@@ -355,7 +355,7 @@ private:
 	 */
 	virtual void
 	handle_timeout(
-			int opaque);
+			int opaque, void *data = (void*)0);
 
 
 public:

@@ -75,6 +75,7 @@ class crofchan :
 	int									reconnect_start_timeout;
 	int 								reconnect_in_seconds; 	// reconnect in x seconds
 	int 								reconnect_counter;
+	uint32_t							reconnect_timer_id;
 
 #define CROFCHAN_RECONNECT_START_TIMEOUT 1				// start reconnect timeout (default 1s)
 
@@ -200,7 +201,7 @@ private:
 	 *
 	 */
 	virtual void
-	handle_timeout(int opaque);
+	handle_timeout(int opaque, void *data = (void*)0);
 
 public:
 

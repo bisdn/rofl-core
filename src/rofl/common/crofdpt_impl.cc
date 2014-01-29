@@ -616,7 +616,7 @@ crofdpt_impl::ta_expired(
 
 
 void
-crofdpt_impl::handle_timeout(int opaque)
+crofdpt_impl::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
 	default: {

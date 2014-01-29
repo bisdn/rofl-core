@@ -20,7 +20,8 @@ crofchan::crofchan(
 				state(STATE_DISCONNECTED),
 				reconnect_start_timeout(CROFCHAN_RECONNECT_START_TIMEOUT),
 				reconnect_in_seconds(CROFCHAN_RECONNECT_START_TIMEOUT),
-				reconnect_counter(0)
+				reconnect_counter(0),
+				reconnect_timer_id(0)
 {
 
 }
@@ -29,6 +30,7 @@ crofchan::crofchan(
 
 crofchan::~crofchan()
 {
+	logging::debug << "[rofl][chan] destructor:" << std::endl << *this;
 	clear();
 }
 
@@ -59,10 +61,16 @@ crofchan::run_engine(enum crofchan_event_t event)
 void
 crofchan::event_disconnected()
 {
+	logging::debug << "[rofl][chan] event_disconnected -entry point-" << std::endl << *this;
+
 	switch (state) {
-	case STATE_DISCONNECTED:
+	case STATE_DISCONNECTED: {
+		// do nothing
+	} break;
 	case STATE_CONNECT_PENDING:
 	case STATE_ESTABLISHED: {
+		logging::debug << "[rofl][chan] event_disconnected -calling env->handle_disconnected()-" << std::endl << *this;
+
 		state = STATE_DISCONNECTED;
 		env->handle_disconnected(this);
 
@@ -276,6 +284,8 @@ crofchan::handle_connected(
 void
 crofchan::handle_closed(crofconn *conn)
 {
+	logging::debug << "[rofl][chan] handle_closed" << std::endl << *this;
+
 	// do nothing upon reception of this closing notification, when there is no entry in map conns
 	if (conns.find(conn->get_aux_id()) == conns.end()) {
 		logging::warn << "[rofl][chan] internal error: unknown connection closed." << std::endl;
@@ -288,13 +298,12 @@ crofchan::handle_closed(crofconn *conn)
 	if (0 == conn->get_aux_id()) {
 
 		ofp_version = OFP_VERSION_UNKNOWN;
-		run_engine(EVENT_DISCONNECTED);
 
 		/*
 		 * passive connection (=controller) => drop all connections
 		 */
 		if (not conn->is_actively_established()) {
-			logging::info << "[rofl][chan] passive main connection closed." << std::endl;
+			logging::info << "[rofl][chan] passive main connection closed." << std::endl << *this;
 
 			// close all connections
 			while (not conns.empty()) {
@@ -330,6 +339,8 @@ restart:
 			// try reconnecting main connection
 			backoff_reconnect(true);
 		}
+
+		run_engine(EVENT_DISCONNECTED);
 
 		return;
 
@@ -409,7 +420,7 @@ crofchan::release_sync_xid(crofconn *conn, uint32_t xid)
 
 
 void
-crofchan::handle_timeout(int opaque)
+crofchan::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
 	case TIMER_RECONNECT: {
@@ -427,24 +438,19 @@ crofchan::handle_timeout(int opaque)
 void
 crofchan::backoff_reconnect(bool reset_timeout)
 {
-	if (pending_timer(TIMER_RECONNECT)) {
-		return;
-	}
-
 	logging::info << "[rofl][chan] " << " scheduled reconnect in "
 			<< (int)reconnect_in_seconds << " seconds." << std::endl << *this;
 
 	int max_backoff = 16 * reconnect_start_timeout;
 
-	if (reset_timeout) {
+	if ((0 == reconnect_timer_id) || (reset_timeout)) {
+
 		reconnect_in_seconds = reconnect_start_timeout;
 		reconnect_counter = 0;
 
-		reset_timer(TIMER_RECONNECT, 0);
-
-		++reconnect_counter;
-
-		return;
+		if ((0 != reconnect_timer_id) && reset_timeout) {
+			cancel_timer(reconnect_timer_id);
+		}
 
 	} else {
 		reconnect_in_seconds *= 2;
@@ -453,8 +459,9 @@ crofchan::backoff_reconnect(bool reset_timeout)
 			reconnect_in_seconds = max_backoff;
 		}
 
-		reset_timer(TIMER_RECONNECT, reconnect_in_seconds);
-
-		++reconnect_counter;
 	}
+
+	reconnect_timer_id = register_timer(TIMER_RECONNECT, reconnect_in_seconds);
+
+	++reconnect_counter;
 }

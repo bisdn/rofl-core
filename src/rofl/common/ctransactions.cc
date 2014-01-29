@@ -29,7 +29,7 @@ ctransactions::~ctransactions()
 
 void
 ctransactions::handle_timeout(
-		int opaque)
+		int opaque, void *data)
 {
 	switch (opaque) {
 	case TIMER_WORK_ON_TA_QUEUE: {

@@ -20,7 +20,7 @@ ethswitch::~ethswitch()
 
 
 void
-ethswitch::handle_timeout(int opaque)
+ethswitch::handle_timeout(int opaque, void *data)
 {
 
 }
