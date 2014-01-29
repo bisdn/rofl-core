@@ -118,7 +118,7 @@ public:
 	 *
 	 */
 	void
-	accept(int sd);
+	accept(int sd, ssl_context *ssl_ctx = NULL);
 
 	/**
 	 *

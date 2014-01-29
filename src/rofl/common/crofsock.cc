@@ -29,9 +29,9 @@ crofsock::~crofsock()
 
 
 void
-crofsock::accept(int sd)
+crofsock::accept(int sd, ssl_context *ssl_ctx)
 {
-	socket.accept(sd);
+	socket.accept(sd, ssl_ctx);
 }
 
 

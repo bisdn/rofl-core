@@ -38,10 +38,10 @@ crofconn::~crofconn()
 
 
 void
-crofconn::accept(int newsd)
+crofconn::accept(int newsd, ssl_context *ssl_ctx)
 {
 	flags.set(FLAGS_PASSIVE);
-	rofsock.accept(newsd);
+	rofsock.accept(newsd, ssl_ctx);
 }
 
 

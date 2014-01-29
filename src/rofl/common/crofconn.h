@@ -130,7 +130,7 @@ public:
 	 *
 	 */
 	void
-	accept(int newsd);
+	accept(int newsd, ssl_context *ssl_ctx = NULL);
 
 	/**
 	 * @brief	Instruct crofsock instance to connect to peer using specified parameters.
