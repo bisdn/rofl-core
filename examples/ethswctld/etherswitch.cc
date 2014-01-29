@@ -184,6 +184,8 @@ ethswitch::handle_packet_in(
 		cofmsg_packet_in& msg,
 		uint8_t aux_id)
 {
+	msg.get_packet().classify(msg.get_match().get_in_port());
+
 	cmacaddr eth_src = msg.get_packet().ether()->get_dl_src();
 	cmacaddr eth_dst = msg.get_packet().ether()->get_dl_dst();
 

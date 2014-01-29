@@ -1053,6 +1053,15 @@ public:
 
 	/**@}*/
 
+public:
+
+
+	/** parse and classify data frame
+	 *
+	 */
+	void
+	classify(
+			uint32_t in_port /* host byte order */);
 
 
 
@@ -1109,12 +1118,6 @@ private:
 			uint16_t& missed);
 
 
-	/** parse and classify data frame
-	 *
-	 */
-	void
-	classify(
-			uint32_t in_port /* host byte order */);
 
 
 
