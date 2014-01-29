@@ -7,6 +7,7 @@
 
 #include "ssl_lib.h"
 #include "ssl_connection.h"
+#include "logging.h"
 
 #include <assert.h>
 #include <openssl/err.h>
@@ -16,22 +17,25 @@ rofl::ssl_context::ssl_context(enum ssl_type type) :
 		type(type) {
 
 	ssl_ctx = SSL_CTX_new(TLSv1_2_method());
+	// todo check: SSL_CTX_set_options(ssl_ctx, SSL_MODE_AUTO_RETRY);
+
 
 	if (NULL == ssl_ctx) {
-		unsigned long ssl_error = ERR_get_error();
-		ERR_error_string(ssl_error, NULL); // todo log
+		logging::error << " ssl_error=" << ERR_get_error() << ERR_error_string(ERR_get_error(), NULL);
 	}
+	assert(NULL != ssl_ctx);
 
 	if (ssl_context::SSL_server == type) {
+		logging::debug << __PRETTY_FUNCTION__ << " create SSL_server" << std::endl;
 		/* Load server certificate into the SSL context */
 		if (SSL_CTX_use_certificate_file(ssl_ctx, "dummy.pem", SSL_FILETYPE_PEM) <= 0) {	// fixme has to be configurable
-			ERR_print_errors_fp(stderr);
+			logging::error << " ssl_error=" << ERR_get_error() << ERR_error_string(ERR_get_error(), NULL);
 			exit(1);
 		}
 
 		/* Load the server private-key into the SSL context */
 		if (SSL_CTX_use_PrivateKey_file(ssl_ctx, "dummy.pem", SSL_FILETYPE_PEM) <= 0) {		// fixme has to be configurable
-			ERR_print_errors_fp(stderr);
+			logging::error << " ssl_error=" << ERR_get_error() << ERR_error_string(ERR_get_error(), NULL);
 			exit(1);
 		}
 
@@ -51,6 +55,7 @@ rofl::ssl_context::ssl_context(enum ssl_type type) :
 		SSL_CTX_set_verify_depth(ssl_ctx, 1);
 #endif
 	} else {
+		logging::debug << __PRETTY_FUNCTION__ << " create SSL_client" << std::endl;
 		// client
 		assert(SSL_client == type);
 #if 0 /* client cert disabled currtently */
@@ -93,9 +98,9 @@ rofl::ssl_connection* rofl::ssl_context::create_ssl_connection(int fd) {
 	SSL *ssl = SSL_new(ssl_ctx);
 
 	if (NULL == ssl) {
-		unsigned long ssl_error = ERR_get_error();
-		ERR_error_string(ssl_error, NULL); // todo log
-		// todo close fs
+		logging::error << " ssl_error=" << ERR_get_error() << ERR_error_string(ERR_get_error(), NULL);
+
+		// todo close fd?
 		return NULL;
 	}
 
