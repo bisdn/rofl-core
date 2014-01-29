@@ -316,9 +316,9 @@ cioloop::run_loop()
 					ctimer timer((*it).first->get_next_timer());
 
 					if ((*it).first->get_next_timer() < ctimer::now()) {
-						logging::debug << "[rofl][ciosrv][loop] timer:" << (*it).first->get_next_timer();
-						logging::debug << "[rofl][ciosrv][loop]   now:" << ctimer::now();
-						logging::debug << "[rofl][ciosrv][loop] delta:" << timer;
+						//logging::debug << "[rofl][ciosrv][loop] timer:" << (*it).first->get_next_timer();
+						//logging::debug << "[rofl][ciosrv][loop]   now:" << ctimer::now();
+						//logging::debug << "[rofl][ciosrv][loop] delta:" << timer;
 						(*it).first->handle_timeout(timer.get_opaque());
 						continue;
 					}
