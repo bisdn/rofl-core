@@ -283,10 +283,12 @@ cioloop::run_loop()
 		unsigned int maxfd = 0;
 		int rc = 0;
 
+		//logging::error << "[rofl][ciosrv][loop] minrfd:" << minrfd << " maxrfd:" << maxrfd << " minwfd:" << minwfd << " maxwfd:" << maxwfd << std::endl << *this;
+
 		FD_ZERO(&readfds);
 		{
 			RwLock lock(rfds_rwlock, RwLock::RWLOCK_READ);
-			for (unsigned int i = 0; i < rfds.size(); i++) {
+			for (unsigned int i = minrfd; i < maxrfd; i++) {
 				if (NULL != rfds[i]) {
 					FD_SET(i, &readfds);
 					maxfd = (i > maxfd) ? i : maxfd;
@@ -297,7 +299,7 @@ cioloop::run_loop()
 		FD_ZERO(&writefds);
 		{
 			RwLock lock(wfds_rwlock, RwLock::RWLOCK_READ);
-			for (unsigned int i = 0; i < wfds.size(); i++) {
+			for (unsigned int i = minwfd; i < maxwfd; i++) {
 				if (NULL != wfds[i]) {
 					FD_SET(i, &writefds);
 					maxfd = (i > maxfd) ? i : maxfd;
@@ -362,13 +364,13 @@ cioloop::run_loop()
 					}
 				}
 
-				for (unsigned int i = 0; i < wfds.size(); i++) {
+				for (unsigned int i = minwfd; i < maxwfd; i++) {
 					if (FD_ISSET(i, &writefds)  && (NULL != wfds[i])) {
 						wfds[i]->handle_wevent(i);
 					}
 				}
 
-				for (unsigned int i = 0; i < rfds.size(); i++) {
+				for (unsigned int i = minrfd; i < maxrfd; i++) {
 					if (FD_ISSET(i, &readfds) 	 && (NULL != rfds[i])) {
 						rfds[i]->__handle_revent(i);
 					}

@@ -387,6 +387,10 @@ class cioloop {
 	struct timespec 						ts;
 	bool									keep_on_running;
 
+	unsigned int							minrfd; // lowest set readfd
+	unsigned int							maxrfd; // highest set readfd
+	unsigned int							minwfd; // lowest set writefd
+	unsigned int							maxwfd; // highest set writefd
 
 public:
 
@@ -449,6 +453,8 @@ public:
 	add_readfd(ciosrv* iosrv, int fd) {
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds[fd] = iosrv;
+		minrfd = (minrfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minrfd;
+		maxrfd = (maxrfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxrfd;
 	};
 
 	/**
@@ -458,6 +464,26 @@ public:
 	drop_readfd(ciosrv* iosrv, int fd) {
 		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
 		rfds[fd] = NULL;
+
+		if (minrfd == (unsigned int)(fd+0)) {
+			minrfd = rfds.size();
+			for (unsigned int i = fd + 1; i < rfds.size(); i++) {
+				if (rfds[i] != NULL) {
+					minrfd = i;
+					break;
+				}
+			}
+		}
+
+		if (maxrfd == (unsigned int)(fd+1)) {
+			maxrfd = 0;
+			for (unsigned int i = 0; i < (unsigned int)fd; i++) {
+				if (rfds[i] != NULL) {
+					maxrfd = i;
+					break;
+				}
+			}
+		}
 	};
 
 	/**
@@ -467,6 +493,8 @@ public:
 	add_writefd(ciosrv* iosrv, int fd) {
 		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds[fd] = iosrv;
+		minwfd = (minwfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minwfd;
+		maxwfd = (maxwfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxwfd;
 	};
 
 	/**
@@ -476,6 +504,26 @@ public:
 	drop_writefd(ciosrv* iosrv, int fd) {
 		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
 		wfds[fd] = NULL;
+
+		if (minwfd == (unsigned int)(fd+0)) {
+			minwfd = wfds.size();
+			for (unsigned int i = fd + 1; i < wfds.size(); i++) {
+				if (wfds[i] != NULL) {
+					minwfd = i;
+					break;
+				}
+			}
+		}
+
+		if (maxwfd == (unsigned int)(fd+1)) {
+			maxwfd = 0;
+			for (unsigned int i = 0; i < (unsigned int)fd; i++) {
+				if (wfds[i] != NULL) {
+					maxwfd = i;
+					break;
+				}
+			}
+		}
 	};
 
 	/**
@@ -514,6 +562,10 @@ private:
 			rfds.push_back(NULL);
 			wfds.push_back(NULL);
 		}
+		minrfd = rfds.size();
+		maxrfd = 0;
+		minwfd = wfds.size();
+		maxwfd = 0;
 	};
 
 	/**
