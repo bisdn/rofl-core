@@ -178,7 +178,7 @@ typedef struct switch_port{
 	/* 
 	* OF related stuff
 	*/
-	bool of_get_packet_in;
+	bool of_generate_packet_in;
 
 	//Pointer to current logical switch attached
 	struct of_switch* attached_sw;	

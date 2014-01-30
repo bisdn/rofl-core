@@ -5,7 +5,9 @@
 #ifndef AFA_DRIVER_H
 #define AFA_DRIVER_H 
 
+#include <stdbool.h>
 #include <rofl/datapath/pipeline/monitoring.h>
+#include <rofl/datapath/pipeline/physical_switch.h>
 #include <rofl/datapath/pipeline/switch_port.h>
 #include <rofl/datapath/pipeline/openflow/of_switch.h>
 #include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms.h>
@@ -47,6 +49,12 @@ monitored_entity_t* fwd_module_get_chassis_info(void);
 */
 
 /**
+* @brief   Checks if an LSI with the specified dpid exists 
+* @ingroup logical_switch_management
+*/
+bool fwd_module_switch_exists(uint64_t dpid); 
+
+/**
 * @brief   Retrieve the list of LSIs dpids
 * @ingroup logical_switch_management
 * @retval  List of available dpids, which MUST be deleted using dpid_list_destroy().
@@ -57,9 +65,8 @@ dpid_list_t* fwd_module_get_all_lsi_dpids(void);
 * @name    fwd_module_create_switch 
 * @brief   Instruct forward module to create an OF logical switch 
 * @ingroup logical_switch_management
-* @retval  Pointer to of_switch_t instance 
 */
-of_switch_t* fwd_module_create_switch(char* name, uint64_t dpid, of_version_t of_version, unsigned int num_of_tables, int* ma_list);
+afa_result_t fwd_module_create_switch(char* name, uint64_t dpid, of_version_t of_version, unsigned int num_of_tables, int* ma_list);
 
 /**
  * @name fwd_module_get_switch_snapshot_by_dpid 
@@ -84,6 +91,11 @@ afa_result_t fwd_module_destroy_switch_by_dpid(uint64_t dpid);
 * All of the functions related to platform port management 
 *
 */
+/**
+* @brief   Checks if a port with the specified name exists 
+* @ingroup port_management 
+*/
+bool fwd_module_port_exists(const char *name);
 
 /**
 * @brief   Retrieve the list of names of the available ports of the platform. You may want to 

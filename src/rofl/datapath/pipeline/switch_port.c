@@ -53,7 +53,7 @@ switch_port_t* switch_port_init(char* name, bool up, port_type_t type, port_stat
 	port->curr = port->advertised = port->supported = port->peer = 0x0;	
 	port->curr_speed = port->curr_max_speed = 0;
 	port->of_port_num = 0;
-	port->of_get_packet_in = true;
+	port->of_generate_packet_in = true;
 	port->attached_sw = NULL;
 
 	//Platform state
