@@ -131,7 +131,7 @@ cfib::fib_lookup(
 		rofl::cmacaddr const& src,
 		uint32_t in_port)
 {
-	std::cerr << "LOOKUP: dst: " << dst << " src: " << src << std::endl;
+	//std::cerr << "LOOKUP: dst: " << dst << " src: " << src << std::endl;
 
 	// sanity checks
 	if (src.is_multicast()) {
@@ -147,7 +147,7 @@ cfib::fib_lookup(
 	// find out-port for dst
 	if (fibtable.find(dst) == fibtable.end()) {
 
-		rofl::logging::debug << "[ethswctld][ethsw][cfib][lookup] NOT FOUND" << std::endl;
+		//rofl::logging::debug << "[ethswctld][ethsw][cfib][lookup] NOT FOUND" << std::endl;
 
 		throw eFibNotFound();
 

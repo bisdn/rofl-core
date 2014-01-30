@@ -184,68 +184,134 @@ ethswitch::handle_packet_in(
 		cofmsg_packet_in& msg,
 		uint8_t aux_id)
 {
-	msg.get_packet().classify(msg.get_match().get_in_port());
+	try {
+		msg.get_packet().classify(msg.get_match().get_in_port());
 
-	cmacaddr eth_src = msg.get_packet().ether()->get_dl_src();
-	cmacaddr eth_dst = msg.get_packet().ether()->get_dl_dst();
+		cmacaddr eth_src = msg.get_packet().ether()->get_dl_src();
+		cmacaddr eth_dst = msg.get_packet().ether()->get_dl_dst();
 
-	/*
-	 * sanity check: if source mac is multicast => invalid frame
-	 */
-	if (eth_src.is_multicast()) {
-		return;
-	}
 
-	/*
-	 * block mac address 01:80:c2:00:00:00
-	 */
-	if (msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
-		msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
-		cflowentry fe(dpt.get_version());
 
-		switch (dpt.get_version()) {
-		case openflow10::OFP_VERSION: fe.set_command(openflow10::OFPFC_ADD); break;
-		case openflow12::OFP_VERSION: fe.set_command(openflow12::OFPFC_ADD); break;
-		case openflow13::OFP_VERSION: fe.set_command(openflow13::OFPFC_ADD); break;
-		default:
-			throw eBadVersion();
+		logging::info << "[ethsw][packet-in] PACKET-IN => frame seen, "
+							<< "dpid:" << std::hex << (unsigned long long)dpt.get_dpid() << std::dec << " "
+							<< "buffer-id:0x" << std::hex << msg.get_buffer_id() << std::dec << " "
+							<< "eth-src:" << msg.get_packet().ether()->get_dl_src() << " "
+							<< "eth-dst:" << msg.get_packet().ether()->get_dl_dst() << " "
+							<< "eth-type:" << msg.get_packet().ether()->get_dl_type() << " "
+							<< std::endl;
+
+
+		/*
+		 * sanity check: if source mac is multicast => invalid frame
+		 */
+		if (eth_src.is_multicast()) {
+			logging::warn << "[ethsw][packet-in] eth-src:" << eth_src << " is multicast, ignoring." << std::endl;
+			return;
 		}
 
-		fe.set_buffer_id(msg.get_buffer_id());
-		fe.set_idle_timeout(15);
-		fe.set_table_id(msg.get_table_id());
-
-		fe.match.set_in_port(msg.get_match().get_in_port());
-		fe.match.set_eth_dst(msg.get_packet().ether()->get_dl_dst());
-		fe.instructions.add_inst_apply_actions();
-
-		fprintf(stderr, "etherswitch: installing FLOW-MOD with entry: ");
-		std::cerr << fe << std::endl;
-
-		dpt.send_flow_mod_message(fe);
-
-		return;
-	}
-
-	fprintf(stderr, "etherswitch: PACKET-IN from dpid:0x%"PRIu64" buffer-id:0x%x => from %s to %s type: 0x%x\n",
-			dpt.get_dpid(),
-			msg.get_buffer_id(),
-			msg.get_packet().ether()->get_dl_src().c_str(),
-			msg.get_packet().ether()->get_dl_dst().c_str(),
-			msg.get_packet().ether()->get_dl_type());
 
 
-	cofactions actions(dpt.get_version());
 
-	cfib::get_fib(dpt.get_dpid()).fib_update(
+		/*
+		 * block mac address 01:80:c2:00:00:00
+		 */
+		if (msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
+			msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
+			cflowentry fe(dpt.get_version());
+
+			switch (dpt.get_version()) {
+			case openflow10::OFP_VERSION: fe.set_command(openflow10::OFPFC_ADD); break;
+			case openflow12::OFP_VERSION: fe.set_command(openflow12::OFPFC_ADD); break;
+			case openflow13::OFP_VERSION: fe.set_command(openflow13::OFPFC_ADD); break;
+			default:
+				throw eBadVersion();
+			}
+
+			fe.set_buffer_id(msg.get_buffer_id());
+			fe.set_idle_timeout(60);
+			fe.set_table_id(msg.get_table_id());
+
+			fe.match.set_in_port(msg.get_match().get_in_port());
+			fe.match.set_eth_dst(msg.get_packet().ether()->get_dl_dst());
+			fe.instructions.add_inst_apply_actions();
+
+			logging::info << "[ethsw][packet-in] installing new Flow-Mod entry:" << std::endl << fe;
+
+			dpt.send_flow_mod_message(fe);
+
+			return;
+		}
+
+
+		cfib::get_fib(dpt.get_dpid()).fib_update(
+								this,
+								dpt,
+								msg.get_packet().ether()->get_dl_src(),
+								msg.get_match().get_in_port());
+
+
+		if (eth_dst.is_multicast()) {
+
+			rofl::logging::debug << "[ethsw][packet-in] eth-dst:" << eth_dst << " is multicast, PACKET-OUT flooding" << std::endl;
+
+		} else {
+
+			try {
+
+				cfibentry& entry = cfib::get_fib(dpt.get_dpid()).fib_lookup(
 							this,
 							dpt,
+							msg.get_packet().ether()->get_dl_dst(),
 							msg.get_packet().ether()->get_dl_src(),
 							msg.get_match().get_in_port());
 
-	rofl::logging::debug << "[ethswctld][ethsw] adding src:" << eth_src << " to FIB:" << std::endl << cfib::get_fib(dpt.get_dpid());
 
-	if (eth_dst.is_multicast()) {
+
+				if (msg.get_match().get_in_port() == entry.get_out_port_no()) {
+					indent i(2);
+					rofl::logging::debug << "[ethsw][packet-in] found entry for eth-dst:" << eth_dst
+							<< ", but in-port == out-port, ignoring" << std::endl << entry;
+
+					return;
+				}
+
+				cflowentry fe(dpt.get_version());
+
+				fe.set_command(rofl::openflow12::OFPFC_ADD);
+				fe.set_table_id(0);
+				fe.set_idle_timeout(60);
+				fe.set_priority(0x8000);
+				fe.set_buffer_id(msg.get_buffer_id());
+				fe.set_flags(rofl::openflow12::OFPFF_SEND_FLOW_REM);
+
+				fe.match.set_eth_dst(eth_dst);
+				fe.match.set_eth_src(eth_src);
+
+				fe.instructions.add_inst_apply_actions().get_actions().append_action_output(entry.get_out_port_no());
+
+				indent i(2); rofl::logging::debug << "[ethsw][packet-in] installing flow mod" << std::endl << fe;
+
+				dpt.send_flow_mod_message(fe);
+
+				return;
+
+			} catch (eFibInval& e) {
+
+				rofl::logging::debug << "[ethsw][packet-in] eFibInval, ignoring." << std::endl << cfib::get_fib(dpt.get_dpid());
+
+				return;
+
+			} catch (eFibNotFound& e) {
+
+				rofl::logging::debug << "[ethsw][packet-in] dst:" << eth_dst << " NOT FOUND in FIB, PACKET-OUT flooding." << std::endl;
+			}
+		}
+
+
+
+
+		cofactions actions(dpt.get_version());
+
 
 		switch (dpt.get_version()) {
 		case openflow10::OFP_VERSION:
@@ -258,77 +324,24 @@ ethswitch::handle_packet_in(
 			throw eBadVersion();
 		}
 
-	} else {
-
-		try {
-			rofl::logging::debug << "[ethswctld][ethsw] looking up dst:" << eth_dst << " in FIB:" << std::endl << cfib::get_fib(dpt.get_dpid());
-
-			cfibentry& entry = cfib::get_fib(dpt.get_dpid()).fib_lookup(
-						this,
-						dpt,
-						msg.get_packet().ether()->get_dl_dst(),
-						msg.get_packet().ether()->get_dl_src(),
-						msg.get_match().get_in_port());
-
-			rofl::logging::debug << "[ethswctld][ethsw] FOUND FIB ENTRY:" << entry << std::endl;
-
-
-			if (msg.get_match().get_in_port() == entry.get_out_port_no()) {
-				rofl::logging::debug << "[ethswctld][ethsw] in-port == out-port, ignoring Packet-In" << std::endl;
-
-				return;
-			}
-
-			rofl::logging::debug << "[ethswctld][ethsw] preparing flow mod" << std::endl;
-
-
-			cflowentry fe(dpt.get_version());
-
-			fe.set_command(rofl::openflow12::OFPFC_ADD);
-			fe.set_table_id(0);
-			fe.set_idle_timeout(10);
-			fe.set_priority(0x8000);
-			fe.set_buffer_id(msg.get_buffer_id());
-			fe.set_flags(rofl::openflow12::OFPFF_SEND_FLOW_REM);
-
-			fe.match.set_eth_dst(eth_dst);
-			fe.match.set_eth_src(eth_src);
-
-			fe.instructions.add_inst_apply_actions().get_actions().append_action_output(entry.get_out_port_no());
-
-			dpt.send_flow_mod_message(fe);
-
-			return;
-
-		} catch (eFibNotFound& e) {
-			switch (dpt.get_version()) {
-			case openflow10::OFP_VERSION:
-				actions.append_action_output(openflow10::OFPP_FLOOD); break;
-			case openflow12::OFP_VERSION:
-				actions.append_action_output(openflow12::OFPP_FLOOD); break;
-			case openflow13::OFP_VERSION:
-				actions.append_action_output(openflow13::OFPP_FLOOD); break;
-			default:
-				throw eBadVersion();
-			}
-
+		uint32_t ofp_no_buffer = 0;
+		switch (dpt.get_version()) {
+		case openflow10::OFP_VERSION: ofp_no_buffer = openflow10::OFP_NO_BUFFER; break;
+		case openflow12::OFP_VERSION: ofp_no_buffer = openflow12::OFP_NO_BUFFER; break;
+		case openflow13::OFP_VERSION: ofp_no_buffer = openflow13::OFP_NO_BUFFER; break;
+		default:
+			throw eBadVersion();
 		}
-	}
 
-	uint32_t ofp_no_buffer = 0;
-	switch (dpt.get_version()) {
-	case openflow10::OFP_VERSION: ofp_no_buffer = openflow10::OFP_NO_BUFFER; break;
-	case openflow12::OFP_VERSION: ofp_no_buffer = openflow12::OFP_NO_BUFFER; break;
-	case openflow13::OFP_VERSION: ofp_no_buffer = openflow13::OFP_NO_BUFFER; break;
-	default:
-		throw eBadVersion();
-	}
+		if (ofp_no_buffer != msg.get_buffer_id()) {
+			dpt.send_packet_out_message(msg.get_buffer_id(), msg.get_match().get_in_port(), actions);
+		} else {
+			dpt.send_packet_out_message(msg.get_buffer_id(), msg.get_match().get_in_port(), actions,
+					msg.get_packet().soframe(), msg.get_packet().framelen());
+		}
 
-	if (ofp_no_buffer != msg.get_buffer_id()) {
-		dpt.send_packet_out_message(msg.get_buffer_id(), msg.get_match().get_in_port(), actions);
-	} else {
-		dpt.send_packet_out_message(msg.get_buffer_id(), msg.get_match().get_in_port(), actions,
-				msg.get_packet().soframe(), msg.get_packet().framelen());
+	} catch (...) {
+		logging::error << "[ethsw][packet-in] caught some exception, use debugger for getting more info" << std::endl;
 	}
 }
 

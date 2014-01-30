@@ -22,6 +22,7 @@ extern "C" {
 #include <rofl/common/cmacaddr.h>
 #include <rofl/common/crofbase.h>
 #include <rofl/common/crofdpt.h>
+#include <rofl/common/logging.h>
 
 namespace etherswitch
 {
@@ -124,10 +125,10 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cfibentry const& entry)
 	{
-		os << "fibentry<";
-			os << "dst: " << entry.dst << " ";
-			os << "out-port: " << entry.out_port_no << " ";
-		os << ">";
+		os << rofl::indent(0) << "<fibentry ";
+			os << "hwaddr: " << entry.dst << " ";
+			os << "port: " << entry.out_port_no << " ";
+		os << ">" << std::endl;
 		return os;
 	};
 };
