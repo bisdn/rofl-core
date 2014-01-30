@@ -43,8 +43,14 @@ crofbase::send_packet_in_message(
 		uint8_t *data,
 		size_t datalen)
 {
+	bool sent_out = false;
+
 	for (std::set<crofctl*>::iterator
 			it = ofctl_set.begin(); it != ofctl_set.end(); ++it) {
+
+		if (not (*(*it)).is_established()) {
+			continue;
+		}
 
 		// TODO: roles
 
@@ -58,8 +64,13 @@ crofbase::send_packet_in_message(
 				match,
 				data,
 				datalen);
+
+		sent_out = true;
 	}
-	//throw eNotImplemented("crofbase::send_packet_in_message()");
+
+	if (not sent_out) {
+		throw eRofBaseNotConnected();
+	}
 }
 
 
