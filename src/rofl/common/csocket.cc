@@ -9,6 +9,8 @@
 #include "ssl_lib.h"
 #endif /* HAVE_OPENSSL */
 
+#include <assert.h>
+
 using namespace rofl;
 
 std::set<csocket*> csocket::csock_list;
