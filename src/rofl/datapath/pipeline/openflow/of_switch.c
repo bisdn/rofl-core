@@ -150,7 +150,7 @@ of_switch_snapshot_t* __of_switch_get_snapshot(of_switch_t* sw){
 			return NULL;
 	}
 }
-void __of_switch_destroy_snapshot(of_switch_snapshot_t* snapshot){
+void of_switch_destroy_snapshot(of_switch_snapshot_t* snapshot){
 	switch (snapshot->of_ver){
 		case OF_VERSION_10:
 		case OF_VERSION_12:

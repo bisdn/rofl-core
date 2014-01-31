@@ -39,7 +39,7 @@ AFA_BEGIN_DECLS
  * @param total_len total length of buffer
  * @param matches OF1.2 packet matches
  */
-afa_result_t cmm_process_of1x_packet_in(const of1x_switch_t* sw, 
+afa_result_t cmm_process_of1x_packet_in(uint64_t dpid, 
 					uint8_t table_id, 
 					uint8_t reason,
 					uint32_t in_port,
