@@ -169,12 +169,13 @@ switch_port_snapshot_t* __switch_port_get_snapshot(switch_port_t* port){
 		s->queues[i].stats.mutex = NULL;
 	
 	//Copy missing information
+	s->attached_sw = NULL;
 	s->is_attached_to_sw = (port->attached_sw != NULL);
 	if(port->attached_sw)
 		s->attached_sw_dpid = port->attached_sw->dpid;
 	else
 		s->attached_sw_dpid = 0x0;
-	
+		
 	return s;
 }
 void switch_port_destroy_snapshot(switch_port_snapshot_t* port){

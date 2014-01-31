@@ -532,15 +532,15 @@ switch_port_name_list_t* physical_switch_get_all_port_names(void){
 
 	//Determine the number of (currenly) exisitng ports
 	num_of_ports=0;
-	for(i=0;PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;i++){
+	for(i=0;i<PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;i++){
 		if(psw->physical_ports[i])
 			num_of_ports++;
 	}
-	for(i=0;PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS;i++){
+	for(i=0;i<PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS;i++){
 		if(psw->tunnel_ports[i])
 			num_of_ports++;
 	}
-	for(i=0;PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS;i++){
+	for(i=0;i<PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS;i++){
 		if(psw->virtual_ports[i])
 			num_of_ports++;
 	}
@@ -563,19 +563,19 @@ switch_port_name_list_t* physical_switch_get_all_port_names(void){
 	list->num_of_ports = num_of_ports;
 
 	num_of_ports=0;
-	for(i=0;PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;i++){
+	for(i=0;i<PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS;i++){
 		if(psw->physical_ports[i]){
 			memcpy(&list->names[num_of_ports], &psw->physical_ports[i]->name, SWITCH_PORT_MAX_LEN_NAME);
 			num_of_ports++;
 		}
 	}
-	for(i=0;PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS;i++){
+	for(i=0;i<PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS;i++){
 		if(psw->tunnel_ports[i]){
 			memcpy(&list->names[num_of_ports], &psw->tunnel_ports[i]->name, SWITCH_PORT_MAX_LEN_NAME);
 			num_of_ports++;
 		}
 	}
-	for(i=0;PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS;i++){
+	for(i=0;i<PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS;i++){
 		if(psw->virtual_ports[i]){
 			memcpy(&list->names[num_of_ports], &psw->virtual_ports[i]->name, SWITCH_PORT_MAX_LEN_NAME);
 			num_of_ports++;
