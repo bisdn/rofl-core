@@ -74,6 +74,7 @@
 #include "rofl/common/openflow/messages/cofmsg_group_stats.h"
 #include "rofl/common/openflow/messages/cofmsg_group_desc_stats.h"
 #include "rofl/common/openflow/messages/cofmsg_group_features_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_port_desc_stats.h"
 #include "rofl/common/openflow/messages/cofmsg_experimenter_stats.h"
 #include "rofl/common/openflow/messages/cofmsg_barrier.h"
 #include "rofl/common/openflow/messages/cofmsg_queue_get_config.h"
@@ -893,6 +894,20 @@ protected:
 
 
 	/**
+	 * @brief	Called once a PORT-DESC-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the PORT-DESC-STATS.request was received
+	 * @param msg Pointer to cofmsg_port_desc_stats_request message containing the received message
+	 */
+	virtual void
+	handle_port_desc_stats_request(crofctl& ctl, cofmsg_port_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+
+
+
+	/**
 	 * @brief	Called once a EXPERIMENTER-STATS.request message was received from a controller entity.
 	 *
 	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
@@ -1047,6 +1062,19 @@ protected:
 	 */
 	virtual void
 	handle_group_features_stats_reply(crofdpt& dpt, cofmsg_group_features_stats_reply& msg, uint8_t aux_id = 0) {};
+
+
+
+	/**
+	 * @brief	Called once a PORT-DESC-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the PORT-DESC-STATS.reply message was received.
+	 * @param msg pointer to cofmsg_port_desc_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_port_desc_stats_reply(crofdpt& dpt, cofmsg_port_desc_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 

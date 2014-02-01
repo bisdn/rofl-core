@@ -55,6 +55,7 @@ extern "C" {
 #include "openflow/messages/cofmsg_group_stats.h"
 #include "openflow/messages/cofmsg_group_desc_stats.h"
 #include "openflow/messages/cofmsg_group_features_stats.h"
+#include "openflow/messages/cofmsg_port_desc_stats.h"
 #include "openflow/messages/cofmsg_experimenter_stats.h"
 #include "openflow/messages/cofmsg_barrier.h"
 #include "openflow/messages/cofmsg_queue_get_config.h"

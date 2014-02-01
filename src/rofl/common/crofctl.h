@@ -349,6 +349,19 @@ public:
 		uint16_t stats_flags = 0) = 0;
 
 	/**
+	 * @brief	Sends a PORT-DESC-STATS.reply to a controller entity.
+	 *
+	 * @param xid transaction ID from received STATS.request
+	 * @param ports cofports body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_port_desc_stats_reply(
+		uint32_t xid,
+		cofports const& ports,
+		uint16_t stats_flags = 0) = 0;
+
+	/**
 	 * @brief	Sends an EXPERIMENTER-STATS.reply to a controller entity.
 	 *
 	 * @param xid transaction ID from received STATS.request

@@ -125,6 +125,12 @@ crofdpt_impl::run_engine(crofdpt_impl_event_t event)
 		case EVENT_TABLE_FEATURES_STATS_REQUEST_EXPIRED: {
 			event_table_features_stats_request_expired();
 		} break;
+		case EVENT_PORT_DESC_STATS_REPLY_RCVD: {
+			event_port_desc_reply_rcvd();
+		} break;
+		case EVENT_PORT_DESC_STATS_REQUEST_EXPIRED: {
+			event_port_desc_request_expired();
+		} break;
 		default: {
 			logging::error << "[rofl][dpt] unknown event seen, internal error" << std::endl << *this;
 		};
@@ -271,6 +277,76 @@ crofdpt_impl::event_get_config_request_expired()
 		logging::error << "[rofl][dpt] event -GET-CONFIG-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
 	};
 	}
+}
+
+
+
+void
+crofdpt_impl::event_port_desc_reply_rcvd()
+{
+	throw eNotImplemented();
+#if 0
+	switch (state) {
+	case STATE_FEATURES_RCVD: {
+
+		switch (rofchan.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			state = STATE_ESTABLISHED;
+			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
+							<< "Get-Config-Reply rcvd (features-reply-rcvd -> established)" << std::endl;
+			rofbase->handle_dpath_open(*this);
+
+		} break;
+		case rofl::openflow12::OFP_VERSION: {
+			state = STATE_GET_CONFIG_RCVD;
+			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
+							<< "Get-Config-Reply rcvd (features-reply-rcvd -> get-config-reply-rcvd)" << std::endl;
+			send_table_stats_request(0);
+
+		} break;
+		case rofl::openflow13::OFP_VERSION:
+		default: {
+			state = STATE_GET_CONFIG_RCVD;
+			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
+							<< "Get-Config-Reply rcvd (features-reply-rcvd -> get-config-reply-rcvd)" << std::endl;
+			send_table_features_stats_request(0);
+
+		} break;
+		}
+
+
+	} break;
+	case STATE_ESTABLISHED: {
+		// do nothing
+
+	} break;
+	default: {
+		logging::error << "[rofl][dpt] event -GET-CONFIG-REPLY-RCVD- in invalid state rcvd, internal error" << std::endl << *this;
+	};
+	}
+#endif
+}
+
+
+
+void
+crofdpt_impl::event_port_desc_request_expired()
+{
+	throw eNotImplemented();
+#if 0
+	switch (state) {
+	case STATE_FEATURES_RCVD: {
+		transactions.clear();
+		state = STATE_DISCONNECTED;
+	} break;
+	case STATE_ESTABLISHED: {
+
+	} break;
+	default: {
+		logging::error << "[rofl][dpt] event -GET-CONFIG-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
+	};
+	}
+#endif
 }
 
 
@@ -581,7 +657,7 @@ crofdpt_impl::ta_expired(
 			run_engine(EVENT_TABLE_FEATURES_STATS_REQUEST_EXPIRED);
 		} break;
 		case OFPMP_PORT_DESC: {
-
+			run_engine(EVENT_PORT_DESC_STATS_REQUEST_EXPIRED);
 		} break;
 		case OFPMP_EXPERIMENTER: {
 
@@ -919,6 +995,25 @@ crofdpt_impl::send_group_features_stats_request(
 
 	cofmsg_group_features_stats_request *msg =
 			new cofmsg_group_features_stats_request(
+					rofchan.get_version(),
+					xid,
+					flags);
+
+	rofchan.send_message(msg, 0);
+
+	return xid;
+}
+
+
+
+uint32_t
+crofdpt_impl::send_port_desc_stats_request(
+		uint16_t flags)
+{
+	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_PORT_DESC);
+
+	cofmsg_port_desc_stats_request *msg =
+			new cofmsg_port_desc_stats_request(
 					rofchan.get_version(),
 					xid,
 					flags);
@@ -1626,8 +1721,17 @@ void
 crofdpt_impl::port_desc_stats_reply_rcvd(
 		cofmsg *msg, uint8_t aux_id)
 {
+	cofmsg_port_desc_stats_reply& reply = dynamic_cast<cofmsg_port_desc_stats_reply&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Port-Desc-Stats-Reply message received" << std::endl;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_port_desc_stats_reply(*this, reply, aux_id);
+	}
 	delete msg;
-	throw eNotImplemented("crofdpt_impl::port_desc_stats_reply_rcvd()"); // TODO
+
+	run_engine(EVENT_PORT_DESC_STATS_REPLY_RCVD);
 }
 
 

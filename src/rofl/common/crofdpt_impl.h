@@ -66,7 +66,8 @@ private: // data structures
 			STATE_CONNECTED						= 2,
 			STATE_FEATURES_RCVD 				= 3,
 			STATE_GET_CONFIG_RCVD				= 4,
-			STATE_ESTABLISHED					= 5,
+			STATE_PORT_DESC_RCVD				= 5,
+			STATE_ESTABLISHED					= 6,
 		};
 
 		enum crofdpt_impl_event_t {
@@ -81,6 +82,8 @@ private: // data structures
 			EVENT_TABLE_STATS_REQUEST_EXPIRED	= 8,
 			EVENT_TABLE_FEATURES_STATS_REPLY_RCVD		= 9,
 			EVENT_TABLE_FEATURES_STATS_REQUEST_EXPIRED	= 10,
+			EVENT_PORT_DESC_STATS_REPLY_RCVD	= 11,
+			EVENT_PORT_DESC_STATS_REQUEST_EXPIRED		= 12,
 		};
 
 
@@ -503,6 +506,18 @@ private:
 	void
 	event_table_features_stats_request_expired();
 
+	/**
+	 *
+	 */
+	void
+	event_port_desc_reply_rcvd();
+
+	/**
+	 *
+	 */
+	void
+	event_port_desc_request_expired();
+
 
 
 private:
@@ -853,10 +868,20 @@ public:
 	 * @brief	Sends a GROUP-FEATURES-STATS.request to a data path element.
 	 *
 	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this AGGREGATE-STATS.request
+	 * @return transaction ID for this GROUP-FEATURES-STATS.request
 	 */
 	virtual uint32_t
 	send_group_features_stats_request(
+			uint16_t flags);
+
+	/**
+	 * @brief	Sends a PORT-DESC-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this PORT-DESC-STATS.request
+	 */
+	virtual uint32_t
+	send_port_desc_stats_request(
 			uint16_t flags);
 
 	/**

@@ -721,7 +721,7 @@ crofsock::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 		case openflow13::OFPMP_TABLE: {
 			(*pmsg = new cofmsg_table_stats_request(mem))->validate();
 		} break;
-		case openflow13::OFPMP_PORT_DESC: {
+		case openflow13::OFPMP_PORT_STATS: {
 			(*pmsg = new cofmsg_port_stats_request(mem))->validate();
 		} break;
 		case openflow13::OFPMP_QUEUE: {
@@ -735,6 +735,9 @@ crofsock::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 		} break;
 		case openflow13::OFPMP_GROUP_FEATURES: {
 			(*pmsg = new cofmsg_group_features_stats_request(mem))->validate();
+		} break;
+		case openflow13::OFPMP_PORT_DESC: {
+			(*pmsg = new cofmsg_port_desc_stats_request(mem))->validate();
 		} break;
 		// TODO: experimenter statistics
 		default: {
@@ -763,7 +766,7 @@ crofsock::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 		case openflow13::OFPMP_TABLE: {
 			(*pmsg = new cofmsg_table_stats_reply(mem))->validate();
 		} break;
-		case openflow13::OFPMP_PORT_DESC: {
+		case openflow13::OFPMP_PORT_STATS: {
 			(*pmsg = new cofmsg_port_stats_reply(mem))->validate();
 		} break;
 		case openflow13::OFPMP_QUEUE: {
@@ -777,6 +780,9 @@ crofsock::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 		} break;
 		case openflow13::OFPMP_GROUP_FEATURES: {
 			(*pmsg = new cofmsg_group_features_stats_reply(mem))->validate();
+		} break;
+		case openflow13::OFPMP_PORT_DESC: {
+			(*pmsg = new cofmsg_port_desc_stats_reply(mem))->validate();
 		} break;
 		// TODO: experimenter statistics
 		default: {
@@ -1210,31 +1216,43 @@ crofsock::log_of13_message(
 		cofmsg_multipart_request const& stats = dynamic_cast<cofmsg_multipart_request const&>( msg );
 		switch (stats.get_stats_type()) {
 		case openflow13::OFPMP_DESC: {
-
+			logging::debug << dynamic_cast<cofmsg_desc_stats_request const&>( msg );
 		} break;
 		case openflow13::OFPMP_FLOW: {
-
+			logging::debug << dynamic_cast<cofmsg_flow_stats_request const&>( msg );
 		} break;
 		case openflow13::OFPMP_AGGREGATE: {
-
+			logging::debug << dynamic_cast<cofmsg_aggr_stats_request const&>( msg );
 		} break;
 		case openflow13::OFPMP_TABLE: {
-
-		} break;
-		case openflow13::OFPMP_PORT_DESC: {
-
+			logging::debug << dynamic_cast<cofmsg_table_stats_request const&>( msg );
 		} break;
 		case openflow13::OFPMP_QUEUE: {
-
+			logging::debug << dynamic_cast<cofmsg_queue_stats_request const&>( msg );
 		} break;
 		case openflow13::OFPMP_GROUP: {
-
+			logging::debug << dynamic_cast<cofmsg_group_stats_request const&>( msg );
 		} break;
 		case openflow13::OFPMP_GROUP_DESC: {
-
+			logging::debug << dynamic_cast<cofmsg_group_desc_stats_request const&>( msg );
 		} break;
 		case openflow13::OFPMP_GROUP_FEATURES: {
-
+			logging::debug << dynamic_cast<cofmsg_group_features_stats_request const&>( msg );
+		} break;
+		case openflow13::OFPMP_METER: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_METER_CONFIG: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_METER_FEATURES: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_TABLE_FEATURES: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_PORT_DESC: {
+			logging::debug << dynamic_cast<cofmsg_port_desc_stats_request const&>( msg );
 		} break;
 		// TODO: experimenter statistics
 		default: {
@@ -1247,31 +1265,43 @@ crofsock::log_of13_message(
 		cofmsg_multipart_reply const& stats = dynamic_cast<cofmsg_multipart_reply const&>( msg );
 		switch (stats.get_stats_type()) {
 		case openflow13::OFPMP_DESC: {
-
+			logging::debug << dynamic_cast<cofmsg_desc_stats_reply const&>( msg );
 		} break;
 		case openflow13::OFPMP_FLOW: {
-
+			logging::debug << dynamic_cast<cofmsg_flow_stats_reply const&>( msg );
 		} break;
 		case openflow13::OFPMP_AGGREGATE: {
-
+			logging::debug << dynamic_cast<cofmsg_aggr_stats_reply const&>( msg );
 		} break;
 		case openflow13::OFPMP_TABLE: {
-
-		} break;
-		case openflow13::OFPMP_PORT_DESC: {
-
+			logging::debug << dynamic_cast<cofmsg_table_stats_reply const&>( msg );
 		} break;
 		case openflow13::OFPMP_QUEUE: {
-
+			logging::debug << dynamic_cast<cofmsg_queue_stats_reply const&>( msg );
 		} break;
 		case openflow13::OFPMP_GROUP: {
-
+			logging::debug << dynamic_cast<cofmsg_group_stats_reply const&>( msg );
 		} break;
 		case openflow13::OFPMP_GROUP_DESC: {
-
+			logging::debug << dynamic_cast<cofmsg_group_desc_stats_reply const&>( msg );
 		} break;
 		case openflow13::OFPMP_GROUP_FEATURES: {
-
+			logging::debug << dynamic_cast<cofmsg_group_features_stats_reply const&>( msg );
+		} break;
+		case openflow13::OFPMP_METER: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_METER_CONFIG: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_METER_FEATURES: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_TABLE_FEATURES: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_PORT_DESC: {
+			logging::debug << dynamic_cast<cofmsg_port_desc_stats_reply const&>( msg );
 		} break;
 		// TODO: experimenter statistics
 		default: {

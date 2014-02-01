@@ -529,10 +529,20 @@ public:
 	 * @brief	Sends a GROUP-FEATURES-STATS.request to a data path element.
 	 *
 	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this AGGREGATE-STATS.request
+	 * @return transaction ID for this GROUP-FEATURES-STATS.request
 	 */
 	virtual uint32_t
 	send_group_features_stats_request(
+			uint16_t flags) = 0;
+
+	/**
+	 * @brief	Sends a PORT-DESC-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this PORT-DESC-STATS.request
+	 */
+	virtual uint32_t
+	send_port_desc_stats_request(
 			uint16_t flags) = 0;
 
 	/**

@@ -309,6 +309,19 @@ private:
 			cofmsg_group_features_stats_request* msg,
 			uint8_t aux_id = 0);
 
+	// TODO : METER
+
+	// TODO : METER_CONFIG
+
+	// TODO : METER_FEATURES
+
+	// TODO : TABLE_FEATURES
+
+	void
+	port_desc_stats_request_rcvd(
+			cofmsg_port_desc_stats_request* msg,
+			uint8_t aux_id = 0);
+
 	void
 	experimenter_stats_request_rcvd(
 			cofmsg_experimenter_stats_request* msg,
@@ -552,6 +565,19 @@ public:
 	send_group_features_stats_reply(
 		uint32_t xid,
 		cofgroup_features_stats_reply const& group_features_stats,
+		uint16_t stats_flags = 0);
+
+	/**
+	 * @brief	Sends a PORT-DESC-STATS.reply to a controller entity.
+	 *
+	 * @param xid transaction ID from received STATS.request
+	 * @param ports ports body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_port_desc_stats_reply(
+		uint32_t xid,
+		cofports const& ports,
 		uint16_t stats_flags = 0);
 
 	/**
