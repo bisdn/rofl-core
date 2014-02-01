@@ -14,9 +14,6 @@
 #include "rofl/common/croflexception.h"
 #include "rofl/common/cmemory.h"
 #include "rofl/common/caddress.h"
-#include "rofl/common/cvastring.h"
-#include "rofl/platform/unix/csyslog.h"
-
 #include "rofl/common/openflow/cofmatch.h"
 #include "rofl/common/openflow/cofaction.h"
 #include "rofl/common/openflow/cofinstruction.h"
@@ -31,8 +28,7 @@ class eFlowEntryInvalid : public eFlowEntryBase {}; // invalid parameter
 class eFlowEntryOutOfMem : public eFlowEntryBase {}; // out of memory
 
 
-class cofflowmod :
-	public csyslog
+class cofflowmod
 {
 private: // data structures
 

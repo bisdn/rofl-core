@@ -8,7 +8,7 @@
 #ifndef COFMSG_FLOW_MOD_H_
 #define COFMSG_FLOW_MOD_H_ 1
 
-#include "cofmsg.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
 #include "rofl/common/openflow/cofactions.h"
 #include "rofl/common/openflow/cofinstructions.h"
 #include "rofl/common/openflow/cofmatch.h"

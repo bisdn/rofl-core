@@ -9,10 +9,25 @@ using namespace rofl;
 
 cofgroupmod::cofgroupmod(uint8_t ofp_version) :
 		ofp_version(ofp_version),
-		group_mod(NULL),
-		group_mod_area(sizeof(struct openflow12::ofp_group_mod) + 128/*space for actions, will be extended in method pack() if necessary*/),
 		buckets(ofp_version)
 {
+	switch (ofp_version) {
+	case openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
+	case openflow12::OFP_VERSION: {
+		group_mod_area.resize(sizeof(struct openflow12::ofp_group_mod));
+	} break;
+	case openflow13::OFP_VERSION: {
+		group_mod_area.resize(sizeof(struct openflow13::ofp_group_mod));
+	} break;
+	default: {
+		throw eBadVersion();
+	};
+	}
+
+	grp_mod = group_mod_area.somem();
+
 	reset();
 }
 
@@ -33,7 +48,7 @@ cofgroupmod::operator= (const cofgroupmod& ge)
 	this->buckets 			= ge.buckets;
 	this->group_mod_area 	= ge.group_mod_area;
 
-	this->group_mod = (struct openflow12::ofp_group_mod*)this->group_mod_area.somem();
+	this->grp_mod = this->group_mod_area.somem();
 
 	return *this;
 }
@@ -42,63 +57,90 @@ cofgroupmod::operator= (const cofgroupmod& ge)
 void
 cofgroupmod::reset()
 {
-	bzero(group_mod_area.somem(), group_mod_area.memlen());
-	group_mod = (struct openflow12::ofp_group_mod*)group_mod_area.somem();
+	group_mod_area.clear();
+	grp_mod = group_mod_area.somem();
 
 	switch (ofp_version) {
+	case openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case openflow12::OFP_VERSION: {
-		group_mod->command = htobe16(openflow12::OFPGC_ADD);			// default: add flow-mod entry
-		group_mod->type = openflow12::OFPGT_ALL;
+		of12_grp_mod->command 	= htobe16(openflow12::OFPGC_ADD);	// default: add flow-mod entry
+		of12_grp_mod->type 		= openflow12::OFPGT_ALL;
+		of12_grp_mod->group_id 	= htobe32(0);
 	} break;
 	case openflow13::OFP_VERSION: {
-		group_mod->command = htobe16(openflow13::OFPGC_ADD);			// default: add flow-mod entry
-		group_mod->type = openflow13::OFPGT_ALL;
+		of13_grp_mod->command 	= htobe16(openflow13::OFPGC_ADD);	// default: add flow-mod entry
+		of13_grp_mod->type 		= openflow13::OFPGT_ALL;
+		of13_grp_mod->group_id 	= htobe32(0);
 	} break;
 	}
-
-	group_mod->group_id = htobe32(0);
 }
 
 
 uint16_t
 cofgroupmod::get_command() const
 {
-	return be16toh(group_mod->command);
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION: return be16toh(of12_grp_mod->command);
+	case openflow13::OFP_VERSION: return be16toh(of13_grp_mod->command);
+	default: throw eBadVersion();
+	}
 }
 
 
 void
 cofgroupmod::set_command(uint16_t command)
 {
-	group_mod->command = htobe16(command);
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION: of12_grp_mod->command = htobe16(command); break;
+	case openflow13::OFP_VERSION: of13_grp_mod->command = htobe16(command); break;
+	default: throw eBadVersion();
+	}
 }
 
 
 uint8_t
 cofgroupmod::get_type() const
 {
-	return group_mod->type;
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION: return of12_grp_mod->type;
+	case openflow13::OFP_VERSION: return of13_grp_mod->type;
+	default: throw eBadVersion();
+	}
 }
 
 
 void
 cofgroupmod::set_type(uint8_t type)
 {
-	group_mod->type = type;
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION: of12_grp_mod->type = type; break;
+	case openflow13::OFP_VERSION: of13_grp_mod->type = type; break;
+	default: throw eBadVersion();
+	}
 }
 
 
 uint32_t
 cofgroupmod::get_group_id() const
 {
-	return be32toh(group_mod->group_id);
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION: return be32toh(of12_grp_mod->group_id);
+	case openflow13::OFP_VERSION: return be32toh(of13_grp_mod->group_id);
+	default: throw eBadVersion();
+	}
 }
 
 
 void
 cofgroupmod::set_group_id(uint32_t group_id)
 {
-	group_mod->group_id = htobe32(group_id);
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION: of12_grp_mod->group_id = htobe32(group_id); break;
+	case openflow13::OFP_VERSION: of13_grp_mod->group_id = htobe32(group_id); break;
+	default: throw eBadVersion();
+	}
 }
 
 
@@ -110,10 +152,10 @@ cofgroupmod::pack()
 	if ((sizeof(struct openflow12::ofp_group_mod) + bclen) > group_mod_area.memlen()) // not enough space? => resize memory area for group_mod
 	{
 		group_mod_area.resize(sizeof(struct openflow12::ofp_group_mod) + bclen);
-		group_mod = (struct openflow12::ofp_group_mod*)group_mod_area.somem();
+		grp_mod = group_mod_area.somem();
 	}
 
-	buckets.pack((uint8_t*)group_mod->buckets, bclen); // pack our bucket list into the memory area group_mod->buckets
+	buckets.pack((uint8_t*)of12_grp_mod->buckets, bclen); // pack our bucket list into the memory area group_mod->buckets
 
 	return (sizeof(struct openflow12::ofp_group_mod) + bclen); // return size of struct openflow12::ofp_group_mod including appended buckets
 }

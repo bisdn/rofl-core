@@ -8,12 +8,9 @@
 #include <string>
 #include <vector>
 
-#include "rofl/common/ciosrv.h"
+#include "rofl/common/cmemory.h"
 #include "rofl/common/caddress.h"
 #include "rofl/common/croflexception.h"
-#include "rofl/common/cmemory.h"
-#include "rofl/common/cvastring.h"
-
 #include "rofl/common/openflow/cofmatch.h"
 #include "rofl/common/openflow/cofbuckets.h"
 #include "rofl/common/openflow/cofinstruction.h"
@@ -21,20 +18,24 @@
 namespace rofl
 {
 
-class eGroupEntryBase : public RoflException {};
-class eGroupEntryOutOfMem : public eGroupEntryBase {}; // out of memory
+class eGroupEntryBase 		: public RoflException {};
+class eGroupEntryOutOfMem 	: public eGroupEntryBase {};
 
-
-
-
-class cofgroupmod :
-		public ciosrv
+class cofgroupmod
 {
 	uint8_t ofp_version;
 
 public:
 
-	struct openflow12::ofp_group_mod *group_mod; 	// pointer to group_mod_area (see below)
+	union {
+		uint8_t								*gmu_grp_mod;
+		struct openflow12::ofp_group_mod 	*gmu12_grp_mod; 	// pointer to group_mod_area (see below)
+		struct openflow13::ofp_group_mod	*gmu13_grp_mod;
+	} ofgm_gmu;
+
+#define grp_mod 		ofgm_gmu.gmu_grp_mod
+#define of12_grp_mod	ofgm_gmu.gmu12_grp_mod
+#define of13_grp_mod	ofgm_gmu.gmu13_grp_mod
 
 private: // data structures
 
@@ -51,32 +52,36 @@ public: // data structures
 
 public: // methods
 
-	/** constructor
+	/**
+	 * @brief	constructor
 	 */
 	cofgroupmod(uint8_t ofp_version);
 
-	/** destructor
+
+	/**
+	 * @brief	destructor
 	 */
 	virtual
 	~cofgroupmod();
 
-	/** assignment operator
-	 */
-	cofgroupmod& operator= (const cofgroupmod& fe);
 
-	/** reset groupentry
-	 *
+	/**
+	 * @brief	assignment operator
+	 */
+	cofgroupmod&
+	operator= (
+			const cofgroupmod& fe);
+
+
+	/**
+	 * @brief	reset instance
 	 */
 	void
 	reset();
 
-	/** dump flow entry info
-	 */
-	const char*
-	c_str();
 
-	/** pack groupentry, i.e. add actions to group_mod structure ready for transmission
-	 * @return length of group_mod structure including buckets
+	/**
+	 *
 	 */
 	size_t
 	pack();
