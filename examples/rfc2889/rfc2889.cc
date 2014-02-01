@@ -126,7 +126,7 @@ etherswitch::flow_mod_delete_all()
 	for (it = fib.begin(); it != fib.end(); ++it) {
 		crofdpt *dpt = it->first;
 
-		cflowentry fe(dpt->get_version());
+		cofflowmod fe(dpt->get_version());
 		fe.set_command(openflow12::OFPFC_DELETE);
 		fe.set_table_id(openflow12::OFPTT_ALL);
 		fe.set_out_port(openflow12::OFPP_ANY);
@@ -181,7 +181,7 @@ etherswitch::handle_packet_in(
 	 */
 	if (msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
 		msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
-		cflowentry fe(dpt.get_version());
+		cofflowmod fe(dpt.get_version());
 
 		fe.set_command(openflow12::OFPFC_ADD);
 		fe.set_buffer_id(msg.get_buffer_id());
@@ -255,7 +255,7 @@ etherswitch::handle_packet_in(
 			return;
 		}
 
-		cflowentry fe(dpt.get_version());
+		cofflowmod fe(dpt.get_version());
 
 		fe.set_command(openflow12::OFPFC_ADD);
 		fe.set_buffer_id(msg.get_buffer_id());

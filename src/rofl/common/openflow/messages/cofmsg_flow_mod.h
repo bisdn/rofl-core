@@ -90,7 +90,7 @@ public:
 	cofmsg_flow_mod(
 			uint8_t of_version,
 			uint32_t xid,
-			cflowentry const& fe);
+			cofflowmod const& fe);
 
 
 	/**

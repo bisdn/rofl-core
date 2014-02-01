@@ -632,7 +632,7 @@ crofdpt_impl::handle_timeout(int opaque, void *data)
 void
 crofdpt_impl::flow_mod_reset()
 {
-	cflowentry fe(rofchan.get_version());
+	cofflowmod fe(rofchan.get_version());
 	switch (rofchan.get_version()) {
 	case openflow10::OFP_VERSION: {
 		fe.set_command(openflow10::OFPFC_DELETE);
@@ -656,7 +656,7 @@ crofdpt_impl::flow_mod_reset()
 void
 crofdpt_impl::group_mod_reset()
 {
-	cgroupentry ge(rofchan.get_version());
+	cofgroupmod ge(rofchan.get_version());
 	switch (rofchan.get_version()) {
 	case openflow12::OFP_VERSION: {
 		ge.set_command(openflow12::OFPGC_DELETE);
@@ -1022,7 +1022,7 @@ crofdpt_impl::send_role_request(
 
 uint32_t
 crofdpt_impl::send_flow_mod_message(
-		cflowentry const& fe)
+		cofflowmod const& fe)
 {
 	uint32_t xid = transactions.get_async_xid();
 
@@ -1041,7 +1041,7 @@ crofdpt_impl::send_flow_mod_message(
 
 uint32_t
 crofdpt_impl::send_group_mod_message(
-		cgroupentry const& ge)
+		cofgroupmod const& ge)
 {
 	uint32_t xid = transactions.get_async_xid();
 

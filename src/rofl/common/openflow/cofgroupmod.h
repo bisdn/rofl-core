@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef CGROUPENTRY_H_
-#define CGROUPENTRY_H_ 1
+#ifndef COFGROUPMOD_H_
+#define COFGROUPMOD_H_ 1
 
 #include <string>
 #include <vector>
@@ -27,7 +27,7 @@ class eGroupEntryOutOfMem : public eGroupEntryBase {}; // out of memory
 
 
 
-class cgroupentry :
+class cofgroupmod :
 		public ciosrv
 {
 	uint8_t ofp_version;
@@ -53,16 +53,16 @@ public: // methods
 
 	/** constructor
 	 */
-	cgroupentry(uint8_t ofp_version);
+	cofgroupmod(uint8_t ofp_version);
 
 	/** destructor
 	 */
 	virtual
-	~cgroupentry();
+	~cofgroupmod();
 
 	/** assignment operator
 	 */
-	cgroupentry& operator= (const cgroupentry& fe);
+	cofgroupmod& operator= (const cofgroupmod& fe);
 
 	/** reset groupentry
 	 *
@@ -135,7 +135,7 @@ public: // setter methods for ofp_group_mod structure
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cgroupentry const& ge) {
+	operator<< (std::ostream& os, cofgroupmod const& ge) {
 		os << "<cgroupentry ";
 			os << "cmd:";
 			switch (ge.ofp_version) {

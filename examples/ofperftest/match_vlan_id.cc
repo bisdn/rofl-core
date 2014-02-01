@@ -73,7 +73,7 @@ match_vlan_id::install_flow_mods(crofdpt *dpt, unsigned int n)
 
 	for (unsigned int i = 0; i < n; i++) {
 
-		cflowentry fe(dpt->get_version());
+		cofflowmod fe(dpt->get_version());
 
 		fe.set_command(crofbase::get_ofp_command(dpt->get_version(), openflow::OFPFC_ADD));
 		fe.set_buffer_id(crofbase::get_ofp_no_buffer(dpt->get_version()));
@@ -115,7 +115,7 @@ match_vlan_id::flow_mod_delete_all()
 	for (it = fib.begin(); it != fib.end(); ++it) {
 		crofdpt *dpt = it->first;
 
-		cflowentry fe(dpt->get_version());
+		cofflowmod fe(dpt->get_version());
 		fe.set_command(crofbase::get_ofp_command(dpt->get_version(), openflow::OFPFC_DELETE));
 		fe.set_table_id(openflow12::OFPTT_ALL);
 		fe.set_out_port(openflow12::OFPP_ANY);
@@ -172,7 +172,7 @@ match_vlan_id::handle_packet_in(
 	 */
 	if (msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
 		msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
-		cflowentry fe(dpt.get_version());
+		cofflowmod fe(dpt.get_version());
 
 		fe.set_command(crofbase::get_ofp_command(dpt.get_version(), openflow::OFPFC_ADD));
 		fe.set_buffer_id(msg.get_buffer_id());
@@ -246,7 +246,7 @@ match_vlan_id::handle_packet_in(
 			return;
 		}
 
-		cflowentry fe(dpt.get_version());
+		cofflowmod fe(dpt.get_version());
 
 		fe.set_command(crofbase::get_ofp_command(dpt.get_version(), openflow::OFPFC_ADD));
 		fe.set_buffer_id(msg.get_buffer_id());

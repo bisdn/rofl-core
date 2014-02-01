@@ -595,7 +595,7 @@ public:
 	 */
 	virtual uint32_t
 	send_flow_mod_message(
-			cflowentry const& flowentry) = 0;
+			cofflowmod const& flowentry) = 0;
 
 	/**
 	 * @brief 	Sends a GROUP-MOD.message to a data path element.
@@ -604,7 +604,7 @@ public:
 	 */
 	virtual uint32_t
 	send_group_mod_message(
-			cgroupentry const& groupentry) = 0;
+			cofgroupmod const& groupentry) = 0;
 
 	/**
 	 * @brief	Sends a TABLE-MOD.message to a data path element.

@@ -7,7 +7,7 @@
 using namespace rofl;
 
 
-cgroupentry::cgroupentry(uint8_t ofp_version) :
+cofgroupmod::cofgroupmod(uint8_t ofp_version) :
 		ofp_version(ofp_version),
 		group_mod(NULL),
 		group_mod_area(sizeof(struct openflow12::ofp_group_mod) + 128/*space for actions, will be extended in method pack() if necessary*/),
@@ -17,14 +17,14 @@ cgroupentry::cgroupentry(uint8_t ofp_version) :
 }
 
 
-cgroupentry::~cgroupentry()
+cofgroupmod::~cofgroupmod()
 {
 
 }
 
 
-cgroupentry&
-cgroupentry::operator= (const cgroupentry& ge)
+cofgroupmod&
+cofgroupmod::operator= (const cofgroupmod& ge)
 {
 	if (this == &ge)
 		return *this;
@@ -40,7 +40,7 @@ cgroupentry::operator= (const cgroupentry& ge)
 
 
 void
-cgroupentry::reset()
+cofgroupmod::reset()
 {
 	bzero(group_mod_area.somem(), group_mod_area.memlen());
 	group_mod = (struct openflow12::ofp_group_mod*)group_mod_area.somem();
@@ -61,49 +61,49 @@ cgroupentry::reset()
 
 
 uint16_t
-cgroupentry::get_command() const
+cofgroupmod::get_command() const
 {
 	return be16toh(group_mod->command);
 }
 
 
 void
-cgroupentry::set_command(uint16_t command)
+cofgroupmod::set_command(uint16_t command)
 {
 	group_mod->command = htobe16(command);
 }
 
 
 uint8_t
-cgroupentry::get_type() const
+cofgroupmod::get_type() const
 {
 	return group_mod->type;
 }
 
 
 void
-cgroupentry::set_type(uint8_t type)
+cofgroupmod::set_type(uint8_t type)
 {
 	group_mod->type = type;
 }
 
 
 uint32_t
-cgroupentry::get_group_id() const
+cofgroupmod::get_group_id() const
 {
 	return be32toh(group_mod->group_id);
 }
 
 
 void
-cgroupentry::set_group_id(uint32_t group_id)
+cofgroupmod::set_group_id(uint32_t group_id)
 {
 	group_mod->group_id = htobe32(group_id);
 }
 
 
 size_t
-cgroupentry::pack()
+cofgroupmod::pack()
 {
 	size_t bclen = buckets.length(); // length required for packing buckets in binary array of "struct ofp_bucket"
 
@@ -125,9 +125,9 @@ cgroupentry::pack()
 
 
 void
-cgroupentry::test()
+cofgroupmod::test()
 {
-	cgroupentry ge(OFP12_VERSION);
+	cofgroupmod ge(OFP12_VERSION);
 
 	ge.set_command((uint16_t)openflow12::OFPGC_ADD);
 	ge.set_group_id(32);

@@ -44,7 +44,7 @@ public:
 	cofmsg_group_mod(
 			uint8_t of_version,
 			uint32_t xid,
-			cgroupentry const& ge);
+			cofgroupmod const& ge);
 
 
 	/** constructor

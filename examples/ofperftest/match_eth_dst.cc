@@ -78,7 +78,7 @@ match_eth_dst::install_flow_mods(crofdpt *dpt, unsigned int n)
 
 	for (unsigned int i = 0; i < n; i++) {
 
-		cflowentry fe(dpt->get_version());
+		cofflowmod fe(dpt->get_version());
 
 		switch (dpt->get_version()) {
 		case openflow10::OFP_VERSION: {
@@ -131,7 +131,7 @@ match_eth_dst::flow_mod_delete_all()
 	for (it = fib.begin(); it != fib.end(); ++it) {
 		crofdpt *dpt = it->first;
 
-		cflowentry fe(dpt->get_version());
+		cofflowmod fe(dpt->get_version());
 		switch (dpt->get_version()) {
 		case openflow10::OFP_VERSION: {
 			fe.set_command(openflow10::OFPFC_DELETE);
@@ -227,7 +227,7 @@ match_eth_dst::handle_packet_in(
 	 */
 	if (msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
 		msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
-		cflowentry fe(dpt.get_version());
+		cofflowmod fe(dpt.get_version());
 
 		fe.set_command(command);
 		fe.set_buffer_id(msg.get_buffer_id());
@@ -301,7 +301,7 @@ match_eth_dst::handle_packet_in(
 			return;
 		}
 
-		cflowentry fe(dpt.get_version());
+		cofflowmod fe(dpt.get_version());
 
 		fe.set_command(command);
 		fe.set_buffer_id(msg.get_buffer_id());

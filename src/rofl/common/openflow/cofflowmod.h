@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef CFLOWENTRY_H
-#define CFLOWENTRY_H 1
+#ifndef COFFLOWMOD_H
+#define COFFLOWMOD_H 1
 
 #include <string>
 #include <vector>
@@ -31,7 +31,7 @@ class eFlowEntryInvalid : public eFlowEntryBase {}; // invalid parameter
 class eFlowEntryOutOfMem : public eFlowEntryBase {}; // out of memory
 
 
-class cflowentry :
+class cofflowmod :
 	public csyslog
 {
 private: // data structures
@@ -67,20 +67,20 @@ public: // methods
 
 	/** constructor
 	 */
-	cflowentry(uint8_t of_version, uint16_t type = openflow::OFPMT_OXM);
+	cofflowmod(uint8_t of_version, uint16_t type = openflow::OFPMT_OXM);
 
 	/** destructor
 	 */
 	virtual
-	~cflowentry();
+	~cofflowmod();
 
 	/** copy constructor
 	 */
-	cflowentry(cflowentry const& fe);
+	cofflowmod(cofflowmod const& fe);
 
 	/** assignment operator
 	 */
-	cflowentry& operator= (const cflowentry& fe);
+	cofflowmod& operator= (const cofflowmod& fe);
 
 	/** reset flowentry
 	 *
@@ -214,7 +214,7 @@ private: // data structures
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cflowentry const& fe) {
+	operator<< (std::ostream& os, cofflowmod const& fe) {
 		os << indent(0) << "<cflowentry >";
 		switch (fe.of_version) {
 		case openflow10::OFP_VERSION: {

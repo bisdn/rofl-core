@@ -113,7 +113,7 @@ ethswitch::handle_dpath_open(
 {
 	dpt.flow_mod_reset();
 
-	rofl::cflowentry fe(dpt.get_version());
+	rofl::cofflowmod fe(dpt.get_version());
 
 	switch (dpt.get_version()) {
 	case openflow10::OFP_VERSION: {
@@ -217,7 +217,7 @@ ethswitch::handle_packet_in(
 		 */
 		if (msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
 			msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
-			cflowentry fe(dpt.get_version());
+			cofflowmod fe(dpt.get_version());
 
 			switch (dpt.get_version()) {
 			case openflow10::OFP_VERSION: fe.set_command(openflow10::OFPFC_ADD); break;
@@ -275,7 +275,7 @@ ethswitch::handle_packet_in(
 					return;
 				}
 
-				cflowentry fe(dpt.get_version());
+				cofflowmod fe(dpt.get_version());
 
 				fe.set_command(rofl::openflow12::OFPFC_ADD);
 				fe.set_table_id(0);

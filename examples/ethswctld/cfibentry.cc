@@ -95,7 +95,7 @@ cfibentry::flow_mod_add()
 	}
 
 	if (flood_port != out_port_no) {
-		rofl::cflowentry fe(dpt->get_version());
+		rofl::cofflowmod fe(dpt->get_version());
 
 		fe.set_command(command);
 		fe.set_table_id(0);
@@ -108,7 +108,7 @@ cfibentry::flow_mod_add()
 
 	} else {
 
-		rofl::cflowentry fe(dpt->get_version());
+		rofl::cofflowmod fe(dpt->get_version());
 
 		fe.set_command(command);
 		fe.set_table_id(0);
@@ -127,7 +127,7 @@ cfibentry::flow_mod_add()
 void
 cfibentry::flow_mod_modify()
 {
-	rofl::cflowentry fe(dpt->get_version());
+	rofl::cofflowmod fe(dpt->get_version());
 
 	uint8_t command = 0;
 	switch (dpt->get_version()) {
@@ -173,7 +173,7 @@ cfibentry::flow_mod_delete()
 
 	if (flood_port != out_port_no) {
 
-		rofl::cflowentry fe(dpt->get_version());
+		rofl::cofflowmod fe(dpt->get_version());
 
 		fe.set_command(command);
 		fe.set_table_id(0);
@@ -183,7 +183,7 @@ cfibentry::flow_mod_delete()
 
 	} else {
 
-		rofl::cflowentry fe(dpt->get_version());
+		rofl::cofflowmod fe(dpt->get_version());
 
 		fe.set_command(command);
 		fe.set_table_id(0);

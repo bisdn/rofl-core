@@ -5,7 +5,7 @@ using namespace rofl;
 cofmsg_flow_mod::cofmsg_flow_mod(
 		uint8_t of_version,
 		uint32_t xid,
-		cflowentry const& fe)
+		cofflowmod const& fe)
 {
 	ofh_flow_mod = soframe();
 

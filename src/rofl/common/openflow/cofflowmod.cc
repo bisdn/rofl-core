@@ -6,7 +6,7 @@
 
 using namespace rofl;
 
-cflowentry::cflowentry(uint8_t of_version, uint16_t __type) :
+cofflowmod::cofflowmod(uint8_t of_version, uint16_t __type) :
 		of_version(of_version),
 		match(of_version, __type),
 		instructions(of_version)
@@ -54,20 +54,20 @@ cflowentry::cflowentry(uint8_t of_version, uint16_t __type) :
 }
 
 
-cflowentry::~cflowentry()
+cofflowmod::~cofflowmod()
 {
 
 }
 
 
-cflowentry::cflowentry(cflowentry const& fe)
+cofflowmod::cofflowmod(cofflowmod const& fe)
 {
 	*this = fe;
 }
 
 
-cflowentry&
-cflowentry::operator= (const cflowentry& fe)
+cofflowmod&
+cofflowmod::operator= (const cofflowmod& fe)
 {
 	if (this == &fe)
 		return *this;
@@ -86,7 +86,7 @@ cflowentry::operator= (const cflowentry& fe)
 
 
 void
-cflowentry::reset()
+cofflowmod::reset()
 {
 	match.clear();
 	actions.clear();
@@ -147,7 +147,7 @@ cflowentry::reset()
 
 
 void
-cflowentry::set_table_id(uint8_t table_id)
+cofflowmod::set_table_id(uint8_t table_id)
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION:
@@ -163,7 +163,7 @@ cflowentry::set_table_id(uint8_t table_id)
 
 
 uint8_t
-cflowentry::get_table_id() const
+cofflowmod::get_table_id() const
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION: {
@@ -182,7 +182,7 @@ cflowentry::get_table_id() const
 
 
 void
-cflowentry::set_command(uint8_t command)
+cofflowmod::set_command(uint8_t command)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -202,7 +202,7 @@ cflowentry::set_command(uint8_t command)
 
 
 uint8_t
-cflowentry::get_command() const
+cofflowmod::get_command() const
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -223,7 +223,7 @@ cflowentry::get_command() const
 
 
 void
-cflowentry::set_idle_timeout(const uint16_t& idle_timeout)
+cofflowmod::set_idle_timeout(const uint16_t& idle_timeout)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -243,7 +243,7 @@ cflowentry::set_idle_timeout(const uint16_t& idle_timeout)
 
 
 uint16_t
-cflowentry::get_idle_timeout() const
+cofflowmod::get_idle_timeout() const
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -264,7 +264,7 @@ cflowentry::get_idle_timeout() const
 
 
 void
-cflowentry::set_hard_timeout(const uint16_t& hard_timeout)
+cofflowmod::set_hard_timeout(const uint16_t& hard_timeout)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -284,7 +284,7 @@ cflowentry::set_hard_timeout(const uint16_t& hard_timeout)
 
 
 uint16_t
-cflowentry::get_hard_timeout() const
+cofflowmod::get_hard_timeout() const
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -305,7 +305,7 @@ cflowentry::get_hard_timeout() const
 
 
 void
-cflowentry::set_cookie(const uint64_t& cookie)
+cofflowmod::set_cookie(const uint64_t& cookie)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -325,7 +325,7 @@ cflowentry::set_cookie(const uint64_t& cookie)
 
 
 uint64_t
-cflowentry::get_cookie() const
+cofflowmod::get_cookie() const
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -346,7 +346,7 @@ cflowentry::get_cookie() const
 
 
 void
-cflowentry::set_cookie_mask(const uint64_t& cookie_mask)
+cofflowmod::set_cookie_mask(const uint64_t& cookie_mask)
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION:
@@ -362,7 +362,7 @@ cflowentry::set_cookie_mask(const uint64_t& cookie_mask)
 
 
 uint64_t
-cflowentry::get_cookie_mask() const
+cofflowmod::get_cookie_mask() const
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION: {
@@ -381,7 +381,7 @@ cflowentry::get_cookie_mask() const
 
 
 void
-cflowentry::set_priority(const uint16_t& priority)
+cofflowmod::set_priority(const uint16_t& priority)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -401,7 +401,7 @@ cflowentry::set_priority(const uint16_t& priority)
 
 
 uint16_t
-cflowentry::get_priority() const
+cofflowmod::get_priority() const
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -422,7 +422,7 @@ cflowentry::get_priority() const
 
 
 void
-cflowentry::set_buffer_id(const uint32_t& buffer_id)
+cofflowmod::set_buffer_id(const uint32_t& buffer_id)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -442,7 +442,7 @@ cflowentry::set_buffer_id(const uint32_t& buffer_id)
 
 
 uint32_t
-cflowentry::get_buffer_id() const
+cofflowmod::get_buffer_id() const
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -463,7 +463,7 @@ cflowentry::get_buffer_id() const
 
 
 void
-cflowentry::set_out_port(const uint32_t& out_port)
+cofflowmod::set_out_port(const uint32_t& out_port)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -483,7 +483,7 @@ cflowentry::set_out_port(const uint32_t& out_port)
 
 
 uint32_t
-cflowentry::get_out_port() const
+cofflowmod::get_out_port() const
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -504,7 +504,7 @@ cflowentry::get_out_port() const
 
 
 void
-cflowentry::set_out_group(const uint32_t& out_group)
+cofflowmod::set_out_group(const uint32_t& out_group)
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION: {
@@ -522,7 +522,7 @@ cflowentry::set_out_group(const uint32_t& out_group)
 
 
 uint32_t
-cflowentry::get_out_group() const
+cofflowmod::get_out_group() const
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION: {
@@ -541,7 +541,7 @@ cflowentry::get_out_group() const
 
 
 void
-cflowentry::set_flags(const uint16_t& flags)
+cofflowmod::set_flags(const uint16_t& flags)
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -561,7 +561,7 @@ cflowentry::set_flags(const uint16_t& flags)
 
 
 uint16_t
-cflowentry::get_flags() const
+cofflowmod::get_flags() const
 {
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
@@ -582,7 +582,7 @@ cflowentry::get_flags() const
 
 
 size_t
-cflowentry::length() const
+cofflowmod::length() const
 {
 	switch(of_version) {
 	case openflow10::OFP_VERSION: {
@@ -601,7 +601,7 @@ cflowentry::length() const
 
 
 size_t
-cflowentry::pack()
+cofflowmod::pack()
 {
 	size_t instslen = 0;
 	size_t ofmatch_len = 0;
@@ -649,13 +649,13 @@ cflowentry::pack()
 
 
 void
-cflowentry::example()
+cofflowmod::example()
 {
 	cmacaddr dl_mask("ff:ff:ff:ff:ff:ff");
 	cmacaddr dl_src("00:01:01:01:01:01");
 	cmacaddr dl_dst("00:02:02:02:02:02");
 
-	cflowentry fe(openflow12::OFP_VERSION);
+	cofflowmod fe(openflow12::OFP_VERSION);
 
 	fe.set_command((uint16_t)openflow12::OFPFC_ADD);
 	fe.set_idle_timeout(5);

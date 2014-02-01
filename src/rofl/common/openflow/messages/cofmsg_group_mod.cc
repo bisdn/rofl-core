@@ -5,7 +5,7 @@ using namespace rofl;
 cofmsg_group_mod::cofmsg_group_mod(
 		uint8_t of_version,
 		uint32_t xid,
-		cgroupentry const& ge) :
+		cofgroupmod const& ge) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
 	buckets(ge.buckets)
 {
