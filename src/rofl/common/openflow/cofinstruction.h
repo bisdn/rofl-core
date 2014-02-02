@@ -90,7 +90,7 @@ public: // methods
 	 */
 	cofinst(
 			uint8_t ofp_version = openflow::OFP_VERSION_UNKNOWN,
-			size_t size = COFINST_DEFAULT_LEN);
+			size_t size = sizeof(struct ofp_instruction));
 
 	/** constructor
 	 */
@@ -266,10 +266,12 @@ public:
 		case openflow12::OFP_VERSION: {
 			set_type(openflow12::OFPIT_APPLY_ACTIONS);
 			set_length(0); // fill this when calling method pack()
+			cofinst::resize(sizeof(struct openflow12::ofp_instruction_actions));
 		} break;
 		case openflow13::OFP_VERSION: {
 			set_type(openflow13::OFPIT_APPLY_ACTIONS);
 			set_length(0); // fill this when calling method pack()
+			cofinst::resize(sizeof(struct openflow13::ofp_instruction_actions));
 		} break;
 		default:
 			logging::warn << "cofinst_apply_actions: OFP version not supported" << std::endl;
@@ -326,10 +328,12 @@ public:
 		case openflow12::OFP_VERSION: {
 			set_type(openflow12::OFPIT_WRITE_ACTIONS);
 			set_length(0); // fill this when calling method pack()
+			cofinst::resize(sizeof(struct openflow12::ofp_instruction_actions));
 		} break;
 		case openflow13::OFP_VERSION: {
 			set_type(openflow13::OFPIT_WRITE_ACTIONS);
 			set_length(0); // fill this when calling method pack()
+			cofinst::resize(sizeof(struct openflow13::ofp_instruction_actions));
 		} break;
 		default:
 			logging::warn << "cofinst_write_actions: OFP version not supported" << std::endl;
@@ -386,10 +390,12 @@ public:
 		case openflow12::OFP_VERSION: {
 			set_type(openflow12::OFPIT_CLEAR_ACTIONS);
 			set_length(0); // fill this when calling method pack()
+			cofinst::resize(sizeof(struct openflow12::ofp_instruction_actions));
 		} break;
 		case openflow13::OFP_VERSION: {
 			set_type(openflow13::OFPIT_CLEAR_ACTIONS);
 			set_length(0); // fill this when calling method pack()
+			cofinst::resize(sizeof(struct openflow13::ofp_instruction_actions));
 		} break;
 		default:
 			logging::warn << "cofinst_clear_actions: OFP version not supported" << std::endl;

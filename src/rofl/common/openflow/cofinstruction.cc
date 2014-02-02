@@ -119,7 +119,7 @@ cofinst::pack_of12(uint8_t* buf, size_t buflen)
 		if (buflen < (sizeof(struct openflow12::ofp_instruction_actions) + actions.length())) {
 			throw eInstructionInval();
 		}
-		size_t aclen = this->length() - sizeof(struct openflow::ofp_instruction);
+		size_t aclen = this->length() - sizeof(struct openflow12::ofp_instruction_actions);
 		actions.pack((uint8_t*)((struct openflow12::ofp_instruction_actions*)inhdr)->actions, aclen);
 	} break;
 	case openflow12::OFPIT_WRITE_METADATA: {
