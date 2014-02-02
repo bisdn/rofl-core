@@ -329,7 +329,6 @@ coftable_feature_prop_next_tables::operator= (
 size_t
 coftable_feature_prop_next_tables::length() const
 {
-	// TODO: support for experimental instructions
 	size_t total_length = sizeof(struct openflow13::ofp_table_feature_prop_next_tables) +
 			std::vector<uint8_t>::size() * sizeof(uint8_t);
 
