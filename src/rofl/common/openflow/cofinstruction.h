@@ -90,7 +90,7 @@ public: // methods
 	 */
 	cofinst(
 			uint8_t ofp_version = openflow::OFP_VERSION_UNKNOWN,
-			size_t size = sizeof(struct ofp_instruction));
+			size_t size = sizeof(struct openflow::ofp_instruction));
 
 	/** constructor
 	 */
