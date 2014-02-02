@@ -11,6 +11,7 @@
 #include <inttypes.h>
 
 #include <vector>
+#include <algorithm>
 
 #include "rofl/common/cmemory.h"
 #include "rofl/common/croflexception.h"
@@ -128,10 +129,9 @@ protected:
 
 
 class coftable_feature_prop_instructions :
-		public coftable_feature_prop
+		public coftable_feature_prop,
+		public std::vector<cofinst>
 {
-	std::vector<cofinst>		instruction_ids;
-
 	union {
 		uint8_t													*ofhu_ofp_tfpi;
 		struct openflow13::ofp_table_feature_prop_instructions	*ofhu_ofp_tfpihdr;
@@ -199,6 +199,78 @@ protected:
 	resize(size_t size);
 };
 
+
+
+class coftable_feature_prop_next_tables :
+		public coftable_feature_prop,
+		public std::vector<uint8_t>
+{
+	union {
+		uint8_t													*ofhu_ofp_tfpnxt;
+		struct openflow13::ofp_table_feature_prop_next_tables	*ofhu_ofp_tfpnxthdr;
+	} ofh_ofhu;
+
+#define ofh_tfpnxt		ofh_ofhu.ofhu_ofp_tfpnxt
+#define ofh_tfpnxthdr	ofh_ofhu.ofhu_ofp_tfpnxthdr
+
+public:
+
+	/**
+	 *
+	 */
+	coftable_feature_prop_next_tables(
+			uint8_t ofp_version = OFP_VERSION_UNKNOWN);
+
+	/**
+	 *
+	 */
+	virtual
+	~coftable_feature_prop_next_tables();
+
+	/**
+	 *
+	 */
+	coftable_feature_prop_next_tables(
+			coftable_feature_prop_next_tables const& tfpi);
+
+	/**
+	 *
+	 */
+	coftable_feature_prop_next_tables&
+	operator= (
+			coftable_feature_prop_next_tables const& tfpi);
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
+
+
+protected:
+
+	/**
+	 *
+	 */
+	uint8_t*
+	resize(size_t size);
+};
 
 };
 };
