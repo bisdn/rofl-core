@@ -211,8 +211,8 @@ coftable_feature_prop_instructions::pack(
 			std::vector<cofinst>::size() * sizeof(struct openflow::ofp_instruction)); // without padding
 
 	for (unsigned int i = 0; i < std::vector<cofinst>::size(); i++) {
-		ofh_tfpihdr->instruction_ids[i].type = htobe16(std::vector<cofinst>::operator[](i).get_length());
-		ofh_tfpihdr->instruction_ids[i].len  = htobe16(std::vector<cofinst>::operator[](i).get_type());
+		ofh_tfpihdr->instruction_ids[i].type = htobe16(std::vector<cofinst>::operator[](i).get_type());
+		ofh_tfpihdr->instruction_ids[i].len  = htobe16(std::vector<cofinst>::operator[](i).get_length());
 	}
 }
 
@@ -409,4 +409,152 @@ coftable_feature_prop_next_tables::resize(
 {
 	return (ofh_tfpnxt = coftable_feature_prop::resize(size));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ * struct ofp_table_feature_prop_actions
+ */
+
+coftable_feature_prop_actions::coftable_feature_prop_actions(
+		uint8_t ofp_version) :
+				coftable_feature_prop(ofp_version, sizeof(struct openflow13::ofp_table_feature_prop_actions))
+{
+
+}
+
+
+coftable_feature_prop_actions::~coftable_feature_prop_actions()
+{
+
+}
+
+
+coftable_feature_prop_actions::coftable_feature_prop_actions(
+		coftable_feature_prop_actions const& tfpa)
+{
+	*this = tfpa;
+}
+
+
+coftable_feature_prop_actions&
+coftable_feature_prop_actions::operator= (
+		coftable_feature_prop_actions const& tfpa)
+{
+	if (this == &tfpa)
+		return *this;
+
+	coftable_feature_prop::operator= (tfpa);
+	ofh_tfpa = somem();
+
+	std::vector<cofaction>::clear();
+	std::copy(tfpa.begin(), tfpa.end(), std::vector<cofaction>::begin());
+
+	return *this;
+}
+
+
+size_t
+coftable_feature_prop_actions::length() const
+{
+	// TODO: support for experimental actions
+	size_t total_length = sizeof(struct openflow13::ofp_table_feature_prop_header) +
+			std::vector<cofaction>::size() * sizeof(struct openflow::ofp_action);
+
+	size_t pad = (0x7 & total_length);
+	/* append padding if not a multiple of 8 */
+	if (pad) {
+		total_length += 8 - pad;
+	}
+	return total_length;
+}
+
+
+void
+coftable_feature_prop_actions::pack(
+			uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen)) {
+		return;
+	}
+
+	if (buflen < length()) {
+		throw eOFTableFeaturePropInval();
+	}
+
+	set_length(sizeof(struct openflow13::ofp_table_feature_prop_header) +
+			std::vector<cofaction>::size() * sizeof(struct openflow::ofp_action)); // without padding
+
+	for (unsigned int i = 0; i < std::vector<cofaction>::size(); i++) {
+		ofh_tfpahdr->action_ids[i].type = htobe16(std::vector<cofaction>::operator[](i).get_type());
+		ofh_tfpahdr->action_ids[i].len  = htobe16(std::vector<cofaction>::operator[](i).get_length());
+	}
+}
+
+
+void
+coftable_feature_prop_actions::unpack(
+			uint8_t* buf, size_t buflen)
+{
+	try {
+		if ((0 == buf) || (buflen < sizeof(struct openflow13::ofp_table_feature_prop_actions))) {
+			throw eOFTableFeaturePropInval();
+		}
+
+		std::vector<cofaction>::clear();
+
+		coftable_feature_prop::unpack(buf, buflen);
+
+		ofh_tfpa = somem();
+
+		// sanity check: length field must contain at least sizeof tfpi header
+		if (get_length() < sizeof(struct openflow13::ofp_table_feature_prop_actions)) {
+			throw eOFTableFeaturePropInval();
+		}
+
+		// sanity check: overall buflen must contain length field from tfpihdr + padding
+		size_t total_length = get_length();
+		size_t pad = (0x7 & total_length);
+		/* append padding if not a multiple of 8 */
+		if (pad) {
+			total_length += 8 - pad;
+		}
+		if (buflen < total_length) {
+			throw eOFTableFeaturePropInval();
+		}
+
+		// #action-id entries
+		unsigned int n_action_ids =
+				(get_length() - sizeof(struct openflow13::ofp_table_feature_prop_header)) /
+															sizeof(struct openflow::ofp_action);
+
+		// TODO: experimental action-ids
+		for (unsigned int i = 0; i < n_action_ids; i++) {
+			std::vector<cofaction>::push_back(cofaction(get_version(),
+					(struct openflow::ofp_action_header*)&(ofh_tfpahdr->action_ids[i]),
+									sizeof(struct openflow::ofp_action)));
+		}
+	} catch (eBadActionBadType& e) {
+		// padding
+	}
+}
+
+
+uint8_t*
+coftable_feature_prop_actions::resize(
+		size_t size)
+{
+	return (ofh_tfpa = coftable_feature_prop::resize(size));
+}
+
 

@@ -402,6 +402,26 @@ cofaction::get_type() const
 }
 
 
+void
+cofaction::set_type(uint16_t type)
+{
+	oac_header->type = htobe16(type);
+}
+
+
+uint16_t
+cofaction::get_length() const
+{
+	return be16toh(oac_header->len);
+}
+
+
+void
+cofaction::set_length(uint16_t len)
+{
+	oac_header->len = htobe16(len);
+}
+
 
 void
 cofaction::resize(size_t len)

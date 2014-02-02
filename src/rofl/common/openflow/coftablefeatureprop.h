@@ -16,7 +16,8 @@
 #include "rofl/common/cmemory.h"
 #include "rofl/common/croflexception.h"
 #include "rofl/common/openflow/openflow.h"
-#include "rofl/common/openflow/cofinstructions.h"
+#include "rofl/common/openflow/cofaction.h"
+#include "rofl/common/openflow/cofinstruction.h"
 
 namespace rofl {
 namespace openflow {
@@ -284,6 +285,88 @@ protected:
 	uint8_t*
 	resize(size_t size);
 };
+
+
+
+class coftable_feature_prop_actions :
+		public coftable_feature_prop,
+		public std::vector<cofaction>
+{
+	union {
+		uint8_t												*ofhu_ofp_tfpa;
+		struct openflow13::ofp_table_feature_prop_actions	*ofhu_ofp_tfpahdr;
+	} ofh_ofhu;
+
+#define ofh_tfpa	ofh_ofhu.ofhu_ofp_tfpa
+#define ofh_tfpahdr	ofh_ofhu.ofhu_ofp_tfpahdr
+
+public:
+
+	/**
+	 *
+	 */
+	coftable_feature_prop_actions(
+			uint8_t ofp_version = OFP_VERSION_UNKNOWN);
+
+	/**
+	 *
+	 */
+	virtual
+	~coftable_feature_prop_actions();
+
+	/**
+	 *
+	 */
+	coftable_feature_prop_actions(
+			coftable_feature_prop_actions const& tfpa);
+
+	/**
+	 *
+	 */
+	coftable_feature_prop_actions&
+	operator= (
+			coftable_feature_prop_actions const& tfpa);
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
+
+
+	/**
+	 *
+	 */
+	std::vector<cofaction>&
+	get_action_ids() { return *this; };
+
+
+protected:
+
+	/**
+	 *
+	 */
+	uint8_t*
+	resize(size_t size);
+};
+
+
 
 };
 };

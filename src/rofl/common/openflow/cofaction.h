@@ -188,6 +188,24 @@ public: // methods
 	uint16_t
 	get_type() const;
 
+	/**
+	 *
+	 */
+	void
+	set_type(uint16_t type);
+
+	/**
+	 *
+	 */
+	uint16_t
+	get_length() const;
+
+	/**
+	 *
+	 */
+	void
+	set_length(uint16_t len);
+
 	/** return oxm for OFPAT_SET_FIELD
 	 *
 	 */
