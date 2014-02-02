@@ -393,11 +393,11 @@ coftable_feature_prop_next_tables::unpack(
 	}
 
 	// #next-tables entries
-	unsigned int n_next_tables =
+	unsigned int n_next_table_ids =
 			(get_length() - sizeof(struct openflow13::ofp_table_feature_prop_header)) /
 														sizeof(uint8_t);
 
-	for (unsigned int i = 0; i < n_next_tables; i++) {
+	for (unsigned int i = 0; i < n_next_table_ids; i++) {
 		std::vector<uint8_t>::push_back(ofh_tfpnxthdr->next_table_ids[i]);
 	}
 }

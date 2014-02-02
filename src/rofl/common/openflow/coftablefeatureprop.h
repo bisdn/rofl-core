@@ -190,6 +190,13 @@ public:
 			uint8_t* buf, size_t buflen);
 
 
+	/**
+	 *
+	 */
+	std::vector<cofinst>&
+	get_instruction_ids() { return *this; };
+
+
 protected:
 
 	/**
@@ -261,6 +268,12 @@ public:
 	virtual void
 	unpack(
 			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	std::vector<uint8_t>&
+	get_next_table_ids() { return *this; };
 
 
 protected:
