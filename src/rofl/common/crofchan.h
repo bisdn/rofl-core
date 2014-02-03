@@ -18,11 +18,12 @@ extern "C" {
 }
 #endif
 
-#include "croflexception.h"
-#include "ciosrv.h"
-#include "crofconn.h"
-#include "openflow/messages/cofmsg.h"
-#include "openflow/cofhelloelemversionbitmap.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/ciosrv.h"
+#include "rofl/common/crofconn.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
+#include "rofl/common/openflow/cofhelloelemversionbitmap.h"
+#include "rofl/common/crandom.h"
 
 namespace rofl {
 namespace openflow {
@@ -74,10 +75,12 @@ class crofchan :
 
 	int									reconnect_start_timeout;
 	int 								reconnect_in_seconds; 	// reconnect in x seconds
+	int									reconnect_variance;
 	int 								reconnect_counter;
 	uint32_t							reconnect_timer_id;
 
 #define CROFCHAN_RECONNECT_START_TIMEOUT 1				// start reconnect timeout (default 1s)
+#define CROFCHAN_RECONNECT_VARIANCE_IN_SECS 2
 
 public:
 
