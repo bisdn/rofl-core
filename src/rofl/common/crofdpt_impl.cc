@@ -447,6 +447,9 @@ crofdpt_impl::handle_disconnected(rofl::openflow::crofchan *chan)
 {
 	logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
 			<< " channel disconnected:" << std::endl << *chan;
+
+	transactions.clear();
+
 	run_engine(EVENT_DISCONNECTED);
 }
 

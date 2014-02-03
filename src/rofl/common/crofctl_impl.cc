@@ -101,6 +101,8 @@ crofctl_impl::handle_disconnected(
 	logging::info << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " connection closed:" << std::endl << *chan;
 
+	transactions.clear();
+
 	rofbase->rpc_ctl_failed(this); // send notification to crofbase, when main connection has been closed
 }
 
