@@ -131,11 +131,11 @@ afa_result_t fwd_module_attach_port_to_switch(uint64_t dpid, const char* name, u
 * @ingroup management
 *
 * @param dpid_lsi1 Datapath ID of the LSI1
-* @param port1 A pointer to the virtual port attached to the LS1
+* @param port1 A pointer to a snapshot of the virtual port attached to the LS1 that MUST be destroyed using switch_port_destroy_snapshot()
 * @param dpid_lsi2 Datapath ID of the LSI2
-* @param port1 A pointer to the virtual port attached to the LS2
+* @param port1 A pointer to a snapshot of the virtual port attached to the LS2 that MUST be destroyed using switch_port_destroy_snapshot()
 */
-afa_result_t fwd_module_connect_switches(uint64_t dpid_lsi1, switch_port_t** port1, uint64_t dpid_lsi2, switch_port_t** port2);
+afa_result_t fwd_module_connect_switches(uint64_t dpid_lsi1, switch_port_snapshot_t** port1, uint64_t dpid_lsi2, switch_port_snapshot_t** port2);
 
 
 /**
@@ -161,42 +161,42 @@ afa_result_t fwd_module_detach_port_from_switch_at_port_num(uint64_t dpid, const
 //Port control
 
 /**
-* @name    fwd_module_enable_port
+* @name    fwd_module_bring_port_up
 * @brief   Brings up a system port. If the port is attached to an OF logical switch, this also schedules port for I/O and triggers PORTMOD message. 
 * @ingroup port_management
 *
 * @param name Port system name 
 */
-afa_result_t fwd_module_enable_port(const char* name);
+afa_result_t fwd_module_bring_port_up(const char* name);
 
 /**
-* @name    fwd_module_disable_port
+* @name    fwd_module_bring_port_down
 * @brief   Shutdowns (brings down) a system port. If the port is attached to an OF logical switch, this also de-schedules port and triggers PORTMOD message. 
 * @ingroup port_management
 *
 * @param name Port system name 
 */
-afa_result_t fwd_module_disable_port(const char* name);
+afa_result_t fwd_module_bring_port_down(const char* name);
 
 /**
-* @name    fwd_module_enable_port_by_num
+* @name    fwd_module_bring_port_up_by_num
 * @brief   Brings up a port from an OF logical switch (and the underlying physical interface). This function also triggers the PORTMOD message 
 * @ingroup port_management
 *
 * @param dpid DatapathID 
 * @param port_num OF port number
 */
-afa_result_t fwd_module_enable_port_by_num(uint64_t dpid, unsigned int port_num);
+afa_result_t fwd_module_bring_port_up_by_num(uint64_t dpid, unsigned int port_num);
 
 /**
-* @name    fwd_module_disable_port_by_num
+* @name    fwd_module_bring_port_down_by_num
 * @brief   Brings down a port from an OF logical switch (and the underlying physical interface). This also triggers the PORTMOD message.
 * @ingroup port_management
 *
 * @param dpid DatapathID 
 * @param port_num OF port number
 */
-afa_result_t fwd_module_disable_port_by_num(uint64_t dpid, unsigned int port_num);
+afa_result_t fwd_module_bring_port_down_by_num(uint64_t dpid, unsigned int port_num);
 
 
 /**
