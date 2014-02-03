@@ -321,7 +321,11 @@ crofbase::handle_accepted(
 		int newsd,
 		caddress const& ra)
 {
+#ifdef HAVE_OPENSSL
 	(new rofl::openflow::crofconn(this, versionbitmap))->accept(newsd, socket.ssl_ctx);
+#else
+	(new rofl::openflow::crofconn(this, versionbitmap))->accept(newsd, NULL);
+#endif
 }
 
 
