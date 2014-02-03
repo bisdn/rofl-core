@@ -1,5 +1,7 @@
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/platform/unix/cdaemon.h>
+#include <rofl/common/ssl_lib.h>
+
 #include "etherswitch.h"
 
 #define ETHSWCTLD_LOG_FILE "/var/log/ethswctld.log"
@@ -39,7 +41,14 @@ main(int argc, char** argv)
 	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
 	etherswitch::ethswitch sw(versionbitmap);
 
+#ifdef HAVE_OPENSSL
+	ssl_context *ssl_ctx = ssl_lib::get_instance().create_ssl_context(ssl_context::SSL_server);
+	assert(NULL != ssl_ctx);
+	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633), PF_INET, SOCK_STREAM, IPPROTO_TCP, ssl_ctx);
+#else
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
+#endif
+
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));
 
 	rofl::cioloop::run();
