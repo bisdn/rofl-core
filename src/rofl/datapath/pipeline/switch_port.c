@@ -179,7 +179,7 @@ switch_port_snapshot_t* __switch_port_get_snapshot(switch_port_t* port){
 	return s;
 }
 void switch_port_destroy_snapshot(switch_port_snapshot_t* port){
-	if(!port)
+	if(port)
 		platform_free_shared(port);
 }
 
