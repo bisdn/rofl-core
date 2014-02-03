@@ -75,7 +75,8 @@ cdaemon::daemonize(
 		}
 		else if (pid1 > 0) { // parent exit
 			uint8_t a;
-			read(pipefd[0], &a, sizeof(a)); // blocks, until child-2 writes a byte to pipefd[1]
+			ssize_t tmp =  read(pipefd[0], &a, sizeof(a)); // blocks, until child-2 writes a byte to pipefd[1]
+			(void) tmp;
 			switch (a) {
 			case 0: // success
 				//logging::error << "[rofl][unixenv] daemonizing successful" << std::endl;
