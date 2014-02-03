@@ -309,10 +309,13 @@ cioloop::run_loop()
 
 		FD_ZERO(&exceptfds);
 
-
 		std::pair<ciosrv*, ctimer> next_timeout(0, ctimer(NULL, 0, 60));
+
 		{
 			RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
+
+			std::map<ciosrv*, int> urgent;
+
 			for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
 				try {
 					ctimer timer((*it).first->get_next_timer());
@@ -321,7 +324,8 @@ cioloop::run_loop()
 						//logging::debug << "[rofl][ciosrv][loop] timer:" << (*it).first->get_next_timer();
 						//logging::debug << "[rofl][ciosrv][loop]   now:" << ctimer::now();
 						//logging::debug << "[rofl][ciosrv][loop] delta:" << timer;
-						(*it).first->handle_timeout(timer.get_opaque());
+						//(*it).first->handle_timeout(timer.get_opaque());
+						urgent[(*it).first] = timer.get_opaque();
 						continue;
 					}
 
@@ -332,7 +336,14 @@ cioloop::run_loop()
 					}
 				} catch (eTimersNotFound& e) {}
 			}
+
+			// conduct urgent timeouts (those with a timer expired before ctimer::now())
+			for (std::map<ciosrv*, int>::iterator it = urgent.begin(); it != urgent.end(); ++it) {
+				//(*it).first->handle_timeout(it->second);
+				(*it).first->__handle_timeout();
+			}
 		}
+
 
 		//logging::debug << "[rofl][cioloop] before select:" << std::endl << *this;
 
