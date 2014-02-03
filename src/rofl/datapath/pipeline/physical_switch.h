@@ -419,9 +419,21 @@ rofl_result_t physical_switch_detach_port_from_logical_switch(switch_port_t* por
 rofl_result_t physical_switch_detach_all_ports_from_logical_switch(of_switch_t* sw);
 
 
-//This should not be used in general. Generates the matching algorithm list
-void __physical_switch_generate_matching_algorithm_list(void);
 
+//
+// Monitoring
+//
+/**
+* @brief Retrieves the monitoring state of the physicals witch 
+* @ingroup  mgmt
+*/
+static inline monitoring_state_t* physical_switch_get_monitoring(void){
+	physical_switch_t* psw = get_physical_switch();
+	
+	if(psw)
+		return &psw->monitoring;	
+	return NULL;
+}
 
 //
 // Snapshots
@@ -463,6 +475,15 @@ void dpid_list_destroy(dpid_list_t* list);
 * @ingroup  mgmt
 */
 of_switch_snapshot_t* physical_switch_get_logical_switch_snapshot(const uint64_t dpid);
+
+
+//
+// Other
+//
+
+//This should not be used in general. Generates the matching algorithm list
+void __physical_switch_generate_matching_algorithm_list(void);
+
 
 //C++ extern C
 ROFL_END_DECLS
