@@ -17,8 +17,6 @@ rofl::ssl_context::ssl_context(enum ssl_type type) :
 		type(type) {
 
 	ssl_ctx = SSL_CTX_new(TLSv1_2_method());
-	// todo check: SSL_CTX_set_options(ssl_ctx, SSL_MODE_AUTO_RETRY);
-
 
 	if (NULL == ssl_ctx) {
 		logging::error << " ssl_error=" << ERR_get_error() << ERR_error_string(ERR_get_error(), NULL);

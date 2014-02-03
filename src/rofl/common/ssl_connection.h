@@ -31,6 +31,9 @@ public:
 
 private:
 	SSL *ssl;
+
+	int
+	handle_error(int err);
 };
 
 } /* namespace rofl */
