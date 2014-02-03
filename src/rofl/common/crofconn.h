@@ -101,7 +101,7 @@ class crofconn :
 
 #define DEFAULT_HELLO_TIMEOUT	5
 #define DEFAULT_ECHO_TIMEOUT 	5
-#define DEFAULT_ECHO_INTERVAL	30
+#define DEFAULT_ECHO_INTERVAL	2
 
 public:
 
