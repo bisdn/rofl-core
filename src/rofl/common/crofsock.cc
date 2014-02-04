@@ -127,6 +127,13 @@ crofsock::handle_read(
 				msg_len = be16toh(ofh_header->length);
 			}
 
+			// sanity check: 8 <= msg_len <= 2^16
+			if (msg_len < sizeof(struct openflow::ofp_header)) {
+				logging::warn << "[rofl][sock] received message with invalid length field, closing socket." << std::endl;
+				socket.close();
+				return;
+			}
+
 			// resize msg buffer, if necessary
 			if (fragment->memlen() < msg_len) {
 				fragment->resize(msg_len);
@@ -146,6 +153,7 @@ crofsock::handle_read(
 				if (msg_len == msg_bytes_read) {
 					cmemory *mem = fragment;
 					fragment = (cmemory*)0; // just in case, we get an exception from parse_message()
+					msg_bytes_read = 0;
 					parse_message(mem);
 					return;
 				}
