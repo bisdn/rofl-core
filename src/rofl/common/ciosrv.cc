@@ -342,9 +342,9 @@ cioloop::run_loop()
 		}
 
 
-		//logging::debug << "[rofl][cioloop] before select:" << std::endl << *this;
+		logging::debug << "[rofl][cioloop] before select:" << std::endl << *this;
 
-		//logging::debug << "[rofl][cioloop] next-timeout for select:" << std::endl << next_timeout.second;
+		logging::debug << "[rofl][cioloop] next-timeout for select:" << std::endl << next_timeout.second;
 
 		// blocking
 		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_ts()), &empty_mask)) < 0) {
@@ -410,7 +410,7 @@ restart:
 			}
 		}
 
-		//logging::debug << "[rofl][cioloop] after select:" << std::endl << *this;
+		logging::debug << "[rofl][cioloop] after select:" << std::endl << *this;
 	}
 }
 
