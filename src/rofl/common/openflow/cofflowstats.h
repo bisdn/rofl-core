@@ -8,13 +8,13 @@
 #ifndef COFFLOWSTATS_H_
 #define COFFLOWSTATS_H_ 1
 
-#include "../cmemory.h"
-#include "cofmatch.h"
-#include "cofaclist.h"
-#include "cofinlist.h"
-#include "../../platform/unix/csyslog.h"
-#include "openflow.h"
-#include "openflow_rofl_exceptions.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/openflow/cofmatch.h"
+#include "rofl/common/openflow/cofactions.h"
+#include "rofl/common/openflow/cofinstructions.h"
+#include "rofl/platform/unix/csyslog.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
 namespace rofl
 {
@@ -191,6 +191,40 @@ public:
 	 */
 	cofmatch&
 	get_match();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofflow_stats_request const& flow_stats_request) {
+		switch (flow_stats_request.of_version) {
+		case openflow10::OFP_VERSION: {
+			os << indent(0) << "<cofflow_stats_request >" << std::endl;
+			os << indent(2) << "<table-id:" << (int)flow_stats_request.get_table_id() << " >" << std::endl;
+			os << indent(2) << "<out-port:0x" << std::hex << (int)flow_stats_request.get_out_port() << std::dec << " >" << std::endl;
+			indent i(2);
+			os << flow_stats_request.match;
+
+		} break;
+		case openflow12::OFP_VERSION: {
+			os << indent(0) << "<cofflow_stats_request >" << std::endl;
+			os << indent(2) << "<table-id:" << (int)flow_stats_request.get_table_id() << " >" << std::endl;
+			os << indent(2) << "<out-port:0x" << std::hex << (int)flow_stats_request.get_out_port() << std::dec << " >" << std::endl;
+			os << indent(2) << "<out-group:0x" << std::hex << (int)flow_stats_request.get_out_group() << std::dec << " >" << std::endl;
+			os << indent(2) << "<cookie:0x" << std::hex << (unsigned long long)flow_stats_request.get_cookie() << std::dec << " >" << std::endl;
+			os << indent(2) << "<cookie-mask:0x" << std::hex << (unsigned long long)flow_stats_request.get_cookie_mask() << std::dec << " >" << std::endl;
+			indent i(2);
+			os << flow_stats_request.match;
+
+		} break;
+		case openflow13::OFP_VERSION: {
+			throw eNotImplemented();
+		}
+		default: {
+			os << "<cofflow_stats_request unknown OFP version >" << std::endl;
+		};
+		}
+		return os;
+	};
 };
 
 
@@ -210,8 +244,8 @@ private: // data structures
 	uint64_t 	packet_count;
 	uint64_t	byte_count;
 	cofmatch 	match;
-	cofaclist	actions;		// for OF1.0
-	cofinlist	instructions;	// for OF1.2
+	cofactions	actions;		// for OF1.0
+	cofinstructions	instructions;	// for OF1.2
 
 #define OFP12_FLOW_STATS_REPLY_STATIC_HDR_LEN 		48 // bytes
 
@@ -243,7 +277,7 @@ public:
 			uint64_t packet_count,
 			uint64_t byte_count,
 			cofmatch const& match,
-			cofaclist const& actions);
+			cofactions const& actions);
 
 
 	/**
@@ -261,7 +295,7 @@ public:
 			uint64_t packet_count,
 			uint64_t byte_count,
 			cofmatch const& match,
-			cofinlist const& instructions);
+			cofinstructions const& instructions);
 
 
 
@@ -384,14 +418,39 @@ public:
 	/**
 	 *
 	 */
-	cofaclist&
+	cofactions&
 	get_actions();
 
 	/**
 	 *
 	 */
-	cofinlist&
+	cofinstructions&
 	get_instructions();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofflow_stats_reply const& flow_stats_reply) {
+		os << indent(0) << "<cofflow_stats_reply >" << std::endl;
+		os << indent(2) << "<table-id:" << (int)flow_stats_reply.get_table_id() << " >" << std::endl;
+		os << indent(2) << "<duration-sec:" << (int)flow_stats_reply.get_duration_sec() << " >" << std::endl;
+		os << indent(2) << "<duration-nsec:" << (int)flow_stats_reply.get_duration_nsec() << " >" << std::endl;
+		os << indent(2) << "<priority:" << (int)flow_stats_reply.get_priority() << " >" << std::endl;
+		os << indent(2) << "<idle-timeout:" << (int)flow_stats_reply.get_idle_timeout() << " >" << std::endl;
+		os << indent(2) << "<hard-timeout:" << (int)flow_stats_reply.get_hard_timeout() << " >" << std::endl;
+		os << indent(2) << "<cookie:0x" << std::hex << (unsigned long long)flow_stats_reply.get_cookie() << std::dec << " >" << std::endl;
+		os << indent(2) << "<packet-count:" << (int)flow_stats_reply.get_packet_count() << " >" << std::endl;
+		os << indent(2) << "<byte-count:" << (int)flow_stats_reply.get_byte_count() << " >" << std::endl;
+		indent i(2);
+		os << flow_stats_reply.match;
+		switch (flow_stats_reply.of_version) {
+		case openflow10::OFP_VERSION: os << flow_stats_reply.actions; break;
+		case openflow12::OFP_VERSION: os << flow_stats_reply.instructions; break;
+		case openflow13::OFP_VERSION: throw eNotImplemented();
+		default: os << "<unknown OFP version >" << std::endl;
+		}
+		return os;
+	};
 };
 
 

@@ -57,7 +57,7 @@ cofpacket_queue_list::length() const
 {
 	size_t len = 0;
 
-	// should be the same for OFP10, OFP12, OFP13, ...
+	// should be the same for openflow10::OFP, openflow12::OFP, openflow13::OFP, ...
 	for (coflist<cofpacket_queue>::const_iterator
 			it = begin(); it != end(); ++it) {
 		len += (*it).length();
@@ -73,29 +73,11 @@ cofpacket_queue_list::unpack(
 		uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 
-		while (buflen > sizeof(struct ofp10_packet_queue)) {
+		while (buflen > sizeof(struct openflow10::ofp_packet_queue)) {
 
-			struct ofp10_packet_queue *pq = (struct ofp10_packet_queue*)buf;
-
-			if (buflen < be16toh(pq->len))
-				throw eInval();
-
-			cofpacket_queue packet_queue(of_version);
-			packet_queue.unpack(buf, be16toh(pq->len));
-			next() = packet_queue;
-
-			buflen -= be16toh(pq->len);
-			buf += be16toh(pq->len);
-		}
-
-	} break;
-	case OFP12_VERSION: {
-
-		while (buflen > sizeof(struct ofp12_packet_queue)) {
-
-			struct ofp12_packet_queue *pq = (struct ofp12_packet_queue*)buf;
+			struct openflow10::ofp_packet_queue *pq = (struct openflow10::ofp_packet_queue*)buf;
 
 			if (buflen < be16toh(pq->len))
 				throw eInval();
@@ -109,7 +91,25 @@ cofpacket_queue_list::unpack(
 		}
 
 	} break;
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION: {
+
+		while (buflen > sizeof(struct openflow12::ofp_packet_queue)) {
+
+			struct openflow12::ofp_packet_queue *pq = (struct openflow12::ofp_packet_queue*)buf;
+
+			if (buflen < be16toh(pq->len))
+				throw eInval();
+
+			cofpacket_queue packet_queue(of_version);
+			packet_queue.unpack(buf, be16toh(pq->len));
+			next() = packet_queue;
+
+			buflen -= be16toh(pq->len);
+			buf += be16toh(pq->len);
+		}
+
+	} break;
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {
@@ -128,8 +128,8 @@ cofpacket_queue_list::pack(
 		throw eInval();
 
 	switch (of_version) {
-	case OFP10_VERSION:
-	case OFP12_VERSION: {
+	case openflow10::OFP_VERSION:
+	case openflow12::OFP_VERSION: {
 
 		for (coflist<cofpacket_queue>::const_iterator
 				it = begin(); it != end(); ++it) {
@@ -139,7 +139,7 @@ cofpacket_queue_list::pack(
 		}
 
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented();
 	} break;
 	default: {

@@ -30,7 +30,9 @@ void
 crofbaseTest::testConnect()
 {
 	ctl->rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
-	dpt->rpc_connect_to_ctl(0x3, 2, caddress(AF_INET, "127.0.0.1", 6633));
+	rofl::openflow::cofhello_elem_versionbitmap vbitmap;
+	vbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
+	dpt->rpc_connect_to_ctl(vbitmap, 2, caddress(AF_INET, "127.0.0.1", 6633));
 	
 	//ciosrv::run();
 

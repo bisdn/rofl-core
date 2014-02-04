@@ -7,12 +7,12 @@ cofmsg_packet_out::cofmsg_packet_out(
 		uint32_t xid,
 		uint32_t buffer_id,
 		uint32_t in_port,
-		cofaclist const& actions,
+		cofactions const& actions,
 		uint8_t *data,
 		size_t datalen) :
-	cofmsg(sizeof(struct ofp_header)),
+	cofmsg(sizeof(struct openflow::ofp_header)),
 	actions(actions),
-	packet(data, datalen)
+	packet(of_version, data, datalen, in_port, false)
 {
 	ofh_packet_out = soframe();
 
@@ -20,9 +20,9 @@ cofmsg_packet_out::cofmsg_packet_out(
 	set_xid(xid);
 
 	switch (of_version) {
-	case OFP10_VERSION: {
-		set_type(OFPT10_PACKET_OUT);
-		resize(sizeof(struct ofp10_packet_out));
+	case openflow10::OFP_VERSION: {
+		set_type(openflow10::OFPT_PACKET_OUT);
+		resize(sizeof(struct openflow10::ofp_packet_out));
 		set_length(length());
 
 		ofh10_packet_out->buffer_id		= htobe32(buffer_id);
@@ -30,9 +30,9 @@ cofmsg_packet_out::cofmsg_packet_out(
 		ofh10_packet_out->actions_len	= htobe16(actions.length()); // filled in when method pack() is called
 
 	} break;
-	case OFP12_VERSION: {
-		set_type(OFPT12_PACKET_OUT);
-		resize(sizeof(struct ofp12_packet_out));
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_PACKET_OUT);
+		resize(sizeof(struct openflow12::ofp_packet_out));
 		set_length(length());
 
 		ofh12_packet_out->buffer_id		= htobe32(buffer_id);
@@ -40,9 +40,9 @@ cofmsg_packet_out::cofmsg_packet_out(
 		ofh12_packet_out->actions_len	= htobe16(actions.length()); // filled in when method pack() is called
 
 	} break;
-	case OFP13_VERSION: {
-		set_type(OFPT13_PACKET_OUT);
-		resize(sizeof(struct ofp12_packet_out));
+	case openflow13::OFP_VERSION: {
+		set_type(openflow13::OFPT_PACKET_OUT);
+		resize(sizeof(struct openflow12::ofp_packet_out));
 		set_length(length());
 
 		ofh13_packet_out->buffer_id		= htobe32(buffer_id);
@@ -61,7 +61,7 @@ cofmsg_packet_out::cofmsg_packet_out(
 		cmemory *memarea) :
 	cofmsg(memarea),
 	actions(get_version()),
-	packet((size_t)0)
+	packet(rofl::openflow::OFP_VERSION_UNKNOWN, (size_t)0)
 {
 	ofh_packet_out = soframe();
 }
@@ -125,14 +125,14 @@ size_t
 cofmsg_packet_out::length() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_packet_out) + actions.length() + packet.framelen());
+	case openflow10::OFP_VERSION: {
+		return (sizeof(struct openflow10::ofp_packet_out) + actions.length() + packet.framelen());
 	} break;
-	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_packet_out) + actions.length() + packet.framelen());
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_packet_out) + actions.length() + packet.framelen());
 	} break;
-	case OFP13_VERSION: {
-		return (sizeof(struct ofp13_packet_out) + actions.length() + packet.framelen());
+	case openflow13::OFP_VERSION: {
+		return (sizeof(struct openflow13::ofp_packet_out) + actions.length() + packet.framelen());
 	} break;
 	default:
 		throw eBadVersion();
@@ -148,13 +148,13 @@ cofmsg_packet_out::pack(uint8_t *buf, size_t buflen)
 	set_length(length());
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_packet_out->actions_len 	= htobe16(actions.length());
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_packet_out->actions_len 	= htobe16(actions.length());
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_packet_out->actions_len 	= htobe16(actions.length());
 	} break;
 	default:
@@ -168,20 +168,20 @@ cofmsg_packet_out::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		memcpy(buf, soframe(), sizeof(struct ofp10_packet_out));
-		actions.pack((struct ofp_action_header*)(buf + sizeof(struct ofp10_packet_out)), actions.length());
-		memcpy(buf + sizeof(struct ofp10_packet_out) + actions.length(), packet.soframe(), packet.framelen());
+	case openflow10::OFP_VERSION: {
+		memcpy(buf, soframe(), sizeof(struct openflow10::ofp_packet_out));
+		actions.pack(buf + sizeof(struct openflow10::ofp_packet_out), actions.length());
+		memcpy(buf + sizeof(struct openflow10::ofp_packet_out) + actions.length(), packet.soframe(), packet.framelen());
 	} break;
-	case OFP12_VERSION: {
-		memcpy(buf, soframe(), sizeof(struct ofp12_packet_out));
-		actions.pack((struct ofp_action_header*)(buf + sizeof(struct ofp12_packet_out)), actions.length());
-		memcpy(buf + sizeof(struct ofp12_packet_out) + actions.length(), packet.soframe(), packet.framelen());
+	case openflow12::OFP_VERSION: {
+		memcpy(buf, soframe(), sizeof(struct openflow12::ofp_packet_out));
+		actions.pack(buf + sizeof(struct openflow12::ofp_packet_out), actions.length());
+		memcpy(buf + sizeof(struct openflow12::ofp_packet_out) + actions.length(), packet.soframe(), packet.framelen());
 	} break;
-	case OFP13_VERSION: {
-		memcpy(buf, soframe(), sizeof(struct ofp13_packet_out));
-		actions.pack((struct ofp_action_header*)(buf + sizeof(struct ofp13_packet_out)), actions.length());
-		memcpy(buf + sizeof(struct ofp13_packet_out) + actions.length(), packet.soframe(), packet.framelen());
+	case openflow13::OFP_VERSION: {
+		memcpy(buf, soframe(), sizeof(struct openflow13::ofp_packet_out));
+		actions.pack(buf + sizeof(struct openflow13::ofp_packet_out), actions.length());
+		memcpy(buf + sizeof(struct openflow13::ofp_packet_out) + actions.length(), packet.soframe(), packet.framelen());
 	} break;
 	default:
 		throw eBadVersion();
@@ -211,62 +211,62 @@ cofmsg_packet_out::validate()
 	packet.clear();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (get_length() < sizeof(struct ofp10_packet_out))
+	case openflow10::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow10::ofp_packet_out))
 			throw eBadSyntaxTooShort();
 
-		if (get_length() < (sizeof(struct ofp10_packet_out) + be16toh(ofh10_packet_out->actions_len)))
+		if (get_length() < (sizeof(struct openflow10::ofp_packet_out) + be16toh(ofh10_packet_out->actions_len)))
 			throw eBadSyntaxTooShort();
 
-		actions.unpack(ofh10_packet_out->actions,
+		actions.unpack((uint8_t*)ofh10_packet_out->actions,
 						be16toh(ofh10_packet_out->actions_len));
 
-		if (OFP_NO_BUFFER == get_buffer_id()) {
+		if (openflow10::OFP_NO_BUFFER == get_buffer_id()) {
 			packet.unpack(get_in_port(),
 						((uint8_t*)ofh10_packet_out) +
-							sizeof(struct ofp10_packet_out) +
+							sizeof(struct openflow10::ofp_packet_out) +
 								be16toh(ofh10_packet_out->actions_len),
 								be16toh(ofh10_packet_out->header.length) -
-													sizeof(struct ofp10_packet_out) -
+													sizeof(struct openflow10::ofp_packet_out) -
 														be16toh(ofh10_packet_out->actions_len));
 		}
 	} break;
-	case OFP12_VERSION: {
-		if (framelen() < sizeof(struct ofp12_packet_out))
+	case openflow12::OFP_VERSION: {
+		if (framelen() < sizeof(struct openflow12::ofp_packet_out))
 			throw eBadSyntaxTooShort();
 
-		if (get_length() < (sizeof(struct ofp12_packet_out) + be16toh(ofh12_packet_out->actions_len)))
+		if (get_length() < (sizeof(struct openflow12::ofp_packet_out) + be16toh(ofh12_packet_out->actions_len)))
 			throw eBadSyntaxTooShort();
 
-		actions.unpack(ofh12_packet_out->actions,
+		actions.unpack((uint8_t*)ofh12_packet_out->actions,
 						be16toh(ofh12_packet_out->actions_len));
 
-		if (OFP_NO_BUFFER == get_buffer_id()) {
+		if (openflow12::OFP_NO_BUFFER == get_buffer_id()) {
 			packet.unpack(get_in_port(),
 						((uint8_t*)ofh12_packet_out) +
-							sizeof(struct ofp12_packet_out) +
+							sizeof(struct openflow12::ofp_packet_out) +
 								be16toh(ofh12_packet_out->actions_len),
-								get_length() - sizeof(struct ofp12_packet_out) -
+								get_length() - sizeof(struct openflow12::ofp_packet_out) -
 											be16toh(ofh12_packet_out->actions_len));
 		}
 	} break;
-	case OFP13_VERSION: {
-		if (framelen() < sizeof(struct ofp13_packet_out))
+	case openflow13::OFP_VERSION: {
+		if (framelen() < sizeof(struct openflow13::ofp_packet_out))
 			throw eBadSyntaxTooShort();
 
-		if (get_length() < (sizeof(struct ofp13_packet_out) + be16toh(ofh13_packet_out->actions_len)))
+		if (get_length() < (sizeof(struct openflow13::ofp_packet_out) + be16toh(ofh13_packet_out->actions_len)))
 			throw eBadSyntaxTooShort();
 
-		actions.unpack(ofh13_packet_out->actions,
+		actions.unpack((uint8_t*)ofh13_packet_out->actions,
 						be16toh(ofh13_packet_out->actions_len));
 
-		if (OFP_NO_BUFFER != get_buffer_id()) {
+		if (openflow13::OFP_NO_BUFFER != get_buffer_id()) {
 			packet.unpack(get_in_port(),
 						((uint8_t*)ofh13_packet_out) +
-							sizeof(struct ofp13_packet_out) +
+							sizeof(struct openflow13::ofp_packet_out) +
 								be16toh(ofh13_packet_out->actions_len),
 								be16toh(ofh13_packet_out->header.length) -
-													sizeof(struct ofp13_packet_out) -
+													sizeof(struct openflow13::ofp_packet_out) -
 														be16toh(ofh13_packet_out->actions_len));
 		}
 	} break;
@@ -281,13 +281,13 @@ uint32_t
 cofmsg_packet_out::get_buffer_id() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be32toh(ofh10_packet_out->buffer_id);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be32toh(ofh12_packet_out->buffer_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be32toh(ofh13_packet_out->buffer_id);
 	} break;
 	default:
@@ -302,13 +302,13 @@ void
 cofmsg_packet_out::set_buffer_id(uint32_t buffer_id)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_packet_out->buffer_id = htobe32(buffer_id);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_packet_out->buffer_id = htobe32(buffer_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_packet_out->buffer_id = htobe32(buffer_id);
 	} break;
 	default:
@@ -322,13 +322,13 @@ uint32_t
 cofmsg_packet_out::get_in_port() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return (uint32_t)be16toh(ofh10_packet_out->in_port);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be32toh(ofh12_packet_out->in_port);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be32toh(ofh13_packet_out->in_port);
 	} break;
 	default:
@@ -343,13 +343,13 @@ void
 cofmsg_packet_out::set_in_port(uint32_t in_port)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_packet_out->in_port = htobe16((uint16_t)(in_port & 0x0000ffff));
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_packet_out->in_port = htobe32(in_port);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_packet_out->in_port = htobe32(in_port);
 	} break;
 	default:
@@ -359,7 +359,7 @@ cofmsg_packet_out::set_in_port(uint32_t in_port)
 
 
 
-cofaclist&
+cofactions&
 cofmsg_packet_out::get_actions()
 {
 	return actions;

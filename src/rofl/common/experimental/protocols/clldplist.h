@@ -7,7 +7,7 @@
 
 #include <algorithm>
 
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "../cvastring.h"
 #include "../coflist.h"
 
@@ -18,7 +18,7 @@
 namespace rofl
 {
 
-class eLLDPlistBase : public cerror {}; // base error class cofinlist
+class eLLDPlistBase : public RoflException {}; // base error class cofinlist
 class eLLDPlistInval : public eLLDPlistBase {}; // invalid parameter
 class eLLDPlistNotFound : public eLLDPlistBase {}; // element not found
 class eLLDPlistOutOfRange : public eLLDPlistBase {}; // out of range

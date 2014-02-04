@@ -8,13 +8,12 @@
 #ifndef COFPORTSTATS_H_
 #define COFPORTSTATS_H_ 1
 
-#include "../cmemory.h"
-#include "cofmatch.h"
-#include "cofaclist.h"
-#include "cofinlist.h"
-#include "../../platform/unix/csyslog.h"
-#include "openflow.h"
-#include "openflow_rofl_exceptions.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/openflow/cofactions.h"
+#include "rofl/common/openflow/cofinstructions.h"
+#include "rofl/platform/unix/csyslog.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
 namespace rofl
 {
@@ -107,6 +106,15 @@ public:
 	 */
 	uint32_t
 	get_portno() const;
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofport_stats_request const& r) {
+		os << indent(0) << "<cofport_stats_request >" << std::endl;
+		os << indent(2) << "<port-no: 0x" << std::hex << (int)r.get_portno() << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -383,6 +391,27 @@ public:
 	 */
 	void
 	set_collisions(uint64_t collisions);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofport_stats_reply const& r) {
+		os << indent(0) << "<cofport_stats_reply >" << std::endl;
+		os << indent(2) << "<port-no: 0x" << std::hex << (int)r.get_portno() << std::dec << " >" << std::endl;
+		os << indent(2) << "<rx-packets: " 	<< (unsigned long long)r.get_rx_packets() 	<< " >" << std::endl;
+		os << indent(2) << "<tx-packets: " 	<< (unsigned long long)r.get_tx_packets() 	<< " >" << std::endl;
+		os << indent(2) << "<rx-bytes: " 	<< (unsigned long long)r.get_rx_bytes() 	<< " >" << std::endl;
+		os << indent(2) << "<tx-bytes: " 	<< (unsigned long long)r.get_tx_bytes() 	<< " >" << std::endl;
+		os << indent(2) << "<rx-dropped: " 	<< (unsigned long long)r.get_rx_dropped() 	<< " >" << std::endl;
+		os << indent(2) << "<tx-dropped: " 	<< (unsigned long long)r.get_tx_dropped() 	<< " >" << std::endl;
+		os << indent(2) << "<rx-errors: " 	<< (unsigned long long)r.get_rx_errors() 	<< " >" << std::endl;
+		os << indent(2) << "<tx-errors: " 	<< (unsigned long long)r.get_tx_errors() 	<< " >" << std::endl;
+		os << indent(2) << "<rx-frame-err: "<< (unsigned long long)r.get_rx_frame_err()	<< " >" << std::endl;
+		os << indent(2) << "<rx-over-err: " << (unsigned long long)r.get_rx_over_err() 	<< " >" << std::endl;
+		os << indent(2) << "<rx-crc-err: " 	<< (unsigned long long)r.get_rx_crc_err() 	<< " >" << std::endl;
+		os << indent(2) << "<collisions: " 	<< (unsigned long long)r.get_collisions() 	<< " >" << std::endl;
+		return os;
+	};
 };
 
 

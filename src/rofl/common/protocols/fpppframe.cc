@@ -189,8 +189,6 @@ fpppframe::hdlc_decode(
 {
 #if 1
 	try {
-	//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p):hdlc_decode() %s", this, c_str());
-
 		decoded.resize(4 + framelen());
 #if 0
 		decoded.stored_bytes(4 + framelen());
@@ -217,7 +215,6 @@ fpppframe::hdlc_decode(
 				}
 				else
 				{
-	//				WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_decode() set mem_idx=%d %s", this, mem_idx, decoded.c_str());
 					if (escape_it)
 					{
 						decoded[mem_idx] = (soframe()[idx] ^ 0x20); // flip bit 5
@@ -233,12 +230,8 @@ fpppframe::hdlc_decode(
 			}
 		}
 
-	//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_decode() [1] %s", this, decoded.c_str());
-
 		decoded.remove(mem_idx, decoded.memlen() - (mem_idx));
 		//decoded.stored_bytes(mem_idx);
-
-	//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_decode() [2] %s", this, decoded.c_str());
 
 
 		// remove flag sequences, if still present
@@ -255,7 +248,6 @@ fpppframe::hdlc_decode(
 
 
 		// now we have the (hopefully correct) decoded HDLC
-	//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_decode() [3] %s", this, decoded.c_str());
 
 		uint16_t f_crc = *((uint16_t*)&(decoded[(decoded.memlen() - 0) - 2]));
 
@@ -263,18 +255,12 @@ fpppframe::hdlc_decode(
 		//decoded[decoded.memlen() - 1] = 0x00;
 		//decoded[decoded.memlen() - 2] = 0x00;
 
-	//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_decode() [4] %s", this, decoded.c_str());
-
 	//	boost::crc_basic<16>  crc_ccitt1( 0x8404, 0xFFFF, 0xFFFF, false, false );
 	//	crc_ccitt1.process_bytes( decoded.somem(), decoded.memlen() );
 
 		uint16_t p_crc = 0xffff;
 		p_crc = pppfcs16(p_crc, (unsigned char*)decoded.somem(), decoded.memlen());
 		p_crc ^= 0xffff;
-
-	//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_decode() f_crc=0x%x p_crc=0x%x",
-	//			this, f_crc, p_crc);
-	//			//this, f_crc, crc_ccitt1.checksum(), p_crc);
 
 		if (f_crc != p_crc)
 		{
@@ -299,7 +285,7 @@ fpppframe::hdlc_decode(
 		//validate();
 
 	} catch (...) {
-		WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_decode() caught ePacketOutOfRange exception %s", this, c_str());
+		logging::error << "[rofl][frame][ppp][hdlc-decode] ePacketOutOfRange" << std::endl;
 	}
 #endif
 }
@@ -310,15 +296,10 @@ fpppframe::hdlc_encode(
 		cmemory& encoded,
 		uint32_t *accm_send)
 {
-#if 1
 	// 2 bytes HDLC_DST_ALL and HDLC_PPP_CONTROL
 	// framelen() bytes payload
 	// 2 bytes CRC16
 	cmemory mem(4 + framelen());
-
-//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_encode() %s", this, c_str());
-//
-//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_encode() [1] %s", this, encoded.c_str());
 
 	// set HDLC destination and PPP control field
 	mem[0] = HDLC_DST_ALL;
@@ -326,8 +307,6 @@ fpppframe::hdlc_encode(
 
 	// copy payload into mem
 	memcpy(mem.somem() + 2, soframe(), framelen());
-
-//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_encode() [2] %s", this, mem.c_str());
 
 	// calculate CRC16
 	uint16_t p_crc = 0xffff;
@@ -338,62 +317,29 @@ fpppframe::hdlc_encode(
 	mem[2 /*HDLC dst + PPP ctrl*/+ framelen() + 0] =  p_crc & 0xff;
 	mem[2 /*HDLC dst + PPP ctrl*/+ framelen() + 1] = (p_crc >> 8) & 0xff;
 
-//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_encode() [3] %s", this, mem.c_str());
-
 	encoded.resize(4 + 2 * mem.memlen());
 #if 0
 	encoded.stored_bytes(4 + 2 * mem.memlen());
 #endif
 
-//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p):hdlc_encode() [Z1] %s", this, encoded.c_str());
-
 	// insert HDLC flag sequence in encoded
 	encoded[0] = HDLC_FRAME_DELIMITER;
 
-//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p):hdlc_encode() [Z2] %s", this, encoded.c_str());
-
 	size_t mem_idx = 1;
 
-	for (size_t idx = 0; idx < (4 + framelen()); ++idx)
-	{
-//		WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_encode() mem[%d]=0x%02x (mem[%d] %% 0x20)=0x%02x saccm[%d]=0x%08x flag=0x%08x saccm&flag=0x%08x",
-//							this,
-//							idx,
-//							mem[idx],
-//							idx,
-//							mem[idx] % 0x20,
-//							(mem[idx] / 0x20),
-//							accm_send[(mem[idx] / 0x20)],
-//							(1 << (mem[idx] % 0x20)),
-//							accm_send[(mem[idx]/0x20)] & (1 << (mem[idx] % 0x20)));
+	for (size_t idx = 0; idx < (4 + framelen()); ++idx) {
 
-		if (accm_send[(mem[idx]/0x20)] & (1 << (mem[idx] % 0x20)))
-		{
+		if (accm_send[(mem[idx]/0x20)] & (1 << (mem[idx] % 0x20))) {
 			encoded[mem_idx++] = HDLC_ESCAPE;
 			encoded[mem_idx++] = (mem[idx] ^ 0x20);
-//			WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_encode() encoded[%d]=0x%x HDLC_ESCAPE",
-//					this, mem_idx-2, encoded[mem_idx-2]);
-//			WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_encode() encoded[%d]=0x%x (xor'ed with 0x20)",
-//					this, mem_idx-1, encoded[mem_idx-1]);
-		}
-		else
-		{
+		} else {
 			encoded[mem_idx++] = mem[idx];
-//			WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::hdlc_encode() encoded[%d]=0x%x", this, mem_idx-1, encoded[mem_idx-1]);
 		}
 	}
 
-//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p):hdlc_encode() [Z3] mem_idx=%d %s",
-//			this, mem_idx, encoded.c_str());
-
 	encoded.remove(mem_idx + 1, (encoded.memlen() - (mem_idx + 1)));
 
-//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p):hdlc_encode() [Z4] %s", this, encoded.c_str());
-
 	encoded[encoded.memlen() - 1] = HDLC_FRAME_DELIMITER;
-
-//	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p):hdlc_encode() [Z4] %s", this, encoded.c_str());
-#endif
 }
 
 
@@ -437,8 +383,6 @@ fpppframe::tryfcs16(
 void
 fpppframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
 {
-	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p):validate() %s", this, c_str());
-
 #if 0
 	if ((*this)[0] == HDLC_FRAME_DELIMITER)
 	{
@@ -459,7 +403,7 @@ fpppframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
 		validate_ipcp();
 		break;
 	default: // do nothing for other frame types, ... for now.
-		WRITELOG(FPPPFRAME, WARN, "fpppframe(%p):validate() ppp_prot=%u is not suppported yet", this, be16toh(ppp_hdr->prot));
+		logging::warn << "[rofl][frame][ppp][validate] unsuppported ppp-port:" << (int)be16toh(ppp_hdr->prot) << std::endl;
 		break;
 	}
 }
@@ -467,22 +411,13 @@ fpppframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
 void
 fpppframe::validate_lcp() throw (ePPPFrameInvalidSyntax)
 {
-	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p):validate_lcp() %s", this, c_str());
-
 	if (framelen() < (sizeof(struct ppp_hdr_t) + sizeof(struct ppp_lcp_hdr_t)))
 		throw ePPPFrameInvalidSyntax();
 
 	ppp_lcp_hdr = (struct ppp_lcp_hdr_t*)ppp_hdr->data;
 
-	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p):validate_lcp() framelen=%d ppp_lcp_hdr->length=%d sizeof(ppp_hdr_t)=%d",
-			this,
-			framelen(),
-			be16toh(ppp_lcp_hdr->length),
-			sizeof(struct ppp_hdr_t));
-
 	if (framelen() < (be16toh(ppp_lcp_hdr->length) + sizeof(struct ppp_hdr_t)))
 		throw ePPPFrameInvalidSyntax();
-
 
 
 	switch (ppp_lcp_hdr->code) {
@@ -512,26 +447,13 @@ fpppframe::parse_lcp_options() throw (ePPPFrameInvalidSyntax)
 		if (res_len == 0) // no options available
 			return;
 
-		while (res_len > 0)
-		{
-			WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::parse_lcp_options() opt=%p opt->option=%d opt->length=%d res_len=%d",
-					this, opt, opt->option, opt->length, res_len);
-
-
-			if (res_len < sizeof(struct ppp_lcp_opt_hdr_t))
-			{
-				WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_lcp_options(): "
-								"remaining length insufficient for option (%d > %d) %s",
-								this, res_len, sizeof(struct ppp_lcp_opt_hdr_t), c_str());
+		while (res_len > 0) {
+			if (res_len < sizeof(struct ppp_lcp_opt_hdr_t)) {
 				return; // throw exception instead?
 			}
 
 			size_t opt_len = opt->length; // includes option and length field
-			if ((opt_len > res_len) || (opt_len < sizeof(struct ppp_lcp_opt_hdr_t)))
-			{
-				WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_lcp_options(): "
-								"invalid option length field (%d > %d) %s",
-								this, opt_len, res_len, c_str());
+			if ((opt_len > res_len) || (opt_len < sizeof(struct ppp_lcp_opt_hdr_t))) {
 				return; // throw exception instead?
 			}
 
@@ -544,10 +466,6 @@ fpppframe::parse_lcp_options() throw (ePPPFrameInvalidSyntax)
 		}
 
 	} catch (ePPPLcpOptionInvalid& e) {
-
-		WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_lcp_options(): "
-						"option validation failed",	this);
-
 		throw ePPPFrameInvalidSyntax();
 	}
 }
@@ -556,26 +474,15 @@ fpppframe::parse_lcp_options() throw (ePPPFrameInvalidSyntax)
 void
 fpppframe::validate_ipcp() throw (ePPPFrameInvalidSyntax)
 {
-	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p):validate_ipcp() %s", this, c_str());
-
-	if (framelen() < (sizeof(struct ppp_hdr_t) + sizeof(struct ppp_lcp_hdr_t)))
-	{
+	if (framelen() < (sizeof(struct ppp_hdr_t) + sizeof(struct ppp_lcp_hdr_t))) {
 		throw ePPPFrameInvalidSyntax();
 	}
 
 	ppp_ipcp_hdr = (struct ppp_lcp_hdr_t*)ppp_hdr->data;
 
-	WRITELOG(FPPPFRAME, DBG, "fpppframe(%p):validate_ipcp() framelen=%d ppp_ipcp_hdr->length=%d sizeof(ppp_hdr_t)=%d",
-			this,
-			framelen(),
-			be16toh(ppp_ipcp_hdr->length),
-			sizeof(struct ppp_hdr_t));
-
-	if (framelen() < (be16toh(ppp_ipcp_hdr->length) + sizeof(struct ppp_hdr_t)))
-	{
+	if (framelen() < (be16toh(ppp_ipcp_hdr->length) + sizeof(struct ppp_hdr_t))) {
 		throw ePPPFrameInvalidSyntax();
 	}
-
 
 
 	switch (ppp_ipcp_hdr->code) {
@@ -586,11 +493,9 @@ fpppframe::validate_ipcp() throw (ePPPFrameInvalidSyntax)
 	case PPP_IPCP_OPT_PRIM_DNS:
 	case PPP_IPCP_OPT_PRIM_MBNS:
 	case PPP_IPCP_OPT_SEC_DNS:
-	case PPP_IPCP_OPT_SEC_MBNS:
-		{
-			parse_ipcp_options();
-		}
-		break;
+	case PPP_IPCP_OPT_SEC_MBNS: {
+		parse_ipcp_options();
+	} break;
 	default:
 		break;
 	}
@@ -612,26 +517,14 @@ fpppframe::parse_ipcp_options() throw (ePPPFrameInvalidSyntax)
 		if (res_len == 0) // no options available
 			return;
 
-		while (res_len > 0)
-		{
-			WRITELOG(FPPPFRAME, DBG, "fpppframe(%p)::parse_ipcp_options() opt=%p opt->option=%d opt->length=%d res_len=%d",
-					this, opt, opt->option, opt->length, res_len);
+		while (res_len > 0) {
 
-
-			if (res_len < sizeof(struct ppp_ipcp_opt_hdr_t))
-			{
-				WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_ipcp_options(): "
-								"remaining length insufficient for option (%d > %d) %s",
-								this, res_len, sizeof(struct ppp_lcp_opt_hdr_t), c_str());
+			if (res_len < sizeof(struct ppp_ipcp_opt_hdr_t)) {
 				return; // throw exception instead?
 			}
 
 			size_t opt_len = opt->length; // includes option and length field
-			if ((opt_len > res_len) || (opt_len < sizeof(struct ppp_lcp_opt_hdr_t)))
-			{
-				WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_ipcp_options(): "
-								"invalid option length field (%d > %d) %s",
-								this, opt_len, res_len, c_str());
+			if ((opt_len > res_len) || (opt_len < sizeof(struct ppp_lcp_opt_hdr_t))) {
 				return; // throw exception instead?
 			}
 
@@ -644,9 +537,7 @@ fpppframe::parse_ipcp_options() throw (ePPPFrameInvalidSyntax)
 		}
 	} catch (ePPPIpcpOptionInvalid& e) {
 
-		WRITELOG(FPPPFRAME, WARN, "fpppframe(%p)::parse_ipcp_options(): "
-						"option validation failed",	this);
-
+		logging::warn << "[rofl][frame][ppp][parse-ipcp-options] option validation failed" << std::endl;
 		throw ePPPFrameInvalidSyntax();
 	}
 }
@@ -673,7 +564,7 @@ fpppframe::ipcp_option_find(
 	return it->second;
 }
 
-
+#if 0
 const char*
 fpppframe::c_str()
 {
@@ -772,15 +663,14 @@ fpppframe::c_str()
 		break;
 	}
 
-	info.assign(vas("[fpppframe(%p) PPP-%s-%s %s]",
+	info.assign(vas("[fpppframe(%p) PPP-%s-%s]",
 			this,
 			protstr.c_str(),
-			codestr.c_str(),
-			fframe::c_str()));
+			codestr.c_str()));
 
 	return info.c_str();
 }
-
+#endif
 
 uint8_t*
 fpppframe::payload() const throw (eFrameNoPayload)

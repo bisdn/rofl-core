@@ -7,24 +7,24 @@ cofmsg_echo_request::cofmsg_echo_request(
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen) :
-	cofmsg(sizeof(struct ofp_header)),
+	cofmsg(sizeof(struct openflow::ofp_header)),
 	body(0)
 {
 	body.assign(data, datalen);
 
 	set_version(of_version);
-	set_length(sizeof(struct ofp_header));
+	set_length(sizeof(struct openflow::ofp_header));
 	set_xid(xid);
 
 	switch (of_version) {
-	case OFP10_VERSION: {
-		set_type(OFPT10_ECHO_REQUEST);
+	case openflow10::OFP_VERSION: {
+		set_type(openflow10::OFPT_ECHO_REQUEST);
 	} break;
-	case OFP12_VERSION: {
-		set_type(OFPT12_ECHO_REQUEST);
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_ECHO_REQUEST);
 	} break;
-	case OFP13_VERSION: {
-		set_type(OFPT13_ECHO_REQUEST);
+	case openflow13::OFP_VERSION: {
+		set_type(openflow13::OFPT_ECHO_REQUEST);
 	} break;
 	default:
 		throw eBadVersion();
@@ -86,7 +86,7 @@ cofmsg_echo_request::reset()
 size_t
 cofmsg_echo_request::length() const
 {
-	return (sizeof(struct ofp_header) + body.memlen());
+	return (sizeof(struct openflow::ofp_header) + body.memlen());
 }
 
 
@@ -104,7 +104,7 @@ cofmsg_echo_request::pack(uint8_t *buf, size_t buflen)
 
 	cofmsg::pack(buf, buflen);
 
-	memcpy(buf + sizeof(struct ofp_header), body.somem(), body.memlen());
+	memcpy(buf + sizeof(struct openflow::ofp_header), body.somem(), body.memlen());
 }
 
 
@@ -125,10 +125,10 @@ cofmsg_echo_request::validate()
 	cofmsg::validate(); // check generic OpenFlow header
 
 	switch (get_version()) {
-	case OFP10_VERSION:
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
-		if (get_length() > sizeof(struct ofp_header)) {
+	case openflow10::OFP_VERSION:
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
+		if (get_length() > sizeof(struct openflow::ofp_header)) {
 			body.assign(sobody(), bodylen());
 		}
 	} break;
@@ -155,24 +155,24 @@ cofmsg_echo_reply::cofmsg_echo_reply(
 		uint32_t xid,
 		uint8_t* data,
 		size_t datalen) :
-	cofmsg(sizeof(struct ofp_header)),
+	cofmsg(sizeof(struct openflow::ofp_header)),
 	body(0)
 {
 	body.assign(data, datalen);
 
 	set_version(of_version);
-	set_length(sizeof(struct ofp_header));
+	set_length(sizeof(struct openflow::ofp_header));
 	set_xid(xid);
 
 	switch (of_version) {
-	case OFP10_VERSION: {
-		set_type(OFPT10_ECHO_REPLY);
+	case openflow10::OFP_VERSION: {
+		set_type(openflow10::OFPT_ECHO_REPLY);
 	} break;
-	case OFP12_VERSION: {
-		set_type(OFPT12_ECHO_REPLY);
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_ECHO_REPLY);
 	} break;
-	case OFP13_VERSION: {
-		set_type(OFPT13_ECHO_REPLY);
+	case openflow13::OFP_VERSION: {
+		set_type(openflow13::OFPT_ECHO_REPLY);
 	} break;
 	default:
 		throw eBadVersion();
@@ -234,7 +234,7 @@ cofmsg_echo_reply::reset()
 size_t
 cofmsg_echo_reply::length() const
 {
-	return (sizeof(struct ofp_header) + body.memlen());
+	return (sizeof(struct openflow::ofp_header) + body.memlen());
 }
 
 
@@ -252,7 +252,7 @@ cofmsg_echo_reply::pack(uint8_t *buf, size_t buflen)
 
 	cofmsg::pack(buf, buflen);
 
-	memcpy(buf + sizeof(struct ofp_header), body.somem(), body.memlen());
+	memcpy(buf + sizeof(struct openflow::ofp_header), body.somem(), body.memlen());
 }
 
 
@@ -273,10 +273,10 @@ cofmsg_echo_reply::validate()
 	cofmsg::validate(); // check generic OpenFlow header
 
 	switch (get_version()) {
-	case OFP10_VERSION:
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
-		if (get_length() > sizeof(struct ofp_header)) {
+	case openflow10::OFP_VERSION:
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
+		if (get_length() > sizeof(struct openflow::ofp_header)) {
 			body.assign(sobody(), bodylen());
 		}
 	} break;

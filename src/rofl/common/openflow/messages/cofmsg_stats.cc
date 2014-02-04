@@ -11,7 +11,7 @@ cofmsg_stats::cofmsg_stats(
 		uint32_t stats_flags,
 		uint8_t *data,
 		size_t datalen) :
-	cofmsg(sizeof(struct ofp_header)),
+	cofmsg(sizeof(struct openflow::ofp_header)),
 	body(0)
 {
 	body.assign(data, datalen);
@@ -22,21 +22,21 @@ cofmsg_stats::cofmsg_stats(
 	set_xid(xid);
 
 	switch (of_version) {
-	case OFP10_VERSION: {
-		set_type(OFPT10_STATS_REQUEST);
-		resize(sizeof(struct ofp10_stats_request) + body.memlen());
+	case openflow10::OFP_VERSION: {
+		set_type(openflow10::OFPT_STATS_REQUEST);
+		resize(sizeof(struct openflow10::ofp_stats_request) + body.memlen());
 		ofh12_stats_request->type			= htobe16(stats_type);
 		ofh12_stats_request->flags			= htobe16(stats_flags);
 	} break;
-	case OFP12_VERSION: {
-		set_type(OFPT12_STATS_REQUEST);
-		resize(sizeof(struct ofp12_stats_request) + body.memlen());
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_STATS_REQUEST);
+		resize(sizeof(struct openflow12::ofp_stats_request) + body.memlen());
 		ofh12_stats_request->type			= htobe16(stats_type);
 		ofh12_stats_request->flags			= htobe16(stats_flags);
 	} break;
-	case OFP13_VERSION: {
-		set_type(OFPT13_STATS_REQUEST);
-		resize(sizeof(struct ofp13_multipart_request) + body.memlen());
+	case openflow13::OFP_VERSION: {
+		set_type(openflow13::OFPT_MULTIPART_REQUEST);
+		resize(sizeof(struct openflow13::ofp_multipart_request) + body.memlen());
 		ofh13_multipart_request->type		= htobe16(stats_type);
 		ofh13_multipart_request->flags		= htobe16(stats_flags);
 	} break;
@@ -110,14 +110,14 @@ size_t
 cofmsg_stats::length() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		return sizeof(struct ofp10_stats_request) + body.memlen();
+	case openflow10::OFP_VERSION: {
+		return sizeof(struct openflow10::ofp_stats_request) + body.memlen();
 	} break;
-	case OFP12_VERSION: {
-		return sizeof(struct ofp12_stats_request) + body.memlen();
+	case openflow12::OFP_VERSION: {
+		return sizeof(struct openflow12::ofp_stats_request) + body.memlen();
 	} break;
-	case OFP13_VERSION: {
-		return sizeof(struct ofp13_multipart_request) + body.memlen();
+	case openflow13::OFP_VERSION: {
+		return sizeof(struct openflow13::ofp_multipart_request) + body.memlen();
 	} break;
 	default:
 		throw eBadVersion();
@@ -139,23 +139,23 @@ cofmsg_stats::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (buflen < (sizeof(struct ofp10_stats_request) + body.memlen()))
+	case openflow10::OFP_VERSION: {
+		if (buflen < (sizeof(struct openflow10::ofp_stats_request) + body.memlen()))
 			throw eInval();
-		memcpy(buf, soframe(), sizeof(struct ofp10_stats_request));
-		memcpy(buf + sizeof(struct ofp10_stats_request), body.somem(), body.memlen());
+		memcpy(buf, soframe(), sizeof(struct openflow10::ofp_stats_request));
+		memcpy(buf + sizeof(struct openflow10::ofp_stats_request), body.somem(), body.memlen());
 	} break;
-	case OFP12_VERSION: {
-		if (buflen < (sizeof(struct ofp12_stats_request) + body.memlen()))
+	case openflow12::OFP_VERSION: {
+		if (buflen < (sizeof(struct openflow12::ofp_stats_request) + body.memlen()))
 			throw eInval();
-		memcpy(buf, soframe(), sizeof(struct ofp12_stats_request));
-		memcpy(buf + sizeof(struct ofp12_stats_request), body.somem(), body.memlen());
+		memcpy(buf, soframe(), sizeof(struct openflow12::ofp_stats_request));
+		memcpy(buf + sizeof(struct openflow12::ofp_stats_request), body.somem(), body.memlen());
 	} break;
-	case OFP13_VERSION: {
-		if (buflen < (sizeof(struct ofp13_multipart_request) + body.memlen()))
+	case openflow13::OFP_VERSION: {
+		if (buflen < (sizeof(struct openflow13::ofp_multipart_request) + body.memlen()))
 			throw eInval();
-		memcpy(buf, soframe(), sizeof(struct ofp13_multipart_request));
-		memcpy(buf + sizeof(struct ofp13_multipart_request), body.somem(), body.memlen());
+		memcpy(buf, soframe(), sizeof(struct openflow13::ofp_multipart_request));
+		memcpy(buf + sizeof(struct openflow13::ofp_multipart_request), body.somem(), body.memlen());
 	} break;
 	default:
 		throw eBadVersion();
@@ -182,20 +182,20 @@ cofmsg_stats::validate()
 	ofh_stats_request = soframe();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (get_length() < sizeof(struct ofp10_stats_request))
+	case openflow10::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow10::ofp_stats_request))
 			throw eBadSyntaxTooShort();
-		body.assign(ofh10_stats_request->body, get_length() - sizeof(struct ofp10_stats_request));
+		body.assign(ofh10_stats_request->body, get_length() - sizeof(struct openflow10::ofp_stats_request));
 	} break;
-	case OFP12_VERSION: {
-		if (get_length() < sizeof(struct ofp12_stats_request))
+	case openflow12::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow12::ofp_stats_request))
 			throw eBadSyntaxTooShort();
-		body.assign(ofh12_stats_request->body, get_length() - sizeof(struct ofp12_stats_request));
+		body.assign(ofh12_stats_request->body, get_length() - sizeof(struct openflow12::ofp_stats_request));
 	} break;
-	case OFP13_VERSION: {
-		if (get_length() < sizeof(struct ofp13_multipart_request))
+	case openflow13::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow13::ofp_multipart_request))
 			throw eBadSyntaxTooShort();
-		body.assign(ofh13_multipart_request->body, get_length() - sizeof(struct ofp13_multipart_request));
+		body.assign(ofh13_multipart_request->body, get_length() - sizeof(struct openflow13::ofp_multipart_request));
 	} break;
 	default:
 		throw eBadRequestBadVersion();
@@ -208,13 +208,13 @@ uint16_t
 cofmsg_stats::get_stats_type() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be16toh(ofh10_stats_request->type);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be16toh(ofh12_stats_request->type);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be16toh(ofh13_multipart_request->type);
 	} break;
 	default:
@@ -229,13 +229,13 @@ void
 cofmsg_stats::set_stats_type(uint16_t stats_type)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_stats_request->type = htobe16(stats_type);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_stats_request->type = htobe16(stats_type);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_multipart_request->type = htobe16(stats_type);
 	} break;
 	default:
@@ -249,13 +249,13 @@ uint16_t
 cofmsg_stats::get_stats_flags() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be16toh(ofh10_stats_request->flags);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be16toh(ofh12_stats_request->flags);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be16toh(ofh13_multipart_request->flags);
 	} break;
 	default:
@@ -270,13 +270,13 @@ void
 cofmsg_stats::set_stats_flags(uint16_t stats_flags)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_stats_request->flags = htobe16(stats_flags);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_stats_request->flags = htobe16(stats_flags);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_multipart_request->flags = htobe16(stats_flags);
 	} break;
 	default:

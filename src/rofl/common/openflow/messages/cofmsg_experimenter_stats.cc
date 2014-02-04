@@ -13,22 +13,24 @@ cofmsg_experimenter_stats_request::cofmsg_experimenter_stats_request(
 		uint32_t exp_id,
 		uint32_t exp_type,
 		cmemory const& body) :
-	cofmsg_stats(of_version, xid, OFPST_EXPERIMENTER, flags),
+	cofmsg_stats(of_version, xid, 0, flags),
 	body(body)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		set_type(OFPT10_STATS_REQUEST);
-		resize(sizeof(struct ofp10_stats_request) + sizeof(struct ofp10_vendor_stats_header) + body.memlen());
+	case openflow10::OFP_VERSION: {
+		set_type(openflow10::OFPT_STATS_REQUEST);
+		set_stats_type(openflow10::OFPST_VENDOR);
+		resize(sizeof(struct openflow10::ofp_stats_request) + sizeof(struct openflow10::ofp_vendor_stats_header) + body.memlen());
 		set_exp_id(exp_id);
 	} break;
-	case OFP12_VERSION: {
-		set_type(OFPT12_STATS_REQUEST);
-		resize(sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_experimenter_stats_header) + body.memlen());
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_STATS_REQUEST);
+		set_stats_type(openflow12::OFPST_EXPERIMENTER);
+		resize(sizeof(struct openflow12::ofp_stats_request) + sizeof(struct openflow12::ofp_experimenter_stats_header) + body.memlen());
 		set_exp_id(exp_id);
 		set_exp_type(exp_type);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		// TODO
 		throw eNotImplemented();
 	} break;
@@ -91,13 +93,13 @@ cofmsg_experimenter_stats_request::resize(size_t len)
 	cofmsg::resize(len);
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		ofh_exp_stats = soframe() + sizeof(struct ofp10_stats_request);
+	case openflow10::OFP_VERSION: {
+		ofh_exp_stats = soframe() + sizeof(struct openflow10::ofp_stats_request);
 	} break;
-	case OFP12_VERSION: {
-		ofh_exp_stats = soframe() + sizeof(struct ofp12_stats_request);
+	case openflow12::OFP_VERSION: {
+		ofh_exp_stats = soframe() + sizeof(struct openflow12::ofp_stats_request);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented(); // TODO
 	}
 	default:
@@ -111,13 +113,13 @@ size_t
 cofmsg_experimenter_stats_request::length() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_stats_request) + sizeof(struct ofp10_vendor_stats_header) + body.memlen());
+	case openflow10::OFP_VERSION: {
+		return (sizeof(struct openflow10::ofp_stats_request) + sizeof(struct openflow10::ofp_vendor_stats_header) + body.memlen());
 	} break;
-	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_experimenter_stats_header) + body.memlen());
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_stats_request) + sizeof(struct openflow12::ofp_experimenter_stats_header) + body.memlen());
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		// TODO
 		throw eNotImplemented();
 	} break;
@@ -141,19 +143,19 @@ cofmsg_experimenter_stats_request::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		if (buflen < length())
 			throw eInval();
-		memcpy(buf, soframe(), sizeof(struct ofp10_stats_request) + sizeof(struct ofp10_vendor_stats_header));
-		body.pack(buf + sizeof(struct ofp10_stats_request) + sizeof(struct ofp10_vendor_stats_header), buflen);
+		memcpy(buf, soframe(), sizeof(struct openflow10::ofp_stats_request) + sizeof(struct openflow10::ofp_vendor_stats_header));
+		body.pack(buf + sizeof(struct openflow10::ofp_stats_request) + sizeof(struct openflow10::ofp_vendor_stats_header), buflen);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		if (buflen < length())
 			throw eInval();
-		memcpy(buf, soframe(), sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_experimenter_stats_header));
-		body.pack(buf + sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_experimenter_stats_header), buflen);
+		memcpy(buf, soframe(), sizeof(struct openflow12::ofp_stats_request) + sizeof(struct openflow12::ofp_experimenter_stats_header));
+		body.pack(buf + sizeof(struct openflow12::ofp_stats_request) + sizeof(struct openflow12::ofp_experimenter_stats_header), buflen);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		// TODO
 		throw eNotImplemented();
 	} break;
@@ -182,19 +184,19 @@ cofmsg_experimenter_stats_request::validate()
 	body.clear();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (get_length() < (sizeof(struct ofp10_stats_request) + sizeof(struct ofp10_vendor_stats_header)))
+	case openflow10::OFP_VERSION: {
+		if (get_length() < (sizeof(struct openflow10::ofp_stats_request) + sizeof(struct openflow10::ofp_vendor_stats_header)))
 			throw eBadSyntaxTooShort();
-		body.unpack(soframe() + sizeof(struct ofp10_stats_request) + sizeof(struct ofp10_vendor_stats_header),
-				framelen() - sizeof(struct ofp10_stats_request) - sizeof(struct ofp10_vendor_stats_header));
+		body.unpack(soframe() + sizeof(struct openflow10::ofp_stats_request) + sizeof(struct openflow10::ofp_vendor_stats_header),
+				framelen() - sizeof(struct openflow10::ofp_stats_request) - sizeof(struct openflow10::ofp_vendor_stats_header));
 	} break;
-	case OFP12_VERSION: {
-		if (get_length() < (sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_experimenter_stats_header)))
+	case openflow12::OFP_VERSION: {
+		if (get_length() < (sizeof(struct openflow12::ofp_stats_request) + sizeof(struct openflow12::ofp_experimenter_stats_header)))
 			throw eBadSyntaxTooShort();
-		body.unpack(soframe() + sizeof(struct ofp12_stats_request) + sizeof(struct ofp12_experimenter_stats_header),
-				framelen() - sizeof(struct ofp12_stats_request) - sizeof(struct ofp12_experimenter_stats_header));
+		body.unpack(soframe() + sizeof(struct openflow12::ofp_stats_request) + sizeof(struct openflow12::ofp_experimenter_stats_header),
+				framelen() - sizeof(struct openflow12::ofp_stats_request) - sizeof(struct openflow12::ofp_experimenter_stats_header));
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		// TODO
 		throw eNotImplemented();
 	} break;
@@ -209,13 +211,13 @@ void
 cofmsg_experimenter_stats_request::set_exp_id(uint32_t exp_id)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_exp_stats->vendor = htobe32(exp_id);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_exp_stats->experimenter = htobe32(exp_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented(); // TODO
 	} break;
 	default:
@@ -229,13 +231,13 @@ uint32_t
 cofmsg_experimenter_stats_request::get_exp_id() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be32toh(ofh10_exp_stats->vendor);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be32toh(ofh12_exp_stats->experimenter);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented(); // TODO
 	} break;
 	default:
@@ -249,10 +251,10 @@ void
 cofmsg_experimenter_stats_request::set_exp_type(uint32_t exp_type)
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_exp_stats->exp_type = htobe32(exp_type);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented(); // TODO
 	} break;
 	default:
@@ -266,10 +268,10 @@ uint32_t
 cofmsg_experimenter_stats_request::get_exp_type() const
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be32toh(ofh12_exp_stats->exp_type);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented(); // TODO
 	} break;
 	default:
@@ -298,22 +300,24 @@ cofmsg_experimenter_stats_reply::cofmsg_experimenter_stats_reply(
 		uint32_t exp_id,
 		uint32_t exp_type,
 		cmemory const& body) :
-	cofmsg_stats(of_version, xid, OFPST_EXPERIMENTER, flags),
+	cofmsg_stats(of_version, xid, 0, flags),
 	body(body)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		set_type(OFPT10_STATS_REPLY);
-		resize(sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_vendor_stats_header) + body.memlen());
+	case openflow10::OFP_VERSION: {
+		set_type(openflow10::OFPT_STATS_REPLY);
+		set_stats_type(openflow10::OFPST_VENDOR);
+		resize(sizeof(struct openflow10::ofp_stats_reply) + sizeof(struct openflow10::ofp_vendor_stats_header) + body.memlen());
 		set_exp_id(exp_id);
 	} break;
-	case OFP12_VERSION: {
-		set_type(OFPT12_STATS_REPLY);
-		resize(sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_experimenter_stats_header) + body.memlen());
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_STATS_REPLY);
+		set_stats_type(openflow12::OFPST_EXPERIMENTER);
+		resize(sizeof(struct openflow12::ofp_stats_reply) + sizeof(struct openflow12::ofp_experimenter_stats_header) + body.memlen());
 		set_exp_id(exp_id);
 		set_exp_type(exp_type);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		// TODO
 		throw eNotImplemented();
 	} break;
@@ -376,13 +380,13 @@ cofmsg_experimenter_stats_reply::resize(size_t len)
 	cofmsg::resize(len);
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		ofh_exp_stats = soframe() + sizeof(struct ofp10_stats_reply);
+	case openflow10::OFP_VERSION: {
+		ofh_exp_stats = soframe() + sizeof(struct openflow10::ofp_stats_reply);
 	} break;
-	case OFP12_VERSION: {
-		ofh_exp_stats = soframe() + sizeof(struct ofp12_stats_reply);
+	case openflow12::OFP_VERSION: {
+		ofh_exp_stats = soframe() + sizeof(struct openflow12::ofp_stats_reply);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented(); // TODO
 	}
 	default:
@@ -396,13 +400,13 @@ size_t
 cofmsg_experimenter_stats_reply::length() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_vendor_stats_header) + body.memlen());
+	case openflow10::OFP_VERSION: {
+		return (sizeof(struct openflow10::ofp_stats_reply) + sizeof(struct openflow10::ofp_vendor_stats_header) + body.memlen());
 	} break;
-	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_experimenter_stats_header) + body.memlen());
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_stats_reply) + sizeof(struct openflow12::ofp_experimenter_stats_header) + body.memlen());
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		// TODO
 		throw eNotImplemented();
 	} break;
@@ -426,19 +430,19 @@ cofmsg_experimenter_stats_reply::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		if (buflen < length())
 			throw eInval();
-		memcpy(buf, soframe(), sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_vendor_stats_header));
-		body.pack(buf + sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_vendor_stats_header), buflen);
+		memcpy(buf, soframe(), sizeof(struct openflow10::ofp_stats_reply) + sizeof(struct openflow10::ofp_vendor_stats_header));
+		body.pack(buf + sizeof(struct openflow10::ofp_stats_reply) + sizeof(struct openflow10::ofp_vendor_stats_header), buflen);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		if (buflen < length())
 			throw eInval();
-		memcpy(buf, soframe(), sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_experimenter_stats_header));
-		body.pack(buf + sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_experimenter_stats_header), buflen);
+		memcpy(buf, soframe(), sizeof(struct openflow12::ofp_stats_reply) + sizeof(struct openflow12::ofp_experimenter_stats_header));
+		body.pack(buf + sizeof(struct openflow12::ofp_stats_reply) + sizeof(struct openflow12::ofp_experimenter_stats_header), buflen);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		// TODO
 		throw eNotImplemented();
 	} break;
@@ -467,19 +471,19 @@ cofmsg_experimenter_stats_reply::validate()
 	body.clear();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (get_length() < (sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_vendor_stats_header)))
+	case openflow10::OFP_VERSION: {
+		if (get_length() < (sizeof(struct openflow10::ofp_stats_reply) + sizeof(struct openflow10::ofp_vendor_stats_header)))
 			throw eBadSyntaxTooShort();
-		body.unpack(soframe() + sizeof(struct ofp10_stats_reply) + sizeof(struct ofp10_vendor_stats_header),
-				framelen() - sizeof(struct ofp10_stats_reply) - sizeof(struct ofp10_vendor_stats_header));
+		body.unpack(soframe() + sizeof(struct openflow10::ofp_stats_reply) + sizeof(struct openflow10::ofp_vendor_stats_header),
+				framelen() - sizeof(struct openflow10::ofp_stats_reply) - sizeof(struct openflow10::ofp_vendor_stats_header));
 	} break;
-	case OFP12_VERSION: {
-		if (get_length() < (sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_experimenter_stats_header)))
+	case openflow12::OFP_VERSION: {
+		if (get_length() < (sizeof(struct openflow12::ofp_stats_reply) + sizeof(struct openflow12::ofp_experimenter_stats_header)))
 			throw eBadSyntaxTooShort();
-		body.unpack(soframe() + sizeof(struct ofp12_stats_reply) + sizeof(struct ofp12_experimenter_stats_header),
-				framelen() - sizeof(struct ofp12_stats_reply) - sizeof(struct ofp12_experimenter_stats_header));
+		body.unpack(soframe() + sizeof(struct openflow12::ofp_stats_reply) + sizeof(struct openflow12::ofp_experimenter_stats_header),
+				framelen() - sizeof(struct openflow12::ofp_stats_reply) - sizeof(struct openflow12::ofp_experimenter_stats_header));
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		// TODO
 		throw eNotImplemented();
 	} break;
@@ -494,13 +498,13 @@ void
 cofmsg_experimenter_stats_reply::set_exp_id(uint32_t exp_id)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_exp_stats->vendor = htobe32(exp_id);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_exp_stats->experimenter = htobe32(exp_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented(); // TODO
 	} break;
 	default:
@@ -514,13 +518,13 @@ uint32_t
 cofmsg_experimenter_stats_reply::get_exp_id() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return be32toh(ofh10_exp_stats->vendor);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be32toh(ofh12_exp_stats->experimenter);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented(); // TODO
 	} break;
 	default:
@@ -534,10 +538,10 @@ void
 cofmsg_experimenter_stats_reply::set_exp_type(uint32_t exp_type)
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_exp_stats->exp_type = htobe32(exp_type);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented(); // TODO
 	} break;
 	default:
@@ -551,10 +555,10 @@ uint32_t
 cofmsg_experimenter_stats_reply::get_exp_type() const
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be32toh(ofh12_exp_stats->exp_type);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		throw eNotImplemented(); // TODO
 	} break;
 	default:

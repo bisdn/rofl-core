@@ -151,6 +151,12 @@ public:     // static methods
 			int facility = LOG_USER,
 			int option = LOG_CONS);
 
+	/**
+	 *
+	 */
+	static void
+	closelog();
+
 	/** write log message (C-interface with variable parameter list)
 	 *  if level <= debugClasses[debugClass], the message will be written to log
 	 */

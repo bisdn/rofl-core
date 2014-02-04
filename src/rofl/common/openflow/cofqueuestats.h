@@ -8,10 +8,10 @@
 #ifndef COFQUEUESTATS_H_
 #define COFQUEUESTATS_H_ 1
 
-#include "../cmemory.h"
-#include "../../platform/unix/csyslog.h"
-#include "openflow.h"
-#include "openflow_rofl_exceptions.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/platform/unix/csyslog.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
 namespace rofl
 {
@@ -129,22 +129,13 @@ public:
 	void
 	set_queue_id(uint32_t queue_id) { this->queue_id = queue_id; };
 
-
 public:
 
-
-	/**
-	 *
-	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, cofqueue_stats_request const& request)
-	{
-		os << "cofqueue_stats_request[";
-		os << std::hex;
-		os << "port-no=" << request.port_no << " ";
-		os << "queue-id=" << request.queue_id << " ";
-		os << std::dec;
-		os << "]";
+	operator<< (std::ostream& os, cofqueue_stats_request const& r) {
+		os << indent(0) << "<cofqueue_stats_request >" << std::endl;
+		os << indent(2) << "<port-no: 0x" << std::hex << (int)r.get_port_no() << std::dec << " >" << std::endl;
+		os << indent(2) << "<queue-id: " << (int)r.get_queue_id() << " >" << std::endl;
 		return os;
 	};
 };
@@ -301,25 +292,16 @@ public:
 	void
 	set_tx_errors(uint64_t tx_errors) { this->tx_errors = tx_errors; };
 
-
 public:
 
-
-	/**
-	 *
-	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, cofqueue_stats_reply const& reply)
-	{
-		os << "cofqueue_stats_request[";
-		os << std::hex;
-		os << "port-no=" << reply.port_no << " ";
-		os << "queue-id=" << reply.queue_id << " ";
-		os << std::dec;
-		os << "tx-bytes=" << reply.tx_bytes << " ";
-		os << "tx-packets=" << reply.tx_packets << " ";
-		os << "tx-errors=" << reply.tx_errors << " ";
-		os << "]";
+	operator<< (std::ostream& os, cofqueue_stats_reply const& r) {
+		os << indent(0) << "<cofqueue_stats_reply >" << std::endl;
+		os << indent(2) << "<port-no: 0x" << std::hex << (int)r.get_port_no() << std::dec << " >" << std::endl;
+		os << indent(2) << "<queue-id: " << (int)r.get_queue_id() << " >" << std::endl;
+		os << indent(2) << "<tx-packets: " 	<< (unsigned long long)r.get_tx_packets() 	<< " >" << std::endl;
+		os << indent(2) << "<tx-bytes: " 	<< (unsigned long long)r.get_tx_bytes() 	<< " >" << std::endl;
+		os << indent(2) << "<tx-errors: " 	<< (unsigned long long)r.get_tx_errors() 	<< " >" << std::endl;
 		return os;
 	};
 };

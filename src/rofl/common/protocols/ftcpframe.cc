@@ -124,25 +124,6 @@ ftcpframe::validate(uint16_t total_len) throw (eTcpFrameTooShort)
 }
 
 
-const char*
-ftcpframe::c_str()
-{
-	cvastring vas;
-
-	info.assign(vas("[ftcpframe(%p) sport[%d] dport[%d] seqno[0x%x] ack[0x%x] header-length[%d] checksum[0x%x] %s]",
-			this,
-			be16toh(tcp_hdr->sport),
-			be16toh(tcp_hdr->dport),
-			be32toh(tcp_hdr->seqno),
-			be32toh(tcp_hdr->ackno),
-			tcp_hdr->offset * sizeof(uint32_t),
-			be16toh(tcp_hdr->checksum),
-			fframe::c_str() ));
-
-	return info.c_str();
-}
-
-
 void
 ftcpframe::tcp_calc_checksum(
 		caddress const& ip_src,
@@ -201,7 +182,7 @@ ftcpframe::tcp_calc_checksum(
 
 
 uint16_t
-ftcpframe::get_sport()
+ftcpframe::get_sport() const
 {
 	return be16toh(tcp_hdr->sport);
 }
@@ -215,7 +196,7 @@ ftcpframe::set_sport(uint16_t port)
 
 
 uint16_t
-ftcpframe::get_dport()
+ftcpframe::get_dport() const
 {
 	return be16toh(tcp_hdr->dport);
 }

@@ -21,73 +21,74 @@
 	#include "endian_conversion.h"
 #endif
 
-#include "ciosrv.h"
-#include "cerror.h"
-#include "cvastring.h"
-#include "croflexp.h"
-#include "cphyport.h"
-#include "csocket.h"
-#include "thread_helper.h"
+#include "rofl/common/ciosrv.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/common/croflexp.h"
+#include "rofl/common/csocket.h"
+#include "rofl/common/thread_helper.h"
+#include "rofl/common/logging.h"
+#include "rofl/common/crofdpt.h"
+#include "rofl/common/crofdpt_impl.h"
+#include "rofl/common/crofctl.h"
+#include "rofl/common/crofctl_impl.h"
+#include "rofl/common/openflow/cofflowmod.h"
+#include "rofl/common/openflow/cofgroupmod.h"
 
-#include "openflow/openflow.h"
-#include "openflow/openflow_rofl.h"
+#include "rofl/common/openflow/openflow.h"
 
-//#include "rofl/experimental/crib.h"
-#include "rofl/platform/unix/crandom.h"
+#include "rofl/common/crandom.h"
 
-#include "openflow/cofport.h"
-#include "openflow/cofdpt.h"
-#include "openflow/cofdptImpl.h"
-#include "openflow/cofctl.h"
-#include "openflow/cofctlImpl.h"
-#include "openflow/cofinst.h"
-#include "openflow/cofinlist.h"
-#include "openflow/cofaction.h"
-#include "openflow/cofaclist.h"
-#include "openflow/cofpacketqueuelist.h"
-#include "openflow/cofmatch.h"
-#include "openflow/cflowentry.h"
-#include "openflow/cgroupentry.h"
-#include "openflow/cofstats.h"
-#include "openflow/extensions/cfsptable.h"
-#include "openflow/openflow_rofl_exceptions.h"
-#include "openflow/messages/cofmsg.h"
-#include "openflow/messages/cofmsg_hello.h"
-#include "openflow/messages/cofmsg_echo.h"
-#include "openflow/messages/cofmsg_error.h"
-#include "openflow/messages/cofmsg_features.h"
-#include "openflow/messages/cofmsg_config.h"
-#include "openflow/messages/cofmsg_packet_out.h"
-#include "openflow/messages/cofmsg_packet_in.h"
-#include "openflow/messages/cofmsg_flow_mod.h"
-#include "openflow/messages/cofmsg_flow_removed.h"
-#include "openflow/messages/cofmsg_group_mod.h"
-#include "openflow/messages/cofmsg_table_mod.h"
-#include "openflow/messages/cofmsg_port_mod.h"
-#include "openflow/messages/cofmsg_port_status.h"
-#include "openflow/messages/cofmsg_stats.h"
-#include "openflow/messages/cofmsg_desc_stats.h"
-#include "openflow/messages/cofmsg_flow_stats.h"
-#include "openflow/messages/cofmsg_aggr_stats.h"
-#include "openflow/messages/cofmsg_table_stats.h"
-#include "openflow/messages/cofmsg_port_stats.h"
-#include "openflow/messages/cofmsg_queue_stats.h"
-#include "openflow/messages/cofmsg_group_stats.h"
-#include "openflow/messages/cofmsg_group_desc_stats.h"
-#include "openflow/messages/cofmsg_group_features_stats.h"
-#include "openflow/messages/cofmsg_experimenter_stats.h"
-#include "openflow/messages/cofmsg_barrier.h"
-#include "openflow/messages/cofmsg_queue_get_config.h"
-#include "openflow/messages/cofmsg_role.h"
-#include "openflow/messages/cofmsg_experimenter.h"
-#include "openflow/messages/cofmsg_async_config.h"
+#include "rofl/common/openflow/cofport.h"
+#include "rofl/common/openflow/cofinstruction.h"
+#include "rofl/common/openflow/cofinstructions.h"
+#include "rofl/common/openflow/cofaction.h"
+#include "rofl/common/openflow/cofactions.h"
+#include "rofl/common/openflow/cofpacketqueuelist.h"
+#include "rofl/common/openflow/cofmatch.h"
+#include "rofl/common/openflow/cofstats.h"
+#include "rofl/common/openflow/extensions/cfsptable.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
+#include "rofl/common/openflow/cofhelloelemversionbitmap.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
+#include "rofl/common/openflow/messages/cofmsg_hello.h"
+#include "rofl/common/openflow/messages/cofmsg_echo.h"
+#include "rofl/common/openflow/messages/cofmsg_error.h"
+#include "rofl/common/openflow/messages/cofmsg_features.h"
+#include "rofl/common/openflow/messages/cofmsg_config.h"
+#include "rofl/common/openflow/messages/cofmsg_packet_out.h"
+#include "rofl/common/openflow/messages/cofmsg_packet_in.h"
+#include "rofl/common/openflow/messages/cofmsg_flow_mod.h"
+#include "rofl/common/openflow/messages/cofmsg_flow_removed.h"
+#include "rofl/common/openflow/messages/cofmsg_group_mod.h"
+#include "rofl/common/openflow/messages/cofmsg_table_mod.h"
+#include "rofl/common/openflow/messages/cofmsg_port_mod.h"
+#include "rofl/common/openflow/messages/cofmsg_port_status.h"
+#include "rofl/common/openflow/messages/cofmsg_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_desc_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_flow_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_aggr_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_table_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_port_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_queue_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_group_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_group_desc_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_group_features_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_port_desc_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_experimenter_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_barrier.h"
+#include "rofl/common/openflow/messages/cofmsg_queue_get_config.h"
+#include "rofl/common/openflow/messages/cofmsg_role.h"
+#include "rofl/common/openflow/messages/cofmsg_experimenter.h"
+#include "rofl/common/openflow/messages/cofmsg_async_config.h"
+#include "rofl/common/ctransactions.h"
 
 namespace rofl
 {
 
 
 /* error classes */
-class eRofBase						: public cerror {};   // base error class crofbase
+class eRofBase						: public RoflException {};   // base error class crofbase
 class eRofBaseIsBusy 				: public eRofBase {}; // this FwdElem is already controlled
 class eRofBaseNotConnected			: public eRofBase {}; // this instance is not connected to the specified cofdpt/cofctl instance
 class eRofBaseNotImpl 				: public eRofBase {}; // this FwdElem's method is not implemented
@@ -106,8 +107,8 @@ class eRofBaseFspSupportDisabled 	: public eRofBase {};
 
 
 
-class cofctl;
-class cofdpt;
+class crofctl;
+class crofdpt;
 
 
 
@@ -124,14 +125,20 @@ class cofdpt;
 class crofbase :
 	public ciosrv,
 	public csocket_owner,
+#if 0
+	public crofchan_env,
+#endif
+	public crofconn_env,
+	public ctransactions_env,
 	public cfsm
 {
 protected:
 
-	uint32_t					supported_ofp_versions;	/**< bitfield of supported ofp versions */
+	cofhello_elem_versionbitmap	versionbitmap;	/**< bitfield of supported ofp versions */
 	cfsptable 					fsptable; 		/**< flowspace registrations table */
-	std::set<cofctl*>			ofctl_set;		/**< set of active controller connections */
-	std::set<cofdpt*>			ofdpt_set;		/**< set of active data path connections */
+	std::set<crofctl*>			ofctl_set;		/**< set of active controller connections */
+	std::set<crofdpt*>			ofdpt_set;		/**< set of active data path connections */
+	ctransactions				transactions;
 
 public:
 
@@ -154,7 +161,8 @@ public:
 	 * \see xidlock
 	 * \see xid_start
 	 */
-	crofbase(uint32_t supported_ofp_versions = /*(1 << OFP10_VERSION) |*/ (1 << OFP12_VERSION));
+	crofbase(
+			cofhello_elem_versionbitmap const& versionbitmap = cofhello_elem_versionbitmap());
 
 
 	/**
@@ -178,14 +186,6 @@ public:
 
 
 
-	/**
-	 * @brief	returns a static c-string with information about this crofbase instance
-	 *
-	 * @result static c-string
-	 */
-	virtual const char*
-	c_str();
-
 
 	/**
 	 * @brief 	enable/disable flowspace registration support in crofbase
@@ -196,9 +196,63 @@ public:
 	nsp_enable(bool enable = true);
 
 
+public:
 
+	/*
+	 * overloaded from rofl::openflow::crofconn_env
+	 */
 
+	virtual void
+	handle_connect_refused(crofconn *conn);
 
+	virtual void
+	handle_connected(crofconn *conn, uint8_t ofp_version);
+
+	virtual void
+	handle_closed(crofconn *conn);
+
+	virtual void
+	recv_message(crofconn *conn, cofmsg *msg) { delete msg; };
+
+	virtual uint32_t
+	get_async_xid(crofconn *conn) { return transactions.get_async_xid(); };
+
+	virtual uint32_t
+	get_sync_xid(crofconn *conn, uint8_t msg_type = 0, uint16_t msg_sub_type = 0) { return transactions.add_ta(cclock(5, 0), msg_type, msg_sub_type); };
+
+	virtual void
+	release_sync_xid(crofconn *conn, uint32_t xid) { transactions.drop_ta(xid); };
+
+#if 0
+public:
+
+	virtual void
+	handle_connected(crofchan *chan, uint8_t aux_id);
+
+	virtual void
+	handle_closed(crofchan *chan, uint8_t aux_id);
+
+	virtual void
+	recv_message(crofchan *chan, uint8_t aux_id, cofmsg *msg) { delete msg; };
+
+	virtual uint32_t
+	get_async_xid(crofchan *chan) { return transactions.get_async_xid(); };
+
+	virtual uint32_t
+	get_sync_xid(crofchan *chan) { return transactions.add_ta(cclock(5, 0)); };
+
+	virtual void
+	release_sync_xid(crofchan *chan, uint32_t xid) { transactions.drop_ta(xid); };
+#endif
+
+public:
+
+	/*
+	 * overloaded from rofl::openflow::ctransactions_env
+	 */
+
+	virtual void
+	ta_expired(ctransactions& tas, ctransaction& ta) {};
 
 public:
 
@@ -264,7 +318,7 @@ public:
 	 */
 	void
 	rpc_connect_to_ctl(
-			uint8_t ofp_version,
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
 			caddress const& ra,
 			int domain = PF_INET,
@@ -282,7 +336,7 @@ public:
 	 */
 	void
 	rpc_disconnect_from_ctl(
-			cofctl *ctl);
+			crofctl *ctl);
 
 
 
@@ -300,31 +354,6 @@ public:
 
 
 
-	/**
-	 * @fn	 	rpc_connect_to_dpt
-	 * @brief	Connects to a remote data path in controller role.
-	 *
-	 * Establishes a socket connection to a remote data path element.
-	 * When the connection is successfully established, crofbase calls
-	 * method crofbase::handle_dpath_open().
-	 *
-	 * \see{ handle_dpath_open() }
-	 *
-	 * @param ofp_version OpenFlow version to use for connecting to data path element
-	 * @param ra Address to connect to
-	 * @param domain Socket domain (default: PF_INET)
-	 * @param type Socket type (default: SOCK_STREAM)
-	 * @param protocol Socket protocol (default: IPPROTO_TCP)
-	 */
-	void
-	rpc_connect_to_dpt(
-			uint8_t ofp_version,
-			int reconnect_start_timeout,
-			caddress const& ra,
-			int domain = PF_INET,
-			int type = SOCK_STREAM,
-			int protocol = IPPROTO_TCP);
-
 
 	/**
 	 * @fn		rpc_disconnect_from_dpt
@@ -336,7 +365,7 @@ public:
 	 */
 	void
 	rpc_disconnect_from_dpt(
-			cofdpt *dpath);
+			crofdpt *dpath);
 
 
 
@@ -362,6 +391,23 @@ public:
 	rpc_close_all();
 
 
+	/**
+	 * @brief	Called by cofctl instance when connection establishment failed.
+	 *
+	 * To be overwritten by class deriving from crofbase.
+	 */
+	virtual void
+	rpc_ctl_failed(crofctl *ctl) {};
+
+	/**
+	 * @brief	Called by cofdpt instance when connection establishment failed.
+	 *
+	 * To be overwritten by class deriving from crofbase.
+	 */
+	virtual void
+	rpc_dpt_failed(crofdpt *dpt) {};
+
+
 	/**@}*/
 
 
@@ -380,7 +426,7 @@ public:
 	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
 	 * @result pointer to cofdpt instance
 	 */
-	cofdpt*
+	crofdpt*
 	dpt_find(
 		uint64_t dpid) throw (eRofBaseNotFound);
 
@@ -392,7 +438,7 @@ public:
 	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
 	 * @result pointer to cofdpt instance
 	 */
-	cofdpt*
+	crofdpt*
 	dpt_find(
 		std::string s_dpid) throw (eRofBaseNotFound);
 
@@ -404,7 +450,7 @@ public:
 	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
 	 * @result pointer to cofdpt instance
 	 */
-	cofdpt*
+	crofdpt*
 	dpt_find(
 		cmacaddr dl_dpid) throw (eRofBaseNotFound);
 
@@ -416,9 +462,9 @@ public:
 	 * @throws eRofBaseNotFound { thrown when cofdpt instance not found }
 	 * @result pointer to cofdpt instance
 	 */
-	cofdpt*
+	crofdpt*
 	dpt_find(
-			cofdpt* dpt) throw (eRofBaseNotFound);
+			crofdpt* dpt) throw (eRofBaseNotFound);
 
 
 
@@ -429,17 +475,43 @@ public:
 	 * @throws eRofBaseNotFound { thrown when cofctl instance not found }
 	 * @result pointer to cofctl instance
 	 */
-	cofctl*
+	crofctl*
 	ctl_find(
-			cofctl* ctl) throw (eRofBaseNotFound);
+			crofctl* ctl) throw (eRofBaseNotFound);
 
 
 	/**@}*/
 
 
+	/**
+	 *
+	 */
+	static uint32_t
+	get_ofp_no_buffer(uint8_t ofp_version);
 
+	/**
+	 *
+	 */
+	static uint32_t
+	get_ofp_controller_port(uint8_t ofp_version);
 
+	/**
+	 *
+	 */
+	static uint32_t
+	get_ofp_flood_port(uint8_t ofp_version);
 
+	/**
+	 *
+	 */
+	static uint8_t
+	get_ofp_command(uint8_t ofp_version, enum openflow::ofp_flow_mod_command const& cmd);
+
+	/**
+	 *
+	 */
+	rofl::openflow::cofhello_elem_versionbitmap&
+	get_versionbitmap() { return versionbitmap; };
 
 
 
@@ -452,31 +524,6 @@ protected:
 
 
 	/**@{*/
-
-	/**
-	 * @brief	creates a new cofctl instance for an existing socket with sockfd newsd.
-	 *
-	 * This method constructs a new instance of class cofctl for managing a single connection
-	 * to a controller. This class is supposed to be overwritten, if a class derived from crofbase
-	 * intends to overwrite cofctl and add additional functionality. When the initial HELLO message
-	 * exchange in OpenFlow succeeds, method crofbase::handle_ctrl_open() will be called.
-	 *
-	 * @param owner Pointer to this crofbase instance for callbacks used by the cofctl instance
-	 * @param newsd socket descriptor of new created socket for cofctl instance
-	 * @param ra Remote address of peer entity connected via socket referenced by newsd
-	 * @param domain socket domain (see man 2 socket for details)
-	 * @param type socket type (see man 2 socket for details)
-	 * @param protocol socket protocol (see man 2 socket for details)
-	 *
-	 */
-	virtual cofctl*
-	cofctl_factory(
-			crofbase* owner,
-			int newsd,
-			caddress const& ra,
-			int domain,
-			int type,
-			int protocol);
 
 
 	/**
@@ -497,10 +544,10 @@ protected:
 	 * @param protocol socket protocol (see man 2 socket for details)
 	 *
 	 */
-	virtual cofctl*
+	virtual crofctl*
 	cofctl_factory(
 			crofbase* owner,
-			uint8_t ofp_version,
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap,
 			int reconnect_start_timeout,
 			caddress const& ra,
 			int domain,
@@ -518,52 +565,13 @@ protected:
 	 * crofbase::handle_ctrl_open() will be called.
 	 *
 	 * @param owner Pointer to this crofbase instance for callbacks used by the cofdpt instance
-	 * @param newsd socket descriptor of new created socket for cofdpt instance
-	 * @param ra Remote address of peer entity connected via socket referenced by newsd
-	 * @param domain socket domain (see man 2 socket for details)
-	 * @param type socket type (see man 2 socket for details)
-	 * @param protocol socket protocol (see man 2 socket for details)
+	 * @param versionbitmap version-bitmap Hello IE containing acceptable OFP versions
 	 *
 	 */
-	virtual cofdpt*
+	virtual crofdpt*
 	cofdpt_factory(
 			crofbase* owner,
-			int newsd,
-			caddress const& ra,
-			int domain,
-			int type,
-			int protocol);
-
-
-	/**
-	 * @brief	Creates a new cofdpt instance and tries to connect to a remote data path element.
-	 *
-	 * This method constructs a new instance of class cofdpt for actively establishing a single connection
-	 * to a data path element. This class is supposed to be overwritten, if a class derived from crofbase
-	 * intends to overwrite cofdpt and add additional functionality. cofdpt will indefinitely attempt
-	 * to connect to the peer entity unless it is removed by calling crofbase::rpf_disconnect_from_dpt().
-	 * When the initial handshake in OpenFlow succeeds (FEATURES.request/reply, GET-CONFIG.request/reply,
-	 * TABLE-STATS.request/reply), method crofbase::handle_dpath_open() will be called.
-	 *
-	 * @param owner Pointer to this crofbase instance for callbacks used by the cofdpt instance
-	 * @param ofp_version OpenFlow version to use for connecting to data path element
-	 * @param ra Remote address to connect to
-	 * @param domain socket domain (see man 2 socket for details)
-	 * @param type socket type (see man 2 socket for details)
-	 * @param protocol socket protocol (see man 2 socket for details)
-	 *
-	 */
-	virtual cofdpt*
-	cofdpt_factory(
-			crofbase* owner,
-			uint8_t ofp_version,
-			int reconnect_start_timeout,
-			caddress const& ra,
-			int domain,
-			int type,
-			int protocol);
-
-
+			rofl::openflow::cofhello_elem_versionbitmap const& versionbitmap);
 
 	/**
 	 * @brief	called once a new cofdpt instance has been created
@@ -574,7 +582,7 @@ protected:
 	 * @param dpt pointer to new cofdpt instance
 	 */
 	virtual void
-	handle_dpath_open(cofdpt *dpt) {};
+	handle_dpath_open(crofdpt& dpt) {};
 
 
 	/**
@@ -594,7 +602,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_dpath_close(cofdpt *dpt) {};
+	handle_dpath_close(crofdpt& dpt) {};
 
 
 
@@ -607,7 +615,7 @@ protected:
 	 * @param ctl pointer to new cofctl instance
 	 */
 	virtual void
-	handle_ctrl_open(cofctl *ctl) {};
+	handle_ctrl_open(crofctl *ctl) {};
 
 
 
@@ -628,7 +636,7 @@ protected:
 	 * @param ctl pointer to cofctl instance
 	 */
 	virtual void
-	handle_ctrl_close(cofctl *ctl) {};
+	handle_ctrl_close(crofctl *ctl) {};
 
 
 	/**@}*/
@@ -640,7 +648,7 @@ protected:
 	 *
 	 */
 	virtual void
-	role_request_rcvd(cofctl *ctl, uint32_t role);
+	role_request_rcvd(crofctl *ctl, uint32_t role);
 
 
 protected:
@@ -665,7 +673,7 @@ protected:
 	 * @param msg Pointer to cofmsg_features_request message containing the received message
 	 */
 	virtual void
-	handle_features_request(cofctl *ctl, cofmsg_features_request *msg) { delete msg; };
+	handle_features_request(crofctl& ctl, cofmsg_features_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -678,7 +686,7 @@ protected:
 	 * @param msg Pointer to cofmsg_features_reply message containing the received message
 	 */
 	virtual void
-	handle_features_reply(cofdpt *dpt, cofmsg_features_reply *msg) { delete msg; };
+	handle_features_reply(crofdpt& dpt, cofmsg_features_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -690,7 +698,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_features_reply_timeout(cofdpt *dpt);
+	handle_features_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -703,7 +711,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_config_request(cofctl *ctl, cofmsg_get_config_request *msg) { delete msg; };
+	handle_get_config_request(crofctl& ctl, cofmsg_get_config_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -716,7 +724,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_config_reply message containing the received message
 	 */
 	virtual void
-	handle_get_config_reply(cofdpt *dpt, cofmsg_get_config_reply *msg) { delete msg; };
+	handle_get_config_reply(crofdpt& dpt, cofmsg_get_config_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -728,7 +736,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_get_config_reply_timeout(cofdpt *dpt);
+	handle_get_config_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -756,7 +764,7 @@ protected:
 	 * @exception eBadRequestBadStat { sends a proper error message to the controller entity }
 	 */
 	void
-	handle_stats_request(cofctl *ctl, cofmsg_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_stats_request(crofctl& ctl, cofmsg_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 	/**
@@ -769,7 +777,7 @@ protected:
 	 * @param msg Pointer to cofmsg_desc_stats_request message containing the received message
 	 */
 	virtual void
-	handle_desc_stats_request(cofctl *ctl, cofmsg_desc_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_desc_stats_request(crofctl& ctl, cofmsg_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -783,7 +791,7 @@ protected:
 	 * @param msg Pointer to cofmsg_table_stats_request message containing the received message
 	 */
 	virtual void
-	handle_table_stats_request(cofctl *ctl, cofmsg_table_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_table_stats_request(crofctl& ctl, cofmsg_table_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -797,7 +805,7 @@ protected:
 	 * @param msg Pointer to cofmsg_port_stats_request message containing the received message
 	 */
 	virtual void
-	handle_port_stats_request(cofctl *ctl, cofmsg_port_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_port_stats_request(crofctl& ctl, cofmsg_port_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -811,7 +819,7 @@ protected:
 	 * @param msg Pointer to cofmsg_flow_stats_request message containing the received message
 	 */
 	virtual void
-	handle_flow_stats_request(cofctl *ctl, cofmsg_flow_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_flow_stats_request(crofctl& ctl, cofmsg_flow_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -825,7 +833,7 @@ protected:
 	 * @param msg Pointer to cofmsg_aggr_stats_request message containing the received message
 	 */
 	virtual void
-	handle_aggregate_stats_request(cofctl *ctl, cofmsg_aggr_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_aggregate_stats_request(crofctl& ctl, cofmsg_aggr_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -839,7 +847,7 @@ protected:
 	 * @param msg Pointer to cofmsg_queue_stats_request message containing the received message
 	 */
 	virtual void
-	handle_queue_stats_request(cofctl *ctl, cofmsg_queue_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_queue_stats_request(crofctl& ctl, cofmsg_queue_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -853,7 +861,7 @@ protected:
 	 * @param msg Pointer to cofmsg_group_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_stats_request(cofctl *ctl, cofmsg_group_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_group_stats_request(crofctl& ctl, cofmsg_group_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -867,7 +875,7 @@ protected:
 	 * @param msg Pointer to cofmsg_group_desc_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_desc_stats_request(cofctl *ctl, cofmsg_group_desc_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_group_desc_stats_request(crofctl& ctl, cofmsg_group_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -881,7 +889,21 @@ protected:
 	 * @param msg Pointer to cofmsg_group_features_stats_request message containing the received message
 	 */
 	virtual void
-	handle_group_features_stats_request(cofctl *ctl, cofmsg_group_features_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_group_features_stats_request(crofctl& ctl, cofmsg_group_features_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+
+
+
+	/**
+	 * @brief	Called once a PORT-DESC-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the PORT-DESC-STATS.request was received
+	 * @param msg Pointer to cofmsg_port_desc_stats_request message containing the received message
+	 */
+	virtual void
+	handle_port_desc_stats_request(crofctl& ctl, cofmsg_port_desc_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -895,7 +917,7 @@ protected:
 	 * @param msg Pointer to cofmsg_experimenter_stats_request message containing the received message
 	 */
 	virtual void
-	handle_experimenter_stats_request(cofctl *ctl, cofmsg_experimenter_stats_request *msg) { throw eBadRequestBadStat(); };
+	handle_experimenter_stats_request(crofctl& ctl, cofmsg_experimenter_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -908,7 +930,7 @@ protected:
 	 * @param msg pointer to cofmsg_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_stats_reply(cofdpt *dpt, cofmsg_stats_reply *msg) { delete msg; };
+	handle_stats_reply(crofdpt& dpt, cofmsg_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -921,7 +943,7 @@ protected:
 	 * @param xid transaction ID of STATS.request previously sent to data path element.
 	 */
 	virtual void
-	handle_stats_reply_timeout(cofdpt *dpt, uint32_t xid) {};
+	handle_multipart_reply_timeout(crofdpt& dpt, uint32_t xid, uint8_t msg_sub_type) {};
 
 
 
@@ -934,7 +956,7 @@ protected:
 	 * @param msg pointer to cofmsg_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_desc_stats_reply(cofdpt *dpt, cofmsg_desc_stats_reply *msg) { delete msg; };
+	handle_desc_stats_reply(crofdpt& dpt, cofmsg_desc_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -947,7 +969,7 @@ protected:
 	 * @param msg pointer to cofmsg_table_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_table_stats_reply(cofdpt *dpt, cofmsg_table_stats_reply *msg) { delete msg; };
+	handle_table_stats_reply(crofdpt& dpt, cofmsg_table_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -960,7 +982,7 @@ protected:
 	 * @param msg pointer to cofmsg_port_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_port_stats_reply(cofdpt *dpt, cofmsg_port_stats_reply *msg) { delete msg; };
+	handle_port_stats_reply(crofdpt& dpt, cofmsg_port_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -973,7 +995,7 @@ protected:
 	 * @param msg pointer to cofmsg_flow_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg) { delete msg; };
+	handle_flow_stats_reply(crofdpt& dpt, cofmsg_flow_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -987,7 +1009,7 @@ protected:
 
 	 */
 	virtual void
-	handle_aggregate_stats_reply(cofdpt *dpt, cofmsg_aggr_stats_reply *msg) { delete msg; };
+	handle_aggregate_stats_reply(crofdpt& dpt, cofmsg_aggr_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1000,7 +1022,7 @@ protected:
 	 * @param msg pointer to cofmsg_queue_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_queue_stats_reply(cofdpt *dpt, cofmsg_queue_stats_reply *msg) { delete msg; };
+	handle_queue_stats_reply(crofdpt& dpt, cofmsg_queue_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1013,7 +1035,7 @@ protected:
 	 * @param msg pointer to cofmsg_group_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_stats_reply(cofdpt *dpt, cofmsg_group_stats_reply *msg) { delete msg; };
+	handle_group_stats_reply(crofdpt& dpt, cofmsg_group_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1026,7 +1048,7 @@ protected:
 	 * @param msg pointer to cofmsg_group_desc_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_desc_stats_reply(cofdpt *dpt, cofmsg_group_desc_stats_reply *msg) { delete msg; };
+	handle_group_desc_stats_reply(crofdpt& dpt, cofmsg_group_desc_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1039,7 +1061,20 @@ protected:
 	 * @param msg pointer to cofmsg_group_features_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_group_features_stats_reply(cofdpt *dpt, cofmsg_group_features_stats_reply *msg) { delete msg; };
+	handle_group_features_stats_reply(crofdpt& dpt, cofmsg_group_features_stats_reply& msg, uint8_t aux_id = 0) {};
+
+
+
+	/**
+	 * @brief	Called once a PORT-DESC-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the PORT-DESC-STATS.reply message was received.
+	 * @param msg pointer to cofmsg_port_desc_stats_reply message containing the received message
+	 */
+	virtual void
+	handle_port_desc_stats_reply(crofdpt& dpt, cofmsg_port_desc_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1052,7 +1087,7 @@ protected:
 	 * @param msg pointer to cofmsg_experimenter_stats_reply message containing the received message
 	 */
 	virtual void
-	handle_experimenter_stats_reply(cofdpt *dpt, cofmsg_experimenter_stats_reply *msg) { delete msg; };
+	handle_experimenter_stats_reply(crofdpt& dpt, cofmsg_experimenter_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1065,7 +1100,7 @@ protected:
 	 * @param msg Pointer to cofmsg_packet_out message containing the received message
 	 */
 	virtual void
-	handle_packet_out(cofctl *ctl, cofmsg_packet_out *msg) { delete msg; };
+	handle_packet_out(crofctl& ctl, cofmsg_packet_out& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1078,7 +1113,7 @@ protected:
 	 * @param msg pointer to cofmsg_packet_in message containing the received message
 	 */
 	virtual void
-	handle_packet_in(cofdpt *dpt, cofmsg_packet_in *msg) { delete msg; };
+	handle_packet_in(crofdpt& dpt, cofmsg_packet_in& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1091,7 +1126,7 @@ protected:
 	 * @param msg Pointer to cofmsg_barrier_request message containing the received message
 	 */
 	virtual void
-	handle_barrier_request(cofctl *ctl, cofmsg_barrier_request *msg) { delete msg; };
+	handle_barrier_request(crofctl& ctl, cofmsg_barrier_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1104,7 +1139,7 @@ protected:
 	 * @param msg pointer to cofmsg_barrier_reply message containing the received message
 	 */
 	virtual void
-	handle_barrier_reply(cofdpt *dpt, cofmsg_barrier_reply *msg) { delete msg; };
+	handle_barrier_reply(crofdpt& dpt, cofmsg_barrier_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1117,7 +1152,7 @@ protected:
 	 * @param xid transaction ID of BARRIER.request previously sent to data path element.
 	 */
 	virtual void
-	handle_barrier_reply_timeout(cofdpt *dpt, uint32_t xid) {};
+	handle_barrier_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -1130,7 +1165,7 @@ protected:
 	 * @param msg pointer to cofmsg_error message containing the received message
 	 */
 	virtual void
-	handle_error(cofdpt *dpt, cofmsg_error *msg) { delete msg; };
+	handle_error(crofdpt& dpt, cofmsg_error& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1143,7 +1178,7 @@ protected:
 	 * @param msg Pointer to cofmsg_flow_mod message containing the received message
 	 */
 	virtual void
-	handle_flow_mod(cofctl *ctl, cofmsg_flow_mod *msg) { delete msg; };
+	handle_flow_mod(crofctl& ctl, cofmsg_flow_mod& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1156,7 +1191,7 @@ protected:
 	 * @param msg Pointer to cofmsg_group_mod message containing the received message
 	 */
 	virtual void
-	handle_group_mod(cofctl *ctl, cofmsg_group_mod *msg) { delete msg; };
+	handle_group_mod(crofctl& ctl, cofmsg_group_mod& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1169,7 +1204,7 @@ protected:
 	 * @param msg Pointer to cofmsg_table_mod message containing the received message
 	 */
 	virtual void
-	handle_table_mod(cofctl *ctl, cofmsg_table_mod *msg) { delete msg; };
+	handle_table_mod(crofctl& ctl, cofmsg_table_mod& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1182,7 +1217,7 @@ protected:
 	 * @param msg Pointer to cofmsg_port_mod message containing the received message
 	 */
 	virtual void
-	handle_port_mod(cofctl *ctl, cofmsg_port_mod *msg) { delete msg; };
+	handle_port_mod(crofctl& ctl, cofmsg_port_mod& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1195,7 +1230,7 @@ protected:
 	 * @param msg pointer to cofmsg_flow_removed message containing the received message
 	 */
 	virtual void
-	handle_flow_removed(cofdpt *dpt, cofmsg_flow_removed *msg) { delete msg; };
+	handle_flow_removed(crofdpt& dpt, cofmsg_flow_removed& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1208,7 +1243,7 @@ protected:
 	 * @param msg pointer to cofmsg_port_status message containing the received message
 	 */
 	virtual void
-	handle_port_status(cofdpt *dpt, cofmsg_port_status *msg) { delete msg; };
+	handle_port_status(crofdpt& dpt, cofmsg_port_status& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1222,7 +1257,7 @@ protected:
 	 * @param msg Pointer to cofmsg_queue_get_config_request message containing the received message
 	 */
 	virtual void
-	handle_queue_get_config_request(cofctl *ctl, cofmsg_queue_get_config_request *msg) { delete msg; };
+	handle_queue_get_config_request(crofctl& ctl, cofmsg_queue_get_config_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1235,7 +1270,18 @@ protected:
 	 * @param msg pointer to cofmsg_queue_get_config_reply message containing the received message
 	 */
 	virtual void
-	handle_queue_get_config_reply(cofdpt *dpt, cofmsg_queue_get_config_reply *msg) { delete msg; };
+	handle_queue_get_config_reply(crofdpt& dpt, cofmsg_queue_get_config_reply& msg, uint8_t aux_id = 0) {};
+
+
+	/**
+	 * @brief	Called once a timer expires for a GET-CONFIG.reply message.
+	 *
+	 * Default behaviour: deletes cofdpt instance, thus effectively closing the control connection.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 */
+	virtual void
+	handle_queue_get_config_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -1248,7 +1294,7 @@ protected:
 	 * @param msg Pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_set_config(cofctl *ctl, cofmsg_set_config *msg) { delete msg; };
+	handle_set_config(crofctl& ctl, cofmsg_set_config& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1262,7 +1308,7 @@ protected:
 	 * @param msg pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(cofdpt *dpt, cofmsg_experimenter *msg) { delete msg; };
+	handle_experimenter_message(crofdpt& dpt, cofmsg_experimenter& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1275,8 +1321,19 @@ protected:
 	 * @param msg pointer to cofmsg_experimenter message containing the received message
 	 */
 	virtual void
-	handle_experimenter_message(cofctl *ctl, cofmsg_experimenter *msg);
+	handle_experimenter_message(crofctl& ctl, cofmsg_experimenter& msg, uint8_t aux_id = 0) {};
 
+
+
+	/**
+	 * @brief	Called once a timer expires for a GET-CONFIG.reply message.
+	 *
+	 * Default behaviour: deletes cofdpt instance, thus effectively closing the control connection.
+	 *
+	 * @param dpt pointer to cofdpt instance
+	 */
+	virtual void
+	handle_experimenter_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 	/**
@@ -1288,7 +1345,7 @@ protected:
 	 * @param xid transaction ID of EXPERIMENTER.message previously sent to data path element.
 	 */
 	virtual void
-	handle_get_fsp_reply_timeout(cofdpt *dpt) {};
+	handle_get_fsp_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 
@@ -1301,7 +1358,7 @@ protected:
 	 * @param msg Pointer to cofmsg_role_request message containing the received message
 	 */
 	virtual void
-	handle_role_request(cofctl *ctl, cofmsg_role_request *msg) { delete msg; };
+	handle_role_request(crofctl& ctl, cofmsg_role_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1314,7 +1371,7 @@ protected:
 	 * @param msg pointer to cofmsg_role_reply message containing the received message
 	 */
 	virtual void
-	handle_role_reply(cofdpt *dpt, cofmsg_role_reply *msg) { delete msg; };
+	handle_role_reply(crofdpt& dpt, cofmsg_role_reply& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1327,7 +1384,7 @@ protected:
 	 * @param xid transaction ID of ROLE.reply message previously sent to data path element.
 	 */
 	virtual void
-	handle_role_reply_timeout(cofdpt *dpt) {};
+	handle_role_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 	/**
@@ -1339,7 +1396,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_async_config_request message containing the received message
 	 */
 	virtual void
-	handle_get_async_config_request(cofctl *ctl, cofmsg_get_async_config_request *msg) { delete msg; };
+	handle_get_async_config_request(crofctl& ctl, cofmsg_get_async_config_request& msg, uint8_t aux_id = 0) {};
 
 
 
@@ -1352,7 +1409,7 @@ protected:
 	 * @param msg Pointer to cofmsg_get_async_config_reply message containing the received message
 	 */
 	virtual void
-	handle_get_async_config_reply(cofdpt *dpt, cofmsg_get_async_config_reply *msg) { delete msg; };
+	handle_get_async_config_reply(crofdpt& dpt, cofmsg_get_async_config_reply& msg, uint8_t aux_id = 0) {};
 
 
 	/**
@@ -1363,7 +1420,7 @@ protected:
 	 * @param dpt pointer to cofdpt instance
 	 */
 	virtual void
-	handle_get_async_config_reply_timeout(cofdpt *dpt);
+	handle_get_async_config_reply_timeout(crofdpt& dpt, uint32_t xid) {};
 
 
 	/**
@@ -1375,7 +1432,7 @@ protected:
 	 * @param msg Pointer to cofmsg_set_async_config message containing the received message
 	 */
 	virtual void
-	handle_set_async_config(cofctl *ctl, cofmsg_set_async_config *msg) { delete msg; };
+	handle_set_async_config(crofctl& ctl, cofmsg_set_async_config& msg, uint8_t aux_id = 0) {};
 
 
 	/**@}*/
@@ -1404,7 +1461,7 @@ protected:
 	 */
 	virtual void
 	handle_timeout(
-		int opaque);
+		int opaque, void *data = (void*)0);
 
 
 	/**
@@ -1421,826 +1478,28 @@ protected:
 	/**@}*/
 
 
-
-
-
-
-
-private:
-
-	friend class cofdptImpl;
-
-	friend class cofctlImpl;
+protected:
 
 	/**
-	 * @name	Methods for sending OpenFlow messages used solely by cofctl and cofdpt instances
 	 *
-	 * These methods should only be used by cofctl and cfodpt instances.
 	 */
-
-	/**@{*/
-
-
-	/**
-	 * @brief	Sends HELLO.message to peer data path element.
-	 *
-	 * This method is used only by cofdpt instances and should never be called by classes derived from crofbase.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param body pointer to memory area containing opaque data. will be appended to HELLO message header
-	 * @param bodylen size of memory area containing opaque data
-	 */
-	virtual void
-	send_hello_message(
-			cofdpt *dpt,
-			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
-
-
-
-	/**
-	 * @brief	Sends HELLO.message to peer controller entity.
-	 *
-	 * This method is used only by cofctl instances and should never be called by classes derived from crofbase.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param body pointer to memory area containing opaque data. will be appended to HELLO message header
-	 * @param bodylen size of memory area containing opaque data
-	 */
-	virtual void
-	send_hello_message(
-			cofctl *ctl,
-			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
-
-
-
-
-	/**
-	 * @brief	Sends ECHO.request to peer data path element.
-	 *
-	 * This method is used only by cofdpt instances and should never be called by classes derived from crofbase.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param body pointer to memory area containing opaque data. will be appended to ECHO.request message header
-	 * @param bodylen size of memory area containing opaque data
-	 */
-	virtual void
-	send_echo_request(
-			cofdpt *dpt,
-			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
-
-
-
-	/**
-	 * @brief	Sends ECHO.reply to peer data path element.
-	 *
-	 * This method is used only by cofdpt instances and should never be called by classes derived from crofbase.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param xid transaction ID of associated ECHO.request
-	 * @param body pointer to memory area containing opaque data. will be appended to ECHO.reply message header
-	 * @param bodylen size of memory area containing opaque data
-	 */
-	virtual void
-	send_echo_reply(
-			cofdpt *dpt,
-			uint32_t xid,
-			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
-
-
-	/**
-	 * @brief	Sends ECHO.request to peer controller entity.
-	 *
-	 * This method is used only by cofctl instances and should never be called by classes derived from crofbase.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param body pointer to memory area containing opaque data. will be appended to ECHO.request message header
-	 * @param bodylen size of memory area containing opaque data
-	 */
-	virtual void
-	send_echo_request(
-			cofctl *ctl,
-			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
-
-
-
-	/**
-	 * @brief	Sends ECHO.reply to peer controller entity.
-	 *
-	 * This method is used only by cofctl instances and should never be called by classes derived from crofbase.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID of associated ECHO.request
-	 * @param body pointer to memory area containing opaque data. will be appended to ECHO.reply message header
-	 * @param bodylen size of memory area containing opaque data
-	 */
-	virtual void
-	send_echo_reply(
-			cofctl *ctl,
-			uint32_t xid,
-			uint8_t *body = (uint8_t*)0, size_t bodylen = 0);
-
-	/**@}*/
-
-
-
-public:
-
-
-
-	/**
-	 * @name	Methods for sending OpenFlow messages
-	 *
-	 * These methods may be called by a derived class for sending
-	 * a specific OF message.
-	 */
-
-	/**@{*/
-
-
-
-	/**
-	 * @brief	Sends a FEATURES.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @return transaction ID assigned to this request
-	 */
-	virtual uint32_t
-	send_features_request(
-		cofdpt *dpt);
-
-
-
-	/**
-	 * @brief	Sends a FEATURES.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from FEATURES.request
-	 * @param dpid data path ID of this data path element
-	 * @param n_buffers number of packet buffers available
-	 * @param capabilities data path capabilities (reassembly, etc.)
-	 * @param of13_auxiliary_id auxiliary_id used in OpenFlow 1.3, ignored in other versions
-	 * @param of10_actions_bitmap bitmap of supported actions for OpenFlow 1.0, ignored in other versions
-	 * @param portlist list of cofports in this data path, ignored in OpenFlow 1.3
-	 */
-	virtual void
-	send_features_reply(
-			cofctl *ctl,
-			uint32_t xid,
-			uint64_t dpid,
-			uint32_t n_buffers,
-			uint8_t n_tables,
-			uint32_t capabilities,
-			uint8_t of13_auxiliary_id = 0,
-			uint32_t of10_actions_bitmap = 0,
-			cofportlist const& portlist = cofportlist());
-
-
-
-	/**
-	 * @brief	Sends a GET-CONFIG.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @return transaction ID assigned to this request
-	 */
-	virtual uint32_t
-	send_get_config_request(
-		cofdpt *dpt);
-
-
-
-	/**
-	 * @brief	Sends a GET-CONFIG.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from GET-CONFIG.request
-	 * @param flags data path flags
-	 * @param miss_send_len default miss_send_len value
-	 */
-	virtual void
-	send_get_config_reply(
-			cofctl *ctl,
-			uint32_t xid,
-			uint16_t flags,
-			uint16_t miss_send_len);
-
-
-
-
-	/**
-	 * @brief	Sends a STATS.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param stats_type one of the OFPST_* constants
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param body body of STATS.request
-	 * @param bodylen length of STATS.request body
-	 * @return transaction ID for this STATS.request
-	 */
-	virtual uint32_t
-	send_stats_request(
-		cofdpt *dpt,
-		uint16_t stats_type,
-		uint16_t stats_flags,
-		uint8_t *body = NULL,
-		size_t bodylen = 0);
-
-
-
-	/**
-	 * @brief	Sends a DESC-STATS.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this DESC-STATS.request
-	 */
-	virtual uint32_t
-	send_desc_stats_request(
-		cofdpt *dpt,
-		uint16_t stats_flags);
-
-
-
-	/**
-	 * @brief	Sends a FLOW-STATS.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param flow_stats_request body of a FLOW-STATS.request
-	 * @return transaction ID for this FLOW-STATS.request
-	 */
-	virtual uint32_t
-	send_flow_stats_request(
-		cofdpt *dpt,
-		uint16_t stats_flags,
-		cofflow_stats_request const& flow_stats_request);
-
-
-
-	/**
-	 * @brief	Sends a AGGREGATE-STATS.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param aggr_stats_request body of an AGGREGATE-STATS.request
-	 * @return transaction ID for this AGGREGATE-STATS.request
-	 */
-	virtual uint32_t
-	send_aggr_stats_request(
-		cofdpt *dpt,
-		uint16_t flags,
-		cofaggr_stats_request const& aggr_stats_request);
-
-
-	/**
-	 * @brief	Sends a TABLE-STATS.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this TABLE-STATS.request
-	 */
-	virtual uint32_t
-	send_table_stats_request(
-		cofdpt *dpt,
-		uint16_t stats_flags);
-
-
-	/**
-	 * @brief	Sends a FLOW-STATS.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param port_stats_request body of a PORT-STATS.request
-	 * @return transaction ID for this FLOW-STATS.request
-	 */
-	virtual uint32_t
-	send_port_stats_request(
-		cofdpt *dpt,
-		uint16_t stats_flags,
-		cofport_stats_request const& port_stats_request);
-
-
-
-	/**
-	 * @brief	Sends a QUEUE-STATS.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param queue_stats_request body of a QUEUE-STATS.request
-	 * @return transaction ID for this QUEUE-STATS.request
-	 */
-	virtual uint32_t
-	send_queue_stats_request(
-		cofdpt *dpt,
-		uint16_t stats_flags,
-		cofqueue_stats_request const& queue_stats_request);
-
-
-
-	/**
-	 * @brief	Sends a GROUP-STATS.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param queue_stats_request body of a GROUP-STATS.request
-	 * @return transaction ID for this GROUP-STATS.request
-	 */
-	virtual uint32_t
-	send_group_stats_request(
-		cofdpt *dpt,
-		uint16_t stats_flags,
-		cofgroup_stats_request const& group_stats_request);
-
-
-
-	/**
-	 * @brief	Sends a GROUP-DESC-STATS.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this AGGREGATE-STATS.request
-	 */
-	virtual uint32_t
-	send_group_desc_stats_request(
-		cofdpt *dpt,
-		uint16_t flags);
-
-
-
-	/**
-	 * @brief	Sends a GROUP-FEATURES-STATS.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this AGGREGATE-STATS.request
-	 */
-	virtual uint32_t
-	send_group_features_stats_request(
-		cofdpt *dpt,
-		uint16_t flags);
-
-
-
-	/**
-	 * @brief	Sends an EXPERIMENTER-STATS.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @param exp_id experimenter ID
-	 * @param exp_type user defined type
-	 * @param body user defined body
-	 * @return transaction ID for this EXPERIMENTER-STATS.request
-	 */
-	virtual uint32_t
-	send_experimenter_stats_request(
-		cofdpt *dpt,
-		uint16_t stats_flags,
-		uint32_t exp_id,
-		uint32_t exp_type,
-		cmemory const& body);
-
-
-
-	/**
-	 * @brief	Sends a STATS.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from received STATS.request
-	 * @param stats_type one of the OFPST_* constants
-	 * @param body body of a STATS.reply
-	 * @param bodylen length of STATS.reply body
-	 * @param more flag if multiple STATS.reply messages will be sent
-	 */
-	virtual void
-	send_stats_reply(
-		cofctl *ctl,
-		uint32_t xid,
-		uint16_t stats_type,
-		uint8_t *body = NULL,
-		size_t bodylen = 0,
-		bool more = false);
-
-
-
-	/**
-	 * @brief	Sends a DESC-STATS.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from received STATS.request
-	 * @param desc_stats body of DESC-STATS.reply
-	 * @param more flag if multiple STATS replies will be sent
-	 */
-	virtual void
-	send_desc_stats_reply(
-		cofctl *ctl,
-		uint32_t xid,
-		cofdesc_stats_reply const& desc_stats,
-		bool more = false);
-
-
-
-	/**
-	 * @brief	Sends a TABLE-STATS.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from received STATS.request
-	 * @param table_stats array of table_stats bodies
-	 * @param more flag if multiple STATS replies will be sent
-	 */
-	virtual void
-	send_table_stats_reply(
-		cofctl *ctl,
-		uint32_t xid,
-		std::vector<coftable_stats_reply> const& table_stats,
-		bool more = false);
-
-
-
-	/**
-	 * @brief	Sends a PORT-STATS.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from received STATS.request
-	 * @param port_stats array of port_stats bodies
-	 * @param more flag if multiple STATS replies will be sent
-	 */
-	virtual void
-	send_port_stats_reply(
-		cofctl *ctl,
-		uint32_t xid,
-		std::vector<cofport_stats_reply> const& port_stats,
-		bool more = false);
-
-
-
-	/**
-	 * @brief	Sends a QUEUE-STATS.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from received STATS.request
-	 * @param port_stats array of port_stats bodies
-	 * @param more flag if multiple STATS replies will be sent
-	 */
-	virtual void
-	send_queue_stats_reply(
-		cofctl *ctl,
-		uint32_t xid,
-		std::vector<cofqueue_stats_reply> const& queue_stats,
-		bool more = false);
-
-
-
-	/**
-	 * @brief	Sends a FLOW-STATS.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from received STATS.request
-	 * @param flow_stats array of flow_stats bodies
-	 * @param more flag if multiple STATS replies will be sent
-	 */
-	virtual void
-	send_flow_stats_reply(
-		cofctl *ctl,
-		uint32_t xid,
-		std::vector<cofflow_stats_reply> const& flow_stats,
-		bool more = false);
-
-
-
-	/**
-	 * @brief	Sends an AGGREGATE-STATS.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from received STATS.request
-	 * @param aggr_stats aggr_stats body
-	 * @param more flag if multiple STATS replies will be sent
-	 */
-	virtual void
-	send_aggr_stats_reply(
-		cofctl *ctl,
-		uint32_t xid,
-		cofaggr_stats_reply const& aggr_stats,
-		bool more = false);
-
-
-
-	/**
-	 * @brief	Sends a GROUP-STATS.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from received STATS.request
-	 * @param group_stats array of group_stats bodies
-	 * @param more flag if multiple STATS replies will be sent
-	 */
-	virtual void
-	send_group_stats_reply(
-		cofctl *ctl,
-		uint32_t xid,
-		std::vector<cofgroup_stats_reply> const& group_stats,
-		bool more = false);
-
-
-
-	/**
-	 * @brief	Sends a GROUP-DESC-STATS.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from received STATS.request
-	 * @param group_desc_stats array of group_desc_stats bodies
-	 * @param more flag if multiple STATS replies will be sent
-	 */
-	virtual void
-	send_group_desc_stats_reply(
-		cofctl *ctl,
-		uint32_t xid,
-		std::vector<cofgroup_desc_stats_reply> const& group_desc_stats,
-		bool more = false);
-
-
-
-	/**
-	 * @brief	Sends a GROUP-FEATURES-STATS.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from received STATS.request
-	 * @param group_features_stats group_features_stats body
-	 * @param more flag if multiple STATS replies will be sent
-	 */
-	virtual void
-	send_group_features_stats_reply(
-		cofctl *ctl,
-		uint32_t xid,
-		cofgroup_features_stats_reply const& group_features_stats,
-		bool more = false);
-
-
-
-	/**
-	 * @brief	Sends an EXPERIMENTER-STATS.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from received STATS.request
-	 * @param exp_id experimenter ID
-	 * @param exp_type user defined type
-	 * @param body start of user defined body
-	 * @param bodylen length of user defined body
-	 * @param more flag if multiple STATS replies will be sent
-	 */
-	virtual void
-	send_experimenter_stats_reply(
-		cofctl *ctl,
-		uint32_t xid,
-		uint32_t exp_id,
-		uint32_t exp_type,
-		cmemory const& body,
-		bool more);
-
-
-
-	/**
-	 * @brief	Sends a PACKET-OUT.message to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param buffer_id buffer ID assigned by datapath (-1 if none) in host byte order
-	 * @param in_port packet’s in-port (OFPP_NONE if none) in host byte order
-	 * @param aclist OpenFlow ActionList
-	 * @param data data packet to be sent out (optional)
-	 * @param datalen length of data packet (optional)
-	 */
-	virtual void
-	send_packet_out_message(
-		cofdpt *dpt,
-		uint32_t buffer_id,
-		uint32_t in_port,
-		cofaclist& aclist,
-		uint8_t *data = NULL,
-		size_t datalen = 0);
-
-
-
-
-	/**
-	 * @brief	Sends a PACKET-IN.message to a controller entity.
-	 *
-	 * @param ctl cofctl instance to send this message to. If NULL, send to all connected controllers.
-	 * @param buffer_id buffer ID assigned by data path
-	 * @param total_len Full length of frame
-	 * @param reason reason packet is being sent (one of OFPR_* flags)
-	 * @param table_id ID of table that generated the PACKET-IN event
-	 * @param cookie cookie of FlowMod entry that generated the PACKET-IN event
-	 * @param in_port port on which frame was received
-	 * @param match match structure generated by data path element for data packet
-	 * @param data data packet
-	 * @param datalen length of data packet
-	 */
-	virtual void
+	void
 	send_packet_in_message(
-		cofctl *ctl,
-		uint32_t buffer_id,
-		uint16_t total_len,
-		uint8_t reason,
-		uint8_t table_id,
-		uint64_t cookie,
-		uint16_t in_port, // for OF1.0
-		cofmatch &match,
-		uint8_t *data,
-		size_t datalen);
-
-
+			uint32_t buffer_id,
+			uint16_t total_len,
+			uint8_t reason,
+			uint8_t table_id,
+			uint64_t cookie,
+			uint16_t in_port, // for OF1.0
+			cofmatch &match,
+			uint8_t *data,
+			size_t datalen);
 
 	/**
-	 * @brief	Sends a BARRIER.request to a data path element.
 	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @result transaction ID assigned to this request
 	 */
-	virtual uint32_t
-	send_barrier_request(
-		cofdpt *dpt);
-
-
-
-	/**
-	 * @brief	Sends a BARRIER-reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from received BARRIER.request
-	 */
-	virtual void
-	send_barrier_reply(
-			cofctl *ctl,
-			uint32_t xid);
-
-
-
-	/**
-	 * @brief	Sends an ERROR.message to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID of request that generated this error message
-	 * @param type one of OpenFlow's OFPET_* flags
-	 * @param code one of OpenFlow's error codes
-	 * @param data first (at least 64) bytes of failed request
-	 * @param datalen length of failed request appended to error message
-	 */
-	virtual void
-	send_error_message(
-		cofctl *ctl,
-		uint32_t xid,
-		uint16_t type,
-		uint16_t code,
-		uint8_t* data = NULL,
-		size_t datalen = 0);
-
-
-
-	/**
-	 * @brief	Sends an ERROR.message to a data path element.
-	 *
-	 * These messages are used for failed HELLO negotiations and
-	 * experimental extensions.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param xid transaction ID of reply/notification that generated this error message
-	 * @param type one of OpenFlow's OFPET_* flags
-	 * @param code one of OpenFlow's error codes
-	 * @param data first (at least 64) bytes of failed reply/notification
-	 * @param datalen length of failed reply/notification appended to error message
-	 */
-	virtual void
-	send_error_message(
-		cofdpt *dpt,
-		uint32_t xid,
-		uint16_t type,
-		uint16_t code,
-		uint8_t* data = NULL,
-		size_t datalen = 0);
-
-
-
-
-	/*
-	 * FIXME: to be removed and replaced by cflowentry
-	 */
-
-	/**
-	 * @brief 	Sends a FLOW-MOD.message to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param match matching structure
-	 * @param cookie opaque controller-issued identifier
-	 * @param cookie_mask mask of bits to be overwritten/ignored when modifying FlowMod entries
-	 * @param table_id destination table ID of new FlowMod entry
-	 * @param command one of OpenFlow's command values: Add/Modify/Remove entry
-	 * @param idle_timeout idle timeout before discarding this FlowMod entry in seconds
-	 * @param hard_timeout hard timeout before discarding this FlowMod entry in seconds
-	 * @param priority priority level of flow entry
-	 * @param buffer_id buffer slot where to apply this FlowMod entry
-	 * @param out_port for OFPFC_DELETE* commands, require matching entries to include this as an output port. A value of OFPP_NONE indicates no restriction
-	 * @param flags one of OpenFlow's OFPFF_* flags
-	 * @param inlist InstructionList
-	 */
-	virtual void
-	send_flow_mod_message(
-		cofdpt *dpt,
-		cofmatch& match,
-		uint64_t cookie,
-		uint64_t cookie_mask,
-		uint8_t table_id,
-		uint8_t command,
-		uint16_t idle_timeout,
-		uint16_t hard_timeout,
-		uint16_t priority,
-		uint32_t buffer_id,
-		uint32_t out_port,
-		uint32_t out_group,
-		uint16_t flags,
-		cofinlist& inlist);
-
-
-
-	/**
-	 * @brief 	Sends a FLOW-MOD.message to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param flowentry FlowMod entry
-	 */
-	virtual void
-	send_flow_mod_message(
-			cofdpt *dpt,
-			cflowentry& flowentry);
-
-
-
-
-	/**
-	 * @brief 	Sends a GROUP-MOD.message to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param groupentry GroupMod entry
-	 */
-	virtual void
-	send_group_mod_message(
-			cofdpt *dpt,
-			cgroupentry& groupentry);
-
-
-
-	/**
-	 * @brief	Sends a TABLE-MOD.message to a data path element.
-	 *
-	 * @param dpt pointer to a cofdpt instance
-	 * @param table_id ID of table to be reconfigured
-	 * @param config new configuration for table
-	 */
-	virtual void
-	send_table_mod_message(
-		cofdpt *dpt,
-		uint8_t table_id,
-		uint32_t config);
-
-
-
-
-	/**
-	 * @brief	Sends a PORT-MOD.message to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param port_no number of port to be updated
-	 * @param hwaddr MAC address assigned to port
-	 * @param config OpenFlow config parameter
-	 * * @param mask OpenFlow mask parameter
-	 * * @param advertise OpenFlow advertise parameter
-	 */
-	virtual void
-	send_port_mod_message(
-		cofdpt *dpt,
-		uint32_t port_no,
-		cmacaddr const& hwaddr,
-		uint32_t config,
-		uint32_t mask,
-		uint32_t advertise);
-
-
-
-	/**
-	 * @brief	Sends a FLOW-REMOVED.message to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param match match structure defined in FlowMod entry
-	 * @param cookie cookie defined in FlowMod entry
-	 * @param priority priority level defined in FlowMOd entry
-	 * @param reason one of OpenFlow's OFPRR_* constants
-	 * @param table_id ID of table from which the FlowMod entry was removed
-	 * @param duration_sec time flow was alive in seconds
-	 * @param duration_nsec time flow was alive in nanoseconds beyond duration_sec
-	 * @param idle_timeout idle timeout from original flow mod
-	 * @param idle_timeout hard timeout from original flow mod
-	 * @param packet_count number of packets handled by this flow mod
-	 * @param byte_count number of bytes handled by this flow mod
-	 */
-	virtual void
+	void
 	send_flow_removed_message(
-		cofctl *ctl,
 		cofmatch& match,
 		uint64_t cookie,
 		uint16_t priority,
@@ -2253,203 +1512,20 @@ public:
 		uint64_t packet_count,
 		uint64_t byte_count);
 
-
-
-
 	/**
-	 * @brief	Sends a PORT-STATUS.message to a controller entity.
 	 *
-	 * @param ctl cofctl instance to send this message to. If NULL, send to all connected controllers.
-	 * @param reason one of OpenFlow's OFPPR_* constants
-	 * @param port cofport instance that changed its status
 	 */
-	virtual void
+	void
 	send_port_status_message(
-		cofctl *ctl,
 		uint8_t reason,
 		cofport const& port);
 
 
+private:
 
-	/**
-	 * @brief	Sends a SET-CONFIG.message to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param flags field of OpenFlow's OFPC_* flags
-	 * @param miss_send_len OpenFlow' miss_send_len parameter
-	 */
-	virtual void
-	send_set_config_message(
-		cofdpt *dpt,
-		uint16_t flags,
-		uint16_t miss_send_len);
+	friend class crofdpt_impl;
 
-
-
-	/**
-	 * @brief	Sends a QUEUE-GET-CONFIG.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param port port to be queried. Should refer to a valid physical port (i.e. < OFPP_MAX)
-	 * @result transaction ID assigned to this request
-	 */
-	virtual uint32_t
-	send_queue_get_config_request(
-		cofdpt *sw,
-		uint32_t port);
-
-
-
-	// FIXME: add QUEUE-GET-CONFIG.reply body
-	/**
-	 * @brief	Sends a QUEUE-GET-CONFIG.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from QUEUE-GET-CONFIG.request
-	 * @param portno OpenFlow number assigned to port
-	 */
-	virtual void
-	send_queue_get_config_reply(
-			cofctl *ctl,
-			uint32_t xid,
-			uint32_t portno,
-			cofpacket_queue_list const& pql);
-
-
-
-
-	/**
-	 * @brief 	Sends an EXPERIMENTER.message to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param experimenter_id exp_id as assigned by ONF
-	 * @param exp_type exp_type as defined by the ONF member
-	 * @param body pointer to opaque experimenter message body (optional)
-	 * @param bodylen length of body (optional)
-	 * @result transaction ID assigned to this request
-	 */
-	virtual uint32_t
-	send_experimenter_message(
-			cofdpt *dpt,
-			uint32_t experimenter_id,
-			uint32_t exp_type,
-			uint8_t *body = NULL,
-			size_t bodylen = 0);
-
-
-
-	/**
-	 * @brief 	Sends an EXPERIMENTER.message to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param experimenter_id exp_id as assigned by ONF
-	 * @param exp_type exp_type as defined by the ONF member
-	 * @param body pointer to opaque experimenter message body (optional)
-	 * @param bodylen length of body (optional)
-	 * @result transaction ID assigned to this request
-	 */
-	virtual uint32_t
-	send_experimenter_message(
-			cofctl *ctl,
-			uint32_t experimenter_id,
-			uint32_t exp_type,
-			uint8_t *body = NULL,
-			size_t bodylen = 0);
-
-
-
-
-	/**
-	 * @brief	Sends a ROLE.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param role role as defined by OpenFlow
-	 * @param generation_id gen_id as defined by OpenFlow
-	 */
-	virtual uint32_t
-	send_role_request(
-		cofdpt *dpt,
-		uint32_t role,
-		uint64_t generation_id);
-
-
-
-	/**
-	 * @brief	Sends a ROLE.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from associated ROLE.request
-	 * @param role defined role from data path
-	 * @param generation_id gen_id as defined by OpenFlow
-	 */
-	virtual void
-	send_role_reply(
-			cofctl *ctl,
-			uint32_t xid,
-			uint32_t role,
-			uint64_t generation_id);
-
-
-
-	/**
-	 * @brief	Sends a GET-ASYNC-CONFIG.request to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @return transaction ID assigned to this request
-	 */
-	virtual uint32_t
-	send_get_async_config_request(
-		cofdpt *dpt);
-
-
-
-	/**
-	 * @brief	Sends a GET-ASYNC-CONFIG.reply to a controller entity.
-	 *
-	 * @param ctl pointer to cofctl instance
-	 * @param xid transaction ID from GET-CONFIG.request
-	 * @param packet_in_mask0 packet_in_mask[0]
-	 * @param packet_in_mask1 packet_in_mask[1]
-	 * @param port_status_mask0 port_status_mask[0]
-	 * @param port_status_mask1 port_status_mask[1]
-	 * @param flow_removed_mask0 flow_removed_mask[0]
-	 * @param flow_removed_mask1 flow_removed_mask[1]
-	 */
-	virtual void
-	send_get_async_config_reply(
-			cofctl *ctl,
-			uint32_t xid,
-			uint32_t packet_in_mask0,
-			uint32_t packet_in_mask1,
-			uint32_t port_status_mask0,
-			uint32_t port_status_mask1,
-			uint32_t flow_removed_mask0,
-			uint32_t flow_removed_mask1);
-
-
-	/**
-	 * @brief	Sends a SET-ASYNC-CONFIG.message to a data path element.
-	 *
-	 * @param dpt pointer to cofdpt instance
-	 * @param packet_in_mask0 packet_in_mask[0]
-	 * @param packet_in_mask1 packet_in_mask[1]
-	 * @param port_status_mask0 port_status_mask[0]
-	 * @param port_status_mask1 port_status_mask[1]
-	 * @param flow_removed_mask0 flow_removed_mask[0]
-	 * @param flow_removed_mask1 flow_removed_mask[1]
-	 */
-	virtual void
-	send_set_async_config_message(
-		cofdpt *dpt,
-		uint32_t packet_in_mask0,
-		uint32_t packet_in_mask1,
-		uint32_t port_status_mask0,
-		uint32_t port_status_mask1,
-		uint32_t flow_removed_mask0,
-		uint32_t flow_removed_mask1);
-
-	/**@}*/
-
+	friend class crofctl_impl;
 
 
 private:
@@ -2459,19 +1535,6 @@ private:
 	};
 
 	std::bitset<32> 					fe_flags;
-	std::string 						info;			/**< info string */
-	pthread_rwlock_t					xidlock;		/**< rwlock variable for transaction ids
-															stored in ta_pending_reqs */
-
-	/*
-	 * data structures
-	 */
-
-	std::map<uint32_t, uint8_t> 		ta_pending_reqs; 	// list of pending requests
-	std::set<uint32_t>	 				xids_used;			// list of recently used xids
-	size_t 								xid_used_max; 		// reusing xids: max number of currently blocked xid entries stored
-	uint32_t 							xid_start; 			// start value xid
-#define CPCP_DEFAULT_XID_USED_MAX       16
 
 	/** \enum crofbase::crofbase_event_t
 	 *
@@ -2507,80 +1570,9 @@ private:
 	std::set<csocket*>			rpc[2];	/**< two sets of listening sockets for ctl and dpt */
 
 
-
 private:
 
 	friend class csocket;
-
-
-	/** Helper method for handling DESCription STATS.requests.
-	 * Only used within crofbase internally.
-	 */
-	void
-	send_stats_reply_local();
-
-
-	/*
-	 * transaction ID related methods
-	 */
-
-
-	/** add pending request to transaction queue
-	 * - allocates new xid not in xid_used
-	 * - adds xid to xid_used
-	 * - adds pair(type, xid) to ta_pending_requests
-	 */
-	uint32_t
-	ta_add_request(
-			uint8_t type);
-
-
-	/** remove pending request from transaction queue
-	 */
-	void
-	ta_rem_request(
-			uint32_t xid);
-
-
-	/** return boolean flag for pending request of type x
-	 */
-	bool
-	ta_pending(
-			uint32_t xid,
-			uint8_t type);
-
-
-	/** return new xid for asynchronous calls
-	 * - adds xid to xid_used
-	 * - does not add xid to ta_pending_requests
-	 */
-	uint32_t
-	ta_new_async_xid();
-
-
-	/** validate incoming reply for transaction
-	 * checks for existing type and associated xid
-	 * removes request from ta_pending_reqs, if found
-	 */
-	bool
-	ta_validate(
-			uint32_t xid,
-			uint8_t type) throw (eRofBaseXidInval);
-
-
-	/** validate a cofpacket, calls ta_validate(xid, type)
-	 */
-	bool
-	ta_validate(
-			cofmsg *pack);
-
-
-	/** returns true if a xid is used by a pending
-	 * transaction
-	 */
-	bool
-	ta_active_xid(
-			uint32_t xid);
 
 
 	/*
@@ -2593,7 +1585,7 @@ private:
 	 */
 	virtual void
 	handle_accepted(
-			csocket *socket,
+			csocket& socket,
 			int newsd,
 			caddress const& ra);
 
@@ -2603,8 +1595,7 @@ private:
 	 */
 	virtual void
 	handle_connected(
-			csocket *socket,
-			int sd);
+			csocket& socket);
 
 
 
@@ -2613,8 +1604,7 @@ private:
 	 */
 	virtual void
 	handle_connect_refused(
-			csocket *socket,
-			int sd);
+			csocket& socket);
 
 
 	/**
@@ -2622,8 +1612,7 @@ private:
 	 */
 	virtual void
 	handle_read(
-			csocket *socket,
-			int sd);
+			csocket& socket);
 
 
 	/**
@@ -2631,8 +1620,7 @@ private:
 	 */
 	virtual void
 	handle_closed(
-			csocket *socket,
-			int sd);
+			csocket& socket);
 
 
 
@@ -2646,25 +1634,25 @@ private:
 	 *
 	 */
 	void
-	handle_dpt_open(cofdpt *dpt);
+	handle_dpt_open(crofdpt *dpt);
 
 	/** for use by cofdpt
 	 *
 	 */
 	void
-	handle_dpt_close(cofdpt *dpt);
+	handle_dpt_close(crofdpt *dpt);
 
 	/** for use by cofctl
 	 *
 	 */
 	void
-	handle_ctl_open(cofctl *ctl);
+	handle_ctl_open(crofctl *ctl);
 
 	/** for use by cofctl
 	 *
 	 */
 	void
-	handle_ctl_close(cofctl *ctl);
+	handle_ctl_close(crofctl *ctl);
 
 	/** get highest support OF protocol version
 	 *
@@ -2678,6 +1666,22 @@ private:
 	bool
 	is_ofp_version_supported(uint8_t ofp_version);
 
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, crofbase const& rofbase) {
+		os << "<crofbase ";
+		for (std::set<crofctl*>::const_iterator
+				it = rofbase.ofctl_set.begin(); it != rofbase.ofctl_set.end(); ++it) {
+			os << "    " << (*it) << std::endl;
+		}
+		for (std::set<crofdpt*>::const_iterator
+				it = rofbase.ofdpt_set.begin(); it != rofbase.ofdpt_set.end(); ++it) {
+			os << "    " << (*it) << std::endl;
+		}
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

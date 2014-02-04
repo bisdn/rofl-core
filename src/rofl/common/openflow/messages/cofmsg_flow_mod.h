@@ -8,10 +8,11 @@
 #ifndef COFMSG_FLOW_MOD_H_
 #define COFMSG_FLOW_MOD_H_ 1
 
-#include "cofmsg.h"
-#include "rofl/common/openflow/cofaclist.h"
-#include "rofl/common/openflow/cofinlist.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
+#include "rofl/common/openflow/cofactions.h"
+#include "rofl/common/openflow/cofinstructions.h"
 #include "rofl/common/openflow/cofmatch.h"
+#include "rofl/common/openflow/cofflowmod.h"
 
 namespace rofl
 {
@@ -24,15 +25,15 @@ class cofmsg_flow_mod :
 {
 private:
 
-	cofaclist			actions; 		// for OF1.0
-	cofinlist			instructions; 	// since OF1.1
+	cofactions			actions; 		// for OF1.0
+	cofinstructions		instructions; 	// since OF1.1
 	cofmatch			match;
 
 	union {
-		uint8_t*					ofhu_flow_mod;
-		struct ofp10_flow_mod*		ofhu10_flow_mod;
-		struct ofp12_flow_mod*		ofhu12_flow_mod;
-		struct ofp13_flow_mod*		ofhu13_flow_mod;
+		uint8_t*								ofhu_flow_mod;
+		struct openflow10::ofp_flow_mod*		ofhu10_flow_mod;
+		struct openflow12::ofp_flow_mod*		ofhu12_flow_mod;
+		struct openflow13::ofp_flow_mod*		ofhu13_flow_mod;
 	} ofhu;
 
 #define ofh_flow_mod   ofhu.ofhu_flow_mod
@@ -40,9 +41,6 @@ private:
 #define ofh12_flow_mod ofhu.ofhu12_flow_mod
 #define ofh13_flow_mod ofhu.ofhu13_flow_mod
 
-#define OFP10_FLOW_MOD_STATIC_HDR_LEN				72
-#define OFP12_FLOW_MOD_STATIC_HDR_LEN				48
-#define OFP13_FLOW_MOD_STATIC_HDR_LEN				48
 
 public:
 
@@ -51,7 +49,7 @@ public:
 	 *
 	 */
 	cofmsg_flow_mod(
-			uint8_t of_version = 0, // must be OFP10_VERSION
+			uint8_t of_version = 0, // must be openflow10::OFP_VERSION
 			uint32_t xid = 0,
 			uint64_t cookie = 0,
 			uint8_t  command = 0,
@@ -61,15 +59,15 @@ public:
 			uint32_t buffer_id = 0,
 			uint16_t out_port = 0,
 			uint16_t flags = 0,
-			cofaclist const& actions = cofaclist(),
-			cofmatch const& match = cofmatch(OFP10_VERSION));
+			cofactions const& actions = cofactions(),
+			cofmatch const& match = cofmatch(openflow10::OFP_VERSION));
 
 
 	/** constructor
 	 *
 	 */
 	cofmsg_flow_mod(
-			uint8_t of_version = 0,  // OFP12_VERSION, OFP13_VERSION, and beyond
+			uint8_t of_version = 0,  // openflow12::OFP_VERSION, openflow13::OFP_VERSION, and beyond
 			uint32_t xid = 0,
 			uint64_t cookie = 0,
 			uint64_t cookie_mask = 0,
@@ -82,8 +80,17 @@ public:
 			uint32_t out_port = 0,
 			uint32_t out_group = 0,
 			uint16_t flags = 0,
-			cofinlist const& instructions = cofinlist(),
-			cofmatch const& match = cofmatch(OFP12_VERSION));
+			cofinstructions const& instructions = cofinstructions(),
+			cofmatch const& match = cofmatch(openflow12::OFP_VERSION));
+
+
+	/**
+	 *
+	 */
+	cofmsg_flow_mod(
+			uint8_t of_version,
+			uint32_t xid,
+			cofflowmod const& fe);
 
 
 	/**
@@ -153,6 +160,13 @@ public:
 	 */
 	virtual void
 	validate();
+
+
+	/**
+	 *
+	 */
+	void
+	check_prerequisites() const;
 
 
 public:
@@ -293,13 +307,13 @@ public:
 	/**
 	 *
 	 */
-	cofaclist&
+	cofactions&
 	get_actions();
 
 	/**
 	 *
 	 */
-	cofinlist&
+	cofinstructions&
 	get_instructions();
 
 	/**
@@ -307,6 +321,102 @@ public:
 	 */
 	cofmatch&
 	get_match();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_flow_mod const& msg) {
+		switch (msg.get_version()) {
+		case OFP10_VERSION: {
+			os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+			os << indent(2) << "<cofmsg_flow_mod >" << std::endl;
+			switch (msg.get_command()) {
+			case rofl::openflow10::OFPFC_ADD: {
+				os << indent(4) << "<command: -ADD- >" << std::endl;
+			} break;
+			case rofl::openflow10::OFPFC_MODIFY: {
+				os << indent(4) << "<command: -MODIFY- >" << std::endl;
+			} break;
+			case rofl::openflow10::OFPFC_MODIFY_STRICT: {
+				os << indent(4) << "<command: -MODIFY-STRICT- >" << std::endl;
+			} break;
+			case rofl::openflow10::OFPFC_DELETE: {
+				os << indent(4) << "<command: -DELETE- >" << std::endl;
+			} break;
+			case rofl::openflow10::OFPFC_DELETE_STRICT: {
+				os << indent(4) << "<command: -DELETE-STRICT- >" << std::endl;
+			} break;
+			default: {
+				os << indent(4) << "<command: -UNKNOWN- >" << std::endl;
+			};
+			}
+			os << indent(4) << "<table-id:" 		<< (int)msg.get_table_id() << " >" << std::endl;
+			os << indent(4) << "<cookie:0x" 		<< std::hex << (unsigned long long)msg.get_cookie() << std::dec << " >" << std::endl;
+			os << indent(4) << "<idle-timeout:" 	<< (int)msg.get_idle_timeout() << " >" << std::endl;;
+			os << indent(4) << "<hard-timeout:" 	<< (int)msg.get_hard_timeout() << " >" << std::endl;
+			os << indent(4) << "<priority:0x" 		<< std::hex << (int)msg.get_priority() << std::dec << " >" << std::endl;
+			os << indent(4) << "<buffer-id:0x" 		<< std::hex << (int)msg.get_buffer_id() << std::dec << " >" << std::endl;
+			os << indent(4) << "<flags:0x" 			<< std::hex << (int)msg.get_flags() << std::dec << " >" << std::endl;
+			os << indent(4) << "<out-port:0x" 		<< std::hex << (int)msg.get_out_port() << std::dec << " >" << std::endl;
+			{
+				os << indent(4) << "<matches: >" << std::endl;
+				indent i(6);
+				os << msg.match;
+			}
+			{
+				os << indent(4) << "<actions: >" << std::endl;
+				indent i(6);
+				os << msg.actions;
+			}
+		} break;
+		case OFP12_VERSION:
+		case OFP13_VERSION: {
+			os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+			os << indent(2) << "<cofmsg_flow_mod >" << std::endl;
+			switch (msg.get_command()) {
+			case rofl::openflow10::OFPFC_ADD: {
+				os << indent(4) << "<command: -ADD- >" << std::endl;
+			} break;
+			case rofl::openflow10::OFPFC_MODIFY: {
+				os << indent(4) << "<command: -MODIFY- >" << std::endl;
+			} break;
+			case rofl::openflow10::OFPFC_MODIFY_STRICT: {
+				os << indent(4) << "<command: -MODIFY-STRICT- >" << std::endl;
+			} break;
+			case rofl::openflow10::OFPFC_DELETE: {
+				os << indent(4) << "<command: -DELETE- >" << std::endl;
+			} break;
+			case rofl::openflow10::OFPFC_DELETE_STRICT: {
+				os << indent(4) << "<command: -DELETE-STRICT- >" << std::endl;
+			} break;
+			default: {
+				os << indent(4) << "<command: -UNKNOWN- >" << std::endl;
+			};
+			}
+			os << indent(4) << "<table-id:" 		<< (int)msg.get_table_id() << " >" << std::endl;
+			os << indent(4) << "<cookie:0x" 		<< std::hex << (unsigned long long)msg.get_cookie() << std::dec << " >" << std::endl;
+			os << indent(4) << "<cookie-mask:0x" 	<< std::hex << (unsigned long long)msg.get_cookie_mask() << std::dec << " >" << std::endl;
+			os << indent(4) << "<idle-timeout:" 	<< (int)msg.get_idle_timeout() << " >" << std::endl;;
+			os << indent(4) << "<hard-timeout:" 	<< (int)msg.get_hard_timeout() << " >" << std::endl;
+			os << indent(4) << "<priority:0x" 		<< std::hex << (int)msg.get_priority() << std::dec << " >" << std::endl;
+			os << indent(4) << "<buffer-id:0x" 		<< std::hex << (int)msg.get_buffer_id() << std::dec << " >" << std::endl;
+			os << indent(4) << "<flags:0x" 			<< std::hex << (int)msg.get_flags() << std::dec << " >" << std::endl;
+			os << indent(4) << "<out-port:0x" 		<< std::hex << (int)msg.get_out_port() << std::dec << " >" << std::endl;
+			os << indent(4) << "<out-group:0x" 		<< std::hex << (int)msg.get_out_group() << std::dec << " >" << std::endl;
+			{
+				os << indent(4) << "<matches: >" << std::endl;
+				indent i(6);
+				os << msg.match;
+			}
+			{
+				os << indent(4) << "<instructions: >" << std::endl;
+				indent i(6);
+				os << msg.instructions;
+			}
+		} break;
+		}
+		return os;
+	};
 };
 
 } // end of namespace rofl

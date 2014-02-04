@@ -9,7 +9,7 @@
 #define COFMSG_FEATURES_H_ 1
 
 #include "cofmsg.h"
-#include "rofl/common/openflow/cofportlist.h"
+#include "rofl/common/openflow/cofports.h"
 
 namespace rofl
 {
@@ -91,6 +91,15 @@ public:
 	 */
 	virtual void
 	validate();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_features_request const& msg) {
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_features_request >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -102,13 +111,13 @@ class cofmsg_features_reply :
 {
 private:
 
-	cofportlist			ports;
+	cofports			ports;
 
 	union {
 		uint8_t*						ofhu_switch_features;
-		struct ofp10_switch_features*	ofhu10_switch_features;
-		struct ofp12_switch_features*	ofhu12_switch_features;
-		struct ofp13_switch_features*	ofhu13_switch_features;
+		struct openflow10::ofp_switch_features*	ofhu10_switch_features;
+		struct openflow12::ofp_switch_features*	ofhu12_switch_features;
+		struct openflow13::ofp_switch_features*	ofhu13_switch_features;
 	} ofhu;
 
 #define ofh_switch_features   ofhu.ofhu_switch_features
@@ -131,7 +140,7 @@ public:
 			uint32_t capabilities = 0,
 			uint32_t of10_actions_bitmap = 0,
 			uint8_t  of13_auxiliary_id = 0,
-			cofportlist const& ports = cofportlist());
+			cofports const& ports = cofports());
 
 
 	/**
@@ -281,8 +290,48 @@ public:
 	/**
 	 *
 	 */
-	cofportlist&
+	cofports&
 	get_ports();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_features_reply const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_features_reply ";
+		switch (msg.get_version()) {
+		case openflow10::OFP_VERSION: {
+			os << "dpid:" 			<< msg.get_dpid() 				<< " ";
+			os << "#buffers:" 		<< (int)msg.get_n_buffers() 	<< " ";
+			os << "#tables:" 		<< (int)msg.get_n_tables() 		<< " ";
+			os << "capabilities:" 	<< std::hex << (int)msg.get_capabilities() << std::dec << " ";
+			os << "actions:" 		<< (int)msg.get_actions_bitmap() << " ";
+			os << " >" << std::endl;
+			indent i(4);
+			os << msg.ports;
+		} break;
+		case openflow12::OFP_VERSION: {
+			os << "dpid:" 			<< msg.get_dpid() 				<< " ";
+			os << "#buffers:" 		<< (int)msg.get_n_buffers() 	<< " ";
+			os << "#tables:" 		<< (int)msg.get_n_tables() 		<< " ";
+			os << "capabilities:" 	<< std::hex << (int)msg.get_capabilities() << std::dec << " ";
+			os << " >" << std::endl;
+			indent i(4);
+			os << msg.ports;
+		} break;
+		case openflow13::OFP_VERSION: {
+			os << "dpid:" 			<< msg.get_dpid() 				<< " ";
+			os << "#buffers:" 		<< (int)msg.get_n_buffers() 	<< " ";
+			os << "#tables:" 		<< (int)msg.get_n_tables() 		<< " ";
+			os << "capabilities:" 	<< std::hex << (int)msg.get_capabilities() << std::dec << " ";
+			os << " >" << std::endl;
+		} break;
+		default: {
+
+		} break;
+		}
+		return os;
+	};
 };
 
 } // end of namespace rofl

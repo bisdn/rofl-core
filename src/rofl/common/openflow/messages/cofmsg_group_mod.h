@@ -8,8 +8,9 @@
 #ifndef COFMSG_GROUP_MOD_H_
 #define COFMSG_GROUP_MOD_H_ 1
 
-#include "cofmsg.h"
-#include "rofl/common/openflow/cofbclist.h"
+#include "rofl/common/openflow/messages/cofmsg.h"
+#include "rofl/common/openflow/cofbuckets.h"
+#include "rofl/common/openflow/cofgroupmod.h"
 
 namespace rofl
 {
@@ -22,12 +23,12 @@ class cofmsg_group_mod :
 {
 private:
 
-	cofbclist			buckets;
+	cofbuckets			buckets;
 
 	union {
 		uint8_t*					ofhu_group_mod;
-		struct ofp12_group_mod*		ofhu12_group_mod;
-		struct ofp13_group_mod*		ofhu13_group_mod;
+		struct openflow12::ofp_group_mod*		ofhu12_group_mod;
+		struct openflow13::ofp_group_mod*		ofhu13_group_mod;
 	} ofhu;
 
 #define ofh_group_mod   ofhu.ofhu_group_mod
@@ -35,6 +36,15 @@ private:
 #define ofh13_group_mod ofhu.ofhu13_group_mod
 
 public:
+
+
+	/**
+	 *
+	 */
+	cofmsg_group_mod(
+			uint8_t of_version,
+			uint32_t xid,
+			cofgroupmod const& ge);
 
 
 	/** constructor
@@ -46,7 +56,7 @@ public:
 			uint16_t command = 0,
 			uint8_t  group_type = 0,
 			uint32_t group_id = 0,
-			cofbclist const& buckets = cofbclist());
+			cofbuckets const& buckets = cofbuckets());
 
 
 	/**
@@ -118,6 +128,13 @@ public:
 	validate();
 
 
+	/**
+	 *
+	 */
+	void
+	check_prerequisites() const;
+
+
 public:
 
 
@@ -160,8 +177,34 @@ public:
 	/**
 	 *
 	 */
-	cofbclist&
+	cofbuckets&
 	get_buckets();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_group_mod const& msg) {
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_group_mod >" << std::endl;
+		switch (msg.get_command()) {
+			case rofl::openflow12::OFPGC_ADD: {
+				os << indent(4) << "<command: -ADD- >" << std::endl;
+			} break;
+			case rofl::openflow12::OFPGC_MODIFY: {
+				os << indent(4) << "<command: -MODIFY- >" << std::endl;
+			} break;
+			case rofl::openflow12::OFPGC_DELETE: {
+				os << indent(4) << "<command: -DELETE- >" << std::endl;
+			} break;
+			default: {
+				os << indent(4) << "<command: -UNKNOWN- >" << std::endl;
+			};
+			}
+		os << indent(4) << "<group-type:" 	<< (int)msg.get_group_type() 	<< " >" << std::endl;
+		os << indent(4) << "<group-id:" 	<< (int)msg.get_group_id() 		<< " >" << std::endl;
+		os << indent(4) << msg.buckets;
+		return os;
+	};
 };
 
 } // end of namespace rofl

@@ -28,8 +28,8 @@ private:
 
 	union {
 		uint8_t*									ofhu_exp_stats;
-		struct ofp10_vendor_stats_header*			ofhu10_exp_stats;
-		struct ofp12_experimenter_stats_header*		ofhu12_exp_stats;
+		struct openflow10::ofp_vendor_stats_header*			ofhu10_exp_stats;
+		struct openflow12::ofp_experimenter_stats_header*		ofhu12_exp_stats;
 		// TODO: OF1.3
 	} ofhu;
 
@@ -158,6 +158,19 @@ public:
 	 */
 	cmemory&
 	get_body();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_experimenter_stats_request const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_experimenter_stats_request >" << std::endl;
+		os << indent(4) << "<exp-id:" << (int)msg.get_exp_id() << " >" << std::endl;
+		os << indent(4) << "<exp-type:" << (int)msg.get_exp_type() << " >" << std::endl;
+		indent i(4);
+		os << msg.body;
+		return os;
+	};
 };
 
 
@@ -178,8 +191,8 @@ private:
 
 	union {
 		uint8_t*									ofhu_exp_stats;
-		struct ofp10_vendor_stats_header*			ofhu10_exp_stats;
-		struct ofp12_experimenter_stats_header*		ofhu12_exp_stats;
+		struct openflow10::ofp_vendor_stats_header*			ofhu10_exp_stats;
+		struct openflow12::ofp_experimenter_stats_header*		ofhu12_exp_stats;
 		// TODO: OF1.3
 	} ofhu;
 
@@ -308,6 +321,19 @@ public:
 	 */
 	cmemory&
 	get_body();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_experimenter_stats_reply const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_experimenter_stats_request >" << std::endl;
+		os << indent(4) << "<exp-id:" << (int)msg.get_exp_id() << " >" << std::endl;
+		os << indent(4) << "<exp-type:" << (int)msg.get_exp_type() << " >" << std::endl;
+		indent i(4);
+		os << msg.body;
+		return os;
+	};
 };
 
 

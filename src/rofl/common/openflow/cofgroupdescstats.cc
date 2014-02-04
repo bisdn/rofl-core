@@ -18,7 +18,7 @@ cofgroup_desc_stats_reply::cofgroup_desc_stats_reply(
 		uint8_t of_version,
 		uint8_t type,
 		uint32_t group_id,
-		cofbclist const& buckets) :
+		cofbuckets const& buckets) :
 				of_version(of_version),
 				type(type),
 				group_id(group_id),
@@ -58,20 +58,20 @@ cofgroup_desc_stats_reply::operator= (
 
 
 void
-cofgroup_desc_stats_reply::pack(uint8_t *buf, size_t buflen) const
+cofgroup_desc_stats_reply::pack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
-		if (buflen < (sizeof(struct ofp12_group_desc_stats) + buckets.length()))
+	case openflow12::OFP_VERSION: {
+		if (buflen < (sizeof(struct openflow12::ofp_group_desc_stats) + buckets.length()))
 			throw eInval();
 
-		struct ofp12_group_desc_stats *stats = (struct ofp12_group_desc_stats*)buf;
+		struct openflow12::ofp_group_desc_stats *stats = (struct openflow12::ofp_group_desc_stats*)buf;
 
-		stats->length		= htobe16(sizeof(struct ofp12_group_desc_stats) + buckets.length());
+		stats->length		= htobe16(sizeof(struct openflow12::ofp_group_desc_stats) + buckets.length());
 		stats->type			= type;
 		stats->group_id		= htobe32(group_id);
 
-		buckets.pack((uint8_t*)stats->buckets, buckets.length());
+		buckets.pack((uint8_t*)(stats->buckets), buckets.length());
 
 	} break;
 	default:
@@ -85,11 +85,11 @@ void
 cofgroup_desc_stats_reply::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_group_desc_stats))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_group_desc_stats))
 			throw eInval();
 
-		struct ofp12_group_desc_stats *stats = (struct ofp12_group_desc_stats*)buf;
+		struct openflow12::ofp_group_desc_stats *stats = (struct openflow12::ofp_group_desc_stats*)buf;
 
 		if (be16toh(stats->length) > buflen)
 			throw eInval();
@@ -97,7 +97,7 @@ cofgroup_desc_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		group_id		= be32toh(stats->group_id);
 		type			= stats->type;
 
-		buckets.unpack((uint8_t*)stats->buckets, buflen - sizeof(struct ofp12_group_desc_stats));
+		buckets.unpack((uint8_t*)stats->buckets, buflen - sizeof(struct openflow12::ofp_group_desc_stats));
 
 	} break;
 	default:
@@ -111,8 +111,8 @@ size_t
 cofgroup_desc_stats_reply::length() const
 {
 	switch (of_version) {
-	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_group_desc_stats) + buckets.length());
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_group_desc_stats) + buckets.length());
 	} break;
 	default:
 		throw eBadVersion();

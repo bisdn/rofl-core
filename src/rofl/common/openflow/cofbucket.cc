@@ -19,7 +19,6 @@ cofbucket::cofbucket(
 				watch_group(watch_group),
 				actions(ofp_version)
 {
-	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::cofbucket()", this);
 }
 
 
@@ -35,8 +34,9 @@ cofbucket::cofbucket(
 				watch_group(0),
 				actions(ofp_version)
 {
-	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::cofbucket()", this);
-	unpack(bucket, bclen);
+	if ((0 != bucket) && (bclen > 0)) {
+		unpack(bucket, bclen);
+	}
 }
 
 
@@ -44,7 +44,6 @@ cofbucket::cofbucket(
 
 cofbucket::~cofbucket()
 {
-	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::~cofbucket()", this);
 }
 
 
@@ -66,150 +65,124 @@ cofbucket::operator= (const cofbucket& b)
 };
 
 
-const char*
-cofbucket::c_str()
+
+uint8_t*
+cofbucket::pack(uint8_t* bucket, size_t bclen)
 {
-	cvastring vas(4096);
-	info.assign(vas("cofbucket(%p) weight:%d watch-group:%d watch-port:%d length:%d actions: %s",
-			this, weight, watch_group, watch_port, length(), actions.c_str()));
-	return info.c_str();
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION: {
+		return pack_of12(bucket, bclen);
+	} break;
+	case openflow13::OFP_VERSION: {
+		return pack_of13(bucket, bclen);
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
+
+
+void
+cofbucket::unpack(
+		uint8_t* bucket,
+		size_t bclen)
+{
+	switch (ofp_version) {
+	case openflow12::OFP_VERSION: {
+		unpack_of12(bucket, bclen);
+	} break;
+	case openflow13::OFP_VERSION: {
+		unpack_of13(bucket, bclen);
+	} break;
+	default:
+		throw eBadVersion();
+	}
+}
 
 
 
 
 uint8_t*
-cofbucket::pack(
-		uint8_t* bucket,
-		size_t bclen) const
-throw (eBucketBadLen)
+cofbucket::pack_of12(uint8_t* buf, size_t buflen)
 {
-	switch (ofp_version) {
-	case OFP12_VERSION: {
-		return (uint8_t*)pack((struct ofp12_bucket*)bucket, bclen);
-	} break;
-	case OFP13_VERSION: {
-		return (uint8_t*)pack((struct ofp13_bucket*)bucket, bclen);
-	} break;
-	default:
-		throw eBadVersion();
-	}
-}
+	struct openflow12::ofp_bucket* bucket = (struct openflow12::ofp_bucket*)buf;
+	size_t __bclen = sizeof(struct openflow12::ofp_bucket) + actions.length();
 
-
-
-void
-cofbucket::unpack(
-		uint8_t* bucket,
-		size_t bclen)
-throw (eBucketBadLen, eBadActionBadOutPort)
-{
-	switch (ofp_version) {
-	case OFP12_VERSION: {
-		unpack((struct ofp12_bucket*)bucket, bclen);
-	} return;
-	case OFP13_VERSION: {
-		unpack((struct ofp13_bucket*)bucket, bclen);
-	} return;
-	default:
-		throw eBadVersion();
-	}
-}
-
-
-
-
-struct ofp12_bucket*
-cofbucket::pack(
-		struct ofp12_bucket* bucket,
-		size_t bclen) const
-throw (eBucketBadLen)
-{
-	size_t __bclen = sizeof(struct ofp12_bucket) + actions.length();
-
-	if (bclen < __bclen)
+	if (buflen < __bclen)
 		throw eBucketBadLen();
 
-	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::pack()", this);
+	bucket->len 			= htobe16(__bclen);
+	bucket->weight 			= htobe16(weight);
+	bucket->watch_port 		= htobe32(watch_port);
+	bucket->watch_group 	= htobe32(watch_group);
 
-	bucket->len = htobe16(__bclen);
-	bucket->weight = htobe16(weight);
-	bucket->watch_port = htobe32(watch_port);
-	bucket->watch_group = htobe32(watch_group);
+	size_t aclen = buflen - sizeof(struct openflow12::ofp_bucket);
 
-	size_t aclen = bclen - sizeof(struct ofp12_bucket);
+	actions.pack((uint8_t*)bucket->actions, aclen);
 
-	actions.pack(bucket->actions, aclen);
-
-	return bucket;
+	return buf;
 }
 
 
 void
-cofbucket::unpack(
-		struct ofp12_bucket* bucket,
-		size_t bclen)
-throw (eBucketBadLen, eBadActionBadOutPort)
+cofbucket::unpack_of12(uint8_t* buf, size_t buflen)
 {
-	if (bclen < sizeof(struct ofp12_bucket))
+	if (buflen < sizeof(struct openflow12::ofp_bucket))
 		throw eBucketBadLen();
 
-	weight = be16toh(bucket->weight);
-	watch_port = be32toh(bucket->watch_port);
-	watch_group = be32toh(bucket->watch_group);
+	struct openflow12::ofp_bucket* bucket = (struct openflow12::ofp_bucket*)buf;
 
-	size_t aclen = bclen - sizeof(struct ofp12_bucket);
+	weight 					= be16toh(bucket->weight);
+	watch_port 				= be32toh(bucket->watch_port);
+	watch_group 			= be32toh(bucket->watch_group);
 
-	if (aclen >= sizeof(struct ofp_action_header)) {
-		actions.unpack(bucket->actions, aclen);
+	size_t aclen = buflen - sizeof(struct openflow12::ofp_bucket);
+
+	if (aclen >= sizeof(struct openflow12::ofp_action_header)) {
+		actions.unpack((uint8_t*)bucket->actions, aclen);
 	}
 }
 
 
-struct ofp13_bucket*
-cofbucket::pack(
-		struct ofp13_bucket* bucket,
-		size_t bclen) const
-throw (eBucketBadLen)
+uint8_t*
+cofbucket::pack_of13(uint8_t* buf, size_t buflen)
 {
-	size_t __bclen = sizeof(struct ofp13_bucket) + actions.length();
+	struct openflow13::ofp_bucket* bucket = (struct openflow13::ofp_bucket*)buf;
+	size_t __bclen = sizeof(struct openflow13::ofp_bucket) + actions.length();
 
-	if (bclen < __bclen)
+	if (buflen < __bclen)
 		throw eBucketBadLen();
 
-	WRITELOG(COFBUCKET, DBG, "cofbucket(%p)::pack()", this);
+	bucket->len 			= htobe16(__bclen);
+	bucket->weight	 		= htobe16(weight);
+	bucket->watch_port 		= htobe32(watch_port);
+	bucket->watch_group 	= htobe32(watch_group);
 
-	bucket->len = htobe16(__bclen);
-	bucket->weight = htobe16(weight);
-	bucket->watch_port = htobe32(watch_port);
-	bucket->watch_group = htobe32(watch_group);
+	size_t aclen = buflen - sizeof(struct openflow13::ofp_bucket);
 
-	size_t aclen = bclen - sizeof(struct ofp13_bucket);
+	actions.pack((uint8_t*)bucket->actions, aclen);
 
-	actions.pack(bucket->actions, aclen);
-
-	return bucket;
+	return buf;
 }
 
 
 void
-cofbucket::unpack(
-		struct ofp13_bucket* bucket,
-		size_t bclen)
-throw (eBucketBadLen, eBadActionBadOutPort)
+cofbucket::unpack_of13(uint8_t *buf, size_t buflen)
 {
-	if (bclen < sizeof(struct ofp13_bucket))
+	if (buflen < sizeof(struct openflow13::ofp_bucket))
 		throw eBucketBadLen();
 
-	weight = be16toh(bucket->weight);
-	watch_port = be32toh(bucket->watch_port);
-	watch_group = be32toh(bucket->watch_group);
+	struct openflow13::ofp_bucket* bucket = (struct openflow13::ofp_bucket*)buf;
 
-	size_t aclen = bclen - sizeof(struct ofp13_bucket);
+	weight 					= be16toh(bucket->weight);
+	watch_port 				= be32toh(bucket->watch_port);
+	watch_group 			= be32toh(bucket->watch_group);
 
-	if (aclen >= sizeof(struct ofp_action_header)) {
-		actions.unpack(bucket->actions, aclen);
+	size_t aclen = buflen - sizeof(struct openflow13::ofp_bucket);
+
+	if (aclen >= sizeof(struct openflow13::ofp_action_header)) {
+		actions.unpack((uint8_t*)bucket->actions, aclen);
 	}
 }
 
@@ -234,8 +207,8 @@ void
 cofbucket::get_bucket_stats(
 		cmemory& body)
 {
-	cmemory bstats(sizeof(struct ofp12_bucket_counter));
-	struct ofp12_bucket_counter* bucket_counter = (struct ofp12_bucket_counter*)bstats.somem();
+	cmemory bstats(sizeof(struct openflow12::ofp_bucket_counter));
+	struct openflow12::ofp_bucket_counter* bucket_counter = (struct openflow12::ofp_bucket_counter*)bstats.somem();
 
 	bucket_counter->packet_count 	= htobe64(packet_count);
 	bucket_counter->byte_count		= htobe64(byte_count);
@@ -243,5 +216,13 @@ cofbucket::get_bucket_stats(
 	body += bstats;
 }
 
-template class coflist<cofbucket>;
+
+
+void
+cofbucket::check_prerequisites() const
+{
+	actions.check_prerequisites();
+}
+
+
 

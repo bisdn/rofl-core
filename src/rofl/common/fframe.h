@@ -8,16 +8,15 @@
 #include <bitset>
 #include <inttypes.h>
 #include <string>
+#include <iostream>
 
-#include "cerror.h"
+#include "croflexception.h"
 #include "cmemory.h"
-#include "cvastring.h"
-#include "rofl/platform/unix/csyslog.h"
 
 namespace rofl
 {
 
-class eFrameBase : public cerror {}; // error base class fframe
+class eFrameBase : public RoflException {}; // error base class fframe
 class eFrameNoPayload : public eFrameBase {}; // no payload in frame
 class eFrameOutOfRange : public eFrameBase {}; // too many data to copy
 class eFrameInvalidSyntax : public eFrameBase {}; // invalid syntax
@@ -29,9 +28,7 @@ class eFrameInval : public eFrameBase {}; // invalid parameter
  * parsing functionality for specific packet formats, e.g. OpenFlow,
  * Ethernet, VLAN, IPv4, etc.
  */
-class fframe :
-	public csyslog
-{
+class fframe {
 /*
  * data structure
  */
@@ -42,10 +39,9 @@ private:
 		};
 
 		cmemory 				 mem; 			// frame container, if none was specified in constructor => this is used for creating new frames from scratch		uint8_t 				*data; 			// data area
-		uint8_t                                 *data;                  // data area
+		uint8_t                 *data;          // data area
 		size_t 					 datalen; 		// data area length
 //		uint16_t 				 total_len; 	// real length of packet
-		std::string 			 info; 			// info string
 		std::bitset<32> 		 flags;
 
 
@@ -132,18 +128,18 @@ public:
 	/** returns boolean value indicating completeness of the packet
 	 */
 	virtual bool
-	complete() { return true; };
+	complete() const { return true; };
 
 	/** returns the number of bytes this packet expects from the socket next
 	 */
 	virtual size_t
-	need_bytes() { return 0; };
+	need_bytes() const { return 0; };
 
 	/** validate (frame structure)
 	 *
 	 */
 	virtual void
-	validate(uint16_t total_len = 0) throw (eFrameInvalidSyntax) {};
+	validate(uint16_t total_len = 0) const {};
 
 	/** initialize (set eth_hdr, pppoe_hdr)
 	 *
@@ -156,14 +152,14 @@ public:
 	 */
 	virtual void
 	payload_insert(
-			uint8_t *data, size_t datalen) throw (eFrameOutOfRange) {};
+			uint8_t *data, size_t datalen) {};
 
 
 	/** get payload
 	 *
 	 */
 	virtual uint8_t*
-	payload() const throw (eFrameNoPayload)
+	payload() const
 	{
 		return soframe();
 	};
@@ -173,7 +169,7 @@ public:
 	 *
 	 */
 	virtual size_t
-	payloadlen() const throw (eFrameNoPayload)
+	payloadlen() const
 	{
 		return framelen();
 	};
@@ -188,14 +184,6 @@ public:
 		return total_len;
 	};
 #endif
-
-
-	/** dump info
-	 *
-	 */
-	virtual const char*
-	c_str();
-
 
 	/** get start of data area
 	 *
@@ -256,6 +244,22 @@ public:
 	shift_right(size_t bytes)
 	{
 	  data += bytes;
+	};
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, fframe const& frame) {
+		os << indent(0) << "<fframe: ";
+			os << "data:" << (void*)frame.soframe() << " ";
+			os << "datalen:" << frame.framelen() << " ";
+			os << "self-contained-mem:" << (frame.flags.test(FFRAME_FLAG_MEM) ? "yes" : "no") << " ";
+			os << "next:" << (void*)frame.next << " ";
+			os << "prev:" << (void*)frame.prev << " ";
+		os << ">" << std::endl;
+		indent i(2);
+		os << frame.mem;
+		return os;
 	};
 };
 

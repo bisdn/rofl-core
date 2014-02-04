@@ -11,35 +11,37 @@
 #ifndef CCLOCK_H_
 #define CCLOCK_H_ 
 
-#include <string>
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <errno.h>
 #include <string.h>
 #include <time.h>
+#ifdef __cplusplus
+}
+#endif
 
-#include "cvastring.h"
-#include "rofl/platform/unix/csyslog.h"
+#include <string>
+
+#include "rofl/common/logging.h"
+#include "rofl/common/croflexception.h"
 
 namespace rofl
 {
 
-class cclock :
-	public csyslog
+class cclock
 {
-private: // data structures
-
-	std::string info;
-
 public: // data structures
 
 	struct timespec ts;
-
-public:
 
 	/**
 	 *
 	 */
 	static cclock
 	now();
+
+public:
 
 	/** constructor
 	 *
@@ -120,11 +122,14 @@ public:
 	void
 	current_time();
 
-	/**
-	 *
-	 */
-	const char*
-	c_str();
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cclock const clk) {
+		os << indent(0) << "<cclock sec:" << std::hex << (int)clk.ts.tv_sec
+				<< " nsec:" << (int)clk.ts.tv_nsec << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 }; // end of namespace

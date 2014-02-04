@@ -136,19 +136,13 @@ public: // overloaded from fframe
 	virtual size_t
 	payloadlen() const throw (eFrameNoPayload);
 
-	/** dump info
-	 *
-	 */
-	virtual const char*
-	c_str();
-
 public:
 
 	/**
 	 *
 	 */
 	uint8_t
-	get_icmp_code();
+	get_icmp_code() const;
 
 	/**
 	 *
@@ -160,7 +154,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_icmp_type();
+	get_icmp_type() const;
 
 	/**
 	 *
@@ -179,13 +173,17 @@ public: // data structures
 	// udp payload length
 	size_t datalen;
 
-private: // data structures
+public:
 
-	//< info string
-	std::string info;
-
-private: // methods
-
+	friend std::ostream&
+	operator<< (std::ostream& os, ficmpv4frame const& frame) {
+		os << "<ficmpv4frame ";
+			os << "code:" << (int)frame.get_icmp_code() << " ";
+			os << "type:" << (int)frame.get_icmp_type() << " ";
+			os << std::endl << dynamic_cast<fframe const&>( frame ) << std::endl;
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

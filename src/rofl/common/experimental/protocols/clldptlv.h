@@ -11,14 +11,14 @@
 #endif
 
 #include "../../cmemory.h"
-#include "../../cerror.h"
+#include "../../croflexception.h"
 #include "../../cvastring.h"
 #include "../../coflist.h"
 
 namespace rofl
 {
 
-class eLLDPbase : public cerror {};
+class eLLDPbase : public RoflException {};
 class eLLDPInval : public eLLDPbase {};
 
 class clldptlv {

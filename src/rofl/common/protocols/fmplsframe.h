@@ -112,12 +112,6 @@ public: // overloaded from fframe
 	virtual size_t
 	payloadlen() const throw (eFrameNoPayload);
 
-	/** dump info
-	 *
-	 */
-	virtual const char*
-	c_str();
-
 
 public:
 
@@ -129,7 +123,7 @@ public:
 	/**
 	 */
 	uint32_t
-	get_mpls_label();
+	get_mpls_label() const;
 
 	/**
 	 */
@@ -139,7 +133,7 @@ public:
 	/**
 	 */
 	uint8_t
-	get_mpls_tc();
+	get_mpls_tc() const;
 
 	/**
 	 */
@@ -154,7 +148,7 @@ public:
 	/**
 	 */
 	uint8_t
-	get_mpls_ttl();
+	get_mpls_ttl() const;
 
 	/** set bottom of stack bit
 	 */
@@ -164,7 +158,7 @@ public:
 	/**
 	 */
 	bool
-	get_mpls_bos();
+	get_mpls_bos() const;
 
 
 public: // data structures
@@ -172,45 +166,21 @@ public: // data structures
 	// pointer to ethernet header
 	struct mpls_hdr_t *mpls_hdr;
 
-private: // methods
-
-private: // data structures
-
-	std::string info;
-};
-
-
-#if 0
-class cmplsheader : public cmemory {
 public:
-	cmplsheader(
-			uint32_t label = 0,
-			uint8_t  tc = 0,
-			uint8_t  s = 0,
-			uint8_t  ttl = 0) :
-		cmemory(sizeof(struct fmplsframe::mpls_hdr_t))
-	{
-		mpls_hdr = (struct fmplsframe::mpls_hdr_t*)somem();
 
-		mpls_hdr->label = label;
-		mpls_hdr->tc = tc;
-		mpls_hdr->s = s;
-		mpls_hdr->ttl = ttl;
-	}
-	virtual
-	~cmplsheader() {};
-	cmplsheader& operator= (cmplsheader const& m)
-	{
-		if (this == &m)
-			return *this;
-		cmemory::operator= (m);
-		mpls_hdr = (struct fmplsframe::mpls_hdr_t*)somem();
-		return *this;
+	friend std::ostream&
+	operator<< (std::ostream& os, fmplsframe const& frame) {
+		os << "<fmlpsframe ";
+			os << "label:" 	<< (int)frame.get_mpls_label() 	<< " ";
+			os << "tc:" 	<< (int)frame.get_mpls_tc() 	<< " ";
+			os << "bos:" 	<< (int)frame.get_mpls_bos() 	<< " ";
+			os << "ttl:"	<< (int)frame.get_mpls_ttl()	<< " ";
+			os << std::endl << dynamic_cast<fframe const&>( frame ) << std::endl;
+		os << ">";
+		return os;
 	};
-	struct fmplsframe::mpls_hdr_t *mpls_hdr;
-
 };
-#endif
+
 
 }; // end of namespace
 

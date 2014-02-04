@@ -8,10 +8,10 @@
 #ifndef COFGROUPSTATS_H_
 #define COFGROUPSTATS_H_ 1
 
-#include "../cmemory.h"
-#include "../../platform/unix/csyslog.h"
-#include "openflow.h"
-#include "openflow_rofl_exceptions.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/platform/unix/csyslog.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
 namespace rofl
 {
@@ -112,6 +112,15 @@ public:
 	 */
 	void
 	set_group_id(uint32_t group_id) { this->group_id = group_id; };
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofgroup_stats_request const& r) {
+		os << indent(0) << "<cofgroup_stats_request >" << std::endl;
+		os << indent(2) << "<group-id: " << (int)r.get_group_id() << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -223,14 +232,14 @@ public:
 	get_byte_count() const { return byte_count; };
 
 	/**
-	 *
+	 * FIXME: version dependency
 	 */
-	struct ofp12_bucket_counter&
+	struct openflow12::ofp_bucket_counter&
 	get_bucket_counter(size_t i) {
-		if (i > (bucket_stats.memlen() / sizeof(struct ofp12_bucket_counter))) {
+		if (i > (bucket_stats.memlen() / sizeof(struct openflow12::ofp_bucket_counter))) {
 			throw eInval();
 		}
-		return ((struct ofp12_bucket_counter*)bucket_stats.somem())[i];
+		return ((struct openflow12::ofp_bucket_counter*)bucket_stats.somem())[i];
 	};
 
 	/**
@@ -262,6 +271,20 @@ public:
 	 */
 	void
 	set_byte_count(uint64_t byte_count) { this->byte_count = byte_count; };
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofgroup_stats_reply const& r) {
+		os << indent(0) << "<cofgroup_stats_reply >" << std::endl;
+		os << indent(2) << "<group-id: " << (int)r.get_group_id() << " >" << std::endl;
+		os << indent(2) << "<ref-count: " << (int)r.get_ref_count() << " >" << std::endl;
+		os << indent(2) << "<packet-count: " << (int)r.get_packet_count() << " >" << std::endl;
+		os << indent(2) << "<byte-count: " << (int)r.get_byte_count() << " >" << std::endl;
+		indent i(2);
+		os << r.bucket_stats;
+		return os;
+	};
 };
 
 }

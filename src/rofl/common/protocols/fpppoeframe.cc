@@ -128,25 +128,16 @@ fpppoeframe::validate(uint16_t total_len)
     try {
           //initialize(); // commented out 2012-12-13
 
-          if (!complete())
-          {
-                  WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
-                                                          "invalid PPPoE frame rcvd: incomplete => %s", this, c_str());
-                  throw ePPPoEFrameTooShort();
+          if (!complete()) {
+        	  throw ePPPoEFrameTooShort();
           }
 
-          if (PPPOE_TYPE != get_pppoe_type())
-          {
-                  WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
-                                                          "invalid PPPoE frame rcvd: type => %s", this, c_str());
-                  throw ePPPoEFrameInvalType();
+          if (PPPOE_TYPE != get_pppoe_type()) {
+        	  throw ePPPoEFrameInvalType();
           }
 
-          if (PPPOE_VERSION != get_pppoe_vers())
-          {
-                  WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate(): "
-                                                          "invalid PPPoE frame rcvd: version => %s", this, c_str());
-                  throw ePPPoEFrameInvalVersion();
+          if (PPPOE_VERSION != get_pppoe_vers()) {
+              throw ePPPoEFrameInvalVersion();
           }
 
 #if 0
@@ -188,44 +179,35 @@ fpppoeframe::validate(uint16_t total_len)
 
     } catch (ePPPoEFrameInvalCode& e) {
 
-        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
-               "invalid PPPoE frame rcvd => unsupported code", this);
+        logging::warn << "[rofl][frame][pppoe][validate] unsupported pppoe code:" << (int)pppoe_hdr->code << std::endl;
 
     } catch (ePPPoEFrameInvalType& e) {
 
-        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
-               "invalid PPPoE frame rcvd => unsupported type", this);
+        logging::warn << "[rofl][frame][pppoe][validate] unsupported pppoe type:" << (int)get_pppoe_type() << std::endl;
 
     } catch (ePPPoEFrameInvalVersion& e) {
 
-        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
-               "invalid PPPoE frame rcvd => unsupported version", this);
+        logging::warn << "[rofl][frame][pppoe][validate] unsupported pppoe type:" << (int)get_pppoe_vers() << std::endl;
 
     } catch (ePPPoElistNotFound& e) {
 
-        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
-               "invalid PPPoE frame rcvd => no SVCname tag or no ACname tag found", this);
+    	logging::warn << "[rofl][frame][pppoe][validate] no SVCname tag or no ACname tag found" << std::endl;
 
     } catch (ePPPoEFrameInvalSid& e) {
 
-        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
-            "invalid PPPoE frame rcvd => invalid session id", this);
+    	logging::warn << "[rofl][frame][pppoe][validate] invalid session id" << std::endl;
 
     } catch (ePPPoEFrameTooShort& e) {
 
-        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
-            "invalid PPPoE frame rcvd => invalid header length specified", this);
+    	logging::warn << "[rofl][frame][pppoe][validate] invalid header length specified" << std::endl;
 
     } catch (ePPPoEBadLen& e) {
 
-        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
-                    "invalid PPPoE frame rcvd => unable to parse tags", this);
+    	logging::warn << "[rofl][frame][pppoe][validate] unable to parse tags" << std::endl;
 
     } catch (...) {
 
-        WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::validate() "
-                    "invalid PPPoE frame rcvd => generic error", this);
-
+    	logging::warn << "[rofl][frame][pppoe][validate] generic error" << std::endl;
     }
 
     throw eFrameInvalidSyntax();
@@ -356,8 +338,8 @@ fpppoeframe::validate_pppoe_session()
 		}
 #endif
 
-		WRITELOG(CPACKET, WARN, "fpppoeframe(%p)::is_valid_pppoe_session(): "
-				"PPPoE length field larger than PPP payload (%d > %d)", this, pppdatalen, res_len);
+		logging::warn << "[rofl][frame][pppoe][validate-pppoe-session] "
+				"PPPoE length field larger than PPP payload" << std::endl;
 		pppdata = NULL;
 		pppdatalen = 0;
 		throw eFrameInvalidSyntax();
@@ -365,7 +347,7 @@ fpppoeframe::validate_pppoe_session()
 }
 
 uint8_t
-fpppoeframe::get_pppoe_vers()
+fpppoeframe::get_pppoe_vers() const
 {
 	return ((pppoe_hdr->verstype & 0xf0) >> 4);
 }
@@ -377,7 +359,7 @@ fpppoeframe::set_pppoe_vers(uint8_t version)
 }
 
 uint8_t
-fpppoeframe::get_pppoe_type()
+fpppoeframe::get_pppoe_type() const
 {
 	return (pppoe_hdr->verstype & 0x0f);
 }
@@ -389,7 +371,7 @@ fpppoeframe::set_pppoe_type(uint8_t type)
 }
 
 uint8_t
-fpppoeframe::get_pppoe_code()
+fpppoeframe::get_pppoe_code() const
 {
 	return pppoe_hdr->code;
 }
@@ -401,7 +383,7 @@ fpppoeframe::set_pppoe_code(uint8_t code)
 }
 
 uint16_t
-fpppoeframe::get_pppoe_sessid()
+fpppoeframe::get_pppoe_sessid() const
 {
 	return be16toh(pppoe_hdr->sessid);
 }
@@ -415,8 +397,6 @@ fpppoeframe::set_pppoe_sessid(uint16_t sessid)
 void
 fpppoeframe::pppoe_calc_length()
 {
-	WRITELOG(CPACKET, DBG, "fpppoeframe(%p)::pppoe_calc_length() setting to length %d",
-			this, payloadlen());
 	pppoe_hdr->length = htobe16(payloadlen());
 }
 
@@ -526,23 +506,6 @@ fpppoeframe::unpack(uint8_t *frame, size_t framelen) throw (ePPPoEInval, eFrameI
 }
 
 
-
-
-const char*
-fpppoeframe::c_str()
-{
-	cvastring vas(1024);
-
-	info.assign(vas("[fpppoeframe(%p) code:0x%02x type:0x%02x length:%d sess:0x%04x [tags:%s] ]",
-			this,
-			get_pppoe_code(),
-			get_pppoe_type(),
-			get_hdr_length(),
-			get_pppoe_sessid(),
-			tags.c_str() ));
-
-	return info.c_str();
-}
 
 
 /*static*/ void

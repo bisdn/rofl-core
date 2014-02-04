@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "caddress.h"
-#include <rofl/datapath/pipeline/common/large_types.h>
+#include "rofl/datapath/pipeline/common/large_types.h"
 
 using namespace rofl;
 
@@ -358,11 +358,11 @@ caddress::addr_c_str()
 	switch (ca_saddr->sa_family) {
 	case AF_INET:
 		inet_ntop(AF_INET, &(ca_s4addr->sin_addr), (char*)mem.somem(), mem.memlen()-1);
-		info.assign(vas("%s", mem.somem()));
+		info.assign(vas("%s:%d", mem.somem(), be16toh(ca_s4addr->sin_port)));
 		break;
 	case AF_INET6:
 		inet_ntop(AF_INET6, &(ca_s6addr->sin6_addr), (char*)mem.somem(), mem.memlen()-1);
-		info.assign(vas("%s", mem.somem()));
+		info.assign(vas("%s:%d", mem.somem(), be16toh(ca_s6addr->sin6_port)));
 		break;
 	case AF_UNIX:
 		info.assign(vas("%s", ca_suaddr->sun_path));

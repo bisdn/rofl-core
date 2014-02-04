@@ -118,17 +118,14 @@ public:
 	cofqueue_stats_request&
 	get_queue_stats();
 
-
 public:
 
-
-	/**
-	 *
-	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, cofmsg_queue_stats_request const& msg)
-	{
-		os << "cofmsg_queue_stats_request[" << msg.queue_stats << "]";
+	operator<< (std::ostream& os, cofmsg_queue_stats_request const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_queue_stats_request >" << std::endl;
+		indent i(4);
+		os << msg.queue_stats;
 		return os;
 	};
 };
@@ -148,8 +145,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_queue_stats;
-		struct ofp10_queue_stats*		ofhu10_queue_stats;
-		struct ofp12_queue_stats*		ofhu12_queue_stats;
+		struct openflow10::ofp_queue_stats*		ofhu10_queue_stats;
+		struct openflow12::ofp_queue_stats*		ofhu12_queue_stats;
 		// TODO: OF1.3
 	} ofhu;
 
@@ -249,23 +246,17 @@ public:
 	std::vector<cofqueue_stats_reply>&
 	get_queue_stats();
 
-
-
 public:
 
-
-	/**
-	 *
-	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, cofmsg_queue_stats_reply const& msg)
-	{
-		os << "cofmsg_queue_stats_reply[";
+	operator<< (std::ostream& os, cofmsg_queue_stats_reply const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_queue_stats_reply >" << std::endl;
+		indent i(4);
 		for (std::vector<cofqueue_stats_reply>::const_iterator
 				it = msg.queue_stats.begin(); it != msg.queue_stats.end(); ++it) {
-			os << (*it) << " ";
+			os << (*it);
 		}
-		os << "]";
 		return os;
 	};
 };

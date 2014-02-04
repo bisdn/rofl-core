@@ -9,31 +9,27 @@
 #include <vector>
 #include <list>
 #include <endian.h>
+#include <ostream>
 #ifndef htobe16
 	#include "../endian_conversion.h"
 #endif
 
-#include "openflow.h"
-#include "../cerror.h"
-#include "../cmemory.h"
-#include "../cvastring.h"
-#include "../coflist.h"
-
-#include "rofl/platform/unix/csyslog.h"
-
-#include "cofaclist.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/openflow/cofactions.h"
 
 namespace rofl
 {
 
 /* error classes */
-class eBucketBase : public cerror {}; // error base class for class cofbucket
-class eBucketInval : public eBucketBase {}; // parameter is invalid
+class eBucketBase 	: public RoflException {}; // error base class for class cofbucket
+class eBucketInval 	: public eBucketBase {}; // parameter is invalid
 class eBucketBadLen : public eBucketBase {}; // invalid length
 
 
 
-class cofbucket : public csyslog {
+class cofbucket {
 
 	uint8_t ofp_version;
 
@@ -48,14 +44,14 @@ public: // data structures
     uint32_t watch_port;
     uint32_t watch_group;
 
-	cofaclist actions; // list of OpenFlow actions
+	cofactions actions; // list of OpenFlow actions
 
 public: // per instance methods
 
 	/** constructor
 	 */
 	cofbucket(
-			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
+			uint8_t ofp_version = openflow::OFP_VERSION_UNKNOWN,
 			uint16_t weigth = 0,
 			uint32_t watch_port = 0,
 			uint32_t watch_group = 0);
@@ -78,22 +74,15 @@ public: // per instance methods
 	 */
 	cofbucket& operator= (const cofbucket& b);
 
-	/** dump info string
-	 */
-	const char*
-	c_str();
-
 	/** pack bucket
 	 */
 	uint8_t*
-	pack(uint8_t* bucket, size_t bclen) const
-		throw (eBucketBadLen);
+	pack(uint8_t* bucket, size_t bclen);
 
 	/** unpack bucket
 	 */
 	void
-	unpack(uint8_t* bucket, size_t bclen)
-		throw (eBucketBadLen, eBadActionBadOutPort);
+	unpack(uint8_t* bucket, size_t bclen);
 
 	/** bucket length
 	 */
@@ -109,35 +98,57 @@ public: // per instance methods
 			cmemory& body);
 
 
+	/**
+	 *
+	 */
+	cofactions&
+	get_actions() { return actions; };
+
+
+	/**
+	 *
+	 */
+	void
+	check_prerequisites() const;
+
 private:
 
 	/** pack bucket
 	 */
-	struct ofp12_bucket*
-	pack(struct ofp12_bucket* bucket, size_t bclen) const
-		throw (eBucketBadLen);
+	uint8_t*
+	pack_of12(uint8_t* buf, size_t buflen);
 
 	/** unpack bucket
 	 */
 	void
-	unpack(struct ofp12_bucket* bucket, size_t bclen)
-		throw (eBucketBadLen, eBadActionBadOutPort);
+	unpack_of12(uint8_t *buf, size_t buflen);
 
 	/** pack bucket
 	 */
-	struct ofp13_bucket*
-	pack(struct ofp13_bucket* bucket, size_t bclen) const
-		throw (eBucketBadLen);
+	uint8_t*
+	pack_of13(uint8_t* buf, size_t buflen);
 
 	/** unpack bucket
 	 */
 	void
-	unpack(struct ofp13_bucket* bucket, size_t bclen)
-		throw (eBucketBadLen, eBadActionBadOutPort);
+	unpack_of13(uint8_t *buf, size_t buflen);
 
+public:
 
-	std::string info; // info string
-
+	friend std::ostream&
+	operator<< (std::ostream& os, cofbucket const& bucket) {
+		os << indent(0) << "<cofbucket ";
+			os << "ofp-version:" 	<< (int)bucket.ofp_version 	<< " >" << std::endl;
+			os << indent(2) << "<weight:" 		<< (int)bucket.weight 	<< " >" << std::endl;
+			os << indent(2) << "<watch-group:" 	<< (int)bucket.watch_group 	<< " >" << std::endl;
+			os << indent(2) << "<watch-port:" 	<< (int)bucket.watch_port 	<< " >" << std::endl;
+			os << indent(2) << "<packet-count:"	<< (int)bucket.packet_count << " >" << std::endl;
+			os << indent(2) << "<byte-count:" 	<< (int)bucket.byte_count 	<< " >" << std::endl;
+			os << indent(2) << "<actions: >"	<< std::endl;
+			indent i(4);
+			os << bucket.actions;
+		return os;
+	};
 };
 
 }; // end of namespace

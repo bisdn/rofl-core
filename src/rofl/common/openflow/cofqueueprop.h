@@ -8,21 +8,29 @@
 #ifndef COFQUEUEPROP_H_
 #define COFQUEUEPROP_H_ 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <assert.h>
+#ifdef __cplusplus
+}
+#endif
+
 #include <ostream>
 #include <endian.h>
 #ifndef htobe16
 	#include "../endian_conversion.h"
 #endif
 
-#include "openflow_rofl_exceptions.h"
-#include "../cmemory.h"
-#include "../cerror.h"
-#include "openflow.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/openflow/openflow.h"
 
 namespace rofl
 {
 
-class eQueuePropBase : public cerror {};
+class eQueuePropBase : public RoflException {};
 class eQueuePropNotFound : public eQueuePropBase {};
 
 
@@ -33,9 +41,9 @@ private:
 
 	union {
 		uint8_t							*ofqu_hdr;
-		struct ofp10_queue_prop_header	*ofqu10_hdr;
-		struct ofp12_queue_prop_header	*ofqu12_hdr;
-		//struct ofp13_queue_prop_header	*ofqu13_hdr;
+		struct openflow10::ofp_queue_prop_header	*ofqu10_hdr;
+		struct openflow12::ofp_queue_prop_header	*ofqu12_hdr;
+		//struct openflow13::ofp_queue_prop_header	*ofqu13_hdr;
 	} ofq_ofqu;
 
 #define ofq_header ofq_ofqu.ofqu_hdr
@@ -53,7 +61,7 @@ public:
 	 *
 	 */
 	cofqueue_prop(
-			uint8_t of_version = OFP12_VERSION);
+			uint8_t of_version = openflow12::OFP_VERSION);
 
 
 	/**
@@ -138,9 +146,9 @@ public:
 	 *
 	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, cofqueue_prop const& qp)
-	{
-		os << "QueueProperty[property: " << qp.get_property() << "]";
+	operator<< (std::ostream& os, cofqueue_prop const& qp) {
+		os << indent(0) << "<QueueProperty property:0x"
+				<< std::hex << (int)qp.get_property() << std::dec << " >" << std::endl;
 		return os;
 	};
 
@@ -164,9 +172,9 @@ private:
 
 	union {
 		uint8_t								*ofqu_min_rate;
-		struct ofp10_queue_prop_min_rate	*ofqu10_min_rate;
-		struct ofp12_queue_prop_min_rate	*ofqu12_min_rate;
-		//struct ofp13_queue_prop_min_rate	*ofqu13_min_rate;
+		struct openflow10::ofp_queue_prop_min_rate	*ofqu10_min_rate;
+		struct openflow12::ofp_queue_prop_min_rate	*ofqu12_min_rate;
+		//struct openflow13::ofp_queue_prop_min_rate	*ofqu13_min_rate;
 	} ofq_ofqu;
 
 #define ofq_min_rate ofq_ofqu.ofqu_min_rate
@@ -260,8 +268,8 @@ private:
 
 	union {
 		uint8_t								*ofqu_max_rate;
-		struct ofp12_queue_prop_min_rate	*ofqu12_max_rate;
-		//struct ofp13_queue_prop_min_rate	*ofqu13_max_rate;
+		struct openflow12::ofp_queue_prop_min_rate	*ofqu12_max_rate;
+		//struct openflow13::ofp_queue_prop_min_rate	*ofqu13_max_rate;
 	} ofq_ofqu;
 
 #define ofq_max_rate ofq_ofqu.ofqu_max_rate
@@ -357,8 +365,8 @@ private:
 
 	union {
 		uint8_t									*ofqu_expr;
-		struct ofp12_queue_prop_experimenter	*ofqu12_expr;
-		//struct ofp13_queue_prop_min_rate		*ofqu13_expr;
+		struct openflow12::ofp_queue_prop_experimenter	*ofqu12_expr;
+		//struct openflow13::ofp_queue_prop_min_rate		*ofqu13_expr;
 	} ofq_ofqu;
 
 #define ofq_expr ofq_ofqu.ofqu_expr

@@ -9,72 +9,72 @@ using namespace rofl;
 
 
 cofmsg::typedesc_t typedesc_of10[] = {
-	{ OFPT10_HELLO, 					"HELLO" },
-	{ OFPT10_ERROR, 					"ERROR" },
-	{ OFPT10_ECHO_REQUEST, 				"ECHO-REQUEST" },
-	{ OFPT10_ECHO_REPLY, 				"ECHO-REPLY" },
-	{ OFPT10_VENDOR, 					"VENDOR" },
+	{ openflow10::OFPT_HELLO, 					"HELLO" },
+	{ openflow10::OFPT_ERROR, 					"ERROR" },
+	{ openflow10::OFPT_ECHO_REQUEST, 				"ECHO-REQUEST" },
+	{ openflow10::OFPT_ECHO_REPLY, 				"ECHO-REPLY" },
+	{ openflow10::OFPT_VENDOR, 					"VENDOR" },
 
-	{ OFPT10_FEATURES_REQUEST, 			"FEATURES-REQUEST" },
-	{ OFPT10_FEATURES_REPLY, 			"FEATURES-REPLY" },
-	{ OFPT10_GET_CONFIG_REQUEST,	 	"GET-CONFIG-REQUEST" },
-	{ OFPT10_GET_CONFIG_REPLY, 			"GET-CONFIG-REPLY" },
-	{ OFPT10_SET_CONFIG, 				"SET-CONFIG" },
+	{ openflow10::OFPT_FEATURES_REQUEST, 			"FEATURES-REQUEST" },
+	{ openflow10::OFPT_FEATURES_REPLY, 			"FEATURES-REPLY" },
+	{ openflow10::OFPT_GET_CONFIG_REQUEST,	 	"GET-CONFIG-REQUEST" },
+	{ openflow10::OFPT_GET_CONFIG_REPLY, 			"GET-CONFIG-REPLY" },
+	{ openflow10::OFPT_SET_CONFIG, 				"SET-CONFIG" },
 
-	{ OFPT10_PACKET_IN, 				"PACKET-IN" },
-	{ OFPT10_FLOW_REMOVED, 				"FLOW-REMOVED" },
-	{ OFPT10_PORT_STATUS, 				"PORT-STATUS" },
+	{ openflow10::OFPT_PACKET_IN, 				"PACKET-IN" },
+	{ openflow10::OFPT_FLOW_REMOVED, 				"FLOW-REMOVED" },
+	{ openflow10::OFPT_PORT_STATUS, 				"PORT-STATUS" },
 
-	{ OFPT10_PACKET_OUT, 				"PACKET-OUT" },
-	{ OFPT10_FLOW_MOD, 					"FLOW-MOD" },
-	{ OFPT10_PORT_MOD, 					"PORT-MOD" },
+	{ openflow10::OFPT_PACKET_OUT, 				"PACKET-OUT" },
+	{ openflow10::OFPT_FLOW_MOD, 					"FLOW-MOD" },
+	{ openflow10::OFPT_PORT_MOD, 					"PORT-MOD" },
 
-	{ OFPT10_STATS_REQUEST, 			"STATS-REQUEST" },
-	{ OFPT10_STATS_REPLY, 				"STATS-REPLY" },
+	{ openflow10::OFPT_STATS_REQUEST, 			"STATS-REQUEST" },
+	{ openflow10::OFPT_STATS_REPLY, 				"STATS-REPLY" },
 
-	{ OFPT10_BARRIER_REQUEST, 			"BARRIER-REQUEST" },
-	{ OFPT10_BARRIER_REPLY, 			"BARRIER-REPLY" },
+	{ openflow10::OFPT_BARRIER_REQUEST, 			"BARRIER-REQUEST" },
+	{ openflow10::OFPT_BARRIER_REPLY, 			"BARRIER-REPLY" },
 
-	{ OFPT10_QUEUE_GET_CONFIG_REQUEST, 	"QUEUE-GET-CONFIG-REQUEST" },
-	{ OFPT10_QUEUE_GET_CONFIG_REPLY, 	"QUEUE-GET-CONFIG-REPLY" },
+	{ openflow10::OFPT_QUEUE_GET_CONFIG_REQUEST, 	"QUEUE-GET-CONFIG-REQUEST" },
+	{ openflow10::OFPT_QUEUE_GET_CONFIG_REPLY, 	"QUEUE-GET-CONFIG-REPLY" },
 };
 
 
 
 cofmsg::typedesc_t typedesc_of12[] = {
-	{ OFPT12_HELLO, 					"HELLO" },
-	{ OFPT12_ERROR, 					"ERROR" },
-	{ OFPT12_ECHO_REQUEST, 				"ECHO-REQUEST" },
-	{ OFPT12_ECHO_REPLY, 				"ECHO-REPLY" },
-	{ OFPT12_EXPERIMENTER, 				"EXPERIMENTER" },
+	{ openflow12::OFPT_HELLO, 					"HELLO" },
+	{ openflow12::OFPT_ERROR, 					"ERROR" },
+	{ openflow12::OFPT_ECHO_REQUEST, 				"ECHO-REQUEST" },
+	{ openflow12::OFPT_ECHO_REPLY, 				"ECHO-REPLY" },
+	{ openflow12::OFPT_EXPERIMENTER, 				"EXPERIMENTER" },
 
-	{ OFPT12_FEATURES_REQUEST, 			"FEATURES-REQUEST" },
-	{ OFPT12_FEATURES_REPLY, 			"FEATURES-REPLY" },
-	{ OFPT12_GET_CONFIG_REQUEST, 		"GET-CONFIG-REQUEST" },
-	{ OFPT12_GET_CONFIG_REPLY, 			"GET-CONFIG-REPLY" },
-	{ OFPT12_SET_CONFIG, 				"SET-CONFIG" },
+	{ openflow12::OFPT_FEATURES_REQUEST, 			"FEATURES-REQUEST" },
+	{ openflow12::OFPT_FEATURES_REPLY, 			"FEATURES-REPLY" },
+	{ openflow12::OFPT_GET_CONFIG_REQUEST, 		"GET-CONFIG-REQUEST" },
+	{ openflow12::OFPT_GET_CONFIG_REPLY, 			"GET-CONFIG-REPLY" },
+	{ openflow12::OFPT_SET_CONFIG, 				"SET-CONFIG" },
 
-	{ OFPT12_PACKET_IN, 				"PACKET-IN" },
-	{ OFPT12_FLOW_REMOVED, 				"FLOW-REMOVED" },
-	{ OFPT12_PORT_STATUS, 				"PORT-STATUS" },
+	{ openflow12::OFPT_PACKET_IN, 				"PACKET-IN" },
+	{ openflow12::OFPT_FLOW_REMOVED, 				"FLOW-REMOVED" },
+	{ openflow12::OFPT_PORT_STATUS, 				"PORT-STATUS" },
 
-	{ OFPT12_PACKET_OUT, 				"PACKET-OUT" },
-	{ OFPT12_FLOW_MOD, 					"FLOW-MOD" },
-	{ OFPT12_GROUP_MOD, 				"GROUP-MOD" },
-	{ OFPT12_PORT_MOD, 					"PORT-MOD" },
-	{ OFPT12_TABLE_MOD, 				"TABLE-MOD" },
+	{ openflow12::OFPT_PACKET_OUT, 				"PACKET-OUT" },
+	{ openflow12::OFPT_FLOW_MOD, 					"FLOW-MOD" },
+	{ openflow12::OFPT_GROUP_MOD, 				"GROUP-MOD" },
+	{ openflow12::OFPT_PORT_MOD, 					"PORT-MOD" },
+	{ openflow12::OFPT_TABLE_MOD, 				"TABLE-MOD" },
 
-	{ OFPT12_STATS_REQUEST, 			"STATS-REQUEST" },
-	{ OFPT12_STATS_REPLY, 				"STATS-REPLY" },
+	{ openflow12::OFPT_STATS_REQUEST, 			"STATS-REQUEST" },
+	{ openflow12::OFPT_STATS_REPLY, 				"STATS-REPLY" },
 
-	{ OFPT12_BARRIER_REQUEST, 			"BARRIER-REQUEST" },
-	{ OFPT12_BARRIER_REPLY, 			"BARRIER-REPLY" },
+	{ openflow12::OFPT_BARRIER_REQUEST, 			"BARRIER-REQUEST" },
+	{ openflow12::OFPT_BARRIER_REPLY, 			"BARRIER-REPLY" },
 
-	{ OFPT12_QUEUE_GET_CONFIG_REQUEST, 	"QUEUE-GET-CONFIG-REQUEST" },
-	{ OFPT12_QUEUE_GET_CONFIG_REPLY, 	"QUEUE-GET-CONFIG-REPLY" },
+	{ openflow12::OFPT_QUEUE_GET_CONFIG_REQUEST, 	"QUEUE-GET-CONFIG-REQUEST" },
+	{ openflow12::OFPT_QUEUE_GET_CONFIG_REPLY, 	"QUEUE-GET-CONFIG-REPLY" },
 
-	{ OFPT12_ROLE_REQUEST, 				"ROLE-REQUEST" },
-	{ OFPT12_ROLE_REPLY, 				"ROLE-REPLY" },
+	{ openflow12::OFPT_ROLE_REQUEST, 				"ROLE-REQUEST" },
+	{ openflow12::OFPT_ROLE_REPLY, 				"ROLE-REPLY" },
 };
 
 
@@ -120,15 +120,15 @@ const char*
 cofmsg::type2desc(uint8_t ofp_version, uint8_t ptype)
 {
 	switch (ofp_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
         for (int i = 0; i < (int)(sizeof(typedesc_of10) / sizeof(cofmsg::typedesc_t)); i++) {
 			if (typedesc_of10[i].type == ptype) {
 				return typedesc_of10[i].desc;
 			}
         }
 	} break;
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
+	case openflow12::OFP_VERSION:
+	case openflow13::OFP_VERSION: {
         for (int i = 0; i < (int)(sizeof(typedesc_of12) / sizeof(cofmsg::typedesc_t)); i++) {
 			if (typedesc_of12[i].type == ptype) {
 				return typedesc_of12[i].desc;
@@ -150,7 +150,7 @@ cofmsg::cofmsg(size_t size) :
 		memarea(new cmemory(size)),
 		ofh_header(0)
 {
-	ofh_header = (struct ofp_header*)soframe();
+	ofh_header = (struct openflow::ofp_header*)soframe();
 	ofh_header->length = htobe16(size);
 }
 
@@ -163,7 +163,7 @@ cofmsg::cofmsg(cmemory *memarea) :
 	if (0 == memarea) {
 		throw eInval();
 	}
-	ofh_header = (struct ofp_header*)soframe();
+	ofh_header = (struct openflow::ofp_header*)soframe();
 }
 
 
@@ -196,17 +196,9 @@ cofmsg::operator=(const cofmsg &p)
 		delete memarea;
 
 	memarea 	= new cmemory(*(p.memarea));
-	ofh_header 	= (struct ofp_header*)(soframe());
+	ofh_header 	= (struct openflow::ofp_header*)(soframe());
 
 	return *this;
-}
-
-
-
-const char*
-cofmsg::c_str()
-{
-	return (memarea == 0) ? info.c_str() : memarea->c_str();
 }
 
 
@@ -262,10 +254,10 @@ cofmsg::unpack(uint8_t *buf, size_t buflen)
 void
 cofmsg::validate()
 {
-	if (framelen() < sizeof(struct ofp_header))
+	if (framelen() < sizeof(struct openflow::ofp_header))
 		throw eBadSyntaxTooShort();
 
-	ofh_header = (struct ofp_header*)soframe();
+	ofh_header = (struct openflow::ofp_header*)soframe();
 
 	if (get_length() > framelen())
 		throw eBadSyntaxTooShort();
@@ -277,7 +269,7 @@ void
 cofmsg::resize(size_t len)
 {
 	memarea->resize(len);
-	ofh_header = (struct ofp_header*)soframe();
+	ofh_header = (struct openflow::ofp_header*)soframe();
 }
 
 

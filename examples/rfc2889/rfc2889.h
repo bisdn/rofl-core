@@ -5,7 +5,7 @@
 #include "rofl/common/cmacaddr.h"
 #include "rofl/common/caddress.h"
 #include "rofl/common/crofbase.h"
-#include "rofl/common/openflow/cofdpt.h"
+#include "rofl/common/crofdpt.h"
 
 using namespace rofl;
 
@@ -20,7 +20,7 @@ private:
 	};
 
 	// a very simple forwarding information base
-	std::map<cofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > > fib;
+	std::map<crofdpt*, std::map<uint16_t, std::map<cmacaddr, struct fibentry_t> > > fib;
 
 	unsigned int 		fib_check_timeout; 		// periodic timeout for removing expired FIB entries
 	unsigned int		flow_stats_timeout;		// periodic timeout for requesting flow stats
@@ -35,25 +35,25 @@ private:
 
 public:
 
-	etherswitch();
+	etherswitch(cofhello_elem_versionbitmap const& versionbitmap);
 
 	virtual
 	~etherswitch();
 
 	virtual void
-	handle_timeout(int opaque);
+	handle_timeout(int opaque, void *data = (void*)0);
 
 	virtual void
-	handle_dpath_open(cofdpt *dpt);
+	handle_dpath_open(crofdpt& dpt);
 
 	virtual void
-	handle_dpath_close(cofdpt *dpt);
+	handle_dpath_close(crofdpt& dpt);
 
 	virtual void
-	handle_packet_in(cofdpt *dpt, cofmsg_packet_in *msg);
+	handle_packet_in(crofdpt& dpt, cofmsg_packet_in& msg, uint8_t aux_id = 0);
 
 	virtual void
-	handle_flow_stats_reply(cofdpt *dpt, cofmsg_flow_stats_reply *msg);
+	handle_flow_stats_reply(crofdpt& dpt, cofmsg_flow_stats_reply& msg, uint8_t aux_id = 0);
 
 private:
 

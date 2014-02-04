@@ -15,7 +15,7 @@
 	#include "../../endian_conversion.h"
 #endif
 
-#include "rofl/common/cerror.h"
+#include "rofl/common/croflexception.h"
 #include "rofl/common/cvastring.h"
 #include "rofl/common/fframe.h"
 #include "rofl/common/cpacket.h"
@@ -23,10 +23,10 @@
 
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/cofmatch.h"
-#include "rofl/common/openflow/cofinlist.h"
-#include "rofl/common/openflow/cofaclist.h"
-#include "rofl/common/openflow/cofbclist.h"
-#include "rofl/common/openflow/cofportlist.h"
+#include "rofl/common/openflow/cofinstructions.h"
+#include "rofl/common/openflow/cofactions.h"
+#include "rofl/common/openflow/cofbuckets.h"
+#include "rofl/common/openflow/cofports.h"
 #include "rofl/common/openflow/cofport.h"
 #include "rofl/common/openflow/cofdescstats.h"
 #include "rofl/common/openflow/cofflowstats.h"
@@ -43,10 +43,10 @@ class cofbase;
 namespace rofl
 {
 
-class eOFpacketBase : public cerror {};
-class eOFpacketInval : public eOFpacketBase {};
-class eOFpacketNoData : public eOFpacketBase {};
-class eOFpacketHeaderInval : public eOFpacketBase {}; // invalid header
+class eOFpacketBase 		: public RoflException {};
+class eOFpacketInval 		: public eOFpacketBase {};
+class eOFpacketNoData 		: public eOFpacketBase {};
+class eOFpacketHeaderInval 	: public eOFpacketBase {}; // invalid header
 
 
 /** cofpacket
@@ -87,14 +87,10 @@ public:
 	} typedesc_t;
 
 
-private: // data structures
-
-	std::string 	 	 info;				// info string for method c_str()
-
 protected: // data structures
 
-	cmemory 			*memarea;			// OpenFlow packet received from socket
-	struct ofp_header	*ofh_header;		// generic OpenFlow header
+	cmemory 					*memarea;			// OpenFlow packet received from socket
+	struct openflow::ofp_header	*ofh_header;		// generic OpenFlow header
 
 public:
 
@@ -102,7 +98,7 @@ public:
 	 *
 	 */
 	cofmsg(
-			size_t size = sizeof(struct ofp_header));
+			size_t size = sizeof(struct openflow::ofp_header));
 
 
 	/**
@@ -132,13 +128,6 @@ public:
 	cofmsg&
 	operator=(
 			cofmsg const& p);
-
-
-	/** dump packet content
-	 *
-	 */
-	virtual const char*
-	c_str();
 
 
 	/** reset packet content
@@ -199,14 +188,14 @@ public:
 	 *
 	 */
 	uint8_t*
-	sobody() const { return (soframe() + sizeof(struct ofp_header)); };
+	sobody() const { return (soframe() + sizeof(struct openflow::ofp_header)); };
 
 
 	/** frame length
 	 *
 	 */
 	size_t
-	bodylen() const { return (framelen() - sizeof(struct ofp_header)); };
+	bodylen() const { return (framelen() - sizeof(struct openflow::ofp_header)); };
 
 
 public:
@@ -273,12 +262,12 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg const& msg) {
-		os << "<cofmsg => ";
+		os << indent(0) << "<cofmsg ";
 			os << "version:" 				<< (int)msg.get_version() 			<< " ";
-			os << "type:" 					<< (int)msg.get_type() 				<< " ";
+			os << "type:" 					<< std::dec << (int)msg.get_type() 	<< " ";
 			os << "length:" 				<< (int)msg.get_length() 			<< " ";
-			os << "xid:" 		<< std::hex << (int)msg.get_xid() << std::dec 	<< " ";
-		os << ">";
+			os << "xid:0x" 		<< std::hex << (int)msg.get_xid() << std::dec 	<< " ";
+		os << ">" << std::endl;
 		return os;
 	};
 };

@@ -7,7 +7,7 @@
 
 #include <algorithm>
 
-#include "../cerror.h"
+#include "../croflexception.h"
 #include "../fframe.h"
 #include "../coflist.h"
 #include "../cvastring.h"
@@ -17,7 +17,7 @@
 namespace rofl
 {
 
-class ePPPoElistBase : public cerror {}; // base error class cofinlist
+class ePPPoElistBase : public RoflException {}; // base error class cofinlist
 class ePPPoElistInval : public ePPPoElistBase {}; // invalid parameter
 class ePPPoElistNotFound : public ePPPoElistBase {}; // element not found
 class ePPPoElistOutOfRange : public ePPPoElistBase {}; // out of range
@@ -63,21 +63,22 @@ public: // methods
 	size_t
 	length();
 
-	/** dump info string
-	 */
-	const char*
-	c_str();
-
 	/** find a specific instruction
 	 */
 	cpppoetlv&
 	find_pppoe_tlv(int type)
 	throw (ePPPoElistNotFound);
 
+public:
 
-private:
-
-	std::string info; // info string
+	friend std::ostream&
+	operator<< (std::ostream& os, cpppoelist const& pppoelist) {
+		os << "<cpppoelist ";
+			os << "TLVs: " << std::endl << dynamic_cast<coflist const&>( pppoelist );
+			os << std::endl;
+		os << ">";
+		return os;
+	};
 
 public: // auxiliary classes
 

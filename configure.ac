@@ -1,4 +1,4 @@
-AC_INIT(ROFL, 0.3.0, rofl@bisdn.de, rofl)
+AC_INIT(ROFL, 0.4.0, rofl@bisdn.de, rofl)
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_MACRO_DIR([m4])
 AC_GNU_SOURCE
@@ -72,7 +72,7 @@ AC_CONFIG_FILES([
         src/rofl/datapath/afa/openflow/openflow1x/Makefile
 	
 	examples/Makefile
-	examples/etherswitch/Makefile
+	examples/ethswctld/Makefile
 	examples/queuetest/Makefile
 	examples/rfc2889/Makefile
 	examples/ofperftest/Makefile

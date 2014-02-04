@@ -207,11 +207,28 @@ void __of1x_stats_group_update(of1x_stats_group_t *gr_stats, uint64_t bytes);
 void __of1x_stats_group_inc_reference(of1x_stats_group_t *gr_stats);
 void __of1x_stats_group_dec_reference(of1x_stats_group_t *gr_stats);
 
-//FIXME: add documentation
+/**
+ * @brief Retrieves the statistics of a group
+ * @ingroup core_of1x
+ * 
+ * Returns a structure with the statistics that needs to be freed by the calling element
+ */
 of1x_stats_group_msg_t* of1x_get_group_stats(struct of1x_pipeline* pipeline,uint32_t id);
-//FIXME: add documentation
+
+/**
+ * @brief Retrieves the statistics of all groups
+ * @ingroup core_of1x
+ * 
+ * Returns a structure with the statistics that needs to be freed by the calling element 
+ */
 of1x_stats_group_msg_t* of1x_get_group_all_stats(struct of1x_pipeline* pipeline,uint32_t id);
-//FIXME: add documentation
+
+/**
+ * @brief Frees memory of statistics message
+ * @ingroup core_of1x
+ *
+ * Needs to be called after retrieving the statistics of the groups
+ */
 void of1x_destroy_stats_group_msg(of1x_stats_group_msg_t *msg);
 
 void __of1x_init_bucket_stats(of1x_stats_bucket_counter_t *bc_stats);

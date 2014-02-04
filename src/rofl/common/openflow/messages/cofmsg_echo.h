@@ -104,6 +104,16 @@ public:
 	 */
 	cmemory&
 	get_body();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_echo_request const& msg) {
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_echo_request >" << std::endl;
+		os << indent(2) << msg.body;
+		return os;
+	};
 };
 
 
@@ -199,6 +209,16 @@ public:
 	 */
 	cmemory&
 	get_body();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_echo_reply const& msg) {
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_echo_reply >" << std::endl;
+		os << indent(2) << msg.body;
+		return os;
+	};
 };
 
 

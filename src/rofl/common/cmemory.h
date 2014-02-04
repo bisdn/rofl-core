@@ -12,15 +12,14 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-#include "../platform/unix/csyslog.h"
-#include "cvastring.h"
-#include "cerror.h"
+#include "croflexception.h"
+#include "logging.h"
 
 namespace rofl
 {
 
 /* error classes */
-class eMemBase 				: public cerror {};
+class eMemBase 				: public RoflException {};
 class eMemAllocFailed 		: public eMemBase {};
 class eMemOutOfRange 		: public eMemBase {};
 class eMemNotFound 			: public eMemBase {};
@@ -42,9 +41,7 @@ class eMemInval 			: public eMemBase {};
  * Memory addresses kept outside of cmemory must be updated by
  * the developer explicitly.
  */
-class cmemory :
-	public csyslog
-{
+class cmemory {
 private:
 
 	static std::set<cmemory*> 		cmemory_list;
@@ -52,10 +49,9 @@ private:
 	static int 						memlockcnt;
 
 	std::pair<uint8_t*, size_t> 	data;		//< memory area including head- and tail-space
-	std::string 					info; 		//< info string
 	size_t 							occupied; 	//< amount of bytes used in memory area
 
-#define CMEMORY_DEFAULT_SIZE 		1024
+#define CMEMORY_DEFAULT_SIZE 		0
 
 
 public:
@@ -100,17 +96,6 @@ public:
 	 */
 	virtual
 	~cmemory();
-
-
-
-	/**
-	 * @brief	Returns a C-string containing an ASCII representation of the memory area.
-	 *
-	 * @return C-string
-	 */
-	const char*
-	c_str();
-
 
 
 public:
@@ -376,7 +361,42 @@ private: // methods
 	 */
 	void mfree();
 
+public:
 
+	friend std::ostream&
+	operator<< (std::ostream& os, cmemory const& mem) {
+		os << indent(0) << "<cmemory: ";
+		os << "data:" << (void*)mem.data.first << " ";
+		os << "datalen:" << (int)mem.data.second << " ";
+		os << ">" << std::endl;
+
+		if (mem.data.second > 0) {
+			for (unsigned int i=0; i < mem.data.second; i++) {
+				if (0 == (i % 64)) {
+					os << indent(2)
+						<< std::setfill('0')
+						<< std::setw(4)
+						<< std::dec << (i/64) << ": " << std::hex
+						<< std::setw(0)
+						<< std::setfill(' ');
+				}
+
+				os << std::setfill('0')
+					<< std::setw(2)
+					<< std::hex << (int)(*(mem.somem() + i)) << std::dec
+					<< std::setw(0)
+					<< std::setfill(' ')
+					<< " ";
+
+				if (0 == ((i+1) % 8))
+					os << "  ";
+				if (0 == ((i+1) % 64))
+					os << std::endl;
+			}
+			os << std::endl;
+		}
+		return os;
+	};
 };
 
 }; // end of namespace

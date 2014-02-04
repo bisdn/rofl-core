@@ -22,96 +22,33 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/stat.h>
 
-#include "cpacket.h"
-#include "cmemory.h"
-#include "cerror.h"
-#include "cvastring.h"
-#include "thread_helper.h"
 
-#include "rofl/platform/unix/csyslog.h"
-#include "rofl/platform/unix/cpipe.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/logging.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/thread_helper.h"
+#include "rofl/common/cpipe.h"
+#include "rofl/common/cfdset.h"
+#include "rofl/common/cevents.h"
+#include "rofl/common/ctimers.h"
+#include "rofl/common/ctimer.h"
 
 namespace rofl
 {
 
-/** class defining ioctl commands exchanged between ciosrv entities
- *
- */
-class cevent :
-	public csyslog
-{
-public:
-	/**
-	 */
-	cevent(int __cmd = -1) : cmd(__cmd), opaque((size_t)0)
-	{
-		WRITELOG(CIOSRV, DBG, "cevent(%p)::cevent() cmd:0x%x", this, cmd);
-	};
-	/**
-	 */
-	virtual
-	~cevent()
-	{
-		WRITELOG(CIOSRV, DBG, "cevent(%p)::~cevent() cmd:0x%x", this, cmd);
-	};
-	/**
-	 */
-	cevent(cevent const& ioctl) :
-		cmd(-1),
-		opaque((size_t)0)
-	{
-		WRITELOG(CIOSRV, DBG, "cevent(%p)::cevent() cmd:0x%x from 0x%x", this, cmd, &ioctl);
-		*this = ioctl;
-	};
-	/**
-	 */
-	cevent& operator= (cevent const& ioctl)
-	{
-		if (this == &ioctl)
-			return *this;
-		cmd = ioctl.cmd;
-		opaque = ioctl.opaque;
-		return *this;
-	};
-	/**
-	 *
-	 */
-	const char*
-	c_str()
-	{
-		cvastring vas;
-		info.assign(vas("cevent(%p): cmd: 0x%x opaque: %s", this, cmd, opaque.c_str()));
-		//info.assign(vas("cevent(%p): cmd: 0x%x", this, cmd));
-		return info.c_str();
-	};
-
-public: // data structures
-
-	int cmd; // command
-	cmemory opaque; // additional data
-	std::string info; // info string :P
-
-public: // auxiliary classes
-
-	class cevent_find_by_cmd {
-		int cmd;
-	public:
-		cevent_find_by_cmd(int __cmd) :
-			cmd(__cmd) {};
-		bool operator() (cevent const* ev) {
-			return (ev->cmd == cmd);
-		};
-	};
-};
-
 
 /* error classes */
-class eIoSvcBase			: public cerror {}; 	//< base error class for ciosrv
+class eIoSvcBase			: public RoflException {}; 	//< base error class for ciosrv
 class eIoSvcInitFailed 		: public eIoSvcBase {};	//< init of ciosrv instance failed
 class eIoSvcRunError 		: public eIoSvcBase {}; //< error in core loop (select)
 class eIoSvcUnhandledTimer 	: public eIoSvcBase {}; //< unhandled timer
 class eIoSvcNotFound        : public eIoSvcBase {}; //< element not found
+
+class cioloop;
 
 /**
  * (Abstract) Base class for IO services.
@@ -140,143 +77,24 @@ class eIoSvcNotFound        : public eIoSvcBase {}; //< element not found
  * - cancel_all_timer() cancel all timers
  *
  */
-class ciosrv : public virtual csyslog
+class ciosrv :
+		public ptrciosrv
 {
-	class ciothread {
-	public:
-		pthread_t               tid;		// thread id
-		cpipe                   *pipe;	        // wakeup pipe
-		std::set<ciosrv*>		ciosrv_elements;// all ciosrv objects within this thread
-		std::map<int, ciosrv*>  rfds; 	        // read fds
-		pthread_rwlock_t		rfds_rwlock;
-		std::map<int, ciosrv*>  wfds;	        // write fds
-		pthread_rwlock_t		wfds_rwlock;
-		std::list<ciosrv*>      ciosrv_timeouts;// set with all ciosrv instances with timeout in next round
-		std::bitset<32>         flags;          //< flags
+	static std::set<ciosrv*> 		ciolist;
 
-		pthread_rwlock_t wakeup_rwlock;  // rwlock for cevent lists
-        pthread_mutex_t  ciosrv_list_mutex;     // mutex for cevent lists
-        std::set<class ciosrv*> ciosrv_insertion_list; //< list of all ciosrv instances new inserted
-        std::set<class ciosrv*> ciosrv_list;           //< list of all ciosrv instances
-        std::set<class ciosrv*> ciosrv_deletion_list;  //< list of all ciosrv instances scheduled for deletion
-        std::set<class ciosrv*> ciosrv_wakeup;         //< list of all cioctl commands rcvd
-        int evlockinit; // = 0 => destroy mutex
-
-	public:
-		/** constructor
-		 *
-		 */
-		ciothread() :
-			tid(pthread_self()),
-			evlockinit(0)
-		{
-			pipe = new cpipe();
-			pthread_rwlock_init(&(wakeup_rwlock), NULL);
-			pthread_mutex_init(&(ciosrv_list_mutex), NULL);
-			pthread_rwlock_init(&(rfds_rwlock), NULL);
-			pthread_rwlock_init(&(wfds_rwlock), NULL);
-		};
-		~ciothread()
-		{
-#if 0
-                        for (std::set<ciosrv*>::iterator it = ciosrv_list.begin();
-                            it != ciosrv_list.end(); ++it)
-                        {
-                            delete (*it);
-                        }
-#endif
-            pthread_rwlock_destroy(&wfds_rwlock);
-            pthread_rwlock_destroy(&rfds_rwlock);
-            pthread_mutex_destroy(&(ciosrv_list_mutex));
-	        pthread_rwlock_destroy(&(wakeup_rwlock));
-			delete pipe;
-		};
-	};
-
-
-protected:
-
-private: // static
-
-
-	static pthread_rwlock_t iothread_lock;
-	static std::map<pthread_t, ciothread*> threads; // fds and timers for thread tid
-
-	//Flag that allows to stop ciosrv
-	static bool keep_on;
-
-	enum ciosrv_flag_t {
-		CIOSRV_FLAG_WAKEUP_CALLED = (1 << 0), // when set, pipe was already instructed to
-						// wake up called thread
-	};
-
-
-	/** dump information about all registered fdsets
-	 *
-	 */
-	static void
-	dump_fdsets();
-
-	/** dump information about all active fdsets (FD_ISSET yields true)
-	 *
-	 */
-	static void
-	dump_active_fdsets(
-			int rc,
-			fd_set* readfds,
-			fd_set* writefds,
-			fd_set* exceptfds);
-
-
-
-public: // static
-
-
-	/**
-	 * @brief 	Initializes thread-local variables for this thread.
-	 *
-	 * This method must be called once after creation of a new thread.
-	 */
-	static void
-	init();
-
-
-	/**
-	 * @brief	Runs the infinite event loop.
-	 */
-	static void
-	run();
-
-
-
-	/**
-	 * @brief	Leaves the infinite event loop.
-	 */
-	static void
-	stop() { keep_on = false; };
-
-
-
-	/**
-	 * @brief	Deallocates thread-local variables.
-	 *
-	 * This method must be called once before destroying the local thread.
-	 */
-	static void
-	destroy();
-
-
+	pthread_t						tid;
+	cpipe							pipe;
+	std::set<int>					rfds;
+	std::set<int>					wfds;
+	ctimers							timers;
+	cevents							events;
 
 public:
-
-
 
 	/**
 	 * @brief	Initializes all structures for this ciosrv object.
 	 */
 	ciosrv();
-
-
 
 	/**
 	 * @brief	Deallocates resources for this ciosrv object.
@@ -284,15 +102,18 @@ public:
 	virtual
 	~ciosrv();
 
-
-
-
 	/**
 	 * @brief	Initializes all structures for this ciosrv object.
 	 */
 	ciosrv(ciosrv const& iosrv);
 
+	/**
+	 *
+	 */
+	ciosrv&
+	operator= (ciosrv const& iosrv);
 
+public:
 
 	/**
 	 * @brief	Sends a notification to this ciosrv instance.
@@ -305,19 +126,8 @@ public:
 	 * @param ev the event to be sent to this instance
 	 */
 	void
-	notify(cevent const& ev = cevent());
-
-
-
-	/**
-	 * @brief	Returns a static c-string with information about this instance.
-	 *
-	 * @return a static c-string
-	 */
-	const char*
-	c_str();
-
-
+	notify(
+			cevent const& event);
 
 
 	/**
@@ -328,11 +138,40 @@ public:
 	pthread_t
 	get_thread_id() const { return tid; };
 
+	/**
+	 *
+	 */
+	static void
+	run();
 
-
+	/**
+	 *
+	 */
+	static void
+	stop();
 
 protected:
 
+	/**
+	 *
+	 * @return
+	 */
+	void
+	events_clear() { events.clear(); };
+
+	friend class cioloop;
+
+	/**
+	 * @brief	Called by cioloop
+	 */
+	void
+	__handle_revent(int fd);
+
+	/**
+	 * @brief	Called by cioloop
+	 */
+	void
+	__handle_timeout();
 
 	/**
 	 * @name Event handlers
@@ -342,7 +181,6 @@ protected:
 	 */
 
 	/**@{*/
-
 
 	/**
 	 * @brief	Handler for event notifications using cevent instances.
@@ -356,8 +194,6 @@ protected:
 	virtual void
 	handle_event(cevent const& ev) {};
 
-
-
 	/**
 	 * @brief	Handler for read events on file descriptors.
 	 *
@@ -367,8 +203,6 @@ protected:
 	 */
 	virtual void
 	handle_revent(int fd) {};
-
-
 
 	/**
 	 * @brief	Handler for write events on file descriptors.
@@ -380,8 +214,6 @@ protected:
 	virtual void
 	handle_wevent(int fd) {};
 
-
-
 	/**
 	 * @brief	Handler for exceptions on file descriptors.
 	 *
@@ -392,8 +224,6 @@ protected:
 	virtual void
 	handle_xevent(int fd) {};
 
-
-
 	/**
 	 * @brief	Handler for timer events.
 	 *
@@ -402,14 +232,9 @@ protected:
 	 * @param opaque expired timer type
 	 */
 	virtual void
-	handle_timeout(int opaque) {};
-
+	handle_timeout(int opaque, void *data = (void*)0) {};
 
 	/**@}*/
-
-
-
-
 
 protected:
 
@@ -418,7 +243,6 @@ protected:
 	 */
 
 	/**@{*/
-
 
 	/**
 	 * @brief	Registers a file descriptor for read events.
@@ -430,8 +254,6 @@ protected:
 	void
 	register_filedesc_r(int fd);
 
-
-
 	/**
 	 * @brief	Deregisters a file descriptor from read events.
 	 *
@@ -439,9 +261,6 @@ protected:
 	 */
 	void
 	deregister_filedesc_r(int fd);
-
-
-
 
 	/**
 	 * @brief	Registers a file descriptor for write events.
@@ -453,9 +272,6 @@ protected:
 	void
 	register_filedesc_w(int fd);
 
-
-
-
 	/**
 	 * @brief	Deregisters a file descriptor from write events.
 	 *
@@ -464,13 +280,15 @@ protected:
 	void
 	deregister_filedesc_w(int fd);
 
-
-
 	/**@}*/
 
-
-
 protected:
+
+	/**
+	 *
+	 */
+	ctimer
+	get_next_timer();
 
 	/**
 	 * @name Management methods for timers
@@ -478,17 +296,15 @@ protected:
 
 	/**@{*/
 
-
 	/**
 	 * @brief	Installs a new timer to fire in t seconds.
 	 *
 	 * @param opaque this timer type can be arbitrarily chosen
 	 * @param t timeout in seconds of this timer
+	 * @return timer handle
 	 */
-	void
+	uint32_t
 	register_timer(int opaque, time_t t);
-
-
 
 	/**
 	 * @brief	Resets a running timer of type opaque.
@@ -497,11 +313,10 @@ protected:
 	 *
 	 * @param opaque this timer type can be arbitrarily chosen
 	 * @param t timeout in seconds of this timer
+	 * @return timer handle
 	 */
-	void
-	reset_timer(int opaque, time_t t);
-
-
+	uint32_t
+	reset_timer(uint32_t timer_id, time_t t);
 
 	/**
 	 * @brief	Checks for a pending timer of type opaque.
@@ -510,9 +325,7 @@ protected:
 	 * @return true: timer of type opaque exists, false: no pending timer
 	 */
 	bool
-	pending_timer(int opaque);
-
-
+	pending_timer(uint32_t timer_id);
 
 	/**
 	 * @brief	Cancels a pending timer.
@@ -520,10 +333,7 @@ protected:
 	 * @param opaque timer type the caller is seeking for
 	 */
 	void
-	cancel_timer(int opaque);
-
-
-
+	cancel_timer(uint32_t timer_id);
 
 	/**
 	 * @brief	Cancels all pending timer of this instance.
@@ -532,120 +342,263 @@ protected:
 	void
 	cancel_all_timer();
 
-
 	/**@}*/
 
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, ciosrv const& iosvc) {
+		os << indent(0) << "<ciosrv >" << std::endl;
+			os << indent(2) << "<rfds: ";
+			for (std::set<int>::const_iterator it = iosvc.rfds.begin(); it != iosvc.rfds.end(); ++it) {
+				os << (*it) << " ";
+			}
+			os << ">" << std::endl;
+			os << indent(2) << "<wfds: ";
+			for (std::set<int>::const_iterator it = iosvc.wfds.begin(); it != iosvc.wfds.end(); ++it) {
+				os << (*it) << " ";
+			}
+			os << ">" << std::endl;
+
+			{ indent i(2); os << iosvc.timers; }
+			{ indent i(2); os << iosvc.events; }
+		return os;
+	};
+};
 
 
 
 
-private: // data structures
-
-	pthread_t tid; //< ID of this thread
-
-	pthread_mutex_t event_mutex; //< mutex for event list
-
-	pthread_mutex_t timer_mutex; //< mutex for timer_list
-
-	std::list<cevent*> events; //< list of pending events
-
-	struct timeval* tv; //< timeval structure for timeout for select()
-
-	std::map<time_t, std::list<int> > timers_list; //< map of all pending timers for this instance
-
-	cmemory tv_mem; //< memory for timeval structure
-
-	std::string info;
 
 
-private: // methods
+class cioloop {
 
-	/** check for existence of ciosrv
+	static PthreadRwLock 					threads_rwlock;
+	static std::map<pthread_t, cioloop*> 	threads;
+
+	std::vector<ciosrv*>					rfds;
+	PthreadRwLock							rfds_rwlock;
+	std::vector<ciosrv*>					wfds;
+	PthreadRwLock							wfds_rwlock;
+	std::map<ciosrv*, bool>					timers;
+	PthreadRwLock							timers_rwlock;
+
+	pthread_t        			       		tid;
+	struct timespec 						ts;
+	bool									keep_on_running;
+
+	unsigned int							minrfd; // lowest set readfd
+	unsigned int							maxrfd; // highest set readfd
+	unsigned int							minwfd; // lowest set writefd
+	unsigned int							maxwfd; // highest set writefd
+
+public:
+
+	friend class ciosrv;
+
+
+public:
+
+	/**
 	 *
 	 */
-	static ciosrv*
-	ciosrv_exists(ciosrv* iosrv) throw (eIoSvcNotFound);
-
-
-	/**
-	 * Prepare struct fd_set's for select().
-	 * This private method fills in fd_sets for calling select().
-	 * Each ciosrv instance holds two STL-sets for storing read and
-	 * write file descriptors. fdset() will query all ciosrv instances
-	 * (stored in ciosrv::ciosrv_list) for the read/write descriptors
-	 * and fill that into the struct fd_set suitable for calling select().
-	 * It sets the maxfd number for select() appropriately and selects
-	 * the next timeout from the ciosrv instances.
-	 * @param maxfd The reference to maxfd will be set to the highest
-	 * file descriptor value incremented by one
-	 * @param readfds pointer to the read_fds structure
-	 * @param writefds pointer to the write_fds structure
-	 * @param ntimeout this reference value is filled with the next timeout value
-	 *
-	 */
-	static void
-	fdset(
-			int& maxfd,
-			fd_set* readfds,
-			fd_set* writefds);
-
-	/**
-	 * find next timeout from all ciosrv instances
-	 */
-	static void
-	next_timeout(
-			time_t &ntimeout);
-
-	/**
-	 * Handle file descriptors after returning from select().
-	 * This static method checks which file descriptors have had an IO event
-	 * and will call the appropriate handler methods of the ciosrv instances, i.e.
-	 * handle_revent(), handle_wevent(), handle_xevent(), handle_timeout().
-	 * @param rc result code obtained from select() call
-	 * @param readfds read fd_set structure as set by select()
-	 * @param writefds write fd_set structure as set by select()
-	 * @param exceptfds exception fd_set structure as set by select()
-	 */
-	static void
-	handle(
-			int rc,
-			fd_set* readfds,
-			fd_set* writefds,
-			fd_set* exceptfds);
+	static cioloop&
+	get_loop() {
+		pthread_t tid = pthread_self();
+		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
+			cioloop::threads[tid] = new cioloop();
+		}
+		return *(cioloop::threads[tid]);
+	};
 
 	/**
 	 *
 	 */
 	static void
-	handle_rfds(std::list<int>& rfds,
-			int rc,
-			fd_set* readfds,
-			fd_set* exceptfds);
-
+	run() {
+		cioloop::get_loop().run_loop();
+	};
 
 	/**
 	 *
 	 */
 	static void
-	handle_wfds(std::list<int>& wfds,
-			int rc,
-			fd_set* writefds,
-			fd_set* exceptfds);
-
-
-	/**
-	 *
-	 */
-	static void
-	handle_timeouts();
+	stop() {
+		pthread_t tid = pthread_self();
+		if (cioloop::threads.find(tid) == cioloop::threads.end()) {
+			return;
+		}
+		cioloop::threads[tid]->keep_on_running = false;
+	};
 
 	/**
 	 *
 	 */
 	static void
-	handle_events(int rc,
-			fd_set* readfds,
-			fd_set* exceptfds);
+	shutdown() {
+		for (std::map<pthread_t, cioloop*>::iterator
+				it = cioloop::threads.begin(); it != cioloop::threads.end(); ++it) {
+			delete it->second;
+		}
+		cioloop::threads.clear();
+	};
+
+public:
+
+
+	/**
+	 *
+	 */
+	void
+	add_readfd(ciosrv* iosrv, int fd) {
+		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
+		rfds[fd] = iosrv;
+
+		minrfd = (minrfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minrfd;
+		maxrfd = (maxrfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxrfd;
+	};
+
+	/**
+	 *
+	 */
+	void
+	drop_readfd(ciosrv* iosrv, int fd) {
+		RwLock lock(rfds_rwlock, RwLock::RWLOCK_WRITE);
+		rfds[fd] = NULL;
+
+		if (minrfd == (unsigned int)(fd+0)) {
+			minrfd = rfds.size();
+			for (unsigned int i = fd + 1; i < rfds.size(); i++) {
+				if (rfds[i] != NULL) {
+					minrfd = i;
+					break;
+				}
+			}
+		}
+
+		if (maxrfd == (unsigned int)(fd+1)) {
+			maxrfd = 0;
+			for (unsigned int i = fd; i > 0; i--) {
+				if (rfds[i] != NULL) {
+					maxrfd = (i+1);
+					break;
+				}
+			}
+		}
+	};
+
+	/**
+	 *
+	 */
+	void
+	add_writefd(ciosrv* iosrv, int fd) {
+		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
+		wfds[fd] = iosrv;
+
+		minwfd = (minwfd > (unsigned int)(fd+0)) ? (unsigned int)(fd+0) : minwfd;
+		maxwfd = (maxwfd < (unsigned int)(fd+1)) ? (unsigned int)(fd+1) : maxwfd;
+	};
+
+	/**
+	 *
+	 */
+	void
+	drop_writefd(ciosrv* iosrv, int fd) {
+		RwLock lock(wfds_rwlock, RwLock::RWLOCK_WRITE);
+		wfds[fd] = NULL;
+
+		if (minwfd == (unsigned int)(fd+0)) {
+			minwfd = wfds.size();
+			for (unsigned int i = fd + 1; i < wfds.size(); i++) {
+				if (wfds[i] != NULL) {
+					minwfd = i;
+					break;
+				}
+			}
+		}
+
+		if (maxwfd == (unsigned int)(fd+1)) {
+			maxwfd = 0;
+			for (unsigned int i = fd; i > 0; i--) {
+				if (wfds[i] != NULL) {
+					maxwfd = (i+1);
+					break;
+				}
+			}
+		}
+	};
+
+	/**
+	 *
+	 */
+	void
+	has_timer(ciosrv* iosrv) {
+		RwLock lock(timers_rwlock, RwLock::RWLOCK_WRITE);
+		timers[iosrv] = true;
+	};
+
+	/**
+	 *
+	 */
+	void
+	has_no_timer(ciosrv *iosrv) {
+		RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
+		timers[iosrv] = false;
+	};
+
+
+private:
+
+	/**
+	 *
+	 */
+	cioloop() :
+		tid(pthread_self()),
+		keep_on_running(false) {
+
+		struct rlimit rlim;
+		if (getrlimit(RLIMIT_NOFILE, &rlim) < 0) {
+			throw eSysCall("getrlimit()");
+		}
+		for (unsigned int i = 0; i < rlim.rlim_cur; i++) {
+			rfds.push_back(NULL);
+			wfds.push_back(NULL);
+		}
+		minrfd = rfds.size();
+		maxrfd = 0;
+		minwfd = wfds.size();
+		maxwfd = 0;
+	};
+
+	/**
+	 *
+	 */
+	virtual
+	~cioloop() {};
+
+	/**
+	 *
+	 */
+	cioloop(cioloop const& t) {
+		*this = t;
+	};
+
+	/**
+	 *
+	 */
+	cioloop&
+	operator= (cioloop const& t) {
+		if (this == &t)
+			return *this;
+		return *this;
+	};
+
+	/**
+	 * returns immediately, when called twice => checks keep_on_running flag
+	 */
+	void
+	run_loop();
+
 
 	/**
 	 * A signal handler.
@@ -654,14 +607,43 @@ private: // methods
 	static void
 	child_sig_handler (int x);
 
-	/**
-	 *
-	 */
-	void
-	__handle_timeout();
 
 
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cioloop const& ioloop) {
+		os << indent(0) << "<cioloop >" << std::endl;
+
+		os << indent(2) << "<read-fds: ";
+		for (unsigned int i = 0; i < ioloop.rfds.size(); ++i) {
+			if (NULL != ioloop.rfds.at(i)) {
+				os << i << " ";
+			}
+		}
+		os << ">" << std::endl;
+
+		os << indent(2) << "<write-fds: ";
+		for (unsigned int i = 0; i < ioloop.wfds.size(); ++i) {
+			if (NULL != ioloop.wfds.at(i)) {
+				os << i << " ";
+			}
+		}
+		os << ">" << std::endl;
+
+		os << indent(2) << "<instances with timer needs: ";
+		// locking?
+		for (std::map<ciosrv*, bool>::const_iterator
+				it = ioloop.timers.begin(); it != ioloop.timers.end(); ++it) {
+			os << it->first << ":" << it->second << " ";
+		}
+		os << ">" << std::endl;
+
+		return os;
+	};
 };
+
+
 
 }; // end of namespace
 

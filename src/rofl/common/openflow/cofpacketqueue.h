@@ -10,19 +10,19 @@
 
 #include <ostream>
 
-#include "../cmemory.h"
-#include "../cerror.h"
-#include "openflow.h"
-#include "openflow_rofl_exceptions.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
-#include "cofqueueproplist.h"
+#include "rofl/common/openflow/cofqueueproplist.h"
 
 namespace rofl
 {
 
 
-class ePacketQueueBase : public cerror {};
-class ePacketQueueNotFound : public ePacketQueueBase {};
+class ePacketQueueBase 		: public RoflException {};
+class ePacketQueueNotFound 	: public ePacketQueueBase {};
 
 
 class cofpacket_queue :
@@ -34,9 +34,9 @@ private:
 	cofqueue_prop_list	qpl;	//< list of queue properties
 
 	union {
-		uint8_t						*ofpu_pqueue;
-		struct ofp10_packet_queue	*ofpu10_pqueue;
-		struct ofp12_packet_queue	*ofpu12_pqueue;
+		uint8_t								*ofpu_pqueue;
+		struct openflow10::ofp_packet_queue	*ofpu10_pqueue;
+		struct openflow12::ofp_packet_queue	*ofpu12_pqueue;
 	} ofp_ofpu;
 
 #define ofp_pqueue		ofp_ofpu.ofpu_pqueue
@@ -44,18 +44,6 @@ private:
 #define ofp12_pqueue	ofp_ofpu.ofpu12_pqueue
 
 
-	/**
-	 *
-	 */
-	friend std::ostream&
-	operator<< (std::ostream& os, cofpacket_queue const& pq)
-	{
-		os 	<< "PacketQueue["
-				<< "port:" 			<< pq.get_port() << " "
-				<< "queueid: " 	<< pq.get_queue_id() << " "
-				<< "properties: " 	<< pq.qpl << "]";
-		return os;
-	};
 
 
 public:
@@ -64,7 +52,7 @@ public:
 	 *
 	 */
 	cofpacket_queue(
-			uint8_t of_version = OFP12_VERSION);
+			uint8_t of_version = openflow12::OFP_VERSION);
 
 
 	/**
@@ -153,6 +141,18 @@ public:
 	 */
 	cofqueue_prop_list&
 	get_queue_prop_list();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofpacket_queue const& pq) {
+		os 	<< indent(0) << "<PacketQueue >" << std::endl;
+			os << indent(2) << "<port:0x" << std::hex << (int)pq.get_port() << std::dec << " >" << std::endl;
+			os << indent(2) << "<queueid:" << (int)pq.get_queue_id() << " >" << std::endl;
+			indent i(2);
+			os << pq.qpl;
+		return os;
+	};
 };
 
 }

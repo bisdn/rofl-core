@@ -105,6 +105,17 @@ public:
 	 */
 	virtual void
 	validate();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_table_stats_request const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		indent i(2);
+		os << dynamic_cast<cofmsg_stats const&>( msg );
+		os << indent(2) << "<cofmsg_table_stats_request >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -120,8 +131,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_table_stats;
-		struct ofp10_table_stats*		ofhu10_table_stats;
-		struct ofp12_table_stats*		ofhu12_table_stats;
+		struct openflow10::ofp_table_stats*		ofhu10_table_stats;
+		struct openflow12::ofp_table_stats*		ofhu12_table_stats;
 		// TODO: OF1.3
 	} ofhu;
 
@@ -220,6 +231,20 @@ public:
 	 */
 	std::vector<coftable_stats_reply>&
 	get_table_stats();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_table_stats_reply const& msg) {
+		os << indent(0) << dynamic_cast<cofmsg_stats const&>( msg );
+		os << indent(4) << "<cofmsg_table_stats_reply >" << std::endl;
+		indent i(6);
+		for (std::vector<coftable_stats_reply>::const_iterator
+				it = msg.table_stats.begin(); it != msg.table_stats.end(); ++it) {
+			os << (*it);
+		}
+		return os;
+	};
 };
 
 } // end of namespace rofl

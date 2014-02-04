@@ -8,12 +8,12 @@
 #ifndef COFQUEUEPROPLIST_H_
 #define COFQUEUEPROPLIST_H_ 1
 
-#include "../cvastring.h"
-#include "../cerror.h"
-#include "../coflist.h"
-#include "openflow.h"
+#include "rofl/common/cvastring.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/coflist.h"
+#include "rofl/common/openflow/openflow.h"
 
-#include "cofqueueprop.h"
+#include "rofl/common/openflow/cofqueueprop.h"
 
 namespace rofl
 {
@@ -103,12 +103,12 @@ public:
 	 *
 	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, cofqueue_prop_list const& qpl)
-	{
-		os << "QueuePropertyList: ";
+	operator<< (std::ostream& os, cofqueue_prop_list const& qpl) {
+		os << indent(0) << "<QueuePropertyList >";
+		indent i(2);
 		for (cofqueue_prop_list::const_iterator
 				it = qpl.begin(); it != qpl.end(); ++it) {
-			os << (*it) << " ";
+			os << (*it);
 		}
 		return os;
 	};

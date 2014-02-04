@@ -12,7 +12,7 @@ ROFL_END_DECLS
 #include "rofl/common/cmacaddr.h"
 #include "rofl/common/caddress.h"
 #include "rofl/common/crofbase.h"
-#include "rofl/common/openflow/cofdpt.h"
+#include "rofl/common/crofdpt.h"
 
 #include "ofperftest.h"
 
@@ -45,6 +45,7 @@ private:
 public:
 
 	mmap_test(
+			cofhello_elem_versionbitmap const& versionbitmap,
 			caddress const& laddr = caddress(AF_INET, "0.0.0.0", 4444),
 			unsigned int burst_interval = MMAP_TEST_DEFAULT_BURST_INTERVAL,
 			unsigned int pkt_interval = MMAP_TEST_DEFAULT_PKT_INTERVAL,
@@ -62,7 +63,7 @@ public:
 protected:
 
 	virtual void
-	handle_timeout(int opaque);
+	handle_timeout(int opaque, void *data = (void*)0);
 
 private:
 

@@ -2,7 +2,8 @@
 
 #include <inttypes.h>
 
-mmap_test::mmap_test(caddress const& laddr, unsigned int burst_interval, unsigned int pkt_interval, size_t pkt_len) :
+mmap_test::mmap_test(cofhello_elem_versionbitmap const& versionbitmap, caddress const& laddr, unsigned int burst_interval, unsigned int pkt_interval, size_t pkt_len) :
+	ofperftest(versionbitmap),
 	sock(0),
 	laddr(laddr),
 	burst_interval(burst_interval),
@@ -15,7 +16,7 @@ mmap_test::mmap_test(caddress const& laddr, unsigned int burst_interval, unsigne
 
 	sock = new csocket(this, AF_INET, SOCK_DGRAM, 0 /* udp */, 10);
 
-	sock->clisten(laddr, AF_INET, SOCK_DGRAM, 0, 10);
+	sock->listen(laddr, AF_INET, SOCK_DGRAM, 0, 10);
 
 	register_timer(MMAP_TEST_TIMER_PKT_INTERVAL, 0);
 
@@ -32,7 +33,7 @@ mmap_test::~mmap_test()
 
 
 void
-mmap_test::handle_timeout(int opaque)
+mmap_test::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
 	case MMAP_TEST_TIMER_PKT_INTERVAL: {
@@ -76,7 +77,7 @@ mmap_test::udp_send()
 			payload[7+i*sizeof(uint64_t)] = ((uint8_t*)&seqno)[0];
 		}
 
-		fprintf(stderr, "payload: %s\n", payload.c_str());
+		std::cerr << "payload: " << payload << std::endl;
 
 		seqno++;
 
@@ -94,7 +95,7 @@ mmap_test::udp_send()
 			fprintf(stderr, "seqno: %"PRIu64" dport: %d laddr: %s raddr(orig): %s raddr(dport): %s\n",
 					seqno, dport, laddr.c_str(), ra.c_str(), raddr.c_str());
 
-			sock->send_packet(new cmemory(payload), raddr);
+			sock->send(new cmemory(payload), raddr);
 
 #if 1
 			struct timeval timeout;

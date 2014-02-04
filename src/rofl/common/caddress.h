@@ -26,16 +26,15 @@
 #endif
 
 #include "cvastring.h"
-#include "cerror.h"
+#include "croflexception.h"
 #include "cmemory.h"
-#include "rofl/platform/unix/csyslog.h"
-#include <rofl/datapath/pipeline/common/large_types.h>
+#include "rofl/datapath/pipeline/common/large_types.h"
 
 namespace rofl
 {
 
 /* error classes */
-class eAddress 							: public cerror {}; // base class caddress related errors
+class eAddress 							: public RoflException {}; // base class caddress related errors
 class eAddressIoctlFailed 				: public eAddress {};
 class eAddressSocketFailed 				: public eAddress {};
 class eAddressSocketFailedNoPermission 	: public eAddressSocketFailed {};

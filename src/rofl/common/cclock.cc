@@ -31,23 +31,25 @@ cclock::cclock(
 		time_t delta_sec,
 		time_t delta_nsec)
 {
-	ts.tv_sec 	= 0;
-	ts.tv_nsec 	= 0;
 	current_time();
 	ts.tv_sec += delta_sec;
 	ts.tv_nsec += delta_nsec;
 }
 
-cclock::cclock(const cclock& cc)
+
+
+cclock::cclock(const cclock& clk)
 {
-	*this = cc;
+	*this = clk;
 }
+
 
 
 cclock::~cclock()
 {
 
 }
+
 
 
 cclock&
@@ -61,6 +63,7 @@ cclock::operator =(const cclock& cc)
 
 	return *this;
 }
+
 
 
 cclock
@@ -79,6 +82,7 @@ cclock::operator+ (cclock const& cc)
 
 	return clock;
 }
+
 
 
 cclock
@@ -101,6 +105,7 @@ cclock::operator- (cclock const& cc)
 }
 
 
+
 cclock&
 cclock::operator+= (cclock const& cc)
 {
@@ -115,6 +120,7 @@ cclock::operator+= (cclock const& cc)
 
 	return *this;
 }
+
 
 
 cclock&
@@ -135,11 +141,13 @@ cclock::operator-= (cclock const& cc)
 }
 
 
+
 bool
-cclock::operator!= (cclock const& cc) const
+cclock::operator!= (cclock const& clk) const
 {
-	return not (*this == cc);
+	return not (*this == clk);
 }
+
 
 
 bool
@@ -202,33 +210,13 @@ cclock::operator== (cclock const& cc) const
 
 
 
-
 void
 cclock::current_time()
 {
-	int rc = 0;
-
-	if ((rc = clock_gettime(CLOCK_REALTIME, &ts)) < 0)
-	{
-		WRITELOG(CCLOCK, DBG, "cclock(%p) failed to read time: errno:%d (%s)",
-				this, errno, strerror(errno));
+	if (clock_gettime(CLOCK_REALTIME, &ts) < 0) {
+		logging::error << "cclock: failed to read time: "
+				<< eSysCall("clock_gettime") << std::endl;
 	}
 }
 
 
-const char*
-cclock::c_str()
-{
-	cvastring vas;
-
-#if 0
-	info.assign(vas("cclock(%p)   creation:%ld:%ld   since:%ld:%ld",
-			this,
-			ts.tv_sec, ts.tv_nsec,
-			now.ts.tv_sec - ts.tv_sec, now.ts.tv_nsec - ts.tv_nsec));
-#endif
-	info.assign(vas("timeout: [%ld:%ld]", ts.tv_sec, ts.tv_nsec));
-	//cclock::now().ts.tv_sec - ts.tv_sec, cclock::now().ts.tv_nsec - ts.tv_nsec));
-
-	return info.c_str();
-}

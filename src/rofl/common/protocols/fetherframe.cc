@@ -201,31 +201,3 @@ fetherframe::get_dl_type() const
 	return be16toh(eth_hdr->dl_type);
 }
 
-
-
-
-const char*
-fetherframe::c_str()
-{
-	cvastring vas;
-
-	info.assign(vas("[fetherframe(%p) dst:%02x:%02x:%02x:%02x:%02x:%02x "
-			"src:%02x:%02x:%02x:%02x:%02x:%02x type:0x%04x %s]",
-			this,
-			eth_hdr->dl_dst[0],
-			eth_hdr->dl_dst[1],
-			eth_hdr->dl_dst[2],
-			eth_hdr->dl_dst[3],
-			eth_hdr->dl_dst[4],
-			eth_hdr->dl_dst[5],
-			eth_hdr->dl_src[0],
-			eth_hdr->dl_src[1],
-			eth_hdr->dl_src[2],
-			eth_hdr->dl_src[3],
-			eth_hdr->dl_src[4],
-			eth_hdr->dl_src[5],
-			be16toh(eth_hdr->dl_type),
-			fframe::c_str()));
-
-	return info.c_str();
-}

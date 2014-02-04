@@ -9,7 +9,6 @@
 #define COFMSG_CONFIG_H_A 1
 
 #include "cofmsg.h"
-#include "rofl/common/openflow/cofportlist.h"
 
 namespace rofl
 {
@@ -91,6 +90,15 @@ public:
 	 */
 	virtual void
 	validate();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_get_config_request const& msg) {
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_get_config_request >" << std::endl;;
+		return os;
+	};
 };
 
 
@@ -104,9 +112,9 @@ private:
 
 	union {
 		uint8_t*					ofhu_switch_config;
-		struct ofp10_switch_config*	ofhu10_switch_config;
-		struct ofp12_switch_config*	ofhu12_switch_config;
-		struct ofp13_switch_config*	ofhu13_switch_config;
+		struct openflow10::ofp_switch_config*	ofhu10_switch_config;
+		struct openflow12::ofp_switch_config*	ofhu12_switch_config;
+		struct openflow13::ofp_switch_config*	ofhu13_switch_config;
 	} ofhu;
 
 #define ofh_switch_config   ofhu.ofhu_switch_config
@@ -222,6 +230,50 @@ public:
 	 */
 	void
 	set_miss_send_len(uint16_t miss_send_len);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_get_config_reply const& msg) {
+		std::string s_flags;
+		switch (msg.get_version()) {
+		case openflow10::OFP_VERSION: {
+			if ((msg.get_flags() & openflow10::OFPC_FRAG_DROP) == openflow10::OFPC_FRAG_NORMAL)
+				s_flags.append("FRAG-NORMAL ");
+			if (msg.get_flags() & openflow10::OFPC_FRAG_DROP)
+				s_flags.append("FRAG-DROP ");
+			if (msg.get_flags() & openflow10::OFPC_FRAG_REASM)
+				s_flags.append("FRAG-REASM ");
+		} break;
+		case openflow12::OFP_VERSION: {
+			if ((msg.get_flags() & openflow12::OFPC_FRAG_DROP) == openflow12::OFPC_FRAG_NORMAL)
+				s_flags.append("FRAG-NORMAL ");
+			if (msg.get_flags() & openflow12::OFPC_FRAG_DROP)
+				s_flags.append("FRAG-DROP ");
+			if (msg.get_flags() & openflow12::OFPC_FRAG_REASM)
+				s_flags.append("FRAG-REASM ");
+			if (msg.get_flags() & openflow12::OFPC_INVALID_TTL_TO_CONTROLLER)
+				s_flags.append("INVALID-TTL-TO-CONTROLLER ");
+		} break;
+		case openflow13::OFP_VERSION: {
+			if ((msg.get_flags() & openflow13::OFPC_FRAG_DROP) == openflow13::OFPC_FRAG_NORMAL)
+				s_flags.append("FRAG-NORMAL ");
+			if (msg.get_flags() & openflow13::OFPC_FRAG_DROP)
+				s_flags.append("FRAG-DROP ");
+			if (msg.get_flags() & openflow13::OFPC_FRAG_REASM)
+				s_flags.append("FRAG-REASM ");
+		} break;
+		default:
+			s_flags.append("unsupported OF version");
+			break;
+		}
+		os << indent(0) << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_get_config_reply ";
+		os << "miss-send-len:" << (int)msg.get_miss_send_len() << " ";
+		os << "flags:" << s_flags << " ";
+		os << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -235,10 +287,10 @@ class cofmsg_set_config :
 private:
 
 	union {
-		uint8_t*					ofhu_switch_config;
-		struct ofp10_switch_config*	ofhu10_switch_config;
-		struct ofp12_switch_config*	ofhu12_switch_config;
-		struct ofp13_switch_config*	ofhu13_switch_config;
+		uint8_t*								ofhu_switch_config;
+		struct openflow10::ofp_switch_config*	ofhu10_switch_config;
+		struct openflow12::ofp_switch_config*	ofhu12_switch_config;
+		struct openflow13::ofp_switch_config*	ofhu13_switch_config;
 	} ofhu;
 
 #define ofh_switch_config   ofhu.ofhu_switch_config
@@ -354,6 +406,50 @@ public:
 	 */
 	void
 	set_miss_send_len(uint16_t miss_send_len);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_set_config const& msg) {
+		std::string s_flags;
+		switch (msg.get_version()) {
+		case openflow10::OFP_VERSION: {
+			if ((msg.get_flags() & openflow10::OFPC_FRAG_DROP) == openflow10::OFPC_FRAG_NORMAL)
+				s_flags.append("FRAG-NORMAL ");
+			if (msg.get_flags() & openflow10::OFPC_FRAG_DROP)
+				s_flags.append("FRAG-DROP ");
+			if (msg.get_flags() & openflow10::OFPC_FRAG_REASM)
+				s_flags.append("FRAG-REASM ");
+		} break;
+		case openflow12::OFP_VERSION: {
+			if ((msg.get_flags() & openflow12::OFPC_FRAG_DROP) == openflow12::OFPC_FRAG_NORMAL)
+				s_flags.append("FRAG-NORMAL ");
+			if (msg.get_flags() & openflow12::OFPC_FRAG_DROP)
+				s_flags.append("FRAG-DROP ");
+			if (msg.get_flags() & openflow12::OFPC_FRAG_REASM)
+				s_flags.append("FRAG-REASM ");
+			if (msg.get_flags() & openflow12::OFPC_INVALID_TTL_TO_CONTROLLER)
+				s_flags.append("INVALID-TTL-TO-CONTROLLER ");
+		} break;
+		case openflow13::OFP_VERSION: {
+			if ((msg.get_flags() & openflow13::OFPC_FRAG_DROP) == openflow13::OFPC_FRAG_NORMAL)
+				s_flags.append("FRAG-NORMAL ");
+			if (msg.get_flags() & openflow13::OFPC_FRAG_DROP)
+				s_flags.append("FRAG-DROP ");
+			if (msg.get_flags() & openflow13::OFPC_FRAG_REASM)
+				s_flags.append("FRAG-REASM ");
+		} break;
+		default:
+			s_flags.append("unsupported OF version");
+			break;
+		}
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_set_config ";
+		os << "miss-send-len:" << (int)msg.get_miss_send_len() << " ";
+		os << "flags:" << s_flags << " ";
+		os << " >" << std::endl;
+		return os;
+	};
 };
 
 

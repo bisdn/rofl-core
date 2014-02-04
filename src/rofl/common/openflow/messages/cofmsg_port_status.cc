@@ -7,7 +7,7 @@ cofmsg_port_status::cofmsg_port_status(
 		uint32_t xid,
 		uint8_t reason,
 		cofport const& port) :
-	cofmsg(sizeof(struct ofp_header)),
+	cofmsg(sizeof(struct openflow::ofp_header)),
 	port(port)
 {
 	ofh_port_status = soframe();
@@ -16,29 +16,29 @@ cofmsg_port_status::cofmsg_port_status(
 	set_xid(xid);
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		set_type(OFPT10_PORT_STATUS);
-		resize(sizeof(struct ofp10_port_status));
-		set_length(sizeof(struct ofp10_port_status));
+	case openflow10::OFP_VERSION: {
+		set_type(openflow10::OFPT_PORT_STATUS);
+		resize(sizeof(struct openflow10::ofp_port_status));
+		set_length(sizeof(struct openflow10::ofp_port_status));
 
 		ofh10_port_status->reason			= reason;
-		port.pack(&(ofh10_port_status->desc), sizeof(struct ofp10_port));
+		this->port.pack((uint8_t*)&(ofh10_port_status->desc), sizeof(struct openflow10::ofp_port));
 	} break;
-	case OFP12_VERSION: {
-		set_type(OFPT12_PORT_STATUS);
-		resize(sizeof(struct ofp12_port_status));
-		set_length(sizeof(struct ofp12_port_status));
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_PORT_STATUS);
+		resize(sizeof(struct openflow12::ofp_port_status));
+		set_length(sizeof(struct openflow12::ofp_port_status));
 
 		ofh12_port_status->reason			= reason;
-		port.pack(&(ofh12_port_status->desc), sizeof(struct ofp12_port));
+		this->port.pack((uint8_t*)&(ofh12_port_status->desc), sizeof(struct openflow12::ofp_port));
 	} break;
-	case OFP13_VERSION: {
-		set_type(OFPT13_PORT_STATUS);
-		resize(sizeof(struct ofp13_port_status));
-		set_length(sizeof(struct ofp13_port_status));
+	case openflow13::OFP_VERSION: {
+		set_type(openflow13::OFPT_PORT_STATUS);
+		resize(sizeof(struct openflow13::ofp_port_status));
+		set_length(sizeof(struct openflow13::ofp_port_status));
 
 		ofh13_port_status->reason			= reason;
-		port.pack(&(ofh13_port_status->desc), sizeof(struct ofp13_port));
+		this->port.pack((uint8_t*)&(ofh13_port_status->desc), sizeof(struct openflow13::ofp_port));
 	} break;
 	default:
 		throw eBadVersion();
@@ -49,7 +49,8 @@ cofmsg_port_status::cofmsg_port_status(
 
 cofmsg_port_status::cofmsg_port_status(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	port(get_version())
 {
 	ofh_port_status = soframe();
 }
@@ -110,14 +111,14 @@ size_t
 cofmsg_port_status::length() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		return sizeof(struct ofp10_port_status);
+	case openflow10::OFP_VERSION: {
+		return sizeof(struct openflow10::ofp_port_status);
 	} break;
-	case OFP12_VERSION: {
-		return sizeof(struct ofp12_port_status);
+	case openflow12::OFP_VERSION: {
+		return sizeof(struct openflow12::ofp_port_status);
 	} break;
-	case OFP13_VERSION: {
-		return sizeof(struct ofp13_port_status);
+	case openflow13::OFP_VERSION: {
+		return sizeof(struct openflow13::ofp_port_status);
 	} break;
 	default:
 		throw eBadVersion();
@@ -139,16 +140,16 @@ cofmsg_port_status::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (ofh_header->version) {
-	case OFP10_VERSION: {
-		port.pack(&(ofh10_port_status->desc), sizeof(struct ofp10_port));
+	case openflow10::OFP_VERSION: {
+		port.pack((uint8_t*)&(ofh10_port_status->desc), sizeof(struct openflow10::ofp_port));
 		memcpy(buf, soframe(), framelen());
 	} break;
-	case OFP12_VERSION: {
-		port.pack(&(ofh12_port_status->desc), sizeof(struct ofp12_port));
+	case openflow12::OFP_VERSION: {
+		port.pack((uint8_t*)&(ofh12_port_status->desc), sizeof(struct openflow12::ofp_port));
 		memcpy(buf, soframe(), framelen());
 	} break;
-	case OFP13_VERSION: {
-		port.pack(&(ofh13_port_status->desc), sizeof(struct ofp13_port));
+	case openflow13::OFP_VERSION: {
+		port.pack((uint8_t*)&(ofh13_port_status->desc), sizeof(struct openflow13::ofp_port));
 		memcpy(buf, soframe(), framelen());
 	} break;
 	default:
@@ -176,23 +177,23 @@ cofmsg_port_status::validate()
 	ofh_port_status = soframe();
 
 	switch (get_version()) {
-	case OFP10_VERSION: {
-		if (get_length() < sizeof(struct ofp10_port_status))
+	case openflow10::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow10::ofp_port_status))
 			throw eBadSyntaxTooShort();
 
-		port.unpack(&(ofh10_port_status->desc), sizeof(struct ofp10_port));
+		port.unpack((uint8_t*)&(ofh10_port_status->desc), sizeof(struct openflow10::ofp_port));
 	} break;
-	case OFP12_VERSION: {
-		if (get_length() < sizeof(struct ofp12_port_status))
+	case openflow12::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow12::ofp_port_status))
 			throw eBadSyntaxTooShort();
 
-		port.unpack(&(ofh12_port_status->desc), sizeof(struct ofp12_port));
+		port.unpack((uint8_t*)&(ofh12_port_status->desc), sizeof(struct openflow12::ofp_port));
 	} break;
-	case OFP13_VERSION: {
-		if (get_length() < sizeof(struct ofp13_port_status))
+	case openflow13::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow13::ofp_port_status))
 			throw eBadSyntaxTooShort();
 
-		port.unpack(&(ofh13_port_status->desc), sizeof(struct ofp13_port));
+		port.unpack((uint8_t*)&(ofh13_port_status->desc), sizeof(struct openflow13::ofp_port));
 	} break;
 	default:
 		throw eBadRequestBadVersion();
@@ -205,13 +206,13 @@ uint8_t
 cofmsg_port_status::get_reason() const
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		return (ofh10_port_status->reason);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return (ofh12_port_status->reason);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return (ofh13_port_status->reason);
 	} break;
 	default:
@@ -226,13 +227,13 @@ void
 cofmsg_port_status::set_reason(uint8_t reason)
 {
 	switch (get_version()) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		ofh10_port_status->reason = (reason);
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_port_status->reason = (reason);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_port_status->reason = (reason);
 	} break;
 	default:

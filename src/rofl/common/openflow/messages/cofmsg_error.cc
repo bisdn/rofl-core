@@ -9,28 +9,31 @@ cofmsg_error::cofmsg_error(
 		uint16_t err_code,
 		uint8_t* data,
 		size_t datalen) :
-	cofmsg(sizeof(struct ofp_error_msg)),
+	cofmsg(sizeof(struct openflow::ofp_header)),
 	body(0)
 {
-	
+	size_t len = (datalen > 64) ? 64 : datalen;
 
-	cofmsg::resize(sizeof(struct ofp_error_msg) + datalen);
-	body.assign(data, datalen);
-    err_msg = (struct ofp_error_msg*)soframe();
+	body.assign(data, len);
 
 	set_version(of_version);
-	set_length(sizeof(struct ofp_error_msg) + datalen);
 	set_xid(xid);
 
 	switch (of_version) {
 	case OFP10_VERSION: {
-		set_type(OFPT10_ERROR);
+		resize(sizeof(struct openflow10::ofp_error_msg) + datalen);
+		set_type(openflow10::OFPT_ERROR);
+		set_length(sizeof(struct openflow10::ofp_error_msg) + datalen);
 	} break;
 	case OFP12_VERSION: {
-		set_type(OFPT12_ERROR);
+		resize(sizeof(struct openflow12::ofp_error_msg) + datalen);
+		set_type(openflow12::OFPT_ERROR);
+		set_length(sizeof(struct openflow12::ofp_error_msg) + datalen);
 	} break;
 	case OFP13_VERSION: {
-		set_type(OFPT13_ERROR);
+		resize(sizeof(struct openflow13::ofp_error_msg) + datalen);
+		set_type(openflow13::OFPT_ERROR);
+		set_length(sizeof(struct openflow13::ofp_error_msg) + datalen);
 	} break;
 	}
 
@@ -44,7 +47,7 @@ cofmsg_error::cofmsg_error(
 		cmemory *memarea) :
 	cofmsg(memarea)
 {
-	err_msg = (struct ofp_error_msg*)soframe();
+	err_msg = soframe();
 }
 
 
@@ -68,7 +71,7 @@ cofmsg_error::operator= (
 
 	body = error.body;
 
-	err_msg = (struct ofp_error_msg*)soframe();
+	err_msg = soframe();
 
 	return *this;
 }
@@ -90,11 +93,32 @@ cofmsg_error::reset()
 }
 
 
+void
+cofmsg_error::resize(size_t len)
+{
+	cofmsg::resize(len);
+	err_msg = soframe();
+}
+
+
 
 size_t
 cofmsg_error::length()
 {
-	return (sizeof(struct ofp_error_msg) + body.memlen());
+	switch (get_version()) {
+	case openflow10::OFP_VERSION: {
+		return (sizeof(struct openflow10::ofp_error_msg) + body.memlen());
+	} break;
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_error_msg) + body.memlen());
+	} break;
+	case openflow13::OFP_VERSION: {
+		return (sizeof(struct openflow13::ofp_error_msg) + body.memlen());
+	} break;
+	default:
+		logging::warn << "cofmsg_error::length() unsupported OFP version" << std::endl;
+		throw eBadVersion();
+	}
 }
 
 
@@ -112,7 +136,20 @@ cofmsg_error::pack(uint8_t *buf, size_t buflen)
 
 	cofmsg::pack(buf, buflen);
 
-	memcpy(buf + sizeof(struct ofp_error_msg), body.somem(), body.memlen());
+	switch (get_version()) {
+	case openflow10::OFP_VERSION: {
+		memcpy(buf + sizeof(struct openflow10::ofp_error_msg), body.somem(), body.memlen());
+	} break;
+	case openflow12::OFP_VERSION: {
+		memcpy(buf + sizeof(struct openflow12::ofp_error_msg), body.somem(), body.memlen());
+	} break;
+	case openflow13::OFP_VERSION: {
+		memcpy(buf + sizeof(struct openflow13::ofp_error_msg), body.somem(), body.memlen());
+	} break;
+	default:
+		logging::warn << "cofmsg_error::pack() unsupported OFP version" << std::endl;
+		throw eBadVersion();
+	}
 }
 
 
@@ -132,19 +169,32 @@ cofmsg_error::validate()
 {
 	cofmsg::validate(); // check generic OpenFlow header
 
-	err_msg = (struct ofp_error_msg*)soframe();
+	err_msg = soframe();
 
 	switch (get_version()) {
-	case OFP10_VERSION:
-	case OFP12_VERSION:
-	case OFP13_VERSION: {
-		if (get_length() < sizeof(struct ofp_error_msg))
+	case openflow10::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow10::ofp_error_msg))
 			throw eBadSyntaxTooShort();
-		if (get_length() > sizeof(struct ofp_error_msg)) {
-			body.assign(soframe() + sizeof(struct ofp_error_msg), framelen() - sizeof(struct ofp_error_msg));
+		if (get_length() > sizeof(struct openflow10::ofp_error_msg)) {
+			body.assign(soframe() + sizeof(struct openflow10::ofp_error_msg), framelen() - sizeof(struct openflow10::ofp_error_msg));
+		}
+	} break;
+	case openflow12::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow12::ofp_error_msg))
+			throw eBadSyntaxTooShort();
+		if (get_length() > sizeof(struct openflow12::ofp_error_msg)) {
+			body.assign(soframe() + sizeof(struct openflow12::ofp_error_msg), framelen() - sizeof(struct openflow12::ofp_error_msg));
+		}
+	} break;
+	case openflow13::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow13::ofp_error_msg))
+			throw eBadSyntaxTooShort();
+		if (get_length() > sizeof(struct openflow13::ofp_error_msg)) {
+			body.assign(soframe() + sizeof(struct openflow13::ofp_error_msg), framelen() - sizeof(struct openflow13::ofp_error_msg));
 		}
 	} break;
 	default:
+		logging::warn << "cofmsg_error::validate() unsupported OFP version" << std::endl;
 		throw eBadRequestBadVersion();
 	}
 }
@@ -154,7 +204,20 @@ cofmsg_error::validate()
 uint16_t
 cofmsg_error::get_err_type() const
 {
-	return be16toh(err_msg->type);
+	switch (get_version()) {
+	case openflow10::OFP_VERSION: {
+		return be16toh(err10_msg->type);
+	} break;
+	case openflow12::OFP_VERSION: {
+		return be16toh(err12_msg->type);
+	} break;
+	case openflow13::OFP_VERSION: {
+		return be16toh(err13_msg->type);
+	} break;
+	default:
+		logging::warn << "cofmsg_error::get_err_type() unsupported OFP version" << std::endl;
+		throw eBadVersion();
+	}
 }
 
 
@@ -162,43 +225,19 @@ cofmsg_error::get_err_type() const
 void
 cofmsg_error::set_err_type(uint16_t type)
 {
-	//FIXME XXX: internally 1.2 types and codes are used
-	//this should be properly abstracted to make always an appropiate translation (version agnostic codes)
-	//or always use the same identifiers otherwise it can confuse the user
 	switch (get_version()) {
-		case OFP10_VERSION:
-			//Translating it... this is crap
-			switch(type){
-				case OFPET_HELLO_FAILED:
-					err_msg->type=htobe16(OFP10ET_HELLO_FAILED);
-					break;
-				case OFPET_BAD_REQUEST:
-					err_msg->type=htobe16(OFP10ET_BAD_REQUEST);
-					break;
-				case OFPET_BAD_ACTION:
-					err_msg->type=htobe16(OFP10ET_BAD_ACTION); 
-					break;
-				case OFPET_FLOW_MOD_FAILED:
-					err_msg->type=htobe16(OFP10ET_FLOW_MOD_FAILED); 
-					break;
-				case OFPET_PORT_MOD_FAILED:
-					err_msg->type=htobe16(OFP10ET_PORT_MOD_FAILED); 
-					break;
-				case OFPET_QUEUE_OP_FAILED:
-					err_msg->type=htobe16(OFP10ET_QUEUE_OP_FAILED); 
-					break;
-				default: 
-					err_msg->type=htobe16(OFP10ET_BAD_REQUEST); 
-					break;
-			}
-			break;
-		case OFP12_VERSION:
-		case OFP13_VERSION: 
-			err_msg->type = htobe16(type);
-			break;
-		
-		default: //TODO: what to do...
-			break;		
+	case openflow10::OFP_VERSION: {
+		err10_msg->type = htobe16(type);
+	} break;
+	case openflow12::OFP_VERSION: {
+		err12_msg->type = htobe16(type);
+	} break;
+	case openflow13::OFP_VERSION: {
+		err13_msg->type = htobe16(type);
+	} break;
+	default:
+		logging::warn << "cofmsg_error::set_err_type() unsupported OFP version" << std::endl;
+		throw eBadVersion();
 	}
 }
 
@@ -207,7 +246,20 @@ cofmsg_error::set_err_type(uint16_t type)
 uint16_t
 cofmsg_error::get_err_code() const
 {
-	return be16toh(err_msg->code);
+	switch (get_version()) {
+	case openflow10::OFP_VERSION: {
+		return be16toh(err10_msg->code);
+	} break;
+	case openflow12::OFP_VERSION: {
+		return be16toh(err12_msg->code);
+	} break;
+	case openflow13::OFP_VERSION: {
+		return be16toh(err13_msg->code);
+	} break;
+	default:
+		logging::warn << "cofmsg_error::get_err_code() unsupported OFP version" << std::endl;
+		throw eBadVersion();
+	}
 }
 
 
@@ -215,41 +267,54 @@ cofmsg_error::get_err_code() const
 void
 cofmsg_error::set_err_code(uint16_t code)
 {
-	//FIXME XXX: internally 1.2 types and codes are used
-	//this should be properly abstracted to make always an appropiate translation (version agnostic codes)
-	//or always use the same identifiers otherwise it can confuse the user
-	
 	switch (get_version()) {
+	case openflow10::OFP_VERSION: {
+		err10_msg->code = htobe16(code);
+	} break;
+	case openflow12::OFP_VERSION: {
+		err12_msg->code = htobe16(code);
+	} break;
+	case openflow13::OFP_VERSION: {
+		err13_msg->code = htobe16(code);
+	} break;
+	default:
+		logging::warn << "cofmsg_error::set_err_code() unsupported OFP version" << std::endl;
+		throw eBadVersion();
+	}
+#if 0
 			case OFP10_VERSION:
 				//Translating it... this is crap
 				//only the ones which differ
-				switch(code){
-					case OFPFMFC_UNKNOWN:
-						err_msg->code = htobe16(OFP10FMFC_BAD_COMMAND);
-						break;
-					case OFPFMFC_TABLE_FULL:
-						err_msg->code = htobe16(OFP10FMFC_ALL_TABLES_FULL);
-						break;
-					case OFPFMFC_BAD_TABLE_ID:
-						err_msg->code = htobe16(OFP10FMFC_BAD_COMMAND);
-						break;
-					case OFPFMFC_OVERLAP:
-						err_msg->code = htobe16(OFP10FMFC_OVERLAP);
-						break;
-					case OFPFMFC_EPERM:
-						err_msg->code = htobe16(OFP10FMFC_EPERM);
-						break;
-					case OFPFMFC_BAD_TIMEOUT:
-						err_msg->code = htobe16(OFP10FMFC_UNSUPPORTED);
-						break;
-					case OFPFMFC_BAD_COMMAND:
-						err_msg->code = htobe16(OFP10FMFC_BAD_COMMAND);
-						break;
-					default: 
-						err_msg->code = htobe16(code);
-						break;
+				if(err_msg->type == htobe16(OFPET_FLOW_MOD_FAILED)){
+					switch(code){
+						case OFPFMFC_UNKNOWN:
+							err_msg->code = htobe16(OFP10FMFC_BAD_COMMAND);
+							break;
+						case OFPFMFC_TABLE_FULL:
+							err_msg->code = htobe16(OFP10FMFC_ALL_TABLES_FULL);
+							break;
+						case OFPFMFC_BAD_TABLE_ID:
+							err_msg->code = htobe16(OFP10FMFC_BAD_COMMAND);
+							break;
+						case OFPFMFC_OVERLAP:
+							err_msg->code = htobe16(OFP10FMFC_OVERLAP);
+							break;
+						case OFPFMFC_EPERM:
+							err_msg->code = htobe16(OFP10FMFC_EPERM);
+							break;
+						case OFPFMFC_BAD_TIMEOUT:
+							err_msg->code = htobe16(OFP10FMFC_UNSUPPORTED);
+							break;
+						case OFPFMFC_BAD_COMMAND:
+							err_msg->code = htobe16(OFP10FMFC_BAD_COMMAND);
+							break;
+						default: 
+							err_msg->code = htobe16(code);
+							break;
+					}
+
+					break; //Only break for OF1.0 AND OFPET_FLOW_MOD_FAILED type
 				}
-				break;
 			case OFP12_VERSION:
 			case OFP13_VERSION: 
 				err_msg->code = htobe16(code);
@@ -257,7 +322,7 @@ cofmsg_error::set_err_code(uint16_t code)
 			
 			default: //TODO: what to do...
 				break;		
-	}
+#endif
 }
 
 

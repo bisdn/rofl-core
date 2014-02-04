@@ -115,7 +115,7 @@ farpv4frame::set_hw_addr_type(
 
 
 uint16_t
-farpv4frame::get_hw_addr_type()
+farpv4frame::get_hw_addr_type() const
 {
 	return be16toh(arp_hdr->ar_hrd);
 }
@@ -130,7 +130,7 @@ farpv4frame::set_prot_addr_type(
 
 
 uint16_t
-farpv4frame::get_prot_addr_type()
+farpv4frame::get_prot_addr_type() const
 {
 	return be16toh(arp_hdr->ar_pro);
 }
@@ -145,7 +145,7 @@ farpv4frame::set_hw_addr_size(
 
 
 uint8_t
-farpv4frame::get_hw_addr_size()
+farpv4frame::get_hw_addr_size() const
 {
 	return arp_hdr->ar_hln;
 }
@@ -160,7 +160,7 @@ farpv4frame::set_prot_hw_addr_size(
 
 
 uint8_t
-farpv4frame::get_prot_hw_addr_size()
+farpv4frame::get_prot_hw_addr_size() const
 {
 	return arp_hdr->ar_pln;
 }
@@ -175,7 +175,7 @@ farpv4frame::set_opcode(
 
 
 uint16_t
-farpv4frame::get_opcode()
+farpv4frame::get_opcode() const
 {
 	return be16toh(arp_hdr->ar_op);
 }
@@ -190,7 +190,7 @@ farpv4frame::set_dl_src(
 
 
 cmacaddr
-farpv4frame::get_dl_src()
+farpv4frame::get_dl_src() const
 {
 	return cmacaddr(arp_hdr->dl_src, OFP_ETH_ALEN);
 }
@@ -205,7 +205,7 @@ farpv4frame::set_dl_dst(
 
 
 cmacaddr
-farpv4frame::get_dl_dst()
+farpv4frame::get_dl_dst() const
 {
 	return cmacaddr(arp_hdr->dl_dst, OFP_ETH_ALEN);
 }
@@ -231,7 +231,7 @@ farpv4frame::set_nw_src(
 
 
 caddress
-farpv4frame::get_nw_src()
+farpv4frame::get_nw_src() const
 {
 	caddress addr(AF_INET, "0.0.0.0");
 	addr.ca_s4addr->sin_addr.s_addr = arp_hdr->ip_src;
@@ -259,7 +259,7 @@ farpv4frame::set_nw_dst(
 
 
 caddress
-farpv4frame::get_nw_dst()
+farpv4frame::get_nw_dst() const
 {
 	caddress addr(AF_INET, "0.0.0.0");
 	addr.ca_s4addr->sin_addr.s_addr = arp_hdr->ip_dst;
@@ -267,19 +267,4 @@ farpv4frame::get_nw_dst()
 }
 
 
-const char*
-farpv4frame::c_str()
-{
-	cvastring vas;
-
-	info.assign(vas("[farpv4frame(%p) dl_dst:%s dl_src:%s ip_dst:%s ip_src:%s %s]",
-			this,
-			get_dl_dst().c_str(),
-			get_dl_src().c_str(),
-			get_nw_dst().addr_c_str(),
-			get_nw_src().addr_c_str(),
-			fframe::c_str() ));
-
-	return info.c_str();
-}
 

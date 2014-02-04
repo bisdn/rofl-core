@@ -86,7 +86,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_hw_addr_type();
+	get_hw_addr_type() const;
 
 	/**
 	 *
@@ -99,7 +99,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_prot_addr_type();
+	get_prot_addr_type() const;
 
 	/**
 	 *
@@ -112,7 +112,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_hw_addr_size();
+	get_hw_addr_size() const;
 
 	/**
 	 *
@@ -125,7 +125,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_prot_hw_addr_size();
+	get_prot_hw_addr_size() const;
 
 	/**
 	 *
@@ -138,7 +138,7 @@ public:
 	 *
 	 */
 	uint16_t
-	get_opcode();
+	get_opcode() const;
 
 	/**
 	 *
@@ -151,7 +151,7 @@ public:
 	 *
 	 */
 	cmacaddr
-	get_dl_src();
+	get_dl_src() const;
 
 	/**
 	 *
@@ -164,7 +164,7 @@ public:
 	 *
 	 */
 	cmacaddr
-	get_dl_dst();
+	get_dl_dst() const;
 
 	/** src in network-byte-order
 	 *
@@ -184,7 +184,7 @@ public:
 	 *
 	 */
 	caddress
-	get_nw_src();
+	get_nw_src() const;
 
 	/** dst in network-byte-order
 	 *
@@ -204,7 +204,7 @@ public:
 	 *
 	 */
 	caddress
-	get_nw_dst();
+	get_nw_dst() const;
 
 
 public: // overloaded from fframe
@@ -250,12 +250,6 @@ public: // overloaded from fframe
 	virtual size_t
 	payloadlen() const throw (eFrameNoPayload);
 
-	/** dump info
-	 *
-	 */
-	virtual const char*
-	c_str();
-
 
 
 public: // data structures
@@ -263,14 +257,24 @@ public: // data structures
 	// pointer to pppoe header
 	struct arpv4_hdr_t *arp_hdr;
 
-private: // methods
+public:
 
-
-private: // data structures
-
-	//< info string
-	std::string info;
-
+	friend std::ostream&
+	operator<< (std::ostream& os, farpv4frame const& frame) {
+		os << "<farpv4frame ";
+			os << "opcode:" << (int)frame.get_opcode() << " ";
+			os << "hw-addr-type:" << (int)frame.get_hw_addr_type() << " ";
+			os << "hw-addr-size:" << (int)frame.get_hw_addr_size() << " ";
+			os << "prot-addr-type:" << (int)frame.get_prot_addr_type() << " ";
+			os << "prot-addr-size:" << (int)frame.get_prot_hw_addr_size() << " ";
+			os << "dl-dst:" << frame.get_dl_dst() << " ";
+			os << "dl-src:" << frame.get_dl_src() << " ";
+			os << "nw-dst:" << frame.get_nw_dst() << " ";
+			os << "nw-src:" << frame.get_nw_src() << " ";
+			os << std::endl<< dynamic_cast<fframe const&>( frame ) << std::endl;
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

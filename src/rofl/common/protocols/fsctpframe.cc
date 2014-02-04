@@ -128,23 +128,6 @@ fsctpframe::validate(uint16_t total_len) throw (eSctpFrameTooShort)
 }
 
 
-const char*
-fsctpframe::c_str()
-{
-	cvastring vas;
-
-	info.assign(vas("[fsctpframe(%p) sport[%d] dport[%d] verification-tag[0x%x] checksum[0x%x] %s]",
-			this,
-			be16toh(sctp_hdr->sport),
-			be16toh(sctp_hdr->dport),
-			be32toh(sctp_hdr->verification_tag),
-			be32toh(sctp_hdr->checksum),
-			fframe::c_str() ));
-
-	return info.c_str();
-}
-
-
 void
 fsctpframe::sctp_calc_checksum(
 		caddress const& ip_src,
@@ -211,7 +194,7 @@ fsctpframe::sctp_calc_checksum(
 
 
 uint16_t
-fsctpframe::get_sport()
+fsctpframe::get_sport() const
 {
 	return be16toh(sctp_hdr->sport);
 }
@@ -225,7 +208,7 @@ fsctpframe::set_sport(uint16_t port)
 
 
 uint16_t
-fsctpframe::get_dport()
+fsctpframe::get_dport() const
 {
 	return be16toh(sctp_hdr->dport);
 }

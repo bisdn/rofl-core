@@ -10,8 +10,8 @@
 
 #include <ostream>
 
-#include "../coflist.h"
-#include "cofpacketqueue.h"
+#include "rofl/common/coflist.h"
+#include "rofl/common/openflow/cofpacketqueue.h"
 
 namespace rofl
 {

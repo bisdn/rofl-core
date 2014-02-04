@@ -23,8 +23,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_role_request;
-		struct ofp12_role_request*		ofhu12_role_request;
-		struct ofp13_role_request*		ofhu13_role_request;
+		struct openflow12::ofp_role_request*		ofhu12_role_request;
+		struct openflow13::ofp_role_request*		ofhu13_role_request;
 	} ofhu;
 
 #define ofh_role_request	ofhu.ofhu_role_request
@@ -140,6 +140,17 @@ public:
 	 */
 	void
 	set_generation_id(uint64_t generation_id);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_role_request const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(0) << "<cofmsg_role_request >" << std::endl;
+			os << indent(2) << "<role:0x" << std::hex << (int)msg.get_role() << std::dec << " >" << std::endl;
+			os << indent(2) << "<generation-id:0x" << std::hex << (int)msg.get_generation_id() << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -154,8 +165,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_role_reply;
-		struct ofp12_role_request*		ofhu12_role_reply;
-		struct ofp13_role_request*		ofhu13_role_reply;
+		struct openflow12::ofp_role_request*		ofhu12_role_reply;
+		struct openflow13::ofp_role_request*		ofhu13_role_reply;
 	} ofhu;
 
 #define ofh_role_reply		ofhu.ofhu_role_reply
@@ -271,6 +282,17 @@ public:
 	 */
 	void
 	set_generation_id(uint64_t generation_id);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_role_reply const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(0) << "<cofmsg_role_reply >" << std::endl;
+			os << indent(2) << "<role:0x" << std::hex << (int)msg.get_role() << std::dec << " >" << std::endl;
+			os << indent(2) << "<generation-id:0x" << std::hex << (int)msg.get_generation_id() << std::dec << " >" << std::endl;
+		return os;
+	};
 };
 
 

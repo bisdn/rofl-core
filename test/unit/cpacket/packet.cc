@@ -212,7 +212,9 @@ check_push_pop_vlan()
 
 		if (a1 != result1)
 		{
-			printf("push_vlan failed =>\nexpected: %s\nreceived: %s", result1.c_str(), a1.c_str());
+			std::cerr << "push_vlan failed =>" << std::endl;
+			std::cerr << "expected: " << result1 << std::endl;
+			std::cerr << "received: " << a1 << std::endl;
 
 			exit(EXIT_FAILURE);
 		}
@@ -226,13 +228,15 @@ check_push_pop_vlan()
 
 		if (a1 != start)
 		{
-			printf(" failed =>\nexpected: %s\nreceived: %s", start.c_str(), a1.c_str());
+			std::cerr << " failed =>" << std::endl;
+			std::cerr << "expected: " << start << std::endl;
+			std::cerr << "received: " << a1 << std::endl;
 
 			exit(EXIT_FAILURE);
 		}
 		else
 		{
-			printf("success.\n");
+			std::cerr << "success." << std::endl;
 		}
 	}
 
@@ -274,13 +278,15 @@ check_push_pop_vlan()
 
 		if (not (a1 == result1))
 		{
-			printf("failed =>\nexpected: %s\nreceived: %s", result1.c_str(), a1.c_str());
+			std::cerr << "failed =>" << std::endl;
+			std::cerr << "expected: " << result1 << std::endl;
+			std::cerr << "received: " << a1 << std::endl;
 
 			exit(EXIT_FAILURE);
 		}
 		else
 		{
-			printf("success.\n");
+			std::cerr << "success." << std::endl;
 		}
 
 		printf("pop vlans for Q-in-Q test ...");
@@ -289,7 +295,9 @@ check_push_pop_vlan()
 
 		if (not (a1 == start))
 		{
-			printf("failed =>\nexpected: %s\nreceived: %s", start.c_str(), a1.c_str());
+			std::cerr << "failed =>" << std::endl;
+			std::cerr << "expected: " << start << std::endl;
+			std::cerr << "received: " << a1 << std::endl;
 
 			exit(EXIT_FAILURE);
 		}
@@ -346,30 +354,34 @@ check_push_pop_mpls()
 
 		if (a1 != result1)
 		{
-			printf("push_mpls failed =>\nexpected: %s\nreceived: %s", result1.c_str(), a1.c_str());
+			std::cerr << "push_mpls failed =>" << std::endl;
+			std::cerr << "expected: " << result1 << std::endl;
+			std::cerr << "received: " << a1 << std::endl;
 
 			exit(EXIT_FAILURE);
 		}
 		else
 		{
-			printf("success.\n");
+			std::cerr << "success." << std::endl;
 		}
 
 
 
 
-		printf("pop mpls tag ...");
+		std::cerr << "pop mpls tag ...";
 		a1.pop_mpls(0x0800);
 
 		if (a1 != pack)
 		{
-			printf("push_mpls failed =>\nexpected: %s\nreceived: %s", pack.c_str(), a1.c_str());
+			std::cerr << "push_mpls failed =>" << std::endl;
+			std::cerr << "expected: " << pack << std::endl;
+			std::cerr << "received: " << a1 << std::endl;
 
 			exit(EXIT_FAILURE);
 		}
 		else
 		{
-			printf("success.\n");
+			std::cerr << "success." << std::endl;
 		}
 	}
 
@@ -414,13 +426,15 @@ check_push_pop_mpls()
 
 		if (a1 != result1)
 		{
-			printf("push_vlan failed =>\nexpected: %s\nreceived: %s", result1.c_str(), a1.c_str());
+			std::cerr << "push_vlan failed =>" << std::endl;
+			std::cerr << "expected: " << result1 << std::endl;
+			std::cerr << "received: " << a1 << std::endl;
 
 			exit(EXIT_FAILURE);
 		}
 		else
 		{
-			printf("success.\n");
+			std::cerr << "success." << std::endl;
 		}
 
 		printf("pop mpls tags for label stack test ...");
@@ -429,13 +443,15 @@ check_push_pop_mpls()
 
 		if (a1 != pack)
 		{
-			printf("push_mplsn failed =>\nexpected: %s\nreceived: %s", pack.c_str(), a1.c_str());
+			std::cerr << "push_mplsn failed =>" << std::endl;
+			std::cerr << "expected: " << pack << std::endl;
+			std::cerr << "received: " << a1 << std::endl;
 
 			exit(EXIT_FAILURE);
 		}
 		else
 		{
-			printf("success.\n");
+			std::cerr << "success." << std::endl;
 		}
 	}
 }
@@ -462,22 +478,22 @@ check_parser()
 	ptest += create_ipv4_header(0x00, 38, 0x4444, 0x10, 0x00, caddress(AF_INET, "10.1.1.1"), caddress(AF_INET, "10.2.2.2"));
 
 
-	printf("cpacket::classify() test packet: %s\n", ptest.c_str());
+	std::cerr << "cpacket::classify() test packet: " << ptest << std::endl;
 
 
 	cpacket a1(ptest.somem(), ptest.memlen(), /*in_port=*/3, true);
 
-	printf("a1: %s\n", a1.c_str());
+	std::cerr << "a1: " << a1 << std::endl;
 
 
-	printf("pop outer mpls => should be ignored\n");
+	std::cerr << "pop outer mpls => should be ignored" << std::endl;
 	a1.pop_mpls(0x8847);
-	printf("a1: %s\n", a1.c_str());
+	std::cerr << "a1: " << a1 << std::endl;
 
 
-	printf("pop outer vlan =>\n");
+	std::cerr << "pop outer vlan =>" << std::endl;
 	a1.pop_vlan();
-	printf("a1: %s\n", a1.c_str());
+	std::cerr << "a1: " << a1 << std::endl;
 
 
 	return;

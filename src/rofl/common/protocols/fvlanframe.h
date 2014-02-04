@@ -135,12 +135,6 @@ public: // overloaded from fframe
 	virtual size_t
 	payloadlen() const throw (eFrameNoPayload);
 
-	/** dump info
-	 *
-	 */
-	virtual const char*
-	c_str();
-
 public:
 
 	/**
@@ -196,14 +190,19 @@ public: // data structures
 	// pointer to vlan header
 	struct vlan_hdr_t *vlan_hdr;
 
-private: // methods
+public:
 
-
-
-private: // data structures
-
-	std::string info;
-
+	friend std::ostream&
+	operator<< (std::ostream& os, fvlanframe const& frame) {
+		os << "<fvlanframe ";
+			os << "vid:" << (int)frame.get_dl_vlan_id() << " ";
+			os << "pcp:" << (int)frame.get_dl_vlan_pcp() << " ";
+			os << "cfi:" << (int)frame.get_dl_vlan_cfi() << " ";
+			os << "inner-dl-type:" << (int)frame.get_dl_type() << " ";
+			os << std::endl << dynamic_cast<fframe const&>( frame ) << std::endl;
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

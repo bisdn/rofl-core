@@ -8,13 +8,13 @@
 #ifndef COFAGGRSTATS_H_
 #define COFAGGRSTATS_H_ 1
 
-#include "../cmemory.h"
-#include "cofmatch.h"
-#include "cofaclist.h"
-#include "cofinlist.h"
-#include "../../platform/unix/csyslog.h"
-#include "openflow.h"
-#include "openflow_rofl_exceptions.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/openflow/cofmatch.h"
+#include "rofl/common/openflow/cofactions.h"
+#include "rofl/common/openflow/cofinstructions.h"
+#include "rofl/platform/unix/csyslog.h"
+#include "rofl/common/openflow/openflow.h"
+#include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
 namespace rofl
 {
@@ -41,7 +41,7 @@ public:
 	 *
 	 */
 	cofaggr_stats_request(
-			uint8_t of_version = 0,
+			uint8_t of_version = openflow::OFP_VERSION_UNKNOWN,
 			uint8_t *buf = (uint8_t*)0,
 			size_t buflen = 0);
 
@@ -73,13 +73,6 @@ public:
 	 */
 	virtual
 	~cofaggr_stats_request();
-
-
-	/**
-	 *
-	 */
-	virtual const char*
-	c_str();
 
 
 	/**
@@ -207,6 +200,21 @@ public:
 	 */
 	cofmatch&
 	get_match();
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaggr_stats_request const& aggr_stats_request) {
+		os << indent(0) << "<cofaggr_stats_request >" << std::endl;
+		os << indent(2) << "<table-id:" << (int)aggr_stats_request.get_table_id() << " >" << std::endl;
+		os << indent(2) << "<out-port:0x" << std::hex << (int)aggr_stats_request.get_out_port() << std::dec << " >" << std::endl;
+		os << indent(2) << "<out-group:0x" << std::hex << (int)aggr_stats_request.get_out_group() << std::dec << " >" << std::endl;
+		os << indent(2) << "<cookie:0x" << std::hex << (unsigned long long)aggr_stats_request.get_cookie() << std::dec << " >" << std::endl;
+		os << indent(2) << "<cookie-mask:0x" << std::hex << (unsigned long long)aggr_stats_request.get_cookie_mask() << std::dec << " >" << std::endl;
+		indent i(2);
+		os << aggr_stats_request.match;
+		return os;
+	};
 };
 
 
@@ -339,6 +347,17 @@ public:
 	 */
 	void
 	set_flow_count(uint32_t flow_count);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofaggr_stats_reply const& aggr_stats_reply) {
+		os << indent(0) << "<cofaggr_stats_reply >" << std::endl;
+		os << indent(2) << "<packet-count:" << (int)aggr_stats_reply.get_packet_count() << " >" << std::endl;
+		os << indent(2) << "<byte-count:" << (int)aggr_stats_reply.get_byte_count() << " >" << std::endl;
+		os << indent(2) << "<flow-count:" << (int)aggr_stats_reply.get_flow_count() << " >" << std::endl;
+		return os;
+	};
 };
 
 

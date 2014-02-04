@@ -12,7 +12,7 @@
 #include "../../platform/unix/csyslog.h"
 #include "openflow.h"
 #include "openflow_rofl_exceptions.h"
-#include "cofbclist.h"
+#include "cofbuckets.h"
 
 namespace rofl
 {
@@ -26,7 +26,7 @@ private: // data structures
 	uint8_t 		of_version;
 	uint8_t			type;
 	uint32_t		group_id;
-	cofbclist		buckets;
+	cofbuckets		buckets;
 
 public: // data structures
 
@@ -45,7 +45,7 @@ public:
 			uint8_t of_version,
 			uint8_t type,
 			uint32_t group_id,
-			cofbclist const& buckets);
+			cofbuckets const& buckets);
 
 	/**
 	 *
@@ -72,7 +72,7 @@ public:
 	 *
 	 */
 	void
-	pack(uint8_t *buf, size_t buflen) const;
+	pack(uint8_t *buf, size_t buflen);
 
 	/**
 	 *
@@ -111,7 +111,7 @@ public:
 	/**
 	 *
 	 */
-	cofbclist&
+	cofbuckets&
 	get_buckets() { return buckets; };
 
 	/**
@@ -136,7 +136,19 @@ public:
 	 *
 	 */
 	void
-	set_buckets(cofbclist const& buckets) { this->buckets = buckets; };
+	set_buckets(cofbuckets const& buckets) { this->buckets = buckets; };
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofgroup_desc_stats_reply const& group_desc_stats_reply) {
+		os << indent(0) << "<cofgroup_desc_stats_reply >" << std::endl;
+		os << indent(2) << "<type: " << group_desc_stats_reply.get_type() << " >" << std::endl;
+		os << indent(2) << "<group-id: " << group_desc_stats_reply.get_group_id() << " >" << std::endl;
+		indent i(2);
+		os << group_desc_stats_reply.buckets;
+		return os;
+	};
 };
 
 }

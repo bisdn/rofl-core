@@ -40,8 +40,8 @@ coxmatchTest::testInPort()
 	m[6] = ((uint8_t*)&port_no)[1];
 	m[7] = ((uint8_t*)&port_no)[0];
 
-	printf("oxm: %s\nm:    %s\n", oxm.c_str(), m.c_str());
-	printf("oxm.u32value() 0x%x port_no 0x%x\n", oxm.u32value(), port_no);
+	//printf("oxm: %s\nm:    %s\n", oxm.c_str(), m.c_str());
+	//printf("oxm.u32value() 0x%x port_no 0x%x\n", oxm.u32value(), port_no);
 
 	CPPUNIT_ASSERT(oxm.memlen() == m.memlen());
 	CPPUNIT_ASSERT(!memcmp(oxm.somem(), m.somem(), oxm.memlen()));
@@ -71,8 +71,8 @@ coxmatchTest::testIPv4Src()
 	m[6] = ((uint8_t*)&(addr.ca_s4addr->sin_addr.s_addr))[2];
 	m[7] = ((uint8_t*)&(addr.ca_s4addr->sin_addr.s_addr))[3];
 
-	printf("oxm: %s\nm:    %s\n", oxm.c_str(), m.c_str());
-	printf("oxm.u32addr() %s addr %s\n", oxm.u32addr().c_str(), addr.c_str());
+	//printf("oxm: %s\nm:    %s\n", oxm.c_str(), m.c_str());
+	//printf("oxm.u32addr() %s addr %s\n", oxm.u32addr().c_str(), addr.c_str());
 
 	CPPUNIT_ASSERT(oxm.memlen() == m.memlen());
 	CPPUNIT_ASSERT(!memcmp(oxm.somem(), m.somem(), oxm.memlen()));
@@ -106,8 +106,8 @@ coxmatchTest::testIPv4SrcWithMask()
 	m[10] = ((uint8_t*)&(mask.ca_s4addr->sin_addr.s_addr))[2];
 	m[11] = ((uint8_t*)&(mask.ca_s4addr->sin_addr.s_addr))[3];
 
-	printf("oxm: %s\nm:    %s\n", oxm.c_str(), m.c_str());
-	printf("oxm.u32addr() %s addr %s mask %s\n", oxm.u32addr().c_str(), addr.c_str(), mask.c_str());
+	//printf("oxm: %s\nm:    %s\n", oxm.c_str(), m.c_str());
+	//printf("oxm.u32addr() %s addr %s mask %s\n", oxm.u32addr().c_str(), addr.c_str(), mask.c_str());
 
 	CPPUNIT_ASSERT(oxm.memlen() == m.memlen());
 	CPPUNIT_ASSERT(!memcmp(oxm.somem(), m.somem(), oxm.memlen()));
@@ -134,8 +134,8 @@ coxmatchTest::testEthType()
 	m[4] = 0x08;
 	m[5] = 0x00;
 
-	printf("oxm: %s\nm:    %s\n", oxm.c_str(), m.c_str());
-	printf("oxm.u16value() 0x%x \n", oxm.u16value());
+	//printf("oxm: %s\nm:    %s\n", oxm.c_str(), m.c_str());
+	//printf("oxm.u16value() 0x%x \n", oxm.u16value());
 
 	CPPUNIT_ASSERT(oxm.memlen() == m.memlen());
 	CPPUNIT_ASSERT(!memcmp(oxm.somem(), m.somem(), oxm.memlen()));

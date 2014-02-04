@@ -2,7 +2,8 @@
 
 #include <inttypes.h>
 
-ipswitching::ipswitching(unsigned int n_entries) :
+ipswitching::ipswitching(cofhello_elem_versionbitmap const& versionbitmap, unsigned int n_entries) :
+	ofperftest(versionbitmap),
 	n_entries(n_entries),
 	fib_check_timeout(5), // check for expired FIB entries every 5 seconds
 	fm_delete_all_timeout(30)
@@ -22,7 +23,7 @@ ipswitching::~ipswitching()
 
 
 void
-ipswitching::handle_timeout(int opaque)
+ipswitching::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
 	case IPSWITCHING_TIMER_FIB: {
@@ -49,7 +50,7 @@ ipswitching::drop_expired_fib_entries()
 
 
 void
-ipswitching::install_flow_mods(cofdpt *dpt, unsigned int n)
+ipswitching::install_flow_mods(crofdpt *dpt, unsigned int n)
 {
 	if (0 == dpt) {
 		fprintf(stderr, "error installing test FlowMod entries on data path: dpt is NULL");
@@ -75,10 +76,10 @@ ipswitching::install_flow_mods(cofdpt *dpt, unsigned int n)
 
 	for (unsigned int i = 0; i < n; i++) {
 
-		cflowentry fe(dpt->get_version());
+		cofflowmod fe(dpt->get_version());
 
-		fe.set_command(OFPFC_ADD);
-		fe.set_buffer_id(OFP_NO_BUFFER);
+		fe.set_command(crofbase::get_ofp_command(dpt->get_version(), openflow::OFPFC_ADD));
+		fe.set_buffer_id(crofbase::get_ofp_no_buffer(dpt->get_version()));
 		fe.set_idle_timeout(0);
 		fe.set_hard_timeout(0);
 		fe.set_table_id(0);
@@ -90,13 +91,11 @@ ipswitching::install_flow_mods(cofdpt *dpt, unsigned int n)
 		addr[3] += i;
 
 		fe.match.set_ipv4_dst(addr);
-		fe.instructions.next() = cofinst_write_actions(dpt->get_version());
-		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), portnums[(i%2)]);
+		fe.instructions.set_inst_write_actions().get_actions().append_action_output(portnums[(i%2)]);
 
-		fprintf(stderr, "ipswitching: installing fake FLowMod entry #%d: %s\n",
-				i, fe.c_str());
+		std::cerr << "ipswitching: installing fake FLowMod entry #" << i << ": " << fe << std::endl;
 
-		send_flow_mod_message(dpt, fe);
+		dpt->send_flow_mod_message(fe);
 	}
 }
 
@@ -105,20 +104,20 @@ ipswitching::install_flow_mods(cofdpt *dpt, unsigned int n)
 void
 ipswitching::flow_mod_delete_all()
 {
-	std::map<cofdpt*, std::map<caddress, struct fibentry_t> >::iterator it;
+	std::map<crofdpt*, std::map<caddress, struct fibentry_t> >::iterator it;
 
 	for (it = fib.begin(); it != fib.end(); ++it) {
-		cofdpt *dpt = it->first;
+		crofdpt *dpt = it->first;
 
-		cflowentry fe(dpt->get_version());
-		fe.set_command(OFPFC_DELETE);
-		fe.set_table_id(OFPTT_ALL);
-		fe.set_out_port(OFPP12_ANY);
-		fe.set_out_group(OFPG12_ANY);
+		cofflowmod fe(dpt->get_version());
+		fe.set_command(crofbase::get_ofp_command(dpt->get_version(), openflow::OFPFC_DELETE));
+		fe.set_table_id(openflow12::OFPTT_ALL);
+		fe.set_out_port(openflow12::OFPP_ANY);
+		fe.set_out_group(openflow12::OFPG_ANY);
 
-		fprintf(stderr, "FLOW-MOD: delete all: %s\n", fe.c_str());
+		std::cerr << "FLOW-MOD: delete all: " << fe << std::endl;
 
-		send_flow_mod_message(dpt, fe);
+		dpt->send_flow_mod_message(fe);
 	}
 
 	register_timer(IPSWITCHING_TIMER_FLOW_MOD_DELETE_ALL, fm_delete_all_timeout);
@@ -128,79 +127,77 @@ ipswitching::flow_mod_delete_all()
 
 void
 ipswitching::handle_dpath_open(
-		cofdpt *dpt)
+		crofdpt& dpt)
 {
-	fib[dpt] = std::map<caddress, struct fibentry_t>();
+	fib[&dpt] = std::map<caddress, struct fibentry_t>();
 	// do nothing here
 
-	install_flow_mods(dpt, n_entries);
+	install_flow_mods(&dpt, n_entries);
 }
 
 
 
 void
 ipswitching::handle_dpath_close(
-		cofdpt *dpt)
+		crofdpt& dpt)
 {
-	fib.erase(dpt);
+	fib.erase(&dpt);
 }
 
 
 
 void
 ipswitching::handle_packet_in(
-		cofdpt *dpt,
-		cofmsg_packet_in *msg)
+		crofdpt& dpt,
+		cofmsg_packet_in& msg,
+		uint8_t aux_id)
 {
 	/*
 	 * block mac address 01:80:c2:00:00:00
 	 */
-	if (msg->get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
-		msg->get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
-		cflowentry fe(dpt->get_version());
+	if (msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:80:c2:00:00:00") ||
+		msg.get_packet().ether()->get_dl_dst() == cmacaddr("01:00:5e:00:00:fb")) {
+		cofflowmod fe(dpt.get_version());
 
-		fe.set_command(OFPFC_ADD);
-		fe.set_buffer_id(msg->get_buffer_id());
+		fe.set_command(crofbase::get_ofp_command(dpt.get_version(), openflow::OFPFC_ADD));
+		fe.set_buffer_id(msg.get_buffer_id());
 		fe.set_idle_timeout(15);
-		fe.set_table_id(msg->get_table_id());
+		fe.set_table_id(msg.get_table_id());
 
-		fe.match.set_in_port(msg->get_match().get_in_port());
-		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
-		fe.instructions.next() = cofinst_apply_actions(dpt->get_version());
+		fe.match.set_in_port(msg.get_match().get_in_port());
+		fe.match.set_eth_dst(msg.get_packet().ether()->get_dl_dst());
+		fe.instructions.add_inst_apply_actions();
 
-		fprintf(stderr, "ipswitching: installing FLOW-MOD with entry: %s\n",
-				fe.c_str());
+		std::cerr << "ipswitching: installing FLOW-MOD with entry: " << fe << std::endl;
 
-		send_flow_mod_message(dpt, fe);
+		dpt.send_flow_mod_message(fe);
 
-		delete msg; return;
+		return;
 	}
 
 
 
-	switch (msg->get_packet().ether()->get_dl_type()) {
+	switch (msg.get_packet().ether()->get_dl_type()) {
 	case farpv4frame::ARPV4_ETHER: {
-		return handle_packet_in_arpv4(dpt, msg);
+		return handle_packet_in_arpv4(&dpt, &msg);
 	} break;
 	case fipv4frame::IPV4_ETHER: {
-		return handle_packet_in_ipv4(dpt, msg);
+		return handle_packet_in_ipv4(&dpt, &msg);
 	} break;
 	case fvlanframe::VLAN_CTAG_ETHER: {
-		switch (msg->get_packet().vlan()->get_dl_type()) {
+		switch (msg.get_packet().vlan()->get_dl_type()) {
 		case farpv4frame::ARPV4_ETHER: {
-			return handle_packet_in_arpv4(dpt, msg);
+			return handle_packet_in_arpv4(&dpt, &msg);
 		} break;
 		case fipv4frame::IPV4_ETHER: {
-			return handle_packet_in_ipv4(dpt, msg);
+			return handle_packet_in_ipv4(&dpt, &msg);
 		} break;
 		default: {
-			delete msg;
 		}
 		}
 
 	} break;
 	default: {
-		delete msg;
 	}
 	}
 }
@@ -209,7 +206,7 @@ ipswitching::handle_packet_in(
 
 void
 ipswitching::handle_packet_in_arpv4(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		cofmsg_packet_in *msg)
 {
 #if 0
@@ -263,38 +260,36 @@ ipswitching::handle_packet_in_arpv4(
 
 		fprintf(stderr, "ipswitching::handle_packet_in_arpv4() Pt.1.2\n");
 
-		cofaclist actions;
+		cofactions actions(dpt->get_version());
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
+			actions.append_action_set_field(coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
 		}
 		// src uses vlan, dst is untagged => pop vlan tag
 		else if ((fib[dpt][ip_dst].vid == 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			actions.next() = cofaction_pop_vlan(dpt->get_version());
+			actions.append_action_pop_vlan();
 		}
 		// src is untagged, dst uses vlan => push vlan tag
 		else if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid == 0xffff)) {
-			actions.next() = cofaction_push_vlan(dpt->get_version(), fvlanframe::VLAN_CTAG_ETHER);
-			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
+			actions.append_action_push_vlan(fvlanframe::VLAN_CTAG_ETHER);
+			actions.append_action_set_field(coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
 		}
 		// src and dst are untagged => do nothing
 		else {
 			// do nothing
 		}
 
-		actions.next() = cofaction_output(dpt->get_version(), fib[dpt][ip_dst].port_no);
-		if (OFP_NO_BUFFER == msg->get_buffer_id()) {
+		actions.append_action_output(fib[dpt][ip_dst].port_no);
+		if (crofbase::get_ofp_no_buffer(dpt->get_version()) == msg->get_buffer_id()) {
 			fprintf(stderr, "NOEEEETTTTT!!!!!\n");
-			send_packet_out_message(
-					dpt,
+			dpt->send_packet_out_message(
 					msg->get_buffer_id(),
 					msg->get_match().get_in_port(),
 					actions,
 					msg->get_packet().soframe(), msg->get_packet().framelen());
 		} else {
-			send_packet_out_message(
-					dpt,
+			dpt->send_packet_out_message(
 					msg->get_buffer_id(),
 					msg->get_match().get_in_port(),
 					actions);
@@ -314,7 +309,7 @@ ipswitching::handle_packet_in_arpv4(
 
 void
 ipswitching::handle_packet_in_ipv4(
-		cofdpt *dpt,
+		crofdpt *dpt,
 		cofmsg_packet_in *msg)
 {
 	caddress ip_src = msg->get_packet().ipv4()->get_ipv4_src();
@@ -334,10 +329,10 @@ ipswitching::handle_packet_in_ipv4(
 	}
 	else // if an entry exists, create a new FlowMod
 	{
-		cflowentry fe(dpt->get_version());
+		cofflowmod fe(dpt->get_version());
 
-		fe.set_command(OFPFC_ADD);
-		fe.set_buffer_id(OFP_NO_BUFFER);
+		fe.set_command(crofbase::get_ofp_command(dpt->get_version(), openflow::OFPFC_ADD));
+		fe.set_buffer_id(crofbase::get_ofp_no_buffer(dpt->get_version()));
 		fe.set_idle_timeout(0);
 		fe.set_hard_timeout(0);
 		fe.set_table_id(msg->get_table_id());
@@ -345,34 +340,33 @@ ipswitching::handle_packet_in_ipv4(
 		fe.match.set_ipv4_src(ip_src);
 		fe.match.set_ipv4_dst(ip_dst);
 
-		fe.instructions.next() = cofinst_write_actions(dpt->get_version());
+		fe.instructions.add_inst_write_actions();
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
 			fe.match.set_vlan_vid(fib[dpt][ip_src].vid);
-			fe.instructions.back().actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
+			fe.instructions.get_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
 		}
 		// src uses vlan, dst is untagged => pop vlan tag
 		else if ((fib[dpt][ip_dst].vid == 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
 			fe.match.set_vlan_vid(fib[dpt][ip_src].vid);
-			fe.instructions.back().actions.next() = cofaction_pop_vlan(dpt->get_version());
+			fe.instructions.get_inst_write_actions().get_actions().append_action_pop_vlan();
 		}
 		// src is untagged, dst uses vlan => push vlan tag
 		else if ((fib[dpt][ip_dst].vid != 0xffff) && (fib[dpt][ip_src].vid == 0xffff)) {
-			fe.instructions.back().actions.next() = cofaction_push_vlan(dpt->get_version(), fvlanframe::VLAN_CTAG_ETHER);
-			fe.instructions.back().actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
+			fe.instructions.get_inst_write_actions().get_actions().append_action_push_vlan(fvlanframe::VLAN_CTAG_ETHER);
+			fe.instructions.get_inst_write_actions().get_actions().append_action_set_field(coxmatch_ofb_vlan_vid(fib[dpt][ip_dst].vid));
 		}
 		// src and dst are untagged => do nothing
 		else {
 			// do nothing
 		}
 
-		fe.instructions.back().actions.next() = cofaction_output(dpt->get_version(), fib[dpt][ip_dst].port_no);
+		fe.instructions.get_inst_write_actions().get_actions().append_action_output(fib[dpt][ip_dst].port_no);
 
-		fprintf(stderr, "ipswitching::handle_packet_in_ipv4() setting FlowMod entry: %s\n",
-				fe.c_str());
+		std::cerr << "ipswitching::handle_packet_in_ipv4() setting FlowMod entry: " << fe << std::endl;
 
-		send_flow_mod_message(dpt, fe);
+		dpt->send_flow_mod_message(fe);
 	}
 
 	delete msg;
@@ -382,7 +376,7 @@ ipswitching::handle_packet_in_ipv4(
 
 
 void
-ipswitching::update_fib_table(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
+ipswitching::update_fib_table(crofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 {
 	fprintf(stderr, "ipswitching::update_fib_table() Pt. 3.1 ip_src:%s\n", ip_src.c_str());
 	if (fib[dpt].find(ip_src) == fib[dpt].end()) {
@@ -419,7 +413,7 @@ ipswitching::update_fib_table(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_sr
 
 
 void
-ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
+ipswitching::flood_vlans(crofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 {
 	/*
 	 * this is a workaround, as OFPP12_TABLE is not implemented yet in xdpd
@@ -431,44 +425,41 @@ ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 		if (ip_src == it->second.addr)
 			continue;
 
-		cofaclist actions;
+		cofactions actions(dpt->get_version());
 
 		// both use vlan => just reset the vid
 		if ((fib[dpt][it->second.addr].vid != 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][it->second.addr].vid));
+			actions.append_action_set_field(coxmatch_ofb_vlan_vid(fib[dpt][it->second.addr].vid));
 		}
 		// src uses vlan, dst is untagged => pop vlan tag
 		else if ((fib[dpt][it->second.addr].vid == 0xffff) && (fib[dpt][ip_src].vid != 0xffff)) {
-			actions.next() = cofaction_pop_vlan(dpt->get_version());
+			actions.append_action_pop_vlan();
 		}
 		// src is untagged, dst uses vlan => push vlan tag
 		else if ((fib[dpt][it->second.addr].vid != 0xffff) && (fib[dpt][ip_src].vid == 0xffff)) {
-			actions.next() = cofaction_push_vlan(dpt->get_version(), fvlanframe::VLAN_CTAG_ETHER);
-			actions.next() = cofaction_set_field(dpt->get_version(), coxmatch_ofb_vlan_vid(fib[dpt][it->second.addr].vid));
+			actions.append_action_push_vlan(fvlanframe::VLAN_CTAG_ETHER);
+			actions.append_action_set_field(coxmatch_ofb_vlan_vid(fib[dpt][it->second.addr].vid));
 		}
 		// src and dst are untagged => do nothing
 		else {
 			// do nothing
 		}
 
-		actions.next() = cofaction_output(dpt->get_version(), it->second.port_no);
+		actions.append_action_output(it->second.port_no);
 
 #if 1
-		fprintf(stderr, "ipswitching::flood_vlans() %s => %s with actions: %s\n",
-				ip_src.addr_c_str(), it->second.addr.addr_c_str(), actions.c_str());
+		std::cerr << "ipswitching::flood_vlans() " << ip_src << " => " << it->second.addr << " with actions: " << actions << std::endl;
 #endif
 
-		if (OFP_NO_BUFFER == msg->get_buffer_id()) {
+		if (crofbase::get_ofp_no_buffer(dpt->get_version()) == msg->get_buffer_id()) {
 			fprintf(stderr, "NOEEEETTTTT!!!!! (2.1)\n");
-			send_packet_out_message(
-					dpt,
+			dpt->send_packet_out_message(
 					msg->get_buffer_id(),
 					msg->get_match().get_in_port(),
 					actions,
 					msg->get_packet().soframe(), msg->get_packet().framelen());
 		} else {
-			send_packet_out_message(
-					dpt,
+			dpt->send_packet_out_message(
 					msg->get_buffer_id(),
 					msg->get_match().get_in_port(),
 					actions);
@@ -480,27 +471,24 @@ ipswitching::flood_vlans(cofdpt *dpt, cofmsg_packet_in *msg, caddress ip_src)
 	 *
 	 */
 
-	cofaclist actions;
+	cofactions actions(dpt->get_version());
 	if (fib[dpt][ip_src].vid != 0xffff) {
-		actions.next() = cofaction_pop_vlan(dpt->get_version());
+		actions.append_action_pop_vlan();
 	}
-	actions.next() = cofaction_output(dpt->get_version(), OFPP12_FLOOD);
-	if (OFP_NO_BUFFER == msg->get_buffer_id()) {
+	actions.append_action_output(crofbase::get_ofp_flood_port(dpt->get_version()));
+	if (crofbase::get_ofp_no_buffer(dpt->get_version()) == msg->get_buffer_id()) {
 		fprintf(stderr, "NOEEEETTTTT!!!!! (2.2)\n");
-		send_packet_out_message(
-				dpt,
+		dpt->send_packet_out_message(
 				msg->get_buffer_id(),
 				msg->get_match().get_in_port(),
 				actions,
 				msg->get_packet().soframe(), msg->get_packet().framelen());
 	} else {
-		send_packet_out_message(
-				dpt,
+		dpt->send_packet_out_message(
 				msg->get_buffer_id(),
 				msg->get_match().get_in_port(),
 				actions);
 	}
 
-	fprintf(stderr, "ipswitching: forwarding ARP packet (FLOOD) with ActionList: %s\n",
-			actions.c_str());
+	std::cerr << "ipswitching: forwarding ARP packet (FLOOD) with ActionList: " << actions << std::endl;
 }

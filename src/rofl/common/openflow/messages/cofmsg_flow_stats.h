@@ -33,8 +33,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_flow_stats;
-		struct ofp10_flow_stats*		ofhu10_flow_stats;
-		struct ofp12_flow_stats*		ofhu12_flow_stats;
+		struct openflow10::ofp_flow_stats*		ofhu10_flow_stats;
+		struct openflow12::ofp_flow_stats*		ofhu12_flow_stats;
 		// TODO: OF1.3
 	} ofhu;
 
@@ -133,6 +133,18 @@ public:
 	 */
 	cofflow_stats_request&
 	get_flow_stats();
+
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_flow_stats_request const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_flow_stats_request >" << std::endl;
+		indent i(4);
+		os << msg.flow_stats;
+		return os;
+	};
 };
 
 
@@ -149,8 +161,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_flow_stats;
-		struct ofp10_flow_stats*		ofhu10_flow_stats;
-		struct ofp12_flow_stats*		ofhu12_flow_stats;
+		struct openflow10::ofp_flow_stats*		ofhu10_flow_stats;
+		struct openflow12::ofp_flow_stats*		ofhu12_flow_stats;
 		// TODO: OF1.3
 	} ofhu;
 
@@ -249,6 +261,21 @@ public:
 	 */
 	std::vector<cofflow_stats_reply>&
 	get_flow_stats();
+
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, cofmsg_flow_stats_reply const& msg) {
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_flow_stats_reply >" << std::endl;
+		indent i(4);
+		for (std::vector<cofflow_stats_reply>::const_iterator
+				it = msg.flow_stats.begin(); it != msg.flow_stats.end(); ++it) {
+			os << (*it);
+		}
+		return os;
+	};
 };
 
 } // end of namespace rofl

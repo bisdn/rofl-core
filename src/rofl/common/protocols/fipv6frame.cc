@@ -172,34 +172,6 @@ fipv6frame::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
 }
 
 
-const char*
-fipv6frame::c_str()
-{
-	cvastring vas;
-
-	std::string s_exts;
-	for (std::map<enum ipv6_ext_t, fipv6ext>::iterator it = ipv6exts.begin(); it != ipv6exts.end(); ++it) {
-		s_exts.append(it->second.c_str()); s_exts.append(std::string(" "));
-	}
-
-	info.assign(vas("[fipv6frame(%p) dst:%s src:%s length:0x%x vers:%d flow-label:0x%x tc:0x%x nxthdr:%d hops:%d exts(%d):%s mem:%s]",
-			this,
-			get_ipv6_dst().addr_c_str(),
-			get_ipv6_src().addr_c_str(),
-			get_payload_length(),
-			get_version(),
-			get_flow_label(),
-			get_traffic_class(),
-			get_next_header(),
-			get_hop_limit(),
-			ipv6exts.size(),
-			s_exts.c_str(),
-			fframe::c_str()
-			));
-
-	return info.c_str();
-}
-
 
 void
 fipv6frame::ipv6_calc_checksum()

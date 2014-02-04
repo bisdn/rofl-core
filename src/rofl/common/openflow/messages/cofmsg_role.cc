@@ -9,7 +9,7 @@ cofmsg_role_request::cofmsg_role_request(
 		uint32_t xid,
 		uint32_t role,
 		uint64_t generation_id) :
-	cofmsg(sizeof(struct ofp_header))
+	cofmsg(sizeof(struct openflow::ofp_header))
 {
 	ofh_role_request = soframe();
 
@@ -17,15 +17,15 @@ cofmsg_role_request::cofmsg_role_request(
 	set_xid(xid);
 
 	switch (of_version) {
-	case OFP12_VERSION: {
-		set_type(OFPT12_ROLE_REQUEST);
-		resize(sizeof(struct ofp12_role_request));
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_ROLE_REQUEST);
+		resize(sizeof(struct openflow12::ofp_role_request));
 		ofh12_role_request->role			= htobe32(role);
 		ofh12_role_request->generation_id	= htobe64(generation_id);
 	} break;
-	case OFP13_VERSION: {
-		set_type(OFPT13_ROLE_REQUEST);
-		resize(sizeof(struct ofp13_role_request));
+	case openflow13::OFP_VERSION: {
+		set_type(openflow13::OFPT_ROLE_REQUEST);
+		resize(sizeof(struct openflow13::ofp_role_request));
 		ofh13_role_request->role			= htobe32(role);
 		ofh13_role_request->generation_id	= htobe64(generation_id);
 	} break;
@@ -97,11 +97,11 @@ size_t
 cofmsg_role_request::length() const
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
-		return sizeof(struct ofp12_role_request);
+	case openflow12::OFP_VERSION: {
+		return sizeof(struct openflow12::ofp_role_request);
 	} break;
-	case OFP13_VERSION: {
-		return sizeof(struct ofp13_role_request);
+	case openflow13::OFP_VERSION: {
+		return sizeof(struct openflow13::ofp_role_request);
 	} break;
 	default:
 		throw eBadVersion();
@@ -123,13 +123,13 @@ cofmsg_role_request::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_role_request))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_role_request))
 			throw eInval();
 		memcpy(buf, soframe(), framelen());
 	} break;
-	case OFP13_VERSION: {
-		if (buflen < sizeof(struct ofp13_role_request))
+	case openflow13::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow13::ofp_role_request))
 			throw eInval();
 		memcpy(buf, soframe(), framelen());
 	} break;
@@ -158,12 +158,12 @@ cofmsg_role_request::validate()
 	ofh_role_request = soframe();
 
 	switch (get_version()) {
-	case OFP12_VERSION: {
-		if (get_length() < sizeof(struct ofp12_role_request))
+	case openflow12::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow12::ofp_role_request))
 			throw eBadSyntaxTooShort();
 	} break;
-	case OFP13_VERSION: {
-		if (get_length() < sizeof(struct ofp13_role_request))
+	case openflow13::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow13::ofp_role_request))
 			throw eBadSyntaxTooShort();
 	} break;
 	default:
@@ -177,10 +177,10 @@ uint32_t
 cofmsg_role_request::get_role() const
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be32toh(ofh12_role_request->role);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be32toh(ofh13_role_request->role);
 	} break;
 	default:
@@ -195,10 +195,10 @@ void
 cofmsg_role_request::set_role(uint32_t role)
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_role_request->role = htobe32(role);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_role_request->role = htobe32(role);
 	} break;
 	default:
@@ -212,10 +212,10 @@ uint64_t
 cofmsg_role_request::get_generation_id() const
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be64toh(ofh12_role_request->generation_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be64toh(ofh13_role_request->generation_id);
 	} break;
 	default:
@@ -230,10 +230,10 @@ void
 cofmsg_role_request::set_generation_id(uint64_t generation_id)
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_role_request->generation_id = htobe64(generation_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_role_request->generation_id = htobe32(generation_id);
 	} break;
 	default:
@@ -254,7 +254,7 @@ cofmsg_role_reply::cofmsg_role_reply(
 		uint32_t xid,
 		uint32_t role,
 		uint64_t generation_id) :
-	cofmsg(sizeof(struct ofp_header))
+	cofmsg(sizeof(struct openflow::ofp_header))
 {
 	ofh_role_reply = soframe();
 
@@ -262,15 +262,15 @@ cofmsg_role_reply::cofmsg_role_reply(
 	set_xid(xid);
 
 	switch (of_version) {
-	case OFP12_VERSION: {
-		set_type(OFPT12_ROLE_REPLY);
-		resize(sizeof(struct ofp12_role_request)); // yes, this struct is used in the reply as well
+	case openflow12::OFP_VERSION: {
+		set_type(openflow12::OFPT_ROLE_REPLY);
+		resize(sizeof(struct openflow12::ofp_role_request)); // yes, this struct is used in the reply as well
 		ofh12_role_reply->role			= htobe32(role);
 		ofh12_role_reply->generation_id	= htobe64(generation_id);
 	} break;
-	case OFP13_VERSION: {
-		set_type(OFPT13_ROLE_REPLY);
-		resize(sizeof(struct ofp13_role_request)); // yes, this struct is used in the reply as well
+	case openflow13::OFP_VERSION: {
+		set_type(openflow13::OFPT_ROLE_REPLY);
+		resize(sizeof(struct openflow13::ofp_role_request)); // yes, this struct is used in the reply as well
 		ofh13_role_reply->role			= htobe32(role);
 		ofh13_role_reply->generation_id	= htobe64(generation_id);
 	} break;
@@ -342,11 +342,11 @@ size_t
 cofmsg_role_reply::length() const
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
-		return sizeof(struct ofp12_role_request); // yes, this struct is used in the reply as well
+	case openflow12::OFP_VERSION: {
+		return sizeof(struct openflow12::ofp_role_request); // yes, this struct is used in the reply as well
 	} break;
-	case OFP13_VERSION: {
-		return sizeof(struct ofp13_role_request); // yes, this struct is used in the reply as well
+	case openflow13::OFP_VERSION: {
+		return sizeof(struct openflow13::ofp_role_request); // yes, this struct is used in the reply as well
 	} break;
 	default:
 		throw eBadVersion();
@@ -368,13 +368,13 @@ cofmsg_role_reply::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_role_request)) // yes, this struct is used in the reply as well
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_role_request)) // yes, this struct is used in the reply as well
 			throw eInval();
 		memcpy(buf, soframe(), framelen());
 	} break;
-	case OFP13_VERSION: {
-		if (buflen < sizeof(struct ofp13_role_request)) // yes, this struct is used in the reply as well
+	case openflow13::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow13::ofp_role_request)) // yes, this struct is used in the reply as well
 			throw eInval();
 		memcpy(buf, soframe(), framelen());
 	} break;
@@ -403,12 +403,12 @@ cofmsg_role_reply::validate()
 	ofh_role_reply = soframe();
 
 	switch (get_version()) {
-	case OFP12_VERSION: {
-		if (get_length() < sizeof(struct ofp12_role_request)) // yes, this struct is used in the reply as well
+	case openflow12::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow12::ofp_role_request)) // yes, this struct is used in the reply as well
 			throw eBadSyntaxTooShort();
 	} break;
-	case OFP13_VERSION: {
-		if (get_length() < sizeof(struct ofp13_role_request)) // yes, this struct is used in the reply as well
+	case openflow13::OFP_VERSION: {
+		if (get_length() < sizeof(struct openflow13::ofp_role_request)) // yes, this struct is used in the reply as well
 			throw eBadSyntaxTooShort();
 	} break;
 	default:
@@ -422,10 +422,10 @@ uint32_t
 cofmsg_role_reply::get_role() const
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be32toh(ofh12_role_reply->role);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be32toh(ofh13_role_reply->role);
 	} break;
 	default:
@@ -440,10 +440,10 @@ void
 cofmsg_role_reply::set_role(uint32_t role)
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_role_reply->role = htobe32(role);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_role_reply->role = htobe32(role);
 	} break;
 	default:
@@ -457,10 +457,10 @@ uint64_t
 cofmsg_role_reply::get_generation_id() const
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		return be64toh(ofh12_role_reply->generation_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		return be64toh(ofh13_role_reply->generation_id);
 	} break;
 	default:
@@ -475,10 +475,10 @@ void
 cofmsg_role_reply::set_generation_id(uint64_t generation_id)
 {
 	switch (get_version()) {
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		ofh12_role_reply->generation_id = htobe64(generation_id);
 	} break;
-	case OFP13_VERSION: {
+	case openflow13::OFP_VERSION: {
 		ofh13_role_reply->generation_id = htobe32(generation_id);
 	} break;
 	default:

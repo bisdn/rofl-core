@@ -81,19 +81,19 @@ void
 cofport_stats_request::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		if (buflen < sizeof(struct ofp10_port_stats_request))
+	case openflow10::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow10::ofp_port_stats_request))
 			throw eInval();
 
-		struct ofp10_port_stats_request *req = (struct ofp10_port_stats_request*)buf;
+		struct openflow10::ofp_port_stats_request *req = (struct openflow10::ofp_port_stats_request*)buf;
 		req->port_no 	= htobe16((uint16_t)(port_no & 0x0000ffff));
 
 	} break;
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_flow_stats_request))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_flow_stats_request))
 			throw eInval();
 
-		struct ofp12_port_stats_request *req = (struct ofp12_port_stats_request*)buf;
+		struct openflow12::ofp_port_stats_request *req = (struct openflow12::ofp_port_stats_request*)buf;
 		req->port_no 	= htobe32(port_no);
 
 
@@ -109,19 +109,19 @@ void
 cofport_stats_request::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		if (buflen < sizeof(struct ofp10_port_stats_request))
+	case openflow10::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow10::ofp_port_stats_request))
 			throw eInval();
 
-		struct ofp10_port_stats_request *req = (struct ofp10_port_stats_request*)buf;
+		struct openflow10::ofp_port_stats_request *req = (struct openflow10::ofp_port_stats_request*)buf;
 		port_no			= be16toh(req->port_no);
 
 	} break;
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_port_stats_request))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_port_stats_request))
 			throw eInval();
 
-		struct ofp12_port_stats_request *req = (struct ofp12_port_stats_request*)buf;
+		struct openflow12::ofp_port_stats_request *req = (struct openflow12::ofp_port_stats_request*)buf;
 		port_no			= be32toh(req->port_no);
 
 	} break;
@@ -136,11 +136,11 @@ size_t
 cofport_stats_request::length() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		return sizeof(struct ofp10_port_stats_request);
+	case openflow10::OFP_VERSION: {
+		return sizeof(struct openflow10::ofp_port_stats_request);
 	} break;
-	case OFP12_VERSION: {
-		return sizeof(struct ofp12_port_stats_request);
+	case openflow12::OFP_VERSION: {
+		return sizeof(struct openflow12::ofp_port_stats_request);
 	} break;
 	default:
 		throw eBadVersion();
@@ -252,11 +252,11 @@ void
 cofport_stats_reply::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
+	case openflow10::OFP_VERSION: {
 		if (buflen < length())
 			throw eInval();
 
-		struct ofp10_port_stats *ps = (struct ofp10_port_stats*)buf;
+		struct openflow10::ofp_port_stats *ps = (struct openflow10::ofp_port_stats*)buf;
 
 		ps->port_no			= htobe16((uint16_t)(port_no & 0x0000ffff));
 		ps->rx_packets		= htobe64(rx_packets);
@@ -273,11 +273,11 @@ cofport_stats_reply::pack(uint8_t *buf, size_t buflen) const
 		ps->collisions		= htobe64(collisions);
 
 	} break;
-	case OFP12_VERSION: {
+	case openflow12::OFP_VERSION: {
 		if (buflen < length())
 			throw eInval();
 
-		struct ofp12_port_stats *ps = (struct ofp12_port_stats*)buf;
+		struct openflow12::ofp_port_stats *ps = (struct openflow12::ofp_port_stats*)buf;
 
 		ps->port_no			= htobe32(port_no);
 		ps->rx_packets		= htobe64(rx_packets);
@@ -305,11 +305,11 @@ void
 cofport_stats_reply::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		if (buflen < sizeof(struct ofp10_port_stats))
+	case openflow10::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow10::ofp_port_stats))
 			throw eInval();
 
-		struct ofp10_port_stats* ps = (struct ofp10_port_stats*)buf;
+		struct openflow10::ofp_port_stats* ps = (struct openflow10::ofp_port_stats*)buf;
 		port_no			= (uint32_t)be16toh(ps->port_no);
 		rx_packets		= be64toh(ps->rx_packets);
 		tx_packets		= be64toh(ps->tx_packets);
@@ -325,11 +325,11 @@ cofport_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		collisions		= be64toh(ps->collisions);
 
 	} break;
-	case OFP12_VERSION: {
-		if (buflen < sizeof(struct ofp12_port_stats))
+	case openflow12::OFP_VERSION: {
+		if (buflen < sizeof(struct openflow12::ofp_port_stats))
 			throw eInval();
 
-		struct ofp12_port_stats* ps = (struct ofp12_port_stats*)buf;
+		struct openflow12::ofp_port_stats* ps = (struct openflow12::ofp_port_stats*)buf;
 		port_no			= be32toh(ps->port_no);
 		rx_packets		= be64toh(ps->rx_packets);
 		tx_packets		= be64toh(ps->tx_packets);
@@ -356,11 +356,11 @@ size_t
 cofport_stats_reply::length() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: {
-		return (sizeof(struct ofp10_port_stats));
+	case openflow10::OFP_VERSION: {
+		return (sizeof(struct openflow10::ofp_port_stats));
 	} break;
-	case OFP12_VERSION: {
-		return (sizeof(struct ofp12_port_stats));
+	case openflow12::OFP_VERSION: {
+		return (sizeof(struct openflow12::ofp_port_stats));
 	} break;
 	default:
 		throw eBadVersion();

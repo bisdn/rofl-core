@@ -72,7 +72,23 @@ csyslog::initlog(
 
 	init_level_names();
 	init_class_names();
-	puts("inited");
+	//puts("inited");
+}
+
+void
+csyslog::closelog()
+{
+	switch (logtype) {
+	case LOGTYPE_FILE:
+		fclose(filestream);
+		break;
+	case LOGTYPE_STDERR:
+		break;
+	case LOGTYPE_SYSLOG:
+	default:
+		::closelog();
+		break;
+	}
 }
 
 void

@@ -26,9 +26,9 @@ private:
 
 	union {
 		uint8_t*						ofhu_port_status;
-		struct ofp10_port_status*		ofhu10_port_status;
-		struct ofp12_port_status*		ofhu12_port_status;
-		struct ofp13_port_status*		ofhu13_port_status;
+		struct openflow10::ofp_port_status*		ofhu10_port_status;
+		struct openflow12::ofp_port_status*		ofhu12_port_status;
+		struct openflow13::ofp_port_status*		ofhu13_port_status;
 	} ofhu;
 
 #define ofh_port_status   ofhu.ofhu_port_status
@@ -149,19 +149,24 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_port_status const& msg) {
-		os << "<cofmsg_port_status " << dynamic_cast<cofmsg const&>( msg ) << " ";
-		switch (msg.get_version()) {
-		case OFP10_VERSION:
-		case OFP12_VERSION:
-		case OFP13_VERSION: {
-			os << "reason:" << (int)msg.get_reason() << " ";
-			os << "port:" << msg.get_port_const() << " ";
-		} break;
-		default: {
-			os << "unsupported OF version:" << (int)msg.get_version() << " ";
-		} break;
-		}
-		os << ">";
+		os << dynamic_cast<cofmsg const&>( msg );
+		os << indent(2) << "<cofmsg_port_status >" << std::endl;
+			switch (msg.get_reason()) {
+			case openflow::OFPPR_ADD: {
+				os << indent(4) << "<reason: -ADD- >" << std::endl;
+			} break;
+			case openflow::OFPPR_DELETE: {
+				os << indent(4) << "<reason: -DELETE- >" << std::endl;
+			} break;
+			case openflow::OFPPR_MODIFY: {
+				os << indent(4) << "<reason: -MODIFY- >" << std::endl;
+			} break;
+			default: {
+				os << indent(4) << "<reason: -UNKNOWN- >" << std::endl;
+			} break;
+			}
+			indent i(4);
+			os << msg.port;
 		return os;
 	};
 };

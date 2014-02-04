@@ -125,23 +125,6 @@ fudpframe::validate(uint16_t total_len) throw (eUdpFrameTooShort)
 }
 
 
-const char*
-fudpframe::c_str()
-{
-	cvastring vas;
-
-	info.assign(vas("[fudpframe(%p) sport[%d] dport[%d] length[%d] checksum[0x%x] %s]",
-			this,
-			be16toh(udp_hdr->sport),
-			be16toh(udp_hdr->dport),
-			be16toh(udp_hdr->length),
-			be16toh(udp_hdr->checksum),
-			fframe::c_str() ));
-
-	return info.c_str();
-}
-
-
 
 void
 fudpframe::udp_calc_checksum(
@@ -200,7 +183,7 @@ fudpframe::udp_calc_checksum(
 
 
 uint16_t
-fudpframe::get_sport()
+fudpframe::get_sport() const
 {
 	return be16toh(udp_hdr->sport);
 }
@@ -214,7 +197,7 @@ fudpframe::set_sport(uint16_t port)
 
 
 uint16_t
-fudpframe::get_dport()
+fudpframe::get_dport() const
 {
 	return be16toh(udp_hdr->dport);
 }

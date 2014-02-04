@@ -22,37 +22,35 @@
 #include <sys/uio.h>
 #include <assert.h>
 
-#include "cerror.h"
-#include "cclock.h"
-#include "fframe.h"
-#include "cmacaddr.h"
-#include "cmemory.h"
-#include "cvastring.h"
-#include "thread_helper.h"
+#include "rofl/common/croflexception.h"
+#include "rofl/common/cclock.h"
+#include "rofl/common/fframe.h"
+#include "rofl/common/cmacaddr.h"
+#include "rofl/common/cmemory.h"
+#include "rofl/common/thread_helper.h"
 
-#include "openflow/openflow.h"
+#include "rofl/common/openflow/openflow.h"
 
 /* Platform dependant */
-#include "rofl/platform/unix/csyslog.h"
 
 /* Openflow stuff */
-#include "openflow/cofmatch.h"
-#include "openflow/cofaction.h"
+#include "rofl/common/openflow/cofmatch.h"
+#include "rofl/common/openflow/cofaction.h"
 
 /* Protocol stuff */
-#include "protocols/fetherframe.h"
-#include "protocols/fvlanframe.h"
-#include "protocols/fmplsframe.h"
-#include "protocols/fipv4frame.h"
-#include "protocols/ficmpv4frame.h"
-#include "protocols/fipv6frame.h"
-#include "protocols/ficmpv6frame.h"
-#include "protocols/farpv4frame.h"
-#include "protocols/fudpframe.h"
-#include "protocols/ftcpframe.h"
-#include "protocols/fsctpframe.h"
-#include "protocols/fetherframe.h"
-#include "protocols/fgtpuframe.h"
+#include "rofl/common/protocols/fetherframe.h"
+#include "rofl/common/protocols/fvlanframe.h"
+#include "rofl/common/protocols/fmplsframe.h"
+#include "rofl/common/protocols/fipv4frame.h"
+#include "rofl/common/protocols/ficmpv4frame.h"
+#include "rofl/common/protocols/fipv6frame.h"
+#include "rofl/common/protocols/ficmpv6frame.h"
+#include "rofl/common/protocols/farpv4frame.h"
+#include "rofl/common/protocols/fudpframe.h"
+#include "rofl/common/protocols/ftcpframe.h"
+#include "rofl/common/protocols/fsctpframe.h"
+#include "rofl/common/protocols/fetherframe.h"
+#include "rofl/common/protocols/fgtpuframe.h"
 
 namespace rofl
 {
@@ -75,7 +73,7 @@ class fgtpuframe;
 
 
 
-class ePacket 				: public cerror {}; // base error class for cpacket
+class ePacket 				: public RoflException {}; // base error class for cpacket
 class ePacketInval 			: public ePacket {}; // invalid
 class ePacketOutOfMem 		: public ePacket {}; // out of memory
 class ePacketNotFound 		: public ePacket {}; // value not found
@@ -138,6 +136,7 @@ private:
 		static pthread_rwlock_t			cpacket_lock;
 		static std::set<cpacket*> 		cpacket_list;
 
+		uint8_t							ofp_version;
 		std::bitset<32> 				flags;			// flags (e.g. for checksum calculations, NO_PACKET_IN, etc.)
 		std::string 					info;			// info string
 		std::string						d_info;			// data info string (for use by method data_c_str()
@@ -230,6 +229,7 @@ public: // methods
 	 * @param do_classify run the classifier during construction
 	 */
 	cpacket(
+			uint8_t ofp_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			size_t size = CPACKET_DEFAULT_SIZE,
 			uint32_t in_port = 0,
 			bool do_classify = false);
@@ -245,6 +245,7 @@ public: // methods
 	 * @param do_classify run the classifier during construction
 	 */
 	cpacket(
+			uint8_t ofp_version,
 			uint8_t *buf, size_t buflen,
 			uint32_t in_port = 0 /*invalid port in OF*/,
 			bool do_classify = true);
@@ -259,6 +260,7 @@ public: // methods
 	 * @param do_classify run the classifier during construction
 	 */
 	cpacket(
+			uint8_t ofp_version,
 			cmemory *mem,
 			uint32_t in_port = 0 /*invalid port in OF*/,
 			bool do_classify = true);
@@ -284,17 +286,6 @@ public: // methods
 	~cpacket();
 
 
-
-	/**
-	 * @brief	Returns a C-string containing information about this cpacket instance.
-	 *
-	 * @return C-string
-	 */
-	const char*
-	c_str();
-
-
-
 	/**
 	 * @brief	Clears content of this cpacket instance. Sets memory area to 0 length.
 	 *
@@ -303,21 +294,20 @@ public: // methods
 	clear();
 
 
-
 	/** output stream operator
 	 *
 	 */
 	friend std::ostream &
-	operator<<(std::ostream& os, const cpacket& cpack)
-	{
-		std::cerr << "XXX" << std::endl;
-		os << "[";
-		os << "]";
-		std::cerr << "XXX" << std::endl;
+	operator<<(std::ostream& os, const cpacket& pack) {
+		os << indent(0) << "<cpacket >" << std::endl;
+		indent i(2);
+		os << pack.match;
+		for (fframe* curr = pack.head; curr != 0; curr = curr->next) {
+			os << *curr;
+		}
+		os << pack.mem;
 		return os;
 	};
-
-
 
 public:
 
@@ -784,7 +774,7 @@ public: // action related methods
 
 	/**@{*/
 
-
+#if 0
 	/**
 	 * @brief	Dispatcher for all actions received.
 	 *
@@ -795,7 +785,7 @@ public: // action related methods
 	void
 	handle_action(
 		cofaction& action);
-
+#endif
 
 
 	/**
@@ -1063,6 +1053,15 @@ public:
 
 	/**@}*/
 
+public:
+
+
+	/** parse and classify data frame
+	 *
+	 */
+	void
+	classify(
+			uint32_t in_port /* host byte order */);
 
 
 
@@ -1119,23 +1118,11 @@ private:
 			uint16_t& missed);
 
 
-	/** parse and classify data frame
-	 *
-	 */
-	void
-	classify(
-			uint32_t in_port /* host byte order */);
 
 
 
 
 private:
-
-
-
-	static const char*
-	cpacket_info();
-
 
 	void
 	cpacket_list_insert();
@@ -1144,20 +1131,12 @@ private:
 	cpacket_list_erase();
 
 
-
-
 	/**
 	 *
 	 */
 	void
 	reset();
 
-
-	/**
-	 *
-	 */
-	const char*
-	data_c_str();
 
 
 	/** returns length of parsed packet (may be shortened during Packet-In)

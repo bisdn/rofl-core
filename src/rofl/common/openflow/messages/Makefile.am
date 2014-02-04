@@ -23,6 +23,7 @@ libopenflow_messages_la_SOURCES = \
 	cofmsg_packet_out.h \
 	cofmsg_port_mod.h \
 	cofmsg_port_stats.h \
+	cofmsg_port_desc_stats.h \
 	cofmsg_port_status.h \
 	cofmsg_queue_get_config.h \
 	cofmsg_queue_stats.h \
@@ -52,6 +53,7 @@ libopenflow_messages_la_SOURCES = \
 	cofmsg_packet_out.cc \
 	cofmsg_port_mod.cc \
 	cofmsg_port_stats.cc \
+	cofmsg_port_desc_stats.cc \
 	cofmsg_port_status.cc \
 	cofmsg_queue_get_config.cc \
 	cofmsg_queue_stats.cc \
@@ -85,6 +87,7 @@ library_include_HEADERS = \
 	cofmsg_packet_out.h \
 	cofmsg_port_mod.h \
 	cofmsg_port_stats.h \
+	cofmsg_port_desc_stats.h \
 	cofmsg_port_status.h \
 	cofmsg_queue_get_config.h \
 	cofmsg_queue_stats.h \

@@ -13,7 +13,6 @@
 
 #include "../fframe.h"
 #include "../caddress.h"
-#include "../cvastring.h"
 #include "../cmacaddr.h"
 
 namespace rofl
@@ -36,8 +35,6 @@ class ficmpv6opt : public fframe {
 
 	#define IPV6_ADDR_LEN		16
 	#define ETHER_ADDR_LEN		6
-
-	std::string 						info;
 
 public: // static definitions and constants
 
@@ -124,40 +121,56 @@ public:
 	/** assignment operator
 	 */
 	ficmpv6opt& operator= (ficmpv6opt const& opt);
-	/**
-	 */
-	virtual const char* c_str();
 public:
 	/**
 	 */
-	uint8_t get_opt_type();
+	uint8_t get_opt_type() const;
 	/**
 	 */
 	void set_opt_type(uint8_t type);
 	/**
 	 */
-	cmacaddr get_ll_taddr() throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort);
+	cmacaddr get_ll_taddr() const;
 	/**
 	 */
-	void set_ll_taddr(cmacaddr const& addr) throw (eICMPv6FrameTooShort);
+	void set_ll_taddr(cmacaddr const& addr);
 	/**
 	 */
-	cmacaddr get_ll_saddr() throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort);
+	cmacaddr get_ll_saddr() const;
 	/**
 	 */
-	void set_ll_saddr(cmacaddr const& addr) throw (eICMPv6FrameTooShort);
+	void set_ll_saddr(cmacaddr const& addr);
 	/**
 	 */
-	uint8_t get_pfx_on_link_flag() throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort);
+	uint8_t get_pfx_on_link_flag() const;
 	/**
 	 */
-	void set_pfx_on_link_flag(uint8_t flag) throw (eICMPv6FrameTooShort);
+	void set_pfx_on_link_flag(uint8_t flag);
 	/**
 	 */
-	uint8_t get_pfx_aac_flag() throw (eICMPv6FrameInvalType, eICMPv6FrameTooShort);
+	uint8_t get_pfx_aac_flag() const;
 	/**
 	 */
-	void set_pfx_aac_flag(uint8_t flag) throw (eICMPv6FrameTooShort);
+	void set_pfx_aac_flag(uint8_t flag);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, ficmpv6opt const& opt) {
+		os << "<ficmvp6opt ";
+			os << "type:";
+			switch (opt.get_opt_type()) {
+			case ICMPV6_OPT_LLADDR_SOURCE:	os << "LLADDR-SOURCE "; 	break;
+			case ICMPV6_OPT_LLADDR_TARGET:	os << "LLADDR-TARGET ";		break;
+			case ICMPV6_OPT_PREFIX_INFO:	os << "PREFIX-INFO ";		break;
+			case ICMPV6_OPT_REDIRECT:		os << "REDIRECT ";			break;
+			case ICMPV6_OPT_MTU:			os << "MTU ";				break;
+			default:						os << "UNKNOWN ";			break;
+			}
+			os << std::endl << dynamic_cast<fframe const&>( opt ) << std::endl;
+		os << ">";
+		return os;
+	};
 };
 
 
@@ -467,19 +480,13 @@ public: // overloaded from fframe
 	virtual size_t
 	payloadlen() const throw (eFrameNoPayload);
 
-	/** dump info
-	 *
-	 */
-	virtual const char*
-	c_str();
-
 public:
 
 	/**
 	 *
 	 */
 	uint8_t
-	get_icmpv6_code();
+	get_icmpv6_code() const;
 
 	/**
 	 *
@@ -491,7 +498,7 @@ public:
 	 *
 	 */
 	uint8_t
-	get_icmpv6_type();
+	get_icmpv6_type() const;
 
 	/**
 	 *
@@ -503,49 +510,49 @@ public:
 	 *
 	 */
 	uint8_t
-	get_icmpv6_ndp_rtr_flag() throw (eICMPv6FrameInvalType);
+	get_icmpv6_ndp_rtr_flag() const;
 
 	/**
 	 *
 	 */
 	void
-	set_icmpv6_ndp_rtr_flag() throw (eICMPv6FrameInvalType);
+	set_icmpv6_ndp_rtr_flag();
 
 	/**
 	 *
 	 */
 	uint8_t
-	get_icmpv6_ndp_solicited_flag() throw (eICMPv6FrameInvalType);
+	get_icmpv6_ndp_solicited_flag() const;
 
 	/**
 	 *
 	 */
 	void
-	set_icmpv6_ndp_solicited_flag() throw (eICMPv6FrameInvalType);
+	set_icmpv6_ndp_solicited_flag();
 
 	/**
 	 *
 	 */
 	uint8_t
-	get_icmpv6_ndp_override_flag() throw (eICMPv6FrameInvalType);
+	get_icmpv6_ndp_override_flag() const;
 
 	/**
 	 *
 	 */
 	void
-	set_icmpv6_ndp_override_flag() throw (eICMPv6FrameInvalType);
+	set_icmpv6_ndp_override_flag();
 
 	/**
 	 *
 	 */
 	caddress
-	get_icmpv6_neighbor_taddr() throw (eICMPv6FrameInvalType);
+	get_icmpv6_neighbor_taddr() const;
 
 	/**
 	 *
 	 */
 	void
-	set_icmpv6_neighbor_taddr(caddress const& addr) throw (eICMPv6FrameInvalType);
+	set_icmpv6_neighbor_taddr(caddress const& addr);
 
 
 
@@ -600,6 +607,18 @@ private: // methods
 	 */
 	void
 	parse_icmpv6_redirect() throw (eICMPv6FrameTooShort);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, ficmpv6frame const& frame) {
+		os << "<ficmpv6frame ";
+			os << "code:" << (int)frame.get_icmpv6_code() << " ";
+			os << "type:" << (int)frame.get_icmpv6_type() << " ";
+			os << std::endl << dynamic_cast<fframe const&>( frame ) << std::endl;
+		os << ">";
+		return os;
+	};
 };
 
 }; // end of namespace

@@ -14,14 +14,14 @@
 #endif
 
 #include "cmemory.h"
-#include "cerror.h"
+#include "croflexception.h"
 #include "cvastring.h"
 #include "openflow/cofmatch.h"
 
 namespace rofl
 {
 
-class eRoflExpBase 		: public cerror {};
+class eRoflExpBase 		: public RoflException {};
 class eRoflExpInval 	: public eRoflExpBase {};
 
 #define OFPEXPID_ROFL		0x55b12399
@@ -60,7 +60,7 @@ public:
 			struct ofp_rofl_ext_header		header;
 			uint8_t 						command;
 			uint8_t							pad[3];
-			struct ofp12_match				match[0];		// start of match structure
+			struct openflow::ofp_match		match[0];		// start of match structure
 		};
 
 		enum ofp_rofl_ext_fsp_cmds {
@@ -75,16 +75,14 @@ public:
 public: // data structures
 
 		union {
+			uint8_t									*rehu_generic;
 			struct ofp_rofl_ext_header				*rehu_header;
 			struct ofp_rofl_ext_flowspace			*rehu_flowspace;
 		} reh_rehu;
 
+#define rext_generic					reh_rehu.rehu_generic
 #define rext_header						reh_rehu.rehu_header
 #define rext_fsp						reh_rehu.rehu_flowspace
-
-private: // data structures
-
-	std::string info;
 
 
 public:
@@ -116,25 +114,13 @@ public:
 	 *
 	 */
 	virtual void
-	pack(
-			uint8_t *body,
-			size_t bodylen)
-				throw (eRoflExpInval);
+	pack(uint8_t *body, size_t bodylen);
 
 	/**
 	 *
 	 */
 	virtual void
-	unpack(
-			uint8_t *body,
-			size_t bodylen);
-
-
-	/**
-	 *
-	 */
-	virtual const char*
-	c_str();
+	unpack(uint8_t *body, size_t bodylen);
 
 
 	/**
@@ -162,6 +148,16 @@ private:
 	validate_flowspace()
 			throw (eRoflExpInval);
 
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, croflexp const& roflexp) {
+		os << "<croflexp ";
+			os << std::endl << "match:" << roflexp.match << std::endl;
+			os << std::endl << "mem:" << roflexp.mem << std::endl;
+		os << ">";
+		return os;
+	};
 };
 
 
@@ -171,10 +167,6 @@ private:
 class croflexp_flowspace :
 	public croflexp
 {
-private:
-
-		std::string info;
-
 public:
 		/**
 		 *
@@ -182,8 +174,7 @@ public:
 		croflexp_flowspace(
 				uint8_t command,
 				cofmatch& m) :
-					croflexp(sizeof(struct ofp_rofl_ext_flowspace) + m.length())
-		{
+					croflexp(sizeof(struct ofp_rofl_ext_flowspace) + m.length()) {
 			match = m;
 
 			rext_fsp->header.version 	= OFP_ROFL_EXT_VERSION1;
@@ -191,53 +182,86 @@ public:
 			rext_fsp->header.length 	= htobe16(length());
 			rext_fsp->command 			= command;
 		};
+
+
 		/**
 		 *
 		 */
 		virtual
 		~croflexp_flowspace()
-		{
+		{};
 
-		};
+
 		/**
 		 *
 		 */
 		virtual void
-		pack(
-				uint8_t *body,
-				size_t bodylen)
-					throw (eRoflExpInval)
-		{
-			if (bodylen < length())
-			{
+		pack(uint8_t *body, size_t bodylen) {
+			if (bodylen < length()) {
 				throw eRoflExpInval();
 			}
-
-
-			memcpy(body, (uint8_t*)rext_fsp, sizeof(struct ofp_rofl_ext_flowspace));
-			match.pack((struct ofp12_match*)(body + sizeof(struct ofp_rofl_ext_flowspace)),
+			memcpy(body, rext_generic, sizeof(struct ofp_rofl_ext_flowspace));
+			match.pack((body + sizeof(struct ofp_rofl_ext_flowspace)),
 					bodylen - sizeof(struct ofp_rofl_ext_flowspace));
 		};
+
+
 		/**
 		 *
 		 */
-		virtual const char*
-		c_str()
-		{
-			cvastring vas(2048);
-
-			info.assign(vas("croflexp_flowspace(%p) command: %d match: %s",
-					this, rext_fsp->command, match.c_str()));
-
-			return info.c_str();
+		virtual void
+		unpack(uint8_t *body, size_t bodylen) {
+			if (bodylen < sizeof(struct ofp_rofl_ext_flowspace)) {
+				throw eRoflExpInval();
+			}
+			memcpy(rext_generic, body, sizeof(struct ofp_rofl_ext_flowspace));
+			match.unpack(body + sizeof(struct ofp_rofl_ext_flowspace),
+					bodylen - sizeof(struct ofp_rofl_ext_flowspace));
 		};
+
+
+		/**
+		 *
+		 */
+		uint8_t
+		get_command() const {
+			return rext_fsp->command;
+		};
+
+
+		/**
+		 *
+		 */
+		void
+		set_command(uint8_t command) {
+			rext_fsp->command = command;
+		};
+
+
 		/**
 		 *
 		 */
 		virtual size_t
-		length()
-		{
+		length() {
 			return (sizeof(struct ofp_rofl_ext_flowspace) + match.length());
+		};
+
+public:
+
+		/**
+		 *
+		 */
+		friend std::ostream&
+		operator<< (std::ostream& os, croflexp_flowspace const& e) {
+			os << "<croflexp_flowspace ";
+				switch (e.get_command()) {
+				case OFPRET_FSP_ADD: 		os << "FlowSpaceAdd" 	<< " "; break;
+				case OFPRET_FSP_DELETE:		os << "FlowSpaceDelete" << " "; break;
+				default:					os << "UnknownCommand" 	<< " "; break;
+				}
+				os << "flowspace: " << e.match << " ";
+			os << ">";
+			return os;
 		};
 };
 

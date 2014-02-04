@@ -32,24 +32,13 @@ croflexp::~croflexp()
 }
 
 
-const char*
-croflexp::c_str()
-{
-	cvastring vas;
-
-	info.assign(vas("croflexp(%p) %s", this, mem.c_str()));
-
-	return info.c_str();
-}
-
 
 void
-croflexp::pack(uint8_t *__body, size_t __bodylen) throw (eRoflExpInval)
+croflexp::pack(uint8_t *__body, size_t __bodylen)
 {
 	size_t len = mem.memlen();
 
-	if (__bodylen < len)
-	{
+	if (__bodylen < len) {
 		throw eRoflExpInval();
 	}
 
@@ -105,28 +94,21 @@ void
 croflexp::validate_flowspace()
 		throw (eRoflExpInval)
 {
-	if (mem.memlen() < sizeof(struct ofp_rofl_ext_flowspace))
-	{
+	if (mem.memlen() < sizeof(struct ofp_rofl_ext_flowspace)) {
 		throw eRoflExpInval();
 	}
 
 	switch (rext_fsp->command) {
 	case OFPRET_FSP_ADD:
-	case OFPRET_FSP_DELETE:
-		{
-			match.clear();
-
-			if (mem.memlen() > sizeof(struct ofp_rofl_ext_flowspace))
-			{
-				match.unpack(rext_fsp->match, mem.memlen() - sizeof(struct ofp_rofl_ext_flowspace));
-			}
+	case OFPRET_FSP_DELETE: {
+		match.clear();
+		if (mem.memlen() > sizeof(struct ofp_rofl_ext_flowspace)) {
+			match.unpack((uint8_t*)(rext_fsp->match), mem.memlen() - sizeof(struct ofp_rofl_ext_flowspace));
 		}
-		break;
-	default:
-		{
-			throw eRoflExpInval();
-		}
-		break;
+	} break;
+	default: {
+		throw eRoflExpInval();
+	} break;
 	}
 }
 

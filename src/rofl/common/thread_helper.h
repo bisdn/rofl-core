@@ -15,54 +15,56 @@
 #include <pthread.h>
 #include <inttypes.h>
 
-#include "cerror.h"
-#include "rofl/platform/unix/csyslog.h"
+#include "croflexception.h"
 
 namespace rofl
 {
 
-class eLockBase : public cerror {};
+class RwLock; // forward declaration
+
+class PthreadRwLock {
+	pthread_rwlock_t rwlock;
+	friend class RwLock;
+public:
+	PthreadRwLock(pthread_rwlockattr_t *attr = NULL) {
+		pthread_rwlock_init(&rwlock, attr);
+	};
+	~PthreadRwLock() {
+		pthread_rwlock_destroy(&rwlock);
+	}
+};
+
+class eLockBase : public RoflException {};
 class eLockInval : public eLockBase {};
 class eLockWouldBlock : public eLockBase {};
 
-class Lock :
-	public csyslog
+class Lock
 {
 public:
 	Lock(pthread_mutex_t *mutex, bool blocking = true) throw (eLockWouldBlock) :
 		mutex(mutex), locked(false)
 	{
-		WRITELOG(CTHREAD, DBG, "thread %x lock mutex %p -trying-", pthread_self(), mutex);
-		if (blocking)
-		{
+		if (blocking) {
 			pthread_mutex_lock(this->mutex);
-		}
-		else
-		{
-			if (pthread_mutex_trylock(this->mutex) < 0)
-			{
+		} else {
+			if (pthread_mutex_trylock(this->mutex) < 0) {
 				switch (errno) {
 				case EBUSY:
 					throw eLockWouldBlock();
-
 				default:
 					throw eInternalError();
 				}
 			}
 		}
 		locked = true;
-		WRITELOG(CTHREAD, DBG, "thread %x lock mutex %p -locked-", pthread_self(), mutex);
 	}
 
 	virtual
 	~Lock()
 	{
-		WRITELOG(CTHREAD, DBG, "thread %x unlock mutex %p -trying-", pthread_self(), mutex);
-		if (locked)
-		{
+		if (locked) {
 			pthread_mutex_unlock(this->mutex);
 		}
-		WRITELOG(CTHREAD, DBG, "thread %x unlock mutex %p -unlocked-", pthread_self(), mutex);
 	}
 
 private:
@@ -71,8 +73,7 @@ private:
 };
 
 
-class RwLock :
-	public csyslog
+class RwLock
 {
 		pthread_rwlock_t *rwlock;
 		bool locked;
@@ -91,10 +92,7 @@ public:
 				bool blocking = true) throw (eLockWouldBlock, eLockInval) :
 			rwlock(rwlock), locked(false)
 		{
-			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x rwlock %p -trying- %s lock",
-					this, pthread_self(), rwlock, (rwtype == RWLOCK_READ) ? "READ" : "WRITE");
-			if (blocking)
-			{
+			if (blocking) {
 				switch (rwtype) {
 				case RWLOCK_READ:
 					pthread_rwlock_rdlock(rwlock);
@@ -105,9 +103,7 @@ public:
 				default:
 					throw eLockInval();
 				}
-			}
-			else
-			{
+			} else {
 				int rc = 0;
 
 				switch (rwtype) {
@@ -121,8 +117,7 @@ public:
 					throw eLockInval();
 				}
 
-				if (rc < 0)
-				{
+				if (rc < 0) {
 					switch (errno) {
 					case EBUSY:
 						throw eLockWouldBlock();
@@ -133,9 +128,55 @@ public:
 				}
 			}
 			locked = true;
-			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x rwlock %p -locked- %s lock",
-					this, pthread_self(), rwlock, (rwtype == RWLOCK_READ) ? "READ" : "WRITE");
 		};
+
+		/** constructor locks rwlock (or checks for existing lock)
+		 *
+		 */
+		RwLock(PthreadRwLock& pthreadRwLock,
+				uint8_t rwtype = RWLOCK_WRITE, // safe option: lock for writing
+				bool blocking = true) throw (eLockWouldBlock, eLockInval) :
+			rwlock(&(pthreadRwLock.rwlock)), locked(false)
+		{
+			if (blocking) {
+				switch (rwtype) {
+				case RWLOCK_READ:
+					pthread_rwlock_rdlock(rwlock);
+					break;
+				case RWLOCK_WRITE:
+					pthread_rwlock_wrlock(rwlock);
+					break;
+				default:
+					throw eLockInval();
+				}
+			} else {
+				int rc = 0;
+
+				switch (rwtype) {
+				case RWLOCK_READ:
+					rc = pthread_rwlock_tryrdlock(rwlock);
+					break;
+				case RWLOCK_WRITE:
+					rc = pthread_rwlock_trywrlock(rwlock);
+					break;
+				default:
+					throw eLockInval();
+				}
+
+				if (rc < 0) {
+					switch (errno) {
+					case EBUSY:
+						throw eLockWouldBlock();
+
+					default:
+						throw eInternalError();
+					}
+				}
+			}
+			locked = true;
+		};
+
+
 
 		/** destructor unlocks rwlock (if it has been locked)
 		 *
@@ -143,14 +184,9 @@ public:
 		virtual
 		~RwLock()
 		{
-			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x unlock rwlock %p -trying-",
-					this, pthread_self(), rwlock);
-			if (locked)
-			{
+			if (locked) {
 				pthread_rwlock_unlock(rwlock);
 			}
-			WRITELOG(CTHREAD, DBG, "RwLock(%p) thread %x unlock rwlock %p -unlocked-",
-					this, pthread_self(), rwlock);
 		}
 };
 
