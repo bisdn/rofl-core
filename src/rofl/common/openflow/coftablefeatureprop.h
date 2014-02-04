@@ -505,17 +505,21 @@ public:
 		os << dynamic_cast<coftable_feature_prop const&>( tfp );
 		os << indent(2) << "<coftable_feature_prop_oxm "
 				<< "oxm-ids-size:" << tfp.oxm_ids.size()
-				<< "experimental oxm-ids-size:" << tfp.oxm_ids_exp.size() << " >" << std::endl;
+				<< "oxm-ids-exp-size:" << tfp.oxm_ids_exp.size() << " >" << std::endl;
 		for (std::vector<uint32_t>::const_iterator it = tfp.oxm_ids.begin(); it != tfp.oxm_ids.end(); ++it) {
-			os << indent(4) << "<oxm-id " << std::hex << (*it) << std::dec << " >" << std::endl;
+			os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " >" << std::endl;
 		}
 		for (std::vector<uint64_t>::const_iterator it = tfp.oxm_ids_exp.begin(); it != tfp.oxm_ids_exp.end(); ++it) {
-			os << indent(4) << "<oxm-id-exp " << std::hex << (*it) << std::dec << " >" << std::endl;
+			os << indent(4) << "<oxm-id-exp 0x" << std::hex << (*it) << std::dec << " >" << std::endl;
 		}
 		return os;
 	};
 };
 
+
+/*
+ * TODO: coftable_feature_prop_experimenter
+ */
 
 };
 };
