@@ -147,7 +147,14 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofpacket_queue const& pq) {
 		os 	<< indent(0) << "<PacketQueue >" << std::endl;
-			os << indent(2) << "<port:0x" << std::hex << (int)pq.get_port() << std::dec << " >" << std::endl;
+			switch (pq.of_version) {
+			case rofl::openflow10::OFP_VERSION: {
+				// no port field in 1.0
+			} break;
+			default: {
+				os << indent(2) << "<port:0x" << std::hex << (int)pq.get_port() << std::dec << " >" << std::endl;
+			};
+			}
 			os << indent(2) << "<queueid:" << (int)pq.get_queue_id() << " >" << std::endl;
 			indent i(2);
 			os << pq.qpl;
