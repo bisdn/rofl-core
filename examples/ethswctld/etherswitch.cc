@@ -222,6 +222,7 @@ ethswitch::handle_packet_in(
 
 			fe.match.set_in_port(msg.get_match().get_in_port());
 			fe.match.set_eth_dst(msg.get_packet().ether()->get_dl_dst());
+			fe.match.set_eth_type(msg.get_match().get_eth_type());
 			fe.instructions.add_inst_apply_actions();
 
 			logging::info << "[ethsw][packet-in] installing new Flow-Mod entry:" << std::endl << fe;
@@ -265,6 +266,7 @@ ethswitch::handle_packet_in(
 
 			fe.match.set_in_port(msg.get_match().get_in_port());
 			fe.match.set_eth_dst(msg.get_packet().ether()->get_dl_dst());
+			fe.match.set_eth_type(msg.get_match().get_eth_type());
 			fe.instructions.add_inst_apply_actions();
 			fe.instructions.set_inst_apply_actions().get_actions().append_action_output(crofbase::get_ofp_flood_port(dpt.get_version()));
 
@@ -317,6 +319,7 @@ ethswitch::handle_packet_in(
 
 				fe.match.set_eth_dst(eth_dst);
 				fe.match.set_eth_src(eth_src);
+				fe.match.set_eth_type(msg.get_match().get_eth_type());
 
 				fe.instructions.add_inst_apply_actions().get_actions().append_action_output(entry.get_out_port_no());
 
