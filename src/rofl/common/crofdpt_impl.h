@@ -530,6 +530,15 @@ private:
 			cofmsg *msg, uint8_t aux_id = 0);
 
 
+	/**
+	 *
+	 * @param msg
+	 * @param aux_id
+	 */
+	void
+	error_rcvd(
+			cofmsg *msg, uint8_t aux_id = 0);
+
 
 	/**
 	 * @name	features_reply_rcvd
