@@ -9,12 +9,22 @@
 
 using namespace rofl::openflow;
 
+
+coftable_feature_prop::coftable_feature_prop() :
+		ofp_version(rofl::openflow::OFP_VERSION_UNKNOWN)
+{
+
+}
+
+
 coftable_feature_prop::coftable_feature_prop(
 		uint8_t ofp_version,
+		uint16_t type,
 		size_t len) :
 				ofp_version(ofp_version)
 {
 	resize(len);
+	set_type(type);
 }
 
 
@@ -138,8 +148,9 @@ coftable_feature_prop::set_length(uint16_t len)
  */
 
 coftable_feature_prop_instructions::coftable_feature_prop_instructions(
-		uint8_t ofp_version) :
-				coftable_feature_prop(ofp_version, sizeof(struct openflow13::ofp_table_feature_prop_instructions))
+		uint8_t ofp_version,
+		uint16_t type) :
+				coftable_feature_prop(ofp_version, type, sizeof(struct openflow13::ofp_table_feature_prop_instructions))
 {
 
 }
@@ -293,8 +304,9 @@ coftable_feature_prop_instructions::resize(
  */
 
 coftable_feature_prop_next_tables::coftable_feature_prop_next_tables(
-		uint8_t ofp_version) :
-				coftable_feature_prop(ofp_version, sizeof(struct openflow13::ofp_table_feature_prop_next_tables))
+		uint8_t ofp_version,
+		uint16_t type) :
+				coftable_feature_prop(ofp_version, type, sizeof(struct openflow13::ofp_table_feature_prop_next_tables))
 {
 
 }
@@ -439,8 +451,9 @@ coftable_feature_prop_next_tables::resize(
  */
 
 coftable_feature_prop_actions::coftable_feature_prop_actions(
-		uint8_t ofp_version) :
-				coftable_feature_prop(ofp_version, sizeof(struct openflow13::ofp_table_feature_prop_actions))
+		uint8_t ofp_version,
+		uint16_t type) :
+				coftable_feature_prop(ofp_version, type, sizeof(struct openflow13::ofp_table_feature_prop_actions))
 {
 
 }
@@ -593,8 +606,9 @@ coftable_feature_prop_actions::resize(
  */
 
 coftable_feature_prop_oxm::coftable_feature_prop_oxm(
-		uint8_t ofp_version) :
-				coftable_feature_prop(ofp_version, sizeof(struct openflow13::ofp_table_feature_prop_oxm))
+		uint8_t ofp_version,
+		uint16_t type) :
+				coftable_feature_prop(ofp_version, type, sizeof(struct openflow13::ofp_table_feature_prop_oxm))
 {
 
 }

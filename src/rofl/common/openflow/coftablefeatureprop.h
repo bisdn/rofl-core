@@ -43,8 +43,15 @@ public:
 	/**
 	 *
 	 */
+	coftable_feature_prop();
+
+
+	/**
+	 *
+	 */
 	coftable_feature_prop(
-			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
+			uint8_t ofp_version,
+			uint16_t type,
 			size_t len = sizeof(struct openflow13::ofp_table_feature_prop_header));
 
 	/**
@@ -155,7 +162,8 @@ public:
 	 *
 	 */
 	coftable_feature_prop_instructions(
-			uint8_t ofp_version = OFP_VERSION_UNKNOWN);
+			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
+			uint16_t type = 0);
 
 	/**
 	 *
@@ -247,7 +255,8 @@ public:
 	 *
 	 */
 	coftable_feature_prop_next_tables(
-			uint8_t ofp_version = OFP_VERSION_UNKNOWN);
+			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
+			uint16_t type = 0);
 
 	/**
 	 *
@@ -338,7 +347,8 @@ public:
 	 *
 	 */
 	coftable_feature_prop_actions(
-			uint8_t ofp_version = OFP_VERSION_UNKNOWN);
+			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
+			uint16_t type = 0);
 
 	/**
 	 *
@@ -432,7 +442,8 @@ public:
 	 *
 	 */
 	coftable_feature_prop_oxm(
-			uint8_t ofp_version = OFP_VERSION_UNKNOWN);
+			uint8_t ofp_version = OFP_VERSION_UNKNOWN,
+			uint16_t type = 0);
 
 	/**
 	 *
