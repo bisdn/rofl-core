@@ -136,9 +136,9 @@ ciosrv::__handle_revent(int fd)
 {
 	try {
 		if (pipe.pipefd[0] == fd) {
-			//logging::debug << "[rofl][ciosrv][revent] entering event loop:" << std::endl << *this;
+			logging::trace << "[rofl][ciosrv][revent] entering event loop:" << std::endl << *this;
 			if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
-				//logging::debug << "[rofl][ciosrv][revent] ciosrv instance deleted, returning from event loop" << std::endl;
+				logging::trace << "[rofl][ciosrv][revent] ciosrv instance deleted, returning from event loop" << std::endl;
 				return;
 			}
 			pipe.recvmsg();
@@ -146,14 +146,14 @@ ciosrv::__handle_revent(int fd)
 			cevents clone = events; events.clear();
 
 			while (not clone.empty()) {
-				//logging::debug << "[rofl][ciosrv][revent] inside event loop:" << std::endl << clone;
+				logging::trace << "[rofl][ciosrv][revent] inside event loop:" << std::endl << clone;
 				if (ciosrv::ciolist.find(this) == ciosrv::ciolist.end()) {
-					//logging::debug << "[rofl][ciosrv][revent] ciosrv instance deleted, returning from event loop" << std::endl;
+					logging::trace << "[rofl][ciosrv][revent] ciosrv instance deleted, returning from event loop" << std::endl;
 					return;
 				}
 				handle_event(clone.get_event());
 			}
-			//logging::debug << "[rofl][ciosrv][revent] leaving event loop:" << std::endl << clone;
+			logging::trace << "[rofl][ciosrv][revent] leaving event loop:" << std::endl << clone;
 		} else {
 			handle_revent(fd);
 		}
@@ -168,7 +168,7 @@ ciosrv::__handle_timeout()
 {
 	try {
 		ctimer timer = timers.get_expired_timer();
-		//logging::debug << "[rofl][ciosrv][handle-timeout] timer: " << std::endl << timer;
+		logging::trace << "[rofl][ciosrv][handle-timeout] timer: " << std::endl << timer;
 		handle_timeout(timer.get_opaque());
 	} catch (eTimersNotFound& e) {
 
@@ -342,9 +342,9 @@ cioloop::run_loop()
 		}
 
 
-		logging::debug << "[rofl][cioloop] before select:" << std::endl << *this;
+		logging::trace << "[rofl][cioloop] before select:" << std::endl << *this;
 
-		logging::debug << "[rofl][cioloop] next-timeout for select:" << std::endl << next_timeout.second;
+		logging::trace << "[rofl][cioloop] next-timeout for select:" << std::endl << next_timeout.second;
 
 		// blocking
 		if ((rc = pselect(maxfd + 1, &readfds, &writefds, &exceptfds, &(next_timeout.second.get_ts()), &empty_mask)) < 0) {
@@ -410,7 +410,7 @@ restart:
 			}
 		}
 
-		logging::debug << "[rofl][cioloop] after select:" << std::endl << *this;
+		logging::trace << "[rofl][cioloop] after select:" << std::endl << *this;
 	}
 }
 

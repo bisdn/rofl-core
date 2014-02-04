@@ -34,6 +34,7 @@ public:
 	static std::ostream notice;
 	static std::ostream info;
 	static std::ostream debug;
+	static std::ostream trace;
 	static std::streamsize width;
 
 public:
