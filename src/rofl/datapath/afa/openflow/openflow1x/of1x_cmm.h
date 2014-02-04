@@ -54,11 +54,11 @@ afa_result_t cmm_process_of1x_packet_in(uint64_t dpid,
  * @brief   Instructs the CMM to process a FLOW_REMOVED event comming from the DP
  * @ingroup of1x_cmm_async_event_processing
  *
- * @param sw OpenFlow 1.2 switch pointer that generated the FLOW_REMOVED
+ * @param dpid OpenFlow switch DPID
  * @param removed_flow_entry The entry shall ONLY be used for reading, and shall NEVER be
  * removed (of1x_remove_flow_entry). This is done by the fwd_module itself.
  */
-afa_result_t cmm_process_of1x_flow_removed(const of1x_switch_t* sw, 	
+afa_result_t cmm_process_of1x_flow_removed(uint64_t dpid, 	
 					uint8_t reason, 
 					of1x_flow_entry_t* removed_flow_entry);
 
