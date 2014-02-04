@@ -125,6 +125,14 @@ protected:
 	 */
 	uint8_t*
 	resize(size_t size);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, coftable_feature_prop const& tfp) {
+		os << indent(0) << "<coftable_feature_prop type:" << tfp.get_type() << " len:" << tfp.get_length() << " >" << std::endl;
+		return os;
+	};
 };
 
 
@@ -205,6 +213,18 @@ protected:
 	 */
 	uint8_t*
 	resize(size_t size);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, coftable_feature_prop_instructions const& tfp) {
+		os << dynamic_cast<coftable_feature_prop const&>( tfp );
+		os << indent(2) << "<coftable_feature_prop_instructions size:" << tfp.size() << " >" << std::endl;
+		for (std::vector<cofinst>::const_iterator it = tfp.begin(); it != tfp.end(); ++it) {
+			os << indent(4) << "<instruction-id type:" << (*it).get_type() << " len:" << (*it).get_length() << " >" << std::endl;
+		}
+		return os;
+	};
 };
 
 
@@ -284,6 +304,18 @@ protected:
 	 */
 	uint8_t*
 	resize(size_t size);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, coftable_feature_prop_next_tables const& tfp) {
+		os << dynamic_cast<coftable_feature_prop const&>( tfp );
+		os << indent(2) << "<coftable_feature_prop_next_tables size:" << tfp.size() << " >" << std::endl;
+		for (std::vector<uint8_t>::const_iterator it = tfp.begin(); it != tfp.end(); ++it) {
+			os << indent(4) << "<table-id type:" << (*it) << " >" << std::endl;
+		}
+		return os;
+	};
 };
 
 
@@ -364,8 +396,125 @@ protected:
 	 */
 	uint8_t*
 	resize(size_t size);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, coftable_feature_prop_actions const& tfp) {
+		os << dynamic_cast<coftable_feature_prop const&>( tfp );
+		os << indent(2) << "<coftable_feature_prop_actions size:" << tfp.size() << " >" << std::endl;
+		for (std::vector<cofaction>::const_iterator it = tfp.begin(); it != tfp.end(); ++it) {
+			os << indent(4) << "<action-id type:" << (*it).get_type() << " len:" << (*it).get_length() << " >" << std::endl;
+		}
+		return os;
+	};
 };
 
+
+
+class coftable_feature_prop_oxm :
+		public coftable_feature_prop
+{
+	std::vector<uint32_t>	oxm_ids;
+	std::vector<uint64_t>	oxm_ids_exp;
+
+	union {
+		uint8_t											*ofhu_ofp_tfpoxm;
+		struct openflow13::ofp_table_feature_prop_oxm	*ofhu_ofp_tfpoxmhdr;
+	} ofh_ofhu;
+
+#define ofh_tfpoxm		ofh_ofhu.ofhu_ofp_tfpoxm
+#define ofh_tfpoxmhdr	ofh_ofhu.ofhu_ofp_tfpoxmhdr
+
+public:
+
+	/**
+	 *
+	 */
+	coftable_feature_prop_oxm(
+			uint8_t ofp_version = OFP_VERSION_UNKNOWN);
+
+	/**
+	 *
+	 */
+	virtual
+	~coftable_feature_prop_oxm();
+
+	/**
+	 *
+	 */
+	coftable_feature_prop_oxm(
+			coftable_feature_prop_oxm const& tfpoxm);
+
+	/**
+	 *
+	 */
+	coftable_feature_prop_oxm&
+	operator= (
+			coftable_feature_prop_oxm const& tfpoxm);
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(
+			uint8_t* buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(
+			uint8_t* buf, size_t buflen);
+
+
+	/**
+	 *
+	 */
+	std::vector<uint32_t>&
+	get_oxm_ids() { return oxm_ids; };
+
+
+	/**
+	 *
+	 */
+	std::vector<uint64_t>&
+	get_oxm_ids_exp() { return oxm_ids_exp; };
+
+
+protected:
+
+	/**
+	 *
+	 */
+	uint8_t*
+	resize(size_t size);
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, coftable_feature_prop_oxm const& tfp) {
+		os << dynamic_cast<coftable_feature_prop const&>( tfp );
+		os << indent(2) << "<coftable_feature_prop_oxm "
+				<< "oxm-ids-size:" << tfp.oxm_ids.size()
+				<< "experimental oxm-ids-size:" << tfp.oxm_ids_exp.size() << " >" << std::endl;
+		for (std::vector<uint32_t>::const_iterator it = tfp.oxm_ids.begin(); it != tfp.oxm_ids.end(); ++it) {
+			os << indent(4) << "<oxm-id " << std::hex << (*it) << std::dec << " >" << std::endl;
+		}
+		for (std::vector<uint64_t>::const_iterator it = tfp.oxm_ids_exp.begin(); it != tfp.oxm_ids_exp.end(); ++it) {
+			os << indent(4) << "<oxm-id-exp " << std::hex << (*it) << std::dec << " >" << std::endl;
+		}
+		return os;
+	};
+};
 
 
 };

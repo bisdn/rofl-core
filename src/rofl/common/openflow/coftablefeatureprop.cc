@@ -66,8 +66,6 @@ coftable_feature_prop::pack(
 		throw eOFTableFeaturePropInval();
 	}
 
-	set_length(length());
-
 	cmemory::pack(buf, buflen);
 }
 
@@ -80,11 +78,9 @@ coftable_feature_prop::unpack(
 		throw eOFTableFeaturePropInval();
 	}
 
-	if (cmemory::memlen() < buflen) {
-		resize(buflen);
-	}
+	cmemory::unpack(buf, buflen);
 
-	cmemory::assign(buf, buflen);
+	ofp_tfp = cmemory::somem();
 }
 
 
@@ -207,13 +203,21 @@ coftable_feature_prop_instructions::pack(
 		throw eOFTableFeaturePropInval();
 	}
 
+	// resize internal buffer (including padding)
+	resize(buflen = length());
+
+	// set length field (excluding padding)
 	set_length(sizeof(struct openflow13::ofp_table_feature_prop_header) +
 			std::vector<cofinst>::size() * sizeof(struct openflow::ofp_instruction)); // without padding
 
+	// fill in instruction-ids (internal buffer)
 	for (unsigned int i = 0; i < std::vector<cofinst>::size(); i++) {
 		ofh_tfpihdr->instruction_ids[i].type = htobe16(std::vector<cofinst>::operator[](i).get_type());
 		ofh_tfpihdr->instruction_ids[i].len  = htobe16(std::vector<cofinst>::operator[](i).get_length());
 	}
+
+	// copy internal buffer into external [buf, buflen]
+	coftable_feature_prop::pack(buf, buflen);
 }
 
 
@@ -353,12 +357,20 @@ coftable_feature_prop_next_tables::pack(
 		throw eOFTableFeaturePropInval();
 	}
 
-	set_length(sizeof(struct openflow13::ofp_table_feature_prop_next_tables) +
-			std::vector<uint8_t>::size() * sizeof(uint8_t)); // without padding
+	// resize internal buffer (including padding)
+	resize(buflen = length());
 
+	// set length field (excluding padding)
+	set_length(sizeof(struct openflow13::ofp_table_feature_prop_next_tables) +
+				std::vector<uint8_t>::size() * sizeof(uint8_t)); // without padding
+
+	// fill in next-tables-ids (internal buffer)
 	for (unsigned int i = 0; i < std::vector<uint8_t>::size(); i++) {
 		ofh_tfpnxthdr->next_table_ids[i] = std::vector<uint8_t>::operator[](i);
 	}
+
+	// copy internal buffer into external [buf, buflen]
+	coftable_feature_prop::pack(buf, buflen);
 }
 
 
@@ -492,13 +504,21 @@ coftable_feature_prop_actions::pack(
 		throw eOFTableFeaturePropInval();
 	}
 
+	// resize internal buffer (including padding)
+	resize(buflen = length());
+
+	// set length field (excluding padding)
 	set_length(sizeof(struct openflow13::ofp_table_feature_prop_header) +
 			std::vector<cofaction>::size() * sizeof(struct openflow::ofp_action)); // without padding
 
+	// fill in next-tables-ids (internal buffer)
 	for (unsigned int i = 0; i < std::vector<cofaction>::size(); i++) {
 		ofh_tfpahdr->action_ids[i].type = htobe16(std::vector<cofaction>::operator[](i).get_type());
 		ofh_tfpahdr->action_ids[i].len  = htobe16(std::vector<cofaction>::operator[](i).get_length());
 	}
+
+	// copy internal buffer into external [buf, buflen]
+	coftable_feature_prop::pack(buf, buflen);
 }
 
 
@@ -556,5 +576,185 @@ coftable_feature_prop_actions::resize(
 {
 	return (ofh_tfpa = coftable_feature_prop::resize(size));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ * struct ofp_table_feature_prop_oxm
+ */
+
+coftable_feature_prop_oxm::coftable_feature_prop_oxm(
+		uint8_t ofp_version) :
+				coftable_feature_prop(ofp_version, sizeof(struct openflow13::ofp_table_feature_prop_oxm))
+{
+
+}
+
+
+coftable_feature_prop_oxm::~coftable_feature_prop_oxm()
+{
+
+}
+
+
+coftable_feature_prop_oxm::coftable_feature_prop_oxm(
+		coftable_feature_prop_oxm const& tfpoxm)
+{
+	*this = tfpoxm;
+}
+
+
+coftable_feature_prop_oxm&
+coftable_feature_prop_oxm::operator= (
+		coftable_feature_prop_oxm const& tfpoxm)
+{
+	if (this == &tfpoxm)
+		return *this;
+
+	coftable_feature_prop::operator= (tfpoxm);
+	ofh_tfpoxm = somem();
+
+	oxm_ids.clear();
+	std::copy(tfpoxm.oxm_ids.begin(), tfpoxm.oxm_ids.end(), oxm_ids.begin());
+	oxm_ids_exp.clear();
+	std::copy(tfpoxm.oxm_ids_exp.begin(), tfpoxm.oxm_ids_exp.end(), oxm_ids_exp.begin());
+
+	return *this;
+}
+
+
+size_t
+coftable_feature_prop_oxm::length() const
+{
+	size_t total_length = sizeof(struct openflow13::ofp_table_feature_prop_oxm) +
+			oxm_ids.size() * sizeof(uint32_t) * oxm_ids_exp.size() * sizeof(uint64_t);
+
+	size_t pad = (0x7 & total_length);
+	/* append padding if not a multiple of 8 */
+	if (pad) {
+		total_length += 8 - pad;
+	}
+	return total_length;
+}
+
+
+void
+coftable_feature_prop_oxm::pack(
+			uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen)) {
+		return;
+	}
+
+	if (buflen < length()) {
+		throw eOFTableFeaturePropInval();
+	}
+
+	// resize internal buffer (including padding)
+	resize(buflen = length());
+
+	// set length field (excluding padding)
+	set_length(sizeof(struct openflow13::ofp_table_feature_prop_oxm) +
+			oxm_ids.size() * sizeof(uint32_t) * oxm_ids_exp.size() * sizeof(uint64_t)); // without padding
+
+	// fill in oxm-ids (internal buffer)
+	uint32_t *uint32 = (uint32_t*)((uint8_t*)(ofh_tfpoxmhdr->oxm_ids));
+	for (unsigned int i = 0; i < oxm_ids.size(); i++) {
+		uint32[i] = htobe32(oxm_ids[i]);
+	}
+
+	// fill in experimental oxm-ids (internal buffer)
+	uint64_t *uint64 = (uint64_t*)((uint8_t*)(ofh_tfpoxmhdr->oxm_ids) + oxm_ids.size() * sizeof(uint32_t));
+	for (unsigned int i = 0; i < oxm_ids_exp.size(); i++) {
+		uint64[i] = htobe64(oxm_ids_exp[i]);
+	}
+
+	// copy internal buffer into external [buf, buflen]
+	coftable_feature_prop::pack(buf, buflen);
+}
+
+
+void
+coftable_feature_prop_oxm::unpack(
+			uint8_t* buf, size_t buflen)
+{
+	if ((0 == buf) || (buflen < sizeof(struct openflow13::ofp_table_feature_prop_oxm))) {
+		throw eOFTableFeaturePropInval();
+	}
+
+	oxm_ids.clear();
+	oxm_ids_exp.clear();
+
+	coftable_feature_prop::unpack(buf, buflen);
+
+	ofh_tfpoxm = somem();
+
+	// sanity check: length field must contain at least sizeof tfpoxm header
+	if (get_length() < sizeof(struct openflow13::ofp_table_feature_prop_oxm)) {
+		throw eOFTableFeaturePropInval();
+	}
+
+	// sanity check: overall buflen must contain length field from tfpoxmhdr + padding
+	size_t total_length = get_length();
+	size_t pad = (0x7 & total_length);
+	/* append padding if not a multiple of 8 */
+	if (pad) {
+		total_length += 8 - pad;
+	}
+	if (buflen < total_length) {
+		throw eOFTableFeaturePropInval();
+	}
+
+
+	size_t remaining = total_length - sizeof(struct openflow13::ofp_table_feature_prop_oxm);
+	while (remaining > sizeof(uint32_t)) {
+		struct openflow::ofp_oxm_hdr *oxm = (struct openflow::ofp_oxm_hdr*)
+				(((struct openflow13::ofp_table_feature_prop_oxm*)buf)->oxm_ids);
+
+		switch (be16toh(oxm->oxm_class)) {
+		case OFPXMC_EXPERIMENTER: {
+			if (remaining < sizeof(uint64_t)) {
+				return;
+			}
+			oxm_ids_exp.push_back(be64toh(*(uint64_t*)(oxm)));
+			remaining -= sizeof(uint64_t);
+		} break;
+		default: {
+			if (remaining < sizeof(uint32_t)) {
+				return;
+			}
+			oxm_ids.    push_back(be32toh(*(uint32_t*)(oxm)));
+			remaining -= sizeof(uint32_t);
+		};
+		}
+	}
+}
+
+
+uint8_t*
+coftable_feature_prop_oxm::resize(
+		size_t size)
+{
+	return (ofh_tfpoxm = coftable_feature_prop::resize(size));
+}
+
+
+
+
+
+
+
+
+
+
 
 
