@@ -1555,15 +1555,19 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_src const& oxm)
 	{
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<ipv6-src: >";
+		indent i(2);
+		os << indent(0) << "<ipv6-src: >" << std::endl;
 		if (oxm.get_oxm_hasmask()) {
 			indent i(2);
-			os << "<addr >" << cmemory(oxm.oxm_ipv6addr->addr, 16);
-			os << "<mask >" << cmemory(oxm.oxm_ipv6addr->mask, 16);
+			os << indent(0) << "<addr >" << std::endl;
+			{ indent j(2); os << cmemory(oxm.oxm_ipv6addr->addr, 16); }
+			os << indent(0) << "<mask >" << std::endl;
+			{ indent j(2); os << cmemory(oxm.oxm_ipv6addr->mask, 16); }
 		} else {
 			indent i(2);
-			os << "<addr >" << cmemory(oxm.oxm_ipv6addr->addr, 16);
-			os << "<mask none>" << std::endl;
+			os << indent(0) << "<addr >" << std::endl;
+			{ indent j(2); os << cmemory(oxm.oxm_ipv6addr->addr, 16); }
+			os << indent(0) << "<mask none>" << std::endl;
 		}
 		return os;
 	};
@@ -1653,15 +1657,18 @@ public:
 	operator<< (std::ostream& os, coxmatch_ofb_ipv6_dst const& oxm)
 	{
 		os << dynamic_cast<coxmatch const&>(oxm);
-		os << indent(2) << "<ipv6-dst: >";
+		os << indent(2) << "<ipv6-dst: >" << std::endl;
 		if (oxm.get_oxm_hasmask()) {
 			indent i(2);
-			os << "<addr >" << cmemory(oxm.oxm_ipv6addr->addr, 16);
-			os << "<mask >" << cmemory(oxm.oxm_ipv6addr->mask, 16);
+			os << indent(0) << "<addr >" << std::endl;
+			{ indent j(2); os << cmemory(oxm.oxm_ipv6addr->addr, 16); }
+			os << indent(0) << "<mask >" << std::endl;
+			{ indent j(2); os << cmemory(oxm.oxm_ipv6addr->mask, 16); }
 		} else {
 			indent i(2);
-			os << "<addr >" << cmemory(oxm.oxm_ipv6addr->addr, 16);
-			os << "<mask none>" << std::endl;
+			os << indent(0) << "<addr >" << std::endl;
+			{ indent j(2); os << cmemory(oxm.oxm_ipv6addr->addr, 16); }
+			os << indent(0) << "<mask none>" << std::endl;
 		}
 		return os;
 	};
