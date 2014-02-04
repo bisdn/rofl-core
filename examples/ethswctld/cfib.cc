@@ -42,6 +42,16 @@ cfib::~cfib()
 }
 
 
+void
+cfib::clear()
+{
+	for (std::map<rofl::cmacaddr, cfibentry*>::iterator
+			it = fibtable.begin(); it != fibtable.end(); ++it) {
+		delete it->second;
+	}
+	fibtable.clear();
+}
+
 
 void
 cfib::dpt_bind(rofl::crofbase *rofbase, rofl::crofdpt *dpt)
@@ -102,8 +112,6 @@ cfib::fib_update(
 		rofl::cmacaddr const& src,
 		uint32_t in_port)
 {
-	std::cerr << "UPDATE: src: " << src << std::endl;
-
 	// update cfibentry for src/inport
 	if (fibtable.find(src) == fibtable.end()) {
 		fibtable[src] = new cfibentry(this, rofbase, &dpt, src, in_port);
@@ -111,12 +119,12 @@ cfib::fib_update(
 		fibtable[src]->flow_mod_add();
 #endif
 
-		std::cerr << "UPDATE[2.1]: " << *this << std::endl;
+		std::cerr << "UPDATE[NEW-ENTRY]: src:" << src << " " << *this << std::endl;
 
 	} else {
 		fibtable[src]->set_out_port_no(in_port);
 
-		std::cerr << "UPDATE[3.1]: " << *this << std::endl;
+		std::cerr << "UPDATE[UPDATE-ENTRY]: src:" << src << " " << *this << std::endl;
 
 	}
 }

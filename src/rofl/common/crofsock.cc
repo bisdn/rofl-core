@@ -299,6 +299,10 @@ crofsock::parse_of10_message(cmemory *mem, cofmsg **pmsg)
 		(*pmsg = new cofmsg_hello(mem))->validate();
 	} break;
 
+	case openflow10::OFPT_ERROR: {
+		(*pmsg = new cofmsg_error(mem))->validate();
+	} break;
+
 	case openflow10::OFPT_ECHO_REQUEST: {
 		(*pmsg = new cofmsg_echo_request(mem))->validate();
 	} break;
@@ -446,6 +450,10 @@ crofsock::parse_of12_message(cmemory *mem, cofmsg **pmsg)
 	switch (ofh_header->type) {
 	case openflow12::OFPT_HELLO: {
 		(*pmsg = new cofmsg_hello(mem))->validate();
+	} break;
+
+	case openflow12::OFPT_ERROR: {
+		(*pmsg = new cofmsg_error(mem))->validate();
 	} break;
 
 	case openflow12::OFPT_ECHO_REQUEST: {
@@ -641,6 +649,10 @@ crofsock::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 	case openflow13::OFPT_HELLO: {
 		(*pmsg = new cofmsg_hello(mem))->validate();
 		logging::debug << dynamic_cast<cofmsg_hello&>( **pmsg );
+	} break;
+
+	case openflow13::OFPT_ERROR: {
+		(*pmsg = new cofmsg_error(mem))->validate();
 	} break;
 
 	case openflow13::OFPT_ECHO_REQUEST: {
