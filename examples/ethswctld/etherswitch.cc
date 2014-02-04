@@ -186,8 +186,6 @@ ethswitch::handle_packet_in(
 							<< "eth-type:0x" << std::hex << msg.get_packet().ether()->get_dl_type() << std::dec << " "
 							<< std::endl;
 
-		logging::info << "XXXXXXXXXXXXXXXXXXXXXXX -1-" << std::endl;
-
 		/*
 		 * sanity check: if source mac is multicast => invalid frame
 		 */
@@ -195,8 +193,6 @@ ethswitch::handle_packet_in(
 			logging::warn << "[ethsw][packet-in] eth-src:" << eth_src << " is multicast, ignoring." << std::endl;
 			return;
 		}
-
-		logging::info << "XXXXXXXXXXXXXXXXXXXXXXX -2-" << std::endl;
 
 
 
@@ -233,16 +229,12 @@ ethswitch::handle_packet_in(
 		}
 
 
-		logging::info << "XXXXXXXXXXXXXXXXXXXXXXX -3-" << std::endl;
-
 
 		cfib::get_fib(dpt.get_dpid()).fib_update(
 								this,
 								dpt,
 								msg.get_packet().ether()->get_dl_src(),
 								msg.get_match().get_in_port());
-
-		logging::info << "XXXXXXXXXXXXXXXXXXXXXXX -4-" << std::endl;
 
 
 		/*
@@ -277,8 +269,6 @@ ethswitch::handle_packet_in(
 			return;
 		}
 
-		logging::info << "XXXXXXXXXXXXXXXXXXXXXXX -5-" << std::endl;
-
 
 		if (eth_dst.is_multicast()) {
 
@@ -287,8 +277,6 @@ ethswitch::handle_packet_in(
 		} else {
 
 			try {
-				logging::info << "XXXXXXXXXXXXXXXXXXXXXXX -6-" << std::endl;
-
 				cfibentry& entry = cfib::get_fib(dpt.get_dpid()).fib_lookup(
 							this,
 							dpt,
@@ -296,8 +284,6 @@ ethswitch::handle_packet_in(
 							msg.get_packet().ether()->get_dl_src(),
 							msg.get_match().get_in_port());
 
-
-				logging::info << "XXXXXXXXXXXXXXXXXXXXXXX -7-" << std::endl;
 
 				if (msg.get_match().get_in_port() == entry.get_out_port_no()) {
 					indent i(2);
@@ -376,7 +362,6 @@ ethswitch::handle_packet_in(
 
 	} catch (...) {
 		logging::error << "[ethsw][packet-in] caught some exception, use debugger for getting more info" << std::endl << msg;
-		throw;
 	}
 }
 
