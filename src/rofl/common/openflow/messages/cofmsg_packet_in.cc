@@ -64,7 +64,8 @@ cofmsg_packet_in::cofmsg_packet_in(
 
 cofmsg_packet_in::cofmsg_packet_in(
 		cmemory *memarea) :
-	cofmsg(memarea)
+	cofmsg(memarea),
+	packet(get_version())
 {
 	ofh_packet_in = soframe();
 }

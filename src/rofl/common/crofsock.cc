@@ -127,6 +127,13 @@ crofsock::handle_read(
 				msg_len = be16toh(ofh_header->length);
 			}
 
+			// sanity check: 8 <= msg_len <= 2^16
+			if (msg_len < sizeof(struct openflow::ofp_header)) {
+				logging::warn << "[rofl][sock] received message with invalid length field, closing socket." << std::endl;
+				socket.close();
+				return;
+			}
+
 			// resize msg buffer, if necessary
 			if (fragment->memlen() < msg_len) {
 				fragment->resize(msg_len);
@@ -146,6 +153,7 @@ crofsock::handle_read(
 				if (msg_len == msg_bytes_read) {
 					cmemory *mem = fragment;
 					fragment = (cmemory*)0; // just in case, we get an exception from parse_message()
+					msg_bytes_read = 0;
 					parse_message(mem);
 					return;
 				}
@@ -299,6 +307,10 @@ crofsock::parse_of10_message(cmemory *mem, cofmsg **pmsg)
 		(*pmsg = new cofmsg_hello(mem))->validate();
 	} break;
 
+	case openflow10::OFPT_ERROR: {
+		(*pmsg = new cofmsg_error(mem))->validate();
+	} break;
+
 	case openflow10::OFPT_ECHO_REQUEST: {
 		(*pmsg = new cofmsg_echo_request(mem))->validate();
 	} break;
@@ -446,6 +458,10 @@ crofsock::parse_of12_message(cmemory *mem, cofmsg **pmsg)
 	switch (ofh_header->type) {
 	case openflow12::OFPT_HELLO: {
 		(*pmsg = new cofmsg_hello(mem))->validate();
+	} break;
+
+	case openflow12::OFPT_ERROR: {
+		(*pmsg = new cofmsg_error(mem))->validate();
 	} break;
 
 	case openflow12::OFPT_ECHO_REQUEST: {
@@ -641,6 +657,10 @@ crofsock::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 	case openflow13::OFPT_HELLO: {
 		(*pmsg = new cofmsg_hello(mem))->validate();
 		logging::debug << dynamic_cast<cofmsg_hello&>( **pmsg );
+	} break;
+
+	case openflow13::OFPT_ERROR: {
+		(*pmsg = new cofmsg_error(mem))->validate();
 	} break;
 
 	case openflow13::OFPT_ECHO_REQUEST: {

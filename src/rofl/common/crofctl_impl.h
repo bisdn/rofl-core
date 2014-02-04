@@ -200,6 +200,13 @@ private:
 			cofmsg_experimenter *pack,
 			uint8_t aux_id);
 
+	/** handle incoming error message
+	 */
+	void
+	error_rcvd(
+			cofmsg_error *pack,
+			uint8_t aux_id);
+
 	/** handle incoming FEATURE requests
 	 */
 	void

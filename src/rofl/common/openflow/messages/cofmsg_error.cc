@@ -21,19 +21,19 @@ cofmsg_error::cofmsg_error(
 
 	switch (of_version) {
 	case OFP10_VERSION: {
-		resize(sizeof(struct openflow10::ofp_error_msg) + datalen);
+		resize(sizeof(struct openflow10::ofp_error_msg) + body.memlen());
 		set_type(openflow10::OFPT_ERROR);
-		set_length(sizeof(struct openflow10::ofp_error_msg) + datalen);
+		set_length(sizeof(struct openflow10::ofp_error_msg) + body.memlen());
 	} break;
 	case OFP12_VERSION: {
-		resize(sizeof(struct openflow12::ofp_error_msg) + datalen);
+		resize(sizeof(struct openflow12::ofp_error_msg) + body.memlen());
 		set_type(openflow12::OFPT_ERROR);
-		set_length(sizeof(struct openflow12::ofp_error_msg) + datalen);
+		set_length(sizeof(struct openflow12::ofp_error_msg) + body.memlen());
 	} break;
 	case OFP13_VERSION: {
-		resize(sizeof(struct openflow13::ofp_error_msg) + datalen);
+		resize(sizeof(struct openflow13::ofp_error_msg) + body.memlen());
 		set_type(openflow13::OFPT_ERROR);
-		set_length(sizeof(struct openflow13::ofp_error_msg) + datalen);
+		set_length(sizeof(struct openflow13::ofp_error_msg) + body.memlen());
 	} break;
 	}
 

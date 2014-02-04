@@ -230,7 +230,7 @@ crofconn::event_hello_rcvd()
 			if (timer_ids.find(TIMER_SEND_ECHO) != timer_ids.end()) {
 				cancel_timer(timer_ids[TIMER_SEND_ECHO]);
 			}
-			timer_ids[TIMER_SEND_ECHO] = register_timer(TIMER_SEND_ECHO, echo_interval);
+			timer_ids[TIMER_SEND_ECHO] = register_timer(TIMER_SEND_ECHO, echo_interval * (1 + crandom::draw_random_number()));
 			env->handle_connected(this, ofp_version);
 		}
 
@@ -272,7 +272,7 @@ crofconn::event_features_rcvd()
 			state = STATE_ESTABLISHED;
 			cancel_timer(timer_ids[TIMER_WAIT_FOR_FEATURES]);
 
-			timer_ids[TIMER_SEND_ECHO] = register_timer(TIMER_SEND_ECHO, echo_interval);
+			timer_ids[TIMER_SEND_ECHO] = register_timer(TIMER_SEND_ECHO, echo_interval * (1 + crandom::draw_random_number()));
 
 			env->handle_connected(this, ofp_version);
 		}

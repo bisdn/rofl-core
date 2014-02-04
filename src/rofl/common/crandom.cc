@@ -6,6 +6,15 @@
 
 using namespace rofl;
 
+/*static*/
+double
+crandom::draw_random_number()
+{
+	return ((double)crandom(sizeof(uint32_t)).uint32() / std::numeric_limits<uint32_t>::max());
+}
+
+
+
 crandom::crandom(size_t vallen)
 {
 	rand(vallen);

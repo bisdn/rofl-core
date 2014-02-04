@@ -18,6 +18,9 @@ cofpacket_queue::cofpacket_queue(
 		qpl(of_version)
 {
 	switch (of_version) {
+	case openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case openflow10::OFP_VERSION: {
 		cmemory::resize(sizeof(struct openflow10::ofp_packet_queue));
 	} break;

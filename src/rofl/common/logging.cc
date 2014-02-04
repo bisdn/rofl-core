@@ -23,6 +23,8 @@ std::ostream logging::warn   (&logging::devnull);
 std::ostream logging::notice (&logging::devnull);
 std::ostream logging::info   (&logging::devnull);
 std::ostream logging::debug  (&logging::devnull);
+std::ostream logging::trace  (&logging::devnull);
+
 std::streamsize logging::width(70);
 unsigned int indent::width(0);
 
@@ -106,6 +108,13 @@ logging::set_debug_level(
 		logging::debug .rdbuf(std::cerr.rdbuf());
 	} else {
 		logging::debug .rdbuf(&logging::devnull);
+	}
+
+	// DEBUG
+	if (debug_level >= 8) {
+		logging::trace .rdbuf(std::cerr.rdbuf());
+	} else {
+		logging::trace .rdbuf(&logging::devnull);
 	}
 }
 
