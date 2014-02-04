@@ -32,8 +32,6 @@ librofl_common_la_SOURCES = \
 		cevent.h \
 		cevents.h \
 		cevents.cc \
-		cfdset.h \
-		cfdset.cc \
 		ciosrv.h \
 		ciosrv.cc \
 		cmemory.h \
@@ -98,7 +96,6 @@ library_include_HEADERS= \
 		ctimers.h \
 		cevent.h \
 		cevents.h \
-		cfdset.h \
 		ciosrv.h \
 		cmemory.h \
 		coflist.h \
