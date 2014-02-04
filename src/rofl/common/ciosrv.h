@@ -32,7 +32,6 @@
 #include "rofl/common/croflexception.h"
 #include "rofl/common/thread_helper.h"
 #include "rofl/common/cpipe.h"
-#include "rofl/common/cfdset.h"
 #include "rofl/common/cevents.h"
 #include "rofl/common/ctimers.h"
 #include "rofl/common/ctimer.h"

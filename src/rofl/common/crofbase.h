@@ -1325,6 +1325,33 @@ protected:
 
 
 
+
+	/**
+	 * @brief	Called once an ERROR.message was received from a data path element.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the EXPERIMENTER.message was received.
+	 * @param msg pointer to cofmsg_experimenter message containing the received message
+	 */
+	virtual void
+	handle_error_message(crofdpt& dpt, cofmsg_error& msg, uint8_t aux_id = 0) {};
+
+
+
+	/**
+	 * @brief	Called once an ERROR.message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param ctl pointer to cofctl instance from which the EXPERIMENTER.message was received.
+	 * @param msg pointer to cofmsg_experimenter message containing the received message
+	 */
+	virtual void
+	handle_error_message(crofctl& ctl, cofmsg_error& msg, uint8_t aux_id = 0) {};
+
+
+
 	/**
 	 * @brief	Called once a timer expires for a GET-CONFIG.reply message.
 	 *

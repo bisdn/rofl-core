@@ -464,6 +464,9 @@ crofdpt_impl::recv_message(rofl::openflow::crofchan *chan, uint8_t aux_id, cofms
 			case rofl::openflow10::OFPT_VENDOR: {
 				experimenter_rcvd(msg, aux_id);
 			} break;
+			case rofl::openflow10::OFPT_ERROR: {
+				error_rcvd(msg, aux_id);
+			} break;
 			case rofl::openflow10::OFPT_FEATURES_REPLY: {
 				features_reply_rcvd(msg, aux_id);
 			} break;
@@ -497,6 +500,9 @@ crofdpt_impl::recv_message(rofl::openflow::crofchan *chan, uint8_t aux_id, cofms
 			switch (msg->get_type()) {
 			case rofl::openflow12::OFPT_EXPERIMENTER: {
 				experimenter_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow12::OFPT_ERROR: {
+				error_rcvd(msg, aux_id);
 			} break;
 			case rofl::openflow12::OFPT_FEATURES_REPLY: {
 				features_reply_rcvd(msg, aux_id);
@@ -533,6 +539,9 @@ crofdpt_impl::recv_message(rofl::openflow::crofchan *chan, uint8_t aux_id, cofms
 			switch (msg->get_type()) {
 			case rofl::openflow13::OFPT_EXPERIMENTER: {
 				experimenter_rcvd(msg, aux_id);
+			} break;
+			case rofl::openflow13::OFPT_ERROR: {
+				error_rcvd(msg, aux_id);
 			} break;
 			case rofl::openflow13::OFPT_FEATURES_REPLY: {
 				features_reply_rcvd(msg, aux_id);
@@ -1899,6 +1908,24 @@ crofdpt_impl::experimenter_rcvd(
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_experimenter_message(*this, exp, aux_id);
+	}
+	delete msg;
+}
+
+
+
+void
+crofdpt_impl::error_rcvd(
+		cofmsg *msg,
+		uint8_t aux_id)
+{
+	cofmsg_error& error = dynamic_cast<cofmsg_error&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Error message received" << std::endl << error;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_error_message(*this, error, aux_id);
 	}
 	delete msg;
 }
