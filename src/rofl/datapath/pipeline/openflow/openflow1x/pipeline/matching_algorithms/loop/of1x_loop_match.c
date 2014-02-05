@@ -379,7 +379,10 @@ rofl_result_t of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x_f
 	if(moded == 0){	
 		return of1x_add_flow_entry_loop(table, entry, false, reset_counts);
 	}
-	
+
+	//Delete the original flowmod (modify one)
+	of1x_destroy_flow_entry(entry);	
+
 	return ROFL_SUCCESS;
 }
 
