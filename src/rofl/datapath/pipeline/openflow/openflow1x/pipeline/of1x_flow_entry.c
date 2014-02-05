@@ -145,9 +145,6 @@ rofl_result_t __of1x_update_flow_entry(of1x_flow_entry_t* entry_to_update, of1x_
 	//Unlock
 	platform_rwlock_wrunlock(entry_to_update->rwlock);
 
-	//Destroy the mod entry
-	__of1x_destroy_flow_entry_with_reason(mod, OF1X_FLOW_REMOVE_NO_REASON);
-
 	return ROFL_SUCCESS;
 }
 /**

@@ -8,6 +8,10 @@ Legend:
 Change log
 ==========
 
+v0.3.3
+
+[B][pipeline] Fixed critical bugs related to of1x_modify_flow_entry_loop(): i) improper behaviour according to spec ii) leak when no rules were modified iii) corruption of state when more than one flow was modified
+
 v0.3.2.1
 
 [+] Adding README and CHANGES

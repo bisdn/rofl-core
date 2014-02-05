@@ -350,9 +350,6 @@ rofl_result_t of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x_f
 	int moded=0; 
 	of1x_flow_entry_t *it;
 
-	if(table->num_of_entries == 0) 
-		return ROFL_SUCCESS; //Acording to spec 
-
 	//Allow single add/remove operation over the table
 	platform_mutex_lock(table->mutex);
 	
@@ -379,8 +376,9 @@ rofl_result_t of1x_modify_flow_entry_loop(of1x_flow_table_t *const table, of1x_f
 	platform_mutex_unlock(table->mutex);
 
 	//According to spec
-	//if(moded == 0)	
-	//	return ROFL_FAILURE; 
+	if(moded == 0){	
+		return of1x_add_flow_entry_loop(table, entry, false, reset_counts);
+	}
 	
 	return ROFL_SUCCESS;
 }
