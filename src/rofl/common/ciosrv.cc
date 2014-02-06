@@ -385,6 +385,9 @@ cioloop::run_loop()
 				}
 
 
+			} catch (eNotConnected& e) {
+				rofl::logging::debug << "[rofl][ciosrv] caught eNotConnected in main loop:" << e << std::endl;
+
 			} catch (RoflException& e) {
 				rofl::logging::error << "[rofl][ciosrv] caught RoflException in main loop:" << e << std::endl;
 #ifndef NDEBUG
