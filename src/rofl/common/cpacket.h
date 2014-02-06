@@ -155,7 +155,8 @@ private:
 		};
 
 
-#define CPACKET_DEFAULT_SIZE 			 1526
+#define CPACKET_DEFAULT_SIZE 			 64
+//#define CPACKET_DEFAULT_SIZE 			 1526
 #define CPACKET_DEFAULT_HSPACE			 64			// head room for push operations
 #define CPACKET_DEFAULT_TSPACE			 256		// tail room for appending payload(s)
 
