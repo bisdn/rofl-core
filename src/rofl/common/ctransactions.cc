@@ -48,7 +48,6 @@ ctransactions::work_on_ta_queue()
 
 	std::list<ctransaction>::iterator it = (*this).begin();
 	while ((it != (*this).end()) && ((*it).get_expires() <= cclock::now())) {
-		std::cerr << "===============" << std::endl << *this;
 		env->ta_expired(*this, *it);
 		erase(it);
 		it = begin();

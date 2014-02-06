@@ -766,6 +766,11 @@ crofdpt_impl::group_mod_reset()
 uint32_t
 crofdpt_impl::send_features_request()
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Features-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_FEATURES_REQUEST);
 
 	cofmsg_features_request *msg =
@@ -781,6 +786,11 @@ crofdpt_impl::send_features_request()
 uint32_t
 crofdpt_impl::send_get_config_request()
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Get-Config-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_GET_CONFIG_REQUEST);
 
 	cofmsg_get_config_request *msg =
@@ -797,6 +807,11 @@ uint32_t
 crofdpt_impl::send_table_features_stats_request(
 		uint16_t stats_flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Table-Features-Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_TABLE_FEATURES);
 
 	throw eNotImplemented("crofdpt_impl::send_table_features_stats_request()");
@@ -819,6 +834,11 @@ crofdpt_impl::send_stats_request(
 	uint8_t* body,
 	size_t bodylen)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST);
 
 	cofmsg_stats *msg =
@@ -841,6 +861,11 @@ uint32_t
 crofdpt_impl::send_desc_stats_request(
 		uint16_t flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Desc-Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_DESC);
 
 	cofmsg_desc_stats_request *msg =
@@ -861,6 +886,11 @@ crofdpt_impl::send_flow_stats_request(
 		uint16_t flags,
 		cofflow_stats_request const& flow_stats_request)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Flow-Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_FLOW);
 
 	cofmsg_flow_stats_request *msg =
@@ -882,6 +912,11 @@ crofdpt_impl::send_aggr_stats_request(
 		uint16_t flags,
 		cofaggr_stats_request const& aggr_stats_request)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Aggr-Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_AGGREGATE);
 
 	cofmsg_aggr_stats_request *msg =
@@ -902,6 +937,11 @@ uint32_t
 crofdpt_impl::send_table_stats_request(
 		uint16_t flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Table-Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_TABLE);
 
 	cofmsg_table_stats_request *msg =
@@ -922,6 +962,11 @@ crofdpt_impl::send_port_stats_request(
 		uint16_t flags,
 		cofport_stats_request const& port_stats_request)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Port-Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_PORT_STATS);
 
 	cofmsg_port_stats_request *msg =
@@ -943,6 +988,11 @@ crofdpt_impl::send_queue_stats_request(
 	uint16_t flags,
 	cofqueue_stats_request const& queue_stats_request)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Queue-Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_QUEUE);
 
 	cofmsg_queue_stats_request *msg =
@@ -964,6 +1014,11 @@ crofdpt_impl::send_group_stats_request(
 	uint16_t flags,
 	cofgroup_stats_request const& group_stats_request)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Group-Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_GROUP);
 
 	cofmsg_group_stats_request *msg =
@@ -984,6 +1039,11 @@ uint32_t
 crofdpt_impl::send_group_desc_stats_request(
 		uint16_t flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Group-Desc-Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_GROUP_DESC);
 
 	cofmsg_group_desc_stats_request *msg =
@@ -1003,6 +1063,11 @@ uint32_t
 crofdpt_impl::send_group_features_stats_request(
 		uint16_t flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Group-Features-Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_GROUP_FEATURES);
 
 	cofmsg_group_features_stats_request *msg =
@@ -1022,6 +1087,11 @@ uint32_t
 crofdpt_impl::send_port_desc_stats_request(
 		uint16_t flags)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Port-Desc-Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_PORT_DESC);
 
 	cofmsg_port_desc_stats_request *msg =
@@ -1044,6 +1114,11 @@ crofdpt_impl::send_experimenter_stats_request(
 	uint32_t exp_type,
 	cmemory const& body)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Experimenter-Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_EXPERIMENTER);
 
 	cofmsg_experimenter_stats_request *msg =
@@ -1070,6 +1145,11 @@ crofdpt_impl::send_packet_out_message(
 	uint8_t *data,
 	size_t datalen)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Packet-Out message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.get_async_xid();
 
 	cofmsg_packet_out *msg =
@@ -1092,6 +1172,11 @@ crofdpt_impl::send_packet_out_message(
 uint32_t
 crofdpt_impl::send_barrier_request()
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Barrier-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_BARRIER_REQUEST);
 
 	cofmsg_barrier_request *msg =
@@ -1111,6 +1196,11 @@ crofdpt_impl::send_role_request(
 	uint32_t role,
 	uint64_t generation_id)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Role-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_ROLE_REQUEST);
 
 	cofmsg_role_request *msg =
@@ -1131,6 +1221,11 @@ uint32_t
 crofdpt_impl::send_flow_mod_message(
 		cofflowmod const& fe)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Flow-Mod message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.get_async_xid();
 
 	cofmsg_flow_mod *msg =
@@ -1150,6 +1245,11 @@ uint32_t
 crofdpt_impl::send_group_mod_message(
 		cofgroupmod const& ge)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Group-Mod message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.get_async_xid();
 
 	cofmsg_group_mod *msg =
@@ -1170,6 +1270,11 @@ crofdpt_impl::send_table_mod_message(
 		uint8_t table_id,
 		uint32_t config)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Table-Mod message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.get_async_xid();
 
 	cofmsg_table_mod *msg =
@@ -1194,6 +1299,11 @@ crofdpt_impl::send_port_mod_message(
 	uint32_t mask,
 	uint32_t advertise)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Port-Mod message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.get_async_xid();
 
 	cofmsg_port_mod *msg =
@@ -1220,6 +1330,11 @@ crofdpt_impl::send_set_config_message(
 	uint16_t flags,
 	uint16_t miss_send_len)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Set-Config message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.get_async_xid();
 
 	cofmsg_set_config *msg =
@@ -1240,6 +1355,11 @@ uint32_t
 crofdpt_impl::send_queue_get_config_request(
 	uint32_t port)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Get-Config-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_QUEUE_GET_CONFIG_REQUEST);
 
 	cofmsg_queue_get_config_request *msg =
@@ -1258,6 +1378,11 @@ crofdpt_impl::send_queue_get_config_request(
 uint32_t
 crofdpt_impl::send_get_async_config_request()
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Get-Async-Config-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_GET_ASYNC_REQUEST);
 
 	cofmsg_get_async_config_request *msg =
@@ -1281,6 +1406,11 @@ crofdpt_impl::send_set_async_config_message(
 	uint32_t flow_removed_mask0,
 	uint32_t flow_removed_mask1)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Set-Async-Config message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.get_async_xid();
 
 	cofmsg_set_async_config *msg =
@@ -1309,6 +1439,11 @@ crofdpt_impl::send_error_message(
 	uint8_t* data,
 	size_t datalen)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Error message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	cofmsg_error *msg =
 			new cofmsg_error(
 					rofchan.get_version(),
@@ -1332,6 +1467,11 @@ crofdpt_impl::send_experimenter_message(
 		uint8_t* body,
 		size_t bodylen)
 {
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Experimenter message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_EXPERIMENTER);
 
 	cofmsg_experimenter *msg =

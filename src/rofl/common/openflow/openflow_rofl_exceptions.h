@@ -169,7 +169,12 @@ class eTableFeaturesReqEPerm		: public eTableFeaturesReqBase {};	//OFPTFFC_EPERM
 /*
  * further rofl internal exceptions
  */
-class eBadVersion					: public RoflException {};
+class eBadVersion					: public RoflException {
+public:
+	eBadVersion() {
+		std::cerr << "BAD-WOLF" << std::endl;
+	};
+};
 class eBadSyntax					: public RoflException {};
 class eBadSyntaxTooShort			: public eBadSyntax {};
 }

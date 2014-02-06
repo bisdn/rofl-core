@@ -90,7 +90,7 @@ namespace rofl
 /* error classes */
 class eRofBase						: public RoflException {};   // base error class crofbase
 class eRofBaseIsBusy 				: public eRofBase {}; // this FwdElem is already controlled
-class eRofBaseNotConnected			: public eRofBase {}; // this instance is not connected to the specified cofdpt/cofctl instance
+class eRofBaseNotConnected			: public eRofBase, public eNotConnected {}; // this instance is not connected to the specified cofdpt/cofctl instance
 class eRofBaseNotImpl 				: public eRofBase {}; // this FwdElem's method is not implemented
 class eRofBaseNoCtrl 				: public eRofBase {}; // no controlling entity attached to this FwdElem
 class eRofBaseNotFound 				: public eRofBase {}; // internal entity not found
