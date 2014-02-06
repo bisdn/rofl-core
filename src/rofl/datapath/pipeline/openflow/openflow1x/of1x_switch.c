@@ -1,6 +1,8 @@
 #include "of1x_switch.h"
 
+#include "../../switch_port.h"
 #include "../../platform/memory.h"
+#include "../../platform/likely.h"
 #include "../../util/logging.h"
 #include "../of_switch.h"
 #include "of1x_async_events_hooks.h"
@@ -10,18 +12,13 @@ of1x_switch_t* of1x_init_switch(const char* name, of_version_t version, uint64_t
 
 	of1x_switch_t* sw;
 	sw = (of1x_switch_t*)platform_malloc_shared(sizeof(of1x_switch_t));
-	if(sw == NULL)
+	if( unlikely(sw == NULL) )
 		return NULL;
 
 	//Filling in values
 	sw->of_ver = version;
 	sw->dpid = dpid;
-	sw->name = (char*)platform_malloc_shared(strlen(name)+1);
-	if(sw->name == NULL){
-		platform_free_shared(sw);
-		return NULL;
-	}
-	strcpy(sw->name,name);
+	strncpy(sw->name,name,LOGICAL_SWITCH_MAX_LEN_NAME);
 
 	//Initialize logical_ports
 	memset(sw->logical_ports,0,sizeof(logical_switch_port_t)*LOGICAL_SWITCH_MAX_LOG_PORTS);
@@ -39,8 +36,7 @@ of1x_switch_t* of1x_init_switch(const char* name, of_version_t version, uint64_t
 	}
 	
 	//Setup pipeline	
-	sw->pipeline = __of1x_init_pipeline(sw, num_of_tables, list);
-	if(sw->pipeline == NULL){
+	if(__of1x_init_pipeline(sw, num_of_tables, list) != ROFL_SUCCESS){
 		platform_free_shared(sw->name);
 		platform_free_shared(sw);
 		return NULL;
@@ -48,7 +44,7 @@ of1x_switch_t* of1x_init_switch(const char* name, of_version_t version, uint64_t
 	
 	//Allow the platform to add specific configurations to the switch
 	if(platform_post_init_of1x_switch(sw) != ROFL_SUCCESS){
-		__of1x_destroy_pipeline(sw->pipeline);	
+		__of1x_destroy_pipeline(&sw->pipeline);	
 		platform_free_shared(sw->name);
 		platform_free_shared(sw);
 		return NULL;
@@ -65,7 +61,7 @@ rofl_result_t __of1x_destroy_switch(of1x_switch_t* sw){
 	if(platform_pre_destroy_of1x_switch(sw) != ROFL_SUCCESS)
 		return ROFL_FAILURE;
 		
-	result = __of1x_destroy_pipeline(sw->pipeline);
+	result = __of1x_destroy_pipeline(&sw->pipeline);
 
 	//TODO: trace if result != SUCCESS
 	(void)result;
@@ -73,8 +69,6 @@ rofl_result_t __of1x_destroy_switch(of1x_switch_t* sw){
 	//TODO: rwlock
 	
 	platform_mutex_destroy(sw->mutex);
-	
-	platform_free_shared(sw->name);
 	platform_free_shared(sw);
 	
 	return ROFL_SUCCESS;
@@ -90,11 +84,11 @@ rofl_result_t __of1x_reconfigure_switch(of1x_switch_t* sw, of_version_t version)
 		return ROFL_FAILURE; //Early return OF11 NOT supported
 
 	//Purge all entries(flow&groups) in the pipeline
-	if(__of1x_purge_pipeline_entries(sw->pipeline) != ROFL_SUCCESS)
+	if(__of1x_purge_pipeline_entries(&sw->pipeline) != ROFL_SUCCESS)
 		return ROFL_FAILURE;
 
 	//Set the default tables(flow and group tables) configuration according to the new version
-	if(__of1x_set_pipeline_tables_defaults(sw->pipeline, version) != ROFL_SUCCESS)
+	if(__of1x_set_pipeline_tables_defaults(&sw->pipeline, version) != ROFL_SUCCESS)
 		return ROFL_FAILURE;
 
 	//Set switch to the new version and return
@@ -105,7 +99,7 @@ rofl_result_t __of1x_reconfigure_switch(of1x_switch_t* sw, of_version_t version)
 /* Port management */
 rofl_result_t __of1x_attach_port_to_switch_at_port_num(of1x_switch_t* sw, unsigned int port_num, switch_port_t* port){
 
-	if(!port || !port_num || port_num >= LOGICAL_SWITCH_MAX_LOG_PORTS)
+	if( unlikely(port==NULL) || unlikely(port_num==0) || unlikely(port_num >= LOGICAL_SWITCH_MAX_LOG_PORTS) )
 		return ROFL_FAILURE;	
 
 	//Allow single add/remove operation over the switch 
@@ -133,7 +127,7 @@ rofl_result_t __of1x_attach_port_to_switch_at_port_num(of1x_switch_t* sw, unsign
 rofl_result_t __of1x_attach_port_to_switch(of1x_switch_t* sw, switch_port_t* port, unsigned int* port_num){
 	unsigned int i;
 
-	if(!port || port->attached_sw) 
+	if( unlikely(port==NULL) || unlikely(port->attached_sw!=NULL) ) 
 		return ROFL_FAILURE;	
 
 	//Allow single add/remove operation over the switch 
@@ -164,7 +158,7 @@ rofl_result_t __of1x_attach_port_to_switch(of1x_switch_t* sw, switch_port_t* por
 
 rofl_result_t __of1x_detach_port_from_switch_by_port_num(of1x_switch_t* sw, unsigned int port_num){
 
-	if(!port_num)
+	if( unlikely(port_num==0) )
 		return ROFL_FAILURE;
 
 	//Allow single add/remove operation over the switch 
@@ -192,7 +186,7 @@ rofl_result_t __of1x_detach_port_from_switch(of1x_switch_t* sw, switch_port_t* p
 
 	unsigned int i;
 
-	if(!port) 
+	if( unlikely(port==NULL) ) 
 		return ROFL_FAILURE;	
 
 	//Allow single add/remove operation over the switch 
@@ -257,11 +251,88 @@ void of1x_full_dump_switch(of1x_switch_t* sw){
 	of1x_dump_switch(sw);
 
 	/* Dumping tables */		
-	for(i=0;i<sw->pipeline->num_of_tables;i++)
-		of1x_dump_table(&sw->pipeline->tables[i]);
+	for(i=0;i<sw->pipeline.num_of_tables;i++)
+		of1x_dump_table(&sw->pipeline.tables[i]);
 	ROFL_PIPELINE_INFO("--End of pipeline tables--\n");
 	
-	of1x_dump_group_table(sw->pipeline->groups);
+	of1x_dump_group_table(sw->pipeline.groups);
 	ROFL_PIPELINE_DEBUG("--End of group table--\n\n");
 }
 
+//
+// Snapshots
+//
+
+//Creates a snapshot of the running of LSI 
+of1x_switch_snapshot_t* __of1x_switch_get_snapshot(of1x_switch_t* sw){
+
+	int i;
+
+	//Allocate a snapshot
+	of1x_switch_snapshot_t* sn = platform_malloc_shared(sizeof(of1x_switch_snapshot_t));
+
+	if(!sn)
+		return NULL;
+
+	//Serialize actions over the switch
+	platform_mutex_lock(sw->mutex);
+	
+	//Copy contents
+	memcpy(sn, sw, sizeof(of1x_switch_snapshot_t));
+
+	//Cleanup the stuff that should not be exported
+	sn->mutex = sn->platform_state = NULL;
+	
+	//Snapshot ports
+	for(i=0;i<LOGICAL_SWITCH_MAX_LOG_PORTS;i++){
+		if(sw->logical_ports[i].port){
+			//Exists, snapshot it
+			sn->logical_ports[i].port = __switch_port_get_snapshot(sw->logical_ports[i].port);
+			if(!sn->logical_ports[i].port)
+				goto ports_only_snapshoting_error;	
+		}
+	}
+	
+	//Snapshot pipeline	
+	if(__of1x_pipeline_get_snapshot(&sw->pipeline, &sn->pipeline) != ROFL_SUCCESS)
+		goto pipeline_snapshoting_error;	
+
+	platform_mutex_unlock(sw->mutex);
+
+	return sn;
+
+pipeline_snapshoting_error:
+	//There is no need to do nothing, since
+	//call should have already cleanup his own memory
+ports_only_snapshoting_error:
+	//Delete snapshotted ports
+	for(;i>0;i--){
+		if(sn->logical_ports[i].port)
+			switch_port_destroy_snapshot(sn->logical_ports[i].port);
+	}
+
+	platform_mutex_unlock(sw->mutex);
+	
+	//Free main snapshot
+	platform_free_shared(sn);
+
+	return NULL;
+}
+
+//Destroy a previously generated snapshot
+void __of1x_switch_destroy_snapshot(of1x_switch_snapshot_t* sn){
+	
+	int i;
+
+	//Let the pipeline destroy its state
+	__of1x_pipeline_destroy_snapshot(&sn->pipeline);	
+	
+	//Destroy port snapshots
+	for(i=0;i<LOGICAL_SWITCH_MAX_LOG_PORTS;i++){
+		if(sn->logical_ports[i].port)
+			switch_port_destroy_snapshot(sn->logical_ports[i].port);
+	}
+	
+	//Free main snapshot
+	platform_free_shared(sn);
+}

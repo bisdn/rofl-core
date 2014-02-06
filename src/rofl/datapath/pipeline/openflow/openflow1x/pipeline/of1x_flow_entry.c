@@ -1,5 +1,6 @@
 #include "of1x_flow_entry.h"
 
+#include "../../../platform/likely.h"
 #include "../../../platform/memory.h"
 #include "../of1x_async_events_hooks.h"
 
@@ -21,12 +22,13 @@ of1x_flow_entry_t* of1x_init_flow_entry(of1x_flow_entry_t* prev, of1x_flow_entry
 
 	of1x_flow_entry_t* entry = (of1x_flow_entry_t*)platform_malloc_shared(sizeof(of1x_flow_entry_t));
 	
-	if(!entry)
+	if( unlikely(entry==NULL) )
 		return NULL;
 
 	memset(entry,0,sizeof(of1x_flow_entry_t));	
 	
-	if(NULL == (entry->rwlock = platform_rwlock_init(NULL))){
+	entry->rwlock = platform_rwlock_init(NULL);
+	if( unlikely(NULL==entry->rwlock) ){
 		platform_free_shared(entry);
 		assert(0);
 		return NULL; 
@@ -144,9 +146,6 @@ rofl_result_t __of1x_update_flow_entry(of1x_flow_entry_t* entry_to_update, of1x_
 
 	//Unlock
 	platform_rwlock_wrunlock(entry_to_update->rwlock);
-
-	//Destroy the mod entry
-	__of1x_destroy_flow_entry_with_reason(mod, OF1X_FLOW_REMOVE_NO_REASON);
 
 	return ROFL_SUCCESS;
 }

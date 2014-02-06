@@ -19,23 +19,26 @@ AFA_BEGIN_DECLS
 /**
 * @name    cmm_notify_port_add
 * @brief   Notify port add to CMM 
+* @param port_snapshot Snapshot of the current state of a switch port. The snapshot MUST be deleted using switch_port_destroy_snapshot()
 * @ingroup cmm_management
 */
-afa_result_t cmm_notify_port_add(switch_port_t* port);
+afa_result_t cmm_notify_port_add(switch_port_snapshot_t* port_snapshot);
 
 /**
 * @name    cmm_notify_port_delete
 * @brief   Notifies CMM that port has been deleted from the platform, or cannot be associated to a switch
+* @param port_snapshot Snapshot of the current state of a switch port. The snapshot MUST be deleted using switch_port_destroy_snapshot()
 * @ingroup cmm_management
 */
-afa_result_t cmm_notify_port_delete(switch_port_t* port);
+afa_result_t cmm_notify_port_delete(switch_port_snapshot_t* port_snapshot);
 
 /**
 * @name    cmm_notify_port_status_changed
 * @brief   Notify port add to CMM 
+* @param port_snapshot Snapshot of the current state of a switch port. The snapshot MUST be deleted using switch_port_destroy_snapshot()
 * @ingroup cmm_management
 */
-afa_result_t cmm_notify_port_status_changed(switch_port_t* port);
+afa_result_t cmm_notify_port_status_changed(switch_port_snapshot_t* port_snapshot);
 
 //C++ extern C
 AFA_END_DECLS

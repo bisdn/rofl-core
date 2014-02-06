@@ -11,6 +11,7 @@
 #include "platform/lock.h"
 #include "openflow/of_switch.h"
 #include "switch_port.h"
+#include "monitoring.h"
 
 /**
 * @file physical_switch.h
@@ -152,36 +153,51 @@ extern switch_port_t* all_meta_port;
 */
 typedef struct physical_switch{
 
-    /*
-    * List of all logical switches in the system
-    */
-    unsigned int num_of_logical_switches;
-    of_switch_t* logical_switches[PHYSICAL_SWITCH_MAX_LS];
+	/*
+	* List of all logical switches in the system
+	*/
+	unsigned int num_of_logical_switches;
+	of_switch_t* logical_switches[PHYSICAL_SWITCH_MAX_LS];
 
-    /*
-    * Ports
-    */
-    //physical: index is the physical port of the platform.
-    switch_port_t* physical_ports[PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS];
+	/*
+	* Ports
+	*/
+	//physical: index is the physical port of the platform.
+	switch_port_t* physical_ports[PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS];
 
-    //tunnel ports
-    switch_port_t* tunnel_ports[PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS]; //Not used yet
+	//tunnel ports
+	switch_port_t* tunnel_ports[PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS]; //Not used yet
 
-    //virtual ports (which are not tunnel)
-    switch_port_t* virtual_ports[PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS]; //Not used yet
+	//virtual ports (which are not tunnel)
+	switch_port_t* virtual_ports[PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS]; //Not used yet
 
-    //meta ports (esoteric ports). This is NOT an array of pointers!
-    switch_port_t meta_ports[PHYSICAL_SWITCH_MAX_NUM_META_PORTS]; 
+	//meta ports (esoteric ports). This is NOT an array of pointers!
+	switch_port_t meta_ports[PHYSICAL_SWITCH_MAX_NUM_META_PORTS]; 
 
-    /* 
-    * Other state 
-    */
-    //Mutex
-    platform_mutex_t* mutex;
-    
-    //Opaque platform specific extra state 
-    platform_physical_switch_state_t* platform_state;	
+	//Monitoring data
+	monitoring_state_t monitoring;
+
+	/* 
+	* Other state 
+	*/
+	//Mutex
+	platform_mutex_t* mutex;
+
+	//Opaque platform specific extra state 
+	platform_physical_switch_state_t* platform_state;	
 }physical_switch_t; 
+
+/**
+* List of dpids (snapshots)
+*/
+typedef struct dpid_list{
+
+	//Number of ports in the port list
+	unsigned int num_of_lsis;
+	
+	//dpids
+	uint64_t* dpids;
+}dpid_list_t; 
 
 //C++ extern C
 ROFL_BEGIN_DECLS
@@ -199,8 +215,15 @@ ROFL_BEGIN_DECLS
 */
 rofl_result_t physical_switch_init(void);
 
+/**
+* @brief    Get the reference to the (unique) physical  switch
+* @warning  The physical switch state shall only be modified via the physical_switch_
+*           APIs 
+* @ingroup  mgmt
+*/
+physical_switch_t* get_physical_switch(void);
+
 //Only used in multi-process deployments (with shared memory)
-physical_switch_t* __get_physical_switch();
 void __set_physical_switch(physical_switch_t* sw);
 
 /**
@@ -264,7 +287,6 @@ of_switch_t* physical_switch_get_logical_switch_by_dpid(const uint64_t dpid);
 * @ingroup  mgmt
 */
 of_switch_t* physical_switch_get_logical_switch_attached_to_port(const switch_port_t port);
-
 
 //
 //
@@ -332,7 +354,6 @@ rofl_result_t physical_switch_add_port(switch_port_t* port);
 rofl_result_t physical_switch_remove_port(const char* name);
 
 
-
 //
 //
 // Logical switches port management
@@ -359,10 +380,6 @@ switch_port_t* physical_switch_get_port_by_num(const uint64_t dpid, unsigned int
 * @param num_of_ports    Pointer to an int. Number of ports will be filled by the lib.
 */
 rofl_result_t get_logical_switch_ports(of_switch_t* sw, logical_switch_port_t** ports, unsigned int* num_of_ports, unsigned int* logical_sw_max_ports);
-
-#if 0
-rofl_result_t physical_switch_attach_port_num_to_logical_switch(unsigned int port_num, of_switch_t* sw, unsigned int* logical_switch_port_num);
-#endif
 
 /**
 * @brief Attaches port to logical switch.
@@ -402,8 +419,71 @@ rofl_result_t physical_switch_detach_port_from_logical_switch(switch_port_t* por
 rofl_result_t physical_switch_detach_all_ports_from_logical_switch(of_switch_t* sw);
 
 
+
+//
+// Monitoring
+//
+/**
+* @brief Retrieves the monitoring state of the physicals witch 
+* @ingroup  mgmt
+*/
+static inline monitoring_state_t* physical_switch_get_monitoring(void){
+	physical_switch_t* psw = get_physical_switch();
+	
+	if(psw)
+		return &psw->monitoring;	
+	return NULL;
+}
+
+//
+// Snapshots
+//
+
+//Ports
+/**
+* @brief Gets a list of port names of all (currently) available port names. 
+* @ingroup  mgmt
+
+* @retval  List of available port names, which MUST be deleted using physical_switch_destroy_port_name_list().
+*/
+switch_port_name_list_t* physical_switch_get_all_port_names(void);
+
+/**
+* @brief Gets a snapshot of the current port state, if it exists. 
+* @ingroup  mgmt
+* 
+* @retval Port snapshot on success, NULL otherwise. Shall be deleted using switch_port_destroy_snapshot()
+*/
+switch_port_snapshot_t* physical_switch_get_port_snapshot(const char* name);
+
+
+//LSIs
+
+/**
+* @brief   Get the list of existing LSI DPIDs. List should be deleted using dpid_list_destroy() 
+*/
+dpid_list_t* physical_switch_get_all_lsi_dpids(void);
+
+/**
+* Destroy a previously generated list of dpids 
+* @ingroup mgmt 
+*/
+void dpid_list_destroy(dpid_list_t* list);
+
+/**
+* @brief    Generates a snapshot of the current running state of a LSI, which can be safely read and iterated over time. Should be deleted using of_switch_destroy_snapshot()
+* @ingroup  mgmt
+*/
+of_switch_snapshot_t* physical_switch_get_logical_switch_snapshot(const uint64_t dpid);
+
+
+//
+// Other
+//
+
 //This should not be used in general. Generates the matching algorithm list
 void __physical_switch_generate_matching_algorithm_list(void);
+
 
 //C++ extern C
 ROFL_END_DECLS

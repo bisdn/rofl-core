@@ -4,7 +4,8 @@
 #include "of1x_flow_entry.h"
 
 #include "../../../platform/memory.h"
-
+#include "../../../platform/likely.h"
+#include "../../../platform/timing.h"
 #include "../../../util/logging.h"
 
 static rofl_result_t __of1x_destroy_all_entries_from_timer_group(of1x_timer_group_t* tg, of1x_pipeline_t *const pipeline, unsigned int id);
@@ -25,24 +26,24 @@ void __of1x_fill_new_timer_entry_info(of1x_flow_entry_t * entry, uint32_t hard_t
 
 }
 
-void __of1x_time_forward(uint64_t sec, uint64_t usec, struct timeval * time)
-{
-	static uint64_t abs_sec = 0, abs_usec = 0;
-	abs_sec+=sec;
-	abs_usec+=usec;
-	if(abs_usec > 1000000)
-	{
-		abs_usec-=1000000;
-		abs_sec++;
+/**
+ * Returns true if timeval a is later than timeval b
+ */
+bool __of1x_time_is_later(struct timeval *a, struct timeval *b){
+	if(a->tv_sec > b->tv_sec){
+		return true;
 	}
-	if(time)
-	{
-		time->tv_sec=abs_sec;
-		time->tv_usec=abs_usec;
+	
+	if (a->tv_sec == b->tv_sec){
+		if(a->tv_usec > b->tv_usec){
+			return true;
+		}
 	}
-	return;
+	
+	return false;
 }
 
+#if 0
 /**
  * of1x_gettimeofday wrapper for the system time
  */
@@ -60,6 +61,7 @@ inline int __of1x_gettimeofday(struct timeval * tval, struct timezone * tzone){
 #endif
 
 }
+#endif
 
 /**
  * of1x_dump_timers_structure
@@ -137,7 +139,7 @@ void __of1x_timer_group_static_init(of1x_flow_table_t* table){
 	int i;
 	struct timeval now;
 	uint64_t time_next_slot;
-	__of1x_gettimeofday(&now,NULL);
+	platform_gettimeofday(&now);
 	time_next_slot = __of1x_get_expiration_time_slotted(0,&now);
 	for(i=0; i<OF1X_TIMER_GROUPS_MAX;i++)
 	{
@@ -182,7 +184,7 @@ static of1x_timer_group_t* __of1x_timer_group_init(uint64_t timeout, of1x_timer_
 	// create the new timer_group
 	of1x_timer_group_t* new_group;
 	new_group = platform_malloc_shared(sizeof(of1x_timer_group_t));
-	if(new_group == NULL)
+	if(unlikely(new_group == NULL))
 	{
 		ROFL_PIPELINE_DEBUG("<%s:%d> Error allocating memory\n",__func__,__LINE__);
 		return NULL;
@@ -233,25 +235,13 @@ static of1x_entry_timer_t* __of1x_entry_timer_init(of1x_timer_group_t* tg, of1x_
 {
 	of1x_entry_timer_t* new_entry;
 	new_entry = platform_malloc_shared(sizeof(of1x_entry_timer_t));
-	if(new_entry==NULL)
+	if(unlikely(new_entry==NULL))
 	{
 		ROFL_PIPELINE_DEBUG("<%s:%d> Error allocating memory\n",__func__,__LINE__);
 		return NULL;
 	}
 	new_entry->entry = entry;
 	new_entry->group = tg;
-
-#if 0	
-	if(last_update)
-	{
-		new_entry->time_last_update.tv_sec = last_update->tv_sec;
-		new_entry->time_last_update.tv_usec = last_update->tv_usec;
-	}
-	else
-	{
-		new_entry->time_last_update.tv_sec = new_entry->time_last_update.tv_usec = 0;
-	}	
-#endif
 	
 	// we add the new entries at the end
 	new_entry->next=NULL;
@@ -294,7 +284,7 @@ static of1x_entry_timer_t* __of1x_entry_timer_init(of1x_timer_group_t* tg, of1x_
 //NOTE is this function responsible for the destruction of the flow entry? I guess not
 static rofl_result_t __of1x_destroy_single_timer_entry_clean(of1x_entry_timer_t* entry, of1x_flow_table_t * table)
 {	
-	if(entry)
+	if(likely(entry!=NULL))
 	{
 		if(!entry->next && !entry->prev) // this is the only entry
 		{
@@ -346,7 +336,7 @@ rofl_result_t __of1x_destroy_timer_entries(of1x_flow_entry_t * entry){
 	// NOTE do I need to put the timeout value to zero
 	// or I just supose that the whole entry is going to be deleted?
 
-	if(!entry->table)
+	if(unlikely(entry->table==NULL))
 		return ROFL_FAILURE;
 
 	if(entry->timer_info.hard_timeout){
@@ -375,7 +365,7 @@ rofl_result_t __of1x_destroy_timer_entries(of1x_flow_entry_t * entry){
 static rofl_result_t __of1x_reschedule_idle_timer(of1x_entry_timer_t * entry_timer, of1x_pipeline_t *const pipeline, unsigned int id_table)
 {
 	struct timeval system_time;
-	__of1x_gettimeofday(&system_time,NULL);
+	platform_gettimeofday(&system_time);
 	uint64_t now = __of1x_get_time_ms(&system_time);
 	uint64_t expiration_time;
 	expiration_time = __of1x_get_expiration_time_slotted(entry_timer->entry->timer_info.idle_timeout, &(entry_timer->entry->timer_info.time_last_update));
@@ -526,13 +516,15 @@ static of1x_timer_group_t * of1x_dynamic_slot_search(of1x_flow_table_t* const ta
  * update the time_last_update in order to
  * show that its not idle
  */
-void __of1x_timer_update_entry(of1x_flow_entry_t * flow_entry)
+void __of1x_timer_update_entry(of1x_flow_entry_t * flow_entry, struct timeval ts)
 {
 	if(flow_entry->timer_info.idle_timeout == 0)
 		return; //no idle timeout => no need to update time
 	else
 	{
-		__of1x_gettimeofday(&(flow_entry->timer_info.time_last_update), NULL);
+		if( likely(__of1x_time_is_later(&ts, &(flow_entry->timer_info.time_last_update))==true) ){
+			flow_entry->timer_info.time_last_update = ts;
+		}
 	}
 }
 
@@ -540,7 +532,7 @@ static rofl_result_t __of1x_add_single_timer(of1x_flow_table_t* const table, con
 {
 	uint64_t expiration_time;
 	struct timeval now;
-	__of1x_gettimeofday(&now,NULL);
+	platform_gettimeofday(&now);
 	expiration_time = __of1x_get_expiration_time_slotted(timeout, &now);
 #if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
 	// add entries to the position tc + hard_timeout_s
@@ -607,7 +599,7 @@ void __of1x_process_pipeline_tables_timeout_expirations(of1x_pipeline_t *const p
 	unsigned int i;
 	
 	struct timeval system_time;
-	__of1x_gettimeofday(&system_time,NULL);
+	platform_gettimeofday(&system_time);
 	uint64_t now = __of1x_get_time_ms(&system_time);
 	//ROFL_PIPELINE_DEBUG("<%s:%d> Now = %lu\n",__func__,__LINE__, now);
 

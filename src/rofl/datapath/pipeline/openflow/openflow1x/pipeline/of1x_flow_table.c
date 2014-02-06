@@ -1,5 +1,6 @@
 #include "of1x_flow_table.h"
 
+#include "../../../platform/likely.h"
 #include "../../../util/logging.h"
 
 #include "of1x_group_table.h"
@@ -221,13 +222,15 @@ void __of13_set_table_defaults(of1x_flow_table_t* table){
 rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_t* table, const unsigned int table_index, const enum of1x_matching_algorithm_available algorithm){
 
 	//Safety checks
-	if(!pipeline || !table)
+	if( unlikely(pipeline==NULL) || unlikely(table==NULL) )
 		return ROFL_FAILURE;	
 
 	//Initializing mutexes
-	if(NULL == (table->mutex = platform_mutex_init(NULL)))
+	table->mutex = platform_mutex_init(NULL);
+	if( unlikely(NULL==table->mutex) )
 		return ROFL_FAILURE;
-	if(NULL == (table->rwlock = platform_rwlock_init(NULL)))
+	table->rwlock = platform_rwlock_init(NULL);
+	if( unlikely(NULL==table->rwlock) )
 		return ROFL_FAILURE;
 	
 	table->pipeline = pipeline;
@@ -312,7 +315,7 @@ rofl_result_t __of1x_destroy_table(of1x_flow_table_t* table){
 * Specific matchings may point them to their own routines, but they MUST always call
 * of1x_[whatever]_flow_entry_table_imp in order to update the main tables
 */
-inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t *const entry, bool check_overlap, bool reset_counts){
+inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t **const entry, bool check_overlap, bool reset_counts){
 
 	rofl_of1x_fm_result_t result;
 	of1x_flow_table_t* table;
@@ -327,7 +330,7 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 	platform_rwlock_rdlock(pipeline->groups->rwlock);
 
 	//Verify entry
-	if(__of1x_validate_flow_entry(entry, pipeline) != ROFL_SUCCESS){
+	if(__of1x_validate_flow_entry(*entry, pipeline) != ROFL_SUCCESS){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		return ROFL_OF1X_FM_FAILURE;
@@ -335,7 +338,7 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 
 
 	//Perform insertion
-	result = of1x_matching_algorithms[table->matching_algorithm].add_flow_entry_hook(table, entry, check_overlap, reset_counts);
+	result = of1x_matching_algorithms[table->matching_algorithm].add_flow_entry_hook(table, *entry, check_overlap, reset_counts);
 
 	if(result != ROFL_OF1X_FM_SUCCESS){
 		//Release rdlock
@@ -344,17 +347,21 @@ inline rofl_of1x_fm_result_t of1x_add_flow_entry_table(of1x_pipeline_t *const pi
 	}
 	
 	//Add timer
-	__of1x_add_timer(table, entry);
+	__of1x_add_timer(table, *entry);
 
 	//Release rdlock
 	platform_rwlock_rdunlock(pipeline->groups->rwlock);
+
+	//Was successful set the pointer to NULL
+	//so that is not further used outside the pipeline
+	*entry = NULL;
 
 	//Return value
 	return result;
 }
 
 
-inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t *const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts){
+inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipeline, const unsigned int table_id, of1x_flow_entry_t **const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts){
 	rofl_result_t result;
 	of1x_flow_table_t* table;
 	
@@ -368,14 +375,14 @@ inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipelin
 	platform_rwlock_rdlock(pipeline->groups->rwlock);
 
 	//Verify entry
-	if(__of1x_validate_flow_entry(entry, pipeline) != ROFL_SUCCESS){
+	if(__of1x_validate_flow_entry(*entry, pipeline) != ROFL_SUCCESS){
 		//Release rdlock
 		platform_rwlock_rdunlock(pipeline->groups->rwlock);
 		return ROFL_FAILURE;
 	}
 
 	//Perform insertion
-	result = of1x_matching_algorithms[table->matching_algorithm].modify_flow_entry_hook(table, entry, strict, reset_counts);
+	result = of1x_matching_algorithms[table->matching_algorithm].modify_flow_entry_hook(table, *entry, strict, reset_counts);
 
 	if(result != ROFL_SUCCESS){
 		//Release rdlock
@@ -385,6 +392,10 @@ inline rofl_result_t of1x_modify_flow_entry_table(of1x_pipeline_t *const pipelin
 	
 	//Release rdlock
 	platform_rwlock_rdunlock(pipeline->groups->rwlock);
+
+	//Was successful set the pointer to NULL
+	//so that is not further used outside the pipeline
+	*entry = NULL;
 
 	//Return value
 	return result;
@@ -424,7 +435,7 @@ rofl_result_t __of1x_remove_specific_flow_entry_table(of1x_pipeline_t *const pip
 }
 
 /* Main process_packet_through */
-inline of1x_flow_entry_t* __of1x_find_best_match_table(of1x_flow_table_t *const table, of1x_packet_matches_t *const pkt){
+inline of1x_flow_entry_t* __of1x_find_best_match_table(of1x_flow_table_t *const table, packet_matches_t *const pkt){
 	return of1x_matching_algorithms[table->matching_algorithm].find_best_match_hook(table, pkt);
 }	
 

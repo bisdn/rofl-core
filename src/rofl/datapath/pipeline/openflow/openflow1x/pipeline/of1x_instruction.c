@@ -6,11 +6,12 @@
 
 #include <assert.h> 
 #include "../../../util/logging.h"
+#include "../../../platform/likely.h"
 
 /* Instructions init and destroyers */ 
 static void __of1x_init_instruction(of1x_instruction_t* inst, of1x_instruction_type_t type, of1x_action_group_t* apply_actions, of1x_write_actions_t* write_actions, of1x_write_metadata_t* write_metadata, unsigned int go_to_table){
 
-	if(!type)
+	if( unlikely(type==0) )
 		return;
 	
 	inst->type = type;
@@ -134,7 +135,7 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 					break;
     			case OF1X_IT_WRITE_METADATA:
 				{
-					of1x_packet_matches_t* matches = (of1x_packet_matches_t *)&pkt->matches;
+					packet_matches_t* matches = &pkt->matches;
 					matches->metadata = 	(matches->metadata | ~instructions->instructions[i].write_metadata.metadata_mask) &
 								(instructions->instructions[i].write_metadata.metadata & instructions->instructions[i].write_metadata.metadata_mask);
 				}

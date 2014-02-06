@@ -42,6 +42,9 @@ m4_include([config/no_cpp.m4])
 # Pipeline support
 m4_include([config/pipeline.m4])
 
+# Pipeline custom functions
+m4_include([config/pipeline_custom_funcs.m4])
+
 # Checking libs
 #m4_include([config/libs.m4])
 
@@ -68,8 +71,8 @@ AC_CONFIG_FILES([
 	
 	src/rofl/Makefile src/rofl/rofl.pc
 
-        src/rofl/datapath/afa/Makefile
-        src/rofl/datapath/afa/openflow/openflow1x/Makefile
+	src/rofl/datapath/afa/Makefile
+	src/rofl/datapath/afa/openflow/openflow1x/Makefile
 	
 	examples/Makefile
 	examples/ethswctld/Makefile
