@@ -1,6 +1,7 @@
 #include "of1x_switch.h"
 
 #include "../../platform/memory.h"
+#include "../../platform/likely.h"
 #include "../../util/logging.h"
 #include "../of_switch.h"
 #include "of1x_async_events_hooks.h"
@@ -10,14 +11,14 @@ of1x_switch_t* of1x_init_switch(const char* name, of_version_t version, uint64_t
 
 	of1x_switch_t* sw;
 	sw = (of1x_switch_t*)platform_malloc_shared(sizeof(of1x_switch_t));
-	if(sw == NULL)
+	if( unlikely(sw == NULL) )
 		return NULL;
 
 	//Filling in values
 	sw->of_ver = version;
 	sw->dpid = dpid;
 	sw->name = (char*)platform_malloc_shared(strlen(name)+1);
-	if(sw->name == NULL){
+	if( unlikely(sw->name == NULL) ){
 		platform_free_shared(sw);
 		return NULL;
 	}
@@ -40,7 +41,7 @@ of1x_switch_t* of1x_init_switch(const char* name, of_version_t version, uint64_t
 	
 	//Setup pipeline	
 	sw->pipeline = __of1x_init_pipeline(sw, num_of_tables, list);
-	if(sw->pipeline == NULL){
+	if( unlikely(sw->pipeline == NULL) ){
 		platform_free_shared(sw->name);
 		platform_free_shared(sw);
 		return NULL;
@@ -105,7 +106,7 @@ rofl_result_t __of1x_reconfigure_switch(of1x_switch_t* sw, of_version_t version)
 /* Port management */
 rofl_result_t __of1x_attach_port_to_switch_at_port_num(of1x_switch_t* sw, unsigned int port_num, switch_port_t* port){
 
-	if(!port || !port_num || port_num >= LOGICAL_SWITCH_MAX_LOG_PORTS)
+	if( unlikely(port==NULL) || unlikely(port_num==0) || unlikely(port_num >= LOGICAL_SWITCH_MAX_LOG_PORTS) )
 		return ROFL_FAILURE;	
 
 	//Allow single add/remove operation over the switch 
@@ -133,7 +134,7 @@ rofl_result_t __of1x_attach_port_to_switch_at_port_num(of1x_switch_t* sw, unsign
 rofl_result_t __of1x_attach_port_to_switch(of1x_switch_t* sw, switch_port_t* port, unsigned int* port_num){
 	unsigned int i;
 
-	if(!port || port->attached_sw) 
+	if( unlikely(port==NULL) || unlikely(port->attached_sw!=NULL) ) 
 		return ROFL_FAILURE;	
 
 	//Allow single add/remove operation over the switch 
@@ -164,7 +165,7 @@ rofl_result_t __of1x_attach_port_to_switch(of1x_switch_t* sw, switch_port_t* por
 
 rofl_result_t __of1x_detach_port_from_switch_by_port_num(of1x_switch_t* sw, unsigned int port_num){
 
-	if(!port_num)
+	if( unlikely(port_num==0) )
 		return ROFL_FAILURE;
 
 	//Allow single add/remove operation over the switch 
@@ -192,7 +193,7 @@ rofl_result_t __of1x_detach_port_from_switch(of1x_switch_t* sw, switch_port_t* p
 
 	unsigned int i;
 
-	if(!port) 
+	if( unlikely(port==NULL) ) 
 		return ROFL_FAILURE;	
 
 	//Allow single add/remove operation over the switch 

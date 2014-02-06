@@ -93,7 +93,12 @@ rofl_result_t __of1x_set_pipeline_tables_defaults(of1x_pipeline_t* pipeline, of_
 //Wrapping of processing
 /**
 * @brief Processes a packet-out through the OpenFlow pipeline.  
-* @ingroup sw_runtime 
+* @ingroup sw_runtime
+* 
+*  
+*
+* @warning Packet matches and packet timestamp MUST be properly initialized. Timstamp
+* must be the timestamp immediately before calling of1x_process_packet_out_pipeline()
 */
 void of1x_process_packet_out_pipeline(const struct of1x_switch *sw, datapacket_t *const pkt, const of1x_action_group_t* apply_actions_group);
 

@@ -3,6 +3,7 @@
 #include "of1x_flow_table.h"
 #include "of1x_group_table.h"
 #include "../../../platform/lock.h"
+#include "../../../platform/likely.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/packet.h"
 #include "../of1x_async_events_hooks.h"
@@ -20,7 +21,7 @@ of1x_pipeline_t* __of1x_init_pipeline(struct of1x_switch* sw, const unsigned int
 	int i;	
 	of1x_pipeline_t* pipeline;
 
-	if(!sw)
+	if( unlikely(sw==NULL) )
 		return NULL;
 
 	//Verify params
@@ -29,7 +30,7 @@ of1x_pipeline_t* __of1x_init_pipeline(struct of1x_switch* sw, const unsigned int
 	
 	pipeline = (of1x_pipeline_t*)platform_malloc_shared(sizeof(of1x_pipeline_t));
 
-	if(!pipeline)
+	if( unlikely(pipeline==NULL) )
 		return NULL;
 	
 	//Fill in
@@ -41,7 +42,7 @@ of1x_pipeline_t* __of1x_init_pipeline(struct of1x_switch* sw, const unsigned int
 	//Allocate tables and initialize	
 	pipeline->tables = (of1x_flow_table_t*)platform_malloc_shared(sizeof(of1x_flow_table_t)*num_of_tables);
 	
-	if(!pipeline->tables){
+	if( unlikely(pipeline->tables==NULL) ){
 		platform_free_shared(pipeline);
 		return NULL;
 	}
@@ -95,7 +96,7 @@ rofl_result_t __of1x_destroy_pipeline(of1x_pipeline_t* pipeline){
 	//destrouy groups
 	of1x_destroy_group_table(pipeline->groups);
 	
-	for(i=0;i<pipeline->num_of_tables;i++){
+	for(i=0; i<pipeline->num_of_tables; i++){
 		//We don't care about errors here, maybe add trace TODO
 		__of1x_destroy_table(&pipeline->tables[i]);
 	}
@@ -121,9 +122,9 @@ rofl_result_t __of1x_purge_pipeline_entries(of1x_pipeline_t* pipeline){
 	flow_entry = of1x_init_flow_entry(NULL,NULL,false);
 	group_entry = of1x_init_group_table(); 
 	
-	if(!flow_entry)
+	if( unlikely(flow_entry==NULL) )
 		return ROFL_FAILURE;
-	if(!group_entry){
+	if( unlikely(group_entry==NULL) ){
 		of1x_destroy_flow_entry(flow_entry);
 		return ROFL_FAILURE;
 	}
@@ -188,41 +189,44 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	//Loop over tables
 	unsigned int i, table_to_go;
 	of1x_flow_entry_t* match;
-	of1x_packet_matches_t* pkt_matches;
+	packet_matches_t* pkt_matches;
+	of1x_pipeline_t* pipeline;
+
 	
 	//Initialize packet for OF1.2 pipeline processing 
-	__of1x_init_packet_matches(pkt); 
 	__of1x_init_packet_write_actions(pkt); 
 
 	//Mark packet as being processed by this sw
 	pkt->sw = sw;
 	
 	//Matches aux
-	pkt_matches = &pkt->matches.of1x;
+	pkt_matches = &pkt->matches;
 
 	ROFL_PIPELINE_DEBUG("Packet[%p] entering switch [%s] pipeline (1.X)\n",pkt,sw->name);	
 
 #ifdef DEBUG
-	of1x_dump_packet_matches(&pkt->matches);
+	dump_packet_matches(&pkt->matches);
 #endif
 	
-	//FIXME: add metadata+write operations 
-	for(i=OF1X_FIRST_FLOW_TABLE_INDEX; i < ((of1x_switch_t*)sw)->pipeline->num_of_tables ; i++){
+
+	//Pipeline pointer
+	pipeline = ((of1x_switch_t*)sw)->pipeline;
+
+	for(i=OF1X_FIRST_FLOW_TABLE_INDEX; i < pipeline->num_of_tables ; i++){
 		
 		//Perform lookup	
-		match = __of1x_find_best_match_table((of1x_flow_table_t* const)&((of1x_switch_t*)sw)->pipeline->tables[i], pkt_matches);
+		match = __of1x_find_best_match_table(&pipeline->tables[i], pkt_matches);
 		
-		if(match){
+		if(likely(match != NULL)){
 			
-
 			ROFL_PIPELINE_DEBUG("Packet[%p] matched at table: %u, entry: %p\n", pkt, i,match);
 
 			//Update table and entry statistics
-			__of1x_stats_table_matches_inc(&((of1x_switch_t*)sw)->pipeline->tables[i]);
+			__of1x_stats_table_matches_inc(&pipeline->tables[i]);
 			__of1x_stats_flow_update_match(match, pkt_matches->pkt_size_bytes);
 
 			//Update entry timers
-			__of1x_timer_update_entry(match);
+			__of1x_timer_update_entry(match, pkt->ts);
 
 			//Process instructions
 			table_to_go = __of1x_process_instructions((of1x_switch_t*)sw, i, pkt, &match->inst_grp);
@@ -252,16 +256,16 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			return;	
 		}else{
 			//Update table statistics
-			__of1x_stats_table_lookup_inc(&((of1x_switch_t*)sw)->pipeline->tables[i]);
+			__of1x_stats_table_lookup_inc(&pipeline->tables[i]);
 
 			//Not matched, look for table_miss behaviour 
-			if(((of1x_switch_t*)sw)->pipeline->tables[i].default_action == OF1X_TABLE_MISS_DROP){
+			if(pipeline->tables[i].default_action == OF1X_TABLE_MISS_DROP){
 
 				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_DROP %u\n",pkt, i);	
 				platform_packet_drop(pkt);
 				return;
 
-			}else if(((of1x_switch_t*)sw)->pipeline->tables[i].default_action == OF1X_TABLE_MISS_CONTROLLER){
+			}else if(pipeline->tables[i].default_action == OF1X_TABLE_MISS_CONTROLLER){
 			
 				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_CONTROLLER. It Will generate a PACKET_IN event to the controller\n",pkt);
 
@@ -286,7 +290,6 @@ void of1x_process_packet_out_pipeline(const of1x_switch_t *sw, datapacket_t *con
 	of1x_group_table_t *gt = sw->pipeline->groups;
 
 	//Initialize packet for OF1.2 pipeline processing 
-	__of1x_init_packet_matches(pkt); 
 	__of1x_init_packet_write_actions(pkt); 
 
 	//Validate apply_actions_group

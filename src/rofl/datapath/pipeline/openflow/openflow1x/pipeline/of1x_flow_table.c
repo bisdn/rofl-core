@@ -1,5 +1,6 @@
 #include "of1x_flow_table.h"
 
+#include "../../../platform/likely.h"
 #include "../../../util/logging.h"
 
 #include "of1x_group_table.h"
@@ -221,13 +222,15 @@ void __of13_set_table_defaults(of1x_flow_table_t* table){
 rofl_result_t __of1x_init_table(struct of1x_pipeline* pipeline, of1x_flow_table_t* table, const unsigned int table_index, const enum of1x_matching_algorithm_available algorithm){
 
 	//Safety checks
-	if(!pipeline || !table)
+	if( unlikely(pipeline==NULL) || unlikely(table==NULL) )
 		return ROFL_FAILURE;	
 
 	//Initializing mutexes
-	if(NULL == (table->mutex = platform_mutex_init(NULL)))
+	table->mutex = platform_mutex_init(NULL);
+	if( unlikely(NULL==table->mutex) )
 		return ROFL_FAILURE;
-	if(NULL == (table->rwlock = platform_rwlock_init(NULL)))
+	table->rwlock = platform_rwlock_init(NULL);
+	if( unlikely(NULL==table->rwlock) )
 		return ROFL_FAILURE;
 	
 	table->pipeline = pipeline;
@@ -424,7 +427,7 @@ rofl_result_t __of1x_remove_specific_flow_entry_table(of1x_pipeline_t *const pip
 }
 
 /* Main process_packet_through */
-inline of1x_flow_entry_t* __of1x_find_best_match_table(of1x_flow_table_t *const table, of1x_packet_matches_t *const pkt){
+inline of1x_flow_entry_t* __of1x_find_best_match_table(of1x_flow_table_t *const table, packet_matches_t *const pkt){
 	return of1x_matching_algorithms[table->matching_algorithm].find_best_match_hook(table, pkt);
 }	
 

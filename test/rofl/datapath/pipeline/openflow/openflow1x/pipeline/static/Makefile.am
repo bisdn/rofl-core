@@ -1,7 +1,7 @@
 MAINTAINERCLEANFILES = Makefile.in
 
 static_unit_test_CFLAGS= -DTIMERS_FAKE_TIME 
-static_unit_test_CPPFLAGS= -I$(top_srcdir)/src/
+static_unit_test_CPPFLAGS= -I$(top_srcdir)/src/ -DROFL_TEST=1
 
 #FIXME add group table tests!
 static_unit_test_SOURCES=../unit_test.c \
@@ -12,6 +12,7 @@ static_unit_test_SOURCES=../unit_test.c \
 	../memory.c \
 	../pthread_atomic_operations.c \
 	../pthread_lock.c \
+	../timing.c \
 	../lib_random.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/switch_port.c \
@@ -26,11 +27,11 @@ static_unit_test_SOURCES=../unit_test.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_group_table.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_instruction.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_match.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_packet_matches.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_pipeline.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_statistics.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_timers.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/common/ternary_fields.c \
+	$(top_srcdir)/src/rofl/datapath/pipeline/common/packet_matches.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/util/logging.c
 
 static_unit_test_LDADD= -lcunit -lpthread

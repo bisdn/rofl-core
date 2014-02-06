@@ -1,16 +1,15 @@
-#include "of1x_packet_matches.h"
+#include "packet_matches.h"
 
 #include "rofl.h"
-#include "of1x_utils.h"
-#include "../../../platform/packet.h"
-#include "../../../util/logging.h"
+#include "../platform/packet.h"
+#include "../util/logging.h"
 
 /*
 * Updates/Initializes packet matches based on platform information about the pkt
 */
-void __of1x_update_packet_matches(datapacket_t *const pkt){
+void __update_packet_matches(datapacket_t *const pkt){
 		
-	of1x_packet_matches_t* matches = &pkt->matches.of1x;
+	packet_matches_t* matches = &pkt->matches;
 
 	//Pkt size
 	matches->pkt_size_bytes = platform_packet_get_size_bytes(pkt);
@@ -106,14 +105,14 @@ void __of1x_update_packet_matches(datapacket_t *const pkt){
 /*
 * Sets up pkt->matches and call update to initialize packet matches
 */
-void __of1x_init_packet_matches(datapacket_t *const pkt){
+void __init_packet_matches(datapacket_t *const pkt){
 	
-	of1x_packet_matches_t* matches = &pkt->matches.of1x;
+	packet_matches_t* matches = &pkt->matches;
 
 	//Associated metadata
 	matches->metadata = 0x0; 
  
-	__of1x_update_packet_matches(pkt);
+	__update_packet_matches(pkt);
 }
 
 
@@ -122,9 +121,7 @@ void __of1x_init_packet_matches(datapacket_t *const pkt){
 */
 
 //Dump packet matches
-void of1x_dump_packet_matches(of_packet_matches_t *const pkt_matches){
-
-	of1x_packet_matches_t *const pkt = &pkt_matches->of1x;
+void dump_packet_matches(packet_matches_t *const pkt){
 
 	ROFL_PIPELINE_DEBUG_NO_PREFIX("Packet matches [");	
 

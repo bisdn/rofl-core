@@ -2,24 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef __PLATFORM_LOCK_H__
-#define __PLATFORM_LOCK_H__
+#ifndef __PLATFORM_LOCK_INLINE_H__
+#define __PLATFORM_LOCK_INLINE_H__
 
-#include "rofl.h"
-
-#if defined(LOCK_INLINE_HDR) && !defined(ROFL_TEST)
-
-#include "lock_inline.h"
-
-#else
+#include <pthread.h>
+#include "../platform/memory.h"
 
 /**
-* @file lock.h
+* @file lock_inline.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
+* @author Victor Alvarez<victor.alvarez (at) bisdn.de>
 *
-* @brief Defines the locking interface used by the library. 
-* The user of the library MUST provide an implementation for his/her platform.
+* @brief Implements the locking functions used by the library. 
+* In order to avoid some overhead ticks when calling the locking functions
+* they can be here implemented as static inline
+* 
+* Note that these implementations depend on the platform used and
+* that is why here is only provided the structure that it must have.
 *
+* After implementing the functions here rename this file into lock_inline.h
+* and configure once again. It will be used in the next compilation.
+* 
 * The locking API is the set of calls used by library
 * to perform mutual exclusion operations. It is pretty much a standard
 * POSIX-like interface, except for minor details. 
@@ -48,7 +51,10 @@ ROFL_BEGIN_DECLS
 * mutex_init. platform_mutex_init() must allocate the memory for 
 * the mutex AND then perform the mutex initialization (POSIX's mutex_init).
 */
-platform_mutex_t* platform_mutex_init(void* params);
+static inline
+platform_mutex_t* platform_mutex_init(void* params){
+	//TODO implement
+};
 
 /**
 * @brief Destroys and deallocates a mutex previously inited by 
@@ -59,8 +65,10 @@ platform_mutex_t* platform_mutex_init(void* params);
 * mutex_destroy. platform_mutex_desttroy() must first destroy (POSIX's
 * mutex_destroy) the lock AND then release the memory previously allocated.
 */
-void platform_mutex_destroy(platform_mutex_t* mutex);
-
+static inline
+void platform_mutex_destroy(platform_mutex_t* mutex){
+	//TODO implement
+};
 //Operations
 /**
 * @brief Locks the platform_mutex_t mutex.
@@ -69,7 +77,10 @@ void platform_mutex_destroy(platform_mutex_t* mutex);
 *
 * This has the same semantic as POSIX call.
 */
-void platform_mutex_lock(platform_mutex_t* mutex);
+static inline
+void platform_mutex_lock(platform_mutex_t* mutex){
+	//TODO implement
+};
 
 /**
 * @brief Unlocks the platform_mutex_t mutex.
@@ -78,7 +89,10 @@ void platform_mutex_lock(platform_mutex_t* mutex);
 *
 * This has the same semantic as POSIX call.
 */
-void platform_mutex_unlock(platform_mutex_t* mutex);
+static inline
+void platform_mutex_unlock(platform_mutex_t* mutex){
+	//TODO implement
+};
 
 /* RWLOCK */
 //Init&destroy
@@ -91,7 +105,10 @@ void platform_mutex_unlock(platform_mutex_t* mutex);
 * rwlock_init. platform_mutex_init() must allocate the memory for the
 * rwlock AND then perform the mutex initialization (POSIX's rwlock_init).
 */
-platform_rwlock_t* platform_rwlock_init(void* params);
+static inline
+platform_rwlock_t* platform_rwlock_init(void* params){
+	//TODO implement
+};
 
 /**
 * @brief Destroys and deallocates a rwlock previously inited by 
@@ -102,7 +119,10 @@ platform_rwlock_t* platform_rwlock_init(void* params);
 * rwlock_destroy. platform_rwlcok_destroy() must first destroy the lock (POSIX's
 * rwlock_destroy) AND then release the memory previously allocated.
 */
-void platform_rwlock_destroy(platform_rwlock_t* rwlock);
+static inline
+void platform_rwlock_destroy(platform_rwlock_t* rwlock){
+	//TODO implement
+};
 
 //Read
 /**
@@ -112,7 +132,10 @@ void platform_rwlock_destroy(platform_rwlock_t* rwlock);
 *
 * This has the same semantic as POSIX call.
 */
-void platform_rwlock_rdlock(platform_rwlock_t* rwlock);
+static inline
+void platform_rwlock_rdlock(platform_rwlock_t* rwlock){
+	//TODO implement
+};
 
 /**
 * @brief Performs a read-unlock over the platform_rwlock_t mutex
@@ -121,7 +144,10 @@ void platform_rwlock_rdlock(platform_rwlock_t* rwlock);
 *
 * This has the same semantic as POSIX call.
 */
-void platform_rwlock_rdunlock(platform_rwlock_t* rwlock);
+static inline
+void platform_rwlock_rdunlock(platform_rwlock_t* rwlock){
+	//TODO implement
+};
 
 //Write
 /**
@@ -131,7 +157,10 @@ void platform_rwlock_rdunlock(platform_rwlock_t* rwlock);
 *
 * This has the same semantic as POSIX call.
 */
-void platform_rwlock_wrlock(platform_rwlock_t* rwlock);
+static inline
+void platform_rwlock_wrlock(platform_rwlock_t* rwlock){
+	//TODO implement
+};
 
 /**
 * @brief Performs a write-unlock over the platform_rwlock_t mutex
@@ -140,11 +169,12 @@ void platform_rwlock_wrlock(platform_rwlock_t* rwlock);
 *
 * This has the same semantic as POSIX call.
 */
-void platform_rwlock_wrunlock(platform_rwlock_t* rwlock);
+static inline
+void platform_rwlock_wrunlock(platform_rwlock_t* rwlock){
+	//TODO implement
+};
 
 //C++ extern C
 ROFL_END_DECLS
 
-#endif //PLATFORM_LOCK_INLIE defined
-
-#endif //PLATFORM_LOCK
+#endif //PLATFORM_LOCK_INLINE
