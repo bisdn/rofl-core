@@ -51,7 +51,7 @@ public: // data structures
 					os << "name:" << tsr.name << " ";
 					os << std::hex;
 					os << "match:" << (unsigned long long)tsr.match << " ";
-					os << "wildcards:" << (unsigned int)tsr.wildcards << " >" << std::endl;
+					os << "wildcards:" << (unsigned long long)tsr.wildcards << " >" << std::endl;
 					os << std::dec;
 					os << "config:" << (unsigned int)tsr.config << " >" << std::endl;;
 					os << indent(2) << "<max_entries:" << (unsigned int)tsr.max_entries << " ";
@@ -66,7 +66,7 @@ public: // data structures
 					os << "name:" << tsr.name << " ";
 					os << std::hex;
 					os << "match:" << (unsigned long long)tsr.match << " ";
-					os << "wildcards:" << (unsigned int)tsr.wildcards << " >" << std::endl;
+					os << "wildcards:" << (unsigned long long)tsr.wildcards << " >" << std::endl;
 					os << indent(2) << "<write-actions:" << (unsigned int)tsr.write_actions << " ";
 					os << "apply-actions:" << (unsigned int)tsr.apply_actions << " ";
 					os << "write-setfields:" << (unsigned long long)tsr.write_setfields << " ";
