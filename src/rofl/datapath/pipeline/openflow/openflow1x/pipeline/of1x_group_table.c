@@ -158,8 +158,7 @@ rofl_of1x_gm_result_t __of1x_init_group(of1x_group_table_t *gt, of1x_group_type_
 	return ROFL_OF1X_GM_OK;
 }
 
-rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t *buckets){
-							 //uint32_t weigth, uint32_t group, uint32_t port, of1x_action_group_t **actions){
+rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets){
 	rofl_of1x_gm_result_t ret_val;
 	platform_rwlock_wrlock(gt->rwlock);
 	
@@ -169,13 +168,18 @@ rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t t
 		return ROFL_OF1X_GM_EXISTS;
 	}
 	
-	ret_val = __of1x_init_group(gt,type,id, buckets);
+	ret_val = __of1x_init_group(gt,type,id,*buckets);
 	if (ret_val!=ROFL_OF1X_GM_OK){
 		platform_rwlock_wrunlock(gt->rwlock);
 		return ret_val;
 	}
 	
 	platform_rwlock_wrunlock(gt->rwlock);
+
+	//Was successful set the pointer to NULL
+	//so that is not further used outside the pipeline
+	*buckets = NULL;	
+
 	return ROFL_OF1X_GM_OK;
 }
 
@@ -276,10 +280,10 @@ rofl_of1x_gm_result_t of1x_group_delete(of1x_pipeline_t *pipeline, of1x_group_ta
  * and modifies the action buckets inside
  * @param actions is a null ended array with the action groups for each bucket
  */
-rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t *buckets){
+rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets){
 	rofl_of1x_gm_result_t ret_val;
 	
-	if((ret_val=__of1x_check_group_parameters(gt,type,id,buckets))!=ROFL_OF1X_GM_OK)
+	if((ret_val=__of1x_check_group_parameters(gt,type,id,*buckets))!=ROFL_OF1X_GM_OK)
 		return ret_val;
 	
 	of1x_group_t *ge = __of1x_group_search(gt,id);
@@ -290,13 +294,17 @@ rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_
 	platform_rwlock_wrlock(ge->rwlock);
 	
 	of1x_destroy_bucket_list(ge->bc_list);
-	ge->bc_list = buckets;
+	ge->bc_list = *buckets;
 	ge->id = id;
 	ge->type = type;
 	ge->group_table = gt;
-	
+
 	platform_rwlock_wrunlock(ge->rwlock);
 	
+	//Was successful set the pointer to NULL
+	//so that is not further used outside the pipeline
+	*buckets = NULL;	
+
 	return ROFL_SUCCESS;
 }
 

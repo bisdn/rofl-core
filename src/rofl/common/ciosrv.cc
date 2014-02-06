@@ -309,30 +309,38 @@ cioloop::run_loop()
 
 		FD_ZERO(&exceptfds);
 
-
 		std::pair<ciosrv*, ctimer> next_timeout(0, ctimer(NULL, 0, 60));
 		{
-			RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
-			for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
-				try {
-					ctimer timer((*it).first->get_next_timer());
+			std::map<ciosrv*, int> urgent;
+			{
+				RwLock lock(timers_rwlock, RwLock::RWLOCK_READ);
+				for (std::map<ciosrv*, bool>::iterator it = timers.begin(); it != timers.end(); ++it) {
+					try {
+						ctimer timer((*it).first->get_next_timer());
 
-					if ((*it).first->get_next_timer() < ctimer::now()) {
-						//logging::debug << "[rofl][ciosrv][loop] timer:" << (*it).first->get_next_timer();
-						//logging::debug << "[rofl][ciosrv][loop]   now:" << ctimer::now();
-						//logging::debug << "[rofl][ciosrv][loop] delta:" << timer;
-						(*it).first->handle_timeout(timer.get_opaque());
-						continue;
-					}
+						if ((*it).first->get_next_timer() < ctimer::now()) {
+							//logging::debug << "[rofl][ciosrv][loop] timer:" << (*it).first->get_next_timer();
+							//logging::debug << "[rofl][ciosrv][loop]   now:" << ctimer::now();
+							//logging::debug << "[rofl][ciosrv][loop] delta:" << timer;
+							//(*it).first->handle_timeout(timer.get_opaque());
+							urgent[(*it).first] = timer.get_opaque();
+							continue;
+						}
 
-					timer -= ctimer::now();
+						timer -= ctimer::now();
 
-					if (timer < next_timeout.second) {
-						next_timeout = std::pair<ciosrv*, ctimer>( (*it).first, timer );
-					}
-				} catch (eTimersNotFound& e) {}
+						if (timer < next_timeout.second) {
+							next_timeout = std::pair<ciosrv*, ctimer>( (*it).first, timer );
+						}
+					} catch (eTimersNotFound& e) {}
+				}
+			}
+			// conduct urgent timeouts (those with a timer expired before ctimer::now())
+			for (std::map<ciosrv*, int>::iterator it = urgent.begin(); it != urgent.end(); ++it) {
+				(*it).first->__handle_timeout();
 			}
 		}
+
 
 		//logging::debug << "[rofl][cioloop] before select:" << std::endl << *this;
 

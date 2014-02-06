@@ -18,10 +18,11 @@ extern "C" {
 
 #include <bitset>
 
-#include "ciosrv.h"
-#include "crofsock.h"
-#include "openflow/cofhelloelems.h"
-#include "openflow/cofhelloelemversionbitmap.h"
+#include "rofl/common/ciosrv.h"
+#include "rofl/common/crofsock.h"
+#include "rofl/common/openflow/cofhelloelems.h"
+#include "rofl/common/openflow/cofhelloelemversionbitmap.h"
+#include "rofl/common/crandom.h"
 
 namespace rofl {
 namespace openflow {
@@ -101,7 +102,7 @@ class crofconn :
 
 #define DEFAULT_HELLO_TIMEOUT	5
 #define DEFAULT_ECHO_TIMEOUT 	5
-#define DEFAULT_ECHO_INTERVAL	30
+#define DEFAULT_ECHO_INTERVAL	10
 
 public:
 

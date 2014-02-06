@@ -15,6 +15,7 @@ dynamic_unit_test_SOURCES=../unit_test.c \
 	../timing.c \
 	../lib_random.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/physical_switch.c \
+	$(top_srcdir)/src/rofl/datapath/pipeline/monitoring.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/of_switch.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/port_queue.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/switch_port.c \

@@ -98,6 +98,13 @@ public:
 			rofl::cmacaddr const& src,
 			uint32_t in_port);
 
+	/**
+	 *
+	 */
+	void
+	clear();
+
+
 private:
 
 	friend class cfibentry;

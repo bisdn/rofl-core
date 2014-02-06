@@ -33,6 +33,9 @@ typedef enum{
 	#define LOGICAL_SWITCH_MAX_LOG_PORTS 129 // 128, 0 slot NEVER used (has to be less than OF1X_PORT_MAX)
 #endif
 
+//Max length of the LSI name
+#define LOGICAL_SWITCH_MAX_LEN_NAME 32
+
 //Platform dependent opaque state
 typedef void of_switch_platform_state_t;
 
@@ -51,7 +54,7 @@ typedef struct of_switch{
 	/* This part is common and MUST be at the very beginning */ 
 	of_version_t of_ver; 
 	uint64_t dpid;
-	char* name;
+	char name[LOGICAL_SWITCH_MAX_LEN_NAME];
 	unsigned int max_ports;
 	unsigned int num_of_ports;
 	
@@ -66,7 +69,13 @@ typedef struct of_switch{
 	of_switch_platform_state_t* platform_state;
 	/* End of common part */
 
+	//Version specific content...
 }of_switch_t;
+
+/**
+* Switch snapshot
+*/
+typedef of_switch_t of_switch_snapshot_t;
 
 typedef int of_packet_in_reason_t;
 
@@ -145,6 +154,19 @@ rofl_result_t __of_detach_all_ports_from_switch(of_switch_t* sw);
 *
 */
 rofl_result_t of_get_switch_matching_algorithms(of_version_t of_version, const char * const** name_list, int *count);
+
+//
+// Snapshots
+//
+
+//Creates a snapshot of the running of LSI 
+of_switch_snapshot_t* __of_switch_get_snapshot(of_switch_t* sw);
+
+/**
+* Destroy a previously generated snapshot
+* @ingroup mgmt 
+*/
+void of_switch_destroy_snapshot(of_switch_snapshot_t* snapshot);
 
 //C++ extern C
 ROFL_END_DECLS

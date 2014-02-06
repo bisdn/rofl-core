@@ -5,6 +5,9 @@
 #ifndef AFA_DRIVER_H
 #define AFA_DRIVER_H 
 
+#include <stdbool.h>
+#include <rofl/datapath/pipeline/monitoring.h>
+#include <rofl/datapath/pipeline/physical_switch.h>
 #include <rofl/datapath/pipeline/switch_port.h>
 #include <rofl/datapath/pipeline/openflow/of_switch.h>
 #include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/matching_algorithms/matching_algorithms.h>
@@ -31,6 +34,13 @@ afa_result_t fwd_module_init(void);
 afa_result_t fwd_module_destroy(void);
 
 /**
+* @name    fwd_module_get_chassis_info_
+* @brief   Get the chassis information in the form of a monitored entity.
+* @ingroup fwd_module_management
+*/
+monitored_entity_t* fwd_module_get_chassis_info(void);
+
+/**
 *
 * Switch management functions
 *
@@ -39,20 +49,32 @@ afa_result_t fwd_module_destroy(void);
 */
 
 /**
+* @brief   Checks if an LSI with the specified dpid exists 
+* @ingroup logical_switch_management
+*/
+bool fwd_module_switch_exists(uint64_t dpid); 
+
+/**
+* @brief   Retrieve the list of LSIs dpids
+* @ingroup logical_switch_management
+* @retval  List of available dpids, which MUST be deleted using dpid_list_destroy().
+*/
+dpid_list_t* fwd_module_get_all_lsi_dpids(void);
+
+/**
 * @name    fwd_module_create_switch 
 * @brief   Instruct forward module to create an OF logical switch 
 * @ingroup logical_switch_management
-* @retval  Pointer to of_switch_t instance 
 */
-of_switch_t* fwd_module_create_switch(char* name, uint64_t dpid, of_version_t of_version, unsigned int num_of_tables, int* ma_list/**TODO add this list to the configuration*/);
+afa_result_t fwd_module_create_switch(char* name, uint64_t dpid, of_version_t of_version, unsigned int num_of_tables, int* ma_list);
 
 /**
-* @name    fwd_module_get_switch_by_dpid 
-* @brief   Retrieve the switch with the specified dpid  
-* @ingroup logical_switch_management
-* @retval  Pointer to of_switch_t instance or NULL 
-*/
-of_switch_t* fwd_module_get_switch_by_dpid(uint64_t dpid);
+ * @name fwd_module_get_switch_snapshot_by_dpid 
+ * @brief Retrieves a snapshot of the current state of a switch port, if the port name is found. The snapshot MUST be deleted using switch_port_destroy_snapshot()
+ * @ingroup logical_switch_management
+ * @retval  Pointer to of_switch_snapshot_t instance or NULL 
+ */
+of_switch_snapshot_t* fwd_module_get_switch_snapshot_by_dpid(uint64_t dpid);
 
 /**
 * @name    fwd_module_destroy_switch_by_dpid 
@@ -69,53 +91,26 @@ afa_result_t fwd_module_destroy_switch_by_dpid(uint64_t dpid);
 * All of the functions related to platform port management 
 *
 */
+/**
+* @brief   Checks if a port with the specified name exists 
+* @ingroup port_management 
+*/
+bool fwd_module_port_exists(const char *name);
 
-/***
+/**
+* @brief   Retrieve the list of names of the available ports of the platform. You may want to 
+* 	   call fwd_module_get_port_snapshot_by_name(name) to get more information of the port 
+* @ingroup port_management
+* @retval  List of available port names, which MUST be deleted using switch_port_name_list_destroy().
+*/
+switch_port_name_list_t* fwd_module_get_all_port_names(void);
+
+/**
  * @name fwd_module_get_port_by_name
- * @brief returns the port structure found with the specified name or NULL if its not found
+ * @brief Retrieves a snapshot of the current state of a switch port, if the port name is found. The snapshot MUST be deleted using switch_port_destroy_snapshot()
  * @ingroup port_management
  */
-switch_port_t* fwd_module_get_port_by_name(const char *name);
-
-/**
-* @name    fwd_module_list_platform_ports
-* @brief   Retrieve the list of ports of the platform 
-* @ingroup port_management
-* @retval  Pointer to the first port. 
-*/
-//NOTE probably not in use anymore
-switch_port_t* fwd_module_list_ports(void);
-
-/**
-* @name    fwd_module_get_physical_ports_ports
-* @brief   Retrieve the list of the physical ports of the switch
-* @ingroup port_management
-* @param   Number of ports in the array(boundary)
-* @retval  Pointer to the first port in the array of switch_port_t*. This array cannot
-*          be modified, is READ_ONLY!
-*/
-switch_port_t** fwd_module_get_physical_ports(unsigned int* max_ports);
-
-/**
-* @name    fwd_module_get_virtual_ports
-* @brief   Retrieve the list of virtual ports of the platform
-* @ingroup port_management
-* @param   Number of ports in the array(boundary)
-* @retval  Pointer to the first port in the array of switch_port_t*. This array cannot
-*          be modified, is READ_ONLY! 
-*/
-switch_port_t** fwd_module_get_virtual_ports(unsigned int* max_ports);
-
-/**
-* @name    fwd_module_get_tunnel_ports
-* @brief   Retrieve the list of tunnel ports of the platform
-* @ingroup port_management
-* @param   Number of ports in the array(boundary)
-* @retval  Pointer to the first port in the array of switch_port_t*. This array cannot
-*          be modified, is READ_ONLY!
-*/
-switch_port_t** fwd_module_get_tunnel_ports(unsigned int* max_ports);
-
+switch_port_snapshot_t* fwd_module_get_port_snapshot_by_name(const char *name);
 
 //Attachment
 
@@ -136,11 +131,11 @@ afa_result_t fwd_module_attach_port_to_switch(uint64_t dpid, const char* name, u
 * @ingroup management
 *
 * @param dpid_lsi1 Datapath ID of the LSI1
-* @param port1 A pointer to the virtual port attached to the LS1
+* @param port1 A pointer to a snapshot of the virtual port attached to the LS1 that MUST be destroyed using switch_port_destroy_snapshot()
 * @param dpid_lsi2 Datapath ID of the LSI2
-* @param port1 A pointer to the virtual port attached to the LS2
+* @param port1 A pointer to a snapshot of the virtual port attached to the LS2 that MUST be destroyed using switch_port_destroy_snapshot()
 */
-afa_result_t fwd_module_connect_switches(uint64_t dpid_lsi1, switch_port_t** port1, uint64_t dpid_lsi2, switch_port_t** port2);
+afa_result_t fwd_module_connect_switches(uint64_t dpid_lsi1, switch_port_snapshot_t** port1, uint64_t dpid_lsi2, switch_port_snapshot_t** port2);
 
 
 /**
@@ -166,42 +161,54 @@ afa_result_t fwd_module_detach_port_from_switch_at_port_num(uint64_t dpid, const
 //Port control
 
 /**
-* @name    fwd_module_enable_port
+* @name    fwd_module_bring_port_up
 * @brief   Brings up a system port. If the port is attached to an OF logical switch, this also schedules port for I/O and triggers PORTMOD message. 
 * @ingroup port_management
 *
 * @param name Port system name 
 */
-afa_result_t fwd_module_enable_port(const char* name);
+afa_result_t fwd_module_bring_port_up(const char* name);
 
 /**
-* @name    fwd_module_disable_port
+* @name    fwd_module_bring_port_down
 * @brief   Shutdowns (brings down) a system port. If the port is attached to an OF logical switch, this also de-schedules port and triggers PORTMOD message. 
 * @ingroup port_management
 *
 * @param name Port system name 
 */
-afa_result_t fwd_module_disable_port(const char* name);
+afa_result_t fwd_module_bring_port_down(const char* name);
 
 /**
-* @name    fwd_module_enable_port_by_num
+* @name    fwd_module_bring_port_up_by_num
 * @brief   Brings up a port from an OF logical switch (and the underlying physical interface). This function also triggers the PORTMOD message 
 * @ingroup port_management
 *
 * @param dpid DatapathID 
 * @param port_num OF port number
 */
-afa_result_t fwd_module_enable_port_by_num(uint64_t dpid, unsigned int port_num);
+afa_result_t fwd_module_bring_port_up_by_num(uint64_t dpid, unsigned int port_num);
 
 /**
-* @name    fwd_module_disable_port_by_num
+* @name    fwd_module_bring_port_down_by_num
 * @brief   Brings down a port from an OF logical switch (and the underlying physical interface). This also triggers the PORTMOD message.
 * @ingroup port_management
 *
 * @param dpid DatapathID 
 * @param port_num OF port number
 */
-afa_result_t fwd_module_disable_port_by_num(uint64_t dpid, unsigned int port_num);
+afa_result_t fwd_module_bring_port_down_by_num(uint64_t dpid, unsigned int port_num);
+
+
+/**
+ * @brief Retrieve a snapshot of the monitoring state. If rev is 0, or the current monitoring 
+ * has changed (monitoring->rev != rev), a new snapshot of the monitoring state is made. Warning: this 
+ * is expensive.
+ * @ingroup fwd_module_management
+ *
+ * @param rev Last seen revision. Set to 0 to always get a new snapshot 
+ * @return A snapshot of the monitoring state that MUST be destroyed using monitoring_destroy_snapshot() or NULL if there have been no changes (same rev)
+ */ 
+monitoring_snapshot_state_t* fwd_module_get_monitoring_snapshot(uint64_t rev);
 
 /**
  * @brief get a list of available matching algorithms
@@ -220,6 +227,6 @@ AFA_END_DECLS
 
 /* OpenFlow related events */
 #include "openflow/openflow1x/of1x_fwd_module.h"
-//TODO: Add more versions here...
+// [+] Add more versions here...
 
 #endif /* AFA_DRIVER_H */

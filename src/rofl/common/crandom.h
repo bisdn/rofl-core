@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include <assert.h>
 
+#include <limits>
+
 #include "rofl/common/croflexception.h"
 #include "rofl/common/cmemory.h"
 
@@ -27,6 +29,13 @@ class eRandomReadFailed : public eRandomBase {}; // read system-call failed
 class crandom : public cmemory {
 #define DEV_URANDOM "/dev/urandom"
 public:
+
+	/**
+	 * @brief	returns a random number between 0 and 1
+	 */
+	static double
+	draw_random_number();
+
 	// constructor with default random number length of 4 bytes
 	crandom(size_t vallen = sizeof(uint32_t));
 	// destructor

@@ -57,7 +57,7 @@ void of_process_pipeline_tables_timeout_expirations(const of_switch_t* sw){
 		case OF_VERSION_10: 
 		case OF_VERSION_12: 
 		case OF_VERSION_13: 
-			__of1x_process_pipeline_tables_timeout_expirations(((of1x_switch_t*)sw)->pipeline);
+			__of1x_process_pipeline_tables_timeout_expirations(&((of1x_switch_t*)sw)->pipeline);
 			break;
 		default: 
 			//return ROFL_FAILURE;
@@ -136,5 +136,27 @@ rofl_result_t of_get_switch_matching_algorithms(of_version_t of_version, const c
 		}
 		default:
 			return ROFL_FAILURE;
+	}
+}
+
+
+of_switch_snapshot_t* __of_switch_get_snapshot(of_switch_t* sw){
+	switch (sw->of_ver){
+		case OF_VERSION_10:
+		case OF_VERSION_12:
+		case OF_VERSION_13:
+			return (of_switch_snapshot_t*)__of1x_switch_get_snapshot((of1x_switch_t*)sw);
+		default:
+			return NULL;
+	}
+}
+void of_switch_destroy_snapshot(of_switch_snapshot_t* snapshot){
+	switch (snapshot->of_ver){
+		case OF_VERSION_10:
+		case OF_VERSION_12:
+		case OF_VERSION_13:
+			__of1x_switch_destroy_snapshot((of1x_switch_snapshot_t*)snapshot);
+		default:
+			break;
 	}
 }

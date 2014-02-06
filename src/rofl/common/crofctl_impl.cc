@@ -101,6 +101,8 @@ crofctl_impl::handle_disconnected(
 	logging::info << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " connection closed:" << std::endl << *chan;
 
+	transactions.clear();
+
 	rofbase->rpc_ctl_failed(this); // send notification to crofbase, when main connection has been closed
 }
 
@@ -144,6 +146,9 @@ crofctl_impl::recv_message(
 			case rofl::openflow10::OFPT_VENDOR: {
 				experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ), aux_id);
 			} break;
+			case rofl::openflow10::OFPT_ERROR: {
+				error_rcvd(dynamic_cast<cofmsg_error*>( msg ), aux_id);
+			} break;
 			case rofl::openflow10::OFPT_FEATURES_REQUEST: {
 				features_request_rcvd(dynamic_cast<cofmsg_features_request*>( msg ), aux_id);
 			} break;
@@ -180,6 +185,9 @@ crofctl_impl::recv_message(
 			switch (msg->get_type()) {
 			case rofl::openflow12::OFPT_EXPERIMENTER: {
 				experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ), aux_id);
+			} break;
+			case rofl::openflow12::OFPT_ERROR: {
+				error_rcvd(dynamic_cast<cofmsg_error*>( msg ), aux_id);
 			} break;
 			case rofl::openflow12::OFPT_FEATURES_REQUEST: {
 				features_request_rcvd(dynamic_cast<cofmsg_features_request*>( msg ), aux_id);
@@ -226,6 +234,9 @@ crofctl_impl::recv_message(
 			switch (msg->get_type()) {
 			case rofl::openflow13::OFPT_EXPERIMENTER: {
 				experimenter_rcvd(dynamic_cast<cofmsg_experimenter*>( msg ), aux_id);
+			} break;
+			case rofl::openflow13::OFPT_ERROR: {
+				error_rcvd(dynamic_cast<cofmsg_error*>( msg ), aux_id);
 			} break;
 			case rofl::openflow13::OFPT_FEATURES_REQUEST: {
 				features_request_rcvd(dynamic_cast<cofmsg_features_request*>( msg ), aux_id);
@@ -2207,6 +2218,21 @@ crofctl_impl::experimenter_rcvd(cofmsg_experimenter *msg, uint8_t aux_id)
 		rofbase->handle_experimenter_message(*this, message, aux_id);
 		break;
 	}
+
+	delete msg;
+}
+
+
+
+void
+crofctl_impl::error_rcvd(cofmsg_error *msg, uint8_t aux_id)
+{
+	cofmsg_error& error = dynamic_cast<cofmsg_error&>( *msg );
+
+	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
+			<< " Error message received" << std::endl << error;
+
+	rofbase->handle_error_message(*this, error, aux_id);
 
 	delete msg;
 }

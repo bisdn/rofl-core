@@ -56,7 +56,7 @@ void test_insert_and_expiration_static(of1x_pipeline_t * pipeline, uint32_t hard
 	CU_ASSERT(single_entry!=NULL);
 	__of1x_fill_new_timer_entry_info(single_entry,hard_timeout,0);
 	CU_ASSERT(single_entry->timer_info.hard_timeout==hard_timeout);
-	CU_ASSERT(of1x_add_flow_entry_table(pipeline,0, single_entry, false, false)==ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(pipeline,0, &single_entry, false, false)==ROFL_OF1X_FM_SUCCESS);
 	
 	//ASSERT(of1x_add_timer(table, single_entry)==EXIT_SUCCESS,"add timer failed");
 
@@ -91,10 +91,16 @@ void test_insert_and_extract_static(of1x_pipeline_t * pipeline, uint32_t hard_ti
 	//adding the entries
 	for(i=0; i< num_of_entries; i++)
 	{
+		
+		of1x_flow_entry_t* tmp;
 		entry_list[i] = of1x_init_flow_entry(NULL,NULL,false);
 		__of1x_fill_new_timer_entry_info(entry_list[i],hard_timeout,0); 	//WARNING supposition: the entry is filled up alone
 		of1x_add_match_to_entry(entry_list[i],of1x_init_port_in_match(NULL,NULL,i));
-		of1x_add_flow_entry_table(pipeline,0, entry_list[i], false, false);
+		
+		//Cheat pipeline
+		tmp = entry_list[i];
+		of1x_add_flow_entry_table(pipeline,0, &entry_list[i], false, false);
+		entry_list[i] = tmp;
 		
 		CU_ASSERT(table->timers[slot].list.num_of_timers==i+1);
 		CU_ASSERT(table->timers[slot].list.head != NULL); //this can improve with the actual addersses
@@ -155,6 +161,7 @@ void test_insert_and_extract_static(of1x_pipeline_t * pipeline, uint32_t hard_ti
 void test_simple_idle_static(of1x_pipeline_t * pipeline, uint32_t ito)
 {
 	of1x_flow_table_t * table = pipeline->tables;
+	of1x_flow_entry_t *tmp;
 	of1x_flow_entry_t *entry=of1x_init_flow_entry(NULL,NULL,false); //NOTE entry is initiated but not inserted in the table. Therefore we must extract it.??
 	struct timeval now;
 	//WARNING not working for slots different than seconds (1000 ms)
@@ -162,7 +169,10 @@ void test_simple_idle_static(of1x_pipeline_t * pipeline, uint32_t ito)
 	__of1x_fill_new_timer_entry_info(entry,0,ito);
 	
 	//insert to table?
-	of1x_add_flow_entry_table(pipeline, 0,entry,false, false);
+	//Cheat pipeline
+	tmp = entry;	
+	of1x_add_flow_entry_table(pipeline, 0, &entry,false, false);
+	entry = tmp;
 	
 	//insert a timer
 	//CU_ASSERT(of1x_add_timer(table, entry)==EXIT_SUCCESS);
@@ -212,9 +222,14 @@ void test_insert_both_expires_one_check_the_other_static(of1x_pipeline_t * pipel
 	time_forward(0,0,&now);
 	int slot, i;
 	
+	of1x_flow_entry_t *tmp;
 	of1x_flow_entry_t *single_entry = of1x_init_flow_entry(NULL,NULL,false);
 	__of1x_fill_new_timer_entry_info(single_entry,hto,ito);
-	of1x_add_flow_entry_table(pipeline,0, single_entry, false, false);
+	
+	//Cheat pipeline
+	tmp = single_entry;
+	of1x_add_flow_entry_table(pipeline,0,&single_entry, false, false);
+	single_entry = tmp;
 	
 	//CU_ASSERT(of1x_add_timer(table, entry)==EXIT_SUCCESS,"error add timer");
 	
@@ -263,7 +278,7 @@ void test_insert_and_extract_dynamic(of1x_pipeline_t * pipeline, uint32_t hard_t
 		entry_list[i] = of1x_init_flow_entry(NULL,NULL,false);
 		of1x_fill_new_timer_entry_info(entry_list[i],hard_timeout,0);
 		of1x_add_match_to_entry(entry_list[i],of1x_init_port_in_match(NULL,NULL,i));
-		of1x_add_flow_entry_table(pipeline,0, entry_list[i], false, false);
+		of1x_add_flow_entry_table(pipeline,0, &entry_list[i], false, false);
 		//CU_ASSERT(of1x_add_timer(table, entry_list[i]));
 		
 		CU_ASSERT(table->timers->list.num_of_timers==i+1);
@@ -327,7 +342,7 @@ void test_simple_idle_dynamic(of1x_pipeline_t * pipeline, uint32_t ito)
 	
 	of1x_flow_entry_t *entry=of1x_init_flow_entry(NULL,NULL,false);
 	of1x_fill_new_timer_entry_info(entry,0,ito);
-	CU_ASSERT(of1x_add_flow_entry_table(pipeline,0, entry, false, false)==ROFL_OF1X_FM_SUCCESS);
+	CU_ASSERT(of1x_add_flow_entry_table(pipeline,0, &entry, false, false)==ROFL_OF1X_FM_SUCCESS);
 	
 	//insert a timer
 	//CU_ASSERT(of1x_add_timer(table, entry)==EXIT_SUCCESS);
@@ -405,7 +420,7 @@ void test_incremental_insert_and_expiration_dynamic(of1x_pipeline_t * pipeline)
 		CU_ASSERT(entry_list[i]!=NULL);
 		of1x_fill_new_timer_entry_info(entry_list[i],timeout,0);
 		of1x_add_match_to_entry(entry_list[i],of1x_init_port_in_match(NULL,NULL,i));
-		CU_ASSERT(of1x_add_flow_entry_table(pipeline,0, entry_list[i], false, false)==ROFL_OF1X_FM_SUCCESS);
+		CU_ASSERT(of1x_add_flow_entry_table(pipeline,0, &entry_list[i], false, false)==ROFL_OF1X_FM_SUCCESS);
 		
 		//if(i==0)
 		//{
@@ -459,7 +474,7 @@ static int setup_test(of1x_switch_t** sw)
 		return EXIT_FAILURE;
 	}
 	pipeline->tables = table;
-	pipeline->num_of_tables=1;
+	pipeline.num_of_tables=1;
 */
 	return EXIT_SUCCESS;
 }
@@ -495,14 +510,14 @@ void main_test(void)
 		fprintf(stderr,"<%s:%d> Rnd values: ito %d hto %d n_entries %d\n", __func__, __LINE__,
 				rnd_to, rnd_toh, rnd_entries);
 #if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
-		test_insert_and_expiration_static(sw->pipeline, rnd_to);
-		test_insert_and_extract_static(sw->pipeline, rnd_to, rnd_entries);
-		test_simple_idle_static(sw->pipeline, rnd_to);
-		test_insert_both_expires_one_check_the_other_static(sw->pipeline,rnd_toh, rnd_to);
+		test_insert_and_expiration_static(&sw->pipeline, rnd_to);
+		test_insert_and_extract_static(&sw->pipeline, rnd_to, rnd_entries);
+		test_simple_idle_static(&sw->pipeline, rnd_to);
+		test_insert_both_expires_one_check_the_other_static(&sw->pipeline,rnd_toh, rnd_to);
 #else
-		test_insert_and_extract_dynamic(sw->pipeline,rnd_to, 2/*rnd_entries*/);
-		test_simple_idle_dynamic(sw->pipeline, rnd_to);
-		test_insert_both_expires_one_check_the_other_dynamic(sw->pipeline, rnd_toh, rnd_to );
+		test_insert_and_extract_dynamic(&sw->pipeline,rnd_to, 2/*rnd_entries*/);
+		test_simple_idle_dynamic(&sw->pipeline, rnd_to);
+		test_insert_both_expires_one_check_the_other_dynamic(&sw->pipeline, rnd_toh, rnd_to );
 #endif
 	}
 	

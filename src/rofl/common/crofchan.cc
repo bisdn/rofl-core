@@ -20,6 +20,7 @@ crofchan::crofchan(
 				state(STATE_DISCONNECTED),
 				reconnect_start_timeout(CROFCHAN_RECONNECT_START_TIMEOUT),
 				reconnect_in_seconds(CROFCHAN_RECONNECT_START_TIMEOUT),
+				reconnect_variance(CROFCHAN_RECONNECT_VARIANCE_IN_SECS),
 				reconnect_counter(0),
 				reconnect_timer_id(0)
 {
@@ -445,7 +446,7 @@ crofchan::backoff_reconnect(bool reset_timeout)
 
 	if ((0 == reconnect_timer_id) || (reset_timeout)) {
 
-		reconnect_in_seconds = reconnect_start_timeout;
+		reconnect_in_seconds = reconnect_start_timeout + reconnect_variance * crandom::draw_random_number();
 		reconnect_counter = 0;
 
 		if ((0 != reconnect_timer_id) && reset_timeout) {

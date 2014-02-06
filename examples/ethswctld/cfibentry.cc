@@ -55,7 +55,12 @@ cfibentry::set_out_port_no(uint32_t out_port_no)
 
 	this->out_port_no = out_port_no;
 
-	reset_timer(expiration_timer_id, entry_timeout);
+	try {
+		reset_timer(expiration_timer_id, entry_timeout);
+	} catch (rofl::eTimersBase& e) {
+		rofl::logging::info << "TIMERSSSSSSSSSSSSSSS!!!!" << std::endl;
+		register_timer(CFIBENTRY_ENTRY_EXPIRED, entry_timeout);
+	}
 
 #if 0
 	flow_mod_add();

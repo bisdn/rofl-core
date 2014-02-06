@@ -153,6 +153,7 @@ cpacket::cpacket(
 				mem(pack.framelen() + hspace),
 				//mem(buf, buflen, CPACKET_HEAD_ROOM, CPACKET_TAIL_ROOM),
 				data(std::pair<uint8_t*, size_t>(mem.somem() + hspace, pack.framelen())),
+				match(ofp_version),
 				packet_receive_time(time(NULL)),
 				in_port(0)
 {
