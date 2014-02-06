@@ -25,6 +25,11 @@ v0.4-devel 2013-11-24  Andreas Koepsel  <andreas.koepsel(at)bisdn.de>
     - canceling or resetting timers must be done using this timer_id, the opaque value cannot
       be used anymore
 
+v0.3.3
+
+[B][pipeline] Fixed race condition on accessing num_of_outputs of a matched entry 
+[B][pipeline] Fixed critical bugs related to of1x_modify_flow_entry_loop(): i) improper behaviour according to spec ii) leak when no rules were modified iii) corruption of state when more than one flow was modified
+
 v0.3.2.1
 
 [+] Adding README and CHANGES

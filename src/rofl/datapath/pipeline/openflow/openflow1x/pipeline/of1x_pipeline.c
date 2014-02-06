@@ -180,7 +180,7 @@ rofl_result_t __of1x_set_pipeline_tables_defaults(of1x_pipeline_t* pipeline, of_
 void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const pkt){
 
 	//Loop over tables
-	unsigned int i, table_to_go;
+	unsigned int i, table_to_go, num_of_outputs;
 	of1x_flow_entry_t* match;
 	packet_matches_t* pkt_matches;
 	
@@ -232,12 +232,15 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			//Process WRITE actions
 			__of1x_process_write_actions((of1x_switch_t*)sw, i, pkt, __of1x_process_instructions_must_replicate(&match->inst_grp));
 
+			//Recover the num_of_outputs to release the lock asap
+			num_of_outputs = match->inst_grp.num_of_outputs;
+
 			//Unlock the entry so that it can eventually be modified/deleted
 			platform_rwlock_rdunlock(match->rwlock);
 
 			//Drop packet Only if there has been copy(cloning of the packet) due to 
 			//multiple output actions
-			if(match->inst_grp.num_of_outputs != 1)
+			if(num_of_outputs != 1)
 				platform_packet_drop(pkt);
 							
 			return;	
