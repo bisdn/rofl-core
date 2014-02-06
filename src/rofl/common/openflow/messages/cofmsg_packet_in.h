@@ -264,39 +264,7 @@ public:
 		} break;
 		}
 		os << indent(2) << msg.match;
-		//os << indent(2) << msg.packet;
-
-		os << indent(0) << "<packet: ";
-		os << "data:" << (void*)msg.packet.soframe() << " ";
-		os << "datalen:" << (int)msg.packet.framelen() << " ";
-		os << ">" << std::endl;
-
-		if (msg.packet.framelen() > 0) {
-			for (unsigned int i=0; i < msg.packet.framelen(); i++) {
-				if (0 == (i % 64)) {
-					os << indent(2)
-						<< std::setfill('0')
-						<< std::setw(4)
-						<< std::dec << (i/64) << ": " << std::hex
-						<< std::setw(0)
-						<< std::setfill(' ');
-				}
-
-				os << std::setfill('0')
-					<< std::setw(2)
-					<< std::hex << (int)(*(msg.packet.soframe() + i)) << std::dec
-					<< std::setw(0)
-					<< std::setfill(' ')
-					<< " ";
-
-				if (0 == ((i+1) % 8))
-					os << "  ";
-				if (0 == ((i+1) % 64))
-					os << std::endl;
-			}
-			os << std::endl;
-		}
-
+		os << indent(2) << msg.packet;
 		return os;
 	};
 };
