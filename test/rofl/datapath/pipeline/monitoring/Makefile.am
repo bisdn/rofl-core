@@ -1,7 +1,10 @@
 MAINTAINERCLEANFILES = Makefile.in
 
+export AM_CPPFLAGS= -DROFL_TEST=1
+
 monitoring_unit_test_SOURCES= monitoring_test.c \
 	../openflow/openflow1x/pipeline/pthread_lock.c\
+	../openflow/openflow1x/pipeline/timing.c\
 	../openflow/openflow1x/pipeline/pthread_atomic_operations.c\
 	../openflow/openflow1x/pipeline/platform_empty_hooks_of12.cc\
 	../openflow/openflow1x/pipeline/output_actions.c\
@@ -22,13 +25,13 @@ monitoring_unit_test_SOURCES= monitoring_test.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_group_table.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_instruction.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_match.c \
-	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_packet_matches.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_pipeline.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_statistics.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_timers.c \
+	$(top_srcdir)/src/rofl/datapath/pipeline/common/packet_matches.c \
 	$(top_srcdir)/src/rofl/datapath/pipeline/common/ternary_fields.c
 
-monitoring_unit_test_LDADD= -lcunit -lpthread
+monitoring_unit_test_LDADD= -lcunit -lpthread 
 
 #-lrofl_pipeline -lrofl
 # we need to link to the local libraries, not the installed ones
