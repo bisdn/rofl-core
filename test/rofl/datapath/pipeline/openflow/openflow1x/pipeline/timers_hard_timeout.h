@@ -12,6 +12,7 @@
 
 void main_test(void);
 
+void time_forward(uint64_t sec, uint64_t usec, struct timeval * time);
 /*
 static int setup_test(of1x_pipeline_t* pipeline, of1x_flow_table_t* table, of1x_flow_entry_t ** entries);
 static int clean_up(of1x_flow_entry_t * entries, of1x_flow_table_t* table);

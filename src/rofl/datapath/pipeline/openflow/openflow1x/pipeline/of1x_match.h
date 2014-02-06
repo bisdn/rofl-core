@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include "rofl.h"
 #include "../../../common/ternary_fields.h"
-#include "of1x_packet_matches.h"
+#include "../../../common/packet_matches.h"
 #include "of1x_utils.h"
 
 //Fwd declarations
@@ -488,7 +488,7 @@ of1x_match_t* __of1x_get_alike_match(of1x_match_t* match1, of1x_match_t* match2)
 */
 bool __of1x_equal_matches(of1x_match_t* match1, of1x_match_t* match2);
 bool __of1x_is_submatch(of1x_match_t* sub_match, of1x_match_t* match);
-bool __of1x_check_match(const of1x_packet_matches_t* pkt, of1x_match_t* it);
+bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it);
 
 /*
 * Dumping

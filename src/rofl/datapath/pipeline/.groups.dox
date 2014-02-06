@@ -98,4 +98,7 @@
 * @brief Packet Mangling API is in charge of packet manipulation and must be implemented by the library users
 * @ingroup platform
 *
+* @defgroup platform_timing System Time API
+* @brief System time API is in charge of providing the pipeline with the time, used for statistics and flow expirations. Must be implemented by the library users
+* @ingroup platform
 */

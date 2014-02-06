@@ -3,6 +3,7 @@
 
 #include "../../../common/datapacket.h"
 #include "../../../platform/memory.h"
+#include "../../../platform/likely.h"
 #include "../../../util/logging.h"
 
 /*
@@ -15,6 +16,10 @@
 //Phy
 inline of1x_match_t* of1x_init_port_in_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_IN_PORT; 
 	match->value = __init_utern32(value,OF1X_4_BYTE_MASK); //No wildcard
 	match->prev = prev;
@@ -30,6 +35,10 @@ inline of1x_match_t* of1x_init_port_in_match(of1x_match_t* prev, of1x_match_t* n
 
 inline of1x_match_t* of1x_init_port_in_phy_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_IN_PHY_PORT; 
 	match->value = __init_utern32(value,OF1X_4_BYTE_MASK); //No wildcard 
 	match->prev = prev;
@@ -46,6 +55,10 @@ inline of1x_match_t* of1x_init_port_in_phy_match(of1x_match_t* prev, of1x_match_
 //METADATA
 inline of1x_match_t* of1x_init_metadata_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_METADATA; 
 	match->value = __init_utern64(value, mask);
 	match->prev = prev;
@@ -65,6 +78,10 @@ inline of1x_match_t* of1x_init_metadata_match(of1x_match_t* prev, of1x_match_t* 
 //ETHERNET
 inline of1x_match_t* of1x_init_eth_dst_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_ETH_DST; 
 	match->value = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
 
@@ -83,6 +100,10 @@ inline of1x_match_t* of1x_init_eth_dst_match(of1x_match_t* prev, of1x_match_t* n
 }
 inline of1x_match_t* of1x_init_eth_src_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_ETH_SRC; 
 	match->value = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
 	match->prev = prev;
@@ -100,6 +121,10 @@ inline of1x_match_t* of1x_init_eth_src_match(of1x_match_t* prev, of1x_match_t* n
 }
 inline of1x_match_t* of1x_init_eth_type_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_ETH_TYPE; 
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //No wildcard 
 	match->prev = prev;
@@ -116,6 +141,10 @@ inline of1x_match_t* of1x_init_eth_type_match(of1x_match_t* prev, of1x_match_t* 
 //8021.q
 inline of1x_match_t* of1x_init_vlan_vid_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_VLAN_VID; 
 	//Setting values; note that value includes the flag HAS_VLAN in the 13th bit
 	//The mask is set to be strictly 12 bits, so only matching the VLAN ID itself
@@ -135,6 +164,10 @@ inline of1x_match_t* of1x_init_vlan_vid_match(of1x_match_t* prev, of1x_match_t* 
 }
 inline of1x_match_t* of1x_init_vlan_pcp_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_VLAN_PCP; 
 	match->value = __init_utern8(value&OF1X_3_BITS_MASK,OF1X_3_BITS_MASK); //Ensure only 3 bit value, no wildcard 
 	match->prev = prev;
@@ -151,6 +184,10 @@ inline of1x_match_t* of1x_init_vlan_pcp_match(of1x_match_t* prev, of1x_match_t* 
 //MPLS
 inline of1x_match_t* of1x_init_mpls_label_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_MPLS_LABEL; 
 	match->value = __init_utern32(value&OF1X_20_BITS_MASK,OF1X_20_BITS_MASK); //no wildcard?? wtf! 
 	match->prev = prev;
@@ -165,6 +202,10 @@ inline of1x_match_t* of1x_init_mpls_label_match(of1x_match_t* prev, of1x_match_t
 }
 inline of1x_match_t* of1x_init_mpls_tc_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_MPLS_TC; 
 	match->value = __init_utern8(value&OF1X_3_BITS_MASK,OF1X_3_BITS_MASK); //Ensure only 3 bit value, no wildcard 
 	match->prev = prev;
@@ -179,6 +220,10 @@ inline of1x_match_t* of1x_init_mpls_tc_match(of1x_match_t* prev, of1x_match_t* n
 }
 inline of1x_match_t* of1x_init_mpls_bos_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_MPLS_BOS; 
 	match->value = __init_utern8(value&OF1X_1_BIT_MASK,OF1X_1_BIT_MASK); //Ensure only 1 bit value, no wildcard 
 	match->prev = prev;
@@ -194,8 +239,11 @@ inline of1x_match_t* of1x_init_mpls_bos_match(of1x_match_t* prev, of1x_match_t* 
 
 //ARP
 inline of1x_match_t* of1x_init_arp_opcode_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
-
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_ARP_OP;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //No wildcard
 	match->prev = prev;
@@ -210,6 +258,10 @@ inline of1x_match_t* of1x_init_arp_opcode_match(of1x_match_t* prev, of1x_match_t
 }
 inline of1x_match_t* of1x_init_arp_tha_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_ARP_THA;
 	match->value = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
 
@@ -228,6 +280,10 @@ inline of1x_match_t* of1x_init_arp_tha_match(of1x_match_t* prev, of1x_match_t* n
 }
 inline of1x_match_t* of1x_init_arp_sha_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_ARP_SHA;
 	match->value = __init_utern64(value&OF1X_48_BITS_MASK, mask&OF1X_48_BITS_MASK); //Enforce mask bits are always 00 for the first bits
 	match->prev = prev;
@@ -245,6 +301,10 @@ inline of1x_match_t* of1x_init_arp_sha_match(of1x_match_t* prev, of1x_match_t* n
 }
 inline of1x_match_t* of1x_init_arp_tpa_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_ARP_TPA;
 	match->value = __init_utern32(value,mask);
 	match->prev = prev;
@@ -262,6 +322,10 @@ inline of1x_match_t* of1x_init_arp_tpa_match(of1x_match_t* prev, of1x_match_t* n
 }
 inline of1x_match_t* of1x_init_arp_spa_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_ARP_SPA;
 	match->value = __init_utern32(value,mask);
 	match->prev = prev;
@@ -281,6 +345,10 @@ inline of1x_match_t* of1x_init_arp_spa_match(of1x_match_t* prev, of1x_match_t* n
 //NW
 inline of1x_match_t* of1x_init_nw_proto_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_NW_PROTO; 
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -295,6 +363,10 @@ inline of1x_match_t* of1x_init_nw_proto_match(of1x_match_t* prev, of1x_match_t* 
 }
 inline of1x_match_t* of1x_init_nw_src_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_NW_SRC;
 	match->value = __init_utern32(value,mask); 
 	match->prev = prev;
@@ -312,6 +384,10 @@ inline of1x_match_t* of1x_init_nw_src_match(of1x_match_t* prev, of1x_match_t* ne
 }
 inline of1x_match_t* of1x_init_nw_dst_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_NW_DST;
 	match->value = __init_utern32(value,mask); 
 	match->prev = prev;
@@ -331,6 +407,10 @@ inline of1x_match_t* of1x_init_nw_dst_match(of1x_match_t* prev, of1x_match_t* ne
 //IPv4
 inline of1x_match_t* of1x_init_ip4_src_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_IPV4_SRC;
 	match->value = __init_utern32(value,mask); 
 	match->prev = prev;
@@ -348,6 +428,10 @@ inline of1x_match_t* of1x_init_ip4_src_match(of1x_match_t* prev, of1x_match_t* n
 }
 inline of1x_match_t* of1x_init_ip4_dst_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_IPV4_DST;
 	match->value = __init_utern32(value,mask); 
 	match->prev = prev;
@@ -365,6 +449,10 @@ inline of1x_match_t* of1x_init_ip4_dst_match(of1x_match_t* prev, of1x_match_t* n
 }
 inline of1x_match_t* of1x_init_ip_proto_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_IP_PROTO; 
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -379,6 +467,10 @@ inline of1x_match_t* of1x_init_ip_proto_match(of1x_match_t* prev, of1x_match_t* 
 }
 inline of1x_match_t* of1x_init_ip_dscp_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_IP_DSCP; 
 	match->value = __init_utern8(value&OF1X_6_BITS_MASK,OF1X_6_BITS_MASK); //no wildcard 
 	match->prev = prev;
@@ -394,6 +486,10 @@ inline of1x_match_t* of1x_init_ip_dscp_match(of1x_match_t* prev, of1x_match_t* n
 
 inline of1x_match_t* of1x_init_ip_ecn_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_IP_ECN; 
 	match->value = __init_utern8(value&OF1X_2_BITS_MASK,OF1X_2_BITS_MASK); //no wildcard 
 	match->prev = prev;
@@ -410,6 +506,10 @@ inline of1x_match_t* of1x_init_ip_ecn_match(of1x_match_t* prev, of1x_match_t* ne
 //IPv6
 inline of1x_match_t* of1x_init_ip6_src_match(of1x_match_t* prev, of1x_match_t* next, uint128__t value, uint128__t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	
+	if(unlikely(match == NULL))
+		return NULL;
+
 	uint128__t fixed_mask = {{0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff}};
 	match->type = OF1X_MATCH_IPV6_SRC;
 	match->value = __init_utern128(value,mask); 
@@ -428,6 +528,10 @@ inline of1x_match_t* of1x_init_ip6_src_match(of1x_match_t* prev, of1x_match_t* n
 }
 inline of1x_match_t* of1x_init_ip6_dst_match(of1x_match_t* prev, of1x_match_t* next, uint128__t value, uint128__t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	uint128__t fixed_mask = {{0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff}};
 	match->type = OF1X_MATCH_IPV6_DST;
 	match->value = __init_utern128(value,mask); 
@@ -446,6 +550,10 @@ inline of1x_match_t* of1x_init_ip6_dst_match(of1x_match_t* prev, of1x_match_t* n
 }
 inline of1x_match_t* of1x_init_ip6_flabel_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_IPV6_FLABEL;
 	match->value = __init_utern64(value&OF1X_20_BITS_MASK,OF1X_20_BITS_MASK); // ensure 20 bits. No wildcard
 	match->prev = prev;
@@ -459,8 +567,11 @@ inline of1x_match_t* of1x_init_ip6_flabel_match(of1x_match_t* prev, of1x_match_t
 	return match;
 }
 inline of1x_match_t* of1x_init_ip6_nd_target_match(of1x_match_t* prev, of1x_match_t* next, uint128__t value){
-	
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	
+	if(unlikely(match == NULL))
+		return NULL;
+
 	uint128__t mask = {{0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff}};
 	
 	match->type = OF1X_MATCH_IPV6_ND_TARGET;
@@ -477,6 +588,10 @@ inline of1x_match_t* of1x_init_ip6_nd_target_match(of1x_match_t* prev, of1x_matc
 }
 inline of1x_match_t* of1x_init_ip6_nd_sll_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_IPV6_ND_SLL;
 	match->value = __init_utern64(value & OF1X_48_BITS_MASK, OF1X_48_BITS_MASK); //ensure 48 bits. No wildcard
 	match->prev = prev;
@@ -491,6 +606,10 @@ inline of1x_match_t* of1x_init_ip6_nd_sll_match(of1x_match_t* prev, of1x_match_t
 }
 inline of1x_match_t* of1x_init_ip6_nd_tll_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_IPV6_ND_TLL;
 	match->value = __init_utern64(value & OF1X_48_BITS_MASK, OF1X_48_BITS_MASK); //ensure 48 bits. No wildcard
 	match->prev = prev;
@@ -505,6 +624,10 @@ inline of1x_match_t* of1x_init_ip6_nd_tll_match(of1x_match_t* prev, of1x_match_t
 }
 inline of1x_match_t* of1x_init_ip6_exthdr_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value, uint16_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_IPV6_EXTHDR;
 	match->value = __init_utern16(value&OF1X_9_BITS_MASK, mask & OF1X_9_BITS_MASK );  //ensure 9 bits, with Wildcard
 	match->prev = prev;
@@ -524,6 +647,10 @@ inline of1x_match_t* of1x_init_ip6_exthdr_match(of1x_match_t* prev, of1x_match_t
 //ICMPV6
 inline of1x_match_t* of1x_init_icmpv6_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_ICMPV6_TYPE;
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK);
 	match->prev = prev;
@@ -538,6 +665,10 @@ inline of1x_match_t* of1x_init_icmpv6_type_match(of1x_match_t* prev, of1x_match_
 }
 inline of1x_match_t* of1x_init_icmpv6_code_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_ICMPV6_CODE;
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK);
 	match->prev = prev;
@@ -554,6 +685,10 @@ inline of1x_match_t* of1x_init_icmpv6_code_match(of1x_match_t* prev, of1x_match_
 //TCP
 inline of1x_match_t* of1x_init_tcp_src_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_TCP_SRC;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -569,6 +704,10 @@ inline of1x_match_t* of1x_init_tcp_src_match(of1x_match_t* prev, of1x_match_t* n
 }
 inline of1x_match_t* of1x_init_tcp_dst_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_TCP_DST;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -584,6 +723,10 @@ inline of1x_match_t* of1x_init_tcp_dst_match(of1x_match_t* prev, of1x_match_t* n
 //UDP
 inline of1x_match_t* of1x_init_udp_src_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_UDP_SRC;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -598,6 +741,10 @@ inline of1x_match_t* of1x_init_udp_src_match(of1x_match_t* prev, of1x_match_t* n
 }
 inline of1x_match_t* of1x_init_udp_dst_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_UDP_DST;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -614,6 +761,10 @@ inline of1x_match_t* of1x_init_udp_dst_match(of1x_match_t* prev, of1x_match_t* n
 //SCTP
 inline of1x_match_t* of1x_init_sctp_src_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_SCTP_SRC;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -629,6 +780,10 @@ inline of1x_match_t* of1x_init_sctp_src_match(of1x_match_t* prev, of1x_match_t* 
 }
 inline of1x_match_t* of1x_init_sctp_dst_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_SCTP_DST;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -645,6 +800,10 @@ inline of1x_match_t* of1x_init_sctp_dst_match(of1x_match_t* prev, of1x_match_t* 
 //TP
 inline of1x_match_t* of1x_init_tp_src_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_TP_SRC;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -659,6 +818,10 @@ inline of1x_match_t* of1x_init_tp_src_match(of1x_match_t* prev, of1x_match_t* ne
 }
 inline of1x_match_t* of1x_init_tp_dst_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_TP_DST;
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -674,6 +837,10 @@ inline of1x_match_t* of1x_init_tp_dst_match(of1x_match_t* prev, of1x_match_t* ne
 //ICMPv4
 inline of1x_match_t* of1x_init_icmpv4_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_ICMPV4_TYPE; 
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -688,6 +855,10 @@ inline of1x_match_t* of1x_init_icmpv4_type_match(of1x_match_t* prev, of1x_match_
 }
 inline of1x_match_t* of1x_init_icmpv4_code_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_ICMPV4_CODE; 
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -704,6 +875,10 @@ inline of1x_match_t* of1x_init_icmpv4_code_match(of1x_match_t* prev, of1x_match_
 //PBB
 inline of1x_match_t* of1x_init_pbb_isid_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_PBB_ISID;
 	match->value = __init_utern32(value&OF1X_3_BYTE_MASK, mask&OF1X_3_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -723,6 +898,10 @@ inline of1x_match_t* of1x_init_pbb_isid_match(of1x_match_t* prev, of1x_match_t* 
 //Tunnel Id
 inline of1x_match_t* of1x_init_tunnel_id_match(of1x_match_t* prev, of1x_match_t* next, uint64_t value, uint64_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_TUNNEL_ID; 
 	match->value = __init_utern64(value, mask); //no wildcard 
 	match->prev = prev;
@@ -746,6 +925,10 @@ inline of1x_match_t* of1x_init_tunnel_id_match(of1x_match_t* prev, of1x_match_t*
 //PPPoE
 inline of1x_match_t* of1x_init_pppoe_code_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_PPPOE_CODE; 
 	match->value = __init_utern8(value&OF1X_1_BYTE_MASK,OF1X_1_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -760,6 +943,10 @@ inline of1x_match_t* of1x_init_pppoe_code_match(of1x_match_t* prev, of1x_match_t
 }
 inline of1x_match_t* of1x_init_pppoe_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_PPPOE_TYPE; 
 	match->value = __init_utern8(value&OF1X_4_BITS_MASK,OF1X_4_BITS_MASK); //Ensure only 4 bit value, no wildcard 
 	match->prev = prev;
@@ -774,6 +961,10 @@ inline of1x_match_t* of1x_init_pppoe_type_match(of1x_match_t* prev, of1x_match_t
 }
 inline of1x_match_t* of1x_init_pppoe_session_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_PPPOE_SID; 
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -787,8 +978,11 @@ inline of1x_match_t* of1x_init_pppoe_session_match(of1x_match_t* prev, of1x_matc
 }
 //PPP
 inline of1x_match_t* of1x_init_ppp_prot_match(of1x_match_t* prev, of1x_match_t* next, uint16_t value){
-
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_PPP_PROT; 
 	match->value = __init_utern16(value,OF1X_2_BYTE_MASK); //no wildcard 
 	match->prev = prev;
@@ -804,6 +998,10 @@ inline of1x_match_t* of1x_init_ppp_prot_match(of1x_match_t* prev, of1x_match_t* 
 //GTP
 inline of1x_match_t* of1x_init_gtp_msg_type_match(of1x_match_t* prev, of1x_match_t* next, uint8_t value){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_GTP_MSG_TYPE;
 	match->value = __init_utern8(value,OF1X_1_BYTE_MASK); //no wildcard
 	match->prev = prev;
@@ -818,6 +1016,10 @@ inline of1x_match_t* of1x_init_gtp_msg_type_match(of1x_match_t* prev, of1x_match
 }
 inline of1x_match_t* of1x_init_gtp_teid_match(of1x_match_t* prev, of1x_match_t* next, uint32_t value, uint32_t mask){
 	of1x_match_t* match = (of1x_match_t*)platform_malloc_shared(sizeof(of1x_match_t));
+	
+	if(unlikely(match == NULL))
+		return NULL;
+
 	match->type = OF1X_MATCH_GTP_TEID;
 	match->value = __init_utern32(value, mask);
 	match->prev = prev;
@@ -849,7 +1051,7 @@ void __of1x_init_match_group(of1x_match_group_t* group){
 void __of1x_destroy_match_group(of1x_match_group_t* group){
 	of1x_match_t *match;
 
-	if (!group->head)
+	if ( unlikely(group->head==NULL) )
 		return;
 
 	match = group->head;
@@ -868,7 +1070,7 @@ void __of1x_destroy_match_group(of1x_match_group_t* group){
 
 void __of1x_match_group_push_back(of1x_match_group_t* group, of1x_match_t* match){
 
-	if (!group || !match)
+	if ( unlikely(group==NULL) || unlikely(match==NULL) )
 		return;
 
 	match->next = match->prev = NULL; 
@@ -1004,7 +1206,7 @@ of1x_match_t* __of1x_copy_matches(of1x_match_t* matches){
 
 	of1x_match_t* prev, *curr, *it, *copy;
 	
-	if(!matches)
+	if( unlikely(matches==NULL) )
 		return NULL;
 	
 	for(prev=NULL,copy=NULL, it=matches; it; it = it->next){
@@ -1089,8 +1291,9 @@ inline bool __of1x_is_submatch(of1x_match_t* sub_match, of1x_match_t* match){
 * CHECK fields against packet
 *
 */
-inline bool __of1x_check_match(const of1x_packet_matches_t* pkt, of1x_match_t* it){
-	if(!it)
+inline bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it){
+
+	if( unlikely(it==NULL ) )
 		return false;
 	
 	switch(it->type){

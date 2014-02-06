@@ -128,9 +128,8 @@ afa_result_t fwd_module_of1x_process_packet_out(uint64_t dpid, uint32_t buffer_i
  * When check_overlap is enabled, addition will fail if there is at least one entry
  * which may potentally match the same packet, and this entry has the same priority.
  *
- * If (and only if) the addition is successful (AFA_SUCCESS), the entry
- * pointer shall NEVER be used outside the library. In other words, the entry
- * state belongs to the forwarding_module and the forwarding_module will release it.
+ * If (and only if) the mod operation is successful the contents of the pointer entry are set to NULL. Any other reference to the real entry (**entry) shall never be further used.
+ *
  *
  * On success, the forwarding module will instantiate the necessary state to handle timers and
  * statistics.
@@ -142,7 +141,7 @@ afa_result_t fwd_module_of1x_process_packet_out(uint64_t dpid, uint32_t buffer_i
  * @param check_overlap	Check OVERLAP flag
  * @param check_counts	Check RESET_COUNTS flag
  */
-afa_result_t fwd_module_of1x_process_flow_mod_add(uint64_t dpid, uint8_t table_id, of1x_flow_entry_t* flow_entry, uint32_t buffer_id, bool check_overlap, bool reset_counts); 
+afa_result_t fwd_module_of1x_process_flow_mod_add(uint64_t dpid, uint8_t table_id, of1x_flow_entry_t** flow_entry, uint32_t buffer_id, bool check_overlap, bool reset_counts); 
 
 /**
  * @name    fwd_module_of1x_process_flow_mod_modify
@@ -153,9 +152,7 @@ afa_result_t fwd_module_of1x_process_flow_mod_add(uint64_t dpid, uint8_t table_i
  * same matches as the parameter entry. The "entry" parameter is NOT a pointer to an existing
  * table entry. 
  *
- * If (and only if) the mod operation is successful (AFA_SUCCESS), the entry
- * pointer shall NEVER be used outside the forwarding module. In other words, the entry
- * state belongs to the forwardin module, and entry will be released by itself.
+ * If (and only if) the mod operation is successful the contents of the pointer entry are set to NULL. Any other reference to the real entry (**entry) shall never be further used.
  *
  * @param dpid 		Datapath ID of the switch to install the FLOW_MOD
  * @param table_id 	Table id from which to modify the flowmod
@@ -164,7 +161,7 @@ afa_result_t fwd_module_of1x_process_flow_mod_add(uint64_t dpid, uint8_t table_i
  * @param strictness 	Strictness (STRICT NON-STRICT)
  * @param check_counts	Check RESET_COUNTS flag
  */
-afa_result_t fwd_module_of1x_process_flow_mod_modify(uint64_t dpid, uint8_t table_id, of1x_flow_entry_t* flow_entry, uint32_t buffer_id, of1x_flow_removal_strictness_t strictness, bool reset_counts); 
+afa_result_t fwd_module_of1x_process_flow_mod_modify(uint64_t dpid, uint8_t table_id, of1x_flow_entry_t** flow_entry, uint32_t buffer_id, of1x_flow_removal_strictness_t strictness, bool reset_counts); 
 
 
 /**
@@ -229,20 +226,26 @@ of1x_stats_flow_aggregate_msg_t* fwd_module_of1x_get_flow_aggregate_stats(uint64
 /**
  * @name    fwd_module_of1x_group_mod_add
  * @brief   Instructs forward module to add a new GROUP
+ * 
+ * If (and only if) the mod operation is successful the contents of the pointer buckets are set to NULL. Any other reference to the buckets (**buckets) shall never be further used.
+ *
  * @ingroup of1x_fwd_module_async_event_processing
  *
  * @param dpid 		Datapath ID of the switch to install the GROUP
  */
-rofl_of1x_gm_result_t fwd_module_of1x_group_mod_add(uint64_t dpid, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t *buckets);
+rofl_of1x_gm_result_t fwd_module_of1x_group_mod_add(uint64_t dpid, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets);
 
 /**
  * @name    fwd_module_of1x_group_mod_modify
  * @brief   Instructs forward module to modify the GROUP with identification ID
+ *
+ * If (and only if) the mod operation is successful the contents of the pointer buckets are set to NULL. Any other reference to the buckets (**buckets) shall never be further used.
+ *
  * @ingroup of1x_fwd_module_async_event_processing
  *
  * @param dpid 		Datapath ID of the switch to modify the GROUP
  */
-rofl_of1x_gm_result_t fwd_module_of1x_group_mod_modify(uint64_t dpid, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t *buckets);
+rofl_of1x_gm_result_t fwd_module_of1x_group_mod_modify(uint64_t dpid, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets);
 
 /**
  * @name    fwd_module_of1x_group_mod_del
@@ -280,7 +283,7 @@ of1x_stats_group_msg_t * fwd_module_of1x_get_group_stats(uint64_t dpid, uint32_t
  */
 of1x_stats_group_msg_t * fwd_module_of1x_get_group_all_stats(uint64_t dpid, uint32_t id);
 
-//Add more here..
+// [+] Add more here..
 
 //C++ extern C
 AFA_END_DECLS

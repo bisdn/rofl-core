@@ -1,9 +1,10 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-if ONLY_C_CODE
-SUBDIRS = rofl/datapath/pipeline/openflow/openflow1x/pipeline
-else
-SUBDIRS = unit rofl/datapath/pipeline/openflow/openflow1x/pipeline
+SUBDIRS = rofl/datapath/pipeline/openflow/openflow1x/pipeline\
+	rofl/datapath/pipeline/monitoring
+
+if !ONLY_C_CODE
+SUBDIRS += unit 
 endif
 
 export INCLUDES += -I$(abs_srcdir)/../src/

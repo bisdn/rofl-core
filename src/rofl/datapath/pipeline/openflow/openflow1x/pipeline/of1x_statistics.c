@@ -8,6 +8,8 @@
 #include "of1x_timers.h"
 #include "of1x_group_table.h"
 #include "../../../platform/memory.h"
+#include "../../../platform/likely.h"
+#include "../../../platform/timing.h"
 #include "../../../platform/atomic_operations.h"
 #include "../../../util/time.h"
 
@@ -27,7 +29,7 @@
 void __of1x_init_flow_stats(of1x_flow_entry_t * entry)
 {
 	struct timeval now;
-	__of1x_gettimeofday(&now, NULL);
+	platform_gettimeofday(&now);
 	
 	entry->stats.initial_time = now;
 	entry->stats.packet_count = 0;
@@ -56,14 +58,14 @@ of1x_stats_flow_aggregate_msg_t* __of1x_init_stats_flow_aggregate_msg(){
 	of1x_stats_flow_aggregate_msg_t* msg = (of1x_stats_flow_aggregate_msg_t*)platform_malloc_shared(sizeof(of1x_stats_flow_aggregate_msg_t));
 
 	//Init counters
-	if(msg)
+	if(likely(msg!=NULL))
 		memset(msg,0,sizeof(*msg));
 
 	return msg;
 }
 void of1x_destroy_stats_flow_aggregate_msg(of1x_stats_flow_aggregate_msg_t* msg){
 
-	if(msg)
+	if(likely(msg!=NULL))
 		platform_free_shared(msg);
 }
 
@@ -79,12 +81,12 @@ of1x_stats_single_flow_msg_t* __of1x_init_stats_single_flow_msg(of1x_flow_entry_
 
 	msg = (of1x_stats_single_flow_msg_t*)platform_malloc_shared(sizeof(of1x_stats_single_flow_msg_t)); 
 
-	if(!msg)
+	if(unlikely(msg==NULL))
 		return NULL;
 	
 	msg->inst_grp = (of1x_instruction_group_t*)platform_malloc_shared(sizeof(of1x_instruction_group_t)); 
 	
-	if(!msg->inst_grp){
+	if(unlikely(msg->inst_grp==NULL)){
 		platform_free_shared(msg);
 		return NULL;
 	}
@@ -115,7 +117,7 @@ void __of1x_destroy_stats_single_flow_msg(of1x_stats_single_flow_msg_t* msg){
 
 	of1x_match_t* match;
 
-	if(!msg)
+	if(unlikely(msg==NULL))
 		return;
 
 	//TODO: deprecate this in favour of group_matches
@@ -139,7 +141,7 @@ of1x_stats_flow_msg_t* __of1x_init_stats_flow_msg(){
 	of1x_stats_flow_msg_t* msg = (of1x_stats_flow_msg_t*)platform_malloc_shared(sizeof(of1x_stats_flow_msg_t)); 
 
 	//Init counters
-	if(msg)
+	if(likely(msg!=NULL))
 		memset(msg,0,sizeof(*msg));
 
 	return msg;
@@ -162,7 +164,7 @@ void of1x_destroy_stats_flow_msg(of1x_stats_flow_msg_t* msg){
 //Push to stats_flow_msg
 void __of1x_push_single_flow_stats_to_msg(of1x_stats_flow_msg_t* msg, of1x_stats_single_flow_msg_t* sfs){
 
-	if(!msg)
+	if(unlikely(msg==NULL))
 		return;
 
 	if(!msg->flows_head)
@@ -192,7 +194,7 @@ void of1x_stats_flow_get_duration(struct of1x_flow_entry * entry, uint32_t* sec,
 
 	struct timeval now, diff;
 
-	__of1x_gettimeofday(&now, NULL);
+	platform_gettimeofday(&now);
 	
 	TIMERSUB(&now, &entry->stats.initial_time, &diff);
 	*sec = diff.tv_sec;
@@ -248,77 +250,6 @@ void __of1x_stats_table_matches_inc(of1x_flow_table_t * table){
 	platform_atomic_inc64(&table->stats.matched_count,table->stats.mutex);
 }
 
-#if 0
-//Port & Queue functions
-void __of1x_stats_port_init(of1x_stats_port_t *port_stats){
-	port_stats->rx_packets = 0;
-	port_stats->tx_packets = 0;
-	port_stats->rx_bytes = 0;
-	port_stats->tx_bytes = 0;
-	
-	if (NULL == (port_stats->mutex = platform_mutex_init(NULL))){
-		assert(0);
-		// log error
-		return;
-	}
-}
-
-void of1x_stats_port_destroy(of1x_stats_port_t *port_stats)
-{
-	platform_mutex_destroy(port_stats->mutex);
-}
-
-void of1x_stats_port_rx_packet_inc(of1x_stats_port_t *port_stats, uint64_t bytes_rx)
-{
-	platform_atomic_inc64(&port_stats->rx_packets,port_stats->mutex);
-	platform_atomic_add64(&port_stats->rx_bytes,&bytes_rx, port_stats->mutex);
-}
-
-void of1x_stats_port_tx_packet_inc(of1x_stats_port_t *port_stats, uint64_t bytes_tx)
-{
-	platform_atomic_inc64(&port_stats->tx_packets,port_stats->mutex);
-	platform_atomic_add64(&port_stats->tx_bytes,&bytes_tx, port_stats->mutex);
-}
-
-/** TODO not yet implemented for ports
- * rx_drops
- * tx_drops
- * rx_errors
- * tx_errors
- * rx_align_err
- * rx_overrun_err
- * rc_crc_err
- * collisions
- */
-
-void of1x_stats_queue_init(of1x_stats_queue_t *queue_stats)
-{
-	queue_stats->tx_bytes=0;
-	queue_stats->tx_packets=0;
-	queue_stats->tx_errors=0;
-	if (0 == (queue_stats->mutex = platform_mutex_init(NULL)))
-	{
-		return;
-	}
-}
-
-void of1x_stats_queue_destroy(of1x_stats_queue_t *queue_stats)
-{
-	platform_mutex_destroy(queue_stats->mutex);
-}
-
-void of1x_stats_queue_tx_packet_inc(of1x_stats_queue_t *queue_stats, uint64_t bytes)
-{
-	platform_atomic_inc64(&queue_stats->tx_packets, queue_stats->mutex);
-	platform_atomic_add64(&queue_stats->tx_bytes, &bytes, queue_stats->mutex);
-}
-
-void of1x_stats_queue_tx_errors_inc(of1x_stats_queue_t *queue_stats)
-{
-	platform_atomic_inc64(&queue_stats->tx_errors, queue_stats->mutex);
-}
-#endif
-
 void __of1x_init_group_stats(of1x_stats_group_t *group_stats){
 	//NOTE bucket stats are initialized when the group is created, before being attached to the list
 	group_stats->mutex = platform_mutex_init(NULL);
@@ -347,7 +278,7 @@ void __of1x_stats_group_dec_reference(of1x_stats_group_t *gr_stats){
 of1x_stats_group_msg_t* __of1x_init_stats_group_msg(unsigned int num_buckets){
 	
 	of1x_stats_group_msg_t *msg = (of1x_stats_group_msg_t *) platform_malloc_shared(sizeof(of1x_stats_group_msg_t));
-	if(msg){
+	if(likely(msg!=NULL)){
 		msg->bucket_stats = (of1x_stats_bucket_counter_t*) platform_malloc_shared(sizeof(of1x_stats_bucket_counter_t) * num_buckets);
 		if(msg->bucket_stats)
 			return msg;
@@ -443,7 +374,7 @@ of1x_stats_flow_msg_t* of1x_get_flow_stats(struct of1x_pipeline* pipeline, uint8
 
 	//Create the message 
 	msg = __of1x_init_stats_flow_msg();
-	if(!msg)
+	if(unlikely(msg==NULL))
 		return NULL;
 
 	//Set the tables to go through
@@ -476,7 +407,7 @@ of1x_stats_flow_aggregate_msg_t* of1x_get_flow_aggregate_stats(struct of1x_pipel
 	//Create the message 
 	msg = __of1x_init_stats_flow_aggregate_msg();
 
-	if(!msg)
+	if(unlikely(msg==NULL))
 		return NULL;
 
 	//Set the tables to go through

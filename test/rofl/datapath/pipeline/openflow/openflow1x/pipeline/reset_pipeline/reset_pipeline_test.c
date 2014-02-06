@@ -49,23 +49,23 @@ void test_purge(){
 		CU_ASSERT(of1x_add_match_to_entry(entry,of1x_init_port_in_match(NULL,NULL,1)) == ROFL_SUCCESS);
 	
 		CU_ASSERT(entry != NULL);
-		CU_ASSERT(of1x_add_flow_entry_table(sw->pipeline, i, entry, false,false) == ROFL_OF1X_FM_SUCCESS);
+		CU_ASSERT(of1x_add_flow_entry_table(&sw->pipeline, i, &entry, false,false) == ROFL_OF1X_FM_SUCCESS);
 	}
 
 	//Check real size of the table
-	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 1);
-	CU_ASSERT(sw->pipeline->tables[1].num_of_entries == 1);
-	CU_ASSERT(sw->pipeline->tables[2].num_of_entries == 1);
-	CU_ASSERT(sw->pipeline->tables[3].num_of_entries == 1);
+	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 1);
+	CU_ASSERT(sw->pipeline.tables[1].num_of_entries == 1);
+	CU_ASSERT(sw->pipeline.tables[2].num_of_entries == 1);
+	CU_ASSERT(sw->pipeline.tables[3].num_of_entries == 1);
 	
 	//Purge 
-	CU_ASSERT(__of1x_purge_pipeline_entries(sw->pipeline) == ROFL_SUCCESS);
+	CU_ASSERT(__of1x_purge_pipeline_entries(&sw->pipeline) == ROFL_SUCCESS);
 
 	//Check size of the table again
-	CU_ASSERT(sw->pipeline->tables[0].num_of_entries == 0);
-	CU_ASSERT(sw->pipeline->tables[1].num_of_entries == 0);
-	CU_ASSERT(sw->pipeline->tables[2].num_of_entries == 0);
-	CU_ASSERT(sw->pipeline->tables[3].num_of_entries == 0);
+	CU_ASSERT(sw->pipeline.tables[0].num_of_entries == 0);
+	CU_ASSERT(sw->pipeline.tables[1].num_of_entries == 0);
+	CU_ASSERT(sw->pipeline.tables[2].num_of_entries == 0);
+	CU_ASSERT(sw->pipeline.tables[3].num_of_entries == 0);
 }
 
 static void reset_sw(of_version_t version){
@@ -75,9 +75,9 @@ static void reset_sw(of_version_t version){
 }
 
 static int compare(of1x_switch_t* sw1, of1x_switch_t* sw2){
-	if(memcmp(&sw1->pipeline->tables[0].config, &sw2->pipeline->tables[0].config, sizeof(sw1->pipeline->tables[0].config)) != 0)
+	if(memcmp(&sw1->pipeline.tables[0].config, &sw2->pipeline.tables[0].config, sizeof(sw1->pipeline.tables[0].config)) != 0)
 		return 1;
-	if(memcmp(&sw1->pipeline->tables[0].default_action, &sw2->pipeline->tables[0].default_action, sizeof(sw1->pipeline->tables[0].default_action)) != 0)
+	if(memcmp(&sw1->pipeline.tables[0].default_action, &sw2->pipeline.tables[0].default_action, sizeof(sw1->pipeline.tables[0].default_action)) != 0)
 		return 1;
 
 	return 0;

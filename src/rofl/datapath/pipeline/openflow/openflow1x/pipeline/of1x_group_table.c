@@ -12,6 +12,7 @@
 #include "of1x_group_table.h"
 #include "of1x_pipeline.h"
 #include "../../../platform/memory.h"
+#include "../../../platform/likely.h"
 #include "../../../util/logging.h"
 #include <stdio.h>
 
@@ -23,7 +24,7 @@ of1x_group_table_t* of1x_init_group_table(){
 	of1x_group_table_t *gt;
 	gt = (of1x_group_table_t *) platform_malloc_shared(sizeof(of1x_group_table_t));
 	
-	if(gt==NULL){
+	if( unlikely(gt==NULL) ){
 		return NULL;
 	}
 	
@@ -118,7 +119,7 @@ rofl_of1x_gm_result_t __of1x_init_group(of1x_group_table_t *gt, of1x_group_type_
 	of1x_group_t* ge=NULL;
 	
 	ge = (of1x_group_t *) platform_malloc_shared(sizeof(of1x_group_t));
-	if (ge == NULL){
+	if ( unlikely(ge==NULL) ){
 		return ROFL_OF1X_GM_OGRUPS;
 	}
 	
@@ -157,8 +158,7 @@ rofl_of1x_gm_result_t __of1x_init_group(of1x_group_table_t *gt, of1x_group_type_
 	return ROFL_OF1X_GM_OK;
 }
 
-rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t *buckets){
-							 //uint32_t weigth, uint32_t group, uint32_t port, of1x_action_group_t **actions){
+rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets){
 	rofl_of1x_gm_result_t ret_val;
 	platform_rwlock_wrlock(gt->rwlock);
 	
@@ -168,13 +168,18 @@ rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t t
 		return ROFL_OF1X_GM_EXISTS;
 	}
 	
-	ret_val = __of1x_init_group(gt,type,id, buckets);
+	ret_val = __of1x_init_group(gt,type,id,*buckets);
 	if (ret_val!=ROFL_OF1X_GM_OK){
 		platform_rwlock_wrunlock(gt->rwlock);
 		return ret_val;
 	}
 	
 	platform_rwlock_wrunlock(gt->rwlock);
+
+	//Was successful set the pointer to NULL
+	//so that is not further used outside the pipeline
+	*buckets = NULL;	
+
 	return ROFL_OF1X_GM_OK;
 }
 
@@ -200,7 +205,7 @@ rofl_result_t __of1x_extract_group(of1x_group_table_t *gt, of1x_group_t *ge){
 	//take write lock of the table
 	platform_rwlock_wrlock(gt->rwlock);
 	//check if the group is still in the table
-	if(ge->group_table==NULL){
+	if( unlikely(ge->group_table==NULL) ){
 		platform_rwlock_wrunlock(gt->rwlock);
 		return ROFL_FAILURE;
 	}
@@ -275,10 +280,10 @@ rofl_of1x_gm_result_t of1x_group_delete(of1x_pipeline_t *pipeline, of1x_group_ta
  * and modifies the action buckets inside
  * @param actions is a null ended array with the action groups for each bucket
  */
-rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t *buckets){
+rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets){
 	rofl_of1x_gm_result_t ret_val;
 	
-	if((ret_val=__of1x_check_group_parameters(gt,type,id,buckets))!=ROFL_OF1X_GM_OK)
+	if((ret_val=__of1x_check_group_parameters(gt,type,id,*buckets))!=ROFL_OF1X_GM_OK)
 		return ret_val;
 	
 	of1x_group_t *ge = __of1x_group_search(gt,id);
@@ -289,19 +294,23 @@ rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_
 	platform_rwlock_wrlock(ge->rwlock);
 	
 	of1x_destroy_bucket_list(ge->bc_list);
-	ge->bc_list = buckets;
+	ge->bc_list = *buckets;
 	ge->id = id;
 	ge->type = type;
 	ge->group_table = gt;
-	
+
 	platform_rwlock_wrunlock(ge->rwlock);
 	
+	//Was successful set the pointer to NULL
+	//so that is not further used outside the pipeline
+	*buckets = NULL;	
+
 	return ROFL_SUCCESS;
 }
 
 of1x_bucket_list_t* of1x_init_bucket_list(void){
 	of1x_bucket_list_t *bl = platform_malloc_shared(sizeof(of1x_bucket_list_t));
-	if (bl == NULL)
+	if ( unlikely(bl==NULL) )
 		return NULL;
 	
 	bl->num_of_buckets=0;
@@ -327,7 +336,7 @@ rofl_result_t of1x_insert_bucket_in_list(of1x_bucket_list_t *bu_list,of1x_bucket
 of1x_bucket_t* of1x_init_bucket(uint16_t weight, uint32_t port, uint32_t group, of1x_action_group_t* actions){
 	
 	of1x_bucket_t *bk = platform_malloc_shared(sizeof(of1x_bucket_t));
-	if (bk == NULL)
+	if ( unlikely(bk==NULL) )
 		return NULL;
 	
 	bk->next= NULL;
