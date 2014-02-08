@@ -129,7 +129,7 @@ ethswitch::handle_dpath_open(
 
 	this->dpt = &dpt;
 
-	register_timer(ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL, 30);
+	//register_timer(ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL, 30);
 
 	switch (dpt.get_version()) {
 	case openflow10::OFP_VERSION: {
