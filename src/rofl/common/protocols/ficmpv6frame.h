@@ -613,7 +613,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, ficmpv6frame const& frame) {
 		os << dynamic_cast<fframe const&>( frame );
-		os << "<ficmpv6frame ";
+		os << indent(2) << "<ficmpv6frame ";
 			os << "code:" << (int)frame.get_icmpv6_code() << " ";
 			os << "type:" << (int)frame.get_icmpv6_type() << " ";
 		os << ">" << std::endl;
