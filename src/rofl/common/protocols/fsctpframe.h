@@ -169,11 +169,11 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, fsctpframe const& frame) {
-		os << "<fsctpframe ";
+		os << dynamic_cast<fframe const&>( frame );
+		os << indent(2) << "<fsctpframe ";
 			os << "dport:" << (int)frame.get_dport() << " ";
 			os << "sport:" << (int)frame.get_sport() << " ";
-			os << std::endl << dynamic_cast<fframe const&>( frame ) << std::endl;
-		os << ">";
+		os << ">" << std::endl;
 		return os;
 	};
 };

@@ -261,7 +261,8 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, farpv4frame const& frame) {
-		os << "<farpv4frame ";
+		os << dynamic_cast<fframe const&>( frame );
+		os << indent(2) << "<farpv4frame ";
 			os << "opcode:" << (int)frame.get_opcode() << " ";
 			os << "hw-addr-type:" << (int)frame.get_hw_addr_type() << " ";
 			os << "hw-addr-size:" << (int)frame.get_hw_addr_size() << " ";
@@ -271,8 +272,7 @@ public:
 			os << "dl-src:" << frame.get_dl_src() << " ";
 			os << "nw-dst:" << frame.get_nw_dst() << " ";
 			os << "nw-src:" << frame.get_nw_src() << " ";
-			os << std::endl<< dynamic_cast<fframe const&>( frame ) << std::endl;
-		os << ">";
+		os << ">" << std::endl;
 		return os;
 	};
 };
