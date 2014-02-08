@@ -170,13 +170,13 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, fmplsframe const& frame) {
-		os << "<fmlpsframe ";
+		os << dynamic_cast<fframe const&>( frame ) << std::endl;
+		os << indent(2) << "<fmlpsframe ";
 			os << "label:" 	<< (int)frame.get_mpls_label() 	<< " ";
 			os << "tc:" 	<< (int)frame.get_mpls_tc() 	<< " ";
 			os << "bos:" 	<< (int)frame.get_mpls_bos() 	<< " ";
 			os << "ttl:"	<< (int)frame.get_mpls_ttl()	<< " ";
-			os << std::endl << dynamic_cast<fframe const&>( frame ) << std::endl;
-		os << ">";
+		os << ">" << std::endl;
 		return os;
 	};
 };

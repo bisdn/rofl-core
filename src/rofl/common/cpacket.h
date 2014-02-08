@@ -304,7 +304,30 @@ public: // methods
 		indent i(2);
 		os << pack.match;
 		for (fframe* curr = pack.head; curr != 0; curr = curr->next) {
-			os << *curr;
+			if (dynamic_cast<fetherframe*>( curr ))
+				os << *dynamic_cast<fetherframe*>( curr );
+			else if (dynamic_cast<fvlanframe*>( curr ))
+				os << *dynamic_cast<fvlanframe*>( curr );
+			else if (dynamic_cast<fmplsframe*>( curr ))
+				os << *dynamic_cast<fmplsframe*>( curr );
+			else if (dynamic_cast<fipv4frame*>( curr ))
+				os << *dynamic_cast<fipv4frame*>( curr );
+			else if (dynamic_cast<fipv6frame*>( curr ))
+				os << *dynamic_cast<fipv6frame*>( curr );
+			else if (dynamic_cast<ficmpv4frame*>( curr ))
+				os << *dynamic_cast<ficmpv4frame*>( curr );
+			else if (dynamic_cast<ficmpv6frame*>( curr ))
+				os << *dynamic_cast<ficmpv6frame*>( curr );
+			else if (dynamic_cast<farpv4frame*>( curr ))
+				os << *dynamic_cast<farpv4frame*>( curr );
+			else if (dynamic_cast<fudpframe*>( curr ))
+				os << *dynamic_cast<fudpframe*>( curr );
+			else if (dynamic_cast<ftcpframe*>( curr ))
+				os << *dynamic_cast<ftcpframe*>( curr );
+			else if (dynamic_cast<fsctpframe*>( curr ))
+				os << *dynamic_cast<fsctpframe*>( curr );
+			else
+				os << *curr;
 		}
 		os << indent(0) << "<content: ";
 		os << "data:" << (void*)pack.soframe() << " ";

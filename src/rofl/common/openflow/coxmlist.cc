@@ -256,14 +256,6 @@ coxmlist::contains(
 	 * all elements in oxl must be present in *this (value of elements), but *this may contain additional OXM TLVs
 	 */
 
-	std::ostringstream oxlos; oxlos << oxl;
-	std::ostringstream os; os << *this;
-	WRITELOG(COXMLIST, DBG, "coxmlist(%p)::contains() [%s]\nus:%s vs.\nthem:%s",
-			this, (strict) ? "strict" : "non-strict", os.str().c_str(), oxlos.str().c_str());
-
-
-	WRITELOG(COXMLIST, DBG, "coxmlist(%p)::overlap() [strict]", this);
-
 	for (std::map<uint16_t, std::map<uint8_t, coxmatch*> >::const_iterator
 			it = matches.begin(); it != matches.end(); ++it) {
 
@@ -319,11 +311,6 @@ coxmlist::is_part_of(
 		uint16_t& missed)
 {
 	bool result = true;
-
-	std::ostringstream oxlos; oxlos << oxl;
-	std::ostringstream os; os << *this;
-	WRITELOG(COXMLIST, DBG, "coxmlist(%p)::is_part_of()\n\tus:%s\n\tthem:%s\n",
-			this, os.str().c_str(), oxlos.str().c_str());
 
 	for (std::map<uint16_t, std::map<uint8_t, coxmatch*> >::const_iterator
 			it = oxl.matches.begin(); it != oxl.matches.end(); ++it) {
