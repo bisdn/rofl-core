@@ -40,6 +40,8 @@ private:
 		ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL 	= ((ETHSWITCH_TIMER_BASE) + 3),
 	};
 
+	rofl::crofdpt *dpt;
+
 public:
 
 	ethswitch(cofhello_elem_versionbitmap const& versionbitmap);
