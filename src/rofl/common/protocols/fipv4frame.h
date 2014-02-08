@@ -363,7 +363,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, fipv4frame const& frame) {
-		os << dynamic_cast<fframe const&>( frame ) << std::endl;
+		os << dynamic_cast<fframe const&>( frame );
 		os << indent(2) << "<fipv4frame ";
 			os << "src:" 	<< frame.get_ipv4_src() 	<< " ";
 			os << "dst:" 	<< frame.get_ipv4_dst() 	<< " ";
