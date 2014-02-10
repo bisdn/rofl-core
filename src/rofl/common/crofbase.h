@@ -430,6 +430,10 @@ public:
 	dpt_find(
 		uint64_t dpid) throw (eRofBaseNotFound);
 
+	crofdpt&
+	get_dpt(
+		uint64_t dpid);
+
 
 	/**
 	 * @brief 	returns pointer to cofdpt instance
