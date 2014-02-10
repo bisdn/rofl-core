@@ -49,6 +49,9 @@ typedef void platform_datapacket_state_t;
 */
 typedef struct datapacket{
 
+	//Packet identifier
+	uint64_t id;
+
 	//Pointer to the switch which is processing the packet
 	of_switch_t const* sw;
 
