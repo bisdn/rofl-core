@@ -1237,7 +1237,14 @@ cofmatch::set_vlan_vid(
 void
 cofmatch::set_vlan_present()
 {
-	oxmlist.insert(coxmatch_ofb_vlan_present());
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+		oxmlist.insert(coxmatch_ofb_vlan_vid(rofl::openflow10::OFPVID_ANY));
+	} break;
+	default: {
+		oxmlist.insert(coxmatch_ofb_vlan_present());
+	};
+	}
 }
 
 
@@ -1245,7 +1252,14 @@ cofmatch::set_vlan_present()
 void
 cofmatch::set_vlan_untagged()
 {
-	oxmlist.insert(coxmatch_ofb_vlan_untagged());
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+		oxmlist.insert(coxmatch_ofb_vlan_vid(rofl::openflow10::OFPVID_NONE));
+	} break;
+	default: {
+		oxmlist.insert(coxmatch_ofb_vlan_untagged());
+	};
+	}
 }
 
 

@@ -389,6 +389,13 @@ namespace openflow10 {
 	 * set. */
 	static int const OFP_VLAN_NONE =    0xffff;
 
+	enum ofp_vlan_id {
+	    OFPVID_ANY = 0xfffe, /* Indicate that a VLAN id is set but don't care
+	                            about it's value. Note: only valid when specifying
+	                            the VLAN id in a match */
+	    OFPVID_NONE = 0xffff, /* No VLAN id was set. */
+	};
+
 	/* Action structure for OFPAT_SET_VLAN_VID. */
 	struct ofp_action_vlan_vid {
 		uint16_t type;                  /* OFPAT_SET_VLAN_VID. */

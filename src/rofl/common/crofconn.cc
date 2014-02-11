@@ -598,6 +598,13 @@ crofconn::echo_request_rcvd(
 			delete msg; return;
 		}
 
+		if (request->get_version() != get_version()) {
+
+			rofsock.send_message(new cofmsg_error_bad_request_bad_version(
+					get_version(), request->get_xid(), request->soframe(), request->framelen()));
+			return;
+		}
+
 		cofmsg_echo_reply *reply =
 				new cofmsg_echo_reply(request->get_version(), request->get_xid(),
 						request->get_body().somem(), request->get_body().memlen());
@@ -627,6 +634,12 @@ crofconn::echo_reply_rcvd(
 		}
 
 		env->release_sync_xid(this, msg->get_xid());
+
+		if (msg->get_version() != get_version()) {
+			logging::error << "[rofl][conn] received echo-reply with invalid version field" << std::endl;
+			/* this will lead to an expiration event and a disconnect */
+			return;
+		}
 
 		delete msg;
 
