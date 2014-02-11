@@ -259,12 +259,7 @@ crofsock::parse_message(
 		case openflow10::OFP_VERSION: parse_of10_message(mem, &msg); break;
 		case openflow12::OFP_VERSION: parse_of12_message(mem, &msg); break;
 		case openflow13::OFP_VERSION: parse_of13_message(mem, &msg); break;
-		default: { //msg = new cofmsg(mem); break;
-			send_message(new cofmsg_error_bad_request_bad_version(
-					ofh_header->version, be32toh(ofh_header->xid), mem->somem(), mem->memlen()));
-			logging::error << "[rofl][sock] received message with unknown version, dropping." << std::endl;
-			delete mem; return;
-		};
+		default: msg = new cofmsg(mem); break;
 		}
 
 		log_message(std::string("received message:"), *msg);

@@ -456,6 +456,13 @@ crofconn::recv_message(
 		crofsock *endpnt,
 		cofmsg *msg)
 {
+	if (rofl::openflow::OFP_VERSION_UNKNOWN == msg->get_version()) {
+		send_message(new cofmsg_error_bad_request_bad_version(
+				get_version(), msg->get_xid(), msg->soframe(), msg->framelen()));
+		logging::error << "[rofl][conn] received message with unknown version, dropping." << std::endl;
+		delete msg; return;
+	}
+
 	switch (msg->get_type()) {
 	case OFPT_HELLO: {
 		hello_rcvd(msg);
