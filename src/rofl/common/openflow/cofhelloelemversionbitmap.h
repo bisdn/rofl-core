@@ -32,12 +32,12 @@ class cofhello_elem_versionbitmap :
 	std::vector<uint32_t>	bitmaps;
 
 	union {
-		uint8_t										*ofhu_generic;
+		uint8_t										*ofhu_hello_elem_versionbitmap_generic;
 		openflow13::ofp_hello_elem_versionbitmap	*ofhu13_versionbitmap;
 	} ofhu;
 
-#define ofh_generic 		ofhu.ofhu_generic
-#define ofh_versionbitmap 	ofhu.ofhu13_versionbitmap
+#define ofh_hello_elem_version_bitmap_generic 		ofhu.ofhu_hello_elem_versionbitmap_generic
+#define ofh_versionbitmap 							ofhu.ofhu13_versionbitmap
 
 public:
 

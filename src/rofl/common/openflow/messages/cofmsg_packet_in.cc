@@ -116,11 +116,10 @@ cofmsg_packet_in::reset()
 
 
 
-void
+uint8_t*
 cofmsg_packet_in::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_packet_in = soframe();
+	return (ofh_packet_in = cofmsg::resize(len));
 }
 
 

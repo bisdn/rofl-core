@@ -79,10 +79,10 @@ cofmsg_table_stats_request::reset()
 
 
 
-void
+uint8_t*
 cofmsg_table_stats_request::resize(size_t len)
 {
-	cofmsg_stats::resize(len);
+	return cofmsg_stats::resize(len);
 }
 
 
@@ -273,7 +273,7 @@ cofmsg_table_stats_reply::reset()
 
 
 
-void
+uint8_t*
 cofmsg_table_stats_reply::resize(size_t len)
 {
 	cofmsg_stats::resize(len);
@@ -285,13 +285,12 @@ cofmsg_table_stats_reply::resize(size_t len)
 		ofh_table_stats = soframe() + sizeof(struct openflow12::ofp_stats_reply);
 	} break;
 	case openflow13::OFP_VERSION: {
-		// TODO
-		throw eNotImplemented();
+		ofh_table_stats = soframe() + sizeof(struct openflow13::ofp_multipart_reply);
 	} break;
 	default:
 		throw eBadVersion();
 	}
-
+	return soframe();
 }
 
 

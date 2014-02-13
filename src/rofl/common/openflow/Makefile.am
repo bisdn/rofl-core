@@ -82,7 +82,9 @@ libopenflow_la_SOURCES= \
 	coftablefeatureprop.h \
 	coftablefeatureprop.cc \
 	coftablefeatureprops.h \
-	coftablefeatureprops.cc
+	coftablefeatureprops.cc \
+	coftablefeatures.h \
+	coftablefeatures.cc
 
 libopenflow_la_LIBADD= extensions/libopenflow_extensions.la messages/libopenflow_messages.la experimental/libopenflow_experimental.la
 
@@ -129,7 +131,8 @@ library_include_HEADERS = \
 	cofflowmod.h \
 	cofgroupmod.h \
 	coftablefeatureprop.h \
-	coftablefeatureprops.h
+	coftablefeatureprops.h \
+	coftablefeatures.h
 
 
 

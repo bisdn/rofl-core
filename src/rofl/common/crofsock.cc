@@ -123,8 +123,8 @@ crofsock::handle_read(
 			if (msg_bytes_read < sizeof(struct openflow::ofp_header)) {
 				msg_len = sizeof(struct openflow::ofp_header);
 			} else {
-				struct openflow::ofp_header *ofh_header = (struct openflow::ofp_header*)fragment->somem();
-				msg_len = be16toh(ofh_header->length);
+				struct openflow::ofp_header *header = (struct openflow::ofp_header*)fragment->somem();
+				msg_len = be16toh(header->length);
 			}
 
 			// sanity check: 8 <= msg_len <= 2^16
@@ -146,8 +146,8 @@ crofsock::handle_read(
 
 			// minimum message length received, check completeness of message
 			if (fragment->memlen() >= sizeof(struct openflow::ofp_header)) {
-				struct openflow::ofp_header *ofh_header = (struct openflow::ofp_header*)fragment->somem();
-				uint16_t msg_len = be16toh(ofh_header->length);
+				struct openflow::ofp_header *header = (struct openflow::ofp_header*)fragment->somem();
+				uint16_t msg_len = be16toh(header->length);
 
 				// ok, message was received completely
 				if (msg_len == msg_bytes_read) {
@@ -253,9 +253,9 @@ crofsock::parse_message(
 	try {
 		assert(NULL != mem);
 
-		struct openflow::ofp_header* ofh_header = (struct openflow::ofp_header*)mem->somem();
+		struct openflow::ofp_header* header = (struct openflow::ofp_header*)mem->somem();
 
-		switch (ofh_header->version) {
+		switch (header->version) {
 		case openflow10::OFP_VERSION: parse_of10_message(mem, &msg); break;
 		case openflow12::OFP_VERSION: parse_of12_message(mem, &msg); break;
 		case openflow13::OFP_VERSION: parse_of13_message(mem, &msg); break;
@@ -300,9 +300,9 @@ crofsock::parse_message(
 void
 crofsock::parse_of10_message(cmemory *mem, cofmsg **pmsg)
 {
-	struct openflow::ofp_header* ofh_header = (struct openflow::ofp_header*)mem->somem();
+	struct openflow::ofp_header* header = (struct openflow::ofp_header*)mem->somem();
 
-	switch (ofh_header->type) {
+	switch (header->type) {
 	case openflow10::OFPT_HELLO: {
 		(*pmsg = new cofmsg_hello(mem))->validate();
 	} break;
@@ -453,9 +453,9 @@ crofsock::parse_of10_message(cmemory *mem, cofmsg **pmsg)
 void
 crofsock::parse_of12_message(cmemory *mem, cofmsg **pmsg)
 {
-	struct openflow::ofp_header* ofh_header = (struct openflow::ofp_header*)mem->somem();
+	struct openflow::ofp_header* header = (struct openflow::ofp_header*)mem->somem();
 
-	switch (ofh_header->type) {
+	switch (header->type) {
 	case openflow12::OFPT_HELLO: {
 		(*pmsg = new cofmsg_hello(mem))->validate();
 	} break;
@@ -651,9 +651,9 @@ crofsock::parse_of12_message(cmemory *mem, cofmsg **pmsg)
 void
 crofsock::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 {
-	struct openflow::ofp_header* ofh_header = (struct openflow::ofp_header*)mem->somem();
+	struct openflow::ofp_header* header = (struct openflow::ofp_header*)mem->somem();
 
-	switch (ofh_header->type) {
+	switch (header->type) {
 	case openflow13::OFPT_HELLO: {
 		(*pmsg = new cofmsg_hello(mem))->validate();
 		logging::debug << dynamic_cast<cofmsg_hello&>( **pmsg );

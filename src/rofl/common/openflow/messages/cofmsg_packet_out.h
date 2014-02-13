@@ -92,7 +92,7 @@ public:
 	/**
 	 *
 	 */
-	virtual void
+	virtual uint8_t*
 	resize(size_t len);
 
 

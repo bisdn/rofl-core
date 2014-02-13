@@ -19,7 +19,7 @@ namespace rofl
 class cofmsg_stats :
 	public cofmsg
 {
-private:
+protected:
 
 	cmemory				body;	// for experimental statistics messages
 
@@ -44,8 +44,8 @@ public:
 	cofmsg_stats(
 			uint8_t of_version = 0,
 			uint32_t xid = 0,
-			uint32_t stats_type = 0,
-			uint32_t stats_flags = 0,
+			uint16_t stats_type = 0,
+			uint16_t stats_flags = 0,
 			uint8_t *data = (uint8_t*)0,
 			size_t datalen = 0);
 
@@ -88,7 +88,7 @@ public:
 	/**
 	 *
 	 */
-	virtual void
+	virtual uint8_t*
 	resize(size_t len);
 
 
@@ -180,12 +180,166 @@ public:
 };
 
 
-typedef cofmsg_stats cofmsg_stats_request;
-typedef cofmsg_stats cofmsg_stats_reply;
-typedef cofmsg_stats cofmsg_multipart_request;
-typedef cofmsg_stats cofmsg_multipart_reply;
+class cofmsg_stats_request :
+		public cofmsg_stats
+{
+public:
+
+	/** constructor
+	 *
+	 */
+	cofmsg_stats_request(
+			uint8_t of_version = 0,
+			uint32_t xid = 0,
+			uint16_t stats_type = 0,
+			uint16_t stats_flags = 0,
+			uint8_t *data = (uint8_t*)0,
+			size_t datalen = 0) :
+				cofmsg_stats(of_version, xid, stats_type, stats_flags, data, datalen)
+	{
+		switch (of_version) {
+		case openflow::OFP_VERSION_UNKNOWN: {
+
+		} break;
+		case openflow10::OFP_VERSION: {
+			set_type(openflow10::OFPT_STATS_REQUEST);
+		} break;
+		case openflow12::OFP_VERSION: {
+			set_type(openflow12::OFPT_STATS_REQUEST);
+		} break;
+		case openflow13::OFP_VERSION: {
+			set_type(openflow13::OFPT_MULTIPART_REQUEST);
+		} break;
+		default:
+			throw eBadVersion();
+		}
+	};
 
 
-} // end of namespace rofl
+	/**
+	 *
+	 */
+	cofmsg_stats_request(
+			cofmsg_stats_request const& request)
+	{
+		*this = request;
+	};
+
+
+	/**
+	 *
+	 */
+	cofmsg_stats&
+	operator= (
+			cofmsg_stats_request const& request)
+	{
+		if (this == &request)
+			return *this;
+
+		cofmsg_stats::operator= (request);
+
+		return *this;
+	};
+
+
+	/** destructor
+	 *
+	 */
+	virtual
+	~cofmsg_stats_request() {};
+
+
+	/**
+	 *
+	 */
+	cofmsg_stats_request(cmemory *memarea) :
+		cofmsg_stats(memarea) {};
+
+};
+
+class cofmsg_stats_reply :
+		public cofmsg_stats
+{
+public:
+
+
+	/** constructor
+	 *
+	 */
+	cofmsg_stats_reply(
+			uint8_t of_version = 0,
+			uint32_t xid = 0,
+			uint16_t stats_type = 0,
+			uint16_t stats_flags = 0,
+			uint8_t *data = (uint8_t*)0,
+			size_t datalen = 0) :
+				cofmsg_stats(of_version, xid, stats_type, stats_flags, data, datalen)
+	{
+		switch (of_version) {
+		case openflow::OFP_VERSION_UNKNOWN: {
+
+		} break;
+		case openflow10::OFP_VERSION: {
+			set_type(openflow10::OFPT_STATS_REPLY);
+		} break;
+		case openflow12::OFP_VERSION: {
+			set_type(openflow12::OFPT_STATS_REPLY);
+		} break;
+		case openflow13::OFP_VERSION: {
+			set_type(openflow13::OFPT_MULTIPART_REPLY);
+		} break;
+		default:
+			throw eBadVersion();
+		}
+	};
+
+
+	/**
+	 *
+	 */
+	cofmsg_stats_reply(
+			cofmsg_stats_reply const& reply)
+	{
+		*this = reply;
+	};
+
+
+	/**
+	 *
+	 */
+	cofmsg_stats&
+	operator= (
+			cofmsg_stats_reply const& reply)
+	{
+		if (this == &reply)
+			return *this;
+
+		cofmsg_stats::operator= (reply);
+
+		return *this;
+	};
+
+
+	/** destructor
+	 *
+	 */
+	virtual
+	~cofmsg_stats_reply() {};
+
+
+	/**
+	 *
+	 */
+	cofmsg_stats_reply(cmemory *memarea) :
+		cofmsg_stats(memarea) {};
+
+};
+
+
+typedef cofmsg_stats_request 	cofmsg_multipart_request;
+typedef cofmsg_stats_reply 		cofmsg_multipart_reply;
+
+
+}; // end of namespace rofl
 
 #endif /* COFMSG_STATS_H_ */

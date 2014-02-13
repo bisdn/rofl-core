@@ -90,7 +90,14 @@ public:
 protected: // data structures
 
 	cmemory 					*memarea;			// OpenFlow packet received from socket
-	struct openflow::ofp_header	*ofh_header;		// generic OpenFlow header
+
+	union {
+		uint8_t*							ofhu_generic;
+		struct rofl::openflow::ofp_header*	ofhu_header;
+	} ofh_ofhu;
+
+#define ofh_generic ofh_ofhu.ofhu_generic
+#define ofh_header 	ofh_ofhu.ofhu_header
 
 public:
 
@@ -166,7 +173,7 @@ public:
 
 	/**
 	 */
-	virtual void
+	virtual uint8_t*
 	resize(size_t len);
 
 

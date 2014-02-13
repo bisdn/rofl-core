@@ -12,7 +12,7 @@ using namespace rofl::openflow;
 cofhello_elem_versionbitmap::cofhello_elem_versionbitmap() :
 		cofhello_elem(sizeof(struct openflow13::ofp_hello_elem_header))
 {
-	ofh_generic = somem();
+	ofh_hello_elem_version_bitmap_generic = somem();
 	set_type(openflow13::OFPHET_VERSIONBITMAP);
 	set_length(0); // set, when being packed
 }
@@ -32,7 +32,7 @@ cofhello_elem_versionbitmap::cofhello_elem_versionbitmap(
 		cofhello_elem const& elem) :
 				cofhello_elem(elem)
 {
-	ofh_generic = somem();
+	ofh_hello_elem_version_bitmap_generic = somem();
 
 	uint32_t *bitmap = (uint32_t*)(somem() + sizeof(struct openflow13::ofp_hello_elem_header));
 	for (unsigned int i = 0; i < ((get_length() - 2*sizeof(uint16_t)) / sizeof(uint32_t)); i++) {
@@ -67,7 +67,7 @@ cofhello_elem_versionbitmap::operator= (
 		return *this;
 
 	cofhello_elem::operator =(dynamic_cast<cofhello_elem const&>( elem ));
-	ofh_generic = somem();
+	ofh_hello_elem_version_bitmap_generic = somem();
 
 	bitmaps.clear();
 	for (std::vector<uint32_t>::const_iterator
@@ -104,8 +104,8 @@ uint8_t*
 cofhello_elem_versionbitmap::resize(size_t len)
 {
 	cofhello_elem::resize(len);
-	ofh_generic = somem();
-	return ofh_generic;
+	ofh_hello_elem_version_bitmap_generic = somem();
+	return ofh_hello_elem_version_bitmap_generic;
 }
 
 
@@ -155,7 +155,7 @@ cofhello_elem_versionbitmap::unpack(uint8_t *buf, size_t buflen)
 
 	resize(buflen);
 	assign(buf, buflen);
-	ofh_generic = somem();
+	ofh_hello_elem_version_bitmap_generic = somem();
 
 	if (buflen < get_length())
 		throw eHelloElemVersionBitmapInval();

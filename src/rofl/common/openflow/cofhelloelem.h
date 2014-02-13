@@ -23,11 +23,11 @@ class cofhello_elem :
 {
 
 	union {
-		uint8_t										*ofhu_generic;
+		uint8_t										*ofhu_hello_elem_generic;
 		struct openflow13::ofp_hello_elem_header	*ofhu13_hello_elem_header;
 	} ofhu;
 
-#define ofh_generic   			ofhu.ofhu_generic
+#define ofh_hello_elem_generic	ofhu.ofhu_hello_elem_generic
 #define ofh_hello_elem_header 	ofhu.ofhu13_hello_elem_header
 
 public:

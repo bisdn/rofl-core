@@ -125,11 +125,10 @@ cofmsg_group_mod::reset()
 
 
 
-void
+uint8_t*
 cofmsg_group_mod::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_group_mod = soframe();
+	return (ofh_group_mod = cofmsg::resize(len));
 }
 
 

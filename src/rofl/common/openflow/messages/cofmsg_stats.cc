@@ -7,8 +7,8 @@ using namespace rofl;
 cofmsg_stats::cofmsg_stats(
 		uint8_t of_version,
 		uint32_t xid,
-		uint32_t stats_type,
-		uint32_t stats_flags,
+		uint16_t stats_type,
+		uint16_t stats_flags,
 		uint8_t *data,
 		size_t datalen) :
 	cofmsg(sizeof(struct openflow::ofp_header)),
@@ -23,19 +23,16 @@ cofmsg_stats::cofmsg_stats(
 
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
-		set_type(openflow10::OFPT_STATS_REQUEST);
 		resize(sizeof(struct openflow10::ofp_stats_request) + body.memlen());
 		ofh12_stats_request->type			= htobe16(stats_type);
 		ofh12_stats_request->flags			= htobe16(stats_flags);
 	} break;
 	case openflow12::OFP_VERSION: {
-		set_type(openflow12::OFPT_STATS_REQUEST);
 		resize(sizeof(struct openflow12::ofp_stats_request) + body.memlen());
 		ofh12_stats_request->type			= htobe16(stats_type);
 		ofh12_stats_request->flags			= htobe16(stats_flags);
 	} break;
 	case openflow13::OFP_VERSION: {
-		set_type(openflow13::OFPT_MULTIPART_REQUEST);
 		resize(sizeof(struct openflow13::ofp_multipart_request) + body.memlen());
 		ofh13_multipart_request->type		= htobe16(stats_type);
 		ofh13_multipart_request->flags		= htobe16(stats_flags);
@@ -97,11 +94,11 @@ cofmsg_stats::reset()
 
 
 
-void
+uint8_t*
 cofmsg_stats::resize(size_t len)
 {
 	cofmsg::resize(len);
-	ofh_stats_request = soframe();
+	return (ofh_stats_request = soframe());
 }
 
 

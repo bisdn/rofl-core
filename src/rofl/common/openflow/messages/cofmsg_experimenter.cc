@@ -94,11 +94,10 @@ cofmsg_experimenter::reset()
 
 
 
-void
+uint8_t*
 cofmsg_experimenter::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_experimenter = soframe();
+	return (ofh_experimenter = cofmsg::resize(len));
 }
 
 

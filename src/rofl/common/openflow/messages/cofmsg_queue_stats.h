@@ -78,7 +78,7 @@ public:
 	/**
 	 *
 	 */
-	virtual void
+	virtual uint8_t*
 	resize(size_t len);
 
 
@@ -144,15 +144,16 @@ private:
 	std::vector<cofqueue_stats_reply> 	queue_stats;
 
 	union {
-		uint8_t*						ofhu_queue_stats;
+		uint8_t*								ofhu_queue_stats;
 		struct openflow10::ofp_queue_stats*		ofhu10_queue_stats;
 		struct openflow12::ofp_queue_stats*		ofhu12_queue_stats;
-		// TODO: OF1.3
-	} ofhu;
+		struct openflow13::ofp_queue_stats*		ofhu13_queue_stats;
+	} ofh_ofhu;
 
-#define ofh_queue_stats   			ofhu.ofhu_queue_stats
-#define ofh10_queue_stats 			ofhu.ofhu10_queue_stats
-#define ofh12_queue_stats 			ofhu.ofhu12_queue_stats
+#define ofh_queue_stats   			ofh_ofhu.ofhu_queue_stats
+#define ofh10_queue_stats 			ofh_ofhu.ofhu10_queue_stats
+#define ofh12_queue_stats 			ofh_ofhu.ofhu12_queue_stats
+#define ofh13_queue_stats 			ofh_ofhu.ofhu13_queue_stats
 // TODO OF1.3
 
 public:
@@ -206,7 +207,7 @@ public:
 	/**
 	 *
 	 */
-	virtual void
+	virtual uint8_t*
 	resize(size_t len);
 
 

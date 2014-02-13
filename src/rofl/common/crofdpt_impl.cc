@@ -1644,7 +1644,7 @@ crofdpt_impl::multipart_reply_rcvd(
 					"established, dropping message:" << std::endl << *reply;
 			return;
 		}
-		rofbase->handle_stats_reply(*this, dynamic_cast<cofmsg_stats&>( *msg ));
+		rofbase->handle_stats_reply(*this, dynamic_cast<cofmsg_stats_reply&>( *msg ));
 	};
 	}
 }

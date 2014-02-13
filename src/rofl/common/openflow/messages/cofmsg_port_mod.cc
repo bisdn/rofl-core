@@ -105,11 +105,10 @@ cofmsg_port_mod::reset()
 
 
 
-void
+uint8_t*
 cofmsg_port_mod::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_port_mod = soframe();
+	return (ofh_port_mod = cofmsg::resize(len));
 }
 
 

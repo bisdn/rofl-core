@@ -98,11 +98,10 @@ cofmsg_port_status::reset()
 
 
 
-void
+uint8_t*
 cofmsg_port_status::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_port_status = soframe();
+	return (ofh_port_status = cofmsg::resize(len));
 }
 
 

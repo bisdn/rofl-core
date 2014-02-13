@@ -86,11 +86,10 @@ cofmsg_table_mod::reset()
 
 
 
-void
+uint8_t*
 cofmsg_table_mod::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_table_mod = soframe();
+	return (ofh_table_mod = cofmsg::resize(len));
 }
 
 

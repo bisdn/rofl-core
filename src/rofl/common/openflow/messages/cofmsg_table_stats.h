@@ -76,7 +76,7 @@ public:
 	/**
 	 *
 	 */
-	virtual void
+	virtual uint8_t*
 	resize(size_t len);
 
 
@@ -130,16 +130,16 @@ private:
 	std::vector<coftable_stats_reply> 	table_stats;
 
 	union {
-		uint8_t*						ofhu_table_stats;
-		struct openflow10::ofp_table_stats*		ofhu10_table_stats;
-		struct openflow12::ofp_table_stats*		ofhu12_table_stats;
-		// TODO: OF1.3
+		uint8_t*							ofhu_table_stats;
+		struct openflow10::ofp_table_stats*	ofhu10_table_stats;
+		struct openflow12::ofp_table_stats*	ofhu12_table_stats;
+		struct openflow13::ofp_table_stats*	ofhu13_table_stats;
 	} ofhu;
 
 #define ofh_table_stats   			ofhu.ofhu_table_stats
 #define ofh10_table_stats 			ofhu.ofhu10_table_stats
 #define ofh12_table_stats 			ofhu.ofhu12_table_stats
-// TODO OF1.3
+#define ofh13_table_stats 			ofhu.ofhu13_table_stats
 
 public:
 
@@ -192,7 +192,7 @@ public:
 	/**
 	 *
 	 */
-	virtual void
+	virtual uint8_t*
 	resize(size_t len);
 
 

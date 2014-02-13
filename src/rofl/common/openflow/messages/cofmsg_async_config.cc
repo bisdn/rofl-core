@@ -214,11 +214,10 @@ cofmsg_get_async_config_reply::reset()
 
 
 
-void
+uint8_t*
 cofmsg_get_async_config_reply::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_async_config = soframe();
+	return (ofh_async_config = cofmsg::resize(len));
 }
 
 
@@ -497,11 +496,10 @@ cofmsg_set_async_config::reset()
 
 
 
-void
+uint8_t*
 cofmsg_set_async_config::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_async_config = soframe();
+	return (ofh_async_config = cofmsg::resize(len));
 }
 
 

@@ -87,7 +87,7 @@ cofmsg_experimenter_stats_request::reset()
 
 
 
-void
+uint8_t*
 cofmsg_experimenter_stats_request::resize(size_t len)
 {
 	cofmsg::resize(len);
@@ -105,6 +105,8 @@ cofmsg_experimenter_stats_request::resize(size_t len)
 	default:
 		throw eNotImplemented();
 	}
+
+	return soframe();
 }
 
 
@@ -374,7 +376,7 @@ cofmsg_experimenter_stats_reply::reset()
 
 
 
-void
+uint8_t*
 cofmsg_experimenter_stats_reply::resize(size_t len)
 {
 	cofmsg::resize(len);
@@ -392,6 +394,8 @@ cofmsg_experimenter_stats_reply::resize(size_t len)
 	default:
 		throw eNotImplemented();
 	}
+
+	return soframe();
 }
 
 

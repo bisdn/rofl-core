@@ -112,11 +112,10 @@ cofmsg_packet_out::reset()
 
 
 
-void
+uint8_t*
 cofmsg_packet_out::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_packet_out = soframe();
+	return (ofh_packet_out = cofmsg::resize(len));
 }
 
 

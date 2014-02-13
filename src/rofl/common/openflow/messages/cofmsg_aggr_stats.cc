@@ -98,16 +98,16 @@ cofmsg_aggr_stats_request::reset()
 
 
 
-void
+uint8_t*
 cofmsg_aggr_stats_request::resize(size_t len)
 {
 	cofmsg_stats::resize(len);
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {
-		ofh_aggr_stats = soframe() + sizeof(struct openflow10::ofp_stats_request);
+		return (ofh_aggr_stats = soframe() + sizeof(struct openflow10::ofp_stats_request));
 	} break;
 	case openflow12::OFP_VERSION: {
-		ofh_aggr_stats = soframe() + sizeof(struct openflow12::ofp_stats_request);
+		return (ofh_aggr_stats = soframe() + sizeof(struct openflow12::ofp_stats_request));
 	} break;
 	case openflow13::OFP_VERSION: {
 		// TODO
@@ -322,16 +322,16 @@ cofmsg_aggr_stats_reply::reset()
 
 
 
-void
+uint8_t*
 cofmsg_aggr_stats_reply::resize(size_t len)
 {
 	cofmsg_stats::resize(len);
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {
-		ofh_aggr_stats = soframe() + sizeof(struct openflow10::ofp_stats_reply);
+		return (ofh_aggr_stats = soframe() + sizeof(struct openflow10::ofp_stats_reply));
 	} break;
 	case openflow12::OFP_VERSION: {
-		ofh_aggr_stats = soframe() + sizeof(struct openflow12::ofp_stats_reply);
+		return (ofh_aggr_stats = soframe() + sizeof(struct openflow12::ofp_stats_reply));
 	} break;
 	case openflow13::OFP_VERSION: {
 		// TODO

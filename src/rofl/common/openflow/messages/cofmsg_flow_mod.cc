@@ -239,11 +239,10 @@ cofmsg_flow_mod::reset()
 
 
 
-void
+uint8_t*
 cofmsg_flow_mod::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_flow_mod = soframe();
+	return (ofh_flow_mod = cofmsg::resize(len));
 }
 
 

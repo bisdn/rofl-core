@@ -84,11 +84,10 @@ cofmsg_role_request::reset()
 
 
 
-void
+uint8_t*
 cofmsg_role_request::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_role_request = soframe();
+	return (ofh_role_request = cofmsg::resize(len));
 }
 
 
@@ -329,11 +328,10 @@ cofmsg_role_reply::reset()
 
 
 
-void
+uint8_t*
 cofmsg_role_reply::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_role_reply = soframe();
+	return (ofh_role_reply = cofmsg::resize(len));
 }
 
 

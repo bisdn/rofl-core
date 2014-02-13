@@ -93,11 +93,10 @@ cofmsg_error::reset()
 }
 
 
-void
+uint8_t*
 cofmsg_error::resize(size_t len)
 {
-	cofmsg::resize(len);
-	err_msg = soframe();
+	return (err_msg = cofmsg::resize(len));
 }
 
 

@@ -130,11 +130,10 @@ cofmsg_flow_removed::reset()
 
 
 
-void
+uint8_t*
 cofmsg_flow_removed::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_flow_removed = soframe();
+	return (ofh_flow_removed = cofmsg::resize(len));
 }
 
 

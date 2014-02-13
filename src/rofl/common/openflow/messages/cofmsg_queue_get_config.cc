@@ -86,11 +86,10 @@ cofmsg_queue_get_config_request::reset()
 
 
 
-void
+uint8_t*
 cofmsg_queue_get_config_request::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_queue_get_config_request = soframe();
+	return (ofh_queue_get_config_request = cofmsg::resize(len));
 }
 
 
@@ -318,11 +317,10 @@ cofmsg_queue_get_config_reply::reset()
 
 
 
-void
+uint8_t*
 cofmsg_queue_get_config_reply::resize(size_t len)
 {
-	cofmsg::resize(len);
-	ofh_queue_get_config_reply = soframe();
+	return (ofh_queue_get_config_reply = cofmsg::resize(len));
 }
 
 

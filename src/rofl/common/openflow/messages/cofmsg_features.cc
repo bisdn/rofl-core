@@ -244,11 +244,11 @@ cofmsg_features_reply::reset()
 
 
 
-void
+uint8_t*
 cofmsg_features_reply::resize(size_t len)
 {
 	cofmsg::resize(len);
-	ofh_switch_features = soframe();
+	return (ofh_switch_features = soframe());
 }
 
 

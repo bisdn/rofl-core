@@ -229,11 +229,11 @@ cofmsg_get_config_reply::reset()
 
 
 
-void
+uint8_t*
 cofmsg_get_config_reply::resize(size_t len)
 {
 	cofmsg::resize(len);
-	ofh_switch_config = soframe();
+	return (ofh_switch_config = soframe());
 }
 
 
@@ -506,11 +506,11 @@ cofmsg_set_config::reset()
 
 
 
-void
+uint8_t*
 cofmsg_set_config::resize(size_t len)
 {
 	cofmsg::resize(len);
-	ofh_switch_config = soframe();
+	return (ofh_switch_config = soframe());
 }
 
 

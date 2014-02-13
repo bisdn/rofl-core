@@ -71,10 +71,10 @@ cofmsg_port_desc_stats_request::reset()
 
 
 
-void
+uint8_t*
 cofmsg_port_desc_stats_request::resize(size_t len)
 {
-	cofmsg_stats::resize(len);
+	return cofmsg_stats::resize(len);
 }
 
 
@@ -228,10 +228,10 @@ cofmsg_port_desc_stats_reply::reset()
 
 
 
-void
+uint8_t*
 cofmsg_port_desc_stats_reply::resize(size_t len)
 {
-
+	return (ofh_pds_reply = cofmsg_stats::resize(len));
 }
 
 

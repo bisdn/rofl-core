@@ -13,7 +13,7 @@ cofhello_elem::cofhello_elem(
 		size_t len) :
 				cmemory(len)
 {
-	ofh_generic = somem();
+	ofh_hello_elem_generic = somem();
 }
 
 
@@ -21,7 +21,7 @@ cofhello_elem::cofhello_elem(
 		uint8_t *buf, size_t buflen) :
 				cmemory(buf, buflen)
 {
-	ofh_generic = somem();
+	ofh_hello_elem_generic = somem();
 }
 
 
@@ -46,7 +46,7 @@ cofhello_elem::operator= (cofhello_elem const& elem)
 		return *this;
 
 	cmemory::operator=(elem);
-	ofh_generic = somem();
+	ofh_hello_elem_generic = somem();
 
 	return *this;
 }
@@ -57,9 +57,9 @@ uint8_t*
 cofhello_elem::resize(size_t len)
 {
 	cmemory::resize(len);
-	ofh_generic = somem();
+	ofh_hello_elem_generic = somem();
 	set_length(0); // FIXME
-	return ofh_generic;
+	return ofh_hello_elem_generic;
 }
 
 
@@ -96,7 +96,7 @@ cofhello_elem::unpack(uint8_t *buf, size_t buflen)
 {
 	resize(buflen);
 	assign(buf, buflen);
-	ofh_generic = somem();
+	ofh_hello_elem_generic = somem();
 }
 
 

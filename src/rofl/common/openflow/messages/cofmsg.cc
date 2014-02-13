@@ -147,8 +147,7 @@ cofmsg::type2desc(uint8_t ofp_version, uint8_t ptype)
 
 
 cofmsg::cofmsg(size_t size) :
-		memarea(new cmemory(size)),
-		ofh_header(0)
+		memarea(new cmemory(size))
 {
 	ofh_header = (struct openflow::ofp_header*)soframe();
 	ofh_header->length = htobe16(size);
@@ -157,8 +156,7 @@ cofmsg::cofmsg(size_t size) :
 
 
 cofmsg::cofmsg(cmemory *memarea) :
-		memarea(memarea),
-		ofh_header(0)
+		memarea(memarea)
 {
 	if (0 == memarea) {
 		throw eInval();
@@ -169,8 +167,7 @@ cofmsg::cofmsg(cmemory *memarea) :
 
 
 cofmsg::cofmsg(cofmsg const& p) :
-		memarea(0),
-		ofh_header(0)
+		memarea(0)
 {
 	*this = p;
 }
@@ -265,11 +262,11 @@ cofmsg::validate()
 
 
 
-void
+uint8_t*
 cofmsg::resize(size_t len)
 {
 	memarea->resize(len);
-	ofh_header = (struct openflow::ofp_header*)soframe();
+	return (ofh_generic = soframe());
 }
 
 
