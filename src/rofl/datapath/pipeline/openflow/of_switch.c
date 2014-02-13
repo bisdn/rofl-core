@@ -34,22 +34,6 @@ rofl_result_t of_reconfigure_switch(of_switch_t* sw, of_version_t version){
 }
 
 
-//Wrapping of processing
-rofl_result_t of_process_packet_pipeline(const of_switch_t* sw, datapacket_t *const pkt){
-	
-	switch(sw->of_ver){
-		case OF_VERSION_10: 
-		case OF_VERSION_12: 
-		case OF_VERSION_13: 
-			__of1x_process_packet_pipeline(sw, pkt);
-			break;
-		default: 
-			return ROFL_FAILURE;
-	}
-
-	return ROFL_SUCCESS;
-}	
-
 //Wrapping of timers processing
 void of_process_pipeline_tables_timeout_expirations(const of_switch_t* sw){
 	
