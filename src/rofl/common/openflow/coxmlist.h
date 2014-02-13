@@ -21,8 +21,6 @@
 
 #include "rofl/common/cmemory.h"
 #include "rofl/common/croflexception.h"
-#include "rofl/common/cvastring.h"
-#include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
 #include "rofl/common/openflow/coxmatch.h"
@@ -43,8 +41,7 @@ class eOxmListOutOfRange 	: public eOxmListBase {}; // out of range
  * it does not contain a full struct ofp_match, see class cofmatch for this
  *
  */
-class coxmlist :
-	public csyslog
+class coxmlist
 {
 private: // data structures
 

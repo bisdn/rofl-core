@@ -7,6 +7,12 @@
 
 #include "rofl.h"
 
+#if defined(LOCK_INLINE_HDR) && !defined(ROFL_TEST)
+
+#include "lock_inline.h"
+
+#else
+
 /**
 * @file lock.h
 * @author Marc Sune<marc.sune (at) bisdn.de>
@@ -138,5 +144,7 @@ void platform_rwlock_wrunlock(platform_rwlock_t* rwlock);
 
 //C++ extern C
 ROFL_END_DECLS
+
+#endif //PLATFORM_LOCK_INLIE defined
 
 #endif //PLATFORM_LOCK

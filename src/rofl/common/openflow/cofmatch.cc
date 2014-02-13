@@ -34,7 +34,6 @@ cofmatch::cofmatch(
 	default:
 		throw eBadVersion();
 	}
-	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [1]", this);
 
 	clear();
 
@@ -46,7 +45,7 @@ cofmatch::cofmatch(
 
 cofmatch::~cofmatch()
 {
-	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::~cofmatch()", this);
+
 }
 
 
@@ -57,21 +56,11 @@ cofmatch::operator= (const cofmatch& m)
 	if (this == &m)
 		return *this;
 
-#if 0
-	WRITELOG(COFMATCH, DBG, "cofmatch(%p)::operator=() m:%p", this, &m);
-
-	WRITELOG(COFMATCH, DBG, "cofmatch(%p)::operator=() [1] *this: %s", this, this->c_str());
-#endif
-
 	of_version		= m.of_version;
 	memarea			= m.memarea;
 	oxmlist			= m.oxmlist;
 
 	ofh_match = memarea.somem();
-
-#if 0
-	WRITELOG(COFMATCH, DBG, "cofmatch(%p)::operator=() [2] *this: %s", this, this->c_str());
-#endif
 
 	validate();
 
@@ -103,8 +92,6 @@ cofmatch::operator< (
 void
 cofmatch::clear()
 {
-	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::reset()", this);
-
 	switch (of_version) {
 	case openflow::OFP_VERSION_UNKNOWN: {
 		oxmlist.clear();
@@ -135,8 +122,6 @@ cofmatch::contains(
 		cofmatch const& other,
 		bool strict /* default=false */)
 {
-	WRITELOG(COXMLIST, DBG, "cofmatch(%p)::contains()", this);
-
 	return oxmlist.contains(other.oxmlist, strict);
 }
 
@@ -149,8 +134,6 @@ cofmatch::is_part_of(
 		uint16_t& wildcard_hits,
 		uint16_t& missed)
 {
-	WRITELOG(COXMLIST, DBG, "cofmatch(%p)::is_part_of()", this);
-
 	exact_hits = 0;
 	wildcard_hits = 0;
 	missed = 0;
@@ -940,38 +923,6 @@ cofmatch::operator== (
 	return false;
 }
 
-#if 0
-const char*
-cofmatch::c_str()
-{
-	cvastring vas(3172);
-
-	switch (of_version) {
-	case openflow10::OFP_VERSION: {
-		info.assign(vas("cofmatch(%p) oxmlist.length:%lu oxmlist:",
-				this,
-				oxmlist.length()));
-
-	} break;
-	case openflow12::OFP_VERSION:
-	case openflow13::OFP_VERSION: {
-		std::ostringstream os;
-		os << oxmlist;
-		info.assign(vas("cofmatch(%p) hdr.type:%d hdr.length:%d stored:%lu oxmlist.length:%lu oxmlist:%s",
-				this,
-				be16toh(ofh12_match->type),
-				be16toh(ofh12_match->length),
-				length(),
-				oxmlist.length(),
-				os.str().c_str()));
-	} break;
-	default:
-		throw eBadVersion();
-	}
-
-	return info.c_str();
-}
-#endif
 
 void
 cofmatch::set_type(uint16_t type)
@@ -1286,7 +1237,14 @@ cofmatch::set_vlan_vid(
 void
 cofmatch::set_vlan_present()
 {
-	oxmlist.insert(coxmatch_ofb_vlan_present());
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+		oxmlist.insert(coxmatch_ofb_vlan_vid(rofl::openflow10::OFPVID_ANY));
+	} break;
+	default: {
+		oxmlist.insert(coxmatch_ofb_vlan_present());
+	};
+	}
 }
 
 
@@ -1294,7 +1252,14 @@ cofmatch::set_vlan_present()
 void
 cofmatch::set_vlan_untagged()
 {
-	oxmlist.insert(coxmatch_ofb_vlan_untagged());
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+		oxmlist.insert(coxmatch_ofb_vlan_vid(rofl::openflow10::OFPVID_NONE));
+	} break;
+	default: {
+		oxmlist.insert(coxmatch_ofb_vlan_untagged());
+	};
+	}
 }
 
 

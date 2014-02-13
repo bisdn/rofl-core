@@ -69,7 +69,7 @@ void * core_main (void * args)
 
 void setup(of1x_pipeline_t * pipeline, of1x_flow_table_t * table, of1x_flow_entry_t ** entries, of1x_stats_port_t *port_stats, of1x_stats_queue_t *queue_stats)//, platform_mutex_t *mutex_time)
 {
-	pipeline->tables = table;
+	pipeline.tables = table;
 	(*entries) = malloc(sizeof(of1x_flow_entry_t)*STATS_TEST_MAX_ENTRIES);
 	if((*entries)==NULL)
 	{
@@ -81,7 +81,7 @@ void setup(of1x_pipeline_t * pipeline, of1x_flow_table_t * table, of1x_flow_entr
 	//platform_mutex_init(mutex_time, NULL);
 	table->mutex = platform_mutex_init(NULL);
 	of1x_stats_flow_init(entries[0]);
-	of1x_stats_table_init(pipeline->tables);
+	of1x_stats_table_init(pipeline.tables);
 	of1x_stats_port_init(port_stats);
 	of1x_stats_queue_init(queue_stats);
 	

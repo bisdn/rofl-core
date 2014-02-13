@@ -137,6 +137,11 @@ typedef struct of1x_flow_table{
 
 }of1x_flow_table_t;
 
+/**
+* Table snapshot
+*/
+typedef of1x_flow_table_t __of1x_flow_table_snapshot_t;
+
 /*
 *
 * Function prototypes
@@ -173,9 +178,8 @@ rofl_result_t __of1x_destroy_table(of1x_flow_table_t* table);
 * When check_overlap is enabled, addition will fail if there is at least one entry
 * which may potentally match the same packet, and this entry has the same priority.
 *
-* If (and only if) the addition is successful (ROFL_OF1X_FM_SUCCESS), the entry
-* pointer shall NEVER be used outside the library. In other words, the entry
-* state belongs to the table and the table will release it.
+* If (and only if) the mod operation is successful (ROFL_OF1X_FM_SUCCESS) the contents of the pointer *entry are set to NULL. Any other
+* reference to the real entry (**entry) shall never be further used.
 *
 * On success, the library will instantiate the necessary state to handle timers and
 * statistics.
@@ -185,10 +189,10 @@ rofl_result_t __of1x_destroy_table(of1x_flow_table_t* table);
 * @param entry of1x_flow_entry_t previously initialized with of1x_init_flow_entry() 
 * @param check_overlap Do not install if there are overlapping entries (would match the same packet)
 * @param reset_counts If overlap flag is false, reset the counters on entry overwrite 
-* @warning On success (ROFL_OF1X_FM_SUCCESS), the entry pointer shall never be used, modified
+* @warning On success (ROFL_SUCCESS), the entry pointer (*entry) will be set to NULL. 
 * or freed from outside the library.
 */
-rofl_of1x_fm_result_t of1x_add_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t *const entry, bool check_overlap, bool reset_counts);
+rofl_of1x_fm_result_t of1x_add_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t **const entry, bool check_overlap, bool reset_counts);
 
 /**
 * @ingroup core_of1x 
@@ -198,9 +202,8 @@ rofl_of1x_fm_result_t of1x_add_flow_entry_table(struct of1x_pipeline *const pipe
 * same matches as the parameter entry. The "entry" parameter is NOT a pointer to an existing
 * table entry. 
 *
-* If (and only if) the mod operation is successful (ROFL_OF1X_FM_SUCCESS), the entry
-* pointer shall NEVER be used outside the library. In other words, the entry
-* state belongs to the table and the table will release it.
+* If (and only if) the mod operation is successful (ROFL_OF1X_FM_SUCCESS) the contents of the pointer *entry are set to NULL. Any other
+* reference to the real entry (**entry) shall never be further used.
 *
 * On success, the library will modify the necessary state to correctly handle timers and
 * statistics of the modified entries.
@@ -210,10 +213,10 @@ rofl_of1x_fm_result_t of1x_add_flow_entry_table(struct of1x_pipeline *const pipe
 * @param entry of1x_flow_entry_t that will update the existing (entries that have the same matches will be modified). This is NOT the entry TO update. 
 * @param strict Strictness, check the matches in a strict way 
 * @param reset_counts If overlap flag is false, reset the counters on entry overwrite 
-* @warning On success (ROFL_SUCCESS), the entry pointer shall never be used, modified
+* @warning On success (ROFL_SUCCESS), the entry pointer (*entry) will be set to NULL. 
 * or freed from outside the library.
 */
-rofl_result_t of1x_modify_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t *const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts);
+rofl_result_t of1x_modify_flow_entry_table(struct of1x_pipeline *const pipeline, const unsigned int table_id, of1x_flow_entry_t **const entry, const enum of1x_flow_removal_strictness strict, bool reset_counts);
 	
 /**
 * @ingroup core_of1x 
@@ -223,7 +226,7 @@ rofl_result_t of1x_modify_flow_entry_table(struct of1x_pipeline *const pipeline,
 * the same matches as the parameter entry. The "entry" parameter is NOT a pointer to an existing
 * table entry. 
 *
-* The entry parameter will never be modified by the library, and can be safely changed or removed
+* The entry parameter will never be modified by the library, and can be safely used or destroyed
 * after the call of of1x_remove_flow_entry_table()
 *    
 * On success, the timers and statistics of the removed entries are purged.
@@ -244,7 +247,7 @@ rofl_result_t __of1x_remove_specific_flow_entry_table(struct of1x_pipeline *cons
 /*
 * Entry lookup. This should never be used directly
 */ 
-of1x_flow_entry_t* __of1x_find_best_match_table(of1x_flow_table_t *const table, of1x_packet_matches_t *const pkt); 
+of1x_flow_entry_t* __of1x_find_best_match_table(of1x_flow_table_t *const table, packet_matches_t *const pkt); 
 
 /*
 * Table dumping. This is not recommended to use directly

@@ -155,7 +155,8 @@ private:
 		};
 
 
-#define CPACKET_DEFAULT_SIZE 			 1526
+#define CPACKET_DEFAULT_SIZE 			 0
+//#define CPACKET_DEFAULT_SIZE 			 1526
 #define CPACKET_DEFAULT_HSPACE			 64			// head room for push operations
 #define CPACKET_DEFAULT_TSPACE			 256		// tail room for appending payload(s)
 
@@ -303,9 +304,61 @@ public: // methods
 		indent i(2);
 		os << pack.match;
 		for (fframe* curr = pack.head; curr != 0; curr = curr->next) {
-			os << *curr;
+			if (dynamic_cast<fetherframe*>( curr ))
+				os << *dynamic_cast<fetherframe*>( curr );
+			else if (dynamic_cast<fvlanframe*>( curr ))
+				os << *dynamic_cast<fvlanframe*>( curr );
+			else if (dynamic_cast<fmplsframe*>( curr ))
+				os << *dynamic_cast<fmplsframe*>( curr );
+			else if (dynamic_cast<fipv4frame*>( curr ))
+				os << *dynamic_cast<fipv4frame*>( curr );
+			else if (dynamic_cast<fipv6frame*>( curr ))
+				os << *dynamic_cast<fipv6frame*>( curr );
+			else if (dynamic_cast<ficmpv4frame*>( curr ))
+				os << *dynamic_cast<ficmpv4frame*>( curr );
+			else if (dynamic_cast<ficmpv6frame*>( curr ))
+				os << *dynamic_cast<ficmpv6frame*>( curr );
+			else if (dynamic_cast<farpv4frame*>( curr ))
+				os << *dynamic_cast<farpv4frame*>( curr );
+			else if (dynamic_cast<fudpframe*>( curr ))
+				os << *dynamic_cast<fudpframe*>( curr );
+			else if (dynamic_cast<ftcpframe*>( curr ))
+				os << *dynamic_cast<ftcpframe*>( curr );
+			else if (dynamic_cast<fsctpframe*>( curr ))
+				os << *dynamic_cast<fsctpframe*>( curr );
+			else
+				os << *curr;
 		}
-		os << pack.mem;
+		os << indent(0) << "<content: ";
+		os << "data:" << (void*)pack.soframe() << " ";
+		os << "datalen:" << (int)pack.framelen() << " ";
+		os << ">" << std::endl;
+
+		if (pack.framelen() > 0) {
+			for (unsigned int i=0; i < pack.framelen(); i++) {
+				if (0 == (i % 64)) {
+					os << indent(2)
+						<< std::setfill('0')
+						<< std::setw(4)
+						<< std::dec << (i/64) << ": " << std::hex
+						<< std::setw(0)
+						<< std::setfill(' ');
+				}
+
+				os << std::setfill('0')
+					<< std::setw(2)
+					<< std::hex << (int)(*(pack.soframe() + i)) << std::dec
+					<< std::setw(0)
+					<< std::setfill(' ')
+					<< " ";
+
+				if (0 == ((i+1) % 8))
+					os << "  ";
+				if (0 == ((i+1) % 64))
+					os << std::endl;
+			}
+			os << std::endl;
+		}
 		return os;
 	};
 

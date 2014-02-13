@@ -44,25 +44,47 @@ public: // data structures
 
 	friend std::ostream&
 	operator<< (std::ostream& os, coftable_stats_reply const& tsr) {
-		os << indent(0) << "<coftable_stats_reply ";
-				os << "table-id:" << (int)(tsr.table_id) << " ";
-				os << "name:" << tsr.name << " ";
-				os << std::hex;
-				os << "match:" << (unsigned long long)tsr.match << " ";
-				os << "wildcards:" << (unsigned int)tsr.wildcards << " >" << std::endl;
-				os << indent(2) << "<write-actions:" << (unsigned int)tsr.write_actions << " ";
-				os << "apply-actions:" << (unsigned int)tsr.apply_actions << " ";
-				os << "write-setfields:" << (unsigned long long)tsr.write_setfields << " ";
-				os << "apply-setfields:" << (unsigned long long)tsr.apply_setfields << " >" << std::endl;;
-				os << indent(2) << "<metadata-match:" << (unsigned long long)tsr.metadata_match << " ";
-				os << "metadata-write:" << (unsigned long long)tsr.metadata_write << " ";
-				os << "instructions:" << (unsigned int)tsr.instructions << " ";
-				os << std::dec;
-				os << "config:" << (unsigned int)tsr.config << " >" << std::endl;;
-				os << indent(2) << "<max_entries:" << (unsigned int)tsr.max_entries << " ";
-				os << "active-count:" << (unsigned int)tsr.active_count << " ";
-				os << "lookup-count:" << (unsigned long long)tsr.lookup_count << " ";
-				os << "matched-count:" << (unsigned long long)tsr.matched_count << " >" << std::endl;
+		switch (tsr.of_version) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << indent(0) << "<coftable_stats_reply ";
+					os << "table-id:" << (int)(tsr.table_id) << " ";
+					os << "name:" << tsr.name << " ";
+					os << std::hex;
+					os << "match:" << (unsigned long long)tsr.match << " ";
+					os << "wildcards:" << (unsigned long long)tsr.wildcards << " >" << std::endl;
+					os << std::dec;
+					os << "config:" << (unsigned int)tsr.config << " >" << std::endl;;
+					os << indent(2) << "<max_entries:" << (unsigned int)tsr.max_entries << " ";
+					os << "active-count:" << (unsigned int)tsr.active_count << " ";
+					os << "lookup-count:" << (unsigned long long)tsr.lookup_count << " ";
+					os << "matched-count:" << (unsigned long long)tsr.matched_count << " >" << std::endl;
+		} break;
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << indent(0) << "<coftable_stats_reply ";
+					os << "table-id:" << (int)(tsr.table_id) << " ";
+					os << "name:" << tsr.name << " ";
+					os << std::hex;
+					os << "match:" << (unsigned long long)tsr.match << " ";
+					os << "wildcards:" << (unsigned long long)tsr.wildcards << " >" << std::endl;
+					os << indent(2) << "<write-actions:" << (unsigned int)tsr.write_actions << " ";
+					os << "apply-actions:" << (unsigned int)tsr.apply_actions << " ";
+					os << "write-setfields:" << (unsigned long long)tsr.write_setfields << " ";
+					os << "apply-setfields:" << (unsigned long long)tsr.apply_setfields << " >" << std::endl;;
+					os << indent(2) << "<metadata-match:" << (unsigned long long)tsr.metadata_match << " ";
+					os << "metadata-write:" << (unsigned long long)tsr.metadata_write << " ";
+					os << "instructions:" << (unsigned int)tsr.instructions << " ";
+					os << std::dec;
+					os << "config:" << (unsigned int)tsr.config << " >" << std::endl;;
+					os << indent(2) << "<max_entries:" << (unsigned int)tsr.max_entries << " ";
+					os << "active-count:" << (unsigned int)tsr.active_count << " ";
+					os << "lookup-count:" << (unsigned long long)tsr.lookup_count << " ";
+					os << "matched-count:" << (unsigned long long)tsr.matched_count << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(0) << "<coftable_stats_reply >";
+		};
+		}
 		return os;
 	};
 

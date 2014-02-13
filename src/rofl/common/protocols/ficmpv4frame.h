@@ -177,11 +177,11 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, ficmpv4frame const& frame) {
-		os << "<ficmpv4frame ";
+		os << dynamic_cast<fframe const&>( frame );
+		os << indent(2) << "<ficmpv4frame ";
 			os << "code:" << (int)frame.get_icmp_code() << " ";
 			os << "type:" << (int)frame.get_icmp_type() << " ";
-			os << std::endl << dynamic_cast<fframe const&>( frame ) << std::endl;
-		os << ">";
+		os << ">" << std::endl;
 		return os;
 	};
 };

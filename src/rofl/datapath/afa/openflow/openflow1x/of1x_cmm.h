@@ -6,9 +6,9 @@
 #define OF1X_CMM_H 
 
 #include <inttypes.h>
+#include <rofl/datapath/pipeline/common/packet_matches.h>
 #include <rofl/datapath/pipeline/openflow/openflow1x/of1x_switch.h>
 #include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_flow_entry.h>
-#include <rofl/datapath/pipeline/openflow/openflow1x/pipeline/of1x_packet_matches.h>
 #include "../../afa.h"
 #include "../../afa_utils.h"
 
@@ -39,7 +39,7 @@ AFA_BEGIN_DECLS
  * @param total_len total length of buffer
  * @param matches OF1.2 packet matches
  */
-afa_result_t cmm_process_of1x_packet_in(const of1x_switch_t* sw, 
+afa_result_t cmm_process_of1x_packet_in(uint64_t dpid, 
 					uint8_t table_id, 
 					uint8_t reason,
 					uint32_t in_port,
@@ -47,18 +47,18 @@ afa_result_t cmm_process_of1x_packet_in(const of1x_switch_t* sw,
 					uint8_t* pkt_buffer,
 					uint32_t buf_len,
 					uint16_t total_len,
-					of1x_packet_matches_t matches);
+					packet_matches_t* matches);
 
 /**
  * @name    cmm_process_of1x_flow_removed
  * @brief   Instructs the CMM to process a FLOW_REMOVED event comming from the DP
  * @ingroup of1x_cmm_async_event_processing
  *
- * @param sw OpenFlow 1.2 switch pointer that generated the FLOW_REMOVED
+ * @param dpid OpenFlow switch DPID
  * @param removed_flow_entry The entry shall ONLY be used for reading, and shall NEVER be
  * removed (of1x_remove_flow_entry). This is done by the fwd_module itself.
  */
-afa_result_t cmm_process_of1x_flow_removed(const of1x_switch_t* sw, 	
+afa_result_t cmm_process_of1x_flow_removed(uint64_t dpid, 	
 					uint8_t reason, 
 					of1x_flow_entry_t* removed_flow_entry);
 

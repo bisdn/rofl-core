@@ -5,7 +5,8 @@
 using namespace etherswitch;
 
 ethswitch::ethswitch(cofhello_elem_versionbitmap const& versionbitmap) :
-		crofbase(versionbitmap)
+		crofbase(versionbitmap),
+		dpt(NULL)
 {
 
 }
@@ -22,6 +23,12 @@ ethswitch::~ethswitch()
 void
 ethswitch::handle_timeout(int opaque, void *data)
 {
+	switch (opaque) {
+	case ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL: {
+		logging::info << "REMOVING ALL FLOW-MODs" << std::endl;
+		dpt->flow_mod_reset();
+	} break;
+	}
 
 }
 
@@ -119,6 +126,10 @@ ethswitch::handle_dpath_open(
 
 	dpt.flow_mod_reset();
 	dpt.group_mod_reset();
+
+	this->dpt = &dpt;
+
+	//register_timer(ETHSWITCH_TIMER_FLOW_MOD_DELETE_ALL, 30);
 
 	switch (dpt.get_version()) {
 	case openflow10::OFP_VERSION: {

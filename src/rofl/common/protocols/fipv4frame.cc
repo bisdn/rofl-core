@@ -220,7 +220,7 @@ fipv4frame::set_ipv4_src(const caddress & src) throw (eIPv4FrameInval)
 
 
 caddress
-fipv4frame::get_ipv4_src()
+fipv4frame::get_ipv4_src() const
 {
 	struct sockaddr_in sa;
 	sa.sin_family = AF_INET;
@@ -248,7 +248,7 @@ fipv4frame::set_ipv4_dst(const caddress & dst) throw (eIPv4FrameInval)
 
 
 caddress
-fipv4frame::get_ipv4_dst()
+fipv4frame::get_ipv4_dst() const
 {
 	struct sockaddr_in sa;
 	sa.sin_family = AF_INET;
@@ -265,7 +265,7 @@ fipv4frame::set_ipv4_dscp(uint8_t dscp)
 
 
 uint8_t
-fipv4frame::get_ipv4_dscp()
+fipv4frame::get_ipv4_dscp() const
 {
 	return (ipv4_hdr->tos >> 2);
 }
@@ -279,7 +279,7 @@ fipv4frame::set_ipv4_ecn(uint8_t ecn)
 
 
 uint8_t
-fipv4frame::get_ipv4_ecn()
+fipv4frame::get_ipv4_ecn() const
 {
 	return (ipv4_hdr->tos & 0x03);
 }

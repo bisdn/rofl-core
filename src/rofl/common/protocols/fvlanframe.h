@@ -194,13 +194,13 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, fvlanframe const& frame) {
-		os << "<fvlanframe ";
+		os << dynamic_cast<fframe const&>( frame ) << std::endl;
+		os << indent(2) << "<fvlanframe ";
 			os << "vid:" << (int)frame.get_dl_vlan_id() << " ";
 			os << "pcp:" << (int)frame.get_dl_vlan_pcp() << " ";
 			os << "cfi:" << (int)frame.get_dl_vlan_cfi() << " ";
 			os << "inner-dl-type:" << (int)frame.get_dl_type() << " ";
-			os << std::endl << dynamic_cast<fframe const&>( frame ) << std::endl;
-		os << ">";
+		os << ">" << std::endl;
 		return os;
 	};
 };

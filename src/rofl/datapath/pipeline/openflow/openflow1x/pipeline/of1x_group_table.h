@@ -146,7 +146,7 @@ rofl_result_t of1x_fetch_group_table(struct of1x_pipeline *pipeline, of1x_group_
  * 
  * If a group with the ID already exists returns error
  */
-rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t *buckets);
+rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets);
 
 /**
  * @brief Modifies a group on the table.
@@ -154,7 +154,7 @@ rofl_of1x_gm_result_t of1x_group_add(of1x_group_table_t *gt, of1x_group_type_t t
  * 
  * Searches the group with the defined ID and modifies the bucket list and the type
  */
-rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t *buckets);
+rofl_of1x_gm_result_t of1x_group_modify(of1x_group_table_t *gt, of1x_group_type_t type, uint32_t id, of1x_bucket_list_t **buckets);
 
 /**
  * @brief Deletes a group of the table.

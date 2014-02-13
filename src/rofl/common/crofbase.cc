@@ -629,6 +629,19 @@ crofbase::dpt_find(uint64_t dpid) throw (eRofBaseNotFound)
 }
 
 
+crofdpt&
+crofbase::get_dpt(
+	uint64_t dpid)
+{
+	for (std::set<crofdpt*>::iterator
+			it = ofdpt_set.begin(); it != ofdpt_set.end(); ++it) {
+		if ((*it)->get_dpid() == dpid)
+			return *(*it);
+	}
+	throw eRofBaseNotFound();
+}
+
+
 crofdpt*
 crofbase::dpt_find(std::string s_dpid) throw (eRofBaseNotFound)
 {

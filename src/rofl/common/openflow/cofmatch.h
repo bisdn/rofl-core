@@ -22,7 +22,6 @@
 #include "rofl/common/cvastring.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
-#include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/openflow/coxmlist.h"
 
 #include "rofl/common/openflow/experimental/matches/gtp_matches.h"
@@ -41,13 +40,11 @@ class eOFmatchInvalBadValue	: public eOFmatchInval {};
 
 
 
-class cofmatch :
-	public csyslog
+class cofmatch
 {
 private: // data structures
 
 	uint8_t 		of_version;		// OpenFlow version used for this cofmatch instance
-	std::string 	info; 			// info string
 	coxmlist 		oxmlist;		// list of all oxms
 	cmemory 		memarea;
 
@@ -119,13 +116,6 @@ public: // methods
 	 */
 	bool
 	operator< (cofmatch const& m) const;
-#endif
-
-#if 0
-	/** dump cofmatch instance
-	 */
-	const char*
-	c_str();
 #endif
 
 	/**
@@ -1269,8 +1259,6 @@ cofmatch::cofmatch(
 		size_t matchlen) :
 			of_version(of_version)
 {
-	//WRITELOG(COFMATCH, DBG, "cofmatch(%p)::cofmatch() [2]", this);
-
 	switch (of_version) {
 	case openflow10::OFP_VERSION: {
 		if (OFP10_MATCH_STATIC_LEN != matchlen) {

@@ -164,12 +164,12 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, fetherframe const& frame) {
-		os << "<fetherframe ";
+		os << dynamic_cast<fframe const&>( frame );
+		os << indent(2) << "<fetherframe ";
 			os << "dl-dst:" << frame.get_dl_dst() << " ";
 			os << "dl-src:" << frame.get_dl_src() << " ";
-			os << "dl-type:" << (int)frame.get_dl_type() << " ";
-			os << std::endl << dynamic_cast<fframe const&>( frame ) << std::endl;
-		os << ">";
+			os << "dl-type:0x" << std::hex << (int)frame.get_dl_type() << std::dec << " ";
+		os << ">" << std::endl;
 		return os;
 	};
 };

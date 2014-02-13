@@ -368,13 +368,13 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, fipv6frame const& ipv6) {
-
-		os << "<fipv6frame: ";
+		os << dynamic_cast<fframe const&>( ipv6 );
+		os << indent(2) << "<fipv6frame: ";
 			os << "dst:" << ipv6.get_ipv6_dst() << " ";
 			os << "src:" << ipv6.get_ipv6_src() << " ";
 			os << "tc:"  << (unsigned int)ipv6.get_traffic_class() << " ";
 			os << "flowlabel:" << (unsigned int)ipv6.get_flow_label() << " ";
-			os << ">";
+			os << ">" << std::endl;
 		return os;
 	};
 };

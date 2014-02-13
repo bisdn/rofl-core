@@ -257,8 +257,8 @@ public:
 			os << "next:" << (void*)frame.next << " ";
 			os << "prev:" << (void*)frame.prev << " ";
 		os << ">" << std::endl;
-		indent i(2);
-		os << frame.mem;
+		//indent i(2);
+		//os << frame.mem;
 		return os;
 	};
 };

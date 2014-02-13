@@ -8,6 +8,12 @@
 #include <inttypes.h>
 #include "lock.h"
 
+#if defined(ATOMIC_OPS_INLINE_HDR) && !defined(ROFL_TEST)
+
+#include "atomic_ops_inline.h"
+
+#else
+
 /**
 * @file atomic_operations.h
 * @author Victor Alvarez<victor.alvarez (at) bisdn.de>
@@ -82,5 +88,7 @@ void platform_atomic_add64(uint64_t* counter, uint64_t* value, platform_mutex_t*
 * 
 */
 void platform_atomic_add32(uint32_t* counter, uint32_t* value, platform_mutex_t* mutex);
+
+#endif //ATOMIC_OPS_INLINE_HDR
 
 #endif

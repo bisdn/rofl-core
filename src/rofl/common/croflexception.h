@@ -67,6 +67,7 @@ class eInternalError 		: public RoflException {}; //< some internal error occure
 class eDebug 				: public RoflException {};
 class eInval				: public RoflException {};
 class eTooShort				: public RoflException {};
+class eNotConnected			: public RoflException {};
 
 }; // end of namespace
 

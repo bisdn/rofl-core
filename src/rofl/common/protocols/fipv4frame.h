@@ -235,7 +235,7 @@ public:
 	/**
 	 */
 	caddress
-	get_ipv4_src();
+	get_ipv4_src() const;
 
 	/** dst in network-byte-order
 	 */
@@ -250,7 +250,7 @@ public:
 	/**
 	 */
 	caddress
-	get_ipv4_dst();
+	get_ipv4_dst() const;
 
 	/**
 	 */
@@ -260,7 +260,7 @@ public:
 	/**
 	 */
 	uint8_t
-	get_ipv4_dscp();
+	get_ipv4_dscp() const;
 
 	/**
 	 */
@@ -270,7 +270,7 @@ public:
 	/**
 	 */
 	uint8_t
-	get_ipv4_ecn();
+	get_ipv4_ecn() const;
 
 	/**
 	 */
@@ -358,6 +358,20 @@ private: // data structures
 
 	//< info string
 	std::string info;
+
+public:
+
+	friend std::ostream&
+	operator<< (std::ostream& os, fipv4frame const& frame) {
+		os << dynamic_cast<fframe const&>( frame );
+		os << indent(2) << "<fipv4frame ";
+			os << "src:" 	<< frame.get_ipv4_src() 	<< " ";
+			os << "dst:" 	<< frame.get_ipv4_dst() 	<< " ";
+			os << "dscp:" 	<< (int)frame.get_ipv4_dscp() 	<< " ";
+			os << "ecn:"	<< (int)frame.get_ipv4_ecn()	<< " ";
+		os << ">" << std::endl;
+		return os;
+	};
 };
 
 }; // end of namespace

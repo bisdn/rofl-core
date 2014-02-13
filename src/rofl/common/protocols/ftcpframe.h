@@ -182,11 +182,11 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, ftcpframe const& frame) {
-		os << "<ftcpframe ";
+		os << dynamic_cast<fframe const&>( frame );
+		os << indent(2) << "<ftcpframe ";
 			os << "sport:" << (int)frame.get_sport() << " ";
 			os << "dport:" << (int)frame.get_dport() << " ";
-			os << std::endl << dynamic_cast<fframe const&>( frame ) << std::endl;
-		os << ">";
+		os << ">" << std::endl;
 		return os;
 	};
 };
