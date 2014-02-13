@@ -8,6 +8,7 @@
 #ifndef COFTABLEFEATUREPROPS_H_
 #define COFTABLEFEATUREPROPS_H_
 
+#include <assert.h>
 #include <inttypes.h>
 
 #include <map>
@@ -22,6 +23,7 @@ namespace rofl {
 namespace openflow {
 
 class eOFTableFeaturePropsBase		: public RoflException {};
+class eOFTableFeaturePropsInval		: public eOFTableFeaturePropsBase {};
 class eOFTableFeaturePropsNotFound	: public eOFTableFeaturePropsBase {};
 
 class coftable_feature_props {
@@ -60,6 +62,26 @@ public:
 	 */
 	void
 	clear();
+
+public:
+
+	/**
+	 *
+	 */
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(uint8_t *buf, size_t buflen);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(uint8_t *buf, size_t buflen);
 
 public:
 

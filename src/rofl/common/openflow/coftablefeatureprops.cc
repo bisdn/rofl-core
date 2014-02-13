@@ -95,6 +95,111 @@ coftable_feature_props::clear()
 
 
 
+size_t
+coftable_feature_props::length() const
+{
+	size_t len = 0;
+	for (std::map<uint16_t, coftable_feature_prop*>::const_iterator
+			it = tfprops.begin(); it != tfprops.end(); ++it) {
+		len += it->second->length();
+	}
+	return len;
+}
+
+
+
+void
+coftable_feature_props::pack(uint8_t *buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen)) {
+		return;
+	}
+
+	size_t total_length = length();
+
+	if (buflen < total_length) {
+		throw eOFTableFeaturePropsInval();
+	}
+
+	for (std::map<uint16_t, coftable_feature_prop*>::iterator
+			it = tfprops.begin(); it != tfprops.end(); ++it) {
+		size_t prop_len = it->second->length();
+		if (sizeof(struct openflow13::ofp_table_feature_prop_header) <= prop_len) {
+			logging::error << "[rofl][table-feature-props] internal error, tfp with invalid length" << std::endl;
+			assert(sizeof(struct openflow13::ofp_table_feature_prop_header) <= prop_len);
+			return;
+		}
+		it->second->pack(buf, prop_len);
+		buf += prop_len;
+	}
+}
+
+
+
+void
+coftable_feature_props::unpack(uint8_t *buf, size_t buflen)
+{
+	if ((0 == buf) || (0 == buflen)) {
+		return;
+	}
+
+	coftable_feature_props::clear();
+
+	while (true) {
+		struct openflow13::ofp_table_feature_prop_header *prop = (struct openflow13::ofp_table_feature_prop_header*)buf;
+
+		if (buflen < sizeof(struct openflow13::ofp_table_feature_prop_header)) {
+			return; // ignore padding
+		}
+
+		if (be16toh(prop->length) < sizeof(struct openflow13::ofp_table_feature_prop_header)) {
+			throw eTableFeaturesReqBadLen();
+		}
+
+		size_t total_length = be16toh(prop->length) + (0x7 & be16toh(prop->length)) ? 8 - (0x7 & be16toh(prop->length)) : 0;
+		if (total_length > buflen) {
+			throw eTableFeaturesReqBadLen();
+		}
+
+		switch (be16toh(prop->type)) {
+		case rofl::openflow13::OFPTFPT_INSTRUCTIONS:
+		case rofl::openflow13::OFPTFPT_INSTRUCTIONS_MISS: {
+			(tfprops[be16toh(prop->type)] = new coftable_feature_prop_instructions(
+					ofp_version, be16toh(prop->type)))->unpack(buf, buflen);
+		} break;
+		case rofl::openflow13::OFPTFPT_NEXT_TABLES:
+		case rofl::openflow13::OFPTFPT_NEXT_TABLES_MISS: {
+			(tfprops[be16toh(prop->type)] = new coftable_feature_prop_next_tables(
+					ofp_version, be16toh(prop->type)))->unpack(buf, buflen);
+		} break;
+		case rofl::openflow13::OFPTFPT_WRITE_ACTIONS:
+		case rofl::openflow13::OFPTFPT_WRITE_ACTIONS_MISS:
+		case rofl::openflow13::OFPTFPT_APPLY_ACTIONS:
+		case rofl::openflow13::OFPTFPT_APPLY_ACTIONS_MISS: {
+			(tfprops[be16toh(prop->type)] = new coftable_feature_prop_actions(
+					ofp_version, be16toh(prop->type)))->unpack(buf, buflen);
+		} break;
+		case rofl::openflow13::OFPTFPT_MATCH:
+		case rofl::openflow13::OFPTFPT_WILDCARDS:
+		case rofl::openflow13::OFPTFPT_WRITE_SETFIELD:
+		case rofl::openflow13::OFPTFPT_WRITE_SETFIELD_MISS:
+		case rofl::openflow13::OFPTFPT_APPLY_SETFIELD:
+		case rofl::openflow13::OFPTFPT_APPLY_SETFIELD_MISS: {
+			(tfprops[be16toh(prop->type)] = new coftable_feature_prop_oxm(
+					ofp_version, be16toh(prop->type)))->unpack(buf, buflen);
+		} break;
+		default: {
+			throw eTableFeaturesReqBadType();
+		} break;
+		}
+
+		buf += total_length;
+		buflen -= total_length;
+	}
+}
+
+
+
 coftable_feature_prop&
 coftable_feature_props::add_tfp(unsigned int type)
 {
