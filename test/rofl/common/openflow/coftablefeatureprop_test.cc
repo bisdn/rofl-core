@@ -122,7 +122,7 @@ coftablefeaturepropTest::testPackUnpack()
 void
 coftablefeaturepropTest::testInstructionsClass()
 {
-	rofl::openflow::coftable_feature_prop_instructions prop(rofl::openflow13::OFPTFPT_INSTRUCTIONS);
+	rofl::openflow::coftable_feature_prop_instructions prop(rofl::openflow13::OFP_VERSION, rofl::openflow13::OFPTFPT_INSTRUCTIONS);
 
 	prop.get_instruction_ids().push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPIT_APPLY_ACTIONS, sizeof(struct rofl::openflow::ofp_instruction)));
 	prop.get_instruction_ids().push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPIT_WRITE_ACTIONS, sizeof(struct rofl::openflow::ofp_instruction)));
@@ -172,5 +172,16 @@ coftablefeaturepropTest::testInstructionsClass()
 	CPPUNIT_ASSERT(rofl::openflow13::OFPIT_GOTO_TABLE == prop.get_instruction_ids()[1].first);
 	CPPUNIT_ASSERT(sizeof(struct rofl::openflow::ofp_instruction) == prop.get_instruction_ids()[1].second);
 }
+
+
+
+void
+coftablefeaturepropTest::testNextTablesClass()
+{
+	rofl::openflow::coftable_feature_prop_next_tables prop(rofl::openflow13::OFP_VERSION, rofl::openflow13::OFPTFPT_NEXT_TABLES);
+
+}
+
+
 
 
