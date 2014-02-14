@@ -37,6 +37,19 @@ public: // static
 		uint16_t dl_type;
 		uint8_t data[0];
 	} __attribute__((packed));
+	
+	//Ethernet LLC header
+	struct eth_llc_hdr_t {
+		uint8_t dl_dst[OFP_ETH_ALEN];
+		uint8_t dl_src[OFP_ETH_ALEN];
+		uint16_t dl_len;
+		uint8_t dl_dsap;
+		uint8_t dl_ssap;
+		uint8_t dl_control;
+		uint8_t dl_vendor_code[3];
+		uint16_t dl_type;
+		uint8_t data[0];
+	}__attribute__((packed));
 
 public: // methods
 
@@ -106,6 +119,9 @@ public: // methods
 	 */
 	uint16_t
 	get_dl_type() const;
+	
+	bool
+	is_llc_frame() const;
 
 public: // overloaded from fframe
 
@@ -166,6 +182,7 @@ public: // data structures
 
 	// pointer to ethernet header
 	struct eth_hdr_t *eth_hdr;
+	struct eth_llc_hdr_t *eth_llc_hdr;
 
 private: // methods
 

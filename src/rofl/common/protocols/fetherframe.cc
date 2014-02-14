@@ -46,13 +46,19 @@ void
 fetherframe::initialize()
 {
 	eth_hdr = (struct eth_hdr_t*)soframe();
+	eth_llc_hdr = (struct eth_llc_hdr_t*)soframe();
 }
 
-
+bool
+fetherframe::is_llc_frame() const
+{
+	return ( be16toh(eth_hdr->dl_type) < 0x600 );
+}
 
 bool
 fetherframe::complete()
 {
+	// TODO: case of Ethernet 802.3 header not handled cause the function is not used
 	if (framelen() < sizeof(struct eth_hdr_t))
 		return false;
 
@@ -66,12 +72,11 @@ fetherframe::complete()
 size_t
 fetherframe::need_bytes()
 {
+	// TODO: case of Ethernet 802.3 header not handled cause the function is not used
 	if (framelen() < sizeof(struct eth_hdr_t))
 		return (sizeof(struct eth_hdr_t) - framelen());
 
 	initialize();
-
-	// TODO: use length field from Ethernet 802.3 header, for now just Ethernet II
 
 	return 0;
 }
@@ -82,35 +87,57 @@ fetherframe::payload_insert(
 		uint8_t *data,
 		size_t datalen) throw (eFrameOutOfRange)
 {
-	if (datalen > (framelen() - sizeof(struct eth_hdr_t)))
-	{
-		throw eFrameOutOfRange();
+	if( is_llc_frame() ){
+			if (datalen > (framelen() - sizeof(struct eth_llc_hdr_t)))
+			{
+					throw eFrameOutOfRange();
+			}
+			memcpy(soframe() + sizeof(struct eth_llc_hdr_t), data, datalen);
+	}else{
+			if (datalen > (framelen() - sizeof(struct eth_hdr_t)))
+			{
+					throw eFrameOutOfRange();
+			}
+			memcpy(soframe() + sizeof(struct eth_hdr_t), data, datalen);
 	}
-	memcpy(soframe() + sizeof(struct eth_hdr_t), data, datalen);
 }
 
 
 uint8_t*
 fetherframe::payload() const throw (eFrameNoPayload)
 {
-	if (framelen() <= sizeof(struct eth_hdr_t))
-		throw eFrameNoPayload();
+	if( is_llc_frame() ){
+		if (framelen() <= sizeof(struct eth_llc_hdr_t))
+			throw eFrameNoPayload();
 
-	//initialize(); // commented out 2012-12-13
+		return (soframe() + sizeof(struct eth_llc_hdr_t));
+	}else{
+		if (framelen() <= sizeof(struct eth_hdr_t))
+			throw eFrameNoPayload();
 
-	return (soframe() + sizeof(struct eth_hdr_t));
+		//initialize(); // commented out 2012-12-13
+
+		return (soframe() + sizeof(struct eth_hdr_t));
+	}
 }
 
 
 size_t
 fetherframe::payloadlen() const throw (eFrameNoPayload)
 {
-	if (framelen() <= sizeof(struct eth_hdr_t))
-		throw eFrameNoPayload();
+	if( is_llc_frame() ){
+		if (framelen() <= sizeof(struct eth_llc_hdr_t))
+			throw eFrameNoPayload();
 
-	//initialize(); // commented out 2012-12-13
+		return (framelen() - sizeof(struct eth_llc_hdr_t));
+	}else{
+		if (framelen() <= sizeof(struct eth_hdr_t))
+			throw eFrameNoPayload();
 
-	return (framelen() - sizeof(struct eth_hdr_t));
+		//initialize(); // commented out 2012-12-13
+
+		return (framelen() - sizeof(struct eth_hdr_t));
+	}
 }
 
 
@@ -120,8 +147,13 @@ fetherframe::validate(uint16_t total_len) throw (eFrameInvalidSyntax)
 {
 	initialize();
 
-	if (framelen() < (sizeof(struct eth_hdr_t)))
-		throw eFrameInvalidSyntax();
+	if( is_llc_frame() ){
+		if (framelen() < (sizeof(struct eth_llc_hdr_t)))
+			throw eFrameInvalidSyntax();
+	}else{
+		if (framelen() < (sizeof(struct eth_hdr_t)))
+			throw eFrameInvalidSyntax();
+	}
 
 	// TODO: check on minimum length of 64 bytes?
 }
@@ -190,15 +222,23 @@ fetherframe::set_dl_type(uint16_t dl_type) throw (eFrameInval)
 	{
 		throw eFrameInval();
 	}
-
-	eth_hdr->dl_type = htobe16(dl_type);
+	
+	if( is_llc_frame() ){
+		eth_llc_hdr->dl_type = htobe16(dl_type);
+	}else{
+		eth_hdr->dl_type = htobe16(dl_type);
+	}
 }
 
 
 uint16_t
 fetherframe::get_dl_type() const
 {
-	return be16toh(eth_hdr->dl_type);
+	if( is_llc_frame() ){
+		return be16toh(eth_llc_hdr->dl_type);
+	}{
+		return be16toh(eth_hdr->dl_type);
+	}
 }
 
 
