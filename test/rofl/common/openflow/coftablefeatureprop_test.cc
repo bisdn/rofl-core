@@ -122,13 +122,13 @@ coftablefeaturepropTest::testPackUnpack()
 void
 coftablefeaturepropTest::testInstructionsClass()
 {
-	rofl::openflow::coftable_feature_prop_instructions prop;
+	rofl::openflow::coftable_feature_prop_instructions prop(rofl::openflow13::OFPTFPT_INSTRUCTIONS);
 
-	prop.push_back(rofl::cofinst(rofl::openflow12::OFP_VERSION, rofl::openflow12::OFPIT_APPLY_ACTIONS));
-	prop.push_back(rofl::cofinst(rofl::openflow12::OFP_VERSION, rofl::openflow12::OFPIT_CLEAR_ACTIONS));
-	prop.push_back(rofl::cofinst(rofl::openflow12::OFP_VERSION, rofl::openflow12::OFPIT_WRITE_ACTIONS));
-	prop.push_back(rofl::cofinst(rofl::openflow12::OFP_VERSION, rofl::openflow12::OFPIT_WRITE_METADATA));
-	prop.push_back(rofl::cofinst(rofl::openflow12::OFP_VERSION, rofl::openflow12::OFPIT_GOTO_TABLE));
+	prop.get_instruction_ids().push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPIT_APPLY_ACTIONS, sizeof(struct rofl::openflow::ofp_instruction)));
+	prop.get_instruction_ids().push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPIT_WRITE_ACTIONS, sizeof(struct rofl::openflow::ofp_instruction)));
+	prop.get_instruction_ids().push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPIT_CLEAR_ACTIONS, sizeof(struct rofl::openflow::ofp_instruction)));
+	prop.get_instruction_ids().push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPIT_WRITE_METADATA, sizeof(struct rofl::openflow::ofp_instruction)));
+	prop.get_instruction_ids().push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPIT_GOTO_TABLE, sizeof(struct rofl::openflow::ofp_instruction)));
 
 	rofl::cmemory mem(prop.length());
 
@@ -138,6 +138,39 @@ coftablefeaturepropTest::testInstructionsClass()
 
 	std::cerr << "prop:" << std::endl << prop;
 	std::cerr << "mem:" << std::endl << mem;
+
+	prop.clear();
+
+	std::cerr << "prop:" << std::endl << prop;
+	std::cerr << "mem:" << std::endl << mem;
+
+	rofl::cmemory mprop(16);
+	mprop[0] = 0x00; // OFPTFPT_INSTRUCTIONS_MISS
+	mprop[1] = rofl::openflow13::OFPTFPT_INSTRUCTIONS_MISS; // OFPTFPT_INSTRUCTIONS_MISS
+	mprop[2] = 0x00; // length: 12 bytes (+ 4 bytes padding yielding 16 bytes)
+	mprop[3] = 0x0c;
+	// instruction APPLY_ACTIONS
+	mprop[4] = 0x00;
+	mprop[5] = rofl::openflow13::OFPIT_APPLY_ACTIONS;
+	mprop[6] = 0x00;
+	mprop[7] = sizeof(struct rofl::openflow::ofp_instruction);
+	// instructions GOTO_TABLE
+	mprop[8] = 0x00;
+	mprop[9] = rofl::openflow13::OFPIT_GOTO_TABLE;
+	mprop[10] = 0x00;
+	mprop[11] = sizeof(struct rofl::openflow::ofp_instruction);
+
+	std::cerr << "mprop:" << std::endl << mprop;
+
+	prop.unpack(mprop.somem(), mprop.memlen());
+
+	std::cerr << "prop:" << std::endl << prop;
+	CPPUNIT_ASSERT(rofl::openflow13::OFPTFPT_INSTRUCTIONS_MISS == prop.get_type());
+	CPPUNIT_ASSERT(12 == prop.get_length());
+	CPPUNIT_ASSERT(rofl::openflow13::OFPIT_APPLY_ACTIONS == prop.get_instruction_ids()[0].first);
+	CPPUNIT_ASSERT(sizeof(struct rofl::openflow::ofp_instruction) == prop.get_instruction_ids()[0].second);
+	CPPUNIT_ASSERT(rofl::openflow13::OFPIT_GOTO_TABLE == prop.get_instruction_ids()[1].first);
+	CPPUNIT_ASSERT(sizeof(struct rofl::openflow::ofp_instruction) == prop.get_instruction_ids()[1].second);
 }
 
 

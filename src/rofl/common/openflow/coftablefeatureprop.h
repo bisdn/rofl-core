@@ -147,9 +147,10 @@ public:
 
 
 class coftable_feature_prop_instructions :
-		public coftable_feature_prop,
-		public std::vector<cofinst>
+		public coftable_feature_prop
 {
+	std::vector<std::pair<uint16_t, uint16_t> > 				instructions_ids;
+
 	union {
 		uint8_t													*ofhu_ofp_tfpi;
 		struct openflow13::ofp_table_feature_prop_instructions	*ofhu_ofp_tfpihdr;
@@ -191,6 +192,12 @@ public:
 	/**
 	 *
 	 */
+	void
+	clear();
+
+	/**
+	 *
+	 */
 	virtual size_t
 	length() const;
 
@@ -212,8 +219,8 @@ public:
 	/**
 	 *
 	 */
-	std::vector<cofinst>&
-	get_instruction_ids() { return *this; };
+	std::vector<std::pair<uint16_t, uint16_t> >&
+	get_instruction_ids() { return instructions_ids; };
 
 
 protected:
@@ -229,9 +236,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coftable_feature_prop_instructions const& tfp) {
 		os << dynamic_cast<coftable_feature_prop const&>( tfp );
-		os << indent(2) << "<coftable_feature_prop_instructions size:" << tfp.size() << " >" << std::endl;
-		for (std::vector<cofinst>::const_iterator it = tfp.begin(); it != tfp.end(); ++it) {
-			os << indent(4) << "<instruction-id type:" << (*it).get_type() << " len:" << (*it).get_length() << " >" << std::endl;
+		os << indent(2) << "<coftable_feature_prop_instructions size:" << tfp.instructions_ids.size() << " >" << std::endl;
+		for (std::vector<std::pair<uint16_t, uint16_t> >::const_iterator it = tfp.instructions_ids.begin(); it != tfp.instructions_ids.end(); ++it) {
+			os << indent(4) << "<instruction-id type:" << (*it).first << " len:" << (*it).second << " >" << std::endl;
 		}
 		return os;
 	};

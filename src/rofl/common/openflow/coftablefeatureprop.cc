@@ -182,10 +182,19 @@ coftable_feature_prop_instructions::operator= (
 	coftable_feature_prop::operator= (tfpi);
 	ofh_tfpi = somem();
 
-	std::vector<cofinst>::clear();
-	std::copy(tfpi.begin(), tfpi.end(), std::vector<cofinst>::begin());
+	instructions_ids.clear();
+	std::copy(tfpi.instructions_ids.begin(), tfpi.instructions_ids.end(), instructions_ids.begin());
 
 	return *this;
+}
+
+
+void
+coftable_feature_prop_instructions::clear()
+{
+	instructions_ids.clear();
+	resize(sizeof(struct rofl::openflow13::ofp_table_feature_prop_instructions));
+	set_length(sizeof(struct rofl::openflow13::ofp_table_feature_prop_instructions));
 }
 
 
@@ -194,7 +203,7 @@ coftable_feature_prop_instructions::length() const
 {
 	// TODO: support for experimental instructions
 	size_t total_length = sizeof(struct openflow13::ofp_table_feature_prop_header) +
-			std::vector<cofinst>::size() * sizeof(struct openflow::ofp_instruction);
+			instructions_ids.size() * sizeof(struct openflow::ofp_instruction);
 
 	size_t pad = (0x7 & total_length);
 	/* append padding if not a multiple of 8 */
@@ -222,12 +231,12 @@ coftable_feature_prop_instructions::pack(
 
 	// set length field (excluding padding)
 	set_length(sizeof(struct openflow13::ofp_table_feature_prop_header) +
-			std::vector<cofinst>::size() * sizeof(struct openflow::ofp_instruction)); // without padding
+			instructions_ids.size() * sizeof(struct openflow::ofp_instruction)); // without padding
 
 	// fill in instruction-ids (internal buffer)
-	for (unsigned int i = 0; i < std::vector<cofinst>::size(); i++) {
-		ofh_tfpihdr->instruction_ids[i].type = htobe16(std::vector<cofinst>::operator[](i).get_type());
-		ofh_tfpihdr->instruction_ids[i].len  = htobe16(std::vector<cofinst>::operator[](i).get_length());
+	for (unsigned int i = 0; i < instructions_ids.size(); i++) {
+		ofh_tfpihdr->instruction_ids[i].type = htobe16(instructions_ids[i].first);
+		ofh_tfpihdr->instruction_ids[i].len  = htobe16(instructions_ids[i].second);
 	}
 
 	// copy internal buffer into external [buf, buflen]
@@ -244,7 +253,7 @@ coftable_feature_prop_instructions::unpack(
 			throw eOFTableFeaturePropInval();
 		}
 
-		std::vector<cofinst>::clear();
+		instructions_ids.clear();
 
 		coftable_feature_prop::unpack(buf, buflen);
 
@@ -266,15 +275,15 @@ coftable_feature_prop_instructions::unpack(
 			throw eOFTableFeaturePropInval();
 		}
 
-		// #instruction-id entries
-		unsigned int n_instruction_ids =
-				(get_length() - sizeof(struct openflow13::ofp_table_feature_prop_header)) /
-															sizeof(struct openflow::ofp_instruction);
-
-		// TODO: experimental instruction-ids
-		for (unsigned int i = 0; i < n_instruction_ids; i++) {
-			std::vector<cofinst>::push_back(cofinst(get_version(),
-					(uint8_t*)&(ofh_tfpihdr->instruction_ids[i]), sizeof(struct openflow::ofp_instruction)));
+		buf += sizeof(struct rofl::openflow13::ofp_table_feature_prop_header);
+		while (buflen > sizeof(struct rofl::openflow::ofp_instruction)) {
+			// TODO: experimental instruction-ids
+			struct rofl::openflow::ofp_instruction *inst = (struct rofl::openflow::ofp_instruction*)buf;
+			if (be16toh(inst->len) < sizeof(struct rofl::openflow::ofp_instruction))
+				break;
+			instructions_ids.push_back(std::pair<uint16_t, uint16_t>(be16toh(inst->type), be16toh(inst->len)));
+			buf += be16toh(inst->len);
+			buflen -= be16toh(inst->len);
 		}
 	} catch (eInstructionInvalType& e) {
 		// padding
