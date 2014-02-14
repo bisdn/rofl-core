@@ -138,6 +138,8 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coftable_feature_prop const& tfp) {
 		os << indent(0) << "<coftable_feature_prop type:" << tfp.get_type() << " len:" << tfp.get_length() << " >" << std::endl;
+		indent i(2);
+		os << dynamic_cast<rofl::cmemory const&>( tfp );
 		return os;
 	};
 };

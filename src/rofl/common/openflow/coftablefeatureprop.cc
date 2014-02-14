@@ -11,9 +11,10 @@ using namespace rofl::openflow;
 
 
 coftable_feature_prop::coftable_feature_prop() :
+		rofl::cmemory(sizeof(struct openflow13::ofp_table_feature_prop_header)),
 		ofp_version(rofl::openflow::OFP_VERSION_UNKNOWN)
 {
-
+	ofp_tfp = somem();
 }
 
 
@@ -75,6 +76,8 @@ coftable_feature_prop::pack(
 	if (buflen < length()) {
 		throw eOFTableFeaturePropInval();
 	}
+
+	set_length(length());
 
 	cmemory::pack(buf, buflen);
 }
