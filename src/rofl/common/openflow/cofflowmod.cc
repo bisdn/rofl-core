@@ -12,6 +12,9 @@ cofflowmod::cofflowmod(uint8_t of_version, uint16_t __type) :
 		instructions(of_version)
 {
 	switch (of_version) {
+	case rofl::openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case openflow10::OFP_VERSION: {
 		flow_mod_area.resize(sizeof(struct openflow10::ofp_flow_mod));
 		of10m_flow_mod = (struct openflow10::ofp_flow_mod*)flow_mod_area.somem();
