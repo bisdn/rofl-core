@@ -180,8 +180,189 @@ coftablefeaturepropTest::testNextTablesClass()
 {
 	rofl::openflow::coftable_feature_prop_next_tables prop(rofl::openflow13::OFP_VERSION, rofl::openflow13::OFPTFPT_NEXT_TABLES);
 
+
+	for (unsigned int i = 0; i < 26; i++) {
+		prop.push_back(i);
+	}
+
+	std::cerr << "prop:" << std::endl << prop;
+
+	CPPUNIT_ASSERT(32 == prop.length());
+
+	rofl::cmemory mem(prop.length());
+
+	prop.pack(mem.somem(), mem.memlen());
+
+	for (unsigned int i = 0; i < 26; i++) {
+		CPPUNIT_ASSERT(mem[4+i] == i);
+	}
+	CPPUNIT_ASSERT(30 == prop.get_length());
+
+	std::cerr << "mem:" << std::endl << mem;
+
+	prop.clear();
+
+	std::cerr << "prop:" << std::endl << prop;
+
+	prop.unpack(mem.somem(), mem.memlen());
+
+	CPPUNIT_ASSERT(32 == prop.length());
+	for (unsigned int i = 0; i < 26; i++) {
+		CPPUNIT_ASSERT(mem[4+i] == i);
+	}
+	CPPUNIT_ASSERT(30 == prop.get_length());
+
+	std::cerr << "prop:" << std::endl << prop;
+
+
+
+	mem[3] = 0x00; // force length field to 0x00 => unpack must fail with exception
+
+	try {
+		prop.unpack(mem.somem(), mem.memlen());
+		// must not be reached due to exception
+		CPPUNIT_ASSERT(0 == 1);
+	} catch (rofl::openflow::eOFTableFeaturePropBase& e) {}
+
+	std::cerr << "prop:" << std::endl << prop;
+
+
+
+	mem[3] = 0x04; // force length field to 0x04 => unpack won't fail, but no table-ids will be extracted
+
+	prop.unpack(mem.somem(), mem.memlen());
+	CPPUNIT_ASSERT(prop.size() == 0); // no tables should be extracted
+	std::cerr << "prop:" << std::endl << prop;
 }
 
 
+
+void
+coftablefeaturepropTest::testActionsClass()
+{
+	rofl::openflow::coftable_feature_prop_actions prop(rofl::openflow13::OFP_VERSION, rofl::openflow13::OFPTFPT_APPLY_ACTIONS);
+
+	prop.push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPAT_GROUP, sizeof(struct rofl::openflow13::ofp_action_group)));
+	prop.push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPAT_OUTPUT, sizeof(struct rofl::openflow13::ofp_action_output)));
+	prop.push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPAT_SET_FIELD, sizeof(struct rofl::openflow13::ofp_action_set_field)));
+	prop.push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPAT_DEC_NW_TTL, sizeof(struct rofl::openflow13::ofp_action_header)));
+
+	std::cerr << "prop:" << std::endl << prop;
+
+	rofl::cmemory mem(prop.length());
+
+	prop.pack(mem.somem(), mem.memlen());
+
+	std::cerr << "mem:" << std::endl << mem;
+
+	CPPUNIT_ASSERT(24 == prop.length());
+	CPPUNIT_ASSERT(20 == prop.get_length());
+
+	prop.clear();
+
+	std::cerr << "prop:" << std::endl << prop;
+
+	prop.unpack(mem.somem(), mem.memlen());
+
+	std::cerr << "prop:" << std::endl << prop;
+
+
+
+	mem[3] = 0x00; // force length field to 0x00 => unpack must fail with exception
+
+	try {
+		prop.unpack(mem.somem(), mem.memlen());
+		// must not be reached due to exception
+		CPPUNIT_ASSERT(0 == 1);
+	} catch (rofl::openflow::eOFTableFeaturePropBase& e) {}
+
+	std::cerr << "prop:" << std::endl << prop;
+
+
+
+	mem[3] = 0x04; // force length field to 0x04 => unpack won't fail, but no table-ids will be extracted
+
+	prop.unpack(mem.somem(), mem.memlen());
+	CPPUNIT_ASSERT(prop.size() == 0); // no tables should be extracted
+	std::cerr << "prop:" << std::endl << prop;
+}
+
+
+
+void
+coftablefeaturepropTest::testOxmClass()
+{
+	rofl::openflow::coftable_feature_prop_oxm prop(rofl::openflow13::OFP_VERSION, rofl::openflow13::OFPTFPT_MATCH);
+
+	prop.get_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_ARP_OP);
+	prop.get_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_IPV4_DST);
+	prop.get_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_IPV6_ND_SLL);
+	prop.get_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_ETH_DST_MASK);
+	prop.get_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_VLAN_VID_MASK);
+	prop.get_oxm_ids().push_back(rofl::openflow::OXM_TLV_BASIC_MPLS_TC);
+
+	prop.get_oxm_ids_exp().push_back(((uint64_t)rofl::openflow::OFPXMC_EXPERIMENTER << 48) | 0x0000a3a4b1b2b3b4);
+	prop.get_oxm_ids_exp().push_back(((uint64_t)rofl::openflow::OFPXMC_EXPERIMENTER << 48) | 0x0000c3c4d1d2d3d4);
+
+	rofl::cmemory mem(prop.length());
+
+	prop.pack(mem.somem(), mem.memlen());
+
+	std::cerr << "prop:" << std::endl << prop;
+
+	std::cerr << "mem:" << std::endl << mem;
+
+	prop.clear();
+
+	std::cerr << "prop:" << std::endl << prop;
+
+	prop.unpack(mem.somem(), mem.memlen());
+
+	std::cerr << "prop:" << std::endl << prop;
+
+	CPPUNIT_ASSERT(6 == prop.get_oxm_ids().size());
+	CPPUNIT_ASSERT(2 == prop.get_oxm_ids_exp().size());
+
+	CPPUNIT_ASSERT((uint32_t)rofl::openflow::OXM_TLV_BASIC_ARP_OP 			== prop.get_oxm_ids()[0]);
+	CPPUNIT_ASSERT((uint32_t)rofl::openflow::OXM_TLV_BASIC_IPV4_DST 		== prop.get_oxm_ids()[1]);
+	CPPUNIT_ASSERT((uint32_t)rofl::openflow::OXM_TLV_BASIC_IPV6_ND_SLL 		== prop.get_oxm_ids()[2]);
+	CPPUNIT_ASSERT((uint32_t)rofl::openflow::OXM_TLV_BASIC_ETH_DST_MASK 	== prop.get_oxm_ids()[3]);
+	CPPUNIT_ASSERT((uint32_t)rofl::openflow::OXM_TLV_BASIC_VLAN_VID_MASK 	== prop.get_oxm_ids()[4]);
+	CPPUNIT_ASSERT((uint32_t)rofl::openflow::OXM_TLV_BASIC_MPLS_TC 			== prop.get_oxm_ids()[5]);
+	CPPUNIT_ASSERT((((uint64_t)rofl::openflow::OFPXMC_EXPERIMENTER << 48) | 0x0000a3a4b1b2b3b4) == prop.get_oxm_ids_exp()[0]);
+	CPPUNIT_ASSERT((((uint64_t)rofl::openflow::OFPXMC_EXPERIMENTER << 48) | 0x0000c3c4d1d2d3d4) == prop.get_oxm_ids_exp()[1]);
+
+	prop.clear();
+
+
+
+	mem[3] = 0x00; // force length to 0x00
+
+	try {
+		prop.unpack(mem.somem(), mem.memlen());
+		CPPUNIT_ASSERT(0 == 1);
+	} catch (rofl::openflow::eOFTableFeaturePropInval& e) {}
+
+	std::cerr << "prop:" << std::endl << prop;
+
+	CPPUNIT_ASSERT(0 == prop.get_oxm_ids().size());
+	CPPUNIT_ASSERT(0 == prop.get_oxm_ids_exp().size());
+
+
+
+
+	mem[3] = 0x04; // force length to 0x04
+
+	try {
+		prop.unpack(mem.somem(), mem.memlen());
+	} catch (rofl::openflow::eOFTableFeaturePropInval& e) {
+		CPPUNIT_ASSERT(0 == 1);
+	}
+
+	std::cerr << "prop:" << std::endl << prop;
+
+	CPPUNIT_ASSERT(0 == prop.get_oxm_ids().size());
+	CPPUNIT_ASSERT(0 == prop.get_oxm_ids_exp().size());
+}
 
 

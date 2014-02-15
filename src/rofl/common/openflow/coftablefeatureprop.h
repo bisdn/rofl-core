@@ -291,6 +291,12 @@ public:
 	/**
 	 *
 	 */
+	virtual void
+	clear();
+
+	/**
+	 *
+	 */
 	virtual size_t
 	length() const;
 
@@ -330,7 +336,7 @@ public:
 		os << dynamic_cast<coftable_feature_prop const&>( tfp );
 		os << indent(2) << "<coftable_feature_prop_next_tables size:" << tfp.size() << " >" << std::endl;
 		for (std::vector<uint8_t>::const_iterator it = tfp.begin(); it != tfp.end(); ++it) {
-			os << indent(4) << "<table-id type:" << (*it) << " >" << std::endl;
+			os << indent(4) << "<table-id type:" << (int)(*it) << " >" << std::endl;
 		}
 		return os;
 	};
@@ -340,7 +346,7 @@ public:
 
 class coftable_feature_prop_actions :
 		public coftable_feature_prop,
-		public std::vector<cofaction>
+		public std::vector<std::pair<uint16_t, uint16_t> >
 {
 	union {
 		uint8_t												*ofhu_ofp_tfpa;
@@ -383,6 +389,12 @@ public:
 	/**
 	 *
 	 */
+	virtual void
+	clear();
+
+	/**
+	 *
+	 */
 	virtual size_t
 	length() const;
 
@@ -404,7 +416,7 @@ public:
 	/**
 	 *
 	 */
-	std::vector<cofaction>&
+	std::vector<std::pair<uint16_t, uint16_t> >&
 	get_action_ids() { return *this; };
 
 
@@ -422,8 +434,9 @@ public:
 	operator<< (std::ostream& os, coftable_feature_prop_actions const& tfp) {
 		os << dynamic_cast<coftable_feature_prop const&>( tfp );
 		os << indent(2) << "<coftable_feature_prop_actions size:" << tfp.size() << " >" << std::endl;
-		for (std::vector<cofaction>::const_iterator it = tfp.begin(); it != tfp.end(); ++it) {
-			os << indent(4) << "<action-id type:" << (*it).get_type() << " len:" << (*it).get_length() << " >" << std::endl;
+		for (std::vector<std::pair<uint16_t, uint16_t> >::const_iterator
+				it = tfp.begin(); it != tfp.end(); ++it) {
+			os << indent(4) << "<action-id type:" << (*it).first << " len:" << (*it).second << " >" << std::endl;
 		}
 		return os;
 	};
@@ -478,6 +491,12 @@ public:
 	/**
 	 *
 	 */
+	virtual void
+	clear();
+
+	/**
+	 *
+	 */
 	virtual size_t
 	length() const;
 
@@ -524,8 +543,8 @@ public:
 	operator<< (std::ostream& os, coftable_feature_prop_oxm const& tfp) {
 		os << dynamic_cast<coftable_feature_prop const&>( tfp );
 		os << indent(2) << "<coftable_feature_prop_oxm "
-				<< "oxm-ids-size:" << tfp.oxm_ids.size()
-				<< "oxm-ids-exp-size:" << tfp.oxm_ids_exp.size() << " >" << std::endl;
+				<< "#oxm-ids:" << tfp.oxm_ids.size() << " "
+				<< "#oxm-ids-exp:" << tfp.oxm_ids_exp.size() << " >" << std::endl;
 		for (std::vector<uint32_t>::const_iterator it = tfp.oxm_ids.begin(); it != tfp.oxm_ids.end(); ++it) {
 			os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " >" << std::endl;
 		}

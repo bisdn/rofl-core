@@ -5,11 +5,7 @@ SUBDIRS = #test1 cmemory cpacket croflexp frames
 unittest_SOURCES= \
 	unittest.cc \
 	cmemorytest.cc \
-	cmemorytest.h \
-	cofhelloelemstest.cc \
-	cofhelloelemstest.h \
-	cofhelloelemversionbitmaptest.cc \
-	cofhelloelemversionbitmaptest.h 
+	cmemorytest.h
 
 #fipv6frametest.cc \
 #fipv6frametest.h \

@@ -14,6 +14,8 @@ class coftablefeaturepropTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST( testPackUnpack );
 	CPPUNIT_TEST( testInstructionsClass );
 	CPPUNIT_TEST( testNextTablesClass );
+	CPPUNIT_TEST( testActionsClass );
+	CPPUNIT_TEST( testOxmClass );
 	CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -30,5 +32,7 @@ public:
 	void testPackUnpack();
 	void testInstructionsClass();
 	void testNextTablesClass();
+	void testActionsClass();
+	void testOxmClass();
 };
 

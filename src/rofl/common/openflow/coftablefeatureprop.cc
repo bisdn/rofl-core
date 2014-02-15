@@ -354,6 +354,15 @@ coftable_feature_prop_next_tables::operator= (
 }
 
 
+void
+coftable_feature_prop_next_tables::clear()
+{
+	std::vector<uint8_t>::clear();
+	resize(sizeof(struct rofl::openflow13::ofp_table_feature_prop_next_tables));
+	set_length(sizeof(struct rofl::openflow13::ofp_table_feature_prop_next_tables));
+}
+
+
 size_t
 coftable_feature_prop_next_tables::length() const
 {
@@ -386,15 +395,16 @@ coftable_feature_prop_next_tables::pack(
 
 	// set length field (excluding padding)
 	set_length(sizeof(struct openflow13::ofp_table_feature_prop_next_tables) +
-				std::vector<uint8_t>::size() * sizeof(uint8_t)); // without padding
+				(*this).size() * sizeof(uint8_t)); // without padding
+
+	// copy internal buffer into external [buf, buflen]
+	memcpy(buf, somem(), sizeof(struct rofl::openflow13::ofp_table_feature_prop_next_tables));
+	buf += sizeof(struct rofl::openflow13::ofp_table_feature_prop_next_tables);
 
 	// fill in next-tables-ids (internal buffer)
 	for (unsigned int i = 0; i < std::vector<uint8_t>::size(); i++) {
-		ofh_tfpnxthdr->next_table_ids[i] = std::vector<uint8_t>::operator[](i);
+		buf[i] = std::vector<uint8_t>::operator[](i);
 	}
-
-	// copy internal buffer into external [buf, buflen]
-	coftable_feature_prop::pack(buf, buflen);
 }
 
 
@@ -494,10 +504,19 @@ coftable_feature_prop_actions::operator= (
 	coftable_feature_prop::operator= (tfpa);
 	ofh_tfpa = somem();
 
-	std::vector<cofaction>::clear();
-	std::copy(tfpa.begin(), tfpa.end(), std::vector<cofaction>::begin());
+	std::vector<std::pair<uint16_t, uint16_t> >::clear();
+	std::copy(tfpa.begin(), tfpa.end(), std::vector<std::pair<uint16_t, uint16_t> >::begin());
 
 	return *this;
+}
+
+
+void
+coftable_feature_prop_actions::clear()
+{
+	std::vector<std::pair<uint16_t, uint16_t> >::clear();
+	resize(sizeof(struct rofl::openflow13::ofp_table_feature_prop_actions));
+	set_length(sizeof(struct rofl::openflow13::ofp_table_feature_prop_actions));
 }
 
 
@@ -506,7 +525,7 @@ coftable_feature_prop_actions::length() const
 {
 	// TODO: support for experimental actions
 	size_t total_length = sizeof(struct openflow13::ofp_table_feature_prop_header) +
-			std::vector<cofaction>::size() * sizeof(struct openflow::ofp_action);
+			std::vector<std::pair<uint16_t, uint16_t> >::size() * sizeof(struct openflow::ofp_action);
 
 	size_t pad = (0x7 & total_length);
 	/* append padding if not a multiple of 8 */
@@ -533,17 +552,21 @@ coftable_feature_prop_actions::pack(
 	resize(buflen = length());
 
 	// set length field (excluding padding)
-	set_length(sizeof(struct openflow13::ofp_table_feature_prop_header) +
-			std::vector<cofaction>::size() * sizeof(struct openflow::ofp_action)); // without padding
+	set_length(sizeof(struct rofl::openflow13::ofp_table_feature_prop_header) +
+			std::vector<std::pair<uint16_t, uint16_t> >::size() * sizeof(struct openflow::ofp_action)); // without padding
+
+	memcpy(buf, somem(), sizeof(struct rofl::openflow13::ofp_table_feature_prop_header));
+
+	buf += sizeof(struct rofl::openflow13::ofp_table_feature_prop_header);
 
 	// fill in next-tables-ids (internal buffer)
-	for (unsigned int i = 0; i < std::vector<cofaction>::size(); i++) {
-		ofh_tfpahdr->action_ids[i].type = htobe16(std::vector<cofaction>::operator[](i).get_type());
-		ofh_tfpahdr->action_ids[i].len  = htobe16(std::vector<cofaction>::operator[](i).get_length());
+	for (std::vector<std::pair<uint16_t, uint16_t> >::iterator
+			it = (*this).begin(); it != (*this).end(); ++it) {
+		struct rofl::openflow::ofp_action *action = (struct rofl::openflow::ofp_action*)buf;
+		action->type = htobe16(it->first);
+		action->len  = htobe16(it->second);
+		buf += sizeof(struct rofl::openflow::ofp_action);
 	}
-
-	// copy internal buffer into external [buf, buflen]
-	coftable_feature_prop::pack(buf, buflen);
 }
 
 
@@ -556,7 +579,7 @@ coftable_feature_prop_actions::unpack(
 			throw eOFTableFeaturePropInval();
 		}
 
-		std::vector<cofaction>::clear();
+		clear();
 
 		coftable_feature_prop::unpack(buf, buflen);
 
@@ -580,14 +603,16 @@ coftable_feature_prop_actions::unpack(
 
 		// #action-id entries
 		unsigned int n_action_ids =
-				(get_length() - sizeof(struct openflow13::ofp_table_feature_prop_header)) /
-															sizeof(struct openflow::ofp_action);
+				(get_length() - sizeof(struct rofl::openflow13::ofp_table_feature_prop_header)) /
+															sizeof(struct rofl::openflow::ofp_action);
 
-		// TODO: experimental action-ids
+		buf += sizeof(struct rofl::openflow13::ofp_table_feature_prop_header);
+
 		for (unsigned int i = 0; i < n_action_ids; i++) {
-			std::vector<cofaction>::push_back(cofaction(get_version(),
-					(struct openflow::ofp_action_header*)&(ofh_tfpahdr->action_ids[i]),
-									sizeof(struct openflow::ofp_action)));
+			struct rofl::openflow::ofp_action* action = (struct rofl::openflow::ofp_action*)buf;
+			(*this).push_back(std::pair<uint16_t, uint16_t> (be16toh(action->type), be16toh(action->len)));
+			buf += sizeof(struct rofl::openflow::ofp_action);
+			// TODO: experimental action-ids
 		}
 	} catch (eBadActionBadType& e) {
 		// padding
@@ -658,11 +683,21 @@ coftable_feature_prop_oxm::operator= (
 }
 
 
+void
+coftable_feature_prop_oxm::clear()
+{
+	oxm_ids.clear();
+	oxm_ids_exp.clear();
+	resize(sizeof(struct rofl::openflow13::ofp_table_feature_prop_header));
+	set_length(sizeof(struct rofl::openflow13::ofp_table_feature_prop_header));
+}
+
+
 size_t
 coftable_feature_prop_oxm::length() const
 {
 	size_t total_length = sizeof(struct openflow13::ofp_table_feature_prop_oxm) +
-			oxm_ids.size() * sizeof(uint32_t) * oxm_ids_exp.size() * sizeof(uint64_t);
+			oxm_ids.size() * sizeof(uint32_t) + oxm_ids_exp.size() * sizeof(uint64_t);
 
 	size_t pad = (0x7 & total_length);
 	/* append padding if not a multiple of 8 */
@@ -689,23 +724,22 @@ coftable_feature_prop_oxm::pack(
 	resize(buflen = length());
 
 	// set length field (excluding padding)
-	set_length(sizeof(struct openflow13::ofp_table_feature_prop_oxm) +
-			oxm_ids.size() * sizeof(uint32_t) * oxm_ids_exp.size() * sizeof(uint64_t)); // without padding
+	set_length(sizeof(struct rofl::openflow13::ofp_table_feature_prop_oxm) +
+			oxm_ids.size() * sizeof(uint32_t) + oxm_ids_exp.size() * sizeof(uint64_t)); // without padding
+
+	memcpy(buf, somem(), sizeof(struct rofl::openflow13::ofp_table_feature_prop_oxm));
 
 	// fill in oxm-ids (internal buffer)
-	uint32_t *uint32 = (uint32_t*)((uint8_t*)(ofh_tfpoxmhdr->oxm_ids));
+	uint32_t *uint32 = (uint32_t*)((uint8_t*)(buf + sizeof(struct rofl::openflow13::ofp_table_feature_prop_oxm)));
 	for (unsigned int i = 0; i < oxm_ids.size(); i++) {
 		uint32[i] = htobe32(oxm_ids[i]);
 	}
 
 	// fill in experimental oxm-ids (internal buffer)
-	uint64_t *uint64 = (uint64_t*)((uint8_t*)(ofh_tfpoxmhdr->oxm_ids) + oxm_ids.size() * sizeof(uint32_t));
+	uint64_t *uint64 = (uint64_t*)((uint8_t*)(buf + sizeof(struct rofl::openflow13::ofp_table_feature_prop_oxm)) + oxm_ids.size() * sizeof(uint32_t));
 	for (unsigned int i = 0; i < oxm_ids_exp.size(); i++) {
 		uint64[i] = htobe64(oxm_ids_exp[i]);
 	}
-
-	// copy internal buffer into external [buf, buflen]
-	coftable_feature_prop::pack(buf, buflen);
 }
 
 
@@ -747,18 +781,21 @@ coftable_feature_prop_oxm::unpack(
 				(((struct openflow13::ofp_table_feature_prop_oxm*)buf)->oxm_ids);
 
 		switch (be16toh(oxm->oxm_class)) {
-		case OFPXMC_EXPERIMENTER: {
+		case rofl::openflow::OFPXMC_EXPERIMENTER: {
 			if (remaining < sizeof(uint64_t)) {
 				return;
 			}
 			oxm_ids_exp.push_back(be64toh(*(uint64_t*)(oxm)));
+			buf += sizeof(uint64_t);
 			remaining -= sizeof(uint64_t);
 		} break;
+		case rofl::openflow::OFPXMC_OPENFLOW_BASIC:
 		default: {
 			if (remaining < sizeof(uint32_t)) {
 				return;
 			}
 			oxm_ids.    push_back(be32toh(*(uint32_t*)(oxm)));
+			buf += sizeof(uint32_t);
 			remaining -= sizeof(uint32_t);
 		};
 		}
