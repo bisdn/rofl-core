@@ -5,6 +5,7 @@
 #ifndef OPENFLOW_ROFL_EXCEPTIONS_H
 #define OPENFLOW_ROFL_EXCEPTIONS_H 1
 
+#include <assert.h>
 
 #include "rofl/common/croflexception.h"
 
@@ -173,6 +174,7 @@ class eBadVersion					: public RoflException {
 public:
 	eBadVersion() {
 		std::cerr << "BAD-WOLF" << std::endl;
+		assert(0 == 1);
 	};
 };
 class eBadSyntax					: public RoflException {};
