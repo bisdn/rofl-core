@@ -85,6 +85,18 @@ public:
 
 public:
 
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const { return ofp_version; };
+
+	/**
+	 *
+	 */
+	void
+	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
+
 	/*
 	 * OFPTFPF_INSTRUCTIONS
 	 */
@@ -530,7 +542,7 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, coftable_feature_props const& tfps) {
-		os << indent(0) << "<coftable_feature_props >" << std::endl;
+		os << indent(0) << "<coftable_feature_props ofp-version:" << (int)tfps.get_version() << " >" << std::endl;
 		for (std::map<uint16_t, coftable_feature_prop*>::const_iterator
 				it = tfps.tfprops.begin(); it != tfps.tfprops.end(); ++it) {
 			indent i(2);

@@ -5,7 +5,12 @@
 
 #include "coftablefeatureprop_test.h"
 
+
 CPPUNIT_TEST_SUITE_REGISTRATION( coftablefeaturepropTest );
+
+#if defined DEBUG
+#undef DEBUG
+#endif
 
 void
 coftablefeaturepropTest::setUp()
@@ -39,20 +44,23 @@ coftablefeaturepropTest::testCopyConstructor()
 
 	rofl::openflow::coftable_feature_prop clone;
 
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
 	std::cerr << "clone:" << std::endl << clone;
+#endif
 
 	clone = prop;
 
 	rofl::cmemory mclone(clone.length());
 	clone.pack(mclone.somem(), mclone.memlen());
 
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
 	std::cerr << "clone:" << std::endl << clone;
 
-
 	std::cerr << "mprop:" << std::endl << mprop;
 	std::cerr << "mclone:" << std::endl << mclone;
+#endif
 
 
 
@@ -113,8 +121,10 @@ coftablefeaturepropTest::testPackUnpack()
 	CPPUNIT_ASSERT(0x888e == prop.get_type());
 	CPPUNIT_ASSERT(12 == prop.get_length());
 
+#ifdef DEBUG
 	std::cerr << "mem:" << std::endl << mem;
 	std::cerr << "prop:" << std::endl << prop;
+#endif
 }
 
 
@@ -124,11 +134,11 @@ coftablefeaturepropTest::testInstructionsClass()
 {
 	rofl::openflow::coftable_feature_prop_instructions prop(rofl::openflow13::OFP_VERSION, rofl::openflow13::OFPTFPT_INSTRUCTIONS);
 
-	prop.get_instruction_ids().push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPIT_APPLY_ACTIONS, sizeof(struct rofl::openflow::ofp_instruction)));
-	prop.get_instruction_ids().push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPIT_WRITE_ACTIONS, sizeof(struct rofl::openflow::ofp_instruction)));
-	prop.get_instruction_ids().push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPIT_CLEAR_ACTIONS, sizeof(struct rofl::openflow::ofp_instruction)));
-	prop.get_instruction_ids().push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPIT_WRITE_METADATA, sizeof(struct rofl::openflow::ofp_instruction)));
-	prop.get_instruction_ids().push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPIT_GOTO_TABLE, sizeof(struct rofl::openflow::ofp_instruction)));
+	prop.add_instruction(rofl::openflow13::OFPIT_APPLY_ACTIONS, sizeof(struct rofl::openflow::ofp_instruction));
+	prop.add_instruction(rofl::openflow13::OFPIT_WRITE_ACTIONS, sizeof(struct rofl::openflow::ofp_instruction));
+	prop.add_instruction(rofl::openflow13::OFPIT_CLEAR_ACTIONS, sizeof(struct rofl::openflow::ofp_instruction));
+	prop.add_instruction(rofl::openflow13::OFPIT_WRITE_METADATA, sizeof(struct rofl::openflow::ofp_instruction));
+	prop.add_instruction(rofl::openflow13::OFPIT_GOTO_TABLE, sizeof(struct rofl::openflow::ofp_instruction));
 
 	rofl::cmemory mem(prop.length());
 
@@ -136,13 +146,17 @@ coftablefeaturepropTest::testInstructionsClass()
 
 	prop.pack(mem.somem(), mem.memlen());
 
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
 	std::cerr << "mem:" << std::endl << mem;
+#endif
 
 	prop.clear();
 
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
 	std::cerr << "mem:" << std::endl << mem;
+#endif
 
 	rofl::cmemory mprop(16);
 	mprop[0] = 0x00; // OFPTFPT_INSTRUCTIONS_MISS
@@ -160,17 +174,21 @@ coftablefeaturepropTest::testInstructionsClass()
 	mprop[10] = 0x00;
 	mprop[11] = sizeof(struct rofl::openflow::ofp_instruction);
 
+#ifdef DEBUG
 	std::cerr << "mprop:" << std::endl << mprop;
+#endif
 
 	prop.unpack(mprop.somem(), mprop.memlen());
 
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
+#endif
 	CPPUNIT_ASSERT(rofl::openflow13::OFPTFPT_INSTRUCTIONS_MISS == prop.get_type());
 	CPPUNIT_ASSERT(12 == prop.get_length());
-	CPPUNIT_ASSERT(rofl::openflow13::OFPIT_APPLY_ACTIONS == prop.get_instruction_ids()[0].first);
-	CPPUNIT_ASSERT(sizeof(struct rofl::openflow::ofp_instruction) == prop.get_instruction_ids()[0].second);
-	CPPUNIT_ASSERT(rofl::openflow13::OFPIT_GOTO_TABLE == prop.get_instruction_ids()[1].first);
-	CPPUNIT_ASSERT(sizeof(struct rofl::openflow::ofp_instruction) == prop.get_instruction_ids()[1].second);
+	CPPUNIT_ASSERT(rofl::openflow13::OFPIT_APPLY_ACTIONS == prop.get_instruction_ids()[0].type);
+	CPPUNIT_ASSERT(sizeof(struct rofl::openflow::ofp_instruction) == prop.get_instruction_ids()[0].len);
+	CPPUNIT_ASSERT(rofl::openflow13::OFPIT_GOTO_TABLE == prop.get_instruction_ids()[1].type);
+	CPPUNIT_ASSERT(sizeof(struct rofl::openflow::ofp_instruction) == prop.get_instruction_ids()[1].len);
 }
 
 
@@ -185,8 +203,9 @@ coftablefeaturepropTest::testNextTablesClass()
 		prop.push_back(i);
 	}
 
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
-
+#endif
 	CPPUNIT_ASSERT(32 == prop.length());
 
 	rofl::cmemory mem(prop.length());
@@ -197,13 +216,13 @@ coftablefeaturepropTest::testNextTablesClass()
 		CPPUNIT_ASSERT(mem[4+i] == i);
 	}
 	CPPUNIT_ASSERT(30 == prop.get_length());
-
+#ifdef DEBUG
 	std::cerr << "mem:" << std::endl << mem;
-
+#endif
 	prop.clear();
-
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
-
+#endif
 	prop.unpack(mem.somem(), mem.memlen());
 
 	CPPUNIT_ASSERT(32 == prop.length());
@@ -211,9 +230,9 @@ coftablefeaturepropTest::testNextTablesClass()
 		CPPUNIT_ASSERT(mem[4+i] == i);
 	}
 	CPPUNIT_ASSERT(30 == prop.get_length());
-
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
-
+#endif
 
 
 	mem[3] = 0x00; // force length field to 0x00 => unpack must fail with exception
@@ -223,16 +242,18 @@ coftablefeaturepropTest::testNextTablesClass()
 		// must not be reached due to exception
 		CPPUNIT_ASSERT(0 == 1);
 	} catch (rofl::openflow::eOFTableFeaturePropBase& e) {}
-
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
-
+#endif
 
 
 	mem[3] = 0x04; // force length field to 0x04 => unpack won't fail, but no table-ids will be extracted
 
 	prop.unpack(mem.somem(), mem.memlen());
 	CPPUNIT_ASSERT(prop.size() == 0); // no tables should be extracted
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
+#endif
 }
 
 
@@ -246,26 +267,26 @@ coftablefeaturepropTest::testActionsClass()
 	prop.push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPAT_OUTPUT, sizeof(struct rofl::openflow13::ofp_action_output)));
 	prop.push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPAT_SET_FIELD, sizeof(struct rofl::openflow13::ofp_action_set_field)));
 	prop.push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPAT_DEC_NW_TTL, sizeof(struct rofl::openflow13::ofp_action_header)));
-
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
-
+#endif
 	rofl::cmemory mem(prop.length());
 
 	prop.pack(mem.somem(), mem.memlen());
-
+#ifdef DEBUG
 	std::cerr << "mem:" << std::endl << mem;
-
+#endif
 	CPPUNIT_ASSERT(24 == prop.length());
 	CPPUNIT_ASSERT(20 == prop.get_length());
 
 	prop.clear();
-
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
-
+#endif
 	prop.unpack(mem.somem(), mem.memlen());
-
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
-
+#endif
 
 
 	mem[3] = 0x00; // force length field to 0x00 => unpack must fail with exception
@@ -275,16 +296,18 @@ coftablefeaturepropTest::testActionsClass()
 		// must not be reached due to exception
 		CPPUNIT_ASSERT(0 == 1);
 	} catch (rofl::openflow::eOFTableFeaturePropBase& e) {}
-
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
-
+#endif
 
 
 	mem[3] = 0x04; // force length field to 0x04 => unpack won't fail, but no table-ids will be extracted
 
 	prop.unpack(mem.somem(), mem.memlen());
 	CPPUNIT_ASSERT(prop.size() == 0); // no tables should be extracted
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
+#endif
 }
 
 
@@ -307,19 +330,18 @@ coftablefeaturepropTest::testOxmClass()
 	rofl::cmemory mem(prop.length());
 
 	prop.pack(mem.somem(), mem.memlen());
-
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
-
 	std::cerr << "mem:" << std::endl << mem;
-
+#endif
 	prop.clear();
-
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
-
+#endif
 	prop.unpack(mem.somem(), mem.memlen());
-
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
-
+#endif
 	CPPUNIT_ASSERT(6 == prop.get_oxm_ids().size());
 	CPPUNIT_ASSERT(2 == prop.get_oxm_ids_exp().size());
 
@@ -342,9 +364,9 @@ coftablefeaturepropTest::testOxmClass()
 		prop.unpack(mem.somem(), mem.memlen());
 		CPPUNIT_ASSERT(0 == 1);
 	} catch (rofl::openflow::eOFTableFeaturePropInval& e) {}
-
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
-
+#endif
 	CPPUNIT_ASSERT(0 == prop.get_oxm_ids().size());
 	CPPUNIT_ASSERT(0 == prop.get_oxm_ids_exp().size());
 
@@ -358,9 +380,9 @@ coftablefeaturepropTest::testOxmClass()
 	} catch (rofl::openflow::eOFTableFeaturePropInval& e) {
 		CPPUNIT_ASSERT(0 == 1);
 	}
-
+#ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
-
+#endif
 	CPPUNIT_ASSERT(0 == prop.get_oxm_ids().size());
 	CPPUNIT_ASSERT(0 == prop.get_oxm_ids_exp().size());
 }

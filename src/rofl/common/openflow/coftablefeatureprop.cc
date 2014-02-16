@@ -183,7 +183,11 @@ coftable_feature_prop_instructions::operator= (
 	ofh_tfpi = somem();
 
 	instructions_ids.clear();
-	std::copy(tfpi.instructions_ids.begin(), tfpi.instructions_ids.end(), instructions_ids.begin());
+	for (std::vector<rofl::openflow::ofp_instruction>::const_iterator
+			it = tfpi.instructions_ids.begin(); it != tfpi.instructions_ids.end(); ++it) {
+		instructions_ids.push_back(*it);
+	}
+	//std::copy(tfpi.instructions_ids.begin(), tfpi.instructions_ids.end(), instructions_ids.begin());
 
 	return *this;
 }
@@ -233,14 +237,17 @@ coftable_feature_prop_instructions::pack(
 	set_length(sizeof(struct openflow13::ofp_table_feature_prop_header) +
 			instructions_ids.size() * sizeof(struct openflow::ofp_instruction)); // without padding
 
+	// copy internal buffer into external [buf, buflen]
+	memcpy(buf, somem(), sizeof(struct rofl::openflow13::ofp_table_feature_prop_instructions));
+	buf += sizeof(struct rofl::openflow13::ofp_table_feature_prop_instructions);
+
 	// fill in instruction-ids (internal buffer)
 	for (unsigned int i = 0; i < instructions_ids.size(); i++) {
-		ofh_tfpihdr->instruction_ids[i].type = htobe16(instructions_ids[i].first);
-		ofh_tfpihdr->instruction_ids[i].len  = htobe16(instructions_ids[i].second);
+		struct rofl::openflow::ofp_instruction* inst = (struct rofl::openflow::ofp_instruction*)buf;
+		inst->type = htobe16(instructions_ids[i].type);
+		inst->len  = htobe16(instructions_ids[i].len);
+		buf += sizeof(struct rofl::openflow::ofp_instruction);
 	}
-
-	// copy internal buffer into external [buf, buflen]
-	coftable_feature_prop::pack(buf, buflen);
 }
 
 
@@ -275,13 +282,18 @@ coftable_feature_prop_instructions::unpack(
 			throw eOFTableFeaturePropInval();
 		}
 
-		buf += sizeof(struct rofl::openflow13::ofp_table_feature_prop_header);
+		buf += sizeof(struct rofl::openflow13::ofp_table_feature_prop_instructions);
 		while (buflen > sizeof(struct rofl::openflow::ofp_instruction)) {
 			// TODO: experimental instruction-ids
 			struct rofl::openflow::ofp_instruction *inst = (struct rofl::openflow::ofp_instruction*)buf;
-			if (be16toh(inst->len) < sizeof(struct rofl::openflow::ofp_instruction))
+			struct rofl::openflow::ofp_instruction instruction;
+			instruction.type 	= be16toh(inst->type);
+			instruction.len 	= be16toh(inst->len);
+
+			if (instruction.len < sizeof(struct rofl::openflow::ofp_instruction))
 				break;
-			instructions_ids.push_back(std::pair<uint16_t, uint16_t>(be16toh(inst->type), be16toh(inst->len)));
+
+			instructions_ids.push_back(instruction);
 			buf += be16toh(inst->len);
 			buflen -= be16toh(inst->len);
 		}
@@ -296,6 +308,17 @@ coftable_feature_prop_instructions::resize(
 		size_t size)
 {
 	return (ofh_tfpi = coftable_feature_prop::resize(size));
+}
+
+
+void
+coftable_feature_prop_instructions::add_instruction(
+		uint16_t type, uint16_t len)
+{
+	struct rofl::openflow::ofp_instruction instruction;
+	instruction.type = type; 	// yes, host-byte-order
+	instruction.len  = len;		// yes, host-byte-order
+	instructions_ids.push_back(instruction);
 }
 
 
@@ -348,7 +371,11 @@ coftable_feature_prop_next_tables::operator= (
 	ofh_tfpnxt = somem();
 
 	std::vector<uint8_t>::clear();
-	std::copy(tfpnxt.begin(), tfpnxt.end(), std::vector<uint8_t>::begin());
+	for (std::vector<uint8_t>::const_iterator
+			it = tfpnxt.begin(); it != tfpnxt.end(); ++it) {
+		(*this).push_back(*it);
+	}
+	//std::copy(tfpnxt.begin(), tfpnxt.end(), std::vector<uint8_t>::begin());
 
 	return *this;
 }
@@ -454,6 +481,14 @@ coftable_feature_prop_next_tables::resize(
 		size_t size)
 {
 	return (ofh_tfpnxt = coftable_feature_prop::resize(size));
+}
+
+
+void
+coftable_feature_prop_next_tables::add_table_id(
+		uint8_t table_id)
+{
+	(*this).push_back(table_id);
 }
 
 
@@ -625,6 +660,14 @@ coftable_feature_prop_actions::resize(
 		size_t size)
 {
 	return (ofh_tfpa = coftable_feature_prop::resize(size));
+}
+
+
+void
+coftable_feature_prop_actions::add_action(
+		uint16_t type, uint16_t len)
+{
+	(*this).push_back(std::pair<uint16_t, uint16_t>(type, len));
 }
 
 
@@ -811,6 +854,20 @@ coftable_feature_prop_oxm::resize(
 }
 
 
+void
+coftable_feature_prop_oxm::add_oxm(
+		uint32_t oxm_id)
+{
+	oxm_ids.push_back(oxm_id);
+}
+
+
+void
+coftable_feature_prop_oxm::add_oxm_exp(
+		uint64_t oxm_exp_id)
+{
+	oxm_ids_exp.push_back(oxm_exp_id);
+}
 
 
 

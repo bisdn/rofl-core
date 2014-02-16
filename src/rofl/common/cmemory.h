@@ -370,13 +370,15 @@ public:
 		os << "datalen:" << (int)mem.data.second << " ";
 		os << ">" << std::endl;
 
+		unsigned int const width = 32;
+
 		if (mem.data.second > 0) {
 			for (unsigned int i=0; i < mem.data.second; i++) {
-				if (0 == (i % 64)) {
+				if (0 == (i % width)) {
 					os << indent(2)
 						<< std::setfill('0')
 						<< std::setw(4)
-						<< std::dec << (i/64) << ": " << std::hex
+						<< std::dec << (i/width) << ": " << std::hex
 						<< std::setw(0)
 						<< std::setfill(' ');
 				}
@@ -390,7 +392,7 @@ public:
 
 				if (0 == ((i+1) % 8))
 					os << "  ";
-				if (0 == ((i+1) % 64))
+				if (0 == ((i+1) % width))
 					os << std::endl;
 			}
 			os << std::endl;

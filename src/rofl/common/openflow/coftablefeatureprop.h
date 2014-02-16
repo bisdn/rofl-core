@@ -149,7 +149,7 @@ public:
 class coftable_feature_prop_instructions :
 		public coftable_feature_prop
 {
-	std::vector<std::pair<uint16_t, uint16_t> > 				instructions_ids;
+	std::vector<struct rofl::openflow::ofp_instruction> 		instructions_ids;
 
 	union {
 		uint8_t													*ofhu_ofp_tfpi;
@@ -219,8 +219,16 @@ public:
 	/**
 	 *
 	 */
-	std::vector<std::pair<uint16_t, uint16_t> >&
+	std::vector<struct rofl::openflow::ofp_instruction>&
 	get_instruction_ids() { return instructions_ids; };
+
+
+	/**
+	 *
+	 */
+	void
+	add_instruction(
+			uint16_t type, uint16_t len = sizeof(struct rofl::openflow::ofp_instruction));
 
 
 protected:
@@ -236,9 +244,48 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coftable_feature_prop_instructions const& tfp) {
 		os << dynamic_cast<coftable_feature_prop const&>( tfp );
-		os << indent(2) << "<coftable_feature_prop_instructions size:" << tfp.instructions_ids.size() << " >" << std::endl;
-		for (std::vector<std::pair<uint16_t, uint16_t> >::const_iterator it = tfp.instructions_ids.begin(); it != tfp.instructions_ids.end(); ++it) {
-			os << indent(4) << "<instruction-id type:" << (*it).first << " len:" << (*it).second << " >" << std::endl;
+		os << indent(2) << "<coftable_feature_prop_instructions size:" << tfp.instructions_ids.size() << " ";
+		switch (tfp.get_type()) {
+		case rofl::openflow13::OFPTFPT_INSTRUCTIONS: {
+			os << "INSTRUCTIONS";
+		} break;
+		case rofl::openflow13::OFPTFPT_INSTRUCTIONS_MISS: {
+			os << "INSTRUCTIONS-MISS";
+		} break;
+		default: {
+			os << "type:" << (int)tfp.get_type();
+		};
+		}
+		os << " >" << std::endl;
+
+		for (std::vector<struct rofl::openflow::ofp_instruction>::const_iterator
+				it = tfp.instructions_ids.begin(); it != tfp.instructions_ids.end(); ++it) {
+			switch ((*it).type) {
+			case rofl::openflow::OFPIT_GOTO_TABLE: {
+				os << indent(4) << "<instruction-id GOTO-TABLE >" << std::endl;
+			} break;
+			case rofl::openflow::OFPIT_WRITE_METADATA: {
+				os << indent(4) << "<instruction-id WRITE-METADATA >" << std::endl;
+			} break;
+			case rofl::openflow::OFPIT_WRITE_ACTIONS: {
+				os << indent(4) << "<instruction-id WRITE-ACTIONS >" << std::endl;
+			} break;
+			case rofl::openflow::OFPIT_APPLY_ACTIONS: {
+				os << indent(4) << "<instruction-id APPLY-ACTIONS >" << std::endl;
+			} break;
+			case rofl::openflow::OFPIT_CLEAR_ACTIONS: {
+				os << indent(4) << "<instruction-id CLEAR-ACTIONS >" << std::endl;
+			} break;
+			case rofl::openflow::OFPIT_METER: {
+				os << indent(4) << "<instruction-id METER >" << std::endl;
+			} break;
+			case rofl::openflow::OFPIT_EXPERIMENTER: {
+				os << indent(4) << "<instruction-id EXPERIMENTER >" << std::endl;
+			} break;
+			default: {
+				os << indent(4) << "<instruction-id type:" << (*it).type << " len:" << (*it).len << " >" << std::endl;
+			};
+			}
 		}
 		return os;
 	};
@@ -320,6 +367,12 @@ public:
 	std::vector<uint8_t>&
 	get_next_table_ids() { return *this; };
 
+	/**
+	 *
+	 */
+	void
+	add_table_id(
+			uint8_t table_id);
 
 protected:
 
@@ -334,9 +387,22 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coftable_feature_prop_next_tables const& tfp) {
 		os << dynamic_cast<coftable_feature_prop const&>( tfp );
-		os << indent(2) << "<coftable_feature_prop_next_tables size:" << tfp.size() << " >" << std::endl;
+		os << indent(2) << "<coftable_feature_prop_next_tables size:" << tfp.size() << " ";
+		switch (tfp.get_type()) {
+		case rofl::openflow13::OFPTFPT_NEXT_TABLES: {
+			os << "NEXT-TABLES";
+		} break;
+		case rofl::openflow13::OFPTFPT_NEXT_TABLES_MISS: {
+			os << "NEXT-TABLES-MISS";
+		} break;
+		default: {
+			os << "type:" << (int)tfp.get_type();
+		};
+		}
+		os << " >" << std::endl;
+
 		for (std::vector<uint8_t>::const_iterator it = tfp.begin(); it != tfp.end(); ++it) {
-			os << indent(4) << "<table-id type:" << (int)(*it) << " >" << std::endl;
+			os << indent(4) << "<table-id:" << (int)(*it) << " >" << std::endl;
 		}
 		return os;
 	};
@@ -420,6 +486,14 @@ public:
 	get_action_ids() { return *this; };
 
 
+	/**
+	 *
+	 */
+	void
+	add_action(
+			uint16_t type, uint16_t len = sizeof(struct rofl::openflow::ofp_action));
+
+
 protected:
 
 	/**
@@ -433,7 +507,26 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coftable_feature_prop_actions const& tfp) {
 		os << dynamic_cast<coftable_feature_prop const&>( tfp );
-		os << indent(2) << "<coftable_feature_prop_actions size:" << tfp.size() << " >" << std::endl;
+		os << indent(2) << "<coftable_feature_prop_actions size:" << tfp.size() << " ";
+		switch (tfp.get_type()) {
+		case rofl::openflow13::OFPTFPT_WRITE_ACTIONS: {
+			os << "WRITE-ACTIONS";
+		} break;
+		case rofl::openflow13::OFPTFPT_WRITE_ACTIONS_MISS: {
+			os << "WRITE-ACTIONS-MISS";
+		} break;
+		case rofl::openflow13::OFPTFPT_APPLY_ACTIONS: {
+			os << "APPLY-ACTIONS";
+		} break;
+		case rofl::openflow13::OFPTFPT_APPLY_ACTIONS_MISS: {
+			os << "APPLY-ACTIONS-MISS";
+		} break;
+		default: {
+			os << "type:" << (int)tfp.get_type();
+		};
+		}
+		os << " >" << std::endl;
+
 		for (std::vector<std::pair<uint16_t, uint16_t> >::const_iterator
 				it = tfp.begin(); it != tfp.end(); ++it) {
 			os << indent(4) << "<action-id type:" << (*it).first << " len:" << (*it).second << " >" << std::endl;
@@ -529,6 +622,23 @@ public:
 	get_oxm_ids_exp() { return oxm_ids_exp; };
 
 
+	/**
+	 *
+	 */
+	void
+	add_oxm(
+			uint32_t oxm_id);
+
+
+	/**
+	 *
+	 */
+	void
+	add_oxm_exp(
+			uint64_t oxm_exp_id);
+
+
+
 protected:
 
 	/**
@@ -544,7 +654,32 @@ public:
 		os << dynamic_cast<coftable_feature_prop const&>( tfp );
 		os << indent(2) << "<coftable_feature_prop_oxm "
 				<< "#oxm-ids:" << tfp.oxm_ids.size() << " "
-				<< "#oxm-ids-exp:" << tfp.oxm_ids_exp.size() << " >" << std::endl;
+				<< "#oxm-ids-exp:" << tfp.oxm_ids_exp.size() << " ";
+		switch (tfp.get_type()) {
+		case rofl::openflow13::OFPTFPT_MATCH: {
+			os << "MATCH";
+		} break;
+		case rofl::openflow13::OFPTFPT_WILDCARDS: {
+			os << "WILDCARDS";
+		} break;
+		case rofl::openflow13::OFPTFPT_WRITE_SETFIELD: {
+			os << "WRITE-SETFIELD";
+		} break;
+		case rofl::openflow13::OFPTFPT_WRITE_SETFIELD_MISS: {
+			os << "WRITE-SETFIELD-MISS";
+		} break;
+		case rofl::openflow13::OFPTFPT_APPLY_SETFIELD: {
+			os << "APPLY-SETFIELD";
+		} break;
+		case rofl::openflow13::OFPTFPT_APPLY_SETFIELD_MISS: {
+			os << "APPLY-SETFIELD-MISS";
+		} break;
+		default: {
+			os << "type:" << (int)tfp.get_type();
+		};
+		}
+		os << " >" << std::endl;
+
 		for (std::vector<uint32_t>::const_iterator it = tfp.oxm_ids.begin(); it != tfp.oxm_ids.end(); ++it) {
 			os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " >" << std::endl;
 		}
