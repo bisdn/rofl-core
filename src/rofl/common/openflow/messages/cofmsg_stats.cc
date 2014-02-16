@@ -52,6 +52,24 @@ cofmsg_stats::cofmsg_stats(
 	cofmsg(memarea)
 {
 	ofh_stats_request = soframe();
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+		body.assign(memarea->somem() + sizeof(struct rofl::openflow10::ofp_stats_request),
+					memarea->memlen() - sizeof(struct rofl::openflow10::ofp_stats_request));
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		body.assign(memarea->somem() + sizeof(struct rofl::openflow12::ofp_stats_request),
+					memarea->memlen() - sizeof(struct rofl::openflow12::ofp_stats_request));
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		body.assign(memarea->somem() + sizeof(struct rofl::openflow13::ofp_multipart_request),
+					memarea->memlen() - sizeof(struct rofl::openflow13::ofp_multipart_request));
+	} break;
+	default: {
+		throw eBadRequestBadVersion();
+	};
+	}
 }
 
 
