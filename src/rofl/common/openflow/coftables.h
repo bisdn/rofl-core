@@ -104,6 +104,18 @@ public:
 	/**
 	 *
 	 */
+	std::map<uint8_t, coftable_features> const&
+	get_tables() const { return tables; };
+
+	/**
+	 *
+	 */
+	std::map<uint8_t, coftable_features>&
+	set_tables() { return tables; };
+
+	/**
+	 *
+	 */
 	coftable_features&
 	add_table(uint8_t table_id);
 

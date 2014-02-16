@@ -103,12 +103,8 @@ coftables::unpack(
 		return;
 	}
 
-	if (buflen < length()) {
-		throw eOFTablesInval();
-	}
-
 	tables.clear();
-	while (true) {
+	while (buflen > 0) {
 		struct rofl::openflow13::ofp_table_features *table = (struct rofl::openflow13::ofp_table_features*)buf;
 
 		if ((be16toh(table->length) > buflen) || (be16toh(table->length) < sizeof(struct rofl::openflow13::ofp_table_features))) {
@@ -132,6 +128,8 @@ coftables::add_table(uint8_t table_id)
 	if (tables.find(table_id) != tables.end()) {
 		tables.erase(table_id);
 	}
+	tables[table_id] = coftable_features(get_version());
+	tables[table_id].set_table_id(table_id);
 	return tables[table_id];
 }
 
@@ -162,6 +160,10 @@ coftables::get_table(uint8_t table_id)
 coftable_features&
 coftables::set_table(uint8_t table_id)
 {
+	if (tables.find(table_id) == tables.end()) {
+		tables[table_id] = coftable_features(get_version());
+		tables[table_id].set_table_id(table_id);
+	}
 	return tables[table_id];
 }
 
