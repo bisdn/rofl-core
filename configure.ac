@@ -94,6 +94,7 @@ AC_CONFIG_FILES([
 	test/rofl/Makefile
 	test/rofl/common/Makefile
 	test/rofl/common/openflow/Makefile
+	test/rofl/common/openflow/messages/Makefile
 	])
 
 # Doxygen (here to be the last Makefile) 

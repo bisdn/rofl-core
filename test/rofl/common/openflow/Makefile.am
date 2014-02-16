@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SUBDIRS = 
+SUBDIRS = messages
 
 unittest_SOURCES= \
 	unittest.cc \
