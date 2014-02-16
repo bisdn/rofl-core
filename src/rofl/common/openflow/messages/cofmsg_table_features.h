@@ -11,7 +11,7 @@
 #include <map>
 
 #include "cofmsg_stats.h"
-#include "rofl/common/openflow/coftablefeatures.h"
+#include "rofl/common/openflow/coftables.h"
 
 namespace rofl {
 
@@ -23,7 +23,7 @@ class cofmsg_table_features :
 {
 protected:
 
-	std::map<uint8_t, rofl::openflow::coftable_features>	tables;
+	rofl::openflow::coftables		tables;
 
 	union {
 		uint8_t*											ofhu_generic;
@@ -40,7 +40,7 @@ public:
 	 *
 	 */
 	cofmsg_table_features(
-			uint8_t of_version = 0,
+			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t xid = 0,
 			uint16_t stats_flags = 0);
 
@@ -118,50 +118,23 @@ public:
 	/**
 	 *
 	 */
-	std::map<uint8_t, rofl::openflow::coftable_features> const&
-	get_table_features() const { return tables; };
+	rofl::openflow::coftables const&
+	get_tables() const { return tables; };
 
 	/**
 	 *
 	 */
-	std::map<uint8_t, rofl::openflow::coftable_features>&
-	set_table_features() { return tables; };
+	rofl::openflow::coftables&
+	set_tables() { return tables; };
 
-	/**
-	 *
-	 */
-	rofl::openflow::coftable_features&
-	add_table(uint8_t table_id, rofl::openflow::coftable_features const& table_features);
-
-	/**
-	 *
-	 */
-	void
-	drop_table(uint8_t table_id);
-
-	/**
-	 *
-	 */
-	rofl::openflow::coftable_features&
-	get_table(uint8_t table_id);
-
-	/**
-	 *
-	 */
-	rofl::openflow::coftable_features&
-	set_table(uint8_t table_id);
-
-	/**
-	 *
-	 */
-	bool
-	has_table(uint8_t table_id);
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_table_features const& msg) {
 		os << indent(0) << "<cofmsg_table_features >" << std::endl;
+		indent i(2);
+		os << msg.tables;
 		return os;
 	};
 };
@@ -181,7 +154,7 @@ public:
 	 *
 	 */
 	cofmsg_table_features_request(
-			uint8_t of_version = 0,
+			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t xid = 0,
 			uint16_t flags = 0) :
 				cofmsg_table_features(of_version, xid, flags)
@@ -244,11 +217,9 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_table_features_request const& msg) {
-		os << dynamic_cast<cofmsg const&>( msg );
-		indent i(2);
 		os << dynamic_cast<cofmsg_stats const&>( msg );
-		os << indent(2) << "<cofmsg_table_features_request >" << std::endl;
-		indent j(2);
+		os << indent(4) << "<cofmsg_table_features_request >" << std::endl;
+		indent j(6);
 		os << dynamic_cast<cofmsg_table_features const&>( msg );
 		return os;
 	};
@@ -270,9 +241,10 @@ public:
 	 *
 	 */
 	cofmsg_table_features_reply(
-			uint8_t of_version = 0,
+			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t xid = 0,
-			uint16_t flags = 0)
+			uint16_t flags = 0) :
+				cofmsg_table_features(of_version, xid, flags)
 	{
 		switch (of_version) {
 		case rofl::openflow::OFP_VERSION_UNKNOWN: {
@@ -332,11 +304,9 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofmsg_table_features_reply const& msg) {
-		os << dynamic_cast<cofmsg const&>( msg );
-		indent i(2);
 		os << dynamic_cast<cofmsg_stats const&>( msg );
-		os << indent(2) << "<cofmsg_table_features_reply >" << std::endl;
-		indent j(2);
+		os << indent(4) << "<cofmsg_table_features_reply >" << std::endl;
+		indent j(6);
 		os << dynamic_cast<cofmsg_table_features const&>( msg );
 		return os;
 	};

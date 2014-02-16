@@ -22,6 +22,9 @@ cofmsg_stats::cofmsg_stats(
 	set_xid(xid);
 
 	switch (of_version) {
+	case openflow::OFP_VERSION_UNKNOWN: {
+
+	} break;
 	case openflow10::OFP_VERSION: {
 		resize(sizeof(struct openflow10::ofp_stats_request) + body.memlen());
 		ofh12_stats_request->type			= htobe16(stats_type);
@@ -165,6 +168,26 @@ void
 cofmsg_stats::unpack(uint8_t *buf, size_t buflen)
 {
 	cofmsg::unpack(buf, buflen);
+
+	ofh_stats_request = soframe();
+
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+		body.assign(buf + sizeof(struct rofl::openflow10::ofp_stats_request),
+					buflen - sizeof(struct rofl::openflow10::ofp_stats_request));
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		body.assign(buf + sizeof(struct rofl::openflow12::ofp_stats_request),
+					buflen - sizeof(struct rofl::openflow12::ofp_stats_request));
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		body.assign(buf + sizeof(struct rofl::openflow13::ofp_multipart_request),
+					buflen - sizeof(struct rofl::openflow13::ofp_multipart_request));
+	} break;
+	default: {
+		throw eBadRequestBadVersion();
+	};
+	}
 
 	validate();
 }

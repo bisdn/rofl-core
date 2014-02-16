@@ -166,6 +166,10 @@ public:
 			if (msg.get_stats_flags() & openflow12::OFPSF_REPLY_MORE)
 				s_flags.append("MORE ");
 		} break;
+		case openflow13::OFP_VERSION: {
+			if (msg.get_stats_flags() & openflow13::OFPMPF_REPLY_MORE)
+				s_flags.append("MORE ");
+		} break;
 		default: {
 			s_flags.append("unsupported OF version");
 		} break;

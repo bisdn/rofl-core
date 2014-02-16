@@ -6,86 +6,95 @@
 #include "cofmsgtablefeatures_test.h"
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( coftablefeaturesTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( cofmsgtablefeaturesTest );
 
 #if defined DEBUG
 //#undef DEBUG
 #endif
 
 void
-coftablefeaturesTest::setUp()
+cofmsgtablefeaturesTest::setUp()
 {
 }
 
 
 
 void
-coftablefeaturesTest::tearDown()
+cofmsgtablefeaturesTest::tearDown()
 {
 }
 
 
 
 void
-coftablefeaturesTest::testDefaultConstructor()
+cofmsgtablefeaturesTest::testDefaultConstructor()
 {
-	rofl::openflow::coftable_features table;
-	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == table.get_version());
+	rofl::cofmsg_table_features_request request;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == request.get_version());
+	rofl::cofmsg_table_features_reply reply;
+	CPPUNIT_ASSERT(rofl::openflow::OFP_VERSION_UNKNOWN == reply.get_version());
 }
 
 
 
 void
-coftablefeaturesTest::testCopyConstructor()
+cofmsgtablefeaturesTest::testCopyConstructor()
 {
-	rofl::openflow::coftable_features table(rofl::openflow13::OFP_VERSION);
-	table.set_config(0xc1c2c3c4);
-	table.set_max_entries(0xa1a2a3a4);
-	table.set_metadata_match(0xe1e2e3e4e5e6e7e8);
-	table.set_metadata_write(0xf1f2f3f4f5f6f7f8);
-	table.set_name("table0");
-	table.set_table_id(0x0a);
-	table.set_properties().set_tfp_apply_actions().add_action(rofl::openflow13::OFPAT_SET_FIELD);
+	{
+		rofl::cofmsg_table_features_request msg(rofl::openflow13::OFP_VERSION);
+		msg.set_xid(0x01020304);
+		msg.set_tables().add_table(1).set_properties().add_tfp_apply_actions().add_action(rofl::openflow13::OFPAT_SET_QUEUE);
 
-	rofl::cmemory mtable(table.length());
-	table.pack(mtable.somem(), mtable.memlen());
+		rofl::cmemory mmsg(msg.length());
+		msg.pack(mmsg.somem(), mmsg.memlen());
 
 #ifdef DEBUG
-	std::cerr << "table:" << std::endl << table;
-	std::cerr << "mtable:" << std::endl << mtable;
+	std::cerr << "msg:" << std::endl << msg;
+	std::cerr << "mmsg:" << std::endl << mmsg;
 #endif
 
-	rofl::openflow::coftable_features clone(rofl::openflow13::OFP_VERSION);
+		rofl::cofmsg_table_features_request clone(rofl::openflow13::OFP_VERSION);
 #ifdef DEBUG
 	std::cerr << "clone:" << std::endl << clone;
 #endif
 
-	clone.unpack(mtable.somem(), mtable.memlen());
+		clone.unpack(mmsg.somem(), mmsg.memlen());
 
 #ifdef DEBUG
 	std::cerr << "clone:" << std::endl << clone;
 #endif
-}
+	}
 
+	std::cerr << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" << std::endl;
 
+	{
+		rofl::cofmsg_table_features_reply msg(rofl::openflow13::OFP_VERSION);
+		msg.set_xid(0x01020304);
+		msg.set_tables().add_table(1).set_properties().add_tfp_apply_actions().add_action(rofl::openflow13::OFPAT_SET_QUEUE);
 
-void
-coftablefeaturesTest::testPackUnpack()
-{
-	rofl::openflow::coftable_features table(rofl::openflow13::OFP_VERSION);
-
-	rofl::cmemory mem(sizeof(struct rofl::openflow13::ofp_table_features));
-	mem[1] = 0x50;
-
-	try {
-		table.unpack(mem.somem(), mem.memlen());
-		CPPUNIT_ASSERT(false);
-	} catch (rofl::eTableFeaturesReqBadLen& e) {}
+		rofl::cmemory mmsg(msg.length());
+		msg.pack(mmsg.somem(), mmsg.memlen());
 
 #ifdef DEBUG
-	std::cerr << "table:" << std::endl << table;
+	std::cerr << "msg:" << std::endl << msg;
+	std::cerr << "mmsg:" << std::endl << mmsg;
 #endif
+
+		rofl::cofmsg_table_features_reply clone(rofl::openflow13::OFP_VERSION);
+#ifdef DEBUG
+	std::cerr << "clone:" << std::endl << clone;
+#endif
+
+
+		clone.unpack(mmsg.somem(), mmsg.memlen());
+
+#ifdef DEBUG
+	std::cerr << "clone:" << std::endl << clone;
+#endif
+	}
 }
+
+
 
 
 

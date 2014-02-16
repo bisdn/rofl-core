@@ -243,6 +243,8 @@ cofmsg::unpack(uint8_t *buf, size_t buflen)
 	}
 	memarea->assign(buf, buflen);
 
+	ofh_ofhu.ofhu_generic = soframe();
+
 	validate();
 }
 
