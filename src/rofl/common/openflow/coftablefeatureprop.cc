@@ -539,8 +539,12 @@ coftable_feature_prop_actions::operator= (
 	coftable_feature_prop::operator= (tfpa);
 	ofh_tfpa = somem();
 
-	std::vector<std::pair<uint16_t, uint16_t> >::clear();
-	std::copy(tfpa.begin(), tfpa.end(), std::vector<std::pair<uint16_t, uint16_t> >::begin());
+	actions.clear();
+	for (std::vector<struct rofl::openflow::ofp_action>::const_iterator
+			it = tfpa.actions.begin(); it != tfpa.actions.end(); ++it) {
+		actions.push_back(*it);
+	}
+	//std::copy(tfpa.begin(), tfpa.end(), std::vector<std::pair<uint16_t, uint16_t> >::begin());
 
 	return *this;
 }
@@ -549,7 +553,7 @@ coftable_feature_prop_actions::operator= (
 void
 coftable_feature_prop_actions::clear()
 {
-	std::vector<std::pair<uint16_t, uint16_t> >::clear();
+	actions.clear();
 	resize(sizeof(struct rofl::openflow13::ofp_table_feature_prop_actions));
 	set_length(sizeof(struct rofl::openflow13::ofp_table_feature_prop_actions));
 }
@@ -560,7 +564,7 @@ coftable_feature_prop_actions::length() const
 {
 	// TODO: support for experimental actions
 	size_t total_length = sizeof(struct openflow13::ofp_table_feature_prop_header) +
-			std::vector<std::pair<uint16_t, uint16_t> >::size() * sizeof(struct openflow::ofp_action);
+			actions.size() * sizeof(struct openflow::ofp_action);
 
 	size_t pad = (0x7 & total_length);
 	/* append padding if not a multiple of 8 */
@@ -588,18 +592,18 @@ coftable_feature_prop_actions::pack(
 
 	// set length field (excluding padding)
 	set_length(sizeof(struct rofl::openflow13::ofp_table_feature_prop_header) +
-			std::vector<std::pair<uint16_t, uint16_t> >::size() * sizeof(struct openflow::ofp_action)); // without padding
+			actions.size() * sizeof(struct openflow::ofp_action)); // without padding
 
 	memcpy(buf, somem(), sizeof(struct rofl::openflow13::ofp_table_feature_prop_header));
 
 	buf += sizeof(struct rofl::openflow13::ofp_table_feature_prop_header);
 
 	// fill in next-tables-ids (internal buffer)
-	for (std::vector<std::pair<uint16_t, uint16_t> >::iterator
-			it = (*this).begin(); it != (*this).end(); ++it) {
+	for (std::vector<struct rofl::openflow::ofp_action>::iterator
+			it = actions.begin(); it != actions.end(); ++it) {
 		struct rofl::openflow::ofp_action *action = (struct rofl::openflow::ofp_action*)buf;
-		action->type = htobe16(it->first);
-		action->len  = htobe16(it->second);
+		action->type = htobe16(it->type);
+		action->len  = htobe16(it->len);
 		buf += sizeof(struct rofl::openflow::ofp_action);
 	}
 }
@@ -644,8 +648,11 @@ coftable_feature_prop_actions::unpack(
 		buf += sizeof(struct rofl::openflow13::ofp_table_feature_prop_header);
 
 		for (unsigned int i = 0; i < n_action_ids; i++) {
-			struct rofl::openflow::ofp_action* action = (struct rofl::openflow::ofp_action*)buf;
-			(*this).push_back(std::pair<uint16_t, uint16_t> (be16toh(action->type), be16toh(action->len)));
+			struct rofl::openflow::ofp_action* act = (struct rofl::openflow::ofp_action*)buf;
+			struct rofl::openflow::ofp_action action;
+			action.type = be16toh(act->type);
+			action.len  = be16toh(act->len);
+			actions.push_back(action);
 			buf += sizeof(struct rofl::openflow::ofp_action);
 			// TODO: experimental action-ids
 		}
@@ -667,7 +674,10 @@ void
 coftable_feature_prop_actions::add_action(
 		uint16_t type, uint16_t len)
 {
-	(*this).push_back(std::pair<uint16_t, uint16_t>(type, len));
+	struct rofl::openflow::ofp_action action;
+	action.type = type;
+	action.len  = len;
+	actions.push_back(action);
 }
 
 
@@ -718,9 +728,17 @@ coftable_feature_prop_oxm::operator= (
 	ofh_tfpoxm = somem();
 
 	oxm_ids.clear();
-	std::copy(tfpoxm.oxm_ids.begin(), tfpoxm.oxm_ids.end(), oxm_ids.begin());
+	for (std::vector<uint32_t>::const_iterator
+			it = tfpoxm.oxm_ids.begin(); it != tfpoxm.oxm_ids.end(); ++it) {
+		oxm_ids.push_back(*it);
+	}
+	//std::copy(tfpoxm.oxm_ids.begin(), tfpoxm.oxm_ids.end(), oxm_ids.begin());
 	oxm_ids_exp.clear();
-	std::copy(tfpoxm.oxm_ids_exp.begin(), tfpoxm.oxm_ids_exp.end(), oxm_ids_exp.begin());
+	for (std::vector<uint64_t>::const_iterator
+			it = tfpoxm.oxm_ids_exp.begin(); it != tfpoxm.oxm_ids_exp.end(); ++it) {
+		oxm_ids_exp.push_back(*it);
+	}
+	//std::copy(tfpoxm.oxm_ids_exp.begin(), tfpoxm.oxm_ids_exp.end(), oxm_ids_exp.begin());
 
 	return *this;
 }

@@ -411,8 +411,7 @@ public:
 
 
 class coftable_feature_prop_actions :
-		public coftable_feature_prop,
-		public std::vector<std::pair<uint16_t, uint16_t> >
+		public coftable_feature_prop
 {
 	union {
 		uint8_t												*ofhu_ofp_tfpa;
@@ -421,6 +420,8 @@ class coftable_feature_prop_actions :
 
 #define ofh_tfpa	ofh_ofhu.ofhu_ofp_tfpa
 #define ofh_tfpahdr	ofh_ofhu.ofhu_ofp_tfpahdr
+
+	std::vector<struct rofl::openflow::ofp_action> 			actions;
 
 public:
 
@@ -482,8 +483,8 @@ public:
 	/**
 	 *
 	 */
-	std::vector<std::pair<uint16_t, uint16_t> >&
-	get_action_ids() { return *this; };
+	std::vector<struct rofl::openflow::ofp_action>&
+	get_action_ids() { return actions; };
 
 
 	/**
@@ -507,7 +508,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, coftable_feature_prop_actions const& tfp) {
 		os << dynamic_cast<coftable_feature_prop const&>( tfp );
-		os << indent(2) << "<coftable_feature_prop_actions size:" << tfp.size() << " ";
+		os << indent(2) << "<coftable_feature_prop_actions size:" << tfp.actions.size() << " ";
 		switch (tfp.get_type()) {
 		case rofl::openflow13::OFPTFPT_WRITE_ACTIONS: {
 			os << "WRITE-ACTIONS";
@@ -527,9 +528,65 @@ public:
 		}
 		os << " >" << std::endl;
 
-		for (std::vector<std::pair<uint16_t, uint16_t> >::const_iterator
-				it = tfp.begin(); it != tfp.end(); ++it) {
-			os << indent(4) << "<action-id type:" << (*it).first << " len:" << (*it).second << " >" << std::endl;
+		for (std::vector<struct rofl::openflow::ofp_action>::const_iterator
+				it = tfp.actions.begin(); it != tfp.actions.end(); ++it) {
+
+			switch ((*it).type) {
+			case rofl::openflow::OFPAT_OUTPUT: {
+				os << indent(4) << "<action-id ACTION-OUTPUT len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_COPY_TTL_OUT: {
+				os << indent(4) << "<action-id ACTION-COPY-TTL-OUT len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_COPY_TTL_IN: {
+				os << indent(4) << "<action-id ACTION-COPY-TTL-IN len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_SET_MPLS_TTL: {
+				os << indent(4) << "<action-id ACTION-SET-MPLS-TTL len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_DEC_MPLS_TTL: {
+				os << indent(4) << "<action-id ACTION-DEC-MPLS-TTL len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_PUSH_VLAN: {
+				os << indent(4) << "<action-id ACTION-PUSH-VLAN len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_POP_VLAN: {
+				os << indent(4) << "<action-id ACTION-POP-VLAN len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_PUSH_MPLS: {
+				os << indent(4) << "<action-id ACTION-PUSH-MPLS len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_POP_MPLS: {
+				os << indent(4) << "<action-id ACTION-POP-MPLS len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_SET_QUEUE: {
+				os << indent(4) << "<action-id ACTION-SET-QUEUE len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_GROUP: {
+				os << indent(4) << "<action-id ACTION-GROUP len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_SET_NW_TTL: {
+				os << indent(4) << "<action-id ACTION-SET-NW-TTL len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_DEC_NW_TTL: {
+				os << indent(4) << "<action-id ACTION-DEC-NW-TTL len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_SET_FIELD: {
+				os << indent(4) << "<action-id ACTION-SET-FIELD len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_PUSH_PBB: {
+				os << indent(4) << "<action-id ACTION-PUSH-PBB len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_POP_PBB: {
+				os << indent(4) << "<action-id ACTION-POP-PBB len:" << (*it).len << " >" << std::endl;
+			} break;
+			case rofl::openflow::OFPAT_EXPERIMENTER: {
+				os << indent(4) << "<action-id ACTION-EXPERIMENTER len:" << (*it).len << " >" << std::endl;
+			} break;
+			default: {
+				os << indent(4) << "<action-id type:" << (*it).type << " len:" << (*it).len << " >" << std::endl;
+			};
+			}
 		}
 		return os;
 	};
@@ -681,7 +738,174 @@ public:
 		os << " >" << std::endl;
 
 		for (std::vector<uint32_t>::const_iterator it = tfp.oxm_ids.begin(); it != tfp.oxm_ids.end(); ++it) {
-			os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " >" << std::endl;
+
+			switch (*it) {
+			case rofl::openflow::OXM_TLV_BASIC_IN_PORT: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IN-PORT >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IN_PHY_PORT: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IN-PHY-PORT >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_METADATA: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-METADATA >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_METADATA_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-METADATA-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ETH_DST: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ETH-DST >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ETH_DST_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ETH-DST-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ETH_SRC: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ETH-SRC >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ETH_SRC_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ETH-SRC-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ETH_TYPE: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ETH-TYPE >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_VLAN_VID: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-VLAN-VID >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_VLAN_VID_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-VLAN-VID-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_VLAN_PCP: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-VLAN-PCP >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IP_DSCP: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IP-DSCP >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IP_ECN: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IP-ECN >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IP_PROTO: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IP-PROTO >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IPV4_SRC: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IPV4-SRC >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IPV4_SRC_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IPV4-SRC-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IPV4_DST: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IPV4-DST >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IPV4_DST_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IPV4-DST-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_TCP_SRC: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-TCP-SRC >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_TCP_DST: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-TCP-DST >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_UDP_SRC: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-UDP-SRC >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_UDP_DST: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-UDP-DST >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_SCTP_SRC: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-SCTP-SRC >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_SCTP_DST: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-SCTP-DST >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ICMPV4_TYPE: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ICMPV4-TYPE >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ICMPV4_CODE: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ICMPV4-CODE >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ARP_OP: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ARP-OP >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ARP_SPA: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ARP-SPA >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ARP_SPA_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ARP-SPA-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ARP_TPA: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ARP-TPA >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ARP_TPA_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ARP-TPA-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ARP_SHA: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ARP-SHA >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ARP_SHA_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ARP-SHA-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ARP_THA: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ARP-THA >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ARP_THA_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ARP-THA-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IPV6_SRC: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IPV6-SRC >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IPV6_SRC_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IPV6-SRC-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IPV6_DST: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IPV6-DST >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IPV6_DST_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IPV6-DST-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IPV6_FLABEL: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IPV6-FLABEL >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ICMPV6_TYPE: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ICMPV6-TYPE >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_ICMPV6_CODE: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-ICMPV6-CODE >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IPV6_ND_TARGET: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IPV6-ND-TARGET >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IPV6_ND_SLL: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IPV6-ND-SLL >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IPV6_ND_TLL: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IPV6-ND-TLL >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_MPLS_LABEL: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-MPLS-LABEL >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_MPLS_TC: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-MPLS-TC >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_MPLS_BOS: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-MPLS-BOS >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_PBB_ISID: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-PBB-ISID >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_PBB_ISID_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-PBB-ISID-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_TUNNEL_ID: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-TUNNEL-ID >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_TUNNEL_ID_MASK: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-TUNNEL-ID-MASK >" << std::endl;
+			} break;
+			case rofl::openflow::OXM_TLV_BASIC_IPV6_EXTHDR: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " BASIC-IPV6-EXTHDR >" << std::endl;
+			} break;
+			default: {
+				os << indent(4) << "<oxm-id 0x" << std::hex << (*it) << std::dec << " >" << std::endl;
+			};
+			}
 		}
 		for (std::vector<uint64_t>::const_iterator it = tfp.oxm_ids_exp.begin(); it != tfp.oxm_ids_exp.end(); ++it) {
 			os << indent(4) << "<oxm-id-exp 0x" << std::hex << (*it) << std::dec << " >" << std::endl;

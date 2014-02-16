@@ -145,7 +145,7 @@ coftable_feature_props::unpack(uint8_t *buf, size_t buflen)
 
 	coftable_feature_props::clear();
 
-	while (true) {
+	while (buflen > 0) {
 		struct openflow13::ofp_table_feature_prop_header *prop = (struct openflow13::ofp_table_feature_prop_header*)buf;
 
 		if (buflen < sizeof(struct openflow13::ofp_table_feature_prop_header)) {
@@ -156,7 +156,7 @@ coftable_feature_props::unpack(uint8_t *buf, size_t buflen)
 			throw eTableFeaturesReqBadLen();
 		}
 
-		size_t total_length = be16toh(prop->length) + (0x7 & be16toh(prop->length)) ? 8 - (0x7 & be16toh(prop->length)) : 0;
+		size_t total_length = be16toh(prop->length) + ((0x7 & be16toh(prop->length)) ? 8 - (0x7 & be16toh(prop->length)) : 0);
 		if (total_length > buflen) {
 			throw eTableFeaturesReqBadLen();
 		}
@@ -165,19 +165,19 @@ coftable_feature_props::unpack(uint8_t *buf, size_t buflen)
 		case rofl::openflow13::OFPTFPT_INSTRUCTIONS:
 		case rofl::openflow13::OFPTFPT_INSTRUCTIONS_MISS: {
 			(tfprops[be16toh(prop->type)] = new coftable_feature_prop_instructions(
-					ofp_version, be16toh(prop->type)))->unpack(buf, buflen);
+					ofp_version, be16toh(prop->type)))->unpack(buf, total_length);
 		} break;
 		case rofl::openflow13::OFPTFPT_NEXT_TABLES:
 		case rofl::openflow13::OFPTFPT_NEXT_TABLES_MISS: {
 			(tfprops[be16toh(prop->type)] = new coftable_feature_prop_next_tables(
-					ofp_version, be16toh(prop->type)))->unpack(buf, buflen);
+					ofp_version, be16toh(prop->type)))->unpack(buf, total_length);
 		} break;
 		case rofl::openflow13::OFPTFPT_WRITE_ACTIONS:
 		case rofl::openflow13::OFPTFPT_WRITE_ACTIONS_MISS:
 		case rofl::openflow13::OFPTFPT_APPLY_ACTIONS:
 		case rofl::openflow13::OFPTFPT_APPLY_ACTIONS_MISS: {
 			(tfprops[be16toh(prop->type)] = new coftable_feature_prop_actions(
-					ofp_version, be16toh(prop->type)))->unpack(buf, buflen);
+					ofp_version, be16toh(prop->type)))->unpack(buf, total_length);
 		} break;
 		case rofl::openflow13::OFPTFPT_MATCH:
 		case rofl::openflow13::OFPTFPT_WILDCARDS:
@@ -186,7 +186,7 @@ coftable_feature_props::unpack(uint8_t *buf, size_t buflen)
 		case rofl::openflow13::OFPTFPT_APPLY_SETFIELD:
 		case rofl::openflow13::OFPTFPT_APPLY_SETFIELD_MISS: {
 			(tfprops[be16toh(prop->type)] = new coftable_feature_prop_oxm(
-					ofp_version, be16toh(prop->type)))->unpack(buf, buflen);
+					ofp_version, be16toh(prop->type)))->unpack(buf, total_length);
 		} break;
 		default: {
 			throw eTableFeaturesReqBadType();

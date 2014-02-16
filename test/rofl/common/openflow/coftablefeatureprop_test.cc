@@ -9,7 +9,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( coftablefeaturepropTest );
 
 #if defined DEBUG
-#undef DEBUG
+//#undef DEBUG
 #endif
 
 void
@@ -263,10 +263,10 @@ coftablefeaturepropTest::testActionsClass()
 {
 	rofl::openflow::coftable_feature_prop_actions prop(rofl::openflow13::OFP_VERSION, rofl::openflow13::OFPTFPT_APPLY_ACTIONS);
 
-	prop.push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPAT_GROUP, sizeof(struct rofl::openflow13::ofp_action_group)));
-	prop.push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPAT_OUTPUT, sizeof(struct rofl::openflow13::ofp_action_output)));
-	prop.push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPAT_SET_FIELD, sizeof(struct rofl::openflow13::ofp_action_set_field)));
-	prop.push_back(std::pair<uint16_t, uint16_t>(rofl::openflow13::OFPAT_DEC_NW_TTL, sizeof(struct rofl::openflow13::ofp_action_header)));
+	prop.add_action(rofl::openflow13::OFPAT_GROUP, sizeof(struct rofl::openflow13::ofp_action_group));
+	prop.add_action(rofl::openflow13::OFPAT_OUTPUT, sizeof(struct rofl::openflow13::ofp_action_output));
+	prop.add_action(rofl::openflow13::OFPAT_SET_FIELD, sizeof(struct rofl::openflow13::ofp_action_set_field));
+	prop.add_action(rofl::openflow13::OFPAT_DEC_NW_TTL, sizeof(struct rofl::openflow13::ofp_action_header));
 #ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
 #endif
@@ -304,7 +304,7 @@ coftablefeaturepropTest::testActionsClass()
 	mem[3] = 0x04; // force length field to 0x04 => unpack won't fail, but no table-ids will be extracted
 
 	prop.unpack(mem.somem(), mem.memlen());
-	CPPUNIT_ASSERT(prop.size() == 0); // no tables should be extracted
+	CPPUNIT_ASSERT(prop.get_action_ids().size() == 0); // no tables should be extracted
 #ifdef DEBUG
 	std::cerr << "prop:" << std::endl << prop;
 #endif
