@@ -13,7 +13,9 @@ coftable_features::coftable_features(
 				rofl::cmemory(sizeof(struct rofl::openflow13::ofp_table_features)),
 				ofp_version(ofp_version),
 				table_feature_props(ofp_version)
-{}
+{
+	ofh_tf_generic = somem();
+}
 
 
 coftable_features::~coftable_features()
@@ -49,7 +51,7 @@ coftable_features::length() const
 {
 	switch (get_version()) {
 	case openflow13::OFP_VERSION: {
-		return (rofl::cmemory::memlen() + table_feature_props.length());
+		return (sizeof(struct rofl::openflow13::ofp_table_features) + table_feature_props.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -71,8 +73,8 @@ coftable_features::pack(uint8_t *buf, size_t buflen)
 
 	switch (get_version()) {
 	case openflow13::OFP_VERSION: {
-		rofl::cmemory::pack(buf, rofl::cmemory::memlen());
-		table_feature_props.pack(buf + rofl::cmemory::memlen(), buflen - rofl::cmemory::memlen());
+		memcpy(buf, somem(), sizeof(struct rofl::openflow13::ofp_table_features));
+		table_feature_props.pack(buf + sizeof(struct rofl::openflow13::ofp_table_features), buflen - sizeof(struct rofl::openflow13::ofp_table_features));
 	} break;
 	default:
 		throw eBadVersion();

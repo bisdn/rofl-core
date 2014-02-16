@@ -8,6 +8,8 @@ unittest_SOURCES= \
 	coftablefeatureprop_test.h \
 	coftablefeatureprops_test.cc \
 	coftablefeatureprops_test.h \
+	coftablefeatures_test.cc \
+	coftablefeatures_test.h \
 	cofhelloelemstest.cc \
 	cofhelloelemstest.h \
 	cofhelloelemversionbitmaptest.cc \

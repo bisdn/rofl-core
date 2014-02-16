@@ -211,10 +211,12 @@ public:
 		os << indent(0) << "<coftable_features >" << std::endl;
 		os << indent(2) << "<table-id: " 		<< (int)msg.get_table_id() 						<< " >" << std::endl;
 		os << indent(2) << "<name: " 			<< msg.get_name() 								<< " >" << std::endl;
-		os << indent(2) << "<metadata-match: " 	<< (unsigned long long)msg.get_metadata_match() << " >" << std::endl;
-		os << indent(2) << "<metadata-write: " 	<< (unsigned long long)msg.get_metadata_write() << " >" << std::endl;
-		os << indent(2) << "<config: " 			<< (unsigned int)msg.get_config() 				<< " >" << std::endl;
-		os << indent(2) << "<max-entries: " 	<< (unsigned int)msg.get_max_entries() 			<< " >" << std::endl;
+		os << std::hex;
+		os << indent(2) << "<metadata-match: 0x"<< (unsigned long long)msg.get_metadata_match() << " >" << std::endl;
+		os << indent(2) << "<metadata-write: 0x"<< (unsigned long long)msg.get_metadata_write() << " >" << std::endl;
+		os << indent(2) << "<config: 0x"		<< (unsigned int)msg.get_config() 				<< " >" << std::endl;
+		os << indent(2) << "<max-entries: 0x" 	<< (unsigned int)msg.get_max_entries() 			<< " >" << std::endl;
+		os << std::dec;
 		indent i(2);
 		os << msg.get_properties();
 		return os;
@@ -225,4 +227,4 @@ public:
 }; // end of namespace openflow
 }; // end of namespace rofl
 
-#endif /* COFTABLESTATS_H_ */
+#endif /* COFTABLEFEATURES_H_ */
