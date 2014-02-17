@@ -18,7 +18,7 @@ ssl_connection::ssl_connection(SSL *ssl) :
 }
 
 ssl_connection::~ssl_connection() {
-	// TODO disconnect ssl
+	SSL_free(ssl);
 }
 
 ssize_t ssl_connection::read(void* buffer, size_t size) {
@@ -91,9 +91,6 @@ int ssl_connection::handle_error(int err) {
 			logging::error << " ERR_get_error=" << ERR_get_error() << " " << ERR_error_string(ERR_get_error(), NULL)
 					<< std::endl;
 		}
-
-		// fixme remove:
-		assert(0);
 	}
 	return err;
 }
