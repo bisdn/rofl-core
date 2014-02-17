@@ -42,9 +42,15 @@ main(int argc, char** argv)
 	etherswitch::ethswitch sw(versionbitmap);
 
 #ifdef HAVE_OPENSSL
-	ssl_context *ssl_ctx = ssl_lib::get_instance().create_ssl_context(ssl_context::SSL_server);
-	assert(NULL != ssl_ctx);
+	ssl_context *ssl_ctx = NULL;
+
+	if (env_parser.is_arg_set("cert-and-key-file")) {
+		ssl_ctx = ssl_lib::get_instance().create_ssl_context(ssl_context::SSL_server, env_parser.get_arg("cert-and-key-file"));
+		assert(NULL != ssl_ctx);
+	}
+
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633), PF_INET, SOCK_STREAM, IPPROTO_TCP, ssl_ctx);
+
 #else
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
 #endif

@@ -9,6 +9,9 @@
 #define SSL_LIB_H_
 
 #include <openssl/ssl.h>
+#include <string>
+
+#include "croflexception.h"
 
 namespace rofl {
 
@@ -20,7 +23,7 @@ public:
 		SSL_client, SSL_server
 	};
 
-	ssl_context(enum ssl_type type);
+	ssl_context(enum ssl_type type, const std::string &cert_and_key_file);
 
 	~ssl_context();
 
@@ -39,7 +42,7 @@ public:
 	get_instance();
 
 	ssl_context *
-	create_ssl_context(enum ssl_context::ssl_type type);
+	create_ssl_context(enum ssl_context::ssl_type type, const std::string &cert_and_key_file);
 
 private:
 

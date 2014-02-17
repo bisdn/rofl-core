@@ -62,6 +62,9 @@ cunixenv::cunixenv(int argc, char** argv)
 	arguments.push_back(coption(true,NO_ARGUMENT,'h',"help","Help message",""));
 	arguments.push_back(coption(false,REQUIRED_ARGUMENT,'c',"config-file","Config file","./default-cli.cfg"));
 	arguments.push_back(coption(true, NO_ARGUMENT,'D',"daemonize","Daemonize process",""));
+#ifdef HAVE_OPENSSL
+	arguments.push_back(coption(true, REQUIRED_ARGUMENT, 't', "cert-and-key-file", "Certificate and key to encrypt control traffic (PEM format)", std::string("")));
+#endif
 	parsed = false;
 }
 
