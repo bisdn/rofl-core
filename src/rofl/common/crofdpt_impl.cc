@@ -148,6 +148,7 @@ crofdpt_impl::event_connected()
 	case STATE_DISCONNECTED: {
 		state = STATE_CONNECTED;
 		send_features_request();
+		ports.set_version(rofchan.get_version()); // TODO: check for tables as well
 	} break;
 	default: {
 		logging::error << "[rofl][dpt] event -CONNECTED- in invalid state rcvd, internal error" << std::endl << *this;

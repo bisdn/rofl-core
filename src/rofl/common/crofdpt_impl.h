@@ -98,7 +98,7 @@ private: // data structures
 		uint8_t 								n_tables;		// number of tables
 		uint32_t 								capabilities;	// capabilities flags
 
-		std::map<uint8_t, coftable_stats_reply> tables;	// map of tables: table_id:coftable_stats_reply
+		std::map<uint8_t, coftable_stats_reply> tables;			// map of tables: table_id:coftable_stats_reply
 		cofports								ports;			// list of ports
 		std::bitset<32> 						dptflags;		// 'fragmentation' flags
 		uint16_t								config;
