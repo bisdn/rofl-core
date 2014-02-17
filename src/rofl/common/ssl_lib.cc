@@ -90,7 +90,7 @@ rofl::ssl_context::ssl_context(enum ssl_type type, const std::string &cert_and_k
 }
 
 rofl::ssl_context::~ssl_context() {
-	// fixme destroy the context
+	SSL_CTX_free(ssl_ctx);
 }
 
 rofl::ssl_connection* rofl::ssl_context::create_ssl_connection(int fd) {
@@ -128,6 +128,5 @@ rofl::ssl_lib::ssl_lib() {
 }
 
 rofl::ssl_lib::~ssl_lib() {
-	// todo cleanup context
 }
 
