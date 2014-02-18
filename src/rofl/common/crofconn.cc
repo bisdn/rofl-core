@@ -38,10 +38,10 @@ crofconn::~crofconn()
 
 
 void
-crofconn::accept(int newsd)
+crofconn::accept(int newsd, ssl_context *ssl_ctx)
 {
 	flags.set(FLAGS_PASSIVE);
-	rofsock.accept(newsd);
+	rofsock.accept(newsd, ssl_ctx);
 }
 
 
@@ -64,7 +64,8 @@ crofconn::connect(
 		int domain,
 		int type,
 		int protocol,
-		caddress const& raddr)
+		caddress const& raddr,
+		ssl_context *ssl_ctx)
 {
 	if (STATE_ESTABLISHED == state) {
 		throw eRofConnBusy();
@@ -72,7 +73,7 @@ crofconn::connect(
 	flags.reset(FLAGS_PASSIVE);
 	auxiliary_id = aux_id;
 	state = STATE_CONNECT_PENDING;
-	rofsock.connect(domain, type, protocol ,raddr);
+	rofsock.connect(domain, type, protocol, raddr, ssl_ctx);
 }
 
 

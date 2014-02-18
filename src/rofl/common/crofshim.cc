@@ -32,12 +32,12 @@ crofshim::~crofshim()
 
 
 void
-crofshim::listen(rofl::caddress const& laddr, int domain, int type, int protocol, int backlog)
+crofshim::listen(rofl::caddress const& laddr, int domain, int type, int protocol, ssl_context *ssl_ctx, int backlog)
 {
 	if (sockets.find(laddr) != sockets.end()) {
 		return;
 	}
-	(sockets[laddr] = new csocket(this))->listen(laddr, domain, type, protocol, backlog);
+	(sockets[laddr] = new csocket(this))->listen(laddr, domain, type, protocol, ssl_ctx, backlog);
 }
 
 
@@ -63,9 +63,9 @@ crofshim::handle_accepted(csocket& socket, int newsd, caddress const& ra)
 
 
 void
-crofshim::connect(rofl::caddress const& raddr, int domain, int type, int protocol)
+crofshim::connect(rofl::caddress const& raddr, int domain, int type, int protocol, ssl_context *ssl_ctx)
 {
-	(new crofsock(this))->connect(domain, type, protocol, raddr);
+	(new crofsock(this))->connect(domain, type, protocol, raddr, ssl_ctx);
 }
 
 

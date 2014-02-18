@@ -211,13 +211,13 @@ public:
 	 *
 	 */
 	void
-	accept(int sd);
+	accept(int sd, ssl_context *ssl_ctx = NULL);
 
 	/**
 	 *
 	 */
 	void
-	connect(int domain, int type, int protocol, rofl::caddress const& raddr);
+	connect(int domain, int type, int protocol, rofl::caddress const& raddr, ssl_context *ssl_ctx);
 
 	/**
 	 *

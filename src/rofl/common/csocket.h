@@ -51,6 +51,8 @@ class eSocketAgain			: public eSocketBase {}; /**< read() would block */
 class eSocketConnReset		: public eSocketBase {}; /**< read() returned connection reset */
 
 class csocket; // forward declaration for csocket_owner, see below
+class ssl_context;
+class ssl_connection;
 
 
 /**
@@ -185,8 +187,6 @@ private:
 
 	static std::set<csocket*> 	csock_list; 		/**< list of all csocket instances */
 
-
-
 protected:
 
 	csocket_owner				*socket_owner;		/**< owner of this csocket instance */
@@ -226,6 +226,11 @@ public:
 	int							reconnect_start_timeout;
 	int 						reconnect_in_seconds; 	// reconnect in x seconds
 	int 						reconnect_counter;
+
+#ifdef HAVE_OPENSSL
+	ssl_context *ssl_ctx;
+	ssl_connection *ssl_conn;
+#endif
 
 #define RECONNECT_START_TIMEOUT 1						// start reconnect timeout (default 1s)
 
@@ -293,7 +298,8 @@ public:
 		caddress la,
 		int domain = PF_INET, 
 		int type = SOCK_STREAM, 
-		int protocol = 0, 
+		int protocol = 0,
+		ssl_context *ssl_ctx = NULL,
 		int backlog = 10,
 		std::string devname = std::string(""));
 
@@ -302,8 +308,7 @@ public:
 	 * @brief 	Handle accepted socket descriptor obtained from external listening socket
 	 */
 	void
-	accept(
-			int sd);
+	accept(int sd, ssl_context *ssl_ctx = NULL);
 
 
 
@@ -327,6 +332,7 @@ public:
 		int domain = PF_INET, 
 		int type = SOCK_STREAM, 
 		int protocol = 0,
+		ssl_context *ssl_ctx = NULL,
 		bool do_reconnect = false);
 
 
@@ -390,6 +396,10 @@ public:
 
 private:
 
+#ifdef HAVE_OPENSSL
+	void
+	ssl_connect();
+#endif
 
 	//
 	// socket specific methods, must be overloaded in derived class

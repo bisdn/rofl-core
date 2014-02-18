@@ -6,13 +6,13 @@ AC_ARG_WITH([pipeline-custom-funcs],
 disable_custom_funcs="yes", [])
 
 if test "$disable_custom_funcs" = "yes"; then
-	AC_MSG_NOTICE([Not using any of the inlined function headers])
+	AC_MSG_RESULT([Not using any of the inlined function headers])
 	AM_CONDITIONAL(LOCK_INLINE, false)
 	AM_CONDITIONAL(ATOMIC_OPS_INLINE, false)
 	AM_CONDITIONAL(LIKELY_CUSTOM, false)
 	
 else
-	AC_MSG_NOTICE([Using the existing inlined function headers])
+	AC_MSG_RESULT([Using the existing inlined function headers])
 	
 	lock_inline_file=0
 	AC_CHECK_FILE([$srcdir/src/rofl/datapath/pipeline/platform/lock_inline.h], [lock_inline_file=1], [])
