@@ -18,16 +18,17 @@ rofl::ssl_context::ssl_context(enum ssl_type type, const std::string &cert_and_k
 
 	ssl_ctx = SSL_CTX_new(TLSv1_2_method());
 
-	if (cert_and_key_file.empty()) {
-		throw RoflException("no cert_and_key_file");
-	}
-
 	if (NULL == ssl_ctx) {
 		logging::error << " ssl_error=" << ERR_get_error() << ERR_error_string(ERR_get_error(), NULL);
 	}
 	assert(NULL != ssl_ctx);
 
 	if (ssl_context::SSL_server == type) {
+
+		if (cert_and_key_file.empty()) {
+			throw RoflException("no cert_and_key_file");
+		}
+
 		logging::debug << __PRETTY_FUNCTION__ << " create SSL_server" << std::endl;
 		/* Load server certificate into the SSL context */
 		if (SSL_CTX_use_certificate_file(ssl_ctx, cert_and_key_file.c_str(), SSL_FILETYPE_PEM) <= 0) {
