@@ -90,14 +90,107 @@ class crofsock :
 	cmemory								*fragment;
 	unsigned int						msg_bytes_read;
 
-	PthreadRwLock						outqueue_rwlock;
-	std::deque<cofmsg*>					outqueue;
+	enum outqueue_type_t {
+		QUEUE_MGMT = 0, // all packets, except ...
+		QUEUE_FLOW = 1, // Flow-Mod/Flow-Removed
+		QUEUE_PKT  = 2, // Packet-In/Packet-Out
+		QUEUE_MAX,		// do not use
+	};
+
+	struct rofqueue {
+
+		static unsigned int const DEFAULT_OUTQUEUE_SIZE_THRESHOLD = 8;
+
+		PthreadRwLock					rwlock;
+		std::deque<cofmsg*>				queue;
+		unsigned int					limit; // #msgs sent from queue before rescheduling
+	public:
+		/**
+		 *
+		 */
+		rofqueue(unsigned int limit = DEFAULT_OUTQUEUE_SIZE_THRESHOLD) :
+			limit(limit) {};
+
+		/**
+		 *
+		 */
+		~rofqueue() { clear(); };
+
+		/**
+		 *
+		 */
+		void
+		clear() {
+			RwLock(rwlock, RwLock::RWLOCK_WRITE);
+			for (std::deque<cofmsg*>::iterator
+					it = queue.begin(); it != queue.end(); ++it) {
+				delete (*it);
+			}
+		};
+
+		/**
+		 *
+		 */
+		void
+		store(cofmsg *msg) {
+			RwLock(rwlock, RwLock::RWLOCK_WRITE);
+			queue.push_back(msg);
+		};
+
+		/**
+		 *
+		 */
+		cofmsg*
+		retrieve() {
+			RwLock(rwlock, RwLock::RWLOCK_WRITE);
+			if (queue.empty())
+				return NULL;
+			cofmsg *msg = queue.front();
+			queue.pop_front();
+			return msg;
+		};
+
+		/**
+		 *
+		 */
+		unsigned int
+		get_limit() {
+			return (queue.size() > limit) ? limit : queue.size();
+		};
+
+		/**
+		 *
+		 */
+		void
+		set_limit(unsigned int limit) { limit = limit; };
+
+		/**
+		 *
+		 */
+		size_t
+		size() {
+			RwLock(rwlock, RwLock::RWLOCK_READ);
+			return queue.size();
+		};
+
+		/**
+		 *
+		 */
+		bool
+		empty() {
+			RwLock(rwlock, RwLock::RWLOCK_READ);
+			return queue.empty();
+		};
+	};
+
+	std::vector<rofqueue>				outqueues;
+					// 0 => all non-asynchronous messages
+					// 1 => queue for Packet-In, Packet-Out, Flow-Mod, Flow-Removed
 
 	enum crofsock_event_t {
 		CROFSOCK_EVENT_WAKEUP = 1,
 	};
 
-#define OUTQUEUE_SIZE_THRESHOLD 4
 
 public:
 
