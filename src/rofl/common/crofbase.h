@@ -109,6 +109,7 @@ class eRofBaseFspSupportDisabled 	: public eRofBase {};
 
 class crofctl;
 class crofdpt;
+class ssl_context;
 
 
 
