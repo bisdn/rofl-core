@@ -222,7 +222,7 @@ crofsock::send_from_queue()
 
 	unsigned int num = (outqueue.size() > OUTQUEUE_SIZE_THRESHOLD) ? OUTQUEUE_SIZE_THRESHOLD : outqueue.size();
 
-	while (num >= 0) {
+	while (num > 0) {
 
 		cofmsg *msg = outqueue.front();
 		outqueue.pop_front();
