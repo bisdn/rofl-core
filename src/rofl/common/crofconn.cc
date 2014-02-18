@@ -130,11 +130,11 @@ crofconn::run_engine(crofconn_event_t event)
 		case EVENT_CONNECTED: 		event_connected(); 			break;
 		case EVENT_DISCONNECTED:	event_disconnected();		return; // might call this object's destructor
 		case EVENT_HELLO_RCVD:		event_hello_rcvd();			break;
-		case EVENT_HELLO_EXPIRED:	event_hello_expired();		break;
+		case EVENT_HELLO_EXPIRED:	event_hello_expired();		return;
 		case EVENT_FEATURES_RCVD:	event_features_rcvd();		break;
-		case EVENT_FEATURES_EXPIRED:event_features_expired();	break;
+		case EVENT_FEATURES_EXPIRED:event_features_expired();	return;
 		case EVENT_ECHO_RCVD:		event_echo_rcvd();			break;
-		case EVENT_ECHO_EXPIRED:	event_echo_expired();		break;
+		case EVENT_ECHO_EXPIRED:	event_echo_expired();		return;
 		default: {
 			logging::error << "[rofl][conn] unknown event seen, internal error" << std::endl << *this;
 		};
