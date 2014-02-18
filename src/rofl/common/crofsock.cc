@@ -100,6 +100,13 @@ crofsock::handle_closed(
 	if (fragment)
 		delete fragment;
 	fragment = (cmemory*)0;
+	{
+		RwLock(outqueue_rwlock, RwLock::RWLOCK_WRITE);
+		for (std::deque<cofmsg*>::iterator it = outqueue.begin(); it != outqueue.end(); ++it) {
+			delete *it;
+		}
+		outqueue.clear();
+	}
 	env->handle_closed(this);
 }
 
