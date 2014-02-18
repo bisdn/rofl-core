@@ -220,7 +220,9 @@ crofsock::send_from_queue()
 {
 	RwLock(outqueue_rwlock, RwLock::RWLOCK_WRITE);
 
-	while (not outqueue.empty()) {
+	unsigned int num = (outqueue.size() > OUTQUEUE_SIZE_THRESHOLD) ? OUTQUEUE_SIZE_THRESHOLD : outqueue.size();
+
+	while (num >= 0) {
 
 		cofmsg *msg = outqueue.front();
 		outqueue.pop_front();
@@ -232,6 +234,12 @@ crofsock::send_from_queue()
 		delete msg;
 
 		socket.send(mem);
+
+		num--;
+	}
+
+	if (not outqueue.empty()) {
+		notify(CROFSOCK_EVENT_WAKEUP);
 	}
 }
 

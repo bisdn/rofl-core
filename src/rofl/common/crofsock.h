@@ -97,6 +97,8 @@ class crofsock :
 		CROFSOCK_EVENT_WAKEUP = 1,
 	};
 
+#define OUTQUEUE_SIZE_THRESHOLD 4
+
 public:
 
 	/**
