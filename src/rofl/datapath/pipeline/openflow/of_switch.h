@@ -41,6 +41,8 @@ typedef void of_switch_platform_state_t;
 
 //Fwd decl
 struct datapacket;
+struct of_switch; 
+void __of1x_process_packet_pipeline(const struct of_switch *sw, struct datapacket *const pkt);
 
 /**
 * @ingroup core 
@@ -123,7 +125,28 @@ rofl_result_t of_reconfigure_switch(of_switch_t* sw, of_version_t version);
 * except maybe platform_state 
 * @warning Packet matches and timestamp of the packet MUST be initialized before calling of_process_packet_pipeline() 
 */
-rofl_result_t of_process_packet_pipeline(const of_switch_t* sw, struct datapacket *const pkt);
+//Wrapping of processing
+static inline rofl_result_t of_process_packet_pipeline(const of_switch_t* sw, struct datapacket *const pkt){
+	__of1x_process_packet_pipeline(sw, pkt);
+
+	/*
+	//Not necessary yet
+
+	switch(sw->of_ver){
+		case OF_VERSION_10: 
+		case OF_VERSION_12: 
+		case OF_VERSION_13: 
+			__of1x_process_packet_pipeline(sw, pkt);
+			break;
+		default: 
+			return ROFL_FAILURE;
+	}
+	*/
+
+	return ROFL_SUCCESS;
+	
+}	
+
 
 //Wrapping timers
 /**
