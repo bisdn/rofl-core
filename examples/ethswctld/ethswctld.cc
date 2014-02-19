@@ -1,6 +1,8 @@
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/platform/unix/cdaemon.h>
+#ifdef HAVE_OPENSSL
 #include <rofl/common/ssl_lib.h>
+#endif
 
 #include "etherswitch.h"
 
