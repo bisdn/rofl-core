@@ -58,9 +58,6 @@ typedef struct datapacket{
 	//Generic OpenFlow matches and write actions 
 	packet_matches_t matches;
 	of_write_actions_t write_actions;
-
-	//Timestamp of the packet
-	struct timeval ts;
 	
 	/**
 	* Flag indicating if it is a replica of the original packet

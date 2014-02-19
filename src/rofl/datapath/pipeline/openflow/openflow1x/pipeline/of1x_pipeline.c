@@ -212,9 +212,6 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			__of1x_stats_table_matches_inc(&((of1x_switch_t*)sw)->pipeline.tables[i]);
 			__of1x_stats_flow_update_match(match, pkt_matches->pkt_size_bytes);
 
-			//Update entry timers
-			__of1x_timer_update_entry(match, pkt->ts);
-
 			//Process instructions
 			table_to_go = __of1x_process_instructions((of1x_switch_t*)sw, i, pkt, &match->inst_grp);
 

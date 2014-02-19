@@ -141,8 +141,10 @@ rofl_result_t __of1x_update_flow_entry(of1x_flow_entry_t* entry_to_update, of1x_
 	__of1x_update_instructions(&entry_to_update->inst_grp, &mod->inst_grp);
 
 	//Reset counts
-	if(reset_counts)
+	if(reset_counts){
 		__of1x_stats_flow_reset_counts(entry_to_update);
+		__of1x_reset_last_packet_count_idle_timeout(&entry_to_update->timer_info);
+	}
 
 	//Unlock
 	platform_rwlock_wrunlock(entry_to_update->rwlock);
