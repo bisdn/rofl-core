@@ -434,12 +434,6 @@ rofl_result_t __of1x_remove_specific_flow_entry_table(of1x_pipeline_t *const pip
 	return of1x_matching_algorithms[table->matching_algorithm].remove_flow_entry_hook(table, NULL, specific_entry, STRICT, OF1X_PORT_ANY, OF1X_GROUP_ANY, reason, mutex_acquired);
 }
 
-/* Main process_packet_through */
-inline of1x_flow_entry_t* __of1x_find_best_match_table(of1x_flow_table_t *const table, packet_matches_t *const pkt){
-	return of1x_matching_algorithms[table->matching_algorithm].find_best_match_hook(table, pkt);
-}	
-
-
 /* Dump methods */
 void of1x_dump_table(of1x_flow_table_t* table){
 	of1x_flow_entry_t* entry;

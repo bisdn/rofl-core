@@ -7,6 +7,7 @@
 #include "../../../platform/likely.h"
 #include "../../../platform/memory.h"
 #include "../../../platform/packet.h"
+#include "../../../platform/atomic_operations.h"
 #include "../of1x_async_events_hooks.h"
 #include "matching_algorithms/matching_algorithms_available.h"
 #include "../of1x_switch.h"
@@ -181,6 +182,7 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 
 	//Loop over tables
 	unsigned int i, table_to_go, num_of_outputs;
+	of1x_flow_table_t* table;
 	of1x_flow_entry_t* match;
 	packet_matches_t* pkt_matches;
 	
@@ -200,17 +202,23 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 #endif
 	
 	for(i=OF1X_FIRST_FLOW_TABLE_INDEX; i < ((of1x_switch_t*)sw)->pipeline.num_of_tables ; i++){
-		
+
+		table = &((of1x_switch_t*)sw)->pipeline.tables[i];
+
 		//Perform lookup	
-		match = __of1x_find_best_match_table((of1x_flow_table_t* const)&((of1x_switch_t*)sw)->pipeline.tables[i], pkt_matches);
+		match = __of1x_find_best_match_table((of1x_flow_table_t* const)table, pkt_matches);
 		
 		if(likely(match != NULL)){
 			
 			ROFL_PIPELINE_DEBUG("Packet[%p] matched at table: %u, entry: %p\n", pkt, i,match);
 
 			//Update table and entry statistics
-			__of1x_stats_table_matches_inc(&((of1x_switch_t*)sw)->pipeline.tables[i]);
-			__of1x_stats_flow_update_match(match, pkt_matches->pkt_size_bytes);
+			platform_atomic_inc64(&table->stats.lookup_count,table->stats.mutex);
+			platform_atomic_inc64(&table->stats.matched_count,table->stats.mutex);
+
+			//Update flow statistics
+			platform_atomic_inc64(&match->stats.packet_count,match->stats.mutex);
+			platform_atomic_add64(&match->stats.byte_count, pkt_matches->pkt_size_bytes, match->stats.mutex);
 
 			//Process instructions
 			table_to_go = __of1x_process_instructions((of1x_switch_t*)sw, i, pkt, &match->inst_grp);
@@ -243,16 +251,16 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			return;	
 		}else{
 			//Update table statistics
-			__of1x_stats_table_lookup_inc(&((of1x_switch_t*)sw)->pipeline.tables[i]);
+			platform_atomic_inc64(&table->stats.lookup_count,table->stats.mutex);
 
 			//Not matched, look for table_miss behaviour 
-			if(((of1x_switch_t*)sw)->pipeline.tables[i].default_action == OF1X_TABLE_MISS_DROP){
+			if(table->default_action == OF1X_TABLE_MISS_DROP){
 
 				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_DROP %u\n",pkt, i);	
 				platform_packet_drop(pkt);
 				return;
 
-			}else if(((of1x_switch_t*)sw)->pipeline.tables[i].default_action == OF1X_TABLE_MISS_CONTROLLER){
+			}else if(table->default_action == OF1X_TABLE_MISS_CONTROLLER){
 			
 				ROFL_PIPELINE_DEBUG("Packet[%p] table MISS_CONTROLLER. It Will get a PACKET_IN event to the controller\n",pkt);
 

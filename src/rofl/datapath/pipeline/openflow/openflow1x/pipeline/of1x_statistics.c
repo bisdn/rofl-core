@@ -201,7 +201,8 @@ void of1x_stats_flow_get_duration(struct of1x_flow_entry * entry, uint32_t* sec,
 	
 	*nsec = ( (diff.tv_usec*1000)&0xFFFFFFFF00000000ULL )>>32;
 }
-	
+
+#if 0	
 /**
  * of1x_stats_flow_update_match
  * input arguments: bytes_rx, flow_entry
@@ -210,6 +211,7 @@ void __of1x_stats_flow_update_match(of1x_flow_entry_t * entry,uint64_t bytes_rx)
 	platform_atomic_inc64(&entry->stats.packet_count,entry->stats.mutex);
 	platform_atomic_add64(&entry->stats.byte_count,&bytes_rx, entry->stats.mutex);
 }
+#endif
 
 //Table Statistics functions
 /**
@@ -232,6 +234,8 @@ void __of1x_stats_table_destroy(of1x_flow_table_t * table){
 	platform_mutex_destroy(table->stats.mutex);
 }
 //NOTE this functions add too much overhead!
+
+#if 0
 /**
  * of1x_stats_table_lookup_update
  * input arguments: flow_table ...?
@@ -240,6 +244,7 @@ void __of1x_stats_table_lookup_inc(of1x_flow_table_t * table){
 
 	platform_atomic_inc64(&table->stats.lookup_count,table->stats.mutex);
 }
+
 /**
  * of1x_stats_table_matched_update
  * input arguments: flow_table ...?
@@ -249,6 +254,7 @@ void __of1x_stats_table_matches_inc(of1x_flow_table_t * table){
 	platform_atomic_inc64(&table->stats.lookup_count,table->stats.mutex);
 	platform_atomic_inc64(&table->stats.matched_count,table->stats.mutex);
 }
+#endif
 
 void __of1x_init_group_stats(of1x_stats_group_t *group_stats){
 	//NOTE bucket stats are initialized when the group is created, before being attached to the list
@@ -264,7 +270,7 @@ void __of1x_destroy_group_stats(of1x_stats_group_t* group_stats){
 
 void __of1x_stats_group_update(of1x_stats_group_t *gr_stats, uint64_t bytes){
 	platform_atomic_inc64(&gr_stats->packet_count, gr_stats->mutex);
-	platform_atomic_add64(&gr_stats->byte_count, &bytes, gr_stats->mutex);
+	platform_atomic_add64(&gr_stats->byte_count, bytes, gr_stats->mutex);
 }
 
 void __of1x_stats_group_inc_reference(of1x_stats_group_t *gr_stats){
@@ -356,7 +362,7 @@ void __of1x_destroy_buckets_stats(of1x_stats_bucket_counter_t *bc_stats){
 
 void __of1x_stats_bucket_update(of1x_stats_bucket_counter_t* bc_stats, uint64_t bytes){
 	platform_atomic_inc64(&bc_stats->packet_count, bc_stats->mutex);
-	platform_atomic_add64(&bc_stats->byte_count, &bytes, bc_stats->mutex);
+	platform_atomic_add64(&bc_stats->byte_count, bytes, bc_stats->mutex);
 }
 
 /*

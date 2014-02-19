@@ -194,12 +194,12 @@ void of1x_destroy_stats_flow_aggregate_msg(of1x_stats_flow_aggregate_msg_t* msg)
 void of1x_stats_flow_get_duration(struct of1x_flow_entry * entry, uint32_t* sec, uint32_t* nsec);
 
 void __of1x_stats_flow_reset_counts(struct of1x_flow_entry * entry);
-void __of1x_stats_flow_update_match(struct of1x_flow_entry * entry,uint64_t bytes_rx);
+//void __of1x_stats_flow_update_match(struct of1x_flow_entry * entry,uint64_t bytes_rx);
 void __of1x_stats_flow_inc(struct of1x_flow_entry * entry,uint64_t bytes_rx);
 void __of1x_stats_table_init(struct of1x_flow_table * table);
 void __of1x_stats_table_destroy(struct of1x_flow_table * table);
-void __of1x_stats_table_lookup_inc(struct of1x_flow_table * table);
-void __of1x_stats_table_matches_inc(struct of1x_flow_table * table);
+//void __of1x_stats_table_lookup_inc(struct of1x_flow_table * table);
+//void __of1x_stats_table_matches_inc(struct of1x_flow_table * table);
 
 void __of1x_init_group_stats(of1x_stats_group_t *group_stats);
 void __of1x_destroy_group_stats(of1x_stats_group_t* group_stats);
