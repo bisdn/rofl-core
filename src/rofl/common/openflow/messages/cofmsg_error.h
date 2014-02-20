@@ -861,7 +861,7 @@ public:
 				uint8_t* data = 0,
 				size_t datalen = 0) :
 					cofmsg_error(ofp_version, xid, OFPET_BAD_MATCH, OFPBMC_BAD_MASK, data, datalen) {
-		if (ofp_version < rofl::openflow13::OFP_VERSION)
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
 			throw eBadVersion();
 	};
 	virtual ~cofmsg_error_bad_match_bad_mask() {};
@@ -877,7 +877,7 @@ public:
 				uint8_t* data = 0,
 				size_t datalen = 0) :
 					cofmsg_error(ofp_version, xid, OFPET_BAD_MATCH, OFPBMC_BAD_PREREQ, data, datalen) {
-		if (ofp_version < rofl::openflow13::OFP_VERSION)
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
 			throw eBadVersion();
 	};
 	virtual ~cofmsg_error_bad_match_bad_prereq() {};
@@ -893,7 +893,7 @@ public:
 				uint8_t* data = 0,
 				size_t datalen = 0) :
 					cofmsg_error(ofp_version, xid, OFPET_BAD_MATCH, OFPBMC_DUP_FIELD, data, datalen) {
-		if (ofp_version < rofl::openflow13::OFP_VERSION)
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
 			throw eBadVersion();
 	};
 	virtual ~cofmsg_error_bad_match_dup_field() {};
@@ -909,7 +909,7 @@ public:
 				uint8_t* data = 0,
 				size_t datalen = 0) :
 					cofmsg_error(ofp_version, xid, OFPET_BAD_MATCH, OFPBMC_EPERM, data, datalen) {
-		if (ofp_version < rofl::openflow13::OFP_VERSION)
+		if (ofp_version < rofl::openflow12::OFP_VERSION)
 			throw eBadVersion();
 	};
 	virtual ~cofmsg_error_bad_match_eperm() {};
