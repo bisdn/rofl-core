@@ -2160,7 +2160,8 @@ cpacket::parse_icmpv6(
 		return;
 	}
 
-	ficmpv6frame *icmp = new ficmpv6frame(p_ptr, sizeof(struct ficmpv6frame::icmpv6_hdr_t));
+	//ficmpv6frame *icmp = new ficmpv6frame(p_ptr, sizeof(struct ficmpv6frame::icmpv6_hdr_t));
+	ficmpv6frame *icmp = new ficmpv6frame(p_ptr, p_len);
 
 	switch (ofp_version) {
 	case rofl::openflow10::OFP_VERSION: {
