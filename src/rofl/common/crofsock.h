@@ -126,6 +126,7 @@ class crofsock :
 					it = queue.begin(); it != queue.end(); ++it) {
 				delete (*it);
 			}
+			queue.clear();
 		};
 
 		/**
