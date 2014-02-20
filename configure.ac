@@ -76,6 +76,7 @@ AC_CONFIG_FILES([
 	examples/queuetest/Makefile
 	examples/rfc2889/Makefile
 	examples/ofperftest/Makefile
+	examples/tranny/Makefile
 
 	tools/Makefile
 	tools/spray/Makefile
