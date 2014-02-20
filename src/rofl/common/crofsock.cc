@@ -21,7 +21,7 @@ crofsock::crofsock(
 	}
 	outqueues[QUEUE_MGMT].set_limit(8);
 	outqueues[QUEUE_FLOW].set_limit(4);
-	outqueues[QUEUE_PKT ].set_limit(4);
+	outqueues[QUEUE_PKT ].set_limit(2);
 }
 
 

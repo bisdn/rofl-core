@@ -21,6 +21,7 @@ extern "C" {
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <assert.h>
 #ifdef __cplusplus
 }
 #endif
@@ -43,7 +44,12 @@ class eSocketListenFailed 	: public eSocketBase {}; /**< listen operation on soc
 class eSocketAcceptFailed 	: public eSocketBase {}; /**< accept operation on socket failed */
 class eSocketConnectFailed 	: public eSocketBase {}; /**< connect operation on socket failed (finally) */
 class eSocketSendFailed		: public eSocketBase {}; /**< send operation on socket failed */
-class eSocketError   		: public eSocketBase {}; /**< generic operation on socket failed, e.g. getsockopt(), ioctl(), ... */
+class eSocketError   		: public eSocketBase {
+public:
+	eSocketError() {
+		assert(false);
+	};
+}; /**< generic operation on socket failed, e.g. getsockopt(), ioctl(), ... */
 class eSocketIoctl			: public eSocketBase {}; /**< ioctl failed */
 class eSocketShortSend		: public eSocketBase {}; /**< send() 2 call returned with fewer bytes than expected */
 class eSocketReadFailed		: public eSocketBase {}; /**< read() failed or packet cannot be read completely */
