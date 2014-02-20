@@ -256,7 +256,7 @@ csocket::handle_wevent(int fd)
 		} break;
 		default: {
 			logging::error << "[rofl][csocket] error occured during connection establishment." << std::endl << *this;
-			throw eSocketError();
+			throw eSysCall(optval);
 		};
 		}
 	} else {

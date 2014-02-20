@@ -45,6 +45,11 @@ public:
 		n_err(errno),
 		s_err(strerror(errno))
 	{};
+	eSysCall(int optval, std::string const& syscall = std::string("")) :
+		syscall(syscall),
+		n_err(optval),
+		s_err(strerror(optval))
+	{};
 public:
 	friend std::ostream& operator<< (std::ostream& os, eSysCall const& e) {
 		os << "<eSysCall syscall:" << e.syscall << " errno: " << e.n_err << " (" << e.s_err << ") >";
