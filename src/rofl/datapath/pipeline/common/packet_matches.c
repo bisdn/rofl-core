@@ -142,9 +142,9 @@ void dump_packet_matches(packet_matches_t *const pkt){
 	
 	//802	
 	if(pkt->eth_src)
-		ROFL_PIPELINE_DEBUG_NO_PREFIX("ETH_SRC:0x%llx, ",(long long unsigned)pkt->eth_src);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ETH_SRC:0x%"PRIu64", ",pkt->eth_src);
 	if(pkt->eth_dst)
-		ROFL_PIPELINE_DEBUG_NO_PREFIX("ETH_DST:0x%llx, ",(long long unsigned)pkt->eth_dst);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ETH_DST:0x%"PRIu64", ",pkt->eth_dst);
 	if(pkt->eth_type)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("ETH_TYPE:0x%x, ",pkt->eth_type);
 	//802.1q
@@ -156,11 +156,11 @@ void dump_packet_matches(packet_matches_t *const pkt){
 	if(pkt->eth_type == OF1X_ETH_TYPE_ARP)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_OPCODE:0x%x, ",pkt->arp_opcode);
 	if(pkt->eth_type == OF1X_ETH_TYPE_ARP)
-		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_SHA:0x%llx, ",(long long unsigned)pkt->arp_sha);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_SHA:0x%"PRIu64", ",pkt->arp_sha);
 	if(pkt->eth_type == OF1X_ETH_TYPE_ARP)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_SPA:0x%x, ",pkt->arp_spa);
 	if(pkt->eth_type == OF1X_ETH_TYPE_ARP)
-		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_THA:0x%llx, ",(long long unsigned)pkt->arp_tha);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_THA:0x%"PRIu64", ",pkt->arp_tha);
 	if(pkt->eth_type == OF1X_ETH_TYPE_ARP)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("ARP_TPA:0x%x, ",pkt->arp_tpa);
 	//IP/IPv4
@@ -208,9 +208,9 @@ void dump_packet_matches(packet_matches_t *const pkt){
 	if(pkt->ip_proto == OF1X_IP_PROTO_ICMPV6)
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_ND_TARGET:0x%lx:%lx, ",UINT128__T_HI(pkt->ipv6_nd_target),UINT128__T_LO(pkt->ipv6_nd_target));
 	if(pkt->ip_proto == OF1X_IP_PROTO_ICMPV6) //NOTE && pkt->icmpv6_type ==?
-		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_ND_SLL:0x%llx, ",pkt->ipv6_nd_sll);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_ND_SLL:0x%"PRIu64", ",pkt->ipv6_nd_sll);
 	if(pkt->ip_proto == OF1X_IP_PROTO_ICMPV6) //NOTE && pkt->icmpv6_type ==?
-		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_ND_TLL:0x%llx, ",pkt->ipv6_nd_tll);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("IPV6_ND_TLL:0x%"PRIu64", ",pkt->ipv6_nd_tll);
 	/*TODO IPV6 exthdr*/
 	/*nd_target nd_sll nd_tll exthdr*/
 	
@@ -235,7 +235,7 @@ void dump_packet_matches(packet_matches_t *const pkt){
 		ROFL_PIPELINE_DEBUG_NO_PREFIX("PBB_ISID:%u,",pkt->pbb_isid);
 	//Tunnel id
 	if(pkt->tunnel_id)
-		ROFL_PIPELINE_DEBUG_NO_PREFIX("TUNNEL ID:0x%llx, ",(long long unsigned)pkt->tunnel_id);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("TUNNEL ID:0x%"PRIu64", ",pkt->tunnel_id);
 	
 	//GTP
 	if(pkt->ip_proto == OF1X_IP_PROTO_UDP && pkt->udp_dst == OF1X_UDP_DST_PORT_GTPU){
