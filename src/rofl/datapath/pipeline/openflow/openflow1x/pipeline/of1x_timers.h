@@ -60,7 +60,10 @@ typedef struct of1x_timers_info{
 	uint32_t idle_timeout;
 
 	// time when the entry was last used (0 for hard timeouts)
-	struct timeval time_last_update;
+	//struct timeval time_last_update;
+	//checks the number of packets that hit the entry to implement a lazy expiration
+	// less accurate but more eficient
+	uint64_t last_packet_count;
 	
 	of1x_entry_timer_t * idle_timer_entry;
 	of1x_entry_timer_t * hard_timer_entry;
@@ -97,11 +100,16 @@ void __of1x_process_pipeline_tables_timeout_expirations(struct of1x_pipeline *co
 
 void __of1x_dump_timers_structure(of1x_timer_group_t * timer_group);
 void __of1x_timer_group_static_init(struct of1x_flow_table* table);
-void __of1x_timer_update_entry(struct of1x_flow_entry * flow_entry, struct timeval ts);
+//void __of1x_timer_update_entry(struct of1x_flow_entry * flow_entry, struct timeval ts);
 void __of1x_fill_new_timer_entry_info(struct of1x_flow_entry * entry, uint32_t hard_timeout, uint32_t idle_timeout);
 // public for testing
 uint64_t __of1x_get_expiration_time_slotted (uint32_t timeout,struct timeval *now);
 inline uint64_t __of1x_get_time_ms(struct timeval *time);
+
+static inline
+void __of1x_reset_last_packet_count_idle_timeout(of1x_timers_info_t *timer_info){
+	timer_info->last_packet_count=0;
+}
 
 //C++ extern C
 ROFL_END_DECLS

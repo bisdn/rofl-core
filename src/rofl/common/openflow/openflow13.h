@@ -919,6 +919,13 @@ namespace openflow13 {
 	};
 	OFP_ASSERT(sizeof(struct ofp_port_mod) == 40);
 
+	/* Why is this packet being sent to the controller? */
+	enum ofp_packet_in_reason {
+		OFPR_NO_MATCH = 0,      /* No matching flow. */
+		OFPR_ACTION = 1,        /* Action explicitly output to controller. */
+		OFPR_INVALID_TTL = 2	/* Packet has invalid TTL */
+	};
+
 	/*
 	 * 7.3.4.4 Meter Modification Message
 	 */

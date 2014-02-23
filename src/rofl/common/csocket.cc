@@ -4,11 +4,16 @@
 
 #include "csocket.h"
 
+#ifdef HAVE_OPENSSL
+#include "ssl_connection.h"
+#include "ssl_lib.h"
+#endif /* HAVE_OPENSSL */
+
+#include <assert.h>
+
 using namespace rofl;
 
 std::set<csocket*> csocket::csock_list;
-
-
 
 csocket::csocket(
 		csocket_owner *owner,
@@ -28,6 +33,10 @@ csocket::csocket(
 	reconnect_start_timeout(RECONNECT_START_TIMEOUT),
 	reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 	reconnect_counter(0)
+#ifdef HAVE_OPENSSL
+	,ssl_ctx(NULL)
+	,ssl_conn(NULL)
+#endif
 {
 	pthread_rwlock_init(&pout_squeue_lock, 0);
 
@@ -50,6 +59,10 @@ csocket::csocket(
 	reconnect_start_timeout(RECONNECT_START_TIMEOUT),
 	reconnect_in_seconds(RECONNECT_START_TIMEOUT),
 	reconnect_counter(0)
+#ifdef HAVE_OPENSSL
+	,ssl_ctx(NULL)
+	,ssl_conn(NULL)
+#endif
 {
 	pthread_rwlock_init(&pout_squeue_lock, 0);
 
@@ -78,7 +91,11 @@ csocket::handle_timeout(
 {
 	switch (opaque) {
 	case TIMER_RECONNECT: {
-		connect(raddr, laddr, domain, type, protocol, true);
+#ifdef HAVE_OPENSSL
+		connect(raddr, laddr, domain, type, protocol, ssl_ctx, true);
+#else
+		connect(raddr, laddr, domain, type, protocol, NULL, true);
+#endif
 	} break;
 	default:
 		logging::error << "[rofl][csocket] unknown timer type:" << opaque << std::endl;
@@ -166,7 +183,7 @@ csocket::handle_revent(int fd)
 			}
 		}
 
-		logging::info << "[rofl][csocket] socket accepted" << std::endl << *this;
+		logging::info << "[rofl][csocket] socket accepted " << new_sd << std::endl << *this;
 
 		handle_accepted(new_sd, ra);
 
@@ -218,6 +235,9 @@ csocket::handle_wevent(int fd)
 				cancel_timer(TIMER_RECONNECT);
 			}
 
+#ifdef HAVE_OPENSSL
+			ssl_connect();
+#endif
 			handle_connected();
 		} break;
 		case EINPROGRESS: {
@@ -236,7 +256,7 @@ csocket::handle_wevent(int fd)
 		} break;
 		default: {
 			logging::error << "[rofl][csocket] error occured during connection establishment." << std::endl << *this;
-			throw eSocketError();
+			throw eSysCall(optval);
 		};
 		}
 	} else {
@@ -267,6 +287,7 @@ csocket::listen(
 	int domain, 
 	int type, 
 	int protocol, 
+	ssl_context *ssl_ctx,
 	int backlog,
 	std::string devname)
 {
@@ -276,6 +297,9 @@ csocket::listen(
 	this->protocol 	= protocol;
 	this->backlog 	= backlog;
 	this->laddr 	= la;
+#ifdef HAVE_OPENSSL
+	this->ssl_ctx	= ssl_ctx;
+#endif
 
 	if (sd >= 0) {
 		close();
@@ -383,15 +407,17 @@ csocket::listen(
 
 
 void
-csocket::accept(
-		int sd)
+csocket::accept(int sd, ssl_context *ssl_ctx)
 {
 	this->sd = sd;
-
-	socklen_t optlen = 0;
+#ifdef HAVE_OPENSSL
+	this->ssl_ctx = ssl_ctx;
+	logging::info << __PRETTY_FUNCTION__ << ": " << ((NULL != ssl_ctx) ? "SSL" : "NO SSL") << std::endl;
+#endif
 
 	sockflags.reset(FLAG_ACTIVE_SOCKET);
 
+	socklen_t optlen = 0;
 	if ((getsockname(sd, laddr.ca_saddr, &(laddr.salen))) < 0) {
 		logging::error << "[rofl][csocket][accept] unable to read local address from socket descriptor:"
 				<< sd << " " << eSysCall() << std::endl;
@@ -420,13 +446,18 @@ csocket::accept(
 						<< sd << " " << eSysCall() << std::endl;
 	}
 
+#ifdef HAVE_OPENSSL
+	// setup tls if we have a context
+	if (NULL != this->ssl_ctx) {
+		ssl_conn = this->ssl_ctx->create_ssl_connection(sd);
+		assert(NULL != ssl_conn);
+		ssl_conn->handle_accept(); // todo handle rv
+	}
+#endif
 	sockflags.set(CONNECTED);
-
 	register_filedesc_r(sd);
-
 	handle_connected();
 }
-
 
 void
 csocket::connect(
@@ -435,6 +466,7 @@ csocket::connect(
 	int domain, 
 	int type, 
 	int protocol,
+	ssl_context *ssl_ctx,
 	bool do_reconnect)
 {
 	int rc;
@@ -443,6 +475,9 @@ csocket::connect(
 	this->protocol 	= protocol;
 	this->laddr 	= la;
 	this->raddr 	= ra;
+#ifdef HAVE_OPENSSL
+	this->ssl_ctx = ssl_ctx;
+#endif /* HAVE_OPENSSL */
 
 	if (sd >= 0)
 		close();
@@ -494,10 +529,14 @@ csocket::connect(
 		case EINPROGRESS: {		// connect is pending, register sd for write events
 			sockflags[CONNECT_PENDING] = true;
 			register_filedesc_w(sd);
+			logging::debug << "[rofl][csocket] socket EINPROGRESS" << std::endl << *this;
+
 		} break;
 		case ECONNREFUSED: {	// connect has been refused
 			close();
 			backoff_reconnect(false);
+			logging::debug << "[rofl][csocket] ECONNREFUSED" << std::endl << *this;
+
 		} break;
 		default: {
 			throw eSysCall("connect");
@@ -522,9 +561,25 @@ csocket::connect(
 
 		logging::info << "[rofl][csocket] socket connected" << std::endl << *this;
 
+#ifdef HAVE_OPENSSL
+		ssl_connect();
+#endif
+
 		handle_connected();
 	}
 }
+
+#ifdef HAVE_OPENSSL
+void
+csocket::ssl_connect()
+{
+	// setup tls if we have a context
+	if (NULL != ssl_ctx && NULL == ssl_conn) {
+		ssl_conn = ssl_ctx->create_ssl_connection(sd);
+		ssl_conn->handle_connect();
+	}
+}
+#endif
 
 
 
@@ -535,7 +590,11 @@ csocket::reconnect()
 		throw eSocketError();
 	}
 	close();
-	connect(raddr, laddr, domain, type, protocol, sockflags.test(FLAG_DO_RECONNECT));
+#ifdef HAVE_OPENSSL
+	connect(raddr, laddr, domain, type, protocol, ssl_ctx, sockflags.test(FLAG_DO_RECONNECT));
+#else
+	connect(raddr, laddr, domain, type, protocol, NULL, sockflags.test(FLAG_DO_RECONNECT));
+#endif
 }
 
 
@@ -543,7 +602,7 @@ csocket::reconnect()
 void
 csocket::close()
 {
-	//logging::error << "[rofl][csocket] close()" << std::endl;
+	logging::info << "[rofl][csocket] close()" << std::endl;
 
 	RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
 
@@ -580,51 +639,88 @@ csocket::close()
 	}
 }
 
-
-
 ssize_t
 csocket::recv(void *buf, size_t count)
 {
 	if (sd == -1)
 		throw eSocketReadFailed();
+	int rc;
 
-	// read from socket: TODO: TLS socket
-	int rc = ::read(sd, (void*)buf, count);
+#ifdef HAVE_OPENSSL
+	// read from tls connection
+	if (NULL != ssl_conn) {
 
-	if (rc > 0) {
-		return rc;
+		{
+			RwLock lock(&pout_squeue_lock, RwLock::RWLOCK_WRITE);
+			if (pout_squeue.size()) {
+				register_filedesc_w(sd);
+			}
+		}
 
-	} else if (rc == 0) {
-		logging::error << "[rofl][csocket] peer closed connection: "
-				<< eSysCall("read") << std::endl << *this;
-		close();
+		rc = ssl_conn->read((void*)buf, count);
+		if (0 >= rc) {
+			switch (rc) {
+			case -SSL_ERROR_WANT_WRITE:
+				register_filedesc_w(sd);
+				// todo? deregister_filedesc_r(sd);
+				throw eSocketAgain();
+				break;
+			case -SSL_ERROR_WANT_READ:
+				register_filedesc_r(sd);
+				throw eSocketAgain();
+				break;
+			case 0:
+			default:
+				break;
+			}
+		} else {
+			logging::debug << __PRETTY_FUNCTION__ << " read " << rc << " bytes" << std::endl;
+			return rc;
+		}
+	} else {
+#endif
 
-		notify(cevent(EVENT_CONN_RESET));
-		throw eSocketReadFailed();
+		// read from socket:
+		rc = ::read(sd, (void*)buf, count);
 
-	} else if (rc < 0) {
+		if (rc > 0) {
+			return rc;
 
-		switch(errno) {
-		case EAGAIN:
-			throw eSocketAgain();
-		case ECONNRESET: {
-			logging::error << "[rofl][csocket] connection reset on socket: "
-					<< eSysCall("read") << ", closing endpoint." << std::endl << *this;
-					close();
+		} else if (rc == 0) {
+			logging::error << "[rofl][csocket] peer closed connection: "
+					<< eSysCall("read") << std::endl << *this;
+			close();
 
 			notify(cevent(EVENT_CONN_RESET));
 			throw eSocketReadFailed();
-		} break;
-		default: {
-			logging::error << "[rofl][csocket] error reading from socket: "
-					<< eSysCall("read") << ", closing endpoint." << std::endl << *this;
-			close();
 
-			notify(cevent(EVENT_DISCONNECTED));
-			throw eSocketReadFailed();
-		} break;
+		} else if (rc < 0) {
+
+			switch(errno) {
+			case EAGAIN:
+				throw eSocketAgain();
+			case ECONNRESET: {
+				logging::error << "[rofl][csocket] connection reset on socket: "
+						<< eSysCall("read") << ", closing endpoint." << std::endl << *this;
+				close();
+
+				notify(cevent(EVENT_CONN_RESET));
+				throw eSocketReadFailed();
+			} break;
+			default: {
+				logging::error << "[rofl][csocket] error reading from socket: "
+						<< eSysCall("read") << ", closing endpoint." << std::endl << *this;
+				close();
+
+				notify(cevent(EVENT_DISCONNECTED));
+				throw eSocketReadFailed();
+			} break;
+			}
 		}
-	}
+
+#ifdef HAVE_OPENSSL
+	} /* else (of NULL != ssl_conn)  */
+#endif
 
 	return 0;
 }
@@ -645,8 +741,6 @@ csocket::send(cmemory* mem, caddress const& dest)
 	register_filedesc_w(sd);
 }
 
-
-
 void
 csocket::dequeue_packet()
 {
@@ -662,6 +756,41 @@ csocket::dequeue_packet()
 				logging::warn << "[rofl][csocket] resending due to short write: " << std::endl << entry;
 				had_short_write = false;
 			}
+
+#ifdef HAVE_OPENSSL
+			if (NULL != ssl_conn) {
+				rc = ssl_conn->write(entry.mem->somem() + entry.msg_bytes_sent, entry.mem->memlen() - entry.msg_bytes_sent);
+
+				if (0 >= rc) {
+					switch (rc) {
+					case -SSL_ERROR_WANT_WRITE:
+						register_filedesc_w(sd);
+						return;
+						break;
+					case -SSL_ERROR_WANT_READ:
+						register_filedesc_r(sd);
+						deregister_filedesc_w(sd);
+						return;
+						break;
+					case 0:
+					default:
+						logging::error << "unhandled error " << rc << std::endl;
+						assert(0);
+						break;
+					}
+				} else {
+
+					logging::debug << __PRETTY_FUNCTION__ << " wrote " << rc << " bytes" << std::endl;
+					// check if buffer was sent completely
+					if (((unsigned int)(rc + entry.msg_bytes_sent)) < entry.mem->memlen()) {
+						had_short_write = true;
+						entry.msg_bytes_sent += rc;
+						return;
+					}
+				}
+
+			} else {
+#endif
 
 			int flags = MSG_NOSIGNAL;
 			if ((rc = sendto(sd, entry.mem->somem() + entry.msg_bytes_sent, entry.mem->memlen() - entry.msg_bytes_sent, flags,
@@ -694,6 +823,9 @@ csocket::dequeue_packet()
 				}
 				return;
 			}
+#ifdef HAVE_OPENSSL
+			} /* else (of NULL != ssl_conn)  */
+#endif
 
 			delete entry.mem;
 

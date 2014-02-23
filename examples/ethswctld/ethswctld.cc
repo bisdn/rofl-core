@@ -1,5 +1,9 @@
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/platform/unix/cdaemon.h>
+#ifdef HAVE_OPENSSL
+#include <rofl/common/ssl_lib.h>
+#endif
+
 #include "etherswitch.h"
 
 #define ETHSWCTLD_LOG_FILE "/var/log/ethswctld.log"
@@ -13,7 +17,9 @@ main(int argc, char** argv)
 	/* update defaults */
 	env_parser.update_default_option("logfile", ETHSWCTLD_LOG_FILE);
 	env_parser.add_option(coption(true, REQUIRED_ARGUMENT, 'p', "pidfile", "set pid-file", std::string(ETHSWCTLD_PID_FILE)));
-
+#ifdef HAVE_OPENSSL
+	env_parser.add_option(coption(true, REQUIRED_ARGUMENT, 't', "cert-and-key-file", "Certificate and key to encrypt control traffic (PEM format)", std::string("")));
+#endif
 	//Parse
 	env_parser.parse_args();
 
@@ -39,7 +45,20 @@ main(int argc, char** argv)
 	versionbitmap.add_ofp_version(rofl::openflow12::OFP_VERSION);
 	etherswitch::ethswitch sw(versionbitmap);
 
+#ifdef HAVE_OPENSSL
+	ssl_context *ssl_ctx = NULL;
+
+	if (env_parser.is_arg_set("cert-and-key-file")) {
+		ssl_ctx = ssl_lib::get_instance().create_ssl_context(ssl_context::SSL_server, env_parser.get_arg("cert-and-key-file"));
+		assert(NULL != ssl_ctx);
+	}
+
+	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633), PF_INET, SOCK_STREAM, IPPROTO_TCP, ssl_ctx);
+
+#else
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6633));
+#endif
+
 	sw.rpc_listen_for_dpts(caddress(AF_INET, "0.0.0.0", 6632));
 
 	rofl::cioloop::run();

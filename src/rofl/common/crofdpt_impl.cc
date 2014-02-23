@@ -71,7 +71,7 @@ crofdpt_impl::crofdpt_impl(
 				transactions(this),
 				state(STATE_INIT)
 {
-	rofchan.add_conn(0, domain, type, protocol, ra);
+	rofchan.add_conn(0, domain, type, protocol, ra, NULL); // todo check if we need ssl_ctx here
 }
 
 
@@ -1973,6 +1973,8 @@ crofdpt_impl::port_status_rcvd(
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
 			<< " Port-Status message received" << std::endl;
+
+	ports.set_version(rofchan.get_version());
 
 	switch (port_status.get_reason()) {
 	case openflow::OFPPR_ADD: {

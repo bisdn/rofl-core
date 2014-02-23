@@ -51,7 +51,8 @@ crofctl_impl::crofctl_impl(
 		caddress const& ra,
 		int domain,
 		int type,
-		int protocol) :
+		int protocol,
+		ssl_context *ssl_ctx) :
 				crofctl(rofbase),
 				ctid(0),
 				rofbase(rofbase),
@@ -62,7 +63,7 @@ crofctl_impl::crofctl_impl(
 				rofchan(this, versionbitmap),
 				transactions(this)
 {
-	rofchan.add_conn(/*aux-id=*/0, domain, type, protocol, ra);
+	rofchan.add_conn(/*aux-id=*/0, domain, type, protocol, ra, ssl_ctx);
 }
 
 

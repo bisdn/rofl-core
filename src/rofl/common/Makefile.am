@@ -67,6 +67,14 @@ librofl_common_la_SOURCES = \
 		crofshim.cc \
 		logging.h \
 		logging.cc
+		
+if HAVE_OPENSSL
+librofl_common_la_SOURCES += \
+		ssl_lib.cc \
+		ssl_lib.h \
+		ssl_connection.cc \
+		ssl_connection.h
+endif
 
 librofl_common_la_LIBADD=openflow/libopenflow.la protocols/libprotocols.la utils/librofl_common_utils.la -lrt
 
@@ -106,6 +114,12 @@ library_include_HEADERS= \
 		ctransaction.h \
 		ctransactions.h \
 		logging.h
+
+if HAVE_OPENSSL
+library_include_HEADERS += \
+		ssl_lib.h \
+		ssl_connection.h
+endif
 
 
 AM_CPPFLAGS=-fPIC

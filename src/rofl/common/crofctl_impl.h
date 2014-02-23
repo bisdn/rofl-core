@@ -103,7 +103,8 @@ public: // methods
 			caddress const& ra,
 			int domain,
 			int type,
-			int protocol);
+			int protocol,
+			ssl_context *ssl_ctx);
 
 
 

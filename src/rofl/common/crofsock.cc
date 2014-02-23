@@ -16,7 +16,12 @@ crofsock::crofsock(
 				fragment((cmemory*)0),
 				msg_bytes_read(0)
 {
-
+	for (unsigned int i = 0; i < QUEUE_MAX; i++) {
+		outqueues.push_back(rofqueue());
+	}
+	outqueues[QUEUE_MGMT].set_limit(8);
+	outqueues[QUEUE_FLOW].set_limit(4);
+	outqueues[QUEUE_PKT ].set_limit(2);
 }
 
 
@@ -29,17 +34,17 @@ crofsock::~crofsock()
 
 
 void
-crofsock::accept(int sd)
+crofsock::accept(int sd, ssl_context *ssl_ctx)
 {
-	socket.accept(sd);
+	socket.accept(sd, ssl_ctx);
 }
 
 
 
 void
-crofsock::connect(int domain, int type, int protocol, rofl::caddress const& raddr)
+crofsock::connect(int domain, int type, int protocol, rofl::caddress const& raddr, ssl_context *ssl_ctx)
 {
-	socket.connect(raddr, rofl::caddress(AF_INET, "0.0.0.0", 0), domain, type, protocol, false);
+	socket.connect(raddr, rofl::caddress(AF_INET, "0.0.0.0", 0), domain, type, protocol, ssl_ctx, false);
 }
 
 
@@ -100,6 +105,11 @@ crofsock::handle_closed(
 	if (fragment)
 		delete fragment;
 	fragment = (cmemory*)0;
+	{
+		for (std::vector<rofqueue>::iterator it = outqueues.begin(); it != outqueues.end(); ++it) {
+			(*it).clear();
+		}
+	}
 	env->handle_closed(this);
 }
 
@@ -199,9 +209,57 @@ crofsock::send_message(
 
 	log_message(std::string("queueing message for sending:"), *msg);
 
-	RwLock(outqueue_rwlock, RwLock::RWLOCK_WRITE);
-
-	outqueue.push_back(msg);
+	switch (msg->get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+		switch (msg->get_type()) {
+		case rofl::openflow10::OFPT_PACKET_IN:
+		case rofl::openflow10::OFPT_PACKET_OUT: {
+			outqueues[QUEUE_PKT].store(msg);
+		} break;
+		case rofl::openflow10::OFPT_FLOW_MOD:
+		case rofl::openflow10::OFPT_FLOW_REMOVED: {
+			outqueues[QUEUE_FLOW].store(msg);
+		} break;
+		default: {
+			outqueues[QUEUE_MGMT].store(msg);
+		};
+		}
+	} break;
+	case rofl::openflow12::OFP_VERSION: {
+		switch (msg->get_type()) {
+		case rofl::openflow12::OFPT_PACKET_IN:
+		case rofl::openflow12::OFPT_PACKET_OUT: {
+			outqueues[QUEUE_PKT].store(msg);
+		} break;
+		case rofl::openflow12::OFPT_FLOW_MOD:
+		case rofl::openflow12::OFPT_FLOW_REMOVED: {
+			outqueues[QUEUE_FLOW].store(msg);
+		} break;
+		default: {
+			outqueues[QUEUE_MGMT].store(msg);
+		};
+		}
+	} break;
+	case rofl::openflow13::OFP_VERSION: {
+		switch (msg->get_type()) {
+		case rofl::openflow13::OFPT_PACKET_IN:
+		case rofl::openflow13::OFPT_PACKET_OUT: {
+			outqueues[QUEUE_PKT].store(msg);
+		} break;
+		case rofl::openflow13::OFPT_FLOW_MOD:
+		case rofl::openflow13::OFPT_FLOW_REMOVED: {
+			outqueues[QUEUE_FLOW].store(msg);
+		} break;
+		default: {
+			outqueues[QUEUE_MGMT].store(msg);
+		};
+		}
+	} break;
+	default: {
+		logging::alert << "[rofl][sock] dropping message with unsupported OpenFlow version" << std::endl;
+		delete msg; return;
+	};
+	}
 
 	notify(CROFSOCK_EVENT_WAKEUP);
 }
@@ -211,20 +269,28 @@ crofsock::send_message(
 void
 crofsock::send_from_queue()
 {
-	RwLock(outqueue_rwlock, RwLock::RWLOCK_WRITE);
+	bool reschedule = false;
 
-	while (not outqueue.empty()) {
+	for (unsigned int queue_id = 0; queue_id < QUEUE_MAX; ++queue_id) {
 
-		cofmsg *msg = outqueue.front();
-		outqueue.pop_front();
+		for (unsigned int num = 0; num < outqueues[queue_id].get_limit(); ++num) {
+			cofmsg *msg = outqueues[queue_id].retrieve();
+			if (NULL == msg)
+				break;
+			cmemory *mem = new cmemory(msg->length());
 
-		cmemory *mem = new cmemory(msg->length());
+			msg->pack(mem->somem(), mem->memlen());
+			delete msg;
+			socket.send(mem);
+		}
 
-		msg->pack(mem->somem(), mem->memlen());
+		if (not outqueues[queue_id].empty()) {
+			reschedule = true;
+		}
+	}
 
-		delete msg;
-
-		socket.send(mem);
+	if (reschedule) {
+		notify(CROFSOCK_EVENT_WAKEUP);
 	}
 }
 

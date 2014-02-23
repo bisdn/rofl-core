@@ -183,7 +183,7 @@ void test_simple_idle_static(of1x_pipeline_t * pipeline, uint32_t ito)
 	
 	//update the counter
 	time_forward(ito-1,0,&now);
-	__of1x_timer_update_entry(entry,now);
+	entry->stats.packet_count++; //__of1x_timer_update_entry(entry,now);
 	__of1x_process_pipeline_tables_timeout_expirations(pipeline);
 	fprintf(stderr,"updated last used. TO (%p) at time %lu:%lu for %d seconds\n", entry, now.tv_sec, now.tv_usec, ito);
 	slot = (now.tv_sec+1)%OF1X_TIMER_GROUPS_MAX;
@@ -192,7 +192,8 @@ void test_simple_idle_static(of1x_pipeline_t * pipeline, uint32_t ito)
 	//check that it is not expired but rescheduled
 	time_forward(1,0,&now);
 	__of1x_process_pipeline_tables_timeout_expirations(pipeline);
-	slot = (now.tv_sec+ito-1)%OF1X_TIMER_GROUPS_MAX;
+	//slot = (now.tv_sec+ito-1)%OF1X_TIMER_GROUPS_MAX; NOTE with the lazy expiration we reschedule depending on the time of chek of the expiration
+	slot = (now.tv_sec+ito)%OF1X_TIMER_GROUPS_MAX;
 	CU_ASSERT(table->timers[slot].list.head->entry == entry);
 	
 	//check final expiration

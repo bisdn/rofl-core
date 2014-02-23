@@ -241,20 +241,56 @@ public:
 			os << indent(4) << "<in-port:" 		<< (int)msg.get_in_port() 	<< " >" << std::endl;
 			os << indent(4) << "<buffer-id:" 	<< (int)msg.get_buffer_id() << " >" << std::endl;
 			os << indent(4) << "<total-len:" 	<< (int)msg.get_total_len() << " >" << std::endl;
-			os << indent(4) << "<reason:" 		<< (int)msg.get_reason() 	<< " >" << std::endl;
+			switch (msg.get_reason()) {
+			case rofl::openflow10::OFPR_NO_MATCH: {
+				os << indent(4) << "<reason: NO-MATCH >" << std::endl;
+			} break;
+			case rofl::openflow10::OFPR_ACTION: {
+				os << indent(4) << "<reason: ACTION >" << std::endl;
+			} break;
+			default: {
+				os << indent(4) << "<reason:" 		<< (int)msg.get_reason() 	<< " >" << std::endl;
+			};
+			}
 
 		} break;
 		case openflow12::OFP_VERSION: {
 			os << indent(4) << "<buffer-id:"	<< (int)msg.get_buffer_id() << " >" << std::endl;
 			os << indent(4) << "<total-len:" 	<< (int)msg.get_total_len() << " >" << std::endl;
-			os << indent(4) << "<reason:" 		<< (int)msg.get_reason() 	<< " >" << std::endl;
+			switch (msg.get_reason()) {
+			case rofl::openflow12::OFPR_NO_MATCH: {
+				os << indent(4) << "<reason: NO-MATCH >" << std::endl;
+			} break;
+			case rofl::openflow12::OFPR_ACTION: {
+				os << indent(4) << "<reason: ACTION >" << std::endl;
+			} break;
+			case rofl::openflow12::OFPR_INVALID_TTL: {
+				os << indent(4) << "<reason: INVALID-TTL >" << std::endl;
+			} break;
+			default: {
+				os << indent(4) << "<reason:" 		<< (int)msg.get_reason() 	<< " >" << std::endl;
+			};
+			}
 			os << indent(4) << "<table-id:" 	<< (int)msg.get_table_id() 	<< " >" << std::endl;
 
 		} break;
 		case openflow13::OFP_VERSION: {
 			os << indent(4) << "<buffer-id:" 	<< (int)msg.get_buffer_id() << " >" << std::endl;
 			os << indent(4) << "<total-len:" 	<< (int)msg.get_total_len() << " >" << std::endl;
-			os << indent(4) << "<reason:" 		<< (int)msg.get_reason() 	<< " >" << std::endl;
+			switch (msg.get_reason()) {
+			case rofl::openflow13::OFPR_NO_MATCH: {
+				os << indent(4) << "<reason: NO-MATCH >" << std::endl;
+			} break;
+			case rofl::openflow13::OFPR_ACTION: {
+				os << indent(4) << "<reason: ACTION >" << std::endl;
+			} break;
+			case rofl::openflow13::OFPR_INVALID_TTL: {
+				os << indent(4) << "<reason: INVALID-TTL >" << std::endl;
+			} break;
+			default: {
+				os << indent(4) << "<reason:" 		<< (int)msg.get_reason() 	<< " >" << std::endl;
+			};
+			}
 			os << indent(4) << "<table-id:" 	<< (int)msg.get_table_id() 	<< " >" << std::endl;
 			os << indent(4) << "<cookie:" 		<< (int)msg.get_cookie() 	<< " >" << std::endl;
 

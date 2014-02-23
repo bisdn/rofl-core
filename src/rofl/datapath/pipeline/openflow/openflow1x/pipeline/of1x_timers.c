@@ -43,26 +43,6 @@ bool __of1x_time_is_later(struct timeval *a, struct timeval *b){
 	return false;
 }
 
-#if 0
-/**
- * of1x_gettimeofday wrapper for the system time
- */
-inline int __of1x_gettimeofday(struct timeval * tval, struct timezone * tzone){
-
-#ifdef TIMERS_FAKE_TIME
-	__of1x_time_forward(0,0,tval);
-	//ROFL_PIPELINE_DEBUG("NOT usig real system time (%lu:%lu)\n", tval->tv_sec, tval->tv_usec);
-	return 0;
-#else
-	//gettimeofday(tval,tzone);
-	//ROFL_PIPELINE_DEBUG("<%s:%d> Time %lu:%lu\n",__func__,__LINE__,tval->tv_sec, tval->tv_usec);
-	//return 0;
-	return gettimeofday(tval,tzone);
-#endif
-
-}
-#endif
-
 /**
  * of1x_dump_timers_structure
  * this function is ment to show the timer groups existing
@@ -231,7 +211,7 @@ static void of1x_destroy_timer_group(of1x_timer_group_t* tg, of1x_flow_table_t* 
  * of1x_entry_timer_init
  * adds a new entry in the list
  */
-static of1x_entry_timer_t* __of1x_entry_timer_init(of1x_timer_group_t* tg, of1x_flow_entry_t* entry, of1x_timer_timeout_type_t is_idle, struct timeval * last_update)
+static of1x_entry_timer_t* __of1x_entry_timer_init(of1x_timer_group_t* tg, of1x_flow_entry_t* entry, of1x_timer_timeout_type_t is_idle)
 {
 	of1x_entry_timer_t* new_entry;
 	new_entry = platform_malloc_shared(sizeof(of1x_entry_timer_t));
@@ -281,7 +261,6 @@ static of1x_entry_timer_t* __of1x_entry_timer_init(of1x_timer_group_t* tg, of1x_
  * when the time comes the list of entries must be erased from the list
  * This is ment to be used when a single entry is deleted.
  */
-//NOTE is this function responsible for the destruction of the flow entry? I guess not
 static rofl_result_t __of1x_destroy_single_timer_entry_clean(of1x_entry_timer_t* entry, of1x_flow_table_t * table)
 {	
 	if(likely(entry!=NULL))
@@ -333,8 +312,6 @@ static rofl_result_t __of1x_destroy_single_timer_entry_clean(of1x_entry_timer_t*
  */
 rofl_result_t __of1x_destroy_timer_entries(of1x_flow_entry_t * entry){
 	// We need to erase both hard and idle timer_entries
-	// NOTE do I need to put the timeout value to zero
-	// or I just supose that the whole entry is going to be deleted?
 
 	if(unlikely(entry->table==NULL))
 		return ROFL_FAILURE;
@@ -365,37 +342,32 @@ rofl_result_t __of1x_destroy_timer_entries(of1x_flow_entry_t * entry){
 static rofl_result_t __of1x_reschedule_idle_timer(of1x_entry_timer_t * entry_timer, of1x_pipeline_t *const pipeline, unsigned int id_table)
 {
 	struct timeval system_time;
-	platform_gettimeofday(&system_time);
-	uint64_t now = __of1x_get_time_ms(&system_time);
 	uint64_t expiration_time;
-	expiration_time = __of1x_get_expiration_time_slotted(entry_timer->entry->timer_info.idle_timeout, &(entry_timer->entry->timer_info.time_last_update));
-	of1x_timer_timeout_type_t is_idle = IDLE_TO;
 	
-	
-	if(expiration_time <= now)
+	if(entry_timer->entry->stats.packet_count == entry_timer->entry->timer_info.last_packet_count)
 	{
-	//IDLE TIMER EXPIRED
-		//NOTE we will let the entry_timer be cleared from outside ()//check if there is another entry for the hard TO and delete it
-		//if (entry_timer->entry->timer_info.hard_timer_entry)
-			//of1x_destroy_single_timer_entry_clean(entry_timer->entry->timer_info.hard_timer_entry, table);
-	
+	// timeout expired so no need to reschedule !!! we have to delete the entry
 #ifdef DEBUG_NO_REAL_PIPE
 		ROFL_PIPELINE_DEBUG("NOT erasing real entries of table \n");
 		__of1x_fill_new_timer_entry_info(entry_timer->entry,0,0);
 		//we need to destroy the entries
 		__of1x_destroy_timer_entries(entry_timer->entry);
 #else
-		//ROFL_PIPELINE_DEBUG("Erasing real entries of table \n"); //NOTE Delete
 		__of1x_remove_specific_flow_entry_table(pipeline, id_table, entry_timer->entry, OF1X_FLOW_REMOVE_IDLE_TIMEOUT, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
 #endif
-		return ROFL_SUCCESS; // timeout expired so no need to reschedule !!! we have to delete the entry
+		return ROFL_SUCCESS;
 	}
+	
+	entry_timer->entry->timer_info.last_packet_count = entry_timer->entry->stats.packet_count;
+	//NOTE we calculate the new time of expiration from the checking time and not from the last time it was used (less accurate and more efficient)
+	platform_gettimeofday(&system_time);
+	expiration_time = __of1x_get_expiration_time_slotted(entry_timer->entry->timer_info.idle_timeout, &system_time);
 	
 #if OF1X_TIMER_STATIC_ALLOCATION_SLOTS
 	
 	int slot_delta = expiration_time - pipeline->tables[id_table].timers[pipeline->tables[id_table].current_timer_group].timeout; //ms
 	int slot_position = (pipeline->tables[id_table].current_timer_group + slot_delta/OF1X_TIMER_SLOT_MS) % OF1X_TIMER_GROUPS_MAX;
-	if(__of1x_entry_timer_init(&(pipeline->tables[id_table].timers[slot_position]), entry_timer->entry, is_idle, &(entry_timer->entry->timer_info.time_last_update))==NULL)
+	if(__of1x_entry_timer_init(&(pipeline->tables[id_table].timers[slot_position]), entry_timer->entry, IDLE_TO)==NULL)
 		return ROFL_FAILURE;
 #else
 		
@@ -403,7 +375,7 @@ static rofl_result_t __of1x_reschedule_idle_timer(of1x_entry_timer_t * entry_tim
 	if(tg_iterator==NULL)
 		return ROFL_FAILURE;
 	// add entry to this group. new_group.list->num_of_timers++; ...
-	if(__of1x_entry_timer_init(tg_iterator, entry_timer->entry, is_idle, &(entry_timer->time_last_update)) == NULL)
+	if(__of1x_entry_timer_init(tg_iterator, entry_timer->entry, IDLE_TO) == NULL)
 		return ROFL_FAILURE;
 #endif
 		
@@ -426,19 +398,17 @@ static rofl_result_t __of1x_destroy_all_entries_from_timer_group(of1x_timer_grou
 	{
 		for(entry_iterator = tg->list.head; entry_iterator; entry_iterator=next)
 		{
-			//prev = entry_iterator->prev;
 			next = entry_iterator->next;
+			
+			//NOTE actual removal of timer_entries is done in the destruction of the entry
 			
 			if(entry_iterator->type == IDLE_TO)
 			{
-				if(__of1x_reschedule_idle_timer(entry_iterator, pipeline, id_table)!=ROFL_SUCCESS) //WARNING return value for erasing the idle timeout
+				if(__of1x_reschedule_idle_timer(entry_iterator, pipeline, id_table)!=ROFL_SUCCESS)
 					return ROFL_FAILURE;
 			}
 			else
 			{
-				//check if there is another entry for the idle TO and delete it
-				//if (entry_iterator->entry->timer_info.idle_timer_entry)
-					//of1x_destroy_single_timer_entry_clean(entry_iterator->entry->timer_info.idle_timer_entry, table);
 #ifdef DEBUG_NO_REAL_PIPE
 				ROFL_PIPELINE_DEBUG("NOT erasing real entries of table \n");
 				__of1x_fill_new_timer_entry_info(entry_iterator->entry,0,0);
@@ -449,11 +419,6 @@ static rofl_result_t __of1x_destroy_all_entries_from_timer_group(of1x_timer_grou
 				__of1x_remove_specific_flow_entry_table(pipeline, id_table,entry_iterator->entry, OF1X_FLOW_REMOVE_HARD_TIMEOUT, MUTEX_ALREADY_ACQUIRED_BY_TIMER_EXPIRATION);
 #endif
 			}
-			//if(entry_iterator) THIS IS DONE from outside
-			//{
-				//platform_free_shared(entry_iterator);
-				//entry_iterator = NULL;
-			//}
 		}
 	}
 	return ROFL_SUCCESS;
@@ -510,24 +475,6 @@ static of1x_timer_group_t * of1x_dynamic_slot_search(of1x_flow_table_t* const ta
 }
 #endif
 
-/**
- * of1x_timer_update_entry
- * when an entry has been used we must 
- * update the time_last_update in order to
- * show that its not idle
- */
-void __of1x_timer_update_entry(of1x_flow_entry_t * flow_entry, struct timeval ts)
-{
-	if(flow_entry->timer_info.idle_timeout == 0)
-		return; //no idle timeout => no need to update time
-	else
-	{
-		if( likely(__of1x_time_is_later(&ts, &(flow_entry->timer_info.time_last_update))==true) ){
-			flow_entry->timer_info.time_last_update = ts;
-		}
-	}
-}
-
 static rofl_result_t __of1x_add_single_timer(of1x_flow_table_t* const table, const uint32_t timeout, of1x_flow_entry_t* entry, of1x_timer_timeout_type_t is_idle)
 {
 	uint64_t expiration_time;
@@ -548,7 +495,7 @@ static rofl_result_t __of1x_add_single_timer(of1x_flow_table_t* const table, con
 	//NOTE we allocate the timer in the next slot rounding up:
 	//so the actual expiration time will be a value in [hard_timeout,hard_timeout+OF1X_TIMER_SLOT_MS)
 	int slot_position = (table->current_timer_group+(slot_delta/OF1X_TIMER_SLOT_MS))%(OF1X_TIMER_GROUPS_MAX);
-	if(__of1x_entry_timer_init(&(table->timers[slot_position]), entry, is_idle, NULL)==NULL)
+	if(__of1x_entry_timer_init(&(table->timers[slot_position]), entry, is_idle)==NULL)
 		return ROFL_FAILURE;
 
 #else
@@ -569,14 +516,12 @@ static rofl_result_t __of1x_add_single_timer(of1x_flow_table_t* const table, con
 rofl_result_t __of1x_add_timer(of1x_flow_table_t* const table, of1x_flow_entry_t* const entry){
 	rofl_result_t res;
 	//NOTE we don't use that lock because this is only called from of1x_add_flow_entry...()
-	//platform_mutex_lock(table->mutex);
 	
 	if(entry->timer_info.idle_timeout)
 	{
 		res = __of1x_add_single_timer(table, entry->timer_info.idle_timeout, entry, IDLE_TO); //is_idle = 1
 		if(res == ROFL_FAILURE)
 		{
-			//platform_mutex_unlock(table->mutex);
 			return ROFL_FAILURE;
 		}
 	}
@@ -585,12 +530,10 @@ rofl_result_t __of1x_add_timer(of1x_flow_table_t* const table, of1x_flow_entry_t
 		res = __of1x_add_single_timer(table, entry->timer_info.hard_timeout, entry, HARD_TO); //is_idle = 0
 		if(res == ROFL_FAILURE)
 		{
-			//platform_mutex_unlock(table->mutex);
 			return ROFL_FAILURE;
 		}
 	}
 	
-	//platform_mutex_unlock(table->mutex);
 	return ROFL_SUCCESS;
 }
 
@@ -601,7 +544,6 @@ void __of1x_process_pipeline_tables_timeout_expirations(of1x_pipeline_t *const p
 	struct timeval system_time;
 	platform_gettimeofday(&system_time);
 	uint64_t now = __of1x_get_time_ms(&system_time);
-	//ROFL_PIPELINE_DEBUG("<%s:%d> Now = %lu\n",__func__,__LINE__, now);
 
 	for(i=0;i<pipeline->num_of_tables;i++)
 	{

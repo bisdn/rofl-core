@@ -38,10 +38,10 @@ crofconn::~crofconn()
 
 
 void
-crofconn::accept(int newsd)
+crofconn::accept(int newsd, ssl_context *ssl_ctx)
 {
 	flags.set(FLAGS_PASSIVE);
-	rofsock.accept(newsd);
+	rofsock.accept(newsd, ssl_ctx);
 }
 
 
@@ -64,7 +64,8 @@ crofconn::connect(
 		int domain,
 		int type,
 		int protocol,
-		caddress const& raddr)
+		caddress const& raddr,
+		ssl_context *ssl_ctx)
 {
 	if (STATE_ESTABLISHED == state) {
 		throw eRofConnBusy();
@@ -72,7 +73,7 @@ crofconn::connect(
 	flags.reset(FLAGS_PASSIVE);
 	auxiliary_id = aux_id;
 	state = STATE_CONNECT_PENDING;
-	rofsock.connect(domain, type, protocol ,raddr);
+	rofsock.connect(domain, type, protocol, raddr, ssl_ctx);
 }
 
 
@@ -130,11 +131,11 @@ crofconn::run_engine(crofconn_event_t event)
 		case EVENT_CONNECTED: 		event_connected(); 			break;
 		case EVENT_DISCONNECTED:	event_disconnected();		return; // might call this object's destructor
 		case EVENT_HELLO_RCVD:		event_hello_rcvd();			break;
-		case EVENT_HELLO_EXPIRED:	event_hello_expired();		break;
+		case EVENT_HELLO_EXPIRED:	event_hello_expired();		return;
 		case EVENT_FEATURES_RCVD:	event_features_rcvd();		break;
-		case EVENT_FEATURES_EXPIRED:event_features_expired();	break;
+		case EVENT_FEATURES_EXPIRED:event_features_expired();	return;
 		case EVENT_ECHO_RCVD:		event_echo_rcvd();			break;
-		case EVENT_ECHO_EXPIRED:	event_echo_expired();		break;
+		case EVENT_ECHO_EXPIRED:	event_echo_expired();		return;
 		default: {
 			logging::error << "[rofl][conn] unknown event seen, internal error" << std::endl << *this;
 		};

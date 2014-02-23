@@ -51,6 +51,9 @@ m4_include([config/pipeline_custom_funcs.m4])
 # Checking libs
 m4_include([config/versioning.m4])
 
+# Checking OpenSSL
+m4_include([config/openssl.m4])
+
 # Output files
 AC_CONFIG_FILES([
 
