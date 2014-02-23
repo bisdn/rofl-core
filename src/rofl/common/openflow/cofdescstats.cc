@@ -103,7 +103,13 @@ cofdesc_stats_reply::get_serial_num() const
 std::string
 cofdesc_stats_reply::get_dp_desc() const
 {
-	return dp_desc;
+	switch (get_version()) {
+	case rofl::openflow10::OFP_VERSION: {
+		return dp_desc;
+	} break;
+	default:
+		throw eBadVersion();
+	}
 }
 
 
@@ -112,7 +118,7 @@ void
 cofdesc_stats_reply::pack(uint8_t *buf, size_t buflen) const
 {
 	switch (of_version) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		if (buflen < sizeof(struct openflow10::ofp_desc_stats))
 			throw eInval();
 
@@ -121,10 +127,11 @@ cofdesc_stats_reply::pack(uint8_t *buf, size_t buflen) const
 		snprintf(desc->mfr_desc, 	DESC_STR_LEN, mfr_desc.c_str(), 	mfr_desc.length());
 		snprintf(desc->hw_desc,  	DESC_STR_LEN, hw_desc.c_str(), 		hw_desc.length());
 		snprintf(desc->sw_desc,  	DESC_STR_LEN, sw_desc.c_str(), 		sw_desc.length());
-		snprintf(desc->serial_num, 	SERIAL_NUM_LEN, serial_num.c_str(), 	serial_num.length());
+		snprintf(desc->serial_num, 	SERIAL_NUM_LEN, serial_num.c_str(), serial_num.length());
 		snprintf(desc->dp_desc, 	DESC_STR_LEN, dp_desc.c_str(), 		dp_desc.length());
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
 		if (buflen < sizeof(struct openflow12::ofp_desc_stats))
 			throw eInval();
 
@@ -133,8 +140,7 @@ cofdesc_stats_reply::pack(uint8_t *buf, size_t buflen) const
 		snprintf(desc->mfr_desc, 	DESC_STR_LEN, mfr_desc.c_str(), 	mfr_desc.length());
 		snprintf(desc->hw_desc,  	DESC_STR_LEN, hw_desc.c_str(), 		hw_desc.length());
 		snprintf(desc->sw_desc,  	DESC_STR_LEN, sw_desc.c_str(), 		sw_desc.length());
-		snprintf(desc->serial_num, 	SERIAL_NUM_LEN, serial_num.c_str(), 	serial_num.length());
-		snprintf(desc->dp_desc, 	DESC_STR_LEN, dp_desc.c_str(), 		dp_desc.length());
+		snprintf(desc->serial_num, 	SERIAL_NUM_LEN, serial_num.c_str(), serial_num.length());
 	} break;
 	default:
 		throw eBadVersion();
@@ -147,7 +153,7 @@ void
 cofdesc_stats_reply::unpack(uint8_t *buf, size_t buflen)
 {
 	switch (of_version) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		if (buflen < sizeof(struct openflow10::ofp_desc_stats))
 			throw eInval();
 
@@ -158,8 +164,10 @@ cofdesc_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		sw_desc.assign(desc->sw_desc, DESC_STR_LEN);
 		serial_num.assign(desc->serial_num, SERIAL_NUM_LEN);
 		dp_desc.assign(desc->dp_desc, DESC_STR_LEN);
+
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
 		if (buflen < sizeof(struct openflow12::ofp_desc_stats))
 			throw eInval();
 
@@ -169,7 +177,7 @@ cofdesc_stats_reply::unpack(uint8_t *buf, size_t buflen)
 		hw_desc.assign(desc->hw_desc, DESC_STR_LEN);
 		sw_desc.assign(desc->sw_desc, DESC_STR_LEN);
 		serial_num.assign(desc->serial_num, SERIAL_NUM_LEN);
-		dp_desc.assign(desc->dp_desc, DESC_STR_LEN);
+
 	} break;
 	default:
 		throw eBadVersion();
@@ -182,10 +190,11 @@ size_t
 cofdesc_stats_reply::length() const
 {
 	switch (of_version) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		return (sizeof(struct openflow10::ofp_desc_stats));
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION:
+	case rofl::openflow13::OFP_VERSION: {
 		return (sizeof(struct openflow12::ofp_desc_stats));
 	} break;
 	default:

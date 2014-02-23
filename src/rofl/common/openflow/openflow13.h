@@ -1127,6 +1127,29 @@ namespace openflow13 {
 	};
 
 
+	struct ofp_stats_request {
+		struct ofp_header header;
+		uint16_t type;              /* One of the OFPST_* constants. */
+		uint16_t flags;             /* OFPSF_REQ_* flags (none yet defined). */
+		uint8_t pad[4];
+		uint8_t body[0];            /* Body of the request. */
+	};
+	OFP_ASSERT(sizeof(struct ofp_stats_request) == 16);
+
+	enum ofp_stats_reply_flags {
+		OFPSF_REPLY_MORE  = 1 << 0  /* More replies to follow. */
+	};
+
+	struct ofp_stats_reply {
+		struct ofp_header header;
+		uint16_t type;              /* One of the OFPST_* constants. */
+		uint16_t flags;             /* OFPSF_REPLY_* flags. */
+		uint8_t pad[4];
+		uint8_t body[0];            /* Body of the reply. */
+	};
+	OFP_ASSERT(sizeof(struct ofp_stats_reply) == 16);
+
+
 	/*
 	 * 7.3.5.1 Description
 	 */
@@ -1141,9 +1164,8 @@ namespace openflow13 {
 		char hw_desc[DESC_STR_LEN];			/* Hardware description. */
 		char sw_desc[DESC_STR_LEN];			/* Software description. */
 		char serial_num[SERIAL_NUM_LEN];	/* Serial number. */
-		char dp_desc[DESC_STR_LEN];			/* Human readable description of datapath. */
 	};
-	OFP_ASSERT(sizeof(struct ofp_desc) == 1056);
+	OFP_ASSERT(sizeof(struct ofp_desc) == 800);
 
 
 	/*
