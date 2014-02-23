@@ -74,6 +74,19 @@ public: // per instance methods
 	 */
 	cofbucket& operator= (const cofbucket& b);
 
+	/**
+	 *
+	 */
+	uint8_t
+	get_version() const { return ofp_version; };
+
+	/**
+	 *
+	 */
+	void
+	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
+
+
 	/** pack bucket
 	 */
 	uint8_t*
@@ -137,16 +150,29 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofbucket const& bucket) {
-		os << indent(0) << "<cofbucket ";
-			os << "ofp-version:" 	<< (int)bucket.ofp_version 	<< " >" << std::endl;
-			os << indent(2) << "<weight:" 		<< (int)bucket.weight 	<< " >" << std::endl;
-			os << indent(2) << "<watch-group:" 	<< (int)bucket.watch_group 	<< " >" << std::endl;
-			os << indent(2) << "<watch-port:" 	<< (int)bucket.watch_port 	<< " >" << std::endl;
-			os << indent(2) << "<packet-count:"	<< (int)bucket.packet_count << " >" << std::endl;
-			os << indent(2) << "<byte-count:" 	<< (int)bucket.byte_count 	<< " >" << std::endl;
-			os << indent(2) << "<actions: >"	<< std::endl;
-			indent i(4);
-			os << bucket.actions;
+		switch (bucket.get_version()) {
+		case rofl::openflow::OFP_VERSION_UNKNOWN: {
+			os << indent(0) << "<cofbucket ";
+				os << "ofp-version:" 	<< (int)bucket.ofp_version 	<< " >" << std::endl;
+		} break;
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << indent(0) << "<cofbucket ";
+				os << "ofp-version:" 	<< (int)bucket.ofp_version 	<< " >" << std::endl;
+				os << indent(2) << "<weight:" 		<< (int)bucket.weight 	<< " >" << std::endl;
+				os << indent(2) << "<watch-group:" 	<< (int)bucket.watch_group 	<< " >" << std::endl;
+				os << indent(2) << "<watch-port:" 	<< (int)bucket.watch_port 	<< " >" << std::endl;
+				os << indent(2) << "<packet-count:"	<< (int)bucket.packet_count << " >" << std::endl;
+				os << indent(2) << "<byte-count:" 	<< (int)bucket.byte_count 	<< " >" << std::endl;
+				os << indent(2) << "<actions: >"	<< std::endl;
+				indent i(4);
+				os << bucket.actions;
+
+		} break;
+		default: {
+			throw eBadVersion();
+		};
+		}
 		return os;
 	};
 };
