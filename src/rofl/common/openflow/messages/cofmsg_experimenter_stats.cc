@@ -13,7 +13,7 @@ cofmsg_experimenter_stats_request::cofmsg_experimenter_stats_request(
 		uint32_t exp_id,
 		uint32_t exp_type,
 		cmemory const& body) :
-	cofmsg_stats(of_version, xid, 0, flags),
+	cofmsg_stats_request(of_version, xid, 0, flags),
 	body(body)
 {
 	switch (of_version) {
@@ -43,7 +43,7 @@ cofmsg_experimenter_stats_request::cofmsg_experimenter_stats_request(
 
 cofmsg_experimenter_stats_request::cofmsg_experimenter_stats_request(
 		cmemory *memarea) :
-	cofmsg_stats(memarea)
+	cofmsg_stats_request(memarea)
 {
 
 }
@@ -302,7 +302,7 @@ cofmsg_experimenter_stats_reply::cofmsg_experimenter_stats_reply(
 		uint32_t exp_id,
 		uint32_t exp_type,
 		cmemory const& body) :
-	cofmsg_stats(of_version, xid, 0, flags),
+	cofmsg_stats_reply(of_version, xid, 0, flags),
 	body(body)
 {
 	switch (of_version) {
@@ -332,7 +332,7 @@ cofmsg_experimenter_stats_reply::cofmsg_experimenter_stats_reply(
 
 cofmsg_experimenter_stats_reply::cofmsg_experimenter_stats_reply(
 		cmemory *memarea) :
-	cofmsg_stats(memarea)
+	cofmsg_stats_reply(memarea)
 {
 
 }

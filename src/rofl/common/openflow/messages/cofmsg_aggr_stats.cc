@@ -10,7 +10,7 @@ cofmsg_aggr_stats_request::cofmsg_aggr_stats_request(
 		uint32_t xid,
 		uint16_t flags,
 		cofaggr_stats_request const& aggr_stats) :
-	cofmsg_stats(of_version, xid, 0, flags),
+	cofmsg_stats_request(of_version, xid, 0, flags),
 	aggr_stats(aggr_stats)
 {
 	switch (of_version) {
@@ -39,7 +39,7 @@ cofmsg_aggr_stats_request::cofmsg_aggr_stats_request(
 
 cofmsg_aggr_stats_request::cofmsg_aggr_stats_request(
 		cmemory *memarea) :
-	cofmsg_stats(memarea),
+	cofmsg_stats_request(memarea),
 	aggr_stats(get_version())
 {
 	switch (get_version()) {
@@ -234,7 +234,7 @@ cofmsg_aggr_stats_reply::cofmsg_aggr_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		cofaggr_stats_reply const& aggr_stats) :
-	cofmsg_stats(of_version, xid, 0, flags),
+	cofmsg_stats_reply(of_version, xid, 0, flags),
 	aggr_stats(aggr_stats)
 {
 	switch (of_version) {
@@ -263,7 +263,7 @@ cofmsg_aggr_stats_reply::cofmsg_aggr_stats_reply(
 
 cofmsg_aggr_stats_reply::cofmsg_aggr_stats_reply(
 		cmemory *memarea) :
-	cofmsg_stats(memarea),
+	cofmsg_stats_reply(memarea),
 	aggr_stats(get_version())
 {
 	switch (get_version()) {

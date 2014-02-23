@@ -9,7 +9,7 @@ cofmsg_group_desc_stats_request::cofmsg_group_desc_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t flags) :
-	cofmsg_stats(of_version, xid, 0, flags)
+	cofmsg_stats_request(of_version, xid, 0, flags)
 {
 	switch (of_version) {
 	case openflow12::OFP_VERSION: {
@@ -30,7 +30,7 @@ cofmsg_group_desc_stats_request::cofmsg_group_desc_stats_request(
 
 cofmsg_group_desc_stats_request::cofmsg_group_desc_stats_request(
 		cmemory *memarea) :
-	cofmsg_stats(memarea)
+	cofmsg_stats_request(memarea)
 {
 
 }
@@ -166,7 +166,7 @@ cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		std::vector<cofgroup_desc_stats_reply> const& group_desc_stats) :
-	cofmsg_stats(of_version, xid, 0, flags),
+	cofmsg_stats_reply(of_version, xid, 0, flags),
 	group_desc_stats(group_desc_stats)
 {
 	switch (of_version) {
@@ -198,7 +198,7 @@ cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 
 cofmsg_group_desc_stats_reply::cofmsg_group_desc_stats_reply(
 		cmemory *memarea) :
-	cofmsg_stats(memarea),
+	cofmsg_stats_reply(memarea),
 	group_desc_stats(get_version())
 {
 	switch (get_version()) {

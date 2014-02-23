@@ -23,7 +23,7 @@ namespace rofl
  *
  */
 class cofmsg_port_stats_request :
-	public cofmsg_stats
+	public cofmsg_stats_request
 {
 private:
 
@@ -150,7 +150,7 @@ public:
  *
  */
 class cofmsg_port_stats_reply :
-	public cofmsg_stats
+	public cofmsg_stats_reply
 {
 private:
 

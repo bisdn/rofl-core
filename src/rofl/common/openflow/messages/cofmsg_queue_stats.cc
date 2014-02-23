@@ -10,7 +10,7 @@ cofmsg_queue_stats_request::cofmsg_queue_stats_request(
 		uint32_t xid,
 		uint16_t flags,
 		cofqueue_stats_request const& queue_stats) :
-	cofmsg_stats(of_version, xid, 0, flags),
+	cofmsg_stats_request(of_version, xid, 0, flags),
 	queue_stats(queue_stats)
 {
 	switch (of_version) {
@@ -37,7 +37,7 @@ cofmsg_queue_stats_request::cofmsg_queue_stats_request(
 
 cofmsg_queue_stats_request::cofmsg_queue_stats_request(
 		cmemory *memarea) :
-	cofmsg_stats(memarea)
+	cofmsg_stats_request(memarea)
 {
 
 }
@@ -199,7 +199,7 @@ cofmsg_queue_stats_reply::cofmsg_queue_stats_reply(
 		uint32_t xid,
 		uint16_t flags,
 		std::vector<cofqueue_stats_reply> const& queue_stats) :
-	cofmsg_stats(of_version, xid, 0, flags),
+	cofmsg_stats_reply(of_version, xid, 0, flags),
 	queue_stats(queue_stats)
 {
 	switch (of_version) {
@@ -226,7 +226,7 @@ cofmsg_queue_stats_reply::cofmsg_queue_stats_reply(
 
 cofmsg_queue_stats_reply::cofmsg_queue_stats_reply(
 		cmemory *memarea) :
-	cofmsg_stats(memarea)
+	cofmsg_stats_reply(memarea)
 {
 	switch (get_version()) {
 	case openflow10::OFP_VERSION: {

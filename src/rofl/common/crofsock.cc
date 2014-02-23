@@ -930,11 +930,15 @@ crofsock::log_message(
 {
 	logging::debug << "[rofl][sock] " << text << std::endl;
 
+	try {
 	switch (msg.get_version()) {
 	case rofl::openflow10::OFP_VERSION: log_of10_message(msg); break;
 	case rofl::openflow12::OFP_VERSION: log_of12_message(msg); break;
 	case rofl::openflow13::OFP_VERSION: log_of13_message(msg); break;
 	default: logging::debug << "[rolf][sock] unknown OFP version found in msg" << std::endl << msg; break;
+	}
+	} catch (...) {
+		logging::debug << "[rofl][sock] log-message" << std::endl;
 	}
 }
 

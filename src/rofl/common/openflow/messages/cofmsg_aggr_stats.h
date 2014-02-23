@@ -18,7 +18,7 @@ namespace rofl
  *
  */
 class cofmsg_aggr_stats_request :
-	public cofmsg_stats
+	public cofmsg_stats_request
 {
 private:
 
@@ -145,7 +145,7 @@ public:
  *
  */
 class cofmsg_aggr_stats_reply :
-	public cofmsg_stats
+	public cofmsg_stats_reply
 {
 private:
 
