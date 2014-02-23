@@ -145,7 +145,7 @@ public:
 	 *
 	 */
 	cofmsg_desc_stats_reply(
-			uint8_t of_version = 0,
+			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t xid = 0,
 			uint16_t flags = 0,
 			cofdesc_stats_reply const& desc_stats = cofdesc_stats_reply());
