@@ -988,6 +988,29 @@ crofctl_impl::send_group_features_stats_reply(
 
 
 void
+crofctl_impl::send_table_features_stats_reply(
+	uint32_t xid,
+	coftables const& tables,
+	uint16_t stats_flags)
+{
+	if (not is_established()) {
+		logging::warn << "[rofl][ctl] not connected, dropping Table-Features-Stats-Reply message" << std::endl;
+		return;
+	}
+
+	cofmsg_table_features_reply *msg =
+			new cofmsg_table_features_reply(
+					rofchan.get_version(),
+					xid,
+					stats_flags,
+					tables);
+
+	rofchan.send_message(msg, 0);
+}
+
+
+
+void
 crofctl_impl::send_port_desc_stats_reply(
 	uint32_t xid,
 	cofports const& ports,
@@ -1859,7 +1882,7 @@ crofctl_impl::stats_request_rcvd(cofmsg_stats *msg, uint8_t aux_id)
 		// TODO
 	} break;
 	case openflow13::OFPMP_TABLE_FEATURES: {
-		// TODO
+		table_features_stats_request_rcvd(dynamic_cast<cofmsg_table_features_request*>( msg ), aux_id);
 	} break;
 	case openflow13::OFPMP_PORT_DESC: {
 		port_desc_stats_request_rcvd(dynamic_cast<cofmsg_port_desc_stats_request*>( msg ), aux_id);
@@ -2003,6 +2026,21 @@ crofctl_impl::group_features_stats_request_rcvd(cofmsg_group_features_stats_requ
 			<< " Group-Features-Stats-Request message received" << std::endl << request;
 
 	rofbase->handle_group_features_stats_request(*this, request, aux_id);
+
+	delete msg;
+}
+
+
+
+void
+crofctl_impl::table_features_stats_request_rcvd(cofmsg_table_features_request* msg, uint8_t aux_id)
+{
+	cofmsg_table_features_request& request = dynamic_cast<cofmsg_table_features_request&>( *msg );
+
+	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
+			<< " Table-Features-Stats-Request message received" << std::endl << request;
+
+	rofbase->handle_table_features_stats_request(*this, request, aux_id);
 
 	delete msg;
 }

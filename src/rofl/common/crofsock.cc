@@ -822,6 +822,18 @@ crofsock::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 		case openflow13::OFPMP_GROUP_FEATURES: {
 			(*pmsg = new cofmsg_group_features_stats_request(mem))->validate();
 		} break;
+		case openflow13::OFPMP_METER: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_METER_CONFIG: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_METER_FEATURES: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_TABLE_FEATURES: {
+			(*pmsg = new cofmsg_table_features_request(mem))->validate();
+		} break;
 		case openflow13::OFPMP_PORT_DESC: {
 			(*pmsg = new cofmsg_port_desc_stats_request(mem))->validate();
 		} break;
@@ -866,6 +878,18 @@ crofsock::parse_of13_message(cmemory *mem, cofmsg **pmsg)
 		} break;
 		case openflow13::OFPMP_GROUP_FEATURES: {
 			(*pmsg = new cofmsg_group_features_stats_reply(mem))->validate();
+		} break;
+		case openflow13::OFPMP_METER: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_METER_CONFIG: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_METER_FEATURES: {
+			// TODO
+		} break;
+		case openflow13::OFPMP_TABLE_FEATURES: {
+			(*pmsg = new cofmsg_table_features_reply(mem))->validate();
 		} break;
 		case openflow13::OFPMP_PORT_DESC: {
 			(*pmsg = new cofmsg_port_desc_stats_reply(mem))->validate();
@@ -1339,7 +1363,7 @@ crofsock::log_of13_message(
 			// TODO
 		} break;
 		case openflow13::OFPMP_TABLE_FEATURES: {
-			// TODO
+			logging::debug << dynamic_cast<cofmsg_table_features_request const&>( msg );
 		} break;
 		case openflow13::OFPMP_PORT_DESC: {
 			logging::debug << dynamic_cast<cofmsg_port_desc_stats_request const&>( msg );
@@ -1388,7 +1412,7 @@ crofsock::log_of13_message(
 			// TODO
 		} break;
 		case openflow13::OFPMP_TABLE_FEATURES: {
-			// TODO
+			logging::debug << dynamic_cast<cofmsg_table_features_reply const&>( msg );
 		} break;
 		case openflow13::OFPMP_PORT_DESC: {
 			logging::debug << dynamic_cast<cofmsg_port_desc_stats_reply const&>( msg );

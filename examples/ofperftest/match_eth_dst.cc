@@ -65,7 +65,7 @@ match_eth_dst::install_flow_mods(crofdpt *dpt, unsigned int n)
 
 	uint32_t portnums[2];
 
-	std::map<uint32_t, cofport*>::iterator it = dpt->get_ports().begin();
+	std::map<uint32_t, cofport*>::const_iterator it = dpt->get_ports().begin();
 	portnums[0] = it->first;
 	it++;
 	portnums[1] = it->first;

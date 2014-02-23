@@ -173,7 +173,8 @@ public:
 	cofmsg_table_features_reply(
 			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t xid = 0,
-			uint16_t stats_flags = 0);
+			uint16_t stats_flags = 0,
+			rofl::openflow::coftables const tables = rofl::openflow::coftables());
 
 
 	/**

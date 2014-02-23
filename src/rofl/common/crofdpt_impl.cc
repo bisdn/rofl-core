@@ -805,30 +805,6 @@ crofdpt_impl::send_get_config_request()
 
 
 uint32_t
-crofdpt_impl::send_table_features_stats_request(
-		uint16_t stats_flags)
-{
-	if (not is_established()) {
-		logging::warn << "[rofl][dpt] not connected, dropping Table-Features-Stats-Request message" << std::endl;
-		throw eRofBaseNotConnected();
-	}
-
-	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_TABLE_FEATURES);
-
-	throw eNotImplemented("crofdpt_impl::send_table_features_stats_request()");
-#if 0
-	cofmsg_get_config_request *msg =
-			new cofmsg_get_config_request(rofchan.get_version(), xid);
-
-	rofchan.send_message(msg, 0);
-#endif
-
-	return xid;
-}
-
-
-
-uint32_t
 crofdpt_impl::send_stats_request(
 	uint16_t stats_type,
 	uint16_t stats_flags,
@@ -1073,6 +1049,30 @@ crofdpt_impl::send_group_features_stats_request(
 
 	cofmsg_group_features_stats_request *msg =
 			new cofmsg_group_features_stats_request(
+					rofchan.get_version(),
+					xid,
+					flags);
+
+	rofchan.send_message(msg, 0);
+
+	return xid;
+}
+
+
+
+uint32_t
+crofdpt_impl::send_table_features_stats_request(
+		uint16_t flags)
+{
+	if (not is_established()) {
+		logging::warn << "[rofl][dpt] not connected, dropping Table-Features-Stats-Request message" << std::endl;
+		throw eRofBaseNotConnected();
+	}
+
+	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_TABLE_FEATURES);
+
+	cofmsg_table_features_request *msg =
+			new cofmsg_table_features_request(
 					rofchan.get_version(),
 					xid,
 					flags);
@@ -1680,20 +1680,6 @@ crofdpt_impl::table_stats_reply_rcvd(
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
 			<< " Table-Stats-Reply message received" << std::endl;
 
-	switch (msg->get_version()) {
-	case rofl::openflow12::OFP_VERSION: {
-		// clear our old table map
-		tables.clear();
-		// iterate through all received table stats bodies and fill in our local tables map
-		for (std::vector<coftable_stats_reply>::iterator
-				it = reply.get_table_stats().begin(); it != reply.get_table_stats().end(); ++it) {
-			coftable_stats_reply& table = (*it);
-			tables[table.get_table_id()] = table;
-		}
-
-	} break;
-	}
-
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_table_stats_reply(*this, reply, aux_id);
 	} else {
@@ -1864,8 +1850,17 @@ void
 crofdpt_impl::table_features_stats_reply_rcvd(
 		cofmsg *msg, uint8_t aux_id)
 {
+	cofmsg_table_features_reply& reply = dynamic_cast<cofmsg_table_features_reply&>( *msg );
+
+	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
+			<< " Table-Features-Stats-Reply message received" << std::endl;
+
+	if (STATE_ESTABLISHED == state) {
+		rofbase->handle_table_features_stats_reply(*this, reply, aux_id);
+	}
 	delete msg;
-	throw eNotImplemented("crofdpt_impl::table_features_stats_reply_rcvd()"); // TODO
+
+	run_engine(EVENT_TABLE_FEATURES_STATS_REPLY_RCVD);
 }
 
 

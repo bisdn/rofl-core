@@ -209,14 +209,14 @@ cofports::set_port(uint32_t portno)
 
 
 
-cofport&
-cofports::get_port(uint32_t portno)
+cofport const&
+cofports::get_port(uint32_t portno) const
 {
-	std::map<uint32_t, cofport*>& ports = (*this);
+	std::map<uint32_t, cofport*> const& ports = (*this);
 	if (ports.find(portno) == ports.end()) {
 		throw ePortNotFound();
 	}
-	return *(ports[portno]);
+	return *(ports.at(portno));
 }
 
 

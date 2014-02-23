@@ -123,8 +123,8 @@ public:
 	/**
 	 *
 	 */
-	cofport&
-	get_port(uint32_t portno);
+	cofport const&
+	get_port(uint32_t portno) const;
 
 	/**
 	 *

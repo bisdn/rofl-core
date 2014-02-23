@@ -170,9 +170,10 @@ cofmsg_table_features_request::validate()
 cofmsg_table_features_reply::cofmsg_table_features_reply(
 		uint8_t of_version,
 		uint32_t xid,
-		uint16_t stats_flags) :
+		uint16_t stats_flags,
+		rofl::openflow::coftables const tables) :
 	cofmsg_stats_reply(of_version, xid, 0, stats_flags),
-	tables(of_version)
+	tables(tables)
 {
 	switch (of_version) {
 	case rofl::openflow::OFP_VERSION_UNKNOWN: {

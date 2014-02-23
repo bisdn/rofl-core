@@ -98,7 +98,7 @@ private: // data structures
 		uint8_t 								n_tables;		// number of tables
 		uint32_t 								capabilities;	// capabilities flags
 
-		std::map<uint8_t, coftable_stats_reply> tables;			// map of tables: table_id:coftable_stats_reply
+		coftables								tables;			// list of tables
 		cofports								ports;			// list of ports
 		std::bitset<32> 						dptflags;		// 'fragmentation' flags
 		uint16_t								config;
@@ -322,7 +322,16 @@ public:
 	 * @return ports
 	 */
 	virtual cofports&
-	get_ports() { return ports; };
+	set_ports() { return ports; };
+
+
+	/**
+	 * @brief	Returns reference to the data path element's cofport list.
+	 *
+	 * @return ports
+	 */
+	virtual cofports const&
+	get_ports() const { return ports; };
 
 
 	/**
@@ -330,8 +339,17 @@ public:
 	 *
 	 * @return tables
 	 */
-	virtual std::map<uint8_t, coftable_stats_reply>&
-	get_tables() { return tables; };
+	virtual coftables&
+	set_tables() { return tables; };
+
+
+	/**
+	 * @brief	Returns reference to the data path element's coftable_stats_reply list.
+	 *
+	 * @return tables
+	 */
+	virtual coftables const&
+	get_tables() const { return tables; };
 
 
 	/**@}*/
@@ -757,16 +775,6 @@ public:
 	send_get_config_request();
 
 	/**
-	 * @brief	Sends a TABLE-STATS.request to a data path element.
-	 *
-	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
-	 * @return transaction ID for this TABLE-STATS.request
-	 */
-	virtual uint32_t
-	send_table_features_stats_request(
-			uint16_t stats_flags);
-
-	/**
 	 * @brief	Sends a STATS.request to a data path element.
 	 *
 	 * @param stats_type one of the OFPMP_* constants
@@ -881,6 +889,16 @@ public:
 	 */
 	virtual uint32_t
 	send_group_features_stats_request(
+			uint16_t flags);
+
+	/**
+	 * @brief	Sends a TABLE-FEATURES-STATS.request to a data path element.
+	 *
+	 * @param stats_flags a bitfield with OFPSF_REQ_* flags
+	 * @return transaction ID for this TABLE-FEATURES-STATS.request
+	 */
+	virtual uint32_t
+	send_table_features_stats_request(
 			uint16_t flags);
 
 	/**
@@ -1114,10 +1132,7 @@ public:
 		os << indent(2) << "<config: " << std::hex << (int)dpt.config << std::dec << " >" << std::endl;
 		os << indent(2) << "<miss-send-len: " << (int)dpt.miss_send_len << " >" << std::endl;
 		indent i(2);
-		for (std::map<uint8_t, coftable_stats_reply>::const_iterator
-				it = dpt.tables.begin(); it != dpt.tables.end(); ++it) {
-			os << it->second;
-		}
+		os << dpt.tables;
 		os << dpt.ports;
 		os << dpt.rofchan;
 		os << dpt.transactions;

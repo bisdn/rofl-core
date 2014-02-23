@@ -16,6 +16,7 @@
 #include "rofl/common/croflexception.h"
 #include "rofl/common/cmemory.h"
 #include "rofl/common/openflow/cofports.h"
+#include "rofl/common/openflow/coftables.h"
 #include "rofl/common/openflow/extensions/cfsptable.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/messages/cofmsg.h"
@@ -284,7 +285,16 @@ public:
 	 * @return ports
 	 */
 	virtual cofports&
-	get_ports() = 0;
+	set_ports() = 0;
+
+
+	/**
+	 * @brief	Returns reference to the data path element's cofport list.
+	 *
+	 * @return ports
+	 */
+	virtual cofports const&
+	get_ports() const = 0;
 
 
 	/**
@@ -292,8 +302,17 @@ public:
 	 *
 	 * @return tables
 	 */
-	virtual std::map<uint8_t, coftable_stats_reply>&
-	get_tables() = 0;
+	virtual coftables&
+	set_tables() = 0;
+
+
+	/**
+	 * @brief	Returns reference to the data path element's coftable_stats_reply list.
+	 *
+	 * @return tables
+	 */
+	virtual coftables const&
+	get_tables() const = 0;
 
 
 	/**@}*/

@@ -323,7 +323,10 @@ private:
 
 	// TODO : METER_FEATURES
 
-	// TODO : TABLE_FEATURES
+	void
+	table_features_stats_request_rcvd(
+			cofmsg_table_features_request* msg,
+			uint8_t aux_id = 0);
 
 	void
 	port_desc_stats_request_rcvd(
@@ -573,6 +576,19 @@ public:
 	send_group_features_stats_reply(
 		uint32_t xid,
 		cofgroup_features_stats_reply const& group_features_stats,
+		uint16_t stats_flags = 0);
+
+	/**
+	 * @brief	Sends a TABLE-FEATURES-STATS.reply to a controller entity.
+	 *
+	 * @param xid transaction ID from received STATS.request
+	 * @param tables tables body
+	 * @param more flag if multiple STATS replies will be sent
+	 */
+	virtual void
+	send_table_features_stats_reply(
+		uint32_t xid,
+		coftables const& tables,
 		uint16_t stats_flags = 0);
 
 	/**

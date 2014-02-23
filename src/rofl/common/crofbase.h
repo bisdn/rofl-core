@@ -903,6 +903,20 @@ protected:
 
 
 	/**
+	 * @brief	Called once a TABLE-FEATURES-STATS.request message was received from a controller entity.
+	 *
+	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
+	 * of msg from heap and generation of proper error message sent to controller entity.
+	 *
+	 * @param ctl Pointer to cofctl instance from which the TABLE-FEATURES-STATS.request was received
+	 * @param msg Pointer to cofmsg_table_features_request message containing the received message
+	 */
+	virtual void
+	handle_table_features_stats_request(crofctl& ctl, cofmsg_table_features_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+
+
+
+	/**
 	 * @brief	Called once a PORT-DESC-STATS.request message was received from a controller entity.
 	 *
 	 * To be overwritten by derived class. Default behavior: throws eBadRequestBadStat resulting in removal
@@ -1071,6 +1085,19 @@ protected:
 	 */
 	virtual void
 	handle_group_features_stats_reply(crofdpt& dpt, cofmsg_group_features_stats_reply& msg, uint8_t aux_id = 0) {};
+
+
+
+	/**
+	 * @brief	Called once a TABLE-FEATURES-STATS.reply message was received.
+	 *
+	 * To be overwritten by derived class. Default behavior: removes msg from heap.
+	 *
+	 * @param dpt pointer to cofdpt instance from which the TABLE-FEATURES-STATS.reply message was received.
+	 * @param msg pointer to cofmsg_table_features_reply message containing the received message
+	 */
+	virtual void
+	handle_table_features_stats_reply(crofdpt& dpt, cofmsg_table_features_reply& msg, uint8_t aux_id = 0) {};
 
 
 
