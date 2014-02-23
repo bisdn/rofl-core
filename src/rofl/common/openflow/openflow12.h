@@ -1142,8 +1142,13 @@ namespace openflow12 {
 									   mask. */
 		OFPBMC_BAD_WILDCARDS,       /* Unsupported wildcard specified in the
 									   match. */
-		OFPBMC_BAD_FIELD,		/* Unsupported field in the match. */
-		OFPBMC_BAD_VALUE,		/* Unsupported value in a match field. */
+		OFPBMC_BAD_FIELD,			/* Unsupported field in the match. */
+		OFPBMC_BAD_VALUE,			/* Unsupported value in a match field. */
+		OFPBMC_BAD_MASK,		 	/* Unsupported mask specified in the match,
+									 * field is not dl-address or nw-address. */
+		OFPBMC_BAD_PREREQ,		 	/* A prerequisite was not met. */
+		OFPBMC_DUP_FIELD,		 	/* A field type was duplicated. */
+		OFPBMC_EPERM,			 	/* Permissions error. */
 	};
 
 	/* ofp_error_msg 'code' values for OFPET_FLOW_MOD_FAILED.  'data' contains

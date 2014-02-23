@@ -1477,12 +1477,12 @@ void __of1x_dump_matches(of1x_match_t* matches){
 			case OF1X_MATCH_IN_PHY_PORT: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PHY_PORT_IN:%u], ",it->value->value.u32);
 				break; 
 
-			case OF1X_MATCH_METADATA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[METADATA:0x%llx|0x%llx],  ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64); 
+			case OF1X_MATCH_METADATA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[METADATA:0x%"PRIu64"|0x%"PRIu64"],  ",it->value->value.u64,it->value->mask.u64); 
 				break;
 
-			case OF1X_MATCH_ETH_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_DST:0x%llx|0x%llx],  ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
+			case OF1X_MATCH_ETH_DST: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_DST:0x%"PRIu64"|0x%"PRIu64"],  ",it->value->value.u64,it->value->mask.u64);
 				break; 
-			case OF1X_MATCH_ETH_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_SRC:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
+			case OF1X_MATCH_ETH_SRC:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_SRC:0x%"PRIu64"|0x%"PRIu64"], ",it->value->value.u64,it->value->mask.u64);
 				break; 
 			case OF1X_MATCH_ETH_TYPE:  ROFL_PIPELINE_DEBUG_NO_PREFIX("[ETH_TYPE:0x%x], ",it->value->value.u16);
 				break; 
@@ -1504,11 +1504,11 @@ void __of1x_dump_matches(of1x_match_t* matches){
 
 			case OF1X_MATCH_ARP_OP: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_OPCODE:0x%x], ",it->value->value.u16);
 				break;
-			case OF1X_MATCH_ARP_SHA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_SHA:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
+			case OF1X_MATCH_ARP_SHA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_SHA:0x%"PRIu64"|0x%"PRIu64"], ",it->value->value.u64,it->value->mask.u64);
 				break;
 			case OF1X_MATCH_ARP_SPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_SPA:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break;
-			case OF1X_MATCH_ARP_THA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_THA:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
+			case OF1X_MATCH_ARP_THA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_THA:0x%"PRIu64"|0x%"PRIu64"], ",it->value->value.u64,it->value->mask.u64);
 				break;
 			case OF1X_MATCH_ARP_TPA: ROFL_PIPELINE_DEBUG_NO_PREFIX("[ARP_TPA:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break;
@@ -1584,7 +1584,7 @@ void __of1x_dump_matches(of1x_match_t* matches){
 			case OF1X_MATCH_PBB_ISID: ROFL_PIPELINE_DEBUG_NO_PREFIX("[PBB_ISID:0x%x|0x%x], ",it->value->value.u32,it->value->mask.u32);
 				break;
 			//TUNNEL ID
-			case OF1X_MATCH_TUNNEL_ID: ROFL_PIPELINE_DEBUG_NO_PREFIX("[TUNNEL_ID:0x%llx|0x%llx], ",(long long unsigned)it->value->value.u64,(long long unsigned)it->value->mask.u64);
+			case OF1X_MATCH_TUNNEL_ID: ROFL_PIPELINE_DEBUG_NO_PREFIX("[TUNNEL_ID:0x%"PRIu64"|0x%"PRIu64"], ",it->value->value.u64,it->value->mask.u64);
 				break;
 
 			/* PPP/PPPoE related extensions */
