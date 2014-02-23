@@ -62,6 +62,19 @@ public: // methods
 	/**
 	 *
 	 */
+	uint8_t
+	get_version() const { return ofp_version; };
+
+	/**
+	 *
+	 */
+	void
+	set_version(uint8_t ofp_version) { this->ofp_version = ofp_version; };
+
+
+	/**
+	 *
+	 */
 	void
 	pop_front();
 
@@ -157,13 +170,26 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofbuckets const& buckets) {
-		os << indent(0) << "<cofbuckets ";
-		os << "ofp-version:" << (int)buckets.ofp_version << " ";
-		os << "#buckets:" << buckets.size() << " >" << std::endl;
-		indent i(2);
-		for (cofbuckets::const_iterator
-				it = buckets.begin(); it != buckets.end(); ++it) {
-			os << *(*it);
+		switch (buckets.get_version()) {
+		case rofl::openflow::OFP_VERSION_UNKNOWN: {
+			os << indent(0) << "<cofbuckets ";
+					os << "ofp-version:" << (int)buckets.ofp_version << " >" << std::endl;
+
+		} break;
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << indent(0) << "<cofbuckets ";
+			os << "ofp-version:" << (int)buckets.ofp_version << " ";
+			os << "#buckets:" << buckets.size() << " >" << std::endl;
+			indent i(2);
+			for (cofbuckets::const_iterator
+					it = buckets.begin(); it != buckets.end(); ++it) {
+				os << *(*it);
+			}
+
+		} break;
+		default:
+			throw eBadVersion();
 		}
 		return os;
 	};
