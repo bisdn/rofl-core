@@ -61,28 +61,28 @@ private: // data structures
 		};
 
 		enum crofdpt_impl_state_t {
-			STATE_INIT 							= 0,
-			STATE_DISCONNECTED					= 1,
-			STATE_CONNECTED						= 2,
-			STATE_FEATURES_RCVD 				= 3,
-			STATE_GET_CONFIG_RCVD				= 4,
-			STATE_PORT_DESC_RCVD				= 5,
-			STATE_ESTABLISHED					= 6,
+			STATE_INIT 									= 0,
+			STATE_DISCONNECTED							= 1,
+			STATE_CONNECTED								= 2,
+			STATE_FEATURES_RCVD 						= 3,
+			STATE_GET_CONFIG_RCVD						= 4,
+			STATE_PORT_DESC_RCVD						= 5,
+			STATE_ESTABLISHED							= 6,
 		};
 
 		enum crofdpt_impl_event_t {
-			EVENT_NONE							= 0,
-			EVENT_DISCONNECTED					= 1,
-			EVENT_CONNECTED						= 2,
-			EVENT_FEATURES_REPLY_RCVD			= 3,
-			EVENT_FEATURES_REQUEST_EXPIRED		= 4,
-			EVENT_GET_CONFIG_REPLY_RCVD			= 5,
-			EVENT_GET_CONFIG_REQUEST_EXPIRED	= 6,
-			EVENT_TABLE_STATS_REPLY_RCVD		= 7,
-			EVENT_TABLE_STATS_REQUEST_EXPIRED	= 8,
+			EVENT_NONE									= 0,
+			EVENT_DISCONNECTED							= 1,
+			EVENT_CONNECTED								= 2,
+			EVENT_FEATURES_REPLY_RCVD					= 3,
+			EVENT_FEATURES_REQUEST_EXPIRED				= 4,
+			EVENT_GET_CONFIG_REPLY_RCVD					= 5,
+			EVENT_GET_CONFIG_REQUEST_EXPIRED			= 6,
+			EVENT_TABLE_STATS_REPLY_RCVD				= 7,
+			EVENT_TABLE_STATS_REQUEST_EXPIRED			= 8,
 			EVENT_TABLE_FEATURES_STATS_REPLY_RCVD		= 9,
 			EVENT_TABLE_FEATURES_STATS_REQUEST_EXPIRED	= 10,
-			EVENT_PORT_DESC_STATS_REPLY_RCVD	= 11,
+			EVENT_PORT_DESC_STATS_REPLY_RCVD			= 11,
 			EVENT_PORT_DESC_STATS_REQUEST_EXPIRED		= 12,
 		};
 
@@ -500,6 +500,7 @@ private:
 	void
 	event_get_config_request_expired();
 
+#if 0
 	/**
 	 *
 	 */
@@ -535,6 +536,7 @@ private:
 	 */
 	void
 	event_port_desc_request_expired();
+#endif
 
 
 

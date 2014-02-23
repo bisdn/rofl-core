@@ -113,6 +113,7 @@ crofdpt_impl::run_engine(crofdpt_impl_event_t event)
 		case EVENT_GET_CONFIG_REQUEST_EXPIRED: {
 			event_get_config_request_expired();
 		} break;
+#if 0
 		case EVENT_TABLE_STATS_REPLY_RCVD: {
 			event_table_stats_reply_rcvd();
 		} break;
@@ -131,6 +132,7 @@ crofdpt_impl::run_engine(crofdpt_impl_event_t event)
 		case EVENT_PORT_DESC_STATS_REQUEST_EXPIRED: {
 			event_port_desc_request_expired();
 		} break;
+#endif
 		default: {
 			logging::error << "[rofl][dpt] unknown event seen, internal error" << std::endl << *this;
 		};
@@ -233,18 +235,22 @@ crofdpt_impl::event_get_config_reply_rcvd()
 
 		} break;
 		case rofl::openflow12::OFP_VERSION: {
-			state = STATE_GET_CONFIG_RCVD;
+			//state = STATE_GET_CONFIG_RCVD;
+			state = STATE_ESTABLISHED;
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 							<< "Get-Config-Reply rcvd (features-reply-rcvd -> get-config-reply-rcvd)" << std::endl;
-			send_table_stats_request(0);
+			//send_table_stats_request(0);
+			rofbase->handle_dpath_open(*this);
 
 		} break;
 		case rofl::openflow13::OFP_VERSION:
 		default: {
-			state = STATE_GET_CONFIG_RCVD;
+			//state = STATE_GET_CONFIG_RCVD;
+			state = STATE_ESTABLISHED;
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 							<< "Get-Config-Reply rcvd (features-reply-rcvd -> get-config-reply-rcvd)" << std::endl;
-			send_table_features_stats_request(0);
+			//send_table_features_stats_request(0);
+			rofbase->handle_dpath_open(*this);
 
 		} break;
 		}
@@ -281,7 +287,7 @@ crofdpt_impl::event_get_config_request_expired()
 }
 
 
-
+#if 0
 void
 crofdpt_impl::event_port_desc_reply_rcvd()
 {
@@ -405,6 +411,19 @@ crofdpt_impl::event_table_features_stats_reply_rcvd()
 	switch (state) {
 	case STATE_GET_CONFIG_RCVD: {
 		state = STATE_ESTABLISHED;
+
+		switch (rofchan.get_version()) {
+		case rofl::openflow13::OFP_VERSION: {
+			state = STATE_ESTABLISHED;
+			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
+								<< "Table-Features-Stats-Reply rcvd (get-config-rcvd -> established)" << std::endl;
+			rofbase->handle_dpt_open(this);
+		} break;
+		default: {
+			// do nothing
+		};
+		}
+
 	} break;
 	case STATE_ESTABLISHED: {
 		// do nothing
@@ -432,6 +451,7 @@ crofdpt_impl::event_table_features_stats_request_expired()
 	};
 	}
 }
+#endif
 
 
 void
@@ -1855,6 +1875,8 @@ crofdpt_impl::table_features_stats_reply_rcvd(
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
 			<< " Table-Features-Stats-Reply message received" << std::endl;
 
+	tables = reply.get_tables();
+
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_table_features_stats_reply(*this, reply, aux_id);
 	}
@@ -1873,6 +1895,8 @@ crofdpt_impl::port_desc_stats_reply_rcvd(
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
 			<< " Port-Desc-Stats-Reply message received" << std::endl;
+
+	ports = reply.get_ports();
 
 	if (STATE_ESTABLISHED == state) {
 		rofbase->handle_port_desc_stats_reply(*this, reply, aux_id);
