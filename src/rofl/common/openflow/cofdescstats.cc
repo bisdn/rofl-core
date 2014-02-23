@@ -3,14 +3,6 @@
 using namespace rofl;
 
 
-
-cofdesc_stats_reply::cofdesc_stats_reply(
-		uint8_t of_version) :
-				of_version(of_version)
-{}
-
-
-
 cofdesc_stats_reply::cofdesc_stats_reply(
 		uint8_t of_version,
 		std::string const& mfr_desc,

@@ -30,22 +30,17 @@ public: // data structures
 
 
 public:
-	/**
-	 *
-	 */
-	cofdesc_stats_reply(
-			uint8_t of_version = 0);
 
 	/**
 	 *
 	 */
 	cofdesc_stats_reply(
-			uint8_t of_version,
-			std::string const& mfr_desc,
-			std::string const& hw_desc,
-			std::string const& sw_desc,
-			std::string const& serial_num,
-			std::string const& dp_desc);
+			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN,
+			std::string const& mfr_desc 	= std::string(""),
+			std::string const& hw_desc 		= std::string(""),
+			std::string const& sw_desc 		= std::string(""),
+			std::string const& serial_num 	= std::string(""),
+			std::string const& dp_desc 		= std::string(""));
 
 	/**
 	 *
@@ -134,13 +129,34 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofdesc_stats_reply const& desc_stats_reply) {
-		os << indent(0) << "<cofdesc_stats_reply >" << std::endl;
-		os << indent(2) << "<mfr-desc: " << desc_stats_reply.mfr_desc << " >" << std::endl;
-		os << indent(2) << "<hw-desc: " << desc_stats_reply.hw_desc << " >" << std::endl;
-		os << indent(2) << "<sw-desc: " << desc_stats_reply.sw_desc << " >" << std::endl;
-		os << indent(2) << "<serial-num: " << desc_stats_reply.serial_num << " >" << std::endl;
-		os << indent(2) << "<dp-desc: " << desc_stats_reply.dp_desc << " >" << std::endl;
+	operator<< (std::ostream& os, cofdesc_stats_reply const& reply) {
+		switch (reply.get_version()) {
+		case rofl::openflow::OFP_VERSION_UNKNOWN: {
+			os << indent(0) << "<cofdesc_stats_reply ofp-version:" << reply.get_version() << " >" << std::endl;
+
+		} break;
+		case rofl::openflow10::OFP_VERSION: {
+			os << indent(0) << "<cofdesc_stats_reply ofp-version:" << reply.get_version() << " >" << std::endl;
+			os << indent(2) << "<mfr-desc: " << reply.mfr_desc << " >" << std::endl;
+			os << indent(2) << "<hw-desc: " << reply.hw_desc << " >" << std::endl;
+			os << indent(2) << "<sw-desc: " << reply.sw_desc << " >" << std::endl;
+			os << indent(2) << "<serial-num: " << reply.serial_num << " >" << std::endl;
+			os << indent(2) << "<dp-desc: " << reply.dp_desc << " >" << std::endl;
+
+		} break;
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << indent(0) << "<cofdesc_stats_reply ofp-version:" << reply.get_version() << " >" << std::endl;
+			os << indent(2) << "<mfr-desc: " << reply.mfr_desc << " >" << std::endl;
+			os << indent(2) << "<hw-desc: " << reply.hw_desc << " >" << std::endl;
+			os << indent(2) << "<sw-desc: " << reply.sw_desc << " >" << std::endl;
+			os << indent(2) << "<serial-num: " << reply.serial_num << " >" << std::endl;
+
+		} break;
+		default: {
+			throw eBadVersion();
+		};
+		}
 		return os;
 	};
 };
