@@ -206,6 +206,9 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaggr_stats_request const& aggr_stats_request) {
 		switch (aggr_stats_request.get_version()) {
+		case rofl::openflow::OFP_VERSION_UNKNOWN: {
+			os << indent(0) << "<cofaggr_stats_request >" << std::endl;
+		} break;
 		case rofl::openflow10::OFP_VERSION: {
 			os << indent(0) << "<cofaggr_stats_request >" << std::endl;
 			os << indent(2) << "<table-id:" << (int)aggr_stats_request.get_table_id() << " >" << std::endl;
@@ -379,11 +382,23 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofaggr_stats_reply const& aggr_stats_reply) {
-		os << indent(0) << "<cofaggr_stats_reply >" << std::endl;
-		os << indent(2) << "<packet-count:" << (int)aggr_stats_reply.get_packet_count() << " >" << std::endl;
-		os << indent(2) << "<byte-count:" << (int)aggr_stats_reply.get_byte_count() << " >" << std::endl;
-		os << indent(2) << "<flow-count:" << (int)aggr_stats_reply.get_flow_count() << " >" << std::endl;
+	operator<< (std::ostream& os, cofaggr_stats_reply const& reply) {
+		switch (reply.get_version()) {
+		case rofl::openflow::OFP_VERSION_UNKNOWN: {
+			os << indent(0) << "<cofaggr_stats_reply >" << std::endl;
+		} break;
+		case rofl::openflow10::OFP_VERSION:
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << indent(0) << "<cofaggr_stats_reply >" << std::endl;
+			os << indent(2) << "<packet-count:" << (int)reply.get_packet_count() << " >" << std::endl;
+			os << indent(2) << "<byte-count:" << (int)reply.get_byte_count() << " >" << std::endl;
+			os << indent(2) << "<flow-count:" << (int)reply.get_flow_count() << " >" << std::endl;
+		} break;
+		default: {
+			throw eBadVersion();
+		};
+		}
 		return os;
 	};
 };

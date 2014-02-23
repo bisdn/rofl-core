@@ -254,7 +254,7 @@ public:
 		os << indent(0) << "<cofaction ";
 			os << "ofp-version:" << (int)action.ofp_version << " ";
 			os << "type:" << (int)action.get_type() << " ";
-			os << "length:" << (int)action.length() << " ";
+			os << "length:" << (int)action.get_length() << " ";
 		os << " >" << std::endl;
 		return os;
 	};
@@ -429,9 +429,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_vlan_vid const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_set_vlan_vid ";
-		os << "vid:" << (int)action.get_vlan_vid() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_set_vlan_vid ";
+			os << "vid:" << (int)action.get_vlan_vid() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type SET-VLAN-VID not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -492,9 +500,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_vlan_pcp const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_set_vlan_pcp ";
-		os << "pcp:" << (int)action.get_vlan_pcp() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_set_vlan_pcp ";
+			os << "pcp:" << (int)action.get_vlan_pcp() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type SET-VLAN-PCP not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -536,8 +552,16 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_strip_vlan const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_strip_vlan >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_strip_vlan >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type STRIP-VLAN not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -598,9 +622,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_dl_src const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_set_dl_src ";
-		os << "dl-src:" << action.get_dl_src() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_set_dl_src ";
+			os << "dl-src:" << action.get_dl_src() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type SET-DL-SRC not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -661,9 +693,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_dl_dst const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_set_dl_dst ";
-		os << "dl-dst:" << action.get_dl_dst() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_set_dl_dst ";
+			os << "dl-dst:" << action.get_dl_dst() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type SET-DL-DST not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -726,9 +766,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_nw_src const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_set_nw_src ";
-		os << "nw-src:" << action.get_nw_src() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_set_nw_src ";
+			os << "nw-src:" << action.get_nw_src() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type SET-NW-SRC not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -791,9 +839,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_nw_dst const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_set_nw_dst ";
-		os << "nw-dst:" << action.get_nw_dst() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_set_nw_dst ";
+			os << "nw-dst:" << action.get_nw_dst() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type SET-NW-DST not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -854,9 +910,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_nw_tos const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_set_nw_tos ";
-		os << "nw-tos:" << (int)action.get_nw_tos() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_set_nw_tos ";
+			os << "nw-tos:" << (int)action.get_nw_tos() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type SET-NW-TOS not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -917,9 +981,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_tp_src const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_set_tp_src ";
-		os << "tp-src:" << (int)action.get_tp_src() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_set_tp_src ";
+			os << "tp-src:" << (int)action.get_tp_src() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type SET-TP-SRC not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -980,9 +1052,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_tp_dst const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_set_tp_dst ";
-		os << "tp-dst:" << (int)action.get_tp_dst() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_set_tp_dst ";
+			os << "tp-dst:" << (int)action.get_tp_dst() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type SET-TP-DST not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1060,10 +1140,18 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_enqueue const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_enqueue ";
-		os << "port:0x" << std::hex << (int)action.get_port() << std::dec << " ";
-		os << "queue-id:" << (int)action.get_queue_id() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_enqueue ";
+			os << "port:0x" << std::hex << (int)action.get_port() << std::dec << " ";
+			os << "queue-id:" << (int)action.get_queue_id() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type ENQUEUE not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1135,10 +1223,18 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_vendor const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_vendor ";
-		os << "vendor-id:" << (int)action.get_vendor() << " >" << std::endl;
-		os << action.action;
+		switch (action.get_version()) {
+		case rofl::openflow10::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_vendor ";
+			os << "vendor-id:" << (int)action.get_vendor() << " >" << std::endl;
+			os << action.action;
+		} break;
+		default: {
+			os << indent(2) << "<action type VENDOR not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1211,9 +1307,18 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_mpls_ttl const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_set_mpls_ttl ";
-		os << "mpls-ttl:" << (int)action.get_mpls_ttl() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_set_mpls_ttl ";
+			os << "mpls-ttl:" << (int)action.get_mpls_ttl() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type SET-MPLS-TTL not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1261,8 +1366,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_dec_mpls_ttl const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_dec_mpls_ttl >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_dec_mpls_ttl >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type DEC-MPLS-TTL not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1325,9 +1439,18 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_push_vlan const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_push_vlan ";
-		os << "eth-type:0x" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_push_vlan ";
+			os << "eth-type:0x" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type PUSH-VLAN not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1390,9 +1513,18 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_push_mpls const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_push_mpls ";
-		os << "eth-type:0x" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_push_mpls ";
+			os << "eth-type:0x" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type PUSH-MPLS not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1436,8 +1568,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_pop_vlan const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_pop_vlan >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_pop_vlan >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type POP-VLAN not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1500,9 +1641,18 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_pop_mpls const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_pop_mpls ";
-		os << "eth-type:0x" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_pop_mpls ";
+			os << "eth-type:0x" << std::hex << (int)action.get_eth_type() << std::dec << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type POP-MPLS not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1566,9 +1716,18 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_group const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_group ";
-		os << "group-id:" << (int)action.get_group_id() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_group ";
+			os << "group-id:" << (int)action.get_group_id() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type GROUP not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1632,9 +1791,18 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_nw_ttl const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_set_nw_ttl ";
-		os << "nw-ttl:" << (int)action.get_nw_ttl() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_set_nw_ttl ";
+			os << "nw-ttl:" << (int)action.get_nw_ttl() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type SET-NW-TTL not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1678,8 +1846,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_dec_nw_ttl const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_dec_nw_ttl >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_dec_nw_ttl >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type DEC-NW-TTL not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1723,8 +1900,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_copy_ttl_out const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_copy_ttl_out >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_copy_ttl_out >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type COPY-TTL-OUT not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1769,8 +1955,17 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_copy_ttl_in const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_copy_ttl_in >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_copy_ttl_in >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type COPY-TTL-IN not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1834,9 +2029,18 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_queue const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_set_queue ";
-		os << "queue-id:" << (int)action.get_queue_id() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_set_queue ";
+			os << "queue-id:" << (int)action.get_queue_id() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type SET-QUEUE not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -1896,14 +2100,23 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_set_field const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_set_field >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_set_field >" << std::endl;
 #if 0
-		coxmatch oxm((struct openflow::ofp_oxm_hdr*)(action.oac_12set_field->field),
-				be16toh(action.oac_12set_field->len) - 4*sizeof(uint8_t));
+			coxmatch oxm((struct openflow::ofp_oxm_hdr*)(action.oac_12set_field->field),
+					be16toh(action.oac_12set_field->len) - 4*sizeof(uint8_t));
 #endif
-		indent i(4);
-		os << coxmatch_output(action.get_oxm());
+			indent i(4);
+			os << coxmatch_output(action.get_oxm());
+		} break;
+		default: {
+			os << indent(2) << "<action type SET-FIELD not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
@@ -2031,10 +2244,19 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, cofaction_experimenter const& action) {
-		os << dynamic_cast<cofaction const&>( action );
-		os << indent(2) << "<cofaction_experimenter ";
-		os << "exp-id:" << (int)action.get_exp_id() << " ";
-		os << "exp-type:" << (int)action.get_exp_type() << " >" << std::endl;
+		switch (action.get_version()) {
+		case rofl::openflow12::OFP_VERSION:
+		case rofl::openflow13::OFP_VERSION: {
+			os << dynamic_cast<cofaction const&>( action );
+			os << indent(2) << "<cofaction_experimenter ";
+			os << "exp-id:" << (int)action.get_exp_id() << " ";
+			os << "exp-type:" << (int)action.get_exp_type() << " >" << std::endl;
+		} break;
+		default: {
+			os << indent(2) << "<action type EXPERIMENTER not supported by OF version:"
+					<< action.get_version() << " >" << std::endl;
+		};
+		}
 		return os;
 	};
 };
