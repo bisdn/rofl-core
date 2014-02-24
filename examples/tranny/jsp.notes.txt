@@ -1,0 +1,2 @@
+sample.run.txt is (when I remember to update it) the sample output of tranny for the testbed for the tranny version in the last commit. it's just for reference
+
