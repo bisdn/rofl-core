@@ -7,7 +7,9 @@ SUBDIRS =
 sbin_PROGRAMS = tranny
 
 tranny_SOURCES = \
-	tranny.cc 
+	tranny.cc \
+	tranny.h \
+	main.cc
 tranny_LDADD = ../../src/rofl/librofl.la 
 	-lpthread \
 	-lrt 

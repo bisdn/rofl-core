@@ -1,3 +1,13 @@
+#include <signal.h>
+#include <iostream>
+#include <rofl/common/crofbase.h>
+#include <rofl/common/utils/c_logger.h>
+#include "tranny.h"
+
+// to catch SIGINT
+void interrupt_handler(int dummy=0) {
+	rofl::ciosrv::stop();
+}
 
 int main(int, char**) {
 /* update defaults */
