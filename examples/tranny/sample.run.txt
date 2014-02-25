@@ -1,31 +1,101 @@
 inited
 
-handle_dpath_close called with cofdpt(0x1591410) dpid:0x0 buffers: 0 tables: 0 capabilities: 0x0 =>
-ctranslator::handle_dpath_close: Was expecting NULL but got cofdpt(0x1591410) dpid:0x0 buffers: 0 tables: 0 capabilities: 0x0 =>
+handle_features_reply from cofdpt(0xcd1410) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x0 =>
+  cofport(0xcd2060): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
+  cofport(0xcd2130): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a : 
+ERROR: ctranslator::handle_features_reply : xid from reply doesn't exist in m_sxid_mxid
 
-handle_features_reply from cofdpt(0x15913f0) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x4f =>
-  cofport(0x1592010): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
-  cofport(0x15925a0): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a : 
-ERROR: ctranslator::handle_features_reply : xid from features reply doesn't exist in m_sxid_mxid
+handle_get_config_reply from cofdpt(0xcd1410) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x0 =>
+  cofport(0xcd2060): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
+  cofport(0xcd2130): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a : 
+ERROR: handle_get_config_reply : xid from slave's reply doesn't exist in m_sxid_mxid
 
-ctranslator::handle_dpath_open called with cofdpt(0x15913f0) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x4f =>
-  cofport(0x1592010): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
-  cofport(0x15925a0): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
+ctranslator::handle_dpath_open called with cofdpt(0xcd1410) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x0 =>
+  cofport(0xcd2060): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
+  cofport(0xcd2130): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
+tranny:  140239417141056 C:ctl[[AF_INET/ip:127.0.0.1 port:6633 salen:16]] 
+tranny:  140239417141056 cofctl(0xcd2910)::handle_connected() local:[AF_INET/ip:0.0.0.0 port:0 salen:16] remote: [AF_INET/ip:127.0.0.1 port:6633 salen:16]
 
-ctranslator::handle_ctrl_open called with cofctl(0x1592b90) 
+ctranslator::handle_ctrl_open called with cofctl(0xcd2910) 
 
-handle_features_request from cofctl(0x1592b90)  : 
-handle_features_request called send_features_request(cofdpt(0x15913f0) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x4f =>
-  cofport(0x1592010): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
-  cofport(0x15925a0): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a).
+handle_features_request from cofctl(0xcd2910)  : 
+handle_features_request called send_features_request(cofdpt(0xcd1410) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x0 =>
+  cofport(0xcd2060): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
+  cofport(0xcd2130): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a).
 
-handle_features_reply from cofdpt(0x15913f0) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x4f =>
-  cofport(0x15925a0): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
-  cofport(0x15927b0): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a : 
-handle_features_reply: sent features reply to cofctl(0x1592b90) .
+handle_features_reply from cofdpt(0xcd1410) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x0 =>
+  cofport(0xcd3470): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
+  cofport(0xcd2060): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a : 
+handle_features_reply: sent features reply to cofctl(0xcd2910) .
 
-handle_set_config from cofctl(0x1592b90)  : 
+handle_set_config from cofctl(0xcd2910)  : 
+handle_set_config : sent set_config_message to cofdpt(0xcd1410) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x0 =>
+  cofport(0xcd3470): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
+  cofport(0xcd2060): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a.
 
-handle_get_config_request from cofctl(0x1592b90)  : 
+handle_get_config_request from cofctl(0xcd2910)  : 
+handle_get_config_request called send_get_config_request(cofdpt(0xcd1410) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x0 =>
+  cofport(0xcd3470): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
+  cofport(0xcd2060): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a).
 
-handle_desc_stats_request from cofctl(0x1592b90)  : 
+handle_get_config_reply from cofdpt(0xcd1410) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x0 =>
+  cofport(0xcd3470): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
+  cofport(0xcd2060): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a : 
+handle_get_config_reply : sent features reply to cofctl(0xcd2910) .
+
+handle_desc_stats_request from cofctl(0xcd2910)  : 
+handle_desc_stats_request called send_desc_stats_request(cofdpt(0xcd1410) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x0 =>
+  cofport(0xcd3470): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
+  cofport(0xcd2060): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a ..).
+
+handle_desc_stats_reply from cofdpt(0xcd1410) dpid:0x100 buffers: 512 tables: 1 capabilities: 0x0 =>
+  cofport(0xcd3470): port_no:1 hwaddr:00:00:10:09:00:01 name:OLT0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a
+  cofport(0xcd2060): port_no:2 hwaddr:00:00:10:10:00:01 name:vDIN1_0 config:0x0 state:0x0 curr:0x6a advertised:0x6a supported:0x6a peer:0x6a : 
+handle_desc_stats_reply : sent desc stats reply to cofctl(0xcd2910) .
+
+handle_flow_mod from cofctl(0xcd2910)  : .
+handle_flow_mod: About to create rofl::cofmatch.
+handle_flow_mod: About to create rofl::cofinlist.
+handle_flow_mod: caught exception errno:115 (Operation now in progress). at tranny.cc:91
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+
+handle_packet_out from cofctl(0xcd2910)  : 
+House cleaned!
+Goodbye

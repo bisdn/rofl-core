@@ -7,12 +7,15 @@
 #include <rofl/platform/unix/cunixenv.h>
 #include <rofl/common/caddress.h>
 #include <rofl/common/crofbase.h>
+#include <rofl/common/cerror.h>
 #include <rofl/common/openflow/cofdpt.h>
 #include <rofl/common/openflow/cofctl.h>
 #include <rofl/common/openflow/openflow10.h>
 #include <rofl/common/utils/c_logger.h>
 
-ctranslator::ctranslator():rofl::crofbase (1 << OFP10_VERSION),m_slave(0),m_master(0),m_of_version(OFP10_VERSION) {
+#define PROXYOFPVERSION OFP10_VERSION		// or OFP12_VERSION
+
+ctranslator::ctranslator():rofl::crofbase (1 << PROXYOFPVERSION),m_slave(0),m_master(0),m_of_version(PROXYOFPVERSION) {
 	// read config file
 	//..
 }
@@ -45,7 +48,7 @@ void ctranslator::handle_dpath_open (rofl::cofdpt *dpt) {
 	m_slave = dpt;	// TODO - what to do with previous m_slave?
 	m_slave_dpid=dpt->get_dpid();	// TODO - check also get_config, get_capabilities etc
 	m_dpid = m_slave_dpid + 1;
-	rpc_connect_to_ctl(OFP10_VERSION,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
+	rpc_connect_to_ctl(m_of_version,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
 }
 
 void ctranslator::handle_dpath_close (rofl::cofdpt *dpt) {
@@ -57,9 +60,10 @@ void ctranslator::handle_dpath_close (rofl::cofdpt *dpt) {
 }
 
 void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg) {
-	/// if(!m_slave) {PANIC MR MAINWARING!}	// could be a permanent lack of m_slave, or just a temporary disconnect and we're waiting for a reconnect
-	std::cout << std::endl << "handle_flow_mod from " << ctl->c_str() << " : " << msg->c_str() << std::endl;
-	rofl::cflowentry entry(OFP10_VERSION);
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << "." << std::endl;
+///	rofl::cflowentry entry(m_of_version);	// this constructor may be broken - just throws rofl::eBadVersion whatever the version is.
+///	std::cout << "TP" << __LINE__ << std::endl;
 /*	entry.set_command(msg->get_command());
 	entry.set_table_id(msg->get_table_id());
 	entry.set_idle_timeout(msg->get_idle_timeout());
@@ -71,10 +75,24 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 	entry.set_out_port(msg->get_out_port());
 	entry.set_out_group(msg->get_out_group());
 	entry.set_flags(msg->get_flags()); */
-BOOST_PP_SEQ_FOR_EACH( CLONECMD, ((*msg))(entry), (command)(table_id)(idle_timeout)(hard_timeout) \
-	(cookie)(cookie_mask)(priority)(buffer_id)(out_port)(out_group)(flags) )
-
-	send_flow_mod_message( m_slave, entry );
+/// BOOST_PP_SEQ_FOR_EACH( CLONECMD, ((*msg))(entry), (command)(table_id)(idle_timeout)(hard_timeout)(cookie)(cookie_mask)(priority)(buffer_id)(out_port)(out_group)(flags) )
+///	send_flow_mod_message( m_slave, entry );
+	try {
+	std::cout << func << ": About to create rofl::cofmatch." << std::endl;
+	rofl::cofmatch match_(msg->get_match());
+	std::cout << func << ": About to create rofl::cofinlist." << std::endl;
+	rofl::cofinlist instructions_(msg->get_instructions());		// JSP errno 115 EINPROGRESS gets thrown here - the socket is blocked. Why, and which socket, I do not know.
+	// TODO instructions must be fiddled to allow packet-ins to correctly traverse the proxy
+	std::cout << func << ": About to send_flow_mod_message." << std::endl;
+	send_flow_mod_message( m_slave, match_, msg->get_cookie(), msg->get_cookie_mask(), msg->get_table_id(), msg->get_command(), msg->get_idle_timeout(), \
+		msg->get_hard_timeout(), msg->get_priority(), msg->get_buffer_id(), msg->get_out_port(), msg->get_out_group(), msg->get_flags(), instructions_ );
+		std::cout << func << ": send_flow_mod_message called at " << m_slave->c_str() << "." << std::endl;
+	} catch (rofl::cerror &e) {
+		std::cout << func << ": caught " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
+	}
+	// TODO what about get_xid() and get_actions() in cofmsg_flow_mod ? get_actions() may be  OFP10 only - at least according to cofmsg_flow_mod ctor
+	// TODO perhaps use xid as key to map where a list of flow mods are stored? so we have a local record of flow mods
+	
 	delete(msg);
 }
 
@@ -135,14 +153,13 @@ void ctranslator::handle_get_config_reply(rofl::cofdpt * dpt, rofl::cofmsg_get_c
 	delete(msg);
 }
 
-
 void ctranslator::handle_desc_stats_request(rofl::cofctl *ctl, rofl::cofmsg_desc_stats_request *msg) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << std::endl;
 	uint32_t masterxid = msg->get_xid();
 	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming cofmsg_desc_stats_request already exists in m_mxid_sxid" << std::endl;
 	if(m_slave) {
-		uint32_t myxid = send_desc_stats_request(m_slave, msg->getstats_flags());
+		uint32_t myxid = send_desc_stats_request(m_slave, msg->get_stats_flags());
 		std::cout << func << " called send_desc_stats_request(" << m_slave->c_str() << " ..)." << std::endl;
 		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from send_desc_stats_request already exists in m_sxid_mxid" << std::endl;
 		m_mxid_sxid[masterxid]=myxid;
@@ -158,14 +175,23 @@ void ctranslator::handle_desc_stats_reply(rofl::cofdpt * dpt, rofl::cofmsg_desc_
 	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
 	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
 	uint32_t orig_xid = map_it->second;
-	send_desc_stats_reply(m_master, orig_xid, ??? );
-!!!!!!!!!!
-	std::cout << func << " : sent features reply to " << m_master->c_str() << "." << std::endl;
+	// TODO this bit below is wrong, but I cannot find a proper description of cofmsg_desc_stats_reply to get the information from it
+	rofl::cofdesc_stats_reply reply(m_of_version,"tranny_mfr_desc","tranny_hw_desc","tranny_sw_desc","tranny_serial_num","tranny_dp_desc");
+	send_desc_stats_reply(m_master, orig_xid, reply, false );
+	std::cout << func << " : sent desc stats reply to " << m_master->c_str() << "." << std::endl;
 	m_sxid_mxid.erase(map_it);
 	m_mxid_sxid.erase(orig_xid);
 	delete(msg);
 }
 
+// "Called once an EXPERIMENTER.message was received from a controller entity. ".. or is it? The docs are wrong on this one.
+void ctranslator::handle_set_config(rofl::cofctl *ctl, rofl::cofmsg_set_config *msg) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << std::endl;
+	send_set_config_message(m_slave, msg->get_flags(), msg->get_miss_send_len());
+	std::cout << func << " : sent set_config_message to " << m_slave->c_str() << "." << std::endl;
+	delete (msg);	
+}
 
 void ctranslator::handle_table_stats_request(rofl::cofctl *ctl, rofl::cofmsg_table_stats_request *msg) {
 	static const char * func = __FUNCTION__;
@@ -204,10 +230,6 @@ void ctranslator::handle_table_mod(rofl::cofctl *ctl, rofl::cofmsg_table_mod *pa
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
 }
 void ctranslator::handle_port_mod(rofl::cofctl *ctl, rofl::cofmsg_port_mod *pack) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
-}
-void ctranslator::handle_set_config(rofl::cofctl *ctl, rofl::cofmsg_set_config *pack) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
 }

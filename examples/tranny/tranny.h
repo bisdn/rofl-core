@@ -17,11 +17,12 @@
 // e.g. BOOST_PP_SEQ_FOR_EACH( CLONECMD, ((*msg))(entry), (command)(table_id)(idle_timeout)(hard_timeout) (cookie)(cookie_mask)(priority)(buffer_id)(out_port)(out_group)(flags) )
 // generates entry.set_command ( (*msg).get_command () ); entry.set_table_id ( (*msg).get_table_id () ); etc..
 // if you don;t want to install boost.PP then just - TODO remove CLONECMD just before releasing ver 1.0?
-#undef CLONECMD
+// JSPNOTE: this macro was dropped because identical copies of messages being send to the other proxy end tend to break things a lot
+/*#undef CLONECMD
 #undef CLONECMDNOSEQ
 #define CLONECMDNOSEQ(CLONEFROM,CLONETO,CLONEWHAT) CLONETO.set_##CLONEWHAT ( CLONEFROM.get_##CLONEWHAT () );
 #define CLONECMD(r, CLONESEQ, CLONEWHAT) CLONECMDNOSEQ( BOOST_PP_SEQ_ELEM(0,CLONESEQ) ,  BOOST_PP_SEQ_ELEM(1,CLONESEQ) , CLONEWHAT )
-
+*/
 class ctranslator : public rofl::crofbase {
 	public:
 //	ctranslator(rofl::caddress,uint8_t,??,rofl::caddess);
@@ -41,7 +42,7 @@ class ctranslator : public rofl::crofbase {
 	virtual void handle_error (rofl::cofdpt *, rofl::cofmsg *msg);
 
 	virtual void handle_desc_stats_request(rofl::cofctl *ctl, rofl::cofmsg_desc_stats_request *msg);
-	virtual void handle_desc_stats_reply(cofdpt * dpt, cofmsg_desc_stats_reply * msg);
+	virtual void handle_desc_stats_reply(rofl::cofdpt * dpt, rofl::cofmsg_desc_stats_reply * msg);
 	
 	virtual void handle_table_stats_request(rofl::cofctl *ctl, rofl::cofmsg_table_stats_request *msg);
 	virtual void handle_port_stats_request(rofl::cofctl *ctl, rofl::cofmsg_port_stats_request *pack);
@@ -62,7 +63,7 @@ class ctranslator : public rofl::crofbase {
 	rofl::cofctl * m_master;	// the OF controller.
 
 	protected:
-	// OF version for master and slave
+	// TODO OF version for master and slave - can be had from m_slave->get_version() and m_master->get_version()
 	
 	// transaction ID maps - TODO - this may not be a 1:1 mapping
 	typedef std::map< uint32_t, uint32_t > xid_map_t;
