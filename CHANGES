@@ -8,6 +8,10 @@ Legend:
 Change log
 ==========
 
+v0.3.4
+
+[+][common] Added LLC basic frame support in fetherframe.h/cc 
+
 v0.3.3
 
 [B][pipeline] Fixed race condition on accessing num_of_outputs of a matched entry 
