@@ -320,6 +320,18 @@ public:
 	 */
 	virtual void
 	set_body(rofl::cmemory const& body);
+
+public:
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, clldpattr_chassis_id const& attr) {
+		os << dynamic_cast<clldpattr const&>( attr );
+		os << rofl::indent(2) << "<clldpattr_chassis_id sub-type:" << attr.get_sub_type() << " body:" << attr.get_body() << " >";
+		return os;
+	};
 };
 
 

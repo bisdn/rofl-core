@@ -293,7 +293,7 @@ cmemory::unpack(
 std::string
 cmemory::toString() const
 {
-	return std::string(somem(), memlen());
+	return std::string((const char*)somem(), memlen());
 }
 
 
