@@ -341,6 +341,13 @@ public:
 			size_t buflen);
 
 
+	/**
+	 * @brief	map onto std::string instance
+	 */
+	virtual std::string
+	toString() const;
+
+
 	/**@}*/
 
 
