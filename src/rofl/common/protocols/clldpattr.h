@@ -237,7 +237,7 @@ public:
 	/**
 	 *
 	 */
-	std::ostream&
+	friend std::ostream&
 	operator<< (std::ostream& os, clldpattr const& attr) {
 		os << rofl::indent(0) << "<clldpattr type:" << attr.get_type() << " len:" << attr.get_length() << " >";
 		return os;
