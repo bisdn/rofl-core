@@ -8,22 +8,28 @@ Legend:
 Change log
 ==========
 
-v0.4-devel 2013-11-24  Andreas Koepsel  <andreas.koepsel(at)bisdn.de>
+v0.4-devel 
 
-[+] Added a new frame class for L2TPv3 (RFC3931): fl2tpv3frame to rofl/common/protocols
-[+] Added a new logging concept in rofl/common/logging.h: 8 output streams exist
+TODO: add pipeline changes
+
+[+][common] Added a new frame class for L2TPv3 (RFC3931): fl2tpv3frame to rofl/common/protocols
+[+][common] Added a new logging concept in rofl/common/logging.h: 8 output streams exist
     for levels emerg, alert, crit, error, warn, info, notice, debug whose
     destinations can be freely configured
-[B] Fixed a bug in handling of OXM TLVs of type VLAN_VID
-[+] Added namespaces for OFP versions 1.0, 1.2, 1.3
-[+] Revised workflow and split of crofdpt_impl and crofctl_impl
-[+] New logging subsystem
-[B] Fixed a bug in reverse mapping of pipeline matches to OXM-TLVs
-[+] Reimplementation of main io loop in ciosrv
+[B][common] Fixed a bug in handling of OXM TLVs of type VLAN_VID
+[+][common] Added namespaces for OFP versions 1.0, 1.2, 1.3
+[+][common] Revised workflow and split of crofdpt_impl and crofctl_impl
+[+][common] New logging subsystem
+[B][common] Fixed a bug in reverse mapping of pipeline matches to OXM-TLVs
+[+][common] Reimplementation of main io loop in ciosrv
     - semantics of timer support haven changed
     - each timer is referred to by a uint32_t timer_id assigned by the cioloop IO subsystem
     - canceling or resetting timers must be done using this timer_id, the opaque value cannot
       be used anymore
+
+v0.3.4
+
+[+][common] Added LLC basic frame support in fetherframe.h/cc 
 
 v0.3.3
 
