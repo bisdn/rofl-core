@@ -372,13 +372,6 @@ void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_ac
 //Apply actions
 void __of1x_process_apply_actions(const struct of1x_switch* sw, const unsigned int table_id, struct datapacket* pkt, const of1x_action_group_t* apply_actions_group, bool replicate_pkts);
 
-//Write actions data structure management
-/*
-* Init a write actions group
-*/
-void __of1x_init_packet_write_actions(struct datapacket *const pkt);
-
-
 /**
 * @ingroup core_of1x 
 * Create a write actions group 

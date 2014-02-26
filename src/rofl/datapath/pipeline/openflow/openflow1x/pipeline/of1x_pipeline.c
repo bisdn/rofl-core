@@ -186,8 +186,8 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	of1x_flow_entry_t* match;
 	packet_matches_t* pkt_matches;
 	
-	//Initialize packet for OF1.2 pipeline processing 
-	__of1x_init_packet_write_actions(pkt); 
+	//Initialize packet for OF1.X pipeline processing 
+	memset(&pkt->write_actions.of1x, 0, sizeof(of1x_write_actions_t));
 
 	//Mark packet as being processed by this sw
 	pkt->sw = sw;
@@ -283,9 +283,6 @@ void of1x_process_packet_out_pipeline(const of1x_switch_t *sw, datapacket_t *con
 	
 	bool has_multiple_outputs=false;
 	of1x_group_table_t *gt = sw->pipeline.groups;
-
-	//Initialize packet for OF1.2 pipeline processing 
-	__of1x_init_packet_write_actions(pkt); 
 
 	//Validate apply_actions_group
 	__of1x_validate_action_group((of1x_action_group_t*)apply_actions_group, gt);

@@ -401,11 +401,6 @@ void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_ac
 
 }
 
-/* Write actions init */
-void __of1x_init_packet_write_actions(datapacket_t *const pkt){
-       memset(&pkt->write_actions.of1x, 0, sizeof(of1x_write_actions_t));
-}
-
 of1x_write_actions_t* of1x_init_write_actions(){
 
 	of1x_write_actions_t* write_actions = platform_malloc_shared(sizeof(of1x_write_actions_t)); 
