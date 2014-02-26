@@ -10,17 +10,20 @@ void interrupt_handler(int dummy=0) {
 }
 
 int main(int, char**) {
-/* update defaults */
+
 	rofl_set_logging_level(DBG_VERBOSE_LEVEL);
-	rofl::csyslog::initlog( rofl::csyslog::LOGTYPE_STDERR, rofl::csyslog::DBG, std::string("/home/alien/tranny.log"), "tranny: ");
+	rofl::csyslog::initlog( rofl::csyslog::LOGTYPE_STDERR, rofl::csyslog::DBG, std::string("/home/alien/tranny.log"), "tranny: "); // first argument sets the type, second the level, third is logging file is logging to file (ignored for LOGTYPE_STDERR), fourth is prefix tag for log entries.
 	
 	signal(SIGINT, interrupt_handler);
-
+/*
 	rofl::csyslog::set_debug_level("ciosrv", "dbg");
 	rofl::csyslog::set_debug_level("cthread", "dbg");
 	rofl::csyslog::set_debug_level("csocket", "dbg");
 	rofl::csyslog::set_debug_level("cofpacket", "dbg");
-
+	rofl::csyslog::set_debug_level("crofbase", "dbg");
+*/
+	rofl::csyslog::set_all_debug_levels(rofl::csyslog::DBG);	// yeah, this is the lowest logging level and it still does sweet FA - there's minimal debugging output.
+	
 	rofl::ciosrv::init();
 
 	ctranslator tranny;

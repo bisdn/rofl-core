@@ -13,7 +13,8 @@
 #include <rofl/common/openflow/openflow10.h>
 #include <rofl/common/utils/c_logger.h>
 
-#define PROXYOFPVERSION OFP10_VERSION		// or OFP12_VERSION
+// OF10 not supported until I can either get an OF10 version of rofl::send_flow_mod_message, or access crofbase::xids_used
+#define PROXYOFPVERSION OFP10_VERSION		// OFP10_VERSION or OFP12_VERSION
 
 ctranslator::ctranslator():rofl::crofbase (1 << PROXYOFPVERSION),m_slave(0),m_master(0),m_of_version(PROXYOFPVERSION) {
 	// read config file
@@ -42,6 +43,8 @@ void ctranslator::handle_ctrl_close (rofl::cofctl *ctl) {
 	m_master=0;	// TODO - m_naster ownership?
 }
 
+// This function feels alone, ignored, never called by anybody. Surely it should if it's 
+// And I'm mad as hell and I'm not going to take it any more!
 void ctranslator::handle_dpath_open (rofl::cofdpt *dpt) {
 	// should be called automatically after call to rpc_connect_to_dpt in connect_to_slave
 	std::cout << std::endl << "ctranslator::handle_dpath_open called with " << (dpt?dpt->c_str():"NULL") << std::endl;
@@ -78,15 +81,32 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 /// BOOST_PP_SEQ_FOR_EACH( CLONECMD, ((*msg))(entry), (command)(table_id)(idle_timeout)(hard_timeout)(cookie)(cookie_mask)(priority)(buffer_id)(out_port)(out_group)(flags) )
 ///	send_flow_mod_message( m_slave, entry );
 	try {
-	std::cout << func << ": About to create rofl::cofmatch." << std::endl;
-	rofl::cofmatch match_(msg->get_match());
-	std::cout << func << ": About to create rofl::cofinlist." << std::endl;
-	rofl::cofinlist instructions_(msg->get_instructions());		// JSP errno 115 EINPROGRESS gets thrown here - the socket is blocked. Why, and which socket, I do not know.
-	// TODO instructions must be fiddled to allow packet-ins to correctly traverse the proxy
-	std::cout << func << ": About to send_flow_mod_message." << std::endl;
-	send_flow_mod_message( m_slave, match_, msg->get_cookie(), msg->get_cookie_mask(), msg->get_table_id(), msg->get_command(), msg->get_idle_timeout(), \
-		msg->get_hard_timeout(), msg->get_priority(), msg->get_buffer_id(), msg->get_out_port(), msg->get_out_group(), msg->get_flags(), instructions_ );
-		std::cout << func << ": send_flow_mod_message called at " << m_slave->c_str() << "." << std::endl;
+		if(m_of_version==OFP10_VERSION) {
+			rofl::cflowentry entry(OFP10_VERSION);
+			BOOST_PP_SEQ_FOR_EACH( CLONECMD, ((*msg))(entry), (command)(table_id)(idle_timeout)(hard_timeout)(cookie)(cookie_mask)(priority)(buffer_id)(out_port)(out_group)(flags) )
+/*			cofmsg_flow_mod	*pack = new cofmsg_flow_mod( OFP10_VERSION, ta_new_async_xid(), msg->get_cookie(), msg->get_cookie_mask(), \
+				msg->get_table_id(), msg->get_command(), msg->get_idle_timeout(), msg->get_hard_timeout(), msg->get_priority(), \
+				msg->get_buffer_id(), msg->get_out_port(), msg->get_out_group(), msg->get_flags(),
+                                        inlist,
+                                        ofmatch);
+			pack->pack();
+			m_slave->send_message(pack);*/
+			entry.pack();
+			send_flow_mod_message( m_slave, entry );
+		} else {
+			// TODO test this OF12 code
+			assert(false);
+			std::cout << func << ": About to create rofl::cofmatch." << std::endl;
+			rofl::cofmatch match_(msg->get_match());
+			std::cout << func << ": About to create rofl::cofinlist." << std::endl;
+		/// get_instructions is not valid for < OF12
+			rofl::cofinlist instructions_(msg->get_instructions());		// JSP errno 115 EINPROGRESS gets thrown here - the socket is blocked. Why, and which socket, I do not know.
+			// TODO instructions must be fiddled to allow packet-ins to correctly traverse the proxy
+			std::cout << func << ": About to send_flow_mod_message." << std::endl;
+			send_flow_mod_message( m_slave, match_, msg->get_cookie(), msg->get_cookie_mask(), msg->get_table_id(), msg->get_command(), msg->get_idle_timeout(), \
+				msg->get_hard_timeout(), msg->get_priority(), msg->get_buffer_id(), msg->get_out_port(), msg->get_out_group(), msg->get_flags(), instructions_ );
+				std::cout << func << ": send_flow_mod_message called at " << m_slave->c_str() << "." << std::endl;
+		}
 	} catch (rofl::cerror &e) {
 		std::cout << func << ": caught " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
 	}
@@ -202,6 +222,7 @@ void ctranslator::handle_port_stats_request(rofl::cofctl *ctl, rofl::cofmsg_port
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
 }
 void ctranslator::handle_flow_stats_request(rofl::cofctl *ctl, rofl::cofmsg_flow_stats_request *pack) {
+// see ./examples/etherswitch/etherswitch.cc:95
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
 }

@@ -18,11 +18,11 @@
 // generates entry.set_command ( (*msg).get_command () ); entry.set_table_id ( (*msg).get_table_id () ); etc..
 // if you don;t want to install boost.PP then just - TODO remove CLONECMD just before releasing ver 1.0?
 // JSPNOTE: this macro was dropped because identical copies of messages being send to the other proxy end tend to break things a lot
-/*#undef CLONECMD
+#undef CLONECMD
 #undef CLONECMDNOSEQ
 #define CLONECMDNOSEQ(CLONEFROM,CLONETO,CLONEWHAT) CLONETO.set_##CLONEWHAT ( CLONEFROM.get_##CLONEWHAT () );
 #define CLONECMD(r, CLONESEQ, CLONEWHAT) CLONECMDNOSEQ( BOOST_PP_SEQ_ELEM(0,CLONESEQ) ,  BOOST_PP_SEQ_ELEM(1,CLONESEQ) , CLONEWHAT )
-*/
+
 class ctranslator : public rofl::crofbase {
 	public:
 //	ctranslator(rofl::caddress,uint8_t,??,rofl::caddess);
