@@ -16,7 +16,8 @@
 // OF10 not supported until I can either get an OF10 version of rofl::send_flow_mod_message, or access crofbase::xids_used
 #define PROXYOFPVERSION OFP10_VERSION		// OFP10_VERSION or OFP12_VERSION
 
-ctranslator::ctranslator():rofl::crofbase (1 << PROXYOFPVERSION),m_slave(0),m_master(0),m_of_version(PROXYOFPVERSION) {
+ctranslator::ctranslator():rofl::crofbase (1 <<  PROXYOFPVERSION),m_slave(0),m_master(0) {
+//ctranslator::ctranslator():rofl::crofbase ((1 << OFP10_VERSION)|(1 <<  OFP12_VERSION)),m_slave(0),m_master(0),m_of_version(OFP12_VERSION) {
 	// read config file
 	//..
 }
@@ -51,7 +52,8 @@ void ctranslator::handle_dpath_open (rofl::cofdpt *dpt) {
 	m_slave = dpt;	// TODO - what to do with previous m_slave?
 	m_slave_dpid=dpt->get_dpid();	// TODO - check also get_config, get_capabilities etc
 	m_dpid = m_slave_dpid + 1;
-	rpc_connect_to_ctl(m_of_version,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
+//	rpc_connect_to_ctl(m_of_version,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
+	rpc_connect_to_ctl(PROXYOFPVERSION,3,rofl::caddress(AF_INET, "127.0.0.1", 6633));
 }
 
 void ctranslator::handle_dpath_close (rofl::cofdpt *dpt) {
@@ -81,6 +83,7 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 /// BOOST_PP_SEQ_FOR_EACH( CLONECMD, ((*msg))(entry), (command)(table_id)(idle_timeout)(hard_timeout)(cookie)(cookie_mask)(priority)(buffer_id)(out_port)(out_group)(flags) )
 ///	send_flow_mod_message( m_slave, entry );
 	try {
+#if 0
 		if(m_of_version==OFP10_VERSION) {
 			rofl::cflowentry entry(OFP10_VERSION);
 			BOOST_PP_SEQ_FOR_EACH( CLONECMD, ((*msg))(entry), (command)(table_id)(idle_timeout)(hard_timeout)(cookie)(cookie_mask)(priority)(buffer_id)(out_port)(out_group)(flags) )
@@ -107,6 +110,71 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 				msg->get_hard_timeout(), msg->get_priority(), msg->get_buffer_id(), msg->get_out_port(), msg->get_out_group(), msg->get_flags(), instructions_ );
 				std::cout << func << ": send_flow_mod_message called at " << m_slave->c_str() << "." << std::endl;
 		}
+#endif
+//		rofl::cflowentry entry(m_slave->get_version());
+///		rofl::cflowentry entry(PROXYOFPVERSION);
+
+///		BOOST_PP_SEQ_FOR_EACH( CLONECMD, ((*msg))(entry), (command)(table_id)(idle_timeout)(hard_timeout)(cookie)(cookie_mask)(priority)(buffer_id)(out_port)(out_group)(flags) )
+///		entry.match = msg->get_match();
+/*		fe.set_command(OFPFC_ADD);
+		fe.set_buffer_id(msg->get_buffer_id());
+		fe.set_idle_timeout(15);
+		fe.set_table_id(msg->get_table_id());
+
+		fe.match.set_in_port(msg->get_match().get_in_port());
+		fe.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
+		fe.instructions.next() = cofinst_apply_actions(dpt->get_version()); */
+		// valid for OFP10_VERSION only
+///		rofl::cofinlist inl;
+		const char * OF10_CMD_NAMES [] = { "OFPFC_ADD", "OFPFC_MODIFY", "OFPFC_MODIFY_STRICT", "OFPFC_DELETE", "OFPFC_DELETE_STRICT" };
+		std::cout << func << ": msg: command:" << (int) msg->get_command() << "(" << OF10_CMD_NAMES[msg->get_command()] << ") cookie:" << msg->get_cookie() << " flags:" << msg->get_flags() << std::endl;
+		rofl::cflowentry entry(OFP10_VERSION);
+		switch(msg->get_command()){		*WIP*
+			case OFPFC_ADD:
+				assert(false);
+				entry.set_command(OFPFC_ADD);
+				entry.set_buffer_id(msg->get_buffer_id());
+//				rofl::cofmatch match_(msg->get_match());
+				entry.set_idle_timeout(15);
+				entry.set_table_id(msg->get_table_id());
+//				entry.match.set_in_port(msg->get_match().get_in_port());
+//				entry.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
+				entry.match = msg->get_match();
+				entry.instructions.next() = cofinst_apply_actions(dpt->get_version());
+				break;
+			case OFPFC_DELETE:
+				entry.set_command(OFPFC_DELETE);
+				entry.set_buffer_id(msg->get_buffer_id());
+				rofl::cofmatch match_(msg->get_match());
+				entry.set_idle_timeout(15);
+				entry.set_table_id(msg->get_table_id());
+				entry.match.set_in_port(msg->get_match().get_in_port());
+				entry.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
+				entry.instructions.next() = cofinst_apply_actions(dpt->get_version());
+				break;
+			case OFPFC_DELETE_STRICT:
+				assert(false);
+				break;
+			case OFPFC_MODIFY:
+				assert(false);
+				break;
+			case OFPFC_MODIFY_STRICT:
+				assert(false);
+				break;
+			default:
+				std::cout << func << ": got unknown action." << std::endl;
+				break;
+		}
+		rofl::cofaclist acl(msg->get_actions());
+		for(rofl::cofaclist::iterator cit=acl.begin(); cit != acl.end(); ++cit) {
+			const rofl::cofaction act = *cit;
+			std::cout << func << ": got action: " << cit->c_str() << "." << std::endl;
+//			inl.next() = ??;
+		}
+//		entry.instructions()
+
+//		send_flow_mod_message(m_slave, fe);
+
 	} catch (rofl::cerror &e) {
 		std::cout << func << ": caught " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
 	}
@@ -196,7 +264,7 @@ void ctranslator::handle_desc_stats_reply(rofl::cofdpt * dpt, rofl::cofmsg_desc_
 	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
 	uint32_t orig_xid = map_it->second;
 	// TODO this bit below is wrong, but I cannot find a proper description of cofmsg_desc_stats_reply to get the information from it
-	rofl::cofdesc_stats_reply reply(m_of_version,"tranny_mfr_desc","tranny_hw_desc","tranny_sw_desc","tranny_serial_num","tranny_dp_desc");
+	rofl::cofdesc_stats_reply reply(dpt->get_version(),"tranny_mfr_desc","tranny_hw_desc","tranny_sw_desc","tranny_serial_num","tranny_dp_desc");
 	send_desc_stats_reply(m_master, orig_xid, reply, false );
 	std::cout << func << " : sent desc stats reply to " << m_master->c_str() << "." << std::endl;
 	m_sxid_mxid.erase(map_it);

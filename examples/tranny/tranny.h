@@ -73,7 +73,7 @@ class ctranslator : public rofl::crofbase {
 	uint64_t m_dpid;
 //	uint64_t m_master_dpid;
 	private:
-	uint8_t m_of_version;
+//	uint8_t m_of_version;
 
 };
 
