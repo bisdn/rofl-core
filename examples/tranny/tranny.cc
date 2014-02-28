@@ -128,11 +128,33 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 ///		rofl::cofinlist inl;
 		const char * OF10_CMD_NAMES [] = { "OFPFC_ADD", "OFPFC_MODIFY", "OFPFC_MODIFY_STRICT", "OFPFC_DELETE", "OFPFC_DELETE_STRICT" };
 		std::cout << func << ": msg: command:" << (int) msg->get_command() << "(" << OF10_CMD_NAMES[msg->get_command()] << ") cookie:" << msg->get_cookie() << " flags:" << msg->get_flags() << std::endl;
-		rofl::cflowentry entry(OFP10_VERSION);
-		switch(msg->get_command()){		*WIP*
+//		rofl::cflowentry entry(m_slave->get_version());
+		rofl::cofinst_apply_actions cofac(OFP10_VERSION);
+		std::cout << "TP-4" << std::endl;
+		cofac.actions = msg->get_actions();
+		std::cout << "TP-3" << std::endl;
+		rofl::cofinlist instructions_(OFP10_VERSION);
+		std::cout << "TP-2" << std::endl;
+		instructions_.next() = cofac;
+		std::cout << "TP-1" << std::endl;
+		rofl::cofmatch match_(msg->get_match());
+		std::cout << "TP0" << std::endl;
+		uint64_t cookie_;
+		uint64_t cookie_mask_ = 0;
+		uint8_t table_id_;
+		uint8_t command_;
+		uint16_t idle_timeout_;
+		uint16_t hard_timeout_;
+		uint16_t priority_;
+		uint32_t buffer_id_;
+		uint32_t out_port_;
+		uint32_t out_group_ = 0;
+		uint16_t flags_;
+
+		switch(msg->get_command()) {
 			case OFPFC_ADD:
 				assert(false);
-				entry.set_command(OFPFC_ADD);
+/*				entry.set_command(OFPFC_ADD);
 				entry.set_buffer_id(msg->get_buffer_id());
 //				rofl::cofmatch match_(msg->get_match());
 				entry.set_idle_timeout(15);
@@ -140,17 +162,44 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 //				entry.match.set_in_port(msg->get_match().get_in_port());
 //				entry.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
 				entry.match = msg->get_match();
-				entry.instructions.next() = cofinst_apply_actions(dpt->get_version());
+				entry.instructions.next() = cofinst_apply_actions(OFP10_VERSION);*/
 				break;
 			case OFPFC_DELETE:
+/*				std::cout << "TP1" << std::endl;
 				entry.set_command(OFPFC_DELETE);
-				entry.set_buffer_id(msg->get_buffer_id());
-				rofl::cofmatch match_(msg->get_match());
-				entry.set_idle_timeout(15);
-				entry.set_table_id(msg->get_table_id());
-				entry.match.set_in_port(msg->get_match().get_in_port());
-				entry.match.set_eth_dst(msg->get_packet().ether()->get_dl_dst());
-				entry.instructions.next() = cofinst_apply_actions(dpt->get_version());
+				std::cout << "TP2" << std::endl;
+				BOOST_PP_SEQ_FOR_EACH( CLONECMD, ((*msg))(entry), (table_id)(idle_timeout)(hard_timeout)(cookie)(cookie_mask)(priority)(buffer_id)(out_port)(out_group)(flags) )
+				std::cout << "TP3" << std::endl;
+				entry.match = match_;
+				std::cout << "TP4" << std::endl;
+				cofac.actions = msg->get_actions();	
+				std::cout << "TP5" << std::endl;
+				entry.instructions.next() = cofac;*/
+				std::cout << "TP6" << std::endl;
+				cookie_ = msg->get_cookie();
+				std::cout << "TP6a" << std::endl;
+//				cookie_mask_ = msg->get_cookie_mask();	// only OFP12 and OFP13
+				std::cout << "TP6b" << std::endl;
+				table_id_ = msg->get_table_id();
+				std::cout << "TP6c" << std::endl;
+				command_ = msg->get_command();
+				std::cout << "TP6d" << std::endl;
+				idle_timeout_ = msg->get_idle_timeout();
+				std::cout << "TP6e" << std::endl;
+				hard_timeout_ = msg->get_hard_timeout();
+				std::cout << "TP6f" << std::endl;
+				priority_ = msg->get_priority();
+				std::cout << "TP6g" << std::endl;
+				buffer_id_ = msg->get_buffer_id();
+				std::cout << "TP6h" << std::endl;
+				out_port_ = msg->get_out_port();
+				std::cout << "TP6i" << std::endl;
+//				out_group_ = msg->get_out_group();		// only OFP12 and OFP13
+				std::cout << "TP6j" << std::endl;
+				flags_ = msg->get_flags();
+				std::cout << "TP_" << std::endl;
+				send_flow_mod_message( m_slave, match_, cookie_, cookie_mask_, table_id_, command_, idle_timeout_, hard_timeout_, priority_, buffer_id_, out_port_, out_group_, flags_, instructions_ );
+				std::cout << "TP__" << std::endl;
 				break;
 			case OFPFC_DELETE_STRICT:
 				assert(false);
@@ -165,15 +214,17 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 				std::cout << func << ": got unknown action." << std::endl;
 				break;
 		}
-		rofl::cofaclist acl(msg->get_actions());
+	/*
+//		rofl::cofaclist acl(msg->get_actions());
 		for(rofl::cofaclist::iterator cit=acl.begin(); cit != acl.end(); ++cit) {
 			const rofl::cofaction act = *cit;
 			std::cout << func << ": got action: " << cit->c_str() << "." << std::endl;
 //			inl.next() = ??;
 		}
+	*/
 //		entry.instructions()
 
-//		send_flow_mod_message(m_slave, fe);
+//		send_flow_mod_message(m_slave, entry);
 
 	} catch (rofl::cerror &e) {
 		std::cout << func << ": caught " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
