@@ -15,6 +15,7 @@
 #include "rofl/common/cmemory.h"
 #include "rofl/common/croflexception.h"
 #include "rofl/common/logging.h"
+
 namespace rofl {
 namespace protocol {
 namespace lldp {
@@ -62,8 +63,9 @@ struct lldp_tlv_port_id_hdr_t {
 
 
 // LLDP TLV SYSTEM CAPS header
-struct lldp_tlv_caps_hdr_t {
+struct lldp_tlv_sys_caps_hdr_t {
 	struct lldp_tlv_hdr_t 	hdr;
+	uint8_t					chassis_id;
 	uint16_t 				available_caps;
 	uint16_t 				enabled_caps;
 };
@@ -185,13 +187,13 @@ public:
 	/**
 	 *
 	 */
-	void
+	virtual void
 	pack(uint8_t *buf, size_t buflen);
 
 	/**
 	 *
 	 */
-	void
+	virtual void
 	unpack(uint8_t *buf, size_t buflen);
 
 public:
@@ -254,12 +256,12 @@ class clldpattr_chassis_id :
 		public rofl::protocol::lldp::clldpattr
 {
 	union {
-		uint8_t					*lldpu_generic;
-		struct lldp_tlv_hdr_t	*lldpu_hdr;
+		uint8_t								*lldpu_chassis_id_generic;
+		struct lldp_tlv_chassis_id_hdr_t	*lldpu_chassis_id_hdr;
 	} lldp_lldpu;
 
-#define lldp_generic 	lldp_lldpu.lldpu_generic
-#define lldp_hdr		lldp_lldpu.lldpu_hdr
+#define lldp_chassis_id_generic 	lldp_lldpu.lldpu_chassis_id_generic
+#define lldp_chassis_id_hdr			lldp_lldpu.lldpu_chassis_id_hdr
 
 public:
 
@@ -334,9 +336,287 @@ public:
 	};
 };
 
+typedef clldpattr_chassis_id clldpattr_port_id;
 
-}; // end of namespace
-}; // end of namespace
-}; // end of namespace
+
+
+/**
+ *
+ */
+class clldpattr_ttl :
+		public rofl::protocol::lldp::clldpattr
+{
+	union {
+		uint8_t						*lldpu_ttl_generic;
+		struct lldp_tlv_ttl_hdr_t	*lldpu_ttl_hdr;
+	} lldp_lldpu;
+
+#define lldp_ttl_generic 	lldp_lldpu.lldpu_ttl_generic
+#define lldp_ttl_hdr		lldp_lldpu.lldpu_ttl_hdr
+
+public:
+
+	/**
+	 *
+	 */
+	clldpattr_ttl(
+			size_t len = sizeof(struct lldp_tlv_ttl_hdr_t));
+
+	/**
+	 *
+	 */
+	clldpattr_ttl(
+			clldpattr_ttl const& attr);
+
+	/**
+	 *
+	 */
+	clldpattr_ttl&
+	operator= (clldpattr_ttl const& attr);
+
+	/**
+	 *
+	 */
+	virtual
+	~clldpattr_ttl();
+
+public:
+
+	/**
+	 *
+	 */
+	virtual uint8_t*
+	resize(size_t len);
+
+public:
+
+	/**
+	 *
+	 */
+	virtual uint16_t
+	get_ttl() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	set_ttl(uint16_t ttl);
+
+public:
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, clldpattr_ttl const& attr) {
+		os << dynamic_cast<clldpattr const&>( attr );
+		os << rofl::indent(2) << "<clldpattr_ttl ttl:" << attr.get_ttl() << " >";
+		return os;
+	};
+};
+
+
+/**
+ *
+ */
+class clldpattr_desc :
+		public rofl::protocol::lldp::clldpattr
+{
+	union {
+		uint8_t					*lldpu_desc_generic;
+		struct lldp_tlv_hdr_t	*lldpu_desc_hdr;
+	} lldp_lldpu;
+
+#define lldp_desc_generic 	lldp_lldpu.lldpu_desc_generic
+#define lldp_desc_hdr		lldp_lldpu.lldpu_desc_hdr
+
+public:
+
+	/**
+	 *
+	 */
+	clldpattr_desc(
+			size_t len = sizeof(struct lldp_tlv_hdr_t));
+
+	/**
+	 *
+	 */
+	clldpattr_desc(
+			clldpattr_desc const& attr);
+
+	/**
+	 *
+	 */
+	clldpattr_desc&
+	operator= (clldpattr_desc const& attr);
+
+	/**
+	 *
+	 */
+	virtual
+	~clldpattr_desc();
+
+public:
+
+	/**
+	 *
+	 */
+	virtual uint8_t*
+	resize(size_t len);
+
+public:
+
+	/**
+	 *
+	 */
+	virtual std::string
+	get_desc() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	set_desc(std::string const& desc);
+
+public:
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, clldpattr_desc const& attr) {
+		os << dynamic_cast<clldpattr const&>( attr );
+		switch (attr.get_type()) {
+		case rofl::protocol::lldp::LLDPTT_PORT_DESC: {
+			os << rofl::indent(2) << "<clldpattr_desc desc:" << attr.get_desc() << " >";
+		} break;
+		case rofl::protocol::lldp::LLDPTT_SYSTEM_NAME: {
+			os << rofl::indent(2) << "<clldpattr_system_name desc:" << attr.get_desc() << " >";
+		} break;
+		case rofl::protocol::lldp::LLDPTT_SYSTEM_DESC: {
+			os << rofl::indent(2) << "<clldpattr_system_desc desc:" << attr.get_desc() << " >";
+		} break;
+		default: {
+			// do nothing
+		};
+		}
+
+		return os;
+	};
+};
+
+typedef clldpattr_desc clldpattr_port_desc;
+typedef clldpattr_desc clldpattr_system_name;
+typedef clldpattr_desc clldpattr_system_desc;
+
+
+
+/**
+ *
+ */
+class clldpattr_sys_caps :
+		public rofl::protocol::lldp::clldpattr
+{
+	union {
+		uint8_t							*lldpu_sys_caps_generic;
+		struct lldp_tlv_sys_caps_hdr_t	*lldpu_sys_caps_hdr;
+	} lldp_lldpu;
+
+#define lldp_sys_caps_generic 	lldp_lldpu.lldpu_sys_caps_generic
+#define lldp_sys_caps_hdr		lldp_lldpu.lldpu_sys_caps_hdr
+
+public:
+
+	/**
+	 *
+	 */
+	clldpattr_sys_caps(
+			size_t len = sizeof(struct lldp_tlv_sys_caps_hdr_t));
+
+	/**
+	 *
+	 */
+	clldpattr_sys_caps(
+			clldpattr_sys_caps const& attr);
+
+	/**
+	 *
+	 */
+	clldpattr_sys_caps&
+	operator= (clldpattr_sys_caps const& attr);
+
+	/**
+	 *
+	 */
+	virtual
+	~clldpattr_sys_caps();
+
+public:
+
+	/**
+	 *
+	 */
+	virtual uint8_t*
+	resize(size_t len);
+
+public:
+
+	/**
+	 *
+	 */
+	virtual uint8_t
+	get_chassis_id() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	set_chassis_id(uint8_t chassis_id);
+
+	/**
+	 *
+	 */
+	virtual uint16_t
+	get_available_caps() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	set_available_caps(uint16_t caps);
+
+	/**
+	 *
+	 */
+	virtual uint16_t
+	get_enabled_caps() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	set_enabled_caps(uint16_t caps);
+
+
+public:
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, clldpattr_sys_caps const& attr) {
+		os << dynamic_cast<clldpattr const&>( attr );
+		os << rofl::indent(2) << "<clldpattr_sys_caps >" << std::endl;
+		os << rofl::indent(4) << "<chassis-id: " 		<< attr.get_chassis_id() << " >" << std::endl;
+		os << rofl::indent(4) << "<available-caps: " 	<< attr.get_available_caps() << " >" << std::endl;
+		os << rofl::indent(4) << "<enabled-caps: " 		<< attr.get_enabled_caps() << " >" << std::endl;
+		return os;
+	};
+};
+
+
+}; // end of namespace lldp
+}; // end of namespace protocol
+}; // end of namespace rofl
 
 #endif /* CLLDPATTR_H_ */
