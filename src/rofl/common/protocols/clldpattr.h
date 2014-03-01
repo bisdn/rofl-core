@@ -46,16 +46,8 @@ struct lldp_hdr_t {
 	struct lldp_tlv_hdr_t 	body[0];
 } __attribute__((packed));
 
-// LLDP TLV chassis ID header
-struct lldp_tlv_chassis_id_hdr_t {
-	struct lldp_tlv_hdr_t 	hdr;
-	uint8_t 				subtype;
-	uint8_t 				body[0];
-} __attribute__((packed));
-
-
-// LLDP TLV port ID header
-struct lldp_tlv_port_id_hdr_t {
+// LLDP TLV ID header (chassis-id, port-id)
+struct lldp_tlv_id_hdr_t {
 	struct lldp_tlv_hdr_t 	hdr;
 	uint8_t 				subtype;
 	uint8_t 				body[0];
@@ -252,42 +244,42 @@ public:
 /**
  *
  */
-class clldpattr_chassis_id :
+class clldpattr_id :
 		public rofl::protocol::lldp::clldpattr
 {
 	union {
-		uint8_t								*lldpu_chassis_id_generic;
-		struct lldp_tlv_chassis_id_hdr_t	*lldpu_chassis_id_hdr;
+		uint8_t						*lldpu_id_generic;
+		struct lldp_tlv_id_hdr_t	*lldpu_id_hdr;
 	} lldp_lldpu;
 
-#define lldp_chassis_id_generic 	lldp_lldpu.lldpu_chassis_id_generic
-#define lldp_chassis_id_hdr			lldp_lldpu.lldpu_chassis_id_hdr
+#define lldp_id_generic 	lldp_lldpu.lldpu_id_generic
+#define lldp_id_hdr			lldp_lldpu.lldpu_id_hdr
 
 public:
 
 	/**
 	 *
 	 */
-	clldpattr_chassis_id(
-			size_t len = sizeof(struct lldp_tlv_chassis_id_hdr_t));
+	clldpattr_id(
+			size_t len = sizeof(struct lldp_tlv_id_hdr_t));
 
 	/**
 	 *
 	 */
-	clldpattr_chassis_id(
-			clldpattr_chassis_id const& attr);
+	clldpattr_id(
+			clldpattr_id const& attr);
 
 	/**
 	 *
 	 */
-	clldpattr_chassis_id&
-	operator= (clldpattr_chassis_id const& attr);
+	clldpattr_id&
+	operator= (clldpattr_id const& attr);
 
 	/**
 	 *
 	 */
 	virtual
-	~clldpattr_chassis_id();
+	~clldpattr_id();
 
 public:
 
@@ -329,14 +321,25 @@ public:
 	 *
 	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, clldpattr_chassis_id const& attr) {
+	operator<< (std::ostream& os, clldpattr_id const& attr) {
 		os << dynamic_cast<clldpattr const&>( attr );
-		os << rofl::indent(2) << "<clldpattr_chassis_id sub-type:" << attr.get_sub_type() << " body:" << attr.get_body() << " >";
+		switch (attr.get_type()) {
+		case rofl::protocol::lldp::LLDPTT_CHASSIS_ID: {
+			os << rofl::indent(2) << "<clldpattr_chassis_id sub-type:" << attr.get_sub_type() << " body:" << attr.get_body() << " >";
+		} break;
+		case rofl::protocol::lldp::LLDPTT_PORT_ID: {
+			os << rofl::indent(2) << "<clldpattr_port_id sub-type:" << attr.get_sub_type() << " body:" << attr.get_body() << " >";
+		} break;
+		default: {
+			// do nothing
+		};
+		}
 		return os;
 	};
 };
 
-typedef clldpattr_chassis_id clldpattr_port_id;
+typedef clldpattr_id clldpattr_chassis_id;
+typedef clldpattr_id clldpattr_port_id;
 
 
 
@@ -614,6 +617,7 @@ public:
 	};
 };
 
+// TODO: mgmt-addr
 
 }; // end of namespace lldp
 }; // end of namespace protocol

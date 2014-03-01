@@ -154,7 +154,7 @@ clldpattr::set_body(rofl::cmemory const& body)
 /*
  * chassis-id
  */
-clldpattr_chassis_id::clldpattr_chassis_id(
+clldpattr_id::clldpattr_id(
 			size_t len) :
 					clldpattr(len)
 {
@@ -162,73 +162,73 @@ clldpattr_chassis_id::clldpattr_chassis_id(
 }
 
 
-clldpattr_chassis_id::clldpattr_chassis_id(
-			clldpattr_chassis_id const& attr)
+clldpattr_id::clldpattr_id(
+			clldpattr_id const& attr)
 {
 	*this = attr;
 }
 
 
-clldpattr_chassis_id&
-clldpattr_chassis_id::operator= (clldpattr_chassis_id const& attr)
+clldpattr_id&
+clldpattr_id::operator= (clldpattr_id const& attr)
 {
 	if (this == &attr)
 		return *this;
 
 	rofl::protocol::lldp::clldpattr::operator= (attr);
 
-	lldp_chassis_id_generic = somem();
+	lldp_id_generic = somem();
 
 	return *this;
 }
 
 
-clldpattr_chassis_id::~clldpattr_chassis_id()
+clldpattr_id::~clldpattr_id()
 {
 
 }
 
 
 uint8_t*
-clldpattr_chassis_id::resize(size_t len)
+clldpattr_id::resize(size_t len)
 {
-	return (lldp_chassis_id_generic = clldpattr::resize(len));
+	return (lldp_id_generic = clldpattr::resize(len));
 }
 
 
 uint8_t
-clldpattr_chassis_id::get_sub_type() const
+clldpattr_id::get_sub_type() const
 {
-	return lldp_chassis_id_hdr->subtype;
+	return lldp_id_hdr->subtype;
 }
 
 
 void
-clldpattr_chassis_id::set_sub_type(uint8_t type)
+clldpattr_id::set_sub_type(uint8_t type)
 {
-	lldp_chassis_id_hdr->subtype = type;
+	lldp_id_hdr->subtype = type;
 }
 
 
 rofl::cmemory
-clldpattr_chassis_id::get_body() const
+clldpattr_id::get_body() const
 {
-	if (sizeof(struct lldp_tlv_chassis_id_hdr_t) >= rofl::cmemory::memlen()) {
+	if (sizeof(struct lldp_tlv_id_hdr_t) >= rofl::cmemory::memlen()) {
 		throw eLLDPNotFound();
 	}
 
-	return rofl::cmemory(lldp_chassis_id_hdr->body, rofl::cmemory::memlen() - sizeof(struct lldp_tlv_chassis_id_hdr_t));
+	return rofl::cmemory(lldp_id_hdr->body, rofl::cmemory::memlen() - sizeof(struct lldp_tlv_id_hdr_t));
 }
 
 
 void
-clldpattr_chassis_id::set_body(rofl::cmemory const& body)
+clldpattr_id::set_body(rofl::cmemory const& body)
 {
-	if (rofl::cmemory::memlen() < (sizeof(struct lldp_tlv_chassis_id_hdr_t) + body.memlen())) {
-		resize(sizeof(struct lldp_tlv_chassis_id_hdr_t) + body.memlen());
+	if (rofl::cmemory::memlen() < (sizeof(struct lldp_tlv_id_hdr_t) + body.memlen())) {
+		resize(sizeof(struct lldp_tlv_id_hdr_t) + body.memlen());
 	}
 
-	memcpy(lldp_chassis_id_hdr->body, body.somem(), body.memlen());
+	memcpy(lldp_id_hdr->body, body.somem(), body.memlen());
 }
 
 
