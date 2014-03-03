@@ -8,6 +8,7 @@
 #include <rofl/common/caddress.h>
 #include <rofl/common/crofbase.h>
 #include <rofl/common/cerror.h>
+#include <rofl/common/openflow/openflow_rofl_exceptions.h>
 #include <rofl/common/openflow/cofdpt.h>
 #include <rofl/common/openflow/cofctl.h>
 #include <rofl/common/openflow/openflow10.h>
@@ -64,6 +65,116 @@ void ctranslator::handle_dpath_close (rofl::cofdpt *dpt) {
 	m_slave=0;	// TODO - m_slave ownership?
 }
 
+// this function will take a flow_mod message and repackage and send it to the DPE
+void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << "." << std::endl;
+	
+	std::cout << func << ": Attempt to send flow_mod with crofbase::send_flow_mod_message( cofdpt *dpt, cofmatch& ofmatch,uint64_t cookie,..cofinlist& inlist)." << std::endl;
+	try {
+		rofl::cofinst_apply_actions cofac(OFP10_VERSION);
+		std::cout << "TP" << __LINE__ << std::endl;
+		cofac.actions = msg->get_actions();
+		std::cout << "TP" << __LINE__ << std::endl;
+		rofl::cofinlist instructions_(OFP10_VERSION);
+		std::cout << "TP" << __LINE__ << std::endl;
+		instructions_.next() = cofac;
+		std::cout << "TP" << __LINE__ << std::endl;
+		rofl::cofmatch match_(msg->get_match());
+		std::cout << "TP" << __LINE__ << std::endl;
+		uint64_t cookie_;
+		uint64_t cookie_mask_ = 0;
+		uint8_t table_id_;
+		uint8_t command_;
+		uint16_t idle_timeout_;
+		uint16_t hard_timeout_;
+		uint16_t priority_;
+		uint32_t buffer_id_;
+		uint32_t out_port_;
+		uint32_t out_group_ = 0;
+		uint16_t flags_;
+
+		std::cout << "TP" << __LINE__ << std::endl;
+		cookie_ = msg->get_cookie();
+		std::cout << "TP" << __LINE__ << std::endl;
+//				cookie_mask_ = msg->get_cookie_mask();	// only OFP12 and OFP13
+		std::cout << "TP" << __LINE__ << std::endl;
+		table_id_ = msg->get_table_id();
+		std::cout << "TP" << __LINE__ << std::endl;
+		command_ = msg->get_command();
+		std::cout << "TP" << __LINE__ << std::endl;
+		idle_timeout_ = msg->get_idle_timeout();
+		std::cout << "TP" << __LINE__ << std::endl;
+		hard_timeout_ = msg->get_hard_timeout();
+		std::cout << "TP" << __LINE__ << std::endl;
+		priority_ = msg->get_priority();
+		std::cout << "TP" << __LINE__ << std::endl;
+		buffer_id_ = msg->get_buffer_id();
+		std::cout << "TP" << __LINE__ << std::endl;
+		out_port_ = msg->get_out_port();
+		std::cout << "TP" << __LINE__ << std::endl;
+//				out_group_ = msg->get_out_group();		// only OFP12 and OFP13
+		std::cout << "TP" << __LINE__ << std::endl;
+		flags_ = msg->get_flags();
+		std::cout << "TP" << __LINE__ << std::endl;
+		send_flow_mod_message( m_slave, match_, cookie_, cookie_mask_, table_id_, command_, idle_timeout_, hard_timeout_, priority_, buffer_id_, out_port_, out_group_, flags_, instructions_ );
+		std::cout << "TP" << __LINE__ << std::endl;
+		std::cout << "send_flow_mod_message (cofdpt *dpt..cofinlist& inlist) completed." << std::endl;
+
+	} catch (rofl::eBadVersion &e) {
+		std::cout << func << ": eBadVersion caught: " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
+	} catch (rofl::cerror &e) {
+		std::cout << func << ": caught " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
+	}
+
+	
+	std::cout << func << ": Attempt to send flow_mod with send_flow_mod_message( cofdpt * dpt, cflowentry & flowentry )." << std::endl;
+	try {
+		std::cout << "TP" << __LINE__ << std::endl;
+		rofl::cflowentry entry(OFP10_VERSION);		// TERMINATE CALLED HERE: constructor throws rofl::eBadVersion, and because the throws clause restricts what is being thrown to eFlowEntryOutOfMem, the program terminates
+		std::cout << "TP" << __LINE__ << std::endl;
+		entry.set_command(msg->get_command());
+		std::cout << "TP" << __LINE__ << std::endl;
+		entry.set_table_id(msg->get_table_id());
+		std::cout << "TP" << __LINE__ << std::endl;
+		entry.set_idle_timeout(msg->get_idle_timeout());
+		std::cout << "TP" << __LINE__ << std::endl;
+		entry.set_hard_timeout(msg->get_hard_timeout());
+		std::cout << "TP" << __LINE__ << std::endl;
+		entry.set_cookie(msg->get_cookie());
+		std::cout << "TP" << __LINE__ << std::endl;
+		entry.set_cookie_mask(msg->get_cookie_mask());
+		std::cout << "TP" << __LINE__ << std::endl;
+		entry.set_priority(msg->get_priority());
+		std::cout << "TP" << __LINE__ << std::endl;
+		entry.set_buffer_id(msg->get_buffer_id());
+		std::cout << "TP" << __LINE__ << std::endl;
+		entry.set_out_port(msg->get_out_port());
+		std::cout << "TP" << __LINE__ << std::endl;
+		entry.set_out_group(msg->get_out_group());
+		std::cout << "TP" << __LINE__ << std::endl;
+		entry.set_flags(msg->get_flags());
+		std::cout << "TP" << __LINE__ << std::endl;
+		entry.pack();
+		std::cout << "TP" << __LINE__ << std::endl;
+		send_flow_mod_message( m_slave, entry );
+		std::cout << "TP" << __LINE__ << std::endl;
+		std::cout << "send_flow_mod_message(cofdpt * dpt, cflowentry & flowentry)." << std::endl;
+	} catch (rofl::eBadVersion &e) {
+		std::cout << func << ": eBadVersion caught: " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
+	} catch (rofl::cerror &e) {
+		std::cout << func << ": caught " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
+	}
+
+
+	std::cout << func << ": Attempt to send flow_mod with ???." << std::endl;
+
+
+	
+}
+
+
+#if 0
 void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << "." << std::endl;
@@ -226,6 +337,8 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 
 //		send_flow_mod_message(m_slave, entry);
 
+	} catch (rofl::eBadVersion &e) {
+		std::cout << func << ": eBadVersion caught " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
 	} catch (rofl::cerror &e) {
 		std::cout << func << ": caught " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
 	}
@@ -234,6 +347,7 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 	
 	delete(msg);
 }
+#endif
 
 void ctranslator::handle_features_request(rofl::cofctl *ctl, rofl::cofmsg_features_request *pack) {
 	static const char * func = __FUNCTION__;
