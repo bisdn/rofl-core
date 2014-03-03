@@ -29,7 +29,8 @@ bool pool_state[FAKE_IO_POOL_SLOTS]={false};
 void init_io(){
 	int i;
 	for(i=0;i<FAKE_IO_POOL_SLOTS;i++){
-		pool[i] = (datapacket_t*)malloc(sizeof(datapacket_t));	
+		pool[i] = (datapacket_t*)malloc(sizeof(datapacket_t));
+		memset(pool[i], 0, sizeof(datapacket_t));	
 	}
 }
 

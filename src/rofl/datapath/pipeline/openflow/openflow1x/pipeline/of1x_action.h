@@ -307,10 +307,15 @@ typedef struct{
 * Write actions structure
 */
 typedef struct{
-	//Presence of action flag => type == 0
-	of1x_packet_action_t write_actions[OF1X_AT_NUMBER];
+
+	//Mapper; fast access per type. When an action is present
+	//flag is set to 0..OF1X_AT_NUMBER-1, otherwise -1
+	int mapper[OF1X_AT_NUMBER];
+
+	//Write actions 0...OF1X_AT_NUMBER-1 at the very beginning of the array
+	of1x_packet_action_t actions[OF1X_AT_NUMBER];
 	
-	//Number of actions. Merely for dumping and to skip unnecessary loop iterations
+	//Number of actions. 
 	unsigned int num_of_actions;
 	unsigned int num_of_output_actions;
 	

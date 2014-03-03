@@ -21,6 +21,7 @@ int set_up(void);
 int tear_down(void);
 	
 /* Test cases */
-void profile_basic(void);
+void profile_basic_match(void);
+void profile_basic_no_match(void);
 
 #endif

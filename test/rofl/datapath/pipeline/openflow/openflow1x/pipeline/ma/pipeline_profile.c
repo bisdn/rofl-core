@@ -23,8 +23,8 @@ int main(int args, char** argv){
 
 	/* add the tests to the suite */
 	/* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
-	if ((NULL == CU_add_test(pSuite, "Basic profiling (single flow_mod); match no-match", profile_basic)) /*||
-	(NULL == CU_add_test(pSuite, "test uninstall all", test_install_overlapping_specific)) ||
+	if ((NULL == CU_add_test(pSuite, "Basic profiling (single flow_mod); match match", profile_basic_match)) ||
+	(NULL == CU_add_test(pSuite, "Basic profiling (single flow_mod); match no-match", profile_basic_no_match)) /* ||
 	(NULL == CU_add_test(pSuite, "test uninstall wildcard", test_uninstall_wildcard)) || 
 	(NULL == CU_add_test(pSuite, "test check overlap addition", test_overlap)) || 
 	(NULL == CU_add_test(pSuite, "test check overlap addition2", test_overlap2)) || 

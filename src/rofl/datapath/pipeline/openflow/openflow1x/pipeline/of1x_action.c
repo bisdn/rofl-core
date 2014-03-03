@@ -403,12 +403,21 @@ void of1x_push_packet_action_to_group(of1x_action_group_t* group, of1x_packet_ac
 
 of1x_write_actions_t* of1x_init_write_actions(){
 
+	int i;
 	of1x_write_actions_t* write_actions = platform_malloc_shared(sizeof(of1x_write_actions_t)); 
 
 	if( unlikely(write_actions==NULL) )
 		return NULL;
 
-	memset(write_actions, 0, sizeof(of1x_write_actions_t));
+	//Set action mapper (-1)
+	for(i=0;i<OF1X_AT_NUMBER;i++)
+		write_actions->mapper[i] = -1;
+	
+	//Memset actions
+	memset(&write_actions->actions[0], 0, sizeof(of1x_packet_action_t)*OF1X_AT_NUMBER);
+
+	//num of actions and output actions
+	write_actions->num_of_actions = write_actions->num_of_output_actions = 0;
 
 	//Fast validation, set min max 
 	write_actions->ver_req.min_ver = OF1X_MIN_VERSION;
@@ -422,8 +431,24 @@ void __of1x_destroy_write_actions(of1x_write_actions_t* write_actions){
 }
 
 void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action){
-	if( write_actions && action )	
-		write_actions->write_actions[action->type] = *action;
+
+	int pos;
+
+	if( likely(write_actions != NULL) && likely(action != NULL) ){
+
+		//Recover previous position (if any)
+		pos = write_actions->mapper[action->type];
+
+		if( pos == -1 ){
+			//determine the new position in the actions array
+			write_actions->actions[write_actions->num_of_actions] = *action;
+			write_actions->num_of_actions++;
+		}else
+			write_actions->actions[pos] = *action;
+	}else{
+		assert(0);
+		return;
+	}
 	
 	//This cannot be done here, because the group might NOT exist yet; the sum will happen 
 	//during insertion validation (for both action and WRITE_ACTIONS instruction
@@ -444,26 +469,53 @@ void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions
 //Update of write actions
 void __of1x_update_packet_write_actions(datapacket_t* pkt, const of1x_write_actions_t* entry_write_actions) {
 
+	int pos;
 	unsigned int i;
 	of1x_write_actions_t* packet_write_actions;
+	of1x_packet_action_t* action;	
 
 	//Recover write actions from datapacket
 	packet_write_actions = &pkt->write_actions.of1x;
 	
-	if( unlikely(entry_write_actions==NULL) )
+	if( unlikely(entry_write_actions==NULL) ){
+		assert(0);
 		return;
+	}
 
 	//Loop over entry write actions and update packet_write_actions
-	for(i=0;i<OF1X_AT_NUMBER;i++){
-		if(entry_write_actions->write_actions[i].type)
-			packet_write_actions->write_actions[i] = entry_write_actions->write_actions[i];
+	for(i=0;i<entry_write_actions->num_of_actions;i++){
+		
+		//Let's make the code readable
+		action = (of1x_packet_action_t*)&entry_write_actions->actions[i]; 
+
+		//Recover previous position (if any)
+		pos = packet_write_actions->mapper[action->type];
+
+		if( pos == -1 || pos >= packet_write_actions->num_of_actions || packet_write_actions->actions[pos].type != action->type){
+			//Was marked as not present (-1) or it has an invalid state (previous processing dirty state)
+			packet_write_actions->actions[packet_write_actions->num_of_actions] = *action;
+			packet_write_actions->mapper[action->type] = packet_write_actions->num_of_actions;
+			packet_write_actions->num_of_actions++;
+		}else{
+			//It already has a write_action of this type in pos
+			packet_write_actions->actions[pos] = *action;
+		}
 	}
 
 }
 
 //Clear actions
 void __of1x_clear_write_actions(datapacket_t* pkt){
-	memset(&pkt->write_actions.of1x, 0, sizeof(of1x_write_actions_t));
+
+	int i;
+	of1x_write_actions_t* write_actions = &pkt->write_actions.of1x;	
+
+	//Set action mapper (-1)
+	for(i=0;i<OF1X_AT_NUMBER;i++)
+		write_actions->mapper[i] = -1;
+	
+	//num of actions and output actions
+	write_actions->num_of_actions = 0;
 }
 
 /* Contains switch with all the different action functions */
@@ -1076,10 +1128,8 @@ void __of1x_process_write_actions(const struct of1x_switch* sw, const unsigned i
 	//Recover write actions from datapacket
 	packet_write_actions = &pkt->write_actions.of1x;
 	
-	for(i=0;i<OF1X_AT_NUMBER;i++){
-		if(packet_write_actions->write_actions[i].type){
-			__of1x_process_packet_action(sw, table_id, pkt, &packet_write_actions->write_actions[i], replicate_pkts);
-		}
+	for(i=0;i<packet_write_actions->num_of_actions;i++){
+		__of1x_process_packet_action(sw, table_id, pkt, &packet_write_actions->actions[i], replicate_pkts);
 	}
 }
 
@@ -1173,7 +1223,7 @@ bool __of1x_write_actions_has(of1x_write_actions_t* write_actions, of1x_packet_a
 	if( unlikely(write_actions==NULL) )
 		return false;	
 	
-	of1x_packet_action_t action = write_actions->write_actions[type];
+	of1x_packet_action_t action = write_actions->actions[type];
 
 	return (action.type != OF1X_AT_NO_ACTION) && (value != 0x0 && action.field.u64 == value ); 
 }
@@ -1482,9 +1532,9 @@ void __of1x_dump_write_actions(of1x_write_actions_t* write_actions_group){
 	if( unlikely(write_actions_group==NULL) )
 		return;
 
-	for(i=0;i<OF1X_AT_NUMBER;i++){
-		if(write_actions_group->write_actions[i].type)
-			__of1x_dump_packet_action(write_actions_group->write_actions[i]);
+	for(i=0;i<write_actions_group->num_of_actions;i++){
+		if(write_actions_group->actions[i].type)
+			__of1x_dump_packet_action(write_actions_group->actions[i]);
 	}
 }
 	
@@ -1529,8 +1579,8 @@ rofl_result_t __of1x_validate_write_actions(of1x_write_actions_t *wa, of1x_group
 	if(unlikely(wa == NULL))
 		return ROFL_FAILURE;
 
-	for(i=0;i<OF1X_AT_NUMBER;i++){
-		pa_it = &(wa->write_actions[i]);
+	for(i=0;i<wa->num_of_actions;i++){
+		pa_it = &(wa->actions[i]);
 
 		if(pa_it->type == OF1X_AT_OUTPUT)
 				wa->num_of_output_actions++;

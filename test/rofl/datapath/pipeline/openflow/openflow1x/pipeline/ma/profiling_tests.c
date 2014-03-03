@@ -32,7 +32,7 @@ int tear_down(){
 }
 
 //Single flow_mod profiling
-void profile_basic(){
+void profile_basic_match(){
 
 	int i;
 	uint64_t tics;
@@ -69,7 +69,14 @@ void profile_basic(){
 	//Print
 	fprintf(stderr,"\n%s MATCH num_of_iterations: %u average cycles: %u\n",  __func__, NUM_OF_ITERATONS, average_tics); 
 	//TODO output results 
+}
 	
+void profile_basic_no_match(){
+
+	int i;
+	uint64_t tics;
+	uint32_t average_tics;
+
 	//PKT
 	pkt.matches.port_in = 2;
 
@@ -89,7 +96,7 @@ void profile_basic(){
 	average_tics = accumulated_time / NUM_OF_ITERATONS; 
 
 	//Print
-	fprintf(stderr,"%s NO-MATCH num_of_iterations: %u average cycles: %u\n",  __func__, NUM_OF_ITERATONS, average_tics); 
+	fprintf(stderr,"\n%s NO-MATCH num_of_iterations: %u average cycles: %u\n",  __func__, NUM_OF_ITERATONS, average_tics); 
 		
 	//TODO output results 
 }
