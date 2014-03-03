@@ -24,7 +24,7 @@ of1x_packet_action_t* of1x_init_packet_action(/*const struct of1x_switch* sw, */
 
 	of1x_packet_action_t* action;
 
-	if( unlikely(type==0) )
+	if( unlikely(type==OF1X_AT_NO_ACTION) )
 		return NULL;
 
 	action = platform_malloc_shared(sizeof(of1x_packet_action_t));
