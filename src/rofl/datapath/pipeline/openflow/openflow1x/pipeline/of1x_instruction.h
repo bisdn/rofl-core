@@ -63,11 +63,11 @@ typedef enum {
 	OF1X_IT_WRITE_METADATA	= 4,		/* Setup the metadata field for use later in pipeline */
 
 	OF1X_IT_EXPERIMENTER	= 5,		/* Experimenter instruction */
-	OF1X_IT_GOTO_TABLE	= 6,		/* Setup the next table in the lookup pipeline */
-	OF1X_IT_METER		= 7,		/* Meters */
+	OF1X_IT_METER		= 6,		/* Meters */
+	OF1X_IT_GOTO_TABLE	= 7,		/* Setup the next table in the lookup pipeline: MUST BE the last one */
 }of1x_instruction_type_t;
 
-#define OF1X_IT_MAX OF1X_IT_METER
+#define OF1X_IT_MAX OF1X_IT_GOTO_TABLE
 
 //Write metadata instruction
 typedef struct of1x_write_metadata{

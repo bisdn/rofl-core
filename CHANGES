@@ -30,6 +30,7 @@ TODO: add pipeline changes
 v0.3.4
 
 [+][common] Added LLC basic frame support in fetherframe.h/cc 
+[B][buildsystem] missing _DEPENDENCIES of matching algorithms library added
 
 v0.3.3
 
