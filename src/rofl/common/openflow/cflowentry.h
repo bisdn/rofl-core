@@ -19,6 +19,7 @@
 
 #include "cofmatch.h"
 #include "cofaction.h"
+#include "cofaclist.h"
 #include "cofinst.h"
 #include "cofinlist.h"
 #include "coxmatch.h"
@@ -43,6 +44,7 @@ public: // data structures
 	cofmatch 		match; 			// cofmatch class containing ofp_match structure
 
 	cofinlist 		instructions; 	// list of instructions
+	cofaclist		actions;		// list of actions (for OF1.0)
 
 	union {
 		struct ofp12_flow_mod 		*ofmu12_flow_mod;

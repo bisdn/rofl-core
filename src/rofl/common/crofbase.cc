@@ -2113,23 +2113,47 @@ crofbase::send_flow_mod_message(
 		cofdpt *dpt,
 		cflowentry& fe)
 {
-	cofmsg_flow_mod *pack =
-			new cofmsg_flow_mod(
-					dpt->get_version(),
-					ta_new_async_xid(),
-					fe.get_cookie(),
-					fe.get_cookie_mask(),
-					fe.get_table_id(),
-					fe.get_command(),
-					fe.get_idle_timeout(),
-					fe.get_hard_timeout(),
-					fe.get_priority(),
-					fe.get_buffer_id(),
-					fe.get_out_port(),
-					fe.get_out_group(),
-					fe.get_flags(),
-					fe.instructions,
-					fe.match);
+	cofmsg_flow_mod *pack = (cofmsg_flow_mod*)0;
+
+	switch (dpt->get_version()) {
+	case OFP10_VERSION: {
+		pack = new cofmsg_flow_mod(
+						dpt->get_version(),
+						ta_new_async_xid(),
+						fe.get_cookie(),
+						fe.get_command(),
+						fe.get_idle_timeout(),
+						fe.get_hard_timeout(),
+						fe.get_priority(),
+						fe.get_buffer_id(),
+						fe.get_out_port(),
+						fe.get_flags(),
+						fe.actions,
+						fe.match);
+
+	} break;
+	case OFP12_VERSION: {
+		pack = new cofmsg_flow_mod(
+						dpt->get_version(),
+						ta_new_async_xid(),
+						fe.get_cookie(),
+						fe.get_cookie_mask(),
+						fe.get_table_id(),
+						fe.get_command(),
+						fe.get_idle_timeout(),
+						fe.get_hard_timeout(),
+						fe.get_priority(),
+						fe.get_buffer_id(),
+						fe.get_out_port(),
+						fe.get_out_group(),
+						fe.get_flags(),
+						fe.instructions,
+						fe.match);
+
+	} break;
+	default:
+		return;
+	}
 
 	pack->pack();
 
