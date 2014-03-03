@@ -36,6 +36,9 @@ librofl_pipeline_openflow1x_pipeline_matching_algorithms_la_LIBADD = \
 	$(MATCHING_ALGORITHM_LIBADD) \
 	$(MATCHING_ALGORITHM_LIBS)
 
+librofl_pipeline_openflow1x_pipeline_matching_algorithms_la_DEPENDENCIES = \
+	$(MATCHING_ALGORITHM_LIBADD)
+
 matching_algorithms_available.h: matching_algorithms_available.sh Makefile
 	$(SHELL) $(srcdir)/matching_algorithms_available.sh $(MATCHING_ALGORITHMS) > $(srcdir)/matching_algorithms_available.h
 
