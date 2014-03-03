@@ -59,6 +59,8 @@ clldpattr::length() const
 void
 clldpattr::pack(uint8_t *buf, size_t buflen)
 {
+	set_length(rofl::cmemory::memlen());
+
 	if ((0 == buf) || (0 == buflen)) {
 		return;
 	}
@@ -66,8 +68,6 @@ clldpattr::pack(uint8_t *buf, size_t buflen)
 	if (buflen < rofl::cmemory::memlen()) {
 		throw eLLDPInval();
 	}
-
-	set_length(rofl::cmemory::memlen());
 
 	rofl::cmemory::pack(buf, buflen);
 }
@@ -93,7 +93,7 @@ clldpattr::unpack(uint8_t *buf, size_t buflen)
 uint8_t
 clldpattr::get_type() const
 {
-	return ((lldp_hdr->tlen & 0xfe00) >> 9);
+	return ((be16toh(lldp_hdr->tlen) & 0xfe00) >> 9);
 }
 
 
@@ -101,8 +101,8 @@ clldpattr::get_type() const
 void
 clldpattr::set_type(uint8_t type)
 {
-	lldp_hdr->tlen &= 0x01ff;
-	lldp_hdr->tlen |= ((type & 0x7f) << 9);
+	lldp_hdr->tlen &= htobe16(0x01ff);
+	lldp_hdr->tlen |= htobe16(((type & 0x7f) << 9));
 }
 
 
@@ -110,7 +110,7 @@ clldpattr::set_type(uint8_t type)
 uint16_t
 clldpattr::get_length() const
 {
-	return ((lldp_hdr->tlen & 0x01ff));
+	return ((be16toh(lldp_hdr->tlen) & 0x01ff));
 }
 
 
@@ -118,8 +118,8 @@ clldpattr::get_length() const
 void
 clldpattr::set_length(uint16_t len)
 {
-	lldp_hdr->tlen &= 0xfe00;
-	lldp_hdr->tlen |= (len & 0x01ff);
+	lldp_hdr->tlen &= htobe16(0xfe00);
+	lldp_hdr->tlen |= htobe16((len & 0x01ff));
 }
 
 

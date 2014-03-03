@@ -7,6 +7,8 @@
 class clldpattrTest : public CppUnit::TestFixture {
 
 	CPPUNIT_TEST_SUITE( clldpattrTest );
+	CPPUNIT_TEST( testTypeField );
+	CPPUNIT_TEST( testLengthField );
 	CPPUNIT_TEST( testDefaultConstructor );
 	CPPUNIT_TEST( testCopyConstructor );
 	CPPUNIT_TEST( testPackUnpack );
@@ -23,6 +25,8 @@ public:
 	void setUp();
 	void tearDown();
 
+	void testTypeField();
+	void testLengthField();
 	void testDefaultConstructor();
 	void testCopyConstructor();
 	void testPackUnpack();

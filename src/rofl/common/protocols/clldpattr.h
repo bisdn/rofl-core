@@ -180,7 +180,7 @@ public:
 	 *
 	 */
 	virtual void
-	pack(uint8_t *buf, size_t buflen);
+	pack(uint8_t *buf = NULL, size_t buflen = 0);
 
 	/**
 	 *
@@ -233,7 +233,9 @@ public:
 	 */
 	friend std::ostream&
 	operator<< (std::ostream& os, clldpattr const& attr) {
-		os << rofl::indent(0) << "<clldpattr type:" << attr.get_type() << " len:" << attr.get_length() << " >";
+		os << rofl::indent(0) << "<clldpattr type:" << (int)attr.get_type() << " len:" << (int)attr.get_length() << " >" << std::endl;
+		rofl::indent i(2);
+		os << dynamic_cast<rofl::cmemory const&>( attr );
 		return os;
 	};
 };
