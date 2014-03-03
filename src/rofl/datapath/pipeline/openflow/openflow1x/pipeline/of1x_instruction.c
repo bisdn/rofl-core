@@ -142,6 +142,8 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 					break;
 			case OF1X_IT_EXPERIMENTER: //TODO:
 					break;
+			case OF1X_IT_METER: //TODO:
+					break;
     			case OF1X_IT_GOTO_TABLE: return instructions->instructions[i].go_to_table; 
 					break;
 				
