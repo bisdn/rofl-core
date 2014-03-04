@@ -269,6 +269,14 @@ public:
 	 *
 	 */
 	clldpattr_id(
+			clldpattr const& attr) : clldpattr(attr) {
+		lldp_id_generic = somem();
+	};
+
+	/**
+	 *
+	 */
+	clldpattr_id(
 			clldpattr_id const& attr);
 
 	/**
@@ -373,6 +381,14 @@ public:
 	 *
 	 */
 	clldpattr_ttl(
+			clldpattr const& attr) : clldpattr(attr) {
+		lldp_ttl_generic = somem();
+	};
+
+	/**
+	 *
+	 */
+	clldpattr_ttl(
 			clldpattr_ttl const& attr);
 
 	/**
@@ -444,6 +460,14 @@ public:
 	 */
 	clldpattr_desc(
 			size_t len = sizeof(struct lldp_tlv_hdr_t));
+
+	/**
+	 *
+	 */
+	clldpattr_desc(
+			clldpattr const& attr) : clldpattr(attr) {
+		lldp_desc_generic = somem();
+	};
 
 	/**
 	 *
@@ -521,7 +545,7 @@ typedef clldpattr_desc clldpattr_system_desc;
 /**
  *
  */
-class clldpattr_sys_caps :
+class clldpattr_system_caps :
 		public rofl::protocol::lldp::clldpattr
 {
 	union {
@@ -537,26 +561,34 @@ public:
 	/**
 	 *
 	 */
-	clldpattr_sys_caps(
+	clldpattr_system_caps(
 			size_t len = sizeof(struct lldp_tlv_sys_caps_hdr_t));
 
 	/**
 	 *
 	 */
-	clldpattr_sys_caps(
-			clldpattr_sys_caps const& attr);
+	clldpattr_system_caps(
+			clldpattr const& attr) : clldpattr(attr) {
+		lldp_sys_caps_generic = somem();
+	};
 
 	/**
 	 *
 	 */
-	clldpattr_sys_caps&
-	operator= (clldpattr_sys_caps const& attr);
+	clldpattr_system_caps(
+			clldpattr_system_caps const& attr);
+
+	/**
+	 *
+	 */
+	clldpattr_system_caps&
+	operator= (clldpattr_system_caps const& attr);
 
 	/**
 	 *
 	 */
 	virtual
-	~clldpattr_sys_caps();
+	~clldpattr_system_caps();
 
 public:
 
@@ -611,7 +643,7 @@ public:
 	 *
 	 */
 	friend std::ostream&
-	operator<< (std::ostream& os, clldpattr_sys_caps const& attr) {
+	operator<< (std::ostream& os, clldpattr_system_caps const& attr) {
 		os << dynamic_cast<clldpattr const&>( attr );
 		os << rofl::indent(2) << "<clldpattr_sys_caps >" << std::endl;
 		os << rofl::indent(4) << "<chassis-id: " 		<< (int)attr.get_chassis_id() << " >" << std::endl;

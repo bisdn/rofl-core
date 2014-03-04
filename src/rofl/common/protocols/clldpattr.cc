@@ -372,7 +372,7 @@ clldpattr_desc::set_desc(std::string const& desc)
 /*
  * sys_caps
  */
-clldpattr_sys_caps::clldpattr_sys_caps(
+clldpattr_system_caps::clldpattr_system_caps(
 			size_t len) :
 					clldpattr(len)
 {
@@ -380,15 +380,15 @@ clldpattr_sys_caps::clldpattr_sys_caps(
 }
 
 
-clldpattr_sys_caps::clldpattr_sys_caps(
-			clldpattr_sys_caps const& attr)
+clldpattr_system_caps::clldpattr_system_caps(
+			clldpattr_system_caps const& attr)
 {
 	*this = attr;
 }
 
 
-clldpattr_sys_caps&
-clldpattr_sys_caps::operator= (clldpattr_sys_caps const& attr)
+clldpattr_system_caps&
+clldpattr_system_caps::operator= (clldpattr_system_caps const& attr)
 {
 	if (this == &attr)
 		return *this;
@@ -401,56 +401,56 @@ clldpattr_sys_caps::operator= (clldpattr_sys_caps const& attr)
 }
 
 
-clldpattr_sys_caps::~clldpattr_sys_caps()
+clldpattr_system_caps::~clldpattr_system_caps()
 {
 
 }
 
 
 uint8_t*
-clldpattr_sys_caps::resize(size_t len)
+clldpattr_system_caps::resize(size_t len)
 {
 	return (lldp_sys_caps_generic = clldpattr::resize(len));
 }
 
 
 uint8_t
-clldpattr_sys_caps::get_chassis_id() const
+clldpattr_system_caps::get_chassis_id() const
 {
 	return lldp_sys_caps_hdr->chassis_id;
 }
 
 
 void
-clldpattr_sys_caps::set_chassis_id(uint8_t chassis_id)
+clldpattr_system_caps::set_chassis_id(uint8_t chassis_id)
 {
 	lldp_sys_caps_hdr->chassis_id = chassis_id;
 }
 
 
 uint16_t
-clldpattr_sys_caps::get_available_caps() const
+clldpattr_system_caps::get_available_caps() const
 {
 	return be16toh(lldp_sys_caps_hdr->available_caps);
 }
 
 
 void
-clldpattr_sys_caps::set_available_caps(uint16_t caps)
+clldpattr_system_caps::set_available_caps(uint16_t caps)
 {
 	lldp_sys_caps_hdr->available_caps = htobe16(caps);
 }
 
 
 uint16_t
-clldpattr_sys_caps::get_enabled_caps() const
+clldpattr_system_caps::get_enabled_caps() const
 {
 	return be16toh(lldp_sys_caps_hdr->enabled_caps);
 }
 
 
 void
-clldpattr_sys_caps::set_enabled_caps(uint16_t caps)
+clldpattr_system_caps::set_enabled_caps(uint16_t caps)
 {
 	lldp_sys_caps_hdr->enabled_caps = htobe16(caps);
 }

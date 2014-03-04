@@ -204,7 +204,7 @@ clldpattrTest::testDesc()
 void
 clldpattrTest::testSysCaps()
 {
-	clldpattr_sys_caps attr(sizeof(struct rofl::protocol::lldp::lldp_tlv_sys_caps_hdr_t));
+	clldpattr_system_caps attr(sizeof(struct rofl::protocol::lldp::lldp_tlv_sys_caps_hdr_t));
 	attr[0] = (rofl::protocol::lldp::LLDPTT_SYSTEM_CAPS << 1);
 	attr[1] = sizeof(struct rofl::protocol::lldp::lldp_tlv_sys_caps_hdr_t);
 	attr[2] = 0x08; // chassis-id
