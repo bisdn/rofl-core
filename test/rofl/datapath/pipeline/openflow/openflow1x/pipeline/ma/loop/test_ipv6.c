@@ -55,16 +55,16 @@ void ipv6_utern_test(void){
 	tern = __init_utern128(value,mask);
 	CU_ASSERT(tern != NULL);
 	
-	res = __utern_compare128(tern,value);
+	res = __utern_compare128(tern,&value);
 	CU_ASSERT(res==true);
 	
-	res = __utern_compare128(tern,ex_value);
+	res = __utern_compare128(tern,&ex_value);
 	CU_ASSERT(res==false);
 	
-	res = __utern_compare128(tern,ex_value_2);
+	res = __utern_compare128(tern,&ex_value_2);
 	CU_ASSERT(res==false);
 	
-	res = __utern_compare128(tern,ex_value_3);
+	res = __utern_compare128(tern,&ex_value_3);
 	CU_ASSERT(res==true);
 	
 	ex_tern = __init_utern128(ex_value,ex_mask);
