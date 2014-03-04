@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "CUnit/Basic.h"
 #include "test_ipv6.h"
+#include <rofl/datapath/pipeline/common/ternary_fields.h>
 
 static of1x_switch_t* sw=NULL;
 
