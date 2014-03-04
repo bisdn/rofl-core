@@ -223,7 +223,7 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 			//Process instructions
 			table_to_go = __of1x_process_instructions((of1x_switch_t*)sw, i, pkt, &match->inst_grp);
 
-			if(table_to_go > i && table_to_go < OF1X_MAX_FLOWTABLES){
+			if(table_to_go > i && likely(table_to_go < OF1X_MAX_FLOWTABLES)){
 
 				ROFL_PIPELINE_DEBUG("Packet[%p] Going to table %u->%u\n",pkt, i,table_to_go);
 				i = table_to_go-1;
