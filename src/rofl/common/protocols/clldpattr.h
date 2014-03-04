@@ -60,7 +60,7 @@ struct lldp_tlv_sys_caps_hdr_t {
 	uint8_t					chassis_id;
 	uint16_t 				available_caps;
 	uint16_t 				enabled_caps;
-};
+} __attribute__((packed));
 
 
 // LLDP TLV TTL header
@@ -327,15 +327,17 @@ public:
 		os << dynamic_cast<clldpattr const&>( attr );
 		switch (attr.get_type()) {
 		case rofl::protocol::lldp::LLDPTT_CHASSIS_ID: {
-			os << rofl::indent(2) << "<clldpattr_chassis_id sub-type:" << attr.get_sub_type() << " body:" << attr.get_body() << " >";
+			os << rofl::indent(2) << "<clldpattr_chassis_id sub-type:" << attr.get_sub_type() << " >" << std::endl;
 		} break;
 		case rofl::protocol::lldp::LLDPTT_PORT_ID: {
-			os << rofl::indent(2) << "<clldpattr_port_id sub-type:" << attr.get_sub_type() << " body:" << attr.get_body() << " >";
+			os << rofl::indent(2) << "<clldpattr_port_id sub-type:" << attr.get_sub_type() << " >" << std::endl;
 		} break;
 		default: {
 			// do nothing
 		};
 		}
+		rofl::indent i(4);
+		os << attr.get_body();
 		return os;
 	};
 };
@@ -612,9 +614,9 @@ public:
 	operator<< (std::ostream& os, clldpattr_sys_caps const& attr) {
 		os << dynamic_cast<clldpattr const&>( attr );
 		os << rofl::indent(2) << "<clldpattr_sys_caps >" << std::endl;
-		os << rofl::indent(4) << "<chassis-id: " 		<< attr.get_chassis_id() << " >" << std::endl;
-		os << rofl::indent(4) << "<available-caps: " 	<< attr.get_available_caps() << " >" << std::endl;
-		os << rofl::indent(4) << "<enabled-caps: " 		<< attr.get_enabled_caps() << " >" << std::endl;
+		os << rofl::indent(4) << "<chassis-id: " 		<< (int)attr.get_chassis_id() << " >" << std::endl;
+		os << rofl::indent(4) << "<available-caps: 0x" 	<< std::hex << (int)attr.get_available_caps() << std::dec << " >" << std::endl;
+		os << rofl::indent(4) << "<enabled-caps: 0x" 	<< std::hex << (int)attr.get_enabled_caps() << std::dec << " >" << std::endl;
 		return os;
 	};
 };

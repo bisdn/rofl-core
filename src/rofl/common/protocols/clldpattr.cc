@@ -158,7 +158,7 @@ clldpattr_id::clldpattr_id(
 			size_t len) :
 					clldpattr(len)
 {
-
+	lldp_id_generic = rofl::cmemory::somem();
 }
 
 
@@ -244,7 +244,7 @@ clldpattr_ttl::clldpattr_ttl(
 			size_t len) :
 					clldpattr(len)
 {
-
+	lldp_ttl_generic = rofl::cmemory::somem();
 }
 
 
@@ -309,7 +309,7 @@ clldpattr_desc::clldpattr_desc(
 			size_t len) :
 					clldpattr(len)
 {
-
+	lldp_desc_generic = rofl::cmemory::somem();
 }
 
 
@@ -376,7 +376,7 @@ clldpattr_sys_caps::clldpattr_sys_caps(
 			size_t len) :
 					clldpattr(len)
 {
-
+	lldp_sys_caps_generic = rofl::cmemory::somem();
 }
 
 

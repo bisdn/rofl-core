@@ -103,14 +103,63 @@ clldpattrTest::testCopyConstructor()
 void
 clldpattrTest::testPackUnpack()
 {
+	clldpattr attr;
 
+	attr.set_type(0x58);
+	rofl::cmemory body(7);
+	for (unsigned int i = 0; i < 7; i++) {
+		body[i] = i;
+	}
+	attr.set_body(body);
+
+	rofl::cmemory a_mem(attr.length());
+
+	attr.pack(a_mem.somem(), a_mem.memlen());
+
+	rofl::cmemory b_mem(9);
+	b_mem[0] = 0xb0;
+	b_mem[1] = 0x09;
+	b_mem[2] = 0x00;
+	b_mem[3] = 0x01;
+	b_mem[4] = 0x02;
+	b_mem[5] = 0x03;
+	b_mem[6] = 0x04;
+	b_mem[7] = 0x05;
+	b_mem[8] = 0x06;
+
+	std::cerr << "a_mem:" << a_mem;
+	std::cerr << "b_mem:" << b_mem;
+
+	CPPUNIT_ASSERT(a_mem == b_mem);
+
+	clldpattr clone;
+	clone.unpack(b_mem.somem(), b_mem.memlen());
+
+	std::cerr << "a_attr:" << attr;
+	std::cerr << "b_attr:" << clone;
+
+	CPPUNIT_ASSERT(attr == clone);
 }
 
 
 void
 clldpattrTest::testId()
 {
+	clldpattr_id attr(9);
+	attr[0] = (rofl::protocol::lldp::LLDPTT_CHASSIS_ID << 1);
+	attr[1] = 0x09;
+	attr[2] = 0x34;
+	attr[3] = 0x65;
+	attr[4] = 0x65;
+	attr[5] = 0x65;
+	attr[6] = 0x65;
+	attr[7] = 0x65;
+	attr[8] = 0x65;
 
+	std::cerr << "attr:" << std::endl << attr;
+
+	CPPUNIT_ASSERT(attr.get_type() == rofl::protocol::lldp::LLDPTT_CHASSIS_ID);
+	CPPUNIT_ASSERT(attr.get_length() == 9);
 }
 
 
@@ -118,21 +167,57 @@ clldpattrTest::testId()
 void
 clldpattrTest::testTTL()
 {
+	clldpattr_ttl attr(sizeof(struct rofl::protocol::lldp::lldp_tlv_ttl_hdr_t));
+	attr[0] = (rofl::protocol::lldp::LLDPTT_TTL << 1);
+	attr[1] = 0x04;
+	attr[2] = 0x12;
+	attr[3] = 0xff;
 
+	std::cerr << "attr:" << std::endl << attr;
+
+	CPPUNIT_ASSERT(attr.get_type() == rofl::protocol::lldp::LLDPTT_TTL);
+	CPPUNIT_ASSERT(attr.get_length() == sizeof(struct rofl::protocol::lldp::lldp_tlv_ttl_hdr_t));
+	CPPUNIT_ASSERT(attr.length() == sizeof(struct rofl::protocol::lldp::lldp_tlv_ttl_hdr_t));
+	CPPUNIT_ASSERT(attr.get_ttl() == 0x12ff);
 }
 
 
 void
 clldpattrTest::testDesc()
 {
+	clldpattr_desc attr(6);
+	attr[0] = (rofl::protocol::lldp::LLDPTT_PORT_DESC << 1);
+	attr[1] = 0x09;
+	attr[2] = 0x61;
+	attr[3] = 0x62;
+	attr[4] = 0x63;
+	attr[5] = 0x64;
 
+	std::cerr << "attr:" << std::endl << attr;
+
+	std::string a_str("abcd");
+
+	CPPUNIT_ASSERT(attr.get_desc() == a_str);
 }
 
 
 void
 clldpattrTest::testSysCaps()
 {
+	clldpattr_sys_caps attr(sizeof(struct rofl::protocol::lldp::lldp_tlv_sys_caps_hdr_t));
+	attr[0] = (rofl::protocol::lldp::LLDPTT_SYSTEM_CAPS << 1);
+	attr[1] = sizeof(struct rofl::protocol::lldp::lldp_tlv_sys_caps_hdr_t);
+	attr[2] = 0x08; // chassis-id
+	attr[3] = 0x12;
+	attr[4] = 0xff;
+	attr[5] = 0x33;
+	attr[6] = 0xff;
 
+	std::cerr << "attr:" << std::endl << attr;
+
+	CPPUNIT_ASSERT(attr.get_chassis_id() == 0x08);
+	CPPUNIT_ASSERT(attr.get_available_caps() == 0x12ff);
+	CPPUNIT_ASSERT(attr.get_enabled_caps() == 0x33ff);
 }
 
 
