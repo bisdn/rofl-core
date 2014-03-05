@@ -5,7 +5,9 @@ SUBDIRS =
 unittest_SOURCES= \
 	unittest.cc \
 	clldpattr_test.cc \
-	clldpattr_test.h
+	clldpattr_test.h \
+	clldpattrs_test.cc \
+	clldpattrs_test.h
 
 unittest_LDADD=$(top_builddir)/src/rofl/librofl.la -lcppunit
 

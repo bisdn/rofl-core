@@ -59,7 +59,7 @@ clldpattr::length() const
 void
 clldpattr::pack(uint8_t *buf, size_t buflen)
 {
-	set_length(rofl::cmemory::memlen());
+	set_length(rofl::cmemory::memlen() - sizeof(struct lldp_tlv_hdr_t));
 
 	if ((0 == buf) || (0 == buflen)) {
 		return;
@@ -149,16 +149,53 @@ clldpattr::set_body(rofl::cmemory const& body)
 
 
 
+clldpattr_end::clldpattr_end() :
+		clldpattr(sizeof(struct lldp_tlv_hdr_t))
+{
+	set_type(LLDPTT_END);
+	set_length(0);
+}
+
+
+clldpattr_end::clldpattr_end(
+		clldpattr_end const& attr)
+{
+	*this = attr;
+}
+
+
+clldpattr_end&
+clldpattr_end::operator= (clldpattr_end const& attr)
+{
+	if (this == &attr)
+		return *this;
+
+	clldpattr::operator= (attr);
+
+	return *this;
+}
+
+
+clldpattr_end::~clldpattr_end()
+{
+
+}
+
+
+
+
 
 
 /*
  * chassis-id
  */
 clldpattr_id::clldpattr_id(
-			size_t len) :
+		uint8_t type,
+		size_t len) :
 					clldpattr(len)
 {
 	lldp_id_generic = rofl::cmemory::somem();
+	set_type(type);
 }
 
 
@@ -245,6 +282,7 @@ clldpattr_ttl::clldpattr_ttl(
 					clldpattr(len)
 {
 	lldp_ttl_generic = rofl::cmemory::somem();
+	set_type(LLDPTT_TTL);
 }
 
 
@@ -306,10 +344,12 @@ clldpattr_ttl::set_ttl(uint16_t ttl)
  * desc
  */
 clldpattr_desc::clldpattr_desc(
-			size_t len) :
+		uint8_t type,
+		size_t len) :
 					clldpattr(len)
 {
 	lldp_desc_generic = rofl::cmemory::somem();
+	set_type(type);
 }
 
 
@@ -377,6 +417,7 @@ clldpattr_system_caps::clldpattr_system_caps(
 					clldpattr(len)
 {
 	lldp_sys_caps_generic = rofl::cmemory::somem();
+	set_type(LLDPTT_SYSTEM_CAPS);
 }
 
 

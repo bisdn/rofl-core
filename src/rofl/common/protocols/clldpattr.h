@@ -233,9 +233,63 @@ public:
 	 */
 	friend std::ostream&
 	operator<< (std::ostream& os, clldpattr const& attr) {
-		os << rofl::indent(0) << "<clldpattr type:" << (int)attr.get_type() << " len:" << (int)attr.get_length() << " >" << std::endl;
-		rofl::indent i(2);
-		os << dynamic_cast<rofl::cmemory const&>( attr );
+		os << rofl::indent(0) << "<clldpattr type:" << (int)attr.get_type()
+				<< " len:" << (int)attr.get_length()
+				<< " mem-len:" << (int)attr.length()
+				<< " >" << std::endl;
+		return os;
+	};
+};
+
+
+
+/**
+ *
+ */
+class clldpattr_end :
+		public rofl::protocol::lldp::clldpattr
+{
+public:
+
+	/**
+	 *
+	 */
+	clldpattr_end();
+
+	/**
+	 *
+	 */
+	clldpattr_end(
+			clldpattr const& attr) : clldpattr(attr) {};
+
+	/**
+	 *
+	 */
+	clldpattr_end(
+			clldpattr_end const& attr);
+
+	/**
+	 *
+	 */
+	clldpattr_end&
+	operator= (clldpattr_end const& attr);
+
+	/**
+	 *
+	 */
+	virtual
+	~clldpattr_end();
+
+
+public:
+
+	/**
+	 *
+	 */
+	friend std::ostream&
+	operator<< (std::ostream& os, clldpattr_end const& attr) {
+		os << dynamic_cast<clldpattr const&>( attr );
+		os << rofl::indent(2) << "<clldpattr_end >" << std::endl;
 		return os;
 	};
 };
@@ -263,6 +317,7 @@ public:
 	 *
 	 */
 	clldpattr_id(
+			uint8_t type,
 			size_t len = sizeof(struct lldp_tlv_id_hdr_t));
 
 	/**
@@ -334,24 +389,23 @@ public:
 	operator<< (std::ostream& os, clldpattr_id const& attr) {
 		os << dynamic_cast<clldpattr const&>( attr );
 		switch (attr.get_type()) {
-		case rofl::protocol::lldp::LLDPTT_CHASSIS_ID: {
-			os << rofl::indent(2) << "<clldpattr_chassis_id sub-type:" << attr.get_sub_type() << " >" << std::endl;
+		case LLDPTT_CHASSIS_ID: {
+			os << rofl::indent(2) << "<clldpattr_chassis_id sub-type:" << (int)attr.get_sub_type() << " >" << std::endl;
 		} break;
-		case rofl::protocol::lldp::LLDPTT_PORT_ID: {
-			os << rofl::indent(2) << "<clldpattr_port_id sub-type:" << attr.get_sub_type() << " >" << std::endl;
+		case LLDPTT_PORT_ID: {
+			os << rofl::indent(2) << "<clldpattr_port_id sub-type:" << (int)attr.get_sub_type() << " >" << std::endl;
 		} break;
 		default: {
-			// do nothing
+			os << rofl::indent(2) << "<clldpattr_id type:" << (int)attr.get_type() << " sub-type:" << (int)attr.get_sub_type() << " >" << std::endl;
 		};
 		}
-		rofl::indent i(4);
-		os << attr.get_body();
 		return os;
 	};
 };
 
 typedef clldpattr_id clldpattr_chassis_id;
 typedef clldpattr_id clldpattr_port_id;
+
 
 
 
@@ -433,7 +487,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, clldpattr_ttl const& attr) {
 		os << dynamic_cast<clldpattr const&>( attr );
-		os << rofl::indent(2) << "<clldpattr_ttl ttl:" << attr.get_ttl() << " >";
+		os << rofl::indent(2) << "<clldpattr_ttl ttl:0x" << std::hex << (int)attr.get_ttl() << std::dec << " >";
 		return os;
 	};
 };
@@ -459,6 +513,7 @@ public:
 	 *
 	 */
 	clldpattr_desc(
+			uint8_t type,
 			size_t len = sizeof(struct lldp_tlv_hdr_t));
 
 	/**
@@ -519,7 +574,7 @@ public:
 		os << dynamic_cast<clldpattr const&>( attr );
 		switch (attr.get_type()) {
 		case rofl::protocol::lldp::LLDPTT_PORT_DESC: {
-			os << rofl::indent(2) << "<clldpattr_desc desc:" << attr.get_desc() << " >";
+			os << rofl::indent(2) << "<clldpattr_port_desc desc:" << attr.get_desc() << " >";
 		} break;
 		case rofl::protocol::lldp::LLDPTT_SYSTEM_NAME: {
 			os << rofl::indent(2) << "<clldpattr_system_name desc:" << attr.get_desc() << " >";
@@ -528,10 +583,9 @@ public:
 			os << rofl::indent(2) << "<clldpattr_system_desc desc:" << attr.get_desc() << " >";
 		} break;
 		default: {
-			// do nothing
+			os << rofl::indent(2) << "<clldpattr_desc type:" << (int)attr.get_type() << " desc:" << attr.get_desc() << " >";
 		};
 		}
-
 		return os;
 	};
 };
@@ -539,6 +593,14 @@ public:
 typedef clldpattr_desc clldpattr_port_desc;
 typedef clldpattr_desc clldpattr_system_name;
 typedef clldpattr_desc clldpattr_system_desc;
+
+
+
+
+
+
+
+
 
 
 

@@ -84,6 +84,23 @@ public:
 
 public:
 
+	clldpattr_end&
+	add_end();
+
+	clldpattr_end&
+	set_end();
+
+	clldpattr_end&
+	get_end();
+
+	bool
+	has_end();
+
+	void
+	drop_end();
+
+
+
 	clldpattr_chassis_id&
 	add_chassis_id();
 
@@ -212,7 +229,41 @@ public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, clldpattrs const& attrs) {
-
+		os << rofl::indent(0) << "<clldpattrs #attrs:" << attrs.attrs.size() << " >" << std::endl;
+		rofl::indent i(2);
+		for (std::map<uint8_t, clldpattr*>::const_iterator
+				it = attrs.attrs.begin(); it != attrs.attrs.end(); ++it) {
+			switch (it->first) {
+			case LLDPTT_END: {
+				os << dynamic_cast<clldpattr_end&>( *(it->second) );
+			} break;
+			case LLDPTT_CHASSIS_ID: {
+				os << dynamic_cast<clldpattr_chassis_id&>( *(it->second) );
+			} break;
+			case LLDPTT_PORT_ID: {
+				os << dynamic_cast<clldpattr_port_id&>( *(it->second) );
+			} break;
+			case LLDPTT_TTL: {
+				os << dynamic_cast<clldpattr_ttl&>( *(it->second) );
+			} break;
+			case LLDPTT_PORT_DESC: {
+				os << dynamic_cast<clldpattr_port_desc&>( *(it->second) );
+			} break;
+			case LLDPTT_SYSTEM_NAME: {
+				os << dynamic_cast<clldpattr_system_name&>( *(it->second) );
+			} break;
+			case LLDPTT_SYSTEM_DESC: {
+				os << dynamic_cast<clldpattr_system_desc&>( *(it->second) );
+			} break;
+			case LLDPTT_SYSTEM_CAPS: {
+				os << dynamic_cast<clldpattr_system_caps&>( *(it->second) );
+			} break;
+			case LLDPTT_MGMT_ADDR:
+			default: {
+				os << dynamic_cast<clldpattr&>( *(it->second) );
+			};
+			}
+		}
 		return os;
 	};
 };

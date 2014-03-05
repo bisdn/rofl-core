@@ -94,7 +94,7 @@ clldpattrTest::testCopyConstructor()
 	std::cerr << "clone:" << clone;
 
 	CPPUNIT_ASSERT(clone.get_type() == 0x58);
-	CPPUNIT_ASSERT(clone.get_length() == 9);
+	CPPUNIT_ASSERT(clone.get_length() == 7);
 	CPPUNIT_ASSERT(clone.get_body() == body);
 }
 
@@ -118,7 +118,7 @@ clldpattrTest::testPackUnpack()
 
 	rofl::cmemory b_mem(9);
 	b_mem[0] = 0xb0;
-	b_mem[1] = 0x09;
+	b_mem[1] = 0x07;
 	b_mem[2] = 0x00;
 	b_mem[3] = 0x01;
 	b_mem[4] = 0x02;
@@ -145,9 +145,11 @@ clldpattrTest::testPackUnpack()
 void
 clldpattrTest::testId()
 {
-	clldpattr_id attr(9);
+	clldpattr_chassis_id attr(LLDPTT_CHASSIS_ID, 9);
+	std::cerr << "attr:" << std::endl << attr;
+
 	attr[0] = (rofl::protocol::lldp::LLDPTT_CHASSIS_ID << 1);
-	attr[1] = 0x09;
+	attr[1] = 0x07;
 	attr[2] = 0x34;
 	attr[3] = 0x65;
 	attr[4] = 0x65;
@@ -159,7 +161,7 @@ clldpattrTest::testId()
 	std::cerr << "attr:" << std::endl << attr;
 
 	CPPUNIT_ASSERT(attr.get_type() == rofl::protocol::lldp::LLDPTT_CHASSIS_ID);
-	CPPUNIT_ASSERT(attr.get_length() == 9);
+	CPPUNIT_ASSERT(attr.get_length() == 7);
 }
 
 
@@ -185,7 +187,7 @@ clldpattrTest::testTTL()
 void
 clldpattrTest::testDesc()
 {
-	clldpattr_desc attr(6);
+	clldpattr_port_desc attr(LLDPTT_PORT_DESC, 6);
 	attr[0] = (rofl::protocol::lldp::LLDPTT_PORT_DESC << 1);
 	attr[1] = 0x09;
 	attr[2] = 0x61;
