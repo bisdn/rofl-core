@@ -118,8 +118,11 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, clldpmsg const& msg) {
 		os << rofl::indent(0) << "<clldpmsg >" << std::endl;
-		//rofl::indent i(2);
-		//os << dynamic_cast<rofl::cmemory const&>( msg );
+		os << rofl::indent(2) << "<eth-dst: " << msg.get_eth_dst() << " >" << std::endl;
+		os << rofl::indent(2) << "<eth-src: " << msg.get_eth_src() << " >" << std::endl;
+		os << rofl::indent(2) << "<attrs: >" << std::endl;
+		rofl::indent i(4);
+		os << msg.get_attrs();
 		return os;
 	};
 };
