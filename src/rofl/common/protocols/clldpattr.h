@@ -399,6 +399,8 @@ public:
 			os << rofl::indent(2) << "<clldpattr_id type:" << (int)attr.get_type() << " sub-type:" << (int)attr.get_sub_type() << " >" << std::endl;
 		};
 		}
+		rofl::indent i(4);
+		os << attr.get_body();
 		return os;
 	};
 };
@@ -583,6 +585,8 @@ public:
 			os << rofl::indent(2) << "<clldpattr_desc type:" << (int)attr.get_type() << " desc:" << attr.get_desc() << " >";
 		};
 		}
+		rofl::indent i(4);
+		os << attr.get_body();
 		return os;
 	};
 };
