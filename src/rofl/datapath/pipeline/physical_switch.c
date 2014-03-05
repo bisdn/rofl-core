@@ -382,7 +382,7 @@ rofl_result_t physical_switch_remove_logical_switch_by_dpid(const uint64_t dpid)
 	int i;
 	of_switch_t* sw;
 
-	ROFL_PIPELINE_DEBUG("Removing logical switch with dpid: %"PRIu64"\n",dpid);
+	ROFL_PIPELINE_DEBUG("Removing logical switch with dpid: %"PRIx64"\n",dpid);
 
 	//Serialize
 	platform_mutex_lock(psw->mutex);
