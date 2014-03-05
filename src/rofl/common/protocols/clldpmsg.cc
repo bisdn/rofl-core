@@ -43,7 +43,7 @@ clldpmsg::operator= (clldpmsg const& msg)
 size_t
 clldpmsg::length() const
 {
-	return (sizeof(sizeof(struct lldp_hdr_t)) + attrs.length());
+	return (sizeof(struct lldp_hdr_t) + attrs.length());
 }
 
 
