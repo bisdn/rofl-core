@@ -403,9 +403,6 @@ public:
 	};
 };
 
-typedef clldpattr_id clldpattr_chassis_id;
-typedef clldpattr_id clldpattr_port_id;
-
 
 
 
@@ -589,10 +586,6 @@ public:
 		return os;
 	};
 };
-
-typedef clldpattr_desc clldpattr_port_desc;
-typedef clldpattr_desc clldpattr_system_name;
-typedef clldpattr_desc clldpattr_system_desc;
 
 
 

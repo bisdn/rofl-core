@@ -154,23 +154,17 @@ clldpattrs::insert(clldpattr const& attr)
 	case LLDPTT_END: {
 		attrs[attr.get_type()] = new clldpattr_end(attr);
 	} break;
-	case LLDPTT_CHASSIS_ID: {
-		attrs[attr.get_type()] = new clldpattr_chassis_id(attr);
-	} break;
+	case LLDPTT_CHASSIS_ID:
 	case LLDPTT_PORT_ID: {
-		attrs[attr.get_type()] = new clldpattr_port_id(attr);
+		attrs[attr.get_type()] = new clldpattr_id(attr);
 	} break;
 	case LLDPTT_TTL: {
 		attrs[attr.get_type()] = new clldpattr_ttl(attr);
 	} break;
-	case LLDPTT_PORT_DESC: {
-		attrs[attr.get_type()] = new clldpattr_port_desc(attr);
-	} break;
-	case LLDPTT_SYSTEM_NAME: {
-		attrs[attr.get_type()] = new clldpattr_system_name(attr);
-	} break;
+	case LLDPTT_PORT_DESC:
+	case LLDPTT_SYSTEM_NAME:
 	case LLDPTT_SYSTEM_DESC: {
-		attrs[attr.get_type()] = new clldpattr_system_desc(attr);
+		attrs[attr.get_type()] = new clldpattr_desc(attr);
 	} break;
 	case LLDPTT_SYSTEM_CAPS: {
 		attrs[attr.get_type()] = new clldpattr_system_caps(attr);
@@ -242,33 +236,33 @@ clldpattrs::drop_end()
 /*
  * Chassis-ID
  */
-clldpattr_chassis_id&
+clldpattr_id&
 clldpattrs::add_chassis_id()
 {
 	if (attrs.find(LLDPTT_CHASSIS_ID) != attrs.end()) {
 		delete attrs[LLDPTT_CHASSIS_ID];
 	}
-	return *(dynamic_cast<clldpattr_chassis_id*>( attrs[LLDPTT_CHASSIS_ID] = new clldpattr_chassis_id(LLDPTT_CHASSIS_ID) ));
+	return *(dynamic_cast<clldpattr_id*>( attrs[LLDPTT_CHASSIS_ID] = new clldpattr_id(LLDPTT_CHASSIS_ID) ));
 }
 
 
-clldpattr_chassis_id&
+clldpattr_id&
 clldpattrs::set_chassis_id()
 {
 	if (attrs.find(LLDPTT_CHASSIS_ID) == attrs.end()) {
-		attrs[LLDPTT_CHASSIS_ID] = new clldpattr_chassis_id(LLDPTT_CHASSIS_ID);
+		attrs[LLDPTT_CHASSIS_ID] = new clldpattr_id(LLDPTT_CHASSIS_ID);
 	}
-	return (dynamic_cast<clldpattr_chassis_id&>( *(attrs[LLDPTT_CHASSIS_ID])));
+	return (dynamic_cast<clldpattr_id&>( *(attrs[LLDPTT_CHASSIS_ID])));
 }
 
 
-clldpattr_chassis_id&
+clldpattr_id&
 clldpattrs::get_chassis_id()
 {
 	if (attrs.find(LLDPTT_CHASSIS_ID) == attrs.end()) {
 		throw eLLDPAttrsNotFound();
 	}
-	return (dynamic_cast<clldpattr_chassis_id&>( *(attrs[LLDPTT_CHASSIS_ID])));
+	return (dynamic_cast<clldpattr_id&>( *(attrs[LLDPTT_CHASSIS_ID])));
 }
 
 
@@ -294,33 +288,33 @@ clldpattrs::drop_chassis_id()
 /*
  * Port-ID
  */
-clldpattr_port_id&
+clldpattr_id&
 clldpattrs::add_port_id()
 {
 	if (attrs.find(LLDPTT_PORT_ID) != attrs.end()) {
 		delete attrs[LLDPTT_PORT_ID];
 	}
-	return *(dynamic_cast<clldpattr_port_id*>( attrs[LLDPTT_PORT_ID] = new clldpattr_port_id(LLDPTT_PORT_ID) ));
+	return *(dynamic_cast<clldpattr_id*>( attrs[LLDPTT_PORT_ID] = new clldpattr_id(LLDPTT_PORT_ID) ));
 }
 
 
-clldpattr_port_id&
+clldpattr_id&
 clldpattrs::set_port_id()
 {
 	if (attrs.find(LLDPTT_PORT_ID) == attrs.end()) {
-		attrs[LLDPTT_PORT_ID] = new clldpattr_port_id(LLDPTT_PORT_ID);
+		attrs[LLDPTT_PORT_ID] = new clldpattr_id(LLDPTT_PORT_ID);
 	}
-	return (dynamic_cast<clldpattr_port_id&>( *(attrs[LLDPTT_PORT_ID])));
+	return (dynamic_cast<clldpattr_id&>( *(attrs[LLDPTT_PORT_ID])));
 }
 
 
-clldpattr_port_id&
+clldpattr_id&
 clldpattrs::get_port_id()
 {
 	if (attrs.find(LLDPTT_PORT_ID) == attrs.end()) {
 		throw eLLDPAttrsNotFound();
 	}
-	return (dynamic_cast<clldpattr_port_id&>( *(attrs[LLDPTT_PORT_ID])));
+	return (dynamic_cast<clldpattr_id&>( *(attrs[LLDPTT_PORT_ID])));
 }
 
 
@@ -399,33 +393,33 @@ clldpattrs::drop_ttl()
 /*
  * PORT_DESC
  */
-clldpattr_port_desc&
+clldpattr_desc&
 clldpattrs::add_port_desc()
 {
 	if (attrs.find(LLDPTT_PORT_DESC) != attrs.end()) {
 		delete attrs[LLDPTT_PORT_DESC];
 	}
-	return *(dynamic_cast<clldpattr_port_desc*>( attrs[LLDPTT_PORT_DESC] = new clldpattr_port_desc(LLDPTT_PORT_DESC) ));
+	return *(dynamic_cast<clldpattr_desc*>( attrs[LLDPTT_PORT_DESC] = new clldpattr_desc(LLDPTT_PORT_DESC) ));
 }
 
 
-clldpattr_port_desc&
+clldpattr_desc&
 clldpattrs::set_port_desc()
 {
 	if (attrs.find(LLDPTT_PORT_DESC) == attrs.end()) {
-		attrs[LLDPTT_PORT_DESC] = new clldpattr_port_desc(LLDPTT_PORT_DESC);
+		attrs[LLDPTT_PORT_DESC] = new clldpattr_desc(LLDPTT_PORT_DESC);
 	}
-	return (dynamic_cast<clldpattr_port_desc&>( *(attrs[LLDPTT_PORT_DESC])));
+	return (dynamic_cast<clldpattr_desc&>( *(attrs[LLDPTT_PORT_DESC])));
 }
 
 
-clldpattr_port_desc&
+clldpattr_desc&
 clldpattrs::get_port_desc()
 {
 	if (attrs.find(LLDPTT_PORT_DESC) == attrs.end()) {
 		throw eLLDPAttrsNotFound();
 	}
-	return (dynamic_cast<clldpattr_port_desc&>( *(attrs[LLDPTT_PORT_DESC])));
+	return (dynamic_cast<clldpattr_desc&>( *(attrs[LLDPTT_PORT_DESC])));
 }
 
 
@@ -452,33 +446,33 @@ clldpattrs::drop_port_desc()
 /*
  * SYSTEM_NAME
  */
-clldpattr_system_name&
+clldpattr_desc&
 clldpattrs::add_system_name()
 {
 	if (attrs.find(LLDPTT_SYSTEM_NAME) != attrs.end()) {
 		delete attrs[LLDPTT_SYSTEM_NAME];
 	}
-	return *(dynamic_cast<clldpattr_system_name*>( attrs[LLDPTT_SYSTEM_NAME] = new clldpattr_system_name(LLDPTT_SYSTEM_NAME) ));
+	return *(dynamic_cast<clldpattr_desc*>( attrs[LLDPTT_SYSTEM_NAME] = new clldpattr_desc(LLDPTT_SYSTEM_NAME) ));
 }
 
 
-clldpattr_system_name&
+clldpattr_desc&
 clldpattrs::set_system_name()
 {
 	if (attrs.find(LLDPTT_SYSTEM_NAME) == attrs.end()) {
-		attrs[LLDPTT_SYSTEM_NAME] = new clldpattr_system_name(LLDPTT_SYSTEM_NAME);
+		attrs[LLDPTT_SYSTEM_NAME] = new clldpattr_desc(LLDPTT_SYSTEM_NAME);
 	}
-	return (dynamic_cast<clldpattr_system_name&>( *(attrs[LLDPTT_SYSTEM_DESC])));
+	return (dynamic_cast<clldpattr_desc&>( *(attrs[LLDPTT_SYSTEM_DESC])));
 }
 
 
-clldpattr_system_name&
+clldpattr_desc&
 clldpattrs::get_system_name()
 {
 	if (attrs.find(LLDPTT_SYSTEM_NAME) == attrs.end()) {
 		throw eLLDPAttrsNotFound();
 	}
-	return (dynamic_cast<clldpattr_system_name&>( *(attrs[LLDPTT_SYSTEM_NAME])));
+	return (dynamic_cast<clldpattr_desc&>( *(attrs[LLDPTT_SYSTEM_NAME])));
 }
 
 
@@ -505,33 +499,33 @@ clldpattrs::drop_system_name()
 /*
  * SYSTEM_DESC
  */
-clldpattr_system_desc&
+clldpattr_desc&
 clldpattrs::add_system_desc()
 {
 	if (attrs.find(LLDPTT_SYSTEM_DESC) != attrs.end()) {
 		delete attrs[LLDPTT_SYSTEM_DESC];
 	}
-	return *(dynamic_cast<clldpattr_system_desc*>( attrs[LLDPTT_SYSTEM_DESC] = new clldpattr_system_desc(LLDPTT_SYSTEM_DESC) ));
+	return *(dynamic_cast<clldpattr_desc*>( attrs[LLDPTT_SYSTEM_DESC] = new clldpattr_desc(LLDPTT_SYSTEM_DESC) ));
 }
 
 
-clldpattr_system_desc&
+clldpattr_desc&
 clldpattrs::set_system_desc()
 {
 	if (attrs.find(LLDPTT_SYSTEM_DESC) == attrs.end()) {
-		attrs[LLDPTT_SYSTEM_DESC] = new clldpattr_system_desc(LLDPTT_SYSTEM_DESC);
+		attrs[LLDPTT_SYSTEM_DESC] = new clldpattr_desc(LLDPTT_SYSTEM_DESC);
 	}
-	return (dynamic_cast<clldpattr_system_desc&>( *(attrs[LLDPTT_SYSTEM_DESC])));
+	return (dynamic_cast<clldpattr_desc&>( *(attrs[LLDPTT_SYSTEM_DESC])));
 }
 
 
-clldpattr_system_desc&
+clldpattr_desc&
 clldpattrs::get_system_desc()
 {
 	if (attrs.find(LLDPTT_SYSTEM_DESC) == attrs.end()) {
 		throw eLLDPAttrsNotFound();
 	}
-	return (dynamic_cast<clldpattr_system_desc&>( *(attrs[LLDPTT_SYSTEM_DESC])));
+	return (dynamic_cast<clldpattr_desc&>( *(attrs[LLDPTT_SYSTEM_DESC])));
 }
 
 

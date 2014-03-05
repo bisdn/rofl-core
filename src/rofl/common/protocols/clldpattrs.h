@@ -101,13 +101,13 @@ public:
 
 
 
-	clldpattr_chassis_id&
+	clldpattr_id&
 	add_chassis_id();
 
-	clldpattr_chassis_id&
+	clldpattr_id&
 	set_chassis_id();
 
-	clldpattr_chassis_id&
+	clldpattr_id&
 	get_chassis_id();
 
 	bool
@@ -118,13 +118,13 @@ public:
 
 
 
-	clldpattr_port_id&
+	clldpattr_id&
 	add_port_id();
 
-	clldpattr_port_id&
+	clldpattr_id&
 	set_port_id();
 
-	clldpattr_port_id&
+	clldpattr_id&
 	get_port_id();
 
 	bool
@@ -152,13 +152,13 @@ public:
 
 
 
-	clldpattr_port_desc&
+	clldpattr_desc&
 	add_port_desc();
 
-	clldpattr_port_desc&
+	clldpattr_desc&
 	set_port_desc();
 
-	clldpattr_port_desc&
+	clldpattr_desc&
 	get_port_desc();
 
 	bool
@@ -170,13 +170,13 @@ public:
 
 
 
-	clldpattr_system_name&
+	clldpattr_desc&
 	add_system_name();
 
-	clldpattr_system_name&
+	clldpattr_desc&
 	set_system_name();
 
-	clldpattr_system_name&
+	clldpattr_desc&
 	get_system_name();
 
 	bool
@@ -188,13 +188,13 @@ public:
 
 
 
-	clldpattr_system_desc&
+	clldpattr_desc&
 	add_system_desc();
 
-	clldpattr_system_desc&
+	clldpattr_desc&
 	set_system_desc();
 
-	clldpattr_system_desc&
+	clldpattr_desc&
 	get_system_desc();
 
 	bool
@@ -238,22 +238,22 @@ public:
 				os << dynamic_cast<clldpattr_end&>( *(it->second) );
 			} break;
 			case LLDPTT_CHASSIS_ID: {
-				os << dynamic_cast<clldpattr_chassis_id&>( *(it->second) );
+				os << dynamic_cast<clldpattr_id&>( *(it->second) );
 			} break;
 			case LLDPTT_PORT_ID: {
-				os << dynamic_cast<clldpattr_port_id&>( *(it->second) );
+				os << dynamic_cast<clldpattr_id&>( *(it->second) );
 			} break;
 			case LLDPTT_TTL: {
 				os << dynamic_cast<clldpattr_ttl&>( *(it->second) );
 			} break;
 			case LLDPTT_PORT_DESC: {
-				os << dynamic_cast<clldpattr_port_desc&>( *(it->second) );
+				os << dynamic_cast<clldpattr_desc&>( *(it->second) );
 			} break;
 			case LLDPTT_SYSTEM_NAME: {
-				os << dynamic_cast<clldpattr_system_name&>( *(it->second) );
+				os << dynamic_cast<clldpattr_desc&>( *(it->second) );
 			} break;
 			case LLDPTT_SYSTEM_DESC: {
-				os << dynamic_cast<clldpattr_system_desc&>( *(it->second) );
+				os << dynamic_cast<clldpattr_desc&>( *(it->second) );
 			} break;
 			case LLDPTT_SYSTEM_CAPS: {
 				os << dynamic_cast<clldpattr_system_caps&>( *(it->second) );

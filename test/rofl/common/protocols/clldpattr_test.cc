@@ -145,7 +145,7 @@ clldpattrTest::testPackUnpack()
 void
 clldpattrTest::testId()
 {
-	clldpattr_chassis_id attr(LLDPTT_CHASSIS_ID, 9);
+	clldpattr_id attr(LLDPTT_CHASSIS_ID, 9);
 	std::cerr << "attr:" << std::endl << attr;
 
 	attr[0] = (rofl::protocol::lldp::LLDPTT_CHASSIS_ID << 1);
@@ -187,7 +187,7 @@ clldpattrTest::testTTL()
 void
 clldpattrTest::testDesc()
 {
-	clldpattr_port_desc attr(LLDPTT_PORT_DESC, 6);
+	clldpattr_desc attr(LLDPTT_PORT_DESC, 6);
 	attr[0] = (rofl::protocol::lldp::LLDPTT_PORT_DESC << 1);
 	attr[1] = 0x09;
 	attr[2] = 0x61;
