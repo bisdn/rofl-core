@@ -40,9 +40,9 @@ struct lldp_tlv_hdr_t {
 
 // Ethernet + LLDP common header
 struct lldp_hdr_t {
-	uint8_t 				dst[ETH_ALEN];
-	uint8_t 				src[ETH_ALEN];
-	uint16_t 				ethertype; // = 0x88-CC
+	uint8_t 				eth_dst[ETH_ALEN];
+	uint8_t 				eth_src[ETH_ALEN];
+	uint16_t 				eth_type; // = 0x88-CC
 	struct lldp_tlv_hdr_t 	body[0];
 } __attribute__((packed));
 
