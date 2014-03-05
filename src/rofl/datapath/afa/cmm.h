@@ -7,6 +7,7 @@
 
 #include "afa.h"
 #include "afa_utils.h"
+#include <rofl/datapath/pipeline/monitoring.h>
 
 /**
 * Non-OF related events... none for the moment
