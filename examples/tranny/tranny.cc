@@ -131,11 +131,11 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 	std::cout << func << ": Attempt to send flow_mod with send_flow_mod_message( cofdpt * dpt, cflowentry & flowentry )." << std::endl;
 	try {
 		std::cout << "TP" << __LINE__ << std::endl;
-		rofl::cflowentry entry(OFP10_VERSION);		// TERMINATE CALLED HERE: constructor throws rofl::eBadVersion, and because the throws clause restricts what is being thrown to eFlowEntryOutOfMem, the program terminates
+		rofl::cflowentry entry(OFP10_VERSION);		// work it, yeah baby!
 		std::cout << "TP" << __LINE__ << std::endl;
 		entry.set_command(msg->get_command());
 		std::cout << "TP" << __LINE__ << std::endl;
-		entry.set_table_id(msg->get_table_id());
+//		entry.set_table_id(msg->get_table_id());
 		std::cout << "TP" << __LINE__ << std::endl;
 		entry.set_idle_timeout(msg->get_idle_timeout());
 		std::cout << "TP" << __LINE__ << std::endl;
@@ -143,7 +143,7 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 		std::cout << "TP" << __LINE__ << std::endl;
 		entry.set_cookie(msg->get_cookie());
 		std::cout << "TP" << __LINE__ << std::endl;
-		entry.set_cookie_mask(msg->get_cookie_mask());
+//		entry.set_cookie_mask(msg->get_cookie_mask());
 		std::cout << "TP" << __LINE__ << std::endl;
 		entry.set_priority(msg->get_priority());
 		std::cout << "TP" << __LINE__ << std::endl;
@@ -151,7 +151,7 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 		std::cout << "TP" << __LINE__ << std::endl;
 		entry.set_out_port(msg->get_out_port());
 		std::cout << "TP" << __LINE__ << std::endl;
-		entry.set_out_group(msg->get_out_group());
+//		entry.set_out_group(msg->get_out_group());
 		std::cout << "TP" << __LINE__ << std::endl;
 		entry.set_flags(msg->get_flags());
 		std::cout << "TP" << __LINE__ << std::endl;
@@ -167,7 +167,7 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 	}
 
 
-	std::cout << func << ": Attempt to send flow_mod with ???." << std::endl;
+//	std::cout << func << ": Attempt to send flow_mod with ???." << std::endl;
 
 
 	

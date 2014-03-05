@@ -2061,7 +2061,46 @@ crofbase::send_error_message(
 /*
  * FLOW-MOD message
  */
+/*
+void
+crofbase::send_flow_mod_message(		// JSP - OFP10_VERSION
+	cofdpt *dpt, //
+	cofmatch& ofmatch,	//
+	uint64_t cookie,	//
+	uint8_t command,	//
+	uint16_t idle_timeout,	//
+	uint16_t hard_timeout,	//
+	uint16_t priority,	//
+	uint32_t buffer_id,	//
+	uint32_t out_port,	//
+	uint16_t flags,	//
+	cofaclist const& actions)	//
+{
 
+	if(dpt->get_version() != OFP10_VERSION) throw eBadVersion();
+	cofmsg_flow_mod *pack =
+			new cofmsg_flow_mod(
+					dpt->get_version(),
+					ta_new_async_xid(),
+					cookie,
+					command,
+					idle_timeout,
+					hard_timeout,
+					priority,
+					buffer_id,
+					out_port,
+					flags,
+					actions,
+					ofmatch);
+
+	pack->pack();
+
+	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_mod_message() "
+			"pack: %s", this, pack->c_str());
+
+	dpt_find(dpt)->send_message(pack);
+}
+*/
 
 void
 crofbase::send_flow_mod_message(
@@ -2113,24 +2152,47 @@ crofbase::send_flow_mod_message(
 		cofdpt *dpt,
 		cflowentry& fe)
 {
-	cofmsg_flow_mod *pack =
-			new cofmsg_flow_mod(
-					dpt->get_version(),
-					ta_new_async_xid(),
-					fe.get_cookie(),
-					fe.get_cookie_mask(),
-					fe.get_table_id(),
-					fe.get_command(),
-					fe.get_idle_timeout(),
-					fe.get_hard_timeout(),
-					fe.get_priority(),
-					fe.get_buffer_id(),
-					fe.get_out_port(),
-					fe.get_out_group(),
-					fe.get_flags(),
-					fe.instructions,
-					fe.match);
+	cofmsg_flow_mod *pack;
+	switch(dpt->get_version())	// JSP
+	{
+		case OFP10_VERSION:
+			pack = new cofmsg_flow_mod(
+							dpt->get_version(),
+							ta_new_async_xid(),
+							fe.get_cookie(),
+							fe.get_command(),
+							fe.get_idle_timeout(),
+							fe.get_hard_timeout(),
+							fe.get_priority(),
+							fe.get_buffer_id(),
+							fe.get_out_port(),
+							fe.get_flags(),
+							fe.actions,
+							fe.match);
+		break;
+	case OFP12_VERSION:
+	case OFP13_VERSION:
+		pack = new cofmsg_flow_mod(	// ORIGINAL
+						dpt->get_version(),
+						ta_new_async_xid(),
+						fe.get_cookie(),
+						fe.get_cookie_mask(),
+						fe.get_table_id(),
+						fe.get_command(),
+						fe.get_idle_timeout(),
+						fe.get_hard_timeout(),
+						fe.get_priority(),
+						fe.get_buffer_id(),
+						fe.get_out_port(),
+						fe.get_out_group(),
+						fe.get_flags(),
+						fe.instructions,
+						fe.match);
+		break;
+	default:
+		throw eBadVersion();
 
+	}
 	pack->pack();
 
 	WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_flow_mod_message() pack: %s",
