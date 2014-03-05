@@ -222,6 +222,14 @@ static inline bool monitoring_has_changed(monitoring_state_t* state, uint64_t* l
 monitoring_snapshot_state_t* monitoring_get_snapshot(monitoring_state_t* monitoring);
 
 /**
+* @brief Clone a monitoring snapshot 
+* @ingroup  mgmt
+*/
+static inline monitoring_snapshot_state_t* monitoring_clone_snapshot(monitoring_snapshot_state_t* orig){
+	return monitoring_get_snapshot(orig);
+}
+
+/**
 * @brief Destroy a snapshot previously generated via monitoring_get_snapshot() routine. 
 * @ingroup  mgmt
 */

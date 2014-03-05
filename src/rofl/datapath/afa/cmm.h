@@ -7,6 +7,7 @@
 
 #include "afa.h"
 #include "afa_utils.h"
+#include <rofl/datapath/pipeline/monitoring.h>
 
 /**
 * Non-OF related events... none for the moment
@@ -39,6 +40,14 @@ afa_result_t cmm_notify_port_delete(switch_port_snapshot_t* port_snapshot);
 * @ingroup cmm_management
 */
 afa_result_t cmm_notify_port_status_changed(switch_port_snapshot_t* port_snapshot);
+
+/**
+* @name    cmm_notify_monitoring_state_changed
+* @brief   Notify a monitoring state change to CMM 
+* @param monitoring_snapshot Snapshot of the current monitoring state. The snapshot MUST be deleted using monitoring_destroy_snapshot()
+* @ingroup cmm_management
+*/
+afa_result_t cmm_notify_monitoring_state_changed(monitoring_snapshot_state_t* monitoring_snapshot);
 
 //C++ extern C
 AFA_END_DECLS
