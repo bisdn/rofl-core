@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "clldplist.h"
+#include "../../logging.h"
 
 using namespace rofl;
 
@@ -36,6 +37,7 @@ throw (eLLDPBadLen)
 
 	while (tlvlen > 0)
 	{
+
 		WRITELOG(CLLDPTLV, DBG, "clldplist(%p)::unpack() tlvhdr:%p tlvlen:%d", this, tlvhdr, tlvlen);
 
 		if (tlvlen < (int)sizeof(uint16_t))

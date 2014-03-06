@@ -9,7 +9,6 @@
 #define COFQUEUESTATS_H_ 1
 
 #include "rofl/common/cmemory.h"
-#include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 

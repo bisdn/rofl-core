@@ -122,7 +122,7 @@ public:
 };
 
 
-class cfspsearch : public csyslog {
+class cfspsearch {
 public:
 	/** constructor
 	 */

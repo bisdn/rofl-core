@@ -126,8 +126,7 @@ class ePacketTypeError 		: public ePacket {}; // specified frame type not found 
  * @see fsctpframe
  *
  */
-class cpacket :
-	public csyslog
+class cpacket
 {
 private:
 

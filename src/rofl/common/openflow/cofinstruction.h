@@ -21,8 +21,6 @@
 #include "rofl/common/thread_helper.h"
 #include "rofl/common/openflow/cofactions.h"
 
-#include "rofl/platform/unix/csyslog.h"
-
 #include "rofl/common/openflow/cofaction.h"
 
 namespace rofl
@@ -38,8 +36,7 @@ class eInstructionActionNotFound 	: public eInstructionBase {}; // action not fo
 class eInstructionBadExperimenter 	: public eInstructionBase {}; // unknown experimenter instruction
 
 
-class cofinst :
-	public csyslog
+class cofinst 
 {
 	uint8_t 		ofp_version;
 

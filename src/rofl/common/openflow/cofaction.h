@@ -20,7 +20,6 @@
 #include "rofl/common/cvastring.h"
 #include "rofl/common/coflist.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
-#include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/openflow/coxmatch.h"
 #include "rofl/common/logging.h"
 
@@ -41,7 +40,7 @@ class eActionInvalType 		: public eActionBase {}; // invalid action type
 
 
 
-class cofaction : public csyslog {
+class cofaction {
 
 	#define COFACTION_DEFAULT_SIZE	128  // default action size: 128 bytes
 

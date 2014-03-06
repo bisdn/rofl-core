@@ -10,7 +10,6 @@
 
 #include "rofl/common/cmemory.h"
 #include "rofl/common/cvastring.h"
-#include "rofl/platform/unix/csyslog.h"
 #include "rofl/common/openflow/openflow.h"
 #include "rofl/common/openflow/openflow_rofl_exceptions.h"
 
