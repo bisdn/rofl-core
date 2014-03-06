@@ -2,10 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-extern "C" {
-// autoconf AC_CHECK_LIB helper function as C-declaration
-void librofl_is_present(void) {};
-}
+
 
 #include "crofbase.h"
 
