@@ -11,6 +11,7 @@
 
 
 #include "coxmlist.h"
+#include <stdexcept>
 
 using namespace rofl;
 
