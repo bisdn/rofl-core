@@ -125,16 +125,12 @@ enum lldp_sys_caps {
 /**
  *
  */
-class clldpattr :
-		public rofl::cmemory
+class clldpattr
 {
-	union {
-		uint8_t					*lldpu_generic;
-		struct lldp_tlv_hdr_t	*lldpu_hdr;
-	} lldp_lldpu;
+protected:
 
-#define lldp_generic 	lldp_lldpu.lldpu_generic
-#define lldp_hdr		lldp_lldpu.lldpu_hdr
+	rofl::cmemory				hdr;	// LLDP header
+	rofl::cmemory 				body;	// LLDP payload
 
 public:
 
@@ -142,7 +138,7 @@ public:
 	 *
 	 */
 	clldpattr(
-			size_t len = sizeof(struct lldp_tlv_hdr_t));
+			size_t bodylen = 0);
 
 	/**
 	 *
@@ -159,16 +155,16 @@ public:
 	/**
 	 *
 	 */
-	virtual
-	~clldpattr();
-
-public:
+	bool
+	operator== (clldpattr const& attr);
 
 	/**
 	 *
 	 */
-	virtual uint8_t*
-	resize(size_t len);
+	virtual
+	~clldpattr();
+
+public:
 
 	/**
 	 *
@@ -217,14 +213,14 @@ public:
 	/**
 	 *
 	 */
-	virtual rofl::cmemory
-	get_body() const;
+	virtual rofl::cmemory const&
+	get_body() const { return body; };
 
 	/**
 	 *
 	 */
-	virtual void
-	set_body(rofl::cmemory const& body);
+	virtual rofl::cmemory&
+	set_body() { return body; };
 
 public:
 
@@ -303,13 +299,7 @@ public:
 class clldpattr_id :
 		public rofl::protocol::lldp::clldpattr
 {
-	union {
-		uint8_t						*lldpu_id_generic;
-		struct lldp_tlv_id_hdr_t	*lldpu_id_hdr;
-	} lldp_lldpu;
-
-#define lldp_id_generic 	lldp_lldpu.lldpu_id_generic
-#define lldp_id_hdr			lldp_lldpu.lldpu_id_hdr
+	uint8_t 		sub_type;
 
 public:
 
@@ -318,15 +308,14 @@ public:
 	 */
 	clldpattr_id(
 			uint8_t type,
+			uint8_t sub_type = 0,
 			size_t len = sizeof(struct lldp_tlv_id_hdr_t));
 
 	/**
 	 *
 	 */
 	clldpattr_id(
-			clldpattr const& attr) : clldpattr(attr) {
-		lldp_id_generic = somem();
-	};
+			clldpattr const& attr) : clldpattr(attr), sub_type(0) {};
 
 	/**
 	 *
@@ -351,34 +340,47 @@ public:
 	/**
 	 *
 	 */
-	virtual uint8_t*
-	resize(size_t len);
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(uint8_t *buf = NULL, size_t buflen = 0);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(uint8_t *buf, size_t buflen);
 
 public:
 
 	/**
 	 *
 	 */
-	virtual uint8_t
-	get_sub_type() const;
+	virtual uint8_t const&
+	get_sub_type() const { return sub_type; };
+
+	/**
+	 *
+	 */
+	virtual uint8_t&
+	set_sub_type() { return sub_type; };
+
+	/**
+	 *
+	 */
+	virtual std::string
+	get_string() const;
 
 	/**
 	 *
 	 */
 	virtual void
-	set_sub_type(uint8_t type);
+	set_string(std::string const str);
 
-	/**
-	 *
-	 */
-	virtual rofl::cmemory
-	get_body() const;
-
-	/**
-	 *
-	 */
-	virtual void
-	set_body(rofl::cmemory const& body);
 
 public:
 
@@ -414,13 +416,7 @@ public:
 class clldpattr_ttl :
 		public rofl::protocol::lldp::clldpattr
 {
-	union {
-		uint8_t						*lldpu_ttl_generic;
-		struct lldp_tlv_ttl_hdr_t	*lldpu_ttl_hdr;
-	} lldp_lldpu;
-
-#define lldp_ttl_generic 	lldp_lldpu.lldpu_ttl_generic
-#define lldp_ttl_hdr		lldp_lldpu.lldpu_ttl_hdr
+	uint16_t ttl;
 
 public:
 
@@ -434,9 +430,7 @@ public:
 	 *
 	 */
 	clldpattr_ttl(
-			clldpattr const& attr) : clldpattr(attr) {
-		lldp_ttl_generic = somem();
-	};
+			clldpattr const& attr) : clldpattr(attr), ttl(0) {};
 
 	/**
 	 *
@@ -461,22 +455,34 @@ public:
 	/**
 	 *
 	 */
-	virtual uint8_t*
-	resize(size_t len);
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(uint8_t *buf = NULL, size_t buflen = 0);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(uint8_t *buf, size_t buflen);
 
 public:
 
 	/**
 	 *
 	 */
-	virtual uint16_t
-	get_ttl() const;
+	virtual uint16_t const&
+	get_ttl() const { return ttl; };
 
 	/**
 	 *
 	 */
-	virtual void
-	set_ttl(uint16_t ttl);
+	virtual uint16_t&
+	set_ttl() { return ttl; };
 
 public:
 
@@ -498,14 +504,6 @@ public:
 class clldpattr_desc :
 		public rofl::protocol::lldp::clldpattr
 {
-	union {
-		uint8_t					*lldpu_desc_generic;
-		struct lldp_tlv_hdr_t	*lldpu_desc_hdr;
-	} lldp_lldpu;
-
-#define lldp_desc_generic 	lldp_lldpu.lldpu_desc_generic
-#define lldp_desc_hdr		lldp_lldpu.lldpu_desc_hdr
-
 public:
 
 	/**
@@ -520,7 +518,7 @@ public:
 	 */
 	clldpattr_desc(
 			clldpattr const& attr) : clldpattr(attr) {
-		lldp_desc_generic = somem();
+		//lldp_desc_generic = somem();
 	};
 
 	/**
@@ -541,13 +539,6 @@ public:
 	virtual
 	~clldpattr_desc();
 
-public:
-
-	/**
-	 *
-	 */
-	virtual uint8_t*
-	resize(size_t len);
 
 public:
 
@@ -607,13 +598,9 @@ public:
 class clldpattr_system_caps :
 		public rofl::protocol::lldp::clldpattr
 {
-	union {
-		uint8_t							*lldpu_sys_caps_generic;
-		struct lldp_tlv_sys_caps_hdr_t	*lldpu_sys_caps_hdr;
-	} lldp_lldpu;
-
-#define lldp_sys_caps_generic 	lldp_lldpu.lldpu_sys_caps_generic
-#define lldp_sys_caps_hdr		lldp_lldpu.lldpu_sys_caps_hdr
+	uint8_t			chassis_id;
+	uint16_t		available_caps;
+	uint16_t		enabled_caps;
 
 public:
 
@@ -627,9 +614,7 @@ public:
 	 *
 	 */
 	clldpattr_system_caps(
-			clldpattr const& attr) : clldpattr(attr) {
-		lldp_sys_caps_generic = somem();
-	};
+			clldpattr const& attr) : clldpattr(attr), chassis_id(0), available_caps(0), enabled_caps(0) {};
 
 	/**
 	 *
@@ -654,46 +639,58 @@ public:
 	/**
 	 *
 	 */
-	virtual uint8_t*
-	resize(size_t len);
+	virtual size_t
+	length() const;
+
+	/**
+	 *
+	 */
+	virtual void
+	pack(uint8_t *buf = NULL, size_t buflen = 0);
+
+	/**
+	 *
+	 */
+	virtual void
+	unpack(uint8_t *buf, size_t buflen);
 
 public:
 
 	/**
 	 *
 	 */
-	virtual uint8_t
-	get_chassis_id() const;
+	virtual uint8_t const&
+	get_chassis_id() const { return chassis_id; };
 
 	/**
 	 *
 	 */
-	virtual void
-	set_chassis_id(uint8_t chassis_id);
+	virtual uint8_t&
+	set_chassis_id() { return chassis_id; };
 
 	/**
 	 *
 	 */
-	virtual uint16_t
-	get_available_caps() const;
+	virtual uint16_t const&
+	get_available_caps() const { return available_caps; };
 
 	/**
 	 *
 	 */
-	virtual void
-	set_available_caps(uint16_t caps);
+	virtual uint16_t&
+	set_available_caps() { return available_caps; };
 
 	/**
 	 *
 	 */
-	virtual uint16_t
-	get_enabled_caps() const;
+	virtual uint16_t const&
+	get_enabled_caps() const { return enabled_caps; };
 
 	/**
 	 *
 	 */
-	virtual void
-	set_enabled_caps(uint16_t caps);
+	virtual uint16_t&
+	set_enabled_caps() { return enabled_caps; };
 
 
 public:
