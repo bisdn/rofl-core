@@ -50,6 +50,7 @@ void
 clldpattrTest::testLengthField()
 {
 	clldpattr attr;
+	attr.set_body() = rofl::cmemory(0x1ff);
 	attr.set_length(0x1ff);
 
 	std::cerr << "attr:" << attr << std::endl;
@@ -63,8 +64,6 @@ clldpattrTest::testLengthField()
 	CPPUNIT_ASSERT(attr.get_type() == 0x00);
 	CPPUNIT_ASSERT(mem[1] == 0xff);
 	CPPUNIT_ASSERT(attr.get_length() == 0x1ff);
-
-	std::cerr << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" << std::endl;
 
 	exit(0);
 }
