@@ -42,6 +42,8 @@ void handle_packet_in( rofl::cofdpt *dpt, rofl::cofmsg_packet_in *msg ) {
 	fe.match.set_in_port(inport);
 	std::cout << "TP" << __LINE__ << std::endl;
 	fe.actions.next() = rofl::cofaction_output(dpt->get_version(), outport);
+	std::cout << "fe.actions length is " << fe.actions.length() << "." << std::endl;
+	std::cout << "There are now " << fe.actions.size() << " actions." << std::endl;
 	std::cout << "TP" << __LINE__ << std::endl;
 //	fe.instructions.next() = rofl::cofinst_apply_actions(dpt->get_version());
 	fe.set_out_port(outport);
@@ -50,13 +52,16 @@ void handle_packet_in( rofl::cofdpt *dpt, rofl::cofmsg_packet_in *msg ) {
 	std::cout << "TP" << __LINE__ << std::endl;
 	std::cout << "About to send cflowentry: " << fe.c_str() << "." << std::endl;
 	std::cout << "TP" << __LINE__ << std::endl;
+//	fe.pack();
+	fe.set_cookie(0x1234567890ABCDEFULL);
+	std::cout << "TP" << __LINE__ << std::endl;
 	send_flow_mod_message(dpt, fe);
 	std::cout << "send_flow_mod_message() called successfully." << std::endl;
 
 	delete (msg);
 }
 
-void handle_error ( rofl::cofdpt * dpt, rofl::cofmsg_error * msg ) {
+void handle_error ( rofl::cofdpt * dpt, rofl::cofmsg_error * msg ) {	// Annoying, this is ignored I think. Needs to be added to cofdptimpl.cc
 	std::cout << __FUNCTION__ << ": From  " << dpt->c_str() << ": " << msg->c_str() << "." << std::endl;
 	delete msg;
 }

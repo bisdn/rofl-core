@@ -710,15 +710,26 @@ cflowentry::pack()
 	size_t actlistlen = 0;
 
 	switch (of_version) {
-	case OFP10_VERSION:	{	// JSP
-		actlistlen = actions.length();
-		ofmatch_len = match.length();
+	case OFP10_VERSION:	{	// JSP	- FFS - ignore this - it's actually done in cofmsg_flow_mod.cc:203
+		actlistlen = actions.length();	// size in bytes - returns the sum of length() called on each contained cofaction - length on cofaction is returned in bytes
+		ofmatch_len = match.length();	// size in byte - eventually returns sizeof(struct ofp10_match)
+/*
+		// fiddled from https://www.codebasin.net/redmine/projects/rofl-core/repository/revisions/devel-0.4/entry/src/rofl/common/openflow/cofflowmod.cc
+		packlen = sizeof(struct ofp10_flow_mod) + actions.length();
+		if (packlen > flow_mod_area.memlen()) {// not enough space, resize memory area for flow_mod
+			flow_mod_area.resize(packlen);
+		}
+		match.pack((uint8_t*)&(of10m_flow_mod->match), sizeof(of10m_flow_mod->match));
+		actions.pack((uint8_t*)of10m_flow_mod->actions, actions.length());
+*/
+
 		// length of generic ofp_flow_mod header without ofp_match
-		fm_len = sizeof(struct ofp10_flow_mod) - sizeof(ofp10_match);
+//		fm_len = sizeof(struct ofp10_flow_mod) - sizeof(ofp10_match);
+		fm_len = sizeof(struct ofp10_flow_mod) - ofmatch_len;
 
 		packlen = fm_len + ofmatch_len + actlistlen;
 
-		WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [-] instslen:%d matchlen:%d fmgenlen:%d packlen:%d",
+		WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [-] actlistlen:%d matchlen:%d fmgenlen:%d packlen:%d",
 				this,
 				actlistlen,
 				ofmatch_len,
@@ -742,13 +753,13 @@ cflowentry::pack()
 		WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [1] flow_mod_area: %s", this, flow_mod_area.c_str());
 
 		struct ofp10_match* m = (struct ofp10_match*)(flow_mod_area.somem() + fm_len);
-		match.pack(m, ofmatch_len);
+		match.pack(m, ofmatch_len);	// jsp correct
 
 		WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [2] flow_mod_area: %s", this, flow_mod_area.c_str());
 
-		uint8_t* acts = (flow_mod_area.somem() + fm_len + ofmatch_len);
+		struct ofp_action_header * acts = (struct ofp_action_header *)(flow_mod_area.somem() + fm_len + ofmatch_len);
 		
-		actions.pack((ofp_action_header *)acts, actlistlen);	// JSP TODO CHECK THIS!!!
+		actions.pack(acts, actlistlen);
 
 		WRITELOG(UNKNOWN, DBG, "cflowentry(%p)::pack() [3] flow_mod_area: %s", this, flow_mod_area.c_str());
 	} break;
