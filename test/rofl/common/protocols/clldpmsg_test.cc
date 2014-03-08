@@ -38,24 +38,22 @@ clldpmsgTest::testLLDPMsg()
 	for (unsigned int i = 0; i < 4; i++) {
 		chassis_id[i] = i;
 	}
-	msg.set_attrs().add_chassis_id().set_body(chassis_id);
+	msg.set_attrs().add_chassis_id().set_body() = chassis_id;
 
 	rofl::cmemory port_id(4);
 	for (unsigned int i = 0; i < 4; i++) {
 		port_id[i] = i;
 	}
-	msg.set_attrs().add_port_id().set_body(port_id);
+	msg.set_attrs().add_port_id().set_body() = port_id;
 
-	msg.set_attrs().add_ttl().set_ttl(0x1234);
+	msg.set_attrs().add_ttl().set_ttl() = 0x1234;
 
 	msg.set_attrs().add_end();
 
-	std::cerr << "msg:" << std::endl << msg;
-
 	rofl::cmemory mem(msg.length());
-	std::cerr << "mem:" << std::endl << mem;
-
 	msg.pack(mem.somem(), mem.memlen());
+
+	std::cerr << "msg:" << std::endl << msg;
 	std::cerr << "mem:" << std::endl << mem;
 
 	CPPUNIT_ASSERT(mem.memlen() == 34);

@@ -94,7 +94,7 @@ public:
 	get_end();
 
 	bool
-	has_end();
+	has_end() const;
 
 	void
 	drop_end();
@@ -111,7 +111,7 @@ public:
 	get_chassis_id();
 
 	bool
-	has_chassis_id();
+	has_chassis_id() const;
 
 	void
 	drop_chassis_id();
@@ -128,7 +128,7 @@ public:
 	get_port_id();
 
 	bool
-	has_port_id();
+	has_port_id() const;
 
 	void
 	drop_port_id();
@@ -145,7 +145,7 @@ public:
 	get_ttl();
 
 	bool
-	has_ttl();
+	has_ttl() const;
 
 	void
 	drop_ttl();
@@ -162,7 +162,7 @@ public:
 	get_port_desc();
 
 	bool
-	has_port_desc();
+	has_port_desc() const;
 
 	void
 	drop_port_desc();
@@ -180,7 +180,7 @@ public:
 	get_system_name();
 
 	bool
-	has_system_name();
+	has_system_name() const;
 
 	void
 	drop_system_name();
@@ -198,7 +198,7 @@ public:
 	get_system_desc();
 
 	bool
-	has_system_desc();
+	has_system_desc() const;
 
 	void
 	drop_system_desc();
@@ -216,7 +216,7 @@ public:
 	get_system_caps();
 
 	bool
-	has_system_caps();
+	has_system_caps() const;
 
 	void
 	drop_system_caps();
@@ -231,20 +231,29 @@ public:
 	operator<< (std::ostream& os, clldpattrs const& attrs) {
 		os << rofl::indent(0) << "<clldpattrs #attrs:" << attrs.attrs.size() << " >" << std::endl;
 		rofl::indent i(2);
+		if (attrs.has_chassis_id()) {
+			os << dynamic_cast<clldpattr_id&>( *(attrs.attrs.at(LLDPTT_CHASSIS_ID)) );
+		}
+		if (attrs.has_port_id()) {
+			os << dynamic_cast<clldpattr_id&>( *(attrs.attrs.at(LLDPTT_PORT_ID)) );
+		}
+		if (attrs.has_ttl()) {
+			os << dynamic_cast<clldpattr_ttl&>( *(attrs.attrs.at(LLDPTT_TTL)) );
+		}
 		for (std::map<uint8_t, clldpattr*>::const_iterator
 				it = attrs.attrs.begin(); it != attrs.attrs.end(); ++it) {
 			switch (it->first) {
 			case LLDPTT_END: {
-				os << dynamic_cast<clldpattr_end&>( *(it->second) );
+
 			} break;
 			case LLDPTT_CHASSIS_ID: {
-				os << dynamic_cast<clldpattr_id&>( *(it->second) );
+
 			} break;
 			case LLDPTT_PORT_ID: {
-				os << dynamic_cast<clldpattr_id&>( *(it->second) );
+
 			} break;
 			case LLDPTT_TTL: {
-				os << dynamic_cast<clldpattr_ttl&>( *(it->second) );
+
 			} break;
 			case LLDPTT_PORT_DESC: {
 				os << dynamic_cast<clldpattr_desc&>( *(it->second) );
@@ -263,6 +272,9 @@ public:
 				os << dynamic_cast<clldpattr&>( *(it->second) );
 			};
 			}
+		}
+		if (attrs.has_end()) {
+			os << dynamic_cast<clldpattr_end&>( *(attrs.attrs.at(LLDPTT_END)) );
 		}
 		return os;
 	};

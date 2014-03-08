@@ -32,23 +32,23 @@ clldpattrsTest::testLLDPAttrs()
 {
 	clldpattrs attrs;
 
-	attrs.add_chassis_id().set_sub_type(LLDPCHIDST_CHASSIS);
+	attrs.add_chassis_id().set_sub_type() = LLDPCHIDST_CHASSIS;
 	rofl::cmemory chas_id(4);
 	chas_id[0] = 0x01;
 	chas_id[1] = 0x02;
 	chas_id[2] = 0x03;
 	chas_id[3] = 0x04;
-	attrs.set_chassis_id().set_body(chas_id);
+	attrs.set_chassis_id().set_body() = chas_id;
 
-	attrs.add_port_id().set_sub_type(LLDPPRTIDST_PORT);
+	attrs.add_port_id().set_sub_type() = LLDPPRTIDST_PORT;
 	rofl::cmemory port_id(4);
 	port_id[0] = 0x01;
 	port_id[1] = 0x02;
 	port_id[2] = 0x03;
 	port_id[3] = 0x04;
-	attrs.set_port_id().set_body(port_id);
+	attrs.set_port_id().set_body() = port_id;
 
-	attrs.add_ttl().set_ttl(0x5678);
+	attrs.add_ttl().set_ttl() = 0x5678;
 
 	attrs.add_end();
 

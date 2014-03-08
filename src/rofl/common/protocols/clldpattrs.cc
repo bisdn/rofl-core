@@ -213,7 +213,7 @@ clldpattrs::get_end()
 
 
 bool
-clldpattrs::has_end()
+clldpattrs::has_end() const
 {
 	return (attrs.find(LLDPTT_END) != attrs.end());
 }
@@ -267,7 +267,7 @@ clldpattrs::get_chassis_id()
 
 
 bool
-clldpattrs::has_chassis_id()
+clldpattrs::has_chassis_id() const
 {
 	return (attrs.find(LLDPTT_CHASSIS_ID) != attrs.end());
 }
@@ -319,7 +319,7 @@ clldpattrs::get_port_id()
 
 
 bool
-clldpattrs::has_port_id()
+clldpattrs::has_port_id() const
 {
 	return (attrs.find(LLDPTT_PORT_ID) != attrs.end());
 }
@@ -371,7 +371,7 @@ clldpattrs::get_ttl()
 
 
 bool
-clldpattrs::has_ttl()
+clldpattrs::has_ttl() const
 {
 	return (attrs.find(LLDPTT_TTL) != attrs.end());
 }
@@ -424,7 +424,7 @@ clldpattrs::get_port_desc()
 
 
 bool
-clldpattrs::has_port_desc()
+clldpattrs::has_port_desc() const
 {
 	return (attrs.find(LLDPTT_PORT_DESC) != attrs.end());
 }
@@ -477,7 +477,7 @@ clldpattrs::get_system_name()
 
 
 bool
-clldpattrs::has_system_name()
+clldpattrs::has_system_name() const
 {
 	return (attrs.find(LLDPTT_SYSTEM_NAME) != attrs.end());
 }
@@ -530,7 +530,7 @@ clldpattrs::get_system_desc()
 
 
 bool
-clldpattrs::has_system_desc()
+clldpattrs::has_system_desc() const
 {
 	return (attrs.find(LLDPTT_SYSTEM_DESC) != attrs.end());
 }
@@ -582,7 +582,7 @@ clldpattrs::get_system_caps()
 
 
 bool
-clldpattrs::has_system_caps()
+clldpattrs::has_system_caps() const
 {
 	return (attrs.find(LLDPTT_SYSTEM_CAPS) != attrs.end());
 }
@@ -597,3 +597,5 @@ clldpattrs::drop_system_caps()
 	delete attrs[LLDPTT_SYSTEM_CAPS];
 	attrs.erase(LLDPTT_SYSTEM_CAPS);
 }
+
+

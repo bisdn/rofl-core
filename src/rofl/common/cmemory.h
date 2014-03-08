@@ -348,6 +348,12 @@ public:
 	toString() const;
 
 
+	/**
+	 * @brief	Returns boolean value empty/non empty
+	 */
+	virtual bool
+	empty() const { return (0 == memlen()); };
+
 	/**@}*/
 
 

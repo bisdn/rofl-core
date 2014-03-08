@@ -9,10 +9,11 @@
 
 using namespace rofl::protocol::lldp;
 
-clldpattr::clldpattr(size_t len) :
-		rofl::cmemory(len)
+clldpattr::clldpattr(size_t bodylen) :
+		hdr(sizeof(struct lldp_tlv_hdr_t)),
+		body(bodylen)
 {
-	lldp_generic = rofl::cmemory::somem();
+
 }
 
 
@@ -28,11 +29,17 @@ clldpattr::operator= (clldpattr const& attr)
 	if (this == &attr)
 		return *this;
 
-	rofl::cmemory::operator= (attr);
-
-	lldp_generic = rofl::cmemory::somem();
+	hdr 	= attr.hdr;
+	body 	= attr.body;
 
 	return *this;
+}
+
+
+bool
+clldpattr::operator== (clldpattr const& attr)
+{
+	return ((hdr == attr.hdr) && (body == attr.body));
 }
 
 
@@ -42,40 +49,38 @@ clldpattr::~clldpattr()
 }
 
 
-uint8_t*
-clldpattr::resize(size_t len)
-{
-	return (lldp_generic = rofl::cmemory::resize(len));
-}
-
 
 size_t
 clldpattr::length() const
 {
-	return rofl::cmemory::memlen();
+	return (hdr.memlen() + body.memlen());
 }
 
 
 void
 clldpattr::pack(uint8_t *buf, size_t buflen)
 {
-	set_length(rofl::cmemory::memlen() - sizeof(struct lldp_tlv_hdr_t));
+	set_length(body.memlen());
 
 	if ((0 == buf) || (0 == buflen)) {
 		return;
 	}
 
-	if (buflen < rofl::cmemory::memlen()) {
+	if (buflen < length()) {
 		throw eLLDPInval();
 	}
 
-	rofl::cmemory::pack(buf, buflen);
+	hdr.pack(buf, hdr.memlen());
+
+	body.pack(buf + hdr.memlen(), body.memlen());
 }
 
 
 void
 clldpattr::unpack(uint8_t *buf, size_t buflen)
 {
+	body.clear();
+
 	if ((0 == buf) || (0 == buflen)) {
 		return;
 	}
@@ -84,15 +89,18 @@ clldpattr::unpack(uint8_t *buf, size_t buflen)
 		throw eLLDPInval();
 	}
 
-	rofl::cmemory::unpack(buf, buflen);
+	hdr.unpack(buf, sizeof(struct lldp_tlv_hdr_t));
 
-	lldp_generic = rofl::cmemory::somem();
+	if (buflen > sizeof(struct lldp_tlv_hdr_t)) {
+		body.assign(buf + sizeof(struct lldp_tlv_hdr_t), buflen - sizeof(struct lldp_tlv_hdr_t));
+	}
 }
 
 
 uint8_t
 clldpattr::get_type() const
 {
+	struct lldp_tlv_hdr_t *lldp_hdr = (struct lldp_tlv_hdr_t*)hdr.somem();
 	return ((be16toh(lldp_hdr->tlen) & 0xfe00) >> 9);
 }
 
@@ -101,6 +109,7 @@ clldpattr::get_type() const
 void
 clldpattr::set_type(uint8_t type)
 {
+	struct lldp_tlv_hdr_t *lldp_hdr = (struct lldp_tlv_hdr_t*)hdr.somem();
 	lldp_hdr->tlen &= htobe16(0x01ff);
 	lldp_hdr->tlen |= htobe16(((type & 0x7f) << 9));
 }
@@ -110,6 +119,7 @@ clldpattr::set_type(uint8_t type)
 uint16_t
 clldpattr::get_length() const
 {
+	struct lldp_tlv_hdr_t *lldp_hdr = (struct lldp_tlv_hdr_t*)hdr.somem();
 	return ((be16toh(lldp_hdr->tlen) & 0x01ff));
 }
 
@@ -118,39 +128,17 @@ clldpattr::get_length() const
 void
 clldpattr::set_length(uint16_t len)
 {
+	struct lldp_tlv_hdr_t *lldp_hdr = (struct lldp_tlv_hdr_t*)hdr.somem();
 	lldp_hdr->tlen &= htobe16(0xfe00);
 	lldp_hdr->tlen |= htobe16((len & 0x01ff));
 }
 
 
 
-rofl::cmemory
-clldpattr::get_body() const
-{
-	if (sizeof(struct lldp_tlv_hdr_t) >= rofl::cmemory::memlen()) {
-		throw eLLDPNotFound();
-	}
-
-	return rofl::cmemory(lldp_hdr->body, rofl::cmemory::memlen() - sizeof(struct lldp_tlv_hdr_t));
-}
 
 
 
-void
-clldpattr::set_body(rofl::cmemory const& body)
-{
-	if (rofl::cmemory::memlen() < (sizeof(struct lldp_tlv_hdr_t) + body.memlen())) {
-		resize(sizeof(struct lldp_tlv_hdr_t) + body.memlen());
-	}
-
-	memcpy(lldp_hdr->body, body.somem(), body.memlen());
-}
-
-
-
-
-clldpattr_end::clldpattr_end() :
-		clldpattr(sizeof(struct lldp_tlv_hdr_t))
+clldpattr_end::clldpattr_end()
 {
 	set_type(LLDPTT_END);
 	set_length(0);
@@ -191,10 +179,11 @@ clldpattr_end::~clldpattr_end()
  */
 clldpattr_id::clldpattr_id(
 		uint8_t type,
-		size_t len) :
-					clldpattr(len)
+		uint8_t sub_type,
+		size_t bodylen) :
+					clldpattr(bodylen),
+					sub_type(sub_type)
 {
-	lldp_id_generic = rofl::cmemory::somem();
 	set_type(type);
 }
 
@@ -214,7 +203,7 @@ clldpattr_id::operator= (clldpattr_id const& attr)
 
 	rofl::protocol::lldp::clldpattr::operator= (attr);
 
-	lldp_id_generic = somem();
+	sub_type = attr.sub_type;
 
 	return *this;
 }
@@ -226,49 +215,69 @@ clldpattr_id::~clldpattr_id()
 }
 
 
-uint8_t*
-clldpattr_id::resize(size_t len)
+size_t
+clldpattr_id::length() const
 {
-	return (lldp_id_generic = clldpattr::resize(len));
-}
-
-
-uint8_t
-clldpattr_id::get_sub_type() const
-{
-	return lldp_id_hdr->subtype;
+	return (hdr.memlen() + sizeof(sub_type) + body.memlen());
 }
 
 
 void
-clldpattr_id::set_sub_type(uint8_t type)
+clldpattr_id::pack(uint8_t *buf, size_t buflen)
 {
-	lldp_id_hdr->subtype = type;
-}
+	set_length(sizeof(sub_type) + body.memlen());
 
-
-rofl::cmemory
-clldpattr_id::get_body() const
-{
-	if (sizeof(struct lldp_tlv_id_hdr_t) >= rofl::cmemory::memlen()) {
-		throw eLLDPNotFound();
+	if ((0 == buf) || (0 == buflen)) {
+		return;
 	}
 
-	return rofl::cmemory(lldp_id_hdr->body, rofl::cmemory::memlen() - sizeof(struct lldp_tlv_id_hdr_t));
+	if (buflen < length()) {
+		throw eLLDPInval();
+	}
+
+	hdr.pack(buf, sizeof(struct lldp_tlv_hdr_t));
+	((struct lldp_tlv_id_hdr_t*)buf)->subtype = sub_type;
+	body.pack(buf + sizeof(struct lldp_tlv_id_hdr_t), body.memlen());
 }
 
 
 void
-clldpattr_id::set_body(rofl::cmemory const& body)
+clldpattr_id::unpack(uint8_t *buf, size_t buflen)
 {
-	if (rofl::cmemory::memlen() < (sizeof(struct lldp_tlv_id_hdr_t) + body.memlen())) {
-		resize(sizeof(struct lldp_tlv_id_hdr_t) + body.memlen());
+	body.clear();
+
+	if ((0 == buf) || (0 == buflen)) {
+		return;
 	}
 
-	memcpy(lldp_id_hdr->body, body.somem(), body.memlen());
+	if (buflen < sizeof(struct lldp_tlv_id_hdr_t)) {
+		throw eLLDPInval();
+	}
+
+	hdr.unpack(buf, sizeof(struct lldp_tlv_hdr_t));
+
+	if (buflen >= sizeof(struct lldp_tlv_id_hdr_t)) {
+		sub_type = ((struct lldp_tlv_id_hdr_t*)buf)->subtype;
+	}
+
+	if (buflen > sizeof(struct lldp_tlv_id_hdr_t)) {
+		body.assign(buf + sizeof(struct lldp_tlv_id_hdr_t), buflen - sizeof(struct lldp_tlv_id_hdr_t));
+	}
 }
 
 
+std::string
+clldpattr_id::get_string() const
+{
+	return body.toString();
+}
+
+
+void
+clldpattr_id::set_string(std::string const str)
+{
+	body.assign((uint8_t*)str.c_str(), str.length());
+}
 
 
 
@@ -279,9 +288,8 @@ clldpattr_id::set_body(rofl::cmemory const& body)
  */
 clldpattr_ttl::clldpattr_ttl(
 			size_t len) :
-					clldpattr(len)
+					clldpattr(len), ttl(0)
 {
-	lldp_ttl_generic = rofl::cmemory::somem();
 	set_type(LLDPTT_TTL);
 }
 
@@ -301,7 +309,7 @@ clldpattr_ttl::operator= (clldpattr_ttl const& attr)
 
 	rofl::protocol::lldp::clldpattr::operator= (attr);
 
-	lldp_ttl_generic = somem();
+	ttl = attr.ttl;
 
 	return *this;
 }
@@ -313,24 +321,49 @@ clldpattr_ttl::~clldpattr_ttl()
 }
 
 
-uint8_t*
-clldpattr_ttl::resize(size_t len)
+size_t
+clldpattr_ttl::length() const
 {
-	return (lldp_ttl_generic = clldpattr::resize(len));
-}
-
-
-uint16_t
-clldpattr_ttl::get_ttl() const
-{
-	return be16toh(lldp_ttl_hdr->ttl);
+	return (hdr.memlen() + sizeof(ttl));
 }
 
 
 void
-clldpattr_ttl::set_ttl(uint16_t ttl)
+clldpattr_ttl::pack(uint8_t *buf, size_t buflen)
 {
-	lldp_ttl_hdr->ttl = htobe16(ttl);
+	set_length(sizeof(ttl));
+
+	if ((0 == buf) || (0 == buflen)) {
+		return;
+	}
+
+	if (buflen < length()) {
+		throw eLLDPInval();
+	}
+
+	hdr.pack(buf, sizeof(struct lldp_tlv_hdr_t));
+	((struct lldp_tlv_ttl_hdr_t*)buf)->ttl = htobe16(ttl);
+}
+
+
+void
+clldpattr_ttl::unpack(uint8_t *buf, size_t buflen)
+{
+	body.clear();
+
+	if ((0 == buf) || (0 == buflen)) {
+		return;
+	}
+
+	if (buflen < sizeof(struct lldp_tlv_ttl_hdr_t)) {
+		throw eLLDPInval();
+	}
+
+	hdr.unpack(buf, sizeof(struct lldp_tlv_hdr_t));
+
+	if (buflen >= sizeof(struct lldp_tlv_id_hdr_t)) {
+		ttl = be16toh(((struct lldp_tlv_ttl_hdr_t*)buf)->ttl);
+	}
 }
 
 
@@ -348,7 +381,6 @@ clldpattr_desc::clldpattr_desc(
 		size_t len) :
 					clldpattr(len)
 {
-	lldp_desc_generic = rofl::cmemory::somem();
 	set_type(type);
 }
 
@@ -368,8 +400,6 @@ clldpattr_desc::operator= (clldpattr_desc const& attr)
 
 	rofl::protocol::lldp::clldpattr::operator= (attr);
 
-	lldp_desc_generic = somem();
-
 	return *this;
 }
 
@@ -380,30 +410,18 @@ clldpattr_desc::~clldpattr_desc()
 }
 
 
-uint8_t*
-clldpattr_desc::resize(size_t len)
-{
-	return (lldp_desc_generic = clldpattr::resize(len));
-}
-
-
 std::string
 clldpattr_desc::get_desc() const
 {
-	return std::string((const char*)lldp_desc_hdr->body, rofl::cmemory::memlen() - sizeof(struct lldp_tlv_hdr_t));
+	return body.toString();
 }
 
 
 void
 clldpattr_desc::set_desc(std::string const& desc)
 {
-	if (rofl::cmemory::memlen() < (sizeof(struct lldp_tlv_hdr_t) + desc.length())) {
-		resize(sizeof(struct lldp_tlv_hdr_t) + desc.length());
-	}
-
-	memcpy(lldp_desc_hdr->body, desc.c_str(), desc.length());
+	body.assign((uint8_t*)desc.c_str(), desc.length());
 }
-
 
 
 
@@ -414,9 +432,8 @@ clldpattr_desc::set_desc(std::string const& desc)
  */
 clldpattr_system_caps::clldpattr_system_caps(
 			size_t len) :
-					clldpattr(len)
+					clldpattr(len), chassis_id(0), available_caps(0), enabled_caps(0)
 {
-	lldp_sys_caps_generic = rofl::cmemory::somem();
 	set_type(LLDPTT_SYSTEM_CAPS);
 }
 
@@ -436,7 +453,9 @@ clldpattr_system_caps::operator= (clldpattr_system_caps const& attr)
 
 	rofl::protocol::lldp::clldpattr::operator= (attr);
 
-	lldp_sys_caps_generic = somem();
+	chassis_id 		= attr.chassis_id;
+	available_caps 	= attr.available_caps;
+	enabled_caps 	= attr.enabled_caps;
 
 	return *this;
 }
@@ -448,52 +467,50 @@ clldpattr_system_caps::~clldpattr_system_caps()
 }
 
 
-uint8_t*
-clldpattr_system_caps::resize(size_t len)
-{
-	return (lldp_sys_caps_generic = clldpattr::resize(len));
-}
 
 
-uint8_t
-clldpattr_system_caps::get_chassis_id() const
+size_t
+clldpattr_system_caps::length() const
 {
-	return lldp_sys_caps_hdr->chassis_id;
+	return (hdr.memlen() + sizeof(chassis_id) + sizeof(available_caps) + sizeof(enabled_caps));
 }
 
 
 void
-clldpattr_system_caps::set_chassis_id(uint8_t chassis_id)
+clldpattr_system_caps::pack(uint8_t *buf, size_t buflen)
 {
-	lldp_sys_caps_hdr->chassis_id = chassis_id;
-}
+	set_length(sizeof(chassis_id) + sizeof(available_caps) + sizeof(enabled_caps));
 
+	if ((0 == buf) || (0 == buflen)) {
+		return;
+	}
 
-uint16_t
-clldpattr_system_caps::get_available_caps() const
-{
-	return be16toh(lldp_sys_caps_hdr->available_caps);
-}
+	if (buflen < length()) {
+		throw eLLDPInval();
+	}
 
-
-void
-clldpattr_system_caps::set_available_caps(uint16_t caps)
-{
-	lldp_sys_caps_hdr->available_caps = htobe16(caps);
-}
-
-
-uint16_t
-clldpattr_system_caps::get_enabled_caps() const
-{
-	return be16toh(lldp_sys_caps_hdr->enabled_caps);
+	hdr.pack(buf, sizeof(struct lldp_tlv_hdr_t));
+	((struct lldp_tlv_sys_caps_hdr_t*)buf)->chassis_id 		= chassis_id;
+	((struct lldp_tlv_sys_caps_hdr_t*)buf)->available_caps 	= htobe16(available_caps);
+	((struct lldp_tlv_sys_caps_hdr_t*)buf)->enabled_caps 	= htobe16(enabled_caps);
 }
 
 
 void
-clldpattr_system_caps::set_enabled_caps(uint16_t caps)
+clldpattr_system_caps::unpack(uint8_t *buf, size_t buflen)
 {
-	lldp_sys_caps_hdr->enabled_caps = htobe16(caps);
+	body.clear();
+
+	if ((0 == buf) || (0 == buflen)) {
+		return;
+	}
+
+	if (buflen < sizeof(struct lldp_tlv_sys_caps_hdr_t)) {
+		throw eLLDPInval();
+	}
+
+	hdr.unpack(buf, sizeof(struct lldp_tlv_hdr_t));
+	chassis_id 		= ((struct lldp_tlv_sys_caps_hdr_t*)buf)->chassis_id;
+	available_caps 	= be16toh(((struct lldp_tlv_sys_caps_hdr_t*)buf)->available_caps);
+	enabled_caps 	= be16toh(((struct lldp_tlv_sys_caps_hdr_t*)buf)->enabled_caps);
 }
-
-
