@@ -56,9 +56,7 @@ clldpattrsTest::testLLDPAttrs()
 	attrs.pack(a_mem.somem(), a_mem.memlen());
 
 	std::cerr << "attrs:" << attrs << std::endl;
-	std::cerr << "GGGGGGGGGGGGGGGGGGGGGGGGG" << std::endl;
 	std::cerr << "a_mem:" << a_mem << std::endl;
-	std::cerr << "GGGGGGGGGGGGGGGGGGGGGGGGG" << std::endl;
 
 	CPPUNIT_ASSERT(attrs.length() == 20);
 
