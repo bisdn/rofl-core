@@ -492,7 +492,7 @@ public:
 	friend std::ostream&
 	operator<< (std::ostream& os, clldpattr_ttl const& attr) {
 		os << dynamic_cast<clldpattr const&>( attr );
-		os << rofl::indent(2) << "<clldpattr_ttl ttl:0x" << std::hex << (int)attr.get_ttl() << std::dec << " >";
+		os << rofl::indent(2) << "<clldpattr_ttl ttl:0x" << std::hex << (int)attr.get_ttl() << std::dec << " >" << std::endl;
 		return os;
 	};
 };

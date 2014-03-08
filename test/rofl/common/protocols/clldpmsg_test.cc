@@ -50,12 +50,10 @@ clldpmsgTest::testLLDPMsg()
 
 	msg.set_attrs().add_end();
 
-	std::cerr << "msg:" << std::endl << msg;
-
 	rofl::cmemory mem(msg.length());
-	std::cerr << "mem:" << std::endl << mem;
-
 	msg.pack(mem.somem(), mem.memlen());
+
+	std::cerr << "msg:" << std::endl << msg;
 	std::cerr << "mem:" << std::endl << mem;
 
 	CPPUNIT_ASSERT(mem.memlen() == 34);

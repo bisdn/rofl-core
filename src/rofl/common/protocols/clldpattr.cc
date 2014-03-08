@@ -135,8 +135,10 @@ clldpattr::set_length(uint16_t len)
 
 
 
-clldpattr_end::clldpattr_end() :
-		clldpattr(sizeof(struct lldp_tlv_hdr_t))
+
+
+
+clldpattr_end::clldpattr_end()
 {
 	set_type(LLDPTT_END);
 	set_length(0);

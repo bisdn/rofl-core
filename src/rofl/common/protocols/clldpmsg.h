@@ -28,6 +28,9 @@ class clldpmsg
 	clldpattrs			attrs;
 	cmacaddr			eth_dst;
 	cmacaddr			eth_src;
+	uint16_t			eth_type;
+
+	static unsigned int const LLDP_ETHER_TYPE = 0x88cc;
 
 public:
 
@@ -111,17 +114,28 @@ public:
 	cmacaddr const&
 	get_eth_src() const { return eth_src; };
 
+	/**
+	 *
+	 */
+	uint16_t const&
+	get_eth_type() const { return eth_type; };
+
+	/**
+	 *
+	 */
+	uint16_t&
+	set_eth_type() { return eth_type; };
 
 
 public:
 
 	friend std::ostream&
 	operator<< (std::ostream& os, clldpmsg const& msg) {
-		os << rofl::indent(0) << "<clldpmsg >" << std::endl;
+		os << rofl::indent(0) << "<clldpmsg length:" << msg.length() << " >" << std::endl;
 		os << rofl::indent(2) << "<eth-dst: " << msg.get_eth_dst() << " >" << std::endl;
 		os << rofl::indent(2) << "<eth-src: " << msg.get_eth_src() << " >" << std::endl;
-		os << rofl::indent(2) << "<attrs: >" << std::endl;
-		rofl::indent i(4);
+		os << rofl::indent(2) << "<eth-type: 0x" << std::hex << (int)msg.get_eth_type() << std::dec << " >" << std::endl;
+		rofl::indent i(2);
 		os << msg.get_attrs();
 		return os;
 	};

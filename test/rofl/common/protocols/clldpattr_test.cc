@@ -64,8 +64,6 @@ clldpattrTest::testLengthField()
 	CPPUNIT_ASSERT(attr.get_type() == 0x00);
 	CPPUNIT_ASSERT(mem[1] == 0xff);
 	CPPUNIT_ASSERT(attr.get_length() == 0x1ff);
-
-	exit(0);
 }
 
 
@@ -78,10 +76,6 @@ clldpattrTest::testDefaultConstructor()
 	CPPUNIT_ASSERT(attr.length() == sizeof(struct lldp_tlv_hdr_t));
 	CPPUNIT_ASSERT(attr.get_type() == 0);
 	CPPUNIT_ASSERT(attr.get_length() == 0);
-	try {
-		attr.get_body();
-		CPPUNIT_ASSERT(false);
-	} catch (eLLDPNotFound& e) {}
 }
 
 
@@ -92,10 +86,11 @@ clldpattrTest::testCopyConstructor()
 	clldpattr attr;
 
 	attr.set_type(0x58);
-	rofl::cmemory body(7);
+	attr.set_body().resize(7);
 	for (unsigned int i = 0; i < 7; i++) {
 		attr.set_body()[i] = i;
 	}
+	rofl::cmemory body = attr.get_body();
 	attr.pack();
 
 	clldpattr clone(attr);
@@ -116,7 +111,7 @@ clldpattrTest::testPackUnpack()
 	clldpattr attr;
 
 	attr.set_type(0x58);
-	rofl::cmemory body(7);
+	attr.set_body().resize(7);
 	for (unsigned int i = 0; i < 7; i++) {
 		attr.set_body()[i] = i;
 	}
