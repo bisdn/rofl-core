@@ -212,7 +212,7 @@ void __of1x_dump_instructions(of1x_instruction_group_t group){
 					has_write_actions++;
 					break;
     			case OF1X_IT_WRITE_METADATA:
-					ROFL_PIPELINE_INFO_NO_PREFIX(" WRITE-META(0x"PRIx64":0x"PRIx64"), ", group.instructions[i].write_metadata.metadata, group.instructions[i].write_metadata.metadata_mask);
+					ROFL_PIPELINE_INFO_NO_PREFIX(" WRITE-META(0x%"PRIx64":0x%"PRIx64"), ", group.instructions[i].write_metadata.metadata, group.instructions[i].write_metadata.metadata_mask);
 					break;
 			case OF1X_IT_EXPERIMENTER: //TODO:
 					ROFL_PIPELINE_INFO_NO_PREFIX(" EXP, ");

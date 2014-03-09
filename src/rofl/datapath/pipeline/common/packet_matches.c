@@ -138,7 +138,7 @@ void dump_packet_matches(packet_matches_t *const pkt){
 	
 	//Metadata
 	if(pkt->metadata)
-		ROFL_PIPELINE_DEBUG_NO_PREFIX("METADATA:" PRIx64 ", ",pkt->metadata);
+		ROFL_PIPELINE_DEBUG_NO_PREFIX("METADATA: 0x%" PRIx64 ", ",pkt->metadata);
 	
 	//802	
 	if(pkt->eth_src)
