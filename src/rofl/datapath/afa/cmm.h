@@ -19,7 +19,7 @@ AFA_BEGIN_DECLS
 
 /**
 * @name    cmm_notify_port_add
-* @brief   Notify port add to CMM 
+* @brief   Notify the CMM that a port has been added to the system. This change shall NOT be called when a port attachment status changes.
 * @param port_snapshot Snapshot of the current state of a switch port. The snapshot MUST be deleted using switch_port_destroy_snapshot()
 * @ingroup cmm_management
 */
@@ -27,7 +27,7 @@ afa_result_t cmm_notify_port_add(switch_port_snapshot_t* port_snapshot);
 
 /**
 * @name    cmm_notify_port_delete
-* @brief   Notifies CMM that port has been deleted from the platform, or cannot be associated to a switch
+* @brief   Notifies the CMM that port has been deleted from the platform. This change shall NOT be called when a port attachment status changes. 
 * @param port_snapshot Snapshot of the current state of a switch port. The snapshot MUST be deleted using switch_port_destroy_snapshot()
 * @ingroup cmm_management
 */
@@ -35,7 +35,7 @@ afa_result_t cmm_notify_port_delete(switch_port_snapshot_t* port_snapshot);
 
 /**
 * @name    cmm_notify_port_status_changed
-* @brief   Notify port add to CMM 
+* @brief   Notify the CMM of a port status change. This change shall NOT be called when a port attachment status changes.
 * @param port_snapshot Snapshot of the current state of a switch port. The snapshot MUST be deleted using switch_port_destroy_snapshot()
 * @ingroup cmm_management
 */
