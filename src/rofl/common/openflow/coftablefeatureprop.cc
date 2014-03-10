@@ -837,7 +837,7 @@ coftable_feature_prop_oxm::unpack(
 
 
 	size_t remaining = total_length - sizeof(struct openflow13::ofp_table_feature_prop_oxm);
-	while (remaining > sizeof(uint32_t)) {
+	while (remaining >= sizeof(uint32_t)) {
 		struct openflow::ofp_oxm_hdr *oxm = (struct openflow::ofp_oxm_hdr*)
 				(((struct openflow13::ofp_table_feature_prop_oxm*)buf)->oxm_ids);
 
