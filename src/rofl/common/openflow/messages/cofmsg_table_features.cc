@@ -284,6 +284,8 @@ cofmsg_table_features_reply::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 	}
 
+	set_length(length());
+
 	switch (get_version()) {
 	case rofl::openflow13::OFP_VERSION: {
 		memcpy(buf, soframe(), sizeof(struct rofl::openflow13::ofp_multipart_request));
