@@ -378,7 +378,7 @@ void
 cflowentry::set_idle_timeout(const uint16_t& idle_timeout)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->idle_timeout = idle_timeout; break;	// JSP
+	case OFP10_VERSION: of10m_flow_mod->idle_timeout = htobe16(idle_timeout); break;	// JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->idle_timeout = htobe16(idle_timeout);
@@ -394,7 +394,7 @@ void
 cflowentry::set_hard_timeout(const uint16_t& hard_timeout)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->hard_timeout = hard_timeout; break;	// JSP
+	case OFP10_VERSION: of10m_flow_mod->hard_timeout = htobe16(hard_timeout); break;	// JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->hard_timeout = htobe16(hard_timeout);
@@ -410,7 +410,7 @@ void
 cflowentry::set_cookie(const uint64_t& cookie)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->cookie = cookie; break;	// JSP
+	case OFP10_VERSION: of10m_flow_mod->cookie = htobe64(cookie); break;	// JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->cookie = htobe64(cookie);
@@ -441,7 +441,7 @@ void
 cflowentry::set_priority(const uint16_t& priority)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->priority = priority; break;	// JSP
+	case OFP10_VERSION: of10m_flow_mod->priority = htobe16(priority); break;	// JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->priority = htobe16(priority);
@@ -457,7 +457,7 @@ void
 cflowentry::set_buffer_id(const uint32_t& buffer_id)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->buffer_id = buffer_id; break;	// JSP
+	case OFP10_VERSION: of10m_flow_mod->buffer_id = htobe32(buffer_id); break;	// JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->buffer_id = htobe32(buffer_id);
@@ -473,7 +473,7 @@ void
 cflowentry::set_out_port(const uint32_t& out_port)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->out_port = out_port; break;	// JSP
+	case OFP10_VERSION: of10m_flow_mod->out_port = htobe32(out_port); break;	// JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->out_port = htobe32(out_port);
@@ -504,7 +504,7 @@ void
 cflowentry::set_flags(const uint16_t& flags)
 {
 	switch (of_version) {
-	case OFP10_VERSION: of10m_flow_mod->flags = flags; break;	// JSP
+	case OFP10_VERSION: of10m_flow_mod->flags = htobe16(flags); break;	// JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		of13m_flow_mod->flags = htobe16(flags);
@@ -553,7 +553,7 @@ uint16_t
 cflowentry::get_idle_timeout() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return of10m_flow_mod->idle_timeout;	//JSP
+	case OFP10_VERSION: return be16toh(of10m_flow_mod->idle_timeout);	//JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be16toh(of13m_flow_mod->idle_timeout);
@@ -570,7 +570,7 @@ uint16_t
 cflowentry::get_hard_timeout() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return of10m_flow_mod->hard_timeout;	//JSP
+	case OFP10_VERSION: return be16toh(of10m_flow_mod->hard_timeout);	//JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be16toh(of13m_flow_mod->hard_timeout);
@@ -587,7 +587,7 @@ uint64_t
 cflowentry::get_cookie() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return of10m_flow_mod->cookie;	//JSP
+	case OFP10_VERSION: return be64toh(of10m_flow_mod->cookie);	//JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be64toh(of13m_flow_mod->cookie);
@@ -620,7 +620,7 @@ uint16_t
 cflowentry::get_priority() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return of10m_flow_mod->priority;	//JSP
+	case OFP10_VERSION: return be16toh(of10m_flow_mod->priority);	//JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be16toh(of13m_flow_mod->priority);
@@ -637,7 +637,7 @@ uint32_t
 cflowentry::get_buffer_id() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return of10m_flow_mod->buffer_id;	//JSP
+	case OFP10_VERSION: return be32toh(of10m_flow_mod->buffer_id);	//JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be32toh(of13m_flow_mod->buffer_id);
@@ -654,7 +654,7 @@ uint32_t
 cflowentry::get_out_port() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return of10m_flow_mod->out_port;	//JSP
+	case OFP10_VERSION: return be32toh(of10m_flow_mod->out_port);	//JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be32toh(of13m_flow_mod->out_port);
@@ -687,7 +687,7 @@ uint16_t
 cflowentry::get_flags() const
 {
 	switch (of_version) {
-	case OFP10_VERSION: return of10m_flow_mod->flags;	//JSP
+	case OFP10_VERSION: return be16toh(of10m_flow_mod->flags);	//JSP
 	case OFP12_VERSION:
 	case OFP13_VERSION: {
 		return be16toh(of13m_flow_mod->flags);

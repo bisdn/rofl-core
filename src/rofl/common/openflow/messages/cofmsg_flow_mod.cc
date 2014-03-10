@@ -223,7 +223,7 @@ cofmsg_flow_mod::pack(uint8_t *buf, size_t buflen)
 		memcpy(buf, soframe(), OFP10_FLOW_MOD_STATIC_HDR_LEN);
 		std::cout << __FUNCTION__ << ": packing match at offset of " << (unsigned)(sizeof(struct ofp_header)) << " for " << sizeof(struct ofp10_match) << " bytes." << std::endl;
 		match.pack( (struct ofp10_match*)(buf + sizeof(struct ofp_header)), sizeof(struct ofp10_match) );
-		std::cout << __FUNCTION__ << ": packing actions at offset of " << (unsigned) OFP10_FLOW_MOD_STATIC_HDR_LEN << " for " << sizeof(struct ofp10_match) << " bytes." << std::endl;
+		std::cout << __FUNCTION__ << ": packing actions at offset of " << (unsigned) OFP10_FLOW_MOD_STATIC_HDR_LEN << " for " << actions.length() << " bytes." << std::endl;
 		actions.pack( (struct ofp_action_header*) (buf + OFP10_FLOW_MOD_STATIC_HDR_LEN), actions.length() );
 	} break;
 	case OFP12_VERSION: {

@@ -30,8 +30,10 @@ void handle_packet_in( rofl::cofdpt *dpt, rofl::cofmsg_packet_in *msg ) {
 	std::cout << "packet came in on port " << (unsigned) msg->get_in_port() << std::endl;
 	std::cout << "dpt->get_version() =   " << (unsigned) dpt->get_version() << std::endl;
 	uint32_t inport, outport;
-	inport = msg->get_in_port();
-	outport = (inport==2)?1:2;
+//	inport = msg->get_in_port();
+//	outport = (inport==2)?1:2;
+	inport = 69;
+	outport = 42;
 	std::cout << __FUNCTION__ << ": About to connect port " << inport << " to " << outport << "." << std::endl;
 	rofl::cflowentry fe(dpt->get_version());
 	std::cout << "TP" << __LINE__ << std::endl;
@@ -46,7 +48,7 @@ void handle_packet_in( rofl::cofdpt *dpt, rofl::cofmsg_packet_in *msg ) {
 	std::cout << "There are now " << fe.actions.size() << " actions." << std::endl;
 	std::cout << "TP" << __LINE__ << std::endl;
 //	fe.instructions.next() = rofl::cofinst_apply_actions(dpt->get_version());
-	fe.set_out_port(outport);
+//	fe.set_out_port(outport);
 	std::cout << "TP" << __LINE__ << std::endl;
 //	fe.instructions.back().actions.next() = cofaction_output(m_dpt->get_version(), OFPP12_CONTROLLER);
 	std::cout << "TP" << __LINE__ << std::endl;
@@ -55,6 +57,9 @@ void handle_packet_in( rofl::cofdpt *dpt, rofl::cofmsg_packet_in *msg ) {
 //	fe.pack();
 	fe.set_cookie(0x1234567890ABCDEFULL);
 	std::cout << "TP" << __LINE__ << std::endl;
+	std::cout << "inport is " << (unsigned) fe.match.get_in_port() << std::endl;
+	std::cout << "match is " << fe.match << std::endl;
+	std::cout << "match is " << fe.match.c_str() << std::endl;
 	send_flow_mod_message(dpt, fe);
 	std::cout << "send_flow_mod_message() called successfully." << std::endl;
 
@@ -82,7 +87,7 @@ int main(int argc, char** argv) {
 
 	jsptest1 t;
 
-	t.rpc_listen_for_dpts(rofl::caddress(AF_INET, "0.0.0.0", 16633));
+	t.rpc_listen_for_dpts(rofl::caddress(AF_INET, "0.0.0.0", 6633));
 
 	rofl::ciosrv::run();
 
