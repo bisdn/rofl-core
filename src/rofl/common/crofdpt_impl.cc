@@ -78,6 +78,8 @@ crofdpt_impl::crofdpt_impl(
 
 crofdpt_impl::~crofdpt_impl()
 {
+	rofchan.clear();
+	transactions.clear();
 	logging::info << "[rofl][dpt] removing datapath abstraction:" << std::endl << *this;
 }
 
@@ -113,7 +115,6 @@ crofdpt_impl::run_engine(crofdpt_impl_event_t event)
 		case EVENT_GET_CONFIG_REQUEST_EXPIRED: {
 			event_get_config_request_expired();
 		} break;
-#if 0
 		case EVENT_TABLE_STATS_REPLY_RCVD: {
 			event_table_stats_reply_rcvd();
 		} break;
@@ -132,7 +133,6 @@ crofdpt_impl::run_engine(crofdpt_impl_event_t event)
 		case EVENT_PORT_DESC_STATS_REQUEST_EXPIRED: {
 			event_port_desc_request_expired();
 		} break;
-#endif
 		default: {
 			logging::error << "[rofl][dpt] unknown event seen, internal error" << std::endl << *this;
 		};
@@ -151,6 +151,7 @@ crofdpt_impl::event_connected()
 		state = STATE_CONNECTED;
 		send_features_request();
 		ports.set_version(rofchan.get_version()); // TODO: check for tables as well
+		tables.set_version(rofchan.get_version()); // TODO: check for tables as well
 	} break;
 	default: {
 		logging::error << "[rofl][dpt] event -CONNECTED- in invalid state rcvd, internal error" << std::endl << *this;
@@ -163,18 +164,10 @@ crofdpt_impl::event_connected()
 void
 crofdpt_impl::event_disconnected()
 {
-	switch (state) {
-	case STATE_ESTABLISHED: {
-		rofchan.clear();
-		rofbase->handle_dpt_close(this);
-	} return;
-	default: {
-		logging::error << "[rofl][dpt] event -DISCONNECTED- in invalid state rcvd, internal error" << std::endl << *this;
-	};
-	}
-
+	rofchan.clear();
 	transactions.clear();
 	state = STATE_DISCONNECTED;
+	register_timer(TIMER_SIGNAL_DISCONNECT, 1);
 }
 
 
@@ -207,7 +200,9 @@ crofdpt_impl::event_features_request_expired()
 {
 	switch (state) {
 	case STATE_CONNECTED: {
-		state = STATE_DISCONNECTED;
+		//state = STATE_DISCONNECTED;
+		logging::error << "[rofl][dpt] event -FEATURES-REQUEST-EXPIRED- (connected -> disconnected)" << std::endl << *this;
+		run_engine(EVENT_DISCONNECTED);
 	} break;
 	case STATE_ESTABLISHED: {
 
@@ -235,22 +230,22 @@ crofdpt_impl::event_get_config_reply_rcvd()
 
 		} break;
 		case rofl::openflow12::OFP_VERSION: {
-			//state = STATE_GET_CONFIG_RCVD;
-			state = STATE_ESTABLISHED;
+			state = STATE_GET_CONFIG_RCVD;
+			//state = STATE_ESTABLISHED;
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 							<< "Get-Config-Reply rcvd (features-reply-rcvd -> get-config-reply-rcvd)" << std::endl;
-			//send_table_stats_request(0);
-			rofbase->handle_dpath_open(*this);
+			send_table_stats_request(0);
+			//rofbase->handle_dpath_open(*this);
 
 		} break;
 		case rofl::openflow13::OFP_VERSION:
 		default: {
-			//state = STATE_GET_CONFIG_RCVD;
-			state = STATE_ESTABLISHED;
+			state = STATE_GET_CONFIG_RCVD;
+			//state = STATE_ESTABLISHED;
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 							<< "Get-Config-Reply rcvd (features-reply-rcvd -> get-config-reply-rcvd)" << std::endl;
-			//send_table_features_stats_request(0);
-			rofbase->handle_dpath_open(*this);
+			send_table_features_stats_request(0);
+			//rofbase->handle_dpath_open(*this);
 
 		} break;
 		}
@@ -275,7 +270,9 @@ crofdpt_impl::event_get_config_request_expired()
 	switch (state) {
 	case STATE_FEATURES_RCVD: {
 		transactions.clear();
-		state = STATE_DISCONNECTED;
+		//state = STATE_DISCONNECTED;
+		logging::error << "[rofl][dpt] event -GET-CONFIG-REQUEST-EXPIRED- (features-rcvd -> disconnected)" << std::endl << *this;
+		run_engine(EVENT_DISCONNECTED);
 	} break;
 	case STATE_ESTABLISHED: {
 
@@ -287,74 +284,6 @@ crofdpt_impl::event_get_config_request_expired()
 }
 
 
-#if 0
-void
-crofdpt_impl::event_port_desc_reply_rcvd()
-{
-	throw eNotImplemented();
-#if 0
-	switch (state) {
-	case STATE_FEATURES_RCVD: {
-
-		switch (rofchan.get_version()) {
-		case rofl::openflow10::OFP_VERSION: {
-			state = STATE_ESTABLISHED;
-			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
-							<< "Get-Config-Reply rcvd (features-reply-rcvd -> established)" << std::endl;
-			rofbase->handle_dpath_open(*this);
-
-		} break;
-		case rofl::openflow12::OFP_VERSION: {
-			state = STATE_GET_CONFIG_RCVD;
-			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
-							<< "Get-Config-Reply rcvd (features-reply-rcvd -> get-config-reply-rcvd)" << std::endl;
-			send_table_stats_request(0);
-
-		} break;
-		case rofl::openflow13::OFP_VERSION:
-		default: {
-			state = STATE_GET_CONFIG_RCVD;
-			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
-							<< "Get-Config-Reply rcvd (features-reply-rcvd -> get-config-reply-rcvd)" << std::endl;
-			send_table_features_stats_request(0);
-
-		} break;
-		}
-
-
-	} break;
-	case STATE_ESTABLISHED: {
-		// do nothing
-
-	} break;
-	default: {
-		logging::error << "[rofl][dpt] event -GET-CONFIG-REPLY-RCVD- in invalid state rcvd, internal error" << std::endl << *this;
-	};
-	}
-#endif
-}
-
-
-
-void
-crofdpt_impl::event_port_desc_request_expired()
-{
-	throw eNotImplemented();
-#if 0
-	switch (state) {
-	case STATE_FEATURES_RCVD: {
-		transactions.clear();
-		state = STATE_DISCONNECTED;
-	} break;
-	case STATE_ESTABLISHED: {
-
-	} break;
-	default: {
-		logging::error << "[rofl][dpt] event -GET-CONFIG-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
-	};
-	}
-#endif
-}
 
 
 
@@ -393,7 +322,10 @@ crofdpt_impl::event_table_stats_request_expired()
 {
 	switch (state) {
 	case STATE_GET_CONFIG_RCVD: {
-		state = STATE_DISCONNECTED;
+		transactions.clear();
+		//state = STATE_DISCONNECTED;
+		logging::error << "[rofl][dpt] event -TABLE-STATS-REQUEST-EXPIRED- (get-config-rcvd -> disconnected)" << std::endl << *this;
+		run_engine(EVENT_DISCONNECTED);
 	} break;
 	case STATE_ESTABLISHED: {
 		// do nothing
@@ -410,14 +342,14 @@ crofdpt_impl::event_table_features_stats_reply_rcvd()
 {
 	switch (state) {
 	case STATE_GET_CONFIG_RCVD: {
-		state = STATE_ESTABLISHED;
 
 		switch (rofchan.get_version()) {
 		case rofl::openflow13::OFP_VERSION: {
-			state = STATE_ESTABLISHED;
+			state = STATE_FEATURES_RCVD;
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
-								<< "Table-Features-Stats-Reply rcvd (get-config-rcvd -> established)" << std::endl;
-			rofbase->handle_dpt_open(this);
+								<< "Table-Features-Stats-Reply rcvd (get-config-rcvd -> table-features-rcvd)" << std::endl;
+			send_port_desc_stats_request(0);
+			//rofbase->handle_dpt_open(this);
 		} break;
 		default: {
 			// do nothing
@@ -429,7 +361,7 @@ crofdpt_impl::event_table_features_stats_reply_rcvd()
 		// do nothing
 	} break;
 	default: {
-		logging::error << "[rofl][dpt] event -GET-CONFIG-REPLY-RCVD- in invalid state rcvd, internal error" << std::endl << *this;
+		logging::error << "[rofl][dpt] event -TABLE-FEATURES-STATS-REPLY-RCVD- in invalid state rcvd, internal error" << std::endl << *this;
 	};
 	}
 }
@@ -441,17 +373,72 @@ crofdpt_impl::event_table_features_stats_request_expired()
 {
 	switch (state) {
 	case STATE_GET_CONFIG_RCVD: {
-		state = STATE_DISCONNECTED;
+		transactions.clear();
+		//state = STATE_DISCONNECTED;
+		logging::error << "[rofl][dpt] event -TABLE-FEATURES-STATS-REQUEST-EXPIRED- (get-config-rcvd -> disconnected)" << std::endl << *this;
+		run_engine(EVENT_DISCONNECTED);
 	} break;
 	case STATE_ESTABLISHED: {
 		// do nothing
 	} break;
 	default: {
-		logging::error << "[rofl][dpt] event -GET-CONFIG-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
+		logging::error << "[rofl][dpt] event -TABLE-FEATURES-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
 	};
 	}
 }
-#endif
+
+
+
+void
+crofdpt_impl::event_port_desc_reply_rcvd()
+{
+	switch (state) {
+	case STATE_TABLE_FEATURES_RCVD: {
+
+		switch (rofchan.get_version()) {
+		case rofl::openflow13::OFP_VERSION:
+		default: {
+			state = STATE_ESTABLISHED;
+			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
+							<< "Port-Desc-Stats-Reply rcvd (table-features-rcvd -> established)" << std::endl;
+			rofbase->handle_dpt_open(this);
+
+		} break;
+		}
+
+
+	} break;
+	case STATE_ESTABLISHED: {
+		// do nothing
+
+	} break;
+	default: {
+		logging::error << "[rofl][dpt] event -PORT-DESC-STATS-REPLY-RCVD- in invalid state rcvd, internal error" << std::endl << *this;
+	};
+	}
+}
+
+
+
+void
+crofdpt_impl::event_port_desc_request_expired()
+{
+	switch (state) {
+	case STATE_TABLE_FEATURES_RCVD: {
+		transactions.clear();
+		//state = STATE_DISCONNECTED;
+		logging::error << "[rofl][dpt] event -PORT-DESC-STATS-REQUEST-EXPIRED- (table-features-rcvd -> disconnected)" << std::endl << *this;
+		run_engine(EVENT_DISCONNECTED);
+	} break;
+	case STATE_ESTABLISHED: {
+
+	} break;
+	default: {
+		logging::error << "[rofl][dpt] event -PORT-DESC-STATS-REQUEST-EXPIRED- in invalid state rcvd, internal error" << std::endl << *this;
+	};
+	}
+}
+
 
 
 void
@@ -728,6 +715,9 @@ void
 crofdpt_impl::handle_timeout(int opaque, void *data)
 {
 	switch (opaque) {
+	case TIMER_SIGNAL_DISCONNECT: {
+		rofbase->handle_dpt_close(this);
+	} break;
 	default: {
 		logging::error << "[rofl][dpt] dpid:0x"
 				<< std::hex << dpid << std::dec

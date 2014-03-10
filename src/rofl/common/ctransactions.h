@@ -26,6 +26,9 @@ extern "C" {
 namespace rofl {
 namespace openflow {
 
+class eTransactionBase		: public RoflException {};
+class eTransactionNotFound	: public eTransactionBase {};
+
 class ctransactions;
 
 class ctransactions_env {
@@ -62,6 +65,12 @@ public:
 	~ctransactions();
 
 public:
+
+	/**
+	 *
+	 */
+	void
+	clear();
 
 	/**
 	 *
@@ -104,6 +113,12 @@ private:
 	virtual void
 	handle_timeout(
 			int opaque, void *data = (void*)0);
+
+	/**
+	 *
+	 */
+	void
+	get_next_ta(ctransaction& ta);
 
 	/**
 	 *

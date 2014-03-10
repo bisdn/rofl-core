@@ -9,6 +9,17 @@
 
 using namespace rofl::openflow;
 
+ctransaction::ctransaction() :
+				xid(0),
+				since(cclock::now()),
+				expires(cclock::now()),
+				msg_type(0),
+				msg_sub_type(0)
+{
+
+}
+
+
 ctransaction::ctransaction(
 		uint32_t xid,
 		cclock const& delta,

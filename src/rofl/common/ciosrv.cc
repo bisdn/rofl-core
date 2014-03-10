@@ -358,7 +358,7 @@ cioloop::run_loop()
 
 		} else if ((0 == rc)/* || (EINTR == errno)*/) {
 
-			//rofl::logging::debug << "[rofl][ciosrv][cioloop] timeout event" << std::endl;
+			rofl::logging::trace << "[rofl][ciosrv][cioloop] timeout event: " << next_timeout.first << std::endl;
 
 			next_timeout.first->__handle_timeout();
 
