@@ -345,7 +345,7 @@ crofdpt_impl::event_table_features_stats_reply_rcvd()
 
 		switch (rofchan.get_version()) {
 		case rofl::openflow13::OFP_VERSION: {
-			state = STATE_FEATURES_RCVD;
+			state = STATE_TABLE_FEATURES_RCVD;
 			logging::info << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec << "" << *this << indent(2)
 								<< "Table-Features-Stats-Reply rcvd (get-config-rcvd -> table-features-rcvd)" << std::endl;
 			send_port_desc_stats_request(0);
