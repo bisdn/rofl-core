@@ -19,7 +19,7 @@ AFA_BEGIN_DECLS
 
 /**
 * @name    cmm_notify_port_add
-* @brief   Notify the CMM that a port has been added to the system. This change shall NOT be called when a port attachment status changes.
+* @brief   Notify the CMM that a port has been added to the system. This function shall NOT be called when an exisiting port attachment status changes. When a new port is automatically attached to an LSI, then the port_add message implicitely means an attachment to an LSI.
 * @param port_snapshot Snapshot of the current state of a switch port. The snapshot MUST be deleted using switch_port_destroy_snapshot()
 * @ingroup cmm_management
 */
@@ -27,7 +27,7 @@ afa_result_t cmm_notify_port_add(switch_port_snapshot_t* port_snapshot);
 
 /**
 * @name    cmm_notify_port_delete
-* @brief   Notifies the CMM that port has been deleted from the platform. This change shall NOT be called when a port attachment status changes. A port deletion of an attached port implicitly means a detachment of the port from the LSI.
+* @brief   Notifies the CMM that port has been deleted from the platform. This function shall NOT be called when a port attachment status changes. When a port deletion happens on an attached port, then the port deletion of an attached port implicitly means a detachment of the port from the LSI.
 * @param port_snapshot Snapshot of the current state of a switch port. The snapshot MUST be deleted using switch_port_destroy_snapshot()
 * @ingroup cmm_management
 */
@@ -35,7 +35,7 @@ afa_result_t cmm_notify_port_delete(switch_port_snapshot_t* port_snapshot);
 
 /**
 * @name    cmm_notify_port_status_changed
-* @brief   Notify the CMM of a port status change. This change shall NOT be called when a port attachment status changes.
+* @brief   Notify the CMM of a port status change. This function shall NOT be called when a port attachment status changes.
 * @param port_snapshot Snapshot of the current state of a switch port. The snapshot MUST be deleted using switch_port_destroy_snapshot()
 * @ingroup cmm_management
 */
