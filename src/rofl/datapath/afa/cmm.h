@@ -27,7 +27,7 @@ afa_result_t cmm_notify_port_add(switch_port_snapshot_t* port_snapshot);
 
 /**
 * @name    cmm_notify_port_delete
-* @brief   Notifies the CMM that port has been deleted from the platform. This change shall NOT be called when a port attachment status changes. 
+* @brief   Notifies the CMM that port has been deleted from the platform. This change shall NOT be called when a port attachment status changes. A port deletion of an attached port implicitly means a detachment of the port from the LSI.
 * @param port_snapshot Snapshot of the current state of a switch port. The snapshot MUST be deleted using switch_port_destroy_snapshot()
 * @ingroup cmm_management
 */
