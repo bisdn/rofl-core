@@ -32,16 +32,16 @@ private:
 	cofflow_stats_request 		flow_stats;
 
 	union {
-		uint8_t*						ofhu_flow_stats;
-		struct openflow10::ofp_flow_stats*		ofhu10_flow_stats;
-		struct openflow12::ofp_flow_stats*		ofhu12_flow_stats;
-		// TODO: OF1.3
+		uint8_t*										ofhu_flow_stats;
+		struct rofl::openflow10::ofp_flow_stats*		ofhu10_flow_stats;
+		struct rofl::openflow12::ofp_flow_stats*		ofhu12_flow_stats;
+		struct rofl::openflow13::ofp_flow_stats*		ofhu13_flow_stats;
 	} ofhu;
 
 #define ofh_flow_stats   			ofhu.ofhu_flow_stats
 #define ofh10_flow_stats 			ofhu.ofhu10_flow_stats
 #define ofh12_flow_stats 			ofhu.ofhu12_flow_stats
-// TODO OF1.3
+#define ofh13_flow_stats 			ofhu.ofhu13_flow_stats
 
 public:
 
@@ -161,8 +161,8 @@ private:
 
 	union {
 		uint8_t*						ofhu_flow_stats;
-		struct openflow10::ofp_flow_stats*		ofhu10_flow_stats;
-		struct openflow12::ofp_flow_stats*		ofhu12_flow_stats;
+		struct rofl::openflow10::ofp_flow_stats*		ofhu10_flow_stats;
+		struct rofl::openflow12::ofp_flow_stats*		ofhu12_flow_stats;
 		// TODO: OF1.3
 	} ofhu;
 
@@ -255,12 +255,18 @@ public:
 
 public:
 
-
 	/**
 	 *
 	 */
 	std::vector<cofflow_stats_reply>&
-	get_flow_stats();
+	set_flow_stats();
+
+
+	/**
+	 *
+	 */
+	std::vector<cofflow_stats_reply> const&
+	get_flow_stats() const;
 
 
 public:

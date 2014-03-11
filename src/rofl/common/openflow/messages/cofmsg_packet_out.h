@@ -154,13 +154,25 @@ public:
 	 *
 	 */
 	cofactions&
-	get_actions();
+	set_actions();
+
+	/**
+	 *
+	 */
+	cofactions const&
+	get_actions() const;
 
 	/**
 	 *
 	 */
 	cpacket&
-	get_packet();
+	set_packet();
+
+	/**
+	 *
+	 */
+	cpacket const&
+	get_packet() const;
 
 public:
 

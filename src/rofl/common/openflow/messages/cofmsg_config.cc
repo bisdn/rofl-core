@@ -5,21 +5,21 @@ using namespace rofl;
 cofmsg_get_config_request::cofmsg_get_config_request(
 		uint8_t of_version,
 		uint32_t xid) :
-	cofmsg(sizeof(struct openflow::ofp_header))
+	cofmsg(sizeof(struct rofl::openflow::ofp_header))
 {
 	set_version(of_version);
-	set_length(sizeof(struct openflow::ofp_header));
+	set_length(sizeof(struct rofl::openflow::ofp_header));
 	set_xid(xid);
 
 	switch (of_version) {
-	case openflow10::OFP_VERSION: {
-		set_type(openflow10::OFPT_GET_CONFIG_REQUEST);
+	case rofl::openflow10::OFP_VERSION: {
+		set_type(rofl::openflow10::OFPT_GET_CONFIG_REQUEST);
 	} break;
-	case openflow12::OFP_VERSION: {
-		set_type(openflow12::OFPT_GET_CONFIG_REQUEST);
+	case rofl::openflow12::OFP_VERSION: {
+		set_type(rofl::openflow12::OFPT_GET_CONFIG_REQUEST);
 	} break;
-	case openflow13::OFP_VERSION: {
-		set_type(openflow13::OFPT_GET_CONFIG_REQUEST);
+	case rofl::openflow13::OFP_VERSION: {
+		set_type(rofl::openflow13::OFPT_GET_CONFIG_REQUEST);
 	} break;
 	default:
 		throw eBadVersion();
@@ -77,7 +77,7 @@ cofmsg_get_config_request::reset()
 size_t
 cofmsg_get_config_request::length()
 {
-	return (sizeof(struct openflow::ofp_header));
+	return (sizeof(struct rofl::openflow::ofp_header));
 }
 
 
@@ -114,13 +114,13 @@ cofmsg_get_config_request::validate()
 	cofmsg::validate(); // check generic OpenFlow header
 
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 
 	} break;
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow13::OFP_VERSION: {
 
 	} break;
 	default:
@@ -142,7 +142,7 @@ cofmsg_get_config_reply::cofmsg_get_config_reply(
 		uint32_t xid,
 		uint16_t flags,
 		uint16_t miss_send_len) :
-	cofmsg(sizeof(struct openflow::ofp_header))
+	cofmsg(sizeof(struct rofl::openflow::ofp_header))
 {
 	ofh_switch_config = soframe();
 
@@ -150,26 +150,26 @@ cofmsg_get_config_reply::cofmsg_get_config_reply(
 	set_xid(xid);
 
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
-		set_type(openflow10::OFPT_GET_CONFIG_REPLY);
-		resize(sizeof(struct openflow10::ofp_switch_config));
-		set_length(sizeof(struct openflow10::ofp_switch_config));
+	case rofl::openflow10::OFP_VERSION: {
+		set_type(rofl::openflow10::OFPT_GET_CONFIG_REPLY);
+		resize(sizeof(struct rofl::openflow10::ofp_switch_config));
+		set_length(sizeof(struct rofl::openflow10::ofp_switch_config));
 
 		ofh10_switch_config->flags 			= htobe16(flags);
 		ofh10_switch_config->miss_send_len	= htobe16(miss_send_len);
 	} break;
-	case openflow12::OFP_VERSION: {
-		set_type(openflow12::OFPT_GET_CONFIG_REPLY);
-		resize(sizeof(struct openflow12::ofp_switch_config));
-		set_length(sizeof(struct openflow12::ofp_switch_config));
+	case rofl::openflow12::OFP_VERSION: {
+		set_type(rofl::openflow12::OFPT_GET_CONFIG_REPLY);
+		resize(sizeof(struct rofl::openflow12::ofp_switch_config));
+		set_length(sizeof(struct rofl::openflow12::ofp_switch_config));
 
 		ofh12_switch_config->flags 			= htobe16(flags);
 		ofh12_switch_config->miss_send_len	= htobe16(miss_send_len);
 	} break;
-	case openflow13::OFP_VERSION: {
-		set_type(openflow13::OFPT_GET_CONFIG_REPLY);
-		resize(sizeof(struct openflow13::ofp_switch_config));
-		set_length(sizeof(struct openflow13::ofp_switch_config));
+	case rofl::openflow13::OFP_VERSION: {
+		set_type(rofl::openflow13::OFPT_GET_CONFIG_REPLY);
+		resize(sizeof(struct rofl::openflow13::ofp_switch_config));
+		set_length(sizeof(struct rofl::openflow13::ofp_switch_config));
 
 		ofh13_switch_config->flags 			= htobe16(flags);
 		ofh13_switch_config->miss_send_len	= htobe16(miss_send_len);
@@ -242,14 +242,14 @@ size_t
 cofmsg_get_config_reply::length() const
 {
 	switch (ofh_header->version) {
-	case openflow10::OFP_VERSION: {
-		return (sizeof(struct openflow10::ofp_switch_config));
+	case rofl::openflow10::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow10::ofp_switch_config));
 	} break;
-	case openflow12::OFP_VERSION: {
-		return (sizeof(struct openflow12::ofp_switch_config));
+	case rofl::openflow12::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow12::ofp_switch_config));
 	} break;
-	case openflow13::OFP_VERSION: {
-		return (sizeof(struct openflow13::ofp_switch_config));
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow13::ofp_switch_config));
 	} break;
 	default:
 		throw eBadVersion();
@@ -271,13 +271,13 @@ cofmsg_get_config_reply::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		memcpy(buf, soframe(), framelen());
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		memcpy(buf, soframe(), framelen());
 	} break;
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow13::OFP_VERSION: {
 		memcpy(buf, soframe(), framelen());
 	} break;
 	default:
@@ -305,16 +305,16 @@ cofmsg_get_config_reply::validate()
 	ofh_switch_config = soframe();
 
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
-		if (get_length() < sizeof(struct openflow10::ofp_switch_config))
+	case rofl::openflow10::OFP_VERSION: {
+		if (get_length() < sizeof(struct rofl::openflow10::ofp_switch_config))
 			throw eBadSyntaxTooShort();
 	} break;
-	case openflow12::OFP_VERSION: {
-		if (get_length() < sizeof(struct openflow12::ofp_switch_config))
+	case rofl::openflow12::OFP_VERSION: {
+		if (get_length() < sizeof(struct rofl::openflow12::ofp_switch_config))
 			throw eBadSyntaxTooShort();
 	} break;
-	case openflow13::OFP_VERSION: {
-		if (get_length() < sizeof(struct openflow13::ofp_switch_config))
+	case rofl::openflow13::OFP_VERSION: {
+		if (get_length() < sizeof(struct rofl::openflow13::ofp_switch_config))
 			throw eBadSyntaxTooShort();
 	} break;
 	default:
@@ -329,13 +329,13 @@ uint16_t
 cofmsg_get_config_reply::get_flags() const
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		return be16toh(ofh10_switch_config->flags);
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		return be16toh(ofh12_switch_config->flags);
 	} break;
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow13::OFP_VERSION: {
 		return be16toh(ofh13_switch_config->flags);
 	} break;
 	default:
@@ -350,13 +350,13 @@ void
 cofmsg_get_config_reply::set_flags(uint16_t flags)
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		ofh10_switch_config->flags = htobe16(flags);
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		ofh12_switch_config->flags = htobe16(flags);
 	} break;
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow13::OFP_VERSION: {
 		ofh13_switch_config->flags = htobe16(flags);
 	} break;
 	default:
@@ -370,13 +370,13 @@ uint16_t
 cofmsg_get_config_reply::get_miss_send_len() const
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		return be16toh(ofh10_switch_config->miss_send_len);
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		return be16toh(ofh12_switch_config->miss_send_len);
 	} break;
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow13::OFP_VERSION: {
 		return be16toh(ofh13_switch_config->miss_send_len);
 	} break;
 	default:
@@ -391,13 +391,13 @@ void
 cofmsg_get_config_reply::set_miss_send_len(uint16_t miss_send_len)
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		ofh10_switch_config->miss_send_len = htobe16(miss_send_len);
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		ofh12_switch_config->miss_send_len = htobe16(miss_send_len);
 	} break;
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow13::OFP_VERSION: {
 		ofh13_switch_config->miss_send_len = htobe16(miss_send_len);
 	} break;
 	default:
@@ -419,7 +419,7 @@ cofmsg_set_config::cofmsg_set_config(
 		uint32_t xid,
 		uint16_t flags,
 		uint16_t miss_send_len) :
-	cofmsg(sizeof(struct openflow::ofp_header))
+	cofmsg(sizeof(struct rofl::openflow::ofp_header))
 {
 	ofh_switch_config = soframe();
 
@@ -427,26 +427,26 @@ cofmsg_set_config::cofmsg_set_config(
 	set_xid(xid);
 
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
-		set_type(openflow10::OFPT_SET_CONFIG);
-		resize(sizeof(struct openflow10::ofp_switch_config));
-		set_length(sizeof(struct openflow10::ofp_switch_config));
+	case rofl::openflow10::OFP_VERSION: {
+		set_type(rofl::openflow10::OFPT_SET_CONFIG);
+		resize(sizeof(struct rofl::openflow10::ofp_switch_config));
+		set_length(sizeof(struct rofl::openflow10::ofp_switch_config));
 
 		ofh10_switch_config->flags 			= htobe16(flags);
 		ofh10_switch_config->miss_send_len	= htobe16(miss_send_len);
 	} break;
-	case openflow12::OFP_VERSION: {
-		set_type(openflow12::OFPT_SET_CONFIG);
-		resize(sizeof(struct openflow12::ofp_switch_config));
-		set_length(sizeof(struct openflow12::ofp_switch_config));
+	case rofl::openflow12::OFP_VERSION: {
+		set_type(rofl::openflow12::OFPT_SET_CONFIG);
+		resize(sizeof(struct rofl::openflow12::ofp_switch_config));
+		set_length(sizeof(struct rofl::openflow12::ofp_switch_config));
 
 		ofh12_switch_config->flags 			= htobe16(flags);
 		ofh12_switch_config->miss_send_len	= htobe16(miss_send_len);
 	} break;
-	case openflow13::OFP_VERSION: {
-		set_type(openflow13::OFPT_SET_CONFIG);
-		resize(sizeof(struct openflow13::ofp_switch_config));
-		set_length(sizeof(struct openflow13::ofp_switch_config));
+	case rofl::openflow13::OFP_VERSION: {
+		set_type(rofl::openflow13::OFPT_SET_CONFIG);
+		resize(sizeof(struct rofl::openflow13::ofp_switch_config));
+		set_length(sizeof(struct rofl::openflow13::ofp_switch_config));
 
 		ofh13_switch_config->flags 			= htobe16(flags);
 		ofh13_switch_config->miss_send_len	= htobe16(miss_send_len);
@@ -519,14 +519,14 @@ size_t
 cofmsg_set_config::length() const
 {
 	switch (ofh_header->version) {
-	case openflow10::OFP_VERSION: {
-		return (sizeof(struct openflow10::ofp_switch_config));
+	case rofl::openflow10::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow10::ofp_switch_config));
 	} break;
-	case openflow12::OFP_VERSION: {
-		return (sizeof(struct openflow12::ofp_switch_config));
+	case rofl::openflow12::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow12::ofp_switch_config));
 	} break;
-	case openflow13::OFP_VERSION: {
-		return (sizeof(struct openflow13::ofp_switch_config));
+	case rofl::openflow13::OFP_VERSION: {
+		return (sizeof(struct rofl::openflow13::ofp_switch_config));
 	} break;
 	default:
 		throw eBadVersion();
@@ -548,13 +548,13 @@ cofmsg_set_config::pack(uint8_t *buf, size_t buflen)
 		throw eInval();
 
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		memcpy(buf, soframe(), framelen());
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		memcpy(buf, soframe(), framelen());
 	} break;
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow13::OFP_VERSION: {
 		memcpy(buf, soframe(), framelen());
 	} break;
 	default:
@@ -582,16 +582,16 @@ cofmsg_set_config::validate()
 	ofh_switch_config = soframe();
 
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
-		if (get_length() < sizeof(struct openflow10::ofp_switch_config))
+	case rofl::openflow10::OFP_VERSION: {
+		if (get_length() < sizeof(struct rofl::openflow10::ofp_switch_config))
 			throw eBadSyntaxTooShort();
 	} break;
-	case openflow12::OFP_VERSION: {
-		if (get_length() < sizeof(struct openflow12::ofp_switch_config))
+	case rofl::openflow12::OFP_VERSION: {
+		if (get_length() < sizeof(struct rofl::openflow12::ofp_switch_config))
 			throw eBadSyntaxTooShort();
 	} break;
-	case openflow13::OFP_VERSION: {
-		if (get_length() < sizeof(struct openflow13::ofp_switch_config))
+	case rofl::openflow13::OFP_VERSION: {
+		if (get_length() < sizeof(struct rofl::openflow13::ofp_switch_config))
 			throw eBadSyntaxTooShort();
 	} break;
 	default:
@@ -606,13 +606,13 @@ uint16_t
 cofmsg_set_config::get_flags() const
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		return be16toh(ofh10_switch_config->flags);
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		return be16toh(ofh12_switch_config->flags);
 	} break;
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow13::OFP_VERSION: {
 		return be16toh(ofh13_switch_config->flags);
 	} break;
 	default:
@@ -627,13 +627,13 @@ void
 cofmsg_set_config::set_flags(uint16_t flags)
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		ofh10_switch_config->flags = htobe16(flags);
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		ofh12_switch_config->flags = htobe16(flags);
 	} break;
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow13::OFP_VERSION: {
 		ofh13_switch_config->flags = htobe16(flags);
 	} break;
 	default:
@@ -647,13 +647,13 @@ uint16_t
 cofmsg_set_config::get_miss_send_len() const
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		return be16toh(ofh10_switch_config->miss_send_len);
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		return be16toh(ofh12_switch_config->miss_send_len);
 	} break;
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow13::OFP_VERSION: {
 		return be16toh(ofh13_switch_config->miss_send_len);
 	} break;
 	default:
@@ -668,13 +668,13 @@ void
 cofmsg_set_config::set_miss_send_len(uint16_t miss_send_len)
 {
 	switch (get_version()) {
-	case openflow10::OFP_VERSION: {
+	case rofl::openflow10::OFP_VERSION: {
 		ofh10_switch_config->miss_send_len = htobe16(miss_send_len);
 	} break;
-	case openflow12::OFP_VERSION: {
+	case rofl::openflow12::OFP_VERSION: {
 		ofh12_switch_config->miss_send_len = htobe16(miss_send_len);
 	} break;
-	case openflow13::OFP_VERSION: {
+	case rofl::openflow13::OFP_VERSION: {
 		ofh13_switch_config->miss_send_len = htobe16(miss_send_len);
 	} break;
 	default:
