@@ -21,7 +21,7 @@ AFA_BEGIN_DECLS
 //Init&destroy forward module
 /**
 * @name    fwd_module_init
-* @brief   Initializes forward module. Before using the AFA_DRIVER routines, higher layers must allow forward module to initialize itself
+* @brief   Initialises forward module. Before using the AFA_DRIVER routines, higher layers must allow forward module to initialise itself
 * @ingroup fwd_module_management
 */
 afa_result_t fwd_module_init(void);
@@ -113,7 +113,7 @@ switch_port_name_list_t* fwd_module_get_all_port_names(void);
 switch_port_snapshot_t* fwd_module_get_port_snapshot_by_name(const char *name);
 
 /**
- * @name fwd_module_get_port_by_num_
+ * @name fwd_module_get_port_by_num
  * @brief Retrieves a snapshot of the current state of the port of the Logical Switch Instance with dpid at port_num, if exists. The snapshot MUST be deleted using switch_port_destroy_snapshot()
  * @ingroup port_management
  * @param dpid DatapathID 
@@ -126,7 +126,7 @@ switch_port_snapshot_t* fwd_module_get_port_snapshot_by_num(uint64_t dpid, unsig
 
 /**
 * @name    fwd_module_attach_physical_port_to_switch
-* @brief   Attemps to attach a system's port to switch, at port_num if defined, otherwise in the first empty port number.
+* @brief   Attempts to attach a system's port to switch, at port_num if defined, otherwise in the first empty port number.
 * @ingroup management
 *
 * @param dpid Datapath ID of the switch to attach the ports to
@@ -137,7 +137,7 @@ afa_result_t fwd_module_attach_port_to_switch(uint64_t dpid, const char* name, u
 
 /**
 * @name    fwd_module_connect_switches
-* @brief   Attemps to connect two logical switches via a virtual port. Forwarding module may or may not support this functionality. On success, the two ports must be functional and process packets. 
+* @brief   Attempts to connect two logical switches via a virtual port. Forwarding module may or may not support this functionality. On success, the two ports must be functional and process packets and the fwd_module MUST inform the CMM of the new ports via two separate port_add messages, with the appropriate information of attachment of the ports. 
 * @ingroup management
 *
 * @param dpid_lsi1 Datapath ID of the LSI1
@@ -150,7 +150,7 @@ afa_result_t fwd_module_connect_switches(uint64_t dpid_lsi1, switch_port_snapsho
 
 /**
 * @name    fwd_module_detach_port_from_switch
-* @brief   Detaches a port from the switch 
+* @brief   Detaches a port from the switch. If as a consequence of the detachment of a port, one or more ports are deleted and detached (e.g. virtual ports or links), the fwd_module MUST inform the CMM of these deletions via separate port_delete messages, with the appropriate information of attachment (marked as attached and with a valid dpid). 
 * @ingroup port_management
 *
 * @param dpid Datapath ID of the switch to detach the ports
