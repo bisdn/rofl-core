@@ -237,30 +237,30 @@ public:
 	operator<< (std::ostream& os, cofmsg_get_config_reply const& msg) {
 		std::string s_flags;
 		switch (msg.get_version()) {
-		case openflow10::OFP_VERSION: {
-			if ((msg.get_flags() & openflow10::OFPC_FRAG_DROP) == openflow10::OFPC_FRAG_NORMAL)
+		case rofl::openflow10::OFP_VERSION: {
+			if ((msg.get_flags() & rofl::openflow10::OFPC_FRAG_DROP) == rofl::openflow10::OFPC_FRAG_NORMAL)
 				s_flags.append("FRAG-NORMAL ");
-			if (msg.get_flags() & openflow10::OFPC_FRAG_DROP)
+			if (msg.get_flags() & rofl::openflow10::OFPC_FRAG_DROP)
 				s_flags.append("FRAG-DROP ");
-			if (msg.get_flags() & openflow10::OFPC_FRAG_REASM)
+			if (msg.get_flags() & rofl::openflow10::OFPC_FRAG_REASM)
 				s_flags.append("FRAG-REASM ");
 		} break;
-		case openflow12::OFP_VERSION: {
-			if ((msg.get_flags() & openflow12::OFPC_FRAG_DROP) == openflow12::OFPC_FRAG_NORMAL)
+		case rofl::openflow12::OFP_VERSION: {
+			if ((msg.get_flags() & rofl::openflow12::OFPC_FRAG_DROP) == rofl::openflow12::OFPC_FRAG_NORMAL)
 				s_flags.append("FRAG-NORMAL ");
-			if (msg.get_flags() & openflow12::OFPC_FRAG_DROP)
+			if (msg.get_flags() & rofl::openflow12::OFPC_FRAG_DROP)
 				s_flags.append("FRAG-DROP ");
-			if (msg.get_flags() & openflow12::OFPC_FRAG_REASM)
+			if (msg.get_flags() & rofl::openflow12::OFPC_FRAG_REASM)
 				s_flags.append("FRAG-REASM ");
-			if (msg.get_flags() & openflow12::OFPC_INVALID_TTL_TO_CONTROLLER)
+			if (msg.get_flags() & rofl::openflow12::OFPC_INVALID_TTL_TO_CONTROLLER)
 				s_flags.append("INVALID-TTL-TO-CONTROLLER ");
 		} break;
-		case openflow13::OFP_VERSION: {
-			if ((msg.get_flags() & openflow13::OFPC_FRAG_DROP) == openflow13::OFPC_FRAG_NORMAL)
+		case rofl::openflow13::OFP_VERSION: {
+			if ((msg.get_flags() & rofl::openflow13::OFPC_FRAG_DROP) == rofl::openflow13::OFPC_FRAG_NORMAL)
 				s_flags.append("FRAG-NORMAL ");
-			if (msg.get_flags() & openflow13::OFPC_FRAG_DROP)
+			if (msg.get_flags() & rofl::openflow13::OFPC_FRAG_DROP)
 				s_flags.append("FRAG-DROP ");
-			if (msg.get_flags() & openflow13::OFPC_FRAG_REASM)
+			if (msg.get_flags() & rofl::openflow13::OFPC_FRAG_REASM)
 				s_flags.append("FRAG-REASM ");
 		} break;
 		default:
@@ -413,30 +413,30 @@ public:
 	operator<< (std::ostream& os, cofmsg_set_config const& msg) {
 		std::string s_flags;
 		switch (msg.get_version()) {
-		case openflow10::OFP_VERSION: {
-			if ((msg.get_flags() & openflow10::OFPC_FRAG_DROP) == openflow10::OFPC_FRAG_NORMAL)
+		case rofl::openflow10::OFP_VERSION: {
+			if ((msg.get_flags() & rofl::openflow10::OFPC_FRAG_DROP) == rofl::openflow10::OFPC_FRAG_NORMAL)
 				s_flags.append("FRAG-NORMAL ");
-			if (msg.get_flags() & openflow10::OFPC_FRAG_DROP)
+			if (msg.get_flags() & rofl::openflow10::OFPC_FRAG_DROP)
 				s_flags.append("FRAG-DROP ");
-			if (msg.get_flags() & openflow10::OFPC_FRAG_REASM)
+			if (msg.get_flags() & rofl::openflow10::OFPC_FRAG_REASM)
 				s_flags.append("FRAG-REASM ");
 		} break;
-		case openflow12::OFP_VERSION: {
-			if ((msg.get_flags() & openflow12::OFPC_FRAG_DROP) == openflow12::OFPC_FRAG_NORMAL)
+		case rofl::openflow12::OFP_VERSION: {
+			if ((msg.get_flags() & rofl::openflow12::OFPC_FRAG_DROP) == rofl::openflow12::OFPC_FRAG_NORMAL)
 				s_flags.append("FRAG-NORMAL ");
-			if (msg.get_flags() & openflow12::OFPC_FRAG_DROP)
+			if (msg.get_flags() & rofl::openflow12::OFPC_FRAG_DROP)
 				s_flags.append("FRAG-DROP ");
-			if (msg.get_flags() & openflow12::OFPC_FRAG_REASM)
+			if (msg.get_flags() & rofl::openflow12::OFPC_FRAG_REASM)
 				s_flags.append("FRAG-REASM ");
-			if (msg.get_flags() & openflow12::OFPC_INVALID_TTL_TO_CONTROLLER)
+			if (msg.get_flags() & rofl::openflow12::OFPC_INVALID_TTL_TO_CONTROLLER)
 				s_flags.append("INVALID-TTL-TO-CONTROLLER ");
 		} break;
-		case openflow13::OFP_VERSION: {
-			if ((msg.get_flags() & openflow13::OFPC_FRAG_DROP) == openflow13::OFPC_FRAG_NORMAL)
+		case rofl::openflow13::OFP_VERSION: {
+			if ((msg.get_flags() & rofl::openflow13::OFPC_FRAG_DROP) == rofl::openflow13::OFPC_FRAG_NORMAL)
 				s_flags.append("FRAG-NORMAL ");
-			if (msg.get_flags() & openflow13::OFPC_FRAG_DROP)
+			if (msg.get_flags() & rofl::openflow13::OFPC_FRAG_DROP)
 				s_flags.append("FRAG-DROP ");
-			if (msg.get_flags() & openflow13::OFPC_FRAG_REASM)
+			if (msg.get_flags() & rofl::openflow13::OFPC_FRAG_REASM)
 				s_flags.append("FRAG-REASM ");
 		} break;
 		default:

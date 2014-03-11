@@ -1126,7 +1126,7 @@ namespace openflow13 {
 		OFPMP_EXPERIMENTER = 0xffff
 	};
 
-
+#if 0
 	struct ofp_stats_request {
 		struct ofp_header header;
 		uint16_t type;              /* One of the OFPST_* constants. */
@@ -1148,7 +1148,7 @@ namespace openflow13 {
 		uint8_t body[0];            /* Body of the reply. */
 	};
 	OFP_ASSERT(sizeof(struct ofp_stats_reply) == 16);
-
+#endif
 
 	/*
 	 * 7.3.5.1 Description

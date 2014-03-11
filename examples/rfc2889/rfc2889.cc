@@ -99,7 +99,7 @@ etherswitch::handle_flow_stats_reply(crofdpt& dpt, cofmsg_flow_stats_reply& msg,
 		return;
 	}
 
-	std::vector<cofflow_stats_reply>& replies = msg.get_flow_stats();
+	std::vector<cofflow_stats_reply>& replies = msg.set_flow_stats();
 
 	std::vector<cofflow_stats_reply>::iterator it;
 	for (it = replies.begin(); it != replies.end(); ++it) {
