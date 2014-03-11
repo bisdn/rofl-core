@@ -112,18 +112,28 @@ switch_port_name_list_t* fwd_module_get_all_port_names(void);
  */
 switch_port_snapshot_t* fwd_module_get_port_snapshot_by_name(const char *name);
 
+/**
+ * @name fwd_module_get_port_by_num_
+ * @brief Retrieves a snapshot of the current state of the port of the Logical Switch Instance with dpid at port_num, if exists. The snapshot MUST be deleted using switch_port_destroy_snapshot()
+ * @ingroup port_management
+ * @param dpid DatapathID 
+ * @param port_num Port number
+ */
+switch_port_snapshot_t* fwd_module_get_port_snapshot_by_num(uint64_t dpid, unsigned int port_num);
+
+
 //Attachment
 
 /**
 * @name    fwd_module_attach_physical_port_to_switch
-* @brief   Attemps to attach a system's port to switch, at of_port_num if defined, otherwise in the first empty OF port number.
+* @brief   Attemps to attach a system's port to switch, at port_num if defined, otherwise in the first empty port number.
 * @ingroup management
 *
 * @param dpid Datapath ID of the switch to attach the ports to
 * @param name Port name (system's name)
-* @param of_port_num If *of_port_num is non-zero, try to attach to of_port_num of the logical switch, otherwise try to attach to the first available port and return the result in of_port_num
+* @param port_num If *port_num is non-zero, try to attach to port_num of the logical switch, otherwise try to attach to the first available port and return the result in port_num
 */
-afa_result_t fwd_module_attach_port_to_switch(uint64_t dpid, const char* name, unsigned int* of_port_num);
+afa_result_t fwd_module_attach_port_to_switch(uint64_t dpid, const char* name, unsigned int* port_num);
 
 /**
 * @name    fwd_module_connect_switches
@@ -154,15 +164,15 @@ afa_result_t fwd_module_detach_port_from_switch(uint64_t dpid, const char* name)
 * @ingroup port_management
 *
 * @param dpid Datapath ID of the switch to detach the ports
-* @param of_port_num Number of the port (OF number) 
+* @param port_num Port number 
 */
-afa_result_t fwd_module_detach_port_from_switch_at_port_num(uint64_t dpid, const unsigned int of_port_num);
+afa_result_t fwd_module_detach_port_from_switch_at_port_num(uint64_t dpid, const unsigned int port_num);
 
 //Port control
 
 /**
 * @name    fwd_module_bring_port_up
-* @brief   Brings up a system port. If the port is attached to an OF logical switch, this also schedules port for I/O and triggers PORTMOD message. 
+* @brief   Brings up a system's port. The function shall call the CMM with the appropriate port_status_changed message. 
 * @ingroup port_management
 *
 * @param name Port system name 
@@ -171,7 +181,7 @@ afa_result_t fwd_module_bring_port_up(const char* name);
 
 /**
 * @name    fwd_module_bring_port_down
-* @brief   Shutdowns (brings down) a system port. If the port is attached to an OF logical switch, this also de-schedules port and triggers PORTMOD message. 
+* @brief   Brings down a system's port. The function shall call the CMM with the appropriate port_status_changed message. 
 * @ingroup port_management
 *
 * @param name Port system name 
@@ -180,21 +190,21 @@ afa_result_t fwd_module_bring_port_down(const char* name);
 
 /**
 * @name    fwd_module_bring_port_up_by_num
-* @brief   Brings up a port from an OF logical switch (and the underlying physical interface). This function also triggers the PORTMOD message 
+* @brief   Brings up a port from a Logical Switch Instance. The function shall call the CMM with the appropriate port_status_changed message. 
 * @ingroup port_management
 *
 * @param dpid DatapathID 
-* @param port_num OF port number
+* @param port_num Port number
 */
 afa_result_t fwd_module_bring_port_up_by_num(uint64_t dpid, unsigned int port_num);
 
 /**
 * @name    fwd_module_bring_port_down_by_num
-* @brief   Brings down a port from an OF logical switch (and the underlying physical interface). This also triggers the PORTMOD message.
+* @brief   Brings down a port from a Logical Switch Instance. The function shall call the CMM with the appropriate port_status_changed message.
 * @ingroup port_management
 *
 * @param dpid DatapathID 
-* @param port_num OF port number
+* @param port_num Port number
 */
 afa_result_t fwd_module_bring_port_down_by_num(uint64_t dpid, unsigned int port_num);
 
