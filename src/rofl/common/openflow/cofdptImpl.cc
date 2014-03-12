@@ -339,7 +339,11 @@ void
 cofdptImpl::handle_message(
 		cmemory *mem)
 {
+// static unsigned int counter = 0;
+// unsigned int instance = counter++;
+// std::cout << __FILE__ << " JSP" << instance << "@" << __LINE__ << std::endl;
 	cofmsg *msg = (cofmsg*)0;
+// std::cout << __FILE__ << " JSP" << instance << "@" << __LINE__ << std::endl;
 
 	try {
 		if (0 == mem) {
@@ -347,9 +351,9 @@ cofdptImpl::handle_message(
 					"assert(msg != 0) failed", this);
 			return;
 		}
-
+// std::cout << __FILE__ << " JSP" << instance << "@" << __LINE__ << std::endl;
 		struct ofp_header* ofh_header = (struct ofp_header*)mem->somem();
-
+// std::cout << __FILE__ << " JSP" << instance << "@" << __LINE__ << std::endl;
 		const uint8_t OFPT_HELLO = 0;
 
 		if (not flags.test(COFDPT_FLAG_HELLO_RCVD) && (OFPT_HELLO != ofh_header->type)) {
@@ -357,7 +361,7 @@ cofdptImpl::handle_message(
 				"no HELLO rcvd yet, dropping message, msg: %s", this, mem->c_str());
 			delete mem; return;
 		}
-
+// std::cout << __FILE__ << "JSP" << instance << "@" << __LINE__ << " ofp_version is " << (unsigned) ofp_version << " ofh_header->type is " << (unsigned)ofh_header->type << std::endl;
 		switch (ofp_version) {
 		case OFP10_VERSION: {
 
@@ -395,9 +399,13 @@ cofdptImpl::handle_message(
 				get_config_reply_rcvd(dynamic_cast<cofmsg_get_config_reply*>( msg ));
 			} break;
 			case OFPT10_PACKET_IN: {
+// std::cout << __FILE__ << " JSP" << instance << "@" << __LINE__ << std::endl;
 				msg = new cofmsg_packet_in(mem);
+// std::cout << __FILE__ << " JSP" << instance << "@" << __LINE__ << std::endl;
 				msg->validate();
+// std::cout << __FILE__ << " JSP" << instance << "@" << __LINE__ << std::endl;
 				packet_in_rcvd(dynamic_cast<cofmsg_packet_in*>( msg ));
+// std::cout << __FILE__ << " JSP" << instance << "@" << __LINE__ << std::endl;
 			} break;
 			case OFPT10_FLOW_REMOVED: {
 				msg = new cofmsg_flow_removed(mem);
@@ -637,6 +645,7 @@ cofdptImpl::handle_message(
 
 		} break;
 		default:
+// std::cout << __FILE__ << " JSP" << instance << "@" << __LINE__ << std::endl;
 			throw eBadVersion();
 		}
 
@@ -650,7 +659,7 @@ cofdptImpl::handle_message(
 
 		delete msg;
 	} catch (eBadVersion& e) {
-
+// std::cout << __FILE__ << " JSP" << instance << "@" << __LINE__ << std::endl;
 		writelog(COFCTL, WARN, "cofdpt(%p)::handle_message() "
 				"ofp_header.version not supported, pack: %s", this, mem->c_str());
 

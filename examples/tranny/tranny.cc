@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <string>
 #include <unistd.h>
 
 #include "tranny.h"
@@ -16,6 +17,18 @@
 
 // OF10 not supported until I can either get an OF10 version of rofl::send_flow_mod_message, or access crofbase::xids_used
 #define PROXYOFPVERSION OFP10_VERSION		// OFP10_VERSION or OFP12_VERSION
+
+std::string action_mask_to_string(const uint32_t action_types) {
+	std::string out;
+	static const uint32_t vals[] = { OFP10AT_OUTPUT, OFP10AT_SET_VLAN_VID, OFP10AT_SET_VLAN_PCP, OFP10AT_STRIP_VLAN, OFP10AT_SET_DL_SRC, OFP10AT_SET_DL_DST, OFP10AT_SET_NW_SRC, OFP10AT_SET_NW_DST, OFP10AT_SET_NW_TOS, OFP10AT_SET_TP_SRC, OFP10AT_SET_TP_DST, OFP10AT_ENQUEUE };
+	static const std::string names[] = { "OFP10AT_OUTPUT", "OFP10AT_SET_VLAN_VID", "OFP10AT_SET_VLAN_PCP", "OFP10AT_STRIP_VLAN", "OFP10AT_SET_DL_SRC", "OFP10AT_SET_DL_DST", "OFP10AT_SET_NW_SRC", "OFP10AT_SET_NW_DST", "OFP10AT_SET_NW_TOS", "OFP10AT_SET_TP_SRC", "OFP10AT_SET_TP_DST", "OFP10AT_ENQUEUE" };
+	static const size_t N = sizeof(vals)/sizeof(vals[0]);
+	for(size_t i=0;i<N;++i) {
+		if(action_types & (1<<vals[i])) out += names[i] + " ";
+	}
+	return out;
+}
+
 
 ctranslator::ctranslator():rofl::crofbase (1 <<  PROXYOFPVERSION),m_slave(0),m_master(0) {
 //ctranslator::ctranslator():rofl::crofbase ((1 << OFP10_VERSION)|(1 <<  OFP12_VERSION)),m_slave(0),m_master(0),m_of_version(OFP12_VERSION) {
@@ -65,6 +78,224 @@ void ctranslator::handle_dpath_close (rofl::cofdpt *dpt) {
 	m_slave=0;	// TODO - m_slave ownership?
 }
 
+void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << "." << std::endl;
+	rofl::cflowentry entry(OFP10_VERSION);
+	try {
+	BOOST_PP_SEQ_FOR_EACH( CLONECMD, ((*msg))(entry), (command)(idle_timeout)(hard_timeout)(cookie)(priority)(buffer_id)(out_port)(flags) )
+		send_flow_mod_message( m_slave, entry );
+		} catch (rofl::cerror &e) {
+		std::cout << func << ": caught " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;
+	}
+	delete(msg);
+}
+
+void ctranslator::handle_features_request(rofl::cofctl *ctl, rofl::cofmsg_features_request *pack) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+	uint32_t masterxid = pack->get_xid();
+	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: ctranslator::handle_features_request : xid from incoming cofmsg_features_request already exists in m_mxid_sxid" << std::endl;
+	// send features request
+	if(m_slave) {
+		uint32_t myxid = send_features_request(m_slave);
+		std::cout << "handle_features_request called send_features_request(" << m_slave->c_str() << ")." << std::endl;
+		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: ctranslator::handle_features_request : xid from send_features_request already exists in m_sxid_mxid" << std::endl;
+		m_mxid_sxid[masterxid]=myxid;
+		m_sxid_mxid[myxid]=masterxid;
+	} else std::cout << "handle_features_request from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
+}
+
+void ctranslator::handle_features_reply(rofl::cofdpt * dpt, rofl::cofmsg_features_reply * msg ) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << dpt->c_str() << " : " << msg->c_str() << std::endl;
+	uint32_t actions = msg->get_actions_bitmap();
+	uint32_t myxid = msg->get_xid();
+	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
+	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: ctranslator::handle_features_reply : xid from reply doesn't exist in m_sxid_mxid" << std::endl; return; }
+	uint32_t orig_xid = map_it->second;
+	
+	// Now, remove VLAN setters and queue features from actions
+	std::cout << func << ": Features reply (" << std::hex << actions << std::dec << "): " <<  action_mask_to_string(actions) << std::endl;
+	// make changes to actions
+	actions &= ~((uint32_t)(1<<OFP10AT_ENQUEUE));
+	actions &= ~((uint32_t)(1<<OFP10AT_SET_VLAN_VID));
+	actions &= ~((uint32_t)(1<<OFP10AT_SET_VLAN_PCP));
+	std::cout << func << ": New features are (" << std::hex << actions << std::dec << "): " <<  action_mask_to_string(actions) << std::endl;
+	
+	send_features_reply(m_master, orig_xid, m_dpid, msg->get_n_buffers(), msg->get_n_tables(), msg->get_capabilities(), 0, msg->get_actions_bitmap(), msg->get_ports() );	// TODO get_action_bitmap is OF1.0 only
+	std::cout << "handle_features_reply: sent features reply to " << m_master->c_str() << "." << std::endl;
+	m_sxid_mxid.erase(map_it);
+	m_mxid_sxid.erase(orig_xid);
+	delete(msg);
+}
+void ctranslator::handle_get_config_request(rofl::cofctl *ctl, rofl::cofmsg_get_config_request *msg) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << std::endl;
+	uint32_t masterxid = msg->get_xid();
+	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming cofmsg_get_config_request already exists in m_mxid_sxid" << std::endl;
+	if(m_slave) {
+		uint32_t myxid = send_get_config_request(m_slave);
+		std::cout << func << " called send_get_config_request(" << m_slave->c_str() << ")." << std::endl;
+		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from send_get_config_request already exists in m_sxid_mxid" << std::endl;
+		m_mxid_sxid[masterxid]=myxid;
+		m_sxid_mxid[myxid]=masterxid;
+	} else std::cout << func << " from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
+	delete(msg);
+}
+
+void ctranslator::handle_get_config_reply(rofl::cofdpt * dpt, rofl::cofmsg_get_config_reply * msg ) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << dpt->c_str() << " : " << msg->c_str() << std::endl;
+	uint32_t myxid = msg->get_xid();
+	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
+	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
+	uint32_t orig_xid = map_it->second;
+	send_get_config_reply(m_master, orig_xid, msg->get_flags(), msg->get_miss_send_len() );
+	std::cout << func << " : sent features reply to " << m_master->c_str() << "." << std::endl;
+	m_sxid_mxid.erase(map_it);
+	m_mxid_sxid.erase(orig_xid);
+	delete(msg);
+}
+
+void ctranslator::handle_desc_stats_request(rofl::cofctl *ctl, rofl::cofmsg_desc_stats_request *msg) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << std::endl;
+	uint32_t masterxid = msg->get_xid();
+	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming cofmsg_desc_stats_request already exists in m_mxid_sxid" << std::endl;
+	if(m_slave) {
+		uint32_t myxid = send_desc_stats_request(m_slave, msg->get_stats_flags());
+		std::cout << func << " called send_desc_stats_request(" << m_slave->c_str() << " ..)." << std::endl;
+		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from send_desc_stats_request already exists in m_sxid_mxid" << std::endl;
+		m_mxid_sxid[masterxid]=myxid;
+		m_sxid_mxid[myxid]=masterxid;
+	} else std::cout << func << " from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
+	delete(msg);
+}
+
+void ctranslator::handle_desc_stats_reply(rofl::cofdpt * dpt, rofl::cofmsg_desc_stats_reply * msg) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << dpt->c_str() << " : " << msg->c_str() << std::endl;
+	uint32_t myxid = msg->get_xid();
+	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
+	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
+	uint32_t orig_xid = map_it->second;
+	// TODO this bit below is wrong, but I cannot find a proper description of cofmsg_desc_stats_reply to get the information from it
+	rofl::cofdesc_stats_reply reply(dpt->get_version(),"tranny_mfr_desc","tranny_hw_desc","tranny_sw_desc","tranny_serial_num","tranny_dp_desc");
+	send_desc_stats_reply(m_master, orig_xid, reply, false );
+	std::cout << func << " : sent desc stats reply to " << m_master->c_str() << "." << std::endl;
+	m_sxid_mxid.erase(map_it);
+	m_mxid_sxid.erase(orig_xid);
+	delete(msg);
+}
+
+// "Called once an EXPERIMENTER.message was received from a controller entity. ".. or is it? The docs are wrong on this one.
+void ctranslator::handle_set_config(rofl::cofctl *ctl, rofl::cofmsg_set_config *msg) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << std::endl;
+	send_set_config_message(m_slave, msg->get_flags(), msg->get_miss_send_len());
+	std::cout << func << " : sent set_config_message to " << m_slave->c_str() << "." << std::endl;
+	delete (msg);	
+}
+
+void ctranslator::handle_table_stats_request(rofl::cofctl *ctl, rofl::cofmsg_table_stats_request *msg) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << std::endl;
+}
+void ctranslator::handle_port_stats_request(rofl::cofctl *ctl, rofl::cofmsg_port_stats_request *pack) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+}
+void ctranslator::handle_flow_stats_request(rofl::cofctl *ctl, rofl::cofmsg_flow_stats_request *pack) {
+// see ./examples/etherswitch/etherswitch.cc:95
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+}
+void ctranslator::handle_aggregate_stats_request(rofl::cofctl *ctl, rofl::cofmsg_aggr_stats_request *pack) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+}
+void ctranslator::handle_queue_stats_request(rofl::cofctl *ctl, rofl::cofmsg_queue_stats_request *pack) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+}
+void ctranslator::handle_experimenter_stats_request(rofl::cofctl *ctl, rofl::cofmsg_stats_request *pack) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+}
+
+void ctranslator::handle_packet_in(rofl::cofdpt *dpt, rofl::cofmsg_packet_in * msg) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << dpt->c_str() << " : " << msg->c_str() << "\n" << *msg << std::endl;
+	// forward packet to master
+std::cout << "TP" << __LINE__ << std::endl;
+	rofl::cofmatch match(msg->get_match_const());
+std::cout << "TP" << __LINE__ << "match found to be " << match.c_str() << std::endl;	
+std::cout << "TP" << __LINE__ << std::endl;
+	rofl::cpacket packet(msg->get_packet());
+std::cout << "TP" << __LINE__ << std::endl;
+	send_packet_in_message(m_master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
+	std::cout << func << " : packet_in forwarded to " << m_master->c_str() << "." << std::endl;
+#if 0
+std::cout << "TP" << __LINE__ << std::endl;
+	std::cout << "dpt version is " << (unsigned)dpt->get_version() << std::endl;
+std::cout << "TP" << __LINE__ << std::endl;
+//	send_packet_in_message(m_master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), msg->get_table_id(), msg->get_cookie(), msg->get_in_port(), match, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
+		uint32_t  	buffer_id_ = msg->get_buffer_id();
+std::cout << "TP" << __LINE__ << std::endl;
+		uint16_t  	total_len_ = msg->get_total_len();
+std::cout << "TP" << __LINE__ << std::endl;
+		uint8_t  	reason_ = msg->get_reason();
+//		uint8_t  	table_id,
+std::cout << "TP" << __LINE__ << std::endl;
+//		uint64_t  	cookie_ = msg->get_cookie();
+uint64_t  	cookie_ = 0;
+std::cout << "TP" << __LINE__ << std::endl;
+		uint16_t  	in_port_ = msg->get_in_port();
+std::cout << "TP" << __LINE__ << std::endl;
+	send_packet_in_message(m_master, buffer_id_, total_len_, reason_, 0, cookie_, in_port_, match, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
+std::cout << "TP" << __LINE__ << std::endl;
+#endif
+
+	delete(msg);
+}
+void ctranslator::handle_packet_out(rofl::cofctl *ctl, rofl::cofmsg_packet_out *pack) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+	rofl::cofaclist actions(pack->get_actions());
+	std::cout << "TP" << __LINE__ << std::endl;
+	rofl::cpacket packet(pack->get_packet());
+	std::cout << "TP" << __LINE__ << std::endl;
+	send_packet_out_message(m_slave, pack->get_buffer_id(), pack->get_in_port(), actions, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
+	std::cout << "TP" << __LINE__ << std::endl;
+	delete(pack);
+}
+void ctranslator::handle_barrier_request(rofl::cofctl *ctl, rofl::cofmsg_barrier_request *pack) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+}
+void ctranslator::handle_table_mod(rofl::cofctl *ctl, rofl::cofmsg_table_mod *pack) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+}
+void ctranslator::handle_port_mod(rofl::cofctl *ctl, rofl::cofmsg_port_mod *pack) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+}
+void ctranslator::handle_queue_get_config_request(rofl::cofctl *ctl, rofl::cofmsg_queue_get_config_request *pack) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+}
+void ctranslator::handle_experimenter_message(rofl::cofctl *ctl, rofl::cofmsg_features_request *pack) {
+	static const char * func = __FUNCTION__;
+	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
+}
+
+
+
+
+
+#if 0
 // this function will take a flow_mod message and repackage and send it to the DPE
 void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg) {
 	static const char * func = __FUNCTION__;
@@ -172,7 +403,7 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 
 	
 }
-
+#endif
 
 #if 0
 void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg) {
@@ -349,149 +580,5 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 }
 #endif
 
-void ctranslator::handle_features_request(rofl::cofctl *ctl, rofl::cofmsg_features_request *pack) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
-	uint32_t masterxid = pack->get_xid();
-	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: ctranslator::handle_features_request : xid from incoming cofmsg_features_request already exists in m_mxid_sxid" << std::endl;
-	// send features request
-	if(m_slave) {
-		uint32_t myxid = send_features_request(m_slave);
-		std::cout << "handle_features_request called send_features_request(" << m_slave->c_str() << ")." << std::endl;
-		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: ctranslator::handle_features_request : xid from send_features_request already exists in m_sxid_mxid" << std::endl;
-		m_mxid_sxid[masterxid]=myxid;
-		m_sxid_mxid[myxid]=masterxid;
-	} else std::cout << "handle_features_request from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
-}
 
-void ctranslator::handle_features_reply(rofl::cofdpt * dpt, rofl::cofmsg_features_reply * msg ) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << dpt->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t myxid = msg->get_xid();
-	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
-	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: ctranslator::handle_features_reply : xid from reply doesn't exist in m_sxid_mxid" << std::endl; return; }
-	uint32_t orig_xid = map_it->second;
-	send_features_reply(m_master, orig_xid, m_dpid, msg->get_n_buffers(), msg->get_n_tables(), msg->get_capabilities(), 0, msg->get_actions_bitmap(), msg->get_ports() );	// TODO get_action_bitmap is OF1.0 only
-	std::cout << "handle_features_reply: sent features reply to " << m_master->c_str() << "." << std::endl;
-	m_sxid_mxid.erase(map_it);
-	m_mxid_sxid.erase(orig_xid);
-	delete(msg);
-}
-void ctranslator::handle_get_config_request(rofl::cofctl *ctl, rofl::cofmsg_get_config_request *msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t masterxid = msg->get_xid();
-	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming cofmsg_get_config_request already exists in m_mxid_sxid" << std::endl;
-	if(m_slave) {
-		uint32_t myxid = send_get_config_request(m_slave);
-		std::cout << func << " called send_get_config_request(" << m_slave->c_str() << ")." << std::endl;
-		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from send_get_config_request already exists in m_sxid_mxid" << std::endl;
-		m_mxid_sxid[masterxid]=myxid;
-		m_sxid_mxid[myxid]=masterxid;
-	} else std::cout << func << " from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
-	delete(msg);
-}
 
-void ctranslator::handle_get_config_reply(rofl::cofdpt * dpt, rofl::cofmsg_get_config_reply * msg ) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << dpt->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t myxid = msg->get_xid();
-	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
-	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
-	uint32_t orig_xid = map_it->second;
-	send_get_config_reply(m_master, orig_xid, msg->get_flags(), msg->get_miss_send_len() );
-	std::cout << func << " : sent features reply to " << m_master->c_str() << "." << std::endl;
-	m_sxid_mxid.erase(map_it);
-	m_mxid_sxid.erase(orig_xid);
-	delete(msg);
-}
-
-void ctranslator::handle_desc_stats_request(rofl::cofctl *ctl, rofl::cofmsg_desc_stats_request *msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t masterxid = msg->get_xid();
-	if(m_mxid_sxid.find(masterxid)!=m_mxid_sxid.end()) std::cout << "ERROR: " << func << " : xid from incoming cofmsg_desc_stats_request already exists in m_mxid_sxid" << std::endl;
-	if(m_slave) {
-		uint32_t myxid = send_desc_stats_request(m_slave, msg->get_stats_flags());
-		std::cout << func << " called send_desc_stats_request(" << m_slave->c_str() << " ..)." << std::endl;
-		if(m_sxid_mxid.find(myxid)!=m_sxid_mxid.end()) std::cout << "ERROR: " << func << " : xid from send_desc_stats_request already exists in m_sxid_mxid" << std::endl;
-		m_mxid_sxid[masterxid]=myxid;
-		m_sxid_mxid[myxid]=masterxid;
-	} else std::cout << func << " from " << ctl->c_str() << " dropped because no connection to datapath present." << std::endl;
-	delete(msg);
-}
-
-void ctranslator::handle_desc_stats_reply(rofl::cofdpt * dpt, rofl::cofmsg_desc_stats_reply * msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << dpt->c_str() << " : " << msg->c_str() << std::endl;
-	uint32_t myxid = msg->get_xid();
-	xid_map_t::iterator map_it = m_sxid_mxid.find(myxid);
-	if(map_it==m_sxid_mxid.end()) { std::cout << "ERROR: " << func << " : xid from slave's reply doesn't exist in m_sxid_mxid" << std::endl; return; }
-	uint32_t orig_xid = map_it->second;
-	// TODO this bit below is wrong, but I cannot find a proper description of cofmsg_desc_stats_reply to get the information from it
-	rofl::cofdesc_stats_reply reply(dpt->get_version(),"tranny_mfr_desc","tranny_hw_desc","tranny_sw_desc","tranny_serial_num","tranny_dp_desc");
-	send_desc_stats_reply(m_master, orig_xid, reply, false );
-	std::cout << func << " : sent desc stats reply to " << m_master->c_str() << "." << std::endl;
-	m_sxid_mxid.erase(map_it);
-	m_mxid_sxid.erase(orig_xid);
-	delete(msg);
-}
-
-// "Called once an EXPERIMENTER.message was received from a controller entity. ".. or is it? The docs are wrong on this one.
-void ctranslator::handle_set_config(rofl::cofctl *ctl, rofl::cofmsg_set_config *msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << std::endl;
-	send_set_config_message(m_slave, msg->get_flags(), msg->get_miss_send_len());
-	std::cout << func << " : sent set_config_message to " << m_slave->c_str() << "." << std::endl;
-	delete (msg);	
-}
-
-void ctranslator::handle_table_stats_request(rofl::cofctl *ctl, rofl::cofmsg_table_stats_request *msg) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << std::endl;
-}
-void ctranslator::handle_port_stats_request(rofl::cofctl *ctl, rofl::cofmsg_port_stats_request *pack) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
-}
-void ctranslator::handle_flow_stats_request(rofl::cofctl *ctl, rofl::cofmsg_flow_stats_request *pack) {
-// see ./examples/etherswitch/etherswitch.cc:95
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
-}
-void ctranslator::handle_aggregate_stats_request(rofl::cofctl *ctl, rofl::cofmsg_aggr_stats_request *pack) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
-}
-void ctranslator::handle_queue_stats_request(rofl::cofctl *ctl, rofl::cofmsg_queue_stats_request *pack) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
-}
-void ctranslator::handle_experimenter_stats_request(rofl::cofctl *ctl, rofl::cofmsg_stats_request *pack) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
-}
-void ctranslator::handle_packet_out(rofl::cofctl *ctl, rofl::cofmsg_packet_out *pack) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
-}
-void ctranslator::handle_barrier_request(rofl::cofctl *ctl, rofl::cofmsg_barrier_request *pack) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
-}
-void ctranslator::handle_table_mod(rofl::cofctl *ctl, rofl::cofmsg_table_mod *pack) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
-}
-void ctranslator::handle_port_mod(rofl::cofctl *ctl, rofl::cofmsg_port_mod *pack) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
-}
-void ctranslator::handle_queue_get_config_request(rofl::cofctl *ctl, rofl::cofmsg_queue_get_config_request *pack) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
-}
-void ctranslator::handle_experimenter_message(rofl::cofctl *ctl, rofl::cofmsg_features_request *pack) {
-	static const char * func = __FUNCTION__;
-	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
-}

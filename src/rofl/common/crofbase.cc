@@ -1658,15 +1658,15 @@ crofbase::send_packet_in_message(
 
 		WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 				"ofctrl_list.size()=%d", this, ofctl_set.size());
-
+// std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
 		cpacket n_pack(data, datalen, match.get_in_port());
-
+// std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
 		if (0 != ctl) { // cofctl instance was specified
-
+// std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
 			if (ofctl_set.find(ctl) == ofctl_set.end()) {
 				throw eRofBaseNotConnected();
 			}
-
+// std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
 			cofmsg_packet_in *pack =
 					new cofmsg_packet_in(
 							ctl->get_version(),
@@ -1680,15 +1680,15 @@ crofbase::send_packet_in_message(
 							match,
 							data,
 							datalen);
-
+// std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
 			pack->pack();
-
+// std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
 			WRITELOG(CROFBASE, DBG, "crofbase(%p)::send_packet_in_message() "
 							"sending PACKET-IN for buffer_id:0x%x pack: %s",
 							this, buffer_id, pack->c_str());
-
+// std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
 			ctl_find(ctl)->send_message(pack);
-
+// std::cout << __FILE__ << " JSP" << "@" << __LINE__ << std::endl;
 		} else if (fe_flags.test(NSP_ENABLED)) { //cofctl was not specified and flowspace registration is enabled
 
 			std::set<cfspentry*> nse_list;

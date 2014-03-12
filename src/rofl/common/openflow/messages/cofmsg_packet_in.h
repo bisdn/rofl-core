@@ -240,10 +240,11 @@ public:
 			os << "in-port:" << (int)msg.get_in_port() << " ";
 			os << "buffer-id:" << (int)msg.get_buffer_id() << " ";
 			os << "total-len:" << (int)msg.get_total_len() << " ";
-			os << "reason:" << (int)msg.get_reason() << " ";
-			os << "table-id:" << (int)msg.get_table_id() << " ";
-			os << "match:" << msg.get_match_const() << " ";
+			os << "reason:" << (int)msg.get_reason() << "_ ";
+// JSP			os << "table-id:" << (int)msg.get_table_id() << " ";
+// JSP			os << "match:" << msg.get_match_const() << " ";
 			os << "packet:" << msg.get_packet_const() << " ";
+//			os << "packet: XXX ";
 
 		} break;
 		case OFP12_VERSION: {

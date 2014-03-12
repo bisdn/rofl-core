@@ -30,10 +30,10 @@ void handle_packet_in( rofl::cofdpt *dpt, rofl::cofmsg_packet_in *msg ) {
 	std::cout << "packet came in on port " << (unsigned) msg->get_in_port() << std::endl;
 	std::cout << "dpt->get_version() =   " << (unsigned) dpt->get_version() << std::endl;
 	uint32_t inport, outport;
-//	inport = msg->get_in_port();
-//	outport = (inport==2)?1:2;
-	inport = 69;
-	outport = 42;
+	inport = msg->get_in_port();
+	outport = (inport==2)?1:2;
+//	inport = 69;
+//	outport = 42;
 	std::cout << __FUNCTION__ << ": About to connect port " << inport << " to " << outport << "." << std::endl;
 	rofl::cflowentry fe(dpt->get_version());
 	std::cout << "TP" << __LINE__ << std::endl;

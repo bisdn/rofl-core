@@ -50,6 +50,7 @@ class ctranslator : public rofl::crofbase {
 	virtual void handle_aggregate_stats_request(rofl::cofctl *ctl, rofl::cofmsg_aggr_stats_request *pack);
 	virtual void handle_queue_stats_request(rofl::cofctl *ctl, rofl::cofmsg_queue_stats_request *pack);
 	virtual void handle_experimenter_stats_request(rofl::cofctl *ctl, rofl::cofmsg_stats_request *pack);
+	virtual void handle_packet_in(rofl::cofdpt *dpt, rofl::cofmsg_packet_in * msg); 	
 	virtual void handle_packet_out(rofl::cofctl *ctl, rofl::cofmsg_packet_out *pack);
 	virtual void handle_barrier_request(rofl::cofctl *ctl, rofl::cofmsg_barrier_request *pack);
 	virtual void handle_table_mod(rofl::cofctl *ctl, rofl::cofmsg_table_mod *pack);
