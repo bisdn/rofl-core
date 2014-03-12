@@ -173,7 +173,9 @@ rofl_result_t __of1x_detach_port_from_switch_by_port_num(of1x_switch_t* sw, unsi
 	sw->logical_ports[port_num].port->attached_sw = NULL;
 	sw->logical_ports[port_num].port->of_port_num = 0;
 
-	sw->logical_ports[port_num].attachment_state = LOGICAL_PORT_STATE_DETACHED;
+	//sw->logical_ports[port_num].attachment_state = LOGICAL_PORT_STATE_DETACHED;
+	//Marking it as free so it can be reused
+	sw->logical_ports[port_num].attachment_state = LOGICAL_PORT_STATE_FREE;
 	sw->logical_ports[port_num].port = NULL;
 	sw->num_of_ports--;
 	
@@ -200,7 +202,9 @@ rofl_result_t __of1x_detach_port_from_switch(of1x_switch_t* sw, switch_port_t* p
 			sw->logical_ports[i].port->of_port_num = 0;
 
 			//Detach
-			sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_DETACHED;
+			//sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_DETACHED;
+			//Marking it as free so it can be reused
+			sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_FREE;
 			sw->logical_ports[i].port = NULL;
 			sw->num_of_ports--;
 
@@ -228,7 +232,9 @@ rofl_result_t __of1x_detach_all_ports_from_switch(of1x_switch_t* sw){
 			sw->logical_ports[i].port->attached_sw = NULL;
 		
 		//Detach
-		sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_DETACHED;
+		//sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_DETACHED;
+		//Marking it as free so it can be reused
+		sw->logical_ports[i].attachment_state = LOGICAL_PORT_STATE_FREE;
 		sw->logical_ports[i].port = NULL;
 	}	
 	

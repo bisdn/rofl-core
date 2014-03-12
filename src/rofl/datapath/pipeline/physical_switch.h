@@ -105,7 +105,7 @@
     * @brief Maximum number of phyisical ports
     * @ingroup mgmt
     */
-    #define PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS 128 
+    #define PHYSICAL_SWITCH_MAX_NUM_PHY_PORTS 1024 
 #endif
 
 #ifndef PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS
@@ -113,7 +113,7 @@
     * @brief Maximum number of virtual ports
     * @ingroup mgmt
     */
-    #define PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS 128
+    #define PHYSICAL_SWITCH_MAX_NUM_VIR_PORTS 256
 #endif
 
 #ifndef PHYSICAL_SWITCH_MAX_NUM_TUN_PORTS
