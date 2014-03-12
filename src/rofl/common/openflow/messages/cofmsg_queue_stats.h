@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include "cofmsg_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/cofqueuestats.h"
 
 namespace rofl
@@ -111,12 +111,17 @@ public:
 
 public:
 
-
 	/**
 	 *
 	 */
 	cofqueue_stats_request&
-	get_queue_stats();
+	set_queue_stats();
+
+	/**
+	 *
+	 */
+	cofqueue_stats_request const&
+	get_queue_stats() const;
 
 public:
 
@@ -145,16 +150,15 @@ private:
 
 	union {
 		uint8_t*								ofhu_queue_stats;
-		struct openflow10::ofp_queue_stats*		ofhu10_queue_stats;
-		struct openflow12::ofp_queue_stats*		ofhu12_queue_stats;
-		struct openflow13::ofp_queue_stats*		ofhu13_queue_stats;
+		struct rofl::openflow10::ofp_queue_stats*		ofhu10_queue_stats;
+		struct rofl::openflow12::ofp_queue_stats*		ofhu12_queue_stats;
+		struct rofl::openflow13::ofp_queue_stats*		ofhu13_queue_stats;
 	} ofh_ofhu;
 
 #define ofh_queue_stats   			ofh_ofhu.ofhu_queue_stats
 #define ofh10_queue_stats 			ofh_ofhu.ofhu10_queue_stats
 #define ofh12_queue_stats 			ofh_ofhu.ofhu12_queue_stats
 #define ofh13_queue_stats 			ofh_ofhu.ofhu13_queue_stats
-// TODO OF1.3
 
 public:
 
@@ -240,12 +244,17 @@ public:
 
 public:
 
-
 	/**
 	 *
 	 */
 	std::vector<cofqueue_stats_reply>&
-	get_queue_stats();
+	set_queue_stats();
+
+	/**
+	 *
+	 */
+	std::vector<cofqueue_stats_reply> const&
+	get_queue_stats() const;
 
 public:
 

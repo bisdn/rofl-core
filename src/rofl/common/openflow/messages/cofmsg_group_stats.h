@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include "cofmsg_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/cofgroupstats.h"
 
 namespace rofl
@@ -28,14 +28,14 @@ private:
 	cofgroup_stats_request 	group_stats;
 
 	union {
-		uint8_t*							ofhu_group_stats;
-		struct openflow12::ofp_group_stats_request*	ofhu12_group_stats;
-		// TODO: OF1.3
+		uint8_t*											ofhu_group_stats;
+		struct rofl::openflow12::ofp_group_stats_request*	ofhu12_group_stats;
+		struct rofl::openflow13::ofp_group_stats_request*	ofhu13_group_stats;
 	} ofhu;
 
 #define ofh_group_stats   			ofhu.ofhu_group_stats
 #define ofh12_group_stats 			ofhu.ofhu12_group_stats
-// TODO OF1.3
+#define ofh13_group_stats 			ofhu.ofhu13_group_stats
 
 public:
 
@@ -121,12 +121,17 @@ public:
 
 public:
 
-
 	/**
 	 *
 	 */
 	cofgroup_stats_request&
-	get_group_stats();
+	set_group_stats();
+
+	/**
+	 *
+	 */
+	cofgroup_stats_request const&
+	get_group_stats() const;
 
 public:
 
@@ -154,14 +159,14 @@ private:
 	std::vector<cofgroup_stats_reply> 	group_stats;
 
 	union {
-		uint8_t*						ofhu_group_stats;
-		struct openflow12::ofp_group_stats*		ofhu12_group_stats;
-		// TODO: OF1.3
+		uint8_t*										ofhu_group_stats;
+		struct rofl::openflow12::ofp_group_stats*		ofhu12_group_stats;
+		struct rofl::openflow13::ofp_group_stats*		ofhu13_group_stats;
 	} ofhu;
 
 #define ofh_group_stats   			ofhu.ofhu_group_stats
 #define ofh12_group_stats 			ofhu.ofhu12_group_stats
-// TODO OF1.3
+#define ofh13_group_stats 			ofhu.ofhu13_group_stats
 
 public:
 
@@ -247,12 +252,17 @@ public:
 
 public:
 
-
 	/**
 	 *
 	 */
 	std::vector<cofgroup_stats_reply>&
-	get_group_stats();
+	set_group_stats();
+
+	/**
+	 *
+	 */
+	std::vector<cofgroup_stats_reply> const&
+	get_group_stats() const;
 
 public:
 
