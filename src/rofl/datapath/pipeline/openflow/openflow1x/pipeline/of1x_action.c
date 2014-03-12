@@ -512,7 +512,7 @@ void __of1x_clear_write_actions(datapacket_t* pkt){
 
 	//Set action mapper (-1)
 	for(i=0;i<OF1X_AT_NUMBER;i++)
-		write_actions->mapper[i] = -1;
+		write_actions->mapper[i] = 0;
 	
 	//num of actions and output actions
 	write_actions->num_of_actions = 0;
@@ -1220,12 +1220,20 @@ static void __of1x_process_group_actions(const struct of1x_switch* sw, const uns
 //Checking functions
 /*TODO specific funcions for 128 bits. So far only used for OUTPUT and GROUP actions, so not really necessary*/
 bool __of1x_write_actions_has(of1x_write_actions_t* write_actions, of1x_packet_action_type_t type, uint64_t value){
+
+	int index;
+	
 	if( unlikely(write_actions==NULL) )
 		return false;	
-	
-	of1x_packet_action_t action = write_actions->actions[type];
 
-	return (action.type != OF1X_AT_NO_ACTION) && (value != 0x0 && action.field.u64 == value ); 
+	index = write_actions->mapper[type];
+
+	if(index >= write_actions->num_of_actions)
+		return false;
+	
+	of1x_packet_action_t* action = &write_actions->actions[index];
+
+	return (action->type == type) && (action->field.u64 == value); 
 }
 /*TODO specific funcions for 128 bits. So far only used for OUTPUT and GROUP actions, so not really necessary*/
 bool __of1x_apply_actions_has(const of1x_action_group_t* apply_actions_group, of1x_packet_action_type_t type, uint64_t value){
@@ -1320,9 +1328,6 @@ of1x_write_actions_t* __of1x_copy_write_actions(of1x_write_actions_t* origin){
 	
 	return copy;
 }
-
-#define HI(x) *(uint64_t*)&x.val[0]
-#define LO(x) *(uint64_t*)&x.val[8]
 
 /* Dumping */
 static void __of1x_dump_packet_action(of1x_packet_action_t action){
@@ -1499,7 +1504,7 @@ static void __of1x_dump_packet_action(of1x_packet_action_t action){
 
 		case OF1X_AT_OUTPUT:
 				ROFL_PIPELINE_DEBUG_NO_PREFIX("OUTPUT port: ");
-				switch(action.field.u64){
+				switch(action.field.u32){
 	
 					case OF1X_PORT_FLOOD:
 						ROFL_PIPELINE_DEBUG_NO_PREFIX("FLOOD");
