@@ -30,7 +30,8 @@ TODO: add pipeline changes
 v0.3.4
 
 [+][common] Added LLC basic frame support in fetherframe.h/cc 
-[B][buildsystem] missing _DEPENDENCIES of matching algorithms library added
+[B][common] fixed bug for OF10. Added cofaclist instance (named actions) to avoid use of cofinlist for OF1.0
+[B][pipeline] missing _DEPENDENCIES of matching algorithms library added
 
 v0.3.3
 
