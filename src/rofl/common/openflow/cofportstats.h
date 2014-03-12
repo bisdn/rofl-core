@@ -171,8 +171,8 @@ public:
 			uint64_t rx_over_err,
 			uint64_t rx_crc_err,
 			uint64_t collisions,
-			uint32_t durarion_sec = 0,
-			uint32_t duration_nsec = 0);
+			uint32_t durarion_sec,
+			uint32_t duration_nsec);
 
 
 
