@@ -133,8 +133,9 @@ private: // data structures
 	uint32_t		ref_count;
 	uint64_t 		packet_count;
 	uint64_t		byte_count;
+	uint32_t		duration_sec;
+	uint32_t		duration_nsec;
 	cmemory			bucket_stats;
-
 
 public: // data structures
 
@@ -155,6 +156,8 @@ public:
 			uint32_t ref_count,
 			uint64_t packet_count,
 			uint64_t byte_count,
+			uint32_t duration_sec,
+			uint32_t duration_nsec,
 			unsigned int num_of_bucket_stats = 0);
 
 	/**
@@ -231,14 +234,26 @@ public:
 	get_byte_count() const { return byte_count; };
 
 	/**
+	 *
+	 */
+	uint32_t
+	get_duration_sec() const { return duration_sec; };
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_duration_nsec() const { return duration_nsec; };
+
+	/**
 	 * FIXME: version dependency
 	 */
-	struct openflow12::ofp_bucket_counter&
+	struct rofl::openflow12::ofp_bucket_counter&
 	get_bucket_counter(size_t i) {
-		if (i > (bucket_stats.memlen() / sizeof(struct openflow12::ofp_bucket_counter))) {
+		if (i > (bucket_stats.memlen() / sizeof(struct rofl::openflow12::ofp_bucket_counter))) {
 			throw eInval();
 		}
-		return ((struct openflow12::ofp_bucket_counter*)bucket_stats.somem())[i];
+		return ((struct rofl::openflow12::ofp_bucket_counter*)bucket_stats.somem())[i];
 	};
 
 	/**
@@ -271,6 +286,18 @@ public:
 	void
 	set_byte_count(uint64_t byte_count) { this->byte_count = byte_count; };
 
+	/**
+	 *
+	 */
+	void
+	set_duration_sec(uint32_t duration_sec) { this->duration_sec = duration_sec; };
+
+	/**
+	 *
+	 */
+	void
+	set_duration_nsec(uint32_t duration_nsec) { this->duration_nsec = duration_nsec; };
+
 public:
 
 	friend std::ostream&
@@ -280,6 +307,14 @@ public:
 		os << indent(2) << "<ref-count: " << (int)r.get_ref_count() << " >" << std::endl;
 		os << indent(2) << "<packet-count: " << (int)r.get_packet_count() << " >" << std::endl;
 		os << indent(2) << "<byte-count: " << (int)r.get_byte_count() << " >" << std::endl;
+		switch (r.get_version()) {
+		case rofl::openflow13::OFP_VERSION: {
+			os << indent(2) << "<duration-sec: " << (int)r.get_duration_sec() << " >" << std::endl;
+			os << indent(2) << "<duration-nsec: " << (int)r.get_duration_nsec() << " >" << std::endl;
+		} break;
+		default: {
+		};
+		}
 		indent i(2);
 		os << r.bucket_stats;
 		return os;
