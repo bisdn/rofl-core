@@ -105,7 +105,7 @@ rofl_result_t __of1x_attach_port_to_switch_at_port_num(of1x_switch_t* sw, unsign
 	//Allow single add/remove operation over the switch 
 	platform_mutex_lock(sw->mutex);
 	
-	if(sw->logical_ports[port_num].attachment_state){
+	if(sw->logical_ports[port_num].attachment_state != LOGICAL_PORT_STATE_FREE){
 		platform_mutex_unlock(sw->mutex);
 		return ROFL_FAILURE;
 	}
