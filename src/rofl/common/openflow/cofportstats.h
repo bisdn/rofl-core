@@ -136,6 +136,8 @@ private: // data structures
 	uint64_t	rx_over_err;
 	uint64_t	rx_crc_err;
 	uint64_t	collisions;
+	uint32_t	duration_sec;	// since OF1.3
+	uint32_t	duration_nsec;	// since OF1.3
 
 
 public: // data structures
@@ -168,7 +170,9 @@ public:
 			uint64_t rx_frame_err,
 			uint64_t rx_over_err,
 			uint64_t rx_crc_err,
-			uint64_t collisions);
+			uint64_t collisions,
+			uint32_t durarion_sec = 0,
+			uint32_t duration_nsec = 0);
 
 
 
@@ -316,6 +320,18 @@ public:
 	/**
 	 *
 	 */
+	uint32_t
+	get_duration_sec() const;
+
+	/**
+	 *
+	 */
+	uint32_t
+	get_duration_nsec() const;
+
+	/**
+	 *
+	 */
 	void
 	set_portno(uint32_t port_no);
 
@@ -391,6 +407,18 @@ public:
 	void
 	set_collisions(uint64_t collisions);
 
+	/**
+	 *
+	 */
+	void
+	set_duration_sec(uint32_t duration_sec);
+
+	/**
+	 *
+	 */
+	void
+	set_duration_nsec(uint32_t duration_nsec);
+
 public:
 
 	friend std::ostream&
@@ -409,6 +437,14 @@ public:
 		os << indent(2) << "<rx-over-err: " << (unsigned long long)r.get_rx_over_err() 	<< " >" << std::endl;
 		os << indent(2) << "<rx-crc-err: " 	<< (unsigned long long)r.get_rx_crc_err() 	<< " >" << std::endl;
 		os << indent(2) << "<collisions: " 	<< (unsigned long long)r.get_collisions() 	<< " >" << std::endl;
+		switch (r.get_version()) {
+		case rofl::openflow13::OFP_VERSION: {
+			os << indent(2) << "<duration-sec: " 	<< (unsigned long long)r.get_duration_sec() 	<< " >" << std::endl;
+			os << indent(2) << "<duration-nsec: " 	<< (unsigned long long)r.get_duration_nsec() 	<< " >" << std::endl;
+		} break;
+		default: {
+		};
+		}
 		return os;
 	};
 };

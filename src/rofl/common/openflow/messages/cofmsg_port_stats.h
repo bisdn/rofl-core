@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include "cofmsg_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/cofportstats.h"
 
 namespace rofl
@@ -31,15 +31,15 @@ private:
 
 	union {
 		uint8_t*						ofhu_port_stats;
-		struct openflow10::ofp_port_stats*		ofhu10_port_stats;
-		struct openflow12::ofp_port_stats*		ofhu12_port_stats;
-		// TODO: OF1.3
+		struct rofl::openflow10::ofp_port_stats*		ofhu10_port_stats;
+		struct rofl::openflow12::ofp_port_stats*		ofhu12_port_stats;
+		struct rofl::openflow13::ofp_port_stats*		ofhu13_port_stats;
 	} ofhu;
 
 #define ofh_port_stats   			ofhu.ofhu_port_stats
 #define ofh10_port_stats 			ofhu.ofhu10_port_stats
 #define ofh12_port_stats 			ofhu.ofhu12_port_stats
-// TODO OF1.3
+#define ofh13_port_stats 			ofhu.ofhu13_port_stats
 
 public:
 
@@ -130,7 +130,13 @@ public:
 	 *
 	 */
 	cofport_stats_request&
-	get_port_stats();
+	set_port_stats();
+
+	/**
+	 *
+	 */
+	cofport_stats_request const&
+	get_port_stats() const;
 
 public:
 
@@ -158,15 +164,15 @@ private:
 
 	union {
 		uint8_t*						ofhu_port_stats;
-		struct openflow10::ofp_port_stats*		ofhu10_port_stats;
-		struct openflow12::ofp_port_stats*		ofhu12_port_stats;
-		// TODO: OF1.3
+		struct rofl::openflow10::ofp_port_stats*		ofhu10_port_stats;
+		struct rofl::openflow12::ofp_port_stats*		ofhu12_port_stats;
+		struct rofl::openflow13::ofp_port_stats*		ofhu13_port_stats;
 	} ofhu;
 
 #define ofh_port_stats   			ofhu.ofhu_port_stats
 #define ofh10_port_stats 			ofhu.ofhu10_port_stats
 #define ofh12_port_stats 			ofhu.ofhu12_port_stats
-// TODO OF1.3
+#define ofh13_port_stats 			ofhu.ofhu13_port_stats
 
 public:
 
@@ -252,12 +258,17 @@ public:
 
 public:
 
-
 	/**
 	 *
 	 */
 	std::vector<cofport_stats_reply>&
-	get_port_stats();
+	set_port_stats();
+
+	/**
+	 *
+	 */
+	std::vector<cofport_stats_reply> const&
+	get_port_stats() const;
 
 public:
 
