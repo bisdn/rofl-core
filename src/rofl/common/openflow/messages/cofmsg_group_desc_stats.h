@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include "cofmsg_stats.h"
+#include "rofl/common/openflow/messages/cofmsg_stats.h"
 #include "rofl/common/openflow/cofgroupdescstats.h"
 
 namespace rofl
@@ -129,14 +129,14 @@ private:
 	std::vector<cofgroup_desc_stats_reply> 	group_desc_stats;
 
 	union {
-		uint8_t*						ofhu_group_desc_stats;
-		struct openflow12::ofp_group_desc_stats*	ofhu12_group_desc_stats;
-		// TODO: OF1.3
+		uint8_t*										ofhu_group_desc_stats;
+		struct rofl::openflow12::ofp_group_desc_stats*	ofhu12_group_desc_stats;
+		struct rofl::openflow13::ofp_group_desc*		ofhu13_group_desc_stats;
 	} ofhu;
 
 #define ofh_group_desc_stats   			ofhu.ofhu_group_desc_stats
 #define ofh12_group_desc_stats 			ofhu.ofhu12_group_desc_stats
-// TODO OF1.3
+#define ofh12_group_desc	 			ofhu.ofhu13_group_desc
 
 public:
 
@@ -227,7 +227,13 @@ public:
 	 *
 	 */
 	std::vector<cofgroup_desc_stats_reply>&
-	get_group_desc_stats();
+	set_group_desc_stats();
+
+	/**
+	 *
+	 */
+	std::vector<cofgroup_desc_stats_reply> const&
+	get_group_desc_stats() const;
 
 
 public:
