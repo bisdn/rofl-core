@@ -409,9 +409,9 @@ of1x_write_actions_t* of1x_init_write_actions(){
 	if( unlikely(write_actions==NULL) )
 		return NULL;
 
-	//Set action mapper (-1)
+	//Set action mapper (0)
 	for(i=0;i<OF1X_AT_NUMBER;i++)
-		write_actions->mapper[i] = -1;
+		write_actions->mapper[i] = 0;
 	
 	//Memset actions
 	memset(&write_actions->actions[0], 0, sizeof(of1x_packet_action_t)*OF1X_AT_NUMBER);
@@ -491,7 +491,7 @@ void __of1x_update_packet_write_actions(datapacket_t* pkt, const of1x_write_acti
 		//Recover previous position (if any)
 		pos = packet_write_actions->mapper[action->type];
 
-		if( pos == -1 || pos >= packet_write_actions->num_of_actions || packet_write_actions->actions[pos].type != action->type){
+		if( pos == -1 || pos >= packet_write_actions->num_of_actions || packet_write_actions->actions[pos].type != action->type ){
 			//Was marked as not present (-1) or it has an invalid state (previous processing dirty state)
 			packet_write_actions->actions[packet_write_actions->num_of_actions] = *action;
 			packet_write_actions->mapper[action->type] = packet_write_actions->num_of_actions;
