@@ -244,7 +244,6 @@ public:
 // JSP			os << "table-id:" << (int)msg.get_table_id() << " ";
 // JSP			os << "match:" << msg.get_match_const() << " ";
 			os << "packet:" << msg.get_packet_const() << " ";
-//			os << "packet: XXX ";
 
 		} break;
 		case OFP12_VERSION: {

@@ -83,7 +83,15 @@ void ctranslator::handle_flow_mod(rofl::cofctl *ctl, rofl::cofmsg_flow_mod *msg)
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << msg->c_str() << "." << std::endl;
 	rofl::cflowentry entry(OFP10_VERSION);
 	try {
-	BOOST_PP_SEQ_FOR_EACH( CLONECMD, ((*msg))(entry), (command)(idle_timeout)(hard_timeout)(cookie)(priority)(buffer_id)(out_port)(flags) )
+	//BOOST_PP_SEQ_FOR_EACH( CLONECMD, ((*msg))(entry), (command)(idle_timeout)(hard_timeout)(cookie)(priority)(buffer_id)(out_port)(flags) )
+		entry.set_command(msg->get_command());
+		entry.set_idle_timeout(msg->get_idle_timeout());
+		entry.set_hard_timeout(msg->get_hard_timeout());
+		entry.set_cookie(msg->get_cookie());
+		entry.set_priority(msg->get_priority());
+		entry.set_buffer_id(msg->get_buffer_id());
+		entry.set_out_port(msg->get_out_port());
+		entry.set_flags(msg->get_flags());
 		send_flow_mod_message( m_slave, entry );
 		} catch (rofl::cerror &e) {
 		std::cout << func << ": caught " << e << ". at " << __FILE__ << ":" << __LINE__ << std::endl;

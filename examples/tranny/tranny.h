@@ -8,6 +8,7 @@
 #include <rofl/common/openflow/cofctl.h>
 #include <rofl/common/openflow/openflow10.h>
 
+/*
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/elem.hpp>
@@ -22,6 +23,7 @@
 #undef CLONECMDNOSEQ
 #define CLONECMDNOSEQ(CLONEFROM,CLONETO,CLONEWHAT) CLONETO.set_##CLONEWHAT ( CLONEFROM.get_##CLONEWHAT () );
 #define CLONECMD(r, CLONESEQ, CLONEWHAT) CLONECMDNOSEQ( BOOST_PP_SEQ_ELEM(0,CLONESEQ) ,  BOOST_PP_SEQ_ELEM(1,CLONESEQ) , CLONEWHAT )
+*/
 
 class ctranslator : public rofl::crofbase {
 	public:
