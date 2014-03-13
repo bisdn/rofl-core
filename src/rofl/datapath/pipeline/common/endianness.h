@@ -21,6 +21,13 @@
 	#define NTOHB16(x) x 
 	#define NTOHB32(x) x
 	#define NTOHB64(x) x
+
+	//
+	// Conditional byte swappers. Convienience wrapper
+	//
+	#define COND_NTOHB16(cond, x) x 
+	#define COND_NTOHB32(cond, x) x
+	#define COND_NTOHB64(cond, x) x
 #elif defined(LITTLE_ENDIAN_DETECTED)
 	#if defined(BYTESWAP_HEADER_DETECTED)
 		#include <byteswap.h>
@@ -54,6 +61,13 @@
 		#define NTOHB64(x) HTONB64(x)
 	
 	#endif
+
+	//
+	// Conditional byte swappers. Convienience wrapper
+	//
+	#define COND_NTOHB16(cond, x) ( (cond)? NTOHB16(x) : x )
+	#define COND_NTOHB32(cond, x) ( (cond)? NTOHB32(x) : x )
+	#define COND_NTOHB64(cond, x) ( (cond)? NTOHB64(x) : x )
 #else
 	#error Unsupported endianness
 #endif //endianness check
