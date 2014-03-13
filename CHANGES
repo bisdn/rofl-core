@@ -26,6 +26,7 @@ TODO: add pipeline changes
     - each timer is referred to by a uint32_t timer_id assigned by the cioloop IO subsystem
     - canceling or resetting timers must be done using this timer_id, the opaque value cannot
       be used anymore
+[+][common] added OF13 support to various statistics classes including support for duration fields
 
 v0.3.4
 
