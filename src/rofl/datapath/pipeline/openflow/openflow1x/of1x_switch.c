@@ -244,7 +244,7 @@ rofl_result_t __of1x_detach_all_ports_from_switch(of1x_switch_t* sw){
 }
 
 /* Dumping */
-void of1x_dump_switch(of1x_switch_t* sw, bool sbo){
+void of1x_dump_switch(of1x_switch_t* sw, bool nbo){
 	ROFL_PIPELINE_INFO("OpenFlow switch instance (%p)\n",sw);
 	ROFL_PIPELINE_INFO("========================\n");
 	ROFL_PIPELINE_INFO("Name: %s\n",sw->name);
@@ -252,16 +252,16 @@ void of1x_dump_switch(of1x_switch_t* sw, bool sbo){
 	ROFL_PIPELINE_INFO("OpenFlow datapathid: 0x%" PRIx64 "\n",sw->dpid);
 }
 
-void of1x_full_dump_switch(of1x_switch_t* sw, bool sbo){
+void of1x_full_dump_switch(of1x_switch_t* sw, bool nbo){
 	int i;
-	of1x_dump_switch(sw, sbo);
+	of1x_dump_switch(sw, nbo);
 
 	/* Dumping tables */		
 	for(i=0;i<sw->pipeline.num_of_tables;i++)
-		of1x_dump_table(&sw->pipeline.tables[i], sbo);
+		of1x_dump_table(&sw->pipeline.tables[i], nbo);
 	ROFL_PIPELINE_INFO("--End of pipeline tables--\n");
 	
-	of1x_dump_group_table(sw->pipeline.groups, sbo);
+	of1x_dump_group_table(sw->pipeline.groups, nbo);
 	ROFL_PIPELINE_DEBUG("--End of group table--\n\n");
 }
 

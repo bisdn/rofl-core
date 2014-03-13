@@ -1260,7 +1260,7 @@ of1x_write_actions_t* __of1x_copy_write_actions(of1x_write_actions_t* origin){
 }
 
 /* Dumping */
-static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool sbo){
+static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool nbo){
 
 	ROFL_PIPELINE_DEBUG_NO_PREFIX("<");
 	switch(action->type){
@@ -1461,27 +1461,27 @@ static void __of1x_dump_packet_action(of1x_packet_action_t* action, bool sbo){
 
 }
 
-void __of1x_dump_write_actions(of1x_write_actions_t* write_actions, bool sbo){
+void __of1x_dump_write_actions(of1x_write_actions_t* write_actions, bool nbo){
 
 	int i,j;
 
 	for(i=0,j=0;i<write_actions->num_of_actions && j < OF1X_AT_NUMBER;j++){
 		if( bitmap128_is_bit_set(&write_actions->bitmap, j) ){
 			//Process action
-			__of1x_dump_packet_action(&write_actions->actions[j], sbo);
+			__of1x_dump_packet_action(&write_actions->actions[j], nbo);
 			i++;		
 		}
 	}
 }
 	
-void __of1x_dump_action_group(of1x_action_group_t* action_group, bool sbo){
+void __of1x_dump_action_group(of1x_action_group_t* action_group, bool nbo){
 
 	of1x_packet_action_t* action;
 
 	if( unlikely(action_group==NULL) )
 		return;
 	for(action=action_group->head;action;action=action->next){
-		__of1x_dump_packet_action(action, sbo);
+		__of1x_dump_packet_action(action, nbo);
 	}
 }
 

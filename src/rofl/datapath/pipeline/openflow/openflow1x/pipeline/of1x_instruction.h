@@ -177,7 +177,7 @@ static inline bool  __of1x_process_instructions_must_replicate(const of1x_instru
 }
 
 //Dump
-void __of1x_dump_instructions(of1x_instruction_group_t group, bool sbo);
+void __of1x_dump_instructions(of1x_instruction_group_t group, bool nbo);
 
 //C++ extern C
 ROFL_END_DECLS

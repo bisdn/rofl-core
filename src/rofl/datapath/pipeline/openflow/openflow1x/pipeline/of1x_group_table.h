@@ -200,9 +200,9 @@ of1x_group_t* __of1x_group_search(of1x_group_table_t *gt, uint32_t id);
 /*
 * Dump group table. Not recommended to use it directly
 *
-* @param sbo Change endianness when printing matches and actions (swap byte order).
+* @param nbo Show values in network byte order (ignored in BIG ENDIAN systems).
 */
-void of1x_dump_group_table(of1x_group_table_t *gt, bool sbo);
+void of1x_dump_group_table(of1x_group_table_t *gt, bool nbo);
 
 //C++ extern C
 ROFL_END_DECLS

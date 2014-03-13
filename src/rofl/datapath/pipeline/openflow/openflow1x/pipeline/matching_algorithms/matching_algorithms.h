@@ -234,10 +234,10 @@ typedef struct of1x_matching_algorithm_functions{
 	* flow table when of1x_dump_switch() is called.
 	*
 	* This is optional. 
-	* @param sbo Change endianness when printing matches and actions (swap byte order).
+	* @param nbo Show values in network byte order (ignored in BIG ENDIAN systems).
 	*/
 	void
-	(*dump_hook)(struct of1x_flow_table *const table, bool sbo);
+	(*dump_hook)(struct of1x_flow_table *const table, bool nbo);
 
 	
 	/**

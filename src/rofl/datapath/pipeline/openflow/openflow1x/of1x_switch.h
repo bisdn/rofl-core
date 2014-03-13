@@ -90,16 +90,16 @@ rofl_result_t __of1x_detach_all_ports_from_switch(of1x_switch_t* sw);
 * @brief Dumps the OpenFlow v1.0, 1.2 and 1.3.2 forwarding instance, for debugging purposes.  
 * @ingroup core_of1x 
 *
-* @param sbo Change endianness when printing matches and actions (swap byte order).
+* @param nbo Show values in network byte order (ignored in BIG ENDIAN systems).
 */
-void of1x_dump_switch(of1x_switch_t* sw, bool sbo);
+void of1x_dump_switch(of1x_switch_t* sw, bool nbo);
 /**
 * @brief Dumps the OpenFlow v1.0, 1.2 and 1.3.2 forwarding instance, for debugging purposes.  
 * @ingroup core_of1x 
 *
-* @param sbo Change endianness when printing matches and actions (swap byte order).
+* @param nbo Show values in network byte order (ignored in BIG ENDIAN systems).
 */
-void of1x_full_dump_switch(of1x_switch_t* sw, bool sbo);
+void of1x_full_dump_switch(of1x_switch_t* sw, bool nbo);
 
 //Creates a snapshot of the running of LSI 
 of1x_switch_snapshot_t* __of1x_switch_get_snapshot(of1x_switch_t* sw);

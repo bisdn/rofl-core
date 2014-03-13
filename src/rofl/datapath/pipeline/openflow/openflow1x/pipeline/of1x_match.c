@@ -1468,7 +1468,7 @@ inline bool __of1x_check_match(const packet_matches_t* pkt, of1x_match_t* it){
 }
 
 //Matches with mask (including matches that do not support)
-void __of1x_dump_matches(of1x_match_t* matches, bool sbo){
+void __of1x_dump_matches(of1x_match_t* matches, bool nbo){
 	of1x_match_t* it;
 	for(it=matches;it;it=it->next){
 		switch(it->type){
