@@ -8,9 +8,11 @@
 #include <inttypes.h> 
 #include <string.h> 
 #include <stdbool.h>
+#include <assert.h>
 #include "rofl.h"
 #include "of1x_utils.h"
 #include "../../../common/ternary_fields.h"
+#include "../../../platform/likely.h"
 
 /**
 * @file of1x_action.h
@@ -310,7 +312,7 @@ typedef struct{
 
 	//Mapper; fast access per type. When an action is present
 	//flag is set to 0..OF1X_AT_NUMBER-1, otherwise -1
-	int mapper[OF1X_AT_NUMBER];
+	unsigned int mapper[OF1X_AT_NUMBER];
 
 	//Write actions 0...OF1X_AT_NUMBER-1 at the very beginning of the array
 	of1x_packet_action_t actions[OF1X_AT_NUMBER];
@@ -396,8 +398,55 @@ void __of1x_destroy_write_actions(of1x_write_actions_t* write_actions);
 */
 void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action);
 
-void __of1x_update_packet_write_actions(struct datapacket* pkt, const of1x_write_actions_t* entry_write_actions);
-void __of1x_clear_write_actions(struct datapacket* pkt);
+static inline void __of1x_init_packet_write_actions(of1x_write_actions_t* pkt_write_actions){
+	pkt_write_actions->num_of_actions = 0;
+}
+
+static inline void __of1x_update_packet_write_actions(of1x_write_actions_t* packet_write_actions, const of1x_write_actions_t* entry_write_actions){
+
+	unsigned int pos;
+	unsigned int i;
+	of1x_packet_action_t* action;	
+
+	if( unlikely(entry_write_actions==NULL) ){
+		assert(0);
+		return;
+	}
+
+	//Loop over entry write actions and update packet_write_actions
+	for(i=0;i<entry_write_actions->num_of_actions;i++){
+		
+		//Let's make the code readable
+		action = (of1x_packet_action_t*)&entry_write_actions->actions[i]; 
+
+		//Recover previous position (if any)
+		pos = packet_write_actions->mapper[action->type];
+
+		if( pos == 0 || pos >= packet_write_actions->num_of_actions || packet_write_actions->actions[pos].type != action->type ){
+			//Was marked as not present (0) or it has an invalid state (previous processing dirty state)
+			packet_write_actions->actions[packet_write_actions->num_of_actions] = *action;
+			packet_write_actions->mapper[action->type] = packet_write_actions->num_of_actions;
+			packet_write_actions->num_of_actions++;
+		}else{
+			//It already has a write_action of this type in pos
+			packet_write_actions->actions[pos] = *action;
+		}
+	}
+
+}
+
+static inline void __of1x_clear_write_actions(of1x_write_actions_t* pkt_write_actions){
+
+#ifdef DEBUG
+	int i;
+	//Set action mapper (0)
+	for(i=0;i<OF1X_AT_NUMBER;i++)
+		pkt_write_actions->mapper[i] = 0;
+#endif
+	pkt_write_actions->num_of_actions = 0;
+
+}
+
 void __of1x_process_write_actions(const struct of1x_switch* sw, const unsigned int table_id, struct datapacket* pkt, bool replicate_pkts);
 
 //Update apply/write

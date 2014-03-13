@@ -187,7 +187,7 @@ void __of1x_process_packet_pipeline(const of_switch_t *sw, datapacket_t *const p
 	packet_matches_t* pkt_matches;
 	
 	//Initialize packet for OF1.X pipeline processing 
-	pkt->write_actions.of1x.num_of_actions = 0;
+	__of1x_init_packet_write_actions(&pkt->write_actions.of1x);
 
 	//Mark packet as being processed by this sw
 	pkt->sw = sw;

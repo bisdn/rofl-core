@@ -129,9 +129,9 @@ unsigned int __of1x_process_instructions(const struct of1x_switch* sw, const uns
 		switch(instructions->instructions[i].type){
 			case OF1X_IT_APPLY_ACTIONS: __of1x_process_apply_actions(sw, table_id, pkt,instructions->instructions[i].apply_actions, __of1x_process_instructions_must_replicate(instructions) ); 
 					break;
-    			case OF1X_IT_CLEAR_ACTIONS: __of1x_clear_write_actions(pkt);
+    			case OF1X_IT_CLEAR_ACTIONS: __of1x_clear_write_actions(&pkt->write_actions.of1x);
 					break;
-			case OF1X_IT_WRITE_ACTIONS: __of1x_update_packet_write_actions(pkt, instructions->instructions[i].write_actions);
+			case OF1X_IT_WRITE_ACTIONS: __of1x_update_packet_write_actions(&pkt->write_actions.of1x, instructions->instructions[i].write_actions);
 					break;
     			case OF1X_IT_WRITE_METADATA:
 				{

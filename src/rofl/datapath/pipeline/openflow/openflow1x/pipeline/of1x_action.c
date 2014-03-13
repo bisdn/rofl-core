@@ -466,58 +466,6 @@ void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions
 
 }
 
-//Update of write actions
-void __of1x_update_packet_write_actions(datapacket_t* pkt, const of1x_write_actions_t* entry_write_actions) {
-
-	int pos;
-	unsigned int i;
-	of1x_write_actions_t* packet_write_actions;
-	of1x_packet_action_t* action;	
-
-	//Recover write actions from datapacket
-	packet_write_actions = &pkt->write_actions.of1x;
-	
-	if( unlikely(entry_write_actions==NULL) ){
-		assert(0);
-		return;
-	}
-
-	//Loop over entry write actions and update packet_write_actions
-	for(i=0;i<entry_write_actions->num_of_actions;i++){
-		
-		//Let's make the code readable
-		action = (of1x_packet_action_t*)&entry_write_actions->actions[i]; 
-
-		//Recover previous position (if any)
-		pos = packet_write_actions->mapper[action->type];
-
-		if( pos == -1 || pos >= packet_write_actions->num_of_actions || packet_write_actions->actions[pos].type != action->type ){
-			//Was marked as not present (-1) or it has an invalid state (previous processing dirty state)
-			packet_write_actions->actions[packet_write_actions->num_of_actions] = *action;
-			packet_write_actions->mapper[action->type] = packet_write_actions->num_of_actions;
-			packet_write_actions->num_of_actions++;
-		}else{
-			//It already has a write_action of this type in pos
-			packet_write_actions->actions[pos] = *action;
-		}
-	}
-
-}
-
-//Clear actions
-void __of1x_clear_write_actions(datapacket_t* pkt){
-
-	int i;
-	of1x_write_actions_t* write_actions = &pkt->write_actions.of1x;	
-
-	//Set action mapper (-1)
-	for(i=0;i<OF1X_AT_NUMBER;i++)
-		write_actions->mapper[i] = 0;
-	
-	//num of actions and output actions
-	write_actions->num_of_actions = 0;
-}
-
 /* Contains switch with all the different action functions */
 static inline void __of1x_process_packet_action(const struct of1x_switch* sw, const unsigned int table_id, datapacket_t* pkt, of1x_packet_action_t* action, bool replicate_pkts){
 
