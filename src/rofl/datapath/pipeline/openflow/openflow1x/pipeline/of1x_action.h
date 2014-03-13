@@ -12,7 +12,9 @@
 #include "rofl.h"
 #include "of1x_utils.h"
 #include "../../../common/ternary_fields.h"
+#include "../../../common/bitmap.h"
 #include "../../../platform/likely.h"
+#include "../../../platform/memory.h"
 
 /**
 * @file of1x_action.h
@@ -194,6 +196,11 @@ typedef enum{
 
 #define OF1X_AT_NUMBER OF1X_AT_OUTPUT+1 
 
+//Make sure we are not exceeding the bitmap size
+#if OF1X_AT_NUMBER >= 128
+	#error Number of actions beyond 128 not supported by bitmap128_t. Implement bitmap256_t.
+#endif
+
 /**
 * @ingroup core_of1x 
 * Actions enumeration for bitmap usage, in the order defined in OF12 and OF13, plus extensions. This is ONLY
@@ -310,14 +317,13 @@ typedef struct{
 */
 typedef struct{
 
-	//Mapper; fast access per type. When an action is present
-	//flag is set to 0..OF1X_AT_NUMBER-1, otherwise -1
-	unsigned int mapper[OF1X_AT_NUMBER];
-
+	//bitmap of actions
+	bitmap128_t bitmap;
+	
 	//Write actions 0...OF1X_AT_NUMBER-1 at the very beginning of the array
 	of1x_packet_action_t actions[OF1X_AT_NUMBER];
 	
-	//Number of actions. 
+	//Number of output actions. 
 	unsigned int num_of_actions;
 	unsigned int num_of_output_actions;
 	
@@ -399,52 +405,32 @@ void __of1x_destroy_write_actions(of1x_write_actions_t* write_actions);
 void of1x_set_packet_action_on_write_actions(of1x_write_actions_t* write_actions, of1x_packet_action_t* action);
 
 static inline void __of1x_init_packet_write_actions(of1x_write_actions_t* pkt_write_actions){
+	bitmap128_clean(&pkt_write_actions->bitmap);
 	pkt_write_actions->num_of_actions = 0;
 }
 
 static inline void __of1x_update_packet_write_actions(of1x_write_actions_t* packet_write_actions, const of1x_write_actions_t* entry_write_actions){
+	
+	unsigned int i,j;
 
-	unsigned int pos;
-	unsigned int i;
-	of1x_packet_action_t* action;	
-
-	if( unlikely(entry_write_actions==NULL) ){
-		assert(0);
-		return;
-	}
-
-	//Loop over entry write actions and update packet_write_actions
-	for(i=0;i<entry_write_actions->num_of_actions;i++){
+	for(i=0,j=0;i<entry_write_actions->num_of_actions && j < OF1X_AT_NUMBER;j++){
+		if(!bitmap128_is_bit_set(&entry_write_actions->bitmap,j))
+			continue;
+		packet_write_actions->actions[j].field = entry_write_actions->actions[j].field;
+		packet_write_actions->actions[j].group = entry_write_actions->actions[j].group;
+		packet_write_actions->actions[j].type = entry_write_actions->actions[j].type;
 		
-		//Let's make the code readable
-		action = (of1x_packet_action_t*)&entry_write_actions->actions[i]; 
-
-		//Recover previous position (if any)
-		pos = packet_write_actions->mapper[action->type];
-
-		if( pos == 0 || pos >= packet_write_actions->num_of_actions || packet_write_actions->actions[pos].type != action->type ){
-			//Was marked as not present (0) or it has an invalid state (previous processing dirty state)
-			packet_write_actions->actions[packet_write_actions->num_of_actions] = *action;
-			packet_write_actions->mapper[action->type] = packet_write_actions->num_of_actions;
+		if(!bitmap128_is_bit_set(&packet_write_actions->bitmap,j)){
 			packet_write_actions->num_of_actions++;
-		}else{
-			//It already has a write_action of this type in pos
-			packet_write_actions->actions[pos] = *action;
+			bitmap128_set(&packet_write_actions->bitmap,j);
 		}
+		i++;
 	}
-
 }
 
 static inline void __of1x_clear_write_actions(of1x_write_actions_t* pkt_write_actions){
-
-#ifdef DEBUG
-	int i;
-	//Set action mapper (0)
-	for(i=0;i<OF1X_AT_NUMBER;i++)
-		pkt_write_actions->mapper[i] = 0;
-#endif
+	bitmap128_clean(&pkt_write_actions->bitmap);
 	pkt_write_actions->num_of_actions = 0;
-
 }
 
 void __of1x_process_write_actions(const struct of1x_switch* sw, const unsigned int table_id, struct datapacket* pkt, bool replicate_pkts);

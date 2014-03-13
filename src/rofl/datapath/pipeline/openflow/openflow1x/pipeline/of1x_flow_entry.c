@@ -25,7 +25,7 @@ of1x_flow_entry_t* of1x_init_flow_entry(of1x_flow_entry_t* prev, of1x_flow_entry
 	if( unlikely(entry==NULL) )
 		return NULL;
 
-	memset(entry,0,sizeof(of1x_flow_entry_t));	
+	platform_memset(entry,0,sizeof(of1x_flow_entry_t));	
 	
 	entry->rwlock = platform_rwlock_init(NULL);
 	if( unlikely(NULL==entry->rwlock) ){

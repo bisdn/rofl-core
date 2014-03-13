@@ -465,7 +465,7 @@ rofl_result_t of1x_get_flow_stats_loop(struct of1x_flow_table *const table,
 		return ROFL_FAILURE;
 
 	//Create a flow_stats_entry
-	memset(&flow_stats_entry,0,sizeof(of1x_flow_entry_t));
+	platform_memset(&flow_stats_entry,0,sizeof(of1x_flow_entry_t));
 	flow_stats_entry.matches = *matches;
 	flow_stats_entry.cookie = cookie;
 	flow_stats_entry.cookie_mask = cookie_mask;
@@ -517,7 +517,7 @@ rofl_result_t of1x_get_flow_aggregate_stats_loop(struct of1x_flow_table *const t
 		return ROFL_FAILURE;
 
 	//Flow stats entry for easy comparison
-	memset(&flow_stats_entry,0,sizeof(of1x_flow_entry_t));
+	platform_memset(&flow_stats_entry,0,sizeof(of1x_flow_entry_t));
 	flow_stats_entry.matches = *matches;
 	flow_stats_entry.cookie = cookie;
 	flow_stats_entry.cookie_mask = cookie_mask;

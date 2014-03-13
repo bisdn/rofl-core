@@ -98,4 +98,8 @@ typedef struct of1x_ver_req_t{
 #define OF1X_UDP_DST_PORT_GTPC 2123
 #define OF1X_UDP_DST_PORT_GTPU 2152
 
+/*
+* Align 64bit
+*/
+#define OF1X_ALIGN_64_BIT(x) (((x/8)+1)*8)
 #endif //OF1X_UTILS

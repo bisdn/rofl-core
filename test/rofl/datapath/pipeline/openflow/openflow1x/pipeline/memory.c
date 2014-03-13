@@ -8,6 +8,7 @@
 //#include "../memory.h" VICTOR
 
 #include <stdlib.h>
+#include <string.h>
 
 
 /*
@@ -20,6 +21,10 @@ inline void* platform_malloc( size_t length ){
 }
 inline void platform_free( void *data ){
 	free( data );
+}
+
+void* platform_memset( void* src, int c, size_t length ){
+	return memset(src,c,length);
 }
 
 //Shared memory allocators

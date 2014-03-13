@@ -1041,7 +1041,7 @@ inline of1x_match_t* of1x_init_gtp_teid_match(of1x_match_t* prev, of1x_match_t* 
 /* Instruction groups init and destroy */
 void __of1x_init_match_group(of1x_match_group_t* group){
 
-	memset(group,0,sizeof(of1x_match_group_t));
+	platform_memset(group,0,sizeof(of1x_match_group_t));
 	
 	//Set min max 
 	group->ver_req.min_ver = OF1X_MIN_VERSION;
