@@ -1040,9 +1040,8 @@ coxmatch::uint128_value() const throw (eOxmInval)
 		case openflow::OFPXMT_OFB_IPV6_ND_TARGET:
 		case openflow::OFPXMT_OFB_METADATA:
 			memcpy(&value, oxm_ipv6addr->addr, sizeof(uint128__t));
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-			SWAP_U128(value);
-#endif
+			//Convert to network byte order
+			NTOHB128(value);
 			return value;
 
 		default:
@@ -1053,9 +1052,8 @@ coxmatch::uint128_value() const throw (eOxmInval)
 		switch (get_oxm_field()) {
 		default:
 			memcpy(&value, oxm_ipv6addr->addr, sizeof(uint128__t));
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-			SWAP_U128(value);
-#endif
+			//Convert to network byte order
+			NTOHB128(value);
 			return value;
 		}
 	} break;
@@ -1085,9 +1083,8 @@ coxmatch::uint128_mask() const throw (eOxmInval)
 		case openflow::OFPXMT_OFB_IPV6_ND_TARGET:
 		case openflow::OFPXMT_OFB_METADATA:
 			memcpy(&mask, oxm_ipv6addr->mask, sizeof(uint128__t));
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-			SWAP_U128(mask);
-#endif
+			//Convert to network byte order
+			NTOHB128(mask);
 			return mask;
 
 		default:
@@ -1098,9 +1095,8 @@ coxmatch::uint128_mask() const throw (eOxmInval)
 		switch (get_oxm_field()) {
 		default:
 			memcpy(&mask, oxm_ipv6addr->mask, sizeof(uint128__t));
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-			SWAP_U128(mask);
-#endif
+			//Convert to network byte order
+			NTOHB128(mask);
 			return mask;
 		}
 	} break;

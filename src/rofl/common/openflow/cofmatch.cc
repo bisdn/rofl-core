@@ -1976,9 +1976,10 @@ cofmatch::get_ipv6_src_value() const
 	try {
 		caddress addr(AF_INET6, "0:0:0:0:0:0:0:0:0");
 		value = oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_SRC).uint128_value();
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-		SWAP_U128(value);
-#endif
+		
+		//Convert to host byte order
+		NTOHB128(value);
+		
 		memcpy(&addr.ca_s6addr->sin6_addr.__in6_u.__u6_addr8, &value.val, sizeof(uint128__t));
 		return addr;
 	}catch(eOxmListNotFound& e){
@@ -1993,9 +1994,10 @@ cofmatch::get_ipv6_src_mask() const
 	try {
 		caddress mask(AF_INET6, "0:0:0:0:0:0:0:0");
 		t_mask = oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_SRC).uint128_mask();
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-		SWAP_U128(t_mask);
-#endif
+	
+		//Convert to host byte order
+		NTOHB128(t_mask);
+		
 		memcpy(&mask.ca_s6addr->sin6_addr.__in6_u.__u6_addr8,&t_mask.val,sizeof(uint128__t));
 		return mask;
 	} catch (eOxmListNotFound& e) {
@@ -2070,9 +2072,10 @@ cofmatch::get_ipv6_dst_value() const
 	try {
 		caddress addr(AF_INET6, "0:0:0:0:0:0:0:0:0");
 		value = oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_DST).uint128_value();
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-		SWAP_U128(value);
-#endif
+		
+		//Convert to host byte order
+		NTOHB128(value);
+		
 		memcpy(&addr.ca_s6addr->sin6_addr.__in6_u.__u6_addr8,&value.val,sizeof(uint128__t));
 		return addr;
 	} catch (eOxmListNotFound& e) {
@@ -2087,9 +2090,10 @@ cofmatch::get_ipv6_dst_mask() const
 	try {
 		caddress mask(AF_INET6, "0:0:0:0:0:0:0:0");
 		t_mask = oxmlist.get_const_match(openflow::OFPXMC_OPENFLOW_BASIC, openflow::OFPXMT_OFB_IPV6_DST).uint128_mask();
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-		SWAP_U128(t_mask);
-#endif
+
+		//Convert to host byte order
+		NTOHB128(t_mask);
+		
 		memcpy(&mask.ca_s6addr->sin6_addr.__in6_u.__u6_addr8,&t_mask.val,sizeof(uint128__t));
 		return mask;
 	} catch (eOxmListNotFound& e) {

@@ -491,9 +491,8 @@ caddress::get_ipv6_addr(){
 	switch (ca_saddr->sa_family){
 		case AF_INET6:{
 			memcpy(&addr.val,this->ca_s6addr->sin6_addr.__in6_u.__u6_addr8,sizeof(addr));
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-			SWAP_U128(addr);
-#endif
+			//Convert to host byte order
+			NTOHB128(addr);
 		}break;
 		default:
 			throw eInval();
@@ -503,8 +502,7 @@ caddress::get_ipv6_addr(){
 
 void
 caddress::set_ipv6_addr(uint128__t addr){
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-	SWAP_U128(addr);
-#endif
+	//Convert to network byte order
+	HTONB128(addr);
 	memcpy(this->ca_s6addr->sin6_addr.__in6_u.__u6_addr8,&addr.val,sizeof(addr));
 }
