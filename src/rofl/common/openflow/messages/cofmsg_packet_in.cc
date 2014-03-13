@@ -9,8 +9,8 @@ cofmsg_packet_in::cofmsg_packet_in(
 		uint16_t total_len,
 		uint8_t  reason,
 		uint8_t  table_id,
-		uint64_t cookie,
-		uint16_t in_port, /*OF1.0*/
+		uint64_t of13_cookie,	/*OF1.3*/
+		uint16_t of10_in_port, 	/*OF1.0*/
 		cofmatch const& match,
 		uint8_t *data,
 		size_t datalen) :
@@ -32,7 +32,7 @@ cofmsg_packet_in::cofmsg_packet_in(
 		ofh10_packet_in->buffer_id				= htobe32(buffer_id);
 		ofh10_packet_in->total_len				= htobe16(total_len);
 		ofh10_packet_in->reason					= reason;
-		ofh10_packet_in->in_port				= htobe16(in_port);
+		ofh10_packet_in->in_port				= htobe16(of10_in_port);
 	} break;
 	case rofl::openflow12::OFP_VERSION: {
 		set_type(rofl::openflow12::OFPT_PACKET_IN);
@@ -53,7 +53,7 @@ cofmsg_packet_in::cofmsg_packet_in(
 		ofh13_packet_in->total_len				= htobe16(total_len);
 		ofh13_packet_in->reason					= reason;
 		ofh13_packet_in->table_id				= table_id;
-		ofh13_packet_in->cookie					= htobe64(cookie);
+		ofh13_packet_in->cookie					= htobe64(of13_cookie);
 	} break;
 	default:
 		throw eBadVersion();

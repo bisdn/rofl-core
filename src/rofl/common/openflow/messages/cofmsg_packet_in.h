@@ -55,8 +55,8 @@ public:
 			uint16_t total_len = 0,
 			uint8_t  reason = 0,
 			uint8_t  table_id = 0,
-			uint64_t cookie = 0,
-			uint16_t in_port = 0, /*OF1.0*/
+			uint64_t of13_cookie = 0,	/*OF1.3*/
+			uint16_t of10_in_port = 0, 	/*OF1.0*/
 			cofmatch const& match = cofmatch(),
 			uint8_t *data = (uint8_t*)0,
 			size_t datalen = 0);
