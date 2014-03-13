@@ -39,3 +39,57 @@ csegmentation::operator= (csegmentation const& seg)
 	return *this;
 }
 
+
+
+csegmsg&
+csegmentation::add_transaction(uint32_t xid)
+{
+	if (segmsgs.find(xid) != segmsgs.end()) {
+		segmsgs.erase(xid);
+	}
+	return segmsgs[xid];
+}
+
+
+
+void
+csegmentation::drop_transaction(uint32_t xid)
+{
+	if (segmsgs.find(xid) == segmsgs.end()) {
+		return;
+	}
+	segmsgs.erase(xid);
+}
+
+
+
+csegmsg&
+csegmentation::set_transaction(uint32_t xid)
+{
+	if (segmsgs.find(xid) == segmsgs.end()) {
+		(void)segmsgs[xid];
+	}
+	return segmsgs[xid];
+}
+
+
+
+csegmsg const&
+csegmentation::get_transaction(uint32_t xid) const
+{
+	if (segmsgs.find(xid) == segmsgs.end()) {
+		throw;
+	}
+	return segmsgs[xid];
+}
+
+
+
+bool
+csegmentation::has_transaction(uint32_t xid)
+{
+	return (not (segmsgs.find(xid) == segmsgs.end()));
+}
+
+
+
