@@ -16,7 +16,8 @@ cofmsg_packet_in::cofmsg_packet_in(
 		size_t datalen) :
 	cofmsg(sizeof(struct ofp_header)),
 	match(match),
-	packet(data, datalen, match.get_in_port())
+//	packet(data, datalen, match.get_in_port())
+	packet(data, datalen, ((of_version==OFP10_VERSION)?in_port:match.get_in_port()))		// JSP
 {
 	ofh_packet_in = soframe();
 

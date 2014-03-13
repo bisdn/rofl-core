@@ -1,4 +1,7 @@
 #include <iostream>
+#include <iomanip>
+#include <algorithm>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <unistd.h>
@@ -232,6 +235,16 @@ void ctranslator::handle_experimenter_stats_request(rofl::cofctl *ctl, rofl::cof
 	std::cout << std::endl << func << " from " << ctl->c_str() << " : " << pack->c_str() << std::endl;
 }
 
+void dumpBytes (std::ostream & os, uint8_t * bytes, size_t n_bytes) {
+/*	std::ios_base::fmtflags fmt = os.flags();
+	os << std::hex << std::setfill('0') << std::setw(2);
+	std::copy(&bytes[0], &bytes[n_bytes], std::ostream_iterator<uint8_t>(os, " "));
+	os.setf( fmt );*/
+	if (0==n_bytes) return;
+	for(size_t i = 0; i < (n_bytes-1); ++i) printf("%02x ", bytes[i]);
+	printf("%02x", bytes[n_bytes-1]);
+}
+
 void ctranslator::handle_packet_in(rofl::cofdpt *dpt, rofl::cofmsg_packet_in * msg) {
 	static const char * func = __FUNCTION__;
 	std::cout << std::endl << func << " from " << dpt->c_str() << " : " << msg->c_str() << "\n" << *msg << std::endl;
@@ -240,9 +253,26 @@ std::cout << "TP" << __LINE__ << std::endl;
 	rofl::cofmatch match(msg->get_match_const());
 std::cout << "TP" << __LINE__ << "match found to be " << match.c_str() << std::endl;	
 std::cout << "TP" << __LINE__ << std::endl;
-	rofl::cpacket packet(msg->get_packet());
+	rofl::cpacket packet(msg->get_packet_const());
 std::cout << "TP" << __LINE__ << std::endl;
-	send_packet_in_message(m_master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
+std::cout << "packet.framelen = " << (unsigned)packet.framelen() << "packet.soframe = " << packet.soframe() << std::endl;
+std::cout << "TP" << __LINE__ << std::endl;
+	packet.get_match().set_in_port(msg->get_in_port());
+std::cout << "TP" << __LINE__ << std::endl;
+std::cout << "packet bytes: ";
+dumpBytes(std::cout,msg->get_packet_const().soframe(), msg->get_packet_const().framelen());
+std::cout << std::endl;
+std::cout << "frame bytes: ";
+dumpBytes(std::cout,msg->get_packet().frame()->soframe(), msg->get_packet().frame()->framelen());
+std::cout << "TP" << __LINE__ << std::endl;
+std::cout << "source MAC: " << msg->get_packet().ether()->get_dl_src() << std::endl;
+std::cout << "dest MAC: " << msg->get_packet().ether()->get_dl_dst() << std::endl;
+*** JSP Continue working from here - The data returned by msg->get_packet() is missing the first four bytes, and because of this the printed MAC addresses are wrong.
+** TODO: check who creates msg and figure out why it "starts late"
+std::cout << "TP" << __LINE__ << std::endl;
+	send_packet_in_message(m_master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.ether()->sopdu(), packet.framelen() );	// TODO - the length fields are guesses.
+//	send_packet_in_message(m_master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
+//	send_packet_in_message(m_master, msg->get_buffer_id(), msg->get_total_len(), msg->get_reason(), 0, 0, msg->get_in_port(), match, packet.frame()->sopdu(), packet.frame()->pdulen() );	// TODO - the length fields are guesses.
 	std::cout << func << " : packet_in forwarded to " << m_master->c_str() << "." << std::endl;
 #if 0
 std::cout << "TP" << __LINE__ << std::endl;
@@ -274,7 +304,7 @@ void ctranslator::handle_packet_out(rofl::cofctl *ctl, rofl::cofmsg_packet_out *
 	std::cout << "TP" << __LINE__ << std::endl;
 	rofl::cpacket packet(pack->get_packet());
 	std::cout << "TP" << __LINE__ << std::endl;
-	send_packet_out_message(m_slave, pack->get_buffer_id(), pack->get_in_port(), actions, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
+//	send_packet_out_message(m_slave, pack->get_buffer_id(), pack->get_in_port(), actions, packet.soframe(), packet.framelen() );	// TODO - the length fields are guesses.
 	std::cout << "TP" << __LINE__ << std::endl;
 	delete(pack);
 }
