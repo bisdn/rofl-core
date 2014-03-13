@@ -1,11 +1,11 @@
-#include "cofmsg_table_features.h"
+#include "cofmsg_table_features_stats.h"
 
 using namespace rofl;
 
 
 
 
-cofmsg_table_features_request::cofmsg_table_features_request(
+cofmsg_table_features_stats_request::cofmsg_table_features_stats_request(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t stats_flags,
@@ -29,7 +29,7 @@ cofmsg_table_features_request::cofmsg_table_features_request(
 
 
 
-cofmsg_table_features_request::cofmsg_table_features_request(
+cofmsg_table_features_stats_request::cofmsg_table_features_stats_request(
 		cmemory *memarea) :
 	cofmsg_stats_request(memarea),
 	tables(get_version())
@@ -39,17 +39,17 @@ cofmsg_table_features_request::cofmsg_table_features_request(
 
 
 
-cofmsg_table_features_request::cofmsg_table_features_request(
-		cofmsg_table_features_request const& msg)
+cofmsg_table_features_stats_request::cofmsg_table_features_stats_request(
+		cofmsg_table_features_stats_request const& msg)
 {
 	*this = msg;
 }
 
 
 
-cofmsg_table_features_request&
-cofmsg_table_features_request::operator= (
-		cofmsg_table_features_request const& msg)
+cofmsg_table_features_stats_request&
+cofmsg_table_features_stats_request::operator= (
+		cofmsg_table_features_stats_request const& msg)
 {
 	if (this == &msg)
 		return *this;
@@ -62,7 +62,7 @@ cofmsg_table_features_request::operator= (
 
 
 
-cofmsg_table_features_request::~cofmsg_table_features_request()
+cofmsg_table_features_stats_request::~cofmsg_table_features_stats_request()
 {
 
 }
@@ -70,7 +70,7 @@ cofmsg_table_features_request::~cofmsg_table_features_request()
 
 
 void
-cofmsg_table_features_request::reset()
+cofmsg_table_features_stats_request::reset()
 {
 	cofmsg_stats::reset();
 	tables.clear();
@@ -79,7 +79,7 @@ cofmsg_table_features_request::reset()
 
 
 uint8_t*
-cofmsg_table_features_request::resize(size_t len)
+cofmsg_table_features_stats_request::resize(size_t len)
 {
 	cofmsg_stats::resize(len);
 	switch (get_version()) {
@@ -95,7 +95,7 @@ cofmsg_table_features_request::resize(size_t len)
 
 
 size_t
-cofmsg_table_features_request::length() const
+cofmsg_table_features_stats_request::length() const
 {
 	switch (get_version()) {
 	case openflow13::OFP_VERSION: {
@@ -109,7 +109,7 @@ cofmsg_table_features_request::length() const
 
 
 void
-cofmsg_table_features_request::pack(uint8_t *buf, size_t buflen)
+cofmsg_table_features_stats_request::pack(uint8_t *buf, size_t buflen)
 {
 	cofmsg_stats::pack(buf, buflen); // copies common statistics header
 
@@ -135,7 +135,7 @@ cofmsg_table_features_request::pack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_table_features_request::unpack(uint8_t *buf, size_t buflen)
+cofmsg_table_features_stats_request::unpack(uint8_t *buf, size_t buflen)
 {
 	cofmsg_stats::unpack(buf, buflen);
 
@@ -145,7 +145,7 @@ cofmsg_table_features_request::unpack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_table_features_request::validate()
+cofmsg_table_features_stats_request::validate()
 {
 	switch (get_version()) {
 	case rofl::openflow13::OFP_VERSION: {
@@ -169,7 +169,7 @@ cofmsg_table_features_request::validate()
 
 
 
-cofmsg_table_features_reply::cofmsg_table_features_reply(
+cofmsg_table_features_stats_reply::cofmsg_table_features_stats_reply(
 		uint8_t of_version,
 		uint32_t xid,
 		uint16_t stats_flags,
@@ -193,7 +193,7 @@ cofmsg_table_features_reply::cofmsg_table_features_reply(
 
 
 
-cofmsg_table_features_reply::cofmsg_table_features_reply(
+cofmsg_table_features_stats_reply::cofmsg_table_features_stats_reply(
 		cmemory *memarea) :
 	cofmsg_stats_reply(memarea),
 	tables(get_version())
@@ -203,17 +203,17 @@ cofmsg_table_features_reply::cofmsg_table_features_reply(
 
 
 
-cofmsg_table_features_reply::cofmsg_table_features_reply(
-		cofmsg_table_features_reply const& msg)
+cofmsg_table_features_stats_reply::cofmsg_table_features_stats_reply(
+		cofmsg_table_features_stats_reply const& msg)
 {
 	*this = msg;
 }
 
 
 
-cofmsg_table_features_reply&
-cofmsg_table_features_reply::operator= (
-		cofmsg_table_features_reply const& msg)
+cofmsg_table_features_stats_reply&
+cofmsg_table_features_stats_reply::operator= (
+		cofmsg_table_features_stats_reply const& msg)
 {
 	if (this == &msg)
 		return *this;
@@ -226,7 +226,7 @@ cofmsg_table_features_reply::operator= (
 
 
 
-cofmsg_table_features_reply::~cofmsg_table_features_reply()
+cofmsg_table_features_stats_reply::~cofmsg_table_features_stats_reply()
 {
 
 }
@@ -234,7 +234,7 @@ cofmsg_table_features_reply::~cofmsg_table_features_reply()
 
 
 void
-cofmsg_table_features_reply::reset()
+cofmsg_table_features_stats_reply::reset()
 {
 	cofmsg_stats::reset();
 	tables.clear();
@@ -243,7 +243,7 @@ cofmsg_table_features_reply::reset()
 
 
 uint8_t*
-cofmsg_table_features_reply::resize(size_t len)
+cofmsg_table_features_stats_reply::resize(size_t len)
 {
 	cofmsg_stats::resize(len);
 	switch (get_version()) {
@@ -259,7 +259,7 @@ cofmsg_table_features_reply::resize(size_t len)
 
 
 size_t
-cofmsg_table_features_reply::length() const
+cofmsg_table_features_stats_reply::length() const
 {
 	switch (get_version()) {
 	case openflow13::OFP_VERSION: {
@@ -273,7 +273,7 @@ cofmsg_table_features_reply::length() const
 
 
 void
-cofmsg_table_features_reply::pack(uint8_t *buf, size_t buflen)
+cofmsg_table_features_stats_reply::pack(uint8_t *buf, size_t buflen)
 {
 	cofmsg_stats::pack(buf, buflen); // copies common statistics header
 
@@ -301,7 +301,7 @@ cofmsg_table_features_reply::pack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_table_features_reply::unpack(uint8_t *buf, size_t buflen)
+cofmsg_table_features_stats_reply::unpack(uint8_t *buf, size_t buflen)
 {
 	cofmsg_stats::unpack(buf, buflen);
 
@@ -311,7 +311,7 @@ cofmsg_table_features_reply::unpack(uint8_t *buf, size_t buflen)
 
 
 void
-cofmsg_table_features_reply::validate()
+cofmsg_table_features_stats_reply::validate()
 {
 	switch (get_version()) {
 	case rofl::openflow13::OFP_VERSION: {

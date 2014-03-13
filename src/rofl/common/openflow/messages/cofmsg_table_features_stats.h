@@ -18,7 +18,7 @@ namespace rofl {
 /**
  *
  */
-class cofmsg_table_features_request :
+class cofmsg_table_features_stats_request :
 	public cofmsg_stats_request
 {
 protected:
@@ -39,7 +39,7 @@ public:
 	/** constructor
 	 *
 	 */
-	cofmsg_table_features_request(
+	cofmsg_table_features_stats_request(
 			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t xid = 0,
 			uint16_t stats_flags = 0,
@@ -49,29 +49,29 @@ public:
 	/**
 	 *
 	 */
-	cofmsg_table_features_request(
-			cofmsg_table_features_request const& msg);
+	cofmsg_table_features_stats_request(
+			cofmsg_table_features_stats_request const& msg);
 
 
 	/**
 	 *
 	 */
-	cofmsg_table_features_request&
+	cofmsg_table_features_stats_request&
 	operator= (
-			cofmsg_table_features_request const& msg);
+			cofmsg_table_features_stats_request const& msg);
 
 
 	/** destructor
 	 *
 	 */
 	virtual
-	~cofmsg_table_features_request();
+	~cofmsg_table_features_stats_request();
 
 
 	/**
 	 *
 	 */
-	cofmsg_table_features_request(cmemory *memarea);
+	cofmsg_table_features_stats_request(cmemory *memarea);
 
 
 	/** reset packet content
@@ -132,7 +132,7 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofmsg_table_features_request const& msg) {
+	operator<< (std::ostream& os, cofmsg_table_features_stats_request const& msg) {
 		os << dynamic_cast<cofmsg_stats_request const&>( msg );
 		os << indent(2) << "<cofmsg_table_features_request >" << std::endl;
 		indent i(4); os << msg.tables;
@@ -150,7 +150,7 @@ public:
 /**
  *
  */
-class cofmsg_table_features_reply :
+class cofmsg_table_features_stats_reply :
 	public cofmsg_stats_reply
 {
 protected:
@@ -171,7 +171,7 @@ public:
 	/** constructor
 	 *
 	 */
-	cofmsg_table_features_reply(
+	cofmsg_table_features_stats_reply(
 			uint8_t of_version = rofl::openflow::OFP_VERSION_UNKNOWN,
 			uint32_t xid = 0,
 			uint16_t stats_flags = 0,
@@ -181,29 +181,29 @@ public:
 	/**
 	 *
 	 */
-	cofmsg_table_features_reply(
-			cofmsg_table_features_reply const& msg);
+	cofmsg_table_features_stats_reply(
+			cofmsg_table_features_stats_reply const& msg);
 
 
 	/**
 	 *
 	 */
-	cofmsg_table_features_reply&
+	cofmsg_table_features_stats_reply&
 	operator= (
-			cofmsg_table_features_reply const& msg);
+			cofmsg_table_features_stats_reply const& msg);
 
 
 	/** destructor
 	 *
 	 */
 	virtual
-	~cofmsg_table_features_reply();
+	~cofmsg_table_features_stats_reply();
 
 
 	/**
 	 *
 	 */
-	cofmsg_table_features_reply(cmemory *memarea);
+	cofmsg_table_features_stats_reply(cmemory *memarea);
 
 
 	/** reset packet content
@@ -264,7 +264,7 @@ public:
 public:
 
 	friend std::ostream&
-	operator<< (std::ostream& os, cofmsg_table_features_reply const& msg) {
+	operator<< (std::ostream& os, cofmsg_table_features_stats_reply const& msg) {
 		os << dynamic_cast<cofmsg_stats_reply const&>( msg );
 		os << indent(2) << "<cofmsg_table_features_reply >" << std::endl;
 		indent i(4); os << msg.tables;

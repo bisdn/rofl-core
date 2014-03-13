@@ -325,7 +325,7 @@ private:
 
 	void
 	table_features_stats_request_rcvd(
-			cofmsg_table_features_request* msg,
+			cofmsg_table_features_stats_request* msg,
 			uint8_t aux_id = 0);
 
 	void

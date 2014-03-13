@@ -998,8 +998,8 @@ crofctl_impl::send_table_features_stats_reply(
 		return;
 	}
 
-	cofmsg_table_features_reply *msg =
-			new cofmsg_table_features_reply(
+	cofmsg_table_features_stats_reply *msg =
+			new cofmsg_table_features_stats_reply(
 					rofchan.get_version(),
 					xid,
 					stats_flags,
@@ -1882,7 +1882,7 @@ crofctl_impl::stats_request_rcvd(cofmsg_stats *msg, uint8_t aux_id)
 		// TODO
 	} break;
 	case openflow13::OFPMP_TABLE_FEATURES: {
-		table_features_stats_request_rcvd(dynamic_cast<cofmsg_table_features_request*>( msg ), aux_id);
+		table_features_stats_request_rcvd(dynamic_cast<cofmsg_table_features_stats_request*>( msg ), aux_id);
 	} break;
 	case openflow13::OFPMP_PORT_DESC: {
 		port_desc_stats_request_rcvd(dynamic_cast<cofmsg_port_desc_stats_request*>( msg ), aux_id);
@@ -2033,9 +2033,9 @@ crofctl_impl::group_features_stats_request_rcvd(cofmsg_group_features_stats_requ
 
 
 void
-crofctl_impl::table_features_stats_request_rcvd(cofmsg_table_features_request* msg, uint8_t aux_id)
+crofctl_impl::table_features_stats_request_rcvd(cofmsg_table_features_stats_request* msg, uint8_t aux_id)
 {
-	cofmsg_table_features_request& request = dynamic_cast<cofmsg_table_features_request&>( *msg );
+	cofmsg_table_features_stats_request& request = dynamic_cast<cofmsg_table_features_stats_request&>( *msg );
 
 	logging::debug << "[rofl][ctl] ctid:0x" << std::hex << ctid << std::dec
 			<< " Table-Features-Stats-Request message received" << std::endl << request;

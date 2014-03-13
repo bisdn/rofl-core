@@ -66,7 +66,11 @@ librofl_common_la_SOURCES = \
 		crofshim.h \
 		crofshim.cc \
 		logging.h \
-		logging.cc
+		logging.cc \
+		csegmentation.h \
+		csegmentation.cc \
+		csegmsg.h \
+		csegmsg.cc
 		
 if HAVE_OPENSSL
 librofl_common_la_SOURCES += \

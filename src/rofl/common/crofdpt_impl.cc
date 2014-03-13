@@ -1081,8 +1081,8 @@ crofdpt_impl::send_table_features_stats_request(
 
 	uint32_t xid = transactions.add_ta(cclock(/*sec=*/5), OFPT_MULTIPART_REQUEST, OFPMP_TABLE_FEATURES);
 
-	cofmsg_table_features_request *msg =
-			new cofmsg_table_features_request(
+	cofmsg_table_features_stats_request *msg =
+			new cofmsg_table_features_stats_request(
 					rofchan.get_version(),
 					xid,
 					flags);
@@ -1860,7 +1860,7 @@ void
 crofdpt_impl::table_features_stats_reply_rcvd(
 		cofmsg *msg, uint8_t aux_id)
 {
-	cofmsg_table_features_reply& reply = dynamic_cast<cofmsg_table_features_reply&>( *msg );
+	cofmsg_table_features_stats_reply& reply = dynamic_cast<cofmsg_table_features_stats_reply&>( *msg );
 
 	logging::debug << "[rofl][dpt] dpid:0x" << std::hex << dpid << std::dec
 			<< " Table-Features-Stats-Reply message received" << std::endl;

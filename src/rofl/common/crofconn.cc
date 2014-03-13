@@ -488,11 +488,64 @@ crofconn::recv_message(
 	case OFPT_FEATURES_REPLY: {
 		features_reply_rcvd(msg);
 	} break;
+	case OFPT_MULTIPART_REQUEST:
+	case OFPT_MULTIPART_REPLY: {
+		if (state != STATE_ESTABLISHED) {
+			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
+			delete msg; return;
+		}
+		/*
+		 * add multipart support here for receiving messages
+		 */
+		cofmsg_stats *stats = dynamic_cast<cofmsg_stats*>( msg );
+
+		if (NULL == stats) {
+			logging::warn << "[rofl][conn] dropping multipart message, invalid message type." << std::endl << *this;
+			delete msg; return;
+		}
+
+		switch (msg->get_version()) {
+		case rofl::openflow13::OFP_VERSION: {
+#if 0
+			// start new or continue pending transaction
+			if (stats->get_type() & rofl::openflow13::OFPMPF_REQ_MORE) {
+
+				sar.set_transaction(msg->get_xid()).append_msg(msg);
+				delete msg; // delete msg here, we store a copy in the transaction
+
+			// end pending transaction or multipart message with single message only
+			} else {
+
+				if (sar.has_transaction(msg->get_xid())) {
+
+					sar.set_transaction(msg->get_xid()).append_msg(msg);
+					delete msg; // delete msg here, we may get an exception from the next line
+
+					env->recv_message(this, sar.set_transaction(msg->get_xid()).set_msg());
+
+				} else {
+					// do not delete msg here, will be done by higher layers
+					env->recv_message(this, msg);
+
+				}
+
+			}
+#endif
+		} break;
+		default: {
+			// no segmentation and reassembly below OF13, so send message directly to rofchan
+			env->recv_message(this, msg);
+		};
+		}
+
+
+	} break;
 	default: {
 		if (state != STATE_ESTABLISHED) {
 			logging::warn << "[rofl][conn] dropping message, connection not fully established." << std::endl << *this;
 			delete msg; return;
 		}
+
 		env->recv_message(this, msg);
 	} break;
 	}
@@ -748,6 +801,10 @@ void
 crofconn::send_message(
 		cofmsg *msg)
 {
+	/*
+	 * add multipart support here for sending messages
+	 */
+
 	rofsock.send_message(msg);
 }
 

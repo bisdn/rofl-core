@@ -912,7 +912,7 @@ protected:
 	 * @param msg Pointer to cofmsg_table_features_request message containing the received message
 	 */
 	virtual void
-	handle_table_features_stats_request(crofctl& ctl, cofmsg_table_features_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
+	handle_table_features_stats_request(crofctl& ctl, cofmsg_table_features_stats_request& msg, uint8_t aux_id = 0) { throw eBadRequestBadStat(); };
 
 
 
@@ -1097,7 +1097,7 @@ protected:
 	 * @param msg pointer to cofmsg_table_features_reply message containing the received message
 	 */
 	virtual void
-	handle_table_features_stats_reply(crofdpt& dpt, cofmsg_table_features_reply& msg, uint8_t aux_id = 0) {};
+	handle_table_features_stats_reply(crofdpt& dpt, cofmsg_table_features_stats_reply& msg, uint8_t aux_id = 0) {};
 
 
 
