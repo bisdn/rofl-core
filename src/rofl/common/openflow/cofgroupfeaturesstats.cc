@@ -12,6 +12,8 @@ cofgroup_features_stats_reply::cofgroup_features_stats_reply(
 				types(0),
 				capabilities(0)
 {
+	max_groups.resize(4);
+	actions.resize(4);
 	if ((buflen > 0) && (0 != buf)) {
 		unpack(buf, buflen);
 	}
@@ -182,15 +184,29 @@ cofgroup_features_stats_reply::set_capabilities(uint32_t capabilities)
 
 
 std::vector<uint32_t>&
-cofgroup_features_stats_reply::get_max_groups()
+cofgroup_features_stats_reply::set_max_groups()
 {
 	return max_groups;
 }
 
 
 
+std::vector<uint32_t> const&
+cofgroup_features_stats_reply::get_max_groups() const
+{
+	return max_groups;
+}
+
+
 std::vector<uint32_t>&
-cofgroup_features_stats_reply::get_actions()
+cofgroup_features_stats_reply::set_actions()
+{
+	return actions;
+}
+
+
+std::vector<uint32_t> const&
+cofgroup_features_stats_reply::get_actions() const
 {
 	return actions;
 }

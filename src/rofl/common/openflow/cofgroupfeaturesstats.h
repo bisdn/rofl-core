@@ -143,14 +143,25 @@ public:
 	 *
 	 */
 	std::vector<uint32_t>&
-	get_max_groups();
+	set_max_groups();
 
+	/**
+	 *
+	 */
+	std::vector<uint32_t> const&
+	get_max_groups() const;
 
 	/**
 	 *
 	 */
 	std::vector<uint32_t>&
-	get_actions();
+	set_actions();
+
+	/**
+	 *
+	 */
+	std::vector<uint32_t> const&
+	get_actions() const;
 
 public:
 
