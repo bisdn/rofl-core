@@ -303,13 +303,13 @@ bool __of1x_flow_entry_check_equal(of1x_flow_entry_t*const original, of1x_flow_e
 	return true;
 }
 
-void of1x_dump_flow_entry(of1x_flow_entry_t* entry){
+void of1x_dump_flow_entry(of1x_flow_entry_t* entry, bool sbo){
 	ROFL_PIPELINE_INFO_NO_PREFIX("Entry (%p), prior. %u #hits %u ",entry, entry->priority, entry->matches.num_elements);
 	//print matches(all)
 	ROFL_PIPELINE_INFO_NO_PREFIX(" Matches:{");
-	__of1x_dump_matches(entry->matches.head);
+	__of1x_dump_matches(entry->matches.head, sbo);
 	ROFL_PIPELINE_INFO_NO_PREFIX("}\n\t\t");
-	__of1x_dump_instructions(entry->inst_grp);
+	__of1x_dump_instructions(entry->inst_grp, sbo);
 	ROFL_PIPELINE_INFO_NO_PREFIX("\n");
 }
 

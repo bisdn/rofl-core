@@ -147,8 +147,10 @@ bool __of1x_flow_entry_check_contained(of1x_flow_entry_t*const original, of1x_fl
 /**
 * @brief Dumps the flow entry for debugging purposes.  
 * @ingroup core_of1x 
+*
+* @param sbo Change endianness when printing matches and actions (swap byte order).
 */
-void of1x_dump_flow_entry(of1x_flow_entry_t* entry);
+void of1x_dump_flow_entry(of1x_flow_entry_t* entry, bool sbo);
 
 //C++ extern C
 ROFL_END_DECLS

@@ -102,4 +102,5 @@ typedef struct of1x_ver_req_t{
 * Align 64bit
 */
 #define OF1X_ALIGN_64_BIT(x) (((x/8)+1)*8)
+
 #endif //OF1X_UTILS

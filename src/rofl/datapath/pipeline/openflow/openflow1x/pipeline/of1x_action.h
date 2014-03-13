@@ -449,8 +449,8 @@ of1x_action_group_t* __of1x_copy_action_group(of1x_action_group_t* origin);
 of1x_write_actions_t* __of1x_copy_write_actions(of1x_write_actions_t* origin);
 
 //Dump
-void __of1x_dump_write_actions(of1x_write_actions_t* write_actions_group);
-void __of1x_dump_action_group(of1x_action_group_t* action_group);
+void __of1x_dump_write_actions(of1x_write_actions_t* write_actions_group, bool sbo);
+void __of1x_dump_action_group(of1x_action_group_t* action_group, bool sbo);
 
 //validate actions
 rofl_result_t __of1x_validate_action_group(of1x_action_group_t *ag, struct of1x_group_table *gt);

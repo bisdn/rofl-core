@@ -253,9 +253,11 @@ static inline struct of1x_flow_entry* __of1x_find_best_match_table(struct of1x_f
 }
 
 /*
-* Table dumping. This is not recommended to use directly
+* Table dumping. Not recommended to use it directly
+*
+* @param sbo Change endianness when printing matches and actions (swap byte order).
 */
-void of1x_dump_table(of1x_flow_table_t* table);
+void of1x_dump_table(of1x_flow_table_t* table, bool sbo);
 
 //C++ extern C
 ROFL_END_DECLS
